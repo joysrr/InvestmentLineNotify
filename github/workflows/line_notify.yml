@@ -10,4 +10,5 @@ jobs:
     steps:
     - name: Trigger Netlify Function
       run: |
-        curl -X POST https://你的Netlify站點.netlify.app/.netlify/functions/pushLine
+        curl -X POST https://meek-palmier-1cbba4.netlify.app/.netlify/functions/pushLine
+
