@@ -1,0 +1,13 @@
+name: Line Notify Scheduler
+
+on:
+  schedule:
+    - cron: '0 1 * * *'  # UTC時間每日01:00執行，台灣時間09:00
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Trigger Netlify Function
+      run: |
+        curl -X POST https://你的Netlify站點.netlify.app/.netlify/functions/pushLine
