@@ -3,7 +3,7 @@ name: Line Notify Scheduler
 on:
   workflow_dispatch:  # 允許手動觸發
   schedule:
-    - cron: '0 1 * * *'  # UTC時間每日01:00執行，台灣時間09:00
+    - cron: '30 0 * * *'  # UTC時間每日01:00執行，台灣時間09:00
 
 jobs:
   notify:
