@@ -1,9 +1,11 @@
 {
-  "name": "investment-line-notify",
+  "name": "line-etf-notify",
   "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
+  "main": "netlify/functions/pushLine.js",
+  "scripts": {},
   "dependencies": {
-    "axios": "^1.4.0"
+    "axios": "^1.4.0",
+    "dotenv": "^16.3.1",
+    "technicalindicators": "^3.0.7"
   }
 }
