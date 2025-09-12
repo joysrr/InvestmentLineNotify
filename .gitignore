@@ -1,0 +1,35 @@
+# Node modules
+node_modules/
+
+# 日誌檔案
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 環境變數設定檔
+.env
+.env.local
+.env.*.local
+
+# OS系統檔案
+.DS_Store
+Thumbs.db
+
+# 程式編譯產物
+dist/
+build/
+out/
+
+# IDE與編輯器設定
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# TypeScript產物
+*.tsbuildinfo
+
+# 其他不必要提交的檔案
+*.log
+*.tmp
+*.temp
