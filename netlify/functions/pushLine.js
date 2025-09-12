@@ -7,6 +7,10 @@ const USER_ID = process.env.USER_ID;
 
 // 推送LINE訊息
 async function pushMessage(text) {
+  if (!LINE_ACCESS_TOKEN || !USER_ID) {
+    console.warn('缺少LINE_ACCESS_TOKEN或USER_ID，跳過推播');
+    return;
+  }
   try {
     await axios.post('https://api.line.me/v2/bot/message/push', {
       to: USER_ID,
@@ -23,7 +27,7 @@ async function pushMessage(text) {
   }
 }
 
-// 抓取收盤價（Yahoo Finance）
+// 取得收盤價
 async function fetchPrices(symbol = '00631L.TW') {
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1mo&interval=1d`;
   try {
@@ -57,21 +61,18 @@ async function fetch0050AnnualReturn() {
   }
 }
 
-// 取得今天是星期幾（0=週日，1=週一...）
 function getTaiwanDayOfWeek() {
   const now = new Date();
   const taiwanTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
   return taiwanTime.getUTCDay();
 }
 
-// 取得今天是幾號（用於月末判斷）
 function getTaiwanDate() {
   const now = new Date();
   const taiwanTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
   return taiwanTime.getUTCDate();
 }
 
-// 判斷是否季末（3,6,9,12月最後一天）
 function isQuarterEnd() {
   const now = new Date();
   const taiwanTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
@@ -85,15 +86,16 @@ function isQuarterEnd() {
   return false;
 }
 
-async function dailyCheck() {
+// 計算並產生訊息字串，推播或回傳
+async function dailyCheck(sendPush = true) {
   const closes = await fetchPrices();
 
   if (closes.length === 0) {
-    await pushMessage('無法取得行情資料，請稍後再試');
-    return;
+    const failMsg = '無法取得行情資料，請稍後再試';
+    if (sendPush) await pushMessage(failMsg);
+    return failMsg;
   }
 
-  // 技術指標計算
   const rsi = ti.RSI.calculate({ values: closes, period: 14 });
   const latestRSI = rsi[rsi.length - 1];
 
@@ -108,12 +110,11 @@ async function dailyCheck() {
   const macdResult = ti.MACD.calculate(macdInput);
   const latestMACD = macdResult[macdResult.length - 1];
 
-  // 取得0050投報率
   const annualReturn0050 = await fetch0050AnnualReturn();
 
   let msg = `【正2 ETF 00631L 技術指標每日提醒】\n` +
-            `RSI：${latestRSI.toFixed(2)}\n` +
-            `MACD DIF：${latestMACD.MACD.toFixed(4)}；Signal：${latestMACD.signal.toFixed(4)}\n`;
+    `RSI：${latestRSI.toFixed(2)}\n` +
+    `MACD DIF：${latestMACD.MACD.toFixed(4)}；Signal：${latestMACD.signal.toFixed(4)}\n`;
 
   if (latestRSI < 30) msg += 'RSI進入超賣區，留意進場機會。\n';
   else if (latestRSI > 70) msg += 'RSI超買區，考慮獲利了結。\n';
@@ -127,7 +128,6 @@ async function dailyCheck() {
     msg += '\n無法取得0050年投報率資料。\n';
   }
 
-  // 特定時間提醒判斷
   const dayOfWeek = getTaiwanDayOfWeek();
   const date = getTaiwanDate();
   const quarterEnd = isQuarterEnd();
@@ -144,19 +144,30 @@ async function dailyCheck() {
   }
   msg += '- 重大政策宣布或事件前後：評估市場波動，考慮風險避險\n';
 
-  // 心理與操作提醒
   msg += `\n【心理與操作紀律】\n` +
-         '- 今日是否遵守紀律，無追高恐慌賣出\n' +
-         '- 保持冷靜，依計畫執行\n\n' +
-         '請於盤前/盤後詳閱以上提醒，理性操作。';
+    '- 今日是否遵守紀律，無追高恐慌賣出\n' +
+    '- 保持冷靜，依計畫執行\n\n' +
+    '請於盤前/盤後詳閱以上提醒，理性操作。';
 
-  await pushMessage(msg);
+  if (sendPush) {
+    await pushMessage(msg);
+  }
+  return msg;
 }
 
-exports.handler = async function(event, context) {
-  await dailyCheck();
+// 雲端 Netlify Functions 專用handler
+exports.handler = async function (event, context) {
+  await dailyCheck(true);
   return {
     statusCode: 200,
     body: 'LINE 技術指標與投報率每日通知已發送',
   };
 };
+
+// 本機執行示範
+if (require.main === module) {
+  dailyCheck(false).then(msg => {
+    console.log('\n=== 每日投資自檢訊息（本機測試） ===\n');
+    console.log(msg);
+  });
+}
