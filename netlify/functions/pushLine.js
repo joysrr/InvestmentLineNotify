@@ -8,7 +8,17 @@ exports.handler = async function(event, context) {
     return { statusCode: 500, body: 'Missing env variables' };
   }
 
-  const message = '今日定期檢視提醒：請確認正2ETF持倉狀況與技術指標信號。';
+  const message =`
+正2ETF每日投資自檢提醒
+
+1️⃣ 資金分配與現金比率：有無偏離原計畫？
+2️⃣ 技術指標(RSI/MACD/KD)：出現共振進出場訊號？有無超買超賣？
+3️⃣ 持倉損益：是否接近、超過止損點？需停損嗎？
+4️⃣ 獲利與減碼：波段獲利超過30%/50%？需分批獲利了結嗎？
+5️⃣ 心理紀律：今日無情緒操作，嚴守紀律
+
+（請於盤前/盤後檢查）
+`;
 
   try {
     await axios.post('https://api.line.me/v2/bot/message/push', {
