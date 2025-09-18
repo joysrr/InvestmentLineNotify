@@ -3,7 +3,11 @@ name: Line Notify Scheduler
 on:
   workflow_dispatch:  # 允許手動觸發
   schedule:
-    - cron: '30 0 * * *'  # UTC時間每日01:00執行，台灣時間09:00
+    - cron: '27 23 * * *'   # (台灣 07:33) (台股開盤前半小時提醒)
+    - cron: '57 23 * * *'    # (台灣 08:03) (台股開盤時提醒)
+    - cron: '27 4 * * *'    # (台灣 12:33) (台股收盤時提醒)
+    - cron: '57 4 * * *'    # (台灣 13:03) (台股收盤後一小時提醒)
+
 
 jobs:
   notify:
@@ -12,4 +16,5 @@ jobs:
     - name: Trigger Netlify Function
       run: |
         curl -X POST https://meek-palmier-1cbba4.netlify.app/.netlify/functions/pushLine
+
 
