@@ -5,8 +5,8 @@ on:
   schedule:
     - cron: '27 23 * * *'   # (台灣 07:33) (台股開盤前半小時提醒)
     - cron: '57 23 * * *'    # (台灣 08:03) (台股開盤時提醒)
-    - cron: '27 4 * * *'    # (台灣 12:33) (台股收盤時提醒)
-    - cron: '57 4 * * *'    # (台灣 13:03) (台股收盤後一小時提醒)
+    - cron: '27 5 * * *'    # (台灣 13:33) (台股收盤時提醒)
+    - cron: '57 6 * * *'    # (台灣 14:03) (台股收盤後半小時提醒)
 
 
 jobs:
@@ -16,5 +16,6 @@ jobs:
     - name: Trigger Netlify Function
       run: |
         curl -X POST https://meek-palmier-1cbba4.netlify.app/.netlify/functions/pushLine
+
 
 
