@@ -1,6 +1,7 @@
 const { fetchLatestBasePrice } = require("./services/basePriceService");
 const {
   fetchStockHistory,
+  fetchRealTimePrice,
   calculateIndicators,
 } = require("./finance/financeUtils");
 const {
@@ -22,6 +23,11 @@ async function dailyCheck(sendPush = true) {
     const { baseDate, basePrice } = await fetchLatestBasePrice(url);
 
     const today = new Date();
+    const todayTW = new Date(
+      today.toLocaleString("en-US", { timeZone: "Asia/Taipei" }),
+    );
+    todayTW.setHours(0, 0, 0, 0); // 當日凌晨
+
     const lastYear = new Date(today);
     lastYear.setFullYear(lastYear.getFullYear() - 1);
 
@@ -30,6 +36,21 @@ async function dailyCheck(sendPush = true) {
       lastYear.toISOString().slice(0, 10),
       today.toISOString().slice(0, 10),
     );
+
+    const { price: realTimePrice, time: realTimeTimestamp } =
+      await fetchRealTimePrice("00675L.TW");
+
+    // 判斷即時報價是否屬於當日台北時間
+    let showRealTime = false;
+    if (realTimeTimestamp) {
+      const realTimeTW = new Date(
+        realTimeTimestamp.toLocaleString("en-US", { timeZone: "Asia/Taipei" }),
+      );
+      realTimeTW.setHours(0, 0, 0, 0);
+      if (realTimeTW.getTime() === todayTW.getTime()) {
+        showRealTime = true;
+      }
+    }
 
     if (history.length < 30) {
       const msg = "資料不足，無法計算指標。";
@@ -40,11 +61,17 @@ async function dailyCheck(sendPush = true) {
     const { closes, highs, lows, rsiArr, macdArr, kdArr } =
       calculateIndicators(history);
 
+    const latestTradeDate = new Date(
+      realTimeTimestamp.toLocaleString("en-US", { timeZone: "Asia/Taipei" }),
+    ).toLocaleDateString("zh-TW");
+    const latestDate = history[history.length - 1].date;
     const latestClose = closes[closes.length - 1];
     const latestRSI = rsiArr[rsiArr.length - 1];
     const macdSignal = getMACDSignal(macdArr);
     const latestKD = kdArr[kdArr.length - 1];
     const priceDropPercent = ((basePrice - latestClose) / basePrice) * 100;
+    const realTimePriceChangePercent =
+      ((realTimePrice - basePrice) / basePrice) * 100;
 
     const data = {
       priceDropPercent,
@@ -58,7 +85,40 @@ async function dailyCheck(sendPush = true) {
 
     const result = checkInvestmentSignalVerbose(data, rsiArr, macdArr);
 
-    let msg = `【00675L 技術指標分析】\n基準日: ${baseDate}, 基準價: ${basePrice}\n買賣建議: ${
+    // 如果最新交易日與今天不同，通常是當日休市
+    const todayTaipei = new Date(
+      new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }),
+    );
+    const todayStr = todayTaipei.toLocaleDateString("zh-TW");
+
+    const isMarketOpenToday = latestTradeDate === todayStr;
+
+    if (!isMarketOpenToday) {
+      console.log(`當日無開市，不發送通知，上次開市日期: ${latestTradeDate}`);
+      return "當日無開市，跳過通知";
+    } else {
+      console.log("當日有開市，發送通知");
+    }
+
+    // 取得目前台北時間
+    const hour = todayTaipei.getHours();
+
+    // 判斷時間是否在 07:00~15:00 間
+    if (hour < 7 || hour >= 15) {
+      console.log("目前時間非交易時段，跳過發送通知");
+      return "非交易時段，未發送通知";
+    }
+
+    // 組即時價格通知（僅當為當日價格時）
+    let realTimeMsg = "";
+    if (showRealTime) {
+      realTimeMsg =
+        `【00675L 即時價格資訊】（資料時間: ${realTimeTimestamp.toLocaleString("zh-TW", { timeZone: "Asia/Taipei" }) || "無法取得時間"}）\n` +
+        `即時價: ${realTimePrice}\n` +
+        `即時價相對基準價漲跌幅(%): ${realTimePriceChangePercent.toFixed(2)}\n`;
+    }
+
+    let msg = `【00675L 技術指標分析】（資料時間: ${new Date(latestDate).toLocaleDateString("zh-TW", { timeZone: "Asia/Taipei" })}）\n基準日: ${baseDate}, 基準價: ${basePrice}\n買賣建議: ${
       result.suggestion
     }\n\n買入權重細節:\n`;
     result.buyDetails.forEach((line) => (msg += ` - ${line}\n`));
@@ -96,9 +156,11 @@ async function dailyCheck(sendPush = true) {
     msg += `\n【心理與操作紀律】\n- 今日是否遵守紀律，無追高恐慌賣出\n- 保持冷靜，依計畫執行\n\n請於盤前/盤後詳閱以上提醒，理性操作。`;
 
     if (sendPush) {
+      if (showRealTime) await pushMessage(realTimeMsg);
       await pushMessage(msg);
     }
-    return msg;
+
+    return `${realTimeMsg}\n\n${msg}`;
   } catch (err) {
     const errMsg = `資料抓取錯誤: ${err.message || err}`;
     console.error(errMsg);

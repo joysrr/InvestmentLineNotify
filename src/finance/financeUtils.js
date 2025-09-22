@@ -49,10 +49,22 @@ async function fetchStockHistory(symbol, period1, period2) {
     period2,
     interval: "1d",
   });
+
   return convertToHistoricalResult(chartResult);
+}
+
+async function fetchRealTimePrice(symbol) {
+  const quoteResult = await yahooFinance.quote(symbol);
+  return {
+    price: quoteResult.regularMarketPrice,
+    time: quoteResult.regularMarketTime
+      ? new Date(quoteResult.regularMarketTime)
+      : null,
+  };
 }
 
 module.exports = {
   fetchStockHistory,
+  fetchRealTimePrice,
   calculateIndicators,
 };
