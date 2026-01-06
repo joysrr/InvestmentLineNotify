@@ -18,6 +18,7 @@ const {
 async function dailyCheck(sendPush = true) {
   try {
     // 取得基準價
+    console.log("正在抓取基準價格...");
     const url =
       "https://raw.githubusercontent.com/joysrr/joysrr.github.io/refs/heads/master/Stock/BasePrice.txt";
     const { baseDate, basePrice } = await fetchLatestBasePrice(url);
@@ -31,14 +32,20 @@ async function dailyCheck(sendPush = true) {
     const lastYear = new Date(today);
     lastYear.setFullYear(lastYear.getFullYear() - 1);
 
+    console.log(`基準日: ${baseDate}, 基準價: ${basePrice}`);
+
     const history = await fetchStockHistory(
       "00675L.TW",
       lastYear.toISOString().slice(0, 10),
       today.toISOString().slice(0, 10),
     );
 
+    console.log(`歷史資料筆數: ${history.length}`);
+
     const { price: realTimePrice, time: realTimeTimestamp } =
       await fetchRealTimePrice("00675L.TW");
+
+    console.log(`即時價: ${realTimePrice}, 時間: ${realTimeTimestamp}`);
 
     // 判斷即時報價是否屬於當日台北時間
     let showRealTime = false;
@@ -57,6 +64,7 @@ async function dailyCheck(sendPush = true) {
       if (sendPush) await pushMessage(msg);
       return msg;
     }
+    console.log("正在計算資料...");
 
     const { closes, highs, lows, rsiArr, macdArr, kdArr } =
       calculateIndicators(history);
