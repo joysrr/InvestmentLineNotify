@@ -67,9 +67,11 @@ async function dailyCheck(sendPush = true) {
     try {
       const rt = await fetchRealtimeFromMis(symbol);
       if (rt?.price != null) {
+        console.log("成功取得 MIS 即時價");
         realTimePrice = rt.price;
         realTimeTimestamp = rt.time;
       } else {
+        console.log("MIS 即時價為空，改用收盤價 fallback");
         const latest = await fetchLatestClose(symbol);
         realTimePrice = latest?.close ?? null;
         realTimeTimestamp = latest?.date
@@ -77,6 +79,7 @@ async function dailyCheck(sendPush = true) {
           : null;
       }
     } catch (e) {
+      console.error("MIS 抓取失敗，改用收盤價 fallback:", e.message);
       const latest = await fetchLatestClose(symbol);
       realTimePrice = latest?.close ?? null;
       realTimeTimestamp = latest?.date
@@ -125,22 +128,9 @@ async function dailyCheck(sendPush = true) {
       return "非交易時段，未發送通知";
     }
 
-    // 即時訊息是否顯示：只要 timestamp 是今天（台北）才顯示
-    const todayTW0 = new Date(nowTaipei);
-    todayTW0.setHours(0, 0, 0, 0);
-
-    let showRealTime = false;
-    if (realTimeTimestamp) {
-      const rtTW = new Date(
-        realTimeTimestamp.toLocaleString("en-US", { timeZone: "Asia/Taipei" }),
-      );
-      rtTW.setHours(0, 0, 0, 0);
-      showRealTime = rtTW.getTime() === todayTW0.getTime();
-    }
-
     let realTimeMsg = "";
     if (
-      showRealTime &&
+      openToday &&
       realTimePrice != null &&
       realTimePriceChangePercent != null
     ) {
