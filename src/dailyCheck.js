@@ -52,13 +52,11 @@ async function dailyCheck(sendPush = true) {
     const symbol0050 = "0050.TW";
 
     // 2. 基本檢查 (★ 測試時建議先註解掉這段，否則假日會直接結束)
-    /*
-    const openToday = await isMarketOpenTodayTWSE();
+f    const openToday = await isMarketOpenTodayTWSE();
     if (!openToday) {
       console.log("😴 當日無開市，跳過通知");
       return "當日無開市，跳過通知";
     }
-    */
 
     // 3. 抓取 00675L 數據
     console.log("📥 正在抓取 00675L 數據...");
@@ -137,14 +135,12 @@ async function dailyCheck(sendPush = true) {
     const result = await getInvestmentSignalAsync(signalData, rsiArr, macdArr);
 
     // 8. 交易時段檢查 (★ 測試時建議先註解掉，否則晚上會沒反應)
-    /*
     const nowTaipei = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }));
     const hour = nowTaipei.getHours();
     if (hour < 7 || hour >= 15) {
         console.log("😴 非交易時段，不發送通知");
         return "非交易時段";
     }
-    */
 
     // 9. 組合戰報訊息
     let msg =
@@ -213,7 +209,7 @@ async function dailyCheck(sendPush = true) {
 module.exports = { dailyCheck };
 
 if (require.main === module) {
-  dailyCheck(false).then((msg) => {
+  dailyCheck(true).then((msg) => {
     console.log("\n=== 每日投資自檢訊息（本機測試） ===\n");
     console.log(msg);
   });
