@@ -52,7 +52,7 @@ async function dailyCheck(sendPush = true) {
     const symbol0050 = "0050.TW";
 
     // 2. 基本檢查 (★ 測試時建議先註解掉這段，否則假日會直接結束)
-f    const openToday = await isMarketOpenTodayTWSE();
+    const openToday = await isMarketOpenTodayTWSE();
     if (!openToday) {
       console.log("😴 當日無開市，跳過通知");
       return "當日無開市，跳過通知";
@@ -209,7 +209,7 @@ f    const openToday = await isMarketOpenTodayTWSE();
 module.exports = { dailyCheck };
 
 if (require.main === module) {
-  dailyCheck(true).then((msg) => {
+  dailyCheck(false).then((msg) => {
     console.log("\n=== 每日投資自檢訊息（本機測試） ===\n");
     console.log(msg);
   });
