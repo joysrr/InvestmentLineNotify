@@ -27,10 +27,16 @@ function validateStrategyConfig(strategy) {
 
   // ---- buy ----
   assert(isObject(strategy.buy), "buy 必須存在且為 object");
-  assertNumber(strategy.buy.minDropPercentToConsider, "buy.minDropPercentToConsider");
+  assertNumber(
+    strategy.buy.minDropPercentToConsider,
+    "buy.minDropPercentToConsider",
+  );
   assertNumber(strategy.buy.minWeightScoreToBuy, "buy.minWeightScoreToBuy");
 
-  assert(Array.isArray(strategy.buy.dropScoreRules), "buy.dropScoreRules 必須是 array");
+  assert(
+    Array.isArray(strategy.buy.dropScoreRules),
+    "buy.dropScoreRules 必須是 array",
+  );
   assert(strategy.buy.dropScoreRules.length > 0, "buy.dropScoreRules 不可為空");
 
   strategy.buy.dropScoreRules.forEach((r, i) => {
@@ -71,19 +77,41 @@ function validateStrategyConfig(strategy) {
     assertNumber(r.minScore, `allocation[${i}].minScore`);
     assertNumber(r.leverage, `allocation[${i}].leverage`);
     assertNumber(r.cash, `allocation[${i}].cash`);
-    assert(r.leverage >= 0 && r.leverage <= 1, `allocation[${i}].leverage 必須在 0~1`);
+    assert(
+      r.leverage >= 0 && r.leverage <= 1,
+      `allocation[${i}].leverage 必須在 0~1`,
+    );
     assert(r.cash >= 0 && r.cash <= 1, `allocation[${i}].cash 必須在 0~1`);
 
     // 可選：要求 leverage + cash 必須約等於 1（避免配置寫錯）
     const sum = r.leverage + r.cash;
-    assert(Math.abs(sum - 1) < 1e-9, `allocation[${i}] leverage+cash 必須等於 1`);
+    assert(
+      Math.abs(sum - 1) < 1e-9,
+      `allocation[${i}] leverage+cash 必須等於 1`,
+    );
   });
+
+  // ---- threshold ----
+  assert(isObject(strategy.threshold), "threshold 必須存在且為 object");
+  assertNumber(strategy.threshold.mmDanger, "threshold.mmDanger");
+  assertNumber(strategy.threshold.z2RatioHigh, "threshold.z2RatioHigh");
+  assertNumber(strategy.threshold.overheatCount, "threshold.overheatCount");
+  assertNumber(strategy.threshold.coolRSI, "threshold.coolRSI");
+  assertNumber(strategy.threshold.coolBias, "threshold.coolBias");
+  assertNumber(strategy.threshold.wAggressive, "threshold.wAggressive");
+  assertNumber(strategy.threshold.wActive, "threshold.wActive");
+  assertNumber(strategy.threshold.rsiCoolOff, "threshold.rsiCoolOff");
+  assertNumber(strategy.threshold.kdCoolOff, "threshold.kdCoolOff");
+  assertNumber(strategy.threshold.bias240CoolOff, "threshold.bias240CoolOff");
 
   // ---- 額外：dropScoreRules 建議由大到小（非強制，但可避免誤判）----
   for (let i = 1; i < strategy.buy.dropScoreRules.length; i++) {
     const prev = strategy.buy.dropScoreRules[i - 1].minDrop;
     const curr = strategy.buy.dropScoreRules[i].minDrop;
-    assert(prev >= curr, "buy.dropScoreRules 建議依 minDrop 由大到小排序（避免較小門檻先匹配）");
+    assert(
+      prev >= curr,
+      "buy.dropScoreRules 建議依 minDrop 由大到小排序（避免較小門檻先匹配）",
+    );
   }
 
   return true;

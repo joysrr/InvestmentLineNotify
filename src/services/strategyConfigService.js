@@ -32,7 +32,6 @@ async function fetchStrategyConfig() {
         `Strategy.json HTTP ${res.status}: ${text.slice(0, 200)}`,
       );
     }
-
     const json = JSON.parse(text);
 
     // ✅ 先驗證再寫入 cache
