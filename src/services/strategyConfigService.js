@@ -32,7 +32,14 @@ async function fetchStrategyConfig() {
         `Strategy.json HTTP ${res.status}: ${text.slice(0, 200)}`,
       );
     }
-    const json = JSON.parse(text);
+
+    let json = null;
+    try {
+      json = JSON.parse(text);
+    } catch (e) {
+      console.log(`Strategy.json 解析失敗：${e.message}`, text);
+      throw new Error(`Strategy.json 解析失敗：${e.message}`);
+    }
 
     // ✅ 先驗證再寫入 cache
     validateStrategyConfig(json);

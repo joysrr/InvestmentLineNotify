@@ -101,9 +101,12 @@ function evaluateInvestmentSignal(data, rsiArr, macdArr, kdArr, strategy) {
 
   // 判定過熱因子
   const factors = {
-    rsiHigh: data.RSI > strategy.threshold.rsiCoolOff,
-    kdHigh: data.KD_K > strategy.threshold.kdCoolOff,
-    biasHigh: bias240 != null && bias240 > strategy.threshold.bias240CoolOff,
+    rsiHigh:
+      Number.isFinite(data.RSI) && data.RSI > strategy.threshold.rsiCoolOff,
+    kdHigh:
+      Number.isFinite(data.KD_K) && data.KD_K > strategy.threshold.kdCoolOff,
+    biasHigh:
+      Number.isFinite(bias240) && bias240 > strategy.threshold.bias240CoolOff,
   };
 
   // 取得決策結果
@@ -126,6 +129,12 @@ function evaluateInvestmentSignal(data, rsiArr, macdArr, kdArr, strategy) {
 
   return {
     marketStatus: decision.marketStatus,
+    target: decision.target,
+    targetSuggestion: decision.targetSuggestion,
+    factor: decision.factor,
+    factorText: decision.factorText,
+    reversal: decision.reversal,
+    reversalText: decision.reversalText,
     suggestion: decision.suggestion,
     bias240,
     weightScore,
@@ -141,7 +150,7 @@ function evaluateInvestmentSignal(data, rsiArr, macdArr, kdArr, strategy) {
     maintenanceMargin,
     z2Ratio,
     totalLoan,
-    threshold: strategy.threshold,
+    strategy,
   };
 }
 
@@ -159,7 +168,17 @@ function buildDecision(ctx, th) {
     kdArr,
     macdArr,
   } = ctx;
+
+  // 取得反轉
+  let reversal = null;
+  let reversalText = null;
+
+  // 取得解除
+  const factorCount = Object.values(factors).length;
   const highFactorCount = Object.values(factors).filter(Boolean).length;
+
+  let factor = null;
+  let factorText = null;
 
   // 1) 風險：追繳
   if (maintenanceMargin < th.mmDanger) {
@@ -181,33 +200,81 @@ function buildDecision(ctx, th) {
 
   // 3) 市場狀態：過熱/冷卻
   if (highFactorCount >= th.overheatCount) {
-    const reversal = computeReversalTriggers({ rsiArr, macdArr, kdArr, th });
+    factor = {
+      factorCount: factorCount,
+      hitFactor: factorCount - highFactorCount,
+      rsiDrop: !factors.rsiHigh,
+      kdDrop: !factors.kdHigh,
+      biasDrop: !factors.biasHigh,
+    };
+
+    factorText = `🪓 解除禁令：${factor.hitFactor}/${factor.factorCount}（需≥${factor.factorCount - 1}）｜R${th.rsiCoolOff}${yn(factor.rsiDrop)}｜K${th.kdCoolOff}${yn(factor.kdDrop)}｜B${th.bias240CoolOff}${yn(factor.biasDrop)}\n`;
+
+    reversal = computeReversalTriggers({
+      rsiArr,
+      macdArr,
+      kdArr,
+      th,
+    });
+
+    reversalText = `📉 反轉觸發：${reversal.hitFactor}/${reversal.totalFactor}｜R${th.rsiCoolOff}${yn(reversal.rsiDrop)}｜K${th.kdCoolOff}${yn(reversal.kdDrop)}｜KD${yn(reversal.kdBearCross)}｜MACD${yn(reversal.macdBearCross)}`;
 
     return {
       marketStatus: "🔥【極度過熱】",
+      target: `🚫 禁撥款`,
+      targetSuggestion: `0050照常定投；允許質押但不動用額度`,
       suggestion:
         `🚫 禁撥款；0050照常定投；允許質押但不動用額度\n` +
-        `🪓 解除禁令：${3 - highFactorCount}/3（需≥2）｜RSI<${th.rsiCoolOff}？${yn(!factors.rsiHigh)}｜KD<${th.kdCoolOff}？${yn(!factors.kdHigh)}｜乖離<${th.bias240CoolOff}？${yn(!factors.biasHigh)}\n` +
-        `${reversal}`,
+        `${factorText}\n` +
+        `${reversalText}`,
+      factor,
+      factorText,
+      reversal,
+      reversalText,
     };
   }
 
   if (data.RSI > th.coolRSI || bias240 > th.coolBias) {
     return {
       marketStatus: "⚠️【冷卻校準中】",
+      target: `💡 處於高檔冷卻區`,
+      targetSuggestion: `建議分批少量或繼續等待`,
       suggestion: "💡 處於高檔冷卻區，建議分批少量或繼續等待",
+      factor,
+      factorText,
+      reversal,
+      reversalText,
     };
   }
 
   // 4) 才進入加碼分段
+  let target = `✔️ 市場冷靜`;
+  let targetSuggestion = `可執行1.8倍槓桿，撥款並購買00675L`;
   let suggestion = "✔️ 市場冷靜，可執行1.8倍槓桿，撥款並購買00675L";
-  if (weightScore >= th.wAggressive)
+  if (weightScore >= th.wAggressive) {
+    target = `🔥 最積極型`;
+    targetSuggestion = `建議增貸至 60% 加碼`;
     suggestion += "\n🔥 最積極型：建議增貸至 60% 加碼";
-  else if (weightScore >= th.wActive)
+  } else if (weightScore >= th.wActive) {
+    target = `🚨 積極型`;
+    targetSuggestion = `建議增貸至 50% 加碼`;
     suggestion += "\n🚨 積極型：建議增貸至 50% 加碼";
-  else suggestion += `\n💡 保守型 (${weightScore}分)：建議維持 40% 加碼`;
+  } else {
+    target = `💡 保守型`;
+    targetSuggestion = `建議維持 40% 加碼`;
+    suggestion += `\n💡 保守型 (${weightScore}分)：建議維持 40% 加碼`;
+  }
 
-  return { marketStatus: "🌱【安全/低溫】", suggestion };
+  return {
+    marketStatus: "🌱【安全/低溫】",
+    suggestion,
+    target,
+    targetSuggestion,
+    factor,
+    factorText,
+    reversal,
+    reversalText,
+  };
 }
 
 function computeReversalTriggers({ rsiArr, macdArr, kdArr, th }) {
@@ -245,7 +312,15 @@ function computeReversalTriggers({ rsiArr, macdArr, kdArr, th }) {
   }
 
   const hit = Object.values(out).filter(Boolean).length;
-  return `📉 反轉觸發：${hit}/4｜RSI<${th.rsiCoolOff}？${yn(out.rsiDrop)}｜KD<${th.kdCoolOff}？${yn(out.kdDrop)}｜KD死叉？${yn(out.kdBearCross)}｜MACD死叉？${yn(out.macdBearCross)}`;
+  return {
+    totalFactor: 4,
+    hitFactor: hit,
+    rsiDrop: out.rsiDrop,
+    kdDrop: out.kdDrop,
+    kdBearCross: out.kdBearCross,
+    macdBearCross: out.macdBearCross,
+  };
+  //return `📉 反轉觸發：${hit}/4｜R${th.rsiCoolOff}${yn(out.rsiDrop)}｜K${th.kdCoolOff}${yn(out.kdDrop)}｜KD${yn(out.kdBearCross)}｜MACD${yn(out.macdBearCross)}`;
 }
 
 async function getInvestmentSignalAsync(data, rsiArr, macdArr, kdArr) {
@@ -254,7 +329,7 @@ async function getInvestmentSignalAsync(data, rsiArr, macdArr, kdArr) {
   return evaluateInvestmentSignal(data, rsiArr, macdArr, kdArr, strategy);
 }
 
-const yn = (v) => (v ? "是" : "否");
+const yn = (v) => (v ? "✔️" : "❌");
 
 module.exports = {
   getMACDSignal,

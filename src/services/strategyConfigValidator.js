@@ -25,6 +25,10 @@ function assertBoolean(v, path) {
 function validateStrategyConfig(strategy) {
   assert(isObject(strategy), "根節點必須是 object");
 
+  // ---- leverage ----
+  assert(isObject(strategy.leverage), "leverage 必須存在且為 object");
+  assertNumber(strategy.leverage.targetMultiplier, "leverage.targetMultiplier");
+
   // ---- buy ----
   assert(isObject(strategy.buy), "buy 必須存在且為 object");
   assertNumber(
@@ -103,6 +107,11 @@ function validateStrategyConfig(strategy) {
   assertNumber(strategy.threshold.rsiCoolOff, "threshold.rsiCoolOff");
   assertNumber(strategy.threshold.kdCoolOff, "threshold.kdCoolOff");
   assertNumber(strategy.threshold.bias240CoolOff, "threshold.bias240CoolOff");
+  assertNumber(
+    strategy.threshold.vixLowComplacency,
+    "threshold.vixLowComplacency",
+  );
+  assertNumber(strategy.threshold.vixHighFear, "threshold.vixHighFear");
 
   // ---- 額外：dropScoreRules 建議由大到小（非強制，但可避免誤判）----
   for (let i = 1; i < strategy.buy.dropScoreRules.length; i++) {
