@@ -1,7 +1,12 @@
 require("dotenv").config();
 
+const { getTwVix } = require("./services/vixService.js");
 const { fetchLatestBasePrice } = require("./services/basePriceService");
-const { pushMessage } = require("./services/notifyService");
+const {
+  pushMessage,
+  pushMessages,
+  buildFlexCarouselFancy,
+} = require("./services/notifyService");
 const {
   getMACDSignal,
   getInvestmentSignalAsync,
@@ -52,14 +57,21 @@ async function dailyCheck(sendPush = true) {
     const symbolZ2 = "00675L.TW";
     const symbol0050 = "0050.TW";
 
+    // 新增：抓 VIX
+    console.log("📈 抓取台指恐慌指數 (VIX)...");
+    const vixData = await getTwVix();
+    if (vixData) {
+      console.log(`✅ VIX 值：${vixData.value.toFixed(2)}`);
+    } else {
+      console.log("❌ VIX 抓取失敗，不影響主流程");
+    }
+
     // 基本檢查
-    /*
     const openToday = await isMarketOpenTodayTWSE();
     if (!openToday) {
       console.log("😴 當日無開市，跳過通知");
       return "當日無開市，跳過通知";
     }
-    */
 
     // 抓取 00675L 數據
     console.log("📥 正在抓取 00675L 數據...");
@@ -127,6 +139,9 @@ async function dailyCheck(sendPush = true) {
       currentPrice: finalPriceZ2,
       basePrice,
       price0050: price0050 || 0,
+      VIX: vixData?.value ?? null,
+      VIXTime: vixData?.dateTimeText ?? vixData?.time ?? null,
+      VIXStatus: vixData?.status ?? null,
     };
 
     const signalData = {
@@ -146,56 +161,104 @@ async function dailyCheck(sendPush = true) {
     );
 
     // 交易時段檢查
-    /*
     const nowTaipei = new Date(
       new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }),
     );
     const hour = nowTaipei.getHours();
-    if (hour < 7 || hour >= 15) {
+    if (hour < 7 || hour >= 18) {
       console.log("😴 非交易時段，不發送通知");
       return "非交易時段";
     }
-    */
 
     // 組合戰報訊息
-    let msg =
-      `【00675L 1.8倍質押戰報】\n` +
-      `📅 資料時間：${new Date().toLocaleDateString("zh-TW", { timeZone: "Asia/Taipei" })}\n` +
-      `K線：日K｜區間：近1年\n年線：240MA\n價格：即時(MIS)/收盤(close)\n\n`;
+    let header = `【00675L ${result.strategy.leverage.targetMultiplier}倍質押戰報】`;
+
+    let msg = `📅 資料時間：${new Date().toLocaleDateString("zh-TW", { timeZone: "Asia/Taipei" })}\n\n`;
+
+    // --- 台指恐慌指數 (VIX) ---
+    if (vixData) {
+      // 你原先門檻照用（之後再回測微調）
+      let vixStatus = "中性";
+      if (vixData.value < result.strategy.threshold.vixLowComplacency)
+        vixStatus = "安逸";
+      else if (vixData.value > result.strategy.threshold.vixHighFear)
+        vixStatus = "緊張";
+
+      vixData.vixStatus = vixStatus;
+
+      msg +=
+        `🎭 台指恐慌指數(TAIWAN VIX)：${vixData.value.toFixed(2)}\n` +
+        `   └ 漲跌：${vixData.change >= 0 ? "+" : ""}${vixData.change.toFixed(2)}｜狀態：${vixStatus}\n` +
+        `   └ 時間：${vixData.dateTimeText ?? "未知"}｜Symbol：${vixData.symbolUsed}\n\n`;
+    } else {
+      msg += `🎭 台指恐慌指數 (VIX)：抓取失敗（不影響其他判斷）\n\n`;
+    }
+    // -------------------------
 
     msg += `${stockStatus}\n`;
     msg += `📊 市場狀態：${result.marketStatus}\n`;
     msg += `🏹 行動建議：${result.suggestion}\n\n`;
-    msg +=
-      `🔍 數據細節：\n` +
-      `- RSI：${result.RSI.toFixed(1)} ${result.RSI > result.threshold.rsiCoolOff ? `(>${result.threshold.rsiCoolOff})⚠️` : ""}\n` +
-      `- KD_K：${result.KD_K.toFixed(1)} ${result.KD_K > result.threshold.kdCoolOff ? `(>${result.threshold.kdCoolOff})⚠️` : ""}\n` +
-      `- 年線乖離：${result.bias240.toFixed(2)}% ${result.bias240 > result.threshold.bias240CoolOff ? `(>${result.threshold.bias240CoolOff})⚠️` : ""}\n\n`;
-
-    msg +=
-      `🛡️ 帳戶安全狀態\n` +
-      ` - 預估維持率：${result.totalLoan > 0 ? `${result.maintenanceMargin.toFixed(1)}%` : "未質押"} ${result.maintenanceMargin < result.threshold.mmDanger ? `(<${result.threshold.mmDanger})⚠️` : "✅"} \n` +
-      ` - 正 2 淨值佔比：${result.z2Ratio.toFixed(1)}% ${result.z2Ratio > result.threshold.z2RatioHigh ? `(>${result.threshold.z2RatioHigh})⚠️` : `(距離目標 40% 尚有 ${(40 - result.z2Ratio).toFixed(1)}% 空間)`}\n` +
-      ` - 警戒上限：${result.threshold.z2RatioHigh}%（超過觸發再平衡）\n` +
-      ` - 現金儲備：${config.cash.toLocaleString()} 元\n` +
-      ` - 目前總負債：${result.totalLoan.toLocaleString()} 元\n\n` +
-      `🎯 策略操作指令\n` +
-      ` - 加碼權重：${result.weightScore} 分\n` +
-      `🔍 加碼權重細節：\n` +
-      ` - 基準價(校準/前次買點)：${basePrice}\n`;
-
-    result.buyDetails.forEach((line) => (msg += ` - ${line}\n`));
 
     const date = getTaiwanDate();
     msg += `\n📅 重要提醒:\n`;
-    if (date === 9) msg += "- 今日 9 號：執行定期定額與撥款校準\n";
-    if (date === 21) msg += "- 今日 21 號：扣息日，檢查交割戶餘額\n";
-    if (result.z2Ratio > 42) msg += "- ⚠️ 正2佔比過高，請優先評估止盈還款！\n";
+    if (date === 9) msg += "   └ 今日 9 號：執行定期定額與撥款校準\n";
+    if (result.z2Ratio > 42)
+      msg += "   └ ⚠️ 正2佔比過高，請優先評估止盈還款！\n";
 
     msg +=
       `\n【心理紀律】\n` +
-      `- 33年目標：7,480萬\n` +
-      `- 下跌是加碼的禮物，上漲是資產的果實\n\n`;
+      `   └ 33年目標：7,480萬\n` +
+      `   └ 下跌是加碼的禮物，上漲是資產的果實\n\n`;
+
+    let detailMsg =
+      `🔍 數據細節：\n` +
+      `   └ RSI：${result.RSI.toFixed(1)} ${result.RSI > result.strategy.threshold.rsiCoolOff ? `(>${result.strategy.threshold.rsiCoolOff})⚠️` : ""}\n` +
+      `   └ KD_K：${result.KD_K.toFixed(1)} ${result.KD_K > result.strategy.threshold.kdCoolOff ? `(>${result.strategy.threshold.kdCoolOff})⚠️` : ""}\n` +
+      `   └ 年線乖離：${result.bias240.toFixed(2)}% ${result.bias240 > result.strategy.threshold.bias240CoolOff ? `(>${result.strategy.threshold.bias240CoolOff})⚠️` : ""}\n\n`;
+
+    detailMsg +=
+      `🛡️ 帳戶安全狀態\n` +
+      `   └ 預估維持率：${result.totalLoan > 0 ? `${result.maintenanceMargin.toFixed(1)}%` : "未質押"} ${result.maintenanceMargin < result.strategy.threshold.mmDanger ? `(<${result.strategy.threshold.mmDanger})⚠️` : "✅"} \n` +
+      `   └ 正 2 淨值佔比：${result.z2Ratio.toFixed(1)}% ${result.z2Ratio > result.strategy.threshold.z2RatioHigh ? `(>${result.strategy.threshold.z2RatioHigh})⚠️` : `(距離目標 40% 尚有 ${(40 - result.z2Ratio).toFixed(1)}% 空間)`}\n` +
+      `   └ 警戒上限：${result.strategy.threshold.z2RatioHigh}%（超過觸發再平衡）\n` +
+      `   └ 現金儲備：${config.cash.toLocaleString()} 元\n` +
+      `   └ 目前總負債：${result.totalLoan.toLocaleString()} 元\n\n` +
+      `🎯 策略操作指令\n` +
+      `   └ 加碼權重：${result.weightScore} 分\n` +
+      `🔍 加碼權重細節：\n` +
+      `   └ 基準價(校準/前次買點)：${basePrice}\n`;
+
+    result.buyDetails.forEach((line) => (detailMsg += `   └ ${line}\n`));
+
+    const legend = [
+      "【說明】",
+      "K線：日K｜區間：近1年;年線：240MA;價格：即時(MIS)/收盤(close)",
+      "R80=RSI<80；K90=KD<90；B25=乖離<25",
+      "KD=KD死叉;MACD=MACD死叉",
+    ].join("\n");
+
+    detailMsg += "\n" + legend;
+
+    const dateText = new Date().toLocaleDateString("zh-TW", {
+      timeZone: "Asia/Taipei",
+    });
+
+    const flexCarousel = buildFlexCarouselFancy({
+      result,
+      vixData,
+      config,
+      dateText,
+    });
+
+    const messages = [
+      {
+        type: "flex",
+        altText: `00675L ${result.marketStatus}`, // altText 建議短（必填）[web:405]
+        contents: flexCarousel,
+      },
+    ];
+
+    console.log(messages);
 
     if (sendPush) {
       console.log("📝 正在寫入試算表...");
@@ -217,11 +280,11 @@ async function dailyCheck(sendPush = true) {
       }
 
       console.log("📤 正在發送 Line 通知...");
-      await pushMessage(msg);
+      await pushMessages(messages);
       console.log("✅ 執行完成！");
     }
 
-    return msg;
+    return { header, msg, detailMsg, messages };
   } catch (err) {
     console.error("❌ 系統發生嚴重錯誤:", err);
     if (sendPush) {
@@ -234,8 +297,15 @@ async function dailyCheck(sendPush = true) {
 module.exports = { dailyCheck };
 
 if (require.main === module) {
-  dailyCheck(false).then((msg) => {
+  dailyCheck(true).then((result) => {
     console.log("\n=== 每日投資自檢訊息（本機測試） ===\n");
-    console.log(msg);
+    console.log("=== 標題 ===\n");
+    console.log(result.header);
+    console.log("=== 簡訊版 ===\n");
+    console.log(result.msg);
+    console.log("\n=== 詳細數據（本機測試） ===\n");
+    console.log(result.detailMsg);
+    console.log("\n=== LINE 訊息結構（本機測試） ===\n");
+    console.log(JSON.stringify(result.messages, null, 2));
   });
 }
