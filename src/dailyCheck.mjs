@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { getTwVix } from "./services/vixService.mjs";
 import { fetchLatestBasePrice } from "./services/basePriceService.mjs";
-import { pushMessage, pushMessages, buildFlexCarouselFancy } from "./services/notifyService.mjs";
+import { pushLine, buildFlexCarouselFancy } from "./services/notifyService.mjs";
 import { getMACDSignal, getInvestmentSignalAsync } from "./services/stockSignalService.mjs";
 import { fetchStockHistory, fetchLatestClose } from "./providers/twse/twseStockDayProvider.mjs";
 import { fetchRealtimeFromMis } from "./providers/twse/twseMisProvider.mjs";
@@ -261,7 +261,7 @@ async function dailyCheck(sendPush = true) {
       }
 
       console.log("📤 正在發送 Line 通知...");
-      await pushMessages(messages);
+      await pushLine(messages);
       console.log("✅ 執行完成！");
     }
 
@@ -269,7 +269,7 @@ async function dailyCheck(sendPush = true) {
   } catch (err) {
     console.error("❌ 系統發生嚴重錯誤:", err);
     if (sendPush) {
-      await pushMessage(`系統錯誤：${err.message}`);
+      await pushLine(`系統錯誤：${err.message}`);
     }
     return err.message;
   }

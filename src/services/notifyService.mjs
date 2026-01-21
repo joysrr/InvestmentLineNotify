@@ -2,53 +2,140 @@ import axios from "axios";
 
 const LINE_ACCESS_TOKEN = process.env.LINE_ACCESS_TOKEN;
 const USER_ID = process.env.USER_ID;
+const LINE_PUSH_URL = "https://api.line.me/v2/bot/message/push";
+
+const lineHttp = axios.create({
+  headers: {
+    "Content-Type": "application/json",
+    ...(LINE_ACCESS_TOKEN ? { Authorization: `Bearer ${LINE_ACCESS_TOKEN}` } : {}),
+  },
+  timeout: 20_000,
+});
+
+function toArray(x) {
+  if (!x) return [];
+  return Array.isArray(x) ? x : [x];
+}
+
+// 元件
+const sep = (margin = "md") => ({ type: "separator", margin });
+
+const txt = (text, opt = {}) => ({ type: "text", text: String(text ?? ""), ...opt });
+
+const uriBtn = (label, uri) => ({
+  type: "button",
+  style: "link",
+  height: "sm",
+  action: { type: "uri", label, uri },
+});
+
+const baselineRow = (left, right, rightColor = "#111111", rightBold = false) => ({
+  type: "box",
+  layout: "baseline",
+  contents: [
+    txt(left, { size: "sm", color: "#666666", flex: 1 }),
+    txt(right, {
+      size: "sm",
+      color: rightColor,
+      weight: rightBold ? "bold" : "regular",
+      flex: 1,
+      align: "end",
+    }),
+  ],
+});
+
+// 小工具：指標卡
+function indicatorCard(label, value) {
+  return {
+    type: "box",
+    layout: "vertical",
+    backgroundColor: "#F7F7F7",
+    cornerRadius: "md",
+    paddingAll: "8px",
+    contents: [
+      {
+        type: "text",
+        text: label,
+        size: "xs",
+        color: "#888888",
+        align: "center",
+      },
+      {
+        type: "text",
+        text: String(value),
+        size: "lg",
+        weight: "bold",
+        color: "#D93025",
+        align: "center",
+      },
+    ],
+  };
+}
 
 /**
- * 發送 LINE push 訊息（文字）。
+ * 統一推播入口：
+ * - pushLine("hello")
+ * - pushLine([{ type: "text", text: "hi" }, { type: "flex", ... }])
  */
-async function pushMessage(text) {
-  if (!LINE_ACCESS_TOKEN || !USER_ID) {
-    console.warn("缺少 LINE_ACCESS_TOKEN 或 USER_ID，跳過推播");
-    return;
+export async function pushLine(input, { to = process.env.USER_ID } = {}) {
+  const token = process.env.LINE_ACCESS_TOKEN;
+
+  if (!token || !to) {
+    console.warn("缺少 LINE_ACCESS_TOKEN 或 USER_ID/to，跳過推播");
+    return { ok: false, skipped: true };
   }
 
-  await axios.post(
-    "https://api.line.me/v2/bot/message/push",
-    {
-      to: USER_ID,
-      messages: [{ type: "text", text }],
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${LINE_ACCESS_TOKEN}`,
-      },
-    },
-  );
-}
+  const messages =
+    typeof input === "string" ? [{ type: "text", text: input }] : toArray(input);
 
-async function pushMessages(messages) {
-  if (!LINE_ACCESS_TOKEN || !USER_ID) {
-    console.warn("缺少 LINE_ACCESS_TOKEN 或 USER_ID，跳過推播");
-    return;
+  if (messages.length === 0) {
+    console.warn("messages 為空，跳過推播");
+    return { ok: false, skipped: true };
   }
 
-  await axios.post(
-    "https://api.line.me/v2/bot/message/push",
-    {
-      to: USER_ID,
-      messages: messages,
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${LINE_ACCESS_TOKEN}`,
+  // LINE push messages 常見上限為 5 [web:782]
+  if (messages.length > 5) {
+    throw new Error(`LINE push messages 超過上限(5)：目前=${messages.length}`);
+  }
+
+  try {
+    const res = await axios.post(
+      LINE_PUSH_URL,
+      { to, messages },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        timeout: 20_000,
       },
-    },
-  );
+    );
+
+    const requestId = res?.headers?.["x-line-request-id"]; // 方便追查 [web:782]
+    return { ok: true, status: res.status, requestId };
+  } catch (error) {
+    // Axios error 結構：response / request / message [web:775]
+    const status = error?.response?.status;
+    const statusText = error?.response?.statusText;
+    const responseData = error?.response?.data;
+    const requestId = error?.response?.headers?.["x-line-request-id"]; // [web:782]
+
+    console.error("❌ LINE push failed", {
+      message: error?.message,
+      code: error?.code,
+      status,
+      statusText,
+      requestId,
+      url: LINE_PUSH_URL,
+      responseData,
+      // 不要 log Authorization/token
+    });
+
+    throw error;
+  }
 }
 
-function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
+export function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
   const isOverheat = String(result.marketStatus || "").includes("過熱");
   const headerBg = isOverheat ? "#D93025" : "#2F3136";
 
@@ -66,22 +153,8 @@ function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
       backgroundColor: headerBg,
       paddingAll: "15px",
       contents: [
-        {
-          type: "text",
-          text: `${result.marketStatus.replace("【").replace("】")}`,
-          weight: "bold",
-          color: "#ffffff",
-          size: "lg",
-          align: "center",
-        },
-        {
-          type: "text",
-          text: `📅 ${dateText} 戰報`,
-          color: "#ffffffcc",
-          size: "xs",
-          align: "center",
-          margin: "sm",
-        },
+        txt(`${result.marketStatus.replace("【", "").replace("】", "")}`, { weight: "bold", color: "#ffffff", size: "lg", align: "center" }),
+        txt(`📅 ${dateText} 戰報`, { color: "#ffffffcc", size: "xs", align: "center", margin: "sm" })
       ],
     },
     body: {
@@ -97,33 +170,12 @@ function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
           paddingAll: "12px",
           margin: "md",
           contents: [
-            {
-              type: "text",
-              text: "🏹 核心行動指令",
-              weight: "bold",
-              color: "#D93025",
-              size: "sm",
-            },
-            {
-              type: "text",
-              text: result.target,
-              weight: "bold",
-              size: "xl",
-              color: "#111111",
-              margin: "sm",
-              wrap: true,
-            },
-            {
-              type: "text",
-              text: result.targetSuggestion,
-              size: "xs",
-              color: "#666666",
-            },
+            txt("🏹 核心行動指令", { weight: "bold", color: "#D93025", size: "sm" }),
+            txt(result.target ?? "-", { weight: "bold", size: "xl", color: "#111111", margin: "sm", wrap: true }),
+            txt(result.targetSuggestion ?? "", { size: "xs", color: "#666666" })
           ],
         },
-
-        { type: "separator", margin: "lg" }, // separator 元件可用於 box.contents [web:405]
-
+        sep("lg"),
         // 關鍵摘要（VIX/持股）
         {
           type: "box",
@@ -135,76 +187,38 @@ function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
               type: "box",
               layout: "baseline",
               contents: [
-                {
-                  type: "text",
-                  text: "🎭 恐慌 VIX",
-                  color: "#aaaaaa",
-                  size: "sm",
-                  flex: 4,
-                },
-                {
-                  type: "text",
-                  text: vixShort,
-                  wrap: true,
-                  color: "#111111",
-                  size: "sm",
-                  flex: 6,
-                  align: "end",
-                  weight: "bold",
-                },
+                txt("🎭 恐慌 VIX", { color: "#aaaaaa", size: "sm", flex: 4 }),
+                txt(vixShort, { wrap: true, color: "#111111", size: "sm", flex: 6, align: "end", weight: "bold" }),
               ],
             },
             {
               type: "box",
               layout: "baseline",
               contents: [
-                {
-                  type: "text",
-                  text: "🛡️ 0050",
-                  color: "#666666",
-                  size: "sm",
-                  flex: 4,
-                },
-                {
-                  type: "text",
-                  text: `${config.qty0050} 股`,
-                  size: "sm",
-                  color: "#111111",
-                  weight: "bold",
-                  align: "end",
-                  flex: 6,
-                },
+                txt("🛡️ 0050", { color: "#aaaaaa", size: "sm", flex: 4 }),
+                txt(`${config.qty0050} 股`, { wrap: true, color: "#111111", size: "sm", flex: 6, align: "end", weight: "bold" })
               ],
             },
             {
               type: "box",
               layout: "baseline",
               contents: [
-                {
-                  type: "text",
-                  text: "⚔️ 正2",
-                  color: "#666666",
-                  size: "sm",
-                  flex: 4,
-                },
-                {
-                  type: "text",
-                  text: `${config.qtyZ2} 股`,
-                  size: "sm",
-                  color: "#D93025",
-                  weight: "bold",
-                  align: "end",
-                  flex: 6,
-                },
+                txt("⚔️ 正2", { color: "#aaaaaa", size: "sm", flex: 4 }),
+                txt(`${config.qtyZ2} 股`, { wrap: true, color: "#111111", size: "sm", flex: 6, align: "end", weight: "bold" })
               ],
             },
           ],
         },
-        isOverheat ? buildFactor(result) : "",
-        buildReversal(result),
+        ...(isOverheat ? buildFactorSection(result) : []),
+        ...buildReversalSection(result),
       ],
     },
   };
+
+  const sheetUrl =
+    process.env.GOOGLE_SHEET_ID
+      ? `https://docs.google.com/spreadsheets/d/${process.env.GOOGLE_SHEET_ID}`
+      : null;
 
   const bubble2 = {
     type: "bubble",
@@ -212,14 +226,7 @@ function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
       type: "box",
       layout: "vertical",
       contents: [
-        {
-          type: "text",
-          text: "🔍 技術指標細節",
-          weight: "bold",
-          size: "md",
-          color: "#111111",
-        },
-
+        txt(`🔍 技術指標細節`, { weight: "bold", size: "md", color: "#111111" }),
         // 三個指標卡
         {
           type: "box",
@@ -235,17 +242,8 @@ function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
             ),
           ],
         },
-
-        { type: "separator", margin: "xl" },
-
-        {
-          type: "text",
-          text: "🛡️ 帳戶安全狀態",
-          weight: "bold",
-          size: "md",
-          margin: "lg",
-        },
-
+        sep("xl"),
+        txt(`🛡️ 帳戶安全狀態`, { weight: "bold", size: "md", margin: "lg" }),
         // 帳戶狀態列表（用 baseline 排版）
         {
           type: "box",
@@ -285,21 +283,8 @@ function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
           paddingAll: "10px",
           margin: "lg",
           contents: [
-            {
-              type: "text",
-              text: "🧠 心理紀律",
-              size: "xs",
-              weight: "bold",
-              color: "#555555",
-            },
-            {
-              type: "text",
-              text: "「下跌是加碼的禮物，上漲是資產的果實。」",
-              size: "xs",
-              color: "#666666",
-              wrap: true,
-              margin: "xs",
-            },
+            txt("🧠 心理紀律", { weight: "bold", size: "sm", color: "#111111" }),
+            txt("「下跌是加碼的禮物，上漲是資產的果實。」", { size: "xs", color: "#666666", margin: "sm", wrap: true }),
           ],
         },
       ],
@@ -308,38 +293,11 @@ function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
       type: "box",
       layout: "vertical",
       contents: [
-        {
-          type: "text",
-          text: "目標：7,480萬 (33年)",
-          size: "xxs",
-          color: "#aaaaaa",
-          align: "center",
-        },
-        {
-          type: "separator",
-          margin: "md",
-        },
-        {
-          type: "button",
-          style: "link",
-          height: "sm",
-          action: {
-            type: "uri",
-            label: "財富自由領航表",
-            uri: `https://docs.google.com/spreadsheets/d/${process.env.GOOGLE_SHEET_ID}`,
-          },
-        },
-        {
-          type: "button",
-          style: "link",
-          height: "sm",
-          action: {
-            type: "uri",
-            label: "策略檔案",
-            uri: process.env.STRATEGY_URL,
-          },
-        },
-      ],
+        txt("🎯 目標：7,480萬 (33年)", { size: "xs", color: "#aaaaaa", align: "center" }),
+        sep("md"),
+        sheetUrl && uriBtn("財富自由領航表", sheetUrl),
+        process.env.STRATEGY_URL && uriBtn("策略檔案", process.env.STRATEGY_URL),
+      ].filter(Boolean),
     },
   };
 
@@ -349,31 +307,16 @@ function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
   };
 }
 
-function buildFactor(result) {
-  return (
-    {
-      type: "separator",
-      margin: "lg",
-    },
+function buildFactorSection(result) {
+  return [
+    sep("lg"),
     {
       type: "box",
       layout: "vertical",
       margin: "lg",
       contents: [
-        {
-          type: "text",
-          text: `🪓 解除禁令進度 (需≥${result.strategy.threshold.overheatCount})`,
-          weight: "bold",
-          size: "sm",
-          color: "#111111",
-        },
-        {
-          type: "text",
-          text: `目前達成數：${result.factor.hitFactor} / ${result.factor.factorCount}`,
-          size: "xs",
-          color: "#aaaaaa",
-          margin: "xs",
-        },
+        txt(`🪓 解除禁令進度 (需≥${result.strategy.threshold.overheatCount})`, { weight: "bold", size: "sm", color: "#111111" }),
+        txt(`目前達成數：${result.factor.hitFactor} / ${result.factor.factorCount}`, { size: "xs", color: "#aaaaaa", margin: "xs" }),
         {
           type: "box",
           layout: "vertical",
@@ -384,148 +327,49 @@ function buildFactor(result) {
               type: "box",
               layout: "horizontal",
               contents: [
-                {
-                  type: "text",
-                  text: "RSI 強弱",
-                  size: "sm",
-                  color: "#666666",
-                  flex: 3,
-                },
-                {
-                  type: "text",
-                  text: result.RSI?.toFixed(1),
-                  size: "sm",
-                  color: "#D93025",
-                  weight: "bold",
-                  align: "center",
-                  flex: 2,
-                },
-                {
-                  type: "text",
-                  text: `目標< ${result.strategy.threshold.rsiCoolOff}`,
-                  size: "xs",
-                  color: "#aaaaaa",
-                  align: "end",
-                  gravity: "center",
-                  flex: 4,
-                },
-                {
-                  type: "text",
-                  text: result.factor.rsiDrop ? "✔️" : "❌",
-                  size: "sm",
-                  align: "end",
-                  flex: 1,
-                },
+                txt("RSI 強弱", { size: "sm", color: "#666666", flex: 3 }),
+                txt(result.RSI?.toFixed(1), { size: "sm", color: "#D93025", weight: "bold", align: "center", flex: 2 }),
+                txt(`目標 < ${result.strategy.threshold.rsiCoolOff}`, { size: "xs", color: "#aaaaaa", align: "end", gravity: "center", flex: 4 }),
+                txt(result.factor.rsiDrop ? "✔️" : "❌", { size: "sm", align: "end", flex: 1 })
               ],
             },
             {
               type: "box",
               layout: "horizontal",
               contents: [
-                {
-                  type: "text",
-                  text: "K 值",
-                  size: "sm",
-                  color: "#666666",
-                  flex: 3,
-                },
-                {
-                  type: "text",
-                  text: result.KD_K?.toFixed(1),
-                  size: "sm",
-                  color: "#D93025",
-                  weight: "bold",
-                  align: "center",
-                  flex: 2,
-                },
-                {
-                  type: "text",
-                  text: `目標 < ${result.strategy.threshold.kdCoolOff}`,
-                  size: "xs",
-                  color: "#aaaaaa",
-                  align: "end",
-                  gravity: "center",
-                  flex: 4,
-                },
-                {
-                  type: "text",
-                  text: result.factor.kdDrop ? "✔️" : "❌",
-                  size: "sm",
-                  align: "end",
-                  flex: 1,
-                },
+                txt("KD 指標", { size: "sm", color: "#666666", flex: 3 }),
+                txt(result.KD_K?.toFixed(1), { size: "sm", color: "#D93025", weight: "bold", align: "center", flex: 2 }),
+                txt(`目標 < ${result.strategy.threshold.kdCoolOff}`, { size: "xs", color: "#aaaaaa", align: "end", gravity: "center", flex: 4 }),
+                txt(result.factor.kdDrop ? "✔️" : "❌", { size: "sm", align: "end", flex: 1 })
               ],
             },
             {
               type: "box",
               layout: "horizontal",
               contents: [
-                {
-                  type: "text",
-                  text: "年線乖離",
-                  size: "sm",
-                  color: "#666666",
-                  flex: 3,
-                },
-                {
-                  type: "text",
-                  text: result.bias240.toFixed(0),
-                  size: "sm",
-                  color: "#D93025",
-                  weight: "bold",
-                  align: "center",
-                  flex: 2,
-                },
-                {
-                  type: "text",
-                  text: `目標 < ${result.strategy.threshold.bias240CoolOff}%`,
-                  size: "xs",
-                  color: "#aaaaaa",
-                  align: "end",
-                  gravity: "center",
-                  flex: 4,
-                },
-                {
-                  type: "text",
-                  text: result.factor.biasDrop ? "✔️" : "❌",
-                  size: "sm",
-                  align: "end",
-                  flex: 1,
-                },
+                txt("年線乖離", { size: "sm", color: "#666666", flex: 3 }),
+                txt(result.bias240?.toFixed(0), { size: "sm", color: "#D93025", weight: "bold", align: "center", flex: 2 }),
+                txt(`目標 < ${result.strategy.threshold.bias240CoolOff}%`, { size: "xs", color: "#aaaaaa", align: "end", gravity: "center", flex: 4 }),
+                txt(result.factor.biasDrop ? "✔️" : "❌", { size: "sm", align: "end", flex: 1 })
               ],
             },
           ],
         },
       ],
     }
-  );
+  ];
 }
 
-function buildReversal(result) {
-  return (
-    {
-      type: "separator",
-      margin: "lg",
-    },
+function buildReversalSection(result) {
+  return [
+    sep("lg"),
     {
       type: "box",
       layout: "vertical",
       margin: "lg",
       contents: [
-        {
-          type: "text",
-          text: "📉 反轉訊號掃描 (進場監控)",
-          weight: "bold",
-          size: "sm",
-          color: "#111111",
-        },
-        {
-          type: "text",
-          text: `目前達成數：${result.reversal.hitFactor} / ${result.reversal.totalFactor}`,
-          size: "xs",
-          color: "#aaaaaa",
-          margin: "xs",
-        },
+        txt(`📉 反轉訊號掃描 (進場監控)`, { weight: "bold", size: "sm", color: "#111111" }),
+        txt(`目前達成數：${result.reversal.hitFactor} / ${result.reversal.totalFactor}`, { size: "xs", color: "#aaaaaa", margin: "xs" }),
         {
           type: "box",
           layout: "vertical",
@@ -536,207 +380,45 @@ function buildReversal(result) {
               type: "box",
               layout: "horizontal",
               contents: [
-                {
-                  type: "text",
-                  text: "RSI 強弱",
-                  size: "sm",
-                  color: "#666666",
-                  flex: 3,
-                },
-                {
-                  type: "text",
-                  text: result.RSI?.toFixed(1),
-                  size: "sm",
-                  color: "#D93025",
-                  weight: "bold",
-                  align: "center",
-                  flex: 2,
-                },
-                {
-                  type: "text",
-                  text: `目標 < ${result.strategy.threshold.rsiCoolOff}`,
-                  size: "xs",
-                  color: "#aaaaaa",
-                  align: "end",
-                  gravity: "center",
-                  flex: 4,
-                },
-                {
-                  type: "text",
-                  text: result.reversal.rsiDrop ? "✔️" : "❌",
-                  size: "sm",
-                  align: "end",
-                  flex: 1,
-                },
+                txt("RSI 強弱", { size: "sm", color: "#666666", flex: 3 }),
+                txt(result.RSI?.toFixed(1), { size: "sm", color: "#D93025", weight: "bold", align: "center", flex: 2 }),
+                txt(`目標 < ${result.strategy.threshold.rsiCoolOff}`, { size: "xs", color: "#aaaaaa", align: "end", gravity: "center", flex: 4 }),
+                txt(result.reversal.rsiDrop ? "✔️" : "❌", { size: "sm", align: "end", flex: 1 }),
               ],
             },
             {
               type: "box",
               layout: "horizontal",
               contents: [
-                {
-                  type: "text",
-                  text: "KD 指標",
-                  size: "sm",
-                  color: "#666666",
-                  flex: 3,
-                },
-                {
-                  type: "text",
-                  text: result.KD_K?.toFixed(1),
-                  size: "sm",
-                  color: "#D93025",
-                  weight: "bold",
-                  align: "center",
-                  flex: 2,
-                },
-                {
-                  type: "text",
-                  text: `目標 < ${result.strategy.threshold.kdCoolOff}`,
-                  size: "xs",
-                  color: "#aaaaaa",
-                  align: "end",
-                  gravity: "center",
-                  flex: 4,
-                },
-                {
-                  type: "text",
-                  text: result.reversal.rsiDrop ? "✔️" : "❌",
-                  size: "sm",
-                  align: "end",
-                  flex: 1,
-                },
+                txt("KD 指標", { size: "sm", color: "#666666", flex: 3 }),
+                txt(result.KD_K?.toFixed(1), { size: "sm", color: "#D93025", weight: "bold", align: "center", flex: 2 }),
+                txt(`目標 < ${result.strategy.threshold.kdCoolOff}`, { size: "xs", color: "#aaaaaa", align: "end", gravity: "center", flex: 4 }),
+                txt(result.reversal.kdDrop ? "✔️" : "❌", { size: "sm", align: "end", flex: 1 }),
               ],
             },
             {
               type: "box",
               layout: "horizontal",
               contents: [
-                {
-                  type: "text",
-                  text: "KD",
-                  size: "sm",
-                  color: "#666666",
-                  flex: 3,
-                },
-                {
-                  type: "text",
-                  text: "死叉",
-                  size: "sm",
-                  color: "#666666",
-                  weight: "bold",
-                  align: "center",
-                  flex: 2,
-                },
-                {
-                  type: "text",
-                  text: "需死亡交叉",
-                  size: "xs",
-                  color: "#aaaaaa",
-                  align: "end",
-                  gravity: "center",
-                  flex: 4,
-                },
-                {
-                  type: "text",
-                  text: result.reversal.kdBearCross ? "✔️" : "❌",
-                  size: "sm",
-                  align: "end",
-                  flex: 1,
-                },
+                txt("KD", { size: "sm", color: "#666666", flex: 3 }),
+                txt("金叉", { size: "sm", color: "#666666", weight: "bold", align: "center", flex: 2 }),
+                txt("需黃金交叉", { size: "xs", color: "#aaaaaa", align: "end", gravity: "center", flex: 4 }),
+                txt(result.reversal.kdBullCross ? "✔️" : "❌", { size: "sm", align: "end", flex: 1 }),
               ],
             },
             {
               type: "box",
               layout: "horizontal",
               contents: [
-                {
-                  type: "text",
-                  text: "MACD",
-                  size: "sm",
-                  color: "#666666",
-                  flex: 3,
-                },
-                {
-                  type: "text",
-                  text: "死叉",
-                  size: "sm",
-                  color: "#666666",
-                  weight: "bold",
-                  align: "center",
-                  flex: 2,
-                },
-                {
-                  type: "text",
-                  text: "需死亡交叉",
-                  size: "xs",
-                  color: "#aaaaaa",
-                  align: "end",
-                  gravity: "center",
-                  flex: 4,
-                },
-                {
-                  type: "text",
-                  text: result.reversal.macdBearCross ? "✔️" : "❌",
-                  size: "sm",
-                  align: "end",
-                  flex: 1,
-                },
+                txt("MACD", { size: "sm", color: "#666666", flex: 3 }),
+                txt("金叉", { size: "sm", color: "#666666", weight: "bold", align: "center", flex: 2 }),
+                txt("需黃金交叉", { size: "xs", color: "#aaaaaa", align: "end", gravity: "center", flex: 4 }),
+                txt(result.reversal.macdBullCross ? "✔️" : "❌", { size: "sm", align: "end", flex: 1 }),
               ],
             },
           ],
         },
       ],
     }
-  );
+  ];
 }
-
-// 小工具：指標卡
-function indicatorCard(label, value) {
-  return {
-    type: "box",
-    layout: "vertical",
-    backgroundColor: "#F7F7F7",
-    cornerRadius: "md",
-    paddingAll: "8px",
-    contents: [
-      {
-        type: "text",
-        text: label,
-        size: "xs",
-        color: "#888888",
-        align: "center",
-      },
-      {
-        type: "text",
-        text: String(value),
-        size: "lg",
-        weight: "bold",
-        color: "#D93025",
-        align: "center",
-      },
-    ],
-  };
-}
-
-// 小工具：左右兩欄 baseline row
-function baselineRow(left, right, rightColor = "#111111", rightBold = false) {
-  return {
-    type: "box",
-    layout: "baseline",
-    contents: [
-      { type: "text", text: left, size: "sm", color: "#666666", flex: 1 },
-      {
-        type: "text",
-        text: right,
-        size: "sm",
-        color: rightColor,
-        weight: rightBold ? "bold" : "regular",
-        flex: 1,
-        align: "end",
-      },
-    ],
-  };
-}
-
-export { pushMessage, pushMessages, buildFlexCarouselFancy };
