@@ -11,4 +11,4 @@ function parseNumberOrNull(v) {
   return Number.isFinite(n) ? n : null;
 }
 
-module.exports = { parseNumberOrNull };
+export { parseNumberOrNull };

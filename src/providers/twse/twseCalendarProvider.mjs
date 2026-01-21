@@ -1,5 +1,5 @@
-const fetch = require("node-fetch");
-const { parseEnglishDateToISO, toTWDateKey } = require("../../utils/timeUtils");
+import fetch from "node-fetch";
+import { parseEnglishDateToISO, toTWDateKey } from "../../utils/timeUtils.mjs";
 
 /**
  * 以 TWSE Holiday Schedule（官網）判斷「今天是否開市」。
@@ -53,4 +53,4 @@ async function isMarketOpenTodayTWSE() {
   return !holidaySet.has(todayKey);
 }
 
-module.exports = { isMarketOpenTodayTWSE };
+export { isMarketOpenTodayTWSE };

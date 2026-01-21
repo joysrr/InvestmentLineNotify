@@ -39,4 +39,4 @@ function toTwseStockNo(symbol) {
   return String(symbol).replace(".TW", "").trim();
 }
 
-module.exports = { rocDateToIso, enumerateMonths, toTwseStockNo };
+export { rocDateToIso, enumerateMonths, toTwseStockNo };

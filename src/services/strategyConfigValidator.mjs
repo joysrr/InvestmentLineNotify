@@ -126,4 +126,4 @@ function validateStrategyConfig(strategy) {
   return true;
 }
 
-module.exports = { validateStrategyConfig };
+export { validateStrategyConfig };

@@ -1,5 +1,5 @@
-const { fetchStrategyConfig } = require("./strategyConfigService");
-const { validateStrategyConfig } = require("./strategyConfigValidator");
+import { fetchStrategyConfig } from "./strategyConfigService.mjs";
+import { validateStrategyConfig } from "./strategyConfigValidator.mjs";
 
 function getMACDSignal(macdResult) {
   if (!macdResult?.length) return "neutral";
@@ -331,7 +331,7 @@ async function getInvestmentSignalAsync(data, rsiArr, macdArr, kdArr) {
 
 const yn = (v) => (v ? "✔️" : "❌");
 
-module.exports = {
+export {
   getMACDSignal,
   evaluateInvestmentSignal,
   getInvestmentSignalAsync,

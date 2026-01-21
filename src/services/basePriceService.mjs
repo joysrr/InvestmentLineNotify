@@ -1,9 +1,5 @@
-const fetch = require("node-fetch");
+import fetch from "node-fetch";
 
-/**
- * 建議放到 .env：
- * BASE_PRICE_URL=https://raw.githubusercontent.com/joysrr/joysrr.github.io/master/Stock/BasePrice.txt
- */
 const BASE_PRICE_URL = process.env.BASE_PRICE_URL;
 
 let _cache = {
@@ -69,4 +65,4 @@ async function fetchLatestBasePrice(url = BASE_PRICE_URL) {
   }
 }
 
-module.exports = { fetchLatestBasePrice };
+export { fetchLatestBasePrice };

@@ -1,4 +1,3 @@
-// src/services/vixService.js
 import axios from "axios";
 
 const UA =
@@ -27,7 +26,7 @@ function formatTaifexDateTime(CDate, CTime) {
   return `${CDate.slice(0, 4)}/${CDate.slice(4, 6)}/${CDate.slice(6, 8)} ${hh}:${mm}:${ss}`;
 }
 
-export async function getTwVix() {
+async function getTwVix() {
   try {
     // 建 session（拿 cookie）
     const pre = await axios.get(
@@ -84,3 +83,5 @@ export async function getTwVix() {
     return null;
   }
 }
+
+export { getTwVix };

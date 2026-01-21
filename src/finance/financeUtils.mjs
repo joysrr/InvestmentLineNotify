@@ -1,6 +1,8 @@
-const fetch = require("node-fetch");
-const { RSI, MACD, Stochastic } = require("technicalindicators");
-const { parseEnglishDateToISO, toTWDateKey } = require("../utils/timeUtils");
+import fetch from "node-fetch";
+import ti from "technicalindicators";
+import { parseEnglishDateToISO, toTWDateKey } from "../utils/timeUtils.mjs";
+
+const { RSI, MACD, Stochastic } = ti;
 
 let _twseHolidayCache = {
   year: null,
@@ -332,7 +334,7 @@ async function isMarketOpenTodayTWSE() {
   return !holidaySet.has(todayKey);
 }
 
-module.exports = {
+export {
   fetchStockHistory,
   fetchRealTimePrice,
   calculateIndicators,
