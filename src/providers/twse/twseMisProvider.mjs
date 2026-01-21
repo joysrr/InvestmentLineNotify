@@ -1,6 +1,6 @@
-const fetch = require("node-fetch");
-const { toTwseStockNo } = require("../../utils/dateUtils");
-const { parseNumberOrNull } = require("../../utils/numberUtils");
+import fetch from "node-fetch";
+import { toTwseStockNo } from "../../utils/dateUtils.mjs";
+import { parseNumberOrNull } from "../../utils/numberUtils.mjs";
 
 /**
  * TWSE MIS 即時資訊 API provider
@@ -155,4 +155,4 @@ async function fetchRealtimeFromMis(symbol) {
   };
 }
 
-module.exports = { fetchRealtimeFromMis };
+export { fetchRealtimeFromMis };

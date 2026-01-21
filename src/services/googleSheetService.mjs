@@ -1,5 +1,5 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
-const { JWT } = require('google-auth-library');
+import { GoogleSpreadsheet } from "google-spreadsheet";
+import { JWT } from "google-auth-library";
 
 // 1. 取得並處理私鑰 (自動修復格式問題)
 let privateKey = process.env.GOOGLE_PRIVATE_KEY || "";
@@ -31,7 +31,7 @@ async function fetchLastPortfolioState() {
   try {
     const doc = await getSheetDoc();
     // ★ 鎖定第一張表 (index 0) 作為「讀取來源」
-    const sheet = doc.sheetsByIndex[0]; 
+    const sheet = doc.sheetsByIndex[0];
     const rows = await sheet.getRows();
 
     if (rows.length === 0) {
@@ -63,9 +63,9 @@ async function fetchLastPortfolioState() {
 
     let cash = lastRow.get('現金儲備'); // 記得在第一張表也要加這個欄位
     if (typeof cash === 'string') cash = cash.replace(/,/g, '').trim();
-    const cashValue = (cash && !isNaN(parseFloat(cash))) 
-                      ? parseFloat(cash) 
-                      : parseFloat(process.env.CASH_RESERVE || 0);
+    const cashValue = (cash && !isNaN(parseFloat(cash)))
+      ? parseFloat(cash)
+      : parseFloat(process.env.CASH_RESERVE || 0);
 
     return {
       qty0050: parseFloat(lastRow.get('0050股數') || 0),
@@ -92,17 +92,17 @@ async function logDailyToSheet(data) {
 
     // 如果「通知紀錄」分頁不存在，自動建立並加上標題
     if (!sheet) {
-        console.log(`🆕 發現新需求，正在建立 [${targetSheetTitle}] 分頁...`);
-        sheet = await doc.addSheet({ title: targetSheetTitle });
-        await sheet.setHeaderRow([
-            '日期', 
-            '0050股數', '00675L股數', 
-            '0050市值', '00675L市值', 
-            '借貸總額', '現金儲備', 
-            '維持率（%）', 
-            '總淨資產', '正2占總資產比例', 
-            '正2應賣出金額', '備註'
-        ]);
+      console.log(`🆕 發現新需求，正在建立 [${targetSheetTitle}] 分頁...`);
+      sheet = await doc.addSheet({ title: targetSheetTitle });
+      await sheet.setHeaderRow([
+        '日期',
+        '0050股數', '00675L股數',
+        '0050市值', '00675L市值',
+        '借貸總額', '現金儲備',
+        '維持率（%）',
+        '總淨資產', '正2占總資產比例',
+        '正2應賣出金額', '備註'
+      ]);
     }
 
     const rows = await sheet.getRows();
@@ -125,8 +125,8 @@ async function logDailyToSheet(data) {
 
     let sellAmount = 0;
     if (data.z2Ratio > 42) {
-        const targetZ2Value = netAsset * 0.4;
-        sellAmount = Math.round(valZ2 - targetZ2Value);
+      const targetZ2Value = netAsset * 0.4;
+      sellAmount = Math.round(valZ2 - targetZ2Value);
     }
 
     const rowData = {
@@ -148,12 +148,12 @@ async function logDailyToSheet(data) {
     const lastRow = rows[rows.length - 1];
 
     if (lastRow && lastRow.get('日期') === dateStr) {
-        console.log(`🔄 [${targetSheetTitle}] 今天已有資料，執行更新...`);
-        lastRow.assign(rowData); 
-        await lastRow.save();
+      console.log(`🔄 [${targetSheetTitle}] 今天已有資料，執行更新...`);
+      lastRow.assign(rowData);
+      await lastRow.save();
     } else {
-        console.log(`📝 [${targetSheetTitle}] 新增今日紀錄...`);
-        await sheet.addRow(rowData);
+      console.log(`📝 [${targetSheetTitle}] 新增今日紀錄...`);
+      await sheet.addRow(rowData);
     }
 
     console.log("✅ 通知紀錄已同步");
@@ -163,4 +163,4 @@ async function logDailyToSheet(data) {
   }
 }
 
-module.exports = { fetchLastPortfolioState, logDailyToSheet };
+export { fetchLastPortfolioState, logDailyToSheet };

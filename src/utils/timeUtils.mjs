@@ -61,7 +61,7 @@ function parseEnglishDateToISO(dateText) {
   return `${y}-${m}-${day}`;
 }
 
-module.exports = {
+export {
   getTaiwanDayOfWeek,
   getTaiwanDate,
   isQuarterEnd,

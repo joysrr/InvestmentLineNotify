@@ -1,33 +1,15 @@
-require("dotenv").config();
-
-const { getTwVix } = require("./services/vixService.js");
-const { fetchLatestBasePrice } = require("./services/basePriceService");
-const {
-  pushMessage,
-  pushMessages,
-  buildFlexCarouselFancy,
-} = require("./services/notifyService");
-const {
-  getMACDSignal,
-  getInvestmentSignalAsync,
-} = require("./services/stockSignalService");
-
-const {
-  fetchStockHistory,
-  fetchLatestClose,
-} = require("./providers/twse/twseStockDayProvider");
-const { fetchRealtimeFromMis } = require("./providers/twse/twseMisProvider");
-const {
-  isMarketOpenTodayTWSE,
-} = require("./providers/twse/twseCalendarProvider");
-
-const { calculateIndicators } = require("./finance/indicators");
-const { getTaiwanDate } = require("./utils/timeUtils");
-
-const {
-  fetchLastPortfolioState,
-  logDailyToSheet,
-} = require("./services/googleSheetService");
+import "dotenv/config";
+import { fileURLToPath } from "url";
+import { getTwVix } from "./services/vixService.mjs";
+import { fetchLatestBasePrice } from "./services/basePriceService.mjs";
+import { pushMessage, pushMessages, buildFlexCarouselFancy } from "./services/notifyService.mjs";
+import { getMACDSignal, getInvestmentSignalAsync } from "./services/stockSignalService.mjs";
+import { fetchStockHistory, fetchLatestClose } from "./providers/twse/twseStockDayProvider.mjs";
+import { fetchRealtimeFromMis } from "./providers/twse/twseMisProvider.mjs";
+import { isMarketOpenTodayTWSE } from "./providers/twse/twseCalendarProvider.mjs";
+import { calculateIndicators } from "./finance/indicators.mjs";
+import { getTaiwanDate } from "./utils/timeUtils.mjs";
+import { fetchLastPortfolioState, logDailyToSheet } from "./services/googleSheetService.mjs";
 
 async function dailyCheck(sendPush = true) {
   try {
@@ -109,7 +91,7 @@ async function dailyCheck(sendPush = true) {
     try {
       const rt = await fetchRealtimeFromMis(symbolZ2);
       currentPriceZ2 = rt?.price;
-    } catch (e) {}
+    } catch (e) { }
 
     if (!currentPriceZ2) {
       const latest = await fetchLatestClose(symbolZ2);
@@ -294,10 +276,11 @@ async function dailyCheck(sendPush = true) {
   }
 }
 
-module.exports = { dailyCheck };
+export { dailyCheck };
 
-if (require.main === module) {
-  dailyCheck(true).then((result) => {
+const __filename = fileURLToPath(import.meta.url);
+if (process.argv[1] === __filename) {
+  dailyCheck(false).then((result) => {
     console.log("\n=== 每日投資自檢訊息（本機測試） ===\n");
     console.log("=== 標題 ===\n");
     console.log(result.header);

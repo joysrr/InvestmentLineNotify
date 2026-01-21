@@ -1,10 +1,6 @@
-const fetch = require("node-fetch");
-const {
-  enumerateMonths,
-  rocDateToIso,
-  toTwseStockNo,
-} = require("../../utils/dateUtils");
-const { parseNumberOrNull } = require("../../utils/numberUtils");
+import fetch from "node-fetch";
+import { enumerateMonths, rocDateToIso, toTwseStockNo } from "../../utils/dateUtils.mjs";
+import { parseNumberOrNull } from "../../utils/numberUtils.mjs";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -103,7 +99,7 @@ async function fetchLatestClose(symbol) {
   return rows[rows.length - 1];
 }
 
-module.exports = {
+export {
   fetchStockHistory,
   fetchLatestClose,
 };

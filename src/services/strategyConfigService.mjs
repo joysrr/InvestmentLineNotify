@@ -1,5 +1,5 @@
-const fetch = require("node-fetch");
-const { validateStrategyConfig } = require("./strategyConfigValidator");
+import fetch from "node-fetch";
+import { validateStrategyConfig } from "./strategyConfigValidator.mjs";
 
 const STRATEGY_URL = process.env.STRATEGY_URL;
 
@@ -58,4 +58,4 @@ async function fetchStrategyConfig() {
   }
 }
 
-module.exports = { fetchStrategyConfig };
+export { fetchStrategyConfig };

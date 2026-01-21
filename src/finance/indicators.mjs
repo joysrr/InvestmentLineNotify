@@ -1,4 +1,6 @@
-const { RSI, MACD, Stochastic } = require("technicalindicators");
+import ti from "technicalindicators";
+
+const { RSI, MACD, Stochastic } = ti;
 
 /**
  * 由歷史日線資料計算 RSI / MACD / KD。
@@ -32,4 +34,4 @@ function calculateIndicators(history) {
   };
 }
 
-module.exports = { calculateIndicators };
+export { calculateIndicators };
