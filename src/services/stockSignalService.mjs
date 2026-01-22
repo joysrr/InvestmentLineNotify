@@ -1,5 +1,6 @@
 import { fetchStrategyConfig } from "./strategyConfigService.mjs";
 import { validateStrategyConfig } from "./strategyConfigValidator.mjs";
+import { last2, crossUpLevel, crossDownLevel, macdCrossUp, macdCrossDown, kdCrossDown } from "../finance/indicators.mjs";
 
 function getMACDSignal(macdResult) {
   if (!macdResult?.length) return "neutral";
@@ -9,330 +10,402 @@ function getMACDSignal(macdResult) {
   return "neutral";
 }
 
-function evaluateInvestmentSignal(data, rsiArr, macdArr, kdArr, strategy) {
-  let weightScore = 0;
-  const buyDetails = [];
+// 轉多權重計算
+function computeEntryScore(data, priceDropPercent, strategy) {
+  // 找到符合的跌幅規則（從高到低排序）取得分數
+  const dropRules = Array.isArray(strategy?.buy?.dropScoreRules)
+    ? strategy.buy.dropScoreRules.toSorted((a, b) => b.minDrop - a.minDrop)
+    : [];
+  const dropRule = dropRules.find((r) => priceDropPercent >= r.minDrop);
 
-  // 1. 讀取環境變數 (持股資料)
-  const portfolio = data.portfolio || {};
-  const qty0050 = portfolio.qty0050 ?? parseFloat(process.env.QTY_0050 || 0);
-  const qtyZ2 = portfolio.qtyZ2 ?? parseFloat(process.env.QTY_00675L || 0);
-  const totalLoan =
-    portfolio.totalLoan ?? parseFloat(process.env.TOTAL_LOAN || 1);
-  const cash = portfolio.cash || 0; // ★ 讀取現金
+  const oversold = strategy.buy.rsi.oversold;
+  const oversoldK = strategy.buy.kd.oversoldK;
 
-  // 2. 計算跌幅給分
-  const dropRules = strategy.buy.dropScoreRules || [];
-  // 修正：依照跌幅由大到小排序，找到符合的最大跌幅規則
-  const dropRule = dropRules
-    .sort((a, b) => b.minDrop - a.minDrop)
-    .find((r) => data.priceDropPercent >= r.minDrop);
+  const kd2 = last2(data.kdArr);
+  const kdBullLow = kd2
+    ? (kd2[0].k <= kd2[0].d && kd2[1].k > kd2[1].d && kd2[1].k < oversoldK)
+    : false;
 
-  if (dropRule) {
-    weightScore += dropRule.score;
-    buyDetails.push(`${dropRule.label}：+${dropRule.score}分`);
-  } else {
-    buyDetails.push(`跌幅 ${data.priceDropPercent.toFixed(2)}%：未達加分門檻`);
+  const signals = {
+    rsiRebound: crossUpLevel(data.rsiArr, oversold),
+    macdBull: macdCrossUp(data.macdArr),
+    kdBullLow,
+  };
+
+  const details = {
+    dropInfo: dropRule ? dropRule.label : `跌幅 ${priceDropPercent.toFixed(2)}%：未達加分門檻`,
+    dropScore: dropRule ? dropRule.score : 0,
+    rsiInfo: signals.rsiRebound ? `RSI 反轉 (${oversold})` : `RSI 未反轉`,
+    rsiScore: signals.rsiRebound ? strategy.buy.rsi.score : 0,
+    macdInfo: signals.macdBull ? "MACD 黃金交叉" : "MACD 無交叉",
+    macdScore: signals.macdBull ? strategy.buy.macd.score : 0,
+    kdInfo: signals.kdBullLow ? `KD 低檔交叉 (<${oversoldK})` : "KD 無交叉",
+    kdScore: signals.kdBullLow ? strategy.buy.kd.score : 0,
+  };
+
+  const score = details.dropScore + details.rsiScore + details.macdScore + details.kdScore;
+  return { weightScore: score, weightDetails: details, entrySignals: signals };
+}
+
+// 轉弱指標計算
+function computeReversalTriggers(data, strategy) {
+  const th = strategy.threshold;
+  const rsiDrop = crossDownLevel(data.rsiArr, th.rsiReversalLevel);
+
+  const kdDrop = (() => {
+    const v = last2(data.kdArr);
+    if (!v) return false;
+    const [prev, curr] = v;
+    return prev.k >= th.kReversalLevel && curr.k < th.kReversalLevel;
+  })();
+
+  const kdBearCross = kdCrossDown(data.kdArr);
+  const macdBearCross = macdCrossDown(data.macdArr);
+
+  const flags = { rsiDrop, kdDrop, kdBearCross, macdBearCross };
+  const triggeredCount = Object.values(flags).filter(Boolean).length;
+
+  return { totalFactor: Object.keys(flags).length, triggeredCount, ...flags };
+}
+
+// 過熱指標
+function computeOverheatState(data, bias240, strategy) {
+  const th = strategy.threshold;
+  const b = Number.isFinite(bias240) ? bias240 : null;
+
+  const factors = {
+    rsiHigh: Number.isFinite(data.RSI) && data.RSI > th.rsiOverheatLevel,
+    kdHigh: Number.isFinite(data.KD_K) && data.KD_K > th.kOverheatLevel,
+    biasHigh: Number.isFinite(b) && b > th.bias240OverheatLevel,
+  };
+
+  const factorCount = Object.keys(factors).length;
+  const highCount = Object.values(factors).filter(Boolean).length;
+
+  return {
+    isOverheat: highCount >= th.overheatCount,
+    factorCount,
+    highCount,
+    coolCount: factorCount - highCount,
+    factors,
+    bias240: b,
+  };
+}
+
+function computeSellSignals(data, strategy) {
+  const sell = strategy.sell;
+  const overbought = sell.rsi.overbought;      // 70
+  const overboughtK = sell.kd.overboughtK;     // 80
+
+  // ✅ 狀態（state）：是否處於超買區
+  const rsiStateOverbought = Number.isFinite(data.RSI) && data.RSI >= overbought;
+  const kdStateOverbought = Number.isFinite(data.KD_K) && data.KD_K >= overboughtK;
+
+  // 1) RSI：高於 70 並回落（prev>=70, curr<70）
+  const rsiSell = crossDownLevel(data.rsiArr, overbought);
+
+  // 2) MACD：快線下穿慢線 + 柱狀圖轉負
+  const macdSell = (() => {
+    const v = last2(data.macdArr);
+    if (!v) return false;
+    const [prev, curr] = v;
+    const crossDown = prev.MACD >= prev.signal && curr.MACD < curr.signal;
+    const histTurnNeg = Number.isFinite(curr.histogram) && curr.histogram < 0;
+    return crossDown && histTurnNeg;
+  })();
+
+  // 3) KD：K 下穿 D，且位於 80 高檔
+  const kdSell = (() => {
+    const v = last2(data.kdArr);
+    if (!v) return false;
+    const [prev, curr] = v;
+    const crossDown = prev.k >= prev.d && curr.k < curr.d;
+    const inOverbought = Number.isFinite(curr.k) && curr.k >= overboughtK;
+    return crossDown && inOverbought;
+  })();
+
+  const flags = { rsiSell, macdSell, kdSell };
+  const signalCount = Object.values(flags).filter(Boolean).length;
+
+  const stateFlags = { rsiStateOverbought, kdStateOverbought };
+  const stateCount = Object.values(stateFlags).filter(Boolean).length;
+
+  return {
+    flags,
+    signalCount,
+    total: 3,
+    stateFlags,
+    stateCount,
+  };
+}
+
+// 評估狀況並取得建議操作
+// 追繳/佔比/禁撥 > 轉弱 > 轉多
+function buildDecision(ctx, strategy) {
+  const th = strategy.threshold;
+
+  const {
+    // 風控/資產
+    maintenanceMargin, // %
+    z2Ratio,           // %
+    netAsset,
+    currentZ2Value,
+
+    // 計算結果
+    entry,     // { weightScore, weightDetails }
+    overheat,  // { isOverheat, factorCount, highCount, coolCount, factors, bias240? }
+    reversal,  // { totalFactor, triggeredCount, rsiDrop, kdDrop, kdBearCross, macdBearCross }
+    sellSignals, // { flags, signalCount, total }
+  } = ctx;
+
+  // 1) 追繳風險：一票否決（風控優先）[web:896]
+  if (maintenanceMargin < th.mmDanger) {
+    return {
+      marketStatus: "⚠️【追繳風險】",
+      target: "🧯 風控優先",
+      targetSuggestionShort: "停止撥款；優先補保證金/降槓桿",
+      targetSuggestion: "停止撥款與加碼；準備補錢或降低槓桿",
+      suggestion: `⚠️ 維持率 ${maintenanceMargin.toFixed(0)}% 過低：停止加碼，優先補保證金/降槓桿`,
+    };
   }
 
-  // 3. 技術指標給分 (RSI, MACD, KD)
-  // ... (保留原本 RSI 邏輯) ...
-  const rsiIdx = (rsiArr?.length ?? 0) - 1;
-  if (rsiIdx >= 1) {
-    const prevRSI = rsiArr[rsiIdx - 1];
-    const currRSI = rsiArr[rsiIdx];
-    const oversold = strategy.buy.rsi.oversold;
-    if (prevRSI < oversold && currRSI >= oversold) {
-      weightScore += strategy.buy.rsi.score;
-      buyDetails.push(`RSI 反轉：+${strategy.buy.rsi.score}分`);
-    } else {
-      buyDetails.push(`RSI 未反轉 (現值${currRSI.toFixed(1)})`);
-    }
+  // 2) 再平衡：00675L 佔比過高
+  if (z2Ratio > th.z2RatioHigh) {
+    const targetZ2Value = netAsset * th.z2TargetRatio;
+    const sellAmount = Math.max(0, currentZ2Value - targetZ2Value);
+
+    return {
+      marketStatus: "💰【再平衡】",
+      target: "⚖️ 降槓桿",
+      targetSuggestionShort: "賣00675L還款；回到目標佔比",
+      targetSuggestion: "賣出部分00675L並還款，恢復到目標佔比",
+      suggestion: `💰 00675L佔比 ${z2Ratio.toFixed(1)}% 過高：建議賣出約 ${sellAmount.toLocaleString("zh-TW", { maximumFractionDigits: 0 })} 元並還款`,
+    };
   }
 
-  // ... (保留原本 MACD 邏輯) ...
-  const macdIdx = (macdArr?.length ?? 0) - 1;
-  if (macdIdx >= 1) {
-    const prev = macdArr[macdIdx - 1];
-    const curr = macdArr[macdIdx];
-    const goldenCross =
-      prev.MACD <= prev.signal && curr.MACD > curr.signal && curr.histogram > 0;
-    if (goldenCross) {
-      weightScore += strategy.buy.macd.score;
-      buyDetails.push(`MACD 交叉：+${strategy.buy.macd.score}分`);
-    } else {
-      buyDetails.push(`MACD 無交叉`);
-    }
+  if (
+    ctx.priceUpPercent >= strategy.sell.minUpPercentToSell &&
+    sellSignals.signalCount >= strategy.sell.minSignalCountToSell
+  ) {
+    return buildSellBackToAllocation(ctx, strategy);
   }
 
-  // ... (保留原本 KD 邏輯) ...
-  if (data.KD_K != null && data.KD_D != null) {
-    const oversoldK = strategy.buy.kd.oversoldK;
-    if (data.KD_K > data.KD_D && data.KD_K < oversoldK) {
-      weightScore += strategy.buy.kd.score;
-      buyDetails.push(`KD 低檔交叉：+${strategy.buy.kd.score}分`);
-    } else {
-      buyDetails.push(`KD 無交叉 (K=${data.KD_K.toFixed(1)})`);
-    }
+  // 3) 過熱：狀態（不等於反轉，但你的策略是禁撥款）
+  if (overheat.isOverheat) {
+    const f = overheat.factors; // { rsiHigh, kdHigh, biasHigh }
+
+    const factorText =
+      `解除禁令進度：${overheat.coolCount}/${overheat.factorCount} ` +
+      `｜RSI${th.rsiOverheatLevel}${f.rsiHigh ? "❌" : "✔️"}` +
+      `｜KD${th.kOverheatLevel}${f.kdHigh ? "❌" : "✔️"}` +
+      `｜BIAS${th.bias240OverheatLevel}${f.biasHigh ? "❌" : "✔️"}`;
+
+    const reversalText =
+      `反轉觸發：${reversal.triggeredCount}/${reversal.totalFactor}` +
+      `｜RSI跌破${th.rsiReversalLevel}${reversal.rsiDrop ? "✔️" : "❌"}` +
+      `｜KD跌破${th.kReversalLevel}${reversal.kdDrop ? "✔️" : "❌"}` +
+      `｜KD死叉${reversal.kdBearCross ? "✔️" : "❌"}` +
+      `｜MACD死叉${reversal.macdBearCross ? "✔️" : "❌"}`;
+
+    return {
+      marketStatus: "🔥【極度過熱】",
+      target: "🚫 禁撥款",
+      targetSuggestionShort: "0050照常；00675L 禁止撥款",
+      targetSuggestion: "0050照常；暫停撥款買 00675L；允許質押但不動用額度",
+      suggestion: `🚫 禁撥款；0050照常定投；允許質押但不動用額度\n${factorText}\n${reversalText}`,
+      factorText,
+      reversalText,
+    };
   }
 
-  // 4. 計算賣出訊號 (僅作參考，不用於核心建議)
-  const priceUpPercent =
-    ((data.currentPrice - data.basePrice) / data.basePrice) * 100;
+  // 4) 轉弱：事件（不過熱但出現轉弱訊號 → 降速/停止加碼）
+  // 你可自行定義「轉弱要幾個觸發才算明顯」
+  if (reversal.triggeredCount >= th.reversalTriggerCount) {
+    return {
+      marketStatus: "📉【轉弱監控】",
+      target: "⏸️ 降速/停止買入",
+      targetSuggestionShort: "0050照常；00675L 停止撥款",
+      targetSuggestion: "0050照常；00675L 停止撥款，等待轉弱解除或轉多恢復",
+      suggestion: `📉 轉弱訊號 ${reversal.triggeredCount}/${reversal.totalFactor}：暫停加碼，等待轉多恢復或觸發再平衡門檻`,
+      reversal,
+    };
+  }
 
-  // 5. ★核心計算：維持率與資產佔比
-  const current0050Value = qty0050 * data.price0050; // 0050 市值
-  const currentZ2Value = qtyZ2 * data.currentPrice; // 正2 市值
+  const dropOk = ctx.priceDropPercent >= strategy.buy.minDropPercentToConsider;
+  const scoreOk = entry.weightScore >= strategy.buy.minWeightScoreToBuy;
+
+  // 偏熱但尚未過熱（例如只命中 bias240）
+  if (!overheat.isOverheat && overheat.highCount > 0 && (!dropOk || !scoreOk)) {
+    return {
+      marketStatus: "🟨【偏熱/觀察】",
+      target: "🟦 觀察/不撥款",
+      targetSuggestionShort: "0050照常；00675L 先不撥款",
+      targetSuggestion: "0050照常；00675L 先不撥款，避免追高（等回檔或轉多）",
+      suggestion:
+        `未達進場：跌幅 ${ctx.priceDropPercent.toFixed(1)}%/${strategy.buy.minDropPercentToConsider}% ${dropOk ? "✔️" : "❌"}，` +
+        `分數 ${entry.weightScore}/${strategy.buy.minWeightScoreToBuy} ${scoreOk ? "✔️" : "❌"}；` +
+        `過熱因子命中 ${overheat.highCount}/${overheat.factorCount}（未達過熱）`,
+      entry: ctx.entry,
+    };
+  }
+
+  // 4.5) 未達進場：中性觀察（✅ 改名，不再叫低溫）
+  if (!dropOk || !scoreOk) {
+    return {
+      marketStatus: "🟦【觀察/未達進場】",
+      target: "🟦 觀察/不撥款",
+      targetSuggestionShort: "0050照常；00675L 等待進場",
+      targetSuggestion: "0050照常；00675L 等待進場條件達成（跌幅/評分達標再撥款）",
+      suggestion:
+        `未達撥款門檻：` +
+        `跌幅 ${ctx.priceDropPercent.toFixed(1)}%/${strategy.buy.minDropPercentToConsider}% ${dropOk ? "✔️" : "❌"}，` +
+        `分數 ${entry.weightScore}/${strategy.buy.minWeightScoreToBuy} ${scoreOk ? "✔️" : "❌"}`,
+      entry: ctx.entry,
+    };
+  }
+
+  // 5) 正常情境：用轉多分數決定加碼級別（你原本的分段）
+  const w = entry.weightScore;
+
+  if (w >= th.wAggressive) {
+    return {
+      marketStatus: "🌱【轉多/可進攻】",
+      target: "🔥 最積極型",
+      targetSuggestionShort: "00675L 大額加碼（60%）",
+      targetSuggestion: "建議增貸至 60% 加碼",
+      suggestion: `🔥 最積極型（${w}分）：建議增貸至 60% 加碼`,
+    };
+  }
+
+  if (w >= th.wActive) {
+    return {
+      marketStatus: "🌱【轉多/可加碼】",
+      target: "🚨 積極型",
+      targetSuggestionShort: "00675L 加碼（50%）",
+      targetSuggestion: "建議增貸至 50% 加碼",
+      suggestion: `🚨 積極型（${w}分）：建議增貸至 50% 加碼`,
+    };
+  }
+
+  return {
+    marketStatus: "🌱【轉多/偏保守】",
+    target: "💡 保守型",
+    targetSuggestionShort: "00675L 小額加碼（40%）",
+    targetSuggestion: "建議維持 40% 加碼或小額觀察",
+    suggestion: `💡 保守型（${w}分）：建議維持 40% 加碼或小額觀察`,
+  };
+}
+
+function getPostSellAllocation(strategy) {
+  const rules = Array.isArray(strategy?.allocation) ? strategy.allocation : [];
+  const n = Number(strategy?.sell?.postAllocationIndexFromEnd ?? 2);
+
+  if (rules.length < n) {
+    throw new Error(`strategy.allocation 長度不足：len=${rules.length}, 但 postAllocationIndexFromEnd=${n}`);
+  }
+
+  const rule = rules.at(-n); // -2 = 倒數第二條 [web:902]
+  if (!rule) throw new Error("取得 post allocation 失敗");
+  return rule; // { minScore, leverage, cash }
+}
+
+
+function buildSellBackToAllocation(ctx, strategy) {
+  const post = getPostSellAllocation(strategy);
+  const targetLeverage = post.leverage; // 0.8
+  const targetZ2Value = ctx.netAsset * targetLeverage;
+
+  const sellAmount = Math.max(0, ctx.currentZ2Value - targetZ2Value);
+
+  return {
+    marketStatus: "🎯【停利/降槓桿】",
+    target: "🔻 賣出/還款",
+    targetSuggestion: `停利賣00675L；降到 ${(post.leverage * 100).toFixed(0)}%`,
+    targetSuggestion: `賣出部分00675L並還款，恢復槓桿 ${(targetLeverage * 100).toFixed(0)}% / 現金 ${(post.cash * 100).toFixed(0)}%`,
+    suggestion:
+      `🎯 觸發賣出條件：建議賣出約 ${sellAmount.toLocaleString("zh-TW", { maximumFractionDigits: 0 })} 元並還款，` +
+      `回到 ${(targetLeverage * 100).toFixed(0)} / ${(post.cash * 100).toFixed(0)}`,
+    postAllocation: post,
+    sellAmount,
+  };
+}
+
+
+function evaluateInvestmentSignal(data, strategy) {
+  // 基於基準價現價上漲幅度
+  const priceChangePercent = ((data.currentPrice - data.basePrice) / data.basePrice) * 100;
+  const priceUpPercent = Math.max(0, priceChangePercent);
+  const priceDropPercent = Math.max(0, -priceChangePercent); // 永遠 >= 0
+
+  // 維持率與資產佔比
+  const current0050Value = data.portfolio.qty0050 * data.price0050; // 0050 市值
+  const currentZ2Value = data.portfolio.qtyZ2 * data.currentPrice; // 00675L 市值
 
   // 維持率 = 擔保品市值 / 總借款
   // 注意：若無借款 (totalLoan=0)，維持率設為無限大
   // 維持率計算 (確保使用正確的 totalLoan)
-  const maintenanceMargin =
-    totalLoan > 0 ? (current0050Value / totalLoan) * 100 : 999;
+  const maintenanceMargin = data.portfolio.totalLoan > 0 ? (current0050Value / data.portfolio.totalLoan) * 100 : 999;
 
-  // 正2 佔比 = 正2市值 / (0050市值 + 正2市值 + 現金 - 總借款)
-  const netAsset = current0050Value + currentZ2Value + cash - totalLoan;
+  // 00675L 佔比 = 00675L市值 / (0050市值 + 00675L市值 + 現金 - 總借款)
+  const netAsset = current0050Value + currentZ2Value + data.portfolio.cash - data.portfolio.totalLoan;
   const z2Ratio = netAsset > 0 ? (currentZ2Value / netAsset) * 100 : 0;
 
   // 計算年線乖離率
-  const ma240 =
-    Number.isFinite(data.ma240) && data.ma240 > 0 ? data.ma240 : null;
+  const ma240 = Number.isFinite(data.ma240) && data.ma240 > 0 ? data.ma240 : null;
   const bias240 = ma240 ? ((data.currentPrice - ma240) / ma240) * 100 : null;
 
-  // 判定過熱因子
-  const factors = {
-    rsiHigh:
-      Number.isFinite(data.RSI) && data.RSI > strategy.threshold.rsiCoolOff,
-    kdHigh:
-      Number.isFinite(data.KD_K) && data.KD_K > strategy.threshold.kdCoolOff,
-    biasHigh:
-      Number.isFinite(bias240) && bias240 > strategy.threshold.bias240CoolOff,
+  const ctx = {
+    priceChangePercent,
+    priceUpPercent,
+    priceDropPercent,
+    // 風控/資產
+    maintenanceMargin, // %
+    z2Ratio,           // %
+    netAsset,
+    currentZ2Value,
+
+    // 計算結果
+    entry: computeEntryScore(data, priceDropPercent, strategy),     // { weightScore, weightDetails }
+    overheat: computeOverheatState(data, bias240, strategy),  // { isOverheat, factorCount, highCount, coolCount, factors, bias240? }
+    reversal: computeReversalTriggers(data, strategy),  // { totalFactor, triggeredCount, rsiDrop, kdDrop, kdBearCross, macdBearCross }
+    sellSignals: computeSellSignals(data, strategy),
   };
 
   // 取得決策結果
-  const decision = buildDecision(
-    {
-      maintenanceMargin,
-      z2Ratio,
-      netAsset,
-      currentZ2Value,
-      factors,
-      data,
-      bias240,
-      weightScore,
-      rsiArr,
-      macdArr,
-      kdArr,
-    },
-    strategy.threshold,
-  );
+  const decision = buildDecision(ctx, strategy);
+
+  // 取得 MACD 訊號
+  const macdSignal = getMACDSignal(data.macdArr);
 
   return {
-    marketStatus: decision.marketStatus,
-    target: decision.target,
-    targetSuggestion: decision.targetSuggestion,
-    factor: decision.factor,
-    factorText: decision.factorText,
-    reversal: decision.reversal,
-    reversalText: decision.reversalText,
-    suggestion: decision.suggestion,
-    bias240,
-    weightScore,
-    buyDetails,
     currentPrice: data.currentPrice,
     basePrice: data.basePrice,
-    priceDropPercent: data.priceDropPercent,
-    priceUpPercent: priceUpPercent.toFixed(2),
+    totalLoan: data.portfolio.totalLoan,
+    bias240: bias240,
+    priceChangePercent,
+    priceChangePercentText: priceChangePercent.toFixed(2),
+    priceUpPercent: priceUpPercent,
+    priceUpPercentText: priceUpPercent.toFixed(2),
+    priceDropPercent: priceDropPercent,
+    priceDropPercentText: priceDropPercent.toFixed(2),
     RSI: data.RSI,
-    MACDSignal: data.MACDSignal,
     KD_K: data.KD_K || 0,
     KD_D: data.KD_D || 0,
+    overheat: ctx.overheat,
+    reversal: ctx.reversal,
+    weightScore: ctx.entry.weightScore,
+    weightDetails: ctx.entry.weightDetails,
+    sellSignals: ctx.sellSignals,
+    macdSignal,
     maintenanceMargin,
     z2Ratio,
-    totalLoan,
     strategy,
+    ...decision,
   };
 }
 
-function buildDecision(ctx, th) {
-  const {
-    maintenanceMargin,
-    z2Ratio,
-    netAsset,
-    currentZ2Value,
-    factors,
-    data,
-    bias240,
-    weightScore,
-    rsiArr,
-    kdArr,
-    macdArr,
-  } = ctx;
-
-  // 取得反轉
-  let reversal = null;
-  let reversalText = null;
-
-  // 取得解除
-  const factorCount = Object.values(factors).length;
-  const highFactorCount = Object.values(factors).filter(Boolean).length;
-
-  let factor = null;
-  let factorText = null;
-
-  // 1) 風險：追繳
-  if (maintenanceMargin < th.mmDanger) {
-    return {
-      marketStatus: "⚠️【追繳風險】",
-      suggestion: `⚠️ 維持率 ${maintenanceMargin.toFixed(0)}% 過低！請準備補錢或停止加碼`,
-    };
-  }
-
-  // 2) 再平衡：正2佔比
-  if (z2Ratio > th.z2RatioHigh) {
-    const targetZ2Value = netAsset * 0.4;
-    const sellAmount = Math.max(0, currentZ2Value - targetZ2Value);
-    return {
-      marketStatus: "💰【再平衡】",
-      suggestion: `💰 正2佔比 ${z2Ratio.toFixed(1)}% 過高！建議賣出約 ${sellAmount.toLocaleString("zh-TW", { maximumFractionDigits: 0 })} 元並還款`,
-    };
-  }
-
-  // 3) 市場狀態：過熱/冷卻
-  if (highFactorCount >= th.overheatCount) {
-    factor = {
-      factorCount: factorCount,
-      hitFactor: factorCount - highFactorCount,
-      rsiDrop: !factors.rsiHigh,
-      kdDrop: !factors.kdHigh,
-      biasDrop: !factors.biasHigh,
-    };
-
-    factorText = `🪓 解除禁令：${factor.hitFactor}/${factor.factorCount}（需≥${factor.factorCount - 1}）｜R${th.rsiCoolOff}${yn(factor.rsiDrop)}｜K${th.kdCoolOff}${yn(factor.kdDrop)}｜B${th.bias240CoolOff}${yn(factor.biasDrop)}\n`;
-
-    reversal = computeReversalTriggers({
-      rsiArr,
-      macdArr,
-      kdArr,
-      th,
-    });
-
-    reversalText = `📉 反轉觸發：${reversal.hitFactor}/${reversal.totalFactor}｜R${th.rsiCoolOff}${yn(reversal.rsiDrop)}｜K${th.kdCoolOff}${yn(reversal.kdDrop)}｜KD${yn(reversal.kdBearCross)}｜MACD${yn(reversal.macdBearCross)}`;
-
-    return {
-      marketStatus: "🔥【極度過熱】",
-      target: `🚫 禁撥款`,
-      targetSuggestion: `0050照常定投；允許質押但不動用額度`,
-      suggestion:
-        `🚫 禁撥款；0050照常定投；允許質押但不動用額度\n` +
-        `${factorText}\n` +
-        `${reversalText}`,
-      factor,
-      factorText,
-      reversal,
-      reversalText,
-    };
-  }
-
-  if (data.RSI > th.coolRSI || bias240 > th.coolBias) {
-    return {
-      marketStatus: "⚠️【冷卻校準中】",
-      target: `💡 處於高檔冷卻區`,
-      targetSuggestion: `建議分批少量或繼續等待`,
-      suggestion: "💡 處於高檔冷卻區，建議分批少量或繼續等待",
-      factor,
-      factorText,
-      reversal,
-      reversalText,
-    };
-  }
-
-  // 4) 才進入加碼分段
-  let target = `✔️ 市場冷靜`;
-  let targetSuggestion = `可執行1.8倍槓桿，撥款並購買00675L`;
-  let suggestion = "✔️ 市場冷靜，可執行1.8倍槓桿，撥款並購買00675L";
-  if (weightScore >= th.wAggressive) {
-    target = `🔥 最積極型`;
-    targetSuggestion = `建議增貸至 60% 加碼`;
-    suggestion += "\n🔥 最積極型：建議增貸至 60% 加碼";
-  } else if (weightScore >= th.wActive) {
-    target = `🚨 積極型`;
-    targetSuggestion = `建議增貸至 50% 加碼`;
-    suggestion += "\n🚨 積極型：建議增貸至 50% 加碼";
-  } else {
-    target = `💡 保守型`;
-    targetSuggestion = `建議維持 40% 加碼`;
-    suggestion += `\n💡 保守型 (${weightScore}分)：建議維持 40% 加碼`;
-  }
-
-  return {
-    marketStatus: "🌱【安全/低溫】",
-    suggestion,
-    target,
-    targetSuggestion,
-    factor,
-    factorText,
-    reversal,
-    reversalText,
-  };
-}
-
-function computeReversalTriggers({ rsiArr, macdArr, kdArr, th }) {
-  const out = {
-    rsiDrop: null,
-    kdDrop: null,
-    kdBearCross: null,
-    macdBearCross: null,
-  };
-
-  // RSI 跌回 80（上一根 >=80，這一根 <80）
-  if ((rsiArr?.length ?? 0) >= 2) {
-    const prev = rsiArr.at(-2);
-    const curr = rsiArr.at(-1);
-    out.rsiDrop = prev >= th.rsiCoolOff && curr < th.rsiCoolOff;
-  }
-
-  // KD：需要前一根 K/D
-  if ((kdArr?.length ?? 0) >= 2) {
-    const prev = kdArr.at(-2);
-    const curr = kdArr.at(-1);
-
-    // KD 跌回 90（上一根K >=90，這一根K <90）
-    out.kdDrop = prev.k >= th.kdCoolOff && curr.k < th.kdCoolOff;
-
-    // KD K 下穿 D（上一根 K>=D，這一根 K<D）
-    out.kdBearCross = prev.k >= prev.d && curr.k < curr.d; // 死叉 [web:174]
-  }
-
-  // MACD 下穿 Signal（上一根 MACD>=Signal，這一根 MACD<Signal）
-  if ((macdArr?.length ?? 0) >= 2) {
-    const prev = macdArr.at(-2);
-    const curr = macdArr.at(-1);
-    out.macdBearCross = prev.MACD >= prev.signal && curr.MACD < curr.signal; // bearish crossover [web:169]
-  }
-
-  const hit = Object.values(out).filter(Boolean).length;
-  return {
-    totalFactor: 4,
-    hitFactor: hit,
-    rsiDrop: out.rsiDrop,
-    kdDrop: out.kdDrop,
-    kdBearCross: out.kdBearCross,
-    macdBearCross: out.macdBearCross,
-  };
-  //return `📉 反轉觸發：${hit}/4｜R${th.rsiCoolOff}${yn(out.rsiDrop)}｜K${th.kdCoolOff}${yn(out.kdDrop)}｜KD${yn(out.kdBearCross)}｜MACD${yn(out.macdBearCross)}`;
-}
-
-async function getInvestmentSignalAsync(data, rsiArr, macdArr, kdArr) {
+export async function getInvestmentSignalAsync(data) {
   const strategy = await fetchStrategyConfig();
   validateStrategyConfig(strategy);
-  return evaluateInvestmentSignal(data, rsiArr, macdArr, kdArr, strategy);
+  return evaluateInvestmentSignal(data, strategy);
 }
-
-const yn = (v) => (v ? "✔️" : "❌");
-
-export {
-  getMACDSignal,
-  evaluateInvestmentSignal,
-  getInvestmentSignalAsync,
-};

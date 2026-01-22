@@ -63,6 +63,7 @@ function validateStrategyConfig(strategy) {
 
   // ---- sell ----
   assert(isObject(strategy.sell), "sell 必須存在且為 object");
+  assertNumber(strategy.sell.postAllocationIndexFromEnd, "sell.postAllocationIndexFromEnd");
   assertNumber(strategy.sell.minUpPercentToSell, "sell.minUpPercentToSell");
   assertNumber(strategy.sell.minSignalCountToSell, "sell.minSignalCountToSell");
 
@@ -97,31 +98,37 @@ function validateStrategyConfig(strategy) {
 
   // ---- threshold ----
   assert(isObject(strategy.threshold), "threshold 必須存在且為 object");
+
+  assertNumber(strategy.threshold.z2TargetRatio, "threshold.z2TargetRatio");
+  assertNumber(strategy.threshold.reversalTriggerCount, "threshold.reversalTriggerCount");
   assertNumber(strategy.threshold.mmDanger, "threshold.mmDanger");
   assertNumber(strategy.threshold.z2RatioHigh, "threshold.z2RatioHigh");
   assertNumber(strategy.threshold.overheatCount, "threshold.overheatCount");
-  assertNumber(strategy.threshold.coolRSI, "threshold.coolRSI");
-  assertNumber(strategy.threshold.coolBias, "threshold.coolBias");
+
+  // 過熱門檻（用於 overheat state）
+  assertNumber(strategy.threshold.rsiOverheatLevel, "threshold.rsiOverheatLevel");
+  assertNumber(strategy.threshold.kOverheatLevel, "threshold.kOverheatLevel");
+  assertNumber(strategy.threshold.bias240OverheatLevel, "threshold.bias240OverheatLevel");
+
+  // 轉弱/反轉門檻（用於 reversal triggers）
+  assertNumber(strategy.threshold.rsiReversalLevel, "threshold.rsiReversalLevel");
+  assertNumber(strategy.threshold.kReversalLevel, "threshold.kReversalLevel");
+
   assertNumber(strategy.threshold.wAggressive, "threshold.wAggressive");
   assertNumber(strategy.threshold.wActive, "threshold.wActive");
-  assertNumber(strategy.threshold.rsiCoolOff, "threshold.rsiCoolOff");
-  assertNumber(strategy.threshold.kdCoolOff, "threshold.kdCoolOff");
-  assertNumber(strategy.threshold.bias240CoolOff, "threshold.bias240CoolOff");
-  assertNumber(
-    strategy.threshold.vixLowComplacency,
-    "threshold.vixLowComplacency",
-  );
+
+  assertNumber(strategy.threshold.vixLowComplacency, "threshold.vixLowComplacency");
   assertNumber(strategy.threshold.vixHighFear, "threshold.vixHighFear");
 
-  // ---- 額外：dropScoreRules 建議由大到小（非強制，但可避免誤判）----
-  for (let i = 1; i < strategy.buy.dropScoreRules.length; i++) {
-    const prev = strategy.buy.dropScoreRules[i - 1].minDrop;
-    const curr = strategy.buy.dropScoreRules[i].minDrop;
-    assert(
-      prev >= curr,
-      "buy.dropScoreRules 建議依 minDrop 由大到小排序（避免較小門檻先匹配）",
-    );
-  }
+  // 0~100 類（RSI/KD）
+  assert(strategy.threshold.rsiOverheatLevel >= 0 && strategy.threshold.rsiOverheatLevel <= 100, "threshold.rsiOverheatLevel 範圍 0~100");
+  assert(strategy.threshold.kOverheatLevel >= 0 && strategy.threshold.kOverheatLevel <= 100, "threshold.kOverheatLevel 範圍 0~100");
+  assert(strategy.threshold.rsiReversalLevel >= 0 && strategy.threshold.rsiReversalLevel <= 100, "threshold.rsiReversalLevel 範圍 0~100");
+  assert(strategy.threshold.kReversalLevel >= 0 && strategy.threshold.kReversalLevel <= 100, "threshold.kReversalLevel 範圍 0~100");
+
+  // 合理關係：overheat 應 >= reversal（避免門檻顛倒）
+  assert(strategy.threshold.rsiOverheatLevel >= strategy.threshold.rsiReversalLevel, "rsiOverheatLevel 必須 >= rsiReversalLevel");
+  assert(strategy.threshold.kOverheatLevel >= strategy.threshold.kReversalLevel, "kOverheatLevel 必須 >= kReversalLevel");
 
   return true;
 }
