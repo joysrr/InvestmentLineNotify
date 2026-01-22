@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { fetchStrategyConfig } from "./strategyConfigService.mjs";
+
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36";
 
@@ -41,6 +43,9 @@ async function getTwVix() {
     const url = "https://mis.taifex.com.tw/futures/api/getQuoteDetail";
     const candidates = ["TAIWANVIX", "RTD:1:TAIWANVIX", "RTD:1:VIX"];
 
+    // 取得門檻
+    const strategy = await fetchStrategyConfig();
+
     for (const symbol of candidates) {
       const { data } = await axios.post(
         url,
@@ -62,15 +67,22 @@ async function getTwVix() {
 
       // 你實際拿到的欄位就是這套
       const value = toNum(quote.CLastPrice) ?? toNum(quote.CRefPrice);
-      if (!value) continue;
+      if (value == null) continue;
 
       const prev = toNum(quote.CRefPrice);
       const change = value != null && prev != null ? value - prev : 0;
+
+      let status = "中性";
+      if (value < strategy.threshold.vixLowComplacency)
+        status = "安逸";
+      else if (value > strategy.threshold.vixHighFear)
+        status = "緊張";
 
       return {
         symbolUsed: symbol,
         value,
         change,
+        status,
         date: quote.CDate ?? null,
         time: quote.CTime ?? null,
         dateTimeText: formatTaifexDateTime(quote.CDate, quote.CTime),

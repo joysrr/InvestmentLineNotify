@@ -2,7 +2,7 @@ import "dotenv/config";
 import { getTwVix } from "./services/vixService.mjs";
 import { fetchLatestBasePrice } from "./services/basePriceService.mjs";
 import { pushLine, buildFlexCarouselFancy } from "./services/notifyService.mjs";
-import { getMACDSignal, getInvestmentSignalAsync } from "./services/stockSignalService.mjs";
+import { getInvestmentSignalAsync } from "./services/stockSignalService.mjs";
 import { fetchStockHistory, fetchLatestClose } from "./providers/twse/twseStockDayProvider.mjs";
 import { fetchRealtimeFromMis } from "./providers/twse/twseMisProvider.mjs";
 import { isMarketOpenTodayTWSE } from "./providers/twse/twseCalendarProvider.mjs";
@@ -10,7 +10,7 @@ import { calculateIndicators } from "./finance/indicators.mjs";
 import { getTaiwanDate } from "./utils/timeUtils.mjs";
 import { fetchLastPortfolioState, logDailyToSheet } from "./services/googleSheetService.mjs";
 
-async function dailyCheck(sendPush = true) {
+export async function dailyCheck(sendPush = true) {
   try {
     console.log("🚀 開始執行 dailyCheck...");
 
@@ -20,25 +20,15 @@ async function dailyCheck(sendPush = true) {
     try {
       lastState = await fetchLastPortfolioState();
     } catch (e) {
-      console.error("⚠️ 讀取試算表失敗，將使用預設設定:", e.message);
+      console.error("⚠️ 讀取試算表失敗，將使用預設設定 0:", e.message);
+      lastState = {
+        qty0050: 0, qtyZ2: 0, totalLoan: 0, cash: 0
+      }
     }
-
-    // 如果試算表讀不到，就用 .env 的備用設定
-    const config = {
-      qty0050: lastState?.qty0050 ?? parseFloat(process.env.QTY_0050 || 0),
-      qtyZ2: lastState?.qtyZ2 ?? parseFloat(process.env.QTY_00675L || 0),
-      totalLoan:
-        lastState?.totalLoan ?? parseFloat(process.env.TOTAL_LOAN || 0),
-      cash: lastState?.cash ?? parseFloat(process.env.CASH || 0),
-    };
-
-    const stockStatus = `✅ 持股狀態確認：0050=${config.qty0050}股, 正2=${config.qtyZ2}股, 借款=${config.totalLoan}`;
+    const stockStatus = `✅ 持股狀態確認：0050=${lastState.qty0050}股, 00675L=${lastState.qtyZ2}股, 借款=${lastState.totalLoan}`;
     console.log(stockStatus);
 
-    const symbolZ2 = "00675L.TW";
-    const symbol0050 = "0050.TW";
-
-    // 新增：抓 VIX
+    // 台指恐慌指數 (VIX)
     console.log("📈 抓取台指恐慌指數 (VIX)...");
     const vixData = await getTwVix();
     if (vixData) {
@@ -47,30 +37,45 @@ async function dailyCheck(sendPush = true) {
       console.log("❌ VIX 抓取失敗，不影響主流程");
     }
 
-    // 基本檢查
+    /*
+    // 檢查是否開市
+    console.log("📅 檢查是否開市...");
     const openToday = await isMarketOpenTodayTWSE();
     if (!openToday) {
       console.log("😴 當日無開市，跳過通知");
       return "當日無開市，跳過通知";
     }
+    */
 
-    // 抓取 00675L 數據
-    console.log("📥 正在抓取 00675L 數據...");
+    // 取得股票資訊
+    const symbolZ2 = "00675L.TW";
+    const symbol0050 = "0050.TW";
+
+    // 抓取基準價
+    console.log("📥 正在抓取基準價...");
     const { basePrice } = await fetchLatestBasePrice(); // baseDate 沒用到可省略
+    console.log(`💰 取得基準價：${basePrice}`);
 
+    // 取得歷史數據（近一年）
     const today = new Date();
     const lastYear = new Date(today);
     lastYear.setFullYear(lastYear.getFullYear() - 1);
 
+    console.log("📥 正在抓取00675L歷史數據...");
     const history = await fetchStockHistory(
       symbolZ2,
       lastYear.toISOString().slice(0, 10),
       today.toISOString().slice(0, 10),
     );
 
-    if (history.length < 30) return "❌ 資料不足";
+    if (history.length < 30) {
+      console.log("❌ 資料不足，無法計算指標");
+      return "❌ 資料不足"
+    }
+    console.log(`📅 取得00675L歷史數據：${lastYear.toISOString().slice(0, 10)} 至 ${today.toISOString().slice(0, 10)}`);
 
     // 抓取 0050 最新價格
+    console.log("📥 正在抓取 0050 價格...");
     let price0050 = null;
     try {
       const rt0050 = await fetchRealtimeFromMis(symbol0050);
@@ -86,61 +91,62 @@ async function dailyCheck(sendPush = true) {
     console.log(`💰 取得 0050 價格：${price0050}`);
 
     // 抓取 00675L 即時價
+    console.log("📥 正在抓取 00675L 即時價...");
     let currentPriceZ2 = null;
     try {
       const rt = await fetchRealtimeFromMis(symbolZ2);
       currentPriceZ2 = rt?.price;
-    } catch (e) { }
+    } catch (e) {
+      console.log(`⚠️ 00675L MIS 失敗，改用收盤價：${currentPriceZ2}`);
+    }
 
     if (!currentPriceZ2) {
       const latest = await fetchLatestClose(symbolZ2);
       currentPriceZ2 = latest?.close;
     }
+    console.log(`💰 取得 00675L 價格：${currentPriceZ2}`);
 
     // 計算指標
+    console.log(`🧠 正在計算指標...`)
     const { closes, rsiArr, macdArr, kdArr } = calculateIndicators(history);
     const latestClose = closes[closes.length - 1];
     const finalPriceZ2 = currentPriceZ2 || latestClose;
-    const ma240 =
-      closes.length >= 240
-        ? closes.slice(-240).reduce((a, b) => a + b, 0) / 240
-        : null;
-
+    const ma240 = closes.length >= 240 ? closes.slice(-240).reduce((a, b) => a + b, 0) / 240 : null;
     const latestRSI = rsiArr[rsiArr.length - 1];
     const latestKD = kdArr[kdArr.length - 1];
-    const priceDropPercent = ((basePrice - finalPriceZ2) / basePrice) * 100;
+    console.log(`✅ 指標計算完成`);
 
     // 準備數據包
-    const data = {
-      priceDropPercent,
+    const signalData = {
+      // 指標最新值（用於 computeOverheatState / detail 顯示）
       RSI: latestRSI,
-      MACDSignal: getMACDSignal(macdArr),
       KD_K: latestKD ? latestKD.k : null,
       KD_D: latestKD ? latestKD.d : null,
+
+      // 價格
       currentPrice: finalPriceZ2,
       basePrice,
       price0050: price0050 || 0,
+
+      // 其他資訊
       VIX: vixData?.value ?? null,
       VIXTime: vixData?.dateTimeText ?? vixData?.time ?? null,
       VIXStatus: vixData?.status ?? null,
-    };
+      ma240,
 
-    const signalData = {
-      ...data,
-      ma240: ma240,
-      price0050: price0050,
-      currentPrice: finalPriceZ2,
-      portfolio: config,
-    };
+      // 資產/負債
+      portfolio: lastState,
 
-    console.log("🧠 正在計算投資訊號...");
-    const result = await getInvestmentSignalAsync(
-      signalData,
+      // 指標序列（用於 cross 判斷）
       rsiArr,
       macdArr,
       kdArr,
-    );
+    };
 
+    console.log("🧠 正在計算投資訊號...");
+    const result = await getInvestmentSignalAsync(signalData);
+
+    /*
     // 交易時段檢查
     const nowTaipei = new Date(
       new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }),
@@ -150,6 +156,7 @@ async function dailyCheck(sendPush = true) {
       console.log("😴 非交易時段，不發送通知");
       return "非交易時段";
     }
+    */
 
     // 組合戰報訊息
     let header = `【00675L ${result.strategy.leverage.targetMultiplier}倍質押戰報】`;
@@ -158,19 +165,11 @@ async function dailyCheck(sendPush = true) {
 
     // --- 台指恐慌指數 (VIX) ---
     if (vixData) {
-      // 你原先門檻照用（之後再回測微調）
-      let vixStatus = "中性";
-      if (vixData.value < result.strategy.threshold.vixLowComplacency)
-        vixStatus = "安逸";
-      else if (vixData.value > result.strategy.threshold.vixHighFear)
-        vixStatus = "緊張";
-
-      vixData.vixStatus = vixStatus;
-
       msg +=
         `🎭 台指恐慌指數(TAIWAN VIX)：${vixData.value.toFixed(2)}\n` +
-        `   └ 漲跌：${vixData.change >= 0 ? "+" : ""}${vixData.change.toFixed(2)}｜狀態：${vixStatus}\n` +
-        `   └ 時間：${vixData.dateTimeText ?? "未知"}｜Symbol：${vixData.symbolUsed}\n\n`;
+        `   └ 漲跌：${vixData.change >= 0 ? "+" : ""}${vixData.change.toFixed(2)}｜狀態：${vixData.status}\n` +
+        `   └ 時間：${vixData.dateTimeText ?? "未知"}｜Symbol：${vixData.symbolUsed}\n\n` +
+        `   └ 門檻：低<${result.strategy.threshold.vixLowComplacency} / 高>${result.strategy.threshold.vixHighFear}\n\n`;
     } else {
       msg += `🎭 台指恐慌指數 (VIX)：抓取失敗（不影響其他判斷）\n\n`;
     }
@@ -184,32 +183,50 @@ async function dailyCheck(sendPush = true) {
     msg += `\n📅 重要提醒:\n`;
     if (date === 9) msg += "   └ 今日 9 號：執行定期定額與撥款校準\n";
     if (result.z2Ratio > 42)
-      msg += "   └ ⚠️ 正2佔比過高，請優先評估止盈還款！\n";
+      msg += "   └ ⚠️ 00675L佔比過高，請優先評估止盈還款！\n";
 
     msg +=
       `\n【心理紀律】\n` +
       `   └ 33年目標：7,480萬\n` +
       `   └ 下跌是加碼的禮物，上漲是資產的果實\n\n`;
 
+    const rsiText = Number.isFinite(result.RSI) ? result.RSI.toFixed(1) : "N/A";
+    const kdKText = Number.isFinite(result.KD_K) ? result.KD_K.toFixed(1) : "N/A";
+    const kdDText = Number.isFinite(result.KD_D) ? result.KD_D.toFixed(1) : "N/A";
+    const bias240Text = Number.isFinite(result.bias240) ? `${result.bias240.toFixed(2)}%` : "N/A";
+
     let detailMsg =
+      `\n🔥 過熱狀態：${result.overheat.isOverheat ? "是" : "否"} (${result.overheat.highCount}/${result.overheat.factorCount})\n` +
+      `📉 轉弱觸發：${result.reversal.triggeredCount}/${result.reversal.totalFactor}\n` +
+      `🧾 賣出訊號：${result.sellSignals.signalCount}/${result.sellSignals.total}\n`;
+
+    detailMsg +=
       `🔍 數據細節：\n` +
-      `   └ RSI：${result.RSI.toFixed(1)} ${result.RSI > result.strategy.threshold.rsiCoolOff ? `(>${result.strategy.threshold.rsiCoolOff})⚠️` : ""}\n` +
-      `   └ KD_K：${result.KD_K.toFixed(1)} ${result.KD_K > result.strategy.threshold.kdCoolOff ? `(>${result.strategy.threshold.kdCoolOff})⚠️` : ""}\n` +
-      `   └ 年線乖離：${result.bias240.toFixed(2)}% ${result.bias240 > result.strategy.threshold.bias240CoolOff ? `(>${result.strategy.threshold.bias240CoolOff})⚠️` : ""}\n\n`;
+      `   └ 現價：${result.currentPrice}\n` +
+      `   └ 基準價：${result.basePrice}\n` +
+      `   └ 變動：${result.priceChangePercentText}%\n` +
+      `   └ 跌幅(進場用)：${result.priceDropPercentText}%\n` +
+      `   └ RSI：${rsiText} ${Number.isFinite(result.RSI) && result.RSI > result.strategy.threshold.rsiCoolOff ? `(>${result.strategy.threshold.rsiCoolOff})⚠️` : ""}\n` +
+      `   └ KD_K：${kdKText} ${Number.isFinite(result.KD_K) && result.KD_K > result.strategy.threshold.kdCoolOff ? `(>${result.strategy.threshold.kdCoolOff})⚠️` : ""}\n` +
+      `   └ KD_D：${kdDText}\n` +
+      `   └ 年線乖離：${bias240Text} ${Number.isFinite(result.bias240) && result.bias240 > result.strategy.threshold.bias240CoolOff ? `(>${result.strategy.threshold.bias240CoolOff})⚠️` : ""}\n\n`;
 
     detailMsg +=
       `🛡️ 帳戶安全狀態\n` +
       `   └ 預估維持率：${result.totalLoan > 0 ? `${result.maintenanceMargin.toFixed(1)}%` : "未質押"} ${result.maintenanceMargin < result.strategy.threshold.mmDanger ? `(<${result.strategy.threshold.mmDanger})⚠️` : "✅"} \n` +
       `   └ 正 2 淨值佔比：${result.z2Ratio.toFixed(1)}% ${result.z2Ratio > result.strategy.threshold.z2RatioHigh ? `(>${result.strategy.threshold.z2RatioHigh})⚠️` : `(距離目標 40% 尚有 ${(40 - result.z2Ratio).toFixed(1)}% 空間)`}\n` +
       `   └ 警戒上限：${result.strategy.threshold.z2RatioHigh}%（超過觸發再平衡）\n` +
-      `   └ 現金儲備：${config.cash.toLocaleString()} 元\n` +
-      `   └ 目前總負債：${result.totalLoan.toLocaleString()} 元\n\n` +
+      `   └ 現金儲備：${lastState.cash.toLocaleString()} 元\n` +
+      `   └ 目前總負債：${result.totalLoan.toLocaleString()} 元\n\n`;
+
+    detailMsg +=
       `🎯 策略操作指令\n` +
       `   └ 加碼權重：${result.weightScore} 分\n` +
       `🔍 加碼權重細節：\n` +
-      `   └ 基準價(校準/前次買點)：${basePrice}\n`;
-
-    result.buyDetails.forEach((line) => (detailMsg += `   └ ${line}\n`));
+      `   └ ${result.weightDetails.dropInfo}（+${result.weightDetails.dropScore}）\n` +
+      `   └ ${result.weightDetails.rsiInfo}（+${result.weightDetails.rsiScore}）\n` +
+      `   └ ${result.weightDetails.macdInfo}（+${result.weightDetails.macdScore}）\n` +
+      `   └ ${result.weightDetails.kdInfo}（+${result.weightDetails.kdScore}）\n`;
 
     const legend = [
       "【說明】",
@@ -227,7 +244,7 @@ async function dailyCheck(sendPush = true) {
     const flexCarousel = buildFlexCarouselFancy({
       result,
       vixData,
-      config,
+      config: lastState,
       dateText,
     });
 
@@ -248,7 +265,7 @@ async function dailyCheck(sendPush = true) {
         ...result,
         price0050: price0050,
         currentPrice: finalPriceZ2,
-        portfolio: config,
+        portfolio: lastState,
       };
       // 執行寫入 (即使失敗也不要讓程式崩潰，所以用 try catch 包起來)
       try {
@@ -274,5 +291,3 @@ async function dailyCheck(sendPush = true) {
     return err.message;
   }
 }
-
-export { dailyCheck };
