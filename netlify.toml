@@ -1,4 +1,4 @@
+[build]
+  functions = "netlify/functions"
 [functions]
-  directory = "netlify/functions"
   node_bundler = "esbuild"
-  external_node_modules = ["axios"]  # 你的依賴
