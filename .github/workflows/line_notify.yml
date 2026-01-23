@@ -31,11 +31,15 @@ jobs:
     - name: Run Daily Check
       # 這裡需要把你的環境變數注入進去
       env:
-        LINE_NOTIFY_TOKEN: ${{ secrets.LINE_NOTIFY_TOKEN }}
+        BASE_PRICE_URL: ${{ secrets.BASE_PRICE_URL }}
+        STRATEGY_URL: ${{ secrets.STRATEGY_URL }}
+        USER_ID: ${{ secrets.USER_ID }}
+        LINE_ACCESS_TOKEN: ${{ secrets.LINE_ACCESS_TOKEN }}
         GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
         GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
-        SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+        GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         # 如果還有其他變數 (如 TZ 時區)，也可以加在這裡
         TZ: 'Asia/Taipei' 
       run: npm start
+
