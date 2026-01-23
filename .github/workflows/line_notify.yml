@@ -3,22 +3,39 @@ name: Line Notify Scheduler
 on:
   workflow_dispatch:  # 允許手動觸發
   schedule:
-    - cron: '57 23 * * *'   # (台灣 07:57)
-    - cron: '57 00 * * *'    # (台灣 08:57)
-    - cron: '27 02 * * *'    # (台灣 10:27)
-    - cron: '27 04 * * *'    # (台灣 12:27)
-    - cron: '27 06 * * *'    # (台灣 13:27)
-
+    # GitHub Actions 的 Cron 都是 UTC 時間
+    # 台灣時間 = UTC + 8
+    - cron: '57 23 * * *'    # UTC 23:57 => 台灣 07:57
+    - cron: '57 00 * * *'    # UTC 00:57 => 台灣 08:57
+    - cron: '27 02 * * *'    # UTC 02:27 => 台灣 10:27
+    - cron: '27 04 * * *'    # UTC 04:27 => 台灣 12:27
+    - cron: '27 06 * * *'    # UTC 06:27 => 台灣 13:27
 
 jobs:
   notify:
     runs-on: ubuntu-latest
+    
     steps:
-    - name: Trigger Netlify Function
-      run: |
-        curl -X POST https://meek-palmier-1cbba4.netlify.app/.netlify/functions/pushLine
+    - name: Checkout code
+      uses: actions/checkout@v4
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'  # 直接指定使用 Node 20
+        cache: 'npm'
 
+    - name: Install dependencies
+      run: npm ci  # 使用 ci 安裝會比 install 更乾淨穩定
 
-
-
+    - name: Run Daily Check
+      # 這裡需要把你的環境變數注入進去
+      env:
+        LINE_NOTIFY_TOKEN: ${{ secrets.LINE_NOTIFY_TOKEN }}
+        GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+        GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
+        SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        # 如果還有其他變數 (如 TZ 時區)，也可以加在這裡
+        TZ: 'Asia/Taipei' 
+      run: npm start
