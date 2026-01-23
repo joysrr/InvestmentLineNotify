@@ -1,7 +1,7 @@
 {
   "name": "line-etf-notify",
   "version": "2.0.0",
-  "main": "netlify/functions/pushLine.js",
+  "main": "netlify/functions/pushLine.mjs",
   "scripts": {
     "start": "node src/runDailyCheck.mjs"
   },
