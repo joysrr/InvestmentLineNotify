@@ -381,6 +381,7 @@ function evaluateInvestmentSignal(data, strategy) {
     currentPrice: data.currentPrice,
     basePrice: data.basePrice,
     totalLoan: data.portfolio.totalLoan,
+    netAsset: ctx.netAsset,
     bias240: bias240,
     priceChangePercent,
     priceChangePercentText: priceChangePercent.toFixed(2),
