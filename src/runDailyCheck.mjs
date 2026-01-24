@@ -1,6 +1,6 @@
 import { dailyCheck } from "./dailyCheck.mjs";
 
-dailyCheck(true).then((result) => {
+dailyCheck(false).then((result) => {
   console.log("\n=== 每日投資自檢訊息（本機測試） ===\n");
   console.log("=== 標題 ===\n");
   console.log(result.header);

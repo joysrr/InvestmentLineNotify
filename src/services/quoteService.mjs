@@ -1,4 +1,3 @@
-import fs from "node:fs/promises";
 import path from "node:path";
 import axios from "axios";
 import { translateEnToZhTW } from "./geminiTranslate.mjs";
@@ -15,20 +14,6 @@ function todayKeyTZ8() {
     day: "2-digit",
   });
   return dtf.format(new Date()); // e.g. 2026-01-23
-}
-
-async function readCache() {
-  try {
-    const raw = await fs.readFile(CACHE_FILE, "utf8");
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
-
-async function writeCache(data) {
-  await fs.mkdir(CACHE_DIR, { recursive: true });
-  await fs.writeFile(CACHE_FILE, JSON.stringify(data, null, 2), "utf8");
 }
 
 async function fetchFromQuotable() {
@@ -57,19 +42,7 @@ async function fetchFromZenQuotes() {
  *   quote: { textZh, textEn, author, source, translated }
  * }
  */
-export async function getDailyQuote({ forceRefresh = false } = {}) {
-  const today = todayKeyTZ8();
-  const cached = await readCache();
-
-  if (
-    !forceRefresh &&
-    cached?.date === today &&
-    cached?.quote &&
-    (cached.quote.textZh || cached.quote.textEn)
-  ) {
-    return cached.quote;
-  }
-
+export async function getDailyQuote() {
   // 1) 先抓英文 quote
   let quote;
   try {
@@ -86,7 +59,7 @@ export async function getDailyQuote({ forceRefresh = false } = {}) {
         source: "fallback",
         translated: false,
       };
-      await writeCache({ date: today, quote: fallback });
+      
       return fallback;
     }
   }
@@ -109,6 +82,5 @@ export async function getDailyQuote({ forceRefresh = false } = {}) {
 
   console.log("📝 取得今日一句：", finalQuote);
 
-  await writeCache({ date: today, quote: finalQuote });
   return finalQuote;
 }
