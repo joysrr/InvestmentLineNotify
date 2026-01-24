@@ -1,0 +1,26 @@
+{
+  "name": "Node.js & Gemini AI Dev",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20-bullseye",
+
+  // 讓 Codespaces 一開啟就執行這個指令
+  "postCreateCommand": "npm install",
+
+  // 設定 VS Code 的擴充功能
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",      // 代碼檢查
+        "esbenp.prettier-vscode",    // 代碼美化
+        "github.vscode-github-actions", // 管理 GitHub Actions
+        "irongeek.vscode-env"        // 方便編輯 .env 檔案
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+      }
+    }
+  },
+
+  // 開放連接埠 (如果以後你想跑 Web Service)
+  "forwardPorts": [3000]
+}
