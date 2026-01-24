@@ -256,8 +256,6 @@ export async function dailyCheck(sendPush = true) {
       },
     ];
 
-    console.log(messages);
-
     if (sendPush) {
       console.log("📝 正在寫入試算表...");
       // 準備寫入的資料
