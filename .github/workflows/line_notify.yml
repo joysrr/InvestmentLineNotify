@@ -1,15 +1,13 @@
 name: Line Notify Scheduler
 
 on:
-  workflow_dispatch:  # 允許手動觸發
+  workflow_dispatch:
   schedule:
-    # GitHub Actions 的 Cron 都是 UTC 時間
-    # 台灣時間 = UTC + 8
-    - cron: '57 23 * * *'    # UTC 23:57 => 台灣 07:57
-    - cron: '57 00 * * *'    # UTC 00:57 => 台灣 08:57
-    - cron: '27 02 * * *'    # UTC 02:27 => 台灣 10:27
-    - cron: '27 04 * * *'    # UTC 04:27 => 台灣 12:27
-    - cron: '27 06 * * *'    # UTC 06:27 => 台灣 13:27
+    # 考量延遲，設定提早 15-20 分鐘
+    - cron: '40 00 * * *'    # 台灣 08:40 (開盤前)
+    - cron: '15 03 * * *'    # 台灣 11:15 (盤中)
+    - cron: '10 05 * * *'    # 台灣 13:10 (收盤決策最保險時間)
+    - cron: '00 10 * * *'    # 台灣 18:00 (盤後歸檔)
 
 jobs:
   notify:
@@ -42,4 +40,5 @@ jobs:
         # 如果還有其他變數 (如 TZ 時區)，也可以加在這裡
         TZ: 'Asia/Taipei' 
       run: npm start
+
 
