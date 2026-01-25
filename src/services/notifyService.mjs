@@ -540,14 +540,49 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
     },
   };
 
-  // ========== Bubble 4：心理紀律 + 進度條 + 連結 ==========
+  // ========== Bubble 4：AI 策略領航 (新增) ==========
+  const bubble4 = {
+    type: "bubble",
+    body: {
+      type: "box",
+      layout: "vertical",
+      contents: [
+        txt("🤖 AI 策略領航", { weight: "bold", size: "md", color: "#111111" }),
+        sep("md"),
+        {
+          type: "box",
+          layout: "vertical",
+          backgroundColor: "#F8F9FA",
+          cornerRadius: "md",
+          paddingAll: "12px",
+          margin: "md",
+          contents: [
+            txt(aiAdvice || "等待 AI 分析中...", {
+              size: "xs",
+              color: "#333333",
+              wrap: true,
+              maxLines: 20,
+            }),
+          ],
+        },
+        sep("lg"),
+        txt("💡 提示：AI 建議僅供參考，請務必守住維持率紅線。", {
+          size: "xxs",
+          color: "#aaaaaa",
+          align: "center",
+        }),
+      ],
+    },
+  };
+  
+  // ========== Bubble 5：心理紀律 + 進度條 + 連結 ==========
   const GOAL_ASSET = 74_800_000;
 
   const q = quote || {};
   const en = q.textEn || q.textZh || "Discipline beats prediction.";
   const zh = q.textZh && q.textZh !== q.textEn ? q.textZh : "";
 
-  // ========== Bubble 4：心理紀律 + 進度條 + 連結（同卡片） ==========
+  // ========== Bubble 5：心理紀律 + 進度條 + 連結（同卡片） ==========
 
   const linksBox = {
     type: "box",
@@ -635,7 +670,7 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
     ].filter(Boolean),
   };
 
-  const bubble4 = {
+  const bubble5 = {
     type: "bubble",
     body: {
       type: "box",
@@ -669,6 +704,6 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
 
   return {
     type: "carousel",
-    contents: [bubble1, bubble2, bubble3, bubble4],
+    contents: [bubble1, bubble2, bubble3, bubble4, bubble5],
   };
 }
