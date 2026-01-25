@@ -1,4 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { minifyStrategy, minifyMarketData } from "../utils/aiPreprocessor.mjs";
+//import fs from 'fs';
+//import path from 'path';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
@@ -19,37 +22,48 @@ export async function getAiInvestmentAdvice(marketData, portfolio, strategy) {
     generationConfig: { temperature: 0.2, maxOutputTokens: 1024 } 
   });
 
+  // ⚡️ 執行預處理
+  const cleanStrategy = minifyStrategy(strategy);
+  const cleanData = minifyMarketData(marketData, portfolio);
+  
   // 修改後的 Prompt 區塊
   const prompt = `
-  你是一位精通台股槓桿投資的「資深量化分析師」。請針對以下數據提供客觀診斷。
+  [量化交易指令]
+  ## 策略規則
+  ${JSON.stringify(cleanStrategy)}
 
-  ### 【策略準則】
-  ${JSON.stringify({ buy: strategy.buy, allocation: strategy.allocation, threshold: strategy.threshold })}
+  ## 當前數據
+  ${JSON.stringify(cleanData)}
 
-  ### 【當前數據】
-  - 標的：0050 / 00675L
-  - 數據指標：RSI ${marketData.RSI}, K ${marketData.KD_K}, 240MA乖離 ${marketData.bias240}%
-  - 帳戶狀態：維持率 ${marketData.maintenanceMargin}%, 現金 ${portfolio.cash}
+  ## 任務
+1. 核對指標並「逐項累加」計算總評分（指標 N/A 則不計分）。
+2. 對照配置表（s 為門檻）給出執行動作。
+3. 簡述理由（需提及乖離率與過熱狀態）與風險。
 
-  ### 【執行要求】
-  1. **策略評分**：嚴格依據準則計算總分。
-  2. **操作建議**：給出明確動作 (加碼/續抱/減碼/補錢)。
-  3. **邏輯說明**：條列 2 點核心依據，語氣需平穩專業。
-  4. **風險提示**：簡述當前最需注意的風險。
-
-  ### 【回覆規範】
-  - **語氣**：專業、冷靜、客觀。
-  - **格式**：
-    📊 **策略診斷：[X] 分**
-    🎯 **執行動作：[動作名稱]**
-    📝 **核心邏輯**：
-    • [依據 1]
-    • [依據 2]
-    ⚠️ **風險提醒**：[簡短內容]
-  - **字數**：嚴格限制在 400 字以內，禁止開場白。
+  ## 格式
+  📊 策略診斷：[X] 分
+  🎯 執行動作：[動作]
+  📝 核心邏輯：•原因1 •原因2
+  ⚠️ 風險提醒：[簡述]
+  直接輸出，200字內。
   `;
-
+/*
+  // ⚡️ 新增：將 Prompt 與數據輸出成暫存 JSON
   try {
+    const debugData = {
+      timestamp: new Date().toISOString(),
+      generatedPrompt: prompt
+    };
+
+    const tempFilePath = path.join(process.cwd(), 'temp_prompt.json');
+    fs.writeFileSync(tempFilePath, JSON.stringify(debugData, null, 2), 'utf8');
+    console.log(`\n📝 [Debug] Prompt 已導出至: ${tempFilePath}`);
+  } catch (err) {
+    console.warn("⚠️ 無法寫入暫存 Prompt 檔案:", err.message);
+  }
+ */ 
+  try {
+    //return "";
     const result = await model.generateContent(prompt);
     const response = await result.response;
     return response.text().trim();
