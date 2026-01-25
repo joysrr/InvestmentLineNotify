@@ -16,34 +16,38 @@ export async function getAiInvestmentAdvice(marketData, portfolio, strategy) {
 
   const model = genAI.getGenerativeModel({ 
     model: GEMINI_MODEL,
-    generationConfig: { temperature: 0.2, maxOutputTokens: 800 } 
+    generationConfig: { temperature: 0.2, maxOutputTokens: 1024 } 
   });
 
+  // 修改後的 Prompt 區塊
   const prompt = `
-你是一位冷靜的台股量化交易官。請根據以下【策略規則】與【當前數據】計算評分並給出決策。
+  你是一位精通台股槓桿投資的「資深量化分析師」。請針對以下數據提供客觀診斷。
 
-### 【策略規則 JSON】
-${JSON.stringify(strategy, null, 2)}
+  ### 【策略準則】
+  ${JSON.stringify({ buy: strategy.buy, allocation: strategy.allocation, threshold: strategy.threshold })}
 
-### 【當前數據】
-- 標的：0050 / 00675L
-- 0050 價格：${marketData.price0050} (年線乖離率：${marketData.bias240}%)
-- 00675L 價格：${marketData.currentPrice} (基準價：${marketData.basePrice})
-- 近期高點回檔幅：${marketData.priceDropPercent}%
-- 指標：RSI=${marketData.RSI}, K=${marketData.KD_K}, MACD=${marketData.macdStatus}
-- 恐慌 VIX：${marketData.VIX}
+  ### 【當前數據】
+  - 標的：0050 / 00675L
+  - 數據指標：RSI ${marketData.RSI}, K ${marketData.KD_K}, 240MA乖離 ${marketData.bias240}%
+  - 帳戶狀態：維持率 ${marketData.maintenanceMargin}%, 現金 ${portfolio.cash}
 
-### 【帳戶狀態】
-- 預估維持率：${marketData.maintenanceMargin}%
-- 正2 淨值佔比：${marketData.z2Ratio}%
-- 現金餘額：${portfolio.cash} TWD
+  ### 【執行要求】
+  1. **策略評分**：嚴格依據準則計算總分。
+  2. **操作建議**：給出明確動作 (加碼/續抱/減碼/補錢)。
+  3. **邏輯說明**：條列 2 點核心依據，語氣需平穩專業。
+  4. **風險提示**：簡述當前最需注意的風險。
 
-### 【執行要求】
-1. 計算【買入評分 (Weight Score)】並對照策略中的 allocation 表。
-2. 檢查維持率是否觸發 mmDanger (160%)。
-3. 給出具體的【今日動作】(加碼/續抱/減碼/補錢)。
-4. 輸出格式請包含：[評分診斷]、[目標配置]、[具體動作]、[理由]、[風險警語]。
-`;
+  ### 【回覆規範】
+  - **語氣**：專業、冷靜、客觀。
+  - **格式**：
+    📊 **策略診斷：[X] 分**
+    🎯 **執行動作：[動作名稱]**
+    📝 **核心邏輯**：
+    • [依據 1]
+    • [依據 2]
+    ⚠️ **風險提醒**：[簡短內容]
+  - **字數**：嚴格限制在 400 字以內，禁止開場白。
+  `;
 
   try {
     const result = await model.generateContent(prompt);

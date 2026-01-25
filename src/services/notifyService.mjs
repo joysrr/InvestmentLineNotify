@@ -228,7 +228,7 @@ export async function pushLine(input, { to = process.env.USER_ID } = {}) {
 // 戰報建構函式 (Flex Message Builder)
 // ============================================================================
 
-export function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
+export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAdvice }) {
   const status = String(result.marketStatus ?? "");
 
   // 1) 狀態判定與顏色
@@ -561,7 +561,7 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText }) {
               size: "xs",
               color: "#333333",
               wrap: true,
-              maxLines: 20,
+              maxLines: 40,
             }),
           ],
         },
