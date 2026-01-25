@@ -9,6 +9,8 @@ import { isMarketOpenTodayTWSE } from "./providers/twse/twseCalendarProvider.mjs
 import { calculateIndicators } from "./finance/indicators.mjs";
 import { getTaiwanDate } from "./utils/timeUtils.mjs";
 import { fetchLastPortfolioState, logDailyToSheet } from "./services/googleSheetService.mjs";
+import { fetchStrategyConfig } from "./services/strategyConfigService.mjs";
+import { getAiInvestmentAdvice } from "./services/aiAdvisorService.mjs";
 
 export async function dailyCheck(sendPush = true) {
   try {
@@ -149,7 +151,12 @@ export async function dailyCheck(sendPush = true) {
 
     // 取得 AI 決策報告
     console.log("🤖 正在產生 AI 決策分析...");
+
     const aiAdvice = await getAiInvestmentAdvice(result, lastState, strategyConfig);
+    console.log("--- DEBUG AI ADVICE ---");
+    console.log(aiAdvice); // ⚡️ 在 GitHub Actions 的 Log 裡看這段
+
+    
 
     /*
     // 交易時段檢查
