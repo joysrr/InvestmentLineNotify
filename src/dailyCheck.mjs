@@ -145,6 +145,11 @@ export async function dailyCheck(sendPush = true) {
 
     console.log("🧠 正在計算投資訊號...");
     const result = await getInvestmentSignalAsync(signalData);
+    const strategyConfig = await fetchStrategyConfig();
+
+    // 取得 AI 決策報告
+    console.log("🤖 正在產生 AI 決策分析...");
+    const aiAdvice = await getAiInvestmentAdvice(result, lastState, strategyConfig);
 
     /*
     // 交易時段檢查
@@ -246,6 +251,7 @@ export async function dailyCheck(sendPush = true) {
       vixData,
       config: lastState,
       dateText,
+      aiAdvice,
     });
 
     const messages = [
@@ -283,9 +289,6 @@ export async function dailyCheck(sendPush = true) {
     return { header, msg, detailMsg, messages };
   } catch (err) {
     console.error("❌ 系統發生嚴重錯誤:", err);
-    if (sendPush) {
-      await pushLine(`系統錯誤：${err.message}`);
-    }
     return err.message;
   }
 }
