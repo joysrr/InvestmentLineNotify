@@ -1,63 +1,125 @@
 /**
- * 將 Markdown 語法轉換為 LINE Flex Message 的 spans 結構
- * 支援 **粗體** 轉換，並自動過濾星號
+ * 將 Markdown 轉為 LINE Flex spans
+ * 支援：
+ * - **粗體**
+ * - 同一行多段粗體
+ * - 自動合併相鄰普通文字 span
  */
-export function parseMarkdownToSpans(text) {
+export function parseMarkdownToSpans(text, { normalColor = "#333333", boldColor = "#111111" } = {}) {
   if (!text) return [];
 
-  // 正規表達式：匹配 **文字**
-  const boldRegex = /\*\*(.*?)\*\*/g;
-  const parts = [];
+  const s = String(text);
+
+  // match **...** (non-greedy)
+  const boldRegex = /\*\*(.+?)\*\*/g;
+
+  const spans = [];
   let lastIndex = 0;
   let match;
 
-  // 逐一尋找粗體語法
-  while ((match = boldRegex.exec(text)) !== null) {
-    // 放入粗體前的普通文字
+  const pushSpan = (span) => {
+    if (!span?.text) return;
+
+    // 合併相鄰的「普通 span」（避免 spans 太碎）
+    const prev = spans[spans.length - 1];
+    const isPrevNormal = prev && !prev.weight && !prev.decoration && prev.color === normalColor;
+    const isThisNormal = !span.weight && !span.decoration && span.color === normalColor;
+
+    if (isPrevNormal && isThisNormal) {
+      prev.text += span.text;
+      return;
+    }
+
+    spans.push(span);
+  };
+
+  while ((match = boldRegex.exec(s)) !== null) {
+    // 普通文字
     if (match.index > lastIndex) {
-      parts.push({
+      pushSpan({
         type: "span",
-        text: text.substring(lastIndex, match.index),
+        text: s.substring(lastIndex, match.index),
+        color: normalColor,
       });
     }
-    // 放入去星號後的粗體文字
-    parts.push({
+
+    // 粗體文字（match[1]）
+    pushSpan({
       type: "span",
       text: match[1],
       weight: "bold",
-      color: "#000000",
+      color: boldColor,
     });
+
     lastIndex = boldRegex.lastIndex;
   }
 
-  // 放入剩餘的文字
-  if (lastIndex < text.length) {
-    parts.push({
+  // 剩餘普通文字
+  if (lastIndex < s.length) {
+    pushSpan({
       type: "span",
-      text: text.substring(lastIndex),
+      text: s.substring(lastIndex),
+      color: normalColor,
     });
   }
 
-  return parts;
+  // 最後防呆：把單顆 * 之類的符號移除（避免 LLM 亂出星號）
+  for (const sp of spans) {
+    sp.text = sp.text.replace(/\*/g, "");
+  }
+
+  return spans;
 }
 
 /**
- * 將整段文字按行拆分，並美化清單符號
+ * 把整段文字拆成多個 Flex text 元件（每行一個）
+ * - 支援 "- " 清單轉換成 "◦ "
+ * - 忽略空行
+ * - 可選：第一行（📌）視覺強化
  */
-export function buildFlexTextBlocks(rawText) {
-  const lines = rawText.split('\n');
-  return lines.map(line => {
-    // 處理清單符號，將 • 或 - 換成更美觀的圖示或間距
-    const cleanLine = line.trim().replace(/^[•-]\s?/, " ◦ "); 
+export function buildFlexTextBlocks(rawText, opt = {}) {
+  const {
+    textSize = "xs",
+    margin = "sm",
+    normalColor = "#333333",
+    boldColor = "#111111",
+    bullet = "◦",
+    highlightFirstLine = true,
+  } = opt;
 
-    return {
+  if (!rawText) return [];
+
+  const lines = String(rawText)
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  return lines.map((line, idx) => {
+    // 清單美化：只處理 "- " 或 "• "
+    const cleanLine = line.replace(/^(?:•|-)\s+/, `${bullet} `);
+
+    const contents = parseMarkdownToSpans(cleanLine, { normalColor, boldColor });
+
+    // LINE Flex Text：使用 spans 時用 contents，不要同時塞 text
+    const base = {
       type: "text",
-      contents: parseMarkdownToSpans(cleanLine),
+      contents,
       wrap: true,
-      size: "xs",
-      color: "#333333",
-      margin: "sm",
-      lineSpacing: "4px"
+      size: textSize,
+      margin,
     };
+
+    // 可選：第一行（通常是 📌）突出一點
+    if (highlightFirstLine && idx === 0) {
+      return {
+        ...base,
+        size: "sm",
+        weight: "bold",
+        color: "#111111",
+      };
+    }
+
+    return base;
   });
 }

@@ -152,11 +152,12 @@ export async function dailyCheck(sendPush = true) {
     // 取得 AI 決策報告
     console.log("🤖 正在產生 AI 決策分析...");
 
+    //console.log("原始數據", result, lastState, strategyConfig);
     const aiAdvice = await getAiInvestmentAdvice(result, lastState, strategyConfig);
     console.log("--- DEBUG AI ADVICE ---");
     console.log(aiAdvice); // ⚡️ 在 GitHub Actions 的 Log 裡看這段
 
-    
+
 
     /*
     // 交易時段檢查
