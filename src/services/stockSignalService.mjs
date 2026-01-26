@@ -354,6 +354,16 @@ function evaluateInvestmentSignal(data, strategy) {
   const ma240 = Number.isFinite(data.ma240) && data.ma240 > 0 ? data.ma240 : null;
   const bias240 = ma240 ? ((data.currentPrice - ma240) / ma240) * 100 : null;
 
+  // 實際槓桿計算 (總資產 / 淨資產)
+  const grossAsset = current0050Value + currentZ2Value + data.portfolio.cash;
+  const actualLeverage = netAsset > 0 ? grossAsset / netAsset : 0;
+
+  // 歷史位階分析 (基於年線乖離率)
+  let historicalLevel = "中位階";
+  if (bias240 > 25) historicalLevel = "極高位階 (過熱)";
+  else if (bias240 > 15) historicalLevel = "高位階 (偏貴)";
+  else if (bias240 < 0) historicalLevel = "低位階 (便宜)";
+  
   const ctx = {
     priceChangePercent,
     priceUpPercent,
@@ -381,6 +391,8 @@ function evaluateInvestmentSignal(data, strategy) {
     currentPrice: data.currentPrice,
     basePrice: data.basePrice,
     totalLoan: data.portfolio.totalLoan,
+    actualLeverage,
+    historicalLevel,
     netAsset: ctx.netAsset,
     bias240: bias240,
     priceChangePercent,

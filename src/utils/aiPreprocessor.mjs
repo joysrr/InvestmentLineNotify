@@ -155,6 +155,7 @@ export function minifyExplainInput(marketData, portfolio = {}, vixData = null) {
     },
 
     riskWatch: {
+      historicalLevel: marketData?.historicalLevel ?? null,
       vix: vixVal != null ? {
         value: vixVal,
         thresholdText: `低<${vixLow ?? "N/A"} / 高>${vixHigh ?? "N/A"}`,
@@ -192,6 +193,7 @@ export function minifyExplainInput(marketData, portfolio = {}, vixData = null) {
     account: {
       netAsset: n2(marketData?.netAsset),
       totalLoan: n2(marketData?.totalLoan),
+      actualLeverage: n2(marketData?.actualLeverage),
       maintenanceMargin: n2(marketData?.maintenanceMargin),
       z2RatioPct: z2Ratio,
       z2TargetPct,
