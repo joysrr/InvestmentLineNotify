@@ -4,7 +4,7 @@ import { minifyExplainInput } from "../utils/aiPreprocessor.mjs";
 //import path from 'path';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
@@ -48,14 +48,20 @@ export async function getAiInvestmentAdvice(marketData, portfolio, strategy) {
 - 不要原文重複這些欄位：conclusion.marketStatus、conclusion.target、conclusion.suggestionShort、entryCheck.drop.text、entryCheck.score.text。
 - 允許 Markdown：粗體（用兩個星號）、條列（用 - 開頭）、引用（用 > 開頭）。
 - 禁止表格、禁止程式碼區塊；輸出中不要出現反引號字元。
-- 總行數 6～9 行，每行盡量短，單行不超過約 30 個全形字。
+- 總行數12～15 行，每行盡量短，單行不超過約 30 個全形字。
 - 若值為 null：寫「N/A（資料不足）」並避免下結論。
+- 以「目標槓桿 ${strategy.leverage.targetMultiplier} 倍」為資產配置的核心基準。
+- 實際槓桿 > 1.8x：定義為「過度擴張」，需嚴格禁止加碼並觀察維持率。
+- 實際槓桿 1.6x ~ 1.8x：定義為「目標區間」，依策略紀律執行。
+- 實際槓桿 < 1.6x：定義為「防禦狀態」，說明目前仍有風險承擔空間。
 
 你必須輸出 3 個區塊（順序固定）：
 
 **⚠️ 風險提示**
-- 列出 1～2 點「目前最需要留意的風險」，來源可來自 riskWatch.overheat、riskWatch.sell、riskWatch.reversal、account。
+- 列出 2～3 點「目前最需要留意的風險」，來源可來自 riskWatch.overheat、riskWatch.sell、riskWatch.reversal、account。
 - 每點只要說明「風險是什麼」與「為何現在要注意」，用自然語句即可，不要寫欄位名稱或路徑。
+- 根據目前的「實際槓桿(account.actualLeverage)」倍數與「歷史位階(riskWatch.historicalLevel)」位階，說明資產配置是否過於激進或保守。
+- 若「歷史位階(riskWatch.historicalLevel)」顯示過熱，請強調均值回歸的風險。
 
 **✅ 下一步觀察清單**
 - 列出 2～3 個「未來幾天要觀察的條件」，例如跌幅是否達門檻、轉弱觸發數是否接近門檻、賣出訊號是否開始累積。

@@ -456,6 +456,9 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
             scannerRow("MACD", r.macdBearCross ? "死叉" : "安全", "需死叉", Boolean(r.macdBearCross)),
           ],
         },
+        sep('lg'),
+        // 歷史位階顯示
+        baselineRow("歷史位階", result.historicalLevel, result.bias240 > 25 ? "#D93025" : "#111111"),
       ],
     },
   };
@@ -535,6 +538,8 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
               true,
             ),
             baselineRow("現金儲備", `$${Number(config.cash || 0).toLocaleString("zh-TW")}`),
+            // 實際槓桿顯示
+            baselineRow("實際槓桿", `${result.actualLeverage} 倍`, result.actualLeverage > 2 ? "#D93025" : "#111111", true),
           ],
         },
       ],
