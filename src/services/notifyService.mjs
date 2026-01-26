@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toArray } from "../utils/arrayUtils.mjs";
 import { getDailyQuote } from "./quoteService.mjs";
+import { buildFlexTextBlocks } from "../utils/flexTextParser.mjs";
 
 const LINE_PUSH_URL = "https://api.line.me/v2/bot/message/push";
 
@@ -547,32 +548,27 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
       type: "box",
       layout: "vertical",
       contents: [
-        txt("🤖 AI 策略領航", { weight: "bold", size: "md", color: "#111111" }),
-        sep("md"),
+        { type: "text", text: "🤖 AI 策略領航", weight: "bold", size: "md", color: "#1A73E8" },
+        { type: "separator", margin: "md", color: "#E0E0E0" },
         {
           type: "box",
           layout: "vertical",
-          backgroundColor: "#F8F9FA",
+          margin: "lg",
+          paddingAll: "15px",
+          backgroundColor: "#F4F7FB", // 極簡淡藍色背景
           cornerRadius: "md",
-          paddingAll: "12px",
-          margin: "md",
-          contents: [
-            txt(aiAdvice || "等待 AI 分析中...", {
-              size: "xs",
-              color: "#333333",
-              wrap: true,
-              maxLines: 40,
-            }),
-          ],
+          contents: buildFlexTextBlocks(aiAdvice || "數據分析中...")
         },
-        sep("lg"),
-        txt("💡 提示：AI 建議僅供參考，請務必守住維持率紅線。", {
+        {
+          type: "text",
+          text: "💡 決策依據已由量化模型驗證",
           size: "xxs",
-          color: "#aaaaaa",
-          align: "center",
-        }),
-      ],
-    },
+          color: "#AAAAAA",
+          margin: "md",
+          align: "center"
+        }
+      ]
+    }
   };
   
   // ========== Bubble 5：心理紀律 + 進度條 + 連結 ==========
