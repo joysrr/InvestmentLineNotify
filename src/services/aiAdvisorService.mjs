@@ -1,12 +1,15 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { minifyExplainInput } from "../utils/aiPreprocessor.mjs";
 //import fs from 'fs';
 //import path from 'path';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
+const THINKING_LEVEL = (
+  process.env.GEMINI_THINKING_LEVEL || "MEDIUM"
+).toUpperCase();
 
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 // 將長字串壓成單行，避免 LLM 直接照抄造成爆行
 function toOneLine(text) {
@@ -30,11 +33,6 @@ export async function getAiInvestmentAdvice(
     console.warn("⚠️ 缺少 GEMINI_API_KEY，跳過 AI 決策");
     return null;
   }
-
-  const model = genAI.getGenerativeModel({
-    model: GEMINI_MODEL,
-    generationConfig: { temperature: 0.1, maxOutputTokens: 8192 },
-  });
 
   // ⚡️ 執行預處理
   const cleanData = minifyExplainInput(marketData, portfolio, vixData);
@@ -109,11 +107,19 @@ ${json}
   //console.log("prompt", prompt);
   try {
     //return "";
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text()?.trim() ?? "";
+    const resp = await ai.models.generateContent({
+      model: GEMINI_MODEL,
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      config: {
+        temperature: 0.2,
+        maxOutputTokens: 8192,
+        thinkingConfig: {
+          thinkingLevel: ThinkingLevel[THINKING_LEVEL] ?? ThinkingLevel.MEDIUM,
+        },
+      },
+    });
 
-    // 避免模型自己把整段用 ``` 包起來
+    const text = resp.text?.trim?.() ?? "";
     return text
       .replace(/^```[a-zA-Z]*\n?/, "")
       .replace(/```$/, "")
