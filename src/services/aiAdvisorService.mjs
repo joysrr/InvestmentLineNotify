@@ -20,7 +20,12 @@ function toOneLine(text) {
 /**
  * 根據策略與現狀產生 AI 投資建議
  */
-export async function getAiInvestmentAdvice(marketData, portfolio, strategy) {
+export async function getAiInvestmentAdvice(
+  marketData,
+  portfolio,
+  vixData,
+  strategy,
+) {
   if (!GEMINI_API_KEY) {
     console.warn("⚠️ 缺少 GEMINI_API_KEY，跳過 AI 決策");
     return null;
@@ -28,14 +33,16 @@ export async function getAiInvestmentAdvice(marketData, portfolio, strategy) {
 
   const model = genAI.getGenerativeModel({
     model: GEMINI_MODEL,
-    generationConfig: { temperature: 0.1, maxOutputTokens: 8192 }
+    generationConfig: { temperature: 0.1, maxOutputTokens: 8192 },
   });
 
   // ⚡️ 執行預處理
-  const cleanData = minifyExplainInput(marketData, portfolio);
+  const cleanData = minifyExplainInput(marketData, portfolio, vixData);
   // 防止某些欄位（如 reasonOneLine）含換行，導致 LLM照抄爆行
   if (cleanData?.conclusion?.reasonOneLine) {
-    cleanData.conclusion.reasonOneLine = toOneLine(cleanData.conclusion.reasonOneLine);
+    cleanData.conclusion.reasonOneLine = toOneLine(
+      cleanData.conclusion.reasonOneLine,
+    );
   }
 
   const json = JSON.stringify(cleanData, null, 2);
@@ -107,7 +114,10 @@ ${json}
     const text = response.text()?.trim() ?? "";
 
     // 避免模型自己把整段用 ``` 包起來
-    return text.replace(/^```[a-zA-Z]*\n?/, "").replace(/```$/, "").trim();
+    return text
+      .replace(/^```[a-zA-Z]*\n?/, "")
+      .replace(/```$/, "")
+      .trim();
   } catch (error) {
     console.error("❌ Gemini AI 決策失敗:", error.message);
     return "AI 決策引擎暫時無法運作，請依原始數據判斷。";
