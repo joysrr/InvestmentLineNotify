@@ -3,12 +3,18 @@ import { getTwVix } from "./services/vixService.mjs";
 import { fetchLatestBasePrice } from "./services/basePriceService.mjs";
 import { pushLine, buildFlexCarouselFancy } from "./services/notifyService.mjs";
 import { getInvestmentSignalAsync } from "./services/stockSignalService.mjs";
-import { fetchStockHistory, fetchLatestClose } from "./providers/twse/twseStockDayProvider.mjs";
+import {
+  fetchStockHistory,
+  fetchLatestClose,
+} from "./providers/twse/twseStockDayProvider.mjs";
 import { fetchRealtimeFromMis } from "./providers/twse/twseMisProvider.mjs";
 import { isMarketOpenTodayTWSE } from "./providers/twse/twseCalendarProvider.mjs";
 import { calculateIndicators } from "./finance/indicators.mjs";
 import { getTaiwanDate } from "./utils/timeUtils.mjs";
-import { fetchLastPortfolioState, logDailyToSheet } from "./services/googleSheetService.mjs";
+import {
+  fetchLastPortfolioState,
+  logDailyToSheet,
+} from "./services/googleSheetService.mjs";
 import { fetchStrategyConfig } from "./services/strategyConfigService.mjs";
 import { getAiInvestmentAdvice } from "./services/aiAdvisorService.mjs";
 
@@ -24,8 +30,11 @@ export async function dailyCheck(sendPush = true) {
     } catch (e) {
       console.error("⚠️ 讀取試算表失敗，將使用預設設定 0:", e.message);
       lastState = {
-        qty0050: 0, qtyZ2: 0, totalLoan: 0, cash: 0
-      }
+        qty0050: 0,
+        qtyZ2: 0,
+        totalLoan: 0,
+        cash: 0,
+      };
     }
     const stockStatus = `✅ 持股狀態確認：0050=${lastState.qty0050}股, 00675L=${lastState.qtyZ2}股, 借款=${lastState.totalLoan}`;
     console.log(stockStatus);
@@ -72,9 +81,11 @@ export async function dailyCheck(sendPush = true) {
 
     if (history.length < 30) {
       console.log("❌ 資料不足，無法計算指標");
-      return "❌ 資料不足"
+      return "❌ 資料不足";
     }
-    console.log(`📅 取得00675L歷史數據：${lastYear.toISOString().slice(0, 10)} 至 ${today.toISOString().slice(0, 10)}`);
+    console.log(
+      `📅 取得00675L歷史數據：${lastYear.toISOString().slice(0, 10)} 至 ${today.toISOString().slice(0, 10)}`,
+    );
 
     // 抓取 0050 最新價格
     console.log("📥 正在抓取 0050 價格...");
@@ -109,11 +120,14 @@ export async function dailyCheck(sendPush = true) {
     console.log(`💰 取得 00675L 價格：${currentPriceZ2}`);
 
     // 計算指標
-    console.log(`🧠 正在計算指標...`)
+    console.log(`🧠 正在計算指標...`);
     const { closes, rsiArr, macdArr, kdArr } = calculateIndicators(history);
     const latestClose = closes[closes.length - 1];
     const finalPriceZ2 = currentPriceZ2 || latestClose;
-    const ma240 = closes.length >= 240 ? closes.slice(-240).reduce((a, b) => a + b, 0) / 240 : null;
+    const ma240 =
+      closes.length >= 240
+        ? closes.slice(-240).reduce((a, b) => a + b, 0) / 240
+        : null;
     const latestRSI = rsiArr[rsiArr.length - 1];
     const latestKD = kdArr[kdArr.length - 1];
     console.log(`✅ 指標計算完成`);
@@ -153,11 +167,14 @@ export async function dailyCheck(sendPush = true) {
     console.log("🤖 正在產生 AI 決策分析...");
 
     //console.log("原始數據", result, lastState, strategyConfig);
-    const aiAdvice = await getAiInvestmentAdvice(result, lastState, strategyConfig);
+    const aiAdvice = await getAiInvestmentAdvice(
+      result,
+      lastState,
+      vixData,
+      strategyConfig,
+    );
     console.log("--- DEBUG AI ADVICE ---");
     console.log(aiAdvice); // ⚡️ 在 GitHub Actions 的 Log 裡看這段
-
-
 
     /*
     // 交易時段檢查
@@ -204,9 +221,15 @@ export async function dailyCheck(sendPush = true) {
       `   └ 下跌是加碼的禮物，上漲是資產的果實\n\n`;
 
     const rsiText = Number.isFinite(result.RSI) ? result.RSI.toFixed(1) : "N/A";
-    const kdKText = Number.isFinite(result.KD_K) ? result.KD_K.toFixed(1) : "N/A";
-    const kdDText = Number.isFinite(result.KD_D) ? result.KD_D.toFixed(1) : "N/A";
-    const bias240Text = Number.isFinite(result.bias240) ? `${result.bias240.toFixed(2)}%` : "N/A";
+    const kdKText = Number.isFinite(result.KD_K)
+      ? result.KD_K.toFixed(1)
+      : "N/A";
+    const kdDText = Number.isFinite(result.KD_D)
+      ? result.KD_D.toFixed(1)
+      : "N/A";
+    const bias240Text = Number.isFinite(result.bias240)
+      ? `${result.bias240.toFixed(2)}%`
+      : "N/A";
 
     let detailMsg =
       `\n🔥 過熱狀態：${result.overheat.isOverheat ? "是" : "否"} (${result.overheat.highCount}/${result.overheat.factorCount})\n` +
