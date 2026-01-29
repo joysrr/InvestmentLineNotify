@@ -1,12 +1,12 @@
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { minifyExplainInput } from "../utils/aiPreprocessor.mjs";
-//import fs from 'fs';
-//import path from 'path';
+import fs from "fs";
+import path from "path";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
 const THINKING_LEVEL = (
-  process.env.GEMINI_THINKING_LEVEL || "MEDIUM"
+  process.env.GEMINI_THINKING_LEVEL || "LOW"
 ).toUpperCase();
 
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
@@ -89,22 +89,20 @@ export async function getAiInvestmentAdvice(
 ${json}
 </JSON>
 `;
-  /*
-    // ⚡️ 新增：將 Prompt 與數據輸出成暫存 JSON
-    try {
-      const debugData = {
-        timestamp: new Date().toISOString(),
-        generatedPrompt: prompt
-      };
-  
-      const tempFilePath = path.join(process.cwd(), 'temp_prompt.json');
-      fs.writeFileSync(tempFilePath, JSON.stringify(debugData, null, 2), 'utf8');
-      console.log(`\n📝 [Debug] Prompt 已導出至: ${tempFilePath}`);
-    } catch (err) {
-      console.warn("⚠️ 無法寫入暫存 Prompt 檔案:", err.message);
-    }
-   */
-  //console.log("prompt", prompt);
+  // ⚡️ 新增：將 Prompt 與數據輸出成暫存 JSON
+  try {
+    const debugData = {
+      timestamp: new Date().toISOString(),
+      generatedPrompt: prompt,
+    };
+
+    const tempFilePath = path.join(process.cwd(), "temp_prompt.json");
+    fs.writeFileSync(tempFilePath, JSON.stringify(debugData, null, 2), "utf8");
+    console.log(`\n📝 [Debug] Prompt 已導出至: ${tempFilePath}`);
+  } catch (err) {
+    console.warn("⚠️ 無法寫入暫存 Prompt 檔案:", err.message);
+  }
+
   try {
     //return "";
     const resp = await ai.models.generateContent({

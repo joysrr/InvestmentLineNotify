@@ -320,7 +320,7 @@ function buildSellBackToAllocation(ctx, strategy) {
   return {
     marketStatus: "🎯【停利/降槓桿】",
     target: "🔻 賣出/還款",
-    targetSuggestion: `停利賣00675L；降到 ${(post.leverage * 100).toFixed(0)}%`,
+    targetSuggestionShort: `停利賣00675L；降到 ${(post.leverage * 100).toFixed(0)}%`,
     targetSuggestion: `賣出部分00675L並還款，恢復槓桿 ${(targetLeverage * 100).toFixed(0)}% / 現金 ${(post.cash * 100).toFixed(0)}%`,
     suggestion:
       `🎯 觸發賣出條件：建議賣出約 ${sellAmount.toLocaleString("zh-TW", { maximumFractionDigits: 0 })} 元並還款，` +

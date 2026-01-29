@@ -78,20 +78,48 @@ const statusText = (
 });
 
 // 列表式掃描儀的一行：標籤 | 數值 | 門檻條件 | 狀態
-const scannerRow = (label, valueText, targetText, state, valueColor = "#111111") => ({
+const scannerRow = (
+  label,
+  valueText,
+  targetText,
+  state,
+  valueColor = "#111111",
+) => ({
   type: "box",
   layout: "horizontal",
   contents: [
     txt(label, { size: "sm", color: "#666666", flex: 3 }),
-    txt(valueText ?? "--", { size: "sm", color: valueColor, weight: "bold", align: "center", flex: 3 }),
-    txt(targetText ?? "", { size: "xs", color: "#aaaaaa", align: "end", gravity: "center", flex: 4, wrap: true, maxLines: 1 }),
-    txt(state === "watch" ? "👀" : state === "ok" ? "✅" : "❌", { size: "sm", align: "end", flex: 1 }),
+    txt(valueText ?? "--", {
+      size: "sm",
+      color: valueColor,
+      weight: "bold",
+      align: "center",
+      flex: 3,
+    }),
+    txt(targetText ?? "", {
+      size: "xs",
+      color: "#aaaaaa",
+      align: "end",
+      gravity: "center",
+      flex: 4,
+      wrap: true,
+      maxLines: 1,
+    }),
+    txt(state === "watch" ? "👀" : state === "ok" || state ? "✅" : "❌", {
+      size: "sm",
+      align: "end",
+      flex: 1,
+    }),
   ],
 });
 
-
 // 基礎行顯示 (左標籤, 右數值)
-const baselineRow = (left, right, rightColor = "#111111", rightBold = false) => ({
+const baselineRow = (
+  left,
+  right,
+  rightColor = "#111111",
+  rightBold = false,
+) => ({
   type: "box",
   layout: "baseline",
   contents: [
@@ -115,7 +143,13 @@ const indicatorCard = (label, value, isAlert = false) => ({
   cornerRadius: "md",
   paddingAll: "8px",
   contents: [
-    { type: "text", text: label, size: "xs", color: "#888888", align: "center" },
+    {
+      type: "text",
+      text: label,
+      size: "xs",
+      color: "#888888",
+      align: "center",
+    },
     {
       type: "text",
       text: String(value ?? "--"),
@@ -130,7 +164,8 @@ const indicatorCard = (label, value, isAlert = false) => ({
 // 進度條元件 (用於 Bubble 4)
 const progressBar = (current, goal, color = "#28a745") => {
   const c = Number.isFinite(Number(current)) ? Number(current) : 0;
-  const g = Number.isFinite(Number(goal)) && Number(goal) > 0 ? Number(goal) : 1;
+  const g =
+    Number.isFinite(Number(goal)) && Number(goal) > 0 ? Number(goal) : 1;
   const percent = Math.min(Math.max((c / g) * 100, 0), 100);
 
   return {
@@ -141,7 +176,11 @@ const progressBar = (current, goal, color = "#28a745") => {
         type: "box",
         layout: "horizontal",
         contents: [
-          txt(`達成率 ${percent.toFixed(1)}%`, { size: "xs", color: "#666666", flex: 1 }),
+          txt(`達成率 ${percent.toFixed(1)}%`, {
+            size: "xs",
+            color: "#666666",
+            flex: 1,
+          }),
           txt(`$${(c / 10000).toFixed(0)}萬 / $${(g / 10000).toFixed(0)}萬`, {
             size: "xs",
             color: "#aaaaaa",
@@ -189,7 +228,9 @@ export async function pushLine(input, { to = process.env.USER_ID } = {}) {
   }
 
   const messages =
-    typeof input === "string" ? [{ type: "text", text: input }] : toArray(input);
+    typeof input === "string"
+      ? [{ type: "text", text: input }]
+      : toArray(input);
 
   if (!Array.isArray(messages) || messages.length === 0) {
     console.warn("messages 為空，跳過推播");
@@ -229,22 +270,32 @@ export async function pushLine(input, { to = process.env.USER_ID } = {}) {
 // 戰報建構函式 (Flex Message Builder)
 // ============================================================================
 
-export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAdvice }) {
+export function buildFlexCarouselFancy({
+  result,
+  vixData,
+  config,
+  dateText,
+  aiAdvice,
+}) {
   const status = String(result.marketStatus ?? "");
 
   // 1) 狀態判定與顏色
-  const headerBg =
-    status.includes("追繳") ? "#B00020" :
-      status.includes("過熱") || status.includes("禁撥") ? "#D93025" :
-        status.includes("轉弱") ? "#E67E22" :
-          "#2F3136";
+  const headerBg = status.includes("追繳")
+    ? "#B00020"
+    : status.includes("過熱") || status.includes("禁撥")
+      ? "#D93025"
+      : status.includes("轉弱")
+        ? "#E67E22"
+        : "#2F3136";
 
   const vixValue = vixData?.value != null ? Number(vixData.value) : NaN;
   const vixValueText = Number.isFinite(vixValue) ? vixValue.toFixed(2) : "N/A";
   const vixStatus =
-    Number.isFinite(vixValue) && vixValue < 13.5 ? "過度安逸" :
-      Number.isFinite(vixValue) && vixValue > 20 ? "恐慌" :
-        "正常";
+    Number.isFinite(vixValue) && vixValue < 13.5
+      ? "過度安逸"
+      : Number.isFinite(vixValue) && vixValue > 20
+        ? "恐慌"
+        : "正常";
 
   // 策略參數
   const strategy = result.strategy || {};
@@ -253,7 +304,9 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
   const sellTh = strategy.sell || {};
 
   // 反轉掃描資料
+  const w = result.weightDetails ?? {};
   const r = result.reversal ?? {};
+  const s = result.sellSignals ?? {};
 
   // Google Sheet 連結
   const sheetUrl = process.env.GOOGLE_SHEET_ID
@@ -294,7 +347,11 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
           cornerRadius: "md",
           paddingAll: "12px",
           contents: [
-            txt("🏹 核心行動", { weight: "bold", color: "#D93025", size: "sm" }),
+            txt("🏹 核心行動", {
+              weight: "bold",
+              color: "#D93025",
+              size: "sm",
+            }),
             txt(result.target ?? "觀望", {
               weight: "bold",
               size: "xl",
@@ -347,7 +404,11 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
               paddingAll: "10px",
               flex: 1,
               contents: [
-                txt("🛡️ 0050 (盾)", { size: "xs", color: "#555555", align: "center" }),
+                txt("🛡️ 0050 (盾)", {
+                  size: "xs",
+                  color: "#555555",
+                  align: "center",
+                }),
                 txt(`${config.qty0050} 股`, {
                   size: "md",
                   weight: "bold",
@@ -365,13 +426,22 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
               paddingAll: "10px",
               flex: 1,
               contents: [
-                txt("⚔️ 00675L (矛)", { size: "xs", color: "#555555", align: "center" }),
+                txt("⚔️ 00675L (矛)", {
+                  size: "xs",
+                  color: "#555555",
+                  align: "center",
+                }),
                 txt(`${config.qtyZ2} 股`, {
                   size: "md",
                   weight: "bold",
                   color: "#D93025",
                   align: "center",
                   margin: "sm",
+                }),
+                txt(`${result.currentPrice}/${result.basePrice}(現/基)`, {
+                  size: "xs",
+                  color: "#aaaaaa",
+                  margin: "xs",
                 }),
               ],
             },
@@ -388,8 +458,10 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
   const dropPct = Number(result.priceDropPercent);
   const score = Number(result.weightScore);
 
-  const dropOk = Number.isFinite(dropPct) && Number.isFinite(minDrop) && dropPct >= minDrop;
-  const scoreOk = Number.isFinite(score) && Number.isFinite(minScore) && score >= minScore;
+  const dropOk =
+    Number.isFinite(dropPct) && Number.isFinite(minDrop) && dropPct >= minDrop;
+  const scoreOk =
+    Number.isFinite(score) && Number.isFinite(minScore) && score >= minScore;
 
   const bubble2 = {
     type: "bubble",
@@ -397,10 +469,18 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
       type: "box",
       layout: "vertical",
       contents: [
-        txt("📊 策略訊號掃描", { weight: "bold", size: "md", color: "#111111" }),
+        txt("📊 策略訊號掃描", {
+          weight: "bold",
+          size: "md",
+          color: "#111111",
+        }),
 
         sep("md"),
-        txt("🟢 進場條件 (低檔加碼)", { weight: "bold", size: "sm", color: "#28a745" }),
+        txt("🟢 進場條件 (低檔加碼)", {
+          weight: "bold",
+          size: "sm",
+          color: "#28a745",
+        }),
         {
           type: "box",
           layout: "vertical",
@@ -408,12 +488,42 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
           spacing: "sm",
           contents: [
             scannerRow(
-              "跌幅(監控)",
-              `${result.priceDropPercentText}%`,
-              `進場門檻 ≥ ${minDrop}%`,
-              dropOk ? "ok" : "watch",
-              dropOk ? "#28a745" : "#111111"
+              "跌幅",
+              Number.isFinite(w.dropScore) ? String(w.dropScore) : "--",
+              w.dropInfo,
+              Number.isFinite(w.dropScore) && w.dropScore > 0 ? "ok" : "",
+              Number.isFinite(w.dropScore) && w.dropScore > 0
+                ? "#28a745"
+                : "#111111",
             ),
+            scannerRow(
+              "RSI",
+              Number.isFinite(w.rsiScore) ? String(w.rsiScore) : "--",
+              w.rsiInfo,
+              Number.isFinite(w.rsiScore) && w.rsiScore > 0 ? "ok" : "",
+              Number.isFinite(w.rsiScore) && w.rsiScore > 0
+                ? "#28a745"
+                : "#111111",
+            ),
+            scannerRow(
+              "MACD",
+              Number.isFinite(w.macdScore) ? String(w.macdScore) : "--",
+              w.macdInfo,
+              Number.isFinite(w.macdScore) && w.macdScore > 0 ? "ok" : "",
+              Number.isFinite(w.macdScore) && w.macdScore > 0
+                ? "#28a745"
+                : "#111111",
+            ),
+            scannerRow(
+              "KD",
+              Number.isFinite(w.kdScore) ? String(w.kdScore) : "--",
+              w.kdInfo,
+              Number.isFinite(w.kdScore) && w.kdScore > 0 ? "ok" : "",
+              Number.isFinite(w.kdScore) && w.kdScore > 0
+                ? "#28a745"
+                : "#111111",
+            ),
+            sep("sm"),
             scannerRow(
               "總評分",
               Number.isFinite(score) ? String(score) : "--",
@@ -425,12 +535,19 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
         },
 
         sep("lg"),
-        txt("🔴 轉弱/過熱訊號 (監控賣點)", { weight: "bold", size: "sm", color: "#D93025" }),
-        txt(`觸發數：${r.triggeredCount ?? 0} / ${r.totalFactor ?? 4}`, {
-          size: "xs",
-          color: "#aaaaaa",
-          margin: "xs",
+        txt("🔴 轉弱/賣出訊號 (監控賣點)", {
+          weight: "bold",
+          size: "sm",
+          color: "#D93025",
         }),
+        txt(
+          `轉弱觸發數：${r.triggeredCount ?? 0} / ${r.totalFactor ?? 4}｜賣出觸發數：${s.signalCount ?? 0} / ${s.total ?? 3}`,
+          {
+            size: "xs",
+            color: "#aaaaaa",
+            margin: "xs",
+          },
+        ),
 
         {
           type: "box",
@@ -452,13 +569,27 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
               Boolean(r.kdDrop),
               r.kdDrop ? "#D93025" : "#111111",
             ),
-            scannerRow("KD 死叉", r.kdBearCross ? "死叉" : "安全", "需死叉", Boolean(r.kdBearCross)),
-            scannerRow("MACD", r.macdBearCross ? "死叉" : "安全", "需死叉", Boolean(r.macdBearCross)),
+            scannerRow(
+              "KD 死叉",
+              r.kdBearCross ? "死叉" : "安全",
+              "需死叉",
+              Boolean(r.kdBearCross),
+            ),
+            scannerRow(
+              "MACD",
+              r.macdBearCross ? "死叉" : "安全",
+              "需死叉",
+              Boolean(r.macdBearCross),
+            ),
           ],
         },
-        sep('lg'),
+        sep("lg"),
         // 歷史位階顯示
-        baselineRow("歷史位階", result.historicalLevel, result.bias240 > 25 ? "#D93025" : "#111111"),
+        baselineRow(
+          "歷史位階",
+          result.historicalLevel,
+          result.bias240 > 25 ? "#D93025" : "#111111",
+        ),
       ],
     },
   };
@@ -481,7 +612,8 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
   const mmSafe = !hasLoan || (Number.isFinite(mm) && mm > 160);
 
   const currentAsset = Number(result.netAsset || 0);
-  const grossAsset = Number(result.netAsset || 0) + Number(result.totalLoan || 0);
+  const grossAsset =
+    Number(result.netAsset || 0) + Number(result.totalLoan || 0);
 
   const bubble3 = {
     type: "bubble",
@@ -489,7 +621,11 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
       type: "box",
       layout: "vertical",
       contents: [
-        txt("📈 技術指標 & 帳戶", { weight: "bold", size: "md", color: "#111111" }),
+        txt("📈 技術指標 & 帳戶", {
+          weight: "bold",
+          size: "md",
+          color: "#111111",
+        }),
         sep("md"),
 
         txt("即時指標", { size: "xs", color: "#aaaaaa" }),
@@ -499,8 +635,16 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
           margin: "sm",
           spacing: "md",
           contents: [
-            indicatorCard("RSI", Number.isFinite(rsi) ? rsi.toFixed(1) : "--", rsiAlert),
-            indicatorCard("KD (K)", Number.isFinite(k) ? k.toFixed(1) : "--", kAlert),
+            indicatorCard(
+              "RSI",
+              Number.isFinite(rsi) ? rsi.toFixed(1) : "--",
+              rsiAlert,
+            ),
+            indicatorCard(
+              "KD (K)",
+              Number.isFinite(k) ? k.toFixed(1) : "--",
+              kAlert,
+            ),
             indicatorCard(
               "乖離率",
               Number.isFinite(bias240) ? `${bias240.toFixed(1)}%` : "--",
@@ -511,7 +655,11 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
 
         sep("lg"),
 
-        txt("🛡️ 帳戶安全狀態", { weight: "bold", size: "sm", color: "#111111" }),
+        txt("🛡️ 帳戶安全狀態", {
+          weight: "bold",
+          size: "sm",
+          color: "#111111",
+        }),
         {
           type: "box",
           layout: "vertical",
@@ -522,24 +670,41 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
               "帳戶總值",
               `$${currentAsset.toLocaleString("zh-TW")}`,
               "#111111",
-              true
+              true,
             ),
-            baselineRow("總資產(含貸)", `$${grossAsset.toLocaleString("zh-TW")}`, "#111111", false),
+            baselineRow(
+              "總資產(含貸)",
+              `$${grossAsset.toLocaleString("zh-TW")}`,
+              "#111111",
+              false,
+            ),
             baselineRow(
               "預估維持率",
-              hasLoan && Number.isFinite(mm) ? `${mm.toFixed(0)}%` : "未動用 (安全)",
+              hasLoan && Number.isFinite(mm)
+                ? `${mm.toFixed(0)}%`
+                : "未動用 (安全)",
               mmSafe ? "#28a745" : "#D93025",
               true,
             ),
             baselineRow(
               "正2 佔比",
-              Number.isFinite(Number(result.z2Ratio)) ? `${Number(result.z2Ratio).toFixed(1)}%` : "--",
+              Number.isFinite(Number(result.z2Ratio))
+                ? `${Number(result.z2Ratio).toFixed(1)}%`
+                : "--",
               Number(result.z2Ratio) > 40 ? "#D93025" : "#111111",
               true,
             ),
-            baselineRow("現金儲備", `$${Number(config.cash || 0).toLocaleString("zh-TW")}`),
+            baselineRow(
+              "現金儲備",
+              `$${Number(config.cash || 0).toLocaleString("zh-TW")}`,
+            ),
             // 實際槓桿顯示
-            baselineRow("實際槓桿", `${result.actualLeverage} 倍`, result.actualLeverage > 2 ? "#D93025" : "#111111", true),
+            baselineRow(
+              "實際槓桿",
+              `${result.actualLeverage} 倍`,
+              result.actualLeverage > 2 ? "#D93025" : "#111111",
+              true,
+            ),
           ],
         },
       ],
@@ -553,7 +718,13 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
       type: "box",
       layout: "vertical",
       contents: [
-        { type: "text", text: "🤖 AI 策略領航", weight: "bold", size: "md", color: "#1A73E8" },
+        {
+          type: "text",
+          text: "🤖 AI 策略領航",
+          weight: "bold",
+          size: "md",
+          color: "#1A73E8",
+        },
         { type: "separator", margin: "md", color: "#E0E0E0" },
         {
           type: "box",
@@ -562,7 +733,7 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
           paddingAll: "15px",
           backgroundColor: "#F4F7FB", // 極簡淡藍色背景
           cornerRadius: "md",
-          contents: buildFlexTextBlocks(aiAdvice || "數據分析中...")
+          contents: buildFlexTextBlocks(aiAdvice || "數據分析中..."),
         },
         {
           type: "text",
@@ -570,12 +741,12 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
           size: "xxs",
           color: "#AAAAAA",
           margin: "md",
-          align: "center"
-        }
-      ]
-    }
+          align: "center",
+        },
+      ],
+    },
   };
-  
+
   // ========== Bubble 5：心理紀律 + 進度條 + 連結 ==========
   const GOAL_ASSET = 74_800_000;
 
@@ -588,26 +759,25 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
   const linksBox = {
     type: "box",
     layout: "horizontal",
-    spacing: "xs",     // ← sm → xs
+    spacing: "xs", // ← sm → xs
     margin: "sm",
     contents: [
       sheetUrl
         ? uriButtonBox("📊 開啟財富領航表", sheetUrl, {
-          bg: "#F8F9FA",
-          borderColor: "#DADCE0",
-          textColor: "#1A73E8",
-        })
+            bg: "#F8F9FA",
+            borderColor: "#DADCE0",
+            textColor: "#1A73E8",
+          })
         : null,
       process.env.STRATEGY_URL
         ? uriButtonBox("📄 查看策略設定檔", process.env.STRATEGY_URL, {
-          bg: "#F8F9FA",
-          borderColor: "#DADCE0",
-          textColor: "#5F6368",
-        })
+            bg: "#F8F9FA",
+            borderColor: "#DADCE0",
+            textColor: "#5F6368",
+          })
         : null,
     ].filter(Boolean),
   };
-
 
   const quoteAndLinksCard = {
     type: "box",
@@ -621,7 +791,7 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
 
       // 原文（主）
       txt(`“${en}”`, {
-        size: "xs",        // 建議順便用 xs，減少被 … 截斷機率
+        size: "xs", // 建議順便用 xs，減少被 … 截斷機率
         color: "#333333",
         wrap: true,
         maxLines: 6,
@@ -631,12 +801,12 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
       // 翻譯（副）
       zh
         ? txt(zh, {
-          size: "xxs",
-          color: "#777777",
-          wrap: true,
-          maxLines: 6,
-          margin: "sm",
-        })
+            size: "xxs",
+            color: "#777777",
+            wrap: true,
+            maxLines: 6,
+            margin: "sm",
+          })
         : null,
 
       txt(`— ${q.author || "Unknown"}`, {
@@ -656,17 +826,17 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
     contents: [
       sheetUrl
         ? uriButtonBox("📊 開啟財富領航表", sheetUrl, {
-          bg: "#F8F9FA",
-          borderColor: "#DADCE0",
-          textColor: "#1A73E8",
-        })
+            bg: "#F8F9FA",
+            borderColor: "#DADCE0",
+            textColor: "#1A73E8",
+          })
         : null,
       process.env.STRATEGY_URL
         ? uriButtonBox("📄 查看策略設定檔", process.env.STRATEGY_URL, {
-          bg: "#F8F9FA",
-          borderColor: "#DADCE0",
-          textColor: "#5F6368",
-        })
+            bg: "#F8F9FA",
+            borderColor: "#DADCE0",
+            textColor: "#5F6368",
+          })
         : null,
     ].filter(Boolean),
   };
@@ -677,7 +847,11 @@ export function buildFlexCarouselFancy({ result, vixData, config, dateText, aiAd
       type: "box",
       layout: "vertical",
       contents: [
-        txt("🧠 財富自由航道", { weight: "bold", size: "md", color: "#111111" }),
+        txt("🧠 財富自由航道", {
+          weight: "bold",
+          size: "md",
+          color: "#111111",
+        }),
 
         {
           type: "box",
