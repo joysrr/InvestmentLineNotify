@@ -136,10 +136,10 @@ const baselineRow = (
 });
 
 // 技術指標卡片 (數值大字顯示)
-const indicatorCard = (label, value, isAlert = false) => ({
+const indicatorCard = (label, value, status = "") => ({
   type: "box",
   layout: "vertical",
-  backgroundColor: isAlert ? "#FFF5F5" : "#F7F7F7",
+  backgroundColor: status ? "#F7F7F7" : "#FFF5F5",
   cornerRadius: "md",
   paddingAll: "8px",
   contents: [
@@ -155,7 +155,8 @@ const indicatorCard = (label, value, isAlert = false) => ({
       text: String(value ?? "--"),
       size: "lg",
       weight: "bold",
-      color: isAlert ? "#D93025" : "#111111",
+      color:
+        status == "red" ? "#D93025" : status == "green" ? "#28a745" : "#111111",
       align: "center",
     },
   ],
@@ -277,6 +278,17 @@ export function buildFlexCarouselFancy({
   dateText,
   aiAdvice,
 }) {
+  // 策略參數
+  const strategy = result.strategy || {};
+  const th = strategy.threshold || {};
+  const buyTh = strategy.buy || {};
+  const sellTh = strategy.sell || {};
+
+  // 反轉掃描資料
+  const w = result.weightDetails ?? {};
+  const r = result.reversal ?? {};
+  const s = result.sellSignals ?? {};
+
   const status = String(result.marketStatus ?? "");
 
   // 1) 狀態判定與顏色
@@ -290,23 +302,24 @@ export function buildFlexCarouselFancy({
 
   const vixValue = vixData?.value != null ? Number(vixData.value) : NaN;
   const vixValueText = Number.isFinite(vixValue) ? vixValue.toFixed(2) : "N/A";
+  const vixLowComplacency = Number.isFinite(th.vixLowComplacency)
+    ? Number(th.vixLowComplacency)
+    : 13.5;
+  const vixHighFear = Number.isFinite(th.vixHighFear)
+    ? Number(th.vixHighFear)
+    : 20;
   const vixStatus =
-    Number.isFinite(vixValue) && vixValue < 13.5
-      ? "過度安逸"
-      : Number.isFinite(vixValue) && vixValue > 20
-        ? "恐慌"
-        : "正常";
-
-  // 策略參數
-  const strategy = result.strategy || {};
-  const th = strategy.threshold || {};
-  const buyTh = strategy.buy || {};
-  const sellTh = strategy.sell || {};
-
-  // 反轉掃描資料
-  const w = result.weightDetails ?? {};
-  const r = result.reversal ?? {};
-  const s = result.sellSignals ?? {};
+    Number.isFinite(vixValue) && vixValue < vixLowComplacency
+      ? "😴過度安逸"
+      : Number.isFinite(vixValue) && vixValue > vixHighFear
+        ? "😱恐慌"
+        : "😐正常";
+  const vixStatusColor =
+    Number.isFinite(vixValue) && vixValue < vixLowComplacency
+      ? "#2E7D32"
+      : Number.isFinite(vixValue) && vixValue > vixHighFear
+        ? "#F9A825"
+        : "#C62828";
 
   // Google Sheet 連結
   const sheetUrl = process.env.GOOGLE_SHEET_ID
@@ -347,7 +360,7 @@ export function buildFlexCarouselFancy({
           cornerRadius: "md",
           paddingAll: "12px",
           contents: [
-            txt("🏹 核心行動", {
+            txt("📌 核心行動", {
               weight: "bold",
               color: "#D93025",
               size: "sm",
@@ -369,23 +382,20 @@ export function buildFlexCarouselFancy({
           ],
         },
 
-        sep("lg"),
+        txt("市場指標", { size: "xs", color: "#aaaaaa", margin: "md" }),
 
-        {
-          type: "box",
-          layout: "horizontal",
-          contents: [
-            txt("🎭 恐慌 VIX", { size: "sm", color: "#666666", flex: 3 }),
-            txt(`${vixValueText} (${vixStatus})`, {
-              size: "sm",
-              color: "#111111",
-              weight: "bold",
-              align: "end",
-              flex: 7,
-              wrap: true,
-            }),
-          ],
-        },
+        baselineRow(
+          "恐慌 VIX",
+          `${vixValueText} (${vixStatus})`,
+          vixStatusColor,
+          true,
+        ),
+        baselineRow(
+          "歷史位階",
+          result.historicalLevel,
+          result.bias240 > th.bias240OverheatLevel ? "#D93025" : "#111111",
+          true,
+        ),
 
         sep("md"),
 
@@ -438,11 +448,6 @@ export function buildFlexCarouselFancy({
                   align: "center",
                   margin: "sm",
                 }),
-                txt(`${result.currentPrice}/${result.basePrice}(現/基)`, {
-                  size: "xs",
-                  color: "#aaaaaa",
-                  margin: "xs",
-                }),
               ],
             },
           ],
@@ -480,6 +485,7 @@ export function buildFlexCarouselFancy({
           weight: "bold",
           size: "sm",
           color: "#28a745",
+          margin: "md",
         }),
         {
           type: "box",
@@ -539,6 +545,7 @@ export function buildFlexCarouselFancy({
           weight: "bold",
           size: "sm",
           color: "#D93025",
+          margin: "md",
         }),
         txt(
           `轉弱觸發數：${r.triggeredCount ?? 0} / ${r.totalFactor ?? 4}｜賣出觸發數：${s.signalCount ?? 0} / ${s.total ?? 3}`,
@@ -583,13 +590,6 @@ export function buildFlexCarouselFancy({
             ),
           ],
         },
-        sep("lg"),
-        // 歷史位階顯示
-        baselineRow(
-          "歷史位階",
-          result.historicalLevel,
-          result.bias240 > 25 ? "#D93025" : "#111111",
-        ),
       ],
     },
   };
@@ -638,17 +638,50 @@ export function buildFlexCarouselFancy({
             indicatorCard(
               "RSI",
               Number.isFinite(rsi) ? rsi.toFixed(1) : "--",
-              rsiAlert,
+              rsiAlert ? "red" : "",
             ),
             indicatorCard(
               "KD (K)",
               Number.isFinite(k) ? k.toFixed(1) : "--",
-              kAlert,
+              kAlert ? "red" : "",
             ),
             indicatorCard(
               "乖離率",
               Number.isFinite(bias240) ? `${bias240.toFixed(1)}%` : "--",
-              biasAlert,
+              biasAlert ? "red" : "",
+            ),
+          ],
+        },
+        {
+          type: "box",
+          layout: "horizontal",
+          margin: "sm",
+          spacing: "md",
+          contents: [
+            indicatorCard(
+              "現價",
+              Number.isFinite(result.currentPrice)
+                ? result.currentPrice.toFixed(2)
+                : "--",
+              "",
+            ),
+            indicatorCard(
+              "基準價",
+              Number.isFinite(result.basePrice)
+                ? result.basePrice.toFixed(2)
+                : "--",
+              "",
+            ),
+            indicatorCard(
+              "變動幅度",
+              Number.isFinite(result.priceChangePercent)
+                ? `${result.priceChangePercent.toFixed(1)}%`
+                : "--",
+              result.priceChangePercent > 0
+                ? "red"
+                : result.priceChangePercent < 0
+                  ? "green"
+                  : "",
             ),
           ],
         },
@@ -659,6 +692,7 @@ export function buildFlexCarouselFancy({
           weight: "bold",
           size: "sm",
           color: "#111111",
+          margin: "md",
         }),
         {
           type: "box",
