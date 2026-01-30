@@ -8,6 +8,8 @@ import {
   macdCrossDown,
   kdCrossDown,
   kdCrossUp,
+  lastKD,
+  kdSeries,
 } from "../finance/indicators.mjs";
 
 function getMACDSignal(macdResult) {
@@ -65,8 +67,8 @@ function computeReversalTriggers(data, strategy) {
   const rsiDrop = fellBelowAfterAbove(data.rsiArr, th.rsiReversalLevel, 10, {
     requireCrossToday: true,
   });
-  const kArr = data.kdArr.map((x) => x.k);
-  const kdDrop = fellBelowAfterAbove(kArr, th.kReversalLevel, 10, {
+  const minKDArr = kdSeries(data.kdArr, (x) => Math.min(x.k, x.d));
+  const kdDrop = fellBelowAfterAbove(minKDArr, th.kReversalLevel, 10, {
     requireCrossToday: true,
   });
 
@@ -84,9 +86,12 @@ function computeOverheatState(data, bias240, strategy) {
   const th = strategy.threshold;
   const b = Number.isFinite(bias240) ? bias240 : null;
 
+  const last = lastKD(data.kdArr);
+  const kdD = last?.d ?? null;
+
   const factors = {
     rsiHigh: Number.isFinite(data.RSI) && data.RSI > th.rsiOverheatLevel,
-    kdHigh: Number.isFinite(data.KD_K) && data.KD_K > th.kOverheatLevel,
+    kdHigh: Number.isFinite(kdD) && kdD > th.dOverheatLevel, // 用%D較穩
     biasHigh: Number.isFinite(b) && b > th.bias240OverheatLevel,
   };
 
@@ -108,11 +113,14 @@ function computeSellSignals(data, strategy) {
   const overbought = sell.rsi.overbought; // 70
   const overboughtK = sell.kd.overboughtK; // 80
 
+  const last = lastKD(data.kdArr);
+  const lastK = last?.k ?? null;
+  const lastD = last?.d ?? null;
+
   // ✅ 狀態（state）：是否處於超買區
   const rsiStateOverbought =
     Number.isFinite(data.RSI) && data.RSI >= overbought;
-  const kdStateOverbought =
-    Number.isFinite(data.KD_K) && data.KD_K >= overboughtK;
+  const kdStateOverbought = Number.isFinite(lastD) && lastD >= overboughtK;
 
   // 1) RSI：高於 70 並回落（prev>=70, curr<70）
   const rsiSell = fellBelowAfterAbove(data.rsiArr, overbought, 10, {
@@ -130,26 +138,21 @@ function computeSellSignals(data, strategy) {
     return crossDown;
   })();
 
-  // 3) KD：K 下穿 D，且位於 80 高檔
+  // 3) KD：高檔死叉（當下在高檔）, %D 跌回80下
   const kdSell = (() => {
-    // 1) 事件：K 下穿 D（死叉）
-    const crossDownKD = kdCrossDown(data.kdArr); // %K crosses below %D
+    const crossDownKD = kdCrossDown(data.kdArr); // K 下穿 D
+    const inOverboughtNow =
+      Number.isFinite(lastK) &&
+      Number.isFinite(lastD) &&
+      Math.min(lastK, lastD) >= overboughtK;
 
-    // 2) 高檔條件（放寬版）：lookback 內 K 曾經 >= 80
-    //    用「roseAboveAfterBelow」不合適；這裡需要的是「曾經在上方」這個旗標，所以做一個 wasOverbought。
-    const kArr = data.kdArr.map((x) => x.k);
-    const start = Math.max(0, kArr.length - 10);
-    const wasOverbought = kArr
-      .slice(start)
-      .some((x) => Number.isFinite(x) && x >= overboughtK);
-
-    // 3) 另一個出口：曾經在 >=80，今天跌回 <80（版本2那條）
-    const dropBelow80 = fellBelowAfterAbove(kArr, overboughtK, 10, {
+    const dArr = kdSeries(data.kdArr, (x) => x.d);
+    const dropBelow80 = fellBelowAfterAbove(dArr, overboughtK, 10, {
       requireCrossToday: true,
-    }); // >80 then falls below 80
+    }); // 用%D跌回80下方（更穩）[web:45]
 
-    // A) 高檔(曾經)死叉  OR  B) 跌回80下方
-    return (crossDownKD && wasOverbought) || dropBelow80;
+    // 高檔死叉（當下在高檔） OR B) %D 跌回80下方
+    return (crossDownKD && inOverboughtNow) || dropBelow80;
   })();
 
   const flags = { rsiSell, macdSell, kdSell };
@@ -225,7 +228,7 @@ function buildDecision(ctx, strategy) {
     const factorText =
       `解除禁令進度：${overheat.coolCount}/${overheat.factorCount} ` +
       `｜RSI${th.rsiOverheatLevel}${f.rsiHigh ? "❌" : "✔️"}` +
-      `｜KD${th.kOverheatLevel}${f.kdHigh ? "❌" : "✔️"}` +
+      `｜KD${th.dOverheatLevel}${f.kdHigh ? "❌" : "✔️"}` +
       `｜BIAS${th.bias240OverheatLevel}${f.biasHigh ? "❌" : "✔️"}`;
 
     const reversalText =
@@ -440,8 +443,8 @@ function evaluateInvestmentSignal(data, strategy) {
     priceDropPercent: priceDropPercent,
     priceDropPercentText: priceDropPercent.toFixed(2),
     RSI: data.RSI,
-    KD_K: data.KD_K || 0,
-    KD_D: data.KD_D || 0,
+    KD_K: Number.isFinite(data.KD_K) ? data.KD_K : null,
+    KD_D: Number.isFinite(data.KD_D) ? data.KD_D : null,
     overheat: ctx.overheat,
     reversal: ctx.reversal,
     weightScore: ctx.entry.weightScore,
