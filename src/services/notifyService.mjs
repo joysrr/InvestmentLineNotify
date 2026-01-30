@@ -105,7 +105,7 @@ const scannerRow = (
       wrap: true,
       maxLines: 1,
     }),
-    txt(state === "watch" ? "👀" : state === "ok" || state ? "✅" : "❌", {
+    txt(state === "watch" ? "🟡" : state === "ok" || state ? "🟢" : "🔴", {
       size: "sm",
       align: "end",
       flex: 1,
@@ -139,7 +139,8 @@ const baselineRow = (
 const indicatorCard = (label, value, status = "") => ({
   type: "box",
   layout: "vertical",
-  backgroundColor: status ? "#F7F7F7" : "#FFF5F5",
+  backgroundColor:
+    status == "red" ? "#F7F7F7" : status == "green" ? "#F0FFF4" : "#FFF5F5",
   cornerRadius: "md",
   paddingAll: "8px",
   contents: [
@@ -212,9 +213,6 @@ const progressBar = (current, goal, color = "#28a745") => {
     ],
   };
 };
-
-const okX = (b) => (b ? "✔️" : "❌");
-const safeNum = (v) => (Number.isFinite(v) ? v : NaN);
 
 // ============================================================================
 // 主推播函式
@@ -308,12 +306,15 @@ export function buildFlexCarouselFancy({
   const vixHighFear = Number.isFinite(th.vixHighFear)
     ? Number(th.vixHighFear)
     : 20;
-  const vixStatus =
-    Number.isFinite(vixValue) && vixValue < vixLowComplacency
-      ? "😴過度安逸"
-      : Number.isFinite(vixValue) && vixValue > vixHighFear
-        ? "😱恐慌"
-        : "😐正常";
+  let vixStatusText = `😐【${vixValueText}/正常】`;
+  if (Number.isFinite(vixValue)) {
+    if (vixValue < vixLowComplacency) {
+      vixStatusText = `😴【${vixValueText}/過度安逸】`;
+    } else if (vixValue > vixHighFear) {
+      vixStatusText = `😱【${vixValueText}/恐慌】`;
+    }
+  }
+
   const vixStatusColor =
     Number.isFinite(vixValue) && vixValue < vixLowComplacency
       ? "#2E7D32"
@@ -343,7 +344,7 @@ export function buildFlexCarouselFancy({
         }),
         txt(`📅 ${dateText} 戰報`, {
           color: "#ffffffcc",
-          size: "xs",
+          size: "md",
           align: "center",
           margin: "sm",
         }),
@@ -384,12 +385,7 @@ export function buildFlexCarouselFancy({
 
         txt("市場指標", { size: "xs", color: "#aaaaaa", margin: "md" }),
 
-        baselineRow(
-          "恐慌 VIX",
-          `${vixValueText} (${vixStatus})`,
-          vixStatusColor,
-          true,
-        ),
+        baselineRow("恐慌 VIX", vixStatusText, vixStatusColor, true),
         baselineRow(
           "歷史位階",
           result.historicalLevel,
@@ -414,7 +410,7 @@ export function buildFlexCarouselFancy({
               paddingAll: "10px",
               flex: 1,
               contents: [
-                txt("🛡️ 0050 (盾)", {
+                txt("🛡️ 0050", {
                   size: "xs",
                   color: "#555555",
                   align: "center",
@@ -436,7 +432,7 @@ export function buildFlexCarouselFancy({
               paddingAll: "10px",
               flex: 1,
               contents: [
-                txt("⚔️ 00675L (矛)", {
+                txt("⚔️ 00675L", {
                   size: "xs",
                   color: "#555555",
                   align: "center",
@@ -481,7 +477,7 @@ export function buildFlexCarouselFancy({
         }),
 
         sep("md"),
-        txt("🟢 進場條件 (低檔加碼)", {
+        txt("🟢 進場訊號", {
           weight: "bold",
           size: "sm",
           color: "#28a745",
@@ -540,22 +536,17 @@ export function buildFlexCarouselFancy({
           ],
         },
 
-        sep("lg"),
-        txt("🔴 轉弱/賣出訊號 (監控賣點)", {
+        txt("🟡 轉弱監控", {
           weight: "bold",
           size: "sm",
-          color: "#D93025",
-          margin: "md",
+          color: "#F59E0B",
+          margin: "lg",
         }),
-        txt(
-          `轉弱觸發數：${r.triggeredCount ?? 0} / ${r.totalFactor ?? 4}｜賣出觸發數：${s.signalCount ?? 0} / ${s.total ?? 3}`,
-          {
-            size: "xs",
-            color: "#aaaaaa",
-            margin: "xs",
-          },
-        ),
-
+        txt(`轉弱觸發數：${r.triggeredCount ?? 0} / ${r.totalFactor ?? 4}`, {
+          size: "xs",
+          color: "#aaaaaa",
+          margin: "xs",
+        }),
         {
           type: "box",
           layout: "vertical",
@@ -590,6 +581,46 @@ export function buildFlexCarouselFancy({
             ),
           ],
         },
+        txt("🔴 賣出訊號", {
+          weight: "bold",
+          size: "sm",
+          color: "#D93025",
+          margin: "lg",
+        }),
+        txt(`賣出觸發數：${s.signalCount ?? 0} / ${s.total ?? 3}`, {
+          size: "xs",
+          color: "#aaaaaa",
+          margin: "xs",
+        }),
+        {
+          type: "box",
+          layout: "vertical",
+          margin: "sm",
+          spacing: "sm",
+          contents: [
+            scannerRow(
+              "RSI",
+              s.flags.rsiSell ? "已觸發" : "未觸發",
+              `高於${sellTh.overbought}並回落`,
+              Boolean(s.flags.rsiSell),
+              s.flags.rsiSell ? "#D93025" : "#111111",
+            ),
+            scannerRow(
+              "KD",
+              s.flags.kdSell ? "已觸發" : "未觸發",
+              `K下穿D且位於${sellTh.overboughtK}高檔`,
+              Boolean(s.flags.kdSell),
+              s.flags.kdSell ? "#D93025" : "#111111",
+            ),
+            scannerRow(
+              "MACD",
+              s.flags.macdSell ? "已觸發" : "未觸發",
+              "快線下穿慢線&柱狀圖轉負",
+              Boolean(s.flags.macdSell),
+              s.flags.macdSell ? "#D93025" : "#111111",
+            ),
+          ],
+        },
       ],
     },
   };
@@ -610,6 +641,13 @@ export function buildFlexCarouselFancy({
   const mm = Number(result.maintenanceMargin);
   const hasLoan = Number(result.totalLoan) > 0;
   const mmSafe = !hasLoan || (Number.isFinite(mm) && mm > 160);
+  const z2Safe =
+    Number(result.z2Ratio) > Number.isFinite(th.z2TargetRatio)
+      ? Number(th.z2TargetRatio) * 100
+      : 40;
+  const leverageSave = Number.isFinite(strategy.leverage.targetMultiplier)
+    ? Number(strategy.leverage.targetMultiplier)
+    : 1.8;
 
   const currentAsset = Number(result.netAsset || 0);
   const grossAsset =
@@ -652,6 +690,7 @@ export function buildFlexCarouselFancy({
             ),
           ],
         },
+        txt("00675L價格資訊", { size: "xs", color: "#aaaaaa" }),
         {
           type: "box",
           layout: "horizontal",
@@ -721,11 +760,11 @@ export function buildFlexCarouselFancy({
               true,
             ),
             baselineRow(
-              "正2 佔比",
+              "00675L佔比",
               Number.isFinite(Number(result.z2Ratio))
                 ? `${Number(result.z2Ratio).toFixed(1)}%`
                 : "--",
-              Number(result.z2Ratio) > 40 ? "#D93025" : "#111111",
+              z2Safe ? "#D93025" : "#111111",
               true,
             ),
             baselineRow(
@@ -736,7 +775,7 @@ export function buildFlexCarouselFancy({
             baselineRow(
               "實際槓桿",
               `${result.actualLeverage} 倍`,
-              result.actualLeverage > 2 ? "#D93025" : "#111111",
+              result.actualLeverage > leverageSave ? "#D93025" : "#111111",
               true,
             ),
           ],

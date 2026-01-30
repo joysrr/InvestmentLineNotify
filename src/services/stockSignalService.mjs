@@ -381,10 +381,10 @@ function evaluateInvestmentSignal(data, strategy) {
   const actualLeverage = netAsset > 0 ? grossAsset / netAsset : 0;
 
   // 歷史位階分析 (基於年線乖離率)
-  let historicalLevel = "中位階";
-  if (bias240 > 25) historicalLevel = "極高位階 (過熱)";
-  else if (bias240 > 15) historicalLevel = "高位階 (偏貴)";
-  else if (bias240 < 0) historicalLevel = "低位階 (便宜)";
+  let historicalLevel = "⛅【中位階】";
+  if (bias240 > 25) historicalLevel = "🥵【極高位階/過熱】";
+  else if (bias240 > 15) historicalLevel = "🌡️【高位階/偏貴】";
+  else if (bias240 < 0) historicalLevel = "❄️【低位階/便宜】";
 
   const ctx = {
     priceChangePercent,
