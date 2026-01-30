@@ -22,7 +22,11 @@ async function fetchFromQuotable() {
   const item = Array.isArray(res.data) ? res.data[0] : null;
   if (!item?.content) throw new Error("Quotable empty response");
 
-  return { text: item.content, author: item.author || "Unknown", source: "quotable" };
+  return {
+    text: item.content,
+    author: item.author || "Unknown",
+    source: "quotable",
+  };
 }
 
 async function fetchFromZenQuotes() {
@@ -59,7 +63,7 @@ export async function getDailyQuote() {
         source: "fallback",
         translated: false,
       };
-      
+
       return fallback;
     }
   }
@@ -67,13 +71,13 @@ export async function getDailyQuote() {
   // 2) 用 Gemini 翻譯成繁中（翻譯失敗也不要讓整個流程掛）
   let textZh = "";
   try {
-    // textZh = await translateEnToZhTW(quote.text);
+    textZh = await translateEnToZhTW(quote.text);
   } catch (e) {
     console.warn("⚠️ Gemini translate failed:", e?.message);
   }
 
   const finalQuote = {
-    textZh: textZh || "",   // 讓顯示端自行 fallback 到 textEn
+    textZh: textZh || "", // 讓顯示端自行 fallback 到 textEn
     textEn: quote.text,
     author: quote.author,
     source: quote.source,

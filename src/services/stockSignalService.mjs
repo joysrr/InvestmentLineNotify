@@ -1,12 +1,13 @@
 import { fetchStrategyConfig } from "./strategyConfigService.mjs";
 import { validateStrategyConfig } from "./strategyConfigValidator.mjs";
 import {
-  last2,
-  crossUpLevel,
-  crossDownLevel,
+  roseAboveAfterBelow,
+  fellBelowAfterAbove,
+  wasBelowLevel,
   macdCrossUp,
   macdCrossDown,
   kdCrossDown,
+  kdCrossUp,
 } from "../finance/indicators.mjs";
 
 function getMACDSignal(macdResult) {
@@ -28,13 +29,14 @@ function computeEntryScore(data, priceDropPercent, strategy) {
   const oversold = strategy.buy.rsi.oversold;
   const oversoldK = strategy.buy.kd.oversoldK;
 
-  const kd2 = last2(data.kdArr);
-  const kdBullLow = kd2
-    ? kd2[0].k <= kd2[0].d && kd2[1].k > kd2[1].d && kd2[1].k < oversoldK
-    : false;
+  const kdBullLow =
+    kdCrossUp(data.kdArr) &&
+    wasBelowLevel(data.kdArr, oversoldK, 10, (x) => x.k);
 
   const signals = {
-    rsiRebound: crossUpLevel(data.rsiArr, oversold),
+    rsiRebound: roseAboveAfterBelow(data.rsiArr, oversold, 10, {
+      requireCrossToday: true,
+    }),
     macdBull: macdCrossUp(data.macdArr),
     kdBullLow,
   };
@@ -60,14 +62,13 @@ function computeEntryScore(data, priceDropPercent, strategy) {
 // 轉弱指標計算
 function computeReversalTriggers(data, strategy) {
   const th = strategy.threshold;
-  const rsiDrop = crossDownLevel(data.rsiArr, th.rsiReversalLevel);
-
-  const kdDrop = (() => {
-    const v = last2(data.kdArr);
-    if (!v) return false;
-    const [prev, curr] = v;
-    return prev.k >= th.kReversalLevel && curr.k < th.kReversalLevel;
-  })();
+  const rsiDrop = fellBelowAfterAbove(data.rsiArr, th.rsiReversalLevel, 10, {
+    requireCrossToday: true,
+  });
+  const kArr = data.kdArr.map((x) => x.k);
+  const kdDrop = fellBelowAfterAbove(kArr, th.kReversalLevel, 10, {
+    requireCrossToday: true,
+  });
 
   const kdBearCross = kdCrossDown(data.kdArr);
   const macdBearCross = macdCrossDown(data.macdArr);
@@ -114,26 +115,41 @@ function computeSellSignals(data, strategy) {
     Number.isFinite(data.KD_K) && data.KD_K >= overboughtK;
 
   // 1) RSI：高於 70 並回落（prev>=70, curr<70）
-  const rsiSell = crossDownLevel(data.rsiArr, overbought);
+  const rsiSell = fellBelowAfterAbove(data.rsiArr, overbought, 10, {
+    requireCrossToday: true,
+  });
 
   // 2) MACD：快線下穿慢線 + 柱狀圖轉負
   const macdSell = (() => {
-    const v = last2(data.macdArr);
-    if (!v) return false;
-    const [prev, curr] = v;
-    const crossDown = prev.MACD >= prev.signal && curr.MACD < curr.signal;
-    const histTurnNeg = Number.isFinite(curr.histogram) && curr.histogram < 0;
-    return crossDown && histTurnNeg;
+    const macdMinusSignal = data.macdArr.map((x) => x.MACD - x.signal);
+
+    const crossDown = fellBelowAfterAbove(macdMinusSignal, 0, 10, {
+      requireCrossToday: true,
+    });
+    // 0 是門檻：histogram 轉負的那條線 [web:237][web:243]
+    return crossDown;
   })();
 
   // 3) KD：K 下穿 D，且位於 80 高檔
   const kdSell = (() => {
-    const v = last2(data.kdArr);
-    if (!v) return false;
-    const [prev, curr] = v;
-    const crossDown = prev.k >= prev.d && curr.k < curr.d;
-    const inOverbought = Number.isFinite(curr.k) && curr.k >= overboughtK;
-    return crossDown && inOverbought;
+    // 1) 事件：K 下穿 D（死叉）
+    const crossDownKD = kdCrossDown(data.kdArr); // %K crosses below %D
+
+    // 2) 高檔條件（放寬版）：lookback 內 K 曾經 >= 80
+    //    用「roseAboveAfterBelow」不合適；這裡需要的是「曾經在上方」這個旗標，所以做一個 wasOverbought。
+    const kArr = data.kdArr.map((x) => x.k);
+    const start = Math.max(0, kArr.length - 10);
+    const wasOverbought = kArr
+      .slice(start)
+      .some((x) => Number.isFinite(x) && x >= overboughtK);
+
+    // 3) 另一個出口：曾經在 >=80，今天跌回 <80（版本2那條）
+    const dropBelow80 = fellBelowAfterAbove(kArr, overboughtK, 10, {
+      requireCrossToday: true,
+    }); // >80 then falls below 80
+
+    // A) 高檔(曾經)死叉  OR  B) 跌回80下方
+    return (crossDownKD && wasOverbought) || dropBelow80;
   })();
 
   const flags = { rsiSell, macdSell, kdSell };
@@ -382,9 +398,9 @@ function evaluateInvestmentSignal(data, strategy) {
 
   // 歷史位階分析 (基於年線乖離率)
   let historicalLevel = "⛅【中位階】";
-  if (bias240 > 25) historicalLevel = "🥵【極高位階/過熱】";
-  else if (bias240 > 15) historicalLevel = "🌡️【高位階/偏貴】";
-  else if (bias240 < 0) historicalLevel = "❄️【低位階/便宜】";
+  if (bias240 > 25) historicalLevel = "【極高位階/過熱】🥵";
+  else if (bias240 > 15) historicalLevel = "【高位階/偏貴】🌡️";
+  else if (bias240 < 0) historicalLevel = "【低位階/便宜】❄️";
 
   const ctx = {
     priceChangePercent,
