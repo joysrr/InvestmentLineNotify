@@ -107,7 +107,7 @@ function validateStrategyConfig(strategy) {
 
   // 過熱門檻（用於 overheat state）
   assertNumber(strategy.threshold.rsiOverheatLevel, "threshold.rsiOverheatLevel");
-  assertNumber(strategy.threshold.kOverheatLevel, "threshold.kOverheatLevel");
+  assertNumber(strategy.threshold.dOverheatLevel, "threshold.dOverheatLevel");
   assertNumber(strategy.threshold.bias240OverheatLevel, "threshold.bias240OverheatLevel");
 
   // 轉弱/反轉門檻（用於 reversal triggers）
@@ -122,13 +122,13 @@ function validateStrategyConfig(strategy) {
 
   // 0~100 類（RSI/KD）
   assert(strategy.threshold.rsiOverheatLevel >= 0 && strategy.threshold.rsiOverheatLevel <= 100, "threshold.rsiOverheatLevel 範圍 0~100");
-  assert(strategy.threshold.kOverheatLevel >= 0 && strategy.threshold.kOverheatLevel <= 100, "threshold.kOverheatLevel 範圍 0~100");
+  assert(strategy.threshold.dOverheatLevel >= 0 && strategy.threshold.dOverheatLevel <= 100, "threshold.dOverheatLevel 範圍 0~100");
   assert(strategy.threshold.rsiReversalLevel >= 0 && strategy.threshold.rsiReversalLevel <= 100, "threshold.rsiReversalLevel 範圍 0~100");
   assert(strategy.threshold.kReversalLevel >= 0 && strategy.threshold.kReversalLevel <= 100, "threshold.kReversalLevel 範圍 0~100");
 
   // 合理關係：overheat 應 >= reversal（避免門檻顛倒）
   assert(strategy.threshold.rsiOverheatLevel >= strategy.threshold.rsiReversalLevel, "rsiOverheatLevel 必須 >= rsiReversalLevel");
-  assert(strategy.threshold.kOverheatLevel >= strategy.threshold.kReversalLevel, "kOverheatLevel 必須 >= kReversalLevel");
+  assert(strategy.threshold.dOverheatLevel >= strategy.threshold.kReversalLevel, "dOverheatLevel 必須 >= kReversalLevel");
 
   return true;
 }

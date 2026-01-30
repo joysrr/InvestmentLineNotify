@@ -1,11 +1,8 @@
 import axios from "axios";
 import { toArray } from "../utils/arrayUtils.mjs";
-import { getDailyQuote } from "./quoteService.mjs";
 import { buildFlexTextBlocks } from "../utils/flexTextParser.mjs";
 
 const LINE_PUSH_URL = "https://api.line.me/v2/bot/message/push";
-
-const quote = await getDailyQuote();
 
 // ============================================================================
 // UI 元件 Helper Functions
@@ -275,6 +272,7 @@ export function buildFlexCarouselFancy({
   config,
   dateText,
   aiAdvice,
+  quote,
 }) {
   // 策略參數
   const strategy = result.strategy || {};
@@ -482,6 +480,13 @@ export function buildFlexCarouselFancy({
   const scoreOk =
     Number.isFinite(score) && Number.isFinite(minScore) && score >= minScore;
 
+  const kVal = Number(result.KD_K);
+  const dVal = Number(result.KD_D);
+  const kdConservative = Math.min(kVal, dVal);
+  const kdConservativeText = Number.isFinite(kdConservative)
+    ? kdConservative.toFixed(1)
+    : "--";
+
   const bubble2 = {
     type: "bubble",
     body: {
@@ -579,9 +584,9 @@ export function buildFlexCarouselFancy({
               r.rsiDrop ? "#D93025" : "#111111",
             ),
             scannerRow(
-              "K值 轉弱",
-              result.KD_K != null ? Number(result.KD_K).toFixed(1) : "--",
-              `<${th.kReversalLevel} → < ${th.kReversalLevel}`,
+              "KD(保守)轉弱",
+              kdConservativeText,
+              `>${th.kReversalLevel} → <${th.kReversalLevel}`,
               Boolean(r.kdDrop),
               r.kdDrop ? "#D93025" : "#111111",
             ),
@@ -626,7 +631,7 @@ export function buildFlexCarouselFancy({
             scannerRow(
               "KD",
               s.flags.kdSell ? "已觸發" : "未觸發",
-              `K↘D & >=${sellTh.kd.overboughtK}`,
+              `K↘D & min(K,D)≥${sellTh.kd.overboughtK} | D↘${sellTh.kd.overboughtK}`,
               Boolean(s.flags.kdSell),
               s.flags.kdSell ? "#D93025" : "#111111",
             ),
@@ -645,15 +650,15 @@ export function buildFlexCarouselFancy({
 
   // ========== Bubble 3：技術 & 帳戶 ==========
   const rsiOverheat = Number(th.rsiOverheatLevel ?? 80);
-  const kOverheat = Number(th.kOverheatLevel ?? 90);
+  const dOverheat = Number(th.dOverheatLevel ?? 90);
   const biasOverheat = Number(th.bias240OverheatLevel ?? 25);
 
   const rsi = Number(result.RSI);
-  const k = Number(result.KD_K);
+  const d = Number(result.KD_D);
   const bias240 = Number(result.bias240);
 
   const rsiAlert = Number.isFinite(rsi) && rsi > rsiOverheat;
-  const kAlert = Number.isFinite(k) && k > kOverheat;
+  const dAlert = Number.isFinite(d) && d > dOverheat;
   const biasAlert = Number.isFinite(bias240) && bias240 > biasOverheat;
 
   const mm = Number(result.maintenanceMargin);
@@ -696,9 +701,9 @@ export function buildFlexCarouselFancy({
               rsiAlert ? "red" : "",
             ),
             indicatorCard(
-              "KD (K)",
-              Number.isFinite(k) ? k.toFixed(1) : "--",
-              kAlert ? "red" : "",
+              "KD (D)",
+              Number.isFinite(d) ? d.toFixed(1) : "--",
+              dAlert ? "red" : "",
             ),
             indicatorCard(
               "乖離率",

@@ -7,11 +7,10 @@ const n2 = (v) => {
   return Number.isFinite(x) ? Math.round(x * 100) / 100 : null;
 };
 
-const bool = (v) => (v === true ? true : v === false ? false : null);
-
 const cleanUndef = (obj) => {
   if (obj == null) return obj;
-  if (Array.isArray(obj)) return obj.map(cleanUndef).filter(v => v !== undefined);
+  if (Array.isArray(obj))
+    return obj.map(cleanUndef).filter((v) => v !== undefined);
   if (typeof obj !== "object") return obj;
 
   const out = {};
@@ -22,38 +21,45 @@ const cleanUndef = (obj) => {
   return out;
 };
 
-const pct = (v) => (Number.isFinite(Number(v)) ? `${n2(v)}%` : "N/A");
-const num = (v) => (Number.isFinite(Number(v)) ? String(n2(v)) : "N/A");
-
 function minifyStrategyForExplain(strategy) {
   if (!strategy) return null;
 
   const buy = strategy.buy || {};
   const sell = strategy.sell || {};
   const th = strategy.threshold || {};
+  const lev = strategy.leverage || {};
 
   return cleanUndef({
+    // entryCheck 還需要
     buy: {
       minDrop: n2(buy.minDropPercentToConsider),
       minScore: n2(buy.minWeightScoreToBuy),
     },
+
+    // riskWatch.sell 還需要
     sell: {
       minUp: n2(sell.minUpPercentToSell),
       minSignals: n2(sell.minSignalCountToSell),
     },
+
+    // riskWatch.overheat/reversal/vix 還需要
     threshold: {
-      reversalNeed: n2(th.reversalTriggerCount),
       overheatNeed: n2(th.overheatCount),
-      mmDanger: n2(th.mmDanger),
-      z2Target: n2(th.z2TargetRatio),     // 0.4
-      z2High: n2(th.z2RatioHigh),         // 42（你目前是 percent）
+      reversalNeed: n2(th.reversalTriggerCount),
       vixLow: n2(th.vixLowComplacency),
       vixHigh: n2(th.vixHighFear),
-      rsiOverheat: n2(th.rsiOverheatLevel),
-      kOverheat: n2(th.kOverheatLevel),
-      biasOverheat: n2(th.bias240OverheatLevel),
-      rsiReversal: n2(th.rsiReversalLevel),
-      kReversal: n2(th.kReversalLevel),
+
+      // account 區塊你仍在算 z2TargetPct/z2HighPct
+      z2Target: n2(th.z2TargetRatio),
+      z2High: n2(th.z2RatioHigh),
+
+      // 目前雖然 prompt 沒直接用，但你說 guardrails 想保留就留
+      mmDanger: n2(th.mmDanger),
+    },
+
+    // 讓你未來可以改成從 cleanData 讀目標槓桿（現在 prompt 還是用 strategy.leverage）
+    leverage: {
+      targetMultiplier: n2(lev.targetMultiplier),
     },
   });
 }
@@ -61,41 +67,42 @@ function minifyStrategyForExplain(strategy) {
 export function minifyExplainInput(marketData, portfolio = {}, vixData = null) {
   const st = minifyStrategyForExplain(marketData?.strategy);
 
-  const hitToZh = (k) => ({
-    rsiHigh: "RSI 高檔",
-    kdHigh: "KD 高檔",
-    biasHigh: "年線乖離過高",
-    rsiStateOverbought: "RSI 偏熱",
-    kdStateOverbought: "KD 偏熱",
-    rsiSell: "RSI 賣出",
-    macdSell: "MACD 賣出",
-    kdSell: "KD 賣出",
-    kdBearCross: "KD 死叉",
-    macdBearCross: "MACD 死叉",
-    rsiDrop: "RSI 轉弱",
-    kdDrop: "KD 轉弱",
-  }[k] || k);
+  const hitToZh = (k) =>
+    ({
+      // --- Overheat factors（狀態）---
+      rsiHigh: "RSI 高檔",
+      kdHigh: "KD(D) 高檔",
+      biasHigh: "年線乖離過高",
+
+      // --- Sell state flags（狀態）---
+      rsiStateOverbought: "RSI 偏熱",
+      kdStateOverbought: "KD(D) 偏熱",
+
+      // --- Sell flags（事件）---
+      rsiSell: "RSI 回落（賣出訊號）",
+      macdSell: "MACD 轉弱（賣出訊號）",
+      kdSell: "KD 高檔轉弱觸發（K↘D / D↘）",
+
+      // --- Reversal triggers（事件/門檻）---
+      kdBearCross: "KD 死叉（K↘D）",
+      macdBearCross: "MACD 死叉",
+      rsiDrop: "RSI 轉弱",
+      kdDrop: "KD(min) 轉弱",
+    })[k] || k;
 
   const truthyKeys = (obj) =>
     obj && typeof obj === "object"
-      ? Object.keys(obj).filter(k => obj[k] === true)
+      ? Object.keys(obj).filter((k) => obj[k] === true)
       : [];
 
   // ===== 進場判定（直接給 LLM 用）=====
   const actualDrop = n2(marketData?.priceDropPercent);
   const needDrop = n2(st?.buy?.minDrop);
-  const dropOk =
-    actualDrop != null && needDrop != null ? actualDrop >= needDrop : null;
 
-  const actualScore = n2(marketData?.weightScore ?? marketData?.entry?.weightScore);
+  const actualScore = n2(
+    marketData?.weightScore ?? marketData?.entry?.weightScore,
+  );
   const needScore = n2(st?.buy?.minScore);
-  const scoreOk =
-    actualScore != null && needScore != null ? actualScore >= needScore : null;
-
-  const dropGap =
-    actualDrop != null && needDrop != null ? n2(needDrop - actualDrop) : null;
-  const scoreGap =
-    actualScore != null && needScore != null ? n2(needScore - actualScore) : null;
 
   // ===== 過熱 / 轉弱 / 賣出 =====
   const overheat = marketData?.overheat || {};
@@ -108,14 +115,196 @@ export function minifyExplainInput(marketData, portfolio = {}, vixData = null) {
 
   // ===== 帳戶安全 / 部位 =====
   const z2Ratio = n2(marketData?.z2Ratio); // 你目前是 percent 數值（8.86）
-  const z2TargetPct = st?.threshold?.z2Target != null ? n2(st.threshold.z2Target * 100) : null; // 0.4 => 40
+  const z2TargetPct =
+    st?.threshold?.z2Target != null ? n2(st.threshold.z2Target * 100) : null; // 0.4 => 40
   const z2HighPct = n2(st?.threshold?.z2High); // 42
-  const z2GapToTarget = (z2Ratio != null && z2TargetPct != null) ? n2(z2TargetPct - z2Ratio) : null;
+  const z2GapToTarget =
+    z2Ratio != null && z2TargetPct != null ? n2(z2TargetPct - z2Ratio) : null;
 
   // ===== VIX =====
   const vixVal = n2(vixData?.value);
   const vixLow = n2(st?.threshold?.vixLow);
   const vixHigh = n2(st?.threshold?.vixHigh);
+
+  const gapLabel = (gap, unit = "") => {
+    if (gap == null) return null;
+    if (gap <= 0) return null;
+
+    const u = String(unit).trim().toLowerCase();
+
+    // 1) unit 分類：不同量綱講法不同
+    const kind = u.includes("%")
+      ? "pct"
+      : u.includes("分") || u.includes("pt") || u.includes("點")
+        ? "score"
+        : u.includes("次") || u.includes("個") || u.includes("筆")
+          ? "count"
+          : u.includes("萬") || u.includes("元") || u.includes("$")
+            ? "money"
+            : "generic";
+
+    // 2) 分級門檻（只用於判斷，不出現在文字裡）
+    const levels = {
+      pct: { near: 2, mid: 5 },
+      score: { near: 1, mid: 3 },
+      count: { near: 1, mid: 2 },
+      money: { near: 0.5, mid: 2 },
+      generic: { near: 2, mid: 5 },
+    }[kind];
+
+    // 3) 對應語氣模板（讓 AI 不會一直用「差距明顯」）
+    const tone = {
+      pct: {
+        near: "接近門檻（幅度差一點）",
+        mid: "仍需一段幅度",
+        far: "離門檻還有距離",
+      },
+      score: {
+        near: "接近門檻（分數差一點）",
+        mid: "仍需累積條件",
+        far: "分數門檻仍偏遠",
+      },
+      count: {
+        near: "接近門檻（訊號差一點）",
+        mid: "仍需訊號累積",
+        far: "訊號累積仍不足",
+      },
+      money: {
+        near: "接近目標（差一點）",
+        mid: "仍需一段距離",
+        far: "距離目標仍明顯",
+      },
+      generic: {
+        near: "接近門檻（差一點）",
+        mid: "仍需一段距離",
+        far: "離門檻還有距離",
+      },
+    }[kind];
+
+    if (gap <= levels.near) return tone.near;
+    if (gap <= levels.mid) return tone.mid;
+    return tone.far;
+  };
+
+  // 統一的門檻狀態：
+  // - direction="up"   ：actual >= threshold 代表 breached
+  // - direction="down" ：actual <= threshold 代表 breached
+  const mkThresholdStatus = (actual, threshold, unit, direction, opt = {}) => {
+    const a = actual == null ? null : actual;
+    const t = threshold == null ? null : threshold;
+
+    const {
+      breachedTextUp = "已越過門檻（需留意）",
+      breachedTextDown = "已跌破門檻（需留意）",
+    } = opt;
+
+    if (a == null || t == null) {
+      return {
+        actual: a,
+        threshold: t,
+        breached: null,
+        distance: null,
+        distanceLabel: null,
+        direction,
+      };
+    }
+
+    const rawNum = direction === "up" ? t - a : a - t;
+    const raw = n2(rawNum);
+    if (raw == null) {
+      return {
+        actual: a,
+        threshold: t,
+        breached: null,
+        distance: null,
+        distanceLabel: null,
+        direction,
+      };
+    }
+
+    const breached = raw <= 0;
+    const distance = breached ? 0 : raw;
+    const breachedText = direction === "up" ? breachedTextUp : breachedTextDown;
+
+    return {
+      actual: a,
+      threshold: t,
+      breached,
+      distance,
+      distanceLabel: breached ? breachedText : gapLabel(distance, unit),
+      direction,
+    };
+  };
+
+  // ===== riskWatch 用到的數值（先 n2 避免 NaN/字串干擾）=====
+  const overheatNeed = n2(st?.threshold?.overheatNeed);
+  const reversalNeed = n2(st?.threshold?.reversalNeed);
+  const sellNeedSignals = n2(st?.sell?.minSignals);
+  const sellUpNeed = n2(st?.sell?.minUp);
+
+  const overheatHitCount = n2(overheat?.highCount);
+  const reversalTriggered = n2(reversal?.triggeredCount);
+  const sellSignalCount = n2(sellSignals?.signalCount);
+  const sellUpActual = n2(marketData?.priceUpPercent);
+
+  // VIX
+  const vixValue = vixVal; // 你前面已 n2
+  const vixLowTh = vixLow;
+  const vixHighTh = vixHigh;
+
+  // 各項門檻狀態（統一 schema）
+  const overheatThreshold = mkThresholdStatus(
+    overheatHitCount,
+    overheatNeed,
+    "個",
+    "up",
+  );
+  const reversalThreshold = mkThresholdStatus(
+    reversalTriggered,
+    reversalNeed,
+    "個",
+    "up",
+  );
+
+  const sellSignalsThreshold = mkThresholdStatus(
+    sellSignalCount,
+    sellNeedSignals,
+    "次",
+    "up",
+  );
+
+  const sellUpThreshold = mkThresholdStatus(
+    sellUpActual,
+    sellUpNeed,
+    "%",
+    "up",
+  );
+
+  // VIX 有兩條線：低檔（跌破）與高檔（越過）
+  const vixLowZone = mkThresholdStatus(vixValue, vixLowTh, "點", "down", {
+    breachedTextDown: "已落入低波動區（偏安逸）",
+  });
+  const vixHighZone = mkThresholdStatus(vixValue, vixHighTh, "點", "up", {
+    breachedTextUp: "已落入高波動區（偏恐慌）",
+  });
+
+  const dropStatus = mkThresholdStatus(actualDrop, needDrop, "%", "up", {
+    breachedTextUp: "已達標",
+  });
+  const scoreStatus = mkThresholdStatus(actualScore, needScore, "分", "up", {
+    breachedTextUp: "已達標",
+  });
+
+  // 可選：把 weightDetails 當 entryCheck 的 hits（你原本就是給 AI 用）
+  const entryHits = [
+    marketData?.weightDetails?.dropInfo,
+    marketData?.weightDetails?.rsiInfo,
+    marketData?.weightDetails?.macdInfo,
+    marketData?.weightDetails?.kdInfo,
+  ].filter(Boolean);
+
+  const uniq = (arr) => [...new Set(arr)];
+  const sellHits = uniq([...sellStateHits, ...sellFlagHits].filter(Boolean));
 
   return cleanUndef({
     meta: {
@@ -132,61 +321,51 @@ export function minifyExplainInput(marketData, portfolio = {}, vixData = null) {
     },
 
     entryCheck: {
+      hits: entryHits,
+
       drop: {
-        actual: actualDrop,
-        need: needDrop,
-        ok: dropOk,
-        gap: dropGap, // 還差多少才達標（<=0 表示已達）
-        text: `${pct(actualDrop)} / ${pct(needDrop)} ${dropOk ? "✅" : "❌"}`,
+        thresholdStatus: dropStatus,
+        // 可選：保留一個短字串讓 AI 更好引用，但不要放 text（避免它照抄）
+        // summary: dropStatus?.breached === true ? "跌幅條件已滿足" : "跌幅條件未滿足",
       },
+
       score: {
-        actual: actualScore,
-        need: needScore,
-        ok: scoreOk,
-        gap: scoreGap,
-        text: `${num(actualScore)} / ${num(needScore)} ${scoreOk ? "✅" : "❌"}`,
+        thresholdStatus: scoreStatus,
+        // summary: scoreStatus?.breached === true ? "評分條件已滿足" : "評分條件未滿足",
       },
-      weightDetails: [
-        marketData?.weightDetails?.dropInfo,
-        marketData?.weightDetails?.rsiInfo,
-        marketData?.weightDetails?.macdInfo,
-        marketData?.weightDetails?.kdInfo,
-      ].filter(Boolean),
     },
 
     riskWatch: {
       historicalLevel: marketData?.historicalLevel ?? null,
-      vix: vixVal != null ? {
-        value: vixVal,
-        thresholdText: `低<${vixLow ?? "N/A"} / 高>${vixHigh ?? "N/A"}`,
-      } : null,
+
+      vix:
+        vixValue != null
+          ? {
+              thresholdText: `低<${vixLowTh ?? "N/A"} / 高>${vixHighTh ?? "N/A"}`,
+              lowZone: vixLowZone, // {actual, threshold, breached, distance, distanceLabel, direction:"down"}
+              highZone: vixHighZone, // {actual, threshold, breached, distance, distanceLabel, direction:"up"}
+            }
+          : null,
 
       overheat: {
-        isOverheat: bool(overheat?.isOverheat),
-        hitCount: n2(overheat?.highCount),
-        factorCount: n2(overheat?.factorCount),
         hits: overheatHits,
+        thresholdStatus: overheatThreshold, // {actual: hitCount, threshold: need, breached, distance, distanceLabel, direction:"up"}
       },
 
       reversal: {
-        triggered: n2(reversal?.triggeredCount),
-        total: n2(reversal?.totalFactor),
-        need: n2(st?.threshold?.reversalNeed),
         hits: [
-          reversal?.rsiDrop ? "RSI 轉弱" : null,
-          reversal?.kdDrop ? "KD 轉弱" : null,
-          reversal?.kdBearCross ? "KD 死叉" : null,
-          reversal?.macdBearCross ? "MACD 死叉" : null,
+          reversal?.rsiDrop ? hitToZh("rsiDrop") : null,
+          reversal?.kdDrop ? hitToZh("kdDrop") : null,
+          reversal?.kdBearCross ? hitToZh("kdBearCross") : null,
+          reversal?.macdBearCross ? hitToZh("macdBearCross") : null,
         ].filter(Boolean),
+        thresholdStatus: reversalThreshold, // {actual: triggered, threshold: need, breached, distance, distanceLabel, direction:"up"}
       },
 
       sell: {
-        signalCount: n2(sellSignals?.signalCount),
-        needSignals: n2(st?.sell?.minSignals),
-        upActual: n2(marketData?.priceUpPercent),
-        upNeed: n2(st?.sell?.minUp),
-        stateHits: sellStateHits,
-        flagHits: sellFlagHits,
+        hits: sellHits,
+        signals: sellSignalsThreshold,
+        up: sellUpThreshold,
       },
     },
 

@@ -17,8 +17,13 @@ import {
 } from "./services/googleSheetService.mjs";
 import { fetchStrategyConfig } from "./services/strategyConfigService.mjs";
 import { getAiInvestmentAdvice } from "./services/aiAdvisorService.mjs";
+import { getDailyQuote } from "./services/quoteService.mjs";
 
-export async function dailyCheck(sendPush = true) {
+export async function dailyCheck({
+  sendPush = true,
+  isTranslate = true,
+  isAIAdvisor = true,
+}) {
   try {
     console.log("🚀 開始執行 dailyCheck...");
 
@@ -167,12 +172,9 @@ export async function dailyCheck(sendPush = true) {
     console.log("🤖 正在產生 AI 決策分析...");
 
     //console.log("原始數據", result, lastState, strategyConfig);
-    const aiAdvice = await getAiInvestmentAdvice(
-      result,
-      lastState,
-      vixData,
-      strategyConfig,
-    );
+    const aiAdvice = isAIAdvisor
+      ? await getAiInvestmentAdvice(result, lastState, vixData, strategyConfig)
+      : null;
     console.log("--- DEBUG AI ADVICE ---");
     console.log(aiAdvice); // ⚡️ 在 GitHub Actions 的 Log 裡看這段
 
@@ -277,12 +279,15 @@ export async function dailyCheck(sendPush = true) {
       timeZone: "Asia/Taipei",
     });
 
+    const quote = await getDailyQuote(isTranslate);
+
     const flexCarousel = buildFlexCarouselFancy({
       result,
       vixData,
       config: lastState,
       dateText,
       aiAdvice,
+      quote,
     });
 
     const messages = [

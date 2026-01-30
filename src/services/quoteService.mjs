@@ -46,7 +46,7 @@ async function fetchFromZenQuotes() {
  *   quote: { textZh, textEn, author, source, translated }
  * }
  */
-export async function getDailyQuote() {
+export async function getDailyQuote(isTranslate = true) {
   // 1) 先抓英文 quote
   let quote;
   try {
@@ -70,10 +70,12 @@ export async function getDailyQuote() {
 
   // 2) 用 Gemini 翻譯成繁中（翻譯失敗也不要讓整個流程掛）
   let textZh = "";
-  try {
-    textZh = await translateEnToZhTW(quote.text);
-  } catch (e) {
-    console.warn("⚠️ Gemini translate failed:", e?.message);
+  if (isTranslate) {
+    try {
+      textZh = await translateEnToZhTW(quote.text);
+    } catch (e) {
+      console.warn("⚠️ Gemini translate failed:", e?.message);
+    }
   }
 
   const finalQuote = {

@@ -7,9 +7,43 @@ const { RSI, MACD, Stochastic } = ti;
  * history item: { date, open, high, low, close, volume }
  */
 export function calculateIndicators(history) {
-  const closes = history.map((x) => x.close).filter(Boolean);
-  const highs = history.map((x) => x.high).filter(Boolean);
-  const lows = history.map((x) => x.low).filter(Boolean);
+  const rows = history.filter(
+    (x) =>
+      Number.isFinite(x?.close) &&
+      Number.isFinite(x?.high) &&
+      Number.isFinite(x?.low),
+  );
+
+  const closes = rows.map((x) => x.close);
+  const highs = rows.map((x) => x.high);
+  const lows = rows.map((x) => x.low);
+
+  function SMA(values, period) {
+    if (values.length < period) return [];
+    return values.slice(-values.length + period - 1).map((_, i) => {
+      const slice = values.slice(i, i + period);
+      return slice.reduce((a, b) => a + b, 0) / period;
+    });
+  }
+
+  const fastKD = Stochastic.calculate({
+    high: highs,
+    low: lows,
+    close: closes,
+    period: 9,
+    signalPeriod: 3,
+  });
+
+  // Slow KD(9,3,3)：Slow K = SMA3(Fast %K)，Slow D = SMA3(Slow K)
+  const slowK = SMA(
+    fastKD.map((x) => x.k),
+    3,
+  );
+  const slowD = SMA(slowK, 3);
+
+  const kdArrSlow = fastKD
+    .map((_, i) => ({ k: slowK[i] ?? NaN, d: slowD[i] ?? NaN }))
+    .filter((x) => Number.isFinite(x.k) && Number.isFinite(x.d));
 
   return {
     closes,
@@ -24,13 +58,7 @@ export function calculateIndicators(history) {
       SimpleMAOscillator: false,
       SimpleMASignal: false,
     }),
-    kdArr: Stochastic.calculate({
-      high: highs,
-      low: lows,
-      close: closes,
-      period: 9,
-      signalPeriod: 3,
-    }),
+    kdArr: kdArrSlow,
   };
 }
 
@@ -137,7 +165,7 @@ export function fellBelowAfterAbove(
 // - level: 門檻值
 // - lookback: 往回看幾根（含今天；你也可改成不含今天）
 // - selector: 若 arr 不是 number[]，用它取值，例如 x => x.k
-export function wasAboveLevel(arr, level, lookback = 10, selector = x => x) {
+export function wasAboveLevel(arr, level, lookback = 10, selector = (x) => x) {
   if (!Array.isArray(arr) || arr.length === 0) return false;
 
   const end = arr.length; // 含最後一筆
@@ -150,7 +178,7 @@ export function wasAboveLevel(arr, level, lookback = 10, selector = x => x) {
   return false;
 }
 
-export function wasBelowLevel(arr, level, lookback = 10, selector = x => x) {
+export function wasBelowLevel(arr, level, lookback = 10, selector = (x) => x) {
   if (!Array.isArray(arr) || arr.length === 0) return false;
   const end = arr.length;
   const start = Math.max(0, end - lookback);
@@ -189,4 +217,15 @@ export function kdCrossUp(kdArr) {
   if (!v) return false;
   const [prev, curr] = v;
   return prev.k <= prev.d && curr.k > curr.d; // 黃金交叉
+}
+
+export function lastKD(kdArr) {
+  if (!Array.isArray(kdArr) || kdArr.length === 0) return null;
+  const last = kdArr.at(-1);
+  if (!last || !Number.isFinite(last.k) || !Number.isFinite(last.d)) return null;
+  return last;
+}
+
+export function kdSeries(kdArr, picker) {
+  return Array.isArray(kdArr) ? kdArr.map(picker).filter(Number.isFinite) : [];
 }
