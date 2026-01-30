@@ -97,7 +97,7 @@ const scannerRow = (
       flex: 3,
     }),
     txt(targetText ?? "", {
-      size: "xs",
+      size: "xxs",
       color: "#aaaaaa",
       align: "end",
       gravity: "center",
@@ -140,7 +140,7 @@ const indicatorCard = (label, value, status = "") => ({
   type: "box",
   layout: "vertical",
   backgroundColor:
-    status == "red" ? "#F7F7F7" : status == "green" ? "#F0FFF4" : "#FFF5F5",
+    status == "red" ? "#FFF5F5" : status == "green" ? "#F0FFF4" : "#F7F7F7",
   cornerRadius: "md",
   paddingAll: "8px",
   contents: [
@@ -306,12 +306,12 @@ export function buildFlexCarouselFancy({
   const vixHighFear = Number.isFinite(th.vixHighFear)
     ? Number(th.vixHighFear)
     : 20;
-  let vixStatusText = `😐【${vixValueText}/正常】`;
+  let vixStatusText = `【${vixValueText}/正常】😐`;
   if (Number.isFinite(vixValue)) {
     if (vixValue < vixLowComplacency) {
-      vixStatusText = `😴【${vixValueText}/過度安逸】`;
+      vixStatusText = `【${vixValueText}/過度安逸】😴`;
     } else if (vixValue > vixHighFear) {
-      vixStatusText = `😱【${vixValueText}/恐慌】`;
+      vixStatusText = `【${vixValueText}/恐慌】😱`;
     }
   }
 
@@ -328,6 +328,9 @@ export function buildFlexCarouselFancy({
     : null;
 
   // ========== Bubble 1：核心行動 + 持股儀表板 ==========
+  const GOAL_ASSET = 74_800_000;
+  const currentAsset = Number(result.netAsset || 0);
+
   const bubble1 = {
     type: "bubble",
     header: {
@@ -448,6 +451,21 @@ export function buildFlexCarouselFancy({
             },
           ],
         },
+        sep("lg"),
+        {
+          type: "box",
+          layout: "vertical",
+          margin: "lg",
+          contents: [
+            txt("🎯 目標：7,480萬 (33年)", {
+              size: "sm",
+              color: "#111111",
+              weight: "bold",
+              margin: "sm",
+            }),
+            progressBar(currentAsset, GOAL_ASSET),
+          ],
+        },
       ],
     },
   };
@@ -529,7 +547,7 @@ export function buildFlexCarouselFancy({
             scannerRow(
               "總評分",
               Number.isFinite(score) ? String(score) : "--",
-              `需 > ${Number.isFinite(minScore) ? minScore : "--"} 分`,
+              `> ${Number.isFinite(minScore) ? minScore : "--"}`,
               scoreOk,
               scoreOk ? "#28a745" : "#111111",
             ),
@@ -556,27 +574,27 @@ export function buildFlexCarouselFancy({
             scannerRow(
               "RSI 轉弱",
               result.RSI != null ? Number(result.RSI).toFixed(1) : "--",
-              `跌破 < ${th.rsiReversalLevel ?? 60}`,
+              `>${th.rsiReversalLevel} → <${th.rsiReversalLevel}`,
               Boolean(r.rsiDrop),
               r.rsiDrop ? "#D93025" : "#111111",
             ),
             scannerRow(
               "K值 轉弱",
               result.KD_K != null ? Number(result.KD_K).toFixed(1) : "--",
-              `跌破 < ${th.kReversalLevel ?? 80}`,
+              `<${th.kReversalLevel} → < ${th.kReversalLevel}`,
               Boolean(r.kdDrop),
               r.kdDrop ? "#D93025" : "#111111",
             ),
             scannerRow(
               "KD 死叉",
-              r.kdBearCross ? "死叉" : "安全",
-              "需死叉",
+              r.kdBearCross ? "死叉" : "未發生",
+              "K▽D",
               Boolean(r.kdBearCross),
             ),
             scannerRow(
               "MACD",
-              r.macdBearCross ? "死叉" : "安全",
-              "需死叉",
+              r.macdBearCross ? "死叉" : "未發生",
+              "DIF▽DEA",
               Boolean(r.macdBearCross),
             ),
           ],
@@ -601,21 +619,21 @@ export function buildFlexCarouselFancy({
             scannerRow(
               "RSI",
               s.flags.rsiSell ? "已觸發" : "未觸發",
-              `高於${sellTh.overbought}並回落`,
+              `>${sellTh.rsi.overbought} → ${sellTh.rsi.overbought}↘`,
               Boolean(s.flags.rsiSell),
               s.flags.rsiSell ? "#D93025" : "#111111",
             ),
             scannerRow(
               "KD",
               s.flags.kdSell ? "已觸發" : "未觸發",
-              `K下穿D且位於${sellTh.overboughtK}高檔`,
+              `K↘D & >=${sellTh.kd.overboughtK}`,
               Boolean(s.flags.kdSell),
               s.flags.kdSell ? "#D93025" : "#111111",
             ),
             scannerRow(
               "MACD",
               s.flags.macdSell ? "已觸發" : "未觸發",
-              "快線下穿慢線&柱狀圖轉負",
+              "DIF↘DEA & +→−",
               Boolean(s.flags.macdSell),
               s.flags.macdSell ? "#D93025" : "#111111",
             ),
@@ -649,7 +667,6 @@ export function buildFlexCarouselFancy({
     ? Number(strategy.leverage.targetMultiplier)
     : 1.8;
 
-  const currentAsset = Number(result.netAsset || 0);
   const grossAsset =
     Number(result.netAsset || 0) + Number(result.totalLoan || 0);
 
@@ -764,7 +781,7 @@ export function buildFlexCarouselFancy({
               Number.isFinite(Number(result.z2Ratio))
                 ? `${Number(result.z2Ratio).toFixed(1)}%`
                 : "--",
-              z2Safe ? "#D93025" : "#111111",
+              z2Safe ? "#111111" : "#D93025",
               true,
             ),
             baselineRow(
@@ -775,7 +792,11 @@ export function buildFlexCarouselFancy({
             baselineRow(
               "實際槓桿",
               `${result.actualLeverage} 倍`,
-              result.actualLeverage > leverageSave ? "#D93025" : "#111111",
+              result.actualLeverage > leverageSave
+                ? "#D93025"
+                : result.actualLeverage == leverageSave
+                  ? "#F59E0B"
+                  : "#28a745",
               true,
             ),
           ],
@@ -820,14 +841,12 @@ export function buildFlexCarouselFancy({
     },
   };
 
-  // ========== Bubble 5：心理紀律 + 進度條 + 連結 ==========
-  const GOAL_ASSET = 74_800_000;
-
+  // ========== Bubble 5：心理紀律 + 連結 ==========
   const q = quote || {};
   const en = q.textEn || q.textZh || "Discipline beats prediction.";
   const zh = q.textZh && q.textZh !== q.textEn ? q.textZh : "";
 
-  // ========== Bubble 5：心理紀律 + 進度條 + 連結（同卡片） ==========
+  // ========== Bubble 5：心理紀律 + 連結（同卡片） ==========
 
   const linksBox = {
     type: "box",
@@ -860,14 +879,14 @@ export function buildFlexCarouselFancy({
     paddingAll: "12px",
     margin: "md",
     contents: [
-      txt("💡 投資心法", { size: "xs", color: "#888888" }),
+      txt("💡 每日一句", { size: "xs", color: "#888888" }),
 
       // 原文（主）
       txt(`“${en}”`, {
         size: "xs", // 建議順便用 xs，減少被 … 截斷機率
         color: "#333333",
         wrap: true,
-        maxLines: 6,
+        maxLines: 10,
         margin: "sm",
       }),
 
@@ -877,7 +896,7 @@ export function buildFlexCarouselFancy({
             size: "xxs",
             color: "#777777",
             wrap: true,
-            maxLines: 6,
+            maxLines: 10,
             margin: "sm",
           })
         : null,
@@ -920,26 +939,11 @@ export function buildFlexCarouselFancy({
       type: "box",
       layout: "vertical",
       contents: [
-        txt("🧠 財富自由航道", {
+        txt("📈 持紀律，享複利", {
           weight: "bold",
           size: "md",
           color: "#111111",
         }),
-
-        {
-          type: "box",
-          layout: "vertical",
-          margin: "lg",
-          contents: [
-            txt("🎯 終極目標：7,480萬 (33年)", {
-              size: "sm",
-              color: "#111111",
-              weight: "bold",
-              margin: "sm",
-            }),
-            progressBar(currentAsset, GOAL_ASSET),
-          ],
-        },
 
         sep("lg"),
 
