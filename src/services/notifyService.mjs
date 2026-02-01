@@ -269,6 +269,7 @@ export async function pushLine(input, { to = process.env.USER_ID } = {}) {
 export function buildFlexCarouselFancy({
   result,
   vixData,
+  usRisk,
   config,
   dateText,
   aiAdvice,
@@ -386,7 +387,28 @@ export function buildFlexCarouselFancy({
 
         txt("市場指標", { size: "xs", color: "#aaaaaa", margin: "md" }),
 
-        baselineRow("恐慌 VIX", vixStatusText, vixStatusColor, true),
+        /** 1) 台指VIX：沿用你原本的 vixStatusText/vixStatusColor **/
+        baselineRow("台指VIX", vixStatusText, vixStatusColor, true),
+
+        /** 2) 美股VIX：對齊 baselineRow 樣式 **/
+        baselineRow(
+          "美股VIX",
+          usRisk?.vix && usRisk?.riskLevel
+            ? `${usRisk.vix} (${usRisk.riskLevel})`
+            : "N/A（資料不足）",
+          usRisk?.isHighRisk ? "#D93025" : usRisk?.riskLevel?.includes("風險") ? "#F59E0B" : "#111111",
+          true,
+        ),
+
+        /** 3) S&P500：同 baselineRow，顏色跟你其他「紅/綠」一致 **/
+        (() => {
+          const raw = String(usRisk?.spxChg ?? "");
+          const n = Number(raw.replace("%", ""));
+          const c =
+            Number.isFinite(n) ? (n < 0 ? "#28a745" : n > 0 ? "#D93025" : "#111111") : "#111111"; // 你 bubble3 變動幅度也是跌綠漲紅
+          return baselineRow("S&P500", usRisk?.spxChg ?? "N/A", c, true);
+        })(),
+        
         baselineRow(
           "歷史位階",
           result.historicalLevel,

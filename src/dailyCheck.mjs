@@ -18,6 +18,7 @@ import {
 import { fetchStrategyConfig } from "./services/strategyConfigService.mjs";
 import { getAiInvestmentAdvice } from "./services/aiAdvisorService.mjs";
 import { getDailyQuote } from "./services/quoteService.mjs";
+import { analyzeUsRisk } from "./services/usRiskService.mjs";
 
 export async function dailyCheck({
   sendPush = true,
@@ -137,6 +138,9 @@ export async function dailyCheck({
     const latestKD = kdArr[kdArr.length - 1];
     console.log(`✅ 指標計算完成`);
 
+    const usRisk = await analyzeUsRisk();
+    console.log(`✅ 美股風險：${usRisk.riskLevel}`);
+
     // 準備數據包
     const signalData = {
       // 指標最新值（用於 computeOverheatState / detail 顯示）
@@ -162,6 +166,10 @@ export async function dailyCheck({
       rsiArr,
       macdArr,
       kdArr,
+      US_VIX: usRisk.vix,
+      US_SPX_Change: usRisk.spxChg,
+      US_RiskLevel: usRisk.riskLevel,
+      US_Suggestion: usRisk.suggestion,
     };
 
     console.log("🧠 正在計算投資訊號...");
@@ -284,6 +292,7 @@ export async function dailyCheck({
     const flexCarousel = buildFlexCarouselFancy({
       result,
       vixData,
+      usRisk,
       config: lastState,
       dateText,
       aiAdvice,
