@@ -169,6 +169,7 @@ export async function dailyCheck({
       US_VIX: usRisk.vix,
       US_SPX_Change: usRisk.spxChg,
       US_RiskLevel: usRisk.riskLevel,
+      US_RiskIcon: usRisk.riskIcon,
       US_Suggestion: usRisk.suggestion,
     };
 
