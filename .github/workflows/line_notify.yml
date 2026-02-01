@@ -36,9 +36,11 @@ jobs:
         GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+        FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         # 如果還有其他變數 (如 TZ 時區)，也可以加在這裡
         TZ: 'Asia/Taipei' 
       run: npm start
+
 
 
 
