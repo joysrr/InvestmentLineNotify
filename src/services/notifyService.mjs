@@ -394,8 +394,7 @@ export function buildFlexCarouselFancy({
         baselineRow(
           "美股VIX",
           usRisk?.vix && usRisk?.riskLevel
-            ? `${usRisk.vix} (${usRisk.riskLevel})`
-            : "N/A（資料不足）",
+            ? `【${usRisk.vix}/${usRisk.riskLevel}】${usRisk.riskIcon}`: "N/A（資料不足）",
           usRisk?.isHighRisk ? "#D93025" : usRisk?.riskLevel?.includes("風險") ? "#F59E0B" : "#111111",
           true,
         ),
