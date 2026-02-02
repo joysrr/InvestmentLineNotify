@@ -37,7 +37,7 @@ function computeEntryScore(data, priceDropPercent, strategy) {
 
   const signals = {
     rsiRebound: roseAboveAfterBelow(data.rsiArr, oversold, 10, {
-      requireCrossToday: true,
+      requireCrossToday: false,
     }),
     macdBull: macdCrossUp(data.macdArr),
     kdBullLow,
@@ -65,11 +65,11 @@ function computeEntryScore(data, priceDropPercent, strategy) {
 function computeReversalTriggers(data, strategy) {
   const th = strategy.threshold;
   const rsiDrop = fellBelowAfterAbove(data.rsiArr, th.rsiReversalLevel, 10, {
-    requireCrossToday: true,
+    requireCrossToday: false,
   });
   const minKDArr = kdSeries(data.kdArr, (x) => Math.min(x.k, x.d));
   const kdDrop = fellBelowAfterAbove(minKDArr, th.kReversalLevel, 10, {
-    requireCrossToday: true,
+    requireCrossToday: false,
   });
 
   const kdBearCross = kdCrossDown(data.kdArr);
@@ -124,7 +124,7 @@ function computeSellSignals(data, strategy) {
 
   // 1) RSI：高於 70 並回落（prev>=70, curr<70）
   const rsiSell = fellBelowAfterAbove(data.rsiArr, overbought, 10, {
-    requireCrossToday: true,
+    requireCrossToday: false,
   });
 
   // 2) MACD：快線下穿慢線 + 柱狀圖轉負
@@ -132,7 +132,7 @@ function computeSellSignals(data, strategy) {
     const macdMinusSignal = data.macdArr.map((x) => x.MACD - x.signal);
 
     const crossDown = fellBelowAfterAbove(macdMinusSignal, 0, 10, {
-      requireCrossToday: true,
+      requireCrossToday: false,
     });
     // 0 是門檻：histogram 轉負的那條線 [web:237][web:243]
     return crossDown;
@@ -148,7 +148,7 @@ function computeSellSignals(data, strategy) {
 
     const dArr = kdSeries(data.kdArr, (x) => x.d);
     const dropBelow80 = fellBelowAfterAbove(dArr, overboughtK, 10, {
-      requireCrossToday: true,
+      requireCrossToday: false,
     }); // 用%D跌回80下方（更穩）[web:45]
 
     // 高檔死叉（當下在高檔） OR B) %D 跌回80下方
@@ -205,13 +205,16 @@ function buildDecision(ctx, strategy) {
     const targetZ2Value = netAsset * th.z2TargetRatio;
     const sellAmount = Math.max(0, currentZ2Value - targetZ2Value);
 
-    return {
-      marketStatus: "⚖️【再平衡】",
-      target: "🔻 降槓桿",
-      targetSuggestionShort: "賣00675L還款；回到目標佔比",
-      targetSuggestion: "賣出部分00675L並還款，恢復到目標佔比",
-      suggestion: `⚖️ 00675L佔比 ${z2Ratio.toFixed(1)}% 過高：建議賣出約 ${sellAmount.toLocaleString("zh-TW", { maximumFractionDigits: 0 })} 元並還款`,
-    };
+    // 需滿足最小操作金額
+    if (sellAmount > th.minActionableAmount) {
+      return {
+        marketStatus: "⚖️【再平衡】",
+        target: "🔻 降槓桿",
+        targetSuggestionShort: "賣00675L還款；回到目標佔比",
+        targetSuggestion: "賣出部分00675L並還款，恢復到目標佔比",
+        suggestion: `⚖️ 00675L佔比 ${z2Ratio.toFixed(1)}% 過高：建議賣出約 ${sellAmount.toLocaleString("zh-TW", { maximumFractionDigits: 0 })} 元並還款`,
+      };
+    }
   }
 
   if (
@@ -320,11 +323,11 @@ function buildDecision(ctx, strategy) {
   }
 
   return {
-    marketStatus: "🐢【轉多/偏保守】",
-    target: "🛡️ 保守型",
-    targetSuggestionShort: "00675L 小額加碼（40%）",
-    targetSuggestion: "建議維持 40% 加碼或小額觀察",
-    suggestion: `🛡️ 保守型（${w}分）：建議維持 40% 加碼或小額觀察`,
+    marketStatus: "🐢【常態布局】",
+    target: "🛡️ 定期定額",
+    targetSuggestionShort: "執行標準DCA（40%）",
+    targetSuggestion: "無特殊訊號，執行標準配置：買入 0050 後質押買入 00675L",
+    suggestion: `🛡️ 常態布局（${w}分）：當前無過熱或風控風險，請執行標準資金注入`,
   };
 }
 
