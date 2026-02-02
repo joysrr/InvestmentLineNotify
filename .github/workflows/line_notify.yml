@@ -3,9 +3,9 @@ name: Line Notify Scheduler
 on:
   workflow_dispatch:
   schedule:
-    # 考量延遲，設定提早 15-20 分鐘
-    - cron: '40 00 * * *'    # 台灣 08:40 (開盤前)
-    - cron: '10 06 * * *'    # 台灣 14:10 (收盤決策最保險時間)
+    # 考量延遲，設定提早
+    - cron: '40 22 * * *'    # 台灣 06:40 (開盤前)
+    - cron: '30 05 * * *'    # 台灣 13:30 (收盤)
 
 jobs:
   notify:
@@ -40,6 +40,7 @@ jobs:
         # 如果還有其他變數 (如 TZ 時區)，也可以加在這裡
         TZ: 'Asia/Taipei' 
       run: npm start
+
 
 
 
