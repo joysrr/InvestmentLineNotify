@@ -66,17 +66,18 @@ async function getTwVix() {
       if (!quote) continue;
 
       // 你實際拿到的欄位就是這套
-      const value = toNum(quote.CLastPrice) ?? toNum(quote.CRefPrice);
-      if (value == null) continue;
+      let value = toNum(quote.CLastPrice);
+      if (value == null || value <= 0) {
+        value = toNum(quote.CRefPrice);
+      }
+      if (value == null || value <= 0) continue;
 
       const prev = toNum(quote.CRefPrice);
       const change = value != null && prev != null ? value - prev : 0;
 
       let status = "中性";
-      if (value < strategy.threshold.vixLowComplacency)
-        status = "安逸";
-      else if (value > strategy.threshold.vixHighFear)
-        status = "緊張";
+      if (value < strategy.threshold.vixLowComplacency) status = "安逸";
+      else if (value > strategy.threshold.vixHighFear) status = "緊張";
 
       return {
         symbolUsed: symbol,

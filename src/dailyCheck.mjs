@@ -166,6 +166,8 @@ export async function dailyCheck({
       rsiArr,
       macdArr,
       kdArr,
+
+      // 美股恐慌指數
       US_VIX: usRisk.vix,
       US_SPX_Change: usRisk.spxChg,
       US_RiskLevel: usRisk.riskLevel,
