@@ -224,7 +224,63 @@ function buildDecision(ctx, strategy) {
     return buildSellBackToAllocation(ctx, strategy);
   }
 
-  // 3) 過熱：狀態（不等於反轉，但你的策略是禁撥款）
+  // 🔥 3) 極端恐慌買入：史詩級機會（優先於轉弱/過熱）
+  if (Number.isFinite(ctx.vix) && Number(ctx.vix) > 0) {
+    // 🔥 3) 極端恐慌買入（配置驅動版本）
+    const panicCfg = strategy.buy.panic ?? {};
+
+    // 從配置中計算門檻
+    const extremeDropThreshold = getExtremeDropThreshold(strategy);
+    const rsiOversold = strategy.buy.rsi.oversold ?? 40;
+    const rsiDivider = panicCfg.rsiDivider ?? 1.6;
+    const extremeRsiThreshold = rsiOversold / rsiDivider; // 40 / 1.6 = 25
+
+    const extremeDrop = ctx.priceDropPercent >= extremeDropThreshold;
+    const rsiCrash = ctx.rsi < extremeRsiThreshold;
+    const vixPanic = ctx.vix >= th.vixPanic;
+    const vixExtreme = ctx.vix >= th.vixExtreme;
+
+    // 條件：跌幅達標 AND RSI 極度超賣 AND VIX 恐慌
+    if (extremeDrop && rsiCrash && vixPanic) {
+      // 根據 VIX 級別決定建議槓桿
+      let suggestedLeverage = panicCfg.suggestedLeverage ?? 0.3; // 預設 30%
+      let intensityLevel = "🩸 恐慌";
+
+      if (vixExtreme) {
+        // VIX 極端：建議更高槓桿
+        suggestedLeverage = Math.min(0.5, suggestedLeverage * 1.67); // 最高 50%
+        intensityLevel = "🩸🩸 極端恐慌";
+      }
+
+      const panicDetails = [
+        `跌幅 ${ctx.priceDropPercent.toFixed(1)}% (>= ${extremeDropThreshold.toFixed(0)}%)`,
+        `RSI ${ctx.rsi.toFixed(0)} (< ${extremeRsiThreshold.toFixed(0)})`,
+        `VIX ${ctx.vix.toFixed(1) ?? "N/A"} (>= ${th.vixPanic})`,
+        `評分 ${entry.weightScore}分`,
+      ].join(" | ");
+
+      return {
+        marketStatus: `${intensityLevel}【逆向機會】`,
+        target: "💰 恐慌加碼",
+        targetSuggestionShort: `00675L 恐慌加碼（${(suggestedLeverage * 100).toFixed(0)}%）`,
+        targetSuggestion: `極端恐慌，建議質押買入 00675L（建議槓桿 ${(suggestedLeverage * 100).toFixed(0)}%）`,
+        suggestion:
+          `${intensityLevel} 市場極端超賣，建議逆向加碼\n` +
+          `${panicDetails}\n` +
+          `⚠️ 風險提示：僅在維持率充足時執行，分批買入`,
+        panicDetails,
+        suggestedLeverage,
+        thresholds: {
+          // 🔥 Debug 用：顯示實際使用的門檻
+          extremeDropThreshold,
+          extremeRsiThreshold,
+          vixPanicThreshold: th.vixPanic,
+        },
+      };
+    }
+  }
+
+  // 4) 過熱：狀態（不等於反轉，但你的策略是禁撥款）
   if (overheat.isOverheat) {
     const f = overheat.factors; // { rsiHigh, kdHigh, biasHigh }
 
@@ -252,7 +308,7 @@ function buildDecision(ctx, strategy) {
     };
   }
 
-  // 4) 轉弱：事件（不過熱但出現轉弱訊號 → 降速/停止加碼）
+  // 5) 轉弱：事件（不過熱但出現轉弱訊號 → 降速/停止加碼）
   // 你可自行定義「轉弱要幾個觸發才算明顯」
   if (reversal.triggeredCount >= th.reversalTriggerCount) {
     return {
@@ -283,7 +339,7 @@ function buildDecision(ctx, strategy) {
     };
   }
 
-  // 4.5) 未達進場：中性觀察
+  // 5.5) 未達進場：中性觀察
   if (!dropOk || !scoreOk) {
     return {
       marketStatus: "👀【觀察/未達進場】",
@@ -299,7 +355,7 @@ function buildDecision(ctx, strategy) {
     };
   }
 
-  // 5) 正常情境：用轉多分數決定加碼級別（你原本的分段）
+  // 6) 正常情境：用轉多分數決定加碼級別（你原本的分段）
   const w = entry.weightScore;
 
   if (w >= th.wAggressive) {
@@ -329,6 +385,22 @@ function buildDecision(ctx, strategy) {
     targetSuggestion: "無特殊訊號，執行標準配置：買入 0050 後質押買入 00675L",
     suggestion: `🛡️ 常態布局（${w}分）：當前無過熱或風控風險，請執行標準資金注入`,
   };
+}
+
+// 取得極端恐慌買入條件
+function getExtremeDropThreshold(strategy) {
+  const rules = Array.isArray(strategy?.buy?.dropScoreRules)
+    ? strategy.buy.dropScoreRules.toSorted((a, b) => b.minDrop - a.minDrop)
+    : [];
+
+  const rank = strategy?.buy?.panic?.minDropRank ?? 2;
+
+  // 取倒數第 N 高級別（例如 rank=2 → 取「恐慌 30%」而非「毀滅 40%」）
+  if (rules.length < rank) {
+    return rules[0]?.minDrop ?? 30; // fallback
+  }
+
+  return rules[rank - 1]?.minDrop ?? 30;
 }
 
 function getPostSellAllocation(strategy) {
@@ -412,11 +484,14 @@ function evaluateInvestmentSignal(data, strategy) {
     priceChangePercent,
     priceUpPercent,
     priceDropPercent,
+
     // 風控/資產
     maintenanceMargin, // %
     z2Ratio, // %
     netAsset,
     currentZ2Value,
+    vix: data.VIX,
+    rsi: data.RSI,
 
     // 計算結果
     entry: computeEntryScore(data, priceDropPercent, strategy), // { weightScore, weightDetails }
