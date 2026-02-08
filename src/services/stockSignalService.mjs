@@ -438,7 +438,7 @@ function buildSellBackToAllocation(ctx, strategy) {
   };
 }
 
-function evaluateInvestmentSignal(data, strategy) {
+export function evaluateInvestmentSignal(data, strategy) {
   // 基於基準價現價上漲幅度
   const priceChangePercent =
     ((data.currentPrice - data.basePrice) / data.basePrice) * 100;
