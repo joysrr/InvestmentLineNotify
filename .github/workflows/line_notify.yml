@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
   schedule:
     # 收盤後：產生決策
-    - cron: '40 6 * * 1-5'    # 台灣 14:40
+    - cron: '40 6 * * *'    # 台灣 14:40
     # 開盤前：提醒執行
-    - cron: '45 23 * * 1-5'    # 台灣 07:45
+    - cron: '45 23 * * *'    # 台灣 07:45
 
 jobs:
   notify:
@@ -41,6 +41,7 @@ jobs:
         # 如果還有其他變數 (如 TZ 時區)，也可以加在這裡
         TZ: 'Asia/Taipei' 
       run: npm start
+
 
 
 
