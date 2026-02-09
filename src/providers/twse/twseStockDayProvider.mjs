@@ -89,7 +89,7 @@ async function fetchStockHistory(symbol, period1, period2) {
     all.push(...rows);
 
     // 保守：避免短時間大量打 TWSE
-    await sleep(200);
+    await sleep(6000);
   }
 
   const start = new Date(period1);
