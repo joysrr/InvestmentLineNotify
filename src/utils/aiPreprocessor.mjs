@@ -316,8 +316,8 @@ export function minifyExplainInput(marketData, portfolio = {}, vixData = null) {
       marketStatus: marketData?.marketStatus ?? null,
       target: marketData?.target ?? null,
       suggestionShort: marketData?.targetSuggestionShort ?? null,
-      suggestion: marketData?.targetSuggestion ?? null,
-      reasonOneLine: marketData?.suggestion ?? null,
+      suggestion: marketData?.suggestion ?? null,
+      reasonOneLine: marketData?.targetSuggestion ?? null,
     },
 
     entryCheck: {

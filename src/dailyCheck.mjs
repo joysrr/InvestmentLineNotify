@@ -36,6 +36,7 @@ export async function dailyCheck({
     } catch (e) {
       console.error("⚠️ 讀取試算表失敗，將使用預設設定 0:", e.message);
       lastState = {
+        date: null,
         qty0050: 0,
         qtyZ2: 0,
         totalLoan: 0,

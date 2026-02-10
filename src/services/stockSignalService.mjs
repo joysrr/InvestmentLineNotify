@@ -91,7 +91,7 @@ function computeOverheatState(data, bias240, strategy) {
 
   const factors = {
     rsiHigh: Number.isFinite(data.RSI) && data.RSI > th.rsiOverheatLevel,
-    kdHigh: Number.isFinite(kdD) && kdD > th.dOverheatLevel, // 用%D較穩
+    kdHigh: Number.isFinite(kdD) && kdD > th.dOverheatLevel,
     biasHigh: Number.isFinite(b) && b > th.bias240OverheatLevel,
   };
 
@@ -110,8 +110,8 @@ function computeOverheatState(data, bias240, strategy) {
 
 function computeSellSignals(data, strategy) {
   const sell = strategy.sell;
-  const overbought = sell.rsi.overbought; // 70
-  const overboughtK = sell.kd.overboughtK; // 80
+  const overbought = sell.rsi.overbought || 75;
+  const overboughtK = sell.kd.overboughtK || 80;
 
   const last = lastKD(data.kdArr);
   const lastK = last?.k ?? null;
@@ -122,25 +122,23 @@ function computeSellSignals(data, strategy) {
     Number.isFinite(data.RSI) && data.RSI >= overbought;
   const kdStateOverbought = Number.isFinite(lastD) && lastD >= overboughtK;
 
-  // 1) RSI：高於 70 並回落（prev>=70, curr<70）
+  // 1) RSI：高於超買線並回落
   const rsiSell = fellBelowAfterAbove(data.rsiArr, overbought, 10, {
-    requireCrossToday: false,
+    requireCrossToday: true,
   });
 
   // 2) MACD：快線下穿慢線 + 柱狀圖轉負
   const macdSell = (() => {
     const macdMinusSignal = data.macdArr.map((x) => x.MACD - x.signal);
-
     const crossDown = fellBelowAfterAbove(macdMinusSignal, 0, 10, {
-      requireCrossToday: false,
+      requireCrossToday: true,
     });
-    // 0 是門檻：histogram 轉負的那條線 [web:237][web:243]
     return crossDown;
   })();
 
-  // 3) KD：高檔死叉（當下在高檔）, %D 跌回80下
+  // 3) KD：高檔死叉 OR %D 跌回門檻下方
   const kdSell = (() => {
-    const crossDownKD = kdCrossDown(data.kdArr); // K 下穿 D
+    const crossDownKD = kdCrossDown(data.kdArr);
     const inOverboughtNow =
       Number.isFinite(lastK) &&
       Number.isFinite(lastD) &&
@@ -148,10 +146,9 @@ function computeSellSignals(data, strategy) {
 
     const dArr = kdSeries(data.kdArr, (x) => x.d);
     const dropBelow80 = fellBelowAfterAbove(dArr, overboughtK, 10, {
-      requireCrossToday: false,
-    }); // 用%D跌回80下方（更穩）[web:45]
+      requireCrossToday: true,
+    });
 
-    // 高檔死叉（當下在高檔） OR B) %D 跌回80下方
     return (crossDownKD && inOverboughtNow) || dropBelow80;
   })();
 
@@ -170,33 +167,132 @@ function computeSellSignals(data, strategy) {
   };
 }
 
-// 評估狀況並取得建議操作
-// 追繳/佔比/禁撥 > 轉弱 > 轉多
+// 取得目標槓桿比例
+function getTargetLeverageByScore(score, strategy) {
+  const rules = Array.isArray(strategy?.allocation) ? strategy.allocation : [];
+
+  // 從高分到低分找到第一個符合的規則
+  const matchedRule = rules
+    .filter((r) => r.minScore !== -99) // 排除底倉
+    .sort((a, b) => b.minScore - a.minScore)
+    .find((r) => score >= r.minScore);
+
+  if (matchedRule) {
+    return {
+      leverage: matchedRule.leverage,
+      cash: matchedRule.cash,
+      comment: matchedRule.comment,
+      minScore: matchedRule.minScore,
+    };
+  }
+
+  // 找不到就回傳底倉
+  const baseRule = rules.find((r) => r.minScore === -99);
+  return {
+    leverage: baseRule?.leverage || 0.15,
+    cash: baseRule?.cash || 0.85,
+    comment: baseRule?.comment || "底倉",
+    minScore: -99,
+  };
+}
+
+// 計算預備金狀態
+function getReserveStatus(ctx, strategy) {
+  const tiers = strategy?.reserve?.tiers || [];
+
+  // 找到當前資產對應的預備金比例
+  let targetRatio = 0.1; // 預設 10%
+  for (const tier of tiers) {
+    if (ctx.netAsset <= tier.maxAsset) {
+      targetRatio = tier.ratio;
+      break;
+    }
+  }
+
+  const targetReserve = ctx.netAsset * targetRatio;
+  const currentReserve = ctx.reserveCash || 0; // 假設 ctx 有提供
+  const achievementRate =
+    targetReserve > 0 ? (currentReserve / targetReserve) * 100 : 0;
+
+  return {
+    targetReserve,
+    currentReserve,
+    achievementRate,
+    isInsufficient: achievementRate < 80, // 低於 80% 算不足
+  };
+}
+
 function buildDecision(ctx, strategy) {
   const th = strategy.threshold;
+  const maint = strategy.maintenance;
 
   const {
-    // 風控/資產
-    maintenanceMargin, // %
-    z2Ratio, // %
+    maintenanceMargin,
+    z2Ratio,
     netAsset,
     currentZ2Value,
-
-    // 計算結果
-    entry, // { weightScore, weightDetails }
-    overheat, // { isOverheat, factorCount, highCount, coolCount, factors, bias240? }
-    reversal, // { totalFactor, triggeredCount, rsiDrop, kdDrop, kdBearCross, macdBearCross }
-    sellSignals, // { flags, signalCount, total }
+    entry,
+    overheat,
+    reversal,
+    sellSignals,
+    cooldownStatus,
   } = ctx;
 
-  // 1) 追繳風險：一票否決（風控優先）[web:896]
+  const reserveStatus = getReserveStatus(ctx, strategy);
+
+  // ✅ 0) 維持率防禦提醒（整合預備金）
+  if (
+    Number.isFinite(maint.protectTrigger) &&
+    maintenanceMargin < maint.protectTrigger
+  ) {
+    const protectTarget = maint.protectTarget || 180;
+
+    // 計算需要補充的金額
+    const totalLoan = ctx.totalLoan || 0;
+    const currentCollateral = (maintenanceMargin / 100) * totalLoan;
+    const targetCollateral = (protectTarget / 100) * totalLoan;
+    const needAmount = Math.max(0, targetCollateral - currentCollateral);
+
+    // 預備金是否足夠
+    const reserveSufficient = reserveStatus.currentReserve >= needAmount;
+
+    return {
+      marketStatus: "🛡️【維持率低於安全線】",
+      target: "🧯 預備金防禦",
+      targetSuggestionShort: "動用預備金或補充抵押品",
+      targetSuggestion: `維持率低於 ${maint.protectTrigger}%，建議動用預備金買入 0050 或補充現金，目標維持率 ${protectTarget}%`,
+      suggestion:
+        `🛡️ 維持率 ${maintenanceMargin.toFixed(0)}%，低於安全線 ${maint.protectTrigger}%\n` +
+        `\n` +
+        `📊 需要補充：\n` +
+        `   └ 目標維持率：${protectTarget}%\n` +
+        `   └ 需補充金額：約 ${needAmount.toLocaleString("zh-TW", { maximumFractionDigits: 0 })} 元\n` +
+        `\n` +
+        `💰 預備金狀態：\n` +
+        `   └ 當前預備金：${reserveStatus.currentReserve.toLocaleString("zh-TW", { maximumFractionDigits: 0 })} 元\n` +
+        `   └ ${reserveSufficient ? "✅ 預備金充足，可立即動用" : "⚠️ 預備金不足，需補充現金"}\n` +
+        `\n` +
+        `建議行動：\n` +
+        `1. ${reserveSufficient ? "動用預備金買入 0050（提升抵押品價值）" : "優先補充現金還款"}\n` +
+        `2. ${reserveSufficient ? "或補充現金還款（降低借款）" : "或動用部分預備金買入 0050"}\n` +
+        `3. 目標：提升至 ${protectTarget}% 以上`,
+      maintenanceMargin,
+      protectTrigger: maint.protectTrigger,
+      protectTarget,
+      reserveStatus,
+      needAmount,
+      reserveSufficient,
+    };
+  }
+
+  // 1) 追繳風險：一票否決
   if (maintenanceMargin < th.mmDanger) {
     return {
       marketStatus: "⚠️【追繳風險】",
       target: "🧯 風控優先",
       targetSuggestionShort: "停止撥款；優先補保證金/降槓桿",
       targetSuggestion: "停止撥款與加碼；準備補錢或降低槓桿",
-      suggestion: `⚠️ 維持率 ${maintenanceMargin.toFixed(0)}% 過低：停止加碼，優先補保證金/降槓桿`,
+      suggestion: `⚠️ 維持率 ${maintenanceMargin.toFixed(0)}% 過低（< ${th.mmDanger}%）：停止加碼，優先補保證金/降槓桿`,
     };
   }
 
@@ -205,18 +301,18 @@ function buildDecision(ctx, strategy) {
     const targetZ2Value = netAsset * th.z2TargetRatio;
     const sellAmount = Math.max(0, currentZ2Value - targetZ2Value);
 
-    // 需滿足最小操作金額
     if (sellAmount > th.minActionableAmount) {
       return {
         marketStatus: "⚖️【再平衡】",
         target: "🔻 降槓桿",
         targetSuggestionShort: "賣00675L還款；回到目標佔比",
         targetSuggestion: "賣出部分00675L並還款，恢復到目標佔比",
-        suggestion: `⚖️ 00675L佔比 ${z2Ratio.toFixed(1)}% 過高：建議賣出約 ${sellAmount.toLocaleString("zh-TW", { maximumFractionDigits: 0 })} 元並還款`,
+        suggestion: `⚖️ 00675L佔比 ${z2Ratio.toFixed(1)}% 過高（> ${th.z2RatioHigh}%）：建議賣出約 ${sellAmount.toLocaleString("zh-TW", { maximumFractionDigits: 0 })} 元並還款`,
       };
     }
   }
 
+  // 2.5) 停利條件
   if (
     ctx.priceUpPercent >= strategy.sell.minUpPercentToSell &&
     sellSignals.signalCount >= strategy.sell.minSignalCountToSell
@@ -224,38 +320,33 @@ function buildDecision(ctx, strategy) {
     return buildSellBackToAllocation(ctx, strategy);
   }
 
-  // 🔥 3) 極端恐慌買入：史詩級機會（優先於轉弱/過熱）
+  // 🔥 3) 極端恐慌買入
   if (Number.isFinite(ctx.vix) && Number(ctx.vix) > 0) {
-    // 🔥 3) 極端恐慌買入（配置驅動版本）
     const panicCfg = strategy.buy.panic ?? {};
 
-    // 從配置中計算門檻
     const extremeDropThreshold = getExtremeDropThreshold(strategy);
-    const rsiOversold = strategy.buy.rsi.oversold ?? 40;
+    const rsiOversold = strategy.buy.rsi.oversold ?? 50;
     const rsiDivider = panicCfg.rsiDivider ?? 1.6;
-    const extremeRsiThreshold = rsiOversold / rsiDivider; // 40 / 1.6 = 25
+    const extremeRsiThreshold = rsiOversold / rsiDivider;
 
     const extremeDrop = ctx.priceDropPercent >= extremeDropThreshold;
     const rsiCrash = ctx.rsi < extremeRsiThreshold;
     const vixPanic = ctx.vix >= th.vixPanic;
     const vixExtreme = ctx.vix >= th.vixExtreme;
 
-    // 條件：跌幅達標 AND RSI 極度超賣 AND VIX 恐慌
     if (extremeDrop && rsiCrash && vixPanic) {
-      // 根據 VIX 級別決定建議槓桿
-      let suggestedLeverage = panicCfg.suggestedLeverage ?? 0.3; // 預設 30%
+      let suggestedLeverage = panicCfg.suggestedLeverage ?? 0.3;
       let intensityLevel = "🩸 恐慌";
 
       if (vixExtreme) {
-        // VIX 極端：建議更高槓桿
-        suggestedLeverage = Math.min(0.5, suggestedLeverage * 1.67); // 最高 50%
+        suggestedLeverage = Math.min(0.5, suggestedLeverage * 1.67);
         intensityLevel = "🩸🩸 極端恐慌";
       }
 
       const panicDetails = [
         `跌幅 ${ctx.priceDropPercent.toFixed(1)}% (>= ${extremeDropThreshold.toFixed(0)}%)`,
         `RSI ${ctx.rsi.toFixed(0)} (< ${extremeRsiThreshold.toFixed(0)})`,
-        `VIX ${ctx.vix.toFixed(1) ?? "N/A"} (>= ${th.vixPanic})`,
+        `VIX ${ctx.vix.toFixed(1)} (>= ${th.vixPanic})`,
         `評分 ${entry.weightScore}分`,
       ].join(" | ");
 
@@ -267,11 +358,11 @@ function buildDecision(ctx, strategy) {
         suggestion:
           `${intensityLevel} 市場極端超賣，建議逆向加碼\n` +
           `${panicDetails}\n` +
-          `⚠️ 風險提示：僅在維持率充足時執行，分批買入`,
+          `⚠️ 風險提示：僅在維持率充足時執行，分批買入\n` +
+          `⏰ 恐慌加碼不受冷卻期限制，但買入後請記錄日期`,
         panicDetails,
         suggestedLeverage,
         thresholds: {
-          // 🔥 Debug 用：顯示實際使用的門檻
           extremeDropThreshold,
           extremeRsiThreshold,
           vixPanicThreshold: th.vixPanic,
@@ -280,9 +371,9 @@ function buildDecision(ctx, strategy) {
     }
   }
 
-  // 4) 過熱：狀態（不等於反轉，但你的策略是禁撥款）
+  // 4) 過熱：禁撥款
   if (overheat.isOverheat) {
-    const f = overheat.factors; // { rsiHigh, kdHigh, biasHigh }
+    const f = overheat.factors;
 
     const factorText =
       `解除禁令進度：${overheat.coolCount}/${overheat.factorCount} ` +
@@ -308,8 +399,7 @@ function buildDecision(ctx, strategy) {
     };
   }
 
-  // 5) 轉弱：事件（不過熱但出現轉弱訊號 → 降速/停止加碼）
-  // 你可自行定義「轉弱要幾個觸發才算明顯」
+  // 5) 轉弱：停止加碼
   if (reversal.triggeredCount >= th.reversalTriggerCount) {
     return {
       marketStatus: "📉【轉弱監控】",
@@ -324,10 +414,10 @@ function buildDecision(ctx, strategy) {
   const dropOk = ctx.priceDropPercent >= strategy.buy.minDropPercentToConsider;
   const scoreOk = entry.weightScore >= strategy.buy.minWeightScoreToBuy;
 
-  // 偏熱但尚未過熱（例如只命中 bias240）
+  // 5.5) 偏熱但未過熱
   if (!overheat.isOverheat && overheat.highCount > 0 && (!dropOk || !scoreOk)) {
     return {
-      marketStatus: "🌡️ 【偏熱/觀察】",
+      marketStatus: "🌡️【偏熱/觀察】",
       target: "👀 觀察/不撥款",
       targetSuggestionShort: "0050照常；00675L 先不撥款",
       targetSuggestion: "0050照常；00675L 先不撥款，避免追高（等回檔或轉多）",
@@ -339,7 +429,7 @@ function buildDecision(ctx, strategy) {
     };
   }
 
-  // 5.5) 未達進場：中性觀察
+  // 6) 未達進場
   if (!dropOk || !scoreOk) {
     return {
       marketStatus: "👀【觀察/未達進場】",
@@ -355,16 +445,48 @@ function buildDecision(ctx, strategy) {
     };
   }
 
-  // 6) 正常情境：用轉多分數決定加碼級別（你原本的分段）
-  const w = entry.weightScore;
+  // ✅ 6.5) Cooldown 檢查（新增）
+  if (cooldownStatus.inCooldown) {
+    const w = entry.weightScore;
+    const targetAlloc = getTargetLeverageByScore(w, strategy);
+    const targetLeveragePercent = (targetAlloc.leverage * 100).toFixed(0);
 
+    return {
+      marketStatus: "⏰【冷卻期中】",
+      target: "⏸️ 等待冷卻期結束",
+      targetSuggestionShort: `冷卻期剩餘 ${cooldownStatus.daysLeft} 天`,
+      targetSuggestion:
+        `符合加碼條件（${w}分，目標槓桿 ${targetLeveragePercent}%），` +
+        `但處於冷卻期，請勿重複加碼`,
+      suggestion:
+        `⏰ 冷卻期中（剩餘 ${cooldownStatus.daysLeft} 天）\n` +
+        `符合條件：評分 ${w} 分，建議槓桿 ${targetLeveragePercent}%\n` +
+        `${cooldownStatus.message}\n` +
+        `⚠️ 請等待冷卻期結束後再加碼，避免頻繁交易`,
+      cooldownStatus,
+      targetAllocation: targetAlloc,
+    };
+  }
+
+  // ✅ 7) 正常轉多：動態讀取槓桿配置
+  const w = entry.weightScore;
+  const targetAlloc = getTargetLeverageByScore(w, strategy);
+  const targetLeveragePercent = (targetAlloc.leverage * 100).toFixed(0);
+
+  // ✅ Cooldown 提醒
+  const cooldownReminder = `\n⏰ 買入後請記錄日期，啟動 ${strategy.trading.cooldownDays} 天冷卻期`;
+
+  // 根據分數檔位決定標題
   if (w >= th.wAggressive) {
     return {
       marketStatus: "🚀【轉多/可進攻】",
       target: "🔥 最積極型",
-      targetSuggestionShort: "00675L 大額加碼（60%）",
-      targetSuggestion: "建議增貸至 60% 加碼",
-      suggestion: `🔥 最積極型（${w}分）：建議增貸至 60% 加碼`,
+      targetSuggestionShort: `00675L 大額加碼（${targetLeveragePercent}%）`,
+      targetSuggestion: `建議增貸至 ${targetLeveragePercent}% 加碼（${targetAlloc.comment}）`,
+      suggestion:
+        `🔥 最積極型（${w}分）：建議增貸至 ${targetLeveragePercent}% 加碼` +
+        cooldownReminder,
+      targetAllocation: targetAlloc,
     };
   }
 
@@ -372,18 +494,23 @@ function buildDecision(ctx, strategy) {
     return {
       marketStatus: "📈【轉多/可加碼】",
       target: "📈 積極型",
-      targetSuggestionShort: "00675L 加碼（50%）",
-      targetSuggestion: "建議增貸至 50% 加碼",
-      suggestion: `📈 積極型（${w}分）：建議增貸至 50% 加碼`,
+      targetSuggestionShort: `00675L 加碼（${targetLeveragePercent}%）`,
+      targetSuggestion: `建議增貸至 ${targetLeveragePercent}% 加碼（${targetAlloc.comment}）`,
+      suggestion:
+        `📈 積極型（${w}分）：建議增貸至 ${targetLeveragePercent}% 加碼` +
+        cooldownReminder,
+      targetAllocation: targetAlloc,
     };
   }
 
+  // 底倉
   return {
     marketStatus: "🐢【常態布局】",
     target: "🛡️ 定期定額",
-    targetSuggestionShort: "執行標準DCA（40%）",
-    targetSuggestion: "無特殊訊號，執行標準配置：買入 0050 後質押買入 00675L",
+    targetSuggestionShort: `執行標準DCA（${targetLeveragePercent}%）`,
+    targetSuggestion: `無特殊訊號，執行標準配置：買入 0050 後質押買入 00675L（${targetLeveragePercent}%）`,
     suggestion: `🛡️ 常態布局（${w}分）：當前無過熱或風控風險，請執行標準資金注入`,
+    targetAllocation: targetAlloc,
   };
 }
 
@@ -395,9 +522,8 @@ function getExtremeDropThreshold(strategy) {
 
   const rank = strategy?.buy?.panic?.minDropRank ?? 2;
 
-  // 取倒數第 N 高級別（例如 rank=2 → 取「恐慌 30%」而非「毀滅 40%」）
   if (rules.length < rank) {
-    return rules[0]?.minDrop ?? 30; // fallback
+    return rules[0]?.minDrop ?? 30;
   }
 
   return rules[rank - 1]?.minDrop ?? 30;
@@ -413,14 +539,14 @@ function getPostSellAllocation(strategy) {
     );
   }
 
-  const rule = rules.at(-n); // -2 = 倒數第二條 [web:902]
+  const rule = rules.at(-n);
   if (!rule) throw new Error("取得 post allocation 失敗");
-  return rule; // { minScore, leverage, cash }
+  return rule;
 }
 
 function buildSellBackToAllocation(ctx, strategy) {
   const post = getPostSellAllocation(strategy);
-  const targetLeverage = post.leverage; // 0.8
+  const targetLeverage = post.leverage;
   const targetZ2Value = ctx.netAsset * targetLeverage;
 
   const sellAmount = Math.max(0, ctx.currentZ2Value - targetZ2Value);
@@ -432,32 +558,61 @@ function buildSellBackToAllocation(ctx, strategy) {
     targetSuggestion: `賣出部分00675L並還款，恢復槓桿 ${(targetLeverage * 100).toFixed(0)}% / 現金 ${(post.cash * 100).toFixed(0)}%`,
     suggestion:
       `🎯 觸發賣出條件：建議賣出約 ${sellAmount.toLocaleString("zh-TW", { maximumFractionDigits: 0 })} 元並還款，` +
-      `回到 ${(targetLeverage * 100).toFixed(0)} / ${(post.cash * 100).toFixed(0)}`,
+      `回到 ${(targetLeverage * 100).toFixed(0)}% / ${(post.cash * 100).toFixed(0)}%`,
     postAllocation: post,
     sellAmount,
   };
 }
 
+/**
+ * 檢查是否在 Cooldown 期間
+ * @param {Date} lastBuyDate - 最後買入日期
+ * @param {number} cooldownDays - 冷卻天數
+ * @returns {Object} { inCooldown, daysLeft, lastBuyDate }
+ */
+function checkCooldown(lastBuyDate, cooldownDays) {
+  if (!lastBuyDate) {
+    return {
+      inCooldown: false,
+      daysLeft: 0,
+      lastBuyDate: null,
+      message: "無歷史買入記錄，可以買入",
+    };
+  }
+
+  const today = new Date();
+  const lastBuy = new Date(lastBuyDate);
+  const daysSinceLastBuy = Math.floor(
+    (today - lastBuy) / (1000 * 60 * 60 * 24),
+  );
+  const daysLeft = Math.max(0, cooldownDays - daysSinceLastBuy);
+
+  return {
+    inCooldown: daysLeft > 0,
+    daysLeft,
+    lastBuyDate: lastBuy.toISOString().split("T")[0],
+    daysSinceLastBuy,
+    message:
+      daysLeft > 0
+        ? `冷卻期剩餘 ${daysLeft} 天（最後買入：${lastBuy.toISOString().split("T")[0]}）`
+        : `冷卻期已過（最後買入：${lastBuy.toISOString().split("T")[0]}）`,
+  };
+}
+
 export function evaluateInvestmentSignal(data, strategy) {
-  // 基於基準價現價上漲幅度
   const priceChangePercent =
     ((data.currentPrice - data.basePrice) / data.basePrice) * 100;
   const priceUpPercent = Math.max(0, priceChangePercent);
-  const priceDropPercent = Math.max(0, -priceChangePercent); // 永遠 >= 0
+  const priceDropPercent = Math.max(0, -priceChangePercent);
 
-  // 維持率與資產佔比
-  const current0050Value = data.portfolio.qty0050 * data.price0050; // 0050 市值
-  const currentZ2Value = data.portfolio.qtyZ2 * data.currentPrice; // 00675L 市值
+  const current0050Value = data.portfolio.qty0050 * data.price0050;
+  const currentZ2Value = data.portfolio.qtyZ2 * data.currentPrice;
 
-  // 維持率 = 擔保品市值 / 總借款
-  // 注意：若無借款 (totalLoan=0)，維持率設為無限大
-  // 維持率計算 (確保使用正確的 totalLoan)
   const maintenanceMargin =
     data.portfolio.totalLoan > 0
       ? (current0050Value / data.portfolio.totalLoan) * 100
       : 999;
 
-  // 00675L 佔比 = 00675L市值 / (0050市值 + 00675L市值 + 現金 - 總借款)
   const netAsset =
     current0050Value +
     currentZ2Value +
@@ -465,45 +620,47 @@ export function evaluateInvestmentSignal(data, strategy) {
     data.portfolio.totalLoan;
   const z2Ratio = netAsset > 0 ? (currentZ2Value / netAsset) * 100 : 0;
 
-  // 計算年線乖離率
   const ma240 =
     Number.isFinite(data.ma240) && data.ma240 > 0 ? data.ma240 : null;
   const bias240 = ma240 ? ((data.currentPrice - ma240) / ma240) * 100 : null;
 
-  // 實際槓桿計算 (總資產 / 淨資產)
   const grossAsset = current0050Value + currentZ2Value + data.portfolio.cash;
   const actualLeverage = netAsset > 0 ? grossAsset / netAsset : 0;
 
-  // 歷史位階分析 (基於年線乖離率)
   let historicalLevel = "⛅【中位階】";
   if (bias240 > 25) historicalLevel = "【極高位階/過熱】🥵";
   else if (bias240 > 15) historicalLevel = "【高位階/偏貴】🌡️";
   else if (bias240 < 0) historicalLevel = "【低位階/便宜】❄️";
+
+  // 檢查 Cooldown
+  const cooldownDays = strategy.trading.cooldownDays || 20;
+  const lastBuyDate = data.portfolio?.date || null; // 從 portfolio 讀取
+  const cooldownStatus = checkCooldown(lastBuyDate, cooldownDays);
 
   const ctx = {
     priceChangePercent,
     priceUpPercent,
     priceDropPercent,
 
-    // 風控/資產
-    maintenanceMargin, // %
-    z2Ratio, // %
+    maintenanceMargin,
+    z2Ratio,
     netAsset,
     currentZ2Value,
     vix: data.VIX,
     rsi: data.RSI,
 
-    // 計算結果
-    entry: computeEntryScore(data, priceDropPercent, strategy), // { weightScore, weightDetails }
-    overheat: computeOverheatState(data, bias240, strategy), // { isOverheat, factorCount, highCount, coolCount, factors, bias240? }
-    reversal: computeReversalTriggers(data, strategy), // { totalFactor, triggeredCount, rsiDrop, kdDrop, kdBearCross, macdBearCross }
+    // 預備金
+    reserveCash: data.portfolio?.cash || 0,
+
+    cooldownStatus,
+
+    entry: computeEntryScore(data, priceDropPercent, strategy),
+    overheat: computeOverheatState(data, bias240, strategy),
+    reversal: computeReversalTriggers(data, strategy),
     sellSignals: computeSellSignals(data, strategy),
   };
 
-  // 取得決策結果
   const decision = buildDecision(ctx, strategy);
-
-  // 取得 MACD 訊號
   const macdSignal = getMACDSignal(data.macdArr);
 
   return {
@@ -533,6 +690,7 @@ export function evaluateInvestmentSignal(data, strategy) {
     z2Ratio,
     strategy,
     ...decision,
+    cooldownStatus,
   };
 }
 
