@@ -2,7 +2,7 @@ import { dailyCheck } from "./dailyCheck.mjs";
 import fs from "fs";
 import path from "path";
 
-dailyCheck({ sendPush: true, isTranslate: true, isAIAdvisor: true }).then(
+dailyCheck({ sendPush: true, isTranslate: false, isAIAdvisor: true }).then(
   (result) => {
     console.log("\n=== 每日投資自檢訊息（本機測試） ===\n");
     console.log("=== 標題 ===\n");
