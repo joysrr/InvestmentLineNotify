@@ -184,9 +184,13 @@ export async function dailyCheck({
     console.log("🤖 正在產生 AI 決策分析...");
 
     //console.log("原始數據", result, lastState, strategyConfig);
-    const aiAdvice = isAIAdvisor
-      ? await getAiInvestmentAdvice(result, lastState, vixData, strategyConfig)
-      : null;
+    const aiAdvice = await getAiInvestmentAdvice(
+      result,
+      lastState,
+      vixData,
+      strategyConfig,
+      !isAIAdvisor,
+    );
     console.log("--- DEBUG AI ADVICE ---");
     console.log(aiAdvice); // ⚡️ 在 GitHub Actions 的 Log 裡看這段
 
