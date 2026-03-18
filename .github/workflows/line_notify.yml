@@ -1,50 +1,75 @@
-name: Line Notify Scheduler
+name: Daily Report & Notify Scheduler
 
 on:
   workflow_dispatch:
   schedule:
-    # 收盤後：產生決策
-    - cron: '40 6 * * *'    # 台灣 14:40
-    # 開盤前：提醒執行
-    - cron: '45 23 * * *'    # 台灣 07:45
+    # ----------------------------------------------------
+    # (時間為 UTC)
+    # 台灣 14:40 -> UTC 06:40 (收盤後大總結：全開)
+    - cron: "40 6 * * *"
+
+    # 台灣 07:45 -> UTC 23:45 (開盤前提醒：全開)
+    - cron: "45 23 * * *"
+
+    # --- 盤中高頻回報 (只發 Telegram，不叫 AI、不翻譯) ---
+    # 台灣 10:00 -> UTC 02:00
+    - cron: "0 2 * * *"
+    # 台灣 12:00 -> UTC 04:00
+    - cron: "0 4 * * *"
+    # ----------------------------------------------------
 
 jobs:
   notify:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'  # 直接指定使用 Node 20
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
 
-    - name: Install dependencies
-      run: npm ci  # 使用 ci 安裝會比 install 更乾淨穩定
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Run Daily Check
-      # 這裡需要把你的環境變數注入進去
-      env:
-        BASE_PRICE_URL: ${{ secrets.BASE_PRICE_URL }}
-        STRATEGY_URL: ${{ secrets.STRATEGY_URL }}
-        USER_ID: ${{ secrets.USER_ID }}
-        LINE_ACCESS_TOKEN: ${{ secrets.LINE_ACCESS_TOKEN }}
-        GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
-        GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
-        GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
-        FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
-        # 如果還有其他變數 (如 TZ 時區)，也可以加在這裡
-        TZ: 'Asia/Taipei' 
-      run: npm start
+      - name: 判斷執行參數 (排程路由分配)
+        id: check-args
+        # 根據不同的時間點，給予不同的參數組合
+        run: |
+          if [[ "${{ github.event.schedule }}" == "40 6 * * *" || "${{ github.event.schedule }}" == "45 23 * * *" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # 完整版戰報：LINE + TG + AI教練 + 每日一句翻譯
+            echo "LINE_FLAG=--line=true" >> $GITHUB_ENV
+            echo "AI_FLAG=--aiAdvisor=true" >> $GITHUB_ENV
+          else
+            # 盤中快速回報：只有 TG，無 AI，無翻譯 (省錢極簡模式)
+            echo "LINE_FLAG=--line=false" >> $GITHUB_ENV
+            echo "AI_FLAG=--aiAdvisor=false" >> $GITHUB_ENV
+          fi
 
+          # 無論何時，Telegram 永遠開啟
+          echo "TG_FLAG=--telegram=true" >> $GITHUB_ENV
 
+          # 無論何時，翻譯永遠關閉
+          echo "TRANS_FLAG=--translate=false" >> $GITHUB_ENV
 
+      - name: Run Daily Check
+        env:
+          BASE_PRICE_URL: ${{ secrets.BASE_PRICE_URL }}
+          STRATEGY_URL: ${{ secrets.STRATEGY_URL }}
+          USER_ID: ${{ secrets.USER_ID }}
+          LINE_ACCESS_TOKEN: ${{ secrets.LINE_ACCESS_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+          GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          TELEGRAM_API_TOKEN: ${{ secrets.TELEGRAM_API_TOKEN }}
+          TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
+          TZ: "Asia/Taipei"
 
-
-
-
+        # 組合所有環境變數傳給 npm start
+        run: npm start -- ${{ env.LINE_FLAG }} ${{ env.TG_FLAG }} ${{ env.AI_FLAG }} ${{ env.TRANS_FLAG }}

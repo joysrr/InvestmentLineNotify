@@ -19,10 +19,15 @@ import { fetchStrategyConfig } from "./services/strategyConfigService.mjs";
 import { getAiInvestmentAdvice } from "./services/aiAdvisorService.mjs";
 import { getDailyQuote } from "./services/quoteService.mjs";
 import { analyzeUsRisk } from "./services/usRiskService.mjs";
+import {
+  buildTelegramMessages,
+  sendTelegramBatch,
+} from "./services/TelegramService.mjs";
 
 export async function dailyCheck({
-  sendPush = true,
-  isTranslate = true,
+  isLineEnabled = true,
+  isTelegramEnabled = true,
+  isTranslate = false,
   isAIAdvisor = true,
 }) {
   try {
@@ -307,7 +312,7 @@ export async function dailyCheck({
       quote,
     });
 
-    const messages = [
+    const lineMessages = [
       {
         type: "flex",
         altText: `00675L ${result.marketStatus}`, // altText 建議短（必填）[web:405]
@@ -315,8 +320,31 @@ export async function dailyCheck({
       },
     ];
 
-    if (sendPush) {
-      console.log("📝 正在寫入試算表...");
+    if (isLineEnabled) {
+      console.log("📤 正在發送 Line 通知...");
+      await pushLine(lineMessages);
+      console.log("✅ 執行完成！");
+    }
+
+    const telegramMessages = buildTelegramMessages({
+      result,
+      vixData,
+      usRisk,
+      config: lastState,
+      dateText,
+      aiAdvice,
+      quote,
+    });
+
+    if (isTelegramEnabled) {
+      console.log("📤 正在發送 Telegram 通知...");
+      await sendTelegramBatch(telegramMessages);
+      console.log("✅ 執行完成！");
+    }
+
+    console.log("📝 正在寫入試算表...");
+    // 執行寫入 (即使失敗也不要讓程式崩潰，所以用 try catch 包起來)
+    try {
       // 準備寫入的資料
       const logData = {
         ...result,
@@ -324,22 +352,12 @@ export async function dailyCheck({
         currentPrice: finalPriceZ2,
         portfolio: lastState,
       };
-      // 執行寫入 (即使失敗也不要讓程式崩潰，所以用 try catch 包起來)
-      try {
-        await logDailyToSheet(logData);
-      } catch (sheetErr) {
-        console.error(
-          "❌ 寫入試算表失敗 (但不影響發送通知):",
-          sheetErr.message,
-        );
-      }
-
-      console.log("📤 正在發送 Line 通知...");
-      await pushLine(messages);
-      console.log("✅ 執行完成！");
+      await logDailyToSheet(logData);
+    } catch (sheetErr) {
+      console.error("❌ 寫入試算表失敗 (但不影響發送通知):", sheetErr.message);
     }
 
-    return { header, msg, detailMsg, messages };
+    return { header, msg, detailMsg, lineMessages, telegramMessages };
   } catch (err) {
     console.error("❌ 系統發生嚴重錯誤:", err);
     return err.message;
