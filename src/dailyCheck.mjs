@@ -22,7 +22,8 @@ import { analyzeUsRisk } from "./services/usRiskService.mjs";
 import {
   buildTelegramMessages,
   sendTelegramBatch,
-} from "./services/TelegramService.mjs";
+} from "./services/telegramService.mjs";
+import { getNewsTelegramMessages } from "./providers/newsProvider.mjs";
 
 export async function dailyCheck({
   isLineEnabled = true,
@@ -326,7 +327,7 @@ export async function dailyCheck({
       console.log("✅ 執行完成！");
     }
 
-    const telegramMessages = buildTelegramMessages({
+    let telegramMessages = buildTelegramMessages({
       result,
       vixData,
       usRisk,
@@ -338,12 +339,22 @@ export async function dailyCheck({
 
     if (isTelegramEnabled) {
       console.log("📤 正在發送 Telegram 通知...");
+      console.log("📝 正在發送新聞錦集...");
+      try {
+        const newsMessages = await getNewsTelegramMessages();
+        telegramMessages = telegramMessages.concat(newsMessages);
+        console.log("✅ 執行完成！");
+      } catch {
+        console.error(
+          "❌ 取得新聞錦集失敗 (但不影響發送通知):",
+          sheetErr.message,
+        );
+      }
       await sendTelegramBatch(telegramMessages);
       console.log("✅ 執行完成！");
     }
 
     console.log("📝 正在寫入試算表...");
-    // 執行寫入 (即使失敗也不要讓程式崩潰，所以用 try catch 包起來)
     try {
       // 準備寫入的資料
       const logData = {
