@@ -323,7 +323,7 @@ export function buildFlexCarouselFancy({
 
   // Google Sheet 連結
   const sheetUrl = process.env.GOOGLE_SHEET_ID
-    ? `https://docs.google.com/spreadsheets/d/${process.env.GOOGLE_SHEET_ID}`
+    ? `https://docs.google.com/spreadsheets/d/${process.env.GOOGLE_SHEET_ID}/edit?usp=drivesdk`
     : null;
 
   // ========== Bubble 1：核心行動 + 持股儀表板 ==========
@@ -394,8 +394,13 @@ export function buildFlexCarouselFancy({
         baselineRow(
           "美股VIX",
           usRisk?.vix && usRisk?.riskLevel
-            ? `【${usRisk.vix}/${usRisk.riskLevel}】${usRisk.riskIcon}`: "N/A（資料不足）",
-          usRisk?.isHighRisk ? "#D93025" : usRisk?.riskLevel?.includes("風險") ? "#F59E0B" : "#111111",
+            ? `【${usRisk.vix}/${usRisk.riskLevel}】${usRisk.riskIcon}`
+            : "N/A（資料不足）",
+          usRisk?.isHighRisk
+            ? "#D93025"
+            : usRisk?.riskLevel?.includes("風險")
+              ? "#F59E0B"
+              : "#111111",
           true,
         ),
 
@@ -403,11 +408,16 @@ export function buildFlexCarouselFancy({
         (() => {
           const raw = String(usRisk?.spxChg ?? "");
           const n = Number(raw.replace("%", ""));
-          const c =
-            Number.isFinite(n) ? (n < 0 ? "#28a745" : n > 0 ? "#D93025" : "#111111") : "#111111"; // 你 bubble3 變動幅度也是跌綠漲紅
+          const c = Number.isFinite(n)
+            ? n < 0
+              ? "#28a745"
+              : n > 0
+                ? "#D93025"
+                : "#111111"
+            : "#111111"; // 你 bubble3 變動幅度也是跌綠漲紅
           return baselineRow("S&P500", usRisk?.spxChg ?? "N/A", c, true);
         })(),
-        
+
         baselineRow(
           "歷史位階",
           result.historicalLevel,

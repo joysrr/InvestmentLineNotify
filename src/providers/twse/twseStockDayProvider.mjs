@@ -1,5 +1,9 @@
 import fetch from "node-fetch";
-import { enumerateMonths, rocDateToIso, toTwseStockNo } from "../../utils/dateUtils.mjs";
+import {
+  enumerateMonths,
+  rocDateToIso,
+  toTwseStockNo,
+} from "../../utils/dateUtils.mjs";
 import { parseNumberOrNull } from "../../utils/numberUtils.mjs";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -24,8 +28,8 @@ async function fetchStockDayMonth(stockNo, yyyymm01) {
     const res = await fetch(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 twse-client",
-        "Accept": "application/json",
-        "Referer": "https://www.twse.com.tw/zh/trading/historical/stock-day.html", // 對應頁面 [web:724]
+        Accept: "application/json",
+        Referer: "https://www.twse.com.tw/zh/trading/historical/stock-day.html", // 對應頁面 [web:724]
         "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8",
       },
     });
@@ -33,13 +37,17 @@ async function fetchStockDayMonth(stockNo, yyyymm01) {
     const text = await res.text();
 
     const ct = res.headers.get("content-type") || "";
-    const looksLikeJson = ct.includes("application/json") || text.trim().startsWith("{");
+    const looksLikeJson =
+      ct.includes("application/json") || text.trim().startsWith("{");
 
     // 成功才 parse
     if (res.ok && looksLikeJson) {
       let json;
-      try { json = JSON.parse(text); }
-      catch { continue; }
+      try {
+        json = JSON.parse(text);
+      } catch {
+        continue;
+      }
       if (json.stat !== "OK") return [];
 
       return (json.data || []).map((row) => {
@@ -67,7 +75,12 @@ async function fetchStockDayMonth(stockNo, yyyymm01) {
     }
 
     // 不是 JSON 的錯誤頁就換下一條 URL
-    if (!looksLikeJson || text.includes("<html") || text.includes("location.href")) continue;
+    if (
+      !looksLikeJson ||
+      text.includes("<html") ||
+      text.includes("location.href")
+    )
+      continue;
 
     // 真的錯誤才丟出
     throw new Error(`TWSE STOCK_DAY HTTP ${res.status}: ${text.slice(0, 200)}`);
@@ -89,7 +102,7 @@ async function fetchStockHistory(symbol, period1, period2) {
     all.push(...rows);
 
     // 保守：避免短時間大量打 TWSE
-    await sleep(6000);
+    await sleep(3000);
   }
 
   const start = new Date(period1);
@@ -123,7 +136,4 @@ async function fetchLatestClose(symbol) {
   return rows[rows.length - 1];
 }
 
-export {
-  fetchStockHistory,
-  fetchLatestClose,
-};
+export { fetchStockHistory, fetchLatestClose };
