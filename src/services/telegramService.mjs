@@ -78,6 +78,7 @@ export function buildTelegramMessages({
   const grossAsset = currentAsset + Number(result.totalLoan || 0);
   const mm = Number(result.maintenanceMargin);
   const hasLoan = Number(result.totalLoan) > 0;
+  const displayGrossAsset = Math.floor(grossAsset).toLocaleString("zh-TW");
 
   // VIX 處理
   const vixValue = vixData?.value != null ? Number(vixData.value) : NaN;
@@ -102,6 +103,23 @@ export function buildTelegramMessages({
   const kd_d = Number(result.KD_D);
   const bias = Number(result.bias240);
 
+  let spxText = escapeHTML(usRisk?.spxChg || "N/A");
+  let spxEmoji = "";
+  if (spxText !== "N/A") {
+    const spxNum = parseFloat(spxText);
+    if (spxNum > 0) {
+      spxText = `+${spxText}`;
+      spxEmoji = "📈";
+    } else if (spxNum < 0) {
+      spxEmoji = "📉";
+    } else {
+      spxEmoji = "➖";
+    }
+  }
+
+  const qty0050 = Number(config.qty0050).toLocaleString("en-US");
+  const qtyZ2 = Number(config.qtyZ2).toLocaleString("en-US");
+
   // ============== 第一則訊息：HTML 高質感儀表板 ==============
   // HTML 模式語法：
   // <b>粗體</b>
@@ -116,7 +134,7 @@ export function buildTelegramMessages({
 <b>📈 市場指標</b>
 • 台指VIX： <code>${escapeHTML(vixValue.toFixed(2))}</code> ${vixEmoji}
 • 美股VIX： <code>${escapeHTML(usRisk?.vix || "N/A")}</code> ${escapeHTML(usRisk?.riskIcon || "")}
-• S&P500： <code>${escapeHTML(usRisk?.spxChg || "N/A")}</code>
+• S&P500： <code>${spxText}</code> ${spxEmoji}
 • 歷史位階： <b>${escapeHTML(result.historicalLevel || "N/A")}</b>
 
 <b>🟢 進場訊號</b>
@@ -124,7 +142,7 @@ export function buildTelegramMessages({
 • RSI： <code>${Number.isFinite(w.rsiScore) ? w.rsiScore : "--"}</code> 分 (${escapeHTML(w.rsiInfo || "--")})
 • MACD： <code>${Number.isFinite(w.macdScore) ? w.macdScore : "--"}</code> 分 (${escapeHTML(w.macdInfo || "--")})
 • KD： <code>${Number.isFinite(w.kdScore) ? w.kdScore : "--"}</code> 分 (${escapeHTML(w.kdInfo || "--")})
-• 總評分： <code>${Number.isFinite(score) ? score : "--"}</code> (門檻 &gt; ${minScore}) ${scoreOk ? "✅" : "❌"}
+• 總評分： <code>${Number.isFinite(score) ? score : "--"} / ${minScore}</code> ${scoreOk ? "✅ 達標" : "❌ 未達"}
 
 <b>📉 轉弱與風險</b>
 • RSI： <code>${Number.isFinite(rsi) ? rsi.toFixed(1) : "--"}</code>
@@ -136,8 +154,9 @@ export function buildTelegramMessages({
 <b>🛡 帳戶配置</b>
 • 實際槓桿： <code>${result.actualLeverage} 倍</code>
 • 維持率： <code>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未動用"}</code>
-• 總資產： <code>$${grossAsset.toLocaleString("zh-TW")}</code>
-• 0050： <code>${config.qty0050}</code> 股 | 00675L： <code>${config.qtyZ2}</code> 股
+• 總資產： <code>$${displayGrossAsset}</code>
+• 🛡 0050： <code>${qty0050}</code> 股
+• ⚔️ 0067L： <code>${qtyZ2}</code> 股
 `.trim();
 
   // ============== 第二則訊息：AI 洞察與心法 ==============
