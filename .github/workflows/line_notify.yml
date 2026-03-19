@@ -53,12 +53,12 @@ jobs:
         run: |
           if [[ "${{ github.event.schedule }}" == "40 6 * * *" || "${{ github.event.schedule }}" == "45 23 * * *" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             # 完整版戰報：LINE + TG + AI教練
-            echo "LINE_FLAG=--line=true" >> $GITHUB_ENV
+            echo "LINE_FLAG=--line=false" >> $GITHUB_ENV
             echo "AI_FLAG=--aiAdvisor=true" >> $GITHUB_ENV
           else
             # 盤中快速回報：只有 TG，無 AI
             echo "LINE_FLAG=--line=false" >> $GITHUB_ENV
-            echo "AI_FLAG=--aiAdvisor=false" >> $GITHUB_ENV
+            echo "AI_FLAG=--aiAdvisor=true" >> $GITHUB_ENV
           fi
 
           # 無論何時，Telegram 永遠開啟
