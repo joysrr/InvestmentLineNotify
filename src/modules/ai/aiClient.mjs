@@ -21,7 +21,7 @@ export async function callGemini(userPrompt, systemInstruction, options = {}) {
       config: {
         systemInstruction,
         temperature: options.temperature ?? 0.1,
-        maxOutputTokens: options.maxOutputTokens ?? 2048,
+        maxOutputTokens: options.maxOutputTokens ?? 8192,
         responseMimeType: options.responseMimeType ?? "text/plain",
         responseSchema: options.responseSchema,
         thinkingConfig: options.thinkingConfig,
