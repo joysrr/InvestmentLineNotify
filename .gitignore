@@ -30,6 +30,7 @@ out/
 *.tsbuildinfo
 
 # 其他不必要提交的檔案
+cache/
 tmp/
 *.log
 *.tmp

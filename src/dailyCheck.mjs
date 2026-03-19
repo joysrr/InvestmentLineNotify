@@ -1,34 +1,28 @@
 import "dotenv/config";
-import { getTwVix } from "./services/vixService.mjs";
-import { fetchLatestBasePrice } from "./services/basePriceService.mjs";
-import { pushLine, buildFlexCarouselFancy } from "./services/notifyService.mjs";
-import { getInvestmentSignalAsync } from "./services/stockSignalService.mjs";
+import { getTwVix } from "./modules/providers/twseProvider.mjs";
+import { fetchLatestBasePrice } from "./modules/providers/basePriceProvider.mjs";
+import { broadcastDailyReport } from "./modules/notifications/notifier.mjs";
+import { getInvestmentSignalAsync } from "./modules/strategy/strategyEngine.mjs";
 import {
   fetchStockHistory,
   fetchLatestClose,
-} from "./providers/twse/twseStockDayProvider.mjs";
-import { fetchRealtimeFromMis } from "./providers/twse/twseMisProvider.mjs";
-import { isMarketOpenTodayTWSE } from "./providers/twse/twseCalendarProvider.mjs";
-import { calculateIndicators } from "./finance/indicators.mjs";
-import { getTaiwanDate } from "./utils/timeUtils.mjs";
+  fetchRealtimeFromMis,
+  isMarketOpenTodayTWSE,
+} from "./modules/providers/twseProvider.mjs";
+import { calculateIndicators } from "./modules/strategy/indicators.mjs";
+import { getTaiwanDate } from "./utils/coreUtils.mjs";
 import {
   fetchLastPortfolioState,
   logDailyToSheet,
-} from "./services/googleSheetService.mjs";
-import { fetchStrategyConfig } from "./services/strategyConfigService.mjs";
-import { getAiInvestmentAdvice } from "./services/aiAdvisorService.mjs";
-import { getDailyQuote } from "./services/quoteService.mjs";
-import { analyzeUsRisk } from "./services/usRiskService.mjs";
-import {
-  buildTelegramMessages,
-  sendTelegramBatch,
-} from "./services/telegramService.mjs";
-import { getNewsTelegramMessages } from "./providers/newsProvider.mjs";
+} from "./modules/storage.mjs";
+import { getAiInvestmentAdvice } from "./modules/ai/aiCoach.mjs";
+import { getDailyQuote } from "./modules/providers/quoteProvider.mjs";
+import { analyzeUsRisk } from "./modules/providers/usMarketProvider.mjs";
+import { getNewsTelegramMessages } from "./modules/newsFetcher.mjs";
 
 export async function dailyCheck({
   isLineEnabled = true,
   isTelegramEnabled = true,
-  isTranslate = false,
   isAIAdvisor = true,
 }) {
   try {
@@ -61,15 +55,12 @@ export async function dailyCheck({
       console.log("❌ VIX 抓取失敗，不影響主流程");
     }
 
-    /*
     // 檢查是否開市
     console.log("📅 檢查是否開市...");
     const openToday = await isMarketOpenTodayTWSE();
     if (!openToday) {
       console.log("😴 當日無開市，跳過通知");
-      return "當日無開市，跳過通知";
     }
-    */
 
     // 取得股票資訊
     const symbolZ2 = "00675L.TW";
@@ -184,33 +175,6 @@ export async function dailyCheck({
 
     console.log("🧠 正在計算投資訊號...");
     const result = await getInvestmentSignalAsync(signalData);
-    const strategyConfig = await fetchStrategyConfig();
-
-    // 取得 AI 決策報告
-    console.log("🤖 正在產生 AI 決策分析...");
-
-    //console.log("原始數據", result, lastState, strategyConfig);
-    const aiAdvice = await getAiInvestmentAdvice(
-      result,
-      lastState,
-      vixData,
-      strategyConfig,
-      !isAIAdvisor,
-    );
-    console.log("--- DEBUG AI ADVICE ---");
-    console.log(aiAdvice); // ⚡️ 在 GitHub Actions 的 Log 裡看這段
-
-    /*
-    // 交易時段檢查
-    const nowTaipei = new Date(
-      new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }),
-    );
-    const hour = nowTaipei.getHours();
-    if (hour < 7 || hour >= 18) {
-      console.log("😴 非交易時段，不發送通知");
-      return "非交易時段";
-    }
-    */
 
     // 組合戰報訊息
     let header = `【00675L ${result.strategy.leverage.targetMultiplier}倍質押戰報】`;
@@ -301,9 +265,38 @@ export async function dailyCheck({
       timeZone: "Asia/Taipei",
     });
 
-    const quote = await getDailyQuote(isTranslate);
+    // 取得每日一句
+    const quote = await getDailyQuote();
 
-    const flexCarousel = buildFlexCarouselFancy({
+    // 取得新聞錦集
+    let newsMessages = [];
+    let newsSummaryText = "今日無重大市場新聞。";
+    console.log("📝 正在取得新聞集錦...");
+    try {
+      const marketData = {
+        marketStatus: result.marketStatus,
+        vix: vixData?.value ?? "未知",
+      };
+      const newsResult = await getNewsTelegramMessages(marketData);
+      newsMessages = newsResult.messages;
+      newsSummaryText = newsResult.summaryText;
+      console.log("✅ 執行完成！");
+    } catch (err) {
+      console.error("❌ 取得新聞集錦失敗 (但不影響發送通知):", err.message);
+    }
+
+    // 取得 AI 決策報告
+    console.log("🤖 正在產生 AI 決策分析...");
+    const aiAdvice = await getAiInvestmentAdvice(
+      result,
+      lastState,
+      vixData,
+      newsSummaryText,
+      !isAIAdvisor,
+    );
+
+    // 推送至平台(Line&Telegram)
+    const reportDailyData = {
       result,
       vixData,
       usRisk,
@@ -311,48 +304,14 @@ export async function dailyCheck({
       dateText,
       aiAdvice,
       quote,
-    });
+    };
 
-    const lineMessages = [
-      {
-        type: "flex",
-        altText: `00675L ${result.marketStatus}`, // altText 建議短（必填）[web:405]
-        contents: flexCarousel,
-      },
-    ];
-
-    if (isLineEnabled) {
-      console.log("📤 正在發送 Line 通知...");
-      await pushLine(lineMessages);
-      console.log("✅ 執行完成！");
-    }
-
-    let telegramMessages = buildTelegramMessages({
-      result,
-      vixData,
-      usRisk,
-      config: lastState,
-      dateText,
-      aiAdvice,
-      quote,
-    });
-
-    if (isTelegramEnabled) {
-      console.log("📤 正在發送 Telegram 通知...");
-      console.log("📝 正在發送新聞錦集...");
-      try {
-        const newsMessages = await getNewsTelegramMessages();
-        telegramMessages = telegramMessages.concat(newsMessages);
-        console.log("✅ 執行完成！");
-      } catch {
-        console.error(
-          "❌ 取得新聞錦集失敗 (但不影響發送通知):",
-          sheetErr.message,
-        );
-      }
-      await sendTelegramBatch(telegramMessages);
-      console.log("✅ 執行完成！");
-    }
+    broadcastDailyReport(
+      reportDailyData,
+      newsMessages,
+      isLineEnabled,
+      isTelegramEnabled,
+    );
 
     console.log("📝 正在寫入試算表...");
     try {
@@ -368,7 +327,7 @@ export async function dailyCheck({
       console.error("❌ 寫入試算表失敗 (但不影響發送通知):", sheetErr.message);
     }
 
-    return { header, msg, detailMsg, lineMessages, telegramMessages };
+    return { header, msg, detailMsg };
   } catch (err) {
     console.error("❌ 系統發生嚴重錯誤:", err);
     return err.message;

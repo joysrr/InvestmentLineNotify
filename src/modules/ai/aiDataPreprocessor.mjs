@@ -1,7 +1,6 @@
 /**
  * AI 數據預處理工具
  */
-
 const n2 = (v) => {
   const x = typeof v === "string" ? Number(v) : v;
   return Number.isFinite(x) ? Math.round(x * 100) / 100 : null;

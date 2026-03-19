@@ -1,267 +1,3 @@
-import axios from "axios";
-import { toArray } from "../utils/arrayUtils.mjs";
-import { buildFlexTextBlocks } from "../utils/flexTextParser.mjs";
-
-const LINE_PUSH_URL = "https://api.line.me/v2/bot/message/push";
-
-// ============================================================================
-// UI 元件 Helper Functions
-// ============================================================================
-
-const sep = (margin = "md") => ({ type: "separator", margin });
-
-const txt = (text, opt = {}) => ({
-  type: "text",
-  text: String(text ?? ""),
-  size: "sm",
-  color: "#111111",
-  ...opt,
-});
-
-const uriButtonBox = (label, uri, opt = {}) => {
-  const {
-    bg = "#F8F9FA",
-    textColor = "#1A73E8",
-    borderColor = "#DADCE0",
-  } = opt;
-
-  return {
-    type: "box",
-    layout: "vertical",
-    flex: 1,
-    backgroundColor: bg,
-    borderColor,
-    borderWidth: "1px",
-    cornerRadius: "md",
-    paddingAll: "8px",
-    justifyContent: "center",
-    contents: [
-      txt(label, {
-        size: "xxs",
-        color: textColor,
-        align: "center",
-        wrap: false,
-        maxLines: 1,
-        action: { type: "uri", label, uri },
-      }),
-    ],
-  };
-};
-
-const uriLinkText = (label, uri, color = "#4285F4") =>
-  txt(label, {
-    size: "xxs",
-    color,
-    action: { type: "uri", label, uri },
-    decoration: "underline",
-    align: "center",
-    wrap: false,
-    maxLines: 1,
-  });
-
-// 產生帶有顏色的狀態文字（目前未使用，可保留）
-const statusText = (
-  condition,
-  textTrue,
-  textFalse,
-  colorTrue = "#28a745",
-  colorFalse = "#D93025",
-) => ({
-  type: "text",
-  text: condition ? textTrue : textFalse,
-  size: "xs",
-  color: condition ? colorTrue : colorFalse,
-  weight: "bold",
-});
-
-// 列表式掃描儀的一行：標籤 | 數值 | 門檻條件 | 狀態
-const scannerRow = (
-  label,
-  valueText,
-  targetText,
-  state,
-  valueColor = "#111111",
-) => ({
-  type: "box",
-  layout: "horizontal",
-  contents: [
-    txt(label, { size: "sm", color: "#666666", flex: 3 }),
-    txt(valueText ?? "--", {
-      size: "sm",
-      color: valueColor,
-      weight: "bold",
-      align: "center",
-      flex: 3,
-    }),
-    txt(targetText ?? "", {
-      size: "xxs",
-      color: "#aaaaaa",
-      align: "end",
-      gravity: "center",
-      flex: 4,
-      wrap: true,
-      maxLines: 1,
-    }),
-    txt(state === "watch" ? "🟡" : state === "ok" || state ? "🟢" : "🔴", {
-      size: "sm",
-      align: "end",
-      flex: 1,
-    }),
-  ],
-});
-
-// 基礎行顯示 (左標籤, 右數值)
-const baselineRow = (
-  left,
-  right,
-  rightColor = "#111111",
-  rightBold = false,
-) => ({
-  type: "box",
-  layout: "baseline",
-  contents: [
-    txt(left, { size: "sm", color: "#666666", flex: 4 }),
-    txt(right ?? "--", {
-      size: "sm",
-      color: rightColor,
-      weight: rightBold ? "bold" : "regular",
-      flex: 6,
-      align: "end",
-      wrap: true,
-    }),
-  ],
-});
-
-// 技術指標卡片 (數值大字顯示)
-const indicatorCard = (label, value, status = "") => ({
-  type: "box",
-  layout: "vertical",
-  backgroundColor:
-    status == "red" ? "#FFF5F5" : status == "green" ? "#F0FFF4" : "#F7F7F7",
-  cornerRadius: "md",
-  paddingAll: "8px",
-  contents: [
-    {
-      type: "text",
-      text: label,
-      size: "xs",
-      color: "#888888",
-      align: "center",
-    },
-    {
-      type: "text",
-      text: String(value ?? "--"),
-      size: "lg",
-      weight: "bold",
-      color:
-        status == "red" ? "#D93025" : status == "green" ? "#28a745" : "#111111",
-      align: "center",
-    },
-  ],
-});
-
-// 進度條元件 (用於 Bubble 4)
-const progressBar = (current, goal, color = "#28a745") => {
-  const c = Number.isFinite(Number(current)) ? Number(current) : 0;
-  const g =
-    Number.isFinite(Number(goal)) && Number(goal) > 0 ? Number(goal) : 1;
-  const percent = Math.min(Math.max((c / g) * 100, 0), 100);
-
-  return {
-    type: "box",
-    layout: "vertical",
-    contents: [
-      {
-        type: "box",
-        layout: "horizontal",
-        contents: [
-          txt(`達成率 ${percent.toFixed(1)}%`, {
-            size: "xs",
-            color: "#666666",
-            flex: 1,
-          }),
-          txt(`$${(c / 10000).toFixed(0)}萬 / $${(g / 10000).toFixed(0)}萬`, {
-            size: "xs",
-            color: "#aaaaaa",
-            align: "end",
-            flex: 1,
-          }),
-        ],
-        margin: "sm",
-      },
-      {
-        type: "box",
-        layout: "vertical",
-        backgroundColor: "#E0E0E0",
-        cornerRadius: "md",
-        height: "6px",
-        contents: [
-          {
-            type: "box",
-            layout: "vertical",
-            backgroundColor: color,
-            cornerRadius: "md",
-            width: `${percent}%`,
-            height: "6px",
-            contents: [{ type: "spacer", size: "xs" }],
-          },
-        ],
-      },
-    ],
-  };
-};
-
-// ============================================================================
-// 主推播函式
-// ============================================================================
-
-export async function pushLine(input, { to = process.env.USER_ID } = {}) {
-  const token = process.env.LINE_ACCESS_TOKEN;
-
-  if (!token || !to) {
-    console.warn("缺少 LINE_ACCESS_TOKEN 或 USER_ID/to，跳過推播");
-    return { ok: false, skipped: true };
-  }
-
-  const messages =
-    typeof input === "string"
-      ? [{ type: "text", text: input }]
-      : toArray(input);
-
-  if (!Array.isArray(messages) || messages.length === 0) {
-    console.warn("messages 為空，跳過推播");
-    return { ok: false, skipped: true };
-  }
-
-  // push messages 常見上限 5
-  if (messages.length > 5) {
-    throw new Error(`LINE push messages 超過上限(5)：目前=${messages.length}`);
-  }
-
-  try {
-    const res = await axios.post(
-      LINE_PUSH_URL,
-      { to, messages },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        timeout: 20_000,
-      },
-    );
-    return { ok: true, status: res.status };
-  } catch (error) {
-    console.error("LINE push failed", {
-      status: error?.response?.status,
-      message: error?.response?.data?.message,
-      details: JSON.stringify(error?.response?.data?.details),
-      requestId: error?.response?.headers?.["x-line-request-id"],
-    });
-    throw error;
-  }
-}
-
 // ============================================================================
 // 戰報建構函式 (Flex Message Builder)
 // ============================================================================
@@ -879,9 +615,6 @@ export function buildFlexCarouselFancy({
 
   // ========== Bubble 5：心理紀律 + 連結 ==========
   const q = quote || {};
-  const en = q.textEn || q.textZh || "Discipline beats prediction.";
-  const zh = q.textZh && q.textZh !== q.textEn ? q.textZh : "";
-
   // ========== Bubble 5：心理紀律 + 連結（同卡片） ==========
 
   const linksBox = {
@@ -917,26 +650,14 @@ export function buildFlexCarouselFancy({
     contents: [
       txt("💡 每日一句", { size: "xs", color: "#888888" }),
 
-      // 原文（主）
-      txt(`“${en}”`, {
+      // 原文
+      txt(`“${q.quote}”`, {
         size: "xs", // 建議順便用 xs，減少被 … 截斷機率
         color: "#333333",
         wrap: true,
         maxLines: 10,
         margin: "sm",
       }),
-
-      // 翻譯（副）
-      zh
-        ? txt(zh, {
-            size: "xxs",
-            color: "#777777",
-            wrap: true,
-            maxLines: 10,
-            margin: "sm",
-          })
-        : null,
-
       txt(`— ${q.author || "Unknown"}`, {
         size: "xs",
         color: "#888888",
@@ -990,8 +711,225 @@ export function buildFlexCarouselFancy({
     },
   };
 
-  return {
+  const flexCarousel = {
     type: "carousel",
     contents: [bubble1, bubble2, bubble3, bubble4, bubble5],
   };
+
+  const lineMessages = [
+    {
+      type: "flex",
+      altText: `00675L ${result.marketStatus}`,
+      contents: flexCarousel,
+    },
+  ];
+
+  return lineMessages;
 }
+
+// ============================================================================
+// UI 元件 Helper Functions
+// ============================================================================
+
+const sep = (margin = "md") => ({ type: "separator", margin });
+
+const txt = (text, opt = {}) => ({
+  type: "text",
+  text: String(text ?? ""),
+  size: "sm",
+  color: "#111111",
+  ...opt,
+});
+
+const uriButtonBox = (label, uri, opt = {}) => {
+  const {
+    bg = "#F8F9FA",
+    textColor = "#1A73E8",
+    borderColor = "#DADCE0",
+  } = opt;
+
+  return {
+    type: "box",
+    layout: "vertical",
+    flex: 1,
+    backgroundColor: bg,
+    borderColor,
+    borderWidth: "1px",
+    cornerRadius: "md",
+    paddingAll: "8px",
+    justifyContent: "center",
+    contents: [
+      txt(label, {
+        size: "xxs",
+        color: textColor,
+        align: "center",
+        wrap: false,
+        maxLines: 1,
+        action: { type: "uri", label, uri },
+      }),
+    ],
+  };
+};
+
+const uriLinkText = (label, uri, color = "#4285F4") =>
+  txt(label, {
+    size: "xxs",
+    color,
+    action: { type: "uri", label, uri },
+    decoration: "underline",
+    align: "center",
+    wrap: false,
+    maxLines: 1,
+  });
+
+// 產生帶有顏色的狀態文字（目前未使用，可保留）
+const statusText = (
+  condition,
+  textTrue,
+  textFalse,
+  colorTrue = "#28a745",
+  colorFalse = "#D93025",
+) => ({
+  type: "text",
+  text: condition ? textTrue : textFalse,
+  size: "xs",
+  color: condition ? colorTrue : colorFalse,
+  weight: "bold",
+});
+
+// 列表式掃描儀的一行：標籤 | 數值 | 門檻條件 | 狀態
+const scannerRow = (
+  label,
+  valueText,
+  targetText,
+  state,
+  valueColor = "#111111",
+) => ({
+  type: "box",
+  layout: "horizontal",
+  contents: [
+    txt(label, { size: "sm", color: "#666666", flex: 3 }),
+    txt(valueText ?? "--", {
+      size: "sm",
+      color: valueColor,
+      weight: "bold",
+      align: "center",
+      flex: 3,
+    }),
+    txt(targetText ?? "", {
+      size: "xxs",
+      color: "#aaaaaa",
+      align: "end",
+      gravity: "center",
+      flex: 4,
+      wrap: true,
+      maxLines: 1,
+    }),
+    txt(state === "watch" ? "🟡" : state === "ok" || state ? "🟢" : "🔴", {
+      size: "sm",
+      align: "end",
+      flex: 1,
+    }),
+  ],
+});
+
+// 基礎行顯示 (左標籤, 右數值)
+const baselineRow = (
+  left,
+  right,
+  rightColor = "#111111",
+  rightBold = false,
+) => ({
+  type: "box",
+  layout: "baseline",
+  contents: [
+    txt(left, { size: "sm", color: "#666666", flex: 4 }),
+    txt(right ?? "--", {
+      size: "sm",
+      color: rightColor,
+      weight: rightBold ? "bold" : "regular",
+      flex: 6,
+      align: "end",
+      wrap: true,
+    }),
+  ],
+});
+
+// 技術指標卡片 (數值大字顯示)
+const indicatorCard = (label, value, status = "") => ({
+  type: "box",
+  layout: "vertical",
+  backgroundColor:
+    status == "red" ? "#FFF5F5" : status == "green" ? "#F0FFF4" : "#F7F7F7",
+  cornerRadius: "md",
+  paddingAll: "8px",
+  contents: [
+    {
+      type: "text",
+      text: label,
+      size: "xs",
+      color: "#888888",
+      align: "center",
+    },
+    {
+      type: "text",
+      text: String(value ?? "--"),
+      size: "lg",
+      weight: "bold",
+      color:
+        status == "red" ? "#D93025" : status == "green" ? "#28a745" : "#111111",
+      align: "center",
+    },
+  ],
+});
+
+// 進度條元件 (用於 Bubble 4)
+const progressBar = (current, goal, color = "#28a745") => {
+  const c = Number.isFinite(Number(current)) ? Number(current) : 0;
+  const g =
+    Number.isFinite(Number(goal)) && Number(goal) > 0 ? Number(goal) : 1;
+  const percent = Math.min(Math.max((c / g) * 100, 0), 100);
+
+  return {
+    type: "box",
+    layout: "vertical",
+    contents: [
+      {
+        type: "box",
+        layout: "horizontal",
+        contents: [
+          txt(`達成率 ${percent.toFixed(1)}%`, {
+            size: "xs",
+            color: "#666666",
+            flex: 1,
+          }),
+          txt(`$${(c / 10000).toFixed(0)}萬 / $${(g / 10000).toFixed(0)}萬`, {
+            size: "xs",
+            color: "#aaaaaa",
+            align: "end",
+            flex: 1,
+          }),
+        ],
+        margin: "sm",
+      },
+      {
+        type: "box",
+        layout: "vertical",
+        backgroundColor: "#E0E0E0",
+        cornerRadius: "md",
+        height: "6px",
+        contents: [
+          {
+            type: "box",
+            layout: "vertical",
+            backgroundColor: color,
+            cornerRadius: "md",
+            width: `${percent}%`,
+            height: "6px",
+            contents: [{ type: "spacer", size: "xs" }],
+          },
+        ],
+      },
+    ],
+  };
+};

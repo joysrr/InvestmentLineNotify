@@ -2,9 +2,10 @@ import fetch from "node-fetch";
 
 const BASE_PRICE_URL = process.env.BASE_PRICE_URL;
 
+/* 記憶體暫存 */
 let _cache = {
   url: null,
-  base: null,     // { baseDate, basePrice }
+  base: null, // { baseDate, basePrice }
   loadedAt: null,
 };
 
@@ -30,7 +31,7 @@ function parseBasePriceText(text) {
  * - 同一個 node process 內只抓一次
  * - 若抓取失敗但 cache 有舊值：回傳舊值，讓流程不中斷
  */
-async function fetchLatestBasePrice(url = BASE_PRICE_URL) {
+export async function fetchLatestBasePrice(url = BASE_PRICE_URL) {
   if (!url) {
     throw new Error("缺少 BASE_PRICE_URL（或呼叫時未傳入 url）");
   }
@@ -48,7 +49,10 @@ async function fetchLatestBasePrice(url = BASE_PRICE_URL) {
     });
 
     const text = await response.text();
-    if (!response.ok) throw new Error(`BasePrice.txt HTTP ${response.status}: ${text.slice(0, 200)}`);
+    if (!response.ok)
+      throw new Error(
+        `BasePrice.txt HTTP ${response.status}: ${text.slice(0, 200)}`,
+      );
 
     const base = parseBasePriceText(text);
 
@@ -64,5 +68,3 @@ async function fetchLatestBasePrice(url = BASE_PRICE_URL) {
     throw err;
   }
 }
-
-export { fetchLatestBasePrice };

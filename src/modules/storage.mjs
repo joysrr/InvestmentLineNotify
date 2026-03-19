@@ -30,7 +30,7 @@ async function getSheetDoc() {
  * 讀取「資產紀錄」（第一張表）的最後一筆有效紀錄
  * 用途：獲取你手動更新的最新持股狀態
  */
-async function fetchLastPortfolioState() {
+export async function fetchLastPortfolioState() {
   try {
     const doc = await getSheetDoc();
     // ★ 鎖定第一張表 (index 0) 作為「讀取來源」
@@ -90,7 +90,7 @@ async function fetchLastPortfolioState() {
  * 將每日戰報寫入到「通知紀錄」工作表
  * 如果工作表不存在，會自動建立
  */
-async function logDailyToSheet(data) {
+export async function logDailyToSheet(data) {
   try {
     const doc = await getSheetDoc();
     const targetSheetTitle = "通知紀錄"; // ★ 指定寫入的目標名稱
@@ -173,5 +173,3 @@ async function logDailyToSheet(data) {
     console.error("❌ 寫入通知紀錄失敗:", err);
   }
 }
-
-export { fetchLastPortfolioState, logDailyToSheet };

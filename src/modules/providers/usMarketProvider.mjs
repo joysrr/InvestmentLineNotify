@@ -1,5 +1,5 @@
-import { fetchUsMarketData } from "../providers/usMarketProvider.mjs";
-import { fetchStrategyConfig } from "./strategyConfigService.mjs";
+import axios from "axios";
+import { fetchStrategyConfig } from "../strategy/signalRules.mjs";
 
 export async function analyzeUsRisk() {
   const data = await fetchUsMarketData();
@@ -25,19 +25,25 @@ export async function analyzeUsRisk() {
   // --- 判斷邏輯 (優先級由高到低) ---
 
   // 1. 🚨 極高風險：VIX 破 30 或 標普大跌超過 3%
-  if ((Number.isFinite(vixVal) && vixVal >= VIX_PANIC) || (Number.isFinite(spxChg) && spxChg <= -3)) {
+  if (
+    (Number.isFinite(vixVal) && vixVal >= VIX_PANIC) ||
+    (Number.isFinite(spxChg) && spxChg <= -3)
+  ) {
     riskLevel = "極高風險";
     riskIcon = "🚨";
     suggestion = "全面禁止撥款，保留現金，嚴守維持率";
     isHighRisk = true;
-  } 
+  }
   // 2. ⚠️ 高風險：VIX 破 20 或 標普跌幅超過 2%
-  else if ((Number.isFinite(vixVal) && vixVal >= VIX_HIGH) || (Number.isFinite(spxChg) && spxChg <= -2)) {
+  else if (
+    (Number.isFinite(vixVal) && vixVal >= VIX_HIGH) ||
+    (Number.isFinite(spxChg) && spxChg <= -2)
+  ) {
     riskLevel = "高風險";
     riskIcon = "⚠️";
     suggestion = "暫停00675L新增撥款，偏防守為主";
     isHighRisk = true;
-  } 
+  }
   // 3. 📈 風險升高：標普跌幅超過 1%
   else if (Number.isFinite(spxChg) && spxChg <= -1) {
     riskLevel = "風險升高";
@@ -65,5 +71,49 @@ export async function analyzeUsRisk() {
       vixDate: data?.vix?.date ?? null,
       spxDate: data?.spx?.date ?? null,
     },
+  };
+}
+
+async function fetchFredSeriesLast2(seriesId) {
+  const apiKey = process.env.FRED_API_KEY; // 建議加，穩定 [web:945]
+  const url =
+    "https://api.stlouisfed.org/fred/series/observations" +
+    `?series_id=${encodeURIComponent(seriesId)}` +
+    "&file_type=json&sort_order=asc&limit=20" +
+    (apiKey ? `&api_key=${encodeURIComponent(apiKey)}` : "");
+
+  const res = await axios.get(url, { timeout: 12_000 });
+  const obs = res.data?.observations || [];
+
+  // 從後往前挑兩個「可用數值」（FRED 偶爾會有 "."）
+  const vals = [];
+  for (let i = obs.length - 1; i >= 0 && vals.length < 2; i--) {
+    const v = Number(obs[i]?.value);
+    if (Number.isFinite(v)) vals.push({ date: obs[i].date, value: v });
+  }
+  if (vals.length < 2) return null;
+
+  const latest = vals[0];
+  const prev = vals[1];
+  return {
+    date: latest.date,
+    value: latest.value,
+    changePercent: prev.value
+      ? ((latest.value - prev.value) / prev.value) * 100
+      : null,
+  };
+}
+
+export async function fetchUsMarketData() {
+  // VIXCLS: VIX 收盤；SP500: S&P500 收盤 [web:871][web:943]
+  const [vix, spx] = await Promise.allSettled([
+    fetchFredSeriesLast2("VIXCLS"),
+    fetchFredSeriesLast2("SP500"),
+  ]);
+
+  return {
+    vix: vix.status === "fulfilled" ? vix.value : null,
+    spx: spx.status === "fulfilled" ? spx.value : null,
+    source: "FRED",
   };
 }
