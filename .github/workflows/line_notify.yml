@@ -35,25 +35,34 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Cache Stock History Data
+        uses: actions/cache@v4
+        with:
+          # 告訴 GitHub 你要把哪個資料夾存起來跨次使用
+          path: cache/stock_history
+
+          # 建立一個動態的 Key，使用當前的年月，並 fallback 到舊的快取
+          # 這樣每個月會自動建立一個新的主要快取包
+          key: stock-history-${{ runner.os }}-${{ steps.date.outputs.date }}
+          restore-keys: |
+            stock-history-${{ runner.os }}-
+
       - name: 判斷執行參數 (排程路由分配)
         id: check-args
         # 根據不同的時間點，給予不同的參數組合
         run: |
           if [[ "${{ github.event.schedule }}" == "40 6 * * *" || "${{ github.event.schedule }}" == "45 23 * * *" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            # 完整版戰報：LINE + TG + AI教練 + 每日一句翻譯
+            # 完整版戰報：LINE + TG + AI教練
             echo "LINE_FLAG=--line=true" >> $GITHUB_ENV
             echo "AI_FLAG=--aiAdvisor=true" >> $GITHUB_ENV
           else
-            # 盤中快速回報：只有 TG，無 AI，無翻譯 (省錢極簡模式)
+            # 盤中快速回報：只有 TG，無 AI
             echo "LINE_FLAG=--line=false" >> $GITHUB_ENV
             echo "AI_FLAG=--aiAdvisor=false" >> $GITHUB_ENV
           fi
 
           # 無論何時，Telegram 永遠開啟
           echo "TG_FLAG=--telegram=true" >> $GITHUB_ENV
-
-          # 無論何時，翻譯永遠關閉
-          echo "TRANS_FLAG=--translate=false" >> $GITHUB_ENV
 
       - name: Run Daily Check
         env:

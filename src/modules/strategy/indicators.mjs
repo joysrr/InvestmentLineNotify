@@ -1,7 +1,6 @@
 import ti from "technicalindicators";
 
 const { RSI, MACD, Stochastic } = ti;
-
 /**
  * 由歷史日線資料計算 RSI / MACD / KD。
  * history item: { date, open, high, low, close, volume }
@@ -222,10 +221,19 @@ export function kdCrossUp(kdArr) {
 export function lastKD(kdArr) {
   if (!Array.isArray(kdArr) || kdArr.length === 0) return null;
   const last = kdArr.at(-1);
-  if (!last || !Number.isFinite(last.k) || !Number.isFinite(last.d)) return null;
+  if (!last || !Number.isFinite(last.k) || !Number.isFinite(last.d))
+    return null;
   return last;
 }
 
 export function kdSeries(kdArr, picker) {
   return Array.isArray(kdArr) ? kdArr.map(picker).filter(Number.isFinite) : [];
+}
+
+export function getMACDSignal(macdResult) {
+  if (!macdResult?.length) return "neutral";
+  const last = macdResult[macdResult.length - 1];
+  if (last.MACD > last.signal) return "bull";
+  if (last.MACD < last.signal) return "bear";
+  return "neutral";
 }

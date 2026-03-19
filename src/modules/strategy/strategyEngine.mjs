@@ -1,8 +1,25 @@
-import { fetchStrategyConfig } from "./strategyConfigService.mjs";
-import { validateStrategyConfig } from "./strategyConfigValidator.mjs";
 import {
+  getTargetLeverageByScore,
+  getReserveStatus,
+  getExtremeDropThreshold,
+  getPostSellAllocation,
+} from "./riskManagement.mjs";
+import {
+  validateStrategyConfig,
+  computeEntryScore,
+  computeReversalTriggers,
+  computeOverheatState,
+  computeSellSignals,
+} from "./signalRules.mjs";
+import { fetchStrategyConfig } from "./signalRules.mjs";
+import {
+  calculateIndicators,
+  last2,
+  crossUpLevel,
+  crossDownLevel,
   roseAboveAfterBelow,
   fellBelowAfterAbove,
+  wasAboveLevel,
   wasBelowLevel,
   macdCrossUp,
   macdCrossDown,
@@ -10,217 +27,8 @@ import {
   kdCrossUp,
   lastKD,
   kdSeries,
-} from "../finance/indicators.mjs";
-
-function getMACDSignal(macdResult) {
-  if (!macdResult?.length) return "neutral";
-  const last = macdResult[macdResult.length - 1];
-  if (last.MACD > last.signal) return "bull";
-  if (last.MACD < last.signal) return "bear";
-  return "neutral";
-}
-
-// 轉多權重計算
-function computeEntryScore(data, priceDropPercent, strategy) {
-  // 找到符合的跌幅規則（從高到低排序）取得分數
-  const dropRules = Array.isArray(strategy?.buy?.dropScoreRules)
-    ? strategy.buy.dropScoreRules.toSorted((a, b) => b.minDrop - a.minDrop)
-    : [];
-  const dropRule = dropRules.find((r) => priceDropPercent >= r.minDrop);
-
-  const oversold = strategy.buy.rsi.oversold;
-  const oversoldK = strategy.buy.kd.oversoldK;
-
-  const kdBullLow =
-    kdCrossUp(data.kdArr) &&
-    wasBelowLevel(data.kdArr, oversoldK, 10, (x) => x.k);
-
-  const signals = {
-    rsiRebound: roseAboveAfterBelow(data.rsiArr, oversold, 10, {
-      requireCrossToday: false,
-    }),
-    macdBull: macdCrossUp(data.macdArr),
-    kdBullLow,
-  };
-
-  const details = {
-    dropInfo: dropRule
-      ? dropRule.label
-      : `跌幅 ${priceDropPercent.toFixed(2)}%`,
-    dropScore: dropRule ? dropRule.score : 0,
-    rsiInfo: signals.rsiRebound ? `RSI 反轉 (${oversold})` : `RSI 未反轉`,
-    rsiScore: signals.rsiRebound ? strategy.buy.rsi.score : 0,
-    macdInfo: signals.macdBull ? "MACD 黃金交叉" : "MACD 無交叉",
-    macdScore: signals.macdBull ? strategy.buy.macd.score : 0,
-    kdInfo: signals.kdBullLow ? `KD 低檔交叉 (<${oversoldK})` : "KD 無交叉",
-    kdScore: signals.kdBullLow ? strategy.buy.kd.score : 0,
-  };
-
-  const score =
-    details.dropScore + details.rsiScore + details.macdScore + details.kdScore;
-  return { weightScore: score, weightDetails: details, entrySignals: signals };
-}
-
-// 轉弱指標計算
-function computeReversalTriggers(data, strategy) {
-  const th = strategy.threshold;
-  const rsiDrop = fellBelowAfterAbove(data.rsiArr, th.rsiReversalLevel, 10, {
-    requireCrossToday: false,
-  });
-  const minKDArr = kdSeries(data.kdArr, (x) => Math.min(x.k, x.d));
-  const kdDrop = fellBelowAfterAbove(minKDArr, th.kReversalLevel, 10, {
-    requireCrossToday: false,
-  });
-
-  const kdBearCross = kdCrossDown(data.kdArr);
-  const macdBearCross = macdCrossDown(data.macdArr);
-
-  const flags = { rsiDrop, kdDrop, kdBearCross, macdBearCross };
-  const triggeredCount = Object.values(flags).filter(Boolean).length;
-
-  return { totalFactor: Object.keys(flags).length, triggeredCount, ...flags };
-}
-
-// 過熱指標
-function computeOverheatState(data, bias240, strategy) {
-  const th = strategy.threshold;
-  const b = Number.isFinite(bias240) ? bias240 : null;
-
-  const last = lastKD(data.kdArr);
-  const kdD = last?.d ?? null;
-
-  const factors = {
-    rsiHigh: Number.isFinite(data.RSI) && data.RSI > th.rsiOverheatLevel,
-    kdHigh: Number.isFinite(kdD) && kdD > th.dOverheatLevel,
-    biasHigh: Number.isFinite(b) && b > th.bias240OverheatLevel,
-  };
-
-  const factorCount = Object.keys(factors).length;
-  const highCount = Object.values(factors).filter(Boolean).length;
-
-  return {
-    isOverheat: highCount >= th.overheatCount,
-    factorCount,
-    highCount,
-    coolCount: factorCount - highCount,
-    factors,
-    bias240: b,
-  };
-}
-
-function computeSellSignals(data, strategy) {
-  const sell = strategy.sell;
-  const overbought = sell.rsi.overbought || 75;
-  const overboughtK = sell.kd.overboughtK || 80;
-
-  const last = lastKD(data.kdArr);
-  const lastK = last?.k ?? null;
-  const lastD = last?.d ?? null;
-
-  // ✅ 狀態（state）：是否處於超買區
-  const rsiStateOverbought =
-    Number.isFinite(data.RSI) && data.RSI >= overbought;
-  const kdStateOverbought = Number.isFinite(lastD) && lastD >= overboughtK;
-
-  // 1) RSI：高於超買線並回落
-  const rsiSell = fellBelowAfterAbove(data.rsiArr, overbought, 10, {
-    requireCrossToday: true,
-  });
-
-  // 2) MACD：快線下穿慢線 + 柱狀圖轉負
-  const macdSell = (() => {
-    const macdMinusSignal = data.macdArr.map((x) => x.MACD - x.signal);
-    const crossDown = fellBelowAfterAbove(macdMinusSignal, 0, 10, {
-      requireCrossToday: true,
-    });
-    return crossDown;
-  })();
-
-  // 3) KD：高檔死叉 OR %D 跌回門檻下方
-  const kdSell = (() => {
-    const crossDownKD = kdCrossDown(data.kdArr);
-    const inOverboughtNow =
-      Number.isFinite(lastK) &&
-      Number.isFinite(lastD) &&
-      Math.min(lastK, lastD) >= overboughtK;
-
-    const dArr = kdSeries(data.kdArr, (x) => x.d);
-    const dropBelow80 = fellBelowAfterAbove(dArr, overboughtK, 10, {
-      requireCrossToday: true,
-    });
-
-    return (crossDownKD && inOverboughtNow) || dropBelow80;
-  })();
-
-  const flags = { rsiSell, macdSell, kdSell };
-  const signalCount = Object.values(flags).filter(Boolean).length;
-
-  const stateFlags = { rsiStateOverbought, kdStateOverbought };
-  const stateCount = Object.values(stateFlags).filter(Boolean).length;
-
-  return {
-    flags,
-    signalCount,
-    total: 3,
-    stateFlags,
-    stateCount,
-  };
-}
-
-// 取得目標槓桿比例
-function getTargetLeverageByScore(score, strategy) {
-  const rules = Array.isArray(strategy?.allocation) ? strategy.allocation : [];
-
-  // 從高分到低分找到第一個符合的規則
-  const matchedRule = rules
-    .filter((r) => r.minScore !== -99) // 排除底倉
-    .sort((a, b) => b.minScore - a.minScore)
-    .find((r) => score >= r.minScore);
-
-  if (matchedRule) {
-    return {
-      leverage: matchedRule.leverage,
-      cash: matchedRule.cash,
-      comment: matchedRule.comment,
-      minScore: matchedRule.minScore,
-    };
-  }
-
-  // 找不到就回傳底倉
-  const baseRule = rules.find((r) => r.minScore === -99);
-  return {
-    leverage: baseRule?.leverage || 0.15,
-    cash: baseRule?.cash || 0.85,
-    comment: baseRule?.comment || "底倉",
-    minScore: -99,
-  };
-}
-
-// 計算預備金狀態
-function getReserveStatus(ctx, strategy) {
-  const tiers = strategy?.reserve?.tiers || [];
-
-  // 找到當前資產對應的預備金比例
-  let targetRatio = 0.1; // 預設 10%
-  for (const tier of tiers) {
-    if (ctx.netAsset <= tier.maxAsset) {
-      targetRatio = tier.ratio;
-      break;
-    }
-  }
-
-  const targetReserve = ctx.netAsset * targetRatio;
-  const currentReserve = ctx.reserveCash || 0; // 假設 ctx 有提供
-  const achievementRate =
-    targetReserve > 0 ? (currentReserve / targetReserve) * 100 : 0;
-
-  return {
-    targetReserve,
-    currentReserve,
-    achievementRate,
-    isInsufficient: achievementRate < 80, // 低於 80% 算不足
-  };
-}
+  getMACDSignal,
+} from "./indicators.mjs";
 
 function buildDecision(ctx, strategy) {
   const th = strategy.threshold;
@@ -512,36 +320,6 @@ function buildDecision(ctx, strategy) {
     suggestion: `🛡️ 常態布局（${w}分）：當前無過熱或風控風險，請執行標準資金注入`,
     targetAllocation: targetAlloc,
   };
-}
-
-// 取得極端恐慌買入條件
-function getExtremeDropThreshold(strategy) {
-  const rules = Array.isArray(strategy?.buy?.dropScoreRules)
-    ? strategy.buy.dropScoreRules.toSorted((a, b) => b.minDrop - a.minDrop)
-    : [];
-
-  const rank = strategy?.buy?.panic?.minDropRank ?? 2;
-
-  if (rules.length < rank) {
-    return rules[0]?.minDrop ?? 30;
-  }
-
-  return rules[rank - 1]?.minDrop ?? 30;
-}
-
-function getPostSellAllocation(strategy) {
-  const rules = Array.isArray(strategy?.allocation) ? strategy.allocation : [];
-  const n = Number(strategy?.sell?.postAllocationIndexFromEnd ?? 2);
-
-  if (rules.length < n) {
-    throw new Error(
-      `strategy.allocation 長度不足：len=${rules.length}, 但 postAllocationIndexFromEnd=${n}`,
-    );
-  }
-
-  const rule = rules.at(-n);
-  if (!rule) throw new Error("取得 post allocation 失敗");
-  return rule;
 }
 
 function buildSellBackToAllocation(ctx, strategy) {
