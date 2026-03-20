@@ -1,9 +1,9 @@
 import "dotenv/config";
 import fs from "fs";
-import { calculateIndicators } from "./modules/strategy/indicators.mjs";
-import { fetchStockHistory } from "./modules/providers/twseProvider.mjs";
-import { fetchStrategyConfig } from "./modules/strategy/signalRules.mjs";
-import { evaluateInvestmentSignal } from "./modules/strategy/strategyEngine.mjs";
+import { calculateIndicators } from "../modules/strategy/indicators.mjs";
+import { fetchStockHistory } from "../modules/providers/twseProvider.mjs";
+import { fetchStrategyConfig } from "../modules/strategy/signalRules.mjs";
+import { evaluateInvestmentSignal } from "../modules/strategy/strategyEngine.mjs";
 
 // ==========================================
 // 1. 全局設定（只保留系統參數）
