@@ -1,6 +1,70 @@
 import { escapeHTML } from "../../../utils/coreUtils.mjs";
 
-// 將原本傳入 buildFlexCarouselFancy 的參數轉化為 Telegram 訊息陣列
+// ── 常數 ──────────────────────────────────────────────────────
+const GOAL_ASSET = 74_800_000;
+const GOAL_YEARS = 33;
+
+// ── 輔助函式 ──────────────────────────────────────────────────
+
+/** 純 ASCII 進度條（只放 ASCII，確保 <pre> 不出問題）*/
+function goalBar(current, target, width = 18) {
+  const c = Number(current),
+    t = Number(target);
+  if (!Number.isFinite(c) || !Number.isFinite(t) || t <= 0)
+    return "░".repeat(width);
+  const filled = Math.max(1, Math.round(Math.min(1, c / t) * width));
+  return "▓".repeat(filled) + "░".repeat(width - filled);
+}
+
+/** 維持率標籤 */
+function mmTag(mm, hasLoan) {
+  if (!hasLoan || !Number.isFinite(mm)) return { icon: "⚪", label: "未借款" };
+  if (mm >= 250) return { icon: "🟢", label: "健康" };
+  if (mm >= 180) return { icon: "🟡", label: "注意" };
+  if (mm >= 150) return { icon: "🟠", label: "警戒" };
+  return { icon: "🔴", label: "⚡危險" };
+}
+
+/** 槓桿標籤（對齊 LINE: targetMultiplier）*/
+function levTag(lev, targetMulti) {
+  const v = Number(lev);
+  if (!Number.isFinite(v) || v <= 0) return { icon: "⚪", label: "--" };
+  if (v > targetMulti) return { icon: "🔴", label: "⚡超標" };
+  if (v === targetMulti) return { icon: "🟡", label: "滿載" };
+  if (v < 1.2) return { icon: "🟢", label: "保守" };
+  return { icon: "🟢", label: "適中" };
+}
+
+/** 觸發比例 icon */
+function signalIcon(triggered, total) {
+  const ratio = triggered / total;
+  if (ratio === 0) return "🟢";
+  if (ratio <= 0.33) return "🟡";
+  if (ratio <= 0.66) return "🟠";
+  return "🔴";
+}
+
+/**
+ * 進場評分列（解法二核心：每指標獨立一行，不對齊）
+ * 格式：🟢 跌幅  3pt  跌幅 0.00%
+ */
+function scoreRow(label, score, info) {
+  const emoji = Number.isFinite(score) && score > 0 ? "🟢" : "🔴";
+  const scoreStr = Number.isFinite(score) ? `${score}pt` : "--";
+  return `${emoji} <b>${label}</b>  <code>${scoreStr}</code>  <i>${escapeHTML(info || "─")}</i>`;
+}
+
+/**
+ * 訊號列（轉弱/賣出，解法二：每行獨立）
+ * 格式：🔴 RSI 轉弱  57.0  >60 → <60
+ */
+function signalRow({ name, value, condition, triggered }) {
+  const icon = triggered ? "🔴" : "🟢";
+  return `${icon} <b>${name}</b>  <code>${String(value ?? "--")}</code>  <i>${escapeHTML(condition || "")}</i>`;
+}
+
+// ── 主函式 ────────────────────────────────────────────────────
+
 export function buildTelegramMessages({
   result,
   vixData,
@@ -13,128 +77,268 @@ export function buildTelegramMessages({
   const strategy = result.strategy || {};
   const th = strategy.threshold || {};
   const buyTh = strategy.buy || {};
-  const s = result.sellSignals || { flags: {} };
-  const r = result.reversal || {};
+  const sellTh = strategy.sell || {};
+  const s = result.sellSignals ?? { flags: {} };
+  const r = result.reversal ?? {};
+  const w = result.weightDetails ?? {};
 
-  // 基本數值處理
+  // ── 資產數值 ──
   const currentAsset = Number(result.netAsset || 0);
-  const grossAsset = currentAsset + Number(result.totalLoan || 0);
+  const totalLoan = Number(result.totalLoan || 0);
+  const grossAsset = currentAsset + totalLoan;
   const mm = Number(result.maintenanceMargin);
-  const hasLoan = Number(result.totalLoan) > 0;
-  const displayGrossAsset = Math.floor(grossAsset).toLocaleString("zh-TW");
+  const hasLoan = totalLoan > 0;
+  const mmSafe = !hasLoan || (Number.isFinite(mm) && mm > 160);
+  const mmInfo = mmTag(mm, hasLoan);
 
-  // VIX 處理
+  // ── 槓桿 ──
+  const levValue = Number(result.actualLeverage);
+  const targetMulti = Number.isFinite(strategy.leverage?.targetMultiplier)
+    ? strategy.leverage.targetMultiplier
+    : 1.8;
+  const levInfo = levTag(levValue, targetMulti);
+
+  // ── 00675L 佔比 ──
+  const z2Ratio = Number(result.z2Ratio);
+  const z2TargetPct = Number.isFinite(th.z2TargetRatio)
+    ? th.z2TargetRatio * 100
+    : 40;
+  const z2Safe = z2Ratio <= z2TargetPct;
+
+  // ── VIX ──
   const vixValue = vixData?.value != null ? Number(vixData.value) : NaN;
   const vixLow = Number.isFinite(th.vixLowComplacency)
     ? th.vixLowComplacency
     : 13.5;
   const vixHigh = Number.isFinite(th.vixHighFear) ? th.vixHighFear : 20;
-  let vixEmoji = "😐";
+  let vixLabel = "正常 😐";
   if (Number.isFinite(vixValue)) {
-    if (vixValue < vixLow) vixEmoji = "😴";
-    else if (vixValue > vixHigh) vixEmoji = "😱";
+    if (vixValue < vixLow) vixLabel = "過度安逸 😴";
+    else if (vixValue > vixHigh) vixLabel = "恐慌 😱";
   }
 
-  const w = result.weightDetails ?? {};
+  // ── 進場評分 ──
   const score = Number(result.weightScore);
   const minScore = Number(buyTh.minWeightScoreToBuy ?? NaN);
   const scoreOk =
     Number.isFinite(score) && Number.isFinite(minScore) && score >= minScore;
 
-  // 技術指標處理
+  const dropScore = Number.isFinite(w.dropScore) ? w.dropScore : 0;
+  const rsiScore = Number.isFinite(w.rsiScore) ? w.rsiScore : 0;
+  const macdScore = Number.isFinite(w.macdScore) ? w.macdScore : 0;
+  const kdScore = Number.isFinite(w.kdScore) ? w.kdScore : 0;
+
+  // ── 技術指標 ──
   const rsi = Number(result.RSI);
   const kd_d = Number(result.KD_D);
+  const kd_k = Number(result.KD_K);
+  const kdCons = Math.min(kd_k, kd_d);
   const bias = Number(result.bias240);
+  const rsiAlert =
+    Number.isFinite(rsi) && rsi > Number(th.rsiOverheatLevel ?? 80);
+  const dAlert =
+    Number.isFinite(kd_d) && kd_d > Number(th.dOverheatLevel ?? 90);
+  const biasAlert =
+    Number.isFinite(bias) && bias > Number(th.bias240OverheatLevel ?? 25);
 
+  // ── S&P 500 ──
   let spxText = escapeHTML(usRisk?.spxChg || "N/A");
   let spxEmoji = "";
   if (spxText !== "N/A") {
-    const spxNum = parseFloat(spxText);
-    if (spxNum > 0) {
+    const n = parseFloat(spxText);
+    if (n > 0) {
       spxText = `+${spxText}`;
       spxEmoji = "📈";
-    } else if (spxNum < 0) {
+    } else if (n < 0) {
       spxEmoji = "📉";
     } else {
       spxEmoji = "➖";
     }
   }
 
+  // ── 價格變動（result.priceChangePercent）──
+  const priceChangePct = Number(result.priceChangePercent || 0);
+  const changeIcon =
+    priceChangePct > 0 ? "📈" : priceChangePct < 0 ? "📉" : "➖";
+
+  // ── 持股 / 現金 ──
   const qty0050 = Number(config.qty0050).toLocaleString("en-US");
   const qtyZ2 = Number(config.qtyZ2).toLocaleString("en-US");
+  const cashReserve = Number(config.cash || 0);
 
-  // ============== 第一則訊息：HTML 高質感儀表板 ==============
-  // HTML 模式語法：
-  // <b>粗體</b>
-  // <code>等寬灰底字</code>
-  // <blockquote>引用區塊</blockquote>
+  // ── 目標達成率 ──
+  const goalPct = ((currentAsset / GOAL_ASSET) * 100).toFixed(2);
 
-  let msg1Text = `
-<b>📊 投資戰報</b> ｜ <code>${escapeHTML(dateText)}</code>
-狀態：<b>${escapeHTML(result.marketStatus || "未明")}</b>
+  // ── 觸發數 ──
+  const reversalTriggered = r.triggeredCount ?? 0;
+  const reversalTotal = r.totalFactor ?? 4;
+  const sellTriggered = s.signalCount ?? 0;
+  const sellTotal = s.total ?? 3;
+
+  const SEP = "────────────────────";
+
+  // ══════════════════════════════════════════════════════════════
+  // 第一則：市場概況 ＋ 進場評分 ＋ 目標進度
+  // ══════════════════════════════════════════════════════════════
+
+  // 進場評分：每指標獨立一行，不依賴對齊
+  const scoreSection = [
+    scoreRow("跌幅", dropScore, w.dropInfo),
+    scoreRow("RSI", rsiScore, w.rsiInfo),
+    scoreRow("MACD", macdScore, w.macdInfo),
+    scoreRow("KD", kdScore, w.kdInfo),
+    SEP,
+    `${scoreOk ? "✅" : "❌"} <b>總分 <code>${Number.isFinite(score) ? score : "--"}pt</code></b>  門檻 <code>${Number.isFinite(minScore) ? minScore : "--"}pt</code>  ${scoreOk ? "達標可入場" : "觀望"}`,
+  ].join("\n");
+
+  // 目標進度條：<pre> 只放純 ASCII，文字標籤拉到 pre 外面
+  const goalSection = [
+    `🎯 <b>目標進度</b>  ·  ${GOAL_YEARS} 年計畫`,
+    `<pre>[${goalBar(currentAsset, GOAL_ASSET)}] ${goalPct}%</pre>`,
+    `  $${(currentAsset / 10000).toFixed(0)}萬 ／ 目標 $${(GOAL_ASSET / 10000).toFixed(0)}萬`,
+  ].join("\n");
+
+  const msg1Text = `\
+🗓 <b>投資戰情日報</b>  ·  <code>${escapeHTML(dateText)}</code>
+
+🚦 狀態：<b>${escapeHTML(result.marketStatus || "未明")}</b>
 📌 核心行動：<b>${escapeHTML(result.target || "觀望")}</b>
-<small>${escapeHTML(result.suggestion || "無")}</small>
+<blockquote expandable>${escapeHTML(result.suggestion || result.targetSuggestion || result.targetSuggestionShort || "無建議")}</blockquote>
 
-<b>📈 市場指標</b>
-• 台指VIX： <code>${escapeHTML(vixValue.toFixed(2))}</code> ${vixEmoji}
-• 美股VIX： <code>${escapeHTML(usRisk?.vix || "N/A")}</code> ${escapeHTML(usRisk?.riskIcon || "")}
-• S&P500： <code>${spxText}</code> ${spxEmoji}
-• 歷史位階： <b>${escapeHTML(result.historicalLevel || "N/A")}</b>
+🌐 <b>市場概況</b>
+${SEP}
+🇹🇼 台指 VIX  <code>${Number.isFinite(vixValue) ? vixValue.toFixed(2) : "N/A"}</code>  ${vixLabel}
+🇺🇸 美股 VIX  <code>${escapeHTML(usRisk?.vix || "N/A")}</code>  ${escapeHTML(usRisk?.riskIcon || "")}
+📊 S&amp;P500   <code>${spxText}</code>  ${spxEmoji}
+📍 歷史位階  <b>${escapeHTML(result.historicalLevel || "N/A")}</b>
 
-<b>🟢 進場訊號</b>
-• 跌幅： <code>${Number.isFinite(w.dropScore) ? w.dropScore : "--"}</code> 分 (${escapeHTML(w.dropInfo || "--")})
-• RSI： <code>${Number.isFinite(w.rsiScore) ? w.rsiScore : "--"}</code> 分 (${escapeHTML(w.rsiInfo || "--")})
-• MACD： <code>${Number.isFinite(w.macdScore) ? w.macdScore : "--"}</code> 分 (${escapeHTML(w.macdInfo || "--")})
-• KD： <code>${Number.isFinite(w.kdScore) ? w.kdScore : "--"}</code> 分 (${escapeHTML(w.kdInfo || "--")})
-• 總評分： <code>${Number.isFinite(score) ? score : "--"} / ${minScore}</code> ${scoreOk ? "✅ 達標" : "❌ 未達"}
+📊 <b>進場評分</b>  <i>（門檻 ${Number.isFinite(minScore) ? minScore : "--"}pt）</i>
+${SEP}
+${scoreSection}
 
-<b>📉 轉弱與風險</b>
-• RSI： <code>${Number.isFinite(rsi) ? rsi.toFixed(1) : "--"}</code>
-• KD(D)： <code>${Number.isFinite(kd_d) ? kd_d.toFixed(1) : "--"}</code>
-• 乖離率： <code>${Number.isFinite(bias) ? bias.toFixed(1) : "--"}%</code>
-• 轉弱觸發： <code>${r.triggeredCount ?? 0} / ${r.totalFactor ?? 4}</code>
-• 賣出觸發： <code>${s.signalCount ?? 0} / ${s.total ?? 3}</code>
-`.trim();
+⚠️ <b>風險雷達</b>
+${SEP}
+${signalIcon(reversalTriggered, reversalTotal)} 轉弱訊號  <code>${reversalTriggered} / ${reversalTotal}</code> 個觸發
+${signalIcon(sellTriggered, sellTotal)} 賣出訊號  <code>${sellTriggered} / ${sellTotal}</code> 個觸發
+${rsiAlert ? "🔴" : "🟢"} RSI   <code>${Number.isFinite(rsi) ? rsi.toFixed(1) : "--"}</code>
+${dAlert ? "🔴" : "🟢"} KD(D) <code>${Number.isFinite(kd_d) ? kd_d.toFixed(1) : "--"}</code>
+${biasAlert ? "🔴" : "🟢"} 乖離率 <code>${Number.isFinite(bias) ? bias.toFixed(1) + "%" : "--"}</code>
 
-  // ============== 第二則訊息：技術指標與帳戶配置 ==============
+${goalSection}`.trim();
 
-  let msg2Text = `
-<b>🔍 技術指標</b>
-• RSI： <code>${Number.isFinite(result.RSI) ? result.RSI.toFixed(1) : "N/A"}</code>
-• KD(D)： <code>${Number.isFinite(result.KD_D) ? result.KD_D.toFixed(1) : "N/A"}</code>
-• 乖離率： <code>${Number.isFinite(result.bias240) ? result.bias240.toFixed(1) + "%" : "N/A"}</code>
-• 現價： <code>$${Number(result.currentPrice || 0).toFixed(2)}</code>
-• 基準價： <code>$${Number(result.basePrice || 0).toFixed(2)}</code>
-• 變動率： <code>${Number(result.changeRate || 0).toFixed(2)}%</code>
+  // ══════════════════════════════════════════════════════════════
+  // 第二則：訊號詳情 ＋ 技術指標 ＋ 帳戶快照
+  // ══════════════════════════════════════════════════════════════
 
-<b>🛡 帳戶配置</b>
-• 實際槓桿： <code>${result.actualLeverage.toFixed(2)} 倍</code>
-• 維持率： <code>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未動用"}</code>
-• 總資產： <code>$${displayGrossAsset}</code>
-• 🛡 0050： <code>${qty0050}</code> 股
-• ⚔️ 0067L： <code>${qtyZ2}</code> 股
-• 借款金額： <code>$${escapeHTML(result.totalLoan?.toLocaleString() || "0")}</code> 元
-`.trim();
+  const reversalSignals = [
+    {
+      name: "RSI 轉弱",
+      value: Number.isFinite(rsi) ? rsi.toFixed(1) : "--",
+      condition: `>${th.rsiReversalLevel} → <${th.rsiReversalLevel}`,
+      triggered: Boolean(r.rsiDrop),
+    },
+    {
+      name: "KD(保守)轉弱",
+      value: Number.isFinite(kdCons) ? kdCons.toFixed(1) : "--",
+      condition: `>${th.kReversalLevel} → <${th.kReversalLevel}`,
+      triggered: Boolean(r.kdDrop),
+    },
+    {
+      name: "KD 死叉",
+      value: r.kdBearCross ? "死叉" : "未發生",
+      condition: "K▽D",
+      triggered: Boolean(r.kdBearCross),
+    },
+    {
+      name: "MACD 死叉",
+      value: r.macdBearCross ? "死叉" : "未發生",
+      condition: "DIF▽DEA",
+      triggered: Boolean(r.macdBearCross),
+    },
+  ];
 
-  // ============== 第三則訊息：AI 洞察與心法 ==============
+  const sellSignals = [
+    {
+      name: "RSI",
+      value: s.flags.rsiSell ? "已觸發" : "未觸發",
+      condition: `>${sellTh.rsi?.overbought} → ${sellTh.rsi?.overbought}↘`,
+      triggered: Boolean(s.flags.rsiSell),
+    },
+    {
+      name: "KD",
+      value: s.flags.kdSell ? "已觸發" : "未觸發",
+      condition: `K↘D & min≥${sellTh.kd?.overboughtK} | D↘${sellTh.kd?.overboughtK}`,
+      triggered: Boolean(s.flags.kdSell),
+    },
+    {
+      name: "MACD",
+      value: s.flags.macdSell ? "已觸發" : "未觸發",
+      condition: "DIF↘DEA & +→−",
+      triggered: Boolean(s.flags.macdSell),
+    },
+  ];
 
-  // 處理 AI Markdown 轉 HTML (只抓 AI 產出的 **粗體** 轉成 <b>)
-  let aiTextHtml = "數據分析中...";
+  const msg2Text = `\
+🔬 <b>技術指標</b>
+${SEP}
+${rsiAlert ? "🔴" : "🟢"} RSI    <code>${Number.isFinite(rsi) ? rsi.toFixed(1) : "N/A"}</code>
+${dAlert ? "🔴" : "🟢"} KD(D)  <code>${Number.isFinite(kd_d) ? kd_d.toFixed(1) : "N/A"}</code>
+${biasAlert ? "🔴" : "🟢"} 乖離率 <code>${Number.isFinite(bias) ? bias.toFixed(1) + "%" : "N/A"}</code>
+💰 現價  <code>$${Number(result.currentPrice || 0).toFixed(2)}</code>  ${changeIcon} <code>${priceChangePct >= 0 ? "+" : ""}${priceChangePct.toFixed(1)}%</code>
+📌 基準價 <code>$${Number(result.basePrice || 0).toFixed(2)}</code>
+
+🟡 <b>轉弱監控</b>  <i>（${reversalTriggered}/${reversalTotal} 觸發）</i>
+${SEP}
+${reversalSignals.map(signalRow).join("\n")}
+
+🔴 <b>賣出訊號</b>  <i>（${sellTriggered}/${sellTotal} 觸發）</i>
+${SEP}
+${sellSignals.map(signalRow).join("\n")}
+
+🏦 <b>帳戶快照</b>
+${SEP}
+💼 帳戶淨值    <code>$${Math.floor(currentAsset).toLocaleString("zh-TW")}</code>
+🏗 總資產(含貸) <code>$${Math.floor(grossAsset).toLocaleString("zh-TW")}</code>
+${levInfo.icon} 實際槓桿    <code>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}</code>  <b>${levInfo.label}</b>  <i>目標 ${targetMulti} 倍</i>
+${mmInfo.icon} 維持率      <code>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未借款"}</code>  <b>${mmInfo.label}</b>
+${z2Safe ? "🟢" : "🔴"} 00675L佔比  <code>${Number.isFinite(z2Ratio) ? z2Ratio.toFixed(1) + "%" : "N/A"}</code>  <i>上限 ${z2TargetPct.toFixed(0)}%</i>
+💵 現金儲備    <code>$${cashReserve.toLocaleString("zh-TW")}</code> 元
+💳 借款金額    <code>$${totalLoan.toLocaleString("zh-TW")}</code> 元
+
+📦 <b>持倉配置</b>
+${SEP}
+🛡 0050    <code>${qty0050}</code> 股
+⚔️ 0067L   <code>${qtyZ2}</code> 股`.trim();
+
+  // ══════════════════════════════════════════════════════════════
+  // 第三則：AI 策略 ＋ 每日一句
+  // ══════════════════════════════════════════════════════════════
+
+  let aiTextHtml = "🔄 數據分析中，請稍候...";
   if (aiAdvice) {
     aiTextHtml = escapeHTML(aiAdvice)
-      .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>") // 處理 **粗體**
-      .replace(/\*(.*?)\*/g, "<b>$1</b>"); // 處理 *粗體*
+      .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+      .replace(/\*(.*?)\*/g, "<b>$1</b>")
+      .replace(/^#+\s(.+)/gm, "<b>$1</b>")
+      .replace(/^[-•]\s+/gm, "◦ ")
+      .replace(/\n{3,}/g, "\n\n");
   }
 
-  let quoteText = `<i>${escapeHTML(quote.quote)}</i>`; // <i> 是斜體
-
-  // 利用 <blockquote> 產生漂亮的左側垂直線
-  let msg3Text = `<b>🤖 AI 策略領航</b>\n\n<blockquote>${aiTextHtml}</blockquote>\n\n<b>💡 每日一句</b>\n<blockquote>${quoteText}</blockquote>`;
+  const quoteAuthor = escapeHTML(quote?.author || "Unknown");
+  const quoteBlock = `<i>${escapeHTML(quote?.quote || "")}</i>\n\n— <b>${quoteAuthor}</b>`;
 
   const sheetUrl = process.env.GOOGLE_SHEET_ID
     ? `https://docs.google.com/spreadsheets/d/${process.env.GOOGLE_SHEET_ID}/edit?usp=drivesdk`
     : null;
   const strategyUrl = process.env.STRATEGY_URL || null;
+
+  const msg3Text = `\
+🤖 <b>AI 策略領航</b>
+${SEP}
+${aiTextHtml}
+
+📈 <b>持紀律，享複利</b>
+<blockquote>${quoteBlock}</blockquote>`.trim();
 
   return [
     { text: msg1Text },
