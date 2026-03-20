@@ -52,17 +52,16 @@ jobs:
         # 根據不同的時間點，給予不同的參數組合
         run: |
           if [[ "${{ github.event.schedule }}" == "40 6 * * *" || "${{ github.event.schedule }}" == "45 23 * * *" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            # 完整版戰報：LINE + TG + AI教練
-            echo "LINE_FLAG=--line=false" >> $GITHUB_ENV
-            echo "AI_FLAG=--aiAdvisor=true" >> $GITHUB_ENV
+            # 完整版戰報：LINE 開啟
+            echo "LINE_FLAG=--line=true" >> $GITHUB_ENV
           else
-            # 盤中快速回報：只有 TG，無 AI
+            # 盤中快速回報：LINE 關閉
             echo "LINE_FLAG=--line=false" >> $GITHUB_ENV
-            echo "AI_FLAG=--aiAdvisor=true" >> $GITHUB_ENV
           fi
 
-          # 無論何時，Telegram 永遠開啟
+          # 無論何時，Telegram、AI 永遠開啟
           echo "TG_FLAG=--telegram=true" >> $GITHUB_ENV
+          echo "AI_FLAG=--aiAdvisor=true" >> $GITHUB_ENV
 
       - name: Run Daily Check
         env:

@@ -16,6 +16,38 @@ export function rocDateToIso(rocYMD) {
 }
 
 /**
+ * ISO 日期轉 ROC： "2017-08-01" -> "106/08/01"
+ * 或支援轉換成無斜線格式： "2026-03" -> "11503"
+ *
+ * @param {string} isoText - 西元日期字串，例如 "2017-08-01", "2026-03", 或 "2026-03-20T08:17:01Z"
+ * @param {boolean} withSlash - 是否包含斜線 (預設 true: 106/08/01, false: 1060801)
+ * @returns {string|null} - 民國年字串
+ */
+export function isoDateToROC(isoText, withSlash = true) {
+  if (!isoText) return null;
+
+  // 使用 Date 物件來解析，以防傳入的是帶有 T 的完整 ISO 字串
+  const d = new Date(isoText);
+  if (isNaN(d.getTime())) return null;
+
+  const adY = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+
+  const rocY = String(adY - 1911);
+
+  // 如果原本的輸入只有 "YYYY-MM" (例如 7個字元)，我們就只回傳 年/月
+  const isMonthOnly = isoText.trim().length === 7;
+
+  if (withSlash) {
+    return isMonthOnly ? `${rocY}/${m}` : `${rocY}/${m}/${day}`;
+  } else {
+    // 無斜線格式，國發會 API 最喜歡這種 "11503"
+    return isMonthOnly ? `${rocY}${m}` : `${rocY}${m}${day}`;
+  }
+}
+
+/**
  * 產生起訖日期之間「月份」清單（用於 TWSE STOCK_DAY 月查詢）
  * 回傳 ["YYYYMM01", ...]
  */
@@ -127,62 +159,6 @@ export function parseMarkdownToSpans(
   }
 
   return spans;
-}
-
-/**
- * 把整段文字拆成多個 Flex text 元件（每行一個）
- * - 支援 "- " 清單轉換成 "◦ "
- * - 忽略空行
- * - 可選：第一行（📌）視覺強化
- */
-export function buildFlexTextBlocks(rawText, opt = {}) {
-  const {
-    textSize = "xs",
-    margin = "sm",
-    normalColor = "#333333",
-    boldColor = "#111111",
-    bullet = "◦",
-    highlightFirstLine = true,
-  } = opt;
-
-  if (!rawText) return [];
-
-  const lines = String(rawText)
-    .replace(/\r\n/g, "\n")
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0);
-
-  return lines.map((line, idx) => {
-    // 清單美化：只處理 "- " 或 "• "
-    const cleanLine = line.replace(/^(?:•|-)\s+/, `${bullet} `);
-
-    const contents = parseMarkdownToSpans(cleanLine, {
-      normalColor,
-      boldColor,
-    });
-
-    // LINE Flex Text：使用 spans 時用 contents，不要同時塞 text
-    const base = {
-      type: "text",
-      contents,
-      wrap: true,
-      size: textSize,
-      margin,
-    };
-
-    // 可選：第一行（通常是 📌）突出一點
-    if (highlightFirstLine && idx === 0) {
-      return {
-        ...base,
-        size: "sm",
-        weight: "bold",
-        color: "#111111",
-      };
-    }
-
-    return base;
-  });
 }
 
 /**

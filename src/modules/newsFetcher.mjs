@@ -129,8 +129,8 @@ export async function getNewsTelegramMessages(marketData) {
 
   // 2. 並發抓取，但在抓取時打上 Tag (TW / US)
   const [rawTwNews, rawUsNews] = await Promise.all([
-    fetchRssFeed(twUrl, 50, "TW"),
-    fetchRssFeed(usUrl, 50, "US"),
+    fetchRssFeed(twUrl, 40, "TW"),
+    fetchRssFeed(usUrl, 40, "US"),
   ]);
 
   // 3. 將兩邊新聞合併成一個大陣列
