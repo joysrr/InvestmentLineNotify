@@ -29,6 +29,7 @@ import {
   kdSeries,
   getMACDSignal,
 } from "./indicators.mjs";
+import { loadHolidaySet } from "../providers/twseProvider.mjs";
 
 function buildDecision(ctx, strategy) {
   const th = strategy.threshold;
@@ -343,12 +344,12 @@ function buildSellBackToAllocation(ctx, strategy) {
 }
 
 /**
- * 檢查是否在 Cooldown 期間
- * @param {Date} lastBuyDate - 最後買入日期
- * @param {number} cooldownDays - 冷卻天數
- * @returns {Object} { inCooldown, daysLeft, lastBuyDate }
+ * 檢查是否在 Cooldown 期間 (以「交易日」計算)
+ * @param {Date|string} lastBuyDate - 最後買入日期
+ * @param {number} cooldownTradingDays - 冷卻「交易日」天數
+ * @returns {Promise<Object>} { inCooldown, daysLeft, lastBuyDate, message }
  */
-function checkCooldown(lastBuyDate, cooldownDays) {
+async function checkCooldown(lastBuyDate, cooldownTradingDays) {
   if (!lastBuyDate) {
     return {
       inCooldown: false,
@@ -360,24 +361,68 @@ function checkCooldown(lastBuyDate, cooldownDays) {
 
   const today = new Date();
   const lastBuy = new Date(lastBuyDate);
-  const daysSinceLastBuy = Math.floor(
-    (today - lastBuy) / (1000 * 60 * 60 * 24),
-  );
-  const daysLeft = Math.max(0, cooldownDays - daysSinceLastBuy);
+
+  // 將時間清零，確保只比較日期
+  today.setHours(0, 0, 0, 0);
+  lastBuy.setHours(0, 0, 0, 0);
+
+  // 1. 為了跨年，我們需要取得 [去年, 今年] 的假日集合 (確保涵蓋買入日到今天的區間)
+  const startYear = lastBuy.getFullYear();
+  const endYear = today.getFullYear();
+
+  const holidays = new Set();
+
+  try {
+    for (let y = startYear; y <= endYear; y++) {
+      const yearHolidays = await loadHolidaySet(y);
+      // 將該年的假日加入合併的 Set 中
+      yearHolidays.forEach((dateStr) => holidays.add(dateStr));
+    }
+  } catch (e) {
+    console.warn("⚠️ 無法取得 TWSE 假日，將退回使用六日計算交易日:", e.message);
+  }
+
+  // 2. 計算從 lastBuyDate 到 today 經過了幾個「交易日」
+  let tradingDaysPassed = 0;
+
+  // 建立一個游標指標，從最後買入日的「隔天」開始算起
+  let currentDate = new Date(lastBuy);
+  currentDate.setDate(currentDate.getDate() + 1);
+
+  while (currentDate <= today) {
+    const dayOfWeek = currentDate.getDay(); // 0=Sun, 6=Sat
+    const isoDate = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD
+
+    // 判斷是否為週末 (0, 6) 或 國定假日
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    const isHoliday = holidays.has(isoDate);
+
+    // 如果既不是週末，也不是國定假日，則算一個有效交易日
+    if (!isWeekend && !isHoliday) {
+      tradingDaysPassed++;
+    }
+
+    // 推進一天
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  // 3. 計算剩餘冷卻天數
+  const daysLeft = Math.max(0, cooldownTradingDays - tradingDaysPassed);
+  const lastBuyStr = lastBuy.toISOString().split("T")[0];
 
   return {
     inCooldown: daysLeft > 0,
     daysLeft,
-    lastBuyDate: lastBuy.toISOString().split("T")[0],
-    daysSinceLastBuy,
+    lastBuyDate: lastBuyStr,
+    tradingDaysPassed,
     message:
       daysLeft > 0
-        ? `冷卻期剩餘 ${daysLeft} 天（最後買入：${lastBuy.toISOString().split("T")[0]}）`
-        : `冷卻期已過（最後買入：${lastBuy.toISOString().split("T")[0]}）`,
+        ? `冷卻期剩餘 ${daysLeft} 個交易日（最後買入：${lastBuyStr}，已過 ${tradingDaysPassed} 個交易日）`
+        : `冷卻期已過（最後買入：${lastBuyStr}，已過 ${tradingDaysPassed} 個交易日）`,
   };
 }
 
-export function evaluateInvestmentSignal(data, strategy) {
+export async function evaluateInvestmentSignal(data, strategy) {
   const priceChangePercent =
     ((data.currentPrice - data.basePrice) / data.basePrice) * 100;
   const priceUpPercent = Math.max(0, priceChangePercent);
@@ -412,8 +457,8 @@ export function evaluateInvestmentSignal(data, strategy) {
 
   // 檢查 Cooldown
   const cooldownDays = strategy.trading.cooldownDays || 20;
-  const lastBuyDate = data.portfolio?.date || null; // 從 portfolio 讀取
-  const cooldownStatus = checkCooldown(lastBuyDate, cooldownDays);
+  const lastBuyDate = data.portfolio?.lastBuyDate || null; // 從 portfolio 讀取
+  const cooldownStatus = await checkCooldown(lastBuyDate, cooldownDays);
 
   const ctx = {
     priceChangePercent,
@@ -475,5 +520,5 @@ export function evaluateInvestmentSignal(data, strategy) {
 export async function getInvestmentSignalAsync(data) {
   const strategy = await fetchStrategyConfig();
   validateStrategyConfig(strategy);
-  return evaluateInvestmentSignal(data, strategy);
+  return await evaluateInvestmentSignal(data, strategy);
 }

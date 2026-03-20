@@ -73,6 +73,7 @@ export function buildTelegramMessages({
 <b>📊 投資戰報</b> ｜ <code>${escapeHTML(dateText)}</code>
 狀態：<b>${escapeHTML(result.marketStatus || "未明")}</b>
 📌 核心行動：<b>${escapeHTML(result.target || "觀望")}</b>
+<small>${escapeHTML(result.suggestion || "無")}</small>
 
 <b>📈 市場指標</b>
 • 台指VIX： <code>${escapeHTML(vixValue.toFixed(2))}</code> ${vixEmoji}
@@ -93,16 +94,29 @@ export function buildTelegramMessages({
 • 乖離率： <code>${Number.isFinite(bias) ? bias.toFixed(1) : "--"}%</code>
 • 轉弱觸發： <code>${r.triggeredCount ?? 0} / ${r.totalFactor ?? 4}</code>
 • 賣出觸發： <code>${s.signalCount ?? 0} / ${s.total ?? 3}</code>
+`.trim();
+
+  // ============== 第二則訊息：技術指標與帳戶配置 ==============
+
+  let msg2Text = `
+<b>🔍 技術指標</b>
+• RSI： <code>${Number.isFinite(result.RSI) ? result.RSI.toFixed(1) : "N/A"}</code>
+• KD(D)： <code>${Number.isFinite(result.KD_D) ? result.KD_D.toFixed(1) : "N/A"}</code>
+• 乖離率： <code>${Number.isFinite(result.bias240) ? result.bias240.toFixed(1) + "%" : "N/A"}</code>
+• 現價： <code>$${Number(result.currentPrice || 0).toFixed(2)}</code>
+• 基準價： <code>$${Number(result.basePrice || 0).toFixed(2)}</code>
+• 變動率： <code>${Number(result.changeRate || 0).toFixed(2)}%</code>
 
 <b>🛡 帳戶配置</b>
-• 實際槓桿： <code>${result.actualLeverage} 倍</code>
+• 實際槓桿： <code>${result.actualLeverage.toFixed(2)} 倍</code>
 • 維持率： <code>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未動用"}</code>
 • 總資產： <code>$${displayGrossAsset}</code>
 • 🛡 0050： <code>${qty0050}</code> 股
 • ⚔️ 0067L： <code>${qtyZ2}</code> 股
+• 借款金額： <code>$${escapeHTML(result.totalLoan?.toLocaleString() || "0")}</code> 元
 `.trim();
 
-  // ============== 第二則訊息：AI 洞察與心法 ==============
+  // ============== 第三則訊息：AI 洞察與心法 ==============
 
   // 處理 AI Markdown 轉 HTML (只抓 AI 產出的 **粗體** 轉成 <b>)
   let aiTextHtml = "數據分析中...";
@@ -115,12 +129,16 @@ export function buildTelegramMessages({
   let quoteText = `<i>${escapeHTML(quote.quote)}</i>`; // <i> 是斜體
 
   // 利用 <blockquote> 產生漂亮的左側垂直線
-  let msg2Text = `<b>🤖 AI 策略領航</b>\n\n<blockquote>${aiTextHtml}</blockquote>\n\n<b>💡 每日一句</b>\n<blockquote>${quoteText}</blockquote>`;
+  let msg3Text = `<b>🤖 AI 策略領航</b>\n\n<blockquote>${aiTextHtml}</blockquote>\n\n<b>💡 每日一句</b>\n<blockquote>${quoteText}</blockquote>`;
 
   const sheetUrl = process.env.GOOGLE_SHEET_ID
     ? `https://docs.google.com/spreadsheets/d/${process.env.GOOGLE_SHEET_ID}/edit?usp=drivesdk`
     : null;
   const strategyUrl = process.env.STRATEGY_URL || null;
 
-  return [{ text: msg1Text }, { text: msg2Text, sheetUrl, strategyUrl }];
+  return [
+    { text: msg1Text },
+    { text: msg2Text },
+    { text: msg3Text, sheetUrl, strategyUrl },
+  ];
 }

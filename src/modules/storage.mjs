@@ -42,13 +42,19 @@ export async function fetchLastPortfolioState() {
       return null;
     }
 
-    // 倒序尋找最後一筆有日期的紀錄
+    // 倒序尋找最後一筆有日期的紀錄,同時記錄最後一筆「主動交易」為「是」的紀錄（代表最後一次買入）
     let lastRow = null;
+    let lastBuyRow = null;
     for (let i = rows.length - 1; i >= 0; i--) {
       const dateCell = rows[i].get("日期");
       if (dateCell && dateCell.trim() !== "") {
         lastRow = rows[i];
-        break;
+        if (rows[i].get("主動交易") && rows[i].get("主動交易").trim() == "是") {
+          lastBuyRow = rows[i];
+        }
+        if (lastRow != null && lastBuyRow != null) {
+          break;
+        }
       }
     }
 
@@ -75,6 +81,7 @@ export async function fetchLastPortfolioState() {
 
     return {
       date: lastRow.get("日期"),
+      lastBuyDate: lastBuyRow.get("日期"),
       qty0050: parseFloat(lastRow.get("0050股數") || 0),
       qtyZ2: parseFloat(lastRow.get("00675L股數") || 0),
       totalLoan: parseFloat(loan),
