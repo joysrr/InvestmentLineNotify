@@ -34,7 +34,7 @@ export async function getAiInvestmentAdvice(
   try {
     return await callGemini(userPrompt, INVESTMENT_COACH_PROMPT, {
       temperature: 0.1,
-      maxOutputTokens: 8192,
+      maxOutputTokens: 65536,
       thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH },
     });
   } catch (error) {
@@ -52,6 +52,7 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
 
   try {
     const rawJsonText = await callGemini(userPrompt, NEWS_FILTER_PROMPT, {
+      maxOutputTokens: 16384,
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.ARRAY,

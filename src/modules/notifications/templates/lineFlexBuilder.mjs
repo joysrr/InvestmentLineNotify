@@ -933,3 +933,59 @@ const progressBar = (current, goal, color = "#28a745") => {
     ],
   };
 };
+
+/**
+ * 把整段文字拆成多個 Flex text 元件（每行一個）
+ * - 支援 "- " 清單轉換成 "◦ "
+ * - 忽略空行
+ * - 可選：第一行（📌）視覺強化
+ */
+export function buildFlexTextBlocks(rawText, opt = {}) {
+  const {
+    textSize = "xs",
+    margin = "sm",
+    normalColor = "#333333",
+    boldColor = "#111111",
+    bullet = "◦",
+    highlightFirstLine = true,
+  } = opt;
+
+  if (!rawText) return [];
+
+  const lines = String(rawText)
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  return lines.map((line, idx) => {
+    // 清單美化：只處理 "- " 或 "• "
+    const cleanLine = line.replace(/^(?:•|-)\s+/, `${bullet} `);
+
+    const contents = parseMarkdownToSpans(cleanLine, {
+      normalColor,
+      boldColor,
+    });
+
+    // LINE Flex Text：使用 spans 時用 contents，不要同時塞 text
+    const base = {
+      type: "text",
+      contents,
+      wrap: true,
+      size: textSize,
+      margin,
+    };
+
+    // 可選：第一行（通常是 📌）突出一點
+    if (highlightFirstLine && idx === 0) {
+      return {
+        ...base,
+        size: "sm",
+        weight: "bold",
+        color: "#111111",
+      };
+    }
+
+    return base;
+  });
+}
