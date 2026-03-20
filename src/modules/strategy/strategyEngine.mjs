@@ -266,7 +266,7 @@ function buildDecision(ctx, strategy) {
       targetSuggestionShort: `冷卻期剩餘 ${cooldownStatus.daysLeft} 天`,
       targetSuggestion:
         `符合加碼條件（${w}分，目標槓桿 ${targetLeveragePercent}%），` +
-        `但處於冷卻期，請勿重複加碼`,
+        `但處於冷卻期(剩餘 ${cooldownStatus.daysLeft} 天)，請勿重複加碼`,
       suggestion:
         `⏰ 冷卻期中（剩餘 ${cooldownStatus.daysLeft} 天）\n` +
         `符合條件：評分 ${w} 分，建議槓桿 ${targetLeveragePercent}%\n` +
