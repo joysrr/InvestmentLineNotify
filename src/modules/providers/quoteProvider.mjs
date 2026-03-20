@@ -54,7 +54,5 @@ export async function getDailyQuote() {
     source: quote.source,
   };
 
-  console.log("📝 取得今日一句：", finalQuote);
-
   return finalQuote;
 }

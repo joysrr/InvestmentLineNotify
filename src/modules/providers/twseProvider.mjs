@@ -329,7 +329,7 @@ export async function getTwVix() {
 
 let holidayCache = { year: null, dates: null };
 
-async function loadHolidaySet(year) {
+export async function loadHolidaySet(year) {
   if (holidayCache.year === year && holidayCache.dates)
     return holidayCache.dates;
 

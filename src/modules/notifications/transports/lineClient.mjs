@@ -1,3 +1,6 @@
+import axios from "axios";
+import { toArray } from "../../../utils/coreUtils.mjs";
+
 const LINE_PUSH_URL = "https://api.line.me/v2/bot/message/push";
 
 // ============================================================================

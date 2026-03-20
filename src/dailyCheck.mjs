@@ -266,6 +266,7 @@ export async function dailyCheck({
     });
 
     // 取得每日一句
+    console.log("📖 正在取得每日一句...");
     const quote = await getDailyQuote();
 
     // 取得新聞錦集
