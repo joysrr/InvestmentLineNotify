@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { fetchFearAndGreedIndex } from "../modules/providers/cnnProvider.mjs";
 import { fetchUsdTwdExchangeRate } from "../modules/providers/yahooProvider.mjs";
 import { fetchBusinessIndicator } from "../modules/providers/ndcProvider.mjs";
-import { fetchTwseMarginData } from "../modules/providers/hiStockProvider.mjs";
+import { fetchTwseMarginData } from "../modules/providers/kgiProvider.mjs";
 
 test("🧪 測試 CNN 恐懼與貪婪指數 API", async (t) => {
   const result = await fetchFearAndGreedIndex();
@@ -37,7 +37,7 @@ test("🧪 測試 CNN 恐懼與貪婪指數 API", async (t) => {
   );
 });
 
-test("🧪 測試 Yahoo 台股大盤融資維持率與餘額", async (t) => {
+test("🧪 測試 凱基證券 台股大盤融資維持率與餘額", async (t) => {
   const result = await fetchTwseMarginData();
 
   assert.ok(result, "回傳結果不應為空");
@@ -60,7 +60,7 @@ test("🧪 測試 Yahoo 台股大盤融資維持率與餘額", async (t) => {
   );
 
   console.log(
-    `✅ [Yahoo 融資] 測試通過 | 維持率: ${result.maintenanceRatio}% | 餘額: ${result.marginBalance100M}億`,
+    `✅ [凱基證券 融資] 測試通過 | 維持率: ${result.maintenanceRatio}% | 餘額: ${result.marginBalance100M}億`,
   );
 });
 
