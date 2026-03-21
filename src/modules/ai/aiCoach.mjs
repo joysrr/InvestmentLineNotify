@@ -83,7 +83,10 @@ ${(adviceObj.action_items || []).map((a) => `- ${a}`).join("\n")}
 ${(adviceObj.mindset_advice || []).map((m) => `- ${m}`).join("\n")}`;
 
     // 4. 回傳乾淨、排版絕對受控的字串
-    return finalAdviceText.trim();
+    return {
+      finalAdviceText: finalAdviceText.trim(),
+      internalThinking: adviceObj.coach_internal_thinking || "",
+    };
   } catch (error) {
     return "AI 決策引擎暫時無法運作，請依原始數據判斷。";
   }
