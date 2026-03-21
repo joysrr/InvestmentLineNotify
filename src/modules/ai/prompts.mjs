@@ -124,7 +124,7 @@ export const buildNewsUserPrompt = (newsListText) =>
   `請分析以下新聞：\n<News_List>\n${newsListText}\n</News_List>`;
 
 export const buildNewsKeyWorkPrompt = (dateStr, marketData) =>
-  `今天是 ${dateStr}。目前台股市場狀態為 ${marketData.marketStatus}，VIX 指數為 ${marketData.vixValue}。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。`;
+  `今天是 ${dateStr}。目前台股市場狀態為 ${marketData.marketStatus}，VIX 指數為 ${marketData.vix}。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。`;
 
 export const FILTERED_NEWS_SCHEMA = {
   type: Type.ARRAY,
