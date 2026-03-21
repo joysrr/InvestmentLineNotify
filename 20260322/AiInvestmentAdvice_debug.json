@@ -1,0 +1,24 @@
+{
+  "systemPrompt": "<Role>\n你是「投資戰報洞察教練」，基於「生命週期投資法」的長期視角提供專業建議。\n你的任務是交叉分析三個輸入來源：\n1. <JSON>：量化數據（指標、帳戶維持率、槓桿狀態）\n2. <MacroAnalysis>：首席分析師已完成的總經多空評分報告\n3. <News_Context>：今日市場新聞（作為補充背景）\n\n請提煉洞察，絕對不要像機器人一樣死板地重複數據。\n</Role>\n\n<Investment_Philosophy>\n1. 核心精神：年輕人擁有「人力資本」，應積極配置風險資產（目標槓桿 1.8 倍）。\n2. 面對下跌：短期波動是長期報酬的代價。若風控安全，下跌是「降低平均成本」的機會，切勿恐慌。\n3. 風控底線：維持率充足、不過度擴張。保護本金是為了長期留在市場。\n4. 紀律停利：市場過熱時停利，是為下次逢低保留資金，而非預測高點。\n</Investment_Philosophy>\n\n<Decision_Logic>\n[最高優先級] 永遠是【槓桿與風控狀態】，<MacroAnalysis> 的多空判定作為環境風險參考：\n\n1. 槓桿與資金狀態：\n   - 實際槓桿 > 1.8 (目標)：屬「過度擴張」，[絕對禁止] 建議加碼，必須提示觀察維持率。\n   - 實際槓桿 接近 1.8：屬「目標區間」，依策略紀律執行。\n   - 實際槓桿 明顯 < 1.8：屬「防禦狀態」，須滿足 (風控安全 + 進場訊號達標 + 無過熱) 才能建議加碼。\n\n2. 多維度動態評估：\n   - 當 <MacroAnalysis> 偏空且 VIX 飆高時，風浪險惡，應提高進場標準並重視防禦；若「槓桿尚有餘裕 (<1.8)」，請評估是否為左側錯殺佈局點。\n   - 當新聞全面樂觀 (BULL) 但 <JSON> 顯示指標偏熱或槓桿過高時，教練應適時潑冷水，提醒居高思危。\n</Decision_Logic>\n\n<Instructions>\n請將你的完整推論過程寫入 `coach_internal_thinking` 欄位，然後將精煉後的結論填入對應的陣列中。\n注意：輸出的風險與建議陣列，每個項目必須極度精簡（如 Schema 規定之字數），直接命中要害。\n</Instructions>",
+  "userPrompt": "今天是 2026-03-21，請根據以下最新戰報資料與今日市場重點新聞，產出教練洞察：<News_Context>1. [重要度: 10/10] 📉 [US] Fed Holds Rates Steady as War in Iran Upends the Economic Outlook\n   ↳ 摘要：聯準會維持利率不變，並明確指出伊朗戰爭帶來的地緣政治風險已嚴重干擾經濟前景，市場不確定性大增。\n\n2. [重要度: 9/10] 📉 [US] Here’s the exact oil price that would tip the U.S. into a recession — and we’re getting closer as the Iran conflict drags on\n   ↳ 摘要：伊朗衝突持續升溫，油價波動成為觸發美國經濟衰退的關鍵變數，全球供應鏈面臨重大衝擊。\n\n3. [重要度: 8/10] ⚠️ [US] 'A month ago, no one would have believed this': June Fed rate hike odds just surpassed rate cut odds as stagflation fears grow\n   ↳ 摘要：市場對聯準會升息的預期機率已超越降息，停滯性通膨恐慌情緒在金融市場蔓延。\n\n4. [重要度: 7/10] ⚠️ [TW] 台股看戰事臉色! 外資連三週賣超逾千億元\n   ↳ 摘要：外資受地緣政治戰事影響，連續三週大幅賣超台股逾千億元，顯示資金撤離風險加劇。\n\n5. [重要度: 6/10] ⚠️ [TW] 新聞幕後／上修CPI！通膨預期心理再起？央行Q2動向成關鍵\n   ↳ 摘要：台灣央行上修CPI預測，通膨預期心理再起，市場高度關注央行第二季貨幣政策動向。</News_Context><MacroAnalysis>【總經多空對決報告】\n總利多分數：0\n總利空分數：20\n最終判定方向：BEAR\n分析總結：地緣政治引發的能源通膨與滯脹風險，已成為市場核心壓制力。聯準會政策轉向升息預期，配合外資撤離，系統性風險極高，市場趨勢明顯偏空。</MacroAnalysis><JSON>{\"meta\":{\"dateText\":null,\"symbol\":\"00675L\"},\"conclusion\":{\"marketStatus\":\"⏰【冷卻期中】\",\"target\":\"⏸️ 等待冷卻期結束\",\"suggestionShort\":\"冷卻期剩餘 7 天\",\"suggestion\":\"⏰ 冷卻期中（剩餘 7 天）\\n符合條件：評分 5 分，建議槓桿 20%\\n冷卻期剩餘 7 個交易日（最後買入：2026-03-03，已過 13 個交易日）\\n⚠️ 請等待冷卻期結束後再加碼，避免頻繁交易\",\"reasonOneLine\":\"符合加碼條件（5分，目標槓桿 20%），但處於冷卻期(剩餘 7 天)，請勿重複加碼\"},\"entryCheck\":{\"hits\":[\"跌幅 0.00%\",\"RSI 反轉 (50)\",\"MACD 無交叉\",\"KD 低檔交叉 (<20)\"],\"drop\":{\"thresholdStatus\":{\"actual\":0,\"threshold\":0,\"breached\":true,\"distance\":0,\"distanceLabel\":\"已達標\",\"direction\":\"up\"}},\"score\":{\"thresholdStatus\":{\"actual\":5,\"threshold\":4,\"breached\":true,\"distance\":0,\"distanceLabel\":\"已達標\",\"direction\":\"up\"}}},\"riskWatch\":{\"historicalLevel\":\"【極高位階/過熱】🥵\",\"vix\":{\"thresholdText\":\"低<12 / 高>20\",\"lowZone\":{\"actual\":34.83,\"threshold\":12,\"breached\":false,\"distance\":22.83,\"distanceLabel\":\"分數門檻仍偏遠\",\"direction\":\"down\"},\"highZone\":{\"actual\":34.83,\"threshold\":20,\"breached\":true,\"distance\":0,\"distanceLabel\":\"已落入高波動區（偏恐慌）\",\"direction\":\"up\"}},\"overheat\":{\"hits\":[\"年線乖離過高\"],\"thresholdStatus\":{\"actual\":1,\"threshold\":2,\"breached\":false,\"distance\":1,\"distanceLabel\":\"接近門檻（訊號差一點）\",\"direction\":\"up\"}},\"reversal\":{\"hits\":[],\"thresholdStatus\":{\"actual\":0,\"threshold\":3,\"breached\":false,\"distance\":3,\"distanceLabel\":\"訊號累積仍不足\",\"direction\":\"up\"}},\"sell\":{\"hits\":[],\"signals\":{\"actual\":0,\"threshold\":2,\"breached\":false,\"distance\":2,\"distanceLabel\":\"仍需訊號累積\",\"direction\":\"up\"},\"up\":{\"actual\":0.68,\"threshold\":80,\"breached\":false,\"distance\":79.32,\"distanceLabel\":\"離門檻還有距離\",\"direction\":\"up\"}}},\"account\":{\"netAsset\":728206.8,\"totalLoan\":20000,\"actualLeverage\":1.03,\"maintenanceMargin\":2069.03,\"z2RatioPct\":10.22,\"z2TargetPct\":40,\"z2HighPct\":45,\"z2GapToTarget\":29.78,\"cash\":260000,\"holdings\":{\"qty0050\":5452,\"qtyZ2\":400}},\"thresholds\":{\"buy\":{\"minDrop\":0,\"minScore\":4},\"sell\":{\"minUp\":80,\"minSignals\":2},\"threshold\":{\"overheatNeed\":2,\"reversalNeed\":3,\"vixLow\":12,\"vixHigh\":20,\"z2Target\":0.4,\"z2High\":45,\"mmDanger\":140},\"leverage\":{\"targetMultiplier\":1.8}},\"disciplineReminder\":null}</JSON>",
+  "rawResult": {
+    "coach_internal_thinking": "目前槓桿僅 1.03 倍，遠低於 1.8 倍目標，但總經環境極度惡劣（伊朗戰爭、停滯性通膨、升息預期）。VIX 飆升至 34.83，顯示市場處於恐慌拋售階段。雖然 JSON 顯示冷卻期剩餘 7 天，但宏觀背景下，這不僅是技術性冷卻，更是風險規避期。建議嚴守紀律，絕對禁止在當前地緣政治不確定性下盲目加碼。保留現金，等待市場波動平復與總經訊號轉佳。",
+    "macro_view": {
+      "bull_summary": "無明顯利多，市場避險情緒主導。",
+      "bear_summary": "地緣政治引發能源通膨與滯脹風險，系統性風險極高。",
+      "final_verdict": "BEAR"
+    },
+    "risk_warnings": [
+      "VIX 飆升至 34.83，風險極高。",
+      "地緣政治與通膨威脅，勿擴張。"
+    ],
+    "action_items": [
+      "嚴守冷卻期，禁止任何加碼操作。",
+      "保留現金，靜待地緣衝突緩解。"
+    ],
+    "mindset_advice": [
+      "保護本金優先，波動中保持耐心。",
+      "市場恐慌時，紀律是唯一防護。"
+    ]
+  }
+}
