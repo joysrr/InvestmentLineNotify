@@ -6,16 +6,14 @@ const GOAL_YEARS = 33;
 
 // ── 輔助函式 ──────────────────────────────────────────────────
 
-/** 純 ASCII 進度條（無 <pre> 版本，避免被複製按鈕遮擋）*/
-function goalBar(current, target, width = 15) {
+/** 純 ASCII 進度條（縮減至 12 格避免手機螢幕換行破圖）*/
+function goalBar(current, target, width = 12) {
   const c = Number(current),
     t = Number(target);
   if (!Number.isFinite(c) || !Number.isFinite(t) || t <= 0)
-    return "◽".repeat(width);
-
+    return "◽".repeat(width); // 空白底
   const filled = Math.max(1, Math.round(Math.min(1, c / t) * width));
-
-  // 使用實心與空心小方塊 (這兩個符號在大多數手機字體下寬度一致)
+  // 使用實心與空心小方塊，寬度穩定
   return "◾".repeat(filled) + "◽".repeat(width - filled);
 }
 
@@ -38,25 +36,24 @@ function levTag(lev, targetMulti) {
   return { icon: "🔸", label: "適中" };
 }
 
-/** 觸發比例 icon（用於大標題旁，改用輕量級幾何圖形） */
+/** 觸發比例 icon */
 function signalIcon(triggered, total) {
   const ratio = triggered / total;
-  if (ratio === 0) return "✅"; // 安全
-  if (ratio <= 0.33) return "❕"; // 稍微留意
-  if (ratio <= 0.66) return "⚠️"; // 警告
-  return "🚨"; // 高度危險
+  if (ratio === 0) return "✅";
+  if (ratio <= 0.33) return "❕";
+  if (ratio <= 0.66) return "⚠️";
+  return "🚨";
 }
 
 /**
  * 進場評分列
- * 優化：有分數顯示 ✅，沒分數顯示 灰色的 ➖，避免滿滿的紅綠燈
+ * 優化：有分數顯示 ✅，沒分數顯示 灰色的 ➖，字體變淡
  */
 function scoreRow(label, score, info) {
   const isScored = Number.isFinite(score) && score > 0;
   const icon = isScored ? "✅" : "➖";
   const scoreStr = Number.isFinite(score) ? `${score}pt` : "--";
 
-  // 當沒有分數時，字體顏色稍微調淡 (透過 HTML i 標籤營造次要感)
   if (isScored) {
     return `${icon} <b>${label}</b>  <code>${scoreStr}</code>  <i>${escapeHTML(info || "─")}</i>`;
   } else {
@@ -66,12 +63,11 @@ function scoreRow(label, score, info) {
 
 /**
  * 訊號列（轉弱/賣出）
- * 優化：觸發顯示 ⚠️，未觸發顯示 ▫️ (極簡灰點)
+ * 優化：觸發顯示 ⚠️，未觸發顯示 ▫️
  */
 function signalRow({ name, value, condition, triggered }) {
   const icon = triggered ? "⚠️" : "▫️";
 
-  // 如果觸發，文字維持粗體；如果未觸發，使用斜體降低存在感
   if (triggered) {
     return `${icon} <b>${name}</b>  <code>${String(value ?? "--")}</code>  <i>${escapeHTML(condition || "")}</i>`;
   } else {
@@ -79,7 +75,7 @@ function signalRow({ name, value, condition, triggered }) {
   }
 }
 
-// ── 主函式 ────────────────────────────────────────────────────
+// ── 主程式 ──────────────────────────────────────────────────
 
 export function buildTelegramMessages({
   result,
@@ -104,7 +100,6 @@ export function buildTelegramMessages({
   const grossAsset = currentAsset + totalLoan;
   const mm = Number(result.maintenanceMargin);
   const hasLoan = totalLoan > 0;
-  const mmSafe = !hasLoan || (Number.isFinite(mm) && mm > 160);
   const mmInfo = mmTag(mm, hasLoan);
 
   // ── 槓桿 ──
@@ -172,15 +167,15 @@ export function buildTelegramMessages({
     }
   }
 
-  // ── 價格變動（result.priceChangePercent）──
+  // ── 價格變動 ──
   const priceChangePct = Number(result.priceChangePercent || 0);
   const changeIcon =
     priceChangePct > 0 ? "📈" : priceChangePct < 0 ? "📉" : "➖";
 
-  // ── 持股 / 現金 ──
-  const qty0050 = Number(config.qty0050).toLocaleString("en-US");
-  const qtyZ2 = Number(config.qtyZ2).toLocaleString("en-US");
-  const cashReserve = Number(config.cash || 0).toLocaleString("en-US");
+  // ── 持股 / 現金 (格式化數字) ──
+  const qty0050Str = Number(config.qty0050).toLocaleString("en-US");
+  const qtyZ2Str = Number(config.qtyZ2).toLocaleString("en-US");
+  const cashReserveStr = Number(config.cash || 0).toLocaleString("en-US");
 
   // ── 目標達成率 ──
   const goalPct = ((currentAsset / GOAL_ASSET) * 100).toFixed(2);
@@ -191,14 +186,13 @@ export function buildTelegramMessages({
   const sellTriggered = s.signalCount ?? 0;
   const sellTotal = s.total ?? 3;
 
-  // 使用輕盈的虛線分隔符號
+  // 輕盈的虛線分隔符號
   const SEP = "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈";
 
   // ══════════════════════════════════════════════════════════════
   // 第一則：市場概況 ＋ 進場評分 ＋ 目標進度
   // ══════════════════════════════════════════════════════════════
 
-  // 進場評分：每指標獨立一行，不依賴對齊
   const scoreSection = [
     scoreRow("跌幅", dropScore, w.dropInfo),
     scoreRow("RSI", rsiScore, w.rsiInfo),
@@ -208,7 +202,7 @@ export function buildTelegramMessages({
     `${scoreOk ? "✅" : "❌"} <b>總分 <code>${Number.isFinite(score) ? score : "--"}pt</code></b>  門檻 <code>${Number.isFinite(minScore) ? minScore : "--"}pt</code>  ${scoreOk ? "達標可入場" : "觀望"}`,
   ].join("\n");
 
-  // 目標進度條：移除 <pre>，避免被 Telegram 原生複製按鈕遮擋
+  // 目標進度條：拿掉 <code>，並確保 tg-spoiler 內只有純文字
   const goalSection = [
     `🎯 <b>目標進度</b>  ·  ${GOAL_YEARS} 年計畫`,
     `〔${goalBar(currentAsset, GOAL_ASSET)}〕 <b>${goalPct}%</b>`,
@@ -244,7 +238,7 @@ ${biasAlert ? "🔴" : "🟢"} 乖離率 <code>${Number.isFinite(bias) ? bias.to
 ${goalSection}`.trim();
 
   // ══════════════════════════════════════════════════════════════
-  // 第二則：訊號詳情 ＋ 技術指標 ＋ 帳戶快照 (隱私加強版)
+  // 第二則：訊號詳情 ＋ 技術指標 ＋ 帳戶快照 (全面隱藏敏感數字)
   // ══════════════════════════════════════════════════════════════
 
   const reversalSignals = [
@@ -295,6 +289,7 @@ ${goalSection}`.trim();
     },
   ];
 
+  // 注意：此區塊所有 <tg-spoiler> 內不再包覆 <code>，以避免 Telegram 解析失效
   const msg2Text = `\
 🔬 <b>技術指標</b>
 ${SEP}
@@ -312,20 +307,20 @@ ${reversalSignals.map(signalRow).join("\n")}
 ${SEP}
 ${sellSignals.map(signalRow).join("\n")}
 
-🏦 <b>帳戶快照</b> (點擊顯示金額)
+🏦 <b>帳戶快照</b> (點擊解鎖隱私)
 ${SEP}
-💼 帳戶淨值    <tg-spoiler><code>$${Math.floor(currentAsset).toLocaleString("en-US")}</code></tg-spoiler>
-🏗 總資產(含貸) <tg-spoiler><code>$${Math.floor(grossAsset).toLocaleString("en-US")}</code></tg-spoiler>
+💼 帳戶淨值    <tg-spoiler>$${Math.floor(currentAsset).toLocaleString("en-US")}</tg-spoiler>
+🏗 總資產(含貸) <tg-spoiler>$${Math.floor(grossAsset).toLocaleString("en-US")}</tg-spoiler>
 ${levInfo.icon} 實際槓桿    <code>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}</code>  <b>${levInfo.label}</b>
 ${mmInfo.icon} 維持率      <code>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未借款"}</code>  <b>${mmInfo.label}</b>
-${z2Safe ? "🟢" : "🔴"} 00675L佔比  <code>${Number.isFinite(z2Ratio) ? z2Ratio.toFixed(1) + "%" : "N/A"}</code>  <i>上限 ${z2TargetPct.toFixed(0)}%</i>
-💵 現金儲備    <tg-spoiler><code>$${cashReserve}</code></tg-spoiler>
-💳 借款金額    <tg-spoiler><code>$${Number(totalLoan).toLocaleString("en-US")}</code></tg-spoiler>
+${z2Safe ? "✅" : "⚠️"} 00675L佔比  <code>${Number.isFinite(z2Ratio) ? z2Ratio.toFixed(1) + "%" : "N/A"}</code>  <i>上限 ${z2TargetPct.toFixed(0)}%</i>
+💵 現金儲備    <tg-spoiler>$${cashReserveStr}</tg-spoiler>
+💳 借款金額    <tg-spoiler>$${Number(totalLoan).toLocaleString("en-US")}</tg-spoiler>
 
 📦 <b>持倉配置</b>
 ${SEP}
-🛡 0050    <code>${qty0050}</code> 股
-⚔️ 0067L   <code>${qtyZ2}</code> 股`.trim();
+🛡 0050    <tg-spoiler>${qty0050Str} 股</tg-spoiler>
+⚔️ 0067L   <tg-spoiler>${qtyZ2Str} 股</tg-spoiler>`.trim();
 
   // ══════════════════════════════════════════════════════════════
   // 第三則：AI 策略 ＋ 每日一句
