@@ -144,30 +144,30 @@ export const buildNewsKeyWorkPrompt = (dateStr, marketData) =>
   `今天是 ${dateStr}。目前台股市場狀態為 ${marketData.marketStatus ? marketData.marketStatus : "暫無數據"}，VIX 指數為 ${marketData.vix ? marketData.vix : "暫無數據"}。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。`;
 
 export const FILTERED_NEWS_SCHEMA = {
-  type: SchemaType.ARRAY,
+  type: Type.ARRAY,
   description:
     "挑選出最具影響力的新聞，並嚴格依照 importanceScore 由高至低排序",
   maxItems: 10,
   items: {
-    type: SchemaType.OBJECT,
+    type: Type.OBJECT,
     properties: {
       id: {
-        type: SchemaType.INTEGER,
+        type: Type.INTEGER,
         description: "新聞原始的 ID 數字",
       },
       importanceScore: {
-        type: SchemaType.INTEGER,
+        type: Type.INTEGER,
         minimum: 1,
         maximum: 10,
         description: "重要性評分。陣列必須依此分數由大到小排序",
       },
       sentiment: {
-        type: SchemaType.STRING,
+        type: Type.STRING,
         enum: ["Bullish", "Bearish", "Neutral", "Warning"],
         description: "對大盤或該產業的情緒影響",
       },
       summary: {
-        type: SchemaType.STRING,
+        type: Type.STRING,
         description: "一到兩句話的精煉摘要",
       },
     },
