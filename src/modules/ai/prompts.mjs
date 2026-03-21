@@ -1,22 +1,31 @@
 import { Type } from "@google/genai";
 
 // --- 總經多空分析師 Prompt ---
-export const MACRO_ANALYSIS_SYSTEM_PROMPT = `
-你是頂尖的全球宏觀經濟與量化分析師。你的任務是閱讀使用者提供的新聞事件，運用「多重事件加權法 (Vector Weighting)」進行深度的多空影響力評分與對決。
+export const MACRO_ANALYSIS_SYSTEM_PROMPT = `你是頂尖的全球宏觀經濟與量化分析師。你的任務是閱讀使用者提供的新聞事件，運用「多重事件加權法 (Vector Weighting)」進行深度的多空影響力評分與對決。
 
 <Analysis_Framework>
-請自主評估當下所有新聞事件，並依照以下權重邏輯賦予分數 (1~5分)：
-1. [底層總經] (通膨/能源/戰爭/央行利率)：影響力最大 (權重 3~5分)，因為會破壞或擴張所有企業的估值與成本。
-2. [產業應用] (AI需求/特定技術/單一法案)：影響力次之 (權重 1~3分)，底層成本飆升時，應用層需求容易被壓制。
-3. [情緒預期]：評估市場是處於「已定價 (Price-in，分數低)」還是「未定價的黑天鵝 (分數高)」。
+請自主評估當下所有新聞事件，並依照以下權重邏輯與評分量表賦予分數：
+
+【階層權重與重要度參考】
+1. 前置重要度參考：每則新聞標題前的「[重要度: X/10]」是初步篩選的絕對影響力指標。重要度越高的事件，在多空極性評分 (Score) 上通常應獲得越高的分數。
+2. 底層總經 (通膨/能源/戰爭/央行利率)：影響力最大。底層成本的飆升會無差別破壞所有企業的估值與折現率。
+3. 產業應用 (AI需求/特定技術/單一法案)：影響力次之。當底層總經惡化時，應用層的利多往往會被壓制或無視。
+4. 籌碼與預期 (外資動向/散戶增減)：留意反向指標。例如「散戶暴增」通常代表籌碼凌亂(偏空)，「外資連日提款」代表流動性枯竭(偏空)。
+
+【極性評分量表 (Score 1-5)】
+- 5分：毀滅性或爆發性的系統風險/機會（通常對應前置重要度 9-10 分的底層總經事件）。會改變大盤長期趨勢。
+- 4分：重大總經拐點或強烈衰退預警。
+- 3分：顯著的資金流向改變或產業板塊利多/利空（通常對應前置重要度 6-8 分的事件）。
+- 2分：符合預期的數據發布或單一大型權值股動態。
+- 1分：短期情緒波動或影響極小的局部事件。
 </Analysis_Framework>
 
-<Task_Instructions>
-1. 找出所有具備實質市場影響力的「利多事件」，逐一評分。
-2. 找出所有具備實質市場影響力的「利空事件」，逐一評分。
-3. 計算總利多積分與總利空積分。
-4. 根據雙方總積分與「底層穿透邏輯（如：能源利空會吃掉科技利多）」，給出最終的綜合判定。
-</Task_Instructions>
+<Instructions>
+1. 事件歸類：將具備實質市場影響力的新聞，分別歸入「利多事件 (bull_events)」或「利空事件 (bear_events)」。若無任何利多或利空，允許該陣列為空。
+2. 獨立評分：依據【極性評分量表】，給予每個事件 1 到 5 分的絕對分數，並說明底層邏輯。
+3. 總分結算：計算利多與利空的總積分。
+4. 綜合對決：比較雙方總積分與「底層穿透邏輯」，給出最終的市場方向判定 (BULL/BEAR/NEUTRAL) 與 60 字以內的核心因果分析。
+</Instructions>
 `;
 
 // --- 戰報教練 Prompt ---
@@ -82,36 +91,44 @@ export const INVESTMENT_COACH_PROMPT = `<Role>
 </Output_Format>`;
 
 // --- 新聞關鍵字生成 Prompt ---
-export const NEWS_KEYWORD_PROMPT = `你是精通 Google News 搜尋語法（Boolean Search）與總體經濟分析的避險基金量化工程師。
+export const NEWS_KEYWORD_PROMPT = `你是精通 Google News 搜尋語法與總體經濟分析的避險基金量化工程師。
 你的任務是將當前的市場狀態，轉化為極度精準、符合新聞標題特性的搜尋關鍵字，以利爬蟲抓取高品質的財經新聞。
 
 <Search_Syntax_Rules>
-1. 新聞標題特性：新聞標題通常精簡，必須給出「單一強勢關鍵字」或「常見連用詞」。
-   - ❌ 錯誤示範：「CPI 通膨數據」、「recession 經濟衰退」（中英夾雜或解釋性贅字會導致搜不到新聞）
+1. 新聞標題特性：必須是「單一強勢關鍵字」或「常見連用詞」。
+   - ❌ 錯誤示範：「CPI 通膨數據」、「recession 經濟衰退」（中英夾雜或贅字會導致搜不到）
    - ✅ 正確示範：「CPI」、「通膨」、「外資賣超」、「台積電」
 2. 搜尋類型定義：
-   - "intitle"：核心事件（如：降息、非農、電價）。這個詞必須是新聞標題絕對會使用的字眼。
-   - "broad"：輔助事件或大範圍趨勢（如：地緣政治、外資），只要出現在內文即可。
+   - "intitle"：引發大盤波動的核心事件（如：降息、非農）。
+   - "broad"：大範圍趨勢或地緣政治（如：地緣政治、外資）。
 </Search_Syntax_Rules>
 
 <Task_Instructions>
-請依據使用者提供的日期與市場狀態（尤其是 VIX 的高低），推理出當下最可能導致該波動的 3~4 個核心財經議題，並填入對應的 twQueries 與 usQueries 中。
+請依據提供的市場狀態（包含冷卻期與 VIX 數值），先在腦中推論當下最可能導致該狀態的具體原因，然後才產出 twQueries 與 usQueries。
+⚠️ 絕對約束：輸出的關鍵字必須極度精煉，絕對不可中英夾雜。
 </Task_Instructions>`;
 
 // --- 新聞過濾 Prompt ---
 export const NEWS_FILTER_PROMPT = `你是一位頂級的量化避險基金經理人，專注於 ETF(0050) 與槓桿投資策略。
-你的任務是從使用者提供的「大量新聞列表」中，如淘金般過濾出「對大盤或總體經濟有實質重大影響」的新聞。
+你的任務是從使用者提供的「大量新聞列表」中，如淘金般過濾出「對大盤或總體經濟有實質重大影響」的重點新聞，並給予重要性評分以進行排序。
 
-<過濾規則>
-1. 嚴格剔除：農場文、理財教學(如存股、退休)、無意義盤後總結、小公司新聞。
-2. 優先保留：降息/通膨數據、地緣政治重大衝突、大型權值股(台積電)重大變化。
-3. 【跨區事件絕對去重】：如果有多則新聞在報導同一個總經事件（例如：中東戰爭、聯準會降息），無論它們是來自 [TW] 還是 [US]，請將其視為單一事件。針對該全球性事件，請一律歸類在最適合的區塊並只挑選最具代表性的 1 則，絕對禁止同一個事件同時出現在台灣與國際的精選中。
-4. 挑選目標：你的目標是找出 8 則最有價值的新聞。請按照重要性由高到低排序。寧缺勿濫，若真的找不到 8 則，也必須盡力找出至少 5 則值得關注的市場動態。
-</過濾規則>
+<Rules>
+1. 嚴格剔除：農場文、理財教學(如存股、退休)、無意義盤後總結、單一小公司新聞。
+2. 優先保留：降息/通膨數據、地緣政治重大衝突、大型權值股(如台積電)重大變化。
+3. 【跨區事件絕對去重】：如果有多則新聞報導同一個總經事件(例如：中東戰爭、聯準會降息)，無論來自 [TW] 還是 [US]，請視為單一事件，只挑選最具代表性的 1 則，絕對禁止重複。
+</Rules>
 
-<任務要求>
-請分析 <News_List> 中的內容，回傳一個 JSON 陣列，包含你挑選出的新聞 ID、情緒判斷(Bullish, Bearish, Neutral, Warning)，以及一句簡短摘要。
-</任務要求>`;
+<Instructions>
+1. 挑選目標：請嚴格挑選出 5 到 10 則最具價值的新聞。寧缺勿濫，只保留真正會影響大盤的資訊。
+2. 評分機制：必須為每則挑選出的新聞給予一個「重要性分數 (1-10分)」。
+3. 排序規則：輸出的 JSON 陣列必須「嚴格依照重要性分數由高到低」進行排序。
+4. 情緒判斷 (Sentiment) 定義：
+   - "Bullish"：明確的利多（如降息、科技巨頭利多、通膨降溫）。
+   - "Bearish"：明確的利空（如戰爭升溫、升息、經濟衰退）。
+   - "Warning"：潛在的風險或不確定性（如外資大幅賣超、重要支撐跌破）。
+   - "Neutral"：重大但多空未明的事件（如央行按兵不動且無偏鷹/鴿發言）。
+</Instructions>
+`;
 
 // 提供建構 User Prompt 的小幫手
 export const buildMacroAnalysisUserPrompt = (dateStr, newsText) =>
@@ -121,21 +138,40 @@ export const buildCoachUserPrompt = (dateStr, newsText, macroText, jsonStr) =>
   `今天是 ${dateStr}，請根據以下最新戰報資料與今日市場重點新聞，產出教練洞察：<News_Context>${newsText}</News_Context><MacroAnalysis>${macroText}</MacroAnalysis><JSON>${jsonStr}</JSON>`;
 
 export const buildNewsUserPrompt = (newsListText) =>
-  `請分析以下新聞：\n<News_List>\n${newsListText}\n</News_List>`;
+  `請分析以下新聞，並依重要性排序輸出最具影響力的 5 到 10 則：<News_List>${newsListText}</News_List>`;
 
 export const buildNewsKeyWorkPrompt = (dateStr, marketData) =>
-  `今天是 ${dateStr}。目前台股市場狀態為 ${marketData.marketStatus}，VIX 指數為 ${marketData.vix}。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。`;
+  `今天是 ${dateStr}。目前台股市場狀態為 ${marketData.marketStatus ? marketData.marketStatus : "暫無數據"}，VIX 指數為 ${marketData.vix ? marketData.vix : "暫無數據"}。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。`;
 
 export const FILTERED_NEWS_SCHEMA = {
-  type: Type.ARRAY,
+  type: SchemaType.ARRAY,
+  description:
+    "挑選出最具影響力的新聞，並嚴格依照 importanceScore 由高至低排序",
+  maxItems: 10,
   items: {
-    type: Type.OBJECT,
+    type: SchemaType.OBJECT,
     properties: {
-      id: { type: Type.INTEGER },
-      sentiment: { type: Type.STRING },
-      summary: { type: Type.STRING },
+      id: {
+        type: SchemaType.INTEGER,
+        description: "新聞原始的 ID 數字",
+      },
+      importanceScore: {
+        type: SchemaType.INTEGER,
+        minimum: 1,
+        maximum: 10,
+        description: "重要性評分。陣列必須依此分數由大到小排序",
+      },
+      sentiment: {
+        type: SchemaType.STRING,
+        enum: ["Bullish", "Bearish", "Neutral", "Warning"],
+        description: "對大盤或該產業的情緒影響",
+      },
+      summary: {
+        type: SchemaType.STRING,
+        description: "一到兩句話的精煉摘要",
+      },
     },
-    required: ["id", "sentiment", "summary"],
+    required: ["id", "importanceScore", "sentiment", "summary"],
   },
 };
 
@@ -149,7 +185,12 @@ export const MACRO_ANALYSIS_SCHEMA = {
         type: Type.OBJECT,
         properties: {
           event: { type: Type.STRING, description: "利多事件簡述" },
-          score: { type: Type.INTEGER, description: "影響力評分 (1-5)" },
+          score: {
+            type: Type.INTEGER,
+            minimum: 1,
+            maximum: 5,
+            description: "影響力評分",
+          },
           reason: {
             type: Type.STRING,
             description: "給予此分數的底層邏輯",
@@ -165,7 +206,12 @@ export const MACRO_ANALYSIS_SCHEMA = {
         type: Type.OBJECT,
         properties: {
           event: { type: Type.STRING, description: "利空事件簡述" },
-          score: { type: Type.INTEGER, description: "影響力評分 (1-5)" },
+          score: {
+            type: Type.INTEGER,
+            minimum: 1,
+            maximum: 5,
+            description: "影響力評分",
+          },
           reason: {
             type: Type.STRING,
             description: "給予此分數的底層邏輯",
@@ -187,7 +233,8 @@ export const MACRO_ANALYSIS_SCHEMA = {
       properties: {
         market_direction: {
           type: Type.STRING,
-          description: "最終多空判定，必須是 BULL, BEAR, 或 NEUTRAL 其中之一",
+          enum: ["BULL", "BEAR", "NEUTRAL"],
+          description: "最終多空判定",
         },
         analysis: {
           type: Type.STRING,
@@ -212,18 +259,18 @@ export const NEWS_KEYWORD_SCHEMA = {
   properties: {
     twQueries: {
       type: Type.ARRAY,
-      description: "台灣與亞洲市場的動態關鍵字。請給予 3 到 4 組。",
+      description: "台灣與亞洲市場的動態關鍵字。建議 3 到 4 組。",
       items: {
         type: Type.OBJECT,
         properties: {
           keyword: {
             type: Type.STRING,
-            description:
-              "必須是精煉的單一強勢詞彙，不可中英夾雜。例如: 降息、台海、電價",
+            description: "新聞搜尋關鍵字（例如：降息、台海、電價）",
           },
           searchType: {
             type: Type.STRING,
-            description: "必須是 intitle 或 broad", // Gemini Schema 有時對 enum 支援不佳，可用 description 補強
+            enum: ["intitle", "broad"],
+            description: "搜尋類型",
           },
         },
         required: ["keyword", "searchType"],
@@ -231,18 +278,18 @@ export const NEWS_KEYWORD_SCHEMA = {
     },
     usQueries: {
       type: Type.ARRAY,
-      description: "美國總經與全球黑天鵝的動態關鍵字。請給予 3 到 4 組。",
+      description: "美國總經與全球黑天鵝的動態關鍵字。建議 3 到 4 組。",
       items: {
         type: Type.OBJECT,
         properties: {
           keyword: {
             type: Type.STRING,
-            description:
-              "必須是精煉的單一強勢詞彙，不可中英夾雜。例如: CPI、非農、降息",
+            description: "新聞搜尋關鍵字（例如：CPI、非農、關稅）",
           },
           searchType: {
             type: Type.STRING,
-            description: "必須是 intitle 或 broad",
+            enum: ["intitle", "broad"],
+            description: "搜尋類型",
           },
         },
         required: ["keyword", "searchType"],

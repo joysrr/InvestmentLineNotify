@@ -167,28 +167,47 @@ export async function getNewsTelegramMessages(marketData) {
     let sectionText = `<b>${sectionTitle}</b> ｜ <code>${todayStr}</code>\n\n`;
 
     newsList.forEach((item, index) => {
+      // 拆分標題與媒體來源
       const titleParts = item.title.split(/ - | \| /);
       const cleanTitle = titleParts[0];
       const mediaName =
         titleParts.length > 1 ? titleParts[titleParts.length - 1] : "News";
+
+      // 取得情緒的 Emoji
       const emoji = getNewsEmoji(item.sentiment);
 
+      // 處理時間格式 (加入 yyyy/MM/dd)
       const pubDate = new Date(item.pubDate);
-      // 🛡️ 防呆：檢查時間是否合法
       let timeString = "時間未知";
+
       if (!isNaN(pubDate.getTime())) {
-        timeString = pubDate.toLocaleTimeString("zh-TW", {
+        const yyyy = pubDate.getFullYear();
+        const MM = String(pubDate.getMonth() + 1).padStart(2, "0");
+        const dd = String(pubDate.getDate()).padStart(2, "0");
+
+        const hhmm = pubDate.toLocaleTimeString("zh-TW", {
           timeZone: "Asia/Taipei",
           hour: "2-digit",
           minute: "2-digit",
           hour12: false,
         });
+
+        // 組合出 yyyy/MM/dd HH:mm 格式
+        timeString = `${yyyy}/${MM}/${dd} ${hhmm}`;
       }
 
+      // 處理重要性分數 (如果沒有分數則隱藏，有則醒目標示)
+      const scoreText = item.importanceScore
+        ? ` | <b>重要性: ${item.importanceScore}/10</b>`
+        : "";
+
+      // 組合單筆新聞的字串 (Telegram / LINE 適用的 HTML 格式)
       sectionText += `${index + 1}. ${emoji} <a href="${item.link}">${escapeHTML(cleanTitle)}</a>\n`;
       sectionText += `   <i>↳ ${escapeHTML(item.aiSummary)}</i>\n`;
-      sectionText += `   <i>${timeString} ｜ ${escapeHTML(mediaName)}</i>\n\n`;
+      // 將時間、媒體、重要性放在同一行作為 Meta 資訊
+      sectionText += `   <i>${timeString} ｜ ${escapeHTML(mediaName)}${scoreText}</i>\n\n`;
     });
+
     return sectionText.trim(); // 移除結尾多餘的換行
   };
 
@@ -219,17 +238,24 @@ export async function getNewsTelegramMessages(marketData) {
     };
   }
 
-  // 將 processedNews 陣列轉換成簡潔的文字格式
+  // 將 processedNews 陣列轉換成簡潔的文字格式（專為 AI 閱讀優化）
   const newsSummaryText = processedNews
     .map((item, index) => {
+      // 假設你已經把 Bullish/Bearish 轉成對應的 Emoji
       const emoji = getNewsEmoji(item.sentiment);
+
       // 提取乾淨的標題
       const cleanTitle = item.title.split(/ - | \| /)[0];
 
-      // 組合格式： 1. 📉 [TW] 台股大跌 (AI摘要：...)
-      return `${index + 1}. ${emoji} [${item._region}] ${cleanTitle}\n   ↳ 摘要：${item.aiSummary}`;
+      // ✅ 新增：把 importanceScore 拿出來
+      const scoreText = item.importanceScore
+        ? `[重要度: ${item.importanceScore}/10]`
+        : "";
+
+      // 組合出資訊密度極高、但 Token 極少的字串
+      return `${index + 1}. ${scoreText} ${emoji} [${item._region}] ${cleanTitle}\n   ↳ 摘要：${item.summary}`;
     })
-    .join("\n\n"); // 每則新聞之間空一行
+    .join("\n\n");
 
   // 回傳一個物件，包含 Telegram 訊息與純文字摘要
   return {
