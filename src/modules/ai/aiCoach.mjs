@@ -13,6 +13,7 @@ import {
   FILTERED_NEWS_SCHEMA,
   MACRO_ANALYSIS_SCHEMA,
   NEWS_KEYWORD_SCHEMA,
+  INVESTMENT_COACH_SCHEMA,
 } from "./prompts.mjs";
 import { SaveTmpFile } from "../../utils/debugUtils.mjs";
 
@@ -40,18 +41,49 @@ export async function getAiInvestmentAdvice(
 
   try {
     const result = await callGemini(userPrompt, INVESTMENT_COACH_PROMPT, {
-      temperature: 0.1,
+      responseMimeType: "application/json",
+      responseSchema: INVESTMENT_COACH_SCHEMA,
+      temperature: 0.5, // 適度增加隨機性，讓建議更具多樣性與啟發性
       maxOutputTokens: 65536,
       thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH },
     });
 
+    // 1. 確保 result 是可操作的 JSON 物件 (防呆)
+    let adviceObj;
+    if (typeof result === "string") {
+      adviceObj = JSON.parse(result);
+    } else {
+      adviceObj = result;
+    }
+
+    // 2. 儲存 Debug Log（保留珍貴的 coach_internal_thinking 供你日後回溯）
     SaveTmpFile(
-      { systemPrompt: INVESTMENT_COACH_PROMPT, userPrompt, rawResult: result },
+      {
+        systemPrompt: INVESTMENT_COACH_PROMPT,
+        userPrompt,
+        rawResult: adviceObj,
+      },
       "AiInvestmentAdvice",
       "AiInvestmentAdvice_debug",
     );
 
-    return result;
+    // 3. 組合最終要推播給使用者的 Markdown 戰報文字 (UI 呈現層)
+    const finalAdviceText = `**⚖️ 總經多空對決**
+- 利多：${adviceObj.macro_view?.bull_summary || "無"}
+- 利空：${adviceObj.macro_view?.bear_summary || "無"}
+- 判定：${adviceObj.macro_view?.final_verdict || "NEUTRAL"}
+
+**⚠️ 風險提示**
+${(adviceObj.risk_warnings || []).map((w) => `- ${w}`).join("\n")}
+
+**✅ 下一步觀察清單**
+${(adviceObj.action_items || []).map((a) => `- ${a}`).join("\n")}
+
+**🧭 行動微調建議**
+${(adviceObj.mindset_advice || []).map((m) => `- ${m}`).join("\n")}`;
+
+    // 4. 回傳乾淨、排版絕對受控的字串
+    return finalAdviceText.trim();
   } catch (error) {
     return "AI 決策引擎暫時無法運作，請依原始數據判斷。";
   }
@@ -71,6 +103,7 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
       maxOutputTokens: 16384,
       responseMimeType: "application/json",
       responseSchema: FILTERED_NEWS_SCHEMA,
+      temperature: 0.1, // 降低隨機性，讓分類更穩定
     });
 
     const aiResult = JSON.parse(rawJsonText);
@@ -107,6 +140,7 @@ export async function generateDailySearchQueries(marketData) {
     const rawJson = await callGemini(prompt, NEWS_KEYWORD_PROMPT, {
       responseMimeType: "application/json",
       responseSchema: NEWS_KEYWORD_SCHEMA,
+      temperature: 0.3, // 適度增加隨機性，讓關鍵字更具多樣性
     });
 
     const result = JSON.parse(rawJson); // { twQueries: [{keyword: "...", searchType: "..."}], usQueries: [...] }
