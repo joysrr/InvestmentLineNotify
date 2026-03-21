@@ -15,7 +15,10 @@ import {
   fetchLastPortfolioState,
   logDailyToSheet,
 } from "./modules/storage.mjs";
-import { getAiInvestmentAdvice } from "./modules/ai/aiCoach.mjs";
+import {
+  getAiInvestmentAdvice,
+  analyzeMacroNewsWithAI,
+} from "./modules/ai/aiCoach.mjs";
 import { getDailyQuote } from "./modules/providers/quoteProvider.mjs";
 import { analyzeUsRisk } from "./modules/providers/usMarketProvider.mjs";
 import { getNewsTelegramMessages } from "./modules/newsFetcher.mjs";
@@ -286,6 +289,15 @@ export async function dailyCheck({
       console.error("❌ 取得新聞集錦失敗 (但不影響發送通知):", err.message);
     }
 
+    // 取得總經多空對決報告
+    console.log("🤖 正在產生總經多空對決報告...");
+    const macroAnalysis = await analyzeMacroNewsWithAI(newsSummaryText);
+    const macroTextForCoach = `【總經多空對決報告】
+總利多分數：${macroAnalysis.total_bull_score}
+總利空分數：${macroAnalysis.total_bear_score}
+最終判定方向：${macroAnalysis.conclusion.market_direction}
+分析總結：${macroAnalysis.conclusion.analysis}`;
+
     // 取得 AI 決策報告
     console.log("🤖 正在產生 AI 決策分析...");
     const aiAdvice = await getAiInvestmentAdvice(
@@ -293,6 +305,7 @@ export async function dailyCheck({
       lastState,
       vixData,
       newsSummaryText,
+      macroTextForCoach,
       !isAIAdvisor,
     );
 
