@@ -1,0 +1,76 @@
+{
+  "systemPrompt": "你是一位頂級的量化避險基金經理人，專注於 ETF(0050) 與槓桿投資策略。\n你的任務是從使用者提供的「大量新聞列表」中，如淘金般過濾出「對大盤或總體經濟有實質重大影響」的重點新聞，並給予重要性評分以進行排序。\n\n<Rules>\n1. 嚴格剔除：農場文、理財教學(如存股、退休)、無意義盤後總結、單一小公司新聞。\n2. 優先保留：降息/通膨數據、地緣政治重大衝突、大型權值股(如台積電)重大變化。\n3. 【跨區事件絕對去重】：如果有多則新聞報導同一個總經事件(例如：中東戰爭、聯準會降息)，無論來自 [TW] 還是 [US]，請視為單一事件，只挑選最具代表性的 1 則，絕對禁止重複。\n</Rules>\n\n<Instructions>\n1. 挑選目標：請嚴格挑選出 5 到 10 則最具價值的新聞。寧缺勿濫，只保留真正會影響大盤的資訊。\n2. 評分機制：必須為每則挑選出的新聞給予一個「重要性分數 (1-10分)」。\n3. 排序規則：輸出的 JSON 陣列必須「嚴格依照重要性分數由高到低」進行排序。\n4. 情緒判斷 (Sentiment) 定義：\n   - \"Bullish\"：明確的利多（如降息、科技巨頭利多、通膨降溫）。\n   - \"Bearish\"：明確的利空（如戰爭升溫、升息、經濟衰退）。\n   - \"Warning\"：潛在的風險或不確定性（如外資大幅賣超、重要支撐跌破）。\n   - \"Neutral\"：重大但多空未明的事件（如央行按兵不動且無偏鷹/鴿發言）。\n</Instructions>\n",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的 5 到 10 則：<News_List>[ID: 0] [TW] 標題: 台積電很爆肝？魏哲家駁：醫生才是 但我們罰款全國第七很丟臉 - Yahoo股市\n[ID: 1] [TW] 標題: 台積電股東數246萬人再創新高 零股股東近196萬人帶動向前衝 - 自由財經\n[ID: 2] [TW] 標題: 《3/20日法人買超》外資買超前三名：太景*(644張)、國光生(549張)、松瑞藥(273張) - genetinfo.com\n[ID: 3] [TW] 標題: 台積電漲30元至1900 台股大漲逾500點衝破3萬4 - MSN\n[ID: 4] [TW] 標題: 台積電加持！中市府就博會逾五千人參與、媒合率達六成 - taichung.gov.tw\n[ID: 5] [TW] 標題: 亞大25週年躍上新里程 攜手台積電領袖鏈結世界 - 中央社 CNA\n[ID: 6] [TW] 標題: 新聞幕後／上修CPI！通膨預期心理再起？央行Q2動向成關鍵 - 三立新聞網SETN.com\n[ID: 7] [TW] 標題: 【ETF籌碼日報】官股大買0050，外資、自營商大賣0050達77億-CMoney官方 - CMoney投資網誌\n[ID: 8] [TW] 標題: 台股震盪外資瘋撤！週賣超1655.9億元 0050、00922連四週遭提款 - Yahoo股市\n[ID: 9] [TW] 標題: 台積電秒填息!漲35元至1875 台股漲逾500點 - MSN\n[ID: 10] [TW] 標題: 台股看戰事臉色！外資連三週賣超逾千億元 - Yahoo新聞\n[ID: 11] [TW] 標題: 台股看戰事臉色! 外資連三週賣超逾千億元 - MSN\n[ID: 12] [TW] 標題: 蘇威元：捷創科技深度綁定愛德萬.台積電 成檢測隱形贏家 - Yahoo股市\n[ID: 13] [TW] 標題: 美光財報引燃！外資單週狂掃「記憶體2檔」破萬張 再重砸87億入手長榮、萬海 - Yahoo股市\n[ID: 14] [TW] 標題: 魏哲家獲頒名譽博士！談台積電技術增快100倍 - Yahoo新聞\n[ID: 15] [TW] 標題: 記憶體缺貨潮緩解？外資本周拋售華邦電9萬張捲走102億 再砍南亞科5.2萬提款134億 - Yahoo股市\n[ID: 16] [TW] 標題: 外資砍評南亞科、華邦電！大咖投顧逆勢喊買 最新目標價、EPS曝光 - Yahoo股市\n[ID: 17] [TW] 標題: 記憶體急殺「它」獲投信青睞6.7萬張 3檔入列0050迎232億資金進駐 - Yahoo股市\n[ID: 18] [TW] 標題: 魏哲家看機器人重要的是大腦 台積電占95% - Yahoo新聞\n[ID: 19] [TW] 標題: 新聞幕後／外資三月流出龐大且集中! 央行加大調節力道 - MSN\n[ID: 20] [TW] 標題: 《3/20日法人賣超》外資賣超前三名：美時(-971張)、康霈*(-916張)、台肥(-638張) - genetinfo.com\n[ID: 21] [TW] 標題: 魏哲家嗆中國機器人「好看沒用」 致詞金句連發「95%大腦都台積電做的」 - Yahoo新聞\n[ID: 22] [TW] 標題: 有理事反對房市鬆綁 央行總裁盼房市軟著陸 - MSN\n[ID: 23] [TW] 標題: 名家》徐佳馨／央行救市? 壓力測試剛開始 - MSN\n[ID: 24] [TW] 標題: 台積電週跌25元 股東人數衝至246萬人創新高 | 證券 - 中央社 CNA\n[ID: 25] [TW] 標題: 【中油吸收油價漲幅 卓榮泰：研議專案融資、撥補與增資協助】 （圖／記者陳家祥攝） - Facebook\n[ID: 26] [TW] 標題: 魏哲家評中國機器人「好看而已」 自豪揭數據：全球95%大腦台積電做的 - Yahoo新聞\n[ID: 27] [TW] 標題: 台股2026年連兩月漲幅狂飆10% 投資達人驚： 多頭氣氛真融洽 - MSN\n[ID: 28] [TW] 標題: 魏哲家獲亞大名譽博士感謝張忠謀提拔指機器人大腦95%台積電製造| 產經 - 中央社 CNA\n[ID: 29] [TW] 標題: 決策日指南： 歐洲央行勢將維持利率不變權衡戰爭帶來的通膨威脅 - MSN\n[ID: 30] [TW] 標題: 許宇甄批電價再漲掏空民眾 憂引爆通膨衝擊經濟 - MSN\n[ID: 31] [TW] 標題: 昔台積電工程師超商狂偷千元食物! 下場曝光 - MSN\n[ID: 32] [TW] 標題: 不動產勝台股或ETF 通膨時代資產配置成焦點 嘉義房市逆勢吸睛 - Yahoo新聞\n[ID: 33] [TW] 標題: 不是0050、0056！人氣10大ETF這3檔今年漲逾2成，00878、00919也有快5%...一表看買誰賺最多 - 今周刊\n[ID: 34] [TW] 標題: 創造台積電奇蹟！張忠謀的經驗 外媒解密 - 自由財經\n[ID: 35] [TW] 標題: 台股馬年紅盤日飆高急縮!僅收漲167點 台積電跌15元收最低1900 - MSN\n[ID: 36] [TW] 標題: 魏哲家獲名譽博士 稱機器人大腦95%來自台積電 - 新唐人亞太電視台\n[ID: 37] [TW] 標題: 台積電加持 台中就博會逾5000人參與、媒合率達6成 - 自由時報\n[ID: 38] [TW] 標題: 歐洲央行關鍵利率按兵不動 符合市場預期 - MSN\n[ID: 39] [TW] 標題: AI晶片需求引爆先進製程！台積電領漲 訂單延伸至2027 - Yahoo新聞\n[ID: 40] [US] 標題: Jerome Powell - CNBC\n[ID: 41] [US] 標題: Why the Fed’s Next Rate Move Could Be a Hike - WSJ\n[ID: 42] [US] 標題: Here’s the exact oil price that would tip the U.S. into a recession — and we’re getting closer as the Iran conflict drags on - MarketWatch\n[ID: 43] [US] 標題: Chair Powell has ‘no intention’ of leaving Fed until DOJ probe ends - RealEstateNews.com\n[ID: 44] [US] 標題: The Strait of Hormuz is the fourth large supply shock this decade. Welcome to the new era of global disorder - Fortune\n[ID: 45] [US] 標題: What's behind a shift in inflation expectations? You guessed it. Iran. - Detroit Free Press\n[ID: 46] [US] 標題: In This Crisis, the Best Investors Can Expect From the Fed Is Nothing - The New York Times\n[ID: 47] [US] 標題: Forget Rate Cuts: What if the Fed Needs to Hike Rates in 2026? - The Motley Fool\n[ID: 48] [US] 標題: US stocks slide. Nasdaq, Dow near corrections amid Iran war - USA Today\n[ID: 49] [US] 標題: Uncertain Fed Meets an Uncertain AI Future - Bloomberg.com\n[ID: 50] [US] 標題: Economist warns inflation could worsen despite Trump lifting oil sanctions - NewsNation\n[ID: 51] [US] 標題: S&P 500 Stocks Lead Five AI Plays Near Buy Points - Investor's Business Daily\n[ID: 52] [US] 標題: Fed’s hawkishness is great for crypto startups as ‘best companies aren’t built during periods of loose monetary policy,’ VC says - dlnews.com\n[ID: 53] [US] 標題: JP Morgan resets S&P 500 price target for rest of 2026 - thestreet.com\n[ID: 54] [US] 標題: A slew of consumer stocks are now oversold as S&P 500 falls for a fourth week in a row - CNBC\n[ID: 55] [US] 標題: I Asked ChatGPT What the US Can Do To Stop a Recession — The Answer Shocked Me - Yahoo Finance\n[ID: 56] [US] 標題: Analysis: Trump's unshackled presidency puts him at the center of the economy - CNBC\n[ID: 57] [US] 標題: Oil, Iran, and the Recession Question - Newsweek\n[ID: 58] [US] 標題: Federal judge rules CFPB must continue to ask Federal Reserve for funds - Consumer Finance Monitor\n[ID: 59] [US] 標題: Judge blocks subpoenas tied to investigation of Fed Chair Powell - Scripps News\n[ID: 60] [US] 標題: Dow slides nearly 800 points after Fed meeting amid oil inflation - InsuranceNewsNet\n[ID: 61] [US] 標題: Super Micro Risks S&P 500 Removal. Here’s the Stock to Replace It - 24/7 Wall St.\n[ID: 62] [US] 標題: Market bets on Fed rate hike surge - Reuters\n[ID: 63] [US] 標題: The Fed Stands Pat On Interest Rates: What Experts Say It Means - Forbes\n[ID: 64] [US] 標題: What the closure of the Strait of Hormuz means for the global economy - Federal Reserve Bank of Dallas\n[ID: 65] [US] 標題: Is It Too Late To Consider Powell Industries (POWL) After Its 181% One Year Surge? - simplywall.st\n[ID: 66] [US] 標題: Fed’s Bowman says she’s written in 3 interest rate cuts before year-end - Fox Business\n[ID: 67] [US] 標題: The Fed is likely to hold rates steady with volatile oil prices and poor US jobs performance - AOL.com\n[ID: 68] [US] 標題: Home Flipping Profits Plunge to Lowest Level Since Great Recession—Except in These 5 Bargain Metros - Realtor.com\n[ID: 69] [US] 標題: Bank of America Warns Fed Could Raise Rates Amid Iran Oil Shock - InsuranceNewsNet\n[ID: 70] [US] 標題: The VT ETF Might Be Smarter Than the S&P 500 Right Now | VOO SPY VT - 24/7 Wall St.\n[ID: 71] [US] 標題: Moody’s delivers blunt verdict on recession - thestreet.com\n[ID: 72] [US] 標題: How do private destination clubs survive the next recession? - Golf Digest\n[ID: 73] [US] 標題: Feedback Friday: Experts, listeners weigh in on inflation’s economic impact - WABE\n[ID: 74] [US] 標題: Federal Reserve Rate Hike Probability Surges to 25% on Iran Conflict Concerns - InsuranceNewsNet\n[ID: 75] [US] 標題: Government says Powell is ‘strongarming’ investigation by saying he might not step down. His lawyers disagree. - MSN\n[ID: 76] [US] 標題: Is Franklin Resources Stock Outperforming the Nasdaq? - Yahoo Finance\n[ID: 77] [US] 標題: S&P 500 futures reached lowest level since September 2025. - CME Group\n[ID: 78] [US] 標題: S&P 500 Movers | Winners: MRSH, APA, AON | Losers: SMCI, VST, CEG - Trefis\n[ID: 79] [US] 標題: S&P 500 Stocks Trading At 52-Week Low - Trefis</News_List>",
+  "schema": {
+    "type": "ARRAY",
+    "description": "挑選出最具影響力的新聞，並嚴格依照 importanceScore 由高至低排序",
+    "maxItems": 10,
+    "items": {
+      "type": "OBJECT",
+      "properties": {
+        "id": {
+          "type": "INTEGER",
+          "description": "新聞原始的 ID 數字"
+        },
+        "importanceScore": {
+          "type": "INTEGER",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "重要性評分。陣列必須依此分數由大到小排序"
+        },
+        "sentiment": {
+          "type": "STRING",
+          "enum": [
+            "Bullish",
+            "Bearish",
+            "Neutral",
+            "Warning"
+          ],
+          "description": "對大盤或該產業的情緒影響"
+        },
+        "summary": {
+          "type": "STRING",
+          "description": "一到兩句話的精煉摘要"
+        }
+      },
+      "required": [
+        "id",
+        "importanceScore",
+        "sentiment",
+        "summary"
+      ]
+    }
+  },
+  "rawResult": [
+    {
+      "id": 42,
+      "importanceScore": 10,
+      "sentiment": "Bearish",
+      "summary": "伊朗衝突導致荷姆茲海峽風險升溫，油價飆漲恐將美國經濟推向衰退邊緣，對全球股市構成重大威脅。"
+    },
+    {
+      "id": 62,
+      "importanceScore": 9,
+      "sentiment": "Warning",
+      "summary": "市場對聯準會（Fed）升息的預期激增，反映出通膨壓力與地緣政治不確定性，嚴重衝擊市場風險偏好。"
+    },
+    {
+      "id": 39,
+      "importanceScore": 8,
+      "sentiment": "Bullish",
+      "summary": "AI晶片需求強勁，台積電先進製程訂單能見度已延伸至2027年，為台股大盤提供強大基本面支撐。"
+    },
+    {
+      "id": 6,
+      "importanceScore": 7,
+      "sentiment": "Warning",
+      "summary": "台灣央行上修CPI預測，通膨預期心理再起，市場高度關注央行後續貨幣政策動向。"
+    },
+    {
+      "id": 8,
+      "importanceScore": 6,
+      "sentiment": "Bearish",
+      "summary": "外資連續四週大幅提款台股與0050等權值ETF，顯示資金撤離壓力沉重，短期籌碼面偏弱。"
+    }
+  ]
+}
