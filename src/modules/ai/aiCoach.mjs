@@ -78,6 +78,7 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
       ...allNewsArray[aiItem.id],
       sentiment: aiItem.sentiment,
       aiSummary: aiItem.summary,
+      importanceScore: aiItem.importanceScore,
     }));
     SaveTmpFile(
       {
