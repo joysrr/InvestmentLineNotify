@@ -203,7 +203,7 @@ export async function getNewsTelegramMessages(marketData) {
 
       // 組合單筆新聞的字串 (Telegram / LINE 適用的 HTML 格式)
       sectionText += `${index + 1}. ${emoji} <a href="${item.link}">${escapeHTML(cleanTitle)}</a>\n`;
-      sectionText += `   <i>↳ ${escapeHTML(item.aiSummary)}</i>\n`;
+      sectionText += `   <i>↳ ${escapeHTML(item.summary)}</i>\n`;
       // 將時間、媒體、重要性放在同一行作為 Meta 資訊
       sectionText += `   <i>${timeString} ｜ ${escapeHTML(mediaName)}${scoreText}</i>\n\n`;
     });

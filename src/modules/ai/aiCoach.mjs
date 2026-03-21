@@ -77,7 +77,7 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
     const result = aiResult.map((aiItem) => ({
       ...allNewsArray[aiItem.id],
       sentiment: aiItem.sentiment,
-      aiSummary: aiItem.summary,
+      summary: aiItem.summary,
       importanceScore: aiItem.importanceScore,
     }));
     SaveTmpFile(
