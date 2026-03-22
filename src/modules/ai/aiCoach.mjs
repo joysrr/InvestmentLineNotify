@@ -24,6 +24,7 @@ export async function getAiInvestmentAdvice(
   vixData,
   newsSummaryText,
   macroTextForCoach,
+  macroAndChipStr,
   onlyPrompt,
 ) {
   if (onlyPrompt) return "AI 決策引擎停止運作中。";
@@ -37,6 +38,7 @@ export async function getAiInvestmentAdvice(
     newsSummaryText,
     macroTextForCoach,
     jsonStr,
+    macroAndChipStr,
   );
 
   try {

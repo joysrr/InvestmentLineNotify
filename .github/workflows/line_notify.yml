@@ -5,18 +5,17 @@ on:
   schedule:
     # ----------------------------------------------------
     # (時間為 UTC)
-    # 台灣 14:40 -> UTC 06:40 (收盤後大總結：全開)
-    - cron: "40 6 * * *"
-
     # 台灣 07:45 -> UTC 23:45 (開盤前提醒：全開)
     - cron: "45 23 * * *"
-
     # --- 盤中高頻回報 (只發 Telegram，不叫 AI、不翻譯) ---
     # 台灣 10:00 -> UTC 02:00
     - cron: "0 2 * * *"
     # 台灣 12:00 -> UTC 04:00
     - cron: "0 4 * * *"
-    # ----------------------------------------------------
+    # 台灣 14:40 -> UTC 06:40 (收盤後大總結：全開)
+    - cron: "40 6 * * *"
+    # 台灣 21:40 -> UTC 13:40 (夜間國際觀測：結合最新籌碼與美股開盤動態)
+    - cron: "40 13 * * *"
 
 jobs:
   notify:
@@ -46,22 +45,6 @@ jobs:
           key: stock-history-${{ runner.os }}-${{ steps.date.outputs.date }}
           restore-keys: |
             stock-history-${{ runner.os }}-
-
-      - name: 判斷執行參數 (排程路由分配)
-        id: check-args
-        # 根據不同的時間點，給予不同的參數組合
-        run: |
-          if [[ "${{ github.event.schedule }}" == "40 6 * * *" || "${{ github.event.schedule }}" == "45 23 * * *" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            # 完整版戰報：LINE 開啟
-            echo "LINE_FLAG=--line=true" >> $GITHUB_ENV
-          else
-            # 盤中快速回報：LINE 關閉
-            echo "LINE_FLAG=--line=false" >> $GITHUB_ENV
-          fi
-
-          # 無論何時，Telegram、AI 永遠開啟
-          echo "TG_FLAG=--telegram=true" >> $GITHUB_ENV
-          echo "AI_FLAG=--aiAdvisor=true" >> $GITHUB_ENV
 
       - name: Run Daily Check
         env:
