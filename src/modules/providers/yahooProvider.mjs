@@ -23,28 +23,25 @@ const baseFetchOptions = {
   },
 };
 // ============================================================================
-// 💵 取得最新 USD/TWD (美元兌台幣) 匯率
+// 💵 取得最新 USD/TWD (美元兌台幣) 匯率與近 1 月走勢
 // ============================================================================
 export async function fetchUsdTwdExchangeRate() {
-  // 使用 Yahoo Finance 的內部 Chart API，抓取 1 天、間隔 1 分鐘的最新資料
   const symbol = "TWD=X";
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1d&interval=1m`;
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1mo&interval=1d`;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-  // 預設 Fallback 值
   const result = {
-    exchangeRate: null,
+    currentRate: null,
     previousClose: null,
-    change: null,
     changePercent: null,
+    historicalPrices: [],
   };
 
   try {
     const response = await fetch(url, {
       ...baseFetchOptions,
-      // 覆蓋 Accept 標頭，告訴伺服器我們只要 JSON
       headers: { ...baseFetchOptions.headers, Accept: "application/json" },
       signal: controller.signal,
     });
@@ -54,27 +51,39 @@ export async function fetchUsdTwdExchangeRate() {
     const data = await response.json();
     const resultObj = data?.chart?.result?.[0];
 
-    if (!resultObj || !resultObj.meta) {
+    if (!resultObj || !resultObj.meta || !resultObj.indicators) {
       throw new Error("Yahoo Finance JSON 結構變更或無資料");
     }
 
     const meta = resultObj.meta;
+    const closePrices = resultObj.indicators.quote[0].close;
 
-    // 取得最新價格與昨收價
-    const currentPrice = meta.regularMarketPrice;
-    const prevClose = meta.previousClose;
+    // 過濾掉陣列中的 null 值（Yahoo API 假日有時會回傳 null）
+    const validPrices = closePrices.filter((p) => typeof p === "number");
 
-    if (typeof currentPrice === "number") {
-      result.exchangeRate = Number(currentPrice.toFixed(4)); // 匯率通常取到小數點後四位
+    // 💡 增強版：昨收價防呆機制
+    // 優先取 previousClose，若無則取 chartPreviousClose，再沒有就拿陣列倒數第二筆
+    let prevClose = meta.previousClose || meta.chartPreviousClose;
+    if (typeof prevClose !== "number" && validPrices.length >= 2) {
+      prevClose = validPrices[validPrices.length - 2];
+    }
+
+    // 取得最新價格
+    if (typeof meta.regularMarketPrice === "number") {
+      result.currentRate = Number(meta.regularMarketPrice.toFixed(4));
 
       if (typeof prevClose === "number" && prevClose > 0) {
         result.previousClose = Number(prevClose.toFixed(4));
-        result.change = Number((currentPrice - prevClose).toFixed(4));
-        // 計算漲跌幅 (%)，台幣匯率數字往上代表「台幣貶值 / 美元升值」
+        const change = result.currentRate - result.previousClose;
         result.changePercent = Number(
-          ((result.change / prevClose) * 100).toFixed(2),
+          ((change / result.previousClose) * 100).toFixed(2),
         );
       }
+    }
+
+    // 將收盤價取至小數點後四位存入歷史陣列
+    if (validPrices.length > 0) {
+      result.historicalPrices = validPrices.map((p) => Number(p.toFixed(4)));
     }
 
     return result;

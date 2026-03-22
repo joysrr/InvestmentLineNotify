@@ -14,6 +14,11 @@ export async function sendTelegramBatch(messages) {
       disable_web_page_preview: true, // 避免貼連結時跑出超大網頁預覽
     };
 
+    // 如果我們設定了靜默通知，就加入這個參數
+    if (msg.disable_notification) {
+      payload.disable_notification = true;
+    }
+
     // 如果這則訊息有包含網址，自動幫它加上 Inline Keyboard 按鈕
     const buttons = [];
     if (msg.sheetUrl) {

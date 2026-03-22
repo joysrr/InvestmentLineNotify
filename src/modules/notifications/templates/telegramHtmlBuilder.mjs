@@ -81,6 +81,7 @@ export function buildTelegramMessages({
   result,
   vixData,
   usRisk,
+  macroData,
   config,
   dateText,
   aiAdvice,
@@ -167,6 +168,63 @@ export function buildTelegramMessages({
     }
   }
 
+  // ── 總經與籌碼 (Macro & Chip) ──
+  // 1. CNN 恐懼貪婪
+  const cnnScore = macroData?.rawCnn?.score;
+  const cnnRating = macroData?.rawCnn?.rating || "未知";
+  let cnnEmoji = "😐";
+  if (cnnScore <= 25)
+    cnnEmoji = "😱"; // 極度恐慌
+  else if (cnnScore >= 75) cnnEmoji = "🤑"; // 極度貪婪
+  const cnnText = Number.isFinite(cnnScore)
+    ? `${cnnScore}pt ${cnnEmoji} ${cnnRating}`
+    : "N/A";
+
+  // 2. 台股融資維持率
+  const mmMargin = macroData?.rawMargin?.maintenanceRatio;
+  let marginEmoji = "🟢";
+  if (mmMargin < 145) marginEmoji = "🚨";
+  else if (mmMargin < 155) marginEmoji = "⚠️";
+  const marginText = Number.isFinite(mmMargin)
+    ? `${mmMargin.toFixed(1)}% ${marginEmoji}`
+    : "N/A";
+
+  // 3. USD/TWD 匯率 (帶漲跌)
+  const fxRate =
+    macroData?.rawFx?.currentRate || macroData?.rawFx?.exchangeRate;
+  const fxChange = macroData?.rawFx?.changePercent;
+  let fxEmoji = "➖";
+  let fxTrend = "";
+  if (Number.isFinite(fxChange)) {
+    if (fxChange > 0.1) {
+      fxEmoji = "📈";
+      fxTrend = "貶";
+    } else if (fxChange < -0.1) {
+      fxEmoji = "📉";
+      fxTrend = "升";
+    }
+  }
+  const fxText = Number.isFinite(fxRate)
+    ? `${fxRate.toFixed(2)} ${fxEmoji} ${fxTrend}`
+    : "N/A";
+
+  // 4. 景氣燈號
+  const ndcScore = macroData?.rawNdc?.score;
+  const ndcLight = macroData?.rawNdc?.light || "未知";
+  const ndcColor = macroData?.rawNdc?.lightColor;
+  // 依照顏色給燈號 Emoji
+  const lightEmojiMap = {
+    red: "🔴",
+    "yellow-red": "🟠",
+    green: "🟢",
+    "yellow-blue": "🟡",
+    blue: "🔵",
+  };
+  const ndcEmoji = lightEmojiMap[ndcColor] || "⚪";
+  const ndcText = Number.isFinite(ndcScore)
+    ? `${ndcScore}pt ${ndcEmoji} ${ndcLight.split(" ")[0]}`
+    : "N/A";
+
   // ── 價格變動 ──
   const priceChangePct = Number(result.priceChangePercent || 0);
   const changeIcon =
@@ -186,8 +244,37 @@ export function buildTelegramMessages({
   const sellTriggered = s.signalCount ?? 0;
   const sellTotal = s.total ?? 3;
 
-  // 輕盈的虛線分隔符號
-  const SEP = "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈";
+  // 輕盈的虛線分隔符號，加一點留白，視覺更開闊
+  const SEP = "\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n";
+
+  // 取得台灣時間
+  const now = new Date();
+  const twHour = Number(
+    now.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      hour12: false,
+      timeZone: "Asia/Taipei",
+    }),
+  );
+  const twMin = now.toLocaleTimeString("en-US", {
+    minute: "2-digit",
+    timeZone: "Asia/Taipei",
+  });
+  const timeStr = `${String(twHour).padStart(2, "0")}:${twMin}`;
+
+  // 根據排程時間判定標籤
+  let timeLabel = "📊 投資戰報";
+  if (twHour === 7) {
+    timeLabel = "🌅 盤前推演"; // 07:45 觸發
+  } else if (twHour === 10) {
+    timeLabel = "📈 盤中速報"; // 10:00 觸發
+  } else if (twHour === 12) {
+    timeLabel = "🕛 午盤速報"; // 12:00 觸發
+  } else if (twHour === 14 || twHour === 15) {
+    timeLabel = "🌙 盤後總結"; // 14:40 觸發
+  } else if (twHour >= 21 && twHour <= 23) {
+    timeLabel = "🦉 夜間國際觀測"; // 預留給晚間排程
+  }
 
   // ══════════════════════════════════════════════════════════════
   // 第一則：市場概況 ＋ 進場評分 ＋ 目標進度
@@ -210,25 +297,27 @@ export function buildTelegramMessages({
   ].join("\n");
 
   const msg1Text = `\
-🗓 <b>投資戰情日報</b>  ·  <code>${escapeHTML(dateText)}</code>
+<blockquote><code>${escapeHTML(dateText)} ${timeStr}</code></blockquote>
+
+🗓 <b>${timeLabel}</b>${SEP}\
 
 🚦 狀態：<b>${escapeHTML(result.marketStatus || "未明")}</b>
 📌 行動：<b>${escapeHTML(result.target || "觀望")}</b>
 <blockquote expandable>${escapeHTML(result.suggestion || result.targetSuggestion || result.targetSuggestionShort || "無建議")}</blockquote>
 
-🌐 <b>市場概況</b>
-${SEP}
-🇹🇼 台指 VIX  <code>${Number.isFinite(vixValue) ? vixValue.toFixed(2) : "N/A"}</code>  ${vixLabel}
+🌐 <b>市場概況</b>${SEP}\
 🇺🇸 美股 VIX  <code>${escapeHTML(usRisk?.vix || "N/A")}</code>  ${escapeHTML(usRisk?.riskIcon || "")}
+🇺🇸 貪婪指數 <code>${cnnText}</code>
 📊 S&amp;P500   <code>${spxText}</code>  ${spxEmoji}
+🇹🇼 景氣燈號 <code>${ndcText}</code>
+🇹🇼 大盤維持 <code>${marginText}</code>
+💵 美元台幣 <code>${fxText}</code>
 📍 歷史位階  <b>${escapeHTML(result.historicalLevel || "N/A")}</b>
 
-📊 <b>進場評分</b>
-${SEP}
+📊 <b>進場評分</b>${SEP}\
 ${scoreSection}
 
-⚠️ <b>風險雷達</b>
-${SEP}
+⚠️ <b>風險雷達</b>${SEP}\
 ${signalIcon(reversalTriggered, reversalTotal)} 轉弱訊號  <code>${reversalTriggered} / ${reversalTotal}</code> 個
 ${signalIcon(sellTriggered, sellTotal)} 賣出訊號  <code>${sellTriggered} / ${sellTotal}</code> 個
 ${rsiAlert ? "🔴" : "🟢"} RSI   <code>${Number.isFinite(rsi) ? rsi.toFixed(1) : "--"}</code>
@@ -290,25 +379,23 @@ ${goalSection}`.trim();
   ];
 
   // 注意：此區塊所有 <tg-spoiler> 內不再包覆 <code>，以避免 Telegram 解析失效
-  const msg2Text = `\
-🔬 <b>技術指標</b>
-${SEP}
+  const msg2Text = `
+<blockquote><code>${escapeHTML(dateText)} ${timeStr}</code></blockquote>
+
+🔬 <b>技術指標</b>${SEP}\
 ${rsiAlert ? "🔴" : "🟢"} RSI    <code>${Number.isFinite(rsi) ? rsi.toFixed(1) : "N/A"}</code>
 ${dAlert ? "🔴" : "🟢"} KD(D)  <code>${Number.isFinite(kd_d) ? kd_d.toFixed(1) : "N/A"}</code>
 ${biasAlert ? "🔴" : "🟢"} 乖離率 <code>${Number.isFinite(bias) ? bias.toFixed(1) + "%" : "N/A"}</code>
 💰 現價  <code>$${Number(result.currentPrice || 0).toFixed(2)}</code>  ${changeIcon} <code>${priceChangePct >= 0 ? "+" : ""}${priceChangePct.toFixed(1)}%</code>
 📌 基準價 <code>$${Number(result.basePrice || 0).toFixed(2)}</code>
 
-🟡 <b>轉弱監控</b>  <i>（${reversalTriggered}/${reversalTotal}）</i>
-${SEP}
+🟡 <b>轉弱監控</b>  <i>（${reversalTriggered}/${reversalTotal}）</i>${SEP}\
 ${reversalSignals.map(signalRow).join("\n")}
 
-🔴 <b>賣出訊號</b>  <i>（${sellTriggered}/${sellTotal}）</i>
-${SEP}
+🔴 <b>賣出訊號</b>  <i>（${sellTriggered}/${sellTotal}）</i>${SEP}\
 ${sellSignals.map(signalRow).join("\n")}
 
-🏦 <b>帳戶快照</b> (點擊解鎖隱私)
-${SEP}
+🏦 <b>帳戶快照</b> (點擊解鎖隱私)${SEP}\
 💼 帳戶淨值    <tg-spoiler>$${Math.floor(currentAsset).toLocaleString("en-US")}</tg-spoiler>
 🏗 總資產(含貸) <tg-spoiler>$${Math.floor(grossAsset).toLocaleString("en-US")}</tg-spoiler>
 ${levInfo.icon} 實際槓桿    <code>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}</code>  <b>${levInfo.label}</b>
@@ -317,8 +404,7 @@ ${z2Safe ? "✅" : "⚠️"} 00675L佔比  <code>${Number.isFinite(z2Ratio) ? z2
 💵 現金儲備    <tg-spoiler>$${cashReserveStr}</tg-spoiler>
 💳 借款金額    <tg-spoiler>$${Number(totalLoan).toLocaleString("en-US")}</tg-spoiler>
 
-📦 <b>持倉配置</b>
-${SEP}
+📦 <b>持倉配置</b>${SEP}\
 🛡 0050    <tg-spoiler>${qty0050Str} 股</tg-spoiler>
 ⚔️ 0067L   <tg-spoiler>${qtyZ2Str} 股</tg-spoiler>`.trim();
 
@@ -344,20 +430,21 @@ ${SEP}
     : null;
   const strategyUrl = process.env.STRATEGY_URL || null;
 
-  const msg3Text = `\
-🤖 <b>AI 教練洞察</b>
-${SEP}
+  const msg3Text = `
+<blockquote><code>${escapeHTML(dateText)} ${timeStr}</code></blockquote>
+
+🤖 <b>AI 教練洞察</b>${SEP}\
 ${aiTextHtml}
 
 <blockquote expandable><b>🧠 教練內心推演：</b>
 ${escapeHTML(aiAdvice?.internalThinking || "無")}</blockquote>
 
-📈 <b>持紀律，享複利</b>
+📈 <b>每日一句</b>
 <blockquote>${quoteBlock}</blockquote>`.trim();
 
   return [
-    { text: msg1Text },
-    { text: msg2Text },
-    { text: msg3Text, sheetUrl, strategyUrl },
+    { text: msg1Text }, // 第一則：會響鈴/震動
+    { text: msg2Text, disable_notification: true }, // 第二則：無聲
+    { text: msg3Text, disable_notification: true, sheetUrl, strategyUrl }, // 第三則：無聲
   ];
 }

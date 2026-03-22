@@ -22,6 +22,8 @@ import {
 import { getDailyQuote } from "./modules/providers/quoteProvider.mjs";
 import { analyzeUsRisk } from "./modules/providers/usMarketProvider.mjs";
 import { getNewsTelegramMessages } from "./modules/newsFetcher.mjs";
+import { fetchAllMacroData } from "./modules/providers/marketData.mjs";
+import { buildExtendedMacroContext } from "./modules/ai/aiDataPreprocessor.mjs";
 
 export async function dailyCheck({
   isLineEnabled = true,
@@ -272,6 +274,11 @@ export async function dailyCheck({
     console.log("📖 正在取得每日一句...");
     const quote = await getDailyQuote();
 
+    // 取得總經與籌碼資料
+    console.log("🌏 正在獲取總經與籌碼資料...");
+    const macroData = await fetchAllMacroData();
+    const macroAndChipStr = buildExtendedMacroContext(macroData);
+
     // 取得新聞錦集
     let newsMessages = [];
     let newsSummaryText = "今日無重大市場新聞。";
@@ -306,6 +313,7 @@ export async function dailyCheck({
       vixData,
       newsSummaryText,
       macroTextForCoach,
+      macroAndChipStr,
       !isAIAdvisor,
     );
 
@@ -314,6 +322,7 @@ export async function dailyCheck({
       result,
       vixData,
       usRisk,
+      macroData,
       config: lastState,
       dateText,
       aiAdvice,

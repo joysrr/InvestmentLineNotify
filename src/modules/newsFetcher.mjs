@@ -219,11 +219,11 @@ export async function getNewsTelegramMessages(marketData) {
   const messagesToSend = [];
 
   if (msgTextTW) {
-    messagesToSend.push({ text: msgTextTW });
+    messagesToSend.push({ text: msgTextTW, disable_notification: true }); // 台灣新聞設定為無聲
   }
 
   if (msgTextGLOBAL) {
-    messagesToSend.push({ text: msgTextGLOBAL });
+    messagesToSend.push({ text: msgTextGLOBAL, disable_notification: true }); // 國際新聞設定為無聲
   }
 
   // 萬一 AI 判斷今天全部都是廢文，兩邊都為空
