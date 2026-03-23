@@ -55,7 +55,7 @@ function scoreRow(label, score, info) {
   if (isScored) {
     return `${icon} <b>${label}</b>  <code>${scoreStr}</code>  <i>${escapeHTML(info || "─")}</i>`;
   } else {
-    return `${icon} <tg-spoiler><i>${label}  <code>${scoreStr}</code>  ${escapeHTML(info || "─")}</i></tg-spoiler>`; // 用 spoiler 淡化未得分項目
+    return `${icon} <i>${label}  <code>${scoreStr}</code>  ${escapeHTML(info || "─")}</i>`;
   }
 }
 
@@ -77,6 +77,7 @@ export function buildTelegramMessages({
   vixData,
   usRisk,
   macroData,
+  macroAnalysis,
   config,
   dateText,
   aiAdvice,
@@ -276,13 +277,15 @@ export function buildTelegramMessages({
   // 第一則：市場概況 ＋ 進場評分 ＋ 目標進度
   // ══════════════════════════════════════════════════════════════
 
+  const sVal = Number.isFinite(score) ? score : "--";
+  const mVal = Number.isFinite(minScore) ? minScore : "--";
+
   const scoreSection = [
     scoreRow("跌幅", dropScore, w.dropInfo),
     scoreRow("RSI", rsiScore, w.rsiInfo),
     scoreRow("MACD", macdScore, w.macdInfo),
     scoreRow("KD", kdScore, w.kdInfo),
-    SEP,
-    `${scoreOk ? "✅" : "❌"} <b>總分 <code>${Number.isFinite(score) ? score : "--"}pt</code></b>  門檻 <code>${Number.isFinite(minScore) ? minScore : "--"}pt</code>  ${scoreOk ? "達標可入場" : "觀望"}`,
+    `<blockquote>${scoreOk ? "🟢 <b>條件達標，可評估入場</b>" : "⏸️ <b>條件未滿，請維持觀望</b>"}\n總計得分：<code>${sVal}</code> pt (門檻 <code>${mVal}</code>)</blockquote>`,
   ].join("\n");
 
   // 目標進度條：拿掉 <code>，並確保 tg-spoiler 內只有純文字
@@ -385,12 +388,12 @@ ${SEP}\📡 <b>轉弱監控</b>  <i>（${reversalTriggered}/${reversalTotal}）<
 ${reversalSignals.map(signalRow).join("\n")}\
 ${SEP}\🛎️ <b>賣出訊號</b>  <i>（${sellTriggered}/${sellTotal}）</i>${SEP}\
 ${sellSignals.map(signalRow).join("\n")}\
-${SEP}\🏦 <b>帳戶快照</b> (點擊解鎖隱私)${SEP}\
+${SEP}\🏦 <b>帳戶快照</b>${SEP}\
 💼 帳戶淨值    <tg-spoiler>$${Math.floor(currentAsset).toLocaleString("en-US")}</tg-spoiler>
 🏗 總資產(含貸) <tg-spoiler>$${Math.floor(grossAsset).toLocaleString("en-US")}</tg-spoiler>
-${levInfo.icon} 實際槓桿    <code>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}</code>  <b>${levInfo.label}</b>
-${mmInfo.icon} 維持率      <code>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未借款"}</code>  <b>${mmInfo.label}</b>
-${z2Safe ? "✅" : "⚠️"} 00675L佔比  <code>${Number.isFinite(z2Ratio) ? z2Ratio.toFixed(1) + "%" : "N/A"}</code>  <i>上限 ${z2TargetPct.toFixed(0)}%</i>
+${levInfo.icon} 實際槓桿    <tg-spoiler>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}</tg-spoiler>  <b>${levInfo.label}</b>
+${mmInfo.icon} 維持率      <tg-spoiler>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未借款"}</tg-spoiler>  <b>${mmInfo.label}</b>
+${z2Safe ? "✅" : "⚠️"} 00675L佔比  <tg-spoiler>${Number.isFinite(z2Ratio) ? z2Ratio.toFixed(1) + "%" : "N/A"}</tg-spoiler>  <i>上限 ${z2TargetPct.toFixed(0)}%</i>
 💵 現金儲備    <tg-spoiler>$${cashReserveStr}</tg-spoiler>
 💳 借款金額    <tg-spoiler>$${Number(totalLoan).toLocaleString("en-US")}</tg-spoiler>\
 ${SEP}\📦 <b>持倉配置</b>${SEP}\
@@ -400,6 +403,49 @@ ${SEP}\📦 <b>持倉配置</b>${SEP}\
   // ══════════════════════════════════════════════════════════════
   // 第三則：AI 策略 ＋ 每日一句
   // ══════════════════════════════════════════════════════════════
+
+  // 💡 新增：建構總經多空對決區塊
+  let macroAnalysisSection = "";
+  if (macroAnalysis && macroAnalysis.conclusion) {
+    const {
+      bull_events = [],
+      bear_events = [],
+      neutral_events = [],
+      total_bull_score = 0,
+      total_bear_score = 0,
+      conclusion,
+    } = macroAnalysis;
+
+    const topBull = bull_events
+      .map((e) => `🟢 [+${e.score}] ${escapeHTML(e.event)}`)
+      .join("\n");
+    const topBear = bear_events
+      .map((e) => `🔴 [-${e.score}] ${escapeHTML(e.event)}`)
+      .join("\n");
+    const topNeutral = neutral_events
+      .map((e) => `⏳ [觀望] ${escapeHTML(e.event)}`)
+      .join("\n");
+
+    const eventsList = [topBull, topBear, topNeutral]
+      .filter(Boolean)
+      .join("\n\n");
+
+    const takeawaysText = (conclusion.key_takeaways || [])
+      .map((k) => `◦ <i>${escapeHTML(k)}</i>`)
+      .join("\n");
+
+    macroAnalysisSection = `\
+🌍 <b>AI 總經多空對決</b> ［${escapeHTML(conclusion.market_direction || "未知")}］\
+${SEP}\
+🎯 <b>市場主軸：</b>${escapeHTML(conclusion.short_summary || "無")}
+⚖️ <b>多空積分：</b>多 <code>${total_bull_score}</code> vs 空 <code>${total_bear_score}</code>
+
+<b>📌 核心驅動邏輯：</b>
+${takeawaysText}
+
+<blockquote expandable><b>🔥 重大驅動事件：</b>
+${eventsList || "無顯著事件"}</blockquote>`.trim();
+  }
 
   let aiTextHtml = "🔄 數據分析中，請稍候...";
   if (aiAdvice?.finalAdviceText) {
@@ -421,7 +467,10 @@ ${SEP}\📦 <b>持倉配置</b>${SEP}\
 
   const msg3Text = `\
 <blockquote><code>資料產出時間：${escapeHTML(dateText)} ${timeStr}</code></blockquote>\
-${SEP}\🤖 <b>AI 教練洞察</b>${SEP}\
+${SEP}\
+${macroAnalysisSection}\
+${SEP}🤖 <b>AI 教練洞察</b>\
+${SEP}\
 ${aiTextHtml}
 
 <blockquote expandable><b>🧠 教練內心推演：</b>

@@ -1,6 +1,6 @@
 import { ThinkingLevel } from "@google/genai";
 import { callGemini } from "./aiClient.mjs";
-import { minifyExplainInput } from "./aiDataPreprocessor.mjs";
+import { formatQuantDataForCoach } from "./aiDataPreprocessor.mjs";
 import {
   MACRO_ANALYSIS_SYSTEM_PROMPT,
   INVESTMENT_COACH_PROMPT,
@@ -30,15 +30,18 @@ export async function getAiInvestmentAdvice(
 ) {
   if (onlyPrompt) return "AI 決策引擎停止運作中。";
 
-  const cleanData = minifyExplainInput(marketData, portfolio, vixData);
-  const jsonStr = JSON.stringify(cleanData);
+  const quantTextForCoach = formatQuantDataForCoach(
+    marketData,
+    portfolio,
+    vixData,
+  );
   const todayStr = new Date().toISOString().split("T")[0];
 
   const userPrompt = buildCoachUserPrompt(
     todayStr,
     newsSummaryText,
     macroTextForCoach,
-    jsonStr,
+    quantTextForCoach,
     macroAndChipStr,
   );
 

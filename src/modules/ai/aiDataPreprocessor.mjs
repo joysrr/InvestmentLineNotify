@@ -1,400 +1,118 @@
 /**
- * AI 數據預處理工具
+ * AI 數據預處理工具：將龐大的量化數據轉換為教練 AI 易讀的純文字簡報
  */
 
-// 這個 function 的目的是把各種可能的數值（不論是字串還是數字）統一轉成小數點兩位的數字，並且對於無效的輸入（例如非數字字串、null、undefined）回傳 null，確保後續的 AI 模組在處理這些數據時不會遇到格式問題或 NaN
 const n2 = (v) => {
   const x = typeof v === "string" ? Number(v) : v;
   return Number.isFinite(x) ? Math.round(x * 100) / 100 : null;
 };
 
-// 這個 function 的目的是把數據轉換成我們內部統一使用的格式，並且在遇到任何錯誤（例如網路問題、API 格式改變）時提供一個合理的預設值，確保後續的 AI 模組不會因為缺少數據而崩潰
-const cleanUndef = (obj) => {
-  if (obj == null) return obj;
-  if (Array.isArray(obj))
-    return obj.map(cleanUndef).filter((v) => v !== undefined);
-  if (typeof obj !== "object") return obj;
+const fmt = (v, defaultStr = "--") => (v != null ? v : defaultStr);
 
-  const out = {};
-  for (const [k, v] of Object.entries(obj)) {
-    const vv = cleanUndef(v);
-    if (vv !== undefined) out[k] = vv;
+export function formatQuantDataForCoach(
+  marketData,
+  portfolio = {},
+  vixData = null,
+) {
+  // 1. 抽取策略與門檻參數
+  const st = marketData?.strategy || {};
+  const buyTh = st.buy || {};
+  const sellTh = st.sell || {};
+  const th = st.threshold || {};
+  const lev = st.leverage || {};
+
+  // ===== 帳戶與風控數據 =====
+  const actualLev = n2(marketData?.actualLeverage);
+  const targetLev = n2(lev.targetMultiplier);
+  const mm = n2(marketData?.maintenanceMargin);
+  const z2Ratio = n2(marketData?.z2Ratio);
+  const z2TargetPct =
+    th.z2TargetRatio != null ? n2(th.z2TargetRatio * 100) : null;
+  const cash = n2(portfolio?.cash);
+  const qty0050 = portfolio?.qty0050 ?? 0;
+  const qtyZ2 = portfolio?.qtyZ2 ?? 0;
+
+  let levStatus = "安全";
+  if (actualLev != null && targetLev != null) {
+    if (actualLev > targetLev) levStatus = "⚠️ 過度擴張 (超標)";
+    else if (Math.abs(actualLev - targetLev) <= 0.1) levStatus = "⚖️ 目標區間";
+    else levStatus = "🛡️ 防禦狀態 (具備加碼空間)";
   }
-  return out;
-};
 
-// 這個 function 的目的是把 strategy 裡面對 AI 解釋用的參數抽取出來，轉成更簡潔的格式，方便後續在 minifyExplainInput 裡使用
-function minifyStrategyForExplain(strategy) {
-  if (!strategy) return null;
-
-  const buy = strategy.buy || {};
-  const sell = strategy.sell || {};
-  const th = strategy.threshold || {};
-  const lev = strategy.leverage || {};
-
-  return cleanUndef({
-    // entryCheck 還需要
-    buy: {
-      minDrop: n2(buy.minDropPercentToConsider),
-      minScore: n2(buy.minWeightScoreToBuy),
-    },
-
-    // riskWatch.sell 還需要
-    sell: {
-      minUp: n2(sell.minUpPercentToSell),
-      minSignals: n2(sell.minSignalCountToSell),
-    },
-
-    // riskWatch.overheat/reversal/vix 還需要
-    threshold: {
-      overheatNeed: n2(th.overheatCount),
-      reversalNeed: n2(th.reversalTriggerCount),
-      vixLow: n2(th.vixLowComplacency),
-      vixHigh: n2(th.vixHighFear),
-
-      // account 區塊你仍在算 z2TargetPct/z2HighPct
-      z2Target: n2(th.z2TargetRatio),
-      z2High: n2(th.z2RatioHigh),
-
-      // 目前雖然 prompt 沒直接用，但你說 guardrails 想保留就留
-      mmDanger: n2(th.mmDanger),
-    },
-
-    // 讓你未來可以改成從 cleanData 讀目標槓桿（現在 prompt 還是用 strategy.leverage）
-    leverage: {
-      targetMultiplier: n2(lev.targetMultiplier),
-    },
-  });
-}
-
-// 這個 function 的目的是把原本給 AI 的 explainInput 做進一步的精簡，讓它更專注在關鍵資訊上，並且統一一些格式（例如門檻狀態的表達）
-export function minifyExplainInput(marketData, portfolio = {}, vixData = null) {
-  const st = minifyStrategyForExplain(marketData?.strategy);
-
-  const hitToZh = (k) =>
-    ({
-      // --- Overheat factors（狀態）---
-      rsiHigh: "RSI 高檔",
-      kdHigh: "KD(D) 高檔",
-      biasHigh: "年線乖離過高",
-
-      // --- Sell state flags（狀態）---
-      rsiStateOverbought: "RSI 偏熱",
-      kdStateOverbought: "KD(D) 偏熱",
-
-      // --- Sell flags（事件）---
-      rsiSell: "RSI 回落（賣出訊號）",
-      macdSell: "MACD 轉弱（賣出訊號）",
-      kdSell: "KD 高檔轉弱觸發（K↘D / D↘）",
-
-      // --- Reversal triggers（事件/門檻）---
-      kdBearCross: "KD 死叉（K↘D）",
-      macdBearCross: "MACD 死叉",
-      rsiDrop: "RSI 轉弱",
-      kdDrop: "KD(min) 轉弱",
-    })[k] || k;
-
-  const truthyKeys = (obj) =>
-    obj && typeof obj === "object"
-      ? Object.keys(obj).filter((k) => obj[k] === true)
-      : [];
-
-  // ===== 進場判定（直接給 LLM 用）=====
-  const actualDrop = n2(marketData?.priceDropPercent);
-  const needDrop = n2(st?.buy?.minDrop);
-
+  // ===== 進場評分數據 =====
   const actualScore = n2(
     marketData?.weightScore ?? marketData?.entry?.weightScore,
   );
-  const needScore = n2(st?.buy?.minScore);
+  const minScore = n2(buyTh.minWeightScoreToBuy);
+  const scoreReached =
+    actualScore != null && minScore != null && actualScore >= minScore;
 
-  // ===== 過熱 / 轉弱 / 賣出 =====
-  const overheat = marketData?.overheat || {};
-  const reversal = marketData?.reversal || {};
-  const sellSignals = marketData?.sellSignals || {};
+  const entryHits =
+    [
+      marketData?.weightDetails?.dropInfo,
+      marketData?.weightDetails?.rsiInfo,
+      marketData?.weightDetails?.macdInfo,
+      marketData?.weightDetails?.kdInfo,
+    ]
+      .filter(Boolean)
+      .join("、") || "無";
 
-  const overheatHits = truthyKeys(overheat.factors).map(hitToZh);
-  const sellStateHits = truthyKeys(sellSignals.stateFlags).map(hitToZh);
-  const sellFlagHits = truthyKeys(sellSignals.flags).map(hitToZh);
-
-  // ===== 帳戶安全 / 部位 =====
-  const z2Ratio = n2(marketData?.z2Ratio); // 你目前是 percent 數值（8.86）
-  const z2TargetPct =
-    st?.threshold?.z2Target != null ? n2(st.threshold.z2Target * 100) : null; // 0.4 => 40
-  const z2HighPct = n2(st?.threshold?.z2High); // 42
-  const z2GapToTarget =
-    z2Ratio != null && z2TargetPct != null ? n2(z2TargetPct - z2Ratio) : null;
-
-  // ===== VIX =====
+  // ===== 風險與賣出指標 =====
   const vixVal = n2(vixData?.value);
-  const vixLow = n2(st?.threshold?.vixLow);
-  const vixHigh = n2(st?.threshold?.vixHigh);
+  const vixHighTh = n2(th.vixHighFear);
+  let vixLabel = "正常區間";
+  if (vixVal != null && vixHighTh != null && vixVal > vixHighTh) {
+    vixLabel = "🔥 落入高波動區 (偏恐慌)";
+  } else if (
+    vixVal != null &&
+    th.vixLowComplacency != null &&
+    vixVal < th.vixLowComplacency
+  ) {
+    vixLabel = "❄️ 落入低波動區 (偏安逸)";
+  }
 
-  const gapLabel = (gap, unit = "") => {
-    if (gap == null) return null;
-    if (gap <= 0) return null;
+  const histLevel = marketData?.historicalLevel || "未知";
+  const overheatHits = n2(marketData?.overheat?.highCount) || 0;
+  const reversalHits = n2(marketData?.reversal?.triggeredCount) || 0;
+  const sellHits = n2(marketData?.sellSignals?.signalCount) || 0;
 
-    const u = String(unit).trim().toLowerCase();
+  const mktStatus = marketData?.marketStatus || "未知";
+  const suggestionShort = marketData?.targetSuggestionShort || "無特殊建議";
 
-    // 1) unit 分類：不同量綱講法不同
-    const kind = u.includes("%")
-      ? "pct"
-      : u.includes("分") || u.includes("pt") || u.includes("點")
-        ? "score"
-        : u.includes("次") || u.includes("個") || u.includes("筆")
-          ? "count"
-          : u.includes("萬") || u.includes("元") || u.includes("$")
-            ? "money"
-            : "generic";
+  // 2. 組裝成純文字簡報結構 (加入策略參數配置區塊)
+  return `
+【量化系統判定狀態】
+系統狀態：${mktStatus}
+行動建議：${marketData?.target || "觀望"} (${suggestionShort})
 
-    // 2) 分級門檻（只用於判斷，不出現在文字裡）
-    const levels = {
-      pct: { near: 2, mid: 5 },
-      score: { near: 1, mid: 3 },
-      count: { near: 1, mid: 2 },
-      money: { near: 0.5, mid: 2 },
-      generic: { near: 2, mid: 5 },
-    }[kind];
+【帳戶風控狀態】
+實際槓桿：${fmt(actualLev)} 倍 (目標 ${fmt(targetLev)} 倍) ➔ 狀態：${levStatus}
+大盤維持率：${fmt(mm)}%
+00675L佔比：${fmt(z2Ratio)}% (目標上限 ${fmt(z2TargetPct)}%)
+現金儲備：$${cash != null ? cash.toLocaleString("en-US") : "--"}
+持股分佈：0050 (${qty0050.toLocaleString("en-US")} 股) / 00675L (${qtyZ2.toLocaleString("en-US")} 股)
 
-    // 3) 對應語氣模板（讓 AI 不會一直用「差距明顯」）
-    const tone = {
-      pct: {
-        near: "接近門檻（幅度差一點）",
-        mid: "仍需一段幅度",
-        far: "離門檻還有距離",
-      },
-      score: {
-        near: "接近門檻（分數差一點）",
-        mid: "仍需累積條件",
-        far: "分數門檻仍偏遠",
-      },
-      count: {
-        near: "接近門檻（訊號差一點）",
-        mid: "仍需訊號累積",
-        far: "訊號累積仍不足",
-      },
-      money: {
-        near: "接近目標（差一點）",
-        mid: "仍需一段距離",
-        far: "距離目標仍明顯",
-      },
-      generic: {
-        near: "接近門檻（差一點）",
-        mid: "仍需一段距離",
-        far: "離門檻還有距離",
-      },
-    }[kind];
+【買進條件判定】
+總評分：${fmt(actualScore)} 分 (門檻 ${fmt(minScore)} 分) ➔ ${scoreReached ? "🟢已達標" : "🔴未達標"}
+觸發因子：${entryHits}
 
-    if (gap <= levels.near) return tone.near;
-    if (gap <= levels.mid) return tone.mid;
-    return tone.far;
-  };
+【風險與賣出監控】
+大盤位階：${histLevel}
+VIX指數：${fmt(vixVal)} ➔ ${vixLabel}
+過熱指標：觸發 ${overheatHits} 個 (門檻 ${fmt(th.overheatCount)})
+轉弱指標：觸發 ${reversalHits} 個 (門檻 ${fmt(th.reversalTriggerCount)})
+賣出訊號：觸發 ${sellHits} 次 (門檻 ${fmt(sellTh.minSignalCountToSell)})
 
-  // 統一的門檻狀態：
-  // - direction="up"   ：actual >= threshold 代表 breached
-  // - direction="down" ：actual <= threshold 代表 breached
-  const mkThresholdStatus = (actual, threshold, unit, direction, opt = {}) => {
-    const a = actual == null ? null : actual;
-    const t = threshold == null ? null : threshold;
-
-    const {
-      breachedTextUp = "已越過門檻（需留意）",
-      breachedTextDown = "已跌破門檻（需留意）",
-    } = opt;
-
-    if (a == null || t == null) {
-      return {
-        actual: a,
-        threshold: t,
-        breached: null,
-        distance: null,
-        distanceLabel: null,
-        direction,
-      };
-    }
-
-    const rawNum = direction === "up" ? t - a : a - t;
-    const raw = n2(rawNum);
-    if (raw == null) {
-      return {
-        actual: a,
-        threshold: t,
-        breached: null,
-        distance: null,
-        distanceLabel: null,
-        direction,
-      };
-    }
-
-    const breached = raw <= 0;
-    const distance = breached ? 0 : raw;
-    const breachedText = direction === "up" ? breachedTextUp : breachedTextDown;
-
-    return {
-      actual: a,
-      threshold: t,
-      breached,
-      distance,
-      distanceLabel: breached ? breachedText : gapLabel(distance, unit),
-      direction,
-    };
-  };
-
-  // ===== riskWatch 用到的數值（先 n2 避免 NaN/字串干擾）=====
-  const overheatNeed = n2(st?.threshold?.overheatNeed);
-  const reversalNeed = n2(st?.threshold?.reversalNeed);
-  const sellNeedSignals = n2(st?.sell?.minSignals);
-  const sellUpNeed = n2(st?.sell?.minUp);
-
-  const overheatHitCount = n2(overheat?.highCount);
-  const reversalTriggered = n2(reversal?.triggeredCount);
-  const sellSignalCount = n2(sellSignals?.signalCount);
-  const sellUpActual = n2(marketData?.priceUpPercent);
-
-  // VIX
-  const vixValue = vixVal; // 你前面已 n2
-  const vixLowTh = vixLow;
-  const vixHighTh = vixHigh;
-
-  // 各項門檻狀態（統一 schema）
-  const overheatThreshold = mkThresholdStatus(
-    overheatHitCount,
-    overheatNeed,
-    "個",
-    "up",
-  );
-  const reversalThreshold = mkThresholdStatus(
-    reversalTriggered,
-    reversalNeed,
-    "個",
-    "up",
-  );
-
-  const sellSignalsThreshold = mkThresholdStatus(
-    sellSignalCount,
-    sellNeedSignals,
-    "次",
-    "up",
-  );
-
-  const sellUpThreshold = mkThresholdStatus(
-    sellUpActual,
-    sellUpNeed,
-    "%",
-    "up",
-  );
-
-  // VIX 有兩條線：低檔（跌破）與高檔（越過）
-  const vixLowZone = mkThresholdStatus(vixValue, vixLowTh, "點", "down", {
-    breachedTextDown: "已落入低波動區（偏安逸）",
-  });
-  const vixHighZone = mkThresholdStatus(vixValue, vixHighTh, "點", "up", {
-    breachedTextUp: "已落入高波動區（偏恐慌）",
-  });
-
-  const dropStatus = mkThresholdStatus(actualDrop, needDrop, "%", "up", {
-    breachedTextUp: "已達標",
-  });
-  const scoreStatus = mkThresholdStatus(actualScore, needScore, "分", "up", {
-    breachedTextUp: "已達標",
-  });
-
-  // 可選：把 weightDetails 當 entryCheck 的 hits（你原本就是給 AI 用）
-  const entryHits = [
-    marketData?.weightDetails?.dropInfo,
-    marketData?.weightDetails?.rsiInfo,
-    marketData?.weightDetails?.macdInfo,
-    marketData?.weightDetails?.kdInfo,
-  ].filter(Boolean);
-
-  const uniq = (arr) => [...new Set(arr)];
-  const sellHits = uniq([...sellStateHits, ...sellFlagHits].filter(Boolean));
-
-  return cleanUndef({
-    meta: {
-      dateText: marketData?.dateText ?? null, // 你若有就塞，沒有也行
-      symbol: marketData?.symbol ?? "00675L",
-    },
-
-    conclusion: {
-      marketStatus: marketData?.marketStatus ?? null,
-      target: marketData?.target ?? null,
-      suggestionShort: marketData?.targetSuggestionShort ?? null,
-      suggestion: marketData?.suggestion ?? null,
-      reasonOneLine: marketData?.targetSuggestion ?? null,
-    },
-
-    entryCheck: {
-      hits: entryHits,
-
-      drop: {
-        thresholdStatus: dropStatus,
-        // 可選：保留一個短字串讓 AI 更好引用，但不要放 text（避免它照抄）
-        // summary: dropStatus?.breached === true ? "跌幅條件已滿足" : "跌幅條件未滿足",
-      },
-
-      score: {
-        thresholdStatus: scoreStatus,
-        // summary: scoreStatus?.breached === true ? "評分條件已滿足" : "評分條件未滿足",
-      },
-    },
-
-    riskWatch: {
-      historicalLevel: marketData?.historicalLevel ?? null,
-
-      vix:
-        vixValue != null
-          ? {
-              thresholdText: `低<${vixLowTh ?? "N/A"} / 高>${vixHighTh ?? "N/A"}`,
-              lowZone: vixLowZone, // {actual, threshold, breached, distance, distanceLabel, direction:"down"}
-              highZone: vixHighZone, // {actual, threshold, breached, distance, distanceLabel, direction:"up"}
-            }
-          : null,
-
-      overheat: {
-        hits: overheatHits,
-        thresholdStatus: overheatThreshold, // {actual: hitCount, threshold: need, breached, distance, distanceLabel, direction:"up"}
-      },
-
-      reversal: {
-        hits: [
-          reversal?.rsiDrop ? hitToZh("rsiDrop") : null,
-          reversal?.kdDrop ? hitToZh("kdDrop") : null,
-          reversal?.kdBearCross ? hitToZh("kdBearCross") : null,
-          reversal?.macdBearCross ? hitToZh("macdBearCross") : null,
-        ].filter(Boolean),
-        thresholdStatus: reversalThreshold, // {actual: triggered, threshold: need, breached, distance, distanceLabel, direction:"up"}
-      },
-
-      sell: {
-        hits: sellHits,
-        signals: sellSignalsThreshold,
-        up: sellUpThreshold,
-      },
-    },
-
-    account: {
-      netAsset: n2(marketData?.netAsset),
-      totalLoan: n2(marketData?.totalLoan),
-      actualLeverage: n2(marketData?.actualLeverage),
-      maintenanceMargin: n2(marketData?.maintenanceMargin),
-      z2RatioPct: z2Ratio,
-      z2TargetPct,
-      z2HighPct,
-      z2GapToTarget,
-      cash: n2(portfolio?.cash),
-      holdings: {
-        qty0050: portfolio?.qty0050 ?? null,
-        qtyZ2: portfolio?.qtyZ2 ?? null,
-      },
-    },
-
-    // 讓 LLM 不用再去猜門檻
-    thresholds: st,
-
-    // 你最後那句紀律提醒直接塞這裡
-    disciplineReminder: marketData?.disciplineReminder ?? null,
-  });
+【底層策略參數配置 (供教練決策參考)】
+- 目標槓桿倍數：${fmt(lev.targetMultiplier)}
+- 買入分數門檻：${fmt(buyTh.minWeightScoreToBuy)} 分
+- 賣出觸發門檻：累積 ${fmt(sellTh.minSignalCountToSell)} 個賣出訊號
+- 乖離過熱門檻：累積 ${fmt(th.overheatCount)} 個過熱因子
+- 轉弱確認門檻：累積 ${fmt(th.reversalTriggerCount)} 個轉弱因子
+- VIX 恐慌/安逸線：> ${fmt(th.vixHighFear)} / < ${fmt(th.vixLowComplacency)}
+- 融資斷頭警戒線：低於 ${fmt(th.mmDanger)}%
+- 00675L 佔比上限：${fmt(z2TargetPct)}% (硬限制 ${fmt(n2(th.z2RatioHigh * 100))}%)
+`.trim();
 }
 
 /**
@@ -627,12 +345,84 @@ export function formatBusinessIndicatorForAi(rawIndicator) {
 }
 
 /**
+ * 將 AI 產出的 Macro Analysis JSON 轉換為教練 AI 易於閱讀的結構化純文字
+ * @param {Object} macroAnalysis - 由 analyzeMacroNewsWithAI 產出的原始 JSON 物件
+ * @returns {string} - 格式化後的純文本字串
+ */
+export function formatMacroAnalysisForCoach(macroAnalysis) {
+  // 防呆：如果沒有資料，回傳預設字串
+  if (!macroAnalysis || !macroAnalysis.conclusion) {
+    return "【總經多空對決報告】\n無最新總經分析資料。";
+  }
+
+  const {
+    bull_events = [],
+    bear_events = [],
+    neutral_events = [],
+    total_bull_score = 0,
+    total_bear_score = 0,
+    conclusion,
+  } = macroAnalysis;
+
+  // 1. 將重大事件轉化為條列式字串 (最多只抓取前3大的事件，避免 Token 浪費)
+  // 這裡只提取 event 本身，教練 AI 不需要看詳細的 reason
+  const topBullEvents = bull_events
+    .map((e) => `[+${e.score}分] ${e.event}`)
+    .join("\n  ");
+
+  const topBearEvents = bear_events
+    .map((e) => `[-${e.score}分] ${e.event}`)
+    .join("\n  ");
+
+  const formattedNeutralEvents = neutral_events
+    .map((e) => `[觀望] ${e.event}`)
+    .join("\n  ");
+
+  // 2. 處理核心邏輯 (防呆處理，確保 key_takeaways 存在且為陣列)
+  let takeawaysText = "";
+  if (
+    Array.isArray(conclusion.key_takeaways) &&
+    conclusion.key_takeaways.length > 0
+  ) {
+    takeawaysText = conclusion.key_takeaways
+      .map((point) => `- ${point}`)
+      .join("\n");
+  } else {
+    // 兼容舊版可能只有 analysis 的情況
+    takeawaysText = `- ${conclusion.analysis || "無詳細分析"}`;
+  }
+
+  // 3. 組合出結構極度清晰的純文本
+  // 使用 .trim() 確保頭尾沒有多餘的空白換行
+  return `
+【總經多空對決報告】
+最終判定方向：${conclusion.market_direction || "未知"}
+市場主軸：${conclusion.short_summary || "無"}
+
+[積分對決]
+🟢 總利多分數：${total_bull_score}
+🔴 總利空分數：${total_bear_score}
+
+[核心驅動邏輯]
+${takeawaysText}
+
+[當下重大驅動事件]
+利多推力：
+  ${topBullEvents || "無顯著利多事件"}
+利空拉力：
+  ${topBearEvents || "無顯著利空事件"}
+不確定性/未爆彈：
+  ${formattedNeutralEvents || "無顯著觀望事件"}
+`.trim();
+}
+
+/**
  * 將所有原始總經資料轉換、組裝成最終給 AI 的 Context 字串
  * @param {Object} rawMarketData - fetchAllMacroData() 回傳的生資料
- * @returns {String} 可直接塞入 LLM Prompt 的 JSON 字串
+ * @returns {String} 教練 AI 易讀的純文字簡報字串
  */
-export function buildExtendedMacroContext(rawMarketData) {
-  // 1. 各別進行格式轉換，若無資料則回傳預設錯誤結構
+export function formatMacroChipForCoach(rawMarketData) {
+  // 1. 各別獲取原本的物件資料 (若無資料則給預設值)
   const aiCnn = rawMarketData.rawCnn
     ? formatCnnDataForAi(rawMarketData.rawCnn)
     : { 狀態: "獲取失敗，略過此指標" };
@@ -649,16 +439,47 @@ export function buildExtendedMacroContext(rawMarketData) {
     ? formatBusinessIndicatorForAi(rawMarketData.rawNdc)
     : { 狀態: "獲取失敗，略過此指標" };
 
-  // 2. 組裝成統一的結構體
-  const combinedContext = {
-    總體經濟與籌碼面指標_Macro_And_Chip: {
-      "1_美股情緒": aiCnn,
-      "2_台股散戶籌碼": aiMargin,
-      "3_外資動向匯率": aiFx,
-      "4_台股長線景氣位階": aiNdc,
-    },
-  };
+  // 輔助函式：安全提取物件值
+  const getVal = (obj, key, fallback = "未知") => obj?.[key] ?? fallback;
 
-  // 3. 轉成漂亮的 JSON 字串 (縮排 2 格)，AI 解析 JSON 結構能力極強
-  return JSON.stringify(combinedContext, null, 2);
+  // 2. 將各模組物件扁平化為條列式字串
+  // 針對 CNN
+  const cnnText = aiCnn["狀態"]
+    ? `1. 美股情緒 (CNN恐懼貪婪)：${aiCnn["狀態"]}`
+    : `1. 美股情緒 (CNN恐懼貪婪)：${getVal(aiCnn, "當前狀態")}
+   趨勢：${getVal(aiCnn, "短期趨勢_較昨日")} / ${getVal(aiCnn, "中期趨勢_較上週")}
+   解讀：${getVal(aiCnn, "AI解讀提示")}`;
+
+  // 針對維持率
+  const marginText = aiMargin["狀態"]
+    ? `2. 散戶籌碼 (大盤維持率)：${aiMargin["狀態"]}`
+    : `2. 散戶籌碼 (大盤維持率)：${getVal(aiMargin, "大盤維持率")}
+   動態：融資餘額 ${getVal(aiMargin, "融資餘額")} (${getVal(aiMargin, "今日餘額變化")})
+   解讀：${getVal(aiMargin, "AI解讀提示")}`;
+
+  // 針對匯率
+  const fxText = aiFx["狀態"]
+    ? `3. 外資動向 (USD/TWD)：${aiFx["狀態"]}`
+    : `3. 外資動向 (USD/TWD)：${getVal(aiFx, "最新報價")}
+   動態：${getVal(aiFx, "今日變化")} / ${getVal(aiFx, "中線趨勢_近1月")}
+   解讀：${getVal(aiFx, "AI解讀提示")}`;
+
+  // 針對國發會燈號
+  const ndcText = aiNdc["狀態"]
+    ? `4. 長線景氣 (國發會燈號)：${aiNdc["狀態"]}`
+    : `4. 長線景氣 (國發會燈號)：${getVal(aiNdc, "當月分數與燈號")}
+   位階：${getVal(aiNdc, "景氣循環位階")}
+   解讀：${getVal(aiNdc, "AI解讀提示")}`;
+
+  // 3. 組合出結構極度清晰的純文本
+  return `
+【總體經濟與籌碼狀態】
+${cnnText}
+
+${marginText}
+
+${fxText}
+
+${ndcText}
+`.trim();
 }

@@ -10,7 +10,6 @@ import { fetchLatestBasePrice } from "./modules/providers/basePriceProvider.mjs"
 import { broadcastDailyReport } from "./modules/notifications/notifier.mjs";
 import { getInvestmentSignalAsync } from "./modules/strategy/strategyEngine.mjs";
 import { calculateIndicators } from "./modules/strategy/indicators.mjs";
-import { getTaiwanDate } from "./utils/coreUtils.mjs";
 import {
   fetchLastPortfolioState,
   logDailyToSheet,
@@ -21,7 +20,10 @@ import {
 } from "./modules/ai/aiCoach.mjs";
 import { getNewsTelegramMessages } from "./modules/newsFetcher.mjs";
 import { fetchAllMacroData } from "./modules/providers/marketData.mjs";
-import { buildExtendedMacroContext } from "./modules/ai/aiDataPreprocessor.mjs";
+import {
+  formatMacroChipForCoach,
+  formatMacroAnalysisForCoach,
+} from "./modules/ai/aiDataPreprocessor.mjs";
 import { archiveManager } from "./modules/data/archiveManager.mjs";
 
 export async function dailyCheck({
@@ -73,13 +75,13 @@ export async function dailyCheck({
     // 呼叫 fetchAllMacroData() 取得包含美股與總經的快取資料
     console.log("🌏 正在獲取總經與籌碼資料 (含每日一句與美股風險)...");
     const macroData = await fetchAllMacroData();
-    const macroAndChipStr = buildExtendedMacroContext(macroData);
+    const macroAndChipStr = formatMacroChipForCoach(macroData);
 
     // 從 macroData 中解構出我們需要的資料
     const usRisk = macroData.rawUsMarket || {
       riskLevel: "正常",
       vix: "N/A",
-      spxChg: "N/A",
+      spx: "N/A",
       suggestion: "無美股數據",
     };
     const quote = macroData.quote || {
@@ -202,7 +204,7 @@ export async function dailyCheck({
     // 取得總經多空對決報告
     console.log("🤖 正在產生總經多空對決報告...");
     const macroAnalysis = await analyzeMacroNewsWithAI(newsSummaryText);
-    const macroTextForCoach = `【總經多空對決報告】\n總利多分數：${macroAnalysis.total_bull_score}\n總利空分數：${macroAnalysis.total_bear_score}\n最終判定方向：${macroAnalysis.conclusion.market_direction}\n分析總結：${macroAnalysis.conclusion.analysis}`;
+    const macroTextForCoach = formatMacroAnalysisForCoach(macroAnalysis);
 
     // 取得 AI 決策報告
     console.log("🤖 正在產生 AI 決策分析...");
@@ -221,18 +223,15 @@ export async function dailyCheck({
       result,
       vixData,
       usRisk,
-      macroData, // 將整包 macroData 傳遞給 notifier
+      macroData,
+      macroAnalysis,
       config: lastState,
       dateText,
       aiAdvice,
       quote,
     };
 
-    broadcastDailyReport(
-      reportDailyData,
-      newsMessages,
-      isTelegramEnabled,
-    );
+    broadcastDailyReport(reportDailyData, newsMessages, isTelegramEnabled);
 
     console.log("📝 正在寫入試算表...");
     try {
