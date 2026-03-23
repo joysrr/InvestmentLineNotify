@@ -1,14 +1,14 @@
 {
   "_meta": {
-    "lastRun": "2026-03-23T13:26:33.910Z",
+    "lastRun": "2026-03-23T13:48:41.666Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-23T13:26:33.910Z"
+        "lastFetch": "2026-03-23T13:48:41.666Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-23T13:26:33.910Z"
+        "lastFetch": "2026-03-23T13:48:41.666Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
@@ -31,6 +31,11 @@
       "light": "紅燈 (過熱)",
       "lightColor": "red"
     },
+    "rawMargin": {
+      "marginBalance100M": 3933.34,
+      "marginBalanceChange100M": -52.57,
+      "maintenanceRatio": 175.2
+    },
     "rawUsMarket": {
       "success": true,
       "vix": "24.06",
@@ -45,19 +50,10 @@
       },
       "source": "FRED"
     },
-    "rawCnn": {
-      "score": 15.91,
-      "rating": "extreme fear",
-      "previousClose": 14.59,
-      "previous1Week": 21.63,
-      "previous1Month": 36.97,
-      "previous1Year": 22.69,
-      "timestamp": "2026-03-23T13:09:01.000Z"
-    },
     "rawFx": {
-      "currentRate": 31.859,
+      "currentRate": 31.882,
       "previousClose": 31.511,
-      "changePercent": 1.1,
+      "changePercent": 1.18,
       "historicalPrices": [
         31.511,
         31.4348,
@@ -79,18 +75,22 @@
         31.885,
         32.0312,
         31.8021,
-        31.859
+        31.882
       ]
     },
-    "quote": {
-      "quote": "To create more positive results in your life, replace 'if only' with 'next time'.",
-      "author": "Celestine Chua",
-      "source": "zenquotes"
+    "rawCnn": {
+      "score": 16.91,
+      "rating": "extreme fear",
+      "previousClose": 14.59,
+      "previous1Week": 21.63,
+      "previous1Month": 36.97,
+      "previous1Year": 22.69,
+      "timestamp": "2026-03-23T13:44:02.000Z"
     },
-    "rawMargin": {
-      "marginBalance100M": 3933.34,
-      "marginBalanceChange100M": -52.57,
-      "maintenanceRatio": 175.2
+    "quote": {
+      "quote": "You can discover what your enemy fears most by observing the means he uses to frighten you.",
+      "author": "Eric Hoffer",
+      "source": "zenquotes"
     }
   }
 }
