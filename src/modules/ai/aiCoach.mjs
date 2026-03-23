@@ -76,12 +76,7 @@ export async function getAiInvestmentAdvice(
       );
 
     // 3. 組合最終要推播給使用者的 Markdown 戰報文字 (UI 呈現層)
-    const finalAdviceText = `**⚖️ 總經多空對決**
-- 利多：${adviceObj.macro_view?.bull_summary || "無"}
-- 利空：${adviceObj.macro_view?.bear_summary || "無"}
-- 判定：${adviceObj.macro_view?.final_verdict || "NEUTRAL"}
-
-**⚠️ 風險提示**
+    const finalAdviceText = `**⚠️ 風險提示**
 ${(adviceObj.risk_warnings || []).map((w) => `- ${w}`).join("\n")}
 
 **✅ 下一步觀察清單**

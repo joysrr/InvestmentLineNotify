@@ -22,7 +22,6 @@ async function analyzeUsRisk(data) {
   let isHighRisk = false;
 
   // --- 判斷邏輯 (優先級由高到低) ---
-
   // 1. 🚨 極高風險：VIX 破 30 或 標普大跌超過 3%
   if (
     (Number.isFinite(vixVal) && vixVal >= VIX_PANIC) ||
@@ -78,7 +77,7 @@ async function fetchFredSeriesLast2(seriesId) {
   const url =
     "https://api.stlouisfed.org/fred/series/observations" +
     `?series_id=${encodeURIComponent(seriesId)}` +
-    "&file_type=json&sort_order=asc&limit=20" +
+    "&file_type=json&sort_order=desc&limit=10" +
     (apiKey ? `&api_key=${encodeURIComponent(apiKey)}` : "");
 
   const res = await axios.get(url, { timeout: 12_000 });
@@ -86,9 +85,12 @@ async function fetchFredSeriesLast2(seriesId) {
 
   // 從後往前挑兩個「可用數值」（FRED 偶爾會有 "."）
   const vals = [];
-  for (let i = obs.length - 1; i >= 0 && vals.length < 2; i--) {
+  for (let i = 0; i < obs.length && vals.length < 2; i++) {
     const v = Number(obs[i]?.value);
-    if (Number.isFinite(v)) vals.push({ date: obs[i].date, value: v });
+    // 確保是有效數字 (FRED 的假日或無效值會回傳 ".")
+    if (Number.isFinite(v)) {
+      vals.push({ date: obs[i].date, value: v });
+    }
   }
   if (vals.length < 2) return null;
 
@@ -110,7 +112,10 @@ export async function fetchUsMarketData() {
     fetchFredSeriesLast2("SP500"),
   ]);
 
-  const riskAnalysis = await analyzeUsRisk({ vix, spx });
+  const riskAnalysis = await analyzeUsRisk({
+    vix: vix?.value,
+    spx: spx?.value,
+  });
 
   return {
     ...riskAnalysis, // 注入 riskLevel, riskIcon, suggestion, isHighRisk 等分析結果
