@@ -1,14 +1,14 @@
 {
   "_meta": {
-    "lastRun": "2026-03-23T14:35:18.401Z",
+    "lastRun": "2026-03-23T14:41:41.719Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-23T14:35:18.401Z"
+        "lastFetch": "2026-03-23T14:41:41.719Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-23T14:35:18.401Z"
+        "lastFetch": "2026-03-23T14:41:41.719Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
@@ -50,15 +50,6 @@
       },
       "source": "FRED"
     },
-    "rawCnn": {
-      "score": 18.51,
-      "rating": "extreme fear",
-      "previousClose": 14.59,
-      "previous1Week": 21.63,
-      "previous1Month": 36.97,
-      "previous1Year": 22.69,
-      "timestamp": "2026-03-23T14:33:57.000Z"
-    },
     "rawFx": {
       "currentRate": 31.843,
       "previousClose": 31.511,
@@ -88,9 +79,18 @@
       ]
     },
     "quote": {
-      "quote": "It's your road, and yours alone, others may walk it with you, but no one can walk it for you.",
-      "author": "Rumi",
+      "quote": "The greatest work that kindness does to others is that it makes them kind themselves.",
+      "author": "Amelia Earhart",
       "source": "zenquotes"
+    },
+    "rawCnn": {
+      "score": 18.37,
+      "rating": "extreme fear",
+      "previousClose": 14.59,
+      "previous1Week": 21.63,
+      "previous1Month": 36.97,
+      "previous1Year": 22.69,
+      "timestamp": "2026-03-23T14:39:09.000Z"
     }
   }
 }
