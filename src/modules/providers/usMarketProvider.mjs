@@ -1,8 +1,7 @@
 import axios from "axios";
 import { fetchStrategyConfig } from "../strategy/signalRules.mjs";
 
-export async function analyzeUsRisk() {
-  const data = await fetchUsMarketData();
+async function analyzeUsRisk(data) {
   const strategy = await fetchStrategyConfig();
 
   // 取得設定檔參數，並加上預設值以策安全
@@ -111,9 +110,10 @@ export async function fetchUsMarketData() {
     fetchFredSeriesLast2("SP500"),
   ]);
 
+  const riskAnalysis = await analyzeUsRisk({ vix, spx });
+
   return {
-    vix: vix.status === "fulfilled" ? vix.value : null,
-    spx: spx.status === "fulfilled" ? spx.value : null,
+    ...riskAnalysis, // 注入 riskLevel, riskIcon, suggestion, isHighRisk 等分析結果
     source: "FRED",
   };
 }

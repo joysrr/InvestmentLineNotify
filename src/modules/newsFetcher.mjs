@@ -100,7 +100,7 @@ export async function getNewsTelegramMessages(marketData) {
 
     // 把這些字串用 OR 串起來，並加上 when:24h
     // 結果會像: (intitle:"台股" OR intitle:"大盤" OR "外資" OR "降息") when:24h
-    return `(${formattedStrings.join(" OR ")}) when:24h`;
+    return `(${formattedStrings.join(" OR ")}) when:1d`;
   };
 
   // 4. 產出最終的查詢字串
@@ -240,6 +240,7 @@ export async function getNewsTelegramMessages(marketData) {
 
   // 將 processedNews 陣列轉換成簡潔的文字格式（專為 AI 閱讀優化）
   const newsSummaryText = processedNews
+    .sort((a, b) => b.importanceScore - a.importanceScore) // 依照重要度排序
     .map((item, index) => {
       // 假設你已經把 Bullish/Bearish 轉成對應的 Emoji
       const emoji = getNewsEmoji(item.sentiment);
