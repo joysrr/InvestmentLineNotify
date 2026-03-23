@@ -65,9 +65,6 @@ jobs:
           # 提交的訊息 (加上 [skip ci] 防止無限觸發)
           commit_message: "🤖 chore(data): auto-update market cache and ai logs [skip ci]"
 
-          # 只要是 data/ 或是 cache/ 資料夾有變動，通通幫我推回 Repo
-          file_pattern: "data/**/*.json cache/**/*.json"
-
           # 設定 Commit 的作者名字
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
