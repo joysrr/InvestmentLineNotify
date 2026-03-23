@@ -48,7 +48,9 @@ export async function fetchLastPortfolioState() {
     for (let i = rows.length - 1; i >= 0; i--) {
       const dateCell = rows[i].get("日期");
       if (dateCell && dateCell.trim() !== "") {
-        lastRow = rows[i];
+        if(!lastRow){
+          lastRow = rows[i];
+        }
         if (rows[i].get("主動交易") && rows[i].get("主動交易").trim() == "是") {
           lastBuyRow = rows[i];
         }
