@@ -1,11 +1,11 @@
 {
-  "_savedAt": "2026-03-23T06:13:40.601Z",
+  "_savedAt": "2026-03-23T07:44:44.038Z",
   "type": "NewsFilter",
-  "systemPrompt": "你是一位頂級的量化避險基金經理人，專注於 ETF(0050) 與槓桿投資策略。\n你的任務是從使用者提供的「中英混合新聞列表」中，如淘金般過濾出「對大盤或總體經濟有實質重大影響」的重點新聞，並給予重要性評分以進行排序。\n\n<Rules>\n1. 嚴格剔除：農場文、理財教學(如存股、退休)、無意義盤後總結、單一小公司新聞、與經濟無關的社會案件。\n2. 優先保留：降息/通膨等總經數據、地緣政治重大衝突、大型權值股(如台積電、輝達、蘋果)的產業巨變。\n3. 【事件去重與多樣化】：\n   - 若有多則新聞報導同一事件(如：非農數據出爐)，請只挑選資訊量最豐富的 1 則。\n   - 確保挑選出的新聞涵蓋不同面向（例如：同時包含總體經濟、半導體產業、地緣政治或資金流向），避免被單一事件洗版。\n</Rules>\n\n<Instructions>\n1. 挑選數量：請嚴格挑選出最具價值的重點新聞，最多不可超過 15 則。寧缺勿濫，若無重要新聞請勿勉強湊數。\n2. 摘要撰寫 (summary)：\n   - 一律使用「繁體中文」撰寫摘要。\n   - 摘要需具備深度，長度約 80~120 字。必須包含「具體數據」、「事件核心」以及「對大盤/特定產業的潛在影響」，此摘要將作為後續 AI 交易決策的判斷依據。\n3. 排序規則：必須為每則新聞給予「重要性評分(1-10分)」，並【嚴格依照 importanceScore 的數值由大到小】生成 JSON 陣列。\n4. 情緒判斷 (Sentiment) 定義：\n   - \"Bullish\"：明確的利多（如降息、科技巨頭財報超預期）。\n   - \"Bearish\"：明確的利空（如戰爭升溫、升息、經濟衰退）。\n   - \"Warning\"：潛在的風險或不確定性（如外資大幅賣超、重要支撐跌破）。\n   - \"Neutral\"：重大但多空未明的事件（如央行按兵不動）。\n</Instructions>",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 0050 又見搶買潮！零股90分鐘湧破千萬股 人氣連22周超車台積電 - Yahoo股市\n[ID: 1] [TW] 標題: 0050績效輸給主動型ETF！專家：適時配置一點00981A、00987A...有衛星比單壓好| 存股族愛ETF | 股市 - 聯合新聞網\n[ID: 2] [TW] 標題: 主動式ETF績效超車0050 投資達人曝「聰明錢」押寶名單- 理財 - 工商時報\n[ID: 3] [TW] 標題: 台股黑色星期一！狂殺1082點　台積電跌55元至1785 - ETtoday財經雲\n[ID: 4] [TW] 標題: 黑色星期一！台積電重挫失守1800元 台股跌逾千點 - 自由財經\n[ID: 5] [TW] 標題: 只存0050太保守？00981A、00992A、00987A主動式ETF多賺10幾％！手上100萬該買誰？台股老手曝「1配置法」穩穩賺 - 今周刊\n[ID: 6] [TW] 標題: 台股早盤暴挫千點 ! 台積電跌破1800元鴻海摜破200元、記憶體慘綠 - Yahoo新聞\n[ID: 7] [TW] 標題: 記憶體族群外資擇優投資- 日報 - 工商時報\n[ID: 8] [TW] 標題: 台股大跌千點殺破32500點，不只台積電跌3%、連最強的旺宏都快跌停…再來盤勢看誰臉色？主要還是它 - 今周刊\n[ID: 9] [TW] 標題: 台積電2奈米爆單塞到2028年 預期先進製程連四年漲價 | 產業熱點 | 產業 - 經濟日報\n[ID: 10] [TW] 標題: 外資大逃殺！韓元創海嘯新低 新台幣摜破32元關卡 - 自由財經\n[ID: 11] [TW] 標題: 台積電跌近3％失守1800元！ 名師喊「是送分題」 - Yahoo股市\n[ID: 12] [TW] 標題: 「不配息0050」009816盤中爆13萬張 開盤不到1小時成交量躍居台股第二 - Yahoo股市\n[ID: 13] [TW] 標題: 台股後市緊盯油價！台積電恐跌破1700元？川普一句引爆恐慌賣壓、台股開盤殺近1100點 - Yahoo股市\n[ID: 14] [TW] 標題: 開盤／台股慘遭血洗跳空暴跌1082點 台積電狂殺55元！中東戰火引逃命潮 - Yahoo新聞\n[ID: 15] [TW] 標題: 台積電下殺50元！5大電子權值股全崩 台股開盤下殺1,082點失守33000大關 - Yahoo股市\n[ID: 16] [TW] 標題: 無視大盤重挫！「輝達背板新星」盤中強攻漲停 1月獲利年增逾9成 - Yahoo股市\n[ID: 17] [TW] 標題: 台股量縮跌821點收32722點 台積電跌30元守住1800元關卡 - Yahoo新聞\n[ID: 18] [TW] 標題: 0050 又見搶買潮！零股1天爆2288萬股 吸金近17億元 - Yahoo股市\n[ID: 19] [TW] 標題: 台積電暫守1,800元！台股盤中跌勢收斂下跌862點 造紙族群逆勢上漲撐盤 - Yahoo股市\n[ID: 20] [TW] 標題: 吃下台積電A16商機！這「材料廠」卡位關鍵供應鏈成最大贏家 訂單動能強 - Yahoo股市\n[ID: 21] [TW] 標題: 戰爭加劇通膨風險歐、英央行最快可能4月升息- 新聞 - MoneyDJ理財網\n[ID: 22] [TW] 標題: 台股跌逾千點失守3萬3 台積電力守1800元、鴻海跌破郭台銘退休價 - Yahoo新聞\n[ID: 23] [TW] 標題: 台股早盤一度狂殺逾千點！台積電重挫50元、以1790元開出 - Yahoo股市\n[ID: 24] [TW] 標題: 【新聞熱門股TOP10】外資血洗記憶體單日蒸發千億！穎崴12天狂飆75%創天價｜豐雲學堂2026 年 03 月 - sinotrade.com.tw\n[ID: 25] [TW] 標題: 台積電跌30元至1810　台股大跌821點至32722 - ETtoday財經雲\n[ID: 26] [TW] 標題: 失守33K！台股早盤狂殺千點 台積電重挫55元至1785元 - Yahoo新聞\n[ID: 27] [TW] 標題: 【Yahoo早盤】台股重挫千點失守3萬3 分析師何文高：10點前多看少做 - Yahoo股市\n[ID: 28] [TW] 標題: 《基金》18檔台股ETF 受益人創高 - Yahoo股市\n[ID: 29] [TW] 標題: 台積電守住1800元關卡 台股量縮跌821點收32722點 - 中央社 CNA\n[ID: 30] [TW] 標題: 台積電收跌30元！台股收盤下殺821點 台達電、聯發科、日月光投控摔破4% - Yahoo新聞\n[ID: 31] [TW] 標題: 〈焦點股〉中東戰事加劇通膨恐慌情緒 2檔原油ETF逆勢飆漲 - news.cnyes.com\n[ID: 32] [TW] 標題: 歐盟CBAM碳邊境稅衝擊加劇 2031年起出口歐盟成本恐大幅攀升 - Yahoo股市\n[ID: 33] [TW] 標題: 外資賣股大撤退！台幣貶逼32元央行證實已出手| 金融要聞| 產經 - 聯合新聞網\n[ID: 34] [TW] 標題: AI通膨新時代3》還會再漲價？半導體進入長期通膨循環 - Yahoo新聞\n[ID: 35] [TW] 標題: 收盤／最恐慌已過？台積電尾盤神祕「CALL訊」現 跌點收斂跌821點作收 - Yahoo新聞\n[ID: 36] [TW] 標題: 通膨預期上升＋投資人需求激增，日擬削減通膨掛鉤債券回購規模 - Yahoo股市\n[ID: 37] [TW] 標題: 進場撿便宜？台積電「堅守1,800元」成交額噴453億 記憶體三雄全下殺「它」慘崩8% - Yahoo股市\n[ID: 38] [TW] 標題: 股匯雙殺！新台幣貶逾1角再見32字頭 專家點名2種人受惠 - Yahoo股市\n[ID: 39] [TW] 標題: 台股黑色星期一！一度跌逾千點 史上盤中第八大 - Yahoo股市\n[ID: 40] [US] 標題: Acceptance remarks by Chair Powell at the American Society for Public Administration Annual Conference - Federal Reserve Board (.gov)\n[ID: 41] [US] 標題: The Fed’s Most Awkward Leadership Transition Is Coming - WSJ\n[ID: 42] [US] 標題: Illinois State Mourns the Loss of Hall of Famer Roger Powell - Illinois State University Athletics - Illinois State University Athletics\n[ID: 43] [US] 標題: Gold prices slide 3% as Iran crisis keeps inflation, rate fears in play - Investing.com\n[ID: 44] [US] 標題: Gold slides to nearly 4-month low as Mideast tensions stoke inflation fears - Reuters\n[ID: 45] [US] 標題: ‘The stakes are enormous’: how a prolonged Iran war could shock the global economy - The Guardian\n[ID: 46] [US] 標題: The Nasdaq Is on the Verge of a Correction. 4 Things Investors Need To Remember - The Motley Fool\n[ID: 47] [US] 標題: Will the Iran War Deliver a Long-Predicted U.S. Recession? - Harvard Business Review\n[ID: 48] [US] 標題: Federal Reserve holds interest rates steady, signals one rate cut amid inflation uncertainty - U.S. Bank\n[ID: 49] [US] 標題: UK inflation: What is the rate and why are prices still rising? - BBC\n[ID: 50] [US] 標題: What the closure of the Strait of Hormuz means for the global economy - Federal Reserve Bank of Dallas\n[ID: 51] [US] 標題: Federal Reserve Maintains Rates and Watches Risks From Iran War - The New York Times\n[ID: 52] [US] 標題: Trump's long-running push to oust Powell could keep the Fed chair around for longer - Yahoo Finance\n[ID: 53] [US] 標題: War and Inflation Are Supposed to Be Gold’s Friends. Not This Time. - WSJ\n[ID: 54] [US] 標題: Fed Chair Powell lauds Volcker's 'willingness to resist' - Reuters\n[ID: 55] [US] 標題: Fed Governor Waller urges caution for now, says rate cuts possible later in the year - CNBC\n[ID: 56] [US] 標題: Why the Fed’s Next Rate Move Could Be a Hike - WSJ\n[ID: 57] [US] 標題: Interest rates and monetary policy: Economic indicators - The House of Commons Library\n[ID: 58] [US] 標題: Current U.S. Inflation Rate Is 2.4%: Chart and Why It Matters - NerdWallet\n[ID: 59] [US] 標題: The Nasdaq Is on the Verge of a Correction. 4 Things Investors Need To Remember - Yahoo Finance\n[ID: 60] [US] 標題: How Many Fed Rate Cuts Can We Now Expect in 2026? - The Motley Fool\n[ID: 61] [US] 標題: Gold extends losses amid 'brutal flush' as inflation worries mount - Yahoo Finance\n[ID: 62] [US] 標題: Three Generations, One Mission: The Yo Family’s Century of Service at USACE Far East District - army.mil\n[ID: 63] [US] 標題: 'Nobody knows': Oil price shock leaves Fed uncertain about the economy - NBC News\n[ID: 64] [US] 標題: The price of menstrual products is skyrocketing from inflation, tariffs - CNBC\n[ID: 65] [US] 標題: Powell: Holy Cow History -- Meet queen who saved Britain’s monarchy - TelegraphHerald.com\n[ID: 66] [US] 標題: Powell Says He Will Remain as Fed Chair Until Successor Is Confirmed - The New York Times\n[ID: 67] [US] 標題: Treasury yields climb as bonds sell off and fear grows that Fed rate cuts are off the table - CNBC\n[ID: 68] [US] 標題: Fed votes to hold rates steady, notes 'uncertain' impacts from Iran war - CNBC\n[ID: 69] [US] 標題: Heat poised to potentially get Wiggins, Jaquez back vs. Spurs. Powell update - Miami Herald\n[ID: 70] [US] 標題: Japan Bond Yields Near Multi-Decade Highs as War Fuels Inflation - Bloomberg\n[ID: 71] [US] 標題: Powell: Reminiscing on life at The Blade - toledoblade.com\n[ID: 72] [US] 標題: Powell says he will stay on as head of the Fed until Warsh is confirmed - CNBC\n[ID: 73] [US] 標題: Singapore core inflation at 1.4% y/y in February, slightly higher than expected - Reuters\n[ID: 74] [US] 標題: Inflation increase leads to higher demand for Wake County food pantries - WRAL\n[ID: 75] [US] 標題: Are stocks oversold as Dow Jones, S&P 500 flash technical signal? - thestreet.com\n[ID: 76] [US] 標題: Analysis: The Fed's Powell just delivered a new blow to Warsh's plans for swift rate cuts - CNBC\n[ID: 77] [US] 標題: Letter: Lack of funding plus rising inflation means a growing education gap - Anchorage Daily News\n[ID: 78] [US] 標題: Big Tech’s Cause for Hope: Link Between Mag 7, S&P 500 Is Broken - Bloomberg\n[ID: 79] [US] 標題: NASDAQ: FRPT Investigation Alert: Kessler Topaz Meltzer & Check, LLP Encourages Freshpet, Inc. (NASDAQ: FRPT) Investors to Contact the Firm - PR Newswire</News_List>",
+  "systemPrompt": "你是一位頂級的量化避險基金經理人，專注於 ETF(0050) 與槓桿投資策略。\n你的任務是從使用者提供的「中英混合新聞列表」中，如淘金般過濾出「對大盤或總體經濟有實質重大影響」的重點新聞，並給予重要性評分以進行排序。\n\n<Rules>\n1. 嚴格剔除：農場文、理財教學(如存股、退休)、無意義盤後總結、單一小公司新聞、與經濟無關的社會案件。\n2. 優先保留：降息/通膨等總經數據、地緣政治重大衝突、大型權值股(如台積電、輝達、蘋果)的產業巨變。\n3. 【事件去重與多樣化】：\n   - 若有多則新聞報導同一事件(如：非農數據出爐)，請只挑選資訊量最豐富的 1 則。\n   - 確保挑選出的新聞涵蓋不同面向（例如：同時包含總體經濟、半導體產業、地緣政治或資金流向），避免被單一事件洗版。\n</Rules>\n\n<Instructions>\n1. 挑選數量：請嚴格挑選出最具價值的重點新聞，最多不可超過 15 則。寧缺勿濫，若無重要新聞請勿勉強湊數。\n2. 摘要撰寫 (summary)：\n   - 一律使用「繁體中文」撰寫摘要。\n   - 摘要需具備深度，長度約 80~120 字。必須包含「具體數據」、「事件核心」以及「對大盤/特定產業的潛在影響」，此摘要將作為後續總經分析的基礎素材。\n3. 排序規則：請依照你對這些新聞的「綜合影響力直覺」，由最重要到最次要依序輸出至 JSON 陣列中即可。\n</Instructions>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 0050績效輸給主動型ETF！專家：適時配置一點00981A、00987A...有衛星比單壓好| 存股族愛ETF | 股市 - 聯合新聞網\n[ID: 1] [TW] 標題: 台股收盤大跌821點 失守三萬三 ! 台積電強守1800元 鴻海摜破200元 - Yahoo新聞\n[ID: 2] [TW] 標題: 黑色星期一！台積電重挫失守1800元 台股跌逾千點 - 自由財經\n[ID: 3] [TW] 標題: 主動式ETF績效超車0050 投資達人曝「聰明錢」押寶名單- 理財 - 工商時報\n[ID: 4] [TW] 標題: 台股黑色星期一！狂殺1082點　台積電跌55元至1785 - ETtoday財經雲\n[ID: 5] [TW] 標題: 009816 vs 0050完整分析！不配息賺更多？達人試算：這檔1年半績效超車！1招快速累積張數「比存股族多賺10倍」 - 今周刊\n[ID: 6] [TW] 標題: 【即時新聞】財報季落幕後中型工業股量化評級出爐，Vicor奪冠與五檔強勢股名單曝光 - CMoney投資網誌\n[ID: 7] [TW] 標題: 0050 又見搶買潮！零股1天爆2288萬股 吸金近17億元 - Yahoo股市\n[ID: 8] [TW] 標題: 快訊／外資狙殺！提款台股839億元　史上第10大 - ETtoday財經雲\n[ID: 9] [TW] 標題: 「不配息0050」009816盤中爆13萬張 開盤不到1小時成交量躍居台股第二 - Yahoo股市\n[ID: 10] [TW] 標題: 台積電跌30元至1810　台股大跌821點至32722 - ETtoday財經雲\n[ID: 11] [TW] 標題: 0050 又見搶買潮！零股90分鐘湧破千萬股 人氣連22周超車台積電 - Yahoo股市\n[ID: 12] [TW] 標題: 台積電跌近3％失守1800元！ 名師喊「是送分題」 - Yahoo股市\n[ID: 13] [TW] 標題: 台股後市緊盯油價！台積電恐跌破1700元？川普一句引爆恐慌賣壓、台股開盤殺近1100點 - Yahoo股市\n[ID: 14] [TW] 標題: 開盤／台股慘遭血洗跳空暴跌1082點 台積電狂殺55元！中東戰火引逃命潮 - Yahoo新聞\n[ID: 15] [TW] 標題: 台積電下殺50元！5大電子權值股全崩 台股開盤下殺1,082點失守33000大關 - Yahoo股市\n[ID: 16] [TW] 標題: 【Follow法人】外資3月以來賣超8510億元 今大砍839億元 創史上第10大 - Yahoo股市\n[ID: 17] [TW] 標題: 外資賣股7千億 提款跑光光？ 央行證實：已出手 - Yahoo股市\n[ID: 18] [TW] 標題: 【Yahoo早盤】台股重挫千點失守3萬3 分析師何文高：10點前多看少做 - Yahoo股市\n[ID: 19] [TW] 標題: 台股挫821點失守3萬3！跌點史上第11大 市值一天蒸發逾2兆元 - Yahoo股市\n[ID: 20] [TW] 標題: 台股狂殺千點！法人分析2大主因：短期波動加劇 - Yahoo新聞\n[ID: 21] [TW] 標題: 只存0050太保守？00981A、00992A、00987A主動式ETF多賺10幾％！手上100萬該買誰？台股老手曝「1配置法」穩穩賺 - 今周刊\n[ID: 22] [TW] 標題: 記憶體族群外資擇優投資- 日報 - 工商時報\n[ID: 23] [TW] 標題: 台股盤中跌幅收斂下跌逾700點 台積電力守1800元 - 中央社 CNA\n[ID: 24] [TW] 標題: 台積電2奈米爆單塞到2028年 預期先進製程連四年漲價 | 產業熱點 | 產業 - 經濟日報\n[ID: 25] [TW] 標題: 無視大盤重挫！「輝達背板新星」盤中強攻漲停 1月獲利年增逾9成 - Yahoo股市\n[ID: 26] [TW] 標題: 地緣政治加劇！台積電卻仍穩如泰山 無懼理由外媒全說了 - 自由財經\n[ID: 27] [TW] 標題: 吃下台積電A16商機！這「材料廠」卡位關鍵供應鏈成最大贏家 訂單動能強 - Yahoo股市\n[ID: 28] [TW] 標題: 台股早盤跳空重挫千點 盤中收斂下跌逾700點 台積電最多跌55元暫守住1800元 - Yahoo新聞\n[ID: 29] [TW] 標題: 台積電暫守1,800元！台股盤中跌勢收斂下跌862點 造紙族群逆勢上漲撐盤 - Yahoo股市\n[ID: 30] [TW] 標題: 散戶首選、越跌越買！0050三月以來買超達1115億元 - 自由財經\n[ID: 31] [TW] 標題: 通膨疑慮與中東衝突引發拋售 黃金回吐今年以來全部漲幅 - cnyes.com\n[ID: 32] [TW] 標題: 台股早盤一度狂殺逾千點！台積電重挫50元、以1790元開出 - Yahoo股市\n[ID: 33] [TW] 標題: 台積電守住1800元關卡 台股量縮跌821點收32722點 - 中央社 CNA\n[ID: 34] [TW] 標題: 戰爭加劇通膨風險歐、英央行最快可能4月升息- 新聞 - MoneyDJ理財網\n[ID: 35] [TW] 標題: 【新聞熱門股TOP10】外資血洗記憶體單日蒸發千億！穎崴12天狂飆75%創天價｜豐雲學堂2026 年 03 月 - sinotrade.com.tw\n[ID: 36] [TW] 標題: 台股量縮下跌821點台積電守住1800元關卡| 證券 - 中央社 CNA\n[ID: 37] [TW] 標題: 台股量縮跌821點收32722點 台積電跌30元守住1800元關卡 - Yahoo新聞\n[ID: 38] [TW] 標題: 台股跌821.38點 - 經濟日報\n[ID: 39] [TW] 標題: 外資賣股大撤退！台幣貶逼32元 央行證實已出手 - 聯合新聞網\n[ID: 40] [US] 標題: Acceptance remarks by Chair Powell at the American Society for Public Administration Annual Conference - Federal Reserve Board (.gov)\n[ID: 41] [US] 標題: The Fed’s Most Awkward Leadership Transition Is Coming - WSJ\n[ID: 42] [US] 標題: Illinois State Mourns the Loss of Hall of Famer Roger Powell - Illinois State University Athletics - Illinois State University Athletics\n[ID: 43] [US] 標題: Gold prices slide 3% as Iran crisis keeps inflation, rate fears in play - Investing.com\n[ID: 44] [US] 標題: Gold Wipes Out Year’s Gains as Iran War Deepens Inflation Fears - Bloomberg\n[ID: 45] [US] 標題: ‘The stakes are enormous’: how a prolonged Iran war could shock the global economy - The Guardian\n[ID: 46] [US] 標題: In This Crisis, the Best Investors Can Expect From the Fed Is Nothing - The New York Times\n[ID: 47] [US] 標題: Fed Chair Powell lauds Volcker's 'willingness to resist' - Reuters\n[ID: 48] [US] 標題: Federal Reserve holds interest rates steady, signals one rate cut amid inflation uncertainty - U.S. Bank\n[ID: 49] [US] 標題: The Nasdaq Is on the Verge of a Correction. 4 Things Investors Need To Remember - The Motley Fool\n[ID: 50] [US] 標題: What the closure of the Strait of Hormuz means for the global economy - Federal Reserve Bank of Dallas\n[ID: 51] [US] 標題: Trump's long-running push to oust Powell could keep the Fed chair around for longer - Yahoo Finance\n[ID: 52] [US] 標題: War and Inflation Are Supposed to Be Gold’s Friends. Not This Time. - WSJ\n[ID: 53] [US] 標題: ECB must act in case of second-round inflation impacts, VP tells El Mundo - Reuters\n[ID: 54] [US] 標題: Why the Fed’s Next Rate Move Could Be a Hike - WSJ\n[ID: 55] [US] 標題: Gold extends losses amid 'brutal flush' as inflation worries mount - Yahoo Finance\n[ID: 56] [US] 標題: Gold at its weakest level this year, drops 5% on rate-hike bets - Reuters\n[ID: 57] [US] 標題: Interest rates and monetary policy: Economic indicators - The House of Commons Library\n[ID: 58] [US] 標題: Goldman Sachs expects ECB rate hikes in April and June as inflation concerns mount - Reuters\n[ID: 59] [US] 標題: Current U.S. Inflation Rate Is 2.4%: Chart and Why It Matters - NerdWallet\n[ID: 60] [US] 標題: The Nasdaq Is on the Verge of a Correction. 4 Things Investors Need To Remember - Yahoo Finance\n[ID: 61] [US] 標題: How Many Fed Rate Cuts Can We Now Expect in 2026? - The Motley Fool\n[ID: 62] [US] 標題: Three Generations, One Mission: The Yo Family’s Century of Service at USACE Far East District - army.mil\n[ID: 63] [US] 標題: Should investors have bought gold or the S&P 500 5 years ago? - Yahoo Finance UK\n[ID: 64] [US] 標題: Powell Says He Will Remain as Fed Chair Until Successor Is Confirmed - The New York Times\n[ID: 65] [US] 標題: Treasury yields climb as bonds sell off and fear grows that Fed rate cuts are off the table - CNBC\n[ID: 66] [US] 標題: Trump signals DOJ should continue Powell probe, complicating Warsh Fed nomination - CNBC\n[ID: 67] [US] 標題: Powell: Holy Cow History -- Meet queen who saved Britain’s monarchy - TelegraphHerald.com\n[ID: 68] [US] 標題: S&P 500: Oversold Signals Clash With a Rapid Shift in Rate Expectations - Investing.com\n[ID: 69] [US] 標題: Cautious Markets Ahead: Fed Signals Cuts as S&P 500 Faces Critical Breakdown Risk - Investing.com\n[ID: 70] [US] 標題: Fed Holds Rates Steady as War in Iran Upends the Economic Outlook - The New York Times\n[ID: 71] [US] 標題: The price of menstrual products is skyrocketing from inflation, tariffs - CNBC\n[ID: 72] [US] 標題: Heat poised to potentially get Wiggins, Jaquez back vs. Spurs. Powell update - Miami Herald\n[ID: 73] [US] 標題: Sell The S&P 500 And Buy Gold Mining Stocks - Seeking Alpha\n[ID: 74] [US] 標題: Japan Bond Yields Near Multi-Decade Highs as War Fuels Inflation - Bloomberg\n[ID: 75] [US] 標題: Singapore core inflation at 1.4% y/y in February, slightly higher than expected - Reuters\n[ID: 76] [US] 標題: JPMorgan cuts official S&P 500 forecast, noting rising recession risk from oil shock - CNBC\n[ID: 77] [US] 標題: Inflation increase leads to higher demand for Wake County food pantries - WRAL\n[ID: 78] [US] 標題: Powell: Reminiscing on life at The Blade - toledoblade.com\n[ID: 79] [US] 標題: Epstein ties present potential hurdle for Trump’s Fed chair nominee - CNN</News_List>",
   "schema": {
     "type": "ARRAY",
-    "description": "挑選出最具影響力的新聞，並嚴格依照 importanceScore 由高至低排序",
+    "description": "挑選出最具影響力的新聞並進行深度摘要",
     "maxItems": 15,
     "items": {
       "type": "OBJECT",
@@ -14,22 +14,6 @@
           "type": "INTEGER",
           "description": "新聞原始的 ID 數字"
         },
-        "importanceScore": {
-          "type": "INTEGER",
-          "minimum": 1,
-          "maximum": 10,
-          "description": "重要性評分。陣列必須依此分數由大到小排序"
-        },
-        "sentiment": {
-          "type": "STRING",
-          "enum": [
-            "Bullish",
-            "Bearish",
-            "Neutral",
-            "Warning"
-          ],
-          "description": "對大盤或該產業的情緒影響"
-        },
         "summary": {
           "type": "STRING",
           "description": "以繁體中文撰寫具備深度的摘要(約80-120字)，需包含具體數據或對市場的實質影響"
@@ -37,48 +21,38 @@
       },
       "required": [
         "id",
-        "importanceScore",
-        "sentiment",
         "summary"
       ]
     }
   },
   "rawResult": [
     {
-      "id": 51,
-      "importanceScore": 10,
-      "sentiment": "Bearish",
-      "summary": "聯準會維持利率不變，並密切關注中東戰火對全球經濟的潛在衝擊。由於地緣政治緊張局勢加劇，市場對通膨反彈的擔憂升溫，導致降息預期路徑變得更加不確定。此舉對全球股市構成壓力，特別是依賴流動性的科技股與台股權值股，投資人需警惕資金撤離風險。"
+      "id": 70,
+      "summary": "中東戰火升級嚴重衝擊全球經濟展望，聯準會（Fed）宣布維持利率不變，並因戰爭引發的通膨不確定性，重新評估貨幣政策路徑。此舉導致市場對降息預期大幅降溫，美債殖利率攀升，全球股市面臨劇烈修正壓力，投資人需密切關注地緣政治對能源價格及通膨的連鎖反應。"
     },
     {
       "id": 14,
-      "importanceScore": 9,
-      "sentiment": "Bearish",
-      "summary": "受中東戰火升溫引發的全球恐慌賣壓影響，台股出現「黑色星期一」重挫，盤中一度暴跌逾千點。台積電作為權值核心，股價重挫失守1800元關卡，引發市場對半導體產業鏈的連鎖反應。此事件顯示地緣政治風險已成為影響台股短期走勢的關鍵變數，投資人應密切關注避險情緒變化。"
+      "summary": "受中東戰火引發的全球避險情緒影響，台股出現恐慌性賣壓，單日重挫1,082點，失守33,000點大關。台積電作為權值核心，盤中一度狂殺55元，顯示地緣政治風險已直接衝擊台股資金流向，市場正評估戰爭對供應鏈及全球半導體需求的潛在負面影響。"
     },
     {
-      "id": 33,
-      "importanceScore": 8,
-      "sentiment": "Warning",
-      "summary": "外資因全球避險情緒高漲而大舉撤離台股，導致新台幣匯率摜破32元大關。央行已證實進場調節以穩定匯市。匯率貶值通常伴隨外資賣超壓力，對台股大盤構成實質利空，特別是對於外資持股比例高的權值股，短期內恐面臨持續的資金流出壓力。"
+      "id": 8,
+      "summary": "外資單日提款台股839億元，創下史上第10大賣超紀錄，顯示國際資金在總體經濟不確定性下採取避險撤離策略。此波賣壓不僅導致台幣匯率貶值逼近32元關卡，更迫使央行出手干預以穩定金融市場，反映出外資對台股後市的保守態度與資金外流壓力。"
     },
     {
-      "id": 9,
-      "importanceScore": 7,
-      "sentiment": "Bullish",
-      "summary": "儘管大盤受地緣政治影響震盪，台積電2奈米製程需求依然強勁，訂單已排至2028年，且預期先進製程將連續四年漲價。此基本面利多顯示台積電在AI與高效能運算領域的護城河極深，長期成長動能穩固，為台股大盤提供了強力的底部支撐與價值錨點。"
+      "id": 76,
+      "summary": "摩根大通（JPMorgan）基於油價衝擊引發的經濟衰退風險，正式下調標普500指數預測。報告指出，戰爭導致的能源價格波動將加劇通膨壓力，進而限制聯準會的寬鬆空間，這對美股及全球風險資產構成重大下行風險，投資人應重新評估資產配置。"
     },
     {
-      "id": 34,
-      "importanceScore": 6,
-      "sentiment": "Neutral",
-      "summary": "半導體產業正進入長期通膨循環，隨著製程複雜度提升與AI需求爆發，晶片價格長期看漲。此趨勢雖有利於台積電等龍頭廠的毛利率表現，但也意味著終端產品成本將持續上升，可能對全球消費性電子需求產生長期的壓抑效應，投資人需評估此結構性轉變對產業鏈的影響。"
+      "id": 24,
+      "summary": "儘管大盤面臨地緣政治與總經逆風，台積電先進製程需求依然強勁，2奈米產能已預訂至2028年，並預期將連續四年調漲價格。此產業基本面優勢為台積電提供強大護城河，在市場動盪中展現抗跌韌性，是支撐台股長期價值與半導體產業鏈的核心關鍵。"
     },
     {
-      "id": 32,
-      "importanceScore": 5,
-      "sentiment": "Bearish",
-      "summary": "歐盟碳邊境調整機制（CBAM）衝擊加劇，預計2031年起出口歐盟成本將大幅攀升。對於以出口為導向的台灣製造業而言，這將直接影響企業獲利能力與長期競爭力。此政策風險雖屬中長期，但已開始影響市場對相關產業鏈的估值評價，需納入長期投資組合的風險考量。"
+      "id": 31,
+      "summary": "受通膨疑慮與中東衝突影響，黃金價格出現罕見重挫，回吐今年以來所有漲幅。市場原預期戰爭將推升避險需求，但因利率維持高檔及通膨預期改變，資金反而選擇拋售黃金，顯示當前市場對「戰爭與通膨」的反應模式已脫離傳統避險邏輯，波動加劇。"
+    },
+    {
+      "id": 30,
+      "summary": "儘管外資大舉撤離，散戶投資人展現「越跌越買」的強烈意願，3月以來對0050買超達1,115億元。此現象顯示台灣投資人對台股長期成長仍具信心，透過ETF進行逢低布局，此類資金流向將成為台股在法人賣壓下的重要支撐力量，減緩大盤跌勢。"
     }
   ]
 }

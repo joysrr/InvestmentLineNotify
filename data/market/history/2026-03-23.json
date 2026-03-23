@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-23T06:13:29.264Z",
+    "lastRun": "2026-03-23T07:44:09.778Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-23T06:13:29.264Z"
+        "lastFetch": "2026-03-23T07:44:09.778Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -25,10 +25,44 @@
     }
   },
   "data": {
+    "rawNdc": {
+      "date": "2026-01",
+      "score": 39,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
+    "rawMargin": {
+      "marginBalance100M": 3985.91,
+      "marginBalanceChange100M": -35.05,
+      "maintenanceRatio": 182.4
+    },
+    "rawCnn": {
+      "score": 14.59,
+      "rating": "extreme fear",
+      "previousClose": 17.17,
+      "previous1Week": 22.63,
+      "previous1Month": 44.41,
+      "previous1Year": 21.69,
+      "timestamp": "2026-03-20T23:59:51.000Z"
+    },
+    "rawUsMarket": {
+      "success": true,
+      "vix": "24.06",
+      "spxChg": "-1.51%",
+      "riskLevel": "高風險",
+      "riskIcon": "⚠️",
+      "suggestion": "暫停00675L新增撥款，偏防守為主",
+      "isHighRisk": true,
+      "meta": {
+        "vixDate": "2026-03-19",
+        "spxDate": "2026-03-20"
+      },
+      "source": "FRED"
+    },
     "rawFx": {
-      "currentRate": 32.125,
+      "currentRate": 32.092,
       "previousClose": 31.511,
-      "changePercent": 1.95,
+      "changePercent": 1.84,
       "historicalPrices": [
         31.511,
         31.4348,
@@ -50,46 +84,12 @@
         31.885,
         32.0312,
         31.8021,
-        32.125
+        32.092
       ]
     },
-    "rawCnn": {
-      "score": 14.59,
-      "rating": "extreme fear",
-      "previousClose": 17.17,
-      "previous1Week": 22.63,
-      "previous1Month": 44.41,
-      "previous1Year": 21.69,
-      "timestamp": "2026-03-20T23:59:51.000Z"
-    },
-    "rawMargin": {
-      "marginBalance100M": 3985.91,
-      "marginBalanceChange100M": -35.05,
-      "maintenanceRatio": 182.4
-    },
-    "rawUsMarket": {
-      "success": true,
-      "vix": "24.06",
-      "spxChg": "-1.51%",
-      "riskLevel": "高風險",
-      "riskIcon": "⚠️",
-      "suggestion": "暫停00675L新增撥款，偏防守為主",
-      "isHighRisk": true,
-      "meta": {
-        "vixDate": "2026-03-19",
-        "spxDate": "2026-03-20"
-      },
-      "source": "FRED"
-    },
-    "rawNdc": {
-      "date": "2026-01",
-      "score": 39,
-      "light": "紅燈 (過熱)",
-      "lightColor": "red"
-    },
     "quote": {
-      "quote": "A leader is one who knows the way, goes the way, and shows the way.",
-      "author": "Unknown",
+      "quote": "Don't let someone elses. opinion become your reality.",
+      "author": "Les Brown",
       "source": "zenquotes"
     }
   }

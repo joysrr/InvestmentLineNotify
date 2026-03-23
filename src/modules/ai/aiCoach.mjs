@@ -116,9 +116,7 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
     const aiResult = JSON.parse(rawJsonText);
     const result = aiResult.map((aiItem) => ({
       ...allNewsArray[aiItem.id],
-      sentiment: aiItem.sentiment,
       summary: aiItem.summary,
-      importanceScore: aiItem.importanceScore,
     }));
 
     // 📝 寫入 AI 飛行紀錄器
