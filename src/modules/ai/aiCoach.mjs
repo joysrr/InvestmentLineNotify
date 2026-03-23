@@ -15,7 +15,8 @@ import {
   NEWS_KEYWORD_SCHEMA,
   INVESTMENT_COACH_SCHEMA,
 } from "./prompts.mjs";
-import { SaveTmpFile } from "../../utils/debugUtils.mjs";
+
+import { archiveManager } from "../data/archiveManager.mjs";
 
 // 這個函式會根據當前的市場數據、新聞摘要，以及既定的投資策略，產出具體的操作建議與風險提示
 export async function getAiInvestmentAdvice(
@@ -58,16 +59,18 @@ export async function getAiInvestmentAdvice(
       adviceObj = result;
     }
 
-    // 2. 儲存 Debug Log（保留珍貴的 coach_internal_thinking 供你日後回溯）
-    SaveTmpFile(
-      {
+    // 2. 📝 寫入 AI 飛行紀錄器 (不阻擋主程式)
+    archiveManager
+      .saveAiLog({
+        type: "InvestmentAdvice",
         systemPrompt: INVESTMENT_COACH_PROMPT,
         userPrompt,
+        schema: INVESTMENT_COACH_SCHEMA,
         rawResult: adviceObj,
-      },
-      "AiInvestmentAdvice",
-      "AiInvestmentAdvice_debug",
-    );
+      })
+      .catch((err) =>
+        console.warn("⚠️ [Archive] 儲存 AI 決策紀錄失敗:", err.message),
+      );
 
     // 3. 組合最終要推播給使用者的 Markdown 戰報文字 (UI 呈現層)
     const finalAdviceText = `**⚖️ 總經多空對決**
@@ -90,6 +93,7 @@ ${(adviceObj.mindset_advice || []).map((m) => `- ${m}`).join("\n")}`;
       internalThinking: adviceObj.coach_internal_thinking || "",
     };
   } catch (error) {
+    console.error("AI 決策引擎處理失敗:", error.message);
     return "AI 決策引擎暫時無法運作，請依原始數據判斷。";
   }
 }
@@ -118,16 +122,20 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
       summary: aiItem.summary,
       importanceScore: aiItem.importanceScore,
     }));
-    SaveTmpFile(
-      {
+
+    // 📝 寫入 AI 飛行紀錄器
+    archiveManager
+      .saveAiLog({
+        type: "NewsFilter",
         systemPrompt: NEWS_FILTER_PROMPT,
         userPrompt,
         schema: FILTERED_NEWS_SCHEMA,
         rawResult: aiResult,
-      },
-      "NewsFilter",
-      `NewsFilter_${new Date().toISOString().split("T")[0]}`,
-    );
+      })
+      .catch((err) =>
+        console.warn("⚠️ [Archive] 儲存新聞過濾紀錄失敗:", err.message),
+      );
+
     return result;
   } catch (error) {
     console.error("AI 處理新聞時發生錯誤:", error);
@@ -138,7 +146,6 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
 // 這個函式會根據當前的市場數據，動態產生適合搜尋引擎使用的關鍵字
 export async function generateDailySearchQueries(marketData) {
   const todayStr = new Date().toISOString().split("T")[0];
-
   const prompt = buildNewsKeyWorkPrompt(todayStr, marketData);
 
   try {
@@ -150,16 +157,18 @@ export async function generateDailySearchQueries(marketData) {
 
     const result = JSON.parse(rawJson); // { twQueries: [{keyword: "...", searchType: "..."}], usQueries: [...] }
 
-    SaveTmpFile(
-      {
+    // 📝 寫入 AI 飛行紀錄器
+    archiveManager
+      .saveAiLog({
+        type: "SearchQueries",
         systemPrompt: NEWS_KEYWORD_PROMPT,
         userPrompt: prompt,
         schema: NEWS_KEYWORD_SCHEMA,
         rawResult: result,
-      },
-      "DailySearchQueries",
-      `DailySearchQueries_${todayStr}`,
-    );
+      })
+      .catch((err) =>
+        console.warn("⚠️ [Archive] 儲存關鍵字生成紀錄失敗:", err.message),
+      );
 
     return result;
   } catch (error) {
@@ -171,7 +180,6 @@ export async function generateDailySearchQueries(marketData) {
 // --- 宏觀分析 Prompt ---
 export async function analyzeMacroNewsWithAI(todayNewsText) {
   const todayStr = new Date().toISOString().split("T")[0];
-
   const userPrompt = buildMacroAnalysisUserPrompt(todayStr, todayNewsText);
 
   try {
@@ -182,16 +190,20 @@ export async function analyzeMacroNewsWithAI(todayNewsText) {
     });
 
     const result = JSON.parse(rawJson);
-    SaveTmpFile(
-      {
+
+    // 📝 寫入 AI 飛行紀錄器
+    archiveManager
+      .saveAiLog({
+        type: "MacroAnalysis",
         systemPrompt: MACRO_ANALYSIS_SYSTEM_PROMPT,
         userPrompt,
         schema: MACRO_ANALYSIS_SCHEMA,
         rawResult: result,
-      },
-      "MacroAnalysis",
-      `MacroAnalysis_${todayStr}`,
-    );
+      })
+      .catch((err) =>
+        console.warn("⚠️ [Archive] 儲存總經分析紀錄失敗:", err.message),
+      );
+
     return result;
   } catch (error) {
     console.warn("宏觀新聞分析失敗，回傳空陣列");

@@ -1,62 +1,216 @@
+// modules/market/marketData.mjs
+
+import { archiveManager } from "../data/archiveManager.mjs";
+
+// === 匯出不需經過 Cache 的即時 / 核心功能 ===
 export {
   fetchStockHistory,
   fetchRealTimePrice,
   getTwVix,
   isMarketOpenTodayTWSE,
 } from "./twseProvider.mjs";
-export { fetchUsMarketData } from "./usMarketProvider.mjs";
-export { getDailyQuote } from "./quoteProvider.mjs";
 export { fetchLatestBasePrice } from "./basePriceProvider.mjs";
+
+// === 匯出即將被我們整合進 Cache 機制的 Provider ===
+import { fetchUsMarketData } from "./usMarketProvider.mjs";
 import { fetchFearAndGreedIndex } from "./cnnProvider.mjs";
 import { fetchTwseMarginData } from "./kgiProvider.mjs";
 import { fetchUsdTwdExchangeRate } from "./yahooProvider.mjs";
 import { fetchBusinessIndicator } from "./ndcProvider.mjs";
+import { getDailyQuote } from "./quoteProvider.mjs";
 
 /**
- * ⚡ 平行獲取所有總經與籌碼資料 (容錯設計)
- * @returns {Promise<Object>} 包含四個指標原始資料的物件
+ * ⚡ 智慧獲取所有總經與籌碼資料 (結合 Archive Cache 機制)
  */
 export async function fetchAllMacroData() {
-  console.log("🔄 開始平行獲取總經與籌碼原始資料...");
+  console.log("🔄 開始獲取總經與籌碼資料 (檢查快取)...");
   const startTime = Date.now();
 
-  const [cnnResult, marginResult, fxResult, ndcResult] =
-    await Promise.allSettled([
-      fetchFearAndGreedIndex(),
-      fetchTwseMarginData(),
-      fetchUsdTwdExchangeRate(),
-      fetchBusinessIndicator(),
-    ]);
+  // 1. 讀取目前的快取檔案
+  const cache = await archiveManager.getLatestMarketData();
+  const cachedMeta = cache?._meta?.sources || {};
+  const cachedData = cache?.data || {};
 
-  const rawData = {
-    rawCnn: cnnResult.status === "fulfilled" ? cnnResult.value : null,
-    rawMargin: marginResult.status === "fulfilled" ? marginResult.value : null,
-    rawFx: fxResult.status === "fulfilled" ? fxResult.value : null,
-    rawNdc: ndcResult.status === "fulfilled" ? ndcResult.value : null,
+  const now = new Date();
+  const twHour = Number(
+    now.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      hour12: false,
+      timeZone: "Asia/Taipei",
+    }),
+  );
+  const todayStr = now
+    .toLocaleDateString("en-CA", { timeZone: "Asia/Taipei" })
+    .replace(/\//g, "-");
+
+  // 準備裝結果的容器
+  const finalData = {};
+  const newMetaSources = { ...cachedMeta };
+  const fetchPromises = []; // 存放需要真正打 API 的任務
+
+  // ====================================================================
+  // 判斷邏輯 A: 國發會景氣燈號 (極低頻)
+  // 策略: 每天抓一次即可。檢查 lastFetch 日期是否為今天。
+  // ====================================================================
+  const ndcLastDate = cachedMeta.ndcProvider?.lastFetch?.split("T")[0];
+  if (cachedData.rawNdc && ndcLastDate === todayStr) {
+    console.log("⚡ [Cache] 景氣燈號使用快取資料");
+    finalData.rawNdc = cachedData.rawNdc;
+  } else {
+    fetchPromises.push(
+      fetchBusinessIndicator()
+        .then((res) => {
+          finalData.rawNdc = res;
+          newMetaSources.ndcProvider = {
+            status: "SUCCESS",
+            lastFetch: now.toISOString(),
+          };
+        })
+        .catch((err) => {
+          console.warn("⚠️ 國發會 API 失敗:", err.message);
+          finalData.rawNdc = cachedData.rawNdc || null; // 失敗時退回用舊的
+          newMetaSources.ndcProvider = {
+            status: "FAILED",
+            error: err.message,
+            lastFetch: cachedMeta.ndcProvider?.lastFetch,
+          };
+        }),
+    );
+  }
+
+  // ====================================================================
+  // 判斷邏輯 B: 台股融資餘額 (每日 16:30 更新)
+  // 策略: 16:00 前不抓取直接讀 Cache。16:00 後強制重抓。
+  // ====================================================================
+  const marginLastTime = new Date(cachedMeta.kgiProvider?.lastFetch || 0);
+  const hoursSinceMarginUpdate = (now - marginLastTime) / (1000 * 60 * 60);
+
+  if (cachedData.rawMargin && (twHour < 16 || hoursSinceMarginUpdate < 2)) {
+    // 假設 16:00 之前，或是 2 小時內已經抓過了，就用 Cache
+    console.log("⚡ [Cache] 融資餘額使用快取資料");
+    finalData.rawMargin = cachedData.rawMargin;
+  } else {
+    fetchPromises.push(
+      fetchTwseMarginData()
+        .then((res) => {
+          finalData.rawMargin = res;
+          newMetaSources.kgiProvider = {
+            status: "SUCCESS",
+            lastFetch: now.toISOString(),
+          };
+        })
+        .catch((err) => {
+          console.warn("⚠️ KGI API 失敗:", err.message);
+          finalData.rawMargin = cachedData.rawMargin || null;
+        }),
+    );
+  }
+
+  // ====================================================================
+  // 判斷邏輯 C: CNN 恐懼貪婪指數 (美股盤中變動)
+  // 策略: 台灣時間 21:00 ~ 隔日 05:00 強制抓取。其餘時間讀 Cache。
+  // ====================================================================
+  const isUsMarketOpen = twHour >= 21 || twHour < 5;
+  const cnnLastTime = new Date(cachedMeta.cnnProvider?.lastFetch || 0);
+  // 如果美股沒開盤，而且我們 Cache 裡有資料，且該資料是在今天之內抓的
+  if (
+    !isUsMarketOpen &&
+    cachedData.rawCnn &&
+    now - cnnLastTime < 24 * 60 * 60 * 1000
+  ) {
+    console.log("⚡ [Cache] CNN 恐慌指數使用快取資料");
+    finalData.rawCnn = cachedData.rawCnn;
+  } else {
+    fetchPromises.push(
+      fetchFearAndGreedIndex()
+        .then((res) => {
+          finalData.rawCnn = res;
+          newMetaSources.cnnProvider = {
+            status: "SUCCESS",
+            lastFetch: now.toISOString(),
+          };
+        })
+        .catch((err) => {
+          console.warn("⚠️ CNN API 失敗:", err.message);
+          finalData.rawCnn = cachedData.rawCnn || null;
+        }),
+    );
+  }
+
+  // ====================================================================
+  // 判斷邏輯 D: 美股 FRED 數據 (每日早上更新昨收)
+  // 策略: 每天抓一次即可
+  // ====================================================================
+  const usMarketLastDate =
+    cachedMeta.usMarketProvider?.lastFetch?.split("T")[0];
+  if (cachedData.rawUsMarket && usMarketLastDate === todayStr) {
+    finalData.rawUsMarket = cachedData.rawUsMarket;
+  } else {
+    fetchPromises.push(
+      fetchUsMarketData()
+        .then((res) => {
+          finalData.rawUsMarket = res;
+          newMetaSources.usMarketProvider = {
+            status: "SUCCESS",
+            lastFetch: now.toISOString(),
+          };
+        })
+        .catch((err) => {
+          finalData.rawUsMarket = cachedData.rawUsMarket || null;
+        }),
+    );
+  }
+
+  // ====================================================================
+  // 判斷邏輯 E: 匯率與每日一句 (即時 / 每次執行都需要)
+  // 策略: 無快取，強制重抓
+  // ====================================================================
+  fetchPromises.push(
+    fetchUsdTwdExchangeRate()
+      .then((res) => {
+        finalData.rawFx = res;
+        newMetaSources.yahooProvider = {
+          status: "SUCCESS",
+          lastFetch: now.toISOString(),
+        };
+      })
+      .catch((err) => {
+        console.warn("⚠️ Yahoo API 失敗:", err.message);
+        finalData.rawFx = cachedData.rawFx || null;
+      }),
+  );
+
+  fetchPromises.push(
+    getDailyQuote()
+      .then((res) => {
+        finalData.quote = res;
+      })
+      .catch(() => {
+        finalData.quote = cachedData.quote || null;
+      }),
+  );
+
+  // ====================================================================
+  // 3. 執行所有需要打網路的任務
+  // ====================================================================
+  if (fetchPromises.length > 0) {
+    console.log(`🌐 共有 ${fetchPromises.length} 個指標需要重新抓取...`);
+    await Promise.allSettled(fetchPromises);
+  }
+
+  // 4. 將最新的結果存回 Cache (交給 Archive Manager)
+  const newMarketState = {
+    _meta: {
+      lastRun: now.toISOString(),
+      sources: newMetaSources,
+    },
+    data: finalData,
   };
 
-  if (cnnResult.status === "rejected")
-    console.warn("⚠️ CNN API 失敗:", cnnResult.reason);
-  if (marginResult.status === "rejected")
-    console.warn("⚠️ KGI API 失敗:", marginResult.reason);
-  if (fxResult.status === "rejected")
-    console.warn("⚠️ Yahoo API 失敗:", fxResult.reason);
-  if (ndcResult.status === "rejected")
-    console.warn("⚠️ 國發會 API 失敗:", ndcResult.reason);
+  await archiveManager.saveMarketData(newMarketState);
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-  console.log(`✅ 總經資料獲取完成 (耗時: ${duration}s)`);
+  console.log(`✅ 總經資料獲取與快取更新完成 (耗時: ${duration}s)`);
 
-  return rawData;
-}
-
-// 如果有需要整合多個來源的函數，可以寫在這裡：
-export async function getCompleteMarketStatus(symbol) {
-  const [priceData, usRisk, vix] = await Promise.all([
-    fetchRealTimePrice(symbol),
-    fetchUsMarketData(),
-    getTwVix(),
-    fetchFearAndGreedIndex(),
-  ]);
-  return { priceData, usRisk, vix };
+  return finalData;
 }
