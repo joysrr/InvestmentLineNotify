@@ -1,50 +1,43 @@
 name: Daily Report & Notify Scheduler
 
 on:
-  workflow_dispatch:
   schedule:
     # ----------------------------------------------------
     # (時間為 UTC)
     # 台灣 07:45 -> UTC 23:45 (開盤前提醒：全開)
     - cron: "45 23 * * *"
-    # --- 盤中高頻回報 (只發 Telegram，不叫 AI、不翻譯) ---
-    # 台灣 10:00 -> UTC 02:00
+    # 台灣 10:00 -> UTC 02:00 (盤中高頻回報)
     - cron: "0 2 * * *"
-    # 台灣 12:00 -> UTC 04:00
+    # 台灣 12:00 -> UTC 04:00 (午盤高頻回報)
     - cron: "0 4 * * *"
     # 台灣 14:40 -> UTC 06:40 (收盤後大總結：全開)
     - cron: "40 6 * * *"
-    # 台灣 21:40 -> UTC 13:40 (夜間國際觀測：結合最新籌碼與美股開盤動態)
+    # 台灣 21:40 -> UTC 13:40 (夜間國際觀測：美股開盤與籌碼總結)
     - cron: "40 13 * * *"
+    # ----------------------------------------------------
+  workflow_dispatch: # 允許手動觸發
 
 jobs:
   notify:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write # 允許寫入內容（如果需要更新檔案或產生新的 commit）
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1 # 只抓取最新的 commit，減少不必要的歷史資料
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
+          cache: "npm" # 啟用 npm 快取，會自動處理 node_modules 的快取
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Cache Stock History Data
-        uses: actions/cache@v4
-        with:
-          # 告訴 GitHub 你要把哪個資料夾存起來跨次使用
-          path: cache/stock_history
-
-          # 建立一個動態的 Key，使用當前的年月，並 fallback 到舊的快取
-          # 這樣每個月會自動建立一個新的主要快取包
-          key: stock-history-${{ runner.os }}-${{ steps.date.outputs.date }}
-          restore-keys: |
-            stock-history-${{ runner.os }}-
 
       - name: Run Daily Check
         env:
@@ -63,4 +56,18 @@ jobs:
           TZ: "Asia/Taipei"
 
         # 組合所有環境變數傳給 npm start
+        # 注意: 確保 env.LINE_FLAG 等變數在你的系統中有定義，否則會變成空白傳入
         run: npm start -- ${{ env.LINE_FLAG }} ${{ env.TG_FLAG }} ${{ env.AI_FLAG }} ${{ env.TRANS_FLAG }}
+
+      - name: Commit and Push Data Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          # 提交的訊息 (加上 [skip ci] 防止無限觸發)
+          commit_message: "🤖 chore(data): auto-update market cache and ai logs [skip ci]"
+
+          # 只要是 data/ 或是 cache/ 資料夾有變動，通通幫我推回 Repo
+          file_pattern: "data/**/*.json cache/**/*.json"
+
+          # 設定 Commit 的作者名字
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
