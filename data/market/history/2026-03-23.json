@@ -1,0 +1,96 @@
+{
+  "_meta": {
+    "lastRun": "2026-03-23T06:13:29.264Z",
+    "sources": {
+      "yahooProvider": {
+        "status": "SUCCESS",
+        "lastFetch": "2026-03-23T06:13:29.264Z"
+      },
+      "cnnProvider": {
+        "status": "SUCCESS",
+        "lastFetch": "2026-03-23T06:13:29.264Z"
+      },
+      "kgiProvider": {
+        "status": "SUCCESS",
+        "lastFetch": "2026-03-23T06:13:29.264Z"
+      },
+      "usMarketProvider": {
+        "status": "SUCCESS",
+        "lastFetch": "2026-03-23T06:13:29.264Z"
+      },
+      "ndcProvider": {
+        "status": "SUCCESS",
+        "lastFetch": "2026-03-23T06:13:29.264Z"
+      }
+    }
+  },
+  "data": {
+    "rawFx": {
+      "currentRate": 32.125,
+      "previousClose": 31.511,
+      "changePercent": 1.95,
+      "historicalPrices": [
+        31.511,
+        31.4348,
+        31.3771,
+        31.2691,
+        31.2468,
+        31.375,
+        31.535,
+        31.734,
+        31.63,
+        31.9059,
+        31.8023,
+        31.802,
+        31.7739,
+        31.8115,
+        31.8958,
+        32.1631,
+        31.945,
+        31.885,
+        32.0312,
+        31.8021,
+        32.125
+      ]
+    },
+    "rawCnn": {
+      "score": 14.59,
+      "rating": "extreme fear",
+      "previousClose": 17.17,
+      "previous1Week": 22.63,
+      "previous1Month": 44.41,
+      "previous1Year": 21.69,
+      "timestamp": "2026-03-20T23:59:51.000Z"
+    },
+    "rawMargin": {
+      "marginBalance100M": 3985.91,
+      "marginBalanceChange100M": -35.05,
+      "maintenanceRatio": 182.4
+    },
+    "rawUsMarket": {
+      "success": true,
+      "vix": "24.06",
+      "spxChg": "-1.51%",
+      "riskLevel": "高風險",
+      "riskIcon": "⚠️",
+      "suggestion": "暫停00675L新增撥款，偏防守為主",
+      "isHighRisk": true,
+      "meta": {
+        "vixDate": "2026-03-19",
+        "spxDate": "2026-03-20"
+      },
+      "source": "FRED"
+    },
+    "rawNdc": {
+      "date": "2026-01",
+      "score": 39,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
+    "quote": {
+      "quote": "A leader is one who knows the way, goes the way, and shows the way.",
+      "author": "Unknown",
+      "source": "zenquotes"
+    }
+  }
+}

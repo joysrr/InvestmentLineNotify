@@ -1,0 +1,251 @@
+{
+  "date": "2026/3/23",
+  "signals": {
+    "currentPrice": 175.3,
+    "basePrice": 184.75,
+    "totalLoan": 20000,
+    "actualLeverage": 1.027974727631058,
+    "historicalLevel": "🔥【極高位階/過熱】",
+    "netAsset": 714931,
+    "bias240": 48.54699557063597,
+    "priceChangePercent": -5.115020297699588,
+    "priceChangePercentText": "-5.12",
+    "priceUpPercent": 0,
+    "priceUpPercentText": "0.00",
+    "priceDropPercent": 5.115020297699588,
+    "priceDropPercentText": "5.12",
+    "RSI": 44.47,
+    "KD_K": 82.16013546202223,
+    "KD_D": 65.92314840788758,
+    "overheat": {
+      "isOverheat": false,
+      "factorCount": 3,
+      "highCount": 1,
+      "coolCount": 2,
+      "factors": {
+        "rsiHigh": false,
+        "kdHigh": false,
+        "biasHigh": true
+      },
+      "bias240": 48.54699557063597
+    },
+    "reversal": {
+      "totalFactor": 4,
+      "triggeredCount": 1,
+      "rsiDrop": false,
+      "kdDrop": true,
+      "kdBearCross": false,
+      "macdBearCross": false
+    },
+    "weightScore": 0,
+    "weightDetails": {
+      "dropInfo": "跌幅 5.12%",
+      "dropScore": 0,
+      "rsiInfo": "RSI 未反轉",
+      "rsiScore": 0,
+      "macdInfo": "MACD 無交叉",
+      "macdScore": 0,
+      "kdInfo": "KD 無交叉",
+      "kdScore": 0
+    },
+    "sellSignals": {
+      "flags": {
+        "rsiSell": false,
+        "macdSell": false,
+        "kdSell": false
+      },
+      "signalCount": 0,
+      "total": 3,
+      "stateFlags": {
+        "rsiStateOverbought": false,
+        "kdStateOverbought": false
+      },
+      "stateCount": 0
+    },
+    "macdSignal": "bear",
+    "maintenanceMargin": 2024.0549999999998,
+    "z2Ratio": 9.807939507448971,
+    "strategy": {
+      "version": "2.3-best",
+      "description": "質押槓桿策略",
+      "leverage": {
+        "targetMultiplier": 1.8
+      },
+      "reserve": {
+        "allocationRatio": 0.5,
+        "tiers": [
+          {
+            "maxAsset": 1000000,
+            "ratio": 0.05
+          },
+          {
+            "maxAsset": 3000000,
+            "ratio": 0.08
+          },
+          {
+            "maxAsset": 999999999,
+            "ratio": 0.1
+          }
+        ]
+      },
+      "maintenance": {
+        "protectTrigger": 160,
+        "protectTarget": 180,
+        "marginCallThreshold": 135
+      },
+      "trading": {
+        "minAction": 10000,
+        "cooldownDays": 20,
+        "transFee": 0.001425,
+        "transFeeDiscount": 0.6,
+        "taxRate": 0.003,
+        "loanInterestRate": 0.025
+      },
+      "buy": {
+        "minDropPercentToConsider": 0,
+        "minWeightScoreToBuy": 4,
+        "dropScoreRules": [
+          {
+            "minDrop": 40,
+            "score": 8,
+            "label": "毀滅 >= 40%"
+          },
+          {
+            "minDrop": 30,
+            "score": 6,
+            "label": "恐慌 >= 30%"
+          },
+          {
+            "minDrop": 25,
+            "score": 5,
+            "label": "大跌 >= 20%"
+          },
+          {
+            "minDrop": 15,
+            "score": 4,
+            "label": "修正 >= 15%"
+          },
+          {
+            "minDrop": 10,
+            "score": 3,
+            "label": "波動 >= 10%"
+          }
+        ],
+        "rsi": {
+          "oversold": 50,
+          "score": 3
+        },
+        "macd": {
+          "score": 2
+        },
+        "kd": {
+          "oversoldK": 20,
+          "score": 2
+        },
+        "panic": {
+          "minDropRank": 2,
+          "rsiDivider": 1.6,
+          "minVixLevel": "panic",
+          "suggestedLeverage": 0.3
+        }
+      },
+      "sell": {
+        "postAllocationIndexFromEnd": 2,
+        "minUpPercentToSell": 80,
+        "minSignalCountToSell": 2,
+        "rsi": {
+          "overbought": 75
+        },
+        "kd": {
+          "overboughtK": 80
+        }
+      },
+      "allocation": [
+        {
+          "minScore": 10,
+          "leverage": 0.8,
+          "cash": 0.2,
+          "comment": "槓桿全開(1.8x)"
+        },
+        {
+          "minScore": 8,
+          "leverage": 0.6,
+          "cash": 0.4,
+          "comment": "積極加碼(1.6x)"
+        },
+        {
+          "minScore": 6,
+          "leverage": 0.4,
+          "cash": 0.6,
+          "comment": "一般訊號(1.4x)"
+        },
+        {
+          "minScore": 4,
+          "leverage": 0.2,
+          "cash": 0.8,
+          "comment": "微量/觀察(1.2x)"
+        },
+        {
+          "minScore": -99,
+          "leverage": 0.15,
+          "cash": 0.85,
+          "comment": "平時/底倉(1.15x)"
+        }
+      ],
+      "threshold": {
+        "z2TargetRatio": 0.4,
+        "reversalTriggerCount": 3,
+        "mmDanger": 140,
+        "z2RatioHigh": 45,
+        "minActionableAmount": 10000,
+        "overheatCount": 2,
+        "rsiOverheatLevel": 82,
+        "dOverheatLevel": 85,
+        "bias240OverheatLevel": 35,
+        "rsiReversalLevel": 60,
+        "kReversalLevel": 75,
+        "wAggressive": 10,
+        "wActive": 8,
+        "vixLowComplacency": 12,
+        "vixHighFear": 20,
+        "vixPanic": 28,
+        "vixExtreme": 35,
+        "usVixPanic": 30
+      }
+    },
+    "marketStatus": "🌡️【偏熱/觀察】",
+    "target": "👀 觀察等待",
+    "targetSuggestionShort": "市場偏熱，避免追高",
+    "targetSuggestion": "0050照常；00675L 先不撥款，避免追高（等回檔或轉多）",
+    "suggestion": "• 跌幅條件：5.1% / 門檻 0% (✔️達標)\n• 評分條件：0分 / 門檻 4分 (❌未達)\n• 狀態說明：目前過熱因子命中 1 項 (未達絕對過熱的 3 項)，建議耐心等回檔。",
+    "entry": {
+      "weightScore": 0,
+      "weightDetails": {
+        "dropInfo": "跌幅 5.12%",
+        "dropScore": 0,
+        "rsiInfo": "RSI 未反轉",
+        "rsiScore": 0,
+        "macdInfo": "MACD 無交叉",
+        "macdScore": 0,
+        "kdInfo": "KD 無交叉",
+        "kdScore": 0
+      },
+      "entrySignals": {
+        "rsiRebound": false,
+        "macdBull": false,
+        "kdBullLow": false
+      }
+    },
+    "cooldownStatus": {
+      "inCooldown": true,
+      "daysLeft": 6,
+      "lastBuyDate": "2026-03-03",
+      "tradingDaysPassed": 14,
+      "message": "最後買入：2026-03-03，經過 14 交易日"
+    }
+  },
+  "ai": {
+    "finalAdviceText": "**⚖️ 總經多空對決**\n- 利多：無\n- 利空：無\n- 判定：NEUTRAL\n\n**⚠️ 風險提示**\n- 匯率貶值警報：外資持續撤離導致台幣貶值，權值股賣壓沉重，切勿急於接刀。\n- 景氣紅燈風險：長線位階仍處高檔，暴跌不代表已進入絕對低點，勿將修正誤判為買點。\n- 地緣政治不確定性：戰爭風險導致市場波動劇烈，槓桿型商品(00675L)持有風險極高。\n\n**✅ 下一步觀察清單**\n- 嚴守現金為王：維持目前低槓桿水位，暫停00675L加碼，優先觀察匯率是否回穩。\n- 監控外資動向：若USD/TWD匯率停止急貶且外資賣超縮減，才考慮以0050進行小額防禦性佈局。\n- 檢視持股紀律：確保0050佔比為核心，槓桿部位嚴格控管在現有水位，避免情緒性擴張。\n\n**🧭 行動微調建議**\n- 年輕人的優勢是時間，而非在極度恐慌中當英雄。\n- 景氣紅燈時的下跌，往往是修正過熱，而非單純的便宜撿貨機會。\n- 保持冷靜，槓桿是用來放大長期報酬的，不是用來在戰火中賭博的。",
+    "internalThinking": "目前的市場狀態極為矛盾：一方面是帳戶槓桿僅1.03倍，遠低於1.8倍的目標，具備理論上的加碼空間；但另一方面，宏觀環境處於『景氣紅燈』的長線高檔區，且伴隨著中東地緣政治引發的全球恐慌與外資大舉撤離（匯率貶值）。這不是一個單純的左側佈局時機。雖然VIX高達39顯示市場極度恐慌，但外資撤離造成的匯率貶值會直接侵蝕權值股的報酬，且景氣紅燈意味著市場估值仍未修正至長期合理區間。因此，教練建議採取『防禦性觀望』，保留現金實力，不要因為槓桿低就急於在戰火中擴張。0050作為底層資產可以續抱，但00675L的加碼必須等到匯率止穩與外資賣壓緩解後再行評估。現在的紀律是『保護本金』，而非『抄底』。"
+  }
+}

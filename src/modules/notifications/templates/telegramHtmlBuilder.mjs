@@ -404,7 +404,7 @@ ${SEP}\📦 <b>持倉配置</b>${SEP}\
   // 第三則：AI 策略 ＋ 每日一句
   // ══════════════════════════════════════════════════════════════
 
-  // 💡 新增：建構總經多空對決區塊
+  // 建構總經多空對決區塊
   let macroAnalysisSection = "";
   if (macroAnalysis && macroAnalysis.conclusion) {
     const {
