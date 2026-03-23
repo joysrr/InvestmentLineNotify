@@ -1,14 +1,14 @@
 {
   "_meta": {
-    "lastRun": "2026-03-23T13:48:41.666Z",
+    "lastRun": "2026-03-23T14:35:18.401Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-23T13:48:41.666Z"
+        "lastFetch": "2026-03-23T14:35:18.401Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-23T13:48:41.666Z"
+        "lastFetch": "2026-03-23T14:35:18.401Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
@@ -50,10 +50,19 @@
       },
       "source": "FRED"
     },
+    "rawCnn": {
+      "score": 18.51,
+      "rating": "extreme fear",
+      "previousClose": 14.59,
+      "previous1Week": 21.63,
+      "previous1Month": 36.97,
+      "previous1Year": 22.69,
+      "timestamp": "2026-03-23T14:33:57.000Z"
+    },
     "rawFx": {
-      "currentRate": 31.882,
+      "currentRate": 31.843,
       "previousClose": 31.511,
-      "changePercent": 1.18,
+      "changePercent": 1.05,
       "historicalPrices": [
         31.511,
         31.4348,
@@ -75,21 +84,12 @@
         31.885,
         32.0312,
         31.8021,
-        31.882
+        31.843
       ]
     },
-    "rawCnn": {
-      "score": 16.91,
-      "rating": "extreme fear",
-      "previousClose": 14.59,
-      "previous1Week": 21.63,
-      "previous1Month": 36.97,
-      "previous1Year": 22.69,
-      "timestamp": "2026-03-23T13:44:02.000Z"
-    },
     "quote": {
-      "quote": "You can discover what your enemy fears most by observing the means he uses to frighten you.",
-      "author": "Eric Hoffer",
+      "quote": "It's your road, and yours alone, others may walk it with you, but no one can walk it for you.",
+      "author": "Rumi",
       "source": "zenquotes"
     }
   }
