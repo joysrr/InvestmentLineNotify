@@ -1,18 +1,18 @@
 {
   "_meta": {
-    "lastRun": "2026-03-23T07:44:09.778Z",
+    "lastRun": "2026-03-23T13:26:33.910Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-23T07:44:09.778Z"
+        "lastFetch": "2026-03-23T13:26:33.910Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-23T06:13:29.264Z"
+        "lastFetch": "2026-03-23T13:26:33.910Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-23T06:13:29.264Z"
+        "lastFetch": "2026-03-23T13:26:33.910Z"
       },
       "usMarketProvider": {
         "status": "SUCCESS",
@@ -31,20 +31,6 @@
       "light": "紅燈 (過熱)",
       "lightColor": "red"
     },
-    "rawMargin": {
-      "marginBalance100M": 3985.91,
-      "marginBalanceChange100M": -35.05,
-      "maintenanceRatio": 182.4
-    },
-    "rawCnn": {
-      "score": 14.59,
-      "rating": "extreme fear",
-      "previousClose": 17.17,
-      "previous1Week": 22.63,
-      "previous1Month": 44.41,
-      "previous1Year": 21.69,
-      "timestamp": "2026-03-20T23:59:51.000Z"
-    },
     "rawUsMarket": {
       "success": true,
       "vix": "24.06",
@@ -59,10 +45,19 @@
       },
       "source": "FRED"
     },
+    "rawCnn": {
+      "score": 15.91,
+      "rating": "extreme fear",
+      "previousClose": 14.59,
+      "previous1Week": 21.63,
+      "previous1Month": 36.97,
+      "previous1Year": 22.69,
+      "timestamp": "2026-03-23T13:09:01.000Z"
+    },
     "rawFx": {
-      "currentRate": 32.092,
+      "currentRate": 31.859,
       "previousClose": 31.511,
-      "changePercent": 1.84,
+      "changePercent": 1.1,
       "historicalPrices": [
         31.511,
         31.4348,
@@ -84,13 +79,18 @@
         31.885,
         32.0312,
         31.8021,
-        32.092
+        31.859
       ]
     },
     "quote": {
-      "quote": "Don't let someone elses. opinion become your reality.",
-      "author": "Les Brown",
+      "quote": "To create more positive results in your life, replace 'if only' with 'next time'.",
+      "author": "Celestine Chua",
       "source": "zenquotes"
+    },
+    "rawMargin": {
+      "marginBalance100M": 3933.34,
+      "marginBalanceChange100M": -52.57,
+      "maintenanceRatio": 175.2
     }
   }
 }
