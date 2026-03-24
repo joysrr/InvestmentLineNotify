@@ -1,22 +1,22 @@
 {
   "date": "2026/3/24",
   "signals": {
-    "currentPrice": 175.3,
+    "currentPrice": 178.1,
     "basePrice": 184.75,
     "totalLoan": 0,
     "actualLeverage": 1,
-    "historicalLevel": "🔥【極高位階/過熱】",
-    "netAsset": 782977.75,
-    "bias240": 48.54699557063597,
-    "priceChangePercent": -5.115020297699588,
-    "priceChangePercentText": "-5.12",
+    "historicalLevel": "⚖️【中位階】",
+    "netAsset": 788188.7,
+    "bias240": null,
+    "priceChangePercent": -3.5994587280108283,
+    "priceChangePercentText": "-3.60",
     "priceUpPercent": 0,
     "priceUpPercentText": "0.00",
-    "priceDropPercent": 5.115020297699588,
-    "priceDropPercentText": "5.12",
-    "RSI": 44.47,
-    "KD_K": 82.16013546202223,
-    "KD_D": 65.92314840788758,
+    "priceDropPercent": 3.5994587280108283,
+    "priceDropPercentText": "3.60",
+    "RSI": 79.37,
+    "KD_K": 90.66365648183523,
+    "KD_D": 91.97699586108149,
     "overheat": {
       "isOverheat": false,
       "factorCount": 3,
@@ -24,22 +24,22 @@
       "coolCount": 2,
       "factors": {
         "rsiHigh": false,
-        "kdHigh": false,
-        "biasHigh": true
+        "kdHigh": true,
+        "biasHigh": false
       },
-      "bias240": 48.54699557063597
+      "bias240": null
     },
     "reversal": {
       "totalFactor": 4,
       "triggeredCount": 1,
       "rsiDrop": false,
-      "kdDrop": true,
-      "kdBearCross": false,
+      "kdDrop": false,
+      "kdBearCross": true,
       "macdBearCross": false
     },
     "weightScore": 0,
     "weightDetails": {
-      "dropInfo": "跌幅 5.12%",
+      "dropInfo": "跌幅 3.60%",
       "dropScore": 0,
       "rsiInfo": "RSI 未反轉",
       "rsiScore": 0,
@@ -52,19 +52,19 @@
       "flags": {
         "rsiSell": false,
         "macdSell": false,
-        "kdSell": false
+        "kdSell": true
       },
-      "signalCount": 0,
+      "signalCount": 1,
       "total": 3,
       "stateFlags": {
-        "rsiStateOverbought": false,
-        "kdStateOverbought": false
+        "rsiStateOverbought": true,
+        "kdStateOverbought": true
       },
-      "stateCount": 0
+      "stateCount": 2
     },
-    "macdSignal": "bear",
+    "macdSignal": "bull",
     "maintenanceMargin": 999,
-    "z2Ratio": 11.19444326483096,
+    "z2Ratio": 11.298055909707918,
     "strategy": {
       "version": "2.3-best",
       "description": "質押槓桿策略",
@@ -217,11 +217,11 @@
     "target": "👀 觀察等待",
     "targetSuggestionShort": "市場偏熱，避免追高",
     "targetSuggestion": "0050照常；00675L 先不撥款，避免追高（等回檔或轉多）",
-    "suggestion": "• 跌幅條件：5.1% / 門檻 0% (✔️達標)\n• 評分條件：0分 / 門檻 4分 (❌未達)\n• 狀態說明：目前過熱因子命中 1 項 (未達絕對過熱的 3 項)，建議耐心等回檔。",
+    "suggestion": "• 跌幅條件：3.6% / 門檻 0% (✔️達標)\n• 評分條件：0分 / 門檻 4分 (❌未達)\n• 狀態說明：目前過熱因子命中 1 項 (未達絕對過熱的 3 項)，建議耐心等回檔。",
     "entry": {
       "weightScore": 0,
       "weightDetails": {
-        "dropInfo": "跌幅 5.12%",
+        "dropInfo": "跌幅 3.60%",
         "dropScore": 0,
         "rsiInfo": "RSI 未反轉",
         "rsiScore": 0,
@@ -244,8 +244,5 @@
       "message": "最後買入：2026-03-02，經過 15 交易日"
     }
   },
-  "ai": {
-    "finalAdviceText": "**⚠️ 風險提示**\n- 雖然夜盤大漲，但外資 3 月提款 8044 億是事實，台幣貶向 32 元代表資金結構性撤離，短線反彈極易遭遇解套賣壓。\n- VIX 指數飆升至 39.23 進入極度恐慌區，這意味著即便反彈，過程也會像大怒神一樣劇烈震盪，心臟不夠強容易被洗出場。\n- 景氣燈號亮紅燈與 Fed 暗示僅降息一次，這在長線視角下是估值修正的警訊，千萬別在跳空開高時失去理智追高。\n\n**✅ 下一步觀察清單**\n- 目前槓桿僅 1 倍，現金充裕，若 0050 回測支撐且 RSI 出現底背離，可分批將 5 萬現金轉入 00675L，逐步朝 1.8 倍目標靠攏。\n- 若台幣匯率跌破 32 元且央行干預無效，請停止一切加碼動作，優先保護手上的 0050 原型部位，維持現有的高防禦姿態。\n- 當 00675L 佔比隨反彈回升至 20% 以上時，若大盤維持率跌破 160%，應立即停止建倉，保留現金應對可能的二次回測。\n- 密切觀察台積電 ADR 溢價收斂情況，若溢價縮減至 10% 以內且現貨未補漲，代表反彈動能竭盡，屆時應維持觀望不追價。\n\n**🧭 行動微調建議**\n- 你現在手握 26 萬現金且槓桿極低，你是市場上最有資格『冷靜』的人。別被千點反彈激起貪婪，也別被外資賣超嚇到割肉。\n- 生命週期投資法的精髓在於低位階時的勇氣。現在市場極度恐慌（CNN 18分），正是你利用人力資本優勢、拉高槓桿的戰略窗口。\n- 記住，波動是長期報酬的門票。只要帳戶維持率在安全區間，短期的帳面起伏只是資產重組的過程，請專注於累積股數而非每日損益。",
-    "internalThinking": "目前市場處於極度矛盾的十字路口。從量化數據看，學員實際槓桿僅 1 倍，遠低於目標 1.8 倍，且擁有 26 萬現金儲備，防禦力極強。然而，大盤位階處於『紅燈過熱區』，且 VIX 高達 39.23，顯示市場情緒極度不安。雖然 <MacroAnalysis> 判定為 BEAR，且外資 3 月狂砍 8000 億，但最新新聞顯示地緣政治風險驟降（川普效應），台指期夜盤噴發千點，這是一個典型的『極度恐慌後的報復性反彈』。考慮到學員 00675L 佔比僅 11%，且大盤維持率 175% 仍屬安全，此時不應被總經利空嚇跑，反而應利用這波反彈確認底部。若匯率能守住 32 元大關且美股情緒回暖，這將是從防禦轉向進攻的關鍵轉折點。"
-  }
+  "ai": "AI 決策引擎暫時無法運作，請依原始數據判斷。"
 }

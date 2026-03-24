@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-23T23:59:18.450Z",
+    "lastRun": "2026-03-24T04:17:03.044Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-23T23:59:18.450Z"
+        "lastFetch": "2026-03-24T04:17:03.044Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -16,11 +16,11 @@
       },
       "usMarketProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-23T23:59:18.450Z"
+        "lastFetch": "2026-03-24T04:17:03.044Z"
       },
       "ndcProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-23T23:59:18.450Z"
+        "lastFetch": "2026-03-24T04:17:03.044Z"
       }
     }
   },
@@ -40,11 +40,10 @@
       "timestamp": "2026-03-23T14:39:09.000Z"
     },
     "rawFx": {
-      "currentRate": 31.861,
-      "previousClose": 31.511,
-      "changePercent": 1.11,
+      "currentRate": 32.001,
+      "previousClose": 31.4348,
+      "changePercent": 1.8,
       "historicalPrices": [
-        31.511,
         31.4348,
         31.3771,
         31.2691,
@@ -65,26 +64,26 @@
         32.0312,
         31.8021,
         32.0217,
-        31.861
+        32.001
       ]
     },
     "rawUsMarket": {
       "success": true,
       "vix": "26.78",
-      "spxChg": "-1.51%",
+      "spxChg": "1.15%",
       "riskLevel": "高風險",
       "riskIcon": "⚠️",
       "suggestion": "暫停00675L新增撥款，偏防守為主",
       "isHighRisk": true,
       "meta": {
         "vixDate": "2026-03-20",
-        "spxDate": "2026-03-20"
+        "spxDate": "2026-03-23"
       },
       "source": "FRED"
     },
     "quote": {
-      "quote": "Here is the test to find whether your mission on earth is finished. If you're alive, it isn't.",
-      "author": "Richard Bach",
+      "quote": "Genius is one percent inspiration and ninety-nine percent perspiration.",
+      "author": "Thomas Edison",
       "source": "zenquotes"
     },
     "rawNdc": {
