@@ -10,6 +10,7 @@ const DIRS = {
   MARKET_HISTORY: path.join(DATA_DIR, "market", "history"),
   AI_LOGS: path.join(DATA_DIR, "ai_logs"),
   REPORTS: path.join(DATA_DIR, "reports"),
+  STOCK_HISTORY: path.join(DATA_DIR, "stock_history"),
 };
 
 /**
@@ -19,6 +20,9 @@ async function ensureDirectories() {
   for (const dir of Object.values(DIRS)) {
     try {
       await fs.mkdir(dir, { recursive: true });
+      // 確保 Git 能追蹤空資料夾
+      const gitkeep = path.join(dir, ".gitkeep");
+      await fs.writeFile(gitkeep, "").catch(() => {});
     } catch (err) {
       if (err.code !== "EEXIST") throw err;
     }
@@ -160,5 +164,40 @@ export const archiveManager = {
         `🧹 [Archive] 自動清理完成，已刪除 ${deletedCount} 個超過 ${daysToKeep} 天的過期檔案。`,
       );
     }
+  },
+
+  // ==========================================================================
+  // 4. 歷史股價資料庫 (Stock History)
+  // ==========================================================================
+
+  /**
+   * 讀取本地的歷史股價資料庫
+   * @param {string} stockNo - 股票代號 (例如 0050)
+   * @param {string} monthKey - 年月 (例如 202603)
+   * @returns {Promise<Array|null>} 若無檔案則回傳 null
+   */
+  async getStockHistory(stockNo, monthKey) {
+    try {
+      const fileName = `${stockNo}_${monthKey}.json`;
+      const filePath = path.join(DIRS.STOCK_HISTORY, fileName);
+      const content = await fs.readFile(filePath, "utf-8");
+      return JSON.parse(content);
+    } catch (err) {
+      return null;
+    }
+  },
+
+  /**
+   * 儲存單月歷史股價至本地資料庫 (永久保存，不隨日期清理)
+   * @param {string} stockNo - 股票代號
+   * @param {string} monthKey - 年月
+   * @param {Array} data - 股價資料陣列
+   */
+  async saveStockHistory(stockNo, monthKey, data) {
+    await ensureDirectories();
+    const fileName = `${stockNo}_${monthKey}.json`;
+    const filePath = path.join(DIRS.STOCK_HISTORY, fileName);
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+    console.log(`📊 [Archive] 歷史股價已存檔: ${fileName}`);
   },
 };

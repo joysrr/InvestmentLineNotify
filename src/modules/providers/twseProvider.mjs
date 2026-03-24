@@ -1,69 +1,18 @@
-import fs from "fs/promises";
-import path from "path";
-import axios from "axios";
-import fetch from "node-fetch";
 import https from "https";
 import {
+  TwDate,
   parseEnglishDateToISO,
-  toTWDateKey,
   toTwseStockNo,
   parseNumberOrNull,
   enumerateMonths,
   rocDateToIso,
   sleep,
+  toExCh,
+  parseMisTimeToDate,
+  fetchWithTimeout,
 } from "../../utils/coreUtils.mjs";
 import { fetchStrategyConfig } from "../strategy/signalRules.mjs";
-
-// 建立一個快取資料夾存放歷史股價
-const CACHE_DIR = path.join(process.cwd(), "cache", "stock_history");
-
-// 確保快取目錄存在
-async function ensureCacheDir() {
-  try {
-    await fs.mkdir(CACHE_DIR, { recursive: true });
-  } catch (err) {}
-}
-
-/**
- * 具有快取功能的單月資料抓取
- */
-async function fetchStockDayMonthWithCache(stockNo, yyyymm01) {
-  await ensureCacheDir();
-
-  // yyyymm01 格式是 20260301，我們取前 6 碼當作檔名 (202603)
-  const monthKey = yyyymm01.substring(0, 6);
-  const cachePath = path.join(CACHE_DIR, `${stockNo}_${monthKey}.json`);
-
-  // 取得現在的年月 (例如 202603)
-  const now = new Date();
-  const currentMonthKey = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
-
-  // 1. 檢查快取
-  // 如果檔案存在，且 "不是當月" (因為當月資料還會變動，不能死存)，就直接讀快取
-  if (monthKey !== currentMonthKey) {
-    try {
-      const cachedData = await fs.readFile(cachePath, "utf-8");
-      return JSON.parse(cachedData);
-    } catch (err) {
-      // 讀取失敗或檔案不存在，繼續往下走去抓網路
-    }
-  }
-
-  // 2. 真的去打 TWSE API (呼叫你原本寫好的 fetchStockDayMonth)
-  const rows = await fetchStockDayMonth(stockNo, yyyymm01);
-
-  // 3. 寫入快取
-  // 如果抓回來的資料有內容，且 "不是當月" (或是你確定這月已經結束)，就存起來
-  if (rows && rows.length > 0 && monthKey !== currentMonthKey) {
-    try {
-      await fs.writeFile(cachePath, JSON.stringify(rows));
-    } catch (err) {
-      console.warn("寫入快取失敗:", err.message);
-    }
-  }
-
-  return rows;
-}
+import { archiveManager } from "../data/archiveManager.mjs";
 
 const twseAgent = new https.Agent({
   keepAlive: true, // 啟用長連線，重複呼叫時省去 TLS 握手時間
@@ -83,28 +32,31 @@ const baseFetchOptions = {
 };
 
 /**
- * 00675L 是上市 ETF：用 tse_
- * 若未來要支援上櫃，需擴充 otc_ 判斷。
+ * 具有快取功能的單月資料抓取 (依賴 archiveManager)
  */
-function toExCh(symbol) {
-  const stockNo = toTwseStockNo(symbol);
-  return `tse_${stockNo}.tw`;
-}
+async function fetchStockDayMonthWithCache(stockNo, yyyymm01) {
+  const monthKey = yyyymm01.substring(0, 6);
+  const currentMonthKey = TwDate().formatMonthKey();
 
-/**
- * MIS 回傳的日期/時間（d=YYYYMMDD, t=HH:MM:SS）轉 Date (+08:00)
- */
-function parseMisTimeToDate(dStr, tStr) {
-  if (!dStr || !tStr) return null;
+  // 1. 檢查快取：只有「非當月」才允許去讀取死存的檔案
+  if (monthKey !== currentMonthKey) {
+    const cachedData = await archiveManager.getStockHistory(stockNo, monthKey);
+    if (cachedData) return cachedData; // 讀到就直接回傳，不再打 API
+  }
 
-  const d = String(dStr).trim();
-  const t = String(tStr).trim();
-  if (!/^\d{8}$/.test(d)) return null;
-  if (!/^\d{2}:\d{2}:\d{2}$/.test(t)) return null;
+  // 2. 打 TWSE API 獲取資料
+  const rows = await fetchStockDayMonth(stockNo, yyyymm01);
 
-  return new Date(
-    `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}T${t}+08:00`,
-  );
+  // 3. 寫入快取：資料不為空且「不是當月」，才永久存入 data 資料庫
+  if (rows && rows.length > 0 && monthKey !== currentMonthKey) {
+    try {
+      await archiveManager.saveStockHistory(stockNo, monthKey, rows);
+    } catch (err) {
+      console.warn("寫入快取失敗:", err.message);
+    }
+  }
+
+  return rows;
 }
 
 /**
@@ -150,12 +102,11 @@ async function getMisCookie() {
     return _cookieCache.cookie;
   }
 
-  // 若已有其他請求正在獲取 Cookie，直接等待該 Promise，避免瞬間擊穿 TWSE
   if (_cookiePromise) return _cookiePromise;
 
   _cookiePromise = (async () => {
     try {
-      const res = await fetch(
+      const res = await fetchWithTimeout(
         "https://mis.twse.com.tw/stock/fibest.jsp?lang=zh_tw",
         {
           ...baseFetchOptions,
@@ -164,6 +115,7 @@ async function getMisCookie() {
             Accept: "text/html,application/xhtml+xml",
           },
         },
+        8000,
       );
 
       const setCookie = res.headers.raw?.()["set-cookie"] || [];
@@ -178,7 +130,7 @@ async function getMisCookie() {
       );
       return null;
     } finally {
-      _cookiePromise = null; // 解開鎖定
+      _cookiePromise = null;
     }
   })();
 
@@ -191,53 +143,44 @@ async function getMisCookie() {
 export async function fetchRealtimeFromMis(symbol) {
   const ex_ch = toExCh(symbol);
   const cookie = await getMisCookie();
-
   const url = `https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=${encodeURIComponent(ex_ch)}&json=1&delay=0&_=${Date.now()}`;
 
-  // ⚡ 加入 AbortController 防止伺服器無回應卡死
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8秒強制中斷
-
-  try {
-    const res = await fetch(url, {
+  const res = await fetchWithTimeout(
+    url,
+    {
       ...baseFetchOptions,
-      signal: controller.signal,
       headers: {
         ...baseFetchOptions.headers,
         Accept: "application/json",
         Referer: "https://mis.twse.com.tw/stock/fibest.jsp",
         ...(cookie ? { Cookie: cookie } : {}),
       },
-    });
+    },
+    8000,
+  );
 
-    const text = await res.text();
-    if (!res.ok)
-      throw new Error(`TWSE MIS HTTP ${res.status}: ${text.slice(0, 200)}`);
+  const text = await res.text();
+  if (!res.ok)
+    throw new Error(`TWSE MIS HTTP ${res.status}: ${text.slice(0, 200)}`);
 
-    const json = JSON.parse(text);
-    const msg = Array.isArray(json.msgArray) ? json.msgArray[0] : null;
-    if (!msg) {
-      return { price: null, time: null, priceSource: "none", rawTime: {} };
-    }
-
-    const tlong = parseNumberOrNull(msg.tlong);
-    const time =
-      tlong != null ? new Date(tlong) : parseMisTimeToDate(msg.d, msg.t);
-    const { price, priceSource } = pickRealtimePrice(msg);
-
-    return {
-      price,
-      time,
-      priceSource,
-      rawTime: { tlong: msg.tlong, d: msg.d, t: msg.t },
-    };
-  } finally {
-    clearTimeout(timeoutId); // 避免 Memory Leak
+  const json = JSON.parse(text);
+  const msg = Array.isArray(json.msgArray) ? json.msgArray[0] : null;
+  if (!msg) {
+    return { price: null, time: null, priceSource: "none", rawTime: {} };
   }
-}
 
-const UA =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36";
+  const tlong = parseNumberOrNull(msg.tlong);
+  const time =
+    tlong != null ? new Date(tlong) : parseMisTimeToDate(msg.d, msg.t);
+  const { price, priceSource } = pickRealtimePrice(msg);
+
+  return {
+    price,
+    time,
+    priceSource,
+    rawTime: { tlong: msg.tlong, d: msg.d, t: msg.t },
+  };
+}
 
 function extractCookie(setCookieHeader) {
   if (!setCookieHeader) return "";
@@ -246,11 +189,6 @@ function extractCookie(setCookieHeader) {
     : [setCookieHeader];
   return arr.map((x) => x.split(";")[0]).join("; ");
 }
-
-const toNum = (s) => {
-  const n = Number(s);
-  return Number.isFinite(n) ? n : null;
-};
 
 function formatTaifexDateTime(CDate, CTime) {
   if (!CDate || !CTime || CDate.length !== 8) return null;
@@ -261,49 +199,54 @@ function formatTaifexDateTime(CDate, CTime) {
   return `${CDate.slice(0, 4)}/${CDate.slice(4, 6)}/${CDate.slice(6, 8)} ${hh}:${mm}:${ss}`;
 }
 
-// 期交所的連線可以使用 Axios 自帶的設定（但一樣建議設定 Timeout）
+// ============================================================================
+// 📊 期交所 VIX 獲取
+// ============================================================================
 export async function getTwVix() {
+  const TAIFEX_UA =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36";
+
   try {
-    const pre = await axios.get(
+    const preRes = await fetchWithTimeout(
       "https://mis.taifex.com.tw/futures/VolatilityQuotes/",
-      {
-        // 這裡也可以套用 httpsAgent，但考慮期交所不同網域，先維持原樣即可
-        headers: { "User-Agent": UA },
-        timeout: 8000,
-      },
+      { headers: { "User-Agent": TAIFEX_UA } },
+      8000,
     );
-    const cookie = extractCookie(pre.headers["set-cookie"]);
+    const cookie = extractCookie(
+      preRes.headers.raw?.()["set-cookie"] || preRes.headers.get("set-cookie"),
+    );
 
     const url = "https://mis.taifex.com.tw/futures/api/getQuoteDetail";
     const candidates = ["TAIWANVIX", "RTD:1:TAIWANVIX", "RTD:1:VIX"];
     const strategy = await fetchStrategyConfig();
 
     for (const symbol of candidates) {
-      const { data } = await axios.post(
+      const res = await fetchWithTimeout(
         url,
-        { SymbolID: [symbol] },
         {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "User-Agent": UA,
+            "User-Agent": TAIFEX_UA,
             Referer: "https://mis.taifex.com.tw/futures/VolatilityQuotes/",
             Origin: "https://mis.taifex.com.tw",
             ...(cookie ? { Cookie: cookie } : {}),
           },
-          timeout: 8000,
+          body: JSON.stringify({ SymbolID: [symbol] }),
         },
+        8000,
       );
 
+      const data = await res.json();
       const quote = data?.RtData?.QuoteList?.[0] ?? data?.QuoteDetail?.[0];
       if (!quote) continue;
 
-      let value = toNum(quote.CLastPrice);
-      if (value == null || value <= 0) {
-        value = toNum(quote.CRefPrice);
-      }
+      let value =
+        parseNumberOrNull(quote.CLastPrice) ||
+        parseNumberOrNull(quote.CRefPrice);
       if (value == null || value <= 0) continue;
 
-      const prev = toNum(quote.CRefPrice);
+      const prev = parseNumberOrNull(quote.CRefPrice);
       const change = value != null && prev != null ? value - prev : 0;
 
       let status = "中性";
@@ -333,11 +276,14 @@ export async function loadHolidaySet(year) {
   if (holidayCache.year === year && holidayCache.dates)
     return holidayCache.dates;
 
-  // ⚡ 這裡也套用優化 Agent
-  const res = await fetch("https://www.twse.com.tw/en/trading/holiday.html", {
-    ...baseFetchOptions,
-    headers: { ...baseFetchOptions.headers, Accept: "text/html" },
-  });
+  const res = await fetchWithTimeout(
+    "https://www.twse.com.tw/en/trading/holiday.html",
+    {
+      ...baseFetchOptions,
+      headers: { ...baseFetchOptions.headers, Accept: "text/html" },
+    },
+    8000,
+  );
 
   const html = await res.text();
   if (!res.ok)
@@ -362,18 +308,18 @@ export async function loadHolidaySet(year) {
 }
 
 export async function isMarketOpenTodayTWSE() {
-  const now = new Date();
-  const todayKey = toTWDateKey(now);
+  // 1. 取得當下的台北時間整合物件
+  const now = TwDate();
 
-  const twNow = new Date(
-    now.toLocaleString("en-US", { timeZone: "Asia/Taipei" }),
-  );
-  const dow = twNow.getDay();
-  if (dow === 0 || dow === 6) return false;
+  // 2. 判斷是否為週末 (0=週日, 6=週六)
+  if (now.dayOfWeek === 0 || now.dayOfWeek === 6) return false;
 
-  const year = Number(todayKey.slice(0, 4));
+  // 3. 取得 YYYY-MM-DD 字串與當前年份
+  const todayKey = now.formatDateKey();
+  const year = now.year;
+
+  // 4. 檢查是否為國定假日
   const holidaySet = await loadHolidaySet(year);
-
   return !holidaySet.has(todayKey);
 }
 
@@ -389,21 +335,20 @@ async function fetchStockDayMonth(stockNo, yyyymm01) {
   const urls = buildUrls(stockNo, yyyymm01);
 
   for (const url of urls) {
-    // ⚡ 這裡也套用優化 Agent
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
     try {
-      const res = await fetch(url, {
-        ...baseFetchOptions,
-        signal: controller.signal,
-        headers: {
-          ...baseFetchOptions.headers,
-          Accept: "application/json",
-          Referer:
-            "https://www.twse.com.tw/zh/trading/historical/stock-day.html",
+      const res = await fetchWithTimeout(
+        url,
+        {
+          ...baseFetchOptions,
+          headers: {
+            ...baseFetchOptions.headers,
+            Accept: "application/json",
+            Referer:
+              "https://www.twse.com.tw/zh/trading/historical/stock-day.html",
+          },
         },
-      });
+        10000,
+      );
 
       const text = await res.text();
       const ct = res.headers.get("content-type") || "";
@@ -450,11 +395,8 @@ async function fetchStockDayMonth(stockNo, yyyymm01) {
         `TWSE STOCK_DAY HTTP ${res.status}: ${text.slice(0, 200)}`,
       );
     } catch (e) {
-      if (e.name === "AbortError")
-        console.warn(`TWSE STOCK_DAY Timeout for ${url}`);
-      // 繼續嘗試下一個 URL
-    } finally {
-      clearTimeout(timeoutId);
+      if (e.message.includes("Timeout"))
+        console.warn(`TWSE STOCK_DAY ${e.message}`);
     }
   }
 
@@ -464,18 +406,16 @@ async function fetchStockDayMonth(stockNo, yyyymm01) {
 export async function fetchStockHistory(symbol, period1, period2) {
   const stockNo = toTwseStockNo(symbol);
   const months = enumerateMonths(period1, period2);
+  const currentMonthKey = TwDate().formatMonthKey();
 
   const all = [];
   for (const yyyymm01 of months) {
     const rows = await fetchStockDayMonthWithCache(stockNo, yyyymm01);
     all.push(...rows);
 
-    // 判斷是否需要 sleep：只有當月(需要打API)才需要 sleep
     const monthKey = yyyymm01.substring(0, 6);
-    const currentMonthKey = `${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, "0")}`;
-
-    // 如果是歷史月份且已經從快取讀了，就不需要 sleep 浪費時間
-    if (monthKey === currentMonthKey || !rows.length) {
+    // 只有在真的敲擊了 TWSE API (當月) 時，才需要禮貌性等待
+    if (monthKey === currentMonthKey) {
       await sleep(1500);
     }
   }
@@ -496,18 +436,16 @@ export async function fetchStockHistory(symbol, period1, period2) {
 
 export async function fetchLatestClose(symbol) {
   const stockNo = toTwseStockNo(symbol);
-  const todayTW = new Date(
-    new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }),
-  );
-  const yyyymm01 = `${todayTW.getFullYear()}${String(todayTW.getMonth() + 1).padStart(2, "0")}01`;
+  const currentMonthKey = TwDate().formatMonthKey();
+  const yyyymm01 = `${currentMonthKey}01`;
 
-  const rows = await fetchStockDayMonth(stockNo, yyyymm01);
-  if (!rows.length) return null;
+  // 若同一次排程中其他地方已抓過歷史，有機會命中記憶體或避免重複計算
+  const rows = await fetchStockDayMonthWithCache(stockNo, yyyymm01);
+  if (!rows || !rows.length) return null;
   return rows[rows.length - 1];
 }
 
 export async function fetchRealTimePrice(symbol) {
-  // 1) 試一次 MIS 即時
   try {
     const realtime = await fetchRealtimeFromMis(symbol);
     if (realtime && realtime.price != null) {
@@ -517,7 +455,6 @@ export async function fetchRealTimePrice(symbol) {
     console.warn("MIS 即時價獲取失敗，改走收盤 fallback:", err.message);
   }
 
-  // 2) fallback：最近收盤價（STOCK_DAY）
   const latest = await fetchLatestClose(symbol);
   if (latest?.close != null) {
     return {

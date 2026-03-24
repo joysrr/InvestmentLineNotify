@@ -1,5 +1,6 @@
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import { JWT } from "google-auth-library";
+import { TwDate, parseNumberOrNull } from "../utils/coreUtils.mjs";
 
 // 1. 取得並處理私鑰 (自動修復格式問題)
 let privateKey = process.env.GOOGLE_PRIVATE_KEY || "";
@@ -48,10 +49,13 @@ export async function fetchLastPortfolioState() {
     for (let i = rows.length - 1; i >= 0; i--) {
       const dateCell = rows[i].get("日期");
       if (dateCell && dateCell.trim() !== "") {
-        if(!lastRow){
+        if (!lastRow) {
           lastRow = rows[i];
         }
-        if (rows[i].get("主動交易") && rows[i].get("主動交易").trim() == "是") {
+        if (
+          rows[i].get("主動交易") &&
+          rows[i].get("主動交易").trim() === "是"
+        ) {
           lastBuyRow = rows[i];
         }
         if (lastRow != null && lastBuyRow != null) {
@@ -69,25 +73,17 @@ export async function fetchLastPortfolioState() {
       `✅ 讀取持股來源: [${sheet.title}] 日期: ${lastRow.get("日期")}`,
     );
 
-    // 解析數值
-    let loan = lastRow.get("借貸總額");
-    if (typeof loan === "string") loan = loan.replace(/,/g, "").trim();
-    if (loan === "無借貸" || !loan || isNaN(parseFloat(loan))) loan = 0;
-
-    let cash = lastRow.get("現金儲備");
-    if (typeof cash === "string") cash = cash.replace(/,/g, "").trim();
-    const cashValue =
-      cash && !isNaN(parseFloat(cash))
-        ? parseFloat(cash)
-        : parseFloat(process.env.CASH_RESERVE || 0);
+    // 💡 優化：使用 parseNumberOrNull 解析欄位，免去手動字串處理與 isNaN 判斷
+    const parsedLoan = parseNumberOrNull(lastRow.get("借貸總額"));
+    const parsedCash = parseNumberOrNull(lastRow.get("現金儲備"));
 
     return {
       date: lastRow.get("日期"),
-      lastBuyDate: lastBuyRow.get("日期"),
-      qty0050: parseFloat(lastRow.get("0050股數") || 0),
-      qtyZ2: parseFloat(lastRow.get("00675L股數") || 0),
-      totalLoan: parseFloat(loan),
-      cash: cashValue,
+      lastBuyDate: lastBuyRow ? lastBuyRow.get("日期") : null, // 加入防呆，避免 lastBuyRow 為空
+      qty0050: parseNumberOrNull(lastRow.get("0050股數")) || 0,
+      qtyZ2: parseNumberOrNull(lastRow.get("00675L股數")) || 0,
+      totalLoan: parsedLoan || 0,
+      cash: parsedCash ?? (parseNumberOrNull(process.env.CASH_RESERVE) || 0), // 右側 ?? 保障若 sheet 為空則吃環境變數
     };
   } catch (err) {
     console.error("❌ 讀取持股失敗:", err);
@@ -128,14 +124,13 @@ export async function logDailyToSheet(data) {
 
     const rows = await sheet.getRows();
 
-    // 格式化日期
-    const today = new Date();
-    const dateStr = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, "0")}/${String(today.getDate()).padStart(2, "0")}`;
+    // 💡 優化：使用 TwDate 產生台北時區日期，並把 "-" 換成 "/"
+    const dateStr = TwDate().formatDateKey().replace(/-/g, "/"); // "2026/03/24"
 
     // 計算數值
     const val0050 = Math.round(data.portfolio.qty0050 * data.price0050);
     const valZ2 = Math.round(data.portfolio.qtyZ2 * data.currentPrice);
-    const loan = data.portfolio.totalLoan;
+    const loan = data.portfolio.totalLoan || 0;
     const cash = data.portfolio.cash || 0;
     const netAsset = val0050 + valZ2 - loan + cash;
 

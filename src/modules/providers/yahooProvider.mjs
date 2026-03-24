@@ -1,5 +1,5 @@
-import fetch from "node-fetch";
 import https from "https";
+import { fetchWithTimeout } from "../../utils/coreUtils.mjs";
 
 // ============================================================================
 // ⚡ 網路優化設定 (共用 Agent 提升連線速度與突破防火牆)
@@ -16,21 +16,18 @@ const baseFetchOptions = {
   headers: {
     "User-Agent":
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-    Accept:
-      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    Accept: "application/json",
     "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7",
     Referer: "https://tw.stock.yahoo.com/",
   },
 };
+
 // ============================================================================
 // 💵 取得最新 USD/TWD (美元兌台幣) 匯率與近 1 月走勢
 // ============================================================================
 export async function fetchUsdTwdExchangeRate() {
   const symbol = "TWD=X";
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1mo&interval=1d`;
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000);
 
   const result = {
     currentRate: null,
@@ -40,11 +37,8 @@ export async function fetchUsdTwdExchangeRate() {
   };
 
   try {
-    const response = await fetch(url, {
-      ...baseFetchOptions,
-      headers: { ...baseFetchOptions.headers, Accept: "application/json" },
-      signal: controller.signal,
-    });
+    // 使用共用的 fetchWithTimeout，傳入特製的 baseFetchOptions
+    const response = await fetchWithTimeout(url, baseFetchOptions, 8000);
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -88,13 +82,11 @@ export async function fetchUsdTwdExchangeRate() {
 
     return result;
   } catch (err) {
-    if (err.name === "AbortError") {
-      console.warn("⚠️ 獲取 USD/TWD 匯率超時");
+    if (err.message.includes("Timeout")) {
+      console.warn("⚠️ 獲取 USD/TWD 匯率超時 (Timeout)");
     } else {
       console.warn("⚠️ 獲取 USD/TWD 匯率失敗:", err.message);
     }
     return result;
-  } finally {
-    clearTimeout(timeoutId);
   }
 }
