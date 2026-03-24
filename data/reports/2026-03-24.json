@@ -1,22 +1,22 @@
 {
   "date": "2026/3/24",
   "signals": {
-    "currentPrice": 178.1,
+    "currentPrice": 175.85,
     "basePrice": 184.75,
     "totalLoan": 0,
     "actualLeverage": 1,
-    "historicalLevel": "⚖️【中位階】",
-    "netAsset": 788188.7,
-    "bias240": null,
-    "priceChangePercent": -3.5994587280108283,
-    "priceChangePercentText": "-3.60",
+    "historicalLevel": "🔥【極高位階/過熱】",
+    "netAsset": 784132.2,
+    "bias240": 49.01305859153641,
+    "priceChangePercent": -4.817320703653589,
+    "priceChangePercentText": "-4.82",
     "priceUpPercent": 0,
     "priceUpPercentText": "0.00",
-    "priceDropPercent": 3.5994587280108283,
-    "priceDropPercentText": "3.60",
-    "RSI": 79.37,
-    "KD_K": 90.66365648183523,
-    "KD_D": 91.97699586108149,
+    "priceDropPercent": 4.817320703653589,
+    "priceDropPercentText": "4.82",
+    "RSI": 44.47,
+    "KD_K": 82.16013546202223,
+    "KD_D": 65.92314840788758,
     "overheat": {
       "isOverheat": false,
       "factorCount": 3,
@@ -24,22 +24,22 @@
       "coolCount": 2,
       "factors": {
         "rsiHigh": false,
-        "kdHigh": true,
-        "biasHigh": false
+        "kdHigh": false,
+        "biasHigh": true
       },
-      "bias240": null
+      "bias240": 49.01305859153641
     },
     "reversal": {
       "totalFactor": 4,
       "triggeredCount": 1,
       "rsiDrop": false,
-      "kdDrop": false,
-      "kdBearCross": true,
+      "kdDrop": true,
+      "kdBearCross": false,
       "macdBearCross": false
     },
     "weightScore": 0,
     "weightDetails": {
-      "dropInfo": "跌幅 3.60%",
+      "dropInfo": "跌幅 4.82%",
       "dropScore": 0,
       "rsiInfo": "RSI 未反轉",
       "rsiScore": 0,
@@ -52,19 +52,19 @@
       "flags": {
         "rsiSell": false,
         "macdSell": false,
-        "kdSell": true
+        "kdSell": false
       },
-      "signalCount": 1,
+      "signalCount": 0,
       "total": 3,
       "stateFlags": {
-        "rsiStateOverbought": true,
-        "kdStateOverbought": true
+        "rsiStateOverbought": false,
+        "kdStateOverbought": false
       },
-      "stateCount": 2
+      "stateCount": 0
     },
-    "macdSignal": "bull",
+    "macdSignal": "bear",
     "maintenanceMargin": 999,
-    "z2Ratio": 11.298055909707918,
+    "z2Ratio": 11.213032700353335,
     "strategy": {
       "version": "2.3-best",
       "description": "質押槓桿策略",
@@ -217,11 +217,11 @@
     "target": "👀 觀察等待",
     "targetSuggestionShort": "市場偏熱，避免追高",
     "targetSuggestion": "0050照常；00675L 先不撥款，避免追高（等回檔或轉多）",
-    "suggestion": "• 跌幅條件：3.6% / 門檻 0% (✔️達標)\n• 評分條件：0分 / 門檻 4分 (❌未達)\n• 狀態說明：目前過熱因子命中 1 項 (未達絕對過熱的 3 項)，建議耐心等回檔。",
+    "suggestion": "• 跌幅條件：4.8% / 門檻 0% (✔️達標)\n• 評分條件：0分 / 門檻 4分 (❌未達)\n• 狀態說明：目前過熱因子命中 1 項 (未達絕對過熱的 3 項)，建議耐心等回檔。",
     "entry": {
       "weightScore": 0,
       "weightDetails": {
-        "dropInfo": "跌幅 3.60%",
+        "dropInfo": "跌幅 4.82%",
         "dropScore": 0,
         "rsiInfo": "RSI 未反轉",
         "rsiScore": 0,

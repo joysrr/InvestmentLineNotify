@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-24T04:17:03.044Z",
+    "lastRun": "2026-03-24T05:25:52.296Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-24T04:17:03.044Z"
+        "lastFetch": "2026-03-24T05:25:52.296Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -25,6 +25,12 @@
     }
   },
   "data": {
+    "rawNdc": {
+      "date": "2026-01",
+      "score": 39,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
     "rawMargin": {
       "marginBalance100M": 3933.34,
       "marginBalanceChange100M": -52.57,
@@ -39,10 +45,24 @@
       "previous1Year": 22.69,
       "timestamp": "2026-03-23T14:39:09.000Z"
     },
+    "rawUsMarket": {
+      "success": true,
+      "vix": "26.78",
+      "spxChg": "1.15%",
+      "riskLevel": "高風險",
+      "riskIcon": "⚠️",
+      "suggestion": "暫停00675L新增撥款，偏防守為主",
+      "isHighRisk": true,
+      "meta": {
+        "vixDate": "2026-03-20",
+        "spxDate": "2026-03-23"
+      },
+      "source": "FRED"
+    },
     "rawFx": {
-      "currentRate": 32.001,
+      "currentRate": 31.989,
       "previousClose": 31.4348,
-      "changePercent": 1.8,
+      "changePercent": 1.76,
       "historicalPrices": [
         31.4348,
         31.3771,
@@ -64,33 +84,13 @@
         32.0312,
         31.8021,
         32.0217,
-        32.001
+        31.989
       ]
     },
-    "rawUsMarket": {
-      "success": true,
-      "vix": "26.78",
-      "spxChg": "1.15%",
-      "riskLevel": "高風險",
-      "riskIcon": "⚠️",
-      "suggestion": "暫停00675L新增撥款，偏防守為主",
-      "isHighRisk": true,
-      "meta": {
-        "vixDate": "2026-03-20",
-        "spxDate": "2026-03-23"
-      },
-      "source": "FRED"
-    },
     "quote": {
-      "quote": "Genius is one percent inspiration and ninety-nine percent perspiration.",
-      "author": "Thomas Edison",
+      "quote": "Never do things others can do and will do if there are things others cannot do or will not do.",
+      "author": "Amelia Earhart",
       "source": "zenquotes"
-    },
-    "rawNdc": {
-      "date": "2026-01",
-      "score": 39,
-      "light": "紅燈 (過熱)",
-      "lightColor": "red"
     }
   }
 }
