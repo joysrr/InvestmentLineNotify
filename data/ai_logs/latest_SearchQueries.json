@@ -99,7 +99,7 @@
         "searchType": "broad"
       },
       {
-        "keyword": "台股 崩跌",
+        "keyword": "台幣 匯率",
         "searchType": "intitle"
       }
     ],
@@ -109,7 +109,7 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "Fed emergency meeting",
+        "keyword": "S&P 500 correction",
         "searchType": "broad"
       },
       {
@@ -125,8 +125,8 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "Systemic risk",
-        "searchType": "broad"
+        "keyword": "Nvidia stock selloff",
+        "searchType": "intitle"
       },
       {
         "keyword": "Treasury yield curve",

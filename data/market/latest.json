@@ -31,6 +31,12 @@
       "light": "紅燈 (過熱)",
       "lightColor": "red"
     },
+    "rawNdc": {
+      "date": "2026-01",
+      "score": 39,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
     "rawMargin": {
       "marginBalance100M": 3933.34,
       "marginBalanceChange100M": -52.57,
