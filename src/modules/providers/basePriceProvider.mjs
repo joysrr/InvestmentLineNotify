@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import { fetchWithTimeout, parseNumberOrNull } from "../../utils/coreUtils.mjs";
 
 const BASE_PRICE_URL = process.env.BASE_PRICE_URL;
 
@@ -17,9 +17,11 @@ function parseBasePriceText(text) {
   const lines = String(text).trim().split("\n");
   const lastLine = lines[lines.length - 1];
   const [baseDate, basePriceStr] = lastLine.split(",").map((s) => s.trim());
-  const basePrice = parseFloat(basePriceStr);
 
-  if (!baseDate || Number.isNaN(basePrice)) {
+  // 使用共用工具進行安全的數字解析
+  const basePrice = parseNumberOrNull(basePriceStr);
+
+  if (!baseDate || basePrice === null) {
     throw new Error("基準格式錯誤，無法解析最後一行");
   }
 
@@ -41,18 +43,24 @@ export async function fetchLatestBasePrice(url = BASE_PRICE_URL) {
   }
 
   try {
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 base-price-client",
-        Accept: "text/plain",
+    // 增加 5 秒 Timeout 保護，避免網路死鎖
+    const response = await fetchWithTimeout(
+      url,
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0 base-price-client",
+          Accept: "text/plain",
+        },
       },
-    });
+      5000,
+    );
 
     const text = await response.text();
-    if (!response.ok)
+    if (!response.ok) {
       throw new Error(
         `BasePrice.txt HTTP ${response.status}: ${text.slice(0, 200)}`,
       );
+    }
 
     const base = parseBasePriceText(text);
 
@@ -64,7 +72,8 @@ export async function fetchLatestBasePrice(url = BASE_PRICE_URL) {
 
     return base;
   } catch (err) {
+    console.warn(`⚠️ 獲取 BasePrice 失敗 (${err.message})，嘗試使用快取...`);
     if (_cache.base) return _cache.base; // fallback
-    throw err;
+    throw err; // 若無快取可退，則將錯誤往上拋
   }
 }

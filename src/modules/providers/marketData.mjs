@@ -1,6 +1,5 @@
-// modules/market/marketData.mjs
-
 import { archiveManager } from "../data/archiveManager.mjs";
+import { TwDate } from "../../utils/coreUtils.mjs";
 
 // === 匯出不需經過 Cache 的即時 / 核心功能 ===
 export {
@@ -39,9 +38,8 @@ export async function fetchAllMacroData() {
       timeZone: "Asia/Taipei",
     }),
   );
-  const todayStr = now
-    .toLocaleDateString("en-CA", { timeZone: "Asia/Taipei" })
-    .replace(/\//g, "-");
+
+  const todayStr = TwDate().formatDateKey();
 
   // 準備裝結果的容器
   const finalData = {};
@@ -68,11 +66,11 @@ export async function fetchAllMacroData() {
         })
         .catch((err) => {
           console.warn("⚠️ 國發會 API 失敗:", err.message);
-          finalData.rawNdc = cachedData.rawNdc || null; // 失敗時退回用舊的
+          finalData.rawNdc = cachedData.rawNdc || null;
           newMetaSources.ndcProvider = {
             status: "FAILED",
             error: err.message,
-            lastFetch: cachedMeta.ndcProvider?.lastFetch,
+            lastFetch: cachedMeta.ndcProvider?.lastFetch || null,
           };
         }),
     );
@@ -86,7 +84,6 @@ export async function fetchAllMacroData() {
   const hoursSinceMarginUpdate = (now - marginLastTime) / (1000 * 60 * 60);
 
   if (cachedData.rawMargin && (twHour < 16 || hoursSinceMarginUpdate < 2)) {
-    // 假設 16:00 之前，或是 2 小時內已經抓過了，就用 Cache
     console.log("⚡ [Cache] 融資餘額使用快取資料");
     finalData.rawMargin = cachedData.rawMargin;
   } else {
@@ -102,6 +99,11 @@ export async function fetchAllMacroData() {
         .catch((err) => {
           console.warn("⚠️ KGI API 失敗:", err.message);
           finalData.rawMargin = cachedData.rawMargin || null;
+          newMetaSources.kgiProvider = {
+            status: "FAILED",
+            error: err.message,
+            lastFetch: cachedMeta.kgiProvider?.lastFetch || null,
+          };
         }),
     );
   }
@@ -112,7 +114,7 @@ export async function fetchAllMacroData() {
   // ====================================================================
   const isUsMarketOpen = twHour >= 21 || twHour < 5;
   const cnnLastTime = new Date(cachedMeta.cnnProvider?.lastFetch || 0);
-  // 如果美股沒開盤，而且我們 Cache 裡有資料，且該資料是在今天之內抓的
+
   if (
     !isUsMarketOpen &&
     cachedData.rawCnn &&
@@ -133,6 +135,11 @@ export async function fetchAllMacroData() {
         .catch((err) => {
           console.warn("⚠️ CNN API 失敗:", err.message);
           finalData.rawCnn = cachedData.rawCnn || null;
+          newMetaSources.cnnProvider = {
+            status: "FAILED",
+            error: err.message,
+            lastFetch: cachedMeta.cnnProvider?.lastFetch || null,
+          };
         }),
     );
   }
@@ -144,6 +151,7 @@ export async function fetchAllMacroData() {
   const usMarketLastDate =
     cachedMeta.usMarketProvider?.lastFetch?.split("T")[0];
   if (cachedData.rawUsMarket && usMarketLastDate === todayStr) {
+    console.log("⚡ [Cache] FRED 美股數據使用快取資料");
     finalData.rawUsMarket = cachedData.rawUsMarket;
   } else {
     fetchPromises.push(
@@ -156,15 +164,22 @@ export async function fetchAllMacroData() {
           };
         })
         .catch((err) => {
+          console.warn("⚠️ FRED API 失敗:", err.message);
           finalData.rawUsMarket = cachedData.rawUsMarket || null;
+          newMetaSources.usMarketProvider = {
+            status: "FAILED",
+            error: err.message,
+            lastFetch: cachedMeta.usMarketProvider?.lastFetch || null,
+          };
         }),
     );
   }
 
   // ====================================================================
-  // 判斷邏輯 E: 匯率與每日一句 (即時 / 每次執行都需要)
-  // 策略: 無快取，強制重抓
+  // 判斷邏輯 E: 匯率與每日一句
   // ====================================================================
+
+  // 匯率：即時抓取 (若失敗則回退)
   fetchPromises.push(
     fetchUsdTwdExchangeRate()
       .then((res) => {
@@ -177,15 +192,22 @@ export async function fetchAllMacroData() {
       .catch((err) => {
         console.warn("⚠️ Yahoo API 失敗:", err.message);
         finalData.rawFx = cachedData.rawFx || null;
+        newMetaSources.yahooProvider = {
+          status: "FAILED",
+          error: err.message,
+          lastFetch: cachedMeta.yahooProvider?.lastFetch || null,
+        };
       }),
   );
 
+  // 每日一句：交由其內建的 Archive 讀取邏輯處理，這裡只需等它回傳即可
   fetchPromises.push(
     getDailyQuote()
       .then((res) => {
         finalData.quote = res;
       })
-      .catch(() => {
+      .catch((err) => {
+        console.warn("⚠️ Quote API 失敗:", err.message);
         finalData.quote = cachedData.quote || null;
       }),
   );
@@ -194,7 +216,7 @@ export async function fetchAllMacroData() {
   // 3. 執行所有需要打網路的任務
   // ====================================================================
   if (fetchPromises.length > 0) {
-    console.log(`🌐 共有 ${fetchPromises.length} 個指標需要重新抓取...`);
+    console.log(`🌐 共有 ${fetchPromises.length} 個指標需要重新抓取或驗證...`);
     await Promise.allSettled(fetchPromises);
   }
 
