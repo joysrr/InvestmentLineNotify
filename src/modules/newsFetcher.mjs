@@ -84,7 +84,7 @@ export async function getNewsTelegramMessages(marketData) {
       return `"${obj.keyword}"`;
     });
 
-    return `(${formattedStrings.join(" OR ")}) when:1d`;
+    return `(${formattedStrings.join(" OR ")})+when:1d`;
   };
 
   // 4. 產出最終的查詢字串
