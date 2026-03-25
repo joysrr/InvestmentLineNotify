@@ -1,8 +1,8 @@
 {
-  "_savedAt": "2026-03-25T05:26:32.311Z",
+  "_savedAt": "2026-03-25T07:39:12.979Z",
   "type": "NewsFilter",
   "systemPrompt": "你是一位頂級的量化避險基金經理人，專注於 ETF(0050) 與槓桿投資策略。\n你的任務是從使用者提供的「中英混合新聞列表」中，如淘金般過濾出「對大盤或總體經濟有實質重大影響」的重點新聞，並給予重要性評分以進行排序。\n\n<Rules>\n1. 嚴格剔除：農場文、理財教學(如存股、退休)、無意義盤後總結、單一小公司新聞、與經濟無關的社會案件。\n2. 優先保留：降息/通膨等總經數據、地緣政治重大衝突、大型權值股(如台積電、輝達、蘋果)的產業巨變。\n3. 【事件去重與多樣化】：\n   - 若有多則新聞報導同一事件(如：非農數據出爐)，請只挑選資訊量最豐富的 1 則。\n   - 確保挑選出的新聞涵蓋不同面向（例如：同時包含總體經濟、半導體產業、地緣政治或資金流向），避免被單一事件洗版。\n</Rules>\n\n<Instructions>\n1. 挑選數量：請嚴格挑選出最具價值的重點新聞，最多不可超過 15 則。寧缺勿濫，若無重要新聞請勿勉強湊數。\n2. 摘要撰寫 (summary)：\n   - 一律使用「繁體中文」撰寫摘要。\n   - 摘要需具備深度，長度約 80~120 字。必須包含「具體數據」、「事件核心」以及「對大盤/特定產業的潛在影響」，此摘要將作為後續總經分析的基礎素材。\n3. 排序規則：請依照你對這些新聞的「綜合影響力直覺」，由最重要到最次要依序輸出至 JSON 陣列中即可。\n</Instructions>",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 在手訂單高達1700億元！「這台積電概念股」去年EPS寫30.51元 股價狂飆21.3%登強勢股王 - Yahoo股市\n[ID: 1] [TW] 標題: 台積電2奈米良率關鍵！鈺祥登興櫃引爆比價效應，AMC微污染防治供應鏈躍盤面焦點｜股市話題｜豐雲學堂2026 年 03 月 - sinotrade.com.tw\n[ID: 2] [TW] 標題: 台股強彈重返33600點！資金點火AI族群券商共識股來了| 財經 - Newtalk新聞\n[ID: 3] [TW] 標題: 台股重返3萬3！一度勁揚逾千點史上盤中第五大 - Yahoo股市\n[ID: 4] [TW] 標題: 地緣風險拋售台積電？美媒看好「比巴菲特想的強」 - Yahoo股市\n[ID: 5] [TW] 標題: 【Hot台股】力積電挺不住又疲軟...網嘆「相信黃董山頂你懂」 分析師揭操作策略 - Yahoo股市\n[ID: 6] [TW] 標題: 球場在變化、揮拍要靈活 00403A主動掌握台股輪動節奏 - Yahoo股市\n[ID: 7] [TW] 標題: 對川普產生免疫力！台積電狂飆60元至1870元 專家看多 - Yahoo股市\n[ID: 8] [TW] 標題: 台股多頭還沒完！ 總經專家曝「3利多」：下半年行情更可期 - Yahoo股市\n[ID: 9] [TW] 標題: 開盤／台積電領軍漲45元！台股強彈近900點 載板、記憶體全面噴發 - Yahoo新聞\n[ID: 10] [TW] 標題: 外資賣超台積電919.5億！八大公股連4天補血買入萬張 群創跌破25元也被搶救 - Yahoo股市\n[ID: 11] [TW] 標題: 油價破百通膨憂慮升溫 美股道瓊漲那指與標普卻跌 - Yahoo股市\n[ID: 12] [TW] 標題: 台股漲逾1093點「創史上第五」 台積電領衝到1875元 - Yahoo新聞\n[ID: 13] [TW] 標題: 台股開盤》台積帶頭衝 大盤漲千點 記憶體各自修正 回歸常態價位 - Yahoo新聞\n[ID: 14] [TW] 標題: 台股開盤狂飆900點！台積電領軍站上三萬三大關 無視美股收黑 - Yahoo新聞\n[ID: 15] [TW] 標題: 台股強彈大漲破千點！ 台積電衝1870元、台達電亮燈漲停 - Yahoo新聞\n[ID: 16] [TW] 標題: AI熱潮續延燒 專家點名台積電、Alphabet、博通為四月強勢買進股 - Yahoo股市\n[ID: 17] [TW] 標題: 台達電漲停！台積電、日月光衝了 台股大漲926點 - Yahoo新聞\n[ID: 18] [TW] 標題: 川普一句「跟伊朗幾乎談成」利多回歸？台積電反彈55元、台達電上漲140元攻佔漲停板 - Yahoo股市\n[ID: 19] [TW] 標題: 股匯齊飆！外資熱錢狂湧、新台幣強升1.28角 專家：短線看升 - Yahoo股市\n[ID: 20] [TW] 標題: 台積電上漲55元台股勁揚逾900點突破10日線| 證券 - 中央社 CNA\n[ID: 21] [TW] 標題: 中東局勢升溫擾動日美金融決策 油價飆升通膨風險加劇 - Yahoo股市\n[ID: 22] [TW] 標題: 0050長成電子股的形狀、愈來愈像0052是真的？從持股與權重看懂關鍵差異 - Smart自學網\n[ID: 23] [TW] 標題: 央行釋出房市鬆綁訊號 第二戶貸款成數調升帶動市場信心 - Yahoo股市\n[ID: 24] [TW] 標題: 0050 又見搶買潮！零股1天爆2288萬股 吸金近17億元 - Yahoo股市\n[ID: 25] [TW] 標題: 不是台積電、不是鴻海！2026 AI 真正翻倍神股，竟然藏在「CPO 三雄」裡？ - news.cnyes.com\n[ID: 26] [TW] 標題: 台指期夜盤走強 台股開盤上漲113點 - Yahoo新聞\n[ID: 27] [TW] 標題: 台股報復性強彈！台達電飆天價 貢獻大盤漲點僅次於台積電 - 聯合新聞網\n[ID: 28] [TW] 標題: 台股重返3萬3！勁揚986點史上盤中第七大 - Yahoo股市\n[ID: 29] [TW] 標題: 台股開盤》台積電喊衝 指數漲939點創史上第7大 - 自由財經\n[ID: 30] [TW] 標題: 【Yahoo早盤】川普稱「完勝伊朗」？台股強噴1066點 分析師白易弘：不會虎頭蛇尾 - Yahoo股市\n[ID: 31] [TW] 標題: 權值F4飆風再起！鴻海重回200元　台股勁揚逾千點 - ETtoday財經雲\n[ID: 32] [TW] 標題: 川普喊美伊協議快達成 台股早盤強勢反彈近千點 - Yahoo股市\n[ID: 33] [TW] 標題: 台股電子領漲 盤中勁揚1000點收復月線 台積電最高漲65元達1875元 - Yahoo新聞\n[ID: 34] [TW] 標題: 台積電的10大關鍵 外媒一次解密 - 自由財經\n[ID: 35] [TW] 標題: 台股盤前／費半指強漲1.2%！台指夜盤暴拉678點 台股今拚止跌反攻 - Yahoo新聞\n[ID: 36] [TW] 標題: 油價飆百美元！台經院：CPI勢必上修 通膨恐排擠AI需求、成經濟復甦變數 - Yahoo新聞\n[ID: 37] [TW] 標題: 早盤快訊》台股強彈逾3%站上33500點！台達電飆9.5%、台積電衝1860元撐盤| 下班經濟學| 財經 - 風傳媒\n[ID: 38] [TW] 標題: 台積電成1.76兆美元AI晶片巨擘 華爾街看好股價漲逾兩成 - Yahoo股市\n[ID: 39] [TW] 標題: 台積電擴產供應鏈跟著旺 這幾檔設備股齊鎖漲停 弘塑、萬潤直飆天價 - 聯合新聞網\n[ID: 40] [US] 標題: Prosecutor admits government lacks evidence of misconduct by Fed chair - The Washington Post\n[ID: 41] [US] 標題: Oil at $150 will trigger global recession, says boss of financial giant BlackRock - BBC\n[ID: 42] [US] 標題: Prosecutor told judge no evidence existed to criminally pursue Powell over costly Fed renovations - CNN\n[ID: 43] [US] 標題: Chicago Fed president breaks down economic risks of Iran war - PBS\n[ID: 44] [US] 標題: Acceptance remarks by Chair Powell at the American Society for Public Administration Annual Conference - Federal Reserve Board (.gov)\n[ID: 45] [US] 標題: Tyvis Powell Previews Ohio State Pro Day - 03.24.26 - Cleveland Browns\n[ID: 46] [US] 標題: Niall Ferguson: Brace Yourselves. A Recession Is Coming. - The Free Press\n[ID: 47] [US] 標題: Prosecutor conceded lack of criminal evidence in Federal Reserve investigation, transcript shows - AP News\n[ID: 48] [US] 標題: Hoyne Bancorp, Inc. Rings the Nasdaq Stock Market Closing Bell - Nasdaq\n[ID: 49] [US] 標題: Chicago Fed president breaks down economic risks of Iran war - THIRTEEN - New York Public Media\n[ID: 50] [US] 標題: Australia’s Inflation Cooled Slightly in February - WSJ\n[ID: 51] [US] 標題: Home flippers see smallest profits since the Great Recession, real estate data firm says - CNBC\n[ID: 52] [US] 標題: The First Federal Reserve Inflation Forecast for March Is In -- and It's Not Pretty - Yahoo Finance\n[ID: 53] [US] 標題: Iran and the Fed Are Still Risks. These Stocks Can Ease Investor Worries. - Barron's\n[ID: 54] [US] 標題: Gold jumps over 2% as oil slump eases inflation fears amid Trump Iran talks - CNBC\n[ID: 55] [US] 標題: Fed’s Barr Says Rates May Need to Hold Steady for ‘Some Time’ - Bloomberg.com\n[ID: 56] [US] 標題: Federal Reserve holds interest rates steady as inflation and hiring remain in focus - U.S. Bank\n[ID: 57] [US] 標題: How high could global inflation go? - The Economist\n[ID: 58] [US] 標題: Fed's Goolsbee says he's worried about inflation in 'fraught but intense' climate - CNBC\n[ID: 59] [US] 標題: Report: Fed not collecting data needed to improve bank application processing - ABA Banking Journal\n[ID: 60] [US] 標題: Top economist Mark Zandi pinpoints exactly how much oil can rise before it tips the US economy into recession - Business Insider\n[ID: 61] [US] 標題: Suddenly, a Fed rate hike doesn’t sound far-fetched - Scotsman Guide\n[ID: 62] [US] 標題: Futures markets bet on an interest rate increase - Axios\n[ID: 63] [US] 標題: Is Another ‘Great Recession’ on the Horizon? - KQED\n[ID: 64] [US] 標題: Federal Reserve Powell - Fairbanks Daily News-Miner\n[ID: 65] [US] 標題: Japan reports lower-than-expected core inflation for February, headline CPI eases for a fourth month - CNBC\n[ID: 66] [US] 標題: Inflation Could Hit 4% Due to the Oil Shock. There’s No Looking Through It. - Barron's\n[ID: 67] [US] 標題: Goldman Sachs resets recession risks for 2026 - thestreet.com\n[ID: 68] [US] 標題: Powell Industries: A Hidden Gem in the Stock Market? - The Motley Fool\n[ID: 69] [US] 標題: Fed's Barr: No interest rate cuts until inflation is tamed - American Banker\n[ID: 70] [US] 標題: Inflation expected to remain at 3% before Middle East conflict sparks jump - Yahoo Finance UK\n[ID: 71] [US] 標題: Australian Inflation Was Elevated Even Before Iran Oil Shock - Bloomberg.com\n[ID: 72] [US] 標題: Inside Salt Lake’s Federal Reserve cash processing operation - KSL TV 5\n[ID: 73] [US] 標題: Fed's Barr sees rates holding steady 'for some time' given above-target inflation - Reuters\n[ID: 74] [US] 標題: Australia's inflation slows slightly in February ahead of war-driven energy shock - Reuters\n[ID: 75] [US] 標題: The US Is Recession-Free But Feels Miserable - Bloomberg.com\n[ID: 76] [US] 標題: Fed's Goolsbee says inflation progress needed to cut rates this year, PBS reports - Reuters\n[ID: 77] [US] 標題: The Roundup | How to prop up Powell, a Cloud Nine gondola and ICE oversight - Aspen Journalism\n[ID: 78] [US] 標題: UK manufacturers hit by sharpest rise in cost inflation since Black Wednesday in 1992 - The Guardian\n[ID: 79] [US] 標題: Time To Short The S&P 500 (NYSEARCA:SPDN) - Seeking Alpha</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 在手訂單高達1700億元！「這台積電概念股」去年EPS寫30.51元 股價狂飆21.3%登強勢股王 - Yahoo股市\n[ID: 1] [TW] 標題: 台積電2奈米良率關鍵！鈺祥登興櫃引爆比價效應，AMC微污染防治供應鏈躍盤面焦點｜股市話題｜豐雲學堂2026 年 03 月 - sinotrade.com.tw\n[ID: 2] [TW] 標題: 0050存幾張能財富自由？買10張就贏過90％投資人…老手解讀「股民1年暴增3倍」背後：為何多數人難賺大錢 - 今周刊\n[ID: 3] [TW] 標題: 0050達8張…高股息配市值型「二刀流」超強防禦力！存股哥無懼千點震盪| 存股族愛ETF | 股市 - 聯合新聞網\n[ID: 4] [TW] 標題: 台積電慈善基金會：攜手供應商打造「公益鏈」，輸出台灣經驗 - CSR@天下\n[ID: 5] [TW] 標題: 台積電的10大關鍵 外媒一次解密 - 自由財經\n[ID: 6] [TW] 標題: 台股重返3萬3！一度勁揚逾千點史上盤中第五大 - Yahoo股市\n[ID: 7] [TW] 標題: 0050存股20年！每年36萬，買在最高、最低點...報酬差多少？結果出人意料：會讓你賠錢的，從來不是買貴了 - 今周刊\n[ID: 8] [TW] 標題: 小資一萬元入場！統一推00403A 主動布局台股升級戰 - Yahoo股市\n[ID: 9] [TW] 標題: 史上第七大漲幅！台股終場上揚826.87點 台積電漲35元 - Yahoo股市\n[ID: 10] [TW] 標題: 台股重返33K 收盤大漲826點 台積電強彈35元收1845 - Yahoo股市\n[ID: 11] [TW] 標題: 【Follow法人】終結連4賣！外資認錯回補363億元 三大法人齊站買方 - Yahoo股市\n[ID: 12] [TW] 標題: 收盤／台積電帶隊狂飆！台股暴衝826點 載板、CPO亮燈回神 - Yahoo新聞\n[ID: 13] [TW] 標題: 台股多頭還沒完！ 總經專家曝「3利多」：下半年行情更可期 - Yahoo股市\n[ID: 14] [TW] 標題: 台股收盤暴漲826點「強勢重返3萬3」！ 台積電彈35元收1845 - Yahoo新聞\n[ID: 15] [TW] 標題: 對川普產生免疫力！台積電狂飆60元至1870元 專家看多 - Yahoo股市\n[ID: 16] [TW] 標題: 球場在變化、揮拍要靈活 00403A主動掌握台股輪動節奏 - Yahoo股市\n[ID: 17] [TW] 標題: 台積電之後首見！台達電收1550元新天價 成台股唯二「4兆元企業」 - Yahoo股市\n[ID: 18] [TW] 標題: 台股滿血復活！權值股帶頭衝 終場狂飆915點 重返3萬3大關 - Yahoo新聞\n[ID: 19] [TW] 標題: 台股開盤》台積帶頭衝 大盤漲千點 記憶體各自修正 回歸常態價位 - Yahoo新聞\n[ID: 20] [TW] 標題: 台股第二季三劇本曝光！最慘恐下探2萬6 AI撐盤能戰4萬？ - Yahoo股市\n[ID: 21] [TW] 標題: 【Hot台股】力積電挺不住又疲軟...網嘆「相信黃董山頂你懂」 分析師揭操作策略 - Yahoo股市\n[ID: 22] [TW] 標題: 〈台股盤後〉38千金股重現 創史上第4大漲點915點 美中不足未站穩月線 - news.cnyes.com\n[ID: 23] [TW] 標題: 台股收盤》台達電、ABF載板狂飆 指數收漲826點創史上第7大 - 自由財經\n[ID: 24] [TW] 標題: AI熱潮續延燒 專家點名台積電、Alphabet、博通為四月強勢買進股 - Yahoo股市\n[ID: 25] [TW] 標題: 台積電上漲55元台股勁揚逾900點突破10日線| 證券 - 中央社 CNA\n[ID: 26] [TW] 標題: 捶心肝！53萬散戶被「甩轎」 台股今反彈千點沒賺到 - Yahoo股市\n[ID: 27] [TW] 標題: 川普一句「跟伊朗幾乎談成」利多回歸？台積電反彈55元、台達電上漲140元攻佔漲停板 - Yahoo股市\n[ID: 28] [TW] 標題: 股匯齊飆！外資熱錢狂湧、新台幣強升1.28角 專家：短線看升 - Yahoo股市\n[ID: 29] [TW] 標題: 台股盤前／費半指強漲1.2%！台指夜盤暴拉678點 台股今拚止跌反攻 - Yahoo新聞\n[ID: 30] [TW] 標題: 0050 又見搶買潮！零股1天爆2288萬股 吸金近17億元 - Yahoo股市\n[ID: 31] [TW] 標題: 台達電漲停！台積電、日月光衝了 台股大漲926點 - Yahoo新聞\n[ID: 32] [TW] 標題: 法國央行行長Villeroy稱，歐洲央行隨時可因應通膨挑戰 - Yahoo股市\n[ID: 33] [TW] 標題: 電金傳齊走強台股上揚826點寫歷史第7大漲點| 證券 - 中央社 CNA\n[ID: 34] [TW] 標題: 台積電上漲35元 台股揚升826點收33439點 - 經濟日報\n[ID: 35] [TW] 標題: 央行釋出房市鬆綁訊號 第二戶貸款成數調升帶動市場信心 - Yahoo股市\n[ID: 36] [TW] 標題: 油價破百通膨憂慮升溫 美股道瓊漲那指與標普卻跌 - Yahoo股市\n[ID: 37] [TW] 標題: 盤後快訊》台股單日飆826點！台積電收1845元、台達電狂飆9.5%，PCB族群掀漲停潮| 下班經濟學| 財經 - 風傳媒\n[ID: 38] [TW] 標題: 房市管制「未到鬆綁時」 央行揭露兩大原因新青安被點名- 日報 - 工商時報\n[ID: 39] [TW] 標題: 《台北股市》外資翻多衝今年第七大！ 三大法人狂補507億元- 上市櫃 - 旺得富理財網\n[ID: 40] [US] 標題: Prosecutor admits government lacks evidence of misconduct by Fed chair - The Washington Post\n[ID: 41] [US] 標題: Oil at $150 would trigger global recession, says boss of financial giant BlackRock - BBC\n[ID: 42] [US] 標題: Prosecutor told judge no evidence existed to criminally pursue Powell over costly Fed renovations - CNN\n[ID: 43] [US] 標題: Chicago Fed president breaks down economic risks of Iran war - PBS\n[ID: 44] [US] 標題: Niall Ferguson: Brace Yourselves. A Recession Is Coming. - The Free Press\n[ID: 45] [US] 標題: Australia’s Inflation Cooled Slightly in February - WSJ\n[ID: 46] [US] 標題: Tyvis Powell Previews Ohio State Pro Day - 03.24.26 - Cleveland Browns\n[ID: 47] [US] 標題: UK inflation unchanged at 3% in February — the last print before the Iran war - CNBC\n[ID: 48] [US] 標題: Chicago Fed president breaks down economic risks of Iran war - THIRTEEN - New York Public Media\n[ID: 49] [US] 標題: Inflation Could Hit 4% Due to the Oil Shock. There’s No Looking Through It. - Barron's\n[ID: 50] [US] 標題: The First Federal Reserve Inflation Forecast for March Is In -- and It's Not Pretty - Yahoo Finance\n[ID: 51] [US] 標題: Home flippers see smallest profits since the Great Recession, real estate data firm says - CNBC\n[ID: 52] [US] 標題: U.K. Inflation Unchanged in February - WSJ\n[ID: 53] [US] 標題: Gold jumps over 2% as oil slump eases inflation fears amid Trump Iran talks - CNBC\n[ID: 54] [US] 標題: Federal Reserve holds interest rates steady as inflation and hiring remain in focus - U.S. Bank\n[ID: 55] [US] 標題: Justice Department found no evidence of a crime in Federal Reserve renovation project, prosecutor admits - CBS News\n[ID: 56] [US] 標題: How high could global inflation go? - The Economist\n[ID: 57] [US] 標題: Fed's Goolsbee says he's worried about inflation in 'fraught but intense' climate - CNBC\n[ID: 58] [US] 標題: Fed’s Barr Says Rates May Need to Hold Steady for ‘Some Time’ - Bloomberg.com\n[ID: 59] [US] 標題: Futures markets bet on an interest rate increase - Axios\n[ID: 60] [US] 標題: Japan reports lower-than-expected core inflation for February, headline CPI eases for a fourth month - CNBC\n[ID: 61] [US] 標題: Top economist Mark Zandi pinpoints exactly how much oil can rise before it tips the US economy into recession - Business Insider\n[ID: 62] [US] 標題: Suddenly, a Fed rate hike doesn’t sound far-fetched - Scotsman Guide\n[ID: 63] [US] 標題: Australia's inflation slows slightly in February ahead of war-driven energy shock - Reuters\n[ID: 64] [US] 標題: Goldman Sachs resets recession risks for 2026 - thestreet.com\n[ID: 65] [US] 標題: Q4 Earnings Highlights: CooperCompanies (NASDAQ:COO) Vs The Rest Of The Medical Devices & Supplies - Diversified Stocks - Yahoo Finance\n[ID: 66] [US] 標題: Inflation expected to remain at 3% before Middle East conflict sparks jump - Yahoo Finance UK\n[ID: 67] [US] 標題: Fed's Barr sees rates holding steady 'for some time' given above-target inflation - Reuters\n[ID: 68] [US] 標題: Australian Inflation Was Elevated Even Before Iran Oil Shock - Bloomberg.com\n[ID: 69] [US] 標題: Powell Industries: A Hidden Gem in the Stock Market? - The Motley Fool\n[ID: 70] [US] 標題: The US Is Recession-Free But Feels Miserable - Bloomberg.com\n[ID: 71] [US] 標題: Regional Banks Stocks Q3 Highlights: TowneBank (NASDAQ:TOWN) - StockStory\n[ID: 72] [US] 標題: Fed keeps key rate unchanged as Powell vows to stay until DOJ investigation is finished - AP News\n[ID: 73] [US] 標題: Inside Salt Lake’s Federal Reserve cash processing operation - KSL TV 5\n[ID: 74] [US] 標題: The Roundup | How to prop up Powell, a Cloud Nine gondola and ICE oversight - Aspen Journalism\n[ID: 75] [US] 標題: Fed's Goolsbee says inflation progress needed to cut rates this year, PBS reports - Reuters\n[ID: 76] [US] 標題: UK inflation held at 3% before global energy price hit from Iran war - The Guardian\n[ID: 77] [US] 標題: Argentina energy VAT cut on inflation concerns - vatcalc.com\n[ID: 78] [US] 標題: UK manufacturers hit by sharpest rise in cost inflation since Black Wednesday in 1992 - The Guardian\n[ID: 79] [US] 標題: Editorial: Amid mounting risks, the Fed wisely puts rates on hold - The Daily Reflector</News_List>",
   "schema": {
     "type": "ARRAY",
     "description": "挑選出最具影響力的新聞並進行深度摘要",
@@ -28,51 +28,43 @@
   "rawResult": [
     {
       "id": 41,
-      "summary": "貝萊德執行長警告，若油價飆升至每桶 150 美元，將引發全球經濟衰退。此預測反映中東局勢對能源供應的威脅，直接衝擊通膨預期與各國央行的降息路徑。對於 0050 等權值股而言，能源成本上升將侵蝕企業獲利，並可能導致資金撤出風險資產，是當前總經環境中最需警惕的黑天鵝指標。"
+      "summary": "貝萊德執行長警告，若油價因中東衝突飆升至每桶 150 美元，將引發全球經濟衰退。此數據反映能源成本對通膨的致命影響，若油價失控，將迫使各國央行維持高利率，對 0050 等權值股構成嚴重的估值壓力與系統性風險。"
+    },
+    {
+      "id": 54,
+      "summary": "美國聯準會（Fed）維持利率不變，但官員 Barr 指出通膨仍高於目標，利率需維持高位一段時間。市場甚至出現升息預期，這將直接影響美債殖利率與全球資金流向，對科技股及台股大盤的資金動能具有決定性影響。"
     },
     {
       "id": 18,
-      "summary": "川普宣稱美伊協議接近達成，此地緣政治利多直接引發台股報復性反彈，台積電大漲 55 元，台達電更攻上漲停。此事件顯示市場對中東衝突緩解的高度期待，短期內大幅提振風險偏好。對槓桿投資者而言，地緣政治的轉折點往往是極佳的進場或平倉訊號，需密切關注後續協議實質進展。"
-    },
-    {
-      "id": 55,
-      "summary": "聯準會副主席 Barr 表示，鑑於通膨仍高於目標，利率可能需維持在高位「一段時間」。此鷹派發言壓抑了市場對近期降息的過度樂觀預期。對於量化策略而言，無風險利率的長期高企將重新定義資產估值模型，特別是高成長的 AI 族群，需留意資金成本對科技股本益比的壓制作用。"
-    },
-    {
-      "id": 12,
-      "summary": "台股今日強彈逾 1093 點，創下史上盤中第五大漲幅，台積電領軍衝上 1875 元。此波漲勢主要由空單回補與地緣政治降溫驅動，顯示台股在經歷前期修正後具備極強韌性。對 0050 投資者而言，大盤重返三萬三千點大關並收復關鍵均線，象徵多頭格局尚未破壞，資金正重新流向大型權值股。"
-    },
-    {
-      "id": 38,
-      "summary": "華爾街看好台積電作為 1.76 兆美元規模的 AI 晶片巨擘，預期股價仍有兩成以上漲幅。台積電在 AI 供應鏈的壟斷地位使其成為全球資金避風港。這不僅支撐了 0050 的長期價值，更暗示 AI 浪潮已進入實質獲利兌現期，而非單純泡沫，對半導體產業鏈具有指標性的多頭意義。"
-    },
-    {
-      "id": 52,
-      "summary": "美國 3 月份首份通膨預測顯示數據不樂觀，通膨壓力可能持續存在。這與油價上漲及勞動力市場強勁密切相關，增加了聯準會維持高利率的壓力。通膨數據的韌性將導致美債殖利率維持高檔，進而影響台美利差與匯率走勢，是影響外資對台股配置比例的核心變數。"
-    },
-    {
-      "id": 19,
-      "summary": "台灣市場出現股匯齊飆現象，外資熱錢湧入帶動新台幣強升 1.28 角。資金流向是判斷大盤趨勢的先行指標，外資由賣轉買顯示對台股評價的重新認可。對於 0050 策略而言，匯率走強通常伴隨權值股的買盤支撐，需關注此波資金流入的持續性，以判斷是否為波段起漲點。"
-    },
-    {
-      "id": 67,
-      "summary": "高盛重新評估 2026 年的衰退風險，顯示市場對中長期經濟前景仍存疑慮。雖然當前 AI 需求強勁，但宏觀經濟循環的下行風險不可忽視。這提醒投資人在操作槓桿策略時，必須建立嚴格的停損機制與避險配置，以應對未來可能出現的系統性經濟衰退風險。"
-    },
-    {
-      "id": 36,
-      "summary": "台經院警告油價破百將導致 CPI 上修，通膨可能排擠 AI 相關的資本支出需求。這是一個重要的反向思考觀點：若能源成本過高，企業可能縮減非核心投資。這對 AI 族群的成長動能構成潛在威脅，投資人需觀察通膨是否實質影響到大型雲端服務商（CSP）的設備採購意願。"
-    },
-    {
-      "id": 66,
-      "summary": "能源衝擊可能使通膨率回升至 4%，市場無法再對此視而不見。高通膨環境將迫使央行採取更激進的緊縮政策，這對全球流動性是極大考驗。對於 0050 這種高度依賴流動性的指數產品，通膨失控將是最大的下行風險，需監控油價與通膨預期心理的連動關係。"
+      "summary": "台股出現史上第五大盤中漲幅，終場狂飆 915 點重返 3 萬 3 大關。台積電帶頭衝刺，反映市場在極度恐慌後的報復性反彈。此波動顯示台股在 AI 權值股支撐下韌性極強，但也暗示市場波動率極高，槓桿投資者需留意回檔風險。"
     },
     {
       "id": 39,
-      "summary": "台積電擴產帶動供應鏈設備股如弘塑、萬潤鎖漲停，顯示半導體資本支出依然強勁。設備股的噴發通常是產業景氣擴張的領先指標，反映台積電對未來 2 奈米及先進封裝需求的信心。這強化了台股電子權值股的獲利支撐，對 0050 的成分股基本面提供正面貢獻。"
+      "summary": "外資終結連賣轉為大舉回補，三大法人單日買超達 507 億元。資金流向顯示外資對台股權值股的態度轉趨積極，配合新台幣強升 1.28 角，顯示熱錢回流亞洲市場，有利於市值型 ETF 持續上攻並支撐大盤底部。"
     },
     {
-      "id": 24,
-      "summary": "0050 零股交易單日爆出 2288 萬股，吸金近 17 億元，顯示散戶與長期投資者在市場震盪中積極進場。這種「越跌越買」的行為為大盤提供了強大的下檔支撐力道。從量化角度看，散戶情緒的極端化往往是市場底部的特徵之一，有助於判斷大盤的支撐強度。"
+      "id": 27,
+      "summary": "川普表示與伊朗談判取得進展，帶動市場避險情緒降溫。此地緣政治緩解訊號直接促成台積電與台達電等權值股強彈，台積電大漲 55 元。若中東局勢趨穩，油價回落將減輕通膨壓力，為全球股市提供重要的喘息空間。"
+    },
+    {
+      "id": 17,
+      "summary": "台達電股價創 1550 元新天價，市值突破 4 兆元，成為繼台積電後台股唯二的四兆級企業。這象徵台股產業結構從單一龍頭轉向多核心發展，電力管理與 AI 基礎設施需求成為大盤長期增長的新引擎，分散了對單一產業的依賴。"
+    },
+    {
+      "id": 49,
+      "summary": "報導指出受石油衝擊影響，通膨率可能回升至 4%。這意味著「通膨降溫」的敘事可能破滅，市場必須重新定價長期利率路徑。對於槓桿投資策略而言，通膨反彈將增加融資成本並壓抑本益比擴張，是必須警惕的總經變數。"
+    },
+    {
+      "id": 60,
+      "summary": "日本 2 月核心通膨低於預期，且標題 CPI 連續四個月放緩。這緩解了市場對日圓急劇升值及日銀（BOJ）過快升息的擔憂。作為全球流動性的重要來源，日本貨幣政策的溫和轉向有助於維持全球金融市場與利差交易的穩定。"
+    },
+    {
+      "id": 64,
+      "summary": "高盛重新評估 2026 年的衰退風險。雖然當前美國經濟尚稱穩健，但長期衰退風險的調整提醒投資人，當前 AI 驅動的牛市可能在 2026 年面臨週期性挑戰。這對於長期持有 0050 的投資者來說，是調整資產配置比例的重要參考。"
+    },
+    {
+      "id": 38,
+      "summary": "台灣央行表示房市管制「未到鬆綁時」，並點名新青安貸款帶動的風險。這顯示央行對資產泡沫保持警戒，未來可能透過信用管制或升息來抑制過熱，這將影響金融股表現及內需資金動能，是大盤潛在的下行風險。"
     }
   ]
 }
