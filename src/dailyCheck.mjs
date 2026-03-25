@@ -25,6 +25,8 @@ import {
   formatMacroAnalysisForCoach,
 } from "./modules/ai/aiDataPreprocessor.mjs";
 import { archiveManager } from "./modules/data/archiveManager.mjs";
+import { langfuse } from "./modules/ai/aiClient.mjs";
+import { TwDate } from "./utils/coreUtils.mjs";
 
 export async function dailyCheck({
   isTelegramEnabled = true,
@@ -181,9 +183,7 @@ export async function dailyCheck({
     console.log("🧠 正在計算投資訊號...");
     const result = await getInvestmentSignalAsync(signalData);
 
-    const dateText = new Date().toLocaleDateString("zh-TW", {
-      timeZone: "Asia/Taipei",
-    });
+    const dateText = TwDate().formatDateKey(); // 例如 "2026-03-24"
 
     // 取得新聞錦集
     let newsMessages = [];
@@ -263,5 +263,13 @@ export async function dailyCheck({
   } catch (err) {
     console.error("❌ 系統發生嚴重錯誤:", err);
     return err.message;
+  } finally {
+    console.log("🚀 dailyCheck 執行結束");
+    // 確保 Langfuse 正確關閉，避免資源洩漏
+    console.log("🔒 正在關閉 Langfuse...");
+    langfuse.shutdownAsync().catch((e) => {
+      console.warn("⚠️ Langfuse 關閉失敗:", e.message);
+    });
+    console.log("✅ Langfuse 已關閉");
   }
 }

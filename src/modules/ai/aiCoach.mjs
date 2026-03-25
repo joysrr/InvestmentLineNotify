@@ -1,4 +1,3 @@
-import { ThinkingLevel } from "@google/genai";
 import { callGemini } from "./aiClient.mjs";
 import { formatQuantDataForCoach } from "./aiDataPreprocessor.mjs";
 import {
@@ -24,12 +23,9 @@ export async function generateDailySearchQueries(marketData) {
   const prompt = buildNewsKeyWorkPrompt(todayStr, marketData);
 
   try {
-    const rawJson = await callGemini(prompt, NEWS_KEYWORD_PROMPT, {
+    const rawJson = await callGemini("GenerateSearchQueries", prompt, {
       keyIndex: 0,
-      responseMimeType: "application/json",
       responseSchema: NEWS_KEYWORD_SCHEMA,
-      temperature: 0.3, // 適度增加隨機性，讓關鍵字更具多樣性
-      maxOutputTokens: 65536,
     });
 
     const result = JSON.parse(rawJson); // { twQueries: [{keyword: "...", searchType: "..."}], usQueries: [...] }
@@ -64,14 +60,14 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
   const userPrompt = buildNewsUserPrompt(newsListText);
 
   try {
-    const rawJsonText = await callGemini(userPrompt, NEWS_FILTER_PROMPT, {
-      keyIndex: 1,
-      responseMimeType: "application/json",
-      responseSchema: FILTERED_NEWS_SCHEMA,
-      temperature: 0.1, // 降低隨機性，讓分類更穩定
-      thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH },
-      maxOutputTokens: 65536,
-    });
+    const rawJsonText = await callGemini(
+      "FilterAndCategorizeNews",
+      userPrompt,
+      {
+        keyIndex: 1,
+        responseSchema: FILTERED_NEWS_SCHEMA,
+      },
+    );
 
     const aiResult = JSON.parse(rawJsonText);
     const result = aiResult.map((aiItem) => ({
@@ -105,13 +101,9 @@ export async function analyzeMacroNewsWithAI(todayNewsText) {
   const userPrompt = buildMacroAnalysisUserPrompt(todayStr, todayNewsText);
 
   try {
-    const rawJson = await callGemini(userPrompt, MACRO_ANALYSIS_SYSTEM_PROMPT, {
+    const rawJson = await callGemini("AnalyzeMacroNews", userPrompt, {
       keyIndex: 2,
-      responseMimeType: "application/json",
       responseSchema: MACRO_ANALYSIS_SCHEMA,
-      temperature: 0.2, // 降低隨機性，讓評分更客觀
-      thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH },
-      maxOutputTokens: 65536,
     });
 
     const result = JSON.parse(rawJson);
@@ -173,13 +165,9 @@ export async function getAiInvestmentAdvice(
   );
 
   try {
-    const result = await callGemini(userPrompt, INVESTMENT_COACH_PROMPT, {
+    const result = await callGemini("InvestmentAdvice", userPrompt, {
       keyIndex: 0,
-      responseMimeType: "application/json",
       responseSchema: INVESTMENT_COACH_SCHEMA,
-      temperature: 0.5, // 適度增加隨機性，讓建議更具多樣性與啟發性
-      thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH },
-      maxOutputTokens: 65536,
     });
 
     // 1. 確保 result 是可操作的 JSON 物件 (防呆)

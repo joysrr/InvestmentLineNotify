@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { Langfuse } from "langfuse";
 
 // 參數&初始化
 const GEMINI_API_KEYS = [
@@ -6,13 +7,19 @@ const GEMINI_API_KEYS = [
   process.env.GEMINI_API_KEY2,
   process.env.GEMINI_API_KEY3,
 ].filter(Boolean);
-const GEMINI_MODEL =
-  process.env.GEMINI_MODEL || "gemini-3-flash-preview";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
 
 // 對每個 KEY 建立對應的 GoogleGenAI 實例
 const aiInstances = GEMINI_API_KEYS.map(
   (key) => new GoogleGenAI({ apiKey: key }),
 );
+
+// Langfuse 初始化（金鑰放 .env）
+export const langfuse = new Langfuse({
+  publicKey: process.env.LANGFUSE_PUBLIC_KEY,
+  secretKey: process.env.LANGFUSE_SECRET_KEY,
+  baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
+});
 
 // 可重試的錯誤判斷
 function isRetryableError(error) {
@@ -34,28 +41,55 @@ function getBackoffDelay(attempt, baseDelay = 2000) {
   return exponential + jitter;
 }
 
-export async function callGemini(userPrompt, systemInstruction, options = {}) {
+export async function callGemini(promptName, userPrompt, options = {}) {
   if (GEMINI_API_KEYS.length === 0) {
     console.warn("⚠️ 缺少 GEMINI_API_KEYS，跳過 AI 決策");
     return null;
   }
+  const promptObj = await langfuse.getPrompt(promptName);
+  const systemInstruction = promptObj.compile(options.promptVariables ?? {});
+  // 將 promptObj 中的 config 參數合併到 options 中，讓每個 prompt 可以自訂化 Gemini 呼叫行為
+  Object.assign(options, promptObj.config);
 
   const keyIndex = options.keyIndex ?? 0;
   const resolvedIndex = keyIndex < aiInstances.length ? keyIndex : 0;
   const ai = aiInstances[resolvedIndex];
-
   const maxRetries = options.maxRetries ?? 3; // 預設最多重試 3 次
 
+  // 1️⃣ 建立 Trace（代表一次完整的 AI 決策事件，如 MacroAnalysis）
+  const trace = langfuse.trace({
+    name: promptName,
+    input: { userPrompt, systemInstruction },
+    metadata: { keyIndex: resolvedIndex, model: options.model ?? GEMINI_MODEL },
+  });
+
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    // 2️⃣ 建立 Generation span（代表這一次的實際 API 呼叫）
+    const generation = trace.generation({
+      name: `${promptName}-attempt-${attempt}`,
+      model: options.model ?? GEMINI_MODEL,
+      input: [
+        { role: "system", content: systemInstruction },
+        { role: "user", content: userPrompt },
+      ],
+      modelParameters: {
+        temperature: options.temperature,
+        maxOutputTokens: options.maxOutputTokens,
+        responseMimeType: options.responseMimeType,
+      },
+      promptName: promptObj.name,
+      promptVersion: promptObj.version,
+    });
+
     try {
       const response = await ai.models.generateContent({
-        model: GEMINI_MODEL,
+        model: options.model ?? GEMINI_MODEL,
         contents: [{ role: "user", parts: [{ text: userPrompt }] }],
         config: {
           systemInstruction,
-          temperature: options.temperature ?? 0.1,
-          maxOutputTokens: options.maxOutputTokens ?? 8192,
-          responseMimeType: options.responseMimeType ?? "text/plain",
+          temperature: options.temperature,
+          maxOutputTokens: options.maxOutputTokens,
+          responseMimeType: options.responseMimeType,
           responseSchema: options.responseSchema,
           thinkingConfig: options.thinkingConfig,
         },
@@ -75,6 +109,22 @@ export async function callGemini(userPrompt, systemInstruction, options = {}) {
           .trim();
       }
 
+      // 3️⃣ 成功：回傳 token 用量與輸出
+      generation.end({
+        output: text,
+        usage: {
+          input: response.usageMetadata?.promptTokenCount,
+          output: response.usageMetadata?.candidatesTokenCount,
+          total: response.usageMetadata?.totalTokenCount,
+          unit: "TOKENS",
+        },
+        metadata: {
+          // thinking token 單獨記錄，方便日後分析思考成本
+          thoughtsTokenCount: response.usageMetadata?.thoughtsTokenCount ?? 0,
+        },
+      });
+      trace.update({ output: text });
+
       return text;
     } catch (error) {
       const isLast = attempt === maxRetries;
@@ -86,12 +136,25 @@ export async function callGemini(userPrompt, systemInstruction, options = {}) {
           `⚠️ Gemini 第 ${attempt + 1} 次失敗 (key: ${resolvedIndex})，` +
             `${(delay / 1000).toFixed(1)}s 後重試... 原因: ${error.message}`,
         );
+        generation.end({
+          level: "WARNING",
+          statusMessage: `Retry ${attempt + 1}: ${error.message}`,
+        });
         await new Promise((resolve) => setTimeout(resolve, delay));
       } else {
         console.error(
           `❌ Gemini API 呼叫失敗 (key: ${resolvedIndex}):`,
           error.message,
         );
+
+        // 4️⃣ 失敗：記錄錯誤
+        generation.end({
+          level: "ERROR",
+          statusMessage: error.message,
+        });
+
+        trace.update({ level: "ERROR", statusMessage: error.message });
+
         throw error;
       }
     }

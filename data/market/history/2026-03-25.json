@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-25T07:38:44.418Z",
+    "lastRun": "2026-03-25T11:19:51.942Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-25T07:38:44.418Z"
+        "lastFetch": "2026-03-25T11:19:51.942Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -12,7 +12,7 @@
       },
       "kgiProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-24T14:43:51.639Z"
+        "lastFetch": "2026-03-25T10:45:50.313Z"
       },
       "usMarketProvider": {
         "status": "SUCCESS",
@@ -66,9 +66,9 @@
       "source": "zenquotes"
     },
     "rawFx": {
-      "currentRate": 31.973,
+      "currentRate": 31.906,
       "previousClose": 31.3771,
-      "changePercent": 1.9,
+      "changePercent": 1.69,
       "historicalPrices": [
         31.3771,
         31.2691,
@@ -90,7 +90,7 @@
         31.8021,
         32.0217,
         31.862,
-        31.973
+        31.906
       ]
     }
   }

@@ -1,6 +1,7 @@
 import { Type } from "@google/genai";
 
 /** 生成新聞關鍵字的 System Prompt */
+/* 已移轉至 Langfuse Prompt Management */
 export const NEWS_KEYWORD_PROMPT = `你是精通 Google News 搜尋語法與總體經濟分析的避險基金量化工程師。
 你的任務是將當前的市場狀態，轉化為極度精準的搜尋關鍵字，以利爬蟲分別去「台灣新聞」與「華爾街新聞」抓取最高品質的情報。
 
@@ -83,6 +84,7 @@ export const NEWS_KEYWORD_SCHEMA = {
 };
 
 /** 總經多空分析師 Prompt */
+/* 已移轉至 Langfuse Prompt Management */
 export const MACRO_ANALYSIS_SYSTEM_PROMPT = `你是頂尖的全球宏觀經濟與量化分析師。你的任務是閱讀使用者提供的新聞事件，運用「多重事件加權法 (Vector Weighting)」進行深度的多空影響力評分與對決。
 
 <Analysis_Framework>
@@ -191,6 +193,7 @@ export const MACRO_ANALYSIS_SCHEMA = {
 };
 
 /** 戰報教練 Prompt */
+/* 已移轉至 Langfuse Prompt Management */
 export const INVESTMENT_COACH_PROMPT = `<Role>
 你是「投資戰報洞察教練」，基於「生命週期投資法」的長期視角提供專業建議。
 你的任務是交叉分析四個輸入來源：
@@ -320,6 +323,7 @@ export const INVESTMENT_COACH_SCHEMA = {
 };
 
 /** 新聞過濾 Prompt */
+/* 已移轉至 Langfuse Prompt Management */
 export const NEWS_FILTER_PROMPT = `你是一位頂級的量化避險基金經理人，專注於 ETF(0050) 與槓桿投資策略。
 你的任務是從使用者提供的「中英混合新聞列表」中，如淘金般過濾出「對大盤或總體經濟有實質重大影響」的重點新聞，並給予重要性評分以進行排序。
 
