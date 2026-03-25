@@ -308,6 +308,7 @@ ${SEP}\🌐 <b>市場概況</b>${SEP}\
 🇺🇸 美股 VIX  <code>${escapeHTML(usRisk?.vix || "N/A")}</code>  ${escapeHTML(usRisk?.riskIcon || "")}
 🇺🇸 貪婪指數 <code>${cnnText}</code>
 📊 S&amp;P500   <code>${spxText}</code>  ${spxEmoji}
+🇹🇼 台股 VIX <code>${escapeHTML(vixValue || "N/A")}</code>  ${escapeHTML(vixLabel || "")}
 🇹🇼 景氣燈號 <code>${ndcText}</code>
 🇹🇼 大盤維持 <code>${marginText}</code>
 💵 美元台幣 <code>${fxText}</code>
