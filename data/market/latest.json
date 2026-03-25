@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-24T23:59:37.580Z",
+    "lastRun": "2026-03-25T01:25:51.612Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-24T23:59:37.580Z"
+        "lastFetch": "2026-03-25T01:25:51.612Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -16,11 +16,11 @@
       },
       "usMarketProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-24T23:59:37.580Z"
+        "lastFetch": "2026-03-25T01:25:51.612Z"
       },
       "ndcProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-24T23:59:37.580Z"
+        "lastFetch": "2026-03-25T01:25:51.612Z"
       }
     }
   },
@@ -46,11 +46,10 @@
       "source": "zenquotes"
     },
     "rawFx": {
-      "currentRate": 31.925,
-      "previousClose": 31.4348,
+      "currentRate": 31.868,
+      "previousClose": 31.3771,
       "changePercent": 1.56,
       "historicalPrices": [
-        31.4348,
         31.3771,
         31.2691,
         31.2468,
@@ -71,20 +70,20 @@
         31.8021,
         32.0217,
         31.862,
-        31.925
+        31.868
       ]
     },
     "rawUsMarket": {
       "success": true,
       "vix": "26.15",
-      "spxChg": "1.15%",
+      "spxChg": "-0.37%",
       "riskLevel": "高風險",
       "riskIcon": "⚠️",
       "suggestion": "暫停00675L新增撥款，偏防守為主",
       "isHighRisk": true,
       "meta": {
         "vixDate": "2026-03-23",
-        "spxDate": "2026-03-23"
+        "spxDate": "2026-03-24"
       },
       "source": "FRED"
     },
