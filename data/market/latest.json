@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-24T22:48:21.526Z",
+    "lastRun": "2026-03-24T23:59:37.580Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-24T22:48:21.526Z"
+        "lastFetch": "2026-03-24T23:59:37.580Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -16,11 +16,11 @@
       },
       "usMarketProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-24T22:48:21.526Z"
+        "lastFetch": "2026-03-24T23:59:37.580Z"
       },
       "ndcProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-24T22:48:21.526Z"
+        "lastFetch": "2026-03-24T23:59:37.580Z"
       }
     }
   },
@@ -38,6 +38,12 @@
       "previous1Month": 43.29,
       "previous1Year": 25.4,
       "timestamp": "2026-03-24T14:40:50.000Z"
+    },
+    "quote": {
+      "date": "2026-03-25",
+      "quote": "Life is like underwear, should be changed twice a day.  ",
+      "author": "Ray Bradbury",
+      "source": "zenquotes"
     },
     "rawFx": {
       "currentRate": 31.925,
@@ -67,12 +73,6 @@
         31.862,
         31.925
       ]
-    },
-    "quote": {
-      "date": "2026-03-25",
-      "quote": "Life is like underwear, should be changed twice a day.  ",
-      "author": "Ray Bradbury",
-      "source": "zenquotes"
     },
     "rawUsMarket": {
       "success": true,
