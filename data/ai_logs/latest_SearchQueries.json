@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-03-25T11:20:02.859Z",
+  "_savedAt": "2026-03-25T14:37:53.125Z",
   "type": "SearchQueries",
   "systemPrompt": "你是精通 Google News 搜尋語法與總體經濟分析的避險基金量化工程師。\n你的任務是將當前的市場狀態，轉化為極度精準的搜尋關鍵字，以利爬蟲分別去「台灣新聞」與「華爾街新聞」抓取最高品質的情報。\n\n<Search_Syntax_Rules>\n1. 嚴格語系隔離 (極重要)：\n   - twQueries 負責抓取台灣新聞：必須完全使用「繁體中文」（如：台積電、外資、通膨）。\n   - usQueries 負責抓取華爾街新聞：必須完全使用「英文」（如：Nvidia、Fed rate cut、recession）。\n   - ❌ 絕對禁止中英夾雜（例如：「CPI 通膨」或「Fed 降息」），否則會導致爬蟲失效。\n2. 複合關鍵字防雜訊 (Anti-Noise)：\n   - 避免只給單字（例如：\"recession\"、\"降息\" 會搜出與財經無關的社會新聞）。\n   - 請使用「主體 + 事件」的組合，以半形空格分隔（例如：\"Fed rate cut\"、\"US economy recession\"、\"外資 賣超\"）。\n3. 搜尋類型定義：\n   - \"intitle\"：強制新聞標題必須包含該關鍵字，用於抓取核心事件（例如：\"Fed\"、\"CPI\"）。\n   - \"broad\"：全文搜尋，用於大範圍趨勢或地緣政治（例如：\"Middle East conflict\"、\"地緣政治\"）。\n</Search_Syntax_Rules>\n\n<Task_Instructions>\n請依據提供的市場狀態（包含冷卻期與 VIX 數值），先在腦中推論當下「最可能導致該狀態的總經/籌碼原因」。\n接著產出 5~7 組 twQueries 與 5~7 組 usQueries。\n⚠️ 絕對約束：usQueries 必須是道地的華爾街英文財經詞彙，twQueries 必須是台灣股民常用的中文詞彙。\n</Task_Instructions>",
   "userPrompt": "今天是 2026-03-25。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.31。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
@@ -72,7 +72,7 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 36.31，顯示市場處於極度恐慌與高波動狀態，這與『偏熱』的市場狀態形成強烈對比，暗示市場可能正處於『高檔崩跌』或『多頭踩踏』的轉折點。高 VIX 通常伴隨流動性緊縮與避險情緒升溫。推論核心議題為：1. 融資斷頭壓力與外資撤資流向；2. 美國經濟是否由軟著陸轉向硬著陸的衰退恐懼；3. 地緣政治突發事件導致的避險資產（金、債）湧入；4. 科技股高估值修正引發的系統性風險。",
+    "reasoning_process": "VIX 指數飆升至 36.31 顯示市場正處於極度恐慌與高波動狀態，儘管狀態標示為『偏熱』，這通常意味著市場可能正經歷『高檔反轉』或『多頭踩踏』。高 VIX 通常與地緣政治衝突、突發性經濟衰退恐懼或流動性危機有關。搜尋策略將聚焦於外資提款動向、融資維持率、聯準會緊急政策干預以及避險資產的流向。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
@@ -83,45 +83,45 @@
         "searchType": "broad"
       },
       {
-        "keyword": "台積電 展望",
+        "keyword": "台積電 支撐",
         "searchType": "intitle"
       },
       {
-        "keyword": "避險資產 湧入",
+        "keyword": "國安基金 動向",
         "searchType": "broad"
       },
       {
-        "keyword": "地緣政治 緊張",
+        "keyword": "避險 資金",
         "searchType": "broad"
       },
       {
-        "keyword": "台股 修正",
+        "keyword": "台幣 貶值",
         "searchType": "intitle"
       }
     ],
     "usQueries": [
       {
-        "keyword": "VIX spike",
+        "keyword": "VIX volatility spike",
         "searchType": "intitle"
-      },
-      {
-        "keyword": "Recession fears",
-        "searchType": "broad"
       },
       {
         "keyword": "Fed emergency meeting",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "Safe haven demand",
         "searchType": "broad"
       },
       {
-        "keyword": "Tech stock selloff",
+        "keyword": "Treasury yield curve",
         "searchType": "intitle"
       },
       {
-        "keyword": "Treasury yield curve",
+        "keyword": "S&P 500 correction",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Liquidity crunch",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "Safe haven assets",
         "searchType": "broad"
       }
     ]
