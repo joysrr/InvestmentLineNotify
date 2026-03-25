@@ -1,8 +1,8 @@
 {
-  "_savedAt": "2026-03-25T04:24:11.347Z",
+  "_savedAt": "2026-03-25T05:26:32.311Z",
   "type": "NewsFilter",
   "systemPrompt": "你是一位頂級的量化避險基金經理人，專注於 ETF(0050) 與槓桿投資策略。\n你的任務是從使用者提供的「中英混合新聞列表」中，如淘金般過濾出「對大盤或總體經濟有實質重大影響」的重點新聞，並給予重要性評分以進行排序。\n\n<Rules>\n1. 嚴格剔除：農場文、理財教學(如存股、退休)、無意義盤後總結、單一小公司新聞、與經濟無關的社會案件。\n2. 優先保留：降息/通膨等總經數據、地緣政治重大衝突、大型權值股(如台積電、輝達、蘋果)的產業巨變。\n3. 【事件去重與多樣化】：\n   - 若有多則新聞報導同一事件(如：非農數據出爐)，請只挑選資訊量最豐富的 1 則。\n   - 確保挑選出的新聞涵蓋不同面向（例如：同時包含總體經濟、半導體產業、地緣政治或資金流向），避免被單一事件洗版。\n</Rules>\n\n<Instructions>\n1. 挑選數量：請嚴格挑選出最具價值的重點新聞，最多不可超過 15 則。寧缺勿濫，若無重要新聞請勿勉強湊數。\n2. 摘要撰寫 (summary)：\n   - 一律使用「繁體中文」撰寫摘要。\n   - 摘要需具備深度，長度約 80~120 字。必須包含「具體數據」、「事件核心」以及「對大盤/特定產業的潛在影響」，此摘要將作為後續總經分析的基礎素材。\n3. 排序規則：請依照你對這些新聞的「綜合影響力直覺」，由最重要到最次要依序輸出至 JSON 陣列中即可。\n</Instructions>",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 0050達8張…高股息配市值型「二刀流」超強防禦力！存股哥無懼千點震盪| 存股族愛ETF | 股市 - 聯合新聞網\n[ID: 1] [TW] 標題: 台股開盤》台積電喊衝 指數漲939點創史上第7大 - 自由財經\n[ID: 2] [TW] 標題: 台股收盤》ABF載板、記憶體慘遭血洗 指數震盪927點收跌110點 - 自由財經\n[ID: 3] [US] 標題: VIX Signals Traders Want Proof It’s Safe to Buy the S&P 500 Dip - Bloomberg.com\n[ID: 4] [US] 標題: The Stock Market's \"Fear Gauge\" Says the S&P 500 Will Make a Big Move in the Next Year (Hint: It's Good News) - The Motley Fool\n[ID: 5] [US] 標題: ^GSPC Today, March 20: VIX 25+ Reprices Risk on War, Sticky CPI - Meyka\n[ID: 6] [US] 標題: Financial Market Volatility in the Spring of 2025 - Federal Reserve Bank of St. Louis\n[ID: 7] [US] 標題: VIX® Index Attribution of Notable Tail Events - Cboe Global Markets\n[ID: 8] [US] 標題: Stock Volatility Surges as U.S.-Iran Conflict Stokes Oil Price Shock Fears - Barron's\n[ID: 9] [US] 標題: Wall Street's 'Fear Index' Jumped 10% Tuesday—Here's What That Means for Your Money - Investopedia\n[ID: 10] [US] 標題: The stock market’s ‘fear gauge’ spiked to its highest level since Trump’s ‘Liberation Day’ tariffs caused a global selloff - Fortune\n[ID: 11] [US] 標題: It’s rare for the S&P 500 and the VIX to post gains on the same day. Here’s why it just happened. - MarketWatch\n[ID: 12] [US] 標題: S&P 500 and VIX Likely to Test Key Gamma Levels Amid Rising Uncertainties - Investing.com\n[ID: 13] [US] 標題: Market Volatility Rises as Energy Prices Surge and CPI Looms - The Motley Fool\n[ID: 14] [US] 標題: S&P 500 Logs Record Close; VIX Hits 1-Year Low - Schaeffer's Investment Research\n[ID: 15] [US] 標題: Market Volatility Explained: Why Prices Rise and Fall - Gotrade\n[ID: 16] [US] 標題: Why S&P 500 and Nasdaq down today while Dow Jones holds steady: US stock market turns cautious as VIX at 2 - The Economic Times\n[ID: 17] [US] 標題: Why VIX Is Braced for a More Volatile Than Average December - Nasdaq\n[ID: 18] [US] 標題: U.S. dollar strength and volatility surge as markets nervously await U.S. open - CoinDesk\n[ID: 19] [US] 標題: Gold Rallies, VIX Spikes as Fed Chair Powell Responds to Criminal Indictment - Yahoo Finance\n[ID: 20] [US] 標題: What Is VIX? Beginner’s Guide To The Volatility Index - EBC Financial Group\n[ID: 21] [US] 標題: Stock Market Outlook: Greenland uncertainty push VIX to buy signal - Opening Bell Daily\n[ID: 22] [US] 標題: VIX Curve Inversion Tests Trader Resolve With Volatility Rising - Bloomberg.com\n[ID: 23] [US] 標題: Global stocks in meltdown as Wall Street bails out of crypto and AI: ‘The bubbly is on ice’ - Fortune\n[ID: 24] [US] 標題: VIX Falls to Lowest Level Since Christmas Eve as Stocks Surge After Powell - Bloomberg.com\n[ID: 25] [US] 標題: Wall Street Favors Vanilla Options Rather Than VIX to Hedge - Bloomberg.com\n[ID: 26] [US] 標題: Market volatility poised to rise as investors brace for uncertainty (VIX:) - Seeking Alpha\n[ID: 27] [US] 標題: VIX Soars But Equity Market Remains Orderly After Trump Threatens China Tariffs - Bloomberg.com\n[ID: 28] [US] 標題: Signal: Scoop Up Options Now, Regardless of SPX Direction - Schaeffer's Investment Research\n[ID: 29] [US] 標題: The S&P 500 stumbled from record highs during Powell’s speech. Traders were expecting it. - MarketWatch\n[ID: 30] [US] 標題: BTC, Stocks News: Calm Ahead of Fed Rate Cut, Storm Later - CoinDesk\n[ID: 31] [US] 標題: 'Wall Streetization' of Bitcoin: BTC Volatility Index and the S&P 500 VIX Boast Record 90-Day Correlation - CoinDesk\n[ID: 32] [US] 標題: Brace For Volatile January, And The Likely Beginning Of A Bear Market - Seeking Alpha\n[ID: 33] [US] 標題: US stock market complete collapse today: What VIX surge to 27 signals for Dow S&P 500 and Nasdaq amid Iran - The Economic Times\n[ID: 34] [US] 標題: ^GSPC Today: VIX Nears 20, Volatility Jumps — February 13 - Meyka\n[ID: 35] [US] 標題: The Stock Market Is Hitting New Highs. Things Aren’t as Calm as They Seem. - Barron's\n[ID: 36] [US] 標題: VIX Jumps Again as Oil Shock and Hot Inflation Shake Wall Street - TechStock²\n[ID: 37] [US] 標題: Why Stock Volatility Has Normalized Faster Than Ever Before - Investopedia\n[ID: 38] [US] 標題: VXX: The VIX Is Rich, Sell Volatility Into Year-End (Downgrade) (BATS:VXX) - Seeking Alpha\n[ID: 39] [US] 標題: Are Stocks Topping? What Nasdaq, Semis, and VIX Say About Risk Now - FXEmpire\n[ID: 40] [US] 標題: SP500: Retail Investor Buys The Dip And Crushes The VIX, Yet Risks Remain High - Seeking Alpha\n[ID: 41] [US] 標題: The S&P 500 Is Near Record Highs, But Volatility Is Rearing Its Ugly Head. The Best Way to Play It Now. - Barchart.com\n[ID: 42] [US] 標題: Volatility Index Forecast | Is VIX a Good Index to Trade? - Capital.com</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 在手訂單高達1700億元！「這台積電概念股」去年EPS寫30.51元 股價狂飆21.3%登強勢股王 - Yahoo股市\n[ID: 1] [TW] 標題: 台積電2奈米良率關鍵！鈺祥登興櫃引爆比價效應，AMC微污染防治供應鏈躍盤面焦點｜股市話題｜豐雲學堂2026 年 03 月 - sinotrade.com.tw\n[ID: 2] [TW] 標題: 台股強彈重返33600點！資金點火AI族群券商共識股來了| 財經 - Newtalk新聞\n[ID: 3] [TW] 標題: 台股重返3萬3！一度勁揚逾千點史上盤中第五大 - Yahoo股市\n[ID: 4] [TW] 標題: 地緣風險拋售台積電？美媒看好「比巴菲特想的強」 - Yahoo股市\n[ID: 5] [TW] 標題: 【Hot台股】力積電挺不住又疲軟...網嘆「相信黃董山頂你懂」 分析師揭操作策略 - Yahoo股市\n[ID: 6] [TW] 標題: 球場在變化、揮拍要靈活 00403A主動掌握台股輪動節奏 - Yahoo股市\n[ID: 7] [TW] 標題: 對川普產生免疫力！台積電狂飆60元至1870元 專家看多 - Yahoo股市\n[ID: 8] [TW] 標題: 台股多頭還沒完！ 總經專家曝「3利多」：下半年行情更可期 - Yahoo股市\n[ID: 9] [TW] 標題: 開盤／台積電領軍漲45元！台股強彈近900點 載板、記憶體全面噴發 - Yahoo新聞\n[ID: 10] [TW] 標題: 外資賣超台積電919.5億！八大公股連4天補血買入萬張 群創跌破25元也被搶救 - Yahoo股市\n[ID: 11] [TW] 標題: 油價破百通膨憂慮升溫 美股道瓊漲那指與標普卻跌 - Yahoo股市\n[ID: 12] [TW] 標題: 台股漲逾1093點「創史上第五」 台積電領衝到1875元 - Yahoo新聞\n[ID: 13] [TW] 標題: 台股開盤》台積帶頭衝 大盤漲千點 記憶體各自修正 回歸常態價位 - Yahoo新聞\n[ID: 14] [TW] 標題: 台股開盤狂飆900點！台積電領軍站上三萬三大關 無視美股收黑 - Yahoo新聞\n[ID: 15] [TW] 標題: 台股強彈大漲破千點！ 台積電衝1870元、台達電亮燈漲停 - Yahoo新聞\n[ID: 16] [TW] 標題: AI熱潮續延燒 專家點名台積電、Alphabet、博通為四月強勢買進股 - Yahoo股市\n[ID: 17] [TW] 標題: 台達電漲停！台積電、日月光衝了 台股大漲926點 - Yahoo新聞\n[ID: 18] [TW] 標題: 川普一句「跟伊朗幾乎談成」利多回歸？台積電反彈55元、台達電上漲140元攻佔漲停板 - Yahoo股市\n[ID: 19] [TW] 標題: 股匯齊飆！外資熱錢狂湧、新台幣強升1.28角 專家：短線看升 - Yahoo股市\n[ID: 20] [TW] 標題: 台積電上漲55元台股勁揚逾900點突破10日線| 證券 - 中央社 CNA\n[ID: 21] [TW] 標題: 中東局勢升溫擾動日美金融決策 油價飆升通膨風險加劇 - Yahoo股市\n[ID: 22] [TW] 標題: 0050長成電子股的形狀、愈來愈像0052是真的？從持股與權重看懂關鍵差異 - Smart自學網\n[ID: 23] [TW] 標題: 央行釋出房市鬆綁訊號 第二戶貸款成數調升帶動市場信心 - Yahoo股市\n[ID: 24] [TW] 標題: 0050 又見搶買潮！零股1天爆2288萬股 吸金近17億元 - Yahoo股市\n[ID: 25] [TW] 標題: 不是台積電、不是鴻海！2026 AI 真正翻倍神股，竟然藏在「CPO 三雄」裡？ - news.cnyes.com\n[ID: 26] [TW] 標題: 台指期夜盤走強 台股開盤上漲113點 - Yahoo新聞\n[ID: 27] [TW] 標題: 台股報復性強彈！台達電飆天價 貢獻大盤漲點僅次於台積電 - 聯合新聞網\n[ID: 28] [TW] 標題: 台股重返3萬3！勁揚986點史上盤中第七大 - Yahoo股市\n[ID: 29] [TW] 標題: 台股開盤》台積電喊衝 指數漲939點創史上第7大 - 自由財經\n[ID: 30] [TW] 標題: 【Yahoo早盤】川普稱「完勝伊朗」？台股強噴1066點 分析師白易弘：不會虎頭蛇尾 - Yahoo股市\n[ID: 31] [TW] 標題: 權值F4飆風再起！鴻海重回200元　台股勁揚逾千點 - ETtoday財經雲\n[ID: 32] [TW] 標題: 川普喊美伊協議快達成 台股早盤強勢反彈近千點 - Yahoo股市\n[ID: 33] [TW] 標題: 台股電子領漲 盤中勁揚1000點收復月線 台積電最高漲65元達1875元 - Yahoo新聞\n[ID: 34] [TW] 標題: 台積電的10大關鍵 外媒一次解密 - 自由財經\n[ID: 35] [TW] 標題: 台股盤前／費半指強漲1.2%！台指夜盤暴拉678點 台股今拚止跌反攻 - Yahoo新聞\n[ID: 36] [TW] 標題: 油價飆百美元！台經院：CPI勢必上修 通膨恐排擠AI需求、成經濟復甦變數 - Yahoo新聞\n[ID: 37] [TW] 標題: 早盤快訊》台股強彈逾3%站上33500點！台達電飆9.5%、台積電衝1860元撐盤| 下班經濟學| 財經 - 風傳媒\n[ID: 38] [TW] 標題: 台積電成1.76兆美元AI晶片巨擘 華爾街看好股價漲逾兩成 - Yahoo股市\n[ID: 39] [TW] 標題: 台積電擴產供應鏈跟著旺 這幾檔設備股齊鎖漲停 弘塑、萬潤直飆天價 - 聯合新聞網\n[ID: 40] [US] 標題: Prosecutor admits government lacks evidence of misconduct by Fed chair - The Washington Post\n[ID: 41] [US] 標題: Oil at $150 will trigger global recession, says boss of financial giant BlackRock - BBC\n[ID: 42] [US] 標題: Prosecutor told judge no evidence existed to criminally pursue Powell over costly Fed renovations - CNN\n[ID: 43] [US] 標題: Chicago Fed president breaks down economic risks of Iran war - PBS\n[ID: 44] [US] 標題: Acceptance remarks by Chair Powell at the American Society for Public Administration Annual Conference - Federal Reserve Board (.gov)\n[ID: 45] [US] 標題: Tyvis Powell Previews Ohio State Pro Day - 03.24.26 - Cleveland Browns\n[ID: 46] [US] 標題: Niall Ferguson: Brace Yourselves. A Recession Is Coming. - The Free Press\n[ID: 47] [US] 標題: Prosecutor conceded lack of criminal evidence in Federal Reserve investigation, transcript shows - AP News\n[ID: 48] [US] 標題: Hoyne Bancorp, Inc. Rings the Nasdaq Stock Market Closing Bell - Nasdaq\n[ID: 49] [US] 標題: Chicago Fed president breaks down economic risks of Iran war - THIRTEEN - New York Public Media\n[ID: 50] [US] 標題: Australia’s Inflation Cooled Slightly in February - WSJ\n[ID: 51] [US] 標題: Home flippers see smallest profits since the Great Recession, real estate data firm says - CNBC\n[ID: 52] [US] 標題: The First Federal Reserve Inflation Forecast for March Is In -- and It's Not Pretty - Yahoo Finance\n[ID: 53] [US] 標題: Iran and the Fed Are Still Risks. These Stocks Can Ease Investor Worries. - Barron's\n[ID: 54] [US] 標題: Gold jumps over 2% as oil slump eases inflation fears amid Trump Iran talks - CNBC\n[ID: 55] [US] 標題: Fed’s Barr Says Rates May Need to Hold Steady for ‘Some Time’ - Bloomberg.com\n[ID: 56] [US] 標題: Federal Reserve holds interest rates steady as inflation and hiring remain in focus - U.S. Bank\n[ID: 57] [US] 標題: How high could global inflation go? - The Economist\n[ID: 58] [US] 標題: Fed's Goolsbee says he's worried about inflation in 'fraught but intense' climate - CNBC\n[ID: 59] [US] 標題: Report: Fed not collecting data needed to improve bank application processing - ABA Banking Journal\n[ID: 60] [US] 標題: Top economist Mark Zandi pinpoints exactly how much oil can rise before it tips the US economy into recession - Business Insider\n[ID: 61] [US] 標題: Suddenly, a Fed rate hike doesn’t sound far-fetched - Scotsman Guide\n[ID: 62] [US] 標題: Futures markets bet on an interest rate increase - Axios\n[ID: 63] [US] 標題: Is Another ‘Great Recession’ on the Horizon? - KQED\n[ID: 64] [US] 標題: Federal Reserve Powell - Fairbanks Daily News-Miner\n[ID: 65] [US] 標題: Japan reports lower-than-expected core inflation for February, headline CPI eases for a fourth month - CNBC\n[ID: 66] [US] 標題: Inflation Could Hit 4% Due to the Oil Shock. There’s No Looking Through It. - Barron's\n[ID: 67] [US] 標題: Goldman Sachs resets recession risks for 2026 - thestreet.com\n[ID: 68] [US] 標題: Powell Industries: A Hidden Gem in the Stock Market? - The Motley Fool\n[ID: 69] [US] 標題: Fed's Barr: No interest rate cuts until inflation is tamed - American Banker\n[ID: 70] [US] 標題: Inflation expected to remain at 3% before Middle East conflict sparks jump - Yahoo Finance UK\n[ID: 71] [US] 標題: Australian Inflation Was Elevated Even Before Iran Oil Shock - Bloomberg.com\n[ID: 72] [US] 標題: Inside Salt Lake’s Federal Reserve cash processing operation - KSL TV 5\n[ID: 73] [US] 標題: Fed's Barr sees rates holding steady 'for some time' given above-target inflation - Reuters\n[ID: 74] [US] 標題: Australia's inflation slows slightly in February ahead of war-driven energy shock - Reuters\n[ID: 75] [US] 標題: The US Is Recession-Free But Feels Miserable - Bloomberg.com\n[ID: 76] [US] 標題: Fed's Goolsbee says inflation progress needed to cut rates this year, PBS reports - Reuters\n[ID: 77] [US] 標題: The Roundup | How to prop up Powell, a Cloud Nine gondola and ICE oversight - Aspen Journalism\n[ID: 78] [US] 標題: UK manufacturers hit by sharpest rise in cost inflation since Black Wednesday in 1992 - The Guardian\n[ID: 79] [US] 標題: Time To Short The S&P 500 (NYSEARCA:SPDN) - Seeking Alpha</News_List>",
   "schema": {
     "type": "ARRAY",
     "description": "挑選出最具影響力的新聞並進行深度摘要",
@@ -27,44 +27,52 @@
   },
   "rawResult": [
     {
+      "id": 41,
+      "summary": "貝萊德執行長警告，若油價飆升至每桶 150 美元，將引發全球經濟衰退。此預測反映中東局勢對能源供應的威脅，直接衝擊通膨預期與各國央行的降息路徑。對於 0050 等權值股而言，能源成本上升將侵蝕企業獲利，並可能導致資金撤出風險資產，是當前總經環境中最需警惕的黑天鵝指標。"
+    },
+    {
+      "id": 18,
+      "summary": "川普宣稱美伊協議接近達成，此地緣政治利多直接引發台股報復性反彈，台積電大漲 55 元，台達電更攻上漲停。此事件顯示市場對中東衝突緩解的高度期待，短期內大幅提振風險偏好。對槓桿投資者而言，地緣政治的轉折點往往是極佳的進場或平倉訊號，需密切關注後續協議實質進展。"
+    },
+    {
+      "id": 55,
+      "summary": "聯準會副主席 Barr 表示，鑑於通膨仍高於目標，利率可能需維持在高位「一段時間」。此鷹派發言壓抑了市場對近期降息的過度樂觀預期。對於量化策略而言，無風險利率的長期高企將重新定義資產估值模型，特別是高成長的 AI 族群，需留意資金成本對科技股本益比的壓制作用。"
+    },
+    {
+      "id": 12,
+      "summary": "台股今日強彈逾 1093 點，創下史上盤中第五大漲幅，台積電領軍衝上 1875 元。此波漲勢主要由空單回補與地緣政治降溫驅動，顯示台股在經歷前期修正後具備極強韌性。對 0050 投資者而言，大盤重返三萬三千點大關並收復關鍵均線，象徵多頭格局尚未破壞，資金正重新流向大型權值股。"
+    },
+    {
+      "id": 38,
+      "summary": "華爾街看好台積電作為 1.76 兆美元規模的 AI 晶片巨擘，預期股價仍有兩成以上漲幅。台積電在 AI 供應鏈的壟斷地位使其成為全球資金避風港。這不僅支撐了 0050 的長期價值，更暗示 AI 浪潮已進入實質獲利兌現期，而非單純泡沫，對半導體產業鏈具有指標性的多頭意義。"
+    },
+    {
+      "id": 52,
+      "summary": "美國 3 月份首份通膨預測顯示數據不樂觀，通膨壓力可能持續存在。這與油價上漲及勞動力市場強勁密切相關，增加了聯準會維持高利率的壓力。通膨數據的韌性將導致美債殖利率維持高檔，進而影響台美利差與匯率走勢，是影響外資對台股配置比例的核心變數。"
+    },
+    {
       "id": 19,
-      "summary": "聯準會主席鮑爾應對刑事起訴的傳聞引發金價大漲與 VIX 飆升。此事件屬極端尾部風險，若屬實將嚴重動搖全球金融體系根基，導致避險情緒極度擴張，對 0050 等權值型 ETF 構成巨大下行壓力。量化模型需立即調高風險溢酬，並針對流動性枯竭進行壓力測試。"
+      "summary": "台灣市場出現股匯齊飆現象，外資熱錢湧入帶動新台幣強升 1.28 角。資金流向是判斷大盤趨勢的先行指標，外資由賣轉買顯示對台股評價的重新認可。對於 0050 策略而言，匯率走強通常伴隨權值股的買盤支撐，需關注此波資金流入的持續性，以判斷是否為波段起漲點。"
     },
     {
-      "id": 27,
-      "summary": "川普威脅對中國徵收關稅導致 VIX 飆升，儘管市場目前維持秩序，但貿易戰不確定性已顯著抬頭。這對台股半導體供應鏈構成潛在威脅，特別是台積電等權值股的海外佈局成本。投資者需關注資金是否流向避險資產，並評估槓桿策略在關稅政策下的波動風險。"
-    },
-    {
-      "id": 33,
-      "summary": "美股因伊朗衝突疑慮出現崩盤跡象，VIX 飆升至 27。地緣政治引發的能源價格波動與避險情緒，使標普 500 與那斯達克面臨劇烈修正。此類系統性風險通常伴隨流動性緊縮，對槓桿投資者而言是極大的斷頭風險，需密切監控保證金水位以應對極端波動。"
-    },
-    {
-      "id": 1,
-      "summary": "台股在台積電領軍下開盤大漲 939 點，創史上第七大漲幅，顯示半導體權值股對大盤的絕對主導力。對於 0050 投資者，這反映了 AI 需求帶動的景氣擴張，但也暗示市場情緒極度亢奮。在槓桿投資策略中，需留意乖離率過大後的回檔風險，避免在情緒高點過度曝險。"
-    },
-    {
-      "id": 23,
-      "summary": "全球股市陷入崩盤，資金大規模撤出加密貨幣與 AI 領域，市場擔憂 AI 泡沫破裂。這將直接衝擊台股 AI 伺服器與半導體供應鏈。當資金從高成長科技股撤出，大盤將面臨估值修正壓力，投資者應重新評估科技權值股的配置比例，並注意 0050 成分股的結構性風險。"
-    },
-    {
-      "id": 29,
-      "summary": "鮑爾演講期間標普 500 從歷史高點跌落，市場對利率路徑保持高度敏感。聯準會的鷹鴿立場直接決定資金成本，對槓桿型 ETF 的融資成本與市場估值具有決定性影響。投資者應關注聯準會對通膨的最新態度，這將引導未來一季的全球資金流向與大盤走勢。"
+      "id": 67,
+      "summary": "高盛重新評估 2026 年的衰退風險，顯示市場對中長期經濟前景仍存疑慮。雖然當前 AI 需求強勁，但宏觀經濟循環的下行風險不可忽視。這提醒投資人在操作槓桿策略時，必須建立嚴格的停損機制與避險配置，以應對未來可能出現的系統性經濟衰退風險。"
     },
     {
       "id": 36,
-      "summary": "油價衝擊與通膨數據過熱再次震盪華爾街，導致 VIX 指數跳升。通膨黏性可能迫使聯準會維持高利率更久，這對成長型科技股不利。能源價格上漲亦會侵蝕企業獲利，對大盤整體表現構成壓抑。量化策略應考慮通膨對實質報酬的影響，並適度增加防禦性配置。"
+      "summary": "台經院警告油價破百將導致 CPI 上修，通膨可能排擠 AI 相關的資本支出需求。這是一個重要的反向思考觀點：若能源成本過高，企業可能縮減非核心投資。這對 AI 族群的成長動能構成潛在威脅，投資人需觀察通膨是否實質影響到大型雲端服務商（CSP）的設備採購意願。"
     },
     {
-      "id": 2,
-      "summary": "台股收盤震盪劇烈，ABF 載板與記憶體族群遭血洗，指數震盪達 927 點。這顯示市場資金正在進行劇烈的產業輪動，雖然台積電撐盤，但二線權值股的走弱預示大盤動能放緩。投資者需注意 0050 成分股的表現分化，並在震盪市中加強風險控管，避免槓桿倍數過高。"
+      "id": 66,
+      "summary": "能源衝擊可能使通膨率回升至 4%，市場無法再對此視而不見。高通膨環境將迫使央行採取更激進的緊縮政策，這對全球流動性是極大考驗。對於 0050 這種高度依賴流動性的指數產品，通膨失控將是最大的下行風險，需監控油價與通膨預期心理的連動關係。"
     },
     {
       "id": 39,
-      "summary": "納斯達克與半導體指數顯示風險升溫，VIX 指標發出警訊，暗示科技股可能見頂。台股與費半高度連動，半導體板塊的技術性回檔將直接拖累 0050 表現。量化模型應調高波動率參數，並考慮在技術指標轉弱時適度降低槓桿倍數，以應對潛在的趨勢反轉。"
+      "summary": "台積電擴產帶動供應鏈設備股如弘塑、萬潤鎖漲停，顯示半導體資本支出依然強勁。設備股的噴發通常是產業景氣擴張的領先指標，反映台積電對未來 2 奈米及先進封裝需求的信心。這強化了台股電子權值股的獲利支撐，對 0050 的成分股基本面提供正面貢獻。"
     },
     {
-      "id": 13,
-      "summary": "能源價格飆升與 CPI 數據即將公布，市場波動顯著加劇。通膨預期是目前總經環境的核心變數，若 CPI 高於預期，將引發市場對降息時程延後的恐慌，導致股債雙殺。這對 0050 等市值型 ETF 的短期估值具衝擊性，投資者應密切關注通膨數據對貨幣政策的引導作用。"
+      "id": 24,
+      "summary": "0050 零股交易單日爆出 2288 萬股，吸金近 17 億元，顯示散戶與長期投資者在市場震盪中積極進場。這種「越跌越買」的行為為大盤提供了強大的下檔支撐力道。從量化角度看，散戶情緒的極端化往往是市場底部的特徵之一，有助於判斷大盤的支撐強度。"
     }
   ]
 }
