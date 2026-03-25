@@ -1,4 +1,4 @@
-import { escapeHTML } from "../../../utils/coreUtils.mjs";
+import { escapeHTML, TwDate } from "../../../utils/coreUtils.mjs";
 
 // ── 常數 ──────────────────────────────────────────────────────
 const GOAL_ASSET = 74_800_000;
@@ -244,20 +244,10 @@ export function buildTelegramMessages({
   // 輕盈的虛線分隔符號，加一點留白，視覺更開闊
   const SEP = "\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n";
 
-  // 取得台灣時間
-  const now = new Date();
-  const twHour = Number(
-    now.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      hour12: false,
-      timeZone: "Asia/Taipei",
-    }),
-  );
-  const twMin = now.toLocaleTimeString("en-US", {
-    minute: "2-digit",
-    timeZone: "Asia/Taipei",
-  });
-  const timeStr = `${String(twHour).padStart(2, "0")}:${twMin}`;
+  // 取得當下時間
+  const now = TwDate(); // 台北時間小時數
+  const twHour = now.hour;
+  const timeTag = TwDate().formatDateTime();
 
   // 根據排程時間判定標籤
   let timeLabel = "📊 投資戰報";
@@ -299,7 +289,7 @@ export function buildTelegramMessages({
   ].join("\n");
 
   const msg1Text = `\
-<blockquote><code>資料產出時間：${escapeHTML(dateText)} ${timeStr}</code></blockquote>\
+<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\
 ${SEP}\<b>${timeLabel}</b>${SEP}\
 🚦 狀態：<b>${escapeHTML(result.marketStatus || "未明")}</b>
 📌 行動：<b>${escapeHTML(result.target || "觀望")}</b> ─ <i>${escapeHTML(result.targetSuggestionShort || "無特殊操作")}</i>
@@ -378,7 +368,7 @@ ${goalSection}`.trim();
 
   // 注意：此區塊所有 <tg-spoiler> 內不再包覆 <code>，以避免 Telegram 解析失效
   const msg2Text = `\
-<blockquote><code>資料產出時間：${escapeHTML(dateText)} ${timeStr}</code></blockquote>\
+<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\
 ${SEP}\🔬 <b>技術指標</b>${SEP}\
 ${rsiAlert ? "🔥" : "▫️"} RSI    <code>${Number.isFinite(rsi) ? rsi.toFixed(1) : "N/A"}</code>
 ${dAlert ? "🔥" : "▫️"} KD(D)  <code>${Number.isFinite(kd_d) ? kd_d.toFixed(1) : "N/A"}</code>
@@ -467,7 +457,7 @@ ${eventsList || "無顯著事件"}</blockquote>`.trim();
   const strategyUrl = process.env.STRATEGY_URL || null;
 
   const msg3Text = `\
-<blockquote><code>資料產出時間：${escapeHTML(dateText)} ${timeStr}</code></blockquote>\
+<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\
 ${SEP}\
 ${macroAnalysisSection}\
 ${SEP}🤖 <b>AI 教練洞察</b>\

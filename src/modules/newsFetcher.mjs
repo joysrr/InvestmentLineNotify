@@ -167,23 +167,40 @@ export function filterNewsByDate(newsList, withinHours = 24) {
  */
 export async function getRawNews({ twQueries, usQueries }) {
   // 最終的查詢字串
-  const finalTwQuery = mergeAndFormatQueries(baseTwQueries, twQueries);
-  const finalUsQuery = mergeAndFormatQueries(baseUsQueries, usQueries);
+  const baseTWQueries = mergeAndFormatQueries(baseTwQueries);
+  const baseUSQueries = mergeAndFormatQueries(baseUsQueries);
+  const aiTWQueries = mergeAndFormatQueries(twQueries);
+  const aiUSQueries = mergeAndFormatQueries(usQueries);
 
-  const twUrl = buildUrl(finalTwQuery, "TW", "zh-TW", "TW:zh-Hant");
-  const usUrl = buildUrl(finalUsQuery, "US", "en-US", "US:en");
+  const baseTWUrl = buildUrl(baseTWQueries, "TW", "zh-TW", "TW:zh-Hant");
+  const aiTWUrl = buildUrl(aiTWQueries, "TW", "zh-TW", "TW:zh-Hant");
+  const baseUSUrl = buildUrl(baseUSQueries, "US", "en-US", "US:en");
+  const aiUSUrl = buildUrl(aiUSQueries, "US", "en-US", "US:en");
+
+  console.log("🔍 Google News RSS URL:");
+  console.log(baseTWUrl);
+  console.log(aiTWUrl);
+  console.log(baseUSUrl);
+  console.log(aiUSUrl);
 
   // 2. 並發抓取，但在抓取時打上 Tag (TW / US)
-  const [rawTwNews, rawUsNews] = await Promise.all([
-    fetchRssFeed(twUrl, 40, "TW"),
-    fetchRssFeed(usUrl, 40, "US"),
+  const [rawTwNews, rawAiTwNews, rawUsNews, rawAiUsNews] = await Promise.all([
+    fetchRssFeed(baseTWUrl, 20, "TW"),
+    fetchRssFeed(aiTWUrl, 20, "TW"),
+    fetchRssFeed(baseUSUrl, 20, "US"),
+    fetchRssFeed(aiUSUrl, 20, "US"),
   ]);
 
   // 3. 將兩邊新聞合併成一個大陣列
-  const allRawNews = [...rawTwNews, ...rawUsNews];
+  const allRawNews = [
+    ...rawTwNews,
+    ...rawAiTwNews,
+    ...rawUsNews,
+    ...rawAiUsNews,
+  ];
 
   console.log(
-    `抓取完成：台灣新聞 ${rawTwNews.length} 筆，國際新聞 ${rawUsNews.length} 筆，共 ${allRawNews.length} 筆。`,
+    `抓取完成：台灣新聞 ${rawTwNews.length} 筆，AI 台灣新聞 ${rawAiTwNews.length} 筆，國際新聞 ${rawUsNews.length} 筆，AI 國際新聞 ${rawAiUsNews.length} 筆，共 ${allRawNews.length} 筆。`,
   );
 
   const filteredNews = filterNewsByDate(allRawNews, 24);

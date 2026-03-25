@@ -161,6 +161,7 @@ export function TwDate(input = new Date()) {
   const d = tw.getDate();
   const H = tw.getHours();
   const M = tw.getMinutes();
+  const S = tw.getSeconds();
   const dayOfWeek = tw.getDay(); // 0=週日 ... 6=週六
 
   // 輔助補零函數
@@ -175,6 +176,9 @@ export function TwDate(input = new Date()) {
     month: m,
     date: d,
     dayOfWeek,
+    hour: H,
+    minute: M,
+    second: S,
 
     // === 格式化方法 ===
     /** 回傳 YYYY-MM-DD */
