@@ -56,6 +56,9 @@ jobs:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           TELEGRAM_API_TOKEN: ${{ secrets.TELEGRAM_API_TOKEN }}
           TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_BASE_URL }}
           TZ: "Asia/Taipei"
 
         # 組合所有環境變數傳給 npm start
