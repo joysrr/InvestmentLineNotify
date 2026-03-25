@@ -1,8 +1,8 @@
 {
-  "_savedAt": "2026-03-25T01:26:36.529Z",
+  "_savedAt": "2026-03-25T04:24:11.347Z",
   "type": "NewsFilter",
   "systemPrompt": "你是一位頂級的量化避險基金經理人，專注於 ETF(0050) 與槓桿投資策略。\n你的任務是從使用者提供的「中英混合新聞列表」中，如淘金般過濾出「對大盤或總體經濟有實質重大影響」的重點新聞，並給予重要性評分以進行排序。\n\n<Rules>\n1. 嚴格剔除：農場文、理財教學(如存股、退休)、無意義盤後總結、單一小公司新聞、與經濟無關的社會案件。\n2. 優先保留：降息/通膨等總經數據、地緣政治重大衝突、大型權值股(如台積電、輝達、蘋果)的產業巨變。\n3. 【事件去重與多樣化】：\n   - 若有多則新聞報導同一事件(如：非農數據出爐)，請只挑選資訊量最豐富的 1 則。\n   - 確保挑選出的新聞涵蓋不同面向（例如：同時包含總體經濟、半導體產業、地緣政治或資金流向），避免被單一事件洗版。\n</Rules>\n\n<Instructions>\n1. 挑選數量：請嚴格挑選出最具價值的重點新聞，最多不可超過 15 則。寧缺勿濫，若無重要新聞請勿勉強湊數。\n2. 摘要撰寫 (summary)：\n   - 一律使用「繁體中文」撰寫摘要。\n   - 摘要需具備深度，長度約 80~120 字。必須包含「具體數據」、「事件核心」以及「對大盤/特定產業的潛在影響」，此摘要將作為後續總經分析的基礎素材。\n3. 排序規則：請依照你對這些新聞的「綜合影響力直覺」，由最重要到最次要依序輸出至 JSON 陣列中即可。\n</Instructions>",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 川普又「TACO」！台積電開盤漲40元至1850元後收斂 股市名師李永年：先觀望 - Yahoo股市\n[ID: 1] [TW] 標題: 台股收盤》ABF載板、記憶體慘遭血洗 指數震盪927點收跌110點 - 自由財經\n[ID: 2] [TW] 標題: ETF股王「0050正2」分割前最後買進日　下周2萬可入手 - ETtoday財經雲\n[ID: 3] [TW] 標題: 00631L分割日、最後買進日！0050正2「1拆22」45萬→2萬卡位先買？如何用一半本金，滾出超越0050報酬率？ - 今周刊\n[ID: 4] [US] 標題: Prosecutor conceded lack of criminal evidence in Federal Reserve investigation, transcript shows - News4JAX\n[ID: 5] [US] 標題: Bank of England chief economist: Interest rates can 'contain' inflation - MSN\n[ID: 6] [US] 標題: Japan’s core inflation slows below BOJ target, complicates rate communication - 朝日新聞\n[ID: 7] [US] 標題: Federal Reserve holds interest rates steady, signals one rate cut amid inflation uncertainty - U.S. Bank\n[ID: 8] [US] 標題: Japan’s core inflation slows below BOJ target, complicates rate path - wkzo.com\n[ID: 9] [US] 標題: 2 Investing Moves I'm Making Right Now to Prepare for a Recession -- and 1 I'm Avoiding at All Costs - The Motley Fool\n[ID: 10] [US] 標題: It's not just oil. Here comes Hormuz inflation. - Politico\n[ID: 11] [US] 標題: Should the Miami Heat Resign Norman Powell? - Sports Illustrated\n[ID: 12] [US] 標題: Fed governor Lisa Cook says AI could leave Fed with hard choice: Fight inflation or boost employment - Yahoo Finance\n[ID: 13] [US] 標題: What Is a Recession vs. Depression? | Britannica Money - Britannica\n[ID: 14] [US] 標題: Reserve Bank governor Anna Breman warns of higher inflation, lower growth - RNZ\n[ID: 15] [US] 標題: Should the Fed cut interest rates to make it cheaper for the federal government to borrow? - Brookings\n[ID: 16] [US] 標題: What Is the U.S. Federal Reserve? - Council on Foreign Relations\n[ID: 17] [US] 標題: Reserve Bank: Inflation will be higher, and we could increase interest rates if war drags on - Stuff\n[ID: 18] [US] 標題: Speech and Q&A: U.S. Economic Outlook and Monetary Policy - Federal Reserve Bank of St. Louis\n[ID: 19] [US] 標題: The Fed’s Failures Set the Stage for the Trump-Powell Turmoil. Here’s One Solution. - Cato Institute\n[ID: 20] [US] 標題: The Great Recession impacted class identity - University of California, Riverside\n[ID: 21] [US] 標題: Cook case could lead to 'cause' protections for Fed, or a roadmap for dismissals - Reuters\n[ID: 22] [US] 標題: Fed officials split on where interest rates should go, minutes say - CNBC\n[ID: 23] [US] 標題: How to prepare for a recession: 7 steps to take - U.S. Bank\n[ID: 24] [US] 標題: Remarks by Janet L. Yellen on the future of the Fed: Central bank independence and fiscal dominance - Brookings\n[ID: 25] [US] 標題: The Questions Any New Fed Chair Has to Answer - The University of Chicago Booth School of Business\n[ID: 26] [US] 標題: How a Famed Economist Views Kevin Warsh for Fed Chair - Politico\n[ID: 27] [US] 標題: Policymaking Amid Change - Federal Reserve Bank of San Francisco\n[ID: 28] [US] 標題: Opinion | Trump’s Attack on the Fed Is Already Backfiring - The New York Times\n[ID: 29] [US] 標題: The Chipotle indicator: Is the economy teetering on a recession or nah? - Yahoo Finance\n[ID: 30] [US] 標題: Blowback Builds Over Criminal Investigation of Powell - The New York Times\n[ID: 31] [US] 標題: US stocks gain: Is Nvidia, the Fed, or jobs data most important? - Yahoo Finance\n[ID: 32] [US] 標題: Trump says he might sue Fed Chair Jerome Powell for ‘gross incompetence’ - The Washington Post\n[ID: 33] [US] 標題: 22 States Are Facing Recession or Already in One — Is Your State at Risk? - Yahoo Finance\n[ID: 34] [US] 標題: Federal Reserve Cuts Rates to Boost Jobs and Prevent Recession - Gonzaga University\n[ID: 35] [US] 標題: Fed speeches reveal split that puts rate cut in jeopardy: persistent inflation vs 'low-hire, low-fire' labor market - Fortune\n[ID: 36] [US] 標題: Donald Trump nominates Kevin Warsh as Federal Reserve chair - Financial Times\n[ID: 37] [US] 標題: What the RBA wants Australians to do next to fight inflation – or risk more rate hikes - The Conversation\n[ID: 38] [US] 標題: Worried About a Recession or Bear Market in 2026? This ETF Is One of the Best You Can Own Right Now. - Yahoo Finance\n[ID: 39] [US] 標題: December 2025 Fed meeting recap: Interest rates cut once more, but risks remain on the path to future policy - Chase Bank\n[ID: 40] [US] 標題: Are We in a Recession? - NerdWallet\n[ID: 41] [US] 標題: David Rosenberg: When no one is calling for a recession or market crash, here's what usually happens - Yahoo! Finance Canada\n[ID: 42] [US] 標題: Stop Inflation Or Save Jobs? How A Fed Rate Cut Could Hit Your Paycheck - Bankrate\n[ID: 43] [US] 標題: Regulated Payment Stablecoins Become a Reality in the U.S. - Federal Reserve Bank of St. Louis</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 0050達8張…高股息配市值型「二刀流」超強防禦力！存股哥無懼千點震盪| 存股族愛ETF | 股市 - 聯合新聞網\n[ID: 1] [TW] 標題: 台股開盤》台積電喊衝 指數漲939點創史上第7大 - 自由財經\n[ID: 2] [TW] 標題: 台股收盤》ABF載板、記憶體慘遭血洗 指數震盪927點收跌110點 - 自由財經\n[ID: 3] [US] 標題: VIX Signals Traders Want Proof It’s Safe to Buy the S&P 500 Dip - Bloomberg.com\n[ID: 4] [US] 標題: The Stock Market's \"Fear Gauge\" Says the S&P 500 Will Make a Big Move in the Next Year (Hint: It's Good News) - The Motley Fool\n[ID: 5] [US] 標題: ^GSPC Today, March 20: VIX 25+ Reprices Risk on War, Sticky CPI - Meyka\n[ID: 6] [US] 標題: Financial Market Volatility in the Spring of 2025 - Federal Reserve Bank of St. Louis\n[ID: 7] [US] 標題: VIX® Index Attribution of Notable Tail Events - Cboe Global Markets\n[ID: 8] [US] 標題: Stock Volatility Surges as U.S.-Iran Conflict Stokes Oil Price Shock Fears - Barron's\n[ID: 9] [US] 標題: Wall Street's 'Fear Index' Jumped 10% Tuesday—Here's What That Means for Your Money - Investopedia\n[ID: 10] [US] 標題: The stock market’s ‘fear gauge’ spiked to its highest level since Trump’s ‘Liberation Day’ tariffs caused a global selloff - Fortune\n[ID: 11] [US] 標題: It’s rare for the S&P 500 and the VIX to post gains on the same day. Here’s why it just happened. - MarketWatch\n[ID: 12] [US] 標題: S&P 500 and VIX Likely to Test Key Gamma Levels Amid Rising Uncertainties - Investing.com\n[ID: 13] [US] 標題: Market Volatility Rises as Energy Prices Surge and CPI Looms - The Motley Fool\n[ID: 14] [US] 標題: S&P 500 Logs Record Close; VIX Hits 1-Year Low - Schaeffer's Investment Research\n[ID: 15] [US] 標題: Market Volatility Explained: Why Prices Rise and Fall - Gotrade\n[ID: 16] [US] 標題: Why S&P 500 and Nasdaq down today while Dow Jones holds steady: US stock market turns cautious as VIX at 2 - The Economic Times\n[ID: 17] [US] 標題: Why VIX Is Braced for a More Volatile Than Average December - Nasdaq\n[ID: 18] [US] 標題: U.S. dollar strength and volatility surge as markets nervously await U.S. open - CoinDesk\n[ID: 19] [US] 標題: Gold Rallies, VIX Spikes as Fed Chair Powell Responds to Criminal Indictment - Yahoo Finance\n[ID: 20] [US] 標題: What Is VIX? Beginner’s Guide To The Volatility Index - EBC Financial Group\n[ID: 21] [US] 標題: Stock Market Outlook: Greenland uncertainty push VIX to buy signal - Opening Bell Daily\n[ID: 22] [US] 標題: VIX Curve Inversion Tests Trader Resolve With Volatility Rising - Bloomberg.com\n[ID: 23] [US] 標題: Global stocks in meltdown as Wall Street bails out of crypto and AI: ‘The bubbly is on ice’ - Fortune\n[ID: 24] [US] 標題: VIX Falls to Lowest Level Since Christmas Eve as Stocks Surge After Powell - Bloomberg.com\n[ID: 25] [US] 標題: Wall Street Favors Vanilla Options Rather Than VIX to Hedge - Bloomberg.com\n[ID: 26] [US] 標題: Market volatility poised to rise as investors brace for uncertainty (VIX:) - Seeking Alpha\n[ID: 27] [US] 標題: VIX Soars But Equity Market Remains Orderly After Trump Threatens China Tariffs - Bloomberg.com\n[ID: 28] [US] 標題: Signal: Scoop Up Options Now, Regardless of SPX Direction - Schaeffer's Investment Research\n[ID: 29] [US] 標題: The S&P 500 stumbled from record highs during Powell’s speech. Traders were expecting it. - MarketWatch\n[ID: 30] [US] 標題: BTC, Stocks News: Calm Ahead of Fed Rate Cut, Storm Later - CoinDesk\n[ID: 31] [US] 標題: 'Wall Streetization' of Bitcoin: BTC Volatility Index and the S&P 500 VIX Boast Record 90-Day Correlation - CoinDesk\n[ID: 32] [US] 標題: Brace For Volatile January, And The Likely Beginning Of A Bear Market - Seeking Alpha\n[ID: 33] [US] 標題: US stock market complete collapse today: What VIX surge to 27 signals for Dow S&P 500 and Nasdaq amid Iran - The Economic Times\n[ID: 34] [US] 標題: ^GSPC Today: VIX Nears 20, Volatility Jumps — February 13 - Meyka\n[ID: 35] [US] 標題: The Stock Market Is Hitting New Highs. Things Aren’t as Calm as They Seem. - Barron's\n[ID: 36] [US] 標題: VIX Jumps Again as Oil Shock and Hot Inflation Shake Wall Street - TechStock²\n[ID: 37] [US] 標題: Why Stock Volatility Has Normalized Faster Than Ever Before - Investopedia\n[ID: 38] [US] 標題: VXX: The VIX Is Rich, Sell Volatility Into Year-End (Downgrade) (BATS:VXX) - Seeking Alpha\n[ID: 39] [US] 標題: Are Stocks Topping? What Nasdaq, Semis, and VIX Say About Risk Now - FXEmpire\n[ID: 40] [US] 標題: SP500: Retail Investor Buys The Dip And Crushes The VIX, Yet Risks Remain High - Seeking Alpha\n[ID: 41] [US] 標題: The S&P 500 Is Near Record Highs, But Volatility Is Rearing Its Ugly Head. The Best Way to Play It Now. - Barchart.com\n[ID: 42] [US] 標題: Volatility Index Forecast | Is VIX a Good Index to Trade? - Capital.com</News_List>",
   "schema": {
     "type": "ARRAY",
     "description": "挑選出最具影響力的新聞並進行深度摘要",
@@ -27,64 +27,44 @@
   },
   "rawResult": [
     {
-      "id": 36,
-      "summary": "川普提名凱文·沃許（Kevin Warsh）擔任聯準會主席，此舉象徵貨幣政策可能轉向更具政治協調性或更激進的改革。沃許過去對量化寬鬆持批評態度，其上任可能影響美債殖利率曲線與美元走勢。對台股而言，聯準會領導層更迭將直接影響全球資金流向及 0050 等權值股的評價基準。"
+      "id": 19,
+      "summary": "聯準會主席鮑爾應對刑事起訴的傳聞引發金價大漲與 VIX 飆升。此事件屬極端尾部風險，若屬實將嚴重動搖全球金融體系根基，導致避險情緒極度擴張，對 0050 等權值型 ETF 構成巨大下行壓力。量化模型需立即調高風險溢酬，並針對流動性枯竭進行壓力測試。"
     },
     {
-      "id": 0,
-      "summary": "川普對台積電的負面言論再次引發市場震盪，台積電股價開高後隨即收斂，顯示地緣政治風險已成為台股不可忽視的變數。由於台積電在 0050 中佔比超過 50%，任何關於關稅或補貼政策的風吹草動都會直接帶動大盤波動。投資人需警惕美國大選期間的政治口水，這將導致台股短期內呈現高波動格局。"
-    },
-    {
-      "id": 35,
-      "summary": "聯準會官員對利率路徑的分歧凸顯了當前經濟數據的矛盾：通膨仍具黏性，而勞動力市場雖未崩潰但招聘動能放緩。這種「低招聘、低解僱」的狀態增加了政策失誤的風險。若聯準會因通膨擔憂而延遲降息，高利率環境將持續壓抑科技股的本益比空間，對台股半導體族群構成估值壓力。"
-    },
-    {
-      "id": 6,
-      "summary": "日本核心通膨意外低於預期，打亂了日本央行的升息節奏，這對全球金融市場具有深遠影響。日圓升息預期的降溫暫緩了全球套利交易（Carry Trade）的平倉潮，為台股等風險資產提供了喘息空間。然而，這也反映出全球終端需求可能不如預期強勁，對於依賴全球消費市場的台灣電子產業而言，需防範需求端萎縮。"
-    },
-    {
-      "id": 10,
-      "summary": "霍爾木茲海峽的局勢緊張可能引發新一輪「航道通膨」，影響範圍將從原油擴展至各類大宗商品與終端產品。供應鏈的再度受阻將推升全球通膨預期，限制各國央行降息的空間。對於台灣出口商而言，運費上漲與交期拉長將侵蝕毛利，且若通膨回升迫使利率維持高位，將不利於 0050 等權值股的評價修復。"
-    },
-    {
-      "id": 12,
-      "summary": "聯準會理事庫克強調 AI 對貨幣政策的潛在衝擊，認為 AI 提升生產力的同時可能引發勞動力市場劇變。這意味著聯準會未來在制定利率時，必須考慮 AI 帶來的結構性通膨下降或失業上升。這項觀點強化了 AI 作為長期總經驅動力的地位，對於台積電與 AI 伺服器供應鏈而言，其產業重要性已上升至國家政策層級。"
+      "id": 27,
+      "summary": "川普威脅對中國徵收關稅導致 VIX 飆升，儘管市場目前維持秩序，但貿易戰不確定性已顯著抬頭。這對台股半導體供應鏈構成潛在威脅，特別是台積電等權值股的海外佈局成本。投資者需關注資金是否流向避險資產，並評估槓桿策略在關稅政策下的波動風險。"
     },
     {
       "id": 33,
-      "summary": "數據顯示美國已有 22 個州面臨或陷入經濟衰退，顯示美國經濟成長動能出現區域性失衡。區域性衰退通常是全國性衰退的前兆，這將直接衝擊台灣的出口訂單，特別是消費性電子與半導體領域。若美國經濟陷入衰退，0050 的成分股獲利將面臨下修壓力，投資人應密切關注美國零售銷售數據以調整槓桿倍數。"
-    },
-    {
-      "id": 31,
-      "summary": "市場目前處於「輝達財報、聯準會決策、就業數據」三方拉鋸的狀態。輝達的業績指引是 AI 產業的風向球，直接決定台股電子股的短線走勢；而就業數據則決定了聯準會的降息底氣。這種多重變數交織的環境，預示著台股大盤將進入高頻震盪期，建議投資人利用 0050 正 2 等工具進行短線避險或波段操作。"
-    },
-    {
-      "id": 30,
-      "summary": "針對聯準會主席鮑爾的刑事調查傳聞，反映出美國政治勢力對貨幣政策獨立性的強烈干預。這種政治不確定性會增加市場的風險溢價，導致美債與美元波動加劇。對於台股而言，若聯準會的權威受損，全球金融市場的穩定性將面臨挑戰，投資人應警惕極端政治事件引發的系統性風險。"
-    },
-    {
-      "id": 22,
-      "summary": "聯準會會議紀錄顯示官員對利率走向存在嚴重分歧，這消除了市場對「一致性降息」的過度樂觀預期。這種不確定性將導致美股與台股在數據公布前後出現劇烈波動。對於量化交易者而言，這意味著隱含波動率（IV）將維持高位，操作 0050 槓桿產品時需更加注意倉位管理，避免在方向不明時過度曝險。"
-    },
-    {
-      "id": 43,
-      "summary": "美國聯準會對穩定幣監管的進展，標誌著數位資產正式納入金融體系監管。雖然這對 0050 短期影響有限，但長期將改變全球資金結算與流動性分配模式。若穩定幣成為合規支付工具，將提升金融市場的運作效率並可能降低跨境資金流動成本，對於全球科技股的資金環境具備潛在的長線利多。"
-    },
-    {
-      "id": 5,
-      "summary": "英國央行首席經濟學家表示利率足以抑制通膨，顯示歐洲主要經濟體的貨幣政策已接近頂峰。這與美國聯準會的觀點相互呼應，強化了全球利率環境即將轉向的預期。全球利率見頂有利於風險資產定價，對於台股等高殖利率市場具有吸引力，有助於吸引外資回流 0050 等大型權值股。"
-    },
-    {
-      "id": 15,
-      "summary": "關於聯準會是否應為了降低政府借貸成本而降息的討論，觸及了「財政主導」的敏感議題。若聯準會被迫配合財政部進行貨幣寬鬆，將引發長期通膨失控的風險。這對全球資產定價是極大的威脅，台股作為全球供應鏈的一環，難以在通膨失控的環境下獨善其身，需關注美債長端利率的異常波動。"
-    },
-    {
-      "id": 26,
-      "summary": "經濟學家對 Kevin Warsh 擔任聯準會主席的看法，進一步證實了市場對政策轉向的預期。Warsh 的學術背景與實務經驗顯示他可能推動更具結構性的金融改革。這對全球銀行業與資本市場規則將產生深遠影響，台股金融股與大型權值股的資金配置邏輯可能因此重構，是中長期佈局必須參考的政策風向。"
+      "summary": "美股因伊朗衝突疑慮出現崩盤跡象，VIX 飆升至 27。地緣政治引發的能源價格波動與避險情緒，使標普 500 與那斯達克面臨劇烈修正。此類系統性風險通常伴隨流動性緊縮，對槓桿投資者而言是極大的斷頭風險，需密切監控保證金水位以應對極端波動。"
     },
     {
       "id": 1,
-      "summary": "台股因 ABF 載板與記憶體族群重挫而震盪 927 點，反映出市場對半導體細分產業復甦進度的疑慮。雖然這屬於盤後總結，但其震盪幅度顯示出市場情緒極度脆弱。對於 0050 投資者而言，這提醒了產業過度集中的風險，在 AI 題材之外，傳統電子零組件的庫存去化與需求回升仍是影響大盤能否站穩的關鍵。"
+      "summary": "台股在台積電領軍下開盤大漲 939 點，創史上第七大漲幅，顯示半導體權值股對大盤的絕對主導力。對於 0050 投資者，這反映了 AI 需求帶動的景氣擴張，但也暗示市場情緒極度亢奮。在槓桿投資策略中，需留意乖離率過大後的回檔風險，避免在情緒高點過度曝險。"
+    },
+    {
+      "id": 23,
+      "summary": "全球股市陷入崩盤，資金大規模撤出加密貨幣與 AI 領域，市場擔憂 AI 泡沫破裂。這將直接衝擊台股 AI 伺服器與半導體供應鏈。當資金從高成長科技股撤出，大盤將面臨估值修正壓力，投資者應重新評估科技權值股的配置比例，並注意 0050 成分股的結構性風險。"
+    },
+    {
+      "id": 29,
+      "summary": "鮑爾演講期間標普 500 從歷史高點跌落，市場對利率路徑保持高度敏感。聯準會的鷹鴿立場直接決定資金成本，對槓桿型 ETF 的融資成本與市場估值具有決定性影響。投資者應關注聯準會對通膨的最新態度，這將引導未來一季的全球資金流向與大盤走勢。"
+    },
+    {
+      "id": 36,
+      "summary": "油價衝擊與通膨數據過熱再次震盪華爾街，導致 VIX 指數跳升。通膨黏性可能迫使聯準會維持高利率更久，這對成長型科技股不利。能源價格上漲亦會侵蝕企業獲利，對大盤整體表現構成壓抑。量化策略應考慮通膨對實質報酬的影響，並適度增加防禦性配置。"
+    },
+    {
+      "id": 2,
+      "summary": "台股收盤震盪劇烈，ABF 載板與記憶體族群遭血洗，指數震盪達 927 點。這顯示市場資金正在進行劇烈的產業輪動，雖然台積電撐盤，但二線權值股的走弱預示大盤動能放緩。投資者需注意 0050 成分股的表現分化，並在震盪市中加強風險控管，避免槓桿倍數過高。"
+    },
+    {
+      "id": 39,
+      "summary": "納斯達克與半導體指數顯示風險升溫，VIX 指標發出警訊，暗示科技股可能見頂。台股與費半高度連動，半導體板塊的技術性回檔將直接拖累 0050 表現。量化模型應調高波動率參數，並考慮在技術指標轉弱時適度降低槓桿倍數，以應對潛在的趨勢反轉。"
+    },
+    {
+      "id": 13,
+      "summary": "能源價格飆升與 CPI 數據即將公布，市場波動顯著加劇。通膨預期是目前總經環境的核心變數，若 CPI 高於預期，將引發市場對降息時程延後的恐慌，導致股債雙殺。這對 0050 等市值型 ETF 的短期估值具衝擊性，投資者應密切關注通膨數據對貨幣政策的引導作用。"
     }
   ]
 }

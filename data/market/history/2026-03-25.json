@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-25T01:25:51.612Z",
+    "lastRun": "2026-03-25T04:19:46.399Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-25T01:25:51.612Z"
+        "lastFetch": "2026-03-25T04:19:46.399Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -25,6 +25,12 @@
     }
   },
   "data": {
+    "rawNdc": {
+      "date": "2026-01",
+      "score": 39,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
     "rawMargin": {
       "marginBalance100M": 3901.03,
       "marginBalanceChange100M": -32.31,
@@ -39,6 +45,20 @@
       "previous1Year": 25.4,
       "timestamp": "2026-03-24T14:40:50.000Z"
     },
+    "rawUsMarket": {
+      "success": true,
+      "vix": "26.15",
+      "spxChg": "-0.37%",
+      "riskLevel": "高風險",
+      "riskIcon": "⚠️",
+      "suggestion": "暫停00675L新增撥款，偏防守為主",
+      "isHighRisk": true,
+      "meta": {
+        "vixDate": "2026-03-23",
+        "spxDate": "2026-03-24"
+      },
+      "source": "FRED"
+    },
     "quote": {
       "date": "2026-03-25",
       "quote": "Life is like underwear, should be changed twice a day.  ",
@@ -46,9 +66,9 @@
       "source": "zenquotes"
     },
     "rawFx": {
-      "currentRate": 31.868,
+      "currentRate": 31.929,
       "previousClose": 31.3771,
-      "changePercent": 1.56,
+      "changePercent": 1.76,
       "historicalPrices": [
         31.3771,
         31.2691,
@@ -70,28 +90,8 @@
         31.8021,
         32.0217,
         31.862,
-        31.868
+        31.929
       ]
-    },
-    "rawUsMarket": {
-      "success": true,
-      "vix": "26.15",
-      "spxChg": "-0.37%",
-      "riskLevel": "高風險",
-      "riskIcon": "⚠️",
-      "suggestion": "暫停00675L新增撥款，偏防守為主",
-      "isHighRisk": true,
-      "meta": {
-        "vixDate": "2026-03-23",
-        "spxDate": "2026-03-24"
-      },
-      "source": "FRED"
-    },
-    "rawNdc": {
-      "date": "2026-01",
-      "score": 39,
-      "light": "紅燈 (過熱)",
-      "lightColor": "red"
     }
   }
 }
