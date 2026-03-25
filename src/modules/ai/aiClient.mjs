@@ -7,7 +7,7 @@ const GEMINI_API_KEYS = [
   process.env.GEMINI_API_KEY3,
 ].filter(Boolean);
 const GEMINI_MODEL =
-  process.env.GEMINI_MODEL || "gemini-3.1-flash-lite-preview";
+  process.env.GEMINI_MODEL || "gemini-3-flash-preview";
 
 // 對每個 KEY 建立對應的 GoogleGenAI 實例
 const aiInstances = GEMINI_API_KEYS.map(
