@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-03-26T07:45:32.782Z",
+  "_savedAt": "2026-03-26T08:04:24.456Z",
   "type": "SearchQueries",
   "userPrompt": "今天是 2026-03-26。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.81。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
@@ -21,11 +21,17 @@
             },
             "searchType": {
               "type": "STRING",
-              "enum": ["intitle", "broad"],
+              "enum": [
+                "intitle",
+                "broad"
+              ],
               "description": "搜尋類型"
             }
           },
-          "required": ["keyword", "searchType"]
+          "required": [
+            "keyword",
+            "searchType"
+          ]
         },
         "maxItems": 7,
         "minItems": 5
@@ -42,36 +48,46 @@
             },
             "searchType": {
               "type": "STRING",
-              "enum": ["intitle", "broad"],
+              "enum": [
+                "intitle",
+                "broad"
+              ],
               "description": "搜尋類型"
             }
           },
-          "required": ["keyword", "searchType"]
+          "required": [
+            "keyword",
+            "searchType"
+          ]
         },
         "maxItems": 7,
         "minItems": 5
       }
     },
-    "required": ["reasoning_process", "twQueries", "usQueries"]
+    "required": [
+      "reasoning_process",
+      "twQueries",
+      "usQueries"
+    ]
   },
   "rawResult": {
-    "reasoning_process": "VIX 指數飆升至 36.81 顯示市場正處於極度恐慌與劇烈波動狀態，這與『偏熱/觀察』的狀態形成強烈背離，暗示市場可能正經歷高檔反轉或突發性黑天鵝事件。推論原因包含：1. 美國經濟數據可能出現嚴重衰退訊號（Hard Landing）；2. 地緣政治衝突升溫導致避險情緒擴張；3. 科技股（AI 泡沫）高檔獲利了結引發的連鎖清算。台灣方面需關注外資大規模撤資與融資斷頭風險。",
+    "reasoning_process": "當前 VIX 指數飆升至 36.81，顯示市場正處於極度恐慌與高度波動狀態。儘管標籤為「偏熱」，但高 VIX 通常暗示市場可能正經歷「高檔反轉」或「黑天鵝事件」衝擊。推論原因可能包含：1. 美國通膨數據意外回升導致 Fed 轉向鷹派；2. 地緣政治風險（如台海或中東）突然升溫；3. AI 科技股泡沫破裂引發的流動性危機。搜尋策略將聚焦於外資撤資動向、避險情緒、以及關鍵總經指標的異常變化。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
         "searchType": "intitle"
       },
       {
+        "keyword": "台積電 營收展望",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "兩岸 局勢",
+        "searchType": "broad"
+      },
+      {
         "keyword": "融資 斷頭",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "台積電 展望",
         "searchType": "intitle"
-      },
-      {
-        "keyword": "國安基金 動向",
-        "searchType": "broad"
       },
       {
         "keyword": "避險 資金",
@@ -80,36 +96,32 @@
       {
         "keyword": "央行 貨幣政策",
         "searchType": "intitle"
-      },
-      {
-        "keyword": "避險 資金",
-        "searchType": "broad"
       }
     ],
     "usQueries": [
       {
-        "keyword": "VIX spike causes",
+        "keyword": "Fed rate hike",
         "searchType": "intitle"
       },
       {
-        "keyword": "Fed emergency meeting",
+        "keyword": "VIX volatility spike",
         "searchType": "broad"
       },
       {
-        "keyword": "S&P 500 correction",
+        "keyword": "US recession risk",
         "searchType": "intitle"
       },
       {
-        "keyword": "US economy recession",
+        "keyword": "Treasury yield curve",
         "searchType": "broad"
       },
       {
-        "keyword": "Safe haven assets",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Systemic risk financial",
+        "keyword": "Tech stock selloff",
         "searchType": "intitle"
+      },
+      {
+        "keyword": "Global liquidity crunch",
+        "searchType": "broad"
       }
     ]
   }

@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-26T07:45:18.680Z",
+    "lastRun": "2026-03-26T08:04:07.571Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-26T07:45:18.680Z"
+        "lastFetch": "2026-03-26T08:04:07.571Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -12,7 +12,7 @@
       },
       "kgiProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-25T14:37:40.013Z"
+        "lastFetch": "2026-03-26T08:04:07.571Z"
       },
       "usMarketProvider": {
         "status": "SUCCESS",
@@ -30,11 +30,6 @@
       "score": 39,
       "light": "紅燈 (過熱)",
       "lightColor": "red"
-    },
-    "rawMargin": {
-      "marginBalance100M": 3954.99,
-      "marginBalanceChange100M": 53.96,
-      "maintenanceRatio": 178.51
     },
     "rawCnn": {
       "score": 20.71,
@@ -66,14 +61,37 @@
       "source": "zenquotes"
     },
     "rawFx": {
-      "currentRate": 31.875,
+      "currentRate": 31.93,
       "previousClose": 31.2691,
-      "changePercent": 1.94,
+      "changePercent": 2.11,
       "historicalPrices": [
-        31.2691, 31.2468, 31.375, 31.535, 31.734, 31.63, 31.9059, 31.8023,
-        31.802, 31.7739, 31.8115, 31.8958, 32.1631, 31.945, 31.885, 32.0312,
-        31.8021, 32.0217, 31.862, 31.9258, 31.875
+        31.2691,
+        31.2468,
+        31.375,
+        31.535,
+        31.734,
+        31.63,
+        31.9059,
+        31.8023,
+        31.802,
+        31.7739,
+        31.8115,
+        31.8958,
+        32.1631,
+        31.945,
+        31.885,
+        32.0312,
+        31.8021,
+        32.0217,
+        31.862,
+        31.9258,
+        31.93
       ]
+    },
+    "rawMargin": {
+      "marginBalance100M": 3954.99,
+      "marginBalanceChange100M": 53.96,
+      "maintenanceRatio": 178.51
     }
   }
 }
