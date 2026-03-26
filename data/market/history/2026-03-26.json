@@ -1,18 +1,18 @@
 {
   "_meta": {
-    "lastRun": "2026-03-26T08:04:07.571Z",
+    "lastRun": "2026-03-26T14:45:22.634Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-26T08:04:07.571Z"
+        "lastFetch": "2026-03-26T14:45:22.634Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-25T14:37:40.013Z"
+        "lastFetch": "2026-03-26T14:45:22.634Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-26T08:04:07.571Z"
+        "lastFetch": "2026-03-26T14:45:22.634Z"
       },
       "usMarketProvider": {
         "status": "SUCCESS",
@@ -30,15 +30,6 @@
       "score": 39,
       "light": "紅燈 (過熱)",
       "lightColor": "red"
-    },
-    "rawCnn": {
-      "score": 20.71,
-      "rating": "extreme fear",
-      "previousClose": 16.91,
-      "previous1Week": 15.44,
-      "previous1Month": 45.8,
-      "previous1Year": 29.29,
-      "timestamp": "2026-03-25T14:32:32.000Z"
     },
     "rawUsMarket": {
       "success": true,
@@ -60,10 +51,19 @@
       "author": "Adi Da Samraj",
       "source": "zenquotes"
     },
+    "rawCnn": {
+      "score": 21.03,
+      "rating": "extreme fear",
+      "previousClose": 19.26,
+      "previous1Week": 17.31,
+      "previous1Month": 42.17,
+      "previous1Year": 28.89,
+      "timestamp": "2026-03-26T14:44:19.000Z"
+    },
     "rawFx": {
-      "currentRate": 31.93,
+      "currentRate": 31.917,
       "previousClose": 31.2691,
-      "changePercent": 2.11,
+      "changePercent": 2.07,
       "historicalPrices": [
         31.2691,
         31.2468,
@@ -85,13 +85,13 @@
         32.0217,
         31.862,
         31.9258,
-        31.93
+        31.917
       ]
     },
     "rawMargin": {
-      "marginBalance100M": 3954.99,
-      "marginBalanceChange100M": 53.96,
-      "maintenanceRatio": 178.51
+      "marginBalance100M": 3911.37,
+      "marginBalanceChange100M": -43.62,
+      "maintenanceRatio": 176.73
     }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-03-26T08:04:24.456Z",
+  "_savedAt": "2026-03-26T14:45:34.599Z",
   "type": "SearchQueries",
   "userPrompt": "今天是 2026-03-26。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.81。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
@@ -71,57 +71,65 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數飆升至 36.81，顯示市場正處於極度恐慌與高度波動狀態。儘管標籤為「偏熱」，但高 VIX 通常暗示市場可能正經歷「高檔反轉」或「黑天鵝事件」衝擊。推論原因可能包含：1. 美國通膨數據意外回升導致 Fed 轉向鷹派；2. 地緣政治風險（如台海或中東）突然升溫；3. AI 科技股泡沫破裂引發的流動性危機。搜尋策略將聚焦於外資撤資動向、避險情緒、以及關鍵總經指標的異常變化。",
+    "reasoning_process": "VIX 指數飆升至 36.81 顯示市場正處於極度恐慌或面臨系統性風險，儘管狀態標註為『偏熱』，這通常暗示市場可能正經歷『高檔崩跌』或『多頭踩踏』。高 VIX 伴隨偏熱狀態，推論核心議題為：1. 突發性地緣政治衝突導致避險情緒升溫；2. 美國聯準會（Fed）因通膨反撲而出現意外的鷹派轉向；3. 科技股（特別是 AI 供應鏈）出現泡沫破裂的早期跡象。台灣方面需關注外資大規模撤資與融資斷頭壓力；美國方面則需鎖定系統性風險與公債殖利率的異常波動。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
         "searchType": "intitle"
       },
       {
-        "keyword": "台積電 營收展望",
+        "keyword": "融資 斷頭",
         "searchType": "broad"
+      },
+      {
+        "keyword": "台積電 營收 展望",
+        "searchType": "intitle"
       },
       {
         "keyword": "兩岸 局勢",
         "searchType": "broad"
       },
       {
-        "keyword": "融資 斷頭",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "避險 資金",
+        "keyword": "避險 資產",
         "searchType": "broad"
       },
       {
-        "keyword": "央行 貨幣政策",
+        "keyword": "恐慌 指數",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "央行 升息",
         "searchType": "intitle"
       }
     ],
     "usQueries": [
       {
-        "keyword": "Fed rate hike",
+        "keyword": "Fed emergency meeting",
         "searchType": "intitle"
       },
       {
-        "keyword": "VIX volatility spike",
+        "keyword": "VIX spike causes",
         "searchType": "broad"
-      },
-      {
-        "keyword": "US recession risk",
-        "searchType": "intitle"
       },
       {
         "keyword": "Treasury yield curve",
         "searchType": "broad"
       },
       {
-        "keyword": "Tech stock selloff",
+        "keyword": "Stock market crash",
         "searchType": "intitle"
       },
       {
-        "keyword": "Global liquidity crunch",
+        "keyword": "Systemic risk financial",
         "searchType": "broad"
+      },
+      {
+        "keyword": "Tech sell-off",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "Inflation data surprise",
+        "searchType": "intitle"
       }
     ]
   }
