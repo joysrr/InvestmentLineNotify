@@ -1,10 +1,6 @@
 import { callGemini } from "./aiClient.mjs";
 import { formatQuantDataForCoach } from "./aiDataPreprocessor.mjs";
 import {
-  MACRO_ANALYSIS_SYSTEM_PROMPT,
-  INVESTMENT_COACH_PROMPT,
-  NEWS_KEYWORD_PROMPT,
-  NEWS_FILTER_PROMPT,
   buildMacroAnalysisUserPrompt,
   buildCoachUserPrompt,
   buildNewsUserPrompt,
@@ -34,7 +30,6 @@ export async function generateDailySearchQueries(marketData) {
     archiveManager
       .saveAiLog({
         type: "SearchQueries",
-        systemPrompt: NEWS_KEYWORD_PROMPT,
         userPrompt: prompt,
         schema: NEWS_KEYWORD_SCHEMA,
         rawResult: result,
@@ -79,7 +74,6 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
     archiveManager
       .saveAiLog({
         type: "NewsFilter",
-        systemPrompt: NEWS_FILTER_PROMPT,
         userPrompt,
         schema: FILTERED_NEWS_SCHEMA,
         rawResult: aiResult,
@@ -112,7 +106,6 @@ export async function analyzeMacroNewsWithAI(todayNewsText) {
     archiveManager
       .saveAiLog({
         type: "MacroAnalysis",
-        systemPrompt: MACRO_ANALYSIS_SYSTEM_PROMPT,
         userPrompt,
         schema: MACRO_ANALYSIS_SCHEMA,
         rawResult: result,
@@ -182,7 +175,6 @@ export async function getAiInvestmentAdvice(
     archiveManager
       .saveAiLog({
         type: "InvestmentAdvice",
-        systemPrompt: INVESTMENT_COACH_PROMPT,
         userPrompt,
         schema: INVESTMENT_COACH_SCHEMA,
         rawResult: adviceObj,
