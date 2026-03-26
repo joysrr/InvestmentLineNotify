@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-26T00:03:11.990Z",
+    "lastRun": "2026-03-26T04:31:25.796Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-26T00:03:11.990Z"
+        "lastFetch": "2026-03-26T04:31:25.796Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -25,6 +25,12 @@
     }
   },
   "data": {
+    "rawNdc": {
+      "date": "2026-01",
+      "score": 39,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
     "rawMargin": {
       "marginBalance100M": 3954.99,
       "marginBalanceChange100M": 53.96,
@@ -38,33 +44,6 @@
       "previous1Month": 45.8,
       "previous1Year": 29.29,
       "timestamp": "2026-03-25T14:32:32.000Z"
-    },
-    "rawFx": {
-      "currentRate": 31.935,
-      "previousClose": 31.2691,
-      "changePercent": 2.13,
-      "historicalPrices": [
-        31.2691,
-        31.2468,
-        31.375,
-        31.535,
-        31.734,
-        31.63,
-        31.9059,
-        31.8023,
-        31.802,
-        31.7739,
-        31.8115,
-        31.8958,
-        32.1631,
-        31.945,
-        31.885,
-        32.0312,
-        31.8021,
-        32.0217,
-        31.862,
-        31.9258
-      ]
     },
     "rawUsMarket": {
       "success": true,
@@ -86,11 +65,33 @@
       "author": "Adi Da Samraj",
       "source": "zenquotes"
     },
-    "rawNdc": {
-      "date": "2026-01",
-      "score": 39,
-      "light": "紅燈 (過熱)",
-      "lightColor": "red"
+    "rawFx": {
+      "currentRate": 31.921,
+      "previousClose": 31.2691,
+      "changePercent": 2.08,
+      "historicalPrices": [
+        31.2691,
+        31.2468,
+        31.375,
+        31.535,
+        31.734,
+        31.63,
+        31.9059,
+        31.8023,
+        31.802,
+        31.7739,
+        31.8115,
+        31.8958,
+        32.1631,
+        31.945,
+        31.885,
+        32.0312,
+        31.8021,
+        32.0217,
+        31.862,
+        31.9258,
+        31.921
+      ]
     }
   }
 }
