@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-26T05:44:19.329Z",
+  "_savedAt": "2026-03-26T07:45:32.782Z",
   "type": "SearchQueries",
-  "userPrompt": "今天是 2026-03-26。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.97。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
+  "userPrompt": "今天是 2026-03-26。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.81。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
     "type": "OBJECT",
     "properties": {
@@ -71,7 +71,7 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 36.97，顯示市場處於極度恐慌或劇烈波動狀態，與『偏熱/觀察』的狀態並存，暗示市場可能正處於高檔反轉的臨界點或面臨重大的黑天鵝事件。高 VIX 通常伴隨流動性緊縮與避險情緒升溫。推論核心議題為：1. 美國聯準會（Fed）政策轉向的超預期波動；2. 台灣市場融資餘額過高導致的多殺多風險；3. 地緣政治衝突升溫影響供應鏈；4. AI 泡沫化疑慮引發的科技股拋售潮。",
+    "reasoning_process": "VIX 指數飆升至 36.81 顯示市場正處於極度恐慌與劇烈波動狀態，這與『偏熱/觀察』的狀態形成強烈背離，暗示市場可能正經歷高檔反轉或突發性黑天鵝事件。推論原因包含：1. 美國經濟數據可能出現嚴重衰退訊號（Hard Landing）；2. 地緣政治衝突升溫導致避險情緒擴張；3. 科技股（AI 泡沫）高檔獲利了結引發的連鎖清算。台灣方面需關注外資大規模撤資與融資斷頭風險。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
@@ -79,10 +79,14 @@
       },
       {
         "keyword": "融資 斷頭",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "台積電 營收展望",
         "searchType": "intitle"
       },
       {
-        "keyword": "台股 崩跌",
+        "keyword": "國安基金 動向",
         "searchType": "broad"
       },
       {
@@ -90,45 +94,33 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "兩岸 局勢",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "半導體 砍單",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "避險 資產",
+        "keyword": "避險 資金",
         "searchType": "broad"
       }
     ],
     "usQueries": [
       {
-        "keyword": "Fed rate hike",
+        "keyword": "VIX spike causes",
         "searchType": "intitle"
       },
       {
-        "keyword": "VIX volatility spike",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "US recession risk",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Treasury yields surge",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "AI bubble burst",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Middle East conflict",
+        "keyword": "Fed emergency meeting",
         "searchType": "broad"
       },
       {
         "keyword": "S&P 500 correction",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "US economy recession",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Safe haven assets",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Systemic risk financial",
         "searchType": "intitle"
       }
     ]
