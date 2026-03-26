@@ -65,7 +65,15 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
     );
 
     const aiResult = JSON.parse(rawJsonText);
-    const result = aiResult.map((aiItem) => ({
+
+    // 取出思考過程（可 log 供除錯）
+    const thinkContent = aiResult.think;
+    console.log("📊 事件盤點數:", thinkContent.event_inventory.length);
+    console.log("📐 維度覆蓋:", thinkContent.dimension_check);
+    console.log("🗑️ 捨棄筆數:", thinkContent.excluded.length);
+
+    // 從 aiResult.news 取陣列（原本是 aiResult 直接是陣列）
+    const result = aiResult.news.map((aiItem) => ({
       ...allNewsArray[aiItem.id],
       summary: aiItem.summary,
     }));
