@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-03-26T05:45:54.795Z",
+  "_savedAt": "2026-03-26T07:45:32.782Z",
   "type": "SearchQueries",
   "userPrompt": "今天是 2026-03-26。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.81。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
@@ -21,17 +21,11 @@
             },
             "searchType": {
               "type": "STRING",
-              "enum": [
-                "intitle",
-                "broad"
-              ],
+              "enum": ["intitle", "broad"],
               "description": "搜尋類型"
             }
           },
-          "required": [
-            "keyword",
-            "searchType"
-          ]
+          "required": ["keyword", "searchType"]
         },
         "maxItems": 7,
         "minItems": 5
@@ -48,30 +42,20 @@
             },
             "searchType": {
               "type": "STRING",
-              "enum": [
-                "intitle",
-                "broad"
-              ],
+              "enum": ["intitle", "broad"],
               "description": "搜尋類型"
             }
           },
-          "required": [
-            "keyword",
-            "searchType"
-          ]
+          "required": ["keyword", "searchType"]
         },
         "maxItems": 7,
         "minItems": 5
       }
     },
-    "required": [
-      "reasoning_process",
-      "twQueries",
-      "usQueries"
-    ]
+    "required": ["reasoning_process", "twQueries", "usQueries"]
   },
   "rawResult": {
-    "reasoning_process": "VIX 指數高達 36.81 顯示市場處於極度恐慌與高波動狀態，而市場狀態標註為『偏熱/觀察』，這通常暗示市場正經歷『高位崩跌』或『多頭踩踏』的轉折點。36 以上的 VIX 往往與系統性風險（如地緣政治衝突爆發、聯準會意外鷹派或金融機構流動性危機）掛鉤。因此，搜尋策略將聚焦於：1. 台灣市場的融資斷頭壓力與外資撤資動向；2. 美國市場的公債殖利率異動、Fed 政策轉向以及 AI 科技股的估值修正風險。",
+    "reasoning_process": "VIX 指數飆升至 36.81 顯示市場正處於極度恐慌與劇烈波動狀態，這與『偏熱/觀察』的狀態形成強烈背離，暗示市場可能正經歷高檔反轉或突發性黑天鵝事件。推論原因包含：1. 美國經濟數據可能出現嚴重衰退訊號（Hard Landing）；2. 地緣政治衝突升溫導致避險情緒擴張；3. 科技股（AI 泡沫）高檔獲利了結引發的連鎖清算。台灣方面需關注外資大規模撤資與融資斷頭風險。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
@@ -86,7 +70,7 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "地緣政治 緊張",
+        "keyword": "國安基金 動向",
         "searchType": "broad"
       },
       {
@@ -96,31 +80,35 @@
       {
         "keyword": "央行 貨幣政策",
         "searchType": "intitle"
+      },
+      {
+        "keyword": "避險 資金",
+        "searchType": "broad"
       }
     ],
     "usQueries": [
       {
-        "keyword": "Fed hawkish pivot",
+        "keyword": "VIX spike causes",
         "searchType": "intitle"
       },
       {
-        "keyword": "VIX volatility spike",
+        "keyword": "Fed emergency meeting",
         "searchType": "broad"
       },
       {
-        "keyword": "Treasury yield surge",
+        "keyword": "S&P 500 correction",
         "searchType": "intitle"
       },
       {
-        "keyword": "Tech stock selloff",
+        "keyword": "US economy recession",
         "searchType": "broad"
       },
       {
-        "keyword": "Systemic risk",
+        "keyword": "Safe haven assets",
         "searchType": "broad"
       },
       {
-        "keyword": "Recession probability",
+        "keyword": "Systemic risk financial",
         "searchType": "intitle"
       }
     ]

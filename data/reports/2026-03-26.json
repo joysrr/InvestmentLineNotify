@@ -7,16 +7,16 @@
     "actualLeverage": 1,
     "historicalLevel": "🔥【極高位階/過熱】",
     "netAsset": 796190.3999999999,
-    "bias240": 54.48277796870514,
+    "bias240": 53.903396376709146,
     "priceChangePercent": -0.6495263870094661,
     "priceChangePercentText": "-0.65",
     "priceUpPercent": 0,
     "priceUpPercentText": "0.00",
     "priceDropPercent": 0.6495263870094661,
     "priceDropPercentText": "0.65",
-    "RSI": 51.04,
-    "KD_K": 43.04548077092474,
-    "KD_D": 30.919274201403265,
+    "RSI": 49.78,
+    "KD_K": 24.38634936733315,
+    "KD_D": 29.079232267619698,
     "overheat": {
       "isOverheat": false,
       "factorCount": 3,
@@ -27,22 +27,22 @@
         "kdHigh": false,
         "biasHigh": true
       },
-      "bias240": 54.48277796870514
+      "bias240": 53.903396376709146
     },
     "reversal": {
       "totalFactor": 4,
-      "triggeredCount": 1,
+      "triggeredCount": 2,
       "rsiDrop": false,
       "kdDrop": true,
-      "kdBearCross": false,
+      "kdBearCross": true,
       "macdBearCross": false
     },
-    "weightScore": 3,
+    "weightScore": 0,
     "weightDetails": {
       "dropInfo": "跌幅 0.65%",
       "dropScore": 0,
-      "rsiInfo": "RSI 反轉 (50)",
-      "rsiScore": 3,
+      "rsiInfo": "RSI 未反轉",
+      "rsiScore": 0,
       "macdInfo": "MACD 無交叉",
       "macdScore": 0,
       "kdInfo": "KD 無交叉",
@@ -217,21 +217,21 @@
     "target": "👀 觀察等待",
     "targetSuggestionShort": "市場偏熱，避免追高",
     "targetSuggestion": "0050照常；00675L 先不撥款，避免追高（等回檔或轉多）",
-    "suggestion": "• 跌幅條件：0.6% / 門檻 0% (✔️達標)\n• 評分條件：3分 / 門檻 4分 (❌未達)\n• 狀態說明：目前過熱因子命中 1 項 (未達絕對過熱的 3 項)，建議耐心等回檔。",
+    "suggestion": "• 跌幅條件：0.6% / 門檻 0% (✔️達標)\n• 評分條件：0分 / 門檻 4分 (❌未達)\n• 狀態說明：目前過熱因子命中 1 項 (未達絕對過熱的 3 項)，建議耐心等回檔。",
     "entry": {
-      "weightScore": 3,
+      "weightScore": 0,
       "weightDetails": {
         "dropInfo": "跌幅 0.65%",
         "dropScore": 0,
-        "rsiInfo": "RSI 反轉 (50)",
-        "rsiScore": 3,
+        "rsiInfo": "RSI 未反轉",
+        "rsiScore": 0,
         "macdInfo": "MACD 無交叉",
         "macdScore": 0,
         "kdInfo": "KD 無交叉",
         "kdScore": 0
       },
       "entrySignals": {
-        "rsiRebound": true,
+        "rsiRebound": false,
         "macdBull": false,
         "kdBullLow": false
       }
@@ -244,5 +244,8 @@
       "message": "最後買入：2026-03-03，經過 17 交易日"
     }
   },
-  "ai": "AI 決策引擎暫時無法運作，請依原始數據判斷。"
+  "ai": {
+    "finalAdviceText": "**⚠️ 風險提示**\n- 雖然你現在槓桿極低很安全，但台幣匯率正急貶向 32 元靠攏，這顯示外資正在撤離權值股，你的 0050 短線仍有下修壓力。\n- 景氣燈號 39 分紅燈代表長線位階極高，搭配 VIX 飆升至 36 以上，這不是普通的震盪，而是高位階的劇烈洗盤，切勿掉以輕心。\n\n**✅ 下一步觀察清單**\n- 目前買進評分僅 0 分，請繼續手握 26 萬現金，等待 RSI 或 MACD 出現底背離訊號後，再分批將槓桿往 1.2 倍推進。\n- 若台幣匯率進一步貶破 32.1 元，請全面暫停 00675L 的加碼計畫，優先保留 0050 作為核心防禦，直到外資賣壓竭盡。\n- 當 CNN 恐懼指數跌破 15 且大盤維持率降至 160% 以下時，若你手上的現金仍充足，教練會建議你破例開啟左側小額試單。\n\n**🧭 行動微調建議**\n- 你目前 1 倍的槓桿是你最強大的護盾。看著市場恐慌時，你要慶幸自己沒有過度擴張，現在是我們挑選好價格的狩獵季節，而非逃命時刻。\n- 生命週期投資法的精髓在於紀律。既然現在系統判定為『觀察』且總經位階過高，沒買到並不可惜，保護好本金才能在下一次崩跌時大口吃肉。",
+    "internalThinking": "當前市場呈現極其矛盾的訊號：長線景氣燈號處於 39 分的「紅燈極度過熱區」，但短線情緒卻因 VIX 噴發至 36.81 與 CNN 恐懼貪婪指數跌至 20.71 而陷入「極度恐慌」。這通常代表大盤在高位階出現了劇烈的去槓桿回撤。雖然客戶目前的實際槓桿僅 1 倍，遠低於 1.8 倍的目標，擁有極大的防禦空間與 26 萬現金儲備，但考慮到台幣匯率正處於 31.875 的中期貶值趨勢，外資提款壓力尚未減輕。目前量化買進評分為 0 分，代表技術面尚未止跌。教練建議：利用目前的低槓桿優勢冷靜觀望，不要在匯率急貶且技術面未轉強前盲目接刀，我們有充足的子彈等待更具勝率的左側買點。"
+  }
 }
