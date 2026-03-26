@@ -83,6 +83,6 @@ aiResults.usQueries.forEach((q, i) => {
 });
 rawNews.forEach((news, index) => {
   console.log(
-    `最終新聞 [${index}] [${news._region}] 標題: ${news.title} | 連結: ${news.link} | 發布時間: ${news.pubDate}`,
+    `最終新聞 [${index}] [${news._region}] 標題: ${news.title} | 來源: ${news.source}`,
   );
 });
