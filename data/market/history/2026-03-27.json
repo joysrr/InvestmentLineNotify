@@ -1,18 +1,18 @@
 {
   "_meta": {
-    "lastRun": "2026-03-27T07:44:26.227Z",
+    "lastRun": "2026-03-27T14:17:43.698Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-27T07:44:26.227Z"
+        "lastFetch": "2026-03-27T14:17:43.698Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-26T14:45:22.634Z"
+        "lastFetch": "2026-03-27T14:17:43.698Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-26T14:45:22.634Z"
+        "lastFetch": "2026-03-27T14:17:43.698Z"
       },
       "usMarketProvider": {
         "status": "SUCCESS",
@@ -30,20 +30,6 @@
       "score": 39,
       "light": "紅燈 (過熱)",
       "lightColor": "red"
-    },
-    "rawMargin": {
-      "marginBalance100M": 3911.37,
-      "marginBalanceChange100M": -43.62,
-      "maintenanceRatio": 176.73
-    },
-    "rawCnn": {
-      "score": 21.03,
-      "rating": "extreme fear",
-      "previousClose": 19.26,
-      "previous1Week": 17.31,
-      "previous1Month": 42.17,
-      "previous1Year": 28.89,
-      "timestamp": "2026-03-26T14:44:19.000Z"
     },
     "rawUsMarket": {
       "success": true,
@@ -65,10 +51,19 @@
       "author": "Theodore Roosevelt",
       "source": "zenquotes"
     },
+    "rawCnn": {
+      "score": 12.66,
+      "rating": "extreme fear",
+      "previousClose": 18.15,
+      "previous1Week": 16.49,
+      "previous1Month": 38.03,
+      "previous1Year": 28.34,
+      "timestamp": "2026-03-27T14:16:59.000Z"
+    },
     "rawFx": {
-      "currentRate": 31.966,
+      "currentRate": 31.989,
       "previousClose": 31.2468,
-      "changePercent": 2.3,
+      "changePercent": 2.38,
       "historicalPrices": [
         31.2468,
         31.375,
@@ -90,8 +85,13 @@
         31.862,
         31.9258,
         31.9359,
-        31.966
+        31.989
       ]
+    },
+    "rawMargin": {
+      "marginBalance100M": 3937.23,
+      "marginBalanceChange100M": 25.86,
+      "maintenanceRatio": 176.96
     }
   }
 }
