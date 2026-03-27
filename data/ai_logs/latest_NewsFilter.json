@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-27T05:46:00.110Z",
+  "_savedAt": "2026-03-27T07:45:21.750Z",
   "type": "NewsFilter",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: AI泡沫疑慮壓頂2月外資賣超韓股金額創新高- 新聞 - MoneyDJ理財網\n[ID: 1] [TW] 標題: 台股開盤》台積帶頭衝 大盤漲千點 記憶體各自修正 回歸常態價位 - MSN\n[ID: 2] [TW] 標題: 台股盤中跌破33000點！記憶體股下挫造紙族群逆勢強| 股市要聞| 股市 - 聯合新聞網\n[ID: 3] [TW] 標題: 台積電ADR市值超越沙烏地阿美 重登全球第6 - MSN\n[ID: 4] [TW] 標題: 〈焦點股〉仁寶除息秀叫苦 遇台股震盪股價跌3%陷貼息 - news.cnyes.com\n[ID: 5] [TW] 標題: 盤中／台股青筍筍 逆勢漲停類是「他們」 - Yahoo新聞\n[ID: 6] [TW] 標題: 《盤中解析》中東戰事攪動風雲 台股再度失守33K - Yahoo股市\n[ID: 7] [TW] 標題: 〈台股開盤〉挫逾600點痛失3萬3 台積電1800元保衛戰 PCB族群竄出撐盤 - news.cnyes.com\n[ID: 8] [TW] 標題: 【2026AI基建需求大爆發】美伊戰爭戰爭震盪現甜蜜買點！誰是１兆美元設備造浪者？-CMoney官方 - CMoney投資網誌\n[ID: 9] [TW] 標題: 美股週四全數走低 台股開盤下跌70點 - Yahoo新聞\n[ID: 10] [TW] 標題: 外資賣超839億前10大買超揭曉！狂買華邦電、群創 這檔敲逾2萬張最吸金 - stock.ltn.com.tw\n[ID: 11] [TW] 標題: 台股早盤跌逾600點 台積電跌40元 - Yahoo新聞\n[ID: 12] [TW] 標題: 台股又失守3萬3！中東戰爭短期難停火 大盤一度跌近600點 - Yahoo股市\n[ID: 13] [TW] 標題: 台股開盤》電子權值F4疲軟 大盤跌逾570點 專家：回測支撐32800-33000 - Newtalk新聞\n[ID: 14] [TW] 標題: 台股開盤》記憶體、ABF載板、台積電瘋狂倒貨 指數跌逾650點 - 自由財經\n[ID: 15] [TW] 標題: 台股初段跌逾1% - 香港電台新聞網\n[ID: 16] [TW] 標題: 快訊／台積電跌35元至1805　台股跌近600點失守33K - ETtoday財經雲\n[ID: 17] [TW] 標題: 台股關鍵轉折即將出現!!華通⊕、順達⊕、鈦昇⊕ - news.cnyes.com\n[ID: 18] [TW] 標題: 台股開盤不妙？台指期夜盤閃崩634點名師指路4檔明燈股：緯創跟「他」買點到- 上市櫃 - 旺得富理財網\n[ID: 19] [TW] 標題: 《台北股市》外資26日買超股：中鋼、華通、台化 - Yahoo股市\n[ID: 20] [US] 標題: These 3 US stocks are 'must own' as Iran war reignites inflation debate - Invezz\n[ID: 21] [US] 標題: FxWirePro: USD/CNY hits 3-week high as safe-haven demand lifts dollar - econotimes.com\n[ID: 22] [US] 標題: ‘Despite $2.5bn GDP contribution, aviation still underperforming’ - Daily Trust\n[ID: 23] [US] 標題: The Fed Is Worried About Trump-Fueled Inflation. Are Your Stocks Safe? - AOL.com\n[ID: 24] [US] 標題: China's yuan falls to near 3-week low as safe-haven demand lifts dollar - TradingView\n[ID: 25] [US] 標題: Geopolitical tensions failed to boost safe-haven demand, compounded by a strengthening US dollar, keeping gold in a volatile adjustment phase. - 富途牛牛\n[ID: 26] [US] 標題: Recession Risks Are Rising According To Wall Street. Here's What It Means for Investors. - The Motley Fool\n[ID: 27] [US] 標題: Higher deposit rates, tighter liquidity dampen demand for equities - Vietnam+ (VietnamPlus)\n[ID: 28] [US] 標題: S&P Global Ratings projects 2.2% GDP growth for US in 2026 - Fibre2Fashion\n[ID: 29] [US] 標題: Inflation Could Be Coming Back. 2 Stocks To Buy Now - AOL.com\n[ID: 30] [US] 標題: Dollar nears multi-month peak as West Asia war fears boost safe-haven demand - Firstpost\n[ID: 31] [US] 標題: The FOMC Held Steady, but These 3 Earnings Reports Tell the Real Story - AOL.com\n[ID: 32] [US] 標題: US stock market | Fed chief reaches out to lawmakers after DOJ probe revelation - MSN\n[ID: 33] [US] 標題: Crude prices test GDP, inflation goals - Bangkok Post\n[ID: 34] [US] 標題: ‘We control our destiny’: Canada officially hits NATO defence spending target - CTV News\n[ID: 35] [US] 標題: Gold jumps Rs 5,091 to Rs 1.44 lakh/10g as soft dollar boost safe-haven demand - MSN\n[ID: 36] [US] 標題: Protect Your Portfolio From Inflation: Buy These 2 Energy Stocks - The Motley Fool\n[ID: 37] [US] 標題: Dergunov's Sell, Hedge, Rotate Strategy Targets S&P 500 Correction as Earnings Stagnation Exposes Overvaluation - Bitget\n[ID: 38] [US] 標題: Is hitting the 2 per cent GDP target for military spending enough to protect Canada's sovereignty? - CTV News\n[ID: 39] [US] 標題: US Dollar Index rises for third straight day as safe-haven demand stretches - FXStreet</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 【Follow法人】外資連2賣...今重砍384億元！分析師：預防周末變數 - Yahoo股市\n[ID: 1] [TW] 標題: 三大法人賣超台股401.86億元 - Yahoo新聞\n[ID: 2] [TW] 標題: 《台北股市》籌碼面偏空 外資加壓續提384億元、內資無力抗衡 - Yahoo股市\n[ID: 3] [TW] 標題: 金價回神僅一天 專家揭隱憂：恐下探4000美元 - Yahoo新聞\n[ID: 4] [TW] 標題: 中東局勢未明！台股震盪守住3萬3 國泰投信提亂世投資方針 - Yahoo股市\n[ID: 5] [TW] 標題: PCB紅通通！「這檔」炒出第2根噴15.4萬張攜定穎、聯茂衝漲停 臻鼎、台燿、燿華同步勁揚 - Yahoo股市\n[ID: 6] [TW] 標題: 輝達加持美股收高 投顧： 台股醞釀反攻留意戰爭變數 - MSN\n[ID: 7] [TW] 標題: 震盪翻紅 台幣早盤升值3.4分 - Yahoo新聞\n[ID: 8] [TW] 標題: 台股跌225點力守33000點 台積電跌20元收1820元 - Yahoo新聞\n[ID: 9] [TW] 標題: 收盤／台積電走弱跌20元！大盤下跌225點 低軌衛星、CPO點火 - 三立新聞網SETN.com\n[ID: 10] [TW] 標題: 「ESG永續台灣高峰會」聚焦國力轉型關鍵 高仙桂點名3大制度創新方向 - Yahoo新聞\n[ID: 11] [TW] 標題: 避險神話崩了？金價衝5000美元 恐是短暫煙火 - Yahoo新聞\n[ID: 12] [TW] 標題: 《半導體》南亞科找來四大咖入股外資喊：記憶體玩法變了- 上市櫃 - 旺得富理財網\n[ID: 13] [TW] 標題: 記憶體股續跌該進場嗎？科技專家這樣看 - Yahoo股市\n[ID: 14] [TW] 標題: AI泡沫疑慮壓頂2月外資賣超韓股金額創新高- 新聞 - MoneyDJ理財網\n[ID: 15] [TW] 標題: 專家看盤》美伊衝突升級 外資撤出壓力浮現 逆勢抗跌族群來了 - MSN\n[ID: 16] [TW] 標題: 國際房貸利率四月有望回落？經濟數據與聯準會態度成關鍵 - Yahoo股市\n[ID: 17] [TW] 標題: 台股開盤》台積帶頭衝 大盤漲千點 記憶體各自修正 回歸常態價位 - MSN\n[ID: 18] [TW] 標題: AI伺服器訂單發威！定穎投控(3715)獲外資升評，目標價上看215元該趁機會上車嗎？ | 下班經濟學 | 財經 - 風傳媒\n[ID: 19] [TW] 標題: 台股盤中跌破33000點！記憶體股下挫造紙族群逆勢強| 股市要聞| 股市 - 聯合新聞網\n[ID: 20] [US] 標題: How Are Tariffs Affecting Inflation and Stock Markets in 2026? - EBC Financial Group\n[ID: 21] [US] 標題: Transport, Logistics Can Add N15trn To GDP — Experts - Daily Trust\n[ID: 22] [US] 標題: These 3 US stocks are 'must own' as Iran war reignites inflation debate - Invezz\n[ID: 23] [US] 標題: ‘Despite $2.5bn GDP contribution, aviation still underperforming’ - Daily Trust\n[ID: 24] [US] 標題: The Fed Is Worried About Trump-Fueled Inflation. Are Your Stocks Safe? - AOL.com\n[ID: 25] [US] 標題: Why is ‘safe haven’ gold crashing amid a war? - DT Next\n[ID: 26] [US] 標題: Off-cycle hold: BSP navigates inflation, growth trade-offs - Philstar.com\n[ID: 27] [US] 標題: Recession Risks Are Rising According To Wall Street. Here's What It Means for Investors. - The Motley Fool\n[ID: 28] [US] 標題: Higher deposit rates, tighter liquidity dampen demand for equities - Vietnam+ (VietnamPlus)\n[ID: 29] [US] 標題: Inflation Could Be Coming Back. 2 Stocks To Buy Now - AOL.com\n[ID: 30] [US] 標題: The FOMC Held Steady, but These 3 Earnings Reports Tell the Real Story - AOL.com\n[ID: 31] [US] 標題: Margin Trading Set to Inject Fresh Liquidity into Nepal’s Secondary Market - NEPSE Trading\n[ID: 32] [US] 標題: US stock market | Fed chief reaches out to lawmakers after DOJ probe revelation - MSN\n[ID: 33] [US] 標題: Crude prices test GDP, inflation goals - Bangkok Post\n[ID: 34] [US] 標題: ‘We control our destiny’: Canada officially hits NATO defence spending target - CTV News\n[ID: 35] [US] 標題: Protect Your Portfolio From Inflation: Buy These 2 Energy Stocks - The Motley Fool\n[ID: 36] [US] 標題: Brazil GDP Growth in Q1 2026? Trading Odds & Predictions - Polymarket\n[ID: 37] [US] 標題: Nato confirms that Spain reached 2% of GDP defence spending in 2025 - Sur in English\n[ID: 38] [US] 標題: Identical Tech Exposure, Lower Cost or Greater Liquidity? VGT vs. FTEC - The Globe and Mail\n[ID: 39] [US] 標題: European shares snap win streak as Middle East conflict fans inflation worries - Reuters</News_List>",
   "schema": {
     "type": "OBJECT",
     "description": "AI 思考過程與挑選結果",
@@ -129,39 +129,44 @@
     "think": {
       "event_inventory": [
         {
-          "event": "中東戰事升溫與台股重挫",
+          "event": "中東地緣政治衝突升溫與通膨疑慮",
           "count": 6,
-          "best_title": "台股又失守3萬3！中東戰爭短期難停火 大盤一度跌近600點"
+          "best_title": "European shares snap win streak as Middle East conflict fans inflation worries"
         },
         {
-          "event": "外資大規模撤資台韓市場",
-          "count": 3,
-          "best_title": "外資賣超839億前10大買超揭曉！狂買華邦電、群創"
-        },
-        {
-          "event": "台積電全球市值地位變動",
-          "count": 1,
-          "best_title": "台積電ADR市值超越沙烏地阿美 重登全球第6"
-        },
-        {
-          "event": "美國通膨疑慮與 Fed 政策走向",
+          "event": "台股三大法人大舉賣超與外資撤離",
           "count": 4,
+          "best_title": "三大法人賣超台股401.86億元，外資連2賣重砍384億元"
+        },
+        {
+          "event": "聯準會政策與美國通膨預期",
+          "count": 5,
           "best_title": "The Fed Is Worried About Trump-Fueled Inflation. Are Your Stocks Safe?"
         },
         {
-          "event": "美元強勢與避險資金流向",
+          "event": "台積電領跌與大盤三萬三關卡保衛戰",
+          "count": 3,
+          "best_title": "台股跌225點力守33000點，台積電跌20元收1820元"
+        },
+        {
+          "event": "記憶體產業結構變動與南亞科入股案",
           "count": 4,
-          "best_title": "US Dollar Index rises for third straight day as safe-haven demand stretches"
+          "best_title": "南亞科找來四大咖入股外資喊：記憶體玩法變了"
         },
         {
-          "event": "美國經濟衰退風險與 GDP 預測",
+          "event": "黃金避險資產價格劇烈波動",
+          "count": 3,
+          "best_title": "Why is ‘safe haven’ gold crashing amid a war?"
+        },
+        {
+          "event": "AI 泡沫疑慮與區域性資金流向",
           "count": 2,
-          "best_title": "Recession Risks Are Rising According To Wall Street."
+          "best_title": "AI泡沫疑慮壓頂2月外資賣超韓股金額創新高"
         },
         {
-          "event": "能源價格對總經目標的衝擊",
+          "event": "關稅政策對 2026 經濟之潛在影響",
           "count": 1,
-          "best_title": "Crude prices test GDP, inflation goals"
+          "best_title": "How Are Tariffs Affecting Inflation and Stock Markets in 2026?"
         }
       ],
       "dimension_check": {
@@ -173,79 +178,83 @@
       },
       "excluded": [
         {
-          "id": 4,
-          "reason": "單一公司除息消息影響力小"
-        },
-        {
           "id": 5,
-          "reason": "盤中類股描述缺乏數據深度"
+          "reason": "單一族群短線漲跌"
         },
         {
-          "id": 17,
-          "reason": "側重技術分析與中小型股"
+          "id": 10,
+          "reason": "ESG高峰會無立即影響"
         },
         {
-          "id": 22,
-          "reason": "航空產業特定數據非核心"
+          "id": 18,
+          "reason": "單一公司升評推薦"
         },
         {
-          "id": 25,
-          "reason": "黃金波動與大盤關聯度低"
+          "id": 21,
+          "reason": "特定國家產業細節"
+        },
+        {
+          "id": 23,
+          "reason": "特定國家產業細節"
+        },
+        {
+          "id": 31,
+          "reason": "尼泊爾市場關聯度低"
+        },
+        {
+          "id": 34,
+          "reason": "國防預算達標無關金融"
+        },
+        {
+          "id": 36,
+          "reason": "巴西GDP預測關聯度低"
         },
         {
           "id": 37,
-          "reason": "單一機構策略非市場事件"
+          "reason": "西班牙國防預算無關金融"
         }
       ]
     },
     "news": [
       {
-        "id": 12,
-        "summary": "中東戰事升溫導致台股失守 33,000 點大關，盤中一度重挫近 600 點。地緣政治風險引發市場恐慌性拋售，避險情緒高漲。對於 0050 等權值型 ETF 而言，短期內需關注 32,800 點支撐位，若戰事擴大，能源價格飆升將進一步壓抑電子股估值。"
-      },
-      {
-        "id": 10,
-        "summary": "外資單日賣超台股高達 839 億元，創下近期新高，顯示資金正大規模撤出新興市場。雖然外資逆勢買進華邦電與群創，但對權值股的調節壓力巨大。投資人應警惕資金流向轉變，外資連續賣超可能導致大盤陷入中期修正。"
-      },
-      {
-        "id": 3,
-        "summary": "台積電 ADR 市值超越沙烏地阿美，重返全球第六。這反映出全球資金對 AI 半導體長期價值的認可，即便大盤震盪，台積電的產業龍頭地位仍是台股最強支撐。此事件強化了「AI 基礎設施」作為未來十年核心投資主軸的邏輯。"
-      },
-      {
-        "id": 23,
-        "summary": "美國聯準會（Fed）對川普政策可能引發的通膨回升表示擔憂。若關稅或財政政策導致通膨難以下降，Fed 降息路徑將受阻。這對利率敏感的科技股構成壓力，投資者需重新評估 2024 下半年的降息預期與資產配置。"
-      },
-      {
         "id": 39,
-        "summary": "美元指數連續三日上漲，受中東局勢帶動的避險需求支撐。強勢美元通常伴隨著新興市場匯率貶值與資金外流，對台幣匯率及台股資金動能不利。需觀察美元是否突破前高，這將直接影響外資對台股的持股意願。"
+        "summary": "中東衝突升級引發全球市場對能源價格與通膨的劇烈擔憂，歐洲股市結束連漲紀錄。此事件不僅推升原油成本，更可能迫使各國央行延後降息時程。對於台股大盤而言，地緣政治風險將導致避險情緒升溫，短期內資金恐持續由科技權值股流向能源或防禦型資產，壓抑 0050 等權值型 ETF 表現。"
       },
       {
-        "id": 0,
-        "summary": "韓國股市 2 月遭外資賣超金額創紀錄，主因市場對 AI 泡沫的疑慮升溫。由於台韓股市連動性高，此情緒可能蔓延至台股 AI 供應鏈。需關注 AI 伺服器與半導體營收是否能支撐當前高估值，避免陷入集體修正風險。"
-      },
-      {
-        "id": 26,
-        "summary": "華爾街警告美國經濟衰退風險正在上升。儘管目前就業數據尚可，但高利率環境的滯後效應正逐漸顯現。若美國進入衰退，將衝擊終端消費電子需求，對以出口為導向的台灣半導體產業與 0050 成分股產生實質負面影響。"
-      },
-      {
-        "id": 33,
-        "summary": "原油價格波動正測試各國的 GDP 增長與通膨目標。中東局勢若導致油價長期維持高位，將推升運輸與生產成本，形成「滯脹」風險。這對全球股市估值極為不利，特別是依賴能源進口的台灣，需防範通膨二次抬頭。"
-      },
-      {
-        "id": 31,
-        "summary": "FOMC 維持利率不變，但市場焦點轉向企業財報。這顯示 Fed 政策進入觀察期，市場驅動力由「資金面」轉向「基本面」。投資人應密切關注輝達等 AI 巨頭的財報指引，這將決定台股相關供應鏈的後續走勢。"
-      },
-      {
-        "id": 28,
-        "summary": "S&P Global 預測美國 2026 年 GDP 增長為 2.2%。這顯示長期經濟增速放緩，低成長環境下，具備高成長性的 AI 產業將更具稀缺性溢價。對於長期持有 0050 的投資者，應關注企業如何在高利率、低成長環境中維持獲利。"
-      },
-      {
-        "id": 13,
-        "summary": "台股電子權值 F4（台積電、鴻海、聯發科、廣達）表現疲軟，大盤回測 32,800-33,000 點支撐。權值股集體走弱通常是大盤轉向空頭的訊號，需觀察支撐位是否能有效止跌，否則槓桿型投資工具（如 0050 正2）需嚴格執行停損。"
+        "id": 1,
+        "summary": "台股三大法人單日賣超達 401.86 億元，其中外資連續兩日大舉提款，今日賣超金額高達 384 億元。這顯示國際資金在面對美伊衝突與通膨不確定性時，正加速撤出新興市場。外資的大規模流出對台積電等權值股造成沉重賣壓，短期內台股籌碼面極度偏空，投資人需警惕大盤回測支撐的風險。"
       },
       {
         "id": 24,
-        "summary": "人民幣匯率跌至三週低點，主因美元避險需求強勁。人民幣走弱往往帶動亞幣集體走貶，增加台幣貶值壓力。匯率波動將影響外資對台股的評價，若亞幣持續競貶，可能引發更大規模的區域性資金撤離。"
+        "summary": "聯準會對未來通膨路徑表示擔憂，特別是潛在的政策變動（如關稅）可能再次推升物價。市場正重新評估 Fed 的降息路徑，若通膨數據無法有效受控，高利率環境維持更久（Higher for longer）將成為常態。這將直接衝擊高槓桿投資策略的成本，並對科技股估值產生修正壓力。"
+      },
+      {
+        "id": 8,
+        "summary": "台股今日下跌 225 點，勉強守住 33,000 點大關，權王台積電重挫 20 元收在 1,820 元。台積電作為大盤風向球，其股價走弱反映了市場對半導體需求增速放緩及地緣政治干擾的恐懼。若台積電無法止跌，大盤恐將跌破關鍵心理支撐，引發進一步的技術性賣壓與融資斷頭潮。"
+      },
+      {
+        "id": 20,
+        "summary": "關於 2026 年關稅政策對通膨與股市影響的討論升溫，顯示市場已開始定價長期的貿易保護主義風險。關稅增加將直接導致進口成本上升，進而轉嫁至消費者，形成結構性通膨。對於高度依賴出口的台灣半導體產業而言，這意味著未來營運成本與供應鏈複雜度將大幅增加，長期獲利能力面臨挑戰。"
+      },
+      {
+        "id": 14,
+        "summary": "外資 2 月份大舉賣超韓股，反映出市場對 AI 產業是否過熱及泡沫化的疑慮。由於台韓股市產業結構相似，皆以半導體與 AI 供應鏈為核心，此資金流向具有高度警示意義。若 AI 變現能力未達預期，外資可能對台股進行類似的減碼行動，投資人應密切觀察 AI 伺服器相關族群的營收實質貢獻。"
+      },
+      {
+        "id": 12,
+        "summary": "南亞科引進四大戰略股東，顯示記憶體產業正經歷結構性轉型，從單純的價格競爭轉向生態系合作。雖然短期內記憶體族群股價仍受大盤拖累，但產業底部的確立與大廠入股有助於長期評價修復。這對於半導體產業鏈的完整性有正面幫助，但在總經環境惡化下，短期仍難脫離震盪格局。"
+      },
+      {
+        "id": 25,
+        "summary": "在戰爭背景下，傳統避險資產黃金竟出現劇烈波動甚至下挫，反映出市場流動性緊縮或投資人被迫拋售資產以支應其他虧損。這種「避險失效」的現象通常出現在市場極度恐慌或資金鏈緊張時期。對於槓桿投資者而言，這是一個危險信號，暗示市場流動性可能正在枯竭，需嚴格控管倉位風險。"
+      },
+      {
+        "id": 33,
+        "summary": "原油價格測試各國 GDP 與通膨目標，油價若長期維持高位，將直接侵蝕企業獲利並抑制民間消費。對於能源進口依賴度高的台灣而言，油價上漲將推升輸入型通膨，迫使央行維持偏緊的貨幣政策。這對台股大盤的本益比擴張形成實質阻礙，特別是對於非電金族群的傳統產業衝擊更鉅。"
+      },
+      {
+        "id": 27,
+        "summary": "華爾街警告經濟衰退風險正在上升，這與通膨復燃的擔憂形成「滯脹」威脅。在衰退預期下，市場對企業盈餘增長的容忍度將降低。若後續經濟數據證實增長放緩，台股即便有 AI 題材支撐，也難以獨善其身。投資者應開始增加防禦性配置，並減少對高 beta 係數股票的過度曝險。"
       }
     ]
   }

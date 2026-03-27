@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-03-27T05:45:21.614Z",
+  "_savedAt": "2026-03-27T07:44:58.568Z",
   "type": "SearchQueries",
   "userPrompt": "今天是 2026-03-27。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
@@ -71,31 +71,31 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "VIX 指數高達 36.22，顯示市場正處於極度恐慌或面臨突發性黑天鵝事件，與『偏熱』狀態結合來看，極可能是市場在高檔遭遇劇烈回撤（Flash Crash）或系統性風險爆發。推論核心關注點為：1. 槓桿清理（融資斷頭壓力）；2. 外資避險性撤資；3. 聯準會是否有緊急干預或政策轉向；4. 避險資產（黃金、美債）的流向。搜尋策略將鎖定在波動率成因、流動性風險以及政府護盤動態。",
+    "reasoning_process": "當前 VIX 指數高達 36.22，顯示市場處於極度恐慌與劇烈波動狀態，與『偏熱』的市場狀態形成強烈背離，這通常暗示市場正處於高檔反轉的臨界點或遭遇突發性黑天鵝事件。高 VIX 環境下，量化模型應優先監控流動性風險、融資斷頭壓力以及避險資產的異常流入。台灣市場需關注外資撤資規模與半導體權值股的支撐力；美國市場則需鎖定聯準會政策轉向、債券殖利率飆升以及系統性風險指標。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "融資 維持率",
         "searchType": "broad"
       },
       {
-        "keyword": "國安基金 動向",
+        "keyword": "融資 斷頭",
         "searchType": "intitle"
       },
       {
-        "keyword": "台積電 跌幅",
+        "keyword": "台積電 展望",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "避險 資金",
         "searchType": "broad"
-      },
-      {
-        "keyword": "台股 避險",
-        "searchType": "intitle"
       },
       {
         "keyword": "地緣政治 風險",
         "searchType": "broad"
+      },
+      {
+        "keyword": "央行 貨幣政策",
+        "searchType": "intitle"
       }
     ],
     "usQueries": [
@@ -104,27 +104,23 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "Fed emergency meeting",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "S&P 500 correction",
+        "keyword": "Fed interest rates",
         "searchType": "intitle"
       },
       {
-        "keyword": "Treasury yield curve",
+        "keyword": "Stock market correction",
         "searchType": "broad"
       },
       {
-        "keyword": "Safe haven demand",
+        "keyword": "Treasury yields spike",
         "searchType": "broad"
       },
       {
-        "keyword": "Market liquidity crisis",
-        "searchType": "intitle"
+        "keyword": "Recession probability",
+        "searchType": "broad"
       },
       {
-        "keyword": "Tech stock selloff",
+        "keyword": "Safe haven gold",
         "searchType": "broad"
       }
     ]
