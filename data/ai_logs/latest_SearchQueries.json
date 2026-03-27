@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-03-27T07:44:58.568Z",
+  "_savedAt": "2026-03-27T14:18:29.663Z",
   "type": "SearchQueries",
   "userPrompt": "今天是 2026-03-27。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
@@ -71,31 +71,31 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 36.22，顯示市場處於極度恐慌與劇烈波動狀態，與『偏熱』的市場狀態形成強烈背離，這通常暗示市場正處於高檔反轉的臨界點或遭遇突發性黑天鵝事件。高 VIX 環境下，量化模型應優先監控流動性風險、融資斷頭壓力以及避險資產的異常流入。台灣市場需關注外資撤資規模與半導體權值股的支撐力；美國市場則需鎖定聯準會政策轉向、債券殖利率飆升以及系統性風險指標。",
+    "reasoning_process": "VIX 指數飆升至 36.22，顯示市場正處於極度恐慌或面臨系統性風險的臨界點。儘管市場狀態標記為『偏熱』，但高 VIX 意味著多頭部位可能正在進行劇烈的去槓桿化（Deleveraging）。推論原因可能包含：1. 美國通膨數據超預期導致 Fed 轉鷹；2. 地緣政治衝突突然升級；3. 科技股（AI 族群）漲多後的集體獲利回吐與融資斷頭壓力。搜尋策略將集中於『流動性風險』、『外資動向』與『避險情緒』。",
     "twQueries": [
       {
-        "keyword": "外資 賣超",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "融資 斷頭",
+        "keyword": "台股 融資斷頭",
         "searchType": "intitle"
       },
       {
-        "keyword": "台積電 展望",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "避險 資金",
+        "keyword": "外資 賣超 提款",
         "searchType": "broad"
       },
       {
-        "keyword": "地緣政治 風險",
+        "keyword": "避險資產 資金流向",
         "searchType": "broad"
       },
       {
-        "keyword": "央行 貨幣政策",
+        "keyword": "台積電 獲利了結",
         "searchType": "intitle"
+      },
+      {
+        "keyword": "地緣政治 衝突",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "台幣 貶值 壓力",
+        "searchType": "broad"
       }
     ],
     "usQueries": [
@@ -104,23 +104,27 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "Fed interest rates",
+        "keyword": "Fed hawkish pivot",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "S&P 500 correction",
         "searchType": "intitle"
       },
       {
-        "keyword": "Stock market correction",
+        "keyword": "Treasury yields surge",
         "searchType": "broad"
       },
       {
-        "keyword": "Treasury yields spike",
+        "keyword": "Tech stock selloff",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "Systemic financial risk",
         "searchType": "broad"
       },
       {
-        "keyword": "Recession probability",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Safe haven gold",
+        "keyword": "Safe haven demand",
         "searchType": "broad"
       }
     ]
