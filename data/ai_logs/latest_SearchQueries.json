@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-27T04:32:46.575Z",
+  "_savedAt": "2026-03-27T05:45:21.614Z",
   "type": "SearchQueries",
-  "userPrompt": "今天是 2026-03-27。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.38。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
+  "userPrompt": "今天是 2026-03-27。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
     "type": "OBJECT",
     "properties": {
@@ -71,30 +71,30 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 36.38，顯示市場處於極度恐慌與劇烈波動狀態，這與『偏熱/觀察』的狀態形成矛盾，暗示市場可能正處於高檔崩跌的轉折點或發生了重大的黑天鵝事件。高 VIX 通常伴隨著流動性緊縮、融資斷頭壓力以及避險情緒升溫。推論核心議題為：1. 美國經濟衰退疑慮引發的恐慌性拋售；2. 台灣半導體供應鏈在高評價後的獲利了結與外資撤資；3. 地緣政治風險突然升級。搜尋策略將聚焦於『流動性風險』、『融資餘額變化』與『聯準會緊急應對』。",
+    "reasoning_process": "VIX 指數高達 36.22，顯示市場正處於極度恐慌或面臨突發性黑天鵝事件，與『偏熱』狀態結合來看，極可能是市場在高檔遭遇劇烈回撤（Flash Crash）或系統性風險爆發。推論核心關注點為：1. 槓桿清理（融資斷頭壓力）；2. 外資避險性撤資；3. 聯準會是否有緊急干預或政策轉向；4. 避險資產（黃金、美債）的流向。搜尋策略將鎖定在波動率成因、流動性風險以及政府護盤動態。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
         "searchType": "intitle"
       },
       {
-        "keyword": "融資 斷頭",
+        "keyword": "融資 維持率",
         "searchType": "broad"
       },
       {
-        "keyword": "台積電 展望",
+        "keyword": "國安基金 動向",
         "searchType": "intitle"
       },
       {
-        "keyword": "地緣政治 緊張",
+        "keyword": "台積電 跌幅",
         "searchType": "broad"
       },
       {
-        "keyword": "央行 貨幣政策",
+        "keyword": "台股 避險",
         "searchType": "intitle"
       },
       {
-        "keyword": "避險資產 湧入",
+        "keyword": "地緣政治 風險",
         "searchType": "broad"
       }
     ],
@@ -105,14 +105,6 @@
       },
       {
         "keyword": "Fed emergency meeting",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "US recession fears",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Treasury yield curve",
         "searchType": "broad"
       },
       {
@@ -120,7 +112,19 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "Liquidity crunch",
+        "keyword": "Treasury yield curve",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Safe haven demand",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Market liquidity crisis",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "Tech stock selloff",
         "searchType": "broad"
       }
     ]
