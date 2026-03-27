@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-26T14:45:34.599Z",
+  "_savedAt": "2026-03-27T00:01:59.202Z",
   "type": "SearchQueries",
-  "userPrompt": "今天是 2026-03-26。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.81。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
+  "userPrompt": "今天是 2026-03-27。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.81。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
     "type": "OBJECT",
     "properties": {
@@ -71,7 +71,7 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "VIX 指數飆升至 36.81 顯示市場正處於極度恐慌或面臨系統性風險，儘管狀態標註為『偏熱』，這通常暗示市場可能正經歷『高檔崩跌』或『多頭踩踏』。高 VIX 伴隨偏熱狀態，推論核心議題為：1. 突發性地緣政治衝突導致避險情緒升溫；2. 美國聯準會（Fed）因通膨反撲而出現意外的鷹派轉向；3. 科技股（特別是 AI 供應鏈）出現泡沫破裂的早期跡象。台灣方面需關注外資大規模撤資與融資斷頭壓力；美國方面則需鎖定系統性風險與公債殖利率的異常波動。",
+    "reasoning_process": "當前 VIX 指數高達 36.81，顯示市場處於極度恐慌與高波動狀態，這與『偏熱』的狀態形成強烈對比，暗示市場可能正經歷『高位派發』或『閃崩風險』。高 VIX 通常與地緣政治衝突、聯準會政策意外或流動性危機有關。搜尋策略將聚焦於外資撤資動向、融資斷頭風險、美債殖利率異動以及避險資產的流向，以釐清市場恐慌的具體來源。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
@@ -82,54 +82,50 @@
         "searchType": "broad"
       },
       {
-        "keyword": "台積電 營收 展望",
+        "keyword": "台積電 展望",
         "searchType": "intitle"
       },
       {
-        "keyword": "兩岸 局勢",
+        "keyword": "地緣政治 風險",
         "searchType": "broad"
       },
       {
-        "keyword": "避險 資產",
+        "keyword": "聯準會 降息",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "避險資產 湧入",
         "searchType": "broad"
-      },
-      {
-        "keyword": "恐慌 指數",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "央行 升息",
-        "searchType": "intitle"
       }
     ],
     "usQueries": [
       {
-        "keyword": "Fed emergency meeting",
+        "keyword": "VIX volatility spike",
         "searchType": "intitle"
       },
       {
-        "keyword": "VIX spike causes",
+        "keyword": "Fed monetary policy",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "US Treasury yields",
         "searchType": "broad"
       },
       {
-        "keyword": "Treasury yield curve",
+        "keyword": "Stock market correction",
         "searchType": "broad"
       },
       {
-        "keyword": "Stock market crash",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "Systemic risk financial",
+        "keyword": "Nvidia AI bubble",
         "searchType": "broad"
       },
       {
-        "keyword": "Tech sell-off",
+        "keyword": "Middle East conflict",
         "searchType": "intitle"
       },
       {
-        "keyword": "Inflation data surprise",
-        "searchType": "intitle"
+        "keyword": "Recession indicators",
+        "searchType": "broad"
       }
     ]
   }
