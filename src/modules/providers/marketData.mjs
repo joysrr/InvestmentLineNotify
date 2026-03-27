@@ -17,6 +17,7 @@ import { fetchTwseMarginData } from "./kgiProvider.mjs";
 import { fetchUsdTwdExchangeRate } from "./yahooProvider.mjs";
 import { fetchBusinessIndicator } from "./ndcProvider.mjs";
 import { getDailyQuote } from "./quoteProvider.mjs";
+import { fetchMarketValuation } from "./twseProvider.mjs";
 
 /**
  * ⚡ 智慧獲取所有總經與籌碼資料 (結合 Archive Cache 機制)
@@ -176,7 +177,38 @@ export async function fetchAllMacroData() {
   }
 
   // ====================================================================
-  // 判斷邏輯 E: 匯率與每日一句
+  // 判斷邏輯 E: 大盤 PB/PE 估值 (每日更新)
+  // 策略: 每天抓一次即可
+  // ====================================================================
+  const valuationLastDate =
+    cachedMeta.valuationProvider?.lastFetch?.split("T")[0];
+  if (cachedData.rawValuation && valuationLastDate === todayStr) {
+    console.log("⚡ [Cache] 大盤估值(PB/PE)使用快取資料");
+    finalData.rawValuation = cachedData.rawValuation;
+  } else {
+    fetchPromises.push(
+      fetchMarketValuation()
+        .then((res) => {
+          finalData.rawValuation = res;
+          newMetaSources.valuationProvider = {
+            status: "SUCCESS",
+            lastFetch: now.toISOString(),
+          };
+        })
+        .catch((err) => {
+          console.warn("⚠️ TWSE 估值 API 失敗:", err.message);
+          finalData.rawValuation = cachedData.rawValuation || null;
+          newMetaSources.valuationProvider = {
+            status: "FAILED",
+            error: err.message,
+            lastFetch: cachedMeta.valuationProvider?.lastFetch || null,
+          };
+        }),
+    );
+  }
+
+  // ====================================================================
+  // 判斷邏輯 F: 匯率與每日一句
   // ====================================================================
 
   // 匯率：即時抓取 (若失敗則回退)

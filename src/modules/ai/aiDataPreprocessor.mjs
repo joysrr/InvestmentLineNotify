@@ -439,6 +439,10 @@ export function formatMacroChipForCoach(rawMarketData) {
     ? formatBusinessIndicatorForAi(rawMarketData.rawNdc)
     : { 狀態: "獲取失敗，略過此指標" };
 
+  const aiValuation = rawMarketData.rawValuation
+    ? formatValuationForAi(rawMarketData.rawValuation)
+    : { 狀態: "獲取失敗，略過此指標" };
+
   // 輔助函式：安全提取物件值
   const getVal = (obj, key, fallback = "未知") => obj?.[key] ?? fallback;
 
@@ -471,6 +475,12 @@ export function formatMacroChipForCoach(rawMarketData) {
    位階：${getVal(aiNdc, "景氣循環位階")}
    解讀：${getVal(aiNdc, "AI解讀提示")}`;
 
+  // 針對大盤估值
+  const valText = aiValuation["狀態"]
+    ? `5. 大盤估值 (PB/PE)：${aiValuation["狀態"]}`
+    : `5. 大盤估值 (PB/PE)：PB ${getVal(aiValuation, "股價淨值比_PB")} / PE ${getVal(aiValuation, "本益比_PE")}
+   解讀：${getVal(aiValuation, "AI解讀提示")}`;
+
   // 3. 組合出結構極度清晰的純文本
   return `
 【總體經濟與籌碼狀態】
@@ -481,5 +491,54 @@ ${marginText}
 ${fxText}
 
 ${ndcText}
+
+${valText}
 `.trim();
 }
+
+/**
+ * 將大盤估值轉換為 AI 教練易於閱讀的結構與趨勢描述
+ * @param {Object} rawValuation - fetchMarketValuation() 的回傳值
+ * @returns {Object} 供 AI 解析的結構化資料
+ */
+export function formatValuationForAi(rawValuation) {
+  if (!rawValuation || typeof rawValuation.pb !== "number") {
+    return { 狀態: "無法取得有效的大盤估值資料" };
+  }
+
+  const { pe, pb, yield: y } = rawValuation;
+
+  let pbStatus = "合理區段";
+  let pbAdvice = "大盤淨值比與本益比處於中性水平，依據其他總經訊號判斷。";
+
+  if (pb > 2.2) {
+    pbStatus = "極度昂貴 (泡沫警戒)";
+    pbAdvice = "大盤淨值比創歷史極高點，進入高位階泡沫區，請嚴格限制加碼！";
+  } else if (pb > 1.9) {
+    pbStatus = "高估 (留意風險)";
+    pbAdvice = "估值偏貴，留意追高風險。";
+  } else if (pb < 1.4) {
+    pbStatus = "極度便宜 (歷史底部)";
+    pbAdvice = "大盤落入恐慌超跌區，為長線極佳左側買點！";
+  } else if (pb < 1.6) {
+    pbStatus = "低估 (具備安全邊際)";
+    pbAdvice = "股價淨值比偏低，下檔具備安全防禦力。";
+  }
+
+  // 結合 PE 防禦 EPS 空窗期的失真
+  if (pb < 1.6 && pe > 25) {
+    pbAdvice = "⚠️ 大盤處於低位階(低PB)，但本益比異常飆高(高PE)。這通常是因為景氣谷底導致企業獲利大幅衰退 (EPS急縮)。這並非昂貴訊號，反而是典型長線底部特徵，有利於左側佈局。";
+  } else if (pb > 1.9 && pe < 16) {
+    pbAdvice += " (註：但目前 PE 相對較低，代表企業盈餘可能正在大幅爆發，有基之彈，無需過度恐慌)。";
+  }
+
+  // 若 PE 相對較低但 PB 高，可能是企業獲利爆發 (如台積電帶動)，AI 可藉此與 PB 綜合評估
+  return {
+    指標名稱: "加權指數估值 (大盤安全邊際)",
+    股價淨值比_PB: `${pb} (${pbStatus})`,
+    本益比_PE: `${pe}`,
+    殖利率: `${y}%`,
+    AI解讀提示: pbAdvice,
+  };
+}
+

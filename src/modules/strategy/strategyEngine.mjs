@@ -45,6 +45,7 @@ function buildDecision(ctx, strategy) {
     reversal,
     sellSignals,
     cooldownStatus,
+    valuation,
   } = ctx;
 
   const reserveStatus = getReserveStatus(ctx, strategy);
@@ -99,6 +100,20 @@ function buildDecision(ctx, strategy) {
         `• 當前維持率：${maintenanceMargin.toFixed(0)}%\n` +
         `• 危險門檻：${th.mmDanger}%\n` +
         `• 說明：請立即停止任何加碼行為，優先處理保證金問題以防斷頭。`,
+    };
+  }
+
+  // 1.5) 估值極度昂貴：防泡沫機制 (PB > 2.2)
+  const pbValue = valuation?.pb;
+  if (pbValue != null && pbValue >= 2.2) {
+    return {
+      marketStatus: "🫧【估值泡沫】",
+      target: "🛑 鎖定風險",
+      targetSuggestionShort: `大盤 PB 達 ${pbValue}，停止加碼 00675L 預防劇烈修正`,
+      targetSuggestion: `大盤 PB 高達 ${pbValue} 進入泡沫警戒區，強制暫停撥款買入，建議視情況降槓桿`,
+      suggestion:
+        `• 大盤股價淨值比 (PB)：${pbValue} (極端門檻 2.2)\n` +
+        `• 風控說明：歷史數據顯示大盤 PB 超過 2.2 常伴隨毀滅性回檔。即使技術面呈多頭，系統仍強制在此階段停止買進，保護資金安全。`,
     };
   }
 
@@ -487,6 +502,7 @@ export async function evaluateInvestmentSignal(data, strategy) {
     overheat: computeOverheatState(data, bias240, strategy),
     reversal: computeReversalTriggers(data, strategy),
     sellSignals: computeSellSignals(data, strategy),
+    valuation: data.rawValuation || null,
   };
 
   const decision = buildDecision(ctx, strategy);

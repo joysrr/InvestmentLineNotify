@@ -465,3 +465,86 @@ export async function fetchRealTimePrice(symbol) {
 
   return { price: null, time: null };
 }
+
+// ============================================================================
+// 📈 大盤估值與基本面獲取 (PB / PE)
+// ============================================================================
+export async function fetchMarketValuation() {
+  // TWSE 官方 OpenAPI 端點 (大盤本益比、殖利率及股價淨值比)
+  // 如果 OpenAPI 失敗也可換成 twse.com.tw 官網的 FMNPTK
+  const openApiUrl = "https://openapi.twse.com.tw/v1/exchangeReport/FMNPTK";
+  
+  try {
+    const res = await fetchWithTimeout(
+      openApiUrl,
+      {
+        ...baseFetchOptions,
+        headers: {
+          ...baseFetchOptions.headers,
+          Accept: "application/json",
+        },
+      },
+      8000
+    );
+
+    const text = await res.text();
+    // 檢查回傳是否為陣列形式的 JSON (OpenAPI 手冊格式)
+    if (res.ok && text.trim().startsWith("[")) {
+      const data = JSON.parse(text);
+      if (data && data.length > 0) {
+        // OpenAPI 陣列最後一筆通常是最新資料
+        const latestInfo = data[data.length - 1];
+        
+        // 解析: "PEratio": "21.65", "Yield": "2.81", "PBratio": "2.15"
+        return {
+          pe: parseNumberOrNull(latestInfo.PEratio) || null,
+          yield: parseNumberOrNull(latestInfo.Yield) || null,
+          pb: parseNumberOrNull(latestInfo.PBratio) || null,
+          date: latestInfo.Date || null,
+        };
+      }
+    }
+    
+    // Fallback: 如果 openapi 未順利解析，嘗試走官網 rwd api
+    const currentMonthKey = TwDate().formatMonthKey();
+    const fallbackUrl = `https://www.twse.com.tw/rwd/zh/afterTrading/FMNPTK?date=${currentMonthKey}01&response=json&_=${Date.now()}`;
+    const fbRes = await fetchWithTimeout(
+      fallbackUrl,
+      {
+        ...baseFetchOptions,
+        headers: {
+          ...baseFetchOptions.headers,
+          Accept: "application/json",
+          Referer: "https://www.twse.com.tw/zh/trading/historical/fmnptk.html",
+        },
+      },
+      8000
+    );
+    
+    const fbText = await fbRes.text();
+    if (fbRes.ok && (fbText.includes("\"stat\":\"OK\""))) {
+      const json = JSON.parse(fbText);
+      const rows = json.data || [];
+      if (rows.length > 0) {
+        const lastRow = rows[rows.length - 1];
+        return {
+          // [ 年月, 本益比, 殖利率, 股價淨值比 ]
+          date: lastRow[0],
+          pe: parseNumberOrNull(lastRow[1]),
+          yield: parseNumberOrNull(lastRow[2]),
+          pb: parseNumberOrNull(lastRow[3]),
+        };
+      }
+    }
+
+    throw new Error(`獲取大盤估值資料失敗，這可能代表證交所反爬蟲發生或當日資料未產出。`);
+  } catch (err) {
+    if (err.message.includes("Timeout")) {
+      console.warn(`TWSE 估值 (FMNPTK) API Timeout.`);
+    } else {
+      console.warn(`TWSE 估值 (FMNPTK) API 異常: ${err.message}`);
+    }
+    throw err;
+  }
+}
+
