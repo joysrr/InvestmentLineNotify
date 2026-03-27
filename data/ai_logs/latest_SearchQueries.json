@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-27T00:01:59.202Z",
+  "_savedAt": "2026-03-27T04:32:46.575Z",
   "type": "SearchQueries",
-  "userPrompt": "今天是 2026-03-27。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.81。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
+  "userPrompt": "今天是 2026-03-27。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.38。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
     "type": "OBJECT",
     "properties": {
@@ -71,7 +71,7 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 36.81，顯示市場處於極度恐慌與高波動狀態，這與『偏熱』的狀態形成強烈對比，暗示市場可能正經歷『高位派發』或『閃崩風險』。高 VIX 通常與地緣政治衝突、聯準會政策意外或流動性危機有關。搜尋策略將聚焦於外資撤資動向、融資斷頭風險、美債殖利率異動以及避險資產的流向，以釐清市場恐慌的具體來源。",
+    "reasoning_process": "當前 VIX 指數高達 36.38，顯示市場處於極度恐慌與劇烈波動狀態，這與『偏熱/觀察』的狀態形成矛盾，暗示市場可能正處於高檔崩跌的轉折點或發生了重大的黑天鵝事件。高 VIX 通常伴隨著流動性緊縮、融資斷頭壓力以及避險情緒升溫。推論核心議題為：1. 美國經濟衰退疑慮引發的恐慌性拋售；2. 台灣半導體供應鏈在高評價後的獲利了結與外資撤資；3. 地緣政治風險突然升級。搜尋策略將聚焦於『流動性風險』、『融資餘額變化』與『聯準會緊急應對』。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
@@ -86,11 +86,11 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "地緣政治 風險",
+        "keyword": "地緣政治 緊張",
         "searchType": "broad"
       },
       {
-        "keyword": "聯準會 降息",
+        "keyword": "央行 貨幣政策",
         "searchType": "intitle"
       },
       {
@@ -104,27 +104,23 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "Fed monetary policy",
+        "keyword": "Fed emergency meeting",
         "searchType": "intitle"
       },
       {
-        "keyword": "US Treasury yields",
+        "keyword": "US recession fears",
         "searchType": "broad"
       },
       {
-        "keyword": "Stock market correction",
+        "keyword": "Treasury yield curve",
         "searchType": "broad"
       },
       {
-        "keyword": "Nvidia AI bubble",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Middle East conflict",
+        "keyword": "S&P 500 correction",
         "searchType": "intitle"
       },
       {
-        "keyword": "Recession indicators",
+        "keyword": "Liquidity crunch",
         "searchType": "broad"
       }
     ]

@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-27T00:01:32.559Z",
+    "lastRun": "2026-03-27T04:32:20.243Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-27T00:01:32.559Z"
+        "lastFetch": "2026-03-27T04:32:20.243Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -25,6 +25,12 @@
     }
   },
   "data": {
+    "rawNdc": {
+      "date": "2026-01",
+      "score": 39,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
     "rawMargin": {
       "marginBalance100M": 3911.37,
       "marginBalanceChange100M": -43.62,
@@ -39,10 +45,30 @@
       "previous1Year": 28.89,
       "timestamp": "2026-03-26T14:44:19.000Z"
     },
+    "rawUsMarket": {
+      "success": true,
+      "vix": "25.33",
+      "spxChg": "0.54%",
+      "riskLevel": "高風險",
+      "riskIcon": "⚠️",
+      "suggestion": "暫停00675L新增撥款，偏防守為主",
+      "isHighRisk": true,
+      "meta": {
+        "vixDate": "2026-03-25",
+        "spxDate": "2026-03-25"
+      },
+      "source": "FRED"
+    },
+    "quote": {
+      "date": "2026-03-27",
+      "quote": "Far and away the best prize that life has to offer is the chance to work hard at work worth doing.",
+      "author": "Theodore Roosevelt",
+      "source": "zenquotes"
+    },
     "rawFx": {
-      "currentRate": 31.929,
+      "currentRate": 31.966,
       "previousClose": 31.2468,
-      "changePercent": 2.18,
+      "changePercent": 2.3,
       "historicalPrices": [
         31.2468,
         31.375,
@@ -63,34 +89,9 @@
         32.0217,
         31.862,
         31.9258,
-        31.9359
+        31.9359,
+        31.966
       ]
-    },
-    "quote": {
-      "date": "2026-03-27",
-      "quote": "Far and away the best prize that life has to offer is the chance to work hard at work worth doing.",
-      "author": "Theodore Roosevelt",
-      "source": "zenquotes"
-    },
-    "rawUsMarket": {
-      "success": true,
-      "vix": "25.33",
-      "spxChg": "0.54%",
-      "riskLevel": "高風險",
-      "riskIcon": "⚠️",
-      "suggestion": "暫停00675L新增撥款，偏防守為主",
-      "isHighRisk": true,
-      "meta": {
-        "vixDate": "2026-03-25",
-        "spxDate": "2026-03-25"
-      },
-      "source": "FRED"
-    },
-    "rawNdc": {
-      "date": "2026-01",
-      "score": 39,
-      "light": "紅燈 (過熱)",
-      "lightColor": "red"
     }
   }
 }
