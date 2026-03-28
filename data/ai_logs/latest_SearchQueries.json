@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-03-27T14:18:29.663Z",
+  "_savedAt": "2026-03-27T23:59:17.086Z",
   "type": "SearchQueries",
   "userPrompt": "今天是 2026-03-27。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
@@ -71,30 +71,30 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "VIX 指數飆升至 36.22，顯示市場正處於極度恐慌或面臨系統性風險的臨界點。儘管市場狀態標記為『偏熱』，但高 VIX 意味著多頭部位可能正在進行劇烈的去槓桿化（Deleveraging）。推論原因可能包含：1. 美國通膨數據超預期導致 Fed 轉鷹；2. 地緣政治衝突突然升級；3. 科技股（AI 族群）漲多後的集體獲利回吐與融資斷頭壓力。搜尋策略將集中於『流動性風險』、『外資動向』與『避險情緒』。",
+    "reasoning_process": "VIX 指數高達 36.22 顯示市場正處於極度恐慌與劇烈波動狀態，與『偏熱』的市場狀態結合，暗示這可能是一場高檔反轉或『多頭陷阱』後的集體殺盤。推論核心原因可能包含：1. 科技股（AI/半導體）估值過高後的獲利了結賣壓；2. 地緣政治風險突發性升溫；3. 美國聯準會（Fed）政策轉向或通膨數據意外反彈導致的流動性緊縮。搜尋策略將聚焦於外資動向、融資斷頭風險、以及美債殖利率與波動率指數的異常變化。",
     "twQueries": [
       {
-        "keyword": "台股 融資斷頭",
+        "keyword": "外資 賣超",
         "searchType": "intitle"
       },
       {
-        "keyword": "外資 賣超 提款",
+        "keyword": "融資 維持率",
         "searchType": "broad"
       },
       {
-        "keyword": "避險資產 資金流向",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "台積電 獲利了結",
+        "keyword": "台積電 展望",
         "searchType": "intitle"
       },
       {
-        "keyword": "地緣政治 衝突",
+        "keyword": "地緣政治 風險",
         "searchType": "broad"
       },
       {
-        "keyword": "台幣 貶值 壓力",
+        "keyword": "台股 崩跌",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "通膨 壓力",
         "searchType": "broad"
       }
     ],
@@ -104,7 +104,7 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "Fed hawkish pivot",
+        "keyword": "Fed interest rate policy",
         "searchType": "broad"
       },
       {
@@ -112,19 +112,15 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "Treasury yields surge",
+        "keyword": "Treasury yield curve inversion",
         "searchType": "broad"
       },
       {
-        "keyword": "Tech stock selloff",
+        "keyword": "Nvidia stock crash",
         "searchType": "intitle"
       },
       {
-        "keyword": "Systemic financial risk",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Safe haven demand",
+        "keyword": "US recession probability",
         "searchType": "broad"
       }
     ]
