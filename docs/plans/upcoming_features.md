@@ -52,24 +52,380 @@
 ---
 
 ## 📌 【AI 管線優化類】3. 新聞關鍵字（Keywords）優化
-### 功能目標
-提高 RSS 新聞搜尋的精準度，減少「無關痛癢的地方社會新聞」或「農場 SEO 文章」，讓 AI 大腦 `Search Queries Generator` 能更敏銳地隨著市場波動產出長尾、高價值的查詢陣列。
+### 🎯 功能目標
 
-### 影響範圍
-- `src/modules/ai/prompts.mjs` (修改 Prompt)
-- `src/modules/newsFetcher.mjs` (優化權重分配)
+提高 RSS 新聞搜尋精準度，過濾地方社會新聞與農場 SEO 文章，讓 Search Queries Generator 能產出長尾、高價值的查詢陣列。
 
-### 實作步驟草案 (Step-by-Step)
-1. **Few-Shot Prompting 導入**：在 `NEWS_KEYWORD_SYSTEM_PROMPT` 中，加入 3-4 個「好的關鍵字 vs 壞的關鍵字」的實作範例，讓 AI 直接模仿高手的搜尋技巧（例如嚴禁給出單字 "CPI" 而是要組合 "CPI inflation data"）。
-2. **靜態與動態分離 (Base vs Dynamic)**：在 `newsFetcher.mjs` 內定好不可動搖的「底層靜態關鍵字池」（例如必定要查 Fed、PCE、台積電），並與 AI 生成的「動態關鍵字」做組合。
-3. **RSS 標題過濾強化**：拿到關鍵字的 RSS 回傳後，使用更嚴格的正規表達式 (Regex)，先由純程式碼將不包含關鍵字原意的垃圾標題剃除。
+**量化驗收標準：**
 
-### 潛在挑戰與防禦機制
-- **AI 幻出無用關鍵字**：AI 可能創造過於冷門的關鍵字，導致 RSS 回傳 0 筆新聞。
-- **防禦機制**：在 `newsFetcher.mjs` 中實作**回退機制**。如果動態關鍵字群總計找到的新聞數量過低（例如少於 5 篇），自動回退 (Fallback) 載入預設備份用的靜態熱門關鍵字清單，確保最終資料管線不會「斷流」。
+- 每次執行有效新聞數（過濾後）≥ 10 篇
+- Fallback 觸發率（可從 `fallbackLog` 追蹤）< 20%
+- AI 動態關鍵字格式驗證通過率 = 100%（不合格直接捨棄，不觸發 Error）
 
-### 資料流設計
-`marketStatus` ➔ `GenerateSearchQueries (AI)` ➔ `newsFetcher` (合併 Base 關鍵字) ➔ 批次呼叫 Google News RSS ➔ 若新聞總數 < 5 啟用預設關鍵字補充 ➔ 去重管線。
+---
+
+### 📁 影響檔案
+
+| 檔案 | 異動類型 | 說明 |
+|---|---|---|
+| `src/modules/ai/prompts.mjs` | 修改 | Few-Shot Prompt 優化 |
+| `src/modules/newsFetcher.mjs` | 修改 | 流程整合、Fallback 邏輯 |
+| `src/config/keywordConfig.mjs` | **新增** | 集中管理所有關鍵字清單 |
+
+---
+
+### 📐 關鍵字資料結構（Schema 定義）
+
+所有關鍵字（靜態 + 動態）必須統一格式：
+
+```typescript
+type SearchType = "intitle" | "broad";
+
+interface KeywordEntry {
+  keyword: string;        // 查詢字串，可含空格（多字詞）
+  searchType: SearchType; // "intitle" = 標題必含；"broad" = 廣泛匹配
+}
+```
+
+**Google News RSS 轉換規則：**
+
+- `searchType === "intitle"` → URL 加上 `intitle:` 前綴
+- `searchType === "broad"` → 直接使用 keyword 原文
+
+---
+
+### 📦 Step 1：建立 keywordConfig.mjs（新增檔案）
+
+將以下所有靜態資料集中到 `src/config/keywordConfig.mjs`，避免分散在 `newsFetcher.mjs` 中難以維護。
+
+#### 1-1 台灣市場靜態基礎關鍵字池
+
+```js
+export const baseTwQueries = [
+  // ── 核心標的（intitle 確保主角是它們）──────────────────
+  { keyword: "台股",        searchType: "intitle" },
+  { keyword: "大盤",        searchType: "intitle" },
+  { keyword: "台積電 法說", searchType: "intitle" }, // 法說才有訊息量
+  { keyword: "台積電 ADR",  searchType: "intitle" }, // 美股夜盤訊號
+  { keyword: "台積電 外資", searchType: "intitle" }, // 籌碼訊號
+
+  // ── 資金與籌碼面 ─────────────────────────────────────
+  { keyword: "外資",        searchType: "broad" },
+  { keyword: "三大法人",    searchType: "broad" }, // 投信+自營+外資綜合
+  { keyword: "融資 融券",   searchType: "broad" }, // 散戶槓桿水位
+  { keyword: "集中度 籌碼", searchType: "broad" }, // 主力控盤觀察
+  { keyword: "國安基金",    searchType: "broad" }, // 護盤訊號
+
+  // ── 貨幣政策與流動性 ─────────────────────────────────
+  { keyword: "央行",        searchType: "broad" },
+  { keyword: "升息 降息",   searchType: "broad" }, // 利率方向
+  { keyword: "新台幣",      searchType: "broad" }, // 匯率 = 外資動向指標
+
+  // ── 基本面與經濟環境 ─────────────────────────────────
+  { keyword: "通膨",        searchType: "broad" },
+  { keyword: "出口",        searchType: "broad" },
+  { keyword: "外銷訂單",    searchType: "broad" }, // 台灣領先指標
+  { keyword: "景氣燈號",    searchType: "broad" }, // 官方景氣判斷
+  { keyword: "PMI",         searchType: "broad" }, // 製造業景氣
+];
+```
+
+#### 1-2 美國市場靜態基礎關鍵字池
+
+```js
+export const baseUsQueries = [
+  // ── 核心指數（intitle）────────────────────────────────
+  { keyword: "S&P 500",         searchType: "intitle" },
+  { keyword: "Nasdaq",          searchType: "intitle" },
+  { keyword: "CPI",             searchType: "intitle" },
+  { keyword: "Dow Jones",       searchType: "intitle" }, // 道瓊代表傳產
+
+  // ── 貨幣政策與重要人物 ───────────────────────────────
+  { keyword: "Federal Reserve", searchType: "broad" },
+  { keyword: "Fed",             searchType: "broad" },
+  { keyword: "Powell",          searchType: "broad" },
+  { keyword: "FOMC",            searchType: "broad" }, // 利率會議直接觸發
+
+  // ── 資金流動性 ───────────────────────────────────────
+  { keyword: "Treasury yields", searchType: "broad" }, // 殖利率是股市之錨
+  { keyword: "dollar index",    searchType: "broad" }, // 美元強弱 = 新興市場資金
+  { keyword: "credit spread",   searchType: "broad" }, // 信用風險溫度計
+  { keyword: "liquidity",       searchType: "broad" }, // 流動性危機偵測
+
+  // ── 總經指標 ─────────────────────────────────────────
+  { keyword: "inflation",       searchType: "broad" },
+  { keyword: "payrolls",        searchType: "broad" },
+  { keyword: "recession",       searchType: "broad" },
+  { keyword: "GDP",             searchType: "broad" },           // 成長率直接指標
+  { keyword: "jobless claims",  searchType: "broad" }, // 每週就業先行指標
+  { keyword: "ISM",             searchType: "broad" }, // 製造業/服務業景氣
+];
+```
+
+#### 1-3 RSS Query 層級排除關鍵字
+
+> 這些關鍵字在 `buildRssUrl()` 時直接加入 `-keyword` 或 `-intitle:keyword`，在 RSS 回傳前就排除，減少無效 API 呼叫。
+
+```js
+export const twExcludeKeywords = [
+  { keyword: "排行",     searchType: "intitle" }, // 各類排行文
+  { keyword: "日法人",   searchType: "intitle" }, // 每日法人買賣超
+  { keyword: "即時新聞", searchType: "intitle" }, // 即時新聞整理
+  { keyword: "買超個股", searchType: "intitle" }, // 個股買超整理
+  { keyword: "賣超個股", searchType: "intitle" }, // 個股賣超整理
+  { keyword: "前十大",   searchType: "intitle" },
+];
+
+export const usExcludeKeywords = [
+  { keyword: "Q1 Earnings",       searchType: "intitle" }, // 個股財報
+  { keyword: "Q2 Earnings",       searchType: "intitle" },
+  { keyword: "Q3 Earnings",       searchType: "intitle" },
+  { keyword: "Q4 Earnings",       searchType: "intitle" },
+  { keyword: "price target",      searchType: "broad" },   // 個股目標價調整
+  { keyword: "stock forecast",    searchType: "broad" },   // 個股預測文
+  { keyword: "Liquidity Pulse",   searchType: "broad" },   // Stock Traders Daily 垃圾文
+  { keyword: "Liquidity Mapping", searchType: "broad" },   // 同上
+  { keyword: "Powell Industries", searchType: "intitle" }, // 個股誤抓 Fed Powell
+];
+```
+
+#### 1-4 來源黑名單（在 RSS 結果層過濾）
+
+```js
+export const twExcludedSources = [
+  "富聯網", "Bella.tw儂儂", "信報網站",
+  "Sin Chew Daily", "AASTOCKS.com",
+  "FXStreet", "Exmoo", "facebook.com",
+];
+
+export const usExcludedSources = [
+  "Stock Traders Daily", "baoquankhu1.vn",
+  "International Supermarket News", "AASTOCKS.com",
+  // 印度媒體
+  "The Economic Times", "Devdiscourse", "Tribune India",
+  "ANI News", "India TV News", "The Financial Express",
+  "Moneycontrol.com", "The Hans India", "Mint",
+  // 澳洲/紐西蘭媒體
+  "NZ Herald", "Otago Daily Times", "Finimize",
+  "investordaily.com.au", "The Australian",
+  // 非相關地區媒體
+  "Economy Middle East", "LEADERSHIP Newspapers",
+  "Punch Newspapers", "Joburg ETC", "Eunews",
+  "European Commission", "BusinessToday Malaysia",
+  "Human Resources Online", "Tornos News",
+  "Royal Gazette | Bermuda", "AD HOC NEWS",
+  "simplywall.st", "MarketBeat", "parameter.io",
+  "Stock Titan", "Truthout", "inkorr.com", "ANSA",
+  "Yahoo! Finance Canada", "صحيفة مال", "Arab News PK",
+  "Investing.com UK", "Yahoo Finance UK",
+  "markets.businessinsider.com", "ruhrkanal.news",
+  "agoranotizia.it", "facebook.com",
+];
+```
+
+#### 1-5 標題 Regex 黑名單（最後一層防線）
+
+```js
+export const titleBlackListPatterns = [
+  /Liquidity (Pulse|Mapping) .*(Institutional|Price Events)/i,
+  /\bon Thin Liquidity,? Not News\b/i,
+  /Powell Industries/i,
+  /ISM.*(University|Saddle|Bike|Supermarket|Rankings|Dhanbad)/i,
+  /India.*(GDP|growth forecast|economy)/i,
+  /GDP.*(India|FY2[67]|FY'2[67])/i,
+  /(Belize|Oman|Estonia|Bulgaria|Romania|Nigeria|Uzbekistan|Scotland|Portugal|UAE|Bahrain|Gisborne|Otago|Italy|Pakistan|Caricom|South Africa|SA's GDP).*(GDP|\beconomy\b)/i,
+  /GDP.*(Belize|Oman|Estonia|Bulgaria|Romania|Nigeria|Uzbekistan|Scotland|Portugal|UAE|Bahrain|Gisborne|Otago|Italy|Pakistan)/i,
+  /\b(RBA|Reserve Bank of Australia|ASX 200|Australian (stocks?|shares?|economy))\b/i,
+  /\b(fiancé|engagement|wedding ring|jealous)\b/i,
+  /recession-proof stock/i,
+  /FTSE 100/i,
+  /\d+ inflation-resistant stock/i,
+  /(Fed Watch|Fed Meeting|Fed Impact|Treasury Yields:|Volatility Watch|Aug Action|Aug Fed Impact):.*stock.*(–|-)/i,
+  /\bBrexit\b/i,
+  /小資.{0,10}入場.{0,15}(ETF|[A-Z0-9]{4,6}[AB]?)/,
+  /統一推|推出.{0,5}(ETF|[A-Z0-9]{4,6}[AB]?).{0,10}(升級|布局|主動)/,
+  /盤[前中後]分析/,
+  /盤[前中後]》?[\s\S]{0,5}分析/,
+  /處置股.{0,10}(誕生|關到|今日起)/,
+  /(最高價|漲停板).{0,10}處置/,
+];
+```
+
+---
+
+### 🤖 Step 2：Few-Shot Prompt 優化（prompts.mjs）
+
+#### AI 輸出格式要求
+
+AI 必須輸出 JSON array，每個元素遵循 `KeywordEntry` schema：
+
+```json
+[
+  { "keyword": "Fed rate cut expectations", "searchType": "broad" },
+  { "keyword": "TSMC revenue guidance",     "searchType": "intitle" }
+]
+```
+
+**限制條件（寫入 Prompt）：**
+
+- 每組 `keyword`：2–4 個單字，**禁止單一縮寫詞**（不得輸出 `"CPI"`，要輸出 `"CPI data release"`）
+- `searchType` 選擇原則：
+  - `"intitle"`：當你要確保標題主角是該事件（如法說、財報）
+  - `"broad"`：當你要廣泛捕捉市場輿論（如通膨、流動性）
+- 輸出數量：**6–8 組，不可超過 8 組**
+- 禁止重複 `baseTwQueries` / `baseUsQueries` 已有的關鍵字
+
+#### Few-Shot 範例對照表（寫入 NEWS_KEYWORD_SYSTEM_PROMPT）
+
+```
+❌ 壞範例（禁止輸出）：
+  { "keyword": "CPI",            "searchType": "broad" }   // 單字縮寫，雜訊極高
+  { "keyword": "stocks",         "searchType": "broad" }   // 過於泛用
+  { "keyword": "market",         "searchType": "broad" }   // 無任何訊息量
+  { "keyword": "Powell",         "searchType": "intitle" } // 重複靜態池
+  { "keyword": "降息概念股 推薦", "searchType": "broad" }  // 農場 SEO 特徵
+
+✅ 好範例（模仿此風格）：
+  { "keyword": "CPI data release market reaction",   "searchType": "broad" }
+  { "keyword": "Fed balance sheet reduction",        "searchType": "broad" }
+  { "keyword": "TSMC earnings guidance",             "searchType": "intitle" }
+  { "keyword": "Taiwan export orders semiconductor", "searchType": "intitle" }
+  { "keyword": "dollar index emerging market risk",  "searchType": "broad" }
+  { "keyword": "yield curve inversion recession",    "searchType": "broad" }
+```
+
+---
+
+### ⚙️ Step 3：newsFetcher.mjs 流程整合
+
+#### 3-1 buildRssUrl()（整合 excludeKeywords 進 query string）
+
+```js
+function buildRssUrl(entry, excludes) {
+  const q = entry.searchType === "intitle"
+    ? `intitle:"${entry.keyword}"`
+    : entry.keyword;
+
+  // 將 excludeKeywords 整合進 RSS query（-keyword 語法，減少無效請求）
+  const excludePart = excludes
+    .map(e => e.searchType === "intitle"
+      ? `-intitle:"${e.keyword}"`
+      : `-"${e.keyword}"`)
+    .join(" ");
+
+  const fullQuery = `${q} ${excludePart}`.trim();
+  return `https://news.google.com/rss/search?q=${encodeURIComponent(fullQuery)}&hl=zh-TW&gl=TW&ceid=TW:zh-Hant`;
+}
+```
+
+#### 3-2 AI 動態關鍵字 Schema 驗收
+
+```js
+function validateDynamicKeyword(entry) {
+  if (!entry?.keyword || !entry?.searchType) return false;
+  if (!["intitle", "broad"].includes(entry.searchType)) return false;
+  const words = entry.keyword.trim().split(/\s+/);
+  if (words.length < 2 || words.length > 5) return false;          // 強制多字詞
+  if (words.length === 1 && /^[A-Z]{2,5}$/.test(words[0])) return false; // 禁純縮寫
+  return true;
+}
+```
+
+#### 3-3 Static ∪ Dynamic 合併策略
+
+```js
+function mergeKeywords(baseQueries, dynamicEntries) {
+  const baseSet = new Set(baseQueries.map(e => e.keyword.toLowerCase()));
+  const valid = dynamicEntries
+    .filter(validateDynamicKeyword)
+    .filter(e => !baseSet.has(e.keyword.toLowerCase())) // 去重複
+    .slice(0, 8);                                        // 動態上限 8 組
+  return [...baseQueries, ...valid];
+}
+// 合併後最大數量：baseTW(18) + baseUS(18) + dynamic(≤8) = 上限 44 組
+```
+
+#### 3-4 文章有效性過濾（雙層）
+
+```js
+function isArticleValid(article, excludedSources, blacklistPatterns) {
+  // Layer 1：來源黑名單
+  if (excludedSources.some(s => article.source?.includes(s))) return false;
+  // Layer 2：標題 Regex 黑名單
+  if (blacklistPatterns.some(re => re.test(article.title))) return false;
+  return true;
+}
+```
+
+#### 3-5 Fallback 機制
+
+```js
+const FALLBACK_THRESHOLD = 5; // 可依 fallbackLog 歷史資料調整
+
+if (validArticles.length < FALLBACK_THRESHOLD) {
+  // 記錄觸發日誌（方便追蹤 AI 品質）
+  fallbackLog.push({
+    timestamp: new Date().toISOString(),
+    dynamicKeywords: dynamicEntries.map(e => e.keyword),
+    validCount: validArticles.length,
+    triggered: true,
+  });
+
+  // Fallback 策略：直接復用完整 base 清單，不另建清單
+  // 若 TW/US 分開不足，則針對不足的市場單獨補抓
+  const fallbackArticles = await fetchWithQueries(baseQueries, excludes);
+  validArticles = dedup([...validArticles, ...fallbackArticles]);
+}
+```
+
+---
+
+### 🔁 完整資料流
+
+```
+marketStatus
+  { regime: "bull" | "bear" | "neutral", vixLevel: number, date: string }
+  ↓
+GenerateSearchQueries（AI）
+  輸出：KeywordEntry[]（JSON array）
+  ↓
+Schema 驗收（validateDynamicKeyword）
+  不合格 → 靜默捨棄，不 throw Error
+  ↓
+mergeKeywords（baseTwQueries + baseUsQueries ∪ validDynamic）
+  ↓
+buildRssUrl（excludeKeywords 已整合進 query string）
+  批次呼叫：每批 5 組，間隔 300ms（防 Google News rate limit）
+  ↓
+isArticleValid 過濾
+  Layer 1：excludedSources（來源黑名單）
+  Layer 2：titleBlackListPatterns（Regex 標題過濾）
+  ↓
+有效新聞數 < 5？
+  是 → 記錄 fallbackLog，補充 base 清單重跑一輪
+  否 → 繼續
+  ↓
+去重管線
+  Key：URL（主）+ 標題 hash（副）
+  ↓
+輸出乾淨新聞陣列 → 進入摘要 AI 管線
+```
+
+---
+
+### 📝 開發注意事項（給 antigravity）
+
+1. **不要重新發明 Schema**：所有關鍵字物件統一使用 `{ keyword: string, searchType: "intitle" | "broad" }`，AI 輸出、靜態池、Fallback 全部遵循同一格式。
+
+2. **`excludeKeywords` 優先整合進 RSS URL**，而不是抓取後再過濾，可節省 HTTP 請求次數。
+
+3. **Fallback 不另建清單**，直接復用 `baseTwQueries` / `baseUsQueries`，避免日後維護兩份清單造成語義漂移。
+
+4. **`titleBlackListPatterns` 放在 `keywordConfig.mjs`**，未來新增黑名單規則只需改一個檔案。
+
+5. **`fallbackLog` 格式固定**，方便後續用 log 分析調整 `FALLBACK_THRESHOLD`。
+
+6. **批次呼叫間距設 300ms**，Google News RSS 在連續 10+ 次請求後容易回傳空結果。
 
 ---
 
