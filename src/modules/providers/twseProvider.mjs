@@ -470,81 +470,179 @@ export async function fetchRealTimePrice(symbol) {
 // 📈 大盤估值與基本面獲取 (PB / PE)
 // ============================================================================
 export async function fetchMarketValuation() {
-  // TWSE 官方 OpenAPI 端點 (大盤本益比、殖利率及股價淨值比)
-  // 如果 OpenAPI 失敗也可換成 twse.com.tw 官網的 FMNPTK
-  const openApiUrl = "https://openapi.twse.com.tw/v1/exchangeReport/FMNPTK";
-  
+  // 正確端點：BWIBBU_ALL 取得所有個股本益比、殖利率及股價淨值比
+  // ⚠️  BWIBBU_ALL (OpenAPI) 不帶日期，通常自動回傳最新交易日資料
+  // ⚠️  BWIBBU_d  (rwd)     需帶日期，非交易日回空陣列 → 須往前回溯
+  //
+  // 大盤聚合方式（與 TWSE 官方計算邏輯一致）：
+  //   PE  → 調和平均（Harmonic Mean）：EPS ≤ 0 個股排除，避免高 PE 扭曲
+  //   PB  → 算術平均
+  //   殖利率 → 算術平均
+  const OPENAPI_URL =
+    "https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL";
+  const MAX_LOOKBACK_DAYS = 7; // 最多往回找 7 天（週末 2 天 + 連假緩衝）
+
+  // ── 工具函式 ──────────────────────────────────────────────────────────────
+
+  /** 產生距今 offsetDays 天前的 YYYYMMDD 字串 */
+  function buildDateKey(offsetDays = 0) {
+    const d = new Date();
+    d.setDate(d.getDate() - offsetDays);
+    return [
+      d.getFullYear(),
+      String(d.getMonth() + 1).padStart(2, "0"),
+      String(d.getDate()).padStart(2, "0"),
+    ].join("");
+  }
+
+  /**
+   * 從 OpenAPI object 格式個股陣列聚合大盤代表值
+   * 欄位：{ PEratio, PBratio, Yield, Date }
+   */
+  function aggregateFromObjects(data) {
+    const peArr = [], pbArr = [], yieldArr = [];
+    for (const s of data) {
+      const pe  = parseNumberOrNull(s.PEratio);
+      const pb  = parseNumberOrNull(s.PBratio);
+      const yld = parseNumberOrNull(s.Yield);
+      if (pe  !== null && pe  > 0) peArr.push(pe);
+      if (pb  !== null && pb  > 0) pbArr.push(pb);
+      if (yld !== null && yld > 0) yieldArr.push(yld);
+    }
+    if (!peArr.length) return null;
+    return {
+      pe:    round2(peArr.length / peArr.reduce((acc, v) => acc + 1 / v, 0)),
+      pb:    pbArr.length    ? round2(pbArr.reduce((a, b) => a + b, 0) / pbArr.length)       : null,
+      yield: yieldArr.length ? round2(yieldArr.reduce((a, b) => a + b, 0) / yieldArr.length) : null,
+    };
+  }
+
+  /**
+   * 從 rwd row 格式個股陣列聚合大盤代表值
+   * row 格式：["代號", "名稱", "本益比", "殖利率(%)", "股價淨值比"]
+   */
+  function aggregateFromRows(rows) {
+    const peArr = [], pbArr = [], yieldArr = [];
+    for (const r of rows) {
+      const pe  = parseNumberOrNull(r[2]);
+      const yld = parseNumberOrNull(r[3]);
+      const pb  = parseNumberOrNull(r[4]);
+      if (pe  !== null && pe  > 0) peArr.push(pe);
+      if (yld !== null && yld > 0) yieldArr.push(yld);
+      if (pb  !== null && pb  > 0) pbArr.push(pb);
+    }
+    if (!peArr.length) return null;
+    return {
+      pe:    round2(peArr.length / peArr.reduce((acc, v) => acc + 1 / v, 0)),
+      pb:    pbArr.length    ? round2(pbArr.reduce((a, b) => a + b, 0) / pbArr.length)       : null,
+      yield: yieldArr.length ? round2(yieldArr.reduce((a, b) => a + b, 0) / yieldArr.length) : null,
+    };
+  }
+
+  function round2(v) {
+    return Math.round(v * 100) / 100;
+  }
+
+  // ── 主要：OpenAPI BWIBBU_ALL（不帶日期，自動回傳最新交易日）─────────────
   try {
     const res = await fetchWithTimeout(
-      openApiUrl,
+      OPENAPI_URL,
       {
         ...baseFetchOptions,
-        headers: {
-          ...baseFetchOptions.headers,
-          Accept: "application/json",
-        },
+        headers: { ...baseFetchOptions.headers, Accept: "application/json" },
       },
       8000
     );
 
     const text = await res.text();
-    // 檢查回傳是否為陣列形式的 JSON (OpenAPI 手冊格式)
     if (res.ok && text.trim().startsWith("[")) {
       const data = JSON.parse(text);
-      if (data && data.length > 0) {
-        // OpenAPI 陣列最後一筆通常是最新資料
-        const latestInfo = data[data.length - 1];
-        
-        // 解析: "PEratio": "21.65", "Yield": "2.81", "PBratio": "2.15"
-        return {
-          pe: parseNumberOrNull(latestInfo.PEratio) || null,
-          yield: parseNumberOrNull(latestInfo.Yield) || null,
-          pb: parseNumberOrNull(latestInfo.PBratio) || null,
-          date: latestInfo.Date || null,
-        };
+      if (data?.length > 0) {
+        const agg = aggregateFromObjects(data);
+        if (agg) {
+          return {
+            pe:    agg.pe,
+            yield: agg.yield,
+            pb:    agg.pb,
+            date:  data[0]?.Date ?? null,
+          };
+        }
       }
     }
-    
-    // Fallback: 如果 openapi 未順利解析，嘗試走官網 rwd api
-    const currentMonthKey = TwDate().formatMonthKey();
-    const fallbackUrl = `https://www.twse.com.tw/rwd/zh/afterTrading/FMNPTK?date=${currentMonthKey}01&response=json&_=${Date.now()}`;
-    const fbRes = await fetchWithTimeout(
-      fallbackUrl,
-      {
-        ...baseFetchOptions,
-        headers: {
-          ...baseFetchOptions.headers,
-          Accept: "application/json",
-          Referer: "https://www.twse.com.tw/zh/trading/historical/fmnptk.html",
-        },
-      },
-      8000
-    );
-    
-    const fbText = await fbRes.text();
-    if (fbRes.ok && (fbText.includes("\"stat\":\"OK\""))) {
-      const json = JSON.parse(fbText);
-      const rows = json.data || [];
-      if (rows.length > 0) {
-        const lastRow = rows[rows.length - 1];
-        return {
-          // [ 年月, 本益比, 殖利率, 股價淨值比 ]
-          date: lastRow[0],
-          pe: parseNumberOrNull(lastRow[1]),
-          yield: parseNumberOrNull(lastRow[2]),
-          pb: parseNumberOrNull(lastRow[3]),
-        };
-      }
-    }
-
-    throw new Error(`獲取大盤估值資料失敗，這可能代表證交所反爬蟲發生或當日資料未產出。`);
   } catch (err) {
-    if (err.message.includes("Timeout")) {
-      console.warn(`TWSE 估值 (FMNPTK) API Timeout.`);
-    } else {
-      console.warn(`TWSE 估值 (FMNPTK) API 異常: ${err.message}`);
-    }
-    throw err;
+    // OpenAPI 失敗時不直接 throw，進入 rwd fallback
+    console.warn(`TWSE 估值 OpenAPI 失敗，切換 rwd fallback: ${err.message}`);
   }
-}
 
+  // ── Fallback：rwd BWIBBU_d，往回找最近有效交易日（最多 MAX_LOOKBACK_DAYS 天）
+  // 非交易日（週末/假日）TWSE 回傳空 data 陣列，需逐天往前找
+  for (let i = 0; i < MAX_LOOKBACK_DAYS; i++) {
+    const dateKey = buildDateKey(i);
+    const fallbackUrl =
+      `https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d` +
+      `?date=${dateKey}&selectType=ALL&response=json&_=${Date.now()}`;
+
+    try {
+      const fbRes = await fetchWithTimeout(
+        fallbackUrl,
+        {
+          ...baseFetchOptions,
+          headers: {
+            ...baseFetchOptions.headers,
+            Accept: "application/json",
+            Referer:
+              "https://www.twse.com.tw/zh/trading/historical/bwibbu-day.html",
+          },
+        },
+        6000 // fallback 逐日重試，給較短的 timeout 加快輪詢速度
+      );
+
+      const fbText = await fbRes.text();
+
+      // TWSE 非交易日會回 stat:"很抱歉，沒有符合條件的資料！" 或空 data
+      if (!fbRes.ok || !fbText.includes('"stat":"OK"')) {
+        // 此日無資料，繼續往前一天
+        continue;
+      }
+
+      const json = JSON.parse(fbText);
+      const rows = json.data ?? [];
+
+      if (!rows.length) {
+        // data 為空陣列 → 非交易日，繼續回溯
+        continue;
+      }
+
+      const agg = aggregateFromRows(rows);
+      if (!agg) continue;
+
+      if (i > 0) {
+        console.info(
+          `[fetchMarketValuation] 今日(${buildDateKey(0)})無資料，` +
+          `使用最近交易日 ${dateKey} 資料（往回第 ${i} 天）`
+        );
+      }
+
+      return {
+        pe:    agg.pe,
+        yield: agg.yield,
+        pb:    agg.pb,
+        // json.date 格式通常為 "YYYY/MM/DD"，保持原樣回傳供外部判斷資料新鮮度
+        date:  json.date ?? dateKey,
+      };
+
+    } catch (innerErr) {
+      // 單次 timeout 或網路錯誤 → 跳過此日繼續
+      console.warn(
+        `[fetchMarketValuation] rwd BWIBBU_d [${dateKey}] 失敗: ${innerErr.message}`
+      );
+    }
+  }
+
+  // 全部路徑失敗
+  const err = new Error(
+    `獲取大盤估值失敗：往回 ${MAX_LOOKBACK_DAYS} 天內均無有效資料（OpenAPI + rwd 均異常）`
+  );
+  console.warn(`TWSE 估值 API 異常: ${err.message}`);
+  throw err;
+}
