@@ -64,9 +64,9 @@
       "source": "FRED"
     },
     "rawValuation": {
-      "pe": 18.58,
+      "pe": 25.69,
       "yield": null,
-      "pb": 2.43,
+      "pb": 3.42,
       "date": "1150327"
     },
     "quote": {
