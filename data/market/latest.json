@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-28T04:19:21.544Z",
+    "lastRun": "2026-03-28T05:23:30.766Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-28T04:19:21.544Z"
+        "lastFetch": "2026-03-28T05:23:30.766Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -29,6 +29,12 @@
     }
   },
   "data": {
+    "rawNdc": {
+      "date": "2026-01",
+      "score": 39,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
     "rawMargin": {
       "marginBalance100M": 3937.23,
       "marginBalanceChange100M": 25.86,
@@ -43,12 +49,6 @@
       "previous1Year": 28.34,
       "timestamp": "2026-03-27T14:16:59.000Z"
     },
-    "quote": {
-      "date": "2026-03-28",
-      "quote": "There are no limitations to the mind except those we acknowledge...",
-      "author": "Napoleon Hill",
-      "source": "zenquotes"
-    },
     "rawUsMarket": {
       "success": true,
       "vix": "27.44",
@@ -62,6 +62,18 @@
         "spxDate": "2026-03-27"
       },
       "source": "FRED"
+    },
+    "rawValuation": {
+      "pe": 18.58,
+      "yield": null,
+      "pb": 2.43,
+      "date": "1150327"
+    },
+    "quote": {
+      "date": "2026-03-28",
+      "quote": "There are no limitations to the mind except those we acknowledge...",
+      "author": "Napoleon Hill",
+      "source": "zenquotes"
     },
     "rawFx": {
       "currentRate": 32.02,
@@ -90,18 +102,6 @@
         31.9359,
         31.93
       ]
-    },
-    "rawValuation": {
-      "pe": 18.58,
-      "yield": null,
-      "pb": 2.43,
-      "date": "1150327"
-    },
-    "rawNdc": {
-      "date": "2026-01",
-      "score": 39,
-      "light": "紅燈 (過熱)",
-      "lightColor": "red"
     }
   }
 }

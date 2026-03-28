@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-03-28T04:19:49.039Z",
+  "_savedAt": "2026-03-28T05:23:44.508Z",
   "type": "SearchQueries",
   "userPrompt": "今天是 2026-03-28。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
@@ -71,12 +71,8 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 36.22，顯示市場處於極度恐慌與劇烈波動狀態，這與『偏熱』的標籤形成強烈對比，暗示市場可能剛經歷一段非理性繁榮後，正遭遇突發性的系統性風險或『明斯基時刻』。推論核心議題為：1. 高槓桿部位的強制平倉（融資斷頭）；2. 外資因避險需求大規模撤出新興市場；3. 美國聯準會（Fed）可能因通膨失控或金融穩定問題釋放鷹派訊號；4. 地緣政治衝突升溫導致的避險情緒。搜尋策略將聚焦於籌碼面崩潰、總經衰退預期及避險資金流向。",
+    "reasoning_process": "VIX 指數飆升至 36.22 顯示市場正處於極度恐慌或劇烈波動狀態，與『偏熱』狀態結合，暗示市場可能正經歷『高位崩跌』或『泡沫破裂』的初期。此時量化模型應高度關注流動性風險、外資撤離、以及引發恐慌的具體總經觸發點（如通膨反彈或地緣政治衝突）。搜尋策略將集中於尋找導致恐慌指數異常的黑天鵝事件、融資斷頭壓力及避險情緒的流向。",
     "twQueries": [
-      {
-        "keyword": "台股 崩跌",
-        "searchType": "intitle"
-      },
       {
         "keyword": "外資 賣超",
         "searchType": "intitle"
@@ -86,7 +82,7 @@
         "searchType": "broad"
       },
       {
-        "keyword": "台積電 展望",
+        "keyword": "台股 崩跌",
         "searchType": "intitle"
       },
       {
@@ -94,17 +90,25 @@
         "searchType": "broad"
       },
       {
-        "keyword": "避險 資產",
+        "keyword": "央行 升息",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "避險資產",
         "searchType": "broad"
+      },
+      {
+        "keyword": "台積電 展望",
+        "searchType": "intitle"
       }
     ],
     "usQueries": [
       {
-        "keyword": "VIX volatility",
-        "searchType": "intitle"
+        "keyword": "VIX spike causes",
+        "searchType": "broad"
       },
       {
-        "keyword": "Fed hawkish",
+        "keyword": "Fed hawkish pivot",
         "searchType": "intitle"
       },
       {
@@ -112,16 +116,20 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "Treasury yields spike",
+        "keyword": "Treasury yields surge",
         "searchType": "broad"
       },
       {
-        "keyword": "Nvidia selloff",
+        "keyword": "Tech bubble burst",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "Financial stability risk",
         "searchType": "broad"
       },
       {
         "keyword": "Recession probability",
-        "searchType": "broad"
+        "searchType": "intitle"
       }
     ]
   }
