@@ -430,49 +430,322 @@ isArticleValid 過濾
 ---
 
 ## 📌 【AI 管線優化類】4. 新聞過濾機制優化（自動反向優化黑名單）
-### 功能目標
-打造具備「自我進化能力 (Self-Healing)」的新聞濾網機制。讓系統像真人一樣，若昨天被特定農場來源或假新聞騙了，今天能自動檢討，並生成新的 Regex 黑名單供未來防禦。
+> **前置條件：** 任務 3（`keywordConfig.mjs` + `blacklist.json` 架構）已完成
 
-### 影響範圍
-- `src/modules/newsFetcher.mjs` (切離 config)
-- `src/config/blacklist.json` (新增此動態設定檔)
-- `src/modules/ai/` (新增 `ruleOptimizerAgent.mjs`)
-- `src/runDailyCheck.mjs` (或建立非同步/半夜運作的維護排程)
+---
 
-### 實作步驟草案 (Step-by-Step)
-1. **設定檔外部化**：將 `twExcludedSources`（如 Yahoo、Yahoo奇摩理財）與 `usExcludeKeywords` 的黑名單字串從程式碼死區抽出，移至 `config/blacklist.json`。
-2. **建立 Optimizer Agent**：設計一個全新的 Agent。將「昨日被 Filter Agent 放行的所有新聞」交給 Optimizer Agent 審核，Prompt：_「請嚴格審查這批新聞，揪出裡頭隱藏的農場文或個股無用新聞，並提煉出能通殺這類標題的 Regex 語法或來源名稱。」_
-3. **新舊規則合併**：將 Optimizer Agent 輸出的新 Regex 附加回 `blacklist.json` 中。
-4. **管線掛載**：隔日的 `newsFetcher.mjs` 啟動時動態 `import` 或讀取 `blacklist.json`，讓新規則自動生效。
+### 🎯 功能目標
 
-### 潛在挑戰與防禦機制
-- **AI 寫錯 Regex 導致大誤殺**：若 AI 寫出 `.*` 或是過於廣泛的關鍵字（如「台灣」），會導致整個新聞管線癱瘓，什麼重磅新聞都抓不到。
-- **針對性的沙盒防護 (Sandbox Validation)**：
-  1. AI 產出的新 Regex，在存寫進 `blacklist.json` 之前，必須經過 JavaScript 原生防呆編譯測試 `try { new RegExp(aiRule) } catch { 忽略 }`。
-  2. 設計一組固定不變的「黃金標準新聞清單 (Golden DataSet)」（例如 Fed 升息報告、台積電法說會）。新 Regex 必須先套用於此清單，若**誤殺**了黃金清單的任何一條新聞，該新規則將被強制作廢，拒絕寫入。
+打造具備「自我進化能力（Self-Healing）」的新聞濾網機制。系統每日自動審查昨日放行的新聞，揪出漏網農場文，生成新 Regex 規則並通過沙盒驗證後寫入 `blacklist.json`，隔日自動生效。
 
-### 資料流設計
-今日被放行上榜的新聞記錄 ➔ 傳送給 `Rule Optimizer (AI)` ➔ 揪出漏網之魚農場文 ➔ 生成對應 `<New_Regex>` ➔ **沙盒驗證環境 (Sandbox)** 用黃金資料集碰撞 ➔ 若無誤殺則 `fs.writeFileSync` 更新 `blacklist.json` ➔ 隔日 `newsFetcher` 讀取並應用更強的防護罩。
+**量化驗收標準：**
 
-## 📌 【系統巡檢與測試類】5. 自動化格式與結構驗證機制 (Schema & Format Validation)
-### 功能目標
-透過程式規則（Rule-based）自動攔截並評估 AI 輸出的結構穩定度，包含驗證 JSON 解析是否成功，以及特定 Markdown 區塊的完整性。結果將回傳至 Langfuse 的 `Schema_Validation` 與 `Format_Compliance`。
+- AI 產出規則通過 Sandbox 驗證率 ≥ 80%（低於代表 Prompt 需調整）
+- 黃金清單誤殺率 = **0%**（硬性條件，絕對不可破）
+- `blacklist.json` 規則總數增長速度 < 5 條/週（過快代表 AI 品質不穩）
 
-### 影響範圍
-- `src/modules/ai/aiClient.mjs` (負責呼叫 Google GenAI 與 Langfuse SDK 初始化的檔案)
+---
 
-### 實作步驟草案 (Step-by-Step)
-1. **建立 Validator 邏輯**：在 `aiClient.mjs` 的 `callGemini` 函式中，整合針對 AI 回傳字串的清理函式與驗證機制。
-2. **攔截與解析**：目前 `callGemini` 已有基礎字串清理，我們將利用 `try-catch` 包覆 `JSON.parse()`。
-3. **錯誤處理與評分**：將評分邏輯寫在 `aiClient.mjs` 統一攔截層中（若 `options.responseMimeType` 為 JSON）。成功則不處理，失敗則給予 Score = 0。
-4. **非同步寫入**：利用現有的 `generation.score()` 將對應的結果綁定至該次執行，並使用不被 await 的 Promise (Fire-and-Forget) 進行異步寫入以避免延遲主流程。
+### 📁 影響檔案
 
-### 潛在挑戰與防禦機制
-- **挑戰**：AI 輸出 JSON 時可能帶有無效字元，導致 `JSON.parse` 拋出例外中斷主流程。
-- **防禦**：評估機制絕對不可阻塞主業務邏輯。發生解析錯誤時，應靜默捕捉例外 (Catch Exception)，標記評分為 0 後再觸發原有的 Retry 機制。
+| 檔案 | 異動類型 | 說明 |
+|---|---|---|
+| `src/config/blacklist.json` | **新增** | 動態黑名單設定檔（含版本號） |
+| `src/config/goldenDataset.json` | **新增** | 黃金標準新聞清單（人工維護） |
+| `src/config/keywordConfig.mjs` | 修改 | 黑名單改從 `blacklist.json` 讀取 |
+| `src/modules/newsFetcher.mjs` | 修改 | 啟動時動態載入 `blacklist.json` |
+| `src/modules/ai/ruleOptimizerAgent.mjs` | **新增** | Self-Healing AI Agent |
+| `src/runDailyCheck.mjs` | 修改 | 掛載 Optimizer 排程 |
+| `scripts/rollbackOptimizer.mjs` | **新增** | 緊急回滾工具 |
 
-### 資料流設計
-`Raw LLM Response` ➔ `String Cleaner` ➔ `JSON.parse` ➔ `Generate boolean/numeric Score` ➔ `generation.score()` ➔ `Return Parsed Object`
+---
+
+### 📐 blacklist.json Schema 定義
+
+```json
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-28T00:00:00Z",
+  "titlePatterns": [
+    {
+      "pattern": "Liquidity (Pulse|Mapping) .*(Institutional|Price Events)",
+      "flags": "i",
+      "addedBy": "seed",
+      "addedAt": "2026-03-28",
+      "reason": "Stock Traders Daily 農場文特徵標題"
+    }
+  ],
+  "twExcludedSources": ["富聯網", "Bella.tw儂儂"],
+  "usExcludedSources": ["Stock Traders Daily", "baoquankhu1.vn"]
+}
+```
+
+**欄位說明：**
+
+- `addedBy: "seed"` — 人工初始值（不可被 rollback 移除）
+- `addedBy: "optimizer"` — AI 生成（可透過 rollback 工具移除）
+- `addedAt` — 用於精確回滾特定日期的 AI 規則
+
+---
+
+### ⚙️ Step 1：blacklist.json 初始化與 keywordConfig.mjs 修改
+
+將任務 3 中 `keywordConfig.mjs` 的靜態黑名單遷移至此：
+
+- `titleBlackListPatterns` → `titlePatterns`（全部標記 `addedBy: "seed"`）
+- `twExcludedSources` → `twExcludedSources`
+- `usExcludedSources` → `usExcludedSources`
+
+`keywordConfig.mjs` 改為動態讀取：
+
+```js
+import { readFileSync } from "fs";
+import { resolve } from "path";
+
+export function loadBlacklist() {
+  const path = resolve("src/config/blacklist.json");
+  const raw = readFileSync(path, "utf-8");
+  const data = JSON.parse(raw);
+  return {
+    titlePatterns: data.titlePatterns.map(
+      r => new RegExp(r.pattern, r.flags)
+    ),
+    twExcludedSources: data.twExcludedSources,
+    usExcludedSources: data.usExcludedSources,
+  };
+}
+```
+
+---
+
+### 📋 Step 2：goldenDataset.json 建立（人工維護）
+
+黃金清單為沙盒驗證的核心防線，**AI Agent 不可修改此檔案**。建議至少 30 筆，涵蓋台股與美股核心事件標題。
+
+```json
+[
+  { "title": "Fed raises interest rates by 25bps in March FOMC meeting",     "source": "Reuters" },
+  { "title": "台積電法說會：Q2 營收指引優於預期，外資大幅買超",                "source": "經濟日報" },
+  { "title": "CPI data shows inflation cooling, S&P 500 rallies",            "source": "Bloomberg" },
+  { "title": "FOMC minutes: Powell signals patience on rate cuts",           "source": "WSJ" },
+  { "title": "台股大盤收漲 1.5%，三大法人合計買超 200 億",                    "source": "工商時報" },
+  { "title": "Treasury yields surge as jobless claims beat expectations",    "source": "Reuters" },
+  { "title": "台積電 ADR 夜盤上漲 3%，外資連續買超",                          "source": "MoneyDJ" },
+  { "title": "PCE inflation data release: Fed's preferred gauge rises",      "source": "Bloomberg" },
+  { "title": "景氣燈號轉黃紅燈，PMI 連三月擴張",                              "source": "中央社" },
+  { "title": "ISM manufacturing index beats forecast, dollar index rises",   "source": "MarketWatch" }
+]
+```
+
+> ⚠️ 此清單需定期人工補充，新增標題應覆蓋台灣與美國市場的所有核心事件類型。
+
+---
+
+### 🧠 Step 3：ruleOptimizerAgent.mjs（Self-Healing AI Agent）
+
+#### Prompt 規格
+
+**輸入：** 「昨日被放行但品質低落的新聞清單」（由 `passedArticlesLog` 提供）
+
+**輸出限制（寫入 Prompt）：**
+
+- 輸出格式：JSON array，每個元素為 `{ "pattern": "...", "flags": "i", "reason": "..." }`
+- 最多輸出 **5 條**新規則
+- 禁止使用過廣泛的通配符作為規則主體：`.*` / `.+` / `\w+` / `\d+`（需有具體語意錨點）
+- 禁止與現有規則重複
+- 每條規則需附上 `"reason"`（說明針對哪類農場文）
+
+#### AI 輸出範例格式
+
+```json
+[
+  {
+    "pattern": "\d+ (stocks?|ETF).{0,20}(to buy|to watch|to own)",
+    "flags": "i",
+    "reason": "個股推薦農場文特徵：數字+股票+行動詞組合"
+  },
+  {
+    "pattern": "最強.{0,5}(概念股|飆股).{0,10}(布局|卡位|搶先)",
+    "flags": "",
+    "reason": "中文農場 SEO 特徵標題"
+  }
+]
+```
+
+---
+
+### 🛡️ Step 4：Sandbox 沙盒驗證流程（四關卡）
+
+#### 關卡 1：語法合法性
+
+```js
+function isValidRegex(pattern, flags) {
+  try {
+    new RegExp(pattern, flags);
+    return true;
+  } catch {
+    return false;
+  }
+}
+```
+
+#### 關卡 2：廣泛度防護（防止通配符濫用）
+
+```js
+const OVERBROAD_PATTERNS = [/^\.\*/, /^\.\+/, /^\w\+/, /^\d\+/, /^\.\{/];
+
+function isOverbroad(pattern) {
+  return OVERBROAD_PATTERNS.some(p => p.test(pattern.trim()));
+}
+```
+
+#### 關卡 3：黃金清單碰撞測試（核心防線）
+
+```js
+import goldenDataset from "../config/goldenDataset.json" assert { type: "json" };
+
+function passesGoldenTest(newRegex) {
+  // 新規則不得誤殺任何黃金清單中的標題
+  return !goldenDataset.some(item => newRegex.test(item.title));
+}
+```
+
+#### 關卡 4：重複規則檢查
+
+```js
+function isDuplicate(newPattern, existingPatterns) {
+  return existingPatterns.some(e => e.pattern === newPattern);
+}
+```
+
+#### 完整驗證主流程
+
+```js
+function validateAndAppend(aiRules, blacklist) {
+  const accepted = [];
+  const rejected = [];
+
+  for (const rule of aiRules) {
+    if (!isValidRegex(rule.pattern, rule.flags)) {
+      rejected.push({ ...rule, rejectReason: "invalid_regex" });
+      continue;
+    }
+    if (isOverbroad(rule.pattern)) {
+      rejected.push({ ...rule, rejectReason: "overbroad" });
+      continue;
+    }
+    if (isDuplicate(rule.pattern, blacklist.titlePatterns)) {
+      rejected.push({ ...rule, rejectReason: "duplicate" });
+      continue;
+    }
+    const regex = new RegExp(rule.pattern, rule.flags);
+    if (!passesGoldenTest(regex)) {
+      rejected.push({ ...rule, rejectReason: "golden_dataset_kill" });
+      continue;
+    }
+    accepted.push({
+      pattern:   rule.pattern,
+      flags:     rule.flags,
+      addedBy:   "optimizer",
+      addedAt:   new Date().toISOString().slice(0, 10),
+      reason:    rule.reason,
+    });
+  }
+
+  return { accepted, rejected };
+}
+```
+
+---
+
+### 📅 Step 5：排程掛載（runDailyCheck.mjs）
+
+**執行時機：** 每日台灣時間 **02:00**（市場收盤後、隔日開盤前）
+
+```js
+// runDailyCheck.mjs 新增片段
+import { runRuleOptimizer } from "./modules/ai/ruleOptimizerAgent.mjs";
+
+async function dailyMaintenance() {
+  console.log("[Optimizer] Starting daily blacklist optimization...");
+  const result = await runRuleOptimizer();
+  console.log(
+    `[Optimizer] Accepted: ${result.accepted.length}, ` +
+    `Rejected: ${result.rejected.length}`
+  );
+  // 將 result 完整寫入 optimizerLog.json 供追蹤與 Prompt 品質分析
+}
+```
+
+---
+
+### 🔄 Step 6：緊急回滾工具（rollbackOptimizer.mjs）
+
+```js
+// 用法：node scripts/rollbackOptimizer.mjs --date 2026-03-29
+// 效果：移除該日 AI 新增的所有規則，不影響 seed 人工規則
+
+import { readFileSync, writeFileSync } from "fs";
+
+const targetDate = process.argv[3];
+const filePath   = "src/config/blacklist.json";
+const data       = JSON.parse(readFileSync(filePath, "utf-8"));
+
+const before = data.titlePatterns.length;
+data.titlePatterns = data.titlePatterns.filter(
+  r => !(r.addedBy === "optimizer" && r.addedAt === targetDate)
+);
+const removed = before - data.titlePatterns.length;
+
+data.lastUpdated = new Date().toISOString();
+writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
+console.log(`[Rollback] Removed ${removed} optimizer rules added on ${targetDate}`);
+```
+
+---
+
+### 🔁 完整資料流
+
+```
+每日 02:00 觸發 dailyMaintenance()
+  ↓
+讀取昨日放行新聞記錄（passedArticlesLog）
+  ↓
+ruleOptimizerAgent（AI 審查）
+  Prompt：揪出農場文，輸出 ≤5 條 Regex 規則（JSON）
+  ↓
+Sandbox 驗證（四關卡）
+  關卡 1：isValidRegex       — 語法合法？
+  關卡 2：isOverbroad        — 是否過於廣泛？
+  關卡 3：isDuplicate        — 是否重複現有規則？
+  關卡 4：passesGoldenTest   — 是否誤殺黃金新聞？（硬性條件）
+  ↓
+全部通過 → 附加進 blacklist.json（addedBy: "optimizer"）
+部分失敗 → rejected 原因記錄至 optimizerLog.json
+  ↓
+隔日 newsFetcher 啟動時 loadBlacklist() 讀取最新版本
+  ↓
+更強的防護罩自動生效
+```
+
+---
+
+### 📝 開發注意事項（給 antigravity）
+
+1. **任務 3 必須先完成**，本任務依賴 `blacklist.json` 的初始 seed 資料與 `passedArticlesLog` 機制。
+
+2. **`goldenDataset.json` 只能人工維護**，AI Agent 不得有任何寫入權限，建議在程式碼層面限制 `ruleOptimizerAgent.mjs` 的 fs 寫入範圍。
+
+3. **`addedBy` 欄位是安全保險**，確保 rollback 只影響 AI 新增規則，不誤刪人工 seed 設定。
+
+4. **`optimizerLog.json` 的 `rejected` 原因是 Prompt 品質指標**：
+   - `golden_dataset_kill` 比例高 → Prompt 需補充黃金清單範例
+   - `overbroad` 比例高 → Prompt 需加強對通配符的禁止說明
+   - `invalid_regex` 出現 → AI 輸出格式異常，需檢查 Prompt 輸出規範
+
+5. **`blacklist.json` 需加入 Git 版控**，每次 AI 寫入都應是一筆可追蹤的 commit，方便回溯問題。
+
+6. **`passedArticlesLog` 的記錄格式需在任務 3 開發時一併定義**，確保任務 4 可直接使用。
 
 ---
 
