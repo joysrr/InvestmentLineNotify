@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-27T23:58:49.749Z",
+    "lastRun": "2026-03-28T04:19:21.544Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-27T23:58:49.749Z"
+        "lastFetch": "2026-03-28T04:19:21.544Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -16,16 +16,15 @@
       },
       "usMarketProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-27T23:58:49.749Z"
+        "lastFetch": "2026-03-28T04:19:21.544Z"
       },
       "ndcProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-27T23:58:49.749Z"
+        "lastFetch": "2026-03-28T04:19:21.544Z"
       },
       "valuationProvider": {
-        "status": "FAILED",
-        "error": "獲取大盤估值資料失敗，這可能代表證交所反爬蟲發生或當日資料未產出。",
-        "lastFetch": null
+        "status": "SUCCESS",
+        "lastFetch": "2026-03-28T04:19:21.544Z"
       }
     }
   },
@@ -43,6 +42,26 @@
       "previous1Month": 38.03,
       "previous1Year": 28.34,
       "timestamp": "2026-03-27T14:16:59.000Z"
+    },
+    "quote": {
+      "date": "2026-03-28",
+      "quote": "There are no limitations to the mind except those we acknowledge...",
+      "author": "Napoleon Hill",
+      "source": "zenquotes"
+    },
+    "rawUsMarket": {
+      "success": true,
+      "vix": "27.44",
+      "spxChg": "-1.67%",
+      "riskLevel": "高風險",
+      "riskIcon": "⚠️",
+      "suggestion": "暫停00675L新增撥款，偏防守為主",
+      "isHighRisk": true,
+      "meta": {
+        "vixDate": "2026-03-26",
+        "spxDate": "2026-03-27"
+      },
+      "source": "FRED"
     },
     "rawFx": {
       "currentRate": 32.02,
@@ -69,35 +88,20 @@
         31.862,
         31.9258,
         31.9359,
-        32.02
+        31.93
       ]
     },
-    "rawUsMarket": {
-      "success": true,
-      "vix": "27.44",
-      "spxChg": "-1.74%",
-      "riskLevel": "高風險",
-      "riskIcon": "⚠️",
-      "suggestion": "暫停00675L新增撥款，偏防守為主",
-      "isHighRisk": true,
-      "meta": {
-        "vixDate": "2026-03-26",
-        "spxDate": "2026-03-26"
-      },
-      "source": "FRED"
-    },
-    "quote": {
-      "date": "2026-03-28",
-      "quote": "There are no limitations to the mind except those we acknowledge...",
-      "author": "Napoleon Hill",
-      "source": "zenquotes"
+    "rawValuation": {
+      "pe": 18.58,
+      "yield": null,
+      "pb": 2.43,
+      "date": "1150327"
     },
     "rawNdc": {
       "date": "2026-01",
       "score": 39,
       "light": "紅燈 (過熱)",
       "lightColor": "red"
-    },
-    "rawValuation": null
+    }
   }
 }

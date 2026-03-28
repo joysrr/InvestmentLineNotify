@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-27T23:59:17.086Z",
+  "_savedAt": "2026-03-28T04:19:49.039Z",
   "type": "SearchQueries",
-  "userPrompt": "今天是 2026-03-27。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
+  "userPrompt": "今天是 2026-03-28。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
     "type": "OBJECT",
     "properties": {
@@ -71,14 +71,18 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "VIX 指數高達 36.22 顯示市場正處於極度恐慌與劇烈波動狀態，與『偏熱』的市場狀態結合，暗示這可能是一場高檔反轉或『多頭陷阱』後的集體殺盤。推論核心原因可能包含：1. 科技股（AI/半導體）估值過高後的獲利了結賣壓；2. 地緣政治風險突發性升溫；3. 美國聯準會（Fed）政策轉向或通膨數據意外反彈導致的流動性緊縮。搜尋策略將聚焦於外資動向、融資斷頭風險、以及美債殖利率與波動率指數的異常變化。",
+    "reasoning_process": "當前 VIX 指數高達 36.22，顯示市場處於極度恐慌與劇烈波動狀態，這與『偏熱』的標籤形成強烈對比，暗示市場可能剛經歷一段非理性繁榮後，正遭遇突發性的系統性風險或『明斯基時刻』。推論核心議題為：1. 高槓桿部位的強制平倉（融資斷頭）；2. 外資因避險需求大規模撤出新興市場；3. 美國聯準會（Fed）可能因通膨失控或金融穩定問題釋放鷹派訊號；4. 地緣政治衝突升溫導致的避險情緒。搜尋策略將聚焦於籌碼面崩潰、總經衰退預期及避險資金流向。",
     "twQueries": [
+      {
+        "keyword": "台股 崩跌",
+        "searchType": "intitle"
+      },
       {
         "keyword": "外資 賣超",
         "searchType": "intitle"
       },
       {
-        "keyword": "融資 維持率",
+        "keyword": "融資 斷頭",
         "searchType": "broad"
       },
       {
@@ -90,37 +94,33 @@
         "searchType": "broad"
       },
       {
-        "keyword": "台股 崩跌",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "通膨 壓力",
+        "keyword": "避險 資產",
         "searchType": "broad"
       }
     ],
     "usQueries": [
       {
-        "keyword": "VIX volatility spike",
+        "keyword": "VIX volatility",
         "searchType": "intitle"
       },
       {
-        "keyword": "Fed interest rate policy",
-        "searchType": "broad"
+        "keyword": "Fed hawkish",
+        "searchType": "intitle"
       },
       {
         "keyword": "S&P 500 correction",
         "searchType": "intitle"
       },
       {
-        "keyword": "Treasury yield curve inversion",
+        "keyword": "Treasury yields spike",
         "searchType": "broad"
       },
       {
-        "keyword": "Nvidia stock crash",
-        "searchType": "intitle"
+        "keyword": "Nvidia selloff",
+        "searchType": "broad"
       },
       {
-        "keyword": "US recession probability",
+        "keyword": "Recession probability",
         "searchType": "broad"
       }
     ]
