@@ -480,7 +480,7 @@ export async function fetchMarketValuation() {
   //   殖利率 → 算術平均
   const OPENAPI_URL =
     "https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL";
-  const MAX_LOOKBACK_DAYS = 7; // 最多往回找 7 天（週末 2 天 + 連假緩衝）
+  const MAX_LOOKBACK_DAYS = 14; // 最多往回找 14 天（週末 2 天 + 連假緩衝）* 2
 
   // ── 工具函式 ──────────────────────────────────────────────────────────────
 
@@ -598,15 +598,21 @@ export async function fetchMarketValuation() {
       );
 
       const fbText = await fbRes.text();
+      if (!fbRes.ok) continue;
 
-      // TWSE 非交易日會回 stat:"很抱歉，沒有符合條件的資料！" 或空 data
-      if (!fbRes.ok || !fbText.includes('"stat":"OK"')) {
-        // 此日無資料，繼續往前一天
+      let json;
+      try {
+        json = JSON.parse(fbText);
+      } catch {
+        // 回傳非 JSON（例如 HTML 錯誤頁）→ 跳過
         continue;
       }
 
-      const json = JSON.parse(fbText);
+      // TWSE 非交易日回 stat 非 "OK"（例如「很抱歉，沒有符合條件的資料！」）
+      if (json.stat !== "OK") continue;
+
       const rows = json.data ?? [];
+
 
       if (!rows.length) {
         // data 為空陣列 → 非交易日，繼續回溯
