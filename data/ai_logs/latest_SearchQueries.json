@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-03-28T05:23:44.508Z",
+  "_savedAt": "2026-03-28T13:59:51.721Z",
   "type": "SearchQueries",
   "userPrompt": "今天是 2026-03-28。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
@@ -71,7 +71,7 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "VIX 指數飆升至 36.22 顯示市場正處於極度恐慌或劇烈波動狀態，與『偏熱』狀態結合，暗示市場可能正經歷『高位崩跌』或『泡沫破裂』的初期。此時量化模型應高度關注流動性風險、外資撤離、以及引發恐慌的具體總經觸發點（如通膨反彈或地緣政治衝突）。搜尋策略將集中於尋找導致恐慌指數異常的黑天鵝事件、融資斷頭壓力及避險情緒的流向。",
+    "reasoning_process": "當前 VIX 指數高達 36.22，顯示市場處於極度恐慌或劇烈波動狀態，與『偏熱』的市場狀態並存，暗示這可能是一個典型的『末升段噴出後的大幅回檔』或『黑天鵝事件初期的劇烈震盪』。高 VIX 通常與流動性風險、地緣政治衝突或重大經濟數據意外有關。在 2026 年的背景下，需重點關注 AI 產業是否出現估值修正、外資是否大規模撤離台股、以及美國聯準會對於通膨回溫或衰退風險的最新表態。台灣方面需監控融資餘額與外資賣超動向，美國方面則需鎖定避險情緒的來源。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
@@ -82,54 +82,46 @@
         "searchType": "broad"
       },
       {
-        "keyword": "台股 崩跌",
+        "keyword": "台積電 產能利用率",
         "searchType": "intitle"
       },
       {
-        "keyword": "地緣政治 風險",
+        "keyword": "央行 貨幣政策",
         "searchType": "broad"
       },
       {
-        "keyword": "央行 升息",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "避險資產",
+        "keyword": "兩岸 緊張局勢",
         "searchType": "broad"
       },
       {
-        "keyword": "台積電 展望",
+        "keyword": "半導體 庫存調整",
         "searchType": "intitle"
       }
     ],
     "usQueries": [
       {
-        "keyword": "VIX spike causes",
-        "searchType": "broad"
+        "keyword": "VIX volatility spike",
+        "searchType": "intitle"
       },
       {
         "keyword": "Fed hawkish pivot",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "S&P 500 correction",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "Treasury yields surge",
         "searchType": "broad"
       },
       {
-        "keyword": "Tech bubble burst",
+        "keyword": "AI bubble burst",
         "searchType": "intitle"
       },
       {
-        "keyword": "Financial stability risk",
+        "keyword": "US Treasury yields",
         "searchType": "broad"
       },
       {
-        "keyword": "Recession probability",
+        "keyword": "S&P 500 technical correction",
         "searchType": "intitle"
+      },
+      {
+        "keyword": "Global liquidity crunch",
+        "searchType": "broad"
       }
     ]
   }

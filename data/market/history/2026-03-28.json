@@ -1,18 +1,18 @@
 {
   "_meta": {
-    "lastRun": "2026-03-28T07:32:17.324Z",
+    "lastRun": "2026-03-28T13:58:49.322Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-28T07:32:17.324Z"
+        "lastFetch": "2026-03-28T13:58:49.322Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-27T14:17:43.698Z"
+        "lastFetch": "2026-03-28T13:58:49.322Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-27T14:17:43.698Z"
+        "lastFetch": "2026-03-28T13:58:49.322Z"
       },
       "usMarketProvider": {
         "status": "SUCCESS",
@@ -35,20 +35,6 @@
       "light": "紅燈 (過熱)",
       "lightColor": "red"
     },
-    "rawMargin": {
-      "marginBalance100M": 3937.23,
-      "marginBalanceChange100M": 25.86,
-      "maintenanceRatio": 176.96
-    },
-    "rawCnn": {
-      "score": 12.66,
-      "rating": "extreme fear",
-      "previousClose": 18.15,
-      "previous1Week": 16.49,
-      "previous1Month": 38.03,
-      "previous1Year": 28.34,
-      "timestamp": "2026-03-27T14:16:59.000Z"
-    },
     "rawUsMarket": {
       "success": true,
       "vix": "27.44",
@@ -64,9 +50,9 @@
       "source": "FRED"
     },
     "rawValuation": {
-      "pe": 18.58,
+      "pe": 25.69,
       "yield": null,
-      "pb": 2.43,
+      "pb": 3.42,
       "date": "1150327"
     },
     "quote": {
@@ -74,6 +60,15 @@
       "quote": "There are no limitations to the mind except those we acknowledge...",
       "author": "Napoleon Hill",
       "source": "zenquotes"
+    },
+    "rawCnn": {
+      "score": 10.22,
+      "rating": "extreme fear",
+      "previousClose": 17.45,
+      "previous1Week": 15.63,
+      "previous1Month": 41.17,
+      "previous1Year": 28.34,
+      "timestamp": "2026-03-27T23:59:48.000Z"
     },
     "rawFx": {
       "currentRate": 32.02,
@@ -102,6 +97,11 @@
         31.9359,
         31.93
       ]
+    },
+    "rawMargin": {
+      "marginBalance100M": 3937.23,
+      "marginBalanceChange100M": 25.86,
+      "maintenanceRatio": 176.96
     }
   }
 }
