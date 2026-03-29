@@ -4,6 +4,7 @@ import { getDailyQuote } from "../modules/providers/quoteProvider.mjs";
 import { fetchUsMarketData } from "../modules/providers/usMarketProvider.mjs";
 import { getRawNews } from "../modules/newsFetcher.mjs";
 import { fetchMarketValuation } from "../modules/providers/twseProvider.mjs";
+import { fetchBusinessIndicator } from "../modules/providers/ndcProvider.mjs";
 
 //listAllModels();
 
@@ -15,9 +16,15 @@ import { fetchMarketValuation } from "../modules/providers/twseProvider.mjs";
 //  console.log("美股市場資料：", data);
 //});
 
+fetchBusinessIndicator().then((data) => {
+  console.log("景氣燈號：", data);
+});
+
+/*
 fetchMarketValuation().then((data) => {
   console.log("大盤估值：", data);
 });
+*/
 /*
 const aiResults = JSON.parse(`{"twQueries": [
       {
