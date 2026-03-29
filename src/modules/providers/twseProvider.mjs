@@ -99,9 +99,9 @@ const COOKIE_TTL_MS = 10 * 60 * 1000;
 // 📊 大盤估值快取 (日近似值 + 月報校正偏差)
 // ============================================================================
 let _valuationCache = { result: null, loadedAt: 0 };
-let _sharesCache    = { data: null, loadedAt: 0 };
+let _sharesCache = { data: null, loadedAt: 0 };
 const VALUATION_TTL_MS = 4 * 60 * 60 * 1000;   // 4h
-const SHARES_TTL_MS    = 7 * 24 * 60 * 60 * 1000; // 7d
+const SHARES_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7d
 
 async function getMisCookie() {
   const now = Date.now();
@@ -476,14 +476,9 @@ export async function fetchRealTimePrice(symbol) {
 // ============================================================================
 // 📈 大盤估值與基本面獲取 (PB / PE) — 市值加權法
 //
-//   PE  = Σ(市值_i, 盈餘股) / Σ(市值_i / PE_i)     EPS ≤ 0 排除
-//   PB  = Σ(所有市值)       / Σ(市值_i / PB_i)
-//   Yield = Σ(市值_i × Yield_i%) / Σ(市值_i)
-//
-// 資料來源：
-//   BWIBBU_ALL    → 個股 PE / PB / Yield   (OpenAPI，自動最新交易日)
-//   STOCK_DAY_ALL → 個股收盤價             (OpenAPI，自動最新交易日)
-//   t187ap03_L    → 個股發行股數           (OpenAPI，7d 快取)
+//   PE    = Σ(市值_i) / Σ(市值_i / PE_i)          (僅限 PE > 0 盈餘股)
+//   PB    = Σ(市值_i) / Σ(市值_i / PB_i)          (僅限 PB > 0)
+//   Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 // ============================================================================
 export async function fetchMarketValuation() {
   const now = Date.now();
@@ -503,8 +498,13 @@ export async function fetchMarketValuation() {
     return _valuationCache.result;
   }
 
+  function cleanCode(code) {
+    if (!code) return "";
+    return String(code).trim().toUpperCase();
+  }
+
   const fetchJson = async (url, timeout = 8000) => {
-    const res  = await fetchWithTimeout(
+    const res = await fetchWithTimeout(
       url,
       { ...baseFetchOptions, headers: { ...baseFetchOptions.headers, Accept: "application/json" } },
       timeout
@@ -516,59 +516,63 @@ export async function fetchMarketValuation() {
     return JSON.parse(text);
   };
 
-  // ── 發行股數（7d 快取，資料極少變動）────────────────────────────────────
   async function fetchSharesMap() {
     if (_sharesCache.data && now - _sharesCache.loadedAt < SHARES_TTL_MS) {
       return _sharesCache.data;
     }
-    const data = await fetchJson(
-      "https://openapi.twse.com.tw/v1/opendata/t187ap03_L",
-      12000
-    );
+    const data = await fetchJson("https://openapi.twse.com.tw/v1/opendata/t187ap03_L", 12000);
     const map = new Map();
     for (const row of data) {
-      const code = (row["公司代號"] ?? "").trim();
-      // 已發行普通股數（單位：股，含千分位逗號）
-      const raw =
-        row["已發行普通股數或TDR原股發行股數"] ??
-        row["普通股(股)"] ?? "";
+      const code = cleanCode(row["公司代號"]);
+      const raw = row["已發行普通股數或TDR原股發行股數"] ?? row["普通股(股)"] ?? "";
       const shares = Number(String(raw).replace(/,/g, ""));
       if (code && !isNaN(shares) && shares > 0) map.set(code, shares);
     }
     _sharesCache = { data: map, loadedAt: now };
-    console.info(`[fetchMarketValuation] 發行股數更新：${map.size} 筆`);
     return map;
   }
 
   try {
-    // ── 並行抓三支 API ───────────────────────────────────────────────────────
     const [bwibbu, stockDay, sharesMap] = await Promise.all([
       fetchJson("https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL"),
       fetchJson("https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"),
       fetchSharesMap(),
     ]);
 
-    // 建立收盤價 Map：code → price
     const priceMap = new Map();
     for (const s of stockDay) {
-      const code  = (s.Code ?? "").trim();
+      const code = cleanCode(s.Code);
       const price = toNum(s.ClosingPrice);
       if (code && price !== null && price > 0) priceMap.set(code, price);
     }
 
-    // ── 市值加權聚合 ─────────────────────────────────────────────────────────
-    let sumMktCap   = 0;  // 全市場總市值
-    let sumNetAsset = 0;  // 全市場總淨值（PB 分母）
-    let sumMktCapPE = 0;  // 盈餘股總市值（PE 分子）
-    let sumEarnings = 0;  // 盈餘股總盈餘（PE 分母）
-    let sumDividend = 0;  // 股息總額（Yield 分子）
+    // --- 統計用變數 ---
+    let sumMktCap = 0;
+
+    // PE 統計
+    let peValidMktCap = 0;
+    let peInvalidMktCap = 0;
+    let peInvalidCount = 0;
+    let sumEarnings = 0;
+
+    // PB 統計
+    let pbValidMktCap = 0;
+    let pbInvalidMktCap = 0;
+    let pbInvalidCount = 0;
+    let sumNetAsset = 0;
+
+    let sumDividend = 0;
+    let joinCount = 0;
+
+    // 收集所有成功 JOIN 的個股資料，用於排序
+    const allStocks = [];
 
     for (const s of bwibbu) {
-      const code   = (s.Code ?? "").trim();
-      const pe     = toNum(s.PEratio);
-      const pb     = toNum(s.PBratio);
-      const yld    = toNum(s.Yield);
-      const price  = priceMap.get(code);
+      const code = cleanCode(s.Code);
+      const pe = toNum(s.PEratio);
+      const pb = toNum(s.PBratio);
+      const yld = toNum(s.DividendYield);
+      const price = priceMap.get(code);
       const shares = sharesMap.get(code);
 
       if (!code || price == null || shares == null) continue;
@@ -576,44 +580,55 @@ export async function fetchMarketValuation() {
       const mktCap = price * shares;
       if (mktCap <= 0) continue;
 
+      joinCount++;
       sumMktCap += mktCap;
 
-      // PB：個股總淨值 = 市值 ÷ PB
-      if (pb !== null && pb > 0) sumNetAsset += mktCap / pb;
+      // 儲存明細
+      allStocks.push({ code, mktCap, pe, pb, yld });
 
-      // PE：排除 EPS ≤ 0 個股，個股盈餘 = 市值 ÷ PE
+      // PE 處理
       if (pe !== null && pe > 0) {
-        sumMktCapPE += mktCap;
+        peValidMktCap += mktCap;
         sumEarnings += mktCap / pe;
+      } else {
+        peInvalidMktCap += mktCap;
+        peInvalidCount++;
       }
 
-      // Yield：股息總額 = 市值 × 殖利率%
-      if (yld !== null && yld > 0) sumDividend += mktCap * (yld / 100);
+      // PB 處理
+      if (pb !== null && pb > 0) {
+        pbValidMktCap += mktCap;
+        sumNetAsset += mktCap / pb;
+      } else {
+        pbInvalidMktCap += mktCap;
+        pbInvalidCount++;
+      }
+
+      // Yield 處理
+      if (yld !== null && yld > 0) {
+        sumDividend += mktCap * (yld / 100);
+      }
     }
 
-    if (sumMktCap === 0) throw new Error("市值加總為 0，三表 JOIN 可能失敗");
+    // 處理日期格式
+    let rawDate = bwibbu[0]?.Date ?? null;
+    if (rawDate && rawDate.length === 7 && rawDate.startsWith("1")) {
+      rawDate = String(Number(rawDate.substring(0, 3)) + 1911) + rawDate.substring(3);
+    }
 
     const result = {
-      pe:    sumEarnings > 0 ? round2(sumMktCapPE / sumEarnings)       : null,
-      pb:    sumNetAsset > 0 ? round2(sumMktCap   / sumNetAsset)       : null,
-      yield: sumDividend > 0 ? round2((sumDividend / sumMktCap) * 100) : null,
-      date:  bwibbu[0]?.Date ?? null,
+      pe: sumEarnings > 0 ? round2(sumMktCap / sumEarnings) : null,
+      pb: sumNetAsset > 0 ? round2(sumMktCap / sumNetAsset) : null,
+      yield: sumMktCap > 0 && sumDividend > 0 ? round2((sumDividend / sumMktCap) * 100) : null,
+      date: rawDate,
     };
 
     _valuationCache = { result, loadedAt: now };
     return result;
 
   } catch (err) {
-    if (err.message?.includes("Timeout")) {
-      console.warn("TWSE 估值 API Timeout.");
-    } else {
-      console.warn(`TWSE 估值 API 異常: ${err.message}`);
-    }
-    // 有舊快取則降級回傳，避免系統整體中斷
-    if (_valuationCache.result) {
-      console.info("[fetchMarketValuation] 使用舊快取資料");
-      return _valuationCache.result;
-    }
+    console.warn(`TWSE 估值 API 異常: ${err.message}`);
+    if (_valuationCache.result) return _valuationCache.result;
     throw err;
   }
 }
