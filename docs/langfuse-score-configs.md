@@ -63,18 +63,33 @@
 
 ## 3. Keyword_Yield_Rate
 
-- **Name:** `Keyword_Yield_Rate`
-- **Data Type:** `Numeric`
-- **Data Options/Range:** `0 ~ 1`
-- **Description:**  
-  [Rule] [Search Queries Generator]  
-  評估產出的搜尋關鍵字是否有效。  
-  計算方式為：有成功搜尋到新聞的 query 數量 / 總 query 數量。  
-  分數越高，代表關鍵字越能成功抓到有效新聞。
+- **Name:** Keyword_Yield_Rate
+- **Data Type:** Numeric
+- **Data Options/Range:** 0 ~ 1
+- **Description:**
+  [Rule] [Search Queries Generator]
+  評估所有搜尋關鍵字（靜態 + 動態）的整體有效率。
+  計算方式：過濾後 ≥ 1 篇新聞的 query 數 / 成功執行的 query 總數（排除 RSS 例外錯誤）。
+  用於監控整體管線健康度。
+  comment 欄位需同時記錄 base 與 dynamic 各自的 valid/total 明細。
 
 ---
 
-## 4. Context_Alignment
+## 4. Dynamic_Keyword_Yield_Rate
+
+- **Name:** Dynamic_Keyword_Yield_Rate
+- **Data Type:** Numeric
+- **Data Options/Range:** 0 ~ 1
+- **Description:**
+  [Rule] [Search Queries Generator]
+  專門評估 AI 動態生成關鍵字的有效率，排除靜態 base 關鍵字的影響。
+  計算方式：動態關鍵字中過濾後 ≥ 1 篇新聞的 query 數 / 動態關鍵字成功執行數。
+  此指標為 AI Prompt 優化的主要依據，搭配 Context_Alignment 可交叉判斷品質。
+  建議警戒閾值：連續 3 日低於 0.4 需人工檢查 Prompt。
+
+---
+
+## 5. Context_Alignment
 
 - **Name:** `Context_Alignment`
 - **Data Type:** `Numeric`
@@ -86,7 +101,7 @@
 
 ---
 
-## 5. Diversity_Score
+## 6. Diversity_Score
 
 - **Name:** `Diversity_Score`
 - **Data Type:** `Numeric`
@@ -99,7 +114,7 @@
 
 ---
 
-## 6. Signal_to_Noise_Ratio
+## 7. Signal_to_Noise_Ratio
 
 - **Name:** `Signal_to_Noise_Ratio`
 - **Data Type:** `Numeric`
@@ -111,7 +126,7 @@
 
 ---
 
-## 7. Summary_Quality
+## 8. Summary_Quality
 
 - **Name:** `Summary_Quality`
 - **Data Type:** `Numeric`
@@ -124,7 +139,7 @@
 
 ---
 
-## 8. Score_Distribution_Spread
+## 9. Score_Distribution_Spread
 
 - **Name:** `Score_Distribution_Spread`
 - **Data Type:** `Numeric`
@@ -137,7 +152,7 @@
 
 ---
 
-## 9. Logic_Consistency
+## 10. Logic_Consistency
 
 - **Name:** `Logic_Consistency`
 - **Data Type:** `Numeric`
@@ -149,7 +164,7 @@
 
 ---
 
-## 10. Weighting_Rationality
+## 11. Weighting_Rationality
 
 - **Name:** `Weighting_Rationality`
 - **Data Type:** `Numeric`
@@ -162,7 +177,7 @@
 
 ---
 
-## 11. Actionability
+## 12. Actionability
 
 - **Name:** `Actionability`
 - **Data Type:** `Numeric`
@@ -174,7 +189,7 @@
 
 ---
 
-## 12. Tone_and_Empathy
+## 13. Tone_and_Empathy
 
 - **Name:** `Tone_and_Empathy`
 - **Data Type:** `Numeric`
