@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-29T00:00:02.702Z",
+  "_savedAt": "2026-03-29T04:36:29.150Z",
   "type": "SearchQueries",
-  "userPrompt": "今天是 2026-03-28。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
+  "userPrompt": "今天是 2026-03-29。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
     "type": "OBJECT",
     "properties": {
@@ -71,56 +71,60 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 36.22，顯示市場處於極度恐慌與高波動狀態，這與『偏熱/觀察』的狀態形成強烈對比，暗示市場可能正處於高檔反轉的臨界點或面臨重大的非對稱風險（如地緣政治衝突或突發性金融危機）。高 VIX 通常伴隨資產價格劇烈震盪，因此搜尋重點將聚焦於外資撤離動向、避險資產流入、聯準會政策轉向風險以及科技股估值修正。",
+    "reasoning_process": "當前 VIX 指數高達 36.22，顯示市場正處於極度恐慌或發生劇烈波動的「黑天鵝」事件中。儘管狀態標示為「偏熱」，但在高 VIX 背景下，這通常意味著市場正經歷高檔反轉後的恐慌性拋售（Panic Selling）或多殺多行情。推論原因可能包含：1. 美國聯準會（Fed）因通膨反撲或金融系統風險突發緊急政策轉向；2. 科技股（如 AI 權值股）泡沫破裂導致的去槓桿壓力；3. 地緣政治衝突升溫。搜尋策略將聚焦於「融資斷頭」、「外資撤資」、「避險情緒」以及「系統性風險」。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
         "searchType": "intitle"
       },
       {
-        "keyword": "台股 震盪",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "避險資產",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "地緣政治 緊張",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "融資 斷頭",
+        "keyword": "融資 維持率",
         "searchType": "broad"
       },
       {
         "keyword": "台積電 展望",
         "searchType": "intitle"
+      },
+      {
+        "keyword": "地緣政治 風險",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "台股 崩跌",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "避險資產",
+        "searchType": "broad"
       }
     ],
     "usQueries": [
       {
-        "keyword": "VIX volatility spike",
+        "keyword": "Fed emergency meeting",
         "searchType": "intitle"
       },
       {
-        "keyword": "Fed interest rates",
+        "keyword": "VIX spike causes",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "S&P 500 correction",
         "searchType": "intitle"
       },
       {
-        "keyword": "US Treasury yields",
+        "keyword": "Systemic financial risk",
         "searchType": "broad"
       },
       {
-        "keyword": "Recession risk",
+        "keyword": "Nvidia sell-off",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "Treasury yield curve inversion",
         "searchType": "broad"
       },
       {
-        "keyword": "Safe haven assets",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Nvidia stock crash",
+        "keyword": "Recession probability",
         "searchType": "intitle"
       }
     ]

@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-28T23:59:33.772Z",
+    "lastRun": "2026-03-29T04:35:59.463Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-28T23:59:33.772Z"
+        "lastFetch": "2026-03-29T04:35:59.463Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -16,15 +16,15 @@
       },
       "usMarketProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-28T23:59:33.772Z"
+        "lastFetch": "2026-03-29T04:35:59.463Z"
       },
       "ndcProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-28T23:59:33.772Z"
+        "lastFetch": "2026-03-29T04:35:59.463Z"
       },
       "valuationProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-28T23:59:33.772Z"
+        "lastFetch": "2026-03-29T04:35:59.463Z"
       }
     }
   },
@@ -42,6 +42,12 @@
       "previous1Month": 41.17,
       "previous1Year": 28.34,
       "timestamp": "2026-03-27T23:59:48.000Z"
+    },
+    "quote": {
+      "date": "2026-03-29",
+      "quote": "We must not be afraid of dreaming the seemingly impossible if we want the seemingly impossible to become a reality.",
+      "author": "Vaclav Havel",
+      "source": "zenquotes"
     },
     "rawUsMarket": {
       "success": true,
@@ -85,12 +91,6 @@
         31.93
       ]
     },
-    "quote": {
-      "date": "2026-03-29",
-      "quote": "We must not be afraid of dreaming the seemingly impossible if we want the seemingly impossible to become a reality.",
-      "author": "Vaclav Havel",
-      "source": "zenquotes"
-    },
     "rawNdc": {
       "date": "2026-01",
       "score": 39,
@@ -98,10 +98,10 @@
       "lightColor": "red"
     },
     "rawValuation": {
-      "pe": 119.5,
-      "yield": 3.77,
-      "pb": 114,
-      "date": "20260327"
+      "pe": 18.58,
+      "yield": null,
+      "pb": 2.43,
+      "date": "1150327"
     }
   }
 }
