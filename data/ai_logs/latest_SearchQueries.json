@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-03-29T05:45:57.298Z",
+  "_savedAt": "2026-03-29T07:37:44.480Z",
   "type": "SearchQueries",
   "userPrompt": "今天是 2026-03-29。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
@@ -71,56 +71,56 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 36.22，顯示市場正處於極度恐慌與劇烈波動狀態，這與『偏熱/觀察』的狀態形成強烈對比，暗示市場可能剛從高點發生閃崩或面臨重大的系統性風險。高 VIX 通常與流動性危機、地緣政治衝突或意外的總經數據（如通膨反彈）有關。在台灣市場，需高度關注外資大規模撤出與融資斷頭壓力；在美國市場，則需追蹤聯準會是否轉向鷹派、美債殖利率飆升以及經濟硬著陸的風險。",
+    "reasoning_process": "當前 VIX 指數高達 36.22，顯示市場正處於極度恐慌與劇烈波動狀態，這與『偏熱/觀察』的標籤形成強烈對比，暗示市場可能剛經歷高點後的閃崩或正處於重大的黑天鵝事件邊緣。推論原因可能包含：1. AI 泡沫破裂導致的大型科技股拋售；2. 美國聯準會因通膨反彈意外轉向鷹派；3. 地緣政治緊張局勢突然升級（如台海或中東）。搜尋策略將聚焦於『融資斷頭』、『外資撤資』、『系統性風險』以及『避險資產流向』。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
         "searchType": "intitle"
       },
       {
-        "keyword": "融資 斷頭",
+        "keyword": "融資 維持率",
         "searchType": "broad"
       },
       {
-        "keyword": "台積電 展望",
+        "keyword": "台積電 跌停",
         "searchType": "intitle"
       },
       {
-        "keyword": "地緣政治 緊張",
+        "keyword": "台幣 貶值",
         "searchType": "broad"
       },
       {
-        "keyword": "通膨 壓力",
+        "keyword": "國安基金 護盤",
         "searchType": "intitle"
       },
       {
-        "keyword": "避險 資產",
+        "keyword": "地緣政治 風險",
         "searchType": "broad"
       }
     ],
     "usQueries": [
       {
-        "keyword": "Fed rate hike",
+        "keyword": "Stock market crash",
         "searchType": "intitle"
       },
       {
-        "keyword": "S&P 500 volatility",
+        "keyword": "Fed emergency meeting",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "Systemic risk",
         "searchType": "broad"
       },
       {
-        "keyword": "Tech stock selloff",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "US Treasury yields",
+        "keyword": "Nvidia bubble",
         "searchType": "broad"
       },
       {
-        "keyword": "Economic hard landing",
+        "keyword": "Treasury yield spike",
         "searchType": "intitle"
       },
       {
-        "keyword": "Financial contagion",
+        "keyword": "Safe haven assets",
         "searchType": "broad"
       }
     ]
