@@ -1,18 +1,18 @@
 {
   "_meta": {
-    "lastRun": "2026-03-29T07:37:21.000Z",
+    "lastRun": "2026-03-29T14:00:35.548Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-29T07:37:21.000Z"
+        "lastFetch": "2026-03-29T14:00:35.548Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-28T13:58:49.322Z"
+        "lastFetch": "2026-03-29T14:00:35.548Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-28T13:58:49.322Z"
+        "lastFetch": "2026-03-29T14:00:35.548Z"
       },
       "usMarketProvider": {
         "status": "SUCCESS",
@@ -34,20 +34,6 @@
       "score": 39,
       "light": "紅燈 (過熱)",
       "lightColor": "red"
-    },
-    "rawMargin": {
-      "marginBalance100M": 3937.23,
-      "marginBalanceChange100M": 25.86,
-      "maintenanceRatio": 176.96
-    },
-    "rawCnn": {
-      "score": 10.22,
-      "rating": "extreme fear",
-      "previousClose": 17.45,
-      "previous1Week": 15.63,
-      "previous1Month": 41.17,
-      "previous1Year": 28.34,
-      "timestamp": "2026-03-27T23:59:48.000Z"
     },
     "rawUsMarket": {
       "success": true,
@@ -75,6 +61,15 @@
       "author": "Vaclav Havel",
       "source": "zenquotes"
     },
+    "rawCnn": {
+      "score": 10.22,
+      "rating": "extreme fear",
+      "previousClose": 17.45,
+      "previous1Week": 15.63,
+      "previous1Month": 41.17,
+      "previous1Year": 28.34,
+      "timestamp": "2026-03-27T23:59:48.000Z"
+    },
     "rawFx": {
       "currentRate": 32.02,
       "previousClose": 31.2468,
@@ -100,8 +95,14 @@
         31.862,
         31.9258,
         31.9359,
-        31.93
+        31.93,
+        32.02
       ]
+    },
+    "rawMargin": {
+      "marginBalance100M": 3937.23,
+      "marginBalanceChange100M": 25.86,
+      "maintenanceRatio": 176.96
     }
   }
 }
