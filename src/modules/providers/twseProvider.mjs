@@ -99,7 +99,7 @@ const COOKIE_TTL_MS = 10 * 60 * 1000;
 // 📊 大盤估值快取 (日近似值 + 月報校正偏差)
 // ============================================================================
 let _valuationCache = { result: null, loadedAt: 0 };
-let _sharesCache    = {    null, loadedAt: 0 };
+let _sharesCache    = { data: null, loadedAt: 0 };
 const VALUATION_TTL_MS = 4 * 60 * 60 * 1000;   // 4h
 const SHARES_TTL_MS    = 7 * 24 * 60 * 60 * 1000; // 7d
 
@@ -535,7 +535,7 @@ export async function fetchMarketValuation() {
       const shares = Number(String(raw).replace(/,/g, ""));
       if (code && !isNaN(shares) && shares > 0) map.set(code, shares);
     }
-    _sharesCache = {  map, loadedAt: now };
+    _sharesCache = { data: map, loadedAt: now };
     console.info(`[fetchMarketValuation] 發行股數更新：${map.size} 筆`);
     return map;
   }
