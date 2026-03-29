@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-03-28T13:59:51.721Z",
+  "_savedAt": "2026-03-29T00:00:02.702Z",
   "type": "SearchQueries",
   "userPrompt": "今天是 2026-03-28。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
@@ -71,30 +71,30 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 36.22，顯示市場處於極度恐慌或劇烈波動狀態，與『偏熱』的市場狀態並存，暗示這可能是一個典型的『末升段噴出後的大幅回檔』或『黑天鵝事件初期的劇烈震盪』。高 VIX 通常與流動性風險、地緣政治衝突或重大經濟數據意外有關。在 2026 年的背景下，需重點關注 AI 產業是否出現估值修正、外資是否大規模撤離台股、以及美國聯準會對於通膨回溫或衰退風險的最新表態。台灣方面需監控融資餘額與外資賣超動向，美國方面則需鎖定避險情緒的來源。",
+    "reasoning_process": "當前 VIX 指數高達 36.22，顯示市場處於極度恐慌與高波動狀態，這與『偏熱/觀察』的狀態形成強烈對比，暗示市場可能正處於高檔反轉的臨界點或面臨重大的非對稱風險（如地緣政治衝突或突發性金融危機）。高 VIX 通常伴隨資產價格劇烈震盪，因此搜尋重點將聚焦於外資撤離動向、避險資產流入、聯準會政策轉向風險以及科技股估值修正。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
         "searchType": "intitle"
       },
       {
+        "keyword": "台股 震盪",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "避險資產",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "地緣政治 緊張",
+        "searchType": "broad"
+      },
+      {
         "keyword": "融資 斷頭",
         "searchType": "broad"
       },
       {
-        "keyword": "台積電 產能利用率",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "央行 貨幣政策",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "兩岸 緊張局勢",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "半導體 庫存調整",
+        "keyword": "台積電 展望",
         "searchType": "intitle"
       }
     ],
@@ -104,11 +104,7 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "Fed hawkish pivot",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "AI bubble burst",
+        "keyword": "Fed interest rates",
         "searchType": "intitle"
       },
       {
@@ -116,12 +112,16 @@
         "searchType": "broad"
       },
       {
-        "keyword": "S&P 500 technical correction",
-        "searchType": "intitle"
+        "keyword": "Recession risk",
+        "searchType": "broad"
       },
       {
-        "keyword": "Global liquidity crunch",
+        "keyword": "Safe haven assets",
         "searchType": "broad"
+      },
+      {
+        "keyword": "Nvidia stock crash",
+        "searchType": "intitle"
       }
     ]
   }
