@@ -3,6 +3,7 @@ import { listAllModels } from "../modules/ai/aiClient.mjs";
 import { getDailyQuote } from "../modules/providers/quoteProvider.mjs";
 import { fetchUsMarketData } from "../modules/providers/usMarketProvider.mjs";
 import { getRawNews } from "../modules/newsFetcher.mjs";
+import { fetchMarketValuation } from "../modules/providers/twseProvider.mjs";
 
 //listAllModels();
 
@@ -14,6 +15,10 @@ import { getRawNews } from "../modules/newsFetcher.mjs";
 //  console.log("美股市場資料：", data);
 //});
 
+fetchMarketValuation().then((data) => {
+  console.log("大盤估值：", data);
+});
+/*
 const aiResults = JSON.parse(`{"twQueries": [
       {
         "keyword": "外資 賣超",
@@ -86,3 +91,4 @@ rawNews.forEach((news, index) => {
     `最終新聞 [${index}] [${news._region}] 標題: ${news.title} | 來源: ${news.source}`,
   );
 });
+*/
