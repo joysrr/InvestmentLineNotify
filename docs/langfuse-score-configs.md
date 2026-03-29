@@ -207,6 +207,7 @@
 
 1. `Schema_Validation`
 2. `Keyword_Yield_Rate`
+3. `Dynamic_Keyword_Yield_Rate`
 3. `Diversity_Score`
 4. `Signal_to_Noise_Ratio`
 5. `Logic_Consistency`
@@ -227,6 +228,7 @@
 - Schema_Validation
 - Format_Compliance
 - Keyword_Yield_Rate
+- Dynamic_Keyword_Yield_Rate
 - Diversity_Score
 - Score_Distribution_Spread
 
