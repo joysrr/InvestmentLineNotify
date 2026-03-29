@@ -98,14 +98,10 @@ const COOKIE_TTL_MS = 10 * 60 * 1000;
 // ============================================================================
 // 📊 大盤估值快取 (日近似值 + 月報校正偏差)
 // ============================================================================
-let _valuationCache = {
-  result:      null,
-  loadedAt:    0,
-  calibOffset: null,
-  calibAt:     0,
-};
-const VALUATION_TTL_MS       = 4  * 60 * 60 * 1000;  // 4h
-const VALUATION_CALIB_TTL_MS = 23 * 60 * 60 * 1000;  // 23h
+let _valuationCache = { result: null, loadedAt: 0 };
+let _sharesCache    = {    null, loadedAt: 0 };
+const VALUATION_TTL_MS = 4 * 60 * 60 * 1000;   // 4h
+const SHARES_TTL_MS    = 7 * 24 * 60 * 60 * 1000; // 7d
 
 async function getMisCookie() {
   const now = Date.now();
@@ -478,14 +474,16 @@ export async function fetchRealTimePrice(symbol) {
 }
 
 // ============================================================================
-// 📈 大盤估值與基本面獲取 (PB / PE)
+// 📈 大盤估值與基本面獲取 (PB / PE) — 市值加權法
 //
-// 策略：
-//   主路徑  → BWIBBU_ALL (OpenAPI，每日，個股清單聚合)  ← 速度快，無日期限制
-//   月報校正 → BWIBBU    (rwd，月度，官方市值加權值)    ← 每 23h 重抓一次
-//   輸出    → 近似值 + 加法偏差 ≈ 官方加權值
+//   PE  = Σ(市值_i, 盈餘股) / Σ(市值_i / PE_i)     EPS ≤ 0 排除
+//   PB  = Σ(所有市值)       / Σ(市值_i / PB_i)
+//   Yield = Σ(市值_i × Yield_i%) / Σ(市值_i)
 //
-//   回傳格式不變：{ pe, yield, pb, date }
+// 資料來源：
+//   BWIBBU_ALL    → 個股 PE / PB / Yield   (OpenAPI，自動最新交易日)
+//   STOCK_DAY_ALL → 個股收盤價             (OpenAPI，自動最新交易日)
+//   t187ap03_L    → 個股發行股數           (OpenAPI，7d 快取)
 // ============================================================================
 export async function fetchMarketValuation() {
   const now = Date.now();
@@ -494,210 +492,128 @@ export async function fetchMarketValuation() {
     return Math.round(v * 100) / 100;
   }
 
-  /**
-   * BWIBBU_ALL 個股清單 → 調和平均 PE + 算術平均 PB/Yield（每日近似值）
-   */
-  async function fetchDailyApprox() {
-    const res = await fetchWithTimeout(
-      "https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL",
-      {
-        ...baseFetchOptions,
-        headers: { ...baseFetchOptions.headers, Accept: "application/json" },
-      },
-      8000
+  function toNum(v) {
+    if (v == null || v === "--" || v === "-" || v === "") return null;
+    const n = Number(String(v).replace(/,/g, ""));
+    return isNaN(n) ? null : n;
+  }
+
+  // ── 日快取 4h 內直接回傳 ─────────────────────────────────────────────────
+  if (_valuationCache.result && now - _valuationCache.loadedAt < VALUATION_TTL_MS) {
+    return _valuationCache.result;
+  }
+
+  const fetchJson = async (url, timeout = 8000) => {
+    const res  = await fetchWithTimeout(
+      url,
+      { ...baseFetchOptions, headers: { ...baseFetchOptions.headers, Accept: "application/json" } },
+      timeout
     );
     const text = await res.text();
     if (!res.ok || !text.trim().startsWith("[")) {
-      throw new Error("BWIBBU_ALL 回傳異常");
+      throw new Error(`${url} 回傳異常`);
     }
-    const data = JSON.parse(text);
-    if (!data?.length) throw new Error("BWIBBU_ALL 無資料");
+    return JSON.parse(text);
+  };
 
-    const peArr = [], pbArr = [], yieldArr = [];
-    for (const s of data) {
-      const pe  = parseNumberOrNull(s.PEratio);
-      const pb  = parseNumberOrNull(s.PBratio);
-      const yld = parseNumberOrNull(s.Yield);
-      if (pe  !== null && pe  > 0) peArr.push(pe);
-      if (pb  !== null && pb  > 0) pbArr.push(pb);
-      if (yld !== null && yld > 0) yieldArr.push(yld);
+  // ── 發行股數（7d 快取，資料極少變動）────────────────────────────────────
+  async function fetchSharesMap() {
+    if (_sharesCache.data && now - _sharesCache.loadedAt < SHARES_TTL_MS) {
+      return _sharesCache.data;
     }
-    if (!peArr.length) throw new Error("BWIBBU_ALL 無有效 PE");
-
-    return {
-      pe:    round2(peArr.length / peArr.reduce((a, v) => a + 1 / v, 0)),
-      pb:    pbArr.length    ? round2(pbArr.reduce((a, b) => a + b, 0)    / pbArr.length)    : null,
-      yield: yieldArr.length ? round2(yieldArr.reduce((a, b) => a + b, 0) / yieldArr.length) : null,
-      date:  data[0]?.Date ?? null,
-    };
-  }
-
-  /**
-   * BWIBBU 月報 → 官方市值加權大盤 PE/PB（傳當月 1 日查詢）
-   */
-  async function fetchMonthlyOfficial() {
-    const d = new Date();
-    d.setDate(1);
-    const monthKey = [
-      d.getFullYear(),
-      String(d.getMonth() + 1).padStart(2, "0"),
-      "01",
-    ].join("");
-
-    const url =
-      `https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU` +
-      `?date=${monthKey}&selectType=ALL&response=json&_=${Date.now()}`;
-
-    const res = await fetchWithTimeout(
-      url,
-      {
-        ...baseFetchOptions,
-        headers: {
-          ...baseFetchOptions.headers,
-          Accept: "application/json",
-          Referer: "https://www.twse.com.tw/zh/trading/historical/bwibbu.html",
-        },
-      },
-      8000
+    const data = await fetchJson(
+      "https://openapi.twse.com.tw/v1/opendata/t187ap03_L",
+      12000
     );
-    const text = await res.text();
-    if (!res.ok || !text.includes('"stat":"OK"')) {
-      throw new Error(`BWIBBU 月報無資料 (${monthKey})`);
+    const map = new Map();
+    for (const row of data) {
+      const code = (row["公司代號"] ?? "").trim();
+      // 已發行普通股數（單位：股，含千分位逗號）
+      const raw =
+        row["已發行普通股數或TDR原股發行股數"] ??
+        row["普通股(股)"] ?? "";
+      const shares = Number(String(raw).replace(/,/g, ""));
+      if (code && !isNaN(shares) && shares > 0) map.set(code, shares);
     }
-
-    const json = JSON.parse(text);
-    const rows = json.data ?? [];
-    if (!rows.length) throw new Error("BWIBBU 月報 data 為空");
-
-    // 尋找「全部」列（官方市值加權統計列），優先取第一列，再取最後一列
-    const summaryRow =
-      rows.find((r) => /全部|總計/.test(r[0] ?? "")) ??
-      rows[0] ??
-      rows[rows.length - 1];
-
-    // BWIBBU 欄位：[0]類股, [1]本益比, [2]殖利率, [3]股價淨值比
-    const pe  = parseNumberOrNull(summaryRow[1]);
-    const yld = parseNumberOrNull(summaryRow[2]);
-    const pb  = parseNumberOrNull(summaryRow[3]);
-
-    if (!pe || pe <= 0) throw new Error("BWIBBU 月報 PE 解析失敗");
-
-    return {
-      pe:    round2(pe),
-      pb:    pb  !== null && pb  > 0 ? round2(pb)  : null,
-      yield: yld !== null && yld > 0 ? round2(yld) : null,
-      date:  json.date ?? monthKey,
-    };
+    _sharesCache = {  map, loadedAt: now };
+    console.info(`[fetchMarketValuation] 發行股數更新：${map.size} 筆`);
+    return map;
   }
 
-  // ── 步驟 1：判斷是否需要月報校正（每 23h 一次）──────────────────────────
-  const needCalib = now - _valuationCache.calibAt > VALUATION_CALIB_TTL_MS;
-
-  if (needCalib) {
-    try {
-      // 並行抓日近似值 + 月報官方值，計算偏差量
-      const [approx, official] = await Promise.all([
-        fetchDailyApprox(),
-        fetchMonthlyOfficial(),
-      ]);
-
-      // 加法偏差 = 官方值 - 近似值（絕對量穩定，不因近似值波動放大）
-      _valuationCache.calibOffset = {
-        pe:    official.pe - approx.pe,
-        pb:
-          official.pb    != null && approx.pb    != null
-            ? official.pb    - approx.pb    : 0,
-        yield:
-          official.yield != null && approx.yield != null
-            ? official.yield - approx.yield : 0,
-      };
-      _valuationCache.calibAt  = now;
-      _valuationCache.result   = { ...approx, fetchedAt: now };
-      _valuationCache.loadedAt = now;
-
-      const c = _valuationCache.calibOffset;
-      console.info(
-        `[fetchMarketValuation] 月報校正完成` +
-        ` 偏差 PE=${c.pe >= 0 ? "+" : ""}${c.pe}` +
-        ` PB=${c.pb >= 0 ? "+" : ""}${c.pb}`
-      );
-
-      // 本次直接回傳官方月報值（最精確）
-      return {
-        pe:    official.pe,
-        yield: official.yield,
-        pb:    official.pb,
-        date:  official.date,
-      };
-    } catch (calibErr) {
-      // 月報校正失敗（假日/API 異常）→ 降級繼續走日近似值流程
-      console.warn(
-        `[fetchMarketValuation] 月報校正失敗，降級使用近似值: ${calibErr.message}`
-      );
-    }
-  }
-
-  // ── 步驟 2：日快取有效（4h 內）→ 直接回傳 ───────────────────────────────
-  const cacheAge = now - _valuationCache.loadedAt;
-  if (_valuationCache.result && cacheAge < VALUATION_TTL_MS) {
-    const r = _valuationCache.result;
-    const o = _valuationCache.calibOffset;
-    if (o) {
-      return {
-        pe:    round2(r.pe    + o.pe),
-        yield: r.yield != null ? round2(r.yield + o.yield) : null,
-        pb:    r.pb    != null ? round2(r.pb    + o.pb)    : null,
-        date:  r.date,
-      };
-    }
-    return { pe: r.pe, yield: r.yield, pb: r.pb, date: r.date };
-  }
-
-  // ── 步驟 3：日快取過期 → 重抓 BWIBBU_ALL ────────────────────────────────
   try {
-    const approx = await fetchDailyApprox();
-    _valuationCache.result   = { ...approx, fetchedAt: now };
-    _valuationCache.loadedAt = now;
+    // ── 並行抓三支 API ───────────────────────────────────────────────────────
+    const [bwibbu, stockDay, sharesMap] = await Promise.all([
+      fetchJson("https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL"),
+      fetchJson("https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"),
+      fetchSharesMap(),
+    ]);
 
-    const o = _valuationCache.calibOffset;
-    if (o) {
-      return {
-        pe:    round2(approx.pe    + o.pe),
-        yield: approx.yield != null ? round2(approx.yield + o.yield) : null,
-        pb:    approx.pb    != null ? round2(approx.pb    + o.pb)    : null,
-        date:  approx.date,
-      };
+    // 建立收盤價 Map：code → price
+    const priceMap = new Map();
+    for (const s of stockDay) {
+      const code  = (s.Code ?? "").trim();
+      const price = toNum(s.ClosingPrice);
+      if (code && price !== null && price > 0) priceMap.set(code, price);
     }
-    return {
-      pe:    approx.pe,
-      yield: approx.yield,
-      pb:    approx.pb,
-      date:  approx.date,
-    };
-  } catch (dailyErr) {
-    // 有舊快取則繼續用，否則直接拋出
-    if (_valuationCache.result) {
-      console.warn(
-        `[fetchMarketValuation] 日資料更新失敗，使用快取 (${_valuationCache.result.date}): ${dailyErr.message}`
-      );
-      const r = _valuationCache.result;
-      const o = _valuationCache.calibOffset;
-      if (o) {
-        return {
-          pe:    round2(r.pe    + o.pe),
-          yield: r.yield != null ? round2(r.yield + o.yield) : null,
-          pb:    r.pb    != null ? round2(r.pb    + o.pb)    : null,
-          date:  r.date,
-        };
+
+    // ── 市值加權聚合 ─────────────────────────────────────────────────────────
+    let sumMktCap   = 0;  // 全市場總市值
+    let sumNetAsset = 0;  // 全市場總淨值（PB 分母）
+    let sumMktCapPE = 0;  // 盈餘股總市值（PE 分子）
+    let sumEarnings = 0;  // 盈餘股總盈餘（PE 分母）
+    let sumDividend = 0;  // 股息總額（Yield 分子）
+
+    for (const s of bwibbu) {
+      const code   = (s.Code ?? "").trim();
+      const pe     = toNum(s.PEratio);
+      const pb     = toNum(s.PBratio);
+      const yld    = toNum(s.Yield);
+      const price  = priceMap.get(code);
+      const shares = sharesMap.get(code);
+
+      if (!code || price == null || shares == null) continue;
+
+      const mktCap = price * shares;
+      if (mktCap <= 0) continue;
+
+      sumMktCap += mktCap;
+
+      // PB：個股總淨值 = 市值 ÷ PB
+      if (pb !== null && pb > 0) sumNetAsset += mktCap / pb;
+
+      // PE：排除 EPS ≤ 0 個股，個股盈餘 = 市值 ÷ PE
+      if (pe !== null && pe > 0) {
+        sumMktCapPE += mktCap;
+        sumEarnings += mktCap / pe;
       }
-      return { pe: r.pe, yield: r.yield, pb: r.pb, date: r.date };
+
+      // Yield：股息總額 = 市值 × 殖利率%
+      if (yld !== null && yld > 0) sumDividend += mktCap * (yld / 100);
     }
 
-    if (dailyErr.message?.includes("Timeout")) {
+    if (sumMktCap === 0) throw new Error("市值加總為 0，三表 JOIN 可能失敗");
+
+    const result = {
+      pe:    sumEarnings > 0 ? round2(sumMktCapPE / sumEarnings)       : null,
+      pb:    sumNetAsset > 0 ? round2(sumMktCap   / sumNetAsset)       : null,
+      yield: sumDividend > 0 ? round2((sumDividend / sumMktCap) * 100) : null,
+      date:  bwibbu[0]?.Date ?? null,
+    };
+
+    _valuationCache = { result, loadedAt: now };
+    return result;
+
+  } catch (err) {
+    if (err.message?.includes("Timeout")) {
       console.warn("TWSE 估值 API Timeout.");
     } else {
-      console.warn(`TWSE 估值 API 異常: ${dailyErr.message}`);
+      console.warn(`TWSE 估值 API 異常: ${err.message}`);
     }
-    throw dailyErr;
+    // 有舊快取則降級回傳，避免系統整體中斷
+    if (_valuationCache.result) {
+      console.info("[fetchMarketValuation] 使用舊快取資料");
+      return _valuationCache.result;
+    }
+    throw err;
   }
 }
