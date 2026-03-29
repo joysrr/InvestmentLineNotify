@@ -218,7 +218,7 @@ export async function dailyCheck({
       !isAIAdvisor,
     );
 
-    // 推送至平台(Line&Telegram)
+    // 推送至平台(Telegram)
     const reportDailyData = {
       result,
       vixData,

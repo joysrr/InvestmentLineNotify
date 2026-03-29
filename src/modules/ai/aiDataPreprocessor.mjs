@@ -126,7 +126,7 @@ export function formatCnnDataForAi(rawData) {
     return { error: "無法取得有效的 CNN 恐懼貪婪資料" };
   }
 
-  const { score, rating, previousClose, previous1Week } = rawData;
+  const { score, rating, previousClose, previous1Week, timestamp } = rawData;
 
   // 1. 將英文 rating 轉換為中文標籤，讓 AI 判讀更直觀
   const ratingMap = {
@@ -154,9 +154,15 @@ export function formatCnnDataForAi(rawData) {
   else if (diffFromLastWeek < -5)
     midTermTrend = `較上週明顯悲觀 (${diffFromLastWeek}分)`;
 
-  // 3. 組合出給 AI 看的完美 JSON
+  // 3. 資料日期
+  const dateStr = timestamp instanceof Date && !isNaN(timestamp)
+    ? timestamp.toISOString().slice(0, 10)
+    : null;
+
+  // 4. 組合出給 AI 看的完美 JSON
   return {
     指標名稱: "CNN 恐懼與貪婪指數 (美股情緒)",
+    資料日期: dateStr || "未知",
     當前狀態: `${score}分 (${currentRating})`,
     短期趨勢_較昨日: shortTermTrend,
     中期趨勢_較上週: midTermTrend,
@@ -450,7 +456,7 @@ export function formatMacroChipForCoach(rawMarketData) {
   // 針對 CNN
   const cnnText = aiCnn["狀態"]
     ? `1. 美股情緒 (CNN恐懼貪婪)：${aiCnn["狀態"]}`
-    : `1. 美股情緒 (CNN恐懼貪婪)：${getVal(aiCnn, "當前狀態")}
+    : `1. 美股情緒 (CNN恐懼貪婪)：${getVal(aiCnn, "當前狀態")} [${getVal(aiCnn, "資料日期")}]
    趨勢：${getVal(aiCnn, "短期趨勢_較昨日")} / ${getVal(aiCnn, "中期趨勢_較上週")}
    解讀：${getVal(aiCnn, "AI解讀提示")}`;
 
@@ -471,14 +477,14 @@ export function formatMacroChipForCoach(rawMarketData) {
   // 針對國發會燈號
   const ndcText = aiNdc["狀態"]
     ? `4. 長線景氣 (國發會燈號)：${aiNdc["狀態"]}`
-    : `4. 長線景氣 (國發會燈號)：${getVal(aiNdc, "當月分數與燈號")}
+    : `4. 長線景氣 (國發會燈號)：${getVal(aiNdc, "當月分數與燈號")} [${getVal(aiNdc, "資料月份")}]
    位階：${getVal(aiNdc, "景氣循環位階")}
    解讀：${getVal(aiNdc, "AI解讀提示")}`;
 
   // 針對大盤估值
   const valText = aiValuation["狀態"]
     ? `5. 大盤估值 (PB/PE)：${aiValuation["狀態"]}`
-    : `5. 大盤估值 (PB/PE)：PB ${getVal(aiValuation, "股價淨值比_PB")} / PE ${getVal(aiValuation, "本益比_PE")}
+    : `5. 大盤估值 (PB/PE)：PB ${getVal(aiValuation, "股價淨值比_PB")} / PE ${getVal(aiValuation, "本益比_PE")} [${getVal(aiValuation, "資料日期")}]
    解讀：${getVal(aiValuation, "AI解讀提示")}`;
 
   // 3. 組合出結構極度清晰的純文本
@@ -506,7 +512,12 @@ export function formatValuationForAi(rawValuation) {
     return { 狀態: "無法取得有效的大盤估值資料" };
   }
 
-  const { pe, pb, yield: y } = rawValuation;
+  const { pe, pb, yield: y, date: rawDate } = rawValuation;
+
+  // 格式化日期 YYYYMMDD → YYYY-MM-DD
+  const dateStr = rawDate && rawDate.length === 8
+    ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`
+    : rawDate || "未知";
 
   let pbStatus = "合理區段";
   let pbAdvice = "大盤淨值比與本益比處於中性水平，依據其他總經訊號判斷。";
@@ -535,6 +546,7 @@ export function formatValuationForAi(rawValuation) {
   // 若 PE 相對較低但 PB 高，可能是企業獲利爆發 (如台積電帶動)，AI 可藉此與 PB 綜合評估
   return {
     指標名稱: "加權指數估值 (大盤安全邊際)",
+    資料日期: dateStr,
     股價淨值比_PB: `${pb} (${pbStatus})`,
     本益比_PE: `${pe}`,
     殖利率: `${y}%`,

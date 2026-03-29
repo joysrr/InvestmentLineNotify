@@ -46,6 +46,32 @@ function signalIcon(triggered, total) {
   return "🔥"; // 高度觸發，用火代表熱度而非警車
 }
 
+/** PE 位階判定 */
+function peStatus(pe) {
+  if (pe == null) return { label: "N/A", emoji: "⬜" };
+  if (pe < 12) return { label: "極度低估", emoji: "🧊" };
+  if (pe < 15) return { label: "低估", emoji: "❄️" };
+  if (pe < 20) return { label: "合理", emoji: "⚖️" };
+  if (pe < 25) return { label: "偏高", emoji: "🔸" };
+  return { label: "高估", emoji: "🔥" };
+}
+
+/** PB 位階判定 */
+function pbStatus(pb) {
+  if (pb == null) return { label: "N/A", emoji: "⬜" };
+  if (pb < 1.5) return { label: "極度低估", emoji: "🧊" };
+  if (pb < 2.0) return { label: "低估", emoji: "❄️" };
+  if (pb < 3.0) return { label: "合理", emoji: "⚖️" };
+  if (pb < 4.0) return { label: "偏高", emoji: "🔸" };
+  return { label: "高估", emoji: "🔥" };
+}
+
+/** 格式化估值日期 (YYYYMMDD → MM/DD) */
+function fmtValDate(dateStr) {
+  if (!dateStr || dateStr.length !== 8) return "";
+  return `${dateStr.slice(4, 6)}/${dateStr.slice(6, 8)}`;
+}
+
 /** 進場評分列 (有分數給星星，沒分數留白) */
 function scoreRow(label, score, info) {
   const isScored = Number.isFinite(score) && score > 0;
@@ -206,6 +232,7 @@ export function buildTelegramMessages({
     : "N/A";
 
   // 4. 景氣燈號
+  const ndcDate = macroData?.rawNdc?.date || "";
   const ndcScore = macroData?.rawNdc?.score;
   const ndcLight = macroData?.rawNdc?.light || "未知";
   const ndcColor = macroData?.rawNdc?.lightColor;
@@ -219,7 +246,21 @@ export function buildTelegramMessages({
   };
   const ndcEmoji = lightEmojiMap[ndcColor] || "⬜";
   const ndcText = Number.isFinite(ndcScore)
-    ? `${ndcScore}pt ${ndcEmoji} ${ndcLight.split(" ")[0]}`
+    ? `${ndcScore}pt ${ndcEmoji} ${ndcLight.split(" ")[0]}${ndcDate ? " (" + ndcDate + ")" : ""}`
+    : "N/A";
+
+  // 5. 大盤估值 PE / PB
+  const rawVal = macroData?.rawValuation;
+  const peVal = rawVal?.pe ?? null;
+  const pbVal = rawVal?.pb ?? null;
+  const valDateStr = fmtValDate(rawVal?.date);
+  const peInfo = peStatus(peVal);
+  const pbInfo = pbStatus(pbVal);
+  const peText = peVal != null
+    ? `${peVal} ${peInfo.emoji} ${peInfo.label}${valDateStr ? " (" + valDateStr + ")" : ""}`
+    : "N/A";
+  const pbText = pbVal != null
+    ? `${pbVal} ${pbInfo.emoji} ${pbInfo.label}${valDateStr ? " (" + valDateStr + ")" : ""}`
     : "N/A";
 
   // ── 價格變動 ──
@@ -301,6 +342,8 @@ ${SEP}\🌐 <b>市場概況</b>${SEP}\
 🇹🇼 台股 VIX <code>${escapeHTML(vixValue || "N/A")}</code>  ${escapeHTML(vixLabel || "")}
 🇹🇼 景氣燈號 <code>${ndcText}</code>
 🇹🇼 大盤維持 <code>${marginText}</code>
+🇹🇼 大盤 PE  <code>${peText}</code>
+🇹🇼 大盤 PB  <code>${pbText}</code>
 💵 美元台幣 <code>${fxText}</code>
 📍 歷史位階  <b>${escapeHTML(result.historicalLevel || "N/A")}</b>\
 ${SEP}\📊 <b>進場評分</b>${SEP}\
