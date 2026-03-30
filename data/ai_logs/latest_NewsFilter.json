@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-30T04:44:27.220Z",
+  "_savedAt": "2026-03-30T06:05:07.456Z",
   "type": "NewsFilter",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 《韓股》外資大逃殺！胡塞參一腳 韓股慘跌 - Yahoo股市\n[ID: 1] [TW] 標題: 〈楊金龍立院備詢〉台股回檔很正常 資金外流可控、黃金回檔仍不是買進時機 - news.cnyes.com\n[ID: 2] [TW] 標題: 美股4大指數全面下跌 台積電ADR跌6%拖累台股表現 - Yahoo新聞\n[ID: 3] [TW] 標題: 外資在撤退，主流在換人 - news.cnyes.com\n[ID: 4] [TW] 標題: 台股37千金誕生！倍利科掛牌首日進榜　抽中賺逾85萬 - ETtoday財經雲\n[ID: 5] [TW] 標題: 〈台股開盤〉跌逾600點台積電失守1800元 漲價題材股笑傲盤面 - news.cnyes.com\n[ID: 6] [TW] 標題: 央行楊金龍：台股沒有超跌 世界很亂心要定 - Yahoo股市\n[ID: 7] [TW] 標題: 明天開盤心好慌？ 本週台股4風險 - 三立新聞網SETN.com\n[ID: 8] [TW] 標題: 【ETF籌碼週報】官股大買0050，外資大賣0050達151億 - CMoney投資網誌\n[ID: 9] [TW] 標題: 台股下跌590點不用怕？ 記憶體回神 台塑四寶也衝了 - Yahoo股市\n[ID: 10] [TW] 標題: 台積電開盤遭摜破1,800元 外資調高目標價 - 聯合新聞網\n[ID: 11] [TW] 標題: 中東戰爭停火又無望！台股跌近700點 再度失守3萬3關卡 - Yahoo股市\n[ID: 12] [TW] 標題: 美股上週五全數收黑 台股開盤下跌102點 - Yahoo新聞\n[ID: 13] [TW] 標題: 開盤／夜盤崩882點續殺 外資空軍壓境！大盤重挫621點 台積電跌40元 - 三立新聞網SETN.com\n[ID: 14] [TW] 標題: 台股開盤跳水慘崩682點！台積電重挫40元失守1800元 - 台視新聞網\n[ID: 15] [TW] 標題: 台積電跌40元至1780　台股跌621點失守3萬3 - ETtoday財經雲\n[ID: 16] [TW] 標題: 台股大跌逾500點 台積電下跌35元 - news.nextapple.com\n[ID: 17] [TW] 標題: 外資示警「抄底訊號」還未到！ 亞股恐再跌2%、美元熊市黃金牛市將到來 | 太報 - LINE TODAY\n[ID: 18] [TW] 標題: 1分鐘讀財經》台股五大利空！最大兇手外資竟然狂買18檔 - 中時新聞網\n[ID: 19] [TW] 標題: 台股不妙！日股狂殺2753點　韓股暴跌5% - ETtoday財經雲\n[ID: 20] [US] 標題: The countries with the highest GDP growth in the last 25 years - MSN\n[ID: 21] [US] 標題: Low GDP contribution exposes insurance weakness despite fast growth - guardian.ng\n[ID: 22] [US] 標題: 3 unstoppable Vanguard ETFs to load up on if the US enters a recession - MSN\n[ID: 23] [US] 標題: Netherlands' GDP grows 0.5% in Q4 2025, led by trade - Fibre2Fashion\n[ID: 24] [US] 標題: Warsh Nomination: How Flow Influences Returns, the Dollar, and Stock Market Capital - Bitget\n[ID: 25] [US] 標題: US Media: Senate Plans Hearing on Walsh's Nomination as Fed Chair as Early as Mid Next Month - aastocks.com\n[ID: 26] [US] 標題: Credit growth forecast to loosen in H2 2026 to support GDP growth target - vietnamnews.vn\n[ID: 27] [US] 標題: Brunei GDP Growth Hits 5-Quarter High in Q4 - TradingView\n[ID: 28] [US] 標題: Palestine GDP Expands 3% in Q4 - TradingView\n[ID: 29] [US] 標題: Stock market liquidity may not improve soon - Laodong.vn\n[ID: 30] [US] 標題: Beyond GDP: Globalisation needs a new measure of progress | Policy Circle - Policy Circle\n[ID: 31] [US] 標題: Gold gains as dollar, stocks slide; markets eye Fed - AOL.com\n[ID: 32] [US] 標題: This Week's Macro Outlook: Non-Farm Payrolls Meets U.S. Stock Market Holiday, U.S.-Iran Conflict to Face Key Turning Point - Bitget\n[ID: 33] [US] 標題: Dovish leaders are 'turning hawkish,' with senior Fed officials hinting that 'rate cuts may have ended,' but the 'probability of a rate hike remains low.' - 富途牛牛\n[ID: 34] [US] 標題: Liquidity management in the spotlight for super - superreview.com.au\n[ID: 35] [US] 標題: Global Firms See U.S. Economy Avoiding Recession - 조선일보\n[ID: 36] [US] 標題: Dow falls over 300 points; US initial jobless claims fall - MSN\n[ID: 37] [US] 標題: CNA938 Rewind - Stock take today: Fed holds rates, plans single cut on sticky inflation amid Iran war - CNA\n[ID: 38] [US] 標題: Transport, logistics can add N15trn to GDP - experts - MSN\n[ID: 39] [US] 標題: Previous govts inflated GDP growth data for political gain - The New Nation</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 快訊／台股收盤大跌594.43點　台積電跌40元至1780 - ETtoday財經雲\n[ID: 1] [TW] 標題: 雙重衝擊！ 油漲台幣貶 楊金龍：不排除緊縮貨幣 - Yahoo新聞\n[ID: 2] [TW] 標題: EPS亮眼！外資上修封測雙雄日月光、京元電目標價 「這檔」喊上408元 - Yahoo股市\n[ID: 3] [TW] 標題: 《油》川普暫緩對伊攻擊、美軍擴大中東部署 市場押注油價挑戰歷史新高 - Yahoo股市\n[ID: 4] [TW] 標題: 外資目標價喊上215元！PCB這檔觸跌停、台光電重挫近5% 載板三雄僅「它」苦守紅盤 - Yahoo股市\n[ID: 5] [TW] 標題: 台灣外匯存底誰最多？楊金龍：美元居冠、人民幣居第三 - Yahoo股市\n[ID: 6] [TW] 標題: 《韓股》外資大逃殺！胡塞參一腳 韓股慘跌 - Yahoo股市\n[ID: 7] [TW] 標題: 中華電信憑藉穩定股息與5G成長潛力 吸引北美投資者目光 - Yahoo股市\n[ID: 8] [TW] 標題: 首度表態軍購規模！盧秀燕：無人機應放大 - 鏡週刊Mirror Media\n[ID: 9] [TW] 標題: 油價若衝100美元 楊金龍：CPI恐至這數字 - Yahoo新聞\n[ID: 10] [TW] 標題: 焦點股》0050：外資連24日賣超 散戶狂撿 - 自由財經\n[ID: 11] [TW] 標題: 〈楊金龍立院備詢〉台股回檔很正常 資金外流可控、黃金回檔仍不是買進時機 - news.cnyes.com\n[ID: 12] [TW] 標題: 美股4大指數全面下跌 台積電ADR跌6%拖累台股表現 - Yahoo新聞\n[ID: 13] [TW] 標題: 外資在撤退，主流在換人 - news.cnyes.com\n[ID: 14] [TW] 標題: 台股37千金誕生！倍利科掛牌首日進榜　抽中賺逾85萬 - ETtoday財經雲\n[ID: 15] [TW] 標題: 〈台股開盤〉跌逾600點台積電失守1800元 漲價題材股笑傲盤面 - news.cnyes.com\n[ID: 16] [TW] 標題: 央行楊金龍：台股沒有超跌 世界很亂心要定 - Yahoo股市\n[ID: 17] [TW] 標題: 【ETF籌碼週報】官股大買0050，外資大賣0050達151億 - CMoney投資網誌\n[ID: 18] [TW] 標題: 野村投信台股操盤人筆記--健康修正後回歸長多格局 - news.cnyes.com\n[ID: 19] [TW] 標題: 台股下跌590點不用怕？ 記憶體回神 台塑四寶也衝了 - Yahoo股市\n[ID: 20] [US] 標題: Report: Right Infrastructure Choices Boost GDP Growth - newtelegraphng.com\n[ID: 21] [US] 標題: EAEU combined GDP grows from $2.6 trillion to $3 trillion - 24.KG\n[ID: 22] [US] 標題: The countries with the highest GDP growth in the last 25 years - msn.com\n[ID: 23] [US] 標題: Schroders Anticipates Prolonged High Oil and Gas Prices, Potential Inflation Rise - aastocks.com\n[ID: 24] [US] 標題: US stock market | Fed’s Miran lays out roadmap for smaller balance sheet, easier policy - msn.com\n[ID: 25] [US] 標題: 3 unstoppable Vanguard ETFs to load up on if the US enters a recession - msn.com\n[ID: 26] [US] 標題: Warsh Nomination: How Flow Influences Returns, the Dollar, and Stock Market Capital - Bitget\n[ID: 27] [US] 標題: US Media: Senate Plans Hearing on Walsh's Nomination as Fed Chair as Early as Mid Next Month - aastocks.com\n[ID: 28] [US] 標題: Credit growth forecast to loosen in H2 2026 to support GDP growth target - vietnamnews.vn\n[ID: 29] [US] 標題: Surging Oil Prices and Treasury Yields Raise Alarm Over U.S. Recession Risk - 아시아경제\n[ID: 30] [US] 標題: Gold falls more than 1% as Houthi attack lifts oil, dims Fed cut hopes - economictimes.com\n[ID: 31] [US] 標題: Stock market liquidity may not improve soon - Laodong.vn\n[ID: 32] [US] 標題: Beyond GDP: Globalisation needs a new measure of progress | Policy Circle - Policy Circle\n[ID: 33] [US] 標題: Gold gains as dollar, stocks slide; markets eye Fed - AOL.com\n[ID: 34] [US] 標題: This Week's Macro Outlook: Non-Farm Payrolls Meets U.S. Stock Market Holiday, U.S.-Iran Conflict to Face Key Turning Point - Bitget\n[ID: 35] [US] 標題: Dovish leaders are 'turning hawkish,' with senior Fed officials hinting that 'rate cuts may have ended,' but the 'probability of a rate hike remains low.' - 富途牛牛\n[ID: 36] [US] 標題: Liquidity management in the spotlight for super - superreview.com.au\n[ID: 37] [US] 標題: The Week Ahead: US ISM, jobs report, Nike earnings - CMC Markets\n[ID: 38] [US] 標題: Dow falls over 300 points; US initial jobless claims fall - msn.com\n[ID: 39] [US] 標題: CNA938 Rewind - Stock take today: Fed holds rates, plans single cut on sticky inflation amid Iran war - CNA</News_List>",
   "schema": {
     "type": "OBJECT",
     "description": "AI 思考過程與挑選結果",
@@ -129,44 +129,54 @@
     "think": {
       "event_inventory": [
         {
-          "event": "聯準會政策轉向與鷹派訊號",
-          "count": 3,
+          "event": "聯準會政策轉向與降息預期降溫",
+          "count": 5,
           "best_title": "Dovish leaders are 'turning hawkish,' with senior Fed officials hinting that 'rate cuts may have ended'"
         },
         {
-          "event": "台股與台積電重挫失守關鍵價位",
-          "count": 8,
-          "best_title": "台積電跌40元至1780 台股跌621點失守3萬3"
+          "event": "中東地緣政治衝突與油價飆升風險",
+          "count": 6,
+          "best_title": "Surging Oil Prices and Treasury Yields Raise Alarm Over U.S. Recession Risk"
         },
         {
-          "event": "亞太市場系統性崩跌（日韓股市）",
-          "count": 2,
-          "best_title": "台股不妙！日股狂殺2753點 韓股暴跌5%"
+          "event": "台股大盤重挫與台積電 ADR 暴跌",
+          "count": 5,
+          "best_title": "台股收盤大跌594.43點 台積電跌40元至1780"
         },
         {
-          "event": "中東地緣政治衝突升級",
+          "event": "台灣央行對通膨與貨幣政策之立場",
+          "count": 4,
+          "best_title": "雙重衝擊！ 油漲台幣貶 楊金龍：不排除緊縮貨幣"
+        },
+        {
+          "event": "美國關鍵總經數據發布（非農、ISM）",
           "count": 3,
-          "best_title": "中東戰爭停火又無望！台股跌近700點 再度失守3萬3關卡"
+          "best_title": "This Week's Macro Outlook: Non-Farm Payrolls Meets U.S. Stock Market Holiday"
         },
         {
-          "event": "0050 籌碼面土洋對作",
-          "count": 1,
+          "event": "外資大舉撤出台股與 0050 籌碼異動",
+          "count": 3,
           "best_title": "【ETF籌碼週報】官股大買0050，外資大賣0050達151億"
         },
         {
-          "event": "台灣央行對市場波動之回應",
+          "event": "聯準會主席提名與人事變動",
           "count": 2,
-          "best_title": "〈楊金龍立院備詢〉台股回檔很正常 資金外流可控"
-        },
-        {
-          "event": "美國聯準會主席提名動向",
-          "count": 1,
           "best_title": "US Media: Senate Plans Hearing on Walsh's Nomination as Fed Chair"
         },
         {
-          "event": "美國就業數據與經濟韌性",
-          "count": 2,
-          "best_title": "Dow falls over 300 points; US initial jobless claims fall"
+          "event": "亞洲市場連鎖反應（韓股大跌）",
+          "count": 1,
+          "best_title": "《韓股》外資大逃殺！胡塞參一腳 韓股慘跌"
+        },
+        {
+          "event": "半導體封測產業評等上修",
+          "count": 1,
+          "best_title": "EPS亮眼！外資上修封測雙雄日月光、京元電目標價"
+        },
+        {
+          "event": "PCB 與電子零組件族群回檔",
+          "count": 1,
+          "best_title": "外資目標價喊上215元！PCB這檔觸跌停、台光電重挫近5%"
         }
       ],
       "dimension_check": {
@@ -178,71 +188,71 @@
       },
       "excluded": [
         {
-          "id": 4,
-          "reason": "單一新股掛牌新聞"
+          "id": 7,
+          "reason": "單一公司穩定配息無大盤影響"
         },
         {
-          "id": 9,
-          "reason": "散戶心理安撫文"
+          "id": 8,
+          "reason": "地方政治言論非實質政策"
         },
         {
-          "id": 22,
-          "reason": "ETF行銷理財建議"
+          "id": 14,
+          "reason": "單一新股掛牌權重極低"
         },
         {
           "id": 20,
-          "reason": "歷史GDP數據回顧"
+          "reason": "一般性基礎設施報告"
         },
         {
-          "id": 28,
-          "reason": "非核心經濟體數據"
+          "id": 25,
+          "reason": "理財教學類文章"
+        },
+        {
+          "id": 32,
+          "reason": "學術性全球化指標討論"
         }
       ]
     },
     "news": [
       {
-        "id": 33,
-        "summary": "聯準會官員立場轉向鷹派，暗示降息週期可能提前結束，甚至不排除升息選項。此轉變對全球科技股估值造成沉重壓力，特別是高槓桿投資策略需警惕資金成本長期維持高檔的風險，直接衝擊 0050 等權值型 ETF 的評價基準。"
+        "id": 35,
+        "summary": "美國聯準會官員立場轉向鷹派，暗示降息週期可能提前結束，甚至不排除在通膨僵固下維持高利率。受伊朗戰爭風險與油價波動影響，市場對 Fed 降息預期大幅降溫，目前僅預計單次降息。此轉變直接推升美債殖利率，對 0050 等權值股形成估值壓力，投資人需警惕資金回流美元資產的風險。"
       },
       {
-        "id": 19,
-        "summary": "日股單日狂殺 2753 點，韓股暴跌 5%，顯示亞太地區出現系統性資金撤離。這種跨國界的恐慌性拋售通常伴隨利差交易平倉，對台股具備強烈的負面連動效應，投資人應關注區域性金融穩定風險是否進一步擴散至台股大盤。"
-      },
-      {
-        "id": 15,
-        "summary": "台積電重挫 40 元失守 1800 元關鍵心理支撐，拖累大盤跌破 3 萬 3 關卡。作為台股權重最高的個股，台積電的技術面破位引發程式交易連鎖拋售，反映市場對半導體需求前景及地緣政治風險的極度擔憂，短期內大盤將陷入震盪築底。"
-      },
-      {
-        "id": 11,
-        "summary": "中東停火協議再度破局，地緣政治緊張局勢推升避險情緒。台股受此衝擊重挫近 700 點，顯示市場對能源價格波動及供應鏈中斷的恐懼。地緣政治衝突若持續擴大，將導致通膨降溫受阻，進而限制各國央行的降息空間。"
-      },
-      {
-        "id": 8,
-        "summary": "外資單週大舉提款 0050 達 151 億元，而官股券商則進場對作護盤。這種極端的籌碼對立顯示外資正進行全球資產配置調整，而內資試圖在關鍵價位建立防線。投資人應追蹤外資賣壓是否衰竭，作為判斷大盤止跌回穩的重要指標。"
-      },
-      {
-        "id": 32,
-        "summary": "本週市場聚焦非農就業數據（NFP）與美伊衝突的關鍵轉折。總經數據將決定聯準會 12 月的決策基調，而地緣政治則主導短期風險偏好。雙重不確定性交織下，預期市場波動率（VIX）將維持高位，建議槓桿操作者嚴格執行停損。"
-      },
-      {
-        "id": 1,
-        "summary": "央行總裁楊金龍針對台股回檔表示資金外流仍在可控範圍，試圖穩定市場信心。央行的表態暗示目前尚無極端匯率干預必要，但投資人需留意台美利差若持續擴大，外資撤離台股轉向美元資產的趨勢短期內恐難以逆轉。"
-      },
-      {
-        "id": 17,
-        "summary": "外資分析師示警亞股抄底訊號尚未出現，預期仍有 2% 的下跌空間。報告強調美元強勢與黃金牛市的對比，建議在資金流向出現明確反轉前保持現金比重。這對追求長期持有 0050 的投資者而言，是分批佈局而非一次性重壓的警訊。"
-      },
-      {
-        "id": 25,
-        "summary": "美國參議院預計就聯準會主席提名舉行聽證會，貨幣政策領導層的潛在更迭可能引發市場對未來利率路徑的重新定價。若新任主席候選人展現更強的抗通膨決心，市場可能面臨新一輪的債券殖利率噴發與股市估值修正。"
-      },
-      {
-        "id": 36,
-        "summary": "美國初領失業金人數意外下降，顯示勞動力市場依然強勁。雖然這降低了經濟衰退的立即風險，但也強化了「高利率維持更久」（Higher for Longer）的預期，導致道瓊指數下跌逾 300 點，壓抑全球風險資產的表現空間。"
+        "id": 29,
+        "summary": "中東地緣政治衝突升溫，胡塞武裝與伊朗局勢導致市場擔憂原油供應中斷，油價挑戰歷史新高。若油價衝破 100 美元，將引發美國經濟衰退疑慮並推升通膨預期。對台股而言，能源成本上升將侵蝕製造業毛利，且通膨壓力將限制各國央行寬鬆空間，大盤短期內難有表現。"
       },
       {
         "id": 0,
-        "summary": "胡塞組織介入衝突導致外資在韓股等新興市場進行大逃殺。地緣政治風險已從單純的心理衝擊轉化為對全球航運與供應鏈的實質威脅。對於依賴出口的台灣電子產業而言，運費上漲與物流延遲將可能侵蝕企業毛利。"
+        "summary": "台股今日遭遇重挫，收盤大跌 594 點，台積電重摔 40 元失守 1800 元大關。主因受台積電 ADR 暴跌 6% 拖累，引發市場恐慌性拋售。大盤跌破關鍵支撐位，顯示短期技術面轉弱。投資人應關注外資是否持續撤出，以及台積電在法說會前夕的資金動向，這將決定 0050 是否會進一步下探。"
+      },
+      {
+        "id": 1,
+        "summary": "台灣央行總裁楊金龍示警，若油價持續上漲至 100 美元，國內 CPI 將面臨上修壓力，不排除採取緊縮貨幣政策以應對通膨。台幣貶值與油價上漲形成雙重衝擊，增加輸入性通膨風險。此舉可能導致台股資金成本上升，對槓桿型投資者不利，需密切觀察央行後續的利率決策與匯率干預力道。"
+      },
+      {
+        "id": 37,
+        "summary": "本週市場聚焦美國非農就業報告 (NFP) 與 ISM 製造業指數。最新初領失業金人數下降顯示勞動力市場仍具韌性，這可能給予 Fed 更多維持高利率的空間。若 NFP 數據強於預期，將進一步打擊降息預期，導致美股與台股同步承壓。宏觀數據的波動將直接影響 0050 的短期走勢與外資布局。"
+      },
+      {
+        "id": 17,
+        "summary": "外資連續 24 日賣超台股，並在單週內大舉拋售 0050 達 151 億元，顯示法人資金正加速撤離權值股。儘管官股與散戶進場接盤，但缺乏法人動能支撐，大盤反彈力道受限。這種籌碼面的極端對立通常預示市場進入震盪期，投資人應留意 0050 溢價狀況及外資期貨空單是否同步增加。"
+      },
+      {
+        "id": 27,
+        "summary": "美國參議院計劃就沃爾什 (Walsh) 擔任聯準會主席的提名舉行聽證會。作為潛在的 Fed 領導人，其貨幣政策立場（鷹派或鴿派）將對全球金融市場產生長遠影響。市場正密切觀察其對縮表與利率路徑的看法，任何政策轉向的訊號都將引發美元指數與全球股市的劇烈波動，影響台股長線資金配置。"
+      },
+      {
+        "id": 6,
+        "summary": "韓國股市受外資大逃殺與中東局勢影響出現慘跌，顯示亞洲新興市場正面臨集體資金撤離壓力。韓股與台股在產業結構上具備高度相關性（半導體為主），韓股的弱勢往往是台股的先行指標。外資在亞太地區的減碼行動若持續擴大，將對 0050 等權值型 ETF 造成持續性的賣壓。"
+      },
+      {
+        "id": 2,
+        "summary": "外資上修封測龍頭日月光與京元電的目標價，看好其 EPS 表現與 AI 晶片封裝需求。在半導體產業整體回檔之際，特定績優股的目標價調升顯示產業基本面仍具支撐。這對 0050 而言是正面訊號，顯示半導體權值股在修正後仍具備長線投資價值，可作為大盤止跌回穩的觀察指標。"
+      },
+      {
+        "id": 4,
+        "summary": "PCB 族群出現集體重挫，台光電等指標股跌幅顯著，顯示電子零組件產業面臨漲多回檔與資金撤出的壓力。雖然外資仍喊高目標價，但市場情緒轉趨保守，載板三雄僅剩個股苦撐。這反映出台股目前處於「主流換人」的調整期，投資人應警惕高位階科技股的補跌風險，並重新評估 0050 內部的成分股貢獻度。"
       }
     ]
   }
