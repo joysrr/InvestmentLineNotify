@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-30T00:02:23.544Z",
+  "_savedAt": "2026-03-30T04:43:46.269Z",
   "type": "SearchQueries",
-  "userPrompt": "今天是 2026-03-30。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
+  "userPrompt": "今天是 2026-03-30。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.99。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
     "type": "OBJECT",
     "properties": {
@@ -71,65 +71,61 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "VIX 指數飆升至 36.22 顯示市場正處於極度恐慌或劇烈波動狀態，雖然市場狀態標記為『偏熱』，但高 VIX 通常暗示『多頭末端的高位震盪』或『突發性黑天鵝事件』。推論目前市場核心關注點在於：1. 系統性風險是否爆發（如金融機構流動性）；2. 地緣政治衝突是否升級；3. 聯準會（Fed）是否有非例行性的貨幣政策轉向。台灣市場則需關注外資大規模撤資、融資斷頭壓力以及國安基金動向。",
+    "reasoning_process": "當前 VIX 指數高達 36.99，顯示市場處於極度恐慌或劇烈波動狀態，這與『偏熱』的標籤形成強烈對比，暗示市場可能正處於『末升段噴出後的高位崩解』或『黑天鵝事件引發的流動性危機』。高 VIX 通常伴隨融資斷頭壓力與外資避險性撤資。因此，搜尋策略將聚焦於：1. 台灣市場的融資維持率與外資提款動向；2. 美國市場的系統性風險、聯準會緊急政策轉向以及長天期美債殖利率的異常波動。",
     "twQueries": [
       {
-        "keyword": "外資 賣超",
+        "keyword": "外資 大幅賣超",
         "searchType": "intitle"
       },
       {
-        "keyword": "融資 維持率",
+        "keyword": "融資維持率 斷頭",
         "searchType": "broad"
       },
       {
-        "keyword": "國安基金",
+        "keyword": "台積電 產能利用率",
         "searchType": "intitle"
       },
       {
-        "keyword": "台積電 法說",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "避險資產",
+        "keyword": "避險資產 湧入",
         "searchType": "broad"
       },
       {
         "keyword": "地緣政治 衝突",
-        "searchType": "broad"
+        "searchType": "intitle"
       },
       {
-        "keyword": "系統性風險",
-        "searchType": "intitle"
+        "keyword": "台幣 貶值 壓力",
+        "searchType": "broad"
       }
     ],
     "usQueries": [
       {
-        "keyword": "VIX volatility spike",
+        "keyword": "VIX spike causes",
         "searchType": "intitle"
       },
       {
         "keyword": "Fed emergency meeting",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "S&P 500 technical correction",
         "searchType": "intitle"
       },
       {
-        "keyword": "Treasury yield curve",
+        "keyword": "US Treasury yield curve inversion",
         "searchType": "broad"
       },
       {
-        "keyword": "Safe haven demand",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Tech sector selloff",
+        "keyword": "Systemic risk financial market",
         "searchType": "intitle"
       },
       {
-        "keyword": "US recession probability",
+        "keyword": "Tech stock bubble burst",
         "searchType": "broad"
       },
       {
-        "keyword": "Liquidity crunch",
-        "searchType": "broad"
+        "keyword": "Global liquidity crunch",
+        "searchType": "intitle"
       }
     ]
   }

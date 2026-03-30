@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-30T00:02:07.775Z",
+    "lastRun": "2026-03-30T04:43:31.659Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-30T00:02:07.775Z"
+        "lastFetch": "2026-03-30T04:43:31.659Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -29,6 +29,12 @@
     }
   },
   "data": {
+    "rawNdc": {
+      "date": "2026-01",
+      "score": 39,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
     "rawMargin": {
       "marginBalance100M": 3937.23,
       "marginBalanceChange100M": 25.86,
@@ -57,10 +63,22 @@
       },
       "source": "FRED"
     },
+    "rawValuation": {
+      "pe": 24.32,
+      "pb": 3.3,
+      "yield": 2.21,
+      "date": "20260327"
+    },
+    "quote": {
+      "date": "2026-03-30",
+      "quote": "We are always complaining that our days are few, and acting as though there would be no end of them.  ",
+      "author": "Seneca",
+      "source": "zenquotes"
+    },
     "rawFx": {
-      "currentRate": 31.986,
+      "currentRate": 31.994,
       "previousClose": 31.2468,
-      "changePercent": 2.37,
+      "changePercent": 2.39,
       "historicalPrices": [
         31.375,
         31.535,
@@ -82,26 +100,8 @@
         31.9258,
         31.9359,
         31.93,
-        31.986
+        31.994
       ]
-    },
-    "quote": {
-      "date": "2026-03-30",
-      "quote": "We are always complaining that our days are few, and acting as though there would be no end of them.  ",
-      "author": "Seneca",
-      "source": "zenquotes"
-    },
-    "rawNdc": {
-      "date": "2026-01",
-      "score": 39,
-      "light": "紅燈 (過熱)",
-      "lightColor": "red"
-    },
-    "rawValuation": {
-      "pe": 24.32,
-      "pb": 3.3,
-      "yield": 2.21,
-      "date": "20260327"
     }
   }
 }
