@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-03-30T08:11:21.351Z",
+  "_savedAt": "2026-03-30T14:49:36.945Z",
   "type": "SearchQueries",
   "userPrompt": "今天是 2026-03-30。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 37.55。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
@@ -71,14 +71,14 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 37.55，顯示市場處於極度恐慌與劇烈波動狀態，通常伴隨系統性風險或重大利空事件。雖然市場狀態標記為『偏熱/觀察』，但極高的 VIX 暗示這可能是一個『高檔崩跌』或『多頭回補』的轉折點。推論核心關注點在於：1. 外資是否出現恐慌性撤資與融資斷頭潮；2. 美國聯準會（Fed）是否有緊急政策轉向或金融體系流動性危機；3. 地緣政治衝突是否升溫導致避險情緒高漲。搜尋策略將聚焦於『流動性』、『避險』與『跌幅原因』。",
+    "reasoning_process": "當前 VIX 指數高達 37.55，顯示市場處於極度恐慌與劇烈波動狀態，即便市場狀態標註為『偏熱』，這通常暗示著多頭末端的噴出後伴隨急殺，或是市場正經歷嚴重的『恐慌性拋售』。高 VIX 通常與地緣政治危機、系統性金融風險或聯準會政策劇變有關。台灣市場需關注外資大規模撤資與融資斷頭壓力；美國市場則需鎖定信用利差擴大、避險情緒（Risk-off）以及經濟衰退的即時數據。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
         "searchType": "intitle"
       },
       {
-        "keyword": "融資 維持率",
+        "keyword": "融資 斷頭",
         "searchType": "broad"
       },
       {
@@ -86,50 +86,46 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "恐慌指數 飆升",
+        "keyword": "台積電 法說會",
         "searchType": "broad"
-      },
-      {
-        "keyword": "台積電 跌停",
-        "searchType": "intitle"
       },
       {
         "keyword": "避險資產 湧入",
         "searchType": "broad"
       },
       {
-        "keyword": "台股 崩跌 原因",
-        "searchType": "broad"
+        "keyword": "地緣政治 衝突",
+        "searchType": "intitle"
       }
     ],
     "usQueries": [
       {
-        "keyword": "VIX spike causes",
+        "keyword": "VIX volatility spike",
         "searchType": "intitle"
       },
       {
         "keyword": "Fed emergency meeting",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Treasury yield curve inversion",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Recession fears",
         "searchType": "intitle"
       },
       {
-        "keyword": "Market liquidity crunch",
+        "keyword": "Credit spread widening",
         "searchType": "broad"
+      },
+      {
+        "keyword": "Safe haven gold",
+        "searchType": "intitle"
       },
       {
         "keyword": "S&P 500 correction",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "Safe haven gold rally",
         "searchType": "broad"
-      },
-      {
-        "keyword": "Systemic financial risk",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Treasury yield volatility",
-        "searchType": "intitle"
       }
     ]
   }

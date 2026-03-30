@@ -1,18 +1,18 @@
 {
   "_meta": {
-    "lastRun": "2026-03-30T08:10:46.110Z",
+    "lastRun": "2026-03-30T14:45:38.359Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-30T08:10:46.110Z"
+        "lastFetch": "2026-03-30T14:45:38.359Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-29T14:00:35.548Z"
+        "lastFetch": "2026-03-30T14:45:38.359Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-30T08:10:46.110Z"
+        "lastFetch": "2026-03-30T14:45:38.359Z"
       },
       "usMarketProvider": {
         "status": "SUCCESS",
@@ -34,15 +34,6 @@
       "score": 39,
       "light": "紅燈 (過熱)",
       "lightColor": "red"
-    },
-    "rawCnn": {
-      "score": 10.22,
-      "rating": "extreme fear",
-      "previousClose": 17.45,
-      "previous1Week": 15.63,
-      "previous1Month": 41.17,
-      "previous1Year": 28.34,
-      "timestamp": "2026-03-27T23:59:48.000Z"
     },
     "rawUsMarket": {
       "success": true,
@@ -70,10 +61,19 @@
       "author": "Seneca",
       "source": "zenquotes"
     },
+    "rawCnn": {
+      "score": 13.25,
+      "rating": "extreme fear",
+      "previousClose": 10.22,
+      "previous1Week": 14.13,
+      "previous1Month": 41.17,
+      "previous1Year": 26.37,
+      "timestamp": "2026-03-30T14:43:17.000Z"
+    },
     "rawFx": {
-      "currentRate": 32.022,
+      "currentRate": 32.049,
       "previousClose": 31.2468,
-      "changePercent": 2.48,
+      "changePercent": 2.57,
       "historicalPrices": [
         31.375,
         31.535,
@@ -95,13 +95,13 @@
         31.9258,
         31.9359,
         31.93,
-        32.022
+        32.049
       ]
     },
     "rawMargin": {
-      "marginBalance100M": 3937.23,
-      "marginBalanceChange100M": 25.86,
-      "maintenanceRatio": 176.96
+      "marginBalance100M": 3927.09,
+      "marginBalanceChange100M": -10.14,
+      "maintenanceRatio": 173.82
     }
   }
 }
