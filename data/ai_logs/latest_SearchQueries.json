@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-29T14:01:30.207Z",
+  "_savedAt": "2026-03-30T00:02:23.544Z",
   "type": "SearchQueries",
-  "userPrompt": "今天是 2026-03-29。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
+  "userPrompt": "今天是 2026-03-30。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.22。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
     "type": "OBJECT",
     "properties": {
@@ -71,60 +71,64 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 36.22，顯示市場處於極度恐慌與高波動狀態，這與『偏熱』的市場狀態形成強烈背離，暗示市場可能正處於『多頭末端的高位劇烈震盪』或『突發性利空導致的泡沫破裂初期』。高 VIX 通常伴隨流動性緊縮或地緣政治危機。搜尋重點將聚焦於：1. 台灣市場的融資餘額與外資撤資動向（避險情緒）；2. 美國聯準會對於高通膨或衰退的最新表態；3. 科技股（AI 供應鏈）是否存在估值修正的壓力；4. 全球系統性風險（如信用違約或地緣衝突）的爆發跡象。",
+    "reasoning_process": "VIX 指數飆升至 36.22 顯示市場正處於極度恐慌或劇烈波動狀態，雖然市場狀態標記為『偏熱』，但高 VIX 通常暗示『多頭末端的高位震盪』或『突發性黑天鵝事件』。推論目前市場核心關注點在於：1. 系統性風險是否爆發（如金融機構流動性）；2. 地緣政治衝突是否升級；3. 聯準會（Fed）是否有非例行性的貨幣政策轉向。台灣市場則需關注外資大規模撤資、融資斷頭壓力以及國安基金動向。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
         "searchType": "intitle"
       },
       {
-        "keyword": "融資 斷頭",
+        "keyword": "融資 維持率",
         "searchType": "broad"
       },
       {
-        "keyword": "台積電 展望",
+        "keyword": "國安基金",
         "searchType": "intitle"
       },
       {
-        "keyword": "央行 貨幣政策",
+        "keyword": "台積電 法說",
         "searchType": "broad"
       },
       {
-        "keyword": "地緣政治 風險",
+        "keyword": "避險資產",
         "searchType": "broad"
       },
       {
-        "keyword": "台股 崩跌",
+        "keyword": "地緣政治 衝突",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "系統性風險",
         "searchType": "intitle"
       }
     ],
     "usQueries": [
       {
-        "keyword": "Fed rate hike",
+        "keyword": "VIX volatility spike",
         "searchType": "intitle"
       },
       {
-        "keyword": "S&P 500 volatility",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Treasury yield curve inversion",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Nvidia valuation bubble",
+        "keyword": "Fed emergency meeting",
         "searchType": "intitle"
       },
       {
-        "keyword": "US recession indicators",
+        "keyword": "Treasury yield curve",
         "searchType": "broad"
       },
       {
-        "keyword": "Banking liquidity crisis",
+        "keyword": "Safe haven demand",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Tech sector selloff",
         "searchType": "intitle"
       },
       {
-        "keyword": "VIX spike causes",
+        "keyword": "US recession probability",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Liquidity crunch",
         "searchType": "broad"
       }
     ]
