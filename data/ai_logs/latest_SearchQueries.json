@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-03-30T06:04:29.198Z",
+  "_savedAt": "2026-03-30T08:11:21.351Z",
   "type": "SearchQueries",
   "userPrompt": "今天是 2026-03-30。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 37.55。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
@@ -71,60 +71,64 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "VIX 指數高達 37.55 顯示市場正處於極度恐慌或劇烈波動狀態，與『偏熱』的狀態結合，暗示市場可能正經歷『高檔反轉』或『多頭踩踏』。此時搜尋重點應放在：1. 台灣市場的融資維持率與外資撤資壓力；2. 美國市場的系統性風險、聯準會政策轉向以及衰退恐懼。高 VIX 通常伴隨流動性緊縮，需監控避險資產與關鍵權值股的支撐力道。",
+    "reasoning_process": "當前 VIX 指數高達 37.55，顯示市場處於極度恐慌與劇烈波動狀態，通常伴隨系統性風險或重大利空事件。雖然市場狀態標記為『偏熱/觀察』，但極高的 VIX 暗示這可能是一個『高檔崩跌』或『多頭回補』的轉折點。推論核心關注點在於：1. 外資是否出現恐慌性撤資與融資斷頭潮；2. 美國聯準會（Fed）是否有緊急政策轉向或金融體系流動性危機；3. 地緣政治衝突是否升溫導致避險情緒高漲。搜尋策略將聚焦於『流動性』、『避險』與『跌幅原因』。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
-        "searchType": "broad"
+        "searchType": "intitle"
       },
       {
         "keyword": "融資 維持率",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "台積電 展望",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "地緣政治 緊張",
         "searchType": "broad"
       },
       {
-        "keyword": "國安基金",
+        "keyword": "國安基金 護盤",
         "searchType": "intitle"
       },
       {
-        "keyword": "台幣 貶值",
+        "keyword": "恐慌指數 飆升",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "台積電 跌停",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "避險資產 湧入",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "台股 崩跌 原因",
         "searchType": "broad"
       }
     ],
     "usQueries": [
       {
-        "keyword": "VIX volatility spike",
+        "keyword": "VIX spike causes",
         "searchType": "intitle"
       },
       {
-        "keyword": "Fed monetary policy",
+        "keyword": "Fed emergency meeting",
         "searchType": "intitle"
       },
       {
-        "keyword": "US recession risk",
+        "keyword": "Market liquidity crunch",
         "searchType": "broad"
       },
       {
-        "keyword": "Treasury yield curve",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Stock market correction",
+        "keyword": "S&P 500 correction",
         "searchType": "intitle"
       },
       {
-        "keyword": "Banking liquidity crisis",
+        "keyword": "Safe haven gold rally",
         "searchType": "broad"
       },
       {
-        "keyword": "Nvidia sell-off",
+        "keyword": "Systemic financial risk",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Treasury yield volatility",
         "searchType": "intitle"
       }
     ]

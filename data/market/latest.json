@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-30T06:02:39.485Z",
+    "lastRun": "2026-03-30T08:10:46.110Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-30T06:02:39.485Z"
+        "lastFetch": "2026-03-30T08:10:46.110Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -12,7 +12,7 @@
       },
       "kgiProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-29T14:00:35.548Z"
+        "lastFetch": "2026-03-30T08:10:46.110Z"
       },
       "usMarketProvider": {
         "status": "SUCCESS",
@@ -34,11 +34,6 @@
       "score": 39,
       "light": "紅燈 (過熱)",
       "lightColor": "red"
-    },
-    "rawMargin": {
-      "marginBalance100M": 3937.23,
-      "marginBalanceChange100M": 25.86,
-      "maintenanceRatio": 176.96
     },
     "rawCnn": {
       "score": 10.22,
@@ -76,10 +71,37 @@
       "source": "zenquotes"
     },
     "rawFx": {
-      "currentRate": null,
-      "previousClose": null,
-      "changePercent": null,
-      "historicalPrices": []
+      "currentRate": 32.022,
+      "previousClose": 31.2468,
+      "changePercent": 2.48,
+      "historicalPrices": [
+        31.375,
+        31.535,
+        31.734,
+        31.63,
+        31.9059,
+        31.8023,
+        31.802,
+        31.7739,
+        31.8115,
+        31.8958,
+        32.1631,
+        31.945,
+        31.885,
+        32.0312,
+        31.8021,
+        32.0217,
+        31.862,
+        31.9258,
+        31.9359,
+        31.93,
+        32.022
+      ]
+    },
+    "rawMargin": {
+      "marginBalance100M": 3937.23,
+      "marginBalanceChange100M": 25.86,
+      "maintenanceRatio": 176.96
     }
   }
 }
