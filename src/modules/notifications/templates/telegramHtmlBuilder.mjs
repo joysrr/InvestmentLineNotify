@@ -205,11 +205,13 @@ export function buildTelegramMessages({
 
   // 2. 台股融資維持率
   const mmMargin = macroData?.rawMargin?.maintenanceRatio;
+  const mmMarginChange = macroData?.rawMargin?.marginBalanceChange100M;
+  const mmMarginDate = macroData?.rawMargin?.date;
   let marginEmoji = "✅";
   if (mmMargin < 145) marginEmoji = "🚨";
   else if (mmMargin < 155) marginEmoji = "⚠️";
   const marginText = Number.isFinite(mmMargin)
-    ? `${mmMargin.toFixed(1)}% ${marginEmoji}`
+    ? `${mmMargin.toFixed(1)}% ${marginEmoji} ${mmMarginChange > 0 ? "↑" : "↓"} ${Math.abs(mmMarginChange).toFixed(1)} 億 ${mmMarginDate ? "(" + mmMarginDate + ")" : ""}`
     : "N/A";
 
   // 3. USD/TWD 匯率 (帶漲跌)
@@ -336,6 +338,7 @@ ${SEP}\<b>${timeLabel}</b>${SEP}\
 📌 行動：<b>${escapeHTML(result.target || "觀望")}</b> ─ <i>${escapeHTML(result.targetSuggestionShort || "無特殊操作")}</i>
 <blockquote expandable>${escapeHTML(result.suggestion || "無進階說明")}</blockquote>\
 ${SEP}\🌐 <b>市場概況</b>${SEP}\
+<blockquote expandable>
 🇺🇸 美股 VIX  <code>${escapeHTML(usRisk?.vix || "N/A")}</code>  ${escapeHTML(usRisk?.riskIcon || "")}
 🇺🇸 貪婪指數 <code>${cnnText}</code>
 📊 S&amp;P500   <code>${spxText}</code>  ${spxEmoji}
@@ -346,15 +349,20 @@ ${SEP}\🌐 <b>市場概況</b>${SEP}\
 🇹🇼 大盤 PB  <code>${pbText}</code>
 💵 美元台幣 <code>${fxText}</code>
 📍 歷史位階  <b>${escapeHTML(result.historicalLevel || "N/A")}</b>\
+</blockquote>
 ${SEP}\📊 <b>進場評分</b>${SEP}\
+<blockquote expandable>
 ${scoreSection}\
+</blockquote>
 ${SEP}\📡 <b>風險雷達</b>${SEP}\
+<blockquote expandable>
 ${signalIcon(reversalTriggered, reversalTotal)} 轉弱訊號  <code>${reversalTriggered} / ${reversalTotal}</code> 個
 ${signalIcon(sellTriggered, sellTotal)} 賣出訊號  <code>${sellTriggered} / ${sellTotal}</code> 個
 ${rsiAlert ? "🔥" : "▫️"} RSI   <code>${Number.isFinite(rsi) ? rsi.toFixed(1) : "--"}</code>
 ${dAlert ? "🔥" : "▫️"} KD(D) <code>${Number.isFinite(kd_d) ? kd_d.toFixed(1) : "--"}</code>
 ${biasAlert ? "🔥" : "▫️"} 乖離率 <code>${Number.isFinite(bias) ? bias.toFixed(1) + "%" : "--"}</code>
-
+</blockquote>
+${SEP}\
 ${goalSection}`.trim();
 
   // ══════════════════════════════════════════════════════════════
@@ -413,16 +421,23 @@ ${goalSection}`.trim();
   const msg2Text = `\
 <blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\
 ${SEP}\🔬 <b>技術指標</b>${SEP}\
+<blockquote expandable>
 ${rsiAlert ? "🔥" : "▫️"} RSI    <code>${Number.isFinite(rsi) ? rsi.toFixed(1) : "N/A"}</code>
 ${dAlert ? "🔥" : "▫️"} KD(D)  <code>${Number.isFinite(kd_d) ? kd_d.toFixed(1) : "N/A"}</code>
 ${biasAlert ? "🔥" : "▫️"} 乖離率 <code>${Number.isFinite(bias) ? bias.toFixed(1) + "%" : "N/A"}</code>
 💰 現價  <code>$${Number(result.currentPrice || 0).toFixed(2)}</code>  ${changeIcon} <code>${priceChangePct > 0 ? "+" : ""}${priceChangePct.toFixed(1)}%</code>
 📌 基準價 <code>$${Number(result.basePrice || 0).toFixed(2)}</code>\
+</blockquote>
 ${SEP}\📡 <b>轉弱監控</b>  <i>（${reversalTriggered}/${reversalTotal}）</i>${SEP}\
+<blockquote expandable>
 ${reversalSignals.map(signalRow).join("\n")}\
+</blockquote>
 ${SEP}\🛎️ <b>賣出訊號</b>  <i>（${sellTriggered}/${sellTotal}）</i>${SEP}\
+<blockquote expandable>
 ${sellSignals.map(signalRow).join("\n")}\
+</blockquote>
 ${SEP}\🏦 <b>帳戶快照</b>${SEP}\
+<blockquote expandable>
 💼 帳戶淨值    <tg-spoiler>$${Math.floor(currentAsset).toLocaleString("en-US")}</tg-spoiler>
 🏗 總資產(含貸) <tg-spoiler>$${Math.floor(grossAsset).toLocaleString("en-US")}</tg-spoiler>
 ${levInfo.icon} 實際槓桿    <tg-spoiler>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}</tg-spoiler>  <b>${levInfo.label}</b>
@@ -430,9 +445,12 @@ ${mmInfo.icon} 維持率      <tg-spoiler>${hasLoan && Number.isFinite(mm) ? mm.
 ${z2Safe ? "✅" : "⚠️"} 00675L佔比  <tg-spoiler>${Number.isFinite(z2Ratio) ? z2Ratio.toFixed(1) + "%" : "N/A"}</tg-spoiler>  <i>上限 ${z2TargetPct.toFixed(0)}%</i>
 💵 現金儲備    <tg-spoiler>$${cashReserveStr}</tg-spoiler>
 💳 借款金額    <tg-spoiler>$${Number(totalLoan).toLocaleString("en-US")}</tg-spoiler>\
+</blockquote>
 ${SEP}\📦 <b>持倉配置</b>${SEP}\
+<blockquote expandable>
 🛡 0050    <tg-spoiler>${qty0050Str} 股</tg-spoiler>
-⚔️ 0067L   <tg-spoiler>${qtyZ2Str} 股</tg-spoiler>`.trim();
+⚔️ 0067L   <tg-spoiler>${qtyZ2Str} 股</tg-spoiler>
+</blockquote>`.trim();
 
   // ══════════════════════════════════════════════════════════════
   // 第三則：AI 策略 ＋ 每日一句
@@ -471,12 +489,12 @@ ${SEP}\📦 <b>持倉配置</b>${SEP}\
     macroAnalysisSection = `\
 🌍 <b>AI 總經多空對決</b> ［${escapeHTML(conclusion.market_direction || "未知")}］\
 ${SEP}\
-🎯 <b>市場主軸：</b>${escapeHTML(conclusion.short_summary || "無")}
+🎯 <b>市場主軸：</b>
+${escapeHTML(conclusion.short_summary || "無")}
 ⚖️ <b>多空積分：</b>多 <code>${total_bull_score}</code> vs 空 <code>${total_bear_score}</code>
 
 <b>📌 核心驅動邏輯：</b>
 ${takeawaysText}
-
 <blockquote expandable><b>🔥 重大驅動事件：</b>
 ${eventsList || "無顯著事件"}</blockquote>`.trim();
   }
