@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-31T05:47:05.428Z",
+    "lastRun": "2026-03-31T07:54:14.877Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-31T05:47:05.428Z"
+        "lastFetch": "2026-03-31T07:54:14.877Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -76,9 +76,9 @@
       "source": "zenquotes"
     },
     "rawFx": {
-      "currentRate": 32.128,
+      "currentRate": 32.053,
       "previousClose": 31.2468,
-      "changePercent": 2.82,
+      "changePercent": 2.58,
       "historicalPrices": [
         31.375,
         31.535,
@@ -101,7 +101,7 @@
         31.9359,
         31.93,
         31.977,
-        32.128
+        32.053
       ]
     }
   }

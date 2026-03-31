@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-31T05:47:47.109Z",
+  "_savedAt": "2026-03-31T07:55:12.603Z",
   "type": "NewsFilter",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 7天狂噴7成被盯上！「無人機這檔」關禁閉入列34檔跌停股 記憶體、矽光子成殺盤重心 - Yahoo股市\n[ID: 1] [TW] 標題: 台股陷極端分化危機！ 高達50％個股跌破年線 - 自由財經\n[ID: 2] [TW] 標題: 【Hot台股】台股跳水重挫700點...網哀「這什麼超級拉G盤」 分析師看法出爐 - Yahoo股市\n[ID: 3] [TW] 標題: 台股大跌逾788點失守32k　記憶體股4檔殺跌停 - ETtoday財經雲\n[ID: 4] [TW] 標題: 美戰爭部長投資經紀 據報曾在美對伊朗戰爭前尋求大額投資國防企業ETF - Yahoo 財經\n[ID: 5] [TW] 標題: 盤中快訊》台股震盪走低跌逾460點！台達電崩5%、鴻海走弱拖累大盤 | 下班經濟學 | 財經 - 風傳媒\n[ID: 6] [TW] 標題: 台股盤中挫逾700點 台積電跌15元 - Yahoo新聞\n[ID: 7] [TW] 標題: 權值股熄火 台股盤中翻黑、 月線得而復失 - MSN\n[ID: 8] [TW] 標題: 韓國DCM市場首季急凍 NH投資、KB證券力守龍頭地位 - Yahoo股市\n[ID: 9] [TW] 標題: 黃金徘徊 4500 美元關鍵價位 中東緊張與債市吸金阻漲 - Yahoo股市\n[ID: 10] [TW] 標題: 台股4月會出大事？曹興誠突示警特斯拉投資3大風險 謝金河：輝達更可怕 - Yahoo新聞\n[ID: 11] [TW] 標題: 排除農曆春節因素 台經院製造業景氣燈號可連撐綠燈 - Yahoo股市\n[ID: 12] [TW] 標題: 台股逾千檔股價跌破年線 4家百億大型股也不能倖免 寬量國際李鴻基提四解方 - Yahoo股市\n[ID: 13] [TW] 標題: 內地3月PMI報50.4勝預期 創近一年新高 - singtao.ca\n[ID: 14] [TW] 標題: 油價飆升66%反成利多 債市浮現買點 大小摩齊看多 - Yahoo股市\n[ID: 15] [TW] 標題: 特斯拉已空頭排列！ 謝金河點名「科技七雄」：進入震盪關鍵期 - Yahoo股市\n[ID: 16] [TW] 標題: 美利達： 地緣政治風險致美國市場難估歐中市場好轉 - MSN\n[ID: 17] [TW] 標題: 央行鬆綁也救不了！房市冷颼颼全台慘崩15％ 專家曝這兩大殺手鐧 - Yahoo新聞\n[ID: 18] [TW] 標題: 今年來飆漲27%！主動式台股ETF績效王出爐 總受益人數衝104萬人連23周再創高 - Yahoo股市\n[ID: 19] [TW] 標題: 主動式台股ETF受益人突破百萬　一表看6檔人氣王 - ETtoday財經雲\n[ID: 20] [US] 標題: US Stock Futures Rise on Trump War Remarks Report: Markets Wrap - Bloomberg\n[ID: 21] [US] 標題: Why the war will not sink global GDP or stocks - thenationalnews.com\n[ID: 22] [US] 標題: Dow Jones Futures: Nasdaq Falls After Trump, Powell Comments; Micron, Nvidia, Palantir, Tesla Are Key Losers - Investor's Business Daily\n[ID: 23] [US] 標題: Bank Negara forecasts 4%-5% GDP growth despite Iran war - Free Malaysia Today\n[ID: 24] [US] 標題: Japanese Stocks Tumble on Inflation Fears as Iran Attack Adds to Oil Shock Risks - marketscreener.com\n[ID: 25] [US] 標題: Asia stocks wipe out 2026 gains as Iran war drives inflation worries - The Straits Times\n[ID: 26] [US] 標題: Asian Stocks Wipe Out 2026 Gains as War Drives Inflation Worries - Bloomberg\n[ID: 27] [US] 標題: Stock Market Crash in 2026? The S&P 500 Sounds an Alarm as Recession Odds Just Hit Their Highest Level in Years. Here's What History Says Happens Next. - AOL.com\n[ID: 28] [US] 標題: Today’s Market Recap: Powell Sends Dovish Signal, US Stocks Open High and Close Low, Dollar Index Rises for Fifth Straight Day - TradingKey\n[ID: 29] [US] 標題: Fiscal deficit contained at 6pc of GDP, NA told - Business Recorder\n[ID: 30] [US] 標題: Fed Governor Miran: Fed's Balance Sheet Size is Too Large - aastocks.com\n[ID: 31] [US] 標題: Robotics push could add AUD $201 billion to GDP by 2040 - IT Brief Australia\n[ID: 32] [US] 標題: BDO exec: Excessive belt-tightening may slow GDP growth - BusinessMirror\n[ID: 33] [US] 標題: U.S. Stocks Close | Powell's Remarks Reassure Markets; Major Indices Show Mixed Performance, Chip Stocks Plunge Collectively; Aluminum Concept Strengthens, Alcoa Surges Over 8%; WTI Crude Closes Above $100 Per Barrel for the First Time Since 202 - 富途牛牛\n[ID: 34] [US] 標題: Is US economy, GDP strong enough to offset oil price shocks? - finance.yahoo.com\n[ID: 35] [US] 標題: Powell Says Fed ‘Not Really Facing’ Policy Decision Yet Amid Iran Oil Shock – Adds Central Bank Will Be ‘Mindful Of The Broader Context’ - Stocktwits\n[ID: 36] [US] 標題: Powell, Vertiv, AAON, Nextpower, and Allient Shares Are Falling, What You Need To Know - StockStory\n[ID: 37] [US] 標題: US close: Stocks mixed following Powell comments, Middle East escalation in focus - Sharecast.com\n[ID: 38] [US] 標題: Bitcoin price news: BTC gives up gains as WTI crude oil surges over $100 per barrel - CoinDesk\n[ID: 39] [US] 標題: New York Fed's Williams Expects Inflation Rate to Rise in Coming Months - aastocks.com</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 台積電翻黑跌10元 台股午盤下跌逾539點 - Yahoo新聞\n[ID: 1] [TW] 標題: 台股終場下挫795.17點 台積電跌20元收1760元 - Yahoo股市\n[ID: 2] [TW] 標題: 台股跌795點收31722.99點丟季線 3月重挫3691.5點 - Yahoo新聞\n[ID: 3] [TW] 標題: 三大法人買賣超 – 外資買超(1303)南亞、(1326)台化，投信買超(2345)智邦、(2330)台積電，法人合計賣超739.56億元 - sinotrade.com.tw\n[ID: 4] [TW] 標題: 台股3月暴跌3691點！史上最重 專家：還沒出現系統性利空 - Yahoo股市\n[ID: 5] [TW] 標題: 台股下跌795點收31,722點失守季線 今年3月下挫3,642點 - 聯合新聞網\n[ID: 6] [TW] 標題: 地緣紛擾引爆避險危機感！美股公用事業「擁電自重」過去2年報酬率超車科技股 - Yahoo股市\n[ID: 7] [TW] 標題: 史上最強第1季！台股上漲2373點 寫下4大震撼 - Yahoo股市\n[ID: 8] [TW] 標題: 台股多頭總司令張錫：台積電1,800元以下閉眼買！明年上看3字頭、大盤4萬點要來了 - Yahoo股市\n[ID: 9] [TW] 標題: 春節因素干擾2月製造業景氣燈號轉為低迷黃藍燈| 產經 - 中央社 CNA\n[ID: 10] [TW] 標題: 台積電獨大成台股一大詬病？張錫這麼看 - Yahoo新聞\n[ID: 11] [TW] 標題: 台股一度下跌812點失守季線 中東局勢升溫 大盤下殺面臨修正壓力 - 經濟日報\n[ID: 12] [TW] 標題: 台股陷極端分化危機！ 高達50％個股跌破年線 - 自由財經\n[ID: 13] [TW] 標題: 【Hot台股】台股跳水重挫700點...網哀「這什麼超級拉G盤」 分析師看法出爐 - Yahoo股市\n[ID: 14] [TW] 標題: 台股大跌逾788點失守32k　記憶體股4檔殺跌停 - ETtoday財經雲\n[ID: 15] [TW] 標題: 盤中快訊》台股震盪走低跌逾460點！台達電崩5%、鴻海走弱拖累大盤 | 下班經濟學 | 財經 - 風傳媒\n[ID: 16] [TW] 標題: 台股盤中挫逾700點 台積電跌15元 - Yahoo新聞\n[ID: 17] [TW] 標題: 終端需求強勁，上銀獲美系外資調高評等至加碼，目標價300元 - MSN\n[ID: 18] [TW] 標題: 排除農曆春節因素 台經院製造業景氣燈號可連撐綠燈 - Yahoo股市\n[ID: 19] [TW] 標題: 台股逾千檔股價跌破年線 4家百億大型股也不能倖免 寬量國際李鴻基提四解方 - Yahoo股市\n[ID: 20] [US] 標題: ‘Fragile’ UK GDP data spells ‘uncomfortable trade-off’ for Bank of England - portfolio-adviser.com\n[ID: 21] [US] 標題: GDP growth for 2025 revealed as ONS confirms UK economy barely grew under Rachel Reeves - GB News\n[ID: 22] [US] 標題: GDP quarterly national accounts, UK: October to December 2025 - Office for National Statistics\n[ID: 23] [US] 標題: Fed: Jerome Powell calms bond markets, but oil burns stocks and cryptos - Cointribune\n[ID: 24] [US] 標題: US Stock Futures Rise on Trump War Remarks Report: Markets Wrap - Bloomberg\n[ID: 25] [US] 標題: Dollar index at 10-month high; Set for a monthly gain of 3% - Business Standard\n[ID: 26] [US] 標題: The S&P 500’s correction is getting closer to its ending, says Morgan Stanley’s Mike Wilson - MSN\n[ID: 27] [US] 標題: European stocks rise ahead of German inflation data - kfgo.com\n[ID: 28] [US] 標題: NMP 2.0 could add ₹40 lakh crore to GDP over next decade: NITI Aayog report - DD News\n[ID: 29] [US] 標題: Why the war will not sink global GDP or stocks - thenationalnews.com\n[ID: 30] [US] 標題: Dow Jones Futures: Nasdaq Falls After Trump, Powell Comments; Micron, Nvidia, Palantir, Tesla Are Key Losers - Investor's Business Daily\n[ID: 31] [US] 標題: Bank Negara forecasts 4%-5% GDP growth despite Iran war - Free Malaysia Today\n[ID: 32] [US] 標題: Japanese Stocks Tumble on Inflation Fears as Iran Attack Adds to Oil Shock Risks - marketscreener.com\n[ID: 33] [US] 標題: Asia stocks wipe out 2026 gains as Iran war drives inflation worries - The Straits Times\n[ID: 34] [US] 標題: Asian Stocks Wipe Out 2026 Gains as War Drives Inflation Worries - Bloomberg\n[ID: 35] [US] 標題: Stock Market Crash in 2026? The S&P 500 Sounds an Alarm as Recession Odds Just Hit Their Highest Level in Years. Here's What History Says Happens Next. - AOL.com\n[ID: 36] [US] 標題: Morning Wrap | Singapore's GDP Growth at Risk Amid Middle East Tensions, Says RHB - Moomoo\n[ID: 37] [US] 標題: Today’s Market Recap: Powell Sends Dovish Signal, US Stocks Open High and Close Low, Dollar Index Rises for Fifth Straight Day - TradingKey\n[ID: 38] [US] 標題: Fiscal deficit contained at 6pc of GDP, NA told - Business Recorder\n[ID: 39] [US] 標題: Robotics push could add AUD $201 billion to GDP by 2040 - IT Brief Australia</News_List>",
   "schema": {
     "type": "OBJECT",
     "description": "AI 思考過程與挑選結果",
@@ -129,34 +129,49 @@
     "think": {
       "event_inventory": [
         {
-          "event": "中東衝突引發油價與通膨危機",
+          "event": "台股三月史詩級崩跌與季線失守",
           "count": 9,
-          "best_title": "U.S. Stocks Close | Powell's Remarks Reassure Markets; Chip Stocks Plunge Collectively; WTI Crude Closes Above $100 Per Barrel"
+          "best_title": "台股跌795點收31722.99點丟季線 3月重挫3691.5點"
         },
         {
-          "event": "聯準會官員對通膨與縮表之鷹派表態",
+          "event": "中東地緣政治衝突引發全球通膨疑慮",
           "count": 6,
-          "best_title": "New York Fed's Williams Expects Inflation Rate to Rise in Coming Months"
+          "best_title": "Asian Stocks Wipe Out 2026 Gains as War Drives Inflation Worries"
         },
         {
-          "event": "台股大盤重挫與技術面惡化",
-          "count": 7,
-          "best_title": "台股大跌逾788點失守32k，高達50％個股跌破年線"
-        },
-        {
-          "event": "全球科技巨頭與半導體產業修正",
-          "count": 5,
-          "best_title": "特斯拉已空頭排列！謝金河點名「科技七雄」進入震盪關鍵期"
-        },
-        {
-          "event": "區域經濟數據與製造業景氣",
+          "event": "聯準會政策動向與美元強勢走勢",
           "count": 3,
-          "best_title": "內地3月PMI報50.4勝預期，台經院製造業景氣燈號連撐綠燈"
+          "best_title": "Today’s Market Recap: Powell Sends Dovish Signal, US Stocks Open High and Close Low, Dollar Index Rises for Fifth Straight Day"
         },
         {
-          "event": "台股資金流向與 ETF 受益人數變化",
+          "event": "台股法人資金大舉撤離",
+          "count": 1,
+          "best_title": "三大法人買賣超 – 法人合計賣超739.56億元"
+        },
+        {
+          "event": "台股市場結構極端分化與廣度惡化",
           "count": 2,
-          "best_title": "主動式台股ETF受益人數衝104萬人連23周再創高"
+          "best_title": "台股陷極端分化危機！ 高達50％個股跌破年線"
+        },
+        {
+          "event": "美股科技巨頭集體修正",
+          "count": 1,
+          "best_title": "Nasdaq Falls After Trump, Powell Comments; Micron, Nvidia, Palantir, Tesla Are Key Losers"
+        },
+        {
+          "event": "美國經濟衰退預警升溫",
+          "count": 1,
+          "best_title": "Stock Market Crash in 2025? The S&P 500 Sounds an Alarm as Recession Odds Just Hit Their Highest Level in Years"
+        },
+        {
+          "event": "台灣製造業基本面景氣判讀",
+          "count": 2,
+          "best_title": "排除農曆春節因素 台經院製造業景氣燈號可連撐綠燈"
+        },
+        {
+          "event": "市場多頭指標對台積電之長期展望",
+          "count": 1,
+          "best_title": "台股多頭總司令張錫：台積電1,800元以下閉眼買！明年上看3字頭"
         }
       ],
       "dimension_check": {
@@ -168,79 +183,67 @@
       },
       "excluded": [
         {
-          "id": 8,
-          "reason": "韓國債券市場與台股關聯度低"
-        },
-        {
-          "id": 16,
-          "reason": "單一公司美利達營運展望"
+          "id": 13,
+          "reason": "網民情緒性發言"
         },
         {
           "id": 17,
-          "reason": "房市新聞與大盤流動性無關"
+          "reason": "單一公司個案新聞"
         },
         {
-          "id": 23,
-          "reason": "馬來西亞GDP數據無影響力"
+          "id": 6,
+          "reason": "產業板塊細節非大盤"
         },
         {
-          "id": 31,
-          "reason": "2040年預測時效性過長"
+          "id": 20,
+          "reason": "英國GDP影響力較低"
         },
         {
-          "id": 38,
-          "reason": "加密貨幣波動非0050核心"
+          "id": 39,
+          "reason": "遠期預測缺乏即時性"
         }
       ]
     },
     "news": [
       {
-        "id": 33,
-        "summary": "西德州原油(WTI)自2022年以來首次收於每桶100美元以上，主因中東局勢升級。鮑爾雖試圖安撫市場，但能源價格飆升直接加劇通膨壓力，導致晶片股集體重挫。此事件對台股0050成分股中的半導體與航運成本具負面衝擊，需警惕槓桿策略的下行風險。"
+        "id": 2,
+        "summary": "台股 3 月份出現史詩級回檔，單月重挫 3,691.5 點，終場收在 31,722.99 點並失守季線。此波跌勢主要受地緣政治與資金撤出影響，權值股台積電同步走弱。投資者需關注季線支撐力道，若短期無法站回，大盤恐陷入中期修正格局，嚴重影響 0050 等權值型 ETF 表現。"
       },
       {
-        "id": 39,
-        "summary": "紐約聯準會主席 Williams 預期未來數月通膨率將上升，此表態顯著推遲市場對降息的預期。通膨回溫將導致美債殖利率維持高位，對科技成長股估值形成壓抑，直接影響台積電等權值股的資金吸引力，大盤短期內難有強勢反彈空間。"
+        "id": 34,
+        "summary": "中東局勢升溫引發市場對能源價格上漲及通膨復燃的擔憂，亞洲股市回吐 2026 年以來所有漲幅。戰爭風險導致避險情緒升溫，資金流向美元與黃金，對高權重半導體股構成估值壓力。此事件為全球總經環境增添不確定性，需嚴防通膨數據超預期導致的利率維持高位風險。"
+      },
+      {
+        "id": 37,
+        "summary": "聯準會主席鮑爾釋出鴿派訊號試圖安撫債市，但美元指數仍連續五日上漲，顯示市場對美國經濟韌性及高利率環境的預期。美元走強通常伴隨新興市場資金流出，對台股外資動向具負面影響。投資人應密切觀察匯率波動對大型權值股資金面的實質衝擊，這將決定大盤是否能止跌企穩。"
       },
       {
         "id": 3,
-        "summary": "台股單日重挫逾788點並失守32,000點大關，記憶體族群多檔殺至跌停。此波跌勢伴隨恐慌性拋售，顯示市場對地緣政治與通膨雙重壓力的極度不安。對於操作0050正2等槓桿產品的投資者，需嚴格執行停損，避免在波動率放大時產生超額虧損。"
-      },
-      {
-        "id": 1,
-        "summary": "台股出現極端分化，高達50%的個股已跌破年線(200MA)，顯示市場廣度嚴重惡化。儘管指數可能由少數權值股撐盤，但多數股票已進入空頭市場。這種「拉積盤」後的補跌效應通常劇烈，投資者應重新評估大盤ETF的防禦性，而非盲目抄底。"
-      },
-      {
-        "id": 15,
-        "summary": "特斯拉股價呈現空頭排列，謝金河警示「科技七雄」已進入震盪關鍵期。輝達與特斯拉的走弱象徵AI與電動車兩大成長引擎動能減損。由於台股與美股科技股高度連動，若美股龍頭股持續修正，將引發外資對台股權值股的獲利了結潮。"
-      },
-      {
-        "id": 30,
-        "summary": "聯準會理事 Miran 指出聯準會資產負債表規模過大，暗示量化緊縮(QT)可能持續更久。資金流動性收緊將直接影響全球風險資產定價。在資金總量受限環境下，台股外資流向將更趨保守，不利於大盤突破前高，槓桿投資者應降低部位曝險。"
-      },
-      {
-        "id": 13,
-        "summary": "中國3月官方製造業PMI回升至50.4，優於預期並創近一年新高。作為全球供應鏈核心，中國製造業復甦有助於緩解部分電子零組件需求疲軟問題。此數據為低迷的全球景氣提供支撐，對台股中與中國內需及供應鏈相關的成分股具備基本面支撐作用。"
-      },
-      {
-        "id": 11,
-        "summary": "台經院製造業景氣燈號排除春節因素後維持綠燈，顯示台灣本土產業基本面尚稱穩健。儘管金融市場因外部因素劇烈波動，但實體經濟並未出現衰退跡象。這為0050長期持有者提供信心，建議在市場非理性下跌時，觀察基本面數據是否轉向。"
-      },
-      {
-        "id": 18,
-        "summary": "主動式台股ETF受益人數突破104萬人，連續23周創新高。散戶資金持續湧入台股相關產品，雖提供市場下檔支撐，但也反映出市場情緒過熱與籌碼擁擠。當市場發生系統性風險時，大量散戶贖回可能引發連鎖拋售壓力，需關注籌碼面風險。"
-      },
-      {
-        "id": 22,
-        "summary": "美股道瓊期指與那斯達克因川普與鮑爾言論走低，美光、輝達、特斯拉成為主要領跌者。半導體板塊的集體修正直接衝擊台股電子權值股表現。量化模型應調高對美股科技股波動的權重，以預測台股開盤後的跳空風險。"
+        "summary": "三大法人合計賣超達 739.56 億元，其中外資雖買超傳產股如南亞、台化，但整體資金撤離態勢明顯。投信雖力挺台積電與智邦，仍難敵外資提款壓力。法人大額賣超反映對當前評價面與地緣風險的謹慎，短期內籌碼面偏弱，大盤震盪加劇，0050 投資者應留意法人連續賣超之趨勢。"
       },
       {
         "id": 25,
-        "summary": "受伊朗戰爭威脅與通膨憂慮影響，亞洲股市回吐先前漲幅。地緣政治風險導致避險情緒升溫，資金從新興市場撤回美金資產。台幣匯率若因此走貶，將加劇外資賣超台股的壓力，對以台幣計價的0050形成匯率與股價的雙重打擊。"
+        "summary": "美元指數攀升至 10 個月高點，單月漲幅達 3%，反映全球資金回流美元資產。強勢美元對台幣匯率造成極大貶值壓力，進而引發外資對台股的被動賣超。對於槓桿投資者而言，匯率走勢是判斷外資是否止跌回補的關鍵指標，目前資金環境仍屬嚴峻，需嚴控部位風險。"
       },
       {
-        "id": 9,
-        "summary": "黃金價格在高位徘徊，反映中東緊張局勢下的避險需求。債市吸金效應顯現，阻礙股市反彈。當黃金與債券同時受青睞時，代表市場進入「風險規避」模式。在此環境下，槓桿投資策略應轉向保守，優先保留現金以應對可能的市場崩潰。"
+        "id": 12,
+        "summary": "台股出現極端分化，高達 50% 的個股已跌破年線，顯示大盤指數雖由少數權值股撐盤，但多數中小型股已進入空頭。這種「拉積盤」後的補跌效應不容小覷，若權值股無法止穩，市場信心崩潰可能引發系統性風險。投資策略應轉向防禦，並警惕指數雖在季線附近但個股早已走弱的背離現象。"
+      },
+      {
+        "id": 30,
+        "summary": "美股那斯達克受川普言論及鮑爾談話影響走低，輝達、美光、特斯拉等科技巨頭領跌。由於台股與美股科技板塊高度連動，尤其是 AI 供應鏈，美股半導體股的修正將直接拖累台股電子權值股表現。需警惕 AI 泡沫化疑慮對 0050 權重股的估值修正，短期科技股壓力巨大。"
+      },
+      {
+        "id": 35,
+        "summary": "S&P 500 發出警訊，衰退機率創下近年新高。歷史數據顯示，當衰退預期升溫時，市場波動度將大幅增加。雖然目前就業數據尚穩，但高利率環境對企業獲利的侵蝕正逐步顯現。量化策略應增加避險部位，預防全球經濟成長放緩帶來的系統性下行風險，這將直接影響台股出口動能。"
+      },
+      {
+        "id": 8,
+        "summary": "台股多頭代表張錫認為台積電 1,800 元以下為長期買點，並看好明年大盤挑戰 4 萬點。此觀點提供市場另一種長期視角，強調半導體產業的長期成長動能。在極度恐慌的市場氛圍中，此類基本面支撐論點有助於評估 0050 的長期投資價值，但短期仍需尊重技術面修正與地緣政治干擾。"
+      },
+      {
+        "id": 18,
+        "summary": "台經院數據顯示，排除春節因素後製造業景氣仍能維持綠燈，顯示台灣實體經濟基本面尚具韌性。儘管金融市場受地緣政治干擾劇烈波動，但出口與生產端未見崩潰。這為大盤在修正後的止跌回升提供了基本面支撐，投資者在面對市場恐慌時，應參考實體經濟數據以避免過度非理性殺低。"
       }
     ]
   }
