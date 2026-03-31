@@ -513,7 +513,7 @@ ${SEP}\📈 <b>每日一句</b>${SEP}\
 <blockquote>${quoteBlock}</blockquote>`.trim();
 
   return [
-    { text: msg1Text }, // 第一則：會響鈴/震動
+    { text: msg1Text, pin: true }, // 第一則：會響鈴/震動、釘選
     { text: msg2Text, disable_notification: true }, // 第二則：無聲
     { text: msg3Text, disable_notification: true, sheetUrl, strategyUrl }, // 第三則：無聲
   ];
