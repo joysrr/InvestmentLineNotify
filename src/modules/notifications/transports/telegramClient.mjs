@@ -26,7 +26,8 @@ export async function unpinAllChatMessages() {
 }
 
 export async function sendTelegramBatch(messages) {
-  const url = `https://api.telegram.org/bot${token}/sendMessage`;
+  const sendUrl  = `https://api.telegram.org/bot${token}/sendMessage`;
+  const pinUrl  = `https://api.telegram.org/bot${token}/pinChatMessage`;
 
   for (let i = 0; i < messages.length; i++) {
     const msg = messages[i];
@@ -60,7 +61,7 @@ export async function sendTelegramBatch(messages) {
     }
 
     try {
-      const response = await fetch(url, {
+      const response = await fetch(sendUrl , {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
