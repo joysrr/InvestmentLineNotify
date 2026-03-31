@@ -1,5 +1,5 @@
 import { buildTelegramMessages } from "./templates/telegramHtmlBuilder.mjs";
-import { sendTelegramBatch } from "./transports/telegramClient.mjs";
+import { unpinAllChatMessages, sendTelegramBatch } from "./transports/telegramClient.mjs";
 
 /**
  * 終極對外介面：廣播戰報到所有支援的平台
@@ -17,8 +17,10 @@ export async function broadcastDailyReport(
     if (newsMessages.length) {
       tgMsgs = tgMsgs.concat(newsMessages);
     }
+
     tasks.push(
-      sendTelegramBatch(tgMsgs)
+      unpinAllChatMessages()
+        .then(() => sendTelegramBatch(tgMsgs))
         .then(() => console.log("✅ Telegram 戰報發送成功"))
         .catch((e) => console.error("❌ Telegram 發送失敗", e)),
     );

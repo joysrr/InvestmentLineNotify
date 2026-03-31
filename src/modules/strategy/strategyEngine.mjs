@@ -239,6 +239,8 @@ function buildDecision(ctx, strategy) {
 
   const dropOk = ctx.priceDropPercent >= strategy.buy.minDropPercentToConsider;
   const scoreOk = entry.weightScore >= strategy.buy.minWeightScoreToBuy;
+  const dropSuggestion = strategy.buy.minDropPercentToConsider > 0 ? `• 跌幅條件：${ctx.priceDropPercent.toFixed(1)}% / 門檻 ${strategy.buy.minDropPercentToConsider}% (${dropOk ? "✔️達標" : "❌未達"})\n` : '';
+  const scoreSuggestion = strategy.buy.minWeightScoreToBuy > 0 ? `• 評分條件：${entry.weightScore}分 / 門檻 ${strategy.buy.minWeightScoreToBuy}分 (${scoreOk ? "✔️達標" : "❌未達"})\n` : '';
 
   // 5.5) 偏熱但未過熱
   if (!overheat.isOverheat && overheat.highCount > 0 && (!dropOk || !scoreOk)) {
@@ -248,8 +250,8 @@ function buildDecision(ctx, strategy) {
       targetSuggestionShort: "市場偏熱，避免追高",
       targetSuggestion: "0050照常；00675L 先不撥款，避免追高（等回檔或轉多）",
       suggestion:
-        `• 跌幅條件：${ctx.priceDropPercent.toFixed(1)}% / 門檻 ${strategy.buy.minDropPercentToConsider}% (${dropOk ? "✔️達標" : "❌未達"})\n` +
-        `• 評分條件：${entry.weightScore}分 / 門檻 ${strategy.buy.minWeightScoreToBuy}分 (${scoreOk ? "✔️達標" : "❌未達"})\n` +
+        dropSuggestion +
+        scoreSuggestion +
         `• 狀態說明：目前過熱因子命中 ${overheat.highCount} 項 (未達絕對過熱的 ${overheat.factorCount} 項)，建議耐心等回檔。`,
       entry: ctx.entry,
     };
@@ -264,8 +266,8 @@ function buildDecision(ctx, strategy) {
       targetSuggestion:
         "0050照常；00675L 等待進場條件達成（跌幅/評分達標再撥款）",
       suggestion:
-        `• 跌幅條件：${ctx.priceDropPercent.toFixed(1)}% / 門檻 ${strategy.buy.minDropPercentToConsider}% (${dropOk ? "✔️達標" : "❌未達"})\n` +
-        `• 評分條件：${entry.weightScore}分 / 門檻 ${strategy.buy.minWeightScoreToBuy}分 (${scoreOk ? "✔️達標" : "❌未達"})\n` +
+        dropSuggestion +
+        scoreSuggestion +
         `• 行動建議：0050維持定期定額，00675L不動作`,
       entry: ctx.entry,
     };
