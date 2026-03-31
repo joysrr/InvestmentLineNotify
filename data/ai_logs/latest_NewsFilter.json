@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-31T00:04:54.770Z",
+  "_savedAt": "2026-03-31T04:35:09.979Z",
   "type": "NewsFilter",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 台股盤前／費半重挫4.2%！台指期夜盤跌449點 台股今開盤恐延續跌勢 - Yahoo新聞\n[ID: 1] [TW] 標題: 2月景氣燈號連3紅 中東301不確定因子 - 卡優新聞網\n[ID: 2] [TW] 標題: 台股ETF 受益人連九周創高 - Yahoo股市\n[ID: 3] [TW] 標題: 2,896點！台股3月恐創史上最大跌點 - Yahoo股市\n[ID: 4] [TW] 標題: 權值股熄火 台股盤中翻黑、 月線得而復失 - MSN\n[ID: 5] [TW] 標題: 外資賣超639億元 調節台積電、 鴻海轉買塑化 - MSN\n[ID: 6] [TW] 標題: 台股回檔撿便宜！AI算力戰開打 這2檔半年飆5成 - inews.setn.com\n[ID: 7] [TW] 標題: 伊朗局勢不明！美半導體類股承壓 台積電ADR重挫2.8％ - 自由財經\n[ID: 8] [TW] 標題: 外資賣超363.56億元 調節元大台灣50逾6 萬張居冠 - MSN\n[ID: 9] [TW] 標題: 伊朗戰事衝擊新興市場 外資三月從印度股市撤資 120 億美元 - ENN台灣電報\n[ID: 10] [TW] 標題: 2月景氣燈號續亮景氣熱絡紅燈「連3紅」 分數逾4年半新高 - news.nextapple.com\n[ID: 11] [TW] 標題: 台、韓成為外資3月以來在新興亞股兩大提款機 - 聯合新聞網\n[ID: 12] [TW] 標題: 外資持續撤資台股單週賣超破千億- 政府消息新聞 - PChome Online 新聞\n[ID: 13] [TW] 標題: 台股大跌594點 台幣貶1.16角 - Yahoo新聞\n[ID: 14] [TW] 標題: 塑化報價回升！三大法人砸20億元回補「這檔」逾4萬張 今年拚轉虧為盈 - FTNN 新聞網\n[ID: 15] [TW] 標題: 殺紅眼！外資3月單月狂賣8895億 創史上最大 - Yahoo新聞\n[ID: 16] [TW] 標題: 外資撤出鋼鐵股！大成鋼搭漲價潮仍遭翻臉大砍3.4萬張居冠這檔2月營收呈月減也遭狂倒逾2萬張 - FTNN 新聞網\n[ID: 17] [TW] 標題: 油價利多發酵！台化目標價上調至53.5元 外資重砍大盤反手搶進4.1萬張 - Yahoo股市\n[ID: 18] [TW] 標題: 外資續砍639億元 賣超台積電1.59萬張 全面掃貨塑化股 - news.cnyes.com\n[ID: 19] [TW] 標題: 【台灣】2月景氣燈號達 40 分，產能吃緊推升加班時數 | 財經Ｍ平方短評 - LINE TODAY\n[ID: 20] [US] 標題: Asian Stocks Set for Losses, Bonds Climb on Powell: Markets Wrap - Bloomberg\n[ID: 21] [US] 標題: Asian stocks set for losses, bonds climb on Powell - The Edge Malaysia\n[ID: 22] [US] 標題: U.S. Stocks Close | Powell's Remarks Reassure Markets; Major Indices Show Mixed Performance, Chip Stocks Plunge Collectively; Aluminum Concept Strengthens, Alcoa Surges Over 8%; WTI Crude Closes Above $100 Per Barrel for the First Time Since 202 - 富途牛牛\n[ID: 23] [US] 標題: Is US economy, GDP strong enough to offset oil price shocks? - Yahoo Finance\n[ID: 24] [US] 標題: Dow Jones Futures: Nasdaq Falls After Trump, Powell Comments; Micron, Nvidia, Palantir, Tesla Are Key Losers - Investor's Business Daily\n[ID: 25] [US] 標題: Powell, Vertiv, AAON, Nextpower, and Allient Shares Are Falling, What You Need To Know - theglobeandmail.com\n[ID: 26] [US] 標題: US close: Stocks mixed following Powell comments, Middle East escalation in focus - sharecast.com\n[ID: 27] [US] 標題: Bitcoin price news: BTC gives up gains as WTI crude oil surges over $100 per barrel - CoinDesk\n[ID: 28] [US] 標題: Fed Chair Powell sees no threat of private credit 'contagion,' says interest rates are in a 'good place' - Yahoo Finance\n[ID: 29] [US] 標題: Stocks and Bonds Rise as Powell Eases Hike Fears: Markets Wrap - Bloomberg\n[ID: 30] [US] 標題: Dubai unveils full economic plan: $272m incentives, fee cuts, GDP reform, virtual warehouses and worker strategy - Arabian Business\n[ID: 31] [US] 標題: Carvana's Stock Split Misses the Mark: Liquidity Boost Overshadowed by Broader Market Trends and Negative Sentiment - Bitget\n[ID: 32] [US] 標題: The S&P 500’s correction is getting closer to its ending, says Morgan Stanley’s Mike Wilson - MSN\n[ID: 33] [US] 標題: Stock market today: Dow rises on US.-Iran news; Powell comments up next (live coverage) - MSN\n[ID: 34] [US] 標題: 10 Recession Proof Stocks For Safe Dividends - Sure Dividend\n[ID: 35] [US] 標題: Dallas Fed: Rising Home Insurance Costs Driving Mortgage Delinquencies, Moves - Fort Worth Inc.\n[ID: 36] [US] 標題: Market Outlook: Stocks hit seven-month low as oil surge lifts inflation - BNN Bloomberg\n[ID: 37] [US] 標題: US Stock Market Today: Dow Rebounds, Nasdaq Slips as Powell and Oil Keep Wall Street on Edge - TechStock²\n[ID: 38] [US] 標題: Worried About Inflation? Take a Look at These 2 Warren Buffett Stocks. - Yahoo Finance\n[ID: 39] [US] 標題: Wall Street Climbs As Trump Signals Iran Deal Talks: What's Moving Markets Monday? - Alcoa (NYSE:AA), Ast - Benzinga</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 台股4月會出大事？曹興誠突示警特斯拉投資3大風險 謝金河：輝達更可怕 - Yahoo新聞\n[ID: 1] [TW] 標題: 排除農曆春節因素 台經院製造業景氣燈號可連撐綠燈 - Yahoo股市\n[ID: 2] [TW] 標題: 台股逾千檔股價跌破年線 4家百億大型股也不能倖免 寬量國際李鴻基提四解方 - Yahoo股市\n[ID: 3] [TW] 標題: 內地3月PMI報50.4勝預期 創近一年新高 - singtao.ca\n[ID: 4] [TW] 標題: 台股盤中回測32000點關卡支撐 台積電抗跌 - Yahoo新聞\n[ID: 5] [TW] 標題: 主動式台股ETF受益人破百萬大關！00981A、00992A等6檔同創高 - Yahoo股市\n[ID: 6] [TW] 標題: 國發會：2 月景氣燈號分數創逾 4 年新高，留意中東局勢 - TechNews 科技新報\n[ID: 7] [TW] 標題: 陸3月製造業PMI彈升1.4個百分點 來到50.4近一年最高 - 聯合新聞網\n[ID: 8] [TW] 標題: 中國3月製造業PMI升至50.4，非製造業PMI連續第二個月上升 - 富途牛牛\n[ID: 9] [TW] 標題: ABF三雄熱度爆棚！外資、本土法人齊看旺 目標價一次看 - FTNN 新聞網\n[ID: 10] [TW] 標題: 台股32419點開出！早盤重挫逾400點 台積電翻紅帶動大盤漲勢 - Yahoo新聞\n[ID: 11] [TW] 標題: 內地3月官方製造業PMI升至50.4 創1 年新高 - bastillepost.com\n[ID: 12] [TW] 標題: 台股開盤》台積小漲 大盤跌逾百點 美光重挫 力積電承壓大 - MSN\n[ID: 13] [TW] 標題: 台股下跌183點測季線 記憶體重災區 南亞科、力積電摔7％ - Yahoo股市\n[ID: 14] [TW] 標題: 〈台股開盤〉跌逾400點3萬2一度告急 台積電翻紅搶救季線 - news.cnyes.com\n[ID: 15] [TW] 標題: 開盤／中東戰火升溫！台積電跌5元 台股開低逾200點 - Yahoo新聞\n[ID: 16] [TW] 標題: 微軟恐連8月落後大盤 AI布局引發質疑 - news.cnyes.com\n[ID: 17] [TW] 標題: 美股3大指數收黑 美光大跌9％ 台積電ADR跌超過3％ - Yahoo新聞\n[ID: 18] [TW] 標題: 台積電（2330）上看2800元？多數人不信：外資邊按讚邊賣出 - 聯合新聞網\n[ID: 19] [TW] 標題: 外資賣超363.56億元 調節元大台灣50逾6 萬張居冠 - MSN\n[ID: 20] [US] 標題: Dollar Surges to Nine-Month High as Middle East Tensions Drive Safe-Haven Demand - econotimes.com\n[ID: 21] [US] 標題: Why the war will not sink global GDP or stocks - thenationalnews.com\n[ID: 22] [US] 標題: US Stock Futures Rise on Trump War Remarks Report: Markets Wrap - Bloomberg.com\n[ID: 23] [US] 標題: Dow Jones Futures: Nasdaq Falls After Trump, Powell Comments; Micron, Nvidia, Palantir, Tesla Are Key Losers - Investor's Business Daily\n[ID: 24] [US] 標題: Japanese Stocks Tumble on Inflation Fears as Iran Attack Adds to Oil Shock Risks - marketscreener.com\n[ID: 25] [US] 標題: Asia stocks wipe out 2026 gains as Iran war drives inflation worries - The Straits Times\n[ID: 26] [US] 標題: Asian Stocks Wipe Out 2026 Gains as War Drives Inflation Worries - Bloomberg.com\n[ID: 27] [US] 標題: Stock Market Crash in 2026? The S&P 500 Sounds an Alarm as Recession Odds Just Hit Their Highest Level in Years. Here's What History Says Happens Next. - AOL.com\n[ID: 28] [US] 標題: Today’s Market Recap: Powell Sends Dovish Signal, US Stocks Open High and Close Low, Dollar Index Rises for Fifth Straight Day - TradingKey\n[ID: 29] [US] 標題: Safe-haven demand lifts DXY near 100.50 as Trump warns Iran; markets await upcoming NFP report - VT Markets\n[ID: 30] [US] 標題: Dollar edges higher on safe-haven demand amid Middle East tensions: Currency Recap (DXY:) - Seeking Alpha\n[ID: 31] [US] 標題: Fiscal deficit contained at 6pc of GDP, NA told - Business Recorder\n[ID: 32] [US] 標題: Fed Governor Miran: Fed's Balance Sheet Size is Too Large - aastocks.com\n[ID: 33] [US] 標題: Robotics push could add AUD $201 billion to GDP by 2040 - IT Brief Australia\n[ID: 34] [US] 標題: BDO exec: Excessive belt-tightening may slow GDP growth - BusinessMirror\n[ID: 35] [US] 標題: Gold and Silver Prices Drop: Why Has Safe-Haven Demand Diminished Amid Iran Conflict? - el-balad.com\n[ID: 36] [US] 標題: U.S. Stocks Close | Powell's Remarks Reassure Markets; Major Indices Show Mixed Performance, Chip Stocks Plunge Collectively; Aluminum Concept Strengthens, Alcoa Surges Over 8%; WTI Crude Closes Above $100 Per Barrel for the First Time Since 202 - 富途牛牛\n[ID: 37] [US] 標題: Is US economy, GDP strong enough to offset oil price shocks? - Yahoo Finance\n[ID: 38] [US] 標題: Gold rides momentum higher as safe-haven demand picks up (GLD:NYSEARCA) - Seeking Alpha\n[ID: 39] [US] 標題: Powell Says Fed ‘Not Really Facing’ Policy Decision Yet Amid Iran Oil Shock – Adds Central Bank Will Be ‘Mindful Of The Broader Context’ - Stocktwits</News_List>",
   "schema": {
     "type": "OBJECT",
     "description": "AI 思考過程與挑選結果",
@@ -129,39 +129,54 @@
     "think": {
       "event_inventory": [
         {
-          "event": "聯準會主席鮑爾談話與利率政策",
-          "count": 8,
-          "best_title": "Fed Chair Powell sees no threat of private credit 'contagion,' says interest rates are in a 'good place'"
+          "event": "中東局勢升溫與油價衝擊",
+          "count": 9,
+          "best_title": "U.S. Stocks Close | Powell's Remarks Reassure Markets; Major Indices Show Mixed Performance, Chip Stocks Plunge Collectively; WTI Crude Closes Above $100 Per Barrel"
         },
         {
-          "event": "中東地緣政治衝突與油價飆升",
-          "count": 7,
-          "best_title": "WTI Crude Closes Above $100 Per Barrel for the First Time Since 2022; Middle East escalation in focus"
-        },
-        {
-          "event": "外資大規模撤離台股與新興市場",
-          "count": 6,
-          "best_title": "外資3月單月狂賣8895億 創史上最大，台、韓成為新興亞股兩大提款機"
-        },
-        {
-          "event": "台灣2月景氣燈號連三紅",
+          "event": "聯準會政策動向與鮑爾談話",
           "count": 4,
-          "best_title": "2月景氣燈號達 40 分，產能吃緊推升加班時數，分數創逾4年半新高"
+          "best_title": "Powell Says Fed ‘Not Really Facing’ Policy Decision Yet Amid Iran Oil Shock – Adds Central Bank Will Be ‘Mindful Of The Broader Context’"
         },
         {
-          "event": "美股半導體與科技股重挫",
+          "event": "台股大盤劇烈波動與台積電護盤",
           "count": 5,
-          "best_title": "費半重挫4.2%！台積電ADR重挫2.8％，Nvidia、Micron領跌"
+          "best_title": "〈台股開盤〉跌逾400點3萬2一度告急 台積電翻紅搶救季線"
         },
         {
-          "event": "台股大盤與匯市劇烈波動",
-          "count": 4,
-          "best_title": "台股大跌594點，台幣貶1.16角，3月恐創史上最大跌點"
+          "event": "美股半導體板塊重挫",
+          "count": 2,
+          "best_title": "美股3大指數收黑 美光大跌9％ 台積電ADR跌超過3％"
         },
         {
-          "event": "資金流向轉向原物料與塑化股",
+          "event": "美元強勢與避險資金流向",
           "count": 4,
-          "best_title": "外資調節台積電、鴻海，反手搶進塑化股與鋁業概念股"
+          "best_title": "Dollar Surges to Nine-Month High as Middle East Tensions Drive Safe-Haven Demand"
+        },
+        {
+          "event": "中國製造業PMI重回擴張區間",
+          "count": 4,
+          "best_title": "陸3月製造業PMI彈升1.4個百分點 來到50.4近一年最高"
+        },
+        {
+          "event": "外資大幅調節台股與0050",
+          "count": 1,
+          "best_title": "外資賣超363.56億元 調節元大台灣50逾6萬張居冠"
+        },
+        {
+          "event": "台灣國內經濟景氣燈號",
+          "count": 2,
+          "best_title": "國發會：2 月景氣燈號分數創逾 4 年新高，留意中東局勢"
+        },
+        {
+          "event": "記憶體產業與二線晶圓代工疲軟",
+          "count": 1,
+          "best_title": "台股下跌183點測季線 記憶體重災區 南亞科、力積電摔7％"
+        },
+        {
+          "event": "美股衰退警訊與標普500風險",
+          "count": 1,
+          "best_title": "Stock Market Crash in 2026? The S&P 500 Sounds an Alarm as Recession Odds Just Hit Their Highest Level in Years."
         }
       ],
       "dimension_check": {
@@ -173,75 +188,87 @@
       },
       "excluded": [
         {
-          "id": 2,
-          "reason": "理財教學性質"
+          "id": 0,
+          "reason": "名嘴觀點非客觀數據"
         },
         {
-          "id": 6,
-          "reason": "個股推薦農場文"
+          "id": 5,
+          "reason": "ETF受益人數非市場動能"
         },
         {
-          "id": 30,
-          "reason": "區域性政策影響小"
+          "id": 9,
+          "reason": "單一產業細分族群影響有限"
+        },
+        {
+          "id": 16,
+          "reason": "單一公司表現且偏向評論"
+        },
+        {
+          "id": 18,
+          "reason": "分析師目標價預測"
+        },
+        {
+          "id": 22,
+          "reason": "政治人物言論干擾"
         },
         {
           "id": 31,
-          "reason": "單一公司新聞"
+          "reason": "區域性財政數據無關大盤"
         },
         {
-          "id": 34,
-          "reason": "理財教學性質"
+          "id": 33,
+          "reason": "長期產業預測非即時影響"
         },
         {
           "id": 35,
-          "reason": "區域性房市數據"
-        },
-        {
-          "id": 38,
-          "reason": "理財教學性質"
+          "reason": "金價波動為避險資產次要影響"
         }
       ]
     },
     "news": [
       {
-        "id": 28,
-        "summary": "聯準會主席鮑爾表示當前利率處於「良好位置」，且私人信貸市場無傳染風險。此番言論雖緩解了市場對激進升息的恐懼，但暗示高利率將維持更久（Higher for longer），直接壓抑科技股估值，導致美股呈現道瓊漲、納指跌的分化走勢。"
+        "id": 36,
+        "summary": "中東衝突導致WTI原油價格自2022年以來首次收於每桶100美元以上，引發強烈通膨擔憂。儘管聯準會主席鮑爾試圖安撫市場，但美股晶片股集體重挫，反映市場對高能源成本侵蝕科技業利潤的恐懼，對台股半導體供應鏈構成直接估值壓力。"
       },
       {
-        "id": 22,
-        "summary": "受中東局勢升溫影響，WTI原油價格自2022年以來首次收於每桶100美元以上。能源價格飆升引發通膨反彈疑慮，導致費城半導體指數集體跳水，台積電ADR亦受累下跌。油價衝擊將成為大盤短期內最大的系統性風險，需關注通膨數據是否因此失控。"
+        "id": 39,
+        "summary": "聯準會主席鮑爾針對伊朗石油衝擊表示，目前尚未面臨政策轉向的決定，但將密切關注廣泛背景。此番言論暗示若油價持續高漲推升通膨，降息時程恐進一步延後，對利率敏感的科技股與槓桿型投資工具（如0050正2）具有高度負面影響。"
       },
       {
-        "id": 15,
-        "summary": "外資於3月單月狂賣台股8895億元，創下史上最大單月賣超紀錄。在全球避險情緒升溫下，台灣與韓國成為新興市場的提款機。外資大規模撤離不僅造成台股指數重挫，亦導致台幣匯率大幅貶值，資金流向的逆轉對0050等權值型ETF構成沉重壓力。"
+        "id": 14,
+        "summary": "台股受美股拖累開盤重挫逾400點，一度回測32000點大關與季線支撐。台積電展現強大韌性由黑翻紅，成為支撐大盤的關鍵力量。投資人應關注季線保衛戰，若台積電無法持續撐盤，大盤恐面臨技術面轉弱的風險。"
       },
       {
-        "id": 0,
-        "summary": "費城半導體指數重挫4.2%，台指期夜盤應聲下跌449點。由於台股與美股半導體板塊高度連動，台積電、聯發科等權值股面臨補跌壓力。市場預期台股將延續跌勢並回測月線支撐，投資人應警惕槓桿型投資工具在跳空缺口下的強制平倉風險。"
+        "id": 17,
+        "summary": "美股半導體板塊遭遇拋售，美光大跌9%，台積電ADR亦跌逾3%。記憶體大廠美光的重挫反映市場對硬體需求或庫存調整的疑慮，這將直接衝擊台股記憶體族群及權值股表現，短期內台股電子板塊將面臨較大的修正壓力。"
       },
       {
-        "id": 19,
-        "summary": "台灣2月景氣燈號續亮紅燈，綜合判斷分數達40分，創逾4年半新高。產能吃緊帶動加班時數增加，顯示基本面依然強勁。儘管短期受國際資金撤離衝擊，但實體經濟復甦動能可望為台股提供下檔支撐，呈現「外冷內熱」的格局。"
+        "id": 20,
+        "summary": "受中東局勢避險需求驅動，美元指數飆升至九個月高點。強勢美元通常伴隨著新興市場資金流出，對台股而言，外資匯出壓力將增加，可能導致台幣貶值並進一步壓低權值股股價，不利於0050等大型股表現。"
       },
       {
         "id": 7,
-        "summary": "伊朗局勢不確定性加劇，避險資金流出風險資產。美半導體類股承壓，台積電ADR重挫2.8％。地緣政治衝突若擴大，將影響全球供應鏈穩定，特別是半導體產業。此事件不僅影響股價，更可能推升避險資產如美債與黃金的需求。"
+        "summary": "中國3月官方製造業PMI彈升至50.4，優於預期並創下近一年新高，重回擴張區間。這顯示中國經濟出現復甦跡象，對於與中國連動性較高的台灣傳產及部分電子零組件需求具有正面提振作用，有助於緩解全球經濟放緩的擔憂。"
+      },
+      {
+        "id": 19,
+        "summary": "外資單日大舉賣超台股363.56億元，並重點調節元大台灣50（0050）逾6萬張，位居賣超首位。外資對權值型ETF的精準減碼顯示其對台股大盤短期走勢持悲觀態度，資金撤離壓力將使指數在32000點附近面臨嚴峻考驗。"
+      },
+      {
+        "id": 6,
+        "summary": "國發會公布2月景氣燈號分數創逾4年新高，顯示台灣內部經濟動能強勁。然而，官方同時警示需留意中東局勢對供應鏈與物價的潛在衝擊。此數據呈現「內熱外冷」的矛盾，投資人應防範外部地緣政治風險抵銷國內經濟成長紅利。"
+      },
+      {
+        "id": 27,
+        "summary": "標普500指數發出警訊，衰退機率達到近年最高水平。歷史數據顯示，當衰退指標觸發時，市場往往面臨大幅修正。這提醒量化投資者在追求槓桿收益的同時，必須嚴格執行停損機制，以應對可能到來的全球性系統風險。"
       },
       {
         "id": 13,
-        "summary": "台股單日大跌594點，台幣同步貶值1.16角，呈現股匯雙殺。外資單日賣超逾600億元，主要調節台積電與元大台灣50。匯率貶值將進一步加速外資撤資意願，形成負向循環，短期內需觀察台幣能否在關鍵價位止貶回穩。"
-      },
-      {
-        "id": 18,
-        "summary": "外資操作出現明顯轉向，在砍殺台積電1.59萬張的同時，反手掃貨塑化股。台化、南亞等個股因油價利多與報價回升受到青睞。這顯示市場資金正從高估值的AI科技股流向低基期的原物料避險，投資組合應考慮適度增加防禦性配置。"
+        "summary": "台股記憶體族群成為重災區，南亞科、力積電重挫7%，主因受美光大跌與產業前景不明影響。記憶體作為半導體景氣風向球，其集體走弱預示電子產業鏈短期進入調整期，投資人應避開弱勢族群，將資金集中於具備護盤屬性的龍頭股。"
       },
       {
         "id": 32,
-        "summary": "摩根士丹利策略師Mike Wilson指出，標普500指數的修正已接近尾聲。儘管目前市場受通膨與地緣政治困擾，但若修正幅度達標，可能是長線資金進場的時機。這為處於恐慌情緒中的投資人提供了一定程度的心理支撐，需關注美股能否在關鍵均線止跌。"
-      },
-      {
-        "id": 24,
-        "summary": "川普與鮑爾的言論共同施壓納斯達克指數，Nvidia、Micron等AI指標股領跌。政治不確定性與貨幣政策交織，使得科技股波動率大幅上升。對於槓桿投資者而言，AI族群的集體回檔可能引發連鎖拋售，需嚴格執行停損機制。"
+        "summary": "聯準會官員Miran指出聯準會資產負債表規模過大，暗示縮表進程（QT）可能持續。在市場流動性收緊的背景下，高槓桿投資策略的融資成本與風險將上升，需密切監控全球資金水位對風險資產定價的長期壓制。"
       }
     ]
   }

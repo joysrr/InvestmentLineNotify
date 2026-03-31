@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-03-31T00:04:11.027Z",
+    "lastRun": "2026-03-31T04:34:24.717Z",
     "sources": {
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-31T00:04:11.027Z"
+        "lastFetch": "2026-03-31T04:34:24.717Z"
       },
       "cnnProvider": {
         "status": "SUCCESS",
@@ -29,6 +29,12 @@
     }
   },
   "data": {
+    "rawNdc": {
+      "date": "2026-02",
+      "score": 40,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
     "rawMargin": {
       "marginBalance100M": 3927.09,
       "marginBalanceChange100M": -10.14,
@@ -57,10 +63,22 @@
       },
       "source": "FRED"
     },
+    "rawValuation": {
+      "pe": 23.88,
+      "pb": 3.24,
+      "yield": 2.26,
+      "date": "20260330"
+    },
+    "quote": {
+      "date": "2026-03-31",
+      "quote": "Make peace within, and there will be no one who can overcome you. And no one you will wish to overcome.",
+      "author": "Dan Millman",
+      "source": "zenquotes"
+    },
     "rawFx": {
-      "currentRate": 32.038,
+      "currentRate": 32.149,
       "previousClose": 31.2468,
-      "changePercent": 2.53,
+      "changePercent": 2.89,
       "historicalPrices": [
         31.375,
         31.535,
@@ -83,26 +101,8 @@
         31.9359,
         31.93,
         31.977,
-        32.038
+        32.149
       ]
-    },
-    "quote": {
-      "date": "2026-03-31",
-      "quote": "Make peace within, and there will be no one who can overcome you. And no one you will wish to overcome.",
-      "author": "Dan Millman",
-      "source": "zenquotes"
-    },
-    "rawNdc": {
-      "date": "2026-02",
-      "score": 40,
-      "light": "紅燈 (過熱)",
-      "lightColor": "red"
-    },
-    "rawValuation": {
-      "pe": 23.88,
-      "pb": 3.24,
-      "yield": 2.26,
-      "date": "20260330"
     }
   }
 }

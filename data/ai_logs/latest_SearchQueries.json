@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-31T00:04:43.045Z",
+  "_savedAt": "2026-03-31T04:34:44.999Z",
   "type": "SearchQueries",
-  "userPrompt": "今天是 2026-03-31。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 37.55。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
+  "userPrompt": "今天是 2026-03-31。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.64。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
     "type": "OBJECT",
     "properties": {
@@ -71,7 +71,7 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 37.55，顯示市場處於極度恐慌狀態，與『偏熱』的市場狀態並存，顯示極大機率正經歷『高檔崩跌』或『閃崩』。此種背離通常源於突發性地緣政治衝突、系統性金融風險或關鍵科技龍頭（如台積電、Nvidia）的財報利空引發的連環清算。搜尋策略將聚焦於外資撤資動向、融資斷頭壓力、聯準會是否緊急干預以及全球避險資產的流向。",
+    "reasoning_process": "當前 VIX 指數飆升至 36.64，顯示市場處於極度恐慌或面臨系統性風險的臨界點，這與『偏熱』的狀態形成強烈矛盾，暗示市場可能正經歷『高檔反轉』或『多頭踩踏』。推論原因可能包含：1. 美國聯準會（Fed）意外的鷹派轉向或通膨數據失控；2. 地緣政治風險突然升溫；3. 科技股估值過高引發的流動性崩潰。搜尋策略將聚焦於外資撤資動向、融資維持率、美債殖利率異動及避險資產流入狀況。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
@@ -82,19 +82,19 @@
         "searchType": "broad"
       },
       {
-        "keyword": "台積電 營收展望",
+        "keyword": "台指期 淨空單",
         "searchType": "intitle"
       },
       {
-        "keyword": "地緣政治 衝突",
+        "keyword": "避險 資金",
         "searchType": "broad"
       },
       {
-        "keyword": "避險資產 湧入",
+        "keyword": "地緣政治 緊張",
         "searchType": "broad"
       },
       {
-        "keyword": "台股 恐慌性拋售",
+        "keyword": "恐慌性 賣壓",
         "searchType": "intitle"
       }
     ],
@@ -104,27 +104,23 @@
         "searchType": "intitle"
       },
       {
-        "keyword": "Fed emergency meeting",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "S&P 500 correction",
+        "keyword": "FOMC hawkish pivot",
         "searchType": "intitle"
-      },
-      {
-        "keyword": "Tech sector selloff",
-        "searchType": "broad"
       },
       {
         "keyword": "Treasury yield curve",
         "searchType": "broad"
       },
       {
-        "keyword": "Systemic financial risk",
+        "keyword": "Equity market correction",
         "searchType": "intitle"
       },
       {
-        "keyword": "Safe haven gold",
+        "keyword": "Systemic liquidity risk",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Safe haven demand",
         "searchType": "broad"
       }
     ]
