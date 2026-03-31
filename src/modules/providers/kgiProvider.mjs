@@ -54,6 +54,8 @@ export async function fetchTwseMarginData() {
     // V6: 大盤融資維持率 (如 "182.4")
     // ==========================================
 
+    result.date = todayData.V1;
+
     const ratio = parseNumberOrNull(todayData.V6);
     if (ratio !== null) {
       result.maintenanceRatio = ratio;
@@ -77,6 +79,7 @@ export async function fetchTwseMarginData() {
     if (result.marginBalance100M < 1000 || result.maintenanceRatio < 100) {
       console.warn("⚠️ 解析出的數字不合理，使用預設值", result);
       return {
+        date: null,
         marginBalance100M: 3000,
         marginBalanceChange100M: 0,
         maintenanceRatio: 165,
