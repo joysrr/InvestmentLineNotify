@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-30T14:49:36.945Z",
+  "_savedAt": "2026-03-31T00:04:43.045Z",
   "type": "SearchQueries",
-  "userPrompt": "今天是 2026-03-30。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 37.55。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
+  "userPrompt": "今天是 2026-03-31。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 37.55。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
   "schema": {
     "type": "OBJECT",
     "properties": {
@@ -71,7 +71,7 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 37.55，顯示市場處於極度恐慌與劇烈波動狀態，即便市場狀態標註為『偏熱』，這通常暗示著多頭末端的噴出後伴隨急殺，或是市場正經歷嚴重的『恐慌性拋售』。高 VIX 通常與地緣政治危機、系統性金融風險或聯準會政策劇變有關。台灣市場需關注外資大規模撤資與融資斷頭壓力；美國市場則需鎖定信用利差擴大、避險情緒（Risk-off）以及經濟衰退的即時數據。",
+    "reasoning_process": "當前 VIX 指數高達 37.55，顯示市場處於極度恐慌狀態，與『偏熱』的市場狀態並存，顯示極大機率正經歷『高檔崩跌』或『閃崩』。此種背離通常源於突發性地緣政治衝突、系統性金融風險或關鍵科技龍頭（如台積電、Nvidia）的財報利空引發的連環清算。搜尋策略將聚焦於外資撤資動向、融資斷頭壓力、聯準會是否緊急干預以及全球避險資產的流向。",
     "twQueries": [
       {
         "keyword": "外資 賣超",
@@ -82,11 +82,11 @@
         "searchType": "broad"
       },
       {
-        "keyword": "國安基金 護盤",
+        "keyword": "台積電 營收展望",
         "searchType": "intitle"
       },
       {
-        "keyword": "台積電 法說會",
+        "keyword": "地緣政治 衝突",
         "searchType": "broad"
       },
       {
@@ -94,7 +94,7 @@
         "searchType": "broad"
       },
       {
-        "keyword": "地緣政治 衝突",
+        "keyword": "台股 恐慌性拋售",
         "searchType": "intitle"
       }
     ],
@@ -108,23 +108,23 @@
         "searchType": "broad"
       },
       {
-        "keyword": "Treasury yield curve inversion",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Recession fears",
+        "keyword": "S&P 500 correction",
         "searchType": "intitle"
       },
       {
-        "keyword": "Credit spread widening",
+        "keyword": "Tech sector selloff",
         "searchType": "broad"
+      },
+      {
+        "keyword": "Treasury yield curve",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Systemic financial risk",
+        "searchType": "intitle"
       },
       {
         "keyword": "Safe haven gold",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "S&P 500 correction",
         "searchType": "broad"
       }
     ]
