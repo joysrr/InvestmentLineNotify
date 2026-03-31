@@ -50,9 +50,9 @@ function validateDynamicKeyword(item, staticPool) {
   // 禁止單一全大寫英文縮寫
   if (/^[A-Z]{2,5}$/.test(kw)) return false;
 
-  // 語意單元數量：1~4 個
-  const tokens = kw.match(/[\u4e00-\u9fff\u3400-\u4dbf]+|[a-zA-Z0-9]+/g) ?? [];
-  if (tokens.length < 1 || tokens.length > 4) return false;
+  // 強制空格分隔
+  const words = kw.split(/\s+/).filter(Boolean);
+  if (words.length < 2 || words.length > 4) return false;
 
   // 禁止重複靜態池
   if (staticPool.some((s) => s.keyword.toLowerCase() === kw.toLowerCase()))
