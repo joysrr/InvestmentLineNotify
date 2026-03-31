@@ -59,8 +59,15 @@ export async function callGemini(promptName, userPrompt, options = {}) {
   // 1️⃣ 建立 Trace（代表一次完整的 AI 決策事件，如 MacroAnalysis）
   const trace = langfuse.trace({
     name: promptName,
+    sessionId: options.sessionId,
+    userId: options.userId,
     input: { userPrompt, systemInstruction },
-    metadata: { keyIndex: resolvedIndex, model: options.model ?? GEMINI_MODEL },
+    metadata: {
+      keyIndex: resolvedIndex, model: options.model ?? GEMINI_MODEL,
+      githubRunId: process.env.GITHUB_RUN_ID,
+      githubWorkflow: process.env.GITHUB_WORKFLOW,
+      githubSha: process.env.GITHUB_SHA,
+    },
   });
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -134,7 +141,7 @@ export async function callGemini(promptName, userPrompt, options = {}) {
         const delay = getBackoffDelay(attempt);
         console.warn(
           `⚠️ Gemini 第 ${attempt + 1} 次失敗 (key: ${resolvedIndex})，` +
-            `${(delay / 1000).toFixed(1)}s 後重試... 原因: ${error.message}`,
+          `${(delay / 1000).toFixed(1)}s 後重試... 原因: ${error.message}`,
         );
         generation.end({
           level: "WARNING",

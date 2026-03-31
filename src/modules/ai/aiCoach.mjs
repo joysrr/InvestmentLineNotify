@@ -13,6 +13,10 @@ import {
 
 import { archiveManager } from "../data/archiveManager.mjs";
 
+const sessionId = process.env.GITHUB_RUN_ID
+  ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
+  : `local-${Date.now()}`;
+
 // 這個函式會根據當前的市場數據，動態產生適合搜尋引擎使用的關鍵字
 export async function generateDailySearchQueries(marketData) {
   const todayStr = new Date().toISOString().split("T")[0];
@@ -20,6 +24,7 @@ export async function generateDailySearchQueries(marketData) {
 
   try {
     const rawJson = await callGemini("GenerateSearchQueries", prompt, {
+      sessionId,
       keyIndex: 0,
       responseSchema: NEWS_KEYWORD_SCHEMA,
     });
@@ -59,6 +64,7 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
       "FilterAndCategorizeNews",
       userPrompt,
       {
+        sessionId,
         keyIndex: 1,
         responseSchema: FILTERED_NEWS_SCHEMA,
       },
@@ -104,6 +110,7 @@ export async function analyzeMacroNewsWithAI(todayNewsText) {
 
   try {
     const rawJson = await callGemini("AnalyzeMacroNews", userPrompt, {
+      sessionId,
       keyIndex: 2,
       responseSchema: MACRO_ANALYSIS_SCHEMA,
     });
@@ -167,6 +174,7 @@ export async function getAiInvestmentAdvice(
 
   try {
     const result = await callGemini("InvestmentAdvice", userPrompt, {
+      sessionId,
       keyIndex: 0,
       responseSchema: INVESTMENT_COACH_SCHEMA,
     });
