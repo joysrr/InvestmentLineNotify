@@ -1,5 +1,6 @@
 import { callGemini } from "./aiClient.mjs";
 import { formatQuantDataForCoach } from "./aiDataPreprocessor.mjs";
+import { baseTwQueries, baseUsQueries } from "../news/keywordConfig.mjs";
 import {
   buildMacroAnalysisUserPrompt,
   buildCoachUserPrompt,
@@ -19,8 +20,12 @@ const sessionId = process.env.GITHUB_RUN_ID
 
 // 這個函式會根據當前的市場數據，動態產生適合搜尋引擎使用的關鍵字
 export async function generateDailySearchQueries(marketData) {
+  const staticPoolText =
+    `TW 靜態池：${baseTwQueries.map((q) => q.keyword).join("、")}\n` +
+    `US 靜態池：${baseUsQueries.map((q) => q.keyword).join("、")}`;
+
   const todayStr = new Date().toISOString().split("T")[0];
-  const prompt = buildNewsKeyWorkPrompt(todayStr, marketData);
+  const prompt = buildNewsKeyWorkPrompt(todayStr, marketData, staticPoolText);
 
   try {
     const rawJson = await callGemini("GenerateSearchQueries", prompt, {

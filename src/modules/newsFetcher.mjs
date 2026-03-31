@@ -1,174 +1,122 @@
 import Parser from "rss-parser";
-import { escapeHTML, TwDate } from "../utils/coreUtils.mjs";
+import { escapeHTML, TwDate, sleep } from "../utils/coreUtils.mjs";
 import {
   filterAndCategorizeAllNewsWithAI,
   generateDailySearchQueries,
 } from "./ai/aiCoach.mjs";
+import {
+  baseTwQueries,
+  baseUsQueries,
+  twExcludeKeywords,
+  usExcludeKeywords,
+  loadBlacklist,
+} from "./keywordConfig.mjs";               // ← 路徑請自行確認
+import { archiveManager } from "./data/archiveManager.mjs"; // ← 路徑請自行確認
 
-// 定義兩個基礎的查詢清單，分別針對台灣市場和國際市場
-const baseTwQueries = [
-  // ── 核心標的（標題，確保主角是它們）──────────────────
-  { keyword: "台股", searchType: "intitle" },
-  { keyword: "大盤", searchType: "intitle" },
-  { keyword: "台積電 法說", searchType: "intitle" }, // 改：法說才有訊息量
-  { keyword: "台積電 ADR", searchType: "intitle" }, // 新增：美股夜盤訊號
-  { keyword: "台積電 外資", searchType: "intitle" }, // 新增：籌碼訊號
+// ── 工具函式 ──────────────────────────────────────────────────────────────
 
-  // ── 資金與籌碼面（廣泛）────────────────────────────
-  { keyword: "外資", searchType: "broad" }, // 保留
-  { keyword: "三大法人", searchType: "broad" }, // 新增：投信+自營+外資綜合
-  { keyword: "融資 融券", searchType: "broad" }, // 新增：散戶槓桿水位
-  { keyword: "集中度 籌碼", searchType: "broad" }, // 新增：主力控盤觀察
-  { keyword: "國安基金", searchType: "broad" }, // 新增：護盤訊號
+const FALLBACK_THRESHOLD = 5;
 
-  // ── 貨幣政策與流動性────────────────────────────────
-  { keyword: "央行", searchType: "broad" }, // 保留
-  { keyword: "升息 降息", searchType: "broad" }, // 新增：利率方向
-  { keyword: "新台幣", searchType: "broad" }, // 新增：匯率=外資動向指標
+/**
+ * 將單一查詢條件物件轉為 Google News RSS query 字串
+ * @param {{ keyword: string, searchType: "intitle"|"broad" }} item
+ * @param {{ keyword: string, searchType: "intitle"|"broad" }[]} excludeList
+ */
+function buildSingleKeywordQueryStr(item, excludeList = []) {
+  const include =
+    item.searchType === "intitle"
+      ? `intitle:"${item.keyword}"`
+      : `"${item.keyword}"`;
 
-  // ── 基本面與經濟環境────────────────────────────────
-  { keyword: "通膨", searchType: "broad" }, // 保留
-  { keyword: "出口", searchType: "broad" }, // 保留
-  { keyword: "外銷訂單", searchType: "broad" }, // 新增：台灣領先指標
-  { keyword: "景氣燈號", searchType: "broad" }, // 新增：官方景氣判斷
-  { keyword: "PMI", searchType: "broad" }, // 新增：製造業景氣
-];
+  const excludeParts = excludeList.map((ex) =>
+    ex.searchType === "intitle"
+      ? `-intitle:"${ex.keyword}"`
+      : `-"${ex.keyword}"`
+  );
 
-const baseUsQueries = [
-  // ── 核心指數（標題）────────────────────────────────
-  { keyword: "S&P 500", searchType: "intitle" }, // 保留
-  { keyword: "Nasdaq", searchType: "intitle" }, // 保留
-  { keyword: "CPI", searchType: "intitle" }, // 保留
-  { keyword: "Dow Jones", searchType: "intitle" }, // 新增：道瓊代表傳產
+  return [include, "+when:1d", ...excludeParts].join(" ");
+}
 
-  // ── 貨幣政策與重要人物──────────────────────────────
-  { keyword: "Federal Reserve", searchType: "broad" }, // 保留
-  { keyword: "Fed", searchType: "broad" }, // 保留
-  { keyword: "Powell", searchType: "broad" }, // 保留
-  { keyword: "FOMC", searchType: "broad" }, // 新增：利率會議直接觸發
+/**
+ * 驗證 AI 回傳的動態關鍵字是否合規
+ * @param {{ keyword: string, searchType: string }} item
+ * @param {{ keyword: string }[]} staticPool
+ */
+function validateDynamicKeyword(item, staticPool) {
+  if (!item?.keyword || typeof item.keyword !== "string") return false;
+  const kw = item.keyword.trim();
+  if (kw.length < 2) return false;
 
-  // ── 資金流動性（新增整個區塊）──────────────────────
-  { keyword: "Treasury yields", searchType: "broad" }, // 新增：殖利率是股市之錨
-  { keyword: "dollar index", searchType: "broad" }, // 新增：美元強弱=新興市場資金
-  { keyword: "credit spread", searchType: "broad" }, // 新增：信用風險溫度計
-  { keyword: "liquidity", searchType: "broad" }, // 新增：流動性危機偵測
+  // 禁止單一全大寫英文縮寫
+  if (/^[A-Z]{2,5}$/.test(kw)) return false;
 
-  // ── 總經指標────────────────────────────────────────
-  { keyword: "inflation", searchType: "broad" }, // 保留
-  { keyword: "payrolls", searchType: "broad" }, // 保留
-  { keyword: "recession", searchType: "broad" }, // 保留
-  { keyword: "GDP", searchType: "broad" }, // 新增：成長率直接指標
-  { keyword: "jobless claims", searchType: "broad" }, // 新增：每週就業先行指標
-  { keyword: "ISM", searchType: "broad" }, // 新增：製造業/服務業景氣
-];
+  // 語意單元數量：1~4 個
+  const tokens = kw.match(/[\u4e00-\u9fff\u3400-\u4dbf]+|[a-zA-Z0-9]+/g) ?? [];
+  if (tokens.length < 1 || tokens.length > 4) return false;
 
-const twExcludeKeywords = [
-  { keyword: "排行", searchType: "intitle" },  // 排除各類排行文
-  { keyword: "日法人", searchType: "intitle" }, // 排除每日法人買賣超
-  { keyword: "即時新聞", searchType: "intitle" }, // 排除即時新聞整理
-  { keyword: "買超個股", searchType: "intitle" },  // 排除個股買超整理
-  { keyword: "賣超個股", searchType: "intitle" },  // 排除個股賣超整理
-  { keyword: "前十大", searchType: "intitle" },
-];
+  // 禁止重複靜態池
+  if (staticPool.some((s) => s.keyword.toLowerCase() === kw.toLowerCase()))
+    return false;
 
-const usExcludeKeywords = [
-  { keyword: "Q1 Earnings", searchType: "intitle" }, // 排除個股財報
-  { keyword: "Q2 Earnings", searchType: "intitle" },
-  { keyword: "Q3 Earnings", searchType: "intitle" },
-  { keyword: "Q4 Earnings", searchType: "intitle" },
-  { keyword: "price target", searchType: "broad" },   // 排除個股目標價調整
-  { keyword: "stock forecast", searchType: "broad" },   // 排除個股預測文
-  { keyword: "Liquidity Pulse", searchType: "broad" },  // 消滅 Stock Traders Daily 垃圾文
-  { keyword: "Liquidity Mapping", searchType: "broad" },  // 同上
-  { keyword: "Powell Industries", searchType: "intitle" }, // 排除個股誤抓 Fed Powell
-];
+  return true;
+}
 
-const twExcludedSources = [
-  "富聯網",
-  "Bella.tw儂儂",
-  "信報網站",
-  "Sin Chew Daily",
-  "AASTOCKS.com",
-  "FXStreet",
-  "Exmoo",
-  "facebook.com",
-];
+/**
+ * 合併靜態池 + AI 動態關鍵字，去重驗證
+ */
+function mergeKeywords(baseList, dynamicList) {
+  const validated = dynamicList.filter((item) =>
+    validateDynamicKeyword(item, baseList)
+  );
+  const invalidCount = dynamicList.length - validated.length;
+  if (invalidCount > 0) {
+    console.warn(`⚠️ [Keywords] 已過濾 ${invalidCount} 個不合規動態關鍵字`);
+  }
+  const mergedMap = new Map();
+  [...baseList, ...validated].forEach((item) =>
+    mergedMap.set(item.keyword.toLowerCase(), item)
+  );
+  return Array.from(mergedMap.values());
+}
 
-const usExcludedSources = [
-  // 垃圾站（改到 source 名稱比對，domain 解析對 Google News 無效）
-  "Stock Traders Daily",
-  "baoquankhu1.vn",            // ✅ 從 domainBlackList 移來，[76][77][80][86][93][103]
-  "International Supermarket News",
-  "AASTOCKS.com",              // [81] US Treasury 新聞誤觸發
-  // 印度媒體
-  "The Economic Times",
-  "Devdiscourse",
-  "Tribune India",
-  "ANI News",
-  "India TV News",
-  "The Financial Express",
-  "Moneycontrol.com",
-  "The Hans India",
-  "Mint",
-  // 澳洲/紐西蘭媒體
-  "NZ Herald",
-  "Otago Daily Times",
-  "Finimize",
-  "investordaily.com.au",
-  "The Australian",
-  // 非相關國/地區媒體
-  "Economy Middle East",
-  "LEADERSHIP Newspapers",
-  "Punch Newspapers",
-  "Joburg ETC",
-  "Eunews",
-  "European Commission",
-  "BusinessToday Malaysia",
-  "Human Resources Online",
-  "Tornos News",
-  "Royal Gazette | Bermuda",
-  "AD HOC NEWS",
-  "simplywall.st",
-  "MarketBeat",
-  "parameter.io",
-  "Stock Titan",
-  "Truthout",
-  "inkorr.com",
-  "ANSA",
-  "Yahoo! Finance Canada",
-  "صحيفة مال",
-  "Arab News PK",              // [97] 埃及/巴基斯坦 GDP
-  "Investing.com UK",          // [100] 英國 FTSE 100
-  "Yahoo Finance UK",          // [102] 英國 FTSE 100
-  "markets.businessinsider.com",
-  "ruhrkanal.news",
-  "agoranotizia.it",
-  "facebook.com",
-];
+/**
+ * 以分批並行方式抓取所有關鍵字的 RSS（5個一批，批次間 300ms）
+ * @param {{ keyword: string, searchType: string }[]} keywords
+ * @param {"TW"|"US"} region
+ * @param {{ keyword: string, searchType: string }[]} excludeList
+ * @param {number} concurrency
+ * @param {number} delayMs
+ */
+async function fetchBatchedByKeywords(
+  keywords,
+  region,
+  excludeList,
+  concurrency = 5,
+  delayMs = 300
+) {
+  const [gl, hl, ceid] =
+    region === "TW"
+      ? ["TW", "zh-TW", "TW:zh-Hant"]
+      : ["US", "en-US", "US:en"];
 
-const titleBlackListPatterns = [
-  /Liquidity (Pulse|Mapping) .*(Institutional|Price Events)/i,
-  /\bon Thin Liquidity,? Not News\b/i,
-  /Powell Industries/i,
-  /ISM.*(University|Saddle|Bike|Supermarket|Rankings|Dhanbad)/i,
-  /India.*(GDP|growth forecast|economy)/i,
-  /GDP.*(India|FY2[67]|FY'2[67])/i,
-  /(Belize|Oman|Estonia|Bulgaria|Romania|Nigeria|Uzbekistan|Scotland|Portugal|UAE|Bahrain|Gisborne|Otago|Italy|Pakistan|Caricom|South Africa|SA's GDP).*(GDP|\beconomy\b)/i,
-  /GDP.*(Belize|Oman|Estonia|Bulgaria|Romania|Nigeria|Uzbekistan|Scotland|Portugal|UAE|Bahrain|Gisborne|Otago|Italy|Pakistan)/i,
-  /\b(RBA|Reserve Bank of Australia|ASX 200|Australian (stocks?|shares?|economy))\b/i,
-  /\b(fiancé|engagement|wedding ring|jealous)\b/i,
-  /recession-proof stock/i,
-  /FTSE 100/i,                                    // [92][100][102]
-  /\d+ inflation-resistant stock/i,               // [88] "1 inflation-resistant stock"
-  /(Fed Watch|Fed Meeting|Fed Impact|Treasury Yields:|Volatility Watch|Aug Action|Aug Fed Impact):.*stock.*(–|-)/i,
-  /\bBrexit\b/i,
-  /小資.{0,10}入場.{0,15}(ETF|[A-Z0-9]{4,6}[AB]?)/,
-  /統一推|推出.{0,5}(ETF|[A-Z0-9]{4,6}[AB]?).{0,10}(升級|布局|主動)/,
-  /盤[前中後]分析/,
-  /盤[前中後]》?[\s\S]{0,5}分析/,
-  /處置股.{0,10}(誕生|關到|今日起)/,
-  /(最高價|漲停板).{0,10}處置/,
-];
+  const results = [];
+  for (let i = 0; i < keywords.length; i += concurrency) {
+    const chunk = keywords.slice(i, i + concurrency);
+    const chunkResults = await Promise.all(
+      chunk.map((item) => {
+        const queryStr = buildSingleKeywordQueryStr(item, excludeList);
+        const url = buildUrl(queryStr, gl, hl, ceid);
+        return fetchRssFeed(url, 30, region);
+      })
+    );
+    results.push(...chunkResults.flat());
+
+    const isLast = i + concurrency >= keywords.length;
+    if (!isLast) await sleep(delayMs);
+  }
+  return results;
+}
+
 
 const parser = new Parser({
   customFields: {
@@ -195,39 +143,6 @@ async function fetchRssFeed(url, maxItems = 10, sourceTag = "") {
     return [];
   }
 }
-
-/**
- * 查詢條件清單轉換成文字RSS查詢條件
- * @param {*} baseList 查詢條件清單
- * @param {*} excludeList 排除條件清單
- * @returns
- */
-const formatQueries = (baseList, excludeList = []) => {
-  // 正向條件去重
-  const mergedMap = new Map();
-  baseList.forEach((item) => mergedMap.set(item.keyword.toLowerCase(), item));
-
-  const includeParts = Array.from(mergedMap.values()).map((obj) =>
-    obj.searchType === "intitle"
-      ? `intitle:"${obj.keyword}"`
-      : `"${obj.keyword}"`
-  );
-
-  // 排除條件去重
-  const excludeMap = new Map();
-  excludeList.forEach((item) => excludeMap.set(item.keyword.toLowerCase(), item));
-
-  const excludeParts = Array.from(excludeMap.values()).map((obj) =>
-    obj.searchType === "intitle"
-      ? `-intitle:"${obj.keyword}"`
-      : `-"${obj.keyword}"`
-  );
-
-  // 組合：(正向條件) 排除條件1 排除條件2 +when:1d
-  const excludeStr = excludeParts.length > 0 ? ` ${excludeParts.join(" ")}` : "";
-  return `(${includeParts.join(" OR ")})+when:1d${excludeStr}`;
-};
-
 
 /**
  * 建立 Google News RSS 的 URL
@@ -308,7 +223,7 @@ function isTitleTooShort(title) {
  * @param {number} maxPerRegion   - 區域限制新聞筆數
  * @returns {Array}
  */
-function prepareNewsForAI(newsList, maxPerRegion = 20) {
+function prepareNewsForAI(newsList, maxPerRegion = 20, blacklist = null) {
   console.log(`📰 原始新聞: ${newsList.length} 筆`);
   // 時間篩選（你已有的 filterNewsByDate）
   const recent = filterNewsByDate(newsList, 24);
@@ -317,14 +232,18 @@ function prepareNewsForAI(newsList, maxPerRegion = 20) {
   // 排除特定來源(農場文章或個股報導居多)
   const filteredBySource = recent.filter((news) => {
     const source = news.source || "unknown";
-    const excludedSources = news._region === "TW" ? twExcludedSources : usExcludedSources;
+    const excludedSources =
+      news._region === "TW"
+        ? (blacklist?.twExcludedSources ?? [])
+        : (blacklist?.usExcludedSources ?? []);
     return !excludedSources.includes(source);
   });
   console.log(`📰 排除來源後: ${filteredBySource.length} 筆`);
 
   // 標題模式黑名單過濾
+  const activePatterns = blacklist?.titleBlackListPatterns ?? [];
   const titleFiltered = filteredBySource.filter((news) =>
-    !titleBlackListPatterns.some((pattern) => pattern.test(news.title))
+    !activePatterns.some((pattern) => pattern.test(news.title))
   );
   console.log(`📰 標題黑名單過濾後: ${titleFiltered.length} 筆`);
 
@@ -367,56 +286,65 @@ function prepareNewsForAI(newsList, maxPerRegion = 20) {
  * @param {*} param0
  */
 export async function getRawNews({ twQueries, usQueries }) {
-  // 合併TW查詢條件並去重
-  const mergedMapTW = new Map();
-  baseTwQueries.forEach((item) => mergedMapTW.set(item.keyword.toLowerCase(), item));
-  twQueries.forEach((item) => mergedMapTW.set(item.keyword.toLowerCase(), item));
+  // 1. 載入 blacklist（單次 I/O，後續傳遞）
+  const blacklist = await loadBlacklist();
 
-  // 合併US查詢條件並去重
-  const mergedMapUS = new Map();
-  baseUsQueries.forEach((item) => mergedMapUS.set(item.keyword.toLowerCase(), item));
-  usQueries.forEach((item) => mergedMapUS.set(item.keyword.toLowerCase(), item));
-
-  // 將查詢條件變成每10個條件批次進行查詢
-  const batchSize = 5;
-  const twQueryBatches = [];
-  for (let i = 0; i < mergedMapTW.size; i += batchSize) {
-    const batch = Array.from(mergedMapTW.values()).slice(i, i + batchSize);
-    twQueryBatches.push(batch);
-  }
-  const usQueryBatches = [];
-  for (let i = 0; i < mergedMapUS.size; i += batchSize) {
-    const batch = Array.from(mergedMapUS.values()).slice(i, i + batchSize)
-    usQueryBatches.push(batch);
-  }
-
-  // 將每個批次的查詢條件轉換成文字RSS查詢條件，並建立查詢網址
-  const baseTWUrls = twQueryBatches.map(batch => buildUrl(formatQueries(batch, twExcludeKeywords), "TW", "zh-TW", "TW:zh-Hant"));
-  const baseUSUrls = usQueryBatches.map(batch => buildUrl(formatQueries(batch, usExcludeKeywords), "US", "en-US", "US:en"));
-
-  // 併發抓取，並在抓取時註記Tag區分 TW 和 US
-  const rawTwNewsPromises = baseTWUrls.map(url =>
-    fetchRssFeed(url, 100, "TW")
+  // 2. 合併 + 驗證關鍵字
+  const mergedTW = mergeKeywords(baseTwQueries, twQueries);
+  const mergedUS = mergeKeywords(baseUsQueries, usQueries);
+  console.log(
+    `🔍 [Keywords] TW: ${mergedTW.length} 組（靜態 ${baseTwQueries.length} + 動態 ${mergedTW.length - baseTwQueries.length}）`,
   );
-  const rawUsNewsPromises = baseUSUrls.map(url =>
-    fetchRssFeed(url, 100, "US")
+  console.log(
+    `🔍 [Keywords] US: ${mergedUS.length} 組（靜態 ${baseUsQueries.length} + 動態 ${mergedUS.length - baseUsQueries.length}）`,
   );
-  const rawTwNews = await Promise.all(rawTwNewsPromises);
-  const rawUsNews = await Promise.all(rawUsNewsPromises);
 
-  console.log(`📰 台灣新聞批次: ${rawTwNews.length} 批次，每批次 ${batchSize} 個查詢條件`);
-  console.log(`📰 國際新聞批次: ${rawUsNews.length} 批次，每批次 ${batchSize} 個查詢條件`);
+  // 3. TW / US 並行抓取（各自分批，5個一批，批次間 300ms）
+  const [rawTwNews, rawUsNews] = await Promise.all([
+    fetchBatchedByKeywords(mergedTW, "TW", twExcludeKeywords),
+    fetchBatchedByKeywords(mergedUS, "US", usExcludeKeywords),
+  ]);
 
-  // 將所有批次的結果合併成一個陣列
-  const allRawNews = [...rawTwNews.flat(), ...rawUsNews.flat()];
+  const allRawNews = [...rawTwNews, ...rawUsNews];
   console.log(`📰 總共抓取 ${allRawNews.length} 則新聞`);
 
-  const filteredNews = prepareNewsForAI(allRawNews, 20);
-
+  // 4. 篩選
+  let filteredNews = prepareNewsForAI(allRawNews, 20, blacklist);
   console.log(
     `📰 篩選結果: ${allRawNews.length} 筆 → ${filteredNews.length} 筆` +
-    `（排除 ${allRawNews.length - filteredNews.length} 筆舊資料）`,
+    `（排除 ${allRawNews.length - filteredNews.length} 筆）`,
   );
+
+  // 5. Fallback：篩選後不足閾值，降級為純靜態池重試
+  let fallbackTriggered = false;
+  if (filteredNews.length < FALLBACK_THRESHOLD) {
+    console.warn(
+      `⚠️ [Fallback] 文章不足 (${filteredNews.length} < ${FALLBACK_THRESHOLD})，改用純靜態池重試...`,
+    );
+    fallbackTriggered = true;
+    const [fbTw, fbUs] = await Promise.all([
+      fetchBatchedByKeywords(baseTwQueries, "TW", twExcludeKeywords),
+      fetchBatchedByKeywords(baseUsQueries, "US", usExcludeKeywords),
+    ]);
+    filteredNews = prepareNewsForAI([...fbTw, ...fbUs], 20, blacklist);
+    console.log(`🔄 [Fallback] 靜態池結果: ${filteredNews.length} 筆`);
+  }
+
+  // 6. 寫入 passedArticlesLog
+  const usedTwKeywords = mergedTW.map((k) => k.keyword);
+  const usedUsKeywords = mergedUS.map((k) => k.keyword);
+  await Promise.all([
+    archiveManager.saveNewsLog(
+      filteredNews.filter((n) => n._region === "TW"),
+      "TW",
+      { usedKeywords: usedTwKeywords, fallbackTriggered },
+    ),
+    archiveManager.saveNewsLog(
+      filteredNews.filter((n) => n._region === "US"),
+      "US",
+      { usedKeywords: usedUsKeywords, fallbackTriggered },
+    ),
+  ]);
 
   return filteredNews;
 }

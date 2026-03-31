@@ -19,13 +19,46 @@ export const NEWS_KEYWORD_SYSTEM_PROMPT = `你是精通 Google News 搜尋語法
 
 <Task_Instructions>
 請依據提供的市場狀態（包含冷卻期與 VIX 數值），先在腦中推論當下「最可能導致該狀態的總經/籌碼原因」。
-接著產出 5~7 組 twQueries 與 5~7 組 usQueries。
+接著產出 6~8 組 twQueries 與 6~8 組 usQueries。
 ⚠️ 絕對約束：usQueries 必須是道地的華爾街英文財經詞彙，twQueries 必須是台灣股民常用的中文詞彙。
+
+## 關鍵字品質規則（Anti-Noise）
+- 每組關鍵字包含 **2~4 個語意單元**（中文詞彙或英文單字），以半形空格分隔。
+- ❌ 禁止只提交單一縮寫，例如：「ETF」、「Fed」、「GDP」會抓出大量雜訊。
+- ❌ 禁止產出與靜態關鍵字池重複的字詞（靜態池已由 User Prompt 注入，請對照確認）。
+- 若你對某組關鍵字的精準度有疑慮，請改用「主體 + 動詞/狀態」的結構強化它。
+
+## Few-Shot 示範
+
+### twQueries
+✅ 優質範例：
+  - { keyword: "台積電 法說會", searchType: "intitle" }   → 具體公司 + 事件，高訊號
+  - { keyword: "外資 賣超 金融股", searchType: "broad" }  → 籌碼方向 + 板塊，精準
+  - { keyword: "新台幣 急貶", searchType: "broad" }       → 匯率事件，簡潔有力
+
+❌ 劣質範例：
+  - { keyword: "台股", searchType: "broad" }              → 已在靜態池，重複
+  - { keyword: "ETF", searchType: "broad" }               → 單一縮寫，雜訊極高
+  - { keyword: "今日股市行情分析", searchType: "broad" }  → 超過4個語意單元，過長
+
+### usQueries
+✅ 優質範例：
+  - { keyword: "Fed rate decision", searchType: "intitle" } → 具體政策事件
+  - { keyword: "NVDA earnings beat", searchType: "broad" }  → 公司 + 財報結果
+  - { keyword: "oil price OPEC cut", searchType: "broad" }  → 商品 + 機構行動
+
+❌ 劣質範例：
+  - { keyword: "S&P 500", searchType: "intitle" }           → 已在靜態池，重複
+  - { keyword: "GDP", searchType: "broad" }                 → 單一縮寫，雜訊高
+  - { keyword: "US stock market news today", searchType: "broad" } → 太廣泛
 </Task_Instructions>`;
 
 /** 新聞關鍵字的 User Prompt */
-export const buildNewsKeyWorkPrompt = (dateStr, marketData) =>
-  `今天是 ${dateStr}。目前台股市場狀態為 ${marketData.marketStatus ? marketData.marketStatus : "暫無數據"}，VIX 指數為 ${marketData.vix ? marketData.vix : "暫無數據"}。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。`;
+export const buildNewsKeyWorkPrompt = (dateStr, marketData, staticPoolText = "") =>
+  `今天是 ${dateStr}。目前台股市場狀態為 ${marketData.marketStatus ? marketData.marketStatus : "暫無數據"}，VIX 指數為 ${marketData.vix ? marketData.vix : "暫無數據"}。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。${staticPoolText
+    ? `\n\n⚠️ 以下為靜態關鍵字池，請勿重複產出相同字詞：\n${staticPoolText}`
+    : ""
+  }`;
 
 /** 新聞關鍵字的 Schema */
 export const NEWS_KEYWORD_SCHEMA = {
@@ -54,8 +87,8 @@ export const NEWS_KEYWORD_SCHEMA = {
         },
         required: ["keyword", "searchType"],
       },
-      maxItems: 7,
-      minItems: 5,
+      maxItems: 8,
+      minItems: 6,
     },
     usQueries: {
       type: Type.ARRAY,
@@ -75,8 +108,8 @@ export const NEWS_KEYWORD_SCHEMA = {
         },
         required: ["keyword", "searchType"],
       },
-      maxItems: 7,
-      minItems: 5,
+      maxItems: 8,
+      minItems: 6,
     },
   },
   required: ["reasoning_process", "twQueries", "usQueries"],
