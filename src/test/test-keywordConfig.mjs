@@ -80,6 +80,7 @@ await test("loadBlacklist() 回傳物件結構正確", async () => {
 
 await test("twExcludedSources 非空且全部為字串", async () => {
   const bl = await loadBlacklist();
+  console.log(bl.twExcludedSources);
   assert.ok(bl.twExcludedSources.length > 0);
   bl.twExcludedSources.forEach((src, i) =>
     assert.equal(typeof src, "string", `第 ${i} 項應為字串`)
@@ -88,6 +89,7 @@ await test("twExcludedSources 非空且全部為字串", async () => {
 
 await test("usExcludedSources 包含已知黑名單項目", async () => {
   const bl = await loadBlacklist();
+  console.log(bl.usExcludedSources);
   assert.ok(bl.usExcludedSources.includes("Stock Traders Daily"));
   assert.ok(bl.usExcludedSources.includes("facebook.com"));
 });

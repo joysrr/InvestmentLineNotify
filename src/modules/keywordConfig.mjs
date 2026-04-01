@@ -118,8 +118,8 @@ export async function loadBlacklist() {
   const data = JSON.parse(raw);
 
   return {
-    twExcludedSources: new Set(data.twExcludedSources),
-    usExcludedSources: new Set(data.usExcludedSources),
+    twExcludedSources: [...new Set(data.twExcludedSources)],
+    usExcludedSources: [...new Set(data.usExcludedSources)],
     titleBlackListPatterns: data.titleBlackListPatterns.map(parseRegexString),
   };
 }
