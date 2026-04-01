@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "lastRun": "2026-04-01T00:01:27.894Z",
+    "lastRun": "2026-04-01T02:37:13.479Z",
     "sources": {
       "cnnProvider": {
         "status": "SUCCESS",
@@ -12,7 +12,7 @@
       },
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-01T00:01:27.894Z"
+        "lastFetch": "2026-04-01T02:37:13.479Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
@@ -29,6 +29,12 @@
     }
   },
   "data": {
+    "rawNdc": {
+      "date": "2026-02",
+      "score": 40,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
     "rawMargin": {
       "marginBalance100M": 3927.09,
       "marginBalanceChange100M": -10.14,
@@ -58,10 +64,22 @@
       },
       "source": "FRED"
     },
+    "rawValuation": {
+      "pe": 23.31,
+      "pb": 3.16,
+      "yield": 2.31,
+      "date": "20260331"
+    },
+    "quote": {
+      "date": "2026-04-01",
+      "quote": "When you say yes to change, you are choosing to navigate that path peacefully and happily and see where it takes you.",
+      "author": "Sonia Ricotti",
+      "source": "zenquotes"
+    },
     "rawFx": {
-      "currentRate": 31.937,
+      "currentRate": 31.901,
       "previousClose": 31.2468,
-      "changePercent": 2.21,
+      "changePercent": 2.09,
       "historicalPrices": [
         31.375,
         31.535,
@@ -85,26 +103,8 @@
         31.93,
         31.977,
         32.039,
-        31.937
+        31.901
       ]
-    },
-    "quote": {
-      "date": "2026-04-01",
-      "quote": "When you say yes to change, you are choosing to navigate that path peacefully and happily and see where it takes you.",
-      "author": "Sonia Ricotti",
-      "source": "zenquotes"
-    },
-    "rawNdc": {
-      "date": "2026-02",
-      "score": 40,
-      "light": "紅燈 (過熱)",
-      "lightColor": "red"
-    },
-    "rawValuation": {
-      "pe": 23.31,
-      "pb": 3.16,
-      "yield": 2.31,
-      "date": "20260331"
     }
   }
 }
