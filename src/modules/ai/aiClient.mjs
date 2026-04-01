@@ -43,14 +43,22 @@ function getBackoffDelay(attempt, baseDelay = 2000) {
 
 export async function callGemini(promptName, userPrompt, options = {}) {
   if (GEMINI_API_KEYS.length === 0) {
-    console.warn("⚠️ 缺少 GEMINI_API_KEYS，跳過 AI 決策");
-    return null;
+    throw new Error("[aiClient] 未設定任何 GEMINI_API_KEY，請確認環境變數");
   }
-  const promptObj = await langfuse.getPrompt(promptName);
+  let promptObj;
+  try {
+    promptObj = await langfuse.getPrompt(promptName);
+  } catch (err) {
+    console.warn(`⚠️ [Langfuse] getPrompt 失敗，使用空白 systemInstruction：${err.message}`);
+    // fallback：跳過 Langfuse prompt，直接用空 instruction 繼續
+    promptObj = { compile: () => "", config: {}, name: promptName, version: null };
+  }
+
   const systemInstruction = promptObj.compile(options.promptVariables ?? {});
   // 將 promptObj 中的 config 參數合併到 options 中，讓每個 prompt 可以自訂化 Gemini 呼叫行為
   Object.assign(options, promptObj.config);
 
+  const isCI = !!process.env.GITHUB_RUN_ID;
   const keyIndex = options.keyIndex ?? 0;
   const resolvedIndex = keyIndex < aiInstances.length ? keyIndex : 0;
   const ai = aiInstances[resolvedIndex];
@@ -60,20 +68,30 @@ export async function callGemini(promptName, userPrompt, options = {}) {
   const trace = langfuse.trace({
     name: promptName,
     sessionId: options.sessionId,
-    userId: options.userId,
-    input: { userPrompt, systemInstruction },
+    userId: options.userId ?? (isCI ? "github-actions" : "local-dev"),
+    input: { userPrompt },
     metadata: {
-      keyIndex: resolvedIndex, model: options.model ?? GEMINI_MODEL,
-      githubRunId: process.env.GITHUB_RUN_ID,
-      githubWorkflow: process.env.GITHUB_WORKFLOW,
-      githubSha: process.env.GITHUB_SHA,
+      resolvedKeyIndex: resolvedIndex,
+      requestedKeyIndex: keyIndex,
+      model: options.model ?? GEMINI_MODEL,
+      ...(isCI && {
+        githubRunId: process.env.GITHUB_RUN_ID,
+        githubWorkflow: process.env.GITHUB_WORKFLOW,
+        githubSha: process.env.GITHUB_SHA,
+      }),
     },
+    tags: [
+      `key-slot-${resolvedIndex}`,
+      `feature:${promptName}`,
+      isCI ? "env:ci" : "env:local",
+    ],
   });
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     // 2️⃣ 建立 Generation span（代表這一次的實際 API 呼叫）
     const generation = trace.generation({
       name: `${promptName}-attempt-${attempt}`,
+      prompt: promptObj,
       model: options.model ?? GEMINI_MODEL,
       input: [
         { role: "system", content: systemInstruction },
@@ -82,10 +100,7 @@ export async function callGemini(promptName, userPrompt, options = {}) {
       modelParameters: {
         temperature: options.temperature,
         maxOutputTokens: options.maxOutputTokens,
-        responseMimeType: options.responseMimeType,
       },
-      promptName: promptObj.name,
-      promptVersion: promptObj.version,
     });
 
     try {
@@ -128,6 +143,7 @@ export async function callGemini(promptName, userPrompt, options = {}) {
         metadata: {
           // thinking token 單獨記錄，方便日後分析思考成本
           thoughtsTokenCount: response.usageMetadata?.thoughtsTokenCount ?? 0,
+          responseMimeType: options.responseMimeType,
         },
       });
       trace.update({ output: text });
@@ -160,7 +176,7 @@ export async function callGemini(promptName, userPrompt, options = {}) {
           statusMessage: error.message,
         });
 
-        trace.update({ level: "ERROR", statusMessage: error.message });
+        trace.update({ output: { error: error.message }, statusMessage: error.message });
 
         throw error;
       }
