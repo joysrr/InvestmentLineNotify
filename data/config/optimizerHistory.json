@@ -1,0 +1,80 @@
+{
+  "_note": "此檔案由 ruleOptimizerAgent.mjs 自動維護，請勿手動修改 history 陣列",
+  "lastUpdated": "2026-04-01T08:33:37.002Z",
+  "history": [
+    {
+      "date": "2026-04-01",
+      "region": "TW",
+      "addedRules": [],
+      "rejectedRules": [],
+      "savedAt": "2026-04-01T08:28:13.716Z",
+      "rolledBack": false
+    },
+    {
+      "date": "2026-04-01",
+      "region": "US",
+      "addedRules": [],
+      "rejectedRules": [],
+      "savedAt": "2026-04-01T08:28:13.726Z",
+      "rolledBack": false
+    },
+    {
+      "date": "2026-04-01",
+      "region": "TW",
+      "addedRules": [
+        {
+          "regexLiteral": "/股市爆料同學會/i",
+          "reason": "排除社群論壇討論內容，非正式財經新聞。"
+        },
+        {
+          "regexLiteral": "/MoneyDJ新聞\\\\s+\\\\d{4}-\\\\d{2}-\\\\d{2}.+發佈/",
+          "reason": "排除僅包含發佈時間與作者資訊的系統模板標題。"
+        },
+        {
+          "regexLiteral": "/(劇本徵選|電影劇本|拍台北)/i",
+          "reason": "排除藝文活動、劇本競賽等與金融市場無關的內容。"
+        },
+        {
+          "regexLiteral": "/\\\\[新聞直播間\\\\]/",
+          "reason": "排除特定非財經類直播節目的片段標題。"
+        },
+        {
+          "regexLiteral": "/燃油附加費\\\\d+[/／]\\\\d+(起)?(上調|調漲)/",
+          "reason": "排除民生消費類的航空燃油附加費調整資訊，此類內容對股市投資參考價值較低。"
+        }
+      ],
+      "rejectedRules": [],
+      "savedAt": "2026-04-01T08:32:08.533Z",
+      "rolledBack": false
+    },
+    {
+      "date": "2026-04-01",
+      "region": "US",
+      "addedRules": [
+        {
+          "regexLiteral": "/\\bbillion won\\b|CHOSUNBIZ/i",
+          "reason": "排除韓國市場相關新聞（韓元計價、韓國媒體）"
+        },
+        {
+          "regexLiteral": "/\\bQatar\\b/i",
+          "reason": "排除與台美股無關的區域性宏觀經濟新聞（如卡達 GDP）"
+        },
+        {
+          "regexLiteral": "/\\bWeb3\\b|Infographic/i",
+          "reason": "排除 Web3 相關內容或非新聞類的圖解資訊"
+        },
+        {
+          "regexLiteral": "/\\bNeighbors in\\b/i",
+          "reason": "排除地方性社區或社會新聞，非金融投資相關"
+        },
+        {
+          "regexLiteral": "/\\bInvestors to Contact the Firm\\b/i",
+          "reason": "排除律師事務所針對特定股票的集體訴訟招攬廣告"
+        }
+      ],
+      "rejectedRules": [],
+      "savedAt": "2026-04-01T08:33:37.002Z",
+      "rolledBack": false
+    }
+  ]
+}
