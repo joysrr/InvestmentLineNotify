@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { runRuleOptimizer } from "./modules/ai/ruleOptimizerAgent.mjs";
+import { langfuse } from "./modules/ai/aiClient.mjs";
 
 async function main() {
   console.log("=".repeat(60));
@@ -29,6 +30,14 @@ async function main() {
   } catch (err) {
     console.error("[Optimizer] ❌ 執行失敗（不影響主要新聞流程）:", err.message);
     process.exit(1);
+  } finally {
+    console.log("🚀 dailyCheck 執行結束");
+    // 確保 Langfuse 正確關閉，避免資源洩漏
+    console.log("🔒 正在關閉 Langfuse...");
+    langfuse.shutdownAsync().catch((e) => {
+      console.warn("⚠️ Langfuse 關閉失敗:", e.message);
+    });
+    console.log("✅ Langfuse 已關閉");
   }
 }
 
