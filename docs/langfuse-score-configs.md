@@ -201,6 +201,36 @@
 
 ---
 
+## 14. Optimizer_Accept_Rate
+
+- **Name:** `Optimizer_Accept_Rate`
+- **Data Type:** `Numeric`
+- **Data Options/Range:** `0 ~ 1`
+- **Description:**  
+  [Rule] [Rule Optimizer]
+  計算本次 Optimizer 執行的規則通過率。
+  計算方式：accepted 規則數 / (accepted + rejected 規則總數)。若 AI 未產出任何規則（rules 為空陣列），則不打分，避免以 0 污染統計。
+  用於監控 AI 產出品質與 Sandbox 驗證嚴格程度的動態平衡。
+  comment 欄位需同時記錄各拒絕原因的明細（invalid_regex / overbroad / duplicate / golden_dataset_kill 各別計數）。
+  建議觀察閾值：長期低於 0.3 需檢查 AI prompt 產出品質；長期高於 0.9 需檢查 Sandbox 是否過鬆。
+
+---
+
+## 15. Optimizer_Golden_Kill_Rate
+
+- **Name:** `Optimizer_Golden_Kill_Rate`
+- **Data Type:** `Numeric`
+- **Data Options/Range:** `0 ~ 1`
+- **Description:**  
+  [Rule] [Rule Optimizer]
+  計算被「黃金清單碰撞」這個關卡擋下的規則比例。
+  計算方式：golden_dataset_kill 數 / rejected 規則總數。若 rejected 為 0，則不打分。
+  此指標專門用來監控 AI 是否有產出過廣規則的傾向（例如不斷產出會誤殺台積電、Fed 等關鍵字的規則）。
+  若此值長期偏高（> 0.4），代表 RuleOptimizer 的 Langfuse Prompt 需要強化「不可誤殺黃金清單」的約束說明。
+
+---
+
+
 # 建議實作順序
 
 建議先建立以下幾個最有價值的 score：
@@ -208,10 +238,12 @@
 1. `Schema_Validation`
 2. `Keyword_Yield_Rate`
 3. `Dynamic_Keyword_Yield_Rate`
-3. `Diversity_Score`
-4. `Signal_to_Noise_Ratio`
-5. `Logic_Consistency`
-6. `Actionability`
+4. `Optimizer_Accept_Rate`
+5. `Optimizer_Golden_Kill_Rate`
+6. `Diversity_Score`
+7. `Signal_to_Noise_Ratio`
+8. `Logic_Consistency`
+9. `Actionability`
 
 這幾項最能快速反映：
 - Query 是否抓得到東西
@@ -229,6 +261,8 @@
 - Format_Compliance
 - Keyword_Yield_Rate
 - Dynamic_Keyword_Yield_Rate
+- Optimizer_Accept_Rate
+- Optimizer_Golden_Kill_Rate
 - Diversity_Score
 - Score_Distribution_Spread
 
