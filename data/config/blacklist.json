@@ -87,7 +87,17 @@
     "/\\bQatar\\b/i",
     "/\\bWeb3\\b|Infographic/i",
     "/\\bNeighbors in\\b/i",
-    "/\\bInvestors to Contact the Firm\\b/i"
+    "/\\bInvestors to Contact the Firm\\b/i",
+    "/「([0-9]+檔|這檔|它|這家|這隻)」/",
+    "/[0-9]+檔[^\\s]*(強勢股|領漲|抗跌)/",
+    "/^討論牆\\s*\\|/",
+    "/今日最夯股/",
+    "/(出貨名單|漲停表態)/",
+    "/\\b(Movie|Film|Sequel) Review\\b/i",
+    "/Price Forecast for (Today|Tomorrow|Next Week)/i",
+    "/\\bLLP Announces\\b/",
+    "/\\bPeru(’s|'s)?\\b/i",
+    "/Signal That Has Never Been Wrong/i"
   ],
-  "lastUpdated": "2026-04-01T08:33:37.002Z"
+  "lastUpdated": "2026-04-01T19:09:57.888Z"
 }

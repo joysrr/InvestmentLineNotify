@@ -1,6 +1,6 @@
 {
   "_note": "此檔案由 ruleOptimizerAgent.mjs 自動維護，請勿手動修改 history 陣列",
-  "lastUpdated": "2026-04-01T08:33:37.002Z",
+  "lastUpdated": "2026-04-01T19:09:57.889Z",
   "history": [
     {
       "date": "2026-04-01",
@@ -74,6 +74,64 @@
       ],
       "rejectedRules": [],
       "savedAt": "2026-04-01T08:33:37.002Z",
+      "rolledBack": false
+    },
+    {
+      "date": "2026-04-01",
+      "region": "TW",
+      "addedRules": [
+        {
+          "regexLiteral": "/「([0-9]+檔|這檔|它|這家|這隻)」/",
+          "reason": "針對使用代名詞或模糊數量詞隱藏具體標的名稱的點擊誘餌標題"
+        },
+        {
+          "regexLiteral": "/[0-9]+檔[^\\s]*(強勢股|領漲|抗跌)/",
+          "reason": "針對典型的選股清單與推薦類農場文標題"
+        },
+        {
+          "regexLiteral": "/^討論牆\\s*\\|/",
+          "reason": "過濾來自社群討論區或非正式新聞頻道的內容"
+        },
+        {
+          "regexLiteral": "/今日最夯股/",
+          "reason": "針對 SEO 導向的點擊誘餌用語"
+        },
+        {
+          "regexLiteral": "/(出貨名單|漲停表態)/",
+          "reason": "針對投機性強、具備農場文特徵的個股動向描述"
+        }
+      ],
+      "rejectedRules": [],
+      "savedAt": "2026-04-01T19:09:27.980Z",
+      "rolledBack": false
+    },
+    {
+      "date": "2026-04-01",
+      "region": "US",
+      "addedRules": [
+        {
+          "regexLiteral": "/\\b(Movie|Film|Sequel) Review\\b/i",
+          "reason": "過濾影視評論內容，此類內容與金融投資無關。"
+        },
+        {
+          "regexLiteral": "/Price Forecast for (Today|Tomorrow|Next Week)/i",
+          "reason": "過濾針對特定資產的 SEO 導向價格預測農場文。"
+        },
+        {
+          "regexLiteral": "/\\bLLP Announces\\b/",
+          "reason": "過濾律師事務所發布的法律公告或訴訟通知，通常對一般投資者價值較低。"
+        },
+        {
+          "regexLiteral": "/\\bPeru(’s|'s)?\\b/i",
+          "reason": "過濾與台美股核心市場無關的特定他國區域經濟新聞。"
+        },
+        {
+          "regexLiteral": "/Signal That Has Never Been Wrong/i",
+          "reason": "過濾使用誇張言詞吸引點擊的預測型標題。"
+        }
+      ],
+      "rejectedRules": [],
+      "savedAt": "2026-04-01T19:09:57.889Z",
       "rolledBack": false
     }
   ]
