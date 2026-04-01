@@ -203,8 +203,14 @@ export async function dailyCheck({
 
     // 取得總經多空對決報告
     console.log("🤖 正在產生總經多空對決報告...");
-    const macroAnalysis = await analyzeMacroNewsWithAI(newsSummaryText);
-    const macroTextForCoach = formatMacroAnalysisForCoach(macroAnalysis);
+    let macroAnalysis = null;
+    let macroTextForCoach = "無新聞數據，無法進行總經分析。";
+    if (newsMessages.length) {
+      macroAnalysis = await analyzeMacroNewsWithAI(newsSummaryText);
+      macroTextForCoach = formatMacroAnalysisForCoach(macroAnalysis);
+    } else {
+      console.log("⚠️ 無新聞數據，跳過總經分析");
+    }
 
     // 取得 AI 決策報告
     console.log("🤖 正在產生 AI 決策分析...");
