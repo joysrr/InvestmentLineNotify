@@ -285,7 +285,7 @@ export function buildTelegramMessages({
   const sellTotal = s.total ?? 3;
 
   // 輕盈的虛線分隔符號，加一點留白，視覺更開闊
-  const SEP = "\n──────────────────────\n";
+  const SEP = "\n─────────────────\n";
 
   // 取得當下時間
   const now = TwDate(); // 台北時間小時數
@@ -348,8 +348,8 @@ export function buildTelegramMessages({
     `${dAlert ? "🔥" : "▫️"} KD(D) <code> ${Number.isFinite(kd_d) ? kd_d.toFixed(1) : "--"}</code>\n` +
     `${biasAlert ? "🔥" : "▫️"} 乖離率 <code> ${Number.isFinite(bias) ? bias.toFixed(1) + "%" : "--"}</code>\n\n` +
     `🎯 <b>目標進度</b>  ·  ${GOAL_YEARS} 年計畫${SEP}\n` +
-    `<code> [${goalBar(currentAsset, GOAL_ASSET, 20)}] ${paddedPct}%   </code>\n` +
-    `<tg-spoiler> $${(currentAsset / 10000).toFixed(0)} 萬 ／ 目標 $${(GOAL_ASSET / 10000).toFixed(0)}萬</tg-spoiler>`;
+    `<tg-spoiler> $${(currentAsset / 10000).toFixed(0)} 萬 ／ 目標 $${(GOAL_ASSET / 10000).toFixed(0)}萬</tg-spoiler>\n` +
+    `<code> [${goalBar(currentAsset, GOAL_ASSET, 20)}] ${paddedPct}%   </code>`;
 
   // ══════════════════════════════════════════════════════════════
   // 第二則：訊號詳情 ＋ 技術指標 ＋ 帳戶快照 (全面隱藏敏感數字)
@@ -417,7 +417,6 @@ export function buildTelegramMessages({
     `🛎️ <b>賣出訊號</b>  <i>（${sellTriggered}/${sellTotal}）</i>${SEP}\n` +
     `${sellSignals.map(signalRow).join("\n")} \n\n` +
     `🏦 <b>帳戶快照</b>${SEP}\n` +
-    `<blockquote expandable>` +
     `💼 帳戶淨值    <tg-spoiler>$${Math.floor(currentAsset).toLocaleString("en-US")}</tg-spoiler>\n` +
     `🏗 總資產(含貸) <tg-spoiler>$${Math.floor(grossAsset).toLocaleString("en-US")}</tg-spoiler>\n` +
     `${levInfo.icon} 實際槓桿    <tg-spoiler>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}  <b>${levInfo.label}</b></tg-spoiler>\n` +
@@ -426,8 +425,7 @@ export function buildTelegramMessages({
     `💵 現金儲備    <tg-spoiler>$${cashReserveStr}</tg-spoiler>\n` +
     `💳 借款金額    <tg-spoiler>$${Number(totalLoan).toLocaleString("en-US")}</tg-spoiler>\n` +
     `🛡 0050    <tg-spoiler>${qty0050Str} 股</tg-spoiler>\n` +
-    `⚔️ 0067L   <tg-spoiler>${qtyZ2Str} 股</tg-spoiler>` +
-    `</blockquote>`;
+    `⚔️ 0067L   <tg-spoiler>${qtyZ2Str} 股</tg-spoiler>`;
 
   // ══════════════════════════════════════════════════════════════
   // 第三則：AI 策略 ＋ 每日一句
