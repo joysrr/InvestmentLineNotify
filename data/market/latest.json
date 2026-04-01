@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-04-01T08:04:33.983Z",
+    "lastRun": "2026-04-01T14:46:37.797Z",
     "sources": {
       "cnnProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-31T09:02:19.744Z"
+        "lastFetch": "2026-04-01T14:46:37.797Z"
       },
       "usMarketProvider": {
         "status": "SUCCESS",
@@ -12,11 +12,11 @@
       },
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-01T08:04:33.983Z"
+        "lastFetch": "2026-04-01T14:46:37.797Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-01T08:04:33.983Z"
+        "lastFetch": "2026-04-01T14:46:37.797Z"
       },
       "ndcProvider": {
         "status": "SUCCESS",
@@ -34,15 +34,6 @@
       "score": 40,
       "light": "紅燈 (過熱)",
       "lightColor": "red"
-    },
-    "rawCnn": {
-      "score": 13.01,
-      "rating": "extreme fear",
-      "previousClose": 8.67,
-      "previous1Week": 18.2,
-      "previous1Month": 41.17,
-      "previous1Year": 21.11,
-      "timestamp": "2026-03-31T08:44:46.000Z"
     },
     "rawUsMarket": {
       "success": true,
@@ -70,10 +61,19 @@
       "author": "Sonia Ricotti",
       "source": "zenquotes"
     },
+    "rawCnn": {
+      "score": 16.14,
+      "rating": "extreme fear",
+      "previousClose": 14.71,
+      "previous1Week": 18.19,
+      "previous1Month": 41.17,
+      "previous1Year": 19.57,
+      "timestamp": "2026-04-01T14:42:01.000Z"
+    },
     "rawFx": {
-      "currentRate": 31.97,
+      "currentRate": 31.953,
       "previousClose": 31.2468,
-      "changePercent": 2.31,
+      "changePercent": 2.26,
       "historicalPrices": [
         31.375,
         31.535,
@@ -97,14 +97,14 @@
         31.93,
         31.977,
         32.039,
-        31.97
+        31.953
       ]
     },
     "rawMargin": {
-      "marginBalance100M": 3817.25,
-      "marginBalanceChange100M": -109.84,
-      "maintenanceRatio": 166.54,
-      "date": "2026/03/31"
+      "marginBalance100M": 3849.08,
+      "marginBalanceChange100M": 31.83,
+      "maintenanceRatio": 174,
+      "date": "2026/04/01"
     }
   }
 }
