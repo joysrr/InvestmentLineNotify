@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-03-31T07:54:26.034Z",
+  "_savedAt": "2026-04-01T00:01:59.345Z",
   "type": "SearchQueries",
-  "userPrompt": "今天是 2026-03-31。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 37。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。",
+  "userPrompt": "今天是 2026-04-01。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 37。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。\n\n⚠️ 以下為靜態關鍵字池，請勿重複產出相同字詞：\nTW 靜態池：台股、大盤、台積電 法說、台積電 ADR、台積電 外資、外資、三大法人、融資 融券、集中度 籌碼、國安基金、央行、升息 降息、新台幣、通膨、出口、外銷訂單、景氣燈號、PMI\nUS 靜態池：S&P 500、Nasdaq、CPI、Dow Jones、Federal Reserve、Fed、Powell、FOMC、Treasury yields、dollar index、credit spread、liquidity、inflation、payrolls、recession、GDP、jobless claims、ISM",
   "schema": {
     "type": "OBJECT",
     "properties": {
@@ -33,8 +33,8 @@
             "searchType"
           ]
         },
-        "maxItems": 7,
-        "minItems": 5
+        "maxItems": 8,
+        "minItems": 6
       },
       "usQueries": {
         "type": "ARRAY",
@@ -60,8 +60,8 @@
             "searchType"
           ]
         },
-        "maxItems": 7,
-        "minItems": 5
+        "maxItems": 8,
+        "minItems": 6
       }
     },
     "required": [
@@ -71,56 +71,68 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 37，顯示市場正處於極度恐慌與劇烈波動狀態，這與『偏熱』的市場狀態形成強烈背離，暗示可能發生了『高檔反轉』或『黑天鵝事件』。3 月底正值第一季季末作帳結束，高 VIX 可能源於地緣政治突發狀況、聯準會政策意外轉向或大型科技股財報指引失靈。搜尋重點將聚焦於外資撤資流向、融資斷頭風險、美債殖利率異常波動以及系統性風險指標。",
+    "reasoning_process": "當前市場狀態顯示為『偏熱/觀察』，但 VIX 指數高達 37，這是一個極端矛盾且危險的訊號。VIX 37 通常代表市場正處於極度恐慌或即將發生系統性崩潰（如黑天鵝事件、地緣政治衝突爆發或金融機構流動性危機）。『偏熱』可能暗示這是在高檔急殺的『多殺多』開端。推論核心風險在於：1. AI 泡沫破裂導致的科技股集體修正；2. 兩岸或中東地緣政治風險突發；3. 融資維持率集體跌破導致的斷頭潮。因此，搜尋策略將集中於『恐慌指標』、『流動性枯竭』與『政府干預』。",
     "twQueries": [
       {
-        "keyword": "外資 賣超",
+        "keyword": "融資 維持率 斷頭",
         "searchType": "intitle"
       },
       {
-        "keyword": "融資 維持率",
+        "keyword": "金管會 限空令 穩定",
         "searchType": "broad"
       },
       {
-        "keyword": "台積電 跌停",
+        "keyword": "避險 資金 流向",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "兩岸 局勢 升溫",
         "searchType": "intitle"
       },
       {
-        "keyword": "地緣政治 衝突",
+        "keyword": "半導體 砍單 修正",
         "searchType": "broad"
       },
       {
-        "keyword": "台股 恐慌性拋售",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "央行 升息",
+        "keyword": "多殺多 恐慌 賣壓",
         "searchType": "intitle"
+      },
+      {
+        "keyword": "日圓 升值 套利交易",
+        "searchType": "broad"
       }
     ],
     "usQueries": [
       {
-        "keyword": "VIX volatility spike",
+        "keyword": "VIX volatility surge",
         "searchType": "intitle"
       },
       {
-        "keyword": "Fed hawkish pivot",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "S&P 500 correction",
+        "keyword": "Credit default swaps spike",
         "searchType": "broad"
       },
       {
-        "keyword": "Treasury yield surge",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Systemic financial risk",
+        "keyword": "Tech sector selloff bubble",
         "searchType": "intitle"
       },
       {
-        "keyword": "Tech stock selloff",
+        "keyword": "Flight to quality gold",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Corporate debt default risk",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Hard landing economic data",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "Geopolitical risk premium oil",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Bank liquidity stress test",
         "searchType": "broad"
       }
     ]
