@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-04-01T04:46:20.937Z",
+  "_savedAt": "2026-04-01T05:59:49.679Z",
   "type": "SearchQueries",
-  "userPrompt": "今天是 2026-04-01。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 34.66。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。\n\n⚠️ 以下為靜態關鍵字池，請勿重複產出相同字詞：\nTW 靜態池：台股、大盤、台積電 法說、台積電 ADR、台積電 外資、外資、三大法人、融資 融券、集中度 籌碼、國安基金、央行、升息 降息、新台幣、通膨、出口、外銷訂單、景氣燈號、PMI\nUS 靜態池：S&P 500、Nasdaq、CPI、Dow Jones、Federal Reserve、Fed、Powell、FOMC、Treasury yields、dollar index、credit spread、liquidity、inflation、payrolls、recession、GDP、jobless claims、ISM",
+  "userPrompt": "今天是 2026-04-01。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 34.85。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。\n\n⚠️ 以下為靜態關鍵字池，請勿重複產出相同字詞：\nTW 靜態池：台股、大盤、台積電 法說、台積電 ADR、台積電 外資、外資、三大法人、融資 融券、集中度 籌碼、國安基金、央行、升息 降息、新台幣、通膨、出口、外銷訂單、景氣燈號、PMI\nUS 靜態池：S&P 500、Nasdaq、CPI、Dow Jones、Federal Reserve、Fed、Powell、FOMC、Treasury yields、dollar index、credit spread、liquidity、inflation、payrolls、recession、GDP、jobless claims、ISM",
   "schema": {
     "type": "OBJECT",
     "properties": {
@@ -71,65 +71,69 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前市場呈現「價格偏熱」與「波動率（VIX 34.66）極高」的矛盾狀態，這通常是市場即將發生劇烈反轉或面臨重大黑天鵝事件的徵兆。VIX 超過 30 顯示恐慌情緒蔓延，可能源於地緣政治衝突升級或系統性流動性風險。台灣市場需關注信用交易（融資）的斷頭壓力與機構投資人的避險動向；美國市場則需鎖定 AI 泡沫化疑慮、企業債務違約風險及避險資產（如黃金）的異常流入。",
+    "reasoning_process": "當前 VIX 指數高達 34.85，顯示市場處於極度恐慌或劇烈波動狀態，與『偏熱』的狀態並存，顯示市場可能正經歷『高位崩跌』或『末升段劇烈洗盤』。推論原因可能包含：1. AI 泡沫疑慮引發的科技股集體修正；2. 地緣政治衝突突然升級；3. 信用市場出現違約風險（如商用不動產或銀行流動性）。搜尋策略將集中於『融資維持率』、『避險資產流向』、『企業獲利預警』及『流動性壓力』。",
     "twQueries": [
       {
-        "keyword": "加權指數 修正 壓力",
+        "keyword": "融資 維持率 斷頭",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "投信 停損 賣壓",
         "searchType": "intitle"
       },
       {
-        "keyword": "信用交易 斷頭 賣壓",
+        "keyword": "半導體 庫存 調整",
         "searchType": "broad"
       },
       {
-        "keyword": "機構投資人 避險 策略",
+        "keyword": "地緣政治 風險 升溫",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "避險 資金 流向",
         "searchType": "broad"
       },
       {
-        "keyword": "半導體 需求 轉弱",
+        "keyword": "台指期 逆價差 擴大",
         "searchType": "intitle"
       },
       {
         "keyword": "高股息 賣壓 湧現",
         "searchType": "broad"
-      },
-      {
-        "keyword": "地緣政治 避險 情緒",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "壽險 減碼 債券",
-        "searchType": "intitle"
       }
     ],
     "usQueries": [
       {
-        "keyword": "VIX volatility spike",
+        "keyword": "VIX spike cause",
         "searchType": "intitle"
       },
       {
-        "keyword": "Corporate debt default",
+        "keyword": "Commercial real estate default",
         "searchType": "broad"
       },
       {
-        "keyword": "AI stock bubble",
+        "keyword": "AI bubble burst",
         "searchType": "intitle"
       },
       {
-        "keyword": "Safe haven demand",
+        "keyword": "Gold price record high",
         "searchType": "broad"
       },
       {
-        "keyword": "Financial system stress",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Earnings growth slowdown",
+        "keyword": "Corporate earnings warning",
         "searchType": "intitle"
       },
       {
-        "keyword": "Geopolitical risk premium",
+        "keyword": "Bank liquidity crisis",
         "searchType": "broad"
+      },
+      {
+        "keyword": "Yen carry trade unwind",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Middle East escalation",
+        "searchType": "intitle"
       }
     ]
   }
