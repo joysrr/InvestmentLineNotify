@@ -54,7 +54,7 @@ export async function callGemini(promptName, userPrompt, options = {}) {
   const keyIndex = options.keyIndex ?? 0;
   const resolvedIndex = keyIndex < aiInstances.length ? keyIndex : 0;
   const ai = aiInstances[resolvedIndex];
-  const maxRetries = options.maxRetries ?? 3; // 預設最多重試 3 次
+  const maxRetries = options.maxRetries ?? 5; // 預設最多重試 5 次
 
   // 1️⃣ 建立 Trace（代表一次完整的 AI 決策事件，如 MacroAnalysis）
   const trace = langfuse.trace({
