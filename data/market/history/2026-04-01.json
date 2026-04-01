@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "lastRun": "2026-04-01T05:59:20.277Z",
+    "lastRun": "2026-04-01T08:04:33.983Z",
     "sources": {
       "cnnProvider": {
         "status": "SUCCESS",
@@ -12,11 +12,11 @@
       },
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-01T05:59:20.277Z"
+        "lastFetch": "2026-04-01T08:04:33.983Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-03-31T09:02:19.744Z"
+        "lastFetch": "2026-04-01T08:04:33.983Z"
       },
       "ndcProvider": {
         "status": "SUCCESS",
@@ -34,12 +34,6 @@
       "score": 40,
       "light": "紅燈 (過熱)",
       "lightColor": "red"
-    },
-    "rawMargin": {
-      "marginBalance100M": 3927.09,
-      "marginBalanceChange100M": -10.14,
-      "maintenanceRatio": 173.82,
-      "date": "2026/03/30"
     },
     "rawCnn": {
       "score": 13.01,
@@ -77,9 +71,9 @@
       "source": "zenquotes"
     },
     "rawFx": {
-      "currentRate": 31.894,
+      "currentRate": 31.97,
       "previousClose": 31.2468,
-      "changePercent": 2.07,
+      "changePercent": 2.31,
       "historicalPrices": [
         31.375,
         31.535,
@@ -103,8 +97,14 @@
         31.93,
         31.977,
         32.039,
-        31.894
+        31.97
       ]
+    },
+    "rawMargin": {
+      "marginBalance100M": 3817.25,
+      "marginBalanceChange100M": -109.84,
+      "maintenanceRatio": 166.54,
+      "date": "2026/03/31"
     }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "_savedAt": "2026-04-01T05:59:49.679Z",
+  "_savedAt": "2026-04-01T08:05:17.878Z",
   "type": "SearchQueries",
   "userPrompt": "今天是 2026-04-01。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 34.85。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。\n\n⚠️ 以下為靜態關鍵字池，請勿重複產出相同字詞：\nTW 靜態池：台股、大盤、台積電 法說、台積電 ADR、台積電 外資、外資、三大法人、融資 融券、集中度 籌碼、國安基金、央行、升息 降息、新台幣、通膨、出口、外銷訂單、景氣燈號、PMI\nUS 靜態池：S&P 500、Nasdaq、CPI、Dow Jones、Federal Reserve、Fed、Powell、FOMC、Treasury yields、dollar index、credit spread、liquidity、inflation、payrolls、recession、GDP、jobless claims、ISM",
   "schema": {
@@ -71,68 +71,68 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數高達 34.85，顯示市場處於極度恐慌或劇烈波動狀態，與『偏熱』的狀態並存，顯示市場可能正經歷『高位崩跌』或『末升段劇烈洗盤』。推論原因可能包含：1. AI 泡沫疑慮引發的科技股集體修正；2. 地緣政治衝突突然升級；3. 信用市場出現違約風險（如商用不動產或銀行流動性）。搜尋策略將集中於『融資維持率』、『避險資產流向』、『企業獲利預警』及『流動性壓力』。",
+    "reasoning_process": "當前 VIX 指數飆升至 34.85，顯示市場正處於極度恐慌或發生劇烈回檔。雖然狀態標註為『偏熱』，但高 VIX 暗示這是一個『多頭轉折』或『高檔崩跌』的關鍵時刻。2026年4月初正值第一季季報結算與法說會前夕，市場可能正對 AI 泡沫化、地緣政治衝突或流動性緊縮感到不安。搜尋策略將聚焦於融資斷頭風險、避險資金流向、以及美股科技龍頭的財報指引，以確認這波波動是短線修正還是趨勢反轉。",
     "twQueries": [
       {
         "keyword": "融資 維持率 斷頭",
         "searchType": "broad"
       },
       {
-        "keyword": "投信 停損 賣壓",
+        "keyword": "投信 季末 結帳",
         "searchType": "intitle"
       },
       {
-        "keyword": "半導體 庫存 調整",
+        "keyword": "避險 資產 湧入",
         "searchType": "broad"
       },
       {
-        "keyword": "地緣政治 風險 升溫",
+        "keyword": "半導體 產能 利用率",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "高股息 ETF 賣壓",
         "searchType": "intitle"
       },
       {
-        "keyword": "避險 資金 流向",
+        "keyword": "電價 調漲 衝擊",
         "searchType": "broad"
       },
       {
-        "keyword": "台指期 逆價差 擴大",
+        "keyword": "外資 借券 賣出",
         "searchType": "intitle"
-      },
-      {
-        "keyword": "高股息 賣壓 湧現",
-        "searchType": "broad"
       }
     ],
     "usQueries": [
       {
-        "keyword": "VIX spike cause",
+        "keyword": "VIX volatility spike",
         "searchType": "intitle"
       },
       {
-        "keyword": "Commercial real estate default",
+        "keyword": "AI chip demand",
         "searchType": "broad"
       },
       {
-        "keyword": "AI bubble burst",
+        "keyword": "Regional bank stress",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Middle East conflict",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Tech earnings outlook",
         "searchType": "intitle"
       },
       {
-        "keyword": "Gold price record high",
+        "keyword": "Yen carry trade",
         "searchType": "broad"
       },
       {
-        "keyword": "Corporate earnings warning",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "Bank liquidity crisis",
+        "keyword": "Quantitative tightening impact",
         "searchType": "broad"
       },
       {
-        "keyword": "Yen carry trade unwind",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "Middle East escalation",
+        "keyword": "Stock market correction",
         "searchType": "intitle"
       }
     ]

@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-04-01T02:38:16.536Z",
+  "_savedAt": "2026-04-01T08:07:16.347Z",
   "type": "NewsFilter",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 複製倫敦模式！新加坡考慮為全球央行增設黃金儲存空間 - cnyes.com\n[ID: 1] [TW] 標題: 3月非官方RatingDog製造業PMI回落至50.8 - 香港經濟日報HKET\n[ID: 2] [TW] 標題: 內地經濟丨非官方製造業PMI報50.8 連續四個月處擴張區間 - orangenews.hk\n[ID: 3] [TW] 標題: 南韓3月出口成長40年來最旺！晶片狂增151% 無懼油價飆漲和中東風險| 全球財經| 全球 - 聯合新聞網\n[ID: 4] [TW] 標題: 台股反彈1374點！日月光大漲近9%領十大權值股迎修復行情 - tw.stock.yahoo.com\n[ID: 5] [TW] 標題: 手機下修潮來了！外資：聯發科高通同砍4奈米訂單、京元電也遭殃 - Yahoo新聞\n[ID: 6] [TW] 標題: 手機市場遭遇逆風，外資下修供應鏈聯發科、京元電、聯電目標價 - TechNews 科技新報\n[ID: 7] [TW] 標題: 輝達結盟邁威爾！矽光子大爆發　台股3檔飆漲停 - ETtoday財經雲\n[ID: 8] [TW] 標題: 【Yahoo早盤】台股狂噴1300點重返3萬3！分析師藍登耀：有望從頭漲到尾 - tw.stock.yahoo.com\n[ID: 9] [TW] 標題: 中國3份RatingDog製造業PMI回落至50.8 連續4 個月保持擴張區 - bastillepost.com\n[ID: 10] [TW] 標題: 台股反彈1326點！日月光大漲8%領十大權值股迎修復行情 - tw.stock.yahoo.com\n[ID: 11] [TW] 標題: 詳訊：韓3月出口同比增48%創單月新高 - cb.yna.co.kr\n[ID: 12] [TW] 標題: 台股開盤》電子權值帶頭衝 大盤強彈逾千點 專家：台股重返第二隻腳 - Yahoo新聞\n[ID: 13] [TW] 標題: 聚焦數據｜3月RatingDog中國製造業PMI降至50．8，遜預期 - 香港經濟日報HKET\n[ID: 14] [TW] 標題: 無視中東衝突升級！韓3月出口額年增48.3%首破800億美元 半導體出口328億美元創史高 - tw.stock.yahoo.com\n[ID: 15] [TW] 標題: 台股早盤強彈1100點 台積電漲80元至1840元 - tw.stock.yahoo.com\n[ID: 16] [TW] 標題: 好消息來了！台股大漲近1300點 台積電飆85元衝上1845元 - tw.stock.yahoo.com\n[ID: 17] [TW] 標題: Fed難降息 金價3月狂瀉13% - 台灣房屋\n[ID: 18] [TW] 標題: A股焦點｜光伏產品增值稅出口退稅今起取消，光伏股多數走強 - 香港經濟日報HKET\n[ID: 19] [TW] 標題: 這原因! 美元跌、台股大漲 新台幣升快1角 - MSN\n[ID: 20] [US] 標題: Bitcoin, stocks rally because of chatter that Iran is ready to ‘end the war’ as Dollar Index sinks below 100 - CryptoRank\n[ID: 21] [US] 標題: Trump’s own goal: A global energy crisis and the threat of recession - AFR\n[ID: 22] [US] 標題: Dow Jones Futures Rise, UAE Willing To Help Force Hormuz Open; Trump To Speak To Nation On Iran - Investor's Business Daily\n[ID: 23] [US] 標題: Here’s What Old Gas Prices Looked Like When Adjusted For Inflation: COTD - The Autopian\n[ID: 24] [US] 標題: Fed Nats Media Day - Fredericksburg Free Press\n[ID: 25] [US] 標題: Anticipating April 10 (March CPI Release) - Econbrowser\n[ID: 26] [US] 標題: Vietnam GDP could gain 2-3 percentage points from new growth drivers: economist - Theinvestor.vn\n[ID: 27] [US] 標題: Dollar Holds Steady as Trump Hints at Quick End to Iran Conflict - Global Banking & Finance Review®\n[ID: 28] [US] 標題: The probability that the Federal Reserve will keep interest rates unchanged in April is 98.4%. - Bitget\n[ID: 29] [US] 標題: Casa Minerals Hires Independent Trading Group to Boost Share Liquidity - TipRanks\n[ID: 30] [US] 標題: Ares Management: Excess Liquidity or Foundation for Sustained Private Credit Outperformance? - Bitget\n[ID: 31] [US] 標題: South Korean Won Depreciates 6.3%, Highest in Asia - 조선일보\n[ID: 32] [US] 標題: Rising deposit rates seen continuing amid liquidity pressure - vietnamnews.vn\n[ID: 33] [US] 標題: USPTO Tells Fed. Circ. Patent Panel Is Constitutional - Law360\n[ID: 34] [US] 標題: Bond market signals recession fears - msn.com\n[ID: 35] [US] 標題: Gold, silver outlook: Bullion markets brace for volatile week as Middle East tensions and Fed cues weigh - msn.com\n[ID: 36] [US] 標題: Trump's war on Iran creates an economic storm for consumers and the Fed - AOL.com\n[ID: 37] [US] 標題: New Zealand's Fonterra admits 'grass-fed' label may mislead shoppers after Greenpeace lawsuit - Yahoo Finance\n[ID: 38] [US] 標題: Fears the world could be plunged into recession as Trump 'loses control' of the Iran war - msn.com\n[ID: 39] [US] 標題: Full Fed. Circ. Is Told Panel Defied EcoFactor In DePuy Case - Law360</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 【04/01 台股盤後總覽】大盤漲逾1451.83點，突破三萬三，電子零組件、其他電子、半導體類股最夯！ - CMoney投資網誌\n[ID: 1] [TW] 標題: 內地3月官方製造業PMI勝預期 花旗︰首季經濟增長預測有望上調 - 香港01\n[ID: 2] [TW] 標題: A股焦點｜光伏產品增值稅出口退稅今起取消，光伏股多數走強 - 香港經濟日報HKET\n[ID: 3] [TW] 標題: 台股收盤》大盤飆1451點創史上第2大漲點 三大法人買超549億元 - Yahoo新聞\n[ID: 4] [TW] 標題: 花蓮火車站旅服中心進駐出口右側 服務前移第一線 打造觀光第一印象 - 花蓮最速報\n[ID: 5] [TW] 標題: 台股滿血復活站回3萬3、投信狂掃101億 三大法人買超549.82億元 - news.cnyes.com\n[ID: 6] [TW] 標題: 三大法人買超台股549.81億元 - 經濟日報\n[ID: 7] [TW] 標題: 台股暴跌後暴力反彈1451點 專家揭清明連假觀察重點 - Yahoo新聞\n[ID: 8] [TW] 標題: 【公告】長廣(補充公告)代重要子公司日本Nikko-Materials Co., Ltd.公告自地委建興建廠房(一年內累計達新台幣5億元) - Yahoo股市\n[ID: 9] [TW] 標題: 【Follow法人】台股報復性反彈1451點外資只買超233億元藏玄機？ 分析師：踩剎車未翻多 - Yahoo股市\n[ID: 10] [TW] 標題: 外資大逃殺! 大通膨時代資產保衛靠「這」招 - MSN\n[ID: 11] [TW] 標題: 外資大逃殺！大通膨時代資產保衛靠「這」招 - Yahoo新聞\n[ID: 12] [TW] 標題: 當服務走到出口第一步：花蓮，正在重寫「抵達」的意義 - 蕃新聞\n[ID: 13] [TW] 標題: 新加坡擬擴建實物黃金金庫 旨在打造全球央行黃金託管樞紐 作者 智通財經 - Investing.com 香港 - 股市報價& 財經新聞\n[ID: 14] [TW] 標題: 台股今日飆出史上第二大漲點V轉有機會？專家：多空反覆| 股市要聞| 股市 - 聯合新聞網\n[ID: 15] [TW] 標題: 韓國3月出口創40年最快增速，半導體出口額飆升151.4% - 富途牛牛\n[ID: 16] [TW] 標題: 通膨升溫 營收成長公司股價贏大盤 - idn.com.tw\n[ID: 17] [TW] 標題: 油價飆、歐3月通膨升溫 ECB 4月是否升息成焦點 - 台視全球資訊網\n[ID: 18] [TW] 標題: 史上第二大漲點！台股上揚1451.83點 台積電漲95元收1855元 - Yahoo股市\n[ID: 19] [TW] 標題: 台股收漲1451點！十大權值股日月光飆漲停最猛 聯發科意外翻黑 - Yahoo股市\n[ID: 20] [US] 標題: French Manufacturing Stagnates in March as Middle East Conflict Hits Orders -Final PMI - Global Banking & Finance Review®\n[ID: 21] [US] 標題: Gemini burns $130 million worth of RLUSD… “to reclaim liquidity” - bloomingbit\n[ID: 22] [US] 標題: Easing of conflicts brings the Federal Reserve back into focus, reigniting the narrative around gold. - moomoo.com\n[ID: 23] [US] 標題: WGBI entry draws inflows, drives Korea Treasury yields lower - CHOSUNBIZ - Chosunbiz\n[ID: 24] [US] 標題: French manufacturing stagnates in March as Middle East conflict hits orders -final PMI - marketscreener.com\n[ID: 25] [US] 標題: SCHH: It's Not A Hedge Against Push Inflation (NYSEARCA:SCHH) - Seeking Alpha\n[ID: 26] [US] 標題: Fed hike expectations lift the US dollar, pushing NZD/USD down to 0.5730 from its weekly peak - VT Markets\n[ID: 27] [US] 標題: Gold (XAU/USD) Price Forecast for Today, Tomorrow, Next Week, and the Next 30 Days - LiteFinance\n[ID: 28] [US] 標題: During Asian trading, the US Dollar Index slips near 99.80 below 100.00, as Trump boosts risk appetite - VT Markets\n[ID: 29] [US] 標題: Poland's general government deficit at 7.2% of GDP in 2025, stats office says - TradingView\n[ID: 30] [US] 標題: What’s the #1 domestic concern for Americans right now? (Spoiler: It’s not inflation) - InvestmentNews\n[ID: 31] [US] 標題: US Bonds Gain as Iran Withdrawal Hopes Fuel Fed Rate-Cut Bets - Bloomberg.com\n[ID: 32] [US] 標題: ECB’s new models may help capture shifts in inflation expectations, blog post says - The Mighty 790 KFGO\n[ID: 33] [US] 標題: How education transformed opportunity in America - Federal Reserve Bank of Minneapolis\n[ID: 34] [US] 標題: Forex Today: April begins with hopes of and end to Middle East conflict - FXStreet\n[ID: 35] [US] 標題: China is trying to play peacemaker in the Iran war - will it work? - BBC\n[ID: 36] [US] 標題: Chicago PMI Expands for Third Straight Month - Advisor Perspectives\n[ID: 37] [US] 標題: U.S. Fed hints at keeping interest rates steady in short term amid war with Iran - People's Daily Online\n[ID: 38] [US] 標題: UK shop price inflation rises to 1.2% as supply chain risks grow - Yahoo Finance\n[ID: 39] [US] 標題: Are Dow Jones Components Targets for Activist Hedge Funds? - Disruption Banking</News_List>",
   "schema": {
     "type": "OBJECT",
     "description": "AI 思考過程與挑選結果",
@@ -129,44 +129,54 @@
     "think": {
       "event_inventory": [
         {
-          "event": "中東地緣政治局勢轉向與川普對伊朗政策",
-          "count": 7,
-          "best_title": "Bitcoin, stocks rally because of chatter that Iran is ready to ‘end the war’ as Dollar Index sinks below 100"
+          "event": "台股史上第二大漲點與法人動向",
+          "count": 9,
+          "best_title": "史上第二大漲點！台股上揚1451.83點 台積電漲95元收1855元"
         },
         {
-          "event": "台股大盤強勁反彈與台積電領漲",
-          "count": 6,
-          "best_title": "台股反彈1374點！日月光大漲近9%領十大權值股迎修復行情"
-        },
-        {
-          "event": "南韓3月出口數據創歷史新高",
-          "count": 4,
-          "best_title": "南韓3月出口額年增48.3%首破800億美元 半導體出口328億美元創史高"
-        },
-        {
-          "event": "Fed 利率預期與通膨數據前瞻",
-          "count": 3,
-          "best_title": "The probability that the Federal Reserve will keep interest rates unchanged in April is 98.4%."
-        },
-        {
-          "event": "中國3月製造業PMI數據",
-          "count": 4,
-          "best_title": "3月RatingDog中國製造業PMI降至50.8，連續四個月處擴張區間"
-        },
-        {
-          "event": "手機供應鏈砍單與外資下修評等",
-          "count": 2,
-          "best_title": "手機下修潮來了！外資：聯發科高通同砍4奈米訂單、京元電也遭殃"
-        },
-        {
-          "event": "輝達與邁威爾結盟帶動矽光子族群",
+          "event": "韓國半導體出口數據爆發",
           "count": 1,
-          "best_title": "輝達結盟邁威爾！矽光子大爆發 台股3檔飆漲停"
+          "best_title": "韓國3月出口創40年最快增速，半導體出口額飆升151.4%"
         },
         {
-          "event": "匯市波動與新台幣升值",
+          "event": "中東局勢與聯準會降息預期",
+          "count": 5,
+          "best_title": "US Bonds Gain as Iran Withdrawal Hopes Fuel Fed Rate-Cut Bets"
+        },
+        {
+          "event": "中國經濟復甦訊號",
+          "count": 1,
+          "best_title": "內地3月官方製造業PMI勝預期 花旗︰首季經濟增長預測有望上調"
+        },
+        {
+          "event": "歐洲通膨與央行利率決策",
           "count": 2,
-          "best_title": "美元跌、台股大漲 新台幣升快1角"
+          "best_title": "油價飆、歐3月通膨升溫 ECB 4月是否升息成焦點"
+        },
+        {
+          "event": "美國區域經濟數據與美元走勢",
+          "count": 3,
+          "best_title": "Fed hike expectations lift the US dollar, pushing NZD/USD down to 0.5730"
+        },
+        {
+          "event": "韓國國債納入 WGBI 資金流向",
+          "count": 1,
+          "best_title": "WGBI entry draws inflows, drives Korea Treasury yields lower"
+        },
+        {
+          "event": "英國通膨與供應鏈風險",
+          "count": 1,
+          "best_title": "UK shop price inflation rises to 1.2% as supply chain risks grow"
+        },
+        {
+          "event": "法國製造業受地緣政治衝擊",
+          "count": 2,
+          "best_title": "French Manufacturing Stagnates in March as Middle East Conflict Hits Orders"
+        },
+        {
+          "event": "中國光伏產業政策變動",
+          "count": 1,
+          "best_title": "A股焦點｜光伏產品增值稅出口退稅今起取消，光伏股多數走強"
         }
       ],
       "dimension_check": {
@@ -178,71 +188,91 @@
       },
       "excluded": [
         {
-          "id": 0,
-          "reason": "單一國家儲金政策影響有限"
+          "id": 4,
+          "reason": "地方觀光新聞"
         },
         {
-          "id": 23,
-          "reason": "歷史油價回顧無即時影響"
+          "id": 8,
+          "reason": "單一子公司建廠"
         },
         {
-          "id": 29,
-          "reason": "單一小公司流動性新聞"
+          "id": 10,
+          "reason": "理財教學農場文"
+        },
+        {
+          "id": 13,
+          "reason": "特定國家金庫擴建"
+        },
+        {
+          "id": 16,
+          "reason": "一般性選股建議"
+        },
+        {
+          "id": 21,
+          "reason": "加密貨幣特定事件"
+        },
+        {
+          "id": 25,
+          "reason": "單一美股標的分析"
+        },
+        {
+          "id": 27,
+          "reason": "技術分析預測"
+        },
+        {
+          "id": 30,
+          "reason": "社會民意調查"
         },
         {
           "id": 33,
-          "reason": "法律專利程序與經濟無關"
-        },
-        {
-          "id": 37,
-          "reason": "單一公司標籤訴訟"
+          "reason": "教育與社會議題"
         }
       ]
     },
     "news": [
       {
-        "id": 20,
-        "summary": "市場傳出伊朗有意結束戰爭，帶動比特幣與股市強勁反彈，美元指數跌破100大關。地緣政治風險降溫顯著緩解市場避險情緒，若中東局勢確實趨緩，將有助於能源價格回落並減輕全球通膨壓力，為聯準會提供更多貨幣政策彈性，對全球風險資產屬重大利多。"
-      },
-      {
-        "id": 4,
-        "summary": "台股今日報復性反彈逾1300點，台積電飆漲至1845元，日月光等權值股漲幅近9%。此波修復行情顯示市場對先前過度跌幅的修正，且資金重新回流電子權值股。大盤重返關鍵支撐位，顯示市場信心回穩，短期內台股有望在權值股帶領下建立第二隻腳支撐。"
-      },
-      {
-        "id": 14,
-        "summary": "南韓3月出口額年增48.3%至800億美元，其中半導體出口達328億美元創歷史新高。南韓出口數據作為全球貿易風向球，其強勁增長反映全球AI與高效能運算需求極度旺盛，對台灣半導體供應鏈（如台積電、日月光）具有高度正相關的業績指引作用。"
-      },
-      {
-        "id": 28,
-        "summary": "市場預期聯準會4月維持利率不變的機率高達98.4%。在通膨數據仍具韌性的背景下，高利率環境預計將維持更長時間。投資人需密切關注即將公布的3月CPI數據，若數據超預期，可能進一步推遲降息時點，對高槓桿投資工具與科技成長股構成估值壓力。"
-      },
-      {
-        "id": 5,
-        "summary": "外資報告指出手機市場遭遇逆風，聯發科與高通同步砍單4奈米製程，京元電與聯電亦受波及。這顯示消費性電子需求復甦不如預期，與AI伺服器的強勁形成對比。投資者應警惕半導體產業內部的結構性分化，避開過度依賴手機市場的標的。"
-      },
-      {
-        "id": 13,
-        "summary": "中國3月製造業PMI降至50.8，雖連續四個月處於擴張區間但遜於預期。這反映中國製造業復甦動能仍不穩固，內需疲軟可能持續壓抑全球原物料價格。對於與中國連動性較高的台股傳產股與部分電子零組件，需留意後續訂單動能是否放緩。"
-      },
-      {
-        "id": 7,
-        "summary": "輝達結盟邁威爾（Marvell）推動矽光子技術發展，帶動台股相關族群飆漲。隨著AI算力需求激增，傳輸瓶頸成為關鍵，矽光子被視為下一代核心技術。此消息確立了AI產業鏈的新成長動能，相關台廠供應鏈在技術轉型中具備長期戰略價值。"
-      },
-      {
-        "id": 19,
-        "summary": "受美元指數走弱影響，新台幣匯率強升近1角。匯率回升有助於吸引外資回流台股，緩解資金外流壓力。對於以0050為主的權值股投資者而言，外資買超動能通常與匯率走勢高度相關，新台幣轉強有利於大盤指數持續上攻。"
-      },
-      {
-        "id": 34,
-        "summary": "債券市場信號顯示衰退擔憂依然存在，長短天期美債殖利率曲線倒掛持續。儘管股市反彈，但債市的避險情緒提醒投資人經濟基本面仍有下行風險。在槓桿投資策略中，應隨時監控債市信號，以防範突發性的系統性風險導致股市回吐漲幅。"
-      },
-      {
         "id": 18,
-        "summary": "中國取消光伏產品增值稅出口退稅，引發光伏板塊波動。此舉可能導致全球太陽能供應鏈成本結構改變，雖然短期利空，但長期有助於產業去產能化。對於台灣相關綠能產業而言，需觀察是否能獲得轉單效應或面臨更激烈的全球價格競爭。"
+        "summary": "台股今日爆發性反彈 1451.83 點，創史上第二大漲點，站回 33,000 點大關。權王台積電大漲 95 元至 1855 元，貢獻大盤多數漲幅。三大法人合計買超 549 億元，顯示市場在暴跌後出現強力空頭回補與資金回流，對 0050 等權值型 ETF 具備極強支撐力道。"
+      },
+      {
+        "id": 15,
+        "summary": "韓國 3 月出口數據極其強勁，半導體出口額年增率高達 151.4%，創下 40 年來最快增速。由於韓國與台灣半導體產業高度連動，此數據證實全球 AI 與記憶體需求仍處於擴張期，對台股電子權值股及半導體供應鏈具有長線基本面背書。"
       },
       {
         "id": 31,
-        "summary": "韓元貶值6.3%成為亞洲表現最差貨幣，反映資金在亞洲市場的重新配置。韓元走弱雖有利其出口競爭力，但也反映區域資金流動的不穩定性。投資者應關注亞洲貨幣競貶是否引發新一輪匯率戰，進而影響台灣出口導向型企業的毛利表現。"
+        "summary": "地緣政治出現轉機，伊朗撤軍希望升溫，導致美債價格上漲、殖利率回落。市場對聯準會 (Fed) 降息的押注重新抬頭。若中東衝突緩解，將降低通膨壓力並提供 Fed 更多降息空間，有利於全球風險資產定價，特別是高槓桿投資策略。"
+      },
+      {
+        "id": 1,
+        "summary": "中國 3 月官方製造業 PMI 表現優於預期，花旗隨即上調中國首季經濟增長預測。作為全球第二大經濟體，中國製造業回暖有助於帶動區域貿易與原物料需求，對台股中概收成股及整體亞太市場資金流向具正面影響。"
+      },
+      {
+        "id": 17,
+        "summary": "受油價飆升影響，歐元區 3 月通膨壓力再度抬頭，市場焦點轉向歐洲央行 (ECB) 4 月的利率決策。若 ECB 迫於通膨壓力維持高利率甚至轉鷹，將影響全球流動性環境，並可能帶動美元指數波動，進而衝擊新興市場匯率與資金外流壓力。"
+      },
+      {
+        "id": 26,
+        "summary": "聯準會升息預期再度支撐美元走強，導致紐幣等非美貨幣走弱至 0.5730 水準。強勢美元通常對台股外資買盤造成壓力，需密切觀察外資在台股反彈後的續航力，若美元持續走強，台股萬三之上的穩定性將面臨匯率風險挑戰。"
+      },
+      {
+        "id": 36,
+        "summary": "美國芝加哥 PMI 連續三個月擴張，顯示美國中西部製造業活動具備韌性。雖然這降低了經濟衰退風險，但也可能延後 Fed 降息的時間點。對於量化策略而言，需重新評估「經濟強勁」與「高利率維持更久」之間的權衡關係。"
+      },
+      {
+        "id": 23,
+        "summary": "韓國國債正式納入世界國債指數 (WGBI)，引發大規模資金流入並推低韓國國債殖利率。此事件反映亞太債市吸引力提升，可能帶動區域性資產配置調整，對台灣債市及相關固定收益產品的資金流向具有參考價值。"
+      },
+      {
+        "id": 38,
+        "summary": "英國商店價格通膨升至 1.2%，主因供應鏈風險增加。這反映出全球供應鏈仍受地緣政治干擾，通膨具有黏性。若通膨無法有效受控，全球主要央行的貨幣政策轉向將受阻，增加市場波動性。"
+      },
+      {
+        "id": 20,
+        "summary": "法國 3 月製造業 PMI 因中東衝突導致訂單受挫而陷入停滯。這顯示地緣政治衝突已實質影響歐洲核心國家的實體經濟。歐洲經濟疲軟可能拖累全球復甦腳步，需警惕歐洲需求下滑對台灣出口產業的間接衝擊。"
+      },
+      {
+        "id": 2,
+        "summary": "中國取消光伏產品增值稅出口退稅，引發光伏板塊走強。此政策變動反映中國正調整產業補貼結構，可能導致全球光伏產品價格波動。對於台灣相關能源與電子零組件產業而言，需注意競爭格局與成本結構的變化。"
       }
     ]
   }
