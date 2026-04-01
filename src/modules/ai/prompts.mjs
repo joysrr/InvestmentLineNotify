@@ -122,6 +122,94 @@ export const NEWS_KEYWORD_CONFIG = {
   maxOutputTokens: 65536,
 };
 
+/** 新聞黑名單優化的 System Prompt */
+export const RULE_OPTIMIZER_SYSTEM_PROMPT = `
+你是一個金融新聞黑名單優化代理（Rule Optimizer）。
+你的任務是分析一批「已通過現有新聞過濾器」的新聞標題，
+找出其中應該被擋下但漏網的低品質新聞、農場文、SEO 點擊誘餌，
+或與台股／美股主題無關的內容，並產生新的 regex 規則。
+## 輸出要求
+輸出 JSON 物件，格式固定為：
+{ "rules": [ { "pattern": "...", "flags": "i 或空字串", "reason": "說明" }, ... ] }
+- rules 陣列最多 5 條。若無合適規則，輸出 { "rules": [] }
+- 不可輸出 markdown、多餘說明文字、code block
+## 規則設計限制
+1. pattern 必須有具體語意錨點，不可只有模糊通配
+2. 不可把 '.*''、'.+'、'\w+'、'\d+' 當成規則主體
+3. 不可輸出與既有規則語意明顯重複的 pattern
+4. 優先產生可重複利用的結構型規則
+5. reason 請用繁體中文
+## 應優先識別的低品質內容
+- 個股推薦、選股清單、買進建議、價格預測
+- 明顯 SEO 標題：「最強概念股」「飆股卡位」「必看」「懶人包」等
+- 與台股／美股無關的他國區域市場新聞
+- 重複模板化內容農場
+## 不可誤殺的新聞類型
+- 總經數據：CPI、PCE、GDP、PMI、Payrolls、Jobless Claims
+- 央行政策：Fed、FOMC、Powell、央行、理監事會
+- 主要指數：S&P 500、Nasdaq、Dow Jones、台股、大盤
+- 台積電 / TSMC / ADR 相關
+- 資金流：外資、三大法人、Treasury yields、dollar index
+- 台灣出口、外銷訂單、景氣燈號
+## 設計原則
+- 寧可少產，也不要產生高風險規則
+- 若無法確認是否安全，請不要輸出該規則
+`;
+/** 新聞黑名單優化的User Prompt */
+export const buildOptimizerPrompt = (articleTitles, region) => {
+  const regionLabel = region === "TW" ? "台股（台灣）" : "美股（美國）";
+  const titlesText = articleTitles
+    .map((title, i) => `[${i + 1}] ${title}`)
+    .join("\n");
+
+  return `以下是昨日通過現有過濾器的${regionLabel}新聞標題（共 ${articleTitles.length} 筆）。
+請找出其中應該被擋下但漏網的低品質內容，並產生新的 regex 黑名單規則。
+
+<Titles>
+${titlesText}
+</Titles>
+
+請注意：若這批標題整體品質良好，請輸出 { "rules": [] }，不要強行產生規則。`;
+};
+
+/** 新聞黑名單優化的 Schema */
+export const RULE_OPTIMIZER_SCHEMA = {
+  type: Type.OBJECT,
+  description: "AI 建議新增的黑名單規則",
+  properties: {
+    rules: {
+      type: Type.ARRAY,
+      description: "建議新增的 regex 黑名單規則列表，無建議時輸出空陣列",
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          pattern: {
+            type: Type.STRING,
+            description: "Regex pattern 字串（不含前後的 /），例如：\\\\bBrexit\\\\b",
+          },
+          flags: {
+            type: Type.STRING,
+            description: "Regex flags，通常為 'i'（不分大小寫）或空字串（區分大小寫）",
+          },
+          reason: {
+            type: Type.STRING,
+            description: "規則說明（繁體中文）：說明此規則針對哪類低品質內容",
+          },
+        },
+        required: ["pattern", "flags", "reason"],
+      },
+      maxItems: 5,
+    },
+  },
+  required: ["rules"],
+};
+/* 新聞黑名單優化的 Config */
+export const RULE_OPTIMIZER_CONFIG = {
+  responseMimeType: "application/json",
+  temperature: 0.2,
+  maxOutputTokens: 1024,
+};
+
 /** 新聞過濾 System Prompt */
 export const NEWS_FILTER_SYSTEM_PROMPT = `你是一位頂級的量化避險基金經理人，專注於 ETF(0050) 與槓桿投資策略。
 你的任務是從使用者提供的「中英混合新聞列表」中，如淘金般過濾出「對大盤或總體經濟有實質重大影響」的重點新聞，並給予重要性評分以進行排序。
