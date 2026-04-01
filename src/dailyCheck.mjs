@@ -199,17 +199,26 @@ export async function dailyCheck({
       newsSummaryText = newsResult.summaryText;
     } catch (err) {
       console.error("❌ 取得新聞集錦失敗 (但不影響發送通知):", err.message);
+      newsMessages = [];
+      newsSummaryText = "新聞集錦取得失敗，請檢查系統日誌。";
     }
 
     // 取得總經多空對決報告
     console.log("🤖 正在產生總經多空對決報告...");
     let macroAnalysis = null;
     let macroTextForCoach = "無新聞數據，無法進行總經分析。";
-    if (newsMessages.length) {
+    if (newsMessages?.length) {
       macroAnalysis = await analyzeMacroNewsWithAI(newsSummaryText);
       macroTextForCoach = formatMacroAnalysisForCoach(macroAnalysis);
     } else {
       console.log("⚠️ 無新聞數據，跳過總經分析");
+      macroAnalysis = {
+        bullish: 0,
+        bearish: 0,
+        neutral: 0,
+        summary: "無新聞數據，無法進行總經分析。",
+      };
+      macroTextForCoach = macroAnalysis.summary;
     }
 
     // 取得 AI 決策報告
