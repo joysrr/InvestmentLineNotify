@@ -204,21 +204,7 @@ export async function getAiInvestmentAdvice(
         console.warn("⚠️ [Archive] 儲存 AI 決策紀錄失敗:", err.message),
       );
 
-    // 3. 組合最終要推播給使用者的 Markdown 戰報文字 (UI 呈現層)
-    const finalAdviceText = `**⚠️ 風險提示**
-${(adviceObj.risk_warnings || []).map((w) => `- ${w}`).join("\n")}
-
-**✅ 下一步觀察清單**
-${(adviceObj.action_items || []).map((a) => `- ${a}`).join("\n")}
-
-**🧭 行動微調建議**
-${(adviceObj.mindset_advice || []).map((m) => `- ${m}`).join("\n")}`;
-
-    // 4. 回傳乾淨、排版絕對受控的字串
-    return {
-      finalAdviceText: finalAdviceText.trim(),
-      internalThinking: adviceObj.coach_internal_thinking || "",
-    };
+    return adviceObj;
   } catch (error) {
     console.error("AI 決策引擎處理失敗:", error.message);
     return "AI 決策引擎暫時無法運作，請依原始數據判斷。";

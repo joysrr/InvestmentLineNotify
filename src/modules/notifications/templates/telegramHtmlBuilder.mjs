@@ -285,7 +285,7 @@ export function buildTelegramMessages({
   const sellTotal = s.total ?? 3;
 
   // 輕盈的虛線分隔符號，加一點留白，視覺更開闊
-  const SEP = "\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n";
+  const SEP = "\n──────────────────────\n";
 
   // 取得當下時間
   const now = TwDate(); // 台北時間小時數
@@ -321,49 +321,35 @@ export function buildTelegramMessages({
     `<blockquote>${scoreOk ? "🟢 <b>條件達標，可評估入場</b>" : "⏸️ <b>條件未滿，請維持觀望</b>"}\n總計得分：<code>${sVal}</code> pt (門檻 <code>${mVal}</code>)</blockquote>`,
   ].join("\n");
 
-  // 目標進度條：拿掉 <code>，並確保 tg-spoiler 內只有純文字
-  // 使用 \u200B (Zero-width space) 或是全形空白 \u3000 來把複製按鈕推開
-  // 這裡我們用兩個半形空白加上一個全形空白，確保尾部有足夠的緩衝區
   const paddedPct = String(goalPct).padStart(5, " ");
-  const goalSection = [
-    `🎯 <b>目標進度</b>  ·  ${GOAL_YEARS} 年計畫`,
-    `<code>[${goalBar(currentAsset, GOAL_ASSET, 20)}] ${paddedPct}%   </code>`, // 👈 注意 % 後面故意留了 3 個空白
-    `  <tg-spoiler>$${(currentAsset / 10000).toFixed(0)}萬 ／ 目標 $${(GOAL_ASSET / 10000).toFixed(0)}萬</tg-spoiler>`,
-  ].join("\n");
 
-  const msg1Text = `\
-<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\
-${SEP}\<b>${timeLabel}</b>${SEP}\
-🚦 狀態：<b>${escapeHTML(result.marketStatus || "未明")}</b>
-📌 行動：<b>${escapeHTML(result.target || "觀望")}</b> ─ <i>${escapeHTML(result.targetSuggestionShort || "無特殊操作")}</i>
-<blockquote expandable>${escapeHTML(result.suggestion || "無進階說明")}</blockquote>\
-${SEP}\🌐 <b>市場概況</b>${SEP}\
-<blockquote expandable>\
-🇺🇸 美股 VIX  <code>${escapeHTML(usRisk?.vix || "N/A")}</code>  ${escapeHTML(usRisk?.riskIcon || "")}
-🇺🇸 貪婪指數 <code>${cnnText}</code>
-📊 S&amp;P500   <code>${spxText}</code>  ${spxEmoji}
-🇹🇼 台股 VIX <code>${escapeHTML(vixValue || "N/A")}</code>  ${escapeHTML(vixLabel || "")}
-🇹🇼 景氣燈號 <code>${ndcText}</code>
-🇹🇼 大盤維持 <code>${marginText}</code>
-🇹🇼 大盤 PE  <code>${peText}</code>
-🇹🇼 大盤 PB  <code>${pbText}</code>
-💵 美元台幣 <code>${fxText}</code>
-📍 歷史位階  <b>${escapeHTML(result.historicalLevel || "N/A")}</b>\
-</blockquote>
-${SEP}\📊 <b>進場評分</b>${SEP}\
-<blockquote expandable>\
-${scoreSection}\
-</blockquote>
-${SEP}\📡 <b>風險雷達</b>${SEP}\
-<blockquote expandable>\
-${signalIcon(reversalTriggered, reversalTotal)} 轉弱訊號  <code>${reversalTriggered} / ${reversalTotal}</code> 個
-${signalIcon(sellTriggered, sellTotal)} 賣出訊號  <code>${sellTriggered} / ${sellTotal}</code> 個
-${rsiAlert ? "🔥" : "▫️"} RSI   <code>${Number.isFinite(rsi) ? rsi.toFixed(1) : "--"}</code>
-${dAlert ? "🔥" : "▫️"} KD(D) <code>${Number.isFinite(kd_d) ? kd_d.toFixed(1) : "--"}</code>
-${biasAlert ? "🔥" : "▫️"} 乖離率 <code>${Number.isFinite(bias) ? bias.toFixed(1) + "%" : "--"}</code>
-</blockquote>
-${SEP}\
-${goalSection}`.trim();
+  const msg1Text = `<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\n\n` +
+    `<b>${timeLabel}</b>${SEP}\n` +
+    `🚦 狀態：<b>${escapeHTML(result.marketStatus || "未明")}</b>\n` +
+    `📌 行動：<b>${escapeHTML(result.target || "觀望")}</b> ─ <i>${escapeHTML(result.targetSuggestionShort || "無特殊操作")}</i>\n` +
+    `<blockquote expandable>${escapeHTML(result.suggestion || "無進階說明")}</blockquote>\n\n` +
+    `🌐 <b>市場概況</b>${SEP}\n` +
+    `🇺🇸 美股 VIX  <code>${escapeHTML(usRisk?.vix || "N/A")}</code>  ${escapeHTML(usRisk?.riskIcon || "")}\n` +
+    `🇺🇸 貪婪指數 <code>${cnnText}</code>\n` +
+    `📊 S&amp;P500   <code>${spxText}</code>  ${spxEmoji}\n` +
+    `🇹🇼 台股 VIX <code>${escapeHTML(vixValue || "N/A")}</code>  ${escapeHTML(vixLabel || "")}\n` +
+    `🇹🇼 景氣燈號 <code>${ndcText}</code>\n` +
+    `🇹🇼 大盤維持 <code>${marginText}</code>\n` +
+    `🇹🇼 大盤 PE  <code>${peText}</code>\n` +
+    `🇹🇼 大盤 PB  <code>${pbText}</code>\n` +
+    `💵 美元台幣 <code>${fxText}</code>\n` +
+    `📍 歷史位階  <b>${escapeHTML(result.historicalLevel || "N/A")}</b>\n\n` +
+    `📊 <b>進場評分</b>${SEP}\n` +
+    `${scoreSection} \n\n` +
+    `📡 <b>風險雷達</b>${SEP}\n` +
+    `${signalIcon(reversalTriggered, reversalTotal)} 轉弱訊號 <code> ${reversalTriggered} / ${reversalTotal}</code> 個\n` +
+    `${signalIcon(sellTriggered, sellTotal)} 賣出訊號 <code> ${sellTriggered} / ${sellTotal}</code> 個\n` +
+    `${rsiAlert ? "🔥" : "▫️"} RSI <code> ${Number.isFinite(rsi) ? rsi.toFixed(1) : "--"}</code>\n` +
+    `${dAlert ? "🔥" : "▫️"} KD(D) <code> ${Number.isFinite(kd_d) ? kd_d.toFixed(1) : "--"}</code>\n` +
+    `${biasAlert ? "🔥" : "▫️"} 乖離率 <code> ${Number.isFinite(bias) ? bias.toFixed(1) + "%" : "--"}</code>\n\n` +
+    `🎯 <b>目標進度</b>  ·  ${GOAL_YEARS} 年計畫${SEP}\n` +
+    `<code> [${goalBar(currentAsset, GOAL_ASSET, 20)}] ${paddedPct}%   </code>\n` +
+    `<tg-spoiler> $${(currentAsset / 10000).toFixed(0)} 萬 ／ 目標 $${(GOAL_ASSET / 10000).toFixed(0)}萬</tg-spoiler>`;
 
   // ══════════════════════════════════════════════════════════════
   // 第二則：訊號詳情 ＋ 技術指標 ＋ 帳戶快照 (全面隱藏敏感數字)
@@ -373,13 +359,13 @@ ${goalSection}`.trim();
     {
       name: "RSI 轉弱",
       value: Number.isFinite(rsi) ? rsi.toFixed(1) : "--",
-      condition: `>${th.rsiReversalLevel} → <${th.rsiReversalLevel}`,
+      condition: `> ${th.rsiReversalLevel} → <${th.rsiReversalLevel}`,
       triggered: Boolean(r.rsiDrop),
     },
     {
       name: "KD(保守)轉弱",
       value: Number.isFinite(kdCons) ? kdCons.toFixed(1) : "--",
-      condition: `>${th.kReversalLevel} → <${th.kReversalLevel}`,
+      condition: `> ${th.kReversalLevel} → <${th.kReversalLevel}`,
       triggered: Boolean(r.kdDrop),
     },
     {
@@ -400,13 +386,13 @@ ${goalSection}`.trim();
     {
       name: "RSI",
       value: s.flags.rsiSell ? "已觸發" : "未觸發",
-      condition: `>${sellTh.rsi?.overbought} → ${sellTh.rsi?.overbought}↘`,
+      condition: `> ${sellTh.rsi?.overbought} → ${sellTh.rsi?.overbought}↘`,
       triggered: Boolean(s.flags.rsiSell),
     },
     {
       name: "KD",
       value: s.flags.kdSell ? "已觸發" : "未觸發",
-      condition: `K↘D & min≥${sellTh.kd?.overboughtK} | D↘${sellTh.kd?.overboughtK}`,
+      condition: `K↘D & min≥${sellTh.kd?.overboughtK} | D↘${sellTh.kd?.overboughtK} `,
       triggered: Boolean(s.flags.kdSell),
     },
     {
@@ -418,39 +404,30 @@ ${goalSection}`.trim();
   ];
 
   // 注意：此區塊所有 <tg-spoiler> 內不再包覆 <code>，以避免 Telegram 解析失效
-  const msg2Text = `\
-<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\
-${SEP}\🔬 <b>技術指標</b>${SEP}\
-<blockquote expandable>\
-${rsiAlert ? "🔥" : "▫️"} RSI    <code>${Number.isFinite(rsi) ? rsi.toFixed(1) : "N/A"}</code>
-${dAlert ? "🔥" : "▫️"} KD(D)  <code>${Number.isFinite(kd_d) ? kd_d.toFixed(1) : "N/A"}</code>
-${biasAlert ? "🔥" : "▫️"} 乖離率 <code>${Number.isFinite(bias) ? bias.toFixed(1) + "%" : "N/A"}</code>
-💰 現價  <code>$${Number(result.currentPrice || 0).toFixed(2)}</code>  ${changeIcon} <code>${priceChangePct > 0 ? "+" : ""}${priceChangePct.toFixed(1)}%</code>
-📌 基準價 <code>$${Number(result.basePrice || 0).toFixed(2)}</code>\
-</blockquote>
-${SEP}\📡 <b>轉弱監控</b>  <i>（${reversalTriggered}/${reversalTotal}）</i>${SEP}\
-<blockquote expandable>\
-${reversalSignals.map(signalRow).join("\n")}\
-</blockquote>
-${SEP}\🛎️ <b>賣出訊號</b>  <i>（${sellTriggered}/${sellTotal}）</i>${SEP}\
-<blockquote expandable>\
-${sellSignals.map(signalRow).join("\n")}\
-</blockquote>
-${SEP}\🏦 <b>帳戶快照</b>${SEP}\
-<blockquote expandable>\
-💼 帳戶淨值    <tg-spoiler>$${Math.floor(currentAsset).toLocaleString("en-US")}</tg-spoiler>
-🏗 總資產(含貸) <tg-spoiler>$${Math.floor(grossAsset).toLocaleString("en-US")}</tg-spoiler>
-${levInfo.icon} 實際槓桿    <tg-spoiler>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}</tg-spoiler>  <b>${levInfo.label}</b>
-${mmInfo.icon} 維持率      <tg-spoiler>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未借款"}</tg-spoiler>  <b>${mmInfo.label}</b>
-${z2Safe ? "✅" : "⚠️"} 00675L佔比  <tg-spoiler>${Number.isFinite(z2Ratio) ? z2Ratio.toFixed(1) + "%" : "N/A"}</tg-spoiler>  <i>上限 ${z2TargetPct.toFixed(0)}%</i>
-💵 現金儲備    <tg-spoiler>$${cashReserveStr}</tg-spoiler>
-💳 借款金額    <tg-spoiler>$${Number(totalLoan).toLocaleString("en-US")}</tg-spoiler>\
-</blockquote>
-${SEP}\📦 <b>持倉配置</b>${SEP}\
-<blockquote expandable>\
-🛡 0050    <tg-spoiler>${qty0050Str} 股</tg-spoiler>
-⚔️ 0067L   <tg-spoiler>${qtyZ2Str} 股</tg-spoiler>
-</blockquote>`.trim();
+  const msg2Text =
+    `<blockquote> <code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\n\n` +
+    `🔬 <b>技術指標</b>${SEP}\n` +
+    `${rsiAlert ? "🔥" : "▫️"} RSI <code> ${Number.isFinite(rsi) ? rsi.toFixed(1) : "N/A"}</code>\n` +
+    `${dAlert ? "🔥" : "▫️"} KD(D) <code> ${Number.isFinite(kd_d) ? kd_d.toFixed(1) : "N/A"}</code>\n` +
+    `${biasAlert ? "🔥" : "▫️"} 乖離率 <code> ${Number.isFinite(bias) ? bias.toFixed(1) + "%" : "N/A"}</code>\n` +
+    `💰 現價 <code> $${Number(result.currentPrice || 0).toFixed(2)}</code> ${changeIcon} <code>${priceChangePct > 0 ? "+" : ""}${priceChangePct.toFixed(1)}%</code>\n` +
+    `📌 基準價 <code> $${Number(result.basePrice || 0).toFixed(2)}</code>\n\n` +
+    `📡 <b>轉弱監控</b>  <i>（${reversalTriggered}/${reversalTotal}）</i>${SEP}\n` +
+    `${reversalSignals.map(signalRow).join("\n")} \n\n` +
+    `🛎️ <b>賣出訊號</b>  <i>（${sellTriggered}/${sellTotal}）</i>${SEP}\n` +
+    `${sellSignals.map(signalRow).join("\n")} \n\n` +
+    `🏦 <b>帳戶快照</b>${SEP}\n` +
+    `<blockquote expandable>` +
+    `💼 帳戶淨值    <tg-spoiler>$${Math.floor(currentAsset).toLocaleString("en-US")}</tg-spoiler>\n` +
+    `🏗 總資產(含貸) <tg-spoiler>$${Math.floor(grossAsset).toLocaleString("en-US")}</tg-spoiler>\n` +
+    `${levInfo.icon} 實際槓桿    <tg-spoiler>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}  <b>${levInfo.label}</b></tg-spoiler>\n` +
+    `${mmInfo.icon} 維持率      <tg-spoiler>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未借款"}  <b>${mmInfo.label}</b></tg-spoiler>\n` +
+    `${z2Safe ? "✅" : "⚠️"} 00675L佔比  <tg-spoiler>${Number.isFinite(z2Ratio) ? z2Ratio.toFixed(1) + "%" : "N/A"}</tg-spoiler>  <i>上限 ${z2TargetPct.toFixed(0)}%</i>\n` +
+    `💵 現金儲備    <tg-spoiler>$${cashReserveStr}</tg-spoiler>\n` +
+    `💳 借款金額    <tg-spoiler>$${Number(totalLoan).toLocaleString("en-US")}</tg-spoiler>\n` +
+    `🛡 0050    <tg-spoiler>${qty0050Str} 股</tg-spoiler>\n` +
+    `⚔️ 0067L   <tg-spoiler>${qtyZ2Str} 股</tg-spoiler>` +
+    `</blockquote>`;
 
   // ══════════════════════════════════════════════════════════════
   // 第三則：AI 策略 ＋ 每日一句
@@ -469,13 +446,13 @@ ${SEP}\📦 <b>持倉配置</b>${SEP}\
     } = macroAnalysis;
 
     const topBull = bull_events
-      .map((e) => `🟢 [+${e.score}] ${escapeHTML(e.event)}`)
+      .map((e) => `🟢[+${e.score}] ${escapeHTML(e.event)} `)
       .join("\n");
     const topBear = bear_events
-      .map((e) => `🔴 [-${e.score}] ${escapeHTML(e.event)}`)
+      .map((e) => `🔴[-${e.score}] ${escapeHTML(e.event)} `)
       .join("\n");
     const topNeutral = neutral_events
-      .map((e) => `⏳ [觀望] ${escapeHTML(e.event)}`)
+      .map((e) => `⏳[觀望] ${escapeHTML(e.event)} `)
       .join("\n");
 
     const eventsList = [topBull, topBear, topNeutral]
@@ -483,54 +460,59 @@ ${SEP}\📦 <b>持倉配置</b>${SEP}\
       .join("\n\n");
 
     const takeawaysText = (conclusion.key_takeaways || [])
-      .map((k) => `◦ <i>${escapeHTML(k)}</i>`)
+      .map((k) => `• <i>${escapeHTML(k)}</i>`)
       .join("\n");
 
-    macroAnalysisSection = `\
-🌍 <b>AI 總經多空對決</b> ［${escapeHTML(conclusion.market_direction || "未知")}］\
-${SEP}\
-🎯 <b>市場主軸：</b>
-${escapeHTML(conclusion.short_summary || "無")}
-⚖️ <b>多空積分：</b>多 <code>${total_bull_score}</code> vs 空 <code>${total_bear_score}</code>
-
-<b>📌 核心驅動邏輯：</b>
-${takeawaysText}
-<blockquote expandable>\
-<b>🔥 重大驅動事件：</b>
-${eventsList || "無顯著事件"}</blockquote>`.trim();
+    macroAnalysisSection =
+      `🌍 <b>AI 總經多空對決</b> ［${escapeHTML(conclusion.market_direction || "未知")}］${SEP}` +
+      `🎯 <b>市場主軸：</b>\n` +
+      `${escapeHTML(conclusion.short_summary || "無")} \n\n` +
+      `⚖️ <b>多空積分：</b>多 <code> ${total_bull_score}</code> vs 空 <code> ${total_bear_score}</code>\n\n` +
+      `<b>📌 核心驅動邏輯：</b>\n` +
+      `${takeawaysText}\n` +
+      `<blockquote expandable> <b>🔥 重大驅動事件：</b>${eventsList || "無顯著事件"}</blockquote> `;
   }
 
   let aiTextHtml = "🔄 數據分析中，請稍候...";
-  if (aiAdvice?.finalAdviceText) {
-    aiTextHtml = escapeHTML(aiAdvice.finalAdviceText)
-      .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-      .replace(/\*(.*?)\*/g, "<i>$1</i>")
-      .replace(/^#+\s(.+)/gm, "<b>$1</b>")
-      .replace(/^[-•]\s+/gm, "◦ ")
-      .replace(/\n{3,}/g, "\n\n");
+  let internalThinking = "無";
+
+  if (aiAdvice?.coach_internal_thinking) {
+    const toList = (arr) =>
+      (arr || []).map((item) => `• ${escapeHTML(item)} `).join("\n\n");
+
+    const riskSection =
+      `⚠️ <b>風險提示</b>\n` +
+      `<blockquote expandable> ${toList(aiAdvice.risk_warnings)}</blockquote> `;
+
+    const actionSection =
+      `📌 <b>下一步觀察清單</b>\n` +
+      `<blockquote expandable> ${toList(aiAdvice.action_items)}</blockquote> `;
+
+    const mindsetSection =
+      `💡 <b>行動微調建議</b>\n` +
+      `<blockquote expandable> ${toList(aiAdvice.mindset_advice)}</blockquote> `;
+
+    aiTextHtml = [riskSection, actionSection, mindsetSection].join("\n\n\n");
+    internalThinking = aiAdvice.coach_internal_thinking;
   }
 
   const quoteAuthor = escapeHTML(quote?.author || "Unknown");
-  const quoteBlock = `<i>${escapeHTML(quote?.quote || "")}</i>\n\n— <b>${quoteAuthor}</b>`;
+  const quoteBlock = `<i> ${escapeHTML(quote?.quote || "")}</i>\n\n— <b>${quoteAuthor}</b>`;
 
   const sheetUrl = process.env.GOOGLE_SHEET_ID
     ? `https://docs.google.com/spreadsheets/d/${process.env.GOOGLE_SHEET_ID}/edit?usp=drivesdk`
     : null;
   const strategyUrl = process.env.STRATEGY_URL || null;
 
-  const msg3Text = `\
-<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\
-${SEP}\
-${macroAnalysisSection}\
-${SEP}🤖 <b>AI 教練洞察</b>\
-${SEP}\
-${aiTextHtml}
-
-<blockquote expandable>\
-<b>🧠 教練內心推演：</b>
-${escapeHTML(aiAdvice?.internalThinking || "無")}</blockquote>\
-${SEP}\📈 <b>每日一句</b>${SEP}\
-<blockquote>${quoteBlock}</blockquote>`.trim();
+  const msg3Text =
+    `<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\n\n` +
+    `${macroAnalysisSection}\n\n` +
+    `🤖 <b>AI 教練洞察</b>${SEP}\n` +
+    `${aiTextHtml}\n\n` +
+    `🧠 <b>教練內心推演：</b>${SEP}\n` +
+    `<blockquote expandable>${escapeHTML(internalThinking)}</blockquote>\n\n` +
+    `📈 <b>每日一句</b>${SEP}\n` +
+    `<blockquote>${quoteBlock}</blockquote>`;
 
   return [
     { text: msg1Text, pin: true }, // 第一則：會響鈴/震動、釘選

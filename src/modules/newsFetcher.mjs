@@ -399,8 +399,8 @@ export async function getNewsTelegramMessages(marketData) {
         : "時間未知";
 
       sectionText += `${index + 1}. <a href="${item.link}">${escapeHTML(cleanTitle)}</a>\n`;
-      sectionText += `   <i>↳ ${escapeHTML(item.summary)}</i>\n`;
-      sectionText += `   <i>${timeString} ｜ ${escapeHTML(mediaName)}</i>\n\n`;
+      sectionText += `   <i>${timeString} ｜ ${escapeHTML(mediaName)}</i>\n`;
+      sectionText += `   <blockquote expandable>${escapeHTML(item.summary)}</blockquote>\n\n`;
     });
 
     return sectionText.trim();
