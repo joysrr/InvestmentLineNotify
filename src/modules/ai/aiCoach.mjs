@@ -1,6 +1,6 @@
 import { callGemini } from "./aiClient.mjs";
 import { formatQuantDataForCoach } from "./aiDataPreprocessor.mjs";
-import { baseTwQueries, baseUsQueries } from "../news/keywordConfig.mjs";
+import { baseTwQueries, baseUsQueries } from "../keywordConfig.mjs";
 import {
   buildMacroAnalysisUserPrompt,
   buildCoachUserPrompt,

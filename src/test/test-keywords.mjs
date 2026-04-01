@@ -20,8 +20,8 @@ function validateDynamicKeyword(item, staticPool) {
   const kw = item.keyword.trim();
   if (kw.length < 2) return false;
   if (/^[A-Z]{2,5}$/.test(kw)) return false;
-  const tokens = kw.match(/[\u4e00-\u9fff\u3400-\u4dbf]+|[a-zA-Z0-9]+/g) ?? [];
-  if (tokens.length < 1 || tokens.length > 4) return false;
+  const words = kw.split(/\s+/).filter(Boolean);
+  if (words.length < 2 || words.length > 4) return false;
   if (staticPool.some((s) => s.keyword.toLowerCase() === kw.toLowerCase()))
     return false;
   return true;
