@@ -18,6 +18,7 @@ import {
   getAiInvestmentAdvice,
   analyzeMacroNewsWithAI,
 } from "./modules/ai/aiCoach.mjs";
+import { shouldRunJudge, runJudge } from "./modules/ai/llmJudge.mjs";
 import { getNewsTelegramMessages } from "./modules/newsFetcher.mjs";
 import { fetchAllMacroData } from "./modules/providers/marketData.mjs";
 import {
@@ -26,6 +27,10 @@ import {
 } from "./modules/ai/aiDataPreprocessor.mjs";
 import { archiveManager } from "./modules/data/archiveManager.mjs";
 import { TwDate } from "./utils/coreUtils.mjs";
+
+const sessionId = process.env.GITHUB_RUN_ID
+  ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
+  : `local-${Date.now()}`;
 
 export async function dailyCheck({
   isTelegramEnabled = true,
@@ -212,15 +217,16 @@ export async function dailyCheck({
 
   // 取得 AI 決策報告
   console.log("🤖 正在產生 AI 決策分析...");
-  const aiAdvice = await getAiInvestmentAdvice(
-    result,
-    lastState,
-    vixData,
-    newsSummaryText,
-    macroTextForCoach,
-    macroAndChipStr,
-    !isAIAdvisor,
-  );
+  const { advice: aiAdvice, traceId: adviceTraceId } =
+    await getAiInvestmentAdvice(
+      result,
+      lastState,
+      vixData,
+      newsSummaryText,
+      macroTextForCoach,
+      macroAndChipStr,
+      !isAIAdvisor,
+    );
 
   // 推送至 Telegram
   const reportDailyData = {
@@ -261,6 +267,28 @@ export async function dailyCheck({
     await archiveManager.cleanOldArchives(30);
   } catch (err) {
     console.warn("⚠️ 儲存最終報告或清理快取失敗:", err.message);
+  }
+
+  // ── LLM Judge（背景評估，不阻塞主流程）────────────────────────────────────
+  const judgeTasks = [];
+
+  if (shouldRunJudge() && adviceTraceId && typeof aiAdvice === "object") {
+    console.log("🔍 [LLMJudge] 今日觸發 Judge，排入背景任務...");
+    judgeTasks.push(
+      runJudge(adviceTraceId, aiAdvice, sessionId).catch((err) =>
+        console.warn("⚠️ [LLMJudge] 背景任務發生例外:", err.message),
+      ),
+    );
+  } else if (shouldRunJudge()) {
+    console.log("⚠️ [LLMJudge] 今日應觸發但 adviceTraceId 無效或 aiAdvice 非物件，跳過");
+  } else {
+    console.log("⏭️ [LLMJudge] 今日不執行 Judge");
+  }
+
+  if (judgeTasks.length > 0) {
+    console.log("⏳ [LLMJudge] 等待背景 Judge 任務完成...");
+    await Promise.allSettled(judgeTasks);
+    console.log("✅ [LLMJudge] 背景 Judge 任務完成");
   }
 
   return "✅ dailyCheck 執行成功";
