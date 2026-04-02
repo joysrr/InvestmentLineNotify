@@ -13,6 +13,7 @@ import {
 } from "./prompts.mjs";
 
 import { archiveManager } from "../data/archiveManager.mjs";
+import { saveFilteredPool } from "../data/newsPoolManager.mjs";
 
 const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
@@ -56,12 +57,19 @@ export async function generateDailySearchQueries(marketData) {
   }
 }
 
-// --- 新聞過濾與分類 Prompt ---
-export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
+// --- 新職過濾與分類 Prompt ---
+/**
+ * 將原始新職陣列經 AI 過濾後回傳含 summary 的文章陣列
+ * 過濾完成後同時非阻塞地將結果寫入 pool_filtered_active.json
+ *
+ * @param {Array<Object>} allNewsArray - 含完整 RSS 欄位的新職陣列
+ * @param {string} [sourcePoolUpdatedAt] - 本次讀取的 pool last_updated，供回存時記錄來源
+ */
+export async function filterAndCategorizeAllNewsWithAI(allNewsArray, sourcePoolUpdatedAt) {
   if (allNewsArray.length === 0) return [];
 
   const newsListText = allNewsArray
-    .map((n, i) => `[ID: ${i}] [${n._region}] 標題: ${n.title}`)
+    .map((n, i) => `[ID: ${i}] [${n._region}] [age_band: ${n.age_band || "unknown"}] 標題: ${n.title}`)
     .join("\n");
   const userPrompt = buildNewsUserPrompt(newsListText);
 
@@ -85,7 +93,7 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
     console.log("📐 維度覆蓋:", thinkContent.dimension_check);
     console.log("🗑️ 捨棄筆數:", thinkContent.excluded.length);
 
-    // 從 aiResult.news 取陣列（原本是 aiResult 直接是陣列）
+    // 從 aiResult.news 取陣列，合併原始欄位與 AI summary
     const result = aiResult.news.map((aiItem) => ({
       ...allNewsArray[aiItem.id],
       summary: aiItem.summary,
@@ -100,12 +108,18 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
         rawResult: aiResult,
       })
       .catch((err) =>
-        console.warn("⚠️ [Archive] 儲存新聞過濾紀錄失敗:", err.message),
+        console.warn("⚠️ [Archive] 儲存新職過濾紀錄失敗:", err.message),
+      );
+
+    // 💾 結果回存至 pool_filtered_active.json（非阻塞，失敗不中斷主流程）
+    saveFilteredPool(result, sourcePoolUpdatedAt)
+      .catch((err) =>
+        console.warn("⚠️ [NewsPool] Filter 結果回存失敗:", err.message),
       );
 
     return result;
   } catch (error) {
-    console.error("AI 處理新聞時發生錯誤:", error);
+    console.error("AI 處理新職時發生錯誤:", error);
     return [];
   }
 }
@@ -139,7 +153,7 @@ export async function analyzeMacroNewsWithAI(todayNewsText) {
 
     return result;
   } catch (error) {
-    console.warn("宏觀新聞分析失敗，回傳空陣列");
+    console.warn("宏觀新職分析失敗，回傳空陣列");
     return {
       bull_events: [],
       bear_events: [],
@@ -147,13 +161,13 @@ export async function analyzeMacroNewsWithAI(todayNewsText) {
       total_bear_score: 0,
       conclusion: {
         market_direction: "NEUTRAL",
-        analysis: "AI 無法分析今日新聞，請依原始新聞自行判斷。",
+        analysis: "AI 無法分析今日新職，請依原始新職自行判斷。",
       },
     };
   }
 }
 
-// 這個函式會根據當前的市場數據、新聞摘要，以及既定的投資策略，產出具體的操作建議與風險提示
+// 這個函式會根據當前的市場數據、新職摩要，以及既定的投資策略，產出具體的操作建議與風險提示
 export async function getAiInvestmentAdvice(
   marketData,
   portfolio,
