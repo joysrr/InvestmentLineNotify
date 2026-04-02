@@ -78,7 +78,8 @@ export async function callAI(promptName, userPrompt, options = {}) {
 
   const systemInstruction = promptObj.compile(options.promptVariables ?? {});
   // 將 promptObj 中的 config 參數合併到 options 中，讓每個 prompt 可以自訂化 Gemini 呼叫行為
-  Object.assign(options, promptObj.config);
+  // langfuse 的 config 優先權高於傳入的 options
+  const resolvedOptions = { ...options, ...promptObj.config };
 
   const keyIndex = options.keyIndex ?? 0;
   const resolvedIndex = provider === PROVIDERS.GEMINI
