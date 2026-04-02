@@ -11,7 +11,7 @@ import {
 import { archiveManager } from "./data/archiveManager.mjs";
 import { loadPoolWithFallback } from "./data/newsPoolManager.mjs";
 
-// ── 工具函式 ──────────────────────────────────────────────────────────────
+// ── 工具函式 ──────────────────────────────────────────────────────────────────
 
 const FALLBACK_THRESHOLD = 5;
 
@@ -24,7 +24,7 @@ function buildSingleKeywordQueryStr(item, excludeList = []) {
   const excludeParts = excludeList.map((ex) =>
     ex.searchType === "intitle"
       ? `-intitle:"${ex.keyword}"`
-      : `-"${ex.keyword}"`
+      : `-"${ex.keyword}"`,
   );
 
   return [include, "+when:1d", ...excludeParts].join(" ");
@@ -44,7 +44,7 @@ function validateDynamicKeyword(item, staticPool) {
 
 function mergeKeywords(baseList, dynamicList) {
   const validated = dynamicList.filter((item) =>
-    validateDynamicKeyword(item, baseList)
+    validateDynamicKeyword(item, baseList),
   );
   const invalidCount = dynamicList.length - validated.length;
   if (invalidCount > 0) {
@@ -52,24 +52,31 @@ function mergeKeywords(baseList, dynamicList) {
   }
   const mergedMap = new Map();
   [...baseList, ...validated].forEach((item) =>
-    mergedMap.set(item.keyword.toLowerCase(), item)
+    mergedMap.set(item.keyword.toLowerCase(), item),
   );
   return Array.from(mergedMap.values());
 }
 
+/**
+ * 批次抓取 RSS，同時統計每個 keyword 是否至少命中 1 篇
+ * @returns {{ articles: object[], queryHits: Array<{keyword:string, isDynamic:boolean, hit:boolean}> }}
+ */
 async function fetchBatchedByKeywords(
   keywords,
   region,
   excludeList,
+  baseList,
   concurrency = 5,
-  delayMs = 300
+  delayMs = 300,
 ) {
   const [gl, hl, ceid] =
     region === "TW"
       ? ["TW", "zh-TW", "TW:zh-Hant"]
       : ["US", "en-US", "US:en"];
 
-  const results = [];
+  const articles = [];
+  const queryHits = [];
+
   for (let i = 0; i < keywords.length; i += concurrency) {
     const chunk = keywords.slice(i, i + concurrency);
     const chunkResults = await Promise.all(
@@ -77,13 +84,23 @@ async function fetchBatchedByKeywords(
         const queryStr = buildSingleKeywordQueryStr(item, excludeList);
         const url = buildUrl(queryStr, gl, hl, ceid);
         return fetchRssFeed(url, 30, region);
-      })
+      }),
     );
-    results.push(...chunkResults.flat());
+
+    chunk.forEach((item, idx) => {
+      const hit = chunkResults[idx].length > 0;
+      const isDynamic = !baseList.some(
+        (b) => b.keyword.toLowerCase() === item.keyword.toLowerCase(),
+      );
+      queryHits.push({ keyword: item.keyword, isDynamic, hit });
+    });
+
+    articles.push(...chunkResults.flat());
     const isLast = i + concurrency >= keywords.length;
     if (!isLast) await sleep(delayMs);
   }
-  return results;
+
+  return { articles, queryHits };
 }
 
 const parser = new Parser({
@@ -166,8 +183,8 @@ function prepareNewsForAI(newsList, maxPerRegion = 20, blacklist = null) {
   console.log(`📰 排除來源後: ${filteredBySource.length} 筆`);
 
   const activePatterns = blacklist?.titleBlackListPatterns ?? [];
-  const titleFiltered = filteredBySource.filter((news) =>
-    !activePatterns.some((pattern) => pattern.test(news.title))
+  const titleFiltered = filteredBySource.filter(
+    (news) => !activePatterns.some((pattern) => pattern.test(news.title)),
   );
   console.log(`📰 標題黑名單過濾後: ${titleFiltered.length} 筆`);
 
@@ -180,7 +197,7 @@ function prepareNewsForAI(newsList, maxPerRegion = 20, blacklist = null) {
   console.log(`📰 來源去重後: ${dedupedBySource.length} 筆`);
 
   const filteredByTitleLength = dedupedBySource.filter(
-    (news) => !isTitleTooShort(news.title)
+    (news) => !isTitleTooShort(news.title),
   );
   console.log(`📰 標題長度篩選後: ${filteredByTitleLength.length} 筆`);
 
@@ -194,18 +211,47 @@ function prepareNewsForAI(newsList, maxPerRegion = 20, blacklist = null) {
   console.log(`📰 標題去重後: ${dedupedByTitle.length} 筆`);
 
   const sorted = dedupedByTitle.sort(
-    (a, b) => new Date(b.pubDate) - new Date(a.pubDate)
+    (a, b) => new Date(b.pubDate) - new Date(a.pubDate),
   );
 
-  const twNews = sorted.filter((n) => n._region === "TW").slice(0, maxPerRegion);
-  const usNews = sorted.filter((n) => n._region === "US").slice(0, maxPerRegion);
+  const twNews = sorted
+    .filter((n) => n._region === "TW")
+    .slice(0, maxPerRegion);
+  const usNews = sorted
+    .filter((n) => n._region === "US")
+    .slice(0, maxPerRegion);
 
   return [...twNews, ...usNews];
 }
 
 /**
+ * 計算 queryHits 陣列的良率指標
+ * @param {Array<{keyword:string, isDynamic:boolean, hit:boolean}>} queryHits
+ * @returns {{ keywordYieldRate, dynamicKeywordYieldRate, totalQueryCount,
+ *             dynamicQueryCount, matchedQueryCount, dynamicMatchedQueryCount }}
+ */
+function calcYieldMetrics(queryHits) {
+  const total = queryHits.length;
+  const matched = queryHits.filter((q) => q.hit).length;
+
+  const dynamicHits = queryHits.filter((q) => q.isDynamic);
+  const dynamicTotal = dynamicHits.length;
+  const dynamicMatched = dynamicHits.filter((q) => q.hit).length;
+
+  return {
+    keywordYieldRate: total > 0 ? matched / total : 0,
+    dynamicKeywordYieldRate: dynamicTotal > 0 ? dynamicMatched / dynamicTotal : 0,
+    totalQueryCount: total,
+    dynamicQueryCount: dynamicTotal,
+    matchedQueryCount: matched,
+    dynamicMatchedQueryCount: dynamicMatched,
+  };
+}
+
+/**
  * 新聞採集管線專用：抓取 RSS 原始新聞並完成品質篩選
  * 由 runNewsFetch.mjs 呼叫，結果寫入 newsPoolManager
+ * @returns {{ articles: object[], metrics: object }}
  */
 export async function getRawNews({ twQueries, usQueries }) {
   const blacklist = await loadBlacklist();
@@ -219,18 +265,19 @@ export async function getRawNews({ twQueries, usQueries }) {
     `🔍 [Keywords] US: ${mergedUS.length} 組（靜態 ${baseUsQueries.length} + 動態 ${mergedUS.length - baseUsQueries.length}）`,
   );
 
-  const [rawTwNews, rawUsNews] = await Promise.all([
-    fetchBatchedByKeywords(mergedTW, "TW", twExcludeKeywords),
-    fetchBatchedByKeywords(mergedUS, "US", usExcludeKeywords),
+  const [twResult, usResult] = await Promise.all([
+    fetchBatchedByKeywords(mergedTW, "TW", twExcludeKeywords, baseTwQueries),
+    fetchBatchedByKeywords(mergedUS, "US", usExcludeKeywords, baseUsQueries),
   ]);
 
-  const allRawNews = [...rawTwNews, ...rawUsNews];
+  const allRawNews = [...twResult.articles, ...usResult.articles];
+  const allQueryHits = [...twResult.queryHits, ...usResult.queryHits];
   console.log(`📰 總共抓取 ${allRawNews.length} 則新聞`);
 
   let filteredNews = prepareNewsForAI(allRawNews, 20, blacklist);
   console.log(
     `📰 篩選結果: ${allRawNews.length} 筆 → ${filteredNews.length} 筆` +
-    `（排除 ${allRawNews.length - filteredNews.length} 筆）`,
+      `（排除 ${allRawNews.length - filteredNews.length} 筆）`,
   );
 
   let fallbackTriggered = false;
@@ -240,10 +287,24 @@ export async function getRawNews({ twQueries, usQueries }) {
     );
     fallbackTriggered = true;
     const [fbTw, fbUs] = await Promise.all([
-      fetchBatchedByKeywords(baseTwQueries, "TW", twExcludeKeywords),
-      fetchBatchedByKeywords(baseUsQueries, "US", usExcludeKeywords),
+      fetchBatchedByKeywords(
+        baseTwQueries,
+        "TW",
+        twExcludeKeywords,
+        baseTwQueries,
+      ),
+      fetchBatchedByKeywords(
+        baseUsQueries,
+        "US",
+        usExcludeKeywords,
+        baseUsQueries,
+      ),
     ]);
-    filteredNews = prepareNewsForAI([...fbTw, ...fbUs], 20, blacklist);
+    filteredNews = prepareNewsForAI(
+      [...fbTw.articles, ...fbUs.articles],
+      20,
+      blacklist,
+    );
     console.log(`🔄 [Fallback] 靜態池結果: ${filteredNews.length} 筆`);
   }
 
@@ -262,7 +323,15 @@ export async function getRawNews({ twQueries, usQueries }) {
     ),
   ]);
 
-  return filteredNews;
+  const metrics = calcYieldMetrics(allQueryHits);
+  console.log(
+    `📊 [YieldRate] 整體: ${(metrics.keywordYieldRate * 100).toFixed(1)}%` +
+      ` (${metrics.matchedQueryCount}/${metrics.totalQueryCount})` +
+      ` | 動態: ${(metrics.dynamicKeywordYieldRate * 100).toFixed(1)}%` +
+      ` (${metrics.dynamicMatchedQueryCount}/${metrics.dynamicQueryCount})`,
+  );
+
+  return { articles: filteredNews, metrics };
 }
 
 /**
@@ -272,7 +341,6 @@ export async function getRawNews({ twQueries, usQueries }) {
 export async function getNewsTelegramMessages() {
   console.log("📰 [NewsTelegram] 從 news pool 讀取新聞並進行 AI 過濾...");
 
-  // 從 pool 讀取新聞（含 fallback 機制）
   const { articles, meta, isFallback } = await loadPoolWithFallback();
 
   if (isFallback) {
@@ -289,10 +357,9 @@ export async function getNewsTelegramMessages() {
 
   console.log(`📰 [NewsTelegram] pool 共 ${articles.length} 篇，送入 AI 過濾`);
 
-  // AI 過濾（傳入 pool last_updated 供回存 filtered pool 使用）
   const processedNews = await filterAndCategorizeAllNewsWithAI(
     articles,
-    meta?.last_updated
+    meta?.last_updated,
   );
 
   if (processedNews.length === 0) {
@@ -302,7 +369,6 @@ export async function getNewsTelegramMessages() {
     };
   }
 
-  // 分組 (GroupBy Region)
   const groupedNews = processedNews.reduce(
     (acc, current) => {
       const region = current._region;
@@ -313,7 +379,6 @@ export async function getNewsTelegramMessages() {
     { TW: [], US: [] },
   );
 
-  // 排版 Telegram 訊息
   const todayStr = TwDate().formatDateKey();
 
   const buildSection = (newsList, sectionTitle) => {
@@ -342,8 +407,10 @@ export async function getNewsTelegramMessages() {
   const msgTextGLOBAL = buildSection(groupedNews["US"], "🌎 國際總經與趨勢");
 
   const messagesToSend = [];
-  if (msgTextTW) messagesToSend.push({ text: msgTextTW, disable_notification: true });
-  if (msgTextGLOBAL) messagesToSend.push({ text: msgTextGLOBAL, disable_notification: true });
+  if (msgTextTW)
+    messagesToSend.push({ text: msgTextTW, disable_notification: true });
+  if (msgTextGLOBAL)
+    messagesToSend.push({ text: msgTextGLOBAL, disable_notification: true });
 
   if (messagesToSend.length === 0) {
     return {
