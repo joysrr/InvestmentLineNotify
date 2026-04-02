@@ -1,4 +1,8 @@
 import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
+import {
+  JUDGE_RESULT_SCHEMA,
+  JUDGE_CONFIG,
+} from "./prompts.mjs";
 
 // ── 觸發策略 ─────────────────────────────────────────────────────────────────
 
@@ -55,19 +59,19 @@ export async function runJudge(adviceTraceId, adviceObj, sessionId) {
   }
 
   const judgeInput = JSON.stringify({
-    action_items: adviceObj.action_items ?? [],
-    risk_warnings: adviceObj.risk_warnings ?? [],
+    action_items:   adviceObj.action_items   ?? [],
+    risk_warnings:  adviceObj.risk_warnings  ?? [],
     mindset_advice: adviceObj.mindset_advice ?? [],
   });
 
   const tasks = [
     {
       promptName: "JudgeActionability",
-      scoreName: "Actionability",
+      scoreName:  "Actionability",
     },
     {
       promptName: "JudgeToneAndEmpathy",
-      scoreName: "Tone_and_Empathy",
+      scoreName:  "Tone_and_Empathy",
     },
   ];
 
@@ -77,31 +81,35 @@ export async function runJudge(adviceTraceId, adviceObj, sessionId) {
 
       const { text } = await callAI(promptName, judgeInput, {
         sessionId,
-        provider: PROVIDERS.GEMINI,
-        keyIndex: 2,
+        provider:       PROVIDERS.GEMINI,
+        keyIndex:       2,
+        // Schema 控制輸出結構，保證 score(number) + reason(string) 欄位存在
+        responseSchema: JUDGE_RESULT_SCHEMA,
+        // 覆寫 responseMimeType / temperature / maxOutputTokens
+        ...JUDGE_CONFIG,
       });
 
-      // Judge prompt 預期回傳 { score: number (0~1), reason: string }
+      // schema 已保證結構，直接解析；score 型別由 Gemini 保證為 number
       const judgeResult = JSON.parse(text);
       const score = Number(judgeResult.score);
 
       if (!Number.isFinite(score) || score < 0 || score > 1) {
         console.warn(
-          `⚠️ [LLMJudge] ${scoreName} 回傳的 score 無效: ${judgeResult.score}`,
+          `⚠️ [LLMJudge] ${scoreName} score 超出範圍: ${judgeResult.score}`,
         );
         continue;
       }
 
       await safeLangfuseScore({
         traceId: adviceTraceId,
-        name: scoreName,
-        value: score,
+        name:    scoreName,
+        value:   score,
         comment: judgeResult.reason ?? "",
       });
 
       console.log(
         `✅ [LLMJudge] ${scoreName} = ${score.toFixed(2)}` +
-          (judgeResult.reason ? ` | ${judgeResult.reason.slice(0, 80)}` : ""),
+        (judgeResult.reason ? ` | ${judgeResult.reason.slice(0, 80)}` : ""),
       );
     } catch (err) {
       console.warn(`⚠️ [LLMJudge] ${scoreName} Judge 執行失敗:`, err.message);

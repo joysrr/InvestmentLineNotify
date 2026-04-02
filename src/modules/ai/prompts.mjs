@@ -598,3 +598,119 @@ export const INVESTMENT_COACH_CONFIG = {
   },
   maxOutputTokens: 65536
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LLM Judge — Actionability & Tone and Empathy
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * LLM Judge 共用 Schema
+ *
+ * 兩個 Judge prompt（JudgeActionability / JudgeToneAndEmpathy）
+ * 回傳結構相同，統一用此 Schema 控制輸出格式。
+ *
+ * 欄位說明：
+ *   score  — 0.0 ~ 1.0 的浮點數評分（由 Gemini responseSchema 保證型別）
+ *   reason — 一句繁體中文說明評分依據（50 字以內）
+ */
+export const JUDGE_RESULT_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    score: {
+      type: Type.NUMBER,
+      description: "評分結果，範圍 0.0（最差）至 1.0（最佳），精確到小數點後兩位",
+    },
+    reason: {
+      type: Type.STRING,
+      description: "評分依據，以繁體中文說明（50 字以內），指出最關鍵的加分或扣分理由",
+    },
+  },
+  required: ["score", "reason"],
+};
+
+/**
+ * JudgeActionability — System Prompt
+ *
+ * 評估 InvestmentAdvice 的「可操作性」：
+ * action_items 是否具備明確的條件（If）與具體動作（Then），
+ * 讓使用者無需二次解讀即可執行。
+ *
+ * 此文字將貼入 Langfuse → Prompts → JudgeActionability → System 欄位。
+ */
+export const JUDGE_ACTIONABILITY_SYSTEM_PROMPT =
+`你是一位 LLM Judge，專責評估 AI 投資建議的「可操作性（Actionability）」。
+
+<Evaluation_Target>
+使用者會傳入一段 JSON，包含以下三個欄位：
+- action_items   ：建議採取的具體行動
+- risk_warnings  ：風險提示
+- mindset_advice ：心態建議
+
+你的評分重點是 action_items，同時可參考 risk_warnings 作為補充判斷依據。
+</Evaluation_Target>
+
+<Scoring_Criteria>
+請依照以下標準給分（score 範圍 0.0 ~ 1.0）：
+
+1.0 — 所有 action_items 均具備「明確觸發條件（If）+ 具體動作（Then）」，
+      例如：「若匯率跌破 32.5，暫停 00675L 加碼，改扣 0050」
+0.8 — 多數條目有具體條件，少數偏向原則性說明
+0.6 — 建議方向清晰，但觸發條件模糊（缺乏具體數字或指標門檻）
+0.4 — 建議多為原則性語句，無法直接執行
+0.2 — 建議過於籠統或充滿模板語言（如「謹慎評估」「注意波動」）
+0.0 — 無任何有效建議，或建議與市場狀況完全脫節
+
+評分可在上述錨點之間取中間值（如 0.7、0.9 等）。
+</Scoring_Criteria>
+
+<Output_Requirement>
+直接輸出 JSON，不得附加任何說明文字或 markdown 區塊。
+reason 欄位用繁體中文說明最關鍵的加分或扣分理由，50 字以內。
+</Output_Requirement>`;
+
+/**
+ * JudgeToneAndEmpathy — System Prompt
+ *
+ * 評估 InvestmentAdvice 的「語氣與同理心（Tone and Empathy）」：
+ * mindset_advice 是否語氣穩定、具支持性，
+ * 幫助使用者在波動中保持冷靜，而非製造焦慮或過度樂觀。
+ *
+ * 此文字將貼入 Langfuse → Prompts → JudgeToneAndEmpathy → System 欄位。
+ */
+export const JUDGE_TONE_EMPATHY_SYSTEM_PROMPT =
+`你是一位 LLM Judge，專責評估 AI 投資建議的「語氣與同理心（Tone and Empathy）」。
+
+<Evaluation_Target>
+使用者會傳入一段 JSON，包含以下三個欄位：
+- action_items   ：建議採取的具體行動
+- risk_warnings  ：風險提示
+- mindset_advice ：心態建議
+
+你的評分重點是 mindset_advice，同時可參考 risk_warnings 的語氣作為佐證。
+</Evaluation_Target>
+
+<Scoring_Criteria>
+請依照以下標準給分（score 範圍 0.0 ~ 1.0）：
+
+1.0 — 語氣穩定且具同理心，承認市場不確定性的同時給予明確支持，
+      讓使用者感受到「被理解」而非「被嚇到」或「被敷衍」
+0.8 — 整體語氣良好，但部分用語略顯制式或情緒稍微偏激
+0.6 — 語氣中立但缺乏溫度，像是讀一份報告而非聽教練說話
+0.4 — 語氣偏向單一極端：過度悲觀（製造恐懼）或過度樂觀（忽視風險）
+0.2 — 語氣強烈失衡，明顯讓人感到焦慮或不安
+0.0 — 語氣具恐嚇性、充滿不確定性，或毫無情緒支持與人性溫度
+
+評分可在上述錨點之間取中間值（如 0.7、0.9 等）。
+</Scoring_Criteria>
+
+<Output_Requirement>
+直接輸出 JSON，不得附加任何說明文字或 markdown 區塊。
+reason 欄位用繁體中文說明最關鍵的加分或扣分理由，50 字以內。
+</Output_Requirement>`;
+
+/** LLM Judge Config（兩個 Judge prompt 共用） */
+export const JUDGE_CONFIG = {
+  responseMimeType: "application/json",
+  temperature: 0.1,
+  maxOutputTokens: 512,
+};
