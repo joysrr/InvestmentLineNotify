@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-04-02T05:45:30.112Z",
+  "_savedAt": "2026-04-02T14:36:57.503Z",
   "type": "NewsFilter",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 中鋼19元有撐！外資狂買1.8萬張 達人撿200張老實說「長期存股不如這2檔官股銀」 - 旺得富理財網\n[ID: 1] [TW] 標題: 快訊／台股收盤跌602.39點　台積電跌45元至1810 - ETtoday財經雲\n[ID: 2] [TW] 標題: 中東情勢中央七作為因應！大眾運輸不漲價 - PChome Online 新聞\n[ID: 3] [TW] 標題: 荷姆茲海峽天價過路費！ 每艘喊價6400萬新台幣 - 華視新聞網\n[ID: 4] [TW] 標題: 日央行前經濟學家：本月有可能加息- 有線寬頻i-CABLE - i-cable.com\n[ID: 5] [TW] 標題: 欣興出關+美系外資調高目標價 股價逆勢上漲、貢獻大盤最多漲點 - 聯合新聞網\n[ID: 6] [TW] 標題: 油價、通膨夾擊4成上市櫃表現勝大盤台中銀揭選股秘訣- 理財 - 工商時報\n[ID: 7] [TW] 標題: 中國央行對流動性投放周期按下暫停鍵 為後續政策發力保留彈藥 - Yahoo 財經\n[ID: 8] [TW] 標題: 川普談話再掀波瀾！台股跌逾500點、新台幣一度貶回32字頭 - tw.news.yahoo.com\n[ID: 9] [TW] 標題: 印度盧比料將上漲 央行加緊力度打擊投機交易 - Yahoo 財經\n[ID: 10] [TW] 標題: 通膨疑慮...美房貸利率衝上6.57%創8月來新高- 新聞 - MoneyDJ理財網\n[ID: 11] [TW] 標題: 台股嚇崩！午盤大跌逾400點 台積電跌35元 - tw.news.yahoo.com\n[ID: 12] [TW] 標題: 新台幣午盤貶2.4分 暫收31.973元 - 經濟日報\n[ID: 13] [TW] 標題: 花蓮旅服中心前移車站出口 優化動線提升觀光能量 - chinatimes.com\n[ID: 14] [TW] 標題: AI基礎建設恐推升通膨 德意志銀行研究駁斥市場樂觀預期 - Yahoo股市\n[ID: 15] [TW] 標題: 能源價格波動與通膨壓力加劇 台北「張老師」 籲關注自我心理健康 - MSN\n[ID: 16] [TW] 標題: 黨刊籲減少貿易順差 分析： 北京重視貿易夥伴關切 - MSN\n[ID: 17] [TW] 標題: 台股跌1萬點我會笑出來！他從低收入戶翻身賺1億、靠金融股年領500萬股息：肥羊派「10%+2%」抄底時機曝光 - 今周刊\n[ID: 18] [TW] 標題: 伊朗開嗆川普演講「講話沒信用讓股市暴跌」；野村警告未見明確訊息，亞洲央行恐升息防禦 - 動區動趨\n[ID: 19] [TW] 標題: 通膨巨獸+政策現微光　為何「回防市中心」成為2026年資產最優解方？ - ETtoday房產雲\n[ID: 20] [US] 標題: Telangana CPI(M) secretary slams CM for remark on Vijayan - siasat.com\n[ID: 21] [US] 標題: KKR vs SRH Playing 11, IPL 2026 Today Match: Will Rovman Powell get a look in for Kolkata against Sunrisers Hyderabad? - The Indian Express\n[ID: 22] [US] 標題: In March, South Korea’s annual CPI rose 2.2%, undershooting the 2.4% economists had anticipated - VT Markets\n[ID: 23] [US] 標題: Iranian missiles slam Haifa oil refinery, contradicting U.S. claims - Business Upturn\n[ID: 24] [US] 標題: KOSPI Reclaims 5550 Mark; Won-Dollar Rate Starts with 10 Won Rebound - Businesskorea\n[ID: 25] [US] 標題: Yields spike as Trump offers no respite for inflation fears - TradingView\n[ID: 26] [US] 標題: TMC, CPI-M candidates show bonhomie during campaigning at Pandua - The Statesman\n[ID: 27] [US] 標題: Pre-school costs to rise for Anderson County - pmg-ky1.com\n[ID: 28] [US] 標題: Fact Check: How Much Oil Does the US Import Through Strait of Hormuz? Trump’s ‘Almost No Oil’ Claim Examined Amid Rising Global Oil Prices - sundayguardianlive.com\n[ID: 29] [US] 標題: Tamil Nadu polls 2026: For 1st time in 74 years, CPI & CPM left seatless in Kovai - The Times of India\n[ID: 30] [US] 標題: Nasdaq 100 ETF (QQQ) Elliott Wave signals end of correction, path higher opens [Video] - FXStreet\n[ID: 31] [US] 標題: Rupee rebounds from record low; gains 1.6 pc to 93.19 against US dollar - The New Indian Express\n[ID: 32] [US] 標題: Dow Jones futures rise, oil prices above $100; Trump hails 'great progress' in Iran talks, issues threats - MSN\n[ID: 33] [US] 標題: Broadcom: The Moat Still Holds (NASDAQ:AVGO) - Seeking Alpha\n[ID: 34] [US] 標題: Asian Currencies Weaken as Dollar Rebounds Amid Middle East Escalation - econotimes.com\n[ID: 35] [US] 標題: The “Dow Jones Activist Wave” Gains Momentum: Why America’s Most Iconic Companies Are No Longer Untouchable - HedgeCo.Net\n[ID: 36] [US] 標題: Bitcoin breaks from M2 money supply as dollar strength overrides global cash growth - MEXC\n[ID: 37] [US] 標題: Bitfarms' Pivot: A Liquidity-Driven Rebrand, Not a Mining Recovery - Bitget\n[ID: 38] [US] 標題: CPI, CPM slam Revanth over Modi–Vijayan remark - thehansindia.com\n[ID: 39] [US] 標題: SANGUINA SECURES FUNDING WHILE FEDERAL RESERVE TRACKS INFLATION EFFECTS FROM IRAN CONFLICT - Bitget</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] [age_band: fresh] 標題: 國安基金退場80天 護盤持股仍未賣完 皆因「台股震盪」 - 中時新聞網\n[ID: 1] [TW] [age_band: fresh] 標題: 新台幣周線翻黑市場憂清明連假後補貶- 其他 - wantrich.chinatimes.com\n[ID: 2] [TW] [age_band: fresh] 標題: 烏克蘭無人機打擊 俄羅斯石油出口受阻 減產壓力迫在眉睫 - news.cnyes.com\n[ID: 3] [TW] [age_band: fresh] 標題: 戰事變數再起！連假前夕周線翻黑 新台幣收31.972元 - taisounds.com\n[ID: 4] [TW] [age_band: fresh] 標題: 美銀:英國央行將先升息後降息,能源衝擊持續 作者 Investing.com - Investing.com 香港 - 股市報價& 財經新聞\n[ID: 5] [TW] [age_band: fresh] 標題: 全球被川普嚇趴！台股資金大逃殺，#內需股 成最大黑馬？｜豐雲學堂 2026 年 04 月 - sinotrade.com.tw\n[ID: 6] [TW] [age_band: fresh] 標題: 免稅房屋移轉他人財政部：移轉日次期起恢復課徵房屋稅| 財經焦點 - taisounds.com\n[ID: 7] [TW] [age_band: fresh] 標題: 川普講話讓台股「嚇跌」602點！三大法人狂捲373億元逃命 股民哀號：大媽才是追高殺低的 - Yahoo股市\n[ID: 8] [TW] [age_band: fresh] 標題: 台股震盪劇烈…國安基金例會13日登場聚焦國內外政經情勢| 財經焦點| 產經 - 聯合新聞網\n[ID: 9] [TW] [age_band: fresh] 標題: 國安基金4/13召開例會 持股尚未出清 - 自由財經\n[ID: 10] [TW] [age_band: fresh] 標題: 中東戰事引發瀝青缺料工程會發布履約指引| 財經焦點 - taisounds.com\n[ID: 11] [TW] [age_band: fresh] 標題: 荷莫茲衝擊塑膠通膨升溫 黃心華憂掀垃圾袋搶購潮 - Yahoo新聞\n[ID: 12] [TW] [age_band: fresh] 標題: 比李在明年薪高！尹錫悅看守所狂收12億 妻金建希也高居第二 - 民報\n[ID: 13] [TW] [age_band: fresh] 標題: 新台幣盤中貶破32元 央行調節收31.972元、週線翻黑 - Yahoo股市\n[ID: 14] [TW] [age_band: fresh] 標題: 外資賣超386.95億元 大砍ETF - MSN\n[ID: 15] [TW] [age_band: fresh] 標題: 特力 公告本公司一年內累積取得同一有價證券達新台幣三億元 - Yahoo股市\n[ID: 16] [TW] [age_band: fresh] 標題: 國安基金例會4/13登場 聚焦國內外政經情勢 - 經濟日報\n[ID: 17] [TW] [age_band: fresh] 標題: 台股今天上下震盪逾千點 國安基金宣布4/13開會 - taisounds.com\n[ID: 18] [TW] [age_band: fresh] 標題: 台股跌破3萬3能進場？他從低收入戶翻身賺近2億：川普製造利空、後面必有利多「金融股抄底時機曝光」 - 今周刊\n[ID: 19] [TW] [age_band: fresh] 標題: 國安基金例會4月13日召開　市場關注是否再次進場護盤 - NOWnews今日新聞\n[ID: 20] [US] [age_band: fresh] 標題: NANO Nuclear Energy Rings the Opening Bell - Nasdaq\n[ID: 21] [US] [age_band: fresh] 標題: Braiin Limited Rings the Closing Bell - Nasdaq\n[ID: 22] [US] [age_band: fresh] 標題: Charleroi officials fed up with condition of unfixed roads - Mon Valley Independent\n[ID: 23] [US] [age_band: fresh] 標題: In Thiruvananthapuram, CPI(M) mobilises ground force as BJP hunts for an opening - BusinessLine\n[ID: 24] [US] [age_band: fresh] 標題: Home-flipping profits haven't been this bad since the Great Recession — here's how to spot a winning flip - moneywise.com\n[ID: 25] [US] [age_band: fresh] 標題: Nasdaq set to fall as oil surges after Trump says we will 'hit Iran extremely hard' - Proactive financial news\n[ID: 26] [US] [age_band: fresh] 標題: Should You Buy Gold ETFs on Fed's Assurance? - Zacks Investment Research\n[ID: 27] [US] [age_band: fresh] 標題: Consumer Discretionary Stocks Q4 Highlights: Sonos (NASDAQ:SONO) - Yahoo Finance\n[ID: 28] [US] [age_band: fresh] 標題: Crypto’s wash trading problem is ‘far more common’ than investors think, DOJ sting shows - CoinDesk\n[ID: 29] [US] [age_band: fresh] 標題: Ballet North Texas is on point for Dallas Arts Month - KERA News\n[ID: 30] [US] [age_band: fresh] 標題: Michael Pearce: Inflation will be the first clear impact of the war - CNBC\n[ID: 31] [US] [age_band: fresh] 標題: Berhampore: CPI(M) Candidate Mahamadul Hasan Heads to File Nomination #Gallery - Social News XYZ\n[ID: 32] [US] [age_band: fresh] 標題: From Energy Shock to Global Recession - Energy Intelligence\n[ID: 33] [US] [age_band: fresh] 標題: Treasury Market Liquidity Since April 2025 - Liberty Street Economics\n[ID: 34] [US] [age_band: fresh] 標題: Block Street (BSB) - Base Bridge - 02 April 2026 - TradingView\n[ID: 35] [US] [age_band: fresh] 標題: Nasdaq gives CytoSorbents (NASDAQ: CTSO) more time on $1 bid rule - stocktitan.net\n[ID: 36] [US] [age_band: fresh] 標題: Private credit’s façade of liquidity is beginning to fracture - Investment & Pensions Europe\n[ID: 37] [US] [age_band: fresh] 標題: This tiny Alabama county had the state’s fastest growing economy in 2024: ‘We’re open for business’ - AL.com\n[ID: 38] [US] [age_band: fresh] 標題: UAE injects $8bn into banking system as liquidity falls - TheBanker.com\n[ID: 39] [US] [age_band: fresh] 標題: News A year of 'peak liquidity stress' ahead for forwarders, says OntegosCloud - The Loadstar\n[ID: 40] [TW] [age_band: fresh] 標題: CPO題材點火！「這面板股」獲三大法人搶購近20萬張 撒40.02億元連4天掃貨 - FTNN 新聞網\n[ID: 41] [TW] [age_band: fresh] 標題: 地緣政治與通膨助攻 黃金兩年翻倍分析師喊衝1萬美元 - 蕃新聞\n[ID: 42] [TW] [age_band: fresh] 標題: 伊朗戰事衝擊 外資拋售日股規模創2024年9月以來新高 - 鉅亨網\n[ID: 43] [TW] [age_band: fresh] 標題: 見獵心喜？白營嘲諷「民進黨又爆共諜」 留言區慘翻車「民眾黨共諜送立法院」 - 民視新聞網\n[ID: 44] [TW] [age_band: fresh] 標題: 伊拉克啟用敘利亞路線出口原油 - hkcna.hk\n[ID: 45] [TW] [age_band: fresh] 標題: 台股3月急跌10.4%…兩大基金平台投資人勇於加碼申購量創歷史新高| 股市要聞| 股市 - 聯合新聞網\n[ID: 46] [TW] [age_band: fresh] 標題: 〈台幣〉川普演說引發資金大逃竄 股匯雙挫驚險守住32元 - 鉅亨網\n[ID: 47] [TW] [age_band: fresh] 標題: 快新聞／不辦了！東海大學邀柯文哲演講挨轟 校方緊急喊卡：尊重社會意見 - 民視新聞網\n[ID: 48] [TW] [age_band: fresh] 標題: 台股變臉跌602點！高低點相差980 清明後面臨季線保衛戰 - Yahoo新聞\n[ID: 49] [TW] [age_band: fresh] 標題: 中東戰火延燒台股震盪 國安基金：持股尚未全數出清仍護盤 - tw.stock.yahoo.com\n[ID: 50] [TW] [age_band: fresh] 標題: 國安基金退場80天 護盤持股仍未賣完 皆因「台股震盪」 - tw.stock.yahoo.com\n[ID: 51] [TW] [age_band: fresh] 標題: 助傳產突圍 2028年製造業AI普及率拚五成 - 聯合新聞網\n[ID: 52] [TW] [age_band: fresh] 標題: 川普演說衝擊股匯！新台幣收31.972元 週線翻黑 - ec.ltn.com.tw\n[ID: 53] [TW] [age_band: fresh] 標題: 〈凱基金法說〉凱壽加碼台股策略奏效2025投報率近2成 TIS申請140%獲准超借 - news.cnyes.com\n[ID: 54] [TW] [age_band: fresh] 標題: 外資賣超台股807億 鴻海、 台積電入列賣最多前十個股 - MSN\n[ID: 55] [TW] [age_band: fresh] 標題: 外資狙殺! 大砍台股807億元 連4 個交易日賣超 - MSN\n[ID: 56] [TW] [age_band: fresh] 標題: 非先搶先贏！老宅延壽補助下月全台申請 採評分機制「6大加分項目」 - 聯合新聞網\n[ID: 57] [US] [age_band: fresh] 標題: Canada Net Trade Likely To Be a Negative For Q1 GDP, says CIBC - MarketScreener\n[ID: 58] [US] [age_band: fresh] 標題: US weekly jobless claims fall as layoffs remain low - MSN\n[ID: 59] [US] [age_band: fresh] 標題: Bank of England: Businesses sharply raise inflation expectations - MSN\n[ID: 60] [US] [age_band: fresh] 標題: ING analysts say risk-off sentiment has boosted the dollar amid Middle East tensions and Hormuz Strait uncertainty - VT Markets\n[ID: 61] [US] [age_band: fresh] 標題: Jobless claims total 202,000, below estimate - MSN\n[ID: 62] [US] [age_band: fresh] 標題: Decoy Therapeutics Regains Compliance with Nasdaq Minimum Bid Price Requirement - PR Newswire\n[ID: 63] [US] [age_band: fresh] 標題: U.S. Jobless Claims Fell Unexpectedly Last Week - WSJ\n[ID: 64] [US] [age_band: fresh] 標題: US: Initial Jobless Claims dropped to 202K last week - Mitrade\n[ID: 65] [US] [age_band: fresh] 標題: Nasdaq 100 Forecast: NDX slumps after Trump fuels Middle East escalation fears - City Index UK\n[ID: 66] [US] [age_band: fresh] 標題: Dollar surges after Trump vows more Iran strikes - Honolulu Star-Advertiser\n[ID: 67] [US] [age_band: fresh] 標題: Sekond Launches Free Liquidity Monitoring Tool for Wealth Advisors as Redemption Restrictions Increase Across Private Credit Funds - PR Newswire\n[ID: 68] [US] [age_band: fresh] 標題: US jobless aid filings fall to 202,000 as layoffs remain low despite uncertainty of Iran war - Newsday\n[ID: 69] [US] [age_band: fresh] 標題: The Dollar Index climbs above 100 as Trump dampens Iran peace hopes, boosting safe-haven demand - VT Markets\n[ID: 70] [US] [age_band: fresh] 標題: Following Trump’s national address, the US Dollar Index climbs towards 100.00 in early European trade - VT Markets\n[ID: 71] [US] [age_band: fresh] 標題: After Trump’s address, the US Dollar Index climbs towards 100.00 in early European trading hours - VT Markets\n[ID: 72] [US] [age_band: fresh] 標題: US Jobless Claims Fall to 202k, Labor Market Remains Tight - Action Forex\n[ID: 73] [US] [age_band: fresh] 標題: The best hedge against oil-based inflation shocks is oil itself, says UBS' Ulrike Hoffmann-Burchard - CNBC\n[ID: 74] [US] [age_band: fresh] 標題: Initial jobless claims unexpectedly fall in past week - Seeking Alpha\n[ID: 75] [US] [age_band: fresh] 標題: U.S. Initial Jobless Claims Fall, Surpassing Forecasts By Investing.com - Investing.com Canada\n[ID: 76] [US] [age_band: fresh] 標題: US Initial Jobless Claims Fell to 202,000 Last Week - Bloomberg.com</News_List>",
   "schema": {
     "type": "OBJECT",
     "description": "AI 思考過程與挑選結果",
@@ -129,39 +129,54 @@
     "think": {
       "event_inventory": [
         {
-          "event": "川普談話與地緣政治引發全球市場震盪",
+          "event": "川普對伊強硬言論引發全球市場震盪",
+          "count": 8,
+          "best_title": "Nasdaq set to fall as oil surges after Trump says we will 'hit Iran extremely hard'"
+        },
+        {
+          "event": "美國勞動力市場意外強勁",
+          "count": 9,
+          "best_title": "US Initial Jobless Claims Fell to 202,000 Last Week"
+        },
+        {
+          "event": "台股大跌與外資瘋狂提款",
+          "count": 7,
+          "best_title": "外資狙殺! 大砍台股807億元 連4 個交易日賣超"
+        },
+        {
+          "event": "國安基金例會與護盤動向",
+          "count": 6,
+          "best_title": "國安基金例會4/13登場 聚焦國內外政經情勢"
+        },
+        {
+          "event": "新台幣匯率貶值壓力與央行調節",
           "count": 5,
-          "best_title": "川普談話再掀波瀾！台股跌逾500點、新台幣一度貶回32字頭"
+          "best_title": "〈台幣〉川普演說引發資金大逃竄 股匯雙挫驚險守住32元"
         },
         {
-          "event": "中東衝突升級與能源價格飆漲",
+          "event": "能源衝擊與全球衰退風險",
           "count": 4,
-          "best_title": "Dow Jones futures rise, oil prices above $100; Trump hails 'great progress' in Iran talks, issues threats"
+          "best_title": "From Energy Shock to Global Recession"
         },
         {
-          "event": "台股大盤與權值股重挫",
-          "count": 3,
-          "best_title": "快訊／台股收盤跌602.39點 台積電跌45元至1810"
-        },
-        {
-          "event": "美債殖利率飆升與通膨擔憂",
-          "count": 3,
-          "best_title": "Yields spike as Trump offers no respite for inflation fears"
-        },
-        {
-          "event": "亞洲貨幣走弱與各國央行政策動向",
-          "count": 4,
-          "best_title": "Asian Currencies Weaken as Dollar Rebounds Amid Middle East Escalation"
-        },
-        {
-          "event": "AI 基礎建設對總體經濟的長期影響",
+          "event": "俄烏戰爭影響石油出口",
           "count": 1,
-          "best_title": "AI基礎建設恐推升通膨 德意志銀行研究駁斥市場樂觀預期"
+          "best_title": "烏克蘭無人機打擊 俄羅斯石油出口受阻 減產壓力迫在眉睫"
         },
         {
-          "event": "半導體權值股產業動態",
+          "event": "特定產業題材（CPO/面板）資金流入",
+          "count": 1,
+          "best_title": "CPO題材點火！「這面板股」獲三大法人搶購近20萬張"
+        },
+        {
+          "event": "英國通膨預期升溫",
           "count": 2,
-          "best_title": "Broadcom: The Moat Still Holds (NASDAQ:AVGO)"
+          "best_title": "Bank of England: Businesses sharply raise inflation expectations"
+        },
+        {
+          "event": "私人信貸市場流動性風險",
+          "count": 2,
+          "best_title": "Private credit’s façade of liquidity is beginning to fracture"
         }
       ],
       "dimension_check": {
@@ -173,83 +188,71 @@
       },
       "excluded": [
         {
-          "id": 0,
-          "reason": "理財教學存股建議"
-        },
-        {
-          "id": 6,
-          "reason": "單一銀行選股秘訣"
-        },
-        {
-          "id": 13,
-          "reason": "地方觀光動線優化"
+          "id": 12,
+          "reason": "韓國政治人物薪資，無關大盤"
         },
         {
           "id": 15,
-          "reason": "心理健康社會新聞"
+          "reason": "單一公司取得證券，影響力有限"
         },
         {
-          "id": 17,
-          "reason": "個人投資經驗分享"
+          "id": 29,
+          "reason": "地方藝術活動，無關經濟"
         },
         {
-          "id": 21,
-          "reason": "體育賽事新聞"
+          "id": 43,
+          "reason": "國內政黨口水戰，無關市場"
         },
         {
-          "id": 37,
-          "reason": "單一小公司品牌重塑"
+          "id": 47,
+          "reason": "校園演講取消，無關市場"
+        },
+        {
+          "id": 56,
+          "reason": "民生補助政策，非總經重點"
         }
       ]
     },
     "news": [
       {
-        "id": 8,
-        "summary": "川普針對地緣政治與貿易政策的談話引發市場劇烈波動，台股應聲重挫逾 500 點，新台幣匯率一度貶破 32 元大關。此事件顯示政治不確定性正成為大盤短期內最大的下行風險，投資人需高度警惕資金撤出新興市場的趨勢。"
+        "id": 25,
+        "summary": "川普針對伊朗的強硬言論（宣稱將極其嚴厲地打擊伊朗）引發地緣政治風險急遽升溫，導致國際油價飆升並觸發全球避險情緒。此事件直接造成美股 Nasdaq 盤前重挫，並波及全球風險資產。對於槓桿投資者而言，需高度警惕能源價格波動引發的二次通膨風險，以及地緣政治變數對科技股估值的壓抑。"
       },
       {
-        "id": 23,
-        "summary": "伊朗飛彈擊中以色列海法煉油廠，直接衝擊中東能源供應鏈，反駁了美方先前關於局勢受控的說法。此軍事行動導致國際油價劇烈波動，若衝突擴大至荷姆茲海峽，將引發全球能源通膨，對 0050 等權值股構成成本端壓力。"
+        "id": 76,
+        "summary": "美國上週初次申領失業救濟金人數意外降至 20.2 萬人，低於市場預期，顯示勞動力市場依然極度緊繃。這項數據強化了聯準會（Fed）維持高利率更長時間（Higher for Longer）的立場，降低了短期內降息的可能性。強勁的就業數據支撐了美元指數走強，但也對債券市場與高估值科技股帶來持續的利率壓力。"
+      },
+      {
+        "id": 55,
+        "summary": "外資在台股市場展開大規模提款，連續四個交易日賣超，單日賣超金額高達 807 億元，重點狙殺鴻海、台積電等權值股。這種極端的資金流出反映了全球資金對台海局勢與美大選變數的擔憂。對於 0050 投資者而言，外資的連續性賣壓是短期內最大的下行風險，需觀察權值股何時止跌回穩。"
+      },
+      {
+        "id": 46,
+        "summary": "受川普演說與外資大舉撤離影響，新台幣匯率面臨劇烈貶值壓力，盤中一度貶破 32 元大關，儘管央行進場調節收在 31.972 元，但週線仍翻黑。匯市的劇烈波動反映了資金逃竄的真實路徑。台幣走弱雖有利於出口導向的半導體業，但若貶值速度過快，將引發更嚴重的外資撤資潮，形成股匯雙殺的惡性循環。"
+      },
+      {
+        "id": 16,
+        "summary": "國安基金宣布將於 4 月 13 日召開例會，市場高度關注其護盤動向。目前國安基金仍持有大量未出清持股，主因是台股近期震盪劇烈。在台股單日跌幅超過 600 點的背景下，國安基金的表態具有重要的心理支撐作用。投資人應關注例會後是否釋出「延長護盤」或「暫緩釋股」的訊號，這將是台股季線保衛戰的關鍵。"
+      },
+      {
+        "id": 2,
+        "summary": "烏克蘭無人機持續打擊俄羅斯煉油設施，導致俄羅斯石油出口受阻，減產壓力迫在眉睫。這與中東局勢形成共振，推升全球能源供應風險。能源價格的結構性上漲將直接推升運輸與製造業成本，對於台股中的傳產與航運股有直接影響，同時也加劇了全球通膨降溫的難度，影響 Fed 的政策路徑。"
       },
       {
         "id": 32,
-        "summary": "國際油價突破每桶 100 美元大關，川普對伊朗發出嚴厲威脅，地緣政治風險溢價迅速攀升。能源價格高漲將直接推升全球 CPI，壓縮各國央行降息空間，對科技股估值形成壓抑，並可能導致全球經濟陷入滯脹風險。"
+        "summary": "能源情報分析指出，全球經濟正處於從能源衝擊轉向全球衰退的臨界點。持續的高油價與高利率環境正侵蝕企業獲利與消費者購買力。對於量化策略而言，需開始增加防禦性資產配置，並關注經濟領先指標是否出現衰退訊號。若能源衝擊無法緩解，全球股市可能面臨從「通膨交易」轉向「衰退交易」的風格切換。"
       },
       {
-        "id": 1,
-        "summary": "台股單日收盤重挫 602.39 點，權王台積電大跌 45 元，顯示市場信心崩盤。台積電作為大盤風向球，其股價重挫反映了外資對半導體景氣與地緣政治的雙重擔憂，短期內台股將進入震盪築底期，槓桿型投資者應嚴控部位風險。"
+        "id": 40,
+        "summary": "在大盤重挫之際，CPO（共同封裝光學）題材逆勢突圍，特定面板股獲三大法人連四天掃貨近 20 萬張，金額達 40 億元。這顯示市場資金在恐慌中仍尋求具備 AI 實質貢獻的細分領域。對於追求超額報酬的投資者，這類具備產業巨變潛力的技術節點，是避開大盤系統性風險、進行結構性佈局的重要參考。"
       },
       {
-        "id": 25,
-        "summary": "美債殖利率因川普政策引發的通膨擔憂而飆升，市場預期未來財政支出增加將推升利率水平。高殖利率環境將吸引資金回流美元資產，對台股等新興市場流動性造成負面影響，並增加企業融資成本，壓抑成長股表現。"
+        "id": 59,
+        "summary": "英國央行調查顯示，企業大幅上調了通膨預期，這反映出全球通膨壓力具有高度黏性，並非僅限於美國。英國的通膨數據往往是全球通膨趨勢的先行指標之一。若各國通膨預期紛紛脫錨，將迫使全球央行同步維持緊縮政策，這對全球流動性環境極為不利，特別是對於高槓桿的投資策略將面臨更高的融資成本。"
       },
       {
-        "id": 34,
-        "summary": "受中東局勢升級影響，美元指數反彈導致亞洲貨幣集體走弱。日圓、韓元及新台幣的貶值壓力增加，可能迫使亞洲各國央行採取干預措施或提前升息以防禦匯率，這將進一步收緊區域流動性，不利於股市多頭續攻。"
-      },
-      {
-        "id": 4,
-        "summary": "日本央行前經濟學家預測本月可能加息，顯示日本貨幣政策正常化進程加速。日圓利差交易（Carry Trade）若大規模平倉，將引發全球資產價格劇烈波動，對台股外資動向具有高度指標意義，需密切關注日圓匯率走勢。"
-      },
-      {
-        "id": 33,
-        "summary": "半導體巨頭 Broadcom（博通）展現強大競爭護城河，其在 AI 網路晶片與客製化 ASIC 領域的領先地位穩固。作為全球半導體產業核心，其表現與台積電供應鏈息息相關，是評估 AI 產業是否進入泡沫化或持續成長的重要指標。"
-      },
-      {
-        "id": 14,
-        "summary": "德意志銀行研究指出，AI 基礎建設的大規模投入可能因能源與勞動力需求而推升長期通膨，駁斥了市場對 AI 立即提升生產力並降低物價的樂觀預期。這意味著高利率環境可能比預期更久，對長期投資策略具有深遠影響。"
-      },
-      {
-        "id": 10,
-        "summary": "美國 30 年期房貸利率衝上 6.57% 創八月以來新高，反映市場對通膨回升的恐懼。房地產市場降溫將影響美國內需消費，進而影響台灣電子產品出口需求，是觀察美國總體經濟韌性與 Fed 政策轉向的重要微觀數據。"
-      },
-      {
-        "id": 7,
-        "summary": "中國央行暫停流動性投放，顯示其政策轉向謹慎，旨在為後續可能的經濟衝擊保留政策彈藥。作為台灣重要貿易夥伴，中國流動性收縮可能影響中概股及相關傳產供應鏈，對台股大盤形成間接的資金面壓力。"
-      },
-      {
-        "id": 5,
-        "summary": "欣興受美系外資調高目標價激勵，股價逆勢上漲並貢獻大盤漲點。在市場大跌之際，ABF 載板龍頭的強勢表現顯示 AI 伺服器需求依然強勁，為半導體下游封裝與 PCB 產業提供了一定程度的支撐力道。"
+        "id": 36,
+        "summary": "私人信貸市場的流動性假象開始破裂，隨著贖回限制增加，該領域的壓力正逐步顯現。私人信貸作為近年來重要的影子銀行資金來源，其流動性枯竭可能引發連鎖反應，影響企業融資與併購活動。量化經理人需警惕這種隱藏在公開市場之外的信用風險，因為它往往是金融危機爆發的潛在導火線。"
       }
     ]
   }

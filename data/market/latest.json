@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "lastRun": "2026-04-02T07:49:36.160Z",
+    "lastRun": "2026-04-02T14:36:10.101Z",
     "sources": {
       "cnnProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-01T14:46:37.797Z"
+        "lastFetch": "2026-04-02T14:36:10.101Z"
       },
       "usMarketProvider": {
         "status": "SUCCESS",
@@ -12,11 +12,11 @@
       },
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-02T07:49:36.160Z"
+        "lastFetch": "2026-04-02T14:36:10.101Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-01T14:46:37.797Z"
+        "lastFetch": "2026-04-02T14:36:10.101Z"
       },
       "ndcProvider": {
         "status": "SUCCESS",
@@ -34,21 +34,6 @@
       "score": 40,
       "light": "紅燈 (過熱)",
       "lightColor": "red"
-    },
-    "rawMargin": {
-      "marginBalance100M": 3849.08,
-      "marginBalanceChange100M": 31.83,
-      "maintenanceRatio": 174,
-      "date": "2026/04/01"
-    },
-    "rawCnn": {
-      "score": 16.14,
-      "rating": "extreme fear",
-      "previousClose": 14.71,
-      "previous1Week": 18.19,
-      "previous1Month": 41.17,
-      "previous1Year": 19.57,
-      "timestamp": "2026-04-01T14:42:01.000Z"
     },
     "rawUsMarket": {
       "success": true,
@@ -77,9 +62,9 @@
       "source": "zenquotes"
     },
     "rawFx": {
-      "currentRate": 31.964,
+      "currentRate": 31.946,
       "previousClose": 31.375,
-      "changePercent": 1.88,
+      "changePercent": 1.82,
       "historicalPrices": [
         31.375,
         31.535,
@@ -104,8 +89,23 @@
         31.977,
         32.039,
         31.9379,
-        31.964
+        31.946
       ]
+    },
+    "rawCnn": {
+      "score": 13.66,
+      "rating": "extreme fear",
+      "previousClose": 15.71,
+      "previous1Week": 14.92,
+      "previous1Month": 34.29,
+      "previous1Year": 22.6,
+      "timestamp": "2026-04-02T14:34:03.000Z"
+    },
+    "rawMargin": {
+      "marginBalance100M": 3852.01,
+      "marginBalanceChange100M": -7.07,
+      "maintenanceRatio": 170.83,
+      "date": "2026/04/02"
     }
   }
 }
