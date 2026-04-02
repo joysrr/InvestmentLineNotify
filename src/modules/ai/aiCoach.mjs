@@ -1,4 +1,4 @@
-import { callGemini } from "./aiClient.mjs";
+import { callAI } from "./aiClient.mjs";
 import { formatQuantDataForCoach } from "./aiDataPreprocessor.mjs";
 import { baseTwQueries, baseUsQueries } from "../keywordConfig.mjs";
 import {
@@ -28,7 +28,7 @@ export async function generateDailySearchQueries(marketData) {
   const prompt = buildNewsKeyWorkPrompt(todayStr, marketData, staticPoolText);
 
   try {
-    const rawJson = await callGemini("GenerateSearchQueries", prompt, {
+    const { rawJson, traceId } = await callAI("GenerateSearchQueries", prompt, {
       sessionId,
       keyIndex: 0,
       responseSchema: NEWS_KEYWORD_SCHEMA,
@@ -65,7 +65,7 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
   const userPrompt = buildNewsUserPrompt(newsListText);
 
   try {
-    const rawJsonText = await callGemini(
+    const { rawJsonText, traceId } = await callAI(
       "FilterAndCategorizeNews",
       userPrompt,
       {
@@ -114,7 +114,7 @@ export async function analyzeMacroNewsWithAI(todayNewsText) {
   const userPrompt = buildMacroAnalysisUserPrompt(todayStr, todayNewsText);
 
   try {
-    const rawJson = await callGemini("AnalyzeMacroNews", userPrompt, {
+    const { rawJson, traceId } = await callAI("AnalyzeMacroNews", userPrompt, {
       sessionId,
       keyIndex: 2,
       responseSchema: MACRO_ANALYSIS_SCHEMA,
@@ -178,7 +178,7 @@ export async function getAiInvestmentAdvice(
   );
 
   try {
-    const result = await callGemini("InvestmentAdvice", userPrompt, {
+    const { result, traceId } = await callAI("InvestmentAdvice", userPrompt, {
       sessionId,
       keyIndex: 0,
       responseSchema: INVESTMENT_COACH_SCHEMA,

@@ -1,12 +1,12 @@
 import "dotenv/config";
-import { listAllModels } from "../modules/ai/aiClient.mjs";
+import { listAllModels, PROVIDERS } from "../modules/ai/aiClient.mjs";
 import { getDailyQuote } from "../modules/providers/quoteProvider.mjs";
 import { fetchUsMarketData } from "../modules/providers/usMarketProvider.mjs";
 import { getRawNews } from "../modules/newsFetcher.mjs";
 import { fetchMarketValuation } from "../modules/providers/twseProvider.mjs";
-import { fetchBusinessIndicator } from "../modules/providers/ndcProvider.mjs";
+//import { fetchBusinessIndicator } from "../modules/providers/ndcProvider.mjs";
 
-//listAllModels();
+listAllModels(PROVIDERS.GROK);
 
 //getDailyQuote().then((quote) => {
 //  console.log("今日名言：", quote);
@@ -16,9 +16,11 @@ import { fetchBusinessIndicator } from "../modules/providers/ndcProvider.mjs";
 //  console.log("美股市場資料：", data);
 //});
 
+/*
 fetchBusinessIndicator().then((data) => {
   console.log("景氣燈號：", data);
 });
+*/
 
 /*
 fetchMarketValuation().then((data) => {
