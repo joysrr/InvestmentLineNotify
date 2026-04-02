@@ -7,7 +7,7 @@
 2. **狀態繼承**：透過讀取個人的 Google Sheets 獲取昨天的持股狀態與借貸金額。
 3. **並行採集與快取**：跨網抓取台股/美股報價、各項總經指標 (CNN恐懼貪婪、國發會景氣、大盤融資) 與財經新聞。為避免觸發 API Rate Limit，全面利用本地端 `data/` 資料夾進行快取與生命週期管理。
 4. **量化與防護計算**：策略引擎轉換技術指標 (RSI/MACD/KD)，並加入嚴格的風控邏輯（如：維持率斷頭警告、乖離率過熱、冷卻期限制、極端恐慌破冰）。
-5. **AI 大腦推演**：透過多金鑰輪詢呼叫 Google Gemini 模型，執行「新聞降噪過濾」、「總經多空對決對決」與「教練擬人化建議」。
+5. **AI 大腦推演**：透過多金鑰輪詢呼叫 Google Gemini 模型，由四個串聯 Agent（新聞關鍵字產生器 → 雜訊過濾器 → 總經多空分析師 → 戰報洞察教練）執行完整 AI 決策管線，並由背景治理 Agent（規則優化器）持續維護新聞治理品質。全程透過 Langfuse 進行可觀測性追蹤與品質評分回寫。
 6. **推播與歸檔**：將枯燥的 JSON 數據轉換為好讀的 Telegram 分段 HTML 戰報推播給使用者，最後將今日所有決策記錄寫回 Google Sheets，並把日誌歸檔於本地 `data/` 供日後覆盤。
 
 ---
@@ -31,7 +31,7 @@ flowchart TD
     end
 
     subgraph Intelligence [決策與大腦層]
-        AI[AI Pipeline\nGemini 多空分析與投資教練]
+        AI[AI Pipeline\nGemini 多 Agent 決策管線\n含 Langfuse 可觀測性與品質評分]
     end
 
     subgraph Output [輸出層]
@@ -65,7 +65,7 @@ flowchart TD
 | :--- | :--- | :--- |
 | `src/modules/providers/` | **數據提供者** | 封裝第三方 API 的髒邏輯（如 TWSE 的 IPv6 解析跳過、CNN 的 Cookie 偽裝）。統一由 `marketData.mjs` 負責平行調度。 |
 | `src/modules/strategy/` | **量化策略引擎** | 計算 TA-Lib 技術指標的 `indicators.mjs`，以及匯總維持率風險、乖離率過熱與冷卻期限制的決策中樞 `strategyEngine.mjs`。 |
-| `src/modules/ai/` | **AI 決策管線** | 處理 Gemini API 呼叫的 `aiClient.mjs`（具備 Exponential Backoff 重試與 Langfuse 追蹤）；以及負責角色扮演（新聞過濾器、總經分析師、戰報教練）的 `aiCoach.mjs` 與 `prompts.mjs`。 |
+| `src/modules/ai/` | **AI 決策管線** | 負責整個 AI 決策流程的結構化輸出、可觀測性（Observability）與規則自我修正（Governance）。`aiClient.mjs` 提供共用 Gemini 呼叫入口，具備多金鑰輪詢、Exponential Backoff 重試與 Langfuse trace/generation 追蹤，並採最小解耦設計讓各呼叫方可自行補寫品質評分；`aiCoach.mjs` 串聯四個主決策 Agent（新聞關鍵字產生器 → 雜訊過濾器 → 總經多空分析師 → 戰報洞察教練），並於背景執行規則優化器（Rule Optimizer）以持續維護 blacklist 治理品質；`prompts.mjs` 定義各 Agent 的 Prompt Schema 與強制結構化輸出格式；`aiDataPreprocessor.mjs` 負責數據降維與語意化摘要以節約 token。評分定義詳見 `docs/langfuse-score-configs.md`，各 Agent 架構說明詳見 `docs/modules/ai_pipeline.md`。 |
 | `src/modules/notifications/` | **廣播與通知** | 將 JSON 資料格式化為具有表情符號、警告燈號與內聯按鈕的 `telegramHtmlBuilder.mjs`，並透過 `telegramClient.mjs` 分段靜默/有聲發送。 |
 | `src/modules/data/` | **檔案資料庫管理** | 包含 `archiveManager.mjs`，專門提供讀寫本地 `data/` 資料夾的介面，並具備自動清理過期檔案（保留30天）的機制。 |
 | `src/utils/` | **底層共用工具** | 提供全域的時間類別 `TwDate`、防呆解析器 `parseNumberOrNull` 以及處理 API 超時的防護殼 `fetchWithTimeout`。 |
