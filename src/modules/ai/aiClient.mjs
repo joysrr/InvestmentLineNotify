@@ -39,10 +39,58 @@ export const langfuse = new Langfuse({
   baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
 });
 
-// 可重試的錯誤判斷
+// ── Human Review Metadata ────────────────────────────────────────────────────
+/**
+ * 各 promptName 對應的 Human 類評分欄位說明，
+ * 用於讓 Langfuse 上的 trace 可被快速識別抽查重點。
+ * 格式：{ scores: string[], review_notes: string, human_review: boolean }
+ */
+const HUMAN_REVIEW_CONFIG = {
+  FilterAndCategorizeNews: {
+    human_review: true,
+    scores: ["Summary_Quality", "Signal_to_Noise_Ratio"],
+    review_notes:
+      "抽查重點：summary 是否精準反映標題內容（Summary_Quality）；" +
+      "保留新聞是否均為有效訊號、無明顯雜訊（Signal_to_Noise_Ratio）。" +
+      "可對照 think.excluded 欄位檢查篩選合理性。",
+  },
+  AnalyzeMacroNews: {
+    human_review: true,
+    scores: ["Logic_Consistency", "Weighting_Rationality"],
+    review_notes:
+      "抽查重點：bull/bear 分析推論是否前後一致（Logic_Consistency）；" +
+      "各事件的影響力評分（score 欄位）是否符合事件實際嚴重程度（Weighting_Rationality）。" +
+      "可對照 bull_events / bear_events 陣列與 conclusion 進行邏輯核查。",
+  },
+  InvestmentAdvice: {
+    human_review: true,
+    scores: ["Actionability", "Tone_and_Empathy", "Context_Alignment"],
+    review_notes:
+      "抽查重點：action_items 是否具體可執行（Actionability）；" +
+      "mindset_advice 語氣是否適切、具支持性（Tone_and_Empathy）；" +
+      "建議內容是否與當日市場狀況及 news summary 脈絡一致（Context_Alignment）。",
+  },
+  GenerateSearchQueries: {
+    human_review: false,
+    scores: [],
+    review_notes: "此 trace 無 Human 類評分需求，由 Rule 類自動評估即可。",
+  },
+};
+
+/** 取得指定 promptName 的 human review metadata，找不到則回傳預設值 */
+function getHumanReviewMeta(promptName) {
+  return (
+    HUMAN_REVIEW_CONFIG[promptName] ?? {
+      human_review: false,
+      scores: [],
+      review_notes: "未設定 Human Review 欄位。",
+    }
+  );
+}
+
+// ── 可重試的錯誤判斷 ─────────────────────────────────────────────────────────
 function isRetryableError(error) {
   const msg = error.message || "";
-  // 503 UNAVAILABLE 或 429 RATE_LIMIT
   return (
     msg.includes("503") ||
     msg.includes("UNAVAILABLE") ||
@@ -54,8 +102,8 @@ function isRetryableError(error) {
 
 // Exponential Backoff + Jitter
 function getBackoffDelay(attempt, baseDelay = 2000) {
-  const exponential = baseDelay * Math.pow(2, attempt); // 2s, 4s, 8s ...
-  const jitter = Math.random() * 1000; // 0~1000ms 隨機
+  const exponential = baseDelay * Math.pow(2, attempt);
+  const jitter = Math.random() * 1000;
   return exponential + jitter;
 }
 
@@ -72,20 +120,20 @@ export async function callAI(promptName, userPrompt, options = {}) {
     promptObj = await langfuse.getPrompt(promptName);
   } catch (err) {
     console.warn(`⚠️ [Langfuse] getPrompt 失敗，使用空白 systemInstruction：${err.message}`);
-    // fallback：跳過 Langfuse prompt，直接用空 instruction 繼續
     promptObj = { compile: () => "", config: {}, name: promptName, version: null };
   }
 
   const systemInstruction = promptObj.compile(options.promptVariables ?? {});
-  // 將 promptObj 中的 config 參數合併到 options 中，讓每個 prompt 可以自訂化 Gemini 呼叫行為
-  // langfuse 的 config 優先權高於傳入的 options
   const resolvedOptions = { ...options, ...promptObj.config };
 
   const keyIndex = options.keyIndex ?? 0;
   const resolvedIndex = provider === PROVIDERS.GEMINI
     ? (keyIndex < aiInstances.length ? keyIndex : 0)
     : 0;
-  const maxRetries = options.maxRetries ?? 5; // 預設最多重試 5 次
+  const maxRetries = options.maxRetries ?? 5;
+
+  // ── Human Review Metadata ────────────────────────────────────────────────
+  const humanReviewMeta = getHumanReviewMeta(promptName);
 
   // ── Langfuse Trace ──────────────────────────────────────────────────────────
   const trace = langfuse.trace({
@@ -98,6 +146,7 @@ export async function callAI(promptName, userPrompt, options = {}) {
       model: resolvedModel,
       resolvedKeyIndex: resolvedIndex,
       requestedKeyIndex: keyIndex,
+      human_review: humanReviewMeta,
       ...(isCI && {
         githubRunId: process.env.GITHUB_RUN_ID,
         githubWorkflow: process.env.GITHUB_WORKFLOW,
@@ -110,12 +159,12 @@ export async function callAI(promptName, userPrompt, options = {}) {
       `key-slot-${resolvedIndex}`,
       `feature:${promptName}`,
       isCI ? "env:ci" : "env:local",
+      ...(humanReviewMeta.human_review ? ["needs-human-review"] : []),
     ],
   });
 
   // ── Retry Loop ──────────────────────────────────────────────────────────────
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    // 2️⃣ 建立 Generation span（代表這一次的實際 API 呼叫）
     const generation = trace.generation({
       name: `${promptName}-attempt-${attempt}`,
       prompt: promptObj,
@@ -140,7 +189,6 @@ export async function callAI(promptName, userPrompt, options = {}) {
       let rawText, inputTokens, outputTokens, totalTokens, thoughtsTokenCount;
 
       if (provider === PROVIDERS.GEMINI) {
-        // ── Gemini ─────────────────────────────────────────────────
         const ai = aiInstances[resolvedIndex];
         const response = await ai.models.generateContent({
           model: resolvedModel,
@@ -161,7 +209,6 @@ export async function callAI(promptName, userPrompt, options = {}) {
         thoughtsTokenCount = response.usageMetadata?.thoughtsTokenCount ?? 0;
 
       } else if (provider === PROVIDERS.GROK) {
-        // ── Grok ────────────────────────────────────────────────────────────
         const result = await callGrokAPI({
           model: resolvedModel, systemInstruction, userPrompt, options: resolvedOptions,
         });
@@ -172,8 +219,7 @@ export async function callAI(promptName, userPrompt, options = {}) {
         thoughtsTokenCount = 0;
       }
 
-
-      // ── 清理 markdown code block ────────────────────────────────────────────
+      // ── 清理 markdown code block ───────────────────────────────────────────
       let text = rawText;
       if (resolvedOptions.responseMimeType === "application/json") {
         text = text.replace(/^```json\n?/, "").replace(/```$/, "").trim();
@@ -181,7 +227,7 @@ export async function callAI(promptName, userPrompt, options = {}) {
         text = text.replace(/^```[a-zA-Z]*\n?/, "").replace(/```$/, "").trim();
       }
 
-      // ── Generation 成功 ─────────────────────────────────────────────────────
+      // ── Generation 成功 ────────────────────────────────────────────────────
       generation.end({
         output: text,
         usage: {
@@ -203,11 +249,11 @@ export async function callAI(promptName, userPrompt, options = {}) {
           `⚠️ Gemini 第 ${attempt + 1} 次失敗 (key: ${resolvedIndex})，` +
           `${(delay / 1000).toFixed(1)}s 後重試... 原因: ${error.message}`,
         );
-        generation.end({ level: "WARNING", statusMessage: `Retry ${attempt + 1}: ${error.message}`, });
+        generation.end({ level: "WARNING", statusMessage: `Retry ${attempt + 1}: ${error.message}` });
         await new Promise((resolve) => setTimeout(resolve, delay));
       } else {
-        console.error(`❌ Gemini API 呼叫失敗 (key: ${resolvedIndex}):`, error.message,);
-        generation.end({ level: "ERROR", statusMessage: error.message, });
+        console.error(`❌ Gemini API 呼叫失敗 (key: ${resolvedIndex}):`, error.message);
+        generation.end({ level: "ERROR", statusMessage: error.message });
         trace.update({ output: { error: error.message }, statusMessage: error.message });
         throw error;
       }
@@ -217,14 +263,12 @@ export async function callAI(promptName, userPrompt, options = {}) {
 
 /**
  * 獲取指定 provider 的可用模型清單
- * @param {"gemini"|"grok"} provider
  */
 export async function listAllModels(provider = PROVIDERS.GEMINI) {
   if (provider === PROVIDERS.GROK) {
     return listGrokModels();
   }
 
-  // 原本的 Gemini 邏輯保持不變
   console.log("正在獲取 Gemini 可用模型清單...\n");
   try {
     const ai = aiInstances[0];
@@ -255,7 +299,6 @@ async function callGrokAPI({ model, systemInstruction, userPrompt, options }) {
     ],
     temperature: options.temperature ?? 0.7,
     max_tokens: options.maxOutputTokens ?? 4096,
-    // 若需要 JSON 輸出
     ...(options.responseMimeType === "application/json" && {
       response_format: { type: "json_object" },
     }),
@@ -310,7 +353,6 @@ export async function listGrokModels() {
     }
 
     const data = await res.json();
-    // Grok 回傳格式：{ data: [ { id, object, created, owned_by }, ... ] }
     const models = data.data ?? [];
 
     models.forEach((model, i) => {
