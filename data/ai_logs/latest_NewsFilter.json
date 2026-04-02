@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-04-01T08:07:16.347Z",
+  "_savedAt": "2026-04-02T00:02:25.159Z",
   "type": "NewsFilter",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 【04/01 台股盤後總覽】大盤漲逾1451.83點，突破三萬三，電子零組件、其他電子、半導體類股最夯！ - CMoney投資網誌\n[ID: 1] [TW] 標題: 內地3月官方製造業PMI勝預期 花旗︰首季經濟增長預測有望上調 - 香港01\n[ID: 2] [TW] 標題: A股焦點｜光伏產品增值稅出口退稅今起取消，光伏股多數走強 - 香港經濟日報HKET\n[ID: 3] [TW] 標題: 台股收盤》大盤飆1451點創史上第2大漲點 三大法人買超549億元 - Yahoo新聞\n[ID: 4] [TW] 標題: 花蓮火車站旅服中心進駐出口右側 服務前移第一線 打造觀光第一印象 - 花蓮最速報\n[ID: 5] [TW] 標題: 台股滿血復活站回3萬3、投信狂掃101億 三大法人買超549.82億元 - news.cnyes.com\n[ID: 6] [TW] 標題: 三大法人買超台股549.81億元 - 經濟日報\n[ID: 7] [TW] 標題: 台股暴跌後暴力反彈1451點 專家揭清明連假觀察重點 - Yahoo新聞\n[ID: 8] [TW] 標題: 【公告】長廣(補充公告)代重要子公司日本Nikko-Materials Co., Ltd.公告自地委建興建廠房(一年內累計達新台幣5億元) - Yahoo股市\n[ID: 9] [TW] 標題: 【Follow法人】台股報復性反彈1451點外資只買超233億元藏玄機？ 分析師：踩剎車未翻多 - Yahoo股市\n[ID: 10] [TW] 標題: 外資大逃殺! 大通膨時代資產保衛靠「這」招 - MSN\n[ID: 11] [TW] 標題: 外資大逃殺！大通膨時代資產保衛靠「這」招 - Yahoo新聞\n[ID: 12] [TW] 標題: 當服務走到出口第一步：花蓮，正在重寫「抵達」的意義 - 蕃新聞\n[ID: 13] [TW] 標題: 新加坡擬擴建實物黃金金庫 旨在打造全球央行黃金託管樞紐 作者 智通財經 - Investing.com 香港 - 股市報價& 財經新聞\n[ID: 14] [TW] 標題: 台股今日飆出史上第二大漲點V轉有機會？專家：多空反覆| 股市要聞| 股市 - 聯合新聞網\n[ID: 15] [TW] 標題: 韓國3月出口創40年最快增速，半導體出口額飆升151.4% - 富途牛牛\n[ID: 16] [TW] 標題: 通膨升溫 營收成長公司股價贏大盤 - idn.com.tw\n[ID: 17] [TW] 標題: 油價飆、歐3月通膨升溫 ECB 4月是否升息成焦點 - 台視全球資訊網\n[ID: 18] [TW] 標題: 史上第二大漲點！台股上揚1451.83點 台積電漲95元收1855元 - Yahoo股市\n[ID: 19] [TW] 標題: 台股收漲1451點！十大權值股日月光飆漲停最猛 聯發科意外翻黑 - Yahoo股市\n[ID: 20] [US] 標題: French Manufacturing Stagnates in March as Middle East Conflict Hits Orders -Final PMI - Global Banking & Finance Review®\n[ID: 21] [US] 標題: Gemini burns $130 million worth of RLUSD… “to reclaim liquidity” - bloomingbit\n[ID: 22] [US] 標題: Easing of conflicts brings the Federal Reserve back into focus, reigniting the narrative around gold. - moomoo.com\n[ID: 23] [US] 標題: WGBI entry draws inflows, drives Korea Treasury yields lower - CHOSUNBIZ - Chosunbiz\n[ID: 24] [US] 標題: French manufacturing stagnates in March as Middle East conflict hits orders -final PMI - marketscreener.com\n[ID: 25] [US] 標題: SCHH: It's Not A Hedge Against Push Inflation (NYSEARCA:SCHH) - Seeking Alpha\n[ID: 26] [US] 標題: Fed hike expectations lift the US dollar, pushing NZD/USD down to 0.5730 from its weekly peak - VT Markets\n[ID: 27] [US] 標題: Gold (XAU/USD) Price Forecast for Today, Tomorrow, Next Week, and the Next 30 Days - LiteFinance\n[ID: 28] [US] 標題: During Asian trading, the US Dollar Index slips near 99.80 below 100.00, as Trump boosts risk appetite - VT Markets\n[ID: 29] [US] 標題: Poland's general government deficit at 7.2% of GDP in 2025, stats office says - TradingView\n[ID: 30] [US] 標題: What’s the #1 domestic concern for Americans right now? (Spoiler: It’s not inflation) - InvestmentNews\n[ID: 31] [US] 標題: US Bonds Gain as Iran Withdrawal Hopes Fuel Fed Rate-Cut Bets - Bloomberg.com\n[ID: 32] [US] 標題: ECB’s new models may help capture shifts in inflation expectations, blog post says - The Mighty 790 KFGO\n[ID: 33] [US] 標題: How education transformed opportunity in America - Federal Reserve Bank of Minneapolis\n[ID: 34] [US] 標題: Forex Today: April begins with hopes of and end to Middle East conflict - FXStreet\n[ID: 35] [US] 標題: China is trying to play peacemaker in the Iran war - will it work? - BBC\n[ID: 36] [US] 標題: Chicago PMI Expands for Third Straight Month - Advisor Perspectives\n[ID: 37] [US] 標題: U.S. Fed hints at keeping interest rates steady in short term amid war with Iran - People's Daily Online\n[ID: 38] [US] 標題: UK shop price inflation rises to 1.2% as supply chain risks grow - Yahoo Finance\n[ID: 39] [US] 標題: Are Dow Jones Components Targets for Activist Hedge Funds? - Disruption Banking</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 目標價直逼1988元！外資突襲升評「這無晶圓廠」苦撐五年半終於翻多TPU題材點火、市值王座再掀想像 - FTNN 新聞網\n[ID: 1] [TW] 標題: 台積電ADR漲1.1% 較台北交易溢價17.7% - 聯合新聞網\n[ID: 2] [TW] 標題: 中經院公布3月PMI連6月擴張但變慢估美伊戰爭最晚4月中下旬收手| 財經 - newtalk.tw\n[ID: 3] [TW] 標題: 「伊朗想停戰」激勵美股收高 台積電ADR漲逾1％ | 太報 - LINE TODAY\n[ID: 4] [TW] 標題: 停滯性通膨風險升溫 美銀：伊朗戰事恐使油價全年維持100美元 - cnyes.com\n[ID: 5] [TW] 標題: 這原因! 美元跌、台股大漲 新台幣升快1角 - MSN\n[ID: 6] [TW] 標題: 美股再收高！台積電ADR漲逾1% 油價續跌 - news.nextapple.com\n[ID: 7] [TW] 標題: 傳伊朗想停戰!美股收紅、台積電ADR漲1.04% - MSN\n[ID: 8] [TW] 標題: 房價未跌！央行喊話讓利 單價仍未見鬆動 - Yahoo新聞\n[ID: 9] [TW] 標題: 中東和平現曙光！ 美股道瓊漲224點、台積電ADR漲1.04％ - Yahoo新聞\n[ID: 10] [TW] 標題: 台股藏變數「AI撐不住」　專家示警轉折點 - ETtoday財經雲\n[ID: 11] [TW] 標題: 房市低檔盤整　央行「第二戶鬆綁」能救成交？市場等利多發酵 - 好房網News\n[ID: 12] [TW] 標題: 台股盤前／ 美股連漲費半飆近3%！台指夜盤漲178點 台股今挑戰續攻 - Yahoo新聞\n[ID: 13] [TW] 標題: 房貸族注意！紅燈景氣恐引發升息？　一表看懂你的錢包衝擊 - 好房網News\n[ID: 14] [TW] 標題: 「交屋即斷頭」風險瞬間降低！他解析1政策大大牽動房市 - 好房網News\n[ID: 15] [TW] 標題: 傳伊朗想停戰！美股收紅、台積電ADR漲1.04% - Yahoo新聞\n[ID: 16] [TW] 標題: 名家論壇》徐佳馨／ 房產去平庸化的時代來臨 - MSN\n[ID: 17] [TW] 標題: 台股報復性飆漲1451點 創史上第2大漲點 - 自由財經\n[ID: 18] [TW] 標題: 熱門股》外資回補 友達爆量鎖漲停 - 自由財經\n[ID: 19] [TW] 標題: 與官版PMI不同調 中國出口業壓力增 - 自由財經\n[ID: 20] [US] 標題: Home-flipping profits haven't been this bad since the Great Recession — here's how to spot a winning flip - sg.finance.yahoo.com\n[ID: 21] [US] 標題: HT interview: Congress is a feeder organisation of BJP, says CPI(M)’s MA Baby | India News - Hindustan Times\n[ID: 22] [US] 標題: Commercial Bank representatives ring Nasdaq opening bell, celebrate milestones - Kingsport Times News\n[ID: 23] [US] 標題: Jim Cramer recaps the worst performing Nasdaq 100 stocks in Q1 - cnbc.com\n[ID: 24] [US] 標題: Rent inflation leaves K-State students struggling to afford housing - Kansas State Collegian\n[ID: 25] [US] 標題: South Korea March inflation +2.2% y/y, weaker than expected - reuters.com\n[ID: 26] [US] 標題: Crypto ETF Issuer CoinShares Debuts on Nasdaq in SPAC Merger - ETF Database\n[ID: 27] [US] 標題: S. Korea’s Inflation Edges Up as Middle East Oil Risks Escalate - Bloomberg.com\n[ID: 28] [US] 標題: How The Fed Is Tracking Jobs Day - employamerica.org\n[ID: 29] [US] 標題: Fed Governor Barr warns of ‘significant risk’ from banking deregulation - Scotsman Guide\n[ID: 30] [US] 標題: Stock market today: Dow S&P 500, Nasdaq in stasis ahead of Trump's national address on Iran - uk.finance.yahoo.com\n[ID: 31] [US] 標題: Exchange Rate, Treasury Yields Plunge on Ceasefire Hopes - en.sedaily.com\n[ID: 32] [US] 標題: Stock Market Crash in 2026? The S&P 500 Sounds an Alarm as Recession Odds Just Hit Their Highest Level in Years. Here's What History Says Happens Next. - AOL.com\n[ID: 33] [US] 標題: How Federal Retirement Income Is Taxed: What Every Fed, and Former Fed, Needs to Know in 2026 - FEDweek\n[ID: 34] [US] 標題: Fed Officials Signal That Rate Cuts May Be Over - WSJ\n[ID: 35] [US] 標題: Bank of America warns 4% inflation - Channel 3000\n[ID: 36] [US] 標題: Cliff Notes: mixed messages - westpaciq.com.au\n[ID: 37] [US] 標題: ISM Manufacturing PMI: Fastest Expansion Since 2022 - advisorperspectives.com\n[ID: 38] [US] 標題: MRNO Bounces on Debt Deal Hopes, But Liquidity Lags - bitget.com\n[ID: 39] [US] 標題: Don't Look Now, but the Federal Reserve's March Inflation Forecast Just Worsened - AOL.com</News_List>",
   "schema": {
     "type": "OBJECT",
     "description": "AI 思考過程與挑選結果",
@@ -129,54 +129,54 @@
     "think": {
       "event_inventory": [
         {
-          "event": "台股史上第二大漲點與法人動向",
-          "count": 9,
-          "best_title": "史上第二大漲點！台股上揚1451.83點 台積電漲95元收1855元"
-        },
-        {
-          "event": "韓國半導體出口數據爆發",
+          "event": "聯準會利率政策轉向訊號",
           "count": 1,
-          "best_title": "韓國3月出口創40年最快增速，半導體出口額飆升151.4%"
+          "best_title": "Fed Officials Signal That Rate Cuts May Be Over"
         },
         {
-          "event": "中東局勢與聯準會降息預期",
-          "count": 5,
-          "best_title": "US Bonds Gain as Iran Withdrawal Hopes Fuel Fed Rate-Cut Bets"
+          "event": "中東地緣政治與停火預期",
+          "count": 8,
+          "best_title": "Exchange Rate, Treasury Yields Plunge on Ceasefire Hopes"
         },
         {
-          "event": "中國經濟復甦訊號",
+          "event": "台股歷史性報復性反彈",
           "count": 1,
-          "best_title": "內地3月官方製造業PMI勝預期 花旗︰首季經濟增長預測有望上調"
+          "best_title": "台股報復性飆漲1451點 創史上第2大漲點"
         },
         {
-          "event": "歐洲通膨與央行利率決策",
-          "count": 2,
-          "best_title": "油價飆、歐3月通膨升溫 ECB 4月是否升息成焦點"
-        },
-        {
-          "event": "美國區域經濟數據與美元走勢",
+          "event": "美國通膨預期惡化與美銀警告",
           "count": 3,
-          "best_title": "Fed hike expectations lift the US dollar, pushing NZD/USD down to 0.5730"
+          "best_title": "Bank of America warns 4% inflation"
         },
         {
-          "event": "韓國國債納入 WGBI 資金流向",
+          "event": "美國製造業PMI擴張超預期",
           "count": 1,
-          "best_title": "WGBI entry draws inflows, drives Korea Treasury yields lower"
+          "best_title": "ISM Manufacturing PMI: Fastest Expansion Since 2022"
         },
         {
-          "event": "英國通膨與供應鏈風險",
+          "event": "台積電ADR溢價與美股連動",
+          "count": 6,
+          "best_title": "台積電ADR漲1.1% 較台北交易溢價17.7%"
+        },
+        {
+          "event": "聯發科(無晶圓廠)外資升評",
           "count": 1,
-          "best_title": "UK shop price inflation rises to 1.2% as supply chain risks grow"
+          "best_title": "目標價直逼1988元！外資突襲升評「這無晶圓廠」"
         },
         {
-          "event": "法國製造業受地緣政治衝擊",
+          "event": "新台幣匯率與資金流向",
+          "count": 1,
+          "best_title": "這原因! 美元跌、台股大漲 新台幣升快1角"
+        },
+        {
+          "event": "AI產業趨勢與轉折點警告",
+          "count": 1,
+          "best_title": "台股藏變數「AI撐不住」 專家示警轉折點"
+        },
+        {
+          "event": "南韓通膨數據(區域經濟指標)",
           "count": 2,
-          "best_title": "French Manufacturing Stagnates in March as Middle East Conflict Hits Orders"
-        },
-        {
-          "event": "中國光伏產業政策變動",
-          "count": 1,
-          "best_title": "A股焦點｜光伏產品增值稅出口退稅今起取消，光伏股多數走強"
+          "best_title": "South Korea March inflation +2.2% y/y, weaker than expected"
         }
       ],
       "dimension_check": {
@@ -188,91 +188,83 @@
       },
       "excluded": [
         {
-          "id": 4,
-          "reason": "地方觀光新聞"
-        },
-        {
           "id": 8,
-          "reason": "單一子公司建廠"
+          "reason": "單一房市新聞"
         },
         {
-          "id": 10,
-          "reason": "理財教學農場文"
+          "id": 11,
+          "reason": "房市政策微觀"
         },
         {
           "id": 13,
-          "reason": "特定國家金庫擴建"
+          "reason": "理財教學性質"
         },
         {
           "id": 16,
-          "reason": "一般性選股建議"
+          "reason": "個人評論觀點"
         },
         {
           "id": 21,
-          "reason": "加密貨幣特定事件"
+          "reason": "印度政治無關"
         },
         {
-          "id": 25,
-          "reason": "單一美股標的分析"
+          "id": 22,
+          "reason": "無實質影響活動"
         },
         {
-          "id": 27,
-          "reason": "技術分析預測"
+          "id": 26,
+          "reason": "特定加密產品"
         },
         {
-          "id": 30,
-          "reason": "社會民意調查"
+          "id": 32,
+          "reason": "遠期預測農場文"
         },
         {
           "id": 33,
-          "reason": "教育與社會議題"
+          "reason": "美國稅務細節"
         }
       ]
     },
     "news": [
       {
-        "id": 18,
-        "summary": "台股今日爆發性反彈 1451.83 點，創史上第二大漲點，站回 33,000 點大關。權王台積電大漲 95 元至 1855 元，貢獻大盤多數漲幅。三大法人合計買超 549 億元，顯示市場在暴跌後出現強力空頭回補與資金回流，對 0050 等權值型 ETF 具備極強支撐力道。"
-      },
-      {
-        "id": 15,
-        "summary": "韓國 3 月出口數據極其強勁，半導體出口額年增率高達 151.4%，創下 40 年來最快增速。由於韓國與台灣半導體產業高度連動，此數據證實全球 AI 與記憶體需求仍處於擴張期，對台股電子權值股及半導體供應鏈具有長線基本面背書。"
+        "id": 34,
+        "summary": "聯準會官員釋出極其鷹派的訊號，暗示降息週期可能已經結束。這對槓桿型投資者是重大警訊，因為高利率環境將持續壓抑科技股估值並增加融資成本。市場原先預期的貨幣寬鬆紅利可能落空，需重新評估大盤與權值股的定價邏輯，對 0050 等權值股構成中長期壓力。"
       },
       {
         "id": 31,
-        "summary": "地緣政治出現轉機，伊朗撤軍希望升溫，導致美債價格上漲、殖利率回落。市場對聯準會 (Fed) 降息的押注重新抬頭。若中東衝突緩解，將降低通膨壓力並提供 Fed 更多降息空間，有利於全球風險資產定價，特別是高槓桿投資策略。"
-      },
-      {
-        "id": 1,
-        "summary": "中國 3 月官方製造業 PMI 表現優於預期，花旗隨即上調中國首季經濟增長預測。作為全球第二大經濟體，中國製造業回暖有助於帶動區域貿易與原物料需求，對台股中概收成股及整體亞太市場資金流向具正面影響。"
+        "summary": "中東地緣政治緊張局勢因伊朗停火希望出現轉機，導致美債殖利率與美元匯率大幅回落。避險情緒降溫促使資金回流風險資產，對台股等新興市場具備強大推升力道。若戰事降溫，油價回落將緩解通膨壓力，為全球股市提供反彈動能，有利於台股大盤挑戰新高。"
       },
       {
         "id": 17,
-        "summary": "受油價飆升影響，歐元區 3 月通膨壓力再度抬頭，市場焦點轉向歐洲央行 (ECB) 4 月的利率決策。若 ECB 迫於通膨壓力維持高利率甚至轉鷹，將影響全球流動性環境，並可能帶動美元指數波動，進而衝擊新興市場匯率與資金外流壓力。"
+        "summary": "台股創下史上第二大漲點，單日報復性飆漲 1451 點，顯示市場在極度恐慌後的強力反彈。此種極端波動通常伴隨外資大規模回補與空頭回補，對 0050 及其槓桿產品（如 00631L）提供極佳的獲利空間。投資者應關注此漲勢的延續性，以及是否伴隨成交量的實質放大。"
       },
       {
-        "id": 26,
-        "summary": "聯準會升息預期再度支撐美元走強，導致紐幣等非美貨幣走弱至 0.5730 水準。強勢美元通常對台股外資買盤造成壓力，需密切觀察外資在台股反彈後的續航力，若美元持續走強，台股萬三之上的穩定性將面臨匯率風險挑戰。"
+        "id": 35,
+        "summary": "美銀警告美國通膨可能回升至 4%，且聯準會 3 月通膨預測惡化。通膨黏性將迫使 Fed 維持高利率更久，甚至重啟升息討論。這將直接衝擊對利率敏感的 AI 科技股與半導體板塊。對於 0050 投資者而言，需警惕通膨數據超預期導致的系統性回檔風險。"
       },
       {
-        "id": 36,
-        "summary": "美國芝加哥 PMI 連續三個月擴張，顯示美國中西部製造業活動具備韌性。雖然這降低了經濟衰退風險，但也可能延後 Fed 降息的時間點。對於量化策略而言，需重新評估「經濟強勁」與「高利率維持更久」之間的權衡關係。"
+        "id": 37,
+        "summary": "美國 3 月 ISM 製造業 PMI 創下 2022 年以來最快擴張速度，顯示美國經濟韌性極強。雖然經濟強勁有利於企業獲利，但也進一步削弱了聯準會降息的必要性。強勁的經濟數據可能導致「好消息即壞消息」的市場反應，使美股與台股在利率預期調整中出現震盪。"
       },
       {
-        "id": 23,
-        "summary": "韓國國債正式納入世界國債指數 (WGBI)，引發大規模資金流入並推低韓國國債殖利率。此事件反映亞太債市吸引力提升，可能帶動區域性資產配置調整，對台灣債市及相關固定收益產品的資金流向具有參考價值。"
+        "id": 1,
+        "summary": "台積電 ADR 上漲 1.1%，較台北交易溢價擴大至 17.7%。高溢價顯示國際資金對台積電的強烈需求，通常預示台股現貨開盤後的補漲行情。作為 0050 佔比最高的權值股，台積電 ADR 的強勢表現是支撐大盤與槓桿策略獲利的核心驅動力。"
       },
       {
-        "id": 38,
-        "summary": "英國商店價格通膨升至 1.2%，主因供應鏈風險增加。這反映出全球供應鏈仍受地緣政治干擾，通膨具有黏性。若通膨無法有效受控，全球主要央行的貨幣政策轉向將受阻，增加市場波動性。"
+        "id": 0,
+        "summary": "外資大幅調升聯發科目標價至 1988 元，看好其 TPU 與 AI 晶片題材。聯發科作為台股第二大權值股，其市值王座的想像空間被點燃，將帶動 IC 設計板塊集體轉強。這對於以 0050 為核心的投資組合具有顯著的結構性利多，有助於分散單一依賴台積電的風險。"
       },
       {
-        "id": 20,
-        "summary": "法國 3 月製造業 PMI 因中東衝突導致訂單受挫而陷入停滯。這顯示地緣政治衝突已實質影響歐洲核心國家的實體經濟。歐洲經濟疲軟可能拖累全球復甦腳步，需警惕歐洲需求下滑對台灣出口產業的間接衝擊。"
+        "id": 5,
+        "summary": "美元指數走跌帶動新台幣強升近 1 角，外資回流台股跡象明顯。匯率走勢是台股資金面的先行指標，台幣升值有利於外資持續買超大型權值股。對於 0050 投資者，匯率走強通常伴隨著大盤的波段漲勢，是增加槓桿部位的重要參考訊號。"
       },
       {
-        "id": 2,
-        "summary": "中國取消光伏產品增值稅出口退稅，引發光伏板塊走強。此政策變動反映中國正調整產業補貼結構，可能導致全球光伏產品價格波動。對於台灣相關能源與電子零組件產業而言，需注意競爭格局與成本結構的變化。"
+        "id": 10,
+        "summary": "專家示警 AI 族群可能面臨轉折點，若 AI 漲勢無法支撐大盤，台股將面臨變數。這提醒投資者在享受 AI 紅利的同時，需注意過度擁擠交易的風險。若 0050 內的 AI 相關成分股出現集體回檔，應考慮適度調節槓桿倍數以規避潛在的波動風險。"
+      },
+      {
+        "id": 25,
+        "summary": "南韓 3 月通膨率為 2.2%，低於預期，顯示亞洲區域通膨壓力相對受控。作為台灣半導體產業的主要競爭對手與區域經濟指標，南韓數據的穩定有助於穩定亞洲市場情緒。這為台股提供了一個相對穩定的外部環境，降低了區域性系統風險的機率。"
       }
     ]
   }
