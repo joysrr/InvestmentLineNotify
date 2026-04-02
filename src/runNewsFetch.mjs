@@ -2,8 +2,7 @@ import "dotenv/config";
 import { langfuse } from "./modules/ai/aiClient.mjs";
 import { getRawNews } from "./modules/newsFetcher.mjs";
 import { generateDailySearchQueries } from "./modules/ai/aiCoach.mjs";
-import { newsPoolManager } from "./modules/data/newsPoolManager.mjs";
-import { TwDate } from "./utils/coreUtils.mjs";
+import { updatePool } from "./modules/data/newsPoolManager.mjs";
 
 async function main() {
   console.log("📰 [NewsFetch] 開始執行新聞抓取管線...");
@@ -16,7 +15,7 @@ async function main() {
       vix: "N/A",
     });
 
-    // 2. 抓取 RSS 原始新聞（含品質篩選、歴存、Fallback）
+    // 2. 抓取 RSS 原始新聞（含品質篩選、歷存、Fallback）
     console.log("📰 [NewsFetch] 開始抓取 RSS 新聞...");
     const articles = await getRawNews({
       twQueries: aiQueries.twQueries,
@@ -30,16 +29,12 @@ async function main() {
       return;
     }
 
-    // 3. 寫入 news pool
-    const now = TwDate().formatDateTimeISO?.() ?? new Date().toISOString();
-    await newsPoolManager.savePool({
-      last_updated: now,
-      articles,
-    });
+    // 3. 更新 pool（自動去重、過期归檔、更新 age_band）
+    const { appended, expired, total } = await updatePool(articles);
+    console.log(`✅ [NewsFetch] pool 更新完成 — 新增: ${appended}，過期归檔: ${expired}，目前 pool 總量: ${total}`);
 
-    console.log(`✅ [NewsFetch] 已寫入 pool，共 ${articles.length} 篇。時間：${now}`);
   } catch (err) {
-    console.error("❌ [NewsFetch] 管線發生進入錯誤:", err);
+    console.error("❌ [NewsFetch] 管線發生錯誤:", err);
     process.exit(1);
   } finally {
     console.log("🔒 [NewsFetch] 正在關閉 Langfuse...");
