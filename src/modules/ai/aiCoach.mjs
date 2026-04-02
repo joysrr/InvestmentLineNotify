@@ -1,4 +1,4 @@
-import { callAI } from "./aiClient.mjs";
+import { callAI, PROVIDERS } from "./aiClient.mjs";
 import { formatQuantDataForCoach } from "./aiDataPreprocessor.mjs";
 import { baseTwQueries, baseUsQueries } from "../keywordConfig.mjs";
 import {
@@ -30,6 +30,7 @@ export async function generateDailySearchQueries(marketData) {
   try {
     const { rawJson, traceId } = await callAI("GenerateSearchQueries", prompt, {
       sessionId,
+      provider: PROVIDERS.GEMINI,
       keyIndex: 0,
       responseSchema: NEWS_KEYWORD_SCHEMA,
     });
@@ -70,6 +71,7 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray) {
       userPrompt,
       {
         sessionId,
+        provider: PROVIDERS.GEMINI,
         keyIndex: 1,
         responseSchema: FILTERED_NEWS_SCHEMA,
       },
@@ -116,6 +118,7 @@ export async function analyzeMacroNewsWithAI(todayNewsText) {
   try {
     const { rawJson, traceId } = await callAI("AnalyzeMacroNews", userPrompt, {
       sessionId,
+      provider: PROVIDERS.GEMINI,
       keyIndex: 2,
       responseSchema: MACRO_ANALYSIS_SCHEMA,
     });
@@ -180,6 +183,7 @@ export async function getAiInvestmentAdvice(
   try {
     const { result, traceId } = await callAI("InvestmentAdvice", userPrompt, {
       sessionId,
+      provider: PROVIDERS.GEMINI,
       keyIndex: 0,
       responseSchema: INVESTMENT_COACH_SCHEMA,
     });
