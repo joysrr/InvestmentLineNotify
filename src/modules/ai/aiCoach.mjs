@@ -105,7 +105,6 @@ export async function generateDailySearchQueries(marketData) {
         console.warn("⚠️ [Archive] 儲存關鍵字生成紀錄失敗:", err.message),
       );
 
-    // 回傳 traceId 供 runNewsFetch.mjs 寫入 Yield Rate
     return {
       twQueries: result.twQueries ?? [],
       usQueries: result.usQueries ?? [],
@@ -147,7 +146,6 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray, sourcePoolU
 
     const aiResult = JSON.parse(text);
 
-    // Schema_Validation
     await safeLangfuseScore({
       traceId,
       name: "Schema_Validation",
@@ -155,7 +153,6 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray, sourcePoolU
       comment: "FilterAndCategorizeNews JSON parse success",
     });
 
-    // Diversity_Score — 依白名單維度計算覆蓋率
     const diversityScore = calcDiversityScore(
       aiResult?.think?.dimension_check ?? {},
     );
@@ -213,7 +210,6 @@ export async function analyzeMacroNewsWithAI(todayNewsText) {
 
     const result = JSON.parse(text);
 
-    // Schema_Validation
     await safeLangfuseScore({
       traceId,
       name: "Schema_Validation",
@@ -221,7 +217,6 @@ export async function analyzeMacroNewsWithAI(todayNewsText) {
       comment: "AnalyzeMacroNews JSON parse success",
     });
 
-    // Score_Distribution_Spread — bull + bear scores 的標準差正規化
     const allScores = [
       ...(result.bull_events ?? []).map((e) => e.score),
       ...(result.bear_events ?? []).map((e) => e.score),
@@ -263,7 +258,10 @@ export async function analyzeMacroNewsWithAI(todayNewsText) {
 }
 
 // --- 投資建議 ---
-/** 根據市場數據、新聞摘要、既定投資策略，產出操作建議與風險提示 */
+/**
+ * 根據市場數據、新聞摘要、既定投資策略，產出操作建議與風險提示
+ * @returns {{ advice: object|string, traceId: string|null }}
+ */
 export async function getAiInvestmentAdvice(
   marketData,
   portfolio,
@@ -273,7 +271,7 @@ export async function getAiInvestmentAdvice(
   macroAndChipStr,
   onlyPrompt,
 ) {
-  if (onlyPrompt) return "AI 決策引擎停止運作中。";
+  if (onlyPrompt) return { advice: "AI 決策引擎停止運作中。", traceId: null };
 
   const quantTextForCoach = formatQuantDataForCoach(
     marketData,
@@ -342,9 +340,12 @@ export async function getAiInvestmentAdvice(
         console.warn("⚠️ [Archive] 儲存 AI 決策紀錄失敗:", err.message),
       );
 
-    return adviceObj;
+    return { advice: adviceObj, traceId };
   } catch (error) {
     console.error("AI 決策引擎處理失敗:", error.message);
-    return "AI 決策引擎暫時無法運作，請依原始數據判斷。";
+    return {
+      advice: "AI 決策引擎暫時無法運作，請依原始數據判斷。",
+      traceId: null,
+    };
   }
 }
