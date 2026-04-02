@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "lastRun": "2026-04-02T00:01:03.289Z",
+    "lastRun": "2026-04-02T04:28:21.195Z",
     "sources": {
       "cnnProvider": {
         "status": "SUCCESS",
@@ -12,7 +12,7 @@
       },
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-02T00:01:03.289Z"
+        "lastFetch": "2026-04-02T04:28:21.195Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
@@ -29,6 +29,12 @@
     }
   },
   "data": {
+    "rawNdc": {
+      "date": "2026-02",
+      "score": 40,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
     "rawMargin": {
       "marginBalance100M": 3849.08,
       "marginBalanceChange100M": 31.83,
@@ -58,10 +64,22 @@
       },
       "source": "FRED"
     },
+    "rawValuation": {
+      "pe": 24.37,
+      "pb": 3.31,
+      "yield": 2.21,
+      "date": "20260401"
+    },
+    "quote": {
+      "date": "2026-04-02",
+      "quote": "Be as fluid as water, do not give your enemies anything solid to attack.",
+      "author": "Robert Greene",
+      "source": "zenquotes"
+    },
     "rawFx": {
-      "currentRate": 32.001,
+      "currentRate": 31.984,
       "previousClose": 31.375,
-      "changePercent": 2,
+      "changePercent": 1.94,
       "historicalPrices": [
         31.375,
         31.535,
@@ -86,26 +104,8 @@
         31.977,
         32.039,
         31.9379,
-        32.001
+        31.984
       ]
-    },
-    "quote": {
-      "date": "2026-04-02",
-      "quote": "Be as fluid as water, do not give your enemies anything solid to attack.",
-      "author": "Robert Greene",
-      "source": "zenquotes"
-    },
-    "rawNdc": {
-      "date": "2026-02",
-      "score": 40,
-      "light": "紅燈 (過熱)",
-      "lightColor": "red"
-    },
-    "rawValuation": {
-      "pe": 24.37,
-      "pb": 3.31,
-      "yield": 2.21,
-      "date": "20260401"
     }
   }
 }

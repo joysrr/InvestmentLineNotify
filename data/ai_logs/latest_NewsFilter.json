@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-04-02T00:02:25.159Z",
+  "_savedAt": "2026-04-02T04:30:47.537Z",
   "type": "NewsFilter",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 目標價直逼1988元！外資突襲升評「這無晶圓廠」苦撐五年半終於翻多TPU題材點火、市值王座再掀想像 - FTNN 新聞網\n[ID: 1] [TW] 標題: 台積電ADR漲1.1% 較台北交易溢價17.7% - 聯合新聞網\n[ID: 2] [TW] 標題: 中經院公布3月PMI連6月擴張但變慢估美伊戰爭最晚4月中下旬收手| 財經 - newtalk.tw\n[ID: 3] [TW] 標題: 「伊朗想停戰」激勵美股收高 台積電ADR漲逾1％ | 太報 - LINE TODAY\n[ID: 4] [TW] 標題: 停滯性通膨風險升溫 美銀：伊朗戰事恐使油價全年維持100美元 - cnyes.com\n[ID: 5] [TW] 標題: 這原因! 美元跌、台股大漲 新台幣升快1角 - MSN\n[ID: 6] [TW] 標題: 美股再收高！台積電ADR漲逾1% 油價續跌 - news.nextapple.com\n[ID: 7] [TW] 標題: 傳伊朗想停戰!美股收紅、台積電ADR漲1.04% - MSN\n[ID: 8] [TW] 標題: 房價未跌！央行喊話讓利 單價仍未見鬆動 - Yahoo新聞\n[ID: 9] [TW] 標題: 中東和平現曙光！ 美股道瓊漲224點、台積電ADR漲1.04％ - Yahoo新聞\n[ID: 10] [TW] 標題: 台股藏變數「AI撐不住」　專家示警轉折點 - ETtoday財經雲\n[ID: 11] [TW] 標題: 房市低檔盤整　央行「第二戶鬆綁」能救成交？市場等利多發酵 - 好房網News\n[ID: 12] [TW] 標題: 台股盤前／ 美股連漲費半飆近3%！台指夜盤漲178點 台股今挑戰續攻 - Yahoo新聞\n[ID: 13] [TW] 標題: 房貸族注意！紅燈景氣恐引發升息？　一表看懂你的錢包衝擊 - 好房網News\n[ID: 14] [TW] 標題: 「交屋即斷頭」風險瞬間降低！他解析1政策大大牽動房市 - 好房網News\n[ID: 15] [TW] 標題: 傳伊朗想停戰！美股收紅、台積電ADR漲1.04% - Yahoo新聞\n[ID: 16] [TW] 標題: 名家論壇》徐佳馨／ 房產去平庸化的時代來臨 - MSN\n[ID: 17] [TW] 標題: 台股報復性飆漲1451點 創史上第2大漲點 - 自由財經\n[ID: 18] [TW] 標題: 熱門股》外資回補 友達爆量鎖漲停 - 自由財經\n[ID: 19] [TW] 標題: 與官版PMI不同調 中國出口業壓力增 - 自由財經\n[ID: 20] [US] 標題: Home-flipping profits haven't been this bad since the Great Recession — here's how to spot a winning flip - sg.finance.yahoo.com\n[ID: 21] [US] 標題: HT interview: Congress is a feeder organisation of BJP, says CPI(M)’s MA Baby | India News - Hindustan Times\n[ID: 22] [US] 標題: Commercial Bank representatives ring Nasdaq opening bell, celebrate milestones - Kingsport Times News\n[ID: 23] [US] 標題: Jim Cramer recaps the worst performing Nasdaq 100 stocks in Q1 - cnbc.com\n[ID: 24] [US] 標題: Rent inflation leaves K-State students struggling to afford housing - Kansas State Collegian\n[ID: 25] [US] 標題: South Korea March inflation +2.2% y/y, weaker than expected - reuters.com\n[ID: 26] [US] 標題: Crypto ETF Issuer CoinShares Debuts on Nasdaq in SPAC Merger - ETF Database\n[ID: 27] [US] 標題: S. Korea’s Inflation Edges Up as Middle East Oil Risks Escalate - Bloomberg.com\n[ID: 28] [US] 標題: How The Fed Is Tracking Jobs Day - employamerica.org\n[ID: 29] [US] 標題: Fed Governor Barr warns of ‘significant risk’ from banking deregulation - Scotsman Guide\n[ID: 30] [US] 標題: Stock market today: Dow S&P 500, Nasdaq in stasis ahead of Trump's national address on Iran - uk.finance.yahoo.com\n[ID: 31] [US] 標題: Exchange Rate, Treasury Yields Plunge on Ceasefire Hopes - en.sedaily.com\n[ID: 32] [US] 標題: Stock Market Crash in 2026? The S&P 500 Sounds an Alarm as Recession Odds Just Hit Their Highest Level in Years. Here's What History Says Happens Next. - AOL.com\n[ID: 33] [US] 標題: How Federal Retirement Income Is Taxed: What Every Fed, and Former Fed, Needs to Know in 2026 - FEDweek\n[ID: 34] [US] 標題: Fed Officials Signal That Rate Cuts May Be Over - WSJ\n[ID: 35] [US] 標題: Bank of America warns 4% inflation - Channel 3000\n[ID: 36] [US] 標題: Cliff Notes: mixed messages - westpaciq.com.au\n[ID: 37] [US] 標題: ISM Manufacturing PMI: Fastest Expansion Since 2022 - advisorperspectives.com\n[ID: 38] [US] 標題: MRNO Bounces on Debt Deal Hopes, But Liquidity Lags - bitget.com\n[ID: 39] [US] 標題: Don't Look Now, but the Federal Reserve's March Inflation Forecast Just Worsened - AOL.com</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] 標題: 新台幣午盤貶2.4分 暫收31.973元 - 經濟日報\n[ID: 1] [TW] 標題: 川普談話再掀波瀾！台股跌逾500點、新台幣一度貶回32字頭 - ec.ltn.com.tw\n[ID: 2] [TW] 標題: AI基礎建設恐推升通膨 德意志銀行研究駁斥市場樂觀預期 - Yahoo股市\n[ID: 3] [TW] 標題: 能源價格波動與通膨壓力加劇 台北「張老師」 籲關注自我心理健康 - msn.com\n[ID: 4] [TW] 標題: 黨刊籲減少貿易順差 分析： 北京重視貿易夥伴關切 - msn.com\n[ID: 5] [TW] 標題: 戰事結束預期變成觀望！ 台股開盤上漲站回月線 盤中翻黑震盪 上下震盪871點 - Yahoo新聞\n[ID: 6] [TW] 標題: 台股跌1萬點我會笑出來！他從低收入戶翻身賺1億、靠金融股年領500萬股息：肥羊派「10%+2%」抄底時機曝光 - 今周刊\n[ID: 7] [TW] 標題: 伊朗開嗆川普演講「講話沒信用讓股市暴跌」；野村警告未見明確訊息，亞洲央行恐升息防禦 - 動區動趨\n[ID: 8] [TW] 標題: 通膨巨獸+政策現微光　為何「回防市中心」成為2026年資產最優解方？ - ETtoday房產雲\n[ID: 9] [TW] 標題: UBS示警！油價飆上每桶150美元　日圓會貶破175 - finance.ettoday.net\n[ID: 10] [TW] 標題: 中東戰火釀原物料大漲 專家解析國內製造業景氣、通膨走勢 - 中央社 CNA\n[ID: 11] [TW] 標題: 台股跌破5日線 亞股走弱、川普談話引發賣壓 - 聯合新聞網\n[ID: 12] [TW] 標題: 川普一句話重挫台股！台積電跳水跌到1815元「炸260億登成交王」 這檔搭低軌衛星起飛成交緊追235億元 - Yahoo股市\n[ID: 13] [TW] 標題: 全球PMI已拉響警報！工廠投入成本飆升 漲價潮也來了嗎 - knews.com.tw\n[ID: 14] [TW] 標題: 加息窗口就在4月？日央行前首席經濟學家發聲：若不加息恐遭日元“毀滅性拋售” 作者 智通財經 - Investing.com 香港 - 股市報價& 財經新聞\n[ID: 15] [TW] 標題: 【Hot台股】欣興剛解禁就逆風亮燈！網歎「沒要給人買的意思」 分析師揭介入時機 - Yahoo股市\n[ID: 16] [TW] 標題: 中東衝突推升能源風險，加拿大LNG出口亞洲迎「世代性機會」 - Yahoo股市\n[ID: 17] [TW] 標題: 伊朗戰爭推升能源成本 南韓3月CPI通膨率升至2.2% 作者 Investing.com - Investing.com 香港 - 股市報價& 財經新聞\n[ID: 18] [TW] 標題: 油價暴漲超5%!特朗普威脅未來幾周將升級伊朗戰爭，市場重陷恐慌 - Moomoo\n[ID: 19] [TW] 標題: 戰爭打亂供應鏈工廠投入成本增、PMI數據失真- 新聞 - MoneyDJ理財網\n[ID: 20] [US] 標題: The “Dow Jones Activist Wave” Gains Momentum: Why America’s Most Iconic Companies Are No Longer Untouchable - hedgeco.net\n[ID: 21] [US] 標題: Artemis launch, flipping voters, fed-up drivers: Catch up on the day’s stories - kq2.com\n[ID: 22] [US] 標題: Most offshore yuan interbank lending rates rise, with daytime repo agreement liquidity used by more than 30% - Bitget\n[ID: 23] [US] 標題: South Korea CPI inflation rises 2.2% in March as Iran war drives energy costs - Investing.com\n[ID: 24] [US] 標題: XRP Price Prediction 2026: Pepeto Targets 300x as Fed April 28 Rate Decision Could Trigger the Next Crypto Rally - FinanceFeeds\n[ID: 25] [US] 標題: The US Dollar Index surged by 0.4%, reaching 99.963. - news.futunn.com\n[ID: 26] [US] 標題: Futures Fall, Oil Jumps On Trump's Iran Speech - Investor's Business Daily\n[ID: 27] [US] 標題: Treasuries Fall as Trump’s Iran Threats Add to Inflation Concern - Bloomberg.com\n[ID: 28] [US] 標題: U.S. dollar index last up 0.4% at 99.96 - marketscreener.com\n[ID: 29] [US] 標題: This Is Why The Fed Can Afford To Look Through The Iran War Energy Shock - Seeking Alpha\n[ID: 30] [US] 標題: Taiwan should reconsider a Bitcoin reserve in case of war, says think tank - tradingview.com\n[ID: 31] [US] 標題: Strong US data supports steady Fed rates, as 10-year Treasury yields stabilise after earlier declines on Wednesday - VT Markets\n[ID: 32] [US] 標題: After robust US data, Treasury yields rebounded, with 10-year rates stabilising as Fed holds policy steady - VT Markets\n[ID: 33] [US] 標題: The Iran War Is Bad for Inflation — But Worse for Growth - Bloomberg.com\n[ID: 34] [US] 標題: Oil Drives South Korean Inflation Higher, But Government Curbs Keep It Contained - Seeking Alpha\n[ID: 35] [US] 標題: FACT FOCUS: False claims Trump made as he addressed the nation about Iran - WRAL\n[ID: 36] [US] 標題: New Nasdaq index rules are a gift for IPO flippers. Here’s why. - MSN\n[ID: 37] [US] 標題: Ceasefire optimism weighed on the Dollar Index, which slipped 0.5% to about 99.30, forming lower highs - VT Markets\n[ID: 38] [US] 標題: The Dollar Index weakened as Iran ceasefire hopes faded, dropping below 99.30 after opening near 99.90 - VT Markets\n[ID: 39] [US] 標題: Providence basketball player arrested at gunpoint on domestic violence charge - aol.com</News_List>",
   "schema": {
     "type": "OBJECT",
     "description": "AI 思考過程與挑選結果",
@@ -129,54 +129,64 @@
     "think": {
       "event_inventory": [
         {
-          "event": "聯準會利率政策轉向訊號",
-          "count": 1,
-          "best_title": "Fed Officials Signal That Rate Cuts May Be Over"
-        },
-        {
-          "event": "中東地緣政治與停火預期",
+          "event": "川普伊朗言論引發市場恐慌",
           "count": 8,
-          "best_title": "Exchange Rate, Treasury Yields Plunge on Ceasefire Hopes"
+          "best_title": "川普一句話重挫台股！台積電跳水跌到1815元「炸260億登成交王」"
         },
         {
-          "event": "台股歷史性報復性反彈",
-          "count": 1,
-          "best_title": "台股報復性飆漲1451點 創史上第2大漲點"
-        },
-        {
-          "event": "美國通膨預期惡化與美銀警告",
+          "event": "美國聯準會利率與債市動向",
           "count": 3,
-          "best_title": "Bank of America warns 4% inflation"
+          "best_title": "Strong US data supports steady Fed rates, as 10-year Treasury yields stabilise"
         },
         {
-          "event": "美國製造業PMI擴張超預期",
-          "count": 1,
-          "best_title": "ISM Manufacturing PMI: Fastest Expansion Since 2022"
+          "event": "全球通膨與 PMI 成本壓力",
+          "count": 3,
+          "best_title": "全球PMI已拉響警報！工廠投入成本飆升 漲價潮也來了嗎"
         },
         {
-          "event": "台積電ADR溢價與美股連動",
-          "count": 6,
-          "best_title": "台積電ADR漲1.1% 較台北交易溢價17.7%"
+          "event": "中東戰爭對經濟成長之衝擊",
+          "count": 4,
+          "best_title": "The Iran War Is Bad for Inflation — But Worse for Growth"
         },
         {
-          "event": "聯發科(無晶圓廠)外資升評",
-          "count": 1,
-          "best_title": "目標價直逼1988元！外資突襲升評「這無晶圓廠」"
-        },
-        {
-          "event": "新台幣匯率與資金流向",
-          "count": 1,
-          "best_title": "這原因! 美元跌、台股大漲 新台幣升快1角"
-        },
-        {
-          "event": "AI產業趨勢與轉折點警告",
-          "count": 1,
-          "best_title": "台股藏變數「AI撐不住」 專家示警轉折點"
-        },
-        {
-          "event": "南韓通膨數據(區域經濟指標)",
+          "event": "日圓匯率與日銀加息壓力",
           "count": 2,
-          "best_title": "South Korea March inflation +2.2% y/y, weaker than expected"
+          "best_title": "加息窗口就在4月？日央行前首席經濟學家發聲：若不加息恐遭日元“毀滅性拋售”"
+        },
+        {
+          "event": "美元指數走強與匯率波動",
+          "count": 4,
+          "best_title": "The US Dollar Index surged by 0.4%, reaching 99.963."
+        },
+        {
+          "event": "南韓 CPI 通膨數據",
+          "count": 3,
+          "best_title": "South Korea CPI inflation rises 2.2% in March as Iran war drives energy costs"
+        },
+        {
+          "event": "AI 基礎建設與通膨關聯性",
+          "count": 1,
+          "best_title": "AI基礎建設恐推升通膨 德意志銀行研究駁斥市場樂觀預期"
+        },
+        {
+          "event": "台股盤中極端震盪",
+          "count": 1,
+          "best_title": "台股開盤上漲站回月線 盤中翻黑震盪 上下震盪871點"
+        },
+        {
+          "event": "中國貿易政策調整",
+          "count": 1,
+          "best_title": "黨刊籲減少貿易順差 分析： 北京重視貿易夥伴關切"
+        },
+        {
+          "event": "全球能源供應鏈重組",
+          "count": 1,
+          "best_title": "中東衝突推升能源風險，加拿大LNG出口亞洲迎「世代性機會」"
+        },
+        {
+          "event": "美股激進投資者浪潮",
+          "count": 1,
+          "best_title": "The “Dow Jones Activist Wave” Gains Momentum"
         }
       ],
       "dimension_check": {
@@ -188,83 +198,83 @@
       },
       "excluded": [
         {
+          "id": 6,
+          "reason": "個人理財故事"
+        },
+        {
           "id": 8,
-          "reason": "單一房市新聞"
+          "reason": "房地產行銷"
         },
         {
-          "id": 11,
-          "reason": "房市政策微觀"
+          "id": 15,
+          "reason": "單一公司個股新聞"
         },
         {
-          "id": 13,
-          "reason": "理財教學性質"
+          "id": 3,
+          "reason": "心理健康社會新聞"
         },
         {
-          "id": 16,
-          "reason": "個人評論觀點"
+          "id": 39,
+          "reason": "社會刑事案件"
         },
         {
-          "id": 21,
-          "reason": "印度政治無關"
+          "id": 24,
+          "reason": "加密貨幣價格預測"
         },
         {
-          "id": 22,
-          "reason": "無實質影響活動"
-        },
-        {
-          "id": 26,
-          "reason": "特定加密產品"
-        },
-        {
-          "id": 32,
-          "reason": "遠期預測農場文"
-        },
-        {
-          "id": 33,
-          "reason": "美國稅務細節"
+          "id": 30,
+          "reason": "智庫建議非實質政策"
         }
       ]
     },
     "news": [
       {
-        "id": 34,
-        "summary": "聯準會官員釋出極其鷹派的訊號，暗示降息週期可能已經結束。這對槓桿型投資者是重大警訊，因為高利率環境將持續壓抑科技股估值並增加融資成本。市場原先預期的貨幣寬鬆紅利可能落空，需重新評估大盤與權值股的定價邏輯，對 0050 等權值股構成中長期壓力。"
+        "id": 12,
+        "summary": "川普對伊朗的強硬言論引發市場恐慌，導致台股重挫逾500點，權王台積電一度跌至1815元，成交量爆出260億元。此事件顯示地緣政治風險已直接衝擊半導體供應鏈信心，投資人需警惕避險情緒升溫對 0050 等權值型 ETF 的短期劇烈波動影響。"
       },
       {
         "id": 31,
-        "summary": "中東地緣政治緊張局勢因伊朗停火希望出現轉機，導致美債殖利率與美元匯率大幅回落。避險情緒降溫促使資金回流風險資產，對台股等新興市場具備強大推升力道。若戰事降溫，油價回落將緩解通膨壓力，為全球股市提供反彈動能，有利於台股大盤挑戰新高。"
+        "summary": "美國強勁的經濟數據支持聯準會維持利率穩定，10年期美債殖利率在週三下滑後趨於平穩。這反映出市場對「高利率維持更久」的預期已基本消化，債市的穩定有助於緩解科技股的估值壓力，但仍需關注後續通膨數據是否反彈。"
       },
       {
-        "id": 17,
-        "summary": "台股創下史上第二大漲點，單日報復性飆漲 1451 點，顯示市場在極度恐慌後的強力反彈。此種極端波動通常伴隨外資大規模回補與空頭回補，對 0050 及其槓桿產品（如 00631L）提供極佳的獲利空間。投資者應關注此漲勢的延續性，以及是否伴隨成交量的實質放大。"
+        "id": 13,
+        "summary": "全球 PMI 數據顯示工廠投入成本大幅飆升，預示新一波漲價潮可能來襲。供應鏈受戰爭干擾導致成本轉嫁壓力增加，這將直接推升終端通膨，壓縮製造業利潤空間。對於依賴出口的台灣電子產業而言，毛利率的維持將面臨嚴峻挑戰。"
       },
       {
-        "id": 35,
-        "summary": "美銀警告美國通膨可能回升至 4%，且聯準會 3 月通膨預測惡化。通膨黏性將迫使 Fed 維持高利率更久，甚至重啟升息討論。這將直接衝擊對利率敏感的 AI 科技股與半導體板塊。對於 0050 投資者而言，需警惕通膨數據超預期導致的系統性回檔風險。"
+        "id": 33,
+        "summary": "彭博分析指出，伊朗戰爭對全球經濟的負面影響，對「經濟成長」的損害可能大於對「通膨」的推升。能源價格上漲雖具通膨效應，但更嚴重的問題在於地緣風險導致的消費與投資萎縮，這可能引發全球經濟放緩，對週期性產業及大盤指數構成長期壓制。"
       },
       {
-        "id": 37,
-        "summary": "美國 3 月 ISM 製造業 PMI 創下 2022 年以來最快擴張速度，顯示美國經濟韌性極強。雖然經濟強勁有利於企業獲利，但也進一步削弱了聯準會降息的必要性。強勁的經濟數據可能導致「好消息即壞消息」的市場反應，使美股與台股在利率預期調整中出現震盪。"
-      },
-      {
-        "id": 1,
-        "summary": "台積電 ADR 上漲 1.1%，較台北交易溢價擴大至 17.7%。高溢價顯示國際資金對台積電的強烈需求，通常預示台股現貨開盤後的補漲行情。作為 0050 佔比最高的權值股，台積電 ADR 的強勢表現是支撐大盤與槓桿策略獲利的核心驅動力。"
-      },
-      {
-        "id": 0,
-        "summary": "外資大幅調升聯發科目標價至 1988 元，看好其 TPU 與 AI 晶片題材。聯發科作為台股第二大權值股，其市值王座的想像空間被點燃，將帶動 IC 設計板塊集體轉強。這對於以 0050 為核心的投資組合具有顯著的結構性利多，有助於分散單一依賴台積電的風險。"
-      },
-      {
-        "id": 5,
-        "summary": "美元指數走跌帶動新台幣強升近 1 角，外資回流台股跡象明顯。匯率走勢是台股資金面的先行指標，台幣升值有利於外資持續買超大型權值股。對於 0050 投資者，匯率走強通常伴隨著大盤的波段漲勢，是增加槓桿部位的重要參考訊號。"
-      },
-      {
-        "id": 10,
-        "summary": "專家示警 AI 族群可能面臨轉折點，若 AI 漲勢無法支撐大盤，台股將面臨變數。這提醒投資者在享受 AI 紅利的同時，需注意過度擁擠交易的風險。若 0050 內的 AI 相關成分股出現集體回檔，應考慮適度調節槓桿倍數以規避潛在的波動風險。"
+        "id": 14,
+        "summary": "日本央行前首席經濟學家警告，若 4 月不採取加息行動，日圓可能面臨「毀滅性拋售」。日圓匯率的極端波動將牽動亞洲資金流向，若日圓崩盤可能引發區域性貨幣競爭性貶值，增加台幣匯率不確定性，進而影響外資對台股的持股意願。"
       },
       {
         "id": 25,
-        "summary": "南韓 3 月通膨率為 2.2%，低於預期，顯示亞洲區域通膨壓力相對受控。作為台灣半導體產業的主要競爭對手與區域經濟指標，南韓數據的穩定有助於穩定亞洲市場情緒。這為台股提供了一個相對穩定的外部環境，降低了區域性系統風險的機率。"
+        "summary": "美元指數 (DXY) 上漲 0.4% 至 99.963，逼近 100 大關。強勢美元通常伴隨著新興市場資金回流美國，對台股等亞股形成資金面壓力。在台幣同步貶值的情況下，外資賣壓可能持續，投資人應密切觀察 0050 成分股中外資佔比較高者的資金流向。"
+      },
+      {
+        "id": 17,
+        "summary": "南韓 3 月 CPI 通膨率受伊朗戰爭推升能源成本影響，升至 2.2%。作為台灣主要的產業競爭對手，南韓的通膨壓力與能源風險具備指標意義，顯示亞洲製造業中心正集體承受能源輸入型通膨，這將迫使亞洲各國央行在貨幣政策上維持偏緊立場。"
+      },
+      {
+        "id": 2,
+        "summary": "德意志銀行研究指出，AI 基礎建設的大規模投入可能推升長期通膨，駁斥了市場對 AI 僅具備生產力提升（通縮效應）的樂觀預期。這意味著科技巨頭的資本支出競賽將成為通膨的新推手，對長期利率走勢及科技股的折現率估值具有深遠影響。"
+      },
+      {
+        "id": 5,
+        "summary": "台股盤中震盪高達 871 點，顯示市場在戰爭預期與停火觀望之間極度不安。這種極端波動率 (VIX) 的上升，反映出當前市場缺乏明確方向感，槓桿型投資工具（如 0050 正2）的風險顯著增加，投資人應避免在情緒驅動的震盪中過度追價。"
+      },
+      {
+        "id": 4,
+        "summary": "中國黨刊呼籲減少貿易順差，顯示北京正重視貿易夥伴對貿易失衡的關切。這可能預示中國將調整出口策略或增加進口，對全球貿易流向及兩岸經貿環境產生微妙影響。在美中貿易摩擦持續的背景下，此舉可能旨在緩解地緣政治壓力。"
+      },
+      {
+        "id": 16,
+        "summary": "中東衝突推升能源風險，使加拿大液化天然氣 (LNG) 出口亞洲迎來「世代性機會」。這反映出全球能源供應鏈的重組趨勢，能源安全成為各國首要任務。對於台灣等能源高度依賴進口的經濟體，能源來源的多樣化將是維持經濟穩定的關鍵。"
+      },
+      {
+        "id": 20,
+        "summary": "「道瓊激進投資浪潮」興起，美國指標性大企業不再不可撼動。激進投資者的介入通常會迫使公司進行資產重組或增加股東回饋，這對美股大型權值股的治理與股價表現有正面推動作用，亦可作為台股大型權值股未來治理演進的參考。"
       }
     ]
   }
