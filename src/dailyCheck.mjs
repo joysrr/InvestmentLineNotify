@@ -58,7 +58,7 @@ export async function dailyCheck({
     console.log("😴 當日無開市，跳過通知");
   }
 
-  // 台指恐慌指數 (VIX) - 即時數據，不進 Cache
+  // 台指恐慌指數 (VIX)
   console.log("📈 抓取台指恐慌指數 (VIX)...");
   const vixData = await getTwVix();
   if (vixData) {
@@ -67,17 +67,16 @@ export async function dailyCheck({
     console.log("❌ VIX 抓取失敗，不影響主流程");
   }
 
-  // 抓取基準價 - 即時數據
+  // 抓取基準價
   console.log("📥 正在抓取基準價...");
   const { basePrice } = await fetchLatestBasePrice();
   console.log(`💰 取得基準價：${basePrice}`);
 
-  // 呼叫 fetchAllMacroData() 取得包含美股與總經的快取資料
+  // 取得總經與籌碼資料
   console.log("🌏 正在獲取總經與籌碼資料 (含每日一句與美股風險)...");
   const macroData = await fetchAllMacroData();
   const macroAndChipStr = formatMacroChipForCoach(macroData);
 
-  // 從 macroData 中解構出我們需要的資料
   const usRisk = macroData.rawUsMarket || {
     riskLevel: "正常",
     vix: "N/A",
@@ -95,7 +94,6 @@ export async function dailyCheck({
   const symbolZ2 = "00675L.TW";
   const symbol0050 = "0050.TW";
 
-  // 取得歷史數據（近一年）
   const today = new Date();
   const lastYear = new Date(today);
   lastYear.setFullYear(lastYear.getFullYear() - 1);
@@ -121,7 +119,6 @@ export async function dailyCheck({
   } catch (e) {
     console.log("⚠️ 0050 MIS 失敗，轉用收盤價");
   }
-
   if (!price0050) {
     const latest0050 = await fetchLatestClose(symbol0050);
     price0050 = latest0050?.close;
@@ -136,7 +133,6 @@ export async function dailyCheck({
   } catch (e) {
     console.log(`⚠️ 00675L MIS 失敗，改用收盤價：${currentPriceZ2}`);
   }
-
   if (!currentPriceZ2) {
     const latest = await fetchLatestClose(symbolZ2);
     currentPriceZ2 = latest?.close;
@@ -155,7 +151,6 @@ export async function dailyCheck({
   const latestKD = kdArr[kdArr.length - 1];
   console.log(`✅ 指標計算完成`);
 
-  // 準備數據包
   const signalData = {
     RSI: latestRSI,
     KD_K: latestKD ? latestKD.k : null,
@@ -181,18 +176,14 @@ export async function dailyCheck({
   console.log("🧠 正在計算投資訊號...");
   const result = await getInvestmentSignalAsync(signalData);
 
-  const dateText = TwDate().formatDateKey(); // 例如 "2026-03-24"
+  const dateText = TwDate().formatDateKey();
 
-  // 取得新聞錦集
+  // 取得新聞集錦（從 pool 讀取，不再即時抓取）
   let newsMessages = [];
   let newsSummaryText = "今日無重大市場新聞。";
-  console.log("📝 正在取得新聞集錦...");
+  console.log("📝 正在從 news pool 取得新聞集錦...");
   try {
-    const marketDataObj = {
-      marketStatus: result.marketStatus,
-      vix: vixData?.value ?? "未知",
-    };
-    const newsResult = await getNewsTelegramMessages(marketDataObj);
+    const newsResult = await getNewsTelegramMessages();
     newsMessages = newsResult.messages;
     newsSummaryText = newsResult.summaryText;
   } catch (err) {
@@ -231,7 +222,7 @@ export async function dailyCheck({
     !isAIAdvisor,
   );
 
-  // 推送至平台(Telegram)
+  // 推送至 Telegram
   const reportDailyData = {
     result,
     vixData,
@@ -259,7 +250,7 @@ export async function dailyCheck({
     console.error("❌ 寫入試算表失敗 (但不影響發送通知):", sheetErr.message);
   }
 
-  // 清理系統，並儲存最終結果 (Archive)
+  // 清理系統，儲存最終報告
   try {
     console.log("🧹 正在清理過期快取並儲存最終報告...");
     await archiveManager.saveReport({
