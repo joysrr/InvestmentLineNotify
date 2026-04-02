@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-04-02T04:28:50.762Z",
+  "_savedAt": "2026-04-02T05:44:45.332Z",
   "type": "SearchQueries",
-  "userPrompt": "今天是 2026-04-02。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.27。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。\n\n⚠️ 以下為靜態關鍵字池，請勿重複產出相同字詞：\nTW 靜態池：台股、大盤、台積電 法說、台積電 ADR、台積電 外資、外資、三大法人、融資 融券、集中度 籌碼、國安基金、央行、升息 降息、新台幣、通膨、出口、外銷訂單、景氣燈號、PMI\nUS 靜態池：S&P 500、Nasdaq、CPI、Dow Jones、Federal Reserve、Fed、Powell、FOMC、Treasury yields、dollar index、credit spread、liquidity、inflation、payrolls、recession、GDP、jobless claims、ISM",
+  "userPrompt": "今天是 2026-04-02。目前台股市場狀態為 🌡️【偏熱/觀察】，VIX 指數為 36.45。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。\n\n⚠️ 以下為靜態關鍵字池，請勿重複產出相同字詞：\nTW 靜態池：台股、大盤、台積電 法說、台積電 ADR、台積電 外資、外資、三大法人、融資 融券、集中度 籌碼、國安基金、央行、升息 降息、新台幣、通膨、出口、外銷訂單、景氣燈號、PMI\nUS 靜態池：S&P 500、Nasdaq、CPI、Dow Jones、Federal Reserve、Fed、Powell、FOMC、Treasury yields、dollar index、credit spread、liquidity、inflation、payrolls、recession、GDP、jobless claims、ISM",
   "schema": {
     "type": "OBJECT",
     "properties": {
@@ -71,64 +71,72 @@
     ]
   },
   "rawResult": {
-    "reasoning_process": "當前 VIX 指數飆升至 36.27，顯示市場正處於極度恐慌或面臨重大黑天鵝事件，與『偏熱』的市場狀態形成強烈背離，這通常暗示『末跌段的噴出』或『高檔反轉的初步崩解』。推論核心風險在於：1. 融資槓桿過高引發的斷頭潮（多殺多）；2. AI 泡沫化疑慮或大型科技股指引下修；3. 地緣政治衝突突然升溫；4. 日圓套利交易平倉引發的流動性危機。搜尋策略將聚焦於籌碼崩潰訊號、避險資產流向及系統性風險觸發點。",
+    "reasoning_process": "當前 VIX 指數高達 36.45，顯示市場處於極度恐慌或面臨重大不確定性，與「偏熱/觀察」的狀態形成強烈對比，暗示市場可能正處於高檔反轉或突發性利空襲擊的轉折點。推論核心議題為：1. 融資維持率與斷頭風險（高 VIX 伴隨的籌碼崩潰）；2. AI 供應鏈是否出現實質砍單或成長放緩；3. 地緣政治風險（如中東或台海）導致的避險情緒升溫；4. 信用市場壓力與銀行流動性。搜尋策略將側重於「流動性風險」、「避險資產動向」與「特定產業利空傳聞」。",
     "twQueries": [
       {
-        "keyword": "融資 維持率",
+        "keyword": "融資 維持率 斷頭",
         "searchType": "intitle"
       },
       {
-        "keyword": "多殺多 賣壓",
+        "keyword": "半導體 設備 砍單",
         "searchType": "broad"
       },
       {
-        "keyword": "兩岸 局勢 緊張",
+        "keyword": "避險 權證 交易量",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "壽險業 匯損 壓力",
         "searchType": "intitle"
-      },
-      {
-        "keyword": "半導體 砍單",
-        "searchType": "broad"
-      },
-      {
-        "keyword": "避險 資金 流向",
-        "searchType": "broad"
       },
       {
         "keyword": "投信 停損 賣壓",
         "searchType": "broad"
       },
       {
-        "keyword": "高股息 賣壓",
+        "keyword": "地緣政治 衝突 升溫",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "伺服器 出貨 延遲",
         "searchType": "intitle"
+      },
+      {
+        "keyword": "散戶 恐慌 指數",
+        "searchType": "broad"
       }
     ],
     "usQueries": [
       {
-        "keyword": "Volatility index surge",
+        "keyword": "bank liquidity stress",
         "searchType": "intitle"
-      },
-      {
-        "keyword": "Systemic financial risk",
-        "searchType": "broad"
       },
       {
         "keyword": "AI bubble burst",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "Safe haven gold",
         "searchType": "broad"
       },
       {
-        "keyword": "Big tech guidance",
-        "searchType": "intitle"
-      },
-      {
-        "keyword": "Yen carry trade",
+        "keyword": "gold price breakout",
         "searchType": "broad"
       },
       {
-        "keyword": "Equity selloff panic",
+        "keyword": "corporate bond default",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "Nvidia Blackwell delay",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "Middle East escalation",
+        "searchType": "broad"
+      },
+      {
+        "keyword": "margin call wave",
+        "searchType": "intitle"
+      },
+      {
+        "keyword": "tech earnings miss",
         "searchType": "broad"
       }
     ]
