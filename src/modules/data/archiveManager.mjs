@@ -11,6 +11,12 @@ const DIRS = {
   REPORTS: path.join(DATA_DIR, "reports"),
   STOCK_HISTORY: path.join(DATA_DIR, "stock_history"),
   NEWS_LOGS: path.join(DATA_DIR, "news_logs"),
+  CACHE: path.join(DATA_DIR, "cache"),
+};
+
+const FILES = {
+  LAST_BUY: path.join(DATA_DIR, "last_buy.json"),
+  STRATEGY_CACHE: path.join(DIRS.CACHE, "strategy_cache.json"),
 };
 
 async function ensureDirectories() {
@@ -101,7 +107,7 @@ export const archiveManager = {
       _savedAt: new Date().toISOString(),
       region,
       count: articles.length,
-      ...meta,  // 可帶入 usedKeywords, fallbackTriggered 等除錯欄位
+      ...meta,
       articles,
     };
 
@@ -122,7 +128,6 @@ export const archiveManager = {
     const msToKeep = daysToKeep * 24 * 60 * 60 * 1000;
     let deletedCount = 0;
 
-    // 有日期輪替的目錄：依 daysToKeep 清理
     const dateCycleDirs = [
       DIRS.MARKET_HISTORY,
       DIRS.REPORTS,
@@ -146,7 +151,6 @@ export const archiveManager = {
       }
     }
 
-    // AI_LOGS：固定覆寫型，通常不需清理；若有傳 aiLogDays 則額外清理
     if (aiLogDays > 0) {
       const aiMs = aiLogDays * 24 * 60 * 60 * 1000;
       try {
@@ -191,5 +195,70 @@ export const archiveManager = {
     const filePath = path.join(DIRS.STOCK_HISTORY, fileName);
     await fs.writeFile(filePath, JSON.stringify(data, null, 2));
     console.log(`📊 [Archive] 歷史股價已存檔: ${fileName}`);
+  },
+
+  // ==========================================================================
+  // 6. lastBuyDate 本地備份（風控容錯）
+  // ==========================================================================
+
+  /**
+   * 將最後一次主動買入日期備份至本地 data/last_buy.json
+   * @param {string} dateStr - 日期字串，格式 YYYY-MM-DD 或 YYYY/MM/DD
+   */
+  async saveLastBuyDate(dateStr) {
+    await ensureDirectories();
+    const payload = {
+      lastBuyDate: dateStr,
+      updatedAt: new Date().toISOString(),
+      source: "sheet",
+    };
+    await fs.writeFile(FILES.LAST_BUY, JSON.stringify(payload, null, 2));
+    console.log(`💾 [Archive] lastBuyDate 本地備份已更新: ${dateStr}`);
+  },
+
+  /**
+   * 讀取本地備份的最後買入日期
+   * @returns {string|null} 日期字串，若檔案不存在或讀取失敗回傳 null
+   */
+  async getLastBuyDate() {
+    try {
+      const content = await fs.readFile(FILES.LAST_BUY, "utf-8");
+      const data = JSON.parse(content);
+      return data.lastBuyDate ?? null;
+    } catch {
+      return null;
+    }
+  },
+
+  // ==========================================================================
+  // 7. Strategy 本地備份（遠端不可用時 fallback）
+  // ==========================================================================
+
+  /**
+   * 將已驗證的 strategy config 備份至本地 data/cache/strategy_cache.json
+   * @param {Object} config - 已通過 validateStrategyConfig 的策略物件
+   */
+  async saveStrategyCache(config) {
+    await ensureDirectories();
+    const payload = {
+      _cachedAt: new Date().toISOString(),
+      config,
+    };
+    await fs.writeFile(FILES.STRATEGY_CACHE, JSON.stringify(payload, null, 2));
+    console.log(`💾 [Archive] Strategy 本地備份已更新 (v${config.version})`);
+  },
+
+  /**
+   * 讀取本地備份的 strategy config
+   * @returns {Object|null} strategy 物件，若不存在或解析失敗回傳 null
+   */
+  async getStrategyCache() {
+    try {
+      const content = await fs.readFile(FILES.STRATEGY_CACHE, "utf-8");
+      const data = JSON.parse(content);
+      return data.config ?? null;
+    } catch {
+      return null;
+    }
   },
 };
