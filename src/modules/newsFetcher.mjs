@@ -27,7 +27,7 @@ function buildSingleKeywordQueryStr(item, excludeList = []) {
       : `-"${ex.keyword}"`,
   );
 
-  return [include, "+when:1d", ...excludeParts].join(" ");
+  return [include, "+when:6h", ...excludeParts].join(" ");
 }
 
 function validateDynamicKeyword(item, staticPool) {
