@@ -40,11 +40,6 @@ export const langfuse = new Langfuse({
 });
 
 // ── Human Review Metadata ────────────────────────────────────────────────────
-/**
- * 各 promptName 對應的 Human 類評分欄位說明，
- * 用於讓 Langfuse 上的 trace 可被快速識別抽查重點。
- * 格式：{ scores: string[], review_notes: string, human_review: boolean }
- */
 const HUMAN_REVIEW_CONFIG = {
   FilterAndCategorizeNews: {
     human_review: true,
@@ -77,7 +72,6 @@ const HUMAN_REVIEW_CONFIG = {
   },
 };
 
-/** 取得指定 promptName 的 human review metadata，找不到則回傳預設值 */
 function getHumanReviewMeta(promptName) {
   return (
     HUMAN_REVIEW_CONFIG[promptName] ?? {
@@ -88,19 +82,37 @@ function getHumanReviewMeta(promptName) {
   );
 }
 
-// ── 可重試的錯誤判斷 ─────────────────────────────────────────────────────────
-function isRetryableError(error) {
+// ── 錯誤分類 ─────────────────────────────────────────────────────────────────
+
+/**
+ * Quota / Rate Limit 類錯誤 → 立即換下一把 key，不等待
+ */
+function isQuotaError(error) {
   const msg = error.message || "";
   return (
-    msg.includes("503") ||
-    msg.includes("UNAVAILABLE") ||
     msg.includes("429") ||
     msg.includes("RATE_LIMIT") ||
     msg.includes("quota")
   );
 }
 
-// Exponential Backoff + Jitter
+/**
+ * 服務不穩定類錯誤 → 維持同一把 key，做 backoff 等待後重試
+ */
+function isServiceError(error) {
+  const msg = error.message || "";
+  return (
+    msg.includes("503") ||
+    msg.includes("UNAVAILABLE")
+  );
+}
+
+/** 向下相容：任一可重試錯誤 */
+function isRetryableError(error) {
+  return isQuotaError(error) || isServiceError(error);
+}
+
+// Exponential Backoff + Jitter（僅用於 ServiceError）
 function getBackoffDelay(attempt, baseDelay = 2000) {
   const exponential = baseDelay * Math.pow(2, attempt);
   const jitter = Math.random() * 1000;
@@ -126,11 +138,9 @@ export async function callAI(promptName, userPrompt, options = {}) {
   const systemInstruction = promptObj.compile(options.promptVariables ?? {});
   const resolvedOptions = { ...options, ...promptObj.config };
 
-  const keyIndex = options.keyIndex ?? 0;
-  const resolvedIndex = provider === PROVIDERS.GEMINI
-    ? (keyIndex < aiInstances.length ? keyIndex : 0)
-    : 0;
-  const maxRetries = options.maxRetries ?? 5;
+  const startKeyIndex = options.keyIndex ?? 0;
+  const keyCount = provider === PROVIDERS.GEMINI ? aiInstances.length : 1;
+  const maxRetries = options.maxRetries ?? (keyCount * 2);
 
   // ── Human Review Metadata ────────────────────────────────────────────────
   const humanReviewMeta = getHumanReviewMeta(promptName);
@@ -144,8 +154,7 @@ export async function callAI(promptName, userPrompt, options = {}) {
     metadata: {
       provider,
       model: resolvedModel,
-      resolvedKeyIndex: resolvedIndex,
-      requestedKeyIndex: keyIndex,
+      startKeyIndex,
       human_review: humanReviewMeta,
       ...(isCI && {
         githubRunId: process.env.GITHUB_RUN_ID,
@@ -156,14 +165,16 @@ export async function callAI(promptName, userPrompt, options = {}) {
     tags: [
       `provider:${provider}`,
       `model:${resolvedModel}`,
-      `key-slot-${resolvedIndex}`,
+      `key-slot-${startKeyIndex}`,
       `feature:${promptName}`,
       isCI ? "env:ci" : "env:local",
       ...(humanReviewMeta.human_review ? ["needs-human-review"] : []),
     ],
   });
 
-  // ── Retry Loop ──────────────────────────────────────────────────────────────
+  // ── Retry Loop（含 key 輪換）──────────────────────────────────────────────
+  let currentKeyIndex = startKeyIndex % (keyCount || 1);
+
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     const generation = trace.generation({
       name: `${promptName}-attempt-${attempt}`,
@@ -179,6 +190,7 @@ export async function callAI(promptName, userPrompt, options = {}) {
       },
       metadata: {
         provider,
+        keyIndex: currentKeyIndex,
         ...(resolvedOptions.responseMimeType && {
           responseMimeType: resolvedOptions.responseMimeType,
         }),
@@ -189,7 +201,7 @@ export async function callAI(promptName, userPrompt, options = {}) {
       let rawText, inputTokens, outputTokens, totalTokens, thoughtsTokenCount;
 
       if (provider === PROVIDERS.GEMINI) {
-        const ai = aiInstances[resolvedIndex];
+        const ai = aiInstances[currentKeyIndex];
         const response = await ai.models.generateContent({
           model: resolvedModel,
           contents: [{ role: "user", parts: [{ text: userPrompt }] }],
@@ -233,26 +245,50 @@ export async function callAI(promptName, userPrompt, options = {}) {
         usage: {
           input: inputTokens, output: outputTokens, total: totalTokens, unit: "TOKENS",
         },
-        metadata: { thoughtsTokenCount },
+        metadata: { thoughtsTokenCount, resolvedKeyIndex: currentKeyIndex },
       });
 
       trace.update({ output: text });
 
       return { text, traceId: trace.id };
+
     } catch (error) {
       const isLast = attempt === maxRetries;
-      const canRetry = isRetryableError(error);
+      const quotaErr = isQuotaError(error);
+      const serviceErr = isServiceError(error);
+      const canRetry = (quotaErr || serviceErr) && !isLast;
 
-      if (canRetry && !isLast) {
-        const delay = getBackoffDelay(attempt);
-        console.warn(
-          `⚠️ Gemini 第 ${attempt + 1} 次失敗 (key: ${resolvedIndex})，` +
-          `${(delay / 1000).toFixed(1)}s 後重試... 原因: ${error.message}`,
-        );
-        generation.end({ level: "WARNING", statusMessage: `Retry ${attempt + 1}: ${error.message}` });
-        await new Promise((resolve) => setTimeout(resolve, delay));
+      if (canRetry) {
+        if (quotaErr && keyCount > 1) {
+          // Quota 錯誤：立即切換到下一把 key，不等待
+          const prevKey = currentKeyIndex;
+          currentKeyIndex = (currentKeyIndex + 1) % keyCount;
+          console.warn(
+            `⚠️ [callAI] Quota 耗盡 (key: ${prevKey})，` +
+            `立即切換至 key: ${currentKeyIndex}（attempt ${attempt + 1}/${maxRetries}）`,
+          );
+          generation.end({
+            level: "WARNING",
+            statusMessage: `Quota exceeded key:${prevKey}, switching to key:${currentKeyIndex}`,
+          });
+        } else {
+          // Service 錯誤或只有一把 key：backoff 等待後重試
+          const delay = getBackoffDelay(attempt);
+          console.warn(
+            `⚠️ [callAI] 服務錯誤 (key: ${currentKeyIndex})，` +
+            `${(delay / 1000).toFixed(1)}s 後重試（attempt ${attempt + 1}/${maxRetries}）原因: ${error.message}`,
+          );
+          generation.end({
+            level: "WARNING",
+            statusMessage: `Service error retry ${attempt + 1}: ${error.message}`,
+          });
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
       } else {
-        console.error(`❌ Gemini API 呼叫失敗 (key: ${resolvedIndex}):`, error.message);
+        console.error(
+          `❌ [callAI] API 呼叫失敗 (key: ${currentKeyIndex}, attempt: ${attempt}):`,
+          error.message,
+        );
         generation.end({ level: "ERROR", statusMessage: error.message });
         trace.update({ output: { error: error.message }, statusMessage: error.message });
         throw error;
