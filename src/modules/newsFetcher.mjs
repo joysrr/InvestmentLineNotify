@@ -169,7 +169,7 @@ function isTitleTooShort(title) {
 
 function prepareNewsForAI(newsList, maxPerRegion = 20, blacklist = null) {
   console.log(`📰 原始新聞: ${newsList.length} 筆`);
-  const recent = filterNewsByDate(newsList, 24);
+  const recent = filterNewsByDate(newsList, 6);
   console.log(`📰 時間篩選後: ${recent.length} 筆`);
 
   const filteredBySource = recent.filter((news) => {
