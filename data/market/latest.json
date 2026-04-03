@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "lastRun": "2026-04-03T00:02:55.881Z",
+    "lastRun": "2026-04-03T04:28:22.761Z",
     "sources": {
       "cnnProvider": {
         "status": "SUCCESS",
@@ -12,7 +12,7 @@
       },
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-03T00:02:55.881Z"
+        "lastFetch": "2026-04-03T04:28:22.761Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
@@ -29,6 +29,12 @@
     }
   },
   "data": {
+    "rawNdc": {
+      "date": "2026-02",
+      "score": 40,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
     "rawMargin": {
       "marginBalance100M": 3852.01,
       "marginBalanceChange100M": -7.07,
@@ -58,10 +64,22 @@
       },
       "source": "FRED"
     },
+    "rawValuation": {
+      "pe": 23.93,
+      "pb": 3.25,
+      "yield": 2.25,
+      "date": "20260402"
+    },
+    "quote": {
+      "date": "2026-04-03",
+      "quote": "You can do nothing to change the past, and the future will never come exactly as you plan or hope for.",
+      "author": "Dan Millman",
+      "source": "zenquotes"
+    },
     "rawFx": {
-      "currentRate": 31.92,
+      "currentRate": 31.95,
       "previousClose": 31.535,
-      "changePercent": 1.22,
+      "changePercent": 1.32,
       "historicalPrices": [
         31.535,
         31.734,
@@ -85,26 +103,9 @@
         31.977,
         32.039,
         31.9379,
-        32.002
+        32.002,
+        31.95
       ]
-    },
-    "quote": {
-      "date": "2026-04-03",
-      "quote": "You can do nothing to change the past, and the future will never come exactly as you plan or hope for.",
-      "author": "Dan Millman",
-      "source": "zenquotes"
-    },
-    "rawNdc": {
-      "date": "2026-02",
-      "score": 40,
-      "light": "紅燈 (過熱)",
-      "lightColor": "red"
-    },
-    "rawValuation": {
-      "pe": 23.93,
-      "pb": 3.25,
-      "yield": 2.25,
-      "date": "20260402"
     }
   }
 }

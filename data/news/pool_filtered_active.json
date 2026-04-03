@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-03T00:03:29.947Z",
-  "source_pool_updated_at": "2026-04-02T21:38:43.082Z",
+  "generated_at": "2026-04-03T04:28:54.405Z",
+  "source_pool_updated_at": "2026-04-03T02:23:47.609Z",
   "count": 12,
   "articles": [
     {
@@ -12,20 +12,8 @@
       "source": "The Sunday Guardian",
       "_region": "US",
       "fetched_at": "2026-04-02T16:01:54.329Z",
-      "age_band": "fresh",
-      "summary": "川普針對伊朗的強硬演說引發市場劇震，國際油價飆升至每桶109美元以上，美股三大指數集體重挫，台積電ADR崩跌3%。此事件顯示地緣政治風險已取代經濟數據成為短期市場主導力量，對台股0050等權值股構成極大下行壓力。"
-    },
-    {
-      "id": "9f994f9fcf40e486",
-      "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPeDUyaVd0cmVvVGMzR1VkSFFjcnVTVDFqdGRRLWZ4MEgycTVJWFlzRTI1RC1oVTYtVjVRTlc5eDFwYmZ4cFNqdkltbWlUaFJXMzhsM1ZUN3k0SlBDNXRWb2E0eE9DR2NFRVY1d1kxOHN1STNzSFZiOWhTX0s0OXpTcG1aaXJlbHI1LVh2TVBKX01NOFEyM3ptamFyMnN5aFhhQW1oUUhPTDJIc0h0dlYycEw5WTVoYkk?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPeDUyaVd0cmVvVGMzR1VkSFFjcnVTVDFqdGRRLWZ4MEgycTVJWFlzRTI1RC1oVTYtVjVRTlc5eDFwYmZ4cFNqdkltbWlUaFJXMzhsM1ZUN3k0SlBDNXRWb2E0eE9DR2NFRVY1d1kxOHN1STNzSFZiOWhTX0s0OXpTcG1aaXJlbHI1LVh2TVBKX01NOFEyM3ptamFyMnN5aFhhQW1oUUhPTDJIc0h0dlYycEw5WTVoYkk?oc=5",
-      "title": "Economists see Iran war spurring inflation, slowing GDP growth: NABE - CFO Dive",
-      "pubDate": "Thu, 02 Apr 2026 20:57:07 GMT",
-      "source": "CFO Dive",
-      "_region": "US",
-      "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "fresh",
-      "summary": "全美商業經濟協會(NABE)調查顯示，經濟學家普遍擔憂伊朗戰爭將引發新一輪能源通膨並拖累GDP增長。這種「滯脹」預期將限制聯準會降息空間，對槓桿型投資策略極為不利，需高度關注油價與通膨數據的聯動效應。"
+      "age_band": "recent",
+      "summary": "川普針對伊朗的強硬演說引發中東局勢高度緊張，國際油價應聲飆破每桶 109 美元。此舉導致美股三大指數劇烈震盪，道瓊與那斯達克一度重挫。高油價加劇市場對「二次通膨」的恐懼，直接衝擊科技股估值，並迫使避險資金流向美元與美債，對全球風險資產構成短期重大下行壓力。"
     },
     {
       "id": "1c2acd53106d04b3",
@@ -36,8 +24,8 @@
       "source": "Bloomberg.com",
       "_region": "US",
       "fetched_at": "2026-04-02T13:14:19.322Z",
-      "age_band": "recent",
-      "summary": "美國上週初次請領失業金人數意外降至20.2萬人，低於市場預期，顯示勞動力市場依然緊繃。強勁的就業數據強化了聯準會「Higher for Longer」的政策立場，美債殖利率回升，壓抑科技股估值，台股半導體族群短期難有表現。"
+      "age_band": "stale",
+      "summary": "美國上週初領失業金人數意外降至 20.2 萬人，低於市場預期，顯示勞動力市場依然極度緊繃。強勁的就業數據削弱了聯準會短期內降息的必要性。對於 0050 等權值股而言，這意味著高利率環境可能維持更久（Higher for longer），壓抑市場流動性並推升美債殖利率，限制大盤反彈空間。"
     },
     {
       "id": "ffbbf3460b7ab60a",
@@ -48,32 +36,44 @@
       "source": "MSN",
       "_region": "TW",
       "fetched_at": "2026-04-02T13:14:19.322Z",
-      "age_band": "recent",
-      "summary": "外資單日大砍台股807億元，連續四個交易日賣超，主要狙殺對象為台積電與鴻海。這種大規模資金流出反映全球避險情緒升溫，台股面臨季線保衛戰，投資人應警惕外資在期現貨市場的同步空方佈局。"
+      "age_band": "stale",
+      "summary": "外資對台股發動大規模「狙殺」，單日賣超金額高達 807 億元，並連續四個交易日站在賣方。台積電與鴻海等核心權值股淪為主要提款機。這種系統性的資金撤離反映了外資對地緣政治風險及台幣貶值的擔憂，短期內台股大盤將面臨嚴峻的籌碼面壓力，投資人需關注季線保衛戰的支撐力道。"
     },
     {
-      "id": "e81ed2c43a7176d8",
-      "url": "https://news.google.com/rss/articles/CBMiwAJBVV95cUxORHUtSDBoOEhjYm9NbXgzdnRNbW5Rel9zNmE2OVJUdUh6YVc3a1lvcG00RmMxYkZmMHFSdm1Oa3Z6WExidmt2YkpnS3k3eVlRVlNMX25NeGM4aWRlRnd1UzhPdWZmN1R1OS01ODNfaUNBVzExSVl5Z3lKc2VqSWdBT01LaUFqSEctRnZqbkpfWV9CQzFQb3dVWTcyVExyeDVLb1JpWDQtc0lWTjJ2TmhoUFpQMkFiWDRLaXVUM0FWTEFEdkk1MTE0dEdSY0lQOHFkM2lCdGdRaVdUb0VPdjdFSF9qZU1qMHdTWmRuT1pCME1WN3lGREpjQ1FDbnhXV2I3RnJpaExqekgybkV6UGNhSWo2dTJKdVpCUmcxNS1fX2dIeHhPblZyNzZ1MnF2QTN2TURWU1BaUzZOT0U1eFhjcw?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMiwAJBVV95cUxORHUtSDBoOEhjYm9NbXgzdnRNbW5Rel9zNmE2OVJUdUh6YVc3a1lvcG00RmMxYkZmMHFSdm1Oa3Z6WExidmt2YkpnS3k3eVlRVlNMX25NeGM4aWRlRnd1UzhPdWZmN1R1OS01ODNfaUNBVzExSVl5Z3lKc2VqSWdBT01LaUFqSEctRnZqbkpfWV9CQzFQb3dVWTcyVExyeDVLb1JpWDQtc0lWTjJ2TmhoUFpQMkFiWDRLaXVUM0FWTEFEdkk1MTE0dEdSY0lQOHFkM2lCdGdRaVdUb0VPdjdFSF9qZU1qMHdTWmRuT1pCME1WN3lGREpjQ1FDbnhXV2I3RnJpaExqekgybkV6UGNhSWo2dTJKdVpCUmcxNS1fX2dIeHhPblZyNzZ1MnF2QTN2TURWU1BaUzZOT0U1eFhjcw?oc=5",
-      "title": "新台幣盤中貶破32元 央行調節收31.972元、週線翻黑 - Yahoo股市",
-      "pubDate": "Thu, 02 Apr 2026 10:33:40 GMT",
-      "source": "Yahoo股市",
+      "id": "ea497c270edb4fdd",
+      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1rT1V6eWl6RlRiXzA4dUxSbUF5aGNhdUZ1amRYNnNzN3lvNHNzRDNEcVJ1MEJHVHBKNHNVWVpFM0tVT1BmOGFDdGtZZWtHM2lDdnlacmZaeWVvdldS?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1rT1V6eWl6RlRiXzA4dUxSbUF5aGNhdUZ1amRYNnNzN3lvNHNzRDNEcVJ1MEJHVHBKNHNVWVpFM0tVT1BmOGFDdGtZZWtHM2lDdnlacmZaeWVvdldS?oc=5",
+      "title": "台股今天上下震盪逾千點 國安基金宣布4/13開會 - taisounds.com",
+      "pubDate": "Thu, 02 Apr 2026 10:16:41 GMT",
+      "source": "taisounds.com",
       "_region": "TW",
       "fetched_at": "2026-04-02T11:40:35.701Z",
-      "age_band": "recent",
-      "summary": "新台幣匯率盤中貶破32元大關，儘管央行進場調節收在31.972元，但週線翻黑趨勢明顯。台幣走弱通常伴隨外資撤離，對以台幣計價的ETF資產淨值構成壓力，需觀察清明連假後資金是否持續流向美元避險。"
+      "age_band": "stale",
+      "summary": "面對台股單日上下震盪逾千點的極端市況，國安基金宣布將於 4 月 13 日召開例會。目前國安基金持股尚未全數出清，官方表態將密切關注國內外政經情勢以決定護盤方針。這為市場提供了心理支撐，顯示政府在 3 萬點關卡附近的維穩決心，有助於緩解散戶恐慌性拋售的壓力。"
     },
     {
-      "id": "c3536f34da74a50c",
-      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBlUTR5SUVoOXNaVEt5aUszcV9LSTFqYTFZYTJEeDNoRFlTM28wYTFxczF5N1lvOGtlYXR5UWlsMldnb2VOT1VPVUc5VGJ3X285TXo0T2J4bi0wcjM1TU1lcDZ2dmx3dHpESWx3?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBlUTR5SUVoOXNaVEt5aUszcV9LSTFqYTFZYTJEeDNoRFlTM28wYTFxczF5N1lvOGtlYXR5UWlsMldnb2VOT1VPVUc5VGJ3X285TXo0T2J4bi0wcjM1TU1lcDZ2dmx3dHpESWx3?oc=5",
-      "title": "清明連假期間國安基金備戰13日會商方針金管會股市穩定小組全天候盯盤- 財經要聞- 工商時報 - 中時新聞網",
-      "pubDate": "Thu, 02 Apr 2026 20:10:00 GMT",
-      "source": "中時新聞網",
+      "id": "275ae629abfe847b",
+      "url": "https://news.google.com/rss/articles/CBMitAJBVV95cUxNd1VDTFFDM1hEZGJnX05FOC1PS004THhwVnl2QlZmZHNYMlBMUGh3NDNmUFdXbWowRTk4Vkx5NW1uMnVXOUxYNWlEV084UkNnQlpmMkZVZGoxNVpfeHJqNlU4b1ZPaDI1VTYzWXM3bzRfSG1lRHdrZlV2Vmxob2dwdjMtc0RZcFZfNEt1Y3NJaUNlTkxtaXdMY2VBb3hjc3hUVWZsUFBTWVUwenJTZnJpVExoRmpxWDNjaU5ZMXRTWm03REpDUXZTd2V5Vnd5bFhYNUI3Qk92ck1VdXlWQlljWFlJMXdNUlJ1dTFJNDJOTkt1R0sxeHFpcU9scWNrZmhiVnJESjktcU9VZld0OWx5RVlvb3pTZTRuM185amt6eU13SGdjeFE1RzlFYXhkWmdOWGdfXw?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMitAJBVV95cUxNd1VDTFFDM1hEZGJnX05FOC1PS004THhwVnl2QlZmZHNYMlBMUGh3NDNmUFdXbWowRTk4Vkx5NW1uMnVXOUxYNWlEV084UkNnQlpmMkZVZGoxNVpfeHJqNlU4b1ZPaDI1VTYzWXM3bzRfSG1lRHdrZlV2Vmxob2dwdjMtc0RZcFZfNEt1Y3NJaUNlTkxtaXdMY2VBb3hjc3hUVWZsUFBTWVUwenJTZnJpVExoRmpxWDNjaU5ZMXRTWm03REpDUXZTd2V5Vnd5bFhYNUI3Qk92ck1VdXlWQlljWFlJMXdNUlJ1dTFJNDJOTkt1R0sxeHFpcU9scWNrZmhiVnJESjktcU9VZld0OWx5RVlvb3pTZTRuM185amt6eU13SGdjeFE1RzlFYXhkWmdOWGdfXw?oc=5",
+      "title": "新台幣收31.98元 3月狂貶7.29角創3 年半最大貶幅 - msn.com",
+      "pubDate": "Thu, 02 Apr 2026 23:18:06 GMT",
+      "source": "msn.com",
       "_region": "TW",
-      "fetched_at": "2026-04-02T21:38:43.082Z",
+      "fetched_at": "2026-04-03T02:23:47.609Z",
       "age_band": "fresh",
-      "summary": "國安基金預計於4月13日召開例會，目前持股尚未全數出清。在台股震盪千點之際，國安基金的動向具備心理支撐作用，但其「尚未退場」也暗示官方對後市政經情勢仍持謹慎態度，市場底部支撐力道仍待考驗。"
+      "summary": "新台幣匯率 3 月重貶 7.29 角，創下 3 年半以來最大單月貶幅，盤中一度失守 32 元大關。台美利差持續擴大加上外資匯出，導致股匯雙殺。匯率走弱雖有利於出口導向的半導體產業，但對整體市場而言，資金外流的負面影響大於匯兌收益，且可能迫使央行採取更強硬的貨幣政策來穩定匯價。"
+    },
+    {
+      "id": "1de18309f1b4fe8e",
+      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxPQV8wdktFMktfUVhCdDc4SGkwLVNFWVFtOEVqZVJ6Q2s1U3FZc09QNUZfbFRqMEJuN3pXNGhWQWJmS090T09wTDdIeF9pM09wZDFjNmhlNFh6dVg5c25rcUd1TnVsTTAxVy1Ua29Mc0hLZTVqTTgtRmptSEpuV05kanlzdzJPRml6anY5RzZn?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxPQV8wdktFMktfUVhCdDc4SGkwLVNFWVFtOEVqZVJ6Q2s1U3FZc09QNUZfbFRqMEJuN3pXNGhWQWJmS090T09wTDdIeF9pM09wZDFjNmhlNFh6dVg5c25rcUd1TnVsTTAxVy1Ua29Mc0hLZTVqTTgtRmptSEpuV05kanlzdzJPRml6anY5RzZn?oc=5",
+      "title": "IMF Says Federal Reserve Has Little Scope to Cut Rates in 2026 - 조선일보",
+      "pubDate": "Fri, 03 Apr 2026 00:45:26 GMT",
+      "source": "조선일보",
+      "_region": "US",
+      "fetched_at": "2026-04-03T02:23:47.609Z",
+      "age_band": "fresh",
+      "summary": "IMF 警告聯準會在 2026 年前幾乎沒有降息空間，這與市場原本樂觀的降息預期形成強烈對比。聯準會官員 Logan 亦指出通膨風險依然存在，縮表進程仍需謹慎。這種鷹派基調將持續修正市場的定價模型，對於槓桿型投資策略而言，資金成本維持高檔將是未來兩年的常態，需嚴格控管風險敞口。"
     },
     {
       "id": "efa9ac9503dddf69",
@@ -84,20 +84,8 @@
       "source": "鉅亨網",
       "_region": "TW",
       "fetched_at": "2026-04-02T16:01:54.329Z",
-      "age_band": "fresh",
-      "summary": "美國2月貿易逆差擴大至573億美元，主因進口增長超過出口，這將直接扣除Q1 GDP表現。結合亞特蘭大聯準會下調經濟預測，顯示美國經濟增長動能放緩，若GDP數據持續走弱，將引發市場對硬著陸的擔憂。"
-    },
-    {
-      "id": "75a9560c034948f6",
-      "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxOLVhTSUxEZktMemtCc2NINUYwMVV4ZERIN2pxTlpYT2JYcXRLei1qUElibU1KNEdQbFIyWnhNU0JGUUExY2YwUTZzWWVWT3FtQ0tDdmZ3T3EyY1JFYkhtbnZYb2RVNjZTSHpTb3hxSmF2TXp0dF96YWZPWkcxbkhRMGd3NXRCVGpFRGpHZQ?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxOLVhTSUxEZktMemtCc2NINUYwMVV4ZERIN2pxTlpYT2JYcXRLei1qUElibU1KNEdQbFIyWnhNU0JGUUExY2YwUTZzWWVWT3FtQ0tDdmZ3T3EyY1JFYkhtbnZYb2RVNjZTSHpTb3hxSmF2TXp0dF96YWZPWkcxbkhRMGd3NXRCVGpFRGpHZQ?oc=5",
-      "title": "Fed’s Schmid warns against complacency on inflation - The Journal Record",
-      "pubDate": "Thu, 02 Apr 2026 15:14:05 GMT",
-      "source": "The Journal Record",
-      "_region": "US",
-      "fetched_at": "2026-04-02T16:01:54.329Z",
-      "age_band": "fresh",
-      "summary": "聯準會官員Schmid警告不可對通膨降溫掉以輕心，強調貨幣政策需維持限制性。此番言論與強勁就業數據呼應，打擊了市場對上半年降息的樂觀預期，資金成本維持高位將持續考驗槓桿投資者的持倉耐受度。"
+      "age_band": "recent",
+      "summary": "美國 2 月貿易逆差擴大至 573 億美元，超出預期，主因是進口需求強勁而出口疲軟。這項數據可能顯著拖累美國第一季 GDP 表現，亞特蘭大聯準會已隨之調降經濟成長預測。若美國經濟成長放緩與高通膨同時並存，市場將面臨「滯脹」風險，這對全球供應鏈核心的台灣科技產業將產生需求端的負面衝擊。"
     },
     {
       "id": "47b35f464179ea26",
@@ -108,20 +96,20 @@
       "source": "Yahoo Finance",
       "_region": "US",
       "fetched_at": "2026-04-02T16:01:54.329Z",
-      "age_band": "fresh",
-      "summary": "沃爾瑪相關衰退指標升至2008年金融危機以來最高水平，反映底層消費力受通膨侵蝕嚴重。作為經濟領先指標，零售端的疲軟預示企業獲利可能下修，對0050成分股中的非必需消費與電子代工產業構成潛在威脅。"
+      "age_band": "recent",
+      "summary": "沃爾瑪（Walmart）相關的經濟衰退指標已攀升至 2008 年金融海嘯以來的高點。該指標通常反映底層消費能力的萎縮與零售庫存的異常。作為全球消費風向球，此訊號預示美國內需可能出現裂縫。若消費動能熄火，將直接影響台灣電子代工與終端產品的出口訂單，是大盤長期走勢的隱憂。"
     },
     {
-      "id": "fa9720845a0f50e6",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBiLW9ZMWZ1U3JLSXlxZ3NkUVpEdlNKQTFvTU5Pd0FTRTB2MUYyeFg3a1A0djB1SXhsTFFPQXptVFdzRHFicGU5bmJpb0J1OXM?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBiLW9ZMWZ1U3JLSXlxZ3NkUVpEdlNKQTFvTU5Pd0FTRTB2MUYyeFg3a1A0djB1SXhsTFFPQXptVFdzRHFicGU5bmJpb0J1OXM?oc=5",
-      "title": "烏克蘭無人機狂襲 俄油港儲油設施損失四成 - news.cnyes.com",
-      "pubDate": "Thu, 02 Apr 2026 14:31:02 GMT",
-      "source": "news.cnyes.com",
+      "id": "f3bc10598c5ca185",
+      "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5leXZ2N1dlWTdNLXlGR1ZhVFlkV0ltWkwyWUlCZ20wRktqRkllaWRmNmNSUWRWb3NHd1BaXzc5TkhFbWpaelYzVmhNaU83Ui1TM3FBaVlVZ2pXUEs0bXBZ?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5leXZ2N1dlWTdNLXlGR1ZhVFlkV0ltWkwyWUlCZ20wRktqRkllaWRmNmNSUWRWb3NHd1BaXzc5TkhFbWpaelYzVmhNaU83Ui1TM3FBaVlVZ2pXUEs0bXBZ?oc=5",
+      "title": "對等關稅重塑全球貿易版圖台灣對美出口飆升逾8成超越日韓| 國際 - 中央社 CNA",
+      "pubDate": "Fri, 03 Apr 2026 01:21:00 GMT",
+      "source": "中央社 CNA",
       "_region": "TW",
-      "fetched_at": "2026-04-02T16:01:54.329Z",
+      "fetched_at": "2026-04-03T02:23:47.609Z",
       "age_band": "fresh",
-      "summary": "烏克蘭無人機攻擊導致俄羅斯重要油港設施損失四成，供應端衝擊進一步推升能源價格。能源通膨的結構性風險正在增加，這將抵銷科技進步帶來的通縮效應，使全球央行在處理利率政策時陷入兩難困境。"
+      "summary": "受惠於川普時代延續的關稅政策與全球供應鏈重組，台灣對美出口額飆升逾 8 成，成長幅度超越日韓。這顯示台灣在資通訊與高階製造領域的不可替代性增強。雖然地緣政治帶來波動，但貿易結構的轉變為台股提供了實質的基本面支撐，特別是 AI 與伺服器相關產業，長期競爭力依然穩固。"
     },
     {
       "id": "c54bf9092a826462",
@@ -132,20 +120,32 @@
       "source": "Yahoo股市",
       "_region": "TW",
       "fetched_at": "2026-04-02T16:01:54.329Z",
-      "age_band": "fresh",
-      "summary": "在市場大跌中，CPO(共同封裝光學)題材逆勢獲三大法人掃貨近20萬張，投入資金達40億元。這顯示市場資金正在進行劇烈的風格轉換，從傳統權值股轉向具備實質AI基礎設施題材的小眾領先族群，可作為避險配置參考。"
+      "age_band": "recent",
+      "summary": "CPO（共同封裝光學）題材持續發酵，三大法人大舉掃貨相關面板與光通訊族群，單一標的獲搶購近 20 萬張。隨著 AI 算力需求對傳輸速度的要求提升，CPO 被視為半導體下一波技術革命。雖然大盤震盪，但特定產業題材仍具備強大的吸金能力，顯示市場資金正從傳統權值股轉向具備高成長潛力的技術轉型股。"
     },
     {
-      "id": "5f38649c1ef036f5",
-      "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPaGxRbXdiSFZFRXJnQ0YwRVh3U0RXeGpENHNxOUhrVEJ5bkxWamtFRmRsR09aZ0VSZlVWZVExLWgzWV9ZbW10SzU1cFdvVXNOcEVNVnRvSTdQTHZyRkRvbDlFX0JnTXZ2RXdBVUViT0ltZ3M0TFd2cGZaNXB5a3lwd0NTa01hWm1QTC1SdQ?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPaGxRbXdiSFZFRXJnQ0YwRVh3U0RXeGpENHNxOUhrVEJ5bkxWamtFRmRsR09aZ0VSZlVWZVExLWgzWV9ZbW10SzU1cFdvVXNOcEVNVnRvSTdQTHZyRkRvbDlFX0JnTXZ2RXdBVUViT0ltZ3M0TFd2cGZaNXB5a3lwd0NTa01hWm1QTC1SdQ?oc=5",
-      "title": "川普關稅1年，台灣對美出口增8成 - 日經中文網",
-      "pubDate": "Thu, 02 Apr 2026 21:04:09 GMT",
-      "source": "日經中文網",
-      "_region": "TW",
-      "fetched_at": "2026-04-02T21:38:43.082Z",
+      "id": "eedbcce248ea909d",
+      "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxPdnpBNzE1b21NTWhROEJPVnlteFpsSGdIeko3N3NaX3RsN29ZU1RYWFBCdzdyU1FNN3VEbUJkemhJbWd4ZGhWYWpMNFF5clRtYl9XdTM2YTVWb00tVS1vb3Rud2RVT08tUEE0enNkZEJ0eUtnSF9Zb19HNzlXLUJhM0R5NXY4QXJOeF9MYldsYWVMU1FXSFMtQmdOdUVLd0pYOWdIU3dHakFObHFpdG82S2hkUUVGUUFJQnQ0aWNaV2t1S2hhY1JuTGhPb0hxdXY3MllraG4tWE8?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxPdnpBNzE1b21NTWhROEJPVnlteFpsSGdIeko3N3NaX3RsN29ZU1RYWFBCdzdyU1FNN3VEbUJkemhJbWd4ZGhWYWpMNFF5clRtYl9XdTM2YTVWb00tVS1vb3Rud2RVT08tUEE0enNkZEJ0eUtnSF9Zb19HNzlXLUJhM0R5NXY4QXJOeF9MYldsYWVMU1FXSFMtQmdOdUVLd0pYOWdIU3dHakFObHFpdG82S2hkUUVGUUFJQnQ0aWNaV2t1S2hhY1JuTGhPb0hxdXY3MllraG4tWE8?oc=5",
+      "title": "Benchmark JGB yields rise to 27-year high as war drives inflation fears - TradingView",
+      "pubDate": "Fri, 03 Apr 2026 01:39:00 GMT",
+      "source": "TradingView",
+      "_region": "US",
+      "fetched_at": "2026-04-03T02:23:47.609Z",
       "age_band": "fresh",
-      "summary": "日經報導指出，在川普關稅政策下，台灣對美出口逆勢增長80%，顯示供應鏈重組已成定局。這強化了台灣在美國科技戰略中的地位，但也意味著台股將更直接受美國政治言論影響，波動率將常態化升高。"
+      "summary": "日本 10 年期國債（JGB）殖利率攀升至 27 年來新高，主因是戰爭引發的全球通膨擔憂迫使日銀可能加速貨幣政策正常化。日本作為全球最大的債權國，其利率上升可能引發全球利差交易（Carry Trade）大規模平倉，導致資金從新興市場（含台股）回流日本，增加全球金融市場的不穩定性。"
+    },
+    {
+      "id": "e123def6f79c8dde",
+      "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTFBFX1hOTUNBaDF6WFpaZ1J2NmxnSklsS0pWY1ZpMVBOUEZnRzRObFZGdzNfT3pnVFYwZkpLOUZBclRGRXpvcG5zT2llc2lmZFJuUlRLRTlQb0jSAVhBVV95cUxQRV9YTk1DQWgxelhaWmdSdjZsZ0pJbEtKVmNWaTFQTlBGZ0c0TmxWRnczX096Z1RWMGZKSzlGQXJURkV6b3Buc09pZXNpZmRSblJUS0U5UG9I?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTFBFX1hOTUNBaDF6WFpaZ1J2NmxnSklsS0pWY1ZpMVBOUEZnRzRObFZGdzNfT3pnVFYwZkpLOUZBclRGRXpvcG5zT2llc2lmZFJuUlRLRTlQb0jSAVhBVV95cUxQRV9YTk1DQWgxelhaWmdSdjZsZ0pJbEtKVmNWaTFQTlBGZ0c0TmxWRnczX096Z1RWMGZKSzlGQXJURkV6b3Buc09pZXNpZmRSblJUS0U5UG9I?oc=5",
+      "title": "油氣雙漲 通膨達2%警戒線 專家：很快看到 - 聯合新聞網",
+      "pubDate": "Thu, 02 Apr 2026 16:27:18 GMT",
+      "source": "聯合新聞網",
+      "_region": "TW",
+      "fetched_at": "2026-04-02T18:57:15.619Z",
+      "age_band": "recent",
+      "summary": "國內專家警告，受國際油氣價格雙漲影響，台灣通膨率將很快突破 2% 警戒線。能源成本上升將直接侵蝕製造業毛利，並可能引發國內物價連鎖反應。對於投資者而言，通膨壓力可能迫使台灣央行維持相對緊縮的環境，不利於金融與資產股以外的評價擴張，需關注後續對內需消費的壓抑效應。"
     }
   ]
 }
