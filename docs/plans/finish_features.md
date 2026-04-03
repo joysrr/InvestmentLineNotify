@@ -276,7 +276,6 @@ function buildRssUrl(entry, excludes) {
     ? `intitle:"${entry.keyword}"`
     : entry.keyword;
 
-  // 將 excludeKeywords 整合進 RSS query（-keyword 語法，減少無效請求）
   const excludePart = excludes
     .map(e => e.searchType === "intitle"
       ? `-intitle:"${e.keyword}"`
@@ -308,8 +307,8 @@ function mergeKeywords(baseQueries, dynamicEntries) {
   const baseSet = new Set(baseQueries.map(e => e.keyword.toLowerCase()));
   const valid = dynamicEntries
     .filter(validateDynamicKeyword)
-    .filter(e => !baseSet.has(e.keyword.toLowerCase())) // 去重複
-    .slice(0, 8);                                        // 動態上限 8 組
+    .filter(e => !baseSet.has(e.keyword.toLowerCase()))
+    .slice(0, 8);
   return [...baseQueries, ...valid];
 }
 // 合併後最大數量：baseTW(18) + baseUS(18) + dynamic(≤8) = 上限 44 組
@@ -318,14 +317,11 @@ function mergeKeywords(baseQueries, dynamicEntries) {
 #### 4-4 文章有效性過濾（雙層）
 
 ```js
-// 呼叫前先載入最新黑名單
 import { loadBlacklist } from "../config/keywordConfig.mjs";
 const { titlePatterns, twExcludedSources, usExcludedSources } = loadBlacklist();
 
 function isArticleValid(article, excludedSources, blacklistPatterns) {
-  // Layer 1：來源黑名單（來自 blacklist.json）
   if (excludedSources.some(s => article.source?.includes(s))) return false;
-  // Layer 2：標題 Regex 黑名單（來自 blacklist.json）
   if (blacklistPatterns.some(re => re.test(article.title))) return false;
   return true;
 }
@@ -334,7 +330,7 @@ function isArticleValid(article, excludedSources, blacklistPatterns) {
 #### 4-5 Fallback 機制
 
 ```js
-const FALLBACK_THRESHOLD = 5; // 可依 fallbackLog 歷史資料調整
+const FALLBACK_THRESHOLD = 5;
 
 if (validArticles.length < FALLBACK_THRESHOLD) {
   fallbackLog.push({
@@ -343,7 +339,6 @@ if (validArticles.length < FALLBACK_THRESHOLD) {
     validCount:      validArticles.length,
     triggered:       true,
   });
-  // Fallback：直接復用完整 base 清單，不另建清單
   const fallbackArticles = await fetchWithQueries(baseQueries, excludes);
   validArticles = dedup([...validArticles, ...fallbackArticles]);
 }
@@ -351,10 +346,7 @@ if (validArticles.length < FALLBACK_THRESHOLD) {
 
 #### 4-6 passedArticlesLog（預留給任務 4）
 
-> ⚠️ 任務 3 必須實作此日誌，任務 4 的 Optimizer Agent 依賴此輸出作為審查輸入。
-
 ```js
-// 每次管線執行結束後，將放行的文章記錄至 passedArticlesLog
 const passedArticlesLog = {
   date:     new Date().toISOString().slice(0, 10),
   articles: validArticles.map(a => ({ title: a.title, source: a.source, url: a.url })),
@@ -401,15 +393,10 @@ isArticleValid 過濾（黑名單來自 blacklist.json）
 ### 📝 開發注意事項（給 antigravity）
 
 1. **黑名單不可寫死在 `keywordConfig.mjs`**，必須全部放入 `blacklist.json`，透過 `loadBlacklist()` 讀取，這是任務 4 能夠無縫接軌的關鍵。
-
 2. **`baseTwQueries` / `baseUsQueries` / `excludeKeywords` 維持靜態**，這三者由人工維護，不參與任務 4 的 AI 動態寫入流程。
-
 3. **`passedArticlesLog` 是任務 4 的唯一輸入來源**，格式需固定（`title`、`source`、`url`），任何格式變動都需同步通知任務 4 的 Prompt。
-
 4. **`excludeKeywords` 優先整合進 RSS URL**，而不是抓取後再過濾，可節省 HTTP 請求次數。
-
 5. **批次呼叫間距設 300ms**，Google News RSS 在連續 10+ 次請求後容易回傳空結果。
-
 6. **`blacklist.json` 需加入 Git 版控**，任務 4 的每次 AI 寫入都應是可追蹤的 commit。
 
 ---
@@ -517,8 +504,6 @@ function normalizeTitle(title) {
 
 #### prompts.mjs 新增 RULE_OPTIMIZER_SCHEMA
 
-`RuleOptimizer` 比照既有結構化輸出設計，使用 `responseSchema` 限制輸出格式，避免模型輸出非 JSON、缺欄位或欄位型別錯誤。
-
 ```js
 export const RULE_OPTIMIZER_SCHEMA = {
   type: "array",
@@ -547,7 +532,6 @@ const sessionId = process.env.GITHUB_RUN_ID
 
 async function callOptimizerAI(articleTitles, region) {
   const userPrompt = buildOptimizerPrompt(articleTitles, region);
-
   try {
     const rawJson = await callGemini("RuleOptimizer", userPrompt, {
       sessionId,
@@ -555,7 +539,6 @@ async function callOptimizerAI(articleTitles, region) {
       responseMimeType: "application/json",
       responseSchema: RULE_OPTIMIZER_SCHEMA,
     });
-
     return JSON.parse(rawJson || "[]");
   } catch (err) {
     console.warn(`[Optimizer] AI 呼叫失敗 (${region}):`, err.message);
@@ -568,30 +551,9 @@ async function callOptimizerAI(articleTitles, region) {
 
 ### 🈶 Prompt 語言策略
 
-#### 結論
+本任務採用 **繁體中文 system prompt + 繁體中文 user prompt**。
 
-本任務採用 **繁體中文 system prompt + 繁體中文 user prompt**，不強制改用英文。
-
-#### 設計原則
-
-- Prompt 主體使用繁體中文，方便中文維護者閱讀、調整與除錯
-- 保留必要英文技術術語，例如：`regex`、`flags`、`JSON array`、`golden dataset`
-- `reason` 欄位固定以繁體中文輸出，利於人工審查與 rollback 判讀
-- regex pattern 本身可同時涵蓋中英文，不受 prompt 語言限制
-
-#### 補充判斷
-
-英文 prompt 只有在以下情況才考慮改用：
-- 未來主要優化對象轉向美股英文新聞
-- 維護者改為英文為主的團隊
-- 實測發現英文 prompt 在規則穩定性上顯著優於中文 prompt
-
-在目前架構下，優先影響品質的是：
-1. 黃金清單完整度
-2. Schema 約束程度
-3. Overbroad 規則限制
-4. 重複規則檢查
-而不是 prompt 使用中文或英文本身
+優先影響品質的是：黃金清單完整度、Schema 約束程度、Overbroad 規則限制、重複規則檢查；而非 prompt 語言本身。
 
 ---
 
@@ -609,190 +571,22 @@ Prompt 名稱：`RuleOptimizer`
 }
 ```
 
-System Prompt：
-
-```text
-你是一個金融新聞黑名單優化代理（Rule Optimizer）。
-你的任務是分析一批「已通過現有新聞過濾器」的新聞標題，找出其中應該被擋下但漏網的低品質新聞、農場文、SEO 點擊誘餌或與台股／美股主題無關的內容，並產生新的 regex 規則。
-
-## 你的目標
-產生精準、可維護、可驗證的 regex 規則，協助系統阻擋低品質新聞，同時絕對不能誤傷重要財經新聞。
-
-## 輸出要求
-1. 只輸出 JSON array
-2. 每個元素格式必須為：
-   {
-     "pattern": "regex pattern",
-     "flags": "i 或 空字串",
-     "reason": "規則說明"
-   }
-3. 最多輸出 5 條規則
-4. 不可輸出 markdown、註解、額外說明文字
-5. 若沒有適合的新規則，輸出 []
-
-## 規則設計限制
-1. pattern 必須有具體語意錨點，不可只有模糊通配
-2. 不可把 `.*`、`.+`、`\w+`、`\d+` 當成規則主體
-3. 不可輸出與既有規則語意明顯重複的 pattern
-4. 優先產生可重複利用的結構型規則，不要只為單一標題硬寫過度客製規則
-5. reason 請用繁體中文，簡潔說明這條規則要擋的內容型態
-
-## 應優先識別的低品質內容
-- 個股推薦、選股清單、買進建議、價格預測
-- 明顯 SEO 標題，例如「最強概念股」「飆股卡位」「這原因」「必看」「懶人包」等
-- 與台股／美股無關的他國區域市場新聞
-- 重複模板化內容農場
-- 標題中混入奇怪品牌字、站名、非正規財經名詞的內容
-- 不屬於核心財經主題的泛內容
-
-## 不可誤殺的新聞類型
-- 總經數據：CPI、PCE、GDP、PMI、Payrolls、Jobless Claims
-- 央行政策：Fed、FOMC、Powell、央行、理監事會
-- 主要指數：S&P 500、Nasdaq、Dow Jones、台股、大盤
-- 台積電 / TSMC / ADR 相關新聞
-- 資金流與籌碼：外資、三大法人、Treasury yields、dollar index
-- 台灣出口、外銷訂單、景氣燈號等重要總經新聞
-
-## 設計原則
-- 寧可少產，也不要產生高風險規則
-- 若無法確認是否安全，請不要輸出該規則
-- 規則必須可被程式直接編譯成 RegExp
-```
+System Prompt 設計原則（詳見原文件）：辨識低品質新聞（SEO 農場文、個股推薦、他國市場新聞），絕對不誤殺重要財經新聞（總經數據、央行政策、主要指數、台積電 / TSMC）。
 
 ---
 
 ### 🛡️ Step 3：Sandbox 沙盒驗證（四關卡）
 
-#### 關卡 1：語法合法性
-
-```js
-function isValidRegex(pattern, flags) {
-  try {
-    new RegExp(pattern, flags);
-    return true;
-  } catch {
-    return false;
-  }
-}
-```
-
-#### 關卡 2：廣泛度防護
-
-```js
-const OVERBROAD_PATTERNS = [/^\.\*/, /^\.\+/, /^\\w\+/, /^\\d\+/, /^\.\{/];
-
-function isOverbroad(pattern) {
-  return OVERBROAD_PATTERNS.some((p) => p.test(pattern.trim()));
-}
-```
-
-#### 關卡 3：重複規則檢查（字串格式）
-
-由於 `titleBlackListPatterns` 是字串陣列，因此需先把 AI 輸出轉成 canonical string 再比對：
-
-```js
-function toRegexLiteral(pattern, flags = "") {
-  return `/${pattern}/${flags}`;
-}
-
-function isDuplicate(pattern, flags, existingPatterns) {
-  const candidate = toRegexLiteral(pattern, flags);
-  return existingPatterns.includes(candidate);
-}
-```
-
-#### 關卡 4：黃金清單碰撞測試
-
-```js
-import goldenDataset from "../../data/config/goldenDataset.json" assert { type: "json" };
-
-function passesGoldenTest(newRegex) {
-  return !goldenDataset.some((item) => newRegex.test(item.title));
-}
-```
-
-#### 驗證與寫入主流程
-
-```js
-function validateAndPrepare(aiRules, blacklist) {
-  const accepted = [];
-  const rejected = [];
-
-  for (const rule of aiRules) {
-    if (!isValidRegex(rule.pattern, rule.flags)) {
-      rejected.push({ ...rule, rejectReason: "invalid_regex" });
-      continue;
-    }
-
-    if (isOverbroad(rule.pattern)) {
-      rejected.push({ ...rule, rejectReason: "overbroad" });
-      continue;
-    }
-
-    if (isDuplicate(rule.pattern, rule.flags, blacklist.titleBlackListPatterns)) {
-      rejected.push({ ...rule, rejectReason: "duplicate" });
-      continue;
-    }
-
-    const regex = new RegExp(rule.pattern, rule.flags);
-    if (!passesGoldenTest(regex)) {
-      rejected.push({ ...rule, rejectReason: "golden_dataset_kill" });
-      continue;
-    }
-
-    accepted.push({
-      regexLiteral: `/${rule.pattern}/${rule.flags}`,
-      reason: rule.reason,
-    });
-  }
-
-  return { accepted, rejected };
-}
-```
+1. **語法合法性**：`new RegExp(pattern, flags)` 不拋錯
+2. **廣泛度防護**：不允許 `.*`、`.+`、`\w+`、`\d+` 作為主體
+3. **重複規則檢查**：與現有 `titleBlackListPatterns` 字串比對
+4. **黃金清單碰撞測試**：不可命中任何 `goldenDataset.json` 標題
 
 ---
 
-### 🧷 Step 4：optimizerHistory.json（方案 A 的回滾中樞）
+### 🧷 Step 4：optimizerHistory.json（回滾中樞）
 
-#### 設計目的
-
-因 `blacklist.json` 維持字串陣列，無法直接在每條規則上保存 `addedBy` / `addedAt`。因此新增 `optimizerHistory.json` 做為 **寫入紀錄與回滾依據**。
-
-#### 建議格式
-
-```json
-{
-  "lastUpdated": "2026-04-01T18:00:00.000Z",
-  "history": [
-    {
-      "date": "2026-04-02",
-      "region": "TW",
-      "addedRules": [
-        {
-          "regexLiteral": "/最強.{0,5}(概念股|飆股).{0,10}(布局|卡位|搶先)/",
-          "reason": "中文農場 SEO 特徵標題"
-        }
-      ],
-      "rejectedRules": [
-        {
-          "pattern": "GDP.*",
-          "flags": "i",
-          "reason": "過度廣泛",
-          "rejectReason": "golden_dataset_kill"
-        }
-      ],
-      "savedAt": "2026-04-01T18:00:10.000Z"
-    }
-  ]
-}
-```
-
-#### 寫入原則
-
-- 每日每區（TW / US）各寫一筆 history record
-- `addedRules` 記錄實際 append 到 `blacklist.json` 的字串規則
-- `rejectedRules` 記錄被拒絕原因，方便後續調整 prompt
-- `lastUpdated` 供觀察最後一次成功寫入時間
+每日每區（TW / US）各寫一筆 history record，記錄 `addedRules` 與 `rejectedRules`，供 `rollbackOptimizer.mjs` 依日期還原。
 
 ---
 
@@ -800,185 +594,29 @@ function validateAndPrepare(aiRules, blacklist) {
 
 `runOptimizer.mjs` 統一放在 `src/`，與 `runDailyCheck.mjs` 同層；兩者職責分離。
 
-```js
-import { runRuleOptimizer } from "./modules/ai/ruleOptimizerAgent.mjs";
-import { archiveManager } from "./modules/data/archiveManager.mjs";
-
-async function main() {
-  console.log("[Optimizer] Starting daily blacklist optimization...");
-
-  try {
-    const result = await runRuleOptimizer();
-
-    console.log(`[Optimizer] TW — Accepted: ${result.tw.accepted.length}, Rejected: ${result.tw.rejected.length}`);
-    console.log(`[Optimizer] US — Accepted: ${result.us.accepted.length}, Rejected: ${result.us.rejected.length}`);
-
-    await archiveManager.saveAiLog({
-      type: "RuleOptimizer",
-      rawResult: result,
-    });
-  } catch (err) {
-    console.error("[Optimizer] 執行失敗，不影響主要新聞流程:", err.message);
-    process.exit(1);
-  }
-}
-
-main();
-```
-
 ---
 
-### 🤖 Step 6：GitHub Actions 採用獨立 workflow 檔案
+### 🤖 Step 6：GitHub Actions（optimizer.yml）
 
-為避免與既有通知流程混在同一個 workflow 中，本任務改採 **獨立 workflow 檔案**：
-
-- 既有通知流程維持：`.github/workflows/line_notify.yml`
-- Optimizer 新增專屬流程：`.github/workflows/optimizer.yml`
-
-#### optimizer.yml
-
-```yaml
-name: Rule Optimizer Scheduler
-
-on:
-  schedule:
-    # 台灣 02:00 -> UTC 18:00
-    - cron: "0 18 * * *"
-  workflow_dispatch:
-
-jobs:
-  optimizer:
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run Rule Optimizer
-        env:
-          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
-          GEMINI_API_KEY1: ${{ secrets.GEMINI_API_KEY1 }}
-          GEMINI_API_KEY2: ${{ secrets.GEMINI_API_KEY2 }}
-          GEMINI_API_KEY3: ${{ secrets.GEMINI_API_KEY3 }}
-          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
-          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
-          LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_BASE_URL }}
-          TZ: "Asia/Taipei"
-        run: node src/runOptimizer.mjs
-
-      - name: Commit and Push Data Changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "🤖 chore(blacklist): optimizer auto-update [skip ci]"
-          commit_user_name: "github-actions[bot]"
-          commit_user_email: "github-actions[bot]@users.noreply.github.com"
-```
+獨立 workflow 檔案，台灣 02:00（UTC 18:00）觸發，執行完成後由 `git-auto-commit-action` 自動推送 blacklist 變更。
 
 ---
 
 ### 🔄 Step 7：緊急回滾工具（rollbackOptimizer.mjs）
 
-#### 用法
-
 ```bash
 node scripts/rollbackOptimizer.mjs --date 2026-04-02
 ```
 
-#### 邏輯
-
-1. 讀取 `data/config/optimizerHistory.json`
-2. 找出指定日期的所有 `addedRules.regexLiteral`
-3. 從 `data/config/blacklist.json` 的 `titleBlackListPatterns` 中移除相同字串
-4. 將該日期的 history record 標記為 `rolledBack: true`
-5. 寫回兩個檔案
-
-#### 範例骨架
-
-```js
-import { readFileSync, writeFileSync } from "fs";
-
-const BLACKLIST_PATH = "data/config/blacklist.json";
-const HISTORY_PATH = "data/config/optimizerHistory.json";
-
-// 解析 --date 參數後略
-
-const blacklist = JSON.parse(readFileSync(BLACKLIST_PATH, "utf-8"));
-const history = JSON.parse(readFileSync(HISTORY_PATH, "utf-8"));
-
-const records = history.history.filter((r) => r.date === targetDate && !r.rolledBack);
-const toRemove = new Set(records.flatMap((r) => r.addedRules.map((x) => x.regexLiteral)));
-
-blacklist.titleBlackListPatterns = blacklist.titleBlackListPatterns.filter((x) => !toRemove.has(x));
-
-history.history = history.history.map((r) =>
-  r.date === targetDate ? { ...r, rolledBack: true, rolledBackAt: new Date().toISOString() } : r
-);
-
-writeFileSync(BLACKLIST_PATH, JSON.stringify(blacklist, null, 2));
-writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2));
-```
-
----
-
-### 🔁 完整資料流
-
-```text
-每日台灣 02:00 觸發（GitHub Actions UTC 18:00）
-line_notify.yml 的 optimizer job
-  ↓
-node src/runOptimizer.mjs
-  ↓
-讀取昨日 passedArticles 日誌（TW / US 分開）
-  ↓
-抽取 articles[].title，去除 title 中的來源尾碼
-  ↓
-讀取 data/config/blacklist.json raw JSON（非 loadBlacklist()）
-  ↓
-呼叫 RuleOptimizer（keyIndex: 2）
-  ↓
-取得 [{ pattern, flags, reason }] 最多 5 條
-  ↓
-Sandbox 驗證：invalid_regex → overbroad → duplicate → golden_dataset_kill
-  ↓
-accepted 規則轉成 /pattern/flags 字串後 append 到 blacklist.json
-  ↓
-同步寫入 optimizerHistory.json
-  ↓
-archiveManager.saveAiLog({ type: "RuleOptimizer" })
-  ↓
-Git auto commit 推上 repo
-  ↓
-隔日 newsFetcher 啟動時 loadBlacklist() 自動讀取最新規則
-```
+依日期從 `blacklist.json` 移除當日 AI 新增規則，並在 `optimizerHistory.json` 標記 `rolledBack: true`。
 
 ---
 
 ### 🔑 API Key 使用策略
 
-目前規劃：
 - `keyIndex: 0` → SearchQueries
 - `keyIndex: 1` → FilterNews
 - `keyIndex: 2` → RuleOptimizer
-
-在目前三組 key 架構下可行，且因 Optimizer 使用獨立 job 與獨立排程，實務上已可大幅降低碰撞風險。
-
-只有在以下情況才考慮擴增第 4 組 key：
-- 未來新增更多 AI 任務
-- 常態性手動觸發 optimizer
-- 出現明顯 rate limit / quota 壓力
-- 想將 TW / US Optimizer 再拆成不同 key
 
 ---
 
@@ -987,10 +625,8 @@ Git auto commit 推上 repo
 1. 本任務 **不修改** `keywordConfig.mjs` 的 regex 解析方式。
 2. `blacklist.json` 保持字串陣列格式，避免 breaking change。
 3. 回滾安全閥改由 `optimizerHistory.json` 提供，而不是寫在 blacklist item 上。
-4. `RuleOptimizer` 的 system prompt 由 Langfuse 維護；若 prompt 有改動，需同步保留版本註記。
-5. 若 `golden_dataset_kill` 比例偏高，優先補強 prompt 與 golden dataset，而不是放寬驗證條件。
-6. 新規則生效不需重啟服務，因 `loadBlacklist()` 在 `newsFetcher.mjs` 每次啟動時會重新讀取檔案。
-7. `reason` 欄位是人工審核與 rollback 判讀的重要依據，請保留可讀性。
+4. 若 `golden_dataset_kill` 比例偏高，優先補強 prompt 與 golden dataset，而不是放寬驗證條件。
+5. 新規則生效不需重啟服務，因 `loadBlacklist()` 在 `newsFetcher.mjs` 每次啟動時會重新讀取檔案。
 
 ---
 
@@ -1040,3 +676,174 @@ Git auto commit 推上 repo
 與 PB 相同，在 `marketData.mjs` 打包出 `valuationInfo: { PB, PE }` ➔ 存入 `latest.json` ➔ `formatMacroChipForCoach()` 轉成人類易讀文案 ➔ 推給 `Investment Coach`。
 
 ---
+
+## 📌 【Langfuse 評分機制整合】✅ 已完成
+
+> **原始文件：** `upcoming_features.md`（主計畫書）+ `upcoming_features_agent.md`（Agent 實作指南）  
+> **版本：** v1.0（Phase 0 + Phase 1 已實作完成）
+
+---
+
+### 🎯 功能目標
+
+為 InvestmentLineNotify 導入可持續維護的 Langfuse 評分機制，監控 AI pipeline 各階段輸出品質、比較 prompt 版本差異，為後續人工評估與 LLM Judge 奠定基礎。
+
+**核心原則：**
+1. 先做最小解耦（讓 `callGemini` 回傳 `traceId`），再做評分實作
+2. Rule 類評分優先，建立可穩定產生的量化資料
+3. 分階段上線，不影響主流程成功率
+4. 所有 score 回寫包在獨立 `try/catch`，失敗僅記錄 warning，絕不中斷主流程
+
+---
+
+### 📁 影響檔案
+
+| 檔案 | 異動類型 | 說明 |
+|---|---|---|
+| `src/modules/ai/aiClient.mjs` | 修改 | `callGemini` 回傳格式改為 `{ text, traceId }`（Breaking Change） |
+| `src/modules/ai/aiCoach.mjs` | 修改 | 各呼叫方解構方式調整；parse 後新增 `langfuse.score()` 回寫 |
+| `src/modules/newsFetcher.mjs` | 修改 | 接收 `traceId`、計算 Yield Rate、呼叫 `langfuse.score()` |
+| `src/runNewsFetch.mjs` | 修改 | 接收 `searchTraceId`，回寫 `Keyword_Yield_Rate`、`Dynamic_Keyword_Yield_Rate` |
+
+> ⚠️ `callGemini` 回傳格式為 Breaking Change，所有呼叫點需統一改為 `const { text, traceId } = await callGemini(...)` 解構方式。
+
+---
+
+### 📐 Phase 0：最小解耦（✅ 已完成）
+
+- `callGemini` 回傳 `{ text, traceId }` 而非單一字串
+- 所有呼叫 `callGemini` 的模組統一改為物件解構取值
+- 評分失敗不影響主流程（`langfuse.score()` 包在獨立 `try/catch`）
+
+---
+
+### 📐 Phase 1：Rule 類基礎評分（✅ 已完成）
+
+#### 1. Schema_Validation
+- 所有有 `JSON.parse` 的地方（`generateDailySearchQueries`、`filterAndCategorizeAllNewsWithAI`、`analyzeMacroNewsWithAI`、`getAiInvestmentAdvice`）
+- 解析成功 → `value: 1`；失敗 → `value: 0` + `comment: 錯誤訊息`
+
+#### 2. Keyword_Yield_Rate
+- 計算公式：`過濾後 ≥ 1 篇新聞的 query 數 / 成功執行的 query 總數`
+- RSS 例外錯誤排除分母
+- `comment` 記錄 base 與 dynamic 各自的 valid/total 明細
+- 綁回 Search Queries Generator 對應 trace（透過 `searchTraceId`）
+
+#### 3. Dynamic_Keyword_Yield_Rate
+- 僅計算 AI 動態生成關鍵字的有效率，完全排除靜態 base
+- 連續 3 日低於 0.4 觸發 `console.warn` 警告
+- 與 `Keyword_Yield_Rate` 同步上線（兩者一起看才不會被 base 掩蓋 AI 效果）
+
+#### 4. Diversity_Score
+- 白名單維度：`["總經", "地緣政治", "資金流向", "半導體", "台股大盤", "全球市場"]`
+- 分數 = `實際覆蓋到的不重複白名單維度數 / 白名單總維度數`
+- 在 `filterAndCategorizeAllNewsWithAI` 內計算，忽略 LLM 自創標籤
+
+#### 5. Score_Distribution_Spread
+- 評估 Macro Analyst 新聞影響力分數（1~5）是否有合理分布
+- 分數 = `stdDev(all_impact_scores) / 2`（正規化至 0~1 區間）
+- 在 `analyzeMacroNewsWithAI` 內計算
+
+#### 6. Format_Compliance
+- 在 `getAiInvestmentAdvice` 中檢查輸出是否包含指定必要 JSON 欄位（非空陣列）
+- 完整則 `value: 1`，缺漏則 `value: 0`
+
+---
+
+### 📐 Phase 2：Human / LLM 類評分準備（規劃中）
+
+預留環境變數：
+```env
+LLM_JUDGE_MODE=weekly   # weekly, random, always, off
+LLM_JUDGE_WEEKDAY=1     # 1=Monday
+LLM_JUDGE_SAMPLE_RATE=0.2
+```
+
+Human 評估對應欄位預留（暫不自動化，先確保 trace 可被人工回看）：
+`Context_Alignment`、`Signal_to_Noise_Ratio`、`Summary_Quality`、`Logic_Consistency`、`Weighting_Rationality`、`Actionability`、`Tone_and_Empathy`
+
+---
+
+### 📐 Phase 3：LLM Judge（規劃中）
+
+首波目標：`Actionability`、`Tone_and_Empathy`  
+執行原則：背景 Promise 佇列，主流程結尾以 `Promise.allSettled(...)` 等待，不阻塞主流程
+
+---
+
+### 🧪 驗收標準
+
+**Phase 0：**
+- `callGemini` 成功回傳 `traceId`
+- 既有所有 AI 呼叫流程在改用新回傳格式後仍可正常運作
+
+**Phase 1：**
+- `Schema_Validation`、`Keyword_Yield_Rate`、`Dynamic_Keyword_Yield_Rate`、`Diversity_Score`、`Score_Distribution_Spread`、`Format_Compliance` 可穩定寫入 Langfuse
+- 評分失敗不影響主流程完成
+- Langfuse 上可按日期查看 score 趨勢，並可用於 prompt 版本比較
+
+---
+
+## 📌 【系統巡檢與測試類】任務 5：關鍵字搜尋良率計算（Keyword Yield Rate）✅ 已完成
+
+> **版本：** v1.1（含 Langfuse 整合細節）  
+> **原始文件：** `upcoming_feature_plan5.md`  
+> **備註：** 本任務的 `Keyword_Yield_Rate` 與 `Dynamic_Keyword_Yield_Rate` Score 設計與上方「Langfuse 評分機制整合 Phase 1」重疊，此為更詳細的實作規格版本，以本文件為準。
+
+---
+
+### 🎯 功能目標
+
+建立 Search Queries Generator 的量化指標，分別計算整體管線健康度與 AI 動態關鍵字品質，透過 Langfuse Score 追蹤趨勢，作為 Prompt 優化的數據依據。
+
+**量化驗收標準：**
+
+- `Keyword_Yield_Rate`（整體）每日寫入 Langfuse，無缺漏
+- `Dynamic_Keyword_Yield_Rate`（AI 專屬）當動態關鍵字存在時必定寫入
+- RSS 例外錯誤正確排除分母，不污染數據
+- 連續 3 日 `Dynamic_Keyword_Yield_Rate` < 0.4 時觸發 `console.warn` 警告
+
+---
+
+### 📁 影響檔案
+
+| 檔案 | 異動類型 | 說明 |
+|---|---|---|
+| `src/modules/ai/aiCoach.mjs` | **修改** | `callGemini` 回傳格式改為 `{ text, traceId }`（Breaking Change） |
+| `src/modules/newsFetcher.mjs` | **修改** | 接收 `traceId`、計算良率、呼叫 `langfuse.score()` |
+| **所有呼叫 `callGemini` 的檔案** | **修改** | 解構取值方式從 `const text` 改為 `const { text, traceId }` |
+
+> ⚠️ `callGemini` 回傳格式變更為 Breaking Change，開發前需先清查所有呼叫點，統一修改後再實作良率邏輯，避免執行期錯誤。
+
+---
+
+### 📐 Score 定義
+
+#### Keyword_Yield_Rate
+
+| 欄位 | 值 |
+|---|---|
+| **Name** | `Keyword_Yield_Rate` |
+| **Data Type** | `Numeric` |
+| **Range** | `0 ~ 1` |
+| **對象** | Search Queries Generator（靜態 + 動態全部） |
+| **說明** | 整體管線健康度指標。計算所有 query（base + dynamic）過濾後 ≥ 1 篇新聞的比例。RSS 例外錯誤的 query 排除分母，不計入計算。`comment` 欄位需同時記錄 base 與 dynamic 各自的明細。 |
+
+#### Dynamic_Keyword_Yield_Rate
+
+| 欄位 | 值 |
+|---|---|
+| **Name** | `Dynamic_Keyword_Yield_Rate` |
+| **Data Type** | `Numeric` |
+| **Range** | `0 ~ 1` |
+| **對象** | Search Queries Generator（AI 動態關鍵字專屬） |
+| **說明** | AI Prompt 品質的主要監控指標。僅計算 AI 動態生成關鍵字的有效率，完全排除靜態 base 的影響。連續 3 日低於 0.4 需觸發警告。 |
+
+**為何需要兩個 Score 而非合一：**
+
+| 情境 | Base 良率 | Dynamic 良率 | 合併良率 | 問題 |
+|---|---|---|---|---|
+| AI 正常 | 94% | 88% | 93% | 正確反映 |
+| AI 極差 | 94% | 13% | 80% | 看起來還好，實際 AI 已失效 |
+
+Base 佔約 82% 分母，合併計算會完全掩蓋 AI 的品質訊號。
