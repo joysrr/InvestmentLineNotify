@@ -11,6 +11,27 @@ const ARCHIVE_DIR = path.join(NEWS_DIR, "archive");
 
 const TTL_HOURS = 24;
 
+// 常見來源尾碼（保守清單），用於 normalize 前先剝除
+const SOURCE_SUFFIX_PATTERNS = [
+  / [-|｜] ?reuters$/i,
+  / [-|｜] ?bloomberg$/i,
+  / [-|｜] ?yahoo ?finance$/i,
+  / [-|｜] ?yahoo ?news$/i,
+  / [-|｜] ?cnbc$/i,
+  / [-|｜] ?cnn$/i,
+  / [-|｜] ?bbc ?news$/i,
+  / [-|｜] ?the ?wall ?street ?journal$/i,
+  / [-|｜] ?wsj$/i,
+  / [-|｜] ?financial ?times$/i,
+  / [-|｜] ?ft$/i,
+  / [-|｜] ?nikkei$/i,
+  / [-|｜] ?經濟日報$/,
+  / [-|｜] ?工商時報$/,
+  / [-|｜] ?聯合新聞網$/,
+  / [-|｜] ?自由財經$/,
+  / [-|｜] ?moneyDJ$/i,
+];
+
 // ==========================================================================
 // 工具函式
 // ==========================================================================
@@ -29,15 +50,40 @@ function getAgeBand(fetchedAt) {
 }
 
 /**
- * 標題 fingerprint：normalize 後取 SHA-256 前 16 字元
- * 中英文標題均適用
+ * 標題 fingerprint：
+ * 1. 剝除常見來源尾碼（如 " - Reuters"）
+ * 2. 小寫化
+ * 3. 去除所有非中英文數字字符
+ * 4. 壓縮空白
+ * 5. 取前 80 字元後做 SHA-256，回傳前 16 字元
+ *
+ * @param {string} title
+ * @returns {string} 16-char hex fingerprint
  */
 function buildFingerprint(title) {
-  const normalized = title
+  let t = title;
+  // Step 1: 剝除來源尾碼
+  for (const pattern of SOURCE_SUFFIX_PATTERNS) {
+    t = t.replace(pattern, "");
+  }
+  // Step 2-4: normalize
+  const normalized = t
     .toLowerCase()
-    .replace(/[^\w\u4e00-\u9fff]/g, "")
-    .slice(0, 40);
+    .replace(/[^\w\u4e00-\u9fff]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80);
   return crypto.createHash("sha256").update(normalized).digest("hex").slice(0, 16);
+}
+
+/**
+ * 產生 region-scoped dedup key，確保 TW / US 互不干擾
+ * @param {string} region  "TW" | "US"
+ * @param {string} fingerprint
+ * @returns {string}
+ */
+function buildRegionKey(region, fingerprint) {
+  return `${region}:${fingerprint}`;
 }
 
 async function ensureDirs() {
@@ -116,12 +162,12 @@ async function archiveArticles(articles) {
  * 以新抓到的 RSS 文章更新 pool：
  * 1. 讀取現有 pool
  * 2. 過期文章（>TTL_HOURS）歸檔
- * 3. fingerprint + URL 去重後 append 新文章
+ * 3. region-scoped fingerprint + URL 去重後 append 新文章
  * 4. 更新現有文章的 age_band
  * 5. 寫回 pool_active.json
  *
  * @param {Array<Object>} newArticles - RSS item 物件陣列（需含 title, link, pubDate, source, _region）
- * @returns {{ appended: number, expired: number, total: number }}
+ * @returns {{ appended: number, expired: number, skipped_fuzzy: number, total: number }}
  */
 export async function updatePool(newArticles) {
   const pool = await loadPool();
@@ -138,24 +184,36 @@ export async function updatePool(newArticles) {
   // 歸檔過期文章
   await archiveArticles(expired);
 
-  // 建立去重 Set
-  const seenIds = new Set(active.map((a) => a.id));
+  // 建立去重 Set（region-scoped fingerprint + URL）
+  const seenRegionKeys = new Set(
+    active.map((a) => buildRegionKey(a._region || "TW", a.id))
+  );
   const seenUrls = new Set(active.map((a) => a.url));
 
   const now = new Date().toISOString();
   const toAppend = [];
+  let skippedFuzzy = 0;
 
   for (const article of newArticles) {
     const url = article.link || article.url || "";
     const title = article.title || "";
+    const region = article._region || "TW";
     if (!title || !url) continue;
 
-    const id = buildFingerprint(title);
+    // URL 去重（跨 region 均有效）
+    if (seenUrls.has(url)) continue;
 
-    // fingerprint 去重為主，URL 去重為輔
-    if (seenIds.has(id) || seenUrls.has(url)) continue;
-    seenIds.add(id);
+    const id = buildFingerprint(title);
+    const regionKey = buildRegionKey(region, id);
+
+    // region-scoped fingerprint 去重
+    if (seenRegionKeys.has(regionKey)) {
+      skippedFuzzy++;
+      continue;
+    }
+
     seenUrls.add(url);
+    seenRegionKeys.add(regionKey);
 
     toAppend.push({
       id,
@@ -164,7 +222,7 @@ export async function updatePool(newArticles) {
       title,
       pubDate: article.pubDate || now,        // 保留原始 pubDate 供排序與顯示
       source: article.source || "unknown",
-      _region: article._region || "TW",      // 保留 _region 供 AI / 推播分組
+      _region: region,                        // 保留 _region 供 AI / 推播分組
       fetched_at: now,
       age_band: "fresh",                      // 新抓到的必定是 fresh
     });
@@ -186,13 +244,14 @@ export async function updatePool(newArticles) {
   await savePool(updatedPool);
 
   console.log(
-    `✅ [NewsPool] 新增 ${toAppend.length} 篇，歸檔 ${expired.length} 篇，` +
-    `池中現有 ${updatedPool.articles.length} 篇`
+    `✅ [NewsPool] 新增 ${toAppend.length} 篇，跳過(fuzzy) ${skippedFuzzy} 篇，` +
+    `歸檔 ${expired.length} 篇，池中現有 ${updatedPool.articles.length} 篇`
   );
 
   return {
     appended: toAppend.length,
     expired: expired.length,
+    skipped_fuzzy: skippedFuzzy,
     total: updatedPool.articles.length,
   };
 }
