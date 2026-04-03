@@ -156,6 +156,47 @@ export async function dailyCheck({
   const latestKD = kdArr[kdArr.length - 1];
   console.log(`✅ 指標計算完成`);
 
+  // ── 取得新聞集錦與總經分析（提前至策略引擎之前）────────────────────────────
+  // 原因：macroAnalysis.conclusion.market_direction 需要注入策略引擎影響評分
+  let newsMessages = [];
+  let newsSummaryText = "今日無重大市場新聞。";
+  console.log("📝 正在從 news pool 取得新聞集錦...");
+  try {
+    const newsResult = await getNewsTelegramMessages();
+    newsMessages = newsResult.messages;
+    newsSummaryText = newsResult.summaryText;
+  } catch (err) {
+    console.error("❌ 取得新聞集錦失敗 (但不影響發送通知):", err.message);
+    newsMessages = [];
+    newsSummaryText = "新聞集錦取得失敗，請檢查系統日誌。";
+  }
+
+  console.log("🤖 正在產生總經多空對決報告...");
+  let macroAnalysis = null;
+  let macroTextForCoach = "無新聞數據，無法進行總經分析。";
+  if (newsMessages?.length) {
+    macroAnalysis = await analyzeMacroNewsWithAI(newsSummaryText);
+    macroTextForCoach = formatMacroAnalysisForCoach(macroAnalysis);
+  } else {
+    console.log("⚠️ 無新聞數據，跳過總經分析");
+    macroAnalysis = {
+      bullish: 0,
+      bearish: 0,
+      neutral: 0,
+      summary: "無新聞數據，無法進行總經分析。",
+    };
+    macroTextForCoach = macroAnalysis.summary;
+  }
+
+  // 擷取市場方向（BULLISH / BEARISH / NEUTRAL），找不到時為 null
+  const macroMarketDirection = macroAnalysis?.conclusion?.market_direction ?? null;
+  if (macroMarketDirection) {
+    console.log(`✅ 總經方向：${macroMarketDirection}`);
+  } else {
+    console.log("⚠️ 無總經方向，策略引擎將不套用情緒調整");
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   const signalData = {
     RSI: latestRSI,
     KD_K: latestKD ? latestKD.k : null,
@@ -176,44 +217,14 @@ export async function dailyCheck({
     US_RiskLevel: usRisk.riskLevel,
     US_RiskIcon: usRisk.riskIcon,
     US_Suggestion: usRisk.suggestion,
+    // ── 新增：總體情緒方向注入 ──
+    macroMarketDirection,
   };
 
   console.log("🧠 正在計算投資訊號...");
   const result = await getInvestmentSignalAsync(signalData);
 
   const dateText = TwDate().formatDateKey();
-
-  // 取得新聞集錦（從 pool 讀取，不再即時抓取）
-  let newsMessages = [];
-  let newsSummaryText = "今日無重大市場新聞。";
-  console.log("📝 正在從 news pool 取得新聞集錦...");
-  try {
-    const newsResult = await getNewsTelegramMessages();
-    newsMessages = newsResult.messages;
-    newsSummaryText = newsResult.summaryText;
-  } catch (err) {
-    console.error("❌ 取得新聞集錦失敗 (但不影響發送通知):", err.message);
-    newsMessages = [];
-    newsSummaryText = "新聞集錦取得失敗，請檢查系統日誌。";
-  }
-
-  // 取得總經多空對決報告
-  console.log("🤖 正在產生總經多空對決報告...");
-  let macroAnalysis = null;
-  let macroTextForCoach = "無新聞數據，無法進行總經分析。";
-  if (newsMessages?.length) {
-    macroAnalysis = await analyzeMacroNewsWithAI(newsSummaryText);
-    macroTextForCoach = formatMacroAnalysisForCoach(macroAnalysis);
-  } else {
-    console.log("⚠️ 無新聞數據，跳過總經分析");
-    macroAnalysis = {
-      bullish: 0,
-      bearish: 0,
-      neutral: 0,
-      summary: "無新聞數據，無法進行總經分析。",
-    };
-    macroTextForCoach = macroAnalysis.summary;
-  }
 
   // 取得 AI 決策報告
   console.log("🤖 正在產生 AI 決策分析...");

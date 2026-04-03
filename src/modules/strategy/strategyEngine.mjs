@@ -445,6 +445,25 @@ async function checkCooldown(lastBuyDate, cooldownTradingDays) {
   };
 }
 
+/**
+ * 從 strategy.macroSentiment config 與外部傳入的 market_direction
+ * 組裝成 computeEntryScore 所需的 macroSentiment 物件。
+ * 若功能未啟用或無方向資料，回傳 null。
+ * @param {string|null} marketDirection - 'BULLISH' | 'BEARISH' | 'NEUTRAL' | null
+ * @param {Object} strategy - 完整策略設定
+ * @returns {Object|null}
+ */
+function buildMacroSentiment(marketDirection, strategy) {
+  const cfg = strategy?.macroSentiment;
+  if (!cfg?.enabled || !marketDirection) return null;
+
+  return {
+    direction: marketDirection,
+    bonus: cfg.bullishBonus ?? 0,
+    penalty: cfg.bearishPenalty ?? 0,
+  };
+}
+
 export async function evaluateInvestmentSignal(data, strategy) {
   const priceChangePercent =
     ((data.currentPrice - data.basePrice) / data.basePrice) * 100;
@@ -478,10 +497,30 @@ export async function evaluateInvestmentSignal(data, strategy) {
   else if (bias240 > 15) historicalLevel = "🏜️【高位階/偏貴】";
   else if (bias240 < 0) historicalLevel = "🧊【低位階/便宜】";
 
-  // 檢查 Cooldown
-  const cooldownDays = strategy.trading.cooldownDays || 20;
-  const lastBuyDate = data.portfolio?.lastBuyDate || null; // 從 portfolio 讀取
-  const cooldownStatus = await checkCooldown(lastBuyDate, cooldownDays);
+  // ── 總體情緒物件（由 data.macroMarketDirection 注入）──────────────────────
+  const macroSentiment = buildMacroSentiment(
+    data.macroMarketDirection ?? null,
+    strategy,
+  );
+
+  // 冷卻期天數：BEARISH 時依設定倍數延長
+  const baseCooldownDays = strategy.trading.cooldownDays || 20;
+  const cfg = strategy?.macroSentiment;
+  const effectiveCooldownDays =
+    cfg?.enabled &&
+    data.macroMarketDirection === "BEARISH" &&
+    Number.isFinite(cfg.bearishCooldownMultiplier)
+      ? Math.round(baseCooldownDays * cfg.bearishCooldownMultiplier)
+      : baseCooldownDays;
+
+  const lastBuyDate = data.portfolio?.lastBuyDate ?? null;
+  const cooldownStatus = await checkCooldown(lastBuyDate, effectiveCooldownDays);
+
+  // 冷卻期天數異動時在訊息中標注原因
+  if (effectiveCooldownDays !== baseCooldownDays) {
+    cooldownStatus.message +=
+      ` (⚠️ 空頭情緒延長冷卻至 ${effectiveCooldownDays} 交易日)`;
+  }
 
   const ctx = {
     priceChangePercent,
@@ -500,7 +539,7 @@ export async function evaluateInvestmentSignal(data, strategy) {
 
     cooldownStatus,
 
-    entry: computeEntryScore(data, priceDropPercent, strategy),
+    entry: computeEntryScore(data, priceDropPercent, strategy, macroSentiment),
     overheat: computeOverheatState(data, bias240, strategy),
     reversal: computeReversalTriggers(data, strategy),
     sellSignals: computeSellSignals(data, strategy),
@@ -536,6 +575,8 @@ export async function evaluateInvestmentSignal(data, strategy) {
     maintenanceMargin,
     z2Ratio,
     strategy,
+    macroSentiment,
+    effectiveCooldownDays,
     ...decision,
     cooldownStatus,
   };
