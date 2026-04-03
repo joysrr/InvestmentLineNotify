@@ -15,6 +15,7 @@ import {
   kdSeries,
   getMACDSignal,
 } from "./indicators.mjs";
+import { archiveManager } from "../data/archiveManager.mjs";
 
 const STRATEGY_URL = process.env.STRATEGY_URL;
 
@@ -66,9 +67,29 @@ export async function fetchStrategyConfig() {
       loadedAt: new Date(),
     };
 
+    // 驗證通過後同步備份至本地
+    await archiveManager.saveStrategyCache(json);
+
     return json;
   } catch (err) {
-    if (_cache.strategy) return _cache.strategy;
+    // 第一層：記憶體 cache
+    if (_cache.strategy) {
+      console.warn(`⚠️ [Strategy] 遠端載入失敗，使用記憶體 cache (v${_cache.strategy.version}):`, err.message);
+      return _cache.strategy;
+    }
+
+    // 第二層：本地檔案 cache
+    const localCache = await archiveManager.getStrategyCache();
+    if (localCache) {
+      console.warn(
+        `⚠️ [Strategy] 記憶體無可用，使用本地備份 (v${localCache.version}):`,
+        err.message
+      );
+      // 回寫記憶體避免下次再讀檔案
+      _cache = { url: STRATEGY_URL, strategy: localCache, loadedAt: new Date() };
+      return localCache;
+    }
+
     throw err;
   }
 }
@@ -232,7 +253,7 @@ export function validateStrategyConfig(config) {
     );
   }
 
-  return true; // 驗證全部通過
+  return true;
 }
 
 /**
@@ -247,7 +268,6 @@ export function validateStrategyConfig(config) {
  *   label: 顯示標籤文字
  */
 export function computeEntryScore(data, priceDropPercent, strategy, macroSentiment) {
-  // 找到符合的跌幅規則（從高到低排序）取得分數
   const dropRules = Array.isArray(strategy?.buy?.dropScoreRules)
     ? strategy.buy.dropScoreRules.toSorted((a, b) => b.minDrop - a.minDrop)
     : [];
@@ -281,7 +301,7 @@ export function computeEntryScore(data, priceDropPercent, strategy, macroSentime
     kdScore: signals.kdBullLow ? strategy.buy.kd.score : 0,
   };
 
-  // ── 總體情緒調整 ──────────────────────────────────────────────────────────
+  // ── 總體情緒調整 ──────────────────────────────────────────────────────────────────
   let sentimentScore = 0;
   let sentimentInfo = "🌐 總體情緒：無數據";
 
@@ -367,17 +387,14 @@ export function computeSellSignals(data, strategy) {
   const lastK = last?.k ?? null;
   const lastD = last?.d ?? null;
 
-  // ✅ 狀態（state）：是否處於超買區
   const rsiStateOverbought =
     Number.isFinite(data.RSI) && data.RSI >= overbought;
   const kdStateOverbought = Number.isFinite(lastD) && lastD >= overboughtK;
 
-  // 1) RSI：高於超買線並回落
   const rsiSell = fellBelowAfterAbove(data.rsiArr, overbought, 10, {
     requireCrossToday: true,
   });
 
-  // 2) MACD：快線下穿慢線 + 柱狀圖轉負
   const macdSell = (() => {
     const macdMinusSignal = data.macdArr.map((x) => x.MACD - x.signal);
     const crossDown = fellBelowAfterAbove(macdMinusSignal, 0, 10, {
@@ -386,7 +403,6 @@ export function computeSellSignals(data, strategy) {
     return crossDown;
   })();
 
-  // 3) KD：高檔死叉 OR %D 跌回門檻下方
   const kdSell = (() => {
     const crossDownKD = kdCrossDown(data.kdArr);
     const inOverboughtNow =
