@@ -234,7 +234,7 @@ async function callOptimizerAI(articleTitles, region) {
   const userPrompt = buildOptimizerPrompt(articleTitles, region);
 
   try {
-    const rawJson = await callAI("RuleOptimizer", userPrompt, {
+    const { rawJson, traceId } = await callAI("RuleOptimizer", userPrompt, {
       sessionId,
       provider: PROVIDERS.GEMINI,
       keyIndex: 2,
