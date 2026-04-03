@@ -53,7 +53,7 @@ function getAgeBand(fetchedAt) {
 }
 
 /**
- * 標題 fingerprint：
+ * 標題 fingerprint（採集端與 pool 端共用同一 normalizer）：
  * 1. 剝除常見來源尾碼
  * 2. 小寫化
  * 3. 去除所有非中英文數字字符
@@ -63,7 +63,7 @@ function getAgeBand(fetchedAt) {
  * @param {string} title
  * @returns {string} 16-char hex fingerprint
  */
-function buildFingerprint(title) {
+export function buildFingerprint(title) {
   let t = title;
   for (const pattern of SOURCE_SUFFIX_PATTERNS) {
     t = t.replace(pattern, "");
