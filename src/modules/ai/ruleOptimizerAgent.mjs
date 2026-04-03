@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync } from "fs";
 import { join } from "path";
-import { callGemini } from "./aiClient.mjs";
+import { callAI, PROVIDERS } from "./aiClient.mjs";
 import { RULE_OPTIMIZER_SCHEMA, buildOptimizerPrompt } from "./prompts.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 
@@ -234,8 +234,9 @@ async function callOptimizerAI(articleTitles, region) {
   const userPrompt = buildOptimizerPrompt(articleTitles, region);
 
   try {
-    const rawJson = await callGemini("RuleOptimizer", userPrompt, {
+    const rawJson = await callAI("RuleOptimizer", userPrompt, {
       sessionId,
+      provider: PROVIDERS.GEMINI,
       keyIndex: 2,
       responseSchema: RULE_OPTIMIZER_SCHEMA,
     });
