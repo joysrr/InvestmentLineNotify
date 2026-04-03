@@ -217,11 +217,36 @@ export function validateStrategyConfig(config) {
   assertNumber(t.vixExtreme, "threshold.vixExtreme");
   assertNumber(t.usVixPanic, "threshold.usVixPanic");
 
+  // 10. macroSentiment（選填，向後相容）
+  if (config.macroSentiment !== undefined) {
+    assert(
+      isObject(config.macroSentiment),
+      "macroSentiment 必須是物件",
+    );
+    assertBoolean(config.macroSentiment.enabled, "macroSentiment.enabled");
+    assertNumber(config.macroSentiment.bullishBonus, "macroSentiment.bullishBonus");
+    assertNumber(config.macroSentiment.bearishPenalty, "macroSentiment.bearishPenalty");
+    assertNumber(
+      config.macroSentiment.bearishCooldownMultiplier,
+      "macroSentiment.bearishCooldownMultiplier",
+    );
+  }
+
   return true; // 驗證全部通過
 }
 
-// 轉多權重計算
-export function computeEntryScore(data, priceDropPercent, strategy) {
+/**
+ * 轉多權重計算
+ * @param {Object} data - 市場資料
+ * @param {number} priceDropPercent - 跌幅百分比
+ * @param {Object} strategy - 策略設定
+ * @param {Object} [macroSentiment] - 總體情緒物件 { direction, bonus, penalty, label }
+ *   direction: 'BULLISH' | 'BEARISH' | 'NEUTRAL'
+ *   bonus: 多頭加分
+ *   penalty: 空頭扣分
+ *   label: 顯示標籤文字
+ */
+export function computeEntryScore(data, priceDropPercent, strategy, macroSentiment) {
   // 找到符合的跌幅規則（從高到低排序）取得分數
   const dropRules = Array.isArray(strategy?.buy?.dropScoreRules)
     ? strategy.buy.dropScoreRules.toSorted((a, b) => b.minDrop - a.minDrop)
@@ -256,8 +281,33 @@ export function computeEntryScore(data, priceDropPercent, strategy) {
     kdScore: signals.kdBullLow ? strategy.buy.kd.score : 0,
   };
 
+  // ── 總體情緒調整 ──────────────────────────────────────────────────────────
+  let sentimentScore = 0;
+  let sentimentInfo = "🌐 總體情緒：無數據";
+
+  if (macroSentiment?.direction) {
+    const dir = macroSentiment.direction;
+    if (dir === "BULLISH") {
+      sentimentScore = macroSentiment.bonus ?? 0;
+      sentimentInfo = `🌐 總體情緒：📈 新聞偏多 (+${sentimentScore}分)`;
+    } else if (dir === "BEARISH") {
+      sentimentScore = -(macroSentiment.penalty ?? 0);
+      sentimentInfo = `🌐 總體情緒：📉 新聞偏空 (${sentimentScore}分)`;
+    } else {
+      sentimentInfo = `🌐 總體情緒：⚖️ 中性觀望 (±0分)`;
+    }
+  }
+
+  details.sentimentInfo = sentimentInfo;
+  details.sentimentScore = sentimentScore;
+
   const score =
-    details.dropScore + details.rsiScore + details.macdScore + details.kdScore;
+    details.dropScore +
+    details.rsiScore +
+    details.macdScore +
+    details.kdScore +
+    sentimentScore;
+
   return { weightScore: score, weightDetails: details, entrySignals: signals };
 }
 
