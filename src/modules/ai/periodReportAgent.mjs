@@ -195,9 +195,10 @@ export function buildPeriodStats(reports, period) {
 }
 
 /**
- * 組合送入 AI 的 user prompt
+ * 組合送入 callAI 的 promptVariables
+ * systemInstruction 由 Langfuse template compile() 完成替換
  */
-function buildPeriodReportPrompt(stats, riskWarningsText, periodLabel) {
+function buildPeriodReportVariables(stats, riskWarningsText, periodLabel) {
   const statsSummary = JSON.stringify(
     {
       dateRange: stats.dateRange,
@@ -213,13 +214,11 @@ function buildPeriodReportPrompt(stats, riskWarningsText, periodLabel) {
     2,
   );
 
-  return `period_label: ${periodLabel}
-
-【每日 AI 風險警告原文】
-${riskWarningsText}
-
-【統計摘要 JSON】
-${statsSummary}`;
+  return {
+    period_label: periodLabel,
+    risk_warnings_text: riskWarningsText,
+    stats_summary: statsSummary,
+  };
 }
 
 /**
@@ -241,15 +240,28 @@ export async function generatePeriodAiSummary(stats, reports, periodLabel, sessi
     .filter(Boolean)
     .join("\n\n");
 
-  const userPrompt = buildPeriodReportPrompt(stats, riskWarningsText || "本週期無風險警告記錄。", periodLabel);
+  // ── 方案 A：所有動態內容透過 promptVariables 傳入 ──────────────────────────
+  // Langfuse template 的 {{period_label}} / {{risk_warnings_text}} / {{stats_summary}}
+  // 由 callAI 內部的 promptObj.compile(promptVariables) 替換成 systemInstruction
+  // userPrompt 只做觸發用，讓 Langfuse trace 能完整記錄每次帶入的變數值
+  const promptVariables = buildPeriodReportVariables(
+    stats,
+    riskWarningsText || "本週期無風險警告記錄。",
+    periodLabel,
+  );
 
   try {
-    const { text, traceId } = await callAI("PeriodReportAnalysis", userPrompt, {
-      sessionId,
-      provider: PROVIDERS.GEMINI,
-      keyIndex: 1,
-      responseSchema: PERIOD_REPORT_SCHEMA,
-    });
+    const { text, traceId } = await callAI(
+      "PeriodReportAnalysis",
+      "請開始分析，依據 system 指令輸出 JSON。",
+      {
+        sessionId,
+        provider: PROVIDERS.GEMINI,
+        keyIndex: 1,
+        responseSchema: PERIOD_REPORT_SCHEMA,
+        promptVariables,
+      },
+    );
 
     const aiSummary = JSON.parse(text);
 
