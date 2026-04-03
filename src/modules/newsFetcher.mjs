@@ -9,7 +9,7 @@ import {
   loadBlacklist,
 } from "./keywordConfig.mjs";
 import { archiveManager } from "./data/archiveManager.mjs";
-import { loadPoolWithFallback } from "./data/newsPoolManager.mjs";
+import { loadPoolWithFallback, buildFingerprint } from "./data/newsPoolManager.mjs";
 
 // ── 工具函式 ──────────────────────────────────────────────────────────────────
 
@@ -201,11 +201,12 @@ function prepareNewsForAI(newsList, maxPerRegion = 20, blacklist = null) {
   );
   console.log(`📰 標題長度篩選後: ${filteredByTitleLength.length} 筆`);
 
-  const seen = new Set();
+  // 使用與 newsPoolManager 相同的 buildFingerprint normalizer 進行採集端去重
+  const seenFingerprints = new Set();
   const dedupedByTitle = filteredByTitleLength.filter((news) => {
-    const key = news.title.slice(0, 10);
-    if (seen.has(key)) return false;
-    seen.add(key);
+    const fp = buildFingerprint(news.title);
+    if (seenFingerprints.has(fp)) return false;
+    seenFingerprints.add(fp);
     return true;
   });
   console.log(`📰 標題去重後: ${dedupedByTitle.length} 筆`);
