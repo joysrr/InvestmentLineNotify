@@ -11,6 +11,9 @@ const ARCHIVE_DIR = path.join(NEWS_DIR, "archive");
 
 const TTL_HOURS = 24;
 
+/** pool 文章數硬上限，超過時保留最新的 MAX_POOL_SIZE 篇 */
+const MAX_POOL_SIZE = 200;
+
 // 常見來源尾碼（保守清單），用於 normalize 前先剝除
 const SOURCE_SUFFIX_PATTERNS = [
   / [-|｜] ?reuters$/i,
@@ -51,7 +54,7 @@ function getAgeBand(fetchedAt) {
 
 /**
  * 標題 fingerprint：
- * 1. 剝除常見來源尾碼（如 " - Reuters"）
+ * 1. 剝除常見來源尾碼
  * 2. 小寫化
  * 3. 去除所有非中英文數字字符
  * 4. 壓縮空白
@@ -62,11 +65,9 @@ function getAgeBand(fetchedAt) {
  */
 function buildFingerprint(title) {
   let t = title;
-  // Step 1: 剝除來源尾碼
   for (const pattern of SOURCE_SUFFIX_PATTERNS) {
     t = t.replace(pattern, "");
   }
-  // Step 2-4: normalize
   const normalized = t
     .toLowerCase()
     .replace(/[^\w\u4e00-\u9fff]/g, " ")
@@ -84,6 +85,18 @@ function buildFingerprint(title) {
  */
 function buildRegionKey(region, fingerprint) {
   return `${region}:${fingerprint}`;
+}
+
+/**
+ * 判斷一篇文章是否為「殭屍文章」（fetched_at 缺失或無法解析）
+ * 殭屍文章視為過期，直接清除，不進行歸檔
+ * @param {Object} article
+ * @returns {boolean}
+ */
+function isZombieArticle(article) {
+  if (!article.fetched_at) return true;
+  const t = new Date(article.fetched_at).getTime();
+  return isNaN(t);
 }
 
 async function ensureDirs() {
@@ -161,10 +174,12 @@ async function archiveArticles(articles) {
 /**
  * 以新抓到的 RSS 文章更新 pool：
  * 1. 讀取現有 pool
- * 2. 過期文章（>TTL_HOURS）歸檔
- * 3. region-scoped fingerprint + URL 去重後 append 新文章
- * 4. 更新現有文章的 age_band
- * 5. 寫回 pool_active.json
+ * 2. 殭屍文章（fetched_at 缺失/無效）直接丟棄
+ * 3. 過期文章（>TTL_HOURS）歸檔
+ * 4. region-scoped fingerprint + URL 去重後 append 新文章
+ * 5. 更新現有文章的 age_band
+ * 6. 超過 MAX_POOL_SIZE 時截斷（保留最新）
+ * 7. 寫回 pool_active.json
  *
  * @param {Array<Object>} newArticles - RSS item 物件陣列（需含 title, link, pubDate, source, _region）
  * @returns {{ appended: number, expired: number, skipped_fuzzy: number, total: number }}
@@ -173,11 +188,18 @@ export async function updatePool(newArticles) {
   const pool = await loadPool();
   const cutoff = Date.now() - TTL_HOURS * 3_600_000;
 
-  // 分離過期與有效文章
-  const expired = pool.articles.filter(
+  // 層 1a：殭屍文章過濾（fetched_at 缺失或無法解析）
+  const zombies = pool.articles.filter(isZombieArticle);
+  if (zombies.length > 0) {
+    console.warn(`⚠️ [NewsPool] 清除 ${zombies.length} 篇殭屍文章（fetched_at 無效）`);
+  }
+  const nonZombie = pool.articles.filter((a) => !isZombieArticle(a));
+
+  // 層 1b：TTL 過期清理
+  const expired = nonZombie.filter(
     (a) => new Date(a.fetched_at).getTime() < cutoff
   );
-  const active = pool.articles.filter(
+  const active = nonZombie.filter(
     (a) => new Date(a.fetched_at).getTime() >= cutoff
   );
 
@@ -218,27 +240,38 @@ export async function updatePool(newArticles) {
     toAppend.push({
       id,
       url,
-      link: url,                              // 保留 link 欄位供 Telegram 訊息組裝使用
+      link: url,
       title,
-      pubDate: article.pubDate || now,        // 保留原始 pubDate 供排序與顯示
+      pubDate: article.pubDate || now,
       source: article.source || "unknown",
-      _region: region,                        // 保留 _region 供 AI / 推播分組
+      _region: region,
       fetched_at: now,
-      age_band: "fresh",                      // 新抓到的必定是 fresh
+      age_band: "fresh",
     });
   }
 
-  // 更新現有 active 文章的 age_band（隨時間推移可能從 fresh → recent → stale）
+  // 更新現有 active 文章的 age_band
   const updatedActive = active.map((a) => ({
     ...a,
     age_band: getAgeBand(a.fetched_at),
   }));
 
+  // 層 2：MAX_POOL_SIZE 硬上限（依 fetched_at 保留最新）
+  let combined = [...updatedActive, ...toAppend];
+  if (combined.length > MAX_POOL_SIZE) {
+    console.warn(
+      `⚠️ [NewsPool] pool 超過上限 (${combined.length} > ${MAX_POOL_SIZE})，截斷至最新 ${MAX_POOL_SIZE} 篇`
+    );
+    combined = combined
+      .sort((a, b) => new Date(b.fetched_at).getTime() - new Date(a.fetched_at).getTime())
+      .slice(0, MAX_POOL_SIZE);
+  }
+
   const updatedPool = {
     last_updated: now,
     fetch_count: (pool.fetch_count || 0) + 1,
     window_hours: TTL_HOURS,
-    articles: [...updatedActive, ...toAppend],
+    articles: combined,
   };
 
   await savePool(updatedPool);
@@ -257,7 +290,71 @@ export async function updatePool(newArticles) {
 }
 
 // ==========================================================================
-// 4. 決策端讀取（含 fallback）
+// 4. 獨立清理函式（可在 main flow 外呼叫）
+// ==========================================================================
+
+/**
+ * 清理 pool_active.json 中的殭屍文章與過期文章，不執行新文章寫入
+ * - 殭屍文章（fetched_at 缺失/無效）直接丟棄
+ * - 過期文章（>TTL_HOURS）歸檔
+ * - 超過 MAX_POOL_SIZE 時截斷
+ *
+ * @returns {{ removed_zombies: number, expired: number, total: number }}
+ */
+export async function purgeExpiredFromPool() {
+  const pool = await loadPool();
+  const cutoff = Date.now() - TTL_HOURS * 3_600_000;
+
+  const zombies = pool.articles.filter(isZombieArticle);
+  if (zombies.length > 0) {
+    console.warn(`⚠️ [NewsPool][Purge] 清除 ${zombies.length} 篇殭屍文章`);
+  }
+  const nonZombie = pool.articles.filter((a) => !isZombieArticle(a));
+
+  const expired = nonZombie.filter(
+    (a) => new Date(a.fetched_at).getTime() < cutoff
+  );
+  let active = nonZombie.filter(
+    (a) => new Date(a.fetched_at).getTime() >= cutoff
+  );
+
+  await archiveArticles(expired);
+
+  // 更新 age_band
+  active = active.map((a) => ({ ...a, age_band: getAgeBand(a.fetched_at) }));
+
+  // MAX_POOL_SIZE 硬上限
+  if (active.length > MAX_POOL_SIZE) {
+    console.warn(
+      `⚠️ [NewsPool][Purge] pool 超過上限 (${active.length} > ${MAX_POOL_SIZE})，截斷至最新 ${MAX_POOL_SIZE} 篇`
+    );
+    active = active
+      .sort((a, b) => new Date(b.fetched_at).getTime() - new Date(a.fetched_at).getTime())
+      .slice(0, MAX_POOL_SIZE);
+  }
+
+  const updatedPool = {
+    ...pool,
+    last_updated: new Date().toISOString(),
+    articles: active,
+  };
+
+  await savePool(updatedPool);
+
+  console.log(
+    `🧹 [NewsPool][Purge] 殭屍: ${zombies.length}，歸檔過期: ${expired.length}，` +
+    `池中現有: ${active.length} 篇`
+  );
+
+  return {
+    removed_zombies: zombies.length,
+    expired: expired.length,
+    total: active.length,
+  };
+}
+
+// ==========================================================================
+// 5. 決策端讀取（含 fallback）
 // ==========================================================================
 
 /**
@@ -299,7 +396,7 @@ export async function loadPoolWithFallback() {
 }
 
 // ==========================================================================
-// 5. Filtered Pool 讀寫（AI Filter 結果）
+// 6. Filtered Pool 讀寫（AI Filter 結果）
 // ==========================================================================
 
 /**
@@ -322,7 +419,7 @@ export async function saveFilteredPool(filteredArticles, sourcePoolUpdatedAt) {
 }
 
 // ==========================================================================
-// 6. Archive 清理（供 archiveManager.cleanOldArchives 延伸呼叫）
+// 7. Archive 清理（供 archiveManager.cleanOldArchives 延伸呼叫）
 // ==========================================================================
 
 /**

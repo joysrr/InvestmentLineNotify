@@ -2,7 +2,7 @@ import "dotenv/config";
 import { langfuse } from "./modules/ai/aiClient.mjs";
 import { getRawNews } from "./modules/newsFetcher.mjs";
 import { generateDailySearchQueries } from "./modules/ai/aiCoach.mjs";
-import { updatePool } from "./modules/data/newsPoolManager.mjs";
+import { updatePool, purgeExpiredFromPool } from "./modules/data/newsPoolManager.mjs";
 
 /** Langfuse score 回寫，失敗不阻斷主流程 */
 async function safeLangfuseScore(payload) {
@@ -63,11 +63,16 @@ async function main() {
       return;
     }
 
-    // 4. 更新 pool（自動去重、過期歸檔、更新 age_band）
-    const { appended, expired, total } = await updatePool(articles);
+    // 4. 更新 pool（自動去重、過期歸檔、殭屍清理、上限截斷、更新 age_band）
+    const { appended, expired, skipped_fuzzy, total } = await updatePool(articles);
     console.log(
-      `✅ [NewsFetch] pool 更新完成 — 新增: ${appended}，過期歸檔: ${expired}，目前 pool 總量: ${total}`,
+      `✅ [NewsFetch] pool 更新完成 — 新增: ${appended}，fuzzy 跳過: ${skipped_fuzzy}，` +
+      `過期歸檔: ${expired}，目前 pool 總量: ${total}`,
     );
+
+    // 5. 額外執行一次 purge，清理本次 updatePool 未觸及的殘留問題
+    await purgeExpiredFromPool();
+
   } catch (err) {
     console.error("❌ [NewsFetch] 管線發生錯誤:", err);
     process.exit(1);
