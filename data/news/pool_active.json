@@ -1,6 +1,6 @@
 {
-  "last_updated": "2026-04-03T07:09:38.653Z",
-  "fetch_count": 8,
+  "last_updated": "2026-04-03T09:53:38.326Z",
+  "fetch_count": 9,
   "window_hours": 24,
   "articles": [
     {
@@ -1684,7 +1684,7 @@
       "source": "自由財經",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "d32aee99bfd8eb40",
@@ -1695,7 +1695,7 @@
       "source": "Yahoo新聞",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "5f38649c1ef036f5",
@@ -1706,7 +1706,7 @@
       "source": "日經中文網",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "4d1fb5adee31955d",
@@ -1717,7 +1717,7 @@
       "source": "韓聯社",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "0d7983dd474fa75b",
@@ -1728,7 +1728,7 @@
       "source": "香港文匯網",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "c30328edae142539",
@@ -1739,7 +1739,7 @@
       "source": "華冠投顧",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "1b0c0a29e8d8778f",
@@ -1750,7 +1750,7 @@
       "source": "自由時報",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "fe7cb0150e7bc4be",
@@ -1761,7 +1761,7 @@
       "source": "自由時報",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "077830908b65e23f",
@@ -1772,7 +1772,7 @@
       "source": "Yahoo新聞",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "8e9886efdd8b28b9",
@@ -1783,7 +1783,7 @@
       "source": "今日大公",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "3c392a0624f7832d",
@@ -1794,7 +1794,7 @@
       "source": "今日大公",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "c3536f34da74a50c",
@@ -1805,7 +1805,7 @@
       "source": "中時新聞網",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "5c446a8e503d5e67",
@@ -1816,7 +1816,7 @@
       "source": "中時新聞網",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "9464c8a3712e91f1",
@@ -1827,7 +1827,7 @@
       "source": "中時新聞網",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "eb90ad930ba0899d",
@@ -1838,7 +1838,7 @@
       "source": "中時新聞網",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "fa966cc331e0df31",
@@ -1849,7 +1849,7 @@
       "source": "MSN",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "6d530e1386b45d86",
@@ -1860,7 +1860,7 @@
       "source": "MSN",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "a15d5c04a7ed22c0",
@@ -1871,7 +1871,7 @@
       "source": "MSN",
       "_region": "TW",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "eb18d1a9625bc8ce",
@@ -1882,7 +1882,7 @@
       "source": "The Motley Fool",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "372d30c12305b05a",
@@ -1893,7 +1893,7 @@
       "source": "ai-cio.com",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "b71f1256dcc41bfd",
@@ -1904,7 +1904,7 @@
       "source": "Deccan Herald",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "07030a86d428da4a",
@@ -1915,7 +1915,7 @@
       "source": "Fox Business",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "91306f76c2312709",
@@ -1926,7 +1926,7 @@
       "source": "abq.news",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "f7ef51b604d6f3db",
@@ -1937,7 +1937,7 @@
       "source": "investing.com",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "8742e773cf6ad871",
@@ -1948,7 +1948,7 @@
       "source": "ETF Database",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "1ddc933b2ba0778b",
@@ -1959,7 +1959,7 @@
       "source": "TradingView",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "ab0bb579eb1d4c9e",
@@ -1970,7 +1970,7 @@
       "source": "rbc.com",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "97d2d2f3ea6e845a",
@@ -1981,7 +1981,7 @@
       "source": "Modern Ghana",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "b40322a937e3de01",
@@ -1992,7 +1992,7 @@
       "source": "investing.com",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "41364d2a055ac3be",
@@ -2003,7 +2003,7 @@
       "source": "Reuters",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "9f994f9fcf40e486",
@@ -2014,7 +2014,7 @@
       "source": "CFO Dive",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "2ce4e19f70dab088",
@@ -2025,7 +2025,7 @@
       "source": "investing.com",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "9ae3cf87ab31ed16",
@@ -2036,7 +2036,7 @@
       "source": "TV News Check",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "8b3d71e425038871",
@@ -2047,7 +2047,7 @@
       "source": "The Motley Fool",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "2d9093d2a5cf073e",
@@ -2058,7 +2058,7 @@
       "source": "富途牛牛",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "3be967a36b1a5eda",
@@ -2069,7 +2069,7 @@
       "source": "TMJ4 News",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "9b3c289ab9661a4e",
@@ -2080,7 +2080,7 @@
       "source": "TradingView",
       "_region": "US",
       "fetched_at": "2026-04-02T21:38:43.082Z",
-      "age_band": "recent"
+      "age_band": "stale"
     },
     {
       "id": "687235c713d522a9",
@@ -2091,7 +2091,7 @@
       "source": "news.cnyes.com",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "b7fd098b5931b3ac",
@@ -2102,7 +2102,7 @@
       "source": "香港文匯網",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "2b31b6d280eb2f00",
@@ -2113,7 +2113,7 @@
       "source": "ETtoday車雲",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "5a10d39230123ea0",
@@ -2124,7 +2124,7 @@
       "source": "梅花新聞網",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "d487f677ba0727b3",
@@ -2135,7 +2135,7 @@
       "source": "ent.ltn.com.tw",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "4f1c20e03f0fa01a",
@@ -2146,7 +2146,7 @@
       "source": "Yahoo股市",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "f3bc10598c5ca185",
@@ -2157,7 +2157,7 @@
       "source": "中央社 CNA",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "82012063b433996a",
@@ -2168,7 +2168,7 @@
       "source": "旺得富理財網",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "d6ca81fa86005abc",
@@ -2179,7 +2179,7 @@
       "source": "stock.ltn.com.tw",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "0a3443f4026f09c9",
@@ -2190,7 +2190,7 @@
       "source": "msn.com",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "bf39761152f29d43",
@@ -2201,7 +2201,7 @@
       "source": "TVBS新聞網",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "b82f0ae605c57167",
@@ -2212,7 +2212,7 @@
       "source": "hkcd.com",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "d4bdf9eb939781e4",
@@ -2223,7 +2223,7 @@
       "source": "msn.com",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "2228d68582111076",
@@ -2234,7 +2234,7 @@
       "source": "msn.com",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "fd85bb15bb5da400",
@@ -2245,7 +2245,7 @@
       "source": "自由財經",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "161a5a3c058d1d1b",
@@ -2256,7 +2256,7 @@
       "source": "tw.news.yahoo.com",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "d73da9376c18141c",
@@ -2267,7 +2267,7 @@
       "source": "鏡週刊Mirror Media",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "d391113dbacd2f12",
@@ -2278,7 +2278,7 @@
       "source": "tw.news.yahoo.com",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "275ae629abfe847b",
@@ -2289,7 +2289,7 @@
       "source": "msn.com",
       "_region": "TW",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "7f8d2e7d33243810",
@@ -2300,7 +2300,7 @@
       "source": "VT Markets",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "eedbcce248ea909d",
@@ -2311,7 +2311,7 @@
       "source": "TradingView",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "4b29e1b49702841e",
@@ -2322,7 +2322,7 @@
       "source": "TradingView",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "ffc3248b1dca95f3",
@@ -2333,7 +2333,7 @@
       "source": "富途牛牛",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "e93cefcb9a9b53ed",
@@ -2344,7 +2344,7 @@
       "source": "NDTV Profit",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "3116ccd6c320a451",
@@ -2355,7 +2355,7 @@
       "source": "WWD",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "1a34d5306e5bb465",
@@ -2366,7 +2366,7 @@
       "source": "Nation Thailand",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "cd878dd888c50ccf",
@@ -2377,7 +2377,7 @@
       "source": "Table.Briefings",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "5f5290b2c855d41b",
@@ -2388,7 +2388,7 @@
       "source": "AOL.com",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "1de18309f1b4fe8e",
@@ -2399,7 +2399,7 @@
       "source": "조선일보",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "7c7087705e730b3d",
@@ -2410,7 +2410,7 @@
       "source": "VT Markets",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "474c68002613b201",
@@ -2421,7 +2421,7 @@
       "source": "VT Markets",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "889efe5239eaa265",
@@ -2432,7 +2432,7 @@
       "source": "VT Markets",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "58fbb954b36031a2",
@@ -2443,7 +2443,7 @@
       "source": "klsescreener.com",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "fb1403ee9824c20c",
@@ -2454,7 +2454,7 @@
       "source": "OneFootball",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "ef966790b0afb9ce",
@@ -2465,7 +2465,7 @@
       "source": "WTMJ",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "c05dcd0d8e7a1de9",
@@ -2476,7 +2476,7 @@
       "source": "Investor's Business Daily",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "f780dce3e0ade768",
@@ -2487,7 +2487,7 @@
       "source": "WYFF News 4",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "9b7f206c1be15578",
@@ -2498,7 +2498,7 @@
       "source": "TipRanks",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "46ae651abdadd793",
@@ -2509,7 +2509,7 @@
       "source": "ABC7 Chicago",
       "_region": "US",
       "fetched_at": "2026-04-03T02:23:47.609Z",
-      "age_band": "fresh"
+      "age_band": "recent"
     },
     {
       "id": "84f85908ad6bc0d7",
@@ -3301,6 +3301,424 @@
       "source": "Bitcoin World",
       "_region": "US",
       "fetched_at": "2026-04-03T07:09:38.653Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "f521957f5cbbf4e9",
+      "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE1pc3hYX2pLbldiVHdUTlJNeGd5SzZVLXM1QWc0SnVNbWtMRVlQb2lwMnhqdW8zS0R6bDVERHdSYWNwYmlhZXlHNTZNMXkyaTA0dUJtN01SMnZ0RkhCYmk3cEk5ajY1QdIBa0FVX3lxTFB0bXp0RDR2NHZNeTBqQm1XTXlCNXZ3aDB3ckF5RVVPb21rZUF0cS1GRUstX0NyNG1hbDg1RTBRWHRHTEZpZWRkU1E4QlIzTWoxOE5nOHJLSXpPU09Ta2kyWkNTTlpoZk9FMHJj?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE1pc3hYX2pLbldiVHdUTlJNeGd5SzZVLXM1QWc0SnVNbWtMRVlQb2lwMnhqdW8zS0R6bDVERHdSYWNwYmlhZXlHNTZNMXkyaTA0dUJtN01SMnZ0RkhCYmk3cEk5ajY1QdIBa0FVX3lxTFB0bXp0RDR2NHZNeTBqQm1XTXlCNXZ3aDB3ckF5RVVPb21rZUF0cS1GRUstX0NyNG1hbDg1RTBRWHRHTEZpZWRkU1E4QlIzTWoxOE5nOHJLSXpPU09Ta2kyWkNTTlpoZk9FMHJj?oc=5",
+      "title": "讓中國買不到！美擬擴大晶片設備出口管制 艾司摩爾DUV全受限 - 自由時報",
+      "pubDate": "Fri, 03 Apr 2026 09:45:00 GMT",
+      "source": "自由時報",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "1cc5fc524e7657e4",
+      "url": "https://news.google.com/rss/articles/CBMiqANBVV95cUxNVGFlU1d2S2dtU2daODJ2Z0VnalJVYU1SWVVTakE2YXpjV3dkUjI2dGFEcXlUMHVjV3BpTjRuT25BOTRfTTJ2al82d0R3YktwRGkzVjBNZ3BFdEtzNlNqS3JUeUlWbmtaMjh1clEwVXg4bG5pdU13b2NoMFllSE9KTGlKZk1lWkJwcnZCSlFGMVZmMW9YU0ZBc3N3VFBQektaQkF0cmlhbVdRVmd1R3dxSDNMS0RuZTdETzZnTWxhLWItSVUzSUFZMWNaRzhLLVhxLTduendFTzE3V01tZXVVeXU1TFh2bnFmdHpRaGNNek9TQkMyUzViMGtvRl81VV9fODF6a09hc2syX0gxaWdXaVRCYmwtNC0xUmUtekRJenJySlR2dmQ5UUNpUm5WQ2VMc3QyaEQ4SW1qbHFRYkRnR01vRXdiWHBWazJPRUFsVGVxd2JHRWNaS256VzlET3ZicGxhaG5ENHhHUURTY3FnOWtreFhrSFJZcmZlQ3hCdV9Td09FLW13VnB2UXZYYmZJd1Q2M1M1QXBuRF9wUmRtc3NYVFkzQXVn?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiqANBVV95cUxNVGFlU1d2S2dtU2daODJ2Z0VnalJVYU1SWVVTakE2YXpjV3dkUjI2dGFEcXlUMHVjV3BpTjRuT25BOTRfTTJ2al82d0R3YktwRGkzVjBNZ3BFdEtzNlNqS3JUeUlWbmtaMjh1clEwVXg4bG5pdU13b2NoMFllSE9KTGlKZk1lWkJwcnZCSlFGMVZmMW9YU0ZBc3N3VFBQektaQkF0cmlhbVdRVmd1R3dxSDNMS0RuZTdETzZnTWxhLWItSVUzSUFZMWNaRzhLLVhxLTduendFTzE3V01tZXVVeXU1TFh2bnFmdHpRaGNNek9TQkMyUzViMGtvRl81VV9fODF6a09hc2syX0gxaWdXaVRCYmwtNC0xUmUtekRJenJySlR2dmQ5UUNpUm5WQ2VMc3QyaEQ4SW1qbHFRYkRnR01vRXdiWHBWazJPRUFsVGVxd2JHRWNaS256VzlET3ZicGxhaG5ENHhHUURTY3FnOWtreFhrSFJZcmZlQ3hCdV9Td09FLW13VnB2UXZYYmZJd1Q2M1M1QXBuRF9wUmRtc3NYVFkzQXVn?oc=5",
+      "title": "美議員提新法案收緊荷日對華芯片設備出口管制 浸沒式DUV也全禁 - RFI",
+      "pubDate": "Fri, 03 Apr 2026 09:41:24 GMT",
+      "source": "RFI",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "dd9e006fd9382029",
+      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFBCNVlWMl9pRUVSODgtaTFubFhwUllIbFg1dkh4bFNSZzRRLVFaamhoY1U1RjdJYXl1UDVrNk5LTlI5cEcyY281VzFTVzdBTkRiX2xhb0N5N2p0ZWV40gFiQVVfeXFMUGJCNnpGTnFaSlljQl8xdU95ekRwVFA1UHJBZDZXdzFRcTJqRjdPMW02VXFoODBsNWNDRmZneTZFTW9zZEQ1MXZSZ3hKVVdhRW9DeVQxMGVOQ2c2Rm9tUlBYM0E?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFBCNVlWMl9pRUVSODgtaTFubFhwUllIbFg1dkh4bFNSZzRRLVFaamhoY1U1RjdJYXl1UDVrNk5LTlI5cEcyY281VzFTVzdBTkRiX2xhb0N5N2p0ZWV40gFiQVVfeXFMUGJCNnpGTnFaSlljQl8xdU95ekRwVFA1UHJBZDZXdzFRcTJqRjdPMW02VXFoODBsNWNDRmZneTZFTW9zZEQ1MXZSZ3hKVVdhRW9DeVQxMGVOQ2c2Rm9tUlBYM0E?oc=5",
+      "title": "總獎金暴漲135萬！桃園電影獎倒數計時 導演聽到開心「不怕通膨」 - 自由娛樂",
+      "pubDate": "Fri, 03 Apr 2026 09:11:33 GMT",
+      "source": "自由娛樂",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "42ff9b339bb27b21",
+      "url": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxQd0RfWWVJek02S1JuMFpJU3VlY01sblFzbi0xamdoQThXUEhWVGRlX0JUdng3Z2ZyRlRKQUkyallDODExWFdKYU82T3lPdHdDcm5tZktPR2x2OE5BN2RzcU1lVEtqWFVEZlV6ZmpIQVRZOTNXUEJHdXVDZGRQZlZ4a1BvQ015c1RBR1lnSHBMT3p2Qm1LUkpMM1VQbFgzRGowX3pxWWZURmJPQS1EdktTTFE4MmU4b2tCYTV2Ylp6TDFaclNYS3VZQm11eUltYnRJazlWV1RQRVBKT3FoVDVHUzRaSkdleGxwMDEtQQ?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxQd0RfWWVJek02S1JuMFpJU3VlY01sblFzbi0xamdoQThXUEhWVGRlX0JUdng3Z2ZyRlRKQUkyallDODExWFdKYU82T3lPdHdDcm5tZktPR2x2OE5BN2RzcU1lVEtqWFVEZlV6ZmpIQVRZOTNXUEJHdXVDZGRQZlZ4a1BvQ015c1RBR1lnSHBMT3p2Qm1LUkpMM1VQbFgzRGowX3pxWWZURmJPQS1EdktTTFE4MmU4b2tCYTV2Ylp6TDFaclNYS3VZQm11eUltYnRJazlWV1RQRVBKT3FoVDVHUzRaSkdleGxwMDEtQQ?oc=5",
+      "title": "美國會提案聯手盟友，強化晶片設備出口中國管制 - TechNews 科技新報",
+      "pubDate": "Fri, 03 Apr 2026 09:07:52 GMT",
+      "source": "TechNews 科技新報",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "81a05706ae363890",
+      "url": "https://news.google.com/rss/articles/CBMifkFVX3lxTE5VZzBDYS1WcndZMTNQcW1xRnBvNUtGcTByLU84RWF2Qmg1d1AxUWFfZmMyUW5FdmRxUE12czVvNjBVaWlmVWFENldVRzA4amhBa1NCZTNlUjF0WDZFVEpvcE1GY2ZZX2U4OUU1bW1faE9MaEYyNU9TaUhOb2Y2dw?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE5VZzBDYS1WcndZMTNQcW1xRnBvNUtGcTByLU84RWF2Qmg1d1AxUWFfZmMyUW5FdmRxUE12czVvNjBVaWlmVWFENldVRzA4amhBa1NCZTNlUjF0WDZFVEpvcE1GY2ZZX2U4OUU1bW1faE9MaEYyNU9TaUhOb2Y2dw?oc=5",
+      "title": "【ETF籌碼日報】官股大買0056，外資、自營商大賣0056達45億 - CMoney投資網誌",
+      "pubDate": "Fri, 03 Apr 2026 09:00:06 GMT",
+      "source": "CMoney投資網誌",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "438a6d830dc97163",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE56ZWxaWG5wZnFiZjN3R0pkbHZhbUJNV1lYYnM1emFTeXdHaldINlpLRGw3SWdPeE9tYnU5SFVqaXdKWVpBRmJNNFhHcXpmU0FoVXBpUTV3?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE56ZWxaWG5wZnFiZjN3R0pkbHZhbUJNV1lYYnM1emFTeXdHaldINlpLRGw3SWdPeE9tYnU5SFVqaXdKWVpBRmJNNFhHcXpmU0FoVXBpUTV3?oc=5",
+      "title": "黃金看美元臉色 央行買盤降溫 IMF數據：金價恐回落至3,500美元 | 新頭殼 - LINE TODAY",
+      "pubDate": "Fri, 03 Apr 2026 08:55:55 GMT",
+      "source": "LINE TODAY",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "36ad9f9b37e47cd1",
+      "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE9oRmRlR3FLdHVrNC1VVDFJRS15dTdobDZLLWpEVGI0TlFrRXpIVy1lRnhpdWtGZGM5SmFiMVpUVXp1ekdidHk2NUt5YzNndEVvcnUtYmZZMU7SAV9BVV95cUxQNXBSbUJwRjVKZWZRX0hwLWFVZllqMHcyZEx1VlFwYm14Unlubk1XLXRhWnlET3JfcXVmT2dZOVptR01rbzIzMTdSMnNyQUpsUWxHX2x6N29BbGVTbmpadw?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE9oRmRlR3FLdHVrNC1VVDFJRS15dTdobDZLLWpEVGI0TlFrRXpIVy1lRnhpdWtGZGM5SmFiMVpUVXp1ekdidHk2NUt5YzNndEVvcnUtYmZZMU7SAV9BVV95cUxQNXBSbUJwRjVKZWZRX0hwLWFVZllqMHcyZEx1VlFwYm14Unlubk1XLXRhWnlET3JfcXVmT2dZOVptR01rbzIzMTdSMnNyQUpsUWxHX2x6N29BbGVTbmpadw?oc=5",
+      "title": "Beyond黃家駒遺物「驚人天價曝光」！達新台幣7位數　麋先生朝聖嚇傻 - 三立新聞網",
+      "pubDate": "Fri, 03 Apr 2026 08:55:00 GMT",
+      "source": "三立新聞網",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "8bbb7d64fa0b5ac1",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5UNUd4RUljYV9DMWVMaFB5UklLWldVa0lVOW9FZXBoWDIzMnpRNU1tMmg2Z1VxdE1uVGNsZzVzc0VNcmx5Z1NzMWRzeGg0RkxJNjNleEl3Q01YelJtUF9iekc5ZmN1Mnk5Zzhua0U2TjE?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5UNUd4RUljYV9DMWVMaFB5UklLWldVa0lVOW9FZXBoWDIzMnpRNU1tMmg2Z1VxdE1uVGNsZzVzc0VNcmx5Z1NzMWRzeGg0RkxJNjNleEl3Q01YelJtUF9iekc5ZmN1Mnk5Zzhua0U2TjE?oc=5",
+      "title": "無畏高油價打擊企業信心 日本央行官員仍重申加息可能 作者 智通財經 - Investing.com 香港 - 股市報價& 財經新聞",
+      "pubDate": "Fri, 03 Apr 2026 08:48:52 GMT",
+      "source": "Investing.com 香港 - 股市報價& 財經新聞",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "9edc40cdecf40134",
+      "url": "https://news.google.com/rss/articles/CBMi1wJBVV95cUxNUmRDRzJPOWF3WkFEb0hZVDZJSkZ4NmJiMVJ0X19Xbjlma3BhMndTZ2kzQ2J0bjYxejZuck9HblVYeHc4c21GS195RWs2a25zWVdSZWFzblNSbW9CdURQaU1nU0pXR0tJQVhWU3A1THV4Tk1LRHM4cXBxY1dIeHY1MG5iYnlrM0NmX0RESzNnQXk3ME9yS0tRUy1ySTZtZG03MUh2RHIxbWFPYW1uVUJucTl6U2V2Mmg4V2tUSUZmMEw5ZkRKdTNGMm9LeXV3RldDS3F5OXM4bXVocEg4X1FzM3hkaDNJVW1RbVVpN0lucGxzbUd3YmRxd2Vob0JFalhxUXJmdkxDd1ZSV0RzNnBQZFM0S1VFeF9IYmJ5ZGtqS0pTODE3SkxJekhtMHhZUTcydUFMQ1hGWWxBcVZrRHhDRVNzMG0ydHlZNmN5LWFteXRRU1pkOEdN?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMi1wJBVV95cUxNUmRDRzJPOWF3WkFEb0hZVDZJSkZ4NmJiMVJ0X19Xbjlma3BhMndTZ2kzQ2J0bjYxejZuck9HblVYeHc4c21GS195RWs2a25zWVdSZWFzblNSbW9CdURQaU1nU0pXR0tJQVhWU3A1THV4Tk1LRHM4cXBxY1dIeHY1MG5iYnlrM0NmX0RESzNnQXk3ME9yS0tRUy1ySTZtZG03MUh2RHIxbWFPYW1uVUJucTl6U2V2Mmg4V2tUSUZmMEw5ZkRKdTNGMm9LeXV3RldDS3F5OXM4bXVocEg4X1FzM3hkaDNJVW1RbVVpN0lucGxzbUd3YmRxd2Vob0JFalhxUXJmdkxDd1ZSV0RzNnBQZFM0S1VFeF9IYmJ5ZGtqS0pTODE3SkxJekhtMHhZUTcydUFMQ1hGWWxBcVZrRHhDRVNzMG0ydHlZNmN5LWFteXRRU1pkOEdN?oc=5",
+      "title": "川普出手炸毀伊朗大橋 台股又慘了？國安基金4/13開會 - Yahoo新聞",
+      "pubDate": "Fri, 03 Apr 2026 08:48:00 GMT",
+      "source": "Yahoo新聞",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "6e40e11330f3c596",
+      "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxORlN3czlvc1ZHVndqcnhHdW1BRzN4OTRidm5Oclg5STR6YjlkamljRDZ3V3MwTGxRSE5PQjhqSS1uRzNYam9SR0UxcDg4aUYyZ1dsOGUyd1hPcU96UXNHUnhvT21YaXlobUZGUEIyMmhYUHdoY24zcXlrZ0FEU2t5T1U4LWVpM0czT1BfT0I3VzdzVkh6LUw3Q2tKSXA2dUhOQ3FWVk5IcE5ueGZDemotR0FnTGV0Wkw3RTVaMmVR?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxORlN3czlvc1ZHVndqcnhHdW1BRzN4OTRidm5Oclg5STR6YjlkamljRDZ3V3MwTGxRSE5PQjhqSS1uRzNYam9SR0UxcDg4aUYyZ1dsOGUyd1hPcU96UXNHUnhvT21YaXlobUZGUEIyMmhYUHdoY24zcXlrZ0FEU2t5T1U4LWVpM0czT1BfT0I3VzdzVkh6LUw3Q2tKSXA2dUhOQ3FWVk5IcE5ueGZDemotR0FnTGV0Wkw3RTVaMmVR?oc=5",
+      "title": "4月台股期指跌658點 - MSN",
+      "pubDate": "Fri, 03 Apr 2026 08:45:42 GMT",
+      "source": "MSN",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "438750382246a842",
+      "url": "https://news.google.com/rss/articles/CBMivAJBVV95cUxOS0Y2U0J5S3plc29xZDg1c19zbUtWN3ZuVzBieU5fcU5sSzUzXzQwWWplbkEtQUNBVmpwZlozQ3ZKLTVHRnQ5YkVqTGp0YlBEaGJnbVFUbWF0bFhXR1dqVkZjaEVKYWxtNFhyZzBKRmE1U2lJbHJ0T19GRk96ZWhLM2QtLW85MkN5OHlmbWxBakdfTlRfNUsyQWRnTXBUOFdweGVSbnNBREVzZlNTNmpkZ1JiNlptSnVFbE5mYm0yWVNCYjd0cW55N0QtYVVmZFJlRi1mdUpiTUJjejRiTWdoYVJuRkMxRUNvWlNtSGlqTTFQeTRZRUhxeENQanhONGFqNEtRQVZzbjlxNFE2RnZvNk5RUTJKa1JreTU3cWdnOUkxQThNNnZzTmdsaDh5VlZLX01JUkNsQTF2MElJ?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMivAJBVV95cUxOS0Y2U0J5S3plc29xZDg1c19zbUtWN3ZuVzBieU5fcU5sSzUzXzQwWWplbkEtQUNBVmpwZlozQ3ZKLTVHRnQ5YkVqTGp0YlBEaGJnbVFUbWF0bFhXR1dqVkZjaEVKYWxtNFhyZzBKRmE1U2lJbHJ0T19GRk96ZWhLM2QtLW85MkN5OHlmbWxBakdfTlRfNUsyQWRnTXBUOFdweGVSbnNBREVzZlNTNmpkZ1JiNlptSnVFbE5mYm0yWVNCYjd0cW55N0QtYVVmZFJlRi1mdUpiTUJjejRiTWdoYVJuRkMxRUNvWlNtSGlqTTFQeTRZRUhxeENQanhONGFqNEtRQVZzbjlxNFE2RnZvNk5RUTJKa1JreTU3cWdnOUkxQThNNnZzTmdsaDh5VlZLX01JUkNsQTF2MElJ?oc=5",
+      "title": "川普關稅週年盤點！台灣對美出口「逾8成」成贏家 - Yahoo新聞",
+      "pubDate": "Fri, 03 Apr 2026 08:30:10 GMT",
+      "source": "Yahoo新聞",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "1c1a5010a4646398",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBCVU1DN3VGaWdGRDRWOVdkdGZNRWNob0I3UGJOSEViMGU3eFFUem9ZRVdxblQyNk54OXJiUEhGcC1fUW9meVkwZmhQMGtlOHc?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBCVU1DN3VGaWdGRDRWOVdkdGZNRWNob0I3UGJOSEViMGU3eFFUem9ZRVdxblQyNk54OXJiUEhGcC1fUW9meVkwZmhQMGtlOHc?oc=5",
+      "title": "通膨、戰事與氣候影響 日本人賞櫻花費縮水 - 公視新聞網PNN",
+      "pubDate": "Fri, 03 Apr 2026 08:13:22 GMT",
+      "source": "公視新聞網PNN",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "5d50b3559bd36774",
+      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNUDVjYWtETUh0T0lFUEVoUFY5aHQtQW51a1NtTUNYaFNqZnAyUlhURVp1UnZMRkFudXdQN2JNOHp1M0RQcHJrUEJjSjVEcGI5LXFkYVlHRnNqdUhhMGtjcmZGU2xCbEs3RmFqVFUteXpKM1hFNHpQcE02OG1Ya2FKbzRrc0R0TER0cUZmMVpB?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNUDVjYWtETUh0T0lFUEVoUFY5aHQtQW51a1NtTUNYaFNqZnAyUlhURVp1UnZMRkFudXdQN2JNOHp1M0RQcHJrUEJjSjVEcGI5LXFkYVlHRnNqdUhhMGtjcmZGU2xCbEs3RmFqVFUteXpKM1hFNHpQcE02OG1Ya2FKbzRrc0R0TER0cUZmMVpB?oc=5",
+      "title": "中東戰火點燃「隱形通膨」：從Hyundai汽車到印度瓶裝水，全球供應鏈再陷油價噩夢 - CMoney投資網誌",
+      "pubDate": "Fri, 03 Apr 2026 08:00:22 GMT",
+      "source": "CMoney投資網誌",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "4fa4bc269f76ef57",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE9aSmdPRlVKZUhNNUJib3MwekdUcGpJeGRzRzctaUlZMnBud2hxSDVkenBiUGZORkhFQUVrWVp2RWk2eXF6WkRNaEdDakYyVnRPTWJaMjdTbUt5NkRZaUctd2lhbHFHSTZJZF81YW9XV3hkY25lNXNEbg?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE9aSmdPRlVKZUhNNUJib3MwekdUcGpJeGRzRzctaUlZMnBud2hxSDVkenBiUGZORkhFQUVrWVp2RWk2eXF6WkRNaEdDakYyVnRPTWJaMjdTbUt5NkRZaUctd2lhbHFHSTZJZF81YW9XV3hkY25lNXNEbg?oc=5",
+      "title": "2026年4月3日韓聯社要聞簡報 - 韓聯社",
+      "pubDate": "Fri, 03 Apr 2026 08:00:01 GMT",
+      "source": "韓聯社",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "7db9eff96b5bf014",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE9yUzBGbDA4VkMxdlJWN0UzLUtJUjVDRk80RDVGSEFGWjFsX21PMWhPNnFsUzg3SmdMYlZwX0NYTU8zYTFkOUpHUE5MZXY2ZEwwUy1vRW5n?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE9yUzBGbDA4VkMxdlJWN0UzLUtJUjVDRk80RDVGSEFGWjFsX21PMWhPNnFsUzg3SmdMYlZwX0NYTU8zYTFkOUpHUE5MZXY2ZEwwUy1vRW5n?oc=5",
+      "title": "凶宅起標77萬！三度法拍仍待買家 網酸：問題不小 | CTWANT - LINE TODAY",
+      "pubDate": "Fri, 03 Apr 2026 07:54:52 GMT",
+      "source": "LINE TODAY",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "4a1787844c315448",
+      "url": "https://news.google.com/rss/articles/CBMimwNBVV95cUxOeENKSllnOVI0VkZPVUhEOFRpWU1IaHVRX2lUV3VLYkpuM21uX01HaXBKTFJZc3Uzd2Z2bmJhbWZrOXBrNkNfMExnbTJyZExzYTJWandQUU13YV9uZ0FTaWpfMThWRTdBSHl3WGhLemNTMDl1dXFwQkc0MV9NVzJoMDF4UzUwdUtFWEtFR3BfSFpmalpvOVViWFI2T3U2V3dLdXpVQU5UVVVvUVRVZmtqZ3hOWmNJZXJpb3F2a3VjbzRncjFsNmlFSG8xN2IzQ3pScDNjNlM1OTdUelh3ZHN4TUZEWVpieUo5bFVrTTliTUk0NWZjSHJNNF9SdnROcTRrRG1mRFp4cjloeXVMY3pubHZBX1VZRVpxSFdtcDR4cTFMOVNyRkJVSVhXSTlpSjZOejl0Q0xPYVB1RlhTbTJ1ZDNWUHpUNGhMbzRDVmxldTVYMVE2RW5BNy1GQXR3RnVDSUlGcUNnY2V2VXJuc1Q2TzV0VWV1UTlFem5yQld5Ukp6cldXSjVQUjJZeTUyMjBZaWRtLXNSUWpjU00?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMimwNBVV95cUxOeENKSllnOVI0VkZPVUhEOFRpWU1IaHVRX2lUV3VLYkpuM21uX01HaXBKTFJZc3Uzd2Z2bmJhbWZrOXBrNkNfMExnbTJyZExzYTJWandQUU13YV9uZ0FTaWpfMThWRTdBSHl3WGhLemNTMDl1dXFwQkc0MV9NVzJoMDF4UzUwdUtFWEtFR3BfSFpmalpvOVViWFI2T3U2V3dLdXpVQU5UVVVvUVRVZmtqZ3hOWmNJZXJpb3F2a3VjbzRncjFsNmlFSG8xN2IzQ3pScDNjNlM1OTdUelh3ZHN4TUZEWVpieUo5bFVrTTliTUk0NWZjSHJNNF9SdnROcTRrRG1mRFp4cjloeXVMY3pubHZBX1VZRVpxSFdtcDR4cTFMOVNyRkJVSVhXSTlpSjZOejl0Q0xPYVB1RlhTbTJ1ZDNWUHpUNGhMbzRDVmxldTVYMVE2RW5BNy1GQXR3RnVDSUlGcUNnY2V2VXJuc1Q2TzV0VWV1UTlFem5yQld5Ukp6cldXSjVQUjJZeTUyMjBZaWRtLXNSUWpjU00?oc=5",
+      "title": "特朗普「解放日」滿一年 台灣對美出口大幅成長八成超越日韓 - RFI",
+      "pubDate": "Fri, 03 Apr 2026 07:54:09 GMT",
+      "source": "RFI",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "1a200025d3446b86",
+      "url": "https://news.google.com/rss/articles/CBMi9wRBVV95cUxQbTlFY2g3Tm12SmhDdk9NM0tLbkhIUk5QNFRSMUUzQkEyc1k2YU1QbHdLQ2lJUzk0emZXQlRneHdjMHF6YmFmd1VwbnBXZUVIY1Z2a2Z4WlF6TTNDLWg2U2dvX2ZtdjhydV8yZzVEYUFFOW01V3NIYTdSMWIzUFpkSFRuTVJ4aXZrQS1LR2RBekRJRnNqcUpGeDRBejF3ZHlqbVpITEdXOFdlc3NnUTJ2TzI2LUFTallYamJhbTF2NjZfYWdrMjU3QnZOYV83ZHpjbERxd19ob3JlQTZyNFFIVUZvWTVwdk9US1J4a1pSUVBRSFdCd3VmUXljWUg2ZjZpbnBaM21mLWI0R1kyRl8zSzZLQzI5bVptODdVdDdBWm0xTzhqNk5WN09wOEFUVW82bC1CemxCcFhpX1VJSVJZbVJzSHRUd2F2a3F4VzhNN0hmRG1oc1dQSzdITmFpNjVkVnNWTVc2aHdZRkt3ZzlSUXRrRlZ2WFRCOEx3em1qSjJmb3dnYnRHWnMyWGtUMi0zQ1lzNTE0RzJJVXFtaTF5RGlPaGNxblpoVEV2VVZnWS12aF9ZNHJTMTNlb1dLU1FhbWtHYVJCdUdmWGQ3b2Zla3dMTHZVbjhXU19ZVVBiTHUtRmRhc1MtUzZfMmNHMnBSRGtURzFJaGlOOGFDNDJyVFhxNVFBTXdYbDJsRkF2QUZyTl9ZSXJPVjZ3R2tONUxDeTA2akFNeXNiRTVsRXhTTTdFLXcxTjZUaXFja2NRWTVUaER4NjRDU1BFYUd2YzBvMUpNQlYzZ0RVRFJkQl82MklOQmNsQ05vWEJuMXdJUFp0Qi1KRzRJ?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMi9wRBVV95cUxQbTlFY2g3Tm12SmhDdk9NM0tLbkhIUk5QNFRSMUUzQkEyc1k2YU1QbHdLQ2lJUzk0emZXQlRneHdjMHF6YmFmd1VwbnBXZUVIY1Z2a2Z4WlF6TTNDLWg2U2dvX2ZtdjhydV8yZzVEYUFFOW01V3NIYTdSMWIzUFpkSFRuTVJ4aXZrQS1LR2RBekRJRnNqcUpGeDRBejF3ZHlqbVpITEdXOFdlc3NnUTJ2TzI2LUFTallYamJhbTF2NjZfYWdrMjU3QnZOYV83ZHpjbERxd19ob3JlQTZyNFFIVUZvWTVwdk9US1J4a1pSUVBRSFdCd3VmUXljWUg2ZjZpbnBaM21mLWI0R1kyRl8zSzZLQzI5bVptODdVdDdBWm0xTzhqNk5WN09wOEFUVW82bC1CemxCcFhpX1VJSVJZbVJzSHRUd2F2a3F4VzhNN0hmRG1oc1dQSzdITmFpNjVkVnNWTVc2aHdZRkt3ZzlSUXRrRlZ2WFRCOEx3em1qSjJmb3dnYnRHWnMyWGtUMi0zQ1lzNTE0RzJJVXFtaTF5RGlPaGNxblpoVEV2VVZnWS12aF9ZNHJTMTNlb1dLU1FhbWtHYVJCdUdmWGQ3b2Zla3dMTHZVbjhXU19ZVVBiTHUtRmRhc1MtUzZfMmNHMnBSRGtURzFJaGlOOGFDNDJyVFhxNVFBTXdYbDJsRkF2QUZyTl9ZSXJPVjZ3R2tONUxDeTA2akFNeXNiRTVsRXhTTTdFLXcxTjZUaXFja2NRWTVUaER4NjRDU1BFYUd2YzBvMUpNQlYzZ0RVRFJkQl82MklOQmNsQ05vWEJuMXdJUFp0Qi1KRzRJ?oc=5",
+      "title": "報復稀土限制川普出狠招？ 擬禁售軟體產品給中國 從筆電到噴射引擎全入列 - MSN",
+      "pubDate": "Fri, 03 Apr 2026 07:35:21 GMT",
+      "source": "MSN",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "8340b7d4a2ff7eb5",
+      "url": "https://news.google.com/rss/articles/CBMihgNBVV95cUxOZGFtYktqd181SXBfUzVXQ2dPc2hQQl8xNU9hTXVzTDBiTEhUVDdzVE8yZmdUUkZNWXFwdmhleHc1VkluRHozSG9tdFAzLVBhV3VJdERUN3RCM0I1eGRZYXFNWk9CZk5TYjIxUkQ4dHJMOWxTZ2h6TjlyRzN0Z3FtNmNCMjAtY0JybzB0ZWNNNTZTX2RScHc3ZF9IVGYyRVE4OTBELW04OFhxeG5vWGMzTjc1R05GcWtPSkl4UzR2OTlRZmVqSjNnRE0tQzR4UEM5RXplbkRaWmVsN0EwMXhESlpsYTJIOFV3aWRWTk5uWldhMkFva1FBVGl3NEpNbzY5QW9yTXhEckhKWi13aFdaQVltVlFaYXYwc1FLQzl0OXlIVjliS2k1dFlKcjV3S0YyQWtTMG4tSTJBVXdYUjJ6Z1ZrbHhweHJkdFVESzc5OFZsc092Zi1QYnU3NEdOVFJsQkM0UHk3d28zT1JVaExVbVdILVBGRGE5WjFSVW5McDU5eGh2OEE?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMihgNBVV95cUxOZGFtYktqd181SXBfUzVXQ2dPc2hQQl8xNU9hTXVzTDBiTEhUVDdzVE8yZmdUUkZNWXFwdmhleHc1VkluRHozSG9tdFAzLVBhV3VJdERUN3RCM0I1eGRZYXFNWk9CZk5TYjIxUkQ4dHJMOWxTZ2h6TjlyRzN0Z3FtNmNCMjAtY0JybzB0ZWNNNTZTX2RScHc3ZF9IVGYyRVE4OTBELW04OFhxeG5vWGMzTjc1R05GcWtPSkl4UzR2OTlRZmVqSjNnRE0tQzR4UEM5RXplbkRaWmVsN0EwMXhESlpsYTJIOFV3aWRWTk5uWldhMkFva1FBVGl3NEpNbzY5QW9yTXhEckhKWi13aFdaQVltVlFaYXYwc1FLQzl0OXlIVjliS2k1dFlKcjV3S0YyQWtTMG4tSTJBVXdYUjJ6Z1ZrbHhweHJkdFVESzc5OFZsc092Zi1QYnU3NEdOVFJsQkM0UHk3d28zT1JVaExVbVdILVBGRGE5WjFSVW5McDU5eGh2OEE?oc=5",
+      "title": "關係停滯無礙日製釣具在中國受青睞 出口額猛增 - MSN",
+      "pubDate": "Fri, 03 Apr 2026 07:21:13 GMT",
+      "source": "MSN",
+      "_region": "TW",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "bbea46a2b2507d38",
+      "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPZ3ZncWJ0TEpOS29MT2N3LS1naVNPTjlCVXZwc0g0Q0hMTDFMbzlhRzRMUlZrNzVPYVp6UmZvQVctVEVIcmpuZWhrbWtMLTVSTDZ5S1pHcEYyTkcwc1ptUWlodU93VlJKQjFsNTI4YU9XalVqSUFMNHM0ZDJjUUM4OFJiSEJMV1NRUWtlS2FFVlBDMUdQSGF4WkdJRGtZb2paMnlBZXpRTWlfdFlGQy00eXJMREREZVRzOV9xYVpvVVAycmZhcnFR?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPZ3ZncWJ0TEpOS29MT2N3LS1naVNPTjlCVXZwc0g0Q0hMTDFMbzlhRzRMUlZrNzVPYVp6UmZvQVctVEVIcmpuZWhrbWtMLTVSTDZ5S1pHcEYyTkcwc1ptUWlodU93VlJKQjFsNTI4YU9XalVqSUFMNHM0ZDJjUUM4OFJiSEJMV1NRUWtlS2FFVlBDMUdQSGF4WkdJRGtZb2paMnlBZXpRTWlfdFlGQy00eXJMREREZVRzOV9xYVpvVVAycmZhcnFR?oc=5",
+      "title": "Industrial Distributors Stocks Q4 Highlights: FTAI Aviation (NASDAQ:FTAI) - StockStory",
+      "pubDate": "Fri, 03 Apr 2026 09:52:23 GMT",
+      "source": "StockStory",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "b791b017db108e7f",
+      "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxOU3VyeEZTZlF6V2JwQ2tjSkdFM3p4ak8xVDE2LWhUZmd1a19BM2FvLWxzZWpJbUdiTV9fRm1kLVd2YWd0YzBiRWtiS2xWaVFFcUxwaGgzQWVSNVJxaVBlMkd1Y3JxaXdmRDZOOFA0ajJZUlIxcnlydjZvWnlsNTRXWFNWU1hlVjBLNjlSRTgwZkRxdm51V0VqRVZfZEV5MVF3b01nTEFMNXNYRUVGWElCQ1dGOEJfWDM1by1yZ2c0eW5TWHg0X21MQlUzOGZxdw?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxOU3VyeEZTZlF6V2JwQ2tjSkdFM3p4ak8xVDE2LWhUZmd1a19BM2FvLWxzZWpJbUdiTV9fRm1kLVd2YWd0YzBiRWtiS2xWaVFFcUxwaGgzQWVSNVJxaVBlMkd1Y3JxaXdmRDZOOFA0ajJZUlIxcnlydjZvWnlsNTRXWFNWU1hlVjBLNjlSRTgwZkRxdm51V0VqRVZfZEV5MVF3b01nTEFMNXNYRUVGWElCQ1dGOEJfWDM1by1yZ2c0eW5TWHg0X21MQlUzOGZxdw?oc=5",
+      "title": "Is Liquidity Enough to Support Gold and Silver as War Risks Rise? - FXEmpire",
+      "pubDate": "Fri, 03 Apr 2026 09:47:00 GMT",
+      "source": "FXEmpire",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "a222571583467c4a",
+      "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxNSFdhaWxSMHhxdUhnV3oxTWxteVYxUklWZ0NPTFlHTkRveEI5dTBvSmdzRzRQYVhZSk5pa2ZncklrOUFNc3J3ZE1LT2RDc1RaamQzeUJtNWVqSWxtYU45bl9kMTlvOVFLdjNueUlkdExmZTNVSkkwdlZIRUFqTl91czVDbVgxWXdxTWRNZENNSXNBdnFFa3hmQkV4Y3AwWnZuTFY2UnEtRWhiSmhPdkhlV2NBNC1xUTFPcFhudkVYQkF2dV9WdXA0V05Saw?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxNSFdhaWxSMHhxdUhnV3oxTWxteVYxUklWZ0NPTFlHTkRveEI5dTBvSmdzRzRQYVhZSk5pa2ZncklrOUFNc3J3ZE1LT2RDc1RaamQzeUJtNWVqSWxtYU45bl9kMTlvOVFLdjNueUlkdExmZTNVSkkwdlZIRUFqTl91czVDbVgxWXdxTWRNZENNSXNBdnFFa3hmQkV4Y3AwWnZuTFY2UnEtRWhiSmhPdkhlV2NBNC1xUTFPcFhudkVYQkF2dV9WdXA0V05Saw?oc=5",
+      "title": "Aluminium futures dropin China amid stronger dollar and recession fears By Investing.com - Investing.com South Africa",
+      "pubDate": "Fri, 03 Apr 2026 09:45:05 GMT",
+      "source": "Investing.com South Africa",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "c5224fd242c1b64d",
+      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOazJpN21SeTlCNFBIWG1MeXNTYWZOTDBpZkhfbnhYRENIS1RydnJtOW1iUnFZaDdWUmZOZGhuaVoybGh6ZzVDZDBGSkduY3hiUlp0UGN2SEhfbVBITjNBRTdMdFRtN0JrdHFnRHRFNkRKb0NJYzR3U044TG1oWFVkTk1LcjRONTZoaW12a1BseU02YUU?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOazJpN21SeTlCNFBIWG1MeXNTYWZOTDBpZkhfbnhYRENIS1RydnJtOW1iUnFZaDdWUmZOZGhuaVoybGh6ZzVDZDBGSkduY3hiUlp0UGN2SEhfbVBITjNBRTdMdFRtN0JrdHFnRHRFNkRKb0NJYzR3U044TG1oWFVkTk1LcjRONTZoaW12a1BseU02YUU?oc=5",
+      "title": "What Oil Prices and the Iran War Mean for Recession Risk in 2026 - CoinCentral",
+      "pubDate": "Fri, 03 Apr 2026 09:43:53 GMT",
+      "source": "CoinCentral",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "a77e76fdac9783d6",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5vSU1vZXEwYkwyT2otbncyaGR3OEsxVmJGTVc1cnVGWHR0dzdqdFhJUXZ6U3JFekJfS21SWGtWa3pHNHRLZWM3c3M2SlZITFZGRDZ2UXUxc3dZZ1U?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5vSU1vZXEwYkwyT2otbncyaGR3OEsxVmJGTVc1cnVGWHR0dzdqdFhJUXZ6U3JFekJfS21SWGtWa3pHNHRLZWM3c3M2SlZITFZGRDZ2UXUxc3dZZ1U?oc=5",
+      "title": "XRP Liquidity Index on Binance Crashes to New Lows - Cryptonews.net",
+      "pubDate": "Fri, 03 Apr 2026 09:31:42 GMT",
+      "source": "Cryptonews.net",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "c692b05a76f054f5",
+      "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPcXhfcm50S01wN1dGZk5tWDRzTGR1Z2ozYUNLUkxDZ0dKN0JIT1hhVmRFUkFxUTA5Tm0xeEFzaUFEM1h0ZmwwWFJsanBDTnNTb3lpaXItMFhUcTgyNmtuTWp2X1VMcDZGamp2LTZYbTEwVGFCZ1pfdHFCZkZtRE4yZVZZUDQtQWVxWFlXYUd0QjYtQ2N1b1N5RUZvbGNmNkd5YXNHVnJWeFVOMDFLMUhDMVhvLW05M1pKd0Z4bzAzR3hHYkZtXzJUTg?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPcXhfcm50S01wN1dGZk5tWDRzTGR1Z2ozYUNLUkxDZ0dKN0JIT1hhVmRFUkFxUTA5Tm0xeEFzaUFEM1h0ZmwwWFJsanBDTnNTb3lpaXItMFhUcTgyNmtuTWp2X1VMcDZGamp2LTZYbTEwVGFCZ1pfdHFCZkZtRE4yZVZZUDQtQWVxWFlXYUd0QjYtQ2N1b1N5RUZvbGNmNkd5YXNHVnJWeFVOMDFLMUhDMVhvLW05M1pKd0Z4bzAzR3hHYkZtXzJUTg?oc=5",
+      "title": "Ground Transportation Stocks Q4 Teardown: Saia (NASDAQ:SAIA) Vs The Rest - StockStory",
+      "pubDate": "Fri, 03 Apr 2026 09:30:17 GMT",
+      "source": "StockStory",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "2ccf0db30e8c10f7",
+      "url": "https://news.google.com/rss/articles/CBMihwJBVV95cUxQa1VaVDJSTnFoQXMtNE1XR0NTeFA5ODU0SGZKUlVzd3BfX1I2U3FPZ0tXTlZfendCNEp0MzRwUjI3TmMwaHB4WVBQTjRzTmJnWjVSR3FVRmU4a1FUZEppcWpvVm9JUUFiVXR3bUl1OXpzcGo1ZmFXOGY1R1ZNZTdYZ0RaV0hUa0s0Rk91eHNjNjZHbWh5c0F4VEV5MEoySEl6bUNMWWJkbHdaYlRSNzFBbk1UVmE4SXZWWXdoRHdveHB0d1ZsLS0yeFI2NE1US015VGN5bGdqbXhhNXVzOVdZeUxvMU96bkl5S0F2Y0NPd1g2cVRHUFFiUVFRblotV3JHeGtoemVFaw?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMihwJBVV95cUxQa1VaVDJSTnFoQXMtNE1XR0NTeFA5ODU0SGZKUlVzd3BfX1I2U3FPZ0tXTlZfendCNEp0MzRwUjI3TmMwaHB4WVBQTjRzTmJnWjVSR3FVRmU4a1FUZEppcWpvVm9JUUFiVXR3bUl1OXpzcGo1ZmFXOGY1R1ZNZTdYZ0RaV0hUa0s0Rk91eHNjNjZHbWh5c0F4VEV5MEoySEl6bUNMWWJkbHdaYlRSNzFBbk1UVmE4SXZWWXdoRHdveHB0d1ZsLS0yeFI2NE1US015VGN5bGdqbXhhNXVzOVdZeUxvMU96bkl5S0F2Y0NPd1g2cVRHUFFiUVFRblotV3JHeGtoemVFaw?oc=5",
+      "title": "Winners And Losers Of Q4: The Pennant Group (NASDAQ:PNTG) Vs The Rest Of The Senior Health, Home Health & Hospice Stocks - StockStory",
+      "pubDate": "Fri, 03 Apr 2026 09:24:13 GMT",
+      "source": "StockStory",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "f8bb83d9d53bd259",
+      "url": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxPRldFbGRmVGpRNzN1OGdKQlZaMVh0Z1hoZEFOaUk0WHlqXy1RZGpfdW1lNWlIRVRBQ0xIRXhobTdkT2w2dUswNFNieUtaaFNDR1hOZTB1a3BiUkViMnh6T28xLVBWSnozNEhXNXZkNGJKZVdCN3NmNWpYZG85RHBnVmNSMkM0cGdQdi1NaWNhT1M3Mk9qanN2eUppb0ZaTjI1eWVSWGhWLWZMcTJHc3JvVk15UEpZSGY4UWMyazd0TGZlYmxTQ0ZGUGRGNE9ZVFZk?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxPRldFbGRmVGpRNzN1OGdKQlZaMVh0Z1hoZEFOaUk0WHlqXy1RZGpfdW1lNWlIRVRBQ0xIRXhobTdkT2w2dUswNFNieUtaaFNDR1hOZTB1a3BiUkViMnh6T28xLVBWSnozNEhXNXZkNGJKZVdCN3NmNWpYZG85RHBnVmNSMkM0cGdQdi1NaWNhT1M3Mk9qanN2eUppb0ZaTjI1eWVSWGhWLWZMcTJHc3JvVk15UEpZSGY4UWMyazd0TGZlYmxTQ0ZGUGRGNE9ZVFZk?oc=5",
+      "title": "Spotting Winners: Amdocs (NASDAQ:DOX) And IT Services & Other Tech Stocks In Q4 - StockStory",
+      "pubDate": "Fri, 03 Apr 2026 09:24:12 GMT",
+      "source": "StockStory",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "e375f5bfc6aed1da",
+      "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxQcFhjVFBmd20zV1hGRTh1dEtNR0Q1ODQxVjlaN1g3RmZwSGl2YjNMNENtTG92YXlnTG5QdU5JanZ1VHMzbm1QVU5Nd0RtOEF2Mnh2c29zV0UtTmZubzhKeFd6Y2pxZTVJVVBJOFVfNTB6RVRnZjluTHZCdDQ5ZnBjcmc0TmR5aFpuUFFMQkdNZ2lzNEZlQTBodWNUbmRKcWhuUGNZMmFmU2J6RVZrVERWYkNhZ1AydXNZeFJ2TGlROHdZZ3hkdWp4czJSa1BLZw?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxQcFhjVFBmd20zV1hGRTh1dEtNR0Q1ODQxVjlaN1g3RmZwSGl2YjNMNENtTG92YXlnTG5QdU5JanZ1VHMzbm1QVU5Nd0RtOEF2Mnh2c29zV0UtTmZubzhKeFd6Y2pxZTVJVVBJOFVfNTB6RVRnZjluTHZCdDQ5ZnBjcmc0TmR5aFpuUFFMQkdNZ2lzNEZlQTBodWNUbmRKcWhuUGNZMmFmU2J6RVZrVERWYkNhZ1AydXNZeFJ2TGlROHdZZ3hkdWp4czJSa1BLZw?oc=5",
+      "title": "Regional Banks Stocks Q4 Recap: Benchmarking Fifth Third Bancorp (NASDAQ:FITB) - StockStory",
+      "pubDate": "Fri, 03 Apr 2026 09:24:12 GMT",
+      "source": "StockStory",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "9f9e9e045ac1a39b",
+      "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPZTFETjkzWTJkUnBUZ2VjZXpkVXp2MTZ2NkZMTWhsQkJlSmR1TnV2ZHA5dEpjN2p6LXhiaFlCbUstbHB0SE5Za2J2WU8tYzJyVzM1a2JYRVNNYjQyTmozTWVUcTIzTWxhYm5kOWNPUVVDLVIwTWxKbWRlMVBSMHM0anVjSV9CTXRicFRNQUJQcHRuRG9KdExfX0dQSXlaLU1YVzJxM2FyU0NLWHp0R2pPTXl3?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPZTFETjkzWTJkUnBUZ2VjZXpkVXp2MTZ2NkZMTWhsQkJlSmR1TnV2ZHA5dEpjN2p6LXhiaFlCbUstbHB0SE5Za2J2WU8tYzJyVzM1a2JYRVNNYjQyTmozTWVUcTIzTWxhYm5kOWNPUVVDLVIwTWxKbWRlMVBSMHM0anVjSV9CTXRicFRNQUJQcHRuRG9KdExfX0dQSXlaLU1YVzJxM2FyU0NLWHp0R2pPTXl3?oc=5",
+      "title": "Centre clears ₹1.2 lakh crore for India Semiconductor Mission 2.0 - Communications Today",
+      "pubDate": "Fri, 03 Apr 2026 09:14:09 GMT",
+      "source": "Communications Today",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "e6967ce56fa38feb",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxPNFBxcG51T290dTJRMkpMcWM3a2ZrZU9hZFNacjJWUFVIVEF1NDZVYUtFaEF2NndVazlpNHVFVloydmlWaUhNQVAzTWJ4RWRzYkZlVTByNVl5cV9SSUVwcmpLNHk0Qnk1ODNUR1lPd3MwSm9VWmYzTTExRWhmN1dqV3luWjhXNmprWHBLWG1hemd0cGZBMTdLYU0zaEJaZw?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxPNFBxcG51T290dTJRMkpMcWM3a2ZrZU9hZFNacjJWUFVIVEF1NDZVYUtFaEF2NndVazlpNHVFVloydmlWaUhNQVAzTWJ4RWRzYkZlVTByNVl5cV9SSUVwcmpLNHk0Qnk1ODNUR1lPd3MwSm9VWmYzTTExRWhmN1dqV3luWjhXNmprWHBLWG1hemd0cGZBMTdLYU0zaEJaZw?oc=5",
+      "title": "EUR/USD steadies below 1.1550, awaiting US payrolls’ data - FXStreet",
+      "pubDate": "Fri, 03 Apr 2026 09:08:29 GMT",
+      "source": "FXStreet",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "54a9ea0a9e367b1f",
+      "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNeVNKY1FnMk4zYkVTTVNIbHZJLUdNemp6QkM4d2hGcEJ1cmFCUkFmemRSZTZvYWl6d1BZVU1pZW9MOWJrTERBcFVTYXZzVnRhbm1WUXlqbUFpc2JScU9sUGRJdUh2ZXFTN3JsbFhJakhsSUhUMGNrVkZ2bXhnUElUQUVfWHpIS3NlSU9jNkNmNWV3dmJYeUZqRWtJc2hVTTczY1BRZWMxOVQ?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNeVNKY1FnMk4zYkVTTVNIbHZJLUdNemp6QkM4d2hGcEJ1cmFCUkFmemRSZTZvYWl6d1BZVU1pZW9MOWJrTERBcFVTYXZzVnRhbm1WUXlqbUFpc2JScU9sUGRJdUh2ZXFTN3JsbFhJakhsSUhUMGNrVkZ2bXhnUElUQUVfWHpIS3NlSU9jNkNmNWV3dmJYeUZqRWtJc2hVTTczY1BRZWMxOVQ?oc=5",
+      "title": "Hormuz Closure Sparks Global Market Turmoil as UN Signals Inflation Risks - Global Trade Magazine",
+      "pubDate": "Fri, 03 Apr 2026 09:04:25 GMT",
+      "source": "Global Trade Magazine",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "cbbe95d97b7f9b3c",
+      "url": "https://news.google.com/rss/articles/CBMigwJBVV95cUxQdkJBa0VHLXllSDAyME1HVE5YNjB2blY1SUhvY250MVhYQktfRmpGMEFWZkh5c3luMUlQeVJEdGRxQVgwRl9EUHA0N3o4VjZKSkpJYk5NNGVRRE01eWRyVVNMR2lfV28yOS1hRnpOd281OWJuSGdBSFg4bDhXcTUxcTFsenpxc0VfWDIzdHBHcjR6a2RMRWFfOC1FRkZTcXBmSGYzM2RJTVBuQzl5RkxFcjVrODdOQjRDemVQTjlfUk5VQ3huWXQxOGtsQXZJY2dLMi15NUlyU2JtU1MydXdPTVB4bXprUG1DV2NvblpvTUNBVzNjdEU4cldiZXZDQ1ZsemZZ?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMigwJBVV95cUxQdkJBa0VHLXllSDAyME1HVE5YNjB2blY1SUhvY250MVhYQktfRmpGMEFWZkh5c3luMUlQeVJEdGRxQVgwRl9EUHA0N3o4VjZKSkpJYk5NNGVRRE01eWRyVVNMR2lfV28yOS1hRnpOd281OWJuSGdBSFg4bDhXcTUxcTFsenpxc0VfWDIzdHBHcjR6a2RMRWFfOC1FRkZTcXBmSGYzM2RJTVBuQzl5RkxFcjVrODdOQjRDemVQTjlfUk5VQ3huWXQxOGtsQXZJY2dLMi15NUlyU2JtU1MydXdPTVB4bXprUG1DV2NvblpvTUNBVzNjdEU4cldiZXZDQ1ZsemZZ?oc=5",
+      "title": "Public retirees in SD face potential sixth year of less-than-inflation benefit changes - bhpioneer.com",
+      "pubDate": "Fri, 03 Apr 2026 09:00:00 GMT",
+      "source": "bhpioneer.com",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "95e85f1da813b486",
+      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOdjFpczNrNkw0SUlhc3FMWHZBU3lmckM1QnVTTklSWGVwWFhVX1BxOGQ3SllsVHkwTjNsSkdtQlVkeHpLemZCc3ZScDZZMWRaSXcwUGpUQV9VbWQ2LXBRZTIxNml0a0F1VVZmYTB0MC1Nc0ZYajJCRFdUcElRVWlqbA?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOdjFpczNrNkw0SUlhc3FMWHZBU3lmckM1QnVTTklSWGVwWFhVX1BxOGQ3SllsVHkwTjNsSkdtQlVkeHpLemZCc3ZScDZZMWRaSXcwUGpUQV9VbWQ2LXBRZTIxNml0a0F1VVZmYTB0MC1Nc0ZYajJCRFdUcElRVWlqbA?oc=5",
+      "title": "Federal Reserve Weighs Balance Sheet Reduction - Finance News Network",
+      "pubDate": "Fri, 03 Apr 2026 08:59:19 GMT",
+      "source": "Finance News Network",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "85c48086afc4ca3e",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOMDFKSmpHelhLSjdXdmZtMDUtR21sVGlYUE5aR19TVVdOLWtKVklWLUVZSDNJMVdXM1NBNWpuU3dtbzZyQ2NwUlBMM0E4cF9aNW8tSzZXQnZNb2Z6a19mYUd5S1RnMktXQk4tMVNmaDdEeUtjSVhaMjFBSXZvZ0UyMmQzRlI?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOMDFKSmpHelhLSjdXdmZtMDUtR21sVGlYUE5aR19TVVdOLWtKVklWLUVZSDNJMVdXM1NBNWpuU3dtbzZyQ2NwUlBMM0E4cF9aNW8tSzZXQnZNb2Z6a19mYUd5S1RnMktXQk4tMVNmaDdEeUtjSVhaMjFBSXZvZ0UyMmQzRlI?oc=5",
+      "title": "The Trump administration wants banks back in the mortgage business. Banks have other ideas. - Politico",
+      "pubDate": "Fri, 03 Apr 2026 08:55:00 GMT",
+      "source": "Politico",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "9bf9fd67d5ff283b",
+      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPQTEyc3R3blFIc1JfSk1BNFVxRC16bzBXR1JTd3pWbGZfRS0wRXoxSHpORlFiMlVrTlp4NUcxVTRENUk4dXZLVDBMTDBzVUZDdFRRVUllV1pYekhRNHltV1Z6Q0ljOWpzTmd6SDVZYXBCeko2R04xcHAtSld0clhjbVhpdnppR191aS1yUF92TlNMdGNlQTJRTHY5LWtjWEF4VFNQcnJwR0I3dTE5TVlWeXZCczMzYVlp?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPQTEyc3R3blFIc1JfSk1BNFVxRC16bzBXR1JTd3pWbGZfRS0wRXoxSHpORlFiMlVrTlp4NUcxVTRENUk4dXZLVDBMTDBzVUZDdFRRVUllV1pYekhRNHltV1Z6Q0ljOWpzTmd6SDVZYXBCeko2R04xcHAtSld0clhjbVhpdnppR191aS1yUF92TlNMdGNlQTJRTHY5LWtjWEF4VFNQcnJwR0I3dTE5TVlWeXZCczMzYVlp?oc=5",
+      "title": "Bitcoin Steadies at $67K With Iran Tensions and Non-Farm Payrolls in Focus - Investing.com",
+      "pubDate": "Fri, 03 Apr 2026 08:48:59 GMT",
+      "source": "Investing.com",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "d64c61a57f495ed4",
+      "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTFBVYWZDQXFPYVZYbXc5aVRUS05TWDB2M2ZCNG05UWFZLVRjc0dyTVBfNENhRmhwaEhFR0ZoeWxEdVJiQlgwMC0yS1AxRXRSRUpKWDhSMWpkTzlfOFpXb3JTY2xIOA?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTFBVYWZDQXFPYVZYbXc5aVRUS05TWDB2M2ZCNG05UWFZLVRjc0dyTVBfNENhRmhwaEhFR0ZoeWxEdVJiQlgwMC0yS1AxRXRSRUpKWDhSMWpkTzlfOFpXb3JTY2xIOA?oc=5",
+      "title": "AfDB Outlook Report Projects Africa's GDP Will Grow by 4.5% GDP in 2027 - The Kenyan Wallstreet",
+      "pubDate": "Fri, 03 Apr 2026 08:34:48 GMT",
+      "source": "The Kenyan Wallstreet",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "f10ac95136602001",
+      "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE45VEVsN2NrWlBQY0lmdWJldDZNTndVV0daWmpCeWVlMzV5eFh3WmgwdnplWkRPU3N3X1VSdkFaTEhWNnc4cUUyaUwzSkQzTUxkbzN4X1FsclFFZXJZLXJHTU9EZ19Wem5JSFRYWEpPVXpLSXlSZmc?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE45VEVsN2NrWlBQY0lmdWJldDZNTndVV0daWmpCeWVlMzV5eFh3WmgwdnplWkRPU3N3X1VSdkFaTEhWNnc4cUUyaUwzSkQzTUxkbzN4X1FsclFFZXJZLXJHTU9EZ19Wem5JSFRYWEpPVXpLSXlSZmc?oc=5",
+      "title": "The bond market is helping resolve the Fed's interest rate dilemma - AOL.com",
+      "pubDate": "Fri, 03 Apr 2026 08:34:46 GMT",
+      "source": "AOL.com",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "d4c097712776475f",
+      "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxQSUdLbWF4MmR1ejNFbHhIVmVlOUZwVWc5Rk5BVjlEZ3VqNlduQ3BJWGMyWm5ELUk5RXBQTV9sbFRVY2VCdlVVZ3d3cGhpTzNCblJyWkwyNkxycDhSVkFnbzVMR3gxN1ZYVTBURk1jX1JUbVFCUlpmLUd4WWxJMXR3LVVDY0IxVjl0MWNabHh0VTdBSTBmNi1hUWF6TE9EVXZJZ1VMSHlJN1ltLS1wUEtjZU9LV0tabVVVZk9WMWFUSVE3SXVqZVktcWNpSEVSd2VadXExc1k4QVhfaVgyVk9sNjh5VQ?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxQSUdLbWF4MmR1ejNFbHhIVmVlOUZwVWc5Rk5BVjlEZ3VqNlduQ3BJWGMyWm5ELUk5RXBQTV9sbFRVY2VCdlVVZ3d3cGhpTzNCblJyWkwyNkxycDhSVkFnbzVMR3gxN1ZYVTBURk1jX1JUbVFCUlpmLUd4WWxJMXR3LVVDY0IxVjl0MWNabHh0VTdBSTBmNi1hUWF6TE9EVXZJZ1VMSHlJN1ltLS1wUEtjZU9LV0tabVVVZk9WMWFUSVE3SXVqZVktcWNpSEVSd2VadXExc1k4QVhfaVgyVk9sNjh5VQ?oc=5",
+      "title": "During Asian hours, USD/JPY hovers near 159.60 as holiday-thinned trade awaits US March payrolls amid tensions - VT Markets",
+      "pubDate": "Fri, 03 Apr 2026 08:30:53 GMT",
+      "source": "VT Markets",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
+      "age_band": "fresh"
+    },
+    {
+      "id": "956ff7543ab211ac",
+      "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxNYlpTOE9LNFBjZFZaM2Z5bWliMkNNQTV1TVAweFpyZkpIeF9SdTUyelZ3UWotOWpGM3hqenBHY2Zfd1RpZHJGdF9zWWFIRDY0b3VBRTZTU3ExMWtvcXlBTzNLcGxGVEJ6dnBaT2hVQ09USEpmQ0dmZzBHeFdlZHZUeUhzTTBUOTRGZW5Wd3YyM3dUdnJvQ2kwTVdfNjBsdFhiWTJuRkdkdDRWbHNBVU8tMDJRY2RFdnVJeFU0RXFZT3F4UmVPXzJJOW1aNVR0bkpHb2dN?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxNYlpTOE9LNFBjZFZaM2Z5bWliMkNNQTV1TVAweFpyZkpIeF9SdTUyelZ3UWotOWpGM3hqenBHY2Zfd1RpZHJGdF9zWWFIRDY0b3VBRTZTU3ExMWtvcXlBTzNLcGxGVEJ6dnBaT2hVQ09USEpmQ0dmZzBHeFdlZHZUeUhzTTBUOTRGZW5Wd3YyM3dUdnJvQ2kwTVdfNjBsdFhiWTJuRkdkdDRWbHNBVU8tMDJRY2RFdnVJeFU0RXFZT3F4UmVPXzJJOW1aNVR0bkpHb2dN?oc=5",
+      "title": "In Asia, USD/JPY hovers around 159.60 as Middle East tensions persist and US payrolls data awaited - VT Markets",
+      "pubDate": "Fri, 03 Apr 2026 08:30:52 GMT",
+      "source": "VT Markets",
+      "_region": "US",
+      "fetched_at": "2026-04-03T09:53:38.326Z",
       "age_band": "fresh"
     }
   ]
