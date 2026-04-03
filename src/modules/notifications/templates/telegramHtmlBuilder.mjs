@@ -468,7 +468,8 @@ export function buildTelegramMessages({
       `⚖️ <b>多空積分：</b>多 <code> ${total_bull_score}</code> vs 空 <code> ${total_bear_score}</code>\n\n` +
       `<b>📌 核心驅動邏輯：</b>\n` +
       `${takeawaysText}\n` +
-      `<blockquote expandable> <b>🔥 重大驅動事件：</b>${eventsList || "無顯著事件"}</blockquote> `;
+      `<blockquote expandable> <b>🔥 重大驅動事件：</b>\n` +
+      `${eventsList || "無顯著事件"}</blockquote> `;
   }
 
   let aiTextHtml = "🔄 數據分析中，請稍候...";
