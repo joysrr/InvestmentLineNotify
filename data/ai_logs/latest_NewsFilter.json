@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-04-04T00:02:44.590Z",
+  "_savedAt": "2026-04-04T04:15:59.173Z",
   "type": "NewsFilter",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [US] [age_band: fresh] 標題: AIOS Tech receives Nasdaq delisting warning over share price - Investing.com\n[ID: 1] [US] [age_band: fresh] 標題: AIOS Tech Inc. Receives Nasdaq Notice for Falling Below $1 Minimum Bid Price - geneonline.com\n[ID: 2] [US] [age_band: fresh] 標題: Pet owners still prioritizing their four-legged family members while inflation rises - WDBJ7\n[ID: 3] [US] [age_band: fresh] 標題: March job gains outshine forecasts amid inflation pressures - WPTV\n[ID: 4] [US] [age_band: fresh] 標題: The Resilient U.S. Labor Market: March Data Defies Geopolitical Shocks - markets.financialcontent.com\n[ID: 5] [US] [age_band: fresh] 標題: Solana’s USDC Liquidity Surge Could Be the Real Signal for SOL - Startup Fortune\n[ID: 6] [US] [age_band: fresh] 標題: Russia stocks lower at close of trade; MOEX Russia Index down 0.46% - Investing.com\n[ID: 7] [TW] [age_band: fresh] 標題: 15檔台股ETF配息 揭曉 - 聯合新聞網\n[ID: 8] [TW] [age_band: fresh] 標題: 千億台股ETF 再添一檔 - 聯合新聞網\n[ID: 9] [US] [age_band: fresh] 標題: Rising mortgage rates threaten to pour cold water on spring homebuying season - thenationaldesk.com\n[ID: 10] [US] [age_band: fresh] 標題: The Inflation Surge Is Just Getting Started - Talking Points Memo\n[ID: 11] [US] [age_band: fresh] 標題: Following stronger US Nonfarm Payrolls, AUD/USD retreats, with subdued trading amid thin holiday liquidity conditions - VT Markets\n[ID: 12] [US] [age_band: fresh] 標題: Xilio Therapeutics Grants Inducement Shares Under Nasdaq Rule - National Today\n[ID: 13] [US] [age_band: fresh] 標題: US job growth accelerates by the most in 15 months in March - Freedom 96.9\n[ID: 14] [US] [age_band: fresh] 標題: In March, the US S&P Global Services PMI fell to 49.8, missing the 51.1 forecast - VT Markets\n[ID: 15] [US] [age_band: fresh] 標題: In March, the US S&P Global Composite PMI registered 50.3, undershooting forecasts of 51.4 - VT Markets\n[ID: 16] [US] [age_band: fresh] 標題: The countries with the highest GDP growth in the last 25 years - MSN\n[ID: 17] [US] [age_band: fresh] 標題: E-Levy Removal Boosts Mobile Money Liquidity in Ghana | MobileMoney Fintech Report - Modern Ghana\n[ID: 18] [US] [age_band: fresh] 標題: Judge Blocks Renewed Attempt to Subpoena Fed Chair Powell - National Today\n[ID: 19] [US] [age_band: fresh] 標題: Ringgit Rebounds to 4.02 Against US Dollar as Hormuz Supply Concerns Ease - Wilayah.com.my\n[ID: 20] [TW] [age_band: fresh] 標題: 台指期夜盤V漲372點台股下周穩了？老手清明變盤3劇本：台積電「這時」加倉才安全- 上市櫃 - 旺得富理財網\n[ID: 21] [US] [age_band: fresh] 標題: U.S. Labor Market Defies Gravity: March Jobs Growth Triples Estimates Amid Middle East Turmoil - FinancialContent\n[ID: 22] [TW] [age_band: fresh] 標題: 退休美夢碎了！58歲婦白天掃地、夜晚搬貨揭重返職場困境- 財經 - 中時新聞網\n[ID: 23] [TW] [age_band: fresh] 標題: 一文看完！2026Q2台股致富關鍵　大震盪後的「黃金坑」 - 三立新聞網\n[ID: 24] [TW] [age_band: fresh] 標題: 一文看完！2026Q2台股致富關鍵 - 鏡週刊Mirror Media\n[ID: 25] [US] [age_band: fresh] 標題: Anika Reports Inducement Grants Under Nasdaq Listing Rule 5635(c)(4) - GlobeNewswire\n[ID: 26] [TW] [age_band: fresh] 標題: 川普祭新藥品關稅》政院：專利藥規劃設廠 學名藥暫時豁免 - 自由時報\n[ID: 27] [TW] [age_band: fresh] 標題: 台股西進首度倒退嚕》中港投資陷泥淖 統一超南向菲國翻4.5倍 - 自由時報\n[ID: 28] [TW] [age_band: fresh] 標題: 台股西進首度倒退嚕》中國學徒複製台灣經驗 台塑寧波、台聚古雷淪錢坑 - 自由時報\n[ID: 29] [TW] [age_band: fresh] 標題: 台股西進首度倒退嚕》台商西進5大投資地全線撤退 福建惠台措施失靈 北京投資額剩高峰期1％ - 自由時報\n[ID: 30] [TW] [age_band: fresh] 標題: 二次西進…別再作夢了 台股公司赴中投資首度倒退嚕 1/3虧本 - 自由時報\n[ID: 31] [TW] [age_band: fresh] 標題: 豪宅線十年未調房子越買越小？「小宅化」困境難解 - 自由時報\n[ID: 32] [TW] [age_band: fresh] 標題: 未有定案/巴克萊：日央行月內料加息抑通脹- 經濟 - 今日大公\n[ID: 33] [TW] [age_band: fresh] 標題: 美3月職位回升17.8萬個 遠勝預期 失業率降 美匯指數重上100 - 20260404 - 報章內容 - 明報財經網\n[ID: 34] [TW] [age_band: fresh] 標題: 台股史上第2大漲點！聰明錢先卡位 主被動績效王前十名 - Yahoo新聞\n[ID: 35] [TW] [age_band: fresh] 標題: 看經濟/全球市場的混亂恐慌與中國製造的「逆勢突圍」\\宇 文 - 今日大公\n[ID: 36] [TW] [age_band: fresh] 標題: 賣方願讓利 房價疲軟區與短期爆量區選購平價宅機會增 議價與贈品有撇步 - 自由時報\n[ID: 37] [TW] [age_band: fresh] 標題: 陸機器人龍頭 高薪獵才 刷新相關領域紀錄 - 聯合新聞網\n[ID: 38] [US] [age_band: fresh] 標題: Inside Disney’s ‘Main Street Country’ EP, Featuring Kane Brown, Dasha, Maddie & Tae & More - Country Now\n[ID: 39] [US] [age_band: fresh] 標題: Future Money Acquisition Corp completes $112 million IPO on Nasdaq - Investing.com\n[ID: 40] [US] [age_band: fresh] 標題: Subject: Weekend Reads: The real problem behind grade inflation - The Chronicle of Higher Education\n[ID: 41] [TW] [age_band: fresh] 標題: 影音／通膨警報響起! 美伊戰爭續燒 專家：台灣恐破2% 警戒線 - MSN\n[ID: 42] [US] [age_band: fresh] 標題: Battle for Kerala: Congress’ Venugopal claims CPI(M) printing fake Aadhaar Cards, left party sends legal notice - The Statesman\n[ID: 43] [US] [age_band: fresh] 標題: Raising Cane's plans $100 million renovation at new corporate hub - The Business Journals\n[ID: 44] [US] [age_band: fresh] 標題: DC Defenders Lose Wide Receiver Seth Williams After Being Placed on IR - UFL News Hub\n[ID: 45] [US] [age_band: fresh] 標題: US labor market posts largest jobs gain in 15 months, but clouds brewing from Iran war - reuters.com\n[ID: 46] [US] [age_band: fresh] 標題: New ETF Targets Ultrashort Bonds Amid Interest Rate Volatility, Fed Pivot Debate - DoubleLine Asset-Backe - Benzinga\n[ID: 47] [US] [age_band: fresh] 標題: Crypto traders fade 2026 Fed cuts as U.S. unemployment dips, but risk assets hold bid - crypto.news\n[ID: 48] [US] [age_band: fresh] 標題: Elmington Capital buys two Hillsboro Village apartment buildings - The Business Journals\n[ID: 49] [TW] [age_band: fresh] 標題: 名目準備金將從102.9億美元降至6,880.6億美元 - citytimes.tw\n[ID: 50] [TW] [age_band: fresh] 標題: 伊朗戰爭引爆能源危機 歐元區3月通膨飆升至2.5% - enn.tw\n[ID: 51] [TW] [age_band: fresh] 標題: 中東局勢趨緩助攻 美股強勁反彈科技股領漲 - enn.tw\n[ID: 52] [TW] [age_band: fresh] 標題: 【川普關稅滿週年】懂王沒算到的代價？一文看懂全球經貿洗牌4大變化 - 三立新聞網\n[ID: 53] [TW] [age_band: fresh] 標題: 義大利海灣地區仍處於冰凍狀態：義大利央行預測成長停滯和經濟衰退的幽靈 - arch-web.com.tw\n[ID: 54] [TW] [age_band: fresh] 標題: 美國3月勞動市場優於預期，但2月損失比最初報告的還要嚴重美國失業和就業統計 - arch-web.com.tw\n[ID: 55] [TW] [age_band: fresh] 標題: 16檔中小尖兵 外資挺 股價抗波動 | 市場焦點 | 證券 - 經濟日報\n[ID: 56] [TW] [age_band: fresh] 標題: 活水來了 2,275億股息助攻台股 - 經濟日報\n[ID: 57] [TW] [age_band: fresh] 標題: Switch 2 漲價不可避免？前任天堂零售主管分析硬體成本與通膨壓力 - Ludens Media\n[ID: 58] [TW] [age_band: fresh] 標題: 台股四題材 點燃多頭火種 有利提振市場信心 - 經濟日報\n[ID: 59] [TW] [age_band: fresh] 標題: 鄭習會對兩岸經貿交流的啟示 - 經濟日報</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [US] [age_band: fresh] 標題: Brazil Cuts Dollar Holdings, Adds 42 Tons of Gold as BRICS Push Grows - InteractiveCrypto\n[ID: 1] [US] [age_band: fresh] 標題: FOMO Model Tokens Launch On Aerodrome, Unlocking Permissionless AI Liquidity - BlockchainReporter\n[ID: 2] [US] [age_band: fresh] 標題: GDP Q1/2026 increases by 7.83% - news.laodong.vn\n[ID: 3] [TW] [age_band: fresh] 標題: 樓市五節棍之：外資轉軚調低港樓價升幅- 地產新聞- 宅谷地產資訊網 - Property.hk\n[ID: 4] [US] [age_band: fresh] 標題: Vietnam Q1 GDP growth slows to 7.83% y/y from 8.46% y/y in Q4 - CNA\n[ID: 5] [US] [age_band: fresh] 標題: Vietnam Q1 GDP growth slows to 7.83% y/y from 8.46% y/y in Q4 - Reuters\n[ID: 6] [US] [age_band: fresh] 標題: Stronger, broader hiring could ease Fed job market worries - The Business Times\n[ID: 7] [US] [age_band: fresh] 標題: Ringgit returns to 4.02 versus US dollar as energy supply concerns ease - MSN\n[ID: 8] [US] [age_band: fresh] 標題: Vietnam Q1 GDP growth slows to 7.83% y/y from 8.46% y/y in Q4 - MarketScreener\n[ID: 9] [US] [age_band: fresh] 標題: Gold Silver Rate Today, 4 April 2026: Check City-Wise Gold, Silver Prices and MCX Trend - Oneindia\n[ID: 10] [US] [age_band: fresh] 標題: The Best High-Yield Financial Stock to Invest $1,000 in Right Now - theglobeandmail.com\n[ID: 11] [TW] [age_band: fresh] 標題: 取消對美SSG 陳駿季：300億農安基金因應- 其他 - 旺得富理財網\n[ID: 12] [TW] [age_band: fresh] 標題: 港將全面禁電子煙攜帶也要罰- 國際 - 旺得富理財網\n[ID: 13] [US] [age_band: fresh] 標題: Asia markets rally on optimism Iran war could end soon - DD News\n[ID: 14] [TW] [age_band: fresh] 標題: 【公告】合騏股票面額由「新台幣10元」變更為「新台幣2.5元」 - Yahoo股市\n[ID: 15] [TW] [age_band: fresh] 標題: 川普2.0關稅滿一年 台對美出口飆升8成 - 旺得富理財網\n[ID: 16] [TW] [age_band: fresh] 標題: 駁斥「藥品關稅打臉」說 李慧芝強調：學名藥仍在美方豁免範圍 - PChome Online 新聞\n[ID: 17] [US] [age_band: fresh] 標題: How Much Is the War with Iran Costing Australia? Australia Faces Billions in Economic Costs from Iran War - International Business Times Australia\n[ID: 18] [TW] [age_band: fresh] 標題: 油價飆升至每桶114 美元，股市暴跌逾3% - citytimes.tw\n[ID: 19] [TW] [age_band: fresh] 標題: 日媒：高市政府已敲定放寬武器出口方案擬月內修改相關限制原則- 國際 - 香港文匯網 - 香港文匯網\n[ID: 20] [US] [age_band: fresh] 標題: Public debt stands at 70.7pc of GDP, says Aurangzeb - Business Recorder\n[ID: 21] [TW] [age_band: fresh] 標題: 口號治不了通膨 「塑膠袋之亂」政府豈可卸責 - 品觀點\n[ID: 22] [TW] [age_band: fresh] 標題: 布魯塞爾警告中東戰爭對歐洲經濟造成嚴重打擊 - citytimes.tw\n[ID: 23] [US] [age_band: fresh] 標題: Initial Unemployment Claims Down 9K, Lower Than Expected - Seeking Alpha\n[ID: 24] [US] [age_band: fresh] 標題: \"BJP Govt should withdraw this bill immediately\": CPI Keralam state secretary Binoy Viswam on FCRA Amendment Bill - India's News.Net\n[ID: 25] [US] [age_band: fresh] 標題: Inflation has picked up in Cyprus - eKathimerini.com\n[ID: 26] [TW] [age_band: fresh] 標題: 中國4月取消PVC出口退稅 台塑、 華夏迎利多 - MSN\n[ID: 27] [US] [age_band: fresh] 標題: Zohran Mamdani’s viral campaign is inspiring CPI(M)’s social media pitch for Bengal polls - Scroll.in\n[ID: 28] [US] [age_band: fresh] 標題: $LOL Announces Next Expansion Phase Ahead of 2026 Memecoin Cycle - The Manila Times\n[ID: 29] [TW] [age_band: fresh] 標題: MLB》狂！海盜44億最強大物解鎖5個第一次 豪寫多項歷史超罕見壯舉 - 自由體育\n[ID: 30] [US] [age_band: fresh] 標題: Think Twice Before Buying Muffins From The Grocery Store Bakery — Here's Why - Tasting Table\n[ID: 31] [US] [age_band: fresh] 標題: Vietnam Q1 GDP growth accelerates to 7.83% y/y from 7.07% in Q1 2025 - TradingView\n[ID: 32] [TW] [age_band: fresh] 標題: 台股大怒神1／戰爭盤別看技術面 股市女王：是否落底關鍵在這件事 - Yahoo新聞\n[ID: 33] [TW] [age_band: fresh] 標題: 台股大怒神3／朋友狂問要不要停損？ 雷浩斯反向思考：那通常是加碼訊號 - Yahoo新聞\n[ID: 34] [TW] [age_band: fresh] 標題: 台股大怒神2／利多不漲壓力未解 艦長：先觀戰別亂動 - Yahoo新聞\n[ID: 35] [TW] [age_band: fresh] 標題: 調薪低於2％ 全台115萬勞工苦哈哈 住宿餐飲業最慘 - 華視新聞網\n[ID: 36] [TW] [age_band: fresh] 標題: 荷姆茲海峽通行費曝光！要跟革命衛隊協商 - news.ebc.net.tw\n[ID: 37] [TW] [age_band: fresh] 標題: 提升交通安全與區域發展 溪州鄉進元路至中山路新闢道路工程計畫動土 - 蕃新聞\n[ID: 38] [TW] [age_band: fresh] 標題: 伊朗將收取荷姆茲海峽通行費！每桶原油1美元 估年賺新台幣3.2兆元 - Yahoo新聞\n[ID: 39] [TW] [age_band: fresh] 標題: 新聞傳真／深圳科工局設局吸金11億　中國高官淪詐騙犯坑台商 - 鏡週刊Mirror Media\n[ID: 40] [US] [age_band: fresh] 標題: AIOS Tech receives Nasdaq delisting warning over share price - Investing.com\n[ID: 41] [US] [age_band: fresh] 標題: AIOS Tech Inc. Receives Nasdaq Notice for Falling Below $1 Minimum Bid Price - geneonline.com\n[ID: 42] [US] [age_band: fresh] 標題: Pet owners still prioritizing their four-legged family members while inflation rises - WDBJ7\n[ID: 43] [US] [age_band: fresh] 標題: March job gains outshine forecasts amid inflation pressures - WPTV\n[ID: 44] [US] [age_band: fresh] 標題: The Resilient U.S. Labor Market: March Data Defies Geopolitical Shocks - markets.financialcontent.com\n[ID: 45] [US] [age_band: fresh] 標題: Solana’s USDC Liquidity Surge Could Be the Real Signal for SOL - Startup Fortune\n[ID: 46] [US] [age_band: fresh] 標題: Russia stocks lower at close of trade; MOEX Russia Index down 0.46% - Investing.com\n[ID: 47] [TW] [age_band: fresh] 標題: 15檔台股ETF配息 揭曉 - 聯合新聞網\n[ID: 48] [TW] [age_band: fresh] 標題: 千億台股ETF 再添一檔 - 聯合新聞網\n[ID: 49] [US] [age_band: fresh] 標題: Rising mortgage rates threaten to pour cold water on spring homebuying season - thenationaldesk.com\n[ID: 50] [US] [age_band: fresh] 標題: The Inflation Surge Is Just Getting Started - Talking Points Memo\n[ID: 51] [US] [age_band: fresh] 標題: Following stronger US Nonfarm Payrolls, AUD/USD retreats, with subdued trading amid thin holiday liquidity conditions - VT Markets\n[ID: 52] [TW] [age_band: fresh] 標題: 台指期夜盤V漲372點台股下周穩了？老手清明變盤3劇本：台積電「這時」加倉才安全- 上市櫃 - 旺得富理財網\n[ID: 53] [TW] [age_band: fresh] 標題: 退休美夢碎了！58歲婦白天掃地、夜晚搬貨揭重返職場困境- 財經 - 中時新聞網\n[ID: 54] [TW] [age_band: fresh] 標題: 一文看完！2026Q2台股致富關鍵　大震盪後的「黃金坑」 - 三立新聞網\n[ID: 55] [TW] [age_band: fresh] 標題: 一文看完！2026Q2台股致富關鍵 - 鏡週刊Mirror Media\n[ID: 56] [TW] [age_band: fresh] 標題: 川普祭新藥品關稅》政院：專利藥規劃設廠 學名藥暫時豁免 - 自由時報\n[ID: 57] [TW] [age_band: fresh] 標題: 台股西進首度倒退嚕》中港投資陷泥淖 統一超南向菲國翻4.5倍 - 自由時報\n[ID: 58] [TW] [age_band: fresh] 標題: 台股西進首度倒退嚕》中國學徒複製台灣經驗 台塑寧波、台聚古雷淪錢坑 - 自由時報\n[ID: 59] [TW] [age_band: fresh] 標題: 台股西進首度倒退嚕》台商西進5大投資地全線撤退 福建惠台措施失靈 北京投資額剩高峰期1％ - 自由時報</News_List>",
   "schema": {
     "type": "OBJECT",
     "description": "AI 思考過程與挑選結果",
@@ -129,64 +129,54 @@
     "think": {
       "event_inventory": [
         {
-          "event": "美國3月非農就業數據強勁",
-          "count": 9,
-          "best_title": "U.S. Labor Market Defies Gravity: March Jobs Growth Triples Estimates Amid Middle East Turmoil"
+          "event": "中東衝突與能源危機",
+          "count": 7,
+          "best_title": "伊朗將收取荷姆茲海峽通行費！每桶原油1美元 估年賺新台幣3.2兆元"
         },
         {
-          "event": "中東地緣政治緊張與通膨風險",
-          "count": 4,
-          "best_title": "影音／通膨警報響起! 美伊戰爭續燒 專家：台灣恐破 2% 警戒線"
+          "event": "美國勞動力市場數據",
+          "count": 5,
+          "best_title": "The Resilient U.S. Labor Market: March Data Defies Geopolitical Shocks"
         },
         {
-          "event": "台股資金流向與股息紅利",
+          "event": "川普關稅與台美貿易變局",
           "count": 3,
-          "best_title": "活水來了 2,275億股息助攻台股"
+          "best_title": "川普2.0關稅滿一年 台對美出口飆升8成"
         },
         {
-          "event": "台股期貨夜盤大漲與市場情緒",
+          "event": "台商撤離中國趨勢",
           "count": 3,
-          "best_title": "台指期夜盤V漲372點台股下周穩了？老手清明變盤3劇本"
+          "best_title": "台商西進5大投資地全線撤退 福建惠台措施失靈 北京投資額剩高峰期1％"
         },
         {
-          "event": "美國PMI數據低於預期",
-          "count": 2,
-          "best_title": "In March, the US S&P Global Composite PMI registered 50.3, undershooting forecasts of 51.4"
-        },
-        {
-          "event": "日本央行加息預期",
-          "count": 1,
-          "best_title": "未有定案/巴克萊：日央行月內料加息抑通脹"
-        },
-        {
-          "event": "台商西進投資大幅衰退",
+          "event": "台股盤勢與權值股動向",
           "count": 4,
-          "best_title": "二次西進…別再作夢了 台股公司赴中投資首度倒退嚕 1/3虧本"
+          "best_title": "台指期夜盤V漲372點台股下周穩了？老手清明變盤3劇本：台積電「這時」加倉才安全"
         },
         {
-          "event": "歐元區通膨數據",
-          "count": 1,
-          "best_title": "伊朗戰爭引爆能源危機 歐元區3月通膨飆升至2.5%"
-        },
-        {
-          "event": "川普關稅政策影響",
+          "event": "美國通膨預期升溫",
           "count": 2,
-          "best_title": "【川普關稅滿週年】懂王沒算到的代價？一文看懂全球經貿洗牌4大變化"
+          "best_title": "The Inflation Surge Is Just Getting Started"
         },
         {
-          "event": "台股ETF規模成長",
+          "event": "中國產業政策調整",
+          "count": 1,
+          "best_title": "中國4月取消PVC出口退稅 台塑、 華夏迎利多"
+        },
+        {
+          "event": "台股ETF資金流向",
           "count": 2,
-          "best_title": "千億台股 ETF 再添一檔"
+          "best_title": "千億台股ETF 再添一檔"
         },
         {
-          "event": "外資佈局台股中小企業",
+          "event": "BRICS去美元化與黃金儲備",
           "count": 1,
-          "best_title": "16檔中小尖兵 外資挺 股價抗波動"
+          "best_title": "Brazil Cuts Dollar Holdings, Adds 42 Tons of Gold as BRICS Push Grows"
         },
         {
-          "event": "美國房貸利率上升",
-          "count": 1,
-          "best_title": "Rising mortgage rates threaten to pour cold water on spring homebuying season"
+          "event": "越南宏觀經濟表現",
+          "count": 5,
+          "best_title": "Vietnam Q1 GDP growth accelerates to 7.83% y/y from 7.07% in Q1 2025"
         }
       ],
       "dimension_check": {
@@ -198,83 +188,83 @@
       },
       "excluded": [
         {
-          "id": 0,
-          "reason": "單一小公司下市警告"
+          "id": 30,
+          "reason": "民生消費瑣事"
         },
         {
-          "id": 2,
-          "reason": "寵物消費非總經重點"
-        },
-        {
-          "id": 22,
-          "reason": "個人社會新聞"
-        },
-        {
-          "id": 31,
-          "reason": "地方房市小宅化議題"
-        },
-        {
-          "id": 38,
-          "reason": "娛樂產業新聞"
-        },
-        {
-          "id": 44,
+          "id": 29,
           "reason": "體育新聞"
         },
         {
-          "id": 57,
-          "reason": "單一消費電子產品"
+          "id": 28,
+          "reason": "迷因幣推廣"
+        },
+        {
+          "id": 12,
+          "reason": "社會行政規範"
+        },
+        {
+          "id": 39,
+          "reason": "單一詐騙案件"
+        },
+        {
+          "id": 14,
+          "reason": "單一小公司變更"
+        },
+        {
+          "id": 10,
+          "reason": "理財教學建議"
         }
       ]
     },
     "news": [
       {
-        "id": 21,
-        "summary": "美國3月非農就業人數大幅增加，遠超市場預期，失業率降至低點。這顯示勞動力市場極具韌性，但也可能推遲聯準會降息時程，對美債殖利率與全球資金流向產生重大壓力，需關注高利率環境對科技股估值的壓抑。"
+        "id": 38,
+        "summary": "伊朗擬對荷姆茲海峽徵收每桶 1 美元通行費，預估年收 3.2 兆台幣。此舉將直接推升全球能源運輸成本，加劇通膨壓力，對高度依賴能源進口的台灣產業及大盤指數構成顯著負面衝擊，需警惕能源通膨引發的連鎖反應。"
       },
       {
-        "id": 41,
-        "summary": "中東局勢緊張，美伊衝突風險升溫，推升國際油價與通膨預期。專家警告台灣通膨率可能突破2%警戒線。能源價格波動將直接影響製造業成本，並增加央行維持高利率的必要性，對大盤構成下行風險。"
+        "id": 18,
+        "summary": "國際油價飆升至每桶 114 美元，引發全球股市暴跌逾 3%。能源價格失控將壓縮企業利潤並抑制消費，對 0050 等權值股為主的 ETF 造成劇烈波動，投資者應嚴防槓桿策略在極端波動下的斷頭風險。"
       },
       {
-        "id": 56,
-        "summary": "台灣上市櫃公司預計發放2,275億元股息，這筆龐大資金將成為台股的重要支撐。對於0050等權值型ETF而言，股息再投資效應將有助於推升指數，並在市場震盪時提供下檔支撐，強化多頭動能。"
-      },
-      {
-        "id": 20,
-        "summary": "台指期夜盤大漲372點，反映市場對清明連假後走勢的樂觀預期。然而，老手提醒需關注台積電等權值股的加倉時機。此波動顯示市場情緒轉向積極，但仍需防範地緣政治引發的突發性變盤。"
+        "id": 44,
+        "summary": "美國 3 月就業數據遠超預期，展現勞動力市場在面對地緣政治衝擊下的韌性。這可能導致聯準會（Fed）延後降息時程，維持高利率環境，進而影響全球資金流向與台股評價面，對利率敏感型資產構成壓力。"
       },
       {
         "id": 15,
-        "summary": "美國3月S&P全球綜合PMI降至50.3，低於預期的51.4，顯示經濟擴張速度放緩。製造業與服務業的疲軟可能緩解通膨壓力，但也引發對經濟衰退的擔憂。這將使市場在「降息預期」與「成長放緩」之間反覆拉鋸。"
+        "summary": "川普 2.0 關稅實施滿一年，台灣對美出口逆勢飆升 8 成。顯示在供應鏈重組與貿易戰背景下，台灣科技業成功轉向美國市場，對台股長期基本面具支撐作用，但需持續關注後續貿易摩擦與關稅豁免範圍的變動。"
       },
       {
-        "id": 32,
-        "summary": "巴克萊預測日本央行可能在本月加息以抑制通膨。日圓匯率波動與利差交易（Carry Trade）的平倉風險，將對全球流動性產生衝擊，進而影響台股外資的資金配置，是不可忽視的外部變數。"
-      },
-      {
-        "id": 30,
-        "summary": "台股上市公司赴中投資首度出現倒退，且三分之一企業面臨虧損。這反映出供應鏈去中化與全球經貿洗牌的長期趨勢。資金回流台灣或轉向東南亞，將重塑台股產業結構，有利於本土資產與非中供應鏈。"
-      },
-      {
-        "id": 50,
-        "summary": "歐元區3月通膨率升至2.5%，主要受能源危機驅動。這顯示全球通膨壓力依然頑強，可能限制歐洲央行的寬鬆空間。全球同步的高通膨環境將維持高利率更久，對全球風險資產的評價面持續構成挑戰。"
+        "id": 59,
+        "summary": "台商西進投資全面撤退，北京投資額僅剩高峰期 1%。資金大規模轉向東南亞與美國，反映地緣政治下產業鏈的根本性位移，將重新定義台股權值股的長期估值邏輯，資金回流台灣或轉向南向市場將成為新常態。"
       },
       {
         "id": 52,
-        "summary": "川普關稅政策滿週年，全球經貿格局發生劇變。關稅壁壘迫使供應鏈重新配置，台灣作為半導體與電子代工核心，雖面臨成本上升壓力，但也因轉單效應受益。需警惕未來貿易保護主義升級對出口動能的影響。"
+        "summary": "台指期夜盤強彈 372 點，市場關注清明變盤後的台積電加倉時機。在戰爭陰影下，技術面參考價值降低，資金流向與台積電等權值股的支撐力道成為大盤能否止跌回穩的關鍵指標，適合量化策略觀察情緒轉折。"
       },
       {
-        "id": 8,
-        "summary": "台股千億規模ETF再添新成員，顯示散戶與法人資金持續湧入被動投資工具。這將強化權值股的穩定性，但也可能導致市場波動在特定調整日加劇。對於0050投資者而言，需關注資金集中化帶來的評價溢價。"
+        "id": 50,
+        "summary": "美國通膨壓力持續升溫，市場預期通膨飆升才剛開始。這將限制 Fed 的貨幣政策空間，增加市場對滯脹（Stagflation）的擔憂，對槓桿型投資工具構成極大的宏觀風險，需重新評估資產配置的抗通膨能力。"
       },
       {
-        "id": 55,
-        "summary": "外資近期鎖定16檔中小型股進行佈局，顯示在權值股高檔震盪之際，資金開始尋找具備抗波動能力的成長股。這反映出市場資金流向的細微變化，投資者可關注外資認同度高的標的以分散風險。"
+        "id": 26,
+        "summary": "中國取消 PVC 出口退稅，台塑、華夏等台廠迎來轉單利多。作為 0050 重要成分股，塑化龍頭競爭力提升有助於支撐傳產板塊，緩解電子股波動對大盤的衝擊，是產業結構性變動帶來的實質利多。"
       },
       {
-        "id": 9,
-        "summary": "美國房貸利率上升威脅春季購屋季，顯示高利率對實體經濟的滲透正在加深。房地產市場的降溫將影響消費支出與相關產業鏈，若房市出現系統性風險，將對美股大盤及台股相關出口產業產生連鎖反應。"
+        "id": 48,
+        "summary": "台灣再添一檔千億級台股 ETF，顯示內資力道強勁。龐大的被動資金流入將為權值股提供流動性支撐，有助於在市場動盪時發揮護盤作用，降低大盤下行空間，對 0050 等大型股 ETF 具正面意義。"
+      },
+      {
+        "id": 0,
+        "summary": "巴西大幅增持 42 噸黃金並減持美元，響應 BRICS 去美元化趨勢。這反映全球儲備資產的結構性轉變，長期可能削弱美元霸權並增加匯率波動，對全球資金定價體系產生深遠影響，需關注避險資產的長期配置價值。"
+      },
+      {
+        "id": 31,
+        "summary": "越南第一季 GDP 成長 7.83%，展現強勁復甦。作為台商南向政策的核心，越南經濟走強有利於在當地佈局的台股上市公司，強化供應鏈多元化的獲利貢獻，對相關權值股的基本面有加分效果。"
+      },
+      {
+        "id": 49,
+        "summary": "美國房貸利率上升威脅春季購屋季，房市降溫可能拖累經濟成長。需警惕美國內需轉弱對台灣出口導向型產業的連鎖反應，特別是與消費性電子及半導體相關的權值股，可能面臨終端需求下修的風險。"
       }
     ]
   }

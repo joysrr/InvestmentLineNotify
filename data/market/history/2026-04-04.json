@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "lastRun": "2026-04-04T00:01:57.646Z",
+    "lastRun": "2026-04-04T04:15:28.328Z",
     "sources": {
       "cnnProvider": {
         "status": "SUCCESS",
@@ -12,7 +12,7 @@
       },
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-04T00:01:57.646Z"
+        "lastFetch": "2026-04-04T04:15:28.328Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
@@ -29,6 +29,12 @@
     }
   },
   "data": {
+    "rawNdc": {
+      "date": "2026-02",
+      "score": 40,
+      "light": "紅燈 (過熱)",
+      "lightColor": "red"
+    },
     "rawMargin": {
       "marginBalance100M": 3852.01,
       "marginBalanceChange100M": -7.07,
@@ -57,6 +63,18 @@
         "spxDate": "2026-04-02"
       },
       "source": "FRED"
+    },
+    "rawValuation": {
+      "pe": 23.93,
+      "pb": 3.25,
+      "yield": 2.25,
+      "date": "20260402"
+    },
+    "quote": {
+      "date": "2026-04-04",
+      "quote": "Help others for all the times that you have been ignored. Be kind to others, for all the times that you have been scorned.",
+      "author": "Ming-Dao Deng",
+      "source": "zenquotes"
     },
     "rawFx": {
       "currentRate": 31.979,
@@ -89,24 +107,6 @@
         31.9381,
         31.979
       ]
-    },
-    "quote": {
-      "date": "2026-04-04",
-      "quote": "Help others for all the times that you have been ignored. Be kind to others, for all the times that you have been scorned.",
-      "author": "Ming-Dao Deng",
-      "source": "zenquotes"
-    },
-    "rawNdc": {
-      "date": "2026-02",
-      "score": 40,
-      "light": "紅燈 (過熱)",
-      "lightColor": "red"
-    },
-    "rawValuation": {
-      "pe": 23.93,
-      "pb": 3.25,
-      "yield": 2.25,
-      "date": "20260402"
     }
   }
 }
