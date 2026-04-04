@@ -14,7 +14,7 @@ export function formatQuantDataForCoach(
   portfolio = {},
   vixData = null,
 ) {
-  // 1. 抽取策略與門檻參數
+  // 1. 抽取策略與門滝參數
   const st = marketData?.strategy || {};
   const buyTh = st.buy || {};
   const sellTh = st.sell || {};
@@ -36,7 +36,7 @@ export function formatQuantDataForCoach(
   if (actualLev != null && targetLev != null) {
     if (actualLev > targetLev) levStatus = "⚠️ 過度擴張 (超標)";
     else if (Math.abs(actualLev - targetLev) <= 0.1) levStatus = "⚖️ 目標區間";
-    else levStatus = "🛡️ 防禦狀態 (具備加碼空間)";
+    else levStatus = "🛡️ 防穩狀態 (具備加碼空間)";
   }
 
   // ===== 進場評分數據 =====
@@ -62,7 +62,7 @@ export function formatQuantDataForCoach(
   const vixHighTh = n2(th.vixHighFear);
   let vixLabel = "正常區間";
   if (vixVal != null && vixHighTh != null && vixVal > vixHighTh) {
-    vixLabel = "🔥 落入高波動區 (偏恐慌)";
+    vixLabel = "🔥 落入高波動區 (偏恐愁)";
   } else if (
     vixVal != null &&
     th.vixLowComplacency != null &&
@@ -79,6 +79,20 @@ export function formatQuantDataForCoach(
   const mktStatus = marketData?.marketStatus || "未知";
   const suggestionShort = marketData?.targetSuggestionShort || "無特殊建議";
 
+  // ===== 持倉均價與損益 =====
+  const avgCost0050 = n2(portfolio?.avgCost0050);
+  const avgCostZ2   = n2(portfolio?.avgCostZ2);
+  const price0050   = n2(marketData?.price0050);
+  const priceZ2     = n2(marketData?.currentPrice);
+
+  // 未實現損益率（均價與現價均有效時才計算）
+  const pnl0050Pct = (avgCost0050 && price0050 && avgCost0050 > 0)
+    ? ((price0050 - avgCost0050) / avgCost0050 * 100).toFixed(2)
+    : null;
+  const pnlZ2Pct = (avgCostZ2 && priceZ2 && avgCostZ2 > 0)
+    ? ((priceZ2 - avgCostZ2) / avgCostZ2 * 100).toFixed(2)
+    : null;
+
   // 2. 組裝成純文字簡報結構 (加入策略參數配置區塊)
   return `
 【量化系統判定狀態】
@@ -86,55 +100,59 @@ export function formatQuantDataForCoach(
 行動建議：${marketData?.target || "觀望"} (${suggestionShort})
 
 【帳戶風控狀態】
-實際槓桿：${fmt(actualLev)} 倍 (目標 ${fmt(targetLev)} 倍) ➔ 狀態：${levStatus}
+實際槓桿：${fmt(actualLev)} 倍 (目標 ${fmt(targetLev)} 倍) ➤ 狀態：${levStatus}
 大盤維持率：${fmt(mm)}%
 00675L佔比：${fmt(z2Ratio)}% (目標上限 ${fmt(z2TargetPct)}%)
 現金儲備：$${cash != null ? cash.toLocaleString("en-US") : "--"}
 持股分佈：0050 (${qty0050.toLocaleString("en-US")} 股) / 00675L (${qtyZ2.toLocaleString("en-US")} 股)
 
+【持倉成本與損益】
+0050：均價 ${fmt(avgCost0050)} 元 / 現價 ${fmt(price0050)} 元 ➤ 未實現損益：${pnl0050Pct != null ? pnl0050Pct + "%" : "(未設均價)"}
+00675L：均價 ${fmt(avgCostZ2)} 元 / 現價 ${fmt(priceZ2)} 元 ➤ 未實現損益：${pnlZ2Pct != null ? pnlZ2Pct + "%" : "(未設均價)"}
+
 【買進條件判定】
-總評分：${fmt(actualScore)} 分 (門檻 ${fmt(minScore)} 分) ➔ ${scoreReached ? "🟢已達標" : "🔴未達標"}
+總評分：${fmt(actualScore)} 分 (門滝 ${fmt(minScore)} 分) ➤ ${scoreReached ? "🟢已達標" : "🔴未達標"}
 觸發因子：${entryHits}
 
 【風險與賣出監控】
 大盤位階：${histLevel}
-VIX指數：${fmt(vixVal)} ➔ ${vixLabel}
-過熱指標：觸發 ${overheatHits} 個 (門檻 ${fmt(th.overheatCount)})
-轉弱指標：觸發 ${reversalHits} 個 (門檻 ${fmt(th.reversalTriggerCount)})
-賣出訊號：觸發 ${sellHits} 次 (門檻 ${fmt(sellTh.minSignalCountToSell)})
+VIX指數：${fmt(vixVal)} ➤ ${vixLabel}
+過熱指標：觸發 ${overheatHits} 個 (門滝 ${fmt(th.overheatCount)})
+轉弱指標：觸發 ${reversalHits} 個 (門滝 ${fmt(th.reversalTriggerCount)})
+賣出訊號：觸發 ${sellHits} 次 (門滝 ${fmt(sellTh.minSignalCountToSell)})
 
 【底層策略參數配置 (供教練決策參考)】
 - 目標槓桿倍數：${fmt(lev.targetMultiplier)}
-- 買入分數門檻：${fmt(buyTh.minWeightScoreToBuy)} 分
-- 賣出觸發門檻：累積 ${fmt(sellTh.minSignalCountToSell)} 個賣出訊號
-- 乖離過熱門檻：累積 ${fmt(th.overheatCount)} 個過熱因子
-- 轉弱確認門檻：累積 ${fmt(th.reversalTriggerCount)} 個轉弱因子
-- VIX 恐慌/安逸線：> ${fmt(th.vixHighFear)} / < ${fmt(th.vixLowComplacency)}
-- 融資斷頭警戒線：低於 ${fmt(th.mmDanger)}%
+- 買入分數門滝：${fmt(buyTh.minWeightScoreToBuy)} 分
+- 賣出觸發門滝：累積 ${fmt(sellTh.minSignalCountToSell)} 個賣出訊號
+- 乖離過熱門滝：累積 ${fmt(th.overheatCount)} 個過熱因子
+- 轉弱確認門滝：累積 ${fmt(th.reversalTriggerCount)} 個轉弱因子
+- VIX 恐愁/安逸線：> ${fmt(th.vixHighFear)} / < ${fmt(th.vixLowComplacency)}
+- 融資斷頭警戛線：低於 ${fmt(th.mmDanger)}%
 - 00675L 佔比上限：${fmt(z2TargetPct)}% (硬限制 ${fmt(n2(th.z2RatioHigh * 100))}%)
 `.trim();
 }
 
 /**
  * 將 CNN 原始資料轉換為 AI 教練易於閱讀的結構與趨勢描述
- * @param {Object} rawData - fetchFearAndGreedIndex() 的回傳值
+ * @param {Object} rawData - fetchFearAndGreedIndex() 的回傳値
  * @returns {Object} 供 AI 解析的結構化資料
  */
 export function formatCnnDataForAi(rawData) {
   // 防呆：確保傳入的資料有效
   if (!rawData || typeof rawData.score !== "number") {
-    return { error: "無法取得有效的 CNN 恐懼貪婪資料" };
+    return { error: "無法取得有效的 CNN 恐懼貢婪資料" };
   }
 
   const { score, rating, previousClose, previous1Week, timestamp } = rawData;
 
   // 1. 將英文 rating 轉換為中文標籤，讓 AI 判讀更直觀
   const ratingMap = {
-    "extreme fear": "極度恐慌",
-    fear: "恐慌",
+    "extreme fear": "極度恐愁",
+    fear: "恐愁",
     neutral: "中立",
-    greed: "貪婪",
-    "extreme greed": "極度貪婪",
+    greed: "貢婪",
+    "extreme greed": "極度貢婪",
   };
   const currentRating = ratingMap[rating.toLowerCase()] || rating;
 
@@ -146,7 +164,7 @@ export function formatCnnDataForAi(rawData) {
   if (diffFromYesterday > 2)
     shortTermTrend = `情緒回暖 (+${diffFromYesterday}分)`;
   else if (diffFromYesterday < -2)
-    shortTermTrend = `恐慌加劇 (${diffFromYesterday}分)`;
+    shortTermTrend = `恐愁加劇 (${diffFromYesterday}分)`;
 
   let midTermTrend = "盤整";
   if (diffFromLastWeek > 5)
@@ -161,23 +179,23 @@ export function formatCnnDataForAi(rawData) {
 
   // 4. 組合出給 AI 看的完美 JSON
   return {
-    指標名稱: "CNN 恐懼與貪婪指數 (美股情緒)",
+    指標名稱: "CNN 恐懼貢婪指數 (美股情緒)",
     資料日期: dateStr || "未知",
     當前狀態: `${score}分 (${currentRating})`,
     短期趨勢_較昨日: shortTermTrend,
     中期趨勢_較上週: midTermTrend,
     AI解讀提示:
       score <= 25
-        ? "進入極度恐慌，留意美股左側超跌買點"
+        ? "進入極度恐愁，留意美股左側超跨買點"
         : score >= 75
-          ? "進入極度貪婪，留意美股過熱回檔風險"
+          ? "進入極度貢婪，留意美股過熱回檔風險"
           : "情緒處於正常區間，不構成極端反轉訊號",
   };
 }
 
 /**
  * 將台股融資餘額與維持率轉換為 AI 教練易於閱讀的結構與趨勢描述
- * @param {Object} rawMargin - fetchTwseMarginData() 的回傳值
+ * @param {Object} rawMargin - fetchTwseMarginData() 的回傳値
  * @returns {Object} 供 AI 解析的結構化資料
  */
 export function formatMarginForAi(rawMargin) {
@@ -196,25 +214,25 @@ export function formatMarginForAi(rawMargin) {
   if (maintenanceRatio >= 166) {
     ratioStatus = "極度安全";
   } else if (maintenanceRatio < 135) {
-    ratioStatus = "極度恐慌 (歷史低點)";
+    ratioStatus = "極度恐愁 (歷史低點)";
     ratioAdvice =
-      "大盤維持率瀕臨斷頭臨界點，散戶遭到血洗，極可能出現 V 型反轉，留意左側買點！";
+      "大盤維持率瀕臨斷頭臨界點，散戶遣到血洗，極可能出現 V 型反轉，留意左側買點！";
   } else if (maintenanceRatio < 145) {
-    ratioStatus = "危險 (斷頭潮湧現)";
-    ratioAdvice = "大量中小型股面臨斷頭追繳，多殺多賣壓沉重，切勿輕易接刀。";
+    ratioStatus = "危险 (斷頭潮湧現)";
+    ratioAdvice = "大量中小型股面臨斷頭追繳，多殺多賣壓沈重，切勿輕易接刀。";
   } else if (maintenanceRatio < 155) {
-    ratioStatus = "警戒";
+    ratioStatus = "警戛";
     ratioAdvice = "散戶資金壓力升高，大盤籌碼轉趨不穩。";
   }
 
-  // 2. 判斷融資餘額增減變化 (籌碼流向)
+  // 2. 判斷融資餘額増減變化 (籌碼流向)
   let balanceTrend = "持平";
   if (marginBalanceChange100M > 20) {
     balanceTrend = `大幅增加 (+${marginBalanceChange100M}億)`;
   } else if (marginBalanceChange100M > 0) {
     balanceTrend = `微幅增加 (+${marginBalanceChange100M}億)`;
   } else if (marginBalanceChange100M < -30) {
-    balanceTrend = `恐慌性殺出 (${marginBalanceChange100M}億)`;
+    balanceTrend = `恐愁性殺出 (${marginBalanceChange100M}億)`;
   } else if (marginBalanceChange100M < 0) {
     balanceTrend = `減少 (${marginBalanceChange100M}億)`;
   }
@@ -231,7 +249,7 @@ export function formatMarginForAi(rawMargin) {
 
 /**
  * 將匯率資料轉換為 AI 教練易於閱讀的結構與趨勢描述 (支援雙週期)
- * @param {Object} rawFx - fetchUsdTwdExchangeRate() 的回傳值
+ * @param {Object} rawFx - fetchUsdTwdExchangeRate() 的回傳値
  * @returns {Object} 供 AI 解析的結構化資料
  */
 export function formatFxForAi(rawFx) {
@@ -260,28 +278,28 @@ export function formatFxForAi(rawFx) {
     const price5DaysAgo = historicalPrices[pricesLen - 5];
     const price1MonthAgo = historicalPrices[0];
 
-    // 2. 計算短期 (近 5 日) 變化：衡量當下動能
+    // 2. 計算短期 (近5 日) 變化：衯量當下動能
     const diff5Days = Number((currentRate - price5DaysAgo).toFixed(4));
     if (diff5Days > 0.15) shortTermTrend = `短期急貶 (+${diff5Days})`;
     else if (diff5Days < -0.15) shortTermTrend = `短期急升 (${diff5Days})`;
     else shortTermTrend = "短期盤整";
 
-    // 3. 計算中期 (近 1 個月) 變化：衡量波段趨勢
+    // 3. 計算中期 (近1 個月) 變化：衯量波段趨勢
     const diff1Month = Number((currentRate - price1MonthAgo).toFixed(4));
-    if (diff1Month > 0.3) midTermTrend = `中期貶值趨勢 (+${diff1Month})`;
-    else if (diff1Month < -0.3) midTermTrend = `中期升值趨勢 (${diff1Month})`;
+    if (diff1Month > 0.3) midTermTrend = `中期貶値趨勢 (+${diff1Month})`;
+    else if (diff1Month < -0.3) midTermTrend = `中期升値趨勢 (${diff1Month})`;
     else midTermTrend = "中期區間震盪";
 
     // 4. 綜合判定 AI 提示 (交叉比對長短天期)
     if (diff1Month > 0.3 && diff5Days > 0.15) {
       capitalImplication =
-        "【強烈警戒】外資中期持續匯出，且短期加速撤離中，台股大型權值股賣壓極重。";
+        "【強烈警戛】外資中期持續匯出，且短期加速撤離中，台股大型權値股賣壓極重。";
     } else if (diff1Month > 0.3 && diff5Days < -0.15) {
       capitalImplication =
         "【跌深反彈】外資中期偏空，但短期有匯入跡象，可能是台股的短線反彈契機。";
     } else if (diff1Month < -0.3 && diff5Days < -0.15) {
       capitalImplication =
-        "【資金行情】熱錢持續且加速匯入台灣，台股具備強大的資金動能與下檔支撐。";
+        "【資金行情】熱錢持續且加速匯入台灣，台股具備強大的資金動能與下檔支撑。";
     } else if (diff1Month < -0.3 && diff5Days > 0.15) {
       capitalImplication =
         "【漲多休息】外資中期仍偏多，但短線出現匯出調節，台股可能暫時高檔震盪。";
@@ -293,7 +311,7 @@ export function formatFxForAi(rawFx) {
 
   // 5. 組合出給 AI 看的 JSON
   return {
-    指標名稱: "USD/TWD 美元兌台幣匯率 (外資資金風向球)",
+    指標名稱: "USD/TWD 美元兄台幣匯率 (外資資金風向球)",
     最新報價: currentRate,
     今日變化: dailyTrend,
     短線動能_近5日: shortTermTrend,
@@ -304,7 +322,7 @@ export function formatFxForAi(rawFx) {
 
 /**
  * 將國發會景氣對策信號轉換為 AI 教練易於閱讀的結構與投資週期建議
- * @param {Object} rawIndicator - fetchBusinessIndicator() 的回傳值
+ * @param {Object} rawIndicator - fetchBusinessIndicator() 的回傳値
  * @returns {Object} 供 AI 解析的結構化資料
  */
 export function formatBusinessIndicatorForAi(rawIndicator) {
@@ -327,17 +345,17 @@ export function formatBusinessIndicatorForAi(rawIndicator) {
     longTermStrategy =
       "進入多頭末段或高檔區，應停止大部位加碼，持盈保泰，並開始檢視弱勢股予以汰弱留強。";
   } else if (score >= 23) {
-    cyclePosition = "景氣穩定 (主升段或復甦期)";
+    cyclePosition = "景氣穩定 (主升段或復男期)";
     longTermStrategy =
-      "基本面穩健支撐股市，可維持正常持股比例，順勢操作，挑選產業趨勢向上的類股。";
+      "基本面穩健支撑股市，可維持正常持股比例，順勢操作，挑選產業趨勢向上的類股。";
   } else if (score >= 17) {
-    cyclePosition = "景氣轉弱/復甦初期";
+    cyclePosition = "景氣轉弱/復男初期";
     longTermStrategy =
       "若是從藍燈轉黃藍燈，代表最壞情況已過，為長線加碼良機；若是從綠燈轉黃藍燈，則需留意景氣下行風險。";
   } else {
     cyclePosition = "景氣低迷 (長線底部區)";
     longTermStrategy =
-      "歷史經驗顯示此為長線極佳的左側買點（藍燈買股票）。市場雖恐慌，但應克服心理壓力，分批佈局優質錯殺股與指數型 ETF。";
+      "歷史經驗顯示此為長線極佳的左側買點（藍燈買股票）。市場雙恐愁，但應克服心理壓力，分批佈局優質錯殺股與指數型 ETF。";
   }
 
   // 2. 組合出給 AI 看的 JSON
@@ -394,7 +412,7 @@ export function formatMacroAnalysisForCoach(macroAnalysis) {
       .map((point) => `- ${point}`)
       .join("\n");
   } else {
-    // 兼容舊版可能只有 analysis 的情況
+    // 冈容舊版可能只有 analysis 的情況
     takeawaysText = `- ${conclusion.analysis || "無詳細分析"}`;
   }
 
@@ -428,7 +446,7 @@ ${takeawaysText}
  * @returns {String} 教練 AI 易讀的純文字簡報字串
  */
 export function formatMacroChipForCoach(rawMarketData) {
-  // 1. 各別獲取原本的物件資料 (若無資料則給預設值)
+  // 1. 各別獲取原本的物件資料 (若無資料則給預設値)
   const aiCnn = rawMarketData.rawCnn
     ? formatCnnDataForAi(rawMarketData.rawCnn)
     : { 狀態: "獲取失敗，略過此指標" };
@@ -449,42 +467,42 @@ export function formatMacroChipForCoach(rawMarketData) {
     ? formatValuationForAi(rawMarketData.rawValuation)
     : { 狀態: "獲取失敗，略過此指標" };
 
-  // 輔助函式：安全提取物件值
+  // 輔助函式：安全提取物件値
   const getVal = (obj, key, fallback = "未知") => obj?.[key] ?? fallback;
 
   // 2. 將各模組物件扁平化為條列式字串
-  // 針對 CNN
+  // 针對 CNN
   const cnnText = aiCnn["狀態"]
-    ? `1. 美股情緒 (CNN恐懼貪婪)：${aiCnn["狀態"]}`
-    : `1. 美股情緒 (CNN恐懼貪婪)：${getVal(aiCnn, "當前狀態")} [${getVal(aiCnn, "資料日期")}]
+    ? `1. 美股情緒 (CNN恐懼貢婪)：${aiCnn["狀態"]}`
+    : `1. 美股情緒 (CNN恐懼貢婪)：${getVal(aiCnn, "當前狀態")} [${getVal(aiCnn, "資料日期")}]
    趨勢：${getVal(aiCnn, "短期趨勢_較昨日")} / ${getVal(aiCnn, "中期趨勢_較上週")}
    解讀：${getVal(aiCnn, "AI解讀提示")}`;
 
-  // 針對維持率
+  // 针對維持率
   const marginText = aiMargin["狀態"]
     ? `2. 散戶籌碼 (大盤維持率)：${aiMargin["狀態"]}`
     : `2. 散戶籌碼 (大盤維持率)：${getVal(aiMargin, "大盤維持率")}
    動態：融資餘額 ${getVal(aiMargin, "融資餘額")} (${getVal(aiMargin, "今日餘額變化")})
    解讀：${getVal(aiMargin, "AI解讀提示")}`;
 
-  // 針對匯率
+  // 针對匯率
   const fxText = aiFx["狀態"]
     ? `3. 外資動向 (USD/TWD)：${aiFx["狀態"]}`
     : `3. 外資動向 (USD/TWD)：${getVal(aiFx, "最新報價")}
    動態：${getVal(aiFx, "今日變化")} / ${getVal(aiFx, "中線趨勢_近1月")}
    解讀：${getVal(aiFx, "AI解讀提示")}`;
 
-  // 針對國發會燈號
+  // 针對國發會燈號
   const ndcText = aiNdc["狀態"]
     ? `4. 長線景氣 (國發會燈號)：${aiNdc["狀態"]}`
     : `4. 長線景氣 (國發會燈號)：${getVal(aiNdc, "當月分數與燈號")} [${getVal(aiNdc, "資料月份")}]
    位階：${getVal(aiNdc, "景氣循環位階")}
    解讀：${getVal(aiNdc, "AI解讀提示")}`;
 
-  // 針對大盤估值
+  // 针對大盤估値
   const valText = aiValuation["狀態"]
-    ? `5. 大盤估值 (PB/PE)：${aiValuation["狀態"]}`
-    : `5. 大盤估值 (PB/PE)：PB ${getVal(aiValuation, "股價淨值比_PB")} / PE ${getVal(aiValuation, "本益比_PE")} [${getVal(aiValuation, "資料日期")}]
+    ? `5. 大盤估値 (PB/PE)：${aiValuation["狀態"]}`
+    : `5. 大盤估値 (PB/PE)：PB ${getVal(aiValuation, "股價淨値比_PB")} / PE ${getVal(aiValuation, "本益比_PE")} [${getVal(aiValuation, "資料日期")}]
    解讀：${getVal(aiValuation, "AI解讀提示")}`;
 
   // 3. 組合出結構極度清晰的純文本
@@ -503,13 +521,13 @@ ${valText}
 }
 
 /**
- * 將大盤估值轉換為 AI 教練易於閱讀的結構與趨勢描述
- * @param {Object} rawValuation - fetchMarketValuation() 的回傳值
+ * 將大盤估値轉換為 AI 教練易於閱讀的結構與趨勢描述
+ * @param {Object} rawValuation - fetchMarketValuation() 的回傳値
  * @returns {Object} 供 AI 解析的結構化資料
  */
 export function formatValuationForAi(rawValuation) {
   if (!rawValuation || typeof rawValuation.pb !== "number") {
-    return { 狀態: "無法取得有效的大盤估值資料" };
+    return { 狀態: "無法取得有效的大盤估値資料" };
   }
 
   const { pe, pb, yield: y, date: rawDate } = rawValuation;
@@ -520,37 +538,36 @@ export function formatValuationForAi(rawValuation) {
     : rawDate || "未知";
 
   let pbStatus = "合理區段";
-  let pbAdvice = "大盤淨值比與本益比處於中性水平，依據其他總經訊號判斷。";
+  let pbAdvice = "大盤淨値比與本益比處於中性水平，依據其他總經訊號判斷。";
 
   if (pb > 2.2) {
-    pbStatus = "極度昂貴 (泡沫警戒)";
-    pbAdvice = "大盤淨值比創歷史極高點，進入高位階泡沫區，請嚴格限制加碼！";
+    pbStatus = "極度昂貴 (泡沫警戛)";
+    pbAdvice = "大盤淨値比創歷史極高點，進入高位階泡沫區，請嚴格限制加碼！";
   } else if (pb > 1.9) {
     pbStatus = "高估 (留意風險)";
-    pbAdvice = "估值偏貴，留意追高風險。";
+    pbAdvice = "估値偏貴，留意追高風險。";
   } else if (pb < 1.4) {
     pbStatus = "極度便宜 (歷史底部)";
-    pbAdvice = "大盤落入恐慌超跌區，為長線極佳左側買點！";
+    pbAdvice = "大盤落入恐愁超跨區，為長線極佳左側買點！";
   } else if (pb < 1.6) {
     pbStatus = "低估 (具備安全邊際)";
-    pbAdvice = "股價淨值比偏低，下檔具備安全防禦力。";
+    pbAdvice = "股價淨値比偏低，下檔具備安全防穡力。";
   }
 
-  // 結合 PE 防禦 EPS 空窗期的失真
+  // 結合 PE 防穡 EPS 空窗期的失真
   if (pb < 1.6 && pe > 25) {
     pbAdvice = "⚠️ 大盤處於低位階(低PB)，但本益比異常飆高(高PE)。這通常是因為景氣谷底導致企業獲利大幅衰退 (EPS急縮)。這並非昂貴訊號，反而是典型長線底部特徵，有利於左側佈局。";
   } else if (pb > 1.9 && pe < 16) {
-    pbAdvice += " (註：但目前 PE 相對較低，代表企業盈餘可能正在大幅爆發，有基之彈，無需過度恐慌)。";
+    pbAdvice += " (註：但目前 PE 相對較低，代表企業盈餘可能正在大幅爆發，有基之彈，無需過度恐愁)。";
   }
 
   // 若 PE 相對較低但 PB 高，可能是企業獲利爆發 (如台積電帶動)，AI 可藉此與 PB 綜合評估
   return {
-    指標名稱: "加權指數估值 (大盤安全邊際)",
+    指標名稱: "加權指數估値 (大盤安全邊際)",
     資料日期: dateStr,
-    股價淨值比_PB: `${pb} (${pbStatus})`,
+    股價淨値比_PB: `${pb} (${pbStatus})`,
     本益比_PE: `${pe}`,
     殖利率: `${y}%`,
     AI解讀提示: pbAdvice,
   };
 }
-
