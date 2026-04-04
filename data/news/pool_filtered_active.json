@@ -1,43 +1,43 @@
 {
-  "generated_at": "2026-04-04T04:15:59.171Z",
-  "source_pool_updated_at": "2026-04-04T02:08:24.460Z",
+  "generated_at": "2026-04-04T05:24:17.255Z",
+  "source_pool_updated_at": "2026-04-04T04:50:29.786Z",
   "count": 12,
   "articles": [
     {
-      "id": "ac5927efe44cba8d",
-      "url": "https://news.google.com/rss/articles/CBMinwNBVV95cUxORXV0dUZLNWRvUFNuaWE0UnJ3a0dybUtSY2FxazVrVzFhTzJ4emE4Yk5OUFctRTBkU3R0S1ZHZDdPNTJRaFJTYlBNMHVfdXVaM21aOWtKTWxSRld1OENvLTllT3I2ZjhpMU9aR3FkamdRWlN0LUVZcEt0WXU0TzNVbzJHTFNTcjFEWUVaTVFMNGtZdlA2X2xuRG82QXZ1WDN6c1VCRGtVVTVyYk5CRlJxcGt6Q1hKdnljdTJBUzdNdGxZODhHNlRrM0ZWc0YzUVJiOXJxcS1WZjkxRTQ1a3gwOGE5UzVUSFF5OU1TS3hocDA5NFFZUVVuVWhaU3lSNnRJT0FPR2lwd1dhU1hKX2t4Z01NVmdlQzM2RlFaZHVDYm1LY1FZXzFWbi1tNmtwc0xISC1WZUt6dFRrRVYzcVNDUWxCRkNvNTNNZGxqVGxNQ2FkSUpUSjMtRkx1WG5HZ01sbEExd0pSay04aFRJaW9WRzdrYjQ0bWU4aTd2VVh4YzdBUWs2a1ZDY3BDSUJQM2MzbTFiRFRZWF81bHotbUln?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMinwNBVV95cUxORXV0dUZLNWRvUFNuaWE0UnJ3a0dybUtSY2FxazVrVzFhTzJ4emE4Yk5OUFctRTBkU3R0S1ZHZDdPNTJRaFJTYlBNMHVfdXVaM21aOWtKTWxSRld1OENvLTllT3I2ZjhpMU9aR3FkamdRWlN0LUVZcEt0WXU0TzNVbzJHTFNTcjFEWUVaTVFMNGtZdlA2X2xuRG82QXZ1WDN6c1VCRGtVVTVyYk5CRlJxcGt6Q1hKdnljdTJBUzdNdGxZODhHNlRrM0ZWc0YzUVJiOXJxcS1WZjkxRTQ1a3gwOGE5UzVUSFF5OU1TS3hocDA5NFFZUVVuVWhaU3lSNnRJT0FPR2lwd1dhU1hKX2t4Z01NVmdlQzM2RlFaZHVDYm1LY1FZXzFWbi1tNmtwc0xISC1WZUt6dFRrRVYzcVNDUWxCRkNvNTNNZGxqVGxNQ2FkSUpUSjMtRkx1WG5HZ01sbEExd0pSay04aFRJaW9WRzdrYjQ0bWU4aTd2VVh4YzdBUWs2a1ZDY3BDSUJQM2MzbTFiRFRZWF81bHotbUln?oc=5",
-      "title": "伊朗將收取荷姆茲海峽通行費！每桶原油1美元 估年賺新台幣3.2兆元 - Yahoo新聞",
-      "pubDate": "Sat, 04 Apr 2026 00:31:03 GMT",
-      "source": "Yahoo新聞",
-      "_region": "TW",
-      "fetched_at": "2026-04-04T02:08:24.456Z",
-      "age_band": "fresh",
-      "summary": "伊朗擬對荷姆茲海峽徵收每桶 1 美元通行費，預估年收 3.2 兆台幣。此舉將直接推升全球能源運輸成本，加劇通膨壓力，對高度依賴能源進口的台灣產業及大盤指數構成顯著負面衝擊，需警惕能源通膨引發的連鎖反應。"
-    },
-    {
-      "id": "079a9afc0579a3e3",
-      "url": "https://news.google.com/rss/articles/CBMimwJBVV95cUxQY2xmV0NRX0ZUSlh1M2NGUWJVZWlEUFZUX3N2LURTUXNSdWF0Tm4zQUtQWlh5cWUtb1ZLam1fRkprZVJ2aVA5TlUwS0daeHBEbC1DREtZMmFsZ3BNNExEaGgyNC03SDBGUTVaeFJNUTBtNXhJYl9yenFURGl1cnZ1U0YwQVJCMDZsMVZyaG95QklTcnRmWFEyUHNaYmZNOW5LbTNfc3ZUQ0xRUGY4UFFrWlFTSXRVSTBxYW0yUFJQMjF6bEpiRHZFckRoLXJvT1R4NXQwWjBfb2NneXhXT0VySnFDdnpNWjRWRUhPRzFkcERmU2d2Zk9DY1lVUDY5Qmx3bVNaUFlEVTdINm9pa2Z4MDdKNnI0a2QyTWxz?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMimwJBVV95cUxQY2xmV0NRX0ZUSlh1M2NGUWJVZWlEUFZUX3N2LURTUXNSdWF0Tm4zQUtQWlh5cWUtb1ZLam1fRkprZVJ2aVA5TlUwS0daeHBEbC1DREtZMmFsZ3BNNExEaGgyNC03SDBGUTVaeFJNUTBtNXhJYl9yenFURGl1cnZ1U0YwQVJCMDZsMVZyaG95QklTcnRmWFEyUHNaYmZNOW5LbTNfc3ZUQ0xRUGY4UFFrWlFTSXRVSTBxYW0yUFJQMjF6bEpiRHZFckRoLXJvT1R4NXQwWjBfb2NneXhXT0VySnFDdnpNWjRWRUhPRzFkcERmU2d2Zk9DY1lVUDY5Qmx3bVNaUFlEVTdINm9pa2Z4MDdKNnI0a2QyTWxz?oc=5",
-      "title": "油價飆升至每桶114 美元，股市暴跌逾3% - citytimes.tw",
-      "pubDate": "Sat, 04 Apr 2026 01:24:39 GMT",
-      "source": "citytimes.tw",
-      "_region": "TW",
-      "fetched_at": "2026-04-04T02:08:24.456Z",
-      "age_band": "fresh",
-      "summary": "國際油價飆升至每桶 114 美元，引發全球股市暴跌逾 3%。能源價格失控將壓縮企業利潤並抑制消費，對 0050 等權值股為主的 ETF 造成劇烈波動，投資者應嚴防槓桿策略在極端波動下的斷頭風險。"
-    },
-    {
-      "id": "c7e81380818906e7",
-      "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxOenI0UTB0TkZ3aGdWa2FCZEZSdm4wZ2R3OGVXRkFULUlPSFNQMllKTXRGS3NDbS1LRUxsVWJOWkVQb29xUFViWV9sVGZKMVdQWTJXQ2R2Mi1tZlhnZzF0SmFiVThKQnFtc1BVempRc0d5YTdRb0hZUHhhVUEyU2IxN0V6UjB3aGktdXIyVHN6TkdiUzFoYngyREF1SlZmSUxoLVZtRXdKMnk0TjkwQzBzOWpNS2ZEbzZYNndzdDZaZjJSRTJvazNTUjBCX0F1eUVmc0Noa29Zcy0?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxOenI0UTB0TkZ3aGdWa2FCZEZSdm4wZ2R3OGVXRkFULUlPSFNQMllKTXRGS3NDbS1LRUxsVWJOWkVQb29xUFViWV9sVGZKMVdQWTJXQ2R2Mi1tZlhnZzF0SmFiVThKQnFtc1BVempRc0d5YTdRb0hZUHhhVUEyU2IxN0V6UjB3aGktdXIyVHN6TkdiUzFoYngyREF1SlZmSUxoLVZtRXdKMnk0TjkwQzBzOWpNS2ZEbzZYNndzdDZaZjJSRTJvazNTUjBCX0F1eUVmc0Noa29Zcy0?oc=5",
-      "title": "The Resilient U.S. Labor Market: March Data Defies Geopolitical Shocks - markets.financialcontent.com",
-      "pubDate": "Fri, 03 Apr 2026 21:28:00 GMT",
-      "source": "markets.financialcontent.com",
+      "id": "74231059a2aafa2a",
+      "url": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxNMllwaXM4UHhjOGMtU0JZQ0duSUlPX1lraldCbjBrel9Wc3VaSDlPMHZTVzVtX0JOcFhUWEluOThyS2pEeHlGdlZ6ZTdzRm9zVU1uejNoTGhCT3M4ZnVMbkpyc3pwNlNSZWo5ZDB3U00ta3czMndlLXUwX2JYUHNiUE14UWZjelZvQWJlcVV6ZWEzcDJIWTY5T2ZSVEJmT0xvSl9lN3Qtdk9TSEJyN3NjNFZ3LVltSlZFRjJrXzRod0RXVElOS0p3b01zdlQ0R0w2?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxNMllwaXM4UHhjOGMtU0JZQ0duSUlPX1lraldCbjBrel9Wc3VaSDlPMHZTVzVtX0JOcFhUWEluOThyS2pEeHlGdlZ6ZTdzRm9zVU1uejNoTGhCT3M4ZnVMbkpyc3pwNlNSZWo5ZDB3U00ta3czMndlLXUwX2JYUHNiUE14UWZjelZvQWJlcVV6ZWEzcDJIWTY5T2ZSVEJmT0xvSl9lN3Qtdk9TSEJyN3NjNFZ3LVltSlZFRjJrXzRod0RXVElOS0p3b01zdlQ0R0w2?oc=5",
+      "title": "US bonds fall as strong jobs data undermines Fed cut outlook - The Business Times",
+      "pubDate": "Sat, 04 Apr 2026 04:33:00 GMT",
+      "source": "The Business Times",
       "_region": "US",
-      "fetched_at": "2026-04-03T21:34:24.820Z",
+      "fetched_at": "2026-04-04T04:50:29.781Z",
       "age_band": "fresh",
-      "summary": "美國 3 月就業數據遠超預期，展現勞動力市場在面對地緣政治衝擊下的韌性。這可能導致聯準會（Fed）延後降息時程，維持高利率環境，進而影響全球資金流向與台股評價面，對利率敏感型資產構成壓力。"
+      "summary": "美國 3 月就業數據遠超預期，顯示勞動力市場極具韌性，但也加劇通膨壓力。此數據直接削弱聯準會（Fed）短期內降息的必要性，導致美債殖利率攀升、債券價格下跌。對台股而言，這意味著高利率環境將維持更久，壓抑科技股估值並影響外資對新興市場的資金配置。"
+    },
+    {
+      "id": "6486f8ca49dac7c7",
+      "url": "https://news.google.com/rss/articles/CBMi9wNBVV95cUxPYzdWVW5RZDhXSjNrQWF6Y0ctZUdsZWt3QmFfUnJOckUydTVSR2lCS0VVek1tVVFhRk5BMWFNSDFvMmFmU1VvQ0ZTX25BY2RJTl9Va1Z5bnRFc19ZZU1IbnAtRC12ZGhfQ2tCdkMyN05WTHNmdUZITkl4MElzLThQN1JIYS1ZLUpjaWx5MjNkYWNIbWU2Sy1uM25OcXVUMHRIV3RnYnFEMUpfNzBxdzZNLUFKbXdXallndTc2Y2o2THpWZV9HQ283ZEtKbGFZNGNqRDVnNFRVMzNQR0Vzdi14RlZYRDk0d1VzeFNKQUctTUsyUlNhSVBLM2lkOUNJclc0aGhaRzJxRWpwclNMakpoc1V3ZlVGTVBLN29xRUZ5NlhGQ3lEalAzd1Q1MEtnTk5tYzJiYWt6eWI2aHp6emZJRkZVbEh4OVdmX3BXeEtKNzBBN0ZGQ1dGcFBCUGFkdmtva0hCNDM5NHJoSGFWSDRWd0FmQWlDT1BqVVlUV1NzUHd1ZjVIdDlPb0JnaHI2RE9MMmJmTF9rNnlDWHp3a3pEN05HZDFpN0JpVHBmOEpBX0F6dHdCUmtwRjhkUkVUQkUtaWR1TmsySzU4R0pETXFFa256SFM1aFpoc2hUMGtlWnBkVVo4REgxeEJwMDFSTkQ4bmhPUkxwYw?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMi9wNBVV95cUxPYzdWVW5RZDhXSjNrQWF6Y0ctZUdsZWt3QmFfUnJOckUydTVSR2lCS0VVek1tVVFhRk5BMWFNSDFvMmFmU1VvQ0ZTX25BY2RJTl9Va1Z5bnRFc19ZZU1IbnAtRC12ZGhfQ2tCdkMyN05WTHNmdUZITkl4MElzLThQN1JIYS1ZLUpjaWx5MjNkYWNIbWU2Sy1uM25OcXVUMHRIV3RnYnFEMUpfNzBxdzZNLUFKbXdXallndTc2Y2o2THpWZV9HQ283ZEtKbGFZNGNqRDVnNFRVMzNQR0Vzdi14RlZYRDk0d1VzeFNKQUctTUsyUlNhSVBLM2lkOUNJclc0aGhaRzJxRWpwclNMakpoc1V3ZlVGTVBLN29xRUZ5NlhGQ3lEalAzd1Q1MEtnTk5tYzJiYWt6eWI2aHp6emZJRkZVbEh4OVdmX3BXeEtKNzBBN0ZGQ1dGcFBCUGFkdmtva0hCNDM5NHJoSGFWSDRWd0FmQWlDT1BqVVlUV1NzUHd1ZjVIdDlPb0JnaHI2RE9MMmJmTF9rNnlDWHp3a3pEN05HZDFpN0JpVHBmOEpBX0F6dHdCUmtwRjhkUkVUQkUtaWR1TmsySzU4R0pETXFFa256SFM1aFpoc2hUMGtlWnBkVVo4REgxeEJwMDFSTkQ4bmhPUkxwYw?oc=5",
+      "title": "UBS示警!油價飆上每桶150美元 日圓會貶破175 - MSN",
+      "pubDate": "Sat, 04 Apr 2026 04:03:21 GMT",
+      "source": "MSN",
+      "_region": "TW",
+      "fetched_at": "2026-04-04T04:50:29.781Z",
+      "age_band": "fresh",
+      "summary": "瑞銀（UBS）警告，若中東衝突持續升溫，油價可能飆升至每桶 150 美元，將引發全球惡性通膨。能源成本激增將迫使日圓貶破 175 大關，進而擾亂全球匯市穩定。對 0050 等權值股而言，能源成本上升將侵蝕製造業利潤，且匯率劇震將增加外資撤出台股的風險。"
+    },
+    {
+      "id": "78a44ff26c817145",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5oR0JZV2ljQ084SWtxT3h4ODNqTmpOSjZEOWFMTktxaE02RS1keUJCenQzaXVGSHdsUnhUV3FGTGZpbkVGQW55V1Q3OHd4bjA?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5oR0JZV2ljQ084SWtxT3h4ODNqTmpOSjZEOWFMTktxaE02RS1keUJCenQzaXVGSHdsUnhUV3FGTGZpbkVGQW55V1Q3OHd4bjA?oc=5",
+      "title": "限制晶片設備出口中國！美國擬立新法 ASML舊款DUV恐也賣不了 - news.cnyes.com",
+      "pubDate": "Sat, 04 Apr 2026 04:10:04 GMT",
+      "source": "news.cnyes.com",
+      "_region": "TW",
+      "fetched_at": "2026-04-04T04:50:29.781Z",
+      "age_band": "fresh",
+      "summary": "美國擬立法進一步限制晶片設備出口中國，範圍可能擴大至 ASML 的舊款 DUV 設備。此舉標誌著美中科技戰再度升級，將直接衝擊全球半導體供應鏈。雖然短期內可能引發轉單效應，但長期將增加台積電等權值股在設備採購與全球佈局上的不確定性，影響半導體產業長期評價。"
     },
     {
       "id": "b255890335b733d0",
@@ -49,67 +49,55 @@
       "_region": "TW",
       "fetched_at": "2026-04-04T02:08:24.456Z",
       "age_band": "fresh",
-      "summary": "川普 2.0 關稅實施滿一年，台灣對美出口逆勢飆升 8 成。顯示在供應鏈重組與貿易戰背景下，台灣科技業成功轉向美國市場，對台股長期基本面具支撐作用，但需持續關注後續貿易摩擦與關稅豁免範圍的變動。"
+      "summary": "川普 2.0 關稅政策實施一週年，台灣對美出口額逆勢飆升 80%，顯示全球供應鏈重組下，台灣作為替代生產基地的地位鞏固。然而，高關稅環境也增加企業營運成本。投資人需關注台美貿易依賴度提升後的政治風險，以及對台灣出口導向型權值股營收結構的實質改變。"
     },
     {
-      "id": "152e7355a266f371",
-      "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE9TWk5rUVlsbnM3V0NieFVSR0dRNjUwVHpoeVRJX3hQMXRfd0tkNjhxM3RaSERxQ3RfcTZBT182VTdIWFZUMVlMYjFORzZJSE5JanVWSThIeWw?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE9TWk5rUVlsbnM3V0NieFVSR0dRNjUwVHpoeVRJX3hQMXRfd0tkNjhxM3RaSERxQ3RfcTZBT182VTdIWFZUMVlMYjFORzZJSE5JanVWSThIeWw?oc=5",
-      "title": "台股西進首度倒退嚕》台商西進5大投資地全線撤退 福建惠台措施失靈 北京投資額剩高峰期1％ - 自由時報",
-      "pubDate": "Fri, 03 Apr 2026 20:32:14 GMT",
-      "source": "自由時報",
+      "id": "d2ced6092c993e14",
+      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE91a0JobzJBdXd0Q2RJRmc4eWdHeVJEckxKZnVjZUhORThkc3ZMa3VJRlBiaG1uUFFTOFR2MHhfcHkxZDNuVXIzaW1JWVMzMWZ4NDRIVdIBVEFVX3lxTE91a0JobzJBdXd0Q2RJRmc4eWdHeVJEckxKZnVjZUhORThkc3ZMa3VJRlBiaG1uUFFTOFR2MHhfcHkxZDNuVXIzaW1JWVMzMWZ4NDRIVQ?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE91a0JobzJBdXd0Q2RJRmc4eWdHeVJEckxKZnVjZUhORThkc3ZMa3VJRlBiaG1uUFFTOFR2MHhfcHkxZDNuVXIzaW1JWVMzMWZ4NDRIVdIBVEFVX3lxTE91a0JobzJBdXd0Q2RJRmc4eWdHeVJEckxKZnVjZUhORThkc3ZMa3VJRlBiaG1uUFFTOFR2MHhfcHkxZDNuVXIzaW1JWVMzMWZ4NDRIVQ?oc=5",
+      "title": "AI基建引爆缺料漲價潮！　法人大力點讚「這族群」 | 財經 | CTWANT - CTWANT",
+      "pubDate": "Sat, 04 Apr 2026 03:21:29 GMT",
+      "source": "CTWANT",
       "_region": "TW",
-      "fetched_at": "2026-04-03T21:34:24.820Z",
+      "fetched_at": "2026-04-04T04:50:29.781Z",
       "age_band": "fresh",
-      "summary": "台商西進投資全面撤退，北京投資額僅剩高峰期 1%。資金大規模轉向東南亞與美國，反映地緣政治下產業鏈的根本性位移，將重新定義台股權值股的長期估值邏輯，資金回流台灣或轉向南向市場將成為新常態。"
+      "summary": "AI 基礎建設需求爆發導致關鍵零組件缺料與漲價潮，法人看好相關供應鏈族群。隨著輝達（NVIDIA）等大廠擴產，台股中的散熱、伺服器代工及 CCL 等族群具備強勁動能。這將成為支撐台股大盤在震盪中上行的核心力量，也是 0050 成分股中科技股的主要增長引擎。"
     },
     {
-      "id": "879f37439b4a639b",
-      "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBIM2FCNXlOdGRuVmQwOEFqeHBjVWFPYUxOZU1jOUY4NnZscmt4bXowbFdObWVNLXFqSUVuSF83eGdUVVQ3LUxYNk9xbjU1WkNoUGZTVW5ZZGJJSHhqLVkyNWRkM1RLNEhFUkE?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBIM2FCNXlOdGRuVmQwOEFqeHBjVWFPYUxOZU1jOUY4NnZscmt4bXowbFdObWVNLXFqSUVuSF83eGdUVVQ3LUxYNk9xbjU1WkNoUGZTVW5ZZGJJSHhqLVkyNWRkM1RLNEhFUkE?oc=5",
-      "title": "台指期夜盤V漲372點台股下周穩了？老手清明變盤3劇本：台積電「這時」加倉才安全- 上市櫃 - 旺得富理財網",
-      "pubDate": "Fri, 03 Apr 2026 21:02:47 GMT",
-      "source": "旺得富理財網",
+      "id": "5ce6b04a33b7b8d0",
+      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE54Nk1FaEFOSVcxZE1hYmVNaG5FTGtqN3lodzlwbnN2T0lESWhqYU41emVEeGNzR2ZVQWRYdl9HZWtsbE5IT0ZDS2tTYjVhamM?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE54Nk1FaEFOSVcxZE1hYmVNaG5FTGtqN3lodzlwbnN2T0lESWhqYU41emVEeGNzR2ZVQWRYdl9HZWtsbE5IT0ZDS2tTYjVhamM?oc=5",
+      "title": "美投資級債券基金失血 創「解放日」關稅以來最大撤資紀錄 - news.cnyes.com",
+      "pubDate": "Sat, 04 Apr 2026 04:00:02 GMT",
+      "source": "news.cnyes.com",
       "_region": "TW",
-      "fetched_at": "2026-04-03T21:34:24.820Z",
+      "fetched_at": "2026-04-04T04:50:29.781Z",
       "age_band": "fresh",
-      "summary": "台指期夜盤強彈 372 點，市場關注清明變盤後的台積電加倉時機。在戰爭陰影下，技術面參考價值降低，資金流向與台積電等權值股的支撐力道成為大盤能否止跌回穩的關鍵指標，適合量化策略觀察情緒轉折。"
+      "summary": "美國投資級債券基金出現自「解放日」關稅以來最大規模撤資，反映市場對高利率環境長期化的恐懼。資金從債市撤出通常預示全球流動性緊縮，可能波及股市資金動能。對於槓桿投資者而言，需高度警惕資金流向轉變引發的市場波動放大，以及對台股外資持股比例的潛在衝擊。"
     },
     {
-      "id": "d8af2ac323ea9b99",
-      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxOZGVXeDFFalhzZURhTmZqUEhqVFZuakVUMUJ5b2VBbTFMLUdxektnR1BscnpmNTZ0a2tjRlZfVHNnOWlYOG1CdDVEY0JySXFZaTF6X1ZqcktNbFpLR2lqMlQ2bm5iZEJnb20wZG9KN3lJM25vaEtWZ1ZQVHdqUlEzWVRrSDZOeU0?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxOZGVXeDFFalhzZURhTmZqUEhqVFZuakVUMUJ5b2VBbTFMLUdxektnR1BscnpmNTZ0a2tjRlZfVHNnOWlYOG1CdDVEY0JySXFZaTF6X1ZqcktNbFpLR2lqMlQ2bm5iZEJnb20wZG9KN3lJM25vaEtWZ1ZQVHdqUlEzWVRrSDZOeU0?oc=5",
-      "title": "The Inflation Surge Is Just Getting Started - Talking Points Memo",
-      "pubDate": "Fri, 03 Apr 2026 21:20:00 GMT",
-      "source": "Talking Points Memo",
+      "id": "6dcd3f56168ad2cb",
+      "url": "https://news.google.com/rss/articles/CBMitANBVV95cUxNZWxEcEVKVEczMWxOVnF0WUpzVFRsUGp3NGN4R3pYSVY0ZWw5dnU1WV9seFI1RnRsRUFTWTM2SDJITkg3eVlXQW85ajVfLU5ncnQ2TjVMMnNIeWo0MEpvby1BdFB5OEFscEVZbUR2SEFnUVRSNWVjMlJla0g1WFlONlM2aXhuYVIxVEtGeUV6enpXb1lFazR0RXJXSXBwazkzMzgyMjRjdVU4eFd4bi1HWjFzOWlWWlFBbnZ2Qkt3YUZ3ZVNiY0F1amNLMms2alZiR2FrT2JwaHM1TlRUQ1gzY0VZWHhVRGpHUjZvWnd6clBoaE1VaG5MQTQzemo1X01WY3A3bllCZ1FCV2F1M2NZWHlpOGstc2pqQXVfSVFxdnp1eG1FMW0tN3NpU082QW85bFViclVSUjJDd09yY1pSbjZxVDlKc2tmQ2VuS2lsYWdxWnRKeFpNLWdRLTNzdjZ6dmxFZTJqVXN2RTNBdTRXcnZXOW1zVVlDQm1UNUxkZHowWFJ3dENkd0tUcmZTR3I5MjZRbEkxRkZyMEdJWHFYZ3dROWlkM3hBZ0FjMTQ0Tnk5TS1Z?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMitANBVV95cUxNZWxEcEVKVEczMWxOVnF0WUpzVFRsUGp3NGN4R3pYSVY0ZWw5dnU1WV9seFI1RnRsRUFTWTM2SDJITkg3eVlXQW85ajVfLU5ncnQ2TjVMMnNIeWo0MEpvby1BdFB5OEFscEVZbUR2SEFnUVRSNWVjMlJla0g1WFlONlM2aXhuYVIxVEtGeUV6enpXb1lFazR0RXJXSXBwazkzMzgyMjRjdVU4eFd4bi1HWjFzOWlWWlFBbnZ2Qkt3YUZ3ZVNiY0F1amNLMms2alZiR2FrT2JwaHM1TlRUQ1gzY0VZWHhVRGpHUjZvWnd6clBoaE1VaG5MQTQzemo1X01WY3A3bllCZ1FCV2F1M2NZWHlpOGstc2pqQXVfSVFxdnp1eG1FMW0tN3NpU082QW85bFViclVSUjJDd09yY1pSbjZxVDlKc2tmQ2VuS2lsYWdxWnRKeFpNLWdRLTNzdjZ6dmxFZTJqVXN2RTNBdTRXcnZXOW1zVVlDQm1UNUxkZHowWFJ3dENkd0tUcmZTR3I5MjZRbEkxRkZyMEdJWHFYZ3dROWlkM3hBZ0FjMTQ0Tnk5TS1Z?oc=5",
+      "title": "中東衝突引燃僵固性通膨？PIMCO示警流動性風險 建議重整資產配置韌性 - Yahoo股市",
+      "pubDate": "Sat, 04 Apr 2026 03:14:47 GMT",
+      "source": "Yahoo股市",
+      "_region": "TW",
+      "fetched_at": "2026-04-04T04:50:29.781Z",
+      "age_band": "fresh",
+      "summary": "PIMCO 示警中東衝突可能引發僵固性通膨與流動性風險，建議投資人重整資產配置。當通膨難以下降時，傳統股債配置的避險效果將打折。這對 0050 投資者而言，意味著需關注大盤在通膨壓力下的防禦能力，並考慮地緣政治風險對全球資金流動性的實質威脅。"
+    },
+    {
+      "id": "72348bfcbedbcf09",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNSGx1Z0NnZXo4UzIxcGpSRXl6ZF95X00wdW9ZcTNYQkczVGJ3YkpZZk5aOGl0UExTaE92OEdZM09qa1l2SXM0VG9Oek1SSGJqbElIUnBkWC1TajNraUstb0pvZ2t0Vy00dGpEbjRTWVMxQVNrZmJNQWlmT25RSXZIRnV6bHFUT2k3NHBKZktUSmQ3dTIzZnZaQUFkRFAyUF9z?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNSGx1Z0NnZXo4UzIxcGpSRXl6ZF95X00wdW9ZcTNYQkczVGJ3YkpZZk5aOGl0UExTaE92OEdZM09qa1l2SXM0VG9Oek1SSGJqbElIUnBkWC1TajNraUstb0pvZ2t0Vy00dGpEbjRTWVMxQVNrZmJNQWlmT25RSXZIRnV6bHFUT2k3NHBKZktUSmQ3dTIzZnZaQUFkRFAyUF9z?oc=5",
+      "title": "Vietnam Q1 GDP growth slows to 7.83% y/y from 8.46% y/y in Q4 - Reuters",
+      "pubDate": "Sat, 04 Apr 2026 01:51:00 GMT",
+      "source": "Reuters",
       "_region": "US",
-      "fetched_at": "2026-04-03T21:34:24.820Z",
-      "age_band": "fresh",
-      "summary": "美國通膨壓力持續升溫，市場預期通膨飆升才剛開始。這將限制 Fed 的貨幣政策空間，增加市場對滯脹（Stagflation）的擔憂，對槓桿型投資工具構成極大的宏觀風險，需重新評估資產配置的抗通膨能力。"
-    },
-    {
-      "id": "24e59147259031a3",
-      "url": "https://news.google.com/rss/articles/CBMi0AJBVV95cUxQRHBWWnB5bUViU2t2aHQtTWs1UG4zY0lxcmt1VC1XUjFsN0VVeUYweFVzbGVGdmIybXZ1bnFobVE4RlA1Q3VVa190NTNXelFMTUgyQWRIdDJrdjBkNVNjUXFpZFE5MHNFdmpWUFVsdTZ5NVdPM1RPeHBWQVhoaXJ5SEFKMWlCVXlIWVowSEhXVmwxR1plOGhxUUFLU29xZG55M3VVYWtocFZhRkhhcmtpYkl5aDg2NVRIVlg2a05SU3diQkxJakZ5VFBmNHVWNG9IV0NibVhkczZWcTBHd0hwT0VoVGRobEs2Z0ZSX3JNdm9taTVIN0NTT3ZUZVd2ZHJlTEhnRmZsRHFLaVBuQ19WUk5tdXN6cFFiUHVRaWc2Rm1IY1UwVEppWmdQNzV3aWxHdTFHRFJtczZoeldKS0x2QTBaajl5NzY1bGpkQ1NQRmI?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMi0AJBVV95cUxQRHBWWnB5bUViU2t2aHQtTWs1UG4zY0lxcmt1VC1XUjFsN0VVeUYweFVzbGVGdmIybXZ1bnFobVE4RlA1Q3VVa190NTNXelFMTUgyQWRIdDJrdjBkNVNjUXFpZFE5MHNFdmpWUFVsdTZ5NVdPM1RPeHBWQVhoaXJ5SEFKMWlCVXlIWVowSEhXVmwxR1plOGhxUUFLU29xZG55M3VVYWtocFZhRkhhcmtpYkl5aDg2NVRIVlg2a05SU3diQkxJakZ5VFBmNHVWNG9IV0NibVhkczZWcTBHd0hwT0VoVGRobEs2Z0ZSX3JNdm9taTVIN0NTT3ZUZVd2ZHJlTEhnRmZsRHFLaVBuQ19WUk5tdXN6cFFiUHVRaWc2Rm1IY1UwVEppWmdQNzV3aWxHdTFHRFJtczZoeldKS0x2QTBaajl5NzY1bGpkQ1NQRmI?oc=5",
-      "title": "中國4月取消PVC出口退稅 台塑、 華夏迎利多 - MSN",
-      "pubDate": "Sat, 04 Apr 2026 01:00:36 GMT",
-      "source": "MSN",
-      "_region": "TW",
       "fetched_at": "2026-04-04T02:08:24.456Z",
       "age_band": "fresh",
-      "summary": "中國取消 PVC 出口退稅，台塑、華夏等台廠迎來轉單利多。作為 0050 重要成分股，塑化龍頭競爭力提升有助於支撐傳產板塊，緩解電子股波動對大盤的衝擊，是產業結構性變動帶來的實質利多。"
-    },
-    {
-      "id": "f0547b777d3c3740",
-      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE0taERKM0RtMWtjM011OTNWRVoySmxvcTg2aHM1V0JzUUlBUnM0dHNOYmZkUkNCTFdqY1FUUHRtaFpYSmlybFZZVEQ3a1N5blpT0gFWQVVfeXFMTVhKVWV0YXhFV0tNSDNvNnZVemJNbDRhUkhreXdSaWNnQnF6T1RHS3pCbXlwa1BOVmpyOVdKU3RHUFZlMG5tQW51aHAwS2s4TFB0dUhHMGc?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE0taERKM0RtMWtjM011OTNWRVoySmxvcTg2aHM1V0JzUUlBUnM0dHNOYmZkUkNCTFdqY1FUUHRtaFpYSmlybFZZVEQ3a1N5blpT0gFWQVVfeXFMTVhKVWV0YXhFV0tNSDNvNnZVemJNbDRhUkhreXdSaWNnQnF6T1RHS3pCbXlwa1BOVmpyOVdKU3RHUFZlMG5tQW51aHAwS2s4TFB0dUhHMGc?oc=5",
-      "title": "千億台股ETF 再添一檔 - 聯合新聞網",
-      "pubDate": "Fri, 03 Apr 2026 21:22:22 GMT",
-      "source": "聯合新聞網",
-      "_region": "TW",
-      "fetched_at": "2026-04-03T21:34:24.820Z",
-      "age_band": "fresh",
-      "summary": "台灣再添一檔千億級台股 ETF，顯示內資力道強勁。龐大的被動資金流入將為權值股提供流動性支撐，有助於在市場動盪時發揮護盤作用，降低大盤下行空間，對 0050 等大型股 ETF 具正面意義。"
+      "summary": "越南第一季 GDP 增長 7.83%，雖較前季放緩但仍處於高位。作為東南亞重要製造中心，越南經濟數據反映全球終端需求復甦狀況。由於許多台股權值股在越南有大規模產能，越南經濟的穩健增長有助於支撐相關企業的海外獲利表現，對台股大盤具備間接利多影響。"
     },
     {
       "id": "9d39eb234a4b7020",
@@ -121,31 +109,43 @@
       "_region": "US",
       "fetched_at": "2026-04-04T02:08:24.456Z",
       "age_band": "fresh",
-      "summary": "巴西大幅增持 42 噸黃金並減持美元，響應 BRICS 去美元化趨勢。這反映全球儲備資產的結構性轉變，長期可能削弱美元霸權並增加匯率波動，對全球資金定價體系產生深遠影響，需關注避險資產的長期配置價值。"
+      "summary": "巴西大幅減持美元並增持 42 噸黃金，顯示 BRICS 國家去美元化趨勢加速。此舉長期將削弱美元霸權，影響全球儲備貨幣格局。對於全球資產配置而言，這可能導致美元長期走勢不確定性增加，進而影響台幣匯率及外資對台股的長期評價邏輯。"
     },
     {
-      "id": "b7e5b3f999786ce5",
-      "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxOWWRCUlJJSUFsbWNpSmlnbGx6VEd4LVphOUo2R0M3aTNxLWFlb1F6V25COTJQVjQwQXZwcUFvdzlLOWZkclpoajh1alB5YWowQlNDQVh1Ny1tT2pubGg1T29iU09tTmljcW9mc3VRTEI1TmNzcmRPQ0lwbFVHeUlOSERrMnRQb0dNRC1IYXpEVF96ZGZwQkxTOVVUaHFnci14S2tERTJxSVBBZ0ZpdFVsaHFFbTlYWE9GcTlmTnJvUjE0bE1KY1RPSTBnRG4ybE9tdEE?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxOWWRCUlJJSUFsbWNpSmlnbGx6VEd4LVphOUo2R0M3aTNxLWFlb1F6V25COTJQVjQwQXZwcUFvdzlLOWZkclpoajh1alB5YWowQlNDQVh1Ny1tT2pubGg1T29iU09tTmljcW9mc3VRTEI1TmNzcmRPQ0lwbFVHeUlOSERrMnRQb0dNRC1IYXpEVF96ZGZwQkxTOVVUaHFnci14S2tERTJxSVBBZ0ZpdFVsaHFFbTlYWE9GcTlmTnJvUjE0bE1KY1RPSTBnRG4ybE9tdEE?oc=5",
-      "title": "Vietnam Q1 GDP growth accelerates to 7.83% y/y from 7.07% in Q1 2025 - TradingView",
-      "pubDate": "Sat, 04 Apr 2026 00:56:00 GMT",
-      "source": "TradingView",
-      "_region": "US",
+      "id": "24e59147259031a3",
+      "url": "https://news.google.com/rss/articles/CBMi0AJBVV95cUxQRHBWWnB5bUViU2t2aHQtTWs1UG4zY0lxcmt1VC1XUjFsN0VVeUYweFVzbGVGdmIybXZ1bnFobVE4RlA1Q3VVa190NTNXelFMTUgyQWRIdDJrdjBkNVNjUXFpZFE5MHNFdmpWUFVsdTZ5NVdPM1RPeHBWQVhoaXJ5SEFKMWlCVXlIWVowSEhXVmwxR1plOGhxUUFLU29xZG55M3VVYWtocFZhRkhhcmtpYkl5aDg2NVRIVlg2a05SU3diQkxJakZ5VFBmNHVWNG9IV0NibVhkczZWcTBHd0hwT0VoVGRobEs2Z0ZSX3JNdm9taTVIN0NTT3ZUZVd2ZHJlTEhnRmZsRHFLaVBuQ19WUk5tdXN6cFFiUHVRaWc2Rm1IY1UwVEppWmdQNzV3aWxHdTFHRFJtczZoeldKS0x2QTBaajl5NzY1bGpkQ1NQRmI?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMi0AJBVV95cUxQRHBWWnB5bUViU2t2aHQtTWs1UG4zY0lxcmt1VC1XUjFsN0VVeUYweFVzbGVGdmIybXZ1bnFobVE4RlA1Q3VVa190NTNXelFMTUgyQWRIdDJrdjBkNVNjUXFpZFE5MHNFdmpWUFVsdTZ5NVdPM1RPeHBWQVhoaXJ5SEFKMWlCVXlIWVowSEhXVmwxR1plOGhxUUFLU29xZG55M3VVYWtocFZhRkhhcmtpYkl5aDg2NVRIVlg2a05SU3diQkxJakZ5VFBmNHVWNG9IV0NibVhkczZWcTBHd0hwT0VoVGRobEs2Z0ZSX3JNdm9taTVIN0NTT3ZUZVd2ZHJlTEhnRmZsRHFLaVBuQ19WUk5tdXN6cFFiUHVRaWc2Rm1IY1UwVEppWmdQNzV3aWxHdTFHRFJtczZoeldKS0x2QTBaajl5NzY1bGpkQ1NQRmI?oc=5",
+      "title": "中國4月取消PVC出口退稅 台塑、 華夏迎利多 - MSN",
+      "pubDate": "Sat, 04 Apr 2026 01:00:36 GMT",
+      "source": "MSN",
+      "_region": "TW",
       "fetched_at": "2026-04-04T02:08:24.456Z",
       "age_band": "fresh",
-      "summary": "越南第一季 GDP 成長 7.83%，展現強勁復甦。作為台商南向政策的核心，越南經濟走強有利於在當地佈局的台股上市公司，強化供應鏈多元化的獲利貢獻，對相關權值股的基本面有加分效果。"
+      "summary": "中國宣布 4 月起取消 PVC 出口退稅，將提升中國產品出口成本，對台灣塑化龍頭如台塑、華夏形成直接利多。此政策變動有助於改善台灣塑化產業的競爭環境與利差。對於 0050 中非電子權值股而言，這是一個重要的基本面改善訊號，有助於平衡大盤產業結構。"
     },
     {
-      "id": "650c53e8004fbf89",
-      "url": "https://news.google.com/rss/articles/CBMipwJBVV95cUxPeUlQYWVmZncxeDlXOGphYzZvamVvdkN4SFo0TkhyeGFDeUpxV0NlaWpvQ2VaZHpfTzU5VTROcl9TMEd4TTFuTUkzZ0o4d3lWZXhXUHNtQldVd1Z2VlJTNjlrUUktRGx2RXFmNEpGZnpIb2FfREF1OUw1azJUSEd4Umx5UV8xZXVobnBqeEh6MW4zWkJZemtvNjc1bDh4cWVhX3FXckF0UmVaTjhfYTBLdmQ4SWpaLXlrRHk2WmpkZzJDY1FEUUE3aTVXbWNTYWdtNldORXk4S1cxNHhHcW56WDN3ZGNYNHB5eGZ5dWFYVG94NnZNbHhrckRxODdGX1NNS0hxdl9WU2RNS3hlS2dYWkFaODNfVWU2c19FWjR6dFF5OXZLeVdZ?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMipwJBVV95cUxPeUlQYWVmZncxeDlXOGphYzZvamVvdkN4SFo0TkhyeGFDeUpxV0NlaWpvQ2VaZHpfTzU5VTROcl9TMEd4TTFuTUkzZ0o4d3lWZXhXUHNtQldVd1Z2VlJTNjlrUUktRGx2RXFmNEpGZnpIb2FfREF1OUw1azJUSEd4Umx5UV8xZXVobnBqeEh6MW4zWkJZemtvNjc1bDh4cWVhX3FXckF0UmVaTjhfYTBLdmQ4SWpaLXlrRHk2WmpkZzJDY1FEUUE3aTVXbWNTYWdtNldORXk4S1cxNHhHcW56WDN3ZGNYNHB5eGZ5dWFYVG94NnZNbHhrckRxODdGX1NNS0hxdl9WU2RNS3hlS2dYWkFaODNfVWU2c19FWjR6dFF5OXZLeVdZ?oc=5",
-      "title": "Rising mortgage rates threaten to pour cold water on spring homebuying season - thenationaldesk.com",
-      "pubDate": "Fri, 03 Apr 2026 21:20:48 GMT",
-      "source": "thenationaldesk.com",
+      "id": "093a7b550a9137b3",
+      "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxNVkFQMUxUUEowYnFLN1pOcWpsc0F0Mkx5TTdBZzg3Ylh6TnhnLUplVXJDVnNXNnJQaU1JUkw2UzZoRlBEMWZ5d3hNYUZKRFQyQmt2clJHM2M5Mzh6LWNpa2dRNW1UN1Mtb3l0M1AzSkxhZzlmbjFtYmRZUFpMMEcyNXkzbVd2azFBQmZweDR3TGN2c2xNQktZ?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxNVkFQMUxUUEowYnFLN1pOcWpsc0F0Mkx5TTdBZzg3Ylh6TnhnLUplVXJDVnNXNnJQaU1JUkw2UzZoRlBEMWZ5d3hNYUZKRFQyQmt2clJHM2M5Mzh6LWNpa2dRNW1UN1Mtb3l0M1AzSkxhZzlmbjFtYmRZUFpMMEcyNXkzbVd2azFBQmZweDR3TGN2c2xNQktZ?oc=5",
+      "title": "Russia's economy nears stagflation: rapid slowdown and looming recession threat - 112.ua",
+      "pubDate": "Sat, 04 Apr 2026 04:20:13 GMT",
+      "source": "112.ua",
       "_region": "US",
-      "fetched_at": "2026-04-03T21:34:24.820Z",
+      "fetched_at": "2026-04-04T04:50:29.781Z",
       "age_band": "fresh",
-      "summary": "美國房貸利率上升威脅春季購屋季，房市降溫可能拖累經濟成長。需警惕美國內需轉弱對台灣出口導向型產業的連鎖反應，特別是與消費性電子及半導體相關的權值股，可能面臨終端需求下修的風險。"
+      "summary": "俄羅斯經濟面臨滯脹與衰退威脅，反映戰爭對其經濟的長期侵蝕。雖然俄羅斯非台股主要市場，但其作為能源大國，經濟動盪將持續干擾全球原物料供應鏈。投資人應關注其對全球能源價格的二次衝擊，這將透過通膨路徑間接影響聯準會的利率決策與全球股市表現。"
+    },
+    {
+      "id": "81fecd912bdbfce0",
+      "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPaEp3ZHZRWFpoR0lTVjQzemY0b2RwOExHQVkwc3ZyZUxXSW9WR3E0NkNhT2NnNzB5RUdwSE9Rckx6Y3pZR1o3SFlEWDhIeXZ6aVl6MTM2VGYwNG9oOUxVODFNNzlvZ0NBd2pKMUFtcURqVmNoZk8xTks1QnlvaXJjS1ZFM01LdnNHQVR2bkNnVnAyV0huaEl4SGdwXzNkcDdUWWd4YTFWTFBIRU13Z1VWT2ZJMWF1VlE4SU5hWmdDbnRaVzlXcFlr?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPaEp3ZHZRWFpoR0lTVjQzemY0b2RwOExHQVkwc3ZyZUxXSW9WR3E0NkNhT2NnNzB5RUdwSE9Rckx6Y3pZR1o3SFlEWDhIeXZ6aVl6MTM2VGYwNG9oOUxVODFNNzlvZ0NBd2pKMUFtcURqVmNoZk8xTks1QnlvaXJjS1ZFM01LdnNHQVR2bkNnVnAyV0huaEl4SGdwXzNkcDdUWWd4YTFWTFBIRU13Z1VWT2ZJMWF1VlE4SU5hWmdDbnRaVzlXcFlr?oc=5",
+      "title": "Average long-term mortgage rate climbs to 6.46%, highest level in nearly 7 months - tribtoday.com",
+      "pubDate": "Sat, 04 Apr 2026 04:10:12 GMT",
+      "source": "tribtoday.com",
+      "_region": "US",
+      "fetched_at": "2026-04-04T04:50:29.781Z",
+      "age_band": "fresh",
+      "summary": "美國 30 年期抵押貸款利率升至 6.46%，創 7 個月新高。高房貸利率將壓抑美國房市與消費支出，進而影響台灣出口企業的終端需求。這對於以消費電子出口為主的台股權值股而言是潛在利空，顯示高利率環境對實體經濟的負面滲透正在加劇。"
     }
   ]
 }
