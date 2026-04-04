@@ -13,6 +13,7 @@
 | 🔴 高優先 | 影響資料品質或系統穩定性，建議優先處理 |
 | 🟡 中優先 | 能明顯改善使用體驗或觀察深度 |
 | 🟢 低優先 | 長期優化方向，可於空閒時評估 |
+| ✅ 已完成 | 已實作並更新系統文件 |
 | ⚪ 討論中 | 尚未確認方向，需要進一步討論 |
 
 ---
@@ -157,33 +158,17 @@ done(); // 印出 ⏱ [fetchMacroData] 1234ms
 
 ---
 
-## 5. 🟡 `periodReportAgent` 週/月報缺少「訊號準確度」統計
+## 5. ✅ `periodReportAgent` 週/月報缺少「訊號準確度」統計
 
-### 動機
+> **已完成**（2026-04-04）  
+> 新增 `isBuySignal()`、`isCooldownBlocked()`、`buildSignalAccuracyStats()` 至 `periodReportAgent.mjs`；  
+> `periodReportBuilder.mjs` 週報嵌入訊號數量統計、月報新增第三則訊息含 +5/+10/+20 日報酬率明細；  
+> 系統文件已更新：`docs/modules/ai_pipeline.md` §5、`docs/modules/entry_and_notifications.md` §4–5。
 
-週報與月報目前彙整持倉變化與市場觀察，但沒有「過去一週/月共觸發幾次買賣訊號、實際後續表現如何」的統計段落。  
+### 原始動機
+
+週報與月報彙整持倉變化與市場觀察，但沒有「過去一週/月共觸發幾次買賣訊號、實際後續表現如何」的統計段落。  
 這是評估策略有效性最直觀的指標。
-
-### 建議方向
-
-在 `periodReportAgent.mjs` 的報告組裝階段，從 `archiveManager` 讀取近期 `signals` 歷史，統計：
-- 買進訊號次數 vs 實際上漲次數（準確率）
-- 平均訊號後 5 日漲跌幅
-
-這個功能與 **提案 #3（回測）** 部分重疊，可以共用底層資料讀取邏輯。
-
-### 影響範圍
-
-- `src/modules/ai/periodReportAgent.mjs`
-- `src/modules/data/archiveManager.mjs`（新增統計查詢 API）
-
-### 難度
-
-⭐⭐ 中（依賴提案 #3 的資料基礎，可拆分先做統計部分）
-
-### 討論狀態
-
-⚪ 待確認
 
 ---
 
