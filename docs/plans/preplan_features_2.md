@@ -1,178 +1,246 @@
 # 功能設計：週/月報訊號準確率統計
 
-> **版本**：v0.1 草稿（討論中）  
+> **版本**：v0.2（設計確認完成，待實作）  
 > **最後更新**：2026-04-04  
 > **對應優化建議**：`optimization_ideas.md` → #5  
-> **狀態**：🟡 設計討論中，尚未實作
+> **狀態**：🟠 設計已確認，待開始實作
 
 ---
 
 ## 一、功能目標
 
-在現有週報與月報中，新增一個「訊號準確率」統計區塊，回答以下問題：
+在現有週報與月報中，新增「訊號準確率」統計區塊，回答：
 
 > 「過去這段時間，系統發出買進訊號的次數、以及訊號後的市場實際表現如何？」
 
-此功能讓使用者能客觀評估策略的有效性，而不只是看 AI 的主觀總結。
+---
+
+## 二、確認的設計決策
+
+| # | 問題 | 確認結果 |
+|---|---|---|
+| Q1 | 「買進訊號」如何定義？ | ✅ 見下方「訊號分類表」 |
+| Q2 | 後續價格資料來源？ | ✅ 方案 B：`data/reports/` 內的 `signals.currentPrice`，此欄位已穩定寫入 |
+| Q3 | 週報 vs 月報分工？ | ✅ 週報呈現「訊號數量統計」，月報才展示報酬率 |
+| Q4 | Telegram 呈現格式？ | ✅ 下方「呈現格式」章節確認版 |
+| Q5 | 歷史資料不足時如何處理？ | ✅ 資料不足時暫不顯示或僅呈現現有範圍內結果 |
 
 ---
 
-## 二、現有資料基礎分析
+## 三、訊號分類表（Q1 確認版）
 
-### 已有的資料
+依據 `strategyEngine.mjs` 實際分支輸出，訊號分為四層：
 
-| 資料 | 來源 | 內容 |
-|---|---|---|
-| 每日 report 快照 | `data/reports/YYYY-MM-DD.json` | `signals.target`、`signals.weightScore`、`signals.cooldownStatus`、`signals.overheat`、`signals.macroMarketDirection` 等 |
-| 每日持倉與市值 | Google Sheet「通知紀錄」 | `00675L市值`、`0050市值`、`總淨資產`（可推算每日收盤後資產變動） |
-| `buildPeriodStats()` | `periodReportAgent.mjs` | 已統計 `consistency`、`signalQuality`（月報）、`cooldown.blockedDays` 等 |
+| 分類 | 判斷條件 | `target` 包含關鍵字 | 訊號數分母 | 說明 |
+|---|---|---|---|---|
+| ✅ **觸發買進** | `suggestedLeverage` 存在，或 `targetAllocation.leverage` 存在 | `破冰加碼`、`買進`（分支 3 恐慈 + 分支 7 正常買進） | ✅ 算入分子 + 分母 |
+| ⏸️ **冷卻期封鎖** | `cooldownStatus.inCooldown === true` 且 `weightScore >= minWeightScoreToBuy` | `冷卻`、`等待冷卻` | ✅ 分母包含（加碼條件達標但未進場） |
+| 🛑 **風控攔截** | 隨時發生，一票否決 | `風控`、`再平衡`、`追繳`、`泡沫`、`防突` | ❌ 不計入分母 |
+| ⚪ **中性觀望** | 分數/跌幅未達標、偶熱、轉弱 | `觀望`、`等待`、`過熱`、`禁止撥款` | ❌ 不計入分母 |
 
-### 目前缺少的
+**實作判斷邏輯（優先度依序）**：
 
-| 缺少項目 | 說明 |
+```js
+// isBuySignal(report): boolean
+function isBuySignal(signals) {
+  // 方法 1：橏橄 suggestedLeverage（恐慈加碼）或 targetAllocation.leverage（正常買進）
+  if (signals.suggestedLeverage > 0) return true;
+  if (signals.targetAllocation?.leverage > 0) return true;
+  // 方法 2：備用 target 字串匹配（防御性）
+  return /破冰加碼|買進訊號/.test(signals.target ?? "");
+}
+
+// isCooldownBlocked(report): boolean  
+function isCooldownBlocked(signals) {
+  return (
+    signals.cooldownStatus?.inCooldown === true &&
+    (signals.weightScore ?? 0) >= (signals.strategy?.buy?.minWeightScoreToBuy ?? 4)
+  );
+}
+```
+
+> 注：恐慈加碼（分支 3）不受冷卻期限制，直接誤呈現 `suggestedLeverage`，因此此分支可跟分支 7 統一用同一判斷邏輯。
+
+---
+
+## 四、新增輸出欄位（strategyEngine.mjs）
+
+為了將「訊號判斷」相關欄位集中，公正在 `strategyEngine.mjs` 的最終 `return` 袒小調整一處：
+
+### 現有正常買進分支（分支 7）輸出空間
+
+```js
+// 現有：仅在 buildDecision() 內 spread targetAlloc
+// ...
+targetAllocation: targetAlloc,  // 已存在
+```
+
+現有正常買進分支已回傳 `targetAllocation`，恐慈加碼分支已回傳 `suggestedLeverage`。  
+✅ **不需要修改 `strategyEngine.mjs`，現有輸出已足夠。**
+
+---
+
+## 五、實作規劃
+
+### 5.1 新增函式：`buildSignalAccuracyStats()`
+
+**位置**：`src/modules/ai/periodReportAgent.mjs`，在 `buildPeriodStats()` 後方新增為尌層專屬函式。
+
+```
+buildSignalAccuracyStats(targetReports, priceSeriesReports)
+```
+
+| 參數 | 說明 |
 |---|---|
-| **訊號後 N 日價格** | `signals` 快照不含「訊號當日之後」的價格，無法在同一份 report 裡計算後續報酬 |
-| **「觸發買進」的明確定義** | `target` 欄位有多種值（`⚡ 破冰加碼`、`📈 買進訊號` 等），需統一定義哪些算「買進訊號」 |
-| **每日收盤價序列** | 需要對照訊號日的 +5/+10/+20 日收盤價，計算報酬率 |
+| `targetReports` | 欲評估的期間 reports（週報 = 7 天，月報 = 30 天），用於找出訊號日 |
+| `priceSeriesReports` | 包含進一步未來日期的 reports（月報需少 50 天），用於查詢報酬價格 |
 
----
-
-## 三、核心設計問題（待討論）
-
-### ❓ 問題 1：「買進訊號」如何定義？
-
-目前 `target` 的值依策略引擎分支不同，有多種字串（含 emoji）。**請確認以下分類是否正確**：
-
-| 分類 | `target` 包含的關鍵字 | 說明 |
-|---|---|---|
-| ✅ **觸發買進** | `破冰加碼`、`買進訊號`（`weightScore >= minWeightScoreToBuy`） | 實際發出買進建議 |
-| ⏸️ **冷卻期封鎖** | `冷卻`，或 `cooldownStatus.inCooldown === true` | 分數達標但被冷卻期擋下 |
-| 🛑 **風控攔截** | `再平衡`、`維持率`、`追繳`、`估值泡沫` | 風控優先，不考慮進場 |
-| ⚪ **中性觀望** | 其餘（`觀望`、`持倉監控` 等） | 無明確進場建議 |
-
-> **討論點**：「冷卻期封鎖」是否應算進「訊號準確率」分母？（它的意思是：分數達標但沒進場）
-
----
-
-### ❓ 問題 2：後續表現的資料來源？
-
-計算「訊號後 +5/+10/+20 日報酬率」需要每日 00675L 收盤價序列。現有兩個方案：
-
-**方案 A：從 Google Sheet「通知紀錄」讀取**
-- ✅ 已有每日 `00675L市值` 欄位（但這是「市值」不是「收盤價」，需搭配「股數」反推）
-- ⚠️ 股數可能在期間內異動（買賣），反推收盤價不可靠
-- ⚠️ 需要新增讀取歷史多筆的 `storage.mjs` API
-
-**方案 B：從 `archiveManager` 的 `data/reports/` 讀取**
-- ✅ 每份 report 已有 `signals.currentPrice`（00675L 即時/收盤價）
-- ✅ 無需新增資料來源，直接讀現有快照
-- ✅ `loadRecentReports()` 已支援讀取指定天數範圍
-
-> **建議採用方案 B**，邏輯最乾淨。確認：`data/reports/` 每日 report 中是否穩定包含 `signals.currentPrice`（00675L 價格）？
-
----
-
-### ❓ 問題 3：要計算哪些「後續天數」的報酬率？
-
-初步建議：**+5 日、+10 日、+20 日**（對應一週、兩週、一個月後）。
-
-- 週報：只計算 +5 日（因為資料範圍只有 7 天，+10/+20 需要往回看更長歷史）
-- 月報：計算 +5 / +10 / +20 日三種
-
-> **討論點**：週報是否要往回讀超出 7 天的歷史來計算 +10/+20 日報酬？  
-> 還是週報只呈現「訊號數量統計」，月報才做報酬率計算？
-
----
-
-### ❓ 問題 4：統計結果如何呈現在 Telegram？
-
-初步構想（月報新增第三則訊息，週報在現有第一則後方新增段落）：
-
-```
-📊 訊號準確率回顧（過去 30 日）
-
-觸發買進訊號：5 次
-冷卻期封鎖：3 次（分數達標但未進場）
-
-✅ 訊號後平均報酬率
-  +5 日：+2.3%（5 次均值）
-  +10 日：+3.1%
-  +20 日：+4.8%
-
-勝率（+5 日正報酬）：4/5（80%）
-```
-
-> **討論點**：訊號後「負報酬」是否需要特別標示或警告？避免誤以為系統完美。
-
----
-
-## 四、初步規劃的實作範圍
-
-> 以下待討論確認後更新。
-
-### 新增函式（`periodReportAgent.mjs`）
-
-```
-buildSignalAccuracyStats(reports, allHistoricalReports)
-```
-
-- 輸入：近期 reports（定義訊號區間） + 包含未來日期的 reports（計算後續報酬）
-- 輸出：
+**輸出結構**：
 
 ```js
 {
-  buySignalCount: 5,          // 觸發買進訊號天數
-  cooldownBlockedCount: 3,    // 冷卻期封鎖天數
+  // 訊號數量統計（週報 + 月報）
+  buySignalCount: 5,          // 實際發出買進訊號次數
+  cooldownBlockedCount: 3,    // 冷卻期封鎖次數（分母）
+  totalEligibleDays: 8,       // buySignalCount + cooldownBlockedCount
+  cooldownBlockRate: 0.375,   // 3/8，有多少达標日被封鎖
+
+  // 報酬率計算（月報專用，週報 = null）
   signalDetails: [
     {
       date: "2026-03-10",
       weightScore: 6,
+      leveragePct: 40,          // targetAllocation.leverage * 100 或 suggestedLeverage * 100
+      isBuySignal: true,
       priceAtSignal: 18.5,
       returns: {
-        d5:  { price: 19.2, pct: +3.78 },
-        d10: { price: 19.8, pct: +7.03 },
-        d20: { price: 20.1, pct: +8.65 },
+        d5:  { price: 19.2, pct: +3.78, available: true },
+        d10: { price: 19.8, pct: +7.03, available: true },
+        d20: { price: 20.1, pct: +8.65, available: true },
       }
     },
-    ...
   ],
-  avgReturn: { d5: +2.3, d10: +3.1, d20: +4.8 },
-  winRate:   { d5: 0.80, d10: 0.80, d20: 1.00 },
+  avgReturn: { d5: +2.3, d10: +3.1, d20: +4.8 },  // null 就暫不顯示
+  winRate:   { d5: 0.80, d10: 0.80, d20: 1.00 },   // null 就暫不顯示
+  dataNote: null,   // 資料不足時填入說明，如 "+20日資料尚不充足，展示範圍：+5日"
 }
 ```
 
-### 修改範圍
+**資料不足時處理邏輯**：
 
-| 檔案 | 異動 |
+```js
+function lookupReturnPrice(signalDate, dayOffset, priceSeriesMap) {
+  // priceSeriesMap: { "2026-03-10": 18.5, ... } (date -> currentPrice)
+  // 從後往前排找第 N 個有效交易日的 report
+  // 找不到就回傳 null，不呈現此天數的報酬率
+  ...
+  return { price, available: price !== null };
+}
+```
+
+---
+
+### 5.2 修改範圍
+
+| 檔案 | 異動內容 |
 |---|---|
-| `src/modules/ai/periodReportAgent.mjs` | 新增 `buildSignalAccuracyStats()` 函式 |
-| `src/modules/notifications/templates/periodReportBuilder.mjs` | 新增訊號統計段落的 Telegram HTML 格式化 |
-| `src/runWeeklyReport.mjs` | 傳入較長的歷史 reports（若週報需 +10/+20 日計算） |
-| `src/runMonthlyReport.mjs` | 傳入較長的歷史 reports 給準確率計算 |
+| `src/modules/ai/periodReportAgent.mjs` | **新增** `buildSignalAccuracyStats()`、`isBuySignal()`、`isCooldownBlocked()` |
+| `src/modules/notifications/templates/periodReportBuilder.mjs` | **新增** `buildAccuracySection()` 格式化函式，嵌入週報/月報訊息 |
+| `src/runWeeklyReport.mjs` | `loadRecentReports(7)` 保持不變，傳入 `accuracyStats` 展示訊號數量 |
+| `src/runMonthlyReport.mjs` | `loadRecentReports(50)` 讀取深度資料，選取後 30 天為 targetReports，前 50 天為 priceSeriesReports |
 
 ### **不**需要異動的檔案
 
-- `src/modules/data/archiveManager.mjs`（現有 `loadRecentReports` 已足夠，僅需調整呼叫天數）
-- `src/modules/storage.mjs`（方案 B 不讀 Sheet）
+- `src/modules/data/archiveManager.mjs`（現有 `loadRecentReports` 已足夠）
+- `src/modules/storage.mjs`（方案 B，不讀 Sheet）
 - `src/modules/strategy/strategyEngine.mjs`（不改訊號邏輯）
+- `src/modules/strategy/riskManagement.mjs`
+- `src/modules/strategy/signalRules.mjs`
 
 ---
 
-## 五、待確認清單
+## 六、Telegram 呈現格式（確認版）
 
-| # | 問題 | 狀態 |
-|---|---|---|
-| Q1 | 「買進訊號」的 `target` 關鍵字分類是否正確？ | ⬜ 待確認 |
-| Q2 | 採用方案 B（`data/reports/` 內 `signals.currentPrice`）？ | ⬜ 待確認 |
-| Q3 | 週報只做訊號數量統計，月報才做報酬率計算？ | ⬜ 待確認 |
-| Q4 | Telegram 呈現格式確認 | ⬜ 待確認 |
-| Q5 | 計算報酬率時，需要往回讀幾天的歷史 reports？（月報 +20 日需讀 50 天） | ⬜ 待確認 |
+### 週報：新增段落（在現有第一則訊息內新增）
+
+```
+📊 訊號回顧（本週）
+
+訊號觸發：2 次  │  冷卻期封鎖：1 次
+（訊號後報酬率下週月報公佈）
+```
+
+### 月報：新增第三則訊息
+
+```
+🎯 訊號準確率回顧（本月）
+
+觸發買進訊號：5 次 ｜ 冷卻期封鎖：3 次
+達標日封鎖率：37.5%（3/8 天）
+
+✅ 報酬率（均值）
+  +5 日：+2.3%（2/5 屬於不完整資料）
+  +10 日：+3.1%
+  +20 日：資料不足，暫不顯示
+
+勝率（+5 日正報酬）：4/5 ｜ 80%
+
+詳細：
+  2026-03-10 》 +3.78% ｜ 槓桿 40%
+  2026-03-18 》 -1.20% ｜ 槓桿 30%
+  ...
+```
+
+> 負報酬日使用 `》 −` 標記，等待進一步檢視實際格式。
 
 ---
 
-## 六、討論記錄
+## 七、資料流設計
 
-### 2026-04-04（初版草稿）
+```
+runMonthlyReport.mjs
+  └─ loadRecentReports(50)  →  allReports[0..49]
+       ├─ targetReports  = allReports[最後 30 天]
+       └─ priceSeriesReports = allReports[全部 50 天]
+
+buildSignalAccuracyStats(targetReports, priceSeriesReports)
+  └─ 進行訊號分類（isBuySignal / isCooldownBlocked）
+  └─ 對每個買進訊號日在 priceSeriesMap 中尋找 +5/+10/+20 日價格
+  └─ 計算報酬率 + 勝率，資料不足的 N 日標記 available: false
+  └─ 回傳 accuracyStats
+
+runWeeklyReport.mjs
+  └─ loadRecentReports(7)  →  reports
+  └─ buildSignalAccuracyStats(reports, reports)  →  僅訊號數量，報酬率 = null
+  └─ 展示簡潔統計段落
+
+buildPeriodReportMessages(stats, aiSummary, accuracyStats, period)
+  └─ 週報：將 accuracyStats 計數嵌入第一則訊息
+  └─ 月報：新增第三則訊息呈現報酬率
+```
+
+---
+
+## 八、實作順序建議
+
+1. **Step 1** — `periodReportAgent.mjs` 新增 `isBuySignal()` / `isCooldownBlocked()` / `buildSignalAccuracyStats()`，先對歷史 reports 距离测試輸出是否正確
+2. **Step 2** — `periodReportBuilder.mjs` 新增 `buildAccuracySection()` HTML 格式化區塊
+3. **Step 3** — `runMonthlyReport.mjs` 調整 `loadRecentReports(50)` 并傳入 `buildSignalAccuracyStats`
+4. **Step 4** — `runWeeklyReport.mjs` 傳入簡潔計數版
+5. **Step 5** — `buildPeriodReportMessages()` 新增 `accuracyStats` 參數，週報嵌入第一則、月報新增第三則
+
+---
+
+## 九、討論記錄
+
+### 2026-04-04（v0.1 初版草稿）
 - 確認現有 `data/reports/` 快照結構足以支撐此功能
-- 識別四個核心設計決策點（Q1~Q4）
-- 待與開發者逐一確認後更新本文件
+- 識別四個核心設計決策點（Q1~Q5）
+
+### 2026-04-04（v0.2 設計確認）
+- **Q1**：訊號分類改用「`suggestedLeverage` 或 `targetAllocation.leverage` 存在」為主判斷依據，`target` 字串匹配為備用
+- **Q2**：確認方案 B，`signals.currentPrice` 已穩定寫入
+- **Q3**：週報呈現訊號數量，月報展示報酬率，分工確認
+- **Q4**：呈現格式確認（週報欄內嵌入 + 月報新第三則）
+- **Q5**：資料不足暫不顯示或僅呈現現有範圍內結果，新增 `available` 標記處理
+- 新增實作順序計劃（Step 1~5）
