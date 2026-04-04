@@ -1,115 +1,121 @@
-# AI Agent 實作指令 SOP 樣板
+# Agent Prompts 導覽 / Prompt Map
 
-這份文件記錄了與 AI Agent 協作的標準指令（Prompts），分為兩個主要生命週期：**【計畫轉移階段】**（將草案轉為具體計畫）與**【功能實作階段】**（撰寫程式碼）。
-在執行過程中，**採用提案與人工審核 (Accept Change) 模式，不自動 commit**。
+## 1. 文件目的
+本文件不是逐字複製 `src/modules/ai/prompts.mjs`，而是提供 AI Agent / 開發者一份 prompt responsibility map，幫助快速定位每個 prompt 負責哪一段流程、對應哪些 schema、修改時可能影響哪些功能。
+
+若未來 prompt 行為異常，請先看這份文件決定要改哪一類 prompt，再回到 `src/modules/ai/prompts.mjs` 實作。
 
 ---
 
-## 週期零：靈感孵化階段 (外部 AI 專用指令)
+## 2. Prompt 類型分組
 
-**目的：** 當你在外部 AI 工具（如 ChatGPT、Claude 網頁版）發想新功能，需要它幫你產生符合專案格式的草案，以便後續交給本地 AI Agent 實作時使用。
+### 2.1 Daily Decision Prompts
+這一組服務每日主流程：
+- Search query generation
+- News filtering
+- Macro analysis
+- Investment advice
 
-> **指令樣板：**
-> 
->【系統與角色設定】
->你現在是一位資深的 Node.js 系統架構師。我的專案是一個結合 LLM (大型語言模型)、外部新聞 API 爬蟲、以及 Langfuse (AI 監控追蹤) 的應用。
->
->我目前正在規劃新功能，但我有一套與本地 AI Agent 協作的標準開發工作流。我需要你幫我把腦中的「初步想法」，擴寫成一份標準的「預先規劃草案 (Pre-plan)」，讓我後續可以交給本地 Agent 進行實際開發。
->
->【我的初步想法】
->👉 [請在這裡用白話文描述你的新功能，例如：我想做一個快取機制，相同關鍵字一小時內不要重複呼叫新聞 API。]
->
->【輸出格式嚴格要求】
->請根據我的想法，輸出 Markdown 格式的草案，並且必須嚴格遵守以下 5 大結構，不可遺漏或擅自改變標題：
->
->1. 計畫標題
->(用1句話概要此次計畫內容)
->
->2. 功能目標
->(用 1~2 段話清晰定義這個功能要解決什麼問題、達到什麼效果)
->
->3. 影響範圍
->(列出預計會影響的系統模組。因為你看不到我的真實程式碼，只要牽涉到具體檔案路徑，請一律使用 `[待分析/補齊：請找出處理 OOO 的檔案路徑]` 的格式標記)
->
->4. 實作步驟草案 (Step-by-Step)
->(分 3~5 個步驟描述 Node.js 的實作邏輯。若牽涉現有邏輯的修改點，請使用 `[待分析/補齊：確認目前 XXX 邏輯是如何實作的]` 來標記)
->
->5. 潛在挑戰與防禦機制
->(針對 Node.js 非同步特性、LLM 回傳不穩定性、API Rate Limit 或 Error Handling 提出具體的防禦策略與降級機制)
->
->6. 資料流設計
->(用文字箭頭 `A ➔ B ➔ C` 的形式，視覺化呈現資料在這個功能中的流向)
->
->【特別注意事項】
->- 請全程使用繁體中文。
->- 只要是你缺乏專案細節而無法確定的地方，絕對不要瞎猜檔案名稱，請務必使用 `[待分析/補齊：說明需要分析什麼]` 作為佔位符，這對我後續的工作流非常重要。
->- 請直接輸出 Markdown 內容，不要加上多餘的客套話。
->- 輸出基本格式為
-```
-##📌[計畫標題]
-### 🎯 功能目標
-### 📁 影響範圍
-### ⚙️ 實作步驟草案 (Step-by-Step)
-### ⚠️ 潛在挑戰與防禦機制
-### 🔁 資料流設計
+典型影響檔案：
+- `src/modules/ai/aiCoach.mjs`
+- `src/modules/ai/aiDataPreprocessor.mjs`
+- `src/modules/newsFetcher.mjs`
+- `src/dailyCheck.mjs`
+
+### 2.2 Governance Prompts
+這一組服務背景治理：
+- Rule optimizer
+- LLM judge
+
+典型影響檔案：
+- `src/modules/ai/ruleOptimizerAgent.mjs`
+- `src/modules/ai/llmJudge.mjs`
+- `src/runOptimizer.mjs`
+
+### 2.3 Period Report Prompts
+這一組服務週報 / 月報：
+- Period report analysis
+
+典型影響檔案：
+- `src/modules/ai/periodReportAgent.mjs`
+- `src/runWeeklyReport.mjs`
+- `src/runMonthlyReport.mjs`
+- `src/modules/notifications/templates/periodReportBuilder.mjs`
+
+---
+
+## 3. Search Query Prompt 維護重點
+Search query prompt 是目前新聞品質的第一層入口。它必須與 `KeywordEntry` schema 配套工作：
+
+```js
+{ keyword: string, searchType: "intitle" | "broad" }
 ```
 
----
+目前文件確認的設計要求包括：
+- 輸出 6–8 組，不超過 8 組。
+- 盡量避免單字縮寫與過度泛化字詞。
+- 避免重複靜態基礎關鍵字。
+- `intitle` 用於事件主角必須明確的 query，`broad` 用於市場情緒與廣泛議題。
 
-
-## 週期一：計畫轉移階段 (Planning Phase)
-**目的：** 將 `preplan_features.md` 裡的草稿，結合專案實際架構，轉移到正式的 `upcoming_features.md` 中。
-
-> **指令樣板：**
-> 
-> 請參考 `preplan_features.md`，並掃描目前的專案目錄與程式碼架構（請特別留意與 LLM API 呼叫、新聞爬蟲/過濾、以及 Langfuse 實例化相關的 `.js` / `.mjs` 檔案）。
-> 
-> 接下來，請幫我執行以下任務：
-> 1. 將 `[待分析/補齊]` 的部分，精準替換成專案內實際的檔案路徑、函式或變數名稱。**若目前架構中還沒有適合的模組，請依照我們專案的命名慣例，建議並填入一個新的檔案路徑**。
-> 2. 根據目前專案實作的非同步處理方式（如 Promise, async/await 或是其他 Queue 機制），將「實作步驟草案」與「潛在挑戰與防禦機制」調整得更符合專案現況。
-> 3. 將分析與調整後的這些項目，**附加 (Append)** 到 `upcoming_features.md` 的最下方，並依照原本的項目編號繼續往下排列。
-> 4. 寫入的格式必須嚴格遵守原有的結構（1.功能目標、2.影響範圍、3.實作步驟草案、4.潛在挑戰與防禦機制、5.資料流設計）。
-> 5. 確認轉移成功後，請將 `preplan_features.md` 中已處理的項目清空（或標記為已遷移），保持工作區整潔。
-> 
-> 請直接修改檔案，我會透過編輯器的 Accept Change 進行審核。
+若修改這段 prompt，請同步檢查：
+- `src/modules/newsFetcher.mjs` 的 `validateDynamicKeyword()`
+- `src/modules/newsFetcher.mjs` 的 `mergeKeywords()`
+- `src/modules/keywordConfig.mjs` 的 base query coverage
 
 ---
 
-## 週期二：功能實作階段 (Implementation Phase)
+## 4. News / Macro / Coach Prompt 維護重點
+這三類 prompt 串起 daily AI 主流程：
 
-### 步驟 1：實作前分析與範圍確認 (Pre-flight Check)
-**目的：** 開始寫 Code 前，先讓 Agent 釐清要改哪些檔案，避免架構混亂。
+1. **News Filter**：控制哪些文章會進入高價值摘要。
+2. **Macro Analyst**：把新聞摘要轉成總經方向與權重判斷。
+3. **Investment Coach**：將量化訊號、macro context、portfolio 狀態寫成最終建議。
 
-> **指令樣板：**
-> 
-> 請閱讀 `upcoming_features.md` 中的 **[填入項目名稱，例如：4. 自動化格式與結構驗證機制]**。
-> 結合目前的專案目錄與架構，幫我進行實作前的分析：
-> 1. 請列出根據「2.影響範圍」與「5.資料流設計」，你預計會修改或建立的**實際檔案路徑清單**。
-> 2. 若需要安裝新的 npm 套件，請列出清單供我稍後手動執行安裝。
-> 3. 簡述你打算在哪些具體的 function 內實作「4.潛在挑戰與防禦機制」。
-> 
-> **注意：此階段請只輸出分析報告讓我確認，先不要修改或生成任何程式碼。**
+修改時請記得：
+- News filter 改太鬆，會讓 macro 與 coach 被低品質新聞污染。
+- Macro analyst 的輸出若改欄位，會影響 `dailyCheck.mjs` 對 `macroMarketDirection` 的取值。
+- Coach prompt 的輸出格式若改動，會影響 Telegram builder 與 `llmJudge` 的評估輸入。
 
-### 步驟 2：嚴格按部就班實作 (Step-by-Step Implementation)
-**目的：** 確認步驟 1 的分析沒問題後，放手讓 Agent 產出程式碼。
+---
 
-> **指令樣板：**
-> 
-> 前述的分析沒問題，請開始實作 **[填入項目名稱]**。
-> 請嚴格遵循計畫中的「3.實作步驟草案」進行開發：
-> 1. 撰寫對應的 Node.js 程式碼，確保變數命名與現有專案風格一致。
-> 2. 必須將「4.潛在挑戰與防禦機制」中的錯誤處理（如 try-catch、API Timeout 降級機制）實作進程式碼中。
-> 3. 確保「5.資料流設計」的 Promise/async 流程不會阻塞主線程。
-> 
-> 請直接修改或建立檔案，我會透過編輯器的 Accept Change 介面進行人工審核。
+## 5. Governance Prompt 維護重點
 
-### 步驟 3：收尾與狀態更新 (Status Update)
-**目的：** 程式碼審核無誤後，整理文件狀態。
+### Rule Optimizer
+Rule optimizer prompt 的輸出不是直接上線規則，而是「候選規則」。因此修改時要注意：
+- 生成內容要適合程式端 sandbox 驗證。
+- 不要讓 prompt 產出過度寬泛、難以驗證的 regex 建議。
+- 任何 schema 變更都可能影響 `runOptimizer.mjs` 與後續 blacklist 寫入流程。
 
-> **指令樣板：**
-> 
-> 程式碼審核已通過。請幫我進行收尾工作：
-> 1. 將 `upcoming_features.md` 中的 **[填入項目名稱]** 移至 `completed_features.md`（若無此檔案請幫我建立），或在原項目加上完成標記。
-> 2. 若這次實作有新增環境變數（.env 需求）或重要架構變更，請更新至 `README.md`。
-> 
-> 請修改相關文件，我會接續審核。
+### LLM Judge
+Judge prompt 目前用來評估 `Actionability` 與 `Tone_and_Empathy`。這類 prompt 的重點不是產生使用者可讀內容，而是穩定、可比較、可回寫分數。
+
+若修改 judge prompt，請一併檢查：
+- score name 是否仍與 Langfuse config 對齊。
+- `llmJudge.mjs` 解析欄位是否仍正確。
+- daily pipeline 是否仍能在 judge 失敗時保持 non-blocking。
+
+---
+
+## 6. Period Report Prompt 維護重點
+`PeriodReportAnalysis` 類型的 prompt 與 daily coach 最大差異在於：
+- 它吃的是統計摘要，不是即時市場上下文。
+- 它要輸出的是 period-level risk summary，而不是當日操作指令。
+
+因此調整 period prompt 時，應優先檢查：
+- `periodReportAgent.mjs` 中 `buildPeriodReportVariables()` 的資料是否足夠。
+- `periodReportBuilder.mjs` 是否仍能正確呈現輸出欄位。
+- Weekly / monthly 的用語是否需要分開。
+
+---
+
+## 7. AI Agent 快速定位指南
+當 AI Agent 要修改 prompt，建議先問自己是哪一種問題：
+
+- 關鍵字品質差 → search query prompt
+- 新聞摘要品質差 → news filter prompt
+- 多空方向不合理 → macro analyst prompt
+- 建議語氣或行動性不足 → investment coach prompt 或 judge prompt
+- blacklist 治理失效 → rule optimizer prompt
+- 週報 / 月報摘要空泛 → period report prompt
+
+這份文件的目的，就是讓後續開發者先定位 prompt 類別，再進入 `src/modules/ai/prompts.mjs`，避免在大型 prompt 檔中盲改。

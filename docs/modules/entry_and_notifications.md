@@ -1,51 +1,93 @@
-# 系統排程入口與通知模組 (Entry & Notifications) 架構說明
+# 系統入口與通知 / Entry & Notifications
 
-## 1. 模組職責
-本模組涵蓋系統的「生命週期起點」與「生命週期終點」。
-- **執行起點**：由 `src/runDailyCheck.mjs` 與 `src/dailyCheck.mjs` 作為整個無頭 (Headless) 系統的進入點，負責依序調度基礎設施抓取資料、策動量化策略運算，最終呼叫 AI 進行決策。
-- **通知終點**：`src/modules/notifications/` 負責將龐大的 JSON 數據與 AI 推演結果，轉換為人類易讀、視覺層次豐富且支援多裝置的通訊軟體 (Telegram) 戰報格式，並執行非同步發送。
+## 1. 模組定位
+此文件描述系統從「被啟動」到「送出結果」的兩端邊界：
+- **Entry side**：各類 runner 如何觸發並把工作分派到核心模組。
+- **Notification side**：如何把 daily decision 或 period report 轉成 Telegram 可讀訊息。
 
-## 2. 執行流程 (Entry Flow)
-系統採用單線程且具備明確先後順序的 Pipeline 設計，每日排程觸發時的執行流程如下：
+本專案目前不是單一入口，而是多 runner 架構，因此文件也必須明確區分每個入口的責任。
 
-1. **參數解析 (`runDailyCheck.mjs`)**
-   - 接受命令列參數（如 `--telegram=false` 或 `--aiAdvisor=false`）來決定是否要發送實體通知或花費 Token 呼叫 AI，便於本機開發與測試。
-   - 將參數向下傳遞給核心邏輯 `dailyCheck.mjs`。
-2. **狀態繼承與防呆 (`dailyCheck.mjs`)**
-   - 優先從 Google Sheets 讀取昨日的持股與資金狀態。若讀取失敗，則預設全部為 0，避免崩潰。
-   - 檢查台股是否開市（透過 TWSE API），若未開市則紀錄日誌但仍可繼續執行（用以觀察國際盤）。
-3. **資料並行採集 (Data Gathering)**
-   - 抓取即時 / 收盤價（0050、00675L）、台股 VIX、基準價。
-   - 呼叫 `fetchAllMacroData()` 大量抓取美股風險、CNN 恐懼貪婪、匯率與台股融資餘額。
-4. **量化特徵運算 (Quant Evaluation)**
-   - 傳入近一年的歷史 K 線，計算 RSI、MACD、KD。
-   - 呼叫 `getInvestmentSignalAsync()` 將指標與帳戶資料輸入策略引擎，計算過熱、轉弱、加碼評分等量化風控訊號。
-5. **AI 大腦分析 (AI Pipeline)**
-   - 抓取新聞 RSS 並進行過濾摘要。
-   - 呼叫總經分析師 (`analyzeMacroNewsWithAI`) 產生多空對決報告。
-   - 將所有指標文字化後，呼叫教練大腦 (`getAiInvestmentAdvice`) 產出最終行動指引。
-6. **通知與持久化 (Broadcast & Archiving)**
-   - 將上述所有結果打包交給 `notifier.mjs` 進行廣播。
-   - 將當日狀態寫回 Google Sheets（作為歷史 Log 與隔日起始狀態）。
-   - 將全量結果與 AI 對話紀錄寫入本地 `archiveManager` 作備份，並清理 30 天前的舊檔案。
+---
 
-## 3. 通知格式與管道
-系統目前的發送出口位於 `src/modules/notifications/transports/telegramClient.mjs`。為了符合現代通訊軟體的閱讀體驗，戰報被精心設計為「分段推送機制」：
+## 2. Runner 一覽
+| Path | 說明 |
+|---|---|
+| `src/runDailyCheck.mjs` | 每日主入口，支援 CLI flags，進入 `dailyCheck()`。 |
+| `src/runNewsFetch.mjs` | 獨立新聞抓取與新聞池更新入口，並回寫 Langfuse Yield Rate score。 |
+| `src/runOptimizer.mjs` | 獨立 rule optimizer 入口，供排程或手動治理使用。 |
+| `src/runWeeklyReport.mjs` | 週報入口，讀取近 7 天 `data/reports/`，至少 3 份才生成。 |
+| `src/runMonthlyReport.mjs` | 月報入口，讀取近 30 天 `data/reports/`，至少 10 份才生成。 |
 
-**Telegram 分塊推播 (HTML 渲染)**：
-`telegramHtmlBuilder.mjs` 負責將資料格式化，並拆解為 3 則獨立訊息：
-1. **第一則 (市場概況與進場評分)**：包含當下最核心的行動建議 (`targetSuggestionShort`)、大盤維持率與 00675L 槓桿健康度指標，以及資產目標進度。**（這則是唯一會觸發使用者手機震動/響鈴的訊息）**。
-2. **第二則 (技術指標與帳戶快照)**：包含各項轉弱/賣出技術指標的觸發狀態，以及帳戶內的絕對持倉金額。由於涉及隱私，利用了 Telegram 的 `<tg-spoiler>` 語法將敏感數字遮蔽。**（此訊息設定為 `disable_notification: true` 靜默發送）**。
-3. **第三則 (AI 策略與總經報告)**：包含 AI 總經多空分數對決、教練的行動指引，以及一個可折疊展示的「AI 教練隱藏思考區 (`coach_internal_thinking`)」。同時會加上 `Inline Keyboard`（內聯按鈕）方便使用者點擊跳轉至 Google Sheets 或策略 JSON 檔。**（同樣為靜默發送）**。
+---
 
-## 4. 錯誤處理與重試機制
-整個排程被設計為「防脆弱 (Anti-Fragile)」架構。除了最核心的網路崩潰外，單一元件的失敗不應阻斷最終的戰報發送。
-- **降級機制 (Graceful Degradation)**：
-  - 如果 MIS 即時報價 API 掛掉，會自動降級改用 TWSE 盤後收盤價 API。
-  - 如果抓取新聞或 AI API 憑證失效，會回傳預設的空字串或固定提示，主程式仍會正確算出技術指標並推播量化戰報。
-- **非阻塞持久化**：
-  - 即使 Google Sheets 寫入失敗 (`logDailyToSheet`)，系統僅會 `console.error` 捕捉例外，確保使用者依然能從 LINE/Telegram 第一時間收到本日戰報。
-- **資源安全釋放**：
-  - 整個流程以 `try...catch...finally` 包覆。無論中間遭遇多嚴重的中斷，`finally` 區塊皆會強制呼叫 `langfuse.shutdownAsync()` 以安全關閉 AI 追蹤器的連線，避免 Node.js 產生 Memory Leak 且 Process zombie 殘留。
-- **通知模組本身的防呆**：
-  - `telegramClient.mjs` 會透過 `Promise.allSettled` 來批次發送，若其中一則訊息（例如因為 HTML 標籤未閉合）發送失敗，不會導致排程崩潰，而是在日誌中印出由 Telegram API 回傳的具體錯誤描述 (`description`)。
+## 3. Daily Entry Flow
+`src/dailyCheck.mjs` 仍然是每日主流程的 orchestration center。其實際步驟如下：
+
+1. 從 Google Sheets 繼承前一日持股狀態。
+2. 檢查是否為 TWSE 開市日。
+3. 抓取 VIX、基準價、macro data、即時價格與歷史股價。
+4. 計算 RSI / KD / MA240 等技術指標。
+5. 讀取 news summary，並呼叫 AI macro analysis。
+6. 把 `macroMarketDirection` 注入 strategy input，執行 `getInvestmentSignalAsync()`。
+7. 呼叫 `getAiInvestmentAdvice()` 產生最終每日建議。
+8. 透過 `broadcastDailyReport()` 發送 Telegram。
+9. 寫回 Google Sheets、archive daily report、條件式執行 `llmJudge`。
+
+值得注意的是，`llmJudge` 不是額外獨立排程，而是 daily flow 中 **有條件判斷才執行** 的背景評估任務。
+
+---
+
+## 4. Period Report Entry Flow
+
+### Weekly
+`src/runWeeklyReport.mjs`：
+- 從 `data/reports/` 載入近 7 天資料。
+- 若可用報告少於 3 份，直接跳過，必要時仍發送失敗提醒。
+- 完成統計後由 `generatePeriodAiSummary()` 生成 AI 摘要。
+- 最後由 Telegram batch 發送週報訊息。
+
+### Monthly
+`src/runMonthlyReport.mjs`：
+- 從 `data/reports/` 載入近 30 天資料。
+- 若可用報告少於 10 份，直接跳過。
+- 統計內容比週報更多，包含月度 signal quality 分析。
+- 最後由 Telegram batch 發送月報訊息。
+
+這兩條流程都依賴既有 `data/reports/`，並不重新執行整套 daily pipeline。
+
+---
+
+## 5. Notification 結構
+目前 `src/modules/notifications/` 已拆成三層：
+
+| Path | 說明 |
+|---|---|
+| `src/modules/notifications/notifier.mjs` | notification orchestration，依資料類型決定如何組訊息與送出。 |
+| `src/modules/notifications/templates/telegramHtmlBuilder.mjs` | 每日戰報 Telegram HTML 模板，負責訊息分段與排版。 |
+| `src/modules/notifications/templates/periodReportBuilder.mjs` | 週報 / 月報訊息 builder。 |
+| `src/modules/notifications/transports/telegramClient.mjs` | 實際呼叫 Telegram Bot API。 |
+
+### Daily Telegram Message Strategy
+每日通知仍以分段式訊息為主，目的是兼顧可讀性與 Telegram 長度限制。實際內容可包含：
+- 市場總覽與主建議，
+- 技術指標 / 帳戶快照，
+- AI 教練與總經摘要。
+
+### Period Report Message Strategy
+週報 / 月報由 `periodReportBuilder.mjs` 組裝，內容核心不是即時訊號，而是：
+- 區間統計，
+- 風險事件摘要，
+- 一致性評論，
+- 下週 / 下月 outlook。
+
+---
+
+## 6. 錯誤處理原則
+本層的設計原則是 **delivery should degrade gracefully**：
+
+- Telegram token 未設定時，可在 console preview，不讓流程直接崩潰。
+- 若單次通知失敗，應盡量限制在 transport 層，而不是把整個 decision pipeline 一起中斷。
+- 週報 / 月報若報告數量不足，可以發送提醒，但不應強行產生低品質報告。
+- `runNewsFetch` 與 `runOptimizer` 的失敗，不應被誤認為 `dailyCheck` 本身故障。
+
+對 AI Agent 來說，若看到「有資料但沒送出」的問題，通常從本文件描述的 entry / notification boundary 開始查最有效。
