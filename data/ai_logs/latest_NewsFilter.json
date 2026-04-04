@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-04-03T14:08:41.068Z",
+  "_savedAt": "2026-04-04T00:02:44.590Z",
   "type": "NewsFilter",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [US] [age_band: fresh] 標題: March US Jobs Report: 178,000 Rise in Payrolls, Much Stronger Than Expected - Morningstar\n[ID: 1] [US] [age_band: fresh] 標題: Strong non-farm payroll data drives up US Treasury yields. - 富途牛牛\n[ID: 2] [US] [age_band: fresh] 標題: March U.S. nonfarm payrolls rise 178,000, consensus 60,000 - TipRanks\n[ID: 3] [TW] [age_band: fresh] 標題: NAND占比預估衝38%！外資目標價大升至165元 自營商砸2億買進旺宏逾千張 - ftnn.com.tw\n[ID: 4] [TW] [age_band: fresh] 標題: 川普祭出１００％藥品關稅 行政院：台灣出口學名藥暫時豁免 - 民視新聞網\n[ID: 5] [US] [age_band: fresh] 標題: March job gains outshine forecasts amid inflation pressures - LEX18\n[ID: 6] [US] [age_band: fresh] 標題: U.S. Treasury yields rise after strong jobs report By Investing.com - Investing.com South Africa\n[ID: 7] [US] [age_band: fresh] 標題: US Dollar Stability Reflects Cautious Positioning Ahead of Payrolls - Investing.com\n[ID: 8] [US] [age_band: fresh] 標題: U.S. Treasury yields rise after strong jobs report - Investing.com\n[ID: 9] [US] [age_band: fresh] 標題: US adds 178,000 jobs in March, unemployment drops to 4.3% - Crypto Briefing\n[ID: 10] [US] [age_band: fresh] 標題: U.S. jobs report bounces back from dismal February with surprisingly strong 178,000 payrolls - Fortune\n[ID: 11] [US] [age_band: fresh] 標題: Nonfarm payrolls jump past consensus in March, unemployment rate ticks down - MSN\n[ID: 12] [US] [age_band: fresh] 標題: Treasuries Fall as Strong Jobs Data Undermines Fed Cut Outlook - Bloomberg.com\n[ID: 13] [US] [age_band: fresh] 標題: TIP ETF Delivers 4.5% Yield With CPI at a 90th-Percentile High, but Does It Belong in Your Portfolio? - 24/7 Wall St.\n[ID: 14] [US] [age_band: fresh] 標題: US March non-farm payrolls +178K vs +60K expected - investingLive\n[ID: 15] [US] [age_band: fresh] 標題: U.S. Market News: U.S. Nonfarm Payrolls Jump 178K in March, Beating Expectations as Unemployment Falls to 4.3% - Binance\n[ID: 16] [US] [age_band: fresh] 標題: March 2026 jobs report: 178,000 payrolls added - qz.com\n[ID: 17] [US] [age_band: fresh] 標題: Why March jobs report matters for markets and the Fed (live coverage) - MSN\n[ID: 18] [US] [age_band: fresh] 標題: BREAKING: NFP payrolls skyrocket 🚀 EURUSD back in red 📉 - XTB.com\n[ID: 19] [US] [age_band: fresh] 標題: Jailed CPI (Maoist) strategist Prashant Bose passes away following prolonged illness - The New Indian Express\n[ID: 20] [US] [age_band: fresh] 標題: US Treasury two-year yield extend rise after payrolls, last up 7.7 bps at 3.875% - MarketScreener\n[ID: 21] [US] [age_band: fresh] 標題: $1.66 trillion in US auto debt hits Great Recession levels—1.73M cars already seized - MSN\n[ID: 22] [TW] [age_band: fresh] 標題: 越南1水果出口激增2000倍超狂 買家也曝光了 - 自由財經\n[ID: 23] [TW] [age_band: fresh] 標題: 戰火引三大法人撤資逾兆！大聯大搭AI熱潮突圍 獲三大法人狂掃10.6萬張成贏家 - Yahoo股市\n[ID: 24] [TW] [age_band: fresh] 標題: 抗通膨連假省荷包 iPASS MONEY祭加油與民生最高 25% 回饋 - 蕃新聞\n[ID: 25] [TW] [age_band: fresh] 標題: 需求降溫＋成本壓力來襲！外資大砍聯電1.5萬張結帳8.7億元 調降目標價 - Yahoo股市\n[ID: 26] [TW] [age_band: fresh] 標題: 台股盤前／伊朗總統喊願結束戰爭! 台指夜盤飆1130 點台股有望跳空大漲 - msn.com\n[ID: 27] [TW] [age_band: fresh] 標題: 日系車跌破10%，中國車出口破70萬：這可能是你今年看到最扎心的一組資料 - hao.cnyes.com\n[ID: 28] [TW] [age_band: fresh] 標題: 抗通膨! 專家： 不動產保值有利平衡資產配置 - msn.com\n[ID: 29] [TW] [age_band: fresh] 標題: 2月中國汽車商品進出口總額爲238.4億美元 環比下降12.9% 同比增長45.5% 作者 智通財經 - Investing.com 香港 - 股市報價& 財經新聞\n[ID: 30] [TW] [age_band: fresh] 標題: 央行：將開展8000億元買斷式逆回購操作 作者 智通財經 - Investing.com 香港 - 股市報價& 財經新聞\n[ID: 31] [TW] [age_band: fresh] 標題: 市場擔憂貿易戰升級 台股開盤下跌71點 - msn.com\n[ID: 32] [TW] [age_band: fresh] 標題: 黃立成慘噴9.6億後續拚 再曬千萬手續費喊「不會輸」 | CTWANT - LINE TODAY\n[ID: 33] [TW] [age_band: fresh] 標題: 影音／通膨警報響起！ 美伊戰爭續燒 專家：台灣恐破2%警戒線 - TVBS新聞網\n[ID: 34] [TW] [age_band: fresh] 標題: 外資加碼台新新光金，看好未來成長 - CMoney\n[ID: 35] [TW] [age_band: fresh] 標題: 桃園大撒錢!影展大總獎金暴漲破135萬 導演嗨喊： 不怕通膨了 - msn.com\n[ID: 36] [TW] [age_band: fresh] 標題: 桃園電影獎徵件倒數 獎金加碼暴增135萬 導演嗨：不怕通膨了 - Yahoo新聞\n[ID: 37] [TW] [age_band: fresh] 標題: 川普演說! 台積電漲10元至1865 台股漲逾290點 - msn.com\n[ID: 38] [TW] [age_band: fresh] 標題: 黃立成慘噴9.6億後續拚　再曬千萬手續費喊「不會輸」 | 娛樂 | CTWANT - CTWANT\n[ID: 39] [US] [age_band: fresh] 標題: Industrial Distributors Stocks Q4 Highlights: FTAI Aviation (NASDAQ:FTAI) - StockStory\n[ID: 40] [US] [age_band: fresh] 標題: Is Liquidity Enough to Support Gold and Silver as War Risks Rise? - FXEmpire\n[ID: 41] [US] [age_band: fresh] 標題: Aluminium futures dropin China amid stronger dollar and recession fears By Investing.com - Investing.com South Africa\n[ID: 42] [TW] [age_band: fresh] 標題: 讓中國買不到！美擬擴大晶片設備出口管制 艾司摩爾DUV全受限 - 自由時報\n[ID: 43] [US] [age_band: fresh] 標題: What Oil Prices and the Iran War Mean for Recession Risk in 2026 - CoinCentral\n[ID: 44] [TW] [age_band: fresh] 標題: 美議員提新法案收緊荷日對華芯片設備出口管制 浸沒式DUV也全禁 - RFI\n[ID: 45] [US] [age_band: fresh] 標題: XRP Liquidity Index on Binance Crashes to New Lows - Cryptonews.net\n[ID: 46] [US] [age_band: fresh] 標題: Ground Transportation Stocks Q4 Teardown: Saia (NASDAQ:SAIA) Vs The Rest - StockStory\n[ID: 47] [US] [age_band: fresh] 標題: Winners And Losers Of Q4: The Pennant Group (NASDAQ:PNTG) Vs The Rest Of The Senior Health, Home Health & Hospice Stocks - StockStory\n[ID: 48] [US] [age_band: fresh] 標題: Spotting Winners: Amdocs (NASDAQ:DOX) And IT Services & Other Tech Stocks In Q4 - StockStory\n[ID: 49] [US] [age_band: fresh] 標題: Regional Banks Stocks Q4 Recap: Benchmarking Fifth Third Bancorp (NASDAQ:FITB) - StockStory\n[ID: 50] [US] [age_band: fresh] 標題: Centre clears ₹1.2 lakh crore for India Semiconductor Mission 2.0 - Communications Today\n[ID: 51] [TW] [age_band: fresh] 標題: 總獎金暴漲135萬！桃園電影獎倒數計時 導演聽到開心「不怕通膨」 - 自由娛樂\n[ID: 52] [TW] [age_band: fresh] 標題: 美國會提案聯手盟友，強化晶片設備出口中國管制 - TechNews 科技新報\n[ID: 53] [TW] [age_band: fresh] 標題: 【ETF籌碼日報】官股大買0056，外資、自營商大賣0056達45億 - CMoney投資網誌\n[ID: 54] [TW] [age_band: fresh] 標題: 黃金看美元臉色 央行買盤降溫 IMF數據：金價恐回落至3,500美元 | 新頭殼 - LINE TODAY\n[ID: 55] [TW] [age_band: fresh] 標題: Beyond黃家駒遺物「驚人天價曝光」！達新台幣7位數　麋先生朝聖嚇傻 - 三立新聞網\n[ID: 56] [TW] [age_band: fresh] 標題: 無畏高油價打擊企業信心 日本央行官員仍重申加息可能 作者 智通財經 - Investing.com 香港 - 股市報價& 財經新聞\n[ID: 57] [TW] [age_band: fresh] 標題: 川普出手炸毀伊朗大橋 台股又慘了？國安基金4/13開會 - Yahoo新聞\n[ID: 58] [TW] [age_band: fresh] 標題: 4月台股期指跌658點 - MSN\n[ID: 59] [TW] [age_band: fresh] 標題: 川普關稅週年盤點！台灣對美出口「逾8成」成贏家 - Yahoo新聞</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [US] [age_band: fresh] 標題: AIOS Tech receives Nasdaq delisting warning over share price - Investing.com\n[ID: 1] [US] [age_band: fresh] 標題: AIOS Tech Inc. Receives Nasdaq Notice for Falling Below $1 Minimum Bid Price - geneonline.com\n[ID: 2] [US] [age_band: fresh] 標題: Pet owners still prioritizing their four-legged family members while inflation rises - WDBJ7\n[ID: 3] [US] [age_band: fresh] 標題: March job gains outshine forecasts amid inflation pressures - WPTV\n[ID: 4] [US] [age_band: fresh] 標題: The Resilient U.S. Labor Market: March Data Defies Geopolitical Shocks - markets.financialcontent.com\n[ID: 5] [US] [age_band: fresh] 標題: Solana’s USDC Liquidity Surge Could Be the Real Signal for SOL - Startup Fortune\n[ID: 6] [US] [age_band: fresh] 標題: Russia stocks lower at close of trade; MOEX Russia Index down 0.46% - Investing.com\n[ID: 7] [TW] [age_band: fresh] 標題: 15檔台股ETF配息 揭曉 - 聯合新聞網\n[ID: 8] [TW] [age_band: fresh] 標題: 千億台股ETF 再添一檔 - 聯合新聞網\n[ID: 9] [US] [age_band: fresh] 標題: Rising mortgage rates threaten to pour cold water on spring homebuying season - thenationaldesk.com\n[ID: 10] [US] [age_band: fresh] 標題: The Inflation Surge Is Just Getting Started - Talking Points Memo\n[ID: 11] [US] [age_band: fresh] 標題: Following stronger US Nonfarm Payrolls, AUD/USD retreats, with subdued trading amid thin holiday liquidity conditions - VT Markets\n[ID: 12] [US] [age_band: fresh] 標題: Xilio Therapeutics Grants Inducement Shares Under Nasdaq Rule - National Today\n[ID: 13] [US] [age_band: fresh] 標題: US job growth accelerates by the most in 15 months in March - Freedom 96.9\n[ID: 14] [US] [age_band: fresh] 標題: In March, the US S&P Global Services PMI fell to 49.8, missing the 51.1 forecast - VT Markets\n[ID: 15] [US] [age_band: fresh] 標題: In March, the US S&P Global Composite PMI registered 50.3, undershooting forecasts of 51.4 - VT Markets\n[ID: 16] [US] [age_band: fresh] 標題: The countries with the highest GDP growth in the last 25 years - MSN\n[ID: 17] [US] [age_band: fresh] 標題: E-Levy Removal Boosts Mobile Money Liquidity in Ghana | MobileMoney Fintech Report - Modern Ghana\n[ID: 18] [US] [age_band: fresh] 標題: Judge Blocks Renewed Attempt to Subpoena Fed Chair Powell - National Today\n[ID: 19] [US] [age_band: fresh] 標題: Ringgit Rebounds to 4.02 Against US Dollar as Hormuz Supply Concerns Ease - Wilayah.com.my\n[ID: 20] [TW] [age_band: fresh] 標題: 台指期夜盤V漲372點台股下周穩了？老手清明變盤3劇本：台積電「這時」加倉才安全- 上市櫃 - 旺得富理財網\n[ID: 21] [US] [age_band: fresh] 標題: U.S. Labor Market Defies Gravity: March Jobs Growth Triples Estimates Amid Middle East Turmoil - FinancialContent\n[ID: 22] [TW] [age_band: fresh] 標題: 退休美夢碎了！58歲婦白天掃地、夜晚搬貨揭重返職場困境- 財經 - 中時新聞網\n[ID: 23] [TW] [age_band: fresh] 標題: 一文看完！2026Q2台股致富關鍵　大震盪後的「黃金坑」 - 三立新聞網\n[ID: 24] [TW] [age_band: fresh] 標題: 一文看完！2026Q2台股致富關鍵 - 鏡週刊Mirror Media\n[ID: 25] [US] [age_band: fresh] 標題: Anika Reports Inducement Grants Under Nasdaq Listing Rule 5635(c)(4) - GlobeNewswire\n[ID: 26] [TW] [age_band: fresh] 標題: 川普祭新藥品關稅》政院：專利藥規劃設廠 學名藥暫時豁免 - 自由時報\n[ID: 27] [TW] [age_band: fresh] 標題: 台股西進首度倒退嚕》中港投資陷泥淖 統一超南向菲國翻4.5倍 - 自由時報\n[ID: 28] [TW] [age_band: fresh] 標題: 台股西進首度倒退嚕》中國學徒複製台灣經驗 台塑寧波、台聚古雷淪錢坑 - 自由時報\n[ID: 29] [TW] [age_band: fresh] 標題: 台股西進首度倒退嚕》台商西進5大投資地全線撤退 福建惠台措施失靈 北京投資額剩高峰期1％ - 自由時報\n[ID: 30] [TW] [age_band: fresh] 標題: 二次西進…別再作夢了 台股公司赴中投資首度倒退嚕 1/3虧本 - 自由時報\n[ID: 31] [TW] [age_band: fresh] 標題: 豪宅線十年未調房子越買越小？「小宅化」困境難解 - 自由時報\n[ID: 32] [TW] [age_band: fresh] 標題: 未有定案/巴克萊：日央行月內料加息抑通脹- 經濟 - 今日大公\n[ID: 33] [TW] [age_band: fresh] 標題: 美3月職位回升17.8萬個 遠勝預期 失業率降 美匯指數重上100 - 20260404 - 報章內容 - 明報財經網\n[ID: 34] [TW] [age_band: fresh] 標題: 台股史上第2大漲點！聰明錢先卡位 主被動績效王前十名 - Yahoo新聞\n[ID: 35] [TW] [age_band: fresh] 標題: 看經濟/全球市場的混亂恐慌與中國製造的「逆勢突圍」\\宇 文 - 今日大公\n[ID: 36] [TW] [age_band: fresh] 標題: 賣方願讓利 房價疲軟區與短期爆量區選購平價宅機會增 議價與贈品有撇步 - 自由時報\n[ID: 37] [TW] [age_band: fresh] 標題: 陸機器人龍頭 高薪獵才 刷新相關領域紀錄 - 聯合新聞網\n[ID: 38] [US] [age_band: fresh] 標題: Inside Disney’s ‘Main Street Country’ EP, Featuring Kane Brown, Dasha, Maddie & Tae & More - Country Now\n[ID: 39] [US] [age_band: fresh] 標題: Future Money Acquisition Corp completes $112 million IPO on Nasdaq - Investing.com\n[ID: 40] [US] [age_band: fresh] 標題: Subject: Weekend Reads: The real problem behind grade inflation - The Chronicle of Higher Education\n[ID: 41] [TW] [age_band: fresh] 標題: 影音／通膨警報響起! 美伊戰爭續燒 專家：台灣恐破2% 警戒線 - MSN\n[ID: 42] [US] [age_band: fresh] 標題: Battle for Kerala: Congress’ Venugopal claims CPI(M) printing fake Aadhaar Cards, left party sends legal notice - The Statesman\n[ID: 43] [US] [age_band: fresh] 標題: Raising Cane's plans $100 million renovation at new corporate hub - The Business Journals\n[ID: 44] [US] [age_band: fresh] 標題: DC Defenders Lose Wide Receiver Seth Williams After Being Placed on IR - UFL News Hub\n[ID: 45] [US] [age_band: fresh] 標題: US labor market posts largest jobs gain in 15 months, but clouds brewing from Iran war - reuters.com\n[ID: 46] [US] [age_band: fresh] 標題: New ETF Targets Ultrashort Bonds Amid Interest Rate Volatility, Fed Pivot Debate - DoubleLine Asset-Backe - Benzinga\n[ID: 47] [US] [age_band: fresh] 標題: Crypto traders fade 2026 Fed cuts as U.S. unemployment dips, but risk assets hold bid - crypto.news\n[ID: 48] [US] [age_band: fresh] 標題: Elmington Capital buys two Hillsboro Village apartment buildings - The Business Journals\n[ID: 49] [TW] [age_band: fresh] 標題: 名目準備金將從102.9億美元降至6,880.6億美元 - citytimes.tw\n[ID: 50] [TW] [age_band: fresh] 標題: 伊朗戰爭引爆能源危機 歐元區3月通膨飆升至2.5% - enn.tw\n[ID: 51] [TW] [age_band: fresh] 標題: 中東局勢趨緩助攻 美股強勁反彈科技股領漲 - enn.tw\n[ID: 52] [TW] [age_band: fresh] 標題: 【川普關稅滿週年】懂王沒算到的代價？一文看懂全球經貿洗牌4大變化 - 三立新聞網\n[ID: 53] [TW] [age_band: fresh] 標題: 義大利海灣地區仍處於冰凍狀態：義大利央行預測成長停滯和經濟衰退的幽靈 - arch-web.com.tw\n[ID: 54] [TW] [age_band: fresh] 標題: 美國3月勞動市場優於預期，但2月損失比最初報告的還要嚴重美國失業和就業統計 - arch-web.com.tw\n[ID: 55] [TW] [age_band: fresh] 標題: 16檔中小尖兵 外資挺 股價抗波動 | 市場焦點 | 證券 - 經濟日報\n[ID: 56] [TW] [age_band: fresh] 標題: 活水來了 2,275億股息助攻台股 - 經濟日報\n[ID: 57] [TW] [age_band: fresh] 標題: Switch 2 漲價不可避免？前任天堂零售主管分析硬體成本與通膨壓力 - Ludens Media\n[ID: 58] [TW] [age_band: fresh] 標題: 台股四題材 點燃多頭火種 有利提振市場信心 - 經濟日報\n[ID: 59] [TW] [age_band: fresh] 標題: 鄭習會對兩岸經貿交流的啟示 - 經濟日報</News_List>",
   "schema": {
     "type": "OBJECT",
     "description": "AI 思考過程與挑選結果",
@@ -129,54 +129,64 @@
     "think": {
       "event_inventory": [
         {
-          "event": "美國3月非農就業數據遠超預期",
-          "count": 16,
-          "best_title": "Treasuries Fall as Strong Jobs Data Undermines Fed Cut Outlook"
+          "event": "美國3月非農就業數據強勁",
+          "count": 9,
+          "best_title": "U.S. Labor Market Defies Gravity: March Jobs Growth Triples Estimates Amid Middle East Turmoil"
         },
         {
-          "event": "川普演說帶動台積電與台股大漲",
-          "count": 1,
-          "best_title": "川普演說! 台積電漲10元至1865 台股漲逾290點"
+          "event": "中東地緣政治緊張與通膨風險",
+          "count": 4,
+          "best_title": "影音／通膨警報響起! 美伊戰爭續燒 專家：台灣恐破 2% 警戒線"
         },
         {
-          "event": "中東地緣政治局勢轉折與台指期劇烈波動",
-          "count": 5,
-          "best_title": "台股盤前／伊朗總統喊願結束戰爭! 台指夜盤飆1130 點台股有望跳空大漲"
-        },
-        {
-          "event": "美國擴大對華半導體設備出口管制",
+          "event": "台股資金流向與股息紅利",
           "count": 3,
-          "best_title": "讓中國買不到！美擬擴大晶片設備出口管制 艾司摩爾DUV全受限"
+          "best_title": "活水來了 2,275億股息助攻台股"
         },
         {
-          "event": "中國央行大規模流動性投放",
-          "count": 1,
-          "best_title": "央行：將開展8000億元買斷式逆回購操作"
+          "event": "台股期貨夜盤大漲與市場情緒",
+          "count": 3,
+          "best_title": "台指期夜盤V漲372點台股下周穩了？老手清明變盤3劇本"
         },
         {
-          "event": "日本央行重申加息可能性",
-          "count": 1,
-          "best_title": "無畏高油價打擊企業信心 日本央行官員仍重申加息可能"
-        },
-        {
-          "event": "外資對台股權值股（聯電、旺宏）看法分歧",
+          "event": "美國PMI數據低於預期",
           "count": 2,
-          "best_title": "需求降溫＋成本壓力來襲！外資大砍聯電1.5萬張結帳8.7億元 調降目標價"
+          "best_title": "In March, the US S&P Global Composite PMI registered 50.3, undershooting forecasts of 51.4"
         },
         {
-          "event": "美國汽車貸款債務危機風險",
+          "event": "日本央行加息預期",
           "count": 1,
-          "best_title": "$1.66 trillion in US auto debt hits Great Recession levels—1.73M cars already seized"
+          "best_title": "未有定案/巴克萊：日央行月內料加息抑通脹"
         },
         {
-          "event": "川普關稅政策對台影響",
+          "event": "台商西進投資大幅衰退",
+          "count": 4,
+          "best_title": "二次西進…別再作夢了 台股公司赴中投資首度倒退嚕 1/3虧本"
+        },
+        {
+          "event": "歐元區通膨數據",
+          "count": 1,
+          "best_title": "伊朗戰爭引爆能源危機 歐元區3月通膨飆升至2.5%"
+        },
+        {
+          "event": "川普關稅政策影響",
           "count": 2,
-          "best_title": "川普祭出１００％藥品關稅 行政院：台灣出口學名藥暫時豁免"
+          "best_title": "【川普關稅滿週年】懂王沒算到的代價？一文看懂全球經貿洗牌4大變化"
         },
         {
-          "event": "黃金價格走勢與避險情緒預測",
+          "event": "台股ETF規模成長",
+          "count": 2,
+          "best_title": "千億台股 ETF 再添一檔"
+        },
+        {
+          "event": "外資佈局台股中小企業",
           "count": 1,
-          "best_title": "黃金看美元臉色 央行買盤降溫 IMF數據：金價恐回落至3,500美元"
+          "best_title": "16檔中小尖兵 外資挺 股價抗波動"
+        },
+        {
+          "event": "美國房貸利率上升",
+          "count": 1,
+          "best_title": "Rising mortgage rates threaten to pour cold water on spring homebuying season"
         }
       ],
       "dimension_check": {
@@ -188,87 +198,83 @@
       },
       "excluded": [
         {
-          "id": 32,
-          "reason": "個人投資虧損新聞"
+          "id": 0,
+          "reason": "單一小公司下市警告"
         },
         {
-          "id": 35,
-          "reason": "地方電影獎勵活動"
-        },
-        {
-          "id": 55,
-          "reason": "藝人遺物拍賣新聞"
+          "id": 2,
+          "reason": "寵物消費非總經重點"
         },
         {
           "id": 22,
-          "reason": "單一農產品出口"
+          "reason": "個人社會新聞"
         },
         {
-          "id": 24,
-          "reason": "支付工具行銷活動"
+          "id": 31,
+          "reason": "地方房市小宅化議題"
         },
         {
-          "id": 19,
-          "reason": "無關經濟之政治人物"
+          "id": 38,
+          "reason": "娛樂產業新聞"
         },
         {
-          "id": 28,
-          "reason": "一般理財教學建議"
+          "id": 44,
+          "reason": "體育新聞"
         },
         {
-          "id": 45,
-          "reason": "單一加密貨幣動態"
+          "id": 57,
+          "reason": "單一消費電子產品"
         }
       ]
     },
     "news": [
       {
-        "id": 12,
-        "summary": "美國3月非農就業人數增加17.8萬人，遠高於市場預期的6萬人，失業率降至4.3%。強勁的勞動力市場數據導致美債殖利率飆升，市場對聯準會（Fed）近期降息的預期大幅降溫。這將直接影響全球資金流向，增加美元資產吸引力，並對高估值的科技股與台股大盤造成估值修正壓力。"
+        "id": 21,
+        "summary": "美國3月非農就業人數大幅增加，遠超市場預期，失業率降至低點。這顯示勞動力市場極具韌性，但也可能推遲聯準會降息時程，對美債殖利率與全球資金流向產生重大壓力，需關注高利率環境對科技股估值的壓抑。"
       },
       {
-        "id": 37,
-        "summary": "川普演說後激勵市場信心，台積電股價大漲10元至1865元，帶動台股大漲逾290點。此事件顯示川普的政策言論對台灣半導體權值股具備極高影響力。投資人需密切關注其後續對台美貿易與半導體供應鏈的具體主張，這將是決定0050等權值型ETF未來走勢的關鍵變數。"
-      },
-      {
-        "id": 26,
-        "summary": "伊朗總統表達結束戰爭意願，地緣政治緊張局勢出現轉機，激勵台指期夜盤狂飆1130點。戰爭風險的降低有助於避險資金回流股市，並緩解通膨壓力。然而，市場情緒波動劇烈，投資人應警惕地緣政治消息的瞬息萬變，這對槓桿型投資工具（如台指期、0050正2）具有極高的操作風險。"
-      },
-      {
-        "id": 42,
-        "summary": "美國擬擴大對中國晶片設備出口管制，範圍涵蓋艾司摩爾（ASML）的所有浸沒式DUV設備。此舉旨在全面封鎖中國半導體製程升級，對台廠而言，短期內可能迎來成熟製程的轉單效應，但長線則需擔憂全球半導體供應鏈碎片化導致的成本上升，對台積電等國際化企業的佈局產生深遠影響。"
-      },
-      {
-        "id": 30,
-        "summary": "中國央行宣布開展8000億元人民幣買斷式逆回購操作，展現強力的流動性支持態度。此舉旨在緩解中國國內通縮壓力並支撐經濟增長。作為亞洲經濟火車頭之一，中國的貨幣寬鬆政策有助於提振區域市場信心，對與中國經貿往來密切的台灣傳產與電子零組件產業具備正面支撐作用。"
+        "id": 41,
+        "summary": "中東局勢緊張，美伊衝突風險升溫，推升國際油價與通膨預期。專家警告台灣通膨率可能突破2%警戒線。能源價格波動將直接影響製造業成本，並增加央行維持高利率的必要性，對大盤構成下行風險。"
       },
       {
         "id": 56,
-        "summary": "日本央行官員重申儘管面臨高油價挑戰，仍有加息的可能性。日圓貨幣政策的轉向將引發全球利差交易（Carry Trade）平倉風險，導致資金從新興市場回流日本。對於台股而言，日圓走強通常伴隨外資在亞洲市場的重新配置，需警惕外資對台股權值股的調節動作。"
+        "summary": "台灣上市櫃公司預計發放2,275億元股息，這筆龐大資金將成為台股的重要支撐。對於0050等權值型ETF而言，股息再投資效應將有助於推升指數，並在市場震盪時提供下檔支撐，強化多頭動能。"
       },
       {
-        "id": 25,
-        "summary": "外資大舉賣超聯電1.5萬張，金額達8.7億元，並調降其目標價，主因在於成熟製程需求降溫與成本壓力攀升。這反映出半導體產業內部出現分化，AI高階製程強勁但傳統應用疲軟。投資人在配置ETF時，應注意成分股中成熟製程占比過高的風險，避免產業景氣循環下行帶來的衝擊。"
+        "id": 20,
+        "summary": "台指期夜盤大漲372點，反映市場對清明連假後走勢的樂觀預期。然而，老手提醒需關注台積電等權值股的加倉時機。此波動顯示市場情緒轉向積極，但仍需防範地緣政治引發的突發性變盤。"
       },
       {
-        "id": 21,
-        "summary": "美國汽車貸款債務規模達到1.66兆美元，觸及金融海嘯時期水平，且已有173萬輛汽車被扣押。這顯示美國基層消費者的信用壓力已達臨界點，若違約潮擴大，可能引發系統性金融風險。對於依賴美國消費市場的台灣出口產業而言，這是一個重要的景氣衰退預警訊號。"
+        "id": 15,
+        "summary": "美國3月S&P全球綜合PMI降至50.3，低於預期的51.4，顯示經濟擴張速度放緩。製造業與服務業的疲軟可能緩解通膨壓力，但也引發對經濟衰退的擔憂。這將使市場在「降息預期」與「成長放緩」之間反覆拉鋸。"
       },
       {
-        "id": 3,
-        "summary": "外資看好旺宏NAND業務占比將衝上38%，將目標價大幅調升至165元，自營商亦同步加碼。這顯示記憶體產業在經歷長時間去庫存後，受惠於AI伺服器與終端設備升級，正迎來復甦契機。此類產業利多有助於帶動台股中型科技股的補漲行情，提升市場整體投資氛圍。"
+        "id": 32,
+        "summary": "巴克萊預測日本央行可能在本月加息以抑制通膨。日圓匯率波動與利差交易（Carry Trade）的平倉風險，將對全球流動性產生衝擊，進而影響台股外資的資金配置，是不可忽視的外部變數。"
       },
       {
-        "id": 4,
-        "summary": "川普祭出100%藥品關稅，但台灣出口之學名藥暫時獲得豁免。此政策動態顯示川普貿易保護主義的針對性，台灣生技產業雖暫時避開衝擊，但未來仍面臨關稅不確定性。這提醒投資人，在川普可能重返政壇的背景下，關稅豁免清單將成為影響台灣特定產業出口競爭力的核心因素。"
+        "id": 30,
+        "summary": "台股上市公司赴中投資首度出現倒退，且三分之一企業面臨虧損。這反映出供應鏈去中化與全球經貿洗牌的長期趨勢。資金回流台灣或轉向東南亞，將重塑台股產業結構，有利於本土資產與非中供應鏈。"
       },
       {
-        "id": 54,
-        "summary": "IMF數據顯示央行買盤降溫，預測金價可能回落至3500美元。在美元因強勁就業數據而走強的背景下，黃金的避險與抗通膨吸引力相對下降。這反映出市場對通膨受控的預期增加，資金可能從避險資產轉向風險資產，對於追求資本利得的ETF投資者而言，這是一個市場情緒轉向樂觀的信號。"
+        "id": 50,
+        "summary": "歐元區3月通膨率升至2.5%，主要受能源危機驅動。這顯示全球通膨壓力依然頑強，可能限制歐洲央行的寬鬆空間。全球同步的高通膨環境將維持高利率更久，對全球風險資產的評價面持續構成挑戰。"
       },
       {
-        "id": 57,
-        "summary": "面對地緣政治衝突與市場波動，國安基金預計於4月13日召開會議。雖然目前尚未進入正式護盤階段，但此消息具備強烈的心理支撐作用，顯示政府對資本市場穩定的重視。對於台股投資人而言，這提供了大盤下檔的防禦預期，有助於在市場恐慌時穩定0050等核心持股的信心。"
+        "id": 52,
+        "summary": "川普關稅政策滿週年，全球經貿格局發生劇變。關稅壁壘迫使供應鏈重新配置，台灣作為半導體與電子代工核心，雖面臨成本上升壓力，但也因轉單效應受益。需警惕未來貿易保護主義升級對出口動能的影響。"
+      },
+      {
+        "id": 8,
+        "summary": "台股千億規模ETF再添新成員，顯示散戶與法人資金持續湧入被動投資工具。這將強化權值股的穩定性，但也可能導致市場波動在特定調整日加劇。對於0050投資者而言，需關注資金集中化帶來的評價溢價。"
+      },
+      {
+        "id": 55,
+        "summary": "外資近期鎖定16檔中小型股進行佈局，顯示在權值股高檔震盪之際，資金開始尋找具備抗波動能力的成長股。這反映出市場資金流向的細微變化，投資者可關注外資認同度高的標的以分散風險。"
+      },
+      {
+        "id": 9,
+        "summary": "美國房貸利率上升威脅春季購屋季，顯示高利率對實體經濟的滲透正在加深。房地產市場的降溫將影響消費支出與相關產業鏈，若房市出現系統性風險，將對美股大盤及台股相關出口產業產生連鎖反應。"
       }
     ]
   }
