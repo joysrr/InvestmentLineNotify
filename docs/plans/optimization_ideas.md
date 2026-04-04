@@ -122,9 +122,15 @@ done(); // 印出 ⏱ [fetchMacroData] 1234ms
 
 ---
 
-## 4. 🟡 AI Coach prompt 缺少「持倉成本」作為輸入
+## 4. ✅ AI Coach prompt 缺少「持倉成本」作為輸入
 
-### 動機
+> **已完成**（2026-04-04）  
+> 在 Google Sheet「資產紀錄」工作表新增 `0050均價` 與 `00675L均價` 兩個手動維護欄位；  
+> `fetchLastPortfolioState()` 已透過 `parseNumberOrNull()` 讀取上述欄位並回傳 `avgCost0050` / `avgCostZ2`；  
+> `formatQuantDataForCoach()` 新增【持倉成本與損益】段落，計算未實現損益率後注入 `quantTextForCoach`，Coach AI 可直接參考成本位置進行個人化建議；  
+> 欄位空白時顯示「(未設均價)」，不影響主流程。
+
+### 原始動機
 
 閱讀 `dailyCheck.mjs` 可以看到 `lastState` 包含：
 ```js
@@ -134,27 +140,6 @@ done(); // 印出 ⏱ [fetchMacroData] 1234ms
 但目前沒有「持倉平均成本（avg cost）」被傳入。AI 教練只知道持有幾股、借款多少，卻不知道目前損益率（浮盈 or 浮虧），導致：
 - AI 對「加碼 vs 減碼」的建議缺少成本參考
 - 無法計算當前槓桿比率（totalLoan / 持股市值）
-
-### 建議方向
-
-1. 在 Google Sheet 新增「平均成本」欄位（`avgCostZ2`, `avgCost0050`）
-2. `fetchLastPortfolioState()` 一併讀取
-3. `aiDataPreprocessor.mjs` 的 `formatMacroChipForCoach()` 補充損益率計算後注入 prompt
-
-### 影響範圍
-
-- Google Sheet schema 異動
-- `src/modules/storage.mjs`（新增欄位讀取）
-- `src/modules/ai/aiDataPreprocessor.mjs`（新增損益率格式化）
-- `src/modules/ai/prompts.mjs`（AI Coach prompt 補充說明）
-
-### 難度
-
-⭐⭐ 中（主要是 Sheet schema 設計與 prompt 調整）
-
-### 討論狀態
-
-⚪ 待確認
 
 ---
 
