@@ -1,6 +1,6 @@
 {
   "_note": "此檔案由 ruleOptimizerAgent.mjs 自動維護，請勿手動修改 history 陣列",
-  "lastUpdated": "2026-04-03T18:57:50.198Z",
+  "lastUpdated": "2026-04-04T18:50:56.194Z",
   "history": [
     {
       "date": "2026-04-01",
@@ -164,6 +164,22 @@
       "addedRules": [],
       "rejectedRules": [],
       "savedAt": "2026-04-03T18:57:50.198Z",
+      "rolledBack": false
+    },
+    {
+      "date": "2026-04-02",
+      "region": "TW",
+      "addedRules": [],
+      "rejectedRules": [],
+      "savedAt": "2026-04-04T18:50:24.418Z",
+      "rolledBack": false
+    },
+    {
+      "date": "2026-04-02",
+      "region": "US",
+      "addedRules": [],
+      "rejectedRules": [],
+      "savedAt": "2026-04-04T18:50:56.194Z",
       "rolledBack": false
     }
   ]
