@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "lastRun": "2026-04-04T05:23:38.208Z",
+    "lastRun": "2026-04-04T07:35:51.587Z",
     "sources": {
       "cnnProvider": {
         "status": "SUCCESS",
@@ -12,7 +12,7 @@
       },
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-04T05:23:38.208Z"
+        "lastFetch": "2026-04-04T07:35:51.587Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
