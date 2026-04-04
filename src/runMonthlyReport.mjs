@@ -4,6 +4,7 @@ import {
   loadRecentReports,
   buildPeriodStats,
   generatePeriodAiSummary,
+  buildSignalAccuracyStats,
 } from "./modules/ai/periodReportAgent.mjs";
 import { buildPeriodReportMessages } from "./modules/notifications/templates/periodReportBuilder.mjs";
 import { sendTelegramBatch } from "./modules/notifications/transports/telegramClient.mjs";
@@ -15,8 +16,13 @@ const sessionId = process.env.GITHUB_RUN_ID
 async function main() {
   console.log("📋 [MonthlyReport] 開始產生月報...");
 
-  const reports = await loadRecentReports(30);
-  console.log(`📂 [MonthlyReport] 載入 ${reports.length} 份近期報告`);
+  // 讀取 30 天用於統計，額外讀取到 50 天用於計算 +20 日報酬
+  const allReports = await loadRecentReports(50);
+  console.log(`📂 [MonthlyReport] 載入 ${allReports.length} 份報告（含後續報酬用）`);
+
+  // 取最近 30 天作為月報評估期間
+  const reports = allReports.slice(-30);
+  console.log(`📂 [MonthlyReport] 月報評估期間：${reports.length} 份`);
 
   if (reports.length < 10) {
     console.warn("⚠️ [MonthlyReport] 報告數量不足 10 份，跳過月報");
@@ -31,6 +37,10 @@ async function main() {
   const stats = buildPeriodStats(reports, "monthly");
   console.log(`📈 [MonthlyReport] 統計完成，日期範圍：${stats.dateRange.from} ~ ${stats.dateRange.to}`);
 
+  // 準確率計算：targetReports = 近 30 天，priceSeriesReports = 全部 50 天（含後續價格）
+  const accuracyStats = buildSignalAccuracyStats(reports, allReports, "monthly");
+  console.log(`🎯 [MonthlyReport] 訊號統計：買進 ${accuracyStats?.buySignalCount ?? 0} 次，冷卻封鎖 ${accuracyStats?.cooldownBlockedCount ?? 0} 次`);
+
   const { aiSummary } = await generatePeriodAiSummary(
     stats,
     reports,
@@ -38,7 +48,7 @@ async function main() {
     sessionId,
   );
 
-  const messages = buildPeriodReportMessages(stats, aiSummary, "monthly");
+  const messages = buildPeriodReportMessages(stats, aiSummary, "monthly", accuracyStats);
 
   if (process.env.TELEGRAM_API_TOKEN) {
     await sendTelegramBatch(messages);

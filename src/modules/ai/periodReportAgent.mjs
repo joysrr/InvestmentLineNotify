@@ -24,7 +24,7 @@ const PERIOD_REPORT_SCHEMA = {
 
 /**
  * 從 data/reports/ 讀取指定天數內的 report 檔案
- * @param {number} days - 7 (週報) 或 30 (月報)
+ * @param {number} days - 7 (週報) 或 30/50 (月報)
  * @returns {Array<Object>} 依日期升序排列的 report 陣列
  */
 export async function loadRecentReports(days) {
@@ -194,6 +194,180 @@ export function buildPeriodStats(reports, period) {
   };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 訊號準確率統計
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * 判斷某日 report 是否為「觸發買進訊號」
+ * 以結構化欄位為主判斷依據，字串匹配為備用
+ * @param {Object} signals - report.signals
+ * @returns {boolean}
+ */
+export function isBuySignal(signals) {
+  if (!signals) return false;
+  // 主判斷：結構化槓桿欄位存在且 > 0
+  if (Number.isFinite(signals.suggestedLeverage) && signals.suggestedLeverage > 0) return true;
+  if (Number.isFinite(signals.targetAllocation?.leverage) && signals.targetAllocation.leverage > 0) return true;
+  // 備用：target 字串匹配
+  return /破冰加碼|買進訊號/.test(signals.target ?? "");
+}
+
+/**
+ * 判斷某日 report 是否為「冷卻期封鎖」（分數達標但未進場）
+ * @param {Object} signals - report.signals
+ * @returns {boolean}
+ */
+export function isCooldownBlocked(signals) {
+  if (!signals) return false;
+  const inCooldown = signals.cooldownStatus?.inCooldown === true;
+  if (!inCooldown) return false;
+  const ws = signals.weightScore ?? 0;
+  const threshold = signals.strategy?.buy?.minWeightScoreToBuy ?? 4;
+  return ws >= threshold;
+}
+
+/**
+ * 計算訊號準確率統計
+ *
+ * @param {Array<Object>} targetReports      - 欲評估的期間 reports（週報 7 天 / 月報 30 天）
+ * @param {Array<Object>} priceSeriesReports - 包含未來日期的完整 reports（月報傳 50 天）
+ * @param {"weekly"|"monthly"} period
+ * @returns {Object} accuracyStats
+ */
+export function buildSignalAccuracyStats(targetReports, priceSeriesReports, period) {
+  if (!targetReports?.length) return null;
+
+  // 建立日期 → 價格的查詢 map（用 priceSeriesReports）
+  const priceMap = {};
+  for (const r of priceSeriesReports) {
+    if (r.date && Number.isFinite(r.signals?.currentPrice)) {
+      priceMap[r.date] = r.signals.currentPrice;
+    }
+  }
+
+  // 取得所有有效日期（升序），用於查找第 N 個交易日
+  const allDates = Object.keys(priceMap).sort();
+
+  /**
+   * 查找 signalDate 之後第 n 個交易日的價格
+   * @returns {{ price: number|null, available: boolean }}
+   */
+  function lookupReturnPrice(signalDate, n) {
+    const idx = allDates.indexOf(signalDate);
+    if (idx === -1) return { price: null, available: false };
+    const targetIdx = idx + n;
+    if (targetIdx >= allDates.length) return { price: null, available: false };
+    const targetDate = allDates[targetIdx];
+    const price = priceMap[targetDate] ?? null;
+    return { price, available: price !== null };
+  }
+
+  // 逐日分類
+  let buySignalCount = 0;
+  let cooldownBlockedCount = 0;
+  const signalDetails = [];
+
+  for (const r of targetReports) {
+    const sig = r.signals;
+    if (!sig) continue;
+
+    const isBuy = isBuySignal(sig);
+    const isBlocked = !isBuy && isCooldownBlocked(sig);
+
+    if (isBlocked) cooldownBlockedCount++;
+    if (!isBuy) continue;
+
+    buySignalCount++;
+
+    const priceAtSignal = sig.currentPrice;
+    const leveragePct = Number.isFinite(sig.suggestedLeverage)
+      ? Math.round(sig.suggestedLeverage * 100)
+      : Number.isFinite(sig.targetAllocation?.leverage)
+        ? Math.round(sig.targetAllocation.leverage * 100)
+        : null;
+
+    const detail = {
+      date: r.date,
+      weightScore: sig.weightScore ?? 0,
+      leveragePct,
+      priceAtSignal,
+      returns: {},
+    };
+
+    // 月報才計算報酬率
+    if (period === "monthly" && Number.isFinite(priceAtSignal) && priceAtSignal > 0) {
+      for (const [key, offset] of [["d5", 5], ["d10", 10], ["d20", 20]]) {
+        const { price, available } = lookupReturnPrice(r.date, offset);
+        if (available && Number.isFinite(price)) {
+          detail.returns[key] = {
+            price: parseFloat(price.toFixed(2)),
+            pct: parseFloat(((price - priceAtSignal) / priceAtSignal * 100).toFixed(2)),
+            available: true,
+          };
+        } else {
+          detail.returns[key] = { price: null, pct: null, available: false };
+        }
+      }
+    }
+
+    signalDetails.push(detail);
+  }
+
+  const totalEligibleDays = buySignalCount + cooldownBlockedCount;
+  const cooldownBlockRate = totalEligibleDays > 0
+    ? parseFloat((cooldownBlockedCount / totalEligibleDays).toFixed(3))
+    : 0;
+
+  // 報酬率統計（月報才有）
+  let avgReturn = null;
+  let winRate = null;
+
+  if (period === "monthly" && signalDetails.length > 0) {
+    avgReturn = {};
+    winRate = {};
+    let dataNote = null;
+
+    for (const key of ["d5", "d10", "d20"]) {
+      const available = signalDetails.filter((d) => d.returns[key]?.available);
+      if (available.length === 0) {
+        avgReturn[key] = null;
+        winRate[key] = null;
+      } else {
+        const pcts = available.map((d) => d.returns[key].pct);
+        avgReturn[key] = parseFloat((pcts.reduce((a, b) => a + b, 0) / pcts.length).toFixed(2));
+        winRate[key] = parseFloat((pcts.filter((p) => p > 0).length / pcts.length).toFixed(3));
+        // 部分資料不足時附加說明
+        if (available.length < signalDetails.length) {
+          dataNote = dataNote || `部分訊號的後續資料尚不完整（+${key.slice(1)} 日僅 ${available.length}/${signalDetails.length} 筆）`;
+        }
+      }
+    }
+
+    return {
+      buySignalCount,
+      cooldownBlockedCount,
+      totalEligibleDays,
+      cooldownBlockRate,
+      signalDetails,
+      avgReturn,
+      winRate,
+      dataNote,
+    };
+  }
+
+  return {
+    buySignalCount,
+    cooldownBlockedCount,
+    totalEligibleDays,
+    cooldownBlockRate,
+    signalDetails,
+    avgReturn: null,
+    winRate: null,
+    dataNote: null,
+  };
+}
+
 /**
  * 組合送入 callAI 的 promptVariables
  * systemInstruction 由 Langfuse template compile() 完成替換
@@ -240,10 +414,6 @@ export async function generatePeriodAiSummary(stats, reports, periodLabel, sessi
     .filter(Boolean)
     .join("\n\n");
 
-  // ── 方案 A：所有動態內容透過 promptVariables 傳入 ──────────────────────────
-  // Langfuse template 的 {{period_label}} / {{risk_warnings_text}} / {{stats_summary}}
-  // 由 callAI 內部的 promptObj.compile(promptVariables) 替換成 systemInstruction
-  // userPrompt 只做觸發用，讓 Langfuse trace 能完整記錄每次帶入的變數值
   const promptVariables = buildPeriodReportVariables(
     stats,
     riskWarningsText || "本週期無風險警告記錄。",

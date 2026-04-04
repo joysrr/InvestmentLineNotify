@@ -4,6 +4,7 @@ import {
   loadRecentReports,
   buildPeriodStats,
   generatePeriodAiSummary,
+  buildSignalAccuracyStats,
 } from "./modules/ai/periodReportAgent.mjs";
 import { buildPeriodReportMessages } from "./modules/notifications/templates/periodReportBuilder.mjs";
 import { sendTelegramBatch } from "./modules/notifications/transports/telegramClient.mjs";
@@ -31,6 +32,10 @@ async function main() {
   const stats = buildPeriodStats(reports, "weekly");
   console.log(`📈 [WeeklyReport] 統計完成，日期範圍：${stats.dateRange.from} ~ ${stats.dateRange.to}`);
 
+  // 訊號數量統計（週報只傳同一批 reports，不計算報酬率）
+  const accuracyStats = buildSignalAccuracyStats(reports, reports, "weekly");
+  console.log(`🎯 [WeeklyReport] 訊號統計：買進 ${accuracyStats?.buySignalCount ?? 0} 次，冷卻封鎖 ${accuracyStats?.cooldownBlockedCount ?? 0} 次`);
+
   const { aiSummary } = await generatePeriodAiSummary(
     stats,
     reports,
@@ -38,7 +43,7 @@ async function main() {
     sessionId,
   );
 
-  const messages = buildPeriodReportMessages(stats, aiSummary, "weekly");
+  const messages = buildPeriodReportMessages(stats, aiSummary, "weekly", accuracyStats);
 
   if (process.env.TELEGRAM_API_TOKEN) {
     await sendTelegramBatch(messages);
