@@ -1,211 +1,106 @@
-# AI 決策管線模組 (AI Pipeline) 架構說明
+# AI 決策管線 / AI Pipeline
 
-## 1. 模組職責
-`src/modules/ai/` 作為系統的大腦，負責將上游（量化策略引擎、外部數據提供者、新聞收報機與規則治理機制）所產出的龐大資料，轉換為具備金融邏輯的決策上下文，並透過調用 Google Gemini 模型推演最終的投資分析、新聞治理建議與戰報輸出。
+## 1. 模組定位
+`src/modules/ai/` 是本專案的 decision intelligence layer，負責把量化訊號、新聞、總經資料與歷史報告轉成結構化 AI 輸出。除了每日投資建議，這一層也涵蓋新聞治理、週期報告與品質評估。
 
-此模組不直接負責抓取原始資料，而是專注於以下四類核心工作：
-
-1. **語意解析**：將市場數據、新聞摘要與結構化輸入轉換為 AI 可理解的決策上下文。
-2. **多空加權運算**：根據新聞事件的重要性與極性，推導當前市場的多空方向與風險層級。
-3. **擬人化結果輸出**：將量化資訊、新聞脈絡與決策邏輯整理成清楚、可讀、可執行的 Markdown 戰報。
-4. **觀測與治理支援**：透過 Langfuse 追蹤每一段 AI 呼叫的輸入、輸出、耗用與評分回寫，並支援背景規則治理機制，讓系統具備持續修正與優化能力。
-
-換言之，AI 模組現在不只是「做結論」，也負責承接整個 AI 決策流程中的**結構化輸出、可觀測性（Observability）**與**規則自我修正（Governance）**能力。
+目前 AI 模組的角色可以分成三類：
+- **Main decision agents**：每日決策相關的 search queries、news filter、macro analyst、investment coach。
+- **Governance agents**：`ruleOptimizerAgent.mjs`、`llmJudge.mjs`，負責治理與品質評估。
+- **Period agents**：`periodReportAgent.mjs`，負責週報 / 月報摘要生成。
 
 ---
 
-## 2. Agent 職責分配
-系統的 AI 決策主管線由四個專職的 Agent（角色）串聯而成，於 `aiCoach.mjs` 中依序被喚醒：
-
-1. **新聞關鍵字產生器 (Search Queries Generator)**
-   - **用途**：觀察當日的市場波動（如 VIX 指數、大盤位階或重要風險事件），動態推演出當前市場最值得追蹤的潛在議題，並藉此產出專屬於台灣 (`twQueries`) 與華爾街 (`usQueries`) 的高價值搜尋關鍵字。
-   - **目標**：提升每日新聞抓取的精準度，避免只依賴固定關鍵字導致遺漏突發市場主題。
-
-2. **雜訊過濾器 (News Filter)**
-   - **用途**：扮演頂級量化經理人，負責從大量中英混合的原始新聞中淘金。主動剔除農場文、個股雜訊、盤後流水帳與低價值重複內容，並執行多維度覆蓋檢查（例如總經、地緣政治、資金流向、半導體與大盤脈絡）。
-   - **目標**：保留少量但真正重要的高訊號新聞，作為後續總經分析與投資建議的依據。
-
-3. **總經多空分析師 (Macro Analyst)**
-   - **用途**：運用「多重事件加權法 (Vector Weighting)」，針對已過濾的重大新聞進行 1~5 分的影響力評分，區分利多與利空，並加總為總體多空分數。
-   - **目標**：輸出具備邏輯一致性的「BULL（偏多）/ BEAR（偏空）/ NEUTRAL（觀望）」全局判定，作為最終教練建議的重要依據。
-
-4. **戰報洞察教練 (Investment Coach)**
-   - **用途**：作為主決策管線的最後一關，整合量化引擎風控數據、籌碼位階簡報、總經分析結論與核心新聞事件，並嚴格遵循「上下文 + 具體動作 + 預期心態」的格式輸出最終建議。
-   - **目標**：將複雜資訊轉換為具備溫度、紀律感與可執行性的投資提醒，供最終推播使用。
-
-### 補充：背景治理 Agent（Rule Optimizer）
-除上述四個同步決策 Agent 外，系統另設有一個**不屬於主決策串聯流程**的背景治理 Agent：
-
-5. **規則優化器 (Rule Optimizer)**
-   - **用途**：在主流程之外，讀取已通過的新聞紀錄、現有黑名單規則與黃金清單資料，透過 `RULE_OPTIMIZER_SYSTEM_PROMPT` 分析近期漏網的低價值新聞型態，產生候選 regex 規則。
-   - **角色定位**：它不是每日戰報生成時的同步一環，而是負責長期維護新聞治理品質的背景治理機制。
-   - **輸出特性**：Rule Optimizer 只會產生「候選規則」，不會直接寫入正式 blacklist。
-   - **安全機制**：所有候選規則都必須經過程式側的 sandbox 驗證，包括：
-     - regex 合法性檢查
-     - 過廣（overbroad）檢查
-     - 與現有規則重複檢查
-     - 黃金清單碰撞（golden dataset collision）檢查
-   - **目標**：在不影響主流程穩定性的前提下，逐步提升新聞去噪能力，降低農場文、模板文與低價值內容滲透率。
+## 2. 核心檔案
+| Path | 說明 |
+|---|---|
+| `src/modules/ai/aiClient.mjs` | 共用 AI client，負責 provider dispatch、Langfuse trace、模型呼叫與共用防護。 |
+| `src/modules/ai/aiCoach.mjs` | 每日主 AI orchestration，產生 search queries、macro analysis、investment advice。 |
+| `src/modules/ai/aiDataPreprocessor.mjs` | 將市場資料、總經資料與新聞結果轉為低 token、可讀的 AI context。 |
+| `src/modules/ai/prompts.mjs` | 所有 system prompts、schema、judge config 與 prompt 常數集中處。 |
+| `src/modules/ai/ruleOptimizerAgent.mjs` | 根據近期新聞與 blacklist 情況，提出候選規則供治理流程檢查。 |
+| `src/modules/ai/llmJudge.mjs` | 對 Investment Advice 結果執行條件式品質評分，至少包含 `Actionability` 與 `Tone_and_Empathy`。 |
+| `src/modules/ai/periodReportAgent.mjs` | 從 `data/reports/` 載入近 7 / 30 天報告，先做純統計，再呼叫 AI 產出週報 / 月報摘要。 |
 
 ---
 
-## 3. Prompt Schema 與結構化輸出
+## 3. 每日主決策 Agent Flow
 
-### 強制結構化與思考空間設計
-為確保 AI 輸出的穩定性、可程式化解析能力與後續可評估性，系統全面利用 `@google/genai` 的 `responseSchema` 參數，強制 AI 回傳符合 `Type.OBJECT` 定義的 JSON 結構（詳見 `prompts.mjs`）。
+### 3.1 Search Queries Generator
+此角色會依市場狀況產生台股與美股搜尋關鍵字，輸出 `twQueries` 與 `usQueries`。在目前版本中，關鍵字不是隨意字串，而是結構化的 `KeywordEntry`：
 
-此設計的目的有三個：
+```js
+{ keyword: "TSMC earnings guidance", searchType: "intitle" }
+```
 
-1. **降低格式漂移風險**：避免模型在不同日期、不同上下文下輸出難以解析的自由文本。
-2. **提高程式可維護性**：讓呼叫方能明確驗證欄位完整性、內容結構與必要區塊是否存在。
-3. **支援觀測與評分回寫**：結構化輸出可作為後續 schema 驗證、格式檢查與品質評估的基礎。
+已整合的規則包含：
+- 輸出 6–8 組為主，不超過 8 組。
+- 避免只輸出單字縮寫，例如單獨 `CPI`。
+- 盡量避免與靜態 `baseTwQueries` / `baseUsQueries` 重複。
+- `searchType` 明確區分 `intitle` 與 `broad`。
 
-### 隱藏思考區設計（Chain-of-Thought / Internal Reasoning）
-每個關鍵 Schema（如 `FILTERED_NEWS_SCHEMA`、`MACRO_ANALYSIS_SCHEMA` 或 `INVESTMENT_COACH_SCHEMA`）都會刻意保留 `think`、`dimension_check` 或 `coach_internal_thinking` 等欄位，作為模型內部推理與自我檢查的空間。
+這一段對 AI Agent 很重要，因為後續若新聞品質下降，第一個要檢查的不是 `newsFetcher`，而是 search query prompt 與 schema 驗收條件。
 
-這些欄位的設計目的不是直接展示給最終使用者，而是要求模型在輸出最終結論前，先於 JSON 的第一層完成較完整的推理，例如：
+### 3.2 News Filter
+News filter 不只做語意摘要，也扮演 quality gate。除了 AI 過濾，本專案還有程式層的 `validateDynamicKeyword()`、`mergeKeywords()`、來源黑名單與 regex 過濾，因此 AI filter 並不是唯一防線。
 
-- 盤點新聞重要性
-- 自我確認是否涵蓋主要維度
-- 比較利多與利空事件權重
-- 檢查最終建議是否與前文邏輯一致
+### 3.3 Macro Analyst
+`analyzeMacroNewsWithAI()` 會將整理後的新聞摘要轉成多空分析結果，並輸出市場方向，例如 `BULLISH`、`BEARISH`、`NEUTRAL`。這個方向值會回注到 `strategyEngine` 的輸入，成為量化訊號之外的情緒補充。
 
-此做法可降低模型產生幻覺（Hallucination）的機率，也能提高後續程式側驗證與評估的可行性。
+### 3.4 Investment Coach
+`getAiInvestmentAdvice()` 是每日主建議輸出。其輸入同時包含：
+- strategy result，
+- portfolio state，
+- VIX / US risk，
+- macro analysis，
+- news summary，
+- preprocessed macro & chip context。
 
-### Rule Optimizer 的結構化輸出定位
-Rule Optimizer 也屬於結構化輸出架構的一部分，但它的輸出語意與主決策 Agent 不同。
-
-它的任務不是直接產出最終決策，而是根據已通過新聞與治理資料，透過 `RULE_OPTIMIZER_SYSTEM_PROMPT` 回傳候選規則集合，例如：
-
-- 建議新增的 regex pattern
-- 規則用途說明
-- 規則命中理由或風險說明
-
-這些內容仍屬於「AI 建議」，而不是最終可執行規則，因此必須由程式側進一步驗證後，才能被接納到實際 blacklist 中。
-
-### 分塊策略與 Token 節約機制
-為降低 token 消耗並強化模型判讀效率，系統採取多層次的資料預處理與截斷策略：
-
-- **資料預處理降維**：`aiDataPreprocessor.mjs` 會先將龐大的原始物件（如維持率、CNN 指數、匯率變化、籌碼資料等）轉為 AI 易讀、低 token 的條列式簡報，避免模型自行從大量原始數字中推導含義。
-- **語意化摘要**：部分原始指標會先被轉換為明確風險語句，例如「極度安全」、「接近危險區」、「高估但未極端」等，降低 prompt 膨脹。
-- **重點事件截斷**：如 `formatMacroAnalysisForCoach` 僅傳遞最重要的前幾個高權重事件給 Coach，避免底層雜訊干擾最終建議。
-- **區域與角色分工**：讓每一個 Agent 只接收自己真正需要的上下文，減少無效 token 浪費。
+這代表 Coach 並不是直接看原始資料，而是站在「已整理上下文」上產出最終建議。若未來要調整建議品質，優先檢查 `aiDataPreprocessor.mjs` 與 `prompts.mjs`。
 
 ---
 
-## 4. AI 呼叫、Trace 與評分回寫架構
+## 4. Governance Agents
 
-### `callGemini` 的角色
-`aiClient.mjs` 中的 `callGemini` 是整個 AI 管線的共用呼叫入口，負責：
+### 4.1 Rule Optimizer
+`ruleOptimizerAgent.mjs` 是背景治理流程的一部分，通常由 `src/runOptimizer.mjs` 單獨觸發。它不直接改寫正式結論，而是提出候選規則，之後再經過程式側驗證與寫入。
 
-- 依 prompt 名稱載入對應的 Langfuse Prompt
-- 編譯 system instruction
-- 選擇 Gemini model 與 API key
-- 建立 Langfuse trace 與 generation
-- 執行 Gemini 呼叫與重試機制
-- 回傳 AI 結果給上層模組
+### 4.2 LLM Judge
+`llmJudge.mjs` 並不是每次都執行，而是由 `shouldRunJudge()` 依環境變數條件判斷：
+- `weekly`：每週指定星期幾執行。
+- `random`：依 sample rate 抽樣執行。
+- `always`：每次都執行。
 
-在最新目標架構下，`callGemini` 不再只是單純回傳文字內容，而是同時對外提供與該次 AI 呼叫對應的 trace 關聯資訊，使呼叫方可在取得輸出、完成解析與驗證後，再由模組端自行補寫 Langfuse score。
+當 `dailyCheck.mjs` 取得有效 `adviceTraceId` 且 `aiAdvice` 為物件時，會條件式呼叫 `runJudge()`。Judge 目前至少評估兩個面向：
+- `Actionability`
+- `Tone_and_Empathy`
 
-### 為何要做最小解耦
-過去 Langfuse trace 與 Gemini 呼叫深度綁定在 `callGemini` 內部，雖然有利於統一記錄，但也造成外部模組無法在「AI 回傳之後、業務驗證完成之後」補寫評分。
-
-最新目標架構採取**最小解耦**策略：
-
-- `callGemini` 仍保留 trace/generation 的建立責任
-- 但上層模組可取得對應的 trace 關聯資訊
-- 各呼叫方在完成自己的 parse、schema 驗證、格式檢查、良率統計或維度分析後，再自行以 `langfuse.score()` 回寫分數
-
-此設計可以避免把所有 score 邏輯集中塞進共用 AI client，降低耦合，也讓不同 Agent 的品質驗證能留在最了解業務語意的模組中處理。
-
-### 評分責任邊界
-在這個架構下，AI 模組中的各呼叫方需要各自負責：
-
-- 判斷 JSON parse 是否成功
-- 檢查 schema 與必要欄位是否完整
-- 驗證格式是否符合指定規範
-- 計算關鍵字良率、維度覆蓋或分數分布等指標
-- 將結果回寫到 Langfuse
-
-但詳細的評分項目、分數定義與維護方式，統一以獨立的 score config 文件為準，不在本文件重複展開。
+這一段屬於 **主流程中的條件式背景評估**。它不是主要決策產生器，但仍屬 daily pipeline 的一部分，且被設計成 non-blocking score writeback。
 
 ---
 
-## 5. 已知限制與防禦機制
+## 5. Period Report Agent
+`periodReportAgent.mjs` 是本次文件必須補上的核心模組。它的流程分成兩段：
 
-### API 輪詢與 Rate Limit 防護
-為應對 Google Gemini 高頻率調用可能發生的限流（429 RATE_LIMIT）或短暫不可用（503），`aiClient.mjs` 內已實作多 API key 輪詢機制（`GEMINI_API_KEYS`），並可透過傳入不同的 `keyIndex` 切換金鑰。
+1. **Pure stats stage**：`loadRecentReports(days)` 從 `data/reports/` 讀取近 7 或 30 天 JSON，`buildPeriodStats()` 計算指標統計、過熱持續天數、冷卻期阻擋、策略一致性、總經方向與月報額外 signal quality。
+2. **AI summary stage**：`generatePeriodAiSummary()` 將統計結果與過去 `risk_warnings` 聚合後送入 AI，最後由 `periodReportBuilder.mjs` 組出 Telegram 週報 / 月報訊息。
 
-此外，系統導入 **Exponential Backoff + Jitter**（指數退避 + 隨機延遲）機制，在可重試錯誤出現時自動延後再試，以降低短時間連續失敗的風險。
+這代表週報與月報不是重跑一次 daily pipeline，而是以 **daily report archives 為資料來源的 second-order analysis**。
 
-### Langfuse 軌跡追蹤與觀測能力
-系統全面整合 Langfuse 監控平台，每一次 Gemini 呼叫都會被記錄為一組 Trace 與 Generation，用於追蹤：
-
-- prompt 與輸入內容
-- 模型與參數
-- 重試次數與錯誤資訊
-- token 使用量
-- thinking token 成本（如有回傳）
-- 後續由業務模組補寫的品質分數
-
-這使得 AI 決策流程不再只是黑盒，而是可回放、可比對、可評估的可觀測系統。
-
-### 評分寫入非阻塞原則
-Langfuse score 的寫入屬於觀測層，不可反過來影響主流程。
-
-因此系統在最新目標架構下必須遵守以下原則：
-
-- 所有 `score` 寫入都應包在獨立的 `try/catch` 中
-- score 寫入失敗只能記錄 warning 或 observability error
-- 不可因為評分失敗而中斷主流程
-- 不可讓 Langfuse 成為每日新聞分析與推播成功與否的單點依賴
-
-### JSON 解析防呆與 Fallback
-若 AI 因模型截斷、輸出格式漂移或非預期內容導致 JSON 無法完整解析，程式側必須捕捉錯誤並提供保守 fallback。
-
-例如：
-
-- 新聞分析失敗時，保留預設的低風險結論
-- 教練輸出失敗時，回傳基本提醒文字
-- Rule Optimizer 輸出失敗時，直接放棄本次規則建議，不做任何 blacklist 更新
-
-這個原則的核心是：**AI 可以失敗，但排程不能跟著失敗**。
-
-### Rule Optimizer 安全閘門
-Rule Optimizer 的候選規則不可被視為可信輸出，因為任何過廣、錯誤或設計不良的 regex 都可能誤傷正常新聞，甚至污染整個治理鏈。
-
-因此所有規則都必須經過下列安全閘門：
-
-1. regex 語法是否合法
-2. 是否屬於過廣規則（overbroad）
-3. 是否與現有規則重複
-4. 是否會誤殺 golden dataset
-5. 是否符合 blacklist 實際資料格式與系統讀取方式
-
-只有通過全部檢查的規則，才可被追加到正式 blacklist。
-
-### 主決策管線與背景治理管線分離
-主決策管線（Search Queries Generator → News Filter → Macro Analyst → Investment Coach）追求的是每日穩定產出可用結論。  
-背景治理管線（Rule Optimizer）追求的是長期降低噪音、持續修正規則與提升新聞品質。
-
-兩者必須分離的原因是：
-
-- 主決策失敗不能依賴背景治理補救
-- 背景治理失敗不能影響主流程
-- 規則治理需要保守驗證，不適合與即時決策綁死
-- 日後若要擴充更多治理任務（如 LLM Judge、規則回滾、評分巡檢），也能沿用同樣的背景處理模式
+對 AI Agent 來說，若要改週報 / 月報品質，主要修改點是：
+- `periodReportAgent.mjs`
+- `prompts.mjs`
+- `notifications/templates/periodReportBuilder.mjs`
 
 ---
 
-## 6. 總結
-目前的 AI Pipeline 已從單純的「AI 生成戰報」演進為一套具備以下能力的決策系統：
+## 6. 結構化輸出與 AI Agent 維護重點
+本專案已經把大量 AI 輸出結構化，因此未來 Agent 維護時，請優先沿著這條路徑找責任：
 
-- 多 Agent 分工決策
-- 強制結構化輸出
-- 內部推理與自我檢查
-- 可觀測的 Langfuse trace / generation 追蹤
-- 可回寫的品質評分能力
-- 背景規則治理與 blacklist 優化機制
+1. prompt 定義：`src/modules/ai/prompts.mjs`
+2. AI 呼叫與 Langfuse：`src/modules/ai/aiClient.mjs`
+3. 上下文整理：`src/modules/ai/aiDataPreprocessor.mjs`
+4. 每日決策邏輯：`src/modules/ai/aiCoach.mjs`
+5. 週期報告：`src/modules/ai/periodReportAgent.mjs`
+6. 評估與治理：`src/modules/ai/llmJudge.mjs`、`src/modules/ai/ruleOptimizerAgent.mjs`
 
-此架構的核心精神是：  
-**讓 AI 不只是會回答，還要能被驗證、被監控、被評分，並且在長期運作中持續修正自己。**
+這樣可以避免把所有 AI 問題都誤判為 prompt 問題；很多時候實際根因是 context shaping、schema validation，或 score writeback 流程。
