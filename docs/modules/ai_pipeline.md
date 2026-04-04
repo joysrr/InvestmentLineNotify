@@ -6,7 +6,7 @@
 目前 AI 模組的角色可以分成三類：
 - **Main decision agents**：每日決策相關的 search queries、news filter、macro analyst、investment coach。
 - **Governance agents**：`ruleOptimizerAgent.mjs`、`llmJudge.mjs`，負責治理與品質評估。
-- **Period agents**：`periodReportAgent.mjs`，負責週報 / 月報摘要生成。
+- **Period agents**：`periodReportAgent.mjs`，負責週報 / 月報統計運算、訊號準確率計算與 AI 摘要生成。
 
 ---
 
@@ -19,7 +19,7 @@
 | `src/modules/ai/prompts.mjs` | 所有 system prompts、schema、judge config 與 prompt 常數集中處。 |
 | `src/modules/ai/ruleOptimizerAgent.mjs` | 根據近期新聞與 blacklist 情況，提出候選規則供治理流程檢查。 |
 | `src/modules/ai/llmJudge.mjs` | 對 Investment Advice 結果執行條件式品質評分，至少包含 `Actionability` 與 `Tone_and_Empathy`。 |
-| `src/modules/ai/periodReportAgent.mjs` | 從 `data/reports/` 載入近 7 / 30 天報告，先做純統計，再呼叫 AI 產出週報 / 月報摘要。 |
+| `src/modules/ai/periodReportAgent.mjs` | 從 `data/reports/` 載入近 7 / 30（或 50）天報告，執行純統計、訊號準確率計算，再呼叫 AI 產出週報 / 月報摘要。 |
 
 ---
 
@@ -79,17 +79,55 @@ News filter 不只做語意摘要，也扮演 quality gate。除了 AI 過濾，
 ---
 
 ## 5. Period Report Agent
-`periodReportAgent.mjs` 是本次文件必須補上的核心模組。它的流程分成兩段：
 
-1. **Pure stats stage**：`loadRecentReports(days)` 從 `data/reports/` 讀取近 7 或 30 天 JSON，`buildPeriodStats()` 計算指標統計、過熱持續天數、冷卻期阻擋、策略一致性、總經方向與月報額外 signal quality。
-2. **AI summary stage**：`generatePeriodAiSummary()` 將統計結果與過去 `risk_warnings` 聚合後送入 AI，最後由 `periodReportBuilder.mjs` 組出 Telegram 週報 / 月報訊息。
+`periodReportAgent.mjs` 的流程分成三段：
+
+1. **Pure stats stage**：`loadRecentReports(days)` 從 `data/reports/` 讀取近 N 天 JSON，`buildPeriodStats()` 計算指標統計、過熱持續天數、冷卻期阻擋、策略一致性、總經方向，以及月報額外的 signal quality。
+
+2. **Signal accuracy stage**：`buildSignalAccuracyStats(targetReports, priceSeriesReports, period)` 對同一批報告進行訊號準確率分析，不依賴外部資料來源，完全使用 `data/reports/` 中已存入的 `signals.currentPrice`。
+
+3. **AI summary stage**：`generatePeriodAiSummary()` 將統計結果與過去 `risk_warnings` 聚合後送入 AI，最後由 `periodReportBuilder.mjs` 組出 Telegram 週報 / 月報訊息。
 
 這代表週報與月報不是重跑一次 daily pipeline，而是以 **daily report archives 為資料來源的 second-order analysis**。
 
+### 5.1 訊號分類邏輯
+
+訊號分類集中在 `periodReportAgent.mjs` 內，以結構化欄位為主要判斷依據：
+
+| 函式 | 判斷依據 | 說明 |
+|---|---|---|
+| `isBuySignal(signals)` | `signals.suggestedLeverage > 0` 或 `signals.targetAllocation.leverage > 0`；備用：`target` 字串包含「破冰加碼」或「買進訊號」 | 實際觸發買進建議 |
+| `isCooldownBlocked(signals)` | `cooldownStatus.inCooldown === true` 且 `weightScore >= minWeightScoreToBuy` | 分數達標但被冷卻期擋住，計入準確率分母 |
+
+風控攔截（維持率低、估值泡沫、再平衡）與中性觀望不計入分母，這些屬於一票否決的前置條件。
+
+### 5.2 `buildSignalAccuracyStats()` 輸出結構
+
+```js
+{
+  buySignalCount: 5,           // 觸發買進訊號次數
+  cooldownBlockedCount: 3,     // 冷卻期封鎖次數（分母）
+  totalEligibleDays: 8,        // buySignalCount + cooldownBlockedCount
+  cooldownBlockRate: 0.375,    // 達標日封鎖率
+
+  // 月報才有，週報為 null
+  signalDetails: [ { date, weightScore, leveragePct, priceAtSignal, returns: { d5, d10, d20 } } ],
+  avgReturn: { d5: +2.3, d10: +3.1, d20: +4.8 },
+  winRate:   { d5: 0.80, d10: 0.80, d20: 1.00 },
+  dataNote: null,  // 資料不足時填入說明文字
+}
+```
+
+每個天數（`d5` / `d10` / `d20`）各自帶有 `available: boolean`，資料不足只影響該天數，不影響其他天數的呈現。
+
+### 5.3 維護重點
+
 對 AI Agent 來說，若要改週報 / 月報品質，主要修改點是：
-- `periodReportAgent.mjs`
-- `prompts.mjs`
-- `notifications/templates/periodReportBuilder.mjs`
+- `periodReportAgent.mjs`（統計邏輯、訊號分類）
+- `prompts.mjs`（AI 摘要 prompt）
+- `notifications/templates/periodReportBuilder.mjs`（Telegram 格式）
+
+若未來 `strategyEngine` 的回傳結構異動（例如 `targetAllocation` 欄位更名），需同步更新 `isBuySignal()` 的判斷邏輯。
 
 ---
 
@@ -100,7 +138,7 @@ News filter 不只做語意摘要，也扮演 quality gate。除了 AI 過濾，
 2. AI 呼叫與 Langfuse：`src/modules/ai/aiClient.mjs`
 3. 上下文整理：`src/modules/ai/aiDataPreprocessor.mjs`
 4. 每日決策邏輯：`src/modules/ai/aiCoach.mjs`
-5. 週期報告：`src/modules/ai/periodReportAgent.mjs`
+5. 週期報告與訊號準確率：`src/modules/ai/periodReportAgent.mjs`
 6. 評估與治理：`src/modules/ai/llmJudge.mjs`、`src/modules/ai/ruleOptimizerAgent.mjs`
 
 這樣可以避免把所有 AI 問題都誤判為 prompt 問題；很多時候實際根因是 context shaping、schema validation，或 score writeback 流程。
