@@ -46,6 +46,10 @@ function isValidDateStr(str) {
  *   1. Sheet 讀到合理值 → 備份至 last_buy.json，回傳 Sheet 值
  *   2. Sheet 值異常 / 空白 → fallback 至 last_buy.json
  *   3. 兩者均無可用 → 回傳 null，輸出警告
+ *
+ * avgCost0050 / avgCostZ2 容錯邏輯：
+ *   - 欄位有值 → 回傳數字
+ *   - 欄位空白或非數字 → 回傳 null（不影響流程，Coach 會顯示「未設均價」）
  */
 export async function fetchLastPortfolioState() {
   try {
@@ -123,6 +127,9 @@ export async function fetchLastPortfolioState() {
       qtyZ2: parseNumberOrNull(lastRow.get("00675L股數")) || 0,
       totalLoan: parsedLoan || 0,
       cash: parsedCash ?? (parseNumberOrNull(process.env.CASH_RESERVE) || 0),
+      // 持倉均價（手動維護欄位，空白時為 null，不影響主流程）
+      avgCost0050: parseNumberOrNull(lastRow.get("0050均價")),
+      avgCostZ2: parseNumberOrNull(lastRow.get("00675L均價")),
     };
   } catch (err) {
     console.error("❌ 讀取持股失敗:", err);
