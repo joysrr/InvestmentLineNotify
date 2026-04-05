@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-05T00:00:45.184Z",
+  "generated_at": "2026-04-05T05:00:31.198Z",
   "source_pool_updated_at": "2026-04-04T21:32:11.933Z",
   "count": 12,
   "articles": [
@@ -13,7 +13,7 @@
       "_region": "US",
       "fetched_at": "2026-04-04T21:32:11.928Z",
       "age_band": "fresh",
-      "summary": "美國最新就業報告顯示勞動力市場強勁，非農就業人數超出預期，直接導致美債殖利率攀升。此數據削弱了市場對聯準會近期降息的預期，對高估值的科技股與台股大盤形成估值壓力，需密切關注資金向債市流動的風險。"
+      "summary": "美國最新就業報告顯示勞動力市場異常強勁，非農就業人數遠超預期，導致美債殖利率應聲攀升。此數據顯著削弱了市場對聯準會近期降息的期待，對科技股及高槓桿投資策略構成估值壓力，需密切關注資金從風險資產流向債市的趨勢。"
     },
     {
       "id": "98bc85676bee47f3",
@@ -25,55 +25,7 @@
       "_region": "US",
       "fetched_at": "2026-04-04T18:42:35.651Z",
       "age_band": "fresh",
-      "summary": "芝加哥聯準銀行總裁 Goolsbee 警告，中東衝突（美伊戰爭風險）可能導致能源價格飆升，進而推遲聯準會的降息時程。這顯示地緣政治已成為影響總體貨幣政策的核心變數，對槓桿型投資者而言，利率維持高點的時間可能比預期更長。"
-    },
-    {
-      "id": "8c16dd070966ea12",
-      "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1MeWU1eW1wVDdjcWZNblFDd09CUDNsNDhGaDBYQ3lPR1J6ZDE4a0ZGYjhxUG9XSkJBWnU0UHJTNS1aRERCSXA3ZWcwbTRicWg4aGRZdHAtaGo?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1MeWU1eW1wVDdjcWZNblFDd09CUDNsNDhGaDBYQ3lPR1J6ZDE4a0ZGYjhxUG9XSkJBWnU0UHJTNS1aRERCSXA3ZWcwbTRicWg4aGRZdHAtaGo?oc=5",
-      "title": "投信買超逾百億台股暴漲1451點前10大出爐！這檔電子連4買最狂 - 自由時報",
-      "pubDate": "Sat, 04 Apr 2026 16:57:42 GMT",
-      "source": "自由時報",
-      "_region": "TW",
-      "fetched_at": "2026-04-04T18:42:35.651Z",
-      "age_band": "fresh",
-      "summary": "台股出現單日暴漲 1451 點的極端行情，主要由投信買超逾百億元帶動。這反映出內資在市場動盪中扮演關鍵支撐角色，電子權值股獲得連續買盤挹注，顯示市場在恐慌後出現強勁的 V 轉動能，有利於 0050 等市值型 ETF 的表現。"
-    },
-    {
-      "id": "0a076d9230847b59",
-      "url": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE12US0tUXpEU1hycHB1ajk1UlhHRUdzRmJIQnhIUkdpNkZWN0NlX0ItSy1meHJhdjBXTDlyaEkxWEpvRkZYeFZvOTVxX0Jtdw?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE12US0tUXpEU1hycHB1ajk1UlhHRUdzRmJIQnhIUkdpNkZWN0NlX0ItSy1meHJhdjBXTDlyaEkxWEpvRkZYeFZvOTVxX0Jtdw?oc=5",
-      "title": "天下財經週報：川普沒立即喊停美伊戰爭，OPEC+增產救得了油市荒嗎？ - 天下雜誌",
-      "pubDate": "Sat, 04 Apr 2026 21:06:07 GMT",
-      "source": "天下雜誌",
-      "_region": "TW",
-      "fetched_at": "2026-04-04T21:32:11.928Z",
-      "age_band": "fresh",
-      "summary": "中東戰火威脅油市供應，市場關注 OPEC+ 是否增產以平抑油價。若油價因戰爭持續維持高位，將引發全球性二次通膨風險，迫使各國央行維持鷹派立場，對全球製造業成本與消費支出產生實質負面衝擊。"
-    },
-    {
-      "id": "0541dba0b26e3184",
-      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9hcXU4MjZqM19zVVpxQ0hBSGVDaUd2cmVWVkNFam5HTV9XWFpzWXYwbDgzYUpWeWlEUVZRSkxHZUZrQWdQQVJBdkNRYw?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9hcXU4MjZqM19zVVpxQ0hBSGVDaUd2cmVWVkNFam5HTV9XWFpzWXYwbDgzYUpWeWlEUVZRSkxHZUZrQWdQQVJBdkNRYw?oc=5",
-      "title": "台積電入列！外媒點名「現在就必須買這2檔」十年後絕對會感謝自己 - 三立新聞網",
-      "pubDate": "Sat, 04 Apr 2026 21:26:32 GMT",
-      "source": "三立新聞網",
-      "_region": "TW",
-      "fetched_at": "2026-04-04T21:32:11.928Z",
-      "age_band": "fresh",
-      "summary": "外媒高度評價台積電與輝達的長期投資價值，認為其在 AI 產業鏈的壟斷地位無可取代。作為台股權重最高的龍頭，台積電的產業競爭力是支撐大盤長期向上的核心，其資本支出與技術領先優勢將持續吸引長線資金配置。"
-    },
-    {
-      "id": "0f764796079a769b",
-      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9xZm0xbGVldVRBOWZ0Mk5vRXJRNFV3M3poOWZubV9LVzUxT3RWcTJoeTdpaGZyWGhJd0Z5akdlbjVBV2dia2c1c0xQSlo2UlpxY0tB?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9xZm0xbGVldVRBOWZ0Mk5vRXJRNFV3M3poOWZubV9LVzUxT3RWcTJoeTdpaGZyWGhJd0Z5akdlbjVBV2dia2c1c0xQSlo2UlpxY0tB?oc=5",
-      "title": "International Business: BOJ urged to keep raising interest rates - Gulf Daily News",
-      "pubDate": "Sat, 04 Apr 2026 21:20:03 GMT",
-      "source": "Gulf Daily News",
-      "_region": "US",
-      "fetched_at": "2026-04-04T21:32:11.928Z",
-      "age_band": "fresh",
-      "summary": "日本央行（BOJ）面臨升息壓力，市場預期其將持續調升利率。日圓利差交易（Carry Trade）的潛在平倉風險可能引發全球資金流向劇變，對台股等新興市場的流動性產生間接衝擊，是量化策略中必須監控的資金流變數。"
+      "summary": "芝加哥聯準行長 Goolsbee 明確警告，美伊戰爭引發的能源價格波動可能迫使 Fed 延後降息。地緣政治風險已成為通膨路徑的最大變數，若降息時程推遲，將直接衝擊全球股市流動性，並增加台股大盤與 0050 的下行風險。"
     },
     {
       "id": "9606ed236a559b44",
@@ -85,7 +37,19 @@
       "_region": "TW",
       "fetched_at": "2026-04-04T21:32:11.928Z",
       "age_band": "fresh",
-      "summary": "外資單日大砍台股 386.95 億元，並集中賣超 ETF，顯示國際資金在避險情緒升溫下正撤出風險資產。外資與內資的籌碼對抗將加劇大盤波動，投資者應注意外資在期現貨市場的同步動作，防範大盤回檔風險。"
+      "summary": "外資單日大舉賣超台股 386.95 億元，並針對多檔 ETF 進行調節，顯示國際資金在避險情緒下正撤出新興市場。外資的集體撤離對台積電等權值股造成直接壓力，短期內需防範大盤回測支撐，對槓桿型投資者而言風險顯著增加。"
+    },
+    {
+      "id": "8c16dd070966ea12",
+      "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1MeWU1eW1wVDdjcWZNblFDd09CUDNsNDhGaDBYQ3lPR1J6ZDE4a0ZGYjhxUG9XSkJBWnU0UHJTNS1aRERCSXA3ZWcwbTRicWg4aGRZdHAtaGo?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1MeWU1eW1wVDdjcWZNblFDd09CUDNsNDhGaDBYQ3lPR1J6ZDE4a0ZGYjhxUG9XSkJBWnU0UHJTNS1aRERCSXA3ZWcwbTRicWg4aGRZdHAtaGo?oc=5",
+      "title": "投信買超逾百億台股暴漲1451點前10大出爐！這檔電子連4買最狂 - 自由時報",
+      "pubDate": "Sat, 04 Apr 2026 16:57:42 GMT",
+      "source": "自由時報",
+      "_region": "TW",
+      "fetched_at": "2026-04-04T18:42:35.651Z",
+      "age_band": "fresh",
+      "summary": "儘管外資撤離，投信單日買超逾百億元，支撐台股暴漲 1451 點，顯示內資護盤力道強勁。這種「內外資對作」的格局加劇了市場波動，投資人應關注電子權值股的籌碼流向，這將決定台股能否在震盪中維持 V 轉行情並穩定 0050 走勢。"
     },
     {
       "id": "4b9473bbd3ceb759",
@@ -97,7 +61,19 @@
       "_region": "TW",
       "fetched_at": "2026-04-04T18:42:35.651Z",
       "age_band": "fresh",
-      "summary": "台灣 3 月出口數據表現亮眼，有望達成連續 29 個月正成長，規模預估達 667 億美元。強勁的出口基本面顯示全球對台灣半導體及資通訊產品需求依然旺盛，為台股提供堅實的獲利支撐，抵銷部分總經不確定性。"
+      "summary": "財政部預估台灣 3 月出口規模上看 667 億美元，有望達成連 29 紅的紀錄。強勁的出口數據反映全球 AI 需求持續旺盛，為台股基本面提供堅實支撐，對於以 0050 為核心的長期投資者而言，這是產業景氣循環向上的重要利多訊號。"
+    },
+    {
+      "id": "0541dba0b26e3184",
+      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9hcXU4MjZqM19zVVpxQ0hBSGVDaUd2cmVWVkNFam5HTV9XWFpzWXYwbDgzYUpWeWlEUVZRSkxHZUZrQWdQQVJBdkNRYw?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9hcXU4MjZqM19zVVpxQ0hBSGVDaUd2cmVWVkNFam5HTV9XWFpzWXYwbDgzYUpWeWlEUVZRSkxHZUZrQWdQQVJBdkNRYw?oc=5",
+      "title": "台積電入列！外媒點名「現在就必須買這2檔」十年後絕對會感謝自己 - 三立新聞網",
+      "pubDate": "Sat, 04 Apr 2026 21:26:32 GMT",
+      "source": "三立新聞網",
+      "_region": "TW",
+      "fetched_at": "2026-04-04T21:32:11.928Z",
+      "age_band": "fresh",
+      "summary": "外媒點名台積電與輝達為未來十年的核心資產，強調其在 AI 浪潮中的不可替代性。作為 0050 最大權值股，台積電的長期競爭力獲得國際認可，有助於穩定市場信心，並吸引長線價值投資資金持續流入，對抗短期地緣政治引發的波動。"
     },
     {
       "id": "588808d06d808509",
@@ -109,7 +85,7 @@
       "_region": "TW",
       "fetched_at": "2026-04-04T21:32:11.928Z",
       "age_band": "fresh",
-      "summary": "受美伊戰爭影響，專家預估台灣通膨率可能突破 2% 警戒線。通膨升溫可能迫使台灣央行採取更謹慎的貨幣政策，甚至有升息空間，這將影響台幣匯率走勢及本土資金的借貸成本，對槓桿操作者構成成本壓力。"
+      "summary": "專家分析美伊戰爭若持續延燒，將推升進口能源成本，導致台灣通膨率突破 2% 的警戒線。通膨壓力若無法緩解，可能迫使台灣央行採取更鷹派的貨幣立場，進而影響市場折現率與台股整體的本益比評價，對大盤指數形成壓抑。"
     },
     {
       "id": "b2bd9689317b6828",
@@ -121,31 +97,55 @@
       "_region": "TW",
       "fetched_at": "2026-04-04T21:32:11.928Z",
       "age_band": "fresh",
-      "summary": "地緣政治引發「金屬通膨」，鋁價創四年新高，銅市供應亦出現劇烈波動。原物料價格上漲將推升製造業成本，對台灣非電金屬產業及下游電子組裝業的毛利產生擠壓效應，需關注相關產業鏈的獲利修正。"
+      "summary": "伊朗戰火引發「金屬通膨」，鋁價飆升至四年高點，反映供應鏈中斷風險。雖然銅市可能出現過剩，但關鍵工業金屬價格上漲將推升製造業成本，對電子零組件與硬體組裝產業的毛利率構成潛在威脅，需警惕科技股的成本轉嫁風險。"
     },
     {
-      "id": "526332282c1f2a44",
-      "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxQSExJUFJ1bVJ2dktNR3FuTzF4RXdRNXB1WlhCeUdKU1hOcWUtS1RYSjZ6anB5eEoyMUlRRktkVm9RUnV4WWZXQncwdUJyRjJmSlduaWRVbDF3d2dBLUdNWmNpajVSUjZReDQxWGwwbkNsNmtGQXkwNGVUQ0pXcUw3SU4yLU1OVmgzOC1LQkpXSk5fZWFJZk9SNHZRVDZTZFlINmVpRFhGRjgxM1M1WmVZdWNUaDJtNFFOekNwZDhtbXJrbURfSW44eHFlTGdsT2R6UnhLLW1B?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxQSExJUFJ1bVJ2dktNR3FuTzF4RXdRNXB1WlhCeUdKU1hOcWUtS1RYSjZ6anB5eEoyMUlRRktkVm9RUnV4WWZXQncwdUJyRjJmSlduaWRVbDF3d2dBLUdNWmNpajVSUjZReDQxWGwwbkNsNmtGQXkwNGVUQ0pXcUw3SU4yLU1OVmgzOC1LQkpXSk5fZWFJZk9SNHZRVDZTZFlINmVpRFhGRjgxM1M1WmVZdWNUaDJtNFFOekNwZDhtbXJrbURfSW44eHFlTGdsT2R6UnhLLW1B?oc=5",
-      "title": "高盛下調印度市場前景 - citytimes.tw",
-      "pubDate": "Sat, 04 Apr 2026 20:51:50 GMT",
-      "source": "citytimes.tw",
-      "_region": "TW",
+      "id": "0f764796079a769b",
+      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9xZm0xbGVldVRBOWZ0Mk5vRXJRNFV3M3poOWZubV9LVzUxT3RWcTJoeTdpaGZyWGhJd0Z5akdlbjVBV2dia2c1c0xQSlo2UlpxY0tB?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9xZm0xbGVldVRBOWZ0Mk5vRXJRNFV3M3poOWZubV9LVzUxT3RWcTJoeTdpaGZyWGhJd0Z5akdlbjVBV2dia2c1c0xQSlo2UlpxY0tB?oc=5",
+      "title": "International Business: BOJ urged to keep raising interest rates - Gulf Daily News",
+      "pubDate": "Sat, 04 Apr 2026 21:20:03 GMT",
+      "source": "Gulf Daily News",
+      "_region": "US",
       "fetched_at": "2026-04-04T21:32:11.928Z",
       "age_band": "fresh",
-      "summary": "高盛下調印度市場前景，反映出市場對新興市場高估值的重新評估。隨著資金從高基期市場撤出，可能引發亞太地區資金重新配置，台股作為科技成長股代表，需觀察是否會承接部分從印度流出的避險資金。"
+      "summary": "日本央行面臨升息壓力，市場預期其將持續收緊貨幣政策以應對通膨。日圓若因升息而走強，將引發全球利差交易（Carry Trade）平倉潮，導致資金從高風險資產回流日本，這對台股等新興市場的資金流動性具有顯著的潛在衝擊。"
     },
     {
-      "id": "25ab36ad825efc13",
-      "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE1XcFJ6OE1CUzhtTEJaVVVrYWc5aWpTV3c5SGFIWWhjanNBV2RnRTZ0Y3luei1ZYjRyVE5kRFVxWmhJMjQ5SWd1bjFkONIBXkFVX3lxTFBXWC1LVUFvRjhuenZxTWJCMU9DNGlURWhoVzEyOU9talJQa3RrTUtKNFVaT2ZVRk5ITnZjdXdYRUhNSmxLcXNCYjRnZnhKTGR6QV9RM0dtTjlLSFllanc?oc=5",
-      "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE1XcFJ6OE1CUzhtTEJaVVVrYWc5aWpTV3c5SGFIWWhjanNBV2RnRTZ0Y3luei1ZYjRyVE5kRFVxWmhJMjQ5SWd1bjFkONIBXkFVX3lxTFBXWC1LVUFvRjhuenZxTWJCMU9DNGlURWhoVzEyOU9talJQa3RrTUtKNFVaT2ZVRk5ITnZjdXdYRUhNSmxLcXNCYjRnZnhKTGR6QV9RM0dtTjlLSFllanc?oc=5",
-      "title": "‘Collision of forces’ inching US near ‘recession’ of historic proportions: researcher - rawstory.com",
-      "pubDate": "Sat, 04 Apr 2026 18:29:00 GMT",
-      "source": "rawstory.com",
+      "id": "072e2a8fabb2f4c3",
+      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE00QzcxTFNFUWlZOUZCdnA4RVVoS0g1U1AyUG1SRFIwNHl1OEJ1VTFzVVpDRDFjODRXTzF2MENSeW1kZlZmM3ozQzRMLXBPNTZtYXhRZ2lwcmRmcWtYaFZnUVFYd1VMcGNVc29yVXJtRmdtdW5PRTVCOTZ1WQ?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE00QzcxTFNFUWlZOUZCdnA4RVVoS0g1U1AyUG1SRFIwNHl1OEJ1VTFzVVpDRDFjODRXTzF2MENSeW1kZlZmM3ozQzRMLXBPNTZtYXhRZ2lwcmRmcWtYaFZnUVFYd1VMcGNVc29yVXJtRmdtdW5PRTVCOTZ1WQ?oc=5",
+      "title": "Trump promised lower costs; the Iran conflict now threatens that pledge - AOL.com",
+      "pubDate": "Sat, 04 Apr 2026 20:55:08 GMT",
+      "source": "AOL.com",
       "_region": "US",
+      "fetched_at": "2026-04-04T21:32:11.928Z",
+      "age_band": "fresh",
+      "summary": "川普對美伊衝突的立場轉變，威脅其降低成本的政見承諾，地緣政治動盪可能推升全球油價與物流成本。若美國通膨因戰爭而反彈，將打亂全球央行的降息節奏，增加總體經濟的不確定性，並對全球供應鏈穩定性造成長遠影響。"
+    },
+    {
+      "id": "7c3f9c4966ec23e6",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE9vaHQ2WFpPdWN1eFlyeWZCZzQ0VE1lU1Z0RXpEdnZLMUNfYlZ6VERjOEZwYUVRYlpLdU5ZckRFWVY1Njk5UlRVT1A4aWEybjdzaVVuanQ5aEoyeTN4cnZrQ2FBOXFrZ3NEWGVMdWdfWDJ6dmlwd2NfNtIBX0FVX3lxTE1GU0J6QldFWWc5aVVISEZSSnZ3cm1BR0JFMEc0TEJKbTN2dGoyX01BVUxZWmhDUWU1a2c4d0V0MTN0MFZLRTdXUHh6WG9lX3J5SThJelJhMEQtNHFiN244?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE9vaHQ2WFpPdWN1eFlyeWZCZzQ0VE1lU1Z0RXpEdnZLMUNfYlZ6VERjOEZwYUVRYlpLdU5ZckRFWVY1Njk5UlRVT1A4aWEybjdzaVVuanQ5aEoyeTN4cnZrQ2FBOXFrZ3NEWGVMdWdfWDJ6dmlwd2NfNtIBX0FVX3lxTE1GU0J6QldFWWc5aVVISEZSSnZ3cm1BR0JFMEc0TEJKbTN2dGoyX01BVUxZWmhDUWU1a2c4d0V0MTN0MFZLRTdXUHh6WG9lX3J5SThJelJhMEQtNHFiN244?oc=5",
+      "title": "匯市最前線／台幣31.8~32.2元波動 - 經濟日報",
+      "pubDate": "Sat, 04 Apr 2026 18:35:25 GMT",
+      "source": "經濟日報",
+      "_region": "TW",
       "fetched_at": "2026-04-04T18:42:35.651Z",
       "age_band": "fresh",
-      "summary": "研究人員警告美國正處於多重力量碰撞下，可能面臨歷史性的衰退風險。儘管目前就業數據尚可，但衰退陰影若擴大，將導致美股出現系統性風險，進而連動台股 0050 等市值型標的出現大幅度修正。"
+      "summary": "新台幣匯率近期在 31.8 至 32.2 元區間劇烈波動，反映外資匯出與出口商拋匯的拉鋸。匯率走弱雖有利於出口競爭力，但對外資而言則面臨匯損風險，可能進一步加速資金流出台股大盤，影響權值股的短期資金動能。"
+    },
+    {
+      "id": "0bbeb9cb71da9c68",
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxON0x2VzZYZEVGWFcwSFR6b2hpQzRhOE9CRG8zTi0xN3lLaGUwM1pqaHkyaXVKdnVsZ2tHcG5fQUM5aGtIcUc3UnpYMEZUdHNRX2M1cklyR2hNTEEtQlVlR1pvUzJBV3FiNVE0STljTDZndzFKZnNyWFNaTGUzZ0hzLWpjR1A2TkprbmE1cmxJMTBoSmhPdGgwYk4wWDR0SFBPeU1tSGN3?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxON0x2VzZYZEVGWFcwSFR6b2hpQzRhOE9CRG8zTi0xN3lLaGUwM1pqaHkyaXVKdnVsZ2tHcG5fQUM5aGtIcUc3UnpYMEZUdHNRX2M1cklyR2hNTEEtQlVlR1pvUzJBV3FiNVE0STljTDZndzFKZnNyWFNaTGUzZ0hzLWpjR1A2TkprbmE1cmxJMTBoSmhPdGgwYk4wWDR0SFBPeU1tSGN3?oc=5",
+      "title": "Gold sees steepest monthly decline since 2008 financial crisis - Anadolu Ajansı",
+      "pubDate": "Sat, 04 Apr 2026 20:49:29 GMT",
+      "source": "Anadolu Ajansı",
+      "_region": "US",
+      "fetched_at": "2026-04-04T21:32:11.928Z",
+      "age_band": "fresh",
+      "summary": "黃金價格出現自 2008 年金融危機以來最慘重的單月跌幅，顯示市場資金正從傳統避險資產撤出。這反映出投資人對高利率環境將維持更久的預期，資金轉向追逐高殖利率債券，對股市等風險資產的吸金效應產生排擠壓力。"
     }
   ]
 }

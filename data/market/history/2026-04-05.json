@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "lastRun": "2026-04-04T23:59:59.692Z",
+    "lastRun": "2026-04-05T04:59:39.367Z",
     "sources": {
       "cnnProvider": {
         "status": "SUCCESS",
@@ -8,11 +8,11 @@
       },
       "usMarketProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-04T23:59:59.692Z"
+        "lastFetch": "2026-04-05T04:59:39.367Z"
       },
       "yahooProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-04T23:59:59.692Z"
+        "lastFetch": "2026-04-05T04:59:39.367Z"
       },
       "kgiProvider": {
         "status": "SUCCESS",
@@ -20,11 +20,11 @@
       },
       "ndcProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-04T23:59:59.692Z"
+        "lastFetch": "2026-04-05T04:59:39.367Z"
       },
       "valuationProvider": {
         "status": "SUCCESS",
-        "lastFetch": "2026-04-04T23:59:59.692Z"
+        "lastFetch": "2026-04-05T04:59:39.367Z"
       }
     }
   },
@@ -43,6 +43,12 @@
       "previous1Month": 31.63,
       "previous1Year": 12.14,
       "timestamp": "2026-04-03T00:59:50.000Z"
+    },
+    "quote": {
+      "date": "2026-04-05",
+      "quote": "First comes the shy wish. Then you must have the heart to have the dream. Then, you work, and work.  ",
+      "author": "Estee Lauder",
+      "source": "zenquotes"
     },
     "rawUsMarket": {
       "success": true,
@@ -89,12 +95,6 @@
         31.9381,
         31.979
       ]
-    },
-    "quote": {
-      "date": "2026-04-05",
-      "quote": "First comes the shy wish. Then you must have the heart to have the dream. Then, you work, and work.  ",
-      "author": "Estee Lauder",
-      "source": "zenquotes"
     },
     "rawNdc": {
       "date": "2026-02",
