@@ -13,8 +13,8 @@
 | Path | 說明 |
 |---|---|
 | `src/runDailyCheck.mjs` | 每日主入口，支援 CLI flags，進入 `dailyCheck()`。 |
-| `src/runNewsFetch.mjs` | 獨立新聞抓取與新聞池更新入口，並回寫 Langfuse Yield Rate score。 |
-| `src/runOptimizer.mjs` | 獨立 rule optimizer 入口，供排程或手動治理使用。 |
+| `src/runNewsFetch.mjs` | 獨立新聞抓取與新聞池更新入口，並回寫 Langfuse Yield Rate / Source_Diversity score。 |
+| `src/runOptimizer.mjs` | 獨立 rule optimizer 入口，執行完成後若有新規則，會靜默推播至 Log 頻道。 |
 | `src/runWeeklyReport.mjs` | 週報入口，讀取近 7 天 `data/reports/`，至少 3 份才生成。包含訊號數量統計。 |
 | `src/runMonthlyReport.mjs` | 月報入口，讀取近 50 天 `data/reports/`（前 30 天為評估期，全 50 天供報酬率計算），至少 10 份才生成。 |
 
@@ -64,10 +64,30 @@
 
 | Path | 說明 |
 |---|---|
-| `src/modules/notifications/notifier.mjs` | notification orchestration，依資料類型決定如何組訊息與送出。 |
+| `src/modules/notifications/notifier.mjs` | notification orchestration，依資料類型決定如何組訊息與送出。提供 `broadcastDailyReport()` 與 `broadcastOptimizerResult()` 兩個 export。 |
 | `src/modules/notifications/templates/telegramHtmlBuilder.mjs` | 每日戰報 Telegram HTML 模板，負責訊息分段與排版。 |
 | `src/modules/notifications/templates/periodReportBuilder.mjs` | 週報 / 月報訊息 builder。`buildPeriodReportMessages()` 接受第四個可選參數 `accuracyStats`，週報嵌入 msg1、月報獨立產生 msg3。 |
-| `src/modules/notifications/transports/telegramClient.mjs` | 實際呼叫 Telegram Bot API。 |
+| `src/modules/notifications/transports/telegramClient.mjs` | 實際呼叫 Telegram Bot API，提供 `sendTelegramBatch()` 與 `sendSystemMessage()`。 |
+
+### Telegram 頻道分流
+本系統使用兩個 Telegram Bot Token，對應不同用途：
+
+| Token 環境變數 | 用途 | 函式 |
+|---|---|---|
+| `TELEGRAM_API_TOKEN` | 每日戰報、週報、月報等用戶可見訊息 | `sendTelegramBatch()` |
+| `TELEGRAM_LOG_API_TOKEN` | 系統狀態通知：Optimizer 執行結果、GitHub Actions 排程異常 | `sendSystemMessage()` |
+
+兩者的 `chat_id` 均使用 `TELEGRAM_USER_ID`（同一帳號接收），Bot 不同頻道分流。
+
+### `sendSystemMessage()` 行為
+- 固定帶 `disable_notification: true`（靜默，不震動手機）。
+- 固定使用 `TELEGRAM_LOG_API_TOKEN`；若未設定，只 `console.warn` 而不拋錯。
+- 支援 HTML parse mode，可用 `<b>`, `<code>` 等標籤排版。
+
+### `broadcastOptimizerResult()` 行為
+- 僅在 `tw.accepted + us.accepted > 0` 時才發送，無新規則時靜默略過。
+- 訊息含：執行日期、TW/US 各區新增/拒絕規則數、pattern 清單（最多 5 條，超過顯示「…等 N 條」）、blacklist 累計總規則數。
+- 由 `runOptimizer.mjs` 在 `runRuleOptimizer()` 完成後呼叫，失敗不中斷主流程。
 
 ### Daily Telegram Message Strategy
 每日通知仍以分段式訊息為主，目的是兼顧可讀性與 Telegram 長度限制。實際內容可包含：
@@ -97,5 +117,6 @@
 - 週報 / 月報若報告數量不足，可以發送提醒，但不應強行產生低品質報告。
 - `runNewsFetch` 與 `runOptimizer` 的失敗，不應被誤認為 `dailyCheck` 本身故障。
 - 訊號準確率計算（`buildSignalAccuracyStats`）若 `data/reports/` 歷史資料不足，會 graceful degradation：資料不足的天數各自標記，不影響整體報告發送。
+- **`TELEGRAM_LOG_API_TOKEN` 未設定**：`sendSystemMessage()` 只會 `console.warn`，不影響任何主流程；`notify-workflow-failure.yml` 的 curl 呼叫會靜默失敗（HTTP 401）。
 
 對 AI Agent 來說，若看到「有資料但沒送出」的問題，通常從本文件描述的 entry / notification boundary 開始查最有效。

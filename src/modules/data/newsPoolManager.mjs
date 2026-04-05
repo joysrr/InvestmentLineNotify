@@ -182,7 +182,14 @@ async function archiveArticles(articles) {
  * 7. 寫回 pool_active.json
  *
  * @param {Array<Object>} newArticles - RSS item 物件陣列（需含 title, link, pubDate, source, _region）
- * @returns {{ appended: number, expired: number, skipped_fuzzy: number, total: number }}
+ * @returns {{
+ *   appended: number,
+ *   expired: number,
+ *   skipped_fuzzy: number,
+ *   total: number,
+ *   sourceCounts: Record<string, number>,
+ *   sourceCount: number
+ * }}
  */
 export async function updatePool(newArticles) {
   const pool = await loadPool();
@@ -250,6 +257,14 @@ export async function updatePool(newArticles) {
     });
   }
 
+  // 統計本次新增文章的來源分佈（不改任何去重邏輯）
+  const sourceCounts = toAppend.reduce((acc, a) => {
+    const src = a.source || "unknown";
+    acc[src] = (acc[src] || 0) + 1;
+    return acc;
+  }, {});
+  const sourceCount = Object.keys(sourceCounts).length;
+
   // 更新現有 active 文章的 age_band
   const updatedActive = active.map((a) => ({
     ...a,
@@ -278,7 +293,8 @@ export async function updatePool(newArticles) {
 
   console.log(
     `✅ [NewsPool] 新增 ${toAppend.length} 篇，跳過(fuzzy) ${skippedFuzzy} 篇，` +
-    `歸檔 ${expired.length} 篇，池中現有 ${updatedPool.articles.length} 篇`
+    `歸檔 ${expired.length} 篇，池中現有 ${updatedPool.articles.length} 篇，` +
+    `來源種類：${sourceCount}`
   );
 
   return {
@@ -286,6 +302,8 @@ export async function updatePool(newArticles) {
     expired: expired.length,
     skipped_fuzzy: skippedFuzzy,
     total: updatedPool.articles.length,
+    sourceCounts,
+    sourceCount,
   };
 }
 

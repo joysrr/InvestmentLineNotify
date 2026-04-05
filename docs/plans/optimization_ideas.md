@@ -61,7 +61,14 @@ done(); // 印出 ⏱ [fetchMacroData] 1234ms
 
 ---
 
-## 2. 🔴 新聞池沒有「品質趨勢」可視化，Optimizer 效果難評估
+## 2. ✅ 新聞池沒有「品質趨勢」可視化，Optimizer 效果難評估
+
+> **已完成**（2026-04-05）  
+> `src/modules/notifications/transports/telegramClient.mjs` 新增 `sendSystemMessage()`，使用 `TELEGRAM_LOG_API_TOKEN` 發送至系統 Log 頻道；  
+> `src/modules/notifications/notifier.mjs` 新增 `broadcastOptimizerResult(result, totalRuleCount)`，有新規則時才發送靜默通知，含 TW/US 各區新增/拒絕明細與 blacklist 累計規則數；  
+> `src/runOptimizer.mjs` 執行完成後讀取 blacklist 總數並呼叫通知，失敗不中斷主流程；  
+> `.github/workflows/notify-workflow-failure.yml` 排程錯誤通知改用 `TELEGRAM_LOG_API_TOKEN`；  
+> 系統文件已更新：`docs/modules/entry_and_notifications.md` §5 新增頻道分流說明、`sendSystemMessage` / `broadcastOptimizerResult` 行為說明。
 
 ### 動機
 
@@ -84,10 +91,6 @@ done(); // 印出 ⏱ [fetchMacroData] 1234ms
 ### 難度
 
 ⭐⭐ 中（需串接通知，但邏輯單純）
-
-### 討論狀態
-
-⚪ 待確認
 
 ---
 
@@ -200,7 +203,12 @@ export async function fetchWithRetry(url, options = {}, retries = 2) {
 
 ---
 
-## 7. 🟢 `newsPoolManager` 沒有「新聞來源分佈」統計
+## 7. ✅ `newsPoolManager` 沒有「新聞來源分佈」統計
+
+> **已完成**（2026-04-05）  
+> `src/modules/data/newsPoolManager.mjs` 的 `updatePool()` 回傳值新增 `sourceCounts`（來源名稱 → 文章數對映）與 `sourceCount`（不同來源數整數），統計邏輯以 `reduce` 實作，不改任何去重或業務邏輯；  
+> `src/runNewsFetch.mjs` 接收上述回傳值，新增 `Source_Diversity` Langfuse score（`value = sourceCount / appended`，`comment` 為完整來源分佈 JSON）；  
+> appended = 0 時自動跳過，不寫入無意義的 score。
 
 ### 動機
 
@@ -219,10 +227,6 @@ export async function fetchWithRetry(url, options = {}, retries = 2) {
 ### 難度
 
 ⭐ 低（純統計，不改業務邏輯）
-
-### 討論狀態
-
-⚪ 待確認
 
 ---
 

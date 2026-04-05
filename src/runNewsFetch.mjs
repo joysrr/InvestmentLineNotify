@@ -64,13 +64,26 @@ async function main() {
     }
 
     // 4. 更新 pool（自動去重、過期歸檔、殭屍清理、上限截斷、更新 age_band）
-    const { appended, expired, skipped_fuzzy, total } = await updatePool(articles);
+    const { appended, expired, skipped_fuzzy, total, sourceCounts, sourceCount } =
+      await updatePool(articles);
     console.log(
       `✅ [NewsFetch] pool 更新完成 — 新增: ${appended}，fuzzy 跳過: ${skipped_fuzzy}，` +
-      `過期歸檔: ${expired}，目前 pool 總量: ${total}`,
+      `過期歸檔: ${expired}，目前 pool 總量: ${total}，來源種類: ${sourceCount}`,
     );
 
-    // 5. 額外執行一次 purge，清理本次 updatePool 未觸及的殘留問題
+    // 5. 回寫 Source_Diversity score 至 Langfuse
+    if (searchTraceId && appended > 0) {
+      await safeLangfuseScore({
+        traceId: searchTraceId,
+        name: "Source_Diversity",
+        value: parseFloat((sourceCount / appended).toFixed(4)),
+        comment: JSON.stringify(sourceCounts),
+      });
+    } else if (searchTraceId && appended === 0) {
+      console.log("⚠️ [NewsFetch] 本次無新增文章，跳過 Source_Diversity score");
+    }
+
+    // 6. 額外執行一次 purge，清理本次 updatePool 未觸及的殘留問題
     await purgeExpiredFromPool();
 
   } catch (err) {
