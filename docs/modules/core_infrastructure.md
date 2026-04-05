@@ -14,7 +14,7 @@
 ## 2. 核心檔案
 | Path | 說明 |
 |---|---|
-| `src/utils/coreUtils.mjs` | 共用 utilities，例如 `TwDate`、`fetchWithTimeout`、`parseNumberOrNull`。 |
+| `src/utils/coreUtils.mjs` | 共用 utilities，例如 `TwDate`、`fetchWithTimeout`、`parseNumberOrNull`、`stepTimer`。 |
 | `src/modules/storage.mjs` | Google Sheets 讀寫層，負責持股狀態繼承與每日紀錄同步。 |
 | `src/modules/data/archiveManager.mjs` | 市場資料、歷史報告、AI log 等檔案存取與清理。 |
 | `src/modules/data/newsPoolManager.mjs` | 新聞池維護，包括 active pool、filtered pool、archive、TTL 與 fuzzy dedupe。 |
@@ -106,7 +106,37 @@
 
 ---
 
-## 6. AI Agent 維護指引
+## 6. `coreUtils.mjs` 工具函式一覽
+
+| 函式 | 說明 |
+|---|---|
+| `sleep(ms)` | 等待指定毫秒 |
+| `rocDateToIso(rocYMD)` | 民國日期轉 ISO 格式 |
+| `isoDateToROC(isoText)` | ISO 日期轉民國格式 |
+| `enumerateMonths(startISO, endISO)` | 產生起訖間所有月份清單 |
+| `toTwseStockNo(symbol)` | symbol 轉 TWSE 代號 |
+| `parseNumberOrNull(v)` | 含逗號/空字串的數字字串轉 number |
+| `escapeHTML(text)` | HTML 特殊字元跳脫 |
+| `parseMisTimeToDate(dStr, tStr)` | MIS 時間字串轉 Date |
+| `TwDate(input)` | 台北時間處理模組（格式化、判斷季末等） |
+| `fetchWithTimeout(url, options, timeout)` | 具 Timeout 的 fetch 封裝 |
+| `stepTimer(label)` | **執行步驟計時器**，回傳 `done()` 函式，呼叫時印出耗時 |
+
+### `stepTimer` 使用方式
+
+```js
+import { stepTimer } from "./utils/coreUtils.mjs";
+
+const done = stepTimer("fetchMacroData");
+const macroData = await fetchAllMacroData();
+done(); // ⏱ [fetchMacroData] 1234ms
+```
+
+`done()` 同時回傳耗時 ms 數，可供後續邏輯使用（例如超時警告）。目前已在 `dailyCheck.mjs` 的所有主要步驟中插入計時，方便在 GitHub Actions log 中快速定位耗時瓶頸。
+
+---
+
+## 7. AI Agent 維護指引
 當 Agent 遇到以下問題時，應優先定位到 infrastructure 層：
 
 - 某 provider timeout 或回傳格式變更。
@@ -115,5 +145,6 @@
 - 新聞池 archive / dedupe 行為異常。
 - blacklist / keyword 設定載入失敗。
 - **`avgCost0050` / `avgCostZ2` 為 `null`**：檢查 Google Sheet 「資產紀錄」工作表的 `0050均價` / `00675L均價` 欄位是否填入數字。
+- **GitHub Actions 執行超時或中途失敗**：查看 log 中的 `⏱ [stepName] Xms` 輸出，定位耗時異常的步驟後再深入該 provider 或 AI 呼叫。
 
 也就是說，若問題出現在資料來源不穩、快取不一致、持久化失敗，通常先查 `providers`、`storage.mjs`、`archiveManager.mjs`、`newsPoolManager.mjs`，而不是直接懷疑 strategy 或 AI prompt。

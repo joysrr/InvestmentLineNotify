@@ -18,9 +18,15 @@
 
 ---
 
-## 1. 🔴 dailyCheck 流程過長，缺乏逐段計時與錯誤定位
+## 1. ✅ dailyCheck 流程過長，缺乏逐段計時與錯誤定位
 
-### 動機
+> **已完成**（2026-04-05）  
+> 在 `src/utils/coreUtils.mjs` 新增 `stepTimer()` 輕量計時 helper；  
+> `src/dailyCheck.mjs` 所有主要步驟（共 14 處）插入 `stepTimer`，GitHub Actions log 現可直接觀察各步驟耗時；  
+> 同時修正 fallback `lastState` 補上 `avgCost0050 / avgCostZ2: null`；  
+> 系統文件已更新：`docs/modules/core_infrastructure.md` §6 補充 `stepTimer` 說明與使用範例，§7 新增超時排查指引。
+
+### 原始動機
 
 目前 `dailyCheck.mjs` 主函式按序執行 10+ 個步驟，每步驟僅有 `console.log` 標記開始，沒有記錄「每段耗時」。  
 當 GitHub Actions 執行超時或中途失敗時，很難從 log 快速定位是哪個 provider / AI 呼叫造成的。
@@ -52,10 +58,6 @@ done(); // 印出 ⏱ [fetchMacroData] 1234ms
 ### 難度
 
 ⭐ 低（純工具函式新增，不影響業務邏輯）
-
-### 討論狀態
-
-⚪ 待確認
 
 ---
 

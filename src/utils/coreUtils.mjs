@@ -226,3 +226,29 @@ export async function fetchWithTimeout(url, options = {}, timeout = 8000) {
     clearTimeout(id);
   }
 }
+
+// ============================================================================
+// ⏱️ 執行步驟計時工具
+// ============================================================================
+
+/**
+ * 輕量步驟計時器
+ * 呼叫後回傳一個 done() 函式，執行 done() 時印出該步驟耗時並回傳 ms 數。
+ * 不影響任何業務邏輯，純粹用於 console 觀測。
+ *
+ * @param {string} label - 步驟名稱（顯示於 log）
+ * @returns {() => number} done 函式，呼叫後印出耗時並回傳 ms 數
+ *
+ * @example
+ * const done = stepTimer("fetchMacroData");
+ * const macroData = await fetchAllMacroData();
+ * done(); // ⏱ [fetchMacroData] 1234ms
+ */
+export function stepTimer(label) {
+  const start = Date.now();
+  return () => {
+    const ms = Date.now() - start;
+    console.log(`⏱ [${label}] ${ms}ms`);
+    return ms;
+  };
+}
