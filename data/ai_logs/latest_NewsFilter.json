@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-04-04T07:36:47.892Z",
+  "_savedAt": "2026-04-05T00:00:45.186Z",
   "type": "NewsFilter",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [US] [age_band: fresh] 標題: When injustice becomes law, resistance is only way out: CPI(M) on Malda gherao - National Herald\n[ID: 1] [US] [age_band: fresh] 標題: ‘Nothing from both sides’ - Tranmere boss on defeat to Shrewsbury Town - Shropshire Star\n[ID: 2] [US] [age_band: fresh] 標題: Best Prediction Market Platforms 2026: Crypto vs. Fiat Compared - MEXC Exchange\n[ID: 3] [US] [age_band: fresh] 標題: Islamic interbank money market set to launch by June - Jagonews24.com\n[ID: 4] [US] [age_band: fresh] 標題: US-Iran War 2026: Petrodollar Stakes Behind Hormuz Clash - Frontline Magazine\n[ID: 5] [TW] [age_band: fresh] 標題: 政府敲定放寬武器出口方案 本月內修改相關文件 - on.cc東網\n[ID: 6] [TW] [age_band: fresh] 標題: 全球央行淘金熱！波蘭欲囤700噸黃金 東南亞、非洲也加入 - TVBS新聞網\n[ID: 7] [TW] [age_band: fresh] 標題: 受伊朗戰爭影響，3月通膨飆升至3.3% - citytimes.tw\n[ID: 8] [TW] [age_band: fresh] 標題: 國際糧食價格指數連2月上漲 聯合國：戰事若逾40日通膨恐增 - Yahoo新聞\n[ID: 9] [TW] [age_band: fresh] 標題: 國際糧食價格指數連2月上漲 聯合國：戰事若逾40日通膨恐增 - 公視新聞網PNN\n[ID: 10] [US] [age_band: fresh] 標題: Turkmenistan’s GDP grows in first quarter driven by transport and trade sectors - Trend News Agency\n[ID: 11] [US] [age_band: fresh] 標題: March job gains outshine forecasts amid inflation pressures - KXXV\n[ID: 12] [TW] [age_band: fresh] 標題: 幕僚生小女兒 蕭美琴親勾毛線被：療癒 | 新頭殼 - LINE TODAY\n[ID: 13] [US] [age_band: fresh] 標題: NVMe price inflation continues to get worse - Poc Network // Tech\n[ID: 14] [TW] [age_band: fresh] 標題: 影音／荷姆茲海峽通了？ 法、日商船獲准過境 韓現「戰爭性通膨」 - TVBS新聞網\n[ID: 15] [US] [age_band: fresh] 標題: ‘Orchids are for everyone’ - Observer-Reporter\n[ID: 16] [US] [age_band: fresh] 標題: March job gains outshine forecasts amid inflation pressures - KSHB 41 Kansas City\n[ID: 17] [TW] [age_band: fresh] 標題: 法人：今年仍有降息機會看好短天期債券投資價值浮現| 股市要聞| 股市 - 聯合新聞網\n[ID: 18] [US] [age_band: fresh] 標題: March job gains outshine forecasts amid inflation pressures - KBZK News\n[ID: 19] [US] [age_band: fresh] 標題: March Nonfarm Payrolls: Can the Strong Rebound Be Sustained? - 富途牛牛\n[ID: 20] [TW] [age_band: fresh] 標題: 美國就業數據強勁削弱降息預期 公債價格下跌、油價走揚 - 商傳媒\n[ID: 21] [TW] [age_band: fresh] 標題: 中東衝突推升油價 馬來西亞令吉承壓 分析師憂通膨蔓延 - Yahoo新聞\n[ID: 22] [US] [age_band: fresh] 標題: Congress lodges complaint with EC and police against CPI-M backed TV channel - lokmattimes.com\n[ID: 23] [US] [age_band: fresh] 標題: Inflation held steady last month, but that was before the attack on Iran sent energy costs soaring - AOL.com\n[ID: 24] [US] [age_band: fresh] 標題: What’s behind Nomura’s call for later Fed rate cuts? By Investing.com - Investing.com Australia\n[ID: 25] [TW] [age_band: fresh] 標題: 美國3月就業成長超預期 強勁數據恐增通膨壓力減緩降息預期 - 商傳媒\n[ID: 26] [US] [age_band: fresh] 標題: USDT Whale Transfer: Stunning $221 Million Move to OKX Signals Major Market Activity - MEXC\n[ID: 27] [US] [age_band: fresh] 標題: Gold Rate Today [4 April, 2026]: Gold Stabilizes at $4,522 on Dollar Strength; Domestic Rates Hold at ₹1.48 Lakh/10g Amid Truce Efforts | Check City-Wise Rates of 24K, 22K & 18K - The Sunday Guardian\n[ID: 28] [US] [age_band: fresh] 標題: “I’m prolific” - Defender Sam Stubbs jokes after latest Shrewsbury Town winner - Shropshire Star\n[ID: 29] [US] [age_band: fresh] 標題: High Five: How much prices have risen since 2021 - RTE.ie\n[ID: 30] [TW] [age_band: fresh] 標題: 千金族群遇風暴！外資逆勢按讚「這2檔」 目標價最高超過5千元 - tw.stock.yahoo.com\n[ID: 31] [TW] [age_band: fresh] 標題: 中東衝突推升能源成本 越南Q1經濟成長放緩恐添東南亞供應鏈變數 - n.yam.com\n[ID: 32] [US] [age_band: fresh] 標題: Westpac call no Aussie wanted to hear - News.com.au\n[ID: 33] [TW] [age_band: fresh] 標題: 美超微走私案最新進展：共同創辦人廖益賢與外包商孫廷瑋不認罪 - TechNews 科技新報\n[ID: 34] [TW] [age_band: fresh] 標題: 美參眾兩院提法案 限制對華出口晶片製造設備 - on.cc東網\n[ID: 35] [TW] [age_band: fresh] 標題: 48小時就進帳32萬元！30歲上班族靠副業翻轉人生 - 自由財經\n[ID: 36] [TW] [age_band: fresh] 標題: 中山美穗獨子遭爆「放棄4億遺產」！ 她打拚40年「心血恐化為空」原因曝 | TVBS - LINE TODAY\n[ID: 37] [TW] [age_band: fresh] 標題: 日本擬月內提出放寬武器出口方案 原則上容許出口具殺傷力武器 - i-cable.com\n[ID: 38] [TW] [age_band: fresh] 標題: 外匯存底配置：美元占逾65% 人民幣水位降 - MSN\n[ID: 39] [TW] [age_band: fresh] 標題: 台股強彈千點後 資金往哪走 主力買什麼？ 券商共識名單來了 - MSN\n[ID: 40] [TW] [age_band: fresh] 標題: 宏碁推 Acer R272 P1 護眼螢幕 144Hz 高刷新率入門價新台幣3,999元 - PChome Online 新聞\n[ID: 41] [US] [age_band: fresh] 標題: Altcoins: 40% Near All-Time Lows…Will the Bear Market Become a 'Buy-the-Dip' Opportunity? [Kang Min-seung’s Altcoin Now] - bloomingbit\n[ID: 42] [US] [age_band: fresh] 標題: US bonds fall as strong jobs data undermines Fed cut outlook - The Business Times\n[ID: 43] [US] [age_band: fresh] 標題: March job gains outshine forecasts amid inflation pressures - fox47news.com\n[ID: 44] [US] [age_band: fresh] 標題: GDP rises 7.83% in Q1, highest in 16 years - VnExpress International\n[ID: 45] [US] [age_band: fresh] 標題: Dollar increases against dong on black market - VnExpress International\n[ID: 46] [TW] [age_band: fresh] 標題: 越南草莓紅了！2026年初出口額突破340萬美元　暴漲2000倍 - NOWnews今日新聞\n[ID: 47] [US] [age_band: fresh] 標題: Turkiye CPI rises 30.87% YoY in March 2026 - Fibre2Fashion\n[ID: 48] [TW] [age_band: fresh] 標題: 智利櫻桃慘案！2.4萬噸遭中拒收慘賠51億元 最終竟然只獲賠這麼多 | 三立新聞網 - LINE TODAY\n[ID: 49] [US] [age_band: fresh] 標題: Russia's economy nears stagflation: rapid slowdown and looming recession threat - 112.ua\n[ID: 50] [US] [age_band: fresh] 標題: This Is The Weirdest U.S. Labor Market I’ve Ever Seen - Seeking Alpha\n[ID: 51] [TW] [age_band: fresh] 標題: 投資人寄望荷莫茲海峽開通下周美通膨數據成戰爭影響首要檢驗| 全球財經| 全球 - 聯合新聞網\n[ID: 52] [US] [age_band: fresh] 標題: US judge upholds block on subpoenas to Fed’s Powell - MSN\n[ID: 53] [TW] [age_band: fresh] 標題: 西班牙央行稱，戰爭將使今年通膨率升至3% - citytimes.tw\n[ID: 54] [US] [age_band: fresh] 標題: Average long-term mortgage rate climbs to 6.46%, highest level in nearly 7 months - tribtoday.com\n[ID: 55] [TW] [age_band: fresh] 標題: 限制晶片設備出口中國！美國擬立新法 ASML舊款DUV恐也賣不了 - news.cnyes.com\n[ID: 56] [TW] [age_band: fresh] 標題: 打破震盪僵局! 台股封神榜 揭開「績效超車」關鍵 - MSN\n[ID: 57] [TW] [age_band: fresh] 標題: 中東衝突未歇擾亂全球市場 日股韌性與美股修正並存 - ENN台灣電報\n[ID: 58] [TW] [age_band: fresh] 標題: UBS示警!油價飆上每桶150美元 日圓會貶破175 - MSN\n[ID: 59] [TW] [age_band: fresh] 標題: 台股金融科技股強勁成長 消費市場活絡經濟信心受考驗 - news.cnyes.com</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] [age_band: fresh] 標題: 印度GDP成長數據：經合組織預計儘管全球風險但仍將強勁擴張 - citytimes.tw\n[ID: 1] [TW] [age_band: fresh] 標題: 台積電入列！外媒點名「現在就必須買這2檔」十年後絕對會感謝自己 - 三立新聞網\n[ID: 2] [US] [age_band: fresh] 標題: Payment Required for People Inc Content Licensing | Contact - West Africa Trade Hub\n[ID: 3] [US] [age_band: fresh] 標題: Russia stocks lower at close of trade; MOEX Russia Index unchanged - Investing.com\n[ID: 4] [US] [age_band: fresh] 標題: International Business: BOJ urged to keep raising interest rates - Gulf Daily News\n[ID: 5] [US] [age_band: fresh] 標題: Morgan Stanley: Fed Rate Cuts Still on Track Despite Oil-Driven Inflation - econotimes.com\n[ID: 6] [US] [age_band: fresh] 標題: The Week Ahead: Markets Eye Inflation Data, Fed Minutes and War Risks - fxempire.com\n[ID: 7] [US] [age_band: fresh] 標題: ECPR Challenge Cup: Ulster beat Ospreys to progress to quarter-finals - BBC\n[ID: 8] [US] [age_band: fresh] 標題: When legal sports betting surges, so do Americans' financial problems - KUOW\n[ID: 9] [TW] [age_band: fresh] 標題: 天下財經週報：川普沒立即喊停美伊戰爭，OPEC+增產救得了油市荒嗎？ - 天下雜誌\n[ID: 10] [TW] [age_band: fresh] 標題: 老屋住60年！巴菲特省了一輩子卻為「4大奢侈消費」終生不後悔- 財經 - 中時新聞網\n[ID: 11] [US] [age_band: fresh] 標題: How Dow Jones thrives when news is seen as just another commodity - The Straits Times\n[ID: 12] [US] [age_band: fresh] 標題: Trump promised lower costs; the Iran conflict now threatens that pledge - AOL.com\n[ID: 13] [US] [age_band: fresh] 標題: Man accused of killing his wife because he wanted to ‘put her out of her misery,’ police say - WEAU\n[ID: 14] [TW] [age_band: fresh] 標題: 高盛下調印度市場前景 - citytimes.tw\n[ID: 15] [TW] [age_band: fresh] 標題: 外資賣超386.95億元 大砍ETF - MSN\n[ID: 16] [US] [age_band: fresh] 標題: High energy costs risk snuffing out aluminium boom - This is Money\n[ID: 17] [US] [age_band: fresh] 標題: Gold sees steepest monthly decline since 2008 financial crisis - Anadolu Ajansı\n[ID: 18] [US] [age_band: fresh] 標題: Aussie finance guru warns the Iran war could be one of the great disasters of our lifetime - MSN\n[ID: 19] [US] [age_band: fresh] 標題: Greece Tourism Sector Holds Strong Despite Inflation Pressures, New Flights to Crete, Kefalonia, Peloponnese Boost International Demand - Travel And Tour World\n[ID: 20] [US] [age_band: fresh] 標題: Moody’s Affirms Egypt’s Caa1 Ratings With Positive Outlook - MarketForces Africa\n[ID: 21] [TW] [age_band: fresh] 標題: Sensex、Nifty Fall：美伊衝突、石油對印度股市的混合影響 - citytimes.tw\n[ID: 22] [US] [age_band: fresh] 標題: BB frames rules to launch Islamic interbank market - Newagebd.net\n[ID: 23] [TW] [age_band: fresh] 標題: 特稿：伊戰阻出口化肥價飈 埋糧食危機伏線 - 20260405 - 國際 - 明報新聞網\n[ID: 24] [US] [age_band: fresh] 標題: Strong Showing for Job Market in Latest Report - The New York Times\n[ID: 25] [US] [age_band: fresh] 標題: US Jobs Beat Forecasts, Treasury Yields Climb as Crypto Prices Ease - Analytics Insight\n[ID: 26] [US] [age_band: fresh] 標題: If a Stock Market Crash Is Coming, These 3 Investing Moves Are Crucial Right Now - The Globe and Mail\n[ID: 27] [TW] [age_band: fresh] 標題: 南韓藝術拍賣會破紀錄! 奈良美智150 億韓元成交畫中女孩孤獨感成焦點 - MSN\n[ID: 28] [TW] [age_band: fresh] 標題: 需求旺盛/摩托車產業鏈完備熱銷非洲開拓南美- 經濟 - 大公文匯網\n[ID: 29] [TW] [age_band: fresh] 標題: 轉型升級/專家：由量走向質 粵高技術產品成「壓艙石」 - 大公文匯網\n[ID: 30] [TW] [age_band: fresh] 標題: 中國對美服飾出口市佔連兩年下滑 越南躍居主要替代來源 - ENN台灣電報\n[ID: 31] [TW] [age_band: fresh] 標題: 電動車電池業新重心 匈牙利磁吸265億歐元外資深耕歐洲 - ENN台灣電報\n[ID: 32] [TW] [age_band: fresh] 標題: 鐘崑禎外資歸隊台股迎V轉行情- 產業特刊- 工商時報 - 中時新聞網\n[ID: 33] [TW] [age_band: fresh] 標題: 16檔外資不離不棄有戲- 財經要聞- 工商時報 - 中時新聞網\n[ID: 34] [TW] [age_band: fresh] 標題: 日擬鬆綁武器出口事後通報國會- 兩岸新聞- 旺報 - 中時新聞網\n[ID: 35] [TW] [age_band: fresh] 標題: 社評／促鄭習以經解政 共創兩岸科技鏈 - 中時新聞網\n[ID: 36] [TW] [age_band: fresh] 標題: 影音／通膨警報響起! 美伊戰爭續燒 專家：台灣恐破2% 警戒線 - MSN\n[ID: 37] [TW] [age_band: fresh] 標題: 伊朗戰火引爆「金屬通膨」：鋁價飆四年高、銅市卻可能從短缺翻成過剩 - CMoney\n[ID: 38] [TW] [age_band: fresh] 標題: 匯市最前線／台幣31.8~32.2元波動 - 經濟日報\n[ID: 39] [US] [age_band: fresh] 標題: Dow Jones Futures: Leading Stocks Stand Tall As Market Bounces; Look For This Bullish Signal - Investor's Business Daily\n[ID: 40] [US] [age_band: fresh] 標題: ‘Collision of forces’ inching US near ‘recession’ of historic proportions: researcher - rawstory.com\n[ID: 41] [US] [age_band: fresh] 標題: CPI(ML) seeks joint meeting of GA partners in Bihar - The Times of India\n[ID: 42] [US] [age_band: fresh] 標題: Opinion: The business case for adjusting school funding for inflation and passing Prop 9 - Anchorage Daily News\n[ID: 43] [TW] [age_band: fresh] 標題: 台股、美股 ETF Q2淘金利器 - 經濟日報\n[ID: 44] [TW] [age_band: fresh] 標題: 截至 2 月，印度藥品出口額將突破280 億美元，成長超過5% - citytimes.tw\n[ID: 45] [TW] [age_band: fresh] 標題: 美課專利藥關稅 台食藥署：台美協定確保學名藥永久豁免 - 世界新聞網\n[ID: 46] [US] [age_band: fresh] 標題: Current Mortgage Rates: US Rises 6.46%, UK Hits 5.56%, EU 3.4% - coinpaper.com\n[ID: 47] [US] [age_band: fresh] 標題: This Scenic Lake Straddles 2 States - Travel + Leisure\n[ID: 48] [TW] [age_band: fresh] 標題: 由於與伊朗的戰爭威脅印度智慧型手機出口，蘋果公司不再那麼脆弱 - citytimes.tw\n[ID: 49] [US] [age_band: fresh] 標題: The countries with the highest GDP growth in the last 25 years - MSN\n[ID: 50] [US] [age_band: fresh] 標題: Cricket match squads | England vs West Indies, 15th Match, Group C, ICC Men's T20 World Cup 2026 - Cricbuzz\n[ID: 51] [US] [age_band: fresh] 標題: Nadia: CPI(M) Candidate Advait Biswas Campaigns for Assembly Polls #Gallery - Social News XYZ\n[ID: 52] [US] [age_band: fresh] 標題: Chicago Fed's Goolsbee Warns Iran War Could Delay Fed Cuts - hoodline.com\n[ID: 53] [US] [age_band: fresh] 標題: Provinces directed to rein in inflation, issue revised fare notification - Geo News\n[ID: 54] [TW] [age_band: fresh] 標題: 3月出口熱 有望連29紅 財部預估規模上看667億美元 - 經濟日報\n[ID: 55] [TW] [age_band: fresh] 標題: 春節干擾因素消除、官方啟動油價緩漲 3月通膨率約在2%以內 - 經濟日報\n[ID: 56] [TW] [age_band: fresh] 標題: 打伊朗其實是陰謀？戰爭讓美國成為更勝以往的經濟霸權 - 世界新聞網\n[ID: 57] [TW] [age_band: fresh] 標題: 出國機票將漲價！一家人恐多花數千元，達人曝２大省錢妙招：別盲目搶票 - 食尚玩家\n[ID: 58] [TW] [age_band: fresh] 標題: 投信買超逾百億台股暴漲1451點前10大出爐！這檔電子連4買最狂 - 自由時報\n[ID: 59] [TW] [age_band: fresh] 標題: 日媒:高市擬本月內修例放寬武器出口 - 澳門廣播電視股份有限公司</News_List>",
   "schema": {
     "type": "OBJECT",
     "description": "AI 思考過程與挑選結果",
@@ -129,49 +129,44 @@
     "think": {
       "event_inventory": [
         {
-          "event": "美國3月非農就業數據超預期",
-          "count": 8,
-          "best_title": "March Nonfarm Payrolls: Can the Strong Rebound Be Sustained?"
-        },
-        {
-          "event": "中東衝突與荷姆茲海峽局勢",
-          "count": 7,
-          "best_title": "影音／荷姆茲海峽通了？ 法、日商船獲准過境 韓現「戰爭性通膨」"
-        },
-        {
-          "event": "美國擬強化對華晶片設備出口限制",
-          "count": 2,
-          "best_title": "限制晶片設備出口中國！美國擬立新法 ASML舊款DUV恐也賣不了"
-        },
-        {
-          "event": "聯準會降息預期調整",
-          "count": 3,
-          "best_title": "What’s behind Nomura’s call for later Fed rate cuts? By Investing.com"
-        },
-        {
-          "event": "全球通膨與能源糧食價格預警",
+          "event": "美國就業數據與聯準會利率路徑",
           "count": 5,
-          "best_title": "UBS示警!油價飆上每桶150美元 日圓會貶破175"
+          "best_title": "US Jobs Beat Forecasts, Treasury Yields Climb as Crypto Prices Ease"
         },
         {
-          "event": "全球央行淘金熱與金價波動",
+          "event": "中東地緣政治衝突與能源通膨",
+          "count": 8,
+          "best_title": "天下財經週報：川普沒立即喊停美伊戰爭，OPEC+增產救得了油市荒嗎？"
+        },
+        {
+          "event": "台股資金流向與市場表現",
+          "count": 4,
+          "best_title": "投信買超逾百億台股暴漲1451點前10大出爐！這檔電子連4買最狂"
+        },
+        {
+          "event": "半導體與科技巨頭動態",
           "count": 2,
-          "best_title": "全球央行淘金熱！波蘭欲囤700噸黃金 東南亞、非洲也加入"
+          "best_title": "台積電入列！外媒點名「現在就必須買這2檔」十年後絕對會感謝自己"
         },
         {
-          "event": "美超微(SMCI)法律訴訟進展",
+          "event": "日本央行貨幣政策轉向",
           "count": 1,
-          "best_title": "美超微走私案最新進展：共同創辦人廖益賢與外包商孫廷瑋不認罪"
+          "best_title": "International Business: BOJ urged to keep raising interest rates"
         },
         {
-          "event": "日本放寬武器出口政策",
-          "count": 2,
-          "best_title": "政府敲定放寬武器出口方案 本月內修改相關文件"
+          "event": "台灣總體經濟數據（出口與通膨）",
+          "count": 3,
+          "best_title": "3月出口熱 有望連29紅 財部預估規模上看667億美元"
         },
         {
-          "event": "越南經濟成長數據",
-          "count": 1,
-          "best_title": "GDP rises 7.83% in Q1, highest in 16 years"
+          "event": "全球大宗商品與金屬價格波動",
+          "count": 3,
+          "best_title": "伊朗戰火引爆「金屬通膨」：鋁價飆四年高、銅市卻可能從短缺翻成過剩"
+        },
+        {
+          "event": "印度市場前景評估",
+          "count": 4,
+          "best_title": "高盛下調印度市場前景"
         }
       ],
       "dimension_check": {
@@ -183,87 +178,87 @@
       },
       "excluded": [
         {
-          "id": 0,
-          "reason": "無關經濟之政治抗爭"
+          "id": 7,
+          "reason": "體育賽事無關經濟"
         },
         {
-          "id": 1,
-          "reason": "地方體育新聞"
+          "id": 10,
+          "reason": "名人生活軼聞"
         },
         {
-          "id": 12,
-          "reason": "政治人物生活瑣事"
+          "id": 13,
+          "reason": "社會刑事案件"
         },
         {
-          "id": 15,
-          "reason": "園藝生活類新聞"
+          "id": 26,
+          "reason": "一般理財建議"
         },
         {
-          "id": 35,
-          "reason": "個人理財副業廣告"
+          "id": 27,
+          "reason": "藝術拍賣新聞"
         },
         {
-          "id": 36,
-          "reason": "藝人遺產八卦"
+          "id": 47,
+          "reason": "旅遊景點介紹"
         },
         {
-          "id": 40,
-          "reason": "單一低階消費電子產品"
+          "id": 50,
+          "reason": "體育賽事名單"
         },
         {
-          "id": 48,
-          "reason": "單一農產品貿易糾紛"
+          "id": 57,
+          "reason": "消費旅遊資訊"
         }
       ]
     },
     "news": [
       {
-        "id": 19,
-        "summary": "美國3月非農就業數據遠超預期，顯示勞動力市場極具韌性。這不僅削弱了市場對聯準會（Fed）近期降息的期待，更引發通膨可能捲土重來的擔憂。對台股大盤而言，美債殖利率攀升將對高估值科技股造成壓力，需關注資金回流美元資產的趨勢。"
+        "id": 25,
+        "summary": "美國最新就業報告顯示勞動力市場強勁，非農就業人數超出預期，直接導致美債殖利率攀升。此數據削弱了市場對聯準會近期降息的預期，對高估值的科技股與台股大盤形成估值壓力，需密切關注資金向債市流動的風險。"
       },
       {
-        "id": 14,
-        "summary": "荷姆茲海峽局勢動盪，雖有部分商船獲准過境，但伊朗戰爭陰影已導致韓國等亞洲國家出現「戰爭性通膨」。能源供應鏈的脆弱性直接推升油價，若衝突擴大，將透過運輸成本轉嫁至全球終端售價，對0050成分股中的航運與製造業產生劇烈波動。"
-      },
-      {
-        "id": 55,
-        "summary": "美國擬立法進一步限制對華出口晶片製造設備，範圍可能擴大至ASML的舊款DUV設備。此舉將加速全球半導體供應鏈「去中化」，對台積電等台廠而言，短期雖有訂單轉移紅利，但長期需面對地緣政治導致的成本上升與市場版圖重組。"
-      },
-      {
-        "id": 24,
-        "summary": "野村證券等機構推遲對Fed降息時間點的預測，主因是通膨數據與就業市場表現過於強勁。利率維持高位（Higher for Longer）將壓抑市場流動性，對於槓桿型投資工具（如0050正2）而言，融資成本與波動風險將顯著增加，投資人應審慎評估進場時機。"
+        "id": 52,
+        "summary": "芝加哥聯準銀行總裁 Goolsbee 警告，中東衝突（美伊戰爭風險）可能導致能源價格飆升，進而推遲聯準會的降息時程。這顯示地緣政治已成為影響總體貨幣政策的核心變數，對槓桿型投資者而言，利率維持高點的時間可能比預期更長。"
       },
       {
         "id": 58,
-        "summary": "瑞銀（UBS）警告若中東衝突導致油價飆升至每桶150美元，日圓可能貶破175大關。能源價格暴漲將重創仰賴進口的亞洲經濟體，並引發輸入性通膨。對台股而言，電子業毛利恐受電價與物流成本侵蝕，金融股則需面對匯率劇震帶來的避險成本。"
+        "summary": "台股出現單日暴漲 1451 點的極端行情，主要由投信買超逾百億元帶動。這反映出內資在市場動盪中扮演關鍵支撐角色，電子權值股獲得連續買盤挹注，顯示市場在恐慌後出現強勁的 V 轉動能，有利於 0050 等市值型 ETF 的表現。"
       },
       {
-        "id": 8,
-        "summary": "聯合國警告若戰事持續超過40日，國際糧食價格指數將持續上漲並加劇通膨。糧食與能源雙重通膨將壓縮消費者的可支配所得，進而影響終端電子產品需求。這對以出口為導向的台股大盤而言，是潛在的系統性需求衰退風險。"
+        "id": 9,
+        "summary": "中東戰火威脅油市供應，市場關注 OPEC+ 是否增產以平抑油價。若油價因戰爭持續維持高位，將引發全球性二次通膨風險，迫使各國央行維持鷹派立場，對全球製造業成本與消費支出產生實質負面衝擊。"
       },
       {
-        "id": 6,
-        "summary": "全球央行出現「淘金熱」，波蘭等國大幅增加黃金儲備。這反映出各國對美元體系與地緣政治風險的擔憂。黃金作為避險資產價格走強，通常伴隨著市場不確定性增加，投資人應留意資金從風險資產（如股市）轉向避險資產的訊號。"
+        "id": 1,
+        "summary": "外媒高度評價台積電與輝達的長期投資價值，認為其在 AI 產業鏈的壟斷地位無可取代。作為台股權重最高的龍頭，台積電的產業競爭力是支撐大盤長期向上的核心，其資本支出與技術領先優勢將持續吸引長線資金配置。"
       },
       {
-        "id": 30,
-        "summary": "外資在台股震盪之際，逆勢調升特定千金股目標價，顯示資金正向具備AI競爭力的龍頭股集中。這對0050等市值型ETF具有支撐作用，但也暗示市場選股邏輯已轉向「質優於量」，中小型股可能面臨資金排擠效應。"
+        "id": 4,
+        "summary": "日本央行（BOJ）面臨升息壓力，市場預期其將持續調升利率。日圓利差交易（Carry Trade）的潛在平倉風險可能引發全球資金流向劇變，對台股等新興市場的流動性產生間接衝擊，是量化策略中必須監控的資金流變數。"
       },
       {
-        "id": 33,
-        "summary": "美超微（SMCI）共同創辦人涉及走私案且不認罪，引發市場對其公司治理與供應鏈合規性的疑慮。由於美超微與台灣AI伺服器供應鏈關係緊密，此法律風險可能波及相關代工廠的股價表現，需密切追蹤後續司法進展。"
+        "id": 15,
+        "summary": "外資單日大砍台股 386.95 億元，並集中賣超 ETF，顯示國際資金在避險情緒升溫下正撤出風險資產。外資與內資的籌碼對抗將加劇大盤波動，投資者應注意外資在期現貨市場的同步動作，防範大盤回檔風險。"
+      },
+      {
+        "id": 54,
+        "summary": "台灣 3 月出口數據表現亮眼，有望達成連續 29 個月正成長，規模預估達 667 億美元。強勁的出口基本面顯示全球對台灣半導體及資通訊產品需求依然旺盛，為台股提供堅實的獲利支撐，抵銷部分總經不確定性。"
+      },
+      {
+        "id": 36,
+        "summary": "受美伊戰爭影響，專家預估台灣通膨率可能突破 2% 警戒線。通膨升溫可能迫使台灣央行採取更謹慎的貨幣政策，甚至有升息空間，這將影響台幣匯率走勢及本土資金的借貸成本，對槓桿操作者構成成本壓力。"
       },
       {
         "id": 37,
-        "summary": "日本擬放寬武器出口限制，容許出口具殺傷力武器。這標誌著東亞地緣政治格局的重大轉變，國防產業鏈可能成為新的投資焦點。對於台股而言，軍工相關題材雖非大盤權值核心，但其反映的區域緊張局勢將長期影響市場風險溢酬。"
+        "summary": "地緣政治引發「金屬通膨」，鋁價創四年新高，銅市供應亦出現劇烈波動。原物料價格上漲將推升製造業成本，對台灣非電金屬產業及下游電子組裝業的毛利產生擠壓效應，需關注相關產業鏈的獲利修正。"
       },
       {
-        "id": 49,
-        "summary": "俄羅斯經濟面臨滯脹與衰退威脅，顯示長期戰爭對大宗商品出口國的負面反噬。雖然台灣與俄羅斯直接經貿往來有限，但全球供應鏈的斷裂與地緣政治陣營化，將持續推升全球生產成本，對全球化程度極高的台股企業構成長期挑戰。"
+        "id": 14,
+        "summary": "高盛下調印度市場前景，反映出市場對新興市場高估值的重新評估。隨著資金從高基期市場撤出，可能引發亞太地區資金重新配置，台股作為科技成長股代表，需觀察是否會承接部分從印度流出的避險資金。"
       },
       {
-        "id": 44,
-        "summary": "越南第一季GDP成長7.83%創16年新高，顯示其作為供應鏈轉移目的地的強勁動能。對於在越南有大規模佈局的台商而言是利多，但也代表東南亞國家在吸引外資上與台灣存在競爭關係，需關注區域經濟整合對資金流向的影響。"
+        "id": 40,
+        "summary": "研究人員警告美國正處於多重力量碰撞下，可能面臨歷史性的衰退風險。儘管目前就業數據尚可，但衰退陰影若擴大，將導致美股出現系統性風險，進而連動台股 0050 等市值型標的出現大幅度修正。"
       }
     ]
   }
