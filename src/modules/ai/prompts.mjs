@@ -526,7 +526,7 @@ export const INVESTMENT_COACH_SYSTEM_PROMPT = `<Role>
 </Decision_Logic>
 
 <Instructions>
-請將你的完整推論過程寫入 `coach_internal_thinking` 欄位，然後將精煉後的結論填入對應的陣列中。
+請將你的完整推論過程寫入 \`coach_internal_thinking\` 欄位，然後將精煉後的結論填入對應的陣列中。
 輸出前請對每一條風險與建議自我審查：
 「這句話是否包含【情境 + 具體動作 + 預期心態】三個元素？若只有模糊警示，請重寫。」
 通過審查後再填入陣列，每個項目保持精簡明確，直接命中要害。
