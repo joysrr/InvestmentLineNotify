@@ -27,7 +27,7 @@ jobs:
     steps:
       - name: Send Telegram failure alert
         env:
-          TELEGRAM_API_TOKEN: ${{ secrets.TELEGRAM_API_TOKEN }}
+          TELEGRAM_LOG_API_TOKEN: ${{ secrets.TELEGRAM_LOG_API_TOKEN }}
           TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
           WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
           RUN_URL: ${{ github.event.workflow_run.html_url }}
@@ -63,6 +63,6 @@ jobs:
           EOF
           )
 
-          curl -sS -X POST "https://api.telegram.org/bot${TELEGRAM_API_TOKEN}/sendMessage" \
+          curl -sS -X POST "https://api.telegram.org/bot${TELEGRAM_LOG_API_TOKEN}/sendMessage" \
             -d chat_id="${TELEGRAM_USER_ID}" \
             --data-urlencode text="${message}"

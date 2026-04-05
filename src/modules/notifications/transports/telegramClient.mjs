@@ -1,4 +1,5 @@
 const token = process.env.TELEGRAM_API_TOKEN;
+const logToken = process.env.TELEGRAM_LOG_API_TOKEN;
 const chatId = process.env.TELEGRAM_USER_ID;
 
 /**
@@ -97,5 +98,42 @@ export async function sendTelegramBatch(messages) {
     } catch (err) {
       console.error(`❌ 網路錯誤:`, err);
     }
+  }
+}
+
+/**
+ * 發送系統訊息至 Log 頻道（使用 TELEGRAM_LOG_API_TOKEN）
+ * 固定靜默發送（disable_notification: true），不 pin。
+ * 用於 Optimizer 執行結果、系統狀態通知等非每日報告類訊息。
+ *
+ * @param {string} text - 純文字或 HTML 訊息內容
+ * @returns {Promise<void>}
+ */
+export async function sendSystemMessage(text) {
+  if (!logToken) {
+    console.warn("[SystemMsg] TELEGRAM_LOG_API_TOKEN 未設定，跳過系統訊息發送");
+    return;
+  }
+  const url = `https://api.telegram.org/bot${logToken}/sendMessage`;
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+        disable_notification: true,
+      }),
+    });
+    const resData = await response.json();
+    if (!resData.ok) {
+      console.warn("[SystemMsg] 系統訊息發送失敗:", resData.description);
+    } else {
+      console.log("[SystemMsg] ✅ 系統訊息發送成功");
+    }
+  } catch (err) {
+    console.warn("[SystemMsg] 系統訊息網路錯誤:", err.message);
   }
 }
