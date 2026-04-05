@@ -1,7 +1,7 @@
 {
-  "_savedAt": "2026-04-05T05:00:31.200Z",
+  "_savedAt": "2026-04-05T05:48:26.261Z",
   "type": "NewsFilter",
-  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [TW] [age_band: fresh] 標題: 印度GDP成長數據：經合組織預計儘管全球風險但仍將強勁擴張 - citytimes.tw\n[ID: 1] [TW] [age_band: fresh] 標題: 台積電入列！外媒點名「現在就必須買這2檔」十年後絕對會感謝自己 - 三立新聞網\n[ID: 2] [US] [age_band: fresh] 標題: Payment Required for People Inc Content Licensing | Contact - West Africa Trade Hub\n[ID: 3] [US] [age_band: fresh] 標題: Russia stocks lower at close of trade; MOEX Russia Index unchanged - Investing.com\n[ID: 4] [US] [age_band: fresh] 標題: International Business: BOJ urged to keep raising interest rates - Gulf Daily News\n[ID: 5] [US] [age_band: fresh] 標題: Morgan Stanley: Fed Rate Cuts Still on Track Despite Oil-Driven Inflation - econotimes.com\n[ID: 6] [US] [age_band: fresh] 標題: The Week Ahead: Markets Eye Inflation Data, Fed Minutes and War Risks - fxempire.com\n[ID: 7] [US] [age_band: fresh] 標題: ECPR Challenge Cup: Ulster beat Ospreys to progress to quarter-finals - BBC\n[ID: 8] [US] [age_band: fresh] 標題: When legal sports betting surges, so do Americans' financial problems - KUOW\n[ID: 9] [TW] [age_band: fresh] 標題: 天下財經週報：川普沒立即喊停美伊戰爭，OPEC+增產救得了油市荒嗎？ - 天下雜誌\n[ID: 10] [TW] [age_band: fresh] 標題: 老屋住60年！巴菲特省了一輩子卻為「4大奢侈消費」終生不後悔- 財經 - 中時新聞網\n[ID: 11] [US] [age_band: fresh] 標題: How Dow Jones thrives when news is seen as just another commodity - The Straits Times\n[ID: 12] [US] [age_band: fresh] 標題: Trump promised lower costs; the Iran conflict now threatens that pledge - AOL.com\n[ID: 13] [US] [age_band: fresh] 標題: Man accused of killing his wife because he wanted to ‘put her out of her misery,’ police say - WEAU\n[ID: 14] [TW] [age_band: fresh] 標題: 高盛下調印度市場前景 - citytimes.tw\n[ID: 15] [TW] [age_band: fresh] 標題: 外資賣超386.95億元 大砍ETF - MSN\n[ID: 16] [US] [age_band: fresh] 標題: High energy costs risk snuffing out aluminium boom - This is Money\n[ID: 17] [US] [age_band: fresh] 標題: Gold sees steepest monthly decline since 2008 financial crisis - Anadolu Ajansı\n[ID: 18] [US] [age_band: fresh] 標題: Aussie finance guru warns the Iran war could be one of the great disasters of our lifetime - MSN\n[ID: 19] [US] [age_band: fresh] 標題: Greece Tourism Sector Holds Strong Despite Inflation Pressures, New Flights to Crete, Kefalonia, Peloponnese Boost International Demand - Travel And Tour World\n[ID: 20] [US] [age_band: fresh] 標題: Moody’s Affirms Egypt’s Caa1 Ratings With Positive Outlook - MarketForces Africa\n[ID: 21] [TW] [age_band: fresh] 標題: Sensex、Nifty Fall：美伊衝突、石油對印度股市的混合影響 - citytimes.tw\n[ID: 22] [US] [age_band: fresh] 標題: BB frames rules to launch Islamic interbank market - Newagebd.net\n[ID: 23] [TW] [age_band: fresh] 標題: 特稿：伊戰阻出口化肥價飈 埋糧食危機伏線 - 20260405 - 國際 - 明報新聞網\n[ID: 24] [US] [age_band: fresh] 標題: Strong Showing for Job Market in Latest Report - The New York Times\n[ID: 25] [US] [age_band: fresh] 標題: US Jobs Beat Forecasts, Treasury Yields Climb as Crypto Prices Ease - Analytics Insight\n[ID: 26] [US] [age_band: fresh] 標題: If a Stock Market Crash Is Coming, These 3 Investing Moves Are Crucial Right Now - The Globe and Mail\n[ID: 27] [TW] [age_band: fresh] 標題: 南韓藝術拍賣會破紀錄! 奈良美智150 億韓元成交畫中女孩孤獨感成焦點 - MSN\n[ID: 28] [TW] [age_band: fresh] 標題: 需求旺盛/摩托車產業鏈完備熱銷非洲開拓南美- 經濟 - 大公文匯網\n[ID: 29] [TW] [age_band: fresh] 標題: 轉型升級/專家：由量走向質 粵高技術產品成「壓艙石」 - 大公文匯網\n[ID: 30] [TW] [age_band: fresh] 標題: 中國對美服飾出口市佔連兩年下滑 越南躍居主要替代來源 - ENN台灣電報\n[ID: 31] [TW] [age_band: fresh] 標題: 電動車電池業新重心 匈牙利磁吸265億歐元外資深耕歐洲 - ENN台灣電報\n[ID: 32] [TW] [age_band: fresh] 標題: 鐘崑禎外資歸隊台股迎V轉行情- 產業特刊- 工商時報 - 中時新聞網\n[ID: 33] [TW] [age_band: fresh] 標題: 16檔外資不離不棄有戲- 財經要聞- 工商時報 - 中時新聞網\n[ID: 34] [TW] [age_band: fresh] 標題: 日擬鬆綁武器出口事後通報國會- 兩岸新聞- 旺報 - 中時新聞網\n[ID: 35] [TW] [age_band: fresh] 標題: 社評／促鄭習以經解政 共創兩岸科技鏈 - 中時新聞網\n[ID: 36] [TW] [age_band: fresh] 標題: 影音／通膨警報響起! 美伊戰爭續燒 專家：台灣恐破2% 警戒線 - MSN\n[ID: 37] [TW] [age_band: fresh] 標題: 伊朗戰火引爆「金屬通膨」：鋁價飆四年高、銅市卻可能從短缺翻成過剩 - CMoney\n[ID: 38] [TW] [age_band: fresh] 標題: 匯市最前線／台幣31.8~32.2元波動 - 經濟日報\n[ID: 39] [US] [age_band: fresh] 標題: Dow Jones Futures: Leading Stocks Stand Tall As Market Bounces; Look For This Bullish Signal - Investor's Business Daily\n[ID: 40] [US] [age_band: fresh] 標題: ‘Collision of forces’ inching US near ‘recession’ of historic proportions: researcher - rawstory.com\n[ID: 41] [US] [age_band: fresh] 標題: CPI(ML) seeks joint meeting of GA partners in Bihar - The Times of India\n[ID: 42] [US] [age_band: fresh] 標題: Opinion: The business case for adjusting school funding for inflation and passing Prop 9 - Anchorage Daily News\n[ID: 43] [TW] [age_band: fresh] 標題: 台股、美股 ETF Q2淘金利器 - 經濟日報\n[ID: 44] [TW] [age_band: fresh] 標題: 截至 2 月，印度藥品出口額將突破280 億美元，成長超過5% - citytimes.tw\n[ID: 45] [TW] [age_band: fresh] 標題: 美課專利藥關稅 台食藥署：台美協定確保學名藥永久豁免 - 世界新聞網\n[ID: 46] [US] [age_band: fresh] 標題: Current Mortgage Rates: US Rises 6.46%, UK Hits 5.56%, EU 3.4% - coinpaper.com\n[ID: 47] [US] [age_band: fresh] 標題: This Scenic Lake Straddles 2 States - Travel + Leisure\n[ID: 48] [TW] [age_band: fresh] 標題: 由於與伊朗的戰爭威脅印度智慧型手機出口，蘋果公司不再那麼脆弱 - citytimes.tw\n[ID: 49] [US] [age_band: fresh] 標題: The countries with the highest GDP growth in the last 25 years - MSN\n[ID: 50] [US] [age_band: fresh] 標題: Cricket match squads | England vs West Indies, 15th Match, Group C, ICC Men's T20 World Cup 2026 - Cricbuzz\n[ID: 51] [US] [age_band: fresh] 標題: Nadia: CPI(M) Candidate Advait Biswas Campaigns for Assembly Polls #Gallery - Social News XYZ\n[ID: 52] [US] [age_band: fresh] 標題: Chicago Fed's Goolsbee Warns Iran War Could Delay Fed Cuts - hoodline.com\n[ID: 53] [US] [age_band: fresh] 標題: Provinces directed to rein in inflation, issue revised fare notification - Geo News\n[ID: 54] [TW] [age_band: fresh] 標題: 3月出口熱 有望連29紅 財部預估規模上看667億美元 - 經濟日報\n[ID: 55] [TW] [age_band: fresh] 標題: 春節干擾因素消除、官方啟動油價緩漲 3月通膨率約在2%以內 - 經濟日報\n[ID: 56] [TW] [age_band: fresh] 標題: 打伊朗其實是陰謀？戰爭讓美國成為更勝以往的經濟霸權 - 世界新聞網\n[ID: 57] [TW] [age_band: fresh] 標題: 出國機票將漲價！一家人恐多花數千元，達人曝２大省錢妙招：別盲目搶票 - 食尚玩家\n[ID: 58] [TW] [age_band: fresh] 標題: 投信買超逾百億台股暴漲1451點前10大出爐！這檔電子連4買最狂 - 自由時報\n[ID: 59] [TW] [age_band: fresh] 標題: 日媒:高市擬本月內修例放寬武器出口 - 澳門廣播電視股份有限公司</News_List>",
+  "userPrompt": "請分析以下新聞，並依重要性排序輸出最具影響力的新聞：<News_List>[ID: 0] [US] [age_band: fresh] 標題: Comparing Independent Bank (NASDAQ:IBCP) & United Bancorp (NASDAQ:UBCP) - Defense World\n[ID: 1] [US] [age_band: fresh] 標題: Digital assets: Moving from the sidelines to center stage - gulfbusiness.com\n[ID: 2] [US] [age_band: fresh] 標題: The fall in the price of gold: an opportunity worth considering - Delano.lu\n[ID: 3] [US] [age_band: fresh] 標題: Nadia: CPI(M) Candidate Sabina Yasmin Campaigns for Assembly Polls #Gallery - Social News XYZ\n[ID: 4] [US] [age_band: fresh] 標題: US March inflation expected to climb 1% on gas spike - newsbytesapp.com\n[ID: 5] [US] [age_band: fresh] 標題: Kaynes Semiconductor Plant Launch Strengthens India Chip Ecosystem - usthadian.com\n[ID: 6] [US] [age_band: fresh] 標題: Two second-half goals send Minnesota United past LA Galaxy 2-1 - Star Tribune\n[ID: 7] [US] [age_band: fresh] 標題: What is Jetvoy | How VOY Works, Use Cases and Values - MEXC Exchange\n[ID: 8] [US] [age_band: fresh] 標題: Berhalter and Müller score stoppage-time goals, Whitecaps rally to beat Timbers - theScore\n[ID: 9] [US] [age_band: fresh] 標題: Can the energy price shock push the UK into recession? By Investing.com - Investing.com Australia\n[ID: 10] [US] [age_band: fresh] 標題: Week ahead: US-Israel-Iran conflict, rising crude oil prices, RBI MPC meeting among key market triggers to watch - Upstox\n[ID: 11] [TW] [age_band: fresh] 標題: 【宏觀週報】台股修正10%夠了嗎？-阮慕驊 - CMoney投資網誌\n[ID: 12] [TW] [age_band: fresh] 標題: 另類！陸跑腿平台「代祭掃」服務走紅 最貴套餐2萬3包茅台 - 中天新聞網\n[ID: 13] [TW] [age_band: fresh] 標題: 阿聯不忍了! 港媒爆伊朗經濟命脈被砍斷「北京中鏢」 全面封殺千億油資 - MSN\n[ID: 14] [US] [age_band: fresh] 標題: A big budget in difficult times - daily-sun.com\n[ID: 15] [TW] [age_band: fresh] 標題: 曝外資狂砍台積電「逆勢留倉這3檔」 專家點出共通性：錢沒消失只是換地方停 | 張庭維 | 新聞 - 風傳媒\n[ID: 16] [US] [age_band: fresh] 標題: Paraguay’s Stock Exchange Gains Global Edge via Nasdaq - Azat TV\n[ID: 17] [US] [age_band: fresh] 標題: ‘I was fed up, thinking, this might not be for me’ – How Tommy O’Brien fought back from the brink of retirement to become a key player for Leinster and Ireland - The Irish Independent\n[ID: 18] [US] [age_band: fresh] 標題: Treasury Yields Snapshot: April 2, 2026 - Seeking Alpha\n[ID: 19] [US] [age_band: fresh] 標題: Public braced for global recession within a year, new poll shows - The Irish Independent\n[ID: 20] [US] [age_band: fresh] 標題: Probable fuel price hike may further strain inflation-hit economy - daily-sun.com\n[ID: 21] [US] [age_band: fresh] 標題: Yes Bank Deposits Jump 12.1% to Rs 3.18 Lakh Crore, Boosting Franchise - Whalesbook\n[ID: 22] [US] [age_band: fresh] 標題: Voyager Acquisition Clears Key Hurdle for Nasdaq Relaunch - ad-hoc-news.de\n[ID: 23] [TW] [age_band: fresh] 標題: 三井營收超車微風躋身前4 強百貨布局競爭升溫 - MSN\n[ID: 24] [TW] [age_band: fresh] 標題: 台外匯存底跌近20兆 市場緊盯3月是否跌破6000億美元 | CTWANT - LINE TODAY\n[ID: 25] [TW] [age_band: fresh] 標題: 赴俄遇中資宰客一條龍! 習近平禁日令悲劇了 日媒爆中國人反遭慘坑殺 - MSN\n[ID: 26] [TW] [age_band: fresh] 標題: 美超微走私案最新進展！共同創辦人、外包商紐約開庭均不認罪 - FTNN 新聞網\n[ID: 27] [TW] [age_band: fresh] 標題: 陳茂波指零售市道復蘇基礎相當明顯 家具、服裝等民生類別亦見回暖 - singtao.ca\n[ID: 28] [TW] [age_band: fresh] 標題: 【產業戰報】0404假日不休息隊長當週盤勢解析-產業隊長 張捷 - CMoney投資網誌\n[ID: 29] [TW] [age_band: fresh] 標題: 央行限貸鬆綁釋利多 板橋核心換屋型產品成自住族關注焦點 - 蕃新聞\n[ID: 30] [TW] [age_band: fresh] 標題: 賣場大出清公告曝更名「康達盛通」 老顧客嘆：家樂福成回憶 - PChome Online 新聞\n[ID: 31] [TW] [age_band: fresh] 標題: 美課專利藥100%重稅！食藥署曝對台影響 - PChome Online 新聞\n[ID: 32] [TW] [age_band: fresh] 標題: 黃金 30 年來首度超越美債！躍升全球最大外匯儲備，央行資產配置邏輯為何重寫？ - blocktempo.com\n[ID: 33] [TW] [age_band: fresh] 標題: 受金銀上漲影響 日本金澤賣掉火化剩餘骨灰收益翻倍 - 自由時報\n[ID: 34] [TW] [age_band: fresh] 標題: 【伊朗危機】時代雜誌：川普尋求戰爭「出口」 民調下滑、經濟衝擊下白宮內部拉警報 - 梅花新聞網\n[ID: 35] [TW] [age_band: fresh] 標題: 使用 UPI、DATE 和信用卡的支付服務海關：ICEGATE 更新 - citytimes.tw\n[ID: 36] [TW] [age_band: fresh] 標題: 「桃園電影獎」總獎金飆135萬 導演嗨喊：不怕通膨了 - LINE TODAY\n[ID: 37] [TW] [age_band: fresh] 標題: 國際能源署警告：伊朗戰爭期間各國不得囤積燃料 - aastocks.com\n[ID: 38] [TW] [age_band: recent] 標題: 印度GDP成長數據：經合組織預計儘管全球風險但仍將強勁擴張 - citytimes.tw\n[ID: 39] [TW] [age_band: recent] 標題: 台積電入列！外媒點名「現在就必須買這2檔」十年後絕對會感謝自己 - 三立新聞網\n[ID: 40] [US] [age_band: recent] 標題: Payment Required for People Inc Content Licensing | Contact - West Africa Trade Hub\n[ID: 41] [US] [age_band: recent] 標題: Russia stocks lower at close of trade; MOEX Russia Index unchanged - Investing.com\n[ID: 42] [US] [age_band: recent] 標題: International Business: BOJ urged to keep raising interest rates - Gulf Daily News\n[ID: 43] [US] [age_band: recent] 標題: Morgan Stanley: Fed Rate Cuts Still on Track Despite Oil-Driven Inflation - econotimes.com\n[ID: 44] [US] [age_band: recent] 標題: The Week Ahead: Markets Eye Inflation Data, Fed Minutes and War Risks - fxempire.com\n[ID: 45] [US] [age_band: recent] 標題: ECPR Challenge Cup: Ulster beat Ospreys to progress to quarter-finals - BBC\n[ID: 46] [US] [age_band: recent] 標題: When legal sports betting surges, so do Americans' financial problems - KUOW\n[ID: 47] [TW] [age_band: recent] 標題: 天下財經週報：川普沒立即喊停美伊戰爭，OPEC+增產救得了油市荒嗎？ - 天下雜誌\n[ID: 48] [TW] [age_band: recent] 標題: 老屋住60年！巴菲特省了一輩子卻為「4大奢侈消費」終生不後悔- 財經 - 中時新聞網\n[ID: 49] [US] [age_band: recent] 標題: How Dow Jones thrives when news is seen as just another commodity - The Straits Times\n[ID: 50] [US] [age_band: recent] 標題: Trump promised lower costs; the Iran conflict now threatens that pledge - AOL.com\n[ID: 51] [US] [age_band: recent] 標題: Man accused of killing his wife because he wanted to ‘put her out of her misery,’ police say - WEAU\n[ID: 52] [TW] [age_band: recent] 標題: 高盛下調印度市場前景 - citytimes.tw\n[ID: 53] [TW] [age_band: recent] 標題: 外資賣超386.95億元 大砍ETF - MSN\n[ID: 54] [US] [age_band: recent] 標題: High energy costs risk snuffing out aluminium boom - This is Money\n[ID: 55] [TW] [age_band: recent] 標題: Sensex、Nifty Fall：美伊衝突、石油對印度股市的混合影響 - citytimes.tw\n[ID: 56] [TW] [age_band: recent] 標題: 特稿：伊戰阻出口化肥價飈 埋糧食危機伏線 - 20260405 - 國際 - 明報新聞網\n[ID: 57] [TW] [age_band: recent] 標題: 南韓藝術拍賣會破紀錄! 奈良美智150 億韓元成交畫中女孩孤獨感成焦點 - MSN\n[ID: 58] [TW] [age_band: recent] 標題: 需求旺盛/摩托車產業鏈完備熱銷非洲開拓南美- 經濟 - 大公文匯網\n[ID: 59] [TW] [age_band: recent] 標題: 轉型升級/專家：由量走向質 粵高技術產品成「壓艙石」 - 大公文匯網</News_List>",
   "schema": {
     "type": "OBJECT",
     "description": "AI 思考過程與挑選結果",
@@ -129,39 +129,49 @@
     "think": {
       "event_inventory": [
         {
-          "event": "美國就業數據與聯準會降息預期",
-          "count": 5,
-          "best_title": "US Jobs Beat Forecasts, Treasury Yields Climb as Crypto Prices Ease"
-        },
-        {
-          "event": "美伊戰爭與地緣政治風險",
-          "count": 7,
-          "best_title": "Trump promised lower costs; the Iran conflict now threatens that pledge"
-        },
-        {
-          "event": "台股資金流向與籌碼面變動",
+          "event": "美國通膨數據與 Fed 政策動向",
           "count": 4,
+          "best_title": "The Week Ahead: Markets Eye Inflation Data, Fed Minutes and War Risks"
+        },
+        {
+          "event": "中東地緣政治衝突與油價危機",
+          "count": 6,
+          "best_title": "Week ahead: US-Israel-Iran conflict, rising crude oil prices, RBI MPC meeting among key market triggers to watch"
+        },
+        {
+          "event": "外資對台股與 ETF 的資金流向",
+          "count": 3,
           "best_title": "外資賣超386.95億元 大砍ETF"
         },
         {
-          "event": "台灣總體經濟數據（出口與通膨）",
-          "count": 3,
-          "best_title": "3月出口熱 有望連29紅 財部預估規模上看667億美元"
+          "event": "全球資產配置結構性轉變（黃金 vs 美債）",
+          "count": 2,
+          "best_title": "黃金 30 年來首度超越美債！躍升全球最大外匯儲備，央行資產配置邏輯為何重寫？"
         },
         {
-          "event": "全球大宗商品與金屬通膨",
-          "count": 3,
-          "best_title": "伊朗戰火引爆「金屬通膨」：鋁價飆四年高、銅市卻可能從短缺翻成過剩"
+          "event": "日本央行貨幣政策轉向壓力",
+          "count": 1,
+          "best_title": "International Business: BOJ urged to keep raising interest rates"
         },
         {
-          "event": "半導體權值股產業地位",
+          "event": "台積電長線價值與外資調節",
           "count": 2,
           "best_title": "台積電入列！外媒點名「現在就必須買這2檔」十年後絕對會感謝自己"
         },
         {
-          "event": "日本貨幣政策動向",
+          "event": "美超微（SMCI）法律風險與 AI 族群影響",
           "count": 1,
-          "best_title": "International Business: BOJ urged to keep raising interest rates"
+          "best_title": "美超微走私案最新進展！共同創辦人、外包商紐約開庭均不認罪"
+        },
+        {
+          "event": "新興市場（印度）展望調整",
+          "count": 3,
+          "best_title": "高盛下調印度市場前景"
+        },
+        {
+          "event": "全球經濟衰退預期與情緒",
+          "count": 2,
+          "best_title": "Public braced for global recession within a year, new poll shows"
         }
       ],
       "dimension_check": {
@@ -173,83 +183,75 @@
       },
       "excluded": [
         {
-          "id": 7,
-          "reason": "體育賽事結果"
+          "id": 6,
+          "reason": "體育賽事無關經濟"
         },
         {
-          "id": 8,
-          "reason": "社會問題探討"
+          "id": 12,
+          "reason": "社會民生瑣事"
         },
         {
-          "id": 10,
-          "reason": "名人生活軼事"
+          "id": 33,
+          "reason": "地方奇聞無關大盤"
         },
         {
-          "id": 13,
-          "reason": "刑事社會案件"
+          "id": 51,
+          "reason": "刑事案件無關投資"
         },
         {
-          "id": 27,
-          "reason": "藝術拍賣新聞"
-        },
-        {
-          "id": 47,
-          "reason": "旅遊景點介紹"
-        },
-        {
-          "id": 50,
-          "reason": "體育賽事名單"
+          "id": 48,
+          "reason": "名人理財雞湯"
         }
       ]
     },
     "news": [
       {
-        "id": 25,
-        "summary": "美國最新就業報告顯示勞動力市場異常強勁，非農就業人數遠超預期，導致美債殖利率應聲攀升。此數據顯著削弱了市場對聯準會近期降息的期待，對科技股及高槓桿投資策略構成估值壓力，需密切關注資金從風險資產流向債市的趨勢。"
+        "id": 44,
+        "summary": "本週市場焦點集中於美國 3 月 CPI 數據與 Fed 會議紀錄。在油價飆升背景下，通膨若超預期（預計攀升 1%），將直接衝擊 Fed 降息預期，推升美債殖利率，對台股權值股與 0050 形成估值修正壓力。"
       },
       {
-        "id": 52,
-        "summary": "芝加哥聯準行長 Goolsbee 明確警告，美伊戰爭引發的能源價格波動可能迫使 Fed 延後降息。地緣政治風險已成為通膨路徑的最大變數，若降息時程推遲，將直接衝擊全球股市流動性，並增加台股大盤與 0050 的下行風險。"
+        "id": 10,
+        "summary": "美、以、伊衝突升級成為全球市場最大變數。地緣政治緊張直接推升布蘭特原油價格，若衝突擴大導致供應中斷，二次通膨風險將迫使全球央行維持高利率，對高槓桿投資策略構成流動性威脅。"
+      },
+      {
+        "id": 53,
+        "summary": "外資單日大舉賣超台股 386.95 億元並同步砍倉 ETF，顯示資金正從高評價的新興市場撤出。此類大規模資金流出將直接壓制大盤指數表現，投資人需警惕 0050 短期內因權值股遭拋售而產生的回檔風險。"
+      },
+      {
+        "id": 32,
+        "summary": "全球央行資產配置出現歷史性轉向，黃金儲備 30 年來首度超越美債。這反映了去美元化趨勢與對傳統避險資產的信心動搖，長期將影響全球利率定價基準，並改變大型避險基金的資產配置權重。"
       },
       {
         "id": 15,
-        "summary": "外資單日大舉賣超台股 386.95 億元，並針對多檔 ETF 進行調節，顯示國際資金在避險情緒下正撤出新興市場。外資的集體撤離對台積電等權值股造成直接壓力，短期內需防範大盤回測支撐，對槓桿型投資者而言風險顯著增加。"
+        "summary": "外資近期雖調節台積電，但資金轉向具備防禦性或特定共通性的標的。台積電作為台股權重核心，其外資持股變動直接決定大盤走勢。專家分析資金並未離場僅是換股操作，顯示市場正進行風格切換。"
       },
       {
-        "id": 58,
-        "summary": "儘管外資撤離，投信單日買超逾百億元，支撐台股暴漲 1451 點，顯示內資護盤力道強勁。這種「內外資對作」的格局加劇了市場波動，投資人應關注電子權值股的籌碼流向，這將決定台股能否在震盪中維持 V 轉行情並穩定 0050 走勢。"
+        "id": 42,
+        "summary": "日本央行面臨強大的升息壓力以應對日圓貶值。日圓若因政策轉向而大幅升值，將引發全球利差交易（Carry Trade）平倉潮，導致資金從台股等高息或高成長市場回流日本，造成全球股市劇烈波動。"
       },
       {
-        "id": 54,
-        "summary": "財政部預估台灣 3 月出口規模上看 667 億美元，有望達成連 29 紅的紀錄。強勁的出口數據反映全球 AI 需求持續旺盛，為台股基本面提供堅實支撐，對於以 0050 為核心的長期投資者而言，這是產業景氣循環向上的重要利多訊號。"
+        "id": 13,
+        "summary": "阿聯封殺伊朗千億油資導致北京受波及，顯示中東衝突已延伸至金融制裁層面。此舉不僅影響全球能源貿易結算，更可能干擾中國能源供應穩定，進而透過供應鏈傳導影響全球電子產業的生產成本。"
       },
       {
-        "id": 1,
-        "summary": "外媒點名台積電與輝達為未來十年的核心資產，強調其在 AI 浪潮中的不可替代性。作為 0050 最大權值股，台積電的長期競爭力獲得國際認可，有助於穩定市場信心，並吸引長線價值投資資金持續流入，對抗短期地緣政治引發的波動。"
+        "id": 47,
+        "summary": "OPEC+ 的增產決策與川普對美伊戰爭的態度成為油市關鍵。若地緣政治導致的供應缺口無法被有效填補，油價持續高企將侵蝕企業獲利，對出口導向的台股企業造成毛利壓力，不利於大盤長線多頭。"
       },
       {
-        "id": 36,
-        "summary": "專家分析美伊戰爭若持續延燒，將推升進口能源成本，導致台灣通膨率突破 2% 的警戒線。通膨壓力若無法緩解，可能迫使台灣央行採取更鷹派的貨幣立場，進而影響市場折現率與台股整體的本益比評價，對大盤指數形成壓抑。"
+        "id": 26,
+        "summary": "AI 伺服器大廠美超微（SMCI）高層涉及走私案且不認罪，法律風險顯著增加。SMCI 作為 AI 產業風向球，其誠信危機可能引發 AI 族群集體回檔，對台股相關代工鏈如廣達、緯創等產生負面連鎖反應。"
       },
       {
-        "id": 37,
-        "summary": "伊朗戰火引發「金屬通膨」，鋁價飆升至四年高點，反映供應鏈中斷風險。雖然銅市可能出現過剩，但關鍵工業金屬價格上漲將推升製造業成本，對電子零組件與硬體組裝產業的毛利率構成潛在威脅，需警惕科技股的成本轉嫁風險。"
+        "id": 39,
+        "summary": "外媒將台積電列為未來十年核心配置標的，強調其在 AI 時代的不可替代性。儘管短期受總經環境干擾，但其長線基本面穩健，是 0050 淨值增長的基石，適合槓桿投資者在回檔時尋找長線布局機會。"
       },
       {
-        "id": 4,
-        "summary": "日本央行面臨升息壓力，市場預期其將持續收緊貨幣政策以應對通膨。日圓若因升息而走強，將引發全球利差交易（Carry Trade）平倉潮，導致資金從高風險資產回流日本，這對台股等新興市場的資金流動性具有顯著的潛在衝擊。"
+        "id": 52,
+        "summary": "高盛下調印度市場前景，反映資金對高估值新興市場的審慎態度。當區域性資金重新配置時，台股作為同屬亞太區的高科技權重市場，需觀察是否會出現資金排擠效應或同步遭外資下修評等。"
       },
       {
-        "id": 12,
-        "summary": "川普對美伊衝突的立場轉變，威脅其降低成本的政見承諾，地緣政治動盪可能推升全球油價與物流成本。若美國通膨因戰爭而反彈，將打亂全球央行的降息節奏，增加總體經濟的不確定性，並對全球供應鏈穩定性造成長遠影響。"
-      },
-      {
-        "id": 38,
-        "summary": "新台幣匯率近期在 31.8 至 32.2 元區間劇烈波動，反映外資匯出與出口商拋匯的拉鋸。匯率走弱雖有利於出口競爭力，但對外資而言則面臨匯損風險，可能進一步加速資金流出台股大盤，影響權值股的短期資金動能。"
-      },
-      {
-        "id": 17,
-        "summary": "黃金價格出現自 2008 年金融危機以來最慘重的單月跌幅，顯示市場資金正從傳統避險資產撤出。這反映出投資人對高利率環境將維持更久的預期，資金轉向追逐高殖利率債券，對股市等風險資產的吸金效應產生排擠壓力。"
+        "id": 19,
+        "summary": "最新民調顯示公眾對一年內全球衰退的預期顯著升溫。這種悲觀情緒可能轉化為實際的消費縮減與投資停滯，若衰退預期自我實現，台股大盤將面臨系統性風險，需加強對沖工具的使用。"
       }
     ]
   }
