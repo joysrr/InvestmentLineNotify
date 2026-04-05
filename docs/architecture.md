@@ -103,9 +103,9 @@ flowchart TD
 | `src/dailyCheck.mjs` | 每日主 orchestration，串接持股繼承、資料抓取、策略計算、新聞摘要、AI 建議、通知、歸檔與條件式 `llmJudge`。 |
 | `src/runDailyCheck.mjs` | CLI entry，處理參數如 `--telegram=false`、`--aiAdvisor=false`。 |
 | `src/runNewsFetch.mjs` | 獨立新聞抓取流程，包含動態關鍵字產生、Yield Rate score 回寫、新聞池更新。 |
-| `src/runOptimizer.mjs` | 獨立執行 Rule Optimizer，優化新聞治理規則。 |
+| `src/runOptimizer.mjs` | 獨立執行 Rule Optimizer，優化新聞治理規則，完成後若有新規則則靜默推播至 Log 頻道。 |
 | `src/runWeeklyReport.mjs` | 讀取近 7 天報告，最低 3 份才生成週報。 |
-| `src/runMonthlyReport.mjs` | 讀取近 30 天報告，最低 10 份才生成月報。 |
+| `src/runMonthlyReport.mjs` | 讀取近 50 天報告（取最後 30 天為評估期，全 50 天供報酬率計算），最低 10 份才生成月報。 |
 | `src/modules/providers/` | 市場資料 provider layer，封裝 TWSE、Yahoo、FRED、CNN、KGI、NDC 等來源。 |
 | `src/modules/strategy/` | 策略與風控核心，計算 RSI / KD / MACD、過熱、冷卻期與投資建議。 |
 | `src/modules/ai/` | AI decision layer，包含 search query generation、news filter、macro analysis、investment coach、period report、rule optimizer、LLM judge。 |
@@ -113,13 +113,25 @@ flowchart TD
 | `src/modules/keywordConfig.mjs` | 關鍵字與 blacklist loading 的設定入口，承接已完成的 keyword system 重構。 |
 | `src/modules/data/newsPoolManager.mjs` | 新聞池 CRUD、TTL 清理、archive、fuzzy dedupe。 |
 | `src/modules/notifications/` | 將決策結果輸出成 Telegram 訊息與週期報告格式。 |
-| `src/modules/storage.mjs` | 與 Google Sheets 同步持股狀態與每日紀錄。 |
-| `src/utils/` | 通用工具，例如 `TwDate`、timeout fetch、數值解析。 |
+| `src/modules/storage.mjs` | 與 Google Sheets 同步持股狀態與每日紀錄，包含 `avgCost0050` / `avgCostZ2` 均價欄位讀取。 |
+| `src/utils/coreUtils.mjs` | 通用工具：`TwDate`、`fetchWithTimeout`、`parseNumberOrNull`、`stepTimer` 等。 |
+| `src/test/` | 手動測試與回測腳本，不在排程流程內。 |
+
+### `src/test/` 測試腳本
+| Path | 說明 |
+|---|---|
+| `src/test/backtest.mjs` | 回測腳本，用於驗證策略歷史表現。 |
+| `src/test/newsTest.mjs` | 新聞抓取手動測試。 |
+| `src/test/providers.test.mjs` | 各 provider 單元測試。 |
+| `src/test/test-all.mjs` | 整合測試入口。 |
+| `src/test/test-archiveManager.mjs` | archiveManager 模組測試。 |
+| `src/test/test-keywordConfig.mjs` | keywordConfig 載入測試。 |
+| `src/test/test-keywords.mjs` | 關鍵字系統測試。 |
 
 ### `data/` 檔案持久化層
 | Path | 說明 |
 |---|---|
-| `data/market/` | 總經與市場快取資料。 |
+| `data/market/` | 總經與市場快取資料（`latest.json` 含所有 provider 最新快取）。 |
 | `data/stock_history/` | 歷史股價快取。 |
 | `data/reports/` | 每日決策最終報告，亦作為週報 / 月報輸入來源。 |
 | `data/ai_logs/` | AI prompt / response 與治理相關紀錄。 |
@@ -127,9 +139,23 @@ flowchart TD
 | `data/news/pool_filtered_active.json` | 已整理後的新聞池版本。 |
 | `data/news/archive/YYYY-MM-DD.json` | 過期新聞歸檔。 |
 
+### `docs/` 文件層
+| Path | 說明 |
+|---|---|
+| `docs/architecture.md` | 本文件，總體架構總覽。 |
+| `docs/agent_prompts.md` | AI Agent 使用的 prompt 結構說明。 |
+| `docs/langfuse-score-configs.md` | Langfuse 評分配置說明。 |
+| `docs/modules/ai_pipeline.md` | AI 決策管線詳細說明（aiCoach、periodReportAgent、ruleOptimizerAgent、llmJudge）。 |
+| `docs/modules/core_infrastructure.md` | 基礎設施詳細說明（storage、archiveManager、newsPoolManager、coreUtils）。 |
+| `docs/modules/entry_and_notifications.md` | 入口 Runner 與通知模組詳細說明。 |
+| `docs/modules/market_strategy.md` | 市場策略引擎詳細說明（strategyEngine、signalRules、indicators、riskManagement、newsFetcher）。 |
+| `docs/modules/providers.md` | 各市場資料 provider 詳細說明與 API 快取策略。 |
+| `docs/plans/optimization_ideas.md` | 架構優化討論（進行中的想法，非正式計劃）。 |
+| `docs/plans/preplan_features.md` | 預計功能（尚未排期）。 |
+
 ---
 
-## 5. 已完成的架構演進（已整合自 `finish_features.md`）
+## 5. 已完成的架構演進
 
 ### 5.1 Keyword System 重構
 新聞關鍵字系統已從單純寫死字串，演進為結構化 `KeywordEntry`：
@@ -160,4 +186,29 @@ flowchart TD
 - news governance pipeline，或
 - period reporting pipeline。
 
-這也是本次文件重整的核心目的：讓 Agent 能快速定位功能責任，不再把所有變更都誤集中到 `dailyCheck.mjs`。
+### 5.4 AI Coach 持倉成本與損益注入（2026-04-04）
+`aiDataPreprocessor.mjs` 的 `formatQuantDataForCoach()` 已包含「持倉成本與損益」段落，將 `avgCost0050` / `avgCostZ2`（由 `storage.mjs` 從 Google Sheets 讀取）與即時價格對比計算未實現損益率後注入 Coach 上下文。
+
+### 5.5 訊號準確率統計（Signal Accuracy Stats）
+`periodReportAgent.mjs` 的 `buildSignalAccuracyStats()` 統一處理買進訊號的觸發次數、冷卻封鎖次數，以及月報的 +5 / +10 / +20 日報酬率與勝率計算。週報顯示訊號數量統計，月報完整呈現報酬率明細。
+
+### 5.6 Rule Optimizer Telegram 通知
+`runOptimizer.mjs` 完成後，若有新規則通過，會透過 `broadcastOptimizerResult()` 靜默推播至 Log 頻道（使用 `TELEGRAM_LOG_API_TOKEN`）。無新規則時靜默略過，失敗不影響主流程。
+
+### 5.7 `stepTimer` 效能監控
+`coreUtils.mjs` 的 `stepTimer()` 已插入 `dailyCheck.mjs` 所有主要步驟，在 GitHub Actions log 中可直接看到每步耗時（`⏱ [stepName] Xms`），快速定位效能瓶頸。
+
+---
+
+## 6. AI Agent 開發指引
+
+本文件是 AI Agent 定位功能的起點。建議依以下順序閱讀各模組文件：
+
+1. **本文件**（`docs/architecture.md`）：掌握整體流程、runner 分工、目錄責任。
+2. **`docs/modules/entry_and_notifications.md`**：了解每個 runner 的觸發邏輯與通知邊界。
+3. **`docs/modules/market_strategy.md`**：了解市場資料抓取與策略訊號生成。
+4. **`docs/modules/ai_pipeline.md`**：了解 AI 決策鏈（Coach、Judge、Optimizer、Period Report）。
+5. **`docs/modules/providers.md`**：了解各外部資料來源的快取策略與防呆機制。
+6. **`docs/modules/core_infrastructure.md`**：了解底層工具、storage、archive、news pool。
+
+定位問題時，請先判斷問題屬於哪條 pipeline（daily / news governance / period reporting），再對應到具體模組文件，避免直接進入 `dailyCheck.mjs` 或 `prompts.mjs` 而漏掉真正的根因。
