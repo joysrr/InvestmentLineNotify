@@ -23,7 +23,7 @@
 - 輸出格式是否完整
 
 ### Numeric
-用於需要觀察趨勢、平均值、版本比較的評分項目。
+用於需要觀察趨勢、平均値、版本比較的評分項目。
 本專案中，1~5 分制的主觀評分也統一使用 Numeric，而不是 Categorical。
 
 建議分數定義：
@@ -55,9 +55,11 @@
 - **Data Type:** `Boolean`
 - **Data Options/Range:** `True / False`
 - **Description:**  
-  [Rule] [Investment Coach]  
-  檢查輸出是否符合指定格式要求，例如是否包含「上下文」、「具體動作」、「預期心態」等必要區塊。  
-  True 代表格式完整，False 代表缺漏或格式不符。
+  [Rule] [Investment Coach 、 PeriodReportAnalysis]  
+  檢查輸出是否符合指定格式要求。  
+  對於 **Investment Coach**：評估輸出是否包含「上下文」、「具體動作」、「預期心態」等必要區塊。  
+  對於 **PeriodReportAnalysis**：驗證 `topRiskEvents` 為非空陣列、`consistencyComment` 與 `periodOutlook` 為非空字串，三者同時满足才為 True。  
+  comment 欄位會記錄各欄位實際長度供調適參考。
 
 ---
 
@@ -84,8 +86,8 @@
   [Rule] [Search Queries Generator]
   專門評估 AI 動態生成關鍵字的有效率，排除靜態 base 關鍵字的影響。
   計算方式：動態關鍵字中過濾後 ≥ 1 篇新聞的 query 數 / 動態關鍵字成功執行數。
-  此指標為 AI Prompt 優化的主要依據，搭配 Context_Alignment 可交叉判斷品質。
-  建議警戒閾值：連續 3 日低於 0.4 需人工檢查 Prompt。
+  此指標為 AI Prompt 優化的主要依據，搜配 Context_Alignment 可交叉判斷品質。
+  建議警戒閾値：連續 3 日低於 0.4 需人工檢查 Prompt。
 
 ---
 
@@ -97,7 +99,7 @@
 - **Description:**  
   [Human / LLM] [Search Queries Generator]  
   評估產出的搜尋關鍵字是否符合當日市場情境，例如 VIX 波動、大盤急跌、地緣政治升溫等。  
-  1 分代表與市場脈絡明顯脫節，5 分代表高度貼合市場焦點。
+  1 分代表與市場脈絡明顯脱節，5 分代表高度貼合市場焦點。
 
 ---
 
@@ -122,7 +124,7 @@
 - **Description:**  
   [Human / LLM] [News Filter]  
   評估過濾後新聞的訊噪比。  
-  1 分代表仍混入大量農場文、個股雜訊或低價值內容；5 分代表留下的幾乎都是對大盤或總經有實質影響的重點新聞。
+  1 分代表仍混入大量農場文、個股雜訊或低價値內容；5 分代表留下的幾乎都是對大盤或總經有實質影響的重點新聞。
 
 ---
 
@@ -135,7 +137,7 @@
   [Human / LLM] [News Filter]  
   評估新聞摘要品質。  
   重點包含：是否有具體數據、是否點出事件核心、是否說明對市場或產業的潛在影響。  
-  1 分代表只是重寫標題，5 分代表具備深度與分析價值。
+  1 分代表只是重寫標題，5 分代表具備深度與分析價値。
 
 ---
 
@@ -185,7 +187,7 @@
 - **Description:**  
   [Human / LLM] [Investment Coach]  
   評估教練輸出的建議是否具體、可執行。  
-  1 分代表內容空泛，只是口號式提醒；5 分代表有明確行動方向、可直接作為投資紀律或部位微調參考。
+  1 分代表內容空汎，只是口號式提醒；5 分代表有明確行動方向、可直接作為投資紀律或部位微調參考。
 
 ---
 
@@ -212,7 +214,7 @@
   計算方式：accepted 規則數 / (accepted + rejected 規則總數)。若 AI 未產出任何規則（rules 為空陣列），則不打分，避免以 0 污染統計。
   用於監控 AI 產出品質與 Sandbox 驗證嚴格程度的動態平衡。
   comment 欄位需同時記錄各拒絕原因的明細（invalid_regex / overbroad / duplicate / golden_dataset_kill 各別計數）。
-  建議觀察閾值：長期低於 0.3 需檢查 AI prompt 產出品質；長期高於 0.9 需檢查 Sandbox 是否過鬆。
+  建議觀察閾値：長期低於 0.3 需檢查 AI prompt 產出品質；長期高於 0.9 需檢查 Sandbox 是否過鬆。
 
 ---
 
@@ -225,15 +227,15 @@
   [Rule] [Rule Optimizer]
   計算被「黃金清單碰撞」這個關卡擋下的規則比例。
   計算方式：golden_dataset_kill 數 / rejected 規則總數。若 rejected 為 0，則不打分。
-  此指標專門用來監控 AI 是否有產出過廣規則的傾向（例如不斷產出會誤殺台積電、Fed 等關鍵字的規則）。
-  若此值長期偏高（> 0.4），代表 RuleOptimizer 的 Langfuse Prompt 需要強化「不可誤殺黃金清單」的約束說明。
+  此指標專門用來監控 AI 是否有產出過廣規則的側向（例如不斷產出會誤殺台積電、Fed 等關鍵字的規則）。
+  若此値長期偏高（> 0.4），代表 RuleOptimizer 的 Langfuse Prompt 需要強化「不可誤殺黃金清單」的約束說明。
 
 ---
 
 
 # 建議實作順序
 
-建議先建立以下幾個最有價值的 score：
+建議先建立以下幾個最有價値的 score：
 
 1. `Schema_Validation`
 2. `Keyword_Yield_Rate`
@@ -247,7 +249,7 @@
 
 這幾項最能快速反映：
 - Query 是否抓得到東西
-- News Filter 是否真的有過濾價值
+- News Filter 是否真的有過濾價値
 - Macro Analyst 是否推論一致
 - Coach 是否講出可執行的內容
 
@@ -267,7 +269,7 @@
 - Score_Distribution_Spread
 
 ## Human 類
-適合人工抽查，建立黃金標準：
+適合人工抄查，建立黃金標準：
 - Context_Alignment
 - Signal_to_Noise_Ratio
 - Summary_Quality
@@ -290,6 +292,7 @@
 
 # 備註
 
-1. 1~5 分制一律使用 Numeric，方便 Langfuse 做平均值、趨勢線與版本比較。
-2. Description 內需清楚標示該 score 是屬於 Rule、Human 還是 LLM 類型。
+1. 1~5 分制一律使用 Numeric，方便 Langfuse 做平均値、趨勢線與版本比較。
+2. Description 內需清楔標示該 score 是屬於 Rule、Human 還是 LLM 類型。
 3. 若後續新增 Prompt，建議比照本文件格式擴充，不要混用不同評分標準。
+4. `Format_Compliance` 現已同時覆蓋 **Investment Coach** 與 **PeriodReportAnalysis** 兩個 prompt，為全專案共用。
