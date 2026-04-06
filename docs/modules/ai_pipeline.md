@@ -118,39 +118,60 @@ Coach AI 可直接參考持倉成本與目前價格差距，進行加碼 / 減�
 ```js
 {
   buySignalCount: 5,           // 觸發買進訊號次數
-  cooldownBlockedCount: 3,     // 冷卻期封鎖次數（分母）
-  totalEligibleDays: 8,        // buySignalCount + cooldownBlockedCount
-  cooldownBlockRate: 0.375,    // 達標日封鎖率
-
-  // 月報才有，週報為 null
-  signalDetails: [ { date, weightScore, leveragePct, priceAtSignal, returns: { d5, d10, d20 } } ],
-  avgReturn: { d5: +2.3, d10: +3.1, d20: +4.8 },
-  winRate:   { d5: 0.80, d10: 0.80, d20: 1.00 },
-  dataNote: null,  // 資料不足時填入說明文字
+  cooldownBlockedCount: 2,     // 冷卻期封鎖次數
+  totalEligibleDays: 7,        // 合計計入分母天數
+  cooldownBlockRate: 0.29,     // 冷卻封鎖比率
+  signalDetails: [             // 各筆訊號明細（月報才含 returnN 欄位）
+    {
+      date: "2026-03-15",
+      type: "buy",
+      returnD5: 2.3,            // +5 日報酬率（月報）
+      returnD10: -0.8,          // +10 日報酬率（月報）
+      returnD20: 4.1,           // +20 日報酬率（月報）
+    }
+  ],
+  avgReturn: { d5: 1.8, d10: 0.6, d20: 2.9 },  // 月報平均報酬率（null for 週報）
+  winRate: { d5: 0.6, d10: 0.4, d20: 0.8 },    // 月報勝率（null for 週報）
+  dataNote: "部分天數距今不足 20 日，d20 樣本 3/5"  // 說明文字（null for 週報）
 }
 ```
 
-每個天數（`d5` / `d10` / `d20`）各自帶有 `available: boolean`，資料不足只影響該天數，不影響其他天數的呈現。
+### 5.3 Langfuse 觀測機制
 
-### 5.3 維護重點
+`generatePeriodAiSummary()` 呼叫 AI 後，會透過 `safeLangfuseScore()` 寫入以下兩個 score（任一寫入失敗只 `console.warn`，不阻斷主流程）：
 
-對 AI Agent 來說，若要改週報 / 月報品質，主要修改點是：
-- `periodReportAgent.mjs`（統計邏輯、訊號分類）
-- `prompts.mjs`（AI 摘要 prompt）
-- `notifications/templates/periodReportBuilder.mjs`（Telegram 格式）
+| Score 名稱 | 類型 | 寫入時機 | 說明 |
+|---|---|---|---|
+| `Schema_Validation` | Boolean | AI 回傳 JSON parse 成功後 | 驗證 JSON 能正確解析，value = 1 表示成功 |
+| `Format_Compliance` | Boolean | Schema 驗證通過後 | 驗證 `topRiskEvents` 為非空陣列、`consistencyComment` 與 `periodOutlook` 為非空字串，value = 1 / 0 |
 
-若未來 `strategyEngine` 的回傳結構異動（例如 `targetAllocation` 欄位更名），需同步更新 `isBuySignal()` 的判斷邏輯。
+score 寫入後，`generatePeriodAiSummary()` 會輸出 CI 觀測用 log：
+
+```
+🤖 [PeriodReport] AI 摘要產出完成 (過去 5)
+  ⚠️  風險事件: 2 項
+  📝 一致性評語: ...前 30 字...
+  🔭 展望: ...前 30 字...
+```
+
+### 5.4 AI 軌跡持久化
+
+AI 呼叫成功後，會非同步呼叫 `archiveManager.saveAiLog()` 將以下內容寫入 `data/ai_logs/`：
+
+```js
+{
+  type: "PeriodReport",
+  periodLabel,          // "過去 5" 或 "過去 30"
+  promptVariables,      // 送入 AI 的統計摘要與風險警告
+  schema: PERIOD_REPORT_SCHEMA,
+  rawResult: aiSummary  // AI 回傳物件
+}
+```
+
+寫入失敗只 `console.warn`，不阻斷報告發送。
 
 ---
 
-## 6. 結構化輸出與 AI Agent 維護重點
-本專案已經把大量 AI 輸出結構化，因此未來 Agent 維護時，請優先沿著這條路徑找責任：
+## 6. 技術注意事項：`callAI` 回傳格式
 
-1. prompt 定義：`src/modules/ai/prompts.mjs`
-2. AI 呼叫與 Langfuse：`src/modules/ai/aiClient.mjs`
-3. 上下文整理：`src/modules/ai/aiDataPreprocessor.mjs`
-4. 每日決策邏輯：`src/modules/ai/aiCoach.mjs`
-5. 週期報告與訊號準確率：`src/modules/ai/periodReportAgent.mjs`
-6. 評估與治理：`src/modules/ai/llmJudge.mjs`、`src/modules/ai/ruleOptimizerAgent.mjs`
-
-這樣可以避免把所有 AI 問題都誤判為 prompt 問題；很多時候實際根因是 context shaping、schema validation，或 score writeback 流程。
+`callAI()` 回傳 `{ text: string, traceId: string }`，**不是**直接回傳物件。`text` 為 AI 回傳的原始 JSON 字串，必須經 `JSON.parse(text)` 才能使用。`periodReportAgent.mjs` 的 `generatePeriodAiSummary()` 已正確處理此流程。若未來新增其他 period 類 agent，請比照此模式。
