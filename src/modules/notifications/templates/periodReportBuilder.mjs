@@ -115,7 +115,7 @@ function buildAccuracySection(acc, period) {
  * @param {Object|null} aiSummary - generatePeriodAiSummary 結果
  * @param {"weekly"|"monthly"} period
  * @param {Object|null} accuracyStats - buildSignalAccuracyStats 結果（可選）
- * @returns {Array<string>} HTML 訊息陣列（週報 2 則，月報 3 則）
+ * @returns {Array<{text: string}>} 訊息物件陣列（週報 2 則，月報 3 則），符合 sendTelegramBatch 介面
  */
 export function buildPeriodReportMessages(stats, aiSummary, period, accuracyStats = null) {
   const isWeekly = period === "weekly";
@@ -230,8 +230,8 @@ export function buildPeriodReportMessages(stats, aiSummary, period, accuracyStat
 
   const msg2 = lines2.join("\n");
 
-  // 週報只有 2 則
-  if (isWeekly) return [msg1, msg2];
+  // 週報只有 2 則，回傳 {text} 物件陣列
+  if (isWeekly) return [{ text: msg1 }, { text: msg2 }];
 
   // ── 訊息 3：月報訊號準確率回顧（獨立一則）──────────────────────────────────
   const lines3 = [];
@@ -239,5 +239,5 @@ export function buildPeriodReportMessages(stats, aiSummary, period, accuracyStat
   lines3.push(buildAccuracySection(accuracyStats, period));
   const msg3 = lines3.join("\n");
 
-  return [msg1, msg2, msg3];
+  return [{ text: msg1 }, { text: msg2 }, { text: msg3 }];
 }
