@@ -15,10 +15,10 @@
 | Path | 說明 |
 |---|---|
 | `src/runDailyCheck.mjs` | 每日主入口，支援 CLI flags，進入 `dailyCheck()`。 |
-| `src/runNewsFetch.mjs` | 独立新聞抓取與新聞池更新入口，並回寫 Langfuse Yield Rate / Source_Diversity score。 |
-| `src/runOptimizer.mjs` | 独立 rule optimizer 入口，執行完成後若有新規則，會靜默推播至 Log 頻道。 |
-| `src/runWeeklyReport.mjs` | 週報入口，讀取近4 7 天 `data/reports/`，至岑3 份才生成。包含訊號數量統計。 |
-| `src/runMonthlyReport.mjs` | 月報入口，讀取近 50 天 `data/reports/`（前 30 天為評估期，全 50 天供報酬率計算），至岑10 份才生成。 |
+| `src/runNewsFetch.mjs` | 獨立新聞抓取與新聞池更新入口，並回寫 Langfuse Yield Rate / Source_Diversity score。 |
+| `src/runOptimizer.mjs` | 獨立 rule optimizer 入口，執行完成後若有新規則，會靜默推播至 Log 頻道。 |
+| `src/runWeeklyReport.mjs` | 週報入口，讀取近 7 天 `data/reports/`，至少 3 份才生成。包含訊號數量統計。 |
+| `src/runMonthlyReport.mjs` | 月報入口，讀取近 50 天 `data/reports/`（前 30 天為評估期，全 50 天供報酬率計算），至少 10 份才生成。 |
 
 ### 2-B. Bot 長駐入口（grammY Long-Polling）
 | Path | 說明 |
@@ -54,7 +54,7 @@
 8. 透過 `broadcastDailyReport()` 發送 Telegram。
 9. 寫回 Google Sheets、archive daily report、條件式執行 `llmJudge`。
 
-値得注意的是，`llmJudge` 不是額外独立排程，而是 daily flow 中 **有條件判斷才執行** 的背景評估任務。
+值得注意的是，`llmJudge` 不是額外獨立排程，而是 daily flow 中 **有條件判斷才執行** 的背景評估任務。
 
 ---
 
@@ -72,7 +72,7 @@
 `src/runMonthlyReport.mjs`：
 - 從 `data/reports/` 載入近 **50 天**資料（`loadRecentReports(50)`），取最後 30 天為評估期（`reports`），全部 50 天作為報酬率計算的價格序列（`allReports`）。
 - 若評估期報告少於 10 份，直接跳過。
-- 呼叫 `buildSignalAccuracyStats(reports, allReports, "monthly")` 計算買進訊號的 +5 / +10 / +20 日報酬率與勝率；資料不足的天數各自標記 `available: false`，暂不顯示。
+- 呼叫 `buildSignalAccuracyStats(reports, allReports, "monthly")` 計算買進訊號的 +5 / +10 / +20 日報酬率與勝率；資料不足的天數各自標記 `available: false`，暫不顯示。
 - 統計內容比週報更多，包含月度 signal quality 分析。
 - 最後由 Telegram batch 發送 **3 則**月報訊息（msg1 數據摘要、msg2 AI 分析、msg3 訊號準確率回顧）。
 
@@ -87,8 +87,8 @@
 |---|---|
 | `src/modules/notifications/notifier.mjs` | notification orchestration，依資料類型決定如何組訊息與送出。提供 `broadcastDailyReport()` 與 `broadcastOptimizerResult()` 兩個 export。 |
 | `src/modules/notifications/templates/telegramHtmlBuilder.mjs` | 每日戰報 Telegram HTML 模板，負責訊息分段與排版。 |
-| `src/modules/notifications/templates/periodReportBuilder.mjs` | 週報 / 月報訊息 builder。`buildPeriodReportMessages()` 接受第四個可選參數 `accuracyStats`，週報嵌入 msg1、月報獨立產生 msg3。 |
-| `src/modules/notifications/transports/telegramClient.mjs` | 實際呼叫 Telegram Bot API，提供 `sendTelegramBatch()` 與 `sendSystemMessage()`。 |
+| `src/modules/notifications/templates/periodReportBuilder.mjs` | 週報 / 月報訊息 builder。`buildPeriodReportMessages()` 接受第四個可選參數 `accuracyStats`，週報嵌入 msg1、月報獨立產生 msg3。**回傳 `{ text: string }[]` 物件陣列**，供 `sendTelegramBatch()` 直接使用。 |
+| `src/modules/notifications/transports/telegramClient.mjs` | 實際呼叫 Telegram Bot API，提供 `sendTelegramBatch()` 與 `sendSystemMessage()`。`sendTelegramBatch()` **接受 `{ text: string }[]` 格式**（非純字串陣列）。 |
 
 ### Telegram 頻道分流
 本系統使用兩個 Telegram Bot Token，對應不同用途：
@@ -103,7 +103,7 @@
 ### `sendSystemMessage()` 行為
 - 固定帶 `disable_notification: true`（靜默，不震動手機）。
 - 固定使用 `TELEGRAM_LOG_API_TOKEN`；若未設定，只 `console.warn` 而不拋錯。
-- 支援 HTML parse mode，可用 `<b>`, `<code>` 等標簽排版。
+- 支援 HTML parse mode，可用 `<b>`, `<code>` 等標籤排版。
 
 ### `broadcastOptimizerResult()` 行為
 - 僅在 `tw.accepted + us.accepted > 0` 時才發送，無新規則時靜默略過。
@@ -111,7 +111,7 @@
 - 由 `runOptimizer.mjs` 在 `runRuleOptimizer()` 完成後呼叫，失敗不中斷主流程。
 
 ### Daily Telegram Message Strategy
-每日通知仍以分段式訊息為主，目的是冈顧可讀性與 Telegram 長度限制。實際內容可包含：
+每日通知仍以分段式訊息為主，目的是兼顧可讀性與 Telegram 長度限制。實際內容可包含：
 - 市場總覽與主建議，
 - 技術指標 / 帳戶快照，
 - AI 教練與總經摘要。
@@ -124,9 +124,11 @@
 | 週報 | 2 則 | msg1：數據摘要 + 訊號數量統計；msg2：AI 分析 |
 | 月報 | 3 則 | msg1：數據摘要；msg2：AI 分析；msg3：訊號準確率回顧（含 +5/+10/+20 日報酬率明細） |
 
+**`buildPeriodReportMessages()` 回傳格式**：`{ text: string }[]`（物件陣列），符合 `sendTelegramBatch()` 的介面規格。呼叫方不可直接傳純字串陣列，否則會觸發 Telegram `Bad Request: message text is empty`。
+
 訊號準確率區塊（`buildAccuracySection()`）：
 - 週報：顯示買進觸發次數 + 冷卻封鎖次數，提示「報酬率於月報公布」。
-- 月報：顯示每筆訊號的 +5 日報酬（▲/▼ 標示）、槻桿比例，以及 +5/+10/+20 日的平均報酬率與勝率；資料不足的天數標記「資料不足，暂不顯示」。
+- 月報：顯示每筆訊號的 +5 日報酬（▲/▼ 標示）、槓桿比例，以及 +5/+10/+20 日的平均報酬率與勝率；資料不足的天數標記「資料不足，暫不顯示」。
 
 ---
 
@@ -139,6 +141,7 @@
 - `runNewsFetch` 與 `runOptimizer` 的失敗，不應被誤認為 `dailyCheck` 本身故障。
 - 訊號準確率計算（`buildSignalAccuracyStats`）若 `data/reports/` 歷史資料不足，會 graceful degradation：資料不足的天數各自標記，不影響整體報告發送。
 - **`TELEGRAM_LOG_API_TOKEN` 未設定**：`sendSystemMessage()` 只會 `console.warn`，不影響任何主流程；`notify-workflow-failure.yml` 的 curl 呼叫會靜默失敗（HTTP 401）。
-- **Bot lock 衽刺**：若看到「系統正在執行中」訊息長达 30 分鐘，區分為 Runner 崩潰沒清除 lock。可手動刺除 `data/.bot_lock` 強制釋放。
+- **Bot lock 衝突**：若看到「系統正在執行中」訊息長達 30 分鐘，可能為 Runner 崩潰沒清除 lock。可手動刪除 `data/.bot_lock` 強制釋放。
+- **`Bad Request: message text is empty`**：若 Telegram 回傳此錯誤，應先確認 `buildPeriodReportMessages()` 回傳的是 `{ text: string }[]` 而非純字串陣列；`sendTelegramBatch()` 期望的是物件格式，傳入純字串會導致 `message.text` 為 `undefined`。
 
 對 AI Agent 來說，若看到「有資料但沒送出」的問題，通常從本文件描述的 entry / notification boundary 開始查最有效。
