@@ -13,79 +13,76 @@ async function safeLangfuseScore(payload) {
   }
 }
 
-async function main() {
+/**
+ * 新聞抓取管線核心邏輯。
+ * 提取為独立函數供 Bot 指令與 CLI 共用。
+ */
+export async function runNewsFetch() {
   console.log("📰 [NewsFetch] 開始執行新聞抓取管線...");
 
+  const { twQueries, usQueries, traceId: searchTraceId } =
+    await generateDailySearchQueries({
+      marketStatus: "暫無即時市況",
+      vix: "N/A",
+    });
+
+  const { articles, metrics } = await getRawNews({ twQueries, usQueries });
+  console.log(`📰 [NewsFetch] 抓取完成，共 ${articles.length} 篇有效文章`);
+
+  if (searchTraceId) {
+    await safeLangfuseScore({
+      traceId: searchTraceId,
+      name: "Keyword_Yield_Rate",
+      value: metrics.keywordYieldRate,
+      comment: JSON.stringify({
+        matched: metrics.matchedQueryCount,
+        total: metrics.totalQueryCount,
+        dynamicMatched: metrics.dynamicMatchedQueryCount,
+        dynamicTotal: metrics.dynamicQueryCount,
+      }),
+    });
+    await safeLangfuseScore({
+      traceId: searchTraceId,
+      name: "Dynamic_Keyword_Yield_Rate",
+      value: metrics.dynamicKeywordYieldRate,
+      comment: JSON.stringify({
+        matched: metrics.dynamicMatchedQueryCount,
+        total: metrics.dynamicQueryCount,
+      }),
+    });
+  } else {
+    console.warn("⚠️ [NewsFetch] searchTraceId 為 null，跳過 Yield Rate score 寫入");
+  }
+
+  if (articles.length === 0) {
+    console.warn("⚠️ [NewsFetch] 無有效文章，跳過寫入 pool");
+    return { appended: 0, total: 0 };
+  }
+
+  const { appended, expired, skipped_fuzzy, total, sourceCounts, sourceCount } =
+    await updatePool(articles);
+  console.log(
+    `✅ [NewsFetch] pool 更新完成 — 新增: ${appended}，fuzzy 跳過: ${skipped_fuzzy}，` +
+    `過期歸檔: ${expired}，目前 pool 總量: ${total}，來源種類: ${sourceCount}`,
+  );
+
+  if (searchTraceId && appended > 0) {
+    await safeLangfuseScore({
+      traceId: searchTraceId,
+      name: "Source_Diversity",
+      value: parseFloat((sourceCount / appended).toFixed(4)),
+      comment: JSON.stringify(sourceCounts),
+    });
+  }
+
+  await purgeExpiredFromPool();
+  return { appended, total };
+}
+
+// ── CLI 入口（直接執行此檔案時）──
+async function main() {
   try {
-    // 1. 產生 AI 動態關鍵字（傳入空的 marketData，關鍵字由 AI 自行推演）
-    console.log("🧠 [NewsFetch] 產生 AI 動態搜尋關鍵字...");
-    const { twQueries, usQueries, traceId: searchTraceId } =
-      await generateDailySearchQueries({
-        marketStatus: "暫無即時市況",
-        vix: "N/A",
-      });
-
-    // 2. 抓取 RSS 原始新聞（含品質篩選、歸存、Fallback）
-    console.log("📰 [NewsFetch] 開始抓取 RSS 新聞...");
-    const { articles, metrics } = await getRawNews({ twQueries, usQueries });
-
-    console.log(`📰 [NewsFetch] 抓取完成，共 ${articles.length} 篇有效文章`);
-
-    // 3. 回寫 Yield Rate scores 到 SearchQueries trace（方案 B）
-    if (searchTraceId) {
-      await safeLangfuseScore({
-        traceId: searchTraceId,
-        name: "Keyword_Yield_Rate",
-        value: metrics.keywordYieldRate,
-        comment: JSON.stringify({
-          matched: metrics.matchedQueryCount,
-          total: metrics.totalQueryCount,
-          dynamicMatched: metrics.dynamicMatchedQueryCount,
-          dynamicTotal: metrics.dynamicQueryCount,
-        }),
-      });
-
-      await safeLangfuseScore({
-        traceId: searchTraceId,
-        name: "Dynamic_Keyword_Yield_Rate",
-        value: metrics.dynamicKeywordYieldRate,
-        comment: JSON.stringify({
-          matched: metrics.dynamicMatchedQueryCount,
-          total: metrics.dynamicQueryCount,
-        }),
-      });
-    } else {
-      console.warn("⚠️ [NewsFetch] searchTraceId 為 null，跳過 Yield Rate score 寫入");
-    }
-
-    if (articles.length === 0) {
-      console.warn("⚠️ [NewsFetch] 無有效文章，跳過寫入 pool");
-      return;
-    }
-
-    // 4. 更新 pool（自動去重、過期歸檔、殭屍清理、上限截斷、更新 age_band）
-    const { appended, expired, skipped_fuzzy, total, sourceCounts, sourceCount } =
-      await updatePool(articles);
-    console.log(
-      `✅ [NewsFetch] pool 更新完成 — 新增: ${appended}，fuzzy 跳過: ${skipped_fuzzy}，` +
-      `過期歸檔: ${expired}，目前 pool 總量: ${total}，來源種類: ${sourceCount}`,
-    );
-
-    // 5. 回寫 Source_Diversity score 至 Langfuse
-    if (searchTraceId && appended > 0) {
-      await safeLangfuseScore({
-        traceId: searchTraceId,
-        name: "Source_Diversity",
-        value: parseFloat((sourceCount / appended).toFixed(4)),
-        comment: JSON.stringify(sourceCounts),
-      });
-    } else if (searchTraceId && appended === 0) {
-      console.log("⚠️ [NewsFetch] 本次無新增文章，跳過 Source_Diversity score");
-    }
-
-    // 6. 額外執行一次 purge，清理本次 updatePool 未觸及的殘留問題
-    await purgeExpiredFromPool();
-
+    await runNewsFetch();
   } catch (err) {
     console.error("❌ [NewsFetch] 管線發生錯誤:", err);
     process.exit(1);

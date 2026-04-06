@@ -13,36 +13,28 @@ const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
   : `local-weekly-${Date.now()}`;
 
-async function main() {
+/**
+ * 週報核心邏輯。
+ * 提取為独立函數供 Bot 指令與 CLI 共用。
+ */
+export async function runWeeklyReport() {
   console.log("📊 [WeeklyReport] 開始產生週報...");
 
   const reports = await loadRecentReports(7);
   console.log(`📂 [WeeklyReport] 載入 ${reports.length} 份近期報告`);
 
   if (reports.length < 3) {
+    const msg = `⚠️ <b>週報產生失敗</b>\n本週可用報告數量不足（${reports.length} 份），無法產生週報。`;
     console.warn("⚠️ [WeeklyReport] 報告數量不足 3 份，跳過週報");
-    if (process.env.TELEGRAM_API_TOKEN) {
-      await sendTelegramBatch([
-        `⚠️ <b>週報產生失敗</b>\n本週可用報告數量不足（${reports.length} 份），無法產生週報。`,
-      ]);
-    }
-    return;
+    if (process.env.TELEGRAM_API_TOKEN) await sendTelegramBatch([{ text: msg }]);
+    return { skipped: true, reason: "insufficient_reports", count: reports.length };
   }
 
   const stats = buildPeriodStats(reports, "weekly");
-  console.log(`📈 [WeeklyReport] 統計完成，日期範圍：${stats.dateRange.from} ~ ${stats.dateRange.to}`);
-
-  // 訊號數量統計（週報只傳同一批 reports，不計算報酬率）
   const accuracyStats = buildSignalAccuracyStats(reports, reports, "weekly");
-  console.log(`🎯 [WeeklyReport] 訊號統計：買進 ${accuracyStats?.buySignalCount ?? 0} 次，冷卻封鎖 ${accuracyStats?.cooldownBlockedCount ?? 0} 次`);
-
   const { aiSummary } = await generatePeriodAiSummary(
-    stats,
-    reports,
-    `過去 ${reports.length}`,
-    sessionId,
+    stats, reports, `過去 ${reports.length}`, sessionId,
   );
-
   const messages = buildPeriodReportMessages(stats, aiSummary, "weekly", accuracyStats);
 
   if (process.env.TELEGRAM_API_TOKEN) {
@@ -50,14 +42,20 @@ async function main() {
     console.log("✅ [WeeklyReport] Telegram 週報發送成功");
   } else {
     console.log("⚠️ [WeeklyReport] TELEGRAM_API_TOKEN 未設定，略過推送");
-    console.log("--- 週報預覽 ---");
-    messages.forEach((m, i) => console.log(`[訊息 ${i + 1}]\n${m}\n`));
   }
 
   console.log("✅ [WeeklyReport] 週報執行完成");
+  return { skipped: false, reportCount: reports.length };
 }
 
-main().catch((err) => {
-  console.error("❌ [WeeklyReport] 執行失敗:", err.message);
-  process.exit(1);
-});
+// ── CLI 入口（直接執行此檔案時）──
+async function main() {
+  try {
+    await runWeeklyReport();
+  } catch (err) {
+    console.error("❌ [WeeklyReport] 執行失敗:", err.message);
+    process.exit(1);
+  }
+}
+
+main();
