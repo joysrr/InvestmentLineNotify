@@ -1,6 +1,6 @@
 # InvestmentLineNotify - Telegram Bot 系統整合與升級計劃書
 
-**文件版本**：v1.2  
+**文件版本**：v1.3  
 **專案名稱**：InvestmentLineNotify  
 **目標敘述**：將現有的單向推播系統，轉型為具備雙向互動、數據視覺化及個人化 AI 服務的全方位 Telegram 投資助理。
 
@@ -8,7 +8,44 @@
 
 ---
 
+## 目前進度（2026-04-07 更新）
+
+### ✅ 已完成
+
+- [x] **項目一：Telegram Bot 長駐層整合**
+  - `src/bot.mjs` 建立完成，grammY Long-Polling 長駐執行
+  - `adminGuard` middleware 白名單保護實作完成
+  - `runnerLock` 防止指令與排程重複觸發
+  - 六個 Bot 指令封裝完成（`/daily`、`/news`、`/weekly`、`/monthly`、`/optimize`、`/status`）
+- [x] **Pre-A（文件先行）**
+  - `docs/architecture.md` 更新：補充 Bot Layer（5.8）、Mermaid flow 新增 Bot 節點、補齊 `data/cache`、`data/config`、`data/news_logs`、`data/last_buy.json` 說明
+- [x] **技術選型確認**
+  - API Server：Fastify
+  - 前端框架：Vite + Vue 3 + ECharts
+  - Mini App 展示優先順序：`(a) 收益率趨勢折線` → `(b) 報告摘要列表` → `(d) 新聞池列表`，不實作 `(c)`
+- [x] **Cache 整理**
+  - 移除已完成任務 cache（`impl_phase1.md`、`telegram_plan_review.md`）
+  - 保留 `docs/.agent_cache/impl_phase2.md`（Phase 2 實作待辦）
+
+### 🔄 進行中（待執行）
+
+- [ ] **項目二 Phase 2-A**：Fastify API Server（`src/api/server.mjs`）
+- [ ] **項目二 Phase 2-B**：Vite + Vue 3 前端 Mini App（`webapp/`）
+- [ ] **項目二 Phase 2-C**：Bot 整合（指令選單、Menu Button、Inline Button）
+- [ ] **項目二 Phase 2-D**：文件更新（`architecture.md`、`entry_and_notifications.md`）
+
+### ⏸️ 延後處理（外移至後續計劃）
+
+- [ ] **Oracle Cloud VM 正式部署**
+  - 原因：目前尚未有 domain，Telegram Mini App 需強制 HTTPS
+  - 已移至 `docs/plans/preplan_features.md`，待取得 domain 後啟動
+  - 現階段 Phase 2 聚焦應用層，可透過 ngrok 本機驗證
+
+---
+
 ## 項目一：基礎雙向互動升級 (Bot API 深度整合)
+
+> **狀態：✅ 已完成**
 
 ### 1. 目標
 打破現有「排程觸發 -> 單向廣播」的限制，透過引入 Telegram Bot 框架（如 `grammY` 或 `telegraf`），實作 Inline Keyboards（按鈕互動）與 On-Demand Commands（隨選指令，如 `/daily`, `/analyze`），並提供關注清單的管理功能。
@@ -27,13 +64,14 @@
 ### 5. 前置條件與目前狀態
 - **[已達成]** 具備 Telegram 訊息發送能力與 HTML 排版模組 (`telegramClient.mjs`, `telegramHtmlBuilder.mjs`)。
 - **[已達成]** 具備獨立的資料獲取與 AI 分析模組（`dailyCheck`, `quoteProvider`）。
-- **[未達成]** 需要一個長駐進程 (Daemon) 來監聽 Telegram Webhook 或 Polling。
-- **[未達成]** 需要引入成熟的 Telegram Bot Node.js 框架。
+- **[已達成]** `src/bot.mjs` 建立完成，grammY Long-Polling 長駐執行。
+- **[已達成]** `adminGuard` middleware 實作，白名單限制指令執行權限。
+- **[已達成]** `runnerLock` 防止 Bot 指令與 GitHub Actions 排程重複觸發。
 
 ### 6. 影響架構範圍
 - 新增 `src/bot.mjs` 作為新的長駐入口點。
 - 修改 `src/modules/notifications/templates` 以支援附帶 `reply_markup`（按鈕）。
-- 現有 `run*.mjs` 腳本需重構或封裝匯出函數，以便被 Bot 路由呼叫。
+- 現有 `run*.mjs` 腳本已重構封裝匯出函數，可被 Bot 路由呼叫。
 
 ### 7. 資料流程
 ```text
@@ -55,11 +93,23 @@ User 傳送指令 (/analyze AAPL) 或點擊按鈕
 
 ## 項目二：視覺化投資儀表板 (Telegram Mini App 整合)
 
+> **狀態：🔄 進行中 — Phase 2-A 待開始實作**
+
+### 技術選型（已確認）
+
+| 項目 | 決定 | 說明 |
+|---|---|---|
+| API Server | ✅ Fastify | ESM 原生、比 Express 快 3-5 倍 |
+| 前端框架 | ✅ Vite + Vue 3 + ECharts | Composition API、HMR、vue-echarts 整合 |
+| 前端目錄 | ✅ `webapp/` | build 產物輸出至 `webapp/dist/` |
+| 圖表優先順序 | ✅ (a)→(b)→(d) | 不實作 (c) 訊號次數長條圖 |
+| 部署方案 | ⏸️ Oracle VM（下個計劃） | 尚無 domain，HTTPS 前提未達成，外移至 preplan_features |
+
 ### 1. 目標
-利用 Telegram Mini App (Web App) 技術，在對話框內嵌網頁。將枯燥的 JSON 報表與歷史回測數據 (backtest.mjs)，轉化為可互動的圖表（如 K 線圖、圓餅圖）。同時提供「策略參數視覺化調整器」，讓用戶透過滑桿調整 AI Prompt 權重或停損利參數。
+利用 Telegram Mini App (Web App) 技術，在對話框內嵌網頁。將枯燥的 JSON 報表與歷史回測數據 (backtest.mjs)，轉化為可互動的圖表（如收益率折線圖）。同時提供報告摘要列表與新聞池瀏覽，讓用戶在不離開 Telegram 的情況下獲得完整資訊。
 
 ### 2. 效益分析報告
-- 極致體驗：文字無法呈現的趨勢線與回測績效，可透過前端圖表庫（如 ECharts, Chart.js）完美展示。
+- 極致體驗：文字無法呈現的趨勢線與回測績效，可透過前端圖表庫（ECharts）完美展示。
 - 產品化：系統從「開發者工具」升級為現代化的「SaaS 產品」雛形。
 - 效率提升：動態調整策略參數並立即儲存生效，加速 ruleOptimizer 的調校過程。
 
@@ -71,32 +121,85 @@ User 傳送指令 (/analyze AAPL) 或點擊按鈕
 
 ### 5. 前置條件與目前狀態
 - **[已達成]** 完善的本地 JSON 資料儲存架構 (data/market, data/reports)。
-- **[未達成]** 需建立一個輕量級 Web 伺服器 (如 Express / Fastify) 提供 RESTful API。
-- **[未達成]** 需開發前端網頁專案（React / Vue 或 Vanilla JS）。
+- **[已達成]** 技術選型確認：Fastify + Vite + Vue 3 + ECharts。
+- **[未達成]** 需建立 `src/api/server.mjs`（Fastify，唯讀 API）。
+- **[未達成]** 需開發前端專案（`webapp/`，Vite + Vue 3）。
+- **[未達成]** 部署層（HTTPS domain）待下個計劃解決，開發期可用 ngrok 本機驗證。
 
-### 6. 影響架構範圍
-- 新增 `src/api/server.mjs` 提供唯讀或受限寫入的 HTTP API。
-- 新增前端目錄（如 `webapp/`），獨立打包與部署。
+### 6. Phase 實作清單
+
+#### Phase 2-A：Fastify API Server
+
+**目標檔案**：`src/api/server.mjs`
+
+| 路由 | 說明 |
+|---|---|
+| `GET /api/status` | 讀取 `data/market/latest.json`，回傳市場快取 |
+| `GET /api/reports?limit=N` | 讀取 `data/reports/` 最新 N 份報告（預設 30） |
+| `GET /api/report/:date` | 讀取指定日期報告（`YYYY-MM-DD`） |
+| `GET /api/news` | 讀取 `data/news/pool_filtered_active.json` |
+
+其他機制：
+- Telegram `initData` HMAC-SHA256 驗證 middleware（`dev` 模式可 bypass）
+- CORS 設定（開發期允許 localhost）
+- 一律唯讀，不允許透過 API 寫入 `data/`
+
+#### Phase 2-B：Vite + Vue 3 前端 Mini App
+
+**目標目錄**：`webapp/`
+
+| 模組 | 圖表 / 功能 | 資料來源 |
+|---|---|---|
+| (a) 收益率趨勢折線 | ECharts LineChart，變動幅度 ± 色差異 | `/api/reports` |
+| (b) 報告摘要列表 | 日期 + AI 決策摘要，可點擊展開詳細 | `/api/reports` |
+| (d) 新聞池列表 | 標題 + 來源 + 時間，可點連結 | `/api/news` |
+
+其他要求：
+- Telegram Web App SDK：`expand()`、`MainButton`、`themeParams` 主題色同步
+- 頁面切換使用 Vue Router（`hash` 模式，Mini App 不支援 history mode）
+- `vite build` 輸出至 `webapp/dist/`
+
+#### Phase 2-C：Bot 整合
+
+在現有 `src/bot.mjs` 新增：
+- `bot.api.setMyCommands([...])` — Telegram 左下角指令選單
+- `bot.api.setChatMenuButton({ type: "web_app", ... })` — Menu Button 指向 Mini App URL
+- `/status` 指令附加 Inline Button「開啟儀表板」
+
+> 注意：Mini App URL 需待取得 HTTPS domain 後才能配置，此步驟於部署計劃完成後實作。
+
+#### Phase 2-D：文件更新（實作結束後執行）
+
+- `docs/architecture.md`：補充 API 層與 webapp 層說明
+- `docs/modules/entry_and_notifications.md`：更新 Bot 指令選單與 Mini App 整合說明
+
+### 7. 影響架構範圍
+- 新增 `src/api/server.mjs` 提供唯讀 HTTP API。
+- 新增前端目錄 `webapp/`，Vite 獨立建置。
 - 在 Telegram Bot 中配置 Menu Button 或 Inline Button 開啟 Web App URL。
 
-### 7. 資料流程
+### 8. 資料流程
 ```text
 User 點擊 [開啟儀表板]
   -> 彈出半版 Webview (Mini App)
-  -> 前端帶著 Telegram InitData 向 Node.js API 請求資料
+  -> 前端帶著 Telegram InitData 向 Fastify API 請求資料
   -> API 驗證 InitData 成功，讀取 `data/` 下的 JSON 檔案
-  -> 回傳 JSON 給前端渲染圖表
+  -> 回傳 JSON 給前端渲染圖表（ECharts）
 ```
 
-### 8. 潛在挑戰與防禦機制
+### 9. 潛在挑戰與防禦機制
 - 挑戰：Mini App 的身分驗證問題，如何確保 API 不被外部惡意呼叫。
-- 防禦機制：嚴格實作 Telegram 官方提供的 initData Hash 驗證邏輯，確保請求確實來自你的 Telegram App。
+- 防禦機制：嚴格實作 Telegram 官方提供的 initData Hash 驗證邏輯。
 - 挑戰：跨域資源共用 (CORS) 限制。
-- 防禦機制：在 Express/Fastify 中正確配置 CORS 中介軟體，或將前端與 API 部署在同一個網域下。
+- 防禦機制：Fastify 正確配置 CORS middleware，前端與 API 最終部署於同一網域。
+- 挑戰：`data/` 並發讀寫安全性。
+- 防禦機制：API 設計為唯讀，寫入仍由 runner 集中管理，避免與 GitHub Actions 產生競爭條件。
 
 ---
 
 ## 項目三：進階 AI 教練與社群化 (語音/遊戲/變現)
+
+> **狀態：⏳ 等待項目二完成後評估**
 
 ### 1. 目標
 將系統打造為具有「靈魂」的投資助理。整合語音轉文字 (Speech-to-Text) 讓用戶能用語音詢問盤勢；開發群組內的「多空預測投票」遊戲；甚至為未來的商業化鋪路，結合 Telegram Stars 實作付費解鎖進階 AI 報告的功能。
@@ -157,6 +260,7 @@ User 傳送語音訊息
   - 優點：規格極度大方，完全可以把整個 Node.js 專案全部塞進去，並使用 PM2 常駐，不須修改現有架構。
   - 缺點：註冊難度極高，常遇到信用卡驗證失敗。
   - 推薦程度：⭐⭐⭐⭐⭐ (若申請成功)
+  - **注意**：詳細部署步驟已整理至 `docs/plans/preplan_features.md`
 - **選項 B：Render (Web Service 免費方案)**
   - 特色：現代化的雲端代管平台，連接 GitHub 自動部署。
   - 優點：部署簡單，內建免費 HTTPS，適合 Webhook Server。
