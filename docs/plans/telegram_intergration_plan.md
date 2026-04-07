@@ -1,6 +1,6 @@
 # InvestmentLineNotify - Telegram Bot 系統整合與升級計劃書
 
-**文件版本**：v1.3  
+**文件版本**：v1.4  
 **專案名稱**：InvestmentLineNotify  
 **目標敘述**：將現有的單向推播系統，轉型為具備雙向互動、數據視覺化及個人化 AI 服務的全方位 Telegram 投資助理。
 
@@ -26,10 +26,16 @@
 - [x] **Cache 整理**
   - 移除已完成任務 cache（`impl_phase1.md`、`telegram_plan_review.md`）
   - 保留 `docs/.agent_cache/impl_phase2.md`（Phase 2 實作待辦）
+- [x] **項目二 Phase 2-A：Fastify API Server**
+  - `src/api/server.mjs` 建立完成（Fastify 主程式、CORS、initDataGuard 整合）
+  - `src/api/middleware/initDataGuard.mjs`：Telegram HMAC-SHA256 驗證，`dev` 模式可 bypass
+  - `src/api/routes/status.mjs`：`GET /api/status`
+  - `src/api/routes/reports.mjs`：`GET /api/reports?limit=N`、`GET /api/report/:date`
+  - `src/api/routes/news.mjs`：`GET /api/news`
+  - `package.json` 新增 `fastify`、`@fastify/cors` deps 與 `api` script
 
 ### 🔄 進行中（待執行）
 
-- [ ] **項目二 Phase 2-A**：Fastify API Server（`src/api/server.mjs`）
 - [ ] **項目二 Phase 2-B**：Vite + Vue 3 前端 Mini App（`webapp/`）
 - [ ] **項目二 Phase 2-C**：Bot 整合（指令選單、Menu Button、Inline Button）
 - [ ] **項目二 Phase 2-D**：文件更新（`architecture.md`、`entry_and_notifications.md`）
@@ -93,7 +99,7 @@ User 傳送指令 (/analyze AAPL) 或點擊按鈕
 
 ## 項目二：視覺化投資儀表板 (Telegram Mini App 整合)
 
-> **狀態：🔄 進行中 — Phase 2-A 待開始實作**
+> **狀態：🔄 進行中 — Phase 2-A ✅ 完成，Phase 2-B 待開始實作**
 
 ### 技術選型（已確認）
 
@@ -122,15 +128,21 @@ User 傳送指令 (/analyze AAPL) 或點擊按鈕
 ### 5. 前置條件與目前狀態
 - **[已達成]** 完善的本地 JSON 資料儲存架構 (data/market, data/reports)。
 - **[已達成]** 技術選型確認：Fastify + Vite + Vue 3 + ECharts。
-- **[未達成]** 需建立 `src/api/server.mjs`（Fastify，唯讀 API）。
+- **[已達成]** `src/api/server.mjs` 建立完成（Fastify，唯讀 API）。
 - **[未達成]** 需開發前端專案（`webapp/`，Vite + Vue 3）。
 - **[未達成]** 部署層（HTTPS domain）待下個計劃解決，開發期可用 ngrok 本機驗證。
 
 ### 6. Phase 實作清單
 
-#### Phase 2-A：Fastify API Server
+#### Phase 2-A：Fastify API Server ✅ 已完成
 
-**目標檔案**：`src/api/server.mjs`
+**已建立檔案**：
+- `src/api/server.mjs` — Fastify 主程式（CORS、initDataGuard 整合，Port 3000）
+- `src/api/middleware/initDataGuard.mjs` — Telegram initData HMAC-SHA256 驗證
+- `src/api/routes/status.mjs` — `GET /api/status`
+- `src/api/routes/reports.mjs` — `GET /api/reports?limit=N`、`GET /api/report/:date`
+- `src/api/routes/news.mjs` — `GET /api/news`
+- `package.json` — 新增 `fastify`、`@fastify/cors` 與 `api` script
 
 | 路由 | 說明 |
 |---|---|
@@ -141,8 +153,9 @@ User 傳送指令 (/analyze AAPL) 或點擊按鈕
 
 其他機制：
 - Telegram `initData` HMAC-SHA256 驗證 middleware（`dev` 模式可 bypass）
-- CORS 設定（開發期允許 localhost）
+- CORS 設定（開發期允許 localhost:5173，可透過 `CORS_ORIGIN` env 覆蓋）
 - 一律唯讀，不允許透過 API 寫入 `data/`
+- Port 3000，可透過 `PORT` env 覆蓋
 
 #### Phase 2-B：Vite + Vue 3 前端 Mini App
 
@@ -158,6 +171,18 @@ User 傳送指令 (/analyze AAPL) 或點擊按鈕
 - Telegram Web App SDK：`expand()`、`MainButton`、`themeParams` 主題色同步
 - 頁面切換使用 Vue Router（`hash` 模式，Mini App 不支援 history mode）
 - `vite build` 輸出至 `webapp/dist/`
+
+**待建立檔案**：
+- `webapp/package.json`
+- `webapp/vite.config.js`
+- `webapp/src/main.js`
+- `webapp/src/App.vue`
+- `webapp/src/router/index.js`
+- `webapp/src/views/ChartView.vue` — (a) 收益率折線
+- `webapp/src/views/ReportsView.vue` — (b) 報告摘要列表
+- `webapp/src/views/NewsView.vue` — (d) 新聞池列表
+- `webapp/src/composables/useTelegram.js` — Telegram Web App SDK 封裝
+- `webapp/src/api/index.js` — API client
 
 #### Phase 2-C：Bot 整合
 
