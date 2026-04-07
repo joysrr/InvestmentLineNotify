@@ -3,7 +3,7 @@
 ## 1. 系統定位
 `InvestmentLineNotify` 是一套以 Node.js 為核心的投資決策與通知系統，主要服務 0050 / 00675L 與生命週期投資策略的日常監控、新聞治理、AI 分析與週期報告生成。系統採用 **file-based persistence + external services** 的設計，不使用傳統資料庫，而是以 `data/`、Google Sheets、Telegram、Langfuse 與多個市場資料來源共同構成執行基礎。
 
-目前專案已不只是一條 `dailyCheck` 單線流程，而是由多個 runner 組成，並搭配一個長駐 Telegram Bot 與一個唯讀 HTTP API Server：
+目前專案已不只是一條 `dailyCheck` 單線流程，而是由多個 runner 組成，並搭配一個長駐 Telegram Bot、一個唯讀 HTTP API Server，以及一個 Vite + Vue 3 前端 Mini App：
 
 1. `src/runDailyCheck.mjs`：每日主流程。
 2. `src/runNewsFetch.mjs`：獨立新聞抓取、去重、更新新聞池。
@@ -12,19 +12,21 @@
 5. `src/runMonthlyReport.mjs`：讀取近期報告並生成 AI 月報。
 6. `src/bot.mjs`：Telegram Bot 長駐程序，處理即時指令觸發與互動。
 7. `src/api/server.mjs`：Fastify HTTP API Server，提供唯讀資料 API 給 Mini App 前端使用。
+8. `webapp/`：Vite + Vue 3 前端 Mini App，作為 Telegram Mini App 嵌入式儀表板。
 
 ---
 
 ## 2. 生命週期總覽
-系統實際運作可拆成七個層次：
+系統實際運作可拆成八個層次：
 
 1. **Entry Layer**：由 GitHub Actions、Cron 或手動 CLI 啟動各 runner；或由 Telegram Bot 指令觸發。
 2. **Bot Layer**：`src/bot.mjs` 長駐，接受白名單使用者即時指令，透過 `runnerLock` 防止並發衝突，呼叫與 runner 相同的核心邏輯。
 3. **API Layer**：`src/api/server.mjs` 長駐，提供唯讀 HTTP REST API（Port 3000），供 Telegram Mini App 前端請求資料，具備 Telegram initData HMAC-SHA256 驗證與 CORS 設定。
-4. **Data Collection Layer**：從 `src/modules/providers/`、Google News RSS、Google Sheets 抓取市場資料、帳戶狀態與新聞。
-5. **Decision Layer**：由 `src/modules/strategy/` 與 `src/modules/ai/` 共同完成量化計算與 AI 判讀。
-6. **Delivery Layer**：由 `src/modules/notifications/` 將結果轉為 Telegram HTML 訊息或週期報告。
-7. **Persistence Layer**：透過 `data/`、Google Sheets 與 Langfuse 持久化報告、快取、觀測資料與新聞池。
+4. **Frontend Layer**：`webapp/`（Vite + Vue 3 + ECharts），作為 Telegram Mini App 嵌入式前端，透過 API Layer 取得資料並渲染圖表、報告列表與新聞池。
+5. **Data Collection Layer**：從 `src/modules/providers/`、Google News RSS、Google Sheets 抓取市場資料、帳戶狀態與新聞。
+6. **Decision Layer**：由 `src/modules/strategy/` 與 `src/modules/ai/` 共同完成量化計算與 AI 判讀。
+7. **Delivery Layer**：由 `src/modules/notifications/` 將結果轉為 Telegram HTML 訊息或週期報告。
+8. **Persistence Layer**：透過 `data/`、Google Sheets 與 Langfuse 持久化報告、快取、觀測資料與新聞池。
 
 ---
 
@@ -34,7 +36,7 @@
 flowchart TD
     A[GitHub Actions / Cron / CLI] --> B[Runner Layer]
     TG[Telegram 使用者指令] --> BOT[src/bot.mjs]
-    WA[Mini App 前端] --> API[src/api/server.mjs]
+    WA[Mini App 前端 webapp/] --> API[src/api/server.mjs]
 
     subgraph Bot Layer
       BOT
@@ -50,8 +52,16 @@ flowchart TD
       RT_NEWS[api/routes/news.mjs]
     end
 
+    subgraph Frontend Layer
+      WA
+      WA_CHART[views/ChartView.vue]
+      WA_REPORTS[views/ReportsView.vue]
+      WA_NEWS[views/NewsView.vue]
+    end
+
     BOT --> ADMIN --> LOCK
     API --> GUARD --> RT_STATUS & RT_REPORTS & RT_NEWS
+    WA --> WA_CHART & WA_REPORTS & WA_NEWS
 
     subgraph Runner Layer
       B1[src/runDailyCheck.mjs]
@@ -173,6 +183,35 @@ flowchart TD
 | `src/test/test-keywordConfig.mjs` | keywordConfig 載入測試。 |
 | `src/test/test-keywords.mjs` | 關鍵字系統測試。 |
 
+### `webapp/` 前端 Mini App 層
+| Path | 說明 |
+|---|---|
+| `webapp/package.json` | 獨立子專案依賴（vite、@vitejs/plugin-vue、vue、vue-router、echarts、vue-echarts）。 |
+| `webapp/vite.config.js` | Vite 設定，base `/`，build 輸出至 `webapp/dist/`。 |
+| `webapp/index.html` | HTML 入口，包含 Telegram Web App SDK CDN（`telegram-web-app.js`）。 |
+| `webapp/src/main.js` | Vue app 建立入口，掛載 router。 |
+| `webapp/src/App.vue` | 根元件，包含底部 Tab Bar 導航（圖表／報告／新聞）與 `useTelegram().expand()` 初始化。 |
+| `webapp/src/router/index.js` | Vue Router（hash mode），三條路由：`/` → ChartView、`/reports` → ReportsView、`/news` → NewsView。 |
+| `webapp/src/api/index.js` | API fetch wrapper，baseURL 由 `VITE_API_BASE` env 控制（預設 `http://localhost:3000`），自動帶入 `X-Telegram-Init-Data` header。 |
+| `webapp/src/composables/useTelegram.js` | `window.Telegram?.WebApp` 封裝，提供 `initData`、`expand()`、`themeParams`、`openLink()` 方法，含非 Mini App 環境降級處理。 |
+| `webapp/src/views/ChartView.vue` | (a) ECharts 折線圖，Y 軸為 `signals.priceChangePercent`，每點依漲跌著綠/紅色，markLine y=0，tooltip 顯示 `signals.target` 與 `signals.weightScore`。 |
+| `webapp/src/views/ReportsView.vue` | (b) 報告摘要列表，預設顯示日期、`signals.marketStatus`、`signals.targetSuggestion`，點擊展開 `ai.action_items`、`ai.risk_warnings`、`ai.mindset_advice`。 |
+| `webapp/src/views/NewsView.vue` | (d) 新聞池列表，顯示 `age_band` 標籤（🔴/🟡/⚪）與 `_region` 國旗，連結透過 `tg.openLink()` 開啟。 |
+
+**開發指令**：
+```bash
+# 終端機 1：啟動 Fastify API（bypass initData 驗證）
+BYPASS_INIT_DATA=true npm run api
+
+# 終端機 2：啟動前端 dev server
+cd webapp && npm install && npm run dev
+# → http://localhost:5173
+
+# 建置前端產物
+cd webapp && npm run build
+# → webapp/dist/
+```
+
 ### `data/` 檔案持久化層
 | Path | 說明 |
 |---|---|
@@ -199,7 +238,7 @@ flowchart TD
 | `docs/modules/entry_and_notifications.md` | 入口 Runner 與通知模組詳細說明（含 Bot 指令清單、API 路由說明）。 |
 | `docs/modules/market_strategy.md` | 市場策略引擎詳細說明（strategyEngine、signalRules、indicators、riskManagement、newsFetcher）。 |
 | `docs/modules/providers.md` | 各市場資料 provider 詳細說明與 API 快取策略。 |
-| `docs/plans/telegram_intergration_plan.md` | Telegram 整合計劃（項目一、Phase 2-A 已完成；Phase 2-B 前端 Mini App 進行中）。 |
+| `docs/plans/telegram_intergration_plan.md` | Telegram 整合計劃（項目一 ✅、Phase 2-A ✅、Phase 2-B ✅ 已完成；Phase 2-C Bot 整合待執行）。 |
 | `docs/plans/optimization_ideas.md` | 架構優化討論（進行中的想法，非正式計劃）。 |
 | `docs/plans/preplan_features.md` | 預計功能（尚未排期）。 |
 
@@ -260,6 +299,35 @@ flowchart TD
 
 整合 Telegram initData HMAC-SHA256 驗證（`dev` 模式可 bypass）與 CORS（開發期允許 `localhost:5173`，可透過 `CORS_ORIGIN` env 覆蓋）。以 `npm run api` 啟動。
 
+### 5.10 Vite + Vue 3 Mini App 前端層（Phase 2-B，2026-04）
+新增 `webapp/` 獨立前端子專案（Vite + Vue 3 + ECharts），作為 Telegram Mini App 嵌入式儀表板。以 hash mode Vue Router 管理三個 View，透過 API Layer 取得資料並渲染圖表與列表。
+
+**目錄結構**：
+```
+webapp/
+├── package.json          # 獨立依賴：vite, vue, vue-router, echarts, vue-echarts
+├── vite.config.js        # base: "/", build.outDir: "dist"
+├── index.html            # Telegram Web App SDK CDN
+└── src/
+    ├── main.js           # createApp + router 掛載
+    ├── App.vue           # 底部 Tab Bar 導航（圖表/報告/新聞）+ useTelegram.expand()
+    ├── router/index.js   # hash mode，/ /reports /news
+    ├── api/index.js      # fetch wrapper，帶 X-Telegram-Init-Data header
+    ├── composables/
+    │   └── useTelegram.js  # window.Telegram?.WebApp 封裝，含降級處理
+    └── views/
+        ├── ChartView.vue   # priceChangePercent 折線圖，漲綠跌紅，markLine y=0
+        ├── ReportsView.vue # 報告列表，展開 AI 內容（action_items/risk_warnings/mindset_advice）
+        └── NewsView.vue    # 新聞池列表，age_band 標籤，tg.openLink() 開連結
+```
+
+**關鍵設計決策**：
+- **Hash mode Router**：Mini App 不支援 history mode，一律使用 `createWebHashHistory()`。
+- **initData header**：API 請求自動帶入 `X-Telegram-Init-Data`；本機開發搭配後端 `BYPASS_INIT_DATA=true`。
+- **openLink 降級**：非 Mini App 環境（如瀏覽器直接開啟）自動降級為 `window.open(url, '_blank')`。
+- **獨立子專案**：`webapp/` 有自己的 `package.json`，`npm run dev` / `npm run build` 在 `webapp/` 目錄內執行，不污染根目錄依賴。
+- **唯讀架構**：前端僅讀取資料，不透過 API 觸發任何寫入操作。
+
 ---
 
 ## 6. AI Agent 開發指引
@@ -273,4 +341,4 @@ flowchart TD
 5. **`docs/modules/providers.md`**：了解各外部資料來源的快取策略與防呆機制。
 6. **`docs/modules/core_infrastructure.md`**：了解底層工具、storage、archive、news pool。
 
-定位問題時，請先判斷問題屬於哪條 pipeline（daily / news governance / period reporting / bot interactive / api server），再對應到具體模組文件，避免直接進入 `dailyCheck.mjs` 或 `prompts.mjs` 而漏掉真正的根因。
+定位問題時，請先判斷問題屬於哪條 pipeline（daily / news governance / period reporting / bot interactive / api server / webapp frontend），再對應到具體模組文件，避免直接進入 `dailyCheck.mjs` 或 `prompts.mjs` 而漏掉真正的根因。
