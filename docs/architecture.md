@@ -3,7 +3,7 @@
 ## 1. 系統定位
 `InvestmentLineNotify` 是一套以 Node.js 為核心的投資決策與通知系統，主要服務 0050 / 00675L 與生命週期投資策略的日常監控、新聞治理、AI 分析與週期報告生成。系統採用 **file-based persistence + external services** 的設計，不使用傳統資料庫，而是以 `data/`、Google Sheets、Telegram、Langfuse 與多個市場資料來源共同構成執行基礎。
 
-目前專案已不只是一條 `dailyCheck` 單線流程，而是由多個 runner 組成，並搭配一個長駐 Telegram Bot：
+目前專案已不只是一條 `dailyCheck` 單線流程，而是由多個 runner 組成，並搭配一個長駐 Telegram Bot 與一個唯讀 HTTP API Server：
 
 1. `src/runDailyCheck.mjs`：每日主流程。
 2. `src/runNewsFetch.mjs`：獨立新聞抓取、去重、更新新聞池。
@@ -11,18 +11,20 @@
 4. `src/runWeeklyReport.mjs`：讀取近期報告並生成 AI 週報。
 5. `src/runMonthlyReport.mjs`：讀取近期報告並生成 AI 月報。
 6. `src/bot.mjs`：Telegram Bot 長駐程序，處理即時指令觸發與互動。
+7. `src/api/server.mjs`：Fastify HTTP API Server，提供唯讀資料 API 給 Mini App 前端使用。
 
 ---
 
 ## 2. 生命週期總覽
-系統實際運作可拆成六個層次：
+系統實際運作可拆成七個層次：
 
 1. **Entry Layer**：由 GitHub Actions、Cron 或手動 CLI 啟動各 runner；或由 Telegram Bot 指令觸發。
 2. **Bot Layer**：`src/bot.mjs` 長駐，接受白名單使用者即時指令，透過 `runnerLock` 防止並發衝突，呼叫與 runner 相同的核心邏輯。
-3. **Data Collection Layer**：從 `src/modules/providers/`、Google News RSS、Google Sheets 抓取市場資料、帳戶狀態與新聞。
-4. **Decision Layer**：由 `src/modules/strategy/` 與 `src/modules/ai/` 共同完成量化計算與 AI 判讀。
-5. **Delivery Layer**：由 `src/modules/notifications/` 將結果轉為 Telegram HTML 訊息或週期報告。
-6. **Persistence Layer**：透過 `data/`、Google Sheets 與 Langfuse 持久化報告、快取、觀測資料與新聞池。
+3. **API Layer**：`src/api/server.mjs` 長駐，提供唯讀 HTTP REST API（Port 3000），供 Telegram Mini App 前端請求資料，具備 Telegram initData HMAC-SHA256 驗證與 CORS 設定。
+4. **Data Collection Layer**：從 `src/modules/providers/`、Google News RSS、Google Sheets 抓取市場資料、帳戶狀態與新聞。
+5. **Decision Layer**：由 `src/modules/strategy/` 與 `src/modules/ai/` 共同完成量化計算與 AI 判讀。
+6. **Delivery Layer**：由 `src/modules/notifications/` 將結果轉為 Telegram HTML 訊息或週期報告。
+7. **Persistence Layer**：透過 `data/`、Google Sheets 與 Langfuse 持久化報告、快取、觀測資料與新聞池。
 
 ---
 
@@ -32,6 +34,7 @@
 flowchart TD
     A[GitHub Actions / Cron / CLI] --> B[Runner Layer]
     TG[Telegram 使用者指令] --> BOT[src/bot.mjs]
+    WA[Mini App 前端] --> API[src/api/server.mjs]
 
     subgraph Bot Layer
       BOT
@@ -39,7 +42,16 @@ flowchart TD
       ADMIN[modules/bot/middleware/adminGuard.mjs]
     end
 
+    subgraph API Layer
+      API
+      GUARD[api/middleware/initDataGuard.mjs]
+      RT_STATUS[api/routes/status.mjs]
+      RT_REPORTS[api/routes/reports.mjs]
+      RT_NEWS[api/routes/news.mjs]
+    end
+
     BOT --> ADMIN --> LOCK
+    API --> GUARD --> RT_STATUS & RT_REPORTS & RT_NEWS
 
     subgraph Runner Layer
       B1[src/runDailyCheck.mjs]
@@ -112,6 +124,10 @@ flowchart TD
     M3 --> D6
     M1 --> D7
     M3 --> D8
+
+    RT_STATUS --> D1
+    RT_REPORTS --> D3
+    RT_NEWS --> D5
 ```
 
 ---
@@ -128,6 +144,11 @@ flowchart TD
 | `src/runWeeklyReport.mjs` | 讀取近 7 天報告，最低 3 份才生成週報。 |
 | `src/runMonthlyReport.mjs` | 讀取近 50 天報告（取最後 30 天為評估期，全 50 天供報酬率計算），最低 10 份才生成月報。 |
 | `src/bot.mjs` | Telegram Bot 長駐程序（grammY Long-Polling）。實作 `/start`、`/help`、`/status`、`/daily`、`/news`、`/weekly`、`/monthly`、`/optimize` 指令，並透過 `adminGuard` 白名單驗證與 `runnerLock` 防止並發衝突。 |
+| `src/api/server.mjs` | Fastify HTTP API Server（Port 3000），提供唯讀 REST API 給 Mini App 前端。整合 `@fastify/cors` 與 `initDataGuard` middleware。以 `npm run api` 啟動。 |
+| `src/api/middleware/initDataGuard.mjs` | Telegram initData HMAC-SHA256 驗證 middleware。`NODE_ENV=dev` 或 `BYPASS_INIT_DATA=true` 時可 bypass，方便本機開發。 |
+| `src/api/routes/status.mjs` | `GET /api/status`：讀取 `data/market/latest.json`，不存在回 404。 |
+| `src/api/routes/reports.mjs` | `GET /api/reports?limit=N`（預設 30，DESC 排序）與 `GET /api/report/:date`，不存在回 404。 |
+| `src/api/routes/news.mjs` | `GET /api/news`：讀取 `data/news/pool_filtered_active.json`，不存在回 `[]`。 |
 | `src/modules/bot/middleware/adminGuard.mjs` | 白名單 middleware，僅允許 `TELEGRAM_USER_ID` 指定的 chat_id 使用指令。 |
 | `src/modules/bot/runnerLock.mjs` | 全域 lock 機制，防止 Bot 指令與排程 runner 同時執行同一任務。 |
 | `src/modules/providers/` | 市場資料 provider layer，封裝 TWSE、Yahoo、FRED、CNN、KGI、NDC 等來源。 |
@@ -175,10 +196,10 @@ flowchart TD
 | `docs/langfuse-score-configs.md` | Langfuse 評分配置說明。 |
 | `docs/modules/ai_pipeline.md` | AI 決策管線詳細說明（aiCoach、periodReportAgent、ruleOptimizerAgent、llmJudge）。 |
 | `docs/modules/core_infrastructure.md` | 基礎設施詳細說明（storage、archiveManager、newsPoolManager、coreUtils）。 |
-| `docs/modules/entry_and_notifications.md` | 入口 Runner 與通知模組詳細說明（含 Bot 指令清單）。 |
+| `docs/modules/entry_and_notifications.md` | 入口 Runner 與通知模組詳細說明（含 Bot 指令清單、API 路由說明）。 |
 | `docs/modules/market_strategy.md` | 市場策略引擎詳細說明（strategyEngine、signalRules、indicators、riskManagement、newsFetcher）。 |
 | `docs/modules/providers.md` | 各市場資料 provider 詳細說明與 API 快取策略。 |
-| `docs/plans/telegram_intergration_plan.md` | Telegram 整合計劃（項目一已完成；項目二 Mini App 進行中）。 |
+| `docs/plans/telegram_intergration_plan.md` | Telegram 整合計劃（項目一、Phase 2-A 已完成；Phase 2-B 前端 Mini App 進行中）。 |
 | `docs/plans/optimization_ideas.md` | 架構優化討論（進行中的想法，非正式計劃）。 |
 | `docs/plans/preplan_features.md` | 預計功能（尚未排期）。 |
 
@@ -230,6 +251,15 @@ flowchart TD
 ### 5.8 Telegram Bot 長駐層（項目一，2026-04）
 新增 `src/bot.mjs`（grammY Long-Polling）作為互動入口，實作 8 個指令（`/start`、`/help`、`/status`、`/daily`、`/news`、`/weekly`、`/monthly`、`/optimize`）。搭配 `adminGuard` 白名單 middleware 與 `runnerLock` 防止並發執行。GitHub Actions 排程機制保持不變，Bot 僅處理即時指令觸發。
 
+### 5.9 Fastify API Server（Phase 2-A，2026-04）
+新增 `src/api/server.mjs`（Fastify，Port 3000）作為 Telegram Mini App 的後端資料源。架構為純唯讀，不允許透過 API 寫入 `data/`，寫入仍由 runner 集中管理。提供四個路由：
+- `GET /api/status` → `data/market/latest.json`
+- `GET /api/reports?limit=N` → `data/reports/*.json`（DESC，預設 limit=30）
+- `GET /api/report/:date` → `data/reports/YYYY-MM-DD.json`
+- `GET /api/news` → `data/news/pool_filtered_active.json`
+
+整合 Telegram initData HMAC-SHA256 驗證（`dev` 模式可 bypass）與 CORS（開發期允許 `localhost:5173`，可透過 `CORS_ORIGIN` env 覆蓋）。以 `npm run api` 啟動。
+
 ---
 
 ## 6. AI Agent 開發指引
@@ -237,10 +267,10 @@ flowchart TD
 本文件是 AI Agent 定位功能的起點。建議依以下順序閱讀各模組文件：
 
 1. **本文件**（`docs/architecture.md`）：掌握整體流程、runner 分工、目錄責任。
-2. **`docs/modules/entry_and_notifications.md`**：了解每個 runner 的觸發邏輯與通知邊界，以及 Bot 指令清單。
+2. **`docs/modules/entry_and_notifications.md`**：了解每個 runner 的觸發邏輯與通知邊界，以及 Bot 指令清單與 API 路由。
 3. **`docs/modules/market_strategy.md`**：了解市場資料抓取與策略訊號生成。
 4. **`docs/modules/ai_pipeline.md`**：了解 AI 決策鏈（Coach、Judge、Optimizer、Period Report）。
 5. **`docs/modules/providers.md`**：了解各外部資料來源的快取策略與防呆機制。
 6. **`docs/modules/core_infrastructure.md`**：了解底層工具、storage、archive、news pool。
 
-定位問題時，請先判斷問題屬於哪條 pipeline（daily / news governance / period reporting / bot interactive），再對應到具體模組文件，避免直接進入 `dailyCheck.mjs` 或 `prompts.mjs` 而漏掉真正的根因。
+定位問題時，請先判斷問題屬於哪條 pipeline（daily / news governance / period reporting / bot interactive / api server），再對應到具體模組文件，避免直接進入 `dailyCheck.mjs` 或 `prompts.mjs` 而漏掉真正的根因。
