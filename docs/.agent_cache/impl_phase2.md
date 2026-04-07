@@ -1,94 +1,76 @@
-# Agent Task Cache — 項目二分析與規劃
+# Agent Task Cache — Phase 2 技術選型確認
 
-**Task Started**: 2026-04-07  
-**Status**: PLANNING ()等待使用者確認後開始實作  
-
----
-
-## 計畫書項目二目標摘要
-
-利用 Telegram Mini App (Web App) 技術，在對話框內嵌網頁。將 JSON 報表與歷史回測數據轉化為可互動圖表。
-
-影響範圍：
-- 新增 `src/api/server.mjs`—輕量級 Web 伺服器 (HTTP API)
-- 新增 `webapp/`—前端小程式 (Mini App UI)
-- `src/bot.mjs` 加入 Menu Button / Inline Button 開啟 Web App
+**Task**: Phase 2 — Telegram Mini App 整合  
+**Status**: TECH_DECISION — 技術選型討論中，等待使用者確認後開始實作  
+**Updated**: 2026-04-07  
 
 ---
 
-## 技術決策記錄（待使用者確認）
-
-1. **API 框架**：建議 Fastify（輕量、ESM 原生支援、比 Express 快 3-5 倍）
-2. **前端架構**：建議 Vanilla JS + ECharts（零建構成本，適合個人專案）；如果對前端有興趣可改 React
-3. **前端部署**：建議 GitHub Pages （對單人專案最簡單）或 Cloudflare Pages
-4. **API 部署**：待項目一的主機選定後再確認
-5. **initData 驗證**：使用 Telegram 官方 HMAC-SHA256 驗證機制
+## Pre-A 狀態
+- [x] `docs/architecture.md` 已更新（新增 Bot Layer 5.8、修正 data/ 遺漏目錄、Mermaid flow 補 Bot 節點）
+- [x] commit: `docs(Pre-A): update architecture.md — add Bot Layer, fix data/ dirs, prep for Phase 2`
 
 ---
 
-## 文件 / 程式碼不一致問題（需修正）
+## 技術選型討論結果（進行中）
 
-### 問題 1：`docs/architecture.md` 缺少 Bot 長駐層記載
-- **現狀**：`architecture.md` 的 Runner Layer、Mermaid flow、目錄責任對照表均未包含 `src/bot.mjs`、`src/modules/bot/` 相關檔案。
-- **建議**：在項目二實作前，一並更新 `architecture.md`，新增 Bot Layer 記載與 Mermaid flow 更新。
+### API 框架
+- **決定**: ✅ Fastify
+- 理由: ESM 原生支援、比 Express 快 3-5 倍、型別友好
 
-### 問題 2：`data/` 目錄結構與文件不一致
-- **現狀**：`architecture.md` 的 data 層說明列出 `data/news/pool_active.json` 與 `data/news/pool_filtered_active.json`，但實際目錄列表發現還有 `data/cache/`、`data/config/`、`data/news_logs/`、`data/last_buy.json` 未在文件中記載。
-- **建議**：一並补充記載這幾個目錄的用途。
+### 前端框架
+- **候選**: Vite + Vue 3 + ECharts（使用者提議）
+- **討論要點**（詳見主對話）：
+  - 優點: 元件化、Composition API、HMR 開發體驗、vue-echarts 整合自然
+  - 需評估: build artifact 要部署到 Oracle VM 或靜態主機；需要 Vite build pipeline
+  - 替代: Vanilla JS + ECharts（零建構、直接 HTML，Mini App 超簡單場景也適用）
+- **狀態**: 🔄 等待使用者最終確認
 
-### 問題 3：`src/runOptimizer.mjs` 沒有導出 `export`
-- **現狀**：項目一實作時，`runNewsFetch`、`runWeeklyReport`、`runMonthlyReport` 均對內部函數追加了 export，但 `runOptimizer.mjs` 主要逻輯仍在 `main()` 內直接呼叫。`bot.mjs` 目前是 import `runRuleOptimizer` 自 `./modules/ai/ruleOptimizerAgent.mjs`，這樣是正確的，沒有必要修改 `runOptimizer.mjs`。
+### 前端部署
+- **候選**: Oracle Cloud VM（使用者已有）
+- **討論要點**（詳見主對話）：
+  - 優點: 自行掌控、可同時跑 API Server 與 Static File Serve，一台搞定
+  - 需評估: 需設定 Nginx/Caddy + SSL（Telegram Mini App 強制要求 HTTPS）
+  - 替代: GitHub Pages（零成本但純靜態，API Server 需另安排）
+- **狀態**: 🔄 等待使用者最終確認
 
----
-
-## Phase 清單
-
-### 前置修正（實作前）
-- [ ] Phase 2-pre-A：更新 `docs/architecture.md`（新增 Bot Layer、data 目錄補充）
-
-### API 層
-- [ ] Phase 2-A：新增 `src/api/server.mjs`（Fastify）
-  - `GET /api/status` — 讀取 `data/market/latest.json`
-  - `GET /api/reports` — 讀取最新 N 筆 `data/reports/`
-  - `GET /api/report/:date` — 讀取指定日期報告
-  - `GET /api/news` — 讀取 `data/news/pool_active.json`
-  - initData 驗證 middleware
-  - CORS 設定
-  - `package.json` 加入 `fastify` + `npm run api` 指令
-
-### 前端層
-- [ ] Phase 2-B：建立 `webapp/` 目錄（Vanilla JS + ECharts）
-  - `webapp/index.html` — Mini App 主頁，引入 Telegram WebApp SDK
-  - `webapp/index.js` — 主邏輯，初始化 Telegram WebApp、呼叫 API、渲染圖表
-  - `webapp/style.css` — 基礎樣式，對齊 Telegram 主題色彩
-  - 圖表內容：0050 近 30 天收益艦占圖 + 訊號次數折線圖
-
-### Bot 整合
-- [ ] Phase 2-C：更新 `src/bot.mjs`
-  - 加入 `setMyCommands()`（讓 Telegram 顯示指令列表提示）
-  - 加入 Menu Button（主選單按鈕）指向 Mini App URL
-  - 沿現有指令回覆加入 Inline Button 開啟 Mini App
-
-### 文件更新
-- [ ] Phase 2-D：更新 `docs/architecture.md`、`docs/modules/entry_and_notifications.md` 全面記載項目二成果
+### Mini App 圖表優先順序
+- **決定**: ✅ (a) 收益率趨勢折線 → (b) 報告摘要列表 → (d) 新聞池列表
+- 不需要 (c) 訊號次數長條圖
 
 ---
 
-## 關鍵技術决策（待使用者確認）
+## 待確認後執行的 Phase 清單
 
-| 項目 | 建議 | 備選 |
-|---|---|---|
-| API 框架 | Fastify | Express |
-| 前端 | Vanilla JS + ECharts | React + Recharts |
-| 前端部署 | GitHub Pages | Cloudflare Pages / Vercel |
-| API 部署 | 需配合主機調整 | - |
+### Phase 2-A：Fastify API Server（`src/api/server.mjs`）
+- `GET /api/status`
+- `GET /api/reports?limit=N`
+- `GET /api/report/:date`
+- `GET /api/news`
+- initData HMAC-SHA256 middleware（可切 dev bypass）
+- CORS
+- `npm run api` 指令
+
+### Phase 2-B：前端 Mini App（`webapp/`）
+- 框架待確認（Vite + Vue 3 + ECharts 或 Vanilla + ECharts）
+- 圖表: (a) 收益率折線 → (b) 報告列表 → (d) 新聞列表
+- Telegram Web App SDK 整合
+- 主題色跟隨 Telegram 主題
+
+### Phase 2-C：Bot 整合
+- `setMyCommands()` 指令選單
+- Menu Button 指向 Mini App URL
+- `/status` 等指令加 Inline Button 開啟 Mini App
+
+### Phase 2-D：文件更新
+- `architecture.md`（API 與 webapp 層補充）
+- `entry_and_notifications.md`（Bot 指令 + Mini App 整合）
 
 ---
 
 ## 需要使用者回答的問題
 
-1. API 框架偏好：Fastify vs Express？
-2. 前端架構：Vanilla JS vs React？
-3. 前端部署：GitHub Pages vs Cloudflare Pages/Vercel？
-4. Mini App 主要展示哪些圖表最有價値？
-   候選：(a) 0050 近 30 天收益率尾粿 + K 線圖、(b) 報告展示列表、(c) 訊號次數分布圖、(d) 新聞池瀏覽
+1. **前端框架最終決定**: Vite + Vue 3 + ECharts 還是 Vanilla JS + ECharts？
+2. **部署方案最終決定**: Oracle VM（需自建 Nginx + SSL）還是其他？
+   - 若選 Oracle VM: API Server 與 Static File 是否都放同一台？
+   - SSL 憑證: 已有 domain？或用 Certbot 自動申請？

@@ -3,24 +3,26 @@
 ## 1. 系統定位
 `InvestmentLineNotify` 是一套以 Node.js 為核心的投資決策與通知系統，主要服務 0050 / 00675L 與生命週期投資策略的日常監控、新聞治理、AI 分析與週期報告生成。系統採用 **file-based persistence + external services** 的設計，不使用傳統資料庫，而是以 `data/`、Google Sheets、Telegram、Langfuse 與多個市場資料來源共同構成執行基礎。
 
-目前專案已不只是一條 `dailyCheck` 單線流程，而是由多個 runner 組成：
+目前專案已不只是一條 `dailyCheck` 單線流程，而是由多個 runner 組成，並搭配一個長駐 Telegram Bot：
 
 1. `src/runDailyCheck.mjs`：每日主流程。
 2. `src/runNewsFetch.mjs`：獨立新聞抓取、去重、更新新聞池。
 3. `src/runOptimizer.mjs`：獨立執行 blacklist / rule optimizer。
 4. `src/runWeeklyReport.mjs`：讀取近期報告並生成 AI 週報。
 5. `src/runMonthlyReport.mjs`：讀取近期報告並生成 AI 月報。
+6. `src/bot.mjs`：Telegram Bot 長駐程序，處理即時指令觸發與互動。
 
 ---
 
 ## 2. 生命週期總覽
-系統實際運作可拆成五個層次：
+系統實際運作可拆成六個層次：
 
-1. **Entry Layer**：由 GitHub Actions、Cron 或手動 CLI 啟動各 runner。
-2. **Data Collection Layer**：從 `src/modules/providers/`、Google News RSS、Google Sheets 抓取市場資料、帳戶狀態與新聞。
-3. **Decision Layer**：由 `src/modules/strategy/` 與 `src/modules/ai/` 共同完成量化計算與 AI 判讀。
-4. **Delivery Layer**：由 `src/modules/notifications/` 將結果轉為 Telegram HTML 訊息或週期報告。
-5. **Persistence Layer**：透過 `data/`、Google Sheets 與 Langfuse 持久化報告、快取、觀測資料與新聞池。
+1. **Entry Layer**：由 GitHub Actions、Cron 或手動 CLI 啟動各 runner；或由 Telegram Bot 指令觸發。
+2. **Bot Layer**：`src/bot.mjs` 長駐，接受白名單使用者即時指令，透過 `runnerLock` 防止並發衝突，呼叫與 runner 相同的核心邏輯。
+3. **Data Collection Layer**：從 `src/modules/providers/`、Google News RSS、Google Sheets 抓取市場資料、帳戶狀態與新聞。
+4. **Decision Layer**：由 `src/modules/strategy/` 與 `src/modules/ai/` 共同完成量化計算與 AI 判讀。
+5. **Delivery Layer**：由 `src/modules/notifications/` 將結果轉為 Telegram HTML 訊息或週期報告。
+6. **Persistence Layer**：透過 `data/`、Google Sheets 與 Langfuse 持久化報告、快取、觀測資料與新聞池。
 
 ---
 
@@ -29,6 +31,15 @@
 ```mermaid
 flowchart TD
     A[GitHub Actions / Cron / CLI] --> B[Runner Layer]
+    TG[Telegram 使用者指令] --> BOT[src/bot.mjs]
+
+    subgraph Bot Layer
+      BOT
+      LOCK[modules/bot/runnerLock.mjs]
+      ADMIN[modules/bot/middleware/adminGuard.mjs]
+    end
+
+    BOT --> ADMIN --> LOCK
 
     subgraph Runner Layer
       B1[src/runDailyCheck.mjs]
@@ -43,6 +54,12 @@ flowchart TD
     B --> B3
     B --> B4
     B --> B5
+
+    LOCK --> B1
+    LOCK --> B2
+    LOCK --> B4
+    LOCK --> B5
+    LOCK --> B3
 
     subgraph Data Sources
       S1[Google Sheets]
@@ -67,7 +84,9 @@ flowchart TD
       D3[data/reports]
       D4[data/ai_logs]
       D5[data/news]
-      D6[src/config or module config via keyword/blacklist files]
+      D6[data/config]
+      D7[data/cache]
+      D8[data/news_logs]
     end
 
     S1 --> M7
@@ -91,6 +110,8 @@ flowchart TD
     M8 --> D4
     M4 --> D5
     M3 --> D6
+    M1 --> D7
+    M3 --> D8
 ```
 
 ---
@@ -106,6 +127,9 @@ flowchart TD
 | `src/runOptimizer.mjs` | 獨立執行 Rule Optimizer，優化新聞治理規則，完成後若有新規則則靜默推播至 Log 頻道。 |
 | `src/runWeeklyReport.mjs` | 讀取近 7 天報告，最低 3 份才生成週報。 |
 | `src/runMonthlyReport.mjs` | 讀取近 50 天報告（取最後 30 天為評估期，全 50 天供報酬率計算），最低 10 份才生成月報。 |
+| `src/bot.mjs` | Telegram Bot 長駐程序（grammY Long-Polling）。實作 `/start`、`/help`、`/status`、`/daily`、`/news`、`/weekly`、`/monthly`、`/optimize` 指令，並透過 `adminGuard` 白名單驗證與 `runnerLock` 防止並發衝突。 |
+| `src/modules/bot/middleware/adminGuard.mjs` | 白名單 middleware，僅允許 `TELEGRAM_USER_ID` 指定的 chat_id 使用指令。 |
+| `src/modules/bot/runnerLock.mjs` | 全域 lock 機制，防止 Bot 指令與排程 runner 同時執行同一任務。 |
 | `src/modules/providers/` | 市場資料 provider layer，封裝 TWSE、Yahoo、FRED、CNN、KGI、NDC 等來源。 |
 | `src/modules/strategy/` | 策略與風控核心，計算 RSI / KD / MACD、過熱、冷卻期與投資建議。 |
 | `src/modules/ai/` | AI decision layer，包含 search query generation、news filter、macro analysis、investment coach、period report、rule optimizer、LLM judge。 |
@@ -138,6 +162,10 @@ flowchart TD
 | `data/news/pool_active.json` | 主新聞池，目前有效新聞。 |
 | `data/news/pool_filtered_active.json` | 已整理後的新聞池版本。 |
 | `data/news/archive/YYYY-MM-DD.json` | 過期新聞歸檔。 |
+| `data/news_logs/` | 每次新聞抓取的 raw log，用於 debug 與治理分析。 |
+| `data/config/` | 執行期設定檔，包含 blacklist、關鍵字規則等可動態調整的治理設定。 |
+| `data/cache/` | 各 provider 的短期 API 快取，避免重複請求外部資料源（TTL 由各 provider 模組控制）。 |
+| `data/last_buy.json` | 記錄最後一次買進事件的日期與標的，用於冷卻期計算。 |
 
 ### `docs/` 文件層
 | Path | 說明 |
@@ -147,9 +175,10 @@ flowchart TD
 | `docs/langfuse-score-configs.md` | Langfuse 評分配置說明。 |
 | `docs/modules/ai_pipeline.md` | AI 決策管線詳細說明（aiCoach、periodReportAgent、ruleOptimizerAgent、llmJudge）。 |
 | `docs/modules/core_infrastructure.md` | 基礎設施詳細說明（storage、archiveManager、newsPoolManager、coreUtils）。 |
-| `docs/modules/entry_and_notifications.md` | 入口 Runner 與通知模組詳細說明。 |
+| `docs/modules/entry_and_notifications.md` | 入口 Runner 與通知模組詳細說明（含 Bot 指令清單）。 |
 | `docs/modules/market_strategy.md` | 市場策略引擎詳細說明（strategyEngine、signalRules、indicators、riskManagement、newsFetcher）。 |
 | `docs/modules/providers.md` | 各市場資料 provider 詳細說明與 API 快取策略。 |
+| `docs/plans/telegram_intergration_plan.md` | Telegram 整合計劃（項目一已完成；項目二 Mini App 進行中）。 |
 | `docs/plans/optimization_ideas.md` | 架構優化討論（進行中的想法，非正式計劃）。 |
 | `docs/plans/preplan_features.md` | 預計功能（尚未排期）。 |
 
@@ -198,6 +227,9 @@ flowchart TD
 ### 5.7 `stepTimer` 效能監控
 `coreUtils.mjs` 的 `stepTimer()` 已插入 `dailyCheck.mjs` 所有主要步驟，在 GitHub Actions log 中可直接看到每步耗時（`⏱ [stepName] Xms`），快速定位效能瓶頸。
 
+### 5.8 Telegram Bot 長駐層（項目一，2026-04）
+新增 `src/bot.mjs`（grammY Long-Polling）作為互動入口，實作 8 個指令（`/start`、`/help`、`/status`、`/daily`、`/news`、`/weekly`、`/monthly`、`/optimize`）。搭配 `adminGuard` 白名單 middleware 與 `runnerLock` 防止並發執行。GitHub Actions 排程機制保持不變，Bot 僅處理即時指令觸發。
+
 ---
 
 ## 6. AI Agent 開發指引
@@ -205,10 +237,10 @@ flowchart TD
 本文件是 AI Agent 定位功能的起點。建議依以下順序閱讀各模組文件：
 
 1. **本文件**（`docs/architecture.md`）：掌握整體流程、runner 分工、目錄責任。
-2. **`docs/modules/entry_and_notifications.md`**：了解每個 runner 的觸發邏輯與通知邊界。
+2. **`docs/modules/entry_and_notifications.md`**：了解每個 runner 的觸發邏輯與通知邊界，以及 Bot 指令清單。
 3. **`docs/modules/market_strategy.md`**：了解市場資料抓取與策略訊號生成。
 4. **`docs/modules/ai_pipeline.md`**：了解 AI 決策鏈（Coach、Judge、Optimizer、Period Report）。
 5. **`docs/modules/providers.md`**：了解各外部資料來源的快取策略與防呆機制。
 6. **`docs/modules/core_infrastructure.md`**：了解底層工具、storage、archive、news pool。
 
-定位問題時，請先判斷問題屬於哪條 pipeline（daily / news governance / period reporting），再對應到具體模組文件，避免直接進入 `dailyCheck.mjs` 或 `prompts.mjs` 而漏掉真正的根因。
+定位問題時，請先判斷問題屬於哪條 pipeline（daily / news governance / period reporting / bot interactive），再對應到具體模組文件，避免直接進入 `dailyCheck.mjs` 或 `prompts.mjs` 而漏掉真正的根因。
