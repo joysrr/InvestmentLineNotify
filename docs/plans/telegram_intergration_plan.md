@@ -1,6 +1,6 @@
 # InvestmentLineNotify - Telegram Bot 系統整合與升級計劃書
 
-**文件版本**：v1.5  
+**文件版本**：v1.6  
 **專案名稱**：InvestmentLineNotify  
 **目標敘述**：將現有的單向推播系統，轉型為具備雙向互動、數據視覺化及個人化 AI 服務的全方位 Telegram 投資助理。
 
@@ -33,10 +33,21 @@
   - `src/api/routes/reports.mjs`：`GET /api/reports?limit=N`、`GET /api/report/:date`
   - `src/api/routes/news.mjs`：`GET /api/news`
   - `package.json` 新增 `fastify`、`@fastify/cors` deps 與 `api` script
+- [x] **項目二 Phase 2-B：Vite + Vue 3 前端 Mini App（`webapp/`）**
+  - `webapp/package.json`：Vite + Vue 3 + ECharts + vue-router 依賴
+  - `webapp/vite.config.js`：base `/`，build outDir `dist`
+  - `webapp/index.html`：含 Telegram Web App SDK CDN
+  - `webapp/src/main.js`：createApp + router 掛載
+  - `webapp/src/App.vue`：底部 Tab Bar 導航（圖表 / 報告 / 新聞）+ useTelegram 初始化
+  - `webapp/src/router/index.js`：createWebHashHistory，三路由
+  - `webapp/src/api/index.js`：fetch wrapper，帶 X-Telegram-Init-Data header
+  - `webapp/src/composables/useTelegram.js`：window.Telegram?.WebApp 封裝
+  - `webapp/src/views/ChartView.vue`：(a) priceChangePercent 折線，漲綠跌紅色差
+  - `webapp/src/views/ReportsView.vue`：(b) 報告列表，點擊展開 AI 內容
+  - `webapp/src/views/NewsView.vue`：(d) articles 列表，tg.openLink 開連結
 
 ### 🔄 進行中（待執行）
 
-- [ ] **項目二 Phase 2-B**：Vite + Vue 3 前端 Mini App（`webapp/`）← **目前進行中**
 - [ ] **項目二 Phase 2-C**：Bot 整合（指令選單、Menu Button、Inline Button）
 - [ ] **項目二 Phase 2-D**：文件更新（`architecture.md`、`entry_and_notifications.md`）
 
@@ -99,7 +110,7 @@ User 傳送指令 (/analyze AAPL) 或點擊按鈕
 
 ## 項目二：視覺化投資儀表板 (Telegram Mini App 整合)
 
-> **狀態：🔄 進行中 — Phase 2-A ✅ 完成，Phase 2-B 分析完畢待實作**
+> **狀態：🔄 進行中 — Phase 2-A ✅ 完成，Phase 2-B ✅ 完成，Phase 2-C 待執行**
 
 ### 技術選型（已確認）
 
@@ -129,7 +140,7 @@ User 傳送指令 (/analyze AAPL) 或點擊按鈕
 - **[已達成]** 完善的本地 JSON 資料儲存架構 (data/market, data/reports)。
 - **[已達成]** 技術選型確認：Fastify + Vite + Vue 3 + ECharts。
 - **[已達成]** `src/api/server.mjs` 建立完成（Fastify，唯讀 API）。
-- **[未達成]** 需開發前端專案（`webapp/`，Vite + Vue 3）。
+- **[已達成]** `webapp/` 前端專案完整建立（Vite + Vue 3 + ECharts，含三個 View）。
 - **[未達成]** 部署層（HTTPS domain）待下個計劃解決，開發期可用 ngrok 本機驗證。
 
 ### 6. Phase 實作清單
@@ -157,74 +168,9 @@ User 傳送指令 (/analyze AAPL) 或點擊按鈕
 - 一律唯讀，不允許透過 API 寫入 `data/`
 - Port 3000，可透過 `PORT` env 覆蓋
 
-#### Phase 2-B：Vite + Vue 3 前端 Mini App ← **當前任務**
+#### Phase 2-B：Vite + Vue 3 前端 Mini App ✅ 已完成
 
-> **分析狀態**：2026-04-07 完成計畫分析，補充 API response schema，待執行實作指令啟動
-
-**目標目錄**：`webapp/`
-
-| 模組 | 圖表 / 功能 | 資料來源 |
-|---|---|---|
-| (a) 收益率趨勢折線 | ECharts LineChart，漲跌色差 | `/api/reports` |
-| (b) 報告摘要列表 | 日期 + AI 決策摘要，可點擊展開詳細 | `/api/reports` |
-| (d) 新聞池列表 | 標題 + 來源 + 時間，可點連結 | `/api/news` |
-
-##### API Response Schema（已驗證）
-
-**`GET /api/reports?limit=30`** 回傳陣列，每個元素結構：
-```json
-{
-  "date": "2026-04-07",
-  "signals": {
-    "currentPrice": 180,
-    "priceChangePercent": -2.57,
-    "priceChangePercentText": "-2.57",
-    "RSI": 49.25,
-    "KD_K": 29.02,
-    "KD_D": 38.91,
-    "bias240": 47.48,
-    "historicalLevel": "🔥【極高位階/過熱】",
-    "marketStatus": "🌡️【偏熱/觀察】",
-    "target": "👀 觀察等待",
-    "targetSuggestion": "...",
-    "suggestion": "...",
-    "weightScore": 0,
-    "macroSentiment": { "direction": "BEAR", "bonus": 3, "penalty": 5 }
-  },
-  "ai": {
-    "coach_internal_thinking": "...",
-    "risk_warnings": ["..."],
-    "action_items": ["..."],
-    "mindset_advice": ["..."]
-  }
-}
-```
-
-> ⚠️ **注意**：ChartView 的 Y 軸應使用 `signals.priceChangePercent`（float），顯示用使用 `signals.priceChangePercentText`（string）。`signals.target` 可作為每日決策標籤顯示於折線圖 tooltip。
-
-**`GET /api/news`** 回傳物件，結構：
-```json
-{
-  "generated_at": "2026-04-07T08:00:43.716Z",
-  "count": 11,
-  "articles": [
-    {
-      "id": "12c3dc77...",
-      "title": "焦點股》台積電...",
-      "url": "https://news.google.com/...",
-      "pubDate": "Tue, 07 Apr 2026 02:19:24 GMT",
-      "source": "自由財經",
-      "_region": "TW",
-      "age_band": "fresh",
-      "summary": "AI 摘要文字..."
-    }
-  ]
-}
-```
-
-> ⚠️ **注意**：`/api/news` 回傳的是 **物件**（`{ generated_at, count, articles: [] }`），不是陣列。前端需取 `data.articles`，並確認 `data.articles` 存在（若 `pool_filtered_active.json` 不存在，API 回傳 `[]` 空陣列，需特別判斷）。
-
-##### 待建立檔案清單
+**已建立目錄結構**：
 
 ```
 webapp/
@@ -233,67 +179,39 @@ webapp/
 ├── index.html                # 含 Telegram Web App SDK CDN
 └── src/
     ├── main.js               # createApp(App).use(router).mount('#app')
-    ├── App.vue               # <router-view>，useTelegram 初始化（expand、themeParams）
+    ├── App.vue               # <router-view>，底部 Tab Bar 導航 + useTelegram 初始化（expand）
     ├── router/
-    │   └── index.js          # createRouter({ history: createWebHashHistory() })
-    │                         # routes: / → ChartView, /reports → ReportsView, /news → NewsView
+    │   └── index.js          # createWebHashHistory，routes: / → ChartView, /reports → ReportsView, /news → NewsView
     ├── api/
-    │   └── index.js          # baseURL = import.meta.env.VITE_API_BASE || 'http://localhost:3000'
-    │                         # 加上 X-Telegram-Init-Data header（來自 useTelegram）
+    │   └── index.js          # baseURL = VITE_API_BASE || 'http://localhost:3000'
+    │                         # 帶 X-Telegram-Init-Data header（來自 useTelegram）
     ├── composables/
     │   └── useTelegram.js    # window.Telegram?.WebApp 封裝
-    │                         # initData: tg.initData
-    │                         # expand(): tg.expand()
-    │                         # themeParams: tg.themeParams（供 CSS 主題色同步）
+    │                         # initData, expand(), themeParams, openLink()
     └── views/
-        ├── ChartView.vue     # (a) priceChangePercent 折線，漲綠跌紅色段
-        ├── ReportsView.vue   # (b) 報告列表，點擊展開 ai.action_items / ai.risk_warnings
-        └── NewsView.vue      # (d) articles 列表，openLink 呼叫 tg.openLink(url)
+        ├── ChartView.vue     # (a) priceChangePercent 折線，漲綠跌紅色段，tooltip 顯示 target/weightScore
+        ├── ReportsView.vue   # (b) 報告列表，點擊展開 ai.action_items / ai.risk_warnings / ai.mindset_advice
+        └── NewsView.vue      # (d) articles 列表，age_band 標籤，openLink 呼叫 tg.openLink(url)
 ```
 
-##### 實作重點補充（分析後新增）
+**實作重點**：
+1. **ChartView**：ECharts LineChart，每點 `itemStyle.color` 依 `priceChangePercent >= 0` 判綠/紅，markLine y=0，tooltip 顯示 `signals.target` 與 `signals.weightScore`
+2. **ReportsView**：預設顯示日期 + `signals.marketStatus` + `signals.targetSuggestion`，點擊展開 `ai.action_items`、`ai.risk_warnings`、`ai.mindset_advice`（`ai.coach_internal_thinking` 可選折疊）
+3. **NewsView**：取 `data.articles`（注意 `/api/news` 回傳物件非陣列），`age_band` 標籤（fresh🔴/recent🟡/old⚪），`_region` 顯示（TW🇹🇼/US🇺🇸），openLink 降級處理
+4. **底部 Tab Bar**：App.vue 實作三 tab，使用 router-link 切換
+5. **API client**：initData header 帶入，本機開發搭配 `BYPASS_INIT_DATA=true`
 
-1. **ChartView — 折線顏色分段**  
-   ECharts `series[].data` 可指定每點的 `itemStyle.color`，使用 `priceChangePercent >= 0` 判斷綠/紅：  
-   ```js
-   data: reports.map(r => ({
-     value: r.signals.priceChangePercent,
-     itemStyle: { color: r.signals.priceChangePercent >= 0 ? '#26a17b' : '#e84855' }
-   }))
-   ```
-   Tooltip 額外顯示 `signals.target`（決策建議）與 `signals.weightScore`（評分）。
+**本機開發指令**：
+```bash
+# 終端機 1：啟動 API server（bypass initData 驗證）
+BYPASS_INIT_DATA=true npm run api
 
-2. **ReportsView — 展開詳情**  
-   列表項預設顯示：日期、`signals.marketStatus`、`signals.targetSuggestion`（一行摘要）。  
-   點擊展開後顯示：`ai.action_items`（行動建議列表）、`ai.risk_warnings`（風險警告）、`ai.mindset_advice`（心態建議）。  
-   > `ai.coach_internal_thinking` 為 AI 內部推理，可選擇性折疊顯示。
+# 終端機 2：啟動前端 dev server
+cd webapp && npm install && npm run dev
+# → http://localhost:5173
+```
 
-3. **NewsView — 連結處理**  
-   在 Mini App 環境中，直接 `window.open` 不可靠，需使用：  
-   ```js
-   window.Telegram?.WebApp?.openLink(article.url)
-   ```  
-   若 `window.Telegram?.WebApp` 不存在（非 Mini App 環境），降級為 `window.open(article.url, '_blank')`。
-
-4. **API client — initData header**  
-   ```js
-   const initData = window.Telegram?.WebApp?.initData || ''
-   fetch(url, { headers: { 'X-Telegram-Init-Data': initData } })
-   ```  
-   本機開發時 `initData` 為空字串，搭配後端 `BYPASS_INIT_DATA=true` 使用。
-
-5. **底部 Tab Bar 導航**  
-   Mini App 通常以底部 Tab 切換 view，建議在 `App.vue` 實作簡易 bottom navigation：圖表 / 報告 / 新聞 三個 tab，呼叫 `router.push()` 切換。
-
-6. **package.json 的 Vite dev script**  
-   根目錄 `package.json` 的 `"type": "module"` 已存在，`webapp/` 為獨立子專案，有自己的 `package.json`，`npm run dev` / `npm run build` 在 `webapp/` 目錄下執行。
-
-其他要求：
-- Telegram Web App SDK：`expand()`、`MainButton`、`themeParams` 主題色同步
-- 頁面切換使用 Vue Router（`hash` 模式，Mini App 不支援 history mode）
-- `vite build` 輸出至 `webapp/dist/`
-
-#### Phase 2-C：Bot 整合
+#### Phase 2-C：Bot 整合 ← **下一個任務**
 
 在現有 `src/bot.mjs` 新增：
 - `bot.api.setMyCommands([...])` — Telegram 左下角指令選單
@@ -304,7 +222,7 @@ webapp/
 
 #### Phase 2-D：文件更新（實作結束後執行）
 
-- `docs/architecture.md`：補充 API 層與 webapp 層說明
+- `docs/architecture.md`：補充 webapp 層說明（5.10）
 - `docs/modules/entry_and_notifications.md`：更新 Bot 指令選單與 Mini App 整合說明
 
 ### 7. 影響架構範圍
