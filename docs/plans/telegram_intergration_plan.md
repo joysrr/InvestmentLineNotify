@@ -24,8 +24,8 @@
   - 前端框架：Vite + Vue 3 + ECharts
   - Mini App 展示優先順序：`(a) 收益率趨勢折線` → `(b) 報告摘要列表` → `(d) 新聞池列表`，不實作 `(c)`
 - [x] **Cache 整理**
-  - 移除已完成任務 cache（`impl_phase1.md`、`telegram_plan_review.md`）
-  - 保留 `docs/.agent_cache/impl_phase2.md`（Phase 2 實作待辦）
+  - 移除已完成任務 cache（`impl_phase1.md`、`telegram_plan_review.md`、`impl_phase2.md`），僅保留 `.gitkeep`
+  - 所有重要內容已整合至 `docs/architecture.md` 與 `docs/modules/`
 - [x] **項目二 Phase 2-A：Fastify API Server**
   - `src/api/server.mjs` 建立完成（Fastify 主程式、CORS、initDataGuard 整合）
   - `src/api/middleware/initDataGuard.mjs`：Telegram HMAC-SHA256 驗證，`dev` 模式可 bypass
@@ -46,7 +46,7 @@
   - `webapp/src/views/ReportsView.vue`：(b) 報告列表，點擊展開 AI 內容
   - `webapp/src/views/NewsView.vue`：(d) articles 列表，tg.openLink 開連結
 
-### 🔄 進行中（待執行）
+### 🔄 Phase 2 子項目完成清單
 
 - [x] **項目二 Phase 2-C**：Bot 整合（指令選單、Menu Button、Inline Button）
 - [x] **項目二 Phase 2-D**：文件更新（`architecture.md`、`entry_and_notifications.md`）

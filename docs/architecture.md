@@ -238,7 +238,8 @@ cd webapp && npm run build
 | `docs/modules/entry_and_notifications.md` | 入口 Runner 與通知模組詳細說明（含 Bot 指令清單、API 路由說明）。 |
 | `docs/modules/market_strategy.md` | 市場策略引擎詳細說明（strategyEngine、signalRules、indicators、riskManagement、newsFetcher）。 |
 | `docs/modules/providers.md` | 各市場資料 provider 詳細說明與 API 快取策略。 |
-| `docs/plans/telegram_intergration_plan.md` | Telegram 整合計劃（項目一 ✅、Phase 2-A ✅、Phase 2-B ✅ 已完成；Phase 2-C Bot 整合待執行）。 |
+| `docs/plans/telegram_intergration_plan.md` | Telegram 整合計劃（項目一 ✅、Phase 2-A/B/C/D ✅ 已完成；部署與項目三併入後續計劃）。 |
+| `docs/plans/finish_features.md` | 已完成功能記錄，細節已整合至 `docs/architecture.md` 與 `docs/modules/`，此檔作為歷史快照。 |
 | `docs/plans/optimization_ideas.md` | 架構優化討論（進行中的想法，非正式計劃）。 |
 | `docs/plans/preplan_features.md` | 預計功能（尚未排期）。 |
 
