@@ -30,7 +30,9 @@
 #### Runner 與 Bot 指令對應
 | Bot 指令 | 呼叫函數 | API 消耗 |
 |---|---|---|
-| `/status` | 讀取 `data/market/latest.json` | 零 |
+| `/start` | 回覆歡迎訊息（inline，無外部呼叫） | 零 |
+| `/help` | 回覆指令說明（inline，無外部呼叫） | 零 |
+| `/status` | 讀取 `data/market/latest.json`；有 `MINI_APP_URL` 時附加 WebApp Inline Button | 零 |
 | `/daily` | `dailyCheck({ isTelegramEnabled: true, isAIAdvisor: true })` | 中高 |
 | `/news` | `runNewsFetch()` | 中 |
 | `/weekly` | `runWeeklyReport()` | 中（AI） |
@@ -144,4 +146,60 @@
 - **Bot lock 衝突**：若看到「系統正在執行中」訊息長達 30 分鐘，可能為 Runner 崩潰沒清除 lock。可手動刪除 `data/.bot_lock` 強制釋放。
 - **`Bad Request: message text is empty`**：若 Telegram 回傳此錯誤，應先確認 `buildPeriodReportMessages()` 回傳的是 `{ text: string }[]` 而非純字串陣列；`sendTelegramBatch()` 期望的是物件格式，傳入純字串會導致 `message.text` 為 `undefined`。
 
-對 AI Agent 來說，若看到「有資料但沒送出」的問題，通常從本文件描述的 entry / notification boundary 開始查最有效。
+---
+
+## 7. Bot UI 整合（Phase 2-C）
+
+Bot 啟動時除了開始 Long-Polling，還會非同步執行兩項 Telegram API 初始化任務。
+兩者均為 UX 優化，失敗只 `console.warn`，**不中斷 Bot 主要功能**。
+
+### 7-1. 指令選單 — `setMyCommands`
+
+Bot 每次啟動的 `onStart` callback 中呼叫 `bot.api.setMyCommands()`，
+將以下 7 項指令同步至 Telegram 左下角選單：
+
+| 指令 | 選單說明文字 |
+|---|---|
+| `/status` | 查看最新市場快取狀態 |
+| `/daily` | 手動觸發每日報告（含 AI 分析） |
+| `/news` | 手動更新新聞池 |
+| `/weekly` | 手動觸發週報 |
+| `/monthly` | 手動觸發月報 |
+| `/optimize` | 手動觸發規則優化器 |
+| `/help` | 顯示指令說明 |
+
+> `/start` 不列入選單（初次互動專用），其他指令每次啟動自動更新，無需手動維護。
+
+### 7-2. `/status` WebApp Inline Button
+
+`/status` 指令回覆時，會依 `MINI_APP_URL` 是否設定，條件式附加 Inline Button：
+
+| `MINI_APP_URL` 狀態 | 回覆行為 |
+|---|---|
+| **未設定（空值）** | 純文字回覆，與舊版行為完全相同 |
+| **已設定** | 文字回覆末尾附加「📊 開啟儀表板」WebApp Button，點擊直接開啟 Mini App |
+
+此設計確保在取得 HTTPS domain 之前，Bot 功能完全不受影響；填入 env 後無需修改程式碼即自動生效。
+
+### 7-3. Chat Menu Button — `setChatMenuButton`
+
+將 Telegram 對話左下角的 Menu Button 設為開啟 Mini App 的入口。
+實作於 `syncMenuButton()` 函式，包含以下防護：
+
+| 防護條件 | 行為 |
+|---|---|
+| `MINI_APP_URL` 未設定或空字串 | 直接 return，不呼叫任何 API |
+| `TELEGRAM_USER_ID` 未設定或非數字 | `console.warn` 後跳過，防止傳入 `NaN` 至 Telegram API |
+| API 呼叫失敗 | `try/catch` 捕捉，`console.warn` 記錄，不影響 Bot 運作 |
+
+> `setChatMenuButton` 以 `chat_id` 指定單一使用者，僅影響白名單帳號的對話介面，不影響其他對話。
+
+### 7-4. 相關環境變數
+
+| 變數 | 必填 | 說明 |
+|---|---|---|
+| `TELEGRAM_API_TOKEN` | ✅ 必填 | Bot Token，用於所有指令回覆與 API 初始化 |
+| `TELEGRAM_USER_ID` | ✅ 必填 | 白名單 chat_id，adminGuard 與 setChatMenuButton 均依賴此值 |
+| `MINI_APP_URL` | ⬜ 選填 | Mini App 的 HTTPS URL；未設定時 Inline Button 與 Menu Button 均自動停用 |
+
+> `MINI_APP_URL` 取得 Oracle VM HTTPS domain 後填入，填入後重啟 Bot 即自動啟用所有 Mini App 入口，無需任何程式碼變更。
