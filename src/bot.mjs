@@ -16,12 +16,17 @@
  *   /weekly   — 手動觸發週報
  *   /monthly  — 手動觸發月報
  *   /optimize — 手動觸發規則優化器
+ *
+ * Phase 2-C 新增：
+ *   - setMyCommands：Bot 啟動時同步指令選單至 Telegram（/start 不列入）
+ *   - /status Inline Button：有 MINI_APP_URL 時附加「開啟儀表板」WebApp 按鈕
+ *   - setChatMenuButton：有 MINI_APP_URL 時設定左下角 Menu Button 指向 Mini App
  */
 
 import "dotenv/config";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
-import { Bot } from "grammy";
+import { Bot, InlineKeyboard } from "grammy";
 import { adminGuard } from "./modules/bot/middleware/adminGuard.mjs";
 import { acquireLock, releaseLock } from "./modules/bot/runnerLock.mjs";
 import { dailyCheck } from "./dailyCheck.mjs";
@@ -38,6 +43,9 @@ if (!token) {
   console.error("[Bot] ❌ TELEGRAM_API_TOKEN 未設定，無法啟動。");
   process.exit(1);
 }
+
+// ── Mini App URL（可選，未設定時相關功能自動略過）───────────
+const MINI_APP_URL = process.env.MINI_APP_URL?.trim() || null;
 
 // ── Bot 初始化 ─────────────────────────────────────────────
 const bot = new Bot(token);
@@ -72,6 +80,66 @@ async function withRunner(ctx, runnerName, fn) {
     );
   } finally {
     releaseLock();
+  }
+}
+
+// ── Bot API 初始化任務（啟動後執行，失敗不中斷 Bot）─────────
+/**
+ * 同步指令選單至 Telegram。
+ * /start 不列入選單（初次互動專用，不需出現在日常清單）。
+ * 失敗時僅 log，不影響 Bot 正常運作。
+ */
+async function syncBotCommands() {
+  try {
+    await bot.api.setMyCommands([
+      { command: "status",   description: "查看最新市場快取狀態" },
+      { command: "daily",    description: "手動觸發每日報告（含 AI 分析）" },
+      { command: "news",     description: "手動更新新聞池" },
+      { command: "weekly",   description: "手動觸發週報" },
+      { command: "monthly",  description: "手動觸發月報" },
+      { command: "optimize", description: "手動觸發規則優化器" },
+      { command: "help",     description: "顯示指令說明" },
+    ]);
+    console.log("[Bot] ✅ setMyCommands 同步完成。");
+  } catch (err) {
+    console.warn("[Bot] ⚠️ setMyCommands 失敗（不影響 Bot 運作）:", err.message);
+  }
+}
+
+/**
+ * 設定 Chat Menu Button（左下角按鈕）。
+ * 僅在 MINI_APP_URL 已設定時執行。
+ * - type "web_app"：開啟 Mini App。
+ * - 使用 chat_id 指定單一使用者，避免影響其他對話。
+ * - 失敗時僅 log，不中斷 Bot。
+ * - TELEGRAM_USER_ID 格式異常時跳過並警告，防止 API 呼叫傳入 NaN。
+ */
+async function syncMenuButton() {
+  if (!MINI_APP_URL) return;
+
+  const rawUserId = process.env.TELEGRAM_USER_ID;
+  const chatId = Number(rawUserId);
+
+  if (!rawUserId || !Number.isFinite(chatId)) {
+    console.warn(
+      "[Bot] ⚠️ setChatMenuButton 略過：TELEGRAM_USER_ID 未設定或格式異常",
+      `（值：${rawUserId}）`
+    );
+    return;
+  }
+
+  try {
+    await bot.api.setChatMenuButton({
+      chat_id: chatId,
+      menu_button: {
+        type: "web_app",
+        text: "📊 儀表板",
+        web_app: { url: MINI_APP_URL },
+      },
+    });
+    console.log(`[Bot] ✅ setChatMenuButton 設定完成（Mini App：${MINI_APP_URL}）。`);
+  } catch (err) {
+    console.warn("[Bot] ⚠️ setChatMenuButton 失敗（不影響 Bot 運作）:", err.message);
   }
 }
 
@@ -156,7 +224,12 @@ bot.command("status", async (ctx) => {
       lines.push("資料格式異常，請異常報告給開發者。");
     }
 
-    await ctx.reply(lines.join("\n"), { parse_mode: "HTML" });
+    // Inline Button：有 MINI_APP_URL 時附加「開啟儀表板」WebApp 按鈕
+    const replyMarkup = MINI_APP_URL
+      ? new InlineKeyboard().webApp("📊 開啟儀表板", MINI_APP_URL)
+      : undefined;
+
+    await ctx.reply(lines.join("\n"), { parse_mode: "HTML", reply_markup: replyMarkup });
   } catch (err) {
     await ctx.reply(`❌ 讀取市場快取失敗：<code>${err.message}</code>`, { parse_mode: "HTML" });
   }
@@ -202,9 +275,15 @@ bot.catch((err) => {
 // ── 啟動 Bot（Long-Polling）────────────────────────────────
 console.log("[Bot] 🚀 Bot 啟動中（Long-Polling 模式）...");
 bot.start({
-  onStart: (botInfo) => {
+  onStart: async (botInfo) => {
     console.log(`[Bot] ✅ 已連線：@${botInfo.username}`);
     console.log(`[Bot] 🔒 白名單 chat_id：${process.env.TELEGRAM_USER_ID}`);
+    if (MINI_APP_URL) {
+      console.log(`[Bot] 📱 Mini App URL：${MINI_APP_URL}`);
+    }
+    // 同步指令選單與 Menu Button（失敗不中斷 Bot）
+    await syncBotCommands();
+    await syncMenuButton();
   },
 });
 
