@@ -4,6 +4,11 @@
 
 > **前置條件**：需先完成 Telegram Mini App 應用層（Phase 2），並取得可用的 domain 或 HTTPS 入口後再執行本計劃。
 
+### 狀態與目標摘要
+
+- 部署步驟與架構設計已完整寫在本節，尚未在 Oracle VM 上實際部署。
+- 相關程式與說明已部分體現在 `src/api/server.mjs`、`src/bot.mjs` 與 `docs/architecture.md`。
+
 ### 🎯 功能目標
 
 將 Fastify API Server 與 Vite + Vue 3 前端 build 產物部署至 Oracle Cloud Free Tier VM（Ubuntu），提供 Mini App 穩定的外網 HTTPS 存取端點，同時維持現有 GitHub Actions 排程與 Telegram Bot 長駐推播架構不受影響。
@@ -231,7 +236,14 @@ Telegram Mini App
 
 ---
 
+---
+
 ## 📌【AI 管線優化類】兩相矛盾的新聞判定或提示
+
+### 狀態與目標摘要
+
+- 目前僅定義了問題背景與改善目標，尚未決定具體演算法與資料流。
+- 會影響新聞池治理、總經分析與每日/週/月報告的文字描述。
 
 ### 🎯 功能目標
 
@@ -263,7 +275,53 @@ Telegram Mini App
 
 ---
 
+---
+
+## 📌【策略與績效】策略訊號回測與績效統計
+
+### 狀態與目標摘要
+
+- 目前僅有回測概念與資料來源分析，尚未實作 runner。
+- 計畫新增獨立 runner（例如 `src/runBacktest.mjs`）並與週/月報的統計結果整合。
+
+### 動機
+
+`strategyEngine.mjs` 目前依據 RSI、KD、MACD、VIX、MA240、`macroMarketDirection` 計算買賣訊號，但系統內無法驗證：
+- 歷史上當「訊號 = 買進」時，後續 N 天的實際報酬率如何？
+- 哪個指標對最終決策貢獻最大？
+
+目前 `archiveManager` 已存 `signals` 快照，資料基礎存在，缺的是分析邏輯。
+
+### 建議方向
+
+新增一個 `runBacktest.mjs` runner，讀取 `data/archives/` 歷史快照 + Google Sheet 歷史價格，計算每次訊號後的 5/10/20 日報酬率，輸出 CSV 或 Telegram 月報附件。
+
+此功能可與現有 `runMonthlyReport.mjs` 整合（月報時一併輸出回測摘要）。
+
+### 影響範圍
+
+- 新增 `src/runBacktest.mjs`（新 runner）
+- `src/modules/data/archiveManager.mjs`（新增讀取歷史快照 API）
+- `src/modules/storage.mjs`（讀取 Google Sheet 歷史收盤價）
+- 可能新增 `src/modules/strategy/backtestEngine.mjs`
+
+### 難度
+
+⭐⭐⭐ 高（需設計回測邏輯與資料對齊）
+
+### 討論狀態
+
+⚪ 待確認
+
+
+---
+
 ## 📌【AI 管線優化類】每日摘要語音化推播（Gemini TTS × Telegram Audio）
+
+### 狀態與目標摘要
+
+- 已有較完整的技術草案（Gemini TTS + ffmpeg + Telegram sendAudio），尚未落實為實際模組。
+- 實作時需確認 AI pipeline、Langfuse 追蹤與每日推播流程的整合方式。
 
 ### 🎯 功能目標
 
@@ -502,3 +560,58 @@ MP3 檔案
   ➔ （選配）Langfuse span 記錄 TTS 執行結果
   ➔ GitHub Actions git-auto-commit（無音訊檔，/tmp 不在 repo 追蹤範圍）
 ```
+
+### 待確認清單
+
+- 確認 aiAdvice / macroAnalysis 的實際資料結構與來源模組。
+- 確認 TTS service 檔案最佳放置路徑（例如 `src/modules/ai/` 或獨立 services 目錄）。
+- 確認每日推播流程中負責三則訊息發送的函式名稱與插入點。
+- 確認 Gemini API key 分配策略與 Langfuse span wrapper 的使用方式。
+- 若使用自架 runner 或容器，確認執行環境中 ffmpeg 是否可用。
+
+
+---
+
+## 📌【穩定性強化】Providers 統一 retry / timeout 機制
+
+### 狀態與目標摘要
+
+- 各 Provider 目前錯誤處理策略不一，網路抖動時可能導致整條 daily pipeline 中斷。
+- 計畫統一透過 helper（例如 `fetchWithRetry`）包裝 `fetchWithTimeout`，逐步於 Providers 層導入。
+
+### 動機
+
+目前各 provider（`twseProvider`, `yahooProvider`, `cnnProvider` 等）各自處理錯誤，有些有 try/catch，有些直接拋出。  
+`basePriceProvider.mjs`、`ndcProvider.mjs` 等若網路短暫不穩，會直接導致 `dailyCheck` 中斷。  
+`coreUtils.mjs` 已有 `fetchWithTimeout`，但未被所有 provider 統一使用。
+
+### 建議方向
+
+在 `src/utils/coreUtils.mjs` 或新增 `src/utils/fetchUtils.mjs` 中實作 `fetchWithRetry(url, options, retries=2)`，並在各 provider 統一引用。
+
+```js
+export async function fetchWithRetry(url, options = {}, retries = 2) {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fetchWithTimeout(url, options);
+    } catch (err) {
+      if (i === retries) throw err;
+      console.warn(`[fetchWithRetry] 第 ${i+1} 次失敗，重試中... ${url}`);
+      await new Promise(r => setTimeout(r, 500 * (i + 1)));
+    }
+  }
+}
+```
+
+### 影響範圍
+
+- `src/utils/coreUtils.mjs`（新增 helper）
+- `src/modules/providers/*.mjs`（逐步替換 fetch 呼叫）
+
+### 難度
+
+⭐⭐ 中（工具本身簡單，但需逐一審查各 provider 的 fetch 呼叫）
+
+### 討論狀態
+
+⚪ 待確認

@@ -198,20 +198,6 @@ flowchart TD
 | `webapp/src/views/ReportsView.vue` | (b) 報告摘要列表，預設顯示日期、`signals.marketStatus`、`signals.targetSuggestion`，點擊展開 `ai.action_items`、`ai.risk_warnings`、`ai.mindset_advice`。 |
 | `webapp/src/views/NewsView.vue` | (d) 新聞池列表，顯示 `age_band` 標籤（🔴/🟡/⚪）與 `_region` 國旗，連結透過 `tg.openLink()` 開啟。 |
 
-**開發指令**：
-```bash
-# 終端機 1：啟動 Fastify API（bypass initData 驗證）
-BYPASS_INIT_DATA=true npm run api
-
-# 終端機 2：啟動前端 dev server
-cd webapp && npm install && npm run dev
-# → http://localhost:5173
-
-# 建置前端產物
-cd webapp && npm run build
-# → webapp/dist/
-```
-
 ### `data/` 檔案持久化層
 | Path | 說明 |
 |---|---|
@@ -238,9 +224,7 @@ cd webapp && npm run build
 | `docs/modules/entry_and_notifications.md` | 入口 Runner 與通知模組詳細說明（含 Bot 指令清單、API 路由說明）。 |
 | `docs/modules/market_strategy.md` | 市場策略引擎詳細說明（strategyEngine、signalRules、indicators、riskManagement、newsFetcher）。 |
 | `docs/modules/providers.md` | 各市場資料 provider 詳細說明與 API 快取策略。 |
-| `docs/plans/telegram_intergration_plan.md` | Telegram 整合計劃（項目一 ✅、Phase 2-A/B/C/D ✅ 已完成；部署與項目三併入後續計劃）。 |
 | `docs/plans/finish_features.md` | 已完成功能記錄，細節已整合至 `docs/architecture.md` 與 `docs/modules/`，此檔作為歷史快照。 |
-| `docs/plans/optimization_ideas.md` | 架構優化討論（進行中的想法，非正式計劃）。 |
 | `docs/plans/preplan_features.md` | 預計功能（尚未排期）。 |
 
 ---
@@ -261,85 +245,3 @@ cd webapp && npm run build
 - 讓 RSS query 可區分「標題必含」與「廣泛匹配」。
 - 讓靜態關鍵字池與 AI 動態關鍵字能共用同一 schema。
 - 讓 AI Agent 後續調整關鍵字時，更容易定位 `keywordConfig`、`newsFetcher`、`prompts` 三個修改點。
-
-### 5.2 News Filtering 變為雙層治理
-目前新聞治理已分成兩層：
-
-1. **RSS Query Layer**：在 `buildRssUrl()` 就把 `twExcludeKeywords` / `usExcludeKeywords` 轉成 `-keyword` 或 `-intitle:keyword`，先減少雜訊來源。
-2. **Article Validation Layer**：抓回文章後，再用 blacklist regex、excluded sources 與標題規則做第二次過濾。
-
-這個分層對 AI Agent 很重要：若之後要調整誤殺或漏網問題，必須先判斷是 query 層過濾過強，還是 article validation 層規則過嚴。
-
-### 5.3 Runner 分流後的系統邊界更清楚
-專案現在不再只依賴 `dailyCheck`。新聞抓取、規則治理、週報、月報都已有獨立 runner。這代表未來 AI Agent 在修改功能時，必須先確認問題屬於：
-- daily execution pipeline，
-- news governance pipeline，或
-- period reporting pipeline。
-
-### 5.4 AI Coach 持倉成本與損益注入（2026-04-04）
-`aiDataPreprocessor.mjs` 的 `formatQuantDataForCoach()` 已包含「持倉成本與損益」段落，將 `avgCost0050` / `avgCostZ2`（由 `storage.mjs` 從 Google Sheets 讀取）與即時價格對比計算未實現損益率後注入 Coach 上下文。
-
-### 5.5 訊號準確率統計（Signal Accuracy Stats）
-`periodReportAgent.mjs` 的 `buildSignalAccuracyStats()` 統一處理買進訊號的觸發次數、冷卻封鎖次數，以及月報的 +5 / +10 / +20 日報酬率與勝率計算。週報顯示訊號數量統計，月報完整呈現報酬率明細。
-
-### 5.6 Rule Optimizer Telegram 通知
-`runOptimizer.mjs` 完成後，若有新規則通過，會透過 `broadcastOptimizerResult()` 靜默推播至 Log 頻道（使用 `TELEGRAM_LOG_API_TOKEN`）。無新規則時靜默略過，失敗不影響主流程。
-
-### 5.7 `stepTimer` 效能監控
-`coreUtils.mjs` 的 `stepTimer()` 已插入 `dailyCheck.mjs` 所有主要步驟，在 GitHub Actions log 中可直接看到每步耗時（`⏱ [stepName] Xms`），快速定位效能瓶頸。
-
-### 5.8 Telegram Bot 長駐層（項目一，2026-04）
-新增 `src/bot.mjs`（grammY Long-Polling）作為互動入口，實作 8 個指令（`/start`、`/help`、`/status`、`/daily`、`/news`、`/weekly`、`/monthly`、`/optimize`）。搭配 `adminGuard` 白名單 middleware 與 `runnerLock` 防止並發執行。GitHub Actions 排程機制保持不變，Bot 僅處理即時指令觸發。
-
-### 5.9 Fastify API Server（Phase 2-A，2026-04）
-新增 `src/api/server.mjs`（Fastify，Port 3000）作為 Telegram Mini App 的後端資料源。架構為純唯讀，不允許透過 API 寫入 `data/`，寫入仍由 runner 集中管理。提供四個路由：
-- `GET /api/status` → `data/market/latest.json`
-- `GET /api/reports?limit=N` → `data/reports/*.json`（DESC，預設 limit=30）
-- `GET /api/report/:date` → `data/reports/YYYY-MM-DD.json`
-- `GET /api/news` → `data/news/pool_filtered_active.json`
-
-整合 Telegram initData HMAC-SHA256 驗證（`dev` 模式可 bypass）與 CORS（開發期允許 `localhost:5173`，可透過 `CORS_ORIGIN` env 覆蓋）。以 `npm run api` 啟動。
-
-### 5.10 Vite + Vue 3 Mini App 前端層（Phase 2-B，2026-04）
-新增 `webapp/` 獨立前端子專案（Vite + Vue 3 + ECharts），作為 Telegram Mini App 嵌入式儀表板。以 hash mode Vue Router 管理三個 View，透過 API Layer 取得資料並渲染圖表與列表。
-
-**目錄結構**：
-```
-webapp/
-├── package.json          # 獨立依賴：vite, vue, vue-router, echarts, vue-echarts
-├── vite.config.js        # base: "/", build.outDir: "dist"
-├── index.html            # Telegram Web App SDK CDN
-└── src/
-    ├── main.js           # createApp + router 掛載
-    ├── App.vue           # 底部 Tab Bar 導航（圖表/報告/新聞）+ useTelegram.expand()
-    ├── router/index.js   # hash mode，/ /reports /news
-    ├── api/index.js      # fetch wrapper，帶 X-Telegram-Init-Data header
-    ├── composables/
-    │   └── useTelegram.js  # window.Telegram?.WebApp 封裝，含降級處理
-    └── views/
-        ├── ChartView.vue   # priceChangePercent 折線圖，漲綠跌紅，markLine y=0
-        ├── ReportsView.vue # 報告列表，展開 AI 內容（action_items/risk_warnings/mindset_advice）
-        └── NewsView.vue    # 新聞池列表，age_band 標籤，tg.openLink() 開連結
-```
-
-**關鍵設計決策**：
-- **Hash mode Router**：Mini App 不支援 history mode，一律使用 `createWebHashHistory()`。
-- **initData header**：API 請求自動帶入 `X-Telegram-Init-Data`；本機開發搭配後端 `BYPASS_INIT_DATA=true`。
-- **openLink 降級**：非 Mini App 環境（如瀏覽器直接開啟）自動降級為 `window.open(url, '_blank')`。
-- **獨立子專案**：`webapp/` 有自己的 `package.json`，`npm run dev` / `npm run build` 在 `webapp/` 目錄內執行，不污染根目錄依賴。
-- **唯讀架構**：前端僅讀取資料，不透過 API 觸發任何寫入操作。
-
----
-
-## 6. AI Agent 開發指引
-
-本文件是 AI Agent 定位功能的起點。建議依以下順序閱讀各模組文件：
-
-1. **本文件**（`docs/architecture.md`）：掌握整體流程、runner 分工、目錄責任。
-2. **`docs/modules/entry_and_notifications.md`**：了解每個 runner 的觸發邏輯與通知邊界，以及 Bot 指令清單與 API 路由。
-3. **`docs/modules/market_strategy.md`**：了解市場資料抓取與策略訊號生成。
-4. **`docs/modules/ai_pipeline.md`**：了解 AI 決策鏈（Coach、Judge、Optimizer、Period Report）。
-5. **`docs/modules/providers.md`**：了解各外部資料來源的快取策略與防呆機制。
-6. **`docs/modules/core_infrastructure.md`**：了解底層工具、storage、archive、news pool。
-
-定位問題時，請先判斷問題屬於哪條 pipeline（daily / news governance / period reporting / bot interactive / api server / webapp frontend），再對應到具體模組文件，避免直接進入 `dailyCheck.mjs` 或 `prompts.mjs` 而漏掉真正的根因。
