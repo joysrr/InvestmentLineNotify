@@ -48,8 +48,8 @@
 
 ### 🔄 進行中（待執行）
 
-- [ ] **項目二 Phase 2-C**：Bot 整合（指令選單、Menu Button、Inline Button）
-- [ ] **項目二 Phase 2-D**：文件更新（`architecture.md`、`entry_and_notifications.md`）
+- [x] **項目二 Phase 2-C**：Bot 整合（指令選單、Menu Button、Inline Button）
+- [x] **項目二 Phase 2-D**：文件更新（`architecture.md`、`entry_and_notifications.md`）
 
 ### ⏸️ 延後處理（外移至後續計劃）
 
@@ -110,7 +110,7 @@ User 傳送指令 (/analyze AAPL) 或點擊按鈕
 
 ## 項目二：視覺化投資儀表板 (Telegram Mini App 整合)
 
-> **狀態：🔄 進行中 — Phase 2-A ✅ 完成，Phase 2-B ✅ 完成，Phase 2-C 待執行**
+> **狀態：✅ 已完成 — Phase 2-A ✅ Phase 2-B ✅ Phase 2-C ✅ Phase 2-D ✅
 
 ### 技術選型（已確認）
 
@@ -211,7 +211,7 @@ cd webapp && npm install && npm run dev
 # → http://localhost:5173
 ```
 
-#### Phase 2-C：Bot 整合 ← **下一個任務**
+#### Phase 2-C：Bot 整合 ✅ 已完成
 
 在現有 `src/bot.mjs` 新增：
 - `bot.api.setMyCommands([...])` — Telegram 左下角指令選單
@@ -220,7 +220,7 @@ cd webapp && npm install && npm run dev
 
 > 注意：Mini App URL 需待取得 HTTPS domain 後才能配置，此步驟於部署計劃完成後實作。
 
-#### Phase 2-D：文件更新（實作結束後執行）
+#### Phase 2-D：文件更新 ✅ 已完成
 
 - `docs/architecture.md`：補充 webapp 層說明（5.10）
 - `docs/modules/entry_and_notifications.md`：更新 Bot 指令選單與 Mini App 整合說明
