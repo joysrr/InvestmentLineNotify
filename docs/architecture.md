@@ -184,6 +184,22 @@ flowchart TD
 | `src/test/test-keywordConfig.mjs` | keywordConfig 載入測試。 |
 | `src/test/test-keywords.mjs` | 關鍵字系統測試。 |
 
+### `scripts/` 運維腳本層
+| Path | 說明 |
+|---|---|
+| `scripts/rollbackOptimizer.mjs` | 手動 rollback 最近一次 Rule Optimizer 對 blacklist 與歷史紀錄的變更，用於治理失誤時快速回滾。 |
+| `scripts/testOptimizer.mjs` | Rule Optimizer 壓力測試與實驗腳本，用於在正式排程之外檢驗新 prompt 或規則策略。 |
+
+### `.github/workflows/` 排程與監控層
+| Path | 說明 |
+|---|---|
+| `.github/workflows/line_notify.yml` | Daily Report & Notify Scheduler：以多段 cron 在台灣時區開盤前、盤中、收盤後與夜間執行 `npm start`，產出每日報告並自動 commit `data/` 更新。 |
+| `.github/workflows/news-fetch.yml` | News Fetch Pipeline：每 3 小時執行一次 `node src/runNewsFetch.mjs`，維護 `data/news/pool_active.json` 與 archive。 |
+| `.github/workflows/optimizer.yml` | Rule Optimizer Scheduler：每日固定時間執行 `node src/runOptimizer.mjs`，更新 blacklist 與 optimizer history 並 commit。 |
+| `.github/workflows/weekly-report.yml` | Weekly Strategy Report：每週一早上執行 `node src/runWeeklyReport.mjs`，產出策略週報並透過 Telegram 發送。 |
+| `.github/workflows/monthly-report.yml` | Monthly Strategy Report：每月一日早上執行 `node src/runMonthlyReport.mjs`，產出策略月報並透過 Telegram 發送。 |
+| `.github/workflows/notify-workflow-failure.yml` | Notify Workflow Failure：監控上述排程 workflow，於失敗/取消/逾時時透過 Telegram Log Bot 送出告警訊息。 |
+
 ### `webapp/` 前端 Mini App 層
 | Path | 說明 |
 |---|---|
@@ -226,10 +242,8 @@ flowchart TD
 | `docs/modules/market_strategy.md` | 市場策略引擎詳細說明（strategyEngine、signalRules、indicators、riskManagement、newsFetcher）。 |
 | `docs/modules/providers.md` | 各市場資料 provider 詳細說明與 API 快取策略。 |
 | `docs/plans/finish_features.md` | 已完成功能記錄，細節已整合至 `docs/architecture.md` 與 `docs/modules/`，此檔作為歷史快照。 |
-| `docs/plans/telegram_intergration_plan.md` | Telegram 整合計畫（項目一 ✅、Phase 2-A/B/C/D ✅ 全數完成）；Bot、Fastify API、Vue Mini App 完整整合記錄。部署至 Oracle VM 已移至獨立計畫。 |
 | `docs/plans/preplan_features.md` | 預計功能池，Oracle VM 部署計畫已抽離為 `docs/plans/oracle_vm_deployment_plan.md`。 |
 | `docs/plans/oracle_vm_deployment_plan.md` | Oracle Cloud VM 正式部署計畫（🔄 進行中），含 domain/HTTPS 取得、Nginx 設定、pm2 管理、data/ 同步策略。 |
-| `docs/plans/optimization_ideas.md` | 最佳化方向構想（待排期）。 |
 
 ---
 
@@ -270,4 +284,4 @@ Langfuse `Contradiction_Count` score 記錄每次執行偵測到的矛盾事件�
 
 以上三層均支援 `MINI_APP_URL` 環境變數驅動：未設定時 Bot 功能完整運作；填入 Oracle VM HTTPS domain 後無需改碼即自動啟用 Mini App 入口。
 
-**相關計畫文件**：`docs/plans/telegram_intergration_plan.md`
+**相關計畫文件**：`docs/plans/oracle_vm_deployment_plan.md`
