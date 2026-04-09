@@ -108,47 +108,47 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { fetchStatus, fetchReports, fetchNews } from '../api/index.js'
-import { useTelegram } from '../composables/useTelegram.js'
+import { useTelegram, waitReady } from '../composables/useTelegram.js'
 
 const { openLink } = useTelegram()
 
 // ── state ──
-const status = ref(null)
+const status        = ref(null)
 const statusLoading = ref(true)
-const statusError = ref(false)
+const statusError   = ref(false)
 
-const latestReport = ref(null)
+const latestReport  = ref(null)
 const reportLoading = ref(true)
-const reportError = ref(false)
+const reportError   = ref(false)
 
-const topNews = ref([])
-const newsLoading = ref(true)
-const newsError = ref(false)
+const topNews       = ref([])
+const newsLoading   = ref(true)
+const newsError     = ref(false)
 
 // ── today label ──
-const todayLabel = computed(() => {
-  return new Date().toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'short' })
-})
+const todayLabel = computed(() =>
+  new Date().toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'short' })
+)
 
 // ── VIX level ──
 const vixLevel = computed(() => {
   const v = parseFloat(status.value?.data?.vix?.value)
   if (isNaN(v)) return { label: '—', cardClass: '', textClass: 'snap-sub--neutral' }
-  if (v >= 30) return { label: '極度恐慌', cardClass: 'card-danger', textClass: 'snap-sub--danger' }
-  if (v >= 20) return { label: '警戒', cardClass: 'card-warn', textClass: 'snap-sub--warn' }
-  return { label: '平穩', cardClass: 'card-ok', textClass: 'snap-sub--ok' }
+  if (v >= 30)  return { label: '極度恐慌', cardClass: 'card-danger', textClass: 'snap-sub--danger' }
+  if (v >= 20)  return { label: '警戒',     cardClass: 'card-warn',   textClass: 'snap-sub--warn'   }
+  return               { label: '平穩',     cardClass: 'card-ok',     textClass: 'snap-sub--ok'     }
 })
 
 // ── CNN level ──
 const cnnLevel = computed(() => {
   const v = parseFloat(status.value?.data?.cnnFearGreed?.value)
-  if (isNaN(v)) return { label: '—', cardClass: '', textClass: 'snap-sub--neutral' }
-  if (v <= 25) return { cardClass: 'card-danger', textClass: 'snap-sub--danger' }
-  if (v <= 45) return { cardClass: 'card-warn', textClass: 'snap-sub--warn' }
-  if (v >= 75) return { cardClass: 'card-greed', textClass: 'snap-sub--greed' }
-  return { cardClass: 'card-ok', textClass: 'snap-sub--ok' }
+  if (isNaN(v)) return { cardClass: '',            textClass: 'snap-sub--neutral' }
+  if (v <= 25)  return { cardClass: 'card-danger',  textClass: 'snap-sub--danger'  }
+  if (v <= 45)  return { cardClass: 'card-warn',    textClass: 'snap-sub--warn'    }
+  if (v >= 75)  return { cardClass: 'card-greed',   textClass: 'snap-sub--greed'   }
+  return               { cardClass: 'card-ok',      textClass: 'snap-sub--ok'      }
 })
 
 // ── Business cycle emoji ──
@@ -176,7 +176,7 @@ const pctText = computed(() => {
 
 // ── Helpers ──
 function ageDotClass(band) {
-  if (band === 'fresh') return 'dot-fresh'
+  if (band === 'fresh')  return 'dot-fresh'
   if (band === 'recent') return 'dot-recent'
   return 'dot-old'
 }
@@ -196,34 +196,40 @@ function formatUpdatedAt(iso) {
 
 // ── Load ──
 async function loadAll() {
-  // Parallel fetch
+  // 1. Wait for the DOM to be fully painted (nextTick)
+  await nextTick()
+
+  // 2. Wait for Telegram WebApp SDK to be ready and initData to be populated.
+  //    In a browser / dev environment this resolves instantly.
+  await waitReady()
+
+  // 3. Fire all three requests in parallel
   const [sRes, rRes, nRes] = await Promise.allSettled([
     fetchStatus(),
     fetchReports(5),
     fetchNews()
   ])
 
-  // Status
+  // ── Status ──
   statusLoading.value = false
   if (sRes.status === 'fulfilled') status.value = sRes.value
   else statusError.value = true
 
-  // Reports
+  // ── Reports ──
   reportLoading.value = false
   if (rRes.status === 'fulfilled') {
     const sorted = [...(rRes.value ?? [])].sort((a, b) => b.date.localeCompare(a.date))
     latestReport.value = sorted[0] ?? null
   } else { reportError.value = true }
 
-  // News — top 3 fresh/recent first
+  // ── News — top 3, freshest first ──
   newsLoading.value = false
   if (nRes.status === 'fulfilled') {
     const list = Array.isArray(nRes.value) ? nRes.value : (nRes.value?.articles ?? [])
-    const sorted = [...list].sort((a, b) => {
-      const order = { fresh: 0, recent: 1, old: 2 }
-      return (order[a.age_band] ?? 2) - (order[b.age_band] ?? 2)
-    })
-    topNews.value = sorted.slice(0, 3)
+    const order = { fresh: 0, recent: 1, old: 2 }
+    topNews.value = [...list]
+      .sort((a, b) => (order[a.age_band] ?? 2) - (order[b.age_band] ?? 2))
+      .slice(0, 3)
   } else { newsError.value = true }
 }
 
@@ -293,9 +299,9 @@ onMounted(loadAll)
   text-align: center;
   transition: background 0.2s;
 }
-.card-danger { background: rgba(232,72,85,0.1); }
-.card-warn   { background: rgba(212,172,13,0.1); }
-.card-ok     { background: rgba(38,161,123,0.1); }
+.card-danger { background: rgba(232,72,85,0.1);  }
+.card-warn   { background: rgba(212,172,13,0.1);  }
+.card-ok     { background: rgba(38,161,123,0.1);  }
 .card-greed  { background: rgba(212,172,13,0.08); }
 
 .snap-label {
@@ -360,10 +366,10 @@ onMounted(loadAll)
   border-radius: 20px;
   font-weight: 600;
 }
-.badge-pos    { background: rgba(38,161,123,0.15); color: #26a17b; }
-.badge-neg    { background: rgba(232,72,85,0.12); color: #e84855; }
+.badge-pos    { background: rgba(38,161,123,0.15);  color: #26a17b; }
+.badge-neg    { background: rgba(232,72,85,0.12);    color: #e84855; }
 .badge-score  { background: var(--tg-theme-secondary-bg-color, #eee); color: var(--tg-theme-hint-color, #666); }
-.badge-target { background: rgba(36,129,204,0.12); color: var(--tg-theme-button-color, #2481cc); }
+.badge-target { background: rgba(36,129,204,0.12);   color: var(--tg-theme-button-color, #2481cc); }
 
 .action-list {
   list-style: none;
@@ -460,9 +466,6 @@ onMounted(loadAll)
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
   100% { background-position:  200% 0; }
-}
-.skeleton-card {
-  /* keep card bg but overlay shimmer on children */
 }
 .sk {
   border-radius: 6px;
