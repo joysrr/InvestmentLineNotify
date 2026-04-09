@@ -10,11 +10,11 @@ export const NEWS_KEYWORD_SYSTEM_PROMPT = `你是精通 Google News 搜尋語法
    - usQueries 負責抓取華爾街新聞：必須完全使用「英文」（如：Nvidia、Fed rate cut、recession）。
    - ❌ 絕對禁止中英夾雜（例如：「CPI 通膨」或「Fed 降息」），否則會導致爬蟲失效。
 2. 複合關鍵字防雜訊 (Anti-Noise)：
-   - 避免只給單字（例如："recession"、"降息" 會搜出與財經無關的社會新聞）。
-   - 請使用「主體 + 事件」的組合，以半形空格分隔（例如："Fed rate cut"、"US economy recession"、"外資 賣超"）。
+   - 避免只給單字（例如：\"recession\"、\"降息\" 會搜出與財經無關的社會新聞）。
+   - 請使用「主體 + 事件」的組合，以半形空格分隔（例如：\"Fed rate cut\"、\"US economy recession\"、\"外資 賣超\"）。
 3. 搜尋類型定義：
-   - "intitle"：強制新聞標題必須包含該關鍵字，用於抓取核心事件（例如："Fed"、"CPI"）。
-   - "broad"：全文搜尋，用於大範圍趨勢或地緣政治（例如："Middle East conflict"、"地緣政治"）。
+   - \"intitle\"：強制新聞標題必須包含該關鍵字，用於抓取核心事件（例如：\"Fed\"、\"CPI\"）。
+   - \"broad\"：全文搜尋，用於大範圍趨勢或地緣政治（例如：\"Middle East conflict\"、\"地緣政治\"）。
 </Search_Syntax_Rules>
 
 <Task_Instructions>
@@ -32,25 +32,25 @@ export const NEWS_KEYWORD_SYSTEM_PROMPT = `你是精通 Google News 搜尋語法
 
 ### twQueries
 ✅ 優質範例：
-  - { keyword: "台積電 法說會", searchType: "intitle" }   → 具體公司 + 事件，高訊號
-  - { keyword: "外資 賣超 金融股", searchType: "broad" }  → 籌碼方向 + 板塊，精準
-  - { keyword: "新台幣 急貶", searchType: "broad" }       → 匯率事件，簡潔有力
+  - { keyword: \"台積電 法說會\", searchType: \"intitle\" }   → 具體公司 + 事件，高訊號
+  - { keyword: \"外資 賣超 金融股\", searchType: \"broad\" }  → 籌碼方向 + 板塊，精準
+  - { keyword: \"新台幣 急貶\", searchType: \"broad\" }       → 匯率事件，簡潔有力
 
 ❌ 劣質範例：
-  - { keyword: "台股", searchType: "broad" }              → 已在靜態池，重複
-  - { keyword: "ETF", searchType: "broad" }               → 單一縮寫，雜訊極高
-  - { keyword: "今日股市行情分析", searchType: "broad" }  → 超過4個語意單元，過長
+  - { keyword: \"台股\", searchType: \"broad\" }              → 已在靜態池，重複
+  - { keyword: \"ETF\", searchType: \"broad\" }               → 單一縮寫，雜訊極高
+  - { keyword: \"今日股市行情分析\", searchType: \"broad\" }  → 超過4個語意單元，過長
 
 ### usQueries
 ✅ 優質範例：
-  - { keyword: "Fed rate decision", searchType: "intitle" } → 具體政策事件
-  - { keyword: "NVDA earnings beat", searchType: "broad" }  → 公司 + 財報結果
-  - { keyword: "oil price OPEC cut", searchType: "broad" }  → 商品 + 機構行動
+  - { keyword: \"Fed rate decision\", searchType: \"intitle\" } → 具體政策事件
+  - { keyword: \"NVDA earnings beat\", searchType: \"broad\" }  → 公司 + 財報結果
+  - { keyword: \"oil price OPEC cut\", searchType: \"broad\" }  → 商品 + 機構行動
 
 ❌ 劣質範例：
-  - { keyword: "S&P 500", searchType: "intitle" }           → 已在靜態池，重複
-  - { keyword: "GDP", searchType: "broad" }                 → 單一縮寫，雜訊高
-  - { keyword: "US stock market news today", searchType: "broad" } → 太廣泛
+  - { keyword: \"S&P 500\", searchType: \"intitle\" }           → 已在靜態池，重複
+  - { keyword: \"GDP\", searchType: \"broad\" }                 → 單一縮寫，雜訊高
+  - { keyword: \"US stock market news today\", searchType: \"broad\" } → 太廣泛
 </Task_Instructions>`;
 
 /** 新聞關鍵字的 User Prompt */
@@ -135,7 +135,7 @@ export const RULE_OPTIMIZER_SYSTEM_PROMPT = `
 - 不可輸出 markdown、多餘說明文字、code block
 ## 規則設計限制
 1. pattern 必須有具體語意錨點，不可只有模糊通配
-2. 不可把 '.*''、'.+'、'\w+'、'\d+' 當成規則主體
+2. 不可把 '.*''、'.+'、'\\w+'、'\\d+' 當成規則主體
 3. 不可輸出與既有規則語意明顯重複的 pattern
 4. 優先產生可重複利用的結構型規則
 5. reason 請用繁體中文
@@ -228,6 +228,12 @@ export const NEWS_FILTER_SYSTEM_PROMPT = `你是一位頂級的量化避險基�
 Step 1【事件盤點】
   - 列出你識別到的所有「獨立事件」（忽略重複報導）
   - 格式：事件名稱 | 相關新聞數量 | 代表性標題
+  - 【矛盾事件偵測】若新聞清單中，帶有相同群組標籤（例如 [G1]）的兩則新聞，
+    其內容方向相反（例如：A=和談進行中 vs B=拒絕和談），請在 event_inventory 中標記：
+      - has_conflict: true
+      - conflict_note: 簡述矛盾點及哪則較新（50字內），例如「和談 vs 拒談，[2] pubDate 較新代表最新立場」
+      - conflict_winner_id: 較新那則的編號，例如 "2"
+    即使沒有相同群組標籤，若你判斷兩則新聞明顯描述同一事件且方向相反，也請同樣標記。
 
 Step 2【維度檢查】
   確認最終選單是否同時覆蓋：
@@ -239,6 +245,10 @@ Step 2【維度檢查】
 
 Step 3【排除清單】
   列出你決定捨棄的新聞及原因（一行一條）
+  【時序優先原則】若矛盾事件中的兩則新聞只能保留一則（同一事件僅保留代表性報導），
+  請保留 pubDate 較新者；較舊者標記為 excluded，reason 填 "outdated_by_newer"。
+  若兩則 pubDate 相差不足 2 小時（難以判斷時序先後），兩則皆保留，
+  並在 event_inventory 標記 has_conflict: true、conflict_note 說明「時序接近，建議觀望」。
 </Thinking_Process>
 
 <Instructions>
@@ -272,6 +282,21 @@ export const FILTERED_NEWS_SCHEMA = {
               event: { type: Type.STRING, description: "事件名稱" },
               count: { type: Type.INTEGER, description: "相關報導數量" },
               best_title: { type: Type.STRING, description: "資訊量最豐富的代表性標題" },
+              has_conflict: {
+                type: Type.BOOLEAN,
+                description: "此事件是否有方向相反的矛盾報導（例如：一則偏多、一則偏空）",
+                nullable: true,
+              },
+              conflict_note: {
+                type: Type.STRING,
+                description: "若 has_conflict=true，說明矛盾點及哪則代表最新立場（50字內）",
+                nullable: true,
+              },
+              conflict_winner_id: {
+                type: Type.STRING,
+                description: "若 has_conflict=true，代表最新立場的新聞編號（對應輸入清單的 [N]）",
+                nullable: true,
+              },
             },
             required: ["event", "count", "best_title"],
           },
@@ -362,6 +387,21 @@ export const MACRO_ANALYSIS_SYSTEM_PROMPT = `你是頂尖的全球宏觀經濟�
 ⚠️ 時效調整優先級低於事件本身規模：若一則 stale 新聞屬於「系統性拐點（5分）」等級，仍應給予高分，不可因時效而忽略。
 </News_Timeliness_Weighting>
 
+<Contradiction_Handling>
+若 <News_Context> 中包含前置注解 [⚠️ 矛盾新聞偵測]，請依以下規則處理：
+
+1. **時序明確者**：以 pubDate 最新的報導為準，作為此事件的實際立場進行評分。
+   較舊的報導納入背景參考，不作為獨立評分事件，不重複計入 bull_events 或 bear_events。
+
+2. **時序接近或不明者**（前置注解標記「建議觀望」）：
+   將此事件歸入 neutral_events，reason 欄位說明：
+   「矛盾報導，時序接近，建議觀望（[事件名稱]：[矛盾摘要]）」
+   不強制選邊站，避免誤導多空評分。
+
+3. **無前置注解**：若你在分析過程中自行識別出矛盾報導，同樣依上述規則處理，
+   並在 `conclusion.short_summary` 中提及「本次分析存在矛盾事件，已依時序處理」。
+</Contradiction_Handling>
+
 <Instructions>
 1. 宏觀推演：請先將你對目前市場主軸的「全局推演」寫在 reasoning_process 中。
 2. 事件歸類與評分：將新聞歸入「利多 (bull)」、「利空 (bear)」或「觀望 (neutral)」。並依據上方量表與時效加權規則，給予每個事件 1-5 分的絕對分數（neutral 不計分），並說明底層邏輯。
@@ -414,7 +454,7 @@ export const MACRO_ANALYSIS_SCHEMA = {
         type: "OBJECT",
         properties: {
           event: { type: "STRING" },
-          reason: { type: "STRING", description: "為何列為觀望/不確定風險" },
+          reason: { type: "STRING", description: "為何列為觀望/不確定風險；矛盾報導請附說明格式：「矛盾報導，時序接近，建議觀望（[事件名稱]：[矛盾摘要]）」" },
         },
         required: ["event", "reason"],
       },
