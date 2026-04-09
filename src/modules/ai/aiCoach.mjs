@@ -252,7 +252,7 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray, sourcePoolU
     let conflictSummary = "";
     if (conflictedEvents.length > 0) {
       const lines = conflictedEvents.map(
-        (e) => `- ${e.event ?? "（未命名事件）"}：${e.conflict_description ?? "（無描述）"}`,
+        (e) => `- ${e.event ?? "（未命名事件）"}：${e.conflict_note ?? "（無描述）"}`,
       );
       conflictSummary =
         `[⚠️ 矛盾新聞偵測]\n以下事件在本次新聞池中存在矛盾報導，請納入分析時特別留意：\n` +
