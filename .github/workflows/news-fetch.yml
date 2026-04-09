@@ -47,3 +47,15 @@ jobs:
             data/news/archive/*.json
             data/news/.gitkeep
             data/news/archive/.gitkeep
+
+      - name: Sync data to Oracle VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/investnotify
+            git pull origin main
+            echo "[data-sync] $(date) git pull 完成"
+        continue-on-error: true

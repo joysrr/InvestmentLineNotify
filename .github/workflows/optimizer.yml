@@ -45,3 +45,15 @@ jobs:
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
           file_pattern: "data/config/blacklist.json data/config/optimizerHistory.json"
+
+      - name: Sync data to Oracle VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/investnotify
+            git pull origin main
+            echo "[data-sync] $(date) git pull 完成"
+        continue-on-error: true
