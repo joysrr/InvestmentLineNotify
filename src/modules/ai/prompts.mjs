@@ -399,7 +399,7 @@ export const MACRO_ANALYSIS_SYSTEM_PROMPT = `你是頂尖的全球宏觀經濟�
    不強制選邊站，避免誤導多空評分。
 
 3. **無前置注解**：若你在分析過程中自行識別出矛盾報導，同樣依上述規則處理，
-   並在 `conclusion.short_summary` 中提及「本次分析存在矛盾事件，已依時序處理」。
+   並在 \`conclusion.short_summary\` 中提及「本次分析存在矛盾事件，已依時序處理」。
 </Contradiction_Handling>
 
 <Instructions>
