@@ -222,10 +222,11 @@ flowchart TD
 | `docs/langfuse-score-configs.md` | Langfuse 評分配置說明。 |
 | `docs/modules/ai_pipeline.md` | AI 決策管線詳細說明（aiCoach、periodReportAgent、ruleOptimizerAgent、llmJudge）。 |
 | `docs/modules/core_infrastructure.md` | 基礎設施詳細說明（storage、archiveManager、newsPoolManager、coreUtils）。 |
-| `docs/modules/entry_and_notifications.md` | 入口 Runner 與通知模組詳細說明（含 Bot 指令清單、API 路由說明）。 |
+| `docs/modules/entry_and_notifications.md` | 入口 Runner 與通知模組詳細說明（含 Bot 指令清單、矛盾偵測介入說明、API 路由說明、Bot UI 整合）。 |
 | `docs/modules/market_strategy.md` | 市場策略引擎詳細說明（strategyEngine、signalRules、indicators、riskManagement、newsFetcher）。 |
 | `docs/modules/providers.md` | 各市場資料 provider 詳細說明與 API 快取策略。 |
 | `docs/plans/finish_features.md` | 已完成功能記錄，細節已整合至 `docs/architecture.md` 與 `docs/modules/`，此檔作為歷史快照。 |
+| `docs/plans/telegram_intergration_plan.md` | Telegram 整合計畫（項目一 ✅、Phase 2-A/B/C/D ✅ 全數完成）；Bot、Fastify API、Vue Mini App 完整整合記錄。部署至 Oracle VM 已移至獨立計畫。 |
 | `docs/plans/preplan_features.md` | 預計功能池，Oracle VM 部署計畫已抽離為 `docs/plans/oracle_vm_deployment_plan.md`。 |
 | `docs/plans/oracle_vm_deployment_plan.md` | Oracle Cloud VM 正式部署計畫（🔄 進行中），含 domain/HTTPS 取得、Nginx 設定、pm2 管理、data/ 同步策略。 |
 | `docs/plans/optimization_ideas.md` | 最佳化方向構想（待排期）。 |
@@ -258,3 +259,15 @@ AI 依此識別同一事件的正反報導，透過 `FILTERED_NEWS_SCHEMA` 的 `
 Langfuse `Contradiction_Count` score 記錄每次執行偵測到的矛盾事件數，供長期觀察與 Prompt 效益評估。
 
 **相關檔案**：`src/modules/news/newsConflictGrouper.mjs`、`src/modules/ai/aiCoach.mjs`、`src/modules/ai/prompts.mjs`
+
+### 5.3 Telegram 整合（Bot + API + Mini App）
+
+系統已完成完整的 Telegram 應用層整合，涵蓋三個元件：
+
+- **Bot 長駐層**（`src/bot.mjs`）：grammY Long-Polling，支援 7 項指令（`/status`、`/daily`、`/news`、`/weekly`、`/monthly`、`/optimize`、`/help`），整合 `adminGuard` 白名單與 `runnerLock` 防衝突機制。啟動時自動同步 Telegram 指令選單（`setMyCommands`）與 Chat Menu Button（`setChatMenuButton`）。
+- **API Server 層**（`src/api/server.mjs`）：Fastify HTTP Server，提供 `/api/status`、`/api/reports`、`/api/news` 三條唯讀路由，具備 Telegram initData HMAC-SHA256 驗證（`initDataGuard`）。
+- **Mini App 前端層**（`webapp/`）：Vite + Vue 3 + ECharts，三個 Tab 視圖（圖表／報告／新聞），透過 API Server 取得資料。
+
+以上三層均支援 `MINI_APP_URL` 環境變數驅動：未設定時 Bot 功能完整運作；填入 Oracle VM HTTPS domain 後無需改碼即自動啟用 Mini App 入口。
+
+**相關計畫文件**：`docs/plans/telegram_intergration_plan.md`
