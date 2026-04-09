@@ -50,7 +50,10 @@
 2. 檢查是否為 TWSE 開市日。
 3. 抓取 VIX、基準價、macro data、即時價格與歷史股價。
 4. 計算 RSI / KD / MA240 等技術指標。
-5. 讀取 news summary，並呼叫 AI macro analysis。
+5. 讀取 news summary，執行**矛盾新聞偵測**，並呼叫 AI macro analysis。
+   - `src/modules/news/newsConflictGrouper.mjs` 的 `assignConflictGroups()` 在新聞池載入後介入，依事件關鍵字將互相矛盾的新聞條目分組，並標記 `conflictGroup` / `conflictRole`（`supporting` / `contradicting`）。
+   - 分組結果以 `conflictSummary`（矛盾事件摘要字串）形式注入 macro analysis prompt，提示 AI 注意時序與現況相符性，避免過時資訊影響多空判定。
+   - 矛盾偵測為 graceful 介入：若無矛盾事件，`conflictSummary` 為空字串，不影響後續流程。
 6. 把 `macroMarketDirection` 注入 strategy input，執行 `getInvestmentSignalAsync()`。
 7. 呼叫 `getAiInvestmentAdvice()` 產生最終每日建議。
 8. 透過 `broadcastDailyReport()` 發送 Telegram。
@@ -145,6 +148,7 @@
 - **`TELEGRAM_LOG_API_TOKEN` 未設定**：`sendSystemMessage()` 只會 `console.warn`，不影響任何主流程；`notify-workflow-failure.yml` 的 curl 呼叫會靜默失敗（HTTP 401）。
 - **Bot lock 衝突**：若看到「系統正在執行中」訊息長達 30 分鐘，可能為 Runner 崩潰沒清除 lock。可手動刪除 `data/.bot_lock` 強制釋放。
 - **`Bad Request: message text is empty`**：若 Telegram 回傳此錯誤，應先確認 `buildPeriodReportMessages()` 回傳的是 `{ text: string }[]` 而非純字串陣列；`sendTelegramBatch()` 期望的是物件格式，傳入純字串會導致 `message.text` 為 `undefined`。
+- **矛盾新聞偵測失敗**：`assignConflictGroups()` 若拋出例外，應於呼叫端 `try/catch` 捕捉並降級為 `conflictSummary = ""`，確保 macro analysis 仍可正常執行。
 
 ---
 
