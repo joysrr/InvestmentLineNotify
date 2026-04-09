@@ -164,6 +164,7 @@ flowchart TD
 | `src/modules/providers/` | 市場資料 provider layer，封裝 TWSE、Yahoo、FRED、CNN、KGI、NDC 等來源。 |
 | `src/modules/strategy/` | 策略與風控核心，計算 RSI / KD / MACD、過熱、冷卻期與投資建議。 |
 | `src/modules/ai/` | AI decision layer，包含 search query generation、news filter、macro analysis、investment coach、period report、rule optimizer、LLM judge。 |
+| `src/modules/news/newsConflictGrouper.mjs` | 矛盾偵測前置層，以 Jaccard 相似度（閾值 0.3）+ Union-Find 對新聞標題預分群，輸出 `_conflictGroup` 標籤供 AI 識別同一事件的正反報導。 |
 | `src/modules/newsFetcher.mjs` | 新聞抓取與初步去噪主程式，負責整合靜態 / 動態關鍵字與 blacklist。 |
 | `src/modules/keywordConfig.mjs` | 關鍵字與 blacklist loading 的設定入口，承接已完成的 keyword system 重構。 |
 | `src/modules/data/newsPoolManager.mjs` | 新聞池 CRUD、TTL 清理、archive、fuzzy dedupe。 |
@@ -225,7 +226,9 @@ flowchart TD
 | `docs/modules/market_strategy.md` | 市場策略引擎詳細說明（strategyEngine、signalRules、indicators、riskManagement、newsFetcher）。 |
 | `docs/modules/providers.md` | 各市場資料 provider 詳細說明與 API 快取策略。 |
 | `docs/plans/finish_features.md` | 已完成功能記錄，細節已整合至 `docs/architecture.md` 與 `docs/modules/`，此檔作為歷史快照。 |
-| `docs/plans/preplan_features.md` | 預計功能（尚未排期）。 |
+| `docs/plans/preplan_features.md` | 預計功能池，Oracle VM 部署計畫已抽離為 `docs/plans/oracle_vm_deployment_plan.md`。 |
+| `docs/plans/oracle_vm_deployment_plan.md` | Oracle Cloud VM 正式部署計畫（🔄 進行中），含 domain/HTTPS 取得、Nginx 設定、pm2 管理、data/ 同步策略。 |
+| `docs/plans/optimization_ideas.md` | 最佳化方向構想（待排期）。 |
 
 ---
 
@@ -245,3 +248,13 @@ flowchart TD
 - 讓 RSS query 可區分「標題必含」與「廣泛匹配」。
 - 讓靜態關鍵字池與 AI 動態關鍵字能共用同一 schema。
 - 讓 AI Agent 後續調整關鍵字時，更容易定位 `keywordConfig`、`newsFetcher`、`prompts` 三個修改點。
+
+### 5.2 AI 新聞過濾管線 — 矛盾偵測層（Contradiction Detection）
+
+`filterAndCategorizeAllNewsWithAI` 呼叫前，由 `newsConflictGrouper.mjs` 以 Jaccard 相似度（閾值 0.3）+ Union-Find 對新聞標題預分群，為每篇新聞輸出 `_conflictGroup` 標籤（`G1`、`G2`… 或 `no_group`）。
+
+AI 依此識別同一事件的正反報導，透過 `FILTERED_NEWS_SCHEMA` 的 `has_conflict / conflict_note / conflict_winner_id` 欄位回傳矛盾標記；`aiCoach.mjs` 讀取後組裝 `conflictSummary` 前置注解，傳遞至 `analyzeMacroNewsWithAI`，使宏觀分析層能依時序選出「最新立場」，而非將正反報導同時計入多空評分。
+
+Langfuse `Contradiction_Count` score 記錄每次執行偵測到的矛盾事件數，供長期觀察與 Prompt 效益評估。
+
+**相關檔案**：`src/modules/news/newsConflictGrouper.mjs`、`src/modules/ai/aiCoach.mjs`、`src/modules/ai/prompts.mjs`
