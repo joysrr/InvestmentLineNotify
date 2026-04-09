@@ -405,7 +405,7 @@ export async function getAiInvestmentAdvice(
 
   try {
     const { text, traceId } = await callAI(
-      "GetInvestmentAdvice",
+      "InvestmentAdvice",
       userPrompt,
       {
         sessionId,
