@@ -61,17 +61,12 @@ jobs:
           LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_BASE_URL }}
           TZ: "Asia/Taipei"
 
-        # 組合所有環境變數傳給 npm start
-        # 注意: 確保 env.LINE_FLAG 等變數在你的系統中有定義，否則會變成空白傳入
         run: npm start -- ${{ env.LINE_FLAG }} ${{ env.TG_FLAG }} ${{ env.AI_FLAG }} ${{ env.TRANS_FLAG }}
 
       - name: Commit and Push Data Changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          # 提交的訊息 (加上 [skip ci] 防止無限觸發)
           commit_message: "🤖 chore(data): auto-update market cache and ai logs [skip ci]"
-
-          # 設定 Commit 的作者名字
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
 
@@ -83,6 +78,7 @@ jobs:
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           script: |
             cd ~/investnotify
-            git pull origin main
-            echo "[data-sync] $(date) git pull 完成"
+            git fetch origin main
+            git reset --hard origin/main
+            echo "[data-sync] $(date) sync 完成 ($(git log --oneline -1))"
         continue-on-error: true

@@ -54,6 +54,7 @@ jobs:
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           script: |
             cd ~/investnotify
-            git pull origin main
-            echo "[data-sync] $(date) git pull 完成"
+            git fetch origin main
+            git reset --hard origin/main
+            echo "[data-sync] $(date) sync 完成 ($(git log --oneline -1))"
         continue-on-error: true
