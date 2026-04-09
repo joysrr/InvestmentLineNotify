@@ -1,7 +1,9 @@
 <template>
   <div class="app-container">
     <main class="app-main">
-      <router-view />
+      <keep-alive>
+        <router-view />
+      </keep-alive>
     </main>
 
     <nav class="tab-bar">
@@ -22,48 +24,60 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import { useTelegram } from './composables/useTelegram.js'
+import { onMounted, nextTick } from "vue";
+import { useTelegram } from "./composables/useTelegram.js";
 
-const { expand } = useTelegram()
-onMounted(() => expand())
+const { expand } = useTelegram();
+
+onMounted(async () => {
+  await nextTick();
+  expand();
+});
 
 const tabs = [
   {
-    to: '/', exact: true, label: '總覽',
+    to: "/",
+    exact: true,
+    label: "總覽",
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="3" width="7" height="7" rx="1"/>
       <rect x="14" y="3" width="7" height="7" rx="1"/>
       <rect x="3" y="14" width="7" height="7" rx="1"/>
       <rect x="14" y="14" width="7" height="7" rx="1"/>
-    </svg>`
+    </svg>`,
   },
   {
-    to: '/chart', exact: false, label: '圖表',
+    to: "/chart",
+    exact: false,
+    label: "圖表",
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-    </svg>`
+    </svg>`,
   },
   {
-    to: '/reports', exact: false, label: '報告',
+    to: "/reports",
+    exact: false,
+    label: "報告",
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
       <polyline points="14 2 14 8 20 8"/>
       <line x1="16" y1="13" x2="8" y2="13"/>
       <line x1="16" y1="17" x2="8" y2="17"/>
       <polyline points="10 9 9 9 8 9"/>
-    </svg>`
+    </svg>`,
   },
   {
-    to: '/news', exact: false, label: '新聞',
+    to: "/news",
+    exact: false,
+    label: "新聞",
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
       <path d="M18 14h-8"/>
       <path d="M15 18h-5"/>
       <path d="M10 6h8v4h-8V6z"/>
-    </svg>`
-  }
-]
+    </svg>`,
+  },
+];
 </script>
 
 <style>
@@ -86,7 +100,7 @@ const tabs = [
 .tab-bar {
   display: flex;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
-  background: var(--tg-theme-bg-color, rgba(255,255,255,0.92));
+  background: var(--tg-theme-bg-color, rgba(255, 255, 255, 0.92));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   flex-shrink: 0;
