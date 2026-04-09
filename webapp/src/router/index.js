@@ -7,7 +7,8 @@ import NewsView from '../views/NewsView.vue'
 export default createRouter({
   history: createWebHashHistory(),
   routes: [
-    { path: '/',        component: DashboardView },
+    { path: '/',        redirect: '/dashboard' },
+    { path: '/dashboard',        component: DashboardView },
     { path: '/chart',   component: ChartView },
     { path: '/reports', component: ReportsView },
     { path: '/news',    component: NewsView }
