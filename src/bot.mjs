@@ -17,6 +17,9 @@
  *   /monthly  — 手動觸發月報
  *   /optimize — 手動觸發規則優化器
  *
+ * latest.json 結構：
+ *   { _meta: { lastRun, sources }, data: { rawCnn, rawUsMarket, rawNdc, rawMargin, rawFx, rawValuation, quote } }
+ *
  * Phase 2-C 新增：
  *   - setMyCommands：Bot 啟動時同步指令選單至 Telegram（/start 不列入）
  *   - /status Inline Button：有 MINI_APP_URL 時附加「開啟儀表板」WebApp 按鈕
@@ -37,23 +40,23 @@ import { runRuleOptimizer } from "./modules/ai/ruleOptimizerAgent.mjs";
 import { broadcastOptimizerResult } from "./modules/notifications/notifier.mjs";
 import { langfuse } from "./modules/ai/aiClient.mjs";
 
-// ── 環境變數檢查 ───────────────────────────────────────────
+// ── 環境變數檢查 ───────────────────────────────────────────────────────────
 const token = process.env.TELEGRAM_API_TOKEN;
 if (!token) {
   console.error("[Bot] ❌ TELEGRAM_API_TOKEN 未設定，無法啟動。");
   process.exit(1);
 }
 
-// ── Mini App URL（可選，未設定時相關功能自動略過）───────────
+// ── Mini App URL（可選，未設定時相關功能自動略過）───────────────────────────
 const MINI_APP_URL = process.env.MINI_APP_URL?.trim() || null;
 
-// ── Bot 初始化 ─────────────────────────────────────────────
+// ── Bot 初始化 ─────────────────────────────────────────────────────────────
 const bot = new Bot(token);
 
-// ── 白名單 Middleware（所有指令套用）──────────────────────
+// ── 白名單 Middleware（所有指令套用）──────────────────────────────────────
 bot.use(adminGuard);
 
-// ── 輔助函數：執行 runner 并回覆結果 ───────────────────
+// ── 輔助函數：執行 runner 並回覆結果 ──────────────────────────────────────
 /**
  * 包裝 runner 執行流程：取 lock → 執行 → 釋放 lock → 回覆成功/失敗
  * @param {import('grammy').Context} ctx
@@ -83,12 +86,7 @@ async function withRunner(ctx, runnerName, fn) {
   }
 }
 
-// ── Bot API 初始化任務（啟動後執行，失敗不中斷 Bot）─────────
-/**
- * 同步指令選單至 Telegram。
- * /start 不列入選單（初次互動專用，不需出現在日常清單）。
- * 失敗時僅 log，不影響 Bot 正常運作。
- */
+// ── Bot API 初始化任務（啟動後執行，失敗不中斷 Bot）────────────────────────
 async function syncBotCommands() {
   try {
     await bot.api.setMyCommands([
@@ -106,14 +104,6 @@ async function syncBotCommands() {
   }
 }
 
-/**
- * 設定 Chat Menu Button（左下角按鈕）。
- * 僅在 MINI_APP_URL 已設定時執行。
- * - type "web_app"：開啟 Mini App。
- * - 使用 chat_id 指定單一使用者，避免影響其他對話。
- * - 失敗時僅 log，不中斷 Bot。
- * - TELEGRAM_USER_ID 格式異常時跳過並警告，防止 API 呼叫傳入 NaN。
- */
 async function syncMenuButton() {
   if (!MINI_APP_URL) return;
 
@@ -143,7 +133,7 @@ async function syncMenuButton() {
   }
 }
 
-// ── 指令：/start ───────────────────────────────────────────
+// ── 指令：/start ──────────────────────────────────────────────────────────
 bot.command("start", async (ctx) => {
   await ctx.reply(
     [
@@ -156,7 +146,7 @@ bot.command("start", async (ctx) => {
   );
 });
 
-// ── 指令：/help ────────────────────────────────────────────
+// ── 指令：/help ───────────────────────────────────────────────────────────
 bot.command("help", async (ctx) => {
   await ctx.reply(
     [
@@ -182,7 +172,8 @@ bot.command("help", async (ctx) => {
   );
 });
 
-// ── 指令：/status ──────────────────────────────────────────
+// ── 指令：/status ─────────────────────────────────────────────────────────
+// latest.json 結構：{ _meta: { lastRun, sources }, data: { rawCnn, rawUsMarket, rawNdc, rawMargin, rawFx, rawValuation } }
 bot.command("status", async (ctx) => {
   const latestPath = join(process.cwd(), "data", "market", "latest.json");
 
@@ -192,39 +183,49 @@ bot.command("status", async (ctx) => {
   }
 
   try {
-    const data = JSON.parse(readFileSync(latestPath, "utf-8"));
-    const lines = [
-      "📊 <b>最新市場快取</b>",
-      "",
-    ];
+    const raw = JSON.parse(readFileSync(latestPath, "utf-8"));
+    const meta = raw._meta ?? {};
+    const d = raw.data ?? {};
+
+    const lines = ["📊 <b>最新市場快取</b>", ""];
 
     // 快取時間
-    if (data.fetchedAt || data.updatedAt) {
-      lines.push(`🕒 更新時間：<code>${data.fetchedAt ?? data.updatedAt}</code>`);
+    if (meta.lastRun) {
+      const t = new Date(meta.lastRun).toLocaleString("zh-TW", { timeZone: "Asia/Taipei" });
+      lines.push(`🕒 更新時間：<code>${t}</code>`);
       lines.push("");
     }
 
-    // 0050 價格
-    const price0050 = data.price0050 ?? data.tw0050?.price ?? data["0050"]?.price;
-    if (price0050 != null) lines.push(`🏆 0050：<b>${price0050}</b>`);
+    // 大盤估值 PB / PE
+    const valuation = d.rawValuation;
+    if (valuation?.pb != null)  lines.push(`📐 大盤 PB：<b>${valuation.pb}</b>`);
+    if (valuation?.per != null) lines.push(`📐 大盤 PE：<b>${valuation.per}</b>`);
 
-    // 00675L 價格
-    const priceZ2 = data.price00675L ?? data.tw00675L?.price ?? data["00675L"]?.price;
-    if (priceZ2 != null) lines.push(`⚡  00675L：<b>${priceZ2}</b>`);
+    // 美股：VIX、SPX 漲跌
+    const us = d.rawUsMarket;
+    if (us?.vix != null)    lines.push(`🟡 VIX：<b>${us.vix}</b>`);
+    if (us?.spxChg != null) lines.push(`🇺🇸 SPX 漲跌：<b>${us.spxChg}</b>`);
 
-    // VIX
-    const vix = data.vix ?? data.fearGreed?.vix;
-    if (vix != null) lines.push(`🟡 VIX：<b>${vix}</b>`);
+    // CNN 恐慌貪婪
+    const cnn = d.rawCnn;
+    if (cnn?.score != null) lines.push(`🟢 Fear &amp; Greed：<b>${cnn.score}</b>（${cnn.rating ?? ""}）`);
 
-    // Fear & Greed
-    const fg = data.fearGreedIndex ?? data.fearGreed?.value;
-    if (fg != null) lines.push(`🟢 Fear & Greed：<b>${fg}</b>`);
+    // 景氣燈號
+    const ndc = d.rawNdc;
+    if (ndc?.light != null) lines.push(`🚦 景氣燈號：<b>${ndc.light}</b>`);
+
+    // 匯率
+    const fx = d.rawFx;
+    if (fx?.rate != null) lines.push(`💱 USD/TWD：<b>${fx.rate}</b>`);
+
+    // 融資餘額
+    const margin = d.rawMargin;
+    if (margin?.total != null) lines.push(`📈 融資餘額：<b>${margin.total}</b>`);
 
     if (lines.length <= 2) {
-      lines.push("資料格式異常，請異常報告給開發者。");
+      lines.push("⚠️ 快取資料為空，請先執行 /daily 建立市場資料。");
     }
 
-    // Inline Button：有 MINI_APP_URL 時附加「開啟儀表板」WebApp 按鈕
     const replyMarkup = MINI_APP_URL
       ? new InlineKeyboard().webApp("📊 開啟儀表板", MINI_APP_URL)
       : undefined;
@@ -235,29 +236,29 @@ bot.command("status", async (ctx) => {
   }
 });
 
-// ── 指令：/daily ──────────────────────────────────────────
+// ── 指令：/daily ──────────────────────────────────────────────────────────
 bot.command("daily", async (ctx) => {
   await withRunner(ctx, "每日報告 (daily)", () =>
     dailyCheck({ isTelegramEnabled: true, isAIAdvisor: true })
   );
 });
 
-// ── 指令：/news ────────────────────────────────────────────
+// ── 指令：/news ───────────────────────────────────────────────────────────
 bot.command("news", async (ctx) => {
   await withRunner(ctx, "新聞更新 (news)", runNewsFetch);
 });
 
-// ── 指令：/weekly ─────────────────────────────────────────
+// ── 指令：/weekly ─────────────────────────────────────────────────────────
 bot.command("weekly", async (ctx) => {
   await withRunner(ctx, "週報 (weekly)", runWeeklyReport);
 });
 
-// ── 指令：/monthly ────────────────────────────────────────
+// ── 指令：/monthly ────────────────────────────────────────────────────────
 bot.command("monthly", async (ctx) => {
   await withRunner(ctx, "月報 (monthly)", runMonthlyReport);
 });
 
-// ── 指令：/optimize ───────────────────────────────────────
+// ── 指令：/optimize ───────────────────────────────────────────────────────
 bot.command("optimize", async (ctx) => {
   await withRunner(ctx, "規則優化器 (optimize)", async () => {
     const result = await runRuleOptimizer();
@@ -265,14 +266,14 @@ bot.command("optimize", async (ctx) => {
   });
 });
 
-// ── 錯誤處理 ───────────────────────────────────────────────
+// ── 錯誤處理 ──────────────────────────────────────────────────────────────
 bot.catch((err) => {
   const ctx = err.ctx;
   console.error(`[Bot] ❌ 處理 update ${ctx.update.update_id} 時發生錯誤：`);
   console.error(err.error);
 });
 
-// ── 啟動 Bot（Long-Polling）────────────────────────────────
+// ── 啟動 Bot（Long-Polling）──────────────────────────────────────────────
 console.log("[Bot] 🚀 Bot 啟動中（Long-Polling 模式）...");
 bot.start({
   onStart: async (botInfo) => {
@@ -281,13 +282,12 @@ bot.start({
     if (MINI_APP_URL) {
       console.log(`[Bot] 📱 Mini App URL：${MINI_APP_URL}`);
     }
-    // 同步指令選單與 Menu Button（失敗不中斷 Bot）
     await syncBotCommands();
     await syncMenuButton();
   },
 });
 
-// ── 優雅關閉（SIGINT / SIGTERM）────────────────────────────
+// ── 優雅關閉（SIGINT / SIGTERM）──────────────────────────────────────────
 process.once("SIGINT", () => {
   console.log("[Bot] 🛑 收到 SIGINT，正在關閉...");
   bot.stop();
