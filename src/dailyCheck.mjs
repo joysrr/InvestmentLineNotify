@@ -198,6 +198,7 @@ export async function dailyCheck({
   // 原因：macroAnalysis.conclusion.market_direction 需要注入策略引擎影響評分
   let newsMessages = [];
   let newsSummaryText = "今日無重大市場新聞。";
+  let conflictSummary = "";
   console.log("📝 正在從 news pool 取得新聞集錦...");
   {
     const done = stepTimer("fetchNews");
@@ -205,10 +206,12 @@ export async function dailyCheck({
       const newsResult = await getNewsTelegramMessages();
       newsMessages = newsResult.messages;
       newsSummaryText = newsResult.summaryText;
+      conflictSummary = newsResult.conflictSummary ?? "";
     } catch (err) {
       console.error("❌ 取得新聞集錦失敗 (但不影響發送通知):", err.message);
       newsMessages = [];
       newsSummaryText = "新聞集錦取得失敗，請檢查系統日誌。";
+      conflictSummary = "";
     }
     done();
   }
@@ -218,7 +221,7 @@ export async function dailyCheck({
   let macroTextForCoach = "無新聞數據，無法進行總經分析。";
   if (newsMessages?.length) {
     const done = stepTimer("analyzeMacro");
-    macroAnalysis = await analyzeMacroNewsWithAI(newsSummaryText);
+    macroAnalysis = await analyzeMacroNewsWithAI(newsSummaryText, conflictSummary);
     macroTextForCoach = formatMacroAnalysisForCoach(macroAnalysis);
     done();
   } else {

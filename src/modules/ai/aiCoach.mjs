@@ -14,6 +14,7 @@ import {
 
 import { archiveManager } from "../data/archiveManager.mjs";
 import { saveFilteredPool } from "../data/newsPoolManager.mjs";
+import { assignConflictGroups } from "../news/newsConflictGrouper.mjs";
 
 const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
@@ -175,15 +176,20 @@ export async function generateDailySearchQueries(marketData) {
 
 // --- 新聞過濾與分類 ---
 /**
- * 將原始新聞陣列經 AI 過濾後回傳含 summary 的文章陣列
+ * 將原始新聞陣列經 AI 過濾後回傳 { news, conflictSummary }
  * 過濾完成後同時非阻塞地將結果寫入 pool_filtered_active.json
  *
  * 送入 AI 前先以 selectNewsForAi() 做 age-band 優先篩選：
  *   - 每 region 上限 30 篇，總量上限 60 篇
  *   - pool 本身仍保留完整 24h 資料，不受此限制影響
+ *
+ * 送入 AI 前以 assignConflictGroups() 標記衝突群組，
+ *   newsListText 格式改為：[i][tag] [region] [age_band] pubDate | title
+ *
+ * @returns {{ news: Array, conflictSummary: string }}
  */
 export async function filterAndCategorizeAllNewsWithAI(allNewsArray, sourcePoolUpdatedAt) {
-  if (allNewsArray.length === 0) return [];
+  if (allNewsArray.length === 0) return { news: [], conflictSummary: "" };
 
   // ── 選取送入 AI 的子集 ──────────────────────────────────────────────────────
   const selectedNews = selectNewsForAi(allNewsArray);
@@ -191,12 +197,19 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray, sourcePoolU
     `🧺 [NewsAI] 本次送入 AI ${selectedNews.length}/${allNewsArray.length} 篇（perRegionLimit=30, totalLimit=60）`,
   );
 
-  const newsListText = selectedNews
-    .map(
-      (n, i) =>
-        `[ID: ${i}] [${n._region}] [age_band: ${n.age_band || "unknown"}] 標題: ${n.title}`,
-    )
+  // ── 3-A：矛盾分群標記 ────────────────────────────────────────────────────────
+  const taggedNews = assignConflictGroups(selectedNews);
+
+  const newsListText = taggedNews
+    .map((n, i) => {
+      const tag = n._conflictGroup ?? "--";
+      const pubDate = n.pubDate
+        ? new Date(n.pubDate).toISOString().slice(0, 16).replace("T", " ")
+        : "unknown";
+      return `[${i}][${tag}] [${n._region}] [age_band: ${n.age_band || "unknown"}] ${pubDate} | ${n.title}`;
+    })
     .join("\n");
+
   const userPrompt = buildNewsUserPrompt(newsListText);
 
   try {
@@ -230,14 +243,39 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray, sourcePoolU
       comment: JSON.stringify(aiResult?.think?.dimension_check ?? {}),
     });
 
+    // ── 3-B：矛盾偵測 + Langfuse score ──────────────────────────────────────
+    const eventInventory = aiResult?.think?.event_inventory ?? [];
+    const conflictedEvents = eventInventory.filter(
+      (e) => e?.has_conflict === true,
+    );
+
+    let conflictSummary = "";
+    if (conflictedEvents.length > 0) {
+      const lines = conflictedEvents.map(
+        (e) => `- ${e.event ?? "（未命名事件）"}：${e.conflict_description ?? "（無描述）"}`,
+      );
+      conflictSummary =
+        `[⚠️ 矛盾新聞偵測]\n以下事件在本次新聞池中存在矛盾報導，請納入分析時特別留意：\n` +
+        lines.join("\n");
+    }
+
+    console.log(`⚔️ [ConflictDetect] 矛盾事件偵測數：${conflictedEvents.length}`);
+
+    await safeLangfuseScore({
+      traceId,
+      name: "Contradiction_Count",
+      value: conflictedEvents.length,
+      comment: conflictSummary || "無矛盾事件",
+    });
+
     const thinkContent = aiResult.think;
     console.log("📊 事件盤點數:", thinkContent.event_inventory.length);
     console.log("📐 維度覆蓋:", thinkContent.dimension_check);
     console.log("🗑️ 捨棄筆數:", thinkContent.excluded.length);
 
-    // AI 回傳的 id 對應的是 selectedNews 的索引
-    const result = aiResult.news.map((aiItem) => ({
-      ...selectedNews[aiItem.id],
+    // AI 回傳的 id 對應的是 taggedNews 的索引
+    const news = aiResult.news.map((aiItem) => ({
+      ...taggedNews[aiItem.id],
       summary: aiItem.summary,
     }));
 
@@ -252,21 +290,32 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray, sourcePoolU
         console.warn("⚠️ [Archive] 儲存新聞過濾紀錄失敗:", err.message),
       );
 
-    saveFilteredPool(result, sourcePoolUpdatedAt).catch((err) =>
+    saveFilteredPool(news, sourcePoolUpdatedAt).catch((err) =>
       console.warn("⚠️ [NewsPool] Filter 結果回存失敗:", err.message),
     );
 
-    return result;
+    // ── 3-C：return { news, conflictSummary } ──────────────────────────────
+    return { news, conflictSummary };
   } catch (error) {
     console.error("AI 處理新聞時發生錯誤:", error);
-    return [];
+    return { news: [], conflictSummary: "" };
   }
 }
 
 // --- 宏觀分析 ---
-export async function analyzeMacroNewsWithAI(todayNewsText) {
+/**
+ * 根據今日新聞文字與矛盾摘要，產出多空對決報告
+ * @param {string} todayNewsText      - 新聞摘要文字
+ * @param {string} [conflictSummary]  - 矛盾事件前置注解（可選）
+ */
+export async function analyzeMacroNewsWithAI(todayNewsText, conflictSummary = "") {
   const todayStr = new Date().toISOString().split("T")[0];
-  const userPrompt = buildMacroAnalysisUserPrompt(todayStr, todayNewsText);
+  const basePrompt = buildMacroAnalysisUserPrompt(todayStr, todayNewsText);
+
+  // ── 3-D：若有矛盾摘要，在 prompt 前方插入前置注解區塊 ─────────────────────
+  const userPrompt = conflictSummary
+    ? `${conflictSummary}\n\n---\n\n${basePrompt}`
+    : basePrompt;
 
   try {
     const { text, traceId } = await callAI("AnalyzeMacroNews", userPrompt, {
@@ -346,73 +395,60 @@ export async function getAiInvestmentAdvice(
     portfolio,
     vixData,
   );
-  const todayStr = new Date().toISOString().split("T")[0];
 
   const userPrompt = buildCoachUserPrompt(
-    todayStr,
+    quantTextForCoach,
     newsSummaryText,
     macroTextForCoach,
-    quantTextForCoach,
     macroAndChipStr,
   );
 
   try {
-    const { text, traceId } = await callAI("InvestmentAdvice", userPrompt, {
-      sessionId,
-      provider: PROVIDERS.GEMINI,
-      keyIndex: 0,
-      responseSchema: INVESTMENT_COACH_SCHEMA,
-    });
+    const { text, traceId } = await callAI(
+      "GetInvestmentAdvice",
+      userPrompt,
+      {
+        sessionId,
+        provider: PROVIDERS.GEMINI,
+        keyIndex: 3,
+        responseSchema: INVESTMENT_COACH_SCHEMA,
+      },
+    );
 
-    const adviceObj = JSON.parse(text);
+    const result = JSON.parse(text);
 
-    // Schema_Validation
     await safeLangfuseScore({
       traceId,
       name: "Schema_Validation",
       value: 1,
-      comment: "InvestmentAdvice JSON parse success",
+      comment: "GetInvestmentAdvice JSON parse success",
     });
 
-    // Format_Compliance — 確認 JSON 必要欄位為非空字串陣列
-    const formatOk =
-      isNonEmptyStringArray(adviceObj.risk_warnings) &&
-      isNonEmptyStringArray(adviceObj.action_items) &&
-      isNonEmptyStringArray(adviceObj.mindset_advice);
-
-    await safeLangfuseScore({
-      traceId,
-      name: "Format_Compliance",
-      value: formatOk ? 1 : 0,
-      comment: JSON.stringify({
-        risk_warnings: Array.isArray(adviceObj.risk_warnings)
-          ? adviceObj.risk_warnings.length
-          : 0,
-        action_items: Array.isArray(adviceObj.action_items)
-          ? adviceObj.action_items.length
-          : 0,
-        mindset_advice: Array.isArray(adviceObj.mindset_advice)
-          ? adviceObj.mindset_advice.length
-          : 0,
-      }),
-    });
+    if (isNonEmptyStringArray(result?.key_risks)) {
+      await safeLangfuseScore({
+        traceId,
+        name: "Risk_Coverage",
+        value: Math.min(1, result.key_risks.length / 3),
+        comment: result.key_risks.join(" | "),
+      });
+    }
 
     archiveManager
       .saveAiLog({
         type: "InvestmentAdvice",
         userPrompt,
         schema: INVESTMENT_COACH_SCHEMA,
-        rawResult: adviceObj,
+        rawResult: result,
       })
       .catch((err) =>
-        console.warn("⚠️ [Archive] 儲存 AI 決策紀錄失敗:", err.message),
+        console.warn("⚠️ [Archive] 儲存投資建議紀錄失敗:", err.message),
       );
 
-    return { advice: adviceObj, traceId };
+    return { advice: result, traceId };
   } catch (error) {
-    console.error("AI 決策引擎處理失敗:", error.message);
+    console.error("AI 投資建議生成失敗:", error);
     return {
-      advice: "AI 決策引擎暫時無法運作，請依原始數據判斷。",
+      advice: "AI 決策引擎暫時無法運作，請依技術指標自行判斷。",
       traceId: null,
     };
   }

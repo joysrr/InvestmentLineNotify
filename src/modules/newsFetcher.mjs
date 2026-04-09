@@ -338,6 +338,7 @@ export async function getRawNews({ twQueries, usQueries }) {
 /**
  * 決策管線專用：從 news pool 讀取新聞 → AI 過濾 → 組裝 Telegram 訊息
  * 由 dailyCheck.mjs 呼叫，不再即時抓取 RSS
+ * @returns {{ messages, summaryText, conflictSummary }}
  */
 export async function getNewsTelegramMessages() {
   console.log("📰 [NewsTelegram] 從 news pool 讀取新聞並進行 AI 過濾...");
@@ -353,12 +354,13 @@ export async function getNewsTelegramMessages() {
     return {
       messages: [{ text: "<i>過去 24 小時內無符合策略之重大市場動態。</i>" }],
       summaryText: "今日無重大市場新聞。",
+      conflictSummary: "",
     };
   }
 
   console.log(`📰 [NewsTelegram] pool 共 ${articles.length} 篇，送入 AI 過濾`);
 
-  const processedNews = await filterAndCategorizeAllNewsWithAI(
+  const { news: processedNews, conflictSummary } = await filterAndCategorizeAllNewsWithAI(
     articles,
     meta?.last_updated,
   );
@@ -367,6 +369,7 @@ export async function getNewsTelegramMessages() {
     return {
       messages: [{ text: "<i>過去 24 小時內無符合策略之重大市場動態。</i>" }],
       summaryText: "今日無重大市場新聞。",
+      conflictSummary,
     };
   }
 
@@ -421,6 +424,7 @@ export async function getNewsTelegramMessages() {
         },
       ],
       summaryText: "今日無重大市場新聞。",
+      conflictSummary,
     };
   }
 
@@ -434,5 +438,6 @@ export async function getNewsTelegramMessages() {
   return {
     messages: messagesToSend,
     summaryText: newsSummaryText,
+    conflictSummary,
   };
 }
