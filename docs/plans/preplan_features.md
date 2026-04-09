@@ -33,16 +33,19 @@
 
 ### 狀態與目標摘要
 
-**狀態：🔄 進行中**
+**狀態：✅ 已完成**
 
-- 詳細實作計畫已抽離至獨立文件：[`docs/plans/contradicting_news_detection_plan.md`](./contradicting_news_detection_plan.md)。
-- 會影響新聞池治理、總經分析與每日/週/月報告的文字描述。
+- 矛盾分群邏輯已實作於 `src/modules/news/newsConflictGrouper.mjs`。
+- AI 過濾流程（`filterAndCategorizeAllNewsWithAI`）已於送入 AI 前呼叫 `assignConflictGroups()`，對新聞標記衝突群組標籤（`_conflictGroup`）。
+- AI 回傳的 `event_inventory[].has_conflict` 與 `conflict_note` 已被正確讀取，組裝為 `conflictSummary` 字串。
+- `conflictSummary` 作為前置注解插入 `analyzeMacroNewsWithAI()` 的 prompt，提示 AI 留意矛盾報導。
+- Langfuse `Contradiction_Count` score 已整合，可觀測每次執行的矛盾事件數。
 
-### 🎯 功能目標
+> 功能架構說明已整合至 `docs/architecture.md`（5.5 節 AI 管線）與 `docs/modules/entry_and_notifications.md`（第 3 節 Daily Entry Flow）。
 
-因目前取得的新聞同一個事件可能會有兩個面向，此時新聞的時序以及與現況是否相符就很重要，例如近期的以伊戰爭，新聞常常出現兩個面向，A: 伊朗與美國傳出正在和談中、B: 伊朗拒絕和談，重申封鎖海峽;發生的順序為A->B，但是目前新聞無法判定，在多空分析時，會不小心把過時、錯誤的資訊判定為多或空，導致指標失準，此目標為討論如何改善此情況，當兩個新聞同時出現時，該如何判定或提示，避免誤導或指標判定錯誤。
+### 🎯 功能目標（原始描述）
 
-> 詳細步驟、影響範圍、資料流設計與 Langfuse 觀測整合請見 [`docs/plans/contradicting_news_detection_plan.md`](./contradicting_news_detection_plan.md)。
+因目前取得的新聞同一個事件可能會有兩個面向，此時新聞的時序以及與現況是否相符就很重要，例如近期的以伊戰爭，新聞常常出現兩個面向，A: 伊朗與美國傳出正在和談中、B: 伊朗拒絕和談，重申封鎖海峽；發生的順序為 A→B，但是目前新聞無法判定，在多空分析時，會不小心把過時、錯誤的資訊判定為多或空，導致指標失準。
 
 ---
 
