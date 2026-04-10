@@ -3,7 +3,7 @@
 ## 1. 系統定位
 `InvestmentLineNotify` 是一套以 Node.js 為核心的投資決策與通知系統，主要服務 0050 / 00675L 與生命週期投資策略的日常監控、新聞治理、AI 分析與週期報告生成。系統採用 **file-based persistence + external services** 的設計，不使用傳統資料庫，而是以 `data/`、Google Sheets、Telegram、Langfuse 與多個市場資料來源共同構成執行基礎。
 
-目前專案已不只是一條 `dailyCheck` 單線流程，而是由多個 runner 組成，並搭配一個長駐 Telegram Bot、一個唯讀 HTTP API Server，以及一個 Vite + Vue 3 前端 Mini App：
+目前專案已不只是一條 `dailyCheck` 單線流程，而是由多個 runner 組成，並搭配一個長駐 Telegram Bot、一個唯讀 HTTP API Server，以及一個 Vite + Vue 3 前端 Mini App（含 6 個 Tab 的多頁儀表板）：
 
 1. `src/runDailyCheck.mjs`：每日主流程。
 2. `src/runNewsFetch.mjs`：獨立新聞抓取、去重、更新新聞池。
@@ -12,7 +12,7 @@
 5. `src/runMonthlyReport.mjs`：讀取近期報告並生成 AI 月報。
 6. `src/bot.mjs`：Telegram Bot 長駐程序，處理即時指令觸發與互動。
 7. `src/api/server.mjs`：Fastify HTTP API Server，提供唯讀資料 API 給 Mini App 前端使用。
-8. `webapp/`：Vite + Vue 3 前端 Mini App，作為 Telegram Mini App 嵌入式儀表板。
+8. `webapp/`：Vite + Vue 3 前端 Mini App，作為 Telegram Mini App 嵌入式多頁儀表板（總覽、市場雷達、多空對決、技術圖表、報告、新聞、帳戶設定共 6 Tab）。
 
 ---
 
@@ -22,7 +22,7 @@
 1. **Entry Layer**：由 GitHub Actions、Cron 或手動 CLI 啟動各 runner；或由 Telegram Bot 指令觸發。
 2. **Bot Layer**：`src/bot.mjs` 長駐，接受白名單使用者即時指令，透過 `runnerLock` 防止並發衝突，呼叫與 runner 相同的核心邏輯。
 3. **API Layer**：`src/api/server.mjs` 長駐，提供唯讀 HTTP REST API（Port 3000），供 Telegram Mini App 前端請求資料，具備 Telegram initData HMAC-SHA256 驗證與 CORS 設定。
-4. **Frontend Layer**：`webapp/`（Vite + Vue 3 + ECharts），作為 Telegram Mini App 嵌入式前端，透過 API Layer 取得資料並渲染圖表、報告列表與新聞池。
+4. **Frontend Layer**：`webapp/`（Vite + Vue 3 + ECharts），作為 Telegram Mini App 嵌入式前端，透過 API Layer 取得資料並渲染市場快照、技術圖表、報告列表與新聞池。採 6-tab 左右滑動底部 Tab Bar 導覽。
 5. **Data Collection Layer**：從 `src/modules/providers/`、Google News RSS、Google Sheets 抓取市場資料、帳戶狀態與新聞。
 6. **Decision Layer**：由 `src/modules/strategy/` 與 `src/modules/ai/` 共同完成量化計算與 AI 判讀。
 7. **Delivery Layer**：由 `src/modules/notifications/` 將結果轉為 Telegram HTML 訊息或週期報告。
@@ -54,14 +54,18 @@ flowchart TD
 
     subgraph Frontend Layer
       WA
+      WA_DASHBOARD[views/DashboardView.vue]
+      WA_RADAR[views/MarketRadarView.vue]
+      WA_MACRO[views/MacroBattleView.vue]
       WA_CHART[views/ChartView.vue]
       WA_REPORTS[views/ReportsView.vue]
       WA_NEWS[views/NewsView.vue]
+      WA_ACCOUNT[views/AccountView.vue]
     end
 
     BOT --> ADMIN --> LOCK
     API --> GUARD --> RT_STATUS & RT_REPORTS & RT_NEWS
-    WA --> WA_CHART & WA_REPORTS & WA_NEWS
+    WA --> WA_DASHBOARD & WA_RADAR & WA_MACRO & WA_CHART & WA_REPORTS & WA_NEWS & WA_ACCOUNT
 
     subgraph Runner Layer
       B1[src/runDailyCheck.mjs]
@@ -209,17 +213,21 @@ GitHub Actions 負責定時觸發各 runner 並在完成後 git push 更新 `dat
 
 ## 5. `webapp/` 前端層
 
-| Path | 說明 |
-|---|---|
-| `webapp/src/App.vue` | 根元件，整合 Telegram Mini App SDK 初始化（`expand()`、`ready()`）。 |
-| `webapp/src/router/index.js` | Vue Router，三個主要路由：`/`（Chart）、`/reports`（Reports）、`/news`（News）。 |
-| `webapp/src/views/ChartView.vue` | 主頁，以 ECharts 顯示近期 RSI / KD / MA240 等技術指標折線圖。 |
-| `webapp/src/views/ReportsView.vue` | 報告列表頁，支援分頁載入，點擊可展開每日報告全文。 |
-| `webapp/src/views/NewsView.vue` | 新聞池頁，顯示 `pool_filtered_active.json` 中的有效新聞條目。 |
-| `webapp/src/api/index.js` | Axios wrapper，統一設定 `baseURL` 與 Telegram `initData` header。 |
-| `webapp/src/composables/useTelegram.js` | 封裝 `window.Telegram.WebApp` 物件，提供 `tg`、`user`、`initData` 等響應式資料。 |
+`webapp/` 為 Vite + Vue 3 前端，以 Telegram Mini App 形式嵌入。底部採 **6-tab 左右滑動 Tab Bar**（`overflow-x: auto`，隱藏捲軸），支援系統深色模式與 Telegram 主題色變數（`--tg-theme-*`）。`webapp/dist/` 為 Vite build 產物，由 Nginx 作為靜態檔案服務；開發時以 `npm run dev`（Vite dev server）執行。
 
-`webapp/dist/` 為 Vite build 產物，由 Nginx 作為靜態檔案服務；開發時以 `npm run dev`（Vite dev server）執行。
+| Path | Tab | 說明 |
+|---|---|---|
+| `webapp/src/App.vue` | — | 根元件，整合 Telegram Mini App SDK 初始化（`expand()`、`ready()`）、6-tab 左右滑動底部導覽列（總覽 / 雷達 / 多空 / 報告 / 新聞 / 設定），搭配 active 頂部指示線動畫。 |
+| `webapp/src/router/index.js` | — | Vue Router（Hash History），8 條路由：`/dashboard`、`/radar`、`/macro`、`/chart`、`/reports`、`/news`、`/account`，以及 `/` redirect → `/dashboard` 與 catch-all redirect。 |
+| `webapp/src/views/DashboardView.vue` | 總覽 | 市場總覽首頁，整合市場快照（VIX / CNN 情緒 / 景氣燈號）、最新決策（AI action items 展開/收合）、技術指標卡片（RSI / KD / MACD / 乖離率）與最新消息預覽（跳轉 `/news`）。 |
+| `webapp/src/views/MarketRadarView.vue` | 雷達 | 市場雷達儀表板，3-col 卡片格，依數值自動渲染紅/黃/綠/藍色階。美股區：美股 VIX、S&P 500 漲跌、CNN 情緒；台股區：台股 VIX、景氣燈號、融資維持率、大盤 PE / PB、美元/台幣匯率；資料同時讀取 `/api/status` 與最新 report。 |
+| `webapp/src/views/MacroBattleView.vue` | 多空 | 總經多空對決頁，讀取最新 report 的 `macroAnalysis` 欄位。顯示市場方向 Badge（BULLISH / BEARISH / NEUTRAL）、多空積分長條動畫、`key_takeaways` 核心邏輯列表，以及多方/空方/中性事件卡片（含積分與分析文字）。 |
+| `webapp/src/views/ChartView.vue` | （圖表） | 以 ECharts 顯示近期 RSI / KD / MA240 等技術指標折線圖。Tab Bar 中目前由「報告」Tab 共用路由，可獨立存取 `/chart`。 |
+| `webapp/src/views/ReportsView.vue` | 報告 | 報告列表頁，支援分頁載入，點擊可展開每日報告全文（含 AI 建議、巨集分析、技術指標等欄位）。 |
+| `webapp/src/views/NewsView.vue` | 新聞 | 新聞池頁，顯示 `pool_filtered_active.json` 中的有效新聞條目，支援地區 flag 標示與新舊色點。 |
+| `webapp/src/views/AccountView.vue` | 設定 | 帳戶與設定頁，顯示 Telegram 使用者資訊與系統設定入口。 |
+| `webapp/src/api/index.js` | — | Axios wrapper，統一設定 `baseURL` 與 Telegram `initData` header。 |
+| `webapp/src/composables/useTelegram.js` | — | 封裝 `window.Telegram.WebApp` 物件，提供 `tg`、`user`、`initData`、`openLink` 等響應式資料與方法。 |
 
 ---
 
