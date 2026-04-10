@@ -1,15 +1,19 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import DashboardView from '../views/DashboardView.vue'
-import ChartView     from '../views/ChartView.vue'
-import ReportsView   from '../views/ReportsView.vue'
-import NewsView      from '../views/NewsView.vue'
-import AccountView   from '../views/AccountView.vue'
+import DashboardView    from '../views/DashboardView.vue'
+import ChartView        from '../views/ChartView.vue'
+import ReportsView      from '../views/ReportsView.vue'
+import NewsView         from '../views/NewsView.vue'
+import AccountView      from '../views/AccountView.vue'
+import MarketRadarView  from '../views/MarketRadarView.vue'
+import MacroBattleView  from '../views/MacroBattleView.vue'
 
 export default createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: '/',           redirect: '/dashboard' },
     { path: '/dashboard',  component: DashboardView },
+    { path: '/radar',      component: MarketRadarView },
+    { path: '/macro',      component: MacroBattleView },
     { path: '/chart',      component: ChartView },
     { path: '/reports',    component: ReportsView },
     { path: '/news',       component: NewsView },

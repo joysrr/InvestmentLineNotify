@@ -2,12 +2,13 @@
   <div class="app-container">
     <main class="app-main">
       <router-view v-slot="{ Component }">
-			  <keep-alive>
-			    <component :is="Component" />
-			  </keep-alive>
-			</router-view>
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
     </main>
 
+    <!-- 左右滑動 Tab Bar（6 個 Tab） -->
     <nav class="tab-bar">
       <router-link
         v-for="tab in tabs"
@@ -26,21 +27,21 @@
 </template>
 
 <script setup>
-import { onMounted, nextTick } from "vue";
-import { useTelegram } from "./composables/useTelegram.js";
+import { onMounted, nextTick } from 'vue'
+import { useTelegram } from './composables/useTelegram.js'
 
-const { expand } = useTelegram();
+const { expand } = useTelegram()
 
 onMounted(async () => {
-  await nextTick();
-  expand();
-});
+  await nextTick()
+  expand()
+})
 
 const tabs = [
   {
-    to: "/dashboard",
+    to: '/dashboard',
     exact: true,
-    label: "總覽",
+    label: '總覽',
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="3" width="7" height="7" rx="1"/>
       <rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -49,17 +50,33 @@ const tabs = [
     </svg>`,
   },
   {
-    to: "/chart",
+    to: '/radar',
     exact: false,
-    label: "圖表",
+    label: '雷達',
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      <circle cx="12" cy="12" r="10"/>
+      <circle cx="12" cy="12" r="6"/>
+      <circle cx="12" cy="12" r="2"/>
+      <line x1="12" y1="2" x2="12" y2="6"/>
+      <line x1="12" y1="18" x2="12" y2="22"/>
+      <line x1="2" y1="12" x2="6" y2="12"/>
+      <line x1="18" y1="12" x2="22" y2="12"/>
     </svg>`,
   },
   {
-    to: "/reports",
+    to: '/macro',
     exact: false,
-    label: "報告",
+    label: '多空',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="20" x2="12" y2="4"/>
+      <polyline points="6 10 12 4 18 10"/>
+      <polyline points="6 20 12 14 18 20" stroke-opacity="0.45"/>
+    </svg>`,
+  },
+  {
+    to: '/reports',
+    exact: false,
+    label: '報告',
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
       <polyline points="14 2 14 8 20 8"/>
@@ -69,9 +86,9 @@ const tabs = [
     </svg>`,
   },
   {
-    to: "/news",
+    to: '/news',
     exact: false,
-    label: "新聞",
+    label: '新聞',
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
       <path d="M18 14h-8"/>
@@ -80,15 +97,15 @@ const tabs = [
     </svg>`,
   },
   {
-    to: "/account",
+    to: '/account',
     exact: false,
-    label: "設定",
+    label: '設定',
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="8" r="4"/>
       <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
     </svg>`,
   },
-];
+]
 </script>
 
 <style>
@@ -107,9 +124,13 @@ const tabs = [
   -webkit-overflow-scrolling: touch;
 }
 
-/* ── Tab Bar ── */
+/* ── Tab Bar：左右滑動，6 Tab ── */
 .tab-bar {
   display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;          /* Firefox */
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   background: var(--tg-theme-bg-color, rgba(255, 255, 255, 0.92));
   backdrop-filter: blur(12px);
@@ -117,15 +138,17 @@ const tabs = [
   flex-shrink: 0;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+.tab-bar::-webkit-scrollbar { display: none; }  /* Chrome/Safari */
 
 .tab-item {
-  flex: 1;
+  flex: 0 0 auto;                 /* 不收縮，寬度由內容決定 */
+  min-width: 60px;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8px 0 6px;
+  padding: 8px 14px 6px;
   text-decoration: none;
   color: var(--tg-theme-hint-color, #aaa);
   gap: 3px;
@@ -137,7 +160,6 @@ const tabs = [
   color: var(--tg-theme-button-color, #2481cc);
 }
 
-/* Active indicator bar at top */
 .tab-indicator {
   position: absolute;
   top: 0;
@@ -169,5 +191,6 @@ const tabs = [
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.2px;
+  white-space: nowrap;
 }
 </style>
