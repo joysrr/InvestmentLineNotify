@@ -1,5 +1,9 @@
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
+import {
+  aggregateByWeek,
+  aggregateByMonth,
+} from "../utils/reportAggregator.mjs";
 
 const REPORTS_DIR = join(process.cwd(), "data", "reports");
 const DATE_PATTERN = /^(\d{4}-\d{2}-\d{2})\.json$/;
@@ -16,6 +20,29 @@ async function getSortedDates() {
     .sort((a, b) => b.localeCompare(a)); // DESC
 }
 
+/**
+ * Loads N daily report files and returns full objects.
+ * @param {string[]} dates - sorted DESC date strings
+ * @param {number}   limit - how many to load
+ */
+async function loadReports(dates, limit) {
+  const selected = dates.slice(0, limit);
+  const results = await Promise.all(
+    selected.map(async (date) => {
+      try {
+        const raw = await readFile(
+          join(REPORTS_DIR, `${date}.json`),
+          "utf-8",
+        );
+        return { date, ...JSON.parse(raw) };
+      } catch {
+        return null; // skip broken files
+      }
+    }),
+  );
+  return results.filter(Boolean);
+}
+
 export default async function reportsRoute(fastify) {
   /**
    * GET /api/reports?limit=N
@@ -29,25 +56,58 @@ export default async function reportsRoute(fastify) {
 
     try {
       const dates = await getSortedDates();
-      const selected = dates.slice(0, limit);
-
-      const results = await Promise.all(
-        selected.map(async (date) => {
-          try {
-            const raw = await readFile(
-              join(REPORTS_DIR, `${date}.json`),
-              "utf-8",
-            );
-            return { date, ...JSON.parse(raw) };
-          } catch {
-            return { date, error: "Failed to parse report" };
-          }
-        }),
-      );
-
+      const results = await loadReports(dates, limit);
       return reply.send(results);
     } catch (err) {
       fastify.log.error({ err }, "Failed to list reports");
+      return reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
+  /**
+   * GET /api/reports/weekly?limit=N
+   * Returns ISO-week aggregated periods (newest first).
+   * Default limit: 12 weeks.  Capped at 52.
+   */
+  fastify.get("/reports/weekly", async (request, reply) => {
+    const rawLimit = parseInt(request.query.limit ?? "12", 10);
+    const limit =
+      Number.isNaN(rawLimit) || rawLimit < 1 ? 12 : Math.min(rawLimit, 52);
+
+    try {
+      const dates = await getSortedDates();
+      // Load enough daily reports to cover the requested weeks
+      // 7 trading days/week * limit weeks * 1.5 buffer for holidays/gaps
+      const loadLimit = Math.min(dates.length, Math.ceil(limit * 7 * 1.5));
+      const allReports = await loadReports(dates, loadLimit);
+      const weekly = aggregateByWeek(allReports, limit);
+      return reply.send(weekly);
+    } catch (err) {
+      fastify.log.error({ err }, "Failed to build weekly reports");
+      return reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
+  /**
+   * GET /api/reports/monthly?limit=N
+   * Returns month aggregated periods (newest first).
+   * Default limit: 12 months.  Capped at 24.
+   */
+  fastify.get("/reports/monthly", async (request, reply) => {
+    const rawLimit = parseInt(request.query.limit ?? "12", 10);
+    const limit =
+      Number.isNaN(rawLimit) || rawLimit < 1 ? 12 : Math.min(rawLimit, 24);
+
+    try {
+      const dates = await getSortedDates();
+      // Load enough daily reports to cover the requested months
+      // ~22 trading days/month * limit months * 1.2 buffer
+      const loadLimit = Math.min(dates.length, Math.ceil(limit * 22 * 1.2));
+      const allReports = await loadReports(dates, loadLimit);
+      const monthly = aggregateByMonth(allReports, limit);
+      return reply.send(monthly);
+    } catch (err) {
+      fastify.log.error({ err }, "Failed to build monthly reports");
       return reply.code(500).send({ error: "Internal server error" });
     }
   });
