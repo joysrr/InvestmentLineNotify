@@ -11,6 +11,7 @@ export default createRouter({
     { path: '/dashboard',        component: DashboardView },
     { path: '/chart',   component: ChartView },
     { path: '/reports', component: ReportsView },
-    { path: '/news',    component: NewsView }
+    { path: '/news',    component: NewsView },
+    { path: '/:pathMatch(.*)*', redirect: '/dashboard' }
   ]
 })
