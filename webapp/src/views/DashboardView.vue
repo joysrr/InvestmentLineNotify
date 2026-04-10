@@ -23,28 +23,20 @@
         <!-- VIX -->
         <div class="snapshot-card" :class="vixLevel.cardClass">
           <span class="snap-label">VIX 恐慌指數</span>
-          <span class="snap-value">{{ status?.data?.vix?.value ?? "—" }}</span>
-          <span class="snap-sub" :class="vixLevel.textClass">{{
-            vixLevel.label
-          }}</span>
+          <span class="snap-value">{{ status?.data?.rawUsMarket?.vix ?? "—" }}</span>
+          <span class="snap-sub" :class="vixLevel.textClass">{{ vixLevel.label }}</span>
         </div>
         <!-- CNN Fear & Greed -->
         <div class="snapshot-card" :class="cnnLevel.cardClass">
           <span class="snap-label">CNN 情緒</span>
-          <span class="snap-value">{{
-            status?.data?.cnnFearGreed?.value ?? "—"
-          }}</span>
-          <span class="snap-sub" :class="cnnLevel.textClass">{{
-            status?.data?.cnnFearGreed?.label ?? "—"
-          }}</span>
+          <span class="snap-value">{{ status?.data?.rawCnn?.score ?? "—" }}</span>
+          <span class="snap-sub" :class="cnnLevel.textClass">{{ status?.data?.rawCnn?.rating ?? "—" }}</span>
         </div>
         <!-- Business Cycle Light -->
         <div class="snapshot-card">
           <span class="snap-label">景氣燈號</span>
           <span class="snap-value snap-light">{{ lightEmoji }}</span>
-          <span class="snap-sub snap-sub--neutral">{{
-            status?.data?.businessCycle?.signal ?? "—"
-          }}</span>
+          <span class="snap-sub snap-sub--neutral">{{ status?.data?.rawNdc?.light ?? "—" }}</span>
         </div>
       </div>
     </section>
@@ -62,29 +54,20 @@
       <div v-else class="decision-card">
         <div class="decision-top">
           <span class="decision-date">{{ latestReport.date }}</span>
-          <span class="decision-status">{{
-            latestReport.signals?.marketStatus
-          }}</span>
+          <span class="decision-status">{{ latestReport.signals?.marketStatus }}</span>
         </div>
         <p class="decision-suggestion">
           {{ latestReport.signals?.targetSuggestion }}
         </p>
         <div class="decision-badges">
           <span class="badge" :class="pctClass">{{ pctText }}</span>
-          <span class="badge badge-score"
-            >評分 {{ latestReport.signals?.weightScore }}</span
-          >
-          <span class="badge badge-target">{{
-            latestReport.signals?.target
-          }}</span>
+          <span class="badge badge-score">評分 {{ latestReport.signals?.weightScore }}</span>
+          <span class="badge badge-target">{{ latestReport.signals?.target }}</span>
         </div>
-        <!-- AI action items — collapsed by default, expand on tap -->
+        <!-- AI action items -->
         <div v-if="latestReport.ai?.action_items?.length">
           <ul class="action-list">
-            <li
-              v-for="(item, i) in displayedActionItems"
-              :key="i"
-            >
+            <li v-for="(item, i) in displayedActionItems" :key="i">
               <span class="action-dot"></span>{{ item }}
             </li>
           </ul>
@@ -107,7 +90,6 @@
     <!-- Technical Indicators -->
     <section class="section">
       <h3 class="section-title">技術指標</h3>
-      <!-- Skeleton -->
       <div v-if="reportLoading" class="indicators-grid">
         <div v-for="i in 5" :key="i" class="indicator-card skeleton-card">
           <div class="sk sk-label"></div>
@@ -164,9 +146,7 @@
         </div>
       </div>
       <div v-else-if="newsError" class="inline-error">⚠️ 新聞載入失敗</div>
-      <div v-else-if="topNews.length === 0" class="inline-hint">
-        📭 目前無新聞
-      </div>
+      <div v-else-if="topNews.length === 0" class="inline-hint">📭 目前無新聞</div>
       <div v-else class="news-preview-list">
         <div
           v-for="article in topNews"
@@ -175,14 +155,9 @@
           @click="openLink(article.url)"
         >
           <div class="news-preview-meta">
-            <span
-              class="news-age-dot"
-              :class="ageDotClass(article.age_band)"
-            ></span>
+            <span class="news-age-dot" :class="ageDotClass(article.age_band)"></span>
             <span class="news-preview-source">{{ article.source }}</span>
-            <span class="news-preview-region">{{
-              regionFlag(article._region)
-            }}</span>
+            <span class="news-preview-region">{{ regionFlag(article._region) }}</span>
           </div>
           <p class="news-preview-title">{{ article.title }}</p>
         </div>
@@ -227,40 +202,31 @@ const todayLabel = computed(() =>
   }),
 );
 
-// ── VIX level ──
+// ── VIX level（讀 rawUsMarket.vix）──
 const vixLevel = computed(() => {
-  const v = parseFloat(status.value?.data?.vix?.value);
+  const v = parseFloat(status.value?.data?.rawUsMarket?.vix);
   if (isNaN(v))
     return { label: "—", cardClass: "", textClass: "snap-sub--neutral" };
   if (v >= 30)
-    return {
-      label: "極度恐慌",
-      cardClass: "card-danger",
-      textClass: "snap-sub--danger",
-    };
+    return { label: "極度恐慌", cardClass: "card-danger", textClass: "snap-sub--danger" };
   if (v >= 20)
-    return {
-      label: "警戒",
-      cardClass: "card-warn",
-      textClass: "snap-sub--warn",
-    };
+    return { label: "警戒", cardClass: "card-warn", textClass: "snap-sub--warn" };
   return { label: "平穩", cardClass: "card-ok", textClass: "snap-sub--ok" };
 });
 
-// ── CNN level ──
+// ── CNN level（讀 rawCnn.score）──
 const cnnLevel = computed(() => {
-  const v = parseFloat(status.value?.data?.cnnFearGreed?.value);
+  const v = parseFloat(status.value?.data?.rawCnn?.score);
   if (isNaN(v)) return { cardClass: "", textClass: "snap-sub--neutral" };
-  if (v <= 25)
-    return { cardClass: "card-danger", textClass: "snap-sub--danger" };
+  if (v <= 25) return { cardClass: "card-danger", textClass: "snap-sub--danger" };
   if (v <= 45) return { cardClass: "card-warn", textClass: "snap-sub--warn" };
   if (v >= 75) return { cardClass: "card-greed", textClass: "snap-sub--greed" };
   return { cardClass: "card-ok", textClass: "snap-sub--ok" };
 });
 
-// ── Business cycle emoji ──
+// ── Business cycle emoji（讀 rawNdc.light）──
 const lightEmoji = computed(() => {
-  const sig = status.value?.data?.businessCycle?.signal ?? "";
+  const sig = status.value?.data?.rawNdc?.light ?? "";
   if (sig.includes("紅") || sig.includes("熱絡")) return "🔴";
   if (sig.includes("黃紅") || sig.includes("活絡")) return "🟠";
   if (sig.includes("綠") || sig.includes("穩定")) return "🟢";
@@ -281,20 +247,17 @@ const pctText = computed(() => {
   return `${p >= 0 ? "+" : ""}${r.signals?.priceChangePercentText}%`;
 });
 
-// ── AI action items: always show all, expand toggles summary/reasoning ──
+// ── AI action items ──
 const displayedActionItems = computed(
   () => latestReport.value?.ai?.action_items ?? [],
 );
 
 // ── Technical indicator helpers ──
 function indicatorInfo(value, thresholds) {
-  // thresholds: { danger_high, warn_high, ok_low, danger_low }
-  // Returns { display, label, cardClass, textClass }
   const v = Number.isFinite(value) ? value : null;
   const display = v !== null ? v.toFixed(1) : "—";
   if (v === null)
     return { display, label: "—", cardClass: "", textClass: "ind-sub--neutral" };
-
   if (thresholds.danger_high !== undefined && v >= thresholds.danger_high)
     return { display, label: "過熱", cardClass: "ind-danger", textClass: "ind-sub--danger" };
   if (thresholds.warn_high !== undefined && v >= thresholds.warn_high)
@@ -308,31 +271,19 @@ function indicatorInfo(value, thresholds) {
 
 const rsiInfo = computed(() =>
   indicatorInfo(latestReport.value?.signals?.RSI, {
-    danger_high: 80,
-    warn_high: 70,
-    ok_low: 40,
-    danger_low: 30,
+    danger_high: 80, warn_high: 70, ok_low: 40, danger_low: 30,
   }),
 );
-
 const kdKInfo = computed(() =>
   indicatorInfo(latestReport.value?.signals?.KD_K, {
-    danger_high: 85,
-    warn_high: 70,
-    ok_low: 30,
-    danger_low: 20,
+    danger_high: 85, warn_high: 70, ok_low: 30, danger_low: 20,
   }),
 );
-
 const kdDInfo = computed(() =>
   indicatorInfo(latestReport.value?.signals?.KD_D, {
-    danger_high: 85,
-    warn_high: 70,
-    ok_low: 30,
-    danger_low: 20,
+    danger_high: 85, warn_high: 70, ok_low: 30, danger_low: 20,
   }),
 );
-
 const biasInfo = computed(() => {
   const v = latestReport.value?.signals?.bias240;
   const val = Number.isFinite(v) ? v : null;
@@ -347,11 +298,9 @@ const biasInfo = computed(() => {
     return { display, label: "低位便宜", cardClass: "ind-buy", textClass: "ind-sub--buy" };
   return { display, label: "中位正常", cardClass: "", textClass: "ind-sub--neutral" };
 });
-
 const macdInfo = computed(() => {
   const sig = latestReport.value?.signals?.macdSignal;
   if (!sig) return { display: "—", label: "—", cardClass: "", textClass: "ind-sub--neutral" };
-  // macdSignal is an object: { signal: 'bullish'|'bearish'|'neutral', description }
   const signal = sig?.signal ?? sig;
   if (signal === "bullish")
     return { display: "多頭", label: sig?.description ?? "MACD 多頭", cardClass: "ind-ok", textClass: "ind-sub--ok" };
@@ -374,10 +323,8 @@ function regionFlag(region) {
 function formatUpdatedAt(iso) {
   try {
     return new Date(iso).toLocaleString("zh-TW", {
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
+      month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit",
     });
   } catch {
     return iso;
@@ -430,9 +377,7 @@ onMounted(loadAll);
 }
 
 /* ── Header ── */
-.dash-header {
-  margin-bottom: 20px;
-}
+.dash-header { margin-bottom: 20px; }
 .dash-title-row {
   display: flex;
   align-items: baseline;
@@ -449,9 +394,7 @@ onMounted(loadAll);
 }
 
 /* ── Section ── */
-.section {
-  margin-bottom: 20px;
-}
+.section { margin-bottom: 20px; }
 .section-header {
   display: flex;
   align-items: center;
@@ -466,9 +409,7 @@ onMounted(loadAll);
   color: var(--tg-theme-hint-color, #999);
   margin-bottom: 10px;
 }
-.section-header .section-title {
-  margin-bottom: 0;
-}
+.section-header .section-title { margin-bottom: 0; }
 .section-more {
   font-size: 12px;
   color: var(--tg-theme-button-color, #2481cc);
@@ -509,10 +450,7 @@ onMounted(loadAll);
   line-height: 1.2;
 }
 .snap-light { font-size: 22px; }
-.snap-sub {
-  font-size: 11px;
-  font-weight: 500;
-}
+.snap-sub { font-size: 11px; font-weight: 500; }
 .snap-sub--neutral { color: var(--tg-theme-hint-color, #999); }
 .snap-sub--danger  { color: #e84855; }
 .snap-sub--warn    { color: #d4ac0d; }
@@ -552,7 +490,6 @@ onMounted(loadAll);
   flex-wrap: wrap;
   margin-bottom: 10px;
 }
-
 .badge {
   font-size: 11px;
   padding: 3px 9px;
@@ -626,9 +563,7 @@ onMounted(loadAll);
   text-align: center;
   transition: background 0.15s;
 }
-.expand-btn:active {
-  background: rgba(36, 129, 204, 0.15);
-}
+.expand-btn:active { background: rgba(36, 129, 204, 0.15); }
 
 /* ── Technical Indicators ── */
 .indicators-grid {
@@ -636,13 +571,8 @@ onMounted(loadAll);
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
-/* Last row: 2 items centred when 5 total */
-.indicators-grid .indicator-card:nth-child(4) {
-  grid-column: 1 / 2;
-}
-.indicators-grid .indicator-card:nth-child(5) {
-  grid-column: 2 / 3;
-}
+.indicators-grid .indicator-card:nth-child(4) { grid-column: 1 / 2; }
+.indicators-grid .indicator-card:nth-child(5) { grid-column: 2 / 3; }
 
 .indicator-card {
   background: var(--tg-theme-secondary-bg-color, #f5f5f5);
@@ -671,13 +601,8 @@ onMounted(loadAll);
   color: var(--tg-theme-text-color, #111);
   line-height: 1.2;
 }
-.ind-value--sm {
-  font-size: 14px;
-}
-.ind-sub {
-  font-size: 10px;
-  font-weight: 500;
-}
+.ind-value--sm { font-size: 14px; }
+.ind-sub { font-size: 10px; font-weight: 500; }
 .ind-sub--neutral { color: var(--tg-theme-hint-color, #999); }
 .ind-sub--danger  { color: #e84855; }
 .ind-sub--warn    { color: #d4ac0d; }
@@ -685,11 +610,7 @@ onMounted(loadAll);
 .ind-sub--buy     { color: #2481cc; }
 
 /* ── News Preview ── */
-.news-preview-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.news-preview-list { display: flex; flex-direction: column; gap: 6px; }
 .news-preview-card {
   background: var(--tg-theme-secondary-bg-color, #f5f5f5);
   border-radius: 10px;

@@ -79,15 +79,13 @@
         <div class="macro-grid">
           <div class="macro-card">
             <div class="macro-label">CNN 恐懼貪婪</div>
-            <div class="macro-value" :class="fngClass">
-              {{ fngValue }}
-            </div>
+            <div class="macro-value" :class="fngClass">{{ fngValue }}</div>
             <div class="macro-sub">{{ fngRating }}</div>
           </div>
           <div class="macro-card">
             <div class="macro-label">USD / TWD</div>
             <div class="macro-value">{{ fxValue }}</div>
-            <div class="macro-sub">匯率</div>
+            <div class="macro-sub" :class="fxChangeClass">{{ fxChangeSub }}</div>
           </div>
           <div class="macro-card">
             <div class="macro-label">大盤 P/B</div>
@@ -195,29 +193,40 @@ const allHealthy   = computed(() => healthyCount.value === sourceCount.value)
 // ── CNN Fear & Greed ──
 const fngRaw = computed(() => {
   const d = status.value?.data?.rawCnn
-  // 常見結構: { score, rating } 或 { value, classification }
   return d?.score ?? d?.value ?? null
 })
-const fngValue   = computed(() => fngRaw.value != null ? String(fngRaw.value) : 'N/A')
-const fngRating  = computed(() => {
+const fngValue  = computed(() => fngRaw.value != null ? String(fngRaw.value) : 'N/A')
+const fngRating = computed(() => {
   const d = status.value?.data?.rawCnn
   return d?.rating ?? d?.classification ?? ''
 })
-const fngClass   = computed(() => {
+const fngClass  = computed(() => {
   const v = fngRaw.value
   if (v == null) return ''
   if (v <= 25)  return 'text-danger'
   if (v <= 45)  return 'text-warn'
-  if (v <= 55)  return ''
-  if (v <= 75)  return 'text-ok'
-  return 'text-ok'
+  if (v >= 75)  return 'text-ok'
+  return ''
 })
 
-// ── FX ──
+// ── FX（讀 rawFx.currentRate + changePercent）──
 const fxValue = computed(() => {
-  const d = status.value?.data?.rawFx
-  const v = d?.rate ?? d?.usdTwd ?? d?.close ?? null
-  return v != null ? Number(v).toFixed(2) : 'N/A'
+  const v = status.value?.data?.rawFx?.currentRate ?? null
+  return v != null ? Number(v).toFixed(3) : 'N/A'
+})
+const fxChangeSub = computed(() => {
+  const chg = status.value?.data?.rawFx?.changePercent ?? null
+  if (chg == null) return '匯率'
+  const sign = chg >= 0 ? '+' : ''
+  return `${sign}${chg.toFixed(2)}%`
+})
+const fxChangeClass = computed(() => {
+  const chg = status.value?.data?.rawFx?.changePercent ?? null
+  if (chg == null) return ''
+  // 台幣角度：美元升（chg > 0）= 台幣貶 = 偏紅警示；美元跌 = 台幣升 = 偏綠
+  if (chg > 0.2)  return 'text-warn'
+  if (chg < -0.2) return 'text-ok'
+  return ''
 })
 
 // ── Valuation PB / PE ──
