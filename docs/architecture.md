@@ -176,7 +176,7 @@ flowchart TD
 ### `src/test/` 測試腳本
 | Path | 說明 |
 |---|---|
-| `src/test/backtest.mjs` | 回測腳本，用於驗證策略歷史表現。 |
+| `src/test/backtest.mjs` | 回測腳本，用於驗證策略歷史表現。完整策略行為請搭配此腳本進行歷史回測，驗證 allocation 與風控參數；策略計算完全重用 `strategy/indicators.mjs` 與 `strategyEngine.mjs`，不另行實作指標邏輯。 |
 | `src/test/newsTest.mjs` | 新聞抓取手動測試。 |
 | `src/test/providers.test.mjs` | 各 provider 單元測試。 |
 | `src/test/test-all.mjs` | 整合測試入口。 |
@@ -191,97 +191,53 @@ flowchart TD
 | `scripts/testOptimizer.mjs` | Rule Optimizer 壓力測試與實驗腳本，用於在正式排程之外檢驗新 prompt 或規則策略。 |
 
 ### `.github/workflows/` 排程與監控層
-| Path | 說明 |
-|---|---|
-| `.github/workflows/line_notify.yml` | Daily Report & Notify Scheduler：以多段 cron 在台灣時區開盤前、盤中、收盤後與夜間執行 `npm start`，產出每日報告並自動 commit `data/` 更新。 |
-| `.github/workflows/news-fetch.yml` | News Fetch Pipeline：每 3 小時執行一次 `node src/runNewsFetch.mjs`，維護 `data/news/pool_active.json` 與 archive。 |
-| `.github/workflows/optimizer.yml` | Rule Optimizer Scheduler：每日固定時間執行 `node src/runOptimizer.mjs`，更新 blacklist 與 optimizer history 並 commit。 |
-| `.github/workflows/weekly-report.yml` | Weekly Strategy Report：每週一早上執行 `node src/runWeeklyReport.mjs`，產出策略週報並透過 Telegram 發送。 |
-| `.github/workflows/monthly-report.yml` | Monthly Strategy Report：每月一日早上執行 `node src/runMonthlyReport.mjs`，產出策略月報並透過 Telegram 發送。 |
-| `.github/workflows/notify-workflow-failure.yml` | Notify Workflow Failure：監控上述排程 workflow，於失敗/取消/逾時時透過 Telegram Log Bot 送出告警訊息。 |
 
-### `webapp/` 前端 Mini App 層
-| Path | 說明 |
-|---|---|
-| `webapp/package.json` | 獨立子專案依賴（vite、@vitejs/plugin-vue、vue、vue-router、echarts、vue-echarts）。 |
-| `webapp/vite.config.js` | Vite 設定，base `/`，build 輸出至 `webapp/dist/`。 |
-| `webapp/index.html` | HTML 入口，包含 Telegram Web App SDK CDN（`telegram-web-app.js`）。 |
-| `webapp/src/main.js` | Vue app 建立入口，掛載 router。 |
-| `webapp/src/App.vue` | 根元件，包含底部 Tab Bar 導航（圖表／報告／新聞）與 `useTelegram().expand()` 初始化。 |
-| `webapp/src/router/index.js` | Vue Router（hash mode），三條路由：`/` → ChartView、`/reports` → ReportsView、`/news` → NewsView。 |
-| `webapp/src/api/index.js` | API fetch wrapper，baseURL 由 `VITE_API_BASE` env 控制（預設 `http://localhost:3000`），自動帶入 `X-Telegram-Init-Data` header。 |
-| `webapp/src/composables/useTelegram.js` | `window.Telegram?.WebApp` 封裝，提供 `initData`、`expand()`、`themeParams`、`openLink()` 方法，含非 Mini App 環境降級處理。 |
-| `webapp/src/views/ChartView.vue` | (a) ECharts 折線圖，Y 軸為 `signals.priceChangePercent`，每點依漲跌著綠/紅色，markLine y=0，tooltip 顯示 `signals.target` 與 `signals.weightScore`。 |
-| `webapp/src/views/ReportsView.vue` | (b) 報告摘要列表，預設顯示日期、`signals.marketStatus`、`signals.targetSuggestion`，點擊展開 `ai.action_items`、`ai.risk_warnings`、`ai.mindset_advice`。 |
-| `webapp/src/views/NewsView.vue` | (d) 新聞池列表，顯示 `age_band` 標籤（🔴/🟡/⚪）與 `_region` 國旗，連結透過 `tg.openLink()` 開啟。 |
+GitHub Actions 負責定時觸發各 runner 並在完成後 git push 更新 `data/`。Bot daemon（`src/bot.mjs`）與 API Server（`src/api/server.mjs`）在 VM 上由 pm2 長駐執行，**不**由 Actions 啟動。
 
-### `data/` 檔案持久化層
-| Path | 說明 |
-|---|---|
-| `data/market/` | 總經與市場快取資料（`latest.json` 含所有 provider 最新快取）。 |
-| `data/stock_history/` | 歷史股價快取。 |
-| `data/reports/` | 每日決策最終報告，亦作為週報 / 月報輸入來源。 |
-| `data/ai_logs/` | AI prompt / response 與治理相關紀錄。 |
-| `data/news/pool_active.json` | 主新聞池，目前有效新聞。 |
-| `data/news/pool_filtered_active.json` | 已整理後的新聞池版本。 |
-| `data/news/archive/YYYY-MM-DD.json` | 過期新聞歸檔。 |
-| `data/news_logs/` | 每次新聞抓取的 raw log，用於 debug 與治理分析。 |
-| `data/config/` | 執行期設定檔，包含 blacklist、關鍵字規則等可動態調整的治理設定。 |
-| `data/cache/` | 各 provider 的短期 API 快取，避免重複請求外部資料源（TTL 由各 provider 模組控制）。 |
-| `data/last_buy.json` | 記錄最後一次買進事件的日期與標的，用於冷卻期計算。 |
+| Workflow 檔案 | 對應 Runner | Cron 說明 |
+|---|---|---|
+| `line_notify.yml` | `src/runDailyCheck.mjs`（`npm start`） | 多段 cron，涵蓋台灣時區開盤前、盤中、收盤後與夜間；每次完成後自動 commit `data/` 變更。 |
+| `news-fetch.yml` | `src/runNewsFetch.mjs` | 每 3 小時執行一次，維護 `data/news/pool_active.json` 與 archive。 |
+| `optimizer.yml` | `src/runOptimizer.mjs` | 每日固定時間執行，更新 blacklist 與 optimizer history 並 commit。 |
+| `weekly-report.yml` | `src/runWeeklyReport.mjs` | 每週一早上執行，產出策略週報並透過 Telegram 發送。 |
+| `monthly-report.yml` | `src/runMonthlyReport.mjs` | 每月 1 日早上執行，產出策略月報並透過 Telegram 發送。 |
+| `notify-workflow-failure.yml` | — | 其他 workflow 失敗時觸發，透過 `sendSystemMessage()` 發送靜默通知至 Log 頻道。 |
 
-### `docs/` 文件層
-| Path | 說明 |
-|---|---|
-| `docs/architecture.md` | 本文件，總體架構總覽。 |
-| `docs/agent_prompts.md` | AI Agent 使用的 prompt 結構說明。 |
-| `docs/langfuse-score-configs.md` | Langfuse 評分配置說明。 |
-| `docs/modules/ai_pipeline.md` | AI 決策管線詳細說明（aiCoach、periodReportAgent、ruleOptimizerAgent、llmJudge）。 |
-| `docs/modules/core_infrastructure.md` | 基礎設施詳細說明（storage、archiveManager、newsPoolManager、coreUtils）。 |
-| `docs/modules/entry_and_notifications.md` | 入口 Runner 與通知模組詳細說明（含 Bot 指令清單、矛盾偵測介入說明、API 路由說明、Bot UI 整合）。 |
-| `docs/modules/market_strategy.md` | 市場策略引擎詳細說明（strategyEngine、signalRules、indicators、riskManagement、newsFetcher）。 |
-| `docs/modules/providers.md` | 各市場資料 provider 詳細說明與 API 快取策略。 |
-| `docs/plans/finish_features.md` | 已完成功能記錄，細節已整合至 `docs/architecture.md` 與 `docs/modules/`，此檔作為歷史快照。 |
-| `docs/plans/preplan_features.md` | 預計功能池，Oracle VM 部署計畫已抽離為 `docs/plans/oracle_vm_deployment_plan.md`。 |
-| `docs/plans/oracle_vm_deployment_plan.md` | Oracle Cloud VM 正式部署計畫（🔄 進行中），含 domain/HTTPS 取得、Nginx 設定、pm2 管理、data/ 同步策略。 |
+> **`data/` 同步機制**：Actions 完成後透過 SSH 通知 VM 執行 `git pull`（方案 B），確保 VM 上 Fastify 讀取的 JSON 與 GitHub 一致。詳見 `docs/appendix/deployment-oracle-vm.md`。
 
 ---
 
-## 5. 已完成的架構演進
+## 5. `webapp/` 前端層
 
-### 5.1 Keyword System 重構
-新聞關鍵字系統已從單純寫死字串，演進為結構化 `KeywordEntry`：
+| Path | 說明 |
+|---|---|
+| `webapp/src/App.vue` | 根元件，整合 Telegram Mini App SDK 初始化（`expand()`、`ready()`）。 |
+| `webapp/src/router/index.js` | Vue Router，三個主要路由：`/`（Chart）、`/reports`（Reports）、`/news`（News）。 |
+| `webapp/src/views/ChartView.vue` | 主頁，以 ECharts 顯示近期 RSI / KD / MA240 等技術指標折線圖。 |
+| `webapp/src/views/ReportsView.vue` | 報告列表頁，支援分頁載入，點擊可展開每日報告全文。 |
+| `webapp/src/views/NewsView.vue` | 新聞池頁，顯示 `pool_filtered_active.json` 中的有效新聞條目。 |
+| `webapp/src/api/index.js` | Axios wrapper，統一設定 `baseURL` 與 Telegram `initData` header。 |
+| `webapp/src/composables/useTelegram.js` | 封裝 `window.Telegram.WebApp` 物件，提供 `tg`、`user`、`initData` 等響應式資料。 |
 
-```ts
-{
-  keyword: string,
-  searchType: "intitle" | "broad"
-}
-```
+`webapp/dist/` 為 Vite build 產物，由 Nginx 作為靜態檔案服務；開發時以 `npm run dev`（Vite dev server）執行。
 
-此設計帶來三層好處：
-- 讓 RSS query 可區分「標題必含」與「廣泛匹配」。
-- 讓靜態關鍵字池與 AI 動態關鍵字能共用同一 schema。
-- 讓 AI Agent 後續調整關鍵字時，更容易定位 `keywordConfig`、`newsFetcher`、`prompts` 三個修改點。
+---
 
-### 5.2 AI 新聞過濾管線 — 矛盾偵測層（Contradiction Detection）
+## 6. `docs/` 文件層
 
-`filterAndCategorizeAllNewsWithAI` 呼叫前，由 `newsConflictGrouper.mjs` 以 Jaccard 相似度（閾值 0.3）+ Union-Find 對新聞標題預分群，為每篇新聞輸出 `_conflictGroup` 標籤（`G1`、`G2`… 或 `no_group`）。
+| 文件 | 說明 |
+|---|---|
+| `docs/architecture.md` | **本文件**。系統總覽、Mermaid flow、目錄責任對照、`webapp/` 層說明。 |
+| `docs/agent_prompts.md` | 所有 AI agent 的 prompt 設計說明與版本紀錄。 |
+| `docs/langfuse-score-configs.md` | Langfuse 評分維度設定（Schema_Validation、Actionability、Tone_and_Empathy 等）。 |
+| `docs/modules/ai_pipeline.md` | AI decision pipeline 詳細設計：aiClient、aiCoach、llmJudge、periodReportAgent、ruleOptimizerAgent。 |
+| `docs/modules/market_strategy.md` | 策略引擎、技術指標、新聞治理架構說明。 |
+| `docs/modules/core_infrastructure.md` | 共用 infra 說明：storage、archiveManager、newsPoolManager、coreUtils、Google Sheets 欄位 mapping。 |
+| `docs/modules/providers.md` | 各 market data provider 的欄位、來源與快取策略。 |
+| `docs/modules/entry_and_notifications.md` | 系統入口（runner / Bot / Actions）與通知層（Telegram 訊息格式、分流策略）完整說明。 |
+| `docs/plans/finish_features.md` | 已完成功能清單（內容已整合至系統文件，供歷史追蹤）。 |
+| `docs/plans/preplan_features.md` | 預計功能規劃清單。 |
+| `docs/plans/oracle_vm_deployment_plan.md` | Oracle VM 部署計畫（✅ 已完成）。完整安裝手冊見 `docs/appendix/deployment-oracle-vm.md`。 |
+| `docs/appendix/deployment-oracle-vm.md` | Oracle VM 完整安裝與設定手冊（DuckDNS、Nginx、SSL、pm2、data/ 同步）。 |
 
-AI 依此識別同一事件的正反報導，透過 `FILTERED_NEWS_SCHEMA` 的 `has_conflict / conflict_note / conflict_winner_id` 欄位回傳矛盾標記；`aiCoach.mjs` 讀取後組裝 `conflictSummary` 前置注解，傳遞至 `analyzeMacroNewsWithAI`，使宏觀分析層能依時序選出「最新立場」，而非將正反報導同時計入多空評分。
-
-Langfuse `Contradiction_Count` score 記錄每次執行偵測到的矛盾事件數，供長期觀察與 Prompt 效益評估。
-
-**相關檔案**：`src/modules/news/newsConflictGrouper.mjs`、`src/modules/ai/aiCoach.mjs`、`src/modules/ai/prompts.mjs`
-
-### 5.3 Telegram 整合（Bot + API + Mini App）
-
-系統已完成完整的 Telegram 應用層整合，涵蓋三個元件：
-
-- **Bot 長駐層**（`src/bot.mjs`）：grammY Long-Polling，支援 7 項指令（`/status`、`/daily`、`/news`、`/weekly`、`/monthly`、`/optimize`、`/help`），整合 `adminGuard` 白名單與 `runnerLock` 防衝突機制。啟動時自動同步 Telegram 指令選單（`setMyCommands`）與 Chat Menu Button（`setChatMenuButton`）。
-- **API Server 層**（`src/api/server.mjs`）：Fastify HTTP Server，提供 `/api/status`、`/api/reports`、`/api/news` 三條唯讀路由，具備 Telegram initData HMAC-SHA256 驗證（`initDataGuard`）。
-- **Mini App 前端層**（`webapp/`）：Vite + Vue 3 + ECharts，三個 Tab 視圖（圖表／報告／新聞），透過 API Server 取得資料。
-
-以上三層均支援 `MINI_APP_URL` 環境變數驅動：未設定時 Bot 功能完整運作；填入 Oracle VM HTTPS domain 後無需改碼即自動啟用 Mini App 入口。
-
-**相關計畫文件**：`docs/plans/oracle_vm_deployment_plan.md`
+> **已淘汰計畫文件**：`telegram_intergration_plan.md` 與 `optimization_ideas.md` 的內容已於開發過程中全數整合至 `docs/architecture.md`、`docs/modules/ai_pipeline.md` 及 `docs/modules/entry_and_notifications.md`，原計畫文件不再維護。
