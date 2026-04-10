@@ -335,6 +335,19 @@ export async function dailyCheck({
       date: dateText,
       signals: result,
       ai: aiAdvice,
+      // ── 補存欄位：Mini App 歷史查閱需要 ──────────────────────────
+      quote,
+      vixData,
+      usRisk,
+      macroData: {
+        rawCnn:       macroData?.rawCnn       ?? null,
+        rawMargin:    macroData?.rawMargin     ?? null,
+        rawFx:        macroData?.rawFx         ?? null,
+        rawNdc:       macroData?.rawNdc        ?? null,
+        rawValuation: macroData?.rawValuation  ?? null,
+      },
+      macroAnalysis,
+      // ─────────────────────────────────────────────────────────────
     });
     await archiveManager.cleanOldArchives(30);
     done();
