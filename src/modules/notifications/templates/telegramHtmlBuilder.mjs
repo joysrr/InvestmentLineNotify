@@ -1,10 +1,10 @@
 import { escapeHTML, TwDate } from "../../../utils/coreUtils.mjs";
 
-// ── 常數 ────────────────────────────────────────────────
+// ── 常數 ─────────────────────────────────────────────────
 const GOAL_ASSET = 74_800_000;
 const GOAL_YEARS = 33;
 
-// ── 輔助函式 ────────────────────────────────────────────
+// ── 輔助函式 ───────────────────────────────────────────────
 
 /** 緊湊型點陣進度条 */
 function goalBar(current, target, width = 20) {
@@ -26,7 +26,7 @@ function mmTag(mm, hasLoan) {
   return { icon: "🚨", label: "危險" };
 }
 
-/** 槽桿標籤（降低圓點飽和度，改用更專業的符號） */
+/** 槽槿標籤（降低圓點飽和度，改用更專業的符號） */
 function levTag(lev, targetMulti) {
   const v = Number(lev);
   if (!Number.isFinite(v) || v <= 0) return { icon: "▫️", label: "--" };
@@ -48,7 +48,7 @@ function signalIcon(triggered, total) {
 /** PE 位階判定 */
 function peStatus(pe) {
   if (pe == null) return { label: "N/A", emoji: "⬜" };
-  if (pe < 12) return { label: "極度低估", emoji: "🧊" };
+  if (pe < 12) return { label: "極度低估", emoji: "🧨" };
   if (pe < 15) return { label: "低估", emoji: "❄️" };
   if (pe < 20) return { label: "合理", emoji: "⚖️" };
   if (pe < 25) return { label: "偏高", emoji: "🔸" };
@@ -58,7 +58,7 @@ function peStatus(pe) {
 /** PB 位階判定 */
 function pbStatus(pb) {
   if (pb == null) return { label: "N/A", emoji: "⬜" };
-  if (pb < 1.5) return { label: "極度低估", emoji: "🧊" };
+  if (pb < 1.5) return { label: "極度低估", emoji: "🧨" };
   if (pb < 2.0) return { label: "低估", emoji: "❄️" };
   if (pb < 3.0) return { label: "合理", emoji: "⚖️" };
   if (pb < 4.0) return { label: "偏高", emoji: "🔸" };
@@ -84,7 +84,7 @@ function scoreRow(label, score, info) {
   }
 }
 
-/** 訊號列（轉弱/賣出）(觸發用閃電/鈴樻，未觸發用點) */
+/** 訊號列（轉弱/賣出） (觸發用閃電/鈴陛，未觸發用點) */
 function signalRow({ name, value, condition, triggered }) {
   const icon = triggered ? "⚡" : "▫️";
 
@@ -95,7 +95,7 @@ function signalRow({ name, value, condition, triggered }) {
   }
 }
 
-// ── 主程式：完整版訊息（原不動） ────────────────────────
+// ── 主程式：完整版訊息（原不動） ───────────────────────────────
 
 export function buildTelegramMessages({
   result,
@@ -124,7 +124,7 @@ export function buildTelegramMessages({
   const hasLoan = totalLoan > 0;
   const mmInfo = mmTag(mm, hasLoan);
 
-  // ── 構桿 ──
+  // ── 槟槿 ──
   const levValue = Number(result.actualLeverage);
   const targetMulti = Number.isFinite(strategy.leverage?.targetMultiplier)
     ? strategy.leverage.targetMultiplier
@@ -219,7 +219,7 @@ export function buildTelegramMessages({
   if (Number.isFinite(fxChange)) {
     if (fxChange > 0.1) {
       fxEmoji = "📉";
-      fxTrend = "台幣貶値";
+      fxTrend = "台幣貣6値";
     } else if (fxChange < -0.1) {
       fxEmoji = "📈";
       fxTrend = "台幣升値";
@@ -238,7 +238,7 @@ export function buildTelegramMessages({
     "yellow-red": "🏜️",
     green: "🌿",
     "yellow-blue": "❄️",
-    blue: "🧊",
+    blue: "🧨",
   };
   const ndcEmoji = lightEmojiMap[ndcColor] || "⬜";
   const ndcText = Number.isFinite(ndcScore)
@@ -300,7 +300,8 @@ export function buildTelegramMessages({
     scoreRow("RSI", rsiScore, w.rsiInfo),
     scoreRow("MACD", macdScore, w.macdInfo),
     scoreRow("KD", kdScore, w.kdInfo),
-    `<blockquote>${scoreOk ? "🟢 <b>條件達標，可評估入場</b>" : "⏸️ <b>條件未滿，請維持觀望</b>"}\n總計得分：<code>${sVal}</code> pt (門滝 <code>${mVal}</code>)</blockquote>`,
+    `<blockquote>${scoreOk ? "🟢 <b>條件達標，可評估入場</b>" : "⏸️ <b>條件未滿，請維持觀望</b>"}
+總計得分：<code>${sVal}</code> pt (門濾 <code>${mVal}</code>)</blockquote>`,
   ].join("\n");
 
   const paddedPct = String(goalPct).padStart(5, " ");
@@ -396,7 +397,7 @@ export function buildTelegramMessages({
     `🏦 <b>帳戶快照</b>${SEP}\n` +
     `💼 帳戶淨値    <tg-spoiler>$${Math.floor(currentAsset).toLocaleString("en-US")}</tg-spoiler>\n` +
     `🏗 總資產(含貸) <tg-spoiler>$${Math.floor(grossAsset).toLocaleString("en-US")}</tg-spoiler>\n` +
-    `${levInfo.icon} 實際構桿    <tg-spoiler>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}  <b>${levInfo.label}</b></tg-spoiler>\n` +
+    `${levInfo.icon} 實際槟槿    <tg-spoiler>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}  <b>${levInfo.label}</b></tg-spoiler>\n` +
     `${mmInfo.icon} 維持率      <tg-spoiler>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未借款"}  <b>${mmInfo.label}</b></tg-spoiler>\n` +
     `${z2Safe ? "✅" : "⚠️"} 00675L佔比  <tg-spoiler>${Number.isFinite(z2Ratio) ? z2Ratio.toFixed(1) + "%" : "N/A"}</tg-spoiler>  <i>上限 ${z2TargetPct.toFixed(0)}%</i>\n` +
     `💵 現金儲備    <tg-spoiler>$${cashReserveStr}</tg-spoiler>\n` +
@@ -492,14 +493,14 @@ export function buildTelegramMessages({
   ];
 }
 
-// ── 精簡提醒卡（MiniApp 指向模式） ─────────────────────────────
+// ── 精簡提醒卡（MiniApp 指向模式） ─────────────────────────────────────────────
 
 /**
  * 建構精簡提醒卡，適用於 MiniApp 指向模式。
  * 僅發送一則訊息，附加「開啟儀表板」 WebApp 按鈕。
  * 詳細資訊全部至 Mini App 查看。
  *
- * @param {{ result, vixData, usRisk, macroData, config, aiAdvice }} data
+ * @param {{ result, vixData, usRisk, macroData, config, aiAdvice, quote }} data
  * @param {string} webAppUrl - TELEGRAM_WEBAPP_URL
  * @returns {Array} 單元素數組，格式相容於 sendTelegramBatch
  */
@@ -510,6 +511,7 @@ export function buildCompactMessage({
   macroData,
   aiAdvice,
   config,
+  quote,
 }, webAppUrl) {
   const now = TwDate();
   const twHour = now.hour;
@@ -565,6 +567,11 @@ export function buildCompactMessage({
     ? `\n⏰ 冷卻期中 · 剩 ${cooldown.daysLeft} 交易日`
     : "";
 
+  // 每日一句（quote 無內容時密過）
+  const quoteText = quote?.quote
+    ? `\n\n💬 <i>${escapeHTML(quote.quote)}</i>\n— <b>${escapeHTML(quote.author || "")}</b>`
+    : "";
+
   const SEP = "\n─────────────────\n";
 
   const text =
@@ -574,7 +581,8 @@ export function buildCompactMessage({
     `${vixEmoji} VIX <code>${vixStr}</code>  ` +
     `${scoreEmoji} 評分 <code>${scoreStr}</code>  ` +
     `${mmEmoji} 維持率 <code>${mmStr}</code>\n` +
-    `📡 ${escapeHTML(signalSummary)}\n\n` +
+    `📡 ${escapeHTML(signalSummary)}` +
+    `${quoteText}\n\n` +
     `📲 詳細指標與 AI 建議請到 Mini App 查看`;
 
   return [
