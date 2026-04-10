@@ -5,7 +5,6 @@ const chatId = process.env.TELEGRAM_USER_ID;
 /**
  * 解除該 chat 中所有釘選訊息。
  * 可在每次 pin 新訊息前獨立呼叫。
- * Bot 須擁有 can_pin_messages（群組/超級群組）或 can_edit_messages（頻道）權限。
  */
 export async function unpinAllChatMessages() {
   const url = `https://api.telegram.org/bot${token}/unpinAllChatMessages`;
@@ -27,7 +26,7 @@ export async function unpinAllChatMessages() {
 }
 
 export async function sendTelegramBatch(messages) {
-  const sendUrl  = `https://api.telegram.org/bot${token}/sendMessage`;
+  const sendUrl = `https://api.telegram.org/bot${token}/sendMessage`;
   const pinUrl  = `https://api.telegram.org/bot${token}/pinChatMessage`;
 
   for (let i = 0; i < messages.length; i++) {
@@ -37,32 +36,45 @@ export async function sendTelegramBatch(messages) {
       chat_id: chatId,
       text: msg.text,
       parse_mode: "HTML",
-      disable_web_page_preview: true, // 避免貼連結時跑出超大網頁預覽
+      disable_web_page_preview: true,
     };
 
-    // 如果我們設定了靜默通知，就加入這個參數
     if (msg.disable_notification) {
       payload.disable_notification = true;
     }
 
-    // 如果這則訊息有包含網址，自動幫它加上 Inline Keyboard 按鈕
-    const buttons = [];
-    if (msg.sheetUrl) {
-      buttons.push({ text: "📊 財富領航表", url: msg.sheetUrl });
-    }
-    if (msg.strategyUrl) {
-      buttons.push({ text: "📄 策略設定檔", url: msg.strategyUrl });
+    // ── Inline keyboard 按鈕組裝 ─────────────────────────────────
+    // 每一個 row 是一個 Array<InlineKeyboardButton>
+    const rows = [];
+
+    // 1. MiniApp WebApp 按鈕（優先，佔獨立一列）
+    if (msg.webAppUrl) {
+      rows.push([
+        {
+          text: "📲 開啟投資儀表板",
+          web_app: { url: msg.webAppUrl },
+        },
+      ]);
     }
 
-    if (buttons.length > 0) {
-      payload.reply_markup = {
-        // Inline 鍵盤，這裡設定為同一列橫向排開
-        inline_keyboard: [buttons],
-      };
+    // 2. 外部連結按鈕（同一列橫向排開）
+    const linkButtons = [];
+    if (msg.sheetUrl) {
+      linkButtons.push({ text: "📊 財富領航表", url: msg.sheetUrl });
+    }
+    if (msg.strategyUrl) {
+      linkButtons.push({ text: "📄 策略設定檔", url: msg.strategyUrl });
+    }
+    if (linkButtons.length > 0) {
+      rows.push(linkButtons);
+    }
+
+    if (rows.length > 0) {
+      payload.reply_markup = { inline_keyboard: rows };
     }
 
     try {
-      const response = await fetch(sendUrl , {
+      const response = await fetch(sendUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -76,7 +88,6 @@ export async function sendTelegramBatch(messages) {
         console.log(`✅ 第 ${i + 1} 則發送成功`);
       }
 
-      // 若 pin = true，釘選這則訊息
       if (msg.pin) {
         const messageId = resData.result.message_id;
         const pinResponse = await fetch(pinUrl, {
@@ -85,7 +96,7 @@ export async function sendTelegramBatch(messages) {
           body: JSON.stringify({
             chat_id: chatId,
             message_id: messageId,
-            disable_notification: true, // 靜默釘選，不推播通知
+            disable_notification: true,
           }),
         });
         const pinData = await pinResponse.json();
@@ -103,11 +114,7 @@ export async function sendTelegramBatch(messages) {
 
 /**
  * 發送系統訊息至 Log 頻道（使用 TELEGRAM_LOG_API_TOKEN）
- * 固定靜默發送（disable_notification: true），不 pin。
- * 用於 Optimizer 執行結果、系統狀態通知等非每日報告類訊息。
- *
- * @param {string} text - 純文字或 HTML 訊息內容
- * @returns {Promise<void>}
+ * 固定靜默發送，不 pin。
  */
 export async function sendSystemMessage(text) {
   if (!logToken) {

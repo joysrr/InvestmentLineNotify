@@ -1,4 +1,7 @@
-import { buildTelegramMessages } from "./templates/telegramHtmlBuilder.mjs";
+import {
+  buildTelegramMessages,
+  buildCompactMessage,
+} from "./templates/telegramHtmlBuilder.mjs";
 import {
   unpinAllChatMessages,
   sendTelegramBatch,
@@ -6,7 +9,15 @@ import {
 } from "./transports/telegramClient.mjs";
 
 /**
- * 終極對外介面：廣播戰報到所有支援的平台
+ * 廣播每日戰報至所有支援平台。
+ *
+ * 發送策略：
+ *   - TELEGRAM_WEBAPP_URL 已設定 → 精簡提醒卡（1 則）+ WebApp 按鈕，讓使用者點進 Mini App 查看詳情
+ *   - TELEGRAM_WEBAPP_URL 未設定 → 原有完整三則訊息（向下相容）
+ *
+ * @param {object} data          - 完整報告資料物件（傳給 builder 的所有欄位）
+ * @param {string[]} newsMessages - 額外新聞訊息陣列（可為空陣列）
+ * @param {boolean} isTelegramEnabled
  */
 export async function broadcastDailyReport(
   data,
@@ -15,9 +26,21 @@ export async function broadcastDailyReport(
 ) {
   const tasks = [];
 
-  // 組裝並發送 Telegram
   if (isTelegramEnabled && process.env.TELEGRAM_API_TOKEN) {
-    let tgMsgs = buildTelegramMessages(data);
+    const webAppUrl = process.env.TELEGRAM_WEBAPP_URL || null;
+
+    let tgMsgs;
+    if (webAppUrl) {
+      // ── 精簡提醒卡模式：1 則 + WebApp 按鈕 ──────────────────────
+      tgMsgs = buildCompactMessage(data, webAppUrl);
+      console.log("[Notifier] MiniApp 模式：發送精簡提醒卡");
+    } else {
+      // ── 原有完整模式：3 則詳細訊息 ──────────────────────────────
+      tgMsgs = buildTelegramMessages(data);
+      console.log("[Notifier] 完整模式：發送三則戰報");
+    }
+
+    // 新聞訊息附加（兩種模式皆支援）
     if (newsMessages.length) {
       tgMsgs = tgMsgs.concat(newsMessages);
     }
@@ -48,7 +71,6 @@ export async function broadcastOptimizerResult(result, totalRuleCount) {
   const usA = result?.us?.accepted ?? [];
   const usR = result?.us?.rejected ?? [];
 
-  // 無新規則時靜默略過
   if (twA.length + usA.length === 0) {
     console.log("[OptimizerNotify] 本次無新增規則，跳過通知");
     return;
@@ -61,10 +83,6 @@ export async function broadcastOptimizerResult(result, totalRuleCount) {
     day: "2-digit",
   });
 
-  /**
-   * 格式化單一區域（TW / US）的規則摘要
-   * 最多顯示 5 條 pattern，超過則附加「…等 N 條」
-   */
   function formatRegion(flag, label, accepted, rejected) {
     const lines = [`${flag} ${label}規則：`];
     lines.push(`  ✅ 新增 ${accepted.length} 條`);
