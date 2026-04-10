@@ -51,15 +51,15 @@
 3. 抓取 VIX、基準價、macro data、即時價格與歷史股價。
 4. 計算 RSI / KD / MA240 等技術指標。
 5. 讀取 news summary，執行**矛盾新聞偵測**，並呼叫 AI macro analysis。
-   - `src/modules/news/newsConflictGrouper.mjs` 的 `assignConflictGroups()` 在新聞池載入後介入，依事件關鍵字將互相矛盾的新聞條目分組，並標記 `conflictGroup` / `conflictRole`（`supporting` / `contradicting`）。
-   - 分組結果以 `conflictSummary`（矛盾事件摘要字串）形式注入 macro analysis prompt，提示 AI 注意時序與現況相符性，避免過時資訊影響多空判定。
+   - `src/modules/news/newsConflictGrouper.mjs` 的 `assignConflictGroups()` 在新聞池載入後介入，依事件關鍵字將互相矛盾的新聞條目分群，並標記 `conflictGroup` / `conflictRole`（`supporting` / `contradicting`）。
+   - 分群結果以 `conflictSummary`（矛盾事件摘要字串）形式注入 macro analysis prompt，提示 AI 注意時序與現況相符性，避免過時資訊影響多空判定。
    - 矛盾偵測為 graceful 介入：若無矛盾事件，`conflictSummary` 為空字串，不影響後續流程。
 6. 把 `macroMarketDirection` 注入 strategy input，執行 `getInvestmentSignalAsync()`。
 7. 呼叫 `getAiInvestmentAdvice()` 產生最終每日建議。
 8. 透過 `broadcastDailyReport()` 發送 Telegram。
 9. 寫回 Google Sheets、archive daily report、條件式執行 `llmJudge`。
 
-值得注意的是，`llmJudge` 不是額外獨立排程，而是 daily flow 中 **有條件判斷才執行** 的背景評估任務。
+値得注意的是，`llmJudge` 不是額外獨立排程，而是 daily flow 中 **有條件判斷才執行** 的背景評估任務。
 
 ---
 
@@ -85,7 +85,26 @@
 
 ---
 
-## 5. Notification 結構
+## 5. CI / Scheduler Layer
+
+GitHub Actions 負責定時觸發各 runner。Bot daemon（`src/bot.mjs`）與 API Server（`src/api/server.mjs`）**不由 Actions 啟動**，而是在 Oracle VM 上由 pm2 常駐執行。
+
+| Workflow 檔案 | 對應 Runner | Cron 說明 |
+|---|---|---|
+| `.github/workflows/line_notify.yml` | `src/runDailyCheck.mjs`（`npm start`） | 多段 cron，涵蓋台灣時區開盤前、盤中、收盤後與夜間；每次完成後自動 commit `data/` 變更。 |
+| `.github/workflows/news-fetch.yml` | `src/runNewsFetch.mjs` | 每 3 小時執行一次，維護 `data/news/pool_active.json` 與 archive。 |
+| `.github/workflows/optimizer.yml` | `src/runOptimizer.mjs` | 每日固定時間執行，更新 blacklist 與 optimizer history 並 commit。 |
+| `.github/workflows/weekly-report.yml` | `src/runWeeklyReport.mjs` | 每週一早上執行，產出策略週報並透過 Telegram 發送。 |
+| `.github/workflows/monthly-report.yml` | `src/runMonthlyReport.mjs` | 每月 1 日早上執行，產出策略月報並透過 Telegram 發送。 |
+| `.github/workflows/notify-workflow-failure.yml` | — | 其他 workflow 失敗時觸發，透過 `sendSystemMessage()` 發送靜默通知至 Log 頻道。 |
+
+**`data/` 同步機制**：Actions 完成後透過 SSH 通知 VM 執行 `git pull`（方案 B），確保 VM 上 Fastify 讀取的 JSON 與 GitHub 一致。
+
+> **Bot daemon 與 API Server** 在 Oracle VM 上由 `pm2` 長駐執行（`npm run bot` / `npm run api`），詳見 [`docs/appendix/deployment-oracle-vm.md`](../appendix/deployment-oracle-vm.md)。
+
+---
+
+## 6. Notification 結構
 目前 `src/modules/notifications/` 已拆成三層：
 
 | Path | 說明 |
@@ -119,7 +138,7 @@
 每日通知仍以分段式訊息為主，目的是兼顧可讀性與 Telegram 長度限制。實際內容可包含：
 - 市場總覽與主建議，
 - 技術指標 / 帳戶快照，
-- AI 教練與總經摘要。
+- AI 教練與總経摘要。
 
 ### Period Report Message Strategy
 週報 / 月報由 `periodReportBuilder.mjs` 組裝，訊息數量依週期不同：
@@ -132,12 +151,12 @@
 **`buildPeriodReportMessages()` 回傳格式**：`{ text: string }[]`（物件陣列），符合 `sendTelegramBatch()` 的介面規格。呼叫方不可直接傳純字串陣列，否則會觸發 Telegram `Bad Request: message text is empty`。
 
 訊號準確率區塊（`buildAccuracySection()`）：
-- 週報：顯示買進觸發次數 + 冷卻封鎖次數，提示「報酬率於月報公布」。
+- 週報：顯示買進觸發次數 + 冷卻封鎖次數，提示「報酬率於月報公佈」。
 - 月報：顯示每筆訊號的 +5 日報酬（▲/▼ 標示）、槓桿比例，以及 +5/+10/+20 日的平均報酬率與勝率；資料不足的天數標記「資料不足，暫不顯示」。
 
 ---
 
-## 6. 錯誤處理原則
+## 7. 錯誤處理原則
 本層的設計原則是 **delivery should degrade gracefully**：
 
 - Telegram token 未設定時，可在 console preview，不讓流程直接崩潰。
@@ -152,12 +171,12 @@
 
 ---
 
-## 7. Bot UI 整合（Phase 2-C）
+## 8. Bot UI 整合（Phase 2-C）
 
 Bot 啟動時除了開始 Long-Polling，還會非同步執行兩項 Telegram API 初始化任務。
-兩者均為 UX 優化，失敗只 `console.warn`，**不中斷 Bot 主要功能**。
+兩者均為 UX 導向，失敗只 `console.warn`，**不中斷 Bot 主要功能**。
 
-### 7-1. 指令選單 — `setMyCommands`
+### 8-1. 指令選單 — `setMyCommands`
 
 Bot 每次啟動的 `onStart` callback 中呼叫 `bot.api.setMyCommands()`，
 將以下 7 項指令同步至 Telegram 左下角選單：
@@ -174,18 +193,18 @@ Bot 每次啟動的 `onStart` callback 中呼叫 `bot.api.setMyCommands()`，
 
 > `/start` 不列入選單（初次互動專用），其他指令每次啟動自動更新，無需手動維護。
 
-### 7-2. `/status` WebApp Inline Button
+### 8-2. `/status` WebApp Inline Button
 
 `/status` 指令回覆時，會依 `MINI_APP_URL` 是否設定，條件式附加 Inline Button：
 
 | `MINI_APP_URL` 狀態 | 回覆行為 |
 |---|---|
-| **未設定（空值）** | 純文字回覆，與舊版行為完全相同 |
-| **已設定** | 文字回覆末尾附加「📊 開啟儀表板」WebApp Button，點擊直接開啟 Mini App |
+| **未設定（空値）** | 純文字回覆，與舊版行為完全相同 |
+| **已設定** | 文字回覆末尾附加「📊 開啟儀表板」 WebApp Button，點擊直接開啟 Mini App |
 
 此設計確保在取得 HTTPS domain 之前，Bot 功能完全不受影響；填入 env 後無需修改程式碼即自動生效。
 
-### 7-3. Chat Menu Button — `setChatMenuButton`
+### 8-3. Chat Menu Button — `setChatMenuButton`
 
 將 Telegram 對話左下角的 Menu Button 設為開啟 Mini App 的入口。
 實作於 `syncMenuButton()` 函式，包含以下防護：
@@ -198,12 +217,12 @@ Bot 每次啟動的 `onStart` callback 中呼叫 `bot.api.setMyCommands()`，
 
 > `setChatMenuButton` 以 `chat_id` 指定單一使用者，僅影響白名單帳號的對話介面，不影響其他對話。
 
-### 7-4. 相關環境變數
+### 8-4. 相關環境變數
 
 | 變數 | 必填 | 說明 |
 |---|---|---|
 | `TELEGRAM_API_TOKEN` | ✅ 必填 | Bot Token，用於所有指令回覆與 API 初始化 |
-| `TELEGRAM_USER_ID` | ✅ 必填 | 白名單 chat_id，adminGuard 與 setChatMenuButton 均依賴此值 |
+| `TELEGRAM_USER_ID` | ✅ 必填 | 白名單 chat_id，adminGuard 與 setChatMenuButton 均依賴此値 |
 | `MINI_APP_URL` | ⬜ 選填 | Mini App 的 HTTPS URL；未設定時 Inline Button 與 Menu Button 均自動停用 |
 
 > `MINI_APP_URL` 取得 Oracle VM HTTPS domain 後填入，填入後重啟 Bot 即自動啟用所有 Mini App 入口，無需任何程式碼變更。
