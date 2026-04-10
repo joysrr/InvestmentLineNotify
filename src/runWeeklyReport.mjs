@@ -6,7 +6,10 @@ import {
   generatePeriodAiSummary,
   buildSignalAccuracyStats,
 } from "./modules/ai/periodReportAgent.mjs";
-import { buildPeriodReportMessages } from "./modules/notifications/templates/periodReportBuilder.mjs";
+import {
+  buildPeriodReportMessages,
+  buildCompactPeriodMessage,
+} from "./modules/notifications/templates/periodReportBuilder.mjs";
 import { sendTelegramBatch } from "./modules/notifications/transports/telegramClient.mjs";
 
 const sessionId = process.env.GITHUB_RUN_ID
@@ -15,7 +18,9 @@ const sessionId = process.env.GITHUB_RUN_ID
 
 /**
  * 週報核心邏輯。
- * 提取為独立函數供 Bot 指令與 CLI 共用。
+ * 發送策略：
+ *   - TELEGRAM_WEBAPP_URL 已設定 → buildCompactPeriodMessage() （1 則 + WebApp 按鈕）
+ *   - TELEGRAM_WEBAPP_URL 未設定 → buildPeriodReportMessages()  （原杧2 則）
  */
 export async function runWeeklyReport() {
   console.log("📊 [WeeklyReport] 開始產生週報...");
@@ -35,7 +40,17 @@ export async function runWeeklyReport() {
   const { aiSummary } = await generatePeriodAiSummary(
     stats, reports, `過去 ${reports.length}`, sessionId,
   );
-  const messages = buildPeriodReportMessages(stats, aiSummary, "weekly", accuracyStats);
+
+  const webAppUrl = process.env.TELEGRAM_WEBAPP_URL || null;
+
+  let messages;
+  if (webAppUrl) {
+    messages = buildCompactPeriodMessage(stats, aiSummary, "weekly", webAppUrl);
+    console.log("[WeeklyReport] MiniApp 模式：發送精簡週報卡");
+  } else {
+    messages = buildPeriodReportMessages(stats, aiSummary, "weekly", accuracyStats);
+    console.log("[WeeklyReport] 完整模式：發送 2 則週報");
+  }
 
   if (process.env.TELEGRAM_API_TOKEN) {
     await sendTelegramBatch(messages);
