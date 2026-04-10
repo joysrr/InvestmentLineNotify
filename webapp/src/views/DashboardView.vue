@@ -78,15 +78,76 @@
             latestReport.signals?.target
           }}</span>
         </div>
-        <!-- AI action items preview -->
-        <ul v-if="latestReport.ai?.action_items?.length" class="action-list">
-          <li
-            v-for="(item, i) in latestReport.ai.action_items.slice(0, 2)"
-            :key="i"
-          >
-            <span class="action-dot"></span>{{ item }}
-          </li>
-        </ul>
+        <!-- AI action items — collapsed by default, expand on tap -->
+        <div v-if="latestReport.ai?.action_items?.length">
+          <ul class="action-list">
+            <li
+              v-for="(item, i) in displayedActionItems"
+              :key="i"
+            >
+              <span class="action-dot"></span>{{ item }}
+            </li>
+          </ul>
+          <!-- Expanded AI detail -->
+          <div v-if="aiExpanded" class="ai-detail">
+            <p v-if="latestReport.ai?.summary" class="ai-summary">
+              {{ latestReport.ai.summary }}
+            </p>
+            <p v-if="latestReport.ai?.reasoning" class="ai-reasoning">
+              {{ latestReport.ai.reasoning }}
+            </p>
+          </div>
+          <button class="expand-btn" @click="aiExpanded = !aiExpanded">
+            {{ aiExpanded ? "▲ 收起" : "▼ 展開完整 AI 建議" }}
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Technical Indicators -->
+    <section class="section">
+      <h3 class="section-title">技術指標</h3>
+      <!-- Skeleton -->
+      <div v-if="reportLoading" class="indicators-grid">
+        <div v-for="i in 5" :key="i" class="indicator-card skeleton-card">
+          <div class="sk sk-label"></div>
+          <div class="sk sk-value" style="margin-top: 8px"></div>
+          <div class="sk sk-sub" style="margin-top: 6px"></div>
+        </div>
+      </div>
+      <div v-else-if="reportError" class="inline-error">⚠️ 指標載入失敗</div>
+      <div v-else-if="!latestReport" class="inline-hint">📭 尚無指標資料</div>
+      <div v-else class="indicators-grid">
+        <!-- RSI -->
+        <div class="indicator-card" :class="rsiInfo.cardClass">
+          <span class="ind-label">RSI</span>
+          <span class="ind-value">{{ rsiInfo.display }}</span>
+          <span class="ind-sub" :class="rsiInfo.textClass">{{ rsiInfo.label }}</span>
+        </div>
+        <!-- KD_K -->
+        <div class="indicator-card" :class="kdKInfo.cardClass">
+          <span class="ind-label">KD (K)</span>
+          <span class="ind-value">{{ kdKInfo.display }}</span>
+          <span class="ind-sub" :class="kdKInfo.textClass">{{ kdKInfo.label }}</span>
+        </div>
+        <!-- KD_D -->
+        <div class="indicator-card" :class="kdDInfo.cardClass">
+          <span class="ind-label">KD (D)</span>
+          <span class="ind-value">{{ kdDInfo.display }}</span>
+          <span class="ind-sub" :class="kdDInfo.textClass">{{ kdDInfo.label }}</span>
+        </div>
+        <!-- Bias240 -->
+        <div class="indicator-card" :class="biasInfo.cardClass">
+          <span class="ind-label">乖離率 MA240</span>
+          <span class="ind-value">{{ biasInfo.display }}</span>
+          <span class="ind-sub" :class="biasInfo.textClass">{{ biasInfo.label }}</span>
+        </div>
+        <!-- MACD Signal -->
+        <div class="indicator-card" :class="macdInfo.cardClass">
+          <span class="ind-label">MACD</span>
+          <span class="ind-value ind-value--sm">{{ macdInfo.display }}</span>
+          <span class="ind-sub" :class="macdInfo.textClass">{{ macdInfo.label }}</span>
+        </div>
       </div>
     </section>
 
@@ -136,9 +197,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { fetchStatus, fetchReports, fetchNews } from "../api/index.js";
-import { useTelegram, waitReady } from "../composables/useTelegram.js";
+import { useTelegram } from "../composables/useTelegram.js";
 
 const { openLink } = useTelegram();
 
@@ -154,6 +215,8 @@ const reportError = ref(false);
 const topNews = ref([]);
 const newsLoading = ref(true);
 const newsError = ref(false);
+
+const aiExpanded = ref(false);
 
 // ── today label ──
 const todayLabel = computed(() =>
@@ -218,6 +281,85 @@ const pctText = computed(() => {
   return `${p >= 0 ? "+" : ""}${r.signals?.priceChangePercentText}%`;
 });
 
+// ── AI action items: always show all, expand toggles summary/reasoning ──
+const displayedActionItems = computed(
+  () => latestReport.value?.ai?.action_items ?? [],
+);
+
+// ── Technical indicator helpers ──
+function indicatorInfo(value, thresholds) {
+  // thresholds: { danger_high, warn_high, ok_low, danger_low }
+  // Returns { display, label, cardClass, textClass }
+  const v = Number.isFinite(value) ? value : null;
+  const display = v !== null ? v.toFixed(1) : "—";
+  if (v === null)
+    return { display, label: "—", cardClass: "", textClass: "ind-sub--neutral" };
+
+  if (thresholds.danger_high !== undefined && v >= thresholds.danger_high)
+    return { display, label: "過熱", cardClass: "ind-danger", textClass: "ind-sub--danger" };
+  if (thresholds.warn_high !== undefined && v >= thresholds.warn_high)
+    return { display, label: "偏熱", cardClass: "ind-warn", textClass: "ind-sub--warn" };
+  if (thresholds.danger_low !== undefined && v <= thresholds.danger_low)
+    return { display, label: "超賣", cardClass: "ind-buy", textClass: "ind-sub--buy" };
+  if (thresholds.ok_low !== undefined && v <= thresholds.ok_low)
+    return { display, label: "低檔", cardClass: "ind-ok", textClass: "ind-sub--ok" };
+  return { display, label: "正常", cardClass: "", textClass: "ind-sub--neutral" };
+}
+
+const rsiInfo = computed(() =>
+  indicatorInfo(latestReport.value?.signals?.RSI, {
+    danger_high: 80,
+    warn_high: 70,
+    ok_low: 40,
+    danger_low: 30,
+  }),
+);
+
+const kdKInfo = computed(() =>
+  indicatorInfo(latestReport.value?.signals?.KD_K, {
+    danger_high: 85,
+    warn_high: 70,
+    ok_low: 30,
+    danger_low: 20,
+  }),
+);
+
+const kdDInfo = computed(() =>
+  indicatorInfo(latestReport.value?.signals?.KD_D, {
+    danger_high: 85,
+    warn_high: 70,
+    ok_low: 30,
+    danger_low: 20,
+  }),
+);
+
+const biasInfo = computed(() => {
+  const v = latestReport.value?.signals?.bias240;
+  const val = Number.isFinite(v) ? v : null;
+  const display = val !== null ? `${val >= 0 ? "+" : ""}${val.toFixed(1)}%` : "—";
+  if (val === null)
+    return { display, label: "—", cardClass: "", textClass: "ind-sub--neutral" };
+  if (val >= 25)
+    return { display, label: "極高位", cardClass: "ind-danger", textClass: "ind-sub--danger" };
+  if (val >= 15)
+    return { display, label: "高位偏貴", cardClass: "ind-warn", textClass: "ind-sub--warn" };
+  if (val < 0)
+    return { display, label: "低位便宜", cardClass: "ind-buy", textClass: "ind-sub--buy" };
+  return { display, label: "中位正常", cardClass: "", textClass: "ind-sub--neutral" };
+});
+
+const macdInfo = computed(() => {
+  const sig = latestReport.value?.signals?.macdSignal;
+  if (!sig) return { display: "—", label: "—", cardClass: "", textClass: "ind-sub--neutral" };
+  // macdSignal is an object: { signal: 'bullish'|'bearish'|'neutral', description }
+  const signal = sig?.signal ?? sig;
+  if (signal === "bullish")
+    return { display: "多頭", label: sig?.description ?? "MACD 多頭", cardClass: "ind-ok", textClass: "ind-sub--ok" };
+  if (signal === "bearish")
+    return { display: "空頭", label: sig?.description ?? "MACD 空頭", cardClass: "ind-warn", textClass: "ind-sub--warn" };
+  return { display: "中性", label: sig?.description ?? "無明顯訊號", cardClass: "", textClass: "ind-sub--neutral" };
+});
+
 // ── Helpers ──
 function ageDotClass(band) {
   if (band === "fresh") return "dot-fresh";
@@ -244,19 +386,16 @@ function formatUpdatedAt(iso) {
 
 // ── Load ──
 async function loadAll() {
-  // Fire all three requests in parallel
   const [sRes, rRes, nRes] = await Promise.allSettled([
     fetchStatus(),
     fetchReports(5),
     fetchNews(),
   ]);
 
-  // ── Status ──
   statusLoading.value = false;
   if (sRes.status === "fulfilled") status.value = sRes.value;
   else statusError.value = true;
 
-  // ── Reports ──
   reportLoading.value = false;
   if (rRes.status === "fulfilled") {
     const sorted = [...(rRes.value ?? [])].sort((a, b) =>
@@ -267,7 +406,6 @@ async function loadAll() {
     reportError.value = true;
   }
 
-  // ── News — top 3, freshest first ──
   newsLoading.value = false;
   if (nRes.status === "fulfilled") {
     const list = Array.isArray(nRes.value)
@@ -354,18 +492,10 @@ onMounted(loadAll);
   text-align: center;
   transition: background 0.2s;
 }
-.card-danger {
-  background: rgba(232, 72, 85, 0.1);
-}
-.card-warn {
-  background: rgba(212, 172, 13, 0.1);
-}
-.card-ok {
-  background: rgba(38, 161, 123, 0.1);
-}
-.card-greed {
-  background: rgba(212, 172, 13, 0.08);
-}
+.card-danger { background: rgba(232, 72, 85, 0.1); }
+.card-warn   { background: rgba(212, 172, 13, 0.1); }
+.card-ok     { background: rgba(38, 161, 123, 0.1); }
+.card-greed  { background: rgba(212, 172, 13, 0.08); }
 
 .snap-label {
   font-size: 10px;
@@ -378,28 +508,16 @@ onMounted(loadAll);
   color: var(--tg-theme-text-color, #111);
   line-height: 1.2;
 }
-.snap-light {
-  font-size: 22px;
-}
+.snap-light { font-size: 22px; }
 .snap-sub {
   font-size: 11px;
   font-weight: 500;
 }
-.snap-sub--neutral {
-  color: var(--tg-theme-hint-color, #999);
-}
-.snap-sub--danger {
-  color: #e84855;
-}
-.snap-sub--warn {
-  color: #d4ac0d;
-}
-.snap-sub--ok {
-  color: #26a17b;
-}
-.snap-sub--greed {
-  color: #d4ac0d;
-}
+.snap-sub--neutral { color: var(--tg-theme-hint-color, #999); }
+.snap-sub--danger  { color: #e84855; }
+.snap-sub--warn    { color: #d4ac0d; }
+.snap-sub--ok      { color: #26a17b; }
+.snap-sub--greed   { color: #d4ac0d; }
 
 /* ── Decision Card ── */
 .decision-card {
@@ -441,23 +559,12 @@ onMounted(loadAll);
   border-radius: 20px;
   font-weight: 600;
 }
-.badge-pos {
-  background: rgba(38, 161, 123, 0.15);
-  color: #26a17b;
-}
-.badge-neg {
-  background: rgba(232, 72, 85, 0.12);
-  color: #e84855;
-}
-.badge-score {
-  background: var(--tg-theme-secondary-bg-color, #eee);
-  color: var(--tg-theme-hint-color, #666);
-}
-.badge-target {
-  background: rgba(36, 129, 204, 0.12);
-  color: var(--tg-theme-button-color, #2481cc);
-}
+.badge-pos    { background: rgba(38, 161, 123, 0.15); color: #26a17b; }
+.badge-neg    { background: rgba(232, 72, 85, 0.12);  color: #e84855; }
+.badge-score  { background: var(--tg-theme-secondary-bg-color, #eee); color: var(--tg-theme-hint-color, #666); }
+.badge-target { background: rgba(36, 129, 204, 0.12); color: var(--tg-theme-button-color, #2481cc); }
 
+/* ── Action list ── */
 .action-list {
   list-style: none;
   padding: 0;
@@ -484,6 +591,99 @@ onMounted(loadAll);
   margin-top: 5px;
 }
 
+/* ── AI expanded detail ── */
+.ai-detail {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ai-summary {
+  font-size: 13px;
+  color: var(--tg-theme-text-color, #333);
+  line-height: 1.55;
+  font-weight: 500;
+}
+.ai-reasoning {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #666);
+  line-height: 1.55;
+}
+.expand-btn {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 7px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tg-theme-button-color, #2481cc);
+  background: rgba(36, 129, 204, 0.07);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s;
+}
+.expand-btn:active {
+  background: rgba(36, 129, 204, 0.15);
+}
+
+/* ── Technical Indicators ── */
+.indicators-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+/* Last row: 2 items centred when 5 total */
+.indicators-grid .indicator-card:nth-child(4) {
+  grid-column: 1 / 2;
+}
+.indicators-grid .indicator-card:nth-child(5) {
+  grid-column: 2 / 3;
+}
+
+.indicator-card {
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  border-radius: 12px;
+  padding: 11px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-align: center;
+  transition: background 0.2s;
+}
+.ind-danger { background: rgba(232, 72, 85, 0.10); }
+.ind-warn   { background: rgba(212, 172, 13, 0.10); }
+.ind-ok     { background: rgba(38, 161, 123, 0.10); }
+.ind-buy    { background: rgba(36, 129, 204, 0.10); }
+
+.ind-label {
+  font-size: 10px;
+  color: var(--tg-theme-hint-color, #999);
+  white-space: nowrap;
+}
+.ind-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #111);
+  line-height: 1.2;
+}
+.ind-value--sm {
+  font-size: 14px;
+}
+.ind-sub {
+  font-size: 10px;
+  font-weight: 500;
+}
+.ind-sub--neutral { color: var(--tg-theme-hint-color, #999); }
+.ind-sub--danger  { color: #e84855; }
+.ind-sub--warn    { color: #d4ac0d; }
+.ind-sub--ok      { color: #26a17b; }
+.ind-sub--buy     { color: #2481cc; }
+
 /* ── News Preview ── */
 .news-preview-list {
   display: flex;
@@ -496,9 +696,7 @@ onMounted(loadAll);
   padding: 10px 12px;
   cursor: pointer;
 }
-.news-preview-card:active {
-  opacity: 0.75;
-}
+.news-preview-card:active { opacity: 0.75; }
 .news-preview-meta {
   display: flex;
   align-items: center;
@@ -511,23 +709,15 @@ onMounted(loadAll);
   border-radius: 50%;
   flex-shrink: 0;
 }
-.dot-fresh {
-  background: #e84855;
-}
-.dot-recent {
-  background: #d4ac0d;
-}
-.dot-old {
-  background: #bbb;
-}
+.dot-fresh  { background: #e84855; }
+.dot-recent { background: #d4ac0d; }
+.dot-old    { background: #bbb; }
 .news-preview-source {
   font-size: 11px;
   color: var(--tg-theme-hint-color, #999);
   flex: 1;
 }
-.news-preview-region {
-  font-size: 12px;
-}
+.news-preview-region { font-size: 12px; }
 .news-preview-title {
   font-size: 13px;
   font-weight: 500;
@@ -561,12 +751,8 @@ onMounted(loadAll);
 
 /* ── Skeleton ── */
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
 }
 .sk {
   border-radius: 6px;
@@ -579,22 +765,8 @@ onMounted(loadAll);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }
-.sk-label {
-  height: 10px;
-  width: 70%;
-}
-.sk-value {
-  height: 20px;
-  width: 50%;
-  margin-top: 8px;
-}
-.sk-sub {
-  height: 10px;
-  width: 55%;
-  margin-top: 6px;
-}
-.sk-title {
-  height: 14px;
-  width: 90%;
-}
+.sk-label  { height: 10px; width: 70%; }
+.sk-value  { height: 20px; width: 50%; margin-top: 8px; }
+.sk-sub    { height: 10px; width: 55%; margin-top: 6px; }
+.sk-title  { height: 14px; width: 90%; }
 </style>
