@@ -8,7 +8,7 @@
       </router-view>
     </main>
 
-    <!-- 左右滑動 Tab Bar（6 個 Tab） -->
+    <!-- 左右滑動 Tab Bar（7 個 Tab） -->
     <nav class="tab-bar">
       <router-link
         v-for="tab in tabs"
@@ -74,6 +74,14 @@ const tabs = [
     </svg>`,
   },
   {
+    to: '/chart',
+    exact: false,
+    label: '圖表',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+    </svg>`,
+  },
+  {
     to: '/reports',
     exact: false,
     label: '報告',
@@ -124,7 +132,7 @@ const tabs = [
   -webkit-overflow-scrolling: touch;
 }
 
-/* ── Tab Bar：左右滑動，6 Tab ── */
+/* ── Tab Bar：左右滑動，7 Tab ── */
 .tab-bar {
   display: flex;
   overflow-x: auto;
