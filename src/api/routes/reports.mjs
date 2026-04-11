@@ -4,6 +4,7 @@ import {
   aggregateByWeek,
   aggregateByMonth,
 } from "../utils/reportAggregator.mjs";
+import { decryptSnapshot } from "../../utils/snapshotCrypto.mjs";
 
 const REPORTS_DIR = join(process.cwd(), "data", "reports");
 const DATE_PATTERN = /^(\d{4}-\d{2}-\d{2})\.json$/;
@@ -170,10 +171,74 @@ export default async function reportsRoute(fastify) {
       const raw = await readFile(filePath, "utf-8");
       return reply.send(JSON.parse(raw));
     } catch (err) {
-      if (err.code === "EMOENT") {
+      if (err.code === "ENOENT") {
         return reply.code(404).send({ error: `Report for ${date} not found` });
       }
       fastify.log.error({ err }, "Failed to read report");
+      return reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
+  /**
+   * GET /api/reports/snapshots?limit=N
+   * Returns decrypted portfolio snapshots from historical reports.
+   * Only includes reports that contain an encrypted snapshot field.
+   * Default limit: 30. Capped at 100.
+   *
+   * Response:
+   * {
+   *   snapshots: Array<{ date, qty0050, qtyZ2, totalLoan, cash, avgCost0050, avgCostZ2, lastBuyDate }>,
+   *   hasEncryption: boolean
+   * }
+   */
+  fastify.get("/reports/snapshots", async (request, reply) => {
+    const rawLimit = parseInt(request.query.limit ?? "30", 10);
+    const limit =
+      Number.isNaN(rawLimit) || rawLimit < 1 ? 30 : Math.min(rawLimit, 100);
+
+    try {
+      const dates = await getSortedDates();
+
+      // 顯定加密功能是否可用（金鑰是否設定）
+      const hasEncryption = !!process.env.SNAPSHOT_ENCRYPT_KEY;
+
+      if (!hasEncryption) {
+        return reply.send({ snapshots: [], hasEncryption: false });
+      }
+
+      const snapshots = [];
+
+      // 走小所有檔案直到收集足夠筆數
+      for (const date of dates) {
+        if (snapshots.length >= limit) break;
+        try {
+          const raw = await readFile(join(REPORTS_DIR, `${date}.json`), "utf-8");
+          const report = JSON.parse(raw);
+
+          // 沒有 snapshot 欄位的日報直接跳過（金鑰設定前的舊資料）
+          if (!report.snapshot) continue;
+
+          const decrypted = decryptSnapshot(report.snapshot);
+          if (!decrypted) continue; // 解密失敗則跳過
+
+          snapshots.push({
+            date,
+            qty0050:     decrypted.qty0050     ?? 0,
+            qtyZ2:       decrypted.qtyZ2       ?? 0,
+            totalLoan:   decrypted.totalLoan   ?? 0,
+            cash:        decrypted.cash        ?? 0,
+            avgCost0050: decrypted.avgCost0050 ?? null,
+            avgCostZ2:   decrypted.avgCostZ2   ?? null,
+            lastBuyDate: decrypted.lastBuyDate ?? null,
+          });
+        } catch {
+          continue; // 跳過搏搏的檔案
+        }
+      }
+
+      return reply.send({ snapshots, hasEncryption: true });
+    } catch (err) {
+      fastify.log.error({ err }, "Failed to read snapshots");
       return reply.code(500).send({ error: "Internal server error" });
     }
   });
