@@ -1,59 +1,205 @@
 <template>
   <div class="view-container">
-    <div class="view-header">
-      <h2 class="view-title">新聞池</h2>
-      <span class="view-subtitle" v-if="articles.length">共 {{ articles.length }} 則</span>
-    </div>
 
-    <div v-if="loading" class="state-box">
-      <div class="spinner"></div>
-      <p>載入中...</p>
-    </div>
-
-    <div v-else-if="error" class="state-box state-error">
-      <p>⚠️ {{ error }}</p>
-      <button class="retry-btn" @click="load">重試</button>
-    </div>
-
-    <div v-else-if="articles.length === 0" class="state-box">
-      <p>📭 目前新聞池為空</p>
-    </div>
-
-    <div v-else class="news-list">
-      <div
-        v-for="article in articles"
-        :key="article.id"
-        class="news-card"
-        @click="openArticle(article.url)"
+    <!-- Sub-tab bar -->
+    <div class="subtab-bar">
+      <button
+        class="subtab-btn"
+        :class="{ active: activeTab === 'report' }"
+        @click="switchTab('report')"
       >
-        <div class="news-header">
-          <span class="news-age" :class="ageBandClass(article.age_band)">
-            {{ ageBandLabel(article.age_band) }}
-          </span>
-          <span class="news-region">{{ regionFlag(article._region) }}</span>
-          <span class="news-source">{{ article.source }}</span>
-          <span class="news-time">{{ formatDate(article.pubDate) }}</span>
+        🗞️ 精選報告
+      </button>
+      <button
+        class="subtab-btn"
+        :class="{ active: activeTab === 'pool' }"
+        @click="switchTab('pool')"
+      >
+        📦 新聞池
+      </button>
+    </div>
+
+    <!-- ── 精選報告 tab ── -->
+    <div v-if="activeTab === 'report'">
+
+      <div v-if="reportLoading" class="state-box">
+        <div class="spinner"></div>
+        <p>載入中...</p>
+      </div>
+
+      <div v-else-if="reportError" class="state-box state-error">
+        <p>⚠️ {{ reportError }}</p>
+        <button class="retry-btn" @click="loadReport">重試</button>
+      </div>
+
+      <div v-else-if="!reportNews.tw.length && !reportNews.us.length" class="state-box">
+        <p>📭 今日精選報告尚未產生</p>
+        <p class="state-hint">每日早上自動更新</p>
+      </div>
+
+      <div v-else class="report-content">
+
+        <!-- 台灣區塊 -->
+        <div v-if="reportNews.tw.length" class="region-section">
+          <div class="region-header">
+            <span class="region-flag">🇹🇼</span>
+            <span class="region-title">台灣市場動態</span>
+            <span class="region-count">{{ reportNews.tw.length }} 則</span>
+          </div>
+          <div class="news-list">
+            <div
+              v-for="(item, i) in reportNews.tw"
+              :key="'tw-' + i"
+              class="news-card"
+              @click="openArticle(item.link || item.url)"
+            >
+              <div class="news-header">
+                <span class="news-source">{{ item.source }}</span>
+                <span class="news-time">{{ formatDate(item.pubDate) }}</span>
+              </div>
+              <p class="news-title">{{ item.title }}</p>
+              <p v-if="item.summary" class="news-summary">{{ item.summary }}</p>
+            </div>
+          </div>
         </div>
-        <p class="news-title">{{ article.title }}</p>
-        <p v-if="article.summary" class="news-summary">{{ article.summary }}</p>
+
+        <!-- 國際區塊 -->
+        <div v-if="reportNews.us.length" class="region-section">
+          <div class="region-header">
+            <span class="region-flag">🌎</span>
+            <span class="region-title">國際總經與趨勢</span>
+            <span class="region-count">{{ reportNews.us.length }} 則</span>
+          </div>
+          <div class="news-list">
+            <div
+              v-for="(item, i) in reportNews.us"
+              :key="'us-' + i"
+              class="news-card"
+              @click="openArticle(item.link || item.url)"
+            >
+              <div class="news-header">
+                <span class="news-source">{{ item.source }}</span>
+                <span class="news-time">{{ formatDate(item.pubDate) }}</span>
+              </div>
+              <p class="news-title">{{ item.title }}</p>
+              <p v-if="item.summary" class="news-summary">{{ item.summary }}</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="report-generated">📅 產生時間：{{ reportNews.generatedAt || '—' }}</p>
       </div>
     </div>
+
+    <!-- ── 新聞池 tab ── -->
+    <div v-if="activeTab === 'pool'">
+
+      <div class="pool-header">
+        <span class="view-subtitle" v-if="articles.length">共 {{ articles.length }} 則</span>
+      </div>
+
+      <div v-if="poolLoading" class="state-box">
+        <div class="spinner"></div>
+        <p>載入中...</p>
+      </div>
+
+      <div v-else-if="poolError" class="state-box state-error">
+        <p>⚠️ {{ poolError }}</p>
+        <button class="retry-btn" @click="loadPool">重試</button>
+      </div>
+
+      <div v-else-if="articles.length === 0" class="state-box">
+        <p>📭 目前新聞池為空</p>
+      </div>
+
+      <div v-else class="news-list">
+        <div
+          v-for="article in articles"
+          :key="article.id"
+          class="news-card"
+          @click="openArticle(article.url)"
+        >
+          <div class="news-header">
+            <span class="news-age" :class="ageBandClass(article.age_band)">
+              {{ ageBandLabel(article.age_band) }}
+            </span>
+            <span class="news-region">{{ regionFlag(article._region) }}</span>
+            <span class="news-source">{{ article.source }}</span>
+            <span class="news-time">{{ formatDate(article.pubDate) }}</span>
+          </div>
+          <p class="news-title">{{ article.title }}</p>
+          <p v-if="article.summary" class="news-summary">{{ article.summary }}</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { fetchNews } from '../api/index.js'
+import { fetchNews, fetchReportNews } from '../api/index.js'
 import { useTelegram } from '../composables/useTelegram.js'
 
-const articles = ref([])
-const loading = ref(true)
-const error = ref(null)
+// ── sub-tab 狀態 ──────────────────────────────────────────
+const activeTab = ref('report')
 
+function switchTab(tab) {
+  activeTab.value = tab
+  if (tab === 'report' && !reportLoaded.value) loadReport()
+  if (tab === 'pool' && !poolLoaded.value) loadPool()
+}
+
+// ── 精選報告 ──────────────────────────────────────────────
+const reportNews = ref({ tw: [], us: [], generatedAt: '' })
+const reportLoading = ref(false)
+const reportError = ref(null)
+const reportLoaded = ref(false)
+
+async function loadReport() {
+  reportLoading.value = true
+  reportError.value = null
+  try {
+    const data = await fetchReportNews()
+    reportNews.value = {
+      tw: data?.tw ?? [],
+      us: data?.us ?? [],
+      generatedAt: data?.generatedAt ?? ''
+    }
+    reportLoaded.value = true
+  } catch (e) {
+    reportError.value = e.message
+  } finally {
+    reportLoading.value = false
+  }
+}
+
+// ── 新聞池 ────────────────────────────────────────────────
+const articles = ref([])
+const poolLoading = ref(false)
+const poolError = ref(null)
+const poolLoaded = ref(false)
+
+async function loadPool() {
+  poolLoading.value = true
+  poolError.value = null
+  try {
+    const data = await fetchNews()
+    const list = Array.isArray(data) ? data : (data?.articles ?? [])
+    articles.value = list
+    poolLoaded.value = true
+  } catch (e) {
+    poolError.value = e.message
+  } finally {
+    poolLoading.value = false
+  }
+}
+
+// ── 共用工具 ──────────────────────────────────────────────
 const { openLink } = useTelegram()
 
 function openArticle(url) {
-  openLink(url)
+  if (url) openLink(url)
 }
 
 function ageBandClass(band) {
@@ -85,52 +231,105 @@ function formatDate(pubDate) {
   }
 }
 
-async function load() {
-  loading.value = true
-  error.value = null
-  try {
-    const data = await fetchNews()
-    // /api/news 回傳物件，articles 在 data.articles
-    const list = Array.isArray(data) ? data : (data?.articles ?? [])
-    articles.value = list
-  } catch (e) {
-    error.value = e.message
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(load)
+// ── 初始化：預設載入精選報告 ──────────────────────────────
+onMounted(loadReport)
 </script>
 
 <style scoped>
 .view-container {
-  padding: 16px;
+  padding: 0 0 16px;
   min-height: 100%;
 }
 
-.view-header {
+/* ── Sub-tab bar ── */
+.subtab-bar {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  gap: 0;
+  border-bottom: 1px solid var(--tg-theme-hint-color, #e0e0e0);
   margin-bottom: 12px;
+  padding: 0 16px;
+  position: sticky;
+  top: 0;
+  background: var(--tg-theme-bg-color, #fff);
+  z-index: 10;
 }
 
-.view-title {
-  font-size: 17px;
+.subtab-btn {
+  flex: 1;
+  padding: 12px 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tg-theme-hint-color, #999);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.18s, border-color 0.18s;
+  margin-bottom: -1px;
+}
+
+.subtab-btn.active {
+  color: var(--tg-theme-link-color, #2481cc);
+  border-bottom-color: var(--tg-theme-link-color, #2481cc);
+  font-weight: 600;
+}
+
+/* ── Region section (精選報告) ── */
+.report-content {
+  padding: 0 16px;
+}
+
+.region-section {
+  margin-bottom: 20px;
+}
+
+.region-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.region-flag {
+  font-size: 16px;
+}
+
+.region-title {
+  font-size: 14px;
   font-weight: 600;
   color: var(--tg-theme-text-color, #222);
+  flex: 1;
 }
 
-.view-subtitle {
-  font-size: 12px;
+.region-count {
+  font-size: 11px;
   color: var(--tg-theme-hint-color, #999);
 }
 
+.report-generated {
+  font-size: 11px;
+  color: var(--tg-theme-hint-color, #bbb);
+  text-align: center;
+  margin-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* ── 新聞池 header ── */
+.pool-header {
+  padding: 0 16px 4px;
+  min-height: 20px;
+}
+
+/* ── 共用新聞列表 ── */
 .news-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 0 16px;
+}
+
+.region-section .news-list {
+  padding: 0;
 }
 
 .news-card {
@@ -138,7 +337,6 @@ onMounted(load)
   border-radius: 12px;
   padding: 12px;
   cursor: pointer;
-  active: opacity 0.8;
 }
 
 .news-card:active { opacity: 0.7; }
@@ -158,13 +356,11 @@ onMounted(load)
   border-radius: 10px;
 }
 
-.age-fresh { background: #fdecea; color: #e84855; }
+.age-fresh  { background: #fdecea; color: #e84855; }
 .age-recent { background: #fef9e7; color: #d4ac0d; }
-.age-old { background: var(--tg-theme-hint-color, #eee); color: var(--tg-theme-hint-color, #999); opacity: 0.6; }
+.age-old    { background: var(--tg-theme-hint-color, #eee); color: var(--tg-theme-hint-color, #999); opacity: 0.6; }
 
-.news-region {
-  font-size: 13px;
-}
+.news-region { font-size: 13px; }
 
 .news-source {
   font-size: 11px;
@@ -195,6 +391,7 @@ onMounted(load)
   overflow: hidden;
 }
 
+/* ── 狀態 ── */
 .state-box {
   display: flex;
   flex-direction: column;
@@ -204,6 +401,13 @@ onMounted(load)
   min-height: 200px;
   color: var(--tg-theme-hint-color, #999);
   font-size: 14px;
+  padding: 0 16px;
+}
+
+.state-hint {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #bbb);
+  margin-top: -6px;
 }
 
 .state-error { color: #e84855; }
