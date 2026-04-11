@@ -1,10 +1,12 @@
-const BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000'
+const BASE = import.meta.env.VITE_API_BASE || ''
 
 async function apiFetch(path, maxRetries = 3, retryDelay = 800) {
   let lastError
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    const initData = window.Telegram?.WebApp?.initData || ''
+    const initData =
+      window.Telegram?.WebApp?.initData ||
+      (import.meta.env.DEV ? 'dev-bypass' : '')
 
     if (!initData && attempt < maxRetries) {
       await delay(retryDelay)
@@ -42,3 +44,4 @@ export const fetchMonthlyReports = (limit = 12)  => apiFetch(`/api/reports/month
 export const fetchNews           = ()             => apiFetch('/api/news')
 export const fetchStatus         = ()             => apiFetch('/api/status')
 export const fetchReportNews     = ()             => apiFetch('/api/report/news')
+export const fetchSnapshots      = (limit = 30)  => apiFetch(`/api/reports/snapshots?limit=${limit}`)
