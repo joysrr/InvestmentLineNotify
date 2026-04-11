@@ -342,14 +342,14 @@ const pctText = computed(() => {
   return `${p >= 0 ? "+" : ""}${r.signals?.priceChangePercentText}%`;
 });
 
-// ── 進場評分 ──
-const w = computed(() => latestReport.value?.weightDetails ?? {});
+// ── 進場評分（Fix: signals.weightDetails）──
+const w = computed(() => latestReport.value?.signals?.weightDetails ?? {});
 const scoreVal = computed(() => {
   const v = latestReport.value?.signals?.weightScore;
   return Number.isFinite(Number(v)) ? Number(v) : "--";
 });
 const scoreMin = computed(() => {
-  const v = latestReport.value?.strategy?.buy?.minWeightScoreToBuy;
+  const v = latestReport.value?.signals?.strategy?.buy?.minWeightScoreToBuy;
   return Number.isFinite(Number(v)) ? Number(v) : "--";
 });
 const scoreOk = computed(() =>
@@ -362,6 +362,7 @@ const scoreRows = computed(() => [
   { label: "RSI",  pt: fmtPt(w.value.rsiScore),   info: w.value.rsiInfo   ?? "─", active: Number(w.value.rsiScore)   > 0 },
   { label: "MACD", pt: fmtPt(w.value.macdScore),  info: w.value.macdInfo  ?? "─", active: Number(w.value.macdScore)  > 0 },
   { label: "KD",   pt: fmtPt(w.value.kdScore),    info: w.value.kdInfo    ?? "─", active: Number(w.value.kdScore)    > 0 },
+  { label: "情緒", pt: fmtPt(w.value.sentimentScore), info: w.value.sentimentInfo ?? "─", active: Number(w.value.sentimentScore) !== 0 },
 ]);
 function fmtPt(v) {
   return Number.isFinite(Number(v)) ? `${Number(v)}pt` : "--";
@@ -405,20 +406,20 @@ const macdInfo = computed(() => {
   const sig    = latestReport.value?.signals?.macdSignal;
   if (!sig) return { display: "—", label: "—", cardClass: "", textClass: "ind-sub--neutral" };
   const signal = sig?.signal ?? sig;
-  if (signal === "bullish") return { display: "多頭", label: sig?.description ?? "MACD 多頭", cardClass: "ind-ok",   textClass: "ind-sub--ok" };
-  if (signal === "bearish") return { display: "空頭", label: sig?.description ?? "MACD 空頭", cardClass: "ind-warn", textClass: "ind-sub--warn" };
+  if (signal === "bull" || signal === "bullish") return { display: "多頭", label: sig?.description ?? "MACD 多頭", cardClass: "ind-ok",   textClass: "ind-sub--ok" };
+  if (signal === "bear" || signal === "bearish") return { display: "空頭", label: sig?.description ?? "MACD 空頭", cardClass: "ind-warn", textClass: "ind-sub--warn" };
   return { display: "中性", label: sig?.description ?? "無明顯訊號", cardClass: "", textClass: "ind-sub--neutral" };
 });
 
-// ── 風險雷達 ──
-const rsi       = computed(() => Number(latestReport.value?.signals?.RSI));
-const kd_d      = computed(() => Number(latestReport.value?.signals?.KD_D));
-const kd_k      = computed(() => Number(latestReport.value?.signals?.KD_K));
-const bias240   = computed(() => Number(latestReport.value?.signals?.bias240));
-const r         = computed(() => latestReport.value?.reversal ?? {});
-const s         = computed(() => latestReport.value?.sellSignals ?? { flags: {} });
-const th        = computed(() => latestReport.value?.strategy?.threshold ?? {});
-const sellTh    = computed(() => latestReport.value?.strategy?.sell ?? {});
+// ── 風險雷達（Fix: signals.reversal / signals.sellSignals / signals.strategy）──
+const rsi     = computed(() => Number(latestReport.value?.signals?.RSI));
+const kd_d    = computed(() => Number(latestReport.value?.signals?.KD_D));
+const kd_k    = computed(() => Number(latestReport.value?.signals?.KD_K));
+const bias240 = computed(() => Number(latestReport.value?.signals?.bias240));
+const r       = computed(() => latestReport.value?.signals?.reversal     ?? {});
+const s       = computed(() => latestReport.value?.signals?.sellSignals  ?? { flags: {} });
+const th      = computed(() => latestReport.value?.signals?.strategy?.threshold ?? {});
+const sellTh  = computed(() => latestReport.value?.signals?.strategy?.sell      ?? {});
 
 const reversalTriggered = computed(() => r.value.triggeredCount ?? 0);
 const reversalTotal     = computed(() => r.value.totalFactor    ?? 4);
@@ -444,13 +445,13 @@ const reversalSignals = computed(() => {
     {
       name: "RSI 轉弱",
       value: Number.isFinite(rsi.value) ? rsi.value.toFixed(1) : "--",
-      condition: `> ${th.value.rsiReversalLevel} → <${th.value.rsiReversalLevel}`,
+      condition: `> ${th.value.rsiReversalLevel ?? "60"} → <${th.value.rsiReversalLevel ?? "60"}`,
       triggered: Boolean(r.value.rsiDrop),
     },
     {
       name: "KD(保守)轉弱",
       value: Number.isFinite(kdCons) ? kdCons.toFixed(1) : "--",
-      condition: `> ${th.value.kReversalLevel} → <${th.value.kReversalLevel}`,
+      condition: `> ${th.value.kReversalLevel ?? "75"} → <${th.value.kReversalLevel ?? "75"}`,
       triggered: Boolean(r.value.kdDrop),
     },
     {
@@ -472,13 +473,13 @@ const sellSignals = computed(() => [
   {
     name: "RSI",
     value: s.value.flags?.rsiSell  ? "已觸發" : "未觸發",
-    condition: `> ${sellTh.value.rsi?.overbought} → 回落`,
+    condition: `> ${sellTh.value.rsi?.overbought ?? "75"} → 回落`,
     triggered: Boolean(s.value.flags?.rsiSell),
   },
   {
     name: "KD",
     value: s.value.flags?.kdSell   ? "已觸發" : "未觸發",
-    condition: `K↘D & min≥${sellTh.value.kd?.overboughtK}`,
+    condition: `K↘D & min≥${sellTh.value.kd?.overboughtK ?? "80"}`,
     triggered: Boolean(s.value.flags?.kdSell),
   },
   {
@@ -490,10 +491,10 @@ const sellSignals = computed(() => [
 ]);
 
 // ── AI 建議（4 區塊）──
-const aiData            = computed(() => latestReport.value?.ai ?? {});
-const aiRiskWarnings    = computed(() => aiData.value.risk_warnings    ?? []);
-const aiActionItems     = computed(() => aiData.value.action_items     ?? []);
-const aiMindsetAdvice   = computed(() => aiData.value.mindset_advice   ?? []);
+const aiData             = computed(() => latestReport.value?.ai ?? {});
+const aiRiskWarnings     = computed(() => aiData.value.risk_warnings    ?? []);
+const aiActionItems      = computed(() => aiData.value.action_items     ?? []);
+const aiMindsetAdvice    = computed(() => aiData.value.mindset_advice   ?? []);
 const aiInternalThinking = computed(() => aiData.value.coach_internal_thinking ?? "");
 
 // ── News helpers ──
