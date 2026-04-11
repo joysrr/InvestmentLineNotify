@@ -334,12 +334,18 @@ export async function dailyCheck({
     const done = stepTimer("saveReport");
 
     // 帳戶快照：有金鑰才加密存入，否則略過
+    // 補存 price0050 / priceZ2 市價欄位，供圖表市價法淨值計算使用
     let snapshotField = {};
     if (isSnapshotEncryptEnabled() && lastState) {
-      const encrypted = encryptSnapshot(lastState);
+      const snapshotPayload = {
+        ...lastState,
+        price0050: price0050 ?? null,
+        priceZ2:   finalPriceZ2 ?? null,
+      };
+      const encrypted = encryptSnapshot(snapshotPayload);
       if (encrypted) {
         snapshotField = { snapshot: encrypted };
-        console.log("🔐 [Snapshot] 帳戶快照已加密，納入報告");
+        console.log("🔐 [Snapshot] 帳戶快照已加密（含市價），納入報告");
       } else {
         console.warn("⚠️ [Snapshot] 加密失敗，本次報告不含快照");
       }
