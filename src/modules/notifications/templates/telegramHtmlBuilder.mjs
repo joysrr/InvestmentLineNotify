@@ -26,7 +26,7 @@ function mmTag(mm, hasLoan) {
   return { icon: "🚨", label: "危險" };
 }
 
-/** 槽槿標籤（降低圓點飽和度，改用更專業的符號） */
+/** 槓桿標籤（降低圓點飽和度，改用更專業的符號） */
 function levTag(lev, targetMulti) {
   const v = Number(lev);
   if (!Number.isFinite(v) || v <= 0) return { icon: "▫️", label: "--" };
@@ -65,7 +65,7 @@ function pbStatus(pb) {
   return { label: "高估", emoji: "🔥" };
 }
 
-/** 格式化估値日期 (YYYYMMDD → MM/DD) */
+/** 格式化估值日期 (YYYYMMDD → MM/DD) */
 function fmtValDate(dateStr) {
   if (!dateStr || dateStr.length !== 8) return "";
   return `${dateStr.slice(4, 6)}/${dateStr.slice(6, 8)}`;
@@ -84,7 +84,7 @@ function scoreRow(label, score, info) {
   }
 }
 
-/** 訊號列（轉弱/賣出） (觸發用閃電/鈴陛，未觸發用點) */
+/** 訊號列（轉弱/賣出） (觸發用閃電/鈴聲，未觸發用點) */
 function signalRow({ name, value, condition, triggered }) {
   const icon = triggered ? "⚡" : "▫️";
 
@@ -116,7 +116,7 @@ export function buildTelegramMessages({
   const r = result.reversal ?? {};
   const w = result.weightDetails ?? {};
 
-  // ── 資產數値 ──
+  // ── 資產數值 ──
   const currentAsset = Number(result.netAsset || 0);
   const totalLoan = Number(result.totalLoan || 0);
   const grossAsset = currentAsset + totalLoan;
@@ -124,7 +124,7 @@ export function buildTelegramMessages({
   const hasLoan = totalLoan > 0;
   const mmInfo = mmTag(mm, hasLoan);
 
-  // ── 槟槿 ──
+  // ── 槓桿 ──
   const levValue = Number(result.actualLeverage);
   const targetMulti = Number.isFinite(strategy.leverage?.targetMultiplier)
     ? strategy.leverage.targetMultiplier
@@ -219,10 +219,10 @@ export function buildTelegramMessages({
   if (Number.isFinite(fxChange)) {
     if (fxChange > 0.1) {
       fxEmoji = "📉";
-      fxTrend = "台幣貣6値";
+      fxTrend = "台幣貶值";
     } else if (fxChange < -0.1) {
       fxEmoji = "📈";
-      fxTrend = "台幣升値";
+      fxTrend = "台幣升值";
     }
   }
   const fxText = Number.isFinite(fxRate)
@@ -395,9 +395,9 @@ export function buildTelegramMessages({
     `🕔 <b>賣出訊號</b>  <i>（${sellTriggered}/${sellTotal}）</i>${SEP}\n` +
     `${sellSignals.map(signalRow).join("\n")} \n\n` +
     `🏦 <b>帳戶快照</b>${SEP}\n` +
-    `💼 帳戶淨値    <tg-spoiler>$${Math.floor(currentAsset).toLocaleString("en-US")}</tg-spoiler>\n` +
+    `💼 帳戶淨值    <tg-spoiler>$${Math.floor(currentAsset).toLocaleString("en-US")}</tg-spoiler>\n` +
     `🏗 總資產(含貸) <tg-spoiler>$${Math.floor(grossAsset).toLocaleString("en-US")}</tg-spoiler>\n` +
-    `${levInfo.icon} 實際槟槿    <tg-spoiler>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}  <b>${levInfo.label}</b></tg-spoiler>\n` +
+    `${levInfo.icon} 實際槓桿    <tg-spoiler>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}  <b>${levInfo.label}</b></tg-spoiler>\n` +
     `${mmInfo.icon} 維持率      <tg-spoiler>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未借款"}  <b>${mmInfo.label}</b></tg-spoiler>\n` +
     `${z2Safe ? "✅" : "⚠️"} 00675L佔比  <tg-spoiler>${Number.isFinite(z2Ratio) ? z2Ratio.toFixed(1) + "%" : "N/A"}</tg-spoiler>  <i>上限 ${z2TargetPct.toFixed(0)}%</i>\n` +
     `💵 現金儲備    <tg-spoiler>$${cashReserveStr}</tg-spoiler>\n` +
@@ -453,7 +453,7 @@ export function buildTelegramMessages({
       (arr || []).map((item) => `• ${escapeHTML(item)} `).join("\n\n");
 
     const riskSection =
-      `⚠️ <b>風险提示</b>\n` +
+      `⚠️ <b>風險提示</b>\n` +
       `<blockquote expandable> ${toList(aiAdvice.risk_warnings)}</blockquote> `;
 
     const actionSection =
@@ -500,6 +500,9 @@ export function buildTelegramMessages({
  * 僅發送一則訊息，附加「開啟儀表板」 WebApp 按鈕。
  * 詳細資訊全部至 Mini App 查看。
  *
+ * 包含帳戶快照（淨值、槓桿、維持率、佔比、現金、借款、持股），
+ * 所有金融數值使用 tg-spoiler 保護隱私。
+ *
  * @param {{ result, vixData, usRisk, macroData, config, aiAdvice, quote }} data
  * @param {string} webAppUrl - TELEGRAM_WEBAPP_URL
  * @returns {Array} 單元素數組，格式相容於 sendTelegramBatch
@@ -517,57 +520,78 @@ export function buildCompactMessage({
   const twHour = now.hour;
   const timeTag = now.formatDateTime();
 
-  // 時間標籤
+  // ── 時間標籤 ──
   let timeLabel = "📊 投資日報";
-  if (twHour === 7)                    timeLabel = "🌅 盤前推演";
-  else if (twHour === 10)              timeLabel = "📈 盤中速報";
-  else if (twHour === 12)              timeLabel = "🕛 午盤速報";
+  if (twHour === 7)                        timeLabel = "🌅 盤前推演";
+  else if (twHour === 10)                  timeLabel = "📈 盤中速報";
+  else if (twHour === 12)                  timeLabel = "🕛 午盤速報";
   else if (twHour === 14 || twHour === 15) timeLabel = "🌙 盤後總結";
   else if (twHour >= 21 && twHour <= 23)   timeLabel = "🦉 夜間國際觀測";
 
-  // 縣心資訊
-  const marketStatus  = escapeHTML(result.marketStatus  || "未知");
-  const target        = escapeHTML(result.target        || "觀望");
-  const targetShort   = escapeHTML(result.targetSuggestionShort || "無特殊操作");
+  // ── 核心資訊 ──
+  const marketStatus = escapeHTML(result.marketStatus  || "未知");
+  const target       = escapeHTML(result.target        || "觀望");
+  const targetShort  = escapeHTML(result.targetSuggestionShort || "無特殊操作");
 
-  // VIX
-  const vixVal = vixData?.value != null ? Number(vixData.value) : null;
-  const vixStr = vixVal !== null ? vixVal.toFixed(1) : "N/A";
-  const vixHigh = 20;
-  const vixEmoji = vixVal === null ? "⚪" : vixVal >= 30 ? "🚨" : vixVal >= vixHigh ? "⚠️" : "✅";
+  // ── VIX ──
+  const vixVal   = vixData?.value != null ? Number(vixData.value) : null;
+  const vixStr   = vixVal !== null ? vixVal.toFixed(1) : "N/A";
+  const vixEmoji = vixVal === null ? "⚪" : vixVal >= 30 ? "🚨" : vixVal >= 20 ? "⚠️" : "✅";
 
-  // 評分
+  // ── 評分 ──
   const score    = Number(result.weightScore);
   const minScore = Number(result.strategy?.buy?.minWeightScoreToBuy ?? NaN);
   const scoreOk  = Number.isFinite(score) && Number.isFinite(minScore) && score >= minScore;
   const scoreStr = Number.isFinite(score) ? `${score}pt` : "--";
   const scoreEmoji = scoreOk ? "🟢" : "⏸️";
 
-  // 維持率
+  // ── 維持率 ──
   const mm      = Number(result.maintenanceMargin);
   const hasLoan = Number(result.totalLoan || 0) > 0;
   const mmEmoji = !hasLoan ? "▫️" : mm >= 180 ? "✅" : mm >= 150 ? "⚠️" : "🚨";
   const mmStr   = hasLoan && Number.isFinite(mm) ? `${mm.toFixed(0)}%` : "未借款";
 
-  // 轉弱 / 賣出訊號
+  // ── 轉弱 / 賣出訊號 ──
   const reversalTriggered = result.reversal?.triggeredCount ?? 0;
   const reversalTotal     = result.reversal?.totalFactor    ?? 4;
   const sellTriggered     = result.sellSignals?.signalCount ?? 0;
   const sellTotal         = result.sellSignals?.total       ?? 3;
-  const signalSummary     = `轉弱 ${reversalTriggered}/${reversalTotal} ・ 賣出 ${sellTriggered}/${sellTotal}`;
+  const rSigIcon = signalIcon(reversalTriggered, reversalTotal);
+  const sSigIcon = signalIcon(sellTriggered, sellTotal);
 
-  // AI 第一條 action item（如果有）
+  // ── 帳戶快照資料 ──
+  const strategy     = result.strategy || {};
+  const currentAsset = Number(result.netAsset   || 0);
+  const totalLoan    = Number(result.totalLoan  || 0);
+  const grossAsset   = currentAsset + totalLoan;
+  const levValue     = Number(result.actualLeverage);
+  const targetMulti  = Number.isFinite(strategy.leverage?.targetMultiplier)
+    ? strategy.leverage.targetMultiplier : 1.8;
+  const levInfo      = levTag(levValue, targetMulti);
+  const mmInfo       = mmTag(mm, hasLoan);
+  const z2Ratio      = Number(result.z2Ratio);
+  const th           = strategy.threshold || {};
+  const z2TargetPct  = Number.isFinite(th.z2TargetRatio) ? th.z2TargetRatio * 100 : 40;
+  const z2Safe       = z2Ratio <= z2TargetPct;
+  const qty0050      = Number(config?.qty0050 || 0).toLocaleString("en-US");
+  const qtyZ2        = Number(config?.qtyZ2   || 0).toLocaleString("en-US");
+  const cashStr      = Number(config?.cash    || 0).toLocaleString("en-US");
+  const loanStr      = totalLoan.toLocaleString("en-US");
+  const netStr       = Math.floor(currentAsset).toLocaleString("en-US");
+  const grossStr     = Math.floor(grossAsset).toLocaleString("en-US");
+
+  // ── AI 第一條 action item ──
   const firstAction = aiAdvice?.action_items?.[0]
     ? `\n🔖 ${escapeHTML(aiAdvice.action_items[0])}`
     : "";
 
-  // 冷卻期提示
+  // ── 冷卻期提示 ──
   const cooldown = result.cooldownStatus;
   const cooldownHint = cooldown?.inCooldown
     ? `\n⏰ 冷卻期中 · 剩 ${cooldown.daysLeft} 交易日`
     : "";
 
-  // 每日一句（quote 無內容時密過）
+  // ── 每日一句 ──
   const quoteText = quote?.quote
     ? `\n\n💬 <i>${escapeHTML(quote.quote)}</i>\n— <b>${escapeHTML(quote.author || "")}</b>`
     : "";
@@ -578,10 +602,24 @@ export function buildCompactMessage({
     `<b>${timeLabel}</b>  <code>${escapeHTML(timeTag)}</code>${SEP}` +
     `🚦 <b>${marketStatus}</b>\n` +
     `📌 ${target} · <i>${targetShort}</i>${firstAction}${cooldownHint}\n\n` +
+    // ── 市場三行 ──
     `${vixEmoji} VIX <code>${vixStr}</code>  ` +
     `${scoreEmoji} 評分 <code>${scoreStr}</code>  ` +
     `${mmEmoji} 維持率 <code>${mmStr}</code>\n` +
-    `📡 ${escapeHTML(signalSummary)}` +
+    // ── 風險摘要 ──
+    `${rSigIcon} 轉弱 <code>${reversalTriggered}/${reversalTotal}</code>  ` +
+    `${sSigIcon} 賣出 <code>${sellTriggered}/${sellTotal}</code>\n\n` +
+    // ── 帳戶快照 ──
+    `🏦 <b>帳戶快照</b>${SEP}` +
+    `💼 淨值　　  <tg-spoiler>$${netStr}</tg-spoiler>\n` +
+    `🏗 總資產　  <tg-spoiler>$${grossStr}</tg-spoiler>\n` +
+    `${levInfo.icon} 槓桿　　  <tg-spoiler>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}  ${levInfo.label}</tg-spoiler>\n` +
+    `${mmInfo.icon} 維持率　  <tg-spoiler>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未借款"}  ${mmInfo.label}</tg-spoiler>\n` +
+    `${z2Safe ? "✅" : "⚠️"} 675L佔比  <tg-spoiler>${Number.isFinite(z2Ratio) ? z2Ratio.toFixed(1) + "%" : "N/A"}  上限${z2TargetPct.toFixed(0)}%</tg-spoiler>\n` +
+    `💵 現金　　  <tg-spoiler>$${cashStr}</tg-spoiler>\n` +
+    `💳 借款　　  <tg-spoiler>$${loanStr}</tg-spoiler>\n` +
+    `🛡 0050　　 <tg-spoiler>${qty0050} 股</tg-spoiler>\n` +
+    `⚔️ 00675L　 <tg-spoiler>${qtyZ2} 股</tg-spoiler>` +
     `${quoteText}\n\n` +
     `📲 詳細指標與 AI 建議請到 Mini App 查看`;
 
