@@ -11,7 +11,7 @@ import {
 import { archiveManager } from "./data/archiveManager.mjs";
 import { loadPoolWithFallback, buildFingerprint } from "./data/newsPoolManager.mjs";
 
-// ── 工具函式 ──────────────────────────────────────────────────────────────────
+// ── 工具函式 ────────────────────────────────────────────────────────────────────────────────
 
 const FALLBACK_THRESHOLD = 5;
 
@@ -201,7 +201,6 @@ function prepareNewsForAI(newsList, maxPerRegion = 20, blacklist = null) {
   );
   console.log(`📰 標題長度篩選後: ${filteredByTitleLength.length} 筆`);
 
-  // 使用與 newsPoolManager 相同的 buildFingerprint normalizer 進行採集端去重
   const seenFingerprints = new Set();
   const dedupedByTitle = filteredByTitleLength.filter((news) => {
     const fp = buildFingerprint(news.title);
@@ -227,9 +226,6 @@ function prepareNewsForAI(newsList, maxPerRegion = 20, blacklist = null) {
 
 /**
  * 計算 queryHits 陣列的良率指標
- * @param {Array<{keyword:string, isDynamic:boolean, hit:boolean}>} queryHits
- * @returns {{ keywordYieldRate, dynamicKeywordYieldRate, totalQueryCount,
- *             dynamicQueryCount, matchedQueryCount, dynamicMatchedQueryCount }}
  */
 function calcYieldMetrics(queryHits) {
   const total = queryHits.length;
@@ -251,8 +247,6 @@ function calcYieldMetrics(queryHits) {
 
 /**
  * 新聞採集管線專用：抓取 RSS 原始新聞並完成品質篩選
- * 由 runNewsFetch.mjs 呼叫，結果寫入 newsPoolManager
- * @returns {{ articles: object[], metrics: object }}
  */
 export async function getRawNews({ twQueries, usQueries }) {
   const blacklist = await loadBlacklist();
@@ -336,9 +330,15 @@ export async function getRawNews({ twQueries, usQueries }) {
 }
 
 /**
- * 決策管線專用：從 news pool 讀取新聞 → AI 過濾 → 組裝 Telegram 訊息
+ * 决策管線專用：從 news pool 讀取新聞 → AI 過濾 → 組裝 Telegram 訊息
  * 由 dailyCheck.mjs 呼叫，不再即時抓取 RSS
- * @returns {{ messages, summaryText, conflictSummary }}
+ *
+ * @returns {{
+ *   messages: Array,
+ *   summaryText: string,
+ *   conflictSummary: string,
+ *   structured: { tw: Array, us: Array }
+ * }}
  */
 export async function getNewsTelegramMessages() {
   console.log("📰 [NewsTelegram] 從 news pool 讀取新聞並進行 AI 過濾...");
@@ -349,12 +349,16 @@ export async function getNewsTelegramMessages() {
     console.warn("⚠️ [NewsTelegram] 使用昨日 archive 降級資料");
   }
 
+  // 無新聞时的空結構
+  const emptyStructured = { tw: [], us: [] };
+
   if (articles.length === 0) {
     console.warn("⚠️ [NewsTelegram] pool 與 archive 均為空，回傳無新聞結果");
     return {
       messages: [{ text: "<i>過去 24 小時內無符合策略之重大市場動態。</i>" }],
       summaryText: "今日無重大市場新聞。",
       conflictSummary: "",
+      structured: emptyStructured,
     };
   }
 
@@ -370,6 +374,7 @@ export async function getNewsTelegramMessages() {
       messages: [{ text: "<i>過去 24 小時內無符合策略之重大市場動態。</i>" }],
       summaryText: "今日無重大市場新聞。",
       conflictSummary,
+      structured: emptyStructured,
     };
   }
 
@@ -420,18 +425,19 @@ export async function getNewsTelegramMessages() {
     return {
       messages: [
         {
-          text: `<b>🗞️ 重大市場情報</b> ｜ <code>${todayStr}</code>\n<i>今日無符合策略之重大市場動態。</i>`,
+          text: `<b>🗹️ 重大市場情報</b> ｜ <code>${todayStr}</code>\n<i>今日無符合策略之重大市場動態。</i>`,
         },
       ],
       summaryText: "今日無重大市場新聞。",
       conflictSummary,
+      structured: emptyStructured,
     };
   }
 
   const newsSummaryText = processedNews
     .map((item, index) => {
       const cleanTitle = item.title.split(/ - | \| /)[0];
-      return `${index + 1}. [${item._region}] ${cleanTitle}\n   ↳ 摘要：${item.summary}`;
+      return `${index + 1}. [${item._region}] ${cleanTitle}\n   → 摘要：${item.summary}`;
     })
     .join("\n\n");
 
@@ -439,5 +445,10 @@ export async function getNewsTelegramMessages() {
     messages: messagesToSend,
     summaryText: newsSummaryText,
     conflictSummary,
+    // ── Mini App 用：AI 精選新聞結構化資料 ──
+    structured: {
+      tw: groupedNews["TW"] ?? [],
+      us: groupedNews["US"] ?? [],
+    },
   };
 }
