@@ -1,1 +1,44 @@
-Y29uc3QgQkFTRSA9IGltcG9ydC5tZXRhLmVudi5WSVRFX0FQSV9CQVNFIHx8ICdodHRwOi8vbG9jYWxob3N0OjMwMDAnCgphc3luYyBmdW5jdGlvbiBhcGlGZXRjaChwYXRoLCBtYXhSZXRyaWVzID0gMywgcmV0cnlEZWxheSA9IDgwMCkgewogIGxldCBsYXN0RXJyb3IKCiAgZm9yIChsZXQgYXR0ZW1wdCA9IDA7IGF0dGVtcHQgPD0gbWF4UmV0cmllczsgYXR0ZW1wdCsrKSB7CiAgICBjb25zdCBpbml0RGF0YSA9IHdpbmRvdy5UZWxlZ3JhbT8uV2ViQXBwPy5pbml0RGF0YSB8fCAnJwoKICAgIGlmICghaW5pdERhdGEgJiYgYXR0ZW1wdCA8IG1heFJldHJpZXMpIHsKICAgICAgYXdhaXQgZGVsYXkocmV0cnlEZWxheSkKICAgICAgY29udGludWUKICAgIH0KCiAgICB0cnkgewogICAgICBjb25zdCByZXMgPSBhd2FpdCBmZXRjaChgJHtCQVNFfSR7cGF0aH1gLCB7CiAgICAgICAgaGVhZGVyczogeyAnWC1UZWxlZ3JhbS1Jbml0LURhdGEnOiBpbml0RGF0YSB9CiAgICAgIH0pCgogICAgICBpZiAocmVzLnN0YXR1cyA9PT0gNDAxICYmIGF0dGVtcHQgPCBtYXhSZXRyaWVzKSB7CiAgICAgICAgYXdhaXQgZGVsYXkocmV0cnlEZWxheSkKICAgICAgICBjb250aW51ZQogICAgICB9CgogICAgICBpZiAoIXJlcy5vaykgdGhyb3cgbmV3IEVycm9yKGBBUEkgJHtwYXRofSBmYWlsZWQ6ICR7cmVzLnN0YXR1c31gKQogICAgICByZXR1cm4gcmVzLmpzb24oKQogICAgfSBjYXRjaCAoZXJyKSB7CiAgICAgIGxhc3RFcnJvciA9IGVycgogICAgICBpZiAoYXR0ZW1wdCA8IG1heFJldHJpZXMpIGF3YWl0IGRlbGF5KHJldHJ5RGVsYXkpCiAgICB9CiAgfQoKICB0aHJvdyBsYXN0RXJyb3IgPz8gbmV3IEVycm9yKGBBUEkgJHtwYXRofSBmYWlsZWQgYWZ0ZXIgJHttYXhSZXRyaWVzfSByZXRyaWVzYCkKfQoKZnVuY3Rpb24gZGVsYXkobXMpIHsKICByZXR1cm4gbmV3IFByb21pc2UoKHJlc29sdmUpID0+IHNldFRpbWVvdXQocmVzb2x2ZSwgbXMpKQp9CgpleHBvcnQgY29uc3QgZmV0Y2hSZXBvcnRzICAgICAgICA9IChsaW1pdCA9IDMwKSAgPT4gYXBpRmV0Y2goYC9hcGkvcmVwb3J0cz9saW1pdD0ke2xpbWl0fWApCmV4cG9ydCBjb25zdCBmZXRjaFdlZWtseVJlcG9ydHMgID0gKGxpbWl0ID0gMTIpICA9PiBhcGlGZXRjaChgL2FwaS9yZXBvcnRzL3dlZWtseT9saW1pdD0ke2xpbWl0fWApCmV4cG9ydCBjb25zdCBmZXRjaE1vbnRobHlSZXBvcnRzID0gKGxpbWl0ID0gMTIpICA9PiBhcGlGZXRjaChgL2FwaS9yZXBvcnRzL21vbnRobHk/bGltaXQ9JHtsaW1pdH1gKQpleHBvcnQgY29uc3QgZmV0Y2hOZXdzICAgICAgICAgICA9ICgpICAgICAgICAgICAgID0+IGFwaUZldGNoKCcvYXBpL25ld3MnKQpleHBvcnQgY29uc3QgZmV0Y2hTdGF0dXMgICAgICAgICA9ICgpICAgICAgICAgICAgID0+IGFwaUZldGNoKCcvYXBpL3N0YXR1cycpCmV4cG9ydCBjb25zdCBmZXRjaFJlcG9ydE5ld3MgICAgID0gKCkgICAgICAgICAgICAgPT4gYXBpRmV0Y2goJy9hcGkvcmVwb3J0L25ld3MnKQo=
+const BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000'
+
+async function apiFetch(path, maxRetries = 3, retryDelay = 800) {
+  let lastError
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const initData = window.Telegram?.WebApp?.initData || ''
+
+    if (!initData && attempt < maxRetries) {
+      await delay(retryDelay)
+      continue
+    }
+
+    try {
+      const res = await fetch(`${BASE}${path}`, {
+        headers: { 'X-Telegram-Init-Data': initData }
+      })
+
+      if (res.status === 401 && attempt < maxRetries) {
+        await delay(retryDelay)
+        continue
+      }
+
+      if (!res.ok) throw new Error(`API ${path} failed: ${res.status}`)
+      return res.json()
+    } catch (err) {
+      lastError = err
+      if (attempt < maxRetries) await delay(retryDelay)
+    }
+  }
+
+  throw lastError ?? new Error(`API ${path} failed after ${maxRetries} retries`)
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export const fetchReports        = (limit = 30)  => apiFetch(`/api/reports?limit=${limit}`)
+export const fetchWeeklyReports  = (limit = 12)  => apiFetch(`/api/reports/weekly?limit=${limit}`)
+export const fetchMonthlyReports = (limit = 12)  => apiFetch(`/api/reports/monthly?limit=${limit}`)
+export const fetchNews           = ()             => apiFetch('/api/news')
+export const fetchStatus         = ()             => apiFetch('/api/status')
+export const fetchReportNews     = ()             => apiFetch('/api/report/news')
