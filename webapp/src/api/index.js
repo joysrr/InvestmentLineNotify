@@ -38,10 +38,17 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export const fetchReports        = (limit = 30)  => apiFetch(`/api/reports?limit=${limit}`)
-export const fetchWeeklyReports  = (limit = 12)  => apiFetch(`/api/reports/weekly?limit=${limit}`)
-export const fetchMonthlyReports = (limit = 12)  => apiFetch(`/api/reports/monthly?limit=${limit}`)
-export const fetchNews           = ()             => apiFetch('/api/news')
-export const fetchStatus         = ()             => apiFetch('/api/status')
-export const fetchReportNews     = ()             => apiFetch('/api/report/news')
-export const fetchSnapshots      = (limit = 30)  => apiFetch(`/api/reports/snapshots?limit=${limit}`)
+export const fetchReports          = (limit = 30)  => apiFetch(`/api/reports?limit=${limit}`)
+export const fetchWeeklyReports    = (limit = 12)  => apiFetch(`/api/reports/weekly?limit=${limit}`)
+export const fetchMonthlyReports   = (limit = 12)  => apiFetch(`/api/reports/monthly?limit=${limit}`)
+export const fetchNews             = ()             => apiFetch('/api/news')
+export const fetchStatus           = ()             => apiFetch('/api/status')
+export const fetchReportNews       = ()             => apiFetch('/api/report/news')
+
+// ── Portfolio Snapshots ──────────────────────────────────────────────────────────────────────────────
+// 日粒度（近 90 日）
+export const fetchSnapshots         = (limit = 90)  => apiFetch(`/api/reports/snapshots?limit=${limit}`)
+// 週粒度（近 52 週 / 約一年）
+export const fetchSnapshotsWeekly  = (limit = 52)  => apiFetch(`/api/reports/snapshots/weekly?limit=${limit}`)
+// 月粒度（預設 120 個月 / 約 10 年，最高 360 個月 / 30 年）
+export const fetchSnapshotsMonthly = (limit = 120) => apiFetch(`/api/reports/snapshots/monthly?limit=${limit}`)
