@@ -3,7 +3,7 @@
 ## 1. 系統定位
 `InvestmentLineNotify` 是一套以 Node.js 為核心的投資決策與通知系統，主要服務 0050 / 00675L 與生命週期投資策略的日常監控、新聞治理、AI 分析與週期報告生成。系統採用 **file-based persistence + external services** 的設計，不使用傳統資料庫，而是以 `data/`、Google Sheets、Telegram、Langfuse 與多個市場資料來源共同構成執行基礎。
 
-目前專案已不只是一條 `dailyCheck` 單線流程，而是由多個 runner 組成，並搭配一個長駐 Telegram Bot、一個唯讀 HTTP API Server，以及一個 Vite + Vue 3 前端 Mini App（含 6 個 Tab 的多頁儀表板）：
+目前專案已不只是一條 `dailyCheck` 單線流程，而是由多個 runner 組成，並搭配一個長駐 Telegram Bot、一個唯讀 HTTP API Server，以及一個 Vite + Vue 3 前端 Mini App（含 7 個 Tab 的多頁儀表板）：
 
 1. `src/runDailyCheck.mjs`：每日主流程。
 2. `src/runNewsFetch.mjs`：獨立新聞抓取、去重、更新新聞池。
@@ -12,7 +12,7 @@
 5. `src/runMonthlyReport.mjs`：讀取近期報告並生成 AI 月報。
 6. `src/bot.mjs`：Telegram Bot 長駐程序，處理即時指令觸發與互動。
 7. `src/api/server.mjs`：Fastify HTTP API Server，提供唯讀資料 API 給 Mini App 前端使用。
-8. `webapp/`：Vite + Vue 3 前端 Mini App，作為 Telegram Mini App 嵌入式多頁儀表板（總覽、市場雷達、多空對決、技術圖表、報告、新聞、帳戶設定共 6 Tab）。
+8. `webapp/`：Vite + Vue 3 前端 Mini App，作為 Telegram Mini App 嵌入式多頁儀表板（總覽、雷達、多空、圖表、報告、新聞、設定共 7 Tab）。
 
 ---
 
@@ -22,7 +22,7 @@
 1. **Entry Layer**：由 GitHub Actions、Cron 或手動 CLI 啟動各 runner；或由 Telegram Bot 指令觸發。
 2. **Bot Layer**：`src/bot.mjs` 長駐，接受白名單使用者即時指令，透過 `runnerLock` 防止並發衝突，呼叫與 runner 相同的核心邏輯。
 3. **API Layer**：`src/api/server.mjs` 長駐，提供唯讀 HTTP REST API（Port 3000），供 Telegram Mini App 前端請求資料，具備 Telegram initData HMAC-SHA256 驗證與 CORS 設定。
-4. **Frontend Layer**：`webapp/`（Vite + Vue 3 + ECharts），作為 Telegram Mini App 嵌入式前端，透過 API Layer 取得資料並渲染市場快照、技術圖表、報告列表與新聞池。採 6-tab 左右滑動底部 Tab Bar 導覽。
+4. **Frontend Layer**：`webapp/`（Vite + Vue 3 + ECharts），作為 Telegram Mini App 嵌入式前端，透過 API Layer 取得資料並渲染市場快照、資產趨勢圖表、報告列表與新聞池。採 7-tab 左右滑動底部 Tab Bar 導覽。
 5. **Data Collection Layer**：從 `src/modules/providers/`、Google News RSS、Google Sheets 抓取市場資料、帳戶狀態與新聞。
 6. **Decision Layer**：由 `src/modules/strategy/` 與 `src/modules/ai/` 共同完成量化計算與 AI 判讀。
 7. **Delivery Layer**：由 `src/modules/notifications/` 將結果轉為 Telegram HTML 訊息或週期報告。
@@ -50,6 +50,7 @@ flowchart TD
       RT_STATUS[api/routes/status.mjs]
       RT_REPORTS[api/routes/reports.mjs]
       RT_NEWS[api/routes/news.mjs]
+      AGG[api/utils/snapshotAggregator.mjs]
     end
 
     subgraph Frontend Layer
@@ -65,6 +66,7 @@ flowchart TD
 
     BOT --> ADMIN --> LOCK
     API --> GUARD --> RT_STATUS & RT_REPORTS & RT_NEWS
+    RT_REPORTS --> AGG
     WA --> WA_DASHBOARD & WA_RADAR & WA_MACRO & WA_CHART & WA_REPORTS & WA_NEWS & WA_ACCOUNT
 
     subgraph Runner Layer
@@ -102,6 +104,7 @@ flowchart TD
       M6[src/modules/notifications]
       M7[src/modules/storage.mjs]
       M8[src/modules/data/archiveManager.mjs]
+      M9[src/utils/snapshotCrypto.mjs]
     end
 
     subgraph Persistence
@@ -123,6 +126,7 @@ flowchart TD
     B1 --> M7
     B1 --> M8
     B1 --> M3
+    B1 --> M9
 
     B2 --> M5
     B2 --> M3 --> M4
@@ -151,7 +155,7 @@ flowchart TD
 ### `src/` 執行與模組層
 | Path | 說明 |
 |---|---|
-| `src/dailyCheck.mjs` | 每日主 orchestration，串接持股繼承、資料抓取、策略計算、新聞摘要、AI 建議、通知、歸檔與條件式 `llmJudge`。 |
+| `src/dailyCheck.mjs` | 每日主 orchestration，串接持股繼承、資料抓取、策略計算、新聞摘要、AI 建議、通知、歸檔與條件式 `llmJudge`。`saveReport()` 呼叫時若環境變數 `SNAPSHOT_ENCRYPT_KEY` 已設定且 `lastState` 不為空，會將持倉快照以 AES-256-GCM 加密後寫入 `snapshot` 欄位。 |
 | `src/runDailyCheck.mjs` | CLI entry，處理參數如 `--telegram=false`、`--aiAdvisor=false`。 |
 | `src/runNewsFetch.mjs` | 獨立新聞抓取流程，包含動態關鍵字產生、Yield Rate score 回寫、新聞池更新。 |
 | `src/runOptimizer.mjs` | 獨立執行 Rule Optimizer，優化新聞治理規則，完成後若有新規則則靜默推播至 Log 頻道。 |
@@ -161,8 +165,10 @@ flowchart TD
 | `src/api/server.mjs` | Fastify HTTP API Server（Port 3000），提供唯讀 REST API 給 Mini App 前端。整合 `@fastify/cors` 與 `initDataGuard` middleware。以 `npm run api` 啟動。 |
 | `src/api/middleware/initDataGuard.mjs` | Telegram initData HMAC-SHA256 驗證 middleware。`NODE_ENV=dev` 或 `BYPASS_INIT_DATA=true` 時可 bypass，方便本機開發。 |
 | `src/api/routes/status.mjs` | `GET /api/status`：讀取 `data/market/latest.json`，不存在回 404。 |
-| `src/api/routes/reports.mjs` | `GET /api/reports?limit=N`（預設 30，DESC 排序）與 `GET /api/report/:date`，不存在回 404。 |
+| `src/api/routes/reports.mjs` | `GET /api/reports?limit=N`（預設 30，最大 365，DESC 排序）、`GET /api/report/:date`、`GET /api/snapshots?limit=N`（日粒度快照，解密後回傳）、`GET /api/snapshots/weekly?limit=N`（週聚合，透過 `snapshotAggregator` 計算）、`GET /api/snapshots/monthly?limit=N`（月聚合）。快照端點均需 `SNAPSHOT_ENCRYPT_KEY` 環境變數，否則回傳 `{ hasEncryption: false }`。 |
 | `src/api/routes/news.mjs` | `GET /api/news`：讀取 `data/news/pool_filtered_active.json`，不存在回 `[]`。 |
+| `src/api/utils/snapshotAggregator.mjs` | 週/月快照聚合工具。讀取日粒度快照陣列，按自然週或自然月分組，計算期末快照（`endDate`、`startDate`、`period`）與市價淨值（`netValueMarket = qty0050 × price0050 + qtyZ2 × priceZ2 - totalLoan`）。供 `/api/snapshots/weekly` 與 `/api/snapshots/monthly` 使用。 |
+| `src/utils/snapshotCrypto.mjs` | AES-256-GCM 對稱加密工具模組。提供 `encrypt(obj)` 與 `decrypt(str)` 兩支函式，金鑰來自環境變數 `SNAPSHOT_ENCRYPT_KEY`（32 bytes hex）。供 `dailyCheck.mjs` 寫入快照與 API routes 讀取快照時使用。 |
 | `src/modules/bot/middleware/adminGuard.mjs` | 白名單 middleware，僅允許 `TELEGRAM_USER_ID` 指定的 chat_id 使用指令。 |
 | `src/modules/bot/runnerLock.mjs` | 全域 lock 機制，防止 Bot 指令與排程 runner 同時執行同一任務。 |
 | `src/modules/providers/` | 市場資料 provider layer，封裝 TWSE、Yahoo、FRED、CNN、KGI、NDC 等來源。 |
@@ -213,20 +219,20 @@ GitHub Actions 負責定時觸發各 runner 並在完成後 git push 更新 `dat
 
 ## 5. `webapp/` 前端層
 
-`webapp/` 為 Vite + Vue 3 前端，以 Telegram Mini App 形式嵌入。底部採 **6-tab 左右滑動 Tab Bar**（`overflow-x: auto`，隱藏捲軸），支援系統深色模式與 Telegram 主題色變數（`--tg-theme-*`）。`webapp/dist/` 為 Vite build 產物，由 Nginx 作為靜態檔案服務；開發時以 `npm run dev`（Vite dev server）執行。
+`webapp/` 為 Vite + Vue 3 前端，以 Telegram Mini App 形式嵌入。底部採 **7-tab 左右滑動 Tab Bar**（`overflow-x: auto`，隱藏捲軸），支援系統深色模式與 Telegram 主題色變數（`--tg-theme-*`）。`webapp/dist/` 為 Vite build 產物，由 Nginx 作為靜態檔案服務；開發時以 `npm run dev`（Vite dev server）執行。
 
 | Path | Tab | 說明 |
 |---|---|---|
-| `webapp/src/App.vue` | — | 根元件，整合 Telegram Mini App SDK 初始化（`expand()`、`ready()`）、6-tab 左右滑動底部導覽列（總覽 / 雷達 / 多空 / 報告 / 新聞 / 設定），搭配 active 頂部指示線動畫。 |
-| `webapp/src/router/index.js` | — | Vue Router（Hash History），8 條路由：`/dashboard`、`/radar`、`/macro`、`/chart`、`/reports`、`/news`、`/account`，以及 `/` redirect → `/dashboard` 與 catch-all redirect。 |
+| `webapp/src/App.vue` | — | 根元件，整合 Telegram Mini App SDK 初始化（`expand()`、`ready()`）、7-tab 左右滑動底部導覽列（總覽 / 雷達 / 多空 / 圖表 / 報告 / 新聞 / 設定），搭配 active 頂部指示線動畫。 |
+| `webapp/src/router/index.js` | — | Vue Router（Hash History），9 條路由：`/dashboard`、`/radar`、`/macro`、`/chart`、`/reports`、`/news`、`/account`，以及 `/` redirect → `/dashboard` 與 catch-all redirect。 |
 | `webapp/src/views/DashboardView.vue` | 總覽 | 市場總覽首頁，整合市場快照（VIX / CNN 情緒 / 景氣燈號）、最新決策（AI action items 展開/收合）、技術指標卡片（RSI / KD / MACD / 乖離率）與最新消息預覽（跳轉 `/news`）。 |
 | `webapp/src/views/MarketRadarView.vue` | 雷達 | 市場雷達儀表板，3-col 卡片格，依數值自動渲染紅/黃/綠/藍色階。美股區：美股 VIX、S&P 500 漲跌、CNN 情緒；台股區：台股 VIX、景氣燈號、融資維持率、大盤 PE / PB、美元/台幣匯率；資料同時讀取 `/api/status` 與最新 report。 |
 | `webapp/src/views/MacroBattleView.vue` | 多空 | 總經多空對決頁，讀取最新 report 的 `macroAnalysis` 欄位。顯示市場方向 Badge（BULLISH / BEARISH / NEUTRAL）、多空積分長條動畫、`key_takeaways` 核心邏輯列表，以及多方/空方/中性事件卡片（含積分與分析文字）。 |
-| `webapp/src/views/ChartView.vue` | （圖表） | 以 ECharts 顯示近期 RSI / KD / MA240 等技術指標折線圖。Tab Bar 中目前由「報告」Tab 共用路由，可獨立存取 `/chart`。 |
+| `webapp/src/views/ChartView.vue` | 圖表 | 資產趨勢圖表頁。以 ECharts 折線圖顯示持倉歷史，支援**日（90 筆）/ 週（52 筆）/ 月（120 筆）**三段粒度切換，以及市價淨值、0050 股數、00675L 股數、融資餘額四項指標 chip 切換。市價淨值（`netValueMarket`）採市價法計算（`qty0050 × price0050 + qtyZ2 × priceZ2 - totalLoan`）。圖表含 tooltip、零軸參考線與面積漸層。下方顯示最新快照摘要卡片（4 格）。快照資料透過 `/api/snapshots`、`/api/snapshots/weekly`、`/api/snapshots/monthly` 取得，需後端 `SNAPSHOT_ENCRYPT_KEY` 環境變數才能啟用。 |
 | `webapp/src/views/ReportsView.vue` | 報告 | 報告列表頁，支援分頁載入，點擊可展開每日報告全文（含 AI 建議、巨集分析、技術指標等欄位）。 |
 | `webapp/src/views/NewsView.vue` | 新聞 | 新聞池頁，顯示 `pool_filtered_active.json` 中的有效新聞條目，支援地區 flag 標示與新舊色點。 |
 | `webapp/src/views/AccountView.vue` | 設定 | 帳戶與設定頁，顯示 Telegram 使用者資訊與系統設定入口。 |
-| `webapp/src/api/index.js` | — | Axios wrapper，統一設定 `baseURL` 與 Telegram `initData` header。 |
+| `webapp/src/api/index.js` | — | Axios wrapper，統一設定 `baseURL` 與 Telegram `initData` header。提供 `fetchSnapshots(limit)`、`fetchSnapshotsWeekly(limit)`、`fetchSnapshotsMonthly(limit)` 三支快照 API 函式。 |
 | `webapp/src/composables/useTelegram.js` | — | 封裝 `window.Telegram.WebApp` 物件，提供 `tg`、`user`、`initData`、`openLink` 等響應式資料與方法。 |
 
 ---
@@ -240,7 +246,7 @@ GitHub Actions 負責定時觸發各 runner 並在完成後 git push 更新 `dat
 | `docs/langfuse-score-configs.md` | Langfuse 評分維度設定（Schema_Validation、Actionability、Tone_and_Empathy 等）。 |
 | `docs/modules/ai_pipeline.md` | AI decision pipeline 詳細設計：aiClient、aiCoach、llmJudge、periodReportAgent、ruleOptimizerAgent。 |
 | `docs/modules/market_strategy.md` | 策略引擎、技術指標、新聞治理架構說明。 |
-| `docs/modules/core_infrastructure.md` | 共用 infra 說明：storage、archiveManager、newsPoolManager、coreUtils、Google Sheets 欄位 mapping。 |
+| `docs/modules/core_infrastructure.md` | 共用 infra 說明：storage、archiveManager、newsPoolManager、coreUtils、snapshotCrypto、Google Sheets 欄位 mapping。 |
 | `docs/modules/providers.md` | 各 market data provider 的欄位、來源與快取策略。 |
 | `docs/modules/entry_and_notifications.md` | 系統入口（runner / Bot / Actions）與通知層（Telegram 訊息格式、分流策略）完整說明。 |
 | `docs/plans/finish_features.md` | 已完成功能清單（內容已整合至系統文件，供歷史追蹤）。 |
