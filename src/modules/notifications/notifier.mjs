@@ -13,7 +13,8 @@ import {
  *
  * 發送策略：
  *   - TELEGRAM_WEBAPP_URL 已設定 → 精簡提醒卡（1 則）+ WebApp 按鈕，讓使用者點進 Mini App 查看詳情
- *   - TELEGRAM_WEBAPP_URL 未設定 → 原有完整三則訊息（向下相容）
+ *                                   新聞訊息略過（使用者可從 Mini App 新聞 Tab 查閱）
+ *   - TELEGRAM_WEBAPP_URL 未設定 → 原有完整三則訊息 + 新聞訊息（向下相容）
  *
  * @param {object} data          - 完整報告資料物件（傳給 builder 的所有欄位）
  * @param {string[]} newsMessages - 額外新聞訊息陣列（可為空陣列）
@@ -32,17 +33,16 @@ export async function broadcastDailyReport(
     let tgMsgs;
     if (webAppUrl) {
       // ── 精簡提醒卡模式：1 則 + WebApp 按鈕 ──────────────────────
+      // 新聞已整合進 Mini App 新聞 Tab（精選報告 + 新聞池），不再重複推送
       tgMsgs = buildCompactMessage(data, webAppUrl);
-      console.log("[Notifier] MiniApp 模式：發送精簡提醒卡");
+      console.log("[Notifier] MiniApp 模式：發送精簡提醒卡（新聞訊息略過）");
     } else {
-      // ── 原有完整模式：3 則詳細訊息 ──────────────────────────────
+      // ── 原有完整模式：3 則詳細訊息 + 新聞訊息 ───────────────────
       tgMsgs = buildTelegramMessages(data);
-      console.log("[Notifier] 完整模式：發送三則戰報");
-    }
-
-    // 新聞訊息附加（兩種模式皆支援）
-    if (newsMessages.length) {
-      tgMsgs = tgMsgs.concat(newsMessages);
+      if (newsMessages.length) {
+        tgMsgs = tgMsgs.concat(newsMessages);
+      }
+      console.log("[Notifier] 完整模式：發送三則戰報 + 新聞訊息");
     }
 
     tasks.push(
