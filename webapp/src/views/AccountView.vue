@@ -78,7 +78,7 @@
         <h2 class="section-title">🌐 總經快照</h2>
         <div class="macro-grid">
           <div class="macro-card">
-            <div class="macro-label">CNN 恐懼貢婪</div>
+            <div class="macro-label">CNN 恐懼貪婪</div>
             <div class="macro-value" :class="fngClass">{{ fngValue }}</div>
             <div class="macro-sub">{{ fngRating }}</div>
           </div>
@@ -90,7 +90,7 @@
           <div class="macro-card">
             <div class="macro-label">大盤 P/B</div>
             <div class="macro-value">{{ pbValue }}</div>
-            <div class="macro-sub">淨値比</div>
+            <div class="macro-sub">淨值比</div>
           </div>
           <div class="macro-card">
             <div class="macro-label">大盤 P/E</div>
@@ -100,16 +100,67 @@
         </div>
       </div>
 
-      <!-- 4. 帳戶資訊說明 -->
+      <!-- 4. 帳戶快照 -->
       <div class="section">
-        <h2 class="section-title">💼 帳戶資訊</h2>
-        <div class="notice-block">
-          <span class="notice-icon">📱</span>
+        <h2 class="section-title">💼 帳戶快照</h2>
+
+        <!-- 4a. 加密金鑰未設定 -->
+        <div v-if="!snapshotEncryption" class="notice-block">
+          <span class="notice-icon">🔐</span>
           <div class="notice-content">
-            <p class="notice-title">帳戶快照請參考 Telegram 訊息</p>
-            <p class="notice-desc">淨値、構桿、維持率、00675L 佔比、現金儲備等帳戶指標，請直接查看每日 Telegram 通知訊息（msg2 帳戶快照區塊）。</p>
+            <p class="notice-title">尚未啟用帳戶快照</p>
+            <p class="notice-desc">請在伺服器設定 SNAPSHOT_ENCRYPT_KEY 環境變數以啟用加密快照功能。</p>
           </div>
         </div>
+
+        <!-- 4b. 有加密但尚無歷史資料 -->
+        <div v-else-if="snapshotEncryption && !latestSnapshot" class="notice-block notice-empty">
+          <span class="notice-icon">📭</span>
+          <div class="notice-content">
+            <p class="notice-title">尚無快照資料</p>
+            <p class="notice-desc">快照將從下一次每日執行後開始累積。</p>
+          </div>
+        </div>
+
+        <!-- 4c. 顯示最新快照 -->
+        <template v-else>
+          <div class="snapshot-date">📅 {{ latestSnapshot.date }} 快照</div>
+          <div class="snapshot-grid">
+            <div class="snapshot-card">
+              <div class="snapshot-label">0050 股數</div>
+              <div class="snapshot-value">{{ latestSnapshot.qty0050.toLocaleString() }}</div>
+              <div class="snapshot-sub">股</div>
+            </div>
+            <div class="snapshot-card">
+              <div class="snapshot-label">00675L 股數</div>
+              <div class="snapshot-value">{{ latestSnapshot.qtyZ2.toLocaleString() }}</div>
+              <div class="snapshot-sub">股</div>
+            </div>
+            <div class="snapshot-card">
+              <div class="snapshot-label">融資餘額</div>
+              <div class="snapshot-value">{{ formatMoney(latestSnapshot.totalLoan) }}</div>
+              <div class="snapshot-sub">元</div>
+            </div>
+            <div class="snapshot-card">
+              <div class="snapshot-label">現金儲備</div>
+              <div class="snapshot-value">{{ formatMoney(latestSnapshot.cash) }}</div>
+              <div class="snapshot-sub">元</div>
+            </div>
+            <div class="snapshot-card" v-if="latestSnapshot.avgCost0050 != null">
+              <div class="snapshot-label">0050 均價</div>
+              <div class="snapshot-value">{{ Number(latestSnapshot.avgCost0050).toFixed(2) }}</div>
+              <div class="snapshot-sub">元/股</div>
+            </div>
+            <div class="snapshot-card" v-if="latestSnapshot.avgCostZ2 != null">
+              <div class="snapshot-label">00675L 均價</div>
+              <div class="snapshot-value">{{ Number(latestSnapshot.avgCostZ2).toFixed(2) }}</div>
+              <div class="snapshot-sub">元/股</div>
+            </div>
+          </div>
+          <div v-if="latestSnapshot.lastBuyDate" class="snapshot-buyday">
+            最後買進日：{{ latestSnapshot.lastBuyDate }}
+          </div>
+        </template>
       </div>
 
       <!-- 5. 關於 -->
@@ -135,7 +186,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { fetchStatus } from '../api/index.js'
+import { usePortfolioSnapshots } from '../composables/usePortfolioSnapshots.js'
 
+// ── 系統狀態 ──────────────────────────────────────────
 const status  = ref(null)
 const loading = ref(true)
 const error   = ref(null)
@@ -152,7 +205,23 @@ async function load() {
   }
 }
 
-onMounted(load)
+onMounted(() => {
+  load()
+  loadSnapshots()
+})
+
+// ── 帳戶快照 ──────────────────────────────────────────
+const {
+  latestSnapshot,
+  hasEncryption: snapshotEncryption,
+  load: loadSnapshots,
+} = usePortfolioSnapshots(1) // AccountView 只需最新一筆
+
+// ── 金額格式化 ────────────────────────────────────────
+function formatMoney(val) {
+  if (val == null) return 'N/A'
+  return Math.round(val).toLocaleString()
+}
 
 // ── _meta.lastRun ──
 const lastRunLabel = computed(() => {
@@ -169,7 +238,7 @@ const lastRunLabel = computed(() => {
 const SOURCE_LABELS = {
   ndcProvider:       '國發會景氣燈號',
   kgiProvider:       '台股融資餘額',
-  cnnProvider:       'CNN 恐懼貢婪',
+  cnnProvider:       'CNN 恐懼貪婪',
   usMarketProvider:  '美股 FRED',
   valuationProvider: '大盤 PB/PE',
   yahooProvider:     'USD/TWD 匯率',
@@ -367,6 +436,10 @@ const peValue = computed(() => {
   border-radius: 10px;
   border: 1px solid rgba(36, 129, 204, 0.15);
 }
+.notice-empty {
+  background: rgba(180, 180, 180, 0.06);
+  border-color: rgba(180, 180, 180, 0.2);
+}
 .notice-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
 .notice-content { flex: 1; }
 .notice-title {
@@ -380,6 +453,34 @@ const peValue = computed(() => {
   color: var(--tg-theme-hint-color, #666);
   line-height: 1.5;
   margin: 0;
+}
+
+/* ── Snapshot ── */
+.snapshot-date {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #888);
+  margin-bottom: 10px;
+}
+.snapshot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.snapshot-card {
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  border-radius: 8px;
+  padding: 10px 10px 8px;
+  text-align: center;
+}
+.snapshot-label { font-size: 11px; color: var(--tg-theme-hint-color, #888); margin-bottom: 4px; }
+.snapshot-value { font-size: 20px; font-weight: 700; color: var(--tg-theme-text-color, #111); line-height: 1; }
+.snapshot-sub   { font-size: 10px; color: var(--tg-theme-hint-color, #aaa); margin-top: 3px; }
+.snapshot-buyday {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #888);
+  text-align: right;
+  margin-top: 4px;
 }
 
 /* ── About ── */
