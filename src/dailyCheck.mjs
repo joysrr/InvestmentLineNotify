@@ -195,10 +195,10 @@ export async function dailyCheck({
   console.log(`✅ 指標計算完成`);
 
   // ── 取得新聞集錦與總經分析（提前至策略引擎之前）────────────────────────────
-  // 原因：macroAnalysis.conclusion.market_direction 需要注入策略引擎影響評分
   let newsMessages = [];
   let newsSummaryText = "今日無重大市場新聞。";
   let conflictSummary = "";
+  let newsStructured = { tw: [], us: [] }; // ← Step 1 新增欄位
   console.log("📝 正在從 news pool 取得新聞集錦...");
   {
     const done = stepTimer("fetchNews");
@@ -207,11 +207,13 @@ export async function dailyCheck({
       newsMessages = newsResult.messages;
       newsSummaryText = newsResult.summaryText;
       conflictSummary = newsResult.conflictSummary ?? "";
+      newsStructured = newsResult.structured ?? { tw: [], us: [] }; // ← 接收 structured
     } catch (err) {
       console.error("❌ 取得新聞集錦失敗 (但不影響發送通知):", err.message);
       newsMessages = [];
       newsSummaryText = "新聞集錦取得失敗，請檢查系統日誌。";
       conflictSummary = "";
+      newsStructured = { tw: [], us: [] };
     }
     done();
   }
@@ -235,7 +237,6 @@ export async function dailyCheck({
     macroTextForCoach = macroAnalysis.summary;
   }
 
-  // 擷取市場方向（BULLISH / BEARISH / NEUTRAL），找不到時為 null
   const macroMarketDirection = macroAnalysis?.conclusion?.market_direction ?? null;
   if (macroMarketDirection) {
     console.log(`✅ 總經方向：${macroMarketDirection}`);
@@ -264,7 +265,6 @@ export async function dailyCheck({
     US_RiskLevel: usRisk.riskLevel,
     US_RiskIcon: usRisk.riskIcon,
     US_Suggestion: usRisk.suggestion,
-    // ── 新增：總體情緒方向注入 ──
     macroMarketDirection,
   };
 
@@ -347,6 +347,12 @@ export async function dailyCheck({
         rawValuation: macroData?.rawValuation  ?? null,
       },
       macroAnalysis,
+      // ── Step 2：補存 AI 精選新聞給 Mini App 使用 ──────────────────
+      news: {
+        tw: newsStructured.tw,
+        us: newsStructured.us,
+        generatedAt: dateText,
+      },
       // ─────────────────────────────────────────────────────────────
     });
     await archiveManager.cleanOldArchives(30);
