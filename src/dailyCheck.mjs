@@ -27,6 +27,7 @@ import {
 } from "./modules/ai/aiDataPreprocessor.mjs";
 import { archiveManager } from "./modules/data/archiveManager.mjs";
 import { TwDate, stepTimer } from "./utils/coreUtils.mjs";
+import { encryptSnapshot, isSnapshotEncryptEnabled } from "./utils/snapshotCrypto.mjs";
 
 const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
@@ -198,7 +199,7 @@ export async function dailyCheck({
   let newsMessages = [];
   let newsSummaryText = "今日無重大市場新聞。";
   let conflictSummary = "";
-  let newsStructured = { tw: [], us: [] }; // ← Step 1 新增欄位
+  let newsStructured = { tw: [], us: [] };
   console.log("📝 正在從 news pool 取得新聞集錦...");
   {
     const done = stepTimer("fetchNews");
@@ -207,7 +208,7 @@ export async function dailyCheck({
       newsMessages = newsResult.messages;
       newsSummaryText = newsResult.summaryText;
       conflictSummary = newsResult.conflictSummary ?? "";
-      newsStructured = newsResult.structured ?? { tw: [], us: [] }; // ← 接收 structured
+      newsStructured = newsResult.structured ?? { tw: [], us: [] };
     } catch (err) {
       console.error("❌ 取得新聞集錦失敗 (但不影響發送通知):", err.message);
       newsMessages = [];
@@ -331,6 +332,21 @@ export async function dailyCheck({
   try {
     console.log("🧹 正在清理過期快取並儲存最終報告...");
     const done = stepTimer("saveReport");
+
+    // 帳戶快照：有金鑰才加密存入，否則略過
+    let snapshotField = {};
+    if (isSnapshotEncryptEnabled() && lastState) {
+      const encrypted = encryptSnapshot(lastState);
+      if (encrypted) {
+        snapshotField = { snapshot: encrypted };
+        console.log("🔐 [Snapshot] 帳戶快照已加密，納入報告");
+      } else {
+        console.warn("⚠️ [Snapshot] 加密失敗，本次報告不含快照");
+      }
+    } else if (!isSnapshotEncryptEnabled()) {
+      console.log("ℹ️ [Snapshot] SNAPSHOT_ENCRYPT_KEY 未設定，略過快照");
+    }
+
     await archiveManager.saveReport({
       date: dateText,
       signals: result,
@@ -347,13 +363,14 @@ export async function dailyCheck({
         rawValuation: macroData?.rawValuation  ?? null,
       },
       macroAnalysis,
-      // ── Step 2：補存 AI 精選新聞給 Mini App 使用 ──────────────────
+      // ── 補存 AI 精選新聞給 Mini App 使用 ──────────────────────────
       news: {
         tw: newsStructured.tw,
         us: newsStructured.us,
         generatedAt: dateText,
       },
-      // ─────────────────────────────────────────────────────────────
+      // ── 帳戶快照（有金鑰時才存在此欄位）──────────────────────────
+      ...snapshotField,
     });
     await archiveManager.cleanOldArchives(30);
     done();
