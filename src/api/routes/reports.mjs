@@ -5,6 +5,11 @@ import {
   aggregateByMonth,
 } from "../utils/reportAggregator.mjs";
 import { decryptSnapshot } from "../../utils/snapshotCrypto.mjs";
+import {
+  normaliseSnapshot,
+  aggregateSnapshotsByWeek,
+  aggregateSnapshotsByMonth,
+} from "../utils/snapshotAggregator.mjs";
 
 const REPORTS_DIR = join(process.cwd(), "data", "reports");
 const DATE_PATTERN = /^(\d{4}-\d{2}-\d{2})\.json$/;
@@ -42,6 +47,31 @@ async function loadReports(dates, limit) {
     }),
   );
   return results.filter(Boolean);
+}
+
+/**
+ * Walks date files and collects decrypted snapshot entries.
+ * Stops once `limit` valid snapshots are collected or all dates are exhausted.
+ * @param {string[]} dates  - sorted DESC
+ * @param {number}   limit  - max snapshot entries to collect
+ * @returns {Array<{date:string, snap:Object}>}
+ */
+async function loadSnapshotEntries(dates, limit) {
+  const entries = [];
+  for (const date of dates) {
+    if (entries.length >= limit) break;
+    try {
+      const raw = await readFile(join(REPORTS_DIR, `${date}.json`), "utf-8");
+      const report = JSON.parse(raw);
+      if (!report.snapshot) continue;
+      const decrypted = decryptSnapshot(report.snapshot);
+      if (!decrypted) continue;
+      entries.push({ date, snap: decrypted });
+    } catch {
+      continue;
+    }
+  }
+  return entries;
 }
 
 export default async function reportsRoute(fastify) {
@@ -87,12 +117,12 @@ export default async function reportsRoute(fastify) {
   /**
    * GET /api/reports?limit=N
    * Returns the N most recent daily reports (full JSON objects).
-   * Default limit: 30.  Capped at 100.
+   * Default limit: 30.  Capped at 365 (supports 1-year daily chart).
    */
   fastify.get("/reports", async (request, reply) => {
     const rawLimit = parseInt(request.query.limit ?? "30", 10);
     const limit =
-      Number.isNaN(rawLimit) || rawLimit < 1 ? 30 : Math.min(rawLimit, 100);
+      Number.isNaN(rawLimit) || rawLimit < 1 ? 30 : Math.min(rawLimit, 365);
 
     try {
       const dates = await getSortedDates();
@@ -131,12 +161,12 @@ export default async function reportsRoute(fastify) {
   /**
    * GET /api/reports/monthly?limit=N
    * Returns month aggregated periods (newest first).
-   * Default limit: 12 months.  Capped at 24.
+   * Default limit: 12 months.  Capped at 360.
    */
   fastify.get("/reports/monthly", async (request, reply) => {
     const rawLimit = parseInt(request.query.limit ?? "12", 10);
     const limit =
-      Number.isNaN(rawLimit) || rawLimit < 1 ? 12 : Math.min(rawLimit, 24);
+      Number.isNaN(rawLimit) || rawLimit < 1 ? 12 : Math.min(rawLimit, 360);
 
     try {
       const dates = await getSortedDates();
@@ -183,62 +213,99 @@ export default async function reportsRoute(fastify) {
    * GET /api/reports/snapshots?limit=N
    * Returns decrypted portfolio snapshots from historical reports.
    * Only includes reports that contain an encrypted snapshot field.
-   * Default limit: 30. Capped at 100.
+   * Default limit: 30.  Capped at 365 (supports 1-year daily chart).
    *
-   * Response:
+   * Response shape:
    * {
-   *   snapshots: Array<{ date, qty0050, qtyZ2, totalLoan, cash, avgCost0050, avgCostZ2, lastBuyDate }>,
+   *   snapshots: Array<normalised snapshot with netValueCost & netValueMarket>,
    *   hasEncryption: boolean
    * }
    */
   fastify.get("/reports/snapshots", async (request, reply) => {
     const rawLimit = parseInt(request.query.limit ?? "30", 10);
     const limit =
-      Number.isNaN(rawLimit) || rawLimit < 1 ? 30 : Math.min(rawLimit, 100);
+      Number.isNaN(rawLimit) || rawLimit < 1 ? 30 : Math.min(rawLimit, 365);
 
     try {
       const dates = await getSortedDates();
-
-      // 顯定加密功能是否可用（金鑰是否設定）
       const hasEncryption = !!process.env.SNAPSHOT_ENCRYPT_KEY;
 
       if (!hasEncryption) {
         return reply.send({ snapshots: [], hasEncryption: false });
       }
 
-      const snapshots = [];
-
-      // 走小所有檔案直到收集足夠筆數
-      for (const date of dates) {
-        if (snapshots.length >= limit) break;
-        try {
-          const raw = await readFile(join(REPORTS_DIR, `${date}.json`), "utf-8");
-          const report = JSON.parse(raw);
-
-          // 沒有 snapshot 欄位的日報直接跳過（金鑰設定前的舊資料）
-          if (!report.snapshot) continue;
-
-          const decrypted = decryptSnapshot(report.snapshot);
-          if (!decrypted) continue; // 解密失敗則跳過
-
-          snapshots.push({
-            date,
-            qty0050:     decrypted.qty0050     ?? 0,
-            qtyZ2:       decrypted.qtyZ2       ?? 0,
-            totalLoan:   decrypted.totalLoan   ?? 0,
-            cash:        decrypted.cash        ?? 0,
-            avgCost0050: decrypted.avgCost0050 ?? null,
-            avgCostZ2:   decrypted.avgCostZ2   ?? null,
-            lastBuyDate: decrypted.lastBuyDate ?? null,
-          });
-        } catch {
-          continue; // 跳過搏搏的檔案
-        }
-      }
+      const entries = await loadSnapshotEntries(dates, limit);
+      const snapshots = entries.map(({ date, snap }) =>
+        normaliseSnapshot(date, snap)
+      );
 
       return reply.send({ snapshots, hasEncryption: true });
     } catch (err) {
       fastify.log.error({ err }, "Failed to read snapshots");
+      return reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
+  /**
+   * GET /api/reports/snapshots/weekly?limit=N
+   * Returns weekly-aggregated portfolio snapshots (end-of-week position).
+   * Default limit: 52.  Capped at 52.
+   *
+   * Response shape: Array<weekly period with normalised snapshot fields>
+   */
+  fastify.get("/reports/snapshots/weekly", async (request, reply) => {
+    const rawLimit = parseInt(request.query.limit ?? "52", 10);
+    const limit =
+      Number.isNaN(rawLimit) || rawLimit < 1 ? 52 : Math.min(rawLimit, 52);
+
+    try {
+      const dates = await getSortedDates();
+      const hasEncryption = !!process.env.SNAPSHOT_ENCRYPT_KEY;
+
+      if (!hasEncryption) {
+        return reply.send([]);
+      }
+
+      // Load enough entries to cover requested weeks (5 trading days × weeks × 1.5 buffer)
+      const loadLimit = Math.min(dates.length, Math.ceil(limit * 5 * 1.5));
+      const entries = await loadSnapshotEntries(dates, loadLimit);
+      const weekly = aggregateSnapshotsByWeek(entries, limit);
+
+      return reply.send(weekly);
+    } catch (err) {
+      fastify.log.error({ err }, "Failed to build weekly snapshots");
+      return reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
+  /**
+   * GET /api/reports/snapshots/monthly?limit=N
+   * Returns monthly-aggregated portfolio snapshots (end-of-month position).
+   * Default limit: 120.  Capped at 360 (supports 30-year chart).
+   *
+   * Response shape: Array<monthly period with normalised snapshot fields>
+   */
+  fastify.get("/reports/snapshots/monthly", async (request, reply) => {
+    const rawLimit = parseInt(request.query.limit ?? "120", 10);
+    const limit =
+      Number.isNaN(rawLimit) || rawLimit < 1 ? 120 : Math.min(rawLimit, 360);
+
+    try {
+      const dates = await getSortedDates();
+      const hasEncryption = !!process.env.SNAPSHOT_ENCRYPT_KEY;
+
+      if (!hasEncryption) {
+        return reply.send([]);
+      }
+
+      // Load enough entries: ~22 trading days/month × months × 1.2 buffer
+      const loadLimit = Math.min(dates.length, Math.ceil(limit * 22 * 1.2));
+      const entries = await loadSnapshotEntries(dates, loadLimit);
+      const monthly = aggregateSnapshotsByMonth(entries, limit);
+
+      return reply.send(monthly);
+    } catch (err) {
+      fastify.log.error({ err }, "Failed to build monthly snapshots");
       return reply.code(500).send({ error: "Internal server error" });
     }
   });
