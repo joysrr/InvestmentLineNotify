@@ -8,7 +8,7 @@
       </router-view>
     </main>
 
-    <!-- 左右滑動 Tab Bar（7 個 Tab） -->
+    <!-- 左右滑動 Tab Bar（7 Tab）-->
     <nav class="tab-bar">
       <router-link
         v-for="tab in tabs"
@@ -125,31 +125,38 @@ const tabs = [
   overflow: hidden;
 }
 
+/* 方案 B：內容區僅允許垂直滾動，水平方向不盡删取觸控事件，防止與 iOS 系統手勢衝突 */
 .app-main {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;  /* 僅垂直滾動，水平手勢交還 iOS 系統 */
 }
 
-/* ── Tab Bar：左右滑動，7 Tab ── */
+/* 方案 A：移除慣性滑動，改用普通滾動，避免 iOS 拆截 touch 事件
+   touch-action: pan-x 明確告知系統此區域允許水平 pan，減少與邊緣手勢衝突機率 */
 .tab-bar {
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;          /* Firefox */
+  -webkit-overflow-scrolling: auto;  /* 關閉慣性滾動，避免慰動滾動搋互至 iOS 系統 */
+  touch-action: pan-x;               /* 僅水平 pan，不競爭系統邊緣手勢 */
+  scrollbar-width: none;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   background: var(--tg-theme-bg-color, rgba(255, 255, 255, 0.92));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   flex-shrink: 0;
+  /* Safe area 內縮避開左右系統邊緣手勢區域 */
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-.tab-bar::-webkit-scrollbar { display: none; }  /* Chrome/Safari */
+.tab-bar::-webkit-scrollbar { display: none; }
 
 .tab-item {
-  flex: 0 0 auto;                 /* 不收縮，寬度由內容決定 */
+  flex: 0 0 auto;
   min-width: 60px;
   position: relative;
   display: flex;
@@ -162,6 +169,8 @@ const tabs = [
   gap: 3px;
   transition: color 0.18s ease;
   -webkit-tap-highlight-color: transparent;
+  /* 每個 Tab 項目為純點擊，不需要手勢滾動 */
+  touch-action: manipulation;
 }
 
 .tab-item--active {
