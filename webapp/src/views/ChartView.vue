@@ -64,7 +64,7 @@
       <!-- 最新快照摘要 -->
       <div class="summary-grid" v-if="latest">
         <div class="summary-card">
-          <span class="s-label">市價淨值</span>
+          <span class="s-label">市價淨値</span>
           <span class="s-value" :class="valueClass(latest.netValueMarket)">
             {{ formatNTD(latest.netValueMarket) }}
           </span>
@@ -107,7 +107,7 @@ use([
   GridComponent, MarkLineComponent, LegendComponent, CanvasRenderer
 ])
 
-// ── 粒度設定 ───────────────────────────────────────────────────────────
+// ── 粒度設定 ────────────────────────────────────────────────────────────────────
 const granularities = [
   { key: 'daily',   label: '日 90',  limit: 90 },
   { key: 'weekly',  label: '週 52',  limit: 52 },
@@ -118,26 +118,26 @@ const granularityLabel = computed(() =>
   granularities.find(g => g.key === granularity.value)?.label ?? ''
 )
 
-// ── 指標設定 ───────────────────────────────────────────────────────────
+// ── 指標設定 ────────────────────────────────────────────────────────────────────
 const metrics = [
-  { key: 'netValueMarket', label: '市價淨值' },
+  { key: 'netValueMarket', label: '市價淨値' },
   { key: 'qty0050',        label: '0050 股數' },
   { key: 'qtyZ2',          label: '675L 股數' },
   { key: 'totalLoan',      label: '融資餘額' },
 ]
 const metric = ref('netValueMarket')
 
-// ── 資料狀態 ───────────────────────────────────────────────────────────
-const dataPoints = ref([])   // ASC 排序
-const loading    = ref(true)
-const error      = ref(null)
-const hasEncryption = ref(true)
+// ── 資料狀態 ────────────────────────────────────────────────────────────────────
+const dataPoints    = ref([])   // ASC 排序
+const loading       = ref(true)
+const error         = ref(null)
+const hasEncryption = ref(true)  // 預設 true，如後端明確回傳 false 才覆寫
 
 const latest = computed(() =>
   dataPoints.value.length ? dataPoints.value[dataPoints.value.length - 1] : null
 )
 
-// ── 載入逻輯 ───────────────────────────────────────────────────────────
+// ── 載入逻輯 ────────────────────────────────────────────────────────────────────
 async function load() {
   loading.value = true
   error.value   = null
@@ -147,20 +147,40 @@ async function load() {
 
     if (granularity.value === 'daily') {
       const res = await fetchSnapshots(g.limit)
+      // daily API 回傳 { snapshots: [], hasEncryption: bool }
       hasEncryption.value = res.hasEncryption ?? true
-      // daily API 回傳 { snapshots: [] }，ASC 排序
       raw = [...(res.snapshots ?? [])].sort((a, b) => a.date.localeCompare(b.date))
+
     } else if (granularity.value === 'weekly') {
       const res = await fetchSnapshotsWeekly(g.limit)
-      // weekly/monthly API 直接回傳陣列 (DESC)，轉為 ASC
-      raw = [...(Array.isArray(res) ? res : [])].sort((a, b) =>
-        (a.endDate ?? a.date ?? '').localeCompare(b.endDate ?? b.date ?? '')
-      )
+      // weekly API 可能回傳 [] （未啟用快照）或陣列
+      // 若為空陣列且 daily 已知無加密，保留 hasEncryption 不覆寫；否則認為有啟用
+      if (Array.isArray(res)) {
+        raw = [...res].sort((a, b) =>
+          (a.endDate ?? a.date ?? '').localeCompare(b.endDate ?? b.date ?? '')
+        )
+        // weekly/monthly 無法從回傳值直接得知 hasEncryption
+        // 保持現有狀態，不覆寫
+      } else {
+        // 如果後端未來扤充 hasEncryption 欄位，在此門一擴充
+        hasEncryption.value = res.hasEncryption ?? true
+        raw = [...(res.snapshots ?? [])].sort((a, b) =>
+          (a.endDate ?? a.date ?? '').localeCompare(b.endDate ?? b.date ?? '')
+        )
+      }
+
     } else {
       const res = await fetchSnapshotsMonthly(g.limit)
-      raw = [...(Array.isArray(res) ? res : [])].sort((a, b) =>
-        (a.endDate ?? a.date ?? '').localeCompare(b.endDate ?? b.date ?? '')
-      )
+      if (Array.isArray(res)) {
+        raw = [...res].sort((a, b) =>
+          (a.endDate ?? a.date ?? '').localeCompare(b.endDate ?? b.date ?? '')
+        )
+      } else {
+        hasEncryption.value = res.hasEncryption ?? true
+        raw = [...(res.snapshots ?? [])].sort((a, b) =>
+          (a.endDate ?? a.date ?? '').localeCompare(b.endDate ?? b.date ?? '')
+        )
+      }
     }
 
     dataPoints.value = raw
@@ -174,20 +194,19 @@ async function load() {
 function setGranularity(key) {
   if (granularity.value === key) return
   granularity.value = key
-  // watch 監听會自動觸發 load()
 }
 
 watch(granularity, load)
 onMounted(load)
 
-// ── X 軸標籤格式化 ─────────────────────────────────────────────────────────
+// ── X 軸標籤格式化 ────────────────────────────────────────────────────────────────────
 function xLabel(pt) {
   if (granularity.value === 'daily')   return (pt.date ?? '').slice(5)        // MM-DD
   if (granularity.value === 'weekly')  return pt.period ?? (pt.endDate ?? '').slice(5)
   return (pt.period ?? (pt.endDate ?? '')).slice(0, 7)                        // YYYY-MM
 }
 
-// ── 指標取值與格式化 ─────────────────────────────────────────────────────
+// ── 指標取値與格式化 ───────────────────────────────────────────────────────────────────
 function getValue(pt) {
   return pt[metric.value] ?? null
 }
@@ -216,7 +235,7 @@ function valueClass(v) {
   return v >= 0 ? 'pos' : 'neg'
 }
 
-// ── 圖表選項 (computed) ────────────────────────────────────────────────────
+// ── 圖表選項 (computed) ──────────────────────────────────────────────────────────────────
 const metricConfig = computed(() =>
   metrics.find(m => m.key === metric.value) ?? metrics[0]
 )
@@ -232,12 +251,10 @@ const chartOption = computed(() => {
   const xData   = pts.map(xLabel)
   const series0 = pts.map(p => getValue(p))
 
-  // 資產淨值：正負配色
   const lineColor = metric.value === 'totalLoan' ? '#e84855'
     : metric.value === 'netValueMarket' ? '#2481cc'
     : '#26a17b'
 
-  // 零軸參考線（市價淨值才加）
   const markLine = metric.value === 'netValueMarket' ? {
     silent: true,
     symbol: 'none',
@@ -281,7 +298,7 @@ const chartOption = computed(() => {
           `${metricConfig.value.label}：${ isMonetary.value ? formatNTD(v) : `${v} 股` }`,
         ]
         if (pt.netValueMarket != null && metric.value !== 'netValueMarket') {
-          lines.push(`市價淨值：${formatNTD(pt.netValueMarket)}`)
+          lines.push(`市價淨値：${formatNTD(pt.netValueMarket)}`)
         }
         if (pt.price0050 != null) lines.push(`0050：$${pt.price0050}`)
         if (pt.priceZ2   != null) lines.push(`00675L：$${pt.priceZ2}`)
