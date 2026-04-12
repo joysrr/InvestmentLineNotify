@@ -23,7 +23,6 @@ const REQUIRED_VARS = [
   "GEMINI_API_KEY1",
   "GEMINI_MODEL",
   // 市場資料
-  "ALPHA_VANTAGE_API_KEY",
   "FRED_API_KEY",
   "BASE_PRICE_URL",
 ];
@@ -40,7 +39,9 @@ export function assertEnv() {
   if (missing.length === 0) return;
 
   console.error("\n❌ [envGuard] 程式終止：缺少必要環境變數");
-  console.error("請確認 GitHub Secrets 與 workflow yaml 的 env: 區塊均已設定以下變數：");
+  console.error(
+    "請確認 GitHub Secrets 與 workflow yaml 的 env: 區塊均已設定以下變數：",
+  );
   missing.forEach((key) => console.error(`  • ${key}`));
   console.error("詳情請參考 docs/env-vars.md\n");
   process.exit(1);
