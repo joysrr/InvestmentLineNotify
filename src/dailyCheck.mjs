@@ -1,4 +1,7 @@
 import "dotenv/config";
+import { assertEnv } from "./utils/envGuard.mjs";
+assertEnv();
+
 import {
   getTwVix,
   fetchStockHistory,
@@ -68,8 +71,8 @@ export async function dailyCheck({
     console.log("😴 當日無開市，跳過通知");
   }
 
-  // 台指恐慌指數 (VIX)
-  console.log("📈 抓取台指恐慌指數 (VIX)...");
+  // 台指恐慑指數 (VIX)
+  console.log("📈 抓取台指恐慑指數 (VIX)...");
   let vixData;
   {
     const done = stepTimer("fetchVix");
@@ -77,7 +80,7 @@ export async function dailyCheck({
     done();
   }
   if (vixData) {
-    console.log(`✅ VIX 值：${vixData.value.toFixed(2)}`);
+    console.log(`✅ VIX 値：${vixData.value.toFixed(2)}`);
   } else {
     console.log("❌ VIX 抓取失敗，不影響主流程");
   }
@@ -195,12 +198,12 @@ export async function dailyCheck({
   const latestKD = kdArr[kdArr.length - 1];
   console.log(`✅ 指標計算完成`);
 
-  // ── 取得新聞集錦與總經分析（提前至策略引擎之前）────────────────────────────
+  // ── 取得新跡集錦與總經分析（提前至策略引擎之前）────────────────────
   let newsMessages = [];
-  let newsSummaryText = "今日無重大市場新聞。";
+  let newsSummaryText = "今日無重大市場新跡。";
   let conflictSummary = "";
   let newsStructured = { tw: [], us: [] };
-  console.log("📝 正在從 news pool 取得新聞集錦...");
+  console.log("📝 正在從 news pool 取得新跡集錦...");
   {
     const done = stepTimer("fetchNews");
     try {
@@ -210,9 +213,9 @@ export async function dailyCheck({
       conflictSummary = newsResult.conflictSummary ?? "";
       newsStructured = newsResult.structured ?? { tw: [], us: [] };
     } catch (err) {
-      console.error("❌ 取得新聞集錦失敗 (但不影響發送通知):", err.message);
+      console.error("❌ 取得新跡集錦失敗 (但不影響發送通知):", err.message);
       newsMessages = [];
-      newsSummaryText = "新聞集錦取得失敗，請檢查系統日誌。";
+      newsSummaryText = "新跡集錦取得失敗，請檢查系統日誌。";
       conflictSummary = "";
       newsStructured = { tw: [], us: [] };
     }
@@ -221,19 +224,19 @@ export async function dailyCheck({
 
   console.log("🤖 正在產生總經多空對決報告...");
   let macroAnalysis = null;
-  let macroTextForCoach = "無新聞數據，無法進行總經分析。";
+  let macroTextForCoach = "無新跡數據，無法進行總經分析。";
   if (newsMessages?.length) {
     const done = stepTimer("analyzeMacro");
     macroAnalysis = await analyzeMacroNewsWithAI(newsSummaryText, conflictSummary);
     macroTextForCoach = formatMacroAnalysisForCoach(macroAnalysis);
     done();
   } else {
-    console.log("⚠️ 無新聞數據，跳過總經分析");
+    console.log("⚠️ 無新跡數據，跳過總經分析");
     macroAnalysis = {
       bullish: 0,
       bearish: 0,
       neutral: 0,
-      summary: "無新聞數據，無法進行總經分析。",
+      summary: "無新跡數據，無法進行總經分析。",
     };
     macroTextForCoach = macroAnalysis.summary;
   }
@@ -244,7 +247,7 @@ export async function dailyCheck({
   } else {
     console.log("⚠️ 無總經方向，策略引擎將不套用情緒調整");
   }
-  // ─────────────────────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
 
   const signalData = {
     RSI: latestRSI,
@@ -334,7 +337,7 @@ export async function dailyCheck({
     const done = stepTimer("saveReport");
 
     // 帳戶快照：有金鑰才加密存入，否則略過
-    // 補存 price0050 / priceZ2 市價欄位，供圖表市價法淨值計算使用
+    // 補存 price0050 / priceZ2 市價欄位，供圖表市價法淨値計算使用
     let snapshotField = {};
     if (isSnapshotEncryptEnabled() && lastState) {
       const snapshotPayload = {
@@ -357,7 +360,7 @@ export async function dailyCheck({
       date: dateText,
       signals: result,
       ai: aiAdvice,
-      // ── 補存欄位：Mini App 歷史查閱需要 ──────────────────────────
+      // ── 補存欄位：Mini App 歷史查閱需要 ────────────────────────────────
       quote,
       vixData,
       usRisk,
@@ -369,13 +372,13 @@ export async function dailyCheck({
         rawValuation: macroData?.rawValuation  ?? null,
       },
       macroAnalysis,
-      // ── 補存 AI 精選新聞給 Mini App 使用 ──────────────────────────
+      // ── 補存 AI 精選新跡給 Mini App 使用 ───────────────────────────────
       news: {
         tw: newsStructured.tw,
         us: newsStructured.us,
         generatedAt: dateText,
       },
-      // ── 帳戶快照（有金鑰時才存在此欄位）──────────────────────────
+      // ── 帳戶快照（有金鑰時才存在此欄位）──────────────────────────────
       ...snapshotField,
     });
     await archiveManager.cleanOldArchives(30);
@@ -384,7 +387,7 @@ export async function dailyCheck({
     console.warn("⚠️ 儲存最終報告或清理快取失敗:", err.message);
   }
 
-  // ── LLM Judge（背景評估，不阻塞主流程）────────────────────────────────────
+  // ── LLM Judge（背景評估，不阻塞主流程）─────────────────────────────────────────
   const judgeTasks = [];
 
   if (shouldRunJudge() && adviceTraceId && typeof aiAdvice === "object") {
