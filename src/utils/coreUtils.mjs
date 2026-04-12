@@ -74,11 +74,6 @@ export function toExCh(symbol) {
   return `tse_${stockNo}.tw`;
 }
 
-export function toArray(x) {
-  if (!x) return [];
-  return Array.isArray(x) ? x : [x];
-}
-
 /**
  * 將可能含逗號、空字串、"-"/"--" 的數字字串轉成 number。
  */

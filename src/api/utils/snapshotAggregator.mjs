@@ -24,7 +24,7 @@ import { getISOWeekKey, getMonthKey } from './reportAggregator.mjs';
  * @param {Object} s - decrypted snapshot
  * @returns {number|null}
  */
-export function calcNetValueCost(s) {
+function calcNetValueCost(s) {
   if (!s) return null;
   const qty0050 = s.qty0050 ?? 0;
   const qtyZ2   = s.qtyZ2   ?? 0;
@@ -47,7 +47,7 @@ export function calcNetValueCost(s) {
  * @param {Object} s - decrypted snapshot
  * @returns {number|null}
  */
-export function calcNetValueMarket(s) {
+function calcNetValueMarket(s) {
   if (!s) return null;
 
   // No market price data at all (pre-price snapshots)

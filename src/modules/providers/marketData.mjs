@@ -1,15 +1,6 @@
 import { archiveManager } from "../data/archiveManager.mjs";
 import { TwDate } from "../../utils/coreUtils.mjs";
 
-// === 匯出不需經過 Cache 的即時 / 核心功能 ===
-export {
-  fetchStockHistory,
-  fetchRealTimePrice,
-  getTwVix,
-  isMarketOpenTodayTWSE,
-} from "./twseProvider.mjs";
-export { fetchLatestBasePrice } from "./basePriceProvider.mjs";
-
 // === 匯出即將被我們整合進 Cache 機制的 Provider ===
 import { fetchUsMarketData } from "./usMarketProvider.mjs";
 import { fetchFearAndGreedIndex } from "./cnnProvider.mjs";

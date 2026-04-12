@@ -135,7 +135,7 @@ const buildUrl = (queryStr, gl, hl, ceid) => {
   }).toString()}`;
 };
 
-export function filterNewsByDate(newsList, withinHours = 6) {
+function filterNewsByDate(newsList, withinHours = 6) {
   const now = Date.now();
   const cutoff = now - withinHours * 60 * 60 * 1000;
 

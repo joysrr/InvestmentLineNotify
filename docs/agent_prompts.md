@@ -1,5 +1,11 @@
 # Agent Prompts 導覽 / Prompt Map
 
+> [!NOTE]
+> **Prompt 已遷移至雲端管理**
+> 目前所有的 AI System Prompts (含參數設置) 均已經轉向由 [Langfuse](https://cloud.langfuse.com) 全面管理，確保更新不須動用程式碼。
+> `src/modules/ai/prompts.mjs` 僅負責維護各個 LLM 的回傳驗證 Schema 及 User Prompt 的填充邏輯。
+> 請特別留意，以下整理的 Prompt 定位主要供**分析梳理與邏輯指引**用，如有修改行為原則的需求，請直接前往 Langfuse 的儀表板修改，而無須在原始碼內更動常數。
+
 ## 1. 文件目的
 本文件不是逐字複製 `src/modules/ai/prompts.mjs`，而是提供 AI Agent / 開發者一份 prompt responsibility map，幫助快速定位每個 prompt 負責哪一段流程、對應哪些 schema、修改時可能影響哪些功能。
 
