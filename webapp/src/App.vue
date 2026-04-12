@@ -8,8 +8,8 @@
       </router-view>
     </main>
 
-    <!-- 左右滑動 Tab Bar（7 Tab）-->
-    <nav class="tab-bar">
+    <!-- 左右可滾動 Tab Bar（7 Tab）-->
+    <nav class="tab-bar" ref="tabBarRef">
       <router-link
         v-for="tab in tabs"
         :key="tab.to"
@@ -27,14 +27,56 @@
 </template>
 
 <script setup>
-import { onMounted, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useTelegram } from './composables/useTelegram.js'
 
 const { expand } = useTelegram()
+const tabBarRef = ref(null)
+
+// iOS 邊緣手勢區域：左右各 20px 保留給系統
+const EDGE_GUARD = 20
+
+let startX = 0
+let startY = 0
+let isEdgeTouch = false
+
+function onTouchStart(e) {
+  const touch = e.touches[0]
+  startX = touch.clientX
+  startY = touch.clientY
+  // 左右邊緣 20px 內起始的觸控不介入，交還 iOS 系統手勢
+  isEdgeTouch = startX < EDGE_GUARD || startX > window.innerWidth - EDGE_GUARD
+}
+
+function onTouchMove(e) {
+  if (isEdgeTouch) return  // 邊緣觸控不擋下，交還 iOS
+
+  const dx = Math.abs(e.touches[0].clientX - startX)
+  const dy = Math.abs(e.touches[0].clientY - startY)
+
+  // 确認是水平滑動才陣止事件冒泡
+  if (dx > dy && e.cancelable) {
+    e.stopPropagation()
+  }
+}
 
 onMounted(async () => {
   await nextTick()
   expand()
+
+  const el = tabBarRef.value
+  if (el) {
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchmove', onTouchMove, { passive: true })
+  }
+})
+
+onBeforeUnmount(() => {
+  const el = tabBarRef.value
+  if (el) {
+    el.removeEventListener('touchstart', onTouchStart)
+    el.removeEventListener('touchmove', onTouchMove)
+  }
 })
 
 const tabs = [
@@ -125,30 +167,32 @@ const tabs = [
   overflow: hidden;
 }
 
-/* 方案 B：內容區僅允許垂直滾動，水平方向不盡删取觸控事件，防止與 iOS 系統手勢衝突 */
+/* 內容區僅允許垂直滾動 */
 .app-main {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;  /* 僅垂直滾動，水平手勢交還 iOS 系統 */
+  touch-action: pan-y;
 }
 
-/* 方案 A：移除慣性滑動，改用普通滾動，避免 iOS 拆截 touch 事件
-   touch-action: pan-x 明確告知系統此區域允許水平 pan，減少與邊緣手勢衝突機率 */
+/* Tab Bar
+   - overflow-x: auto 保留水平滾動，供 7 Tab 可左右滾動查看
+   - overscroll-behavior-x: contain 防止滾動事件冒泡至父層（避免觸發 iOS 系統操作）
+   - -webkit-overflow-scrolling: touch 保持慣性滾動體驗
+   - JS 偵測邊緣 20px，邊緣起始的觸控不介入事件 */
 .tab-bar {
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
-  -webkit-overflow-scrolling: auto;  /* 關閉慣性滾動，避免慰動滾動搋互至 iOS 系統 */
-  touch-action: pan-x;               /* 僅水平 pan，不競爭系統邊緣手勢 */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;    /* 防止事件冒泡，避免觸發 iOS App Switcher */
   scrollbar-width: none;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   background: var(--tg-theme-bg-color, rgba(255, 255, 255, 0.92));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   flex-shrink: 0;
-  /* Safe area 內縮避開左右系統邊緣手勢區域 */
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -169,7 +213,6 @@ const tabs = [
   gap: 3px;
   transition: color 0.18s ease;
   -webkit-tap-highlight-color: transparent;
-  /* 每個 Tab 項目為純點擊，不需要手勢滾動 */
   touch-action: manipulation;
 }
 
