@@ -18,33 +18,50 @@ import { getISOWeekKey, getMonthKey } from './reportAggregator.mjs';
 /**
  * Calculates cost-basis net value.
  * netValueCost = (qty0050 * avgCost0050) + (qtyZ2 * avgCostZ2) - totalLoan
- * Returns null when critical fields are missing.
+ * Returns null when:
+ *   - both qty are 0 AND totalLoan is also 0 (truly empty, nothing to show)
+ * Returns a value (possibly negative) when there is any loan even with 0 qty.
  * @param {Object} s - decrypted snapshot
  * @returns {number|null}
  */
 export function calcNetValueCost(s) {
   if (!s) return null;
-  const v0050 = (s.qty0050 ?? 0) * (s.avgCost0050 ?? 0);
-  const vZ2   = (s.qtyZ2   ?? 0) * (s.avgCostZ2   ?? 0);
-  const loan  = s.totalLoan ?? 0;
-  if (v0050 === 0 && vZ2 === 0) return null;
+  const qty0050 = s.qty0050 ?? 0;
+  const qtyZ2   = s.qtyZ2   ?? 0;
+  const loan     = s.totalLoan ?? 0;
+
+  // Truly nothing to show: no holdings and no loan
+  if (qty0050 === 0 && qtyZ2 === 0 && loan === 0) return null;
+
+  const v0050 = qty0050 * (s.avgCost0050 ?? 0);
+  const vZ2   = qtyZ2   * (s.avgCostZ2   ?? 0);
   return +((v0050 + vZ2 - loan).toFixed(2));
 }
 
 /**
  * Calculates market-price net value.
  * netValueMarket = (qty0050 * price0050) + (qtyZ2 * priceZ2) - totalLoan
- * Returns null when market price fields are absent (old snapshots).
+ * Returns null when:
+ *   - market price fields are absent (old snapshots without price data), OR
+ *   - both qty are 0 AND totalLoan is also 0 (truly empty, nothing to show)
  * @param {Object} s - decrypted snapshot
  * @returns {number|null}
  */
 export function calcNetValueMarket(s) {
   if (!s) return null;
+
+  // No market price data at all (pre-price snapshots)
   if (s.price0050 == null && s.priceZ2 == null) return null;
-  const v0050 = (s.qty0050 ?? 0) * (s.price0050 ?? 0);
-  const vZ2   = (s.qtyZ2   ?? 0) * (s.priceZ2   ?? 0);
-  const loan  = s.totalLoan ?? 0;
-  if (v0050 === 0 && vZ2 === 0) return null;
+
+  const qty0050 = s.qty0050 ?? 0;
+  const qtyZ2   = s.qtyZ2   ?? 0;
+  const loan     = s.totalLoan ?? 0;
+
+  // Truly nothing to show: no holdings and no loan
+  if (qty0050 === 0 && qtyZ2 === 0 && loan === 0) return null;
+
+  const v0050 = qty0050 * (s.price0050 ?? 0);
+  const vZ2   = qtyZ2   * (s.priceZ2   ?? 0);
   return +((v0050 + vZ2 - loan).toFixed(2));
 }
 
