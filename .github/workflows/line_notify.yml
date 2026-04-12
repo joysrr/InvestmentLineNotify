@@ -1,1 +1,93 @@
-bmFtZTogRGFpbHkgUmVwb3J0ICYgTm90aWZ5IFNjaGVkdWxlcgoKb246CiAgc2NoZWR1bGU6CiAgICAjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAgICAjICjmmZbplpPogIUgVVRDKQogICAgIyBb5Lyg5Lit6auY6YKuXSDlj5HnoIggMTA6MDAgLT4gVVRDIDAyOjAwCiAgICAtIGNyb246ICIwIDIgKiAqICoiCiAgICAjIFvljIXlj5Hnm65dIOWNleaXpemAoiAxMjowMCAtPiBVVEMgMDQ6MDAKICAgIC0gY3JvbjogIjAgNCAqICogKiIKICAgICMgW+WkieWcqOe0s+mBjiAgXSDlj5HnoIgg MjE6MTkgLT4gVVRDIDEzOjE5ICjlpKjplpPnvo7lhazopporlOLot6/lvLHlhazluqYpCiAgICAtIGNyb246ICIxOSAxMyAqICogKiIKICAgICMgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KICAgICMg5oiR5by1IDA3OjMwIOeblOWkp+WNgeeUqCAvIDEzOjQ1IOaXpeWcs+W5s+e0muWRveS4rSBWTSBjcm9udGFiIOapo+apn+KGkiBzY3JpcHRzL3ZtLWRhaWx5LWNoZWNrLnNoCiAgICMgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KICB3b3JrZmxvd19kaXNwYXRjaDogIyDlhYPlhY3miafli5nlj5HnkIYKCmpvYnM6CiAgbm90aWZ5OgogICAgcnVucy1vbjogdWJ1bnR1LWxhdGVzdAoKICAgIHBlcm1pc3Npb25zOgogICAgICBjb250ZW50czogd3JpdGUgIyDlhYPl許WriteAccess5YaF5YGl5a655YaF5a6557WQ5o6o5Yi255qE5YaF5a65CgogICAgc3RlcHM6CiAgICAgIC0gbmFtZTogQ2hlY2tvdXQgY29kZQogICAgICAgIHVzZXM6IGFjdGlvbnMvY2hlY2tvdXRAdjQKICAgICAgICB3aXRoOgogICAgICAgICAgZmV0Y2gtZGVwdGg6IDEgIyDlj54mam7m5qCEjMmTnuaMh+eahCBjb21taXTvvIzmuKnlnovopoHopoHnmoTmkrXlrZfos4foqIoKCiAgICAgIC0gbmFtZTogU2V0dXAgTm9kZS5qcwogICAgICAgIHVzZXM6IGFjdGlvbnMvc2V0dXAtbm9kZUB2NAogICAgICAgIHdpdGg6CiAgICAgICAgICBub2RlLXZlcnNpb246ICIyMCIKICAgICAgICAgIGNhY2hlOiAibnBtIiAjIOWFgeWPoSBucG0g5bZX5a6M77yM5pyJ6Ieq5YuV6JmO55CGIG5vZGVfbW9kdWxlcyDnmoTlv6vmjbrlgLwKCiAgICAgIC0gbmFtZTogSW5zdGFsbCBkZXBlbmRlbmNpZXMKICAgICAgICBydW46IG5wbSBjaQoKICAgICAgLSBuYW1lOiBSdW4gRGFpbHkgQ2hlY2sKICAgICAgICBlbnY6CiAgICAgICAgICAjIOKUkiDluIXloJfos4foqIogKOaXpeWcs+WMl+mRveaKgOmAgwopIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgICAgQkFTRV9QUklDRV9VUkw6ICAgICAgICAgICAgICAgICAgICQ7eyBzZWNyZXRzLkJBU0VfUFJJQ0VfVVJMIH19CiAgICAgICAgICBTVFJBVEVHWV9VUkw6ICAgICAgICAgICAgICAgICAgICAgJHt7IHNlY3JldHMuU1RSQVRFR1lfVVJMIH19CiAgICAgICAgICBBTFBIQV9WQU5UQUdFX0FQSV9LRVk6ICAgICAgICAgICAgJHt7IHNlY3JldHMuQUxQSEFfVkFOVEFHRV9BUElfS0VZIHx9CiAgICAgICAgICBGUkVEX0FQSV9LRVk6ICAgICAgICAgICAgICAgICAgICAgJHt7IHNlY3JldHMuRlJFRF9BUElfS0VZIHx9CiAgICAgICAgICAjIOKUkiBHb29nbGUgU2hlZXRzIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgICAgR09PR0xFX1NFUlZJQ0VfQUNDT1VOVF9FTUFJTDogJHt7IHNlY3JldHMuR09PR0xFX1NFUlZJQ0VfQUNDT1VOVF9FTUFJTCB9fQogICAgICAgICAgR09PR0xFX1BSSVZBVEVfS0VZOiAgICAgICAgICAgJHt7IHNlY3JldHMuR09PR0xFX1BSSVZBVEVfS0VZIHx9CiAgICAgICAgICBHT09HTEVfU0hFRVRfSUQ6ICAgICAgICAgICAgICAke3sgc2VjcmV0cy5HT09HTEVfU0hFRVRfSUQgfX0KICAgICAgICAgICMg4pSSIFRlbGVncmFtIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgICAgVEVMRUdSQU1fQVBJX1RPS0VOOiAgICAgICAgICAgJHt7IHNlY3JldHMuVEVMRUdSQU1fQVBJX1RPS0VOIHx9CiAgICAgICAgICBURUxFR1JBTV9VU0VSX0lEOiAgICAgICAgICAgICAke3sgc2VjcmV0cy5URUxFR1JBTV9VU0VSX0lEIH19CiAgICAgICAgICBURUxFR1JBTV9XRUJBUFBVR0w6ICAgICAgICAgICAke3sgc2VjcmV0cy5URUxFR1JBTV9XRUJBUFBVR0wgfX0KICAgICAgICAgICMg4pSSIEFJIC8gR2VtaW5pIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgAogICAgICAgICAgR0VNSU5JX01PREVMOiAgICAgICAgICAgICAgICAgJHt7IHNlY3JldHMuR0VNSU5JX01PREVMIH19CiAgICAgICAgICBHRU1JTklfQVBJX0tFWTE6ICAgICAgICAgICAgICAke3sgc2VjcmV0cy5HRU1JTklfQVBJX0tFWTEgfX0KICAgICAgICAgIEdFTUlOSV9BUElfS0VZMjogICAgICAgICAgICAgICR7eyBzZWNyZXRzLkdFTUlOSV9BUElfS0VZMiB9fQogICAgICAgICAgR0VNSU5JX0FQSV9LRVkzOiAgICAgICAgICAgICAgJHt7IHNlY3JldHMuR0VNSU5JX0FQSV9LRVkzIH19CiAgICAgICAgICAjIOKUkiBMYW5nZnVzZe+vvIjpgJrlt6Tvr44p4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSACiAgICAgICAgICBMQU5HRlVTRV9TRUNSRVRfS0VZOiAgICAgICAgICAke3sgc2VjcmV0cy5MQU5HRlVTRV9TRUNSRVRfS0VZIHx9CiAgICAgICAgICBMQU5HRlVTRV9QVUJMSUNfS0VZOiAgICAgICAgICAke3sgc2VjcmV0cy5MQU5HRlVTRV9QVUJMSUNfS0VZIHx9CiAgICAgICAgICBMQU5HRlVTRV9CQVNFX1VSTDogICAgICAgICAgICAke3sgc2VjcmV0cy5MQU5HRlVTRV9CQVNFX1VSTCB9fQogICAgICAgICAgIyDilJIg5b255YaF5a6577yI5Yqg5a6577yJCiAgICAgICAgICBTTkFQU0hPVF9FTkNSWVBUX0tFWTogICAgICAgICAke3sgc2VjcmV0cy5TTkFQU0hPVF9FTkNSWVBUX0tFWSB9fQogICAgICAgICAgIyDilJIg5omA5bGF5棄77yI5L+d55yL5asa55m957WQ77yJ4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSACiAgICAgICAgICBMSU5FX0FDQ0VTU19UT0tFTjogICAgICAgICAgICAke3sgc2VjcmV0cy5MSU5FX0FDQ0VTU19UT0tFTiB9fQogICAgICAgICAgVVNFUl9JRDogICAgICAgICAgICAgICAgICAgICAgJHt7IHNlY3JldHMuVVNFUl9JRCB9fQogICAgICAgICAgIyDilJIg57O757WQ4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSACiAgICAgICAgICBUWjogIkFzaWEvVGFpcGVpIgoKICAgICAgICBydW46IG5wbSBzdGFydCAtLSAkeyBlbnYuTElORV9GTEFHIH19ICR7eyBlbnYuVEdfRkxBRyB9fSAkeyBlbnYuQUlfRkxBRyB9fSAkeyBlbnYuVFJBTlNfRkxBRyB9fQoKICAgICAgLSBuYW1lOiBDb21taXQgYW5kIFB1c2ggRGF0YSBDaGFuZ2VzCiAgICAgICAgdXNlczogc3RlZmFuendlaWZlbC9naXQtYXV0by1jb21taXQtYWN0aW9uQHY1CiAgICAgICAgd2l0aDoKICAgICAgICAgIGNvbW1pdF9tZXNzYWdlOiAi8J+kgiBjaG9yZShkYXRhKTogYXV0by11cGRhdGUgbWFya2V0IGNhY2hlIGFuZCBhaSBsb2dzIFtza2lwIGNpXSIKICAgICAgICAgIGNvbW1pdF91c2VyX25hbWU6ICJnaXRodWItYWN0aW9uc1tib3RdIgogICAgICAgICAgY29tbWl0X3VzZXJfZW1haWw6ICJnaXRodWItYWN0aW9uc1tib3RdQHVzZXJzLm5vcmVwbHkuZ2l0aHViLmNvbSIKCiAgICAgIC0gbmFtZTogU3luYyBkYXRhIHRvIE9yYWNsZSBWTQogICAgICAgIHVzZXM6IGFwcGxlYm95L3NzaC1hY3Rpb25AdjEuMC4zCiAgICAgICAgd2l0aDoKICAgICAgICAgIGhvc3Q6ICR7eyBzZWNyZXRzLlZNX0hPU1QgfX0KICAgICAgICAgIHVzZXJuYW1lOiAke3sgc2VjcmV0cy5WTV9VU0VSIHl9fQogICAgICAgICAga2V5OiAke3sgc2VjcmV0cy5WTV9TU0hfUFJJVkFURV9LRVkgfX0KICAgICAgICAgIHNjcmlwdDogfAogICAgICAgICAgICBjZCB+L2ludmVzdG5vdGlmeQogICAgICAgICAgICBnaXQgZmV0Y2ggb3JpZ2luIG1haW4KICAgICAgICAgICAgZ2l0IHJlc2V0IC0taGFyZCBvcmlnaW4vbWFpbgogICAgICAgICAgICBlY2hvICJbZGF0YS1zeW5jXSAkKGRhdGUpIHN5bmMg5a6M5oiQICAoJChnaXQgbG9nIC0tb25lbGluZSAtMSkpIgogICAgICAgIGNvbnRpbnVlLW9uLWVycm9yOiB0cnVlCg==
+name: Daily Report & Notify Scheduler
+
+on:
+  schedule:
+    # ----------------------------------------------------
+    # (時間為 UTC)
+    # 台灣 10:30 -> UTC 02:30 (盤中觀測)
+    - cron: "30 2 * * *"
+    # 台灣 12:00 -> UTC 04:00 (午盤高頻回報)
+    - cron: "0 4 * * *"
+    # 台灣 21:30 -> UTC 13:30 (夜間國際觀測：美股開盤)
+    - cron: "30 13 * * *"
+    # ----------------------------------------------------
+    # 07:30 盤前報告 / 13:45 收盤後總結 已移至 VM crontab 執行
+    # → scripts/vm-daily-check.sh
+    # ----------------------------------------------------
+  workflow_dispatch: # 允許手動觸發
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # 允許寫入內容（如果需要更新檔案或產生新的 commit）
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1 # 只抓取最新的 commit，減少不必要的歷史資料
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm" # 啟用 npm 快取，會自動處理 node_modules 的快取
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Daily Check
+        env:
+          # ── 市場資料 ────────────────────────────────────────
+          BASE_PRICE_URL:               ${{ secrets.BASE_PRICE_URL }}
+          STRATEGY_URL:                 ${{ secrets.STRATEGY_URL }}
+          ALPHA_VANTAGE_API_KEY:        ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+          FRED_API_KEY:                 ${{ secrets.FRED_API_KEY }}
+          # ── Google Sheets ────────────────────────────────────
+          GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+          GOOGLE_PRIVATE_KEY:           ${{ secrets.GOOGLE_PRIVATE_KEY }}
+          GOOGLE_SHEET_ID:              ${{ secrets.GOOGLE_SHEET_ID }}
+          # ── Telegram ─────────────────────────────────────────
+          TELEGRAM_API_TOKEN:           ${{ secrets.TELEGRAM_API_TOKEN }}
+          TELEGRAM_USER_ID:             ${{ secrets.TELEGRAM_USER_ID }}
+          TELEGRAM_WEBAPP_URL:          ${{ secrets.TELEGRAM_WEBAPP_URL }}
+          # ── AI / Gemini ───────────────────────────────────────
+          GEMINI_MODEL:                 ${{ secrets.GEMINI_MODEL }}
+          GEMINI_API_KEY1:              ${{ secrets.GEMINI_API_KEY1 }}
+          GEMINI_API_KEY2:              ${{ secrets.GEMINI_API_KEY2 }}
+          GEMINI_API_KEY3:              ${{ secrets.GEMINI_API_KEY3 }}
+          # ── Langfuse（選填）──────────────────────────────────
+          LANGFUSE_SECRET_KEY:          ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_PUBLIC_KEY:          ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_BASE_URL:            ${{ secrets.LANGFUSE_BASE_URL }}
+          # ── 快照加密 ─────────────────────────────────────────
+          SNAPSHOT_ENCRYPT_KEY:         ${{ secrets.SNAPSHOT_ENCRYPT_KEY }}
+          # ── 已廢棄（保留備用）────────────────────────────────
+          LINE_ACCESS_TOKEN:            ${{ secrets.LINE_ACCESS_TOKEN }}
+          USER_ID:                      ${{ secrets.USER_ID }}
+          # ── 系統 ─────────────────────────────────────────────
+          TZ: "Asia/Taipei"
+
+        run: npm start -- ${{ env.LINE_FLAG }} ${{ env.TG_FLAG }} ${{ env.AI_FLAG }} ${{ env.TRANS_FLAG }}
+
+      - name: Commit and Push Data Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "🤖 chore(data): auto-update market cache and ai logs [skip ci]"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync data to Oracle VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/investnotify
+            git fetch origin main
+            git reset --hard origin/main
+            echo "[data-sync] $(date) sync 完成 ($(git log --oneline -1))"
+        continue-on-error: true
