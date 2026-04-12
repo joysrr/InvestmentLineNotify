@@ -49,15 +49,15 @@ TZ=Asia/Taipei
 
 | Workflow 檔案 | 台灣時間 | UTC Cron | 用途 | 時間敏感度 |
 |---|---|---|---|---|
-| `line_notify.yml` | 10:00 每日 | `0 2 * * *` | 盤中高頻回報 | 低 |
-| `line_notify.yml` | 12:00 每日 | `0 4 * * *` | 午盤高頻回報 | 低 |
-| `line_notify.yml` | 21:19 每日 | `19 13 * * *` | 夜間美股開盤觀測 | 低 |
+| `line_notify.yml` | 10:30 每日 | `30 2 * * *` | 盤中觀測 | 低 |
+| `line_notify.yml` | 12:00 每日 | `0 4 * * *` | 午盤回報 | 低 |
+| `line_notify.yml` | 21:30 每日 | `30 13 * * *` | 夜間美股開盤觀測 | 低 |
 | `news-fetch.yml` | 每 4 小時 | `0 */4 * * *` | 新聞池更新 | 低 |
 | `optimizer.yml` | 02:00 每日 | `0 18 * * *` | Rule Optimizer | 低 |
 | `weekly-report.yml` | 週一 09:30 | `30 1 * * 1` | AI 週報生成 | 低 |
 | `monthly-report.yml` | 每月 1 日 09:30 | `30 1 1 * *` | AI 月報生成 | 低 |
 
-> ⚠️ `line_notify.yml` 的 07:30 與 13:45 排程已**移除**，改由 VM crontab 執行。
+> ⚠️ `line_notify.yml` 的 07:30（盤前）與 13:45（收盤後）排程已**移除**，改由 VM crontab 執行。
 
 ---
 
