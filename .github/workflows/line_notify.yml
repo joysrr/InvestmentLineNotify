@@ -61,6 +61,8 @@ jobs:
           LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_BASE_URL }}
           TZ: "Asia/Taipei"
           TELEGRAM_WEBAPP_URL: ${{ secrets.TELEGRAM_WEBAPP_URL }}
+          SNAPSHOT_ENCRYPT_KEY: ${
+{ secrets.SNAPSHOT_ENCRYPT_KEY }}
 
         run: npm start -- ${{ env.LINE_FLAG }} ${{ env.TG_FLAG }} ${{ env.AI_FLAG }} ${{ env.TRANS_FLAG }}
 
