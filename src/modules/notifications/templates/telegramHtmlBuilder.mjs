@@ -146,8 +146,7 @@ export function buildTelegramMessages({
   const vixHigh = Number.isFinite(th.vixHighFear) ? th.vixHighFear : 20;
   let vixLabel = "正常 ⚖️";
   if (Number.isFinite(vixValue)) {
-    if (vixValue < vixLow)
-      vixLabel = "過度安逸 ❄️";
+    if (vixValue < vixLow) vixLabel = "過度安逸 ❄️";
     else if (vixValue > vixHigh) vixLabel = "恐慌 🔥";
   }
 
@@ -194,8 +193,7 @@ export function buildTelegramMessages({
   const cnnScore = macroData?.rawCnn?.score;
   const cnnRating = macroData?.rawCnn?.rating || "未知";
   let cnnEmoji = "⚖️";
-  if (cnnScore <= 25)
-    cnnEmoji = "❄️";
+  if (cnnScore <= 25) cnnEmoji = "❄️";
   else if (cnnScore >= 75) cnnEmoji = "🔥";
   const cnnText = Number.isFinite(cnnScore)
     ? `${cnnScore}pt ${cnnEmoji} ${cnnRating}`
@@ -251,12 +249,14 @@ export function buildTelegramMessages({
   const valDateStr = fmtValDate(rawVal?.date);
   const peInfo = peStatus(peVal);
   const pbInfo = pbStatus(pbVal);
-  const peText = peVal != null
-    ? `${peVal} ${peInfo.emoji} ${peInfo.label}${valDateStr ? " (" + valDateStr + ")" : ""}`
-    : "N/A";
-  const pbText = pbVal != null
-    ? `${pbVal} ${pbInfo.emoji} ${pbInfo.label}${valDateStr ? " (" + valDateStr + ")" : ""}`
-    : "N/A";
+  const peText =
+    peVal != null
+      ? `${peVal} ${peInfo.emoji} ${peInfo.label}${valDateStr ? " (" + valDateStr + ")" : ""}`
+      : "N/A";
+  const pbText =
+    pbVal != null
+      ? `${pbVal} ${pbInfo.emoji} ${pbInfo.label}${valDateStr ? " (" + valDateStr + ")" : ""}`
+      : "N/A";
 
   const priceChangePct = Number(result.priceChangePercent || 0);
   const changeIcon =
@@ -306,7 +306,8 @@ export function buildTelegramMessages({
 
   const paddedPct = String(goalPct).padStart(5, " ");
 
-  const msg1Text = `<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\n\n` +
+  const msg1Text =
+    `<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\n\n` +
     `<b>${timeLabel}</b>${SEP}\n` +
     `🚦 狀態：<b>${escapeHTML(result.marketStatus || "未明")}</b>\n` +
     `📌 行動：<b>${escapeHTML(result.target || "觀望")}</b> ─ <i>${escapeHTML(result.targetSuggestionShort || "無特殊操作")}</i>\n` +
@@ -507,78 +508,54 @@ export function buildTelegramMessages({
  * @param {string} webAppUrl - TELEGRAM_WEBAPP_URL
  * @returns {Array} 單元素數組，格式相容於 sendTelegramBatch
  */
-export function buildCompactMessage({
-  result,
-  vixData,
-  usRisk,
-  macroData,
-  aiAdvice,
-  config,
-  quote,
-}, webAppUrl) {
+export function buildCompactMessage(
+  { result, vixData, usRisk, macroData, aiAdvice, config, quote },
+  webAppUrl,
+) {
   const now = TwDate();
   const twHour = now.hour;
   const timeTag = now.formatDateTime();
 
   // ── 時間標籤 ──
   let timeLabel = "📊 投資日報";
-  if (twHour === 7)                        timeLabel = "🌅 盤前推演";
-  else if (twHour === 10)                  timeLabel = "📈 盤中速報";
-  else if (twHour === 12)                  timeLabel = "🕛 午盤速報";
+  if (twHour === 7) timeLabel = "🌅 盤前推演";
+  else if (twHour === 10) timeLabel = "📈 盤中速報";
+  else if (twHour === 12) timeLabel = "🕛 午盤速報";
   else if (twHour === 14 || twHour === 15) timeLabel = "🌙 盤後總結";
-  else if (twHour >= 21 && twHour <= 23)   timeLabel = "🦉 夜間國際觀測";
+  else if (twHour >= 21 && twHour <= 23) timeLabel = "🦉 夜間國際觀測";
 
   // ── 核心資訊 ──
-  const marketStatus = escapeHTML(result.marketStatus  || "未知");
-  const target       = escapeHTML(result.target        || "觀望");
-  const targetShort  = escapeHTML(result.targetSuggestionShort || "無特殊操作");
+  const marketStatus = escapeHTML(result.marketStatus || "未知");
+  const target = escapeHTML(result.target || "觀望");
+  const targetShort = escapeHTML(result.targetSuggestionShort || "無特殊操作");
 
   // ── VIX ──
-  const vixVal   = vixData?.value != null ? Number(vixData.value) : null;
-  const vixStr   = vixVal !== null ? vixVal.toFixed(1) : "N/A";
-  const vixEmoji = vixVal === null ? "⚪" : vixVal >= 30 ? "🚨" : vixVal >= 20 ? "⚠️" : "✅";
+  const vixVal = vixData?.value != null ? Number(vixData.value) : null;
+  const vixStr = vixVal !== null ? vixVal.toFixed(1) : "N/A";
+  const vixEmoji =
+    vixVal === null ? "⚪" : vixVal >= 30 ? "🚨" : vixVal >= 20 ? "⚠️" : "✅";
 
   // ── 評分 ──
-  const score    = Number(result.weightScore);
+  const score = Number(result.weightScore);
   const minScore = Number(result.strategy?.buy?.minWeightScoreToBuy ?? NaN);
-  const scoreOk  = Number.isFinite(score) && Number.isFinite(minScore) && score >= minScore;
+  const scoreOk =
+    Number.isFinite(score) && Number.isFinite(minScore) && score >= minScore;
   const scoreStr = Number.isFinite(score) ? `${score}pt` : "--";
   const scoreEmoji = scoreOk ? "🟢" : "⏸️";
 
   // ── 維持率 ──
-  const mm      = Number(result.maintenanceMargin);
+  const mm = Number(result.maintenanceMargin);
   const hasLoan = Number(result.totalLoan || 0) > 0;
   const mmEmoji = !hasLoan ? "▫️" : mm >= 180 ? "✅" : mm >= 150 ? "⚠️" : "🚨";
-  const mmStr   = hasLoan && Number.isFinite(mm) ? `${mm.toFixed(0)}%` : "未借款";
+  const mmStr = hasLoan && Number.isFinite(mm) ? `${mm.toFixed(0)}%` : "未借款";
 
   // ── 轉弱 / 賣出訊號 ──
   const reversalTriggered = result.reversal?.triggeredCount ?? 0;
-  const reversalTotal     = result.reversal?.totalFactor    ?? 4;
-  const sellTriggered     = result.sellSignals?.signalCount ?? 0;
-  const sellTotal         = result.sellSignals?.total       ?? 3;
+  const reversalTotal = result.reversal?.totalFactor ?? 4;
+  const sellTriggered = result.sellSignals?.signalCount ?? 0;
+  const sellTotal = result.sellSignals?.total ?? 3;
   const rSigIcon = signalIcon(reversalTriggered, reversalTotal);
   const sSigIcon = signalIcon(sellTriggered, sellTotal);
-
-  // ── 帳戶快照資料 ──
-  const strategy     = result.strategy || {};
-  const currentAsset = Number(result.netAsset   || 0);
-  const totalLoan    = Number(result.totalLoan  || 0);
-  const grossAsset   = currentAsset + totalLoan;
-  const levValue     = Number(result.actualLeverage);
-  const targetMulti  = Number.isFinite(strategy.leverage?.targetMultiplier)
-    ? strategy.leverage.targetMultiplier : 1.8;
-  const levInfo      = levTag(levValue, targetMulti);
-  const mmInfo       = mmTag(mm, hasLoan);
-  const z2Ratio      = Number(result.z2Ratio);
-  const th           = strategy.threshold || {};
-  const z2TargetPct  = Number.isFinite(th.z2TargetRatio) ? th.z2TargetRatio * 100 : 40;
-  const z2Safe       = z2Ratio <= z2TargetPct;
-  const qty0050      = Number(config?.qty0050 || 0).toLocaleString("en-US");
-  const qtyZ2        = Number(config?.qtyZ2   || 0).toLocaleString("en-US");
-  const cashStr      = Number(config?.cash    || 0).toLocaleString("en-US");
-  const loanStr      = totalLoan.toLocaleString("en-US");
-  const netStr       = Math.floor(currentAsset).toLocaleString("en-US");
-  const grossStr     = Math.floor(grossAsset).toLocaleString("en-US");
 
   // ── AI 第一條 action item ──
   const firstAction = aiAdvice?.action_items?.[0]
@@ -603,23 +580,12 @@ export function buildCompactMessage({
     `🚦 <b>${marketStatus}</b>\n` +
     `📌 ${target} · <i>${targetShort}</i>${firstAction}${cooldownHint}\n\n` +
     // ── 市場三行 ──
-    `${vixEmoji} VIX <code>${vixStr}</code>  ` +
-    `${scoreEmoji} 評分 <code>${scoreStr}</code>  ` +
+    `${vixEmoji} VIX <code>${vixStr}</code>\n` +
+    `${scoreEmoji} 評分 <code>${scoreStr}</code>\n` +
     `${mmEmoji} 維持率 <code>${mmStr}</code>\n` +
     // ── 風險摘要 ──
-    `${rSigIcon} 轉弱 <code>${reversalTriggered}/${reversalTotal}</code>  ` +
+    `${rSigIcon} 轉弱 <code>${reversalTriggered}/${reversalTotal}</code>\n` +
     `${sSigIcon} 賣出 <code>${sellTriggered}/${sellTotal}</code>\n\n` +
-    // ── 帳戶快照 ──
-    `🏦 <b>帳戶快照</b>${SEP}` +
-    `💼 淨值　　  <tg-spoiler>$${netStr}</tg-spoiler>\n` +
-    `🏗 總資產　  <tg-spoiler>$${grossStr}</tg-spoiler>\n` +
-    `${levInfo.icon} 槓桿　　  <tg-spoiler>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}  ${levInfo.label}</tg-spoiler>\n` +
-    `${mmInfo.icon} 維持率　  <tg-spoiler>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未借款"}  ${mmInfo.label}</tg-spoiler>\n` +
-    `${z2Safe ? "✅" : "⚠️"} 675L佔比  <tg-spoiler>${Number.isFinite(z2Ratio) ? z2Ratio.toFixed(1) + "%" : "N/A"}  上限${z2TargetPct.toFixed(0)}%</tg-spoiler>\n` +
-    `💵 現金　　  <tg-spoiler>$${cashStr}</tg-spoiler>\n` +
-    `💳 借款　　  <tg-spoiler>$${loanStr}</tg-spoiler>\n` +
-    `🛡 0050　　 <tg-spoiler>${qty0050} 股</tg-spoiler>\n` +
-    `⚔️ 00675L　 <tg-spoiler>${qtyZ2} 股</tg-spoiler>` +
     `${quoteText}\n\n` +
     `📲 詳細指標與 AI 建議請到 Mini App 查看`;
 
@@ -627,7 +593,7 @@ export function buildCompactMessage({
     {
       text,
       pin: true,
-      webAppUrl,          // telegramClient 組裝成 web_app 按鈕
+      webAppUrl, // telegramClient 組裝成 web_app 按鈕
     },
   ];
 }
