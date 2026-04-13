@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================
-# scripts/vm-daily-check.sh  v2.0
+# scripts/vm-daily-check.sh  v2.1
 # VM crontab：執行 runDailyCheck（本地寫入 data/，不再 git push）
 # =============================================================
 set -euo pipefail
@@ -39,13 +39,8 @@ echo "[$TIMESTAMP] [${TASK_NAME}] ========== 開始執行 ==========" >> "$LOG_F
 
 cd "$REPO_DIR"
 
-# ── 載入環境變數 ──────────────────────────────────────────────
-set -a
-source "$REPO_DIR/.env"
-set +a
-
-# ── 執行 Runner ───────────────────────────────────────────────
-echo "[$TIMESTAMP] [${TASK_NAME}] node --env-file="$REPO_DIR/.env" src/runDailyCheck.mjs" >> "$LOG_FILE"
+# ── 執行 Runner（--env-file 讓 Node.js 自行解析 .env）────────
+echo "[$TIMESTAMP] [${TASK_NAME}] node --env-file=$REPO_DIR/.env src/runDailyCheck.mjs" >> "$LOG_FILE"
 node --env-file="$REPO_DIR/.env" src/runDailyCheck.mjs >> "$LOG_FILE" 2>&1
 
 echo "[$TIMESTAMP] [${TASK_NAME}] ✅ 執行完畢" >> "$LOG_FILE"
