@@ -32,6 +32,89 @@
 
 ---
 
+## SSH Key Rotation SOP
+
+**建議頻率：每 6 個月一次（每年 4 月、10 月）**
+
+> 定期輪換 SSH Key 可確保即使舊 key 外洩，攻擊者也無法繼續使用。
+> 執行前確認你能同時存取 VM 終端機與 GitHub Secrets 管理頁面。
+
+### 涉及的 Key 位置
+
+| 位置 | 說明 |
+|---|---|
+| `GitHub Secrets → VM_SSH_PRIVATE_KEY` | GitHub Actions 應急連線 VM 用 |
+| VM `~/.ssh/authorized_keys` | 存放對應的 Public Key |
+
+### Step 1｜在 VM 上產生新 Key Pair
+
+```bash
+ssh-keygen -t ed25519 -C "investnotify-$(date +%Y%m)" -f ~/.ssh/id_investnotify_new
+# 詢問 passphrase 時直接 Enter（無密碼，供自動化使用）
+```
+
+### Step 2｜將新 Public Key 加入 authorized_keys
+
+```bash
+cat ~/.ssh/id_investnotify_new.pub >> ~/.ssh/authorized_keys
+```
+
+> ⚠️ 先「加入」不要「取代」，確認新 key 可用後再刪舊的
+
+### Step 3｜從本機測試新 Key 可正常連線
+
+```bash
+ssh -i ~/.ssh/id_investnotify_new ubuntu@<your-vm-ip>
+```
+
+確認成功登入後再繼續下一步。
+
+### Step 4｜更新 GitHub Secrets
+
+```bash
+# 在 VM 上複製新 private key 完整內容
+cat ~/.ssh/id_investnotify_new
+```
+
+前往 [GitHub → Settings → Secrets → VM_SSH_PRIVATE_KEY](https://github.com/joysrr/InvestmentLineNotify/settings/secrets/actions)，貼上新的 Private Key 內容覆蓋舊值。
+
+### Step 5｜從 authorized_keys 刪除舊 Key
+
+```bash
+# 開啟編輯，刪除舊 key 那一行（通常是最上面那行）
+nano ~/.ssh/authorized_keys
+```
+
+存檔後確認 authorized_keys 只剩新 key：
+
+```bash
+cat ~/.ssh/authorized_keys
+```
+
+### Step 6｜清理暫存的 Key 檔案（可選）
+
+```bash
+# 若不需要保留舊 key 備份，直接移除
+rm ~/.ssh/id_investnotify_new
+rm ~/.ssh/id_investnotify_new.pub
+```
+
+### 換 Key 後驗證清單
+
+- [ ] 新 Key 可從本機 SSH 登入 VM
+- [ ] GitHub Secrets `VM_SSH_PRIVATE_KEY` 已更新
+- [ ] `authorized_keys` 只剩新 Public Key
+- [ ] 手動觸發一次應急 workflow，確認 Actions 可正常連線 VM
+- [ ] 記錄本次更換日期（下次預計：6 個月後）
+
+### 換 Key 紀錄
+
+| 日期 | 備註 |
+|---|---|
+| 2026-04-13 | 初始建立 SSH Key 設定 |
+
+---
+
 ## 回報安全問題
 
 本專案為個人私用，**不設立正式的漏洞揭露（CVD）流程**。
