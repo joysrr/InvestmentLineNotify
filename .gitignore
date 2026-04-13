@@ -10,6 +10,7 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+.env.*
 
 # OS系統檔案
 .DS_Store
