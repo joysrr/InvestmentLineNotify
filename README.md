@@ -23,7 +23,7 @@
 
 本專案是一套以 **Node.js** 為核心的投資決策自動化系統，整合市場資料抓取、多重 AI 代理分析、量化風控計算與 Telegram 推播，涵蓋：
 
-- 📅 每日盤前 / 盤中 / 收盤後 / 夜間美股觀測報告
+- 📅 每日盤前 / 盤中 / 午盤 / 收盤後 / 夜間美股觀測報告
 - 📰 每 4 小時自動更新的新聞池與 AI 新聞治理
 - 📊 每週 / 每月 AI 週報與月報生成
 - 💬 Telegram Bot 即時互動指令（`/daily`、`/status`、`/weekly` 等）
@@ -39,7 +39,7 @@
 | **多階段 AI 管線** | 新聞過濾器 → 總經多空分析師 → 投資教練 → LLM Judge，結構化輸出防幻覺 |
 | **動態量化風控** | 維持率斷頭計算、RSI/KD/MACD 過熱閥值、冷卻期與極端恐慌破冰機制 |
 | **帳戶快照加密** | 持倉數字以 AES-256-GCM 加密存儲，`.env` 金鑰本地管理 |
-| **雙平台執行** | 時間敏感任務（盤前 / 收盤）由 Oracle VM crontab 執行；其餘由 GitHub Actions 排程 |
+| **全面 VM 排程** | 所有定時任務已統一由 Oracle VM crontab 執行，避免 GitHub Actions schedule 延遲 |
 | **Telegram Mini App** | Fastify API Server + Vue 3 前端，即時瀏覽資產趨勢、市場雷達與新聞池 |
 
 ---
@@ -51,12 +51,12 @@ Telegram 使用者 ──→ bot.mjs (grammY Long-Polling)
                           │
 Mini App (Vue 3) ──→ api/server.mjs (Fastify, Port 3000)
                           │
-VM crontab / GitHub Actions ──→ Runner Layer
+VM crontab / CLI ──→ Runner Layer
     ├── runDailyCheck.mjs      ← 每日主流程
-    ├── runNewsFetch.mjs        ← 新聞池更新
-    ├── runOptimizer.mjs        ← 新聞治理規則優化
-    ├── runWeeklyReport.mjs     ← AI 週報
-    └── runMonthlyReport.mjs    ← AI 月報
+    ├── runNewsFetch.mjs       ← 新聞池更新
+    ├── runOptimizer.mjs       ← 新聞治理規則優化
+    ├── runWeeklyReport.mjs    ← AI 週報
+    └── runMonthlyReport.mjs   ← AI 月報
               │
     ┌─────────┴──────────┐
     │  Core Modules      │
@@ -136,17 +136,35 @@ crontab -e
 加入以下內容（時區需為 `Asia/Taipei`）：
 
 ```cron
-SHELL=/bin/bash
-TZ=Asia/Taipei
-
-# DuckDNS IP 更新（防 Oracle IP 漂移）
+# ── DuckDNS IP 自動更新 ──────────────────────────────────────
 */5 * * * * curl -s "https://www.duckdns.org/update?domains=YOUR_DOMAIN&token=YOUR_TOKEN&ip=" > /dev/null
 
-# 盤前報告（09:00 開盤前）
-30 7 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
-
-# 收盤後總結（13:30 收盤後）
+# ── runDailyCheck（每日 5 次）────────────────────────────────
+# 盤前報告 07:30
+30 7  * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
+# 盤中觀測 10:30
+30 10 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
+# 午盤 12:00
+0  12 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
+# 收盤後總結 13:45
 45 13 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
+# 夜間美股觀測 21:30
+30 21 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
+
+# ── runNewsFetch（每 4 小時）─────────────────────────────────
+0  */4 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-news-fetch.sh
+
+# ── runOptimizer（每日 02:00）────────────────────────────────
+0  2  * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-optimizer.sh
+
+# ── runWeeklyReport（每週一 09:30）──────────────────────────
+30 9  * * 1 /bin/bash /home/ubuntu/investnotify/scripts/vm-weekly-report.sh
+
+# ── runMonthlyReport（每月 1 日 09:00）──────────────────────
+0  9  1 * * /bin/bash /home/ubuntu/investnotify/scripts/vm-monthly-report.sh
+
+# ── Log 輪替（每週日 03:00 清理 30 天前的 log）──────────────
+0  3  * * 0 find /home/ubuntu/investnotify/logs -name "*.log" -mtime +30 -delete
 ```
 
 ---
@@ -195,25 +213,21 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 > 完整說明請見 [`docs/schedules.md`](docs/schedules.md)
 
-### Oracle VM crontab（時間敏感任務）
+### Oracle VM crontab（所有定時任務）
 
 | 台灣時間 | 用途 |
 |---|---|
-| 07:30 每日 | 🔴 盤前完整報告（開盤前推播） |
-| 13:45 每日 | 🟡 收盤後總結 |
 | 每 5 分鐘 | DuckDNS IP 更新 |
-
-### GitHub Actions（低時間敏感任務）
-
-| 台灣時間 | 用途 |
-|---|---|
-| 10:30 每日 | 盤中觀測 |
-| 12:00 每日 | 午盤回報 |
-| 21:30 每日 | 夜間美股開盤觀測 |
-| 每 4 小時 | 新聞池更新 |
-| 02:00 每日 | Rule Optimizer |
-| 週一 09:30 | AI 週報生成 |
-| 每月 1 日 09:30 | AI 月報生成 |
+| 07:30 每日 | 🔴 盤前完整報告 |
+| 10:30 每日 | 🟡 盤中觀測 |
+| 12:00 每日 | 🟡 午盤回報 |
+| 13:45 每日 | 🟡 收盤後總結 |
+| 21:30 每日 | 🌙 夜間美股觀測 |
+| 每 4 小時 | 📰 新聞池更新 |
+| 02:00 每日 | ⚙️ Rule Optimizer |
+| 週一 09:30 | 📊 AI 週報生成 |
+| 每月 1 日 09:00 | 📅 AI 月報生成 |
+| 週日 03:00 | 🧹 清理 30 天前 log |
 
 ### Oracle VM PM2 長駐程序
 
@@ -221,6 +235,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 |---|---|
 | `api-server` | Fastify HTTP API（Port 3000），供 Mini App 呼叫 |
 | `bot-daemon` | Telegram Bot Long-Polling，處理即時指令 |
+
+> 目前所有定時任務已全面移轉至 Oracle VM，`README` 不再將 GitHub Actions 視為主要排程平台。
 
 ---
 
@@ -270,37 +286,41 @@ tail -f logs/vm-cron.log
 InvestmentLineNotify/
 ├── src/
 │   ├── runDailyCheck.mjs        ← 每日主流程 CLI 入口
-│   ├── runNewsFetch.mjs          ← 新聞抓取流程
-│   ├── runOptimizer.mjs          ← 新聞治理規則優化
-│   ├── runWeeklyReport.mjs       ← AI 週報
-│   ├── runMonthlyReport.mjs      ← AI 月報
-│   ├── bot.mjs                   ← Telegram Bot 長駐程序
+│   ├── runNewsFetch.mjs         ← 新聞抓取流程
+│   ├── runOptimizer.mjs         ← 新聞治理規則優化
+│   ├── runWeeklyReport.mjs      ← AI 週報
+│   ├── runMonthlyReport.mjs     ← AI 月報
+│   ├── bot.mjs                  ← Telegram Bot 長駐程序
 │   ├── api/
-│   │   ├── server.mjs            ← Fastify API Server（Port 3000）
-│   │   ├── middleware/           ← initDataGuard（HMAC-SHA256 驗證）
-│   │   └── routes/               ← /api/status, /api/reports, /api/news, /api/snapshots
+│   │   ├── server.mjs           ← Fastify API Server（Port 3000）
+│   │   ├── middleware/          ← initDataGuard（HMAC-SHA256 驗證）
+│   │   └── routes/              ← /api/status, /api/reports, /api/news, /api/snapshots
 │   ├── modules/
-│   │   ├── providers/            ← 市場資料（TWSE / Yahoo / FRED / CNN / KGI / NDC）
-│   │   ├── strategy/             ← RSI / KD / MACD 量化指標 + 風控引擎
-│   │   ├── ai/                   ← Gemini AI 決策管線（新聞過濾 / 總經分析 / 投資教練）
-│   │   ├── notifications/        ← Telegram HTML 訊息排版與推播
+│   │   ├── providers/           ← 市場資料（TWSE / Yahoo / FRED / CNN / KGI / NDC）
+│   │   ├── strategy/            ← RSI / KD / MACD 量化指標 + 風控引擎
+│   │   ├── ai/                  ← Gemini AI 決策管線（新聞過濾 / 總經分析 / 投資教練）
+│   │   ├── notifications/       ← Telegram HTML 訊息排版與推播
 │   │   ├── data/
 │   │   │   ├── newsPoolManager.mjs  ← 新聞池 CRUD + TTL 清理
 │   │   │   └── archiveManager.mjs   ← 本地 JSON 讀寫管理
-│   │   ├── bot/                  ← runnerLock / adminGuard
-│   │   └── storage.mjs           ← Google Sheets 同步
+│   │   ├── bot/                 ← runnerLock / adminGuard
+│   │   └── storage.mjs          ← Google Sheets 同步
 │   ├── utils/
-│   │   ├── snapshotCrypto.mjs    ← AES-256-GCM 快照加解密
-│   │   ├── coreUtils.mjs         ← TwDate / fetchWithTimeout 等工具
-│   │   └── envGuard.mjs          ← 啟動時環境變數驗證
-│   └── test/                     ← 手動測試與回測腳本
-├── webapp/                        ← Vite + Vue 3 Telegram Mini App
-│   └── src/views/                 ← 7 個 Tab（總覽 / 雷達 / 多空 / 圖表 / 報告 / 新聞 / 設定）
+│   │   ├── snapshotCrypto.mjs   ← AES-256-GCM 快照加解密
+│   │   ├── coreUtils.mjs        ← TwDate / fetchWithTimeout 等工具
+│   │   └── envGuard.mjs         ← 啟動時環境變數驗證
+│   └── test/                    ← 手動測試與回測腳本
+├── webapp/                       ← Vite + Vue 3 Telegram Mini App
+│   └── src/views/                ← 7 個 Tab（總覽 / 雷達 / 多空 / 圖表 / 報告 / 新聞 / 設定）
 ├── scripts/
-│   └── vm-daily-check.sh         ← VM crontab 執行腳本
-├── data/                          ← 本地 JSON 快取（.gitignore，不進版本控制）
-├── docs/                          ← 系統文件
-└── .github/workflows/             ← GitHub Actions 排程
+│   ├── vm-daily-check.sh        ← VM daily runner
+│   ├── vm-news-fetch.sh         ← VM news fetch runner
+│   ├── vm-optimizer.sh          ← VM optimizer runner
+│   ├── vm-weekly-report.sh      ← VM weekly report runner
+│   └── vm-monthly-report.sh     ← VM monthly report runner
+├── data/                         ← 本地 JSON 快取（.gitignore，不進版本控制）
+├── docs/                         ← 系統文件
+└── .github/workflows/            ← GitHub Actions（保留手動/非主要用途）
 ```
 
 ---
@@ -313,7 +333,7 @@ InvestmentLineNotify/
 |---|---|
 | [`docs/architecture.md`](docs/architecture.md) | 系統總覽、Mermaid 架構圖、目錄責任對照 |
 | [`docs/env-vars.md`](docs/env-vars.md) | 完整環境變數清單與 SOP |
-| [`docs/schedules.md`](docs/schedules.md) | 排程總覽（VM crontab + GitHub Actions） |
+| [`docs/schedules.md`](docs/schedules.md) | 排程總覽（以 VM crontab 為主） |
 | [`docs/modules/ai_pipeline.md`](docs/modules/ai_pipeline.md) | AI 決策管線詳細設計 |
 | [`docs/modules/market_strategy.md`](docs/modules/market_strategy.md) | 策略引擎 / 技術指標 / 新聞治理 |
 | [`docs/modules/core_infrastructure.md`](docs/modules/core_infrastructure.md) | storage / archiveManager / snapshotCrypto |
