@@ -1,10 +1,10 @@
 name: News Fetch Pipeline
 
 on:
-  schedule:
-    # UTC 時間，每 4 小時執行一次（台灣時間 00:00 / 04:00 / 08:00 / 12:00 / 16:00 / 20:00）
-    - cron: "0 */4 * * *"
   workflow_dispatch:
+    # ℹ️  排程已移至 Oracle VM crontab 執行（2026-04-13）
+    # VM 排程時間（台灣時間）：每 4 小時 00:00 / 04:00 / 08:00 / 12:00 / 16:00 / 20:00
+    # 此 workflow 保留供 VM 故障時手動應急觸發
 
 jobs:
   fetch-news:
@@ -29,36 +29,11 @@ jobs:
 
       - name: Run news fetch pipeline
         env:
-          # ── AI / Gemini ───────────────────────────────────────
           GEMINI_API_KEY1:     ${{ secrets.GEMINI_API_KEY1 }}
           GEMINI_API_KEY2:     ${{ secrets.GEMINI_API_KEY2 }}
           GEMINI_API_KEY3:     ${{ secrets.GEMINI_API_KEY3 }}
           GEMINI_MODEL:        ${{ secrets.GEMINI_MODEL }}
-          # ── Langfuse（選填）──────────────────────────────────
           LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
           LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
           LANGFUSE_BASE_URL:   ${{ secrets.LANGFUSE_BASE_URL }}
         run: node src/runNewsFetch.mjs
-
-      - name: Commit news pool updates
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: update news pool [skip ci]"
-          file_pattern: |
-            data/news/pool_active.json
-            data/news/archive/*.json
-            data/news/.gitkeep
-            data/news/archive/.gitkeep
-
-      - name: Sync data to Oracle VM
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
-          script: |
-            cd ~/investnotify
-            git fetch origin main
-            git reset --hard origin/main
-            echo "[data-sync] $(date) sync 完成 ($(git log --oneline -1))"
-        continue-on-error: true
