@@ -34,3 +34,5 @@ tmp/
 *.log
 *.tmp
 *.temp
+# VM 本地資料目錄（不再同步至 GitHub）
+data/
