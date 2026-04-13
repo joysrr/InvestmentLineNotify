@@ -11,7 +11,7 @@ on:
 
 permissions:
   actions: read
-  contents: read
+  contents: none
 
 jobs:
   notify-on-failure:
@@ -23,6 +23,10 @@ jobs:
         github.event.workflow_run.name != 'Notify Workflow Failure'
       }}
     runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      contents: none
 
     steps:
       - name: Send Telegram failure alert

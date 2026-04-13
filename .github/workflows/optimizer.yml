@@ -6,16 +6,21 @@ on:
     # VM 排程時間（台灣時間）：每日 02:00
     # 此 workflow 保留供 VM 故障時手動應急觸發
 
+permissions:
+  contents: none
+
 jobs:
   optimizer:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write
+      contents: read
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
