@@ -1,93 +1,54 @@
 name: Daily Report & Notify Scheduler
 
 on:
-  schedule:
-    # ----------------------------------------------------
-    # (時間為 UTC)
-    # 台灣 10:30 -> UTC 02:30 (盤中觀測)
-    - cron: "30 2 * * *"
-    # 台灣 12:00 -> UTC 04:00 (午盤高頻回報)
-    - cron: "0 4 * * *"
-    # 台灣 21:30 -> UTC 13:30 (夜間國際觀測：美股開盤)
-    - cron: "30 13 * * *"
-    # ----------------------------------------------------
-    # 07:30 盤前報告 / 13:45 收盤後總結 已移至 VM crontab 執行
-    # → scripts/vm-daily-check.sh
-    # ----------------------------------------------------
-  workflow_dispatch: # 允許手動觸發
+  workflow_dispatch:
+    # ℹ️  排程已移至 Oracle VM crontab 執行（2026-04-13）
+    # VM 排程時間（台灣時間）：07:30 / 10:30 / 12:00 / 13:45 / 21:30
+    # 此 workflow 保留供 VM 故障時手動應急觸發
 
 jobs:
   notify:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write # 允許寫入內容（如果需要更新檔案或產生新的 commit）
+      contents: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1 # 只抓取最新的 commit，減少不必要的歷史資料
+          fetch-depth: 1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm" # 啟用 npm 快取，會自動處理 node_modules 的快取
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run Daily Check
         env:
-          # ── 市場資料 ────────────────────────────────────────
           BASE_PRICE_URL:               ${{ secrets.BASE_PRICE_URL }}
           STRATEGY_URL:                 ${{ secrets.STRATEGY_URL }}
           ALPHA_VANTAGE_API_KEY:        ${{ secrets.ALPHA_VANTAGE_API_KEY }}
           FRED_API_KEY:                 ${{ secrets.FRED_API_KEY }}
-          # ── Google Sheets ────────────────────────────────────
           GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
           GOOGLE_PRIVATE_KEY:           ${{ secrets.GOOGLE_PRIVATE_KEY }}
           GOOGLE_SHEET_ID:              ${{ secrets.GOOGLE_SHEET_ID }}
-          # ── Telegram ─────────────────────────────────────────
           TELEGRAM_API_TOKEN:           ${{ secrets.TELEGRAM_API_TOKEN }}
           TELEGRAM_USER_ID:             ${{ secrets.TELEGRAM_USER_ID }}
           TELEGRAM_WEBAPP_URL:          ${{ secrets.TELEGRAM_WEBAPP_URL }}
-          # ── AI / Gemini ───────────────────────────────────────
           GEMINI_MODEL:                 ${{ secrets.GEMINI_MODEL }}
           GEMINI_API_KEY1:              ${{ secrets.GEMINI_API_KEY1 }}
           GEMINI_API_KEY2:              ${{ secrets.GEMINI_API_KEY2 }}
           GEMINI_API_KEY3:              ${{ secrets.GEMINI_API_KEY3 }}
-          # ── Langfuse（選填）──────────────────────────────────
           LANGFUSE_SECRET_KEY:          ${{ secrets.LANGFUSE_SECRET_KEY }}
           LANGFUSE_PUBLIC_KEY:          ${{ secrets.LANGFUSE_PUBLIC_KEY }}
           LANGFUSE_BASE_URL:            ${{ secrets.LANGFUSE_BASE_URL }}
-          # ── 快照加密 ─────────────────────────────────────────
           SNAPSHOT_ENCRYPT_KEY:         ${{ secrets.SNAPSHOT_ENCRYPT_KEY }}
-          # ── 已廢棄（保留備用）────────────────────────────────
           LINE_ACCESS_TOKEN:            ${{ secrets.LINE_ACCESS_TOKEN }}
           USER_ID:                      ${{ secrets.USER_ID }}
-          # ── 系統 ─────────────────────────────────────────────
           TZ: "Asia/Taipei"
-
         run: npm start -- ${{ env.LINE_FLAG }} ${{ env.TG_FLAG }} ${{ env.AI_FLAG }} ${{ env.TRANS_FLAG }}
-
-      - name: Commit and Push Data Changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "🤖 chore(data): auto-update market cache and ai logs [skip ci]"
-          commit_user_name: "github-actions[bot]"
-          commit_user_email: "github-actions[bot]@users.noreply.github.com"
-
-      - name: Sync data to Oracle VM
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
-          script: |
-            cd ~/investnotify
-            git fetch origin main
-            git reset --hard origin/main
-            echo "[data-sync] $(date) sync 完成 ($(git log --oneline -1))"
-        continue-on-error: true
