@@ -33,25 +33,23 @@ jobs:
 
       - name: Run Daily Check
         env:
-          BASE_PRICE_URL:               ${{ secrets.BASE_PRICE_URL }}
-          STRATEGY_URL:                 ${{ secrets.STRATEGY_URL }}
-          ALPHA_VANTAGE_API_KEY:        ${{ secrets.ALPHA_VANTAGE_API_KEY }}
-          FRED_API_KEY:                 ${{ secrets.FRED_API_KEY }}
+          BASE_PRICE_URL: ${{ secrets.BASE_PRICE_URL }}
+          STRATEGY_URL: ${{ secrets.STRATEGY_URL }}
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
-          GOOGLE_PRIVATE_KEY:           ${{ secrets.GOOGLE_PRIVATE_KEY }}
-          GOOGLE_SHEET_ID:              ${{ secrets.GOOGLE_SHEET_ID }}
-          TELEGRAM_API_TOKEN:           ${{ secrets.TELEGRAM_API_TOKEN }}
-          TELEGRAM_USER_ID:             ${{ secrets.TELEGRAM_USER_ID }}
-          TELEGRAM_WEBAPP_URL:          ${{ secrets.TELEGRAM_WEBAPP_URL }}
-          GEMINI_MODEL:                 ${{ secrets.GEMINI_MODEL }}
-          GEMINI_API_KEY1:              ${{ secrets.GEMINI_API_KEY1 }}
-          GEMINI_API_KEY2:              ${{ secrets.GEMINI_API_KEY2 }}
-          GEMINI_API_KEY3:              ${{ secrets.GEMINI_API_KEY3 }}
-          LANGFUSE_SECRET_KEY:          ${{ secrets.LANGFUSE_SECRET_KEY }}
-          LANGFUSE_PUBLIC_KEY:          ${{ secrets.LANGFUSE_PUBLIC_KEY }}
-          LANGFUSE_BASE_URL:            ${{ secrets.LANGFUSE_BASE_URL }}
-          SNAPSHOT_ENCRYPT_KEY:         ${{ secrets.SNAPSHOT_ENCRYPT_KEY }}
-          LINE_ACCESS_TOKEN:            ${{ secrets.LINE_ACCESS_TOKEN }}
-          USER_ID:                      ${{ secrets.USER_ID }}
+          GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          TELEGRAM_API_TOKEN: ${{ secrets.TELEGRAM_API_TOKEN }}
+          TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
+          TELEGRAM_WEBAPP_URL: ${{ secrets.TELEGRAM_WEBAPP_URL }}
+          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
+          GEMINI_API_KEY1: ${{ secrets.GEMINI_API_KEY1 }}
+          GEMINI_API_KEY2: ${{ secrets.GEMINI_API_KEY2 }}
+          GEMINI_API_KEY3: ${{ secrets.GEMINI_API_KEY3 }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_BASE_URL }}
+          SNAPSHOT_ENCRYPT_KEY: ${{ secrets.SNAPSHOT_ENCRYPT_KEY }}
           TZ: "Asia/Taipei"
         run: npm start -- ${{ env.LINE_FLAG }} ${{ env.TG_FLAG }} ${{ env.AI_FLAG }} ${{ env.TRANS_FLAG }}

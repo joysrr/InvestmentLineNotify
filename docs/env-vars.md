@@ -85,15 +85,6 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ---
 
-## 🗑️ 已廢棄（保留備用，目前未使用）
-
-| 變數名稱            | 說明                                                |
-| ------------------- | --------------------------------------------------- |
-| `LINE_ACCESS_TOKEN` | 原 Line Notify Token，已切換至 Telegram，暫保留     |
-| `USER_ID`           | 原 Line Notify 使用者 ID，已切換至 Telegram，暫保留 |
-
----
-
 ## 新增環境變數 SOP
 
 1. 在 GitHub Repo → **Settings → Secrets and variables → Actions** 新增 Secret

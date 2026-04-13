@@ -33,11 +33,11 @@ jobs:
 
       - name: Run news fetch pipeline
         env:
-          GEMINI_API_KEY1:     ${{ secrets.GEMINI_API_KEY1 }}
-          GEMINI_API_KEY2:     ${{ secrets.GEMINI_API_KEY2 }}
-          GEMINI_API_KEY3:     ${{ secrets.GEMINI_API_KEY3 }}
-          GEMINI_MODEL:        ${{ secrets.GEMINI_MODEL }}
+          GEMINI_API_KEY1: ${{ secrets.GEMINI_API_KEY1 }}
+          GEMINI_API_KEY2: ${{ secrets.GEMINI_API_KEY2 }}
+          GEMINI_API_KEY3: ${{ secrets.GEMINI_API_KEY3 }}
+          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
           LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
           LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
-          LANGFUSE_BASE_URL:   ${{ secrets.LANGFUSE_BASE_URL }}
+          LANGFUSE_BASE_URL: ${{ secrets.LANGFUSE_BASE_URL }}
         run: node src/runNewsFetch.mjs
