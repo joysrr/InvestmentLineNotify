@@ -1,6 +1,6 @@
 # 排程總覽 / Schedule Overview
 
-> **最後更新：2026-04-12**
+> **最後更新：2026-04-13**
 > 本文件集中記錄所有排程的觸發方式、執行位置、時間設定與設計說明。
 
 ---
@@ -9,12 +9,12 @@
 
 | 執行平台 | 適合任務類型 | 時間準確性 |
 |---|---|---|
-| **Oracle VM crontab** | 時間敏感、需準時觸發的任務 | ✅ 準時（秒級精度） |
-| **GitHub Actions schedule** | 可容忍 15~30 分鐘延遲的任務 | ⚠️ 延遲 15~60 分鐘（平台排隊） |
+| **Oracle VM crontab** | 所有定時排程任務 | ✅ 準時（秒級精度） |
 | **VM PM2 長駐** | 需即時回應的常駐服務 | ✅ 持續運行 |
+| **GitHub Actions（手動觸發）** | 緊急補跑、除錯用途 | ⚠️ 僅手動觸發，不再使用自動排程 |
 
-> GitHub Actions 的 `schedule` cron 為平台共享資源，繁忙時段延遲 15~60 分鐘屬正常現象。
-> 盤前報告（07:30）與收盤後總結（13:45）為時間敏感任務，已移轉至 VM crontab 執行。
+> 所有自動排程已於 2026-04-13 **全面移轉至 Oracle VM crontab** 執行，GitHub Actions 的 `schedule` cron 已停用。
+> VM crontab 以 `TZ=Asia/Taipei` 直接設定台灣時間，無需換算 UTC。
 
 ---
 
@@ -24,40 +24,55 @@
 
 | 台灣時間 | Cron 表達式 | 執行腳本 | 用途 | 時間敏感度 |
 |---|---|---|---|---|
-| 07:30 每日 | `30 7 * * *` | `scripts/vm-daily-check.sh` | 🔴 盤前完整報告（09:00 開盤前） | 高 |
-| 13:45 每日 | `45 13 * * *` | `scripts/vm-daily-check.sh` | 🟡 收盤後總結（13:30 收盤後 15 分） | 中 |
 | 每 5 分鐘 | `*/5 * * * *` | `curl duckdns update` | DuckDNS IP 自動更新（防 Oracle IP 漂移） | 低 |
+| 07:30 每日 | `30 7 * * *` | `scripts/vm-daily-check.sh` | 🔴 盤前完整報告（09:00 開盤前） | 高 |
+| 10:30 每日 | `30 10 * * *` | `scripts/vm-daily-check.sh` | 🟡 盤中觀測 | 中 |
+| 12:00 每日 | `0 12 * * *` | `scripts/vm-daily-check.sh` | 🟡 午盤回報 | 中 |
+| 13:45 每日 | `45 13 * * *` | `scripts/vm-daily-check.sh` | 🟡 收盤後總結（13:30 收盤後 15 分） | 中 |
+| 21:30 每日 | `30 21 * * *` | `scripts/vm-daily-check.sh` | 🌙 夜間美股開盤觀測 | 中 |
+| 每 4 小時 | `0 */4 * * *` | `scripts/vm-news-fetch.sh` | 新聞池更新 | 低 |
+| 02:00 每日 | `0 2 * * *` | `scripts/vm-optimizer.sh` | Rule Optimizer（新聞治理規則優化） | 低 |
+| 09:30 每週一 | `30 9 * * 1` | `scripts/vm-weekly-report.sh` | AI 週報生成 | 低 |
+| 09:00 每月 1 日 | `0 9 1 * *` | `scripts/vm-monthly-report.sh` | AI 月報生成 | 低 |
+| 03:00 每週日 | `0 3 * * 0` | `find ... -mtime +30 -delete` | Log 輪替（清理 30 天前的 `.log` 檔） | 低 |
 
 **VM crontab 完整設定：**
 ```cron
 SHELL=/bin/bash
 TZ=Asia/Taipei
 
-# 盤前報告
-30 7 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
+# ── DuckDNS IP 自動更新 ──────────────────────────────────────
+*/5 * * * * curl -s "https://www.duckdns.org/update?domains=YOUR_DOMAIN&token=YOUR_TOKEN&ip=" > /dev/null
 
-# 收盤後總結
+# ── runDailyCheck（每日 5 次）────────────────────────────────
+# 盤前報告 07:30
+30 7  * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
+# 盤中觀測 10:30
+30 10 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
+# 午盤 12:00
+0  12 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
+# 收盤後總結 13:45
 45 13 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
+# 夜間美股觀測 21:30
+30 21 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
 
-# DuckDNS IP 更新
-*/5 * * * * curl -s "https://www.duckdns.org/update?domains=investnotify&token=YOUR_TOKEN&ip=" > /dev/null
+# ── runNewsFetch（每 4 小時）─────────────────────────────────
+0  */4 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-news-fetch.sh
+
+# ── runOptimizer（每日 02:00）────────────────────────────────
+0  2  * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-optimizer.sh
+
+# ── runWeeklyReport（每週一 09:30）──────────────────────────
+30 9  * * 1 /bin/bash /home/ubuntu/investnotify/scripts/vm-weekly-report.sh
+
+# ── runMonthlyReport（每月 1 日 09:00）──────────────────────
+0  9  1 * * /bin/bash /home/ubuntu/investnotify/scripts/vm-monthly-report.sh
+
+# ── Log 輪替（每週日 03:00 清理 30 天前的 log）──────────────
+0  3  * * 0 find /home/ubuntu/investnotify/logs -name "*.log" -mtime +30 -delete
 ```
 
----
-
-### GitHub Actions（`.github/workflows/`）
-
-| Workflow 檔案 | 台灣時間 | UTC Cron | 用途 | 時間敏感度 |
-|---|---|---|---|---|
-| `line_notify.yml` | 10:30 每日 | `30 2 * * *` | 盤中觀測 | 低 |
-| `line_notify.yml` | 12:00 每日 | `0 4 * * *` | 午盤回報 | 低 |
-| `line_notify.yml` | 21:30 每日 | `30 13 * * *` | 夜間美股開盤觀測 | 低 |
-| `news-fetch.yml` | 每 4 小時 | `0 */4 * * *` | 新聞池更新 | 低 |
-| `optimizer.yml` | 02:00 每日 | `0 18 * * *` | Rule Optimizer | 低 |
-| `weekly-report.yml` | 週一 09:30 | `30 1 * * 1` | AI 週報生成 | 低 |
-| `monthly-report.yml` | 每月 1 日 09:30 | `30 1 1 * *` | AI 月報生成 | 低 |
-
-> ⚠️ `line_notify.yml` 的 07:30（盤前）與 13:45（收盤後）排程已**移除**，改由 VM crontab 執行。
+> ⚠️ DuckDNS 的 `domains` 與 `token` 為敏感資訊，請勿 commit 至 repo，僅設定於 VM crontab。
 
 ---
 
@@ -76,36 +91,15 @@ pm2 monit
 
 ---
 
-## data/ 同步機制
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  VM crontab 執行路徑                                         │
-│                                                             │
-│  scripts/vm-daily-check.sh                                  │
-│    1. git fetch & reset --hard origin/main  ← 先拉最新      │
-│    2. node src/runDailyCheck.mjs            ← 執行          │
-│    3. git add data/ && git commit && push   ← 寫回 GitHub   │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│  GitHub Actions 執行路徑                                     │
-│                                                             │
-│  line_notify.yml（盤中 / 午盤 / 夜間）                       │
-│    1. node src/runDailyCheck.mjs            ← 執行          │
-│    2. git-auto-commit-action                ← 寫回 GitHub   │
-│    3. SSH → VM: git reset --hard origin/main ← VM 同步      │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**衝突防護：**
-- VM crontab 腳本內建 `lockfile`（`/tmp/investnotify-daily.lock`），防止並發執行
-- VM 端的 `git reset --hard` 優先以 GitHub 為 source of truth
-- Actions 端的 SSH sync 步驟設有 `continue-on-error: true`，不阻塞主流程
-
----
-
 ## VM 排程腳本說明
+
+### 共同特性
+
+所有 `scripts/vm-*.sh` 腳本均具備以下機制：
+
+- **Lock 檔案**：防止同一任務並發執行（例：`/tmp/investnotify-daily.lock`）
+- **Log 輸出**：寫入 `logs/` 目錄對應的 `.log` 檔案
+- **錯誤通知**：執行失敗時透過 `scripts/notify-error.sh` 發送 Telegram 告警
 
 ### `scripts/vm-daily-check.sh`
 
@@ -114,18 +108,88 @@ pm2 monit
 | 位置 | `/home/ubuntu/investnotify/scripts/vm-daily-check.sh` |
 | Log 輸出 | `logs/vm-cron.log` |
 | Lock 檔案 | `/tmp/investnotify-daily.lock`（執行結束自動清除） |
-| 執行步驟 | git pull → runDailyCheck → git commit/push |
+| 每日執行次數 | 5 次（07:30 / 10:30 / 12:00 / 13:45 / 21:30） |
+
+### `scripts/vm-news-fetch.sh`
+
+| 項目 | 說明 |
+|---|---|
+| 對應 Runner | `src/runNewsFetch.mjs` |
+| Log 輸出 | `logs/vm-news-fetch.log` |
+| 執行頻率 | 每 4 小時 |
+
+### `scripts/vm-optimizer.sh`
+
+| 項目 | 說明 |
+|---|---|
+| 對應 Runner | `src/runOptimizer.mjs` |
+| Log 輸出 | `logs/vm-optimizer.log` |
+| 執行頻率 | 每日 02:00 |
+
+### `scripts/vm-weekly-report.sh`
+
+| 項目 | 說明 |
+|---|---|
+| 對應 Runner | `src/runWeeklyReport.mjs` |
+| Log 輸出 | `logs/vm-weekly-report.log` |
+| 執行頻率 | 每週一 09:30 |
+
+### `scripts/vm-monthly-report.sh`
+
+| 項目 | 說明 |
+|---|---|
+| 對應 Runner | `src/runMonthlyReport.mjs` |
+| Log 輸出 | `logs/vm-monthly-report.log` |
+| 執行頻率 | 每月 1 日 09:00 |
 
 ```bash
 # 手動測試執行
 bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
 
-# 查看 log
+# 查看各 runner log
 tail -f /home/ubuntu/investnotify/logs/vm-cron.log
+tail -f /home/ubuntu/investnotify/logs/vm-news-fetch.log
+tail -f /home/ubuntu/investnotify/logs/vm-optimizer.log
 
 # 確認 crontab 設定
 crontab -l
 ```
+
+---
+
+## data/ 同步機制
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  VM crontab 執行路徑（所有 runner）                           │
+│                                                             │
+│  scripts/vm-*.sh                                            │
+│    1. git fetch & reset --hard origin/main  ← 先拉最新      │
+│    2. node src/run*.mjs                     ← 執行          │
+│    3. git add data/ && git commit && push   ← 寫回 GitHub   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**衝突防護：**
+- 各腳本均內建 `lockfile`，防止並發執行
+- VM 端的 `git reset --hard` 優先以 GitHub 為 source of truth
+- `data/` 不進版本控制（`.gitignore`），僅作為 VM 本地快取使用
+
+---
+
+## Log 管理
+
+| Log 檔案 | 對應任務 |
+|---|---|
+| `logs/vm-cron.log` | runDailyCheck（每日 5 次） |
+| `logs/vm-news-fetch.log` | runNewsFetch（每 4 小時） |
+| `logs/vm-optimizer.log` | runOptimizer（每日 02:00） |
+| `logs/vm-weekly-report.log` | runWeeklyReport（每週一） |
+| `logs/vm-monthly-report.log` | runMonthlyReport（每月 1 日） |
+
+- **自動輪替**：每週日 03:00 自動刪除 30 天前的 `.log` 檔
+- **手動查看**：`tail -f logs/<檔名>.log`
 
 ---
 
@@ -145,6 +209,5 @@ crontab -l
 ## 維護備忘
 
 - crontab 時區設定：`TZ=Asia/Taipei`（直接用台灣時間，不需換算 UTC）
-- GitHub Actions 的 cron 時區固定為 **UTC**，需手動換算（台灣 = UTC+8）
-- DuckDNS token 請勿 commit 至 repo，僅設定於 VM crontab
-- `logs/vm-cron.log` 建議定期清理，或設定 logrotate
+- DuckDNS `domains` 與 `token` 請勿 commit 至 repo，僅設定於 VM crontab
+- 新增排程腳本時，請同步更新本文件與 `README.md` 的排程總覽
