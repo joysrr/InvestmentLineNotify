@@ -15,7 +15,7 @@ if [ -z "$TELEGRAM_TOKEN" ] || [ -z "$TELEGRAM_USER_ID" ]; then
   exit 1
 fi
 
-MESSAGE="🚨 *\[VM Cron 錯誤\]*
+MESSAGE="🚨 *[VM Cron 錯誤]*
 任務：\`${TASK_NAME}\`
 時間：\`${TIMESTAMP}\`
 最後錯誤：
@@ -30,4 +30,3 @@ curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
   > /dev/null 2>&1
 
 echo "[$TIMESTAMP] [notify-error] 📨 通知已發送：${TASK_NAME}"
-EOF
