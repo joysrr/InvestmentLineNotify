@@ -19,10 +19,10 @@
 ## 2. 生命週期總覽
 系統實際運作可拆成八個層次：
 
-1. **Entry Layer**：由 GitHub Actions、Cron 或手動 CLI 啟動各 runner；或由 Telegram Bot 指令觸發。
+1. **Entry Layer**：由 VM crontab 或手動 CLI 啟動各 runner；或由 Telegram Bot 指令觸發。
 2. **Bot Layer**：`src/bot.mjs` 長駐，接受白名單使用者即時指令，透過 `runnerLock` 防止並發衝突，呼叫與 runner 相同的核心邏輯。
 3. **API Layer**：`src/api/server.mjs` 長駐，提供唯讀 HTTP REST API（Port 3000），供 Telegram Mini App 前端請求資料，具備 Telegram initData HMAC-SHA256 驗證與 CORS 設定。
-4. **Frontend Layer**：`webapp/`（Vite + Vue 3 + ECharts），作為 Telegram Mini App 嵌入式前端，透過 API Layer 取得資料並渲染市場快照、資產趨勢圖表、報告列表與新聞池。採 7-tab 左右滑動底部 Tab Bar 導覽。
+4. **Frontend Layer**：`webapp/`（Vite + Vue 3 + ECharts），作為 Telegram Mini App 嵌入式前端，透過 API Layer 取得資料並渲染市場快照、資產趨勢圖表、報告列表與新聞池。採7-tab 左右滑動底部 Tab Bar 導覽。
 5. **Data Collection Layer**：從 `src/modules/providers/`、Google News RSS、Google Sheets 抓取市場資料、帳戶狀態與新聞。
 6. **Decision Layer**：由 `src/modules/strategy/` 與 `src/modules/ai/` 共同完成量化計算與 AI 判讀。
 7. **Delivery Layer**：由 `src/modules/notifications/` 將結果轉為 Telegram HTML 訊息或週期報告。
@@ -34,7 +34,7 @@
 
 ```mermaid
 flowchart TD
-    A[GitHub Actions / Cron / CLI] --> B[Runner Layer]
+    A[VM Crontab / CLI] --> B[Runner Layer]
     TG[Telegram 使用者指令] --> BOT[src/bot.mjs]
     WA[Mini App 前端 webapp/] --> API[src/api/server.mjs]
 
@@ -167,16 +167,16 @@ flowchart TD
 | `src/api/routes/status.mjs` | `GET /api/status`：讀取 `data/market/latest.json`，不存在回 404。 |
 | `src/api/routes/reports.mjs` | `GET /api/reports?limit=N`（預設 30，最大 365，DESC 排序）、`GET /api/report/:date`、`GET /api/snapshots?limit=N`（日粒度快照，解密後回傳）、`GET /api/snapshots/weekly?limit=N`（週聚合，透過 `snapshotAggregator` 計算）、`GET /api/snapshots/monthly?limit=N`（月聚合）。快照端點均需 `SNAPSHOT_ENCRYPT_KEY` 環境變數，否則回傳 `{ hasEncryption: false }`。 |
 | `src/api/routes/news.mjs` | `GET /api/news`：讀取 `data/news/pool_filtered_active.json`，不存在回 `[]`。 |
-| `src/api/utils/snapshotAggregator.mjs` | 週/月快照聚合工具。讀取日粒度快照陣列，按自然週或自然月分組，計算期末快照（`endDate`、`startDate`、`period`）與市價淨值（`netValueMarket = qty0050 × price0050 + qtyZ2 × priceZ2 - totalLoan`）。供 `/api/snapshots/weekly` 與 `/api/snapshots/monthly` 使用。 |
+| `src/api/utils/snapshotAggregator.mjs` | 週/月快照聚合工具。讀取日粒度快照陣列，按自然週或自然月分組，計算期未快照（`endDate`、`startDate`、`period`）與市價淨値（`netValueMarket = qty0050 × price0050 + qtyZ2 × priceZ2 - totalLoan`）。供 `/api/snapshots/weekly` 與 `/api/snapshots/monthly` 使用。 |
 | `src/utils/snapshotCrypto.mjs` | AES-256-GCM 對稱加密工具模組。提供 `encrypt(obj)` 與 `decrypt(str)` 兩支函式，金鑰來自環境變數 `SNAPSHOT_ENCRYPT_KEY`（32 bytes hex）。供 `dailyCheck.mjs` 寫入快照與 API routes 讀取快照時使用。 |
 | `src/modules/bot/middleware/adminGuard.mjs` | 白名單 middleware，僅允許 `TELEGRAM_USER_ID` 指定的 chat_id 使用指令。 |
 | `src/modules/bot/runnerLock.mjs` | 全域 lock 機制，防止 Bot 指令與排程 runner 同時執行同一任務。 |
 | `src/modules/providers/` | 市場資料 provider layer，封裝 TWSE、Yahoo、FRED、CNN、KGI、NDC 等來源。 |
 | `src/modules/strategy/` | 策略與風控核心，計算 RSI / KD / MACD、過熱、冷卻期與投資建議。 |
 | `src/modules/ai/` | AI decision layer，包含 search query generation、news filter、macro analysis、investment coach、period report、rule optimizer、LLM judge。 |
-| `src/modules/news/newsConflictGrouper.mjs` | 矛盾偵測前置層，以 Jaccard 相似度（閾值 0.3）+ Union-Find 對新聞標題預分群，輸出 `_conflictGroup` 標籤供 AI 識別同一事件的正反報導。 |
+| `src/modules/news/newsConflictGrouper.mjs` | 矛盾偵測前置層，以 Jaccard 相似度（閥値 0.3）+ Union-Find 對新聞標題預分群，輸出 `_conflictGroup` 標籤供 AI 識別同一事件的正反報導。 |
 | `src/modules/newsFetcher.mjs` | 新聞抓取與初步去噪主程式，負責整合靜態 / 動態關鍵字與 blacklist。 |
-| `src/modules/keywordConfig.mjs` | 關鍵字與 blacklist loading 的設定入口，承接已完成的 keyword system 重構。 |
+| `src/modules/keywordConfig.mjs` | 關鍵字與 blacklist loading 的設定入口。 |
 | `src/modules/data/newsPoolManager.mjs` | 新聞池 CRUD、TTL 清理、archive、fuzzy dedupe。 |
 | `src/modules/notifications/` | 將決策結果輸出成 Telegram 訊息與週期報告格式。 |
 | `src/modules/storage.mjs` | 與 Google Sheets 同步持股狀態與每日紀錄，包含 `avgCost0050` / `avgCostZ2` 均價欄位讀取。 |
@@ -197,23 +197,29 @@ flowchart TD
 ### `scripts/` 運維腳本層
 | Path | 說明 |
 |---|---|
-| `scripts/rollbackOptimizer.mjs` | 手動 rollback 最近一次 Rule Optimizer 對 blacklist 與歷史紀錄的變更，用於治理失誤時快速回滾。 |
-| `scripts/testOptimizer.mjs` | Rule Optimizer 壓力測試與實驗腳本，用於在正式排程之外檢驗新 prompt 或規則策略。 |
+| `scripts/vm-daily-check.sh` | VM crontab 執行腳本，觸發 `runDailyCheck`（每日 5 次）。內建 lockfile、log 輸出與錯誤通知。 |
+| `scripts/vm-news-fetch.sh` | VM crontab 執行腳本，觸發 `runNewsFetch`（每 4 小時）。 |
+| `scripts/vm-optimizer.sh` | VM crontab 執行腳本，觸發 `runOptimizer`（每日 02:00）。 |
+| `scripts/vm-weekly-report.sh` | VM crontab 執行腳本，觸發 `runWeeklyReport`（每週一 09:30）。 |
+| `scripts/vm-monthly-report.sh` | VM crontab 執行腳本，觸發 `runMonthlyReport`（每月 1 日 09:00）。 |
+| `scripts/notify-error.sh` | 錯誤通知腳本，各 vm-*.sh 失敗時呼叫，發送 Telegram 告警。 |
+| `scripts/rollbackOptimizer.mjs` | 手動 rollback 最近一次 Rule Optimizer 對 blacklist 與歷史紀錄的變更。 |
+| `scripts/testOptimizer.mjs` | Rule Optimizer 壓力測試腳本。 |
 
-### `.github/workflows/` 排程與監控層
+### `.github/workflows/` 監控層
 
-GitHub Actions 負責定時觸發各 runner 並在完成後 git push 更新 `data/`。Bot daemon（`src/bot.mjs`）與 API Server（`src/api/server.mjs`）在 VM 上由 pm2 長駐執行，**不**由 Actions 啟動。
+> 所有自動排程已於 **2026-04-13 全面移轉至 Oracle VM crontab**。
+> GitHub Actions 僅保留手動觸發與異常監控用途。
+> Bot daemon（`src/bot.mjs`）與 API Server（`src/api/server.mjs`）在 VM 上由 pm2 長駐執行，**不**由 Actions 啟動。
 
-| Workflow 檔案 | 對應 Runner | Cron 說明 |
+| Workflow 檔案 | 用途 | 觸發方式 |
 |---|---|---|
-| `line_notify.yml` | `src/runDailyCheck.mjs`（`npm start`） | 多段 cron，涵蓋台灣時區開盤前、盤中、收盤後與夜間；每次完成後自動 commit `data/` 變更。 |
-| `news-fetch.yml` | `src/runNewsFetch.mjs` | 每 3 小時執行一次，維護 `data/news/pool_active.json` 與 archive。 |
-| `optimizer.yml` | `src/runOptimizer.mjs` | 每日固定時間執行，更新 blacklist 與 optimizer history 並 commit。 |
-| `weekly-report.yml` | `src/runWeeklyReport.mjs` | 每週一早上執行，產出策略週報並透過 Telegram 發送。 |
-| `monthly-report.yml` | `src/runMonthlyReport.mjs` | 每月 1 日早上執行，產出策略月報並透過 Telegram 發送。 |
-| `notify-workflow-failure.yml` | — | 其他 workflow 失敗時觸發，透過 `sendSystemMessage()` 發送靜默通知至 Log 頻道。 |
-
-> **`data/` 同步機制**：Actions 完成後透過 SSH 通知 VM 執行 `git pull`（方案 B），確保 VM 上 Fastify 讀取的 JSON 與 GitHub 一致。詳見 `docs/appendix/deployment-oracle-vm.md`。
+| `line_notify.yml` | `src/runDailyCheck.mjs` 手動排程 | 僅手動觸發（`workflow_dispatch`） |
+| `news-fetch.yml` | `src/runNewsFetch.mjs` 手動排程 | 僅手動觸發（`workflow_dispatch`） |
+| `optimizer.yml` | `src/runOptimizer.mjs` 手動排程 | 僅手動觸發（`workflow_dispatch`） |
+| `weekly-report.yml` | `src/runWeeklyReport.mjs` 手動排程 | 僅手動觸發（`workflow_dispatch`） |
+| `monthly-report.yml` | `src/runMonthlyReport.mjs` 手動排程 | 僅手動觸發（`workflow_dispatch`） |
+| `notify-workflow-failure.yml` | 其他 workflow 失敗時觸發，透過 `sendSystemMessage()` 發送靜默通知至 Log 頻道 | 自動（on workflow_run failure） |
 
 ---
 
@@ -226,9 +232,9 @@ GitHub Actions 負責定時觸發各 runner 並在完成後 git push 更新 `dat
 | `webapp/src/App.vue` | — | 根元件，整合 Telegram Mini App SDK 初始化（`expand()`、`ready()`）、7-tab 左右滑動底部導覽列（總覽 / 雷達 / 多空 / 圖表 / 報告 / 新聞 / 設定），搭配 active 頂部指示線動畫。 |
 | `webapp/src/router/index.js` | — | Vue Router（Hash History），9 條路由：`/dashboard`、`/radar`、`/macro`、`/chart`、`/reports`、`/news`、`/account`，以及 `/` redirect → `/dashboard` 與 catch-all redirect。 |
 | `webapp/src/views/DashboardView.vue` | 總覽 | 市場總覽首頁，整合市場快照（VIX / CNN 情緒 / 景氣燈號）、最新決策（AI action items 展開/收合）、技術指標卡片（RSI / KD / MACD / 乖離率）與最新消息預覽（跳轉 `/news`）。 |
-| `webapp/src/views/MarketRadarView.vue` | 雷達 | 市場雷達儀表板，3-col 卡片格，依數值自動渲染紅/黃/綠/藍色階。美股區：美股 VIX、S&P 500 漲跌、CNN 情緒；台股區：台股 VIX、景氣燈號、融資維持率、大盤 PE / PB、美元/台幣匯率；資料同時讀取 `/api/status` 與最新 report。 |
+| `webapp/src/views/MarketRadarView.vue` | 雷達 | 市場雷達儀表板，3-col 卡片格，依數値自動渲染紅/黃/綠/藍色階。美股區：美股 VIX、S&P 500 漲跌、CNN 情緒；台股區：台股 VIX、景氣燈號、融資維持率、大盤 PE / PB、美元/台幣匯率；資料同時讀取 `/api/status` 與最新 report。 |
 | `webapp/src/views/MacroBattleView.vue` | 多空 | 總經多空對決頁，讀取最新 report 的 `macroAnalysis` 欄位。顯示市場方向 Badge（BULLISH / BEARISH / NEUTRAL）、多空積分長條動畫、`key_takeaways` 核心邏輯列表，以及多方/空方/中性事件卡片（含積分與分析文字）。 |
-| `webapp/src/views/ChartView.vue` | 圖表 | 資產趨勢圖表頁。以 ECharts 折線圖顯示持倉歷史，支援**日（90 筆）/ 週（52 筆）/ 月（120 筆）**三段粒度切換，以及市價淨值、0050 股數、00675L 股數、融資餘額四項指標 chip 切換。市價淨值（`netValueMarket`）採市價法計算（`qty0050 × price0050 + qtyZ2 × priceZ2 - totalLoan`）。圖表含 tooltip、零軸參考線與面積漸層。下方顯示最新快照摘要卡片（4 格）。快照資料透過 `/api/snapshots`、`/api/snapshots/weekly`、`/api/snapshots/monthly` 取得，需後端 `SNAPSHOT_ENCRYPT_KEY` 環境變數才能啟用。 |
+| `webapp/src/views/ChartView.vue` | 圖表 | 資產趨勢圖表頁。以 ECharts 折線圖顯示持倉歷史，支援**日（90 筆）/ 週（52 筆）/ 月（120 筆）**三段粒度切換，以及市價淨値、0050 股數、00675L 股數、融資餘額四項指標 chip 切換。市價淨値（`netValueMarket`）採市價法計算（`qty0050 × price0050 + qtyZ2 × priceZ2 - totalLoan`）。圖表含 tooltip、零軸參考線與面積漸層。下方顯示最新快照摘要卡片（4 格）。快照資料透過 `/api/snapshots`、`/api/snapshots/weekly`、`/api/snapshots/monthly` 取得，需後端 `SNAPSHOT_ENCRYPT_KEY` 環境變數才能啟用。 |
 | `webapp/src/views/ReportsView.vue` | 報告 | 報告列表頁，支援分頁載入，點擊可展開每日報告全文（含 AI 建議、巨集分析、技術指標等欄位）。 |
 | `webapp/src/views/NewsView.vue` | 新聞 | 新聞池頁，顯示 `pool_filtered_active.json` 中的有效新聞條目，支援地區 flag 標示與新舊色點。 |
 | `webapp/src/views/AccountView.vue` | 設定 | 帳戶與設定頁，顯示 Telegram 使用者資訊與系統設定入口。 |
@@ -248,10 +254,11 @@ GitHub Actions 負責定時觸發各 runner 並在完成後 git push 更新 `dat
 | `docs/modules/market_strategy.md` | 策略引擎、技術指標、新聞治理架構說明。 |
 | `docs/modules/core_infrastructure.md` | 共用 infra 說明：storage、archiveManager、newsPoolManager、coreUtils、snapshotCrypto、Google Sheets 欄位 mapping。 |
 | `docs/modules/providers.md` | 各 market data provider 的欄位、來源與快取策略。 |
-| `docs/modules/entry_and_notifications.md` | 系統入口（runner / Bot / Actions）與通知層（Telegram 訊息格式、分流策略）完整說明。 |
+| `docs/modules/entry_and_notifications.md` | 系統入口（runner / Bot / 排程）與通知層（Telegram 訊息格式、分流策略）完整說明。 |
+| `docs/schedules.md` | 排程總覽（VM crontab 全面移轉後的所有排程設定）。 |
 | `docs/plans/finish_features.md` | 已完成功能清單（內容已整合至系統文件，供歷史追蹤）。 |
 | `docs/plans/preplan_features.md` | 預計功能規劃清單。 |
 | `docs/plans/oracle_vm_deployment_plan.md` | Oracle VM 部署計畫（✅ 已完成）。完整安裝手冊見 `docs/appendix/deployment-oracle-vm.md`。 |
-| `docs/appendix/deployment-oracle-vm.md` | Oracle VM 完整安裝與設定手冊（DuckDNS、Nginx、SSL、pm2、data/ 同步）。 |
+| `docs/appendix/deployment-oracle-vm.md` | Oracle VM 完整安裝與設定手冊（DuckDNS、Nginx、SSL、pm2、crontab 設定）。 |
 
-> **已淘汰計畫文件**：`telegram_intergration_plan.md` 與 `optimization_ideas.md` 的內容已於開發過程中全數整合至 `docs/architecture.md`、`docs/modules/ai_pipeline.md` 及 `docs/modules/entry_and_notifications.md`，原計畫文件不再維護。
+> **已淡汰計畫文件**：`telegram_intergration_plan.md` 與 `optimization_ideas.md` 的內容已於開發過程中全數整合至 `docs/architecture.md`、`docs/modules/ai_pipeline.md` 及 `docs/modules/entry_and_notifications.md`，原計畫文件不再維護。
