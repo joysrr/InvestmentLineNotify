@@ -685,6 +685,23 @@ export async function fetchMarketOverview() {
   const tradeValueHundredMillion =
     tradeValueRaw != null ? Math.round(tradeValueRaw / 1e8) : null;
 
+  // 近 20 個交易日成交金額統計（億元）
+  const recent = Array.isArray(data) ? data.slice(-20) : [];
+  const recentValues = recent
+    .map((row) => toNum(row.TradeValue))
+    .filter((v) => v != null && v > 0);
+
+  let avgTradeValue20dHundredMillion = null;
+  let maxTradeValue20dHundredMillion = null;
+
+  if (recentValues.length > 0) {
+    const sum = recentValues.reduce((a, b) => a + b, 0);
+    const avg = sum / recentValues.length;
+    const max = Math.max(...recentValues);
+    avgTradeValue20dHundredMillion = Math.round(avg / 1e8);
+    maxTradeValue20dHundredMillion = Math.round(max / 1e8);
+  }
+
   // 漲跌點 (API 本身就有 Change 欄，同時自算一份作 fallback)
   const changePoint =
     toNum(latest.Change) ??
@@ -710,5 +727,7 @@ export async function fetchMarketOverview() {
     changePercent,                   // 漲跌幅 % (Number, 可為負)
     tradeValueHundredMillion,        // 成交金額（億元）
     tradeValueRaw,                   // 原始成交金額（元）
+    avgTradeValue20dHundredMillion,  // 近 20 日平均成交金額（億元）
+    maxTradeValue20dHundredMillion,  // 近 20 日最大成交金額（億元）
   };
 }

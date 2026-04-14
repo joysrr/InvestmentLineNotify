@@ -441,6 +441,120 @@ ${takeawaysText}
 }
 
 /**
+ * 將大盤量價資料轉換為 AI 教練易於閱讀的結構與情境描述
+ * @param {Object} rawOverview - fetchMarketOverview() 的回傳值
+ * @returns {Object} 供 AI 解析的結構化資料
+ */
+export function formatIndexVolumeForAi(rawOverview) {
+  if (!rawOverview || typeof rawOverview.taiex !== "number") {
+    return { 狀態: "無法取得有效的大盤量價資料" };
+  }
+
+  const {
+    date,
+    taiex,
+    changePoint,
+    changePercent,
+    tradeValueHundredMillion,
+    avgTradeValue20dHundredMillion,
+    maxTradeValue20dHundredMillion,
+  } = rawOverview;
+
+  const indexText =
+    taiex != null ? `${taiex.toLocaleString("en-US")} 點` : "未知";
+
+  let changeText = "未知";
+  if (changePoint != null && changePercent != null) {
+    const cp = n2(changePoint);
+    const pct = n2(changePercent);
+    const cpStr = cp != null ? `${cp > 0 ? "+" : ""}${cp}` : null;
+    const pctStr = pct != null ? `${pct > 0 ? "+" : ""}${pct}%` : null;
+    if (cpStr && pctStr) changeText = `${cpStr} 點 (${pctStr})`;
+  }
+
+  const volText =
+    tradeValueHundredMillion != null
+      ? `${tradeValueHundredMillion.toLocaleString("en-US")} 億元`
+      : "未知";
+
+  // 量能相對 20 日均量
+  let volumeRel = "資料不足";
+  let volumeRatio = null;
+  if (
+    tradeValueHundredMillion != null &&
+    avgTradeValue20dHundredMillion != null &&
+    avgTradeValue20dHundredMillion > 0
+  ) {
+    volumeRatio = tradeValueHundredMillion / avgTradeValue20dHundredMillion;
+    const ratioStr = n2(volumeRatio);
+    if (volumeRatio < 0.7)
+      volumeRel = `顯著低於 20 日均量（約 ${ratioStr} 倍）`;
+    else if (volumeRatio < 1.3)
+      volumeRel = `接近 20 日均量（約 ${ratioStr} 倍）`;
+    else if (volumeRatio < 1.8)
+      volumeRel = `明顯高於 20 日均量（約 ${ratioStr} 倍）`;
+    else volumeRel = `極端高於 20 日均量（約 ${ratioStr} 倍）`;
+  }
+
+  // 近期極端量參考
+  let extremeNote = "無近期極端量參考";
+  if (maxTradeValue20dHundredMillion && tradeValueHundredMillion) {
+    const pctOfMax = Math.round(
+      (tradeValueHundredMillion / maxTradeValue20dHundredMillion) * 100,
+    );
+    extremeNote = `近 20 日最大量約 ${maxTradeValue20dHundredMillion.toLocaleString("en-US")} 億元，今日約為其 ${pctOfMax}%`;
+  }
+
+  // 量價情境
+  let scenario = "量價中性";
+  if (changePercent != null && volumeRatio != null) {
+    if (changePercent <= -1.5 && volumeRatio >= 1.3) {
+      scenario = "放量大跌";
+    } else if (changePercent >= 1.5 && volumeRatio >= 1.3) {
+      scenario = "放量大漲";
+    } else if (Math.abs(changePercent) < 0.5 && volumeRatio < 0.7) {
+      scenario = "量縮整理";
+    } else if (Math.abs(changePercent) < 0.5 && volumeRatio >= 1.3) {
+      scenario = "放量整理 / 換手";
+    } else if (changePercent <= -1.5 && volumeRatio < 0.7) {
+      scenario = "量縮下跌（無明顯恐慌）";
+    }
+  }
+
+  // AI 解讀提示
+  let aiHint =
+    "大盤量價處於中性狀態，請搭配估值、景氣與籌碼指標綜合判斷。";
+  if (scenario === "放量大跌") {
+    aiHint =
+      "大盤出現放量下跌，短線賣壓明顯。請特別留意大盤維持率與個人槓桿水位，偏向保守或觀望。";
+  } else if (scenario === "放量大漲") {
+    aiHint =
+      "大盤出現放量上漲，短線多頭動能強勁。若估值偏貴或槓桿已高，需提防追高與回檔風險。";
+  } else if (scenario === "量縮整理") {
+    aiHint =
+      "大盤量縮整理、漲跌幅不大，賣壓有限。若估值與景氣位階偏低，偏向健康整理，可作為分批佈局或續抱區間。";
+  } else if (scenario === "放量整理 / 換手") {
+    aiHint =
+      "大盤放量整理，可能處於換手或分歧階段。請搭配融資變化與新聞事件判斷是健康換手還是出貨。";
+  } else if (scenario.includes("量縮下跌")) {
+    aiHint =
+      "大盤量縮下跌，短線並非恐慌性殺盤，更偏向整理或資金輪動。仍需搭配估值與籌碼狀況評估風險。";
+  }
+
+  return {
+    指標名稱: "台股大盤量價概覽 (指數與成交金額)",
+    資料日期: date || "未知",
+    收盤指數: indexText,
+    當日漲跌: changeText,
+    成交金額: volText,
+    量能相對20日均量: volumeRel,
+    近期極端量參考: extremeNote,
+    量價情境: scenario,
+    AI解讀提示: aiHint,
+  };
+}
+
+/**
  * 將所有原始總經資料轉換、組裝成最終給 AI 的 Context 字串
  * @param {Object} rawMarketData - fetchAllMacroData() 回傳的生資料
  * @returns {String} 教練 AI 易讀的純文字簡報字串
@@ -465,6 +579,10 @@ export function formatMacroChipForCoach(rawMarketData) {
 
   const aiValuation = rawMarketData.rawValuation
     ? formatValuationForAi(rawMarketData.rawValuation)
+    : { 狀態: "獲取失敗，略過此指標" };
+
+  const aiOverview = rawMarketData.rawMarketOverview
+    ? formatIndexVolumeForAi(rawMarketData.rawMarketOverview)
     : { 狀態: "獲取失敗，略過此指標" };
 
   // 輔助函式：安全提取物件值
@@ -505,6 +623,14 @@ export function formatMacroChipForCoach(rawMarketData) {
     : `5. 大盤估值 (PB/PE)：PB ${getVal(aiValuation, "股價淨值比_PB")} / PE ${getVal(aiValuation, "本益比_PE")} [${getVal(aiValuation, "資料日期")}]
    解讀：${getVal(aiValuation, "AI解讀提示")}`;
 
+  // 針對大盤量價概覽
+  const overviewText = aiOverview["狀態"]
+    ? `6. 大盤量價概覽：${aiOverview["狀態"]}`
+    : `6. 大盤量價概覽：${getVal(aiOverview, "收盤指數")}，${getVal(aiOverview, "當日漲跌")}
+   成交金額：${getVal(aiOverview, "成交金額")}（${getVal(aiOverview, "量能相對20日均量")}）
+   情境：${getVal(aiOverview, "量價情境")}
+   解讀：${getVal(aiOverview, "AI解讀提示")}`;
+
   // 3. 組合出結構極度清晰的純文本
   return `
 【總體經濟與籌碼狀態】
@@ -517,6 +643,8 @@ ${fxText}
 ${ndcText}
 
 ${valText}
+
+${overviewText}
 `.trim();
 }
 
