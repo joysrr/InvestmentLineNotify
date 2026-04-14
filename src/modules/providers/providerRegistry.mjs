@@ -1,7 +1,7 @@
 import { fetchUsMarketData } from "./usMarketProvider.mjs";
 import { fetchFearAndGreedIndex } from "./cnnProvider.mjs";
 import { fetchTwseMarginData } from "./kgiProvider.mjs";
-import { fetchWantgooMarginData } from "./wantgooProvider.mjs";
+import { fetchFinMindMarginData } from "./finmindProvider.mjs";
 import { fetchUsdTwdExchangeRate } from "./yahooProvider.mjs";
 import { fetchBusinessIndicator } from "./ndcProvider.mjs";
 import { getDailyQuote } from "./quoteProvider.mjs";
@@ -20,17 +20,17 @@ export const providerRegistry = {
     },
   },
 
-  // ── 融資餘額：兩個 provider，擇一在 dataSourceConfig 啟用 ────────────────
+  // ── 融資餘額：多個 provider，擇一在 dataSourceConfig 啟用 ────────────────
   marginKgi: {
     label: "融資餘額 (KGI / MoneyDJ)",
     async fetch() {
       return fetchTwseMarginData();
     },
   },
-  marginWantgoo: {
-    label: "融資餘額 (WantGoo)",
+  marginFinMind: {
+    label: "融資餘額 / 維持率 (FinMind)",
     async fetch() {
-      return fetchWantgooMarginData();
+      return fetchFinMindMarginData();
     },
   },
   // ─────────────────────────────────────────────────────────────────────────
