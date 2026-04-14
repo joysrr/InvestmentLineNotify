@@ -36,14 +36,17 @@ async function safeLangfuseScore(payload) {
   try {
     await langfuse.score(payload);
   } catch (err) {
-    console.warn(`⚠️ [Langfuse] score 寫入失敗 (${payload.name}):`, err.message);
+    console.warn(
+      `⚠️ [Langfuse] score 寫入失敗 (${payload.name}):`,
+      err.message,
+    );
   }
 }
 
 /** 依白名單計算維度覆蓋率 0~1 */
 function calcDiversityScore(dimensionCheck = {}) {
   const covered = VALID_DIMENSIONS.filter(
-    (key) => dimensionCheck[key] === true
+    (key) => dimensionCheck[key] === true,
   ).length;
   return covered / VALID_DIMENSIONS.length;
 }
@@ -188,7 +191,10 @@ export async function generateDailySearchQueries(marketData) {
  *
  * @returns {{ news: Array, conflictSummary: string }}
  */
-export async function filterAndCategorizeAllNewsWithAI(allNewsArray, sourcePoolUpdatedAt) {
+export async function filterAndCategorizeAllNewsWithAI(
+  allNewsArray,
+  sourcePoolUpdatedAt,
+) {
   if (allNewsArray.length === 0) return { news: [], conflictSummary: "" };
 
   // ── 選取送入 AI 的子集 ──────────────────────────────────────────────────────
@@ -252,14 +258,17 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray, sourcePoolU
     let conflictSummary = "";
     if (conflictedEvents.length > 0) {
       const lines = conflictedEvents.map(
-        (e) => `- ${e.event ?? "（未命名事件）"}：${e.conflict_note ?? "（無描述）"}`,
+        (e) =>
+          `- ${e.event ?? "（未命名事件）"}：${e.conflict_note ?? "（無描述）"}`,
       );
       conflictSummary =
         `[⚠️ 矛盾新聞偵測]\n以下事件在本次新聞池中存在矛盾報導，請納入分析時特別留意：\n` +
         lines.join("\n");
     }
 
-    console.log(`⚔️ [ConflictDetect] 矛盾事件偵測數：${conflictedEvents.length}`);
+    console.log(
+      `⚔️ [ConflictDetect] 矛盾事件偵測數：${conflictedEvents.length}`,
+    );
 
     await safeLangfuseScore({
       traceId,
@@ -308,7 +317,10 @@ export async function filterAndCategorizeAllNewsWithAI(allNewsArray, sourcePoolU
  * @param {string} todayNewsText      - 新聞摘要文字
  * @param {string} [conflictSummary]  - 矛盾事件前置注解（可選）
  */
-export async function analyzeMacroNewsWithAI(todayNewsText, conflictSummary = "") {
+export async function analyzeMacroNewsWithAI(
+  todayNewsText,
+  conflictSummary = "",
+) {
   const todayStr = new Date().toISOString().split("T")[0];
   const basePrompt = buildMacroAnalysisUserPrompt(todayStr, todayNewsText);
 
@@ -404,16 +416,12 @@ export async function getAiInvestmentAdvice(
   );
 
   try {
-    const { text, traceId } = await callAI(
-      "InvestmentAdvice",
-      userPrompt,
-      {
-        sessionId,
-        provider: PROVIDERS.GEMINI,
-        keyIndex: 3,
-        responseSchema: INVESTMENT_COACH_SCHEMA,
-      },
-    );
+    const { text, traceId } = await callAI("InvestmentAdvice", userPrompt, {
+      sessionId,
+      provider: PROVIDERS.GEMINI,
+      keyIndex: 3,
+      responseSchema: INVESTMENT_COACH_SCHEMA,
+    });
 
     const result = JSON.parse(text);
 
@@ -422,6 +430,30 @@ export async function getAiInvestmentAdvice(
       name: "Schema_Validation",
       value: 1,
       comment: "GetInvestmentAdvice JSON parse success",
+    });
+
+    const hasSummary =
+      typeof result?.short_summary === "string" &&
+      result.short_summary.trim().length > 0;
+
+    const hasActions =
+      Array.isArray(result?.action_items) && result.action_items.length > 0;
+
+    const hasMindset =
+      typeof result?.mindset_advice === "string" &&
+      result.mindset_advice.trim().length > 0;
+
+    const formatOk = hasSummary && hasActions && hasMindset;
+
+    await safeLangfuseScore({
+      traceId,
+      name: "Format_Compliance",
+      value: formatOk ? 1 : 0,
+      comment: JSON.stringify({
+        hasSummary,
+        hasActions,
+        hasMindset,
+      }),
     });
 
     if (isNonEmptyStringArray(result?.key_risks)) {

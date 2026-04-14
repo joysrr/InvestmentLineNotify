@@ -3,6 +3,7 @@ import { join } from "path";
 import { callAI, PROVIDERS } from "./aiClient.mjs";
 import { RULE_OPTIMIZER_SCHEMA, buildOptimizerPrompt } from "./prompts.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
+import { langfuse } from "./aiClient.mjs";
 
 const DATA_DIR = join(process.cwd(), "data");
 const BLACKLIST_PATH = join(DATA_DIR, "config", "blacklist.json");
@@ -17,6 +18,17 @@ const sessionId = process.env.GITHUB_RUN_ID
 // ============================================================
 // 工具函式
 // ============================================================
+
+async function safeLangfuseScore(payload) {
+  try {
+    await langfuse.score(payload);
+  } catch (err) {
+    console.warn(
+      `⚠️ [Langfuse] score 寫入失敗 (${payload.name}):`,
+      err.message,
+    );
+  }
+}
 
 /**
  * 掃描 news_logs 目錄，找最新一筆 passedArticles_{region}_*.json
@@ -44,7 +56,9 @@ function findLatestLogFile(region) {
 function readPassedArticles(region) {
   const found = findLatestLogFile(region);
   if (!found) {
-    console.warn(`[Optimizer] ⚠️  找不到任何 passedArticles_${region}_*.json，跳過`);
+    console.warn(
+      `[Optimizer] ⚠️  找不到任何 passedArticles_${region}_*.json，跳過`,
+    );
     return { articles: [], dateStr: null };
   }
   const filePath = join(NEWS_LOGS_DIR, found.filename);
@@ -100,10 +114,10 @@ export function isValidRegex(pattern, flags) {
  *   若把所有 \d+ 開頭都擋下會造成誤判。
  */
 const OVERBROAD_HEAD_TESTS = [
-  /^\.\*/,  // .* 開頭
-  /^\.\+/,  // .+ 開頭
+  /^\.\*/, // .* 開頭
+  /^\.\+/, // .+ 開頭
   /^\\w\+/, // \w+ 開頭
-  /^\.\{/,  // .{...} 開頭
+  /^\.\{/, // .{...} 開頭
 ];
 
 // 純通配符字元集（用來判斷 \d+ 後面是否「沒有實質語意內容」）
@@ -170,7 +184,9 @@ export function validateAndPrepare(aiRules, blacklist, goldenDataset) {
       continue;
     }
     // 關卡 3：重複規則（字串比對 raw JSON）
-    if (isDuplicate(rule.pattern, rule.flags, blacklist.titleBlackListPatterns)) {
+    if (
+      isDuplicate(rule.pattern, rule.flags, blacklist.titleBlackListPatterns)
+    ) {
       rejected.push({ ...rule, rejectReason: "duplicate" });
       continue;
     }
@@ -196,7 +212,9 @@ export function validateAndPrepare(aiRules, blacklist, goldenDataset) {
 
 /** 將通過驗證的規則 append 到 blacklist.json（in-memory mutation） */
 function appendToBlacklist(accepted, blacklistData) {
-  blacklistData.titleBlackListPatterns.push(...accepted.map((r) => r.regexLiteral));
+  blacklistData.titleBlackListPatterns.push(
+    ...accepted.map((r) => r.regexLiteral),
+  );
   blacklistData.lastUpdated = new Date().toISOString();
 }
 
@@ -208,7 +226,9 @@ function updateOptimizerHistory(date, region, accepted, rejected) {
     try {
       history = JSON.parse(readFileSync(HISTORY_PATH, "utf-8"));
     } catch {
-      console.warn("[Optimizer] ⚠️  讀取 optimizerHistory.json 失敗，使用空結構");
+      console.warn(
+        "[Optimizer] ⚠️  讀取 optimizerHistory.json 失敗，使用空結構",
+      );
     }
   }
 
@@ -241,10 +261,10 @@ async function callOptimizerAI(articleTitles, region) {
       responseSchema: RULE_OPTIMIZER_SCHEMA,
     });
     const parsed = JSON.parse(rawJson || '{"rules":[]}');
-    return parsed.rules || [];
+    return { rules: parsed.rules || [], traceId };
   } catch (err) {
     console.warn(`[Optimizer] ⚠️  AI 呼叫失敗 (${region}):`, err.message);
-    return [];
+    return { rules: [], traceId: null };
   }
 }
 
@@ -284,11 +304,41 @@ export async function runRuleOptimizer() {
     const titles = extractTitles(articles);
     console.log(`[Optimizer] ${region} 清洗後標題數：${titles.length}`);
 
-    const aiRules = await callOptimizerAI(titles, region);
+    const { rules: aiRules, traceId } = await callOptimizerAI(titles, region);
     console.log(`[Optimizer] ${region} AI 建議規則數：${aiRules.length}`);
 
-    const { accepted, rejected } = validateAndPrepare(aiRules, blacklistData, goldenDataset);
-    console.log(`[Optimizer] ${region} ✅ 通過：${accepted.length}  ❌ 拒絕：${rejected.length}`);
+    const { accepted, rejected } = validateAndPrepare(
+      aiRules,
+      blacklistData,
+      goldenDataset,
+    );
+    console.log(
+      `[Optimizer] ${region} ✅ 通過：${accepted.length}  ❌ 拒絕：${rejected.length}`,
+    );
+
+    const total = accepted.length + rejected.length;
+    if (traceId && total > 0) {
+      const goldenKills = rejected.filter(
+        (r) => r.rejectReason === "golden_dataset_kill",
+      ).length;
+
+      const acceptRate = accepted.length / total;
+      const goldenKillRate = goldenKills / total;
+
+      await safeLangfuseScore({
+        traceId,
+        name: "Optimizer_Accept_Rate",
+        value: acceptRate,
+        comment: JSON.stringify({ accepted: accepted.length, total }),
+      });
+
+      await safeLangfuseScore({
+        traceId,
+        name: "Optimizer_Golden_Kill_Rate",
+        value: goldenKillRate,
+        comment: JSON.stringify({ goldenKills, total }),
+      });
+    }
 
     if (accepted.length > 0) {
       appendToBlacklist(accepted, blacklistData);
@@ -298,12 +348,18 @@ export async function runRuleOptimizer() {
     results[key] = { accepted, rejected };
   }
 
-  writeFileSync(BLACKLIST_PATH, JSON.stringify(blacklistData, null, 2), "utf-8");
+  writeFileSync(
+    BLACKLIST_PATH,
+    JSON.stringify(blacklistData, null, 2),
+    "utf-8",
+  );
   console.log("[Optimizer] 💾 blacklist.json 已更新");
 
   await archiveManager
     .saveAiLog({ type: "RuleOptimizer", rawResult: results })
-    .catch((err) => console.warn("⚠️ [Archive] 儲存 RuleOptimizer 紀錄失敗:", err.message));
+    .catch((err) =>
+      console.warn("⚠️ [Archive] 儲存 RuleOptimizer 紀錄失敗:", err.message),
+    );
 
   return results;
 }
