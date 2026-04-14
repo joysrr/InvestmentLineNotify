@@ -17,7 +17,7 @@
 | `src/runDailyCheck.mjs` | 每日主入口，支援 CLI flags，進入 `dailyCheck()`。 |
 | `src/runNewsFetch.mjs` | 獨立新聞抓取與新聞池更新入口，並回寫 Langfuse Yield Rate / Source_Diversity score。 |
 | `src/runOptimizer.mjs` | 獨立 rule optimizer 入口，執行完成後若有新規則，會靜默推播至 Log 頻道。 |
-| `src/runWeeklyReport.mjs` | 週報入口，讀取近 7 天 `data/reports/`，至少 3 份才生成。包含訊號數量統計。 |
+| `src/runWeeklyReport.mjs` | 週報入口，讀取近 7 天 `data/reports/`，至少 3 份才生成。 |
 | `src/runMonthlyReport.mjs` | 月報入口，讀取近 50 天 `data/reports/`（前 30 天為評估期，全 50 天供報酬率計算），至少 10 份才生成。 |
 
 ### 2-B. Bot 長駐入口（grammY Long-Polling）
@@ -33,6 +33,7 @@
 | `/start` | 回覆歡迎訊息（inline，無外部呼叫） | 零 |
 | `/help` | 回覆指令說明（inline，無外部呼叫） | 零 |
 | `/status` | 讀取 `data/market/latest.json`；有 `MINI_APP_URL` 時附加 WebApp Inline Button | 零 |
+| `/status_debug` | 讀取 `data/market/latest.json` 的 `_meta.sources`，以人類可讀方式列出各 provider 的 `status` / `lastFetch` / `error`，輔助排查 market data pipeline | 零 |
 | `/daily` | `dailyCheck({ isTelegramEnabled: true, isAIAdvisor: true })` | 中高 |
 | `/news` | `runNewsFetch()` | 中 |
 | `/weekly` | `runWeeklyReport()` | 中（AI） |
@@ -96,7 +97,7 @@ GitHub Actions 負責定時觸發各 runner。Bot daemon（`src/bot.mjs`）與 A
 | `.github/workflows/optimizer.yml` | `src/runOptimizer.mjs` | 每日固定時間執行，更新 blacklist 與 optimizer history 並 commit。 |
 | `.github/workflows/weekly-report.yml` | `src/runWeeklyReport.mjs` | 每週一早上執行，產出策略週報並透過 Telegram 發送。 |
 | `.github/workflows/monthly-report.yml` | `src/runMonthlyReport.mjs` | 每月 1 日早上執行，產出策略月報並透過 Telegram 發送。 |
-| `.github/workflows/notify-workflow-failure.yml` | — | 其他 workflow 失敗時觸發，透過 `sendSystemMessage()` 發送靜默通知至 Log 頻道。 |
+| `.github/workflows/notify-workflow-failure.yml` | — | 其他 workflow 失敗時觸發，透過 `sendSystemMessage()` 發送靜默通知至 Log 頻道 | 自動（on workflow_run failure） |
 
 **`data/` 同步機制**：Actions 完成後透過 SSH 通知 VM 執行 `git pull`（方案 B），確保 VM 上 Fastify 讀取的 JSON 與 GitHub 一致。
 
