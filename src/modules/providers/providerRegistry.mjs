@@ -1,6 +1,7 @@
 import { fetchUsMarketData } from "./usMarketProvider.mjs";
 import { fetchFearAndGreedIndex } from "./cnnProvider.mjs";
 import { fetchTwseMarginData } from "./kgiProvider.mjs";
+import { fetchWantgooMarginData } from "./wantgooProvider.mjs";
 import { fetchUsdTwdExchangeRate } from "./yahooProvider.mjs";
 import { fetchBusinessIndicator } from "./ndcProvider.mjs";
 import { getDailyQuote } from "./quoteProvider.mjs";
@@ -8,7 +9,8 @@ import { fetchMarketValuation, fetchMarketOverview } from "./twseProvider.mjs";
 
 /**
  * providerRegistry 負責把實際的 provider 實作包裝成統一介面。
- * 之後如果你寫一個新的 marginProvider，只要在這裡多註冊一個 key 即可。
+ * 之後如果你要切換 margin 來源，只需修改 dataSourceConfig.mjs 的 providerId，
+ * 不需要動任何業務邏輯。
  */
 export const providerRegistry = {
   ndcBusinessIndicator: {
@@ -17,12 +19,22 @@ export const providerRegistry = {
       return fetchBusinessIndicator();
     },
   },
+
+  // ── 融資餘額：兩個 provider，擇一在 dataSourceConfig 啟用 ────────────────
   marginKgi: {
     label: "融資餘額 (KGI / MoneyDJ)",
     async fetch() {
       return fetchTwseMarginData();
     },
   },
+  marginWantgoo: {
+    label: "融資餘額 (WantGoo)",
+    async fetch() {
+      return fetchWantgooMarginData();
+    },
+  },
+  // ─────────────────────────────────────────────────────────────────────────
+
   cnnFearGreed: {
     label: "CNN Fear & Greed",
     async fetch() {
@@ -59,12 +71,4 @@ export const providerRegistry = {
       return getDailyQuote();
     },
   },
-
-  // （未來你新增 margin 替代來源時，可以在這邊加）
-  // marginAlt: {
-  //   label: "融資餘額 (新來源)",
-  //   async fetch() {
-  //     return fetchTwseMarginDataFromNewSource();
-  //   },
-  // },
 };
