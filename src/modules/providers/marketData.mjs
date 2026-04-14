@@ -2,13 +2,22 @@ import { archiveManager } from "../data/archiveManager.mjs";
 import { TwDate } from "../../utils/coreUtils.mjs";
 
 // === 匯出即將被我們整合進 Cache 機制的 Provider ===
-import { fetchUsMarketData } from "./usMarketProvider.mjs";
-import { fetchFearAndGreedIndex } from "./cnnProvider.mjs";
-import { fetchTwseMarginData } from "./kgiProvider.mjs";
-import { fetchUsdTwdExchangeRate } from "./yahooProvider.mjs";
-import { fetchBusinessIndicator } from "./ndcProvider.mjs";
-import { getDailyQuote } from "./quoteProvider.mjs";
-import { fetchMarketValuation } from "./twseProvider.mjs";
+import { macroDataSlots } from "./dataSourceConfig.mjs";
+import { providerRegistry } from "./providerRegistry.mjs";
+
+function getProviderForSlot(slotKey) {
+  const slot = macroDataSlots[slotKey];
+  if (!slot) {
+    throw new Error(`Unknown macro data slot: ${slotKey}`);
+  }
+  const provider = providerRegistry[slot.providerId];
+  if (!provider) {
+    throw new Error(
+      `Provider not found for slot ${slotKey}: ${slot.providerId}`,
+    );
+  }
+  return provider;
+}
 
 /**
  * ⚡ 智慧獲取所有總經與籌碼資料 (結合 Archive Cache 機制)
@@ -47,11 +56,15 @@ export async function fetchAllMacroData() {
     console.log("⚡ [Cache] 景氣燈號使用快取資料");
     finalData.rawNdc = cachedData.rawNdc;
   } else {
+    const provider = getProviderForSlot("rawNdc");
+    const providerKey = macroDataSlots.rawNdc.providerId;
+
     fetchPromises.push(
-      fetchBusinessIndicator()
+      provider
+        .fetch()
         .then((res) => {
           finalData.rawNdc = res;
-          newMetaSources.ndcProvider = {
+          newMetaSources[providerKey] = {
             status: "SUCCESS",
             lastFetch: now.toISOString(),
           };
@@ -59,10 +72,10 @@ export async function fetchAllMacroData() {
         .catch((err) => {
           console.warn("⚠️ 國發會 API 失敗:", err.message);
           finalData.rawNdc = cachedData.rawNdc || null;
-          newMetaSources.ndcProvider = {
+          newMetaSources[providerKey] = {
             status: "FAILED",
             error: err.message,
-            lastFetch: cachedMeta.ndcProvider?.lastFetch || null,
+            lastFetch: cachedMeta[providerKey]?.lastFetch || null,
           };
         }),
     );
@@ -79,22 +92,26 @@ export async function fetchAllMacroData() {
     console.log("⚡ [Cache] 融資餘額使用快取資料");
     finalData.rawMargin = cachedData.rawMargin;
   } else {
+    const provider = getProviderForSlot("rawMargin");
+    const providerKey = macroDataSlots.rawMargin.providerId;
+
     fetchPromises.push(
-      fetchTwseMarginData()
+      provider
+        .fetch()
         .then((res) => {
           finalData.rawMargin = res;
-          newMetaSources.kgiProvider = {
+          newMetaSources[providerKey] = {
             status: "SUCCESS",
             lastFetch: now.toISOString(),
           };
         })
         .catch((err) => {
-          console.warn("⚠️ KGI API 失敗:", err.message);
+          console.warn(`⚠️ ${provider.label} 失敗:`, err.message);
           finalData.rawMargin = cachedData.rawMargin || null;
-          newMetaSources.kgiProvider = {
+          newMetaSources[providerKey] = {
             status: "FAILED",
             error: err.message,
-            lastFetch: cachedMeta.kgiProvider?.lastFetch || null,
+            lastFetch: cachedMeta[providerKey]?.lastFetch || null,
           };
         }),
     );
@@ -115,11 +132,15 @@ export async function fetchAllMacroData() {
     console.log("⚡ [Cache] CNN 恐慌指數使用快取資料");
     finalData.rawCnn = cachedData.rawCnn;
   } else {
+    const provider = getProviderForSlot("rawCnn");
+    const providerKey = macroDataSlots.rawCnn.providerId;
+
     fetchPromises.push(
-      fetchFearAndGreedIndex()
+      provider
+        .fetch()
         .then((res) => {
           finalData.rawCnn = res;
-          newMetaSources.cnnProvider = {
+          newMetaSources[providerKey] = {
             status: "SUCCESS",
             lastFetch: now.toISOString(),
           };
@@ -127,10 +148,10 @@ export async function fetchAllMacroData() {
         .catch((err) => {
           console.warn("⚠️ CNN API 失敗:", err.message);
           finalData.rawCnn = cachedData.rawCnn || null;
-          newMetaSources.cnnProvider = {
+          newMetaSources[providerKey] = {
             status: "FAILED",
             error: err.message,
-            lastFetch: cachedMeta.cnnProvider?.lastFetch || null,
+            lastFetch: cachedMeta[providerKey]?.lastFetch || null,
           };
         }),
     );
@@ -146,11 +167,15 @@ export async function fetchAllMacroData() {
     console.log("⚡ [Cache] FRED 美股數據使用快取資料");
     finalData.rawUsMarket = cachedData.rawUsMarket;
   } else {
+    const provider = getProviderForSlot("rawUsMarket");
+    const providerKey = macroDataSlots.rawUsMarket.providerId;
+
     fetchPromises.push(
-      fetchUsMarketData()
+      provider
+        .fetch()
         .then((res) => {
           finalData.rawUsMarket = res;
-          newMetaSources.usMarketProvider = {
+          newMetaSources[providerKey] = {
             status: "SUCCESS",
             lastFetch: now.toISOString(),
           };
@@ -158,10 +183,10 @@ export async function fetchAllMacroData() {
         .catch((err) => {
           console.warn("⚠️ FRED API 失敗:", err.message);
           finalData.rawUsMarket = cachedData.rawUsMarket || null;
-          newMetaSources.usMarketProvider = {
+          newMetaSources[providerKey] = {
             status: "FAILED",
             error: err.message,
-            lastFetch: cachedMeta.usMarketProvider?.lastFetch || null,
+            lastFetch: cachedMeta[providerKey]?.lastFetch || null,
           };
         }),
     );
@@ -177,11 +202,15 @@ export async function fetchAllMacroData() {
     console.log("⚡ [Cache] 大盤估值(PB/PE)使用快取資料");
     finalData.rawValuation = cachedData.rawValuation;
   } else {
+    const provider = getProviderForSlot("rawValuation");
+    const providerKey = macroDataSlots.rawValuation.providerId;
+
     fetchPromises.push(
-      fetchMarketValuation()
+      provider
+        .fetch()
         .then((res) => {
           finalData.rawValuation = res;
-          newMetaSources.valuationProvider = {
+          newMetaSources[providerKey] = {
             status: "SUCCESS",
             lastFetch: now.toISOString(),
           };
@@ -189,10 +218,10 @@ export async function fetchAllMacroData() {
         .catch((err) => {
           console.warn("⚠️ TWSE 估值 API 失敗:", err.message);
           finalData.rawValuation = cachedData.rawValuation || null;
-          newMetaSources.valuationProvider = {
+          newMetaSources[providerKey] = {
             status: "FAILED",
             error: err.message,
-            lastFetch: cachedMeta.valuationProvider?.lastFetch || null,
+            lastFetch: cachedMeta[providerKey]?.lastFetch || null,
           };
         }),
     );
@@ -203,11 +232,15 @@ export async function fetchAllMacroData() {
   // ====================================================================
 
   // 匯率：即時抓取 (若失敗則回退)
+  const provider = getProviderForSlot("rawFx");
+  const providerKey = macroDataSlots.rawFx.providerId;
+
   fetchPromises.push(
-    fetchUsdTwdExchangeRate()
+    provider
+      .fetch()
       .then((res) => {
         finalData.rawFx = res;
-        newMetaSources.yahooProvider = {
+        newMetaSources[providerKey] = {
           status: "SUCCESS",
           lastFetch: now.toISOString(),
         };
@@ -215,23 +248,36 @@ export async function fetchAllMacroData() {
       .catch((err) => {
         console.warn("⚠️ Yahoo API 失敗:", err.message);
         finalData.rawFx = cachedData.rawFx || null;
-        newMetaSources.yahooProvider = {
+        newMetaSources[providerKey] = {
           status: "FAILED",
           error: err.message,
-          lastFetch: cachedMeta.yahooProvider?.lastFetch || null,
+          lastFetch: cachedMeta[providerKey]?.lastFetch || null,
         };
       }),
   );
 
   // 每日一句：交由其內建的 Archive 讀取邏輯處理，這裡只需等它回傳即可
+  const quoteProvider = getProviderForSlot("quote");
+  const quoteProviderKey = macroDataSlots.quote.providerId;
+
   fetchPromises.push(
-    getDailyQuote()
+    quoteProvider
+      .fetch()
       .then((res) => {
         finalData.quote = res;
+        newMetaSources[quoteProviderKey] = {
+          status: "SUCCESS",
+          lastFetch: now.toISOString(),
+        };
       })
       .catch((err) => {
         console.warn("⚠️ Quote API 失敗:", err.message);
         finalData.quote = cachedData.quote || null;
+        newMetaSources[quoteProviderKey] = {
+          status: "FAILED",
+          error: err.message,
+          lastFetch: cachedMeta[quoteProviderKey]?.lastFetch || null,
+        };
       }),
   );
 

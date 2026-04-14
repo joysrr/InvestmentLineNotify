@@ -11,6 +11,7 @@
  *   /start    — 歡迎訊息
  *   /help     — 列出指令
  *   /status   — 查看最新市場快取（零 API 消耗）
+ *   /status_debug   — 查看最新市場快取（含來源狀態，供除錯用）
  *   /daily    — 手動觸發每日報告
  *   /news     — 手動更新新聞池
  *   /weekly   — 手動觸發週報
@@ -19,11 +20,6 @@
  *
  * latest.json 結構：
  *   { _meta: { lastRun, sources }, data: { rawCnn, rawUsMarket, rawNdc, rawMargin, rawFx, rawValuation, quote } }
- *
- * Phase 2-C 新增：
- *   - setMyCommands：Bot 啟動時同步指令選單至 Telegram（/start 不列入）
- *   - /status Inline Button：有 MINI_APP_URL 時附加「開啟儀表板」WebApp 按鈕
- *   - setChatMenuButton：有 MINI_APP_URL 時設定左下角 Menu Button 指向 Mini App
  */
 
 import "dotenv/config";
@@ -70,16 +66,20 @@ async function withRunner(ctx, runnerName, fn) {
     return;
   }
 
-  await ctx.reply(`⏳ <b>${runnerName}</b> 開始執行，請稍候...`, { parse_mode: "HTML" });
+  await ctx.reply(`⏳ <b>${runnerName}</b> 開始執行，請稍候...`, {
+    parse_mode: "HTML",
+  });
 
   try {
     await fn();
-    await ctx.reply(`✅ <b>${runnerName}</b> 執行完成。`, { parse_mode: "HTML" });
+    await ctx.reply(`✅ <b>${runnerName}</b> 執行完成。`, {
+      parse_mode: "HTML",
+    });
   } catch (err) {
     console.error(`[Bot] ❌ ${runnerName} 執行失敗:`, err);
     await ctx.reply(
       `❌ <b>${runnerName}</b> 執行失敗。\n<code>${err.message}</code>`,
-      { parse_mode: "HTML" }
+      { parse_mode: "HTML" },
     );
   } finally {
     releaseLock();
@@ -90,17 +90,20 @@ async function withRunner(ctx, runnerName, fn) {
 async function syncBotCommands() {
   try {
     await bot.api.setMyCommands([
-      { command: "status",   description: "查看最新市場快取狀態" },
-      { command: "daily",    description: "手動觸發每日報告（含 AI 分析）" },
-      { command: "news",     description: "手動更新新聞池" },
-      { command: "weekly",   description: "手動觸發週報" },
-      { command: "monthly",  description: "手動觸發月報" },
+      { command: "status", description: "查看最新市場快取狀態" },
+      { command: "daily", description: "手動觸發每日報告（含 AI 分析）" },
+      { command: "news", description: "手動更新新聞池" },
+      { command: "weekly", description: "手動觸發週報" },
+      { command: "monthly", description: "手動觸發月報" },
       { command: "optimize", description: "手動觸發規則優化器" },
-      { command: "help",     description: "顯示指令說明" },
+      { command: "help", description: "顯示指令說明" },
     ]);
     console.log("[Bot] ✅ setMyCommands 同步完成。");
   } catch (err) {
-    console.warn("[Bot] ⚠️ setMyCommands 失敗（不影響 Bot 運作）:", err.message);
+    console.warn(
+      "[Bot] ⚠️ setMyCommands 失敗（不影響 Bot 運作）:",
+      err.message,
+    );
   }
 }
 
@@ -113,7 +116,7 @@ async function syncMenuButton() {
   if (!rawUserId || !Number.isFinite(chatId)) {
     console.warn(
       "[Bot] ⚠️ setChatMenuButton 略過：TELEGRAM_USER_ID 未設定或格式異常",
-      `（值：${rawUserId}）`
+      `（值：${rawUserId}）`,
     );
     return;
   }
@@ -127,9 +130,14 @@ async function syncMenuButton() {
         web_app: { url: MINI_APP_URL },
       },
     });
-    console.log(`[Bot] ✅ setChatMenuButton 設定完成（Mini App：${MINI_APP_URL}）。`);
+    console.log(
+      `[Bot] ✅ setChatMenuButton 設定完成（Mini App：${MINI_APP_URL}）。`,
+    );
   } catch (err) {
-    console.warn("[Bot] ⚠️ setChatMenuButton 失敗（不影響 Bot 運作）:", err.message);
+    console.warn(
+      "[Bot] ⚠️ setChatMenuButton 失敗（不影響 Bot 運作）:",
+      err.message,
+    );
   }
 }
 
@@ -142,7 +150,7 @@ bot.command("start", async (ctx) => {
       "這是你的專屬投資助理，可隨時透過指令獲取市場資訊與 AI 分析。",
       "輸入 /help 查看所有可用指令。",
     ].join("\n"),
-    { parse_mode: "HTML" }
+    { parse_mode: "HTML" },
   );
 });
 
@@ -154,6 +162,7 @@ bot.command("help", async (ctx) => {
       "",
       "<b>── 即時查詢 ──</b>",
       "/status — 查看最新市場快取（零 API 消耗）",
+      "/status_debug — 查看最新市場快取（含來源狀態，供除錯用）",
       "",
       "<b>── 手動觸發排程 ──</b>",
       "/daily — 執行每日報告（含 AI 分析）",
@@ -168,7 +177,7 @@ bot.command("help", async (ctx) => {
       "",
       "⚠️ 觸發排程類指令會消耗 API 額度，請謹慎使用。",
     ].join("\n"),
-    { parse_mode: "HTML" }
+    { parse_mode: "HTML" },
   );
 });
 
@@ -191,24 +200,30 @@ bot.command("status", async (ctx) => {
 
     // 快取時間
     if (meta.lastRun) {
-      const t = new Date(meta.lastRun).toLocaleString("zh-TW", { timeZone: "Asia/Taipei" });
+      const t = new Date(meta.lastRun).toLocaleString("zh-TW", {
+        timeZone: "Asia/Taipei",
+      });
       lines.push(`🕒 更新時間：<code>${t}</code>`);
       lines.push("");
     }
 
     // 大盤估值 PB / PE
     const valuation = d.rawValuation;
-    if (valuation?.pb != null)  lines.push(`📐 大盤 PB：<b>${valuation.pb}</b>`);
-    if (valuation?.per != null) lines.push(`📐 大盤 PE：<b>${valuation.per}</b>`);
+    if (valuation?.pb != null) lines.push(`📐 大盤 PB：<b>${valuation.pb}</b>`);
+    if (valuation?.per != null)
+      lines.push(`📐 大盤 PE：<b>${valuation.per}</b>`);
 
     // 美股：VIX、SPX 漲跌
     const us = d.rawUsMarket;
-    if (us?.vix != null)    lines.push(`🟡 VIX：<b>${us.vix}</b>`);
+    if (us?.vix != null) lines.push(`🟡 VIX：<b>${us.vix}</b>`);
     if (us?.spxChg != null) lines.push(`🇺🇸 SPX 漲跌：<b>${us.spxChg}</b>`);
 
     // CNN 恐慌貪婪
     const cnn = d.rawCnn;
-    if (cnn?.score != null) lines.push(`🟢 Fear &amp; Greed：<b>${cnn.score}</b>（${cnn.rating ?? ""}）`);
+    if (cnn?.score != null)
+      lines.push(
+        `🟢 Fear &amp; Greed：<b>${cnn.score}</b>（${cnn.rating ?? ""}）`,
+      );
 
     // 景氣燈號
     const ndc = d.rawNdc;
@@ -220,7 +235,8 @@ bot.command("status", async (ctx) => {
 
     // 融資餘額
     const margin = d.rawMargin;
-    if (margin?.total != null) lines.push(`📈 融資餘額：<b>${margin.total}</b>`);
+    if (margin?.total != null)
+      lines.push(`📈 融資餘額：<b>${margin.total}</b>`);
 
     if (lines.length <= 2) {
       lines.push("⚠️ 快取資料為空，請先執行 /daily 建立市場資料。");
@@ -230,16 +246,92 @@ bot.command("status", async (ctx) => {
       ? new InlineKeyboard().webApp("📊 開啟儀表板", MINI_APP_URL)
       : undefined;
 
-    await ctx.reply(lines.join("\n"), { parse_mode: "HTML", reply_markup: replyMarkup });
+    await ctx.reply(lines.join("\n"), {
+      parse_mode: "HTML",
+      reply_markup: replyMarkup,
+    });
   } catch (err) {
-    await ctx.reply(`❌ 讀取市場快取失敗：<code>${err.message}</code>`, { parse_mode: "HTML" });
+    await ctx.reply(`❌ 讀取市場快取失敗：<code>${err.message}</code>`, {
+      parse_mode: "HTML",
+    });
+  }
+});
+
+// ── 指令：/status_debug ─────────────────────────────────────────────────────
+// 顯示 latest.json 的 _meta.sources，方便檢查各 provider 是否過舊或失敗
+bot.command("status_debug", async (ctx) => {
+  const latestPath = join(process.cwd(), "data", "market", "latest.json");
+
+  if (!existsSync(latestPath)) {
+    await ctx.reply("⚠️ 尚無市場快取資料，請先執行 /daily 。");
+    return;
+  }
+
+  try {
+    const raw = JSON.parse(readFileSync(latestPath, "utf-8"));
+    const meta = raw._meta ?? {};
+    const sources = meta.sources ?? {};
+    const lastRun = meta.lastRun
+      ? new Date(meta.lastRun).toLocaleString("zh-TW", {
+          timeZone: "Asia/Taipei",
+        })
+      : "未知";
+
+    const now = new Date();
+
+    const lines = [
+      "🛠 <b>資料來源 Debug</b>",
+      "",
+      `🕒 最後整體執行時間：<code>${lastRun}</code>`,
+      "",
+      "<b>各 Provider 狀態：</b>",
+    ];
+
+    const formatTs = (iso) =>
+      iso
+        ? new Date(iso).toLocaleString("zh-TW", { timeZone: "Asia/Taipei" })
+        : "無紀錄";
+
+    const entries = Object.entries(sources);
+    if (entries.length === 0) {
+      lines.push("（尚無任何 provider metadata，可能尚未完整跑過 dailyCheck）");
+    } else {
+      for (const [key, info] of entries) {
+        const status = info.status || "UNKNOWN";
+        const lastFetch = formatTs(info.lastFetch);
+        const error = info.error
+          ? `\n  └ Error: <code>${info.error}</code>`
+          : "";
+
+        // 簡單判斷是否疑似過舊（很粗略，但 debug 用足夠）
+        let staleHint = "";
+        if (info.lastFetch) {
+          const diffHours = (now - new Date(info.lastFetch)) / (1000 * 60 * 60);
+
+          // 大部分日更類：超過 48 小時就算可疑
+          if (diffHours > 48) {
+            staleHint = " ⚠️ 疑似過舊(>48h)";
+          }
+        }
+
+        lines.push(
+          `• <code>${key}</code> — <b>${status}</b>${staleHint}\n  └ lastFetch: <code>${lastFetch}</code>${error}`,
+        );
+      }
+    }
+
+    await ctx.reply(lines.join("\n"), { parse_mode: "HTML" });
+  } catch (err) {
+    await ctx.reply(`❌ 讀取 Debug 資訊失敗：<code>${err.message}</code>`, {
+      parse_mode: "HTML",
+    });
   }
 });
 
 // ── 指令：/daily ──────────────────────────────────────────────────────────
 bot.command("daily", async (ctx) => {
   await withRunner(ctx, "每日報告 (daily)", () =>
-    dailyCheck({ isTelegramEnabled: true, isAIAdvisor: true })
+    dailyCheck({ isTelegramEnabled: true, isAIAdvisor: true }),
   );
 });
 
