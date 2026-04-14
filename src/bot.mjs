@@ -91,6 +91,10 @@ async function syncBotCommands() {
   try {
     await bot.api.setMyCommands([
       { command: "status", description: "查看最新市場快取狀態" },
+      {
+        command: "status_debug",
+        description: "查看最新市場快取（含來源狀態，供除錯用）",
+      },
       { command: "daily", description: "手動觸發每日報告（含 AI 分析）" },
       { command: "news", description: "手動更新新聞池" },
       { command: "weekly", description: "手動觸發週報" },
