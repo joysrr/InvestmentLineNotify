@@ -14,6 +14,7 @@ import {
   fetchLatestClose,
   fetchRealTimePrice,
   fetchMarketValuation,
+  fetchMarketOverview,
 } from "../modules/providers/twseProvider.mjs";
 import {
   formatCnnDataForAi,
@@ -31,7 +32,9 @@ import {
 // ============================================================================
 const providerArg =
   process.env.PROVIDER ||
-  process.argv.find((a) => a.startsWith("--provider="))?.replace("--provider=", "");
+  process.argv
+    .find((a) => a.startsWith("--provider="))
+    ?.replace("--provider=", "");
 const selectedProviders = providerArg
   ? new Set(providerArg.split(",").map((s) => s.trim().toLowerCase()))
   : null; // null = 全部執行
@@ -218,18 +221,10 @@ if (shouldRun("twse")) {
       typeof result === "boolean",
       `回傳值應為 boolean，實際: ${typeof result}`,
     );
-    const dayName = [
-      "週日",
-      "週一",
-      "週二",
-      "週三",
-      "週四",
-      "週五",
-      "週六",
-    ][new Date().getDay()];
-    console.log(
-      `✅ [開市判斷] 測試通過 | 今天(${dayName}) 開市: ${result}`,
-    );
+    const dayName = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"][
+      new Date().getDay()
+    ];
+    console.log(`✅ [開市判斷] 測試通過 | 今天(${dayName}) 開市: ${result}`);
   });
 
   test("🧪 測試 TWSE 歷史股價 (fetchStockHistory)", async (t) => {
@@ -322,6 +317,14 @@ if (shouldRun("twse")) {
       `✅ [大盤估值] 測試通過 | PE: ${result.pe} | PB: ${result.pb} | 殖利率: ${result.yield}% | 日期: ${result.date}`,
     );
   });
+
+  test("🧪 測試 TWSE 大盤概況 (fetchMarketOverview)", async (t) => {
+    const result = await fetchMarketOverview();
+    assert.ok(result, "回傳結果不應為空");
+    console.log(`✅ [大盤概況] 測試通過 | 日期: ${result.date}`);
+    console.log(`   加權指數: ${result.taiex} (${result.changePercent}%)`);
+    console.log(`   成交金額: ${result.tradeValueHundredMillion} 億元`);
+  });
 }
 
 // ============================================================================
@@ -338,7 +341,10 @@ if (shouldRun("ai")) {
     };
     const formatted = formatCnnDataForAi(mockData);
 
-    assert.ok(formatted["當前狀態"].includes("極度恐慌"), "應該正確翻譯 rating");
+    assert.ok(
+      formatted["當前狀態"].includes("極度恐慌"),
+      "應該正確翻譯 rating",
+    );
     assert.ok(
       formatted["短期趨勢_較昨日"].includes("-5"),
       "應該正確計算昨日差異",
@@ -372,8 +378,8 @@ if (shouldRun("ai")) {
       changePercent: 0.5,
       // 模擬 1個月 (20天) 的陣列，從 32.0 升到 32.8 (貶值趨勢)
       historicalPrices: [
-        32.0, 32.0, 32.1, 32.1, 32.2, 32.2, 32.3, 32.3, 32.4, 32.4, 32.5,
-        32.5, 32.5, 32.6, 32.6, 32.7, 32.7, 32.7, 32.8, 32.8,
+        32.0, 32.0, 32.1, 32.1, 32.2, 32.2, 32.3, 32.3, 32.4, 32.4, 32.5, 32.5,
+        32.5, 32.6, 32.6, 32.7, 32.7, 32.7, 32.8, 32.8,
       ],
     };
     const formatted = formatFxForAi(mockFxData);
