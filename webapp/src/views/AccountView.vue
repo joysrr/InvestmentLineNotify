@@ -167,25 +167,54 @@
 
       <!-- 4. 資料來源健康度 -->
       <div class="section">
-        <h2 class="section-title">📡 資料來源</h2>
-        <div class="source-grid">
+        <div class="section-header-row">
+          <h2 class="section-title">📡 資料來源</h2>
+          <button
+            type="button"
+            class="toggle-btn"
+            @click="showSourcesDetail = !showSourcesDetail"
+          >
+            {{ showSourcesDetail ? "收合詳細" : "展開詳細" }}
+          </button>
+        </div>
+        <div class="sources-summary">
+          <span class="summary-item">總數：{{ sourceCount }} 個</span>
+          <span
+            class="summary-item"
+            :class="allHealthy ? 'text-ok' : 'text-warn'"
+          >
+            正常：{{ healthyCount }} 個
+          </span>
+        </div>
+        <div v-if="showSourcesDetail" class="source-grid">
           <div
-            v-for="(info, key) in sourcesDisplay"
-            :key="key"
+            v-for="info in sourcesDisplay"
+            :key="info.key"
             class="source-card"
-            :class="info.ok ? 'source-ok' : 'source-fail'"
+            :class="{
+              'source-ok': info.state === 'OK',
+              'source-fail': info.state === 'FAIL',
+              'source-stale': info.state === 'STALE',
+            }"
           >
             <div class="source-header">
               <span class="source-name">{{ info.label }}</span>
               <span
                 class="source-badge"
-                :class="info.ok ? 'badge-ok' : 'badge-fail'"
+                :class="{
+                  'badge-ok': info.state === 'OK',
+                  'badge-fail': info.state === 'FAIL',
+                  'badge-stale': info.state === 'STALE',
+                }"
               >
-                {{ info.ok ? "OK" : "FAIL" }}
+                {{ info.state }}
               </span>
             </div>
             <div class="source-time">{{ info.lastFetch }}</div>
-            <div v-if="!info.ok && info.error" class="source-error">
+            <div v-if="info.ageLabel" class="source-age">
+              {{ info.ageLabel }}
+            </div>
+            <div v-if="info.error" class="source-error">
               {{ info.error }}
             </div>
           </div>
@@ -250,45 +279,91 @@ const lastRunLabel = computed(() => {
 });
 
 // ── Sources ──
+// 與後端 providerRegistry / macroDataSlots 中的 providerId 對應
 const SOURCE_LABELS = {
-  ndcProvider: "國發會景氣燈號",
-  kgiProvider: "台股融資餘額",
-  cnnProvider: "CNN 恐懼貪婪",
-  usMarketProvider: "美股 FRED",
-  valuationProvider: "大盤 PB/PE",
-  yahooProvider: "USD/TWD 匯率",
+  ndcBusinessIndicator: "國發會景氣燈號",
+  marginKgi: "台股融資餘額 (KGI)",
+  cnnFearGreed: "CNN 恐懼貪婪",
+  usMarketFred: "美股風險 (FRED)",
+  twMarketValuation: "大盤 PB/PE",
+  usdTwdYahoo: "USD/TWD 匯率",
+  dailyQuote: "每日一句",
 };
+
+const showSourcesDetail = ref(false);
 
 const sourcesDisplay = computed(() => {
   const raw = status.value?._meta?.sources || {};
-  const result = {};
-  for (const [key, label] of Object.entries(SOURCE_LABELS)) {
-    const src = raw[key] || {};
-    const ok = src.status === "SUCCESS";
-    const ts = src.lastFetch;
-    result[key] = {
+  const now = Date.now();
+  const list = [];
+
+  for (const [key, src] of Object.entries(raw)) {
+    const label = SOURCE_LABELS[key] || key;
+    const statusText = src.status || "UNKNOWN";
+    const lastFetchIso = src.lastFetch || null;
+
+    let lastFetchLabel = "尚無資料";
+    let ageLabel = "";
+    let stale = false;
+
+    if (lastFetchIso) {
+      const ts = new Date(lastFetchIso);
+      lastFetchLabel = ts.toLocaleString("zh-TW", {
+        timeZone: "Asia/Taipei",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      const diffHours = (now - ts.getTime()) / (1000 * 60 * 60);
+      if (diffHours >= 1) {
+        ageLabel = `${diffHours.toFixed(1)} 小時前更新`;
+      } else {
+        ageLabel = `${Math.max(1, Math.round(diffHours * 60))} 分鐘前更新`;
+      }
+
+      if (diffHours > 48) {
+        stale = true;
+      }
+    }
+
+    let state = "UNKNOWN";
+    if (statusText === "SUCCESS") {
+      state = stale ? "STALE" : "OK";
+    } else if (statusText === "FAILED") {
+      state = "FAIL";
+    }
+
+    list.push({
+      key,
       label,
-      ok,
+      status: statusText,
+      state,
+      lastFetch: lastFetchLabel,
+      ageLabel,
+      stale,
       error: src.error || null,
-      lastFetch: ts
-        ? new Date(ts).toLocaleString("zh-TW", {
-            timeZone: "Asia/Taipei",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        : "尚無資料",
-    };
+    });
   }
-  return result;
+
+  const order = { FAIL: 0, STALE: 1, OK: 2, UNKNOWN: 3 };
+  list.sort((a, b) => {
+    const diff = (order[a.state] ?? 3) - (order[b.state] ?? 3);
+    if (diff !== 0) return diff;
+    return a.label.localeCompare(b.label, "zh-Hant");
+  });
+
+  return list;
 });
 
-const sourceCount = computed(() => Object.keys(sourcesDisplay.value).length);
+const sourceCount = computed(() => sourcesDisplay.value.length);
 const healthyCount = computed(
-  () => Object.values(sourcesDisplay.value).filter((s) => s.ok).length,
+  () => sourcesDisplay.value.filter((s) => s.state === "OK").length,
 );
-const allHealthy = computed(() => healthyCount.value === sourceCount.value);
+const allHealthy = computed(
+  () => sourceCount.value > 0 && healthyCount.value === sourceCount.value,
+);
 
 // ── CNN Fear & Greed ──
 const fngRaw = computed(() => {
@@ -385,6 +460,12 @@ const peValue = computed(() => {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
 
 /* ── Info rows ── */
 .info-row {
@@ -425,6 +506,10 @@ const peValue = computed(() => {
   background: rgba(255, 59, 48, 0.08);
   border-color: rgba(255, 59, 48, 0.2);
 }
+.source-stale {
+  background: rgba(255, 204, 0, 0.08);
+  border-color: rgba(255, 204, 0, 0.2);
+}
 .source-header {
   display: flex;
   justify-content: space-between;
@@ -451,9 +536,18 @@ const peValue = computed(() => {
   background: rgba(255, 59, 48, 0.18);
   color: #c0392b;
 }
+.badge-stale {
+  background: rgba(255, 204, 0, 0.25);
+  color: #b8860b;
+}
 .source-time {
   font-size: 10px;
   color: var(--tg-theme-hint-color, #aaa);
+}
+.source-age {
+  font-size: 10px;
+  color: var(--tg-theme-hint-color, #999);
+  margin-top: 2px;
 }
 .source-error {
   font-size: 10px;
@@ -462,6 +556,28 @@ const peValue = computed(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.sources-summary {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--tg-theme-hint-color, #888);
+  margin: 0 0 8px;
+}
+.summary-item {
+  white-space: nowrap;
+}
+
+.toggle-btn {
+  border: none;
+  background: transparent;
+  color: var(--tg-theme-button-color, #2481cc);
+  font-size: 11px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  cursor: pointer;
 }
 
 /* ── Macro grid ── */
