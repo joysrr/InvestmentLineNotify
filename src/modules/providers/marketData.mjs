@@ -51,20 +51,20 @@ export async function fetchAllMacroData() {
   // 判斷邏輯 A: 國發會景氣燈號 (極低頻)
   // 策略: 每天抓一次即可。檢查 lastFetch 日期是否為今天。
   // ====================================================================
-  const ndcLastDate = cachedMeta.ndcProvider?.lastFetch?.split("T")[0];
+  const ndcProviderKey = macroDataSlots.rawNdc.providerId;
+  const ndcLastDate = cachedMeta[ndcProviderKey]?.lastFetch?.split("T")[0];
   if (cachedData.rawNdc && ndcLastDate === todayStr) {
     console.log("⚡ [Cache] 景氣燈號使用快取資料");
     finalData.rawNdc = cachedData.rawNdc;
   } else {
     const provider = getProviderForSlot("rawNdc");
-    const providerKey = macroDataSlots.rawNdc.providerId;
 
     fetchPromises.push(
       provider
         .fetch()
         .then((res) => {
           finalData.rawNdc = res;
-          newMetaSources[providerKey] = {
+          newMetaSources[ndcProviderKey] = {
             status: "SUCCESS",
             lastFetch: now.toISOString(),
           };
@@ -72,10 +72,10 @@ export async function fetchAllMacroData() {
         .catch((err) => {
           console.warn("⚠️ 國發會 API 失敗:", err.message);
           finalData.rawNdc = cachedData.rawNdc || null;
-          newMetaSources[providerKey] = {
+          newMetaSources[ndcProviderKey] = {
             status: "FAILED",
             error: err.message,
-            lastFetch: cachedMeta[providerKey]?.lastFetch || null,
+            lastFetch: cachedMeta[ndcProviderKey]?.lastFetch || null,
           };
         }),
     );
@@ -85,7 +85,8 @@ export async function fetchAllMacroData() {
   // 判斷邏輯 B: 台股融資餘額 (每日 16:30 更新)
   // 策略: 16:00 前不抓取直接讀 Cache。16:00 後強制重抓。
   // ====================================================================
-  const marginLastTime = new Date(cachedMeta.kgiProvider?.lastFetch || 0);
+  const marginProviderKey = macroDataSlots.rawMargin.providerId;
+  const marginLastTime = new Date(cachedMeta[marginProviderKey]?.lastFetch || 0);
   const hoursSinceMarginUpdate = (now - marginLastTime) / (1000 * 60 * 60);
 
   if (cachedData.rawMargin && (twHour < 16 || hoursSinceMarginUpdate < 2)) {
@@ -93,14 +94,13 @@ export async function fetchAllMacroData() {
     finalData.rawMargin = cachedData.rawMargin;
   } else {
     const provider = getProviderForSlot("rawMargin");
-    const providerKey = macroDataSlots.rawMargin.providerId;
 
     fetchPromises.push(
       provider
         .fetch()
         .then((res) => {
           finalData.rawMargin = res;
-          newMetaSources[providerKey] = {
+          newMetaSources[marginProviderKey] = {
             status: "SUCCESS",
             lastFetch: now.toISOString(),
           };
@@ -108,10 +108,10 @@ export async function fetchAllMacroData() {
         .catch((err) => {
           console.warn(`⚠️ ${provider.label} 失敗:`, err.message);
           finalData.rawMargin = cachedData.rawMargin || null;
-          newMetaSources[providerKey] = {
+          newMetaSources[marginProviderKey] = {
             status: "FAILED",
             error: err.message,
-            lastFetch: cachedMeta[providerKey]?.lastFetch || null,
+            lastFetch: cachedMeta[marginProviderKey]?.lastFetch || null,
           };
         }),
     );
@@ -121,8 +121,9 @@ export async function fetchAllMacroData() {
   // 判斷邏輯 C: CNN 恐懼貪婪指數 (美股盤中變動)
   // 策略: 台灣時間 21:00 ~ 隔日 05:00 強制抓取。其餘時間讀 Cache。
   // ====================================================================
+  const cnnProviderKey = macroDataSlots.rawCnn.providerId;
   const isUsMarketOpen = twHour >= 21 || twHour < 5;
-  const cnnLastTime = new Date(cachedMeta.cnnProvider?.lastFetch || 0);
+  const cnnLastTime = new Date(cachedMeta[cnnProviderKey]?.lastFetch || 0);
 
   if (
     !isUsMarketOpen &&
@@ -133,14 +134,13 @@ export async function fetchAllMacroData() {
     finalData.rawCnn = cachedData.rawCnn;
   } else {
     const provider = getProviderForSlot("rawCnn");
-    const providerKey = macroDataSlots.rawCnn.providerId;
 
     fetchPromises.push(
       provider
         .fetch()
         .then((res) => {
           finalData.rawCnn = res;
-          newMetaSources[providerKey] = {
+          newMetaSources[cnnProviderKey] = {
             status: "SUCCESS",
             lastFetch: now.toISOString(),
           };
@@ -148,10 +148,10 @@ export async function fetchAllMacroData() {
         .catch((err) => {
           console.warn("⚠️ CNN API 失敗:", err.message);
           finalData.rawCnn = cachedData.rawCnn || null;
-          newMetaSources[providerKey] = {
+          newMetaSources[cnnProviderKey] = {
             status: "FAILED",
             error: err.message,
-            lastFetch: cachedMeta[providerKey]?.lastFetch || null,
+            lastFetch: cachedMeta[cnnProviderKey]?.lastFetch || null,
           };
         }),
     );
@@ -161,21 +161,21 @@ export async function fetchAllMacroData() {
   // 判斷邏輯 D: 美股 FRED 數據 (每日早上更新昨收)
   // 策略: 每天抓一次即可
   // ====================================================================
+  const usMarketProviderKey = macroDataSlots.rawUsMarket.providerId;
   const usMarketLastDate =
-    cachedMeta.usMarketProvider?.lastFetch?.split("T")[0];
+    cachedMeta[usMarketProviderKey]?.lastFetch?.split("T")[0];
   if (cachedData.rawUsMarket && usMarketLastDate === todayStr) {
     console.log("⚡ [Cache] FRED 美股數據使用快取資料");
     finalData.rawUsMarket = cachedData.rawUsMarket;
   } else {
     const provider = getProviderForSlot("rawUsMarket");
-    const providerKey = macroDataSlots.rawUsMarket.providerId;
 
     fetchPromises.push(
       provider
         .fetch()
         .then((res) => {
           finalData.rawUsMarket = res;
-          newMetaSources[providerKey] = {
+          newMetaSources[usMarketProviderKey] = {
             status: "SUCCESS",
             lastFetch: now.toISOString(),
           };
@@ -183,10 +183,10 @@ export async function fetchAllMacroData() {
         .catch((err) => {
           console.warn("⚠️ FRED API 失敗:", err.message);
           finalData.rawUsMarket = cachedData.rawUsMarket || null;
-          newMetaSources[providerKey] = {
+          newMetaSources[usMarketProviderKey] = {
             status: "FAILED",
             error: err.message,
-            lastFetch: cachedMeta[providerKey]?.lastFetch || null,
+            lastFetch: cachedMeta[usMarketProviderKey]?.lastFetch || null,
           };
         }),
     );
@@ -196,21 +196,21 @@ export async function fetchAllMacroData() {
   // 判斷邏輯 E: 大盤 PB/PE 估值 (每日更新)
   // 策略: 每天抓一次即可
   // ====================================================================
+  const valuationProviderKey = macroDataSlots.rawValuation.providerId;
   const valuationLastDate =
-    cachedMeta.valuationProvider?.lastFetch?.split("T")[0];
+    cachedMeta[valuationProviderKey]?.lastFetch?.split("T")[0];
   if (cachedData.rawValuation && valuationLastDate === todayStr) {
     console.log("⚡ [Cache] 大盤估值(PB/PE)使用快取資料");
     finalData.rawValuation = cachedData.rawValuation;
   } else {
     const provider = getProviderForSlot("rawValuation");
-    const providerKey = macroDataSlots.rawValuation.providerId;
 
     fetchPromises.push(
       provider
         .fetch()
         .then((res) => {
           finalData.rawValuation = res;
-          newMetaSources[providerKey] = {
+          newMetaSources[valuationProviderKey] = {
             status: "SUCCESS",
             lastFetch: now.toISOString(),
           };
@@ -218,10 +218,10 @@ export async function fetchAllMacroData() {
         .catch((err) => {
           console.warn("⚠️ TWSE 估值 API 失敗:", err.message);
           finalData.rawValuation = cachedData.rawValuation || null;
-          newMetaSources[providerKey] = {
+          newMetaSources[valuationProviderKey] = {
             status: "FAILED",
             error: err.message,
-            lastFetch: cachedMeta[providerKey]?.lastFetch || null,
+            lastFetch: cachedMeta[valuationProviderKey]?.lastFetch || null,
           };
         }),
     );
@@ -232,15 +232,15 @@ export async function fetchAllMacroData() {
   // ====================================================================
 
   // 匯率：即時抓取 (若失敗則回退)
-  const provider = getProviderForSlot("rawFx");
-  const providerKey = macroDataSlots.rawFx.providerId;
+  const fxProvider = getProviderForSlot("rawFx");
+  const fxProviderKey = macroDataSlots.rawFx.providerId;
 
   fetchPromises.push(
-    provider
+    fxProvider
       .fetch()
       .then((res) => {
         finalData.rawFx = res;
-        newMetaSources[providerKey] = {
+        newMetaSources[fxProviderKey] = {
           status: "SUCCESS",
           lastFetch: now.toISOString(),
         };
@@ -248,10 +248,10 @@ export async function fetchAllMacroData() {
       .catch((err) => {
         console.warn("⚠️ Yahoo API 失敗:", err.message);
         finalData.rawFx = cachedData.rawFx || null;
-        newMetaSources[providerKey] = {
+        newMetaSources[fxProviderKey] = {
           status: "FAILED",
           error: err.message,
-          lastFetch: cachedMeta[providerKey]?.lastFetch || null,
+          lastFetch: cachedMeta[fxProviderKey]?.lastFetch || null,
         };
       }),
   );
