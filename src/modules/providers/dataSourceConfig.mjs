@@ -18,6 +18,9 @@ export const macroDataSlots = {
   rawValuation: {
     providerId: "twMarketValuation",
   },
+  rawMarketOverview: {
+    providerId: "twMarketOverview", // FMTQIK: 收盤指數 + 成交金額
+  },
   rawFx: {
     providerId: "usdTwdYahoo",
   },

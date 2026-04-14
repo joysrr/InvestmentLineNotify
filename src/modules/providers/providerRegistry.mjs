@@ -4,7 +4,7 @@ import { fetchTwseMarginData } from "./kgiProvider.mjs";
 import { fetchUsdTwdExchangeRate } from "./yahooProvider.mjs";
 import { fetchBusinessIndicator } from "./ndcProvider.mjs";
 import { getDailyQuote } from "./quoteProvider.mjs";
-import { fetchMarketValuation } from "./twseProvider.mjs";
+import { fetchMarketValuation, fetchMarketOverview } from "./twseProvider.mjs";
 
 /**
  * providerRegistry 負責把實際的 provider 實作包裝成統一介面。
@@ -39,6 +39,12 @@ export const providerRegistry = {
     label: "台股大盤估值 (PB/PE)",
     async fetch() {
       return fetchMarketValuation();
+    },
+  },
+  twMarketOverview: {
+    label: "大盤量價 (FMTQIK)",
+    async fetch() {
+      return fetchMarketOverview();
     },
   },
   usdTwdYahoo: {

@@ -282,6 +282,41 @@ export async function fetchAllMacroData() {
   );
 
   // ====================================================================
+  // 判斷邏輯 G: 大盤量價概覽 (FMTQIK — 收盤指數 + 成交金額)
+  // 策略: 每天抓一次即可 (收盤後才會有新資料，同 rawValuation 頻率)
+  // ====================================================================
+  const overviewProviderKey = macroDataSlots.rawMarketOverview.providerId;
+  const overviewLastDate =
+    cachedMeta[overviewProviderKey]?.lastFetch?.split("T")[0];
+  if (cachedData.rawMarketOverview && overviewLastDate === todayStr) {
+    console.log("⚡ [Cache] 大盤量價概覽使用快取資料");
+    finalData.rawMarketOverview = cachedData.rawMarketOverview;
+  } else {
+    const provider = getProviderForSlot("rawMarketOverview");
+
+    fetchPromises.push(
+      provider
+        .fetch()
+        .then((res) => {
+          finalData.rawMarketOverview = res;
+          newMetaSources[overviewProviderKey] = {
+            status: "SUCCESS",
+            lastFetch: now.toISOString(),
+          };
+        })
+        .catch((err) => {
+          console.warn("⚠️ FMTQIK 大盤量價 API 失敗:", err.message);
+          finalData.rawMarketOverview = cachedData.rawMarketOverview || null;
+          newMetaSources[overviewProviderKey] = {
+            status: "FAILED",
+            error: err.message,
+            lastFetch: cachedMeta[overviewProviderKey]?.lastFetch || null,
+          };
+        }),
+    );
+  }
+
+  // ====================================================================
   // 3. 執行所有需要打網路的任務
   // ====================================================================
   if (fetchPromises.length > 0) {

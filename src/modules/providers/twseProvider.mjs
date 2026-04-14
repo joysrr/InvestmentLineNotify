@@ -632,3 +632,83 @@ export async function fetchMarketValuation() {
     throw err;
   }
 }
+
+// ============================================================================
+// 📊 大盤量價概覽 — 收盤指數 + 成交金額 (TWSE FMTQIK)
+//
+//  資料來源：https://openapi.twse.com.tw/v1/exchangeReport/FMTQIK
+//  回傳陣列長度約 30 筆（最近 30 個交易日），我們取最後一筆（最新）
+//  欄位說明：
+//    Date        — 日期 (YYYYMMDD)
+//    TAIEX       — 加權指數收盤值 (字串，帶逗號)
+//    TradeValue  — 成交金額 (元，字串，帶逗號)
+//    Change      — 漲跌點數 (字串，帶正負符號)
+// ============================================================================
+export async function fetchMarketOverview() {
+  const url = "https://openapi.twse.com.tw/v1/exchangeReport/FMTQIK";
+
+  const res = await fetchWithTimeout(
+    url,
+    {
+      ...baseFetchOptions,
+      headers: { ...baseFetchOptions.headers, Accept: "application/json" },
+    },
+    10000,
+  );
+
+  const text = await res.text();
+  if (!res.ok || !text.trim().startsWith("[")) {
+    throw new Error(`TWSE FMTQIK HTTP ${res.status}: ${text.slice(0, 200)}`);
+  }
+
+  const data = JSON.parse(text);
+  if (!data || data.length === 0) {
+    throw new Error("TWSE FMTQIK: 回傳資料為空");
+  }
+
+  // 取最後一筆（最新交易日）
+  const latest = data[data.length - 1];
+  // 取倒數第二筆作為「前一日」，用來計算漲跌幅
+  const prev = data.length >= 2 ? data[data.length - 2] : null;
+
+  function toNum(str) {
+    if (!str) return null;
+    const n = Number(String(str).replace(/,/g, ""));
+    return isNaN(n) ? null : n;
+  }
+
+  const taiex = toNum(latest.TAIEX);
+  const prevTaiex = prev ? toNum(prev.TAIEX) : null;
+  const tradeValueRaw = toNum(latest.TradeValue);
+
+  // 成交金額換算為億元（四捨五入）
+  const tradeValueHundredMillion =
+    tradeValueRaw != null ? Math.round(tradeValueRaw / 1e8) : null;
+
+  // 漲跌點 (API 本身就有 Change 欄，同時自算一份作 fallback)
+  const changePoint =
+    toNum(latest.Change) ??
+    (taiex != null && prevTaiex != null ? taiex - prevTaiex : null);
+
+  // 漲跌幅 %
+  const changePercent =
+    prevTaiex != null && prevTaiex > 0 && changePoint != null
+      ? Math.round((changePoint / prevTaiex) * 10000) / 100 // 保留兩位小數
+      : null;
+
+  // 日期格式轉換：YYYYMMDD → YYYY-MM-DD
+  const rawDate = String(latest.Date || "");
+  const date =
+    rawDate.length === 8
+      ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`
+      : rawDate;
+
+  return {
+    date,                            // 最新交易日 YYYY-MM-DD
+    taiex,                           // 收盤指數 (Number)
+    changePoint,                     // 漲跌點 (Number, 可為負)
+    changePercent,                   // 漲跌幅 % (Number, 可為負)
+    tradeValueHundredMillion,        // 成交金額（億元）
+    tradeValueRaw,                   // 原始成交金額（元）
+  };
+}
