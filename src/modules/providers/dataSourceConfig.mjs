@@ -10,7 +10,7 @@ export const macroDataSlots = {
     providerId: "ndcBusinessIndicator",
   },
   rawMargin: {
-    providerId: "marginFinMind", // ← 使用 FinMind 作為主要融資／維持率來源
+    providerId: "marginKgi",
   },
   rawCnn: {
     providerId: "cnnFearGreed",
@@ -22,7 +22,7 @@ export const macroDataSlots = {
     providerId: "twMarketValuation",
   },
   rawMarketOverview: {
-    providerId: "twMarketOverview", // FMTQIK: 收盤指數 + 成交金額
+    providerId: "twMarketOverview",
   },
   rawFx: {
     providerId: "usdTwdYahoo",

@@ -5,6 +5,7 @@ import { fetchFearAndGreedIndex } from "../modules/providers/cnnProvider.mjs";
 import { fetchUsdTwdExchangeRate } from "../modules/providers/yahooProvider.mjs";
 import { fetchBusinessIndicator } from "../modules/providers/ndcProvider.mjs";
 import { fetchTwseMarginData } from "../modules/providers/kgiProvider.mjs";
+import { fetchFinMindMarginData } from "../modules/providers/finmindProvider.mjs";
 import {
   fetchRealtimeFromMis,
   getTwVix,
@@ -89,6 +90,29 @@ if (shouldRun("kgi")) {
     );
     console.log(
       `✅ [凱基融資 API] 測試通過 | 維持率: ${result.maintenanceRatio}% | 餘額: ${result.marginBalance100M}億`,
+    );
+  });
+}
+
+// ── FinMind Provider ────────────────────────────────────────────────────────────
+if (shouldRun("finmind")) {
+  test("🧪 測試 FinMind 融資融券數據 API", async (t) => {
+    const result = await fetchFinMindMarginData();
+    assert.ok(result, "回傳結果不應為空");
+    assert.ok(
+      result.maintenanceRatio > 130 && result.maintenanceRatio < 220,
+      `融資維持率 ${result.maintenanceRatio}% 異常 (不在 130~220 之間)`,
+    );
+    assert.ok(
+      result.marginBalance100M > 1000,
+      `融資餘額 ${result.marginBalance100M} 億異常 (小於 1000 億)`,
+    );
+    assert.ok(
+      typeof result.marginBalanceChange100M === "number",
+      "融資增減必須是數字",
+    );
+    console.log(
+      `✅ [FinMind 融資 API] 測試通過 | 維持率: ${result.maintenanceRatio}% | 餘額: ${result.marginBalance100M}億`,
     );
   });
 }

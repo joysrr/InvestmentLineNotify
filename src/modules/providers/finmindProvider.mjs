@@ -4,11 +4,11 @@ const FINMIND_BASE_URL = "https://api.finmindtrade.com/api/v4/data";
 
 /**
  * 建立 FinMind API 共用 Header。
- * 若 .env 有維護 FINMIND_API_TOKEN 或 FINMIND_TOKEN，則自動加上 Authorization。
+ * 若 .env 有維護 FINMIND_API_TOKEN，則自動加上 Authorization。
  */
 function buildFinMindHeaders() {
   const token =
-    process.env.FINMIND_API_TOKEN || process.env.FINMIND_TOKEN || "";
+    process.env.FINMIND_API_TOKEN || "";
 
   const headers = {
     "User-Agent":
