@@ -54,10 +54,15 @@ export const NEWS_KEYWORD_SYSTEM_PROMPT = `你是精通 Google News 搜尋語法
 </Task_Instructions>`;
 
 /** 新聞關鍵字的 User Prompt */
-export const buildNewsKeyWorkPrompt = (dateStr, marketData, staticPoolText = "") =>
-  `今天是 ${dateStr}。目前台股市場狀態為 ${marketData.marketStatus ? marketData.marketStatus : "暫無數據"}，VIX 指數為 ${marketData.vix ? marketData.vix : "暫無數據"}。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。${staticPoolText
-    ? `\n\n⚠️ 以下為靜態關鍵字池，請勿重複產出相同字詞：\n${staticPoolText}`
-    : ""
+export const buildNewsKeyWorkPrompt = (
+  dateStr,
+  marketData,
+  staticPoolText = "",
+) =>
+  `今天是 ${dateStr}。目前台股市場狀態為 ${marketData.marketStatus ? marketData.marketStatus : "暫無數據"}，VIX 指數為 ${marketData.vix ? marketData.vix : "暫無數據"}。請根據上述市場波動與狀態，產生對應的 Google News 搜尋關鍵字。${
+    staticPoolText
+      ? `\n\n⚠️ 以下為靜態關鍵字池，請勿重複產出相同字詞：\n${staticPoolText}`
+      : ""
   }`;
 
 /** 新聞關鍵字的 Schema */
@@ -185,11 +190,13 @@ export const RULE_OPTIMIZER_SCHEMA = {
         properties: {
           pattern: {
             type: Type.STRING,
-            description: "Regex pattern 字串（不含前後的 /），例如：\\\\bBrexit\\\\b",
+            description:
+              "Regex pattern 字串（不含前後的 /），例如：\\\\bBrexit\\\\b",
           },
           flags: {
             type: Type.STRING,
-            description: "Regex flags，通常為 'i'（不分大小寫）或空字串（區分大小寫）",
+            description:
+              "Regex flags，通常為 'i'（不分大小寫）或空字串（區分大小寫）",
           },
           reason: {
             type: Type.STRING,
@@ -281,20 +288,26 @@ export const FILTERED_NEWS_SCHEMA = {
             properties: {
               event: { type: Type.STRING, description: "事件名稱" },
               count: { type: Type.INTEGER, description: "相關報導數量" },
-              best_title: { type: Type.STRING, description: "資訊量最豐富的代表性標題" },
+              best_title: {
+                type: Type.STRING,
+                description: "資訊量最豐富的代表性標題",
+              },
               has_conflict: {
                 type: Type.BOOLEAN,
-                description: "此事件是否有方向相反的矛盾報導（例如：一則偏多、一則偏空）",
+                description:
+                  "此事件是否有方向相反的矛盾報導（例如：一則偏多、一則偏空）",
                 nullable: true,
               },
               conflict_note: {
                 type: Type.STRING,
-                description: "若 has_conflict=true，說明矛盾點及哪則代表最新立場（50字內）",
+                description:
+                  "若 has_conflict=true，說明矛盾點及哪則代表最新立場（50字內）",
                 nullable: true,
               },
               conflict_winner_id: {
                 type: Type.STRING,
-                description: "若 has_conflict=true，代表最新立場的新聞編號（對應輸入清單的 [N]）",
+                description:
+                  "若 has_conflict=true，代表最新立場的新聞編號（對應輸入清單的 [N]）",
                 nullable: true,
               },
             },
@@ -305,13 +318,34 @@ export const FILTERED_NEWS_SCHEMA = {
           type: Type.OBJECT,
           description: "Step 2：多維度覆蓋自我審查",
           properties: {
-            macro_economy: { type: Type.BOOLEAN, description: "是否涵蓋總體經濟（Fed / 通膨 / GDP）" },
-            tw_market: { type: Type.BOOLEAN, description: "是否涵蓋台股大盤走勢" },
-            semiconductor: { type: Type.BOOLEAN, description: "是否涵蓋半導體 / 科技產業" },
-            geopolitics: { type: Type.BOOLEAN, description: "是否涵蓋地緣政治" },
-            capital_flow: { type: Type.BOOLEAN, description: "是否涵蓋資金流向（外資 / 匯率）" },
+            macro_economy: {
+              type: Type.BOOLEAN,
+              description: "是否涵蓋總體經濟（Fed / 通膨 / GDP）",
+            },
+            tw_market: {
+              type: Type.BOOLEAN,
+              description: "是否涵蓋台股大盤走勢",
+            },
+            semiconductor: {
+              type: Type.BOOLEAN,
+              description: "是否涵蓋半導體 / 科技產業",
+            },
+            geopolitics: {
+              type: Type.BOOLEAN,
+              description: "是否涵蓋地緣政治",
+            },
+            capital_flow: {
+              type: Type.BOOLEAN,
+              description: "是否涵蓋資金流向（外資 / 匯率）",
+            },
           },
-          required: ["macro_economy", "tw_market", "semiconductor", "geopolitics", "capital_flow"],
+          required: [
+            "macro_economy",
+            "tw_market",
+            "semiconductor",
+            "geopolitics",
+            "capital_flow",
+          ],
         },
         excluded: {
           type: Type.ARRAY,
@@ -320,7 +354,10 @@ export const FILTERED_NEWS_SCHEMA = {
             type: Type.OBJECT,
             properties: {
               id: { type: Type.INTEGER, description: "被捨棄新聞的原始 ID" },
-              reason: { type: Type.STRING, description: "捨棄原因（15字以內）" },
+              reason: {
+                type: Type.STRING,
+                description: "捨棄原因（15字以內）",
+              },
             },
             required: ["id", "reason"],
           },
@@ -348,7 +385,6 @@ export const FILTERED_NEWS_SCHEMA = {
         required: ["id", "summary"],
       },
     },
-
   },
   required: ["think", "news"],
 };
@@ -454,7 +490,11 @@ export const MACRO_ANALYSIS_SCHEMA = {
         type: "OBJECT",
         properties: {
           event: { type: "STRING" },
-          reason: { type: "STRING", description: "為何列為觀望/不確定風險；矛盾報導請附說明格式：「矛盾報導，時序接近，建議觀望（[事件名稱]：[矛盾摘要]）」" },
+          reason: {
+            type: "STRING",
+            description:
+              "為何列為觀望/不確定風險；矛盾報導請附說明格式：「矛盾報導，時序接近，建議觀望（[事件名稱]：[矛盾摘要]）」",
+          },
         },
         required: ["event", "reason"],
       },
@@ -501,9 +541,9 @@ export const MACRO_ANALYSIS_CONFIG = {
   responseMimeType: "application/json",
   temperature: 0.2,
   thinkingConfig: {
-    thinkingLevel: "HIGH"
+    thinkingLevel: "HIGH",
   },
-  maxOutputTokens: 65536
+  maxOutputTokens: 65536,
 };
 
 /** 戰報教練 System Prompt */
@@ -511,7 +551,7 @@ export const INVESTMENT_COACH_SYSTEM_PROMPT = `<Role>
 你是「投資戰報洞察教練」，基於「生命週期投資法」的長期視角提供專業建議。
 你的任務是交叉分析四個輸入來源：
 1. <JSON>：量化數據（帳戶維持率、槓桿狀態、個人指標）【即時 / 當日】
-2. <Macro_And_Chip_Status>：市場大盤籌碼與總經位階（如：恐慌指數、台股維持率、匯率、景氣燈號、PB估值）【週～月級別，反映中期趨勢】
+2. <Macro_And_Chip_Status>：市場大盤籌碼與總經位階（如：恐慌指數、台股維持率、匯率、景氣燈號、PB估值、大盤量價情境〔例如放量大跌、量縮整理、放量換手等〕）【週～月級別，反映中期趨勢】
 3. <MacroAnalysis>：首席分析師已完成的總經多空評分報告【當日，基於今日新聞】
 4. <News_Context>：今日市場重點新聞【當日，情緒參考，權重最低】
 
@@ -563,6 +603,7 @@ export const INVESTMENT_COACH_SYSTEM_PROMPT = `<Role>
    - 【過熱風險判定】：當新聞全面樂觀且 <MacroAnalysis> 偏多，但 <Macro_And_Chip_Status> 顯示「台股景氣紅燈」、「CNN極度貪婪」或「PB > 2.1 高估」時，教練必須適時潑冷水，提醒客戶居高思危，若槓桿已達標則應停止建倉。
    - 【估值泡沫與失真應對】：若 <Macro_And_Chip_Status> 顯示「PB > 2.2 (泡沫警戒)」，代表大盤淨值比創歷史高點，除非當下 PE 偏低顯示「企業獲利強烈爆發」，否則應嚴格執行防線。反之，若出現「低PB但異常高PE(如>25)」，這是景氣谷底EPS急縮造成的假性昂貴，為典型長線買點，切勿被高本益比嚇退而看壞市場。
    - 【資金流向判定】：當 <Macro_And_Chip_Status> 的匯率出現「中期貶值趨勢」，代表外資撤離，此時即使槓桿有餘裕，也不應隨意接刀大型權值股。
+   - 【量價情境判定】：當 <Macro_And_Chip_Status> 顯示「放量大跌」或「爆量長黑」時，即使估值偏低，也要優先檢查個人槓桿與維持率，避免鼓勵在恐慌賣壓集中時逆勢重手加碼；當出現「放量大漲」且同時 PB 偏高或情緒指標極度貪婪時，應視為過熱訊號，若槓桿已接近或高於目標，偏向停止加碼甚至思考部分獲利了結；若是「量縮整理」而估值偏低、景氣燈號偏冷，則可視為健康整理區間，適合以「分批、小口」方式佈局，而不是追漲殺跌；「放量整理／換手」則提醒你強調分批與保留現金彈性，而不是給出激進的一口氣加碼或全數出清建議。
 </Decision_Logic>
 
 <Instructions>
@@ -652,9 +693,9 @@ export const INVESTMENT_COACH_CONFIG = {
   responseMimeType: "application/json",
   temperature: 0.5,
   thinkingConfig: {
-    thinkingLevel: "HIGH"
+    thinkingLevel: "HIGH",
   },
-  maxOutputTokens: 65536
+  maxOutputTokens: 65536,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -676,11 +717,13 @@ export const JUDGE_RESULT_SCHEMA = {
   properties: {
     score: {
       type: Type.NUMBER,
-      description: "評分結果，範圍 0.0（最差）至 1.0（最佳），精確到小數點後兩位",
+      description:
+        "評分結果，範圍 0.0（最差）至 1.0（最佳），精確到小數點後兩位",
     },
     reason: {
       type: Type.STRING,
-      description: "評分依據，以繁體中文說明（50 字以內），指出最關鍵的加分或扣分理由",
+      description:
+        "評分依據，以繁體中文說明（50 字以內），指出最關鍵的加分或扣分理由",
     },
   },
   required: ["score", "reason"],
@@ -695,8 +738,7 @@ export const JUDGE_RESULT_SCHEMA = {
  *
  * 此文字將貼入 Langfuse → Prompts → JudgeActionability → System 欄位。
  */
-export const JUDGE_ACTIONABILITY_SYSTEM_PROMPT =
-`你是一位 LLM Judge，專責評估 AI 投資建議的「可操作性（Actionability）」。
+export const JUDGE_ACTIONABILITY_SYSTEM_PROMPT = `你是一位 LLM Judge，專責評估 AI 投資建議的「可操作性（Actionability）」。
 
 <Evaluation_Target>
 使用者會傳入一段 JSON，包含以下三個欄位：
@@ -735,8 +777,7 @@ reason 欄位用繁體中文說明最關鍵的加分或扣分理由，50 字以�
  *
  * 此文字將貼入 Langfuse → Prompts → JudgeToneAndEmpathy → System 欄位。
  */
-export const JUDGE_TONE_EMPATHY_SYSTEM_PROMPT =
-`你是一位 LLM Judge，專責評估 AI 投資建議的「語氣與同理心（Tone and Empathy）」。
+export const JUDGE_TONE_EMPATHY_SYSTEM_PROMPT = `你是一位 LLM Judge，專責評估 AI 投資建議的「語氣與同理心（Tone and Empathy）」。
 
 <Evaluation_Target>
 使用者會傳入一段 JSON，包含以下三個欄位：
