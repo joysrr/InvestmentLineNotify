@@ -67,6 +67,30 @@ News filter 不只做語意摘要，也扮演 quality gate。除了 AI 過濾，
 
 Coach AI 可直接參考持倉成本與目前價格差距，進行加碼 / 減碼建議。如果 Google Sheet 均價欄位為空，則顯示「(未設均價)」，不中斷主流程。
 
+**大盤量價概覽（自 2026-04-14）**
+
+`aiDataPreprocessor.mjs` 也會將 `marketData.mjs` 中的 `data.rawMarketOverview` 轉寫為「大盤量價概覽」段落，並合併進 `Macro_And_Chip_Status` 供 Coach 使用。核心內容包含：
+
+- 加權指數收盤價與當日漲跌（點數與百分比）。
+- 當日全市場成交金額（億元）。
+- 相對近 20 個交易日平均成交金額的量能倍率（例如 0.8 倍、1.5 倍）。
+- 近 20 日內最大成交金額的參考比例（今日約為最大量的幾成）。
+- 量價情境標籤（例如：放量大跌、放量大漲、量縮整理、放量整理／換手、量縮下跌等）。
+- 一段給教練用的 AI 解讀提示文字（例如提醒「放量長黑可能是利多出貨」、「量縮整理搭配低估值偏向健康整理」等）。
+
+範例（簡化示意）：
+
+```
+6. 大盤量價概覽：加權指數收盤 19,800 點，今日 -123 點（-0.6%）。
+   成交金額：3,200 億元，約為近 20 日均量的 0.8 倍，量能顯著低於均值。
+   情境：量縮下跌（非恐慌性殺盤）。
+   解讀：短線賣壓存在但缺乏恐慌性爆量，搭配低 PB 與冷景氣時，可視為健康整理區間。
+```
+
+Coach 不需理解 FMTQIK API 細節，而是直接利用這段「已聚合的量價情境」來調整節奏建議，例如：
+- 放量大跌時，即使估值偏低，也會優先強調槓桿與維持率風險，不鼓勵逆勢重手抄底。
+- 量縮整理且估值偏低時，則偏向建議分批、小口佈局，而非追漲殺跌。
+
 這代表 Coach 並不是直接看原始資料，而是站在「已整理上下文」上產出最終建議。若未來要調整建議品質，優先檢查 `aiDataPreprocessor.mjs` 與 `prompts.mjs`。
 
 ---
@@ -143,7 +167,7 @@ Coach AI 可直接參考持倉成本與目前價格差距，進行加碼 / 減�
 | Score 名稱 | 類型 | 寫入時機 | 說明 |
 |---|---|---|---|
 | `Schema_Validation` | Boolean | AI 回傳 JSON parse 成功後 | 驗證 JSON 能正確解析，value = 1 表示成功 |
-| `Format_Compliance` | Boolean | Schema 驗證通過後 | 驗證 `topRiskEvents` 為非空陣列、`consistencyComment` 與 `periodOutlook` 為非空字串，value = 1 / 0 |
+| `Format_Compliance` | Boolean | Schema 驗證通過後 | 驗證 `topRiskEvents` 為非空陣列、`consistencyComment` 與 `periodOutlook` 為非空字串，三者同時满足才為 True。 |
 
 score 寫入後，`generatePeriodAiSummary()` 會輸出 CI 觀測用 log：
 

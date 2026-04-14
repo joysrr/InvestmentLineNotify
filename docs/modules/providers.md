@@ -19,7 +19,7 @@ src/modules/providers/
 ├── marketData.mjs          ← 統一入口（Orchestration + 快取排程 + metadata）
 ├── dataSourceConfig.mjs    ← 總經資料 Slot 設定（providerId + 資料欄位 + 更新策略）
 ├── providerRegistry.mjs    ← Provider Adapter Registry（以 providerId 映射實作）
-├── twseProvider.mjs        ← 台股核心（歷史/即時/VIX/估值/假日判斷）
+├── twseProvider.mjs        ← 台股核心（歷史/即時/VIX/估值/大盤量價/假日判斷）
 ├── basePriceProvider.mjs   ← 策略基準價計算
 ├── usMarketProvider.mjs    ← 美股風險評估（VIX / S&P500 via FRED）
 ├── cnnProvider.mjs         ← CNN 恐懼貪婪指數
@@ -57,13 +57,14 @@ export async function fetchAllMacroData()
 
   ```js
   export const macroDataSlots = {
-    rawNdc:        { providerId: 'ndcBusinessIndicator' },
-    rawMargin:     { providerId: 'marginKgi' },
-    rawCnn:        { providerId: 'cnnFearGreed' },
-    rawUsMarket:   { providerId: 'usMarketFred' },
-    rawValuation:  { providerId: 'twMarketValuation' },
-    rawFx:         { providerId: 'usdTwdYahoo' },
-    quote:         { providerId: 'dailyQuote' },
+    rawNdc:           { providerId: 'ndcBusinessIndicator' },
+    rawMargin:        { providerId: 'marginKgi' },
+    rawCnn:           { providerId: 'cnnFearGreed' },
+    rawUsMarket:      { providerId: 'usMarketFred' },
+    rawValuation:     { providerId: 'twMarketValuation' },
+    rawFx:            { providerId: 'usdTwdYahoo' },
+    rawMarketOverview:{ providerId: 'twMarketOverview' },
+    quote:            { providerId: 'dailyQuote' },
   }
   ```
 
@@ -72,6 +73,7 @@ export async function fetchAllMacroData()
   ```js
   import * as ndcProvider from './ndcProvider.mjs'
   import * as kgiProvider from './kgiProvider.mjs'
+  import * as twseProvider from './twseProvider.mjs'
   // ...
 
   export const providerRegistry = {
@@ -82,6 +84,10 @@ export async function fetchAllMacroData()
     marginKgi: {
       label: '台股融資餘額 (KGI)',
       async fetch () { return kgiProvider.fetchTwseMarginData() },
+    },
+    twMarketOverview: {
+      label: '台股大盤量價概覽 (指數與成交金額)',
+      async fetch () { return twseProvider.fetchMarketOverview() },
     },
     // 其餘略
   }
@@ -94,7 +100,7 @@ export async function fetchAllMacroData()
 
 不需變更 `marketData.mjs` 或上層消費者的程式碼。
 
-### 3.4 `fetchAllMacroData()` 快取策略（A~F 六段）
+### 3.4 `fetchAllMacroData()` 快取策略（A~G 七段）
 
 此函式在每次呼叫時，先讀取 `archiveManager.getLatestMarketData()` 的快取，再依以下策略決定哪些 provider 需要重新抓取：
 
@@ -107,6 +113,7 @@ export async function fetchAllMacroData()
 | **E** | 大盤 PB/PE 估值 | `rawValuation` | `twMarketValuation` | 每天抓一次（比對 `lastFetch` 日期） |
 | **F** | USD/TWD 匯率 | `rawFx` | `usdTwdYahoo` | 每次都重抓（無快取） |
 | **F** | 每日一句 | `quote` | `dailyQuote` | 委由 `quoteProvider` 內部邏輯處理（依賴 `archiveManager` 今日快取判斷） |
+| **G** | 台股大盤量價概覽（指數與成交金額） | `rawMarketOverview` | `twMarketOverview` | 每天抓一次（比對 `lastFetch` 日期）；同一日多次呼叫時讀快取 |
 
 > 註：`fetchAllMacroData()` 目前仍由程式碼內部實作 refresh 判斷；未來若要更進一步抽象成 config-based refreshPolicy，可從 `macroDataSlots` 擴充對應欄位開始。
 
@@ -148,16 +155,21 @@ export async function fetchAllMacroData()
         status: 'SUCCESS',
         lastFetch: '2026-04-14T00:10:00.000Z',
       },
+      twMarketOverview: {
+        status: 'SUCCESS',
+        lastFetch: '2026-04-14T02:55:00.000Z',
+      },
     },
   },
   data: {
-    rawNdc:        { /* 國發會景氣燈號資料 */ },
-    rawMargin:     { /* 融資餘額與維持率 */ },
-    rawCnn:        { /* CNN Fear & Greed */ },
-    rawUsMarket:   { /* FRED VIX / SPX */ },
-    rawValuation:  { /* 大盤 PB/PE/殖利率 */ },
-    rawFx:         { /* USD/TWD 匯率 */ },
-    quote:         { /* 每日一句 */ },
+    rawNdc:           { /* 國發會景氣燈號資料 */ },
+    rawMargin:        { /* 融資餘額與維持率 */ },
+    rawCnn:           { /* CNN Fear & Greed */ },
+    rawUsMarket:      { /* FRED VIX / SPX */ },
+    rawValuation:     { /* 大盤 PB/PE/殖利率 */ },
+    rawFx:            { /* USD/TWD 匯率 */ },
+    rawMarketOverview:{ /* 大盤指數與成交金額、20 日均量與最大量 */ },
+    quote:            { /* 每日一句 */ },
   },
 }
 ```
@@ -184,6 +196,7 @@ export async function fetchAllMacroData()
 | `loadHolidaySet(year)` | 載入 TWSE 年度休市日 Set（具記憶體快取） | `Set<string>` |
 | `fetchStockHistory(symbol, p1, p2)` | 歷史股價查詢（月份分批 + 非當月 archive 快取） | `[{ date, open, high, low, close, volume }]` |
 | `fetchMarketValuation()` | 計算 TWSE 全市場加權 PB / PE / 殖利率 | `{ pe, pb, yield, date }` |
+| `fetchMarketOverview()` | 取得台股加權指數收盤與市場成交金額，並計算近 20 日量能統計 | `{ date, taiex, changePoint, changePercent, tradeValueHundredMillion, tradeValueRaw, avgTradeValue20dHundredMillion, maxTradeValue20dHundredMillion }` |
 
 **特殊機制**：
 - **Cookie 快取（TTL 10 分鐘）**：MIS 即時系統需要先取得 Cookie，使用 Promise Lock 防止併發重複請求。
@@ -192,6 +205,10 @@ export async function fetchAllMacroData()
 - **歷史月份快取**：STOCK_DAY 非當月資料寫入 `archiveManager`，後續不重複打 API。
 - **IPv4 強制**：`new https.Agent({ family: 4 })` 強制 IPv4 解析，繞過 TWSE 的 IPv6 路由問題。
 - **雙 URL fallback**：STOCK_DAY 有 rwd 與舊版兩個 endpoint，依序嘗試。
+- **大盤量價統計**（`fetchMarketOverview`）：利用 TWSE OpenAPI `FMTQIK` 最近 30 個交易日資料，取最後一筆作為最新交易日，並計算：
+  - 當日加權指數收盤價與漲跌幅（點數與百分比）。
+  - 當日全市場成交金額（億元，四捨五入）。
+  - 近 20 日平均成交金額與最大成交金額（億元）。
 
 **大盤估值計算方式（市值加權）**：
 ```
@@ -420,6 +437,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 | 景氣燈號停留在舊月份 | `ndcProvider`：民國年月轉換邏輯，或 DGBAS API 尚未更新 |
 | 美股風險永遠顯示「正常」 | `usMarketProvider`：FRED API 是否需要 API Key（設定 `FRED_API_KEY` 環境變數） |
 | 大盤 PE/PB 為 null | `twseProvider.fetchMarketValuation()`：TWSE OpenAPI `BWIBBU_ALL` 或 `STOCK_DAY_ALL` 結構異動 |
+| 大盤指數/成交金額缺失或量能統計顯示異常 | `twseProvider.fetchMarketOverview()`：TWSE OpenAPI `FMTQIK` 結構是否異動，或是否超過 20 日有效樣本 |
 
 ### 快取 metadata 結構
 ```js
@@ -432,6 +450,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
   twMarketValuation:   { status: 'SUCCESS', lastFetch: '...' },
   usdTwdYahoo:         { status: 'SUCCESS', lastFetch: '...' },
   dailyQuote:          { status: 'SUCCESS', lastFetch: '...' },
+  twMarketOverview:    { status: 'SUCCESS', lastFetch: '...' },
 }
 ```
 
