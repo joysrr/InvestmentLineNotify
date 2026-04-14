@@ -16,7 +16,9 @@
 
 ```
 src/modules/providers/
-├── marketData.mjs          ← 統一入口（Orchestration + 快取排程）
+├── marketData.mjs          ← 統一入口（Orchestration + 快取排程 + metadata）
+├── dataSourceConfig.mjs    ← 總經資料 Slot 設定（providerId + 資料欄位 + 更新策略）
+├── providerRegistry.mjs    ← Provider Adapter Registry（以 providerId 映射實作）
 ├── twseProvider.mjs        ← 台股核心（歷史/即時/VIX/估值/假日判斷）
 ├── basePriceProvider.mjs   ← 策略基準價計算
 ├── usMarketProvider.mjs    ← 美股風險評估（VIX / S&P500 via FRED）
@@ -47,22 +49,120 @@ export { fetchLatestBasePrice }
 export async function fetchAllMacroData()
 ```
 
-### 3.3 `fetchAllMacroData()` 快取策略（A~F 六段）
+### 3.3 Slot-based 設計：`dataSourceConfig.mjs` + `providerRegistry.mjs`
+
+自 2026-04 起，總經與籌碼資料不再由 `marketData.mjs` 直接 import 各 provider，而是採用「Slot + Registry」的抽象層：
+
+- `dataSourceConfig.mjs` 定義 **資料 Slot** 與對應 `providerId`：
+
+  ```js
+  export const macroDataSlots = {
+    rawNdc:        { providerId: 'ndcBusinessIndicator' },
+    rawMargin:     { providerId: 'marginKgi' },
+    rawCnn:        { providerId: 'cnnFearGreed' },
+    rawUsMarket:   { providerId: 'usMarketFred' },
+    rawValuation:  { providerId: 'twMarketValuation' },
+    rawFx:         { providerId: 'usdTwdYahoo' },
+    quote:         { providerId: 'dailyQuote' },
+  }
+  ```
+
+- `providerRegistry.mjs` 則負責用 `providerId` 對應實際實作：
+
+  ```js
+  import * as ndcProvider from './ndcProvider.mjs'
+  import * as kgiProvider from './kgiProvider.mjs'
+  // ...
+
+  export const providerRegistry = {
+    ndcBusinessIndicator: {
+      label: '國發會景氣燈號',
+      async fetch () { return ndcProvider.fetchBusinessIndicator() },
+    },
+    marginKgi: {
+      label: '台股融資餘額 (KGI)',
+      async fetch () { return kgiProvider.fetchTwseMarginData() },
+    },
+    // 其餘略
+  }
+  ```
+
+`marketData.mjs` 只認得 **Slot key + providerId**，不直接 import 任何單一 provider。要抽換資料來源時，只需：
+
+1. 在 `providerRegistry` 中新增新的 provider 實作。
+2. 在 `dataSourceConfig.mjs` 中改寫對應 Slot 的 `providerId`（例如把 `marginKgi` 換成 `marginAltSource`）。
+
+不需變更 `marketData.mjs` 或上層消費者的程式碼。
+
+### 3.4 `fetchAllMacroData()` 快取策略（A~F 六段）
 
 此函式在每次呼叫時，先讀取 `archiveManager.getLatestMarketData()` 的快取，再依以下策略決定哪些 provider 需要重新抓取：
 
-| 段落 | 資料 | Provider | 快取策略 |
-|---|---|---|---|
-| **A** | 國發會景氣燈號 | `ndcProvider` | 每天抓一次（比對 `lastFetch` 日期與今日相符則讀快取） |
-| **B** | 台股融資餘額 | `kgiProvider` | 台北時間 16:00 前讀快取（台股收盤前無新資料）；16:00 後且距上次更新超過 2 小時則重抓 |
-| **C** | CNN 恐懼貪婪 | `cnnProvider` | 台北時間 21:00~05:00（美股開盤）強制重抓；其餘時間若快取不超過 24 小時則讀快取 |
-| **D** | 美股 FRED 數據 | `usMarketProvider` | 每天抓一次（比對 `lastFetch` 日期） |
-| **E** | 大盤 PB/PE 估值 | `twseProvider.fetchMarketValuation` | 每天抓一次（比對 `lastFetch` 日期） |
-| **F** | USD/TWD 匯率 | `yahooProvider` | 每次都重抓（無快取） |
-| **F** | 每日一句 | `quoteProvider` | 委由 `quoteProvider` 內部邏輯處理（依賴 `archiveManager` 今日快取判斷） |
+| 段落 | 資料 | Slot Key | providerId | 快取策略 |
+|---|---|---|---|---|
+| **A** | 國發會景氣燈號 | `rawNdc` | `ndcBusinessIndicator` | 每天抓一次（比對 `_meta.sources[providerId].lastFetch` 日期與今日相符則讀快取） |
+| **B** | 台股融資餘額 | `rawMargin` | `marginKgi` | 台北時間 16:00 前讀快取（台股收盤前無新資料）；16:00 後且距上次更新超過 2 小時則重抓 |
+| **C** | CNN 恐懼貪婪 | `rawCnn` | `cnnFearGreed` | 台北時間 21:00~05:00（美股開盤）強制重抓；其餘時間若快取不超過 24 小時則讀快取 |
+| **D** | 美股 FRED 數據 | `rawUsMarket` | `usMarketFred` | 每天抓一次（比對 `lastFetch` 日期） |
+| **E** | 大盤 PB/PE 估值 | `rawValuation` | `twMarketValuation` | 每天抓一次（比對 `lastFetch` 日期） |
+| **F** | USD/TWD 匯率 | `rawFx` | `usdTwdYahoo` | 每次都重抓（無快取） |
+| **F** | 每日一句 | `quote` | `dailyQuote` | 委由 `quoteProvider` 內部邏輯處理（依賴 `archiveManager` 今日快取判斷） |
 
-### 3.4 快取持久化
-所有抓取結果統一由 `archiveManager.saveMarketData()` 持久化到 `data/market/latest.json`，下次排程啟動時可直接讀取，避免重複打 API。
+> 註：`fetchAllMacroData()` 目前仍由程式碼內部實作 refresh 判斷；未來若要更進一步抽象成 config-based refreshPolicy，可從 `macroDataSlots` 擴充對應欄位開始。
+
+### 3.5 快取持久化與 metadata 結構
+
+所有抓取結果統一由 `archiveManager.saveMarketData()` 持久化到 `data/market/latest.json`，結構如下：
+
+```js
+{
+  _meta: {
+    lastRun: '2026-04-14T03:00:00.000Z',
+    sources: {
+      ndcBusinessIndicator: {
+        status: 'SUCCESS' | 'FAILED',
+        lastFetch: '2026-04-14T02:10:00.000Z',
+        error: '...' | undefined,
+      },
+      marginKgi: {
+        status: 'SUCCESS',
+        lastFetch: '2026-04-13T08:30:00.000Z',
+      },
+      cnnFearGreed: {
+        status: 'SUCCESS',
+        lastFetch: '2026-04-13T13:30:00.000Z',
+      },
+      usMarketFred: {
+        status: 'SUCCESS',
+        lastFetch: '2026-04-13T23:10:00.000Z',
+      },
+      twMarketValuation: {
+        status: 'SUCCESS',
+        lastFetch: '2026-04-14T02:50:00.000Z',
+      },
+      usdTwdYahoo: {
+        status: 'SUCCESS',
+        lastFetch: '2026-04-14T02:59:00.000Z',
+      },
+      dailyQuote: {
+        status: 'SUCCESS',
+        lastFetch: '2026-04-14T00:10:00.000Z',
+      },
+    },
+  },
+  data: {
+    rawNdc:        { /* 國發會景氣燈號資料 */ },
+    rawMargin:     { /* 融資餘額與維持率 */ },
+    rawCnn:        { /* CNN Fear & Greed */ },
+    rawUsMarket:   { /* FRED VIX / SPX */ },
+    rawValuation:  { /* 大盤 PB/PE/殖利率 */ },
+    rawFx:         { /* USD/TWD 匯率 */ },
+    quote:         { /* 每日一句 */ },
+  },
+}
+```
+
+> `_meta.sources` 的 key 一律為 `providerId`，供 Bot `/status_debug` 與 Mini App AccountView 直接顯示資料來源健康度。
 
 ---
 
@@ -306,7 +406,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 
 ### 何時進入 providers 層排查
 - **某類市場資料空白或異常**：依資料類型對應到具體 provider（參考第 4 節）。
-- **快取資料過舊**：查看 `data/market/latest.json` 的 `_meta.sources` 欄位，找到對應 provider 的 `lastFetch` 與 `status`。
+- **快取資料過舊**：查看 `data/market/latest.json` 的 `_meta.sources` 欄位，找到對應 provider 的 `lastFetch` 與 `status`。亦可透過 Bot `/status_debug` 或 Mini App -> 設定 -> 「系統狀態」頁面查看人類可讀版健康度。 
 - **API 呼叫失敗 / Timeout**：所有 provider 均有 `console.warn`，查 GitHub Actions log 的 `⚠️` 字頭輸出。
 
 ### 各 Provider 常見問題快速定位
@@ -325,12 +425,13 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 ```js
 // data/market/latest.json 的 _meta.sources 欄位
 {
-  ndcProvider:       { status: "SUCCESS" | "FAILED", lastFetch: "2026-04-05T10:00:00.000Z" },
-  kgiProvider:       { status: "SUCCESS", lastFetch: "..." },
-  cnnProvider:       { status: "SUCCESS", lastFetch: "..." },
-  usMarketProvider:  { status: "SUCCESS", lastFetch: "..." },
-  valuationProvider: { status: "SUCCESS", lastFetch: "..." },
-  yahooProvider:     { status: "SUCCESS", lastFetch: "..." }
+  ndcBusinessIndicator: { status: 'SUCCESS' | 'FAILED', lastFetch: '2026-04-05T10:00:00.000Z' },
+  marginKgi:           { status: 'SUCCESS', lastFetch: '...' },
+  cnnFearGreed:        { status: 'SUCCESS', lastFetch: '...' },
+  usMarketFred:        { status: 'SUCCESS', lastFetch: '...' },
+  twMarketValuation:   { status: 'SUCCESS', lastFetch: '...' },
+  usdTwdYahoo:         { status: 'SUCCESS', lastFetch: '...' },
+  dailyQuote:          { status: 'SUCCESS', lastFetch: '...' },
 }
 ```
 
