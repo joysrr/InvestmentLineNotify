@@ -231,12 +231,15 @@ bot.command("status", async (ctx) => {
 
     // 匯率
     const fx = d.rawFx;
-    if (fx?.rate != null) lines.push(`💱 USD/TWD：<b>${fx.rate}</b>`);
+    if (fx?.currentRate != null)
+      lines.push(`💱 USD/TWD：<b>${fx.currentRate}</b>`);
 
-    // 融資餘額
+    // 融資餘額與維持率
     const margin = d.rawMargin;
-    if (margin?.total != null)
-      lines.push(`📈 融資餘額：<b>${margin.total}</b>`);
+    if (margin?.marginBalance100M != null)
+      lines.push(`📈 融資餘額：<b>${margin.marginBalance100M} 億</b>`);
+    if (margin?.maintenanceRatio != null)
+      lines.push(`🛡 維持率：<b>${margin.maintenanceRatio}%</b>`);
 
     if (lines.length <= 2) {
       lines.push("⚠️ 快取資料為空，請先執行 /daily 建立市場資料。");
