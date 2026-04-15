@@ -18,6 +18,8 @@
 - `Schema_Validation`
 - `Format_Compliance`
 - `Risk_Coverage`
+- `Confidence_Field_Present`（AI 是否回傳 `confidence` / `confidence_level` 欄位；持續為 0 代表 Prompt 模板未要求此欄位）
+- `Thinking_Depth`（`coach_internal_thinking` 推理深度估算 0~1；字數、數字量化、因果推理、反向思考各佔 0.2~0.4）
 - `Actionability`
 - `Tone_and_Empathy`
 - （未來人工 / LLM）`Context_Alignment`
@@ -33,6 +35,7 @@
 1. 在 Langfuse 的 trace 詳細頁，檢查：
    - `Schema_Validation` 是否為 1（True）。
    - `Format_Compliance` 是否為 1（True）。
+   - `Confidence_Field_Present` 是否為 1（True）。
 2. 在 Output 區塊，確認是否有完整 JSON 結構，而不是 undefined 或純文字。
 
 **判讀方式**
@@ -42,22 +45,61 @@
   - 沒有 summary / short_summary。
   - 沒有 action_items 或只有空陣列。
   - 沒有 mindset_advice 或為空字串。
+- `Confidence_Field_Present = 0`：代表 AI 輸出中缺少 `confidence` 或 `confidence_level` 欄位，或值無效。持續為 0 時，應回到 `InvestmentAdvice` Prompt 確認是否有要求此欄位，並補充對應的 schema 說明。
 
 **若常出現 0，Prompt 要怎麼調？**
 
 在 Langfuse Prompt 管理後台，打開 `InvestmentAdvice` 的 System Prompt，確認以下事項：
 
 - 明確列出必填欄位（對應 `INVESTMENT_COACH_SCHEMA`）：
-  - 例如：`short_summary`、`action_items`、`key_risks`、`mindset_advice` 等。
+  - 例如：`short_summary`、`action_items`、`key_risks`、`mindset_advice`、`confidence_level` 等。
 - 提供完整 JSON 範例，且標示「這是唯一合法輸出格式」。
 - 明確禁止回傳 free-text：
   - 例如加上「嚴禁輸出 markdown 或自然語言段落，務必只回傳單一 JSON 物件」。
 
-調整完後，觀察後續 1–2 週的 `Schema_Validation` / `Format_Compliance` 是否趨近 1。
+調整完後，觀察後續 1–2 週的 `Schema_Validation` / `Format_Compliance` / `Confidence_Field_Present` 是否趨近 1。
 
 ---
 
-## 3. Step 2：檢查 Actionability（建議是否具體可執行）
+## 3. Step 2：檢查 Thinking_Depth（推理深度是否充足）
+
+**要看什麼？**
+
+1. 在 Langfuse 的 Scores 區塊：
+   - `Thinking_Depth`（由程式自動評分，0~1）。
+2. 在 Output JSON 中的 `coach_internal_thinking` 欄位：
+   - 是否有足夠的字數（≥87 字）。
+   - 是否包含量化數字（例如 RSI 值、VIX 數值、比例）。
+   - 是否有因果推理（因為…所以…、若…則…）。
+   - 是否有反向思考（反方論點、潛在風險評估）。
+
+**計分規則**
+
+| 條件 | 配分 |
+|---|---|
+| `coach_internal_thinking` 字數 ≥ 87 字 | +0.4 |
+| 含數字量化（正則 `/\d+\.?\d*[%點倍元]/` 匹配） | +0.2 |
+| 含因果推理（「因為」「所以」「因此」「若」「如果」「當」） | +0.2 |
+| 含反向思考（「但」「然而」「不過」「另一方面」「風險」「注意」） | +0.2 |
+
+**判讀方式**
+
+- **分數長期 < 0.4**：代表 `coach_internal_thinking` 字數不足或推理過於空洞，建議在 Prompt 中強調「必須展示完整思考過程」。
+- **分數介於 0.4–0.6**：有字數但推理不夠深，可在 Prompt 中要求「須包含數字引用與因果推理」。
+- **分數 ≥ 0.8**：推理深度良好，持續監測避免退化即可。
+
+**Prompt 要怎麼調？**
+
+在 System Prompt 中加入明確要求：
+
+- 要求 `coach_internal_thinking` **至少 100 字**，明確展示思考過程。
+- 要求推理中**必須引用數值**（例如 RSI、VIX、PE/PB、成交量倍率等）。
+- 要求**表達因果關係**：「因為 X 指標顯示 Y，所以判斷 Z」。
+- 要求**提出反面論點**：「雖然多頭訊號明顯，但需注意...」。
+
+---
+
+## 4. Step 3：檢查 Actionability（建議是否具體可執行）
 
 **要看什麼？**
 
@@ -90,7 +132,7 @@
 
 ---
 
-## 4. Step 3：檢查 Tone_and_Empathy（語氣是否健康、不 FOMO）
+## 5. Step 4：檢查 Tone_and_Empathy（語氣是否健康、不 FOMO）
 
 **要看什麼？**
 
@@ -118,7 +160,7 @@
 
 ---
 
-## 5. Step 4：檢查 Risk_Coverage（風險提醒是否足夠）
+## 6. Step 5：檢查 Risk_Coverage（風險提醒是否足夠）
 
 **要看什麼？**
 
@@ -147,7 +189,7 @@
 
 ---
 
-## 6. Step 5：檢查 Context_Alignment（建議是否跟當天情境對得上）
+## 7. Step 6：檢查 Context_Alignment（建議是否跟當天情境對得上）
 
 **要看什麼？**
 
@@ -175,7 +217,7 @@ Context_Alignment 目前建議由人工評分，未來可再加 LLM Judge：
 
 ---
 
-## 7. Step 6：觀察長期趨勢而不是單點
+## 8. Step 7：觀察長期趨勢而不是單點
 
 **要看什麼？**
 
@@ -185,6 +227,8 @@ Context_Alignment 目前建議由人工評分，未來可再加 LLM Judge：
 - `Tone_and_Empathy`
 - `Risk_Coverage`
 - `Format_Compliance`
+- `Confidence_Field_Present`
+- `Thinking_Depth`
 
 **使用方式**
 
@@ -196,10 +240,11 @@ Context_Alignment 目前建議由人工評分，未來可再加 LLM Judge：
 - 若看到明顯惡化，優先回頭檢查：
   - Prompt 是否過度 push 使用者進出場。
   - 是否忽略了某些風險維度。
+  - `Thinking_Depth` 是否因為壓縮 token 而退化。
 
 ---
 
-## 8. Step 7：人工 Review 流程（善用 Human Review metadata）
+## 9. Step 8：人工 Review 流程（善用 Human Review metadata）
 
 **程式端已做的事**
 
@@ -213,7 +258,7 @@ Context_Alignment 目前建議由人工評分，未來可再加 LLM Judge：
    - 條件：`name = InvestmentAdvice` 且 `tag = needs-human-review`。
 2. 每週挑固定時間（例如週末）：
    - 從這個 filter 中抽 5–10 筆 trace 進行人工評分。
-   - 依 `review_notes`（在 metadata 內）逐項檢查 Actionability / Tone / Context 等維度。
+   - 依 `review_notes`（在 metadata 內）逐項檢查 Actionability / Tone / Context / Thinking_Depth 等維度。
 3. 將人工分數寫回 Langfuse：
    - 在 Scores 區塊手動新增或編輯各項 Human 類分數。
 4. 若發現 LLM Judge 與人工分數長期偏差：
@@ -221,11 +266,11 @@ Context_Alignment 目前建議由人工評分，未來可再加 LLM Judge：
 
 ---
 
-## 9. 建議的日常使用節奏
+## 10. 建議的日常使用節奏
 
 1. **日常監控**：
    - 間隔 2–3 天，開 Langfuse Dashboard 看上述幾個核心 score 的趨勢線。  
-   - 若某項 score 急速惡化（例如 Actionability 或 Format_Compliance），優先檢查最近是否對 Prompt 或模型做過改動。
+   - 若某項 score 急速惡化（例如 Actionability、Format_Compliance、Thinking_Depth），優先檢查最近是否對 Prompt 或模型做過改動。
 
 2. **每週人工 QA**：
    - 從 `needs-human-review` + `InvestmentAdvice` 裡抽樣，針對 Context_Alignment、Actionability、Tone 給人工分數。
@@ -236,7 +281,7 @@ Context_Alignment 目前建議由人工評分，未來可再加 LLM Judge：
 
 ---
 
-## 10. 小結
+## 11. 小結
 
 這份 checklist 的目標不是「一次就把 Investment Coach 調到完美」，而是：
 
