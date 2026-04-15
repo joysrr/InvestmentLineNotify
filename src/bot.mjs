@@ -375,6 +375,7 @@ bot.catch((err) => {
 // ── 啟動 Bot（Long-Polling）──────────────────────────────────────────────
 console.log("[Bot] 🚀 Bot 啟動中（Long-Polling 模式）...");
 bot.start({
+  drop_pending_updates: true,
   onStart: async (botInfo) => {
     console.log(`[Bot] ✅ 已連線：@${botInfo.username}`);
     console.log(`[Bot] 🔒 白名單 chat_id：${process.env.TELEGRAM_USER_ID}`);
