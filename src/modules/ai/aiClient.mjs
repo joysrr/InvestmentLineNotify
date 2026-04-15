@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { Langfuse } from "langfuse";
+import { LANGFUSE_PROMPT_CONFIGS } from "./prompts.mjs";
 
 // 參數&初始化
 const GEMINI_API_KEYS = [
@@ -119,6 +120,91 @@ function getBackoffDelay(attempt, baseDelay = 2000) {
   return exponential + jitter;
 }
 
+// ── Langfuse Chat Prompt 解析 ────────────────────────────────────────────────
+
+/**
+ * 從 Langfuse 取得 chat 格式 prompt，解析出 systemInstruction 與 userTemplate。
+ * 若 Langfuse 無法連線，回傳 code-side fallback（空字串）。
+ *
+ * @param {string} promptName - Langfuse prompt 名稱
+ * @param {Record<string,string>} variables - 插值變數（對應 {{variable}} 佔位符）
+ * @returns {Promise<{
+ *   systemInstruction: string,
+ *   userTemplate: string,
+ *   langfusePromptObj: object|null,
+ *   langfuseConfig: object
+ * }>}
+ */
+async function resolveChatPrompt(promptName, variables = {}) {
+  let langfusePromptObj = null;
+  let systemInstruction = "";
+  let userTemplate = "";
+  let langfuseConfig = {};
+
+  try {
+    // type: 'chat' → Langfuse 回傳 { prompt: [{role, content}], config, ... }
+    langfusePromptObj = await langfuse.getPrompt(promptName, undefined, { type: "chat" });
+
+    const messages = langfusePromptObj.prompt ?? [];
+
+    // 分離 system / user messages，各自 compile 插值
+    const systemMsg = messages.find((m) => m.role === "system");
+    const userMsg = messages.find((m) => m.role === "user");
+
+    if (systemMsg) {
+      // compile() 將 {{variable}} 替換為實際值
+      systemInstruction = langfusePromptObj.compile(
+        variables,
+        systemMsg.content,
+      );
+    }
+
+    if (userMsg) {
+      userTemplate = langfusePromptObj.compile(
+        variables,
+        userMsg.content,
+      );
+    }
+
+    // 從 Langfuse prompt.config 取出 temperature / responseMimeType / thinkingConfig 等
+    langfuseConfig = langfusePromptObj.config ?? {};
+
+  } catch (err) {
+    console.warn(
+      `⚠️ [Langfuse] getPrompt(${promptName}, chat) 失敗，使用 code-side fallback：${err.message}`,
+    );
+  }
+
+  return { systemInstruction, userTemplate, langfusePromptObj, langfuseConfig };
+}
+
+// ── callAI ───────────────────────────────────────────────────────────────────
+
+/**
+ * 呼叫 AI API，支援 Gemini 與 Grok。
+ *
+ * prompt 解析優先順序：
+ *   1. Langfuse chat prompt（system + user messages，含 config）
+ *   2. options.userPrompt 覆蓋 user message（Langfuse user template 優先，
+ *      若 Langfuse 取不到 user template 則使用 options.userPrompt）
+ *   3. code-side LANGFUSE_PROMPT_CONFIGS[promptName] 作為 schema/config fallback
+ *
+ * @param {string} promptName - Langfuse prompt 名稱（同時作為 trace name）
+ * @param {string} userPrompt - user 訊息（當 Langfuse 無 user template 時使用）
+ * @param {object} options
+ * @param {string}  [options.provider]         - PROVIDERS.GEMINI | PROVIDERS.GROK
+ * @param {string}  [options.model]             - 覆蓋預設 model
+ * @param {object}  [options.promptVariables]   - 插值變數 { key: value }
+ * @param {number}  [options.keyIndex]          - 起始 key index
+ * @param {number}  [options.maxRetries]        - 最大重試次數
+ * @param {string}  [options.sessionId]         - Langfuse session ID
+ * @param {string}  [options.userId]            - Langfuse user ID
+ * @param {object}  [options.responseSchema]    - Gemini responseSchema（code-side）
+ * @param {string}  [options.responseMimeType]  - 覆蓋 Langfuse config
+ * @param {number}  [options.temperature]       - 覆蓋 Langfuse config
+ * @param {number}  [options.maxOutputTokens]   - 覆蓋 Langfuse config
+ * @param {object}  [options.thinkingConfig]    - 覆蓋 Langfuse config
+ */
 export async function callAI(promptName, userPrompt, options = {}) {
   const provider = options.provider ?? PROVIDERS.GEMINI;
   const cfg = PROVIDER_CONFIG[provider];
@@ -127,16 +213,28 @@ export async function callAI(promptName, userPrompt, options = {}) {
   const resolvedModel = options.model ?? cfg.defaultModel;
   const isCI = !!process.env.GITHUB_RUN_ID;
 
-  let promptObj;
-  try {
-    promptObj = await langfuse.getPrompt(promptName);
-  } catch (err) {
-    console.warn(`⚠️ [Langfuse] getPrompt 失敗，使用空白 systemInstruction：${err.message}`);
-    promptObj = { compile: () => "", config: {}, name: promptName, version: null };
-  }
+  // ── Step 1: 從 Langfuse 取得 chat prompt ─────────────────────────────────
+  const { systemInstruction, userTemplate, langfusePromptObj, langfuseConfig } =
+    await resolveChatPrompt(promptName, options.promptVariables ?? {});
 
-  const systemInstruction = promptObj.compile(options.promptVariables ?? {});
-  const resolvedOptions = { ...options, ...promptObj.config };
+  // user message 優先順序：Langfuse user template > 傳入的 userPrompt
+  // 若 Langfuse 有 user template（非空字串），以 template 為主；
+  // 但 userPrompt 可帶入動態資料（如新聞內文），需在 template 中以 {{userPrompt}} 佔位，
+  // 或由呼叫端自行決定是否使用 Langfuse template。
+  const resolvedUserPrompt = userTemplate.length > 0 ? userTemplate : userPrompt;
+
+  // ── Step 2: 合併 config（options > Langfuse config > code-side fallback）──
+  const codeSidePromptCfg = LANGFUSE_PROMPT_CONFIGS[promptName] ?? {};
+  const resolvedOptions = {
+    // code-side 預設（最低優先）
+    ...codeSidePromptCfg.config,
+    // Langfuse prompt.config（中優先）
+    ...langfuseConfig,
+    // 呼叫端 options（最高優先，可覆蓋 Langfuse config）
+    ...options,
+    // responseSchema 永遠走 code-side（Langfuse 無法序列化 JS Type 物件）
+    responseSchema: options.responseSchema ?? codeSidePromptCfg.schema ?? undefined,
+  };
 
   const startKeyIndex = options.keyIndex ?? 0;
   const keyCount = provider === PROVIDERS.GEMINI ? aiInstances.length : 1;
@@ -150,12 +248,13 @@ export async function callAI(promptName, userPrompt, options = {}) {
     name: promptName,
     sessionId: options.sessionId,
     userId: options.userId ?? (isCI ? "github-actions" : "local-dev"),
-    input: { userPrompt },
+    input: { userPrompt: resolvedUserPrompt },
     metadata: {
       provider,
       model: resolvedModel,
       startKeyIndex,
       human_review: humanReviewMeta,
+      promptSource: langfusePromptObj ? "langfuse" : "code-fallback",
       ...(isCI && {
         githubRunId: process.env.GITHUB_RUN_ID,
         githubWorkflow: process.env.GITHUB_WORKFLOW,
@@ -178,15 +277,15 @@ export async function callAI(promptName, userPrompt, options = {}) {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     const generation = trace.generation({
       name: `${promptName}-attempt-${attempt}`,
-      prompt: promptObj,
+      prompt: langfusePromptObj,
       model: resolvedModel,
       input: [
         { role: "system", content: systemInstruction },
-        { role: "user", content: userPrompt },
+        { role: "user", content: resolvedUserPrompt },
       ],
       modelParameters: {
-        temperature: options.temperature,
-        maxOutputTokens: options.maxOutputTokens,
+        temperature: resolvedOptions.temperature,
+        maxOutputTokens: resolvedOptions.maxOutputTokens,
       },
       metadata: {
         provider,
@@ -204,7 +303,7 @@ export async function callAI(promptName, userPrompt, options = {}) {
         const ai = aiInstances[currentKeyIndex];
         const response = await ai.models.generateContent({
           model: resolvedModel,
-          contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+          contents: [{ role: "user", parts: [{ text: resolvedUserPrompt }] }],
           config: {
             systemInstruction,
             temperature: resolvedOptions.temperature,
@@ -222,7 +321,7 @@ export async function callAI(promptName, userPrompt, options = {}) {
 
       } else if (provider === PROVIDERS.GROK) {
         const result = await callGrokAPI({
-          model: resolvedModel, systemInstruction, userPrompt, options: resolvedOptions,
+          model: resolvedModel, systemInstruction, userPrompt: resolvedUserPrompt, options: resolvedOptions,
         });
         rawText = result.text;
         inputTokens = result.inputTokens;
@@ -260,7 +359,6 @@ export async function callAI(promptName, userPrompt, options = {}) {
 
       if (canRetry) {
         if (quotaErr && keyCount > 1) {
-          // Quota 錯誤：立即切換到下一把 key，不等待
           const prevKey = currentKeyIndex;
           currentKeyIndex = (currentKeyIndex + 1) % keyCount;
           console.warn(
@@ -272,7 +370,6 @@ export async function callAI(promptName, userPrompt, options = {}) {
             statusMessage: `Quota exceeded key:${prevKey}, switching to key:${currentKeyIndex}`,
           });
         } else {
-          // Service 錯誤或只有一把 key：backoff 等待後重試
           const delay = getBackoffDelay(attempt);
           console.warn(
             `⚠️ [callAI] 服務錯誤 (key: ${currentKeyIndex})，` +
