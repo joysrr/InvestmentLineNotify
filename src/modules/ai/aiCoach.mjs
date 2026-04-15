@@ -16,7 +16,7 @@ const dateStr = new Date().toLocaleDateString("zh-TW", {
   day: "2-digit",
 });
 
-// ── 觀測工具 ─────────────────────────────────────────────────────────────────
+// ── 觀測工具 ───────────────────────────────────────────────────────────────────────────────
 
 /** 白名單維度，用於計算 Diversity_Score */
 const VALID_DIMENSIONS = [
@@ -57,12 +57,12 @@ function calcSpreadScore(scores = []) {
   return Math.max(0, Math.min(1, stdDev / 2));
 }
 
-/** 確認值為非空字串 */
+/** 確認値為非空字串 */
 function isNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
 
-/** 確認值為非空字串陣列 */
+/** 確認値為非空字串陣列 */
 function isNonEmptyStringArray(value) {
   return (
     Array.isArray(value) &&
@@ -71,7 +71,7 @@ function isNonEmptyStringArray(value) {
   );
 }
 
-// ── 新聞選取工具 ──────────────────────────────────────────────────────────────
+// ── 新聞選取工具 ──────────────────────────────────────────────────────────────────────────────
 
 /** age_band 優先序：fresh > recent > stale */
 const AGE_BAND_PRIORITY = { fresh: 0, recent: 1, stale: 2 };
@@ -128,7 +128,7 @@ function selectNewsForAi(allNewsArray, perRegionLimit = 30, totalLimit = 60) {
   return capped;
 }
 
-// ── AI 函式 ──────────────────────────────────────────────────────────────────
+// ── AI 函式 ───────────────────────────────────────────────────────────────────────────────
 
 /** 根據當前市場數據，動態產生適合搜尋引擎使用的關鍵字 */
 export async function generateDailySearchQueries(marketData) {
@@ -197,13 +197,13 @@ export async function filterAndCategorizeAllNewsWithAI(
 ) {
   if (allNewsArray.length === 0) return { news: [], conflictSummary: "" };
 
-  // ── 選取送入 AI 的子集 ──────────────────────────────────────────────────────
+  // ── 選取送入 AI 的子集 ──────────────────────────────────────────────────────────────────────
   const selectedNews = selectNewsForAi(allNewsArray);
   console.log(
-    `🧺 [NewsAI] 本次送入 AI ${selectedNews.length}/${allNewsArray.length} 篇（perRegionLimit=30, totalLimit=60）`,
+    `🧓 [NewsAI] 本次送入 AI ${selectedNews.length}/${allNewsArray.length} 篇（perRegionLimit=30, totalLimit=60）`,
   );
 
-  // ── 3-A：矛盾分群標記 ────────────────────────────────────────────────────────
+  // ── 3-A：矛盾分群標記 ────────────────────────────────────────────────────────────────────────────
   const taggedNews = assignConflictGroups(selectedNews);
 
   const newsListText = taggedNews
@@ -245,7 +245,7 @@ export async function filterAndCategorizeAllNewsWithAI(
       comment: JSON.stringify(aiResult?.think?.dimension_check ?? {}),
     });
 
-    // ── 3-B：矛盾偵測 + Langfuse score ──────────────────────────────────────
+    // ── 3-B：矛盾偉測 + Langfuse score ──────────────────────────────────────────────
     const eventInventory = aiResult?.think?.event_inventory ?? [];
     const conflictedEvents = eventInventory.filter(
       (e) => e?.has_conflict === true,
@@ -258,12 +258,12 @@ export async function filterAndCategorizeAllNewsWithAI(
           `- ${e.event ?? "（未命名事件）"}：${e.conflict_note ?? "（無描述）"}`,
       );
       conflictSummary =
-        `[⚠️ 矛盾新聞偵測]\n以下事件在本次新聞池中存在矛盾報導，請納入分析時特別留意：\n` +
+        `[⚠️ 矛盾新聞偉測]\n以下事件在本次新聞池中存在矛盾報導，請納入分析時特別留意：\n` +
         lines.join("\n");
     }
 
     console.log(
-      `⚔️ [ConflictDetect] 矛盾事件偵測數：${conflictedEvents.length}`,
+      `⚔️ [ConflictDetect] 矛盾事件偉測數：${conflictedEvents.length}`,
     );
 
     await safeLangfuseScore({
@@ -298,7 +298,7 @@ export async function filterAndCategorizeAllNewsWithAI(
       console.warn("⚠️ [NewsPool] Filter 結果回存失敗:", err.message),
     );
 
-    // ── 3-C：return { news, conflictSummary } ──────────────────────────────
+    // ── 3-C：return { news, conflictSummary } ──────────────────────────────────────────────
     return { news, conflictSummary };
   } catch (error) {
     console.error("AI 處理新聞時發生錯誤:", error);
@@ -383,10 +383,17 @@ export async function analyzeMacroNewsWithAI(
 /**
  * 根據市場數據、新聞摘要、既定投資策略，產出操作建議與風險提示
  *
- *   quantTextForCoach  ← formatQuantDataForCoach(marketData, portfolio, vixData)
- *   newsSummaryText    ← 今日新聞摘要
- *   macroTextForCoach  ← MacroAnalysis 報告
- *   macroAndChipStr    ← 大盤籌碼位階字串
+ *   quantTextForCoach      ← formatQuantDataForCoach(marketData, portfolio, vixData)
+ *   newsSummaryText        ← 今日新聞摘要
+ *   macroTextForCoach      ← MacroAnalysis 報告
+ *   macroAndChipStr        ← 大盤籌碼位階字串
+ *   previousAdviceSummary  ← 前次建議摘要（由 archiveManager.getPreviousAdviceSummary() 載入）
+ *
+ * [Prompt 注入説明]
+ * Langfuse 的 Report/InvestmentAdvice 模板需在適當位置加入：
+ *   {{previousAdviceSummary}}
+ * 建議放在 quantText 與 macroText 之間，讓 AI 先知道鈨日建議內容。
+ * 若前次建議為空字串，則模板應對文字空白與缺欄位丸容功處理。
  *
  * @returns {{ advice: object|string, traceId: string|null }}
  */
@@ -398,6 +405,7 @@ export async function getAiInvestmentAdvice(
   macroTextForCoach,
   macroAndChipStr,
   onlyPrompt,
+  previousAdviceSummary = "",
 ) {
   if (onlyPrompt) return { advice: "AI 決策引擎停止運作中。", traceId: null };
 
@@ -407,13 +415,15 @@ export async function getAiInvestmentAdvice(
     vixData,
   );
 
-  // 參數順序：(quantTextForCoach, newsSummaryText, macroTextForCoach, macroAndChipStr)
+  // 參數順序：(quantTextForCoach, newsSummaryText, macroTextForCoach, macroAndChipStr, previousAdviceSummary)
   const promptVariables = {
     dateStr,
     quantText: quantTextForCoach,
     macroAndChipStr,
     macroText: macroTextForCoach,
     newsSummaryText,
+    // ↓ 新增：前次建議摘要——空字串代表第一次執行或无歷史，模板應對此做空字串容错處理
+    previousAdviceSummary,
   };
 
   try {
@@ -433,7 +443,7 @@ export async function getAiInvestmentAdvice(
       comment: "GetInvestmentAdvice JSON parse success",
     });
 
-    // ── Format_Compliance ────────────────────────────────────────────────────
+    // ── Format_Compliance ───────────────────────────────────────────────────────────────────────
     const hasSummary = isNonEmptyString(result?.coach_internal_thinking);
     const hasActions = isNonEmptyStringArray(result?.action_items);
     const hasMindset = isNonEmptyString(result?.mindset_advice);
@@ -446,7 +456,7 @@ export async function getAiInvestmentAdvice(
       comment: JSON.stringify({ hasSummary, hasActions, hasMindset }),
     });
 
-    // ── Risk_Coverage ────────────────────────────────────────────────────────
+    // ── Risk_Coverage ───────────────────────────────────────────────────────────────────────
     if (isNonEmptyStringArray(result?.risk_warnings)) {
       await safeLangfuseScore({
         traceId,
