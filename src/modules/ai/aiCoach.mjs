@@ -71,6 +71,52 @@ function isNonEmptyStringArray(value) {
   );
 }
 
+/**
+ * 計算 coach_internal_thinking 的深度分數（0~1）
+ *
+ * 評估邏輯：
+ *   - 字數（中文字元 + 英文單字）≥ 80  → +0.4
+ *   - 包含數字或百分比                 → +0.2（有量化依據）
+ *   - 包含「因為|由於|原因|考量|鑑於」  → +0.2（有因果推理）
+ *   - 包含「但|然而|不過|另一方面|風險」→ +0.2（有反向思考）
+ *
+ * @param {string} thinking - coach_internal_thinking 字串
+ * @returns {number} 0~1 的深度分數
+ */
+function calcThinkingDepth(thinking = "") {
+  if (!thinking || typeof thinking !== "string") return 0;
+
+  const wordCount =
+    (thinking.match(/[\u4e00-\u9fa5]/g) || []).length +
+    (thinking.match(/\b[a-zA-Z]+\b/g) || []).length;
+
+  let score = 0;
+  if (wordCount >= 80) score += 0.4;
+  if (/\d+(\.\d+)?%?/.test(thinking)) score += 0.2;
+  if (/因為|由於|原因|考量|鑑於/.test(thinking)) score += 0.2;
+  if (/但|然而|不過|另一方面|風險/.test(thinking)) score += 0.2;
+
+  return Math.min(1, score);
+}
+
+/**
+ * 檢查 AI 回傳結果是否帶有信心度欄位（confidence / confidence_level）
+ *
+ * 回傳值：
+ *   1   → 有信心度欄位且值合法（0~1 數字 或 非空字串）
+ *   0   → 缺少或值無效
+ *
+ * @param {object} result - AI 回傳的 JSON 物件
+ * @returns {number} 0 或 1
+ */
+function checkConfidenceField(result = {}) {
+  const val = result?.confidence ?? result?.confidence_level;
+  if (val === undefined || val === null) return 0;
+  if (typeof val === "number" && val >= 0 && val <= 1) return 1;
+  if (typeof val === "string" && val.trim().length > 0) return 1;
+  return 0;
+}
+
 // ── 新聞選取工具 ──────────────────────────────────────────────────────────────────────────────
 
 /** age_band 優先序：fresh > recent > stale */
@@ -395,6 +441,13 @@ export async function analyzeMacroNewsWithAI(
  * 建議放在 quantText 與 macroText 之間，讓 AI 先知道鈨日建議內容。
  * 若前次建議為空字串，則模板應對文字空白與缺欄位丸容功處理。
  *
+ * [Langfuse 觀測指標]
+ *   Schema_Validation         - JSON parse 是否成功（1 = 成功）
+ *   Format_Compliance         - 必要欄位是否齊全（coach_internal_thinking / action_items / mindset_advice）
+ *   Risk_Coverage             - risk_warnings 數量佔比（上限 1.0，門檻 3 條）
+ *   Confidence_Field_Present  - AI 是否回傳 confidence / confidence_level 欄位（1 = 有，0 = 無）
+ *   Thinking_Depth            - coach_internal_thinking 的推理深度估算（0~1）
+ *
  * @returns {{ advice: object|string, traceId: string|null }}
  */
 export async function getAiInvestmentAdvice(
@@ -436,6 +489,7 @@ export async function getAiInvestmentAdvice(
 
     const result = JSON.parse(text);
 
+    // ── Schema_Validation ──────────────────────────────────────────────────────────────────
     await safeLangfuseScore({
       traceId,
       name: "Schema_Validation",
@@ -443,7 +497,7 @@ export async function getAiInvestmentAdvice(
       comment: "GetInvestmentAdvice JSON parse success",
     });
 
-    // ── Format_Compliance ───────────────────────────────────────────────────────────────────────
+    // ── Format_Compliance ──────────────────────────────────────────────────────────────────
     const hasSummary = isNonEmptyString(result?.coach_internal_thinking);
     const hasActions = isNonEmptyStringArray(result?.action_items);
     const hasMindset = isNonEmptyString(result?.mindset_advice);
@@ -456,7 +510,7 @@ export async function getAiInvestmentAdvice(
       comment: JSON.stringify({ hasSummary, hasActions, hasMindset }),
     });
 
-    // ── Risk_Coverage ───────────────────────────────────────────────────────────────────────
+    // ── Risk_Coverage ──────────────────────────────────────────────────────────────────────
     if (isNonEmptyStringArray(result?.risk_warnings)) {
       await safeLangfuseScore({
         traceId,
@@ -465,6 +519,38 @@ export async function getAiInvestmentAdvice(
         comment: result.risk_warnings.join(" | "),
       });
     }
+
+    // ── Confidence_Field_Present ───────────────────────────────────────────────────────────
+    // 檢查 AI 是否回傳信心度欄位（confidence 或 confidence_level）
+    // 若 Prompt 模板已要求此欄位但 AI 漏填，此分數將持續為 0，可作為 prompt 優化依據
+    const confidencePresent = checkConfidenceField(result);
+    await safeLangfuseScore({
+      traceId,
+      name: "Confidence_Field_Present",
+      value: confidencePresent,
+      comment:
+        confidencePresent === 1
+          ? `confidence=${result?.confidence ?? result?.confidence_level}`
+          : "欄位缺失或值無效",
+    });
+
+    // ── Thinking_Depth ─────────────────────────────────────────────────────────────────────
+    // 評估 coach_internal_thinking 的推理深度：
+    //   字數充足(≥80) → +0.4 / 含數字量化 → +0.2 / 含因果推理 → +0.2 / 含反向思考 → +0.2
+    const thinkingDepth = calcThinkingDepth(result?.coach_internal_thinking);
+    const thinkingLen = isNonEmptyString(result?.coach_internal_thinking)
+      ? result.coach_internal_thinking.trim().length
+      : 0;
+    await safeLangfuseScore({
+      traceId,
+      name: "Thinking_Depth",
+      value: thinkingDepth,
+      comment: `字元數=${thinkingLen}，深度分=${thinkingDepth}`,
+    });
+
+    console.log(
+      `🧠 [Coach] Confidence=${confidencePresent} | Thinking_Depth=${thinkingDepth} (len=${thinkingLen})`,
+    );
 
     archiveManager
       .saveAiLog({
