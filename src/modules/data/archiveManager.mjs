@@ -88,7 +88,98 @@ export const archiveManager = {
   },
 
   // ==========================================================================
-  // 3. 新聞篩選紀錄 (passedArticlesLog)
+  // 3. 前次 AI 建議摘要（供連貫性注入使用）
+  // ==========================================================================
+
+  /**
+   * 讀取最近一份（非今日）的 AI 投資建議摘要，用於注入 Prompt 增強連貫性。
+   *
+   * 從 data/reports/ 中讀取最新的一份報告（排除今日），
+   * 萃取以下欄位作為「昨日建議摘要」：
+   *   - date             ← 報告日期
+   *   - ai.action_items  ← 上次行動清單
+   *   - ai.mindset_advice← 上次心態建議
+   *   - ai.risk_warnings ← 上次風險警示
+   *   - signals.marketStatus     ← 昨日系統判定
+   *   - signals.targetSuggestionShort ← 昨日短期建議
+   *
+   * 格式化為易讀的純文字，供 Prompt 直接注入。
+   *
+   * @returns {string} 格式化後的摘要字串；無歷史報告時回傳空字串 ""
+   */
+  async getPreviousAdviceSummary() {
+    try {
+      const files = await fs.readdir(DIRS.REPORTS);
+      const todayStr = getTwDateStr();
+
+      // 只找 YYYY-MM-DD.json 格式，且排除今日
+      const candidates = files
+        .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+        .filter((f) => f.replace(".json", "") !== todayStr)
+        .sort()
+        .reverse(); // 最新的排前面
+
+      if (candidates.length === 0) {
+        console.log("ℹ️ [Archive] 無歷史報告，略過 PreviousAdviceSummary 注入");
+        return "";
+      }
+
+      const latestFile = candidates[0];
+      const dateKey = latestFile.replace(".json", "");
+      const filePath = path.join(DIRS.REPORTS, latestFile);
+      const content = await fs.readFile(filePath, "utf-8");
+      const report = JSON.parse(content);
+
+      const ai = report?.ai;
+      const signals = report?.signals;
+
+      // 若 ai 欄位不存在或格式不符，回傳空字串（首次執行 / AI 停用時）
+      if (!ai || typeof ai !== "object") {
+        console.log(`ℹ️ [Archive] ${dateKey} 無 AI 建議欄位，略過注入`);
+        return "";
+      }
+
+      // 萃取欄位
+      const actionItems = Array.isArray(ai.action_items) && ai.action_items.length > 0
+        ? ai.action_items.map((a) => `  - ${a}`).join("\n")
+        : "  - （無）";
+
+      const mindset = typeof ai.mindset_advice === "string" && ai.mindset_advice.trim()
+        ? ai.mindset_advice.trim()
+        : "（無）";
+
+      const riskWarnings = Array.isArray(ai.risk_warnings) && ai.risk_warnings.length > 0
+        ? ai.risk_warnings.map((r) => `  - ${r}`).join("\n")
+        : "  - （無）";
+
+      const prevMarketStatus = signals?.marketStatus ?? "未知";
+      const prevSuggestion = signals?.targetSuggestionShort ?? "未知";
+
+      const summary = `
+【前次 AI 建議摘要（${dateKey}）】
+系統判定：${prevMarketStatus}
+短期建議：${prevSuggestion}
+
+上次行動清單：
+${actionItems}
+
+上次心態建議：
+  ${mindset}
+
+上次風險警示：
+${riskWarnings}
+`.trim();
+
+      console.log(`✅ [Archive] 已載入前次建議摘要 (${dateKey})`);
+      return summary;
+    } catch (err) {
+      console.warn("⚠️ [Archive] 讀取前次建議摘要失敗:", err.message);
+      return "";
+    }
+  },
+
+  // ==========================================================================
+  // 4. 新聞篩選紀錄 (passedArticlesLog)
   // ==========================================================================
 
   /**
@@ -116,7 +207,7 @@ export const archiveManager = {
   },
 
   // ==========================================================================
-  // 4. 自動清理 (Retention Policy)
+  // 5. 自動清理 (Retention Policy)
   // ==========================================================================
 
   /**
@@ -175,7 +266,7 @@ export const archiveManager = {
   },
 
   // ==========================================================================
-  // 5. 歷史股價資料庫
+  // 6. 歷史股價資料庫
   // ==========================================================================
 
   async getStockHistory(stockNo, monthKey) {
@@ -198,7 +289,7 @@ export const archiveManager = {
   },
 
   // ==========================================================================
-  // 6. lastBuyDate 本地備份（風控容錯）
+  // 7. lastBuyDate 本地備份（風控容錯）
   // ==========================================================================
 
   /**
@@ -231,7 +322,7 @@ export const archiveManager = {
   },
 
   // ==========================================================================
-  // 7. Strategy 本地備份（遠端不可用時 fallback）
+  // 8. Strategy 本地備份（遠端不可用時 fallback）
   // ==========================================================================
 
   /**
