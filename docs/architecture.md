@@ -11,7 +11,7 @@
 4. `src/runWeeklyReport.mjs`：讀取近期報告並生成 AI 週報。
 5. `src/runMonthlyReport.mjs`：讀取近期報告並生成 AI 月報。
 6. `src/bot.mjs`：Telegram Bot 長駐程序，處理即時指令觸發與互動。
-7. `src/api/server.mjs`：Fastify HTTP API Server，提供唯讀資料 API 給 Mini App 前端使用。
+7. `src/api/server.mjs`：Fastify HTTP API Server（Port 3000），提供唯讀資料 API 給 Mini App 前端使用。
 8. `webapp/`：Vite + Vue 3 前端 Mini App，作為 Telegram Mini App 嵌入式多頁儀表板（總覽、雷達、多空、圖表、報告、新聞、設定共 7 Tab）。
 
 ---
@@ -171,7 +171,7 @@ flowchart TD
 | `src/utils/snapshotCrypto.mjs` | AES-256-GCM 對稱加密工具模組。提供 `encrypt(obj)` 與 `decrypt(str)` 兩支函式，金鑰來自環境變數 `SNAPSHOT_ENCRYPT_KEY`（32 bytes hex）。供 `dailyCheck.mjs` 寫入快照與 API routes 讀取快照時使用。 |
 | `src/modules/bot/middleware/adminGuard.mjs` | 白名單 middleware，僅允許 `TELEGRAM_USER_ID` 指定的 chat_id 使用指令。 |
 | `src/modules/bot/runnerLock.mjs` | 全域 lock 機制，防止 Bot 指令與排程 runner 同時執行同一任務。 |
-| `src/modules/providers/` | 市場資料 provider layer，封裝 TWSE、Yahoo、FRED、CNN、KGI、NDC 等來源。自 2026-04 起，總經類資料由 `marketData.mjs` 統一 orchestrate，並透過 `dataSourceConfig.mjs` + `providerRegistry.mjs` 以 `providerId` 管理 Slot 與 metadata（詳見 `docs/modules/providers.md`）。 |
+| `src/modules/providers/` | 市場資料 provider layer，封裝 TWSE、Yahoo、FRED、CNN、KGI、NDC 等來源。自 2026-04 起，總經類資料由 `marketData.mjs` 統一 orchestrate，並透過 `dataSourceConfig.mjs` + `providerRegistry.mjs` 以 `providerId` 管理 Slot 與 metadata。所有總經快取寫入 `data/market/latest.json`，結構含 `_meta.sources`（各 provider 狀態與 `lastFetch`）與 `data`（8 個 Slot 資料：`rawNdc`、`rawMargin`、`rawCnn`、`rawUsMarket`、`rawValuation`、`rawFx`、`rawMarketOverview`、`quote`）。詳見 `docs/modules/providers.md`。 |
 | `src/modules/strategy/` | 策略與風控核心，計算 RSI / KD / MACD、過熱、冷卻期與投資建議。 |
 | `src/modules/ai/` | AI decision layer，包含 search query generation、news filter、macro analysis、investment coach、period report、rule optimizer、LLM judge。 |
 | `src/modules/news/newsConflictGrouper.mjs` | 矛盾偵測前置層，以 Jaccard 相似度（閥値 0.3）+ Union-Find 對新聞標題預分群，輸出 `_conflictGroup` 標籤供 AI 識別同一事件的正反報導。 |
@@ -232,12 +232,12 @@ flowchart TD
 | `webapp/src/App.vue` | — | 根元件，整合 Telegram Mini App SDK 初始化（`expand()`、`ready()`）、7-tab 左右滑動底部導覽列（總覽 / 雷達 / 多空 / 圖表 / 報告 / 新聞 / 設定），搭配 active 頂部指示線動畫。 |
 | `webapp/src/router/index.js` | — | Vue Router（Hash History），9 條路由：`/dashboard`、`/radar`、`/macro`、`/chart`、`/reports`、`/news`、`/account`，以及 `/` redirect → `/dashboard` 與 catch-all redirect。 |
 | `webapp/src/views/DashboardView.vue` | 總覽 | 市場總覽首頁，整合市場快照（VIX / CNN 情緒 / 景氣燈號）、最新決策（AI action items 展開/收合）、技術指標卡片（RSI / KD / MACD / 乖離率）與最新消息預覽（跳轉 `/news`）。 |
-| `webapp/src/views/MarketRadarView.vue` | 雷達 | 市場雷達儀表板，3-col 卡片格，依數値自動渲染紅/黃/綠/藍色階。美股區：美股 VIX、S&P 500 漲跌、CNN 情緒；台股區：台股 VIX、景氣燈號、融資維持率、大盤 PE / PB、美元/台幣匯率；資料同時讀取 `/api/status` 與最新 report。 |
+| `webapp/src/views/MarketRadarView.vue` | 雷達 | 市場雷達儀表板，3-col 卡片格，依數値自動渲染紅/黃/綠/藍色階。**美股區**：美股 VIX、S&P 500 漲跌、CNN 情緒；**台股區**：台股 VIX、景氣燈號、融資維持率、大盤 PE / PB、美元/台幣匯率、**加權指數收盤（taiex）、當日成交金額（億元）、近 20 日均量**；資料同時讀取 `/api/status`（`data.rawMarketOverview`）與最新 report。 |
 | `webapp/src/views/MacroBattleView.vue` | 多空 | 總經多空對決頁，讀取最新 report 的 `macroAnalysis` 欄位。顯示市場方向 Badge（BULLISH / BEARISH / NEUTRAL）、多空積分長條動畫、`key_takeaways` 核心邏輯列表，以及多方/空方/中性事件卡片（含積分與分析文字）。 |
 | `webapp/src/views/ChartView.vue` | 圖表 | 資產趨勢圖表頁。以 ECharts 折線圖顯示持倉歷史，支援**日（90 筆）/ 週（52 筆）/ 月（120 筆）**三段粒度切換，以及市價淨値、0050 股數、00675L 股數、融資餘額四項指標 chip 切換。市價淨値（`netValueMarket`）採市價法計算（`qty0050 × price0050 + qtyZ2 × priceZ2 - totalLoan`）。圖表含 tooltip、零軸參考線與面積漸層。下方顯示最新快照摘要卡片（4 格）。快照資料透過 `/api/snapshots`、`/api/snapshots/weekly`、`/api/snapshots/monthly` 取得，需後端 `SNAPSHOT_ENCRYPT_KEY` 環境變數才能啟用。 |
 | `webapp/src/views/ReportsView.vue` | 報告 | 報告列表頁，支援分頁載入，點擊可展開每日報告全文（含 AI 建議、巨集分析、技術指標等欄位）。 |
 | `webapp/src/views/NewsView.vue` | 新聞 | 新聞池頁，顯示 `pool_filtered_active.json` 中的有效新聞條目，支援地區 flag 標示與新舊色點。 |
-| `webapp/src/views/AccountView.vue` | 設定 | 帳戶與設定頁。上半部顯示 Telegram 使用者資訊與帳戶快照。下半部的「系統狀態」區塊會讀取 `/api/status`，展示 `_meta.lastRun`（資料最後更新時間）與 `_meta.sources`（各市場資料來源的狀態），並計算來源健康度總結。使用者可展開/收合「資料來源」詳細清單，查看每個 provider 的狀態（OK / FAIL / STALE）、最後更新時間與錯誤訊息，方便在手機上直接追蹤 market data pipeline 的健康度。 |
+| `webapp/src/views/AccountView.vue` | 設定 | 帳戶與設定頁。上半部顯示 Telegram 使用者資訊與帳戶快照。下半部的「系統狀態」區塊會讀取 `/api/status`，展示 `_meta.lastRun`（資料最後更新時間）與 `_meta.sources`（各市場資料來源的狀態），並計算來源健康度總結。使用者可展開/收合「資料來源」詳細清單，查看每個 provider 的狀態（OK / FAIL / STALE）、最後更新時間與錯誤訊息，方便在手機上直接追蹤 market data pipeline 的健康度。若要在此頁顯示 `twMarketOverview` 的中文標籤，可在 `SOURCE_LABELS` 中加入 `twMarketOverview: '大盤量價 (FMTQIK)'`。 |
 | `webapp/src/api/index.js` | — | 輕量 fetch wrapper，統一設定 `baseURL` 與 Telegram `initData` header。提供 `fetchStatus()`、`fetchReports(limit)`、`fetchNews()` 等 API 函式，並提供 `fetchSnapshots(limit)`、`fetchSnapshotsWeekly(limit)`、`fetchSnapshotsMonthly(limit)` 三支快照 API。 |
 | `webapp/src/composables/useTelegram.js` | — | 封裝 `window.Telegram.WebApp` 物件，提供 `tg`、`user`、`initData`、`openLink` 等響應式資料與方法。 |
 
@@ -253,12 +253,13 @@ flowchart TD
 | `docs/modules/ai_pipeline.md` | AI decision pipeline 詳細設計：aiClient、aiCoach、llmJudge、periodReportAgent、ruleOptimizerAgent。 |
 | `docs/modules/market_strategy.md` | 策略引擎、技術指標、新聞治理架構說明。 |
 | `docs/modules/core_infrastructure.md` | 共用 infra 說明：storage、archiveManager、newsPoolManager、coreUtils、snapshotCrypto、Google Sheets 欄位 mapping。 |
-| `docs/modules/providers.md` | 各 market data provider 的欄位、來源與快取策略，以及 `marketData.mjs` / `dataSourceConfig.mjs` / `providerRegistry.mjs` 的 Slot + providerId 抽象層說明。 |
+| `docs/modules/providers.md` | 各 market data provider 的欄位、來源與快取策略，以及 `marketData.mjs` / `dataSourceConfig.mjs` / `providerRegistry.mjs` 的 Slot + providerId 抽象層說明。包含所有 8 個 Slot（`rawNdc`、`rawMargin`、`rawCnn`、`rawUsMarket`、`rawValuation`、`rawFx`、`rawMarketOverview`、`quote`）的詳細描述。 |
 | `docs/modules/entry_and_notifications.md` | 系統入口（runner / Bot / 排程）與通知層（Telegram 訊息格式、分流策略）完整說明。 |
 | `docs/schedules.md` | 排程總覽（VM crontab 全面移轉後的所有排程設定）。 |
 | `docs/plans/finish_features.md` | 已完成功能清單（內容已整合至系統文件，供歷史追蹤）。 |
 | `docs/plans/preplan_features.md` | 預計功能規劃清單。 |
 | `docs/plans/oracle_vm_deployment_plan.md` | Oracle VM 部署計畫（✅ 已完成）。完整安裝手冊見 `docs/appendix/deployment-oracle-vm.md`。 |
 | `docs/appendix/deployment-oracle-vm.md` | Oracle VM 完整安裝與設定手冊（DuckDNS、Nginx、SSL、pm2、crontab 設定）。 |
+| `CHANGELOG.md` | 版本異動紀錄，格式遵循 Keep a Changelog。 |
 
 > **已淡汰計畫文件**：`telegram_intergration_plan.md` 與 `optimization_ideas.md` 的內容已於開發過程中全數整合至 `docs/architecture.md`、`docs/modules/ai_pipeline.md` 及 `docs/modules/entry_and_notifications.md`，原計畫文件不再維護。
