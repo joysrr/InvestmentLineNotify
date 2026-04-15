@@ -1,6 +1,6 @@
 # 排程總覽 / Schedule Overview
 
-> **最後更新：2026-04-13**
+> **最後更新：2026-04-15**
 > 本文件集中記錄所有排程的觸發方式、執行位置、時間設定與設計說明。
 
 ---
@@ -157,6 +157,29 @@ crontab -l
 
 ---
 
+## 各資料 Slot 更新時機對照
+
+> `runDailyCheck.mjs` 每次執行時都會呼叫 `fetchAllMacroData()`，但各 provider 依快取策略決定是否真正打外部 API。以下說明每個 Slot 在一天 5 次 dailyCheck 中的實際更新行為。
+> 詳細快取策略設計請見 [`docs/modules/providers.md`](docs/modules/providers.md) 第 3.4 節。
+
+| Slot Key | providerId | 快取策略 | 07:30 | 10:30 | 12:00 | 13:45 | 21:30 |
+|---|---|---|---|---|---|---|---|
+| `rawNdc` | `ndcBusinessIndicator` | 每日一次（比對日期） | 🔄 重抓 | 📦 快取 | 📦 快取 | 📦 快取 | 📦 快取 |
+| `rawMargin` | `marginKgi` | 16:00 後且距上次 > 2h 才重抓 | 📦 快取 | 📦 快取 | 📦 快取 | 📦 快取 | 🔄 重抓¹ |
+| `rawCnn` | `cnnFearGreed` | 21:00–05:00 強制重抓，其餘 24h 快取 | 📦 快取 | 📦 快取 | 📦 快取 | 📦 快取 | 🔄 重抓 |
+| `rawUsMarket` | `usMarketFred` | 每日一次（比對日期） | 🔄 重抓 | 📦 快取 | 📦 快取 | 📦 快取 | 📦 快取 |
+| `rawValuation` | `twMarketValuation` | 每日一次（比對日期） | 🔄 重抓 | 📦 快取 | 📦 快取 | 📦 快取 | 📦 快取 |
+| `rawFx` | `usdTwdYahoo` | 永遠重抓（無快取） | 🔄 重抓 | 🔄 重抓 | 🔄 重抓 | 🔄 重抓 | 🔄 重抓 |
+| `rawMarketOverview` | `twMarketOverview` | 每日一次（比對日期）² | 🔄 重抓 | 📦 快取 | 📦 快取 | 📦 快取 | 📦 快取 |
+| `quote` | `dailyQuote` | 每日一次（內部比對日期） | 🔄 重抓 | 📦 快取 | 📦 快取 | 📦 快取 | 📦 快取 |
+
+> ¹ `rawMargin`（融資餘額）：台股收盤後（約 15:00 前後）更新，因此 13:45 的 dailyCheck 多半仍為前一日數字；21:30 執行時若距上次超過 2 小時且已過 16:00，將重新抓取當日數據。  
+> ² `rawMarketOverview`（大盤量價）：TWSE FMTQIK API 在收盤後才提供當日數據，07:30 時抓到的通常是前一個交易日收盤資料。
+
+**圖例**：🔄 重抓（呼叫外部 API）　📦 快取（直接讀 `data/market/latest.json`）
+
+---
+
 ## data/ 同步機制
 
 ```
@@ -211,3 +234,4 @@ crontab -l
 - crontab 時區設定：`TZ=Asia/Taipei`（直接用台灣時間，不需換算 UTC）
 - DuckDNS `domains` 與 `token` 請勿 commit 至 repo，僅設定於 VM crontab
 - 新增排程腳本時，請同步更新本文件與 `README.md` 的排程總覽
+- 新增或修改 provider 快取策略時，請同步更新上方「各資料 Slot 更新時機對照」表格
