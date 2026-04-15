@@ -11,7 +11,7 @@
 
 ## 2. Runner 一覽
 
-### 2-A. 排程 / CLI 入口（GitHub Actions 觸發或直接執行）
+### 2-A. 排程 / CLI 入口（VM crontab 觸發或直接執行）
 | Path | 說明 |
 |---|---|
 | `src/runDailyCheck.mjs` | 每日主入口，支援 CLI flags，進入 `dailyCheck()`。 |
@@ -20,12 +20,42 @@
 | `src/runWeeklyReport.mjs` | 週報入口，讀取近 7 天 `data/reports/`，至少 3 份才生成。 |
 | `src/runMonthlyReport.mjs` | 月報入口，讀取近 50 天 `data/reports/`（前 30 天為評估期，全 50 天供報酬率計算），至少 10 份才生成。 |
 
+**CLI 直接執行保護（`import.meta.url` 判斷）**
+
+所有 runner 檔案底部均以以下模式保護 `main()`，確保 `import` 時不會自動執行，只有直接透過 `node` 執行時才觸發：
+
+```js
+import { fileURLToPath } from "url";
+
+async function main() {
+  // ...
+}
+
+// 只有直接執行此檔案時才呼叫 main()，import 時不執行
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}
+```
+
+> ⚠️ 若缺少此保護，`bot.mjs` 在 `import` 這些 runner 時，`main()` 會立刻執行，導致 bot 重啟時意外觸發週報、月報等排程任務。
+
 ### 2-B. Bot 長駐入口（grammY Long-Polling）
 | Path | 說明 |
 |---|---|
 | `src/bot.mjs` | Telegram Bot 長駐入口，以 `npm run bot` 啟動。處理使用者即時指令觸發。 |
 | `src/modules/bot/middleware/adminGuard.mjs` | 白名單 Middleware，檢查 `TELEGRAM_USER_ID`，靜默拒絕非授權請求。 |
-| `src/modules/bot/runnerLock.mjs` | 共用 lock 機制，防止 Bot 與 GitHub Actions 重複觸發。超過 30 分鐘舊 lock 自動釋放。 |
+| `src/modules/bot/runnerLock.mjs` | 共用 lock 機制，防止 Bot 與 crontab 重複觸發。超過 30 分鐘舊 lock 自動釋放。 |
+
+**重啟時捨棄積壓指令（`drop_pending_updates`）**
+
+`bot.start()` 加入 `drop_pending_updates: true`，確保 Bot 重啟後不會消化 Telegram queue 中積壓的舊指令，避免重啟時意外觸發 `/daily`、`/weekly` 等排程類指令：
+
+```js
+bot.start({
+  drop_pending_updates: true,
+  onStart: async (botInfo) => { /* ... */ },
+});
+```
 
 #### Runner 與 Bot 指令對應
 | Bot 指令 | 呼叫函數 | API 消耗 |
@@ -60,7 +90,7 @@
 8. 透過 `broadcastDailyReport()` 發送 Telegram。
 9. 寫回 Google Sheets、archive daily report、條件式執行 `llmJudge`。
 
-値得注意的是，`llmJudge` 不是額外獨立排程，而是 daily flow 中 **有條件判斷才執行** 的背景評估任務。
+值得注意的是，`llmJudge` 不是額外獨立排程，而是 daily flow 中 **有條件判斷才執行** 的背景評估任務。
 
 ---
 
@@ -88,16 +118,26 @@
 
 ## 5. CI / Scheduler Layer
 
-GitHub Actions 負責定時觸發各 runner。Bot daemon（`src/bot.mjs`）與 API Server（`src/api/server.mjs`）**不由 Actions 啟動**，而是在 Oracle VM 上由 pm2 常駐執行。
+所有定時任務均由 **Oracle VM crontab** 執行，GitHub Actions 僅保留手動觸發或非主要用途（如 SSH 部署、workflow 失敗告警）。Bot daemon（`src/bot.mjs`）與 API Server（`src/api/server.mjs`）由 Oracle VM 上的 pm2 常駐執行。
 
-| Workflow 檔案 | 對應 Runner | Cron 說明 |
+### VM crontab（主排程）
+
+| Shell Script | 對應 Runner | 時間 |
 |---|---|---|
-| `.github/workflows/line_notify.yml` | `src/runDailyCheck.mjs`（`npm start`） | 多段 cron，涵蓋台灣時區開盤前、盤中、收盤後與夜間；每次完成後自動 commit `data/` 變更。 |
-| `.github/workflows/news-fetch.yml` | `src/runNewsFetch.mjs` | 每 3 小時執行一次，維護 `data/news/pool_active.json` 與 archive。 |
-| `.github/workflows/optimizer.yml` | `src/runOptimizer.mjs` | 每日固定時間執行，更新 blacklist 與 optimizer history 並 commit。 |
-| `.github/workflows/weekly-report.yml` | `src/runWeeklyReport.mjs` | 每週一早上執行，產出策略週報並透過 Telegram 發送。 |
-| `.github/workflows/monthly-report.yml` | `src/runMonthlyReport.mjs` | 每月 1 日早上執行，產出策略月報並透過 Telegram 發送。 |
-| `.github/workflows/notify-workflow-failure.yml` | — | 其他 workflow 失敗時觸發，透過 `sendSystemMessage()` 發送靜默通知至 Log 頻道 | 自動（on workflow_run failure） |
+| `scripts/vm-daily-check.sh` | `src/runDailyCheck.mjs` | 每日 07:30 / 10:30 / 12:00 / 13:45 / 21:30 |
+| `scripts/vm-news-fetch.sh` | `src/runNewsFetch.mjs` | 每 4 小時 |
+| `scripts/vm-optimizer.sh` | `src/runOptimizer.mjs` | 每日 02:00 |
+| `scripts/vm-weekly-report.sh` | `src/runWeeklyReport.mjs` | 每週一 09:30 |
+| `scripts/vm-monthly-report.sh` | `src/runMonthlyReport.mjs` | 每月 1 日 09:00 |
+
+每個 shell script 均內建 lock 檔案防重、ERR trap 錯誤通知、log 寫入機制。
+
+### GitHub Actions（次要 / 保留用途）
+
+| Workflow 檔案 | 用途 |
+|---|---|
+| `.github/workflows/notify-workflow-failure.yml` | 其他 workflow 失敗時觸發，透過 `sendSystemMessage()` 發送靜默通知至 Log 頻道 |
+| `.github/workflows/deploy.yml`（若有） | SSH 連線 VM 執行 `git pull` 更新部署 |
 
 **`data/` 同步機制**：Actions 完成後透過 SSH 通知 VM 執行 `git pull`（方案 B），確保 VM 上 Fastify 讀取的 JSON 與 GitHub 一致。
 
@@ -185,6 +225,7 @@ Bot 每次啟動的 `onStart` callback 中呼叫 `bot.api.setMyCommands()`，
 | 指令 | 選單說明文字 |
 |---|---|
 | `/status` | 查看最新市場快取狀態 |
+| `/status_debug` | 查看最新市場快取（含來源狀態，供除錯用） |
 | `/daily` | 手動觸發每日報告（含 AI 分析） |
 | `/news` | 手動更新新聞池 |
 | `/weekly` | 手動觸發週報 |
