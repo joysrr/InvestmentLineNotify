@@ -41,6 +41,7 @@
 | **帳戶快照加密** | 持倉數字以 AES-256-GCM 加密存儲，`.env` 金鑰本地管理 |
 | **全面 VM 排程** | 所有定時任務已統一由 Oracle VM crontab 執行，避免 GitHub Actions schedule 延遲 |
 | **Telegram Mini App** | Fastify API Server + Vue 3 前端，即時瀏覽資產趨勢、市場雷達與新聞池 |
+| **Provider 架構抽象化** | `dataSourceConfig.mjs` + `providerRegistry.mjs` Slot-based 設計，抽換資料來源只需改 config，不動上層程式碼 |
 
 ---
 
@@ -60,7 +61,8 @@ VM crontab / CLI ──→ Runner Layer
               │
     ┌─────────┴──────────┐
     │  Core Modules      │
-    │  providers/        │  ← 市場資料（TWSE / Yahoo / FRED / CNN）
+    │  providers/        │  ← 市場資料（TWSE / Yahoo / FRED / CNN / KGI / NDC）
+    │                    │    含大盤指數收盤、成交金額（FMTQIK）、VIX、PE/PB、匯率等
     │  strategy/         │  ← 量化指標計算
     │  ai/               │  ← Gemini AI 決策管線
     │  notifications/    │  ← Telegram 推播
@@ -297,6 +299,8 @@ InvestmentLineNotify/
 │   │   └── routes/              ← /api/status, /api/reports, /api/news, /api/snapshots
 │   ├── modules/
 │   │   ├── providers/           ← 市場資料（TWSE / Yahoo / FRED / CNN / KGI / NDC）
+│   │   │                           含大盤指數收盤與成交金額（FMTQIK）、VIX、PE/PB、匯率等 8 個 Slot
+│   │   │                           架構：dataSourceConfig.mjs + providerRegistry.mjs（Slot-based）
 │   │   ├── strategy/            ← RSI / KD / MACD 量化指標 + 風控引擎
 │   │   ├── ai/                  ← Gemini AI 決策管線（新聞過濾 / 總經分析 / 投資教練）
 │   │   ├── notifications/       ← Telegram HTML 訊息排版與推播
@@ -334,6 +338,7 @@ InvestmentLineNotify/
 | [`docs/architecture.md`](docs/architecture.md) | 系統總覽、Mermaid 架構圖、目錄責任對照 |
 | [`docs/env-vars.md`](docs/env-vars.md) | 完整環境變數清單與 SOP |
 | [`docs/schedules.md`](docs/schedules.md) | 排程總覽（以 VM crontab 為主） |
+| [`docs/modules/providers.md`](docs/modules/providers.md) | 市場資料 Provider 層：各 provider 欄位、快取策略、Slot-based 架構說明（`dataSourceConfig` / `providerRegistry`）、8 個資料 Slot 詳解 |
 | [`docs/modules/ai_pipeline.md`](docs/modules/ai_pipeline.md) | AI 決策管線詳細設計 |
 | [`docs/modules/market_strategy.md`](docs/modules/market_strategy.md) | 策略引擎 / 技術指標 / 新聞治理 |
 | [`docs/modules/core_infrastructure.md`](docs/modules/core_infrastructure.md) | storage / archiveManager / snapshotCrypto |
