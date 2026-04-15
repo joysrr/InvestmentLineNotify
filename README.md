@@ -1,7 +1,7 @@
 # InvestmentLineNotify
 
 > 🤖 **AI 驅動的台灣 ETF 投資決策與通知系統**
-> 專為 0050 / 00675L 生命週期投資法設計，每日自動分析市場、產出行動建議並推播至 Telegram。
+> 專為 0050 / 00675L 生命周期投資法設計，每日自動分析市場、產出行動建議並推播至 Telegram。
 
 ---
 
@@ -37,7 +37,7 @@
 |---|---|
 | **無資料庫設計** | 以 `data/` 檔案庫 + Google Sheets 取代傳統 DB，降低維護成本 |
 | **多階段 AI 管線** | 新聞過濾器 → 總經多空分析師 → 投資教練 → LLM Judge，結構化輸出防幻覺 |
-| **動態量化風控** | 維持率斷頭計算、RSI/KD/MACD 過熱閥值、冷卻期與極端恐慌破冰機制 |
+| **動態量化風控** | 維持率斷頭計算、RSI/KD/MACD 過熱閥値、冷卻期與極端恐慰破冰機制 |
 | **帳戶快照加密** | 持倉數字以 AES-256-GCM 加密存儲，`.env` 金鑰本地管理 |
 | **全面 VM 排程** | 所有定時任務已統一由 Oracle VM crontab 執行，避免 GitHub Actions schedule 延遲 |
 | **Telegram Mini App** | Fastify API Server + Vue 3 前端，即時瀏覽資產趨勢、市場雷達與新聞池 |
@@ -52,7 +52,7 @@ Telegram 使用者 ──→ bot.mjs (grammY Long-Polling)
                           │
 Mini App (Vue 3) ──→ api/server.mjs (Fastify, Port 3000)
                           │
-VM crontab / CLI ──→ Runner Layer
+VM crontab / CLI ─→ Runner Layer
     ├── runDailyCheck.mjs      ← 每日主流程
     ├── runNewsFetch.mjs       ← 新聞池更新
     ├── runOptimizer.mjs       ← 新聞治理規則優化
@@ -129,6 +129,8 @@ pm2 start src/api/server.mjs --name api-server --max-memory-restart 300M
 pm2 save && pm2 startup
 ```
 
+> ⚠️ `bot-daemon` 啟動時自動帶入 `drop_pending_updates: true`，避免 Bot 重啟後吹送舊指令積塊。詳見 [`docs/modules/entry_and_notifications.md`](docs/modules/entry_and_notifications.md)。
+
 ### 6. 設定 VM crontab
 
 ```bash
@@ -138,10 +140,10 @@ crontab -e
 加入以下內容（時區需為 `Asia/Taipei`）：
 
 ```cron
-# ── DuckDNS IP 自動更新 ──────────────────────────────────────
+# ── DuckDNS IP 自動更新 ─────────────────────────────────
 */5 * * * * curl -s "https://www.duckdns.org/update?domains=YOUR_DOMAIN&token=YOUR_TOKEN&ip=" > /dev/null
 
-# ── runDailyCheck（每日 5 次）────────────────────────────────
+# ── runDailyCheck（每日 5 次）────────────────────────────
 # 盤前報告 07:30
 30 7  * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
 # 盤中觀測 10:30
@@ -153,13 +155,13 @@ crontab -e
 # 夜間美股觀測 21:30
 30 21 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-daily-check.sh
 
-# ── runNewsFetch（每 4 小時）─────────────────────────────────
+# ── runNewsFetch（每 4 小時）─────────────────────────────
 0  */4 * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-news-fetch.sh
 
-# ── runOptimizer（每日 02:00）────────────────────────────────
+# ── runOptimizer（每日 02:00）────────────────────────────
 0  2  * * * /bin/bash /home/ubuntu/investnotify/scripts/vm-optimizer.sh
 
-# ── runWeeklyReport（每週一 09:30）──────────────────────────
+# ── runWeeklyReport（每週一 09:30）──────────────────────
 30 9  * * 1 /bin/bash /home/ubuntu/investnotify/scripts/vm-weekly-report.sh
 
 # ── runMonthlyReport（每月 1 日 09:00）──────────────────────
@@ -236,7 +238,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 | 程序名稱 | 說明 |
 |---|---|
 | `api-server` | Fastify HTTP API（Port 3000），供 Mini App 呼叫 |
-| `bot-daemon` | Telegram Bot Long-Polling，處理即時指令 |
+| `bot-daemon` | Telegram Bot Long-Polling，處理即時指令；帶 `drop_pending_updates: true` 防止重啟後消化舊指令 |
 
 > 目前所有定時任務已全面移轉至 Oracle VM，`README` 不再將 GitHub Actions 視為主要排程平台。
 
