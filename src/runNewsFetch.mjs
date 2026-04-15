@@ -1,15 +1,22 @@
 import "dotenv/config";
+import { fileURLToPath } from "url";
 import { langfuse } from "./modules/ai/aiClient.mjs";
 import { getRawNews } from "./modules/newsFetcher.mjs";
 import { generateDailySearchQueries } from "./modules/ai/aiCoach.mjs";
-import { updatePool, purgeExpiredFromPool } from "./modules/data/newsPoolManager.mjs";
+import {
+  updatePool,
+  purgeExpiredFromPool,
+} from "./modules/data/newsPoolManager.mjs";
 
 /** Langfuse score 回寫，失敗不阻斷主流程 */
 async function safeLangfuseScore(payload) {
   try {
     await langfuse.score(payload);
   } catch (err) {
-    console.warn(`⚠️ [Langfuse] score 寫入失敗 (${payload.name}):`, err.message);
+    console.warn(
+      `⚠️ [Langfuse] score 寫入失敗 (${payload.name}):`,
+      err.message,
+    );
   }
 }
 
@@ -20,11 +27,14 @@ async function safeLangfuseScore(payload) {
 export async function runNewsFetch() {
   console.log("📰 [NewsFetch] 開始執行新聞抓取管線...");
 
-  const { twQueries, usQueries, traceId: searchTraceId } =
-    await generateDailySearchQueries({
-      marketStatus: "暫無即時市況",
-      vix: "N/A",
-    });
+  const {
+    twQueries,
+    usQueries,
+    traceId: searchTraceId,
+  } = await generateDailySearchQueries({
+    marketStatus: "暫無即時市況",
+    vix: "N/A",
+  });
 
   const { articles, metrics } = await getRawNews({ twQueries, usQueries });
   console.log(`📰 [NewsFetch] 抓取完成，共 ${articles.length} 篇有效文章`);
@@ -51,7 +61,9 @@ export async function runNewsFetch() {
       }),
     });
   } else {
-    console.warn("⚠️ [NewsFetch] searchTraceId 為 null，跳過 Yield Rate score 寫入");
+    console.warn(
+      "⚠️ [NewsFetch] searchTraceId 為 null，跳過 Yield Rate score 寫入",
+    );
   }
 
   if (articles.length === 0) {
@@ -63,7 +75,7 @@ export async function runNewsFetch() {
     await updatePool(articles);
   console.log(
     `✅ [NewsFetch] pool 更新完成 — 新增: ${appended}，fuzzy 跳過: ${skipped_fuzzy}，` +
-    `過期歸檔: ${expired}，目前 pool 總量: ${total}，來源種類: ${sourceCount}`,
+      `過期歸檔: ${expired}，目前 pool 總量: ${total}，來源種類: ${sourceCount}`,
   );
 
   if (searchTraceId && appended > 0) {
@@ -95,4 +107,6 @@ async function main() {
   }
 }
 
-main();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}

@@ -1,5 +1,6 @@
 // runWeeklyReport.mjs
 import "dotenv/config";
+import { fileURLToPath } from "url";
 import {
   loadRecentReports,
   buildPeriodStats,
@@ -31,14 +32,22 @@ export async function runWeeklyReport() {
   if (reports.length < 3) {
     const msg = `⚠️ <b>週報產生失敗</b>\n本週可用報告數量不足（${reports.length} 份），無法產生週報。`;
     console.warn("⚠️ [WeeklyReport] 報告數量不足 3 份，跳過週報");
-    if (process.env.TELEGRAM_API_TOKEN) await sendTelegramBatch([{ text: msg }]);
-    return { skipped: true, reason: "insufficient_reports", count: reports.length };
+    if (process.env.TELEGRAM_API_TOKEN)
+      await sendTelegramBatch([{ text: msg }]);
+    return {
+      skipped: true,
+      reason: "insufficient_reports",
+      count: reports.length,
+    };
   }
 
   const stats = buildPeriodStats(reports, "weekly");
   const accuracyStats = buildSignalAccuracyStats(reports, reports, "weekly");
   const { aiSummary } = await generatePeriodAiSummary(
-    stats, reports, `過去 ${reports.length}`, sessionId,
+    stats,
+    reports,
+    `過去 ${reports.length}`,
+    sessionId,
   );
 
   const webAppUrl = process.env.TELEGRAM_WEBAPP_URL || null;
@@ -48,7 +57,12 @@ export async function runWeeklyReport() {
     messages = buildCompactPeriodMessage(stats, aiSummary, "weekly", webAppUrl);
     console.log("[WeeklyReport] MiniApp 模式：發送精簡週報卡");
   } else {
-    messages = buildPeriodReportMessages(stats, aiSummary, "weekly", accuracyStats);
+    messages = buildPeriodReportMessages(
+      stats,
+      aiSummary,
+      "weekly",
+      accuracyStats,
+    );
     console.log("[WeeklyReport] 完整模式：發送 2 則週報");
   }
 
@@ -73,4 +87,6 @@ async function main() {
   }
 }
 
-main();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}

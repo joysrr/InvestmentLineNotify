@@ -337,24 +337,24 @@ bot.command("status_debug", async (ctx) => {
 
 // ── 指令：/daily ──────────────────────────────────────────────────────────
 bot.command("daily", async (ctx) => {
-  await withRunner(ctx, "每日報告 (daily)", () =>
+  await withRunner(ctx, "每日報告 (daily)", async () =>
     dailyCheck({ isTelegramEnabled: true, isAIAdvisor: true }),
   );
 });
 
 // ── 指令：/news ───────────────────────────────────────────────────────────
 bot.command("news", async (ctx) => {
-  await withRunner(ctx, "新聞更新 (news)", runNewsFetch);
+  await withRunner(ctx, "新聞更新 (news)", async () => await runNewsFetch());
 });
 
 // ── 指令：/weekly ─────────────────────────────────────────────────────────
 bot.command("weekly", async (ctx) => {
-  await withRunner(ctx, "週報 (weekly)", runWeeklyReport);
+  await withRunner(ctx, "週報 (weekly)", async () => await runWeeklyReport());
 });
 
 // ── 指令：/monthly ────────────────────────────────────────────────────────
 bot.command("monthly", async (ctx) => {
-  await withRunner(ctx, "月報 (monthly)", runMonthlyReport);
+  await withRunner(ctx, "月報 (monthly)", async () => await runMonthlyReport());
 });
 
 // ── 指令：/optimize ───────────────────────────────────────────────────────
