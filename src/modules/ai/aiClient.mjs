@@ -30,12 +30,51 @@ const aiInstances = GEMINI_API_KEYS.map(
   (key) => new GoogleGenAI({ apiKey: key }),
 );
 
-// Langfuse 初始化（金鑰放 .env）
+// ── Langfuse 初始化（金鑰放 .env）────────────────────────────────────────────
+// isLangfuseEnabled：僅在三個環境變數均有值時才啟用，避免 SDK 靜默失敗
+const _langfuseEnabled =
+  !!process.env.LANGFUSE_PUBLIC_KEY &&
+  !!process.env.LANGFUSE_SECRET_KEY &&
+  !!process.env.LANGFUSE_BASE_URL;
+
+if (!_langfuseEnabled) {
+  console.warn(
+    "⚠️ [Langfuse] 環境變數未完整設定（LANGFUSE_PUBLIC_KEY / LANGFUSE_SECRET_KEY / LANGFUSE_BASE_URL），" +
+      "Langfuse 追蹤已停用，所有 trace 將被靜默忽略。",
+  );
+}
+
 export const langfuse = new Langfuse({
   publicKey: process.env.LANGFUSE_PUBLIC_KEY,
   secretKey: process.env.LANGFUSE_SECRET_KEY,
   baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
+  // flushAt：累積幾筆後自動送出（預設 15）
+  // flushInterval：最長等多久自動送出（預設 10000ms）
+  // 短命程序中應呼叫 flushAsync() 確保送出，不依賴自動觸發
 });
+
+/**
+ * 送出 Langfuse 佇列中所有待寫入的 trace / generation，並印出確認日誌。
+ * 應在每次 callAI 回傳（成功或失敗）後呼叫，確保短命 Node 程序不遺漏資料。
+ *
+ * @param {string} traceId  - 本次 callAI 的 trace.id，僅用於 log 識別
+ * @param {'success'|'error'} status - 本次呼叫結果
+ */
+export async function flushLangfuse(traceId, status = "success") {
+  if (!_langfuseEnabled) return;
+  try {
+    await langfuse.flushAsync();
+    console.log(
+      `✅ [Langfuse] flush 完成 | traceId: ${traceId} | status: ${status} | url: ${
+        (process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com")
+      }/trace/${traceId}`,
+    );
+  } catch (flushErr) {
+    console.error(
+      `❌ [Langfuse] flushAsync 失敗 | traceId: ${traceId} | 原因: ${flushErr.message}`,
+    );
+  }
+}
 
 // ── Human Review Metadata ────────────────────────────────────────────────────
 const HUMAN_REVIEW_CONFIG = {
@@ -261,6 +300,11 @@ export async function callAI(promptName, options = {}) {
     ],
   });
 
+  // ── 診斷日誌：trace 建立確認 ──────────────────────────────────────────────
+  console.log(
+    `📡 [Langfuse] trace 建立 | prompt: ${promptName} | traceId: ${trace.id} | enabled: ${_langfuseEnabled}`,
+  );
+
   // ── Retry Loop（含 key 輪換）──────────────────────────────────────────────
   let currentKeyIndex = startKeyIndex % (keyCount || 1);
 
@@ -350,6 +394,14 @@ export async function callAI(promptName, options = {}) {
 
       trace.update({ output: text });
 
+      // ── 診斷日誌 & flush：確認寫入 Langfuse ──────────────────────────────
+      console.log(
+        `📊 [Langfuse] generation 完成 | attempt: ${attempt} | ` +
+          `tokens: in=${inputTokens ?? "?"} out=${outputTokens ?? "?"} total=${totalTokens ?? "?"}` +
+          (thoughtsTokenCount ? ` thoughts=${thoughtsTokenCount}` : ""),
+      );
+      await flushLangfuse(trace.id, "success");
+
       return { text, traceId: trace.id };
     } catch (error) {
       const isLast = attempt === maxRetries;
@@ -391,6 +443,8 @@ export async function callAI(promptName, options = {}) {
           output: { error: error.message },
           statusMessage: error.message,
         });
+        // ── 診斷日誌 & flush：失敗時同樣確保 trace 送出 ──────────────────
+        await flushLangfuse(trace.id, "error");
         throw error;
       }
     }
