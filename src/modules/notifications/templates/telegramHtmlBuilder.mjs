@@ -557,11 +557,6 @@ export function buildCompactMessage(
   const rSigIcon = signalIcon(reversalTriggered, reversalTotal);
   const sSigIcon = signalIcon(sellTriggered, sellTotal);
 
-  // ── AI 第一條 action item ──
-  const firstAction = aiAdvice?.action_items?.[0]
-    ? `\n🔖 ${escapeHTML(aiAdvice.action_items[0])}`
-    : "";
-
   // ── 冷卻期提示 ──
   const cooldown = result.cooldownStatus;
   const cooldownHint = cooldown?.inCooldown
@@ -578,14 +573,8 @@ export function buildCompactMessage(
   const text =
     `<b>${timeLabel}</b>  <code>${escapeHTML(timeTag)}</code>${SEP}` +
     `🚦 <b>${marketStatus}</b>\n` +
-    `📌 ${target} · <i>${targetShort}</i>${firstAction}${cooldownHint}\n\n` +
-    // ── 市場三行 ──
-    `${vixEmoji} VIX <code>${vixStr}</code>\n` +
-    `${scoreEmoji} 評分 <code>${scoreStr}</code>\n` +
-    `${mmEmoji} 維持率 <code>${mmStr}</code>\n` +
-    // ── 風險摘要 ──
-    `${rSigIcon} 轉弱 <code>${reversalTriggered}/${reversalTotal}</code>\n` +
-    `${sSigIcon} 賣出 <code>${sellTriggered}/${sellTotal}</code>\n\n` +
+    `📌 ${target} · <i>${targetShort}</i>\n` +
+    `${cooldownHint}${SEP}` +
     `${quoteText}\n\n` +
     `📲 詳細指標與 AI 建議請到 Mini App 查看`;
 
