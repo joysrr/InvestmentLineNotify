@@ -1,6 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
 import { Langfuse } from "langfuse";
-import { LANGFUSE_PROMPT_CONFIGS } from "./prompts.mjs";
 
 // 參數&初始化
 const GEMINI_API_KEYS = [
@@ -178,12 +177,10 @@ async function resolveChatPrompt(promptName, variables = {}) {
  *   1. Langfuse chat prompt（system + user messages，含 config）
  *   2. options.userPrompt 覆蓋 user message（Langfuse user template 優先，
  *      若 Langfuse 取不到 user template 則使用 options.userPrompt）
- *   3. code-side LANGFUSE_PROMPT_CONFIGS[promptName] 作為 schema/config fallback
  *
  * responseSchema 優先順序：
  *   1. options.responseSchema         ← 呼叫端強制覆蓋（最高）
  *   2. langfuseConfig.response_schema ← Langfuse prompt.config 管理（中，推薦）
- *   3. codeSidePromptCfg.schema       ← prompts.mjs code-side fallback（最低）
  *
  * @param {string} promptName - Langfuse prompt 名稱（同時作為 trace name）
  * @param {object} options
@@ -213,24 +210,18 @@ export async function callAI(promptName, options = {}) {
     await resolveChatPrompt(promptName, options.promptVariables ?? {});
 
   // ── Step 2: 合併 config（options > Langfuse config > code-side fallback）──
-  const codeSidePromptCfg = LANGFUSE_PROMPT_CONFIGS[promptName] ?? {};
   const resolvedOptions = {
-    // code-side 預設（最低優先）
-    ...codeSidePromptCfg.config,
-    // Langfuse prompt.config（中優先）
-    ...langfuseConfig,
-    // 呼叫端 options（最高優先，可覆蓋 Langfuse config）
+    // 呼叫端 options（中優先）
     ...options,
+    // Langfuse prompt.config（最高優先，可覆蓋 option）
+    ...langfuseConfig,
     // ── responseSchema 三層優先順序 ──────────────────────────────────────────
     // 1. options.responseSchema         → 呼叫端強制覆蓋
     // 2. langfuseConfig.response_schema → Langfuse prompt.config 管理（推薦路徑）
     //    Type 列舉值為純字串（如 "STRING"），可直接序列化至 Langfuse
     // 3. codeSidePromptCfg.schema       → prompts.mjs code-side fallback
     responseSchema:
-      options.responseSchema ??
-      langfuseConfig.response_schema ??
-      codeSidePromptCfg.schema ??
-      undefined,
+      options.responseSchema ?? langfuseConfig.response_schema ?? undefined,
   };
 
   const startKeyIndex = options.keyIndex ?? 0;
@@ -256,9 +247,7 @@ export async function callAI(promptName, options = {}) {
         ? "options"
         : langfuseConfig.response_schema
           ? "langfuse-config"
-          : codeSidePromptCfg.schema
-            ? "code-fallback"
-            : "none",
+          : "none",
       ...(isCI && {
         githubRunId: process.env.GITHUB_RUN_ID,
         githubWorkflow: process.env.GITHUB_WORKFLOW,

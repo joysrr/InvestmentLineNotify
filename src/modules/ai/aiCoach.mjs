@@ -159,7 +159,7 @@ export async function generateDailySearchQueries(marketData) {
     archiveManager
       .saveAiLog({
         type: "SearchQueries",
-        userPrompt: prompt,
+        promptVariables,
         rawResult: result,
       })
       .catch((err) =>
@@ -287,7 +287,7 @@ export async function filterAndCategorizeAllNewsWithAI(
     archiveManager
       .saveAiLog({
         type: "NewsFilter",
-        userPrompt,
+        promptVariables,
         rawResult: aiResult,
       })
       .catch((err) =>
@@ -316,14 +316,6 @@ export async function analyzeMacroNewsWithAI(
   todayNewsText,
   conflictSummary = "",
 ) {
-  const todayStr = new Date().toISOString().split("T")[0];
-  const basePrompt = buildMacroAnalysisUserPrompt(todayStr, todayNewsText);
-
-  // ── 3-D：若有矛盾摘要，在 prompt 前方插入前置注解區塊 ─────────────────────
-  const userPrompt = conflictSummary
-    ? `${conflictSummary}\n\n---\n\n${basePrompt}`
-    : basePrompt;
-
   const promptVariables = {
     dateStr,
     newsText: conflictSummary
@@ -364,7 +356,7 @@ export async function analyzeMacroNewsWithAI(
     archiveManager
       .saveAiLog({
         type: "MacroAnalysis",
-        userPrompt,
+        promptVariables,
         rawResult: result,
       })
       .catch((err) =>
@@ -391,7 +383,6 @@ export async function analyzeMacroNewsWithAI(
 /**
  * 根據市場數據、新聞摘要、既定投資策略，產出操作建議與風險提示
  *
- * User Prompt 由 buildCoachUserPrompt 動態組合，參數對應：
  *   quantTextForCoach  ← formatQuantDataForCoach(marketData, portfolio, vixData)
  *   newsSummaryText    ← 今日新聞摘要
  *   macroTextForCoach  ← MacroAnalysis 報告
@@ -468,7 +459,7 @@ export async function getAiInvestmentAdvice(
     archiveManager
       .saveAiLog({
         type: "InvestmentAdvice",
-        userPrompt,
+        promptVariables,
         rawResult: result,
       })
       .catch((err) =>

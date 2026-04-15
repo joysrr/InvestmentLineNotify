@@ -257,13 +257,13 @@ async function callOptimizerAI(articleTitles, region) {
   };
 
   try {
-    const { rawJson, traceId } = await callAI("News/RuleOptimizer", {
+    const { text, traceId } = await callAI("News/RuleOptimizer", {
       sessionId,
       provider: PROVIDERS.GEMINI,
       keyIndex: 2,
       promptVariables,
     });
-    const parsed = JSON.parse(rawJson || '{"rules":[]}');
+    const parsed = JSON.parse(text || '{"rules":[]}');
     return { rules: parsed.rules || [], traceId };
   } catch (err) {
     console.warn(`[Optimizer] ⚠️  AI 呼叫失敗 (${region}):`, err.message);
