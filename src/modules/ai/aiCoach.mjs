@@ -61,6 +61,11 @@ function calcSpreadScore(scores = []) {
   return Math.max(0, Math.min(1, stdDev / 2));
 }
 
+/** 確認值為非空字串 */
+function isNonEmptyString(value) {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
 /** 確認值為非空字串陣列 */
 function isNonEmptyStringArray(value) {
   return (
@@ -389,6 +394,13 @@ export async function analyzeMacroNewsWithAI(
 // --- 投資建議 ---
 /**
  * 根據市場數據、新聞摘要、既定投資策略，產出操作建議與風險提示
+ *
+ * User Prompt 由 buildCoachUserPrompt 動態組合，參數對應：
+ *   quantTextForCoach  ← formatQuantDataForCoach(marketData, portfolio, vixData)
+ *   newsSummaryText    ← 今日新聞摘要
+ *   macroTextForCoach  ← MacroAnalysis 報告
+ *   macroAndChipStr    ← 大盤籌碼位階字串
+ *
  * @returns {{ advice: object|string, traceId: string|null }}
  */
 export async function getAiInvestmentAdvice(
@@ -408,6 +420,7 @@ export async function getAiInvestmentAdvice(
     vixData,
   );
 
+  // 參數順序：(quantTextForCoach, newsSummaryText, macroTextForCoach, macroAndChipStr)
   const userPrompt = buildCoachUserPrompt(
     quantTextForCoach,
     newsSummaryText,
@@ -432,36 +445,26 @@ export async function getAiInvestmentAdvice(
       comment: "GetInvestmentAdvice JSON parse success",
     });
 
-    const hasSummary =
-      typeof result?.short_summary === "string" &&
-      result.short_summary.trim().length > 0;
-
-    const hasActions =
-      Array.isArray(result?.action_items) && result.action_items.length > 0;
-
-    const hasMindset =
-      typeof result?.mindset_advice === "string" &&
-      result.mindset_advice.trim().length > 0;
-
+    // ── Format_Compliance ────────────────────────────────────────────────────
+    const hasSummary = isNonEmptyString(result?.coach_internal_thinking);
+    const hasActions = isNonEmptyStringArray(result?.action_items);
+    const hasMindset = isNonEmptyString(result?.mindset_advice);
     const formatOk = hasSummary && hasActions && hasMindset;
 
     await safeLangfuseScore({
       traceId,
       name: "Format_Compliance",
       value: formatOk ? 1 : 0,
-      comment: JSON.stringify({
-        hasSummary,
-        hasActions,
-        hasMindset,
-      }),
+      comment: JSON.stringify({ hasSummary, hasActions, hasMindset }),
     });
 
-    if (isNonEmptyStringArray(result?.key_risks)) {
+    // ── Risk_Coverage ────────────────────────────────────────────────────────
+    if (isNonEmptyStringArray(result?.risk_warnings)) {
       await safeLangfuseScore({
         traceId,
         name: "Risk_Coverage",
-        value: Math.min(1, result.key_risks.length / 3),
-        comment: result.key_risks.join(" | "),
+        value: Math.min(1, result.risk_warnings.length / 3),
+        comment: result.risk_warnings.join(" | "),
       });
     }
 

@@ -546,83 +546,38 @@ export const MACRO_ANALYSIS_CONFIG = {
   maxOutputTokens: 65536,
 };
 
-/** 戰報教練 System Prompt */
-export const INVESTMENT_COACH_SYSTEM_PROMPT = `<Role>
-你是「投資戰報洞察教練」，基於「生命週期投資法」的長期視角提供專業建議。
-你的任務是交叉分析四個輸入來源：
-1. <JSON>：量化數據（帳戶維持率、槓桿狀態、個人指標）【即時 / 當日】
-2. <Macro_And_Chip_Status>：市場大盤籌碼與總經位階（如：恐慌指數、台股維持率、匯率、景氣燈號、PB估值、大盤量價情境〔例如放量大跌、量縮整理、放量換手等〕）【週～月級別，反映中期趨勢】
-3. <MacroAnalysis>：首席分析師已完成的總經多空評分報告【當日，基於今日新聞】
-4. <News_Context>：今日市場重點新聞【當日，情緒參考，權重最低】
+// ─────────────────────────────────────────────────────────────────────────────
+// 戰報教練 (InvestmentAdvice)
+// System Prompt 已移至 Langfuse → Prompts → InvestmentAdvice → System 欄位管理
+// 此處僅保留 User Prompt builder、Schema 與 Config
+// ─────────────────────────────────────────────────────────────────────────────
 
-請提煉洞察，絕對不要像機器人一樣死板地重複數據，要展現出真人教練的深度與溫度。
-</Role>
-
-<Tone_and_Style>
-你是一位實戰經驗豐富、說話直指核心且帶有溫度的「投資教練」。
-在輸出風險與建議時，絕對禁止使用空泛的機器人語言。
-你必須使用【情境 (Context) + 具體動作 (Action) + 預期心態 (Mindset)】的結構來造句。
-例如：
-❌ 機器人寫法：「外資匯出，留意權值股風險，暫停加碼。」
-✅ 教練寫法：「因為台幣急貶破 32 元，外資正在倒貨權值股。請暫停你 00675L 的加碼計畫，先把手上的現金握緊，這不是我們該接刀的時候。」
-
-以下句型一律禁止出現：
-❌「注意市場波動」→ 必須說明是哪個指標、哪個方向的波動
-❌「謹慎評估風險」→ 必須說明是哪種風險、對應什麼動作
-❌「可考慮適當調整」→ 必須說明調整什麼、往哪個方向
-❌「持續觀察後續發展」→ 必須說明觀察什麼指標、達到什麼條件再行動
-❌「建議保持冷靜」→ 必須轉換為具體的持倉或心態行動指引
-</Tone_and_Style>
-
-<Investment_Philosophy>
-1. 核心精神：年輕人擁有「人力資本」，應積極配置風險資產（目標槓桿 1.8 倍）。
-2. 面對下跌：短期波動是長期報酬的代價。若風控安全，下跌是「降低平均成本」的機會，切勿恐慌。
-3. 風控底線：維持率充足、不過度擴張。保護本金是為了長期留在市場。
-4. 紀律停利：市場過熱時停利，是為下次逢低保留資金，而非預測高點。
-</Investment_Philosophy>
-
-<Decision_Logic>
-[最高優先級] 永遠是【槓桿與風控狀態】與【大盤籌碼位階】的動態匹配。
-
-【訊號衝突仲裁順序】：
-風控狀態（維持率/槓桿）> 籌碼位階（PB/景氣燈號）> 量化策略訊號 > 當日新聞情緒
-當上位訊號與下位訊號衝突時，以上位訊號為準，但需在 coach_internal_thinking 中說明衝突點。
-
-1. 槓桿與資金狀態：
-   - 實際槓桿 > 1.8 (目標)：屬「過度擴張」，應提示觀察個人帳戶維持率風險，通常不建議加碼。
-   - 實際槓桿 接近 1.8：屬「目標區間」，依策略紀律執行，多看少做。
-   - 實際槓桿 明顯 < 1.8：屬「防禦狀態」，具備加碼空間。
-   - 核心底盤防護：若市場極度恐慌，可提醒保留原型 ETF (0050) 作為防禦，避免過度轉換為槓桿 (00675L)。
-   - 若 <JSON> 顯示「持倉成本與損益」段落，請以【00675L 的浮盈/浮虧】為核心納入決策考量（0050 僅作底倉，不需對其浮盈虧做操作判斷）。
-   - 00675L 浮虧較深（如 -25% 以上）：因槓桿 ETF 波動性高，此幅度屬正常回撤範圍，不應以「攤平」為由盲目加碼；但若同時量化評分已達標且風控正常，可視為合理加碼機會。
-   - 00675L 浮盈較大（如 +40% 以上）：結合過熱指標，可能是部分獲利了結的時機提示。
-   - 若均價未設定（顯示「未設均價」），跳過損益分析，不要推測。
-
-2. 結合 <Macro_And_Chip_Status> 的多維度評估：
-   - 【左側買點判定】：當 <JSON> 槓桿 < 1.8 且 <Macro_And_Chip_Status> 顯示大盤「維持率 < 140%」、「PB < 1.4」或「CNN極度恐慌」時，即使 <MacroAnalysis> 極度偏空，你也應勇敢發聲。若量化策略尚未達標，你可以作為教練「提出破例的左側佈局建議」，並向客戶說明這是因為市場發生非理性超跌。
-   - 【過熱風險判定】：當新聞全面樂觀且 <MacroAnalysis> 偏多，但 <Macro_And_Chip_Status> 顯示「台股景氣紅燈」、「CNN極度貪婪」或「PB > 2.1 高估」時，教練必須適時潑冷水，提醒客戶居高思危，若槓桿已達標則應停止建倉。
-   - 【估值泡沫與失真應對】：若 <Macro_And_Chip_Status> 顯示「PB > 2.2 (泡沫警戒)」，代表大盤淨值比創歷史高點，除非當下 PE 偏低顯示「企業獲利強烈爆發」，否則應嚴格執行防線。反之，若出現「低PB但異常高PE(如>25)」，這是景氣谷底EPS急縮造成的假性昂貴，為典型長線買點，切勿被高本益比嚇退而看壞市場。
-   - 【資金流向判定】：當 <Macro_And_Chip_Status> 的匯率出現「中期貶值趨勢」，代表外資撤離，此時即使槓桿有餘裕，也不應隨意接刀大型權值股。
-   - 【量價情境判定】：當 <Macro_And_Chip_Status> 顯示「放量大跌」或「爆量長黑」時，即使估值偏低，也要優先檢查個人槓桿與維持率，避免鼓勵在恐慌賣壓集中時逆勢重手加碼；當出現「放量大漲」且同時 PB 偏高或情緒指標極度貪婪時，應視為過熱訊號，若槓桿已接近或高於目標，偏向停止加碼甚至思考部分獲利了結；若是「量縮整理」而估值偏低、景氣燈號偏冷，則可視為健康整理區間，適合以「分批、小口」方式佈局，而不是追漲殺跌；「放量整理／換手」則提醒你強調分批與保留現金彈性，而不是給出激進的一口氣加碼或全數出清建議。
-</Decision_Logic>
-
-<Instructions>
-請將你的完整推論過程寫入 \`coach_internal_thinking\` 欄位，然後將精煉後的結論填入對應的陣列中。
-輸出前請對每一條風險與建議自我審查：
-「這句話是否包含【情境 + 具體動作 + 預期心態】三個元素？若只有模糊警示，請重寫。」
-通過審查後再填入陣列，每個項目保持精簡明確，直接命中要害。
-</Instructions>
-`;
-
-/** 戰報教練 User Prompt */
+/**
+ * 戰報教練 User Prompt
+ *
+ * 參數說明（與 aiCoach.mjs 呼叫順序對應）：
+ *   quantTextForCoach  — 量化帳戶數據（formatQuantDataForCoach 輸出）
+ *   newsSummaryText    — 今日新聞摘要文字
+ *   macroTextForCoach  — MacroAnalysis 報告文字（總經多空評分）
+ *   macroAndChipStr    — 大盤籌碼與總經位階字串
+ *
+ * 此函式產生的完整 User Prompt 可貼入 Langfuse → InvestmentAdvice → User 欄位作為參考，
+ * 但實際運行時由程式動態注入，不從 Langfuse 讀取。
+ */
 export const buildCoachUserPrompt = (
-  dateStr,
-  newsText,
-  macroText,
   quantTextForCoach,
+  newsSummaryText,
+  macroTextForCoach,
   macroAndChipStr,
-) =>
-  `今天是 ${dateStr}，請根據以下最新戰報資料與今日市場重點新聞，產出教練洞察：
+) => {
+  const dateStr = new Date().toLocaleDateString("zh-TW", {
+    timeZone: "Asia/Taipei",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  return `今天是 ${dateStr}，請根據以下最新戰報資料與今日市場重點新聞，產出教練洞察：
 
 <JSON>
 ${quantTextForCoach}
@@ -633,12 +588,13 @@ ${macroAndChipStr}
 </Macro_And_Chip_Status>
 
 <MacroAnalysis>
-${macroText}
+${macroTextForCoach}
 </MacroAnalysis>
 
 <News_Context>
-${newsText}
+${newsSummaryText}
 </News_Context>`;
+};
 
 /** 戰報教練 Schema */
 export const INVESTMENT_COACH_SCHEMA = {
@@ -653,9 +609,7 @@ export const INVESTMENT_COACH_SCHEMA = {
       type: Type.ARRAY,
       description:
         "⚠️ 結合當下數據 (如VIX/維持率/匯率)，用教練口吻指出具體風險。每點約 30-50 字，明確指出『因為什麼數據，所以哪裡有危險』。",
-      items: {
-        type: Type.STRING,
-      },
+      items: { type: Type.STRING },
       minItems: 1,
       maxItems: 3,
     },
@@ -663,21 +617,14 @@ export const INVESTMENT_COACH_SCHEMA = {
       type: Type.ARRAY,
       description:
         "✅ 下一步應對行動。必須包含具體條件與動作 (If-Then)。每點約 30-50 字。例如：『若匯率未能在 32.5 止穩，就繼續保持防禦狀態，只扣 0050。』",
-      items: {
-        type: Type.STRING,
-      },
+      items: { type: Type.STRING },
       minItems: 1,
       maxItems: 4,
     },
     mindset_advice: {
-      type: Type.ARRAY,
+      type: Type.STRING,
       description:
-        "🧭 針對客戶當前帳戶槓桿狀態，給予一句溫暖但嚴格的紀律提醒。每點約 30-50 字，幫助客戶克服恐慌或貪婪。",
-      items: {
-        type: Type.STRING,
-      },
-      minItems: 1,
-      maxItems: 4,
+        "🧭 針對客戶當前帳戶槓桿狀態，給予一句溫暖但嚴格的紀律提醒（30-50 字），幫助客戶克服恐慌或貪婪。",
     },
   },
   required: [
@@ -704,13 +651,6 @@ export const INVESTMENT_COACH_CONFIG = {
 
 /**
  * LLM Judge 共用 Schema
- *
- * 兩個 Judge prompt（JudgeActionability / JudgeToneAndEmpathy）
- * 回傳結構相同，統一用此 Schema 控制輸出格式。
- *
- * 欄位說明：
- *   score  — 0.0 ~ 1.0 的浮點數評分（由 Gemini responseSchema 保證型別）
- *   reason — 一句繁體中文說明評分依據（50 字以內）
  */
 export const JUDGE_RESULT_SCHEMA = {
   type: Type.OBJECT,
@@ -729,15 +669,6 @@ export const JUDGE_RESULT_SCHEMA = {
   required: ["score", "reason"],
 };
 
-/**
- * JudgeActionability — System Prompt
- *
- * 評估 InvestmentAdvice 的「可操作性」：
- * action_items 是否具備明確的條件（If）與具體動作（Then），
- * 讓使用者無需二次解讀即可執行。
- *
- * 此文字將貼入 Langfuse → Prompts → JudgeActionability → System 欄位。
- */
 export const JUDGE_ACTIONABILITY_SYSTEM_PROMPT = `你是一位 LLM Judge，專責評估 AI 投資建議的「可操作性（Actionability）」。
 
 <Evaluation_Target>
@@ -768,15 +699,6 @@ export const JUDGE_ACTIONABILITY_SYSTEM_PROMPT = `你是一位 LLM Judge，專�
 reason 欄位用繁體中文說明最關鍵的加分或扣分理由，50 字以內。
 </Output_Requirement>`;
 
-/**
- * JudgeToneAndEmpathy — System Prompt
- *
- * 評估 InvestmentAdvice 的「語氣與同理心（Tone and Empathy）」：
- * mindset_advice 是否語氣穩定、具支持性，
- * 幫助使用者在波動中保持冷靜，而非製造焦慮或過度樂觀。
- *
- * 此文字將貼入 Langfuse → Prompts → JudgeToneAndEmpathy → System 欄位。
- */
 export const JUDGE_TONE_EMPATHY_SYSTEM_PROMPT = `你是一位 LLM Judge，專責評估 AI 投資建議的「語氣與同理心（Tone and Empathy）」。
 
 <Evaluation_Target>
