@@ -71,8 +71,10 @@ const HUMAN_REVIEW_CONFIG = {
 };
 
 function getHumanReviewMeta(promptName) {
+  const key = promptName.split("/").pop();
+
   return (
-    HUMAN_REVIEW_CONFIG[promptName] ?? {
+    HUMAN_REVIEW_CONFIG[key] ?? {
       human_review: false,
       scores: [],
       review_notes: "未設定 Human Review 欄位。",
@@ -173,14 +175,11 @@ async function resolveChatPrompt(promptName, variables = {}) {
 /**
  * 呼叫 AI API，支援 Gemini 與 Grok。
  *
- * prompt 解析優先順序：
- *   1. Langfuse chat prompt（system + user messages，含 config）
- *   2. options.userPrompt 覆蓋 user message（Langfuse user template 優先，
- *      若 Langfuse 取不到 user template 則使用 options.userPrompt）
+ * prompt 解析：Langfuse chat prompt（system + user messages，含 config）
  *
  * responseSchema 優先順序：
- *   1. options.responseSchema         ← 呼叫端強制覆蓋（最高）
- *   2. langfuseConfig.response_schema ← Langfuse prompt.config 管理（中，推薦）
+ *   1. langfuseConfig.response_schema ← Langfuse prompt.config 管理（最高）
+ *   2. options.responseSchema         ← 呼叫端強制覆蓋（中）
  *
  * @param {string} promptName - Langfuse prompt 名稱（同時作為 trace name）
  * @param {object} options
@@ -209,19 +208,17 @@ export async function callAI(promptName, options = {}) {
   const { systemInstruction, userTemplate, langfusePromptObj, langfuseConfig } =
     await resolveChatPrompt(promptName, options.promptVariables ?? {});
 
-  // ── Step 2: 合併 config（options > Langfuse config > code-side fallback）──
+  // ── Step 2: 合併 config（Langfuse config > options）──
   const resolvedOptions = {
     // 呼叫端 options（中優先）
-    ...options,
     // Langfuse prompt.config（最高優先，可覆蓋 option）
+    ...options,
     ...langfuseConfig,
     // ── responseSchema 三層優先順序 ──────────────────────────────────────────
-    // 1. options.responseSchema         → 呼叫端強制覆蓋
-    // 2. langfuseConfig.response_schema → Langfuse prompt.config 管理（推薦路徑）
-    //    Type 列舉值為純字串（如 "STRING"），可直接序列化至 Langfuse
-    // 3. codeSidePromptCfg.schema       → prompts.mjs code-side fallback
+    // 1. langfuseConfig.response_schema → Langfuse prompt.config 管理（推薦路徑）
+    // 2. options.responseSchema         → 呼叫端強制覆蓋
     responseSchema:
-      options.responseSchema ?? langfuseConfig.response_schema ?? undefined,
+      langfuseConfig.response_schema ?? options.responseSchema ?? undefined,
   };
 
   const startKeyIndex = options.keyIndex ?? 0;

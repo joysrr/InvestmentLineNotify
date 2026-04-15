@@ -1,8 +1,7 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync } from "fs";
 import { join } from "path";
-import { callAI, PROVIDERS } from "./aiClient.mjs";
+import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
-import { langfuse } from "./aiClient.mjs";
 
 const DATA_DIR = join(process.cwd(), "data");
 const BLACKLIST_PATH = join(DATA_DIR, "config", "blacklist.json");
