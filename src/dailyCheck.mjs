@@ -30,7 +30,10 @@ import {
 } from "./modules/ai/aiDataPreprocessor.mjs";
 import { archiveManager } from "./modules/data/archiveManager.mjs";
 import { TwDate, stepTimer } from "./utils/coreUtils.mjs";
-import { encryptSnapshot, isSnapshotEncryptEnabled } from "./utils/snapshotCrypto.mjs";
+import {
+  encryptSnapshot,
+  isSnapshotEncryptEnabled,
+} from "./utils/snapshotCrypto.mjs";
 
 const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
@@ -227,7 +230,10 @@ export async function dailyCheck({
   let macroTextForCoach = "無新跡數據，無法進行總經分析。";
   if (newsMessages?.length) {
     const done = stepTimer("analyzeMacro");
-    macroAnalysis = await analyzeMacroNewsWithAI(newsSummaryText, conflictSummary);
+    macroAnalysis = await analyzeMacroNewsWithAI(
+      newsSummaryText,
+      conflictSummary,
+    );
     macroTextForCoach = formatMacroAnalysisForCoach(macroAnalysis);
     done();
   } else {
@@ -241,7 +247,8 @@ export async function dailyCheck({
     macroTextForCoach = macroAnalysis.summary;
   }
 
-  const macroMarketDirection = macroAnalysis?.conclusion?.market_direction ?? null;
+  const macroMarketDirection =
+    macroAnalysis?.conclusion?.market_direction ?? null;
   if (macroMarketDirection) {
     console.log(`✅ 總經方向：${macroMarketDirection}`);
   } else {
@@ -290,7 +297,9 @@ export async function dailyCheck({
     try {
       previousAdviceSummary = await archiveManager.getPreviousAdviceSummary();
       if (previousAdviceSummary) {
-        console.log(`✅ 前次建議摘要已載入（${previousAdviceSummary.length} 字）`);
+        console.log(
+          `✅ 前次建議摘要已載入（${previousAdviceSummary.length} 字）`,
+        );
       } else {
         console.log("ℹ️ 無前次建議記錄（首次執行或讀取失敗），AI 將全量分析");
       }
@@ -313,8 +322,8 @@ export async function dailyCheck({
       newsSummaryText,
       macroTextForCoach,
       macroAndChipStr,
+      previousAdviceSummary, // ← 注入前次建議，消除重複感
       !isAIAdvisor,
-      previousAdviceSummary,   // ← 注入前次建議，消除重複感
     );
     aiAdvice = adviceResult.advice;
     adviceTraceId = adviceResult.traceId;
@@ -363,7 +372,7 @@ export async function dailyCheck({
       const snapshotPayload = {
         ...lastState,
         price0050: price0050 ?? null,
-        priceZ2:   finalPriceZ2 ?? null,
+        priceZ2: finalPriceZ2 ?? null,
       };
       const encrypted = encryptSnapshot(snapshotPayload);
       if (encrypted) {
@@ -385,11 +394,11 @@ export async function dailyCheck({
       vixData,
       usRisk,
       macroData: {
-        rawCnn:       macroData?.rawCnn       ?? null,
-        rawMargin:    macroData?.rawMargin     ?? null,
-        rawFx:        macroData?.rawFx         ?? null,
-        rawNdc:       macroData?.rawNdc        ?? null,
-        rawValuation: macroData?.rawValuation  ?? null,
+        rawCnn: macroData?.rawCnn ?? null,
+        rawMargin: macroData?.rawMargin ?? null,
+        rawFx: macroData?.rawFx ?? null,
+        rawNdc: macroData?.rawNdc ?? null,
+        rawValuation: macroData?.rawValuation ?? null,
       },
       macroAnalysis,
       // ── 補存 AI 精選新跡給 Mini App 使用 ───────────────────────────────
@@ -418,7 +427,9 @@ export async function dailyCheck({
       ),
     );
   } else if (shouldRunJudge()) {
-    console.log("⚠️ [LLMJudge] 今日應觸發但 adviceTraceId 無效或 aiAdvice 非物件，跳過");
+    console.log(
+      "⚠️ [LLMJudge] 今日應觸發但 adviceTraceId 無效或 aiAdvice 非物件，跳過",
+    );
   } else {
     console.log("⏭️ [LLMJudge] 今日不執行 Judge");
   }

@@ -404,8 +404,8 @@ export async function getAiInvestmentAdvice(
   newsSummaryText,
   macroTextForCoach,
   macroAndChipStr,
-  onlyPrompt,
   previousAdviceSummary = "",
+  onlyPrompt,
 ) {
   if (onlyPrompt) return { advice: "AI 決策引擎停止運作中。", traceId: null };
 
