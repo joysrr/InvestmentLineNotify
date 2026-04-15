@@ -282,6 +282,25 @@ export async function dailyCheck({
 
   const dateText = TwDate().formatDateKey();
 
+  // ── 載入前次 AI 建議摘要（供 Prompt 注入，提升連貫性）─────────────────────
+  console.log("📂 正在載入前次 AI 建議摘要...");
+  let previousAdviceSummary = "";
+  {
+    const done = stepTimer("fetchPrevAdvice");
+    try {
+      previousAdviceSummary = await archiveManager.getPreviousAdviceSummary();
+      if (previousAdviceSummary) {
+        console.log(`✅ 前次建議摘要已載入（${previousAdviceSummary.length} 字）`);
+      } else {
+        console.log("ℹ️ 無前次建議記錄（首次執行或讀取失敗），AI 將全量分析");
+      }
+    } catch (err) {
+      console.warn("⚠️ 載入前次建議失敗，繼續執行:", err.message);
+    }
+    done();
+  }
+  // ───────────────────────────────────────────────────────────────────────────
+
   // 取得 AI 決策報告
   console.log("🤖 正在產生 AI 決策分析...");
   let aiAdvice, adviceTraceId;
@@ -295,6 +314,7 @@ export async function dailyCheck({
       macroTextForCoach,
       macroAndChipStr,
       !isAIAdvisor,
+      previousAdviceSummary,   // ← 注入前次建議，消除重複感
     );
     aiAdvice = adviceResult.advice;
     adviceTraceId = adviceResult.traceId;
