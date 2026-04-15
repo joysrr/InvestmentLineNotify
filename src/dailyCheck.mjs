@@ -109,6 +109,17 @@ export async function dailyCheck({
   }
   const macroAndChipStr = formatMacroChipForCoach(macroData);
 
+  // ── 大盤量價概覽 log ────────────────────────────────────────────────────────
+  if (macroData.rawMarketOverview) {
+    const ov = macroData.rawMarketOverview;
+    console.log(
+      `✅ 大盤量價：指數 ${ov.taiex ?? "--"} 點，成交 ${ov.tradeValueHundredMillion ?? "--"} 億元 [${ov.date ?? "--"}]`,
+    );
+  } else {
+    console.log("⚠️ 大盤量價概覽資料缺失，AI Coach 將略過此指標");
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
   const usRisk = macroData.rawUsMarket || {
     riskLevel: "正常",
     vix: "N/A",
@@ -399,6 +410,8 @@ export async function dailyCheck({
         rawFx: macroData?.rawFx ?? null,
         rawNdc: macroData?.rawNdc ?? null,
         rawValuation: macroData?.rawValuation ?? null,
+        // ── 新增：大盤量價概覽 (FMTQIK) ────────────────────────────────
+        rawMarketOverview: macroData?.rawMarketOverview ?? null,
       },
       macroAnalysis,
       // ── 補存 AI 精選新跡給 Mini App 使用 ───────────────────────────────
