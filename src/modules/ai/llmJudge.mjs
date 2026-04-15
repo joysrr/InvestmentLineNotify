@@ -1,7 +1,4 @@
 import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
-import {
-  JUDGE_CONFIG,
-} from "./prompts.mjs";
 
 // ── 觸發策略 ─────────────────────────────────────────────────────────────────
 
@@ -37,7 +34,10 @@ async function safeLangfuseScore(payload) {
   try {
     await langfuse.score(payload);
   } catch (err) {
-    console.warn(`⚠️ [LLMJudge] score 寫入失敗 (${payload.name}):`, err.message);
+    console.warn(
+      `⚠️ [LLMJudge] score 寫入失敗 (${payload.name}):`,
+      err.message,
+    );
   }
 }
 
@@ -58,34 +58,33 @@ export async function runJudge(adviceTraceId, adviceObj, sessionId) {
   }
 
   const judgeInput = JSON.stringify({
-    action_items:   adviceObj.action_items   ?? [],
-    risk_warnings:  adviceObj.risk_warnings  ?? [],
+    action_items: adviceObj.action_items ?? [],
+    risk_warnings: adviceObj.risk_warnings ?? [],
     mindset_advice: adviceObj.mindset_advice ?? [],
   });
 
   const tasks = [
     {
-      promptName: "JudgeActionability",
-      scoreName:  "Actionability",
+      promptName: "LLMJudge/JudgeActionability",
+      scoreName: "Actionability",
+      promptVariables: { coachOutputJson: judgeInput },
     },
     {
-      promptName: "JudgeToneAndEmpathy",
-      scoreName:  "Tone_and_Empathy",
+      promptName: "LLMJudge/JudgeToneAndEmpathy",
+      scoreName: "Tone_and_Empathy",
+      promptVariables: { coachOutputJson: judgeInput },
     },
   ];
 
-  for (const { promptName, scoreName } of tasks) {
+  for (const { promptName, scoreName, promptVariables } of tasks) {
     try {
       console.log(`🔍 [LLMJudge] 執行 ${scoreName} Judge...`);
 
-      const { text } = await callAI(promptName, judgeInput, {
+      const { text } = await callAI(promptName, {
         sessionId,
-        provider:       PROVIDERS.GEMINI,
-        keyIndex:       2,
-        // responseSchema 由 Langfuse prompt.config.response_schema 管理
-        // fallback: prompts.mjs LANGFUSE_PROMPT_CONFIGS[promptName].schema
-        // 覆寫 responseMimeType / temperature / maxOutputTokens
-        ...JUDGE_CONFIG,
+        provider: PROVIDERS.GEMINI,
+        keyIndex: 2,
+        promptVariables,
       });
 
       // schema 已保證結構，直接解析；score 型別由 Gemini 保證為 number
@@ -101,14 +100,14 @@ export async function runJudge(adviceTraceId, adviceObj, sessionId) {
 
       await safeLangfuseScore({
         traceId: adviceTraceId,
-        name:    scoreName,
-        value:   score,
+        name: scoreName,
+        value: score,
         comment: judgeResult.reason ?? "",
       });
 
       console.log(
         `✅ [LLMJudge] ${scoreName} = ${score.toFixed(2)}` +
-        (judgeResult.reason ? ` | ${judgeResult.reason.slice(0, 80)}` : ""),
+          (judgeResult.reason ? ` | ${judgeResult.reason.slice(0, 80)}` : ""),
       );
     } catch (err) {
       console.warn(`⚠️ [LLMJudge] ${scoreName} Judge 執行失敗:`, err.message);

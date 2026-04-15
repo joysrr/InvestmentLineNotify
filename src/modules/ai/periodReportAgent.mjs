@@ -10,7 +10,10 @@ async function safeLangfuseScore(payload) {
   try {
     await langfuse.score(payload);
   } catch (err) {
-    console.warn(`⚠️ [Langfuse] score 寫入失敗 (${payload.name}):`, err.message);
+    console.warn(
+      `⚠️ [Langfuse] score 寫入失敗 (${payload.name}):`,
+      err.message,
+    );
   }
 }
 
@@ -75,13 +78,18 @@ export function buildPeriodStats(reports, period) {
   // ② 技術指標
   function calcIndicatorStats(values) {
     const valid = values.filter((v) => v != null && Number.isFinite(v));
-    if (!valid.length) return { avg: null, min: null, max: null, trend: "flat" };
-    const avg = parseFloat((valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(2));
+    if (!valid.length)
+      return { avg: null, min: null, max: null, trend: "flat" };
+    const avg = parseFloat(
+      (valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(2),
+    );
     const min = parseFloat(Math.min(...valid).toFixed(2));
     const max = parseFloat(Math.max(...valid).toFixed(2));
     const half = Math.floor(valid.length / 2);
-    const firstHalfAvg = valid.slice(0, half || 1).reduce((a, b) => a + b, 0) / (half || 1);
-    const secondHalfAvg = valid.slice(half).reduce((a, b) => a + b, 0) / (valid.length - half || 1);
+    const firstHalfAvg =
+      valid.slice(0, half || 1).reduce((a, b) => a + b, 0) / (half || 1);
+    const secondHalfAvg =
+      valid.slice(half).reduce((a, b) => a + b, 0) / (valid.length - half || 1);
     const diff = secondHalfAvg - firstHalfAvg;
     const trend = diff > 1 ? "up" : diff < -1 ? "down" : "flat";
     return { avg, min, max, trend };
@@ -95,11 +103,15 @@ export function buildPeriodStats(reports, period) {
 
   // ③ 過熱持續天數
   const overheatDays = reports.filter(
-    (r) => (r.signals?.overheat?.factorCount ?? 0) >= 1
+    (r) => (r.signals?.overheat?.factorCount ?? 0) >= 1,
   ).length;
   const half = Math.floor(reports.length / 2);
-  const firstHalfOverheat = reports.slice(0, half || 1).filter((r) => (r.signals?.overheat?.factorCount ?? 0) >= 1).length;
-  const secondHalfOverheat = reports.slice(half).filter((r) => (r.signals?.overheat?.factorCount ?? 0) >= 1).length;
+  const firstHalfOverheat = reports
+    .slice(0, half || 1)
+    .filter((r) => (r.signals?.overheat?.factorCount ?? 0) >= 1).length;
+  const secondHalfOverheat = reports
+    .slice(half)
+    .filter((r) => (r.signals?.overheat?.factorCount ?? 0) >= 1).length;
   const isEscalating = secondHalfOverheat > firstHalfOverheat;
 
   const overheat = {
@@ -146,24 +158,27 @@ export function buildPeriodStats(reports, period) {
   const bearishDays = macroDir.filter((d) => d === "BEARISH").length;
   const neutralDays = reports.length - bullishDays - bearishDays;
   let dominantDirection = "NEUTRAL";
-  if (bullishDays > bearishDays && bullishDays > neutralDays) dominantDirection = "BULLISH";
-  else if (bearishDays > bullishDays && bearishDays > neutralDays) dominantDirection = "BEARISH";
+  if (bullishDays > bearishDays && bullishDays > neutralDays)
+    dominantDirection = "BULLISH";
+  else if (bearishDays > bullishDays && bearishDays > neutralDays)
+    dominantDirection = "BEARISH";
 
   const macro = { bullishDays, bearishDays, neutralDays, dominantDirection };
 
   // ⑧ 月報：訊號品質
   let signalQuality = null;
   if (period === "monthly") {
-    const buyThreshold = reports[0]?.signals?.strategy?.buy?.minWeightScoreToBuy ?? 4;
-    const buyTriggeredDays = reports.filter((r) => (r.signals?.weightScore ?? 0) >= buyThreshold).length;
-    const overheatBlockedDays = reports.filter(
-      (r) => {
-        const ws = r.signals?.weightScore ?? 0;
-        const oh = r.signals?.overheat?.highCount ?? 0;
-        const ohThreshold = r.signals?.strategy?.threshold?.overheatCount ?? 2;
-        return ws < buyThreshold && oh >= ohThreshold;
-      }
+    const buyThreshold =
+      reports[0]?.signals?.strategy?.buy?.minWeightScoreToBuy ?? 4;
+    const buyTriggeredDays = reports.filter(
+      (r) => (r.signals?.weightScore ?? 0) >= buyThreshold,
     ).length;
+    const overheatBlockedDays = reports.filter((r) => {
+      const ws = r.signals?.weightScore ?? 0;
+      const oh = r.signals?.overheat?.highCount ?? 0;
+      const ohThreshold = r.signals?.strategy?.threshold?.overheatCount ?? 2;
+      return ws < buyThreshold && oh >= ohThreshold;
+    }).length;
     signalQuality = {
       buyTriggeredDays,
       overheatBlockedDays,
@@ -199,8 +214,16 @@ export function buildPeriodStats(reports, period) {
 export function isBuySignal(signals) {
   if (!signals) return false;
   // 主判斷：結構化槓桿欄位存在且 > 0
-  if (Number.isFinite(signals.suggestedLeverage) && signals.suggestedLeverage > 0) return true;
-  if (Number.isFinite(signals.targetAllocation?.leverage) && signals.targetAllocation.leverage > 0) return true;
+  if (
+    Number.isFinite(signals.suggestedLeverage) &&
+    signals.suggestedLeverage > 0
+  )
+    return true;
+  if (
+    Number.isFinite(signals.targetAllocation?.leverage) &&
+    signals.targetAllocation.leverage > 0
+  )
+    return true;
   // 備用：target 字串匹配
   return /破冰加碼|買進訊號/.test(signals.target ?? "");
 }
@@ -227,7 +250,11 @@ export function isCooldownBlocked(signals) {
  * @param {"weekly"|"monthly"} period
  * @returns {Object} accuracyStats
  */
-export function buildSignalAccuracyStats(targetReports, priceSeriesReports, period) {
+export function buildSignalAccuracyStats(
+  targetReports,
+  priceSeriesReports,
+  period,
+) {
   if (!targetReports?.length) return null;
 
   // 建立日期 → 價格的查詢 map（用 priceSeriesReports）
@@ -288,13 +315,23 @@ export function buildSignalAccuracyStats(targetReports, priceSeriesReports, peri
     };
 
     // 月報才計算報酬率
-    if (period === "monthly" && Number.isFinite(priceAtSignal) && priceAtSignal > 0) {
-      for (const [key, offset] of [["d5", 5], ["d10", 10], ["d20", 20]]) {
+    if (
+      period === "monthly" &&
+      Number.isFinite(priceAtSignal) &&
+      priceAtSignal > 0
+    ) {
+      for (const [key, offset] of [
+        ["d5", 5],
+        ["d10", 10],
+        ["d20", 20],
+      ]) {
         const { price, available } = lookupReturnPrice(r.date, offset);
         if (available && Number.isFinite(price)) {
           detail.returns[key] = {
             price: parseFloat(price.toFixed(2)),
-            pct: parseFloat(((price - priceAtSignal) / priceAtSignal * 100).toFixed(2)),
+            pct: parseFloat(
+              (((price - priceAtSignal) / priceAtSignal) * 100).toFixed(2),
+            ),
             available: true,
           };
         } else {
@@ -307,9 +344,10 @@ export function buildSignalAccuracyStats(targetReports, priceSeriesReports, peri
   }
 
   const totalEligibleDays = buySignalCount + cooldownBlockedCount;
-  const cooldownBlockRate = totalEligibleDays > 0
-    ? parseFloat((cooldownBlockedCount / totalEligibleDays).toFixed(3))
-    : 0;
+  const cooldownBlockRate =
+    totalEligibleDays > 0
+      ? parseFloat((cooldownBlockedCount / totalEligibleDays).toFixed(3))
+      : 0;
 
   // 報酬率統計（月報才有）
   let avgReturn = null;
@@ -327,11 +365,17 @@ export function buildSignalAccuracyStats(targetReports, priceSeriesReports, peri
         winRate[key] = null;
       } else {
         const pcts = available.map((d) => d.returns[key].pct);
-        avgReturn[key] = parseFloat((pcts.reduce((a, b) => a + b, 0) / pcts.length).toFixed(2));
-        winRate[key] = parseFloat((pcts.filter((p) => p > 0).length / pcts.length).toFixed(3));
+        avgReturn[key] = parseFloat(
+          (pcts.reduce((a, b) => a + b, 0) / pcts.length).toFixed(2),
+        );
+        winRate[key] = parseFloat(
+          (pcts.filter((p) => p > 0).length / pcts.length).toFixed(3),
+        );
         // 部分資料不足時附加說明
         if (available.length < signalDetails.length) {
-          dataNote = dataNote || `部分訊號的後續資料尚不完整（+${key.slice(1)} 日僅 ${available.length}/${signalDetails.length} 筆）`;
+          dataNote =
+            dataNote ||
+            `部分訊號的後續資料尚不完整（+${key.slice(1)} 日僅 ${available.length}/${signalDetails.length} 筆）`;
         }
       }
     }
@@ -395,7 +439,12 @@ function buildPeriodReportVariables(stats, riskWarningsText, periodLabel) {
  * @param {string} sessionId
  * @returns {{ aiSummary: Object|null, traceId: string|null }}
  */
-export async function generatePeriodAiSummary(stats, reports, periodLabel, sessionId) {
+export async function generatePeriodAiSummary(
+  stats,
+  reports,
+  periodLabel,
+  sessionId,
+) {
   // 彙整每日 risk_warnings
   const riskWarningsText = reports
     .map((r) => {
@@ -408,23 +457,17 @@ export async function generatePeriodAiSummary(stats, reports, periodLabel, sessi
 
   const promptVariables = buildPeriodReportVariables(
     stats,
-    riskWarningsText || "本週期無風險警告記錄。",
+    riskWarningsText || "本期無風險警告記錄。",
     periodLabel,
   );
 
   try {
-    const { text, traceId } = await callAI(
-      "PeriodReportAnalysis",
-      "請開始分析，依據 system 指令輸出 JSON。",
-      {
-        sessionId,
-        provider: PROVIDERS.GEMINI,
-        keyIndex: 1,
-        // responseSchema 由 Langfuse prompt.config.response_schema 管理
-        // fallback: prompts.mjs LANGFUSE_PROMPT_CONFIGS.PeriodReport.schema
-        promptVariables,
-      },
-    );
+    const { text, traceId } = await callAI("Report/PeriodReportAnalysis", {
+      sessionId,
+      provider: PROVIDERS.GEMINI,
+      keyIndex: 1,
+      promptVariables,
+    });
 
     const aiSummary = JSON.parse(text);
 
@@ -450,17 +493,29 @@ export async function generatePeriodAiSummary(stats, reports, periodLabel, sessi
       name: "Format_Compliance",
       value: formatOk ? 1 : 0,
       comment: JSON.stringify({
-        topRiskEvents: Array.isArray(aiSummary.topRiskEvents) ? aiSummary.topRiskEvents.length : 0,
-        consistencyComment: typeof aiSummary.consistencyComment === "string" ? aiSummary.consistencyComment.length : 0,
-        periodOutlook: typeof aiSummary.periodOutlook === "string" ? aiSummary.periodOutlook.length : 0,
+        topRiskEvents: Array.isArray(aiSummary.topRiskEvents)
+          ? aiSummary.topRiskEvents.length
+          : 0,
+        consistencyComment:
+          typeof aiSummary.consistencyComment === "string"
+            ? aiSummary.consistencyComment.length
+            : 0,
+        periodOutlook:
+          typeof aiSummary.periodOutlook === "string"
+            ? aiSummary.periodOutlook.length
+            : 0,
       }),
     });
 
     // CI 觀測 log
     console.log(`🤖 [PeriodReport] AI 摘要產出完成 (${periodLabel})`);
     console.log(`  ⚠️  風險事件: ${aiSummary.topRiskEvents?.length ?? 0} 項`);
-    console.log(`  📝 一致性評語: ${aiSummary.consistencyComment?.slice(0, 30) ?? "N/A"}...`);
-    console.log(`  🔭 展望: ${aiSummary.periodOutlook?.slice(0, 30) ?? "N/A"}...`);
+    console.log(
+      `  📝 一致性評語: ${aiSummary.consistencyComment?.slice(0, 30) ?? "N/A"}...`,
+    );
+    console.log(
+      `  🔭 展望: ${aiSummary.periodOutlook?.slice(0, 30) ?? "N/A"}...`,
+    );
 
     // 持久化 AI 軌跡（非阻塞）
     archiveManager
@@ -471,7 +526,10 @@ export async function generatePeriodAiSummary(stats, reports, periodLabel, sessi
         rawResult: aiSummary,
       })
       .catch((err) =>
-        console.warn("⚠️ [Archive] 儲存 PeriodReport AI 軌跡失敗:", err.message),
+        console.warn(
+          "⚠️ [Archive] 儲存 PeriodReport AI 軌跡失敗:",
+          err.message,
+        ),
       );
 
     return { aiSummary, traceId };

@@ -1,7 +1,6 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync } from "fs";
 import { join } from "path";
 import { callAI, PROVIDERS } from "./aiClient.mjs";
-import { RULE_OPTIMIZER_SCHEMA, buildOptimizerPrompt } from "./prompts.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 import { langfuse } from "./aiClient.mjs";
 
@@ -251,14 +250,18 @@ function updateOptimizerHistory(date, region, accepted, rejected) {
 // ============================================================
 
 async function callOptimizerAI(articleTitles, region) {
-  const userPrompt = buildOptimizerPrompt(articleTitles, region);
+  const promptVariables = {
+    regionLabel: region === "TW" ? "台股" : "美股",
+    count: articleTitles.length,
+    titlesText: articleTitles,
+  };
 
   try {
-    const { rawJson, traceId } = await callAI("RuleOptimizer", userPrompt, {
+    const { rawJson, traceId } = await callAI("News/RuleOptimizer", {
       sessionId,
       provider: PROVIDERS.GEMINI,
       keyIndex: 2,
-      responseSchema: RULE_OPTIMIZER_SCHEMA,
+      promptVariables,
     });
     const parsed = JSON.parse(rawJson || '{"rules":[]}');
     return { rules: parsed.rules || [], traceId };

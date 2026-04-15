@@ -22,9 +22,7 @@ const PROVIDER_CONFIG = {
   [PROVIDERS.GROK]: {
     baseURL: "https://api.x.ai/v1",
     defaultModel: process.env.GROK_MODEL || "grok-4-1-fast-reasoning",
-    apiKeys: [
-      process.env.GROK_API_KEY1,
-    ].filter(Boolean),
+    apiKeys: [process.env.GROK_API_KEY1].filter(Boolean),
   },
 };
 
@@ -91,9 +89,7 @@ function getHumanReviewMeta(promptName) {
 function isQuotaError(error) {
   const msg = error.message || "";
   return (
-    msg.includes("429") ||
-    msg.includes("RATE_LIMIT") ||
-    msg.includes("quota")
+    msg.includes("429") || msg.includes("RATE_LIMIT") || msg.includes("quota")
   );
 }
 
@@ -102,10 +98,7 @@ function isQuotaError(error) {
  */
 function isServiceError(error) {
   const msg = error.message || "";
-  return (
-    msg.includes("503") ||
-    msg.includes("UNAVAILABLE")
-  );
+  return msg.includes("503") || msg.includes("UNAVAILABLE");
 }
 
 /** 向下相容：任一可重試錯誤 */
@@ -143,7 +136,9 @@ async function resolveChatPrompt(promptName, variables = {}) {
 
   try {
     // type: 'chat' → Langfuse 回傳 { prompt: [{role, content}], config, ... }
-    langfusePromptObj = await langfuse.getPrompt(promptName, undefined, { type: "chat" });
+    langfusePromptObj = await langfuse.getPrompt(promptName, undefined, {
+      type: "chat",
+    });
 
     const messages = langfusePromptObj.prompt ?? [];
 
@@ -160,15 +155,11 @@ async function resolveChatPrompt(promptName, variables = {}) {
     }
 
     if (userMsg) {
-      userTemplate = langfusePromptObj.compile(
-        variables,
-        userMsg.content,
-      );
+      userTemplate = langfusePromptObj.compile(variables, userMsg.content);
     }
 
     // 從 Langfuse prompt.config 取出 temperature / responseMimeType / thinkingConfig 等
     langfuseConfig = langfusePromptObj.config ?? {};
-
   } catch (err) {
     console.warn(
       `⚠️ [Langfuse] getPrompt(${promptName}, chat) 失敗，使用 code-side fallback：${err.message}`,
@@ -195,7 +186,6 @@ async function resolveChatPrompt(promptName, variables = {}) {
  *   3. codeSidePromptCfg.schema       ← prompts.mjs code-side fallback（最低）
  *
  * @param {string} promptName - Langfuse prompt 名稱（同時作為 trace name）
- * @param {string} userPrompt - user 訊息（當 Langfuse 無 user template 時使用）
  * @param {object} options
  * @param {string}  [options.provider]         - PROVIDERS.GEMINI | PROVIDERS.GROK
  * @param {string}  [options.model]             - 覆蓋預設 model
@@ -210,7 +200,7 @@ async function resolveChatPrompt(promptName, variables = {}) {
  * @param {number}  [options.maxOutputTokens]   - 覆蓋 Langfuse config
  * @param {object}  [options.thinkingConfig]    - 覆蓋 Langfuse config
  */
-export async function callAI(promptName, userPrompt, options = {}) {
+export async function callAI(promptName, options = {}) {
   const provider = options.provider ?? PROVIDERS.GEMINI;
   const cfg = PROVIDER_CONFIG[provider];
   if (!cfg) throw new Error(`[callAI] 未知的 provider: ${provider}`);
@@ -221,9 +211,6 @@ export async function callAI(promptName, userPrompt, options = {}) {
   // ── Step 1: 從 Langfuse 取得 chat prompt ─────────────────────────────────
   const { systemInstruction, userTemplate, langfusePromptObj, langfuseConfig } =
     await resolveChatPrompt(promptName, options.promptVariables ?? {});
-
-  // user message 優先順序：Langfuse user template > 傳入的 userPrompt
-  const resolvedUserPrompt = userTemplate.length > 0 ? userTemplate : userPrompt;
 
   // ── Step 2: 合併 config（options > Langfuse config > code-side fallback）──
   const codeSidePromptCfg = LANGFUSE_PROMPT_CONFIGS[promptName] ?? {};
@@ -248,7 +235,7 @@ export async function callAI(promptName, userPrompt, options = {}) {
 
   const startKeyIndex = options.keyIndex ?? 0;
   const keyCount = provider === PROVIDERS.GEMINI ? aiInstances.length : 1;
-  const maxRetries = options.maxRetries ?? (keyCount * 2);
+  const maxRetries = options.maxRetries ?? keyCount * 2;
 
   // ── Human Review Metadata ────────────────────────────────────────────────
   const humanReviewMeta = getHumanReviewMeta(promptName);
@@ -258,17 +245,20 @@ export async function callAI(promptName, userPrompt, options = {}) {
     name: promptName,
     sessionId: options.sessionId,
     userId: options.userId ?? (isCI ? "github-actions" : "local-dev"),
-    input: { userPrompt: resolvedUserPrompt },
+    input: { userTemplate },
     metadata: {
       provider,
       model: resolvedModel,
       startKeyIndex,
       human_review: humanReviewMeta,
       promptSource: langfusePromptObj ? "langfuse" : "code-fallback",
-      schemaSource:
-        options.responseSchema ? "options" :
-        langfuseConfig.response_schema ? "langfuse-config" :
-        codeSidePromptCfg.schema ? "code-fallback" : "none",
+      schemaSource: options.responseSchema
+        ? "options"
+        : langfuseConfig.response_schema
+          ? "langfuse-config"
+          : codeSidePromptCfg.schema
+            ? "code-fallback"
+            : "none",
       ...(isCI && {
         githubRunId: process.env.GITHUB_RUN_ID,
         githubWorkflow: process.env.GITHUB_WORKFLOW,
@@ -295,7 +285,7 @@ export async function callAI(promptName, userPrompt, options = {}) {
       model: resolvedModel,
       input: [
         { role: "system", content: systemInstruction },
-        { role: "user", content: resolvedUserPrompt },
+        { role: "user", content: userTemplate },
       ],
       modelParameters: {
         temperature: resolvedOptions.temperature,
@@ -317,7 +307,7 @@ export async function callAI(promptName, userPrompt, options = {}) {
         const ai = aiInstances[currentKeyIndex];
         const response = await ai.models.generateContent({
           model: resolvedModel,
-          contents: [{ role: "user", parts: [{ text: resolvedUserPrompt }] }],
+          contents: [{ role: "user", parts: [{ text: userTemplate }] }],
           config: {
             systemInstruction,
             temperature: resolvedOptions.temperature,
@@ -332,10 +322,12 @@ export async function callAI(promptName, userPrompt, options = {}) {
         outputTokens = response.usageMetadata?.candidatesTokenCount;
         totalTokens = response.usageMetadata?.totalTokenCount;
         thoughtsTokenCount = response.usageMetadata?.thoughtsTokenCount ?? 0;
-
       } else if (provider === PROVIDERS.GROK) {
         const result = await callGrokAPI({
-          model: resolvedModel, systemInstruction, userPrompt: resolvedUserPrompt, options: resolvedOptions,
+          model: resolvedModel,
+          systemInstruction,
+          userPrompt: userTemplate,
+          options: resolvedOptions,
         });
         rawText = result.text;
         inputTokens = result.inputTokens;
@@ -347,16 +339,25 @@ export async function callAI(promptName, userPrompt, options = {}) {
       // ── 清理 markdown code block ───────────────────────────────────────────
       let text = rawText;
       if (resolvedOptions.responseMimeType === "application/json") {
-        text = text.replace(/^```json\n?/, "").replace(/```$/, "").trim();
+        text = text
+          .replace(/^```json\n?/, "")
+          .replace(/```$/, "")
+          .trim();
       } else {
-        text = text.replace(/^```[a-zA-Z]*\n?/, "").replace(/```$/, "").trim();
+        text = text
+          .replace(/^```[a-zA-Z]*\n?/, "")
+          .replace(/```$/, "")
+          .trim();
       }
 
       // ── Generation 成功 ────────────────────────────────────────────────────
       generation.end({
         output: text,
         usage: {
-          input: inputTokens, output: outputTokens, total: totalTokens, unit: "TOKENS",
+          input: inputTokens,
+          output: outputTokens,
+          total: totalTokens,
+          unit: "TOKENS",
         },
         metadata: { thoughtsTokenCount, resolvedKeyIndex: currentKeyIndex },
       });
@@ -364,7 +365,6 @@ export async function callAI(promptName, userPrompt, options = {}) {
       trace.update({ output: text });
 
       return { text, traceId: trace.id };
-
     } catch (error) {
       const isLast = attempt === maxRetries;
       const quotaErr = isQuotaError(error);
@@ -377,7 +377,7 @@ export async function callAI(promptName, userPrompt, options = {}) {
           currentKeyIndex = (currentKeyIndex + 1) % keyCount;
           console.warn(
             `⚠️ [callAI] Quota 耗盡 (key: ${prevKey})，` +
-            `立即切換至 key: ${currentKeyIndex}（attempt ${attempt + 1}/${maxRetries}）`,
+              `立即切換至 key: ${currentKeyIndex}（attempt ${attempt + 1}/${maxRetries}）`,
           );
           generation.end({
             level: "WARNING",
@@ -387,7 +387,7 @@ export async function callAI(promptName, userPrompt, options = {}) {
           const delay = getBackoffDelay(attempt);
           console.warn(
             `⚠️ [callAI] 服務錯誤 (key: ${currentKeyIndex})，` +
-            `${(delay / 1000).toFixed(1)}s 後重試（attempt ${attempt + 1}/${maxRetries}）原因: ${error.message}`,
+              `${(delay / 1000).toFixed(1)}s 後重試（attempt ${attempt + 1}/${maxRetries}）原因: ${error.message}`,
           );
           generation.end({
             level: "WARNING",
@@ -401,7 +401,10 @@ export async function callAI(promptName, userPrompt, options = {}) {
           error.message,
         );
         generation.end({ level: "ERROR", statusMessage: error.message });
-        trace.update({ output: { error: error.message }, statusMessage: error.message });
+        trace.update({
+          output: { error: error.message },
+          statusMessage: error.message,
+        });
         throw error;
       }
     }
@@ -455,7 +458,7 @@ async function callGrokAPI({ model, systemInstruction, userPrompt, options }) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${cfg.apiKeys[0]}`,
+      Authorization: `Bearer ${cfg.apiKeys[0]}`,
     },
     body: JSON.stringify(body),
   });
@@ -489,7 +492,7 @@ export async function listGrokModels() {
   try {
     const res = await fetch(`${cfg.baseURL}/models`, {
       headers: {
-        "Authorization": `Bearer ${cfg.apiKeys[0]}`,
+        Authorization: `Bearer ${cfg.apiKeys[0]}`,
         "Content-Type": "application/json",
       },
     });
@@ -506,7 +509,9 @@ export async function listGrokModels() {
       console.log(`${i + 1}. ${model.id}  (owned_by: ${model.owned_by})`);
     });
 
-    console.log(`\n✅ 共 ${models.length} 個模型，請從上方挑選 id 放入 GROK_MODEL 中。`);
+    console.log(
+      `\n✅ 共 ${models.length} 個模型，請從上方挑選 id 放入 GROK_MODEL 中。`,
+    );
   } catch (error) {
     console.error("❌ 獲取 Grok 模型失敗:", error.message);
   }

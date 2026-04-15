@@ -1,13 +1,6 @@
 import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
 import { formatQuantDataForCoach } from "./aiDataPreprocessor.mjs";
 import { baseTwQueries, baseUsQueries } from "../keywordConfig.mjs";
-import {
-  buildMacroAnalysisUserPrompt,
-  buildCoachUserPrompt,
-  buildNewsUserPrompt,
-  buildNewsKeyWorkPrompt,
-} from "./prompts.mjs";
-
 import { archiveManager } from "../data/archiveManager.mjs";
 import { saveFilteredPool } from "../data/newsPoolManager.mjs";
 import { assignConflictGroups } from "../news/newsConflictGrouper.mjs";
@@ -15,6 +8,13 @@ import { assignConflictGroups } from "../news/newsConflictGrouper.mjs";
 const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
   : `local-${Date.now()}`;
+
+const dateStr = new Date().toLocaleDateString("zh-TW", {
+  timeZone: "Asia/Taipei",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
 
 // ── 觀測工具 ─────────────────────────────────────────────────────────────────
 
@@ -136,16 +136,15 @@ export async function generateDailySearchQueries(marketData) {
     `TW 靜態池：${baseTwQueries.map((q) => q.keyword).join("、")}\n` +
     `US 靜態池：${baseUsQueries.map((q) => q.keyword).join("、")}`;
 
-  const todayStr = new Date().toISOString().split("T")[0];
-  const prompt = buildNewsKeyWorkPrompt(todayStr, marketData, staticPoolText);
+  const { marketStatus, vix } = marketData;
+  const promptVariables = { dateStr, marketStatus, vix, staticPoolText };
 
   try {
-    const { text, traceId } = await callAI("GenerateSearchQueries", prompt, {
+    const { text, traceId } = await callAI("News/GenerateSearchQueries", {
       sessionId,
       provider: PROVIDERS.GEMINI,
       keyIndex: 0,
-      // responseSchema 由 Langfuse prompt.config.response_schema 管理
-      // fallback: prompts.mjs LANGFUSE_PROMPT_CONFIGS.GenerateSearchQueries.schema
+      promptVariables,
     });
 
     const result = JSON.parse(text);
@@ -217,20 +216,15 @@ export async function filterAndCategorizeAllNewsWithAI(
     })
     .join("\n");
 
-  const userPrompt = buildNewsUserPrompt(newsListText);
+  const promptVariables = { newsListText };
 
   try {
-    const { text, traceId } = await callAI(
-      "FilterAndCategorizeNews",
-      userPrompt,
-      {
-        sessionId,
-        provider: PROVIDERS.GEMINI,
-        keyIndex: 1,
-        // responseSchema 由 Langfuse prompt.config.response_schema 管理
-        // fallback: prompts.mjs LANGFUSE_PROMPT_CONFIGS.FilterAndCategorizeNews.schema
-      },
-    );
+    const { text, traceId } = await callAI("News/FilterAndCategorizeNews", {
+      sessionId,
+      provider: PROVIDERS.GEMINI,
+      keyIndex: 1,
+      promptVariables,
+    });
 
     const aiResult = JSON.parse(text);
 
@@ -330,13 +324,19 @@ export async function analyzeMacroNewsWithAI(
     ? `${conflictSummary}\n\n---\n\n${basePrompt}`
     : basePrompt;
 
+  const promptVariables = {
+    dateStr,
+    newsText: conflictSummary
+      ? `${conflictSummary}\n\n---\n\n${todayNewsText}`
+      : todayNewsText,
+  };
+
   try {
-    const { text, traceId } = await callAI("AnalyzeMacroNews", userPrompt, {
+    const { text, traceId } = await callAI("News/AnalyzeMacroNews", {
       sessionId,
       provider: PROVIDERS.GEMINI,
       keyIndex: 2,
-      // responseSchema 由 Langfuse prompt.config.response_schema 管理
-      // fallback: prompts.mjs LANGFUSE_PROMPT_CONFIGS.AnalyzeMacroNews.schema
+      promptVariables,
     });
 
     const result = JSON.parse(text);
@@ -417,20 +417,20 @@ export async function getAiInvestmentAdvice(
   );
 
   // 參數順序：(quantTextForCoach, newsSummaryText, macroTextForCoach, macroAndChipStr)
-  const userPrompt = buildCoachUserPrompt(
-    quantTextForCoach,
-    newsSummaryText,
-    macroTextForCoach,
+  const promptVariables = {
+    dateStr,
+    quantText: quantTextForCoach,
     macroAndChipStr,
-  );
+    macroText: macroTextForCoach,
+    newsSummaryText,
+  };
 
   try {
-    const { text, traceId } = await callAI("InvestmentAdvice", userPrompt, {
+    const { text, traceId } = await callAI("Report/InvestmentAdvice", {
       sessionId,
       provider: PROVIDERS.GEMINI,
       keyIndex: 3,
-      // responseSchema 由 Langfuse prompt.config.response_schema 管理
-      // fallback: prompts.mjs LANGFUSE_PROMPT_CONFIGS.InvestmentAdvice.schema
+      promptVariables,
     });
 
     const result = JSON.parse(text);
