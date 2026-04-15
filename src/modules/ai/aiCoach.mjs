@@ -6,10 +6,6 @@ import {
   buildCoachUserPrompt,
   buildNewsUserPrompt,
   buildNewsKeyWorkPrompt,
-  FILTERED_NEWS_SCHEMA,
-  MACRO_ANALYSIS_SCHEMA,
-  NEWS_KEYWORD_SCHEMA,
-  INVESTMENT_COACH_SCHEMA,
 } from "./prompts.mjs";
 
 import { archiveManager } from "../data/archiveManager.mjs";
@@ -148,7 +144,8 @@ export async function generateDailySearchQueries(marketData) {
       sessionId,
       provider: PROVIDERS.GEMINI,
       keyIndex: 0,
-      responseSchema: NEWS_KEYWORD_SCHEMA,
+      // responseSchema 由 Langfuse prompt.config.response_schema 管理
+      // fallback: prompts.mjs LANGFUSE_PROMPT_CONFIGS.GenerateSearchQueries.schema
     });
 
     const result = JSON.parse(text);
@@ -164,7 +161,6 @@ export async function generateDailySearchQueries(marketData) {
       .saveAiLog({
         type: "SearchQueries",
         userPrompt: prompt,
-        schema: NEWS_KEYWORD_SCHEMA,
         rawResult: result,
       })
       .catch((err) =>
@@ -231,7 +227,8 @@ export async function filterAndCategorizeAllNewsWithAI(
         sessionId,
         provider: PROVIDERS.GEMINI,
         keyIndex: 1,
-        responseSchema: FILTERED_NEWS_SCHEMA,
+        // responseSchema 由 Langfuse prompt.config.response_schema 管理
+        // fallback: prompts.mjs LANGFUSE_PROMPT_CONFIGS.FilterAndCategorizeNews.schema
       },
     );
 
@@ -297,7 +294,6 @@ export async function filterAndCategorizeAllNewsWithAI(
       .saveAiLog({
         type: "NewsFilter",
         userPrompt,
-        schema: FILTERED_NEWS_SCHEMA,
         rawResult: aiResult,
       })
       .catch((err) =>
@@ -339,7 +335,8 @@ export async function analyzeMacroNewsWithAI(
       sessionId,
       provider: PROVIDERS.GEMINI,
       keyIndex: 2,
-      responseSchema: MACRO_ANALYSIS_SCHEMA,
+      // responseSchema 由 Langfuse prompt.config.response_schema 管理
+      // fallback: prompts.mjs LANGFUSE_PROMPT_CONFIGS.AnalyzeMacroNews.schema
     });
 
     const result = JSON.parse(text);
@@ -368,7 +365,6 @@ export async function analyzeMacroNewsWithAI(
       .saveAiLog({
         type: "MacroAnalysis",
         userPrompt,
-        schema: MACRO_ANALYSIS_SCHEMA,
         rawResult: result,
       })
       .catch((err) =>
@@ -433,7 +429,8 @@ export async function getAiInvestmentAdvice(
       sessionId,
       provider: PROVIDERS.GEMINI,
       keyIndex: 3,
-      responseSchema: INVESTMENT_COACH_SCHEMA,
+      // responseSchema 由 Langfuse prompt.config.response_schema 管理
+      // fallback: prompts.mjs LANGFUSE_PROMPT_CONFIGS.InvestmentAdvice.schema
     });
 
     const result = JSON.parse(text);
@@ -472,7 +469,6 @@ export async function getAiInvestmentAdvice(
       .saveAiLog({
         type: "InvestmentAdvice",
         userPrompt,
-        schema: INVESTMENT_COACH_SCHEMA,
         rawResult: result,
       })
       .catch((err) =>

@@ -1,6 +1,5 @@
 import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
 import {
-  JUDGE_RESULT_SCHEMA,
   JUDGE_CONFIG,
 } from "./prompts.mjs";
 
@@ -83,8 +82,8 @@ export async function runJudge(adviceTraceId, adviceObj, sessionId) {
         sessionId,
         provider:       PROVIDERS.GEMINI,
         keyIndex:       2,
-        // Schema 控制輸出結構，保證 score(number) + reason(string) 欄位存在
-        responseSchema: JUDGE_RESULT_SCHEMA,
+        // responseSchema 由 Langfuse prompt.config.response_schema 管理
+        // fallback: prompts.mjs LANGFUSE_PROMPT_CONFIGS[promptName].schema
         // 覆寫 responseMimeType / temperature / maxOutputTokens
         ...JUDGE_CONFIG,
       });

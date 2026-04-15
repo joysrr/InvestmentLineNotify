@@ -189,6 +189,11 @@ async function resolveChatPrompt(promptName, variables = {}) {
  *      若 Langfuse 取不到 user template 則使用 options.userPrompt）
  *   3. code-side LANGFUSE_PROMPT_CONFIGS[promptName] 作為 schema/config fallback
  *
+ * responseSchema 優先順序：
+ *   1. options.responseSchema         ← 呼叫端強制覆蓋（最高）
+ *   2. langfuseConfig.response_schema ← Langfuse prompt.config 管理（中，推薦）
+ *   3. codeSidePromptCfg.schema       ← prompts.mjs code-side fallback（最低）
+ *
  * @param {string} promptName - Langfuse prompt 名稱（同時作為 trace name）
  * @param {string} userPrompt - user 訊息（當 Langfuse 無 user template 時使用）
  * @param {object} options
@@ -199,7 +204,7 @@ async function resolveChatPrompt(promptName, variables = {}) {
  * @param {number}  [options.maxRetries]        - 最大重試次數
  * @param {string}  [options.sessionId]         - Langfuse session ID
  * @param {string}  [options.userId]            - Langfuse user ID
- * @param {object}  [options.responseSchema]    - Gemini responseSchema（code-side）
+ * @param {object}  [options.responseSchema]    - 強制覆蓋 responseSchema（呼叫端）
  * @param {string}  [options.responseMimeType]  - 覆蓋 Langfuse config
  * @param {number}  [options.temperature]       - 覆蓋 Langfuse config
  * @param {number}  [options.maxOutputTokens]   - 覆蓋 Langfuse config
@@ -218,9 +223,6 @@ export async function callAI(promptName, userPrompt, options = {}) {
     await resolveChatPrompt(promptName, options.promptVariables ?? {});
 
   // user message 優先順序：Langfuse user template > 傳入的 userPrompt
-  // 若 Langfuse 有 user template（非空字串），以 template 為主；
-  // 但 userPrompt 可帶入動態資料（如新聞內文），需在 template 中以 {{userPrompt}} 佔位，
-  // 或由呼叫端自行決定是否使用 Langfuse template。
   const resolvedUserPrompt = userTemplate.length > 0 ? userTemplate : userPrompt;
 
   // ── Step 2: 合併 config（options > Langfuse config > code-side fallback）──
@@ -232,8 +234,16 @@ export async function callAI(promptName, userPrompt, options = {}) {
     ...langfuseConfig,
     // 呼叫端 options（最高優先，可覆蓋 Langfuse config）
     ...options,
-    // responseSchema 永遠走 code-side（Langfuse 無法序列化 JS Type 物件）
-    responseSchema: options.responseSchema ?? codeSidePromptCfg.schema ?? undefined,
+    // ── responseSchema 三層優先順序 ──────────────────────────────────────────
+    // 1. options.responseSchema         → 呼叫端強制覆蓋
+    // 2. langfuseConfig.response_schema → Langfuse prompt.config 管理（推薦路徑）
+    //    Type 列舉值為純字串（如 "STRING"），可直接序列化至 Langfuse
+    // 3. codeSidePromptCfg.schema       → prompts.mjs code-side fallback
+    responseSchema:
+      options.responseSchema ??
+      langfuseConfig.response_schema ??
+      codeSidePromptCfg.schema ??
+      undefined,
   };
 
   const startKeyIndex = options.keyIndex ?? 0;
@@ -255,6 +265,10 @@ export async function callAI(promptName, userPrompt, options = {}) {
       startKeyIndex,
       human_review: humanReviewMeta,
       promptSource: langfusePromptObj ? "langfuse" : "code-fallback",
+      schemaSource:
+        options.responseSchema ? "options" :
+        langfuseConfig.response_schema ? "langfuse-config" :
+        codeSidePromptCfg.schema ? "code-fallback" : "none",
       ...(isCI && {
         githubRunId: process.env.GITHUB_RUN_ID,
         githubWorkflow: process.env.GITHUB_WORKFLOW,

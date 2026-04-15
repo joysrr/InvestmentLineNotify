@@ -3,26 +3,6 @@
 import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 
-const PERIOD_REPORT_SCHEMA = {
-  type: "object",
-  properties: {
-    topRiskEvents: {
-      type: "array",
-      items: { type: "string" },
-      description: "本週期最重要風險事件，每項 30 字以內，最多 2 項",
-    },
-    consistencyComment: {
-      type: "string",
-      description: "策略一致性評語，50 字以內",
-    },
-    periodOutlook: {
-      type: "string",
-      description: "下週/下月展望，50 字以內",
-    },
-  },
-  required: ["topRiskEvents", "consistencyComment", "periodOutlook"],
-};
-
 // ── 觀測工具 ─────────────────────────────────────────────────────────────────
 
 /** Langfuse score 回寫，失敗不阻斷主流程 */
@@ -440,7 +420,8 @@ export async function generatePeriodAiSummary(stats, reports, periodLabel, sessi
         sessionId,
         provider: PROVIDERS.GEMINI,
         keyIndex: 1,
-        responseSchema: PERIOD_REPORT_SCHEMA,
+        // responseSchema 由 Langfuse prompt.config.response_schema 管理
+        // fallback: prompts.mjs LANGFUSE_PROMPT_CONFIGS.PeriodReport.schema
         promptVariables,
       },
     );
@@ -487,7 +468,6 @@ export async function generatePeriodAiSummary(stats, reports, periodLabel, sessi
         type: "PeriodReport",
         periodLabel,
         promptVariables,
-        schema: PERIOD_REPORT_SCHEMA,
         rawResult: aiSummary,
       })
       .catch((err) =>
