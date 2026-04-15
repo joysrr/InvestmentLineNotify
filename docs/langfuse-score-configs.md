@@ -232,6 +232,80 @@
 
 ---
 
+## 16. Thinking_Depth ⭐ 新增（改善 4）
+
+- **Name:** `Thinking_Depth`
+- **Data Type:** `Numeric`
+- **Data Options/Range:** `1 ~ 5`
+- **Description:**  
+  [Rule → 後續可升 LLM Judge] [Investment Coach]  
+  評估 `coach_internal_thinking` 欄位的分析密度，尤其針對「無明確操作訊號」的沉默情境。  
+  **計分邏輯（Rule 規則版）：**  
+  由程式自動評估以下四個維度，每個維度滿足得 1 分，最終映射至 1~5 分制：  
+  - **長度充足**：`coach_internal_thinking` 字數 ≥ 80 字（中文）  
+  - **包含等待理由**：出現「等待」、「觀察」、「尚未」、「條件」等關鍵詞，說明不行動的依據  
+  - **包含風險識別**：出現「風險」、「警戒」、「注意」、「壓力」等字眼，說明潛在威脅  
+  - **包含情境判斷**：出現「若」、「當」、「一旦」、「如果」等假設句式，代表有前瞻性推論  
+  
+  評分映射：  
+  - 0 個維度 → 1 分（空洞輸出）  
+  - 1 個維度 → 2 分  
+  - 2 個維度 → 3 分  
+  - 3 個維度 → 4 分  
+  - 4 個維度 → 5 分（高密度 thinking）  
+  
+  **搭配 `Signal_Context_Label` 使用**，在 Langfuse 中以情境標籤分層比較：  
+  - `quiet_market` 情境下的 `Thinking_Depth` 應 ≥ 3，否則代表 AI 在沉默情境下輸出空洞。  
+  - `active_signal` 情境下的 `Thinking_Depth` 通常自然偏高，可作為基準對照組。  
+  
+  後續可建立 LLM Judge Prompt，將規則版替換為語意評估版。
+
+---
+
+## 17. Signal_Context_Label ⭐ 新增（改善 4）
+
+- **Name:** `Signal_Context_Label`
+- **Data Type:** `Numeric`
+- **Data Options/Range:** `0 / 1`
+- **Description:**  
+  [Rule] [Investment Coach]  
+  記錄本次 Coach 執行所處的市場情境，作為其他 score 做分層分析的 metadata tag。  
+  **非評分用途，而是情境分類標籤。**  
+  
+  計算方式（由程式自動判斷）：  
+  - `1`（active_signal）：當次 `action_items` 中包含明確的操作動作（買入、減碼、停損、加碼等關鍵詞），或 `marketStatus` 為非 HOLD 狀態。  
+  - `0`（quiet_market）：`action_items` 皆為觀察性內容，且 `marketStatus` 為 HOLD，代表市場無明確訊號。  
+  
+  **在 Langfuse 中的使用方式：**  
+  透過此欄位對 `Thinking_Depth`、`Actionability`、`Tone_and_Empathy` 做 group by 分析，比較兩種情境下各 score 的分布差異，找出 AI 在沉默情境中是否系統性輸出品質下降。  
+  
+  comment 欄位記錄判斷依據，例如：`quiet_market｜action_items 無明確操作詞, marketStatus=HOLD`。
+
+---
+
+## 18. Confidence_Level ⭐ 新增（改善 5）
+
+- **Name:** `Confidence_Level`
+- **Data Type:** `Numeric`
+- **Data Options/Range:** `1 ~ 5`
+- **Description:**  
+  [Rule] [Investment Coach]  
+  直接回寫 AI output schema 中的 `confidence_level` 欄位值，供 Langfuse 做信心度分布分析。  
+  此欄位由 AI 自評，程式不做二次判斷，直接透傳。  
+  
+  **與其他 score 的交叉分析建議：**  
+  - `Confidence_Level` 高（4~5）但 `Thinking_Depth` 低（1~2）→ AI 過度自信，thinking 卻空洞，需 Prompt 加強約束。  
+  - `Confidence_Level` 低（1~2）但 `Actionability` 高（4~5）→ 建議具體但信心不足，可能是情境模糊導致。  
+  - `Signal_Context_Label = 0`（quiet_market）時，`Confidence_Level` 整體偏低屬正常，可作為基準校準。  
+  
+  **Langfuse Schema 對應：**  
+  AI output schema 需新增 `confidence_level` 欄位（Integer，1~5），Prompt 中說明：  
+  > 1 = 極不確定（市場訊號混亂）、3 = 中性（訊號模糊但可判斷）、5 = 高度確信（多重指標一致）  
+  
+  comment 欄位記錄當次 `marketStatus` 與 `market_direction`，方便校驗信心度是否合理。
+
+---
+
 
 # 建議實作順序
 
@@ -267,6 +341,9 @@
 - Optimizer_Golden_Kill_Rate
 - Diversity_Score
 - Score_Distribution_Spread
+- **Thinking_Depth**（改善 4，規則版，後續可升 LLM Judge）
+- **Signal_Context_Label**（改善 4，情境分類 tag）
+- **Confidence_Level**（改善 5，AI 自評直接透傳）
 
 ## Human 類
 適合人工抄查，建立黃金標準：
@@ -287,6 +364,7 @@
 - Weighting_Rationality
 - Actionability
 - Tone_and_Empathy
+- **Thinking_Depth**（規則版驗證穩定後，升至 LLM Judge）
 
 ---
 
@@ -296,3 +374,4 @@
 2. Description 內需清楔標示該 score 是屬於 Rule、Human 還是 LLM 類型。
 3. 若後續新增 Prompt，建議比照本文件格式擴充，不要混用不同評分標準。
 4. `Format_Compliance` 現已同時覆蓋 **Investment Coach** 與 **PeriodReportAnalysis** 兩個 prompt，為全專案共用。
+5. `Signal_Context_Label` 為情境分類 tag，非傳統評分；在 Langfuse 中建立時 Data Type 選 Numeric（0/1），利用過濾器做分層比較。
