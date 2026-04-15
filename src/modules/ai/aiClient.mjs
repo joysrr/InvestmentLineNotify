@@ -66,7 +66,7 @@ export async function flushLangfuse(traceId, status = "success") {
     await langfuse.flushAsync();
     console.log(
       `✅ [Langfuse] flush 完成 | traceId: ${traceId} | status: ${status} | url: ${
-        (process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com")
+        process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com"
       }/trace/${traceId}`,
     );
   } catch (flushErr) {
@@ -155,6 +155,28 @@ function getBackoffDelay(attempt, baseDelay = 2000) {
 
 // ── Langfuse Chat Prompt 解析 ────────────────────────────────────────────────
 
+//─────────────────────────────────────────────────────────────────
+// 工具：將 compile() 回傳值強制轉為純字串
+// Langfuse SDK 不同版本行為不一致：
+//   - 舊版：compile(vars, content) → string
+//   - 新版：compile(vars, content) → [{role, content}, ...] 陣列
+// ─────────────────────────────────────────────────────────────────
+function extractCompiledText(raw) {
+  if (typeof raw === "string") return raw;
+  if (Array.isArray(raw)) {
+    // 回傳 message 陣列時，找對應 role 的 content
+    // 若找不到則把所有 content 合併（保險 fallback）
+    return raw
+      .map((m) => (typeof m?.content === "string" ? m.content : ""))
+      .join("\n")
+      .trim();
+  }
+  if (raw && typeof raw === "object" && typeof raw.content === "string") {
+    return raw.content;
+  }
+  return String(raw ?? "");
+}
+
 /**
  * 從 Langfuse 取得 chat 格式 prompt，解析出 systemInstruction 與 userTemplate。
  * 若 Langfuse 無法連線，回傳 code-side fallback（空字串）。
@@ -188,14 +210,26 @@ async function resolveChatPrompt(promptName, variables = {}) {
 
     if (systemMsg) {
       // compile() 將 {{variable}} 替換為實際值
-      systemInstruction = langfusePromptObj.compile(
-        variables,
-        systemMsg.content,
-      );
+      const raw = langfusePromptObj.compile(variables, systemMsg.content);
+
+      if (Array.isArray(raw)) {
+        const compiledSystem = raw.find((m) => m.role === "system");
+        systemInstruction = compiledSystem?.content ?? extractCompiledText(raw);
+      } else {
+        systemInstruction = extractCompiledText(raw);
+      }
     }
 
     if (userMsg) {
-      userTemplate = langfusePromptObj.compile(variables, userMsg.content);
+      // compile() 將 {{variable}} 替換為實際值
+      const raw = langfusePromptObj.compile(variables, userMsg.content);
+
+      if (Array.isArray(raw)) {
+        const compiledUser = raw.find((m) => m.role === "user");
+        userTemplate = compiledUser?.content ?? extractCompiledText(raw);
+      } else {
+        userTemplate = extractCompiledText(raw);
+      }
     }
 
     // 從 Langfuse prompt.config 取出 temperature / responseMimeType / thinkingConfig 等

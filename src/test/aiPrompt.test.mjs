@@ -3,6 +3,8 @@
 // 執行：node tests/aiPrompt.test.mjs
 // 可選：node tests/aiPrompt.test.mjs --prompt FilterAndCategorizeNews  ← 只測單一 prompt
 // 可選：node tests/aiPrompt.test.mjs --verbose                         ← 印出完整 prompt 內容
+// 可選：node tests/aiPrompt.test.mjs --compile                         ← 額外執行 compile 插值驗證
+// 可選：node tests/aiPrompt.test.mjs --compile --prompt InvestmentAdvice --verbose
 
 import { Langfuse } from "langfuse";
 import "dotenv/config";
@@ -12,6 +14,7 @@ import "dotenv/config";
 // ─────────────────────────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
 const VERBOSE = args.includes("--verbose");
+const RUN_COMPILE = args.includes("--compile");
 const FILTER_PROMPT = (() => {
   const idx = args.indexOf("--prompt");
   return idx !== -1 ? args[idx + 1] : null;
@@ -42,15 +45,9 @@ const section = (msg) => `\n${C.bold}${C.blue}── ${msg} ──${C.reset}`;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 8 個 Prompt 定義
-// 格式：{
-//   name:             Langfuse prompt 名稱（也是 callAI 第一參數）
-//   description:      人類可讀說明
-//   type:             'chat' | 'text'
-//   requiredVars:     User Prompt 中預期存在的插值變數
-//   expectedConfig:   config 欄位白名單（必須存在）
-//   schemaRequired:   是否必須有 responseSchema / response_schema
-//   schemaFields:     schema 頂層欄位（或 properties 鍵）應包含的欄位
-// }
+// compileFixtures：各 prompt 的 mock 插值變數，用於 --compile 模式驗證
+//   每個變數的值故意設為可辨識的「哨兵字串」，讓 compile 後能確認該變數
+//   是否真的被插入 prompt 文字中
 // ─────────────────────────────────────────────────────────────────────────────
 const PROMPT_SPECS = [
   {
@@ -61,6 +58,9 @@ const PROMPT_SPECS = [
     expectedConfig: ["temperature", "responseMimeType", "maxOutputTokens"],
     schemaRequired: true,
     schemaFields: ["think", "news"],
+    compileFixtures: {
+      newsListText: "__MOCK_NEWS_LIST__",
+    },
   },
   {
     name: "News/AnalyzeMacroNews",
@@ -78,6 +78,10 @@ const PROMPT_SPECS = [
       "total_bear_score",
       "conclusion",
     ],
+    compileFixtures: {
+      dateStr: "2026-04-15",
+      newsText: "__MOCK_NEWS_TEXT__",
+    },
   },
   {
     name: "News/GenerateSearchQueries",
@@ -87,6 +91,12 @@ const PROMPT_SPECS = [
     expectedConfig: ["temperature", "responseMimeType", "maxOutputTokens"],
     schemaRequired: true,
     schemaFields: ["reasoning_process", "twQueries", "usQueries"],
+    compileFixtures: {
+      dateStr: "2026-04-15",
+      marketStatus: "__MOCK_STATUS__",
+      vix: "18.5",
+      staticPoolText: "__MOCK_STATIC_POOL__",
+    },
   },
   {
     name: "News/RuleOptimizer",
@@ -96,6 +106,11 @@ const PROMPT_SPECS = [
     expectedConfig: ["temperature", "responseMimeType", "maxOutputTokens"],
     schemaRequired: true,
     schemaFields: ["rules"],
+    compileFixtures: {
+      regionLabel: "台股",
+      count: "42",
+      titlesText: "__MOCK_TITLES__",
+    },
   },
   {
     name: "Report/InvestmentAdvice",
@@ -116,6 +131,13 @@ const PROMPT_SPECS = [
       "action_items",
       "mindset_advice",
     ],
+    compileFixtures: {
+      dateStr: "2026-04-15",
+      quantText: "__MOCK_QUANT__",
+      macroAndChipStr: "__MOCK_MACRO_CHIP__",
+      macroText: "__MOCK_MACRO__",
+      newsSummaryText: "__MOCK_NEWS_SUMMARY__",
+    },
   },
   {
     name: "Report/PeriodReportAnalysis",
@@ -125,6 +147,11 @@ const PROMPT_SPECS = [
     expectedConfig: ["temperature", "responseMimeType", "maxOutputTokens"],
     schemaRequired: true,
     schemaFields: ["topRiskEvents", "consistencyComment", "periodOutlook"],
+    compileFixtures: {
+      period_label: "2026-W15",
+      risk_warnings_text: "__MOCK_RISK__",
+      stats_summary: "__MOCK_STATS__",
+    },
   },
   {
     name: "LLMJudge/JudgeToneAndEmpathy",
@@ -135,6 +162,9 @@ const PROMPT_SPECS = [
     expectedConfig: ["temperature", "responseMimeType", "maxOutputTokens"],
     schemaRequired: true,
     schemaFields: ["score", "reason"],
+    compileFixtures: {
+      coachOutputJson: '{"mindset_advice":"__MOCK_MINDSET__"}',
+    },
   },
   {
     name: "LLMJudge/JudgeActionability",
@@ -145,6 +175,9 @@ const PROMPT_SPECS = [
     expectedConfig: ["temperature", "responseMimeType", "maxOutputTokens"],
     schemaRequired: true,
     schemaFields: ["score", "reason"],
+    compileFixtures: {
+      coachOutputJson: '{"action_items":["__MOCK_ACTION__"]}',
+    },
   },
 ];
 
@@ -176,14 +209,8 @@ function initLangfuse() {
 // ─────────────────────────────────────────────────────────────────────────────
 function extractSchemaTopLevelFields(schema) {
   if (!schema || typeof schema !== "object") return [];
-
-  // Gemini-style：{ type: 'object', properties: { ... } }
   if (schema.properties) return Object.keys(schema.properties);
-
-  // JSON Schema array items：{ type: 'array', items: { properties: { ... } } }
   if (schema.items?.properties) return Object.keys(schema.items.properties);
-
-  // 直接頂層鍵（fallback）
   return Object.keys(schema).filter((k) => !["type", "required"].includes(k));
 }
 
@@ -193,6 +220,134 @@ function extractSchemaTopLevelFields(schema) {
 function detectTemplateVars(text) {
   const matches = text.match(/\{\{(\w+)\}\}/g) ?? [];
   return [...new Set(matches.map((m) => m.replace(/\{\{|\}\}/g, "")))];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Compile 結果驗證
+//
+// 邏輯：
+//   1. 以 compileFixtures 作為插值變數呼叫 promptObj.compile()
+//   2. 對 system / user 分別驗證：
+//      a. compile 後不再有任何未替換的 {{...}} 佔位符
+//      b. 每個 fixture 的哨兵值確實出現在 compile 後的文字中
+//         （確認 Langfuse compile 有正確替換，而不是插錯位置或被 escape）
+//   3. System Prompt 不應包含任何插值變數（確保設計正確）
+// ─────────────────────────────────────────────────────────────────────────────
+function runCompileCheck(promptObj, spec, results) {
+  const messages = promptObj.prompt ?? [];
+  const fixtures = spec.compileFixtures ?? {};
+  const fixtureEntries = Object.entries(fixtures);
+
+  // ── 工具：強制轉為字串（compile 回傳值可能是物件/陣列）──────────────────
+  function toStr(raw, role = "user") {
+    if (typeof raw === "string") return raw;
+    if (Array.isArray(raw)) {
+      // 優先取對應 role 的 content
+      const matched = raw.find((m) => m.role === role);
+      if (matched?.content) return matched.content;
+      // fallback：合併所有 content
+      return raw
+        .map((m) => (typeof m?.content === "string" ? m.content : ""))
+        .join("\n")
+        .trim();
+    }
+    if (raw && typeof raw === "object" && typeof raw.content === "string") {
+      return raw.content;
+    }
+    return String(raw ?? "");
+  }
+
+  // ── 7a. System Prompt 不應包含插值變數 ────────────────────────────────────
+  const systemMsg = messages.find((m) => m.role === "system");
+  if (systemMsg?.content) {
+    const sysVars = detectTemplateVars(systemMsg.content);
+    if (sysVars.length === 0) {
+      results.passed.push("[Compile] System Prompt 不含插值變數（設計正確）");
+    } else {
+      results.warnings.push(
+        `[Compile] System Prompt 含有插值變數 {{${sysVars.join("}}, {{")}}}（通常應固定不插值，請確認是否有意為之）`,
+      );
+    }
+  }
+
+  if (fixtureEntries.length === 0) {
+    results.warnings.push("[Compile] compileFixtures 未設定，跳過插值替換驗證");
+    return;
+  }
+
+  // ── 7b. User Prompt compile 驗證 ──────────────────────────────────────────
+  const userMsg = messages.find((m) => m.role === "user");
+  if (!userMsg?.content) {
+    results.errors.push("[Compile] User Prompt 不存在，無法執行 compile 驗證");
+    return;
+  }
+
+  let compiledUser;
+  try {
+    const raw = promptObj.compile(fixtures, userMsg.content);
+    compiledUser = toStr(raw, "user");
+  } catch (err) {
+    results.errors.push(
+      `[Compile] promptObj.compile() 拋出例外：${err.message}`,
+    );
+    return;
+  }
+
+  // 7b-1. compile 後不應有殘留的 {{...}} 佔位符
+  const residual = detectTemplateVars(compiledUser);
+  if (residual.length === 0) {
+    results.passed.push("[Compile] User Prompt compile 後無殘留佔位符");
+  } else {
+    results.errors.push(
+      `[Compile] compile 後仍有未替換的佔位符：{{${residual.join("}}, {{")}}}` +
+        `（compileFixtures 缺少對應 key，或 Langfuse 變數名稱拼寫不符）`,
+    );
+  }
+
+  // 7b-2. 每個 fixture 的哨兵值應出現在 compile 結果中
+  for (const [key, sentinel] of fixtureEntries) {
+    if (compiledUser.includes(sentinel)) {
+      results.passed.push(
+        `[Compile] {{${key}}} → "${sentinel}" 成功插入 User Prompt`,
+      );
+    } else {
+      results.errors.push(
+        `[Compile] {{${key}}} 的哨兵值 "${sentinel}" 未出現在 compile 結果中` +
+          `（prompt 中的 {{${key}}} 可能被 escape、改名或已移除）`,
+      );
+    }
+  }
+
+  // 7b-3. verbose 模式印出 compile 後的 User Prompt 前 600 字元
+  if (VERBOSE) {
+    results.details.compiledUserSnippet = compiledUser.slice(0, 600);
+  }
+
+  // ── 7c. System Prompt compile（若 System 含有插值變數才執行）────────────────
+  if (systemMsg?.content) {
+    const sysVars = detectTemplateVars(systemMsg.content);
+    if (sysVars.length > 0) {
+      let compiledSystem;
+      try {
+        compiledSystem = toStr(
+          promptObj.compile(fixtures, systemMsg.content),
+          "system",
+        );
+        const sysResidual = detectTemplateVars(compiledSystem);
+        if (sysResidual.length === 0) {
+          results.passed.push("[Compile] System Prompt compile 後無殘留佔位符");
+        } else {
+          results.warnings.push(
+            `[Compile] System Prompt compile 後仍有未替換佔位符：{{${sysResidual.join("}}, {{")}}}`,
+          );
+        }
+      } catch (err) {
+        results.warnings.push(
+          `[Compile] System Prompt compile() 拋出例外：${err.message}`,
+        );
+      }
+    }
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -249,7 +404,6 @@ async function testPrompt(langfuse, spec) {
     const detectedVars = detectTemplateVars(userMsg.content);
     results.details.detectedVars = detectedVars;
 
-    // 檢查 spec 預期的變數是否存在
     for (const v of spec.requiredVars) {
       if (detectedVars.includes(v)) {
         results.passed.push(`User Prompt 包含插值變數 {{${v}}}`);
@@ -260,7 +414,6 @@ async function testPrompt(langfuse, spec) {
       }
     }
 
-    // 反向：提示有哪些未在 spec 中登記的變數
     const unregistered = detectedVars.filter(
       (v) => !spec.requiredVars.includes(v),
     );
@@ -280,7 +433,6 @@ async function testPrompt(langfuse, spec) {
     }
   }
 
-  // 額外標示 config 裡有哪些「非預期」欄位（幫助發現多餘設定）
   const extraConfigKeys = Object.keys(config).filter(
     (k) => !spec.expectedConfig.includes(k) && k !== "response_schema",
   );
@@ -313,7 +465,6 @@ async function testPrompt(langfuse, spec) {
         }
       }
 
-      // 印出實際 schema 頂層欄位（供比對）
       const unexpected = topFields.filter(
         (f) => !spec.schemaFields.includes(f),
       );
@@ -338,6 +489,11 @@ async function testPrompt(langfuse, spec) {
         `有 response_schema 但 responseMimeType = "${config.responseMimeType}"（建議設為 application/json）`,
       );
     }
+  }
+
+  // ── 7. Compile 結果驗證（僅在 --compile flag 時執行）────────────────────
+  if (RUN_COMPILE) {
+    runCompileCheck(promptObj, spec, results);
   }
 
   return results;
@@ -412,6 +568,17 @@ function printResult(result) {
           .join("\n"),
       );
     }
+    if (result.details.compiledUserSnippet) {
+      console.log(
+        `\n   ${C.magenta}Compiled User Prompt (前 600 字元):${C.reset}`,
+      );
+      console.log(
+        result.details.compiledUserSnippet
+          .split("\n")
+          .map((l) => `   ${dim(l)}`)
+          .join("\n"),
+      );
+    }
     if (Object.keys(result.details.config ?? {}).length > 0) {
       console.log(`\n   ${C.magenta}Config:${C.reset}`);
       const configDisplay = { ...result.details.config };
@@ -429,7 +596,7 @@ function printResult(result) {
     }
   }
 
-  // 結果條目
+  // 結果條目（passed / warnings / errors 各自分組顯示）
   for (const p of result.passed) console.log(`   ${ok(p)}`);
   for (const w of result.warnings) console.log(`   ${warn(w)}`);
   for (const e of result.errors) console.log(`   ${fail(e)}`);
@@ -470,6 +637,10 @@ function printSummary(allResults, durationMs) {
   );
   console.log(dim(`   耗時：${(durationMs / 1000).toFixed(2)}s`));
 
+  if (RUN_COMPILE) {
+    console.log(dim(`   Compile 模式：已啟用（哨兵插值驗證）`));
+  }
+
   if (promptsWithError === 0 && promptsWithWarn === 0) {
     console.log(`\n${C.green}${C.bold}🎉 所有 Prompt 驗證通過！${C.reset}`);
   } else {
@@ -487,7 +658,6 @@ function printSummary(allResults, durationMs) {
 
   console.log("");
 
-  // 只在有錯誤時以非 0 exit code 退出，警告不影響 CI
   if (promptsWithError > 0) process.exit(1);
 }
 
@@ -505,12 +675,11 @@ async function main() {
     `${C.bold}${C.blue}╚══════════════════════════════════════════╝${C.reset}`,
   );
 
-  if (FILTER_PROMPT) {
-    console.log(info(`過濾模式：只測試 "${FILTER_PROMPT}"`));
-  }
-  if (VERBOSE) {
+  if (FILTER_PROMPT) console.log(info(`過濾模式：只測試 "${FILTER_PROMPT}"`));
+  if (VERBOSE)
     console.log(info("Verbose 模式：顯示 Prompt 內容片段與完整 Config"));
-  }
+  if (RUN_COMPILE)
+    console.log(info("Compile 模式：已啟用，將驗證插值替換結果"));
 
   const langfuse = initLangfuse();
   const startTime = Date.now();
