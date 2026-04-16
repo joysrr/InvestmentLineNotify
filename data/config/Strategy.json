@@ -1,9 +1,8 @@
 {
   "version": "2.4",
   "description": "質押槓桿策略（本地設定，2026-04-16 升級）",
-  "leverage": { "targetMultiplier": 1.8 },
+  "leverage": {},
   "reserve": {
-    "allocationRatio": 0.5,
     "tiers": [
       { "maxAsset": 1000000, "ratio": 0.05 },
       { "maxAsset": 3000000, "ratio": 0.08 },

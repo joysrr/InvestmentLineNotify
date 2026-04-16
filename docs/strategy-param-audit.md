@@ -18,25 +18,29 @@
 
 ## `leverage`
 
-### `leverage.targetMultiplier`
-- **當前值**：`1.8`
+### `leverage.targetMultiplier` 🔧 已移除（2026-04-16）
+- **舊值**：`1.8`
 - **設計意圖**：目標槓桿倍數
-- **實際引用**：
-  - `telegramHtmlBuilder.mjs`（L86）：`strategy.leverage?.targetMultiplier` → 傳入 `levTag()` 計算槓桿標籤顯示
-  - `strategyEngine.mjs`（L~）：未被 `getTargetLeverageByScore()` 直接使用，allocation 陣列自行定義各檔位 leverage
-- **狀態**：⚠️ 部分引用（只影響 UI 顯示標籤，不影響實際 allocation 決策）
-- **建議**：保留供 UI 顯示使用，未來可在 `getTargetLeverageByScore()` 加入天花板校驗邏輯
+- **實際引用**：僅 `telegramHtmlBuilder.mjs` UI 顯示標籤，不影響 allocation 決策邏輯
+- **移除原因**：純 UI 顯示用途的幽靈參數；allocation 各檔位已自行定義 leverage 比例，`targetMultiplier` 語意重疊且無實質計算引用
+- **移除內容**：
+  - `Strategy.json`：刪除 `leverage.targetMultiplier` 欄位
+  - `signalRules.mjs`：移除 `validateStrategyConfig()` 中 `assertNumber(config.leverage.targetMultiplier, ...)` 驗證行
+- **狀態**：✅ 已移除（commit: refactor: 移除幽靈參數）
 
 ---
 
 ## `reserve`
 
-### `reserve.allocationRatio`
-- **當前值**：`0.5`
+### `reserve.allocationRatio` 🔧 已移除（2026-04-16）
+- **舊值**：`0.5`
 - **設計意圖**：預備金配置比例
-- **實際引用**：`riskManagement.mjs` → `getReserveStatus()` 中未直接讀取此欄位，邏輯已由 `reserve.tiers` 控制
-- **狀態**：❌ 幽靈參數（疑似已被 tiers 完全取代）
-- **建議**：下一版移除，或在 `getReserveStatus()` 明確引入並標注用途
+- **實際引用**：`riskManagement.mjs` 中 `getReserveStatus()` 未直接讀取此欄位，邏輯已由 `reserve.tiers` 完整承擔
+- **移除原因**：純幽靈參數，`tiers` 已完全取代其功能，保留只會造成維護者誤改
+- **移除內容**：
+  - `Strategy.json`：刪除 `reserve.allocationRatio` 欄位
+  - `signalRules.mjs`：移除 `validateStrategyConfig()` 中 `assertNumber(config.reserve.allocationRatio, ...)` 驗證行
+- **狀態**：✅ 已移除（commit: refactor: 移除幽靈參數）
 
 ### `reserve.tiers`
 - **當前值**：3 層（100萬 / 300萬 / 無上限，比例 5% / 8% / 10%）
@@ -148,7 +152,7 @@
 
 - **實際引用**：`riskManagement.mjs` → `getTargetLeverageByScore()` 依 weightScore 對照 leverage/cash
 - **狀態**：✅ 正常引用
-- **與 `leverage.targetMultiplier` 的關係**：allocation 各檔位 leverage 獨立定義，`targetMultiplier` 僅用於 UI 顯示，兩者並行不衝突但語意需注意。
+- **備注**：`leverage.targetMultiplier` 已移除，allocation 各檔位 leverage 為唯一槓桿定義來源。
 
 ---
 
@@ -192,11 +196,12 @@
 
 ## 待清除幽靈參數彙整
 
-| 參數 | 建議動作 | 時程 |
-|------|---------|------|
-| `reserve.allocationRatio` | 確認 `getReserveStatus()` 後移除，或正式納入計算 | 下一版 |
-| `threshold.mmDanger` | 移除（已由 4 層狀態機欄位取代） | 下一版 |
-| `trading.minAction` | 統一為 `threshold.minActionableAmount`，移除重複 | 下一版 |
+| 參數 | 建議動作 | 時程 | 狀態 |
+|------|---------|------|------|
+| `reserve.allocationRatio` | 已移除 | 2026-04-16 | ✅ 已完成 |
+| `leverage.targetMultiplier` | 已移除 | 2026-04-16 | ✅ 已完成 |
+| `threshold.mmDanger` | 移除（已由 4 層狀態機欄位取代） | 下一版 | ⏳ 待執行 |
+| `trading.minAction` | 統一為 `threshold.minActionableAmount`，移除重複 | 下一版 | ⏳ 待執行 |
 
 ---
 

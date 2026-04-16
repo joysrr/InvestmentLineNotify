@@ -166,13 +166,11 @@ export function validateStrategyConfig(config) {
   assertString(config.version, "version");
   assertString(config.description, "description");
 
-  // 2. leverage
+  // 2. leverage（targetMultiplier 已移除，leverage 物件保留供未來擴充）
   assert(isObject(config.leverage), "leverage 必須是物件");
-  assertNumber(config.leverage.targetMultiplier, "leverage.targetMultiplier");
 
-  // 3. reserve
+  // 3. reserve（allocationRatio 已移除，邏輯由 reserve.tiers 完整承擔）
   assert(isObject(config.reserve), "reserve 必須是物件");
-  assertNumber(config.reserve.allocationRatio, "reserve.allocationRatio");
   assert(Array.isArray(config.reserve.tiers), "reserve.tiers 必須是陣列");
   config.reserve.tiers.forEach((tier, i) => {
     assertNumber(tier.maxAsset, `reserve.tiers[${i}].maxAsset`);
