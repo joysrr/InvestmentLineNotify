@@ -276,13 +276,16 @@ export function computeEntryScore(data, priceDropPercent, strategy, macroSentime
   const oversold = strategy.buy.rsi.oversold;
   const oversoldK = strategy.buy.kd.oversoldK;
 
+  // lookback 18：對應 Slow KD(9,3,3) 超賣區停留時間通常 5–20 天
   const kdBullLow =
     kdCrossUp(data.kdArr) &&
-    wasBelowLevel(data.kdArr, oversoldK, 10, (x) => x.k);
+    wasBelowLevel(data.kdArr, oversoldK, 18, (x) => x.k);
 
   const signals = {
-    rsiRebound: roseAboveAfterBelow(data.rsiArr, oversold, 10, {
-      requireCrossToday: false,
+    // lookback 14：對應 RSI14 週期；requireCrossToday: true 確保只在「今天剛穿越」才觸發一次
+    // 修正前 requireCrossToday: false 會在 10 天窗口內每天持續觸發 +3 虛假加分
+    rsiRebound: roseAboveAfterBelow(data.rsiArr, oversold, 14, {
+      requireCrossToday: true,
     }),
     macdBull: macdCrossUp(data.macdArr),
     kdBullLow,
@@ -334,11 +337,13 @@ export function computeEntryScore(data, priceDropPercent, strategy, macroSentime
 // 轉弱指標計算
 export function computeReversalTriggers(data, strategy) {
   const th = strategy.threshold;
-  const rsiDrop = fellBelowAfterAbove(data.rsiArr, th.rsiReversalLevel, 10, {
+  // lookback 14：對應 RSI14 週期，避免短暫假訊號
+  const rsiDrop = fellBelowAfterAbove(data.rsiArr, th.rsiReversalLevel, 14, {
     requireCrossToday: false,
   });
   const minKDArr = kdSeries(data.kdArr, (x) => Math.min(x.k, x.d));
-  const kdDrop = fellBelowAfterAbove(minKDArr, th.kReversalLevel, 10, {
+  // lookback 15：對應 Slow KD(9,3,3) 平均週期
+  const kdDrop = fellBelowAfterAbove(minKDArr, th.kReversalLevel, 15, {
     requireCrossToday: false,
   });
 
@@ -391,13 +396,15 @@ export function computeSellSignals(data, strategy) {
     Number.isFinite(data.RSI) && data.RSI >= overbought;
   const kdStateOverbought = Number.isFinite(lastD) && lastD >= overboughtK;
 
-  const rsiSell = fellBelowAfterAbove(data.rsiArr, overbought, 10, {
+  // lookback 15：捕捉高位緩慢盤整後的過熱回落（原 10 天可能在高位停留期間錯失訊號）
+  const rsiSell = fellBelowAfterAbove(data.rsiArr, overbought, 15, {
     requireCrossToday: true,
   });
 
   const macdSell = (() => {
     const macdMinusSignal = data.macdArr.map((x) => x.MACD - x.signal);
-    const crossDown = fellBelowAfterAbove(macdMinusSignal, 0, 10, {
+    // lookback 20：對應 MACD 慢線 26 日週期，牛市中交叉後死叉可能需 2–4 週
+    const crossDown = fellBelowAfterAbove(macdMinusSignal, 0, 20, {
       requireCrossToday: true,
     });
     return crossDown;
@@ -411,7 +418,8 @@ export function computeSellSignals(data, strategy) {
       Math.min(lastK, lastD) >= overboughtK;
 
     const dArr = kdSeries(data.kdArr, (x) => x.d);
-    const dropBelow80 = fellBelowAfterAbove(dArr, overboughtK, 10, {
+    // lookback 20：Slow KD 高位停留可達 3–4 週（15–20 天），原 10 天窗口不足
+    const dropBelow80 = fellBelowAfterAbove(dArr, overboughtK, 20, {
       requireCrossToday: true,
     });
 
