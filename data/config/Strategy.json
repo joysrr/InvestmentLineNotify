@@ -1,5 +1,5 @@
 {
-  "version": "2.4",
+  "version": "2.5",
   "description": "質押槓桿策略（本地設定，2026-04-16 升級）",
   "leverage": {},
   "reserve": {
@@ -139,6 +139,8 @@
     "enabled": true,
     "bullishBonus": 3,
     "bearishPenalty": 5,
-    "bearishCooldownMultiplier": 1.5
+    "bearishCooldownMultiplier": 1.5,
+    "vixOverrideTrigger": 28,
+    "vixAbsoluteOverride": 35
   }
 }

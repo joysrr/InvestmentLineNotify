@@ -1,8 +1,8 @@
 # Strategy.json 參數異動說明
 
 > **最後更新：** 2026-04-16
-> **版本：** Strategy.json v2.4
-> **關聯計劃：** P0 維持率 4 層狀態機、P0 左側進擊矩陣
+> **版本：** Strategy.json v2.5
+> **關聯計劃：** P0 維持率 4 層狀態機、P0 左側進擊矩陣、P1 VIX 情緒短路機制
 
 ---
 
@@ -158,16 +158,56 @@
 
 ---
 
-## 4. 幽靈參數警示（待處理）
+## 4. `macroSentiment.vixOverrideTrigger` / `macroSentiment.vixAbsoluteOverride` — 新增欄位 ★
 
-下列欄位目前**仍存在於 Strategy.json**，但已確認為幽靈參數或語意不明欄位，待審計後移除：
+### 基本資訊
 
-| 參數路徑 | 當前值 | 問題類型 | 建議行動 |
-|---------|-------|---------|----------|
-| `leverage.targetMultiplier` | `1.8` | 未被直接引用 | 移除，或在 `getTargetLeverageByScore()` 正式引入 |
-| `reserve.allocationRatio` | `0.5` | 語意衝突／可能已廢棄 | 確認後移除，標注為 legacy |
+| 項目 | 內容 |
+|------|------|
+| **路徑** | `macroSentiment.vixOverrideTrigger` |
+| **類型** | `number`（VIX 數值） |
+| **修改前** | 欄位不存在 |
+| **修改後** | `28` |
+| **路徑** | `macroSentiment.vixAbsoluteOverride` |
+| **修改前** | 欄位不存在 |
+| **修改後** | `35` |
+| **生效 Commit** | feat(config): Strategy.json v2.5 |
 
-> 相關審計結果請參閱 `docs/strategy-param-audit.md`。
+### 設計理由
+
+AI 新聞情緒為落後指標，在崩盤底部必定輸出 `BEARISH`。此時 `bearishPenalty`（扣分）與 `bearishCooldownMultiplier`（冷卻期延長）同時觸發，在「極端恐慌時應積極進場」的左側進擊策略核心時機反而造成策略癱瘓。
+
+VIX 作為即時恐慌指數能比 AI 新聞情緒更快反映市場極端情緒，應賦予優先覆蓋權：
+
+| VIX 狀態 | 行為 |
+|---------|------|
+| VIX < 28 | 正常融合，AI BEARISH 正常扣分與冷卻延長 |
+| VIX >= 28 且 VIX 開始回落（`trend = falling`） | 情緒短路：忽略 bearishPenalty，解除冷卻期延長 |
+| VIX >= 35（絕對值） | 強制情緒短路，無論 VIX 趨勢 |
+
+### 相關欄位對照
+
+```json
+"macroSentiment": {
+  "enabled": true,
+  "bullishBonus": 3,
+  "bearishPenalty": 5,
+  "bearishCooldownMultiplier": 1.5,
+  "vixOverrideTrigger": 28,      // 趨勢短路觸發值（VIX 回落時）（新增 ★）
+  "vixAbsoluteOverride": 35      // 絕對強制短路值（無論趨勢）（新增 ★）
+}
+```
+
+### 與 threshold 欄位的對應關係
+
+> 注意：`threshold.vixPanic: 28` 與 `threshold.vixExtreme: 35` 為既有的 VIX 分級定義（用於 vixLevel 判斷）。
+> `macroSentiment.vixOverrideTrigger / vixAbsoluteOverride` 為情緒短路機制的獨立參數，語意上對應相同的數值，但職責不同，不合併設定以保持模組獨立性。
+
+### 影響範圍
+
+- `src/modules/strategy/strategyEngine.mjs` — 新增 `resolveVixOverride()` 函式，於 macroSentiment 段落整合
+- `src/modules/strategy/signalRules.mjs` — `validateStrategyConfig()` 補齊 `vixOverrideTrigger` / `vixAbsoluteOverride` 驗證（節二）
+- `src/modules/notifications/templates/telegramHtmlBuilder.mjs` — 短路觸發時新增通知標示（節五）
 
 ---
 
@@ -175,4 +215,5 @@
 
 | 日期 | 版本 | 變更項目 |
 |------|------|----------|
+| 2026-04-16 | v2.5 | 新增 `macroSentiment.vixOverrideTrigger: 28`、`macroSentiment.vixAbsoluteOverride: 35`（VIX 情緒短路機制） |
 | 2026-04-16 | v2.4 | 新增 `maintenance.frozenZone`、`buy.entryGate`，修改 `buy.minDropPercentToConsider: 0→5`，新增 `description` 字段 |
