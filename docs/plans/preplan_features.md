@@ -192,50 +192,250 @@ grossLeverage = (0050 市值 + 00675L 市值 × 2) / 帳戶淨值
 
 ---
 
-## 📌【P1 高優先】PB 估值動態衰減機制（valuationPenaltyFactor）
+## 📌【計畫 A】歷史 PB 時間序列快取機制（pbHistoryProvider）
 
-### 狀態與目標摘要
+### 狀態
 
-- 現行系統 PB >= 2.2 才觸發硬停機，PB 1.8–2.2 的危險過渡區內系統仍可全力加碼。
-- 存在「估值懸崖效應」：PB 2.19 與 2.20 的行為天壤之別，但風險實質相近。
+⚪ 待實作｜難度：⭐⭐ 中
 
-### 動機
+### 目標摘要
 
-高估值環境下應漸進式壓縮槓桿上限，而非在臨界值突然斷崖。線性衰減更符合風險管理直覺，且能避免邊界條件的策略突變。
+建立每日自動累積、首次可自動補齊 5 年歷史的 PB 時間序列快取，供計畫 B（valuationGuard）計算分位數使用。完全不依賴 FinMind，資料來源與現行 `fetchMarketValuation()` 相同（TWSE BWIBBU_ALL）。
 
-### 設計規格（4 段線性衰減）
+### 資料來源設計
 
-| PB 區間 | 最大允許槓桿 | 行為 |
-|--------|------------|------|
-| PB < 1.8 | 1.8x（完整） | 無限制 |
-| 1.8 ≤ PB < 2.0 | 壓縮至 1.5x | 降低高分檔位上限 |
-| 2.0 ≤ PB < 2.2 | 鎖定 1.1–1.2x | 禁止 00675L 新增 |
-| PB ≥ 2.2 | 強制清空 00675L | 現行硬停機維持 |
+| 用途 | API | 說明 |
+|------|-----|------|
+| 每日追加 | `TWSE BWIBBU_ALL`（現行） | `fetchMarketValuation()` 計算完後直接 append |
+| 歷史補齊 | `TWSE BWIBBU_ALL?date=YYYYMMDD` | 逐月取最後一個交易日，沿用相同市值加權計算邏輯 |
 
-### 建議 Strategy.json 新增欄位
+### 快取架構
+
+整合至現有 `archiveManager` 體系，與 `rawMarketData.json` 並排儲存：
+```
+data/
+├── marketData.json ← 現有（今日快取）
+└── pbHistory.json ← 新增（歷史 PB 序列）
+```
+
+**`pbHistory.json` 格式：**
 
 ```json
-"valuationTiers": [
-  { "maxPB": 1.8, "maxLeverageMultiplier": 1.0, "note": "正常操作" },
-  { "maxPB": 2.0, "maxLeverageMultiplier": 0.85, "note": "輕度壓縮" },
-  { "maxPB": 2.2, "maxLeverageMultiplier": 0.65, "note": "強制降速，禁止00675L新增" },
-  { "maxPB": 999, "maxLeverageMultiplier": 0.0, "note": "泡沫停機" }
-]
+{
+  "_meta": {
+    "updatedAt": "2026-04-16",
+    "source": "twse_bwibbu_all",
+    "totalRecords": 1260
+  },
+  "records": [
+    { "date": "2021-04-16", "pb": 1.82 },
+    { "date": "2021-04-17", "pb": 1.84 }
+  ]
+}
 ```
+
+### 兩個獨立流程
+
+**流程一：每日自動追加（平時運作）**
+```
+dailyCheck 執行
+→ fetchMarketValuation() 計算當日 PB
+→ pbHistoryProvider.appendToday(date, pb)
+→ 讀取 pbHistory.json，若當日已存在則略過，否則 push 新紀錄
+→ 寫回 pbHistory.json
+```
+
+**流程二：歷史補齊（首次或缺口修復）**
+```
+pbHistoryProvider.checkAndBackfill(targetDays = 1260)
+→ 讀取現有快取，計算目前筆數
+→ 若不足 targetDays × 0.5（630 筆），計算需補齊的月份清單
+→ 逐月呼叫 TWSE BWIBBU_ALL（帶日期參數）
+→ 對每月最後一個交易日做市值加權 PB 計算（邏輯同 fetchMarketValuation）
+→ 合併、排序、去重後寫回 pbHistory.json
+→ 每月請求間 sleep(1500ms)
+```
+
+> **backfill 觸發時機**：`dailyCheck` 啟動時偵測快取筆數，不足 630 筆時自動觸發一次，後續每日 appendToday 即可保持完整。
+
+### 對外介面（供計畫 B 使用）
+
+```javascript
+export async function getPbHistoryRecords()           // 回傳完整 records 陣列
+export async function appendToday(date, pb)           // 每日追加
+export async function checkAndBackfill(targetDays = 1260) // 啟動時自動補齊
+```
+
+### 工作節次
+
+| 節 | 工作內容 | 涉及檔案 |
+|----|---------|---------|
+| 節一 | `archiveManager.mjs` 新增 `getPbHistory()` / `savePbHistory()` 方法 | `src/modules/data/archiveManager.mjs` |
+| 節二 | 新增 `pbHistoryProvider.mjs`，實作 `appendToday()` / `checkAndBackfill()` | `src/modules/providers/pbHistoryProvider.mjs`（新增） |
+| 節三 | `marketData.mjs` 判斷邏輯 E（rawValuation）成功後呼叫 `appendToday()` | `src/modules/providers/marketData.mjs` |
+| 節四 | `dailyCheck.mjs` 啟動時呼叫 `checkAndBackfill()` | `src/dailyCheck.mjs` |
+| 節五 | `pbHistory.json` 加入 `.gitignore` | `.gitignore` |
 
 ### 影響範圍
 
-- `Strategy.json`（新增 `valuationTiers` 區段）
+- `src/modules/data/archiveManager.mjs`（新增 2 個方法）
+- `src/modules/providers/pbHistoryProvider.mjs`（新增）
+- `src/modules/providers/marketData.mjs`（新增追加呼叫）
+- `src/dailyCheck.mjs`（啟動時觸發補齊）
+- `.gitignore`
+
+---
+
+## 📌【計畫 B】PB 歷史分位數動態防護層（valuationGuard）
+
+### 狀態
+
+⚪ 待實作｜難度：⭐⭐⭐ 高
+
+### 目標摘要
+
+依賴計畫 A 提供的歷史 PB 序列，計算當前 PB 所在的歷史百分位數（Percentile Rank），以「相對估值」取代「絕對 PB 門檻」作為槓桿壓縮依據，解決固定門檻在不同市場環境下靈活性不足的問題。
+
+### 核心概念
+
+| 問題 | 解法 |
+|------|------|
+| 固定 PB 2.2 停機，忽略歷史脈絡 | 改以歷史分位數（例如 PR90）觸發壓縮 |
+| 不同牛熊市 PB 絕對值差異大 | 5 年滾動窗口的 PR 自動適應市場環境 |
+
+**分位數計算（5 年滾動窗口）：**
+
+```
+PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
+```
+
+### 防護層規格（4 段）
+
+| PR 區間 | 行為 | 槓桿乘數 |
+|---------|------|---------|
+| PR < 70 | 常態運行 | ×1.0 |
+| 70 ≤ PR < 80 | 輕度壓縮 | ×0.85 |
+| 80 ≤ PR < 90 | 中度壓縮，禁止 00675L 新增 | ×0.65 |
+| PR ≥ 90 | 強制停機，沿用硬停機邏輯 | ×0.0 |
+
+### Strategy.json 新增欄位
+
+```json
+"valuationGuard": {
+  "enabled": true,
+  "lookbackDays": 1260,
+  "tiers": [
+    { "maxPR": 70,  "leverageMultiplier": 1.0,  "note": "常態" },
+    { "maxPR": 80,  "leverageMultiplier": 0.85, "note": "輕度壓縮" },
+    { "maxPR": 90,  "leverageMultiplier": 0.65, "note": "中度壓縮，禁 00675L" },
+    { "maxPR": 100, "leverageMultiplier": 0.0,  "note": "停機" }
+  ]
+}
+```
+
+### 與計畫（PB 估值動態衰減）的關係
+
+計畫 B 為相對估值防護，現行計畫（絕對 PB 衰減）為絕對估值防護，兩者**並行運作**，取較嚴格的槓桿乘數：
+
+```javascript
+const finalMultiplier = Math.min(absoluteTierMultiplier, guardTierMultiplier);
+```
+
+### 工作節次
+
+| 節 | 工作內容 | 涉及檔案 |
+|----|---------|---------|
+| 節一 | `Strategy.json` 新增 `valuationGuard` 區段 | `Strategy.json` |
+| 節二 | `validateStrategyConfig()` 補齊 `valuationGuard` 驗證 | `signalRules.mjs` |
+| 節三 | 新增 `resolveValuationGuard(currentPB, records, config)` 純函式，計算 PR 與命中 tier | `strategyEngine.mjs` |
+| 節四 | `buildDecision()` 整合，與絕對衰減乘數取 min 後套用 | `strategyEngine.mjs` |
+| 節五 | Telegram 通知新增 PR 分位數標示（例如 `📊 PB PR84 → 中度壓縮 ×0.65`） | `telegramHtmlBuilder.mjs` |
+| 節六 | 文件更新 | `docs/plans/preplan_features.md` |
+
+### 影響範圍
+
+- `Strategy.json`
+- `src/modules/strategy/signalRules.mjs`
 - `src/modules/strategy/strategyEngine.mjs`
-- `src/modules/strategy/riskManagement.mjs`
+- `src/modules/notifications/templates/telegramHtmlBuilder.mjs`
+- `docs/plans/preplan_features.md`
 
-### 難度
+---
 
-⭐⭐⭐ 高
+## 📌【計畫 C】PB 分位數趨勢感知層（valuationMomentum）
 
-### 討論狀態
+### 狀態
 
-⚪ 待確認
+⚪ 待實作｜難度：⭐⭐ 中
+
+### 目標摘要
+
+依賴計畫 A 的歷史序列與計畫 B 的 PR 分位數，在計畫 B 防護層之上額外感知「估值正在往哪個方向走」，對快速惡化（PR 短期內快速上升）的情境給予額外壓縮，對估值從高位回落時提前解除壓縮。
+
+### 核心概念
+
+只看當前 PR 絕對值有盲點：PR 83 穩定橫盤 vs PR 從 60 快速竄升至 83，風險程度截然不同。計畫 C 透過計算 PR 的**短期動量**（N 日變化量）作為輔助調整因子。
+
+### 動量計算
+
+```
+prMomentum = PR_today − PR_N日前（預設 N=20）
+```
+
+
+| prMomentum | 含義 | 額外調整 |
+|-----------|------|---------|
+| > +10 | 估值快速惡化 | 在計畫 B 基礎上額外再 ×0.85（疊加壓縮） |
+| −10 ~ +10 | 橫盤穩定 | 無調整 |
+| < −10 | 估值明顯回落 | 解除計畫 B 的一個壓縮段（PR 降一 tier） |
+
+### Strategy.json 新增欄位
+
+```json
+"valuationMomentum": {
+  "enabled": true,
+  "lookbackDays": 20,
+  "risingThreshold": 10,
+  "fallingThreshold": -10,
+  "risingPenaltyMultiplier": 0.85,
+  "fallingRelief": true
+}
+```
+
+### 三層疊加順序
+
+```
+① 計畫（PB 絕對衰減） → absoluteMultiplier
+② 計畫 B（PR 分位數） → guardMultiplier
+③ 計畫 C（PR 動量） → momentumAdjustment
+
+finalMultiplier = Math.min(absoluteMultiplier, guardMultiplier) × momentumAdjustment
+```
+
+
+### 工作節次
+
+| 節 | 工作內容 | 涉及檔案 |
+|----|---------|---------|
+| 節一 | `Strategy.json` 新增 `valuationMomentum` 區段 | `Strategy.json` |
+| 節二 | `validateStrategyConfig()` 補齊 `valuationMomentum` 驗證 | `signalRules.mjs` |
+| 節三 | 新增 `resolveValuationMomentum(records, config)` 函式，計算 prMomentum 與調整因子 | `strategyEngine.mjs` |
+| 節四 | `buildDecision()` 整合，在計畫 B 乘數基礎上疊加動量調整 | `strategyEngine.mjs` |
+| 節五 | Telegram 通知新增動量標示（例如 `📈 估值動量 +13 → 額外壓縮`，穩定時靜默略過） | `telegramHtmlBuilder.mjs` |
+| 節六 | 文件更新 | `docs/plans/preplan_features.md` |
+
+### 影響範圍
+
+- `Strategy.json`
+- `src/modules/strategy/signalRules.mjs`
+- `src/modules/strategy/strategyEngine.mjs`
+- `src/modules/notifications/templates/telegramHtmlBuilder.mjs`
+- `docs/plans/preplan_features.md`
+
+### 前置依賴
+
+- **計畫 A**（pbHistoryProvider）必須先完成
+- **計畫 B**（valuationGuard）必須先完成
 
 ---
 
