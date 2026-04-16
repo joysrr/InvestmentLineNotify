@@ -75,8 +75,9 @@ grossLeverage = (0050 市值 + 00675L 市值 × 2) / 帳戶淨值
 
 ```
 data/
-├── marketData.json ← 現有（今日快取）
-└── pbHistory.json ← 新增（歷史 PB 序列）
+├── marketData.json          ← 現有（今日快取）
+├── pbHistory.json           ← 新增（歷史 PB 序列）
+└── valuationGuardState.json ← 新增（計畫 B 防禦鎖定狀態）
 ```
 
 **`pbHistory.json` 格式：**
@@ -200,21 +201,6 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 | 跌破 MA20 確認 | 連續 **2 個交易日** 收盤價跌破 MA20 月線（代表趨勢實質破壞）         |
 | ATR 支撐破位   | 股價跌破「前波高點 − ATR × `trailingStopAtrMultiplier`」（預設 2.0） |
 
-#### ATR 移動停利線量化定義
-
-- **前波高點** 定義為：過去 `hhvWindow`（預設 **20** 個交易日）的滾動最高收盤價 `HHV(20)`
-- **停利觸發條件**：`收盤價 < HHV(20) − ATR(atrPeriod) × trailingStopAtrMultiplier`
-- **Strategy.json 新增參數**：
-  ```json
-  "trailingStop": {
-    "hhvWindow": 20,
-    "atrPeriod": 14,
-    "trailingStopAtrMultiplier": 2.0
-  }
-  ```
-- **實作提醒（節三-B）：** 需在 `indicators.mjs` 新增 `calcHHV(closePrices, window)` 函式，
-  回傳滾動視窗內的最大值陣列，供 `computeSellSignals()` 調用。
-
 **PR ≥ 90 狀態下的行為摘要：**
 
 ```
@@ -223,8 +209,6 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 00675L：禁止新增，現有部位保留等待趨勢確認
 清算觸發：跌破 MA20 連續 2 日 OR ATR 支撐破位 → 執行 ×0.0
 ```
-
-以下是整合後的修正版，將第三解鎖條件與既有結構完整融合，並補齊 `Strategy.json` 參數：
 
 ### 狀態鎖定機制（State Latching，防死貓反彈重入）
 
@@ -260,23 +244,10 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 }
 ```
 
-> 此快取與 `pbHistory.json` 並排儲存於 `data/`，納入 `.gitignore`，並在 `dailyCheck` 啟動時讀取。
-> 解鎖時補寫 `latchReleasedAt`（解鎖日期）與 `latchReleaseReason`（`"pr_cooldown"` / `"panic_break_in"` / `"trend_strong_unlock"`），供日後回測追蹤使用。
-
-**`Strategy.json` 完整 `latch` 參數（含第三條件）：**
-
-```json
-"valuationGuard": {
-  "latch": {
-    "enabled": true,
-    "latchReleasePR": 85,
-    "panicDropPct": 0.15,
-    "panicRsiThreshold": 30,
-    "trendUnlockDays": 5,
-    "trendUnlockMaPeriod": 60
-  }
-}
-```
+> 此快取與 `pbHistory.json` 並排儲存於 `data/`（見計畫 A「快取架構」目錄樹），納入 `.gitignore`，
+> 並在 `dailyCheck` 啟動時讀取。
+> 解鎖時補寫 `latchReleasedAt`（解鎖日期）與 `latchReleaseReason`
+> （`"pr_cooldown"` / `"panic_break_in"` / `"trend_strong_unlock"`），供日後回測追蹤使用。
 
 ### 決策模組覆蓋層級（Override Hierarchy）
 
@@ -296,20 +267,20 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 > 「極端恐慌破冰」均無法觸發。此設計已在現有程式碼中實作完畢（見 `getMarginLayer()`）。
 > 計畫 B 的各節任務在進入常態邏輯（`marginLayer === 'normal'`）後才生效。
 
-| 優先序        | 層級名稱                    | 觸發條件                                           | 行為                                          | 說明                                                     |
-| ------------- | --------------------------- | -------------------------------------------------- | --------------------------------------------- | -------------------------------------------------------- |
-| **1（最高）** | 極端恐慌破冰                | 跌幅 > 20% 且 VIX > `panicVixThreshold`（預設 35） | **Bypass 計畫 B/C**，直接進入左側恐慌加碼通道 | 高估值泡沫已被崩跌實質消化，先前的 PR 高位已失去防禦意義 |
-| **2**         | 維持率危機                  | 維持率 < 危險門檻（現有 P0 狀態機）                | 強制降槓，一票否決所有加碼                    | 保命優先                                                 |
-| **3**         | Gross Leverage 天花板       | grossLeverage > 2.5x                               | 強制壓縮至下一檔位                            | 避免死亡螺旋                                             |
-| **4**         | 估值防禦鎖定（Latch）       | `isLatched() === true`                             | 等待解鎖條件，禁止重建倉                      | 防死貓反彈重入                                           |
-| **5**         | 計畫 B（valuationGuard）    | PR 分位數防護                                      | 套用 guardMultiplier                          | 相對估值壓縮                                             |
-| **6**         | 計畫 C（valuationMomentum） | PR 動量感知                                        | 疊加 momentumAdjustment                       | 趨勢方向補正                                             |
-| **7（最低）** | 常態策略邏輯                | weightScore 評分                                   | 正常 allocation 表查詢                        | 日常 DCA + 戰術加碼                                      |
+| 優先序        | 層級名稱                    | 觸發條件                                                    | 行為                                          | 說明                                                     |
+| ------------- | --------------------------- | ----------------------------------------------------------- | --------------------------------------------- | -------------------------------------------------------- |
+| **1（最高）** | 極端恐慌破冰                | 跌幅 > 20% 且 VIX > `panicVixThreshold`（預設 35）          | **Bypass 計畫 B/C**，直接進入左側恐慌加碼通道 | 高估值泡沫已被崩跌實質消化，先前的 PR 高位已失去防禦意義 |
+| **2**         | 維持率危機                  | 維持率 < 危險門檻（現有 P0 狀態機）                         | 強制降槓，一票否決所有加碼                    | 保命優先                                                 |
+| **3**         | Gross Leverage 天花板       | grossLeverage > 2.5x                                        | 強制壓縮至下一檔位                            | 避免死亡螺旋                                             |
+| **4**         | 估值防禦鎖定（Latch）       | `isLatched() === true`                                      | 等待解鎖條件，禁止重建倉                      | 防死貓反彈重入                                           |
+| **5**         | 計畫 B（valuationGuard）    | PR 分位數防護                                               | 套用 guardMultiplier                          | 相對估值壓縮                                             |
+| **6**         | 計畫 C（valuationMomentum） | PR 動量感知                                                 | 疊加 momentumAdjustment                       | 趨勢方向補正                                             |
+| **7（最低）** | 常態策略邏輯                | weightScore 評分                                            | 正常 allocation 表查詢                        | 日常 DCA + 戰術加碼                                      |
 
 **極端恐慌破冰的 Bypass 條件說明：**
 
 ```
-極端恐慌 = (跌幅 > panicDropPct) AND (VIX > panicVixThreshold)
+極端恐慌 = (跌幅 > panicBypassDropPct) AND (VIX > panicVixThreshold)
 
 若成立：
 → 忽略計畫 B 的 guardMultiplier（不論 PR 多高）
@@ -324,13 +295,14 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 ```json
 "overrideHierarchy": {
   "panicBypassEnabled": true,
-  "panicDropPct": 0.20,
+  "panicBypassDropPct": 0.20,
   "panicVixThreshold": 35
 }
 ```
 
-> **注意**：`panicDropPct` 此處（Bypass 條件）預設 20%，高於遺漏一中 Latch 解鎖用的 15%，
-> 兩者分開設定，前者是「解除鎖定」，後者是「完全跳過估值防禦」，語意不同。
+> **注意**：`panicBypassDropPct`（Bypass 條件，20%）高於 `latch.panicDropPct`（Latch 解鎖條件，15%）。
+> 兩者分開命名以避免混淆：`latch.panicDropPct` 是「解除防禦鎖定」，
+> `panicBypassDropPct` 是「完全跳過估值防禦機制」，語意不同。
 
 ### 波動率感知補正（高位尾部效應修正）
 
@@ -346,34 +318,7 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 | PR ≥ 85 且 VIX 單日上升 > `vixSpikeThreshold`（預設 20%） | 不論 prMomentum 大小，高位急跌風險優先 | 額外 ×0.85，強制觸發壓縮 |
 | PR ≥ 85 且 VIX 絕對值 > `vixAbsoluteHigh`（預設 30）      | 高位 + 恐慌並存                        | 額外 ×0.7（加重壓縮）    |
 
-**注意：** 計畫 B 的 PR ≥ 90 已啟動雙重確認機制，計畫 C 的波動率補正主要覆蓋 **PR 85–90 的過渡敏感區域**，兩者不重疊。
-
-### Strategy.json 新增欄位（含雙重確認參數）
-
-```json
-"valuationMomentum": {
-  "enabled": true,
-  "lookbackDays": 20,
-  "risingThreshold": 10,
-  "fallingThreshold": -10,
-  "risingPenaltyMultiplier": 0.85,
-  "fallingRelief": true,
-  "highPRZone": {
-    "triggerPR": 85,
-    "relaxedMomentumThreshold": 5,
-    "vixSpikeThreshold": 0.2,
-    "vixSpikeMultiplier": 0.85,
-    "vixAbsoluteHigh": 30,
-    "vixAbsoluteMultiplier": 0.7
-  }
-}
-```
-
-### Fallback 機制（資料不足時）
-
-當 `pbHistory.json` 筆數低於 `valuationGuard.lookbackDays × 0.1`（即少於 126 筆）時，
-`resolveValuationGuard()` 應回傳 `{ multiplier: 1.0, fallback: true, reason: "insufficient_history" }`，
-並在 Telegram 通知中靜默標示「⚠️ 估值防護資料不足，暫以常態運行」，不拋錯、不阻斷流程。
+**注意：** 計畫 B 的 PR ≥ 90 已啟動雙重確認機制，計畫 C 的波動率補正主要覆蓋 **PR 85–90 的過渡敏感區域**，兩者不重疊。此補正參數定義於計畫 C 的 `valuationMomentum.highPRZone`（見計畫 C「Strategy.json 新增欄位」段落）。
 
 ### Strategy.json 新增欄位
 
@@ -385,17 +330,44 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
     { "maxPR": 70,  "leverageMultiplier": 1.0,  "note": "常態" },
     { "maxPR": 80,  "leverageMultiplier": 0.85, "note": "輕度壓縮" },
     { "maxPR": 90,  "leverageMultiplier": 0.65, "note": "中度壓縮，禁 00675L" },
-    { "maxPR": 100, "leverageMultiplier": 0.3, "note": "極度壓縮，啟動移動停利" }
-  ]
+    { "maxPR": 100, "leverageMultiplier": 0.3,  "note": "極度壓縮，啟動移動停利" }
+  ],
+  "trailingStop": {
+    "hhvWindow": 20,
+    "atrPeriod": 14,
+    "trailingStopAtrMultiplier": 2.0
+  },
+  "latch": {
+    "enabled": true,
+    "latchReleasePR": 85,
+    "panicDropPct": 0.15,
+    "panicRsiThreshold": 30,
+    "trendUnlockDays": 5,
+    "trendUnlockMaPeriod": 60
+  }
 }
 ```
+
+> **`trailingStop` 子物件說明：**
+> - `hhvWindow`：前波高點定義為過去 N 個交易日的滾動最高收盤價 `HHV(N)`（預設 20）
+> - `atrPeriod`：ATR 計算週期（預設 14）
+> - `trailingStopAtrMultiplier`：停利觸發條件為 `收盤價 < HHV(hhvWindow) − ATR(atrPeriod) × multiplier`
+>
+> **實作提醒（節三-B）：** 需在 `indicators.mjs` 新增 `calcHHV(closePrices, window)` 函式，
+> 回傳滾動視窗內的最大值陣列，供 `computeSellSignals()` 調用。
+
+### Fallback 機制（資料不足時）
+
+當 `pbHistory.json` 筆數低於 `valuationGuard.lookbackDays × 0.1`（即少於 126 筆）時，
+`resolveValuationGuard()` 應回傳 `{ multiplier: 1.0, fallback: true, reason: "insufficient_history" }`，
+並在 Telegram 通知中靜默標示「⚠️ 估值防護資料不足，暫以常態運行」，不拋錯、不阻斷流程。
 
 ### 工作節次
 
 | 節                 | 工作內容                                                                                                                                                                                                                                                                                                                                                              | 涉及檔案                                                                |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | 節〇（前置）       | archiveManager.mjs 新增 getValuationGuardState() / saveValuationGuardState()                                                                                                                                                                                                                                                                                          | src/modules/data/archiveManager.mjs                                     |
-| 節一               | `Strategy.json` 新增 `valuationGuard` 區段                                                                                                                                                                                                                                                                                                                            | `Strategy.json`                                                         |
+| 節一               | `Strategy.json` 新增 `valuationGuard` 區段（含 `tiers`、`trailingStop`、`latch` 完整結構）                                                                                                                                                                                                                                                                            | `Strategy.json`                                                         |
 | 節二               | `validateStrategyConfig()` 補齊 `valuationGuard` 驗證                                                                                                                                                                                                                                                                                                                 | `signalRules.mjs`                                                       |
 | 節三               | 新增 `resolveValuationGuard(currentPB, records, config)` 純函式，計算 PR 與命中 tier                                                                                                                                                                                                                                                                                  | `strategyEngine.mjs`                                                    |
 | 節三‑A             | 新增 `resolveTrendConfirmation(priceData, config)` 函式，計算 MA20 跌破天數與 ATR 支撐位，供節四整合使用                                                                                                                                                                                                                                                              | `strategyEngine.mjs`                                                    |
@@ -454,9 +426,26 @@ prMomentum = PR_today − PR_N日前（預設 N=20）
   "risingThreshold": 10,
   "fallingThreshold": -10,
   "risingPenaltyMultiplier": 0.85,
-  "fallingRelief": true
+  "fallingRelief": true,
+  "highPRZone": {
+    "triggerPR": 85,
+    "relaxedMomentumThreshold": 5,
+    "vixSpikeThreshold": 0.2,
+    "vixSpikeMultiplier": 0.85,
+    "vixAbsoluteHigh": 30,
+    "vixAbsoluteMultiplier": 0.7
+  }
 }
 ```
+
+> **`highPRZone` 子物件說明（高位尾部效應補正）：**
+> 當 PR ≥ `triggerPR`（預設 85）時，線性絕對值門檻在頂部空間不足的情況下會靜默失效，
+> 因此補入以下兩個替代觸發條件：
+> - `relaxedMomentumThreshold`：高位動量門檻放寬至 +5（原為 +10）
+> - `vixSpikeThreshold`（20%）+ `vixSpikeMultiplier`（×0.85）：VIX 單日急升時強制壓縮
+> - `vixAbsoluteHigh`（30）+ `vixAbsoluteMultiplier`（×0.7）：高位 + VIX 恐慌並存時加重壓縮
+>
+> 此補正僅覆蓋 **PR 85–90 的過渡敏感區域**，PR ≥ 90 已由計畫 B 雙重確認機制處理，不重疊。
 
 ### 兩層疊加順序
 
@@ -471,7 +460,7 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 | 節   | 工作內容                                                                                | 涉及檔案                                                                |
 | ---- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| 節一 | `Strategy.json` 新增 `valuationMomentum` 區段                                           | `Strategy.json`                                                         |
+| 節一 | `Strategy.json` 新增 `valuationMomentum` 區段（含 `highPRZone` 完整結構）               | `Strategy.json`                                                         |
 | 節二 | `validateStrategyConfig()` 補齊 `valuationMomentum` 驗證                                | `signalRules.mjs`                                                       |
 | 節三 | 新增 `resolveValuationMomentum(records, config)` 函式，計算 prMomentum 與調整因子       | `strategyEngine.mjs`                                                    |
 | 節四 | `buildDecision()` 整合，在計畫 B 乘數基礎上疊加動量調整                                 | `strategyEngine.mjs`                                                    |
@@ -501,6 +490,11 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 | 計畫 C | PB 分位數趨勢感知層（valuationMomentum）  | 計畫 A + B | ⚪ 待實作 |
 
 ---
+
+## ~~📌【P1 高優先】PB 估值動態衰減機制（valuationPenaltyFactor）~~
+
+> ⚠️ 此計畫已由【計畫 B】PB 歷史分位數動態防護層（valuationGuard）全面取代，不再實作。
+> 原設計的硬切斷門檻（PB 1.8 / 2.0 / 2.2）已由 PR 分位數（PR70/80/90）動態取代。
 
 ## ~~📌【P1 高優先】PB 估值動態衰減機制（valuationPenaltyFactor）~~
 
