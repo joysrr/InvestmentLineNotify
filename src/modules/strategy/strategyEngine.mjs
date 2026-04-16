@@ -97,6 +97,77 @@ function resolveEntryGate(dropPercent, rsi, entryGateCfg) {
   return { tierIndex: matchedIndex, tier, blocked: false, blockReason: null };
 }
 
+/**
+ * VIX 情緒短路機制：判斷是否應覆蓋 AI BEARISH 的懲罰效果
+ *
+ * 短路條件（二選一，滿足其一即觸發）：
+ *   1. 絕對短路：vixValue >= vixAbsoluteOverride（預設 35）— 無論趨勢強制觸發
+ *   2. 趨勢短路：vixValue >= vixOverrideTrigger（預設 28）且 vixTrend === 'falling'
+ *
+ * vixTrend 由 vixArr 末兩筆自動推算：
+ *   - vixArr 最後一筆 < 倒數第二筆 → 'falling'
+ *   - vixArr 最後一筆 > 倒數第二筆 → 'rising'
+ *   - 相等或資料不足 → 'flat'
+ *
+ * 若 config 欄位 vixOverrideTrigger / vixAbsoluteOverride 不存在，
+ * 視為功能停用，直接回傳 overrideActive: false。
+ *
+ * @param {number} vixValue - 當前 VIX 數值
+ * @param {number[]} vixArr - VIX 歷史序列（至少需 2 筆才能判斷趨勢）
+ * @param {Object} config - 完整 strategy config
+ * @returns {{ overrideActive: boolean, overrideReason: string, vixTrend: string }}
+ */
+function resolveVixOverride(vixValue, vixArr, config) {
+  const cfg = config?.macroSentiment;
+
+  // 功能未設定 → 停用
+  if (
+    cfg?.vixOverrideTrigger == null &&
+    cfg?.vixAbsoluteOverride == null
+  ) {
+    return { overrideActive: false, overrideReason: '', vixTrend: 'unknown' };
+  }
+
+  const absoluteThreshold = cfg.vixAbsoluteOverride ?? 35;
+  const trendThreshold    = cfg.vixOverrideTrigger  ?? 28;
+
+  // 推算 vixTrend 從歷史序列末兩筆
+  let vixTrend = 'flat';
+  if (Array.isArray(vixArr) && vixArr.length >= 2) {
+    const prev = vixArr[vixArr.length - 2];
+    const curr = vixArr[vixArr.length - 1];
+    if (Number.isFinite(prev) && Number.isFinite(curr)) {
+      if (curr < prev) vixTrend = 'falling';
+      else if (curr > prev) vixTrend = 'rising';
+    }
+  }
+
+  // 絕對短路（無論趨勢）
+  if (Number.isFinite(vixValue) && vixValue >= absoluteThreshold) {
+    return {
+      overrideActive: true,
+      overrideReason: `VIX ${vixValue.toFixed(1)} ≥ 絕對門檻 ${absoluteThreshold}（強制短路）`,
+      vixTrend,
+    };
+  }
+
+  // 趨勢短路（需 falling）
+  if (
+    Number.isFinite(vixValue) &&
+    vixValue >= trendThreshold &&
+    vixTrend === 'falling'
+  ) {
+    return {
+      overrideActive: true,
+      overrideReason: `VIX ${vixValue.toFixed(1)} ≥ 趨勢門檻 ${trendThreshold} 且趨勢下行（趨勢短路）`,
+      vixTrend,
+    };
+  }
+
+  // 未觸發
+  return { overrideActive: false, overrideReason: '', vixTrend };
+}
+
 function buildDecision(ctx, strategy) {
   const th = strategy.threshold;
   const maint = strategy.maintenance;
@@ -652,10 +723,18 @@ export async function evaluateInvestmentSignal(data, strategy) {
 
   const baseCooldownDays = strategy.trading.cooldownDays || 20;
   const cfg = strategy?.macroSentiment;
+
+  // VIX 情緒短路：若短路啟動，跳過 bearishCooldownMultiplier 冷卻延長
+  // resolveVixOverride 使用 data.vixArr（歷史序列）判斷趨勢；
+  // 若 data.vixArr 不存在，fallback 為 [data.VIX]，趨勢判斷降為 'flat'
+  const vixArr = Array.isArray(data.vixArr) && data.vixArr.length > 0
+    ? data.vixArr
+    : (Number.isFinite(data.VIX) ? [data.VIX] : []);
+  const vixOverride = resolveVixOverride(data.VIX, vixArr, strategy);
+
+  const isBearish = cfg?.enabled && data.macroMarketDirection === "BEARISH";
   const effectiveCooldownDays =
-    cfg?.enabled &&
-    data.macroMarketDirection === "BEARISH" &&
-    Number.isFinite(cfg.bearishCooldownMultiplier)
+    isBearish && !vixOverride.overrideActive && Number.isFinite(cfg.bearishCooldownMultiplier)
       ? Math.round(baseCooldownDays * cfg.bearishCooldownMultiplier)
       : baseCooldownDays;
 
@@ -721,6 +800,7 @@ export async function evaluateInvestmentSignal(data, strategy) {
     strategy,
     macroSentiment,
     effectiveCooldownDays,
+    vixOverride,
     ...decision,
     entryGateLevel: decision.entryGateLevel ?? null,
     entryGateLabel: decision.entryGateLabel ?? null,
