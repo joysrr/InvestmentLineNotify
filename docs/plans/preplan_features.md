@@ -2,6 +2,315 @@
 
 ---
 
+## ✅【P0 已完成】技術訊號 lookback window 統一修正
+
+> **Commit:** `fc4897c` — fix(strategy): 修正 signalRules lookback window 與 rsiRebound requireCrossToday
+> **完成日期：** 2026-04-16
+
+### 修正摘要
+
+`signalRules.mjs` 中所有使用 `wasBelowLevel` / `roseAboveAfterBelow` / `fellBelowAfterAbove` 的指標，lookback 原本一律 hardcode 為 10 天，且 `rsiRebound` 使用 `requireCrossToday: false`，導致過去 10 天內只要曾跌破 oversold，後續每天 RSI > 50 都會持續觸發 +3 分的虛假加分。
+
+### 已完成修改清單
+
+| 指標 | 修改前 lookback | 修改後 lookback | requireCrossToday 修改 |
+|------|----------------|----------------|------------------------|
+| `rsiRebound` | 10 | **14** | `false` → **`true`** ⚠️ 核心修正 |
+| `kdBullLow` | 10 | **18** | — |
+| `rsiDrop`（轉弱） | 10 | **14** | 維持 `false` |
+| `kdDrop`（轉弱） | 10 | **15** | 維持 `false` |
+| `rsiSell` | 10 | **15** | 維持 `true` |
+| `macdSell` | 10 | **20** | 維持 `true` |
+| `kdSell dropBelow80` | 10 | **20** | 維持 `true` |
+
+### 後續建議（未強制）
+
+- `rsiDrop` / `kdDrop` 轉弱訊號仍使用 `requireCrossToday: false`，在震盪盤中仍可能連續計數。建議未來於 `computeReversalTriggers` 加入「當日已計入則略過」的冷卻保護。
+- 建議搭配回測驗證修改前後訊號觸發次數差異（可於 backtest runner 完成後驗證）。
+
+---
+
+## 📌【P0 緊急】維持率狀態機 4 層重構
+
+### 狀態與目標摘要
+
+- `buildDecision()` 目前維持率邏輯僅有 2 層：`protectTrigger(160)` → 預備金防禦，`mmDanger(140)` → 追繳風險。
+- 追繳分支在邏輯上被前一層防禦遮蔽，且缺乏真正的「強制降槓桿」機制。
+- `marginCallThreshold(135)` 已設定於 Strategy.json，但程式端尚未對應任何強制行動。
+
+### 動機
+
+維持率風控的原則應為「越危險越先被檢出」，在接近斷頭區間時系統應執行一票否決，而非給出偏溫和的預備金建議。現有設計在維持率 135–160 的危險走廊中行為未被正確分層。
+
+### 建議方向（4 層狀態機規格）
+
+| 層級 | 門檻 | 行動 | Strategy.json 對應 |
+|------|------|------|-------------------|
+| 🔴 斷頭危機 | < 135% | 強制市價降槓桿警示，一票否決所有加碼，優先指示補足保證金 | `marginCallThreshold: 135` |
+| 🟠 高危凍結 | 135–145% | 禁止所有新進場，強烈通知補足保證金 | 新增 `frozenZone: 145` |
+| 🟡 預備金防禦 | 145–160% | 暫停高槓桿加碼，優先充實擔保品，允許 baseline DCA | `protectTrigger: 160` |
+| 🟢 常態運行 | >= 160% | 允許策略引擎完整運作 | `protectTarget: 180` |
+
+### 建議 Strategy.json 新增欄位
+
+```json
+"maintenance": {
+  "protectTrigger": 160,
+  "protectTarget": 180,
+  "marginCallThreshold": 135,
+  "frozenZone": 145
+}
+```
+
+### 影響範圍
+
+- `src/modules/strategy/strategyEngine.mjs`（`buildDecision()` 4 層判斷重構）
+- `Strategy.json`（新增 `frozenZone` 欄位）
+- `src/modules/notifications/templates/telegramHtmlBuilder.mjs`（4 層對應文案與 emoji）
+- 建議補充單元測試（模擬維持率 120、135、145、155、165 等情境）
+
+### 難度
+
+⭐⭐ 中（邏輯結構清晰，但需完整測試所有分支）
+
+### 討論狀態
+
+🟡 待實作（已有完整規格，等待排程）
+
+---
+
+## 📌【P1 高優先】VIX 情緒短路機制
+
+### 狀態與目標摘要
+
+- AI 新聞情緒為落後指標，在崩盤底部必定輸出 BEARISH。
+- BEARISH 同時觸發 `bearishPenalty`（扣分）與 `bearishCooldownMultiplier`（冷卻期延長），在恰好是左側加碼最佳時機的底部造成策略癱瘓。
+- 目前無任何機制可在 VIX 極端高位時覆蓋 AI 情緒的抑制效果。
+
+### 動機
+
+生命週期投資法的核心精神是「極端恐慌時應積極進場」，VIX 作為即時恐慌指數是比 AI 新聞情緒更快速、更可靠的極端行情訊號，應賦予其優先覆蓋權。
+
+### 設計規格
+
+| VIX 狀態 | 行為 |
+|---------|------|
+| VIX < 25 | 正常融合，AI BEARISH 正常扣分與冷卻延長 |
+| VIX >= 28 且 VIX 開始回落 | 觸發「情緒短路」：忽略 BEARISH 扣分，解除冷卻期延長 |
+| VIX >= 35（絕對值） | 強制情緒短路，無論 VIX 趨勢 |
+
+### 建議 Strategy.json 新增欄位
+
+```json
+"macroSentiment": {
+  "enabled": true,
+  "bullishBonus": 3,
+  "bearishPenalty": 5,
+  "bearishCooldownMultiplier": 1.5,
+  "vixOverrideTrigger": 28,
+  "vixAbsoluteOverride": 35
+}
+```
+
+### 影響範圍
+
+- `src/modules/strategy/strategyEngine.mjs`（macroSentiment 段落新增 VIX override 邏輯）
+- `Strategy.json`（新增 `vixOverrideTrigger`、`vixAbsoluteOverride`）
+- 日報新增「情緒短路狀態」欄位（若觸發需明確標示）
+
+### 難度
+
+⭐⭐ 中
+
+### 討論狀態
+
+⚪ 待確認
+
+---
+
+## 📌【P1 高優先】Gross Leverage Ratio 總體曝險倍數監控
+
+### 狀態與目標摘要
+
+- 目前系統只監控 `z2Ratio`（00675L 佔比），未計算包含質押負債與 00675L 內含 2x 期貨槓桿的「真實綜合曝險倍數」。
+- 在極端行情下，0050 質押借款買入 00675L，實際上是對台股指數三重槓桿曝險（質押 × 期貨 × ETF），但系統對此無感知。
+
+### 動機
+
+雙重槓桿在極端行情下可能造成淨值快速歸零的「死亡螺旋」。監控真實曝險倍數是槓桿策略最基本的風控前置條件。
+
+### 計算公式
+
+```
+grossLeverage = (0050 市值 + 00675L 市值 × 2) / 帳戶淨值
+```
+
+建議天花板：**2.5x**（超過則強制降至下一 allocation 檔位）
+
+### 建議方向
+
+- 新增 `src/modules/strategy/leverageMonitor.mjs`
+- 在每次 `buildDecision()` 前先計算 `grossLeverage`
+- 超過天花板時強制壓縮 allocation 檔位（一票否決加碼）
+- 日報新增「綜合曝險倍數」欄位
+
+### 影響範圍
+
+- `src/modules/strategy/leverageMonitor.mjs`（新增模組）
+- `src/modules/strategy/strategyEngine.mjs`（整合計算）
+- Telegram 通知模板（新增欄位）
+- `Strategy.json`（新增 `grossLeverageCeiling` 參數）
+
+### 難度
+
+⭐⭐⭐ 高
+
+### 討論狀態
+
+⚪ 待確認
+
+---
+
+## 📌【P1 高優先】PB 估值動態衰減機制（valuationPenaltyFactor）
+
+### 狀態與目標摘要
+
+- 現行系統 PB >= 2.2 才觸發硬停機，PB 1.8–2.2 的危險過渡區內系統仍可全力加碼。
+- 存在「估值懸崖效應」：PB 2.19 與 2.20 的行為天壤之別，但風險實質相近。
+
+### 動機
+
+高估值環境下應漸進式壓縮槓桿上限，而非在臨界值突然斷崖。線性衰減更符合風險管理直覺，且能避免邊界條件的策略突變。
+
+### 設計規格（4 段線性衰減）
+
+| PB 區間 | 最大允許槓桿 | 行為 |
+|--------|------------|------|
+| PB < 1.8 | 1.8x（完整） | 無限制 |
+| 1.8 ≤ PB < 2.0 | 壓縮至 1.5x | 降低高分檔位上限 |
+| 2.0 ≤ PB < 2.2 | 鎖定 1.1–1.2x | 禁止 00675L 新增 |
+| PB ≥ 2.2 | 強制清空 00675L | 現行硬停機維持 |
+
+### 建議 Strategy.json 新增欄位
+
+```json
+"valuationTiers": [
+  { "maxPB": 1.8, "maxLeverageMultiplier": 1.0, "note": "正常操作" },
+  { "maxPB": 2.0, "maxLeverageMultiplier": 0.85, "note": "輕度壓縮" },
+  { "maxPB": 2.2, "maxLeverageMultiplier": 0.65, "note": "強制降速，禁止00675L新增" },
+  { "maxPB": 999, "maxLeverageMultiplier": 0.0, "note": "泡沫停機" }
+]
+```
+
+### 影響範圍
+
+- `Strategy.json`（新增 `valuationTiers` 區段）
+- `src/modules/strategy/strategyEngine.mjs`
+- `src/modules/strategy/riskManagement.mjs`
+
+### 難度
+
+⭐⭐⭐ 高
+
+### 討論狀態
+
+⚪ 待確認
+
+---
+
+## 📌【P1 高優先】廢除 BasePrice，改採 ATR/MA20 動態移動停利
+
+### 狀態與目標摘要
+
+- 停利條件建立在 `priceUpPercent >= sell.minUpPercentToSell(80%)`，錨點為外部 `BasePrice.txt`，尚未有明文的更新規則。
+- BasePrice 長期不更新將導致停利條件數年無法被觸發；過於頻繁更新則停利過度敏感。
+- BasePrice 是靜態人工設定，無法自動對應技術結構。
+
+### 動機
+
+以 MA20 月線（約 20 個交易日均價）或前一波低點 + ATR 倍數作為動態停利錨點，能自動追蹤趨勢結構，比靜態 BasePrice 更符合「跟隨強勢、在弱勢時離場」的動態停利精神。
+
+### 設計規格
+
+```
+動態停利錨點 = MA20 × (1 - stopLossBuffer)
+              OR 前波低點 + ATR × multiplier
+```
+
+- 新增 `sell.anchorType = basePrice | ma20 | atr`（Strategy.json 可設定）
+- 新增 `sell.atrMultiplier`（預設 2.0）
+- `ma20` 模式：連續 2 日收盤跌破 MA20 × 緩衝係數時觸發停利訊號
+- 過渡期保留 BasePrice 作為 fallback（`anchorType = basePrice` 時行為與現在相同）
+
+### 建議方向（分階段）
+
+1. **Phase 1（過渡）**：在 `sell` 中新增 `anchorType` 欄位，預設 `basePrice` 維持現狀。
+2. **Phase 2（切換）**：切換至 `ma20` 模式，移除 `BasePrice.txt` 依賴，改從 TWSE API 即時計算。
+3. **Phase 3（驗證）**：回測不同 anchor 模式的停利時機與後續回撤，調整參數。
+
+### 影響範圍
+
+- `src/modules/providers/basePriceProvider.mjs`（保留作 fallback）
+- `src/modules/strategy/strategyEngine.mjs`（停利 anchor 邏輯分支）
+- `Strategy.json`（新增 `sell.anchorType`、`sell.atrMultiplier`）
+- 日報顯示「當前停利錨點來源與數值」
+
+### 難度
+
+⭐⭐⭐ 高（需回測與長期觀察）
+
+### 討論狀態
+
+⚪ 待確認
+
+---
+
+## 📌【P1 高優先】lastBuyDate 本地 fallback 快取（SQLite/JSON）
+
+### 狀態與目標摘要
+
+- 冷卻期依賴 `portfolio.lastBuyDate`，來源為 Google Sheet 持股紀錄。
+- 若 Google Sheet API 失敗、欄位缺失或格式錯誤，冷卻期會被視為「無歷史買入紀錄」，等同關閉冷卻保護。
+- 此問題在網路不穩或 Sheets API 限流時具有實際發生風險。
+
+### 動機
+
+冷卻期是防止短期內頻繁加碼與槓桿快速堆疊的關鍵機制。資料來源單點故障不應導致風控靜默失效。
+
+### 建議方向
+
+- 在每次成功讀取 `lastBuyDate` 後，同步寫入本地 JSON 檔（`data/cache/lastBuyDate.json`）或 SQLite。
+- `fetchLastPortfolioState()` 失敗時，優先讀取本地快取作為 fallback，並在日報中標示「使用快取資料」。
+- 每次實際觸發買入後，立即更新本地快取（不依賴下次 Sheets 讀取）。
+- 在 `fetchLastPortfolioState()` 中增加 `lastBuyDate` 格式驗證，無法解析時顯示警告並 log。
+
+### 建議 cache 格式
+
+```json
+{
+  "lastBuyDate": "2026-03-15",
+  "updatedAt": "2026-04-16T01:07:04Z",
+  "source": "google_sheet"
+}
+```
+
+### 影響範圍
+
+- `src/modules/storage.mjs`（lastBuyDate 讀寫、驗證與本地快取雙寫）
+- `src/dailyCheck.mjs`（買入觸發後立即更新快取）
+- `data/cache/`（新增快取目錄，需加入 `.gitignore`）
+- `webapp/src/views/AccountView.vue`（可選：顯示快取來源標示）
+
+### 難度
+
+⭐⭐ 中
+
+### 討論狀態
+
+⚪ 待確認
+
+---
+
 ## 📌【策略與績效】策略訊號回測與績效統計
 
 ### 狀態與目標摘要
@@ -104,38 +413,10 @@
 
 ---
 
-## 📌【風控邏輯】維持率與追繳風險判斷重構
+## 📌【風控邏輯】維持率與追繳風險判斷重構（已升級為上方 P0 4層狀態機）
 
-### 狀態與目標摘要
-
-- `strategyEngine.mjs` 目前先以 `maintenance.protectTrigger` 觸發「預備金防禦」，再以 `threshold.mmDanger` 判斷「追繳風險」。 [cite:11]
-- 在現有參數配置下（protectTrigger=160、mmDanger=140），追繳分支實務上會被前一層防禦邏輯遮蔽。
-
-### 動機
-
-維持率風控邏輯的原則應為「越危險的情境越先被檢出」，避免在真正接近斷頭區間時仍給出偏溫和的建議（例如僅提示動用預備金），而忽略「停止所有加碼、優先補保證金」的一票否決訊號。 [cite:11]
-
-### 建議方向
-
-- 調整 `buildDecision()` 判斷順序，將「追繳風險」判斷移到 `protectTrigger` 之前：
-  - 先檢查 `maintenanceMargin < mmDanger` → 直接返回「🚨 追繳風險」決策。
-  - 再檢查 `maintenanceMargin < protectTrigger` → 返回「🛡️ 預備金防禦」決策。
-- 補充單元測試／回測樣本（模擬維持率 120、135、155 等情境），確保 refactor 後訊息與建議文案符合預期。
-- 在每日報告中額外標註「風控層級（正常／防禦／追繳）」欄位，便於長期觀察策略遇到低維持率時的行為。
-
-### 影響範圍
-
-- `src/modules/strategy/strategyEngine.mjs`（`buildDecision()` 判斷順序與文案） [cite:11]
-- `src/modules/notifications/templates/telegramHtmlBuilder.mjs`（如需新增風控層級展示）
-- 週／月報統計可選擇新增「近 X 日觸發追繳風險次數」統計（未必為此階段必要）
-
-### 難度
-
-⭐⭐ 中（邏輯本身簡單，但需謹慎測試所有分支）
-
-### 討論狀態
-
-⚪ 待確認
+> ⚠️ 此項目已升級為【P0 緊急】維持率狀態機 4 層重構，請參閱上方對應條目。
+> 原 2 層邏輯調換順序的方案已整合進 4 層設計中。
 
 ---
 
@@ -143,31 +424,31 @@
 
 ### 狀態與目標摘要
 
-- Strategy.json 中 `buy.rsi.oversold` 目前設定為 50，`minDropPercentToConsider` 為 0。 [cite:9]
-- 估值泡沫僅在 PB ≥ 2.2 時啟動硬停機，PB 1.8–2.2 區間尚未有漸進式降速設計。 [cite:11]
+- Strategy.json 中 `buy.rsi.oversold` 目前設定為 50，`minDropPercentToConsider` 為 0。
+- 估值泡沫僅在 PB ≥ 2.2 時啟動硬停機，PB 1.8–2.2 區間尚未有漸進式降速設計（已另立 PB 動態衰減計劃）。
 
 ### 動機
 
-- RSI 超賣門檻過高會造成「只要 RSI 穿越 50 就視為反轉」的現象，使策略在多頭震盪中也頻繁加分。
+- RSI 超賣門檻過高會造成「只要 RSI 穿越 50 就視為反轉」的現象，使策略在多頭震盪中也頻繁加分。（`rsiRebound requireCrossToday: true` 的 lookback 修正已部分改善此問題）
 - 跌幅門檻為 0 代表技術分數一旦達標就可能觸發加碼，與「至少修正一定幅度才啟動左側加碼」的直覺不符。
-- PB 僅在極端值時硬停，可能忽略高估但尚未進入泡沫區間的漸進式風險。
 
-### 建議方向
+### 建議方向（左側進擊矩陣三層架構）
 
-- **RSI 與跌幅門檻調整**
-  - 將 `buy.rsi.oversold` 往下調整到 40–45 區間，集中在真正偏弱時才給加分。
-  - 將 `buy.minDropPercentToConsider` 提升至 5–10%，強制要求至少出現小幅修正才啟動撥款判斷。
-  - 規劃兩組以上參數（例如 conservative / aggressive profile），透過 `Strategy.json` 版本號或環境變數切換，並用 backtest 驗證差異。
+| 層級 | 跌幅條件 | RSI 目標 | 策略定位 |
+|------|--------|---------|--------|
+| 淺層修正 | 10–15% | RSI ≤ 45 | 小幅加碼，觀察確認 |
+| 深度回撤 | 15–30% | RSI ≤ 35 | 積極加碼，逢跌分批 |
+| 極端恐慌 | >= 30% | RSI ≤ 30 | 全力左側加碼，忽略情緒訊號 |
 
-- **估值多階門檻**
-  - 新增一組估值區間（例如 PB 1.8–2.2），在此區間内降低最大可用槓桿檔位或提高進場分數門檻。
-  - 將 PB 與 VIX / RSI 過熱判斷整合成「高估但未泡沫」狀態，提示使用者以較低節奏執行 DCA。
+- 將 `buy.rsi.oversold` 往下調整到 40–45 區間。
+- 將 `buy.minDropPercentToConsider` 提升至 5–10%，強制要求至少出現小幅修正。
+- 規劃 conservative / aggressive profile 透過 Strategy.json 版本號切換，並用 backtest 驗證差異。
 
 ### 影響範圍
 
-- `Strategy.json`（調整 `buy.rsi.oversold`、`buy.minDropPercentToConsider`、新增估值區間參數）
-- `src/modules/strategy/signalRules.mjs`（如需支援多 profile 或新的估值條件） [cite:9]
-- `src/test/backtest.mjs`（回測不同門檻組合並輸出簡要比較報告） [cite:12]
+- `Strategy.json`（調整 `buy.rsi.oversold`、`buy.minDropPercentToConsider`）
+- `src/modules/strategy/signalRules.mjs`
+- `src/test/backtest.mjs`
 
 ### 難度
 
@@ -179,79 +460,38 @@
 
 ---
 
-## 📌【停利機制】BasePrice 管理與動態停利邏輯
+## 📌【停利機制】BasePrice 管理與動態停利邏輯（已升級為上方 P1 廢除 BasePrice 計劃）
 
-### 狀態與目標摘要
-
-- 停利條件建立在 `priceUpPercent >= sell.minUpPercentToSell`，其中 `priceUpPercent` 是相對 BasePrice 的漲幅，目前門檻為 80%。 [cite:11][cite:13]
-- BasePrice 來自外部 `BasePrice.txt`，尚未明文化更新頻率與規則。 [cite:13]
-
-### 動機
-
-- 若 BasePrice 長期不更新，實務上停利條件可能多年都無法被觸發。
-- 若 BasePrice 更新過於頻繁，停利會過度敏感，導致槓桿在短期內被頻繁拉低。
-- 目前停利錨點無法自動對應技術結構（例如相對 MA240 或近 N 日低點）。
-
-### 建議方向
-
-- **BasePrice 管理策略**
-  - 在 docs 中定義 BasePrice 更新規則（例如每季、或當 MA240 改變超過某比例時重置）。
-  - 規劃 `scripts/update-base-price.sh`，由人工觸發或特定條件下自動寫入新 BasePrice（搭配 Git 記錄）。
-
-- **動態停利設計**
-  - 增加可選模式：以相對 MA240 / 近 N 日低點 / 前一波恐慌加碼點位作為停利錨點。
-  - 在 `strategyEngine.mjs` 中加入參數選項，允許在 Strategy.json 指定 `sell.anchorType = basePrice | ma240 | swingLow`。 [cite:11]
-
-- **報告與監控**
-  - 於日報中顯示目前停利錨點來源與數值（例如「錨點 = BasePrice 75 元，+80% 為 135 元」）。
-  - 於月報統計過去 N 次觸發停利的平均報酬率與後續回檔幅度，幫助調整門檻。
-
-### 影響範圍
-
-- `src/modules/providers/basePriceProvider.mjs`（BasePrice 來源與錯誤處理） [cite:13]
-- `src/modules/strategy/strategyEngine.mjs`（停利 anchor 設計與分支邏輯） [cite:11]
-- 文件：新增 BasePrice 管理章節於 `docs/modules/market_strategy.md` 或 `docs/architecture.md`。 [cite:2][cite:5]
-
-### 難度
-
-⭐⭐⭐ 高（需要兼顧易用性與可解釋性）
-
-### 討論狀態
-
-⚪ 待確認
+> ⚠️ 此項目已升級為【P1 高優先】廢除 BasePrice，改採 ATR/MA20 動態移動停利，請參閱上方對應條目。
+> 原 BasePrice 管理策略（更新規則、scripts）保留為 Phase 1 過渡方案。
 
 ---
 
-## 📌【冷卻期與情緒】MacroSentiment 交互與回測驗證
+## 📌【冷卻期與情緒】MacroSentiment 交互與回測驗證（已升級整合 VIX 情緒短路）
 
 ### 狀態與目標摘要
 
-- BEARISH 環境下同時存在分數扣分（`bearishPenalty`）與冷卻期延長（`bearishCooldownMultiplier`）。 [cite:9][cite:11]
-- 目前尚未有系統性回測顯示「長期偏空新聞」情境下的實際加碼行為。
+- BEARISH 環境下同時存在分數扣分（`bearishPenalty`）與冷卻期延長（`bearishCooldownMultiplier`）。
+- VIX 極端高位時覆蓋 AI 情緒的「情緒短路」機制已另立為【P1 高優先】VIX 情緒短路機制計劃。
 
-### 動機
-
-- 雙重抑制有利於在壞環境中減少加碼，但在估值已偏低時可能過度保守。
-- 若 AI Macro 長期判定偏空（例如景氣循環谷底），策略可能長時間停留在觀望狀態。
-
-### 建議方向
+### 建議方向（補充回測維度）
 
 - 在 `backtest.mjs` 內加入 macroSentiment 維度回測：
   - 比較「有 sentimentScore + 冷卻延長」與「僅 sentimentScore 或僅冷卻延長」三種模式的績效。
-  - 觀察 BEARISH 區間內的平均進場次數、勝率與最大回撤。 [cite:12]
+  - 觀察 BEARISH 區間內的平均進場次數、勝率與最大回撤。
 - 考慮增加上限：
   - 例如在估值低於某 PB 或 PE 閾值時，關閉冷卻延長效果但保留分數扣分。
   - 或在連續 N 天 BEARISH 卻持續大跌時，強制允許恐慌加碼通道。
 
 ### 影響範圍
 
-- `Strategy.json`（調整 `macroSentiment.bearishPenalty`、`bearishCooldownMultiplier` 或新增「估值例外」參數）
-- `src/modules/strategy/strategyEngine.mjs`（冷卻天數計算與 message 註記） [cite:11]
-- `src/test/backtest.mjs`（新增 macroSentiment 模式回測） [cite:12]
+- `Strategy.json`（調整 `macroSentiment.bearishPenalty`、`bearishCooldownMultiplier` 或新增估值例外參數）
+- `src/modules/strategy/strategyEngine.mjs`
+- `src/test/backtest.mjs`
 
 ### 難度
 
-⭐⭐⭐ 高（涉及行為層調整與回測）
+⭐⭐⭐ 高
 
 ### 討論狀態
 
@@ -259,39 +499,9 @@
 
 ---
 
-## 📌【資料完整性】lastBuyDate 與策略欄位一致性檢查
+## 📌【資料完整性】lastBuyDate 與策略欄位一致性檢查（已升級為上方 P1 本地 fallback 快取）
 
-### 狀態與目標摘要
-
-- 冷卻期依賴 `portfolio.lastBuyDate`，來源為 Google Sheet 持股紀錄。 [cite:11][cite:14]
-- 若該欄位缺失或格式錯誤，冷卻期會被視為「無歷史買入紀錄」，等同關閉。
-
-### 動機
-
-冷卻期是防止短期內頻繁加碼與槓桿快速堆疊的關鍵機制，必須確保資料來源可靠，否則策略會默默退化成「無冷卻限制」的版本。
-
-### 建議方向
-
-- 在 `fetchLastPortfolioState()` 中增加 `lastBuyDate` 的格式驗證：
-  - 若無法解析為合法日期，應在日報中顯示警告並回寫 log。
-- 在每日實際觸發買入（特別是恐慌加碼）後，確保 `logDailyToSheet()` 有寫入當日為最新 lastBuyDate。 [cite:14]
-- 於 `AccountView.vue` 或 Mini App 新增一個小卡片顯示：
-  - 最後一次買入日期。
-  - 冷卻期剩餘交易日。
-
-### 影響範圍
-
-- `src/modules/storage.mjs`（lastBuyDate 讀寫與驗證）
-- `src/dailyCheck.mjs`（呼叫 `logDailyToSheet` 的欄位確認） [cite:14]
-- `webapp/src/views/AccountView.vue`（新增展示冷卻期資訊） [cite:5]
-
-### 難度
-
-⭐⭐ 中（資料流確認為主）
-
-### 討論狀態
-
-⚪ 待確認
+> ⚠️ 此項目已升級為【P1 高優先】lastBuyDate 本地 fallback 快取，請參閱上方對應條目。
 
 ---
 
@@ -299,8 +509,8 @@
 
 ### 狀態與目標摘要
 
-- `Strategy.json` 中 `leverage.targetMultiplier` 與 `reserve.allocationRatio` 目前尚未被策略引擎實際使用。 [cite:9][cite:10][cite:11]
-- `buy.dropScoreRules` 中存在 label 與 minDrop 不一致的情形（例如 minDrop=25, label「大跌 >= 20%」）。 [cite:9]
+- `Strategy.json` 中 `leverage.targetMultiplier` 與 `reserve.allocationRatio` 目前尚未被策略引擎實際使用。
+- `buy.dropScoreRules` 中存在 label 與 minDrop 不一致的情形（例如 minDrop=25, label「大跌 >= 20%」）。
 
 ### 動機
 
@@ -318,7 +528,7 @@
 ### 影響範圍
 
 - `Strategy.json`（欄位調整與 label 修正）
-- `docs/modules/market_strategy.md`（如有描述相關欄位需同步更新） [cite:2]
+- `docs/modules/market_strategy.md`
 
 ### 難度
 
@@ -335,7 +545,7 @@
 ### 狀態與目標摘要
 
 - 目前策略 implicitly 假設使用者風險承受度固定，未顯式納入「年齡 / 投資年限 / 距離目標年」等生命週期參數。
-- allocation 槓桿檔位主要依 weightScore 決定，與投資年齡無關。 [cite:11]
+- allocation 槓桿檔位主要依 weightScore 決定，與投資年齡無關。
 
 ### 動機
 
@@ -348,12 +558,12 @@
 - 生命週期參數來源：
   - 初期可先在 `.env` 或 Google Sheet 設定「目標年份」「出生年份」等，後續再考慮在 Mini App 做 UI 調整。
 - 策略引擎整合：
-  - 在 `fetchStrategyConfig()` 或 `evaluateInvestmentSignal()` 中讀取當前 profile，動態選用對應的 allocation 陣列或調整分數檔位。 [cite:9][cite:11]
+  - 在 `fetchStrategyConfig()` 或 `evaluateInvestmentSignal()` 中讀取當前 profile，動態選用對應的 allocation 陣列或調整分數檔位。
 
 ### 影響範圍
 
 - `Strategy.json`（新增 lifecycleProfiles 區段）
-- `src/modules/strategy/riskManagement.mjs`（依 profile 選擇 allocation） [cite:10]
+- `src/modules/strategy/riskManagement.mjs`
 - `webapp` Mini App 未來可新增生命週期設定頁面
 
 ### 難度
@@ -370,8 +580,8 @@
 
 ### 狀態與目標摘要
 
-- 目前「底倉 DCA」與「顯著修正或恐慌時的戰術加碼」共同由同一分數機制與 allocation 表驅動。 [cite:11]
-- 使用者在閱讀報告時較難分辨當日建議是屬於「持續佈局」還是「特殊戰術」。 [cite:5]
+- 目前「底倉 DCA」與「顯著修正或恐慌時的戰術加碼」共同由同一分數機制與 allocation 表驅動。
+- 使用者在閱讀報告時較難分辨當日建議是屬於「持續佈局」還是「特殊戰術」。
 
 ### 動機
 
@@ -389,9 +599,9 @@
 ### 影響範圍
 
 - `Strategy.json`（新增 baseline / tactical 配置）
-- `src/modules/strategy/strategyEngine.mjs`（輸出 signalType 標籤） [cite:11]
-- `src/modules/ai/periodReportAgent.mjs`（訊號分類與統計） [cite:6]
-- Notifications 模板（加上清楚標籤） [cite:7]
+- `src/modules/strategy/strategyEngine.mjs`
+- `src/modules/ai/periodReportAgent.mjs`
+- Notifications 模板
 
 ### 難度
 
@@ -407,12 +617,12 @@
 
 ### 狀態與目標摘要
 
-- 現有週報、月報已統計買進訊號次數、冷卻封鎖比例與 +5/+10/+20 日報酬，但尚未標示訊號類型。 [cite:6]
-- 使用者只能看到 aggregate 的績效，無法得知哪一種訊號（恐慌、一般大跌、常態進場）效果最好。 [cite:7]
+- 現有週報、月報已統計買進訊號次數、冷卻封鎖比例與 +5/+10/+20 日報酬，但尚未標示訊號類型。
+- 使用者只能看到 aggregate 的績效，無法得知哪一種訊號（恐慌、一般大跌、常態進場）效果最好。
 
 ### 動機
 
-以「訊號類型」為維度分析績效，可以用來調整各檔位權重與門檻，例如：若恐慌加碼勝率高但樣本少，可考虑略放寬條件；若某種一般加碼長期績效不佳，可適度調高分數門檻。
+以「訊號類型」為維度分析績效，可以用來調整各檔位權重與門檻，例如：若恐慌加碼勝率高但樣本少，可考慮略放寬條件；若某種一般加碼長期績效不佳，可適度調高分數門檻。
 
 ### 建議方向
 
@@ -424,13 +634,13 @@
 
 ### 影響範圍
 
-- `src/modules/strategy/strategyEngine.mjs`（標註 signalCategory） [cite:11]
-- `src/modules/ai/periodReportAgent.mjs`（統計維度擴充） [cite:6]
-- Telegram 月報模板（新增一段簡潔表格或列表） [cite:7]
+- `src/modules/strategy/strategyEngine.mjs`
+- `src/modules/ai/periodReportAgent.mjs`
+- Telegram 月報模板
 
 ### 難度
 
-⭐⭐ 中（需要調整資料結構與報告模板）
+⭐⭐ 中
 
 ### 討論狀態
 
@@ -442,12 +652,12 @@
 
 ### 狀態與目標摘要
 
-- 現有 Mini App 已提供市場雷達、資產淨值曲線、報告列表與新聞池。 [cite:5]
+- 現有 Mini App 已提供市場雷達、資產淨值曲線、報告列表與新聞池。
 - 尚未有專門頁面集中展示「當前策略評分構成」、「所在分數檔位」與「冷卻期狀態」。
 
 ### 動機
 
-在手機上快速理解「今天為何建議加碼／觀望／停利」，對實際使用體驗非常重要，也方便你自己 debug 策略行為。
+在手機上快速理解「今天為何建議加碼／觀望／停利」，對實際使用體驗非常重要，也方便 debug 策略行為。
 
 ### 建議方向
 
@@ -461,12 +671,12 @@
 
 ### 影響範圍
 
-- `webapp/src/views/DashboardView.vue` 或 `AccountView.vue`（新增策略狀態卡片） [cite:5]
-- `/api/status` 或 `/api/reports` 若尚未回傳 weightDetails，需後端擴充。 [cite:5][cite:14]
+- `webapp/src/views/DashboardView.vue` 或 `AccountView.vue`
+- `/api/status` 或 `/api/reports` 若尚未回傳 weightDetails，需後端擴充。
 
 ### 難度
 
-⭐⭐ 中（主要是前端 UI 與 API 結構調整）
+⭐⭐ 中
 
 ### 討論狀態
 
@@ -478,7 +688,7 @@
 
 ### 狀態與目標摘要
 
-- 現有設計已透過冷卻期與再平衡控制槓桿節奏，但尚未顯式限制「單日最大新增撥款金額」與「區間累積加碼上限」。 [cite:11]
+- 現有設計已透過冷卻期與再平衡控制槓桿節奏，但尚未顯式限制「單日最大新增撥款金額」與「區間累積加碼上限」。
 - 在極端行情下，多個訊號同時達標時仍有可能短期內大額放大槓桿。
 
 ### 動機
@@ -491,18 +701,18 @@
   - `trading.maxDailyNetLoanIncrease`：單日最大淨新增借款金額。
   - `trading.maxRollingLoanIncreaseDays` / `trading.maxRollingLoanIncreaseAmount`：N 日內累計最大新增借款上限。
 - 在 daily pipeline 中：
-  - 根據當前 totalLoan 與建議 targetLeverage，計算預期新增借款額，若超出上限，將建議降檔（例如從「強勢進攻」改為「一般加碼」）或僅執行 baseline DCA。
+  - 根據當前 totalLoan 與建議 targetLeverage，計算預期新增借款額，若超出上限，將建議降檔或僅執行 baseline DCA。
 - 可於月報中簡單列出「本月加碼資金節奏」摘要，幫助調整參數。
 
 ### 影響範圍
 
 - `Strategy.json`（新增資金上限相關參數）
-- `src/modules/strategy/strategyEngine.mjs`（加入資金上限判斷並調整 targetAllocation） [cite:11]
-- `src/modules/storage.mjs`（若需要讀取過去 N 日借款變化）
+- `src/modules/strategy/strategyEngine.mjs`
+- `src/modules/storage.mjs`
 
 ### 難度
 
-⭐⭐⭐ 高（需設計與現有冷卻／再平衡邏輯的相容性）
+⭐⭐⭐ 高
 
 ### 討論狀態
 
