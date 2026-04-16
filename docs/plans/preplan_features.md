@@ -353,7 +353,7 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
     { "maxPR": 70,  "leverageMultiplier": 1.0,  "note": "常態" },
     { "maxPR": 80,  "leverageMultiplier": 0.85, "note": "輕度壓縮" },
     { "maxPR": 90,  "leverageMultiplier": 0.65, "note": "中度壓縮，禁 00675L" },
-    { "maxPR": 100, "leverageMultiplier": 0.0,  "note": "停機" }
+    { "maxPR": 100, "leverageMultiplier": 0.3, "note": "極度壓縮，啟動移動停利" }
   ]
 }
 ```
@@ -362,6 +362,7 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 
 | 節                 | 工作內容                                                                                                                                                                                                                                                                                                                                                              | 涉及檔案                                                                |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 節〇（前置）       | archiveManager.mjs 新增 getValuationGuardState() / saveValuationGuardState()                                                                                                                                                                                                                                                                                          | src/modules/data/archiveManager.mjs                                     |
 | 節一               | `Strategy.json` 新增 `valuationGuard` 區段                                                                                                                                                                                                                                                                                                                            | `Strategy.json`                                                         |
 | 節二               | `validateStrategyConfig()` 補齊 `valuationGuard` 驗證                                                                                                                                                                                                                                                                                                                 | `signalRules.mjs`                                                       |
 | 節三               | 新增 `resolveValuationGuard(currentPB, records, config)` 純函式，計算 PR 與命中 tier                                                                                                                                                                                                                                                                                  | `strategyEngine.mjs`                                                    |
