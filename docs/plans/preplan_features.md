@@ -532,6 +532,7 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 - 過渡期保留 BasePrice 作為 fallback（`anchorType = basePrice` 時行為與現在相同）
 - **停利啟動條件：** 該批買入的部位，必須滿足 **「帳面未實現獲利 > X%（例如 10%）」** 或 **「股價在買入後，首次向上突破站穩 MA20」** 之後，移動停利（Trailing Stop）的監控機制才會正式被 `Active`（啟動）。
   - 在此條件滿足前，系統處於「左側建倉熬過陣痛期」，不應被右側的短均線破位給洗出場。
+- 當一般移動停利（MA20/ATR）觸發時，系統應『完全清空』當前的戰術加碼部位（Tactical Allocation），將 00675L 的曝險降回常態底倉（Baseline DCA）水位
 
 ### 建議方向（分階段）
 
@@ -758,6 +759,7 @@ finalMultiplier = guardMultiplier × momentumAdjustment
   - **距退休 > 15 年（早期累積期）：** 解鎖最高 2.0x 槓桿權限（允許策略在低點全開）。
   - **距退休 5 ~ 15 年（中期平衡期）：** 槓桿天花板隨時間線性遞減，上限壓縮至 1.2x ~ 1.5x。
   - **距退休 < 5 年（後期保守期）：** 進入「只出不進 (Sell-only Mode)」。禁止任何「新增」的 00675L 買進與質押撥款，但既有帳上部位不強制認賠（避免熊市谷底硬著陸）。既有部位將套用更緊縮的「ATR / MA20 移動停利線」，在右側反彈波段逐步獲利了結，實現平滑去槓桿化 (Smooth Deleveraging)。
+  當投資人進入『後期保守期（Sell-only Mode）』時，系統將『強制 Bypass（略過）』移動停利的啟動門檻（Activation Cushion）。無論當下部位是否獲利，MA20/ATR 停利防線皆無條件立即生效。
 - 生命週期參數來源：
   - 初期可先在 `.env` 或 Google Sheet 設定「目標年份」「出生年份」等，後續再考慮在 Mini App 做 UI 調整。
 - 策略引擎整合：
@@ -902,7 +904,7 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 - 新增風控參數（依整體帳戶淨值連動，規模化擴張）：
   - `trading.maxDailyLoanIncreasePct`：單日最大新增借款佔**當前帳戶淨值**的百分比（例如 5% 或 10%）。
-  - `trading.maxRollingLoanIncreasePct`：淨新增借款（Net Loan Increase），計算公式為：近 10 日的總借款金額 - 近 10 日的總還款金額。
+  - `trading.maxRollingLoanIncreasePct`：淨新增借款（Net Loan Increase），計算公式為：近 10 日的總借款金額 - 近 10 日的總還款金額，淨新增借款的計算結果必須透過 Math.max(0, NetLoan) 進行底部截斷（Floor at Zero）。
     - 系統在區間內有執行「停利/再平衡還款」，戰術彈藥庫的額度就會被自動釋放（重置），確保資金使用效率最大化，不會發生無謂的額度死鎖。
 - 在 daily pipeline 中：
   - 根據當前 totalLoan 與建議 targetLeverage，計算預期新增借款額比例。
