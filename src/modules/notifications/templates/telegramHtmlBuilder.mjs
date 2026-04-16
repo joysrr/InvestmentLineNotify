@@ -102,6 +102,28 @@ function signalRow({ name, value, condition, triggered }) {
   }
 }
 
+/**
+ * entryGate 通道標示列
+ * @param {Object} result - evaluateInvestmentSignal 回傳結果
+ * @returns {string} 格式化後的單行標示，或空字串（不顯示時）
+ */
+function entryGateTag(result) {
+  const level = result.entryGateLevel;
+  const label = result.entryGateLabel;
+  const blocked = result.entryGateBlocked;
+
+  // entryGate 未啟用或無資料時不顯示
+  if (level == null || level < 0) return "";
+
+  const tierEmojis = ['🌱', '🟡', '🟠', '🔴'];
+  const emoji = tierEmojis[level] ?? '⚙️';
+
+  if (blocked) {
+    return `\n🚪 進場通道：${emoji} <b>Tier ${level} — ${escapeHTML(label ?? '')}（封鎖中）</b>`;
+  }
+  return `\n🚪 進場通道：${emoji} <b>Tier ${level} — ${escapeHTML(label ?? '')}</b>`;
+}
+
 // ── 主程式：完整版訊息（原不動） ───────────────────────────────
 
 export function buildTelegramMessages({
@@ -313,11 +335,15 @@ export function buildTelegramMessages({
 
   const paddedPct = String(goalPct).padStart(5, " ");
 
+  // ── entryGate 通道標示 ──
+  const gateTag = entryGateTag(result);
+
   const msg1Text =
     `<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\n\n` +
     `<b>${timeLabel}</b>${SEP}\n` +
     `🚦 狀態：<b>${escapeHTML(result.marketStatus || "未明")}</b>\n` +
-    `📌 行動：<b>${escapeHTML(result.target || "觀望")}</b> ─ <i>${escapeHTML(result.targetSuggestionShort || "無特殊操作")}</i>\n` +
+    `📌 行動：<b>${escapeHTML(result.target || "觀望")}</b> ─ <i>${escapeHTML(result.targetSuggestionShort || "無特殊操作")}</i>` +
+    `${gateTag}\n` +
     `<blockquote expandable>${escapeHTML(result.suggestion || "無進階說明")}</blockquote>\n\n` +
     `🌐 <b>市場概況</b>${SEP}\n` +
     `🇺🇸 美股 VIX  <code>${escapeHTML(usRisk?.vix || "N/A")}</code>  ${escapeHTML(usRisk?.riskIcon || "")}\n` +
@@ -570,6 +596,9 @@ export function buildCompactMessage(
     ? `\n⏰ 冷卻期中 · 剩 ${cooldown.daysLeft} 交易日`
     : "";
 
+  // ── entryGate 通道標示（Compact） ──
+  const gateTagCompact = entryGateTag(result);
+
   // ── 每日一句 ──
   const quoteText = quote?.quote
     ? `\n\n💬 <i>${escapeHTML(quote.quote)}</i>\n— <b>${escapeHTML(quote.author || "")}</b>`
@@ -580,7 +609,8 @@ export function buildCompactMessage(
   const text =
     `<b>${timeLabel}</b>  <code>${escapeHTML(timeTag)}</code>${SEP}` +
     `🚦 <b>${marketStatus}</b>\n` +
-    `📌 ${target} · <i>${targetShort}</i>\n` +
+    `📌 ${target} · <i>${targetShort}</i>` +
+    `${gateTagCompact}\n` +
     `${cooldownHint}${SEP}` +
     `${quoteText}\n\n` +
     `📲 詳細指標與 AI 建議請到 Mini App 查看`;
