@@ -17,13 +17,20 @@ function goalBar(current, target, width = 20) {
   return "█".repeat(filled) + "░".repeat(width - filled);
 }
 
-/** 維持率標籤（改用警告標誌與柔和顏色） */
+/**
+ * 維持率標籤（4 層狀態機同步版本）
+ * 對應 strategyEngine.mjs 的 getMarginLayer() 邏輯：
+ *   🔴 critical  < 135%
+ *   🟠 frozen    135–145%
+ *   🟡 protect   145–160%
+ *   🟢 normal    >= 160%
+ */
 function mmTag(mm, hasLoan) {
   if (!hasLoan || !Number.isFinite(mm)) return { icon: "▫️", label: "未借款" };
-  if (mm >= 250) return { icon: "🛡️", label: "極度安全" };
-  if (mm >= 180) return { icon: "✅", label: "健康" };
-  if (mm >= 150) return { icon: "⚠️", label: "警戒" };
-  return { icon: "🚨", label: "危險" };
+  if (mm >= 160) return { icon: "✅", label: "健康" };
+  if (mm >= 145) return { icon: "🟡", label: "預備金防禦" };
+  if (mm >= 135) return { icon: "🟠", label: "高危凍結" };
+  return { icon: "🔴", label: "斷頭危機" };
 }
 
 /** 槓桿標籤（降低圓點飽和度，改用更專業的符號） */
@@ -546,7 +553,7 @@ export function buildCompactMessage(
   // ── 維持率 ──
   const mm = Number(result.maintenanceMargin);
   const hasLoan = Number(result.totalLoan || 0) > 0;
-  const mmEmoji = !hasLoan ? "▫️" : mm >= 180 ? "✅" : mm >= 150 ? "⚠️" : "🚨";
+  const mmEmoji = !hasLoan ? "▫️" : mm >= 160 ? "✅" : mm >= 145 ? "🟡" : mm >= 135 ? "🟠" : "🔴";
   const mmStr = hasLoan && Number.isFinite(mm) ? `${mm.toFixed(0)}%` : "未借款";
 
   // ── 轉弱 / 賣出訊號 ──
@@ -582,7 +589,7 @@ export function buildCompactMessage(
     {
       text,
       pin: true,
-      webAppUrl, // telegramClient 組裝成 web_app 按鈕
+      webAppUrl,
     },
   ];
 }

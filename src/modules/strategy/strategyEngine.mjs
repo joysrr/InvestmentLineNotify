@@ -31,6 +31,24 @@ import {
 } from "./indicators.mjs";
 import { loadHolidaySet } from "../providers/twseProvider.mjs";
 
+/**
+ * 維持率 4 層狀態機判斷
+ * @param {number} mm - 當前維持率(%)
+ * @param {Object} maint - strategy.maintenance
+ * @param {Object} th - strategy.threshold
+ * @returns {'critical'|'frozen'|'protect'|'normal'}
+ */
+function getMarginLayer(mm, maint, th) {
+  const marginCallThreshold = maint.marginCallThreshold ?? 135;
+  const frozenZone = maint.frozenZone ?? 145;
+  const protectTrigger = maint.protectTrigger ?? 160;
+
+  if (mm < marginCallThreshold) return 'critical';   // 🔴 斷頭危機
+  if (mm < frozenZone)         return 'frozen';     // 🟠 高危凍結
+  if (mm < protectTrigger)     return 'protect';    // 🟡 預備金防禦
+  return 'normal';                                   // 🟢 常態運行
+}
+
 function buildDecision(ctx, strategy) {
   const th = strategy.threshold;
   const maint = strategy.maintenance;
@@ -49,27 +67,81 @@ function buildDecision(ctx, strategy) {
   } = ctx;
 
   const reserveStatus = getReserveStatus(ctx, strategy);
+  const marginLayer = getMarginLayer(maintenanceMargin, maint, th);
 
-  // 0) 維持率防禦提醒（整合預備金）
-  if (
-    Number.isFinite(maint.protectTrigger) &&
-    maintenanceMargin < maint.protectTrigger
-  ) {
+  // ─────────────────────────────────────────────────────────────
+  // 維持率 4 層狀態機（越危險越優先，最先被檢出）
+  // ─────────────────────────────────────────────────────────────
+
+  // 🔴 Layer 0：斷頭危機 < marginCallThreshold(135)
+  // 強制市價降槓桿警示，一票否決所有加碼，優先指示補足保證金
+  if (marginLayer === 'critical') {
+    const marginCallThreshold = maint.marginCallThreshold ?? 135;
+    return {
+      maintenanceLayer: 'critical',
+      marketStatus: "🔴【斷頭危機】",
+      target: "🛑 強制降槓桿",
+      targetSuggestionShort: "立即補保證金或市價降槓桿，禁止一切加碼",
+      targetSuggestion: "維持率已低於斷頭警戒線，必須立即行動：補充保證金或市價賣出 00675L 降槓桿",
+      suggestion:
+        `• 當前維持率：${maintenanceMargin.toFixed(0)}% (斷頭門檻 ${marginCallThreshold}%)\n` +
+        `• ⚠️ 警告：系統已進入強制降槓桿模式，所有加碼操作被一票否決\n` +
+        `• 優先行動 1：立即補充保證金（現金或追加擔保品）\n` +
+        `• 優先行動 2：若無現金，市價賣出部分 00675L 降低槓桿\n` +
+        `• 目標：維持率回升至 ${maint.frozenZone ?? 145}% 以上後再評估後續操作`,
+      maintenanceMargin,
+      marginCallThreshold,
+    };
+  }
+
+  // 🟠 Layer 1：高危凍結 135–145% (frozenZone)
+  // 禁止所有新進場，強烈通知補足保證金
+  if (marginLayer === 'frozen') {
+    const frozenZone = maint.frozenZone ?? 145;
+    const marginCallThreshold = maint.marginCallThreshold ?? 135;
+    const totalLoan = ctx.totalLoan || 0;
+    const currentCollateral = (maintenanceMargin / 100) * totalLoan;
+    const targetCollateral = (frozenZone / 100) * totalLoan;
+    const needAmount = Math.max(0, targetCollateral - currentCollateral);
+    const reserveSufficient = reserveStatus.currentReserve >= needAmount;
+
+    return {
+      maintenanceLayer: 'frozen',
+      marketStatus: "🟠【高危凍結】",
+      target: "🚫 禁止進場",
+      targetSuggestionShort: "禁止所有新進場；強烈建議立即補足保證金",
+      targetSuggestion: `維持率 ${maintenanceMargin.toFixed(0)}% 進入高危走廊（${marginCallThreshold}–${frozenZone}%），禁止任何新開倉，請立即補足保證金`,
+      suggestion:
+        `• 當前維持率：${maintenanceMargin.toFixed(0)}% (高危區間 ${marginCallThreshold}–${frozenZone}%)\n` +
+        `• 🚫 所有新進場操作已凍結（包含 0050 DCA 與 00675L 加碼）\n` +
+        `• 資金缺口：約 ${needAmount.toLocaleString("zh-TW", { maximumFractionDigits: 0 })} 元（補至解凍線 ${frozenZone}%）\n` +
+        `• 預備金狀態：${reserveSufficient ? "✅ 充足，可立即動用" : "⚠️ 不足，需補充額外現金"}\n\n` +
+        `【執行步驟】\n` +
+        `1. ${reserveSufficient ? "動用預備金補充保證金或買入 0050" : "優先補充現金至帳戶"}\n` +
+        `2. 嚴禁在此區間追加 00675L 槓桿部位\n` +
+        `3. 維持率回升至 ${frozenZone}% 以上後，自動解除凍結`,
+      maintenanceMargin,
+      frozenZone,
+      needAmount,
+      reserveSufficient,
+    };
+  }
+
+  // 🟡 Layer 2：預備金防禦 145–160% (protectTrigger)
+  // 暫停高槓桿加碼，優先充實擔保品，允許 baseline DCA
+  if (marginLayer === 'protect') {
     const protectTarget = maint.protectTarget || 180;
-
-    // 計算需要補充的金額
     const totalLoan = ctx.totalLoan || 0;
     const currentCollateral = (maintenanceMargin / 100) * totalLoan;
     const targetCollateral = (protectTarget / 100) * totalLoan;
     const needAmount = Math.max(0, targetCollateral - currentCollateral);
-
-    // 預備金是否足夠
     const reserveSufficient = reserveStatus.currentReserve >= needAmount;
 
     return {
+      maintenanceLayer: 'protect',
       marketStatus: "🛡️【維持率低於安全線】",
       target: "🧯 預備金防禦",
-      targetSuggestionShort: "動用預備金或補充抵押品",
+      targetSuggestionShort: "動用預備金或補充抵押品；允許 0050 DCA",
       targetSuggestion: `維持率低於 ${maint.protectTrigger}%，建議動用預備金買入 0050 或補充現金，目標維持率 ${protectTarget}%`,
       suggestion:
         `• 當前維持率：${maintenanceMargin.toFixed(0)}% (低於安全線 ${maint.protectTrigger}%)\n` +
@@ -79,7 +151,8 @@ function buildDecision(ctx, strategy) {
         `• 預備金狀態：${reserveSufficient ? "✅ 充足，可立即動用" : "⚠️ 不足，需補充額外現金"}\n\n` +
         `【執行步驟】\n` +
         `1. ${reserveSufficient ? "動用預備金買入 0050 (提升抵押品價值)" : "優先補充現金還款"}\n` +
-        `2. ${reserveSufficient ? "或補充現金還款 (降低借款)" : "或動用部分預備金買入 0050"}`,
+        `2. ${reserveSufficient ? "或補充現金還款 (降低借款)" : "或動用部分預備金買入 0050"}\n` +
+        `3. 暫停 00675L 槓桿加碼，允許 0050 baseline DCA 維持`,
       maintenanceMargin,
       protectTrigger: maint.protectTrigger,
       protectTarget,
@@ -89,19 +162,8 @@ function buildDecision(ctx, strategy) {
     };
   }
 
-  // 1) 追繳風險：一票否決
-  if (maintenanceMargin < th.mmDanger) {
-    return {
-      marketStatus: "🚨【追繳風險】",
-      target: "🛑 風控優先",
-      targetSuggestionShort: "停止撥款；優先補保證金或降槓桿",
-      targetSuggestion: "停止撥款與加碼；準備補錢或降低槓桿",
-      suggestion:
-        `• 當前維持率：${maintenanceMargin.toFixed(0)}%\n` +
-        `• 危險門檻：${th.mmDanger}%\n` +
-        `• 說明：請立即停止任何加碼行為，優先處理保證金問題以防斷頭。`,
-    };
-  }
+  // 🟢 Layer 3：常態運行 >= protectTrigger(160)
+  // 以下為原有策略邏輯完整執行
 
   // 1.5) 估值極度昂貴：防泡沫機制 (PB > 2.2)
   const pbValue = valuation?.pb;
@@ -273,7 +335,7 @@ function buildDecision(ctx, strategy) {
     };
   }
 
-  // 6.5) Cooldown 檢查（新增）
+  // 6.5) Cooldown 檢查
   if (cooldownStatus.inCooldown) {
     const w = entry.weightScore;
     const targetAlloc = getTargetLeverageByScore(w, strategy);
@@ -385,11 +447,9 @@ async function checkCooldown(lastBuyDate, cooldownTradingDays) {
   const today = new Date();
   const lastBuy = new Date(lastBuyDate);
 
-  // 將時間清零，確保只比較日期
   today.setHours(0, 0, 0, 0);
   lastBuy.setHours(0, 0, 0, 0);
 
-  // 1. 為了跨年，我們需要取得 [去年, 今年] 的假日集合 (確保涵蓋買入日到今天的區間)
   const startYear = lastBuy.getFullYear();
   const endYear = today.getFullYear();
 
@@ -398,38 +458,29 @@ async function checkCooldown(lastBuyDate, cooldownTradingDays) {
   try {
     for (let y = startYear; y <= endYear; y++) {
       const yearHolidays = await loadHolidaySet(y);
-      // 將該年的假日加入合併的 Set 中
       yearHolidays.forEach((dateStr) => holidays.add(dateStr));
     }
   } catch (e) {
     console.warn("⚠️ 無法取得 TWSE 假日，將退回使用六日計算交易日:", e.message);
   }
 
-  // 2. 計算從 lastBuyDate 到 today 經過了幾個「交易日」
   let tradingDaysPassed = 0;
-
-  // 建立一個游標指標，從最後買入日的「隔天」開始算起
   let currentDate = new Date(lastBuy);
   currentDate.setDate(currentDate.getDate() + 1);
 
   while (currentDate <= today) {
-    const dayOfWeek = currentDate.getDay(); // 0=Sun, 6=Sat
-    const isoDate = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD
-
-    // 判斷是否為週末 (0, 6) 或 國定假日
+    const dayOfWeek = currentDate.getDay();
+    const isoDate = currentDate.toISOString().split("T")[0];
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
     const isHoliday = holidays.has(isoDate);
 
-    // 如果既不是週末，也不是國定假日，則算一個有效交易日
     if (!isWeekend && !isHoliday) {
       tradingDaysPassed++;
     }
 
-    // 推進一天
     currentDate.setDate(currentDate.getDate() + 1);
   }
 
-  // 3. 計算剩餘冷卻天數
   const daysLeft = Math.max(0, cooldownTradingDays - tradingDaysPassed);
   const lastBuyStr = lastBuy.toISOString().split("T")[0];
 
@@ -497,13 +548,11 @@ export async function evaluateInvestmentSignal(data, strategy) {
   else if (bias240 > 15) historicalLevel = "🏜️【高位階/偏貴】";
   else if (bias240 < 0) historicalLevel = "🧊【低位階/便宜】";
 
-  // ── 總體情緒物件（由 data.macroMarketDirection 注入）──────────────────────
   const macroSentiment = buildMacroSentiment(
     data.macroMarketDirection ?? null,
     strategy,
   );
 
-  // 冷卻期天數：BEARISH 時依設定倍數延長
   const baseCooldownDays = strategy.trading.cooldownDays || 20;
   const cfg = strategy?.macroSentiment;
   const effectiveCooldownDays =
@@ -516,7 +565,6 @@ export async function evaluateInvestmentSignal(data, strategy) {
   const lastBuyDate = data.portfolio?.lastBuyDate ?? null;
   const cooldownStatus = await checkCooldown(lastBuyDate, effectiveCooldownDays);
 
-  // 冷卻期天數異動時在訊息中標注原因
   if (effectiveCooldownDays !== baseCooldownDays) {
     cooldownStatus.message +=
       ` (⚠️ 空頭情緒延長冷卻至 ${effectiveCooldownDays} 交易日)`;
@@ -534,7 +582,6 @@ export async function evaluateInvestmentSignal(data, strategy) {
     vix: data.VIX,
     rsi: data.RSI,
 
-    // 預備金
     reserveCash: data.portfolio?.cash || 0,
 
     cooldownStatus,
