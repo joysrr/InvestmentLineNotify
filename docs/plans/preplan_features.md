@@ -54,7 +54,7 @@
 
 > **Commit（Strategy.json + entryGate 設計）:** `229c0be` — feat(strategy): Strategy.json 本地化 + entryGate 4 層矩陣 + minDropPercentToConsider:5 + docs/strategy-param-audit.md
 > **Commit（signalRules 本地優先 + validateStrategyConfig）:** `8ca76ee` — fix(signal): fetchStrategyConfig 改為本地優先 + validateStrategyConfig 補齊 frozenZone 與 entryGate 驗證
-> **Commit（strategyEngine Pre-Entry Gate 邏輯接入）:** `請補入實際 SHA` — feat(strategy): strategyEngine buildDecision() 插入 Pre-Entry Gate 前置過濾邏輯 + resolveEntryGate()
+> **Commit（strategyEngine Pre-Entry Gate 邏輯接入）:** `035541a` — feat(strategy): strategyEngine buildDecision() 插入 Pre-Entry Gate 前置過濾邏輯 + resolveEntryGate()
 > **Commit（telegramHtmlBuilder entryGateLevel 標示）:** `9a268f3` — feat(notify): telegramHtmlBuilder 新增 entryGateLevel 通道標示
 > **完成日期：** 2026-04-16
 
@@ -73,6 +73,22 @@
 
 ---
 
+## ✅【P1 已完成】Strategy.json 幽靈參數審計與清除
+
+> **Commit（審計文件產出）:** `229c0be` — docs/strategy-param-audit.md 新增
+> **Commit（strategy-param-changes.md 建立）:** `1302be8` — docs: 新增 strategy-param-changes.md — Strategy.json 本次異動說明
+> **Commit（幽靈參數實際移除）:** `103be3d` — refactor: 移除幽靈參數 leverage.targetMultiplier + reserve.allocationRatio
+> **完成日期：** 2026-04-16
+
+### 完成摘要
+
+- `Strategy.json`：移除 `leverage.targetMultiplier`（值 1.8）、`reserve.allocationRatio`（值 0.5）
+- `signalRules.mjs`：同步移除 `validateStrategyConfig()` 中對應的 `assertNumber` 驗證行
+- `docs/strategy-param-audit.md`：兩參數狀態更新為 ✅ 已移除（2026-04-16）
+- `docs/strategy-param-changes.md`：新增 frozenZone、entryGate、minDropPercentToConsider 完整異動說明
+
+---
+
 ## 📋 P0 完成狀態總覽
 
 | Commit | 內容 | 狀態 |
@@ -81,17 +97,10 @@
 | `98a6cdb` | strategyEngine 維持率 4 層狀態機重構 + telegramHtmlBuilder mmTag | ✅ 已完成 |
 | `229c0be` | Strategy.json 本地化 + entryGate 4 層矩陣 + strategy-param-audit.md | ✅ 已完成 |
 | `8ca76ee` | signalRules fetchStrategyConfig 本地優先 + validateStrategyConfig 補齊 | ✅ 已完成 |
+| `035541a` | strategyEngine buildDecision() Pre-Entry Gate resolveEntryGate() | ✅ 已完成 |
 | `9a268f3` | telegramHtmlBuilder entryGateLevel 通道標示 | ✅ 已完成 |
-| `（strategyEngine Pre-Entry Gate）` | buildDecision() resolveEntryGate() 前置過濾邏輯 | ✅ 已完成 |
-
----
-
-## ❗ 尚未完成的核心任務
-
-| 任務 | 對應計劃 | 優先級 | 說明 |
-|------|---------|--------|------|
-| `docs/strategy-param-changes.md` 建立 | 幽靈參數審計 | 🟡 中 | Strategy.json 修改說明文件（frozenZone、entryGate、minDropPercentToConsider 異動說明） |
-| 幽靈參數實際移除作業 | P1 幽靈參數審計 | 🟠 次高 | `leverage.targetMultiplier`、`reserve.allocationRatio` 確認後移除 |
+| `1302be8` | docs/strategy-param-changes.md 建立（異動說明） | ✅ 已完成 |
+| `103be3d` | 幽靈參數移除：leverage.targetMultiplier + reserve.allocationRatio | ✅ 已完成 |
 
 ---
 
@@ -141,50 +150,6 @@
 ### 討論狀態
 
 ⚪ 待確認
-
----
-
-## 📌【P1 高優先】Strategy.json 幽靈參數審計與清除
-
-### 狀態與目標摘要
-
-- `Strategy.json` 中存在若干欄位從未被 `strategyEngine.mjs` 或其他模組實際引用，維護者可能誤以為修改這些欄位有效，形成「幽靈參數」風險。
-- 初步審計文件已產出（`docs/strategy-param-audit.md`，commit `229c0be`），但幽靈參數的實際移除作業尚未執行。
-
-### 幽靈參數現況清單
-
-| 參數路徑 | 問題類型 | 風險說明 |
-|---------|---------|---------|
-| `leverage.targetMultiplier` | 未被直接引用 | `strategyEngine.mjs` 的 allocation 陣列自行管理，維護者誤改此值不會產生任何效果 |
-| `reserve.allocationRatio` | 語意衝突 / 可能已廢棄 | 預備金邏輯已由 `reserve.tiers` 控制，此欄位角色不明 |
-| `reserve.tiers` | 待確認引用 | 實際引用位置與生效邏輯需追蹤確認 |
-| `buy.dropScoreRules[*].label` | 文案與邏輯不一致 | 部分 label 與 minDrop 數值不符（如 `minDrop: 25` 但 label 為「大跌 >= 20%」） |
-
-### 執行計劃
-
-1. **全面追蹤**：針對 `Strategy.json` 中每個 key，以 `grep -r` 或 IDE 全域搜尋確認實際引用位置。
-2. **審計文件已產出**（`docs/strategy-param-audit.md`）：記錄每個參數的引用模組與行號、當前值與設計意圖、是否為幽靈參數。
-3. **清除幽靈參數**（尚未執行）：
-   - 若 `leverage.targetMultiplier` 確認無引用 → 移除，或在 `getTargetLeverageByScore` 中正式納入計算邏輯。
-   - 若 `reserve.allocationRatio` 已被 `reserve.tiers` 完全取代 → 移除，並在審計文件標注為 legacy。
-4. **修正 label 一致性**：將所有 `dropScoreRules` 的 label 與 minDrop 對齊。
-5. **建立 `docs/strategy-param-changes.md`**：記錄本次 Strategy.json 修改說明（frozenZone、entryGate、minDropPercentToConsider 異動）。
-
-### 影響範圍
-
-- `Strategy.json`（移除或重構幽靈參數、修正 label）
-- `docs/strategy-param-audit.md`（已產出，commit `229c0be`）
-- `docs/strategy-param-changes.md`（待建立）
-- `docs/modules/market_strategy.md`（同步更新參數說明）
-- `src/modules/strategy/strategyEngine.mjs`（若正式引入 `leverage.targetMultiplier` 計算邏輯）
-
-### 難度
-
-⭐ 低（追蹤與清除本身工作量不大，產出文件為主要成本）
-
-### 討論狀態
-
-🟡 進行中（審計文件已完成，移除作業待執行）
 
 ---
 
@@ -481,7 +446,7 @@ grossLeverage = (0050 市值 + 00675L 市值 × 2) / 帳戶淨值
 
 ## 📌【策略門檻】RSI / 跌幅與估值多階門檻優化（已升級為上方 P0 左側進擊矩陣）
 
-> ⚠️ 此項目已升級為【P0 已完成】左側進擊矩陣：階層式進場前置過濾層，請參閱上方對應條目。commit: `229c0be` / `8ca76ee` / `9a268f3`
+> ⚠️ 此項目已升級為【P0 已完成】左側進擊矩陣：階層式進場前置過濾層，請參閱上方對應條目。commit: `229c0be` / `8ca76ee` / `035541a` / `9a268f3`
 
 ---
 
@@ -532,8 +497,8 @@ grossLeverage = (0050 市值 + 00675L 市值 × 2) / 帳戶淨值
 
 ## 📌【策略欄位清理】未使用欄位與 label 一致性（已整合為上方 P1 幽靈參數審計）
 
-> ⚠️ 此項目已整合升級為【P1 高優先】Strategy.json 幽靈參數審計與清除，請參閱上方對應條目。
-> 原 label 一致性修正（`dropScoreRules` 文案對齊）保留為審計作業的一部分。
+> ⚠️ 此項目已整合升級為【P1 高優先】Strategy.json 幽靈參數審計與清除，✅ 已完成（commit `103be3d`）。
+> 原 label 一致性修正（`dropScoreRules` 文案對齊）已於 commit `229c0be` 一併完成。
 
 ---
 
