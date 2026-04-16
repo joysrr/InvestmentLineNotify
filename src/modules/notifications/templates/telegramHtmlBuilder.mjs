@@ -124,6 +124,23 @@ function entryGateTag(result) {
   return `\n🚪 進場通道：${emoji} <b>Tier ${level} — ${escapeHTML(label ?? '')}</b>`;
 }
 
+/**
+ * VIX 情緒短路標示列
+ *
+ * 當 result.macroSentiment.vixOverrideActive === true 時，
+ * 輸出一行 ⚡ 提示，說明 AI BEARISH 懲罰已被覆蓋。
+ * 舊資料相容：vixOverrideActive 不存在時回傳空字串，不噴錯。
+ *
+ * @param {Object} result - evaluateInvestmentSignal 回傳結果
+ * @returns {string} 格式化後的單行標示，或空字串
+ */
+function vixOverrideTag(result) {
+  const macro = result?.macroSentiment;
+  if (!macro?.vixOverrideActive) return "";
+  const reason = escapeHTML(macro.vixOverrideReason ?? "");
+  return `\n⚡ <b>VIX 情緒短路</b> — AI BEARISH 已覆蓋（${reason}），扣分與冷卻抑制已解除`;
+}
+
 // ── 主程式：完整版訊息（原不動） ───────────────────────────────
 
 export function buildTelegramMessages({
@@ -338,12 +355,16 @@ export function buildTelegramMessages({
   // ── entryGate 通道標示 ──
   const gateTag = entryGateTag(result);
 
+  // ── VIX 情緒短路標示 ──
+  const vixTag = vixOverrideTag(result);
+
   const msg1Text =
     `<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\n\n` +
     `<b>${timeLabel}</b>${SEP}\n` +
     `🚦 狀態：<b>${escapeHTML(result.marketStatus || "未明")}</b>\n` +
     `📌 行動：<b>${escapeHTML(result.target || "觀望")}</b> ─ <i>${escapeHTML(result.targetSuggestionShort || "無特殊操作")}</i>` +
-    `${gateTag}\n` +
+    `${gateTag}` +
+    `${vixTag}\n` +
     `<blockquote expandable>${escapeHTML(result.suggestion || "無進階說明")}</blockquote>\n\n` +
     `🌐 <b>市場概況</b>${SEP}\n` +
     `🇺🇸 美股 VIX  <code>${escapeHTML(usRisk?.vix || "N/A")}</code>  ${escapeHTML(usRisk?.riskIcon || "")}\n` +
@@ -596,6 +617,11 @@ export function buildCompactMessage(
     ? `\n⏰ 冷卻期中 · 剩 ${cooldown.daysLeft} 交易日`
     : "";
 
+  // ── VIX 情緒短路提示（精簡卡版） ──
+  const vixOverrideHint = result.macroSentiment?.vixOverrideActive
+    ? `\n⚡ VIX 情緒短路啟動 · AI BEARISH 抑制已解除`
+    : "";
+
   // ── entryGate 通道標示（Compact） ──
   const gateTagCompact = entryGateTag(result);
 
@@ -611,7 +637,8 @@ export function buildCompactMessage(
     `🚦 <b>${marketStatus}</b>\n` +
     `📌 ${target} · <i>${targetShort}</i>` +
     `${gateTagCompact}\n` +
-    `${cooldownHint}${SEP}` +
+    `${cooldownHint}` +
+    `${vixOverrideHint}${SEP}` +
     `${quoteText}\n\n` +
     `📲 詳細指標與 AI 建議請到 Mini App 查看`;
 
