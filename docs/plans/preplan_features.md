@@ -79,6 +79,69 @@
 
 ---
 
+## 📌【P0 緊急】左側進擊矩陣：階層式進場前置過濾層
+
+### 狀態與目標摘要
+
+- `buy.rsi.oversold = 50` 並非技術分析意義上的「超賣」定義（RSI 50 為多空分水嶺，30 才是標準超賣），當前設計在評分系統中作為加分條件（+3 分）而非觸發門檻，但在盤整期仍可能配合小幅跌幅就達到最低進場門檻。
+- `buy.minDropPercentToConsider = 0` 等同無左側過濾縱深，任何微小跌幅加上技術分數達標即可觸發評估。
+- `rsiRebound requireCrossToday: true` 已修正震盪期虛假加分問題，但上述兩個根本設計缺口仍存在，需以獨立前置過濾層解決。
+
+### 設計決策說明
+
+> **不建議直接下調 `rsi.oversold: 50 → 30`**，原因如下：
+> - RSI 50 在現有評分中是「加分條件」而非「觸發條件」，單獨觸發 +3 分不夠達到門檻（需疊加跌幅分數 +4 以上）。
+> - 若直接改 oversold 至 30，等同完全廢除震盪加分，會破壞現有評分平衡，且無法區分「淺層修正」與「深度恐慌」場景。
+> - 更精準的設計是：保留 RSI 加分機制，另外在 `strategyEngine.mjs` 的進場評估前增加一層「前置過濾」，依跌幅層級決定哪些操作被允許。
+
+### 建議設計：進場前置過濾層（Pre-Entry Gate）
+
+在 `strategyEngine.mjs` 的 `buildDecision()` 最前段，依跌幅條件決定本次評估允許的操作上限：
+
+| 跌幅區間 | RSI 輔助條件 | 允許操作 | 說明 |
+|---------|------------|---------|------|
+| < 5% | — | 僅允許底倉 baseline DCA，禁止加碼 | 過濾日常波動，避免微小跌幅誤觸 |
+| 5–15% | RSI ≤ 45 | 允許小幅加碼（底倉 + 輕度加碼） | 淺層修正，觀察確認後分批 |
+| 15–30% | RSI ≤ 35 | 允許積極加碼（底倉 + 中高檔位） | 深度回撤，逢跌分批 |
+| ≥ 30% | RSI ≤ 30 | 開放全力左側，覆蓋情緒抑制訊號 | 極端恐慌，一票通行 |
+
+> **00675L 加碼限制**：跌幅 ≥ 15% 且 RSI < 35 時才開放 00675L 加碼，跌幅 < 15% 場景僅允許 0050 標的操作。
+
+### Strategy.json 調整
+
+```json
+"buy": {
+  "minDropPercentToConsider": 5,
+  "entryGate": {
+    "enabled": true,
+    "tiers": [
+      { "minDrop": 0,  "maxDrop": 5,  "rsiThreshold": null, "allowLeverage": false, "note": "底倉 DCA only" },
+      { "minDrop": 5,  "maxDrop": 15, "rsiThreshold": 45,   "allowLeverage": false, "note": "淺層修正，禁 00675L" },
+      { "minDrop": 15, "maxDrop": 30, "rsiThreshold": 35,   "allowLeverage": true,  "note": "深度回撤，開放 00675L" },
+      { "minDrop": 30, "maxDrop": 999,"rsiThreshold": 30,   "allowLeverage": true,  "note": "極端恐慌，覆蓋情緒" }
+    ]
+  }
+}
+```
+
+### 影響範圍
+
+- `Strategy.json`（調整 `buy.minDropPercentToConsider`，新增 `buy.entryGate`）
+- `src/modules/strategy/strategyEngine.mjs`（`buildDecision()` 前段新增 pre-entry gate 邏輯）
+- `src/modules/strategy/signalRules.mjs`（RSI 加分機制保留，不調整 `oversold` 門檻）
+- `src/test/backtest.mjs`（回測驗證各層觸發次數差異）
+- Telegram 通知（標示當前進入的前置過濾層級）
+
+### 難度
+
+⭐⭐⭐ 高（需回測驗證各層行為，並確認與現有分數機制不衝突）
+
+### 討論狀態
+
+⚪ 待確認
+
+---
+
 ## 📌【P1 高優先】VIX 情緒短路機制
 
 ### 狀態與目標摘要
@@ -121,6 +184,69 @@
 ### 難度
 
 ⭐⭐ 中
+
+### 討論狀態
+
+⚪ 待確認
+
+---
+
+## 📌【P1 高優先】Strategy.json 幽靈參數審計與清除
+
+### 狀態與目標摘要
+
+- `Strategy.json` 中存在若干欄位從未被 `strategyEngine.mjs` 或其他模組實際引用，維護者可能誤以為修改這些欄位有效，形成「幽靈參數」風險。
+- 目前已確認的疑似幽靈參數與問題欄位如下表，完整引用狀況需進一步追蹤程式碼確認。
+
+### 幽靈參數現況清單
+
+| 參數路徑 | 問題類型 | 風險說明 |
+|---------|---------|---------|
+| `leverage.targetMultiplier` | 未被直接引用 | `strategyEngine.mjs` 的 allocation 陣列自行管理，維護者誤改此值不會產生任何效果 |
+| `reserve.allocationRatio` | 語意衝突 / 可能已廢棄 | 預備金邏輯已由 `reserve.tiers` 控制，此欄位角色不明 |
+| `reserve.tiers` | 待確認引用 | 實際引用位置與生效邏輯需追蹤確認 |
+| `buy.minDropPercentToConsider` | 值為 0 等同無效 | 已在左側進擊矩陣計劃中調整為 5%，同時新增 entryGate 取代其角色 |
+| `buy.dropScoreRules[*].label` | 文案與邏輯不一致 | 部分 label 與 minDrop 數值不符（如 `minDrop: 25` 但 label 為「大跌 >= 20%」） |
+
+### 執行計劃
+
+1. **全面追蹤**：針對 `Strategy.json` 中每個 key，以 `grep -r` 或 IDE 全域搜尋確認實際引用位置。
+2. **產出審計文件**：新增 `docs/strategy-param-audit.md`，記錄每個參數的：
+   - 實際引用模組與行號
+   - 當前值與設計意圖
+   - 是否為幽靈參數（建議保留 / 移除 / 重構）
+3. **清除幽靈參數**：
+   - 若 `leverage.targetMultiplier` 確認無引用 → 移除，或在 `getTargetLeverageByScore` 中正式納入計算邏輯。
+   - 若 `reserve.allocationRatio` 已被 `reserve.tiers` 完全取代 → 移除，並在審計文件標注為 legacy。
+4. **修正 label 一致性**：將所有 `dropScoreRules` 的 label 與 minDrop 對齊。
+5. **建立參數命名規範**：審計完成後訂定 Strategy.json 欄位命名與棄用流程，防止未來再度出現幽靈參數。
+
+### 審計文件格式（`docs/strategy-param-audit.md`）
+
+```markdown
+## leverage.targetMultiplier
+- **當前值**：1.8
+- **設計意圖**：目標槓桿倍數
+- **實際引用**：❌ 未在程式碼中找到直接引用
+- **建議**：移除 或 在 getTargetLeverageByScore() 正式引入
+
+## reserve.allocationRatio
+- **當前值**：0.5
+- **設計意圖**：預備金配置比例
+- **實際引用**：❌ 疑似已被 reserve.tiers 取代
+- **建議**：確認後移除，標注為 legacy
+```
+
+### 影響範圍
+
+- `Strategy.json`（移除或重構幽靈參數、修正 label）
+- `docs/strategy-param-audit.md`（新增審計文件）
+- `docs/modules/market_strategy.md`（同步更新參數說明）
+- `src/modules/strategy/strategyEngine.mjs`（若正式引入 `leverage.targetMultiplier` 計算邏輯）
+
+### 難度
+
+⭐ 低（追蹤與清除本身工作量不大，產出文件為主要成本）
 
 ### 討論狀態
 
@@ -420,43 +546,11 @@ grossLeverage = (0050 市值 + 00675L 市值 × 2) / 帳戶淨值
 
 ---
 
-## 📌【策略門檻】RSI / 跌幅與估值多階門檻優化
+## 📌【策略門檻】RSI / 跌幅與估值多階門檻優化（已升級為上方 P0 左側進擊矩陣）
 
-### 狀態與目標摘要
-
-- Strategy.json 中 `buy.rsi.oversold` 目前設定為 50，`minDropPercentToConsider` 為 0。
-- 估值泡沫僅在 PB ≥ 2.2 時啟動硬停機，PB 1.8–2.2 區間尚未有漸進式降速設計（已另立 PB 動態衰減計劃）。
-
-### 動機
-
-- RSI 超賣門檻過高會造成「只要 RSI 穿越 50 就視為反轉」的現象，使策略在多頭震盪中也頻繁加分。（`rsiRebound requireCrossToday: true` 的 lookback 修正已部分改善此問題）
-- 跌幅門檻為 0 代表技術分數一旦達標就可能觸發加碼，與「至少修正一定幅度才啟動左側加碼」的直覺不符。
-
-### 建議方向（左側進擊矩陣三層架構）
-
-| 層級 | 跌幅條件 | RSI 目標 | 策略定位 |
-|------|--------|---------|--------|
-| 淺層修正 | 10–15% | RSI ≤ 45 | 小幅加碼，觀察確認 |
-| 深度回撤 | 15–30% | RSI ≤ 35 | 積極加碼，逢跌分批 |
-| 極端恐慌 | >= 30% | RSI ≤ 30 | 全力左側加碼，忽略情緒訊號 |
-
-- 將 `buy.rsi.oversold` 往下調整到 40–45 區間。
-- 將 `buy.minDropPercentToConsider` 提升至 5–10%，強制要求至少出現小幅修正。
-- 規劃 conservative / aggressive profile 透過 Strategy.json 版本號切換，並用 backtest 驗證差異。
-
-### 影響範圍
-
-- `Strategy.json`（調整 `buy.rsi.oversold`、`buy.minDropPercentToConsider`）
-- `src/modules/strategy/signalRules.mjs`
-- `src/test/backtest.mjs`
-
-### 難度
-
-⭐⭐⭐ 高（涉及行為改變，需回測與長期觀察）
-
-### 討論狀態
-
-⚪ 待確認
+> ⚠️ 此項目已升級為【P0 緊急】左側進擊矩陣：階層式進場前置過濾層，請參閱上方對應條目。
+> 原建議方向中的三層架構（淺層修正 / 深度回撤 / 極端恐慌）已整合進 entryGate 設計中。
+> `buy.rsi.oversold` 維持現有評分邏輯不直接下調，改以前置過濾層區分操作允許範圍。
 
 ---
 
@@ -505,38 +599,10 @@ grossLeverage = (0050 市值 + 00675L 市值 × 2) / 帳戶淨值
 
 ---
 
-## 📌【策略欄位清理】未使用欄位與 label 一致性
+## 📌【策略欄位清理】未使用欄位與 label 一致性（已整合為上方 P1 幽靈參數審計）
 
-### 狀態與目標摘要
-
-- `Strategy.json` 中 `leverage.targetMultiplier` 與 `reserve.allocationRatio` 目前尚未被策略引擎實際使用。
-- `buy.dropScoreRules` 中存在 label 與 minDrop 不一致的情形（例如 minDrop=25, label「大跌 >= 20%」）。
-
-### 動機
-
-保持策略配置檔與程式邏輯的一致性，有助於未來調參與除錯，也避免日後忘記原意造成誤用。
-
-### 建議方向
-
-- 欄位用途決策：
-  - 若 `leverage.targetMultiplier` 只是註解性描述，建議移除。
-  - 若預計未來用來推導 allocation 槓桿值，可在 `getTargetLeverageByScore` 中正式引入計算公式。
-  - 同理，若 `reserve.allocationRatio` 不再使用，可刪除或在文件中明示為 legacy 欄位。
-- 修正 label：
-  - 將所有 `dropScoreRules` 的 label 與 minDrop 對齊，避免文案與邏輯不一致。
-
-### 影響範圍
-
-- `Strategy.json`（欄位調整與 label 修正）
-- `docs/modules/market_strategy.md`
-
-### 難度
-
-⭐ 低（主要是配置清理與文件同步）
-
-### 討論狀態
-
-⚪ 待確認
+> ⚠️ 此項目已整合升級為【P1 高優先】Strategy.json 幽靈參數審計與清除，請參閱上方對應條目。
+> 原 label 一致性修正（`dropScoreRules` 文案對齊）保留為審計作業的一部分。
 
 ---
 
