@@ -49,6 +49,54 @@ function getMarginLayer(mm, maint, th) {
   return 'normal';                                   // 🟢 常態運行
 }
 
+/**
+ * Pre-Entry Gate：解析當前跌幅/RSI 所在的 entryGate 層級
+ * @param {number} dropPercent - 當前跌幅(%)
+ * @param {number} rsi - 當前 RSI
+ * @param {Object} entryGateCfg - strategy.buy.entryGate
+ * @returns {{ tierIndex: number, tier: Object|null, blocked: boolean, blockReason: string|null }}
+ */
+function resolveEntryGate(dropPercent, rsi, entryGateCfg) {
+  if (!entryGateCfg?.enabled || !Array.isArray(entryGateCfg.tiers)) {
+    return { tierIndex: -1, tier: null, blocked: false, blockReason: null };
+  }
+
+  const tiers = entryGateCfg.tiers;
+
+  // 從高跌幅往低找，取第一個 minDrop <= dropPercent 的 tier
+  let matchedIndex = 0;
+  for (let i = tiers.length - 1; i >= 0; i--) {
+    if (dropPercent >= tiers[i].minDrop) {
+      matchedIndex = i;
+      break;
+    }
+  }
+
+  const tier = tiers[matchedIndex];
+
+  // allowLeverage: false → 直接封鎖加碼
+  if (!tier.allowLeverage) {
+    return {
+      tierIndex: matchedIndex,
+      tier,
+      blocked: true,
+      blockReason: `entryGate Tier ${matchedIndex}：${tier.note}`,
+    };
+  }
+
+  // allowLeverage: true → 需確認 RSI 是否達標（低於門檻才可進場）
+  if (tier.rsiThreshold != null && rsi >= tier.rsiThreshold) {
+    return {
+      tierIndex: matchedIndex,
+      tier,
+      blocked: true,
+      blockReason: `entryGate Tier ${matchedIndex}：跌幅達標，但 RSI ${rsi.toFixed(0)} ≥ 門檻 ${tier.rsiThreshold}，尚未超賣`,
+    };
+  }
+
+  return { tierIndex: matchedIndex, tier, blocked: false, blockReason: null };
+}
+
 function buildDecision(ctx, strategy) {
   const th = strategy.threshold;
   const maint = strategy.maintenance;
@@ -165,6 +213,43 @@ function buildDecision(ctx, strategy) {
   // 🟢 Layer 3：常態運行 >= protectTrigger(160)
   // 以下為原有策略邏輯完整執行
 
+  // ─────────────────────────────────────────────────────────────
+  // ★ Pre-Entry Gate：左側進擊矩陣前置過濾（依跌幅層級限制允許操作）
+  // entryGate 在估值泡沫/再平衡/恐慌買入之前執行，確保所有買入路徑均受過濾
+  // ─────────────────────────────────────────────────────────────
+  const entryGateCfg = strategy.buy?.entryGate;
+  const gateResult = resolveEntryGate(ctx.priceDropPercent, ctx.rsi, entryGateCfg);
+
+  if (gateResult.blocked) {
+    const tierIndex = gateResult.tierIndex;
+    const tier = gateResult.tier;
+    const tierLabels = ['底倉通道', '淺層修正通道', '深度回撤通道', '極端恐慌通道'];
+    const tierEmojis = ['🌱', '🟡', '🟠', '🔴'];
+    const tierLabel = tierLabels[tierIndex] ?? `Tier ${tierIndex}`;
+    const tierEmoji = tierEmojis[tierIndex] ?? '⚙️';
+
+    const rsiInfo = tier.rsiThreshold != null
+      ? `RSI 門檻：${tier.rsiThreshold}（當前 ${ctx.rsi.toFixed(0)}）`
+      : 'RSI 門檻：不適用';
+
+    return {
+      maintenanceLayer: 'normal',
+      entryGateLevel: tierIndex,
+      entryGateLabel: tierLabel,
+      entryGateBlocked: true,
+      marketStatus: `${tierEmoji}【前置過濾：${tierLabel}】`,
+      target: '🚧 槓桿封鎖',
+      targetSuggestionShort: `${tier.note}（跌幅 ${ctx.priceDropPercent.toFixed(1)}%）`,
+      targetSuggestion: `entryGate ${tierLabel}：${tier.note}`,
+      suggestion:
+        `• 當前跌幅：${ctx.priceDropPercent.toFixed(1)}%（區間 ${tier.minDrop}–${tier.maxDrop === 999 ? '∞' : tier.maxDrop}%）\n` +
+        `• ${rsiInfo}\n` +
+        `• 封鎖原因：${gateResult.blockReason}\n` +
+        `• ⚠️ 本層通道不允許 00675L 加碼（entryGate 前置過濾）\n` +
+        `• 允許操作：0050 DCA 照常執行`,
+    };
+  }
+
   // 1.5) 估值極度昂貴：防泡沫機制 (PB > 2.2)
   const pbValue = valuation?.pb;
   if (pbValue != null && pbValue >= 2.2) {
@@ -244,6 +329,9 @@ function buildDecision(ctx, strategy) {
           `⚠️ 僅在維持率充足時執行，並建議分批買入\n` +
           `⏰ 恐慌加碼不受一般冷卻期限制，但執行後仍請記錄買入日期`,
         suggestedLeverage,
+        entryGateLevel: gateResult.tierIndex,
+        entryGateLabel: gateResult.tier?.note ?? '',
+        entryGateBlocked: false,
         thresholds: {
           extremeDropThreshold,
           extremeRsiThreshold,
@@ -374,6 +462,9 @@ function buildDecision(ctx, strategy) {
         `• 資金配置：${targetAlloc.comment}\n` +
         `• 執行步驟：建議增貸並買入 00675L，使總槓桿達到 ${targetLeveragePercent}%` +
         cooldownReminder,
+      entryGateLevel: gateResult.tierIndex,
+      entryGateLabel: gateResult.tier?.note ?? '',
+      entryGateBlocked: false,
       targetAllocation: targetAlloc,
     };
   }
@@ -389,6 +480,9 @@ function buildDecision(ctx, strategy) {
         `• 資金配置：${targetAlloc.comment}\n` +
         `• 執行步驟：建議增貸並買入 00675L，使總槓桿達到 ${targetLeveragePercent}%` +
         cooldownReminder,
+      entryGateLevel: gateResult.tierIndex,
+      entryGateLabel: gateResult.tier?.note ?? '',
+      entryGateBlocked: false,
       targetAllocation: targetAlloc,
     };
   }
@@ -403,6 +497,9 @@ function buildDecision(ctx, strategy) {
       `• 策略評分：${w} 分\n` +
       `• 狀態說明：當前無過熱或風控風險\n` +
       `• 執行步驟：請執行標準資金注入，買入 0050 後質押買入 00675L，維持槓桿約 ${targetLeveragePercent}%`,
+    entryGateLevel: gateResult.tierIndex,
+    entryGateLabel: gateResult.tier?.note ?? '',
+    entryGateBlocked: false,
     targetAllocation: targetAlloc,
   };
 }
@@ -625,6 +722,9 @@ export async function evaluateInvestmentSignal(data, strategy) {
     macroSentiment,
     effectiveCooldownDays,
     ...decision,
+    entryGateLevel: decision.entryGateLevel ?? null,
+    entryGateLabel: decision.entryGateLabel ?? null,
+    entryGateBlocked: decision.entryGateBlocked ?? false,
     cooldownStatus,
   };
 }
