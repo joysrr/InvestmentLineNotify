@@ -209,6 +209,97 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 清算觸發：跌破 MA20 連續 2 日 OR ATR 支撐破位 → 執行 ×0.0
 ```
 
+### 狀態鎖定機制（State Latching，防死貓反彈重入）
+
+> ⚠️ **雙重確認只是「入場」，缺少鎖定就會產生反覆橫跳（Whipsaw）**：
+> 清算當天的隔日若出現死貓反彈（股價單日回站 MA20），而 PR 依然 ≥ 90，
+> 系統無法判斷趨勢是否真正恢復，若直接解除防禦並重新建倉，
+> 將在高波動期反覆觸發 ×0.0 ↔ ×0.3 切換，產生嚴重的交易摩擦損耗。
+
+**觸發 ×0.0 清算後，系統進入「防禦鎖定（DefenseLatch）」狀態，直到以下任一解鎖條件成立：**
+
+| 解鎖條件        | 說明                                                                                           | 優先等級         |
+| --------------- | ---------------------------------------------------------------------------------------------- | ---------------- |
+| 📉 估值降溫解鎖 | PR 實質回落至 < `latchReleasePR`（預設 85），代表市場估值壓力已釋放                            | 一般             |
+| 💥 極端恐慌破冰 | 跌幅 > `panicDropPct`（預設 15%）且 RSI < `panicRsiThreshold`（預設 30），觸發左側恐慌加碼通道 | 優先（見遺漏二） |
+
+**單日站回 MA20 不構成解鎖條件。** 解鎖後系統重新進入正常評估流程，PR ≥ 90 時再次啟動雙重確認守備（而非直接 ×0.3 重建倉）。
+
+**`valuationGuardState.json` — 防禦狀態快取（新增）：**
+
+```json
+{
+  "latchActive": true,
+  "latchTriggeredAt": "2026-04-16",
+  "latchTriggerReason": "ma20_break_confirmed",
+  "latchReleasedAt": null
+}
+```
+
+此快取與 `pbHistory.json` 並排儲存於 `data/`，納入 `.gitignore`，並在 `dailyCheck` 啟動時讀取。
+
+**Strategy.json 補充 `latch` 參數：**
+
+```json
+"valuationGuard": {
+  ...
+  "latch": {
+    "enabled": true,
+    "latchReleasePR": 85,
+    "panicDropPct": 0.15,
+    "panicRsiThreshold": 30
+  }
+}
+```
+
+### 決策模組覆蓋層級（Override Hierarchy）
+
+本系統的多個決策模組存在訊號對撞可能性（尤其在高估值 + 極端崩跌並存時）。
+必須在 `buildDecision()` 中明確定義執行優先序，確保極端情境下不產生邏輯衝突。
+
+**典型衝突場景：**
+
+> PR = 95（計畫 B：極度壓縮 + 清算守備）× VIX = 45 + 跌幅 20%（系統原有恐慌加碼）
+> 兩個模組訊號對撞 → 如果無優先級，系統行為不可預測。
+
+**`buildDecision()` 模組執行順序（由高至低覆蓋）：**
+
+| 優先序        | 層級名稱                    | 觸發條件                                           | 行為                                          | 說明                                                     |
+| ------------- | --------------------------- | -------------------------------------------------- | --------------------------------------------- | -------------------------------------------------------- |
+| **1（最高）** | 極端恐慌破冰                | 跌幅 > 20% 且 VIX > `panicVixThreshold`（預設 35） | **Bypass 計畫 B/C**，直接進入左側恐慌加碼通道 | 高估值泡沫已被崩跌實質消化，先前的 PR 高位已失去防禦意義 |
+| **2**         | 維持率危機                  | 維持率 < 危險門檻（現有 P0 狀態機）                | 強制降槓，一票否決所有加碼                    | 保命優先                                                 |
+| **3**         | Gross Leverage 天花板       | grossLeverage > 2.5x                               | 強制壓縮至下一檔位                            | 避免死亡螺旋                                             |
+| **4**         | 估值防禦鎖定（Latch）       | `isLatched() === true`                             | 等待解鎖條件，禁止重建倉                      | 防死貓反彈重入                                           |
+| **5**         | 計畫 B（valuationGuard）    | PR 分位數防護                                      | 套用 guardMultiplier                          | 相對估值壓縮                                             |
+| **6**         | 計畫 C（valuationMomentum） | PR 動量感知                                        | 疊加 momentumAdjustment                       | 趨勢方向補正                                             |
+| **7（最低）** | 常態策略邏輯                | weightScore 評分                                   | 正常 allocation 表查詢                        | 日常 DCA + 戰術加碼                                      |
+
+**極端恐慌破冰的 Bypass 條件說明：**
+
+```
+極端恐慌 = (跌幅 > panicDropPct) AND (VIX > panicVixThreshold)
+
+若成立：
+→ 忽略計畫 B 的 guardMultiplier（不論 PR 多高）
+→ 忽略計畫 C 的 momentumAdjustment
+→ 解除 DefenseLatch（同步清除鎖定狀態）
+→ 進入恐慌加碼通道，依原有恐慌加碼邏輯執行
+→ Telegram 通知標示「⚠️ 極端恐慌破冰：估值防禦已 Bypass」
+```
+
+**Strategy.json 補充 `overrideHierarchy` 參數：**
+
+```json
+"overrideHierarchy": {
+  "panicBypassEnabled": true,
+  "panicDropPct": 0.20,
+  "panicVixThreshold": 35
+}
+```
+
+> **注意**：`panicDropPct` 此處（Bypass 條件）預設 20%，高於遺漏一中 Latch 解鎖用的 15%，
+> 兩者分開設定，前者是「解除鎖定」，後者是「完全跳過估值防禦」，語意不同。
+
 ### 波動率感知補正（高位尾部效應修正）
 
 > ⚠️ **線性絕對值門檻在極端分位數區域會失去敏感度**：
@@ -269,15 +360,18 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 
 ### 工作節次
 
-| 節     | 工作內容                                                                                                 | 涉及檔案                                                                |
-| ------ | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| 節一   | `Strategy.json` 新增 `valuationGuard` 區段                                                               | `Strategy.json`                                                         |
-| 節二   | `validateStrategyConfig()` 補齊 `valuationGuard` 驗證                                                    | `signalRules.mjs`                                                       |
-| 節三   | 新增 `resolveValuationGuard(currentPB, records, config)` 純函式，計算 PR 與命中 tier                     | `strategyEngine.mjs`                                                    |
-| 節三‑A | 新增 `resolveTrendConfirmation(priceData, config)` 函式，計算 MA20 跌破天數與 ATR 支撐位，供節四整合使用 | `strategyEngine.mjs`                                                    |
-| 節四   | `buildDecision()` 整合，套用 `resolveValuationGuard()` 回傳的槓桿乘數                                    | `strategyEngine.mjs`                                                    |
-| 節五   | Telegram 通知新增 PR 分位數標示（例如 `📊 PB PR84 → 中度壓縮 ×0.65`）                                    | `telegramHtmlBuilder.mjs`                                               |
-| 節六   | 文件更新：`preplan_features.md` 狀態標記為已完成，條目搬移至 `finishedplan_features.md`                  | `docs/plans/preplan_features.md`、`docs/plans/finishedplan_features.md` |
+| 節                 | 工作內容                                                                                                                                                                                                                                                                                                                                                              | 涉及檔案                                                                |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 節一               | `Strategy.json` 新增 `valuationGuard` 區段                                                                                                                                                                                                                                                                                                                            | `Strategy.json`                                                         |
+| 節二               | `validateStrategyConfig()` 補齊 `valuationGuard` 驗證                                                                                                                                                                                                                                                                                                                 | `signalRules.mjs`                                                       |
+| 節三               | 新增 `resolveValuationGuard(currentPB, records, config)` 純函式，計算 PR 與命中 tier                                                                                                                                                                                                                                                                                  | `strategyEngine.mjs`                                                    |
+| 節三‑A             | 新增 `resolveTrendConfirmation(priceData, config)` 函式，計算 MA20 跌破天數與 ATR 支撐位，供節四整合使用                                                                                                                                                                                                                                                              | `strategyEngine.mjs`                                                    |
+| 節三‑B（指標擴充） | 擴充 `indicators.mjs`：新增 MA20（20 日簡單移動平均）與 ATR(14)（14 日真實波動幅度）計算，回傳 `ma20Arr` 與 `atrArr`；確認 `calculateIndicators(history)` 輸入的 `history` 長度至少 **60 筆**（現有最短為 26 筆 MACD 需求，MA20 + ATR 需求不變，但 `resolveTrendConfirmation` 需要足夠的緩衝期）。同步更新 `dailyCheck.mjs` 歷史 K 線抓取長度從現有值提升至 **60 根** | `src/modules/strategy/indicators.mjs`、`src/dailyCheck.mjs`             |
+| 節三‑C             | `buildDecision()` 在 PR ≥ 90 清算後設定 latch；每日啟動時先檢查 latch 狀態，若 latch 已啟動則略過正常評估流程，直接套用解鎖條件判斷                                                                                                                                                                                                                                   | `strategyEngine.mjs`、`dailyCheck.mjs`                                  |
+| 節三‑D             | `buildDecision()` 最前端加入優先序判斷路由（isPanicBypass → isLatched → guardMultiplier → momentumAdjustment → normalLogic），並在 Telegram 通知中標示當前生效的優先層級                                                                                                                                                                                              | `strategyEngine.mjs`、`telegramHtmlBuilder.mjs`                         |
+| 節四               | `buildDecision()` 整合，套用 `resolveValuationGuard()` 回傳的槓桿乘數                                                                                                                                                                                                                                                                                                 | `strategyEngine.mjs`                                                    |
+| 節五               | Telegram 通知新增 PR 分位數標示（例如 `📊 PB PR84 → 中度壓縮 ×0.65`）                                                                                                                                                                                                                                                                                                 | `telegramHtmlBuilder.mjs`                                               |
+| 節六               | 文件更新：`preplan_features.md` 狀態標記為已完成，條目搬移至 `finishedplan_features.md`                                                                                                                                                                                                                                                                               | `docs/plans/preplan_features.md`、`docs/plans/finishedplan_features.md` |
 
 ### 影響範圍
 
@@ -287,6 +381,8 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 - `src/modules/notifications/templates/telegramHtmlBuilder.mjs`
 - `docs/plans/preplan_features.md`
 - `docs/plans/finishedplan_features.md`
+- `src/modules/strategy/indicators.mjs`（新增 MA20 / ATR 計算）
+- `data/valuationGuardState.json`（新增，納入 `.gitignore`）
 
 ---
 
