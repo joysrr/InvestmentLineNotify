@@ -200,6 +200,21 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 | 跌破 MA20 確認 | 連續 **2 個交易日** 收盤價跌破 MA20 月線（代表趨勢實質破壞）         |
 | ATR 支撐破位   | 股價跌破「前波高點 − ATR × `trailingStopAtrMultiplier`」（預設 2.0） |
 
+#### ATR 移動停利線量化定義
+
+- **前波高點** 定義為：過去 `hhvWindow`（預設 **20** 個交易日）的滾動最高收盤價 `HHV(20)`
+- **停利觸發條件**：`收盤價 < HHV(20) − ATR(atrPeriod) × trailingStopAtrMultiplier`
+- **Strategy.json 新增參數**：
+  ```json
+  "trailingStop": {
+    "hhvWindow": 20,
+    "atrPeriod": 14,
+    "trailingStopAtrMultiplier": 2.0
+  }
+  ```
+- **實作提醒（節三-B）：** 需在 `indicators.mjs` 新增 `calcHHV(closePrices, window)` 函式，
+  回傳滾動視窗內的最大值陣列，供 `computeSellSignals()` 調用。
+
 **PR ≥ 90 狀態下的行為摘要：**
 
 ```
@@ -208,6 +223,8 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 00675L：禁止新增，現有部位保留等待趨勢確認
 清算觸發：跌破 MA20 連續 2 日 OR ATR 支撐破位 → 執行 ×0.0
 ```
+
+以下是整合後的修正版，將第三解鎖條件與既有結構完整融合，並補齊 `Strategy.json` 參數：
 
 ### 狀態鎖定機制（State Latching，防死貓反彈重入）
 
@@ -218,12 +235,18 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 
 **觸發 ×0.0 清算後，系統進入「防禦鎖定（DefenseLatch）」狀態，直到以下任一解鎖條件成立：**
 
-| 解鎖條件        | 說明                                                                                           | 優先等級         |
-| --------------- | ---------------------------------------------------------------------------------------------- | ---------------- |
-| 📉 估值降溫解鎖 | PR 實質回落至 < `latchReleasePR`（預設 85），代表市場估值壓力已釋放                            | 一般             |
-| 💥 極端恐慌破冰 | 跌幅 > `panicDropPct`（預設 15%）且 RSI < `panicRsiThreshold`（預設 30），觸發左側恐慌加碼通道 | 優先（見遺漏二） |
+| #   | 解鎖條件            | 說明                                                                                                                                                                           |
+| --- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | 📉 估值降溫解鎖     | PR 實質回落至 < `latchReleasePR`（預設 85），代表市場估值壓力已釋放                                                                                                            |
+| 2   | 💥 極端恐慌破冰     | 跌幅 > `panicDropPct`（預設 15%）且 RSI < `panicRsiThreshold`（預設 30），觸發左側恐慌加碼通道                                                                                 |
+| 3   | 📈 趨勢強勢反轉解鎖 | 收盤價連續 `trendUnlockDays`（預設 **5**）交易日站上 MA`trendUnlockMaPeriod`（預設 **60**），且 MACD 柱狀圖 > 0。防止 EPS 下修導致估值長期高位、市場卻已重回多頭時陷入永久死結 |
 
-**單日站回 MA20 不構成解鎖條件。** 解鎖後系統重新進入正常評估流程，PR ≥ 90 時再次啟動雙重確認守備（而非直接 ×0.3 重建倉）。
+**單日站回 MA20 不構成任何解鎖條件。**
+
+> ⚠️ **解鎖後行為說明：**
+>
+> - 條件 1、2 解鎖：`defenseLatch` 重設為 `false`，`valuationGuard` 依當日 PR 重新計算槓桿乘數，正常進入估值防禦各 tier。
+> - 條件 3 解鎖：`defenseLatch` 重設為 `false`，但**不完全解除防護**——若當前 PR ≥ 90，仍套用 ×0.3 槓桿壓縮（valuationGuard 持續生效）。設計哲學：「讓市場用強勢資金流證明多頭已修復，但高估值壓縮機制不因此失效」。
 
 **`valuationGuardState.json` — 防禦狀態快取（新增）：**
 
@@ -232,22 +255,25 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
   "latchActive": true,
   "latchTriggeredAt": "2026-04-16",
   "latchTriggerReason": "ma20_break_confirmed",
-  "latchReleasedAt": null
+  "latchReleasedAt": null,
+  "latchReleaseReason": null
 }
 ```
 
-此快取與 `pbHistory.json` 並排儲存於 `data/`，納入 `.gitignore`，並在 `dailyCheck` 啟動時讀取。
+> 此快取與 `pbHistory.json` 並排儲存於 `data/`，納入 `.gitignore`，並在 `dailyCheck` 啟動時讀取。
+> 解鎖時補寫 `latchReleasedAt`（解鎖日期）與 `latchReleaseReason`（`"pr_cooldown"` / `"panic_break_in"` / `"trend_strong_unlock"`），供日後回測追蹤使用。
 
-**Strategy.json 補充 `latch` 參數：**
+**`Strategy.json` 完整 `latch` 參數（含第三條件）：**
 
 ```json
 "valuationGuard": {
-  ...
   "latch": {
     "enabled": true,
     "latchReleasePR": 85,
     "panicDropPct": 0.15,
-    "panicRsiThreshold": 30
+    "panicRsiThreshold": 30,
+    "trendUnlockDays": 5,
+    "trendUnlockMaPeriod": 60
   }
 }
 ```
@@ -263,6 +289,12 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 > 兩個模組訊號對撞 → 如果無優先級，系統行為不可預測。
 
 **`buildDecision()` 模組執行順序（由高至低覆蓋）：**
+
+> ⚠️ **風控鐵律說明（Priority 0）：**
+> 維持率狀態機（critical / frozen / protect）是凌駕於所有策略邏輯的「熔斷層」，
+> 在 `buildDecision()` 最頂端執行並立即 return，任何維持率危機下
+> 「極端恐慌破冰」均無法觸發。此設計已在現有程式碼中實作完畢（見 `getMarginLayer()`）。
+> 計畫 B 的各節任務在進入常態邏輯（`marginLayer === 'normal'`）後才生效。
 
 | 優先序        | 層級名稱                    | 觸發條件                                           | 行為                                          | 說明                                                     |
 | ------------- | --------------------------- | -------------------------------------------------- | --------------------------------------------- | -------------------------------------------------------- |
@@ -672,18 +704,6 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ---
 
-## 📌【風控邏輯】維持率與追繳風險判斷重構（已升級為上方 P0 4層狀態機）
-
-> ⚠️ 此項目已升級為【P0 已完成】維持率狀態機 4 層重構，請參閱上方對應條目。commit: `98a6cdb`
-
----
-
-## 📌【策略門檻】RSI / 跌幅與估值多階門檻優化（已升級為上方 P0 左側進擊矩陣）
-
-> ⚠️ 此項目已升級為【P0 已完成】左側進擊矩陣：階層式進場前置過濾層，請參閱上方對應條目。commit: `229c0be` / `8ca76ee` / `035541a` / `9a268f3`
-
----
-
 ## 📌【停利機制】BasePrice 管理與動態停利邏輯（已升級為上方 P1 廢除 BasePrice 計劃）
 
 > ⚠️ 此項目已升級為【P1 高優先】廢除 BasePrice，改採 ATR/MA20 動態移動停利，請參閱上方對應條目。
@@ -693,7 +713,7 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ## 📌【冷卻期與情緒】MacroSentiment 交互與回測驗證（已整合 VIX 情緒短路 ✅ 已完成）
 
-> ⚠️ VIX 情緒短路機制已完成，請參閱上方【P1 已完成】VIX 情緒短路機制條目。
+> ⚠️ VIX 情緒短路機制已完成，請參閱`finishedplan_features.md`【P1 已完成】VIX 情緒短路機制條目。
 > 剩餘回測維度（macroSentiment 多模式績效比較）保留為未來 backtest runner 完成後的擴充項目。
 
 ### 建議方向（補充回測維度，未強制）
@@ -718,13 +738,6 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 ## 📌【資料完整性】lastBuyDate 與策略欄位一致性檢查（已升級為上方 P1 本地 fallback 快取）
 
 > ⚠️ 此項目已升級為【P1 高優先】lastBuyDate 本地 fallback 快取，請參閱上方對應條目。
-
----
-
-## 📌【策略欄位清理】未使用欄位與 label 一致性（已整合為上方 P1 幽靈參數審計）
-
-> ⚠️ 此項目已整合升級為【P1 高優先】Strategy.json 幽靈參數審計與清除，✅ 已完成（commit `103be3d`）。
-> 原 label 一致性修正（`dropScoreRules` 文案對齊）已於 commit `229c0be` 一併完成。
 
 ---
 
