@@ -267,15 +267,15 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 > 「極端恐慌破冰」均無法觸發。此設計已在現有程式碼中實作完畢（見 `getMarginLayer()`）。
 > 計畫 B 的各節任務在進入常態邏輯（`marginLayer === 'normal'`）後才生效。
 
-| 優先序        | 層級名稱                    | 觸發條件                                                    | 行為                                          | 說明                                                     |
-| ------------- | --------------------------- | ----------------------------------------------------------- | --------------------------------------------- | -------------------------------------------------------- |
-| **1（最高）** | 極端恐慌破冰                | 跌幅 > 20% 且 VIX > `panicVixThreshold`（預設 35）          | **Bypass 計畫 B/C**，直接進入左側恐慌加碼通道 | 高估值泡沫已被崩跌實質消化，先前的 PR 高位已失去防禦意義 |
-| **2**         | 維持率危機                  | 維持率 < 危險門檻（現有 P0 狀態機）                         | 強制降槓，一票否決所有加碼                    | 保命優先                                                 |
-| **3**         | Gross Leverage 天花板       | grossLeverage > 2.5x                                        | 強制壓縮至下一檔位                            | 避免死亡螺旋                                             |
-| **4**         | 估值防禦鎖定（Latch）       | `isLatched() === true`                                      | 等待解鎖條件，禁止重建倉                      | 防死貓反彈重入                                           |
-| **5**         | 計畫 B（valuationGuard）    | PR 分位數防護                                               | 套用 guardMultiplier                          | 相對估值壓縮                                             |
-| **6**         | 計畫 C（valuationMomentum） | PR 動量感知                                                 | 疊加 momentumAdjustment                       | 趨勢方向補正                                             |
-| **7（最低）** | 常態策略邏輯                | weightScore 評分                                            | 正常 allocation 表查詢                        | 日常 DCA + 戰術加碼                                      |
+| 優先序        | 層級名稱                    | 觸發條件                                           | 行為                                          | 說明                                                     |
+| ------------- | --------------------------- | -------------------------------------------------- | --------------------------------------------- | -------------------------------------------------------- |
+| **1（最高）** | 極端恐慌破冰                | 跌幅 > 20% 且 VIX > `panicVixThreshold`（預設 35） | **Bypass 計畫 B/C**，直接進入左側恐慌加碼通道 | 高估值泡沫已被崩跌實質消化，先前的 PR 高位已失去防禦意義 |
+| **2**         | 維持率危機                  | 維持率 < 危險門檻（現有 P0 狀態機）                | 強制降槓，一票否決所有加碼                    | 保命優先                                                 |
+| **3**         | Gross Leverage 天花板       | grossLeverage > 2.5x                               | 強制壓縮至下一檔位                            | 避免死亡螺旋                                             |
+| **4**         | 估值防禦鎖定（Latch）       | `isLatched() === true`                             | 等待解鎖條件，禁止重建倉                      | 防死貓反彈重入                                           |
+| **5**         | 計畫 B（valuationGuard）    | PR 分位數防護                                      | 套用 guardMultiplier                          | 相對估值壓縮                                             |
+| **6**         | 計畫 C（valuationMomentum） | PR 動量感知                                        | 疊加 momentumAdjustment                       | 趨勢方向補正                                             |
+| **7（最低）** | 常態策略邏輯                | weightScore 評分                                   | 正常 allocation 表查詢                        | 日常 DCA + 戰術加碼                                      |
 
 **極端恐慌破冰的 Bypass 條件說明：**
 
@@ -349,6 +349,7 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 ```
 
 > **`trailingStop` 子物件說明：**
+>
 > - `hhvWindow`：前波高點定義為過去 N 個交易日的滾動最高收盤價 `HHV(N)`（預設 20）
 > - `atrPeriod`：ATR 計算週期（預設 14）
 > - `trailingStopAtrMultiplier`：停利觸發條件為 `收盤價 < HHV(hhvWindow) − ATR(atrPeriod) × multiplier`
@@ -441,6 +442,7 @@ prMomentum = PR_today − PR_N日前（預設 N=20）
 > **`highPRZone` 子物件說明（高位尾部效應補正）：**
 > 當 PR ≥ `triggerPR`（預設 85）時，線性絕對值門檻在頂部空間不足的情況下會靜默失效，
 > 因此補入以下兩個替代觸發條件：
+>
 > - `relaxedMomentumThreshold`：高位動量門檻放寬至 +5（原為 +10）
 > - `vixSpikeThreshold`（20%）+ `vixSpikeMultiplier`（×0.85）：VIX 單日急升時強制壓縮
 > - `vixAbsoluteHigh`（30）+ `vixAbsoluteMultiplier`（×0.7）：高位 + VIX 恐慌並存時加重壓縮
@@ -490,11 +492,6 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 | 計畫 C | PB 分位數趨勢感知層（valuationMomentum）  | 計畫 A + B | ⚪ 待實作 |
 
 ---
-
-## ~~📌【P1 高優先】PB 估值動態衰減機制（valuationPenaltyFactor）~~
-
-> ⚠️ 此計畫已由【計畫 B】PB 歷史分位數動態防護層（valuationGuard）全面取代，不再實作。
-> 原設計的硬切斷門檻（PB 1.8 / 2.0 / 2.2）已由 PR 分位數（PR70/80/90）動態取代。
 
 ## ~~📌【P1 高優先】PB 估值動態衰減機制（valuationPenaltyFactor）~~
 
