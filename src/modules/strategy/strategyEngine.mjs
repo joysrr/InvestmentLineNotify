@@ -668,18 +668,31 @@ async function checkCooldown(lastBuyDate, cooldownTradingDays) {
  * 從 strategy.macroSentiment config 與外部傳入的 market_direction
  * 組裝成 computeEntryScore 所需的 macroSentiment 物件。
  * 若功能未啟用或無方向資料，回傳 null。
+ *
+ * 節四整合：若 vixOverride.overrideActive === true，
+ * bearishPenalty 強制設為 0（短路屏蔽），並在回傳物件中標記短路狀態。
+ *
  * @param {string|null} marketDirection - 'BULLISH' | 'BEARISH' | 'NEUTRAL' | null
  * @param {Object} strategy - 完整策略設定
+ * @param {{ overrideActive: boolean, overrideReason: string }} vixOverride - VIX 短路狀態
  * @returns {Object|null}
  */
-function buildMacroSentiment(marketDirection, strategy) {
+function buildMacroSentiment(marketDirection, strategy, vixOverride) {
   const cfg = strategy?.macroSentiment;
   if (!cfg?.enabled || !marketDirection) return null;
+
+  const isOverrideActive = vixOverride?.overrideActive === true;
+
+  // bearishPenalty：短路啟動時強制為 0，正常時從 config 讀取
+  const effectivePenalty = isOverrideActive ? 0 : (cfg.bearishPenalty ?? 0);
 
   return {
     direction: marketDirection,
     bonus: cfg.bullishBonus ?? 0,
-    penalty: cfg.bearishPenalty ?? 0,
+    penalty: effectivePenalty,
+    // 短路標記：供 Telegram 模板（節五）識別並顯示 ⚡ VIX 情緒短路 提示
+    vixOverrideActive: isOverrideActive,
+    vixOverrideReason: isOverrideActive ? (vixOverride.overrideReason ?? '') : '',
   };
 }
 
@@ -716,15 +729,10 @@ export async function evaluateInvestmentSignal(data, strategy) {
   else if (bias240 > 15) historicalLevel = "🏜️【高位階/偏貴】";
   else if (bias240 < 0) historicalLevel = "🧊【低位階/便宜】";
 
-  const macroSentiment = buildMacroSentiment(
-    data.macroMarketDirection ?? null,
-    strategy,
-  );
-
   const baseCooldownDays = strategy.trading.cooldownDays || 20;
   const cfg = strategy?.macroSentiment;
 
-  // VIX 情緒短路：若短路啟動，跳過 bearishCooldownMultiplier 冷卻延長
+  // ─── VIX 情緒短路：先解析短路狀態，再傳入 buildMacroSentiment ───
   // resolveVixOverride 使用 data.vixArr（歷史序列）判斷趨勢；
   // 若 data.vixArr 不存在，fallback 為 [data.VIX]，趨勢判斷降為 'flat'
   const vixArr = Array.isArray(data.vixArr) && data.vixArr.length > 0
@@ -732,6 +740,14 @@ export async function evaluateInvestmentSignal(data, strategy) {
     : (Number.isFinite(data.VIX) ? [data.VIX] : []);
   const vixOverride = resolveVixOverride(data.VIX, vixArr, strategy);
 
+  // macroSentiment：傳入 vixOverride，由 buildMacroSentiment 決定是否屏蔽 bearishPenalty
+  const macroSentiment = buildMacroSentiment(
+    data.macroMarketDirection ?? null,
+    strategy,
+    vixOverride,
+  );
+
+  // effectiveCooldownDays：短路啟動時跳過 bearishCooldownMultiplier 延長
   const isBearish = cfg?.enabled && data.macroMarketDirection === "BEARISH";
   const effectiveCooldownDays =
     isBearish && !vixOverride.overrideActive && Number.isFinite(cfg.bearishCooldownMultiplier)
