@@ -55,10 +55,19 @@ grossLeverage = (0050 市值 + 00675L 市值 × 2) / 帳戶淨值
 
 ### 資料來源設計
 
-| 用途     | API                             | 說明                                           |
-| -------- | ------------------------------- | ---------------------------------------------- |
-| 每日追加 | `TWSE BWIBBU_ALL`（現行）       | `fetchMarketValuation()` 計算完後直接 append   |
-| 歷史補齊 | `TWSE BWIBBU_ALL?date=YYYYMMDD` | 逐月取最後一個交易日，沿用相同市值加權計算邏輯 |
+| 用途     | API                             | 粒度       | 說明                                                 |
+| -------- | ------------------------------- | ---------- | ---------------------------------------------------- |
+| 每日追加 | `TWSE BWIBBU_ALL`（現行）       | **日資料** | `fetchMarketValuation()` 計算完後直接 append         |
+| 歷史補齊 | `TWSE BWIBBU_ALL?date=YYYYMMDD` | **日資料** | 逐**日**補齊，沿用相同市值加權計算邏輯（見下方說明） |
+
+> ⚠️ **統計學權重說明（重要）：**
+> 計畫 B 的 PR 分位數計算本質是「計數比較」，歷史資料與每日追加資料的**粒度必須完全一致**，
+> 否則會產生嚴重的 Data Weight Imbalance：
+>
+> - ❌ 舊設計（逐月補齊）：60 個月的歷史僅 60 筆，系統上線後半年即累積 120 筆「日資料」；
+>   半年的日資料權重是過去 5 年的 **2 倍**，PR 分位數將嚴重向近期高估值傾斜。
+> - ✅ 修正設計（逐日補齊）：歷史補齊與每日追加皆為日資料，保持 1:1 的樣本權重，
+>   統計學意義完整，1260 筆對應真實 5 年窗口。
 
 ### 快取架構
 
@@ -77,6 +86,7 @@ data/
   "_meta": {
     "updatedAt": "2026-04-16",
     "source": "twse_bwibbu_all",
+    "granularity": "daily",
     "totalRecords": 1260
   },
   "records": [
@@ -103,14 +113,16 @@ dailyCheck 執行
 ```
 pbHistoryProvider.checkAndBackfill(targetDays = 1260)
 → 讀取現有快取，計算目前筆數
-→ 若不足 targetDays × 0.5（630 筆），計算需補齊的月份清單
-→ 逐月呼叫 TWSE BWIBBU_ALL（帶日期參數）
-→ 對每月最後一個交易日做市值加權 PB 計算（邏輯同 fetchMarketValuation）
+→ 若不足 targetDays × 0.5（630 筆），計算需補齊的日期清單（以「交易日」為單位）
+→ 逐日呼叫 TWSE BWIBBU_ALL（帶日期參數），跳過非交易日（無資料時自動略過）
+→ 對每個交易日做市值加權 PB 計算（邏輯同 fetchMarketValuation）
 → 合併、排序、去重後寫回 pbHistory.json
-→ 每月請求間 sleep(1500ms)
+→ 每次請求間 sleep(800ms)，批次間（每 20 筆）sleep(3000ms) 避免觸發 TWSE 限流
 ```
 
-> **backfill 觸發時機**：`dailyCheck` 啟動時呼叫 `checkAndBackfill()`，內部偵測現有筆數是否低於 `targetDays × 0.5`，不足時自動執行補齊，後續每日 `appendToday` 即可保持完整。
+> **關於 backfill 效能：** 1260 筆日資料 = 約 63 個交易月。TWSE BWIBBU_ALL 每次回傳整月資料，
+> 實際只需約 **63 次 API 呼叫**（非 1260 次），每月取日期範圍內所有交易日批次處理，
+> 總耗時約 3–5 分鐘，為一次性工時，不影響日常運作。
 
 ### 對外介面（供計畫 B 使用）
 
@@ -165,12 +177,74 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 
 ### 防護層規格（4 段）
 
-| PR 區間      | 行為                       | 槓桿乘數 |
-| ------------ | -------------------------- | -------- |
-| PR < 70      | 常態運行                   | ×1.0     |
-| 70 ≤ PR < 80 | 輕度壓縮                   | ×0.85    |
-| 80 ≤ PR < 90 | 中度壓縮，禁止 00675L 新增 | ×0.65    |
-| PR ≥ 90      | 強制停機，沿用硬停機邏輯   | ×0.0     |
+| PR 區間      | 行為                                        | 槓桿乘數 |
+| ------------ | ------------------------------------------- | -------- |
+| PR < 70      | 常態運行                                    | ×1.0     |
+| 70 ≤ PR < 80 | 輕度壓縮                                    | ×0.85    |
+| 80 ≤ PR < 90 | 中度壓縮，禁止 00675L 新增，進入防禦狀態    | ×0.65    |
+| PR ≥ 90      | 極度壓縮，啟動強制移動停利（Trailing Stop） | ×0.3     |
+
+> ⚠️ **PR ≥ 90 不再直接硬停機（×0.0）**，改為「極度壓縮 + 趨勢雙重確認」機制（見下方）。
+> 高估值代表市場脆弱，但不代表立刻崩盤；在 AI 驅動的歷史級牛市中，PR 可能長時間維持 90+，
+> 直接歸零將導致系統在主升段過早出場。
+
+### 趨勢雙重確認機制（PR ≥ 90 適用）
+
+當 PR 進入 90 以上的「極度壓縮」狀態時，系統不直接歸零，而是啟動移動停利守備，
+並在以下條件同時成立時才執行 ×0.0 強制清算：
+
+**觸發條件（兩者擇一，任一成立即清算）：**
+
+| 條件           | 說明                                                                 |
+| -------------- | -------------------------------------------------------------------- |
+| 跌破 MA20 確認 | 連續 **2 個交易日** 收盤價跌破 MA20 月線（代表趨勢實質破壞）         |
+| ATR 支撐破位   | 股價跌破「前波高點 − ATR × `trailingStopAtrMultiplier`」（預設 2.0） |
+
+**PR ≥ 90 狀態下的行為摘要：**
+
+```
+槓桿乘數：×0.3（極度壓縮，禁止所有新增槓桿）
+移動停利：啟動（追蹤 MA20 或 ATR 支撐）
+00675L：禁止新增，現有部位保留等待趨勢確認
+清算觸發：跌破 MA20 連續 2 日 OR ATR 支撐破位 → 執行 ×0.0
+```
+
+### 波動率感知補正（高位尾部效應修正）
+
+> ⚠️ **線性絕對值門檻在極端分位數區域會失去敏感度**：
+> 當 PR 已高達 85 時，頂部空間僅剩 15，PR 在 20 天內幾乎不可能再上升 10；
+> 使用固定 +10 門檻會導致計畫 C 在最需要防禦的高位反而靜默失效。
+
+**補正機制：在 PR ≥ 85 的高位區，加入 VIX 急升作為替代觸發條件**
+
+| 條件                                                      | 說明                                   | 行為                     |
+| --------------------------------------------------------- | -------------------------------------- | ------------------------ |
+| PR ≥ 85 且 `prMomentum > +5`（放寬門檻）                  | 高位微幅動量即視為警示                 | 額外 ×0.85（同原設計）   |
+| PR ≥ 85 且 VIX 單日上升 > `vixSpikeThreshold`（預設 20%） | 不論 prMomentum 大小，高位急跌風險優先 | 額外 ×0.85，強制觸發壓縮 |
+| PR ≥ 85 且 VIX 絕對值 > `vixAbsoluteHigh`（預設 30）      | 高位 + 恐慌並存                        | 額外 ×0.7（加重壓縮）    |
+
+**注意：** 計畫 B 的 PR ≥ 90 已啟動雙重確認機制，計畫 C 的波動率補正主要覆蓋 **PR 85–90 的過渡敏感區域**，兩者不重疊。
+
+### Strategy.json 新增欄位（含雙重確認參數）
+
+```json
+"valuationMomentum": {
+  "enabled": true,
+  "lookbackDays": 20,
+  "risingThreshold": 10,
+  "fallingThreshold": -10,
+  "risingPenaltyMultiplier": 0.85,
+  "fallingRelief": true,
+  "highPRZone": {
+    "triggerPR": 85,
+    "relaxedMomentumThreshold": 5,
+    "vixSpikeThreshold": 0.2,
+    "vixSpikeMultiplier": 0.85,
+    "vixAbsoluteHigh": 30,
+    "vixAbsoluteMultiplier": 0.7
+  }
+}
+```
 
 ### Fallback 機制（資料不足時）
 
@@ -195,14 +269,15 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 
 ### 工作節次
 
-| 節   | 工作內容                                                                                | 涉及檔案                                                                |
-| ---- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| 節一 | `Strategy.json` 新增 `valuationGuard` 區段                                              | `Strategy.json`                                                         |
-| 節二 | `validateStrategyConfig()` 補齊 `valuationGuard` 驗證                                   | `signalRules.mjs`                                                       |
-| 節三 | 新增 `resolveValuationGuard(currentPB, records, config)` 純函式，計算 PR 與命中 tier    | `strategyEngine.mjs`                                                    |
-| 節四 | `buildDecision()` 整合，套用 `resolveValuationGuard()` 回傳的槓桿乘數                   | `strategyEngine.mjs`                                                    |
-| 節五 | Telegram 通知新增 PR 分位數標示（例如 `📊 PB PR84 → 中度壓縮 ×0.65`）                   | `telegramHtmlBuilder.mjs`                                               |
-| 節六 | 文件更新：`preplan_features.md` 狀態標記為已完成，條目搬移至 `finishedplan_features.md` | `docs/plans/preplan_features.md`、`docs/plans/finishedplan_features.md` |
+| 節     | 工作內容                                                                                                 | 涉及檔案                                                                |
+| ------ | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 節一   | `Strategy.json` 新增 `valuationGuard` 區段                                                               | `Strategy.json`                                                         |
+| 節二   | `validateStrategyConfig()` 補齊 `valuationGuard` 驗證                                                    | `signalRules.mjs`                                                       |
+| 節三   | 新增 `resolveValuationGuard(currentPB, records, config)` 純函式，計算 PR 與命中 tier                     | `strategyEngine.mjs`                                                    |
+| 節三‑A | 新增 `resolveTrendConfirmation(priceData, config)` 函式，計算 MA20 跌破天數與 ATR 支撐位，供節四整合使用 | `strategyEngine.mjs`                                                    |
+| 節四   | `buildDecision()` 整合，套用 `resolveValuationGuard()` 回傳的槓桿乘數                                    | `strategyEngine.mjs`                                                    |
+| 節五   | Telegram 通知新增 PR 分位數標示（例如 `📊 PB PR84 → 中度壓縮 ×0.65`）                                    | `telegramHtmlBuilder.mjs`                                               |
+| 節六   | 文件更新：`preplan_features.md` 狀態標記為已完成，條目搬移至 `finishedplan_features.md`                  | `docs/plans/preplan_features.md`、`docs/plans/finishedplan_features.md` |
 
 ### 影響範圍
 
