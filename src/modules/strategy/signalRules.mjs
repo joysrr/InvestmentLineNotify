@@ -16,8 +16,13 @@ import {
   getMACDSignal,
 } from "./indicators.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
+import { readFile } from "fs/promises";
+import { resolve } from "path";
 
 const STRATEGY_URL = process.env.STRATEGY_URL;
+
+/** 本地 Strategy.json 路徑（相對於專案根目錄） */
+const LOCAL_STRATEGY_PATH = resolve(process.cwd(), "data/config/Strategy.json");
 
 /* 記憶體暫存 */
 let _cache = {
@@ -26,72 +31,108 @@ let _cache = {
   loadedAt: null,
 };
 
-export async function fetchStrategyConfig() {
-  if (!STRATEGY_URL) {
-    throw new Error("缺少 STRATEGY_URL 環境變數，無法載入 Strategy.json");
+/**
+ * 從本地 data/config/Strategy.json 讀取策略設定。
+ * 驗證通過後回傳，否則拋出錯誤。
+ */
+async function fetchStrategyLocal() {
+  const text = await readFile(LOCAL_STRATEGY_PATH, "utf-8");
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch (e) {
+    throw new Error(`[Strategy] 本地 JSON 解析失敗：${e.message}`);
+  }
+  validateStrategyConfig(json);
+  return json;
+}
+
+/**
+ * 從遠端 STRATEGY_URL 讀取策略設定。
+ * 驗證通過後同步備份至 archiveManager，並回傳。
+ */
+async function fetchStrategyRemote() {
+  if (!STRATEGY_URL) throw new Error("[Strategy] STRATEGY_URL 未設定");
+
+  const res = await fetch(STRATEGY_URL, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 strategy-client",
+      Accept: "application/json",
+    },
+  });
+
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`[Strategy] 遠端 HTTP ${res.status}: ${text.slice(0, 200)}`);
   }
 
-  if (_cache.url === STRATEGY_URL && _cache.strategy) {
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch (e) {
+    throw new Error(`[Strategy] 遠端 JSON 解析失敗：${e.message}`);
+  }
+
+  validateStrategyConfig(json);
+
+  // 驗證通過後同步備份
+  await archiveManager.saveStrategyCache(json);
+
+  return json;
+}
+
+/**
+ * 載入策略設定。優先順序：
+ *   1. 記憶體 cache
+ *   2. 本地 data/config/Strategy.json（主要來源）
+ *   3. 遠端 STRATEGY_URL（備援來源，需設定環境變數）
+ *   4. archiveManager 本地備份 cache
+ */
+export async function fetchStrategyConfig() {
+  // 1. 記憶體 cache（同次執行不重複讀檔）
+  if (_cache.strategy) {
     return _cache.strategy;
   }
 
+  let json = null;
+  let source = null;
+
+  // 2. 本地優先
   try {
-    const res = await fetch(STRATEGY_URL, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 strategy-client",
-        Accept: "application/json",
-      },
-    });
+    json = await fetchStrategyLocal();
+    source = "local";
+    console.log(`[Strategy] 載入本地設定 v${json.version}`);
+  } catch (localErr) {
+    console.warn(`⚠️ [Strategy] 本地讀取失敗：${localErr.message}`);
 
-    const text = await res.text();
-    if (!res.ok) {
-      throw new Error(
-        `Strategy.json HTTP ${res.status}: ${text.slice(0, 200)}`,
-      );
+    // 3. 遠端備援
+    if (STRATEGY_URL) {
+      try {
+        json = await fetchStrategyRemote();
+        source = "remote";
+        console.log(`[Strategy] 載入遠端設定 v${json.version}`);
+      } catch (remoteErr) {
+        console.warn(`⚠️ [Strategy] 遠端載入失敗：${remoteErr.message}`);
+      }
     }
+  }
 
-    let json = null;
-    try {
-      json = JSON.parse(text);
-    } catch (e) {
-      console.log(`Strategy.json 解析失敗：${e.message}`, text);
-      throw new Error(`Strategy.json 解析失敗：${e.message}`);
-    }
-
-    // ✅ 先驗證再寫入 cache
-    validateStrategyConfig(json);
-
-    _cache = {
-      url: STRATEGY_URL,
-      strategy: json,
-      loadedAt: new Date(),
-    };
-
-    // 驗證通過後同步備份至本地
-    await archiveManager.saveStrategyCache(json);
-
-    return json;
-  } catch (err) {
-    // 第一層：記憶體 cache
-    if (_cache.strategy) {
-      console.warn(`⚠️ [Strategy] 遠端載入失敗，使用記憶體 cache (v${_cache.strategy.version}):`, err.message);
-      return _cache.strategy;
-    }
-
-    // 第二層：本地檔案 cache
+  // 4. archiveManager 備份 cache（最後防線）
+  if (!json) {
     const localCache = await archiveManager.getStrategyCache();
     if (localCache) {
-      console.warn(
-        `⚠️ [Strategy] 記憶體無可用，使用本地備份 (v${localCache.version}):`,
-        err.message
-      );
-      // 回寫記憶體避免下次再讀檔案
-      _cache = { url: STRATEGY_URL, strategy: localCache, loadedAt: new Date() };
-      return localCache;
+      console.warn(`⚠️ [Strategy] 使用 archiveManager 備份 v${localCache.version}`);
+      json = localCache;
+      source = "archive";
     }
-
-    throw err;
   }
+
+  if (!json) {
+    throw new Error("[Strategy] 所有來源均無法載入 Strategy.json，請檢查本地檔案或 STRATEGY_URL 環境變數");
+  }
+
+  _cache = { url: source, strategy: json, loadedAt: new Date() };
+  return json;
 }
 
 function isObject(v) {
@@ -146,6 +187,8 @@ export function validateStrategyConfig(config) {
     config.maintenance.marginCallThreshold,
     "maintenance.marginCallThreshold",
   );
+  // frozenZone：新增必填欄位（v2.4+）
+  assertNumber(config.maintenance.frozenZone, "maintenance.frozenZone");
 
   // 5. trading
   assert(isObject(config.trading), "trading 必須是物件");
@@ -193,6 +236,27 @@ export function validateStrategyConfig(config) {
     config.buy.panic.suggestedLeverage,
     "buy.panic.suggestedLeverage",
   );
+
+  // buy.entryGate：選填，向後相容（v2.4+ 新增）
+  if (config.buy.entryGate !== undefined) {
+    assert(isObject(config.buy.entryGate), "buy.entryGate 必須是物件");
+    assertBoolean(config.buy.entryGate.enabled, "buy.entryGate.enabled");
+    assert(
+      Array.isArray(config.buy.entryGate.tiers),
+      "buy.entryGate.tiers 必須是陣列",
+    );
+    config.buy.entryGate.tiers.forEach((tier, i) => {
+      const p = `buy.entryGate.tiers[${i}]`;
+      assertNumber(tier.minDrop, `${p}.minDrop`);
+      assertNumber(tier.maxDrop, `${p}.maxDrop`);
+      // rsiThreshold 允許 number 或 null
+      assert(
+        tier.rsiThreshold === null || (typeof tier.rsiThreshold === "number" && Number.isFinite(tier.rsiThreshold)),
+        `${p}.rsiThreshold 必須是 number 或 null`,
+      );
+      assertBoolean(tier.allowLeverage, `${p}.allowLeverage`);
+    });
+  }
 
   // 7. sell
   assert(isObject(config.sell), "sell 必須是物件");
