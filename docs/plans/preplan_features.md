@@ -17,21 +17,28 @@
 grossLeverage = (0050 市值 + 00675L 市值 × 2) / 帳戶淨值
 ```
 
-建議天花板：**2.5x**（超過則強制降至下一 allocation 檔位）
+建議雙層天花板（區分主動與被動擴張）：
+- **主動擴張上限（例如 2.5x）：** 只要曝險大於 2.5x，禁止任何新資金的借款與買入（一票否決加碼）。
+- **被動危機紅線（例如 2.8x 或 3.0x）：** 當市場崩盤導致被動曝險極度失控，威脅到整體破產時，才啟動「強制市價賣出 00675L 降槓桿」的斷尾求生機制（避免順週期砍倉發生在不必要的時候）。
+
+### 著陸目標 (Recovery Target)
+
+- 為了避免「凌遲式砍倉」（每次只賣一點點讓曝險降到 2.99x，隔天稍微震盪又觸發），必須設定 **「著陸目標 `grossLeverageRecoveryTarget`」（例如 2.0x 或 2.2x）**。
+- 當觸發 3.0x 強迫平倉時，系統將一次性賣出足夠的 00675L，讓整體曝險一口氣降回安全的 2.0x 水位，提供足夠的下行緩衝空間。
 
 ### 建議方向
 
 - 新增 `src/modules/strategy/leverageMonitor.mjs`
 - 在每次 `buildDecision()` 前先計算 `grossLeverage`
-- 超過天花板時強制壓縮 allocation 檔位（一票否決加碼）
-- 日報新增「綜合曝險倍數」欄位
+- 實作雙層檢查：超過 3.0x 強制砍倉降槓桿至 `grossLeverageRecoveryTarget`；超過 2.5x 則一票否決加碼
+- 日報新增「綜合曝險倍數（Gross Leverage）」欄位
 
 ### 影響範圍
 
 - `src/modules/strategy/leverageMonitor.mjs`（新增模組）
 - `src/modules/strategy/strategyEngine.mjs`（整合計算）
 - Telegram 通知模板（新增欄位）
-- `Strategy.json`（新增 `grossLeverageCeiling` 參數）
+- `Strategy.json`（新增 `grossLeverageCeiling` 與 `grossLeverageRecoveryTarget` 參數）
 
 ### 難度
 
@@ -269,9 +276,9 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 
 | 優先序        | 層級名稱                    | 觸發條件                                           | 行為                                          | 說明                                                     |
 | ------------- | --------------------------- | -------------------------------------------------- | --------------------------------------------- | -------------------------------------------------------- |
-| **1（最高）** | 極端恐慌破冰                | 跌幅 > 20% 且 VIX > `panicVixThreshold`（預設 35） | **Bypass 計畫 B/C**，直接進入左側恐慌加碼通道 | 高估值泡沫已被崩跌實質消化，先前的 PR 高位已失去防禦意義 |
-| **2**         | 維持率危機                  | 維持率 < 危險門檻（現有 P0 狀態機）                | 強制降槓，一票否決所有加碼                    | 保命優先                                                 |
-| **3**         | Gross Leverage 天花板       | grossLeverage > 2.5x                               | 強制壓縮至下一檔位                            | 避免死亡螺旋                                             |
+| **1（最高）** | 維持率危機                  | 維持率 < 危險門檻（現有 P0 狀態機）                | 強制降槓，一票否決所有加碼                    | 保命優先，一票否決                                       |
+| **2**         | Gross Leverage 天花板       | grossLeverage > 2.5x                               | 強制壓縮至下一檔位                            | 避免死亡螺旋                                             |
+| **3**         | 極端恐慌破冰                | 跌幅 > 20% 且 VIX > `panicVixThreshold`（預設 35） | **Bypass 計畫 B/C**，直接進入左側恐慌加碼通道 | 受制於維持率，高估值泡沫已被崩跌實質消化                 |
 | **4**         | 估值防禦鎖定（Latch）       | `isLatched() === true`                             | 等待解鎖條件，禁止重建倉                      | 防死貓反彈重入                                           |
 | **5**         | 計畫 B（valuationGuard）    | PR 分位數防護                                      | 套用 guardMultiplier                          | 相對估值壓縮                                             |
 | **6**         | 計畫 C（valuationMomentum） | PR 動量感知                                        | 疊加 momentumAdjustment                       | 趨勢方向補正                                             |
@@ -523,6 +530,8 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 - 新增 `sell.atrMultiplier`（預設 2.0）
 - `ma20` 模式：連續 2 日收盤跌破 MA20 × 緩衝係數時觸發停利訊號
 - 過渡期保留 BasePrice 作為 fallback（`anchorType = basePrice` 時行為與現在相同）
+- **停利啟動條件：** 該批買入的部位，必須滿足 **「帳面未實現獲利 > X%（例如 10%）」** 或 **「股價在買入後，首次向上突破站穩 MA20」** 之後，移動停利（Trailing Stop）的監控機制才會正式被 `Active`（啟動）。
+  - 在此條件滿足前，系統處於「左側建倉熬過陣痛期」，不應被右側的短均線破位給洗出場。
 
 ### 建議方向（分階段）
 
@@ -745,12 +754,14 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ### 建議方向
 
-- 定義生命週期 Profile：
-  - 例如「早期累積期」「中期平衡期」「後期保守期」，每個 profile 各自對應 allocation 表（不同最大 leverage 與底倉槓桿）。
+- 引入「生命週期投資法（Lifecycle Investing）」的數學模型參數，定義生命週期 Profile：
+  - **距退休 > 15 年（早期累積期）：** 解鎖最高 2.0x 槓桿權限（允許策略在低點全開）。
+  - **距退休 5 ~ 15 年（中期平衡期）：** 槓桿天花板隨時間線性遞減，上限壓縮至 1.2x ~ 1.5x。
+  - **距退休 < 5 年（後期保守期）：** 進入「只出不進 (Sell-only Mode)」。禁止任何「新增」的 00675L 買進與質押撥款，但既有帳上部位不強制認賠（避免熊市谷底硬著陸）。既有部位將套用更緊縮的「ATR / MA20 移動停利線」，在右側反彈波段逐步獲利了結，實現平滑去槓桿化 (Smooth Deleveraging)。
 - 生命週期參數來源：
   - 初期可先在 `.env` 或 Google Sheet 設定「目標年份」「出生年份」等，後續再考慮在 Mini App 做 UI 調整。
 - 策略引擎整合：
-  - 在 `fetchStrategyConfig()` 或 `evaluateInvestmentSignal()` 中讀取當前 profile，動態選用對應的 allocation 陣列或調整分數檔位。
+  - 在 `fetchStrategyConfig()` 或 `evaluateInvestmentSignal()` 中讀取當前 profile，動態選用上述對應的 leverage 上限與參數。
 
 ### 影響範圍
 
@@ -889,11 +900,14 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ### 建議方向
 
-- 新增風控參數：
-  - `trading.maxDailyNetLoanIncrease`：單日最大淨新增借款金額。
-  - `trading.maxRollingLoanIncreaseDays` / `trading.maxRollingLoanIncreaseAmount`：N 日內累計最大新增借款上限。
+- 新增風控參數（依整體帳戶淨值連動，規模化擴張）：
+  - `trading.maxDailyLoanIncreasePct`：單日最大新增借款佔**當前帳戶淨值**的百分比（例如 5% 或 10%）。
+  - `trading.maxRollingLoanIncreasePct`：淨新增借款（Net Loan Increase），計算公式為：近 10 日的總借款金額 - 近 10 日的總還款金額。
+    - 系統在區間內有執行「停利/再平衡還款」，戰術彈藥庫的額度就會被自動釋放（重置），確保資金使用效率最大化，不會發生無謂的額度死鎖。
 - 在 daily pipeline 中：
-  - 根據當前 totalLoan 與建議 targetLeverage，計算預期新增借款額，若超出上限，將建議降檔或僅執行 baseline DCA。
+  - 根據當前 totalLoan 與建議 targetLeverage，計算預期新增借款額比例。
+  - **額度排擠防護 (Budget Priority)：** 必須賦予 Baseline DCA 最高的撥款優先權。系統應先從每日上限中扣除 Baseline DCA 所需預算，剩餘的額度才分配給 Tactical (戰術加碼) 模組去執行，避免極端恐慌時的大額加碼中斷長期的紀律定時定額。
+  - 若雙層需求加總超出上限，先滿足 Baseline，再由 Tactical 將剩餘額度打滿。
 - 可於月報中簡單列出「本月加碼資金節奏」摘要，幫助調整參數。
 
 ### 影響範圍
