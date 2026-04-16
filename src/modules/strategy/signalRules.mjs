@@ -313,6 +313,20 @@ export function validateStrategyConfig(config) {
       config.macroSentiment.bearishCooldownMultiplier,
       "macroSentiment.bearishCooldownMultiplier",
     );
+    // vixOverrideTrigger / vixAbsoluteOverride：選填，向後相容（v2.5+ 新增）
+    // 若存在則必須是合法 number，缺少時由 resolveVixOverride() 視為停用
+    if (config.macroSentiment.vixOverrideTrigger !== undefined) {
+      assertNumber(
+        config.macroSentiment.vixOverrideTrigger,
+        "macroSentiment.vixOverrideTrigger",
+      );
+    }
+    if (config.macroSentiment.vixAbsoluteOverride !== undefined) {
+      assertNumber(
+        config.macroSentiment.vixAbsoluteOverride,
+        "macroSentiment.vixAbsoluteOverride",
+      );
+    }
   }
 
   return true;
