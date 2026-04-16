@@ -89,6 +89,51 @@
 
 ---
 
+## ✅【P1 已完成】VIX 情緒短路機制
+
+> **Commit（節一 Strategy.json 新增參數）:** `feat(config): Strategy.json v2.5 — 新增 macroSentiment.vixOverrideTrigger / vixAbsoluteOverride`
+> **Commit（節二 validateStrategyConfig 補齊驗證）:** `feat(signal): signalRules validateStrategyConfig 補齊 vixOverrideTrigger / vixAbsoluteOverride 驗證`
+> **Commit（節三 resolveVixOverride 函式）:** `feat(strategy): strategyEngine 新增 resolveVixOverride() 函式`
+> **Commit（節四 macroSentiment 整合）:** `feat(strategy): strategyEngine buildDecision() macroSentiment 整合 VIX Override 短路邏輯`
+> **Commit（節五 Telegram 通知標示）:** `71c1ca5` — feat(notify): telegramHtmlBuilder 新增 VIX 情緒短路標示（vixOverrideActive）
+> **Commit（節六 文件更新）:** `docs(plans): 更新 preplan_features.md — VIX 情緒短路機制標記為已完成`
+> **完成日期：** 2026-04-16
+
+### 完成摘要
+
+AI 新聞情緒為落後指標，在崩盤底部必定輸出 `BEARISH`，原本 `bearishPenalty`（扣分）與 `bearishCooldownMultiplier`（冷卻延長）同時觸發，導致左側進場最佳時機反而策略癱瘓。本次實作 VIX 情緒短路機制，以 VIX 即時恐慌指數覆蓋 AI 情緒的抑制效果。
+
+### 實作節點總覽
+
+| 節 | 內容 | 涉及檔案 |
+|----|------|---------|
+| 節一 | Strategy.json 新增 `vixOverrideTrigger: 28` / `vixAbsoluteOverride: 35` | `Strategy.json`、`docs/strategy-param-changes.md` |
+| 節二 | `validateStrategyConfig()` 補齊兩欄位驗證 | `signalRules.mjs` |
+| 節三 | 新增 `resolveVixOverride()` 函式 | `strategyEngine.mjs` |
+| 節四 | macroSentiment 段落整合 VIX Override，BEARISH 時先判斷短路 | `strategyEngine.mjs` |
+| 節五 | Telegram 全版與精簡卡新增 `⚡ VIX 情緒短路` 標示 | `telegramHtmlBuilder.mjs` |
+| 節六 | 文件更新，preplan_features.md 狀態更新 | `docs/plans/preplan_features.md` |
+
+### VIX 情緒短路規格
+
+| VIX 狀態 | 行為 |
+|---------|------|
+| VIX < 28 | 正常融合，AI BEARISH 正常扣分與冷卻延長 |
+| VIX >= 28 且 VIX 開始回落（`trend = falling`） | 情緒短路：忽略 bearishPenalty，解除冷卻期延長 |
+| VIX >= 35（絕對值） | 強制情緒短路，無論 VIX 趨勢 |
+
+### 人工驗收測試清單
+
+| 情境 | 預期結果 |
+|------|---------|
+| `vix=40`（絕對值短路） | `overrideActive: true`，bearishPenalty = 0，冷卻延長不觸發，Telegram 出現 `⚡ VIX 情緒短路` |
+| `vix=30, trend=falling`（趨勢短路） | `overrideActive: true`，同上 |
+| `vix=30, trend=rising`（趨勢不符） | `overrideActive: false`，bearishPenalty 正常扣，冷卻延長正常觸發 |
+| `vix=20`（無觸發） | `overrideActive: false`，行為與修改前完全一致 |
+| 舊版資料（缺 `vixOverrideActive` 欄位） | Telegram 靜默略過，不拋錯 |
+
+---
+
 ## 📋 P0 完成狀態總覽
 
 | Commit | 內容 | 狀態 |
@@ -101,55 +146,6 @@
 | `9a268f3` | telegramHtmlBuilder entryGateLevel 通道標示 | ✅ 已完成 |
 | `1302be8` | docs/strategy-param-changes.md 建立（異動說明） | ✅ 已完成 |
 | `103be3d` | 幽靈參數移除：leverage.targetMultiplier + reserve.allocationRatio | ✅ 已完成 |
-
----
-
-## 📌【P1 高優先】VIX 情緒短路機制
-
-### 狀態與目標摘要
-
-- AI 新聞情緒為落後指標，在崩盤底部必定輸出 BEARISH。
-- BEARISH 同時觸發 `bearishPenalty`（扣分）與 `bearishCooldownMultiplier`（冷卻期延長），在恰好是左側加碼最佳時機的底部造成策略癱瘓。
-- 目前無任何機制可在 VIX 極端高位時覆蓋 AI 情緒的抑制效果。
-
-### 動機
-
-生命週期投資法的核心精神是「極端恐慌時應積極進場」，VIX 作為即時恐慌指數是比 AI 新聞情緒更快速、更可靠的極端行情訊號，應賦予其優先覆蓋權。
-
-### 設計規格
-
-| VIX 狀態 | 行為 |
-|---------|------|
-| VIX < 25 | 正常融合，AI BEARISH 正常扣分與冷卻延長 |
-| VIX >= 28 且 VIX 開始回落 | 觸發「情緒短路」：忽略 BEARISH 扣分，解除冷卻期延長 |
-| VIX >= 35（絕對值） | 強制情緒短路，無論 VIX 趨勢 |
-
-### 建議 Strategy.json 新增欄位
-
-```json
-"macroSentiment": {
-  "enabled": true,
-  "bullishBonus": 3,
-  "bearishPenalty": 5,
-  "bearishCooldownMultiplier": 1.5,
-  "vixOverrideTrigger": 28,
-  "vixAbsoluteOverride": 35
-}
-```
-
-### 影響範圍
-
-- `src/modules/strategy/strategyEngine.mjs`（macroSentiment 段落新增 VIX override 邏輯）
-- `Strategy.json`（新增 `vixOverrideTrigger`、`vixAbsoluteOverride`）
-- 日報新增「情緒短路狀態」欄位（若觸發需明確標示）
-
-### 難度
-
-⭐⭐ 中
-
-### 討論狀態
-
-⚪ 待確認
 
 ---
 
@@ -457,14 +453,12 @@ grossLeverage = (0050 市值 + 00675L 市值 × 2) / 帳戶淨值
 
 ---
 
-## 📌【冷卻期與情緒】MacroSentiment 交互與回測驗證（已升級整合 VIX 情緒短路）
+## 📌【冷卻期與情緒】MacroSentiment 交互與回測驗證（已整合 VIX 情緒短路 ✅ 已完成）
 
-### 狀態與目標摘要
+> ⚠️ VIX 情緒短路機制已完成，請參閱上方【P1 已完成】VIX 情緒短路機制條目。
+> 剩餘回測維度（macroSentiment 多模式績效比較）保留為未來 backtest runner 完成後的擴充項目。
 
-- BEARISH 環境下同時存在分數扣分（`bearishPenalty`）與冷卻期延長（`bearishCooldownMultiplier`）。
-- VIX 極端高位時覆蓋 AI 情緒的「情緒短路」機制已另立為【P1 高優先】VIX 情緒短路機制計劃。
-
-### 建議方向（補充回測維度）
+### 建議方向（補充回測維度，未強制）
 
 - 在 `backtest.mjs` 內加入 macroSentiment 維度回測：
   - 比較「有 sentimentScore + 冷卻延長」與「僅 sentimentScore 或僅冷卻延長」三種模式的績效。
@@ -473,19 +467,13 @@ grossLeverage = (0050 市值 + 00675L 市值 × 2) / 帳戶淨值
   - 例如在估值低於某 PB 或 PE 閾值時，關閉冷卻延長效果但保留分數扣分。
   - 或在連續 N 天 BEARISH 卻持續大跌時，強制允許恐慌加碼通道。
 
-### 影響範圍
-
-- `Strategy.json`（調整 `macroSentiment.bearishPenalty`、`bearishCooldownMultiplier` 或新增估值例外參數）
-- `src/modules/strategy/strategyEngine.mjs`
-- `src/test/backtest.mjs`
-
 ### 難度
 
 ⭐⭐⭐ 高
 
 ### 討論狀態
 
-⚪ 待確認
+⚪ 待確認（回測維度部分）
 
 ---
 
