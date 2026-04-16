@@ -55,14 +55,15 @@ grossLeverage = (0050 市值 + 00675L 市值 × 2) / 帳戶淨值
 
 ### 資料來源設計
 
-| 用途 | API | 說明 |
-|------|-----|------|
-| 每日追加 | `TWSE BWIBBU_ALL`（現行） | `fetchMarketValuation()` 計算完後直接 append |
+| 用途     | API                             | 說明                                           |
+| -------- | ------------------------------- | ---------------------------------------------- |
+| 每日追加 | `TWSE BWIBBU_ALL`（現行）       | `fetchMarketValuation()` 計算完後直接 append   |
 | 歷史補齊 | `TWSE BWIBBU_ALL?date=YYYYMMDD` | 逐月取最後一個交易日，沿用相同市值加權計算邏輯 |
 
 ### 快取架構
 
 整合至現有 `archiveManager` 體系，與 `rawMarketData.json` 並排儲存：
+
 ```
 data/
 ├── marketData.json ← 現有（今日快取）
@@ -88,6 +89,7 @@ data/
 ### 兩個獨立流程
 
 **流程一：每日自動追加（平時運作）**
+
 ```
 dailyCheck 執行
 → fetchMarketValuation() 計算當日 PB
@@ -97,6 +99,7 @@ dailyCheck 執行
 ```
 
 **流程二：歷史補齊（首次或缺口修復）**
+
 ```
 pbHistoryProvider.checkAndBackfill(targetDays = 1260)
 → 讀取現有快取，計算目前筆數
@@ -119,13 +122,13 @@ export async function checkAndBackfill(targetDays = 1260) // 啟動時自動補�
 
 ### 工作節次
 
-| 節 | 工作內容 | 涉及檔案 |
-|----|---------|---------|
-| 節一 | `archiveManager.mjs` 新增 `getPbHistory()` / `savePbHistory()` 方法 | `src/modules/data/archiveManager.mjs` |
+| 節   | 工作內容                                                                  | 涉及檔案                                              |
+| ---- | ------------------------------------------------------------------------- | ----------------------------------------------------- |
+| 節一 | `archiveManager.mjs` 新增 `getPbHistory()` / `savePbHistory()` 方法       | `src/modules/data/archiveManager.mjs`                 |
 | 節二 | 新增 `pbHistoryProvider.mjs`，實作 `appendToday()` / `checkAndBackfill()` | `src/modules/providers/pbHistoryProvider.mjs`（新增） |
-| 節三 | `marketData.mjs` 判斷邏輯 E（rawValuation）成功後呼叫 `appendToday()` | `src/modules/providers/marketData.mjs` |
-| 節四 | `dailyCheck.mjs` 啟動時呼叫 `checkAndBackfill()` | `src/dailyCheck.mjs` |
-| 節五 | `pbHistory.json` 加入 `.gitignore` | `.gitignore` |
+| 節三 | `marketData.mjs` 判斷邏輯 E（rawValuation）成功後呼叫 `appendToday()`     | `src/modules/providers/marketData.mjs`                |
+| 節四 | `dailyCheck.mjs` 啟動時呼叫 `checkAndBackfill()`                          | `src/dailyCheck.mjs`                                  |
+| 節五 | `pbHistory.json` 加入 `.gitignore`                                        | `.gitignore`                                          |
 
 ### 影響範圍
 
@@ -149,10 +152,10 @@ export async function checkAndBackfill(targetDays = 1260) // 啟動時自動補�
 
 ### 核心概念
 
-| 問題 | 解法 |
-|------|------|
+| 問題                                               | 解法                                   |
+| -------------------------------------------------- | -------------------------------------- |
 | 固定絕對 PB 門檻無法適應不同市場周期的估值中樞漂移 | 5 年滾動窗口 PR 分位數自動適應市場環境 |
-| 硬切斷點造成邊界條件策略突變（估值懸崖效應） | PR 為連續值，可線性內插實現平滑壓縮 |
+| 硬切斷點造成邊界條件策略突變（估值懸崖效應）       | PR 為連續值，可線性內插實現平滑壓縮    |
 
 **分位數計算（5 年滾動窗口）：**
 
@@ -162,12 +165,12 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 
 ### 防護層規格（4 段）
 
-| PR 區間 | 行為 | 槓桿乘數 |
-|---------|------|---------|
-| PR < 70 | 常態運行 | ×1.0 |
-| 70 ≤ PR < 80 | 輕度壓縮 | ×0.85 |
-| 80 ≤ PR < 90 | 中度壓縮，禁止 00675L 新增 | ×0.65 |
-| PR ≥ 90 | 強制停機，沿用硬停機邏輯 | ×0.0 |
+| PR 區間      | 行為                       | 槓桿乘數 |
+| ------------ | -------------------------- | -------- |
+| PR < 70      | 常態運行                   | ×1.0     |
+| 70 ≤ PR < 80 | 輕度壓縮                   | ×0.85    |
+| 80 ≤ PR < 90 | 中度壓縮，禁止 00675L 新增 | ×0.65    |
+| PR ≥ 90      | 強制停機，沿用硬停機邏輯   | ×0.0     |
 
 ### Fallback 機制（資料不足時）
 
@@ -192,14 +195,14 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 
 ### 工作節次
 
-| 節 | 工作內容 | 涉及檔案 |
-|----|---------|---------|
-| 節一 | `Strategy.json` 新增 `valuationGuard` 區段 | `Strategy.json` |
-| 節二 | `validateStrategyConfig()` 補齊 `valuationGuard` 驗證 | `signalRules.mjs` |
-| 節三 | 新增 `resolveValuationGuard(currentPB, records, config)` 純函式，計算 PR 與命中 tier | `strategyEngine.mjs` |
-| 節四 | `buildDecision()` 整合，套用 `resolveValuationGuard()` 回傳的槓桿乘數 | `strategyEngine.mjs` |
-| 節五 | Telegram 通知新增 PR 分位數標示（例如 `📊 PB PR84 → 中度壓縮 ×0.65`） | `telegramHtmlBuilder.mjs` |
-| 節六 | 文件更新 | `docs/plans/preplan_features.md` |
+| 節   | 工作內容                                                                                | 涉及檔案                                                                |
+| ---- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 節一 | `Strategy.json` 新增 `valuationGuard` 區段                                              | `Strategy.json`                                                         |
+| 節二 | `validateStrategyConfig()` 補齊 `valuationGuard` 驗證                                   | `signalRules.mjs`                                                       |
+| 節三 | 新增 `resolveValuationGuard(currentPB, records, config)` 純函式，計算 PR 與命中 tier    | `strategyEngine.mjs`                                                    |
+| 節四 | `buildDecision()` 整合，套用 `resolveValuationGuard()` 回傳的槓桿乘數                   | `strategyEngine.mjs`                                                    |
+| 節五 | Telegram 通知新增 PR 分位數標示（例如 `📊 PB PR84 → 中度壓縮 ×0.65`）                   | `telegramHtmlBuilder.mjs`                                               |
+| 節六 | 文件更新：`preplan_features.md` 狀態標記為已完成，條目搬移至 `finishedplan_features.md` | `docs/plans/preplan_features.md`、`docs/plans/finishedplan_features.md` |
 
 ### 影響範圍
 
@@ -208,6 +211,7 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 - `src/modules/strategy/strategyEngine.mjs`
 - `src/modules/notifications/templates/telegramHtmlBuilder.mjs`
 - `docs/plans/preplan_features.md`
+- `docs/plans/finishedplan_features.md`
 
 ---
 
@@ -231,12 +235,11 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 prMomentum = PR_today − PR_N日前（預設 N=20）
 ```
 
-
-| prMomentum | 含義 | 額外調整 |
-|-----------|------|---------|
-| > +10 | 估值快速惡化 | 在計畫 B 基礎上額外再 ×0.85（疊加壓縮） |
-| −10 ~ +10 | 橫盤穩定 | 無調整 |
-| < −10 | 估值明顯回落 | 解除計畫 B 的一個壓縮段（PR 降一 tier） |
+| prMomentum | 含義         | 額外調整                                |
+| ---------- | ------------ | --------------------------------------- |
+| > +10      | 估值快速惡化 | 在計畫 B 基礎上額外再 ×0.85（疊加壓縮） |
+| −10 ~ +10  | 橫盤穩定     | 無調整                                  |
+| < −10      | 估值明顯回落 | 解除計畫 B 的一個壓縮段（PR 降一 tier） |
 
 ### Strategy.json 新增欄位
 
@@ -260,17 +263,16 @@ prMomentum = PR_today − PR_N日前（預設 N=20）
 finalMultiplier = guardMultiplier × momentumAdjustment
 ```
 
-
 ### 工作節次
 
-| 節 | 工作內容 | 涉及檔案 |
-|----|---------|---------|
-| 節一 | `Strategy.json` 新增 `valuationMomentum` 區段 | `Strategy.json` |
-| 節二 | `validateStrategyConfig()` 補齊 `valuationMomentum` 驗證 | `signalRules.mjs` |
-| 節三 | 新增 `resolveValuationMomentum(records, config)` 函式，計算 prMomentum 與調整因子 | `strategyEngine.mjs` |
-| 節四 | `buildDecision()` 整合，在計畫 B 乘數基礎上疊加動量調整 | `strategyEngine.mjs` |
-| 節五 | Telegram 通知新增動量標示（例如 `📈 估值動量 +13 → 額外壓縮`，穩定時靜默略過） | `telegramHtmlBuilder.mjs` |
-| 節六 | 文件更新 | `docs/plans/preplan_features.md` |
+| 節   | 工作內容                                                                                | 涉及檔案                                                                |
+| ---- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 節一 | `Strategy.json` 新增 `valuationMomentum` 區段                                           | `Strategy.json`                                                         |
+| 節二 | `validateStrategyConfig()` 補齊 `valuationMomentum` 驗證                                | `signalRules.mjs`                                                       |
+| 節三 | 新增 `resolveValuationMomentum(records, config)` 函式，計算 prMomentum 與調整因子       | `strategyEngine.mjs`                                                    |
+| 節四 | `buildDecision()` 整合，在計畫 B 乘數基礎上疊加動量調整                                 | `strategyEngine.mjs`                                                    |
+| 節五 | Telegram 通知新增動量標示（例如 `📈 估值動量 +13 → 額外壓縮`，穩定時靜默略過）          | `telegramHtmlBuilder.mjs`                                               |
+| 節六 | 文件更新：`preplan_features.md` 狀態標記為已完成，條目搬移至 `finishedplan_features.md` | `docs/plans/preplan_features.md`、`docs/plans/finishedplan_features.md` |
 
 ### 影響範圍
 
@@ -279,6 +281,7 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 - `src/modules/strategy/strategyEngine.mjs`
 - `src/modules/notifications/templates/telegramHtmlBuilder.mjs`
 - `docs/plans/preplan_features.md`
+- `docs/plans/finishedplan_features.md`
 
 ### 前置依賴
 
@@ -287,11 +290,11 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ## 📋 估值動態防護計畫總覽（A / B / C）
 
-| 計畫 | 名稱 | 前置依賴 | 狀態 |
-|------|------|---------|------|
-| 計畫 A | 歷史 PB 時間序列快取（pbHistoryProvider） | 無 | ⚪ 待實作 |
-| 計畫 B | PB 歷史分位數動態防護層（valuationGuard） | 計畫 A | ⚪ 待實作 |
-| 計畫 C | PB 分位數趨勢感知層（valuationMomentum） | 計畫 A + B | ⚪ 待實作 |
+| 計畫   | 名稱                                      | 前置依賴   | 狀態      |
+| ------ | ----------------------------------------- | ---------- | --------- |
+| 計畫 A | 歷史 PB 時間序列快取（pbHistoryProvider） | 無         | ⚪ 待實作 |
+| 計畫 B | PB 歷史分位數動態防護層（valuationGuard） | 計畫 A     | ⚪ 待實作 |
+| 計畫 C | PB 分位數趨勢感知層（valuationMomentum）  | 計畫 A + B | ⚪ 待實作 |
 
 ---
 
@@ -299,49 +302,6 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 > ⚠️ 此計畫已由【計畫 B】PB 歷史分位數動態防護層（valuationGuard）全面取代，不再實作。
 > 原設計的硬切斷門檻（PB 1.8 / 2.0 / 2.2）已由 PR 分位數（PR70/80/90）動態取代。
-
-### 狀態與目標摘要
-
-- 現行系統 PB >= 2.2 才觸發硬停機，PB 1.8–2.2 的危險過渡區內系統仍可全力加碼。
-- 存在「估值懸崖效應」：PB 2.19 與 2.20 的行為天壤之別，但風險實質相近。
-
-### 動機
-
-高估值環境下應漸進式壓縮槓桿上限，而非在臨界值突然斷崖。線性衰減更符合風險管理直覺，且能避免邊界條件的策略突變。
-
-### 設計規格（4 段線性衰減）
-
-| PB 區間 | 最大允許槓桿 | 行為 |
-|--------|------------|------|
-| PB < 1.8 | 1.8x（完整） | 無限制 |
-| 1.8 ≤ PB < 2.0 | 壓縮至 1.5x | 降低高分檔位上限 |
-| 2.0 ≤ PB < 2.2 | 鎖定 1.1–1.2x | 禁止 00675L 新增 |
-| PB ≥ 2.2 | 強制清空 00675L | 現行硬停機維持 |
-
-### 建議 Strategy.json 新增欄位
-
-```json
-"valuationTiers": [
-  { "maxPB": 1.8, "maxLeverageMultiplier": 1.0, "note": "正常操作" },
-  { "maxPB": 2.0, "maxLeverageMultiplier": 0.85, "note": "輕度壓縮" },
-  { "maxPB": 2.2, "maxLeverageMultiplier": 0.65, "note": "強制降速，禁止00675L新增" },
-  { "maxPB": 999, "maxLeverageMultiplier": 0.0, "note": "泡沫停機" }
-]
-```
-
-### 影響範圍
-
-- `Strategy.json`（新增 `valuationTiers` 區段）
-- `src/modules/strategy/strategyEngine.mjs`
-- `src/modules/strategy/riskManagement.mjs`
-
-### 難度
-
-⭐⭐⭐ 高
-
-### 討論狀態
-
-⚪ 待確認
 
 ---
 

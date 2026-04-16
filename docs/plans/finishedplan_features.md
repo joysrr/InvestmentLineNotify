@@ -1,4 +1,4 @@
-# Finished-plan Features (待評估與實作功能池)
+# Finished-plan Features (已完成功能歸檔)
 
 ---
 
