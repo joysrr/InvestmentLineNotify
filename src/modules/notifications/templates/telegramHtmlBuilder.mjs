@@ -172,6 +172,90 @@ function grossLeverageTag(result) {
   return "";
 }
 
+/**
+ * valuationGuard 估值守衛標示列
+ *
+ * 顯示規則：
+ *   latch_triggered → 🚨 強顯示（首次觸發清算）
+ *   latch_active    → 🔒 強顯示（持續鎖定中，附解鎖未達原因）
+ *   guardActive     → 📊 中度顯示（tier 壓縮生效，顯示 PR 分位數與乘數）
+ *   未觸發           → 靜默略過，回傳空字串
+ *
+ * @param {Object} result - evaluateInvestmentSignal 回傳結果
+ * @returns {string} 格式化後的標示列，或空字串
+ */
+function valuationGuardTag(result) {
+  const status = result?.valuationGuardStatus;
+  const vgResult = result?.valuationGuardResult;
+
+  // latch 首次觸發
+  if (status === "latch_triggered") {
+    const pr = vgResult?.currentPR ?? "N/A";
+    return `\n🚨 <b>估值守衛：清算觸發</b> — PB PR<code>${pr}</code> 超過硬鎖門檻，立即清倉 00675L`;
+  }
+
+  // latch 持續鎖定
+  if (status === "latch_active") {
+    const pr = vgResult?.currentPR ?? "N/A";
+    const triggeredAt = result?.latchState?.latchTriggeredAt ?? null;
+    const dateHint = triggeredAt ? `（觸發日 ${escapeHTML(triggeredAt)}）` : "";
+    return `\n🔒 <b>估值守衛：清算鎖定中</b> — PB PR<code>${pr}</code> ${dateHint}，解鎖條件未達`;
+  }
+
+  // tier 壓縮生效（未觸發 latch）
+  if (vgResult?.guardActive) {
+    const pr = vgResult.currentPR ?? "N/A";
+    const multiplier = vgResult.multiplier ?? 1.0;
+    const tierLabel = escapeHTML(
+      vgResult.hitTier?.label ?? `PR${vgResult.hitTier?.prThreshold ?? ""}`,
+    );
+    return `\n📊 <b>估值守衛</b>：PB PR<code>${pr}</code> — ${tierLabel}（槓桿壓縮 ×<code>${multiplier}</code>）`;
+  }
+
+  return "";
+}
+
+/**
+ * 當前生效優先層標示（Priority 層級徽章）
+ *
+ * 將 result.maintenanceLayer / grossLeverageStatus / valuationGuardStatus
+ * 組合為單行「生效層」說明，供訊息頂部快速識別系統當前路由層級。
+ * 常態運行（normal + 無特殊狀態）時靜默略過。
+ *
+ * @param {Object} result - evaluateInvestmentSignal 回傳結果
+ * @returns {string} 格式化後的單行標示，或空字串
+ */
+function activePriorityTag(result) {
+  const layer = result?.maintenanceLayer;
+  const glStatus = result?.grossLeverageStatus;
+  const vgStatus = result?.valuationGuardStatus;
+
+  // Priority 1：維持率危機層
+  if (layer === "critical")
+    return `\n🏷 <b>生效層：Priority 1</b> — 維持率斷頭危機`;
+  if (layer === "frozen")
+    return `\n🏷 <b>生效層：Priority 1</b> — 維持率高危凍結`;
+  if (layer === "protect")
+    return `\n🏷 <b>生效層：Priority 1</b> — 維持率預備金防禦`;
+
+  // Priority 2：Gross Leverage
+  if (glStatus === "hardcap_breach")
+    return `\n🏷 <b>生效層：Priority 2</b> — Gross Leverage 危機紅線`;
+  if (glStatus === "ceiling_breach")
+    return `\n🏷 <b>生效層：Priority 2</b> — Gross Leverage 主動上限`;
+
+  // Priority 3：valuationGuard
+  if (vgStatus === "latch_triggered")
+    return `\n🏷 <b>生效層：Priority 3</b> — 估值守衛清算觸發`;
+  if (vgStatus === "latch_active")
+    return `\n🏷 <b>生效層：Priority 3</b> — 估值守衛清算鎖定`;
+  if (result?.valuationGuardResult?.guardActive)
+    return `\n🏷 <b>生效層：Priority 3</b> — 估值守衛 tier 壓縮`;
+
+  // 常態運行：靜默
+  return "";
+}
+
 // ── 主程式：完整版訊息（原不動） ───────────────────────────────
 
 export function buildTelegramMessages({
@@ -392,6 +476,10 @@ export function buildTelegramMessages({
   // ── Gross Leverage 曝險標示 ──
   const glTag = grossLeverageTag(result);
 
+  // ── 估值守衛標示 & 生效優先層標示 ──
+  const vGuardTag = valuationGuardTag(result);
+  const priorityTag = activePriorityTag(result);
+
   const msg1Text =
     `<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\n\n` +
     `<b>${timeLabel}</b>${SEP}\n` +
@@ -400,6 +488,8 @@ export function buildTelegramMessages({
     `${gateTag}` +
     `${vixTag}\n` +
     `${glTag}\n` +
+    `${vGuardTag}\n` +
+    `${priorityTag}\n` +
     `<blockquote expandable>${escapeHTML(result.suggestion || "無進階說明")}</blockquote>\n\n` +
     `🌐 <b>市場概況</b>${SEP}\n` +
     `🇺🇸 美股 VIX  <code>${escapeHTML(usRisk?.vix || "N/A")}</code>  ${escapeHTML(usRisk?.riskIcon || "")}\n` +
@@ -674,6 +764,16 @@ export function buildCompactMessage(
         ? `\n⚠️ Gross Leverage ${Number.isFinite(result.grossLeverage) ? result.grossLeverage.toFixed(2) + "x" : "--"} · 超越主動上限`
         : "";
 
+  // ── 估值守衛精簡提示（僅警示層才顯示） ──
+  const vGuardHint =
+    result?.valuationGuardStatus === "latch_triggered"
+      ? `\n🚨 估值守衛 · 清算觸發 PR${result?.valuationGuardResult?.currentPR ?? "N/A"}`
+      : result?.valuationGuardStatus === "latch_active"
+        ? `\n🔒 估值守衛 · 清算鎖定中 PR${result?.valuationGuardResult?.currentPR ?? "N/A"}`
+        : result?.valuationGuardResult?.guardActive
+          ? `\n📊 估值守衛 · PR${result?.valuationGuardResult?.currentPR ?? "N/A"} 壓縮 ×${result?.valuationGuardResult?.multiplier ?? 1.0}`
+          : "";
+
   // ── entryGate 通道標示（Compact） ──
   const gateTagCompact = entryGateTag(result);
 
@@ -691,7 +791,8 @@ export function buildCompactMessage(
     `${gateTagCompact}\n` +
     `${cooldownHint}` +
     `${vixOverrideHint}` +
-    `${glHint}${SEP}` +
+    `${glHint}` +
+    `${vGuardHint}${SEP}` +
     `${quoteText}\n` +
     `📲 詳細指標與 AI 建議請到 Mini App 查看`;
 
