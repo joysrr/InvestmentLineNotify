@@ -14,9 +14,9 @@
 
 /**
  * @typedef {Object} GrossLeverageConfig
- * @property {number} grossLeverageCeiling         - 主動擴張上限倍數（例如 2.5）
- * @property {number} grossLeverageHardCap          - 被動危機紅線倍數（例如 3.0）
- * @property {number} grossLeverageRecoveryTarget   - 強制平倉後的著陸目標倍數（例如 2.0）
+ * @property {number} ceiling         - 主動擴張上限倍數（例如 2.5）
+ * @property {number} hardCap          - 被動危機紅線倍數（例如 3.0）
+ * @property {number} recoveryTarget   - 強制平倉後的著陸目標倍數（例如 2.0）
  */
 
 /**
@@ -48,17 +48,18 @@ const LEVERAGE_ETF_MULTIPLIER = 2;
  */
 export function computeGrossLeverage(input, config) {
   const { etf0050Value, etf675LValue, netAssetValue } = input;
-  const { grossLeverageCeiling, grossLeverageHardCap, grossLeverageRecoveryTarget } = config;
+  const { ceiling, hardCap, recoveryTarget } = config;
 
   // 防禦：淨值不可為零或負數，避免除以零或產生無意義結果
   if (!netAssetValue || netAssetValue <= 0) {
     return {
       grossLeverage: null,
-      status: 'error',
+      status: "error",
       blockNewLeverage: true,
       forceDeleverage: false,
-      recoveryTarget: grossLeverageRecoveryTarget,
-      message: '⚠️ 帳戶淨值異常（≤0），Gross Leverage 計算跳過，保守起見封鎖加碼',
+      recoveryTarget: recoveryTarget,
+      message:
+        "⚠️ 帳戶淨值異常（≤0），Gross Leverage 計算跳過，保守起見封鎖加碼",
     };
   }
 
@@ -66,36 +67,36 @@ export function computeGrossLeverage(input, config) {
     (etf0050Value + etf675LValue * LEVERAGE_ETF_MULTIPLIER) / netAssetValue;
 
   // 被動危機紅線：hardCap 觸發優先級高於 ceiling
-  if (grossLeverage > grossLeverageHardCap) {
+  if (grossLeverage > hardCap) {
     return {
       grossLeverage,
-      status: 'hardcap_breach',
+      status: "hardcap_breach",
       blockNewLeverage: true,
       forceDeleverage: true,
-      recoveryTarget: grossLeverageRecoveryTarget,
-      message: `🚨 Gross Leverage ${grossLeverage.toFixed(2)}x 超越危機紅線 ${grossLeverageHardCap}x，強制降槓至 ${grossLeverageRecoveryTarget}x`,
+      recoveryTarget: recoveryTarget,
+      message: `🚨 Gross Leverage ${grossLeverage.toFixed(2)}x 超越危機紅線 ${hardCap}x，強制降槓至 ${recoveryTarget}x`,
     };
   }
 
   // 主動擴張上限：ceiling 觸發，禁止加碼但不強制砍倉
-  if (grossLeverage > grossLeverageCeiling) {
+  if (grossLeverage > ceiling) {
     return {
       grossLeverage,
-      status: 'ceiling_breach',
+      status: "ceiling_breach",
       blockNewLeverage: true,
       forceDeleverage: false,
-      recoveryTarget: grossLeverageRecoveryTarget,
-      message: `⚠️ Gross Leverage ${grossLeverage.toFixed(2)}x 超越主動上限 ${grossLeverageCeiling}x，一票否決新增槓桿`,
+      recoveryTarget: recoveryTarget,
+      message: `⚠️ Gross Leverage ${grossLeverage.toFixed(2)}x 超越主動上限 ${ceiling}x，一票否決新增槓桿`,
     };
   }
 
   // 正常範圍
   return {
     grossLeverage,
-    status: 'normal',
+    status: "normal",
     blockNewLeverage: false,
     forceDeleverage: false,
-    recoveryTarget: grossLeverageRecoveryTarget,
+    recoveryTarget: recoveryTarget,
     message: `✅ Gross Leverage ${grossLeverage.toFixed(2)}x（正常範圍）`,
   };
 }

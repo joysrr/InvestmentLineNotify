@@ -196,9 +196,9 @@ export function validateStrategyConfig(config) {
 
   // ── grossLeverage 驗證 ──────────────────────────────────────────
   /**
-   * grossLeverageCeiling {number}        主動擴張上限倍數（例如 2.5）
-   * grossLeverageHardCap {number}        被動危機紅線倍數（例如 3.0）
-   * grossLeverageRecoveryTarget {number} 強制降槓著陸目標倍數（例如 2.0）
+   * ceiling {number}        主動擴張上限倍數（例如 2.5）
+   * hardCap {number}        被動危機紅線倍數（例如 3.0）
+   * recoveryTarget {number} 強制降槓著陸目標倍數（例如 2.0）
    *
    * 大小關係必須滿足：recoveryTarget < ceiling < hardCap
    */
@@ -207,41 +207,32 @@ export function validateStrategyConfig(config) {
   if (!gl || typeof gl !== "object") {
     errors.push("grossLeverage：區段缺失或格式錯誤");
   } else {
-    const {
-      grossLeverageCeiling,
-      grossLeverageHardCap,
-      grossLeverageRecoveryTarget,
-    } = gl;
+    const { ceiling, hardCap, recoveryTarget } = gl;
 
-    if (typeof grossLeverageCeiling !== "number" || grossLeverageCeiling <= 0) {
-      errors.push("grossLeverage.grossLeverageCeiling：必須為正數（例如 2.5）");
+    if (typeof ceiling !== "number" || ceiling <= 0) {
+      errors.push("grossLeverage.ceiling：必須為正數（例如 2.5）");
     }
-    if (typeof grossLeverageHardCap !== "number" || grossLeverageHardCap <= 0) {
-      errors.push("grossLeverage.grossLeverageHardCap：必須為正數（例如 3.0）");
+    if (typeof hardCap !== "number" || hardCap <= 0) {
+      errors.push("grossLeverage.hardCap：必須為正數（例如 3.0）");
     }
-    if (
-      typeof grossLeverageRecoveryTarget !== "number" ||
-      grossLeverageRecoveryTarget <= 0
-    ) {
-      errors.push(
-        "grossLeverage.grossLeverageRecoveryTarget：必須為正數（例如 2.0）",
-      );
+    if (typeof recoveryTarget !== "number" || recoveryTarget <= 0) {
+      errors.push("grossLeverage.recoveryTarget：必須為正數（例如 2.0）");
     }
 
     // 大小關係強制檢查：recoveryTarget < ceiling < hardCap
     if (
-      typeof grossLeverageCeiling === "number" &&
-      typeof grossLeverageHardCap === "number" &&
-      typeof grossLeverageRecoveryTarget === "number"
+      typeof ceiling === "number" &&
+      typeof hardCap === "number" &&
+      typeof recoveryTarget === "number"
     ) {
-      if (grossLeverageRecoveryTarget >= grossLeverageCeiling) {
+      if (recoveryTarget >= ceiling) {
         errors.push(
-          `grossLeverage：recoveryTarget(${grossLeverageRecoveryTarget}) 必須小於 ceiling(${grossLeverageCeiling})`,
+          `grossLeverage：recoveryTarget(${recoveryTarget}) 必須小於 ceiling(${ceiling})`,
         );
       }
-      if (grossLeverageCeiling >= grossLeverageHardCap) {
+      if (ceiling >= hardCap) {
         errors.push(
-          `grossLeverage：ceiling(${grossLeverageCeiling}) 必須小於 hardCap(${grossLeverageHardCap})`,
+          `grossLeverage：ceiling(${ceiling}) 必須小於 hardCap(${hardCap})`,
         );
       }
     }
