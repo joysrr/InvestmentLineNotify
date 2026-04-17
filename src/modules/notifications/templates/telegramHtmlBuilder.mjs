@@ -115,13 +115,13 @@ function entryGateTag(result) {
   // entryGate 未啟用或無資料時不顯示
   if (level == null || level < 0) return "";
 
-  const tierEmojis = ['🌱', '🟡', '🟠', '🔴'];
-  const emoji = tierEmojis[level] ?? '⚙️';
+  const tierEmojis = ["🌱", "🟡", "🟠", "🔴"];
+  const emoji = tierEmojis[level] ?? "⚙️";
 
   if (blocked) {
-    return `\n🚪 進場通道：${emoji} <b>Tier ${level} — ${escapeHTML(label ?? '')}（封鎖中）</b>`;
+    return `\n🚪 進場通道：${emoji} <b>Tier ${level} — ${escapeHTML(label ?? "")}（封鎖中）</b>`;
   }
-  return `\n🚪 進場通道：${emoji} <b>Tier ${level} — ${escapeHTML(label ?? '')}</b>`;
+  return `\n🚪 進場通道：${emoji} <b>Tier ${level} — ${escapeHTML(label ?? "")}</b>`;
 }
 
 /**
@@ -139,6 +139,37 @@ function vixOverrideTag(result) {
   if (!macro?.vixOverrideActive) return "";
   const reason = escapeHTML(macro.vixOverrideReason ?? "");
   return `\n⚡ <b>VIX 情緒短路</b> — AI BEARISH 已覆蓋（${reason}），扣分與冷卻抑制已解除`;
+}
+
+/**
+ * Gross Leverage 綜合曝險倍數標示列
+ *
+ * status 對應三種顯示層級：
+ *   hardcap_breach → 🚨 危機紅線（強顯示）
+ *   ceiling_breach → ⚠️ 主動上限（警示顯示）
+ *   normal         → 🟢 正常（靜默略過，不輸出）
+ *   null / 無資料  → 不輸出
+ *
+ * @param {Object} result - evaluateInvestmentSignal 回傳結果
+ * @returns {string} 格式化後的單行標示，或空字串
+ */
+function grossLeverageTag(result) {
+  const gl = result?.grossLeverage;
+  const status = result?.grossLeverageStatus;
+
+  if (!Number.isFinite(gl) || !status || status === "normal") return "";
+
+  const glStr = gl.toFixed(2);
+
+  if (status === "hardcap_breach") {
+    return `\n🚨 <b>Gross Leverage 危機紅線</b>：<code>${glStr}x</code> — 超越強制砍倉上限`;
+  }
+
+  if (status === "ceiling_breach") {
+    return `\n⚠️ <b>Gross Leverage 主動上限</b>：<code>${glStr}x</code> — 禁止新增槓桿`;
+  }
+
+  return "";
 }
 
 // ── 主程式：完整版訊息（原不動） ───────────────────────────────
@@ -358,6 +389,9 @@ export function buildTelegramMessages({
   // ── VIX 情緒短路標示 ──
   const vixTag = vixOverrideTag(result);
 
+  // ── Gross Leverage 曝險標示 ──
+  const glTag = grossLeverageTag(result);
+
   const msg1Text =
     `<blockquote><code>資料產出時間：${escapeHTML(timeTag)}</code></blockquote>\n\n` +
     `<b>${timeLabel}</b>${SEP}\n` +
@@ -365,6 +399,7 @@ export function buildTelegramMessages({
     `📌 行動：<b>${escapeHTML(result.target || "觀望")}</b> ─ <i>${escapeHTML(result.targetSuggestionShort || "無特殊操作")}</i>` +
     `${gateTag}` +
     `${vixTag}\n` +
+    `${glTag}\n` +
     `<blockquote expandable>${escapeHTML(result.suggestion || "無進階說明")}</blockquote>\n\n` +
     `🌐 <b>市場概況</b>${SEP}\n` +
     `🇺🇸 美股 VIX  <code>${escapeHTML(usRisk?.vix || "N/A")}</code>  ${escapeHTML(usRisk?.riskIcon || "")}\n` +
@@ -453,6 +488,7 @@ export function buildTelegramMessages({
     `💼 帳戶淨值    <tg-spoiler>$${Math.floor(currentAsset).toLocaleString("en-US")}</tg-spoiler>\n` +
     `🏗 總資產(含貸) <tg-spoiler>$${Math.floor(grossAsset).toLocaleString("en-US")}</tg-spoiler>\n` +
     `${levInfo.icon} 實際槓桿    <tg-spoiler>${Number.isFinite(levValue) ? levValue.toFixed(2) + " 倍" : "--"}  <b>${levInfo.label}</b></tg-spoiler>\n` +
+    `📊 綜合曝險   <tg-spoiler>${Number.isFinite(result.grossLeverage) ? result.grossLeverage.toFixed(2) + "x" : "--"}  <b>${result.grossLeverageStatus === "hardcap_breach" ? "🚨危機" : result.grossLeverageStatus === "ceiling_breach" ? "⚠️上限" : "正常"}</b></tg-spoiler>\n` +
     `${mmInfo.icon} 維持率      <tg-spoiler>${hasLoan && Number.isFinite(mm) ? mm.toFixed(0) + "%" : "未借款"}  <b>${mmInfo.label}</b></tg-spoiler>\n` +
     `${z2Safe ? "✅" : "⚠️"} 00675L佔比  <tg-spoiler>${Number.isFinite(z2Ratio) ? z2Ratio.toFixed(1) + "%" : "N/A"}</tg-spoiler>  <i>上限 ${z2TargetPct.toFixed(0)}%</i>\n` +
     `💵 現金儲備    <tg-spoiler>$${cashReserveStr}</tg-spoiler>\n` +
@@ -600,7 +636,15 @@ export function buildCompactMessage(
   // ── 維持率 ──
   const mm = Number(result.maintenanceMargin);
   const hasLoan = Number(result.totalLoan || 0) > 0;
-  const mmEmoji = !hasLoan ? "▫️" : mm >= 160 ? "✅" : mm >= 145 ? "🟡" : mm >= 135 ? "🟠" : "🔴";
+  const mmEmoji = !hasLoan
+    ? "▫️"
+    : mm >= 160
+      ? "✅"
+      : mm >= 145
+        ? "🟡"
+        : mm >= 135
+          ? "🟠"
+          : "🔴";
   const mmStr = hasLoan && Number.isFinite(mm) ? `${mm.toFixed(0)}%` : "未借款";
 
   // ── 轉弱 / 賣出訊號 ──
@@ -622,6 +666,14 @@ export function buildCompactMessage(
     ? `\n⚡ VIX 情緒短路啟動 · AI BEARISH 抑制已解除`
     : "";
 
+  // ── Gross Leverage 提示（精簡卡版，僅警示層才顯示） ──
+  const glHint =
+    result.grossLeverageStatus === "hardcap_breach"
+      ? `\n🚨 Gross Leverage ${Number.isFinite(result.grossLeverage) ? result.grossLeverage.toFixed(2) + "x" : "--"} · 超越危機紅線`
+      : result.grossLeverageStatus === "ceiling_breach"
+        ? `\n⚠️ Gross Leverage ${Number.isFinite(result.grossLeverage) ? result.grossLeverage.toFixed(2) + "x" : "--"} · 超越主動上限`
+        : "";
+
   // ── entryGate 通道標示（Compact） ──
   const gateTagCompact = entryGateTag(result);
 
@@ -638,8 +690,9 @@ export function buildCompactMessage(
     `📌 ${target} · <i>${targetShort}</i>` +
     `${gateTagCompact}\n` +
     `${cooldownHint}` +
-    `${vixOverrideHint}${SEP}` +
-    `${quoteText}\n\n` +
+    `${vixOverrideHint}` +
+    `${glHint}${SEP}` +
+    `${quoteText}\n` +
     `📲 詳細指標與 AI 建議請到 Mini App 查看`;
 
   return [
