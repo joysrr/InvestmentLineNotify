@@ -258,3 +258,84 @@ export function calcSMA(prices, period) {
   }
   return result;
 }
+/**
+ * MA20 — 20 日簡單移動平均線。
+ * 回傳與輸入等長的陣列，前 19 筆為 NaN。
+ *
+ * @param {number[]} closes - 收盤價序列，由舊到新排列
+ * @returns {number[]}
+ */
+export function calcMA20(closes) {
+  return calcSMA(closes, 20);
+}
+
+/**
+ * MA60 — 60 日簡單移動平均線。
+ * 回傳與輸入等長的陣列，前 59 筆為 NaN。
+ *
+ * @param {number[]} closes - 收盤價序列，由舊到新排列
+ * @returns {number[]}
+ */
+export function calcMA60(closes) {
+  return calcSMA(closes, 60);
+}
+
+/**
+ * ATR（Average True Range）— 平均真實波幅。
+ * True Range = max(high-low, |high-prevClose|, |low-prevClose|)
+ * 回傳與輸入等長的陣列，第 0 筆及前 (period-1) 筆為 NaN。
+ *
+ * @param {number[]} highs   - 最高價序列，由舊到新排列
+ * @param {number[]} lows    - 最低價序列，由舊到新排列
+ * @param {number[]} closes  - 收盤價序列，由舊到新排列
+ * @param {number}   period  - 計算週期（預設 14）
+ * @returns {number[]}
+ */
+export function calcATR(highs, lows, closes, period = 14) {
+  const len = closes.length;
+  if (len < 2 || highs.length !== len || lows.length !== len) return [];
+
+  const trArr = new Array(len).fill(NaN);
+  for (let i = 1; i < len; i++) {
+    const hl  = highs[i]  - lows[i];
+    const hpc = Math.abs(highs[i]  - closes[i - 1]);
+    const lpc = Math.abs(lows[i]   - closes[i - 1]);
+    trArr[i]  = Math.max(hl, hpc, lpc);
+  }
+
+  const atrArr = new Array(len).fill(NaN);
+  // 第一個 ATR = 前 period 筆 TR 的簡單平均
+  if (len <= period) return atrArr;
+  let sum = 0;
+  for (let i = 1; i <= period; i++) sum += trArr[i];
+  atrArr[period] = sum / period;
+  // 之後採 Wilder 平滑（與 TradingView / technicalindicators 一致）
+  for (let i = period + 1; i < len; i++) {
+    atrArr[i] = (atrArr[i - 1] * (period - 1) + trArr[i]) / period;
+  }
+  return atrArr;
+}
+
+/**
+ * HHV — 最近 N 根的最高高價（Highest High Value）。
+ * 常用於計算移動停利的參考高點（前波高點）。
+ * 回傳與輸入等長的陣列，前 (period-1) 筆為 NaN。
+ *
+ * @param {number[]} highs  - 最高價序列，由舊到新排列
+ * @param {number}   period - 回顧週期（必須為正整數）
+ * @returns {number[]}
+ */
+export function calcHHV(highs, period) {
+  if (!Array.isArray(highs) || period < 1 || !Number.isInteger(period)) {
+    return [];
+  }
+  const result = new Array(highs.length).fill(NaN);
+  for (let i = period - 1; i < highs.length; i++) {
+    let max = -Infinity;
+    for (let j = i - period + 1; j <= i; j++) {
+      if (Number.isFinite(highs[j]) && highs[j] > max) max = highs[j];
+    }
+    result[i] = max === -Infinity ? NaN : max;
+  }
+  return result;
+}
