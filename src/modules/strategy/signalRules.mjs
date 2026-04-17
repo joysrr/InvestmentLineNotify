@@ -63,7 +63,9 @@ async function fetchStrategyRemote() {
 
   const text = await res.text();
   if (!res.ok) {
-    throw new Error(`[Strategy] 遠端 HTTP ${res.status}: ${text.slice(0, 200)}`);
+    throw new Error(
+      `[Strategy] 遠端 HTTP ${res.status}: ${text.slice(0, 200)}`,
+    );
   }
 
   let json;
@@ -121,14 +123,18 @@ export async function fetchStrategyConfig() {
   if (!json) {
     const localCache = await archiveManager.getStrategyCache();
     if (localCache) {
-      console.warn(`⚠️ [Strategy] 使用 archiveManager 備份 v${localCache.version}`);
+      console.warn(
+        `⚠️ [Strategy] 使用 archiveManager 備份 v${localCache.version}`,
+      );
       json = localCache;
       source = "archive";
     }
   }
 
   if (!json) {
-    throw new Error("[Strategy] 所有來源均無法載入 Strategy.json，請檢查本地檔案或 STRATEGY_URL 環境變數");
+    throw new Error(
+      "[Strategy] 所有來源均無法載入 Strategy.json，請檢查本地檔案或 STRATEGY_URL 環境變數",
+    );
   }
 
   _cache = { url: source, strategy: json, loadedAt: new Date() };
@@ -187,6 +193,60 @@ export function validateStrategyConfig(config) {
   );
   // frozenZone：新增必填欄位（v2.4+）
   assertNumber(config.maintenance.frozenZone, "maintenance.frozenZone");
+
+  // ── grossLeverage 驗證 ──────────────────────────────────────────
+  /**
+   * grossLeverageCeiling {number}        主動擴張上限倍數（例如 2.5）
+   * grossLeverageHardCap {number}        被動危機紅線倍數（例如 3.0）
+   * grossLeverageRecoveryTarget {number} 強制降槓著陸目標倍數（例如 2.0）
+   *
+   * 大小關係必須滿足：recoveryTarget < ceiling < hardCap
+   */
+  const gl = config.grossLeverage;
+
+  if (!gl || typeof gl !== "object") {
+    errors.push("grossLeverage：區段缺失或格式錯誤");
+  } else {
+    const {
+      grossLeverageCeiling,
+      grossLeverageHardCap,
+      grossLeverageRecoveryTarget,
+    } = gl;
+
+    if (typeof grossLeverageCeiling !== "number" || grossLeverageCeiling <= 0) {
+      errors.push("grossLeverage.grossLeverageCeiling：必須為正數（例如 2.5）");
+    }
+    if (typeof grossLeverageHardCap !== "number" || grossLeverageHardCap <= 0) {
+      errors.push("grossLeverage.grossLeverageHardCap：必須為正數（例如 3.0）");
+    }
+    if (
+      typeof grossLeverageRecoveryTarget !== "number" ||
+      grossLeverageRecoveryTarget <= 0
+    ) {
+      errors.push(
+        "grossLeverage.grossLeverageRecoveryTarget：必須為正數（例如 2.0）",
+      );
+    }
+
+    // 大小關係強制檢查：recoveryTarget < ceiling < hardCap
+    if (
+      typeof grossLeverageCeiling === "number" &&
+      typeof grossLeverageHardCap === "number" &&
+      typeof grossLeverageRecoveryTarget === "number"
+    ) {
+      if (grossLeverageRecoveryTarget >= grossLeverageCeiling) {
+        errors.push(
+          `grossLeverage：recoveryTarget(${grossLeverageRecoveryTarget}) 必須小於 ceiling(${grossLeverageCeiling})`,
+        );
+      }
+      if (grossLeverageCeiling >= grossLeverageHardCap) {
+        errors.push(
+          `grossLeverage：ceiling(${grossLeverageCeiling}) 必須小於 hardCap(${grossLeverageHardCap})`,
+        );
+      }
+    }
+  }
+  // ────────────────────────────────────────────────────────────────
 
   // 5. trading
   assert(isObject(config.trading), "trading 必須是物件");
@@ -249,7 +309,9 @@ export function validateStrategyConfig(config) {
       assertNumber(tier.maxDrop, `${p}.maxDrop`);
       // rsiThreshold 允許 number 或 null
       assert(
-        tier.rsiThreshold === null || (typeof tier.rsiThreshold === "number" && Number.isFinite(tier.rsiThreshold)),
+        tier.rsiThreshold === null ||
+          (typeof tier.rsiThreshold === "number" &&
+            Number.isFinite(tier.rsiThreshold)),
         `${p}.rsiThreshold 必須是 number 或 null`,
       );
       assertBoolean(tier.allowLeverage, `${p}.allowLeverage`);
@@ -302,13 +364,16 @@ export function validateStrategyConfig(config) {
 
   // 10. macroSentiment（選填，向後相容）
   if (config.macroSentiment !== undefined) {
-    assert(
-      isObject(config.macroSentiment),
-      "macroSentiment 必須是物件",
-    );
+    assert(isObject(config.macroSentiment), "macroSentiment 必須是物件");
     assertBoolean(config.macroSentiment.enabled, "macroSentiment.enabled");
-    assertNumber(config.macroSentiment.bullishBonus, "macroSentiment.bullishBonus");
-    assertNumber(config.macroSentiment.bearishPenalty, "macroSentiment.bearishPenalty");
+    assertNumber(
+      config.macroSentiment.bullishBonus,
+      "macroSentiment.bullishBonus",
+    );
+    assertNumber(
+      config.macroSentiment.bearishPenalty,
+      "macroSentiment.bearishPenalty",
+    );
     assertNumber(
       config.macroSentiment.bearishCooldownMultiplier,
       "macroSentiment.bearishCooldownMultiplier",
@@ -343,7 +408,12 @@ export function validateStrategyConfig(config) {
  *   penalty: 空頭扣分
  *   label: 顯示標籤文字
  */
-export function computeEntryScore(data, priceDropPercent, strategy, macroSentiment) {
+export function computeEntryScore(
+  data,
+  priceDropPercent,
+  strategy,
+  macroSentiment,
+) {
   const dropRules = Array.isArray(strategy?.buy?.dropScoreRules)
     ? strategy.buy.dropScoreRules.toSorted((a, b) => b.minDrop - a.minDrop)
     : [];
