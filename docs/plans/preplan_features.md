@@ -525,7 +525,7 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 - MA20 與 ATR(14) 指標計算已由**計畫 B 節三-B**（`indicators.mjs` 擴充）統一實作，本計畫**不另行建立**。
 - 本計畫的 Phase 2 實作（切換至 `ma20` 模式）需在**計畫 B 節三-B 完成**後才可進行，以確保 `calcMA20()`、`calcATR()` 已存在於 `indicators.mjs`。
-- 前置依賴順序：**計畫 A → 計畫 B（含節三-B）→ 本計畫 Phase 2**
+- 前置依賴順序：**計畫 A → 計畫 B（含節三-B）→ 本計畫 Phase 2 → 績效分析與回測計畫 Phase 1 → 本計畫 Phase 3**
 
 ### 狀態與目標摘要
 
@@ -933,24 +933,24 @@ VIX 情緒短路機制已完成，但尚未驗證「有 sentimentScore + 冷卻�
 ```json
 "lifecycle": {
   "enabled": true,
-  "targetRetirementYear": 2045,
-  "birthYear": 1990,
+  "targetRetirementYear": 2053,
+  "birthYear": 1993,
   "phases": [
     {
       "name": "accumulation",
-      "yearsToRetirement": 15,
+      "triggerWhenYearsToRetirementLessThan": 15,
       "maxLeverageMultiplier": 2.0,
       "note": "早期累積期，解鎖最高槓桿"
     },
     {
       "name": "balanced",
-      "yearsToRetirement": 5,
+      "triggerWhenYearsToRetirementLessThan": 5,
       "maxLeverageMultiplier": 1.5,
       "note": "中期平衡期，槓桿線性遞減"
     },
     {
       "name": "conservative",
-      "yearsToRetirement": 0,
+      "triggerWhenYearsToRetirementLessThan": 0,
       "maxLeverageMultiplier": 0.0,
       "note": "後期保守期，禁止新增槓桿，Activation Cushion 強制 Bypass",
       "forceBypassActivationCushion": true
