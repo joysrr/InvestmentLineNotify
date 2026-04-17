@@ -54,6 +54,16 @@ export async function dailyCheck({
     done();
   } catch (e) {
     console.error("⚠️ 讀取試算表失敗，將使用預設設定 0:", e.message);
+    const cachedLastBuyDate = await archiveManager.getLastBuyDate();
+    if (cachedLastBuyDate) {
+      console.warn(
+        `⚠️ [dailyCheck] Sheet 失敗，lastBuyDate 使用本地備份: ${cachedLastBuyDate}`,
+      );
+    } else {
+      console.warn(
+        "⚠️ [dailyCheck] Sheet 失敗且無本地備份，lastBuyDate 將以 null 處理",
+      );
+    }
     lastState = {
       date: null,
       qty0050: 0,
@@ -62,6 +72,7 @@ export async function dailyCheck({
       cash: 0,
       avgCost0050: null,
       avgCostZ2: null,
+      lastBuyDate: cachedLastBuyDate ?? null, // 1→2→4 fallback
     };
   }
   const stockStatus = `✅ 持股狀態確認：0050=${lastState.qty0050}股, 00675L=${lastState.qtyZ2}股, 借款=${lastState.totalLoan}`;

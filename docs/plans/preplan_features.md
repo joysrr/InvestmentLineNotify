@@ -2,14 +2,14 @@
 
 ## 執行順序總覽
 
-| 批次  | 計畫                                       | 依賴            | 說明             |
-| --- | ---------------------------------------- | ------------- | -------------- |
-| 第一批 | ① retry/timeout、② lastBuyDate 快取         | 無             | 基礎設施先行         |
-| 第二批 | ③ Gross Leverage → ④ 計畫A → ⑤ 計畫B → ⑥ 計畫C | 有序            | 核心風控鏈          |
-| 第三批 | ⑪ Mini App 策略狀態視覺化                       | 計畫B/C 資料結構確定後 | 驗證工具，幫助觀察第二批效果 |
-| 第四批 | ⑦ 廢除 BasePrice Phase 2                   | 計畫B節三-B       | 停利機制升級         |
-| 第五批 | ⑧ 資金管控 → ⑨ 回測計畫                          | Phase 間有序     | 分析強化           |
-| 第六批 | ⑩ 生命週期、⑫ TTS                             | 前五批穩定         | 長期演化           |
+| 狀態      | 批次   | 計畫                                           | 依賴                   | 說明                         |
+| --------- | ------ | ---------------------------------------------- | ---------------------- | ---------------------------- |
+| ✅ 已完成 | 第一批 | ① retry/timeout、② lastBuyDate 快取            | 無                     | 基礎設施先行                 |
+| -         | 第二批 | ③ Gross Leverage → ④ 計畫A → ⑤ 計畫B → ⑥ 計畫C | 有序                   | 核心風控鏈                   |
+| -         | 第三批 | ⑪ Mini App 策略狀態視覺化                      | 計畫B/C 資料結構確定後 | 驗證工具，幫助觀察第二批效果 |
+| -         | 第四批 | ⑦ 廢除 BasePrice Phase 2                       | 計畫B節三-B            | 停利機制升級                 |
+| -         | 第五批 | ⑧ 資金管控 → ⑨ 回測計畫                        | Phase 間有序           | 分析強化                     |
+| -         | 第六批 | ⑩ 生命週期、⑫ TTS                              | 前五批穩定             | 長期演化                     |
 
 ## 📌【P1 高優先】Gross Leverage Ratio 總體曝險倍數監控
 
@@ -523,13 +523,6 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ---
 
-## ~~📌【P1 高優先】PB 估值動態衰減機制（valuationPenaltyFactor）~~
-
-> ⚠️ 此計畫已由【計畫 B】PB 歷史分位數動態防護層（valuationGuard）全面取代，不再實作。
-> 原設計的硬切斷門檻（PB 1.8 / 2.0 / 2.2）已由 PR 分位數（PR70/80/90）動態取代。
-
----
-
 ## 📌【P1 高優先】廢除 BasePrice，改採 ATR/MA20 動態移動停利
 
 ### ⚠️ 前置依賴說明
@@ -584,58 +577,6 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ---
 
-## 📌【P1 高優先】lastBuyDate 本地 fallback 快取（SQLite/JSON）
-
-### 狀態與目標摘要
-
-- 冷卻期依賴 `portfolio.lastBuyDate`，來源為 Google Sheet 持股紀錄。
-- 若 Google Sheet API 失敗、欄位缺失或格式錯誤，冷卻期會被視為「無歷史買入紀錄」，等同關閉冷卻保護。
-- 此問題在網路不穩或 Sheets API 限流時具有實際發生風險。
-
-### 動機
-
-冷卻期是防止短期內頻繁加碼與槓桿快速堆疊的關鍵機制。資料來源單點故障不應導致風控靜默失效。
-
-### 建議方向
-
-- 在每次成功讀取 `lastBuyDate` 後，同步寫入本地 JSON 檔（`data/cache/lastBuyDate.json`）或 SQLite。
-- `fetchLastPortfolioState()` 失敗時，優先讀取本地快取作為 fallback，並在日報中標示「使用快取資料」。
-- 每次實際觸發買入後，立即更新本地快取（不依賴下次 Sheets 讀取）。
-- 在 `fetchLastPortfolioState()` 中增加 `lastBuyDate` 格式驗證，無法解析時顯示警告並 log。
-
-### 建議 cache 格式
-
-```json
-{
-  "lastBuyDate": "2026-03-15",
-  "updatedAt": "2026-04-16T01:07:04Z",
-  "source": "google_sheet"
-}
-```
-
-### 影響範圍
-
-- `src/modules/storage.mjs`（lastBuyDate 讀寫、驗證與本地快取雙寫）
-- `src/dailyCheck.mjs`（買入觸發後立即更新快取）
-- `data/cache/`（新增快取目錄，需加入 `.gitignore`）
-- `webapp/src/views/AccountView.vue`（可選：顯示快取來源標示）
-
-### 難度
-
-⭐⭐ 中
-
-### 討論狀態
-
-⚪ 待確認
-
----
-
-## ~~📌【策略與績效】策略訊號回測與績效統計~~
-
-> ⚠️ 此計畫已與「訊號類型分類與月報統計」及「MacroSentiment 交互與回測驗證」合併為【績效分析與回測計畫】，請參閱下方對應條目。
-
----
-
 ## 📌【AI 管線強化類】每日摘要語音化推播（Gemini TTS × Telegram Audio）
 
 ### 狀態與目標摘要
@@ -666,50 +607,6 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 - 確認 TTS service 檔案最佳放置路徑。
 - 確認每日推播流程中負責三則訊息發送的函式名稱與插入點。
 - 確認 Gemini API key 分配策略與 Langfuse span wrapper 的使用方式。
-
----
-
-## 📌【穩定性強化】Providers 統一 retry / timeout 機制
-
-### 狀態與目標摘要
-
-- 各 Provider 目前錯誤處理策略不一，網路抖動時可能導致整條 daily pipeline 中斷。
-- 計劃統一透過 helper（例如 `fetchWithRetry`）包裝 `fetchWithTimeout`，逐步於 Providers 層導入。
-
-### 動機
-
-目前各 provider（`twseProvider`, `yahooProvider`, `cnnProvider` 等）各自處理錯誤，有些有 try/catch，有些直接拋出。`coreUtils.mjs` 已有 `fetchWithTimeout`，但未被所有 provider 統一使用。
-
-### 建議方向
-
-在 `src/utils/coreUtils.mjs` 或新增 `src/utils/fetchUtils.mjs` 中實作 `fetchWithRetry(url, options, retries=2)`，並在各 provider 統一引用。
-
-### 影響範圍
-
-- `src/utils/coreUtils.mjs`（新增 helper）
-- `src/modules/providers/*.mjs`（逐步替換 fetch 呼叫）
-
-### 難度
-
-⭐⭐ 中（工具本身簡單，但需逐一審查各 provider 的 fetch 呼叫）
-
-### 討論狀態
-
-⚪ 待確認
-
----
-
-## 📌【停利機制】BasePrice 管理與動態停利邏輯（已升級為上方 P1 廢除 BasePrice 計劃）
-
-> ⚠️ 此項目已升級為【P1 高優先】廢除 BasePrice，改採 ATR/MA20 動態移動停利，請參閱上方對應條目。
-> 原 BasePrice 管理策略（更新規則、scripts）保留為 Phase 1 過渡方案。
-
----
-
-## ~~📌【冷卻期與情緒】MacroSentiment 交互與回測驗證~~（已整合 VIX 情緒短路 ✅ 已完成）
-
-> ⚠️ VIX 情緒短路機制已完成，請參閱 `finishedplan_features.md`。
-> 剩餘回測維度已合併為【績效分析與回測計畫】Phase 3，請參閱下方對應條目。
 
 ---
 
@@ -854,12 +751,6 @@ VIX 情緒短路機制已完成，但尚未驗證「有 sentimentScore + 冷卻�
 
 ---
 
-## 📌【資料完整性】lastBuyDate 與策略欄位一致性檢查（已升級為上方 P1 本地 fallback 快取）
-
-> ⚠️ 此項目已升級為【P1 高優先】lastBuyDate 本地 fallback 快取，請參閱上方對應條目。
-
----
-
 ## 📌【策略演化】生命週期風險預算與槓桿曲線
 
 ### 狀態與目標摘要
@@ -976,18 +867,6 @@ VIX 情緒短路機制已完成，但尚未驗證「有 sentimentScore + 冷卻�
 
 ---
 
-## ~~📌【策略拆分】Baseline DCA 與戰術加碼雙層架構~~
-
-> ⚠️ 此計畫已與「單日/區間撥款上限控制」合併為【資金管控強化計畫】，請參閱下方對應條目。
-
----
-
-## ~~📌【報告強化】訊號類型分類與月報統計~~
-
-> ⚠️ 此計畫已合併為【績效分析與回測計畫】Phase 2，請參閱下方對應條目。
-
----
-
 ## 📌【前端體驗】Mini App 策略狀態與解釋視覺化
 
 ### 狀態與目標摘要
@@ -1021,12 +900,6 @@ VIX 情緒短路機制已完成，但尚未驗證「有 sentimentScore + 冷卻�
 ### 討論狀態
 
 ⚪ 待確認
-
----
-
-## ~~📌【資金管控】單日 / 區間撥款上限控制~~
-
-> ⚠️ 此計畫已與「Baseline DCA 與戰術加碼雙層架構」合併為【資金管控強化計畫】，請參閱下方對應條目。
 
 ---
 

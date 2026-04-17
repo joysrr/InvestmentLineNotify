@@ -200,26 +200,53 @@ export function TwDate(input = new Date()) {
 // ============================================================================
 
 /**
- * 具備 Timeout 功能的 fetch 封裝
+ * 具備 Timeout + Retry 功能的 fetch 封裝
+ * @param {string} url
+ * @param {RequestInit} [options={}]
+ * @param {number} [timeout=8000]  - 單次請求逾時 ms
+ * @param {number} [retries=3]     - 最大重試次數
+ * @param {number} [backoff=500]   - 首次重試等待 ms（線性遞增：500→1000→1500）
  */
-export async function fetchWithTimeout(url, options = {}, timeout = 8000) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
+export async function fetchWithTimeout(
+  url,
+  options = {},
+  timeout = 8000,
+  retries = 3,
+  backoff = 500,
+) {
+  let lastError;
 
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal,
-    });
-    return response;
-  } catch (error) {
-    if (error.name === "AbortError") {
-      throw new Error(`Request Timeout after ${timeout}ms: ${url}`);
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+      return response;
+    } catch (error) {
+      lastError =
+        error.name === "AbortError"
+          ? new Error(`Request Timeout after ${timeout}ms: ${url}`)
+          : error;
+
+      if (attempt < retries) {
+        const waitMs = backoff * (attempt + 1);
+        console.warn(
+          `⚠️ [fetchWithTimeout] Attempt ${attempt + 1} failed, retrying in ${waitMs}ms... (${url})`,
+        );
+        await sleep(waitMs);
+      }
+    } finally {
+      clearTimeout(id);
     }
-    throw error;
-  } finally {
-    clearTimeout(id);
   }
+
+  throw new Error(
+    `[fetchWithTimeout] All ${retries} retries failed: ${lastError.message}`,
+  );
 }
 
 // ============================================================================

@@ -1,7 +1,5 @@
 # Finished-plan Features (已完成功能歸檔)
 
----
-
 ## ✅【P0 已完成】技術訊號 lookback window 統一修正
 
 > **Commit:** `fc4897c` — fix(strategy): 修正 signalRules lookback window 與 rsiRebound requireCrossToday
@@ -13,15 +11,15 @@
 
 ### 已完成修改清單
 
-| 指標 | 修改前 lookback | 修改後 lookback | requireCrossToday 修改 |
-|------|----------------|----------------|------------------------|
-| `rsiRebound` | 10 | **14** | `false` → **`true`** ⚠️ 核心修正 |
-| `kdBullLow` | 10 | **18** | — |
-| `rsiDrop`（轉弱） | 10 | **14** | 維持 `false` |
-| `kdDrop`（轉弱） | 10 | **15** | 維持 `false` |
-| `rsiSell` | 10 | **15** | 維持 `true` |
-| `macdSell` | 10 | **20** | 維持 `true` |
-| `kdSell dropBelow80` | 10 | **20** | 維持 `true` |
+| 指標                 | 修改前 lookback | 修改後 lookback | requireCrossToday 修改           |
+| -------------------- | --------------- | --------------- | -------------------------------- |
+| `rsiRebound`         | 10              | **14**          | `false` → **`true`** ⚠️ 核心修正 |
+| `kdBullLow`          | 10              | **18**          | —                                |
+| `rsiDrop`（轉弱）    | 10              | **14**          | 維持 `false`                     |
+| `kdDrop`（轉弱）     | 10              | **15**          | 維持 `false`                     |
+| `rsiSell`            | 10              | **15**          | 維持 `true`                      |
+| `macdSell`           | 10              | **20**          | 維持 `true`                      |
+| `kdSell dropBelow80` | 10              | **20**          | 維持 `true`                      |
 
 ### 後續建議（未強制）
 
@@ -41,12 +39,12 @@
 
 ### 4 層狀態機規格
 
-| 層級 | 門檻 | 行動 | Strategy.json 對應 |
-|------|------|------|-------------------|
-| 🔴 斷頭危機 | < 135% | 強制市價降槓桿警示，一票否決所有加碼 | `marginCallThreshold: 135` |
-| 🟠 高危凍結 | 135–145% | 禁止所有新進場，強烈通知補足保證金 | `frozenZone: 145` |
-| 🟡 預備金防禦 | 145–160% | 暫停高槓桿加碼，允許 baseline DCA | `protectTrigger: 160` |
-| 🟢 常態運行 | >= 160% | 允許策略引擎完整運作 | `protectTarget: 180` |
+| 層級          | 門檻     | 行動                                 | Strategy.json 對應         |
+| ------------- | -------- | ------------------------------------ | -------------------------- |
+| 🔴 斷頭危機   | < 135%   | 強制市價降槓桿警示，一票否決所有加碼 | `marginCallThreshold: 135` |
+| 🟠 高危凍結   | 135–145% | 禁止所有新進場，強烈通知補足保證金   | `frozenZone: 145`          |
+| 🟡 預備金防禦 | 145–160% | 暫停高槓桿加碼，允許 baseline DCA    | `protectTrigger: 160`      |
+| 🟢 常態運行   | >= 160%  | 允許策略引擎完整運作                 | `protectTarget: 180`       |
 
 ---
 
@@ -64,12 +62,12 @@
 
 ### entryGate 4 層矩陣
 
-| Tier | 跌幅區間 | RSI 門檻 | 允許槓桿 | 說明 |
-|------|---------|---------|---------|------|
-| 0 | 0–5% | — | ❌ | 底倉 DCA only |
-| 1 | 5–15% | RSI < 45 | ❌ | 淺層修正，禁 00675L |
-| 2 | 15–30% | RSI < 35 | ✅ | 深度回撤，開放 00675L |
-| 3 | 30%+ | RSI < 30 | ✅ | 極端恐慌，一票通行 |
+| Tier | 跌幅區間 | RSI 門檻 | 允許槓桿 | 說明                  |
+| ---- | -------- | -------- | -------- | --------------------- |
+| 0    | 0–5%     | —        | ❌       | 底倉 DCA only         |
+| 1    | 5–15%    | RSI < 45 | ❌       | 淺層修正，禁 00675L   |
+| 2    | 15–30%   | RSI < 35 | ✅       | 深度回撤，開放 00675L |
+| 3    | 30%+     | RSI < 30 | ✅       | 極端恐慌，一票通行    |
 
 ---
 
@@ -105,47 +103,47 @@ AI 新聞情緒為落後指標，在崩盤底部必定輸出 `BEARISH`，原本 
 
 ### 實作節點總覽
 
-| 節 | 內容 | 涉及檔案 |
-|----|------|---------|
+| 節   | 內容                                                                    | 涉及檔案                                          |
+| ---- | ----------------------------------------------------------------------- | ------------------------------------------------- |
 | 節一 | Strategy.json 新增 `vixOverrideTrigger: 28` / `vixAbsoluteOverride: 35` | `Strategy.json`、`docs/strategy-param-changes.md` |
-| 節二 | `validateStrategyConfig()` 補齊兩欄位驗證 | `signalRules.mjs` |
-| 節三 | 新增 `resolveVixOverride()` 函式 | `strategyEngine.mjs` |
-| 節四 | macroSentiment 段落整合 VIX Override，BEARISH 時先判斷短路 | `strategyEngine.mjs` |
-| 節五 | Telegram 全版與精簡卡新增 `⚡ VIX 情緒短路` 標示 | `telegramHtmlBuilder.mjs` |
-| 節六 | 文件更新，preplan_features.md 狀態更新 | `docs/plans/preplan_features.md` |
+| 節二 | `validateStrategyConfig()` 補齊兩欄位驗證                               | `signalRules.mjs`                                 |
+| 節三 | 新增 `resolveVixOverride()` 函式                                        | `strategyEngine.mjs`                              |
+| 節四 | macroSentiment 段落整合 VIX Override，BEARISH 時先判斷短路              | `strategyEngine.mjs`                              |
+| 節五 | Telegram 全版與精簡卡新增 `⚡ VIX 情緒短路` 標示                        | `telegramHtmlBuilder.mjs`                         |
+| 節六 | 文件更新，preplan_features.md 狀態更新                                  | `docs/plans/preplan_features.md`                  |
 
 ### VIX 情緒短路規格
 
-| VIX 狀態 | 行為 |
-|---------|------|
-| VIX < 28 | 正常融合，AI BEARISH 正常扣分與冷卻延長 |
+| VIX 狀態                                       | 行為                                          |
+| ---------------------------------------------- | --------------------------------------------- |
+| VIX < 28                                       | 正常融合，AI BEARISH 正常扣分與冷卻延長       |
 | VIX >= 28 且 VIX 開始回落（`trend = falling`） | 情緒短路：忽略 bearishPenalty，解除冷卻期延長 |
-| VIX >= 35（絕對值） | 強制情緒短路，無論 VIX 趨勢 |
+| VIX >= 35（絕對值）                            | 強制情緒短路，無論 VIX 趨勢                   |
 
 ### 人工驗收測試清單
 
-| 情境 | 預期結果 |
-|------|---------|
-| `vix=40`（絕對值短路） | `overrideActive: true`，bearishPenalty = 0，冷卻延長不觸發，Telegram 出現 `⚡ VIX 情緒短路` |
-| `vix=30, trend=falling`（趨勢短路） | `overrideActive: true`，同上 |
-| `vix=30, trend=rising`（趨勢不符） | `overrideActive: false`，bearishPenalty 正常扣，冷卻延長正常觸發 |
-| `vix=20`（無觸發） | `overrideActive: false`，行為與修改前完全一致 |
-| 舊版資料（缺 `vixOverrideActive` 欄位） | Telegram 靜默略過，不拋錯 |
+| 情境                                    | 預期結果                                                                                    |
+| --------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `vix=40`（絕對值短路）                  | `overrideActive: true`，bearishPenalty = 0，冷卻延長不觸發，Telegram 出現 `⚡ VIX 情緒短路` |
+| `vix=30, trend=falling`（趨勢短路）     | `overrideActive: true`，同上                                                                |
+| `vix=30, trend=rising`（趨勢不符）      | `overrideActive: false`，bearishPenalty 正常扣，冷卻延長正常觸發                            |
+| `vix=20`（無觸發）                      | `overrideActive: false`，行為與修改前完全一致                                               |
+| 舊版資料（缺 `vixOverrideActive` 欄位） | Telegram 靜默略過，不拋錯                                                                   |
 
 ---
 
 ## 📋 P0 完成狀態總覽
 
-| Commit | 內容 | 狀態 |
-|--------|------|------|
-| `fc4897c` | signalRules lookback window 統一修正 + rsiRebound requireCrossToday | ✅ 已完成 |
-| `98a6cdb` | strategyEngine 維持率 4 層狀態機重構 + telegramHtmlBuilder mmTag | ✅ 已完成 |
-| `229c0be` | Strategy.json 本地化 + entryGate 4 層矩陣 + strategy-param-audit.md | ✅ 已完成 |
+| Commit    | 內容                                                                   | 狀態      |
+| --------- | ---------------------------------------------------------------------- | --------- |
+| `fc4897c` | signalRules lookback window 統一修正 + rsiRebound requireCrossToday    | ✅ 已完成 |
+| `98a6cdb` | strategyEngine 維持率 4 層狀態機重構 + telegramHtmlBuilder mmTag       | ✅ 已完成 |
+| `229c0be` | Strategy.json 本地化 + entryGate 4 層矩陣 + strategy-param-audit.md    | ✅ 已完成 |
 | `8ca76ee` | signalRules fetchStrategyConfig 本地優先 + validateStrategyConfig 補齊 | ✅ 已完成 |
-| `035541a` | strategyEngine buildDecision() Pre-Entry Gate resolveEntryGate() | ✅ 已完成 |
-| `9a268f3` | telegramHtmlBuilder entryGateLevel 通道標示 | ✅ 已完成 |
-| `1302be8` | docs/strategy-param-changes.md 建立（異動說明） | ✅ 已完成 |
-| `103be3d` | 幽靈參數移除：leverage.targetMultiplier + reserve.allocationRatio | ✅ 已完成 |
+| `035541a` | strategyEngine buildDecision() Pre-Entry Gate resolveEntryGate()       | ✅ 已完成 |
+| `9a268f3` | telegramHtmlBuilder entryGateLevel 通道標示                            | ✅ 已完成 |
+| `1302be8` | docs/strategy-param-changes.md 建立（異動說明）                        | ✅ 已完成 |
+| `103be3d` | 幽靈參數移除：leverage.targetMultiplier + reserve.allocationRatio      | ✅ 已完成 |
 
 ---
 
@@ -165,5 +163,79 @@ AI 新聞情緒為落後指標，在崩盤底部必定輸出 `BEARISH`，原本 
 
 > ⚠️ 此項目已整合升級為【P1 高優先】Strategy.json 幽靈參數審計與清除，✅ 已完成（commit `103be3d`）。
 > 原 label 一致性修正（`dropScoreRules` 文案對齊）已於 commit `229c0be` 一併完成。
+
+## ✅【已完成】📌【穩定性強化】Providers 統一 retry / timeout 機制
+
+### 狀態與目標摘要
+
+- 各 Provider 目前錯誤處理策略不一，網路抖動時可能導致整條 daily pipeline 中斷。
+- 計劃統一透過 helper（例如 `fetchWithRetry`）包裝 `fetchWithTimeout`，逐步於 Providers 層導入。
+
+### 動機
+
+目前各 provider（`twseProvider`, `yahooProvider`, `cnnProvider` 等）各自處理錯誤，有些有 try/catch，有些直接拋出。`coreUtils.mjs` 已有 `fetchWithTimeout`，但未被所有 provider 統一使用。
+
+### 建議方向
+
+在 `src/utils/coreUtils.mjs` 或新增 `src/utils/fetchUtils.mjs` 中實作 `fetchWithRetry(url, options, retries=2)`，並在各 provider 統一引用。
+
+### 影響範圍
+
+- `src/utils/coreUtils.mjs`（新增 helper）
+- `src/modules/providers/*.mjs`（逐步替換 fetch 呼叫）
+
+### 難度
+
+⭐⭐ 中（工具本身簡單，但需逐一審查各 provider 的 fetch 呼叫）
+
+### 討論狀態
+
+⚪ 待確認
+
+---
+
+## ✅【已完成】📌【P1 高優先】lastBuyDate 本地 fallback 快取（SQLite/JSON）
+
+### 狀態與目標摘要
+
+- 冷卻期依賴 `portfolio.lastBuyDate`，來源為 Google Sheet 持股紀錄。
+- 若 Google Sheet API 失敗、欄位缺失或格式錯誤，冷卻期會被視為「無歷史買入紀錄」，等同關閉冷卻保護。
+- 此問題在網路不穩或 Sheets API 限流時具有實際發生風險。
+
+### 動機
+
+冷卻期是防止短期內頻繁加碼與槓桿快速堆疊的關鍵機制。資料來源單點故障不應導致風控靜默失效。
+
+### 建議方向
+
+- 在每次成功讀取 `lastBuyDate` 後，同步寫入本地 JSON 檔（`data/cache/lastBuyDate.json`）或 SQLite。
+- `fetchLastPortfolioState()` 失敗時，優先讀取本地快取作為 fallback，並在日報中標示「使用快取資料」。
+- 每次實際觸發買入後，立即更新本地快取（不依賴下次 Sheets 讀取）。
+- 在 `fetchLastPortfolioState()` 中增加 `lastBuyDate` 格式驗證，無法解析時顯示警告並 log。
+
+### 建議 cache 格式
+
+```json
+{
+  "lastBuyDate": "2026-03-15",
+  "updatedAt": "2026-04-16T01:07:04Z",
+  "source": "google_sheet"
+}
+```
+
+### 影響範圍
+
+- `src/modules/storage.mjs`（lastBuyDate 讀寫、驗證與本地快取雙寫）
+- `src/dailyCheck.mjs`（買入觸發後立即更新快取）
+- `data/cache/`（新增快取目錄，需加入 `.gitignore`）
+- `webapp/src/views/AccountView.vue`（可選：顯示快取來源標示）
+
+### 難度
+
+⭐⭐ 中
+
+### 討論狀態
+
+⚪ 待確認
 
 ---
