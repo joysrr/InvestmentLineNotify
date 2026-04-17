@@ -44,6 +44,12 @@ export function calculateIndicators(history) {
     .map((_, i) => ({ k: slowK[i] ?? NaN, d: slowD[i] ?? NaN }))
     .filter((x) => Number.isFinite(x.k) && Number.isFinite(x.d));
 
+  // ── Phase 0-4：MA / ATR / Slope 計算 ──────────────────────────────────────
+  const ma20Arr   = calcMA20(closes);
+  const ma60Arr   = calcMA60(closes);
+  const atrArr    = calcATR(highs, lows, closes, 14);
+  const ma60Slope = calcSlopeN(ma60Arr, 5);
+  
   return {
     closes,
     highs,
@@ -58,6 +64,10 @@ export function calculateIndicators(history) {
       SimpleMASignal: false,
     }),
     kdArr: kdArrSlow,
+    ma20Arr,
+    ma60Arr,
+    atrArr,
+    ma60Slope,
   };
 }
 
