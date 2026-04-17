@@ -30,6 +30,7 @@ import {
   getMACDSignal,
 } from "./indicators.mjs";
 import { loadHolidaySet } from "../providers/twseProvider.mjs";
+import { computeGrossLeverage } from "./leverageMonitor.mjs";
 
 /**
  * 維持率 4 層狀態機判斷
@@ -43,10 +44,10 @@ function getMarginLayer(mm, maint, th) {
   const frozenZone = maint.frozenZone ?? 145;
   const protectTrigger = maint.protectTrigger ?? 160;
 
-  if (mm < marginCallThreshold) return 'critical';   // 🔴 斷頭危機
-  if (mm < frozenZone)         return 'frozen';     // 🟠 高危凍結
-  if (mm < protectTrigger)     return 'protect';    // 🟡 預備金防禦
-  return 'normal';                                   // 🟢 常態運行
+  if (mm < marginCallThreshold) return "critical"; // 🔴 斷頭危機
+  if (mm < frozenZone) return "frozen"; // 🟠 高危凍結
+  if (mm < protectTrigger) return "protect"; // 🟡 預備金防禦
+  return "normal"; // 🟢 常態運行
 }
 
 /**
@@ -121,24 +122,21 @@ function resolveVixOverride(vixValue, vixArr, config) {
   const cfg = config?.macroSentiment;
 
   // 功能未設定 → 停用
-  if (
-    cfg?.vixOverrideTrigger == null &&
-    cfg?.vixAbsoluteOverride == null
-  ) {
-    return { overrideActive: false, overrideReason: '', vixTrend: 'unknown' };
+  if (cfg?.vixOverrideTrigger == null && cfg?.vixAbsoluteOverride == null) {
+    return { overrideActive: false, overrideReason: "", vixTrend: "unknown" };
   }
 
   const absoluteThreshold = cfg.vixAbsoluteOverride ?? 35;
-  const trendThreshold    = cfg.vixOverrideTrigger  ?? 28;
+  const trendThreshold = cfg.vixOverrideTrigger ?? 28;
 
   // 推算 vixTrend 從歷史序列末兩筆
-  let vixTrend = 'flat';
+  let vixTrend = "flat";
   if (Array.isArray(vixArr) && vixArr.length >= 2) {
     const prev = vixArr[vixArr.length - 2];
     const curr = vixArr[vixArr.length - 1];
     if (Number.isFinite(prev) && Number.isFinite(curr)) {
-      if (curr < prev) vixTrend = 'falling';
-      else if (curr > prev) vixTrend = 'rising';
+      if (curr < prev) vixTrend = "falling";
+      else if (curr > prev) vixTrend = "rising";
     }
   }
 
@@ -155,7 +153,7 @@ function resolveVixOverride(vixValue, vixArr, config) {
   if (
     Number.isFinite(vixValue) &&
     vixValue >= trendThreshold &&
-    vixTrend === 'falling'
+    vixTrend === "falling"
   ) {
     return {
       overrideActive: true,
@@ -165,10 +163,10 @@ function resolveVixOverride(vixValue, vixArr, config) {
   }
 
   // 未觸發
-  return { overrideActive: false, overrideReason: '', vixTrend };
+  return { overrideActive: false, overrideReason: "", vixTrend };
 }
 
-function buildDecision(ctx, strategy) {
+function buildDecision(ctx, strategy, grossLeverageResult) {
   const th = strategy.threshold;
   const maint = strategy.maintenance;
 
@@ -194,14 +192,15 @@ function buildDecision(ctx, strategy) {
 
   // 🔴 Layer 0：斷頭危機 < marginCallThreshold(135)
   // 強制市價降槓桿警示，一票否決所有加碼，優先指示補足保證金
-  if (marginLayer === 'critical') {
+  if (marginLayer === "critical") {
     const marginCallThreshold = maint.marginCallThreshold ?? 135;
     return {
-      maintenanceLayer: 'critical',
+      maintenanceLayer: "critical",
       marketStatus: "🔴【斷頭危機】",
       target: "🛑 強制降槓桿",
       targetSuggestionShort: "立即補保證金或市價降槓桿，禁止一切加碼",
-      targetSuggestion: "維持率已低於斷頭警戒線，必須立即行動：補充保證金或市價賣出 00675L 降槓桿",
+      targetSuggestion:
+        "維持率已低於斷頭警戒線，必須立即行動：補充保證金或市價賣出 00675L 降槓桿",
       suggestion:
         `• 當前維持率：${maintenanceMargin.toFixed(0)}% (斷頭門檻 ${marginCallThreshold}%)\n` +
         `• ⚠️ 警告：系統已進入強制降槓桿模式，所有加碼操作被一票否決\n` +
@@ -215,7 +214,7 @@ function buildDecision(ctx, strategy) {
 
   // 🟠 Layer 1：高危凍結 135–145% (frozenZone)
   // 禁止所有新進場，強烈通知補足保證金
-  if (marginLayer === 'frozen') {
+  if (marginLayer === "frozen") {
     const frozenZone = maint.frozenZone ?? 145;
     const marginCallThreshold = maint.marginCallThreshold ?? 135;
     const totalLoan = ctx.totalLoan || 0;
@@ -225,7 +224,7 @@ function buildDecision(ctx, strategy) {
     const reserveSufficient = reserveStatus.currentReserve >= needAmount;
 
     return {
-      maintenanceLayer: 'frozen',
+      maintenanceLayer: "frozen",
       marketStatus: "🟠【高危凍結】",
       target: "🚫 禁止進場",
       targetSuggestionShort: "禁止所有新進場；強烈建議立即補足保證金",
@@ -248,7 +247,7 @@ function buildDecision(ctx, strategy) {
 
   // 🟡 Layer 2：預備金防禦 145–160% (protectTrigger)
   // 暫停高槓桿加碼，優先充實擔保品，允許 baseline DCA
-  if (marginLayer === 'protect') {
+  if (marginLayer === "protect") {
     const protectTarget = maint.protectTarget || 180;
     const totalLoan = ctx.totalLoan || 0;
     const currentCollateral = (maintenanceMargin / 100) * totalLoan;
@@ -257,7 +256,7 @@ function buildDecision(ctx, strategy) {
     const reserveSufficient = reserveStatus.currentReserve >= needAmount;
 
     return {
-      maintenanceLayer: 'protect',
+      maintenanceLayer: "protect",
       marketStatus: "🛡️【維持率低於安全線】",
       target: "🧯 預備金防禦",
       targetSuggestionShort: "動用預備金或補充抵押品；允許 0050 DCA",
@@ -285,35 +284,88 @@ function buildDecision(ctx, strategy) {
   // 以下為原有策略邏輯完整執行
 
   // ─────────────────────────────────────────────────────────────
+  // Priority 2：Gross Leverage 天花板（維持率正常後才執行）
+  // hardcap_breach → 強制降槓，Priority 高於 ceiling_breach
+  // ceiling_breach → 一票否決新增槓桿，但不強制砍倉
+  // ─────────────────────────────────────────────────────────────
+  if (grossLeverageResult) {
+    if (grossLeverageResult.status === "hardcap_breach") {
+      return {
+        maintenanceLayer: "normal",
+        grossLeverageStatus: "hardcap_breach",
+        grossLeverage: grossLeverageResult.grossLeverage,
+        marketStatus: "🚨【Gross Leverage 危機紅線】",
+        target: "📉 強制降槓",
+        targetSuggestionShort: `綜合曝險 ${grossLeverageResult.grossLeverage.toFixed(2)}x 超越危機紅線，強制賣出 00675L 降槓至 ${grossLeverageResult.recoveryTarget}x`,
+        targetSuggestion: grossLeverageResult.message,
+        suggestion:
+          `• 綜合曝險倍數（Gross Leverage）：${grossLeverageResult.grossLeverage.toFixed(2)}x\n` +
+          `• 危機紅線：${strategy.grossLeverage.grossLeverageHardCap}x\n` +
+          `• 著陸目標：${grossLeverageResult.recoveryTarget}x\n` +
+          `• ⚠️ 必須一次性賣出足夠的 00675L，使曝險降至著陸目標，避免凌遲式砍倉\n` +
+          `• 恐慌加碼通道在此狀態下完全封閉`,
+      };
+    }
+
+    if (grossLeverageResult.status === "ceiling_breach") {
+      return {
+        maintenanceLayer: "normal",
+        grossLeverageStatus: "ceiling_breach",
+        grossLeverage: grossLeverageResult.grossLeverage,
+        marketStatus: "⚠️【Gross Leverage 主動上限】",
+        target: "🚫 禁止加碼",
+        targetSuggestionShort: `綜合曝險 ${grossLeverageResult.grossLeverage.toFixed(2)}x 超越主動上限 ${strategy.grossLeverage.grossLeverageCeiling}x，一票否決新增槓桿`,
+        targetSuggestion: grossLeverageResult.message,
+        suggestion:
+          `• 綜合曝險倍數（Gross Leverage）：${grossLeverageResult.grossLeverage.toFixed(2)}x\n` +
+          `• 主動上限：${strategy.grossLeverage.grossLeverageCeiling}x\n` +
+          `• ⚠️ 禁止新增質押借款與 00675L 買入\n` +
+          `• 允許操作：0050 現貨買入（不增加借款槓桿）\n` +
+          `• 恐慌破冰時若觸發此層：加碼限縮為 0050 現貨`,
+      };
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
   // ★ Pre-Entry Gate：左側進擊矩陣前置過濾（依跌幅層級限制允許操作）
   // entryGate 在估值泡沫/再平衡/恐慌買入之前執行，確保所有買入路徑均受過濾
   // ─────────────────────────────────────────────────────────────
   const entryGateCfg = strategy.buy?.entryGate;
-  const gateResult = resolveEntryGate(ctx.priceDropPercent, ctx.rsi, entryGateCfg);
+  const gateResult = resolveEntryGate(
+    ctx.priceDropPercent,
+    ctx.rsi,
+    entryGateCfg,
+  );
 
   if (gateResult.blocked) {
     const tierIndex = gateResult.tierIndex;
     const tier = gateResult.tier;
-    const tierLabels = ['底倉通道', '淺層修正通道', '深度回撤通道', '極端恐慌通道'];
-    const tierEmojis = ['🌱', '🟡', '🟠', '🔴'];
+    const tierLabels = [
+      "底倉通道",
+      "淺層修正通道",
+      "深度回撤通道",
+      "極端恐慌通道",
+    ];
+    const tierEmojis = ["🌱", "🟡", "🟠", "🔴"];
     const tierLabel = tierLabels[tierIndex] ?? `Tier ${tierIndex}`;
-    const tierEmoji = tierEmojis[tierIndex] ?? '⚙️';
+    const tierEmoji = tierEmojis[tierIndex] ?? "⚙️";
 
-    const rsiInfo = tier.rsiThreshold != null
-      ? `RSI 門檻：${tier.rsiThreshold}（當前 ${ctx.rsi.toFixed(0)}）`
-      : 'RSI 門檻：不適用';
+    const rsiInfo =
+      tier.rsiThreshold != null
+        ? `RSI 門檻：${tier.rsiThreshold}（當前 ${ctx.rsi.toFixed(0)}）`
+        : "RSI 門檻：不適用";
 
     return {
-      maintenanceLayer: 'normal',
+      maintenanceLayer: "normal",
       entryGateLevel: tierIndex,
       entryGateLabel: tierLabel,
       entryGateBlocked: true,
       marketStatus: `${tierEmoji}【前置過濾：${tierLabel}】`,
-      target: '🚧 槓桿封鎖',
+      target: "🚧 槓桿封鎖",
       targetSuggestionShort: `${tier.note}（跌幅 ${ctx.priceDropPercent.toFixed(1)}%）`,
       targetSuggestion: `entryGate ${tierLabel}：${tier.note}`,
       suggestion:
-        `• 當前跌幅：${ctx.priceDropPercent.toFixed(1)}%（區間 ${tier.minDrop}–${tier.maxDrop === 999 ? '∞' : tier.maxDrop}%）\n` +
+        `• 當前跌幅：${ctx.priceDropPercent.toFixed(1)}%（區間 ${tier.minDrop}–${tier.maxDrop === 999 ? "∞" : tier.maxDrop}%）\n` +
         `• ${rsiInfo}\n` +
         `• 封鎖原因：${gateResult.blockReason}\n` +
         `• ⚠️ 本層通道不允許 00675L 加碼（entryGate 前置過濾）\n` +
@@ -401,7 +453,7 @@ function buildDecision(ctx, strategy) {
           `⏰ 恐慌加碼不受一般冷卻期限制，但執行後仍請記錄買入日期`,
         suggestedLeverage,
         entryGateLevel: gateResult.tierIndex,
-        entryGateLabel: gateResult.tier?.note ?? '',
+        entryGateLabel: gateResult.tier?.note ?? "",
         entryGateBlocked: false,
         thresholds: {
           extremeDropThreshold,
@@ -460,8 +512,14 @@ function buildDecision(ctx, strategy) {
 
   const dropOk = ctx.priceDropPercent >= strategy.buy.minDropPercentToConsider;
   const scoreOk = entry.weightScore >= strategy.buy.minWeightScoreToBuy;
-  const dropSuggestion = strategy.buy.minDropPercentToConsider > 0 ? `• 跌幅條件：${ctx.priceDropPercent.toFixed(1)}% / 門檻 ${strategy.buy.minDropPercentToConsider}% (${dropOk ? "✔️達標" : "❌未達"})\n` : '';
-  const scoreSuggestion = strategy.buy.minWeightScoreToBuy > 0 ? `• 評分條件：${entry.weightScore}分 / 門檻 ${strategy.buy.minWeightScoreToBuy}分 (${scoreOk ? "✔️達標" : "❌未達"})\n` : '';
+  const dropSuggestion =
+    strategy.buy.minDropPercentToConsider > 0
+      ? `• 跌幅條件：${ctx.priceDropPercent.toFixed(1)}% / 門檻 ${strategy.buy.minDropPercentToConsider}% (${dropOk ? "✔️達標" : "❌未達"})\n`
+      : "";
+  const scoreSuggestion =
+    strategy.buy.minWeightScoreToBuy > 0
+      ? `• 評分條件：${entry.weightScore}分 / 門檻 ${strategy.buy.minWeightScoreToBuy}分 (${scoreOk ? "✔️達標" : "❌未達"})\n`
+      : "";
 
   // 5.5) 偏熱但未過熱
   if (!overheat.isOverheat && overheat.highCount > 0 && (!dropOk || !scoreOk)) {
@@ -534,7 +592,7 @@ function buildDecision(ctx, strategy) {
         `• 執行步驟：建議增貸並買入 00675L，使總槓桿達到 ${targetLeveragePercent}%` +
         cooldownReminder,
       entryGateLevel: gateResult.tierIndex,
-      entryGateLabel: gateResult.tier?.note ?? '',
+      entryGateLabel: gateResult.tier?.note ?? "",
       entryGateBlocked: false,
       targetAllocation: targetAlloc,
     };
@@ -552,7 +610,7 @@ function buildDecision(ctx, strategy) {
         `• 執行步驟：建議增貸並買入 00675L，使總槓桿達到 ${targetLeveragePercent}%` +
         cooldownReminder,
       entryGateLevel: gateResult.tierIndex,
-      entryGateLabel: gateResult.tier?.note ?? '',
+      entryGateLabel: gateResult.tier?.note ?? "",
       entryGateBlocked: false,
       targetAllocation: targetAlloc,
     };
@@ -569,7 +627,7 @@ function buildDecision(ctx, strategy) {
       `• 狀態說明：當前無過熱或風控風險\n` +
       `• 執行步驟：請執行標準資金注入，買入 0050 後質押買入 00675L，維持槓桿約 ${targetLeveragePercent}%`,
     entryGateLevel: gateResult.tierIndex,
-    entryGateLabel: gateResult.tier?.note ?? '',
+    entryGateLabel: gateResult.tier?.note ?? "",
     entryGateBlocked: false,
     targetAllocation: targetAlloc,
   };
@@ -692,7 +750,9 @@ function buildMacroSentiment(marketDirection, strategy, vixOverride) {
     penalty: effectivePenalty,
     // 短路標記：供 Telegram 模板（節五）識別並顯示 ⚡ VIX 情緒短路 提示
     vixOverrideActive: isOverrideActive,
-    vixOverrideReason: isOverrideActive ? (vixOverride.overrideReason ?? '') : '',
+    vixOverrideReason: isOverrideActive
+      ? (vixOverride.overrideReason ?? "")
+      : "",
   };
 }
 
@@ -735,9 +795,12 @@ export async function evaluateInvestmentSignal(data, strategy) {
   // ─── VIX 情緒短路：先解析短路狀態，再傳入 buildMacroSentiment ───
   // resolveVixOverride 使用 data.vixArr（歷史序列）判斷趨勢；
   // 若 data.vixArr 不存在，fallback 為 [data.VIX]，趨勢判斷降為 'flat'
-  const vixArr = Array.isArray(data.vixArr) && data.vixArr.length > 0
-    ? data.vixArr
-    : (Number.isFinite(data.VIX) ? [data.VIX] : []);
+  const vixArr =
+    Array.isArray(data.vixArr) && data.vixArr.length > 0
+      ? data.vixArr
+      : Number.isFinite(data.VIX)
+        ? [data.VIX]
+        : [];
   const vixOverride = resolveVixOverride(data.VIX, vixArr, strategy);
 
   // macroSentiment：傳入 vixOverride，由 buildMacroSentiment 決定是否屏蔽 bearishPenalty
@@ -750,16 +813,20 @@ export async function evaluateInvestmentSignal(data, strategy) {
   // effectiveCooldownDays：短路啟動時跳過 bearishCooldownMultiplier 延長
   const isBearish = cfg?.enabled && data.macroMarketDirection === "BEARISH";
   const effectiveCooldownDays =
-    isBearish && !vixOverride.overrideActive && Number.isFinite(cfg.bearishCooldownMultiplier)
+    isBearish &&
+    !vixOverride.overrideActive &&
+    Number.isFinite(cfg.bearishCooldownMultiplier)
       ? Math.round(baseCooldownDays * cfg.bearishCooldownMultiplier)
       : baseCooldownDays;
 
   const lastBuyDate = data.portfolio?.lastBuyDate ?? null;
-  const cooldownStatus = await checkCooldown(lastBuyDate, effectiveCooldownDays);
+  const cooldownStatus = await checkCooldown(
+    lastBuyDate,
+    effectiveCooldownDays,
+  );
 
   if (effectiveCooldownDays !== baseCooldownDays) {
-    cooldownStatus.message +=
-      ` (⚠️ 空頭情緒延長冷卻至 ${effectiveCooldownDays} 交易日)`;
+    cooldownStatus.message += ` (⚠️ 空頭情緒延長冷卻至 ${effectiveCooldownDays} 交易日)`;
   }
 
   const ctx = {
@@ -785,7 +852,19 @@ export async function evaluateInvestmentSignal(data, strategy) {
     valuation: data.rawValuation || null,
   };
 
-  const decision = buildDecision(ctx, strategy);
+  // ── Gross Leverage 計算 ──────────────────────────────────────
+  const etf0050Value = data.portfolio.qty0050 * data.price0050;
+  const etf675LValue = data.portfolio.qtyZ2 * data.currentPrice;
+  const glConfig = strategy.grossLeverage;
+  const grossLeverageResult = glConfig
+    ? computeGrossLeverage(
+        { etf0050Value, etf675LValue, netAssetValue: netAsset },
+        glConfig,
+      )
+    : null;
+  // ─────────────────────────────────────────────────────────────
+
+  const decision = buildDecision(ctx, strategy, grossLeverageResult);
   const macdSignal = getMACDSignal(data.macdArr);
 
   return {
@@ -818,6 +897,8 @@ export async function evaluateInvestmentSignal(data, strategy) {
     effectiveCooldownDays,
     vixOverride,
     ...decision,
+    grossLeverage: grossLeverageResult?.grossLeverage ?? null,
+    grossLeverageStatus: grossLeverageResult?.status ?? "normal",
     entryGateLevel: decision.entryGateLevel ?? null,
     entryGateLabel: decision.entryGateLabel ?? null,
     entryGateBlocked: decision.entryGateBlocked ?? false,
