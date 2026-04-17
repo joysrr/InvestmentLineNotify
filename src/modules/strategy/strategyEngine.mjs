@@ -166,6 +166,154 @@ function resolveVixOverride(vixValue, vixArr, config) {
   return { overrideActive: false, overrideReason: "", vixTrend };
 }
 
+/**
+ * 解析 valuationGuard 狀態：依據當前 PB 的歷史分位數（PR）
+ * 判斷所命中的 tier，回傳對應的槓桿壓縮乘數。
+ *
+ * 核心邏輯：
+ *  1. 從 pbHistory records（已排序的 PB 陣列）計算 PR 分位數
+ *  2. 依 valuationGuard.tiers 由高到低找第一個 prThreshold <= currentPR
+ *  3. 回傳該 tier 的 multiplier 與相關資訊
+ *  4. 資料不足（< 126 筆）時使用 fallback：僅用靜態 PB 閾值判斷
+ *
+ * @param {number} currentPB - 今日大盤 PB 值
+ * @param {number[]} pbRecords - 歷史 PB 陣列（由舊到新排序，已去除 null/NaN）
+ * @param {Object} config - 完整 strategy config
+ * @returns {{
+ *   enabled: boolean,
+ *   currentPR: number|null,
+ *   recordCount: number,
+ *   hitTierIndex: number,
+ *   hitTier: Object|null,
+ *   multiplier: number,
+ *   isFallback: boolean,
+ *   fallbackReason: string,
+ *   guardActive: boolean,
+ *   guardLabel: string,
+ * }}
+ */
+function resolveValuationGuard(currentPB, pbRecords, config) {
+  const cfg = config?.valuationGuard;
+
+  // ── 功能未啟用 ──────────────────────────────────────────────
+  if (!cfg?.enabled) {
+    return {
+      enabled: false,
+      currentPR: null,
+      recordCount: 0,
+      hitTierIndex: -1,
+      hitTier: null,
+      multiplier: 1.0,
+      isFallback: false,
+      fallbackReason: "",
+      guardActive: false,
+      guardLabel: "",
+    };
+  }
+
+  const tiers = Array.isArray(cfg.tiers) ? cfg.tiers : [];
+  const minRecordsForPR = cfg.minRecordsForPR ?? 126;
+
+  // ── 有效 PB records 篩選 ────────────────────────────────────
+  const validRecords = Array.isArray(pbRecords)
+    ? pbRecords.filter((v) => Number.isFinite(v) && v > 0)
+    : [];
+  const recordCount = validRecords.length;
+
+  // ── 資料不足：fallback 模式（靜態 PB 閾值） ─────────────────
+  if (recordCount < minRecordsForPR) {
+    const fallbackReason = `歷史 PB 資料不足（${recordCount} 筆，門檻 ${minRecordsForPR} 筆），改用靜態 PB 閾值`;
+    const fallbackPbThreshold = cfg.fallbackPbThreshold ?? 1.8;
+
+    if (!Number.isFinite(currentPB) || currentPB < fallbackPbThreshold) {
+      return {
+        enabled: true,
+        currentPR: null,
+        recordCount,
+        hitTierIndex: -1,
+        hitTier: null,
+        multiplier: 1.0,
+        isFallback: true,
+        fallbackReason,
+        guardActive: false,
+        guardLabel: "📊 估值守衛：未觸發（資料不足，PB 低於靜態門檻）",
+      };
+    }
+
+    // fallback 觸發：取 tiers 中最低分位門檻的 tier 作為 fallback tier
+    const fallbackTier = tiers.length > 0 ? tiers[0] : null;
+    const fallbackMultiplier = fallbackTier?.multiplier ?? 0.8;
+
+    return {
+      enabled: true,
+      currentPR: null,
+      recordCount,
+      hitTierIndex: 0,
+      hitTier: fallbackTier,
+      multiplier: fallbackMultiplier,
+      isFallback: true,
+      fallbackReason,
+      guardActive: true,
+      guardLabel: `📊 估值守衛：fallback 啟動（PB ${currentPB?.toFixed(2)} ≥ 靜態門檻 ${fallbackPbThreshold}）`,
+    };
+  }
+
+  // ── 計算 PR 分位數 ────────────────────────────────────────────
+  // PR = 低於 currentPB 的歷史筆數 / 總筆數 × 100
+  const sorted = [...validRecords].sort((a, b) => a - b);
+  const belowCount = sorted.filter((v) => v < currentPB).length;
+  const currentPR = Math.round((belowCount / recordCount) * 100);
+
+  // ── 比對 tiers（由高分位往低找，取第一個 prThreshold <= currentPR 的 tier） ──
+  let hitTierIndex = -1;
+  let hitTier = null;
+
+  // tiers 預期依 prThreshold 由低到高排列（config 中的定義順序）
+  // 從最高 prThreshold 往下掃，找第一個 <= currentPR
+  for (let i = tiers.length - 1; i >= 0; i--) {
+    if (currentPR >= tiers[i].prThreshold) {
+      hitTierIndex = i;
+      hitTier = tiers[i];
+      break;
+    }
+  }
+
+  // 未命中任何 tier（PR 低於所有門檻）→ 不壓縮
+  if (hitTierIndex === -1) {
+    return {
+      enabled: true,
+      currentPR,
+      recordCount,
+      hitTierIndex: -1,
+      hitTier: null,
+      multiplier: 1.0,
+      isFallback: false,
+      fallbackReason: "",
+      guardActive: false,
+      guardLabel: `📊 估值守衛：未觸發（PB PR${currentPR}，低於最低門檻 ${tiers[0]?.prThreshold ?? "N/A"}）`,
+    };
+  }
+
+  // ── 命中 tier，回傳壓縮資訊 ────────────────────────────────
+  const multiplier = Number.isFinite(hitTier.multiplier)
+    ? hitTier.multiplier
+    : 1.0;
+  const tierLabel = hitTier.label ?? `PR${hitTier.prThreshold}`;
+
+  return {
+    enabled: true,
+    currentPR,
+    recordCount,
+    hitTierIndex,
+    hitTier,
+    multiplier,
+    isFallback: false,
+    fallbackReason: "",
+    guardActive: true,
+    guardLabel: `📊 估值守衛：${tierLabel}（PB PR${currentPR} ≥ 門檻 ${hitTier.prThreshold}，乘數 ×${multiplier}）`,
+  };
+}
+
 function buildDecision(ctx, strategy, grossLeverageResult) {
   const th = strategy.threshold;
   const maint = strategy.maintenance;
