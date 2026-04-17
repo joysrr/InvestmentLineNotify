@@ -339,3 +339,32 @@ export function calcHHV(highs, period) {
   }
   return result;
 }
+/**
+ * calcSlopeN — MA 序列的 N 日簡單斜率。
+ *
+ * 計算方式：slope = (maArr[last] - maArr[last - lookback]) / lookback
+ * 單位：每根 K 線的平均漲跌點數（與 MA 原始單位相同）。
+ *
+ * 使用情境：
+ *   計畫 B latch 解鎖條件 3 — 判斷 MA60 是否「斜率向上」
+ *   const slope = calcSlopeN(ma60Arr, 5);
+ *   const isTrendingUp = slope > config.valuationGuard.latch.trendUnlockMa60SlopeThreshold;
+ *
+ * @param {number[]} maArr   - MA 序列（由 calcSMA / calcMA60 產生），由舊到新排列
+ * @param {number}   lookback - 回顧根數（必須為正整數，預設 5）
+ * @returns {number} slope 值；若資料不足或末端為 NaN 則回傳 NaN
+ */
+export function calcSlopeN(maArr, lookback = 5) {
+  if (!Array.isArray(maArr) || !Number.isInteger(lookback) || lookback < 1) {
+    return NaN;
+  }
+  const len = maArr.length;
+  if (len < lookback + 1) return NaN;
+
+  const curr = maArr[len - 1];
+  const prev = maArr[len - 1 - lookback];
+
+  if (!Number.isFinite(curr) || !Number.isFinite(prev)) return NaN;
+
+  return (curr - prev) / lookback;
+}
