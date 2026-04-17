@@ -239,6 +239,152 @@ export function validateStrategyConfig(config) {
   }
   // ────────────────────────────────────────────────────────────────
 
+  // ── valuationGuard 驗證（選填，向後相容；v2.6+ 新增）──────────────────────
+  /**
+   * valuationGuard 估值保護層，全部選填，缺失時由 resolveValuationGuard() 視為停用。
+   *
+   * enabled                    {boolean} 是否啟用估值保護
+   * minHistoryDays             {number}  最低歷史天數門檻（低於此值觸發 fallback）
+   *
+   * tiers[]                    {Array}   PR 分位數壓縮層
+   *   .prThreshold             {number}  觸發門檻（PR 百分位數，0–100）
+   *   .label                   {string}  顯示標籤
+   *   .multiplier              {number}  槓桿壓縮倍率（0–1）
+   *
+   * trailingStop               {Object}  追蹤停損壓縮
+   *   .enabled                 {boolean}
+   *   .dropFromPeakThreshold   {number}  從高點回落比例（例如 0.08 = 8%）
+   *   .multiplierOverride      {number}  觸發後套用的壓縮倍率
+   *
+   * panicDrop                  {Object}  高估區急跌解鎖
+   *   .enabled                          {boolean}
+   *   .singleDayDropThreshold           {number}  單日跌幅門檻（例如 0.05 = 5%）
+   *   .consecutiveDaysThreshold         {number}  連續跌幅天數
+   *   .consecutiveDayDropThreshold      {number}  每日跌幅門檻（例如 0.03 = 3%）
+   *   .multiplierOverride               {number}  急跌解鎖後套用的倍率（通常 1.0）
+   *
+   * latch                      {Object}  高估鎖定機制
+   *   .enabled                 {boolean}
+   *   .triggerPrThreshold      {number}  觸發 latch 的 PR 門檻
+   *   .unlockConditions        {Object}
+   *     .condition1.prBelowThreshold         {number}  PR 回落解鎖門檻
+   *     .condition3.ma20AboveDays            {number}  MA20 站上連續天數
+   *     .condition3.macdPositive             {boolean} MACD 柱狀需為正
+   *     .condition3.trendUnlockMa60SlopeThreshold {number} MA60 斜率門檻
+   */
+  if (config.valuationGuard !== undefined) {
+    const vg = config.valuationGuard;
+    assert(isObject(vg), "valuationGuard 必須是物件");
+    assertBoolean(vg.enabled, "valuationGuard.enabled");
+    assertNumber(vg.minHistoryDays, "valuationGuard.minHistoryDays");
+
+    // tiers
+    assert(Array.isArray(vg.tiers), "valuationGuard.tiers 必須是陣列");
+    assert(vg.tiers.length >= 1, "valuationGuard.tiers 不可為空陣列");
+    vg.tiers.forEach((tier, i) => {
+      const p = `valuationGuard.tiers[${i}]`;
+      assertNumber(tier.prThreshold, `${p}.prThreshold`);
+      assertString(tier.label, `${p}.label`);
+      assertNumber(tier.multiplier, `${p}.multiplier`);
+      assert(
+        tier.multiplier > 0 && tier.multiplier <= 1,
+        `${p}.multiplier 必須介於 0（不含）到 1（含）之間`,
+      );
+    });
+
+    // trailingStop
+    if (vg.trailingStop !== undefined) {
+      const ts = vg.trailingStop;
+      assert(isObject(ts), "valuationGuard.trailingStop 必須是物件");
+      assertBoolean(ts.enabled, "valuationGuard.trailingStop.enabled");
+      assertNumber(
+        ts.dropFromPeakThreshold,
+        "valuationGuard.trailingStop.dropFromPeakThreshold",
+      );
+      assertNumber(
+        ts.multiplierOverride,
+        "valuationGuard.trailingStop.multiplierOverride",
+      );
+    }
+
+    // panicDrop
+    if (vg.panicDrop !== undefined) {
+      const pd = vg.panicDrop;
+      assert(isObject(pd), "valuationGuard.panicDrop 必須是物件");
+      /**
+       * panicDrop.enabled                  {boolean} 是否啟用急跌解鎖
+       * panicDrop.singleDayDropThreshold   {number}  單日跌幅門檻（0–1，例如 0.05）
+       * panicDrop.consecutiveDaysThreshold {number}  連續跌日天數門檻
+       * panicDrop.consecutiveDayDropThreshold {number} 每日跌幅門檻（0–1，例如 0.03）
+       * panicDrop.multiplierOverride       {number}  急跌解鎖後套用倍率（通常 1.0）
+       */
+      assertBoolean(pd.enabled, "valuationGuard.panicDrop.enabled");
+      assertNumber(
+        pd.singleDayDropThreshold,
+        "valuationGuard.panicDrop.singleDayDropThreshold",
+      );
+      assertNumber(
+        pd.consecutiveDaysThreshold,
+        "valuationGuard.panicDrop.consecutiveDaysThreshold",
+      );
+      assertNumber(
+        pd.consecutiveDayDropThreshold,
+        "valuationGuard.panicDrop.consecutiveDayDropThreshold",
+      );
+      assertNumber(
+        pd.multiplierOverride,
+        "valuationGuard.panicDrop.multiplierOverride",
+      );
+    }
+
+    // latch
+    if (vg.latch !== undefined) {
+      const latch = vg.latch;
+      assert(isObject(latch), "valuationGuard.latch 必須是物件");
+      assertBoolean(latch.enabled, "valuationGuard.latch.enabled");
+      assertNumber(
+        latch.triggerPrThreshold,
+        "valuationGuard.latch.triggerPrThreshold",
+      );
+
+      if (latch.unlockConditions !== undefined) {
+        const uc = latch.unlockConditions;
+        assert(
+          isObject(uc),
+          "valuationGuard.latch.unlockConditions 必須是物件",
+        );
+
+        if (uc.condition1 !== undefined) {
+          assertNumber(
+            uc.condition1.prBelowThreshold,
+            "valuationGuard.latch.unlockConditions.condition1.prBelowThreshold",
+          );
+        }
+        if (uc.condition3 !== undefined) {
+          assertNumber(
+            uc.condition3.ma20AboveDays,
+            "valuationGuard.latch.unlockConditions.condition3.ma20AboveDays",
+          );
+          assertBoolean(
+            uc.condition3.macdPositive,
+            "valuationGuard.latch.unlockConditions.condition3.macdPositive",
+          );
+          /**
+           * trendUnlockMa60SlopeThreshold {number}
+           * MA60 斜率輔助解鎖門檻，搭配 condition3 使用。
+           * 計算方式：calcSlopeN(ma60Arr, N) > threshold 時視為趨勢向上。
+           * 例如 0.001 表示每日平均上升 0.1%。
+           */
+          assertNumber(
+            uc.condition3.trendUnlockMa60SlopeThreshold,
+            "valuationGuard.latch.unlockConditions.condition3.trendUnlockMa60SlopeThreshold",
+          );
+        }
+      }
+    }
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
   // 5. trading
   assert(isObject(config.trading), "trading 必須是物件");
   assertNumber(config.trading.minAction, "trading.minAction");
