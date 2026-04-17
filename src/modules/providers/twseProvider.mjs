@@ -100,7 +100,7 @@ const COOKIE_TTL_MS = 10 * 60 * 1000;
 // ============================================================================
 let _valuationCache = { result: null, loadedAt: 0 };
 let _sharesCache = { data: null, loadedAt: 0 };
-const VALUATION_TTL_MS = 4 * 60 * 60 * 1000;   // 4h
+const VALUATION_TTL_MS = 4 * 60 * 60 * 1000; // 4h
 const SHARES_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7d
 
 async function getMisCookie() {
@@ -494,7 +494,10 @@ export async function fetchMarketValuation() {
   }
 
   // ── 日快取 4h 內直接回傳 ─────────────────────────────────────────────────
-  if (_valuationCache.result && now - _valuationCache.loadedAt < VALUATION_TTL_MS) {
+  if (
+    _valuationCache.result &&
+    now - _valuationCache.loadedAt < VALUATION_TTL_MS
+  ) {
     return _valuationCache.result;
   }
 
@@ -506,8 +509,11 @@ export async function fetchMarketValuation() {
   const fetchJson = async (url, timeout = 8000) => {
     const res = await fetchWithTimeout(
       url,
-      { ...baseFetchOptions, headers: { ...baseFetchOptions.headers, Accept: "application/json" } },
-      timeout
+      {
+        ...baseFetchOptions,
+        headers: { ...baseFetchOptions.headers, Accept: "application/json" },
+      },
+      timeout,
     );
     const text = await res.text();
     if (!res.ok || !text.trim().startsWith("[")) {
@@ -520,11 +526,15 @@ export async function fetchMarketValuation() {
     if (_sharesCache.data && now - _sharesCache.loadedAt < SHARES_TTL_MS) {
       return _sharesCache.data;
     }
-    const data = await fetchJson("https://openapi.twse.com.tw/v1/opendata/t187ap03_L", 12000);
+    const data = await fetchJson(
+      "https://openapi.twse.com.tw/v1/opendata/t187ap03_L",
+      12000,
+    );
     const map = new Map();
     for (const row of data) {
       const code = cleanCode(row["公司代號"]);
-      const raw = row["已發行普通股數或TDR原股發行股數"] ?? row["普通股(股)"] ?? "";
+      const raw =
+        row["已發行普通股數或TDR原股發行股數"] ?? row["普通股(股)"] ?? "";
       const shares = Number(String(raw).replace(/,/g, ""));
       if (code && !isNaN(shares) && shares > 0) map.set(code, shares);
     }
@@ -613,19 +623,22 @@ export async function fetchMarketValuation() {
     // 處理日期格式
     let rawDate = bwibbu[0]?.Date ?? null;
     if (rawDate && rawDate.length === 7 && rawDate.startsWith("1")) {
-      rawDate = String(Number(rawDate.substring(0, 3)) + 1911) + rawDate.substring(3);
+      rawDate =
+        String(Number(rawDate.substring(0, 3)) + 1911) + rawDate.substring(3);
     }
 
     const result = {
       pe: sumEarnings > 0 ? round2(sumMktCap / sumEarnings) : null,
       pb: sumNetAsset > 0 ? round2(sumMktCap / sumNetAsset) : null,
-      yield: sumMktCap > 0 && sumDividend > 0 ? round2((sumDividend / sumMktCap) * 100) : null,
+      yield:
+        sumMktCap > 0 && sumDividend > 0
+          ? round2((sumDividend / sumMktCap) * 100)
+          : null,
       date: rawDate,
     };
 
     _valuationCache = { result, loadedAt: now };
     return result;
-
   } catch (err) {
     console.warn(`TWSE 估值 API 異常: ${err.message}`);
     if (_valuationCache.result) return _valuationCache.result;
@@ -721,13 +734,241 @@ export async function fetchMarketOverview() {
       : rawDate;
 
   return {
-    date,                            // 最新交易日 YYYY-MM-DD
-    taiex,                           // 收盤指數 (Number)
-    changePoint,                     // 漲跌點 (Number, 可為負)
-    changePercent,                   // 漲跌幅 % (Number, 可為負)
-    tradeValueHundredMillion,        // 成交金額（億元）
-    tradeValueRaw,                   // 原始成交金額（元）
-    avgTradeValue20dHundredMillion,  // 近 20 日平均成交金額（億元）
-    maxTradeValue20dHundredMillion,  // 近 20 日最大成交金額（億元）
+    date, // 最新交易日 YYYY-MM-DD
+    taiex, // 收盤指數 (Number)
+    changePoint, // 漲跌點 (Number, 可為負)
+    changePercent, // 漲跌幅 % (Number, 可為負)
+    tradeValueHundredMillion, // 成交金額（億元）
+    tradeValueRaw, // 原始成交金額（元）
+    avgTradeValue20dHundredMillion, // 近 20 日平均成交金額（億元）
+    maxTradeValue20dHundredMillion, // 近 20 日最大成交金額（億元）
   };
+}
+
+// ============================================================================
+// 📈 大盤估值歷史回算 — 逐月市值加權法 (供 pbHistoryProvider backfill 使用)
+//
+//  策略：復用 fetchMarketValuation() 相同計算邏輯
+//        股本使用當前值（t187ap03_L），歷史偏差 < 1-2%，可接受
+//        逐月打 BWIBBU_ALL + STOCK_DAY_ALL（歷史端點），股本共用一次快取
+//
+//  限流：每月請求間隔 5000ms，每 10 筆暫停 60000ms
+//
+// @param {string} startYYYYMM  起始月份，格式 "202101"
+// @param {string} endYYYYMM    結束月份，格式 "202604"
+// @returns {Promise<{ date: string, pb: number }[]>} 升序排列，每月最後一個交易日
+// ============================================================================
+export async function fetchMarketValuationHistory(startYYYYMM, endYYYYMM) {
+  const DELAY_MS = 5000;
+  const BATCH_SIZE = 10;
+  const BATCH_PAUSE_MS = 60000;
+
+  function toNum(v) {
+    if (v == null || v === "--" || v === "-" || v === "") return null;
+    const n = Number(String(v).replace(/,/g, ""));
+    return isNaN(n) ? null : n;
+  }
+
+  function round2(v) {
+    return Math.round(v * 100) / 100;
+  }
+
+  function cleanCode(code) {
+    return code ? String(code).trim().toUpperCase() : "";
+  }
+
+  // 股本 Map 只抓一次，整個 backfill 共用
+  let sharesMap = null;
+  async function getSharesMap() {
+    if (sharesMap) return sharesMap;
+    console.log("[fetchMarketValuationHistory] 抓取股本資料 (t187ap03_L)...");
+    try {
+      const res = await fetchWithTimeout(
+        "https://openapi.twse.com.tw/v1/opendata/t187ap03_L",
+        {
+          ...baseFetchOptions,
+          headers: { ...baseFetchOptions.headers, Accept: "application/json" },
+        },
+        12000,
+      );
+      const text = await res.text();
+      const data = JSON.parse(text);
+      const map = new Map();
+      for (const row of data) {
+        const code = cleanCode(row["公司代號"]);
+        const raw =
+          row["已發行普通股數或TDR原股發行股數"] ?? row["普通股(股)"] ?? "";
+        const shares = Number(String(raw).replace(/,/g, ""));
+        if (code && !isNaN(shares) && shares > 0) map.set(code, shares);
+      }
+      sharesMap = map;
+      return sharesMap;
+    } catch (e) {
+      console.warn("[fetchMarketValuationHistory] 股本 API 失敗:", e.message);
+      sharesMap = new Map();
+      return sharesMap;
+    }
+  }
+
+  // 計算指定月份的最後交易日 PB
+  // yyyymm01：格式 "20210101"（TWSE 歷史端點需要完整 8 位）
+  async function calcPbForMonth(yyyymm01) {
+    const bwibbuUrl = `https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_ALL?date=${yyyymm01}&response=json`;
+    const stockDayUrl = `https://www.twse.com.tw/rwd/zh/afterTrading/STOCK_DAY_ALL?date=${yyyymm01}&response=json`;
+
+    let bwibbu = null;
+    let stockDay = null;
+
+    // 兩支 API 並行打，加速
+    try {
+      [bwibbu, stockDay] = await Promise.all([
+        fetchWithTimeout(
+          bwibbuUrl,
+          {
+            ...baseFetchOptions,
+            headers: {
+              ...baseFetchOptions.headers,
+              Accept: "application/json",
+            },
+          },
+          12000,
+        ).then((r) => r.json()),
+        fetchWithTimeout(
+          stockDayUrl,
+          {
+            ...baseFetchOptions,
+            headers: {
+              ...baseFetchOptions.headers,
+              Accept: "application/json",
+            },
+          },
+          12000,
+        ).then((r) => r.json()),
+      ]);
+    } catch (e) {
+      console.warn(
+        `[fetchMarketValuationHistory] ${yyyymm01} API 失敗:`,
+        e.message,
+      );
+      return null;
+    }
+
+    if (bwibbu?.stat !== "OK" || !Array.isArray(bwibbu?.data)) return null;
+    if (stockDay?.stat !== "OK" || !Array.isArray(stockDay?.data)) return null;
+
+    // STOCK_DAY_ALL 欄位：0:代號 1:名稱 2:成交股數 3:成交筆數 4:成交金額 5:開盤 6:最高 7:最低 8:收盤 9:漲跌
+    const priceMap = new Map();
+    for (const row of stockDay.data) {
+      if (!Array.isArray(row) || row.length < 9) continue;
+      const code = cleanCode(row[0]);
+      const price = toNum(row[8]); // 收盤價
+      if (code && price !== null && price > 0) priceMap.set(code, price);
+    }
+
+    const shares = await getSharesMap();
+
+    // BWIBBU_ALL 欄位：0:代號 1:名稱 2:本益比 3:殖利率 4:股價淨值比
+    let sumMktCap = 0;
+    let pbValidMktCap = 0;
+    let sumNetAsset = 0;
+
+    for (const row of bwibbu.data) {
+      if (!Array.isArray(row) || row.length < 5) continue;
+      const code = cleanCode(row[0]);
+      const pb = toNum(row[4]);
+      const price = priceMap.get(code);
+      const sh = shares.get(code);
+
+      if (!code || price == null || sh == null) continue;
+      const mktCap = price * sh;
+      if (mktCap <= 0) continue;
+
+      sumMktCap += mktCap;
+
+      if (pb !== null && pb > 0) {
+        pbValidMktCap += mktCap;
+        sumNetAsset += mktCap / pb;
+      }
+    }
+
+    if (sumNetAsset <= 0) return null;
+
+    // 取日期（用 bwibbu 回傳的 date 欄位，格式 "20260416"）
+    const rawDate = String(bwibbu.date ?? "");
+    let isoDate = null;
+    if (rawDate.length === 8) {
+      isoDate = `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`;
+    }
+    // fallback：從 bwibbu.data[0][0] 的 title 解析
+    if (!isoDate && bwibbu.title) {
+      // title 格式：「115/04/16 個股日本益比...」
+      const match = String(bwibbu.title).match(/^(\d{3})\/(\d{2})\/(\d{2})/);
+      if (match) {
+        const adYear = parseInt(match[1], 10) + 1911;
+        isoDate = `${adYear}-${match[2]}-${match[3]}`;
+      }
+    }
+
+    if (!isoDate) return null;
+
+    return {
+      date: isoDate,
+      pb: round2(sumMktCap / sumNetAsset),
+    };
+  }
+
+  // 產生月份清單（startYYYYMM ~ endYYYYMM，格式 "202101"）
+  function enumerateMonthRange(start, end) {
+    const result = [];
+    let y = parseInt(start.slice(0, 4), 10);
+    let m = parseInt(start.slice(4, 6), 10);
+    const ey = parseInt(end.slice(0, 4), 10);
+    const em = parseInt(end.slice(4, 6), 10);
+
+    while (y < ey || (y === ey && m <= em)) {
+      result.push(`${y}${String(m).padStart(2, "0")}01`);
+      m++;
+      if (m > 12) {
+        m = 1;
+        y++;
+      }
+    }
+    return result;
+  }
+
+  // ── 主流程 ──────────────────────────────────────────────────────────────
+  const months = enumerateMonthRange(startYYYYMM, endYYYYMM);
+  console.log(
+    `[fetchMarketValuationHistory] 共 ${months.length} 個月份需回算，開始...`,
+  );
+
+  const results = [];
+  let requestCount = 0;
+
+  for (const yyyymm01 of months) {
+    const record = await calcPbForMonth(yyyymm01);
+    if (record) {
+      results.push(record);
+      console.log(
+        `[fetchMarketValuationHistory] ${record.date} PB=${record.pb} ✓`,
+      );
+    } else {
+      console.warn(`[fetchMarketValuationHistory] ${yyyymm01} 無資料，略過`);
+    }
+
+    requestCount++;
+    await sleep(DELAY_MS);
+
+    if (requestCount % BATCH_SIZE === 0) {
+      console.log(
+        `[fetchMarketValuationHistory] 已完成 ${requestCount} 月，暫停 ${BATCH_PAUSE_MS}ms...`,
+      );
+      await sleep(BATCH_PAUSE_MS);
+    }
+  }
+
+  console.log(
+    `[fetchMarketValuationHistory] 完成，共取得 ${results.length} 筆`,
+  );
+  return results;
 }
