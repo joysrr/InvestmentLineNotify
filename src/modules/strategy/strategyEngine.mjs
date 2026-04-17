@@ -314,6 +314,110 @@ function resolveValuationGuard(currentPB, pbRecords, config) {
   };
 }
 
+/**
+ * 解析趨勢確認狀態：計算 MA20 跌破天數與 ATR 動態支撐位，
+ * 供 valuationGuard latch 解鎖條件 2（價格從 ATR 低點回升）使用。
+ *
+ * 計算項目：
+ *  1. ma20BreakDays    — 當前收盤價連續低於 MA20 的天數
+ *  2. atrSupportLevel  — ATR 動態支撐位：近 N 日最低收盤 + atrMultiplier × ATR
+ *  3. priceAboveAtrSupport — 當前價格是否已回升至 ATR 支撐位以上
+ *
+ * @param {Object} priceData - 包含歷史價格與指標序列的資料物件
+ * @param {number[]} priceData.closeArr  - 收盤價序列（由舊到新）
+ * @param {number[]} priceData.ma20Arr   - MA20 序列（由舊到新，與 closeArr 等長）
+ * @param {number[]} priceData.atrArr    - ATR 序列（由舊到新，與 closeArr 等長）
+ * @param {Object} config - 完整 strategy config
+ * @returns {{
+ *   ma20BreakDays: number,
+ *   atrSupportLevel: number|null,
+ *   priceAboveAtrSupport: boolean,
+ *   currentPrice: number|null,
+ *   currentMA20: number|null,
+ *   currentATR: number|null,
+ *   trendLabel: string,
+ * }}
+ */
+function resolveTrendConfirmation(priceData, config) {
+  const cfg = config?.valuationGuard?.latch;
+
+  const closeArr = Array.isArray(priceData?.closeArr) ? priceData.closeArr : [];
+  const ma20Arr = Array.isArray(priceData?.ma20Arr) ? priceData.ma20Arr : [];
+  const atrArr = Array.isArray(priceData?.atrArr) ? priceData.atrArr : [];
+
+  // ── 資料不足保護 ─────────────────────────────────────────────
+  if (closeArr.length === 0 || ma20Arr.length === 0) {
+    return {
+      ma20BreakDays: 0,
+      atrSupportLevel: null,
+      priceAboveAtrSupport: false,
+      currentPrice: null,
+      currentMA20: null,
+      currentATR: null,
+      trendLabel: "📉 趨勢確認：資料不足",
+    };
+  }
+
+  const currentPrice = closeArr[closeArr.length - 1];
+  const currentMA20 = ma20Arr[ma20Arr.length - 1];
+  const currentATR = atrArr.length > 0 ? atrArr[atrArr.length - 1] : null;
+
+  // ── 1. 計算 MA20 跌破天數（從最新往回數，連續低於 MA20 的天數） ──
+  let ma20BreakDays = 0;
+  const minLen = Math.min(closeArr.length, ma20Arr.length);
+  for (let i = minLen - 1; i >= 0; i--) {
+    const close = closeArr[i];
+    const ma20 = ma20Arr[i];
+    if (Number.isFinite(close) && Number.isFinite(ma20) && close < ma20) {
+      ma20BreakDays++;
+    } else {
+      break; // 一旦有一天未跌破即停止
+    }
+  }
+
+  // ── 2. 計算 ATR 動態支撐位 ───────────────────────────────────
+  // 支撐位 = 近 atrLookbackDays 日最低收盤價 + atrMultiplier × 當日 ATR
+  const atrLookbackDays = cfg?.atrLookbackDays ?? 20;
+  const atrMultiplier = cfg?.atrSupportMultiplier ?? 1.0;
+
+  let atrSupportLevel = null;
+  let priceAboveAtrSupport = false;
+
+  if (
+    Number.isFinite(currentATR) &&
+    currentATR > 0 &&
+    closeArr.length >= atrLookbackDays
+  ) {
+    const lookbackSlice = closeArr.slice(-atrLookbackDays);
+    const recentLow = Math.min(...lookbackSlice.filter(Number.isFinite));
+    atrSupportLevel = recentLow + atrMultiplier * currentATR;
+    priceAboveAtrSupport =
+      Number.isFinite(currentPrice) && currentPrice > atrSupportLevel;
+  }
+
+  // ── 3. 產生趨勢標籤供 Telegram 顯示 ─────────────────────────
+  let trendLabel = "";
+  if (ma20BreakDays === 0) {
+    trendLabel = `📈 趨勢確認：收盤在 MA20 之上`;
+  } else {
+    const atrInfo =
+      atrSupportLevel != null
+        ? `，ATR 支撐 ${atrSupportLevel.toFixed(2)}（${priceAboveAtrSupport ? "✅ 已回升" : "❌ 未回升"}）`
+        : "";
+    trendLabel = `📉 趨勢確認：MA20 跌破 ${ma20BreakDays} 日${atrInfo}`;
+  }
+
+  return {
+    ma20BreakDays,
+    atrSupportLevel,
+    priceAboveAtrSupport,
+    currentPrice,
+    currentMA20,
+    currentATR,
+    trendLabel,
+  };
+}
+
 function buildDecision(ctx, strategy, grossLeverageResult) {
   const th = strategy.threshold;
   const maint = strategy.maintenance;
