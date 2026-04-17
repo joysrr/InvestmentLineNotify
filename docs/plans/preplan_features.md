@@ -619,55 +619,9 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ---
 
-## 📌【策略與績效】策略訊號回測與績效統計
+## ~~📌【策略與績效】策略訊號回測與績效統計~~
 
-### 狀態與目標摘要
-
-- 目前僅有回測概念與資料來源分析，尚未實作 runner。
-- 計劃新增獨立 runner（例如 `src/runBacktest.mjs`）並與週/月報的統計結果整合。
-
-### 動機
-
-`strategyEngine.mjs` 目前依據 RSI、KD、MACD、VIX、MA240、`macroMarketDirection` 計算買賣訊號，但系統內無法驗證：
-
-- 歷史上當「訊號 = 買進」時，後續 N 天的實際報酬率如何？
-- 哪個指標對最終决策貢獻最大？
-
-目前 `archiveManager` 已存 `signals` 快照，資料基礎存在，缺的是分析邏輯。
-
-### 建議方向
-
-新增一個 `runBacktest.mjs` runner，讀取 `data/archives/` 歷史快照 + Google Sheet 歷史價格，計算每次訊號後的 5/10/20 日報酬率，輸出 CSV 或 Telegram 月報附件。
-
-此功能可與現有 `runMonthlyReport.mjs` 整合（月報時一併輸出回測摘要）。
-
-### 影響範圍
-
-- 新增 `src/runBacktest.mjs`（新 runner）
-- `src/modules/data/archiveManager.mjs`（新增讀取歷史快照 API）
-- `src/modules/storage.mjs`（讀取 Google Sheet 歷史收盤價）
-- 可能新增 `src/modules/strategy/backtestEngine.mjs`
-
-### 難度
-
-⭐⭐⭐ 高（需設計回測邏輯與資料對齊）
-
-### 與其他計畫的關聯
-
-> 📋 **本計畫為「績效分析與回測」整合計畫的 Phase 1，建議依以下三階段實作：**
->
-> | Phase                 | 內容                                                                   | 前置依賴                                                                        |
-> | --------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-> | **Phase 1（本計畫）** | `backtest runner` 基礎架構 + `archiveManager` 歷史快照讀取 API         | 無                                                                              |
-> | **Phase 2**           | 加入 `signalCategory` 維度分析（見「訊號類型分類與月報統計」計畫）     | Phase 1 完成 + 「Baseline DCA 與戰術加碼雙層架構」完成（`signalType` 欄位存在） |
-> | **Phase 3**           | MacroSentiment 回測維度補充（見「MacroSentiment 交互與回測驗證」計畫） | Phase 1 完成                                                                    |
->
-> `archiveManager` 的歷史快照讀取 API 應在本計畫（Phase 1）中統一建立，
-> Phase 2 與 Phase 3 直接沿用，**不另行擴充**，避免同一模組被多個計畫重複修改。
-
-### 討論狀態
-
-⚪ 待確認
+> ⚠️ 此計畫已與「訊號類型分類與月報統計」及「MacroSentiment 交互與回測驗證」合併為【績效分析與回測計畫】，請參閱下方對應條目。
 
 ---
 
@@ -741,35 +695,151 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ---
 
-## 📌【冷卻期與情緒】MacroSentiment 交互與回測驗證（已整合 VIX 情緒短路 ✅ 已完成）
+## ~~📌【冷卻期與情緒】MacroSentiment 交互與回測驗證~~（已整合 VIX 情緒短路 ✅ 已完成）
 
-> ⚠️ VIX 情緒短路機制已完成，請參閱`finishedplan_features.md`【P1 已完成】VIX 情緒短路機制條目。
-> 剩餘回測維度（macroSentiment 多模式績效比較）保留為未來 backtest runner 完成後的擴充項目。
+> ⚠️ VIX 情緒短路機制已完成，請參閱 `finishedplan_features.md`。
+> 剩餘回測維度已合併為【績效分析與回測計畫】Phase 3，請參閱下方對應條目。
 
-### 建議方向（補充回測維度，未強制）
+---
 
-- 在 `backtest.mjs` 內加入 macroSentiment 維度回測：
-  - 比較「有 sentimentScore + 冷卻延長」與「僅 sentimentScore 或僅冷卻延長」三種模式的績效。
-  - 觀察 BEARISH 區間內的平均進場次數、勝率與最大回撤。
-- 考慮增加上限：
+## 📌【績效分析】績效分析與回測計畫
+
+### 狀態
+
+⚪ 待實作｜難度：⭐⭐⭐ 高
+
+### 目標摘要
+
+建立完整的策略回測基礎架構，並依三個階段逐步加入訊號類型維度與總經情緒維度，實現從「知道訊號結果」到「理解訊號品質」的分析能力升級。
+
+> **整合說明：** 原「策略訊號回測與績效統計」、「訊號類型分類與月報統計」、「MacroSentiment 交互與回測驗證（回測維度部分）」三份計畫因共用 `archiveManager` 歷史快照讀取 API，合併為本計畫統一實作。`archiveManager` 擴充節次僅在 Phase 1 出現，Phase 2 與 Phase 3 直接沿用，不另行重複擴充。
+
+---
+
+### Phase 1：backtest 基礎架構（前置依賴：無）
+
+#### 動機
+
+`strategyEngine.mjs` 目前依據 RSI、KD、MACD、VIX、MA240、`macroMarketDirection` 計算買賣訊號，但系統內無法驗證歷史上「訊號 = 買進」時，後續 N 天的實際報酬率為何，也無法得知哪個指標對最終決策貢獻最大。目前 `archiveManager` 已存 `signals` 快照，資料基礎存在，缺的是分析邏輯。
+
+#### 建議方向
+
+新增獨立 runner `src/runBacktest.mjs`，讀取 `data/archives/` 歷史快照 + Google Sheet 歷史價格，計算每次訊號後的 5/10/20 日報酬率，輸出 CSV 或 Telegram 月報附件。可與現有 `runMonthlyReport.mjs` 整合（月報時一併輸出回測摘要）。
+
+#### 影響範圍
+
+- `src/runBacktest.mjs`（新增 runner）
+- `src/modules/data/archiveManager.mjs`（**統一新增**歷史快照讀取 API，Phase 2 / Phase 3 直接沿用）
+- `src/modules/storage.mjs`（讀取 Google Sheet 歷史收盤價）
+- `src/modules/strategy/backtestEngine.mjs`（新增，封裝回測核心邏輯）
+
+#### 工作節次
+
+| 節   | 工作內容                                                                                                                               | 涉及檔案                     |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| 節一 | `archiveManager.mjs` 新增 `getArchiveRecords(dateRange)` / `listArchiveDates()` 歷史快照讀取 API（Phase 2 / 3 沿用此介面，不另行擴充） | `archiveManager.mjs`         |
+| 節二 | 新增 `backtestEngine.mjs`，實作訊號後 5/10/20 日報酬率計算邏輯                                                                         | `backtestEngine.mjs`（新增） |
+| 節三 | 新增 `runBacktest.mjs` runner，串接 `archiveManager` 快照讀取與 `backtestEngine` 計算，輸出 CSV                                        | `runBacktest.mjs`（新增）    |
+| 節四 | `storage.mjs` 新增 Google Sheet 歷史收盤價讀取方法                                                                                     | `storage.mjs`                |
+| 節五 | `runMonthlyReport.mjs` 整合：月報時一併觸發回測摘要輸出                                                                                | `runMonthlyReport.mjs`       |
+
+---
+
+### Phase 2：signalCategory 維度分析（依賴 Phase 1 完成 + 資金管控強化計畫 Phase 1 完成）
+
+#### 前置依賴
+
+> ⚠️ **Phase 2 需以下兩項先行完成：**
+>
+> 1. **本計畫 Phase 1**：`archiveManager` 歷史快照讀取 API 與 `backtestEngine` 基礎架構必須已建立。
+> 2. **【資金管控強化計畫】Phase 1**：`signalType` 欄位（`baseline | tactical_drop | tactical_panic`）必須已存在於每日快照中，`signalCategory` 分類統計才有意義。
+>
+> **建議實作順序：資金管控強化 Phase 1 → 本計畫 Phase 1 → 本計畫 Phase 2**
+
+#### 動機
+
+現有週報、月報已統計買進訊號次數與報酬，但尚未標示訊號類型。使用者只能看到 aggregate 績效，無法得知哪一種訊號（恐慌、一般大跌、常態進場）效果最好，無法作為調整各檔位權重與門檻的依據。
+
+#### 建議方向
+
+- 在每日 `signals` 快照中加入 `signalCategory` 欄位（`baseline`、`deep_drop`、`panic`、`take_profit`、`rebalance` 等）。
+- 在 `periodReportAgent.mjs` 統計邏輯中，針對每一類訊號計算觸發次數、平均報酬率與勝率。
+- 月報新增「各類訊號績效概覽」一節。
+
+#### 影響範圍
+
+- `src/modules/strategy/strategyEngine.mjs`（新增 `signalCategory` 輸出）
+- `src/modules/ai/periodReportAgent.mjs`（新增分類統計邏輯）
+- Telegram 月報模板
+
+#### 工作節次
+
+| 節   | 工作內容                                                                                     | 涉及檔案                  |
+| ---- | -------------------------------------------------------------------------------------------- | ------------------------- |
+| 節一 | `strategyEngine.mjs` 決策輸出新增 `signalCategory` 欄位                                      | `strategyEngine.mjs`      |
+| 節二 | `backtestEngine.mjs` 新增依 `signalCategory` 分組的報酬率統計方法（沿用 Phase 1 建立的介面） | `backtestEngine.mjs`      |
+| 節三 | `periodReportAgent.mjs` 月報新增「各類訊號績效概覽」統計區段                                 | `periodReportAgent.mjs`   |
+| 節四 | Telegram 月報模板新增分類績效表格                                                            | `telegramHtmlBuilder.mjs` |
+
+---
+
+### Phase 3：MacroSentiment 回測維度（依賴 Phase 1 完成；與 Phase 2 無依賴，可平行進行）
+
+#### 前置依賴
+
+> ⚠️ **Phase 3 僅需本計畫 Phase 1 完成即可進行，與 Phase 2 無依賴關係，可平行實作。**
+> `archiveManager` 歷史快照讀取 API 直接沿用 Phase 1 建立的介面，**不另行建立新的快照讀取路徑**。
+
+#### 動機
+
+VIX 情緒短路機制已完成，但尚未驗證「有 sentimentScore + 冷卻延長」vs「僅 sentimentScore」vs「僅冷卻延長」三種模式在 BEARISH 區間內的實際績效差異，無法以資料驅動方式判斷是否需要調整冷卻延長邏輯。
+
+#### 建議方向
+
+- 在 `backtestEngine.mjs` 內加入 `macroSentiment` 維度回測：
+  - 比較三種模式的平均進場次數、勝率與最大回撤。
+  - 觀察 BEARISH 區間內的績效表現。
+- 考慮增加上限條件研究：
   - 例如在估值低於某 PB 或 PE 閾值時，關閉冷卻延長效果但保留分數扣分。
   - 或在連續 N 天 BEARISH 卻持續大跌時，強制允許恐慌加碼通道。
 
-### 難度
+#### 影響範圍
 
-⭐⭐⭐ 高
+- `src/modules/strategy/backtestEngine.mjs`（新增 macroSentiment 維度分析方法）
+- `src/runBacktest.mjs`（新增 macroSentiment 模式切換參數）
 
-### 前置依賴
+#### 工作節次
 
-> ⚠️ **本計畫為「績效分析與回測」整合計畫的 Phase 3，需以下項目先行完成：**
->
-> 1. **「策略訊號回測與績效統計」（Phase 1）**：`backtest runner` 基礎架構與 `archiveManager` 歷史快照讀取 API 必須已建立，本計畫的 MacroSentiment 維度分析才可直接掛載，**不另行建立新的快照讀取路徑**。
->
-> Phase 3 與 Phase 2（訊號類型分類）彼此無依賴，可在 Phase 1 完成後平行進行。
+| 節   | 工作內容                                                                        | 涉及檔案             |
+| ---- | ------------------------------------------------------------------------------- | -------------------- |
+| 節一 | `backtestEngine.mjs` 新增 `runSentimentModeComparison()` 方法，比較三種模式績效 | `backtestEngine.mjs` |
+| 節二 | `runBacktest.mjs` 新增 `--mode sentiment` 參數，觸發 macroSentiment 維度回測    | `runBacktest.mjs`    |
+| 節三 | 回測結果輸出至 CSV，格式與 Phase 1 一致                                         | `runBacktest.mjs`    |
+
+---
+
+### 整合影響範圍
+
+- `src/runBacktest.mjs`（新增 runner）
+- `src/modules/data/archiveManager.mjs`（Phase 1 統一擴充，後續 Phase 沿用）
+- `src/modules/storage.mjs`
+- `src/modules/strategy/backtestEngine.mjs`（新增）
+- `src/modules/strategy/strategyEngine.mjs`
+- `src/modules/ai/periodReportAgent.mjs`
+- `src/modules/notifications/templates/telegramHtmlBuilder.mjs`
+- `src/runMonthlyReport.mjs`
+
+### Phase 依賴總覽
+
+| Phase       | 內容                                   | 外部前置依賴                                | 本計畫內部依賴 |
+| ----------- | -------------------------------------- | ------------------------------------------- | -------------- |
+| **Phase 1** | backtest 基礎架構 + archiveManager API | 無                                          | 無             |
+| **Phase 2** | signalCategory 維度分析                | 資金管控強化計畫 Phase 1（signalType 欄位） | Phase 1        |
+| **Phase 3** | MacroSentiment 回測維度                | 無                                          | Phase 1        |
 
 ### 討論狀態
 
-⚪ 待確認（回測維度部分）
+⚪ 待確認
 
 ---
 
@@ -901,47 +971,9 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ---
 
-## 📌【報告強化】訊號類型分類與月報統計
+## ~~📌【報告強化】訊號類型分類與月報統計~~
 
-### 狀態與目標摘要
-
-- 現有週報、月報已統計買進訊號次數、冷卻封鎖比例與 +5/+10/+20 日報酬，但尚未標示訊號類型。
-- 使用者只能看到 aggregate 的績效，無法得知哪一種訊號（恐慌、一般大跌、常態進場）效果最好。
-
-### 動機
-
-以「訊號類型」為維度分析績效，可以用來調整各檔位權重與門檻，例如：若恐慌加碼勝率高但樣本少，可考慮略放寬條件；若某種一般加碼長期績效不佳，可適度調高分數門檻。
-
-### 建議方向
-
-- 在每日 `signals` 中加入 `signalCategory` 欄位：
-  - 例如 `baseline`, `deep_drop`, `panic`, `take_profit`, `rebalance` 等。
-- 在 `periodReportAgent.mjs` 的統計邏輯中：
-  - 針對每一類訊號計算觸發次數、平均報酬率與勝率。
-  - 月報中新增一節「各類訊號績效概覽」。
-
-### 影響範圍
-
-- `src/modules/strategy/strategyEngine.mjs`
-- `src/modules/ai/periodReportAgent.mjs`
-- Telegram 月報模板
-
-### 難度
-
-⭐⭐ 中
-
-### 前置依賴
-
-> ⚠️ **本計畫為「績效分析與回測」整合計畫的 Phase 2，需以下兩項先行完成：**
->
-> 1. **「策略訊號回測與績效統計」（Phase 1）**：`archiveManager` 歷史快照讀取 API 與 `backtest runner` 基礎架構必須已建立，本計畫的 `signalCategory` 統計邏輯才有資料來源可讀取。
-> 2. **「Baseline DCA 與戰術加碼雙層架構」**：`signalType` 欄位（`baseline | tactical_drop | tactical_panic`）必須存在於每日快照中，本計畫的「各類訊號績效概覽」才有意義。
->
-> **建議實作順序：Phase 1 → Baseline/Tactical 拆分 → 本計畫（Phase 2）**
-
-### 討論狀態
-
-⚪ 待確認
+> ⚠️ 此計畫已合併為【績效分析與回測計畫】Phase 2，請參閱下方對應條目。
 
 ---
 
