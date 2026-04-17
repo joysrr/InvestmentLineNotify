@@ -34,7 +34,6 @@ import {
   encryptSnapshot,
   isSnapshotEncryptEnabled,
 } from "./utils/snapshotCrypto.mjs";
-import { checkAndBackfill } from "./modules/providers/pbHistoryProvider.mjs";
 
 const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
@@ -45,11 +44,6 @@ export async function dailyCheck({
   isAIAdvisor = true,
 }) {
   console.log("🚀 開始執行 dailyCheck...");
-
-  // ④ PB 歷史快取：啟動時確保歷史資料充足（不足時自動補齊，不阻塞主流程）
-  checkAndBackfill(1260).catch((err) =>
-    console.warn("⚠️ [pbHistory] checkAndBackfill 背景執行失敗:", err.message),
-  );
 
   // 1. 從試算表繼承昨天的持股狀態
   console.log("📊 正在讀取試算表持股...");
