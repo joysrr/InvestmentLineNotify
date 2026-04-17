@@ -4,6 +4,7 @@ import { TwDate } from "../../utils/coreUtils.mjs";
 // === 匯出即將被我們整合進 Cache 機制的 Provider ===
 import { macroDataSlots } from "./dataSourceConfig.mjs";
 import { providerRegistry } from "./providerRegistry.mjs";
+import { appendToday } from "./pbHistoryProvider.mjs";
 
 function getProviderForSlot(slotKey) {
   const slot = macroDataSlots[slotKey];
@@ -86,7 +87,9 @@ export async function fetchAllMacroData() {
   // 策略: 16:00 前不抓取直接讀 Cache。16:00 後強制重抓。
   // ====================================================================
   const marginProviderKey = macroDataSlots.rawMargin.providerId;
-  const marginLastTime = new Date(cachedMeta[marginProviderKey]?.lastFetch || 0);
+  const marginLastTime = new Date(
+    cachedMeta[marginProviderKey]?.lastFetch || 0,
+  );
   const hoursSinceMarginUpdate = (now - marginLastTime) / (1000 * 60 * 60);
 
   if (cachedData.rawMargin && (twHour < 16 || hoursSinceMarginUpdate < 2)) {
@@ -205,6 +208,7 @@ export async function fetchAllMacroData() {
   } else {
     const provider = getProviderForSlot("rawValuation");
 
+    // 修改後
     fetchPromises.push(
       provider
         .fetch()
@@ -214,6 +218,10 @@ export async function fetchAllMacroData() {
             status: "SUCCESS",
             lastFetch: now.toISOString(),
           };
+          // ④ PB 歷史快取：每日成功取得 rawValuation 後追加當日紀錄
+          if (res?.pb != null && res?.date) {
+            appendToday(res.date, res.pb);
+          }
         })
         .catch((err) => {
           console.warn("⚠️ TWSE 估值 API 失敗:", err.message);
