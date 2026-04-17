@@ -278,6 +278,33 @@ export async function dailyCheck({
   }
   // ───────────────────────────────────────────────────────────────────────────
 
+  // ── 步驟 3-7：讀取 valuationGuardState.json ──
+  let valuationGuardState = {
+    latchActive: false,
+    latchTriggeredAt: null,
+    latchTriggeredPR: null,
+  };
+  try {
+    const savedState = await archiveManager.getValuationGuardState();
+    if (savedState && typeof savedState.defenseLatch === "boolean") {
+      valuationGuardState = {
+        latchActive: savedState.defenseLatch,
+        latchTriggeredAt: savedState.latchTriggeredAt ?? null,
+        latchTriggeredPR: savedState.latchTriggeredPR ?? null,
+      };
+      console.log(
+        `✅ [dailyCheck] valuationGuardState 載入：latchActive=${valuationGuardState.latchActive}` +
+          (valuationGuardState.latchTriggeredAt
+            ? `，觸發日 ${valuationGuardState.latchTriggeredAt}`
+            : ""),
+      );
+    }
+  } catch (err) {
+    console.warn(
+      `⚠️ [dailyCheck] valuationGuardState.json 讀取失敗，使用預設值：${err.message}`,
+    );
+  }
+
   const signalData = {
     RSI: latestRSI,
     KD_K: latestKD ? latestKD.k : null,
@@ -299,6 +326,7 @@ export async function dailyCheck({
     US_RiskIcon: usRisk.riskIcon,
     US_Suggestion: usRisk.suggestion,
     macroMarketDirection,
+    valuationGuardState,
   };
 
   console.log("🧠 正在計算投資訊號...");
@@ -306,6 +334,43 @@ export async function dailyCheck({
   {
     const done = stepTimer("getInvestmentSignal");
     result = await getInvestmentSignalAsync(signalData);
+    // ── latch 狀態變更後回寫 valuationGuardState.json ──
+    const decision = result?.signals ?? result;
+    const newLatchActive = decision?.latchNowActive ?? false;
+    const latchChanged =
+      newLatchActive !== valuationGuardState.latchActive ||
+      decision?.shouldLatch === true ||
+      decision?.shouldUnlatch === true;
+
+    if (latchChanged) {
+      const newState = {
+        defenseLatch: newLatchActive,
+        latchTriggeredAt: decision?.shouldLatch
+          ? new Date().toISOString().slice(0, 10)
+          : newLatchActive
+            ? valuationGuardState.latchTriggeredAt
+            : null,
+        latchTriggeredPR: decision?.shouldLatch
+          ? (decision?.valuationGuardResult?.currentPR ?? null)
+          : newLatchActive
+            ? valuationGuardState.latchTriggeredPR
+            : null,
+      };
+      try {
+        await archiveManager.saveValuationGuardState(newState);
+        console.log(
+          `🛡️ [dailyCheck] valuationGuardState 已更新：defenseLatch=${newState.defenseLatch}` +
+            (newState.latchTriggeredAt
+              ? `，觸發日 ${newState.latchTriggeredAt}`
+              : ""),
+        );
+      } catch (err) {
+        console.error(
+          `❌ [dailyCheck] valuationGuardState.json 寫入失敗：${err.message}`,
+        );
+      }
+    }
+
     done();
   }
 
