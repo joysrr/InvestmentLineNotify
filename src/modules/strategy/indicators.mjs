@@ -237,3 +237,24 @@ export function getMACDSignal(macdResult) {
   if (last.MACD < last.signal) return "bear";
   return "neutral";
 }
+
+/**
+ * 通用簡單移動平均線（SMA）純函式。
+ * 回傳與輸入等長的陣列，前 (period-1) 筆為 NaN（無足夠資料）。
+ *
+ * @param {number[]} prices - 收盤價（或任意數值）序列，由舊到新排列
+ * @param {number}   period - 計算週期（必須為正整數）
+ * @returns {number[]}
+ */
+export function calcSMA(prices, period) {
+  if (!Array.isArray(prices) || period < 1 || !Number.isInteger(period)) {
+    return [];
+  }
+  const result = new Array(prices.length).fill(NaN);
+  for (let i = period - 1; i < prices.length; i++) {
+    let sum = 0;
+    for (let j = i - period + 1; j <= i; j++) sum += prices[j];
+    result[i] = sum / period;
+  }
+  return result;
+}
