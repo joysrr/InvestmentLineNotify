@@ -895,47 +895,9 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ---
 
-## 📌【策略拆分】Baseline DCA 與戰術加碼雙層架構
+## ~~📌【策略拆分】Baseline DCA 與戰術加碼雙層架構~~
 
-### 狀態與目標摘要
-
-- 目前「底倉 DCA」與「顯著修正或恐慌時的戰術加碼」共同由同一分數機制與 allocation 表驅動。
-- 使用者在閱讀報告時較難分辨當日建議是屬於「持續佈局」還是「特殊戰術」。
-
-### 動機
-
-將日常 DCA（例如穩定買入 0050 + 少量質押）與戰術性大幅加碼（例如恐慌加碼、左側大跌加碼）拆成兩條明確路徑，有助於解釋策略行為，也方便分別調整其風控參數。
-
-### 建議方向
-
-- 策略層拆分：
-  - 新增一個 `baselineAllocation` 與 `tacticalAllocation` 概念，baseline 只受輕度技術與估值因素影響；tactical 則要求更嚴格的大跌／恐慌條件。
-  - 在 `evaluateInvestmentSignal` 結果中明確標示 `signalType = baseline | tactical_drop | tactical_panic`。
-- 報告與回測：
-  - 周/月報在統計訊號準確率時分開統計 baseline 與 tactical 的勝率與平均報酬。
-  - 在 Telegram 報告文案中以標題或 emoji 區分兩者（例如「🌱 常態布局」vs「⚡ 戰術加碼」）。
-
-### 影響範圍
-
-- `Strategy.json`（新增 baseline / tactical 配置）
-- `src/modules/strategy/strategyEngine.mjs`
-- `src/modules/ai/periodReportAgent.mjs`
-- Notifications 模板
-
-### 難度
-
-⭐⭐⭐ 高（涉及策略定義與報表）
-
-### 與其他計畫的關聯
-
-> ⚠️ **本計畫是「單日/區間撥款上限控制」計畫的前置依賴。**
-> `signalType`（`baseline | tactical_drop | tactical_panic`）欄位必須在本計畫完成後才存在，
-> 「撥款上限控制」計畫中的「額度排擠防護（Budget Priority）」邏輯才有依據識別 Baseline 與 Tactical 各自的資金需求。
-> **建議兩計畫合併為同一 PR 分節實作，避免中間狀態（有分層但無上限、或有上限但無分層）短暫上線。**
-
-### 討論狀態
-
-⚪ 待確認
+> ⚠️ 此計畫已與「單日/區間撥款上限控制」合併為【資金管控強化計畫】，請參閱下方對應條目。
 
 ---
 
@@ -1019,50 +981,109 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ---
 
-## 📌【資金管控】單日 / 區間撥款上限控制
+## ~~📌【資金管控】單日 / 區間撥款上限控制~~
 
-### 狀態與目標摘要
+> ⚠️ 此計畫已與「Baseline DCA 與戰術加碼雙層架構」合併為【資金管控強化計畫】，請參閱下方對應條目。
 
-- 現有設計已透過冷卻期與再平衡控制槓桿節奏，但尚未顯式限制「單日最大新增撥款金額」與「區間累積加碼上限」。
-- 在極端行情下，多個訊號同時達標時仍有可能短期內大額放大槓桿。
+---
 
-### 動機
+## 📌【資金管控強化】Baseline/Tactical 雙層架構與撥款上限控制
 
-即使策略在邏輯上判斷「值得加碼」，仍有必要從資金管理角度限制一次性槓桿拉升的幅度，以降低人為執行失誤或黑天鵝的衝擊。
+### 狀態
 
-### 建議方向
+⚪ 待實作｜難度：⭐⭐⭐ 高
+
+### 目標摘要
+
+將日常 DCA 底倉與戰術性加碼拆分為兩條明確路徑，並在此基礎上實作單日／區間撥款上限與額度排擠防護，確保極端行情下的大幅加碼不會中斷長期紀律定時定額。
+
+> **整合說明：** 原「Baseline DCA 與戰術加碼雙層架構」與「單日/區間撥款上限控制」兩份計畫因強耦合關係合併為本計畫。`signalType` 欄位（Phase 1）是撥款上限 Budget Priority 邏輯（Phase 2）的前置依賴，兩者應合入同一 PR 分節執行，避免中間不完整狀態上線。
+
+---
+
+### Phase 1：Baseline/Tactical 拆分（signalType 欄位建立）
+
+#### 動機
+
+目前「底倉 DCA」與「顯著修正或恐慌時的戰術加碼」共同由同一分數機制與 allocation 表驅動，使用者無法分辨當日建議是「持續佈局」還是「特殊戰術」，也無法分別調整兩者的風控參數。
+
+#### 建議方向
+
+- 策略層拆分：
+  - 新增 `baselineAllocation` 與 `tacticalAllocation` 概念，baseline 只受輕度技術與估值因素影響；tactical 則要求更嚴格的大跌／恐慌條件。
+  - 在 `evaluateInvestmentSignal` 結果中明確標示 `signalType = baseline | tactical_drop | tactical_panic`。
+- 報告區分：
+  - 在 Telegram 報告文案中以標題或 emoji 區分兩者（例如「🌱 常態布局」vs「⚡ 戰術加碼」）。
+
+#### 影響範圍
+
+- `Strategy.json`（新增 baseline / tactical 配置）
+- `src/modules/strategy/strategyEngine.mjs`（新增 `signalType` 輸出）
+- `src/modules/ai/periodReportAgent.mjs`
+- Notifications 模板
+
+#### 工作節次
+
+| 節   | 工作內容                                                                                                 | 涉及檔案                  |
+| ---- | -------------------------------------------------------------------------------------------------------- | ------------------------- |
+| 節一 | `Strategy.json` 新增 `baseline` / `tactical` 配置區段                                                    | `Strategy.json`           |
+| 節二 | `evaluateInvestmentSignal()` 輸出新增 `signalType` 欄位（`baseline \| tactical_drop \| tactical_panic`） | `strategyEngine.mjs`      |
+| 節三 | Telegram 通知模板依 `signalType` 區分顯示文案（🌱 / ⚡）                                                 | `telegramHtmlBuilder.mjs` |
+| 節四 | 周/月報統計邏輯分開統計 baseline 與 tactical 的觸發次數                                                  | `periodReportAgent.mjs`   |
+
+---
+
+### Phase 2：撥款上限與 Budget Priority（依賴 Phase 1 完成）
+
+#### 前置依賴
+
+> ⚠️ **Phase 2 必須在 Phase 1 完成後才可進行。**
+> `signalType` 欄位（`baseline | tactical_drop | tactical_panic`）必須已存在於 `strategyEngine.mjs` 的決策輸出中，「額度排擠防護（Budget Priority）」中「先扣除 Baseline 預算、剩餘分配 Tactical」的邏輯才可正確實作。
+
+#### 動機
+
+即使策略在邏輯上判斷「值得加碼」，仍有必要從資金管理角度限制一次性槓桿拉升的幅度。在極端行情下，多個訊號同時達標時仍有可能短期內大額放大槓桿；且大幅戰術加碼不應排擠 Baseline 的長期定額預算。
+
+#### 建議方向
 
 - 新增風控參數（依整體帳戶淨值連動，規模化擴張）：
   - `trading.maxDailyLoanIncreasePct`：單日最大新增借款佔**當前帳戶淨值**的百分比（例如 5% 或 10%）。
-  - `trading.maxRollingLoanIncreasePct`：淨新增借款（Net Loan Increase），計算公式為：近 10 日的總借款金額 - 近 10 日的總還款金額，淨新增借款的計算結果必須透過 Math.max(0, NetLoan) 進行底部截斷（Floor at Zero）。
-    - 系統在區間內有執行「停利/再平衡還款」，戰術彈藥庫的額度就會被自動釋放（重置），確保資金使用效率最大化，不會發生無謂的額度死鎖。
-- 在 daily pipeline 中：
-  - 根據當前 totalLoan 與建議 targetLeverage，計算預期新增借款額比例。
-  - **額度排擠防護 (Budget Priority)：** 必須賦予 Baseline DCA 最高的撥款優先權。系統應先從每日上限中扣除 Baseline DCA 所需預算，剩餘的額度才分配給 Tactical (戰術加碼) 模組去執行，避免極端恐慌時的大額加碼中斷長期的紀律定時定額。
+  - `trading.maxRollingLoanIncreasePct`：近 10 日淨新增借款（Net Loan Increase），計算公式為近 10 日總借款 - 近 10 日總還款，結果以 `Math.max(0, NetLoan)` 底部截斷（Floor at Zero）。系統在區間內有執行「停利/再平衡還款」時，戰術彈藥庫額度自動釋放（重置），不會發生無謂的額度死鎖。
+- 額度排擠防護 (Budget Priority)：
+  - 系統先從每日上限中扣除 Baseline DCA 所需預算，剩餘額度才分配給 Tactical 模組執行。
   - 若雙層需求加總超出上限，先滿足 Baseline，再由 Tactical 將剩餘額度打滿。
-- 可於月報中簡單列出「本月加碼資金節奏」摘要，幫助調整參數。
+- 月報簡單列出「本月加碼資金節奏」摘要，幫助調整參數。
 
-### 影響範圍
+#### 影響範圍
 
-- `Strategy.json`（新增資金上限相關參數）
+- `Strategy.json`（新增 `trading.maxDailyLoanIncreasePct`、`trading.maxRollingLoanIncreasePct`）
+- `src/modules/strategy/strategyEngine.mjs`（新增撥款上限計算與 Budget Priority 邏輯）
+- `src/modules/storage.mjs`（讀取借款歷史紀錄供 Rolling 計算）
+
+#### 工作節次
+
+| 節   | 工作內容                                                                                                 | 涉及檔案                |
+| ---- | -------------------------------------------------------------------------------------------------------- | ----------------------- |
+| 節一 | `Strategy.json` 新增 `trading.maxDailyLoanIncreasePct` 與 `trading.maxRollingLoanIncreasePct` 參數       | `Strategy.json`         |
+| 節二 | `strategyEngine.mjs` 新增 `resolveBudgetLimit()` 函式，計算當日可用撥款上限（含 Rolling 計算與底部截斷） | `strategyEngine.mjs`    |
+| 節三 | `buildDecision()` 整合 Budget Priority：先扣 Baseline 預算，剩餘分配 Tactical                            | `strategyEngine.mjs`    |
+| 節四 | `storage.mjs` 新增近 10 日借款/還款紀錄讀取方法，供 Rolling 計算使用                                     | `storage.mjs`           |
+| 節五 | 月報新增「本月加碼資金節奏」摘要區段                                                                     | `periodReportAgent.mjs` |
+
+---
+
+### 整合影響範圍
+
+- `Strategy.json`
 - `src/modules/strategy/strategyEngine.mjs`
 - `src/modules/storage.mjs`
+- `src/modules/ai/periodReportAgent.mjs`
+- Notifications 模板（`telegramHtmlBuilder.mjs`）
 
-### 難度
+### 前置依賴（整體）
 
-⭐⭐⭐ 高
-
-### 前置依賴
-
-> ⚠️ **本計畫依賴「Baseline DCA 與戰術加碼雙層架構」計畫先行完成。**
-> `signalType` 欄位（`baseline | tactical_drop | tactical_panic`）必須已存在於 `strategyEngine.mjs` 的決策輸出中，
-> 「額度排擠防護（Budget Priority）」中「先扣除 Baseline 預算、剩餘分配 Tactical」的邏輯才可正確實作。
->
-> **建議實作順序：**
->
-> 1. 完成「Baseline DCA 與戰術加碼雙層架構」（`signalType` 拆分）
-> 2. 接續實作本計畫的撥款上限與 Budget Priority 邏輯
-> 3. 兩計畫建議合入同一 PR，分節執行，確保不出現中間不完整狀態上線
+- 無外部計畫前置依賴（本計畫自成完整實作單元）
+- Phase 1 → Phase 2 為本計畫內部依賴順序
 
 ### 討論狀態
 
