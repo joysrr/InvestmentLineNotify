@@ -385,6 +385,40 @@ export function validateStrategyConfig(config) {
   }
   // ────────────────────────────────────────────────────────────────────────────
 
+  // ── valuationMomentum 驗證（選填，向後相容；v2.6+ 新增）──────────────────
+  if (config.valuationMomentum !== undefined) {
+    const vm = config.valuationMomentum;
+    assert(isObject(vm), "valuationMomentum 必須是物件");
+    assertBoolean(vm.enabled, "valuationMomentum.enabled");
+    assertNumber(vm.lookbackDays, "valuationMomentum.lookbackDays");
+    assertNumber(vm.risingThreshold, "valuationMomentum.risingThreshold");
+    assertNumber(vm.fallingThreshold, "valuationMomentum.fallingThreshold");
+    assertNumber(vm.risingPenaltyMultiplier, "valuationMomentum.risingPenaltyMultiplier");
+    assertBoolean(vm.fallingRelief, "valuationMomentum.fallingRelief");
+
+    if (vm.highPRZone !== undefined) {
+      const hpr = vm.highPRZone;
+      assert(isObject(hpr), "valuationMomentum.highPRZone 必須是物件");
+      assertNumber(hpr.triggerPR, "valuationMomentum.highPRZone.triggerPR");
+      assertNumber(hpr.relaxedMomentumThreshold, "valuationMomentum.highPRZone.relaxedMomentumThreshold");
+      assertNumber(hpr.vixSpikeThreshold, "valuationMomentum.highPRZone.vixSpikeThreshold");
+      assertNumber(hpr.vixSpikeMultiplier, "valuationMomentum.highPRZone.vixSpikeMultiplier");
+      assertNumber(hpr.vixAbsoluteHigh, "valuationMomentum.highPRZone.vixAbsoluteHigh");
+      assertNumber(hpr.vixAbsoluteMultiplier, "valuationMomentum.highPRZone.vixAbsoluteMultiplier");
+    }
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
+  // ── overrideHierarchy 驗證（選填，向後相容；v2.6+ 新增）─────────────────
+  if (config.overrideHierarchy !== undefined) {
+    const oh = config.overrideHierarchy;
+    assert(isObject(oh), "overrideHierarchy 必須是物件");
+    assertBoolean(oh.panicBypassEnabled, "overrideHierarchy.panicBypassEnabled");
+    assertNumber(oh.panicBypassDropPct, "overrideHierarchy.panicBypassDropPct");
+    assertNumber(oh.panicVixThreshold, "overrideHierarchy.panicVixThreshold");
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
   // 5. trading
   assert(isObject(config.trading), "trading 必須是物件");
   assertNumber(config.trading.minAction, "trading.minAction");

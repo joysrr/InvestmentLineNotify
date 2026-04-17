@@ -361,25 +361,68 @@ ${riskWarnings}
 
   /**
    * 讀取 PB 歷史序列快取（data/pbHistory.json）
-   * @returns {{ _meta: Object, records: Array<{date:string, pb:number}> } | null}
+   * 確保回傳結果為依日期升序排列且去重後的純陣列格式
+   * @returns {Promise<Array<{date:string, pb:number}>>}
    */
   async getPbHistory() {
     try {
       const content = await fs.readFile(FILES.PB_HISTORY, "utf-8");
-      return JSON.parse(content);
+      const parsed = JSON.parse(content);
+      // 容錯處理：可能是 { _meta, records: [...] } 或是純陣列 [...]
+      const records = Array.isArray(parsed?.records) ? parsed.records
+                    : Array.isArray(parsed) ? parsed
+                    : [];
+      return records.sort((a, b) => a.date.localeCompare(b.date));
     } catch {
-      return null;
+      return [];
     }
   },
 
   /**
    * 寫入 PB 歷史序列快取（data/pbHistory.json）
-   * @param {{ _meta: Object, records: Array<{date:string, pb:number}> }} data
+   * 寫入前執行去重與排序，確保資料整潔
+   * @param {Array<{date:string, pb:number}>} data
    */
   async savePbHistory(data) {
+    if (!Array.isArray(data)) return;
+
     await ensureDirectories();
-    await fs.writeFile(FILES.PB_HISTORY, JSON.stringify(data, null, 2));
-    console.log(`📈 [Archive] pbHistory 已更新（${data.records?.length ?? 0} 筆）`);
+    
+    // 去重與過濾無效資料
+    const map = new Map();
+    for (const r of data) {
+      if (r.date && Number.isFinite(r.pb) && r.pb > 0) {
+        map.set(r.date, { date: r.date, pb: r.pb });
+      }
+    }
+    
+    // 排序
+    const sorted = [...map.values()].sort((a, b) => a.date.localeCompare(b.date));
+    
+    await fs.writeFile(FILES.PB_HISTORY, JSON.stringify(sorted, null, 2));
+    console.log(`📈 [Archive] pbHistory 已更新（${sorted.length} 筆，已排序去重）`);
+  },
+
+  /**
+   * 追加當日 PB 紀錄（冪等，相同日期不重複寫入）
+   * @param {string} date - 日期 (YYYY-MM-DD)
+   * @param {number} pb - 數值
+   */
+  async appendPbHistory(date, pb) {
+    if (!date || !Number.isFinite(pb) || pb <= 0) {
+      console.warn(`⚠️ [Archive] appendPbHistory 無效參數: ${date}, ${pb}`);
+      return false;
+    }
+
+    const records = await this.getPbHistory();
+    if (records.some(r => r.date === date)) {
+      console.log(`ℹ️ [Archive] PB 為 ${date} 的紀錄已存在，略過追加`);
+      return false;
+    }
+
+    records.push({ date, pb });
+    await this.savePbHistory(records);
+    return true;
   },
 
   /**

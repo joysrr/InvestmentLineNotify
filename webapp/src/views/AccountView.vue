@@ -43,9 +43,7 @@
           <div class="macro-card">
             <div class="macro-label">USD / TWD</div>
             <div class="macro-value">{{ fxValue }}</div>
-            <div class="macro-sub" :class="fxChangeClass">
-              {{ fxChangeSub }}
-            </div>
+            <div class="macro-sub" :class="fxChangeClass">{{ fxChangeSub }}</div>
           </div>
           <div class="macro-card">
             <div class="macro-label">大盤 P/B</div>
@@ -60,7 +58,28 @@
         </div>
       </div>
 
-      <!-- 2. 帳戶快照 -->
+      <!-- 2. 策略趨勢 (PR Trend & Leverage Gauge) -->
+      <div class="section">
+        <h2 class="section-title">📈 策略與風險趨勢</h2>
+        <div class="trend-layout">
+          <div class="trend-main">
+            <div class="chart-label">PR 分位數走勢 (30D)</div>
+            <v-chart class="trend-chart" :option="prTrendOption" autoresize />
+          </div>
+          <div class="trend-side">
+            <div class="side-item">
+              <div class="chart-label">總曝險倍數</div>
+              <v-chart class="gauge-chart" :option="leverageGaugeOption" autoresize />
+            </div>
+            <div class="side-item">
+              <div class="chart-label">融資維持率</div>
+              <v-chart class="gauge-chart" :option="maintenanceGaugeOption" autoresize />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 帳戶快照 -->
       <div class="section">
         <h2 class="section-title">💼 帳戶快照</h2>
 
@@ -226,11 +245,21 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { fetchStatus } from "../api/index.js";
+import { fetchStatus, fetchReports } from "../api/index.js";
 import { usePortfolioSnapshots } from "../composables/usePortfolioSnapshots.js";
+
+// ECharts
+import VChart from "vue-echarts";
+import { use } from "echarts/core";
+import { LineChart, GaugeChart } from "echarts/charts";
+import { TitleComponent, TooltipComponent, GridComponent } from "echarts/components";
+import { CanvasRenderer } from "echarts/renderers";
+
+use([LineChart, GaugeChart, TitleComponent, TooltipComponent, GridComponent, CanvasRenderer]);
 
 // ── 系統狀態 ──────────────────────────────────────────
 const status = ref(null);
+const reports = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
@@ -238,9 +267,16 @@ async function load() {
   loading.value = true;
   error.value = null;
   try {
-    status.value = await fetchStatus();
+    const [sData, rData] = await Promise.all([
+      fetchStatus(),
+      fetchReports(30)
+    ]);
+    status.value = sData;
+    // 按日期升序排列供圖表使用
+    reports.value = (rData || []).reverse();
   } catch (e) {
-    error.value = "無法載入系統狀態，請稍後再試";
+    console.error(e);
+    error.value = "無法載入運作狀態，請稍後再試";
   } finally {
     loading.value = false;
   }
@@ -256,7 +292,7 @@ const {
   latestSnapshot,
   hasEncryption: snapshotEncryption,
   load: loadSnapshots,
-} = usePortfolioSnapshots(1); // AccountView 只需最新一筆
+} = usePortfolioSnapshots(1);
 
 // ── 金額格式化 ────────────────────────────────────────
 function formatMoney(val) {
@@ -270,16 +306,97 @@ const lastRunLabel = computed(() => {
   if (!ts) return "N/A";
   return new Date(ts).toLocaleString("zh-TW", {
     timeZone: "Asia/Taipei",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
+    month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
   });
 });
 
+// ── PR Trend Chart Option ──
+const prTrendOption = computed(() => {
+  const data = reports.value.map(r => ({
+    date: r.date.split('-').slice(1).join('/'),
+    pr: r.signals?.valuationGuardResult?.currentPR ?? null
+  })).filter(d => d.pr !== null);
+
+  return {
+    tooltip: { trigger: 'axis', formatter: '{b}: {c}%' },
+    grid: { left: '10%', right: '5%', top: '15%', bottom: '15%' },
+    xAxis: {
+      type: 'category',
+      data: data.map(d => d.date),
+      axisLabel: { fontSize: 10, color: '#999' },
+      axisLine: { lineStyle: { color: '#eee' } }
+    },
+    yAxis: {
+      type: 'value',
+      min: 0, max: 100,
+      axisLabel: { fontSize: 10, color: '#999', formatter: '{value}%' },
+      splitLine: { lineStyle: { type: 'dashed', color: '#f0f0f0' } }
+    },
+    series: [{
+      data: data.map(d => d.pr),
+      type: 'line',
+      smooth: true,
+      showSymbol: false,
+      lineStyle: { color: '#2481cc', width: 2 },
+      areaStyle: {
+        color: {
+          type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [
+            { offset: 0, color: 'rgba(36, 129, 204, 0.2)' },
+            { offset: 1, color: 'rgba(36, 129, 204, 0)' }
+          ]
+        }
+      }
+    }]
+  };
+});
+
+// ── Leverage & Maintenance Gauges ──
+const latestReport = computed(() => reports.value[reports.value.length - 1]);
+
+const leverageGaugeOption = computed(() => {
+  const val = Number(latestReport.value?.signals?.grossLeverage) || 1.0;
+  return {
+    series: [{
+      type: 'gauge',
+      startAngle: 200, endAngle: -20, min: 1.0, max: 3.0,
+      radius: '100%', center: ['50%', '60%'],
+      pointer: { width: 4, itemStyle: { color: '#666' } },
+      axisLine: {
+        lineStyle: {
+          width: 6,
+          color: [[0.5, '#26a17b'], [0.75, '#d4ac0d'], [1, '#e84855']]
+        }
+      },
+      axisTick: { show: false }, splitLine: { show: false }, axisLabel: { show: false },
+      detail: { offsetCenter: [0, 20], formatter: '{value}x', fontSize: 15, fontWeight: '700', color: 'inherit' },
+      data: [{ value: val.toFixed(1) }]
+    }]
+  };
+});
+
+const maintenanceGaugeOption = computed(() => {
+  const val = Number(latestReport.value?.signals?.maintenanceMargin) || 0;
+  return {
+    series: [{
+      type: 'gauge',
+      startAngle: 200, endAngle: -20, min: 130, max: 200,
+      radius: '100%', center: ['50%', '60%'],
+      pointer: { width: 4, itemStyle: { color: '#666' } },
+      axisLine: {
+        lineStyle: {
+          width: 6,
+          color: [[0.2, '#e84855'], [0.4, '#d4ac0d'], [1, '#26a17b']]
+        }
+      },
+      axisTick: { show: false }, splitLine: { show: false }, axisLabel: { show: false },
+      detail: { offsetCenter: [0, 20], formatter: '{value}%', fontSize: 15, fontWeight: '700', color: 'inherit' },
+      data: [{ value: Math.round(val) }]
+    }]
+  };
+});
+
 // ── Sources ──
-// 與後端 providerRegistry / macroDataSlots 中的 providerId 對應
 const SOURCE_LABELS = {
   ndcBusinessIndicator: "國發會景氣燈號",
   marginKgi: "台股融資餘額 (KGI)",
@@ -296,87 +413,45 @@ const sourcesDisplay = computed(() => {
   const raw = status.value?._meta?.sources || {};
   const now = Date.now();
   const list = [];
-
   for (const [key, src] of Object.entries(raw)) {
     const label = SOURCE_LABELS[key] || key;
     const statusText = src.status || "UNKNOWN";
     const lastFetchIso = src.lastFetch || null;
-
     let lastFetchLabel = "尚無資料";
     let ageLabel = "";
     let stale = false;
-
     if (lastFetchIso) {
       const ts = new Date(lastFetchIso);
       lastFetchLabel = ts.toLocaleString("zh-TW", {
         timeZone: "Asia/Taipei",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
+        month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
       });
-
       const diffHours = (now - ts.getTime()) / (1000 * 60 * 60);
-      if (diffHours >= 1) {
-        ageLabel = `${diffHours.toFixed(1)} 小時前更新`;
-      } else {
-        ageLabel = `${Math.max(1, Math.round(diffHours * 60))} 分鐘前更新`;
-      }
-
-      if (diffHours > 48) {
-        stale = true;
-      }
+      if (diffHours >= 1) ageLabel = `${diffHours.toFixed(1)} 小時前更新`;
+      else ageLabel = `${Math.max(1, Math.round(diffHours * 60))} 分鐘前更新`;
+      if (diffHours > 48) stale = true;
     }
-
     let state = "UNKNOWN";
-    if (statusText === "SUCCESS") {
-      state = stale ? "STALE" : "OK";
-    } else if (statusText === "FAILED") {
-      state = "FAIL";
-    }
-
-    list.push({
-      key,
-      label,
-      status: statusText,
-      state,
-      lastFetch: lastFetchLabel,
-      ageLabel,
-      stale,
-      error: src.error || null,
-    });
+    if (statusText === "SUCCESS") state = stale ? "STALE" : "OK";
+    else if (statusText === "FAILED") state = "FAIL";
+    list.push({ key, label, status: statusText, state, lastFetch: lastFetchLabel, ageLabel, error: src.error || null });
   }
-
   const order = { FAIL: 0, STALE: 1, OK: 2, UNKNOWN: 3 };
-  list.sort((a, b) => {
-    const diff = (order[a.state] ?? 3) - (order[b.state] ?? 3);
-    if (diff !== 0) return diff;
-    return a.label.localeCompare(b.label, "zh-Hant");
-  });
-
+  list.sort((a, b) => (order[a.state] ?? 3) - (order[b.state] ?? 3) || a.label.localeCompare(b.label, "zh-Hant"));
   return list;
 });
 
 const sourceCount = computed(() => sourcesDisplay.value.length);
-const healthyCount = computed(
-  () => sourcesDisplay.value.filter((s) => s.state === "OK").length,
-);
-const allHealthy = computed(
-  () => sourceCount.value > 0 && healthyCount.value === sourceCount.value,
-);
+const healthyCount = computed(() => sourcesDisplay.value.filter((s) => s.state === "OK").length);
+const allHealthy = computed(() => sourceCount.value > 0 && healthyCount.value === sourceCount.value);
 
-// ── CNN Fear & Greed ──
+// ── Macro ──
 const fngRaw = computed(() => {
   const d = status.value?.data?.rawCnn;
   return d?.score ?? d?.value ?? null;
 });
-const fngValue = computed(() =>
-  fngRaw.value != null ? String(fngRaw.value) : "N/A",
-);
-const fngRating = computed(() => {
-  const d = status.value?.data?.rawCnn;
-  return d?.rating ?? d?.classification ?? "";
-});
+const fngValue = computed(() => fngRaw.value != null ? String(fngRaw.value) : "N/A");
+const fngRating = computed(() => status.value?.data?.rawCnn?.rating ?? "");
 const fngClass = computed(() => {
   const v = fngRaw.value;
   if (v == null) return "";
@@ -386,7 +461,6 @@ const fngClass = computed(() => {
   return "";
 });
 
-// ── FX ──
 const fxValue = computed(() => {
   const v = status.value?.data?.rawFx?.currentRate ?? null;
   return v != null ? Number(v).toFixed(3) : "N/A";
@@ -394,8 +468,7 @@ const fxValue = computed(() => {
 const fxChangeSub = computed(() => {
   const chg = status.value?.data?.rawFx?.changePercent ?? null;
   if (chg == null) return "匯率";
-  const sign = chg >= 0 ? "+" : "";
-  return `${sign}${chg.toFixed(2)}%`;
+  return `${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%`;
 });
 const fxChangeClass = computed(() => {
   const chg = status.value?.data?.rawFx?.changePercent ?? null;
@@ -405,15 +478,12 @@ const fxChangeClass = computed(() => {
   return "";
 });
 
-// ── Valuation PB / PE ──
 const pbValue = computed(() => {
-  const d = status.value?.data?.rawValuation;
-  const v = d?.pb ?? d?.priceToBook ?? null;
+  const v = status.value?.data?.rawValuation?.pb ?? null;
   return v != null ? Number(v).toFixed(2) : "N/A";
 });
 const peValue = computed(() => {
-  const d = status.value?.data?.rawValuation;
-  const v = d?.pe ?? d?.priceToEarnings ?? null;
+  const v = status.value?.data?.rawValuation?.pe ?? null;
   return v != null ? Number(v).toFixed(2) : "N/A";
 });
 </script>
@@ -578,6 +648,56 @@ const peValue = computed(() => {
   padding: 4px 6px;
   border-radius: 999px;
   cursor: pointer;
+}
+
+/* ── Trend Section ── */
+.trend-layout {
+  display: flex;
+  gap: 12px;
+  min-height: 180px;
+}
+.trend-main {
+  flex: 1.5;
+  background: rgba(0,0,0,0.02);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+.trend-side {
+  flex: 0.8;
+  background: rgba(0,0,0,0.02);
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.side-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.chart-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--tg-theme-hint-color, #999);
+  margin-bottom: 2px;
+}
+.trend-chart {
+  flex: 1;
+  width: 100%;
+  height: 160px;
+}
+.gauge-chart {
+  width: 100%;
+  height: 90px;
+}
+
+@media (max-width: 320px) {
+  .trend-layout { flex-direction: column; }
+  .trend-side { height: 140px; }
 }
 
 /* ── Macro grid ── */

@@ -418,6 +418,137 @@ function resolveTrendConfirmation(priceData, config) {
   };
 }
 
+/**
+ * 解析估值動量狀態：依據歷史序列與當前 PR，計算短期動量並回傳調整因子。
+ *
+ * highPRZone 三個觸發條件（取最嚴格乘數）：
+ *   1. PR ≥ 85 且 prMomentum > +5（放寬門檻）→ ×0.85
+ *   2. PR ≥ 85 且 VIX 單日急升 > vixSpikeThreshold（20%）→ ×0.85
+ *   3. PR ≥ 85 且 VIX 絕對值 > vixAbsoluteHigh（30）→ ×0.7
+ *
+ * @param {number} currentPR - 今日大盤 PR 分位數
+ * @param {{ date: string, pb: number }[]} pbRecords - 歷史 PB 物件陣列
+ * @param {Object} config - 完整 strategy config
+ * @param {{ currentVix: number|null, previousVix: number|null }} vixData - VIX 數據
+ * @returns {{
+ *   prMomentum: number|null,
+ *   momentumAdjustment: number|string,
+ *   momentumLabel: string
+ * }}
+ */
+function resolveValuationMomentum(currentPR, pbRecords, config, vixData = {}) {
+  const cfg = config?.valuationMomentum;
+  if (!cfg?.enabled || currentPR == null || !Array.isArray(pbRecords)) {
+    return { prMomentum: null, momentumAdjustment: 1.0, momentumLabel: "" };
+  }
+
+  const lookbackDays = cfg.lookbackDays ?? 20;
+
+  // 取得有效交易日 PB 紀錄
+  const validRecords = pbRecords.filter((r) => r.date && Number.isFinite(r.pb));
+  if (validRecords.length < lookbackDays + 1) {
+    return { prMomentum: null, momentumAdjustment: 1.0, momentumLabel: "（動量：資料不足）" };
+  }
+
+  // 排序確保時間一致（舊到新）
+  const sortedByDate = [...validRecords].sort((a, b) => a.date.localeCompare(b.date));
+
+  // 目標日為 N 日前
+  const targetIndex = sortedByDate.length - 1 - lookbackDays;
+  if (targetIndex < 0) {
+    return { prMomentum: null, momentumAdjustment: 1.0, momentumLabel: "（動量：日期誤差）" };
+  }
+
+  const targetPb = sortedByDate[targetIndex].pb;
+
+  // 計算 N 日前的 PR 分位數
+  const historyUpToTarget = sortedByDate.slice(0, targetIndex + 1).map(r => r.pb);
+  const totalCountPast = historyUpToTarget.length;
+
+  if (totalCountPast < 1) {
+    return { prMomentum: null, momentumAdjustment: 1.0, momentumLabel: "" };
+  }
+
+  const belowCountPast = historyUpToTarget.filter((v) => v < targetPb).length;
+  const pastPR = Math.round((belowCountPast / totalCountPast) * 100);
+
+  const prMomentum = currentPR - pastPR;
+
+  let momentumAdjustment = 1.0;
+  let momentumLabel = "";
+
+  const risingThreshold = cfg.risingThreshold ?? 10;
+  const fallingThreshold = cfg.fallingThreshold ?? -10;
+  const risingPenaltyMultiplier = cfg.risingPenaltyMultiplier ?? 0.85;
+
+  const hpr = cfg.highPRZone;
+  const triggerPR = hpr?.triggerPR ?? 85;
+
+  const { currentVix, previousVix } = vixData;
+
+  if (currentPR >= triggerPR) {
+    // ── 高位補正區（PR 85–90 過渡敏感區域） ──────────────────
+    // 三個獨立觸發條件，取最嚴格乘數
+    const relaxedMomentumThreshold = hpr?.relaxedMomentumThreshold ?? 5;
+    const vixSpikeThreshold = hpr?.vixSpikeThreshold ?? 0.2;
+    const vixSpikeMultiplier = hpr?.vixSpikeMultiplier ?? 0.85;
+    const vixAbsoluteHigh = hpr?.vixAbsoluteHigh ?? 30;
+    const vixAbsoluteMultiplier = hpr?.vixAbsoluteMultiplier ?? 0.7;
+
+    // 收集所有命中的觸發條件及其乘數
+    const triggers = [];
+
+    // 條件 1：放寬動量門檻
+    if (prMomentum > relaxedMomentumThreshold) {
+      triggers.push({
+        multiplier: risingPenaltyMultiplier,
+        label: `📈 估值動量 +${prMomentum}（高位放寬門檻 +${relaxedMomentumThreshold}）→ 壓縮 ×${risingPenaltyMultiplier}`,
+      });
+    }
+
+    // 條件 2：VIX 單日急升
+    if (
+      Number.isFinite(currentVix) &&
+      Number.isFinite(previousVix) &&
+      previousVix > 0
+    ) {
+      const vixChangeRate = (currentVix - previousVix) / previousVix;
+      if (vixChangeRate > vixSpikeThreshold) {
+        triggers.push({
+          multiplier: vixSpikeMultiplier,
+          label: `⚡ VIX 急升 ${(vixChangeRate * 100).toFixed(1)}%（門檻 ${(vixSpikeThreshold * 100).toFixed(0)}%）→ 強制壓縮 ×${vixSpikeMultiplier}`,
+        });
+      }
+    }
+
+    // 條件 3：VIX 絕對恐慌
+    if (Number.isFinite(currentVix) && currentVix > vixAbsoluteHigh) {
+      triggers.push({
+        multiplier: vixAbsoluteMultiplier,
+        label: `🔥 VIX ${currentVix.toFixed(1)} > ${vixAbsoluteHigh}（高位恐慌並存）→ 加重壓縮 ×${vixAbsoluteMultiplier}`,
+      });
+    }
+
+    // 取最嚴格（最低）乘數
+    if (triggers.length > 0) {
+      triggers.sort((a, b) => a.multiplier - b.multiplier);
+      momentumAdjustment = triggers[0].multiplier;
+      momentumLabel = triggers[0].label;
+    }
+  } else {
+    // ── 常規區 ────────────────────────────────────────────────
+    if (prMomentum > risingThreshold) {
+      momentumAdjustment = risingPenaltyMultiplier;
+      momentumLabel = `📈 估值動量 +${prMomentum} → 額外壓縮 ×${momentumAdjustment}`;
+    } else if (prMomentum < fallingThreshold && cfg.fallingRelief) {
+      momentumAdjustment = "relief";
+      momentumLabel = `📉 估值動量 ${prMomentum} → 解除一層壓縮`;
+    }
+  }
+
+  return { prMomentum, momentumAdjustment, momentumLabel };
+}
+
 function buildDecision(ctx, strategy, grossLeverageResult, ma60Slope = null) {
   const th = strategy.threshold;
   const maint = strategy.maintenance;
@@ -535,6 +666,21 @@ function buildDecision(ctx, strategy, grossLeverageResult, ma60Slope = null) {
   // 🟢 Layer 3：常態運行 >= protectTrigger(160)
   // 以下為原有策略邏輯完整執行
 
+  // ── 預先計算 Priority 3 極端恐慌破冰 (Extremely Panic Bypass) ──
+  // 供 Priority 2 (Gross Leverage) 與 Priority 7 使用
+  const ohCfg = strategy?.overrideHierarchy;
+  const panicBypassEnabled = ohCfg?.panicBypassEnabled ?? false;
+  const panicBypassDropPct = ohCfg?.panicBypassDropPct ?? 0.20;
+  const panicVixThreshold = ohCfg?.panicVixThreshold ?? 35;
+
+  const isPanicBypass = 
+    panicBypassEnabled && 
+    ctx.priceDropPercent > panicBypassDropPct && 
+    ctx.vix > panicVixThreshold;
+
+  // 將狀態存入 ctx 供後續模組讀取
+  ctx.panicBypassActive = isPanicBypass;
+
   // ─────────────────────────────────────────────────────────────
   // Priority 2：Gross Leverage 天花板（維持率正常後才執行）
   // hardcap_breach → 強制降槓，Priority 高於 ceiling_breach
@@ -560,31 +706,42 @@ function buildDecision(ctx, strategy, grossLeverageResult, ma60Slope = null) {
     }
 
     if (grossLeverageResult.status === "ceiling_breach") {
+      const bypassWarning = isPanicBypass
+        ? "\n\n⚠️ <b>極端恐慌破冰：估值防禦已 Bypass</b>\n⚠️ <b>但因 Gross Leverage 超限，加碼行為受限</b>"
+        : "";
       return {
         maintenanceLayer: "normal",
         grossLeverageStatus: "ceiling_breach",
         grossLeverage: grossLeverageResult.grossLeverage,
-        marketStatus: "⚠️【Gross Leverage 主動上限】",
+        marketStatus: isPanicBypass ? "🚨【恐慌破冰 + 曝險限縮】" : "⚠️【Gross Leverage 主動上限】",
         target: "🚫 禁止加碼",
-        targetSuggestionShort: `綜合曝險 ${grossLeverageResult.grossLeverage.toFixed(2)}x 超越主動上限 ${strategy.grossLeverage.ceiling}x，一票否決新增槓桿`,
+        targetSuggestionShort: `綜合曝險 ${grossLeverageResult.grossLeverage.toFixed(2)}x 超額，${isPanicBypass ? "限縮為 0050 現貨" : "一票否決新增槓桿"}`,
         targetSuggestion: grossLeverageResult.message,
         suggestion:
           `• 綜合曝險倍數（Gross Leverage）：${grossLeverageResult.grossLeverage.toFixed(2)}x\n` +
           `• 主動上限：${strategy.grossLeverage.ceiling}x\n` +
           `• ⚠️ 禁止新增質押借款與 00675L 買入\n` +
-          `• 允許操作：0050 現貨買入（不增加借款槓桿）\n` +
-          `• 恐慌破冰時若觸發此層：加碼限縮為 0050 現貨`,
+          `• 允許操作：0050 現貨買入（不增加借款槓桿）` +
+          bypassWarning,
+        panicBypassActive: isPanicBypass,
       };
     }
   }
 
+  // 移除之前重複添加的 Priority 3 代碼（因為已經移到上面了）
+
   // ─────────────────────────────────────────────────────────────
-  // Priority 3：valuationGuard 估值守衛（latch 觸發/維持/解鎖）
+  // Priority 3：極端恐慌破冰 (已移至 Priority 2 之前計算)
+  // ─────────────────────────────────────────────────────────────
+
+
+  // ─────────────────────────────────────────────────────────────
+  // Priority 4：valuationGuard 估值守衛（latch 觸發/維持/解鎖）
   // 優先序：grossLeverage 之後、entryGate 之前
   // ─────────────────────────────────────────────────────────────
   const vgCfg = strategy?.valuationGuard;
 
-  if (vgCfg?.enabled && ctx.pbRecords != null) {
+  if (vgCfg?.enabled && ctx.pbRecords != null && !ctx.panicBypassActive) {
     const currentPB = ctx.valuation?.pb ?? null;
     const pbRecords = ctx.pbRecords ?? [];
 
@@ -729,9 +886,38 @@ function buildDecision(ctx, strategy, grossLeverageResult, ma60Slope = null) {
 
     // ── 未觸發 latch，但 valuationGuard tier 生效：壓縮槓桿乘數 ──
     if (vgResult.guardActive) {
+      // 疊加動量調整 (計畫 C)
+      // 從 vixArr 取得前一交易日 VIX，供 highPRZone VIX 急升判斷使用
+      const vixArrLocal = ctx.vixArr ?? [];
+      const currentVix = ctx.vix ?? null;
+      const previousVix =
+        vixArrLocal.length >= 2
+          ? vixArrLocal[vixArrLocal.length - 2]
+          : null;
+
+      const momentumResult = resolveValuationMomentum(
+        vgResult.currentPR,
+        ctx.pbRecordsObjects,
+        strategy,
+        { currentVix, previousVix }
+      );
+
+      let finalMultiplier = vgResult.multiplier;
+      if (momentumResult.momentumAdjustment === "relief") {
+        const tiers = strategy.valuationGuard?.tiers ?? [];
+        if (vgResult.hitTierIndex < tiers.length - 1) {
+          finalMultiplier = tiers[vgResult.hitTierIndex + 1].multiplier;
+        } else {
+          finalMultiplier = 1.0;
+        }
+      } else if (typeof momentumResult.momentumAdjustment === "number") {
+        finalMultiplier *= momentumResult.momentumAdjustment;
+      }
+
       // 將 multiplier 注入 ctx，供 Priority 7 正常進場路由使用
-      ctx.valuationGuardMultiplier = vgResult.multiplier;
+      ctx.valuationGuardMultiplier = finalMultiplier;
       ctx.valuationGuardResult = vgResult;
+      ctx.valuationMomentumResult = momentumResult;
       ctx.trendConfirmation = trendConfirmation;
     }
   }
@@ -996,7 +1182,9 @@ function buildDecision(ctx, strategy, grossLeverageResult, ma60Slope = null) {
   const vgNote =
     vgMultiplier < 1.0
       ? `\\n• 📊 估值守衛壓縮：${vgResult?.guardLabel ?? ""} → 有效槓桿 ${baseLeveragePercent}% × ${vgMultiplier} = ${effectiveLeveragePercent}%`
-      : "";
+      : isPanicBypass
+        ? `\\n• ⚠️ <b>極端恐慌破冰：估值防禦已 Bypass</b>`
+        : "";
 
   const cooldownReminder = `\\n• ⏰ 提醒：買入後請確實記錄日期，系統將啟動 ${strategy.trading.cooldownDays} 個交易日的冷卻期`;
 
@@ -1018,6 +1206,7 @@ function buildDecision(ctx, strategy, grossLeverageResult, ma60Slope = null) {
       targetAllocation: { ...targetAlloc, leverage: effectiveLeverage },
       valuationGuardMultiplier: vgMultiplier,
       valuationGuardResult: vgResult,
+      valuationMomentumResult: ctx.valuationMomentumResult ?? null,
     };
   }
 
@@ -1039,6 +1228,7 @@ function buildDecision(ctx, strategy, grossLeverageResult, ma60Slope = null) {
       targetAllocation: { ...targetAlloc, leverage: effectiveLeverage },
       valuationGuardMultiplier: vgMultiplier,
       valuationGuardResult: vgResult,
+      valuationMomentumResult: ctx.valuationMomentumResult ?? null,
     };
   }
 
@@ -1059,6 +1249,7 @@ function buildDecision(ctx, strategy, grossLeverageResult, ma60Slope = null) {
     targetAllocation: { ...targetAlloc, leverage: effectiveLeverage },
     valuationGuardMultiplier: vgMultiplier,
     valuationGuardResult: vgResult,
+    valuationMomentumResult: ctx.valuationMomentumResult ?? null,
   };
 }
 
@@ -1280,12 +1471,15 @@ export async function evaluateInvestmentSignal(data, strategy) {
     sellSignals: computeSellSignals(data, strategy),
     valuation: data.rawValuation || null,
     // ── valuationGuard 所需欄位 ──────────────────────────────
-    pbRecords: ctx_pbRecords,
+    pbRecords: data.pbRecords ?? [],
+    pbRecordsObjects: data.pbRecordsObjects ?? [],
     valuationGuardState: data.valuationGuardState ?? null,
     closeArr: data.closeArr ?? [],
     ma20Arr: data.ma20Arr ?? [],
     atrArr: data.atrArr ?? [],
     macdArr: data.macdArr ?? [],
+    // ── valuationMomentum 所需欄位 ───────────────────────────
+    vixArr: vixArr,
   };
 
   // ── Gross Leverage 計算 ──────────────────────────────────────

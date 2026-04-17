@@ -7,11 +7,14 @@ import AccountView      from '../views/AccountView.vue'
 import MarketRadarView  from '../views/MarketRadarView.vue'
 import MacroBattleView  from '../views/MacroBattleView.vue'
 
+import TechnicalView    from '../views/TechnicalView.vue'
+
 export default createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: '/',           redirect: '/dashboard' },
     { path: '/dashboard',  component: DashboardView },
+    { path: '/technical',  component: TechnicalView },
     { path: '/radar',      component: MarketRadarView },
     { path: '/macro',      component: MacroBattleView },
     { path: '/chart',      component: ChartView },

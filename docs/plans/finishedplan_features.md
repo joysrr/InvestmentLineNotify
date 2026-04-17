@@ -164,6 +164,8 @@ AI 新聞情緒為落後指標，在崩盤底部必定輸出 `BEARISH`，原本 
 > ⚠️ 此項目已整合升級為【P1 高優先】Strategy.json 幽靈參數審計與清除，✅ 已完成（commit `103be3d`）。
 > 原 label 一致性修正（`dropScoreRules` 文案對齊）已於 commit `229c0be` 一併完成。
 
+---
+
 ## ✅【已完成】📌【穩定性強化】Providers 統一 retry / timeout 機制
 
 ### 狀態與目標摘要
@@ -183,14 +185,6 @@ AI 新聞情緒為落後指標，在崩盤底部必定輸出 `BEARISH`，原本 
 
 - `src/utils/coreUtils.mjs`（新增 helper）
 - `src/modules/providers/*.mjs`（逐步替換 fetch 呼叫）
-
-### 難度
-
-⭐⭐ 中（工具本身簡單，但需逐一審查各 provider 的 fetch 呼叫）
-
-### 討論狀態
-
-⚪ 待確認
 
 ---
 
@@ -213,29 +207,82 @@ AI 新聞情緒為落後指標，在崩盤底部必定輸出 `BEARISH`，原本 
 - 每次實際觸發買入後，立即更新本地快取（不依賴下次 Sheets 讀取）。
 - 在 `fetchLastPortfolioState()` 中增加 `lastBuyDate` 格式驗證，無法解析時顯示警告並 log。
 
-### 建議 cache 格式
+---
 
-```json
-{
-  "lastBuyDate": "2026-03-15",
-  "updatedAt": "2026-04-16T01:07:04Z",
-  "source": "google_sheet"
-}
+## ✅【P1 已完成】Gross Leverage Ratio 總體曝險倍數監控
+
+> **完成日期：** 2026-04-17
+
+### 完成摘要
+
+實作 `leverageMonitor.mjs`，計算包含質押負債與槓桿 ETF 內含期貨後的「真實綜合曝險倍數」。提供雙層天花板：主動禁止加碼（2.5x）與被動強制砍倉（3.0x），並在 Telegram 報告中即時顯示 Gross Leverage 數值。
+
+### 核心計算邏輯
+
+```javascript
+grossLeverage = (市值0050 + 市值00675L * 2) / 帳戶淨值
 ```
 
-### 影響範圍
+### 監控規格
 
-- `src/modules/storage.mjs`（lastBuyDate 讀寫、驗證與本地快取雙寫）
-- `src/dailyCheck.mjs`（買入觸發後立即更新快取）
-- `data/cache/`（新增快取目錄，需加入 `.gitignore`）
-- `webapp/src/views/AccountView.vue`（可選：顯示快取來源標示）
-
-### 難度
-
-⭐⭐ 中
-
-### 討論狀態
-
-⚪ 待確認
+| 曝險區間 | 行為 | Strategy.json 門檻 |
+| --- | --- | --- |
+| > 3.0x | **強制降槓桿** | `grossLeverageCeiling: 3.0` |
+| > 2.5x | **一票否決加碼** | `activeDeleverageThreshold: 2.5` |
+| 降回目標 | 砍倉至 2.2x | `grossLeverageRecoveryTarget: 2.2` |
 
 ---
+
+## ✅【P1 已完成】計畫 A：歷史 PB 時間序列快取 (整合至 archiveManager)
+功能原由 `pbHistoryProvider.mjs` 實作，後為簡化架構已整合至 `archiveManager.mjs`。實作每日自動追加與去重排序功能，提供計畫 B 所需的 PB 序列。完全不依賴 FinMind，直接從 TWSE API 進行市值加權計算，儲存於 `data/pbHistory.json`。
+
+### 資料流設計
+
+1.  **歷史補齊**：逐月抓取 TWSE `BWIBBU_ALL` 資料，補齊過去 1260 個交易日的 PB 數值。
+2.  **每日追加**：`marketData.mjs` 計算完當日 PB 後，自動呼叫 `appendToday()` 寫入快取。
+
+---
+
+## ✅【P1 已完成】計畫 B：PB 歷史分位數動態防護層 (valuationGuard)
+
+> **完成日期：** 2026-04-17
+
+### 完成摘要
+
+實作 `resolveValuationGuard()`，將「絕對 PB 門檻」升級為「相對 PR 分位數」。新增 4 段壓縮乘數與 **DefenseLatch 鎖定機制**（防死貓反彈重入）。在高估值（PR >= 90）情境下啟動 **MA20 / ATR 趨勢雙重確認**，避免過早離場。
+
+### PR 分位數壓縮規格
+
+| PR 區間 | 行為 | 乘數 | 說明 |
+| --- | --- | --- | --- |
+| < 70 | 常態運行 | ×1.0 | 無壓縮 |
+| 70–80 | 輕度壓縮 | ×0.85 | 降低槓桿幅度 |
+| 80–90 | 中度壓縮 | ×0.65 | 禁止新增 00675L |
+| >= 90 | 極度壓縮 | ×0.3 | 啟動 MA20/ATR 趨勢確認，破位則清算 |
+
+### 狀態管理
+
+- **DefenseLatch**：觸發 ×0.0 清算後進入鎖定，需滿足「估值降溫 (PR < 85)」、「極端恐慌破冰」或「強勢趨勢反轉」其一才解鎖。
+- **快取檔案**：`data/valuationGuardState.json`。
+
+---
+
+## ✅【P1 已完成】計畫 C + 極端恐慌破冰 (valuationMomentum & panicBypass)
+
+> **完成日期：** 2026-04-17
+
+### 完成摘要
+
+1.  **計畫 C (valuationMomentum)**：感知 PR 分位數的「變化方向」。若 PR 快速上升（+10% 以上）疊加壓縮；若從高位快速回落，提前解除壓縮。併入 **VIX 波動率感知補正**，在 PR 85–90 敏感區間，若 VIX 單日暴升 > 20% 或 VIX > 30 絕對值，強制啟動保守補正。
+2.  **極端恐慌破冰 (panicBypass)**：定義 Priority 3 路由。當跌幅 > 20% 且 VIX > 35 時，全域 Bypass 估值防禦（計畫 B/C），強行進入恐慌加碼通道，捕捉左側底部機會。
+
+### 決策路由優先級 (buildDecision)
+
+| Priority | 層級名稱 | 行為 |
+| --- | --- | --- |
+| P1 | 維持率危機 | 一票否決，最優先保命 |
+| **P3** | **極端恐慌破冰** | **Bypass 計畫 B/C，解鎖 DefenseLatch** |
+| P4 | 估值防禦鎖定 (Latch) | 禁止重入，防死貓反彈 |
+| P5 | 計畫 B (valuationGuard) | 套用 PR 分位數乘數 |
+| P6 | 計畫 C (valuationMomentum) | 套用動量與 VIX 補正 |
+| P7 | 常態策略 | weightScore DCA 決策 |

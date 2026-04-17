@@ -187,6 +187,7 @@ function grossLeverageTag(result) {
 function valuationGuardTag(result) {
   const status = result?.valuationGuardStatus;
   const vgResult = result?.valuationGuardResult;
+  const vmResult = result?.valuationMomentumResult;
 
   // latch 首次觸發
   if (status === "latch_triggered") {
@@ -205,11 +206,15 @@ function valuationGuardTag(result) {
   // tier 壓縮生效（未觸發 latch）
   if (vgResult?.guardActive) {
     const pr = vgResult.currentPR ?? "N/A";
-    const multiplier = vgResult.multiplier ?? 1.0;
+    const multiplier = result.valuationGuardMultiplier ?? vgResult.multiplier ?? 1.0;
     const tierLabel = escapeHTML(
       vgResult.hitTier?.label ?? `PR${vgResult.hitTier?.prThreshold ?? ""}`,
     );
-    return `\n📊 <b>估值守衛</b>：PB PR<code>${pr}</code> — ${tierLabel}（槓桿壓縮 ×<code>${multiplier}</code>）`;
+    let str = `\n📊 <b>估值守衛</b>：PB PR<code>${pr}</code> — ${tierLabel}（槓桿壓縮 ×<code>${multiplier}</code>）`;
+    if (vmResult?.momentumLabel) {
+      str += `\n   ${escapeHTML(vmResult.momentumLabel)}`;
+    }
+    return str;
   }
 
   return "";
@@ -244,13 +249,17 @@ function activePriorityTag(result) {
   if (glStatus === "ceiling_breach")
     return `\n🏷 <b>生效層：Priority 2</b> — Gross Leverage 主動上限`;
 
-  // Priority 3：valuationGuard
+  // Priority 3：Extremely Panic Bypass
+  if (result?.panicBypassActive)
+    return `\n🏷 <b>生效層：Priority 3</b> — 極端恐慌破冰 (Bypass)`;
+
+  // Priority 4：valuationGuard
   if (vgStatus === "latch_triggered")
-    return `\n🏷 <b>生效層：Priority 3</b> — 估值守衛清算觸發`;
+    return `\n🏷 <b>生效層：Priority 4</b> — 估值守衛清算觸發`;
   if (vgStatus === "latch_active")
-    return `\n🏷 <b>生效層：Priority 3</b> — 估值守衛清算鎖定`;
+    return `\n🏷 <b>生效層：Priority 4</b> — 估值守衛清算鎖定`;
   if (result?.valuationGuardResult?.guardActive)
-    return `\n🏷 <b>生效層：Priority 3</b> — 估值守衛 tier 壓縮`;
+    return `\n🏷 <b>生效層：Priority 4</b> — 估值守衛 tier 壓縮`;
 
   // 常態運行：靜默
   return "";
@@ -771,7 +780,7 @@ export function buildCompactMessage(
       : result?.valuationGuardStatus === "latch_active"
         ? `\n🔒 估值守衛 · 清算鎖定中 PR${result?.valuationGuardResult?.currentPR ?? "N/A"}`
         : result?.valuationGuardResult?.guardActive
-          ? `\n📊 估值守衛 · PR${result?.valuationGuardResult?.currentPR ?? "N/A"} 壓縮 ×${result?.valuationGuardResult?.multiplier ?? 1.0}`
+          ? `\n📊 估值守衛 · PR${result?.valuationGuardResult?.currentPR ?? "N/A"} 壓縮 ×${result?.valuationGuardMultiplier ?? result?.valuationGuardResult?.multiplier ?? 1.0}`
           : "";
 
   // ── entryGate 通道標示（Compact） ──

@@ -4,7 +4,6 @@ import { TwDate } from "../../utils/coreUtils.mjs";
 // === 匯出即將被我們整合進 Cache 機制的 Provider ===
 import { macroDataSlots } from "./dataSourceConfig.mjs";
 import { providerRegistry } from "./providerRegistry.mjs";
-import { appendToday } from "./pbHistoryProvider.mjs";
 
 function getProviderForSlot(slotKey) {
   const slot = macroDataSlots[slotKey];
@@ -220,7 +219,7 @@ export async function fetchAllMacroData() {
           };
           // ④ PB 歷史快取：每日成功取得 rawValuation 後追加當日紀錄
           if (res?.pb != null && res?.date) {
-            appendToday(res.date, res.pb);
+            archiveManager.appendPbHistory(res.date, res.pb);
           }
         })
         .catch((err) => {

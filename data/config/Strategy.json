@@ -252,5 +252,26 @@
         }
       }
     }
+  },
+  "valuationMomentum": {
+    "enabled": true,
+    "lookbackDays": 20,
+    "risingThreshold": 10,
+    "fallingThreshold": -10,
+    "risingPenaltyMultiplier": 0.85,
+    "fallingRelief": true,
+    "highPRZone": {
+      "triggerPR": 85,
+      "relaxedMomentumThreshold": 5,
+      "vixSpikeThreshold": 0.2,
+      "vixSpikeMultiplier": 0.85,
+      "vixAbsoluteHigh": 30,
+      "vixAbsoluteMultiplier": 0.7
+    }
+  },
+  "overrideHierarchy": {
+    "panicBypassEnabled": true,
+    "panicBypassDropPct": 0.20,
+    "panicVixThreshold": 35
   }
 }

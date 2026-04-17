@@ -305,6 +305,17 @@ export async function dailyCheck({
     );
   }
 
+  let pbRecordsObjects = [];
+  try {
+    // getPbHistory 現在統一回傳 [{date, pb}, ...]
+    pbRecordsObjects = await archiveManager.getPbHistory();
+  } catch (err) {
+    console.warn(`⚠️ [dailyCheck] pbHistory 讀取失敗：${err.message}`);
+  }
+  // pbRecords: 純 PB 數值陣列（供 resolveValuationGuard 使用）
+  // pbRecordsObjects: 含 date 的完整紀錄（供 resolveValuationMomentum 使用）
+  const pbRecords = pbRecordsObjects.map(r => r.pb);
+
   const signalData = {
     RSI: latestRSI,
     KD_K: latestKD ? latestKD.k : null,
@@ -327,6 +338,8 @@ export async function dailyCheck({
     US_Suggestion: usRisk.suggestion,
     macroMarketDirection,
     valuationGuardState,
+    pbRecords,
+    pbRecordsObjects,
   };
 
   console.log("🧠 正在計算投資訊號...");
