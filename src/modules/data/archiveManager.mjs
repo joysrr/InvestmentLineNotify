@@ -15,8 +15,10 @@ const DIRS = {
 };
 
 const FILES = {
-  LAST_BUY: path.join(DATA_DIR, "last_buy.json"),
-  STRATEGY_CACHE: path.join(DIRS.CACHE, "strategy_cache.json"),
+  LAST_BUY:               path.join(DATA_DIR, "last_buy.json"),
+  STRATEGY_CACHE:         path.join(DIRS.CACHE, "strategy_cache.json"),
+  PB_HISTORY:             path.join(DATA_DIR, "pbHistory.json"),
+  VALUATION_GUARD_STATE:  path.join(DATA_DIR, "valuationGuardState.json"),
 };
 
 async function ensureDirectories() {
@@ -351,5 +353,56 @@ ${riskWarnings}
     } catch {
       return null;
     }
+  },
+
+  // ==========================================================================
+  // 9. PB 歷史快取 & ValuationGuard 狀態（計畫 A / 計畫 B）
+  // ==========================================================================
+
+  /**
+   * 讀取 PB 歷史序列快取（data/pbHistory.json）
+   * @returns {{ _meta: Object, records: Array<{date:string, pb:number}> } | null}
+   */
+  async getPbHistory() {
+    try {
+      const content = await fs.readFile(FILES.PB_HISTORY, "utf-8");
+      return JSON.parse(content);
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * 寫入 PB 歷史序列快取（data/pbHistory.json）
+   * @param {{ _meta: Object, records: Array<{date:string, pb:number}> }} data
+   */
+  async savePbHistory(data) {
+    await ensureDirectories();
+    await fs.writeFile(FILES.PB_HISTORY, JSON.stringify(data, null, 2));
+    console.log(`📈 [Archive] pbHistory 已更新（${data.records?.length ?? 0} 筆）`);
+  },
+
+  /**
+   * 讀取 ValuationGuard 防禦鎖定狀態（data/valuationGuardState.json）
+   * @returns {Object | null}
+   */
+  async getValuationGuardState() {
+    try {
+      const content = await fs.readFile(FILES.VALUATION_GUARD_STATE, "utf-8");
+      return JSON.parse(content);
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * 寫入 ValuationGuard 防禦鎖定狀態（data/valuationGuardState.json）
+   * @param {Object} state - { defenseLatch, latchTriggeredAt, latchReason, updatedAt, ... }
+   */
+  async saveValuationGuardState(state) {
+    await ensureDirectories();
+    const payload = { ...state, updatedAt: new Date().toISOString() };
+    await fs.writeFile(FILES.VALUATION_GUARD_STATE, JSON.stringify(payload, null, 2));
+    console.log(`🛡️ [Archive] valuationGuardState 已更新（defenseLatch: ${payload.defenseLatch}）`);
   },
 };
