@@ -274,15 +274,17 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 > 「極端恐慌破冰」均無法觸發。此設計已在現有程式碼中實作完畢（見 `getMarginLayer()`）。
 > 計畫 B 的各節任務在進入常態邏輯（`marginLayer === 'normal'`）後才生效。
 
-| 優先序        | 層級名稱                    | 觸發條件                                           | 行為                                          | 說明                                                     |
-| ------------- | --------------------------- | -------------------------------------------------- | --------------------------------------------- | -------------------------------------------------------- |
-| **1（最高）** | 維持率危機                  | 維持率 < 危險門檻（現有 P0 狀態機）                | 強制降槓，一票否決所有加碼                    | 保命優先，一票否決                                       |
-| **2**         | Gross Leverage 天花板       | grossLeverage > 2.5x                               | 強制壓縮至下一檔位                            | 避免死亡螺旋                                             |
-| **3**         | 極端恐慌破冰                | 跌幅 > 20% 且 VIX > `panicVixThreshold`（預設 35） | **Bypass 計畫 B/C**，直接進入左側恐慌加碼通道 | 受制於維持率，高估值泡沫已被崩跌實質消化                 |
-| **4**         | 估值防禦鎖定（Latch）       | `isLatched() === true`                             | 等待解鎖條件，禁止重建倉                      | 防死貓反彈重入                                           |
-| **5**         | 計畫 B（valuationGuard）    | PR 分位數防護                                      | 套用 guardMultiplier                          | 相對估值壓縮                                             |
-| **6**         | 計畫 C（valuationMomentum） | PR 動量感知                                        | 疊加 momentumAdjustment                       | 趨勢方向補正                                             |
-| **7（最低）** | 常態策略邏輯                | weightScore 評分                                   | 正常 allocation 表查詢                        | 日常 DCA + 戰術加碼                                      |
+| 優先序        | 層級名稱                    | 觸發條件                                                                                          | 行為                                                                                                   | 說明                                                                                                                              |
+| ------------- | --------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| **1（最高）** | 維持率危機                  | 維持率 < 危險門檻（現有 P0 狀態機）                                                               | 強制降槓，一票否決所有加碼                                                                             | 保命優先，一票否決                                                                                                                |
+| **1.5**       | 生命週期後期保守期          | 距退休 < 5 年（`lifecyclePhase === 'conservative'`）                                              | 禁止所有新增槓桿與借款；MA20/ATR 停利 Activation Cushion 無條件強制生效                                | 全局旗標，僅禁止新增、不干預現有部位停利執行；Priority 2 Gross Leverage 天花板仍正常運作                                          |
+| **2**         | Gross Leverage 天花板       | grossLeverage > 2.5x                                                                              | 強制壓縮至下一檔位，**恐慌破冰時亦不得新增借款與 00675L**；僅允許買入 0050 現貨                        | 避免死亡螺旋；此層不可被 Priority 3 覆蓋                                                                                          |
+| **3**         | 極端恐慌破冰                | 跌幅 > 20% 且 VIX > `panicVixThreshold`（預設 35）                                                | **Bypass 計畫 B/C**，直接進入左側恐慌加碼通道；若同時觸發 Priority 2，則**限縮為僅允許買入 0050 現貨** | 受制於維持率；若 Gross Leverage 超限，加碼行為受限，並於 Telegram 標示「⚠️ 恐慌破冰但 Gross Leverage 超限，加碼限縮為 0050 現貨」 |
+| **4**         | 估值防禦鎖定（Latch）       | `isLatched() === true`                                                                            | 等待解鎖條件，禁止重建倉                                                                               | 防死貓反彈重入                                                                                                                    |
+| **5**         | 計畫 B（valuationGuard）    | PR 分位數防護                                                                                     | 套用 guardMultiplier                                                                                   | 相對估值壓縮                                                                                                                      |
+| **5.5**       | MA20/ATR 動態停利           | 停利 Active 且跌破 MA20 連續 2 日 OR ATR 支撐破位（PR < 90 適用；PR ≥ 90 已由計畫 B 節三-A 處理） | 清空 Tactical 部位至 Baseline 水位                                                                     | 停利執行層，不影響是否允許加碼；PR ≥ 90 時直接走計畫 B 路徑，不重複觸發本層                                                       |
+| **6**         | 計畫 C（valuationMomentum） | PR 動量感知                                                                                       | 疊加 momentumAdjustment                                                                                | 趨勢方向補正                                                                                                                      |
+| **7（最低）** | 常態策略邏輯                | weightScore 評分                                                                                  | 正常 allocation 表查詢                                                                                 | 日常 DCA + 戰術加碼                                                                                                               |
 
 **極端恐慌破冰的 Bypass 條件說明：**
 
@@ -295,6 +297,15 @@ PR = (歷史 5 年內低於當前 PB 的天數) / (總樣本天數) × 100
 → 解除 DefenseLatch（同步清除鎖定狀態）
 → 進入恐慌加碼通道，依原有恐慌加碼邏輯執行
 → Telegram 通知標示「⚠️ 極端恐慌破冰：估值防禦已 Bypass」
+
+⚠️ Gross Leverage 超限時的限縮行為（Priority 2 不可被覆蓋）：
+→ 若同時 grossLeverage > 2.5x：
+   - 禁止新增 00675L 買進與任何新增質押借款
+   - 僅允許買入 0050 現貨（不增加借款槓桿）
+   - Telegram 額外標示「⚠️ 恐慌破冰但 Gross Leverage 超限，加碼限縮為 0050 現貨」
+→ 若同時 grossLeverage > 3.0x（被動危機紅線）：
+   - 強制執行降槓桿（賣出 00675L 至 grossLeverageRecoveryTarget）
+   - 恐慌加碼通道完全封閉，Priority 1 邏輯優先接管
 ```
 
 **Strategy.json 補充 `overrideHierarchy` 參數：**
@@ -509,6 +520,12 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ## 📌【P1 高優先】廢除 BasePrice，改採 ATR/MA20 動態移動停利
 
+### ⚠️ 前置依賴說明
+
+- MA20 與 ATR(14) 指標計算已由**計畫 B 節三-B**（`indicators.mjs` 擴充）統一實作，本計畫**不另行建立**。
+- 本計畫的 Phase 2 實作（切換至 `ma20` 模式）需在**計畫 B 節三-B 完成**後才可進行，以確保 `calcMA20()`、`calcATR()` 已存在於 `indicators.mjs`。
+- 前置依賴順序：**計畫 A → 計畫 B（含節三-B）→ 本計畫 Phase 2**
+
 ### 狀態與目標摘要
 
 - 停利條件建立在 `priceUpPercent >= sell.minUpPercentToSell(80%)`，錨點為外部 `BasePrice.txt`，尚未有明文的更新規則。
@@ -536,9 +553,7 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ### 建議方向（分階段）
 
-1. **Phase 1（過渡）**：在 `sell` 中新增 `anchorType` 欄位，預設 `basePrice` 維持現狀。
-2. **Phase 2（切換）**：切換至 `ma20` 模式，移除 `BasePrice.txt` 依賴，改從 TWSE API 即時計算。
-3. **Phase 3（驗證）**：回測不同 anchor 模式的停利時機與後續回撤，調整參數。
+~~1. **Phase 1（過渡）**：在 `sell` 中新增 `anchorType` 欄位，預設 `basePrice` 維持現狀。~~ 2. **Phase 2（切換）**：切換至 `ma20` 模式，移除 `BasePrice.txt` 依賴，改從 TWSE API 即時計算。3. **Phase 3（驗證）**：回測不同 anchor 模式的停利時機與後續回撤，調整參數。
 
 ### 影響範圍
 
@@ -636,6 +651,19 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ⭐⭐⭐ 高（需設計回測邏輯與資料對齊）
 
+### 與其他計畫的關聯
+
+> 📋 **本計畫為「績效分析與回測」整合計畫的 Phase 1，建議依以下三階段實作：**
+>
+> | Phase                 | 內容                                                                   | 前置依賴                                                                        |
+> | --------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+> | **Phase 1（本計畫）** | `backtest runner` 基礎架構 + `archiveManager` 歷史快照讀取 API         | 無                                                                              |
+> | **Phase 2**           | 加入 `signalCategory` 維度分析（見「訊號類型分類與月報統計」計畫）     | Phase 1 完成 + 「Baseline DCA 與戰術加碼雙層架構」完成（`signalType` 欄位存在） |
+> | **Phase 3**           | MacroSentiment 回測維度補充（見「MacroSentiment 交互與回測驗證」計畫） | Phase 1 完成                                                                    |
+>
+> `archiveManager` 的歷史快照讀取 API 應在本計畫（Phase 1）中統一建立，
+> Phase 2 與 Phase 3 直接沿用，**不另行擴充**，避免同一模組被多個計畫重複修改。
+
 ### 討論狀態
 
 ⚪ 待確認
@@ -730,6 +758,14 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ⭐⭐⭐ 高
 
+### 前置依賴
+
+> ⚠️ **本計畫為「績效分析與回測」整合計畫的 Phase 3，需以下項目先行完成：**
+>
+> 1. **「策略訊號回測與績效統計」（Phase 1）**：`backtest runner` 基礎架構與 `archiveManager` 歷史快照讀取 API 必須已建立，本計畫的 MacroSentiment 維度分析才可直接掛載，**不另行建立新的快照讀取路徑**。
+>
+> Phase 3 與 Phase 2（訊號類型分類）彼此無依賴，可在 Phase 1 完成後平行進行。
+
 ### 討論狀態
 
 ⚪ 待確認（回測維度部分）
@@ -775,6 +811,83 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ⭐⭐⭐ 高（牽涉策略設計與 UX）
 
+### 與 Override Hierarchy 的整合規範
+
+> 📋 **生命週期 Phase 在 `buildDecision()` 中的定位為 Priority 1.5（介於維持率危機與 Gross Leverage 天花板之間）。**
+>
+> **作用範圍說明：**
+>
+> - 生命週期後期保守期（`lifecyclePhase === 'conservative'`）是一個**全局旗標**，作用於以下兩個層面：
+>   1. **禁止新增**：禁止所有新增 00675L 買進與新增質押借款（等同永久套用 Gross Leverage 主動擴張上限邏輯，但不以 grossLeverage 數值為觸發條件）。
+>   2. **Activation Cushion 強制 Bypass**：MA20/ATR 移動停利的「啟動門檻（Activation Cushion）」無條件略過，停利防線立即生效（詳見下方說明）。
+> - **不干預現有部位的停利執行**：後期保守期不強制清算，現有部位依 MA20/ATR 停利線自然出場（平滑去槓桿化）。
+> - **Priority 2 Gross Leverage 天花板仍正常運作**：後期保守期不取代 Gross Leverage 監控，兩者並行。
+>
+> **與其他優先層的交互：**
+>
+> | 情境                                           | 行為                                                                                                     |
+> | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+> | 後期保守期 + 維持率危機（Priority 1）          | Priority 1 優先，強制降槓邏輯接管                                                                        |
+> | 後期保守期 + Gross Leverage 超限（Priority 2） | 兩者並行，均禁止新增，Gross Leverage 強制砍倉邏輯仍可觸發                                                |
+> | 後期保守期 + 極端恐慌破冰（Priority 3）        | **後期保守期不被恐慌破冰 Bypass**：恐慌破冰僅 Bypass 計畫 B/C 估值防禦，不解除生命週期禁止新增槓桿的限制 |
+
+### Activation Cushion 覆蓋行為規範
+
+> 📋 **「廢除 BasePrice」計畫的停利啟動條件（Activation Cushion）在生命週期後期保守期下的覆蓋規則：**
+>
+> **一般情況（非後期保守期）：**
+>
+> ```
+> 移動停利啟動條件（擇一滿足）：
+> → 帳面未實現獲利 > sell.activationProfitPct（例如 10%）
+> → 股價在買入後首次向上突破站穩 MA20
+> 條件未滿足前：系統處於「左側建倉陣痛期」，MA20/ATR 停利不監控
+> ```
+>
+> **後期保守期（`lifecyclePhase === 'conservative'`）：**
+>
+> ```
+> 強制 Bypass Activation Cushion：
+> → 無論當下部位是否獲利，MA20/ATR 停利防線無條件立即生效
+> → 不等待 10% 獲利門檻，不等待首次站穩 MA20
+> → Telegram 通知標示「🔒 生命週期保守期：停利啟動門檻已略過，MA20/ATR 防線即時生效」
+> ```
+>
+> **設計哲學：** 後期保守期的目標是「平滑去槓桿化」而非「立即清倉」。
+> Bypass Activation Cushion 確保任何反彈波段都能被停利機制捕捉，
+> 而非等待獲利門檻才開始守備，避免在熊市中永遠等不到啟動條件而錯失出場時機。
+
+### Strategy.json 新增欄位（補充）
+
+```json
+"lifecycle": {
+  "enabled": true,
+  "targetRetirementYear": 2045,
+  "birthYear": 1990,
+  "phases": [
+    {
+      "name": "accumulation",
+      "yearsToRetirement": 15,
+      "maxLeverageMultiplier": 2.0,
+      "note": "早期累積期，解鎖最高槓桿"
+    },
+    {
+      "name": "balanced",
+      "yearsToRetirement": 5,
+      "maxLeverageMultiplier": 1.5,
+      "note": "中期平衡期，槓桿線性遞減"
+    },
+    {
+      "name": "conservative",
+      "yearsToRetirement": 0,
+      "maxLeverageMultiplier": 0.0,
+      "note": "後期保守期，禁止新增槓桿，Activation Cushion 強制 Bypass",
+      "forceBypassActivationCushion": true
+    }
+  ]
+}
+```
+
 ### 討論狀態
 
 ⚪ 待確認
@@ -812,6 +925,13 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 
 ⭐⭐⭐ 高（涉及策略定義與報表）
 
+### 與其他計畫的關聯
+
+> ⚠️ **本計畫是「單日/區間撥款上限控制」計畫的前置依賴。**
+> `signalType`（`baseline | tactical_drop | tactical_panic`）欄位必須在本計畫完成後才存在，
+> 「撥款上限控制」計畫中的「額度排擠防護（Budget Priority）」邏輯才有依據識別 Baseline 與 Tactical 各自的資金需求。
+> **建議兩計畫合併為同一 PR 分節實作，避免中間狀態（有分層但無上限、或有上限但無分層）短暫上線。**
+
 ### 討論狀態
 
 ⚪ 待確認
@@ -846,6 +966,15 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 ### 難度
 
 ⭐⭐ 中
+
+### 前置依賴
+
+> ⚠️ **本計畫為「績效分析與回測」整合計畫的 Phase 2，需以下兩項先行完成：**
+>
+> 1. **「策略訊號回測與績效統計」（Phase 1）**：`archiveManager` 歷史快照讀取 API 與 `backtest runner` 基礎架構必須已建立，本計畫的 `signalCategory` 統計邏輯才有資料來源可讀取。
+> 2. **「Baseline DCA 與戰術加碼雙層架構」**：`signalType` 欄位（`baseline | tactical_drop | tactical_panic`）必須存在於每日快照中，本計畫的「各類訊號績效概覽」才有意義。
+>
+> **建議實作順序：Phase 1 → Baseline/Tactical 拆分 → 本計畫（Phase 2）**
 
 ### 討論狀態
 
@@ -921,6 +1050,18 @@ finalMultiplier = guardMultiplier × momentumAdjustment
 ### 難度
 
 ⭐⭐⭐ 高
+
+### 前置依賴
+
+> ⚠️ **本計畫依賴「Baseline DCA 與戰術加碼雙層架構」計畫先行完成。**
+> `signalType` 欄位（`baseline | tactical_drop | tactical_panic`）必須已存在於 `strategyEngine.mjs` 的決策輸出中，
+> 「額度排擠防護（Budget Priority）」中「先扣除 Baseline 預算、剩餘分配 Tactical」的邏輯才可正確實作。
+>
+> **建議實作順序：**
+>
+> 1. 完成「Baseline DCA 與戰術加碼雙層架構」（`signalType` 拆分）
+> 2. 接續實作本計畫的撥款上限與 Budget Priority 邏輯
+> 3. 兩計畫建議合入同一 PR，分節執行，確保不出現中間不完整狀態上線
 
 ### 討論狀態
 
