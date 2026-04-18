@@ -38,10 +38,13 @@ export function analyzeMarginRisk(portfolio, currentPrice0050, strategy) {
     const simulatedPrice = currentPrice * (1 - drop / 100);
     const simulatedMargin = totalLoan > 0 ? (qty0050 * simulatedPrice) / totalLoan * 100 : 999;
     
+    const frozenZone = maintConfig.frozenZone || 145;
+    const protectTrigger = maintConfig.protectTrigger || 160;
+
     let status = "🟢 安全";
     if (simulatedMargin < dangerThreshold) status = "🔴 斷頭";
-    else if (simulatedMargin < 145) status = "🟠 追繳";
-    else if (simulatedMargin < 160) status = "🟡 預警";
+    else if (simulatedMargin < frozenZone) status = "🟠 追繳";
+    else if (simulatedMargin < protectTrigger) status = "🟡 預警";
 
     return {
       drop,
@@ -52,11 +55,10 @@ export function analyzeMarginRisk(portfolio, currentPrice0050, strategy) {
   });
 
   // 3. 安全邊際計算 (還能跌幾 % 觸及 130%)
-  const marginCallRate = 130; 
   let survivalDropLimit = null;
-  if (totalLoan > 0 && currentMargin > marginCallRate) {
+  if (totalLoan > 0 && currentMargin > dangerThreshold) {
     // 1.3 = (qty * targetPrice) / loan => targetPrice = 1.3 * loan / qty
-    const targetPrice = (marginCallRate / 100 * totalLoan) / qty0050;
+    const targetPrice = (dangerThreshold / 100 * totalLoan) / qty0050;
     survivalDropLimit = ((currentPrice - targetPrice) / currentPrice) * 100;
   }
 

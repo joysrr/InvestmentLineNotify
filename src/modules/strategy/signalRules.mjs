@@ -688,8 +688,8 @@ export function computeOverheatState(data, bias240, strategy) {
 
 export function computeSellSignals(data, strategy) {
   const sell = strategy.sell;
-  const overbought = sell.rsi.overbought || 75;
-  const overboughtK = sell.kd.overboughtK || 80;
+  const overbought = sell.rsi.overbought ?? 75;
+  const overboughtK = sell.kd.overboughtK ?? 80;
 
   const last = lastKD(data.kdArr);
   const lastK = last?.k ?? null;

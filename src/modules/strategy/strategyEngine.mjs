@@ -6,12 +6,12 @@ import {
 } from "./riskManagement.mjs";
 import {
   validateStrategyConfig,
+  fetchStrategyConfig
   computeEntryScore,
   computeReversalTriggers,
   computeOverheatState,
   computeSellSignals,
 } from "./signalRules.mjs";
-import { fetchStrategyConfig } from "./signalRules.mjs";
 import {
   calculateIndicators,
   last2,
@@ -71,12 +71,17 @@ function resolveEntryGate(dropPercent, rsi, entryGateCfg) {
   const tiers = entryGateCfg.tiers;
 
   // 從高跌幅往低找，取第一個 minDrop <= dropPercent 的 tier
-  let matchedIndex = 0;
+  let matchedIndex = -1;  // 改為 -1 表示未命中
   for (let i = tiers.length - 1; i >= 0; i--) {
     if (dropPercent >= tiers[i].minDrop) {
       matchedIndex = i;
       break;
     }
+  }
+
+  // 若未命中，直接放行（不封鎖）
+  if (matchedIndex === -1) {
+    return { tierIndex: -1, tier: null, blocked: false, blockReason: null };
   }
 
   const tier = tiers[matchedIndex];
