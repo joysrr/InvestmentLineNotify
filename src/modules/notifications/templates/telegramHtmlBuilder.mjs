@@ -17,6 +17,14 @@ function goalBar(current, target, width = 20) {
   return "█".repeat(filled) + "░".repeat(width - filled);
 }
 
+/** 預算進度條 */
+function budgetBar(used, total, width = 10) {
+  const ratio = Math.min(1, Math.max(0, used / total));
+  const filled = Math.round(ratio * width);
+  const icon = ratio >= 0.9 ? "🔴" : (ratio >= 0.7 ? "🟡" : "🟢");
+  return `${icon} [${"■".repeat(filled)}${"□".repeat(width - filled)}] ${(ratio * 100).toFixed(0)}%`;
+}
+
 /**
  * 維持率標籤（4 層狀態機同步版本）
  * 對應 strategyEngine.mjs 的 getMarginLayer() 邏輯：
@@ -142,6 +150,29 @@ function vixOverrideTag(result) {
 }
 
 /**
+ * 評分內閣明細表
+ * @param {Object} result - evaluateInvestmentSignal 回傳結果
+ * @returns {string} 格式化後的明細
+ */
+function scoringCabinetTable(result) {
+  const cats = result.categoryResults;
+  if (!cats) return "";
+
+  const rows = Object.values(cats).map(c => {
+    const icon = c.finalScore > 0 ? "➕" : (c.finalScore < 0 ? "➖" : "▫️");
+    const capStatus = c.isCapped ? " (已封頂)" : "";
+    return `${icon} <b>${c.label}</b>  <code>${c.finalScore.toFixed(1)}pt</code>  <i>${capStatus}</i>`;
+  });
+
+  let scalingText = "";
+  if (result.scalingRatio && result.scalingRatio < 1.0) {
+    scalingText = `\n<blockquote>⚖️ <b>部位縮放：${result.scalingRatio * 100}% 撥款</b></blockquote>`;
+  }
+
+  return rows.join("\n") + scalingText;
+}
+
+/**
  * Gross Leverage 綜合曝險倍數標示列
  *
  * status 對應三種顯示層級：
@@ -253,7 +284,37 @@ function activePriorityTag(result) {
   if (result?.panicBypassActive)
     return `\n🏷 <b>生效層：Priority 3</b> — 極端恐慌破冰 (Bypass)`;
 
-  // Priority 4：valuationGuard
+  return "";
+}
+
+/**
+ * Trailing Stop 移動停利標籤
+ * @param {Object} result 
+ * @returns {string}
+ */
+function trailingStopTag(result) {
+  const active = result.trailingActive;
+  const anchor = result.dynamicAnchor;
+  if (anchor == null) {
+     return `\n🛡 <b>核心守備</b>：⏳ 建倉陣痛期 (獲利門檻未達)`;
+  }
+  const statusText = active ? "🔒 監控中 (Active)" : "⏳ 緩衝中";
+  return `\n🛡 <b>核心守備</b>：<b>${statusText}</b> — 停利防線 <code>${anchor.toFixed(1)}</code>`;
+}
+
+/**
+ * 預算管控標籤
+ * @param {Object} result 
+ * @returns {string}
+ */
+function budgetControlTag(result) {
+  const b = result.budgetInfo;
+  if (!b) return "";
+  const capped = b.budgetCapped ? "🚨 <b>預算封頂</b>" : "✅ <b>額度充足</b>";
+  return `\n💰 <b>資金預算</b>：${capped} (剩餘 <code>$${Math.floor(b.availableRolling).toLocaleString("zh-TW")}</code>)`;
+}
+
+// Priority 4：valuationGuard
   if (vgStatus === "latch_triggered")
     return `\n🏷 <b>生效層：Priority 4</b> — 估值守衛清算觸發`;
   if (vgStatus === "latch_active")
@@ -503,12 +564,9 @@ export function buildTelegramMessages({
   const mVal = Number.isFinite(minScore) ? minScore : "--";
 
   const scoreSection = [
-    scoreRow("跌幅", dropScore, w.dropInfo),
-    scoreRow("RSI", rsiScore, w.rsiInfo),
-    scoreRow("MACD", macdScore, w.macdInfo),
-    scoreRow("KD", kdScore, w.kdInfo),
-    `<blockquote>${scoreOk ? "🟢 <b>條件達標，可評估入場</b>" : "⏸️ <b>條件未滿，請維持觀望</b>"}
-總計得分：<code>${sVal}</code> pt (門濾 <code>${mVal}</code>)</blockquote>`,
+    scoringCabinetTable(result),
+    `<blockquote>${scoreOk ? "🟢 <b>量化共識：建議加碼</b>" : "⏸️ <b>條件未滿：中性觀望</b>"}
+最終總分：<code>${result.finalScore.toFixed(1)}</code> pt (門檻 <code>${minScore}</code>)</blockquote>`,
   ].join("\n");
 
   const paddedPct = String(goalPct).padStart(5, " ");
@@ -536,6 +594,8 @@ export function buildTelegramMessages({
     `${glTag}\n` +
     `${vGuardTag}\n` +
     `${priorityTag}\n` +
+    `${trailingStopTag(result)}` +
+    `${budgetControlTag(result)}\n` +
     `<blockquote expandable>${escapeHTML(result.suggestion || "無進階說明")}</blockquote>\n\n` +
     `🌐 <b>市場概況</b>${SEP}\n` +
     `🇺🇸 美股 VIX  <code>${escapeHTML(usRisk?.vix || "N/A")}</code>  ${escapeHTML(usRisk?.riskIcon || "")}\n` +

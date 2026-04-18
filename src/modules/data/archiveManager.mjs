@@ -180,6 +180,81 @@ ${riskWarnings}
     }
   },
 
+  /**
+   * 列出所有歷史報告日期（YYYY-MM-DD 格式，由新到舊排序）
+   * @returns {Promise<string[]>}
+   */
+  async listArchiveDates() {
+    try {
+      const files = await fs.readdir(DIRS.REPORTS);
+      return files
+        .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+        .map((f) => f.replace(".json", ""))
+        .sort()
+        .reverse();
+    } catch {
+      return [];
+    }
+  },
+
+  /**
+   * 取得指定天數前的歷史借貸總額 (totalLoan)
+   * 用於計算 10 日滾動預算
+   * @param {number} daysAgo - 偏移天數
+   * @returns {Promise<number>} 失敗或無資料回傳 0
+   */
+  async getHistoricalLoan(daysAgo) {
+    const dates = await this.listArchiveDates();
+    if (dates.length === 0) return 0;
+    
+    // 取相對較舊的那一筆（最多往回推到最舊的一張報表）
+    const targetDate = dates[Math.min(daysAgo, dates.length - 1)];
+    try {
+      const content = await fs.readFile(path.join(DIRS.REPORTS, `${targetDate}.json`), "utf-8");
+      const report = JSON.parse(content);
+      // 依據報表結構萃取 totalLoan
+      return report?.signals?.totalLoan || report?.portfolio?.totalLoan || 0;
+    } catch {
+      return 0;
+    }
+  },
+
+  /**
+   * 獲取買入日期後的所有最高價序列
+   * @param {string} dateStr - 買入日期 (YYYY-MM-DD)
+   * @param {string} stockNo - 股票代號 (預設 0050)
+   * @returns {Promise<number[]>}
+   */
+  async getHighsSince(dateStr, stockNo = "0050") {
+    try {
+      const months = new Set();
+      const now = new Date();
+      
+      // 獲取最近 3 個月的資料
+      for (let i = 0; i < 3; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        months.add(`${y}${m}`);
+      }
+      
+      const sortedMonths = Array.from(months).sort();
+      let allHighs = [];
+      const buyKey = dateStr.replace(/-/g, "");
+
+      for (const mKey of sortedMonths) {
+        const hist = await this.getStockHistory(stockNo, mKey);
+        if (hist && Array.isArray(hist)) {
+          const rows = hist.filter(h => h.date.replace(/-/g, "") >= buyKey);
+          allHighs.push(...rows.map(r => r.high));
+        }
+      }
+      return allHighs;
+    } catch {
+      return [];
+    }
+  },
+
   // ==========================================================================
   // 4. 新聞篩選紀錄 (passedArticlesLog)
   // ==========================================================================

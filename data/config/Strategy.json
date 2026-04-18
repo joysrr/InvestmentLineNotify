@@ -269,9 +269,79 @@
       "vixAbsoluteMultiplier": 0.7
     }
   },
+  "scoringMatrix": {
+    "enabled": true,
+    "categories": {
+      "technicalTrend": {
+        "label": "技術趨勢組",
+        "cap": 4.0,
+        "weights": {
+          "macd": 2.0,
+          "ma60Slope": 1.5
+        }
+      },
+      "valuationValue": {
+        "label": "估值價值組",
+        "cap": 8.0,
+        "weights": {
+          "priceDrop": 8.0
+        }
+      },
+      "flowOfFunds": {
+        "label": "籌碼動能組",
+        "cap": 4.0,
+        "weights": {
+          "institutional": 5.0,
+          "sentiment": 3.0
+        }
+      },
+      "extremeOscillation": {
+        "label": "極值震盪組",
+        "cap": 2.0,
+        "weights": {
+          "rsi": 2.0,
+          "kd": 2.0
+        }
+      }
+    },
+    "thresholds": {
+      "buyTactical": 4.0,
+      "sellTactical": -4.0,
+      "hysteresisExit": 2.0,
+      "scaling": {
+        "tier1": { "score": 4.0, "ratio": 0.50 },
+        "tier2": { "score": 6.0, "ratio": 0.75 },
+        "tier3": { "score": 8.0, "ratio": 1.00 }
+      }
+    },
+    "normalization": {
+      "lookbackDays": 20
+    }
+  },
   "overrideHierarchy": {
     "panicBypassEnabled": true,
-    "panicBypassDropPct": 0.20,
+    "panicBypassDropPct": 0.2,
     "panicVixThreshold": 35
+  },
+  "sell": {
+    "minUpPercentToSell": 80,
+    "minSignalCountToSell": 3,
+    "ma20StopDays": 3,
+    "trailingStop": {
+      "enabled": true,
+      "anchorType": "ma20",
+      "activationProfitPct": 0.1,
+      "atrMultiplier": 2.5,
+      "hhvLookback": 22,
+      "stopLossBuffer": 0.02
+    }
+  },
+  "trading": {
+    "cooldownDays": 10,
+    "budget": {
+      "maxDailyLoanIncreasePct": 0.05,
+      "maxRollingLoanIncreasePct": 0.15,
+      "rollingDays": 10
+    }
   }
 }
