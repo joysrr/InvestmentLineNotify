@@ -16,18 +16,35 @@
 | `src/modules/strategy/marginManager.mjs` | 核心維持率計算、壓力測試 (Stress Test) 與資金解耦分析。 |
 | `src/modules/strategy/strategyEngine.mjs` | 匯總全部因子，輸出 `marketStatus`、`targetSuggestion`、`weightScore` 等主決策結果。 |
 
-### Strategy Engine 的主要判斷維度
-- 技術指標：RSI / KD / MACD。
-- 價格相對位置：如 240MA、bias / overheat 狀態。
-- 帳戶風控：持股、借款、維持率、現金保留。
-- 冷卻期：避免短時間內過度加碼。
-- 總經方向：由 AI macro result 回注的 `macroMarketDirection`。
-
-也就是說，`strategyEngine` 不再只是純技術分析，而是融合 portfolio state 與 macro sentiment 的 hybrid engine。
+也就是說，`strategyEngine` 不再只是純技術分析，而是融合 portfolio state、量化標準化評分與嚴格資金預算的 hybrid engine。
 
 ---
 
-## 3. News Fetcher 架構
+## 3. 標準化評分矩陣 (Scoring Matrix)
+系統採用三層級評分設計，解決異質數據（RSI、跌幅、籌碼金額）的量綱統一問題：
+
+1. **指標標準化 (Normalization)**：所有指標（RSI, MACD, 跌幅, 法人買賣超）被映射至 `-1` (極度偏空) 到 `+1` (極度偏多) 的尺度。
+2. **權重配置 (Weighting)**：依據指標性質分組（技術趨勢、估值價值、籌碼動能、極值震盪），並定義類組上限 (Cap)。
+3. **加權總和 (Weighted Sum)**：計算各類組貢獻度，產出最終決策總分。
+   - **Tactical Buy**：總分 ≥ `buyTactical` (如 4.0) 觸發加碼。
+   - **Tactical Sell**：總分 ≤ `sellTactical` (如 -4.0) 觸發戰術部位減碼。
+
+---
+
+## 4. 動態移動停利與預算管控
+
+### 4.1 動態移動停利 (Trailing Stop)
+廢除靜態 BasePrice，改採動態追蹤機制：
+- **啟動門檻 (Activation Cushion)**：部位獲利 > 10% 或連續兩日收盤站穩 MA20 後才啟動監控。避免建倉初期正當波動導致被洗出場。
+- **停利錨點**：依設定選用 `MA20 × (1 - buffer)` 或 `HHV(22) - (ATR × multiplier)`。
+
+### 4.2 資金預算攔截 (Budget Control)
+- **10 日滾動上限**：單一帳戶在 10 個交易日內的新增借貸額度上限（如淨值 15%）。
+- **預算優先級 (Budget Priority)**：優先扣除 Baseline (DCA) 所需資金，剩餘額度才供 Tactical 加碼使用，且受單日上限攔截。
+
+---
+
+## 5. News Fetcher 架構
 `src/modules/newsFetcher.mjs` 現在已經是獨立的新聞治理主程式，而不只是附屬 helper。它會被：
 - `dailyCheck.mjs` 用於組成每日新聞摘要，
 - `runNewsFetch.mjs` 用於獨立抓取、評分與更新新聞池。

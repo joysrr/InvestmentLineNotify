@@ -24,7 +24,7 @@
 3. **API Layer**：`src/api/server.mjs` 長駐，提供唯讀 HTTP REST API（Port 3000），供 Telegram Mini App 前端請求資料，具備 Telegram initData HMAC-SHA256 驗證與 CORS 設定。
 4. **Frontend Layer**：`webapp/`（Vite + Vue 3 + ECharts），作為 Telegram Mini App 嵌入式前端，透過 API Layer 取得資料並渲染市場快照、資產趨勢圖表、報告列表與新聞池。採7-tab 左右滑動底部 Tab Bar 導覽。其中 `AccountView.vue` 會讀取 `/api/status`，將 `data/market/latest.json` 中的 `_meta.sources` 視覺化為「系統狀態 + 資料來源健康度」區塊，並提供展開/收合詳細資訊的 UI。 
 5. **Data Collection Layer**：從 `src/modules/providers/`、Google News RSS、Google Sheets 抓取市場資料、帳戶狀態與新聞。市場資料 provider 由 `marketData.mjs` 統一 orchestrate，並透過 `dataSourceConfig.mjs` 與 `providerRegistry.mjs` 以 `providerId` 管理各資料來源與快取 metadata。 
-6. **Decision Layer**：由 `src/modules/strategy/` 與 `src/modules/ai/` 共同完成量化計算與 AI 判讀。
+6. **Decision Layer**：由 `src/modules/strategy/` 與 `src/modules/ai/` 共同完成。採用 **Scoring Matrix (評分矩陣)** 將異質指標（跌幅、技術面、籌碼、情緒）標準化為 -1 到 1 的分數並加權求和。具備 **Override Hierarchy** 極致風控：維持率與動態停利指令優先於評分建議。執行撥款受 **10 日滾動預算上限** (Trading Budget) 監控，確保槓桿擴張不超越安全性紅線。 
 7. **Delivery Layer**：由 `src/modules/notifications/` 將結果轉為 Telegram HTML 訊息或週期報告。
 8. **Persistence Layer**：透過 `data/`、Google Sheets 與 Langfuse 持久化報告、快取、觀測資料與新聞池。
 
@@ -172,7 +172,7 @@ flowchart TD
 | `src/modules/bot/middleware/adminGuard.mjs` | 白名單 middleware，僅允許 `TELEGRAM_USER_ID` 指定的 chat_id 使用指令。 |
 | `src/modules/bot/runnerLock.mjs` | 全域 lock 機制，防止 Bot 指令與排程 runner 同時執行同一任務。 |
 | `src/modules/providers/` | 市場資料 provider layer，封裝 TWSE、Yahoo、FRED、CNN、KGI、NDC 等來源。自 2026-04 起，總經類資料由 `marketData.mjs` 統一 orchestrate，並透過 `dataSourceConfig.mjs` + `providerRegistry.mjs` 以 `providerId` 管理 Slot 與 metadata。所有總經快取寫入 `data/market/latest.json`，結構含 `_meta.sources`（各 provider 狀態與 `lastFetch`）與 `data`（8 個 Slot 資料：`rawNdc`、`rawMargin`、`rawCnn`、`rawUsMarket`、`rawValuation`、`rawFx`、`rawMarketOverview`、`quote`）。詳見 `docs/modules/providers.md`。 |
-| `src/modules/strategy/` | 策略與風控核心，計算 RSI / KD / MACD、過熱、冷卻期與投資建議。 |
+| `src/modules/strategy/` | 策略與風控核心，包含技術指標計算、**標準化評分矩陣 (Scoring Matrix)**、過熱/冷卻期判定、**動態移動停利 (Trailing Stop)** 與 **10 日滾動預算攔截 (Budget Control)**。採「風控優先」邏輯，確保安全性指令具備最高 Override 權限。 |
 | `src/modules/ai/` | AI decision layer，包含 search query generation、news filter、macro analysis、investment coach、period report、rule optimizer、LLM judge。 |
 | `src/modules/news/newsConflictGrouper.mjs` | 矛盾偵測前置層，以 Jaccard 相似度（閥値 0.3）+ Union-Find 對新聞標題預分群，輸出 `_conflictGroup` 標籤供 AI 識別同一事件的正反報導。 |
 | `src/modules/newsFetcher.mjs` | 新聞抓取與初步去噪主程式，負責整合靜態 / 動態關鍵字與 blacklist。 |

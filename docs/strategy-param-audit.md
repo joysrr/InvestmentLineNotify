@@ -85,6 +85,9 @@
 | `transFeeDiscount` | 0.6 | `scripts/testOptimizer.mjs` | ✅ |
 | `taxRate` | 0.003 | `scripts/testOptimizer.mjs` | ✅ |
 | `loanInterestRate` | 0.025 | `scripts/testOptimizer.mjs` | ✅ |
+| `budget.maxDailyLoanIncreasePct` | 0.05 | `strategyEngine.mjs` → 單日撥款上限 | ✅ |
+| `budget.maxRollingLoanIncreasePct` | 0.15 | `strategyEngine.mjs` → 10 日滾動上限 | ✅ |
+| `budget.rollingDays` | 10 | `strategyEngine.mjs` → 滾動計算天數 | ✅ |
 
 > **注意**：`trading.minAction` 與 `threshold.minActionableAmount` 語意重疊，建議統一為一個欄位。
 
@@ -145,6 +148,11 @@
 | `minSignalCountToSell` | 2 | `strategyEngine.mjs` → `buildDecision()` 停利條件 | ✅ |
 | `rsi.overbought` | 75 | `signalRules.mjs` → `computeSellSignals()` | ✅ |
 | `kd.overboughtK` | 80 | `signalRules.mjs` → `computeSellSignals()` | ✅ |
+| `trailingStop.enabled` | true | `strategyEngine.mjs` → 開啟動態停利 | ✅ |
+| `trailingStop.anchorType` | `atr` | `strategyEngine.mjs` → 停利算法 (ma20/atr) | ✅ |
+| `trailingStop.activationProfitPct` | 0.1 | `strategyEngine.mjs` → 啟動獲利門檻 (10%) | ✅ |
+| `trailingStop.atrMultiplier` | 2.5 | `strategyEngine.mjs` → ATR 停損倍數 | ✅ |
+| `trailingStop.stopLossBuffer` | 0.02 | `strategyEngine.mjs` → MA20 緩衝空間 | ✅ |
 
 ---
 
@@ -191,6 +199,18 @@
 | `bullishBonus` | 3 | `signalRules.mjs` → `computeEntryScore()` | ✅ |
 | `bearishPenalty` | 5 | `signalRules.mjs` → `computeEntryScore()` | ✅ |
 | `bearishCooldownMultiplier` | 1.5 | `strategyEngine.mjs` → `evaluateInvestmentSignal()` | ✅ |
+
+---
+
+## `scoringMatrix`
+
+| 欄位 | 當前值 | 引用位置 | 狀態 |
+|------|--------|---------|------|
+| `enabled` | true | `strategyEngine.mjs` | ✅ |
+| `categories` | {} | `signalGenerator.mjs` → 權重與類組定義 | ✅ |
+| `thresholds.buyTactical` | 4 | `strategyEngine.mjs` → 戰術加碼門檻 | ✅ |
+| `thresholds.sellTactical` | -4 | `strategyEngine.mjs` → 戰術減碼門檻 | ✅ |
+| `normalization.lookbackDays` | 20 | `signalGenerator.mjs` → 標準化回顧期 | ✅ |
 
 ---
 
