@@ -283,7 +283,16 @@ function activePriorityTag(result) {
   // Priority 3：Extremely Panic Bypass
   if (result?.panicBypassActive)
     return `\n🏷 <b>生效層：Priority 3</b> — 極端恐慌破冰 (Bypass)`;
+    
+     // Priority 4：valuationGuard
+  if (vgStatus === "latch_triggered")
+    return `\n🏷 <b>生效層：Priority 4</b> — 估值守衛清算觸發`;
+  if (vgStatus === "latch_active")
+    return `\n🏷 <b>生效層：Priority 4</b> — 估值守衛清算鎖定`;
+  if (result?.valuationGuardResult?.guardActive)
+    return `\n🏷 <b>生效層：Priority 4</b> — 估值守衛 tier 壓縮`;
 
+  // 常態運行：靜默
   return "";
 }
 
@@ -312,18 +321,6 @@ function budgetControlTag(result) {
   if (!b) return "";
   const capped = b.budgetCapped ? "🚨 <b>預算封頂</b>" : "✅ <b>額度充足</b>";
   return `\n💰 <b>資金預算</b>：${capped} (剩餘 <code>$${Math.floor(b.availableRolling).toLocaleString("zh-TW")}</code>)`;
-}
-
-// Priority 4：valuationGuard
-  if (vgStatus === "latch_triggered")
-    return `\n🏷 <b>生效層：Priority 4</b> — 估值守衛清算觸發`;
-  if (vgStatus === "latch_active")
-    return `\n🏷 <b>生效層：Priority 4</b> — 估值守衛清算鎖定`;
-  if (result?.valuationGuardResult?.guardActive)
-    return `\n🏷 <b>生效層：Priority 4</b> — 估值守衛 tier 壓縮`;
-
-  // 常態運行：靜默
-  return "";
 }
 
 /**
