@@ -13,6 +13,7 @@
 | `src/modules/strategy/indicators.mjs` | 計算 RSI、MACD、KD 與相關 crossover / reversal helper。 |
 | `src/modules/strategy/signalRules.mjs` | 讀取與驗證策略設定，計算 entry score、overheat、sell signals 等子規則。 |
 | `src/modules/strategy/riskManagement.mjs` | 管理目標槓桿、現金保留與資產健康度規則。 |
+| `src/modules/strategy/marginManager.mjs` | 核心維持率計算、壓力測試 (Stress Test) 與資金解耦分析。 |
 | `src/modules/strategy/strategyEngine.mjs` | 匯總全部因子，輸出 `marketStatus`、`targetSuggestion`、`weightScore` 等主決策結果。 |
 
 ### Strategy Engine 的主要判斷維度

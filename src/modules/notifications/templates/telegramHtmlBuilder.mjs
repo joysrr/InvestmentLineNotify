@@ -265,6 +265,43 @@ function activePriorityTag(result) {
   return "";
 }
 
+/**
+ * 壓力測試簡易表格
+ * @param {Object} result - evaluateInvestmentSignal 回傳結果
+ * @returns {string} 格式化後的表格 HTML
+ */
+function stressTestTable(result) {
+  const analysis = result.marginAnalysis;
+  if (!analysis || !analysis.stressTests || analysis.totalLoan <= 0) return "";
+
+  const rows = analysis.stressTests.map(t => {
+    return `<code>-${t.drop}% 跌至 ${t.price} → 維持率 ${t.margin}% ${t.status}</code>`;
+  }).join("\n");
+
+  const safety = analysis.riskAssessment.survivalDropLimit;
+  const refill = analysis.riskAssessment.refillRequirement;
+
+  const safetyStr = safety !== null ? `${safety.toFixed(1)}%` : "N/A";
+  const refillStr = refill > 0 ? `需求注入額：$${refill.toLocaleString("en-US")}` : "✅ 現金充足";
+
+  return `\n\n🛡 <b>0050 質押壓力測試</b>${SEP}${rows}\n` +
+         `📍 生存邊際 (至 130%)：<code>${safetyStr}</code>\n` +
+         `📍 補足線建議 (160%)：<code>${refillStr}</code>`;
+}
+
+/**
+ * 資金解耦與比例分析
+ * @param {Object} result 
+ * @returns {string} 
+ */
+function decouplingRow(result) {
+  const dec = result.decouplingAnalysis;
+  if (!dec) return "";
+  return `\n⚖️ <b>資金解耦分析</b>${SEP}` +
+         `🛡 基礎資產 (0050-Loan)：<tg-spoiler>${dec.baseRatio}%</tg-spoiler>\n` +
+         `⚔️ 戰術槓桿 (00675L)：<tg-spoiler>${dec.tacticRatio}%</tg-spoiler>`;
+}
+
 // ── 主程式：完整版訊息（原不動） ───────────────────────────────
 
 export function buildTelegramMessages({
@@ -593,7 +630,9 @@ export function buildTelegramMessages({
     `💵 現金儲備    <tg-spoiler>$${cashReserveStr}</tg-spoiler>\n` +
     `💳 借款金額    <tg-spoiler>$${Number(totalLoan).toLocaleString("en-US")}</tg-spoiler>\n` +
     `🛡 0050    <tg-spoiler>${qty0050Str} 股</tg-spoiler>\n` +
-    `⚔️ 0067L   <tg-spoiler>${qtyZ2Str} 股</tg-spoiler>`;
+    `⚔️ 0067L   <tg-spoiler>${qtyZ2Str} 股</tg-spoiler>` +
+    stressTestTable(result) +
+    decouplingRow(result);
 
   let macroAnalysisSection = "";
   if (macroAnalysis && macroAnalysis.conclusion) {
@@ -801,7 +840,11 @@ export function buildCompactMessage(
     `${cooldownHint}` +
     `${vixOverrideHint}` +
     `${glHint}` +
-    `${vGuardHint}${SEP}` +
+    `${vGuardHint}` +
+    (result.marginAnalysis?.riskAssessment?.survivalDropLimit != null
+      ? `\n🛡 <b>0050 可跌空間</b>：<code>${result.marginAnalysis.riskAssessment.survivalDropLimit.toFixed(1)}%</code>`
+      : "") +
+    `${SEP}` +
     `${quoteText}\n` +
     `📲 詳細指標與 AI 建議請到 Mini App 查看`;
 

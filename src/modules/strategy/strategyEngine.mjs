@@ -31,6 +31,10 @@ import {
 } from "./indicators.mjs";
 import { loadHolidaySet } from "../providers/twseProvider.mjs";
 import { computeGrossLeverage } from "./leverageMonitor.mjs";
+import {
+  analyzeMarginRisk,
+  analyzeCapitalDecoupling,
+} from "./marginManager.mjs";
 
 /**
  * 維持率 4 層狀態機判斷
@@ -1385,10 +1389,19 @@ export async function evaluateInvestmentSignal(data, strategy) {
   const current0050Value = data.portfolio.qty0050 * data.price0050;
   const currentZ2Value = data.portfolio.qtyZ2 * data.currentPrice;
 
-  const maintenanceMargin =
-    data.portfolio.totalLoan > 0
-      ? (current0050Value / data.portfolio.totalLoan) * 100
-      : 999;
+  // ── 使用 marginManager 計算維持率與壓力測試 (排除 00675L) ───────
+  const marginAnalysis = analyzeMarginRisk(
+    data.portfolio,
+    data.price0050,
+    strategy,
+  );
+  const maintenanceMargin = marginAnalysis.currentMargin;
+
+  // ── 資金解耦分析 ──────────────────────────────────────────────
+  const decouplingAnalysis = analyzeCapitalDecoupling(data.portfolio, {
+    price0050: data.price0050,
+    priceZ2: data.currentPrice,
+  });
 
   const netAsset =
     current0050Value +
@@ -1480,6 +1493,9 @@ export async function evaluateInvestmentSignal(data, strategy) {
     macdArr: data.macdArr ?? [],
     // ── valuationMomentum 所需欄位 ───────────────────────────
     vixArr: vixArr,
+    // ── 壓力測試與解耦數據 ──────────────────────────────────
+    marginAnalysis,
+    decouplingAnalysis,
   };
 
   // ── Gross Leverage 計算 ──────────────────────────────────────
@@ -1537,6 +1553,8 @@ export async function evaluateInvestmentSignal(data, strategy) {
     entryGateLabel: decision.entryGateLabel ?? null,
     entryGateBlocked: decision.entryGateBlocked ?? false,
     cooldownStatus,
+    marginAnalysis,
+    decouplingAnalysis,
   };
 }
 

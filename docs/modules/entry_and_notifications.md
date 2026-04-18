@@ -177,9 +177,9 @@ bot.start({
 
 ### Daily Telegram Message Strategy
 每日通知仍以分段式訊息為主，目的是兼顧可讀性與 Telegram 長度限制。實際內容可包含：
-- 市場總覽與主建議，
-- 技術指標 / 帳戶快照，
-- AI 教練與總経摘要。
+- 市場總覽與主建議（Msg 1），
+- 技術指標 / 帳戶快照 / **保證金壓力測試與解耦分析**（Msg 2），
+- AI 教練與總経摘要（Msg 3）。
 
 ### Period Report Message Strategy
 週報 / 月報由 `periodReportBuilder.mjs` 組裝，訊息數量依週期不同：

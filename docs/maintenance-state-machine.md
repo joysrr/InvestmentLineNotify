@@ -1,8 +1,8 @@
 # 維持率狀態機 4 層重構 — Strategy.json 修改說明
 
 > 對應計畫：`docs/plans/preplan_features.md` P0【維持率狀態機 4 層重構】  
-> 完成日期：2026-04-16  
-> 影響檔案：`strategyEngine.mjs`、`telegramHtmlBuilder.mjs`（已自動更新）
+> 完成日期：2026-04-18 (Batch 3 升級)  
+> 影響檔案：`strategyEngine.mjs`、`marginManager.mjs`、`telegramHtmlBuilder.mjs`
 
 ---
 
@@ -29,6 +29,11 @@
 |------|--------|------|
 | `marginCallThreshold` | `135` | 🔴 斷頭危機門檻。低於此值時系統強制發出降槓桿警示，一票否決所有加碼。原本已存在於 Strategy.json 但程式端未對應任何行動，現在已正式接入 4 層狀態機。 |
 | `frozenZone` | `145` | 🟠 高危凍結門檻（新增）。介於 `marginCallThreshold` 與 `protectTrigger` 之間，觸發時禁止所有新進場（包含 0050 DCA 與 00675L 加碼），強烈通知補足保證金。 |
+
+### 核心計算公式
+自 Batch 3 起，維持率計算已統一由 `marginManager.mjs` 處理：
+- **公式**：`維持率 = (0050 持股數 × 0050 市價) / 借貸總額`
+- **原則**：僅計算擔保品（0050）市值，**不包含 00675L**。
 
 ### 既有欄位確認（無需修改）
 
