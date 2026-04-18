@@ -27,6 +27,18 @@ export const macroDataSlots = {
   rawFx: {
     providerId: "usdTwdYahoo",
   },
+  rawInstitutional: {
+    providerId: "stockInstitutionalTwse",
+  },
+  rawStockMargin: {
+    providerId: "stockMarginTwse",
+  },
+  rawBankRate: {
+    providerId: "twCentralBankRate",
+  },
+  rawCpi: {
+    providerId: "twCpiYoY",
+  },
   quote: {
     providerId: "dailyQuote",
   },

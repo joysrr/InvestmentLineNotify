@@ -321,6 +321,88 @@ export async function fetchAllMacroData() {
           };
         }),
     );
+    );
+  }
+
+  // ====================================================================
+  // 判斷邏輯 H: 個股籌碼與信用交易 (0050 法人 / 00675L 融資)
+  // 策略: 每日 16:00 後重抓
+  // ====================================================================
+  const stockMetrics = [
+    { slot: "rawInstitutional", key: "foreignNetBuy" },
+    { slot: "rawStockMargin", key: "marginBalance" },
+  ];
+
+  for (const item of stockMetrics) {
+    const slotKey = item.slot;
+    const providerId = macroDataSlots[slotKey].providerId;
+    const lastFetchDate = cachedMeta[providerId]?.lastFetch?.split("T")[0];
+
+    // 16:00 前或今日已更新則使用快取
+    if (cachedData[slotKey] && (twHour < 16 || lastFetchDate === todayStr)) {
+      console.log(`⚡ [Cache] ${slotKey} 使用快取資料`);
+      finalData[slotKey] = cachedData[slotKey];
+    } else {
+      const provider = getProviderForSlot(slotKey);
+      fetchPromises.push(
+        provider
+          .fetch()
+          .then((res) => {
+            finalData[slotKey] = res;
+            newMetaSources[providerId] = {
+              status: "SUCCESS",
+              lastFetch: now.toISOString(),
+            };
+          })
+          .catch((err) => {
+            console.warn(`⚠️ ${provider.label} 失敗:`, err.message);
+            finalData[slotKey] = cachedData[slotKey] || null;
+            newMetaSources[providerId] = {
+              status: "FAILED",
+              error: err.message,
+              lastFetch: cachedMeta[providerId]?.lastFetch || null,
+            };
+          }),
+      );
+    }
+  }
+
+  // ====================================================================
+  // 判斷邏輯 I: 總經指標 (利率 / 通膨)
+  // 策略: 每日抓取一次 (Forward-Fill via Cache fallback)
+  // ====================================================================
+  const macroMetrics = ["rawBankRate", "rawCpi"];
+
+  for (const slotKey of macroMetrics) {
+    const providerId = macroDataSlots[slotKey].providerId;
+    const lastFetchDate = cachedMeta[providerId]?.lastFetch?.split("T")[0];
+
+    if (cachedData[slotKey] && lastFetchDate === todayStr) {
+      console.log(`⚡ [Cache] ${slotKey} 使用快取資料`);
+      finalData[slotKey] = cachedData[slotKey];
+    } else {
+      const provider = getProviderForSlot(slotKey);
+      fetchPromises.push(
+        provider
+          .fetch()
+          .then((res) => {
+            finalData[slotKey] = res;
+            newMetaSources[providerId] = {
+              status: "SUCCESS",
+              lastFetch: now.toISOString(),
+            };
+          })
+          .catch((err) => {
+            console.warn(`⚠️ ${provider.label} 失敗:`, err.message);
+            finalData[slotKey] = cachedData[slotKey] || null;
+            newMetaSources[providerId] = {
+              status: "FAILED",
+              error: err.message,
+              lastFetch: cachedMeta[providerId]?.lastFetch || null,
+            };
+          }),
+      );
+    }
   }
 
   // ====================================================================

@@ -744,3 +744,89 @@ export async function fetchMarketOverview() {
     maxTradeValue20dHundredMillion, // 近 20 日最大成交金額（億元）
   };
 }
+
+// ============================================================================
+// 📊 個股三大法人買賣超 (T86 via RWD)
+// ============================================================================
+export async function fetchStockInstitutionalData(symbol) {
+  const stockNo = toTwseStockNo(symbol);
+  // 不帶日期則自動回傳最新交易日
+  const url = `https://www.twse.com.tw/rwd/zh/fund/T86?response=json&selectType=ALL&_=${Date.now()}`;
+
+  try {
+    const res = await fetchWithTimeout(
+      url,
+      {
+        ...baseFetchOptions,
+        headers: {
+          ...baseFetchOptions.headers,
+          Referer: "https://www.twse.com.tw/zh/page/trading/fund/T86.html",
+        },
+      },
+      10000,
+    );
+
+    const json = await res.json();
+    if (json.stat !== "OK" || !Array.isArray(json.data)) {
+      throw new Error(`T86 API 回傳異常: ${json.stat}`);
+    }
+
+    const row = json.data.find((r) => r[0] === stockNo);
+    if (!row) return null;
+
+    /**
+     * 欄位索引 (RWD 格式):
+     * 0: 證券代號, 1: 證券名稱
+     * 4: 外資買賣超, 12: 投信買賣超, 15: 自營商買賣超, 18: 合計
+     */
+    return {
+      date: json.date, // 可能是 "2026年04月17日" 格式
+      symbol: stockNo,
+      foreignNetBuy: parseNumberOrNull(row[4]),
+      trustNetBuy: parseNumberOrNull(row[12]),
+      dealerNetBuy: parseNumberOrNull(row[15]),
+      totalNetBuy: parseNumberOrNull(row[18]),
+    };
+  } catch (err) {
+    console.warn(`[twseProvider] fetchStockInstitutionalData 失敗: ${err.message}`);
+    return null;
+  }
+}
+
+// ============================================================================
+// 📊 個股融資融券餘額 (MI_MARGN via OpenAPI)
+// ============================================================================
+export async function fetchStockMarginData(symbol) {
+  const stockNo = toTwseStockNo(symbol);
+  const url = `https://openapi.twse.com.tw/v1/exchangeReport/MI_MARGN`;
+
+  try {
+    const res = await fetchWithTimeout(
+      url,
+      {
+        ...baseFetchOptions,
+        headers: { ...baseFetchOptions.headers, Accept: "application/json" },
+      },
+      10000,
+    );
+
+    const data = await res.json();
+    if (!Array.isArray(data)) {
+      throw new Error("MI_MARGN OpenAPI 回傳格式異常");
+    }
+
+    const row = data.find((r) => r["股票代號"] === stockNo);
+    if (!row) return null;
+
+    return {
+      symbol: stockNo,
+      marginBalance: parseNumberOrNull(row["融資今日餘額"]),
+      shortBalance: parseNumberOrNull(row["融券今日餘額"]),
+      marginLimit: parseNumberOrNull(row["融資限額"]),
+      shortLimit: parseNumberOrNull(row["融券限額"]),
+    };
+  } catch (err) {
+    console.warn(`[twseProvider] fetchStockMarginData 失敗: ${err.message}`);
+    return null;
+  }
+}

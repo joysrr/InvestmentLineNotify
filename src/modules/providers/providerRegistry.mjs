@@ -5,7 +5,13 @@ import { fetchFinMindMarginData } from "./finmindProvider.mjs";
 import { fetchUsdTwdExchangeRate } from "./yahooProvider.mjs";
 import { fetchBusinessIndicator } from "./ndcProvider.mjs";
 import { getDailyQuote } from "./quoteProvider.mjs";
-import { fetchMarketValuation, fetchMarketOverview } from "./twseProvider.mjs";
+import {
+  fetchMarketValuation,
+  fetchMarketOverview,
+  fetchStockInstitutionalData,
+  fetchStockMarginData,
+} from "./twseProvider.mjs";
+import * as macroProvider from "./macroProvider.mjs";
 
 /**
  * providerRegistry 負責把實際的 provider 實作包裝成統一介面。
@@ -63,6 +69,30 @@ export const providerRegistry = {
     label: "USD/TWD 匯率 (Yahoo)",
     async fetch() {
       return fetchUsdTwdExchangeRate();
+    },
+  },
+  stockInstitutionalTwse: {
+    label: "個股三大法人買賣超 (0050)",
+    async fetch() {
+      return fetchStockInstitutionalData("0050");
+    },
+  },
+  stockMarginTwse: {
+    label: "個股融資融券 (00675L)",
+    async fetch() {
+      return fetchStockMarginData("00675L");
+    },
+  },
+  twCentralBankRate: {
+    label: "台灣基準利率 (央行)",
+    async fetch() {
+      return macroProvider.fetchCentralBankRate();
+    },
+  },
+  twCpiYoY: {
+    label: "消費者物價指數年增率 (CPI)",
+    async fetch() {
+      return macroProvider.fetchCpiYoY();
     },
   },
   dailyQuote: {

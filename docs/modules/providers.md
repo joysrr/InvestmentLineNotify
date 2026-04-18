@@ -64,6 +64,10 @@ export async function fetchAllMacroData()
     rawValuation:     { providerId: 'twMarketValuation' },
     rawFx:            { providerId: 'usdTwdYahoo' },
     rawMarketOverview:{ providerId: 'twMarketOverview' },
+    rawInstitutional: { providerId: 'stockInstitutionalTwse' },
+    rawStockMargin:   { providerId: 'stockMarginTwse' },
+    rawBankRate:      { providerId: 'twCentralBankRate' },
+    rawCpi:           { providerId: 'twCpiYoY' },
     quote:            { providerId: 'dailyQuote' },
   }
   ```
@@ -196,7 +200,9 @@ export async function fetchAllMacroData()
 | `loadHolidaySet(year)` | 載入 TWSE 年度休市日 Set（具記憶體快取） | `Set<string>` |
 | `fetchStockHistory(symbol, p1, p2)` | 歷史股價查詢（月份分批 + 非當月 archive 快取） | `[{ date, open, high, low, close, volume }]` |
 | `fetchMarketValuation()` | 計算 TWSE 全市場加權 PB / PE / 殖利率 | `{ pe, pb, yield, date }` |
-| `fetchMarketOverview()` | 取得台股加權指數收盤與市場成交金額，並計算近 20 日量能統計 | `{ date, taiex, changePoint, changePercent, tradeValueHundredMillion, tradeValueRaw, avgTradeValue20dHundredMillion, maxTradeValue20dHundredMillion }` |
+| `fetchMarketOverview()` | 取得台股加權指數收盤與市場成交金額，並計算近 20 日量能統計 | `{ date, taiex, ... }` |
+| `fetchStockInstitutionalData(symbol)` | 抓取個股三大法人買賣超 (T86) | `{ date, symbol, foreignNetBuy, ... }` |
+| `fetchStockMarginData(symbol)` | 抓取個股融資融券餘額 (MI_MARGN) | `{ symbol, marginBalance, shortBalance, ... }` |
 
 **特殊機制**：
 - **Cookie 快取（TTL 10 分鐘）**：MIS 即時系統需要先取得 Cookie，使用 Promise Lock 防止併發重複請求。
@@ -365,7 +371,32 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 
 ---
 
-### 4.7 `quoteProvider.mjs` — 每日一句
+---
+
+### 4.7 `macroProvider.mjs` — 宏觀經濟指標 (利率與 CPI)
+
+**資料來源**：
+- **台灣指標**：中央銀行 (CBC) 官網、主計總處 (DGBAS) 統計資料庫
+- **美國指標**：FRED (Federal Reserve Economic Data)
+
+**主要 Exports**：
+- `fetchCentralBankRate()`: 台灣央行貼放利率 (抓取 CBC 第一列數據)
+- `fetchCpiYoY()`: 台灣消費者物價指數年增率 (對接 DGBAS API)
+
+**回傳結構**：
+```js
+{
+  date: string,     // 資料日期 (YYYY-MM-DD 或 YYYY-MM)
+  value: number,    // 數值 (百分比)
+  source: "CBC" | "DGBAS" | "FRED" | "fallback"
+}
+```
+
+**特殊機制**：
+- **在地資料優先**：台灣相關宏觀指標已全面排除 FRED 依賴，改用在地官方管道。
+- **動態日期計算**：CPI 抓取會自動回推至前一個月，並轉換為民國年格式進行 API 查詢。
+
+### 4.8 `quoteProvider.mjs` — 每日一句
 
 **資料來源**：Quotable API → ZenQuotes API → 內建 Fallback
 
