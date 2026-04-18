@@ -26,11 +26,16 @@
   },
   "trading": {
     "minAction": 10000,
-    "cooldownDays": 20,
+    "cooldownDays": 10,
     "transFee": 0.001425,
     "transFeeDiscount": 0.6,
     "taxRate": 0.003,
-    "loanInterestRate": 0.025
+    "loanInterestRate": 0.025,
+    "budget": {
+      "maxDailyLoanIncreasePct": 0.05,
+      "maxRollingLoanIncreasePct": 0.15,
+      "rollingDays": 10
+    }
   },
   "buy": {
     "minDropPercentToConsider": 5,
@@ -116,12 +121,21 @@
   "sell": {
     "postAllocationIndexFromEnd": 2,
     "minUpPercentToSell": 80,
-    "minSignalCountToSell": 2,
+    "minSignalCountToSell": 3,
+    "ma20StopDays": 3,
     "rsi": {
       "overbought": 75
     },
     "kd": {
       "overboughtK": 80
+    },
+    "trailingStop": {
+      "enabled": true,
+      "anchorType": "ma20",
+      "activationProfitPct": 0.1,
+      "atrMultiplier": 2.5,
+      "hhvLookback": 22,
+      "stopLossBuffer": 0.02
     }
   },
   "allocation": [
@@ -322,26 +336,5 @@
     "panicBypassEnabled": true,
     "panicBypassDropPct": 0.2,
     "panicVixThreshold": 35
-  },
-  "sell": {
-    "minUpPercentToSell": 80,
-    "minSignalCountToSell": 3,
-    "ma20StopDays": 3,
-    "trailingStop": {
-      "enabled": true,
-      "anchorType": "ma20",
-      "activationProfitPct": 0.1,
-      "atrMultiplier": 2.5,
-      "hhvLookback": 22,
-      "stopLossBuffer": 0.02
-    }
-  },
-  "trading": {
-    "cooldownDays": 10,
-    "budget": {
-      "maxDailyLoanIncreasePct": 0.05,
-      "maxRollingLoanIncreasePct": 0.15,
-      "rollingDays": 10
-    }
   }
 }

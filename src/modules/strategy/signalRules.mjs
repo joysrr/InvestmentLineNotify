@@ -202,41 +202,27 @@ export function validateStrategyConfig(config) {
    *
    * 大小關係必須滿足：recoveryTarget < ceiling < hardCap
    */
+  assert(isObject(config.grossLeverage), "grossLeverage 必須是物件");
   const gl = config.grossLeverage;
 
-  if (!gl || typeof gl !== "object") {
-    errors.push("grossLeverage：區段缺失或格式錯誤");
-  } else {
-    const { ceiling, hardCap, recoveryTarget } = gl;
+  assertNumber(gl.ceiling, "grossLeverage.ceiling");
+  assert(gl.ceiling > 0, "grossLeverage.ceiling 必須是正數");
 
-    if (typeof ceiling !== "number" || ceiling <= 0) {
-      errors.push("grossLeverage.ceiling：必須為正數（例如 2.5）");
-    }
-    if (typeof hardCap !== "number" || hardCap <= 0) {
-      errors.push("grossLeverage.hardCap：必須為正數（例如 3.0）");
-    }
-    if (typeof recoveryTarget !== "number" || recoveryTarget <= 0) {
-      errors.push("grossLeverage.recoveryTarget：必須為正數（例如 2.0）");
-    }
+  assertNumber(gl.hardCap, "grossLeverage.hardCap");
+  assert(gl.hardCap > 0, "grossLeverage.hardCap 必須是正數");
 
-    // 大小關係強制檢查：recoveryTarget < ceiling < hardCap
-    if (
-      typeof ceiling === "number" &&
-      typeof hardCap === "number" &&
-      typeof recoveryTarget === "number"
-    ) {
-      if (recoveryTarget >= ceiling) {
-        errors.push(
-          `grossLeverage：recoveryTarget(${recoveryTarget}) 必須小於 ceiling(${ceiling})`,
-        );
-      }
-      if (ceiling >= hardCap) {
-        errors.push(
-          `grossLeverage：ceiling(${ceiling}) 必須小於 hardCap(${hardCap})`,
-        );
-      }
-    }
-  }
+  assertNumber(gl.recoveryTarget, "grossLeverage.recoveryTarget");
+  assert(gl.recoveryTarget > 0, "grossLeverage.recoveryTarget 必須是正數");
+
+  // 大小關係強制檢查：recoveryTarget < ceiling < hardCap
+  assert(
+    gl.recoveryTarget < gl.ceiling,
+    `grossLeverage：recoveryTarget(${gl.recoveryTarget}) 必須小於 ceiling(${gl.ceiling})`,
+  );
+  assert(
+    gl.ceiling < gl.hardCap,
+    `grossLeverage：ceiling(${gl.ceiling}) 必須小於 hardCap(${gl.hardCap})`,
+  );
   // ────────────────────────────────────────────────────────────────
 
   // ── valuationGuard 驗證（選填，向後相容；v2.6+ 新增）──────────────────────
