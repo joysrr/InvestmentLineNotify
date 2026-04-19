@@ -292,10 +292,24 @@ const todayLabel = computed(() =>
 );
 
 // ── AI computed ──
-const aiRiskWarnings = computed(() => latestReport.value?.ai?.riskWarnings ?? []);
-const aiActionItems = computed(() => latestReport.value?.ai?.actionItems ?? []);
-const aiMindsetAdvice = computed(() => latestReport.value?.ai?.mindsetAdvice ?? []);
-const aiInternalThinking = computed(() => latestReport.value?.ai?.internalThinking ?? null);
+const aiRiskWarnings = computed(() =>
+  (latestReport.value?.ai?.action_items ?? [])
+    .filter(i => i.type === "risk")
+    .map(i => i.text ?? i)
+);
+const aiActionItems = computed(() =>
+  (latestReport.value?.ai?.action_items ?? [])
+    .filter(i => i.type === "action")
+    .map(i => i.text ?? i)
+);
+const aiMindsetAdvice = computed(() =>
+  (latestReport.value?.ai?.action_items ?? [])
+    .filter(i => i.type === "mindset")
+    .map(i => i.text ?? i)
+);
+const aiInternalThinking = computed(() =>
+  latestReport.value?.ai?.reasoning ?? null
+);
 
 // ── VIX level ──
 const vixLevel = computed(() => {
