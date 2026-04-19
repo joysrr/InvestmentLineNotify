@@ -492,7 +492,7 @@ const radarOption = computed(() => {
     series: [
       {
         type: "radar",
-         [
+         [                          
           {
             value: data,
             name: "評分構成",
