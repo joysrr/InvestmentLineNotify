@@ -6,7 +6,7 @@ import {
 } from "./riskManagement.mjs";
 import {
   validateStrategyConfig,
-  fetchStrategyConfig
+  fetchStrategyConfig,
   computeEntryScore,
   computeReversalTriggers,
   computeOverheatState,
