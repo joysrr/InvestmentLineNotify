@@ -26,6 +26,7 @@ out/
 .idea/
 *.sublime-project
 *.sublime-workspace
+.replit
 
 # TypeScript產物
 *.tsbuildinfo
