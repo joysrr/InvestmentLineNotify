@@ -187,11 +187,6 @@
         </button>
         <p v-if="aiThinkingExpanded" class="ai-thinking">{{ aiInternalThinking }}</p>
       </div>
-
-      <div v-if="!aiRiskWarnings.length && !aiActionItems.length && latestReport.ai?.summary" class="ai-fallback">
-        <p class="ai-summary">{{ latestReport.ai.summary }}</p>
-        <p v-if="latestReport.ai?.reasoning" class="ai-reasoning">{{ latestReport.ai.reasoning }}</p>
-      </div>
     </section>
 
     <!-- News Preview -->
@@ -292,24 +287,14 @@ const todayLabel = computed(() =>
 );
 
 // ── AI computed ──
-const aiRiskWarnings = computed(() =>
-  (latestReport.value?.ai?.action_items ?? [])
-    .filter(i => i.type === "risk")
-    .map(i => i.text ?? i)
-);
-const aiActionItems = computed(() =>
-  (latestReport.value?.ai?.action_items ?? [])
-    .filter(i => i.type === "action")
-    .map(i => i.text ?? i)
-);
-const aiMindsetAdvice = computed(() =>
-  (latestReport.value?.ai?.action_items ?? [])
-    .filter(i => i.type === "mindset")
-    .map(i => i.text ?? i)
-);
-const aiInternalThinking = computed(() =>
-  latestReport.value?.ai?.reasoning ?? null
-);
+// 1. 先宣告 aiData 防呆，若 latestReport 或 ai 為空則回傳空物件
+const aiData = computed(() => latestReport.value?.ai ?? {});
+
+// 2. 接著對應 JSON 的 snake_case 欄位進行綁定
+const aiRiskWarnings     = computed(() => aiData.value.risk_warnings          ?? []);
+const aiActionItems      = computed(() => aiData.value.action_items            ?? []);
+const aiMindsetAdvice    = computed(() => aiData.value.mindset_advice          ?? []);
+const aiInternalThinking = computed(() => aiData.value.coach_internal_thinking ?? "");
 
 // ── VIX level ──
 const vixLevel = computed(() => {
@@ -1070,5 +1055,20 @@ onMounted(loadAll);
 .sk-title {
   height: 14px;
   width: 90%;
+}
+.ai-fallback {
+  padding: 4px 0;
+}
+.ai-summary {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tg-theme-text-color, #333);
+  line-height: 1.55;
+  margin-bottom: 8px;
+}
+.ai-reasoning {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #666);
+  line-height: 1.55;
 }
 </style>
