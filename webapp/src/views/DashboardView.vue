@@ -67,20 +67,19 @@
         </div>
         <div class="decision-badges">
           <span class="badge" :class="pctClass">{{ pctText }}</span>
-          <span class="badge badge-score">評分 {{ latestReport.signals?.weightScore }}</span>
-          <span class="badge badge-target">{{ latestReport.signals?.target }}</span>
+          <span class="badge badge-score">評分 {{ latestReport.signals?.weightScore ?? "—" }}</span>
+          <span class="badge badge-target">{{ latestReport.signals?.target ?? "—" }}</span>
         </div>
 
-        <!-- 摺疊區：策略路徑與防禦狀態 -->
         <div class="strategy-details border-top">
           <button class="details-toggle" @click="strategyExpanded = !strategyExpanded">
             <span>🔍 策略決策詳情</span>
-            <span class="expand-arrow">{{ strategyExpanded ? '▲' : '▼' }}</span>
+            <span class="expand-arrow">{{ strategyExpanded ? "▲" : "▼" }}</span>
           </button>
           <div v-if="strategyExpanded" class="details-content">
             <div class="detail-item">
               <span class="detail-label">核心路由：</span>
-              <span class="detail-value">{{ routingPath }}</span>
+              <span class="detail-value">{{ routingPath || "—" }}</span>
             </div>
             <div class="detail-item" v-if="valuationGuardText">
               <span class="detail-label">估值防禦：</span>
@@ -100,30 +99,33 @@
       <div class="section-header">
         <h3 class="section-title">📊 評分構成</h3>
         <button class="toggle-btn" @click="showScoreList = !showScoreList">
-          {{ showScoreList ? '切換雷達圖' : '查看列表' }}
+          {{ showScoreList ? "切換雷達圖" : "查看列表" }}
         </button>
       </div>
 
-      <!-- 雷達圖版面 -->
       <div v-if="!showScoreList" class="radar-wrapper">
         <v-chart :option="radarOption" autoresize class="radar-chart" />
         <div class="radar-verdict" :class="scoreOk ? 'verdict-ok' : 'verdict-wait'">
-          {{ scoreOk ? '🟢 達標' : '⏸️ 觀望' }} ({{ scoreVal }} / {{ scoreMin }})
+          {{ scoreOk ? "🟢 達標" : "⏸️ 觀望" }} ({{ scoreVal }} / {{ scoreMin }})
         </div>
       </div>
 
-      <!-- 列表版面 -->
       <div v-else>
         <div class="score-list">
-          <div class="score-row" v-for="row in scoreRows" :key="row.label" :class="row.active ? 'score-row--active' : ''">
-            <span class="score-icon">{{ row.active ? '⭐' : '➖' }}</span>
+          <div
+            class="score-row"
+            v-for="row in scoreRows"
+            :key="row.label"
+            :class="row.active ? 'score-row--active' : ''"
+          >
+            <span class="score-icon">{{ row.active ? "⭐" : "➖" }}</span>
             <span class="score-label">{{ row.label }}</span>
             <span class="score-pt" :class="row.active ? 'score-pt--active' : ''">{{ row.pt }}</span>
             <span class="score-info">{{ row.info }}</span>
           </div>
         </div>
         <div class="score-verdict" :class="scoreOk ? 'verdict-ok' : 'verdict-wait'">
-          {{ scoreOk ? '🟢 條件達標，可評估入場' : '⏸️ 條件未滿，請維持觀望' }}
+          {{ scoreOk ? "🟢 條件達標，可評估入場" : "⏸️ 條件未滿，請維持觀望" }}
           <span class="verdict-num">{{ scoreVal }} pt（門檻 {{ scoreMin }} pt）</span>
         </div>
       </div>
@@ -145,52 +147,47 @@
     <section class="section" v-if="latestReport?.ai">
       <h3 class="section-title">🤖 AI 教練建議</h3>
 
-      <!-- 風險提示 -->
       <div class="ai-block" v-if="aiRiskWarnings.length">
         <button class="ai-block-header" @click="aiRiskExpanded = !aiRiskExpanded">
           <span>⚠️ 風險提示</span>
           <span class="ai-count">{{ aiRiskWarnings.length }} 項</span>
-          <span class="expand-arrow">{{ aiRiskExpanded ? '▲' : '▼' }}</span>
+          <span class="expand-arrow">{{ aiRiskExpanded ? "▲" : "▼" }}</span>
         </button>
         <ul v-if="aiRiskExpanded" class="ai-list ai-list--risk">
           <li v-for="(item, i) in aiRiskWarnings" :key="i">{{ item }}</li>
         </ul>
       </div>
 
-      <!-- 下一步觀察清單 -->
       <div class="ai-block" v-if="aiActionItems.length">
         <button class="ai-block-header" @click="aiActionExpanded = !aiActionExpanded">
           <span>📌 下一步觀察清單</span>
           <span class="ai-count">{{ aiActionItems.length }} 項</span>
-          <span class="expand-arrow">{{ aiActionExpanded ? '▲' : '▼' }}</span>
+          <span class="expand-arrow">{{ aiActionExpanded ? "▲" : "▼" }}</span>
         </button>
         <ul v-if="aiActionExpanded" class="ai-list ai-list--action">
           <li v-for="(item, i) in aiActionItems" :key="i">{{ item }}</li>
         </ul>
       </div>
 
-      <!-- 行動微調建議 -->
       <div class="ai-block" v-if="aiMindsetAdvice.length">
         <button class="ai-block-header" @click="aiMindsetExpanded = !aiMindsetExpanded">
           <span>💡 行動微調建議</span>
           <span class="ai-count">{{ aiMindsetAdvice.length }} 項</span>
-          <span class="expand-arrow">{{ aiMindsetExpanded ? '▲' : '▼' }}</span>
+          <span class="expand-arrow">{{ aiMindsetExpanded ? "▲" : "▼" }}</span>
         </button>
         <ul v-if="aiMindsetExpanded" class="ai-list ai-list--mindset">
           <li v-for="(item, i) in aiMindsetAdvice" :key="i">{{ item }}</li>
         </ul>
       </div>
 
-      <!-- 教練內心推演 -->
       <div class="ai-block" v-if="aiInternalThinking">
         <button class="ai-block-header" @click="aiThinkingExpanded = !aiThinkingExpanded">
           <span>🧠 教練內心推演</span>
-          <span class="expand-arrow">{{ aiThinkingExpanded ? '▲' : '▼' }}</span>
+          <span class="expand-arrow">{{ aiThinkingExpanded ? "▲" : "▼" }}</span>
         </button>
         <p v-if="aiThinkingExpanded" class="ai-thinking">{{ aiInternalThinking }}</p>
       </div>
 
-      <!-- fallback: 舊格式 summary/reasoning -->
       <div v-if="!aiRiskWarnings.length && !aiActionItems.length && latestReport.ai?.summary" class="ai-fallback">
         <p class="ai-summary">{{ latestReport.ai.summary }}</p>
         <p v-if="latestReport.ai?.reasoning" class="ai-reasoning">{{ latestReport.ai.reasoning }}</p>
@@ -214,7 +211,7 @@
       <div v-else class="news-preview-list">
         <div
           v-for="article in topNews"
-          :key="article.id"
+          :key="article.id || article.url || article.title"
           class="news-preview-card"
           @click="openLink(article.url)"
         >
@@ -243,10 +240,24 @@ import { useTelegram } from "../composables/useTelegram.js";
 import VChart from "vue-echarts";
 import { use } from "echarts/core";
 import { RadarChart } from "echarts/charts";
-import { TitleComponent, TooltipComponent, LegendComponent, VisualMapComponent } from "echarts/components";
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  VisualMapComponent,
+  RadarComponent,
+} from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 
-use([RadarChart, TitleComponent, TooltipComponent, LegendComponent, VisualMapComponent, CanvasRenderer]);
+use([
+  RadarChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  VisualMapComponent,
+  RadarComponent,
+  CanvasRenderer,
+]);
 
 const { openLink } = useTelegram();
 
@@ -265,39 +276,48 @@ const newsError = ref(false);
 
 // ── expand states ──
 const strategyExpanded = ref(false);
-const showScoreList = ref(false); // 切換雷達圖與列表
-const aiRiskExpanded    = ref(true);
-const aiActionExpanded  = ref(true);
+const showScoreList = ref(false);
+const aiRiskExpanded = ref(true);
+const aiActionExpanded = ref(true);
 const aiMindsetExpanded = ref(false);
 const aiThinkingExpanded = ref(false);
 
 // ── today label ──
 const todayLabel = computed(() =>
   new Date().toLocaleDateString("zh-TW", {
-    month: "long", day: "numeric", weekday: "short",
+    month: "long",
+    day: "numeric",
+    weekday: "short",
   })
 );
+
+// ── AI computed ──
+const aiRiskWarnings = computed(() => latestReport.value?.ai?.riskWarnings ?? []);
+const aiActionItems = computed(() => latestReport.value?.ai?.actionItems ?? []);
+const aiMindsetAdvice = computed(() => latestReport.value?.ai?.mindsetAdvice ?? []);
+const aiInternalThinking = computed(() => latestReport.value?.ai?.internalThinking ?? null);
 
 // ── VIX level ──
 const vixLevel = computed(() => {
   const v = parseFloat(status.value?.data?.rawUsMarket?.vix);
   if (isNaN(v)) return { label: "—", cardClass: "", textClass: "snap-sub--neutral" };
   if (v >= 30) return { label: "極度恐慌", cardClass: "card-danger", textClass: "snap-sub--danger" };
-  if (v >= 20) return { label: "警戒",     cardClass: "card-warn",   textClass: "snap-sub--warn" };
+  if (v >= 20) return { label: "警戒", cardClass: "card-warn", textClass: "snap-sub--warn" };
   return { label: "平穩", cardClass: "card-ok", textClass: "snap-sub--ok" };
 });
 
-// ── PB PR level (Plan B) ──
+// ── PB PR level ──
 const pbPrValue = computed(() => {
   const v = latestReport.value?.signals?.valuationGuardResult?.currentPR;
   return v != null ? Math.round(v) : "—";
 });
+
 const pbPrLevel = computed(() => {
   const v = Number(pbPrValue.value);
   if (isNaN(v)) return { label: "—", cardClass: "", textClass: "snap-sub--neutral" };
   if (v >= 90) return { label: "極度昂貴", cardClass: "card-danger", textClass: "snap-sub--danger" };
-  if (v >= 80) return { label: "估值偏高", cardClass: "card-warn",   textClass: "snap-sub--warn" };
-  if (v <= 25) return { label: "極度便宜", cardClass: "card-ok",     textClass: "snap-sub--ok" };
+  if (v >= 80) return { label: "估值偏高", cardClass: "card-warn", textClass: "snap-sub--warn" };
+  if (v <= 25) return { label: "極度便宜", cardClass: "card-ok", textClass: "snap-sub--ok" };
   return { label: "合理區間", cardClass: "", textClass: "snap-sub--neutral" };
 });
 
@@ -306,22 +326,23 @@ const glValue = computed(() => {
   const v = latestReport.value?.signals?.grossLeverage;
   return v != null ? Number(v).toFixed(2) : "—";
 });
+
 const glLevel = computed(() => {
   const v = Number(glValue.value);
   if (isNaN(v)) return { label: "—", cardClass: "", textClass: "snap-sub--neutral" };
   if (v >= 3.0) return { label: "強制砍倉", cardClass: "card-danger", textClass: "snap-sub--danger" };
-  if (v >= 2.5) return { label: "暫停加碼", cardClass: "card-warn",   textClass: "snap-sub--warn" };
-  return { label: "安全水位", cardClass: "card-ok",     textClass: "snap-sub--ok" };
+  if (v >= 2.5) return { label: "暫停加碼", cardClass: "card-warn", textClass: "snap-sub--warn" };
+  return { label: "安全水位", cardClass: "card-ok", textClass: "snap-sub--ok" };
 });
 
 // ── Business cycle emoji ──
 const lightEmoji = computed(() => {
   const sig = status.value?.data?.rawNdc?.light ?? "";
-  if (sig.includes("紅") || sig.includes("熱絡"))   return "🔴";
+  if (sig.includes("紅") || sig.includes("熱絡")) return "🔴";
   if (sig.includes("黃紅") || sig.includes("活絡")) return "🟠";
-  if (sig.includes("綠") || sig.includes("穩定"))   return "🟢";
+  if (sig.includes("綠") || sig.includes("穩定")) return "🟢";
   if (sig.includes("黃藍") || sig.includes("趨緩")) return "🟡";
-  if (sig.includes("藍") || sig.includes("低迷"))   return "🔵";
+  if (sig.includes("藍") || sig.includes("低迷")) return "🔵";
   return "⚪";
 });
 
@@ -329,10 +350,12 @@ const lightEmoji = computed(() => {
 const activePriority = computed(() => {
   const sigs = latestReport.value?.signals;
   if (sigs?.maintenanceRisk?.level === "Critical") return "P1 維持率危機";
-  if (sigs?.grossLeverage >= 2.5) return "P2 槓桿上限";
+  if (Number(sigs?.grossLeverage) >= 2.5) return "P2 槓桿上限";
   if (sigs?.panicBypassActive) return "P3 恐慌破冰";
   if (sigs?.valuationGuardResult?.defenseLatchActive) return "P4 守衛鎖定";
-  if (sigs?.valuationGuardResult?.guardTier > 0) return `P5 估值防禦 T${sigs.valuationGuardResult.guardTier}`;
+  if (Number(sigs?.valuationGuardResult?.guardTier) > 0) {
+    return `P5 估值防禦 T${sigs.valuationGuardResult.guardTier}`;
+  }
   return null;
 });
 
@@ -348,10 +371,19 @@ const statusEmoji = computed(() => {
 const routingPath = computed(() => {
   const sigs = latestReport.value?.signals;
   const path = [];
-  if (sigs?.maintenanceRisk) path.push(sigs.maintenanceRisk.level === "Normal" ? "OK" : "⚠️追繳");
-  if (sigs?.grossLeverage != null) path.push(`${sigs.grossLeverage.toFixed(1)}x`);
+  if (sigs?.maintenanceRisk) {
+    path.push(sigs.maintenanceRisk.level === "Normal" ? "OK" : "⚠️追繳");
+  }
+  if (Number.isFinite(Number(sigs?.grossLeverage))) {
+    path.push(`${Number(sigs.grossLeverage).toFixed(1)}x`);
+  }
   if (sigs?.panicBypassActive) path.push("⚡破冰");
-  if (sigs?.valuationGuardResult) path.push(`PR${Math.round(sigs.valuationGuardResult.currentPR)}`);
+
+  const currentPR = sigs?.valuationGuardResult?.currentPR;
+  if (Number.isFinite(Number(currentPR))) {
+    path.push(`PR${Math.round(Number(currentPR))}`);
+  }
+
   return path.join(" → ");
 });
 
@@ -359,15 +391,15 @@ const valuationGuardText = computed(() => {
   const vg = latestReport.value?.signals?.valuationGuardResult;
   if (!vg) return null;
   if (vg.defenseLatchActive) return "🔒 防禦鎖定中 (跌破 MA20)";
-  if (vg.guardTier > 0) return `${vg.guardLabel} (${vg.guardMultiplier}x)`;
+  if (Number(vg.guardTier) > 0) return `${vg.guardLabel} (${vg.guardMultiplier}x)`;
   return "🟢 估值安全 (無壓縮)";
 });
 
 const vgClass = computed(() => {
   const vg = latestReport.value?.signals?.valuationGuardResult;
   if (vg?.defenseLatchActive) return "text-danger";
-  if (vg?.guardTier >= 3) return "text-danger";
-  if (vg?.guardTier > 0) return "text-warn";
+  if (Number(vg?.guardTier) >= 3) return "text-danger";
+  if (Number(vg?.guardTier) > 0) return "text-warn";
   return "text-ok";
 });
 
@@ -375,45 +407,59 @@ const momentumText = computed(() => {
   const vm = latestReport.value?.signals?.valuationMomentumResult;
   if (!vm) return null;
   const parts = [];
-  if (vm.trendAdjustment !== 0) parts.push(`趨勢 ${vm.trendAdjustment > 0 ? '↗️' : '↘️'}`);
+  if (Number(vm.trendAdjustment) !== 0) {
+    parts.push(`趨勢 ${Number(vm.trendAdjustment) > 0 ? "↗️" : "↘️"}`);
+  }
   if (vm.vixSpikeTriggered) parts.push("🌊 VIX 暴升補正");
   return parts.length ? parts.join(" | ") : "平穩";
 });
 
 // ── Report badges ──
 const pctClass = computed(() => {
-  const p = latestReport.value?.signals?.priceChangePercent;
+  const p = Number(latestReport.value?.signals?.priceChangePercent);
   return p >= 0 ? "badge-pos" : "badge-neg";
 });
+
 const pctText = computed(() => {
   const r = latestReport.value;
   if (!r) return "";
-  const p = r.signals?.priceChangePercent;
-  return `${p >= 0 ? "+" : ""}${r.signals?.priceChangePercentText}%`;
+  const p = Number(r.signals?.priceChangePercent);
+  const text = r.signals?.priceChangePercentText ?? "—";
+  return `${p >= 0 ? "+" : ""}${text}%`;
 });
 
 // ── 進場評分 ──
 const w = computed(() => latestReport.value?.signals?.weightDetails ?? {});
+
 const scoreVal = computed(() => {
   const v = latestReport.value?.signals?.weightScore;
   return Number.isFinite(Number(v)) ? Number(v) : "--";
 });
+
 const scoreMin = computed(() => {
   const v = latestReport.value?.signals?.strategy?.buy?.minWeightScoreToBuy;
   return Number.isFinite(Number(v)) ? Number(v) : "--";
 });
+
 const scoreOk = computed(() =>
   typeof scoreVal.value === "number" &&
   typeof scoreMin.value === "number" &&
   scoreVal.value >= scoreMin.value
 );
+
 const scoreRows = computed(() => [
-  { label: "跌幅", pt: fmtPt(w.value.dropScore),  info: w.value.dropInfo  ?? "─", active: Number(w.value.dropScore)  > 0 },
-  { label: "RSI",  pt: fmtPt(w.value.rsiScore),   info: w.value.rsiInfo   ?? "─", active: Number(w.value.rsiScore)   > 0 },
-  { label: "MACD", pt: fmtPt(w.value.macdScore),  info: w.value.macdInfo  ?? "─", active: Number(w.value.macdScore)  > 0 },
-  { label: "KD",   pt: fmtPt(w.value.kdScore),    info: w.value.kdInfo    ?? "─", active: Number(w.value.kdScore)    > 0 },
-  { label: "情緒", pt: fmtPt(w.value.sentimentScore), info: w.value.sentimentInfo ?? "─", active: Number(w.value.sentimentScore) !== 0 },
+  { label: "跌幅", pt: fmtPt(w.value.dropScore), info: w.value.dropInfo ?? "─", active: Number(w.value.dropScore) > 0 },
+  { label: "RSI", pt: fmtPt(w.value.rsiScore), info: w.value.rsiInfo ?? "─", active: Number(w.value.rsiScore) > 0 },
+  { label: "MACD", pt: fmtPt(w.value.macdScore), info: w.value.macdInfo ?? "─", active: Number(w.value.macdScore) > 0 },
+  { label: "KD", pt: fmtPt(w.value.kdScore), info: w.value.kdInfo ?? "─", active: Number(w.value.kdScore) > 0 },
+  {
+    label: "情緒",
+    pt: fmtPt(w.value.sentimentScore),
+    info: w.value.sentimentInfo ?? "─",
+    active: Number(w.value.sentimentScore) !== 0,
+  },
 ]);
+
 function fmtPt(v) {
   return Number.isFinite(Number(v)) ? `${Number(v)}pt` : "--";
 }
@@ -426,55 +472,65 @@ const radarOption = computed(() => {
     Number(details.rsiScore) || 0,
     Number(details.macdScore) || 0,
     Number(details.kdScore) || 0,
-    Math.abs(Number(details.sentimentScore) || 0)
+    Math.abs(Number(details.sentimentScore) || 0),
   ];
 
   return {
     radar: {
       indicator: [
-        { name: '跌幅', max: 5 },
-        { name: 'RSI', max: 3 },
-        { name: 'MACD', max: 3 },
-        { name: 'KD', max: 3 },
-        { name: '情緒', max: 2 }
+        { name: "跌幅", max: 5 },
+        { name: "RSI", max: 3 },
+        { name: "MACD", max: 3 },
+        { name: "KD", max: 3 },
+        { name: "情緒", max: 2 },
       ],
-      shape: 'polygon',
-      axisName: { color: 'var(--tg-theme-hint-color, #999)', fontSize: 11 },
-      splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } },
-      splitArea: { areaStyle: { color: ['rgba(0,0,0,0.01)', 'rgba(0,0,0,0.03)'] } }
+      shape: "polygon",
+      axisName: { color: "var(--tg-theme-hint-color, #999)", fontSize: 11 },
+      splitLine: { lineStyle: { color: "rgba(0,0,0,0.05)" } },
+      splitArea: { areaStyle: { color: ["rgba(0,0,0,0.01)", "rgba(0,0,0,0.03)"] } },
     },
-    series: [{
-      type: 'radar',
-      data: [{
-        value: data,
-        name: '評分構成',
-        areaStyle: { color: 'rgba(36, 129, 204, 0.2)' },
-        lineStyle: { color: '#2481cc', width: 2 },
-        itemStyle: { color: '#2481cc' }
-      }],
-      symbol: 'none'
-    }]
+    series: [
+      {
+        type: "radar",
+         [
+          {
+            value: data,
+            name: "評分構成",
+            areaStyle: { color: "rgba(36, 129, 204, 0.2)" },
+            lineStyle: { color: "#2481cc", width: 2 },
+            itemStyle: { color: "#2481cc" },
+          },
+        ],
+        symbol: "none",
+      },
+    ],
   };
 });
 
 // ── News helpers ──
 function ageDotClass(band) {
-  if (band === "fresh")  return "dot-fresh";
+  if (band === "fresh") return "dot-fresh";
   if (band === "recent") return "dot-recent";
   return "dot-old";
 }
+
 function regionFlag(region) {
   if (region === "TW") return "🇹🇼";
   if (region === "US") return "🇺🇸";
   return "🌐";
 }
+
 function formatUpdatedAt(iso) {
   try {
     return new Date(iso).toLocaleString("zh-TW", {
-      month: "2-digit", day: "2-digit",
-      hour:  "2-digit", minute: "2-digit",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     });
-  } catch { return iso; }
+  } catch {
+    return iso;
+  }
 }
 
 // ── Load ──
@@ -486,12 +542,17 @@ async function loadAll() {
   ]);
 
   statusLoading.value = false;
-  if (sRes.status === "fulfilled") status.value = sRes.value;
-  else statusError.value = true;
+  if (sRes.status === "fulfilled") {
+    status.value = sRes.value;
+  } else {
+    statusError.value = true;
+  }
 
   reportLoading.value = false;
   if (rRes.status === "fulfilled") {
-    const sorted = [...(rRes.value ?? [])].sort((a, b) => b.date.localeCompare(a.date));
+    const raw = rRes.value;
+    const list = Array.isArray(raw) ? raw : raw?.data ?? raw?.reports ?? [];
+    const sorted = [...list].sort((a, b) => String(b.date ?? "").localeCompare(String(a.date ?? "")));
     latestReport.value = sorted[0] ?? null;
   } else {
     reportError.value = true;
@@ -499,7 +560,7 @@ async function loadAll() {
 
   newsLoading.value = false;
   if (nRes.status === "fulfilled") {
-    const list = Array.isArray(nRes.value) ? nRes.value : (nRes.value?.articles ?? []);
+    const list = Array.isArray(nRes.value) ? nRes.value : nRes.value?.articles ?? [];
     const order = { fresh: 0, recent: 1, old: 2 };
     topNews.value = [...list]
       .sort((a, b) => (order[a.age_band] ?? 2) - (order[b.age_band] ?? 2))
@@ -516,7 +577,9 @@ onMounted(loadAll);
 .view-container {
   padding: 16px 16px 24px;
 }
-.dash-header { margin-bottom: 20px; }
+.dash-header {
+  margin-bottom: 20px;
+}
 .dash-title-row {
   display: flex;
   align-items: baseline;
@@ -532,7 +595,9 @@ onMounted(loadAll);
   color: var(--tg-theme-hint-color, #999);
 }
 
-.section { margin-bottom: 24px; }
+.section {
+  margin-bottom: 24px;
+}
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -547,7 +612,9 @@ onMounted(loadAll);
   color: var(--tg-theme-hint-color, #999);
   margin-bottom: 10px;
 }
-.section-header .section-title { margin-bottom: 0; }
+.section-header .section-title {
+  margin-bottom: 0;
+}
 .section-more {
   font-size: 12px;
   color: var(--tg-theme-button-color, #2481cc);
@@ -563,7 +630,6 @@ onMounted(loadAll);
   font-weight: 500;
 }
 
-/* ── Snapshot Grid (4-col support) ── */
 .snapshot-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -573,7 +639,9 @@ onMounted(loadAll);
   grid-template-columns: repeat(2, 1fr);
 }
 @media (min-width: 360px) {
-  .snapshot-grid--4 { grid-template-columns: repeat(4, 1fr); }
+  .snapshot-grid--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .snapshot-card {
@@ -586,26 +654,62 @@ onMounted(loadAll);
   gap: 2px;
   text-align: center;
 }
-.card-danger { background: rgba(232, 72, 85, 0.1); }
-.card-warn   { background: rgba(212, 172, 13, 0.1); }
-.card-ok     { background: rgba(38, 161, 123, 0.1); }
-.snap-label  { font-size: 9px; color: var(--tg-theme-hint-color, #999); white-space: nowrap; }
-.snap-value  { font-size: 18px; font-weight: 700; color: var(--tg-theme-text-color, #111); line-height: 1.2; }
-.snap-light  { font-size: 20px; }
-.snap-sub    { font-size: 10px; font-weight: 600; }
-.snap-sub--neutral { color: var(--tg-theme-hint-color, #999); }
-.snap-sub--danger  { color: #e84855; }
-.snap-sub--warn    { color: #d4ac0d; }
-.snap-sub--ok      { color: #26a17b; }
+.card-danger {
+  background: rgba(232, 72, 85, 0.1);
+}
+.card-warn {
+  background: rgba(212, 172, 13, 0.1);
+}
+.card-ok {
+  background: rgba(38, 161, 123, 0.1);
+}
+.snap-label {
+  font-size: 9px;
+  color: var(--tg-theme-hint-color, #999);
+  white-space: nowrap;
+}
+.snap-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #111);
+  line-height: 1.2;
+}
+.snap-light {
+  font-size: 20px;
+}
+.snap-sub {
+  font-size: 10px;
+  font-weight: 600;
+}
+.snap-sub--neutral {
+  color: var(--tg-theme-hint-color, #999);
+}
+.snap-sub--danger {
+  color: #e84855;
+}
+.snap-sub--warn {
+  color: #d4ac0d;
+}
+.snap-sub--ok {
+  color: #26a17b;
+}
 
-/* ── Decision Card ── */
 .decision-card {
   background: var(--tg-theme-secondary-bg-color, #f5f5f5);
   border-radius: 14px;
   overflow: hidden;
 }
-.decision-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 4px; }
-.decision-date   { font-size: 12px; color: var(--tg-theme-hint-color, #999); font-weight: 500; }
+.decision-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 4px;
+}
+.decision-date {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #999);
+  font-weight: 500;
+}
 .priority-tag {
   font-size: 10px;
   font-weight: 700;
@@ -614,31 +718,64 @@ onMounted(loadAll);
   background: #222;
   color: #fff;
 }
-.decision-main { padding: 4px 14px 12px; }
-.decision-status-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-.decision-status-icon { font-size: 20px; }
-.decision-status-text { font-size: 17px; font-weight: 700; color: var(--tg-theme-text-color, #111); }
+.decision-main {
+  padding: 4px 14px 12px;
+}
+.decision-status-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.decision-status-icon {
+  font-size: 20px;
+}
+.decision-status-text {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #111);
+}
 .decision-suggestion {
   font-size: 13px;
   color: var(--tg-theme-text-color, #444);
   line-height: 1.5;
   margin-bottom: 12px;
 }
-.decision-badges { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 14px 14px; }
+.decision-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 0 14px 14px;
+}
 .badge {
   font-size: 11px;
   padding: 3px 10px;
   border-radius: 20px;
   font-weight: 600;
 }
-.badge-pos    { background: rgba(38, 161, 123, 0.15); color: #26a17b; }
-.badge-neg    { background: rgba(232, 72, 85, 0.12);  color: #e84855; }
-.badge-score  { background: rgba(0,0,0,0.06); color: #666; }
-.badge-target { background: rgba(36, 129, 204, 0.12); color: var(--tg-theme-button-color, #2481cc); }
+.badge-pos {
+  background: rgba(38, 161, 123, 0.15);
+  color: #26a17b;
+}
+.badge-neg {
+  background: rgba(232, 72, 85, 0.12);
+  color: #e84855;
+}
+.badge-score {
+  background: rgba(0, 0, 0, 0.06);
+  color: #666;
+}
+.badge-target {
+  background: rgba(36, 129, 204, 0.12);
+  color: var(--tg-theme-button-color, #2481cc);
+}
 
-/* ── Strategy Details (Collapsible) ── */
-.strategy-details { background: rgba(0,0,0,0.02); }
-.border-top { border-top: 1px solid rgba(0,0,0,0.05); }
+.strategy-details {
+  background: rgba(0, 0, 0, 0.02);
+}
+.border-top {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
 .details-toggle {
   display: flex;
   align-items: center;
@@ -651,12 +788,26 @@ onMounted(loadAll);
   font-weight: 600;
   color: var(--tg-theme-hint-color, #888);
 }
-.details-content { padding: 4px 14px 12px; display: flex; flex-direction: column; gap: 8px; }
-.detail-item { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
-.detail-label { color: var(--tg-theme-hint-color, #999); }
-.detail-value { font-weight: 600; color: var(--tg-theme-text-color, #333); }
+.details-content {
+  padding: 4px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+.detail-label {
+  color: var(--tg-theme-hint-color, #999);
+}
+.detail-value {
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #333);
+}
 
-/* ── Radar Chart ── */
 .radar-wrapper {
   background: var(--tg-theme-secondary-bg-color, #f5f5f5);
   border-radius: 16px;
@@ -665,7 +816,10 @@ onMounted(loadAll);
   flex-direction: column;
   align-items: center;
 }
-.radar-chart { height: 200px; width: 100%; }
+.radar-chart {
+  height: 200px;
+  width: 100%;
+}
 .radar-verdict {
   margin-top: 8px;
   font-size: 13px;
@@ -674,7 +828,6 @@ onMounted(loadAll);
   border-radius: 20px;
 }
 
-/* ── Navigation Card ── */
 .nav-card {
   display: flex;
   align-items: center;
@@ -686,15 +839,44 @@ onMounted(loadAll);
   color: #fff;
   transition: transform 0.15s;
 }
-.nav-card:active { transform: scale(0.98); opacity: 0.9; }
-.nav-card-icon { font-size: 22px; width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-.nav-card-main { flex: 1; }
-.nav-card-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-.nav-card-desc { font-size: 11px; opacity: 0.85; }
-.nav-card-arrow { font-size: 18px; font-weight: 700; opacity: 0.7; }
+.nav-card:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+.nav-card-icon {
+  font-size: 22px;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nav-card-main {
+  flex: 1;
+}
+.nav-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.nav-card-desc {
+  font-size: 11px;
+  opacity: 0.85;
+}
+.nav-card-arrow {
+  font-size: 18px;
+  font-weight: 700;
+  opacity: 0.7;
+}
 
-/* ── Score List ── */
-.score-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.score-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
 .score-row {
   display: grid;
   grid-template-columns: 20px 48px 48px 1fr;
@@ -706,8 +888,13 @@ onMounted(loadAll);
   font-size: 13px;
   opacity: 0.55;
 }
-.score-row--active { opacity: 1; }
-.score-pt--active { color: var(--tg-theme-button-color, #2481cc); font-weight: 700; }
+.score-row--active {
+  opacity: 1;
+}
+.score-pt--active {
+  color: var(--tg-theme-button-color, #2481cc);
+  font-weight: 700;
+}
 .score-verdict {
   display: flex;
   justify-content: space-between;
@@ -717,55 +904,157 @@ onMounted(loadAll);
   font-size: 13px;
   font-weight: 600;
 }
-.verdict-ok   { background: rgba(38, 161, 123, 0.12); color: #26a17b; }
-.verdict-wait { background: rgba(212, 172, 13, 0.10); color: #a07a00; }
-
-/* ── AI Blocks ── */
-.ai-block { margin-bottom: 8px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(0,0,0,0.07); }
-.ai-block-header {
-  display: flex; align-items: center; width: 100%; padding: 10px 12px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
-  font-size: 13px; font-weight: 600; color: var(--tg-theme-text-color, #222);
-  border: none; gap: 6px;
+.verdict-ok {
+  background: rgba(38, 161, 123, 0.12);
+  color: #26a17b;
 }
-.ai-list { list-style: none; padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 7px; }
-.ai-list li { font-size: 13px; line-height: 1.5; padding-left: 14px; position: relative; }
-.ai-list li::before { content: '•'; position: absolute; left: 0; font-weight: 700; color: var(--tg-theme-button-color, #2481cc); }
-.ai-thinking { padding: 10px 12px; font-size: 12px; color: var(--tg-theme-hint-color, #888); font-style: italic; }
+.verdict-wait {
+  background: rgba(212, 172, 13, 0.1);
+  color: #a07a00;
+}
 
-/* ── News Preview ── */
-.news-preview-list { display: flex; flex-direction: column; gap: 6px; }
-.news-preview-card { background: var(--tg-theme-secondary-bg-color, #f5f5f5); border-radius: 10px; padding: 10px 12px; }
-.news-preview-meta { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
-.news-age-dot { width: 6px; height: 6px; border-radius: 50%; }
-.dot-fresh { background: #e84855; }
-.dot-recent { background: #d4ac0d; }
-.news-preview-title { font-size: 13px; font-weight: 500; line-height: 1.4; }
+.ai-block {
+  margin-bottom: 8px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+}
+.ai-block-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #222);
+  border: none;
+  gap: 6px;
+}
+.ai-list {
+  list-style: none;
+  padding: 8px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.ai-list li {
+  font-size: 13px;
+  line-height: 1.5;
+  padding-left: 14px;
+  position: relative;
+}
+.ai-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+  color: var(--tg-theme-button-color, #2481cc);
+}
+.ai-thinking {
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #888);
+  font-style: italic;
+}
 
-/* ── Utilities ── */
-.text-danger { color: #e84855; }
-.text-warn { color: #d4ac0d; }
-.text-ok { color: #26a17b; }
-.update-time { font-size: 10px; color: var(--tg-theme-hint-color, #bbb); text-align: center; margin-top: 12px; }
+.news-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.news-preview-card {
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.news-preview-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+.news-age-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.dot-fresh {
+  background: #e84855;
+}
+.dot-recent {
+  background: #d4ac0d;
+}
+.dot-old {
+  background: #bbb;
+}
+.news-preview-title {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
 
-/* ── Skeleton ── */
+.text-danger {
+  color: #e84855;
+}
+.text-warn {
+  color: #d4ac0d;
+}
+.text-ok {
+  color: #26a17b;
+}
+.update-time {
+  font-size: 10px;
+  color: var(--tg-theme-hint-color, #bbb);
+  text-align: center;
+  margin-top: 12px;
+}
+.inline-error {
+  font-size: 13px;
+  color: #e84855;
+  padding: 10px 0;
+}
+.inline-hint {
+  font-size: 13px;
+  color: var(--tg-theme-hint-color, #999);
+  padding: 10px 0;
+}
+
 @keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 .sk {
   border-radius: 6px;
   background: linear-gradient(
     90deg,
     var(--tg-theme-secondary-bg-color, #e8e8e8) 25%,
-    rgba(255,255,255,0.35) 50%,
+    rgba(255, 255, 255, 0.35) 50%,
     var(--tg-theme-secondary-bg-color, #e8e8e8) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }
-.sk-label  { height: 10px; width: 70%; }
-.sk-value  { height: 20px; width: 50%; margin-top: 8px; }
-.sk-sub    { height: 10px; width: 55%; margin-top: 6px; }
-.sk-title  { height: 14px; width: 90%; }
+.sk-label {
+  height: 10px;
+  width: 70%;
+}
+.sk-value {
+  height: 20px;
+  width: 50%;
+  margin-top: 8px;
+}
+.sk-sub {
+  height: 10px;
+  width: 55%;
+  margin-top: 6px;
+}
+.sk-title {
+  height: 14px;
+  width: 90%;
+}
 </style>
