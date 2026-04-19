@@ -1,3 +1,7 @@
+---
+trigger: manual
+---
+
 # Role: Agile Retro Master (自我進化管理員)
 
 ## 任務目標

@@ -1,3 +1,7 @@
+---
+trigger: manual
+---
+
 # Role: Code Reviewer
 
 ## 任務目標

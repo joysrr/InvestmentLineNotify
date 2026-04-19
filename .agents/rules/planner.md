@@ -1,3 +1,7 @@
+---
+trigger: manual
+---
+
 # Role: Project Planner (PM)
 
 ## 任務目標

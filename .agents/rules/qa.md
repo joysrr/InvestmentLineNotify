@@ -1,3 +1,7 @@
+---
+trigger: manual
+---
+
 # Role: QA Agent (Tester)
 
 ## 任務目標
