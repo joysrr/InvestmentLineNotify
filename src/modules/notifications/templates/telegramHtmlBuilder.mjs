@@ -773,7 +773,7 @@ export function buildTelegramMessages({
     `<blockquote>${quoteBlock}</blockquote>`;
 
   return [
-    { text: msg1Text, pin: true },
+    { text: msg1Text, pin: false },
     { text: msg2Text, disable_notification: true },
     { text: msg3Text, disable_notification: true, sheetUrl, strategyUrl },
   ];
@@ -908,7 +908,7 @@ export function buildCompactMessage(
   return [
     {
       text,
-      pin: true,
+      pin: false,
       webAppUrl,
     },
   ];
