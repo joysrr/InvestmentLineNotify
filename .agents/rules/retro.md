@@ -63,8 +63,16 @@ trigger: manual
 - 同一 Agent + 同一根因分類，累計出現 **第 3 次**時：
   - 在新提案頂部加上 `🚨 反覆問題警告`
   - 提案狀態為 OPEN，但**必須等待 User 明確確認**才可進入 IN_PROGRESS
-  - 通知機制：依照專案的通知規範處理（參照未來建立的 `assistant.md`）
-
+  - 通知機制：向 `@Lead` 發出以下通知，由 `@Lead` 寫入 `PENDING_ACTIONS.md`：
+    ```yaml
+    NOTIFY_ASSISTANT:
+      type: RETRO_REPEAT
+      severity: RED
+      source: @Retro
+      message: <目標 Agent> + <根因分類> 問題第 3 次出現
+      action: 採納提案 PROPOSAL_YYYYMMDD_NNN
+      ref: .agents/proposals/PROPOSAL_YYYYMMDD_NNN.md
+    ```
 ### IN_PROGRESS 逾時偵測
 - 當 `@Retro` 執行歷史比對時，若發現某提案停留 IN_PROGRESS 超過一個任務週期（即上次 Retro 到本次 Retro 之間），自動在該提案頂部標注：
   ```
@@ -171,5 +179,24 @@ User 採納提案時，必須使用以下格式下指令，`@Lead` 才會執行�
 - `PROPOSAL_YYYYMMDD_NNN.md`：存放於 `.agents/proposals/`，依照標準格式填寫
 - 若偵測到反覆問題（第 3 次），在提案頂部加上 `🚨 反覆問題警告`，等待 User 確認
 - 若偵測到 IN_PROGRESS 逾時，在對應提案頂部加上 `⚠️ 提案執行逾時` 標注
-- 產出完成後通知 `@Lead` 更新 `PENDING_ACTIONS.md`（通知機制規範參照未來建立的 `assistant.md`）
+- 產出完成後，向 `@Lead` 發出以下通知，由 `@Lead` 寫入 `PENDING_ACTIONS.md`：
+  ```yaml
+  NOTIFY_ASSISTANT:
+    type: RETRO_PROPOSAL
+    severity: YELLOW
+    source: @Retro
+    message: 新提案待審：<提案摘要>
+    action: 採納提案 PROPOSAL_YYYYMMDD_NNN 或 拒絕提案 PROPOSAL_YYYYMMDD_NNN，原因：<說明>
+    ref: .agents/proposals/PROPOSAL_YYYYMMDD_NNN.md
+  ```
+- 若偵測到 IN_PROGRESS 逾時，額外發出：
+  ```yaml
+  NOTIFY_ASSISTANT:
+    type: RETRO_TIMEOUT
+    severity: YELLOW
+    source: @Retro
+    message: 提案 PROPOSAL_YYYYMMDD_NNN 停留 IN_PROGRESS 超過一個任務週期
+    action: 請確認 @Lead 的規則更新執行狀態
+    ref: .agents/proposals/PROPOSAL_YYYYMMDD_NNN.md
+  ```
 <!-- END: 產出物 -->

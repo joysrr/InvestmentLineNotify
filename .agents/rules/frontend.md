@@ -60,6 +60,9 @@ trigger: manual
 3. 繼續開發不依賴該 API 的其他 UI 部分（不可完全停工）
 4. 等待 `@Lead` 呼叫 `@Architect` 重新設計後，再繼續串接
 
+> **逾時處理**：若退回通知發出後，經過一個完整任務週期仍未收到 `@Architect` 的重新設計回應，
+> `@Lead` 負責發出 `NOTIFY_ASSISTANT`（類型：`FRONTEND_API_BLOCK`），升級為待處理事項。
+
 <!-- TEMPLATE_START: Frontend API 退回通知 -->
 🔄 **Frontend API 規格退回通知**
 

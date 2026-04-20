@@ -19,7 +19,17 @@ trigger: manual
 - **@Consultant (領域顧問)**：負責針對計畫提供金融、數學或特定業務領域的邏輯審查與建議。
 
 ## 核心工作流引擎 (Workflow Engine)
-當你接收到使用者的指令（例如：「我們來做下一個功能吧」或「幫我修一個前端的 Bug」）時，你必須判斷當下所處的階段，並依照以下順序指派任務（不可跳過必要步驟）：
+當你接收到使用者的指令（例如：「我們來做下一個功能吧」或「幫我修一個前端的 Bug」）時，必須先執行以下阻斷檢查，通過後才可進入任務流程：
+
+> **🚫 阻斷檢查**：讀取 `PENDING_ACTIONS.md`，確認 🔴 區塊為空。若存在未處理的 🔴 項目，必須回覆以下訊息並拒絕啟動：
+> ```
+> 🚫 新功能啟動已阻斷
+> 原因：PENDING_ACTIONS.md 存在以下未處理的 🔴 項目：
+> - [BLOCK_XXX] <類型>：<說明>
+> 請先處理以上項目後，再重新下達開發指令。
+> ```
+
+通過阻斷檢查後，依照以下順序指派任務（不可跳過必要步驟）：
 
 1. **需求階段**：呼叫 `@Planner` 將需求具體化並寫入 `docs/plans/draft_features.md`。
 2. **戰略審查階段 (New)**：根據計畫屬性，指定對應的 `.agents/domains/*.md` 檔案作為 Context，呼叫 `@Consultant` 進行邏輯審查。若顧問提出重大風險，退回給 `@Planner` 修改計畫。
@@ -27,7 +37,7 @@ trigger: manual
 4. **實作階段**：呼叫 `@Frontend` 及 `@Backend` 進行開發，指派時，若 `.agents/tasks/` 存在對應任務模板，必須一併附帶給開發者作為執行依據。
 5. **審查階段 (New)**：開發完成後，呼叫 `@Reviewer` 進行程式碼品質審查。若有問題則退回給開發者修改；若通過則進入下一階段。
 6. **驗證階段**：呼叫 `@QA` 進行邊界值與整合測試。
-7. **收斂階段**：呼叫 `@Architect` 更新系統文件，並由 `@Planner` 將任務標記為完成。
+7. **收斂階段**：呼叫 `@Architect` 更新系統文件，並由 `@Planner` 將任務標記為完成。完成後，`@Lead` 必須彙整本次任務中所有 Agent 發出的 `NOTIFY_ASSISTANT`，統一更新 `PENDING_ACTIONS.md`（監控模式為 `PASSIVE` 時同樣執行）。
 8. **進化階段 (New)**：當任務徹底結束後，呼叫 `@Retro` 啟動檢討機制。請他閱讀本次的 Review 與 QA 報告，並產出規則修改提案到 `.agents/proposals/`。最後，你必須暫停動作，並提示使用者 (User) 去審查這份提案。
 
 ## 緊急修復通道 (Hotfix Fast Lane)
@@ -125,9 +135,11 @@ trigger: manual
 
 ### @Retro 完成確認
 ✅ **產出物確認 - @Retro**
-- [ ] `RULE_UPDATE_PROPOSAL_<日期>.md` 已產出於 `.agents/proposals/`
-- [ ] 提案包含問題描述、修改對象、具體規則原文
-- [ ] @Lead 已暫停並提示 User 審查提案
+- [ ] `PROPOSAL_<YYYYMMDD>_<NNN>.md` 已產出於 `.agents/proposals/`
+- [ ] 提案包含問題描述、根因分類、修改對象、具體規則原文
+- [ ] 提案生命週期狀態標注為 `OPEN`
+- [ ] `PENDING_ACTIONS.md` 已更新（新增 `RETRO_PROPOSAL` 🟡 項目）
+- [ ] 若偵測到反覆問題（第 3 次），`PENDING_ACTIONS.md` 已新增 `RETRO_REPEAT` 🔴 項目
 
 ---
 
