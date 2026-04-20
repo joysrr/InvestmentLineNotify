@@ -14,7 +14,7 @@ trigger: manual
 `@QA` 在 Workflow 中有兩個強制介入時間點，缺一不可：
 
 ### 介入點一：開發前（Test Spec 產出）
-**觸發條件**：`@Lead` 在 Workflow 第 3 步設計階段完成後，呼叫 `@QA` 產出 Test Spec。
+**觸發條件**：`@Lead` 架構設計完成後，進入實作前，呼叫 `@QA` 產出 Test Spec。
 
 **執行內容**：
 1. 讀取 `docs/plans/draft_features.md` 的驗收標準（Acceptance Criteria）

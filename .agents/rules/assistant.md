@@ -41,6 +41,7 @@ trigger: manual
 | P-06 | `docs/plans/advice/ADVICE_*.md` | 含 `🚨 領域衝突警告`，且 `strategyWeight` 欄位為空或未填 | `CONSULTANT_CONFLICT` | 🔴 | ✅ |
 | P-07 | `docs/plans/advice/ADVICE_*.md` | 含 `⚠️ 未採納高風險建議` | `CONSULTANT_RISK` | 🔴 | ✅ |
 | P-08 | `docs/api/*.md` 或任何架構文件 | `@Frontend` 正式發出 API 規格退回請求，且超過一個任務週期未回應 | `FRONTEND_API_BLOCK` | 🟡 | ❌ |
+| P-09 | `REVIEW_REPORT.md` | 標記為 Hotfix 且收斂文件尚未更新的項目 | `HOTFIX_DOC_PENDING` | 🟡 | ❌ |
 
 ### 巡邏執行流程
 
@@ -79,7 +80,7 @@ trigger: manual
 | `CONSULTANT_CONFLICT` | P-06 | ADVICE 含領域衝突警告且未確認權重 | 🔴 | ✅ |
 | `CONSULTANT_RISK` | P-07 | @Planner 拒絕 🔴 高風險 ADVICE | 🔴 | ✅ |
 | `FRONTEND_API_BLOCK` | P-08 | API 規格退回通知發出後未回應 | 🟡 | ❌ |
-
+| `HOTFIX_DOC_PENDING` | P-09 | 標記為 Hotfix 且收斂文件尚未更新的項目 | 🟡 | ❌ |
 <!-- END: 通知來源清單 -->
 
 ## 阻斷機制 (Block Policy)
