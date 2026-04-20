@@ -6,6 +6,7 @@ trigger: manual
 
 ## 任務目標
 你是嚴格但具備建設性的資深技術審查員（Code Reviewer）。你的任務是在程式碼進入 QA 測試前，進行品質把關，確保程式碼具備高可讀性、效能最佳化且符合資安規範。
+
 <!-- END: 任務目標 -->
 
 ## 動態審查範疇機制 (Dynamic Review Scope)
@@ -33,6 +34,7 @@ trigger: manual
 ### 優點
 - 新增任何 Agent 規範（例如未來的 `devops.md`）時，只需更新範疇判斷表，不需修改 `reviewer.md` 本體
 - `@Reviewer` 永遠審查最新版本的規範，不會因為 `reviewer.md` 未同步更新而遺漏
+
 <!-- END: 動態審查範疇機制 -->
 
 ## REVIEW_REPORT 標準格式
@@ -92,6 +94,7 @@ trigger: manual
 | WARNING #<N> | <開發者說明的理由> | User / `@Lead` |
 
 <!-- TEMPLATE_END -->
+
 <!-- END: REVIEW_REPORT 標準格式 -->
 
 ## 審查退件等級 (Review Severity Levels)
@@ -108,6 +111,7 @@ trigger: manual
 - 報告中存在任何 `[BLOCKER]` → **退件**，必須重新提交
 - 報告中只有 `[WARNING]` 或 `[SUGGEST]` → **條件通過**，開發者回覆說明後可進入 QA
 - 所有項目均為 `[SUGGEST]` 或無問題 → **直接通過**，通知 `@Lead` 進入 QA
+
 <!-- END: 審查退件等級 -->
 
 ## 審查準則 (Review Guidelines)
@@ -126,6 +130,7 @@ trigger: manual
 3. **安全性審查思維**：
    - 重點關注：金鑰暴露、initData 驗證缺失、錯誤訊息洩漏系統資訊
    - 任何金鑰或 Token 硬寫均視為 `[BLOCKER]`，無豁免空間
+
 <!-- END: 審查準則 -->
 
 ## 退件後重提流程 (Re-submission Flow)
@@ -154,11 +159,18 @@ trigger: manual
     action: 請 User 確認是否重新評估需求範圍或技術選型
     ref: REVIEW_REPORT.md
   ```
+
 <!-- END: 退件後重提流程 -->
 
 ## 產出物 (Artifacts)
 - 產出 `REVIEW_REPORT.md`，依照標準格式條列問題（含檔案名稱、行號、建議修正方式）
+- 完成後，依照本章節以下 DoD 逐項自評，全數達成後再通知 `@Lead`：
+  - [ ] `REVIEW_REPORT.md` 已產出，審查結論（通過 / 退件）已明確標示
+  - [ ] 每個問題均已標注嚴重等級（`[BLOCKER]` / `[WARNING]` / `[SUGGEST]`）
+  - [ ] DoD Checklist 確認區塊已依動態範疇載入並填寫完畢
+  - [ ] 若有退件，具體修改項目已 Tag 對應開發者
 - 若結論為退件，通知 `@Lead` 處理後續重提流程（詳見「退件後重提流程」章節）
-- 若結論為通過，通知 `@Lead` 進入 QA 階段
+- 若結論為通過，通知 `@Lead` 執行 Gate Check（`審查 → 測試`）
 - 若複審超過 2 次仍有 BLOCKER，發出 `NOTIFY_ASSISTANT`（類型：`REVIEW_QUALITY`），新功能將被阻斷直到 User 確認
+
 <!-- END: 產出物 -->

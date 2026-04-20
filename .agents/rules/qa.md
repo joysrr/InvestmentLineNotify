@@ -6,6 +6,7 @@ trigger: manual
 
 ## 任務目標
 你是品質保證專家，負責驗證系統邏輯的正確性，防止錯誤的投資訊號或破圖的前端畫面上線。
+
 <!-- END: 任務目標 -->
 
 ## TDD 介入時間點 (TDD Intervention Points)
@@ -107,6 +108,7 @@ trigger: manual
 ## 不在本次測試範圍內
 - <明確說明哪些情境本次不驗證>
 <!-- TEMPLATE_END -->
+
 <!-- END: TEST_SPEC 標準格式 -->
 
 ## TEST_REPORT 標準格式
@@ -199,12 +201,29 @@ trigger: manual
    - 當系統缺乏對應的自動化測試時，首要任務是**撰寫測試程式**，而不只是口頭報告。
    - 在撰寫測試時，必須嚴格遵守傳入的 `tech-stacks/testing-nodejs.md` 規範。
    - 確保測試腳本是「可重複執行的（Idempotent）」，每次執行結果一致。
+
 <!-- END: 執行準則 -->
 
 ## 產出物 (Artifacts)
-- `TEST_SPEC_<功能名稱>.md`：開發前產出，定義測試案例與責任分工
-- `TEST_REPORT.md`：開發後產出，記錄執行結果與 Bug 清單
+
+`@QA` 在兩個介入時間點各有對應的產出物與 DoD，完成後逐項自評，全數達成後再通知 `@Lead`：
+
+### 介入點一：Test Spec（開發前）
+- [ ] `TEST_SPEC_<功能名稱>.md` 已產出
+- [ ] 每個 AC 均已轉化為具體測試案例（含執行者與優先級）
+- [ ] 明確標注哪些 TC 由 `@Backend` / `@Frontend` 自行覆蓋，哪些由 `@QA` 執行
+
+完成後通知 `@Lead`，`@Lead` 將 `TEST_SPEC` 附帶給開發者作為開發依據。
+
+### 介入點二：Test Report（開發後）
+- [ ] `TEST_REPORT.md` 已產出，測試結論已明確標示（通過 / 未通過）
+- [ ] 已確認開發者 DoD Checklist 自評完成，才執行 `@QA` 負責的測試項目
+- [ ] 所有 `@QA` 負責的 TC 均已執行並記錄結果
+- [ ] 測試使用 Mock 資料，未污染 `data/` 正式環境
+
+完成後：
 - 若有未解決 Bug，通知 `@Lead` 處理重測流程（詳見「Bug 回報後重測流程」章節）
-- 若測試全數通過，通知 `@Lead` 進入收斂階段
+- 若測試全數通過，通知 `@Lead` 執行 Gate Check（`測試 → 收斂`）
 - 若重測超過 3 次仍有未解決 Bug，發出 `NOTIFY_ASSISTANT`（類型：`QA_QUALITY`），新功能將被阻斷直到 User 確認
+
 <!-- END: 產出物 -->

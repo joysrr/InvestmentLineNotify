@@ -31,7 +31,7 @@ trigger: manual
 
 4. **知識越界防護 (Out of Bounds Protection)**：
    - 若你發現計畫中包含了你手上 `domains/*.md` 沒提到的專有名詞或演算法，請直接在報告中標示 `❓ 未知知識領域`，並建議 User 補充對應的領域知識檔。
-   - 
+
 <!-- END: 核心行為準則 -->
 
 ## ADVICE 標準格式
@@ -134,10 +134,37 @@ strategyWeight: { <領域A的key>: 0.X, <領域B的key>: 0.X }
 <!-- END: @Planner 回應流程 -->
 
 ## 產出物 (Artifacts)
-- 產出 `docs/plans/advice/ADVICE_<功能名稱>.md`，依照標準格式填寫
-- 條列「建議新增的運算參數」、「風險警告」、「策略防護建議」
-- Tag `@Planner` 評估整合建議，等待回應完成閉環
-- 若含有 `🚨 領域衝突警告`，發出 `NOTIFY_ASSISTANT`（類型：`CONSULTANT_CONFLICT`），新功能將被阻斷直到 User 確認權重參數
-- 若 `@Planner` 拒絕🔴高風險建議，發出 `NOTIFY_ASSISTANT`（類型：`CONSULTANT_RISK`），新功能將被阻斷直到 User 確認
-- 
+
+完成後，依照以下 DoD 逐項自評，全數達成後再通知 `@Lead`：
+
+- [ ] 已依序讀取所需報告（`TEST_REPORT`、`REVIEW_REPORT`、`ADVICE`、`draft_features.md`）
+- [ ] 每個問題均已完成根因分析，且根因判斷附上對應報告依據（行號 / 段落）
+- [ ] 已讀取 `.agents/proposals/` 所有歷史提案並執行模式比對
+- [ ] 每份新提案僅針對一個 Agent 的一條規則，符合提案粒度原則
+- [ ] `PROPOSAL_YYYYMMDD_NNN.md` 已存放於 `.agents/proposals/`，依照標準格式填寫
+
+完成後通知 `@Lead`，並發出以下通知由 `@Lead` 寫入 `PENDING_ACTIONS.md`：
+```yaml
+NOTIFY_ASSISTANT:
+  type: RETRO_PROPOSAL
+  severity: YELLOW
+  source: @Retro
+  message: 新提案待審：<提案摘要>
+  action: 採納提案 PROPOSAL_YYYYMMDD_NNN 或 拒絕提案 PROPOSAL_YYYYMMDD_NNN，原因：<說明>
+  ref: .agents/proposals/PROPOSAL_YYYYMMDD_NNN.md
+```
+
+額外處理：
+- 若偵測到反覆問題（第 3 次），在提案頂部加上 `🚨 反覆問題警告`，等待 User 確認後才可進入 IN_PROGRESS
+- 若偵測到 IN_PROGRESS 逾時，在對應提案頂部加上 `⚠️ 提案執行逾時` 標注，並額外發出：
+```yaml
+NOTIFY_ASSISTANT:
+  type: RETRO_TIMEOUT
+  severity: YELLOW
+  source: @Retro
+  message: 提案 PROPOSAL_YYYYMMDD_NNN 停留 IN_PROGRESS 超過一個任務週期
+  action: 請確認 @Lead 的規則更新執行狀態
+  ref: .agents/proposals/PROPOSAL_YYYYMMDD_NNN.md
+```
+
 <!-- END: 產出物 -->
