@@ -1,4 +1,8 @@
-import { fetchWithTimeout, parseNumberOrNull, TwDate } from "../../utils/coreUtils.mjs";
+import {
+  fetchWithTimeout,
+  parseNumberOrNull,
+  TwDate,
+} from "../../utils/coreUtils.mjs";
 
 const FINMIND_BASE_URL = "https://api.finmindtrade.com/api/v4/data";
 
@@ -7,8 +11,7 @@ const FINMIND_BASE_URL = "https://api.finmindtrade.com/api/v4/data";
  * 若 .env 有維護 FINMIND_API_TOKEN，則自動加上 Authorization。
  */
 function buildFinMindHeaders() {
-  const token =
-    process.env.FINMIND_API_TOKEN || "";
+  const token = process.env.FINMIND_API_TOKEN || "";
 
   const headers = {
     "User-Agent":
@@ -53,9 +56,7 @@ async function fetchFinMindData(dataset, params = {}, timeoutMs = 10000) {
 
   // HTTP 402: API 用量超出上限
   if (res.status === 402 || body?.status === 402) {
-    throw new Error(
-      `FinMind API 配額已用完 (status=402)：${body?.msg || ""}`,
-    );
+    throw new Error(`FinMind API 配額已用完 (status=402)：${body?.msg || ""}`);
   }
 
   if (res.status !== 200 || body?.status !== 200 || body?.msg !== "success") {
@@ -112,13 +113,10 @@ async function fetchTotalMarginSummary(startDate, endDate) {
  * Columns: date, TotalExchangeMarginMaintenance
  */
 async function fetchTotalExchangeMarginMaintenance(startDate, endDate) {
-  const rows = await fetchFinMindData(
-    "TaiwanTotalExchangeMarginMaintenance",
-    {
-      start_date: startDate,
-      end_date: endDate,
-    },
-  );
+  const rows = await fetchFinMindData("TaiwanTotalExchangeMarginMaintenance", {
+    start_date: startDate,
+    end_date: endDate,
+  });
 
   if (!rows.length) return null;
 
@@ -162,10 +160,25 @@ export async function fetchFinMindMarginData() {
     d.setDate(d.getDate() - 60);
     const start = TwDate(d).formatDateKey();
 
-    const [summary, ratio] = await Promise.all([
+    const [summaryResult, ratioResult] = await Promise.allSettled([
       fetchTotalMarginSummary(start, end),
       fetchTotalExchangeMarginMaintenance(start, end),
     ]);
+
+    const summary =
+      summaryResult.status === "fulfilled" ? summaryResult.value : null;
+    const ratio = ratioResult.status === "fulfilled" ? ratioResult.value : null;
+
+    if (summaryResult.status === "rejected") {
+      console.warn(
+        `⚠️ FinMind 融資餘額 API 失敗: ${summaryResult.reason?.message}`,
+      );
+    }
+    if (ratioResult.status === "rejected") {
+      console.warn(
+        `⚠️ FinMind 維持率 API 失敗: ${ratioResult.reason?.message}`,
+      );
+    }
 
     if (!summary && !ratio) {
       throw new Error("FinMind 融資與維持率皆無資料");
@@ -177,8 +190,7 @@ export async function fetchFinMindMarginData() {
         summary?.marginBalance100M ?? fallback.marginBalance100M,
       marginBalanceChange100M:
         summary?.marginBalanceChange100M ?? fallback.marginBalanceChange100M,
-      maintenanceRatio:
-        ratio?.maintenanceRatio ?? fallback.maintenanceRatio,
+      maintenanceRatio: ratio?.maintenanceRatio ?? fallback.maintenanceRatio,
     };
   } catch (err) {
     if (err.message.includes("402")) {

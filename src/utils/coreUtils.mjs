@@ -210,7 +210,7 @@ export function TwDate(input = new Date()) {
 export async function fetchWithTimeout(
   url,
   options = {},
-  timeout = 8000,
+  timeout = 30000,
   retries = 3,
   backoff = 500,
 ) {
@@ -232,12 +232,22 @@ export async function fetchWithTimeout(
           ? new Error(`Request Timeout after ${timeout}ms: ${url}`)
           : error;
 
-      if (attempt < retries) {
+      // 判斷是否為可重試的網路暫態錯誤
+      const isRetryable =
+        error.name === "AbortError" ||
+        /ETIMEDOUT|ECONNRESET|ECONNREFUSED|fetch failed|network/i.test(
+          error.message,
+        );
+
+      if (isRetryable && attempt < retries) {
         const waitMs = backoff * (attempt + 1);
         console.warn(
           `⚠️ [fetchWithTimeout] Attempt ${attempt + 1} failed, retrying in ${waitMs}ms... (${url})`,
         );
         await sleep(waitMs);
+      } else if (!isRetryable) {
+        // 非暫態錯誤，立即拋出不重試
+        throw lastError;
       }
     } finally {
       clearTimeout(id);

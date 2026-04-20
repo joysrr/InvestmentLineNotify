@@ -1,5 +1,6 @@
 import { dailyCheck } from "./dailyCheck.mjs";
 import { langfuse } from "./modules/ai/aiClient.mjs";
+import logger from "./utils/logger.mjs";
 
 async function main() {
   // 解析命令列參數
@@ -15,26 +16,28 @@ async function main() {
   if (args.includes("--aiAdvisor=false")) isAIAdvisor = false;
   if (args.includes("--aiAdvisor=true")) isAIAdvisor = true;
 
-  console.log(
-    `執行參數: Telegram=${isTelegramEnabled}, AIAdvisor=${isAIAdvisor}`,
-  );
+  logger.info({ isTelegramEnabled, isAIAdvisor }, "啟動 dailyCheck 排程任務");
 
   try {
-    dailyCheck({
+    await dailyCheck({
       isTelegramEnabled: isTelegramEnabled,
       isAIAdvisor: isAIAdvisor,
     });
   } catch (err) {
-    console.error("❌ 系統發生嚴重錯誤:", err);
+    logger.error(err, "❌ 系統發生嚴重錯誤");
     process.exit(1);
   } finally {
-    console.log("🚀 dailyCheck 執行結束");
+    logger.info("🚀 dailyCheck 執行結束");
     // 確保 Langfuse 正確關閉，避免資源洩漏
-    console.log("🔒 正在關閉 Langfuse...");
-    langfuse.shutdownAsync().catch((e) => {
-      console.warn("⚠️ Langfuse 關閉失敗:", e.message);
-    });
-    console.log("✅ Langfuse 已關閉");
+    logger.info("🔒 正在關閉 Langfuse...");
+    langfuse
+      .shutdownAsync()
+      .then(() => {
+        logger.info("✅ Langfuse 已關閉");
+      })
+      .catch((e) => {
+        logger.warn(e, "⚠️ Langfuse 關閉失敗");
+      });
   }
 }
 

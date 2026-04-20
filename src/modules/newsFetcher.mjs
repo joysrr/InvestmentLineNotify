@@ -9,7 +9,10 @@ import {
   loadBlacklist,
 } from "./keywordConfig.mjs";
 import { archiveManager } from "./data/archiveManager.mjs";
-import { loadPoolWithFallback, buildFingerprint } from "./data/newsPoolManager.mjs";
+import {
+  loadPoolWithFallback,
+  buildFingerprint,
+} from "./data/newsPoolManager.mjs";
 
 // ── 工具函式 ────────────────────────────────────────────────────────────────────────────────
 
@@ -70,16 +73,14 @@ async function fetchBatchedByKeywords(
   delayMs = 300,
 ) {
   const [gl, hl, ceid] =
-    region === "TW"
-      ? ["TW", "zh-TW", "TW:zh-Hant"]
-      : ["US", "en-US", "US:en"];
+    region === "TW" ? ["TW", "zh-TW", "TW:zh-Hant"] : ["US", "en-US", "US:en"];
 
   const articles = [];
   const queryHits = [];
 
   for (let i = 0; i < keywords.length; i += concurrency) {
     const chunk = keywords.slice(i, i + concurrency);
-    const chunkResults = await Promise.all(
+    const chunkResults = await Promise.allSettled(
       chunk.map((item) => {
         const queryStr = buildSingleKeywordQueryStr(item, excludeList);
         const url = buildUrl(queryStr, gl, hl, ceid);
@@ -88,14 +89,20 @@ async function fetchBatchedByKeywords(
     );
 
     chunk.forEach((item, idx) => {
-      const hit = chunkResults[idx].length > 0;
+      const result = chunkResults[idx];
+      const items = result.status === "fulfilled" ? result.value : [];
+      if (result.status === "rejected") {
+        console.warn(
+          `⚠️ [RSS] 關鍵字「${item.keyword}」抓取失敗: ${result.reason?.message}`,
+        );
+      }
+      const hit = items.length > 0;
       const isDynamic = !baseList.some(
         (b) => b.keyword.toLowerCase() === item.keyword.toLowerCase(),
       );
       queryHits.push({ keyword: item.keyword, isDynamic, hit });
+      articles.push(...items);
     });
-
-    articles.push(...chunkResults.flat());
     const isLast = i + concurrency >= keywords.length;
     if (!isLast) await sleep(delayMs);
   }
@@ -237,7 +244,8 @@ function calcYieldMetrics(queryHits) {
 
   return {
     keywordYieldRate: total > 0 ? matched / total : 0,
-    dynamicKeywordYieldRate: dynamicTotal > 0 ? dynamicMatched / dynamicTotal : 0,
+    dynamicKeywordYieldRate:
+      dynamicTotal > 0 ? dynamicMatched / dynamicTotal : 0,
     totalQueryCount: total,
     dynamicQueryCount: dynamicTotal,
     matchedQueryCount: matched,
@@ -364,10 +372,8 @@ export async function getNewsTelegramMessages() {
 
   console.log(`📰 [NewsTelegram] pool 共 ${articles.length} 篇，送入 AI 過濾`);
 
-  const { news: processedNews, conflictSummary } = await filterAndCategorizeAllNewsWithAI(
-    articles,
-    meta?.last_updated,
-  );
+  const { news: processedNews, conflictSummary } =
+    await filterAndCategorizeAllNewsWithAI(articles, meta?.last_updated);
 
   if (processedNews.length === 0) {
     return {
@@ -402,7 +408,9 @@ export async function getNewsTelegramMessages() {
         titleParts.length > 1 ? titleParts[titleParts.length - 1] : "News";
 
       const timeObj = TwDate(item.pubDate);
-      const timeString = timeObj.isValid ? timeObj.formatDateTime() : "時間未知";
+      const timeString = timeObj.isValid
+        ? timeObj.formatDateTime()
+        : "時間未知";
 
       sectionText += `${index + 1}. <a href="${item.link}">${escapeHTML(cleanTitle)}</a>\n`;
       sectionText += `   <i>${timeString} ｜ ${escapeHTML(mediaName)}</i>\n`;

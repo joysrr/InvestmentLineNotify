@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { Langfuse } from "langfuse";
+import { fetchWithTimeout } from "../../utils/coreUtils.mjs";
 
 // 參數&初始化
 const GEMINI_API_KEYS = [
@@ -138,7 +139,15 @@ function isQuotaError(error) {
  */
 function isServiceError(error) {
   const msg = error.message || "";
-  return msg.includes("503") || msg.includes("UNAVAILABLE");
+  return (
+    msg.includes("503") ||
+    msg.includes("UNAVAILABLE") ||
+    msg.includes("Timeout") ||
+    msg.includes("AbortError") ||
+    msg.includes("ETIMEDOUT") ||
+    msg.includes("ECONNRESET") ||
+    msg.includes("fetch failed")
+  );
 }
 
 /** 向下相容：任一可重試錯誤 */
@@ -528,7 +537,7 @@ async function callGrokAPI({ model, systemInstruction, userPrompt, options }) {
     }),
   };
 
-  const res = await fetch(`${cfg.baseURL}/chat/completions`, {
+  const res = await fetchWithTimeout(`${cfg.baseURL}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -564,7 +573,7 @@ export async function listGrokModels() {
   console.log("正在獲取 Grok 可用模型清單...\n");
 
   try {
-    const res = await fetch(`${cfg.baseURL}/models`, {
+    const res = await fetchWithTimeout(`${cfg.baseURL}/models`, {
       headers: {
         Authorization: `Bearer ${cfg.apiKeys[0]}`,
         "Content-Type": "application/json",

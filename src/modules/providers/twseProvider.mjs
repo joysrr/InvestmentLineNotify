@@ -543,11 +543,29 @@ export async function fetchMarketValuation() {
   }
 
   try {
-    const [bwibbu, stockDay, sharesMap] = await Promise.all([
-      fetchJson("https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL"),
-      fetchJson("https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"),
-      fetchSharesMap(),
-    ]);
+    const [bwibbuResult, stockDayResult, sharesMapResult] =
+      await Promise.allSettled([
+        fetchJson("https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL"),
+        fetchJson(
+          "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL",
+        ),
+        fetchSharesMap(),
+      ]);
+
+    // 三支 API 皆為必要資料，任一失敗則無法計算估值
+    if (bwibbuResult.status === "rejected") {
+      throw new Error(`BWIBBU_ALL 失敗: ${bwibbuResult.reason?.message}`);
+    }
+    if (stockDayResult.status === "rejected") {
+      throw new Error(`STOCK_DAY_ALL 失敗: ${stockDayResult.reason?.message}`);
+    }
+    if (sharesMapResult.status === "rejected") {
+      throw new Error(`SharesMap 失敗: ${sharesMapResult.reason?.message}`);
+    }
+
+    const bwibbu = bwibbuResult.value;
+    const stockDay = stockDayResult.value;
+    const sharesMap = sharesMapResult.value;
 
     const priceMap = new Map();
     for (const s of stockDay) {
@@ -788,7 +806,9 @@ export async function fetchStockInstitutionalData(symbol) {
       totalNetBuy: parseNumberOrNull(row[18]),
     };
   } catch (err) {
-    console.warn(`[twseProvider] fetchStockInstitutionalData 失敗: ${err.message}`);
+    console.warn(
+      `[twseProvider] fetchStockInstitutionalData 失敗: ${err.message}`,
+    );
     return null;
   }
 }
