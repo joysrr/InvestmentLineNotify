@@ -12,27 +12,27 @@
 ### Story 1-1: 程式結構重構與參數字典化 (Policy Extraction)
 - **User Story**: 身為系統維護者，我希望將算分、維持率等純函數抽離到獨立的 Policy 模組，並建立集中的參數字典，以便將業務編排與核心運算解耦，提升單元測試覆蓋率與數值可維護性。
 - **Acceptance Criteria**:
-  - [ ] 建立 `src/modules/strategy/policies/` 目錄。
-  - [ ] 將維持率計算與進場算分等邏輯抽離至各獨立的 `*Policy.mjs`。
-  - [ ] 建立 `constants/strategyDefaults.mjs`，將 135%、145%、160% 等魔術數字集中管理。
+  - [x] 建立 `src/modules/strategy/policies/` 目錄。
+  - [x] 將維持率計算與進場算分等邏輯抽離至各獨立的 `*Policy.mjs`。
+  - [x] 建立 `constants/strategyDefaults.mjs`，將 135%、145%、160% 等魔術數字集中管理。
 
 ### Story 1-2: 策略設定檔強型別防呆 (Schema Validation)
 - **User Story**: 身為系統管理員，我希望引入強型別套件對 `Strategy.json` 進行即時檢驗，以便在手動配置遺漏或錯誤時啟動 Safe Default 機制，防範系統 Runtime Error。
 - **Acceptance Criteria**:
-  - [ ] 引入 Schema 檢驗套件（如 Zod）。
-  - [ ] 在讀取 `Strategy.json` 後加入驗證節點，驗證失敗時發送警告通知並切換至預設的安全參數值。
+  - [x] 引入 Schema 檢驗套件（如 Zod）。
+  - [x] 在讀取 `Strategy.json` 後加入驗證節點，驗證失敗時發送警告通知並切換至預設的安全參數值。
 
 ### Story 1-3: 邏輯衝突消解與矩陣去相關化
 - **User Story**: 身為量化研究員，我希望系統在左側下跌環境以跌幅為戰略主體，並降低高度相關指標（如 RSI/KD）的重疊給分，以解決因多因子共線性與邏輯互斥造成的訊號失真。
 - **Acceptance Criteria**:
-  - [ ] 重構權重判斷：在左側下跌跌段，將技術面作為確認濾網，而非與跌幅分數無腦疊加。
-  - [ ] 在 `computeEntryScore` 中，針對 RSI 與 KD 的給分演算法，修改為「取 MAX 降權」的機制。
+  - [x] 重構權重判斷：在左側下跌跌段，將技術面作為確認濾網，而非與跌幅分數無腦疊加。
+  - [x] 在 `computeEntryScore` 中，針對 RSI 與 KD 的給分演算法，修改為「取 MAX 降權」的機制。
 
 ### Story 1-4: 引入動態停利與極端值價格防護
 - **User Story**: 身為生命週期部位持有者，我希望將靜態超買的出場機制改為 Trailing Stop，並強化價格抓取防呆，防範極端市況誤觸斷頭危機或在牛市主升段提早下車。
 - **Acceptance Criteria**:
-  - [ ] 廢除靜態 RSI/KD 觸頂即停利的機制，改為基於 MA20 軌道與 ATR (真實波動率) 的動態追蹤停利。
-  - [ ] 在 `marginManager.mjs` 中，當讀取到失效或不合理市價（`null`, `<= 0`）時，須強制拋出 Exception 中斷運作，嚴禁回退到 0 從而觸發錯誤的斷頭警報。
+  - [x] 廢除靜態 RSI/KD 觸頂即停利的機制，改為基於 MA20 軌道與 ATR (真實波動率) 的動態追蹤停利。
+  - [x] 在 `marginManager.mjs` 中，當讀取到失效或不合理市價（`null`, `<= 0`）時，須強制拋出 Exception 中斷運作，嚴禁回退到 0 從而觸發錯誤的斷頭警報。
 
 ---
 

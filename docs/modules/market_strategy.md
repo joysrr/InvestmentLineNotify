@@ -11,9 +11,11 @@
 | Path | 說明 |
 |---|---|
 | `src/modules/strategy/indicators.mjs` | 計算 RSI、MACD、KD 與相關 crossover / reversal helper。 |
-| `src/modules/strategy/signalRules.mjs` | 讀取與驗證策略設定，計算 entry score、overheat、sell signals 等子規則。 |
+| `src/modules/strategy/strategySchema.mjs` | 讀取時的強型別驗證與結構定義（原生 JS 無依賴寫法替代 Zod）。 |
+| `src/modules/strategy/signalRules.mjs` | 讀取策略設定，整合與路由至各項評估服務。 |
+| `src/modules/strategy/policies/` | **獨立算分邏輯（Policy Pattern）**。內含 `entryScoringPolicy.mjs` (左側去相關化邏輯)、`sellScoringPolicy.mjs` (動態追蹤停利邏輯) 與 `marginPolicy.mjs` (維持率純粹解耦)。 |
 | `src/modules/strategy/riskManagement.mjs` | 管理目標槓桿、現金保留與資產健康度規則。 |
-| `src/modules/strategy/marginManager.mjs` | 核心維持率計算、壓力測試 (Stress Test) 與資金解耦分析。 |
+| `src/modules/strategy/marginManager.mjs` | 負責管理與輸出壓力測試、資金解耦分析，依賴 `marginPolicy` 提供無效報價熔斷機能。 |
 | `src/modules/strategy/strategyEngine.mjs` | 匯總全部因子，輸出 `marketStatus`、`targetSuggestion`、`weightScore` 等主決策結果。 |
 
 也就是說，`strategyEngine` 不再只是純技術分析，而是融合 portfolio state、量化標準化評分與嚴格資金預算的 hybrid engine。
