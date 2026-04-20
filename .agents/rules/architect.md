@@ -139,3 +139,10 @@ trigger: manual
 - 收斂階段的 DoD 通過前，不可向 `@Lead` 發出收斂完成信號
 - 
 <!-- END: 產出物 -->
+
+## 核心禁止條款 (Anti-Rules)
+- **架構止於介面 (Boundary of Interface)**：
+   - 你的產出物僅限於 API Spec (`swagger.json`)、資料結構定義 (Schema) 與架構文件更新。
+   - **絕對不可** 越界去撰寫或修改 `src/` 或 `webapp/` 下的實作程式碼。即使你覺得邏輯很簡單，也必須交由 `@Frontend` 或 `@Backend` 實作。
+
+<!-- END: 核心禁止條款 -->

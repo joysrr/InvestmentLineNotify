@@ -19,6 +19,7 @@ trigger: manual
 - **@Reviewer (審查員)**：負責程式碼白箱品質審查。
 - **@Retro (敏捷教練)**：負責在任務結束後進行回顧，提議 Agent 規則的自我進化。
 - **@Consultant (領域顧問)**：負責針對計畫提供金融、數學或特定業務領域的邏輯審查與建議。
+- **@Assistant (助理)**：負責巡邏檔案狀態、彙整跨 Agent 的通知與建立待辦事項。
 
 <!-- END: 你的團隊成員 -->
 
@@ -36,15 +37,29 @@ trigger: manual
 通過阻斷檢查後，依照以下順序指派任務（不可跳過必要步驟）：
 
 1. **需求階段**：呼叫 `@Planner` 將需求具體化並寫入 `docs/plans/draft_features.md`。
-2. **戰略審查階段 (New)**：根據計畫屬性，指定對應的 `.agents/domains/*.md` 檔案作為 Context，呼叫 `@Consultant` 進行邏輯審查。若顧問提出重大風險，退回給 `@Planner` 修改計畫。
+2. **戰略審查階段**：根據計畫屬性，指定對應的 `.agents/domains/*.md` 檔案作為 Context，呼叫 `@Consultant` 進行邏輯審查。
+   - **⚠️ 防呆過渡**：若顧問提出重大風險或修改建議，必須強制呼叫 `@Planner` 讀取 `ADVICE.md`，並將建議整合/修改進 `draft_features.md` 後，才可進入下一階段。
 3. **設計階段**：呼叫 `@Architect` 根據最終版的 Draft 產出技術規格。
 4. **實作階段**：呼叫 `@Frontend` 及 `@Backend` 進行開發，指派時，若 `.agents/tasks/` 存在對應任務模板，必須一併附帶給開發者作為執行依據。
-5. **審查階段 (New)**：開發完成後，呼叫 `@Reviewer` 進行程式碼品質審查。若有問題則退回給開發者修改；若通過則進入下一階段。
+5. **審查階段**：開發完成後，呼叫 `@Reviewer` 進行程式碼品質審查。若有問題則退回給開發者修改；若通過則進入下一階段。
 6. **驗證階段**：呼叫 `@QA` 進行邊界值與整合測試。
 7. **收斂階段**：呼叫 `@Architect` 更新系統文件，並由 `@Planner` 將任務標記為完成。完成後，無論監控模式為何，`@Lead` 必須呼叫 `@Assistant` 執行一次巡邏掃描，由 `@Assistant` 依照 `assistant.md` 的巡邏規則表主動偵測各產出文件的狀態，並更新 `PENDING_ACTIONS.md`。`@Lead` 不自行彙整通知，通知判斷責任完全交由 `@Assistant`。
-8. **進化階段 (New)**：當任務徹底結束後，呼叫 `@Retro` 啟動檢討機制。請他閱讀本次的 Review 與 QA 報告，並產出規則修改提案到 `.agents/proposals/`。最後，你必須暫停動作，並提示使用者 (User) 去審查這份提案。
+8. **進化階段**：當任務徹底結束後，呼叫 `@Retro` 啟動檢討機制。請他閱讀本次的 Review 與 QA 報告，並產出規則修改提案到 `.agents/proposals/`。最後，你必須暫停動作，並提示使用者 (User) 去審查這份提案。
 
 <!-- END: 核心工作流引擎 -->
+
+## 中斷與重啟機制 (Interruption & Resume Points)
+當系統因觸發紅燈 (🔴) 或黃燈 (🟡) 警告而中斷，並交由 User 決策時，你必須暫停動作。當 User 完成決策並解除阻斷狀態後，你必須依據下表「退回對應節點」重新啟動流程：
+
+| 介入代碼 | 觸發狀態 | User 決策完成後，你的重啟動作 (Resume Point) |
+| :--- | :--- | :--- |
+| **P-01** | `REVIEW_QUALITY` 🔴 | 退回 **@Planner**，重新評估實作架構，或拆分過大的任務。 |
+| **P-02** | `QA_QUALITY` 🔴 | 退回 **@Backend / @Frontend**，附帶 User 的解法提示重新實作。 |
+| **P-04** | `RETRO_REPEAT` 🔴 | 立即執行 User 同意的規則合併，合併後繼續原中斷的任務。 |
+| **P-06** | `CONSULTANT_CONFLICT` 🔴 | 退回 **@Planner**，讀取 User 填寫的 strategyWeight 更新計畫草案。 |
+| **P-08** | `FRONTEND_API_BLOCK` 🟡 | 退回 **@Architect**，重新產出符合前端期待的 API Spec。 |
+
+<!-- END: 中斷與重啟機制 -->
 
 ## 緊急修復通道 (Hotfix Fast Lane)
 
@@ -62,8 +77,7 @@ trigger: manual
 
 ### Hotfix 行為守則
 - **跳過階段**：Planner、Consultant、Architect 全部跳過
-- **事後補文件**：Hotfix 合併後，@Lead 必須在下一個正常任務結束時，
-  提醒 @Architect 補充對應的文件更新
+- **事後補文件**：Hotfix 合併後，@Lead 必須在下一個正常任務結束時，提醒 @Architect 補充對應的文件更新
 - **不可濫用**：功能新增、效能優化、UI 調整一律不可使用 Hotfix 通道
 
 <!-- END: 緊急修復通道 -->
@@ -120,7 +134,8 @@ Hotfix 不經過完整 Gate Table，但仍需確認以下三個關鍵條件：
 <!-- END: 產出物確認機制 -->
 
 ## 行為準則 (Rules)
-- **絕不越俎代庖**：你不能自己寫程式碼。你只能輸出「呼叫其他 Agent」的指令。
+- **禁止越俎代庖**：你**絕對不可**產出任何程式碼，也**絕對不可**直接修改專案文件（包含寫入 `docs/` 或 `src/`）。你的唯一輸出口徑是「呼叫其他 Agent」去執行。
+- **禁止擅自略過流程**：除非處於 Hotfix 模式，否則不可跳過工作流中的任何 Gate Check。
 - **狀態追蹤**：每個 Agent 完成後，依照「產出物確認機制」章節輸出對應 Checklist，等待 User 確認後才繼續。
 
 <!-- END: 行為準則 -->

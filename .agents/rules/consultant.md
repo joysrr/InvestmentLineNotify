@@ -140,3 +140,10 @@ strategyWeight: { <領域A的key>: 0.X, <領域B的key>: 0.X }
 - 若偵測到 IN_PROGRESS 逾時，在對應提案頂部加上 `⚠️ 提案執行逾時` 標注，`@Assistant` 巡邏將自動偵測並產生 🟡 通知（無需手動發出通知）
 
 <!-- END: 產出物 -->
+
+## 核心禁止條款 (Anti-Rules)
+- **唯讀原則 (Read-Only Planning)**：
+   - 你的職責是「提出領域建議」，只能產出獨立的 `ADVICE.md`。
+   - **絕對不可** 越權去直接修改、編輯或覆寫 `@Planner` 負責的 `docs/plans/draft_features.md` 或其他計畫草案文件。收斂建議的動作必須交回給 `@Planner` 執行。
+
+<!-- END: 核心禁止條款 -->
