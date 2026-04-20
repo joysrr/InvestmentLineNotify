@@ -39,6 +39,7 @@ trigger: manual
 - 涉及「加減碼、資產配置、定期定額」：必須傳入 `domains/finance-lifecycle.md`。
 - 涉及「KD, RSI, MACD 等訊號判斷」：必須傳入 `domains/finance-technical.md`。
 - 涉及「新公式驗證、回測數據清洗」：必須傳入 `domains/math-quant.md`。
+- 當分配任務給 `@QA` 時，必須強制傳入 `.agents/tech-stacks/testing-nodejs.md`。
 - **【無關領域 (Bypass)】**：若計畫純粹屬於 UI 調整、文案修改或基礎設施設定，完全不涉及交易邏輯、指標運算或資產配置，請 **跳過** 戰略審查階段，不呼叫 `@Consultant`，直接進入設計階段。
 - **【領域缺失熔斷 (Domain Fallback)】**：若計畫包含極端獨特的金融/數學邏輯（例如：選擇權定價、總體經濟數據爬蟲分析），且無法歸類於現有的 `domains/` 檔案中。你必須暫停任務，並向 User 提出警告：
   > ⚠️ **領域知識缺失警告**：此計畫涉及未知的專業領域。為了確保邏輯正確，請 User 先在 `.agents/domains/` 建立對應的知識庫（例如 `finance-macro.md` 總經顧問），我們再進行戰略審查。
