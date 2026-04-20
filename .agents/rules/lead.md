@@ -139,18 +139,6 @@ Hotfix 不經過完整 Gate Table，但仍需確認以下三個關鍵條件：
 - **狀態追蹤**：每個 Agent 完成後，依照「產出物確認機制」章節輸出對應 Checklist，等待 User 確認後才繼續。
 
 <!-- END: 行為準則 -->
-  
-## 領域知識上下文映射 (Domain Mapping)
-當你分配任務給 `@Consultant` 時，必須自動判斷功能草案的性質，附加對應的領域知識：
-- 涉及「加減碼、資產配置、定期定額」：必須傳入 `domains/finance-lifecycle.md`。
-- 涉及「KD, RSI, MACD 等訊號判斷」：必須傳入 `domains/finance-technical.md`。
-- 涉及「新公式驗證、回測數據清洗」：必須傳入 `domains/math-quant.md`。
-- 當分配任務給 `@QA` 時，必須強制傳入 `.agents/tech-stacks/testing-nodejs.md`。
-- **【無關領域 (Bypass)】**：判斷標準請參照本文件的「戰略審查 Bypass 規則」章節。
-- **【領域缺失熔斷 (Domain Fallback)】**：若計畫包含極端獨特的金融/數學邏輯（例如：選擇權定價、總體經濟數據爬蟲分析），且無法歸類於現有的 `domains/` 檔案中。你必須暫停任務，並向 User 提出警告：
-  > ⚠️ **領域知識缺失警告**：此計畫涉及未知的專業領域。為了確保邏輯正確，請 User 先在 `.agents/domains/` 建立對應的知識庫（例如 `finance-macro.md` 總經顧問），我們再進行戰略審查。
-
-<!-- END: 領域知識上下文映射 -->
 
 ## 戰略審查 Bypass 規則 (Consultant Bypass Rules)
 
@@ -178,47 +166,47 @@ Hotfix 不經過完整 Gate Table，但仍需確認以下三個關鍵條件：
 
 <!-- END: 戰略審查 Bypass 規則 -->
 
-## 技術棧上下文映射 (Tech Stack Mapping)
-當你在指派任務給開發者時，必須根據任務的「影響範圍」，自動將以下文件路徑作為 Context (上下文) 附帶在你的指令中，嚴禁要求 User 人工指定：
+## 資源與上下文映射表 (Context & Resource Mapping Registry)
 
-- **若任務涉及 `webapp/` (前端 UI/介面)**：
-  必須提示 `@Frontend` 優先讀取 `.agents/tech-stacks/vue3-vite.md` 與 `.agents/tech-stacks/telegram-mini-app.md`。
-- **若任務涉及 `src/` (後端腳本、API、策略運算)**：
-  必須提示 `@Backend` 優先讀取 `.agents/tech-stacks/nodejs-esm-backend.md` 與 `.agents/tech-stacks/file-based-storage.md`。
-- **若任務涉及「資料儲存或歷史回測」**：
-  必須額外提示相關 Agent 讀取 `.agents/tech-stacks/file-based-storage.md`。
-- **【例外處理 (Fallback)】若任務包含上述未定義的技術 (例如 Python, Redis, Docker, React 等)**：
-  你必須「立即暫停」派發任務給開發者，並向 User 輸出以下警告：
+在你指派任務給任何 Agent 之前，**必須**查閱以下映射表。若任務情境符合表內描述，**必須**將對應的文件路徑附帶給執行 Agent，禁止讓 Agent 憑空猜測，也禁止在角色規則內重複描述操作細節。
+- **【無關領域 (Bypass)】**：判斷標準請參照本文件的「戰略審查 Bypass 規則」章節。
+- **【領域缺失熔斷 (Domain Fallback)】**：若計畫包含極端獨特的金融/數學邏輯（例如：選擇權定價、總體經濟數據爬蟲分析），且無法歸類於現有的 `domains/` 檔案中。你必須暫停任務，並向 User 提出警告：
+  > ⚠️ **領域知識缺失警告**：此計畫涉及未知的專業領域。為了確保邏輯正確，請 User 先在 `.agents/domains/` 建立對應的知識庫（例如 `finance-macro.md` 總經顧問），我們再進行戰略審查。
+- **【技術棧與框架缺失熔斷 (Tech-Stacks Fallback)】若任務包含上述未定義的技術 (例如 Python, Redis, Docker, React 等)**：你必須「立即暫停」派發任務給開發者，並向 User 輸出以下警告：
   > ⚠️ **技術棧缺失警告**：此計畫包含了系統尚未定義的技術。請 User 先在 `.agents/tech-stacks/` 建立對應的規範檔（例如 `python-ml.md`），並更新我的 Mapping 規則後，我們再繼續開發。
 
-<!-- END: 技術棧上下文映射 -->
 
-## 任務模板映射 (Tasks Mapping)
-<!-- 
-  維護說明：當 .agents/tasks/ 有新增任務模板時，
-  由負責該功能的開發 Agent 或 @Retro 提案補充此 Mapping。
--->
+### 1. 技術棧與框架映射 (Tech-Stacks Mapping)
+| 任務情境 | 應附帶的 Tech-Stack |
+|---------|----------------|
+| 開發或修改 `webapp/` 的 UI/元件 | `.agents/tech-stacks/vue3-vite.md` |
+| 開發或修改 Telegram 相關介面 | `.agents/tech-stacks/telegram-mini-app.md` |
+| 開發 `src/` 下的 API 或核心邏輯 | `.agents/tech-stacks/nodejs-esm-backend.md` |
+| 涉及 JSON 檔案或資料持久層讀寫 | `.agents/tech-stacks/file-based-storage.md` |
+| 需要撰寫或修改單元/整合測試 | `.agents/tech-stacks/testing-nodejs.md` |
 
-當 @Lead 指派任務時，若 `.agents/tasks/` 存在對應模板，
-**必須**將模板路徑附帶在指令中，禁止讓 Agent 自行摸索執行步驟。
+### 2. 領域知識映射 (Domains Mapping)
+| 任務情境 | 應附帶的 Domain |
+|---------|----------------|
+| 涉及長線資金配置、預算攔截或動態槓桿 | `.agents/domains/finance-lifecycle.md` |
+| 涉及 KD/RSI/MACD、動能或技術線型判斷 | `.agents/domains/finance-technical.md` |
+| 涉及乖離率、破底建倉或價值回歸邏輯 | `.agents/domains/finance-left-side.md` |
+| 涉及機率統計、極端值防護或評分矩陣 | `.agents/domains/math-quant.md` |
 
-| 情境 | 應附帶的 Task 模板 |
-|------|--------------------|
-| （待新增） | （待新增） |
-
-<!-- END: 任務模板映射 -->
-
-## 技術操作技能映射 (Skills Mapping)
-<!-- 
-  維護說明：當 .agents/skills/ 有新增技能時，
-  由負責該技術的 Agent 或 @Retro 提案補充此 Mapping。
--->
-
-當任務涉及可重複執行的技術操作時，
-**必須**將對應 skill 路徑附帶給執行 Agent，禁止在角色規則內重複描述操作步驟。
-
+### 3. 技術操作技能映射 (Skills Mapping)
 | 操作情境 | 應附帶的 Skill |
 |---------|----------------|
-| （待新增） | （待新增） |
+| 執行 Oracle VM 環境部署或伺服器設定 | `.agents/skills/deploy-oracle.md` |
+| 處理 Telegram Bot Webhook 與重試機制 | `.agents/skills/telegram-bot-pattern.md` |
+| 處理 Telegram Mini App 初始化與主題配置 | `.agents/skills/telegram-miniapp-pattern.md` |
+| 開發 Vue 3 共用元件或封裝 Composables | `.agents/skills/vue3-component-pattern.md` |
+| 規劃架構時遇到雲端與本地資源限制評估 | `.agents/skills/infra-constraints.md` |
 
-<!-- END: 技術操作技能映射 -->
+### 4. 任務執行檢核表 (Tasks Mapping)
+| 任務情境 | 應附帶的 Task Checklist |
+|---------|----------------|
+| 進行系統白箱審查或包含資安相關實作 | `.agents/tasks/security-review.md` |
+| 執行 Hotfix 緊急修復 | `.agents/tasks/hotfix-checklist.md` |
+| 建立新的領域顧問知識庫 | `.agents/tasks/domain-creation-guide.md` |
+
+<!-- END: 資源與上下文映射表 -->
