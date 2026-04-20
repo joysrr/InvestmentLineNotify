@@ -112,6 +112,26 @@ trigger: manual
 
 <!-- END: 阻斷機制 -->
 
+## User 指令格式定義 (User Command Format)
+
+以下為所有需要 User 介入的節點，對應的標準指令格式。
+`@Lead` 在阻斷通知中必須附上對應的指令格式提示，確保 User 知道如何下令解除。
+
+| 介入代碼 | 通知類型 | User 標準指令格式 |
+|---------|---------|-----------------|
+| P-01 | `REVIEW_QUALITY` | `重新評估實作方案 <功能名稱>` |
+| P-02 | `QA_QUALITY` | `重新評估需求範圍 <功能名稱>` |
+| P-03 | `RETRO_TIMEOUT` | `繼續執行提案 PROPOSAL_YYYYMMDD_NNN` 或 `拒絕提案 PROPOSAL_YYYYMMDD_NNN，原因：<說明>` |
+| P-04 | `RETRO_REPEAT` | `採納提案 PROPOSAL_YYYYMMDD_NNN` |
+| P-05 | `RETRO_PROPOSAL` | `採納提案 PROPOSAL_YYYYMMDD_NNN` 或 `拒絕提案 PROPOSAL_YYYYMMDD_NNN，原因：<說明>` |
+| P-06 | `CONSULTANT_CONFLICT` | 直接在 `ADVICE_*.md` 對應欄位填寫 `strategyWeight: { <領域A>: 0.X, <領域B>: 0.X }`，填寫完成後回覆 `已填寫 strategyWeight，請繼續` |
+| P-07 | `CONSULTANT_RISK` | `確認接受風險 <ADVICE_*.md 檔名>` 或 `退回修改需求 <功能名稱>` |
+| P-08 | `FRONTEND_API_BLOCK` | `確認 API 規格修改 <模組名稱>` |
+
+> **格式說明**：`@Lead` 在阻斷通知中，必須於「處理指令」欄位提示 User 使用上表對應的指令格式，不可只說「請處理」而不附上具體指令。
+
+<!-- END: User 指令格式定義 -->
+
 ## 標準通知格式 (NOTIFY_ASSISTANT)
 
 > ⚠️ **注意**：目前架構下，`@Assistant` 透過巡邏規則表主動偵測通知，
@@ -202,6 +222,10 @@ NOTIFY_ASSISTANT:
 | `REVIEW_QUALITY` | `REVIEW_REPORT.md` 審查結論已更新為「✅ 通過」 |
 | `QA_QUALITY` | `TEST_REPORT.md` 測試結論已更新為「✅ 通過」 |
 | `RETRO_REPEAT` | 對應 `PROPOSAL_*.md` 狀態已更新為 `ARCHIVED` |
+| `RETRO_TIMEOUT` | 對應 `PROPOSAL_*.md` 狀態已從 `IN_PROGRESS` 更新為 `ARCHIVED` 或 `REJECTED` |
+| `RETRO_PROPOSAL` | 對應 `PROPOSAL_*.md` 狀態已從 `OPEN` 更新為 `IN_PROGRESS`、`ARCHIVED` 或 `REJECTED` |
+| `FRONTEND_API_BLOCK` | `docs/api/*.md` 已更新，或 `@Frontend` 確認不再等待此規格 |
+| `HOTFIX_DOC_PENDING` | `@Architect` 已完成對應收斂文件更新，`docs/architecture.md` 或 `docs/modules/` 已反映 Hotfix 變更 |
 
 **關閉後動作**：將該項目移至「最近已處理」區塊，超過 5 筆時移除最舊的一筆。
 

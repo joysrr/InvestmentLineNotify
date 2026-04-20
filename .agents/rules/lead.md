@@ -56,8 +56,10 @@ trigger: manual
 | :--- | :--- | :--- |
 | **P-01** | `REVIEW_QUALITY` 🔴 | 退回 **@Planner**，重新評估實作架構，或拆分過大的任務。 |
 | **P-02** | `QA_QUALITY` 🔴 | 退回 **@Backend / @Frontend**，附帶 User 的解法提示重新實作。 |
+| **P-03** | `RETRO_TIMEOUT` 🟡 | 呼叫 **@Lead** 主動追蹤：確認對應 `PROPOSAL_*.md` 的執行者（通常為 `@Lead` 自身）是否仍在處理中。若 User 確認繼續執行 → 維持 `IN_PROGRESS`，流程照常推進；若 User 確認放棄 → 將提案狀態改為 `REJECTED`（附原因），`@Assistant` 下次巡邏自動關閉該 🟡 項目。 |
 | **P-04** | `RETRO_REPEAT` 🔴 | 立即執行 User 同意的規則合併，合併後繼續原中斷的任務。 |
 | **P-06** | `CONSULTANT_CONFLICT` 🔴 | 退回 **@Planner**，讀取 User 填寫的 `strategyWeight` 更新計畫草案。`@Planner` 完成草案更新後，`@Lead` 呼叫 `@Assistant` 執行一次巡邏；`@Assistant` 重新偵測 `ADVICE_*.md` 條件已消失，自動關閉該 🔴 項目。 |
+| **P-07** | `CONSULTANT_RISK` 🔴 | 依據 User 決策分兩條路：**確認接受風險** → 流程從「設計階段」繼續，`@Architect` 在設計文件中標注已知風險；**要求退回修改** → 退回 **@Planner**，縮減或調整涉及高風險的需求範圍，重新提交 `@Consultant` 複審。`@Lead` 呼叫 `@Assistant` 確認 `ADVICE_*.md` 中的 `⚠️ 未採納高風險建議` 標記已移除後，自動關閉該 🔴 項目。 |
 | **P-08** | `FRONTEND_API_BLOCK` 🟡 | 退回 **@Architect**，重新產出符合前端期待的 API Spec。 |
 
 <!-- END: 中斷與重啟機制 -->
