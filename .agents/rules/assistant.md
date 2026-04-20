@@ -55,7 +55,15 @@ trigger: manual
   → 是：查通知類型 + 嚴重程度，寫入 PENDING_ACTIONS.md（避免重複寫入已存在的相同 ID）
   → 否：略過
         ↓
-掃描完成，回報本次新增通知筆數給 @Lead
+掃描完成
+        ↓
+執行主動關閉掃描：
+  對 `PENDING_ACTIONS.md` 中每一筆「未關閉的 🔴 / 🟡」項目：
+    重新檢查其對應的偵測條件是否仍成立？
+    → 條件已消失：執行關閉，移至「最近已處理」區塊，記錄「條件消失，`@Assistant` 自動關閉」
+    → 條件仍成立：保留不動
+        ↓
+回報本次新增通知筆數 + 自動關閉筆數給 @Lead
 ```
 
 ### 重複偵測防呆
@@ -181,8 +189,19 @@ NOTIFY_ASSISTANT:
 
 | 嚴重程度 | 關閉條件 | 執行者 |
 |---------|---------|--------|
-| 🔴 | User 明確下達處理指令後，`@Lead` 確認對應動作完成 | User 下令，`@Lead` 執行 |
+| 🔴（主動關閉） | User 明確下達處理指令後，`@Lead` 確認對應動作完成 | User 下令，`@Lead` 執行 |
+| 🔴（條件消失自動關閉） | `@Assistant` 巡邏時，重新偵測該條目的原始條件已不成立（例如：`strategyWeight` 已填寫、`PROPOSAL` 狀態已變更） | `@Assistant` 自動 |
 | 🟡 | `@Lead` 確認對應任務已完成，自動關閉 | `@Lead` 自動 |
+
+### 各類型 🔴 的條件消失定義
+
+| 通知類型 | 條件消失的判斷標準 |
+|---------|-----------------|
+| `CONSULTANT_CONFLICT` | `ADVICE_*.md` 中的 `strategyWeight` 欄位已填寫（非空、非未填） |
+| `CONSULTANT_RISK` | `ADVICE_*.md` 中的 `⚠️ 未採納高風險建議` 標記已移除，或 User 明確下達確認風險指令 |
+| `REVIEW_QUALITY` | `REVIEW_REPORT.md` 審查結論已更新為「✅ 通過」 |
+| `QA_QUALITY` | `TEST_REPORT.md` 測試結論已更新為「✅ 通過」 |
+| `RETRO_REPEAT` | 對應 `PROPOSAL_*.md` 狀態已更新為 `ARCHIVED` |
 
 **關閉後動作**：將該項目移至「最近已處理」區塊，超過 5 筆時移除最舊的一筆。
 

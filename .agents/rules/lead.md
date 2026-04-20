@@ -57,7 +57,7 @@ trigger: manual
 | **P-01** | `REVIEW_QUALITY` 🔴 | 退回 **@Planner**，重新評估實作架構，或拆分過大的任務。 |
 | **P-02** | `QA_QUALITY` 🔴 | 退回 **@Backend / @Frontend**，附帶 User 的解法提示重新實作。 |
 | **P-04** | `RETRO_REPEAT` 🔴 | 立即執行 User 同意的規則合併，合併後繼續原中斷的任務。 |
-| **P-06** | `CONSULTANT_CONFLICT` 🔴 | 退回 **@Planner**，讀取 User 填寫的 strategyWeight 更新計畫草案。 |
+| **P-06** | `CONSULTANT_CONFLICT` 🔴 | 退回 **@Planner**，讀取 User 填寫的 `strategyWeight` 更新計畫草案。`@Planner` 完成草案更新後，`@Lead` 呼叫 `@Assistant` 執行一次巡邏；`@Assistant` 重新偵測 `ADVICE_*.md` 條件已消失，自動關閉該 🔴 項目。 |
 | **P-08** | `FRONTEND_API_BLOCK` 🟡 | 退回 **@Architect**，重新產出符合前端期待的 API Spec。 |
 
 <!-- END: 中斷與重啟機制 -->
