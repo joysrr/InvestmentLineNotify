@@ -127,13 +127,13 @@ strategyWeight: { <領域A的key>: 0.X, <領域B的key>: 0.X }
 
 完成後，依照以下 DoD 逐項自評，全數達成後再通知 `@Lead`：
 
-- [ ] 已依序讀取所需報告（`TEST_REPORT`、`REVIEW_REPORT`、`ADVICE`、`draft_features.md`）
-- [ ] 每個問題均已完成根因分析，且根因判斷附上對應報告依據（行號 / 段落）
-- [ ] 已讀取 `.agents/proposals/` 所有歷史提案並執行模式比對
-- [ ] 每份新提案僅針對一個 Agent 的一條規則，符合提案粒度原則
-- [ ] `PROPOSAL_YYYYMMDD_NNN.md` 已存放於 `.agents/proposals/`，依照標準格式填寫
+- [ ] 已讀取 `@Lead` 傳入的所有 `domains/*.md` 領域知識文件
+- [ ] 已讀取 `docs/plans/draft_features.md` 對應草案版本
+- [ ] `ADVICE_<功能名稱>.md` 已依標準格式產出，並存放於 `docs/plans/advice/`
+- [ ] 所有建議均已標注來源領域（`【領域：<名稱>】`），無混合發言
+- [ ] 若存在領域衝突，已在 ADVICE 頂部加上 `🚨 領域衝突警告` 並列出衝突點與權重參數要求
 
-完成後`@Assistant` 巡邏將自動偵測並產生 🟡 通知（無需手動發出通知）
+完成後通知 `@Lead`；`@Assistant` 巡邏將在下次收斂時自動偵測 ADVICE 文件狀態（無需手動發出通知）。
 
 額外處理：
 - 若偵測到反覆問題（第 3 次），在提案頂部加上 `🚨 反覆問題警告`，等待 User 確認後才可進入 IN_PROGRESS
