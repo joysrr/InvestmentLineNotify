@@ -14,16 +14,32 @@ import {
 const REPORTS_DIR = join(process.cwd(), "data", "reports");
 const DATE_PATTERN = /^(\d{4}-\d{2}-\d{2})\.json$/;
 
+// Simple TTL Cache to prevent file I/O spikes
+const cache = new Map();
+const CACHE_TTL_MS = 10000; // 10 seconds
+
+async function getCached(key, fetcher) {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
+  }
+  const data = await fetcher();
+  cache.set(key, { timestamp: Date.now(), data });
+  return data;
+}
+
 /**
  * Reads all report filenames, filters to YYYY-MM-DD.json,
  * sorts descending (newest first), and returns the date strings.
  */
 async function getSortedDates() {
-  const entries = await readdir(REPORTS_DIR);
-  return entries
-    .filter((f) => DATE_PATTERN.test(f))
-    .map((f) => f.replace(".json", ""))
-    .sort((a, b) => b.localeCompare(a)); // DESC
+  return getCached('sortedDates', async () => {
+    const entries = await readdir(REPORTS_DIR);
+    return entries
+      .filter((f) => DATE_PATTERN.test(f))
+      .map((f) => f.replace(".json", ""))
+      .sort((a, b) => b.localeCompare(a)); // DESC
+  });
 }
 
 /**
@@ -32,21 +48,24 @@ async function getSortedDates() {
  * @param {number}   limit - how many to load
  */
 async function loadReports(dates, limit) {
-  const selected = dates.slice(0, limit);
-  const results = await Promise.all(
-    selected.map(async (date) => {
-      try {
-        const raw = await readFile(
-          join(REPORTS_DIR, `${date}.json`),
-          "utf-8",
-        );
-        return { date, ...JSON.parse(raw) };
-      } catch {
-        return null; // skip broken files
-      }
-    }),
-  );
-  return results.filter(Boolean);
+  const cacheKey = `loadReports:${limit}:${dates[0] || 'empty'}`;
+  return getCached(cacheKey, async () => {
+    const selected = dates.slice(0, limit);
+    const results = await Promise.all(
+      selected.map(async (date) => {
+        try {
+          const raw = await readFile(
+            join(REPORTS_DIR, `${date}.json`),
+            "utf-8",
+          );
+          return { date, ...JSON.parse(raw) };
+        } catch {
+          return null; // skip broken files
+        }
+      }),
+    );
+    return results.filter(Boolean);
+  });
 }
 
 /**

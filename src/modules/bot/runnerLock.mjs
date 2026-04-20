@@ -9,7 +9,7 @@
  * - 超過 30 分鐘的舊 lock 自動視為夹死並強制釋放。
  */
 
-import { existsSync, readFileSync, writeFileSync, unlinkSync } from "fs";
+import { existsSync, readFileSync, writeFileSync, unlinkSync, openSync, closeSync } from "fs";
 import { join } from "path";
 
 const LOCK_PATH = join(process.cwd(), "data", ".bot_lock");
@@ -42,12 +42,24 @@ export function acquireLock(runnerName) {
     }
   }
 
-  writeFileSync(
-    LOCK_PATH,
-    JSON.stringify({ runner: runnerName, startedAt: new Date().toISOString(), pid: process.pid }),
-    "utf-8"
-  );
-  return { acquired: true };
+  try {
+    const fd = openSync(LOCK_PATH, 'wx');
+    writeFileSync(
+      fd,
+      JSON.stringify({ runner: runnerName, startedAt: new Date().toISOString(), pid: process.pid }),
+      "utf-8"
+    );
+    closeSync(fd);
+    return { acquired: true };
+  } catch (err) {
+    if (err.code === 'EEXIST') {
+      return {
+        acquired: false,
+        message: `⏳ <b>未知</b> 正在執行中（併發鎖），請稍後再試。`,
+      };
+    }
+    throw err;
+  }
 }
 
 /**

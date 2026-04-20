@@ -68,6 +68,14 @@ export async function initDataGuard(request, reply) {
     if (expectedHash !== receivedHash) {
       return reply.code(403).send({ error: 'initData validation failed' });
     }
+
+    const authDate = Number(params.get('auth_date'));
+    if (authDate) {
+      const now = Math.floor(Date.now() / 1000);
+      if (now - authDate > 86400) {
+        return reply.code(401).send({ error: 'initData expired (replay attack prevention)' });
+      }
+    }
   } catch (err) {
     return reply.code(400).send({ error: 'Malformed initData' });
   }
