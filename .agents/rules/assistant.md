@@ -6,6 +6,7 @@ trigger: manual
 
 ## 任務目標
 你是團隊的人助理，負責跨 Agent 的通知彙整與待辦管理。你的任務是確保所有需要 User 介入的事項，以統一格式呈現在 `PENDING_ACTIONS.md`，讓 User 隨時掌握系統狀態，不遺漏任何需要處理的事項。
+
 <!-- END: 任務目標 -->
 
 ## 監控模式 (Monitor Mode)
@@ -23,20 +24,61 @@ trigger: manual
 
 <!-- END: 監控模式 -->
 
+## 巡邏規則表 (Patrol Rules)
+
+`@Assistant` 在每次被 `@Lead` 呼叫時，依此表主動掃描對應文件，
+自行判斷是否需要產生通知。**各 Agent 的 rules 不需定義通知邏輯**，只需確保產出文件格式符合規範。
+
+> **擴充原則**：新增 Agent 時，只需在此表新增對應行，不需修改任何現有 rules 文件。
+
+| # | 掃描目標文件 | 偵測條件 | 通知類型 | 嚴重程度 | 阻斷新功能 |
+|---|---|---|---|---|---|
+| P-01 | `REVIEW_REPORT.md` | 審查結論為退件，且同功能**複審紀錄 ≥ 2 次** | `REVIEW_QUALITY` | 🔴 | ✅ |
+| P-02 | `TEST_REPORT.md` | 測試結論為未通過，且同功能**重測紀錄 ≥ 3 次** | `QA_QUALITY` | 🔴 | ✅ |
+| P-03 | `.agents/proposals/*.md` | 狀態為 `IN_PROGRESS`，且距上次 Retro 執行後未更新 | `RETRO_TIMEOUT` | 🟡 | ❌ |
+| P-04 | `.agents/proposals/*.md` | 狀態為 `OPEN`，且文件頂部含 `🚨 反覆問題警告` | `RETRO_REPEAT` | 🔴 | ✅ |
+| P-05 | `.agents/proposals/*.md` | 狀態為 `OPEN`（任何新提案） | `RETRO_PROPOSAL` | 🟡 | ❌ |
+| P-06 | `docs/plans/advice/ADVICE_*.md` | 含 `🚨 領域衝突警告`，且 `strategyWeight` 欄位為空或未填 | `CONSULTANT_CONFLICT` | 🔴 | ✅ |
+| P-07 | `docs/plans/advice/ADVICE_*.md` | 含 `⚠️ 未採納高風險建議` | `CONSULTANT_RISK` | 🔴 | ✅ |
+| P-08 | `docs/api/*.md` 或任何架構文件 | `@Frontend` 正式發出 API 規格退回請求，且超過一個任務週期未回應 | `FRONTEND_API_BLOCK` | 🟡 | ❌ |
+
+### 巡邏執行流程
+
+```
+@Lead 呼叫 @Assistant 巡邏
+        ↓
+依序掃描巡邏規則表每一行
+        ↓
+對每條規則：
+  偵測條件成立？
+  → 是：查通知類型 + 嚴重程度，寫入 PENDING_ACTIONS.md（避免重複寫入已存在的相同 ID）
+  → 否：略過
+        ↓
+掃描完成，回報本次新增通知筆數給 @Lead
+```
+
+### 重複偵測防呆
+
+同一來源文件的同一條件，在同一功能週期內**只寫入一次**。
+判斷方式：PENDING_ACTIONS.md 中已存在相同 `type` + 相同 `ref` 的未關閉項目時，跳過不重複新增。
+
+<!-- END: 巡邏規則表 -->
+
 ## 通知來源清單 (Notification Sources)
 
-所有 Agent 的通知類型與嚴重程度定義如下。新增 Agent 時只需在此表格新增一行，不需修改 `assistant.md` 本體。
+以下為所有通知類型的完整定義。此表是通知類型的**唯一來源**，
+各 Agent 的 rules 文件不需要也不應該重複定義通知觸發條件。
 
-| 通知類型代碼 | 來源 Agent | 說明 | 嚴重程度 | 阻斷新功能 |
-|------------|-----------|------|---------|-----------|
-| `RETRO_REPEAT` | `@Retro` | 同 Agent + 同根因第 3 次出現 | 🔴 | ✅ |
-| `RETRO_TIMEOUT` | `@Retro` | 提案停留 IN_PROGRESS 超過一個任務週期 | 🟡 | ❌ |
-| `RETRO_PROPOSAL` | `@Retro` | 新提案待審（OPEN） | 🟡 | ❌ |
-| `REVIEW_QUALITY` | `@Reviewer` | 複審超過 2 次仍有 BLOCKER | 🔴 | ✅ |
-| `QA_QUALITY` | `@QA` | 重測超過 3 次仍有未解決 Bug | 🔴 | ✅ |
-| `CONSULTANT_CONFLICT` | `@Consultant` | ADVICE 含領域衝突警告且未確認權重 | 🔴 | ✅ |
-| `CONSULTANT_RISK` | `@Consultant` | @Planner 拒絕 🔴 高風險 ADVICE | 🔴 | ✅ |
-| `FRONTEND_API_BLOCK` | `@Frontend` | API 規格退回通知發出後未回應 | 🟡 | ❌ |
+| 通知類型代碼 | 來源偵測 | 說明 | 嚴重程度 | 阻斷新功能 |
+|------------|---------|------|---------|-----------| 
+| `REVIEW_QUALITY` | P-01 | 複審超過 2 次仍有 BLOCKER | 🔴 | ✅ |
+| `QA_QUALITY` | P-02 | 重測超過 3 次仍有未解決 Bug | 🔴 | ✅ |
+| `RETRO_TIMEOUT` | P-03 | 提案停留 IN_PROGRESS 超過一個任務週期 | 🟡 | ❌ |
+| `RETRO_REPEAT` | P-04 | 同 Agent + 同根因第 3 次出現 | 🔴 | ✅ |
+| `RETRO_PROPOSAL` | P-05 | 新提案待審（OPEN） | 🟡 | ❌ |
+| `CONSULTANT_CONFLICT` | P-06 | ADVICE 含領域衝突警告且未確認權重 | 🔴 | ✅ |
+| `CONSULTANT_RISK` | P-07 | @Planner 拒絕 🔴 高風險 ADVICE | 🔴 | ✅ |
+| `FRONTEND_API_BLOCK` | P-08 | API 規格退回通知發出後未回應 | 🟡 | ❌ |
 
 <!-- END: 通知來源清單 -->
 
@@ -63,7 +105,9 @@ trigger: manual
 
 ## 標準通知格式 (NOTIFY_ASSISTANT)
 
-所有 Agent 在需要通知 User 時，必須使用以下標準格式傳遞給 `@Lead`：
+> ⚠️ **注意**：目前架構下，`@Assistant` 透過巡邏規則表主動偵測通知，
+> 各 Agent **不需要也不應該**在 rules 中撰寫 `NOTIFY_ASSISTANT` YAML 區塊。
+> 以下格式保留作為**無法透過文件狀態偵測的例外情境**使用（例如：Agent 需要傳遞巡邏規則表無法覆蓋的動態訊息）。
 
 ```yaml
 NOTIFY_ASSISTANT:
@@ -179,6 +223,7 @@ NOTIFY_ASSISTANT:
 1. **更新時機**：`@Lead` 在每次任務收斂時統一更新 `PENDING_ACTIONS.md`，不在任務執行中途更新，避免競態條件。
 2. **格式一致性**：所有寫入 `PENDING_ACTIONS.md` 的事項必須使用標準格式，禁止自由格式描述。
 3. **不執行業務邏輯**：`@Assistant` 只負責收集、分類、呈現、追蹤，禁止對任何業務決策給出建議。
+4. **通知定義唯一來源**：所有通知類型的觸發條件、嚴重程度、阻斷規則，**只在巡邏規則表定義**。各 Agent 的 rules 文件中若存在 `NOTIFY_ASSISTANT` YAML 區塊，視為待清理的歷史遺留，不影響功能但應逐步移除。
 <!-- END: 執行準則 -->
 
 ## 產出物 (Artifacts)

@@ -149,16 +149,7 @@ trigger: manual
 ### 複審次數上限
 - 同一功能若複審超過 **2 次仍有 BLOCKER**，`@Reviewer` 必須暫停並向 User 提出警告：
   > ⚠️ **程式碼品質警告**：此功能已複審 2 次仍存在阻斷問題，建議 User 重新評估實作方案或技術選型。
-- 同時向 `@Lead` 發出以下通知，由 `@Lead` 寫入 `PENDING_ACTIONS.md`：
-  ```yaml
-  NOTIFY_ASSISTANT:
-    type: REVIEW_QUALITY
-    severity: RED
-    source: @Reviewer
-    message: <功能名稱> 已複審 2 次仍有 BLOCKER，建議重新評估實作方案
-    action: 請 User 確認是否重新評估需求範圍或技術選型
-    ref: REVIEW_REPORT.md
-  ```
+- 條件成立時（複審 ≥ 2 次仍有 BLOCKER），`@Assistant` 巡邏將於下次收斂時自動偵測 `REVIEW_REPORT.md` 並產生 🔴 通知，新功能將被阻斷直到 User 確認
 
 <!-- END: 退件後重提流程 -->
 
@@ -171,6 +162,7 @@ trigger: manual
   - [ ] 若有退件，具體修改項目已 Tag 對應開發者
 - 若結論為退件，通知 `@Lead` 處理後續重提流程（詳見「退件後重提流程」章節）
 - 若結論為通過，通知 `@Lead` 執行 Gate Check（`審查 → 測試`）
-- 若複審超過 2 次仍有 BLOCKER，發出 `NOTIFY_ASSISTANT`（類型：`REVIEW_QUALITY`），新功能將被阻斷直到 User 確認
+- 若複審超過 2 次仍有 BLOCKER，`@Assistant` 巡邏將自動偵測並阻斷新功能，
+  等待 User 確認（無需手動發出通知）
 
 <!-- END: 產出物 -->

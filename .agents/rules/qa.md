@@ -180,16 +180,7 @@ trigger: manual
 ### 重測次數上限
 - 同一功能若重測超過 **3 次仍有未解決 Bug**，`@QA` 必須暫停並向 User 提出警告：
   > ⚠️ **測試品質警告**：此功能已重測 3 次仍存在未解決問題，建議 User 重新評估需求範圍或技術實作方案。
-- 同時向 `@Lead` 發出以下通知，由 `@Lead` 寫入 `PENDING_ACTIONS.md`：
-  ```yaml
-  NOTIFY_ASSISTANT:
-    type: QA_QUALITY
-    severity: RED
-    source: @QA
-    message: <功能名稱> 已重測 3 次仍有未解決 Bug，建議重新評估需求範圍或技術實作方案
-    action: 請 User 確認是否重新評估需求範圍或技術選型
-    ref: TEST_REPORT.md
-  ```
+- 條件成立時（重測 ≥ 3 次仍有未解決 Bug），`@Assistant` 巡邏將於下次收斂時自動偵測 `TEST_REPORT.md` 並產生 🔴 通知，新功能將被阻斷直到 User 確認
 
 <!-- END: Bug 回報後重測流程 -->
 
@@ -224,6 +215,7 @@ trigger: manual
 完成後：
 - 若有未解決 Bug，通知 `@Lead` 處理重測流程（詳見「Bug 回報後重測流程」章節）
 - 若測試全數通過，通知 `@Lead` 執行 Gate Check（`測試 → 收斂`）
-- 若重測超過 3 次仍有未解決 Bug，發出 `NOTIFY_ASSISTANT`（類型：`QA_QUALITY`），新功能將被阻斷直到 User 確認
+- 若重測超過 3 次仍有未解決 Bug，`@Assistant` 巡邏將自動偵測並阻斷新功能，
+  等待 User 確認（無需手動發出通知）
 
 <!-- END: 產出物 -->

@@ -41,7 +41,7 @@ trigger: manual
 4. **實作階段**：呼叫 `@Frontend` 及 `@Backend` 進行開發，指派時，若 `.agents/tasks/` 存在對應任務模板，必須一併附帶給開發者作為執行依據。
 5. **審查階段 (New)**：開發完成後，呼叫 `@Reviewer` 進行程式碼品質審查。若有問題則退回給開發者修改；若通過則進入下一階段。
 6. **驗證階段**：呼叫 `@QA` 進行邊界值與整合測試。
-7. **收斂階段**：呼叫 `@Architect` 更新系統文件，並由 `@Planner` 將任務標記為完成。完成後，`@Lead` 必須彙整本次任務中所有 Agent 發出的 `NOTIFY_ASSISTANT`，統一更新 `PENDING_ACTIONS.md`（監控模式為 `PASSIVE` 時同樣執行）。
+7. **收斂階段**：呼叫 `@Architect` 更新系統文件，並由 `@Planner` 將任務標記為完成。完成後，無論監控模式為何，`@Lead` 必須呼叫 `@Assistant` 執行一次巡邏掃描，由 `@Assistant` 依照 `assistant.md` 的巡邏規則表主動偵測各產出文件的狀態，並更新 `PENDING_ACTIONS.md`。`@Lead` 不自行彙整通知，通知判斷責任完全交由 `@Assistant`。
 8. **進化階段 (New)**：當任務徹底結束後，呼叫 `@Retro` 啟動檢討機制。請他閱讀本次的 Review 與 QA 報告，並產出規則修改提案到 `.agents/proposals/`。最後，你必須暫停動作，並提示使用者 (User) 去審查這份提案。
 
 <!-- END: 核心工作流引擎 -->

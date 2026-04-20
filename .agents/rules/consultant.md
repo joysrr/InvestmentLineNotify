@@ -113,24 +113,14 @@ strategyWeight: { <領域A的key>: 0.X, <領域B的key>: 0.X }
 | 回應類型 | 條件 | @Planner 的動作 | @Consultant 的後續行為 |
 |---------|------|---------------|----------------------|
 | **完全採納** | 所有建議均整合進草案 | 更新 `draft_features.md`，標注 `v<N+1>`，通知 `@Lead` 繼續流程 | 無需動作，流程繼續 |
-| **部分採納** | 採納部分建議，拒絕其餘 | 在 `ADVICE` 的「採納狀態」欄填寫理由，更新草案後通知 `@Lead` | 若被拒絕的建議含🔴高風險警告，`@Consultant` 必須在 ADVICE 頂部加上 `⚠️ 未採納高風險建議`，並向 `@Lead` 發出 `NOTIFY_ASSISTANT`（類型：`CONSULTANT_RISK`） |
-| **完全拒絕** | 所有建議均不採納 | 在 ADVICE 的「採納狀態」欄填寫完整理由，通知 `@Lead` | `@Consultant` 記錄拒絕決定，向 `@Lead` 發出 `NOTIFY_ASSISTANT`（類型：`CONSULTANT_RISK`）後流程繼續 |
+| **部分採納** | 採納部分建議，拒絕其餘 | 在 `ADVICE` 的「採納狀態」欄填寫理由，更新草案後通知 `@Lead` | 若被拒絕的建議含🔴高風險警告，`@Consultant` 必須在 ADVICE 頂部加上 `⚠️ 未採納高風險建議，`@Assistant` 巡邏偵測到 `⚠️ 未採納高風險建議` 時自動產生 🔴 通知（無需手動發出）` |
+| **完全拒絕** | 所有建議均不採納 | 在 ADVICE 的「採納狀態」欄填寫完整理由，通知 `@Lead` | `@Consultant` 記錄拒絕決定後流程繼續 |
 
 ### 閉環完成條件
 以下任一條件達成，`@Consultant` 的本次任務才算完成：
 1. `@Planner` 已完成回應（採納、部分採納或拒絕均可）
-2. 若含有 `🚨 領域衝突警告`：User 已明確確認權重參數後，流程才可進入架構設計階段。
-   `@Consultant` 必須向 `@Lead` 發出以下通知，由 `@Lead` 寫入 `PENDING_ACTIONS.md`：
-   ```yaml
-   NOTIFY_ASSISTANT:
-     type: CONSULTANT_CONFLICT
-     severity: RED
-     source: @Consultant
-     message: <功能名稱> 存在領域衝突警告，需確認權重參數後才可進入架構設計
-     action: 請在 docs/plans/advice/ADVICE_<功能名稱>.md 確認並填寫 strategyWeight 參數
-     ref: docs/plans/advice/ADVICE_<功能名稱>.md
-   ```
-   
+2. 若含有 `🚨 領域衝突警告`，`@Assistant` 巡邏將自動偵測 `ADVICE_*.md` 並產生 🔴 通知，新功能將被阻斷直到 User 在文件中填寫 `strategyWeight` 參數（無需手動發出通知）
+
 <!-- END: @Planner 回應流程 -->
 
 ## 產出物 (Artifacts)
@@ -143,28 +133,10 @@ strategyWeight: { <領域A的key>: 0.X, <領域B的key>: 0.X }
 - [ ] 每份新提案僅針對一個 Agent 的一條規則，符合提案粒度原則
 - [ ] `PROPOSAL_YYYYMMDD_NNN.md` 已存放於 `.agents/proposals/`，依照標準格式填寫
 
-完成後通知 `@Lead`，並發出以下通知由 `@Lead` 寫入 `PENDING_ACTIONS.md`：
-```yaml
-NOTIFY_ASSISTANT:
-  type: RETRO_PROPOSAL
-  severity: YELLOW
-  source: @Retro
-  message: 新提案待審：<提案摘要>
-  action: 採納提案 PROPOSAL_YYYYMMDD_NNN 或 拒絕提案 PROPOSAL_YYYYMMDD_NNN，原因：<說明>
-  ref: .agents/proposals/PROPOSAL_YYYYMMDD_NNN.md
-```
+完成後`@Assistant` 巡邏將自動偵測並產生 🟡 通知（無需手動發出通知）
 
 額外處理：
 - 若偵測到反覆問題（第 3 次），在提案頂部加上 `🚨 反覆問題警告`，等待 User 確認後才可進入 IN_PROGRESS
-- 若偵測到 IN_PROGRESS 逾時，在對應提案頂部加上 `⚠️ 提案執行逾時` 標注，並額外發出：
-```yaml
-NOTIFY_ASSISTANT:
-  type: RETRO_TIMEOUT
-  severity: YELLOW
-  source: @Retro
-  message: 提案 PROPOSAL_YYYYMMDD_NNN 停留 IN_PROGRESS 超過一個任務週期
-  action: 請確認 @Lead 的規則更新執行狀態
-  ref: .agents/proposals/PROPOSAL_YYYYMMDD_NNN.md
-```
+- 若偵測到 IN_PROGRESS 逾時，在對應提案頂部加上 `⚠️ 提案執行逾時` 標注，`@Assistant` 巡邏將自動偵測並產生 🟡 通知（無需手動發出通知）
 
 <!-- END: 產出物 -->
