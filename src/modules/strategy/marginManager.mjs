@@ -8,6 +8,7 @@
  */
 
 import { parseNumberOrNull } from "../../utils/coreUtils.mjs";
+import { analyzeMarginRisk } from "./policies/marginPolicy.mjs";
 
 /**
  * 計算維持率並產生壓力測試報告
@@ -18,7 +19,8 @@ import { parseNumberOrNull } from "../../utils/coreUtils.mjs";
  * @returns {Object} 包含壓力測試與風險評估的完整報告
  */
 export function analyzeMarginRisk(portfolio, currentPrice0050, strategy) {
-export { analyzeMarginRisk } from "./policies/marginPolicy.mjs";
+  return analyzeMarginRisk(portfolio, currentPrice0050, strategy);
+}
 
 /**
  * 資金解耦分析 (Decoupling Analysis)
