@@ -429,7 +429,10 @@ const sourcesDisplay = computed(() => {
       const diffHours = (now - ts.getTime()) / (1000 * 60 * 60);
       if (diffHours >= 1) ageLabel = `${diffHours.toFixed(1)} 小時前更新`;
       else ageLabel = `${Math.max(1, Math.round(diffHours * 60))} 分鐘前更新`;
-      if (diffHours > 48) stale = true;
+      
+      // 智慧 STALE 判斷：景氣燈號(月更)容忍 35 天，其餘放寬至 72 小時
+      const staleThreshold = (key === 'ndcBusinessIndicator') ? 35 * 24 : 72;
+      if (diffHours > staleThreshold) stale = true;
     }
     let state = "UNKNOWN";
     if (statusText === "SUCCESS") state = stale ? "STALE" : "OK";

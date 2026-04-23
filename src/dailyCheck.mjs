@@ -314,7 +314,7 @@ export async function dailyCheck({
   }
   // pbRecords: 純 PB 數值陣列（供 resolveValuationGuard 使用）
   // pbRecordsObjects: 含 date 的完整紀錄（供 resolveValuationMomentum 使用）
-  const pbRecords = pbRecordsObjects.map(r => r.pb);
+  const pbRecords = pbRecordsObjects.map((r) => r.pb);
 
   const signalData = {
     RSI: latestRSI,
@@ -340,6 +340,7 @@ export async function dailyCheck({
     valuationGuardState,
     pbRecords,
     pbRecordsObjects,
+    rawValuation: macroData?.rawValuation ?? null,
   };
 
   console.log("🧠 正在計算投資訊號...");

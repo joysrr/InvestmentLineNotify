@@ -1,7 +1,13 @@
 <template>
   <div class="view-container">
     <div class="view-header">
-      <h2 class="view-title">📊 技術指標與風險雷達</h2>
+      <div class="header-top">
+        <button class="back-btn" @click="$router.push('/')">
+          <span class="back-icon">‹</span>
+          返回
+        </button>
+        <h2 class="view-title">📊 技術指標詳情</h2>
+      </div>
       <span class="view-subtitle">{{ todayLabel }}</span>
     </div>
 
@@ -110,7 +116,12 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { fetchReports } from '../api/index.js';
+import { useTelegram } from '../composables/useTelegram.js';
+
+const router = useRouter();
+const { backButton } = useTelegram();
 
 const latestReport = ref(null);
 const loading = ref(true);
@@ -224,7 +235,23 @@ async function load() {
   }
 }
 
-onMounted(load);
+const goBack = () => router.push('/');
+
+onMounted(() => {
+  load();
+  if (backButton) {
+    backButton.show();
+    backButton.onClick(goBack);
+  }
+});
+
+import { onUnmounted } from 'vue';
+onUnmounted(() => {
+  if (backButton) {
+    backButton.hide();
+    backButton.offClick(goBack);
+  }
+});
 </script>
 
 <style scoped>
@@ -234,15 +261,44 @@ onMounted(load);
 .view-header {
   margin-bottom: 20px;
 }
-.view-title {
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px 4px 4px;
+  border: none;
+  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  color: var(--tg-theme-button-color, #2481cc);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.back-btn:active {
+  opacity: 0.7;
+}
+.back-icon {
   font-size: 20px;
+  line-height: 1;
+  margin-top: -2px;
+}
+.view-title {
+  font-size: 18px;
   font-weight: 700;
   color: var(--tg-theme-text-color, #111);
-  margin-bottom: 4px;
+  margin: 0;
 }
 .view-subtitle {
   font-size: 12px;
   color: var(--tg-theme-hint-color, #999);
+  padding-left: 2px;
 }
 
 .section { margin-bottom: 24px; }

@@ -270,6 +270,21 @@ function resolveValuationGuard(currentPB, pbRecords, config) {
   }
 
   // ── 計算 PR 分位數 ────────────────────────────────────────────
+  if (!Number.isFinite(currentPB)) {
+    return {
+      enabled: true,
+      currentPR: null,
+      recordCount,
+      hitTierIndex: -1,
+      hitTier: null,
+      multiplier: 1.0,
+      isFallback: false,
+      fallbackReason: "當前 PB 無效，無法計算 PR",
+      guardActive: false,
+      guardLabel: "📊 估值守衛：無效數據",
+    };
+  }
+
   // PR = 低於 currentPB 的歷史筆數 / 總筆數 × 100
   const sorted = [...validRecords].sort((a, b) => a - b);
   const belowCount = sorted.filter((v) => v < currentPB).length;
