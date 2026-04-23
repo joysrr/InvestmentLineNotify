@@ -76,6 +76,8 @@
     },
     "kd": {
       "oversoldK": 20,
+      "crossLevelThreshold": 50,
+      "lookbackDays": 10,
       "score": 2
     },
     "panic": {

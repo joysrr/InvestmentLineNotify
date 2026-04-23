@@ -87,7 +87,10 @@
           <div class="radar-card" :class="pbCard.cls">
             <span class="rc-label">大盤 PB</span>
             <span class="rc-value rc-value--md">{{ pb ?? "—" }}</span>
-            <span class="rc-sub" :class="pbCard.sub">{{ pbCard.label }}</span>
+            <span class="rc-sub" :class="pbCard.sub">
+              {{ pbCard.label }}
+              <code v-if="pbPR !== null" class="rc-pr">PR{{ pbPR }}</code>
+            </span>
           </div>
           <!-- 匯率 -->
           <div class="radar-card" :class="fxCard.cls">
@@ -321,6 +324,11 @@ const pbCard = computed(() => {
   return { cls: "card-danger", sub: "rc-sub--danger", label: "高估 🔥" };
 });
 
+const pbPR = computed(() => {
+  const pr = reportData.value?.valuationGuardResult?.currentPR;
+  return pr != null ? Number(pr).toFixed(1) : null;
+});
+
 const fxRate = computed(() => {
   const v =
     reportData.value?.macroData?.rawFx?.currentRate ??
@@ -451,6 +459,12 @@ const fxCard = computed(() => {
 }
 .rc-sub--blue {
   color: #2481cc;
+}
+.rc-pr {
+  font-family: inherit;
+  font-weight: 700;
+  margin-left: 2px;
+  opacity: 0.8;
 }
 
 /* ── Detail row ── */

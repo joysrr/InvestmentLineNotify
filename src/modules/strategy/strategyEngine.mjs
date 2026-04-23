@@ -71,7 +71,7 @@ function resolveEntryGate(dropPercent, rsi, entryGateCfg) {
   const tiers = entryGateCfg.tiers;
 
   // 從高跌幅往低找，取第一個 minDrop <= dropPercent 的 tier
-  let matchedIndex = -1;  // 改為 -1 表示未命中
+  let matchedIndex = -1; // 改為 -1 表示未命中
   for (let i = tiers.length - 1; i >= 0; i--) {
     if (dropPercent >= tiers[i].minDrop) {
       matchedIndex = i;
@@ -458,22 +458,34 @@ function resolveValuationMomentum(currentPR, pbRecords, config, vixData = {}) {
   // 取得有效交易日 PB 紀錄
   const validRecords = pbRecords.filter((r) => r.date && Number.isFinite(r.pb));
   if (validRecords.length < lookbackDays + 1) {
-    return { prMomentum: null, momentumAdjustment: 1.0, momentumLabel: "（動量：資料不足）" };
+    return {
+      prMomentum: null,
+      momentumAdjustment: 1.0,
+      momentumLabel: "（動量：資料不足）",
+    };
   }
 
   // 排序確保時間一致（舊到新）
-  const sortedByDate = [...validRecords].sort((a, b) => a.date.localeCompare(b.date));
+  const sortedByDate = [...validRecords].sort((a, b) =>
+    a.date.localeCompare(b.date),
+  );
 
   // 目標日為 N 日前
   const targetIndex = sortedByDate.length - 1 - lookbackDays;
   if (targetIndex < 0) {
-    return { prMomentum: null, momentumAdjustment: 1.0, momentumLabel: "（動量：日期誤差）" };
+    return {
+      prMomentum: null,
+      momentumAdjustment: 1.0,
+      momentumLabel: "（動量：日期誤差）",
+    };
   }
 
   const targetPb = sortedByDate[targetIndex].pb;
 
   // 計算 N 日前的 PR 分位數
-  const historyUpToTarget = sortedByDate.slice(0, targetIndex + 1).map(r => r.pb);
+  const historyUpToTarget = sortedByDate
+    .slice(0, targetIndex + 1)
+    .map((r) => r.pb);
   const totalCountPast = historyUpToTarget.length;
 
   if (totalCountPast < 1) {
@@ -689,12 +701,12 @@ export async function buildDecision(
   // 供 Priority 2 (Gross Leverage) 與 Priority 7 使用
   const ohCfg = strategy?.overrideHierarchy;
   const panicBypassEnabled = ohCfg?.panicBypassEnabled ?? false;
-  const panicBypassDropPct = ohCfg?.panicBypassDropPct ?? 0.20;
+  const panicBypassDropPct = ohCfg?.panicBypassDropPct ?? 0.2;
   const panicVixThreshold = ohCfg?.panicVixThreshold ?? 35;
 
-  const isPanicBypass = 
-    panicBypassEnabled && 
-    ctx.priceDropPercent > panicBypassDropPct && 
+  const isPanicBypass =
+    panicBypassEnabled &&
+    ctx.priceDropPercent > panicBypassDropPct &&
     ctx.vix > panicVixThreshold;
 
   // 將狀態存入 ctx 供後續模組讀取
@@ -732,7 +744,9 @@ export async function buildDecision(
         maintenanceLayer: "normal",
         grossLeverageStatus: "ceiling_breach",
         grossLeverage: grossLeverageResult.grossLeverage,
-        marketStatus: isPanicBypass ? "🚨【恐慌破冰 + 曝險限縮】" : "⚠️【Gross Leverage 主動上限】",
+        marketStatus: isPanicBypass
+          ? "🚨【恐慌破冰 + 曝險限縮】"
+          : "⚠️【Gross Leverage 主動上限】",
         target: "🚫 禁止加碼",
         targetSuggestionShort: `綜合曝險 ${grossLeverageResult.grossLeverage.toFixed(2)}x 超額，${isPanicBypass ? "限縮為 0050 現貨" : "一票否決新增槓桿"}`,
         targetSuggestion: grossLeverageResult.message,
@@ -752,7 +766,6 @@ export async function buildDecision(
   // ─────────────────────────────────────────────────────────────
   // Priority 3：極端恐慌破冰 (已移至 Priority 2 之前計算)
   // ─────────────────────────────────────────────────────────────
-
 
   // ─────────────────────────────────────────────────────────────
   // Priority 4：valuationGuard 估值守衛（latch 觸發/維持/解鎖）
@@ -910,15 +923,13 @@ export async function buildDecision(
       const vixArrLocal = ctx.vixArr ?? [];
       const currentVix = ctx.vix ?? null;
       const previousVix =
-        vixArrLocal.length >= 2
-          ? vixArrLocal[vixArrLocal.length - 2]
-          : null;
+        vixArrLocal.length >= 2 ? vixArrLocal[vixArrLocal.length - 2] : null;
 
       const momentumResult = resolveValuationMomentum(
         vgResult.currentPR,
         ctx.pbRecordsObjects,
         strategy,
-        { currentVix, previousVix }
+        { currentVix, previousVix },
       );
 
       let finalMultiplier = vgResult.multiplier;
@@ -975,6 +986,7 @@ export async function buildDecision(
       entryGateLevel: tierIndex,
       entryGateLabel: tierLabel,
       entryGateBlocked: true,
+      valuationGuardResult: ctx.valuationGuardResult ?? null,
       marketStatus: `${tierEmoji}【前置過濾：${tierLabel}】`,
       target: "🚧 槓桿封鎖",
       targetSuggestionShort: `${tier.note}（跌幅 ${ctx.priceDropPercent.toFixed(1)}%）`,
@@ -994,25 +1006,38 @@ export async function buildDecision(
   const scoringData = {
     institutionalNet: ctx.institutionalNet || 0,
     institutionalHistory: ctx.institutionalHistory || [],
-    sentimentScore: ctx.macroSentiment?.direction === 'BULLISH' ? (ctx.macroSentiment.bonus || 0) : (ctx.macroSentiment?.direction === 'BEARISH' ? -(ctx.macroSentiment.penalty || 0) : 0),
+    sentimentScore:
+      ctx.macroSentiment?.direction === "BULLISH"
+        ? ctx.macroSentiment.bonus || 0
+        : ctx.macroSentiment?.direction === "BEARISH"
+          ? -(ctx.macroSentiment.penalty || 0)
+          : 0,
     ma60SlopeHistory: ctx.ma60SlopeHistory || [],
-    hasTacticalPosition: ctx.z2Ratio > 15
+    hasTacticalPosition: ctx.z2Ratio > 15,
   };
-  
-  const scoreResult = generateScoringMatrix(ctx.indicators, ctx.priceDropPercent, strategy, scoringData);
+
+  const scoreResult = generateScoringMatrix(
+    ctx.indicators,
+    ctx.priceDropPercent,
+    strategy,
+    scoringData,
+  );
   const { finalScore, signal, scalingRatio, categoryResults } = scoreResult;
 
   // --- 1.5.A) 預算管控 (Budget Control) ---
   const budgetCfg = strategy.trading?.budget;
   const rollingLoanDays = budgetCfg?.rollingDays || 10;
-  const historyLoan10d = await archiveManager.getHistoricalLoan(rollingLoanDays);
+  const historyLoan10d =
+    await archiveManager.getHistoricalLoan(rollingLoanDays);
   const currentLoan = ctx.portfolio?.totalLoan || 0;
   const effectiveNetAsset = netAsset || ctx.netAsset || 1;
-  
+
   const rollingNetIncrease = Math.max(0, currentLoan - historyLoan10d);
-  const dailyCap = effectiveNetAsset * (budgetCfg?.maxDailyLoanIncreasePct || 0.05);
-  const rollingCap = effectiveNetAsset * (budgetCfg?.maxRollingLoanIncreasePct || 0.15);
-  
+  const dailyCap =
+    effectiveNetAsset * (budgetCfg?.maxDailyLoanIncreasePct || 0.05);
+  const rollingCap =
+    effectiveNetAsset * (budgetCfg?.maxRollingLoanIncreasePct || 0.15);
+
   const availableDaily = dailyCap; // 簡化：當日通常只執行一筆
   const availableRolling = Math.max(0, rollingCap - rollingNetIncrease);
   const finalAvailableBudget = Math.min(availableDaily, availableRolling);
@@ -1026,38 +1051,47 @@ export async function buildDecision(
     const buyDate = ctx.portfolio.lastBuyDate;
     const highsSince = await archiveManager.getHighsSince(buyDate);
     const currentPrice = ctx.currentPrice;
-    
+
     // 啟動條件 1：獲利 > 10% (基於收盤價簡單推算，完美應記錄買入均價)
-    const profitOk = currentPrice > (ctx.portfolio.avgCostZ2 || ctx.basePrice || 9999) * (1 + tsCfg.activationProfitPct);
-    
+    const profitOk =
+      currentPrice >
+      (ctx.portfolio.avgCostZ2 || ctx.basePrice || 9999) *
+        (1 + tsCfg.activationProfitPct);
+
     // 啟動條件 2：連續 2 日站穩 MA20
     const ma20Arr = ctx.indicators?.ma20Arr || [];
     const closeArr = ctx.indicators?.closes || [];
     let ma20Stable = false;
     if (closeArr.length >= 2 && ma20Arr.length >= 2) {
-      const c1 = closeArr.at(-1), c2 = closeArr.at(-2);
-      const m1 = ma20Arr.at(-1), m2 = ma20Arr.at(-2);
+      const c1 = closeArr.at(-1),
+        c2 = closeArr.at(-2);
+      const m1 = ma20Arr.at(-1),
+        m2 = ma20Arr.at(-2);
       if (c1 > m1 && c2 > m2) ma20Stable = true;
     }
 
     if (profitOk || ma20Stable) {
       trailingActive = true;
-      if (tsCfg.anchorType === 'ma20') {
+      if (tsCfg.anchorType === "ma20") {
         dynamicAnchor = ma20Arr.at(-1) * (1 - tsCfg.stopLossBuffer);
-      } else if (tsCfg.anchorType === 'atr') {
+      } else if (tsCfg.anchorType === "atr") {
         const hhv = Math.max(...highsSince, currentPrice); // 含今日
         const atr = ctx.indicators?.atrArr?.at(-1) || 0;
-        dynamicAnchor = hhv - (atr * tsCfg.atrMultiplier);
+        dynamicAnchor = hhv - atr * tsCfg.atrMultiplier;
       }
     }
   }
 
   // 1.5.C) 停損與絕對優先權 Override (Priority High)
-  const stopLossTriggered = trendConfirmation.ma20BreakDays >= (strategy.sell?.ma20StopDays ?? 3);
-  const trailingTriggered = trailingActive && dynamicAnchor && ctx.currentPrice < dynamicAnchor;
-  
+  const stopLossTriggered =
+    trendConfirmation.ma20BreakDays >= (strategy.sell?.ma20StopDays ?? 3);
+  const trailingTriggered =
+    trailingActive && dynamicAnchor && ctx.currentPrice < dynamicAnchor;
+
   if ((stopLossTriggered || trailingTriggered) && ctx.z2Ratio > 0) {
-    const reason = trailingTriggered ? `動態停引 (錨點: ${dynamicAnchor.toFixed(1)})` : `MA20 跌破 ${trendConfirmation.ma20BreakDays} 日`;
+    const reason = trailingTriggered
+      ? `動態停引 (錨點: ${dynamicAnchor.toFixed(1)})`
+      : `MA20 跌破 ${trendConfirmation.ma20BreakDays} 日`;
     return {
       maintenanceLayer: "normal",
       marketStatus: "🚨【動態停損/停利：減碼保護】",
@@ -1072,7 +1106,8 @@ export async function buildDecision(
       finalScore,
       categoryResults,
       trailingActive,
-      dynamicAnchor
+      dynamicAnchor,
+      valuationGuardResult: ctx.valuationGuardResult ?? null,
     };
   }
 
@@ -1087,6 +1122,7 @@ export async function buildDecision(
       suggestion:
         `• 大盤股價淨值比 (PB)：${pbValue} (極端門檻 2.2)\n` +
         `• 風控說明：歷史數據顯示大盤 PB 超過 2.2 常伴隨毀滅性回檔。即使技術面呈多頭，系統仍強制在此階段停止買進，保護資金安全。`,
+      valuationGuardResult: ctx.valuationGuardResult ?? null,
     };
   }
 
@@ -1120,16 +1156,19 @@ export async function buildDecision(
         target: "⏸️ 等待冷卻",
         suggestion: `評分 ${finalScore.toFixed(1)} 分符合加碼，但處於冷卻期（剩餘 ${cooldownStatus.daysLeft} 天）`,
         finalScore,
-        categoryResults
+        categoryResults,
       };
     }
 
-    const scalingText = scalingRatio < 1.0 ? ` (縮放撥款 ${scalingRatio * 100}%)` : "";
-    
+    const scalingText =
+      scalingRatio < 1.0 ? ` (縮放撥款 ${scalingRatio * 100}%)` : "";
+
     // 檢查預算上限
     const suggestedValue = dailyCap * scalingRatio; // 假設預算基礎為單日上限
     const budgetCapped = suggestedValue > finalAvailableBudget;
-    const finalAllocRatio = budgetCapped ? (finalAvailableBudget / dailyCap) : scalingRatio;
+    const finalAllocRatio = budgetCapped
+      ? finalAvailableBudget / dailyCap
+      : scalingRatio;
 
     return {
       marketStatus: budgetCapped ? "💰【預算受限加碼】" : "🚀【戰術進攻】",
@@ -1140,11 +1179,17 @@ export async function buildDecision(
         `• 決策總分：${finalScore.toFixed(1)} 分\n` +
         `• 撥款比例：${(finalAllocRatio * 100).toFixed(1)}% ${budgetCapped ? "(⚠️ 預算上限攔截)" : ""}\n` +
         `• 餘額狀態：可用預算 $${finalAvailableBudget.toLocaleString("zh-TW")} / 滾動上限剩餘 $${availableRolling.toLocaleString("zh-TW")}\n` +
-        Object.values(categoryResults).map(c => `  └ ${c.label}：${c.finalScore.toFixed(1)} ${c.isCapped ? "(已封頂)" : ""}`).join("\n"),
+        Object.values(categoryResults)
+          .map(
+            (c) =>
+              `  └ ${c.label}：${c.finalScore.toFixed(1)} ${c.isCapped ? "(已封頂)" : ""}`,
+          )
+          .join("\n"),
       finalScore,
-      scalingRatio: finalAllocRatio,
       categoryResults,
-      budgetInfo: { availableRolling, finalAvailableBudget, budgetCapped }
+      scalingRatio: finalAllocRatio,
+      valuationGuardResult: ctx.valuationGuardResult ?? null,
+      budgetInfo: { availableRolling, finalAvailableBudget, budgetCapped },
     };
   }
 
@@ -1160,7 +1205,8 @@ export async function buildDecision(
       finalScore,
       categoryResults,
       trailingActive,
-      dynamicAnchor
+      dynamicAnchor,
+      valuationGuardResult: ctx.valuationGuardResult ?? null,
     };
   }
 
@@ -1169,14 +1215,19 @@ export async function buildDecision(
     marketStatus: "🌱【中性/常態佈局】",
     target: "🔹 0050 DCA",
     targetSuggestionShort: "僅執行 0050 定時定額，暫停 00675L 活動",
-    targetSuggestion: "市場處於中性區間（總分 " + finalScore.toFixed(1) + "），僅執行 0050 基礎保底投入",
+    targetSuggestion:
+      "市場處於中性區間（總分 " +
+      finalScore.toFixed(1) +
+      "），僅執行 0050 基礎保底投入",
     suggestion:
       `• 決策總分：${finalScore.toFixed(1)} 分 (中性區 -4 ~ +4)\n` +
       `• 行動建議：維持 0050 基礎加碼，不觸發 00675L 戰術槓桿，節省利息並靜待訊號共振`,
     finalScore,
     categoryResults,
     trailingActive,
-    dynamicAnchor
+    dynamicAnchor,
+    valuationGuardResult: ctx.valuationGuardResult ?? null,
+    valuationMomentumResult: ctx.valuationMomentumResult ?? null,
   };
 }
 
@@ -1426,8 +1477,8 @@ export async function evaluateInvestmentSignal(data, strategy) {
     indicators: {
       rsiArr: data.rsiArr || [],
       kdArr: data.kdArr || [],
-      macdArr: data.macdArr || []
-    }
+      macdArr: data.macdArr || [],
+    },
   };
 
   // ── Gross Leverage 計算 ──────────────────────────────────────
@@ -1446,7 +1497,12 @@ export async function evaluateInvestmentSignal(data, strategy) {
       ? data.ma60SlopeArr[data.ma60SlopeArr.length - 1]
       : null;
 
-  const decision = await buildDecision(ctx, strategy, grossLeverageResult, ma60Slope);
+  const decision = await buildDecision(
+    ctx,
+    strategy,
+    grossLeverageResult,
+    ma60Slope,
+  );
   const macdSignal = getMACDSignal(data.macdArr);
 
   return {

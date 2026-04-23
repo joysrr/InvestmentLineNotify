@@ -1,10 +1,15 @@
-import { roseAboveAfterBelow, macdCrossUp, kdCrossUp, wasBelowLevel } from "../indicators.mjs";
+import {
+  roseAboveAfterBelow,
+  macdCrossUp,
+  kdCrossUp,
+  wasBelowLevel,
+} from "../indicators.mjs";
 
 export function computeEntryScore(
   data,
   priceDropPercent,
   strategy,
-  macroSentiment
+  macroSentiment,
 ) {
   const dropRules = Array.isArray(strategy?.buy?.dropScoreRules)
     ? strategy.buy.dropScoreRules.toSorted((a, b) => b.minDrop - a.minDrop)
@@ -13,10 +18,13 @@ export function computeEntryScore(
 
   const oversold = strategy.buy.rsi?.oversold ?? 30;
   const oversoldK = strategy.buy.kd?.oversoldK ?? 20;
+  const crossLevelThreshold = strategy.buy.kd?.crossLevelThreshold ?? 50;
+  const kdLookback = strategy.buy.kd?.lookbackDays ?? 18;
 
   const kdBullLow =
     kdCrossUp(data.kdArr) &&
-    wasBelowLevel(data.kdArr, oversoldK, 18, (x) => x.k);
+    data.kdArr[data.kdArr.length - 1].k < crossLevelThreshold &&
+    wasBelowLevel(data.kdArr, oversoldK, kdLookback, (x) => x.k);
 
   const signals = {
     rsiRebound: roseAboveAfterBelow(data.rsiArr, oversold, 14, {
@@ -27,7 +35,9 @@ export function computeEntryScore(
   };
 
   const details = {
-    dropInfo: dropRule ? dropRule.label : `跌幅 ${priceDropPercent.toFixed(2)}%`,
+    dropInfo: dropRule
+      ? dropRule.label
+      : `跌幅 ${priceDropPercent.toFixed(2)}%`,
     dropScore: dropRule ? dropRule.score : 0,
     rsiInfo: signals.rsiRebound ? `RSI 反轉 (${oversold})` : `RSI 未反轉`,
     rsiScore: signals.rsiRebound ? (strategy.buy.rsi?.score ?? 0) : 0,
@@ -38,19 +48,19 @@ export function computeEntryScore(
   };
 
   // 左側交易與技術濾網去相關化 (Left-side vs Technical Decoupling)
-  const isLeftSideRegime = !!dropRule; 
+  const isLeftSideRegime = !!dropRule;
   let momentumScore = 0;
-  
+
   if (isLeftSideRegime) {
-     // 在左側下跌區間，只保留最高的動能分數作為確認訊號，避免無腦疊加
-     momentumScore = Math.max(details.rsiScore, details.kdScore);
-     details.rsiInfo = signals.rsiRebound ? `[左側確認] RSI 反轉` : `RSI 未反轉`;
-     details.kdInfo = signals.kdBullLow ? `[左側確認] KD 低檔交叉` : `KD 無交叉`;
+    // 在左側下跌區間，只保留最高的動能分數作為確認訊號，避免無腦疊加
+    momentumScore = Math.max(details.rsiScore, details.kdScore);
+    details.rsiInfo = signals.rsiRebound ? `[左側確認] RSI 反轉` : `RSI 未反轉`;
+    details.kdInfo = signals.kdBullLow ? `[左側確認] KD 低檔交叉` : `KD 無交叉`;
   } else {
-     // 使用 MAX 取代相加，解決 RSI/KD 的共線性 (Collinearity) 問題
-     momentumScore = Math.max(details.rsiScore, details.kdScore);
+    // 使用 MAX 取代相加，解決 RSI/KD 的共線性 (Collinearity) 問題
+    momentumScore = Math.max(details.rsiScore, details.kdScore);
   }
-  
+
   let sentimentScore = 0;
   let sentimentInfo = "🌐 總體情緒：無數據";
 
@@ -71,7 +81,8 @@ export function computeEntryScore(
   details.sentimentScore = sentimentScore;
 
   // 總分 = 跌幅分數 + 去相關動能分數 + MACD 分數 + 情緒分數
-  const score = details.dropScore + momentumScore + details.macdScore + sentimentScore;
+  const score =
+    details.dropScore + momentumScore + details.macdScore + sentimentScore;
 
   return { weightScore: score, weightDetails: details, entrySignals: signals };
 }

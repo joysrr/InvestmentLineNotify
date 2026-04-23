@@ -236,18 +236,36 @@ export function validateStrategyConfig(config) {
     assertNumber(vm.lookbackDays, "valuationMomentum.lookbackDays");
     assertNumber(vm.risingThreshold, "valuationMomentum.risingThreshold");
     assertNumber(vm.fallingThreshold, "valuationMomentum.fallingThreshold");
-    assertNumber(vm.risingPenaltyMultiplier, "valuationMomentum.risingPenaltyMultiplier");
+    assertNumber(
+      vm.risingPenaltyMultiplier,
+      "valuationMomentum.risingPenaltyMultiplier",
+    );
     assertBoolean(vm.fallingRelief, "valuationMomentum.fallingRelief");
 
     if (vm.highPRZone !== undefined) {
       const hpr = vm.highPRZone;
       assert(isObject(hpr), "valuationMomentum.highPRZone 必須是物件");
       assertNumber(hpr.triggerPR, "valuationMomentum.highPRZone.triggerPR");
-      assertNumber(hpr.relaxedMomentumThreshold, "valuationMomentum.highPRZone.relaxedMomentumThreshold");
-      assertNumber(hpr.vixSpikeThreshold, "valuationMomentum.highPRZone.vixSpikeThreshold");
-      assertNumber(hpr.vixSpikeMultiplier, "valuationMomentum.highPRZone.vixSpikeMultiplier");
-      assertNumber(hpr.vixAbsoluteHigh, "valuationMomentum.highPRZone.vixAbsoluteHigh");
-      assertNumber(hpr.vixAbsoluteMultiplier, "valuationMomentum.highPRZone.vixAbsoluteMultiplier");
+      assertNumber(
+        hpr.relaxedMomentumThreshold,
+        "valuationMomentum.highPRZone.relaxedMomentumThreshold",
+      );
+      assertNumber(
+        hpr.vixSpikeThreshold,
+        "valuationMomentum.highPRZone.vixSpikeThreshold",
+      );
+      assertNumber(
+        hpr.vixSpikeMultiplier,
+        "valuationMomentum.highPRZone.vixSpikeMultiplier",
+      );
+      assertNumber(
+        hpr.vixAbsoluteHigh,
+        "valuationMomentum.highPRZone.vixAbsoluteHigh",
+      );
+      assertNumber(
+        hpr.vixAbsoluteMultiplier,
+        "valuationMomentum.highPRZone.vixAbsoluteMultiplier",
+      );
     }
   }
   // ────────────────────────────────────────────────────────────────────────────
@@ -256,7 +274,10 @@ export function validateStrategyConfig(config) {
   if (config.overrideHierarchy !== undefined) {
     const oh = config.overrideHierarchy;
     assert(isObject(oh), "overrideHierarchy 必須是物件");
-    assertBoolean(oh.panicBypassEnabled, "overrideHierarchy.panicBypassEnabled");
+    assertBoolean(
+      oh.panicBypassEnabled,
+      "overrideHierarchy.panicBypassEnabled",
+    );
     assertNumber(oh.panicBypassDropPct, "overrideHierarchy.panicBypassDropPct");
     assertNumber(oh.panicVixThreshold, "overrideHierarchy.panicVixThreshold");
   }
@@ -298,6 +319,15 @@ export function validateStrategyConfig(config) {
 
   assert(isObject(config.buy.kd), "buy.kd 必須是物件");
   assertNumber(config.buy.kd.oversoldK, "buy.kd.oversoldK");
+  if (config.buy.kd.crossLevelThreshold !== undefined) {
+    assertNumber(
+      config.buy.kd.crossLevelThreshold,
+      "buy.kd.crossLevelThreshold",
+    );
+  }
+  if (config.buy.kd.lookbackDays !== undefined) {
+    assertNumber(config.buy.kd.lookbackDays, "buy.kd.lookbackDays");
+  }
   assertNumber(config.buy.kd.score, "buy.kd.score");
 
   assert(isObject(config.buy.panic), "buy.panic 必須是物件");
@@ -410,4 +440,3 @@ export function validateStrategyConfig(config) {
 
   return true;
 }
-
