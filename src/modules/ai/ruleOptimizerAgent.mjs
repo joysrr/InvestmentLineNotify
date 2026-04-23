@@ -119,7 +119,7 @@ const OVERBROAD_HEAD_TESTS = [
 ];
 
 // 純通配符字元集（用來判斷 \d+ 後面是否「沒有實質語意內容」）
-const WILDCARD_ONLY_RE = /^[.*+?{}\[\]\\|() \t\d]*$/;
+const WILDCARD_ONLY_RE = /^[.*+?{}[]\\|() \t\d]*$/;
 
 export function isOverbroad(pattern) {
   const p = pattern.trim();

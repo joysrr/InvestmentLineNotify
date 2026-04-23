@@ -35,7 +35,7 @@ async function getSheetDoc() {
  */
 function isValidDateStr(str) {
   if (!str || typeof str !== "string") return false;
-  return /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/.test(str.trim());
+  return /^\d{4}[/-]\d{1,2}[/-]\d{1,2}$/.test(str.trim());
 }
 
 /**
@@ -106,12 +106,12 @@ export async function fetchLastPortfolioState() {
       if (localDate) {
         console.warn(
           `⚠️ [Storage] lastBuyDate Sheet 值異常 ("${sheetLastBuyDate}")` +
-          `，使用本地備份: ${localDate}`
+            `，使用本地備份: ${localDate}`,
         );
         resolvedLastBuyDate = localDate;
       } else {
         console.warn(
-          `⚠️ [Storage] lastBuyDate 無可用來源（Sheet 异常且無本地備份），冷卻期將以無歷史購入處理`
+          `⚠️ [Storage] lastBuyDate 無可用來源（Sheet 异常且無本地備份），冷卻期將以無歷史購入處理`,
         );
       }
     }
@@ -188,18 +188,18 @@ export async function logDailyToSheet(data) {
     }
 
     const rowData = {
-      "日期": dateStr,
+      日期: dateStr,
       "0050股數": data.portfolio.qty0050,
       "00675L股數": data.portfolio.qtyZ2,
       "0050市値": val0050,
       "00675L市値": valZ2,
-      "借貸總額": loan === 0 ? "無借貸" : loan,
-      "現金儲備": cash,
+      借貸總額: loan === 0 ? "無借貸" : loan,
+      現金儲備: cash,
       "維持率（%）": marginStr,
-      "總淨資產": netAsset,
-      "正2占總資產比例": (data.z2Ratio / 100).toFixed(3),
-      "正2應賣出金額": sellAmount,
-      "備註": data.suggestion,
+      總淨資產: netAsset,
+      正2占總資產比例: (data.z2Ratio / 100).toFixed(3),
+      正2應賣出金額: sellAmount,
+      備註: data.suggestion,
     };
 
     const lastRow = rows[rows.length - 1];

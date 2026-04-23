@@ -3,6 +3,7 @@ import { escapeHTML, TwDate } from "../../../utils/coreUtils.mjs";
 // ── 常數 ─────────────────────────────────────────────────
 const GOAL_ASSET = 74_800_000;
 const GOAL_YEARS = 33;
+const SEP = "\n─────────────────\n";
 
 // ── 輔助函式 ───────────────────────────────────────────────
 
@@ -21,7 +22,7 @@ function goalBar(current, target, width = 20) {
 function budgetBar(used, total, width = 10) {
   const ratio = Math.min(1, Math.max(0, used / total));
   const filled = Math.round(ratio * width);
-  const icon = ratio >= 0.9 ? "🔴" : (ratio >= 0.7 ? "🟡" : "🟢");
+  const icon = ratio >= 0.9 ? "🔴" : ratio >= 0.7 ? "🟡" : "🟢";
   return `${icon} [${"■".repeat(filled)}${"□".repeat(width - filled)}] ${(ratio * 100).toFixed(0)}%`;
 }
 
@@ -158,8 +159,8 @@ function scoringCabinetTable(result) {
   const cats = result.categoryResults;
   if (!cats) return "";
 
-  const rows = Object.values(cats).map(c => {
-    const icon = c.finalScore > 0 ? "➕" : (c.finalScore < 0 ? "➖" : "▫️");
+  const rows = Object.values(cats).map((c) => {
+    const icon = c.finalScore > 0 ? "➕" : c.finalScore < 0 ? "➖" : "▫️";
     const capStatus = c.isCapped ? " (已封頂)" : "";
     return `${icon} <b>${c.label}</b>  <code>${c.finalScore.toFixed(1)}pt</code>  <i>${capStatus}</i>`;
   });
@@ -237,7 +238,8 @@ function valuationGuardTag(result) {
   // tier 壓縮生效（未觸發 latch）
   if (vgResult?.guardActive) {
     const pr = vgResult.currentPR ?? "N/A";
-    const multiplier = result.valuationGuardMultiplier ?? vgResult.multiplier ?? 1.0;
+    const multiplier =
+      result.valuationGuardMultiplier ?? vgResult.multiplier ?? 1.0;
     const tierLabel = escapeHTML(
       vgResult.hitTier?.label ?? `PR${vgResult.hitTier?.prThreshold ?? ""}`,
     );
@@ -283,8 +285,8 @@ function activePriorityTag(result) {
   // Priority 3：Extremely Panic Bypass
   if (result?.panicBypassActive)
     return `\n🏷 <b>生效層：Priority 3</b> — 極端恐慌破冰 (Bypass)`;
-    
-     // Priority 4：valuationGuard
+
+  // Priority 4：valuationGuard
   if (vgStatus === "latch_triggered")
     return `\n🏷 <b>生效層：Priority 4</b> — 估值守衛清算觸發`;
   if (vgStatus === "latch_active")
@@ -298,14 +300,14 @@ function activePriorityTag(result) {
 
 /**
  * Trailing Stop 移動停利標籤
- * @param {Object} result 
+ * @param {Object} result
  * @returns {string}
  */
 function trailingStopTag(result) {
   const active = result.trailingActive;
   const anchor = result.dynamicAnchor;
   if (anchor == null) {
-     return `\n🛡 <b>核心守備</b>：⏳ 建倉陣痛期 (獲利門檻未達)`;
+    return `\n🛡 <b>核心守備</b>：⏳ 建倉陣痛期 (獲利門檻未達)`;
   }
   const statusText = active ? "🔒 監控中 (Active)" : "⏳ 緩衝中";
   return `\n🛡 <b>核心守備</b>：<b>${statusText}</b> — 停利防線 <code>${anchor.toFixed(1)}</code>`;
@@ -313,7 +315,7 @@ function trailingStopTag(result) {
 
 /**
  * 預算管控標籤
- * @param {Object} result 
+ * @param {Object} result
  * @returns {string}
  */
 function budgetControlTag(result) {
@@ -332,32 +334,41 @@ function stressTestTable(result) {
   const analysis = result.marginAnalysis;
   if (!analysis || !analysis.stressTests || analysis.totalLoan <= 0) return "";
 
-  const rows = analysis.stressTests.map(t => {
-    return `<code>-${t.drop}% 跌至 ${t.price} → 維持率 ${t.margin}% ${t.status}</code>`;
-  }).join("\n");
+  const rows = analysis.stressTests
+    .map((t) => {
+      return `<code>-${t.drop}% 跌至 ${t.price} → 維持率 ${t.margin}% ${t.status}</code>`;
+    })
+    .join("\n");
 
   const safety = analysis.riskAssessment.survivalDropLimit;
   const refill = analysis.riskAssessment.refillRequirement;
 
   const safetyStr = safety !== null ? `${safety.toFixed(1)}%` : "N/A";
-  const refillStr = refill > 0 ? `需求注入額：$${refill.toLocaleString("en-US")}` : "✅ 現金充足";
+  const refillStr =
+    refill > 0
+      ? `需求注入額：$${refill.toLocaleString("en-US")}`
+      : "✅ 現金充足";
 
-  return `\n\n🛡 <b>0050 質押壓力測試</b>${SEP}${rows}\n` +
-         `📍 生存邊際 (至 130%)：<code>${safetyStr}</code>\n` +
-         `📍 補足線建議 (160%)：<code>${refillStr}</code>`;
+  return (
+    `\n\n🛡 <b>0050 質押壓力測試</b>${SEP}${rows}\n` +
+    `📍 生存邊際 (至 130%)：<code>${safetyStr}</code>\n` +
+    `📍 補足線建議 (160%)：<code>${refillStr}</code>`
+  );
 }
 
 /**
  * 資金解耦與比例分析
- * @param {Object} result 
- * @returns {string} 
+ * @param {Object} result
+ * @returns {string}
  */
 function decouplingRow(result) {
   const dec = result.decouplingAnalysis;
   if (!dec) return "";
-  return `\n⚖️ <b>資金解耦分析</b>${SEP}` +
-         `🛡 基礎資產 (0050-Loan)：<tg-spoiler>${dec.baseRatio}%</tg-spoiler>\n` +
-         `⚔️ 戰術槓桿 (00675L)：<tg-spoiler>${dec.tacticRatio}%</tg-spoiler>`;
+  return (
+    `\n⚖️ <b>資金解耦分析</b>${SEP}` +
+    `🛡 基礎資產 (0050-Loan)：<tg-spoiler>${dec.baseRatio}%</tg-spoiler>\n` +
+    `⚔️ 戰術槓桿 (00675L)：<tg-spoiler>${dec.tacticRatio}%</tg-spoiler>`
+  );
 }
 
 // ── 主程式：完整版訊息（原不動） ───────────────────────────────
@@ -537,8 +548,6 @@ export function buildTelegramMessages({
   const reversalTotal = r.totalFactor ?? 4;
   const sellTriggered = s.signalCount ?? 0;
   const sellTotal = s.total ?? 3;
-
-  const SEP = "\n─────────────────\n";
 
   const now = TwDate();
   const twHour = now.hour;

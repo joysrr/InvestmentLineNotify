@@ -141,7 +141,8 @@ export async function fetchStrategyConfig() {
   return json;
 }
 
-export { validateStrategyConfig } from "./strategySchema.mjs";
+import { validateStrategyConfig } from "./strategySchema.mjs";
+export { validateStrategyConfig };
 export { computeEntryScore } from "./policies/entryScoringPolicy.mjs";
 
 // 轉弱指標計算
