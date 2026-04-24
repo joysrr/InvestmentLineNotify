@@ -41,3 +41,8 @@ data/
 
 # 本地備份目錄
 data.backup.*/
+
+# 開發過程產生的臨時腳本與測試
+scratch/
+refactor.mjs
+EOF.test.mjs
