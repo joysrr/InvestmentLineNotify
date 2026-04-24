@@ -142,6 +142,9 @@ export function evaluateValuationGuard(
       target: "📉 立即清倉",
       targetSuggestionShort: `PR${vgResult.currentPR} 首次觸發清算`,
       suggestion: `• PB PR 分位數：${vgResult.currentPR} >= ${triggerPrThreshold} (首次觸發)`,
+      shouldLatch: true,
+      latchNowActive: true,
+      valuationGuardResult: vgResult,
     };
   }
 
@@ -154,6 +157,8 @@ export function evaluateValuationGuard(
       target: "📉 清倉降槓",
       targetSuggestionShort: `PR${vgResult.currentPR} 觸發清算鎖定`,
       suggestion: `• PB PR 分位數：${vgResult.currentPR} >= ${triggerPrThreshold} (鎖定中)`,
+      latchNowActive: true,
+      valuationGuardResult: vgResult,
     };
   }
 
