@@ -1,0 +1,21 @@
+{
+  "system": {
+    "version": { "label": "系統版本", "desc": "當前策略邏輯版本號", "type": "string" },
+    "trading.cooldownDays": { "label": "交易冷卻天數", "desc": "兩次連續買入/賣出操作之間的最短間隔天數", "type": "number", "unit": "天" },
+    "trading.loanInterestRate": { "label": "貸款利率", "desc": "證券質押貸款的年利率", "type": "number", "unit": "%" }
+  },
+  "asset": {
+    "maintenance.protectTrigger": { "label": "保護模式觸發門檻", "desc": "維持率低於此值時觸發資產保護", "type": "number", "unit": "%", "min": 140, "max": 180 },
+    "maintenance.marginCallThreshold": { "label": "追繳門檻", "desc": "維持率低於此值時會收到券商追繳通知", "type": "number", "unit": "%", "min": 130, "max": 140 },
+    "grossLeverage.ceiling": { "label": "總槓桿上限", "desc": "系統允許的最大總槓桿倍數", "type": "number", "step": 0.1, "min": 1.0, "max": 3.0 }
+  },
+  "indicator": {
+    "buy.minWeightScoreToBuy": { "label": "買入分數門檻", "desc": "策略計分超過此值時才會執行買入", "type": "number", "step": 0.5 },
+    "threshold.z2TargetRatio": { "label": "Z2 目標佔比", "desc": "目標現金儲備佔總資產的理想比例", "type": "number", "unit": "%", "step": 0.05 }
+  },
+  "guard": {
+    "macroSentiment.enabled": { "label": "情緒抑制開關", "desc": "是否啟用總經與市場情緒的評分修正", "type": "boolean" },
+    "valuationGuard.enabled": { "label": "估值守衛開關", "desc": "是否根據大盤 PB PR 進行部位壓縮", "type": "boolean" },
+    "valuationGuard.trailingStop.enabled": { "label": "高估區追蹤停損", "desc": "在高 PR 區間觸發回落時是否自動壓縮部位", "type": "boolean" }
+  }
+}

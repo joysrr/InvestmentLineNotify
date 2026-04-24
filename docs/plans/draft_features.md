@@ -117,3 +117,13 @@
     - [ ] 每個區塊需包含功能說明 (Label/Description)。
     - [ ] 維持極簡懸浮膠囊設計語彙。
     - [ ] [AC] 使用者能在 Account 頁面清楚閱讀當前運作參數。
+
+### Story 4-2: 策略參數視覺化維護系統
+
+- **User Story**: 身為策略維護者，我希望能在 Mini App 上透過條列式表單（含中文說明）直接修改投資參數，而非編輯原始 JSON 檔案，以降低誤觸風險並提昇調整效率。
+- **Acceptance Criteria**:
+  - [ ] **元數據字典 (Schema)**：建立 `ConfigMeta.json`，為每個參數鍵值定義中文標籤、詳細描述與數值限制（如 Min/Max）。
+  - [ ] **寫入接口 (Write API)**：實作 `POST /api/strategy-config`，支援原子性寫入與基本校驗。
+  - [ ] **導覽擴充**：在 `FloatingPill.vue` 中新增「策略」入口，獨立於 Account 頁面。
+  - [ ] **視覺化編輯器**：實作表單 UI，將 JSON 轉換為具備說明的條列式 Input/Slider 組件。
+  - [ ] **持久化與生效**：修改後檔案需持久化至 `data/config/parts/`，且次輪排程需自動抓取最新參數。
