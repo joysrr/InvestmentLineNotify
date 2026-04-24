@@ -1,5 +1,10 @@
 # TEST_REPORT
 
+> ⚠️ **時間點快照**（依 PROPOSAL_20260422_021 T-2）：
+> 本文件為 **2026-04-19 Epic 1 Remediation 快照**，非 ongoing 產出。
+> 未來新 PR 的測試產出由 `@QA` 於根目錄或指定路徑產出新檔案；本快照保留為歷史參考。
+> 模板參照：`.agents/skills/test-report-template.md`
+
 ## 測試標的
 **版本**: 2026-04 Remediation (Epic 1: 策略邏輯強化)
 **測試者**: `@QA`

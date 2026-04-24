@@ -1,5 +1,13 @@
 # SYSTEM_AUDIT_202604 (全系統 Code Review 與架構體檢)
 
+> ⚠️ **文件區隔說明**（依 PROPOSAL_20260422_021 T-3）：
+> 本文件為 **業務系統架構 Review**（2026-04-19 時間點快照，InvestmentLineNotify 業務邏輯審計），
+> **非** `docs/Reports/AUDIT_HISTORY.md`（@Auditor 產出的 AI Agent 品質評分時序）。
+> 兩者範圍完全不同：
+> - 本文件：檢視 src/ / webapp/ 業務程式碼與架構
+> - AUDIT_HISTORY.md：檢視 .agents/ 規則框架品質（5 維度 × 15 細項）
+> 請勿混淆。
+
 **建立日期**: 2026-04-19  
 **發起人**: @TechLead  
 **協作者**: @Planner, @Architect, @Backend, @Frontend, @QA, @Reviewer, @Consultant  

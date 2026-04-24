@@ -18,3 +18,9 @@
 若該 Agent 會產出新的 🔴 阻斷狀態或 🟡 警告狀態：
 - [ ] 修改 `assistant.md`，在狀態判斷表中加入該 Agent 專屬的狀態代碼 (如 `SECURITY_AUDIT_FAIL`) 與觸發條件。
 - [ ] 修改 `lead.md` 的 `## 中斷與重啟機制` 表格，定義當 User 排除該狀態後，流程該退回給誰重啟。
+
+---
+
+## Related Decisions
+
+- [ADR-0022](../decisions/0022-rules-metadata-frontmatter.md) — Rules 結構標準化

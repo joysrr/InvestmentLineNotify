@@ -19,3 +19,9 @@
 - 已完成本地端的基礎 Linter 檢查。
 - 不可包含 `.env` 或任何敏感金鑰變更。
 - 必須在 PR 描述中條列：1. 解決了什麼問題 2. 影響了哪些核心檔案。
+
+---
+
+## Related Decisions
+
+- [ADR-0021](../decisions/0021-proposal-lifecycle.md) — 提案生命週期

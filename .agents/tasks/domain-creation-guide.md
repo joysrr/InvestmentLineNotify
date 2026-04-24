@@ -16,3 +16,10 @@
 
 ### 3. 衝突仲裁提示 (Conflict Triggers)
 這是最重要的一環。必須列出該領域「容易與哪些其他流派打架」，並給出權重或合併的建議。
+
+---
+
+## Related Decisions
+
+- [ADR-0015](../decisions/0015-tech-stacks-purity.md) — Tech-Stacks 純淨原則
+- [ADR-0016](../decisions/0016-skills-tasks-classification.md) — skills/tasks F1/F2/F3 分類

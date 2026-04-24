@@ -1,5 +1,10 @@
 # REVIEW_REPORT
 
+> ⚠️ **時間點快照**（依 PROPOSAL_20260422_021 T-2）：
+> 本文件為 **2026-04-19 Epic 1 Remediation 快照**，非 ongoing 產出。
+> 未來新 PR 的審查產出由 `@Reviewer` 於根目錄或指定路徑產出新檔案；本快照保留為歷史參考。
+> 模板參照：`.agents/skills/review-report-template.md`
+
 ## 審查標的
 **版本**: 2026-04 Remediation (Epic 1: 策略邏輯強化)
 **審查者**: `@Reviewer`
