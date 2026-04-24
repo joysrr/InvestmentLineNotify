@@ -7,7 +7,7 @@
     "bot": "node src/bot.mjs",
     "api": "node src/api/server.mjs",
     "prepare": "husky",
-    "test": "vitest run",
+    "test": "vitest run src/test",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

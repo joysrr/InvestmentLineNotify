@@ -1,0 +1,35 @@
+{
+  "leverage": {},
+  "reserve": {
+    "tiers": [
+      {
+        "maxAsset": 1000000,
+        "ratio": 0.05
+      },
+      {
+        "maxAsset": 3000000,
+        "ratio": 0.08
+      },
+      {
+        "maxAsset": 999999999,
+        "ratio": 0.1
+      }
+    ]
+  },
+  "lifecycle": {
+    "monthlyDcaAmount": 30000,
+    "payDay": 5,
+    "preInjectDays": 5
+  },
+  "maintenance": {
+    "protectTrigger": 160,
+    "protectTarget": 180,
+    "marginCallThreshold": 135,
+    "frozenZone": 145
+  },
+  "grossLeverage": {
+    "ceiling": 2.5,
+    "hardCap": 3.0,
+    "recoveryTarget": 2.0
+  }
+}

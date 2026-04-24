@@ -239,18 +239,11 @@ const goBack = () => router.push('/');
 
 onMounted(() => {
   load();
-  if (backButton) {
-    backButton.show();
-    backButton.onClick(goBack);
-  }
 });
 
 import { onUnmounted } from 'vue';
 onUnmounted(() => {
-  if (backButton) {
-    backButton.hide();
-    backButton.offClick(goBack);
-  }
+  // 保持清理邏輯，但不再操作 backButton
 });
 </script>
 

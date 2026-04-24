@@ -42,15 +42,15 @@ export function normalizeBounded(val, mid = 50, range = 50) {
  */
 export function normalizeUnbounded(val, history) {
   if (!Number.isFinite(val)) return 0; // Fallback
-  
+
   const validHistory = (history || []).filter(Number.isFinite);
   if (validHistory.length < 5) return 0;
-  
+
   const avg = mean(validHistory);
   const sd = stdDev(validHistory, avg);
-  
+
   if (sd === 0) return 0;
-  
+
   const zScore = (val - avg) / sd;
   return Math.tanh(zScore);
 }
@@ -62,7 +62,12 @@ export function normalizeUnbounded(val, history) {
  * @param {Object} strategy - 策略配置
  * @param {Object} extraData - 包含法人、情緒、斜率等資料
  */
-export function generateScoringMatrix(indicators, priceDropPercent, strategy, extraData = {}) {
+export function generateScoringMatrix(
+  indicators,
+  priceDropPercent,
+  strategy,
+  extraData = {},
+) {
   const config = strategy.scoringMatrix;
   const categories = config.categories;
   const thresholds = config.thresholds;
@@ -84,46 +89,62 @@ export function generateScoringMatrix(indicators, priceDropPercent, strategy, ex
       const normVal = factors[fKey] || 0;
       const contrib = normVal * weight;
       groupRawScore += contrib;
-      catDetails.push({ factor: fKey, norm: normVal.toFixed(2), weight, score: contrib.toFixed(2) });
+      catDetails.push({
+        factor: fKey,
+        norm: normVal.toFixed(2),
+        weight,
+        score: contrib.toFixed(2),
+      });
     }
 
     // 套用群組上限 (Category Cap)
     const cap = catCfg.cap;
     const finalGroupScore = Math.max(-cap, Math.min(cap, groupRawScore));
-    
+
     categoryResults[catKey] = {
       label: catCfg.label,
       rawScore: groupRawScore,
       finalScore: finalGroupScore,
       details: catDetails,
-      isCapped: Math.abs(groupRawScore) > cap
+      isCapped: Math.abs(groupRawScore) > cap,
     };
-    
+
     return finalGroupScore;
   };
 
   // --- 1. 定義各因子標準化數值 ---
   const factorPool = {
-    // 估值價值組
-    priceDrop: Math.min(1.0, (priceDropPercent || 0) / 40),
-    
+    // 估值價值組 - 採非線性前端加權 (Square Root)
+    priceDrop: Math.min(1.0, Math.sqrt((priceDropPercent || 0) / 40)),
+
     // 技術趨勢組
     macd: (() => {
-      const histArr = (indicators.macdArr || []).map(m => m.histogram).filter(Number.isFinite);
-      return normalizeUnbounded(histArr.at(-1), histArr.slice(-lookback - 1, -1));
+      const histArr = (indicators.macdArr || [])
+        .map((m) => m.histogram)
+        .filter(Number.isFinite);
+      return normalizeUnbounded(
+        histArr.at(-1),
+        histArr.slice(-lookback - 1, -1),
+      );
     })(),
     ma60Slope: (() => {
       const slopeArr = extraData.ma60SlopeHistory || [];
-      return normalizeUnbounded(slopeArr.at(-1), slopeArr.slice(-lookback - 1, -1));
+      return normalizeUnbounded(
+        slopeArr.at(-1),
+        slopeArr.slice(-lookback - 1, -1),
+      );
     })(),
 
     // 籌碼動能組
-    institutional: normalizeUnbounded(extraData.institutionalNet, extraData.institutionalHistory),
+    institutional: normalizeUnbounded(
+      extraData.institutionalNet,
+      extraData.institutionalHistory,
+    ),
     sentiment: Math.max(-1, Math.min(1, extraData.sentimentScore || 0)),
 
     // 極值震盪組
     rsi: normalizeBounded(50 - (indicators.rsiArr?.at(-1) || 50), 0, 50),
-    kd: normalizeBounded(50 - (indicators.kdArr?.at(-1)?.k || 50), 0, 50)
+    kd: normalizeBounded(50 - (indicators.kdArr?.at(-1)?.k || 50), 0, 50),
   };
 
   // --- 2. 依分類聚合分數 ---
@@ -135,19 +156,28 @@ export function generateScoringMatrix(indicators, priceDropPercent, strategy, ex
   let signal = "neutral";
   let scalingRatio = 0.0;
 
-  if (finalScore >= thresholds.buyTactical) {
+  // 判斷是否啟動「多頭增益」門檻 (MA60 斜率 > 0 且 估值未過熱)
+  const isBullishTrend = (extraData.ma60SlopeHistory?.at(-1) || 0) > 0;
+  const isOverheat = (extraData.currentPR || 0) >= 90;
+  const buyThreshold =
+    isBullishTrend && !isOverheat && thresholds.buyTacticalBullish
+      ? thresholds.buyTacticalBullish
+      : thresholds.buyTactical;
+
+  if (finalScore >= buyThreshold) {
     signal = "buy_tactical";
     // 判斷 Scaling Tier
     const sc = thresholds.scaling;
     if (finalScore >= sc.tier3.score) scalingRatio = sc.tier3.ratio;
     else if (finalScore >= sc.tier2.score) scalingRatio = sc.tier2.ratio;
     else scalingRatio = sc.tier1.ratio;
-  } 
-  else if (finalScore <= thresholds.sellTactical) {
+  } else if (finalScore <= thresholds.sellTactical) {
     signal = "sell_tactical";
     scalingRatio = 1.0; // 賣出目前通常是全數或依據歷史配置，此處標註為強力信號
-  } 
-  else if (extraData.hasTacticalPosition && finalScore < thresholds.hysteresisExit) {
+  } else if (
+    extraData.hasTacticalPosition &&
+    finalScore < thresholds.hysteresisExit
+  ) {
     signal = "exit_buffer";
     scalingRatio = 0.0;
   }
@@ -158,6 +188,6 @@ export function generateScoringMatrix(indicators, priceDropPercent, strategy, ex
     scalingRatio, // 回傳給引擎決定撥款比例
     categoryResults,
     factorPool,
-    config: thresholds
+    config: thresholds,
   };
 }

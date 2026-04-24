@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 
 /**
  * Fastify onRequest hook — Telegram initData HMAC-SHA256 validation.
@@ -17,66 +17,76 @@ import crypto from 'crypto';
  */
 export async function initDataGuard(request, reply) {
   // Skip guard for /health endpoint
-  if (request.url === '/health') return;
+  if (request.url === "/health") return;
 
   // Bypass in development mode
   if (
-    process.env.NODE_ENV === 'dev' ||
-    process.env.BYPASS_INIT_DATA === 'true'
+    process.env.NODE_ENV === "dev" ||
+    process.env.BYPASS_INIT_DATA === "true"
   ) {
     return;
   }
 
-  const rawInitData = request.headers['x-telegram-init-data'];
+  const rawInitData = request.headers["x-telegram-init-data"];
   if (!rawInitData) {
-    return reply.code(403).send({ error: 'Missing X-Telegram-Init-Data header' });
+    return reply
+      .code(403)
+      .send({ error: "Missing X-Telegram-Init-Data header" });
   }
 
   const botToken = process.env.TELEGRAM_API_TOKEN;
   if (!botToken) {
     // If token is not configured server-side, deny all authenticated requests
-    return reply.code(500).send({ error: 'Server auth configuration error' });
+    return reply.code(500).send({ error: "Server auth configuration error" });
   }
 
   try {
     const params = new URLSearchParams(rawInitData);
-    const receivedHash = params.get('hash');
+    const receivedHash = params.get("hash");
     if (!receivedHash) {
-      return reply.code(403).send({ error: 'Missing hash in initData' });
+      return reply.code(403).send({ error: "Missing hash in initData" });
     }
 
     // Build data-check string: all fields except hash, sorted alphabetically
-    params.delete('hash');
+    params.delete("hash");
     const dataCheckArr = [];
-    for (const [key, value] of [...params.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+    for (const [key, value] of [...params.entries()].sort(([a], [b]) =>
+      a.localeCompare(b),
+    )) {
       dataCheckArr.push(`${key}=${value}`);
     }
-    const dataCheckString = dataCheckArr.join('\n');
+    const dataCheckString = dataCheckArr.join("\n");
 
     // Derive secret key
     const secretKey = crypto
-      .createHmac('sha256', 'WebAppData')
+      .createHmac("sha256", "WebAppData")
       .update(botToken)
       .digest();
 
     // Compute expected hash
     const expectedHash = crypto
-      .createHmac('sha256', secretKey)
+      .createHmac("sha256", secretKey)
       .update(dataCheckString)
-      .digest('hex');
+      .digest("hex");
 
     if (expectedHash !== receivedHash) {
-      return reply.code(403).send({ error: 'initData validation failed' });
+      return reply.code(403).send({ error: "initData validation failed" });
     }
 
-    const authDate = Number(params.get('auth_date'));
-    if (authDate) {
-      const now = Math.floor(Date.now() / 1000);
-      if (now - authDate > 86400) {
-        return reply.code(401).send({ error: 'initData expired (replay attack prevention)' });
-      }
+    const authDate = Number(params.get("auth_date"));
+    if (!authDate || isNaN(authDate)) {
+      return reply
+        .code(401)
+        .send({ error: "Missing or invalid auth_date in initData" });
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    if (now - authDate > 86400) {
+      return reply
+        .code(401)
+        .send({ error: "initData expired (replay attack prevention)" });
     }
   } catch (err) {
-    return reply.code(400).send({ error: 'Malformed initData' });
+    return reply.code(400).send({ error: "Malformed initData" });
   }
 }

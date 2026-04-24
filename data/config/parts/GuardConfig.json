@@ -1,0 +1,95 @@
+{
+  "macroSentiment": {
+    "enabled": true,
+    "bullishBonus": 3,
+    "bearishPenalty": 5,
+    "bearishCooldownMultiplier": 1.5,
+    "vixOverrideTrigger": 28,
+    "vixAbsoluteOverride": 35
+  },
+  "valuationGuard": {
+    "enabled": true,
+    "minHistoryDays": 126,
+    "tiers": [
+      {
+        "prThreshold": 90,
+        "label": "極度高估",
+        "multiplier": 0.3,
+        "note": "PR ≥ 90，強制壓縮至 0.3x，並鎖定 latch"
+      },
+      {
+        "prThreshold": 80,
+        "label": "高估警戒",
+        "multiplier": 0.5,
+        "note": "PR 80–89，主動壓縮至 0.5x"
+      },
+      {
+        "prThreshold": 70,
+        "label": "中度高估",
+        "multiplier": 0.65,
+        "note": "PR 70–79，溫和壓縮至 0.65x"
+      },
+      {
+        "prThreshold": 0,
+        "label": "合理區間",
+        "multiplier": 1.0,
+        "note": "PR < 70，不壓縮"
+      }
+    ],
+    "trailingStop": {
+      "enabled": true,
+      "dropFromPeakThreshold": 0.08,
+      "multiplierOverride": 0.3,
+      "note": "PR ≥ 80 時啟用，從近 60 日高點回落 8% 觸發追蹤停損壓縮"
+    },
+    "panicDrop": {
+      "enabled": true,
+      "singleDayDropThreshold": 0.05,
+      "consecutiveDaysThreshold": 3,
+      "consecutiveDayDropThreshold": 0.03,
+      "multiplierOverride": 1.0,
+      "note": "高估區急跌解鎖：單日跌 5% 或連續 3 日各跌 3%，暫時解除壓縮"
+    },
+    "latch": {
+      "enabled": true,
+      "triggerPrThreshold": 90,
+      "unlockConditions": {
+        "condition1": {
+          "description": "PR 回落至合理區間",
+          "prBelowThreshold": 70
+        },
+        "condition2": {
+          "description": "panicDrop 急跌解鎖觸發",
+          "usesPanicDrop": true
+        },
+        "condition3": {
+          "description": "趨勢強勢反轉解鎖（MA60 斜率輔助）",
+          "ma20AboveDays": 5,
+          "macdPositive": true,
+          "trendUnlockMa60SlopeThreshold": 0.001
+        }
+      }
+    }
+  },
+  "valuationMomentum": {
+    "enabled": true,
+    "lookbackDays": 20,
+    "risingThreshold": 10,
+    "fallingThreshold": -10,
+    "risingPenaltyMultiplier": 0.85,
+    "fallingRelief": true,
+    "highPRZone": {
+      "triggerPR": 85,
+      "relaxedMomentumThreshold": 5,
+      "vixSpikeThreshold": 0.2,
+      "vixSpikeMultiplier": 0.85,
+      "vixAbsoluteHigh": 30,
+      "vixAbsoluteMultiplier": 0.7
+    }
+  },
+  "overrideHierarchy": {
+    "panicBypassEnabled": true,
+    "panicBypassDropPct": 0.2,
+    "panicVixThreshold": 35
+  }
+}

@@ -10,27 +10,31 @@
 
 ## 1. 策略邏輯強化 (Strategy Logic)
 
-### Story 1-1: 程式結構重構與參數字典化 (Policy Extraction)
+### Story 1-1: 修正 PR 分位數計算邏輯
 
-- **User Story**: 身為系統維護者，我希望將算分、維持率等純函數抽離到獨立的 Policy 模組，並建立集中的參數字典，以便將業務編排與核心運算解耦，提升單元測試覆蓋率與數值可維護性。
+- **User Story**: 身為投資策略使用者，我希望 PR 分位數能正確反映當前 PB 在歷史中的位置（由小到大排序），以避免錯誤的高估/低估判斷。
 - **Acceptance Criteria**:
-  - [x] 建立 `src/modules/strategy/policies/` 目錄。
-  - [x] 將維持率計算與進場算分等邏輯抽離至各獨立的 `*Policy.mjs`。
-  - [x] 建立 `constants/strategyDefaults.mjs`，將 135%、145%、160% 等魔術數字集中管理。
+  - [x] 修正 `resolveValuationGuard`，將 `(rank / total) * 100` 改為正確的百分位算法（確保 PR 100 代表歷史最高，PR 0 代表歷史最低）。
+  - [x] 確保 `pbRecords` 在計算前已正確排序。
 
-### Story 1-2: 策略設定檔強型別防呆 (Schema Validation)
+### Story 1-2: 統一 Z2 槓桿狀態機與維持率警告
 
-- **User Story**: 身為系統管理員，我希望引入強型別套件對 `Strategy.json` 進行即時檢驗，以便在手動配置遺漏或錯誤時啟動 Safe Default 機制，防範系統 Runtime Error。
+- **User Story**: 身為風險管理者，我希望維持率警告（紅色/橘色/黃色）能直接整合入 `buildDecision` 的狀態機，並具備最高優先權，以確保在風險發生時優先處置部位。
 - **Acceptance Criteria**:
-  - [x] 引入 Schema 檢驗套件（如 Zod）。
-  - [x] 在讀取 `Strategy.json` 後加入驗證節點，驗證失敗時發送警告通知並切換至預設的安全參數值。
+  - [x] 在 `strategyEngine.mjs` 中，將維持率判斷（Layer 0/1/2）置於 `buildDecision` 的最頂端。
+  - [x] 整合 `marginManager.mjs` 的警告邏輯，確保決策訊息（市場狀態、執行建議）一致。
 
-### Story 1-3: 邏輯衝突消解與矩陣去相關化
+### Story 1-3: 實現策略引擎 Orchestrator 模式 (Clean Architecture)
 
-- **User Story**: 身為量化研究員，我希望系統在左側下跌環境以跌幅為戰略主體，並降低高度相關指標（如 RSI/KD）的重疊給分，以解決因多因子共線性與邏輯互斥造成的訊號失真。
+- **User Story**: 身為系統維護者，我希望將 `strategyEngine.mjs` 從 1500 行的單體檔案拆分為多個職責明確的子模組，以提昇可測試性與代碼閱讀性。
 - **Acceptance Criteria**:
-  - [x] 重構權重判斷：在左側下跌跌段，將技術面作為確認濾網，而非與跌幅分數無腦疊加。
-  - [x] 在 `computeEntryScore` 中，針對 RSI 與 KD 的給分演算法，修改為「取 MAX 降權」的機制。
+  - [x] 抽離 `core/marginStateMachine.mjs`：負責維持率狀態機邏輯。
+  - [x] 抽離 `core/leverageCapManager.mjs`：負責槓桿上限與極端恐慌破冰邏輯。
+  - [x] 抽離 `core/valuationGuard.mjs`：負責 PB 分位數計算、latch 鎖定與解鎖邏輯。
+  - [x] 抽離 `policies/entryGatePolicy.mjs`：負責跌幅與 RSI 的前置進場門檻。
+  - [x] 抽離 `policies/rebalancePolicy.mjs`：負責 z2Ratio 過高時的再平衡邏輯。
+  - [x] 抽離 `policies/macroSentimentPolicy.mjs`：負責 VIX 與總經情緒對計分矩陣的調整。
+  - [x] 抽離 `core/cooldownManager.mjs`：負責交易冷卻期判斷。
 
 ### Story 1-4: 引入動態停利與極端值價格防護
 
@@ -38,6 +42,16 @@
 - **Acceptance Criteria**:
   - [x] 廢除靜態 RSI/KD 觸頂即停利的機制，改為基於 MA20 軌道與 ATR (真實波動率) 的動態追蹤停利。
   - [x] 在 `marginManager.mjs` 中，當讀取到失效或不合理市價（`null`, `<= 0`）時，須強制拋出 Exception 中斷運作，嚴禁回退到 0 從而觸發錯誤的斷頭警報。
+
+### Story 1-5: 策略引擎模組化深度優化 (Orchestrator Polish)
+
+- **User Story**: 身為系統架構師，我希望在 `strategyEngine.mjs` 完成初步重構後，進一步強化其健壯性與接口規範，以確保多模組協作下的資料安全性與代碼整潔度。
+- **Acceptance Criteria**:
+  - [x] 建立 `policies/index.mjs` 與 `core/index.mjs` 作為統一匯出點 (Export Aggregators)。
+  - [x] 在 `buildDecision` 實作 `ctx` 的防禦性處理（使用 `Object.freeze` 淺拷貝），防止子模組意外修改全域上下文。
+  - [x] 增加 Guard Clauses：在主引擎調用各外部模組後，加入返回值的完整性驗證。
+  - [x] 清理 `strategyEngine.mjs` 中的殘留註釋 (` */`) 與不再使用的中間變數。
+  - [x] 完成完整邏輯回歸驗證（使用 `full_verification.mjs` 腳本）。
 
 ---
 
@@ -88,3 +102,18 @@
   - [x] 開發並導入全專案統一的 `fetchWithTimeout()` 工具函式（封裝 `AbortController`，預設逾時為 30 秒）。
   - [x] 重試機制（如 `aiClient.mjs`）需補強捕捉 `ETIMEDOUT`、`ECONNRESET` 以及 `fetch failed` 作為合法重試條件。
   - [x] 系統中諸如多支非依賴性的 API 併發呼叫（如擷取 PE/PB、殖利率等多維度資料），改以 `Promise.allSettled()` 取代 `Promise.all()` 以隔絕單點損毀。
+
+---
+
+## 4. 策略模組化與 Mini App 優化 (Modular Config & UI)
+
+### Story 4-1: 策略設定模組化與 Mini App 參數顯示
+
+- **User Story**: 身為投資者，我希望將臃腫的策略設定檔拆分，並能在 Mini App 上清晰查看各類別參數（含區塊說明），以便隨時掌握策略核心邏輯。
+- **Acceptance Criteria**:
+  - [x] 策略設定模組化：拆分為 Asset, Indicator, Guard, System 四大子模組 (2026-04-24)。
+  - [/] Mini App 投資參數顯示優化：
+    - [ ] 介面需區分四個核心區塊 (Asset, Indicator, Guard, System)。
+    - [ ] 每個區塊需包含功能說明 (Label/Description)。
+    - [ ] 維持極簡懸浮膠囊設計語彙。
+    - [ ] [AC] 使用者能在 Account 頁面清楚閱讀當前運作參數。

@@ -83,12 +83,10 @@ async function fetchStrategyRemote() {
   return json;
 }
 
+import { fetchStrategyConfigUnified } from "./strategyLoader.mjs";
+
 /**
- * 載入策略設定。優先順序：
- *   1. 記憶體 cache
- *   2. 本地 data/config/Strategy.json（主要來源）
- *   3. 遠端 STRATEGY_URL（備援來源，需設定環境變數）
- *   4. archiveManager 本地備份 cache
+ * 載入策略設定。優先順序已移交至 strategyLoader.mjs
  */
 export async function fetchStrategyConfig() {
   // 1. 記憶體 cache（同次執行不重複讀檔）
@@ -96,48 +94,8 @@ export async function fetchStrategyConfig() {
     return _cache.strategy;
   }
 
-  let json = null;
-  let source = null;
-
-  // 2. 本地優先
-  try {
-    json = await fetchStrategyLocal();
-    source = "local";
-    console.log(`[Strategy] 載入本地設定 v${json.version}`);
-  } catch (localErr) {
-    console.warn(`⚠️ [Strategy] 本地讀取失敗：${localErr.message}`);
-
-    // 3. 遠端備援
-    if (STRATEGY_URL) {
-      try {
-        json = await fetchStrategyRemote();
-        source = "remote";
-        console.log(`[Strategy] 載入遠端設定 v${json.version}`);
-      } catch (remoteErr) {
-        console.warn(`⚠️ [Strategy] 遠端載入失敗：${remoteErr.message}`);
-      }
-    }
-  }
-
-  // 4. archiveManager 備份 cache（最後防線）
-  if (!json) {
-    const localCache = await archiveManager.getStrategyCache();
-    if (localCache) {
-      console.warn(
-        `⚠️ [Strategy] 使用 archiveManager 備份 v${localCache.version}`,
-      );
-      json = localCache;
-      source = "archive";
-    }
-  }
-
-  if (!json) {
-    throw new Error(
-      "[Strategy] 所有來源均無法載入 Strategy.json，請檢查本地檔案或 STRATEGY_URL 環境變數",
-    );
-  }
-
-  _cache = { url: source, strategy: json, loadedAt: new Date() };
+  const json = await fetchStrategyConfigUnified();
+  _cache = { url: "unified", strategy: json, loadedAt: new Date() };
   return json;
 }
 

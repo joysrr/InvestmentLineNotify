@@ -70,3 +70,5 @@ export const fetchSnapshotsWeekly = (limit = 52) =>
 // 月粒度（預設 120 個月 / 約 10 年，最高 360 個月 / 30 年）
 export const fetchSnapshotsMonthly = (limit = 120) =>
   apiFetch(`/api/reports/snapshots/monthly?limit=${limit}`);
+
+export const fetchStrategyConfig = () => apiFetch("/api/strategy-config");

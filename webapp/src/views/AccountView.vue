@@ -239,6 +239,12 @@
           </div>
         </div>
       </div>
+
+      <!-- 5. 策略投資參數 -->
+      <div class="section">
+        <h2 class="section-title">⚙️ 投資參數設定</h2>
+        <StrategyConfigPanel />
+      </div>
     </template>
   </div>
 </template>
@@ -247,6 +253,7 @@
 import { ref, computed, onMounted } from "vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
 import { usePortfolioSnapshots } from "../composables/usePortfolioSnapshots.js";
+import StrategyConfigPanel from "../components/StrategyConfigPanel.vue";
 
 // ECharts
 import VChart from "vue-echarts";

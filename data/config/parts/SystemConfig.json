@@ -1,0 +1,17 @@
+{
+  "version": "2.6",
+  "description": "質押槓桿策略-2026/04/17",
+  "trading": {
+    "minAction": 10000,
+    "cooldownDays": 10,
+    "transFee": 0.001425,
+    "transFeeDiscount": 0.6,
+    "taxRate": 0.003,
+    "loanInterestRate": 0.025,
+    "budget": {
+      "maxDailyLoanIncreasePct": 0.05,
+      "maxRollingLoanIncreasePct": 0.15,
+      "rollingDays": 10
+    }
+  }
+}

@@ -332,6 +332,7 @@ function budgetControlTag(result) {
  */
 function stressTestTable(result) {
   const analysis = result.marginAnalysis;
+  const survival = result.survivalAnalysis; // [NEW]
   if (!analysis || !analysis.stressTests || analysis.totalLoan <= 0) return "";
 
   const rows = analysis.stressTests
@@ -340,8 +341,12 @@ function stressTestTable(result) {
     })
     .join("\n");
 
-  const safety = analysis.riskAssessment.survivalDropLimit;
-  const refill = analysis.riskAssessment.refillRequirement;
+  const safety =
+    survival?.survivalDropLimit ?? analysis.riskAssessment.survivalDropLimit;
+  const refill =
+    survival?.refillRequirement ?? analysis.riskAssessment.refillRequirement;
+  const limitDownMargin =
+    survival?.nextDayLimitDownMargin ?? analysis.stressTests[0]?.margin;
 
   const safetyStr = safety !== null ? `${safety.toFixed(1)}%` : "N/A";
   const refillStr =
@@ -349,9 +354,16 @@ function stressTestTable(result) {
       ? `需求注入額：$${refill.toLocaleString("en-US")}`
       : "✅ 現金充足";
 
+  // 根據安全邊際給予顏色建議
+  let safetyIcon = "🟢";
+  if (safety < 10) safetyIcon = "🔴";
+  else if (safety < 20) safetyIcon = "🟠";
+  else if (safety < 30) safetyIcon = "🟡";
+
   return (
-    `\n\n🛡 <b>0050 質押壓力測試</b>${SEP}${rows}\n` +
-    `📍 生存邊際 (至 130%)：<code>${safetyStr}</code>\n` +
+    `\n\n🛡 <b>0050 質押風險與生存邊際</b>${SEP}${rows}\n` +
+    `${safetyIcon} <b>生存邊際 (至 135%)：<code>${safetyStr}</code></b>\n` +
+    `📊 隔日跌停預估維持率：<code>${limitDownMargin}%</code>\n` +
     `📍 補足線建議 (160%)：<code>${refillStr}</code>`
   );
 }

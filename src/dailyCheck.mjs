@@ -169,6 +169,19 @@ export async function dailyCheck({
     return "❌ 資料不足";
   }
 
+  // 抓取 0050 歷史數據 (用於長線趨勢與穩定指標參考)
+  console.log("📥 正在抓取 0050 歷史數據...");
+  let history0050;
+  {
+    const done = stepTimer("fetchStockHistory0050");
+    history0050 = await fetchStockHistory(
+      symbol0050,
+      lastYear.toISOString().slice(0, 10),
+      today.toISOString().slice(0, 10),
+    );
+    done();
+  }
+
   // 抓取 0050 最新價格
   console.log("📥 正在抓取 0050 價格...");
   let price0050 = null;
@@ -205,14 +218,25 @@ export async function dailyCheck({
     done();
   }
 
-  // 計算指標
-  console.log(`🧠 正在計算指標...`);
-  let closes, rsiArr, macdArr, kdArr;
+  // 計算 00675L 指標 (戰術盤感)
+  console.log(`🧠 正在計算 00675L 指標...`);
+  let indicatorsZ2;
   {
-    const done = stepTimer("calculateIndicators");
-    ({ closes, rsiArr, macdArr, kdArr } = calculateIndicators(history));
+    const done = stepTimer("calculateIndicatorsZ2");
+    indicatorsZ2 = calculateIndicators(history);
     done();
   }
+
+  // 計算 0050 指標 (底層趨勢參考)
+  console.log(`🧠 正在計算 0050 指標...`);
+  let indicators0050;
+  {
+    const done = stepTimer("calculateIndicators0050");
+    indicators0050 = calculateIndicators(history0050);
+    done();
+  }
+
+  const { closes, rsiArr, macdArr, kdArr } = indicatorsZ2;
   const latestClose = closes[closes.length - 1];
   const finalPriceZ2 = currentPriceZ2 || latestClose;
   const ma240 =
@@ -331,6 +355,13 @@ export async function dailyCheck({
     rsiArr,
     macdArr,
     kdArr,
+    // 注入 0050 參考指標
+    indicators0050: {
+      rsi: indicators0050.rsiArr[indicators0050.rsiArr.length - 1],
+      rsiArr: indicators0050.rsiArr,
+      ma60Slope: indicators0050.ma60Slope,
+      kd: indicators0050.kdArr[indicators0050.kdArr.length - 1],
+    },
     US_VIX: usRisk.vix,
     US_SPX_Change: usRisk.spxChg,
     US_RiskLevel: usRisk.riskLevel,

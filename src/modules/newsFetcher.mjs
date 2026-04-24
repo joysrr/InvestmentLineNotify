@@ -18,7 +18,7 @@ import {
 
 const FALLBACK_THRESHOLD = 5;
 
-function buildSingleKeywordQueryStr(item, excludeList = []) {
+export function buildSingleKeywordQueryStr(item, excludeList = []) {
   const include =
     item.searchType === "intitle"
       ? `intitle:"${item.keyword}"`
@@ -33,7 +33,7 @@ function buildSingleKeywordQueryStr(item, excludeList = []) {
   return [include, "+when:6h", ...excludeParts].join(" ");
 }
 
-function validateDynamicKeyword(item, staticPool) {
+export function validateDynamicKeyword(item, staticPool) {
   if (!item?.keyword || typeof item.keyword !== "string") return false;
   const kw = item.keyword.trim();
   if (kw.length < 2) return false;
@@ -45,7 +45,7 @@ function validateDynamicKeyword(item, staticPool) {
   return true;
 }
 
-function mergeKeywords(baseList, dynamicList) {
+export function mergeKeywords(baseList, dynamicList) {
   const validated = dynamicList.filter((item) =>
     validateDynamicKeyword(item, baseList),
   );

@@ -18,6 +18,11 @@
       }
     ]
   },
+  "lifecycle": {
+    "monthlyDcaAmount": 30000,
+    "payDay": 5,
+    "preInjectDays": 5
+  },
   "maintenance": {
     "protectTrigger": 160,
     "protectTarget": 180,
@@ -39,32 +44,32 @@
   },
   "buy": {
     "minDropPercentToConsider": 5,
-    "minWeightScoreToBuy": 4,
+    "minWeightScoreToBuy": 3.0,
     "dropScoreRules": [
       {
         "minDrop": 40,
-        "score": 8,
+        "score": 10,
         "label": "毀滅 >= 40%"
       },
       {
         "minDrop": 30,
-        "score": 6,
+        "score": 8,
         "label": "恐慌 >= 30%"
       },
       {
-        "minDrop": 25,
-        "score": 5,
-        "label": "大跌 >= 25%"
-      },
-      {
-        "minDrop": 15,
-        "score": 4,
-        "label": "修正 >= 15%"
+        "minDrop": 20,
+        "score": 6,
+        "label": "大跌 >= 20%"
       },
       {
         "minDrop": 10,
-        "score": 3,
-        "label": "波動 >= 10%"
+        "score": 4,
+        "label": "修正 >= 10%"
+      },
+      {
+        "minDrop": 5,
+        "score": 2.5,
+        "label": "波動 >= 5%"
       }
     ],
     "rsi": {
@@ -88,6 +93,7 @@
     },
     "entryGate": {
       "enabled": true,
+      "bullMarketRelaxation": true,
       "tiers": [
         {
           "minDrop": 0,
@@ -99,9 +105,9 @@
         {
           "minDrop": 5,
           "maxDrop": 15,
-          "rsiThreshold": 45,
+          "rsiThreshold": 48,
           "allowLeverage": false,
-          "note": "淺層修正，觀察確認後分批，禁 00675L"
+          "note": "淺層修正，多頭環境 RSI 豁免"
         },
         {
           "minDrop": 15,
@@ -322,10 +328,11 @@
     },
     "thresholds": {
       "buyTactical": 4.0,
+      "buyTacticalBullish": 3.0,
       "sellTactical": -4.0,
       "hysteresisExit": 2.0,
       "scaling": {
-        "tier1": { "score": 4.0, "ratio": 0.50 },
+        "tier1": { "score": 3.0, "ratio": 0.50 },
         "tier2": { "score": 6.0, "ratio": 0.75 },
         "tier3": { "score": 8.0, "ratio": 1.00 }
       }

@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, readdirSync } from "fs";
+import { readFileSync, writeFileSync, readdirSync } from "fs";
 import { join } from "path";
 import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
@@ -35,9 +35,15 @@ async function safeLangfuseScore(payload) {
  * @returns {{ filename: string, dateStr: string } | null}
  */
 function findLatestLogFile(region) {
-  if (!existsSync(NEWS_LOGS_DIR)) return null;
+  let files;
+  try {
+    files = readdirSync(NEWS_LOGS_DIR);
+  } catch (err) {
+    if (err.code === "ENOENT") return null;
+    throw err;
+  }
   const prefix = `passedArticles_${region}_`;
-  const files = readdirSync(NEWS_LOGS_DIR)
+  files = files
     .filter((f) => f.startsWith(prefix) && f.endsWith(".json"))
     .sort(); // 字母排序 = 時間遞增，最後一個即最新
   if (files.length === 0) return null;
@@ -220,12 +226,12 @@ function appendToBlacklist(accepted, blacklistData) {
 function updateOptimizerHistory(date, region, accepted, rejected) {
   let history = { lastUpdated: "", history: [] };
 
-  if (existsSync(HISTORY_PATH)) {
-    try {
-      history = JSON.parse(readFileSync(HISTORY_PATH, "utf-8"));
-    } catch {
+  try {
+    history = JSON.parse(readFileSync(HISTORY_PATH, "utf-8"));
+  } catch (err) {
+    if (err.code !== "ENOENT") {
       console.warn(
-        "[Optimizer] ⚠️  讀取 optimizerHistory.json 失敗，使用空結構",
+        `[Optimizer] ⚠️  讀取 optimizerHistory.json 失敗 (${err.message})，使用空結構`,
       );
     }
   }
@@ -279,15 +285,17 @@ async function callOptimizerAI(articleTitles, region) {
  * @returns {Promise<{ tw: { accepted, rejected }, us: { accepted, rejected } }>}
  */
 export async function runRuleOptimizer() {
-  if (!existsSync(BLACKLIST_PATH)) {
-    throw new Error(`[Optimizer] blacklist.json 不存在：${BLACKLIST_PATH}`);
+  let blacklistData, goldenDataset;
+  try {
+    blacklistData = JSON.parse(readFileSync(BLACKLIST_PATH, "utf-8"));
+  } catch (err) {
+    throw new Error(`[Optimizer] 讀取 blacklist.json 失敗：${err.message}`);
   }
-  if (!existsSync(GOLDEN_PATH)) {
-    throw new Error(`[Optimizer] goldenDataset.json 不存在：${GOLDEN_PATH}`);
+  try {
+    goldenDataset = JSON.parse(readFileSync(GOLDEN_PATH, "utf-8"));
+  } catch (err) {
+    throw new Error(`[Optimizer] 讀取 goldenDataset.json 失敗：${err.message}`);
   }
-
-  const blacklistData = JSON.parse(readFileSync(BLACKLIST_PATH, "utf-8"));
-  const goldenDataset = JSON.parse(readFileSync(GOLDEN_PATH, "utf-8"));
 
   const results = {
     tw: { accepted: [], rejected: [] },

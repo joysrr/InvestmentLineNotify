@@ -23,7 +23,7 @@
  */
 
 import "dotenv/config";
-import { existsSync, readFileSync } from "fs";
+import { readFileSync } from "fs";
 import { join } from "path";
 import { Bot, InlineKeyboard } from "grammy";
 import { adminGuard } from "./modules/bot/middleware/adminGuard.mjs";
@@ -190,11 +190,6 @@ bot.command("help", async (ctx) => {
 bot.command("status", async (ctx) => {
   const latestPath = join(process.cwd(), "data", "market", "latest.json");
 
-  if (!existsSync(latestPath)) {
-    await ctx.reply("⚠️ 尚無市場快取資料，請先執行 /daily 。");
-    return;
-  }
-
   try {
     const raw = JSON.parse(readFileSync(latestPath, "utf-8"));
     const meta = raw._meta ?? {};
@@ -258,9 +253,13 @@ bot.command("status", async (ctx) => {
       reply_markup: replyMarkup,
     });
   } catch (err) {
-    await ctx.reply(`❌ 讀取市場快取失敗：<code>${err.message}</code>`, {
-      parse_mode: "HTML",
-    });
+    if (err.code === "ENOENT") {
+      await ctx.reply("⚠️ 尚無市場快取資料，請先執行 /daily 。");
+    } else {
+      await ctx.reply(`❌ 讀取市場快取失敗：<code>${err.message}</code>`, {
+        parse_mode: "HTML",
+      });
+    }
   }
 });
 
@@ -268,11 +267,6 @@ bot.command("status", async (ctx) => {
 // 顯示 latest.json 的 _meta.sources，方便檢查各 provider 是否過舊或失敗
 bot.command("status_debug", async (ctx) => {
   const latestPath = join(process.cwd(), "data", "market", "latest.json");
-
-  if (!existsSync(latestPath)) {
-    await ctx.reply("⚠️ 尚無市場快取資料，請先執行 /daily 。");
-    return;
-  }
 
   try {
     const raw = JSON.parse(readFileSync(latestPath, "utf-8"));
@@ -329,9 +323,13 @@ bot.command("status_debug", async (ctx) => {
 
     await ctx.reply(lines.join("\n"), { parse_mode: "HTML" });
   } catch (err) {
-    await ctx.reply(`❌ 讀取 Debug 資訊失敗：<code>${err.message}</code>`, {
-      parse_mode: "HTML",
-    });
+    if (err.code === "ENOENT") {
+      await ctx.reply("⚠️ 尚無市場快取資料，請先執行 /daily 。");
+    } else {
+      await ctx.reply(`❌ 讀取 Debug 資訊失敗：<code>${err.message}</code>`, {
+        parse_mode: "HTML",
+      });
+    }
   }
 });
 

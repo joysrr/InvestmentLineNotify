@@ -8,16 +8,41 @@
       </router-view>
     </main>
 
-    <TabBar />
+    <FloatingPill />
   </div>
 </template>
 
 <script setup>
-import { onMounted, nextTick } from 'vue'
+import { onMounted, nextTick, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useTelegram } from './composables/useTelegram.js'
-import TabBar from './components/TabBar.vue'
+import FloatingPill from './components/FloatingPill.vue'
 
-const { expand } = useTelegram()
+const { expand, backButton } = useTelegram()
+const router = useRouter()
+const route = useRoute()
+
+// ── 全域 Telegram 返回鍵管理 ──
+const handleBack = () => router.back()
+
+watch(
+  () => route.path,
+  (path) => {
+    if (!backButton) return
+    
+    // 定義「根路由」清單（這些頁面不顯示返回鍵，顯示「關閉」）
+    const rootPaths = ['/', '/dashboard', '/radar', '/macro', '/chart', '/reports', '/news', '/account']
+    
+    if (rootPaths.includes(path)) {
+      backButton.hide()
+      backButton.offClick(handleBack)
+    } else {
+      backButton.show()
+      backButton.onClick(handleBack)
+    }
+  },
+  { immediate: true }
+)
 
 onMounted(async () => {
   await nextTick()
@@ -41,5 +66,6 @@ onMounted(async () => {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
+  padding-bottom: 80px; /* 為懸浮導航留出空間 */
 }
 </style>
