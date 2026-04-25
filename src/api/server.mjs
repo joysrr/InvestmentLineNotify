@@ -69,7 +69,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
   try {
     await app.listen({ port: PORT, host: HOST });
-    console.log(`[api] Fastify API Server listening on ${HOST}:${PORT}`);
+    console.log(`[api] 🚀 Server started successfully!`);
+    console.log(`[api] Current Working Directory: ${process.cwd()}`);
+    console.log(`[api] Listening on ${HOST}:${PORT}`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
