@@ -41,10 +41,15 @@ export async function buildApp(opts = {}) {
   fastify.addHook("onRequest", initDataGuard);
 
   // ─── Routes ──────────────────────────────────────────────────────────────────
+  console.log("[api] 注册路由: status...");
   await fastify.register(statusRoute, { prefix: "/api" });
+  console.log("[api] 注册路由: reports...");
   await fastify.register(reportsRoute, { prefix: "/api" });
+  console.log("[api] 注册路由: news...");
   await fastify.register(newsRoute, { prefix: "/api" });
+  console.log("[api] 注册路由: config...");
   await fastify.register(configRoute, { prefix: "/api" });
+  console.log("[api] 路由注册完成");
 
   // ─── Health check (no auth required, skip guard in middleware) ───────────────
   fastify.get("/health", async () => ({ status: "ok", ts: Date.now() }));
@@ -70,12 +75,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const app = await buildApp();
 
   try {
+    const app = await buildApp();
     await app.listen({ port: PORT, host: HOST });
     console.log(`[api] 🚀 Server started successfully!`);
     console.log(`[api] Current Working Directory: ${process.cwd()}`);
     console.log(`[api] Listening on ${HOST}:${PORT}`);
   } catch (err) {
-    app.log.error(err);
+    console.error("❌ [api] 啟動失敗 (Fatal Error):");
+    console.error(err.stack || err);
     process.exit(1);
   }
 }
