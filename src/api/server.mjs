@@ -4,27 +4,13 @@ import cors from "@fastify/cors";
 import { fileURLToPath } from "url";
 import { assertEnv } from "../utils/envGuard.mjs";
 import logger from "../utils/logger.mjs";
-console.log("[api] 🟢 基礎組件加載完成");
-
 import { initDataGuard } from "./middleware/initDataGuard.mjs";
-console.log("[api] 🟢 中間件加載完成");
-
 import statusRoute from "./routes/status.mjs";
-console.log("[api] 🟢 statusRoute 加載完成");
-
 import reportsRoute from "./routes/reports.mjs";
-console.log("[api] 🟢 reportsRoute 加載完成");
-
 import newsRoute from "./routes/news.mjs";
-console.log("[api] 🟢 newsRoute 加載完成");
-
 import configRoute from "./routes/config.mjs";
-console.log("[api] 🟢 configRoute 加載完成");
-
 // 啟動前強制檢查環境變數，確保不帶病執行
-console.log("[api] 🔍 執行環境變數檢查...");
 assertEnv();
-console.log("[api] ✅ 環境變數檢查通過");
 
 /**
  * 建立 Fastify App Instance
@@ -52,15 +38,10 @@ export async function buildApp(opts = {}) {
   fastify.addHook("onRequest", initDataGuard);
 
   // ─── Routes ──────────────────────────────────────────────────────────────────
-  console.log("[api] 注册路由: status...");
   await fastify.register(statusRoute, { prefix: "/api" });
-  console.log("[api] 注册路由: reports...");
   await fastify.register(reportsRoute, { prefix: "/api" });
-  console.log("[api] 注册路由: news...");
   await fastify.register(newsRoute, { prefix: "/api" });
-  console.log("[api] 注册路由: config...");
   await fastify.register(configRoute, { prefix: "/api" });
-  console.log("[api] 路由注册完成");
 
   // ─── Health check (no auth required, skip guard in middleware) ───────────────
   fastify.get("/health", async () => ({ status: "ok", ts: Date.now() }));
