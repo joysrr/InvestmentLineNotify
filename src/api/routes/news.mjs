@@ -1,12 +1,9 @@
 import { readFile } from "fs/promises";
-import { join } from "path";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 
-const NEWS_PATH = join(
-  process.cwd(),
-  "data",
-  "news",
-  "pool_filtered_active.json",
-);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const NEWS_PATH = resolve(__dirname, "../../../data/news/pool_filtered_active.json");
 
 /**
  * GET /api/news

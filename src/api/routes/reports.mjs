@@ -1,5 +1,9 @@
 import { readdir, readFile } from "fs/promises";
-import { join } from "path";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPORTS_DIR = resolve(__dirname, "../../../data/reports");
 import {
   aggregateByWeek,
   aggregateByMonth,
@@ -11,7 +15,6 @@ import {
   aggregateSnapshotsByMonth,
 } from "../utils/snapshotAggregator.mjs";
 
-const REPORTS_DIR = join(process.cwd(), "data", "reports");
 const DATE_PATTERN = /^(\d{4}-\d{2}-\d{2})\.json$/;
 
 // Simple TTL Cache to prevent file I/O spikes

@@ -83,8 +83,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const PORT = parseInt(process.env.PORT || "3000", 10);
   const HOST = process.env.HOST || "0.0.0.0";
 
-  const app = await buildApp();
-
   try {
     const app = await buildApp();
     await app.listen({ port: PORT, host: HOST });
