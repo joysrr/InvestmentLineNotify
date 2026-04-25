@@ -1,12 +1,14 @@
 import { readFile } from "fs/promises";
-import { resolve } from "path";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
 import { validateStrategyConfig } from "./strategySchema.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 
-const CONFIG_PARTS_DIR = resolve(process.cwd(), "data/config/parts");
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const CONFIG_PARTS_DIR = resolve(__dirname, "../../../data/config/parts");
 const FALLBACK_STRATEGY_PATH = resolve(
-  process.cwd(),
-  "data/config/Strategy.json",
+  __dirname,
+  "../../../data/config/Strategy.json",
 );
 
 /**
