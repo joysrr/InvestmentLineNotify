@@ -11,14 +11,16 @@
  * @returns {string}
  */
 export function getISOWeekKey(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00Z');
+  const d = new Date(dateStr + "T00:00:00Z");
   // ISO week: Thursday of the week determines the year
-  const tmp = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  const tmp = new Date(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
+  );
   const dayOfWeek = tmp.getUTCDay() || 7; // 1=Mon ... 7=Sun
   tmp.setUTCDate(tmp.getUTCDate() + 4 - dayOfWeek); // nearest Thursday
   const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
   const weekNum = Math.ceil(((tmp - yearStart) / 86400000 + 1) / 7);
-  return `${tmp.getUTCFullYear()}-W${String(weekNum).padStart(2, '0')}`;
+  return `${tmp.getUTCFullYear()}-W${String(weekNum).padStart(2, "0")}`;
 }
 
 /**
@@ -37,23 +39,34 @@ export function getMonthKey(dateStr) {
  * @returns {Object}
  */
 function buildSummary(reports) {
-  const rsiArr    = reports.map(r => r.signals?.RSI).filter(Number.isFinite);
-  const kdKArr    = reports.map(r => r.signals?.KD_K).filter(Number.isFinite);
-  const kdDArr    = reports.map(r => r.signals?.KD_D).filter(Number.isFinite);
-  const biasArr   = reports.map(r => r.signals?.bias240).filter(Number.isFinite);
-  const scoreArr  = reports.map(r => r.signals?.weightScore).filter(Number.isFinite);
-  const decisions = [...new Set(reports.map(r => r.signals?.target).filter(Boolean))];
+  const rsiArr = reports.map((r) => r.signals?.RSI).filter(Number.isFinite);
+  const kdKArr = reports.map((r) => r.signals?.KD_K).filter(Number.isFinite);
+  const kdDArr = reports.map((r) => r.signals?.KD_D).filter(Number.isFinite);
+  const biasArr = reports
+    .map((r) => r.signals?.bias240)
+    .filter(Number.isFinite);
+  const scoreArr = reports
+    .map((r) => r.signals?.weightScore)
+    .filter(Number.isFinite);
+  const decisions = [
+    ...new Set(reports.map((r) => r.signals?.target).filter(Boolean)),
+  ];
 
-  const avg = (arr) => arr.length ? +(arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1) : null;
-  const min = (arr) => arr.length ? +Math.min(...arr).toFixed(1) : null;
-  const max = (arr) => arr.length ? +Math.max(...arr).toFixed(1) : null;
+  const avg = (arr) =>
+    arr.length
+      ? +(arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1)
+      : null;
+  const min = (arr) => (arr.length ? +Math.min(...arr).toFixed(1) : null);
+  const max = (arr) => (arr.length ? +Math.max(...arr).toFixed(1) : null);
 
   return {
-    avgRSI:    avg(rsiArr),
-    avgKD_K:   avg(kdKArr),
-    avgKD_D:   avg(kdDArr),
+    avgRSI: avg(rsiArr),
+    avgKD_K: avg(kdKArr),
+    avgKD_D: avg(kdDArr),
     avgBias240: avg(biasArr),
-    scoreRange: scoreArr.length ? { min: min(scoreArr), max: max(scoreArr) } : null,
+    scoreRange: scoreArr.length
+      ? { min: min(scoreArr), max: max(scoreArr) }
+      : null,
     decisions,
   };
 }
@@ -79,11 +92,11 @@ export function aggregateByWeek(allReports, limit = 12) {
     const asc = [...reports].sort((a, b) => a.date.localeCompare(b.date));
     result.push({
       period,
-      startDate:    asc[0].date,
-      endDate:      asc[asc.length - 1].date,
-      tradingDays:  asc.length,
-      lastReport:   asc[asc.length - 1],   // newest day in the week
-      summary:      buildSummary(asc),
+      startDate: asc[0].date,
+      endDate: asc[asc.length - 1].date,
+      tradingDays: asc.length,
+      lastReport: asc[asc.length - 1], // newest day in the week
+      summary: buildSummary(asc),
     });
   }
 
@@ -113,11 +126,11 @@ export function aggregateByMonth(allReports, limit = 12) {
     const asc = [...reports].sort((a, b) => a.date.localeCompare(b.date));
     result.push({
       period,
-      startDate:    asc[0].date,
-      endDate:      asc[asc.length - 1].date,
-      tradingDays:  asc.length,
-      lastReport:   asc[asc.length - 1],
-      summary:      buildSummary(asc),
+      startDate: asc[0].date,
+      endDate: asc[asc.length - 1].date,
+      tradingDays: asc.length,
+      lastReport: asc[asc.length - 1],
+      summary: buildSummary(asc),
     });
   }
 

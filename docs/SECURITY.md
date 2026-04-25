@@ -12,13 +12,13 @@
 
 ## 安全架構摘要
 
-| 層級 | 機制 |
-|---|---|
-| 原始碼 | Private repo，最小 GitHub Actions 權限 |
-| 機密管理 | 所有 token / key 透過 GitHub Secrets 與 VM `.env` 注入，不進版控 |
-| 資料持久化 | `data/` 目錄僅存於 VM 本地，不同步至 GitHub |
-| 排程執行 | Oracle VM crontab，含 Telegram 錯誤通知 |
-| 敏感欄位 | snapshot 類財務資料已加密儲存 |
+| 層級       | 機制                                                                                                                                    |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 原始碼     | Private repo，最小 GitHub Actions 權限                                                                                                  |
+| 機密管理   | 所有 token / key 透過 GitHub Secrets 與 VM `.env` 注入，不進版控                                                                        |
+| 資料持久化 | `data/` 目錄僅存於 VM 本地，不同步至 GitHub                                                                                             |
+| 排程執行   | Oracle VM crontab，含 Telegram 錯誤通知                                                                                                 |
+| 敏感欄位   | snapshot 類財務資料採 AES-256-GCM 加密儲存（**前提：`SNAPSHOT_ENCRYPT_KEY` 環境變數已設定**；未設定時系統將發出 warn 並以明文略過加密） |
 
 ---
 
@@ -41,10 +41,10 @@
 
 ### 涉及的 Key 位置
 
-| 位置 | 說明 |
-|---|---|
+| 位置                                  | 說明                          |
+| ------------------------------------- | ----------------------------- |
 | `GitHub Secrets → VM_SSH_PRIVATE_KEY` | GitHub Actions 應急連線 VM 用 |
-| VM `~/.ssh/authorized_keys` | 存放對應的 Public Key |
+| VM `~/.ssh/authorized_keys`           | 存放對應的 Public Key         |
 
 ### Step 1｜在 VM 上產生新 Key Pair
 
@@ -109,8 +109,8 @@ rm ~/.ssh/id_investnotify_new.pub
 
 ### 換 Key 紀錄
 
-| 日期 | 備註 |
-|---|---|
+| 日期       | 備註                  |
+| ---------- | --------------------- |
 | 2026-04-13 | 初始建立 SSH Key 設定 |
 
 ---
@@ -133,4 +133,4 @@ rm ~/.ssh/id_investnotify_new.pub
 
 ---
 
-*最後更新：2026-04-13*
+_最後更新：2026-04-13_

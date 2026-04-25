@@ -13,7 +13,7 @@
  * }
  */
 
-import { getISOWeekKey, getMonthKey } from './reportAggregator.mjs';
+import { getISOWeekKey, getMonthKey } from "./reportAggregator.mjs";
 
 /**
  * Calculates cost-basis net value.
@@ -27,15 +27,15 @@ import { getISOWeekKey, getMonthKey } from './reportAggregator.mjs';
 function calcNetValueCost(s) {
   if (!s) return null;
   const qty0050 = s.qty0050 ?? 0;
-  const qtyZ2   = s.qtyZ2   ?? 0;
-  const loan     = s.totalLoan ?? 0;
+  const qtyZ2 = s.qtyZ2 ?? 0;
+  const loan = s.totalLoan ?? 0;
 
   // Truly nothing to show: no holdings and no loan
   if (qty0050 === 0 && qtyZ2 === 0 && loan === 0) return null;
 
   const v0050 = qty0050 * (s.avgCost0050 ?? 0);
-  const vZ2   = qtyZ2   * (s.avgCostZ2   ?? 0);
-  return +((v0050 + vZ2 - loan).toFixed(2));
+  const vZ2 = qtyZ2 * (s.avgCostZ2 ?? 0);
+  return +(v0050 + vZ2 - loan).toFixed(2);
 }
 
 /**
@@ -54,15 +54,15 @@ function calcNetValueMarket(s) {
   if (s.price0050 == null && s.priceZ2 == null) return null;
 
   const qty0050 = s.qty0050 ?? 0;
-  const qtyZ2   = s.qtyZ2   ?? 0;
-  const loan     = s.totalLoan ?? 0;
+  const qtyZ2 = s.qtyZ2 ?? 0;
+  const loan = s.totalLoan ?? 0;
 
   // Truly nothing to show: no holdings and no loan
   if (qty0050 === 0 && qtyZ2 === 0 && loan === 0) return null;
 
   const v0050 = qty0050 * (s.price0050 ?? 0);
-  const vZ2   = qtyZ2   * (s.priceZ2   ?? 0);
-  return +((v0050 + vZ2 - loan).toFixed(2));
+  const vZ2 = qtyZ2 * (s.priceZ2 ?? 0);
+  return +(v0050 + vZ2 - loan).toFixed(2);
 }
 
 /**
@@ -74,16 +74,16 @@ function calcNetValueMarket(s) {
 export function normaliseSnapshot(date, snap) {
   return {
     date,
-    qty0050:        snap.qty0050        ?? 0,
-    qtyZ2:          snap.qtyZ2          ?? 0,
-    totalLoan:      snap.totalLoan      ?? 0,
-    cash:           snap.cash           ?? 0,
-    avgCost0050:    snap.avgCost0050    ?? null,
-    avgCostZ2:      snap.avgCostZ2      ?? null,
-    price0050:      snap.price0050      ?? null,
-    priceZ2:        snap.priceZ2        ?? null,
-    lastBuyDate:    snap.lastBuyDate    ?? null,
-    netValueCost:   calcNetValueCost(snap),
+    qty0050: snap.qty0050 ?? 0,
+    qtyZ2: snap.qtyZ2 ?? 0,
+    totalLoan: snap.totalLoan ?? 0,
+    cash: snap.cash ?? 0,
+    avgCost0050: snap.avgCost0050 ?? null,
+    avgCostZ2: snap.avgCostZ2 ?? null,
+    price0050: snap.price0050 ?? null,
+    priceZ2: snap.priceZ2 ?? null,
+    lastBuyDate: snap.lastBuyDate ?? null,
+    netValueCost: calcNetValueCost(snap),
     netValueMarket: calcNetValueMarket(snap),
   };
 }
@@ -112,9 +112,9 @@ export function aggregateSnapshotsByWeek(entries, limit = 52) {
     const last = asc[asc.length - 1];
     result.push({
       period,
-      startDate:    asc[0].date,
-      endDate:      last.date,
-      tradingDays:  asc.length,
+      startDate: asc[0].date,
+      endDate: last.date,
+      tradingDays: asc.length,
       ...normaliseSnapshot(last.date, last.snap),
     });
   }
@@ -146,9 +146,9 @@ export function aggregateSnapshotsByMonth(entries, limit = 120) {
     const last = asc[asc.length - 1];
     result.push({
       period,
-      startDate:    asc[0].date,
-      endDate:      last.date,
-      tradingDays:  asc.length,
+      startDate: asc[0].date,
+      endDate: last.date,
+      tradingDays: asc.length,
       ...normaliseSnapshot(last.date, last.snap),
     });
   }
