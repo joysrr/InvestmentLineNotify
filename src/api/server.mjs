@@ -11,7 +11,9 @@ import newsRoute from "./routes/news.mjs";
 import configRoute from "./routes/config.mjs";
 
 // 啟動前強制檢查環境變數，確保不帶病執行
+console.log("[api] 🔍 執行環境變數檢查...");
 assertEnv();
+console.log("[api] ✅ 環境變數檢查通過");
 
 /**
  * 建立 Fastify App Instance
