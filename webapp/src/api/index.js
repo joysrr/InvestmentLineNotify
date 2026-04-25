@@ -14,28 +14,18 @@ async function apiFetch(path, maxRetries = 3, retryDelay = 800) {
     }
 
     try {
-      const res = await fetch(`${BASE}${path}`, {
+      const url = `${BASE}${path}`;
+      const res = await fetch(url, {
         headers: { "X-Telegram-Init-Data": initData },
       });
 
-      // Fail-fast：確定性 4xx 錯誤（除 429 Rate Limit 外）不重試
-      // 特別是對 401 Unauthorized 應立即終止，避免無謂消耗
-      if (
-        (res.status === 401 || (res.status >= 400 && res.status < 500)) &&
-        res.status !== 429
-      ) {
-        throw new Error(`API ${path} rejected: ${res.status} (non-retryable)`);
+      if (!res.ok) {
+        console.error(`❌ [apiFetch] Failed: ${url} | Status: ${res.status}`);
+        throw new Error(`API ${path} failed: ${res.status}`);
       }
-
-      // 429 Rate Limit：允許重試
-      if (res.status === 429 && attempt < maxRetries) {
-        await delay(retryDelay);
-        continue;
-      }
-
-      if (!res.ok) throw new Error(`API ${path} failed: ${res.status}`);
       return res.json();
     } catch (err) {
+      console.error(`❌ [apiFetch] Error: ${err.message}`);
       lastError = err;
       if (attempt < maxRetries) await delay(retryDelay);
     }
