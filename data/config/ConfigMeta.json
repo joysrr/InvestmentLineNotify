@@ -1,8 +1,8 @@
 {
-  "system.version": { "label": "系統版本", "unit": "", "desc": "當前策略邏輯版本號" },
-  "asset.cashReserveThreshold": { "label": "現金儲備門檻", "unit": "%", "desc": "低於此水位將停止任何加碼行為" },
-  "asset.maxGrossLeverage": { "label": "總槓桿上限", "unit": "x", "desc": "系統允許的最高曝險倍數" },
-  "indicator.buy.minWeightScoreToBuy": { "label": "買入分數門檻", "unit": "pt", "desc": "總分需達到此值才觸發買入訊號" },
-  "guard.valuationGuard.enabled": { "label": "估值防禦開關", "unit": "", "desc": "是否根據 PB 分位數自動壓縮部位" },
-  "guard.defenseLatch.dropThreshold": { "label": "急跌鎖定門檻", "unit": "%", "desc": "單日跌幅超過此值時觸發防禦性停止買入" }
+  "asset.cashReserveThreshold": { "label": "現金儲備門檻", "unit": "%", "desc": "低於此水位將停止加碼" },
+  "asset.maxGrossLeverage": { "label": "總槓桿上限", "unit": "x", "desc": "系統最高曝險倍數" },
+  "indicator.buy.minWeightScoreToBuy": { "label": "買入分數門檻", "unit": "pt", "desc": "總分需達到此值才買入" },
+  "indicator.buy.dropScoreRules": { "label": "跌幅加分規則", "unit": "", "desc": "定義跌幅對應的權重加成" },
+  "guard.valuationGuard.tiers": { "label": "估值防禦階梯", "unit": "", "desc": "根據 PB 分位數定義的壓縮倍數" },
+  "system.version": { "label": "系統版本", "unit": "", "desc": "策略邏輯版本" }
 }

@@ -61,9 +61,9 @@
         <div class="decision-main">
           <div class="decision-status-row">
             <span class="decision-status-icon">{{ statusEmoji }}</span>
-            <span class="decision-status-text">{{ latestReport.signals?.marketStatus }}</span>
+            <span class="decision-status-text">{{ latestReport.signals?.marketStatus || '—' }}</span>
           </div>
-          <p class="decision-suggestion">{{ latestReport.signals?.targetSuggestion }}</p>
+          <p class="decision-suggestion">{{ latestReport.signals?.targetSuggestion || '載入中...' }}</p>
         </div>
         <div class="decision-badges">
           <span class="badge" :class="pctClass">{{ pctText }}</span>
