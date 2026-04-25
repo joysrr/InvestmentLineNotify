@@ -77,13 +77,9 @@ export async function fetchTwseMarginData() {
 
     // 簡單的資料驗證防呆 (避免拿到 0 或異常小數字)
     if (result.marginBalance100M < 1000 || result.maintenanceRatio < 100) {
-      console.warn("⚠️ 解析出的數字不合理，使用預設值", result);
-      return {
-        date: null,
-        marginBalance100M: 3000,
-        marginBalanceChange100M: 0,
-        maintenanceRatio: 165,
-      };
+      throw new Error(
+        `解析出的數字不合理: 餘額=${result.marginBalance100M}, 維持率=${result.maintenanceRatio}`,
+      );
     }
 
     return result;
@@ -93,6 +89,7 @@ export async function fetchTwseMarginData() {
     } else {
       console.warn("⚠️ 獲取 KGI/MoneyDJ 融資資料失敗:", err.message);
     }
-    return result; // 發生錯誤時回傳防呆預設值
+    // 不再回傳硬編碼 fallback，交由 marketData.mjs 使用最近一次 cache
+    throw err;
   }
 }

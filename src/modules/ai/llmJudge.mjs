@@ -10,9 +10,16 @@ import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
  *   random         — 依 LLM_JUDGE_SAMPLE_RATE 機率抽樣執行
  *   always         — 每次都執行，適合短期驗證
  *
+ * @param {{ forceRun?: boolean }} [context={}] - 提供上下文，支援高風險日強制執行
  * @returns {boolean}
  */
-export function shouldRunJudge() {
+export function shouldRunJudge(context = {}) {
+  // ── 高風險強制觸發 ─────────────────────────────────────────────────────────
+  if (context.forceRun === true) {
+    console.log("⚠️ [LLMJudge] 高風險日強制觸發 Judge（forceRun=true）");
+    return true;
+  }
+
   const mode = (process.env.LLM_JUDGE_MODE ?? "weekly").toLowerCase();
 
   if (mode === "always") return true;

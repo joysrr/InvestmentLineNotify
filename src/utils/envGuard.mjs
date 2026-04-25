@@ -30,19 +30,35 @@ const REQUIRED_VARS = [
 /**
  * 檢查必填環境變數。
  * 缺少時列印這些變數名稱并呼叫 process.exit(1)。
+ * 同時對「強烈建議設定」的變數發出警告。
  */
 export function assertEnv() {
   const missing = REQUIRED_VARS.filter(
     (key) => !process.env[key] || process.env[key].trim() === "",
   );
 
-  if (missing.length === 0) return;
+  if (missing.length > 0) {
+    console.error("\n❌ [envGuard] 程式終止：缺少必要環境變數");
+    console.error(
+      "請確認 GitHub Secrets 與 workflow yaml 的 env: 區塊均已設定以下變數：",
+    );
+    missing.forEach((key) => console.error(`  • ${key}`));
+    console.error("詳情請參考 docs/env-vars.md\n");
+    process.exit(1);
+  }
 
-  console.error("\n❌ [envGuard] 程式終止：缺少必要環境變數");
-  console.error(
-    "請確認 GitHub Secrets 與 workflow yaml 的 env: 區塊均已設定以下變數：",
-  );
-  missing.forEach((key) => console.error(`  • ${key}`));
-  console.error("詳情請參考 docs/env-vars.md\n");
-  process.exit(1);
+  // ── 強烈建議設定的變數（缺少時 warn，不中斷） ──────────────────────────────
+  const RECOMMENDED_VARS = [
+    {
+      key: "SNAPSHOT_ENCRYPT_KEY",
+      reason:
+        "帳戶快照將以明文儲存於 daily_report_*.json，財務資料缺乏加密保護",
+    },
+  ];
+
+  for (const { key, reason } of RECOMMENDED_VARS) {
+    if (!process.env[key] || process.env[key].trim() === "") {
+      console.warn(`⚠️ [envGuard] 建議設定 ${key} 但未找到：${reason}`);
+    }
+  }
 }

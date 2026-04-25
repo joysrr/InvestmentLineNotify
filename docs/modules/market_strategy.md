@@ -118,4 +118,34 @@
 5. 新聞 query 品質：看 `keywordConfig.mjs` + `prompts.mjs`。
 6. 新聞去噪與 pool 問題：看 `newsFetcher.mjs` + `newsPoolManager.mjs`。
 
+---
+
+## 5. Rule Optimizer 安全治理規範 (自 2026-04-25)
+
+Rule Optimizer 負責將 AI 建議的新聞黑名單 Regex 自動寫入 `blacklist.json`。為了防止規則過度激進或批次污染，系統實作了以下安全機制：
+
+### 5.1 Sandbox 四關卡驗證
+
+每條規則必須依序通過以下驗證才可進入候選名單：
+
+1. **Regex 語法合法性**：確保規則可被編譯執行。
+2. **廣泛度防護 (Overbroad Check)**：攔截 `.*` 或單純 `\d+` 等可能導致全盤誤殺的廣泛規則。
+3. **重複檢查**：避免寫入既有規則。
+4. **黃金清單碰撞 (Golden Dataset Test)**：硬性防線。若新規則會誤殺 Golden Dataset 中的「已知優質文章」，則該規則會被一票否決。
+
+### 5.2 批次安全閾值 (Batch Safety)
+
+除了個別規則的合法性，系統對「批次寫入」設有量化保護：
+
+- **單次新增上限**：單一區域（TW/US）每次執行最多僅能新增 **5 條** 規則。超出部分將被記錄為 `batch_cap` 並拒絕寫入。
+- **異常 Accept Rate 監控**：若單次 Accept Rate > 0.8，通常代表 AI 建議過於趨同，應列入人工複查。
+
+### 5.3 回滾機制 (Rollback)
+
+所有寫入動作均記錄於 `optimizerHistory.json`，並支援精確回滾：
+
+- **Rollback 腳本**：`node src/scripts/rollbackOptimizer.mjs <YYYY-MM-DD> [TW|US|ALL]`
+- **執行行為**：系統會根據歷史紀錄，自動從 `blacklist.json` 中移除該批次產生的所有 Regex，並在歷史紀錄中標記 `rolledBack: true`。
+- **獨立性**：TW 與 US 的規則可獨立回滾，不互相干擾。
+
 這樣文件整理後，AI Agent 可以更快判斷問題屬於 **strategy bug** 還是 **news governance bug**。

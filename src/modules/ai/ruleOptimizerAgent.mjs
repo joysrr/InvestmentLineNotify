@@ -13,6 +13,9 @@ const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
   : `optimizer-local-${Date.now()}`;
 
+// ── 常數：單次安全上限 ────────────────────────────────────────────────────────
+const MAX_RULES_PER_RUN_PER_REGION = 5; // 單一 region 每次最多新增 5 條
+
 // ============================================================
 // 工具函式
 // ============================================================
@@ -322,6 +325,19 @@ export async function runRuleOptimizer() {
       blacklistData,
       goldenDataset,
     );
+
+    // ── 批次上限保護 ──────────────────────────────────────────────────────────
+    if (accepted.length > MAX_RULES_PER_RUN_PER_REGION) {
+      console.warn(
+        `[Optimizer] ⚠️  ${region} 單次通過規則數 (${accepted.length}) 超過安全上限 (${MAX_RULES_PER_RUN_PER_REGION})，` +
+          `截斷至前 ${MAX_RULES_PER_RUN_PER_REGION} 條，其餘標記為 batch_cap 拒絕`,
+      );
+      const capped = accepted.splice(MAX_RULES_PER_RUN_PER_REGION);
+      rejected.push(
+        ...capped.map((r) => ({ ...r, rejectReason: "batch_cap" })),
+      );
+    }
+
     console.log(
       `[Optimizer] ${region} ✅ 通過：${accepted.length}  ❌ 拒絕：${rejected.length}`,
     );
@@ -372,4 +388,69 @@ export async function runRuleOptimizer() {
     );
 
   return results;
+}
+
+/**
+ * 依據 optimizerHistory.json 中的指定日期 + region 執行 rollback
+ * 從 blacklist.json 中移除該批次新增的規則，並標記 history 中 rolledBack = true
+ *
+ * @param {string} date   - 欲 rollback 的日期（YYYY-MM-DD）
+ * @param {"TW"|"US"|"ALL"} region - 指定 region，或 "ALL" 表示兩者一起
+ * @returns {{ removed: number }}
+ */
+export function rollbackOptimizerRules(date, region = "ALL") {
+  let history;
+  try {
+    history = JSON.parse(readFileSync(HISTORY_PATH, "utf-8"));
+  } catch (err) {
+    console.error(`[Rollback] 讀取 history 失敗：${err.message}`);
+    return { removed: 0 };
+  }
+
+  let blacklist;
+  try {
+    blacklist = JSON.parse(readFileSync(BLACKLIST_PATH, "utf-8"));
+  } catch (err) {
+    console.error(`[Rollback] 讀取 blacklist 失敗：${err.message}`);
+    return { removed: 0 };
+  }
+
+  const targets = history.history.filter(
+    (h) =>
+      h.date === date &&
+      (region === "ALL" || h.region === region) &&
+      h.rolledBack === false,
+  );
+
+  if (targets.length === 0) {
+    console.log(
+      `[Rollback] 找不到可 rollback 的紀錄：date=${date}, region=${region}`,
+    );
+    return { removed: 0 };
+  }
+
+  let removed = 0;
+  for (const entry of targets) {
+    const rulesToRemove = new Set(entry.addedRules.map((r) => r.regexLiteral));
+    const before = blacklist.titleBlackListPatterns.length;
+    blacklist.titleBlackListPatterns = blacklist.titleBlackListPatterns.filter(
+      (p) => !rulesToRemove.has(p),
+    );
+    const delta = before - blacklist.titleBlackListPatterns.length;
+    removed += delta;
+    entry.rolledBack = true;
+    entry.rolledBackAt = new Date().toISOString();
+    console.log(
+      `[Rollback] ✅ ${entry.region} (${date})：移除 ${delta} 條規則`,
+    );
+  }
+
+  blacklist.lastUpdated = new Date().toISOString();
+  writeFileSync(BLACKLIST_PATH, JSON.stringify(blacklist, null, 2), "utf-8");
+
+  history.lastUpdated = new Date().toISOString();
+  writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2), "utf-8");
+
+  console.log(`[Rollback] 🏁 完成，共移除 ${removed} 條規則`);
+  return { removed };
 }

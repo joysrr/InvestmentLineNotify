@@ -553,14 +553,38 @@ export async function dailyCheck({
   // ── LLM Judge（背景評估，不阻塞主流程）─────────────────────────────────────────
   const judgeTasks = [];
 
-  if (shouldRunJudge() && adviceTraceId && typeof aiAdvice === "object") {
+  // ── 高風險日判斷 ──────────────────────────────────────────────────────────────
+  const vixValue = vixData?.value ?? 0;
+  const isHighRiskDay =
+    vixValue >= 30 ||
+    (result?.signals?.action && result.signals.action !== "HOLD") ||
+    valuationGuardState.latchActive !==
+      (result?.signals?.latchNowActive ?? false);
+  // 說明：
+  //   1. VIX ≥ 30  → 市場恐慌，AI 建議最需驗證
+  //   2. 非 HOLD 日 → 實際有買賣動作，建議品質攸關財務決策
+  //   3. latch 狀態轉換日 → 策略發生結構性變化，需確認建議方向正確
+
+  const judgeContext = { forceRun: isHighRiskDay };
+
+  if (isHighRiskDay) {
+    console.log(
+      `⚠️ [LLMJudge] 高風險日偵測：VIX=${vixValue.toFixed(2)}, action=${result?.signals?.action ?? "unknown"}, latchChanged=${valuationGuardState.latchActive !== (result?.signals?.latchNowActive ?? false)}`,
+    );
+  }
+
+  if (
+    shouldRunJudge(judgeContext) &&
+    adviceTraceId &&
+    typeof aiAdvice === "object"
+  ) {
     console.log("🔍 [LLMJudge] 今日觸發 Judge，排入背景任務...");
     judgeTasks.push(
       runJudge(adviceTraceId, aiAdvice, sessionId).catch((err) =>
         console.warn("⚠️ [LLMJudge] 背景任務發生例外:", err.message),
       ),
     );
-  } else if (shouldRunJudge()) {
+  } else if (shouldRunJudge(judgeContext)) {
     console.log(
       "⚠️ [LLMJudge] 今日應觸發但 adviceTraceId 無效或 aiAdvice 非物件，跳過",
     );

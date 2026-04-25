@@ -137,6 +137,10 @@ export async function fetchUsMarketData() {
     spx: spxResult.status === "fulfilled" ? spxResult.value : null,
   });
 
+  if (!riskAnalysis.success) {
+    throw new Error("FRED API 抓取失敗且無可用資料");
+  }
+
   return {
     ...riskAnalysis,
     source: "FRED",

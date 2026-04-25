@@ -162,6 +162,56 @@ function getBackoffDelay(attempt, baseDelay = 2000) {
   return exponential + jitter;
 }
 
+// ── 各 prompt 的 hardcoded fallback（Langfuse 斷線時使用）──────────────────────────
+// 僅包含最基礎的角色定義，確保 AI 不裸跑。
+// 注意：fallback prompt 不含市場資料插值，AI 輸出品質會明顯降低。
+// callAI() 會透過 promptSource 標記此狀態，下游可依此決定是否採用輸出。
+const PROMPT_HARDCODED_FALLBACK = {
+  // ── 每日決策管線 ──
+  InvestmentAdvice: {
+    system:
+      "你是一位穩健的台股投資教練，請根據使用者提供的市場資訊，給出具體可執行的投資建議，以 JSON 格式回覆。",
+    user: "{{quantText}}\n\n{{macroAndChipStr}}\n\n{{macroText}}\n\n{{newsSummaryText}}",
+  },
+  FilterAndCategorizeNews: {
+    system: "你是一位金融新聞分析師，請篩選並分類以下新聞，以 JSON 格式回覆。",
+    user: "{{newsListText}}",
+  },
+  AnalyzeMacroNews: {
+    system:
+      "你是一位總經分析師，請分析以下新聞對市場的影響，以 JSON 格式回覆。",
+    user: "{{newsText}}",
+  },
+  GenerateSearchQueries: {
+    system: "你是一位金融研究員，請根據主題生成搜尋關鍵字，以 JSON 格式回覆。",
+    user: "日期：{{dateStr}}\n狀態：{{marketStatus}}\nVIX：{{vix}}\n靜態池：{{staticPoolText}}",
+  },
+
+  // ── 週期報告與治理 ──
+  PeriodReportAnalysis: {
+    system:
+      "你是一位資深投資顧問，請針對過去一段時間的投資數據與表現進行深度總結，以 JSON 格式回覆。",
+    user: "週期：{{periodLabel}}\n統計數據：{{statsText}}\n風險事件：{{riskWarnings}}",
+  },
+  RuleOptimizer: {
+    system:
+      "你是一位自動化治理專家，請根據新聞標題優化黑名單規則，以 JSON 格式回覆。",
+    user: "區域：{{regionLabel}}\n標題清單：{{titlesText}}",
+  },
+
+  // ── LLM Judge 品質評估 ──
+  JudgeActionability: {
+    system:
+      "你是一位嚴謹的投資品質查核員，請評估投資建議的可執行性，以 JSON 格式回覆。",
+    user: "待評估建議：{{coachOutputJson}}",
+  },
+  JudgeToneAndEmpathy: {
+    system:
+      "你是一位品牌語氣監測員，請評估投資建議的專業度與共感力，以 JSON 格式回覆。",
+    user: "待評估建議：{{coachOutputJson}}",
+  },
+};
+
 // ── Langfuse Chat Prompt 解析 ────────────────────────────────────────────────
 
 //─────────────────────────────────────────────────────────────────
@@ -188,7 +238,7 @@ function extractCompiledText(raw) {
 
 /**
  * 從 Langfuse 取得 chat 格式 prompt，解析出 systemInstruction 與 userTemplate。
- * 若 Langfuse 無法連線，回傳 code-side fallback（空字串）。
+ * 若 Langfuse 無法連線，嘗試嘗試 hardcoded fallback。
  *
  * @param {string} promptName - Langfuse prompt 名稱
  * @param {Record<string,string>} variables - 插值變數（對應 {{variable}} 佔位符）
@@ -196,7 +246,8 @@ function extractCompiledText(raw) {
  *   systemInstruction: string,
  *   userTemplate: string,
  *   langfusePromptObj: object|null,
- *   langfuseConfig: object
+ *   langfuseConfig: object,
+ *   promptSource: 'langfuse' | 'hardcoded-fallback' | 'missing'
  * }>}
  */
 async function resolveChatPrompt(promptName, variables = {}) {
@@ -204,6 +255,7 @@ async function resolveChatPrompt(promptName, variables = {}) {
   let systemInstruction = "";
   let userTemplate = "";
   let langfuseConfig = {};
+  let promptSource = "langfuse";
 
   try {
     // type: 'chat' → Langfuse 回傳 { prompt: [{role, content}], config, ... }
@@ -245,11 +297,39 @@ async function resolveChatPrompt(promptName, variables = {}) {
     langfuseConfig = langfusePromptObj.config ?? {};
   } catch (err) {
     console.warn(
-      `⚠️ [Langfuse] getPrompt(${promptName}, chat) 失敗，使用 code-side fallback：${err.message}`,
+      `⚠️ [Langfuse] getPrompt(${promptName}, chat) 失敗，嘗試 hardcoded fallback：${err.message}`,
     );
+
+    const promptKey = promptName.split("/").pop();
+    const fallback = PROMPT_HARDCODED_FALLBACK[promptKey];
+
+    if (fallback) {
+      systemInstruction = fallback.system;
+      // 對 user template 進行簡易插值（支援最基本的 {{key}} 替換）
+      userTemplate = Object.entries(variables).reduce(
+        (tmpl, [k, v]) =>
+          tmpl.replace(new RegExp(`{{${k}}}`, "g"), String(v ?? "")),
+        fallback.user,
+      );
+      promptSource = "hardcoded-fallback";
+      console.warn(
+        `⚠️ [Langfuse] 使用 hardcoded fallback prompt for: ${promptKey}（輸出品質可能降低）`,
+      );
+    } else {
+      promptSource = "missing";
+      console.error(
+        `❌ [Langfuse] 無可用 prompt for: ${promptName}，且無硬編碼 fallback。`,
+      );
+    }
   }
 
-  return { systemInstruction, userTemplate, langfusePromptObj, langfuseConfig };
+  return {
+    systemInstruction,
+    userTemplate,
+    langfusePromptObj,
+    langfuseConfig,
+    promptSource,
+  };
 }
 
 // ── callAI ───────────────────────────────────────────────────────────────────
@@ -287,8 +367,25 @@ export async function callAI(promptName, options = {}) {
   const isCI = !!process.env.GITHUB_RUN_ID;
 
   // ── Step 1: 從 Langfuse 取得 chat prompt ─────────────────────────────────
-  const { systemInstruction, userTemplate, langfusePromptObj, langfuseConfig } =
-    await resolveChatPrompt(promptName, options.promptVariables ?? {});
+  const {
+    systemInstruction,
+    userTemplate,
+    langfusePromptObj,
+    langfuseConfig,
+    promptSource,
+  } = await resolveChatPrompt(promptName, options.promptVariables ?? {});
+
+  // ── Step 1.5: Degradation Policy 防衛檢查 ────────────────────────────────
+  // promptSource = "missing" 表示 Langfuse 斷線且無 hardcoded fallback
+  // 此情況下 AI 會裸跑，直接拋錯阻斷，避免產出無意義通知
+  if (promptSource === "missing") {
+    const degradationErr = new Error(
+      `[callAI] Prompt 不可用（Langfuse 斷線且無 hardcoded fallback）：${promptName}。` +
+        `本次 AI 呼叫已阻斷，請檢查 Langfuse 連線或補充 PROMPT_HARDCODED_FALLBACK。`,
+    );
+    console.error(`❌ ${degradationErr.message}`);
+    throw degradationErr;
+  }
 
   // ── Step 2: 合併 config（Langfuse config > options）──
   const resolvedOptions = {
@@ -321,7 +418,7 @@ export async function callAI(promptName, options = {}) {
       model: resolvedModel,
       startKeyIndex,
       human_review: humanReviewMeta,
-      promptSource: langfusePromptObj ? "langfuse" : "code-fallback",
+      promptSource,
       schemaSource: options.responseSchema
         ? "options"
         : langfuseConfig.response_schema

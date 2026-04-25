@@ -81,17 +81,19 @@ export function formatQuantDataForCoach(
 
   // ===== 持倉均價與損益 =====
   const avgCost0050 = n2(portfolio?.avgCost0050);
-  const avgCostZ2   = n2(portfolio?.avgCostZ2);
-  const price0050   = n2(marketData?.price0050);
-  const priceZ2     = n2(marketData?.currentPrice);
+  const avgCostZ2 = n2(portfolio?.avgCostZ2);
+  const price0050 = n2(marketData?.price0050);
+  const priceZ2 = n2(marketData?.currentPrice);
 
   // 未實現損益率（均價與現價均有效時才計算）
-  const pnl0050Pct = (avgCost0050 && price0050 && avgCost0050 > 0)
-    ? ((price0050 - avgCost0050) / avgCost0050 * 100).toFixed(2)
-    : null;
-  const pnlZ2Pct = (avgCostZ2 && priceZ2 && avgCostZ2 > 0)
-    ? ((priceZ2 - avgCostZ2) / avgCostZ2 * 100).toFixed(2)
-    : null;
+  const pnl0050Pct =
+    avgCost0050 && price0050 && avgCost0050 > 0
+      ? (((price0050 - avgCost0050) / avgCost0050) * 100).toFixed(2)
+      : null;
+  const pnlZ2Pct =
+    avgCostZ2 && priceZ2 && avgCostZ2 > 0
+      ? (((priceZ2 - avgCostZ2) / avgCostZ2) * 100).toFixed(2)
+      : null;
 
   // 2. 組裝成純文字簡報結構 (加入策略參數配置區塊)
   return `
@@ -173,9 +175,10 @@ export function formatCnnDataForAi(rawData) {
     midTermTrend = `較上週明顯悲觀 (${diffFromLastWeek}分)`;
 
   // 3. 資料日期
-  const dateStr = timestamp instanceof Date && !isNaN(timestamp)
-    ? timestamp.toISOString().slice(0, 10)
-    : null;
+  const dateStr =
+    timestamp instanceof Date && !isNaN(timestamp)
+      ? timestamp.toISOString().slice(0, 10)
+      : null;
 
   // 4. 組合出給 AI 看的完整 JSON
   return {
@@ -522,8 +525,7 @@ export function formatIndexVolumeForAi(rawOverview) {
   }
 
   // AI 解讀提示
-  let aiHint =
-    "大盤量價處於中性狀態，請搭配估值、景氣與籌碼指標綜合判斷。";
+  let aiHint = "大盤量價處於中性狀態，請搭配估值、景氣與籌碼指標綜合判斷。";
   if (scenario === "放量大跌") {
     aiHint =
       "大盤出現放量下跌，短線賣壓明顯。請特別留意大盤維持率與個人槓桿水位，偏向保守或觀望。";
@@ -631,9 +633,23 @@ export function formatMacroChipForCoach(rawMarketData) {
    情境：${getVal(aiOverview, "量價情境")}
    解讀：${getVal(aiOverview, "AI解讀提示")}`;
 
-  // 3. 組合出結構極度清晰的純文本
+  // 3. 檢查資料新鮮度告警
+  const staleSlots = Object.entries(rawMarketData)
+    .filter(([key, val]) => val && val._stale)
+    .map(([key, val]) => {
+      const hours = val._stale.hoursOld;
+      const status = val._stale.status;
+      return `- ${key}: 已過期 ${hours} 小時 (最後成功: ${val._stale.lastFetch}, 狀態: ${status})`;
+    });
+
+  const staleWarningHeader =
+    staleSlots.length > 0
+      ? `⚠️ 【資料新鮮度告警】\n以下資料已超過過期門檻，分析時請特別留意時效性風險：\n${staleSlots.join("\n")}\n\n`
+      : "";
+
+  // 4. 組合出結構極度清晰的純文本
   return `
-【總體經濟與籌碼狀態】
+${staleWarningHeader}【總體經濟與籌碼狀態】
 ${cnnText}
 
 ${marginText}
@@ -661,9 +677,10 @@ export function formatValuationForAi(rawValuation) {
   const { pe, pb, yield: y, date: rawDate } = rawValuation;
 
   // 格式化日期 YYYYMMDD → YYYY-MM-DD
-  const dateStr = rawDate && rawDate.length === 8
-    ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`
-    : rawDate || "未知";
+  const dateStr =
+    rawDate && rawDate.length === 8
+      ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`
+      : rawDate || "未知";
 
   let pbStatus = "合理區段";
   let pbAdvice = "大盤淨值比與本益比處於中性水平，依據其他總經訊號判斷。";
@@ -684,9 +701,11 @@ export function formatValuationForAi(rawValuation) {
 
   // 結合 PE 防止 EPS 空窗期的失真
   if (pb < 1.6 && pe > 25) {
-    pbAdvice = "⚠️ 大盤處於低位階(低PB)，但本益比異常飆高(高PE)。這通常是因為景氣谷底導致企業獲利大幅衰退 (EPS急縮)。這並非昂貴訊號，反而是典型長線底部特徵，有利於左側佈局。";
+    pbAdvice =
+      "⚠️ 大盤處於低位階(低PB)，但本益比異常飆高(高PE)。這通常是因為景氣谷底導致企業獲利大幅衰退 (EPS急縮)。這並非昂貴訊號，反而是典型長線底部特徵，有利於左側佈局。";
   } else if (pb > 1.9 && pe < 16) {
-    pbAdvice += " (註：但目前 PE 相對較低，代表企業盈餘可能正在大幅爆發，有基之彈，無需過度恐慌)。";
+    pbAdvice +=
+      " (註：但目前 PE 相對較低，代表企業盈餘可能正在大幅爆發，有基之彈，無需過度恐慌)。";
   }
 
   // 若 PE 相對較低但 PB 高，可能是企業獲利爆發 (如台積電帶動)，AI 可藉此與 PB 綜合評估

@@ -659,7 +659,6 @@ export async function fetchMarketValuation() {
     return result;
   } catch (err) {
     console.warn(`TWSE 估值 API 異常: ${err.message}`);
-    if (_valuationCache.result) return _valuationCache.result;
     throw err;
   }
 }

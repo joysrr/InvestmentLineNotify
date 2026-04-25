@@ -111,6 +111,7 @@ export async function fetchBusinessIndicator() {
     } else {
       console.warn("⚠️ 獲取景氣燈號失敗:", err.message);
     }
-    return fallbackData; // 發生錯誤時回傳防呆預設值
+    // 不再回傳硬編碼 fallback，交由 marketData.mjs 使用最近一次 cache 並標注 FAILED
+    throw err;
   }
 }

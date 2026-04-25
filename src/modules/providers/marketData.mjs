@@ -4,6 +4,25 @@ import { TwDate } from "../../utils/coreUtils.mjs";
 // === 匯出即將被我們整合進 Cache 機制的 Provider ===
 import { macroDataSlots } from "./dataSourceConfig.mjs";
 import { providerRegistry } from "./providerRegistry.mjs";
+import { sendSystemMessage } from "../notifications/transports/telegramClient.mjs";
+
+// ── 定義 slot 重要性分級與過期門檻 ──────────────────────────────────────────
+// CRITICAL：此 slot 失敗且快取超過 STALE 容忍度時，應發出系統告警
+// IMPORTANT：失敗時記錄 warn log，但不中斷流程
+// LOW：月更或低頻資料，容忍度較高
+const SLOT_CRITICALITY = {
+  rawValuation: { level: "CRITICAL", staleHours: 48 }, // PE/PB：超過 2 天視為 STALE
+  rawMargin: { level: "CRITICAL", staleHours: 48 }, // 融資餘額：超過 2 天
+  rawUsMarket: { level: "CRITICAL", staleHours: 48 }, // FRED：超過 2 天
+  rawFx: { level: "IMPORTANT", staleHours: 4 }, // 匯率：超過 4 小時
+  rawCnn: { level: "IMPORTANT", staleHours: 24 }, // CNN 恐慌：超過 1 天
+  rawMarketOverview: { level: "IMPORTANT", staleHours: 48 }, // 大盤量價：超過 2 天
+  rawInstitutional: { level: "IMPORTANT", staleHours: 48 }, // 法人籌碼：超過 2 天
+  rawStockMargin: { level: "IMPORTANT", staleHours: 48 }, // 個股融資：超過 2 天
+  rawNdc: { level: "LOW", staleHours: 720 }, // 景氣燈號：超過 30 天
+  rawBankRate: { level: "LOW", staleHours: 720 }, // 利率：超過 30 天
+  rawCpi: { level: "LOW", staleHours: 720 }, // CPI：超過 30 天
+};
 
 function getProviderForSlot(slotKey) {
   const slot = macroDataSlots[slotKey];
@@ -207,7 +226,6 @@ export async function fetchAllMacroData() {
   } else {
     const provider = getProviderForSlot("rawValuation");
 
-    // 修改後
     fetchPromises.push(
       provider
         .fetch()
@@ -238,30 +256,37 @@ export async function fetchAllMacroData() {
   // 判斷邏輯 F: 匯率與每日一句
   // ====================================================================
 
-  // 匯率：即時抓取 (若失敗則回退)
-  const fxProvider = getProviderForSlot("rawFx");
+  // 匯率：補上 30 分鐘快取保護 (Yahoo API 穩定性考量)
   const fxProviderKey = macroDataSlots.rawFx.providerId;
+  const fxLastTime = new Date(cachedMeta[fxProviderKey]?.lastFetch || 0);
+  const minutesSinceFxUpdate = (now - fxLastTime) / (1000 * 60);
 
-  fetchPromises.push(
-    fxProvider
-      .fetch()
-      .then((res) => {
-        finalData.rawFx = res;
-        newMetaSources[fxProviderKey] = {
-          status: "SUCCESS",
-          lastFetch: now.toISOString(),
-        };
-      })
-      .catch((err) => {
-        console.warn("⚠️ Yahoo API 失敗:", err.message);
-        finalData.rawFx = cachedData.rawFx || null;
-        newMetaSources[fxProviderKey] = {
-          status: "FAILED",
-          error: err.message,
-          lastFetch: cachedMeta[fxProviderKey]?.lastFetch || null,
-        };
-      }),
-  );
+  if (cachedData.rawFx && minutesSinceFxUpdate < 30) {
+    console.log("⚡ [Cache] 匯率使用快取資料（距上次更新 < 30 分鐘）");
+    finalData.rawFx = cachedData.rawFx;
+  } else {
+    const fxProvider = getProviderForSlot("rawFx");
+    fetchPromises.push(
+      fxProvider
+        .fetch()
+        .then((res) => {
+          finalData.rawFx = res;
+          newMetaSources[fxProviderKey] = {
+            status: "SUCCESS",
+            lastFetch: now.toISOString(),
+          };
+        })
+        .catch((err) => {
+          console.warn("⚠️ Yahoo API 失敗:", err.message);
+          finalData.rawFx = cachedData.rawFx || null;
+          newMetaSources[fxProviderKey] = {
+            status: "FAILED",
+            error: err.message,
+            lastFetch: cachedMeta[fxProviderKey]?.lastFetch || null,
+          };
+        }),
+    );
+  }
 
   // 每日一句：交由其內建的 Archive 讀取邏輯處理，這裡只需等它回傳即可
   const quoteProvider = getProviderForSlot("quote");
@@ -412,7 +437,60 @@ export async function fetchAllMacroData() {
     await Promise.allSettled(fetchPromises);
   }
 
-  // 4. 將最新的結果存回 Cache (交給 Archive Manager)
+  // ====================================================================
+  // 4. 新鮮度評估與 _stale 標籤注入
+  // ====================================================================
+  const criticalStaleSlots = [];
+
+  for (const [slotKey, cfg] of Object.entries(SLOT_CRITICALITY)) {
+    const slotData = finalData[slotKey];
+    if (!slotData) continue;
+
+    const providerId = macroDataSlots[slotKey]?.providerId;
+    const meta = newMetaSources[providerId];
+    if (!meta) continue;
+
+    const lastFetch = new Date(meta.lastFetch || 0);
+    const hoursStale = (now - lastFetch) / (1000 * 60 * 60);
+
+    // 只有當資料超過容忍度時才標注，或抓取失敗時標注
+    if (meta.status === "FAILED" || hoursStale > cfg.staleHours) {
+      // 注入 _stale 標籤，使下游 AI Coach 可識別
+      if (
+        typeof finalData[slotKey] === "object" &&
+        finalData[slotKey] !== null
+      ) {
+        finalData[slotKey]._stale = {
+          hoursOld: Math.round(hoursStale),
+          lastFetch: meta.lastFetch || null,
+          status: meta.status,
+        };
+      }
+
+      // 追蹤過期的關鍵 Slot
+      if (cfg.level === "CRITICAL" && hoursStale > cfg.staleHours) {
+        criticalStaleSlots.push({
+          slot: slotKey,
+          hours: hoursStale.toFixed(1),
+          threshold: cfg.staleHours,
+        });
+      }
+    }
+  }
+
+  // 若關鍵資料過期，發出系統告警
+  if (criticalStaleSlots.length > 0) {
+    const alertItems = criticalStaleSlots
+      .map((s) => `${s.slot}(${s.hours}h/${s.threshold}h)`)
+      .join(", ");
+    const alertMsg = `⚠️ <b>[DataFreshness] 關鍵資料過期告警</b>\n\n以下指標已超過 STALE 容忍度，本日分析品質可能受影響：\n<code>${alertItems}</code>`;
+    console.error(`❌ [DataFreshness] CRITICAL STALE：${alertItems}`);
+
+    // 靜默發送系統告警
+    await sendSystemMessage(alertMsg);
+  }
+
+  // 5. 將最新的結果存回 Cache (交給 Archive Manager)
   const newMarketState = {
     _meta: {
       lastRun: now.toISOString(),

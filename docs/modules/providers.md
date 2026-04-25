@@ -5,6 +5,7 @@
 `src/modules/providers/` 是本專案的 **外部資料封裝層（Data Abstraction Layer）**，負責隔離所有對外 API 的複雜細節，對上提供一致、穩定的資料介面供 strategy / AI 消費。
 
 此層設計原則：
+
 - **Provider 不承擔策略判斷**，只負責資料整理、格式轉換與防呆回傳。
 - **所有 provider 均具備 Fallback 預設值**，外部 API 失敗時不中斷主流程。
 - **快取策略因資料更新頻率而異**，統一由 `marketData.mjs` 的 `fetchAllMacroData()` 管理。
@@ -34,6 +35,7 @@ src/modules/providers/
 ## 3. 統一入口：`marketData.mjs`
 
 ### 3.1 職責
+
 `marketData.mjs` 是 providers 層的 **唯一對外入口**，外部模組（如 `dailyCheck.mjs`）應透過此檔案取得所有總經資料，而不應直接呼叫個別 provider。
 
 ### 3.2 主要 Exports
@@ -57,44 +59,50 @@ export async function fetchAllMacroData()
 
   ```js
   export const macroDataSlots = {
-    rawNdc:           { providerId: 'ndcBusinessIndicator' },
-    rawMargin:        { providerId: 'marginKgi' },
-    rawCnn:           { providerId: 'cnnFearGreed' },
-    rawUsMarket:      { providerId: 'usMarketFred' },
-    rawValuation:     { providerId: 'twMarketValuation' },
-    rawFx:            { providerId: 'usdTwdYahoo' },
-    rawMarketOverview:{ providerId: 'twMarketOverview' },
-    rawInstitutional: { providerId: 'stockInstitutionalTwse' },
-    rawStockMargin:   { providerId: 'stockMarginTwse' },
-    rawBankRate:      { providerId: 'twCentralBankRate' },
-    rawCpi:           { providerId: 'twCpiYoY' },
-    quote:            { providerId: 'dailyQuote' },
-  }
+    rawNdc: { providerId: "ndcBusinessIndicator" },
+    rawMargin: { providerId: "marginKgi" },
+    rawCnn: { providerId: "cnnFearGreed" },
+    rawUsMarket: { providerId: "usMarketFred" },
+    rawValuation: { providerId: "twMarketValuation" },
+    rawFx: { providerId: "usdTwdYahoo" },
+    rawMarketOverview: { providerId: "twMarketOverview" },
+    rawInstitutional: { providerId: "stockInstitutionalTwse" },
+    rawStockMargin: { providerId: "stockMarginTwse" },
+    rawBankRate: { providerId: "twCentralBankRate" },
+    rawCpi: { providerId: "twCpiYoY" },
+    quote: { providerId: "dailyQuote" },
+  };
   ```
 
 - `providerRegistry.mjs` 則負責用 `providerId` 對應實際實作：
 
   ```js
-  import * as ndcProvider from './ndcProvider.mjs'
-  import * as kgiProvider from './kgiProvider.mjs'
-  import * as twseProvider from './twseProvider.mjs'
+  import * as ndcProvider from "./ndcProvider.mjs";
+  import * as kgiProvider from "./kgiProvider.mjs";
+  import * as twseProvider from "./twseProvider.mjs";
   // ...
 
   export const providerRegistry = {
     ndcBusinessIndicator: {
-      label: '國發會景氣燈號',
-      async fetch () { return ndcProvider.fetchBusinessIndicator() },
+      label: "國發會景氣燈號",
+      async fetch() {
+        return ndcProvider.fetchBusinessIndicator();
+      },
     },
     marginKgi: {
-      label: '台股融資餘額 (KGI)',
-      async fetch () { return kgiProvider.fetchTwseMarginData() },
+      label: "台股融資餘額 (KGI)",
+      async fetch() {
+        return kgiProvider.fetchTwseMarginData();
+      },
     },
     twMarketOverview: {
-      label: '台股大盤量價概覽 (指數與成交金額)',
-      async fetch () { return twseProvider.fetchMarketOverview() },
+      label: "台股大盤量價概覽 (指數與成交金額)",
+      async fetch() {
+        return twseProvider.fetchMarketOverview();
+      },
     },
     // 其餘略
-  }
+  };
   ```
 
 `marketData.mjs` 只認得 **Slot key + providerId**，不直接 import 任何單一 provider。要抽換資料來源時，只需：
@@ -108,20 +116,42 @@ export async function fetchAllMacroData()
 
 此函式在每次呼叫時，先讀取 `archiveManager.getLatestMarketData()` 的快取，再依以下策略決定哪些 provider 需要重新抓取：
 
-| 段落 | 資料 | Slot Key | providerId | 快取策略 |
-|---|---|---|---|---|
-| **A** | 國發會景氣燈號 | `rawNdc` | `ndcBusinessIndicator` | 每天抓一次（比對 `_meta.sources[providerId].lastFetch` 日期與今日相符則讀快取） |
-| **B** | 台股融資餘額 | `rawMargin` | `marginKgi` | 台北時間 16:00 前讀快取（台股收盤前無新資料）；16:00 後且距上次更新超過 2 小時則重抓 |
-| **C** | CNN 恐懼貪婪 | `rawCnn` | `cnnFearGreed` | 台北時間 21:00~05:00（美股開盤）強制重抓；其餘時間若快取不超過 24 小時則讀快取 |
-| **D** | 美股 FRED 數據 | `rawUsMarket` | `usMarketFred` | 每天抓一次（比對 `lastFetch` 日期） |
-| **E** | 大盤 PB/PE 估值 | `rawValuation` | `twMarketValuation` | 每天抓一次（比對 `lastFetch` 日期） |
-| **F** | USD/TWD 匯率 | `rawFx` | `usdTwdYahoo` | 每次都重抓（無快取） |
-| **F** | 每日一句 | `quote` | `dailyQuote` | 委由 `quoteProvider` 內部邏輯處理（依賴 `archiveManager` 今日快取判斷） |
-| **G** | 台股大盤量價概覽（指數與成交金額） | `rawMarketOverview` | `twMarketOverview` | 每天抓一次（比對 `lastFetch` 日期）；同一日多次呼叫時讀快取 |
+| 段落  | 資料                 | Slot Key                             | providerId             | 快取策略                                                                             |
+| ----- | -------------------- | ------------------------------------ | ---------------------- | ------------------------------------------------------------------------------------ |
+| **A** | 國發會景氣燈號       | `rawNdc`                             | `ndcBusinessIndicator` | 每天抓一次（比對 `_meta.sources[providerId].lastFetch` 日期與今日相符則讀快取）      |
+| **B** | 台股融資餘額         | `rawMargin`                          | `marginKgi`            | 台北時間 16:00 前讀快取（台股收盤前無新資料）；16:00 後且距上次更新超過 2 小時則重抓 |
+| **C** | CNN 恐懼貪婪         | `rawCnn`                             | `cnnFearGreed`         | 台北時間 21:00~05:00（美股開盤）強制重抓；其餘時間若快取不超過 24 小時則讀快取       |
+| **D** | 美股 FRED 數據       | `rawUsMarket`                        | `usMarketFred`         | 每天抓一次（比對 `lastFetch` 日期）                                                  |
+| **E** | 大盤 PB/PE 估值      | `rawValuation`                       | `twMarketValuation`    | 每天抓一次（比對 `lastFetch` 日期）                                                  |
+| **F** | USD/TWD 匯率         | `rawFx`                              | `usdTwdYahoo`          | 每次都重抓（無快取）                                                                 |
+| **F** | 每日一句             | `quote`                              | `dailyQuote`           | 委由 `quoteProvider` 內部邏輯處理（依賴 `archiveManager` 今日快取判斷）              |
+| **G** | 台股大盤量價概覽     | `rawMarketOverview`                  | `twMarketOverview`     | 每天抓一次（比對 `lastFetch` 日期）                                                  |
+| **H** | 個股籌碼與信用交易   | `rawInstitutional`, `rawStockMargin` | `stock...Twse`         | 每天 16:00 前讀快取；16:00 後重抓                                                    |
+| **I** | 總經指標 (利率/通膨) | `rawBankRate`, `rawCpi`              | `twCentralBank...`     | 每天抓一次（比對 `lastFetch` 日期）                                                  |
 
-> 註：`fetchAllMacroData()` 目前仍由程式碼內部實作 refresh 判斷；未來若要更進一步抽象成 config-based refreshPolicy，可從 `macroDataSlots` 擴充對應欄位開始。
+### 3.5 Slot 重要性分級與 Staleness Policy
 
-### 3.5 快取持久化與 metadata 結構
+為了確保 AI 決策層使用的資料品質，`marketData.mjs` 對每個 Slot 定義了 **重要性分級** 與 **過期 (STALE) 容忍度**：
+
+| Slot                              | 分級         | STALE 容忍度 | 說明                                         |
+| --------------------------------- | ------------ | ------------ | -------------------------------------------- |
+| `rawValuation`                    | **CRITICAL** | 48 小時      | PE/PB 是核心估值錨點，過期直接影響加減碼判斷 |
+| `rawMargin`                       | **CRITICAL** | 48 小時      | 融資餘額反映市場槓桿，過期影響風險評估       |
+| `rawUsMarket`                     | **CRITICAL** | 48 小時      | FRED 數據影響宏觀分析基礎                    |
+| `rawFx`                           | IMPORTANT    | 4 小時       | 匯率日內變動頻繁，超過 4 小時視為過期        |
+| `rawCnn`                          | IMPORTANT    | 24 小時      | 盤後讀取指標                                 |
+| `rawMarketOverview`               | IMPORTANT    | 48 小時      | 收盤後更新                                   |
+| `rawInstitutional`                | IMPORTANT    | 48 小時      | 法人籌碼                                     |
+| `rawStockMargin`                  | IMPORTANT    | 48 小時      | 個股融資                                     |
+| `rawNdc`, `rawBankRate`, `rawCpi` | LOW          | 720 小時     | 月更或低頻指標，容忍度最高                   |
+
+#### 執行規則：
+
+1.  **關鍵告警**：若 **CRITICAL** 級別的 Slot 抓取失敗且快取資料超過 STALE 容忍度，系統會透過 Telegram Log 頻道發出 **「關鍵資料過期告警」**。
+2.  **標籤注入**：當資料過期時，`marketData.mjs` 會在該 Slot 的資料物件中注入 `_stale` 屬性（包含 `hoursOld`, `lastFetch`, `status`），供下游 AI Coach 在生成建議時參考資料新鮮度。
+3.  **防護優先**：所有 Slot 失敗時均會自動 Fallback 至最近一次的快取資料，確保流程不中斷，但會帶上新鮮度標籤。
+
+### 3.6 快取持久化與 metadata 結構
 
 所有抓取結果統一由 `archiveManager.saveMarketData()` 持久化到 `data/market/latest.json`，結構如下：
 
@@ -190,21 +220,22 @@ export async function fetchAllMacroData()
 
 **主要 Exports 與回傳結構**：
 
-| 函式 | 說明 | 回傳 |
-|---|---|---|
-| `fetchStockHistory(symbol, period1, period2)` | 抓取指定股票的歷史日 K（月份分批查詢，具 archiveManager 快取） | `[{ date, open, high, low, close, volume }]` |
-| `fetchRealTimePrice(symbol)` | 取得即時股價，MIS 失敗時 fallback 至當月最後收盤 | `{ price, time }` |
-| `fetchRealtimeFromMis(symbol)` | 直接呼叫 MIS 即時 API（`fetchRealTimePrice` 的底層） | `{ price, time, priceSource, rawTime }` |
-| `getTwVix()` | 台灣 VIX（台期所）；嘗試三個 symbol candidates | `{ value, change, status, symbolUsed, date, time, dateTimeText }` |
-| `isMarketOpenTodayTWSE()` | 判斷今日是否為 TWSE 開市日 | `boolean` |
-| `loadHolidaySet(year)` | 載入 TWSE 年度休市日 Set（具記憶體快取） | `Set<string>` |
-| `fetchStockHistory(symbol, p1, p2)` | 歷史股價查詢（月份分批 + 非當月 archive 快取） | `[{ date, open, high, low, close, volume }]` |
-| `fetchMarketValuation()` | 計算 TWSE 全市場加權 PB / PE / 殖利率 | `{ pe, pb, yield, date }` |
-| `fetchMarketOverview()` | 取得台股加權指數收盤與市場成交金額，並計算近 20 日量能統計 | `{ date, taiex, ... }` |
-| `fetchStockInstitutionalData(symbol)` | 抓取個股三大法人買賣超 (T86) | `{ date, symbol, foreignNetBuy, ... }` |
-| `fetchStockMarginData(symbol)` | 抓取個股融資融券餘額 (MI_MARGN) | `{ symbol, marginBalance, shortBalance, ... }` |
+| 函式                                          | 說明                                                           | 回傳                                                              |
+| --------------------------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `fetchStockHistory(symbol, period1, period2)` | 抓取指定股票的歷史日 K（月份分批查詢，具 archiveManager 快取） | `[{ date, open, high, low, close, volume }]`                      |
+| `fetchRealTimePrice(symbol)`                  | 取得即時股價，MIS 失敗時 fallback 至當月最後收盤               | `{ price, time }`                                                 |
+| `fetchRealtimeFromMis(symbol)`                | 直接呼叫 MIS 即時 API（`fetchRealTimePrice` 的底層）           | `{ price, time, priceSource, rawTime }`                           |
+| `getTwVix()`                                  | 台灣 VIX（台期所）；嘗試三個 symbol candidates                 | `{ value, change, status, symbolUsed, date, time, dateTimeText }` |
+| `isMarketOpenTodayTWSE()`                     | 判斷今日是否為 TWSE 開市日                                     | `boolean`                                                         |
+| `loadHolidaySet(year)`                        | 載入 TWSE 年度休市日 Set（具記憶體快取）                       | `Set<string>`                                                     |
+| `fetchStockHistory(symbol, p1, p2)`           | 歷史股價查詢（月份分批 + 非當月 archive 快取）                 | `[{ date, open, high, low, close, volume }]`                      |
+| `fetchMarketValuation()`                      | 計算 TWSE 全市場加權 PB / PE / 殖利率                          | `{ pe, pb, yield, date }`                                         |
+| `fetchMarketOverview()`                       | 取得台股加權指數收盤與市場成交金額，並計算近 20 日量能統計     | `{ date, taiex, ... }`                                            |
+| `fetchStockInstitutionalData(symbol)`         | 抓取個股三大法人買賣超 (T86)                                   | `{ date, symbol, foreignNetBuy, ... }`                            |
+| `fetchStockMarginData(symbol)`                | 抓取個股融資融券餘額 (MI_MARGN)                                | `{ symbol, marginBalance, shortBalance, ... }`                    |
 
 **特殊機制**：
+
 - **Cookie 快取（TTL 10 分鐘）**：MIS 即時系統需要先取得 Cookie，使用 Promise Lock 防止併發重複請求。
 - **估值快取（TTL 4 小時）**：`fetchMarketValuation()` 結果記憶體快取，同一進程 4 小時內不重複計算。
 - **股本快取（TTL 7 天）**：`fetchSharesMap()` 讀取 TWSE OpenAPI 股本資料，7 天才重抓一次。
@@ -217,11 +248,13 @@ export async function fetchAllMacroData()
   - 近 20 日平均成交金額與最大成交金額（億元）。
 
 **大盤估值計算方式（市值加權）**：
+
 ```
 PE    = Σ(市值_i) / Σ(市值_i / PE_i)    （僅限 PE > 0 盈餘股）
 PB    = Σ(市值_i) / Σ(市值_i / PB_i)    （僅限 PB > 0）
 Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 ```
+
 資料來源：`BWIBBU_ALL`（本益比）、`STOCK_DAY_ALL`（最新收盤）、`t187ap03_L`（股本）。
 
 ---
@@ -233,6 +266,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 **主要 Export**：`fetchUsMarketData()`
 
 **回傳結構**：
+
 ```js
 {
   success: boolean,
@@ -249,13 +283,13 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 
 **風險評級邏輯**（門檻從 `signalRules.mjs` 動態讀取）：
 
-| 條件 | 風險等級 | `isHighRisk` |
-|---|---|---|
-| VIX ≥ 30 或 SPX 跌幅 ≥ 3% | 極高風險 🚨 | `true` |
-| VIX ≥ 20 或 SPX 跌幅 ≥ 2% | 高風險 ⚠️ | `true` |
-| SPX 跌幅 ≥ 1% | 風險升高 📈 | `false` |
-| VIX < 13.5 | 過度安逸 🔥 | `false` |
-| 其他 | 正常 ✅ | `false` |
+| 條件                      | 風險等級    | `isHighRisk` |
+| ------------------------- | ----------- | ------------ |
+| VIX ≥ 30 或 SPX 跌幅 ≥ 3% | 極高風險 🚨 | `true`       |
+| VIX ≥ 20 或 SPX 跌幅 ≥ 2% | 高風險 ⚠️   | `true`       |
+| SPX 跌幅 ≥ 1%             | 風險升高 📈 | `false`      |
+| VIX < 13.5                | 過度安逸 🔥 | `false`      |
+| 其他                      | 正常 ✅     | `false`      |
 
 門檻變數：`threshold.usVixPanic`、`threshold.vixHighFear`、`threshold.vixLowComplacency`
 
@@ -270,6 +304,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 **主要 Export**：`fetchFearAndGreedIndex()`
 
 **回傳結構**：
+
 ```js
 {
   score: number,          // 0~100，50 為中性
@@ -295,6 +330,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 **主要 Export**：`fetchTwseMarginData()`
 
 **回傳結構**：
+
 ```js
 {
   date: string,                  // 例如 "2026/03/20"
@@ -305,6 +341,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 ```
 
 **欄位對照**（MoneyDJ JSON）：
+
 - `V1`：日期
 - `V3`：融資餘額（單位仟元，除以 10000 轉為億）
 - `V6`：融資維持率
@@ -322,6 +359,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 **主要 Export**：`fetchUsdTwdExchangeRate()`
 
 **回傳結構**：
+
 ```js
 {
   currentRate: number,         // 最新匯率（4 位小數）
@@ -332,6 +370,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 ```
 
 **昨收價三層防呆**：
+
 1. 優先讀 `meta.previousClose`
 2. 次之讀 `meta.chartPreviousClose`
 3. 均無則取歷史陣列倒數第二筆
@@ -347,6 +386,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 **主要 Export**：`fetchBusinessIndicator()`
 
 **回傳結構**：
+
 ```js
 {
   date: string,       // 例如 "2026-01"（ISO 格式）
@@ -376,14 +416,17 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 ### 4.7 `macroProvider.mjs` — 宏觀經濟指標 (利率與 CPI)
 
 **資料來源**：
+
 - **台灣指標**：中央銀行 (CBC) 官網、主計總處 (DGBAS) 統計資料庫
 - **美國指標**：FRED (Federal Reserve Economic Data)
 
 **主要 Exports**：
+
 - `fetchCentralBankRate()`: 台灣央行貼放利率 (抓取 CBC 第一列數據)
 - `fetchCpiYoY()`: 台灣消費者物價指數年增率 (對接 DGBAS API)
 
 **回傳結構**：
+
 ```js
 {
   date: string,     // 資料日期 (YYYY-MM-DD 或 YYYY-MM)
@@ -393,6 +436,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 ```
 
 **特殊機制**：
+
 - **在地資料優先**：台灣相關宏觀指標已全面排除 FRED 依賴，改用在地官方管道。
 - **動態日期計算**：CPI 抓取會自動回推至前一個月，並轉換為民國年格式進行 API 查詢。
 
@@ -403,6 +447,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 **主要 Export**：`getDailyQuote()`
 
 **回傳結構**：
+
 ```js
 {
   date: string,    // 今日日期（YYYY-MM-DD，台北時間）
@@ -413,6 +458,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 ```
 
 **三層 Fallback**：
+
 1. 優先讀今日 `archiveManager.getLatestMarketData()` 快取（避免 Rate Limit）
 2. 向 Quotable API 抓取
 3. Quotable 失敗改用 ZenQuotes
@@ -432,45 +478,47 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 
 所有 provider 均依賴 `coreUtils.mjs` 提供的工具函式，以下為完整清單：
 
-| 函式 | 說明 | 主要使用 Provider |
-|---|---|---|
-| `fetchWithTimeout(url, options, timeout)` | 具備 `AbortController` 的 fetch 封裝，timeout 預設 8000ms | 全部 |
-| `parseNumberOrNull(v)` | 安全數字轉換：處理逗號千分位、`--`、空字串；無效回傳 `null` | 全部 |
-| `TwDate(input?)` | 台北時間 Factory，含 `formatDateKey()`、`formatMonthKey()` 等方法 | twse, quote, marketData |
-| `rocDateToIso(rocYMD)` | 民國日期轉 ISO：`"106/08/01"` → `"2017-08-01"` | twseProvider |
-| `isoDateToROC(isoText, withSlash)` | ISO 轉民國（支援純月份格式）：`"2026-03"` → `"11503"` | ndcProvider |
-| `enumerateMonths(startISO, endISO)` | 產生月份清單供 TWSE STOCK_DAY 月查詢，回傳 `["YYYYMM01", ...]` | twseProvider |
-| `toTwseStockNo(symbol)` | 去除 `.TW` 後綴：`"00675L.TW"` → `"00675L"` | twseProvider |
-| `toExCh(symbol)` | 轉為 MIS 格式：`"00675L"` → `"tse_00675L.tw"` | twseProvider |
-| `parseMisTimeToDate(dStr, tStr)` | MIS 時間字串（`"20260401"` + `"09:30:00"`）轉 Date | twseProvider |
-| `parseEnglishDateToISO(dateText)` | 英文日期（`"January 1, 2026"`）轉 ISO | twseProvider (假日解析) |
-| `sleep(ms)` | 等待指定毫秒，避免 TWSE 頻率限制 | twseProvider |
-| `stepTimer(label)` | 步驟計時器，回傳 `done()` 函式，執行後印出耗時 ms | dailyCheck（跨層使用） |
-| `escapeHTML(text)` | HTML 特殊字元跳脫，供 Telegram 訊息建構使用 | notifications 層 |
+| 函式                                      | 說明                                                              | 主要使用 Provider       |
+| ----------------------------------------- | ----------------------------------------------------------------- | ----------------------- |
+| `fetchWithTimeout(url, options, timeout)` | 具備 `AbortController` 的 fetch 封裝，timeout 預設 8000ms         | 全部                    |
+| `parseNumberOrNull(v)`                    | 安全數字轉換：處理逗號千分位、`--`、空字串；無效回傳 `null`       | 全部                    |
+| `TwDate(input?)`                          | 台北時間 Factory，含 `formatDateKey()`、`formatMonthKey()` 等方法 | twse, quote, marketData |
+| `rocDateToIso(rocYMD)`                    | 民國日期轉 ISO：`"106/08/01"` → `"2017-08-01"`                    | twseProvider            |
+| `isoDateToROC(isoText, withSlash)`        | ISO 轉民國（支援純月份格式）：`"2026-03"` → `"11503"`             | ndcProvider             |
+| `enumerateMonths(startISO, endISO)`       | 產生月份清單供 TWSE STOCK_DAY 月查詢，回傳 `["YYYYMM01", ...]`    | twseProvider            |
+| `toTwseStockNo(symbol)`                   | 去除 `.TW` 後綴：`"00675L.TW"` → `"00675L"`                       | twseProvider            |
+| `toExCh(symbol)`                          | 轉為 MIS 格式：`"00675L"` → `"tse_00675L.tw"`                     | twseProvider            |
+| `parseMisTimeToDate(dStr, tStr)`          | MIS 時間字串（`"20260401"` + `"09:30:00"`）轉 Date                | twseProvider            |
+| `parseEnglishDateToISO(dateText)`         | 英文日期（`"January 1, 2026"`）轉 ISO                             | twseProvider (假日解析) |
+| `sleep(ms)`                               | 等待指定毫秒，避免 TWSE 頻率限制                                  | twseProvider            |
+| `stepTimer(label)`                        | 步驟計時器，回傳 `done()` 函式，執行後印出耗時 ms                 | dailyCheck（跨層使用）  |
+| `escapeHTML(text)`                        | HTML 特殊字元跳脫，供 Telegram 訊息建構使用                       | notifications 層        |
 
 ---
 
 ## 6. AI Agent 維護指引
 
 ### 何時進入 providers 層排查
+
 - **某類市場資料空白或異常**：依資料類型對應到具體 provider（參考第 4 節）。
-- **快取資料過舊**：查看 `data/market/latest.json` 的 `_meta.sources` 欄位，找到對應 provider 的 `lastFetch` 與 `status`。亦可透過 Bot `/status_debug` 或 Mini App -> 設定 -> 「系統狀態」頁面查看人類可讀版健康度。 
+- **快取資料過舊**：查看 `data/market/latest.json` 的 `_meta.sources` 欄位，找到對應 provider 的 `lastFetch` 與 `status`。亦可透過 Bot `/status_debug` 或 Mini App -> 設定 -> 「系統狀態」頁面查看人類可讀版健康度。
 - **API 呼叫失敗 / Timeout**：所有 provider 均有 `console.warn`，查 GitHub Actions log 的 `⚠️` 字頭輸出。
 
 ### 各 Provider 常見問題快速定位
 
-| 症狀 | 優先查看 |
-|---|---|
-| VIX 資料空白 | `twseProvider.getTwVix()`：TAIFEX cookie 取得流程，三個 symbol candidates 是否全部失敗 |
-| 融資餘額異常低 | `kgiProvider.fetchTwseMarginData()`：合理性驗證防呆是否誤觸（餘額 < 1000 或維持率 < 100） |
-| 恐懼貪婪指數固定為 50 | `cnnProvider`：API 防爬蟲被擋，檢查 Referer/User-Agent 設定是否需要更新 |
-| 匯率為 null | `yahooProvider`：Yahoo Finance API 結構是否有異動 |
-| 景氣燈號停留在舊月份 | `ndcProvider`：民國年月轉換邏輯，或 DGBAS API 尚未更新 |
-| 美股風險永遠顯示「正常」 | `usMarketProvider`：FRED API 是否需要 API Key（設定 `FRED_API_KEY` 環境變數） |
-| 大盤 PE/PB 為 null | `twseProvider.fetchMarketValuation()`：TWSE OpenAPI `BWIBBU_ALL` 或 `STOCK_DAY_ALL` 結構異動 |
+| 症狀                                    | 優先查看                                                                                           |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| VIX 資料空白                            | `twseProvider.getTwVix()`：TAIFEX cookie 取得流程，三個 symbol candidates 是否全部失敗             |
+| 融資餘額異常低                          | `kgiProvider.fetchTwseMarginData()`：合理性驗證防呆是否誤觸（餘額 < 1000 或維持率 < 100）          |
+| 恐懼貪婪指數固定為 50                   | `cnnProvider`：API 防爬蟲被擋，檢查 Referer/User-Agent 設定是否需要更新                            |
+| 匯率為 null                             | `yahooProvider`：Yahoo Finance API 結構是否有異動                                                  |
+| 景氣燈號停留在舊月份                    | `ndcProvider`：民國年月轉換邏輯，或 DGBAS API 尚未更新                                             |
+| 美股風險永遠顯示「正常」                | `usMarketProvider`：FRED API 是否需要 API Key（設定 `FRED_API_KEY` 環境變數）                      |
+| 大盤 PE/PB 為 null                      | `twseProvider.fetchMarketValuation()`：TWSE OpenAPI `BWIBBU_ALL` 或 `STOCK_DAY_ALL` 結構異動       |
 | 大盤指數/成交金額缺失或量能統計顯示異常 | `twseProvider.fetchMarketOverview()`：TWSE OpenAPI `FMTQIK` 結構是否異動，或是否超過 20 日有效樣本 |
 
 ### 快取 metadata 結構
+
 ```js
 // data/market/latest.json 的 _meta.sources 欄位
 {
@@ -489,8 +537,8 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 
 ## 7. 對外依賴環境變數
 
-| 環境變數 | 使用 Provider | 說明 |
-|---|---|---|
+| 環境變數       | 使用 Provider      | 說明                                         |
+| -------------- | ------------------ | -------------------------------------------- |
 | `FRED_API_KEY` | `usMarketProvider` | 選配；未設定時仍可呼叫，但有較嚴格的速率限制 |
 
 其餘 provider（TWSE、CNN、KGI、Yahoo、NDC）均為**公開 API 或需偽裝 Referer 的資料來源**，不需 API Key。
