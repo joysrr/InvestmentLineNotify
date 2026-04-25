@@ -11,10 +11,42 @@ import { buildApp } from "../../api/server.mjs";
 let app;
 let request;
 
+import { mkdir, writeFile, rm } from "fs/promises";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = resolve(__dirname, "../../../data");
+
 beforeAll(async () => {
-  // 繞過 Telegram initData 驗證
+  // 建立必要的測試目錄
+  await mkdir(resolve(DATA_DIR, "market"), { recursive: true });
+  await mkdir(resolve(DATA_DIR, "news"), { recursive: true });
+  await mkdir(resolve(DATA_DIR, "reports"), { recursive: true });
+
+  // 寫入符合 2.0 結構的 Mock 資料
+  const mockStatus = { _meta: {}, data: { rawUsMarket: { vix: "15" } } };
+  const mockReport = {
+    date: "2026-04-25",
+    marketState: { valuation: {}, sentiment: { vix: 15 } },
+    strategySnapshot: {},
+    signals: { status: "🌱", score: 0 },
+  };
+
+  await writeFile(
+    resolve(DATA_DIR, "market/latest.json"),
+    JSON.stringify(mockStatus),
+  );
+  await writeFile(
+    resolve(DATA_DIR, "news/pool_filtered_active.json"),
+    JSON.stringify([]),
+  );
+  await writeFile(
+    resolve(DATA_DIR, "reports/2026-04-25.json"),
+    JSON.stringify(mockReport),
+  );
+
   process.env.BYPASS_INIT_DATA = "true";
-  // 建立測試用的 app，關閉 logger 以保持測試輸出整潔
   app = await buildApp({ logger: false });
   await app.ready();
   request = supertest(app.server);
@@ -22,6 +54,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await app.close();
+  // 不刪除資料，保留作為測試證據
 });
 
 describe("API Contract Testing", () => {
@@ -40,7 +73,7 @@ describe("API Contract Testing", () => {
 
   // ── /api/reports ───────────────────────────────────────────────
   describe("GET /api/reports", () => {
-    it("應回傳陣列且每筆包含 signals 與 ai 欄位", async () => {
+    it("應回傳 2.0 格式且包含 marketState 與 strategySnapshot", async () => {
       const res = await request
         .get("/api/reports?limit=1")
         .set("X-Telegram-Init-Data", "dev-bypass")
@@ -48,9 +81,18 @@ describe("API Contract Testing", () => {
 
       expect(Array.isArray(res.body)).toBe(true);
       if (res.body.length > 0) {
-        expect(res.body[0]).toHaveProperty("date");
-        expect(res.body[0]).toHaveProperty("signals");
-        expect(res.body[0]).toHaveProperty("ai");
+        const report = res.body[0];
+        expect(report).toHaveProperty("marketState");
+        expect(report).toHaveProperty("strategySnapshot");
+        expect(report).toHaveProperty("signals");
+
+        // 驗證 marketState 深度
+        expect(report.marketState).toHaveProperty("valuation");
+        expect(report.marketState).toHaveProperty("sentiment");
+
+        // 驗證 signals 深度
+        expect(report.signals).toHaveProperty("status");
+        expect(report.signals).toHaveProperty("score");
       }
     });
   });

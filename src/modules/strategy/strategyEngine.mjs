@@ -437,14 +437,28 @@ export async function buildDecision(
   };
 }
 
+import { normalizeMarketData, toNum } from "../../utils/normalizer.mjs";
+import { MARKET_SCHEMA } from "../../api/schema/contract.mjs";
+
 export async function evaluateInvestmentSignal(data, strategy) {
-  const priceChangePercent =
-    ((data.currentPrice - data.basePrice) / data.basePrice) * 100;
+  // ── 2.0 標準化數據清洗 ────────────────────────────────────────
+  const marketState = normalizeMarketData({
+    ...data,
+    rawValuation: data.rawValuation || {},
+    rawUsMarket: { vix: data.VIX, ...data.rawUsMarket },
+    rawCnn: data.rawCnn || { score: data.cnnScore },
+    rawMargin: data.rawMargin || { maintenanceRatio: data.maintenanceRatio },
+    rawFx: data.rawFx || { currentRate: data.currentRate },
+  });
+
+  const currentPrice = toNum(data.currentPrice);
+  const basePrice = toNum(data.basePrice);
+  const priceChangePercent = ((currentPrice - basePrice) / basePrice) * 100;
   const priceUpPercent = Math.max(0, priceChangePercent);
   const priceDropPercent = Math.max(0, -priceChangePercent);
 
   const current0050Value = data.portfolio.qty0050 * data.price0050;
-  const currentZ2Value = data.portfolio.qtyZ2 * data.currentPrice;
+  const currentZ2Value = data.portfolio.qtyZ2 * currentPrice;
 
   // ── 使用 marginManager 計算維持率與壓力測試 (排除 00675L) ───────
   const marginAnalysis = analyzeMarginRisk(
@@ -611,43 +625,29 @@ export async function evaluateInvestmentSignal(data, strategy) {
   const macdSignal = getMACDSignal(data.macdArr);
 
   return {
-    currentPrice: data.currentPrice,
-    basePrice: data.basePrice,
-    totalLoan: data.portfolio.totalLoan,
-    actualLeverage,
-    historicalLevel,
-    netAsset: ctx.netAsset,
-    bias240: bias240,
-    priceChangePercent,
-    priceChangePercentText: priceChangePercent.toFixed(2),
-    priceUpPercent: priceUpPercent,
-    priceUpPercentText: priceUpPercent.toFixed(2),
-    priceDropPercent: priceDropPercent,
-    priceDropPercentText: priceDropPercent.toFixed(2),
-    RSI: data.RSI,
-    KD_K: Number.isFinite(data.KD_K) ? data.KD_K : null,
-    KD_D: Number.isFinite(data.KD_D) ? data.KD_D : null,
-    overheat: ctx.overheat,
-    reversal: ctx.reversal,
-    weightScore: ctx.entry.weightScore,
-    weightDetails: ctx.entry.weightDetails,
-    sellSignals: ctx.sellSignals,
-    macdSignal,
-    maintenanceMargin,
-    z2Ratio,
-    strategy,
-    macroSentiment,
-    effectiveCooldownDays,
-    vixOverride,
-    ...decision,
-    grossLeverage: grossLeverageResult?.grossLeverage ?? null,
-    grossLeverageStatus: grossLeverageResult?.status ?? "normal",
-    entryGateLevel: decision.entryGateLevel ?? null,
-    entryGateLabel: decision.entryGateLabel ?? null,
-    entryGateBlocked: decision.entryGateBlocked ?? false,
-    cooldownStatus,
-    marginAnalysis,
-    decouplingAnalysis,
+    id: data.date || new Date().toISOString().split("T")[0],
+    date: data.date || new Date().toISOString(),
+    marketState, // 2.0 標準化分類數據
+    strategySnapshot: strategy, // 完整拷貝策略，供未來回溯
+    signals: {
+      status: decision.marketStatus || "🌱",
+      score: toNum(ctx.entry.weightScore),
+      target: decision.target || "🔹 0050 DCA",
+      suggestion: decision.targetSuggestion || "維持觀望",
+      weightDetails: ctx.entry.weightDetails,
+      priceChangePercent: toNum(priceChangePercent),
+      actualLeverage: toNum(actualLeverage),
+      maintenanceMargin: toNum(maintenanceMargin),
+      z2Ratio: toNum(z2Ratio),
+      grossLeverage: toNum(grossLeverageResult?.grossLeverage),
+      grossLeverageStatus: grossLeverageResult?.status || "normal",
+      entryGateLevel: decision.entryGateLevel ?? null,
+      cooldownStatus,
+      marginAnalysis,
+      decouplingAnalysis,
+      macdSignal,
+    },
+    ai: data.ai || null,
   };
 }
 

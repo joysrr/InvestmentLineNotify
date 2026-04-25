@@ -61,13 +61,13 @@
         <div class="decision-main">
           <div class="decision-status-row">
             <span class="decision-status-icon">{{ statusEmoji }}</span>
-            <span class="decision-status-text">{{ latestReport.signals?.marketStatus || '—' }}</span>
+            <span class="decision-status-text">{{ latestReport.signals?.status || '—' }}</span>
           </div>
-          <p class="decision-suggestion">{{ latestReport.signals?.targetSuggestion || '載入中...' }}</p>
+          <p class="decision-suggestion">{{ latestReport.signals?.suggestion || '載入中...' }}</p>
         </div>
         <div class="decision-badges">
           <span class="badge" :class="pctClass">{{ pctText }}</span>
-          <span class="badge badge-score">評分 {{ latestReport.signals?.weightScore ?? "—" }}</span>
+          <span class="badge badge-score">評分 {{ latestReport.signals?.score ?? "—" }}</span>
           <span class="badge badge-target">{{ latestReport.signals?.target ?? "—" }}</span>
         </div>
 
@@ -298,8 +298,8 @@ const aiInternalThinking = computed(() => aiData.value.coach_internal_thinking ?
 
 // ── VIX level ──
 const vixLevel = computed(() => {
-  const v = parseFloat(status.value?.data?.rawUsMarket?.vix);
-  if (isNaN(v)) return { label: "—", cardClass: "", textClass: "snap-sub--neutral" };
+  const v = latestReport.value?.marketState?.sentiment?.vix;
+  if (v == null) return { label: "—", cardClass: "", textClass: "snap-sub--neutral" };
   if (v >= 30) return { label: "極度恐慌", cardClass: "card-danger", textClass: "snap-sub--danger" };
   if (v >= 20) return { label: "警戒", cardClass: "card-warn", textClass: "snap-sub--warn" };
   return { label: "平穩", cardClass: "card-ok", textClass: "snap-sub--ok" };
@@ -307,7 +307,7 @@ const vixLevel = computed(() => {
 
 // ── PB PR level ──
 const pbPrValue = computed(() => {
-  const v = latestReport.value?.signals?.valuationGuardResult?.currentPR;
+  const v = latestReport.value?.marketState?.valuation?.pr;
   return v != null ? Math.round(v) : "—";
 });
 
@@ -336,7 +336,7 @@ const glLevel = computed(() => {
 
 // ── Business cycle emoji ──
 const lightEmoji = computed(() => {
-  const sig = status.value?.data?.rawNdc?.light ?? "";
+  const sig = latestReport.value?.marketState?.economy?.ndcLight ?? "";
   if (sig.includes("紅") || sig.includes("熱絡")) return "🔴";
   if (sig.includes("黃紅") || sig.includes("活絡")) return "🟠";
   if (sig.includes("綠") || sig.includes("穩定")) return "🟢";
@@ -436,8 +436,8 @@ const scoreVal = computed(() => {
 });
 
 const scoreMin = computed(() => {
-  const v = latestReport.value?.signals?.strategy?.buy?.minWeightScoreToBuy;
-  return Number.isFinite(Number(v)) ? Number(v) : "--";
+  const v = latestReport.value?.strategySnapshot?.indicator?.buy?.minWeightScoreToBuy;
+  return v != null ? Number(v) : "--";
 });
 
 const scoreOk = computed(() =>

@@ -24,7 +24,9 @@
 
 import "dotenv/config";
 import { readFileSync } from "fs";
-import { join } from "path";
+import { join, resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+const __dirname = dirname(fileURLToPath(import.meta.url));
 import { Bot, InlineKeyboard } from "grammy";
 import { adminGuard } from "./modules/bot/middleware/adminGuard.mjs";
 import { acquireLock, releaseLock } from "./modules/bot/runnerLock.mjs";

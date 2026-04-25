@@ -17,12 +17,18 @@ import {
 } from "./indicators.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 import { readFile } from "fs/promises";
-import { resolve } from "path";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const STRATEGY_URL = process.env.STRATEGY_URL;
 
 /** 本地 Strategy.json 路徑（相對於專案根目錄） */
-const LOCAL_STRATEGY_PATH = resolve(process.cwd(), "data/config/Strategy.json");
+const LOCAL_STRATEGY_PATH = resolve(
+  __dirname,
+  "../../../data/config/Strategy.json",
+);
 
 /* 記憶體暫存 */
 let _cache = {

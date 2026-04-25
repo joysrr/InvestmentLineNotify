@@ -13,11 +13,32 @@
 5. `src/runMonthlyReport.mjs`：讀取近期報告並生成 AI 月報。
 6. `src/bot.mjs`：Telegram Bot 長駐程序，處理即時指令觸發與互動。
 7. `src/api/server.mjs`：Fastify HTTP API Server（Port 3000），提供唯讀資料 API 給 Mini App 前端使用。
-8. `webapp/`：Vite + Vue 3 前端 Mini App，作為 Telegram Mini App 嵌入式多頁儀表板（總覽、雷達、多空、圖表、報告、新聞、設定共 7 Tab）。
+8. `webapp/`：Vite + Vue 3 前端 Mini App，作為 Telegram Mini App 嵌入式多頁儀表板。
+9. `src/utils/dataMigrator.mjs`：[NEW 2.0] 歷史資料遷移與結構升級工具。
 
 ---
 
-## 2. 生命週期總覽
+## 2. [ILN 2.0] 數據治理與分層 (Data Governance)
+
+從 2.0 版本起，系統引入了強型別的數據合約與分層存儲架構，解決了資料結構變動導致的系統崩潰問題：
+
+### 2.1 數據分層 (Data Layering)
+
+- **Raw (原始層)**: `data/market/latest.json` 存放各 Provider 抓回的非結構化原始數據。
+- **Canonical (標準層)**: 透過 `src/utils/normalizer.mjs` 將原始數據轉化為統一的數值格式，並歸類至 `valuation`, `sentiment`, `liquidity`, `economy` 四大維度。
+- **Inference (推論層)**: `data/reports/` 存放 Strategy Engine 根據標準層數據算出的決策結果。
+
+### 2.2 數據合約 (Data Contract)
+
+所有報告與 API 回傳結構均遵循 `src/api/schema/contract.mjs` 定義的 `REPORT_SCHEMA`：
+
+- **完整策略拷貝 (Strategy Snapshot)**: 每份報告均完整記錄當下使用的策略設定，確保決策可回溯。
+- **全量數字化**: 所有數值欄位統一為 `Number` 類型，前端無需再處理百分比或逗號字串。
+- **嵌套語意化**: 資料以模組化路徑（如 `report.signals.score`）存取。
+
+---
+
+## 3. 生命週期總覽
 
 系統實際運作可拆成八個層次：
 
