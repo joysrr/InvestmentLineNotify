@@ -4,11 +4,22 @@ import cors from "@fastify/cors";
 import { fileURLToPath } from "url";
 import { assertEnv } from "../utils/envGuard.mjs";
 import logger from "../utils/logger.mjs";
+console.log("[api] 🟢 基礎組件加載完成");
+
 import { initDataGuard } from "./middleware/initDataGuard.mjs";
+console.log("[api] 🟢 中間件加載完成");
+
 import statusRoute from "./routes/status.mjs";
+console.log("[api] 🟢 statusRoute 加載完成");
+
 import reportsRoute from "./routes/reports.mjs";
+console.log("[api] 🟢 reportsRoute 加載完成");
+
 import newsRoute from "./routes/news.mjs";
+console.log("[api] 🟢 newsRoute 加載完成");
+
 import configRoute from "./routes/config.mjs";
+console.log("[api] 🟢 configRoute 加載完成");
 
 // 啟動前強制檢查環境變數，確保不帶病執行
 console.log("[api] 🔍 執行環境變數檢查...");
