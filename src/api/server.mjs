@@ -38,10 +38,13 @@ export async function buildApp(opts = {}) {
   fastify.addHook("onRequest", initDataGuard);
 
   // ─── Routes ──────────────────────────────────────────────────────────────────
+  /*
   await fastify.register(statusRoute, { prefix: "/api" });
   await fastify.register(reportsRoute, { prefix: "/api" });
   await fastify.register(newsRoute, { prefix: "/api" });
   await fastify.register(configRoute, { prefix: "/api" });
+  */
+  console.log("[api] 🚧 業務路由已暫時停用 (隔離測試中)");
 
   // ─── Health check (no auth required, skip guard in middleware) ───────────────
   fastify.get("/health", async () => ({ status: "ok", ts: Date.now() }));
