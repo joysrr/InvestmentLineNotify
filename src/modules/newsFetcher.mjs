@@ -142,6 +142,11 @@ const buildUrl = (queryStr, gl, hl, ceid) => {
   }).toString()}`;
 };
 
+/**
+ * 依日期過濾新聞。
+ * 雖然 RSS 查詢已加上 `+when:6h`，但此處再次過濾可防禦
+ * 搜尋引擎偶發回傳錯誤時間戳（如舊聞重上架）的情境。
+ */
 function filterNewsByDate(newsList, withinHours = 6) {
   const now = Date.now();
   const cutoff = now - withinHours * 60 * 60 * 1000;
@@ -196,10 +201,11 @@ function prepareNewsForAI(newsList, maxPerRegion = 20, blacklist = null) {
   console.log(`📰 標題黑名單過濾後: ${titleFiltered.length} 筆`);
 
   const sourceCount = {};
+  const MAX_PER_SOURCE = 5;
   const dedupedBySource = titleFiltered.filter((news) => {
     const source = news.source || "unknown";
     sourceCount[source] = (sourceCount[source] || 0) + 1;
-    return sourceCount[source] <= 100;
+    return sourceCount[source] <= MAX_PER_SOURCE;
   });
   console.log(`📰 來源去重後: ${dedupedBySource.length} 筆`);
 

@@ -12,6 +12,8 @@ import {
   buildCompactPeriodMessage,
 } from "./modules/notifications/templates/periodReportBuilder.mjs";
 import { sendTelegramBatch } from "./modules/notifications/transports/telegramClient.mjs";
+import { langfuse } from "./modules/ai/aiClient.mjs";
+import logger from "./utils/logger.mjs";
 
 const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
@@ -24,14 +26,14 @@ const sessionId = process.env.GITHUB_RUN_ID
  *   - TELEGRAM_WEBAPP_URL 未設定 → buildPeriodReportMessages()  （原杧2 則）
  */
 export async function runWeeklyReport() {
-  console.log("📊 [WeeklyReport] 開始產生週報...");
+  logger.info("📊 [WeeklyReport] 開始產生週報...");
 
   const reports = await loadRecentReports(7);
-  console.log(`📂 [WeeklyReport] 載入 ${reports.length} 份近期報告`);
+  logger.info(`📂 [WeeklyReport] 載入 ${reports.length} 份近期報告`);
 
   if (reports.length < 3) {
     const msg = `⚠️ <b>週報產生失敗</b>\n本週可用報告數量不足（${reports.length} 份），無法產生週報。`;
-    console.warn("⚠️ [WeeklyReport] 報告數量不足 3 份，跳過週報");
+    logger.warn("⚠️ [WeeklyReport] 報告數量不足 3 份，跳過週報");
     if (process.env.TELEGRAM_API_TOKEN)
       await sendTelegramBatch([{ text: msg }]);
     return {
@@ -43,19 +45,26 @@ export async function runWeeklyReport() {
 
   const stats = buildPeriodStats(reports, "weekly");
   const accuracyStats = buildSignalAccuracyStats(reports, reports, "weekly");
-  const { aiSummary } = await generatePeriodAiSummary(
-    stats,
-    reports,
-    `過去 ${reports.length}`,
-    sessionId,
-  );
+
+  let aiSummary = null;
+  try {
+    const result = await generatePeriodAiSummary(
+      stats,
+      reports,
+      `過去 ${reports.length}`,
+      sessionId,
+    );
+    aiSummary = result.aiSummary;
+  } catch (err) {
+    logger.warn(err, "⚠️ [WeeklyReport] AI 摘要產生失敗，將降級發送純統計報告");
+  }
 
   const webAppUrl = process.env.TELEGRAM_WEBAPP_URL || null;
 
   let messages;
   if (webAppUrl) {
     messages = buildCompactPeriodMessage(stats, aiSummary, "weekly", webAppUrl);
-    console.log("[WeeklyReport] MiniApp 模式：發送精簡週報卡");
+    logger.info("[WeeklyReport] MiniApp 模式：發送精簡週報卡");
   } else {
     messages = buildPeriodReportMessages(
       stats,
@@ -63,17 +72,17 @@ export async function runWeeklyReport() {
       "weekly",
       accuracyStats,
     );
-    console.log("[WeeklyReport] 完整模式：發送 2 則週報");
+    logger.info("[WeeklyReport] 完整模式：發送 2 則週報");
   }
 
   if (process.env.TELEGRAM_API_TOKEN) {
     await sendTelegramBatch(messages);
-    console.log("✅ [WeeklyReport] Telegram 週報發送成功");
+    logger.info("✅ [WeeklyReport] Telegram 週報發送成功");
   } else {
-    console.log("⚠️ [WeeklyReport] TELEGRAM_API_TOKEN 未設定，略過推送");
+    logger.warn("⚠️ [WeeklyReport] TELEGRAM_API_TOKEN 未設定，略過推送");
   }
 
-  console.log("✅ [WeeklyReport] 週報執行完成");
+  logger.info("✅ [WeeklyReport] 週報執行完成");
   return { skipped: false, reportCount: reports.length };
 }
 
@@ -82,8 +91,16 @@ async function main() {
   try {
     await runWeeklyReport();
   } catch (err) {
-    console.error("❌ [WeeklyReport] 執行失敗:", err.message);
+    logger.error(err, "❌ [WeeklyReport] 執行失敗");
     process.exit(1);
+  } finally {
+    logger.info("🔒 [WeeklyReport] 正在關閉 Langfuse...");
+    try {
+      await langfuse.shutdownAsync();
+      logger.info("✅ [WeeklyReport] Langfuse 已關閉");
+    } catch (e) {
+      logger.warn(e, "⚠️ Langfuse 關閉失敗");
+    }
   }
 }
 

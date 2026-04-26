@@ -36,7 +36,9 @@ export async function initDataGuard(request, reply) {
 
   const botToken = process.env.TELEGRAM_API_TOKEN;
   if (!botToken) {
-    request.log.error("❌ [initDataGuard] 缺少 TELEGRAM_API_TOKEN，無法驗證 initData");
+    request.log.error(
+      "❌ [initDataGuard] 缺少 TELEGRAM_API_TOKEN，無法驗證 initData",
+    );
     return reply.code(500).send({ error: "Server auth configuration error" });
   }
 
@@ -85,6 +87,11 @@ export async function initDataGuard(request, reply) {
       return reply
         .code(401)
         .send({ error: "initData expired (replay attack prevention)" });
+    }
+
+    const userStr = params.get("user");
+    if (userStr) {
+      request.telegramUser = JSON.parse(userStr);
     }
   } catch (err) {
     return reply.code(400).send({ error: "Malformed initData" });

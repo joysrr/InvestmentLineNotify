@@ -220,8 +220,8 @@
       </div>
     </section>
 
-    <p v-if="status?.updatedAt" class="update-time">
-      資料更新：{{ formatUpdatedAt(status.updatedAt) }}
+    <p v-if="status?._meta?.lastRun" class="update-time">
+      資料更新：{{ formatUpdatedAt(status._meta.lastRun) }}
     </p>
   </div>
 </template>
@@ -229,7 +229,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { fetchStatus, fetchReports, fetchNews } from "../api/index.js";
-import { useTelegram } from "../composables/useTelegram.js";
+import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 // ECharts
 import VChart from "vue-echarts";
@@ -298,7 +298,8 @@ const aiInternalThinking = computed(() => aiData.value.coach_internal_thinking ?
 
 // ── VIX level ──
 const vixLevel = computed(() => {
-  const v = latestReport.value?.marketState?.sentiment?.vix;
+  const statusVix = status.value?.data?.rawUsMarket?.vix;
+  const v = statusVix != null ? parseFloat(statusVix) : latestReport.value?.marketState?.sentiment?.vix;
   if (v == null) return { label: "—", cardClass: "", textClass: "snap-sub--neutral" };
   if (v >= 30) return { label: "極度恐慌", cardClass: "card-danger", textClass: "snap-sub--danger" };
   if (v >= 20) return { label: "警戒", cardClass: "card-warn", textClass: "snap-sub--warn" };
@@ -551,7 +552,10 @@ async function loadAll() {
   if (rRes.status === "fulfilled") {
     const raw = rRes.value;
     const list = Array.isArray(raw) ? raw : raw?.data ?? raw?.reports ?? [];
-    const sorted = [...list].sort((a, b) => String(b.date ?? "").localeCompare(String(a.date ?? "")));
+    const sorted = [...list].sort((a, b) => 
+      String(b.date ?? "").localeCompare(String(a.date ?? "")) || 
+      String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? ""))
+    );
     latestReport.value = sorted[0] ?? null;
   } else {
     reportError.value = true;
@@ -562,14 +566,17 @@ async function loadAll() {
     const list = Array.isArray(nRes.value) ? nRes.value : nRes.value?.articles ?? [];
     const order = { fresh: 0, recent: 1, old: 2 };
     topNews.value = [...list]
-      .sort((a, b) => (order[a.age_band] ?? 2) - (order[b.age_band] ?? 2))
+      .sort((a, b) => (order[a.age_band] ?? 2) - (order[b.age_band] ?? 2) || new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0))
       .slice(0, 3);
   } else {
     newsError.value = true;
   }
 }
 
-onMounted(loadAll);
+onMounted(async () => {
+  await waitReady();
+  await loadAll();
+});
 </script>
 
 <style scoped>

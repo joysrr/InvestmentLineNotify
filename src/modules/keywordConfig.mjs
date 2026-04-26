@@ -71,7 +71,7 @@ export const twExcludeKeywords = [
   { keyword: "即時新聞", searchType: "intitle" },
   { keyword: "買超個股", searchType: "intitle" },
   { keyword: "賣超個股", searchType: "intitle" },
-  { keyword: "前十大", searchType: "intitle" }
+  { keyword: "前十大", searchType: "intitle" },
 ];
 
 /** 美國新聞 RSS URL 排除關鍵字 */
@@ -84,7 +84,7 @@ export const usExcludeKeywords = [
   { keyword: "stock forecast", searchType: "broad" },
   { keyword: "Liquidity Pulse", searchType: "broad" },
   { keyword: "Liquidity Mapping", searchType: "broad" },
-  { keyword: "Powell Industries", searchType: "intitle" }
+  { keyword: "Powell Industries", searchType: "intitle" },
 ];
 
 // ── Blacklist 動態載入 ────────────────────────────────────────────────────────
@@ -114,12 +114,25 @@ function parseRegexString(str) {
  * }>}
  */
 export async function loadBlacklist() {
-  const raw = await fs.readFile(BLACKLIST_PATH, "utf-8");
-  const data = JSON.parse(raw);
+  try {
+    const raw = await fs.readFile(BLACKLIST_PATH, "utf-8");
+    const data = JSON.parse(raw);
 
-  return {
-    twExcludedSources: [...new Set(data.twExcludedSources)],
-    usExcludedSources: [...new Set(data.usExcludedSources)],
-    titleBlackListPatterns: data.titleBlackListPatterns.map(parseRegexString),
-  };
+    return {
+      twExcludedSources: [...new Set(data.twExcludedSources || [])],
+      usExcludedSources: [...new Set(data.usExcludedSources || [])],
+      titleBlackListPatterns: (data.titleBlackListPatterns || []).map(
+        parseRegexString,
+      ),
+    };
+  } catch (err) {
+    console.warn(
+      `⚠️ [KeywordConfig] 讀取 blacklist.json 失敗，將使用空黑名單: ${err.message}`,
+    );
+    return {
+      twExcludedSources: [],
+      usExcludedSources: [],
+      titleBlackListPatterns: [],
+    };
+  }
 }

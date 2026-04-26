@@ -1,5 +1,5 @@
-import { ref, computed } from 'vue'
-import { fetchSnapshots } from '../api/index.js'
+import { ref, computed } from "vue";
+import { fetchSnapshots } from "../api/index.js";
 
 /**
  * 共用帳戶快照狀態層
@@ -11,26 +11,30 @@ import { fetchSnapshots } from '../api/index.js'
  * - load()         : 手動重新載入
  */
 export function usePortfolioSnapshots(limit = 30) {
-  const snapshots      = ref([])
-  const hasEncryption  = ref(false)
-  const loading        = ref(false)
-  const error          = ref(null)
+  const snapshots = ref([]);
+  const hasEncryption = ref(false);
+  const loading = ref(false);
+  const error = ref(null);
 
-  const latestSnapshot = computed(() => snapshots.value[0] ?? null)
+  const latestSnapshot = computed(() => snapshots.value[0] ?? null);
 
   async function load() {
-    loading.value = true
-    error.value   = null
+    loading.value = true;
+    error.value = null;
     try {
-      const res          = await fetchSnapshots(limit)
-      snapshots.value    = res.snapshots     ?? []
-      hasEncryption.value = res.hasEncryption ?? false
+      const res = await fetchSnapshots(limit);
+      snapshots.value = res.snapshots ?? [];
+      hasEncryption.value = res.hasEncryption ?? false;
     } catch (e) {
-      error.value = '無法載入帳戶快照，請稍後再試'
+      if (e.status) {
+        error.value = `載入失敗 (${e.status})，請稍後再試`;
+      } else {
+        error.value = "網路或伺服器異常，請稍後再試";
+      }
     } finally {
-      loading.value = false
+      loading.value = false;
     }
   }
 
-  return { snapshots, latestSnapshot, hasEncryption, loading, error, load }
+  return { snapshots, latestSnapshot, hasEncryption, loading, error, load };
 }

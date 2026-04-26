@@ -549,6 +549,7 @@ export async function evaluateInvestmentSignal(data, strategy) {
     reserveCash: data.portfolio?.cash || 0,
 
     cooldownStatus,
+    macroSentiment,
 
     entry: computeEntryScore(data, priceDropPercent, strategy, macroSentiment),
     overheat: computeOverheatState(data, bias240, strategy),

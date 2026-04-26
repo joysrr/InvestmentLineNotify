@@ -34,6 +34,8 @@ import {
   encryptSnapshot,
   isSnapshotEncryptEnabled,
 } from "./utils/snapshotCrypto.mjs";
+import logger from "./utils/logger.mjs";
+import { sendTelegramBatch } from "./modules/notifications/transports/telegramClient.mjs";
 
 const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
@@ -43,24 +45,24 @@ export async function dailyCheck({
   isTelegramEnabled = true,
   isAIAdvisor = true,
 }) {
-  console.log("🚀 開始執行 dailyCheck...");
+  logger.info("🚀 開始執行 dailyCheck...");
 
   // 1. 從試算表繼承昨天的持股狀態
-  console.log("📊 正在讀取試算表持股...");
+  logger.info("📊 正在讀取試算表持股...");
   let lastState = null;
   try {
     const done = stepTimer("fetchPortfolioState");
     lastState = await fetchLastPortfolioState();
     done();
   } catch (e) {
-    console.error("⚠️ 讀取試算表失敗，將使用預設設定 0:", e.message);
+    logger.error(e, "⚠️ 讀取試算表失敗，將使用預設設定 0");
     const cachedLastBuyDate = await archiveManager.getLastBuyDate();
     if (cachedLastBuyDate) {
-      console.warn(
+      logger.warn(
         `⚠️ [dailyCheck] Sheet 失敗，lastBuyDate 使用本地備份: ${cachedLastBuyDate}`,
       );
     } else {
-      console.warn(
+      logger.warn(
         "⚠️ [dailyCheck] Sheet 失敗且無本地備份，lastBuyDate 將以 null 處理",
       );
     }
@@ -76,17 +78,17 @@ export async function dailyCheck({
     };
   }
   const stockStatus = `✅ 持股狀態確認：0050=${lastState.qty0050}股, 00675L=${lastState.qtyZ2}股, 借款=${lastState.totalLoan}`;
-  console.log(stockStatus);
+  logger.info(stockStatus);
 
   // 檢查是否開市
-  console.log("📅 檢查是否開市...");
+  logger.info("📅 檢查是否開市...");
   const openToday = await isMarketOpenTodayTWSE();
   if (!openToday) {
-    console.log("😴 當日無開市，跳過通知");
+    logger.info("😴 當日無開市，跳過通知");
   }
 
-  // 台指恐慑指數 (VIX)
-  console.log("📈 抓取台指恐慑指數 (VIX)...");
+  // 台指恐懾指數 (VIX)
+  logger.info("📈 抓取台指恐懾指數 (VIX)...");
   let vixData;
   {
     const done = stepTimer("fetchVix");
@@ -94,13 +96,13 @@ export async function dailyCheck({
     done();
   }
   if (vixData) {
-    console.log(`✅ VIX 値：${vixData.value.toFixed(2)}`);
+    logger.info(`✅ VIX 値：${vixData.value.toFixed(2)}`);
   } else {
-    console.log("❌ VIX 抓取失敗，不影響主流程");
+    logger.info("❌ VIX 抓取失敗，不影響主流程");
   }
 
   // 抓取基準價
-  console.log("📥 正在抓取基準價...");
+  logger.info("📥 正在抓取基準價...");
   let basePrice;
   {
     const done = stepTimer("fetchBasePrice");
@@ -108,10 +110,10 @@ export async function dailyCheck({
     basePrice = result.basePrice;
     done();
   }
-  console.log(`💰 取得基準價：${basePrice}`);
+  logger.info(`💰 取得基準價：${basePrice}`);
 
   // 取得總經與籌碼資料
-  console.log("🌏 正在獲取總經與籌碼資料 (含每日一句與美股風險)...");
+  logger.info("🌏 正在獲取總經與籌碼資料 (含每日一句與美股風險)...");
   let macroData;
   {
     const done = stepTimer("fetchMacroData");
@@ -123,11 +125,11 @@ export async function dailyCheck({
   // ── 大盤量價概覽 log ────────────────────────────────────────────────────────
   if (macroData.rawMarketOverview) {
     const ov = macroData.rawMarketOverview;
-    console.log(
+    logger.info(
       `✅ 大盤量價：指數 ${ov.taiex ?? "--"} 點，成交 ${ov.tradeValueHundredMillion ?? "--"} 億元 [${ov.date ?? "--"}]`,
     );
   } else {
-    console.log("⚠️ 大盤量價概覽資料缺失，AI Coach 將略過此指標");
+    logger.warn("⚠️ 大盤量價概覽資料缺失，AI Coach 將略過此指標");
   }
   // ────────────────────────────────────────────────────────────────────────────
 
@@ -141,8 +143,8 @@ export async function dailyCheck({
     quote: "投資需謹慎",
     author: "系統預設",
   };
-  console.log(`✅ 美股風險：${usRisk.riskLevel}`);
-  console.log(`📖 今日一句：${quote.quote}`);
+  logger.info(`✅ 美股風險：${usRisk.riskLevel}`);
+  logger.info(`📖 今日一句：${quote.quote}`);
 
   // 取得股票資訊
   const symbolZ2 = "00675L.TW";
@@ -152,7 +154,7 @@ export async function dailyCheck({
   const lastYear = new Date(today);
   lastYear.setFullYear(lastYear.getFullYear() - 1);
 
-  console.log("📥 正在抓取00675L歷史數據...");
+  logger.info("📥 正在抓取00675L歷史數據...");
   let history;
   {
     const done = stepTimer("fetchStockHistory");
@@ -165,12 +167,19 @@ export async function dailyCheck({
   }
 
   if (history.length < 30) {
-    console.log("❌ 資料不足，無法計算指標");
+    logger.error("❌ 資料不足，無法計算指標");
+    if (isTelegramEnabled) {
+      await sendTelegramBatch([
+        {
+          text: "⚠️ <b>嚴重錯誤</b>\n00675L 歷史資料不足 30 筆，今日 dailyCheck 強制終止。",
+        },
+      ]);
+    }
     return "❌ 資料不足";
   }
 
   // 抓取 0050 歷史數據 (用於長線趨勢與穩定指標參考)
-  console.log("📥 正在抓取 0050 歷史數據...");
+  logger.info("📥 正在抓取 0050 歷史數據...");
   let history0050;
   {
     const done = stepTimer("fetchStockHistory0050");
@@ -183,7 +192,7 @@ export async function dailyCheck({
   }
 
   // 抓取 0050 最新價格
-  console.log("📥 正在抓取 0050 價格...");
+  logger.info("📥 正在抓取 0050 價格...");
   let price0050 = null;
   {
     const done = stepTimer("fetchPrice0050");
@@ -191,7 +200,7 @@ export async function dailyCheck({
       const rt0050 = await fetchRealtimeFromMis(symbol0050);
       price0050 = rt0050?.price;
     } catch (e) {
-      console.log("⚠️ 0050 MIS 失敗，轉用收盤價");
+      logger.warn("⚠️ 0050 MIS 失敗，轉用收盤價");
     }
     if (!price0050) {
       const latest0050 = await fetchLatestClose(symbol0050);
@@ -201,7 +210,7 @@ export async function dailyCheck({
   }
 
   // 抓取 00675L 即時價
-  console.log("📥 正在抓取 00675L 即時價...");
+  logger.info("📥 正在抓取 00675L 即時價...");
   let currentPriceZ2 = null;
   {
     const done = stepTimer("fetchPriceZ2");
@@ -209,7 +218,7 @@ export async function dailyCheck({
       const rt = await fetchRealtimeFromMis(symbolZ2);
       currentPriceZ2 = rt?.price;
     } catch (e) {
-      console.log(`⚠️ 00675L MIS 失敗，改用收盤價：${currentPriceZ2}`);
+      logger.warn(`⚠️ 00675L MIS 失敗，改用收盤價：${currentPriceZ2}`);
     }
     if (!currentPriceZ2) {
       const latest = await fetchLatestClose(symbolZ2);
@@ -219,7 +228,7 @@ export async function dailyCheck({
   }
 
   // 計算 00675L 指標 (戰術盤感)
-  console.log(`🧠 正在計算 00675L 指標...`);
+  logger.info(`🧠 正在計算 00675L 指標...`);
   let indicatorsZ2;
   {
     const done = stepTimer("calculateIndicatorsZ2");
@@ -228,7 +237,7 @@ export async function dailyCheck({
   }
 
   // 計算 0050 指標 (底層趨勢參考)
-  console.log(`🧠 正在計算 0050 指標...`);
+  logger.info(`🧠 正在計算 0050 指標...`);
   let indicators0050;
   {
     const done = stepTimer("calculateIndicators0050");
@@ -238,21 +247,27 @@ export async function dailyCheck({
 
   const { closes, rsiArr, macdArr, kdArr } = indicatorsZ2;
   const latestClose = closes[closes.length - 1];
+
+  // [P2-6] finalPriceZ2 的語意邊界說明：
+  // 1. 若 currentPriceZ2 有值（來自 MIS 即時價），則使用它，此時反映真實市況。
+  // 2. 若為 null（MIS 失敗），fallback 至 latestClose（即前一交易日收盤價）。
+  // 此 fallback 可能導致當日 priceDropPercent 等同 0（若與昨日比），在劇烈波動日時可能延遲停損判斷，應盡量確保 MIS 正常。
   const finalPriceZ2 = currentPriceZ2 || latestClose;
+
   const ma240 =
     closes.length >= 240
       ? closes.slice(-240).reduce((a, b) => a + b, 0) / 240
       : null;
   const latestRSI = rsiArr[rsiArr.length - 1];
   const latestKD = kdArr[kdArr.length - 1];
-  console.log(`✅ 指標計算完成`);
+  logger.info(`✅ 指標計算完成`);
 
   // ── 取得新跡集錦與總經分析（提前至策略引擎之前）────────────────────
   let newsMessages = [];
   let newsSummaryText = "今日無重大市場新跡。";
   let conflictSummary = "";
   let newsStructured = { tw: [], us: [] };
-  console.log("📝 正在從 news pool 取得新跡集錦...");
+  logger.info("📝 正在從 news pool 取得新跡集錦...");
   {
     const done = stepTimer("fetchNews");
     try {
@@ -262,7 +277,7 @@ export async function dailyCheck({
       conflictSummary = newsResult.conflictSummary ?? "";
       newsStructured = newsResult.structured ?? { tw: [], us: [] };
     } catch (err) {
-      console.error("❌ 取得新跡集錦失敗 (但不影響發送通知):", err.message);
+      logger.error(err, "❌ 取得新跡集錦失敗 (但不影響發送通知)");
       newsMessages = [];
       newsSummaryText = "新跡集錦取得失敗，請檢查系統日誌。";
       conflictSummary = "";
@@ -271,19 +286,30 @@ export async function dailyCheck({
     done();
   }
 
-  console.log("🤖 正在產生總經多空對決報告...");
+  logger.info("🤖 正在產生總經多空對決報告...");
   let macroAnalysis = null;
   let macroTextForCoach = "無新跡數據，無法進行總經分析。";
   if (newsMessages?.length) {
     const done = stepTimer("analyzeMacro");
-    macroAnalysis = await analyzeMacroNewsWithAI(
-      newsSummaryText,
-      conflictSummary,
-    );
-    macroTextForCoach = formatMacroAnalysisForCoach(macroAnalysis);
+    try {
+      macroAnalysis = await analyzeMacroNewsWithAI(
+        newsSummaryText,
+        conflictSummary,
+      );
+      macroTextForCoach = formatMacroAnalysisForCoach(macroAnalysis);
+    } catch (err) {
+      logger.error(err, "❌ 總經分析 AI 產生失敗，降級處理");
+      macroAnalysis = {
+        bullish: 0,
+        bearish: 0,
+        neutral: 0,
+        summary: "總經分析 AI 產生失敗，使用預設空結構。",
+      };
+      macroTextForCoach = macroAnalysis.summary;
+    }
     done();
   } else {
-    console.log("⚠️ 無新跡數據，跳過總經分析");
+    logger.warn("⚠️ 無新跡數據，跳過總經分析");
     macroAnalysis = {
       bullish: 0,
       bearish: 0,
@@ -296,9 +322,9 @@ export async function dailyCheck({
   const macroMarketDirection =
     macroAnalysis?.conclusion?.market_direction ?? null;
   if (macroMarketDirection) {
-    console.log(`✅ 總經方向：${macroMarketDirection}`);
+    logger.info(`✅ 總經方向：${macroMarketDirection}`);
   } else {
-    console.log("⚠️ 無總經方向，策略引擎將不套用情緒調整");
+    logger.warn("⚠️ 無總經方向，策略引擎將不套用情緒調整");
   }
   // ───────────────────────────────────────────────────────────────────────────
 
@@ -316,7 +342,7 @@ export async function dailyCheck({
         latchTriggeredAt: savedState.latchTriggeredAt ?? null,
         latchTriggeredPR: savedState.latchTriggeredPR ?? null,
       };
-      console.log(
+      logger.info(
         `✅ [dailyCheck] valuationGuardState 載入：latchActive=${valuationGuardState.latchActive}` +
           (valuationGuardState.latchTriggeredAt
             ? `，觸發日 ${valuationGuardState.latchTriggeredAt}`
@@ -324,8 +350,9 @@ export async function dailyCheck({
       );
     }
   } catch (err) {
-    console.warn(
-      `⚠️ [dailyCheck] valuationGuardState.json 讀取失敗，使用預設值：${err.message}`,
+    logger.warn(
+      err,
+      `⚠️ [dailyCheck] valuationGuardState.json 讀取失敗，使用預設值`,
     );
   }
 
@@ -334,7 +361,7 @@ export async function dailyCheck({
     // getPbHistory 現在統一回傳 [{date, pb}, ...]
     pbRecordsObjects = await archiveManager.getPbHistory();
   } catch (err) {
-    console.warn(`⚠️ [dailyCheck] pbHistory 讀取失敗：${err.message}`);
+    logger.warn(err, `⚠️ [dailyCheck] pbHistory 讀取失敗`);
   }
   // pbRecords: 純 PB 數值陣列（供 resolveValuationGuard 使用）
   // pbRecordsObjects: 含 date 的完整紀錄（供 resolveValuationMomentum 使用）
@@ -355,6 +382,9 @@ export async function dailyCheck({
     rsiArr,
     macdArr,
     kdArr,
+    closeArr: indicatorsZ2.closes || [],
+    ma20Arr: indicatorsZ2.ma20Arr || [],
+    atrArr: indicatorsZ2.atrArr || [],
     // 注入 0050 參考指標
     indicators0050: {
       rsi: indicators0050.rsiArr[indicators0050.rsiArr.length - 1],
@@ -374,7 +404,7 @@ export async function dailyCheck({
     rawValuation: macroData?.rawValuation ?? null,
   };
 
-  console.log("🧠 正在計算投資訊號...");
+  logger.info("🧠 正在計算投資訊號...");
   let result;
   {
     const done = stepTimer("getInvestmentSignal");
@@ -403,16 +433,21 @@ export async function dailyCheck({
       };
       try {
         await archiveManager.saveValuationGuardState(newState);
-        console.log(
+        logger.info(
           `🛡️ [dailyCheck] valuationGuardState 已更新：defenseLatch=${newState.defenseLatch}` +
             (newState.latchTriggeredAt
               ? `，觸發日 ${newState.latchTriggeredAt}`
               : ""),
         );
       } catch (err) {
-        console.error(
-          `❌ [dailyCheck] valuationGuardState.json 寫入失敗：${err.message}`,
-        );
+        logger.error(err, `❌ [dailyCheck] valuationGuardState.json 寫入失敗`);
+        if (isTelegramEnabled) {
+          await sendTelegramBatch([
+            {
+              text: `⚠️ <b>嚴重錯誤</b>\nvaluationGuardState.json 寫入失敗，後續狀態可能不一致：\n${err.message}`,
+            },
+          ]);
+        }
       }
     }
 
@@ -422,28 +457,28 @@ export async function dailyCheck({
   const dateText = TwDate().formatDateKey();
 
   // ── 載入前次 AI 建議摘要（供 Prompt 注入，提升連貫性）─────────────────────
-  console.log("📂 正在載入前次 AI 建議摘要...");
+  logger.info("📂 正在載入前次 AI 建議摘要...");
   let previousAdviceSummary = "";
   {
     const done = stepTimer("fetchPrevAdvice");
     try {
       previousAdviceSummary = await archiveManager.getPreviousAdviceSummary();
       if (previousAdviceSummary) {
-        console.log(
+        logger.info(
           `✅ 前次建議摘要已載入（${previousAdviceSummary.length} 字）`,
         );
       } else {
-        console.log("ℹ️ 無前次建議記錄（首次執行或讀取失敗），AI 將全量分析");
+        logger.info("ℹ️ 無前次建議記錄（首次執行或讀取失敗），AI 將全量分析");
       }
     } catch (err) {
-      console.warn("⚠️ 載入前次建議失敗，繼續執行:", err.message);
+      logger.warn(err, "⚠️ 載入前次建議失敗，繼續執行");
     }
     done();
   }
   // ───────────────────────────────────────────────────────────────────────────
 
   // 取得 AI 決策報告
-  console.log("🤖 正在產生 AI 決策分析...");
+  logger.info("🤖 正在產生 AI 決策分析...");
   let aiAdvice, adviceTraceId;
   {
     const done = stepTimer("getAiAdvice");
@@ -475,9 +510,9 @@ export async function dailyCheck({
     quote,
   };
 
-  broadcastDailyReport(reportDailyData, newsMessages, isTelegramEnabled);
+  await broadcastDailyReport(reportDailyData, newsMessages, isTelegramEnabled);
 
-  console.log("📝 正在寫入試算表...");
+  logger.info("📝 正在寫入試算表...");
   try {
     const done = stepTimer("logToSheet");
     const logData = {
@@ -489,12 +524,12 @@ export async function dailyCheck({
     await logDailyToSheet(logData);
     done();
   } catch (sheetErr) {
-    console.error("❌ 寫入試算表失敗 (但不影響發送通知):", sheetErr.message);
+    logger.error(sheetErr, "❌ 寫入試算表失敗 (但不影響發送通知)");
   }
 
   // 清理系統，儲存最終報告
   try {
-    console.log("🧹 正在清理過期快取並儲存最終報告...");
+    logger.info("🧹 正在清理過期快取並儲存最終報告...");
     const done = stepTimer("saveReport");
 
     // 帳戶快照：有金鑰才加密存入，否則略過
@@ -509,12 +544,12 @@ export async function dailyCheck({
       const encrypted = encryptSnapshot(snapshotPayload);
       if (encrypted) {
         snapshotField = { snapshot: encrypted };
-        console.log("🔐 [Snapshot] 帳戶快照已加密（含市價），納入報告");
+        logger.info("🔐 [Snapshot] 帳戶快照已加密（含市價），納入報告");
       } else {
-        console.warn("⚠️ [Snapshot] 加密失敗，本次報告不含快照");
+        logger.warn("⚠️ [Snapshot] 加密失敗，本次報告不含快照");
       }
     } else if (!isSnapshotEncryptEnabled()) {
-      console.log("ℹ️ [Snapshot] SNAPSHOT_ENCRYPT_KEY 未設定，略過快照");
+      logger.info("ℹ️ [Snapshot] SNAPSHOT_ENCRYPT_KEY 未設定，略過快照");
     }
 
     await archiveManager.saveReport({
@@ -547,7 +582,7 @@ export async function dailyCheck({
     await archiveManager.cleanOldArchives(30);
     done();
   } catch (err) {
-    console.warn("⚠️ 儲存最終報告或清理快取失敗:", err.message);
+    logger.warn(err, "⚠️ 儲存最終報告或清理快取失敗");
   }
 
   // ── LLM Judge（背景評估，不阻塞主流程）─────────────────────────────────────────
@@ -568,7 +603,7 @@ export async function dailyCheck({
   const judgeContext = { forceRun: isHighRiskDay };
 
   if (isHighRiskDay) {
-    console.log(
+    logger.info(
       `⚠️ [LLMJudge] 高風險日偵測：VIX=${vixValue.toFixed(2)}, action=${result?.signals?.action ?? "unknown"}, latchChanged=${valuationGuardState.latchActive !== (result?.signals?.latchNowActive ?? false)}`,
     );
   }
@@ -578,24 +613,24 @@ export async function dailyCheck({
     adviceTraceId &&
     typeof aiAdvice === "object"
   ) {
-    console.log("🔍 [LLMJudge] 今日觸發 Judge，排入背景任務...");
+    logger.info("🔍 [LLMJudge] 今日觸發 Judge，排入背景任務...");
     judgeTasks.push(
       runJudge(adviceTraceId, aiAdvice, sessionId).catch((err) =>
-        console.warn("⚠️ [LLMJudge] 背景任務發生例外:", err.message),
+        logger.warn(err, "⚠️ [LLMJudge] 背景任務發生例外"),
       ),
     );
   } else if (shouldRunJudge(judgeContext)) {
-    console.log(
+    logger.warn(
       "⚠️ [LLMJudge] 今日應觸發但 adviceTraceId 無效或 aiAdvice 非物件，跳過",
     );
   } else {
-    console.log("⏭️ [LLMJudge] 今日不執行 Judge");
+    logger.info("⏭️ [LLMJudge] 今日不執行 Judge");
   }
 
   if (judgeTasks.length > 0) {
-    console.log("⏳ [LLMJudge] 等待背景 Judge 任務完成...");
+    logger.info("⏳ [LLMJudge] 等待背景 Judge 任務完成...");
     await Promise.allSettled(judgeTasks);
-    console.log("✅ [LLMJudge] 背景 Judge 任務完成");
+    logger.info("✅ [LLMJudge] 背景 Judge 任務完成");
   }
 
   return "✅ dailyCheck 執行成功";

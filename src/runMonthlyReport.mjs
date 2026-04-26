@@ -12,6 +12,8 @@ import {
   buildCompactPeriodMessage,
 } from "./modules/notifications/templates/periodReportBuilder.mjs";
 import { sendTelegramBatch } from "./modules/notifications/transports/telegramClient.mjs";
+import { langfuse } from "./modules/ai/aiClient.mjs";
+import logger from "./utils/logger.mjs";
 
 const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
@@ -24,19 +26,21 @@ const sessionId = process.env.GITHUB_RUN_ID
  *   - TELEGRAM_WEBAPP_URL 未設定 → buildPeriodReportMessages()  （原杧3 則）
  */
 export async function runMonthlyReport() {
-  console.log("📋 [MonthlyReport] 開始產生月報...");
+  logger.info("📋 [MonthlyReport] 開始產生月報...");
 
+  // 載入 50 份是為了提供足夠的歷史資料來計算「後續報酬 (accuracyStats)」。
   const allReports = await loadRecentReports(50);
-  console.log(
+  logger.info(
     `📂 [MonthlyReport] 載入 ${allReports.length} 份報告（含後續報酬用）`,
   );
 
+  // 但我們只取最後的 30 份（約一個月的交易日）作為本次月報的評估主體。
   const reports = allReports.slice(-30);
-  console.log(`📂 [MonthlyReport] 月報評估期間：${reports.length} 份`);
+  logger.info(`📂 [MonthlyReport] 月報評估期間：${reports.length} 份`);
 
   if (reports.length < 10) {
     const msg = `⚠️ <b>月報產生失敗</b>\n本月可用報告數量不足（${reports.length} 份），無法產生月報。`;
-    console.warn("⚠️ [MonthlyReport] 報告數量不足 10 份，跳過月報");
+    logger.warn("⚠️ [MonthlyReport] 報告數量不足 10 份，跳過月報");
     if (process.env.TELEGRAM_API_TOKEN)
       await sendTelegramBatch([{ text: msg }]);
     return {
@@ -52,12 +56,22 @@ export async function runMonthlyReport() {
     allReports,
     "monthly",
   );
-  const { aiSummary } = await generatePeriodAiSummary(
-    stats,
-    reports,
-    `過去 ${reports.length}`,
-    sessionId,
-  );
+
+  let aiSummary = null;
+  try {
+    const result = await generatePeriodAiSummary(
+      stats,
+      reports,
+      `過去 ${reports.length}`,
+      sessionId,
+    );
+    aiSummary = result.aiSummary;
+  } catch (err) {
+    logger.warn(
+      err,
+      "⚠️ [MonthlyReport] AI 摘要產生失敗，將降級發送純統計報告",
+    );
+  }
 
   const webAppUrl = process.env.TELEGRAM_WEBAPP_URL || null;
 
@@ -69,7 +83,7 @@ export async function runMonthlyReport() {
       "monthly",
       webAppUrl,
     );
-    console.log("[MonthlyReport] MiniApp 模式：發送精簡月報卡");
+    logger.info("[MonthlyReport] MiniApp 模式：發送精簡月報卡");
   } else {
     messages = buildPeriodReportMessages(
       stats,
@@ -77,17 +91,17 @@ export async function runMonthlyReport() {
       "monthly",
       accuracyStats,
     );
-    console.log("[MonthlyReport] 完整模式：發送 3 則月報");
+    logger.info("[MonthlyReport] 完整模式：發送 3 則月報");
   }
 
   if (process.env.TELEGRAM_API_TOKEN) {
     await sendTelegramBatch(messages);
-    console.log("✅ [MonthlyReport] Telegram 月報發送成功");
+    logger.info("✅ [MonthlyReport] Telegram 月報發送成功");
   } else {
-    console.log("⚠️ [MonthlyReport] TELEGRAM_API_TOKEN 未設定，略過推送");
+    logger.warn("⚠️ [MonthlyReport] TELEGRAM_API_TOKEN 未設定，略過推送");
   }
 
-  console.log("✅ [MonthlyReport] 月報執行完成");
+  logger.info("✅ [MonthlyReport] 月報執行完成");
   return { skipped: false, reportCount: reports.length };
 }
 
@@ -96,8 +110,16 @@ async function main() {
   try {
     await runMonthlyReport();
   } catch (err) {
-    console.error("❌ [MonthlyReport] 執行失敗:", err.message);
+    logger.error(err, "❌ [MonthlyReport] 執行失敗");
     process.exit(1);
+  } finally {
+    logger.info("🔒 [MonthlyReport] 正在關閉 Langfuse...");
+    try {
+      await langfuse.shutdownAsync();
+      logger.info("✅ [MonthlyReport] Langfuse 已關閉");
+    } catch (e) {
+      logger.warn(e, "⚠️ Langfuse 關閉失敗");
+    }
   }
 }
 

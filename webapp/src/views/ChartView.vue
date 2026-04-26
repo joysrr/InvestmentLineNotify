@@ -154,13 +154,11 @@ async function load() {
     } else if (granularity.value === 'weekly') {
       const res = await fetchSnapshotsWeekly(g.limit)
       // weekly API 可能回傳 [] （未啟用快照）或陣列
-      // 若為空陣列且 daily 已知無加密，保留 hasEncryption 不覆寫；否則認為有啟用
       if (Array.isArray(res)) {
+        hasEncryption.value = true;
         raw = [...res].sort((a, b) =>
           (a.endDate ?? a.date ?? '').localeCompare(b.endDate ?? b.date ?? '')
         )
-        // weekly/monthly 無法從回傳值直接得知 hasEncryption
-        // 保持現有狀態，不覆寫
       } else {
         // 如果後端未來扤充 hasEncryption 欄位，在此門一擴充
         hasEncryption.value = res.hasEncryption ?? true
@@ -172,6 +170,7 @@ async function load() {
     } else {
       const res = await fetchSnapshotsMonthly(g.limit)
       if (Array.isArray(res)) {
+        hasEncryption.value = true;
         raw = [...res].sort((a, b) =>
           (a.endDate ?? a.date ?? '').localeCompare(b.endDate ?? b.date ?? '')
         )
@@ -202,8 +201,8 @@ onMounted(load)
 // ── X 軸標籤格式化 ────────────────────────────────────────────────────────────────────
 function xLabel(pt) {
   if (granularity.value === 'daily')   return (pt.date ?? '').slice(5)        // MM-DD
-  if (granularity.value === 'weekly')  return pt.period ?? (pt.endDate ?? '').slice(5)
-  return (pt.period ?? (pt.endDate ?? '')).slice(0, 7)                        // YYYY-MM
+  if (granularity.value === 'weekly')  return pt.period ?? (pt.endDate ?? pt.date ?? '').slice(5)
+  return (pt.period ?? (pt.endDate ?? pt.date ?? '')).slice(0, 7)                        // YYYY-MM
 }
 
 // ── 指標取値與格式化 ───────────────────────────────────────────────────────────────────
@@ -310,6 +309,7 @@ const chartOption = computed(() => {
     },
     series: [{
       type: 'line',
+      connectNulls: false,
       smooth: true,
       symbol: pts.length <= 60 ? 'circle' : 'none',
       symbolSize: 4,

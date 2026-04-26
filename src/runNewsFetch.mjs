@@ -7,16 +7,15 @@ import {
   updatePool,
   purgeExpiredFromPool,
 } from "./modules/data/newsPoolManager.mjs";
+import { archiveManager } from "./modules/data/archiveManager.mjs";
+import logger from "./utils/logger.mjs";
 
 /** Langfuse score 回寫，失敗不阻斷主流程 */
 async function safeLangfuseScore(payload) {
   try {
     await langfuse.score(payload);
   } catch (err) {
-    console.warn(
-      `⚠️ [Langfuse] score 寫入失敗 (${payload.name}):`,
-      err.message,
-    );
+    logger.warn(err, `⚠️ [Langfuse] score 寫入失敗 (${payload.name})`);
   }
 }
 
@@ -25,19 +24,32 @@ async function safeLangfuseScore(payload) {
  * 提取為独立函數供 Bot 指令與 CLI 共用。
  */
 export async function runNewsFetch() {
-  console.log("📰 [NewsFetch] 開始執行新聞抓取管線...");
+  logger.info("📰 [NewsFetch] 開始執行新聞抓取管線...");
+
+  let vix = "N/A";
+  let marketStatus = "暫無即時市況";
+  try {
+    const cache = await archiveManager.getLatestMarketData();
+    if (cache && cache.data) {
+      if (cache.data.rawUsMarket?.vix)
+        vix = cache.data.rawUsMarket.vix.toString();
+      marketStatus = "已載入最新市況";
+    }
+  } catch (err) {
+    logger.warn("⚠️ [NewsFetch] 無法讀取最新市況，將使用預設值");
+  }
 
   const {
     twQueries,
     usQueries,
     traceId: searchTraceId,
   } = await generateDailySearchQueries({
-    marketStatus: "暫無即時市況",
-    vix: "N/A",
+    marketStatus,
+    vix,
   });
 
   const { articles, metrics } = await getRawNews({ twQueries, usQueries });
-  console.log(`📰 [NewsFetch] 抓取完成，共 ${articles.length} 篇有效文章`);
+  logger.info(`📰 [NewsFetch] 抓取完成，共 ${articles.length} 篇有效文章`);
 
   if (searchTraceId) {
     await safeLangfuseScore({
@@ -61,19 +73,19 @@ export async function runNewsFetch() {
       }),
     });
   } else {
-    console.warn(
+    logger.warn(
       "⚠️ [NewsFetch] searchTraceId 為 null，跳過 Yield Rate score 寫入",
     );
   }
 
   if (articles.length === 0) {
-    console.warn("⚠️ [NewsFetch] 無有效文章，跳過寫入 pool");
+    logger.warn("⚠️ [NewsFetch] 無有效文章，跳過寫入 pool");
     return { appended: 0, total: 0 };
   }
 
   const { appended, expired, skipped_fuzzy, total, sourceCounts, sourceCount } =
     await updatePool(articles);
-  console.log(
+  logger.info(
     `✅ [NewsFetch] pool 更新完成 — 新增: ${appended}，fuzzy 跳過: ${skipped_fuzzy}，` +
       `過期歸檔: ${expired}，目前 pool 總量: ${total}，來源種類: ${sourceCount}`,
   );
@@ -87,7 +99,7 @@ export async function runNewsFetch() {
     });
   }
 
-  await purgeExpiredFromPool();
+  // updatePool 已包含 purgeExpiredFromPool 的邏輯，故移除重複呼叫
   return { appended, total };
 }
 
@@ -96,14 +108,16 @@ async function main() {
   try {
     await runNewsFetch();
   } catch (err) {
-    console.error("❌ [NewsFetch] 管線發生錯誤:", err);
+    logger.error(err, "❌ [NewsFetch] 管線發生錯誤");
     process.exit(1);
   } finally {
-    console.log("🔒 [NewsFetch] 正在關閉 Langfuse...");
-    await langfuse.shutdownAsync().catch((e) => {
-      console.warn("⚠️ Langfuse 關閉失敗:", e.message);
-    });
-    console.log("✅ [NewsFetch] 執行完成");
+    logger.info("🔒 [NewsFetch] 正在關閉 Langfuse...");
+    try {
+      await langfuse.shutdownAsync();
+      logger.info("✅ [NewsFetch] Langfuse 已關閉");
+    } catch (e) {
+      logger.warn(e, "⚠️ Langfuse 關閉失敗");
+    }
   }
 }
 

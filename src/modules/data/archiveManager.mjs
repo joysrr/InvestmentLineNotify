@@ -63,10 +63,15 @@ export const archiveManager = {
     await ensureDirectories();
     const twDateStr = getTwDateStr();
     const latestPath = path.join(DIRS.MARKET, "latest.json");
-    await fs.writeFile(latestPath, JSON.stringify(data, null, 2));
     const historyPath = path.join(DIRS.MARKET_HISTORY, `${twDateStr}.json`);
-    await fs.writeFile(historyPath, JSON.stringify(data, null, 2));
-    console.log(`📝 [Archive] Market 快取已更新: ${latestPath}`);
+    try {
+      await fs.writeFile(latestPath, JSON.stringify(data, null, 2));
+      await fs.writeFile(historyPath, JSON.stringify(data, null, 2));
+      console.log(`📝 [Archive] Market 快取已更新: ${latestPath}`);
+    } catch (err) {
+      console.error(`❌ [Archive] saveMarketData 寫入失敗:`, err.message);
+      throw err;
+    }
   },
 
   // ==========================================================================
@@ -207,8 +212,24 @@ ${riskWarnings}
     const dates = await this.listArchiveDates();
     if (dates.length === 0) return 0;
     
-    // 取相對較舊的那一筆（最多往回推到最舊的一張報表）
-    const targetDate = dates[Math.min(daysAgo, dates.length - 1)];
+    // 計算目標日期字串
+    const targetTime = Date.now() - daysAgo * 24 * 60 * 60 * 1000;
+    const targetDateStr = new Date(targetTime).toLocaleDateString("en-CA", {
+      timeZone: "Asia/Taipei",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).replace(/\//g, "-");
+
+    // 找到小於或等於目標日期的最接近的報表 (dates 已由新到舊排序)
+    let targetDate = dates[dates.length - 1]; // fallback to oldest
+    for (const d of dates) {
+      if (d <= targetDateStr) {
+        targetDate = d;
+        break;
+      }
+    }
+    
     try {
       const content = await fs.readFile(path.join(DIRS.REPORTS, `${targetDate}.json`), "utf-8");
       const report = JSON.parse(content);
@@ -230,8 +251,15 @@ ${riskWarnings}
       const months = new Set();
       const now = new Date();
       
-      // 獲取最近 3 個月的資料
-      for (let i = 0; i < 3; i++) {
+      const buyDateObj = new Date(dateStr);
+      if (isNaN(buyDateObj.getTime())) return [];
+      
+      // 計算買入日與現在相差的月數 (至少 3 個月)
+      const diffMonths = (now.getFullYear() - buyDateObj.getFullYear()) * 12 + (now.getMonth() - buyDateObj.getMonth());
+      const lookupMonths = Math.max(3, diffMonths + 1);
+
+      // 獲取所需涵蓋月份的資料
+      for (let i = 0; i < lookupMonths; i++) {
         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const y = d.getFullYear();
         const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -308,8 +336,17 @@ ${riskWarnings}
         for (const file of files) {
           if (!file.endsWith(".json")) continue;
           const filePath = path.join(dir, file);
-          const stats = await fs.stat(filePath);
-          if (now - stats.mtimeMs > msToKeep) {
+          const dateMatch = file.match(/^(\d{4}-\d{2}-\d{2})\.json$/);
+          
+          let fileTimeMs = 0;
+          if (dateMatch) {
+            fileTimeMs = new Date(`${dateMatch[1]}T00:00:00Z`).getTime();
+          } else {
+            const stats = await fs.stat(filePath);
+            fileTimeMs = stats.mtimeMs;
+          }
+
+          if (now - fileTimeMs > msToKeep) {
             await fs.unlink(filePath);
             deletedCount++;
           }

@@ -8,9 +8,13 @@ async function apiFetch(path, maxRetries = 3, retryDelay = 800) {
       window.Telegram?.WebApp?.initData ||
       (import.meta.env.DEV ? "dev-bypass" : "");
 
-    if (!initData && attempt < maxRetries) {
-      await delay(retryDelay);
-      continue;
+    if (!initData) {
+      if (attempt < maxRetries) {
+        await delay(retryDelay);
+        continue;
+      } else {
+        throw new Error("Telegram SDK 未就緒 (initData 為空)");
+      }
     }
 
     try {
@@ -21,12 +25,15 @@ async function apiFetch(path, maxRetries = 3, retryDelay = 800) {
 
       if (!res.ok) {
         console.error(`❌ [apiFetch] Failed: ${url} | Status: ${res.status}`);
-        throw new Error(`API ${path} failed: ${res.status}`);
+        const err = new Error(`API ${path} failed: ${res.status}`);
+        err.status = res.status;
+        throw err;
       }
       return res.json();
     } catch (err) {
       console.error(`❌ [apiFetch] Error: ${err.message}`);
       lastError = err;
+      if (err.status >= 400 && err.status < 500) break;
       if (attempt < maxRetries) await delay(retryDelay);
     }
   }

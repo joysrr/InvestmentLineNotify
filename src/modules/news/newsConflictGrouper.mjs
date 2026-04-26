@@ -22,8 +22,13 @@
  *   Jaccard = 2/5 = 0.4 ≥ 0.3 → 歸入同一群組 [G1]
  */
 
-/** Jaccard 相似度閾值：≥ 此值視為同一事件的不同報導 */
-const JACCARD_THRESHOLD = 0.3;
+/**
+ * Jaccard 相似度閾值：≥ 此值視為同一事件的不同報導
+ * 中文 bigram 語意密度高，0.3 是合理門檻；
+ * 英文 token 分佈較散，閾值提高至 0.45 以避免跨事件誤分群
+ */
+const JACCARD_THRESHOLD_TW = 0.3;
+const JACCARD_THRESHOLD_US = 0.45;
 
 /**
  * 將標題 tokenize 為詞彙 Set
@@ -34,14 +39,14 @@ const JACCARD_THRESHOLD = 0.3;
  * @returns {Set<string>}
  */
 function tokenize(title) {
-  if (!title || typeof title !== 'string') return new Set();
+  if (!title || typeof title !== "string") return new Set();
 
   const tokens = new Set();
 
   // 英文與數字：以空白分詞，轉小寫
-  const latin = title.replace(/[\u4e00-\u9fff\u3400-\u4dbf]/g, ' ');
+  const latin = title.replace(/[\u4e00-\u9fff\u3400-\u4dbf]/g, " ");
   for (const word of latin.split(/\s+/)) {
-    const clean = word.replace(/[^a-zA-Z0-9%]/g, '').toLowerCase();
+    const clean = word.replace(/[^a-zA-Z0-9%]/g, "").toLowerCase();
     if (clean.length >= 2) tokens.add(clean);
   }
 
@@ -107,13 +112,22 @@ export function assignConflictGroups(newsList) {
     }
 
     // ── Token 預計算 ────────────────────────────────────────────────────────
-    const tokenSets = newsList.map((article) => tokenize(article?.title ?? ''));
+    const tokenSets = newsList.map((article) => tokenize(article?.title ?? ""));
 
     // ── 兩兩比對 ────────────────────────────────────────────────────────────
     for (let i = 0; i < n; i++) {
+      const regionI = newsList[i]?._region || "TW";
       for (let j = i + 1; j < n; j++) {
+        const regionJ = newsList[j]?._region || "TW";
         const sim = jaccard(tokenSets[i], tokenSets[j]);
-        if (sim >= JACCARD_THRESHOLD) {
+
+        // 若兩者皆為 US，使用較高的閾值
+        const threshold =
+          regionI === "US" && regionJ === "US"
+            ? JACCARD_THRESHOLD_US
+            : JACCARD_THRESHOLD_TW;
+
+        if (sim >= threshold) {
           union(i, j);
         }
       }
@@ -156,7 +170,7 @@ export function assignConflictGroups(newsList) {
     return result;
   } catch (err) {
     // 降級安全：分群失敗不阻斷主流程
-    console.warn('⚠️ [ConflictGrouper] 分群失敗，降級為全 null:', err.message);
+    console.warn("⚠️ [ConflictGrouper] 分群失敗，降級為全 null:", err.message);
     return newsList.map((article) => ({ ...article, _conflictGroup: null }));
   }
 }

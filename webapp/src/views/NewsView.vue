@@ -117,7 +117,7 @@
           v-for="article in articles"
           :key="article.id"
           class="news-card"
-          @click="openArticle(article.url)"
+          @click="openArticle(article.link || article.url)"
         >
           <div class="news-header">
             <span class="news-age" :class="ageBandClass(article.age_band)">
@@ -166,10 +166,10 @@ async function loadReport() {
       us: data?.us ?? [],
       generatedAt: data?.generatedAt ?? ''
     }
-    reportLoaded.value = true
   } catch (e) {
     reportError.value = e.message
   } finally {
+    reportLoaded.value = true
     reportLoading.value = false
   }
 }
@@ -187,10 +187,10 @@ async function loadPool() {
     const data = await fetchNews()
     const list = Array.isArray(data) ? data : (data?.articles ?? [])
     articles.value = list
-    poolLoaded.value = true
   } catch (e) {
     poolError.value = e.message
   } finally {
+    poolLoaded.value = true
     poolLoading.value = false
   }
 }
@@ -221,8 +221,11 @@ function regionFlag(region) {
 }
 
 function formatDate(pubDate) {
+  if (!pubDate) return "—";
   try {
-    return new Date(pubDate).toLocaleString('zh-TW', {
+    const d = new Date(pubDate);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleString('zh-TW', {
       month: '2-digit', day: '2-digit',
       hour: '2-digit', minute: '2-digit'
     })

@@ -16,7 +16,9 @@ const allowedChatId = process.env.TELEGRAM_USER_ID
   : null;
 
 if (!allowedChatId) {
-  console.warn("[adminGuard] ⚠️  TELEGRAM_USER_ID 未設定，所有 Bot 指令將被拒絕。");
+  console.warn(
+    "[adminGuard] ⚠️  TELEGRAM_USER_ID 未設定，所有 Bot 指令將被拒絕。",
+  );
 }
 
 /**
@@ -28,12 +30,15 @@ if (!allowedChatId) {
  */
 export async function adminGuard(ctx, next) {
   const incomingId = String(ctx.chat?.id ?? "");
+  const fromId = String(ctx.from?.id ?? "");
 
-  if (!allowedChatId || incomingId !== allowedChatId) {
+  if (
+    !allowedChatId ||
+    incomingId !== allowedChatId ||
+    fromId !== allowedChatId
+  ) {
     // 靜默忽略，不回應
-    console.log(
-      `[adminGuard] 🚫 拒絕非授權來源：chat_id=${incomingId}`
-    );
+    console.log(`[adminGuard] 🚫 拒絕非授權來源：chat_id=${incomingId}`);
     return;
   }
 

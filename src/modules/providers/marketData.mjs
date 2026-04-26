@@ -2,27 +2,9 @@ import { archiveManager } from "../data/archiveManager.mjs";
 import { TwDate } from "../../utils/coreUtils.mjs";
 
 // === 匯出即將被我們整合進 Cache 機制的 Provider ===
-import { macroDataSlots } from "./dataSourceConfig.mjs";
+import { macroDataSlots, SLOT_CRITICALITY } from "./dataSourceConfig.mjs";
 import { providerRegistry } from "./providerRegistry.mjs";
 import { sendSystemMessage } from "../notifications/transports/telegramClient.mjs";
-
-// ── 定義 slot 重要性分級與過期門檻 ──────────────────────────────────────────
-// CRITICAL：此 slot 失敗且快取超過 STALE 容忍度時，應發出系統告警
-// IMPORTANT：失敗時記錄 warn log，但不中斷流程
-// LOW：月更或低頻資料，容忍度較高
-const SLOT_CRITICALITY = {
-  rawValuation: { level: "CRITICAL", staleHours: 48 }, // PE/PB：超過 2 天視為 STALE
-  rawMargin: { level: "CRITICAL", staleHours: 48 }, // 融資餘額：超過 2 天
-  rawUsMarket: { level: "CRITICAL", staleHours: 48 }, // FRED：超過 2 天
-  rawFx: { level: "IMPORTANT", staleHours: 4 }, // 匯率：超過 4 小時
-  rawCnn: { level: "IMPORTANT", staleHours: 24 }, // CNN 恐慌：超過 1 天
-  rawMarketOverview: { level: "IMPORTANT", staleHours: 48 }, // 大盤量價：超過 2 天
-  rawInstitutional: { level: "IMPORTANT", staleHours: 48 }, // 法人籌碼：超過 2 天
-  rawStockMargin: { level: "IMPORTANT", staleHours: 48 }, // 個股融資：超過 2 天
-  rawNdc: { level: "LOW", staleHours: 720 }, // 景氣燈號：超過 30 天
-  rawBankRate: { level: "LOW", staleHours: 720 }, // 利率：超過 30 天
-  rawCpi: { level: "LOW", staleHours: 720 }, // CPI：超過 30 天
-};
 
 function getProviderForSlot(slotKey) {
   const slot = macroDataSlots[slotKey];
@@ -229,7 +211,7 @@ export async function fetchAllMacroData() {
     fetchPromises.push(
       provider
         .fetch()
-        .then((res) => {
+        .then(async (res) => {
           finalData.rawValuation = res;
           newMetaSources[valuationProviderKey] = {
             status: "SUCCESS",
@@ -237,7 +219,11 @@ export async function fetchAllMacroData() {
           };
           // ④ PB 歷史快取：每日成功取得 rawValuation 後追加當日紀錄
           if (res?.pb != null && res?.date) {
-            archiveManager.appendPbHistory(res.date, res.pb);
+            try {
+              await archiveManager.appendPbHistory(res.date, res.pb);
+            } catch (err) {
+              console.warn("⚠️ [Cache] appendPbHistory 寫入失敗:", err.message);
+            }
           }
         })
         .catch((err) => {
@@ -260,9 +246,12 @@ export async function fetchAllMacroData() {
   const fxProviderKey = macroDataSlots.rawFx.providerId;
   const fxLastTime = new Date(cachedMeta[fxProviderKey]?.lastFetch || 0);
   const minutesSinceFxUpdate = (now - fxLastTime) / (1000 * 60);
+  const fxStaleMinutes = SLOT_CRITICALITY.rawFx.staleHours * 60;
 
-  if (cachedData.rawFx && minutesSinceFxUpdate < 30) {
-    console.log("⚡ [Cache] 匯率使用快取資料（距上次更新 < 30 分鐘）");
+  if (cachedData.rawFx && minutesSinceFxUpdate < fxStaleMinutes) {
+    console.log(
+      `⚡ [Cache] 匯率使用快取資料（距上次更新 < ${fxStaleMinutes} 分鐘）`,
+    );
     finalData.rawFx = cachedData.rawFx;
   } else {
     const fxProvider = getProviderForSlot("rawFx");

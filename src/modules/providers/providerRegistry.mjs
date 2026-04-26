@@ -72,15 +72,15 @@ export const providerRegistry = {
     },
   },
   stockInstitutionalTwse: {
-    label: "個股三大法人買賣超 (0050)",
-    async fetch() {
-      return fetchStockInstitutionalData("0050");
+    label: "個股三大法人買賣超",
+    async fetch(ticker = "0050") {
+      return fetchStockInstitutionalData(ticker);
     },
   },
   stockMarginTwse: {
-    label: "個股融資融券 (00675L)",
-    async fetch() {
-      return fetchStockMarginData("00675L");
+    label: "個股融資融券",
+    async fetch(ticker = "00675L") {
+      return fetchStockMarginData(ticker);
     },
   },
   twCentralBankRate: {

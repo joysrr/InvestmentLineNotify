@@ -1,5 +1,6 @@
 import { readdir, readFile } from "fs/promises";
-import { resolve, dirname } from "path";
+import { resolve, dirname, join } from "path";
+import { REPORT_SCHEMA } from "../schema/contract.mjs";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -19,7 +20,7 @@ const DATE_PATTERN = /^(\d{4}-\d{2}-\d{2})\.json$/;
 
 // Simple TTL Cache to prevent file I/O spikes
 const cache = new Map();
-const CACHE_TTL_MS = 10000; // 10 seconds
+const CACHE_TTL_MS = 2000; // 2 seconds
 
 async function getCached(key, fetcher) {
   const cached = cache.get(key);
@@ -144,20 +145,24 @@ export default async function reportsRoute(fastify) {
    * Returns the N most recent daily reports (full JSON objects).
    * Default limit: 30.  Capped at 365 (supports 1-year daily chart).
    */
-  fastify.get("/reports", async (request, reply) => {
-    const rawLimit = parseInt(request.query.limit ?? "30", 10);
-    const limit =
-      Number.isNaN(rawLimit) || rawLimit < 1 ? 30 : Math.min(rawLimit, 365);
+  fastify.get(
+    "/reports",
+    { schema: { response: { 200: { type: "array", items: REPORT_SCHEMA } } } },
+    async (request, reply) => {
+      const rawLimit = parseInt(request.query.limit ?? "30", 10);
+      const limit =
+        Number.isNaN(rawLimit) || rawLimit < 1 ? 30 : Math.min(rawLimit, 365);
 
-    try {
-      const dates = await getSortedDates();
-      const results = await loadReports(dates, limit);
-      return reply.send(results);
-    } catch (err) {
-      fastify.log.error({ err }, "Failed to list reports");
-      return reply.code(500).send({ error: "Internal server error" });
-    }
-  });
+      try {
+        const dates = await getSortedDates();
+        const results = await loadReports(dates, limit);
+        return reply.send(results);
+      } catch (err) {
+        fastify.log.error({ err }, "Failed to list reports");
+        return reply.code(500).send({ error: "Internal server error" });
+      }
+    },
+  );
 
   /**
    * GET /api/reports/weekly?limit=N
@@ -212,27 +217,33 @@ export default async function reportsRoute(fastify) {
    * Returns the full JSON for a single daily report.
    * :date must match YYYY-MM-DD.  404 if not found.
    */
-  fastify.get("/report/:date", async (request, reply) => {
-    const { date } = request.params;
+  fastify.get(
+    "/report/:date",
+    { schema: { response: { 200: REPORT_SCHEMA } } },
+    async (request, reply) => {
+      const { date } = request.params;
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return reply
-        .code(400)
-        .send({ error: "Invalid date format. Expected YYYY-MM-DD" });
-    }
-
-    const filePath = join(REPORTS_DIR, `${date}.json`);
-    try {
-      const raw = await readFile(filePath, "utf-8");
-      return reply.send(JSON.parse(raw));
-    } catch (err) {
-      if (err.code === "ENOENT") {
-        return reply.code(404).send({ error: `Report for ${date} not found` });
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return reply
+          .code(400)
+          .send({ error: "Invalid date format. Expected YYYY-MM-DD" });
       }
-      fastify.log.error({ err }, "Failed to read report");
-      return reply.code(500).send({ error: "Internal server error" });
-    }
-  });
+
+      const filePath = join(REPORTS_DIR, `${date}.json`);
+      try {
+        const raw = await readFile(filePath, "utf-8");
+        return reply.send(JSON.parse(raw));
+      } catch (err) {
+        if (err.code === "ENOENT") {
+          return reply
+            .code(404)
+            .send({ error: `Report for ${date} not found` });
+        }
+        fastify.log.error({ err }, "Failed to read report");
+        return reply.code(500).send({ error: "Internal server error" });
+      }
+    },
+  );
 
   /**
    * GET /api/reports/snapshots?limit=N

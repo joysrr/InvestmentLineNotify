@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { dailyCheck } from "./dailyCheck.mjs";
 import { langfuse } from "./modules/ai/aiClient.mjs";
 import logger from "./utils/logger.mjs";
@@ -30,14 +31,12 @@ async function main() {
     logger.info("🚀 dailyCheck 執行結束");
     // 確保 Langfuse 正確關閉，避免資源洩漏
     logger.info("🔒 正在關閉 Langfuse...");
-    langfuse
-      .shutdownAsync()
-      .then(() => {
-        logger.info("✅ Langfuse 已關閉");
-      })
-      .catch((e) => {
-        logger.warn(e, "⚠️ Langfuse 關閉失敗");
-      });
+    try {
+      await langfuse.shutdownAsync();
+      logger.info("✅ Langfuse 已關閉");
+    } catch (e) {
+      logger.warn(e, "⚠️ Langfuse 關閉失敗");
+    }
   }
 }
 

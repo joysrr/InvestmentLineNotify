@@ -38,7 +38,7 @@ export default async function configRoute(fastify) {
 
     try {
       const data = { _meta: {} };
-      
+
       // 讀取元數據
       try {
         const metaText = await readFile(META_PATH, "utf-8");
@@ -49,12 +49,22 @@ export default async function configRoute(fastify) {
 
       for (const part of parts) {
         const path = resolve(CONFIG_PARTS_DIR, part.file);
-        const text = await readFile(path, "utf-8");
-        data[part.key] = {
-          content: JSON.parse(text),
-          label: part.label,
-          desc: part.desc,
-        };
+        try {
+          const text = await readFile(path, "utf-8");
+          data[part.key] = {
+            content: JSON.parse(text),
+            label: part.label,
+            desc: part.desc,
+          };
+        } catch (err) {
+          request.log.warn(`Config file missing: ${part.file}`);
+          data[part.key] = {
+            content: null,
+            error: "file not found",
+            label: part.label,
+            desc: part.desc,
+          };
+        }
       }
       return data;
     } catch (err) {

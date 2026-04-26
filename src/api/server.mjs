@@ -57,6 +57,7 @@ process.on("uncaughtException", (err) => {
 
 process.on("unhandledRejection", (reason) => {
   logger.error({ reason }, "🔥 [Fatal] 未處理的 Promise Rejection");
+  process.exit(1);
 });
 
 // ─── 啟動邏輯 (僅在直接執行時觸發) ───────────────────────────────────────────────

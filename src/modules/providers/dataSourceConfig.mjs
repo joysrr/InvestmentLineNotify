@@ -43,3 +43,17 @@ export const macroDataSlots = {
     providerId: "dailyQuote",
   },
 };
+
+export const SLOT_CRITICALITY = {
+  rawValuation: { level: "CRITICAL", staleHours: 48 },
+  rawMargin: { level: "CRITICAL", staleHours: 48 },
+  rawUsMarket: { level: "CRITICAL", staleHours: 48 },
+  rawFx: { level: "IMPORTANT", staleHours: 4 },
+  rawCnn: { level: "IMPORTANT", staleHours: 24 },
+  rawMarketOverview: { level: "IMPORTANT", staleHours: 48 },
+  rawInstitutional: { level: "IMPORTANT", staleHours: 48 },
+  rawStockMargin: { level: "IMPORTANT", staleHours: 48 },
+  rawNdc: { level: "LOW", staleHours: 720 },
+  rawBankRate: { level: "LOW", staleHours: 720 },
+  rawCpi: { level: "LOW", staleHours: 720 },
+};
