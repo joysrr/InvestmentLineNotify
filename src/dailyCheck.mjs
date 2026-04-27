@@ -554,7 +554,9 @@ export async function dailyCheck({
 
     await archiveManager.saveReport({
       date: dateText,
-      signals: result,
+      marketState: result.marketState,
+      strategySnapshot: result.strategySnapshot,
+      signals: result.signals,
       ai: aiAdvice,
       // ── 補存欄位：Mini App 歷史查閱需要 ────────────────────────────────
       quote,

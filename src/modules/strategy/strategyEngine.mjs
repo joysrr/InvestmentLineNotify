@@ -674,7 +674,6 @@ export async function evaluateInvestmentSignal(data, strategy) {
       decouplingAnalysis,
       macdSignal,
     },
-    ai: data.ai || null,
   };
 }
 
