@@ -54,7 +54,7 @@
             <span class="badge" :class="r.signals?.priceChangePercent >= 0 ? 'badge-pos' : 'badge-neg'">
               {{ r.signals?.priceChangePercent >= 0 ? '+' : '' }}{{ r.signals?.priceChangePercentText }}%
             </span>
-            <span class="badge badge-score">評分 {{ r.signals?.weightScore }}</span>
+            <span class="badge badge-score">評分 {{ r.signals?.score }}</span>
             <span class="badge badge-expand">{{ expanded[r.date] ? '▲' : '▼' }}</span>
           </div>
         </div>

@@ -631,6 +631,32 @@ export async function evaluateInvestmentSignal(data, strategy) {
     marketState, // 2.0 標準化分類數據
     strategySnapshot: strategy, // 完整拷貝策略，供未來回溯
     signals: {
+      RSI: toNum(data.RSI), // 技術指標 RSI 數值
+      // KD 最後值（從 kdArr 最後一筆拆出）
+      KD_K: toNum(
+        Array.isArray(data.kdArr) && data.kdArr.length
+          ? data.kdArr[data.kdArr.length - 1]?.k
+          : null,
+      ),
+      KD_D: toNum(
+        Array.isArray(data.kdArr) && data.kdArr.length
+          ? data.kdArr[data.kdArr.length - 1]?.d
+          : null,
+      ),
+      bias240: toNum(bias240), // 乖離率 MA240
+      reversal: ctx.reversal ?? null, // 轉弱訊號（reversalTriggers 結果）
+      sellSignals: ctx.sellSignals ?? null, // 賣出訊號（sellSignals 結果）
+      priceChangePercentText: Number.isFinite(priceChangePercent)
+        ? Math.abs(priceChangePercent).toFixed(2)
+        : "0.00", // 漲跌幅文字（前端用來顯示 badge）
+      valuationGuardResult:
+        decision.valuationGuardResult ?? ctx.valuationGuardResult ?? null, // 估值守衛結果（從 decision 轉接）
+      valuationMomentumResult:
+        decision.valuationMomentumResult ?? ctx.valuationMomentumResult ?? null, // 動量補正結果（從 decision 轉接）
+      panicBypassActive: ctx.panicBypassActive ?? false, // 恐慌破冰狀態
+      maintenanceRisk: marginAnalysis?.riskLevel
+        ? { level: marginAnalysis.riskLevel }
+        : { level: "Normal" }, // 維持率風險等級（包成前端期待的 { level } 結構）
       status: decision.marketStatus || "🌱",
       score: toNum(ctx.entry.weightScore),
       target: decision.target || "🔹 0050 DCA",

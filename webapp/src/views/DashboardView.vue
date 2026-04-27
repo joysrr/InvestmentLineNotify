@@ -22,23 +22,33 @@
       <div v-else class="snapshot-grid snapshot-grid--4">
         <div class="snapshot-card" :class="vixLevel.cardClass">
           <span class="snap-label">VIX 恐慌</span>
-          <span class="snap-value">{{ status?.data?.rawUsMarket?.vix ?? "—" }}</span>
-          <span class="snap-sub" :class="vixLevel.textClass">{{ vixLevel.label }}</span>
+          <span class="snap-value">{{
+            status?.data?.rawUsMarket?.vix ?? "—"
+          }}</span>
+          <span class="snap-sub" :class="vixLevel.textClass">{{
+            vixLevel.label
+          }}</span>
         </div>
         <div class="snapshot-card" :class="pbPrLevel.cardClass">
           <span class="snap-label">PB 分位數</span>
           <span class="snap-value">{{ pbPrValue }}%</span>
-          <span class="snap-sub" :class="pbPrLevel.textClass">{{ pbPrLevel.label }}</span>
+          <span class="snap-sub" :class="pbPrLevel.textClass">{{
+            pbPrLevel.label
+          }}</span>
         </div>
         <div class="snapshot-card" :class="glLevel.cardClass">
           <span class="snap-label">總曝險 GL</span>
           <span class="snap-value">{{ glValue }}x</span>
-          <span class="snap-sub" :class="glLevel.textClass">{{ glLevel.label }}</span>
+          <span class="snap-sub" :class="glLevel.textClass">{{
+            glLevel.label
+          }}</span>
         </div>
         <div class="snapshot-card">
           <span class="snap-label">景氣燈號</span>
           <span class="snap-value snap-light">{{ lightEmoji }}</span>
-          <span class="snap-sub snap-sub--neutral">{{ status?.data?.rawNdc?.light ?? "—" }}</span>
+          <span class="snap-sub snap-sub--neutral">{{
+            status?.data?.rawNdc?.light ?? "—"
+          }}</span>
         </div>
       </div>
     </section>
@@ -48,31 +58,44 @@
       <h3 class="section-title">最新決策</h3>
       <div v-if="reportLoading" class="decision-card skeleton-card">
         <div class="sk sk-title"></div>
-        <div class="sk sk-label" style="margin-top:12px"></div>
-        <div class="sk sk-value" style="width:60%"></div>
+        <div class="sk sk-label" style="margin-top: 12px"></div>
+        <div class="sk sk-value" style="width: 60%"></div>
       </div>
       <div v-else-if="reportError" class="inline-error">⚠️ 報告載入失敗</div>
       <div v-else-if="!latestReport" class="inline-hint">📭 尚無報告資料</div>
       <div v-else class="decision-card">
         <div class="decision-top">
           <span class="decision-date">{{ latestReport.date }}</span>
-          <span class="priority-tag" v-if="activePriority">{{ activePriority }}</span>
+          <span class="priority-tag" v-if="activePriority">{{
+            activePriority
+          }}</span>
         </div>
         <div class="decision-main">
           <div class="decision-status-row">
             <span class="decision-status-icon">{{ statusEmoji }}</span>
-            <span class="decision-status-text">{{ latestReport.signals?.status || '—' }}</span>
+            <span class="decision-status-text">{{
+              latestReport.signals?.status || "—"
+            }}</span>
           </div>
-          <p class="decision-suggestion">{{ latestReport.signals?.suggestion || '載入中...' }}</p>
+          <p class="decision-suggestion">
+            {{ latestReport.signals?.suggestion || "載入中..." }}
+          </p>
         </div>
         <div class="decision-badges">
           <span class="badge" :class="pctClass">{{ pctText }}</span>
-          <span class="badge badge-score">評分 {{ latestReport.signals?.score ?? "—" }}</span>
-          <span class="badge badge-target">{{ latestReport.signals?.target ?? "—" }}</span>
+          <span class="badge badge-score"
+            >評分 {{ latestReport.signals?.score ?? "—" }}</span
+          >
+          <span class="badge badge-target">{{
+            latestReport.signals?.target ?? "—"
+          }}</span>
         </div>
 
         <div class="strategy-details border-top">
-          <button class="details-toggle" @click="strategyExpanded = !strategyExpanded">
+          <button
+            class="details-toggle"
+            @click="strategyExpanded = !strategyExpanded"
+          >
             <span>🔍 策略決策詳情</span>
             <span class="expand-arrow">{{ strategyExpanded ? "▲" : "▼" }}</span>
           </button>
@@ -83,7 +106,9 @@
             </div>
             <div class="detail-item" v-if="valuationGuardText">
               <span class="detail-label">估值防禦：</span>
-              <span class="detail-value" :class="vgClass">{{ valuationGuardText }}</span>
+              <span class="detail-value" :class="vgClass">{{
+                valuationGuardText
+              }}</span>
             </div>
             <div class="detail-item" v-if="momentumText">
               <span class="detail-label">動量補正：</span>
@@ -105,8 +130,12 @@
 
       <div v-if="!showScoreList" class="radar-wrapper">
         <v-chart :option="radarOption" autoresize class="radar-chart" />
-        <div class="radar-verdict" :class="scoreOk ? 'verdict-ok' : 'verdict-wait'">
-          {{ scoreOk ? "🟢 達標" : "⏸️ 觀望" }} ({{ scoreVal }} / {{ scoreMin }})
+        <div
+          class="radar-verdict"
+          :class="scoreOk ? 'verdict-ok' : 'verdict-wait'"
+        >
+          {{ scoreOk ? "🟢 達標" : "⏸️ 觀望" }} ({{ scoreVal }} /
+          {{ scoreMin }})
         </div>
       </div>
 
@@ -120,13 +149,22 @@
           >
             <span class="score-icon">{{ row.active ? "⭐" : "➖" }}</span>
             <span class="score-label">{{ row.label }}</span>
-            <span class="score-pt" :class="row.active ? 'score-pt--active' : ''">{{ row.pt }}</span>
+            <span
+              class="score-pt"
+              :class="row.active ? 'score-pt--active' : ''"
+              >{{ row.pt }}</span
+            >
             <span class="score-info">{{ row.info }}</span>
           </div>
         </div>
-        <div class="score-verdict" :class="scoreOk ? 'verdict-ok' : 'verdict-wait'">
+        <div
+          class="score-verdict"
+          :class="scoreOk ? 'verdict-ok' : 'verdict-wait'"
+        >
           {{ scoreOk ? "🟢 條件達標，可評估入場" : "⏸️ 條件未滿，請維持觀望" }}
-          <span class="verdict-num">{{ scoreVal }} pt（門檻 {{ scoreMin }} pt）</span>
+          <span class="verdict-num"
+            >{{ scoreVal }} pt（門檻 {{ scoreMin }} pt）</span
+          >
         </div>
       </div>
     </section>
@@ -148,7 +186,10 @@
       <h3 class="section-title">🤖 AI 教練建議</h3>
 
       <div class="ai-block" v-if="aiRiskWarnings.length">
-        <button class="ai-block-header" @click="aiRiskExpanded = !aiRiskExpanded">
+        <button
+          class="ai-block-header"
+          @click="aiRiskExpanded = !aiRiskExpanded"
+        >
           <span>⚠️ 風險提示</span>
           <span class="ai-count">{{ aiRiskWarnings.length }} 項</span>
           <span class="expand-arrow">{{ aiRiskExpanded ? "▲" : "▼" }}</span>
@@ -159,7 +200,10 @@
       </div>
 
       <div class="ai-block" v-if="aiActionItems.length">
-        <button class="ai-block-header" @click="aiActionExpanded = !aiActionExpanded">
+        <button
+          class="ai-block-header"
+          @click="aiActionExpanded = !aiActionExpanded"
+        >
           <span>📌 下一步觀察清單</span>
           <span class="ai-count">{{ aiActionItems.length }} 項</span>
           <span class="expand-arrow">{{ aiActionExpanded ? "▲" : "▼" }}</span>
@@ -170,7 +214,10 @@
       </div>
 
       <div class="ai-block" v-if="aiMindsetAdvice.length">
-        <button class="ai-block-header" @click="aiMindsetExpanded = !aiMindsetExpanded">
+        <button
+          class="ai-block-header"
+          @click="aiMindsetExpanded = !aiMindsetExpanded"
+        >
           <span>💡 行動微調建議</span>
           <span class="ai-count">{{ aiMindsetAdvice.length }} 項</span>
           <span class="expand-arrow">{{ aiMindsetExpanded ? "▲" : "▼" }}</span>
@@ -181,11 +228,16 @@
       </div>
 
       <div class="ai-block" v-if="aiInternalThinking">
-        <button class="ai-block-header" @click="aiThinkingExpanded = !aiThinkingExpanded">
+        <button
+          class="ai-block-header"
+          @click="aiThinkingExpanded = !aiThinkingExpanded"
+        >
           <span>🧠 教練內心推演</span>
           <span class="expand-arrow">{{ aiThinkingExpanded ? "▲" : "▼" }}</span>
         </button>
-        <p v-if="aiThinkingExpanded" class="ai-thinking">{{ aiInternalThinking }}</p>
+        <p v-if="aiThinkingExpanded" class="ai-thinking">
+          {{ aiInternalThinking }}
+        </p>
       </div>
     </section>
 
@@ -197,12 +249,14 @@
       </div>
       <div v-if="newsLoading" class="news-preview-list">
         <div v-for="i in 3" :key="i" class="news-preview-card skeleton-card">
-          <div class="sk sk-label" style="width:40%"></div>
-          <div class="sk sk-title" style="margin-top:6px"></div>
+          <div class="sk sk-label" style="width: 40%"></div>
+          <div class="sk sk-title" style="margin-top: 6px"></div>
         </div>
       </div>
       <div v-else-if="newsError" class="inline-error">⚠️ 新聞載入失敗</div>
-      <div v-else-if="topNews.length === 0" class="inline-hint">📭 目前無新聞</div>
+      <div v-else-if="topNews.length === 0" class="inline-hint">
+        📭 目前無新聞
+      </div>
       <div v-else class="news-preview-list">
         <div
           v-for="article in topNews"
@@ -211,9 +265,14 @@
           @click="openLink(article.url)"
         >
           <div class="news-preview-meta">
-            <span class="news-age-dot" :class="ageDotClass(article.age_band)"></span>
+            <span
+              class="news-age-dot"
+              :class="ageDotClass(article.age_band)"
+            ></span>
             <span class="news-preview-source">{{ article.source }}</span>
-            <span class="news-preview-region">{{ regionFlag(article._region) }}</span>
+            <span class="news-preview-region">{{
+              regionFlag(article._region)
+            }}</span>
           </div>
           <p class="news-preview-title">{{ article.title }}</p>
         </div>
@@ -283,7 +342,7 @@ const todayLabel = computed(() =>
     month: "long",
     day: "numeric",
     weekday: "short",
-  })
+  }),
 );
 
 // ── AI computed ──
@@ -291,18 +350,34 @@ const todayLabel = computed(() =>
 const aiData = computed(() => latestReport.value?.ai ?? {});
 
 // 2. 接著對應 JSON 的 snake_case 欄位進行綁定
-const aiRiskWarnings     = computed(() => aiData.value.risk_warnings          ?? []);
-const aiActionItems      = computed(() => aiData.value.action_items            ?? []);
-const aiMindsetAdvice    = computed(() => aiData.value.mindset_advice          ?? []);
-const aiInternalThinking = computed(() => aiData.value.coach_internal_thinking ?? "");
+const aiRiskWarnings = computed(() => aiData.value.risk_warnings ?? []);
+const aiActionItems = computed(() => aiData.value.action_items ?? []);
+const aiMindsetAdvice = computed(() => aiData.value.mindset_advice ?? []);
+const aiInternalThinking = computed(
+  () => aiData.value.coach_internal_thinking ?? "",
+);
 
 // ── VIX level ──
 const vixLevel = computed(() => {
   const statusVix = status.value?.data?.rawUsMarket?.vix;
-  const v = statusVix != null ? parseFloat(statusVix) : latestReport.value?.marketState?.sentiment?.vix;
-  if (v == null) return { label: "—", cardClass: "", textClass: "snap-sub--neutral" };
-  if (v >= 30) return { label: "極度恐慌", cardClass: "card-danger", textClass: "snap-sub--danger" };
-  if (v >= 20) return { label: "警戒", cardClass: "card-warn", textClass: "snap-sub--warn" };
+  const v =
+    statusVix != null
+      ? parseFloat(statusVix)
+      : latestReport.value?.marketState?.sentiment?.vix;
+  if (v == null)
+    return { label: "—", cardClass: "", textClass: "snap-sub--neutral" };
+  if (v >= 30)
+    return {
+      label: "極度恐慌",
+      cardClass: "card-danger",
+      textClass: "snap-sub--danger",
+    };
+  if (v >= 20)
+    return {
+      label: "警戒",
+      cardClass: "card-warn",
+      textClass: "snap-sub--warn",
+    };
   return { label: "平穩", cardClass: "card-ok", textClass: "snap-sub--ok" };
 });
 
@@ -314,10 +389,26 @@ const pbPrValue = computed(() => {
 
 const pbPrLevel = computed(() => {
   const v = Number(pbPrValue.value);
-  if (isNaN(v)) return { label: "—", cardClass: "", textClass: "snap-sub--neutral" };
-  if (v >= 90) return { label: "極度昂貴", cardClass: "card-danger", textClass: "snap-sub--danger" };
-  if (v >= 80) return { label: "估值偏高", cardClass: "card-warn", textClass: "snap-sub--warn" };
-  if (v <= 25) return { label: "極度便宜", cardClass: "card-ok", textClass: "snap-sub--ok" };
+  if (isNaN(v))
+    return { label: "—", cardClass: "", textClass: "snap-sub--neutral" };
+  if (v >= 90)
+    return {
+      label: "極度昂貴",
+      cardClass: "card-danger",
+      textClass: "snap-sub--danger",
+    };
+  if (v >= 80)
+    return {
+      label: "估值偏高",
+      cardClass: "card-warn",
+      textClass: "snap-sub--warn",
+    };
+  if (v <= 25)
+    return {
+      label: "極度便宜",
+      cardClass: "card-ok",
+      textClass: "snap-sub--ok",
+    };
   return { label: "合理區間", cardClass: "", textClass: "snap-sub--neutral" };
 });
 
@@ -329,9 +420,20 @@ const glValue = computed(() => {
 
 const glLevel = computed(() => {
   const v = Number(glValue.value);
-  if (isNaN(v)) return { label: "—", cardClass: "", textClass: "snap-sub--neutral" };
-  if (v >= 3.0) return { label: "強制砍倉", cardClass: "card-danger", textClass: "snap-sub--danger" };
-  if (v >= 2.5) return { label: "暫停加碼", cardClass: "card-warn", textClass: "snap-sub--warn" };
+  if (isNaN(v))
+    return { label: "—", cardClass: "", textClass: "snap-sub--neutral" };
+  if (v >= 3.0)
+    return {
+      label: "強制砍倉",
+      cardClass: "card-danger",
+      textClass: "snap-sub--danger",
+    };
+  if (v >= 2.5)
+    return {
+      label: "暫停加碼",
+      cardClass: "card-warn",
+      textClass: "snap-sub--warn",
+    };
   return { label: "安全水位", cardClass: "card-ok", textClass: "snap-sub--ok" };
 });
 
@@ -391,7 +493,8 @@ const valuationGuardText = computed(() => {
   const vg = latestReport.value?.signals?.valuationGuardResult;
   if (!vg) return null;
   if (vg.defenseLatchActive) return "🔒 防禦鎖定中 (跌破 MA20)";
-  if (Number(vg.guardTier) > 0) return `${vg.guardLabel} (${vg.guardMultiplier}x)`;
+  if (Number(vg.guardTier) > 0)
+    return `${vg.guardLabel} (${vg.guardMultiplier}x)`;
   return "🟢 估值安全 (無壓縮)";
 });
 
@@ -432,26 +535,48 @@ const pctText = computed(() => {
 const w = computed(() => latestReport.value?.signals?.weightDetails ?? {});
 
 const scoreVal = computed(() => {
-  const v = latestReport.value?.signals?.weightScore;
+  const v = latestReport.value?.signals?.score;
   return Number.isFinite(Number(v)) ? Number(v) : "--";
 });
 
 const scoreMin = computed(() => {
-  const v = latestReport.value?.strategySnapshot?.indicator?.buy?.minWeightScoreToBuy;
+  const v =
+    latestReport.value?.strategySnapshot?.indicator?.buy?.minWeightScoreToBuy;
   return v != null ? Number(v) : "--";
 });
 
-const scoreOk = computed(() =>
-  typeof scoreVal.value === "number" &&
-  typeof scoreMin.value === "number" &&
-  scoreVal.value >= scoreMin.value
+const scoreOk = computed(
+  () =>
+    typeof scoreVal.value === "number" &&
+    typeof scoreMin.value === "number" &&
+    scoreVal.value >= scoreMin.value,
 );
 
 const scoreRows = computed(() => [
-  { label: "跌幅", pt: fmtPt(w.value.dropScore), info: w.value.dropInfo ?? "─", active: Number(w.value.dropScore) > 0 },
-  { label: "RSI", pt: fmtPt(w.value.rsiScore), info: w.value.rsiInfo ?? "─", active: Number(w.value.rsiScore) > 0 },
-  { label: "MACD", pt: fmtPt(w.value.macdScore), info: w.value.macdInfo ?? "─", active: Number(w.value.macdScore) > 0 },
-  { label: "KD", pt: fmtPt(w.value.kdScore), info: w.value.kdInfo ?? "─", active: Number(w.value.kdScore) > 0 },
+  {
+    label: "跌幅",
+    pt: fmtPt(w.value.dropScore),
+    info: w.value.dropInfo ?? "─",
+    active: Number(w.value.dropScore) > 0,
+  },
+  {
+    label: "RSI",
+    pt: fmtPt(w.value.rsiScore),
+    info: w.value.rsiInfo ?? "─",
+    active: Number(w.value.rsiScore) > 0,
+  },
+  {
+    label: "MACD",
+    pt: fmtPt(w.value.macdScore),
+    info: w.value.macdInfo ?? "─",
+    active: Number(w.value.macdScore) > 0,
+  },
+  {
+    label: "KD",
+    pt: fmtPt(w.value.kdScore),
+    info: w.value.kdInfo ?? "─",
+    active: Number(w.value.kdScore) > 0,
+  },
   {
     label: "情緒",
     pt: fmtPt(w.value.sentimentScore),
@@ -487,12 +612,14 @@ const radarOption = computed(() => {
       shape: "polygon",
       axisName: { color: "var(--tg-theme-hint-color, #999)", fontSize: 11 },
       splitLine: { lineStyle: { color: "rgba(0,0,0,0.05)" } },
-      splitArea: { areaStyle: { color: ["rgba(0,0,0,0.01)", "rgba(0,0,0,0.03)"] } },
+      splitArea: {
+        areaStyle: { color: ["rgba(0,0,0,0.01)", "rgba(0,0,0,0.03)"] },
+      },
     },
     series: [
       {
         type: "radar",
-        data: [                          
+        data: [
           {
             value: data,
             name: "評分構成",
@@ -551,10 +678,11 @@ async function loadAll() {
   reportLoading.value = false;
   if (rRes.status === "fulfilled") {
     const raw = rRes.value;
-    const list = Array.isArray(raw) ? raw : raw?.data ?? raw?.reports ?? [];
-    const sorted = [...list].sort((a, b) => 
-      String(b.date ?? "").localeCompare(String(a.date ?? "")) || 
-      String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? ""))
+    const list = Array.isArray(raw) ? raw : (raw?.data ?? raw?.reports ?? []);
+    const sorted = [...list].sort(
+      (a, b) =>
+        String(b.date ?? "").localeCompare(String(a.date ?? "")) ||
+        String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? "")),
     );
     latestReport.value = sorted[0] ?? null;
   } else {
@@ -563,10 +691,16 @@ async function loadAll() {
 
   newsLoading.value = false;
   if (nRes.status === "fulfilled") {
-    const list = Array.isArray(nRes.value) ? nRes.value : nRes.value?.articles ?? [];
+    const list = Array.isArray(nRes.value)
+      ? nRes.value
+      : (nRes.value?.articles ?? []);
     const order = { fresh: 0, recent: 1, old: 2 };
     topNews.value = [...list]
-      .sort((a, b) => (order[a.age_band] ?? 2) - (order[b.age_band] ?? 2) || new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0))
+      .sort(
+        (a, b) =>
+          (order[a.age_band] ?? 2) - (order[b.age_band] ?? 2) ||
+          new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0),
+      )
       .slice(0, 3);
   } else {
     newsError.value = true;
