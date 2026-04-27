@@ -1,6 +1,6 @@
 import { readdir, readFile } from "fs/promises";
 import { resolve, dirname, join } from "path";
-import { REPORT_SCHEMA } from "../schema/contract.mjs";
+//import { REPORT_SCHEMA } from "../schema/contract.mjs";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -147,7 +147,7 @@ export default async function reportsRoute(fastify) {
    */
   fastify.get(
     "/reports",
-    { schema: { response: { 200: { type: "array", items: REPORT_SCHEMA } } } },
+    // { schema: { response: { 200: { type: "array", items: REPORT_SCHEMA } } } }, // Fastify Response Schema 剝除了 signals 子欄位，故不傳入SCHEMA
     async (request, reply) => {
       const rawLimit = parseInt(request.query.limit ?? "30", 10);
       const limit =
@@ -219,7 +219,7 @@ export default async function reportsRoute(fastify) {
    */
   fastify.get(
     "/report/:date",
-    { schema: { response: { 200: REPORT_SCHEMA } } },
+    // { schema: { response: { 200: REPORT_SCHEMA } } }, // Fastify Response Schema 剝除了 signals 子欄位，故不傳入SCHEMA
     async (request, reply) => {
       const { date } = request.params;
 
