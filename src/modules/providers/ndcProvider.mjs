@@ -1,7 +1,7 @@
 import {
   fetchWithTimeout,
   isoDateToROC,
-  parseNumberOrNull,
+  parseNumber,
 } from "../../utils/coreUtils.mjs";
 
 /**
@@ -79,7 +79,7 @@ export async function fetchBusinessIndicator() {
     // 從最新的日期往前找，直到找到有效的分數
     for (let i = data.row.length - 1; i >= 0; i--) {
       // 依賴 coreUtils 進行安全的空字串或 "-" 過濾
-      const parsedScore = parseNumberOrNull(scoreArray[i]);
+      const parsedScore = parseNumber(scoreArray[i]);
 
       if (parsedScore !== null && parsedScore > 0) {
         latestIndex = i;

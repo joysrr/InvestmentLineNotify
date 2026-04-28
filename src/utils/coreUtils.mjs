@@ -75,15 +75,28 @@ export function toExCh(symbol) {
 }
 
 /**
- * 將可能含逗號、空字串、"-"/"--" 的數字字串轉成 number。
+ * 統一數字解析工具
+ * @param {any} val - 要轉換的值
+ * @param {object} options - 設定項
+ * @param {number} options.decimals - 小數點位數 (不傳則不處理)
+ * @param {any} options.fallback - 解析失敗時的回傳值 (預設為 0)
  */
-export function parseNumberOrNull(v) {
-  if (v == null) return null;
-  const s = String(v).replace(/,/g, "").trim();
-  if (s === "" || s === "--" || s === "-") return null;
+export function parseNumber(val, { decimals = null, fallback = 0 } = {}) {
+  // 1. 基本空值處理
+  if (val === null || val === undefined || val === "") return fallback;
 
-  const n = Number(s);
-  return Number.isFinite(n) ? n : null;
+  // 2. 清理字串：移除 逗號、百分比、空白
+  let s = String(val).replace(/[%|,]/g, "").trim();
+
+  // 3. 處理特殊佔位符
+  if (s === "--" || s === "-") return fallback;
+
+  // 4. 轉換與有效性檢查
+  const n = parseFloat(s);
+  if (!Number.isFinite(n)) return fallback;
+
+  // 5. 處理小數點 (若有指定)
+  return decimals !== null ? parseFloat(n.toFixed(decimals)) : n;
 }
 
 /**

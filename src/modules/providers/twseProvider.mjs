@@ -3,7 +3,7 @@ import {
   TwDate,
   parseEnglishDateToISO,
   toTwseStockNo,
-  parseNumberOrNull,
+  parseNumber,
   enumerateMonths,
   rocDateToIso,
   sleep,
@@ -65,14 +65,14 @@ async function fetchStockDayMonthWithCache(stockNo, yyyymm01) {
 function firstPriceFromLevels(levelStr) {
   if (!levelStr) return null;
   const first = String(levelStr).split("_")[0];
-  return parseNumberOrNull(first);
+  return parseNumber(first);
 }
 
 /**
  * 選擇「可用的即時參考價」
  */
 function pickRealtimePrice(msg) {
-  const last = parseNumberOrNull(msg?.z);
+  const last = parseNumber(msg?.z);
   const bid1 = firstPriceFromLevels(msg?.b);
   const ask1 = firstPriceFromLevels(msg?.a);
 
@@ -176,7 +176,7 @@ export async function fetchRealtimeFromMis(symbol) {
     return { price: null, time: null, priceSource: "none", rawTime: {} };
   }
 
-  const tlong = parseNumberOrNull(msg.tlong);
+  const tlong = parseNumber(msg.tlong);
   const time =
     tlong != null ? new Date(tlong) : parseMisTimeToDate(msg.d, msg.t);
   const { price, priceSource } = pickRealtimePrice(msg);
@@ -248,12 +248,10 @@ export async function getTwVix() {
       const quote = data?.RtData?.QuoteList?.[0] ?? data?.QuoteDetail?.[0];
       if (!quote) continue;
 
-      let value =
-        parseNumberOrNull(quote.CLastPrice) ||
-        parseNumberOrNull(quote.CRefPrice);
+      let value = parseNumber(quote.CLastPrice) || parseNumber(quote.CRefPrice);
       if (value == null || value <= 0) continue;
 
-      const prev = parseNumberOrNull(quote.CRefPrice);
+      const prev = parseNumber(quote.CRefPrice);
       const change = value != null && prev != null ? value - prev : 0;
 
       let status = "中性";
@@ -383,11 +381,11 @@ async function fetchStockDayMonth(stockNo, yyyymm01) {
           ] = row;
           return {
             date: rocDateToIso(rocDate),
-            open: parseNumberOrNull(openStr),
-            high: parseNumberOrNull(highStr),
-            low: parseNumberOrNull(lowStr),
-            close: parseNumberOrNull(closeStr),
-            volume: parseNumberOrNull(volumeStr),
+            open: parseNumber(openStr),
+            high: parseNumber(highStr),
+            low: parseNumber(lowStr),
+            close: parseNumber(closeStr),
+            volume: parseNumber(volumeStr),
           };
         });
       }
@@ -487,12 +485,6 @@ export async function fetchMarketValuation() {
     return Math.round(v * 100) / 100;
   }
 
-  function toNum(v) {
-    if (v == null || v === "--" || v === "-" || v === "") return null;
-    const n = Number(String(v).replace(/,/g, ""));
-    return isNaN(n) ? null : n;
-  }
-
   // ── 日快取 4h 內直接回傳 ─────────────────────────────────────────────────
   if (
     _valuationCache.result &&
@@ -570,7 +562,7 @@ export async function fetchMarketValuation() {
     const priceMap = new Map();
     for (const s of stockDay) {
       const code = cleanCode(s.Code);
-      const price = toNum(s.ClosingPrice);
+      const price = parseNumber(s.ClosingPrice);
       if (code && price !== null && price > 0) priceMap.set(code, price);
     }
 
@@ -597,9 +589,9 @@ export async function fetchMarketValuation() {
 
     for (const s of bwibbu) {
       const code = cleanCode(s.Code);
-      const pe = toNum(s.PEratio);
-      const pb = toNum(s.PBratio);
-      const yld = toNum(s.DividendYield);
+      const pe = parseNumber(s.PEratio);
+      const pb = parseNumber(s.PBratio);
+      const yld = parseNumber(s.DividendYield);
       const price = priceMap.get(code);
       const shares = sharesMap.get(code);
 
@@ -701,15 +693,9 @@ export async function fetchMarketOverview() {
   // 取倒數第二筆作為「前一日」，用來計算漲跌幅
   const prev = data.length >= 2 ? data[data.length - 2] : null;
 
-  function toNum(str) {
-    if (!str) return null;
-    const n = Number(String(str).replace(/,/g, ""));
-    return isNaN(n) ? null : n;
-  }
-
-  const taiex = toNum(latest.TAIEX);
-  const prevTaiex = prev ? toNum(prev.TAIEX) : null;
-  const tradeValueRaw = toNum(latest.TradeValue);
+  const taiex = parseNumber(latest.TAIEX);
+  const prevTaiex = prev ? parseNumber(prev.TAIEX) : null;
+  const tradeValueRaw = parseNumber(latest.TradeValue);
 
   // 成交金額換算為億元（四捨五入）
   const tradeValueHundredMillion =
@@ -718,7 +704,7 @@ export async function fetchMarketOverview() {
   // 近 20 個交易日成交金額統計（億元）
   const recent = Array.isArray(data) ? data.slice(-20) : [];
   const recentValues = recent
-    .map((row) => toNum(row.TradeValue))
+    .map((row) => parseNumber(row.TradeValue))
     .filter((v) => v != null && v > 0);
 
   let avgTradeValue20dHundredMillion = null;
@@ -734,7 +720,7 @@ export async function fetchMarketOverview() {
 
   // 漲跌點 (API 本身就有 Change 欄，同時自算一份作 fallback)
   const changePoint =
-    toNum(latest.Change) ??
+    parseNumber(latest.Change) ??
     (taiex != null && prevTaiex != null ? taiex - prevTaiex : null);
 
   // 漲跌幅 %
@@ -799,10 +785,10 @@ export async function fetchStockInstitutionalData(symbol) {
     return {
       date: json.date, // 可能是 "2026年04月17日" 格式
       symbol: stockNo,
-      foreignNetBuy: parseNumberOrNull(row[4]),
-      trustNetBuy: parseNumberOrNull(row[12]),
-      dealerNetBuy: parseNumberOrNull(row[15]),
-      totalNetBuy: parseNumberOrNull(row[18]),
+      foreignNetBuy: parseNumber(row[4]),
+      trustNetBuy: parseNumber(row[12]),
+      dealerNetBuy: parseNumber(row[15]),
+      totalNetBuy: parseNumber(row[18]),
     };
   } catch (err) {
     console.warn(
@@ -839,10 +825,10 @@ export async function fetchStockMarginData(symbol) {
 
     return {
       symbol: stockNo,
-      marginBalance: parseNumberOrNull(row["融資今日餘額"]),
-      shortBalance: parseNumberOrNull(row["融券今日餘額"]),
-      marginLimit: parseNumberOrNull(row["融資限額"]),
-      shortLimit: parseNumberOrNull(row["融券限額"]),
+      marginBalance: parseNumber(row["融資今日餘額"]),
+      shortBalance: parseNumber(row["融券今日餘額"]),
+      marginLimit: parseNumber(row["融資限額"]),
+      shortLimit: parseNumber(row["融券限額"]),
     };
   } catch (err) {
     console.warn(`[twseProvider] fetchStockMarginData 失敗: ${err.message}`);

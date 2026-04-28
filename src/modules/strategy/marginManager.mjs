@@ -7,7 +7,7 @@
  * 注意：本計畫依據使用者需求，維持率計算僅包含 0050 質押部分（擔保品），不包含 00675L。
  */
 
-import { parseNumberOrNull } from "../../utils/coreUtils.mjs";
+import { parseNumber } from "../../utils/coreUtils.mjs";
 import { analyzeMarginRisk as analyzeMarginRiskCore } from "./policies/marginPolicy.mjs";
 
 /**

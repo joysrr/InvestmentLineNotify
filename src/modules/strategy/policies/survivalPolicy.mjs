@@ -1,13 +1,13 @@
-import { parseNumberOrNull } from "../../../utils/coreUtils.mjs";
+import { parseNumber } from "../../../utils/coreUtils.mjs";
 
 /**
  * 生命週期投資法 - 存活分析模組
  * 計算維持率的生存邊際與回補需求
  */
 export function analyzeSurvival(portfolio, currentPrice0050, strategy) {
-  const qty0050 = parseNumberOrNull(portfolio?.qty0050) || 0;
-  const totalLoan = parseNumberOrNull(portfolio?.totalLoan) || 0;
-  const currentPrice = parseNumberOrNull(currentPrice0050) || 0;
+  const qty0050 = parseNumber(portfolio?.qty0050) || 0;
+  const totalLoan = parseNumber(portfolio?.totalLoan) || 0;
+  const currentPrice = parseNumber(currentPrice0050) || 0;
 
   if (currentPrice <= 0) return null;
 

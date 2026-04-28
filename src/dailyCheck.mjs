@@ -44,6 +44,7 @@ const sessionId = process.env.GITHUB_RUN_ID
 export async function dailyCheck({
   isTelegramEnabled = true,
   isAIAdvisor = true,
+  isCallAI = true,
 }) {
   logger.info("🚀 開始執行 dailyCheck...");
 
@@ -267,8 +268,11 @@ export async function dailyCheck({
   let newsSummaryText = "今日無重大市場新跡。";
   let conflictSummary = "";
   let newsStructured = { tw: [], us: [] };
-  logger.info("📝 正在從 news pool 取得新跡集錦...");
-  {
+  let macroAnalysis = null;
+  let macroTextForCoach = "無新跡數據，無法進行總經分析。";
+  let macroMarketDirection = null;
+  if (isCallAI) {
+    logger.info("📝 正在從 news pool 取得新跡集錦...");
     const done = stepTimer("fetchNews");
     try {
       const newsResult = await getNewsTelegramMessages();
@@ -284,47 +288,46 @@ export async function dailyCheck({
       newsStructured = { tw: [], us: [] };
     }
     done();
-  }
 
-  logger.info("🤖 正在產生總經多空對決報告...");
-  let macroAnalysis = null;
-  let macroTextForCoach = "無新跡數據，無法進行總經分析。";
-  if (newsMessages?.length) {
-    const done = stepTimer("analyzeMacro");
-    try {
-      macroAnalysis = await analyzeMacroNewsWithAI(
-        newsSummaryText,
-        conflictSummary,
-      );
-      macroTextForCoach = formatMacroAnalysisForCoach(macroAnalysis);
-    } catch (err) {
-      logger.error(err, "❌ 總經分析 AI 產生失敗，降級處理");
+    logger.info("🤖 正在產生總經多空對決報告...");
+    if (newsMessages?.length) {
+      const done = stepTimer("analyzeMacro");
+      try {
+        macroAnalysis = await analyzeMacroNewsWithAI(
+          newsSummaryText,
+          conflictSummary,
+        );
+        macroTextForCoach = formatMacroAnalysisForCoach(macroAnalysis);
+      } catch (err) {
+        logger.error(err, "❌ 總經分析 AI 產生失敗，降級處理");
+        macroAnalysis = {
+          bullish: 0,
+          bearish: 0,
+          neutral: 0,
+          summary: "總經分析 AI 產生失敗，使用預設空結構。",
+        };
+        macroTextForCoach = macroAnalysis.summary;
+      }
+      done();
+    } else {
+      logger.warn("⚠️ 無新跡數據，跳過總經分析");
       macroAnalysis = {
         bullish: 0,
         bearish: 0,
         neutral: 0,
-        summary: "總經分析 AI 產生失敗，使用預設空結構。",
+        summary: "無新跡數據，無法進行總經分析。",
       };
       macroTextForCoach = macroAnalysis.summary;
     }
-    done();
-  } else {
-    logger.warn("⚠️ 無新跡數據，跳過總經分析");
-    macroAnalysis = {
-      bullish: 0,
-      bearish: 0,
-      neutral: 0,
-      summary: "無新跡數據，無法進行總經分析。",
-    };
-    macroTextForCoach = macroAnalysis.summary;
-  }
 
-  const macroMarketDirection =
-    macroAnalysis?.conclusion?.market_direction ?? null;
-  if (macroMarketDirection) {
-    logger.info(`✅ 總經方向：${macroMarketDirection}`);
+    macroMarketDirection = macroAnalysis?.conclusion?.market_direction ?? null;
+    if (macroMarketDirection) {
+      logger.info(`✅ 總經方向：${macroMarketDirection}`);
+    } else {
+      logger.warn("⚠️ 無總經方向，策略引擎將不套用情緒調整");
+    }
   } else {
-    logger.warn("⚠️ 無總經方向，策略引擎將不套用情緒調整");
+    logger.info("⏭️ 今日設定不呼叫AI，將略過新跡集錦與總經分析");
   }
   // ───────────────────────────────────────────────────────────────────────────
 
@@ -392,16 +395,12 @@ export async function dailyCheck({
       ma60Slope: indicators0050.ma60Slope,
       kd: indicators0050.kdArr[indicators0050.kdArr.length - 1],
     },
-    US_VIX: usRisk.vix,
-    US_SPX_Change: usRisk.spxChg,
-    US_RiskLevel: usRisk.riskLevel,
-    US_RiskIcon: usRisk.riskIcon,
-    US_Suggestion: usRisk.suggestion,
     macroMarketDirection,
     valuationGuardState,
     pbRecords,
     pbRecordsObjects,
     rawValuation: macroData?.rawValuation ?? null,
+    usRisk,
   };
 
   logger.info("🧠 正在計算投資訊號...");

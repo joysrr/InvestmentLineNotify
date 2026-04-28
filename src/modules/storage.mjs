@@ -1,6 +1,6 @@
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import { JWT } from "google-auth-library";
-import { TwDate, parseNumberOrNull } from "../utils/coreUtils.mjs";
+import { TwDate, parseNumber } from "../utils/coreUtils.mjs";
 import { archiveManager } from "./data/archiveManager.mjs";
 
 // 1. 取得並處理私鑰 (自動修復格式問題)
@@ -117,19 +117,19 @@ export async function fetchLastPortfolioState() {
     }
     // ──────────────────────────────────────────────────────────────────────────────
 
-    const parsedLoan = parseNumberOrNull(lastRow.get("借貸總額"));
-    const parsedCash = parseNumberOrNull(lastRow.get("現金儲備"));
+    const parsedLoan = parseNumber(lastRow.get("借貸總額"));
+    const parsedCash = parseNumber(lastRow.get("現金儲備"));
 
     return {
       date: lastRow.get("日期"),
       lastBuyDate: resolvedLastBuyDate,
-      qty0050: parseNumberOrNull(lastRow.get("0050股數")) || 0,
-      qtyZ2: parseNumberOrNull(lastRow.get("00675L股數")) || 0,
+      qty0050: parseNumber(lastRow.get("0050股數")) || 0,
+      qtyZ2: parseNumber(lastRow.get("00675L股數")) || 0,
       totalLoan: parsedLoan || 0,
-      cash: parsedCash ?? (parseNumberOrNull(process.env.CASH_RESERVE) || 0),
+      cash: parsedCash ?? (parseNumber(process.env.CASH_RESERVE) || 0),
       // 持倉均價（手動維護欄位，空白時為 null，不影響主流程）
-      avgCost0050: parseNumberOrNull(lastRow.get("0050均價")),
-      avgCostZ2: parseNumberOrNull(lastRow.get("00675L均價")),
+      avgCost0050: parseNumber(lastRow.get("0050均價")),
+      avgCostZ2: parseNumber(lastRow.get("00675L均價")),
     };
   } catch (err) {
     console.error("❌ 讀取持股失敗:", err);

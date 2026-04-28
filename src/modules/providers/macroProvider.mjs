@@ -1,4 +1,4 @@
-import { fetchWithTimeout, parseNumberOrNull } from "../../utils/coreUtils.mjs";
+import { fetchWithTimeout, parseNumber } from "../../utils/coreUtils.mjs";
 
 /**
  * 宏觀經濟資料 Provider
@@ -6,7 +6,8 @@ import { fetchWithTimeout, parseNumberOrNull } from "../../utils/coreUtils.mjs";
  * - 美國指標：維持使用 FRED (Federal Reserve Economic Data)
  */
 
-const FRED_API_KEY = process.env.FRED_API_KEY || "abcdefghijklmnopqrstuvwxyz123456";
+const FRED_API_KEY =
+  process.env.FRED_API_KEY || "abcdefghijklmnopqrstuvwxyz123456";
 
 // ============================================================================
 // 🏦 台灣央行貼放利率 (CBC HTML Scraping)
@@ -22,8 +23,10 @@ export async function fetchCentralBankRate() {
 
     // 擷取表格中第一筆資料的重貼現率
     // 結構參考: <td data-th="重貼現率"><span>2</span></td>
-    const match = html.match(/<td data-th="重貼現率"><span>([\d.]+)<\/span><\/td>/);
-    const value = match ? parseNumberOrNull(match[1]) : null;
+    const match = html.match(
+      /<td data-th="重貼現率"><span>([\d.]+)<\/span><\/td>/,
+    );
+    const value = match ? parseNumber(match[1]) : null;
 
     if (value === null) throw new Error("解析央行利率 HTML 失敗");
 
@@ -53,14 +56,18 @@ export async function fetchCpiYoY() {
   const url = `https://nstatdb.dgbas.gov.tw/dgbasall/webMain.aspx?sys=220&funid=A030101015&outmode=8&jsonplus=1&ym=${rocYM}&ymt=${rocYM}&cycle=1&outkind=11&compmode=2&ratenm=%u5E74%u589E%u7387&fldlst=110000000000000000000000000010000001000000000000000100000000010001000000001000000&compmode=2`;
 
   try {
-    const res = await fetchWithTimeout(url, {
-      headers: { "User-Agent": "Mozilla/5.0" }
-    }, 10000);
+    const res = await fetchWithTimeout(
+      url,
+      {
+        headers: { "User-Agent": "Mozilla/5.0" },
+      },
+      10000,
+    );
     if (!res.ok) throw new Error(`DGBAS API HTTP ${res.status}`);
-    
+
     const json = await res.json();
     // 總指數年增率位於 orgdata[0][0]
-    const value = parseNumberOrNull(json.orgdata?.[0]?.[0]);
+    const value = parseNumber(json.orgdata?.[0]?.[0]);
 
     if (value === null) throw new Error("解析 DGBAS CPI 數據失敗");
 
@@ -87,7 +94,7 @@ async function fetchLatestFromFred(seriesId) {
     const json = await res.json();
     const latest = json.observations?.[0];
     if (!latest) throw new Error(`FRED 系列 ${seriesId} 無回傳資料`);
-    return { date: latest.date, value: parseNumberOrNull(latest.value) };
+    return { date: latest.date, value: parseNumber(latest.value) };
   } catch (err) {
     console.warn(`[macroProvider] 抓取 FRED ${seriesId} 失敗: ${err.message}`);
     return null;

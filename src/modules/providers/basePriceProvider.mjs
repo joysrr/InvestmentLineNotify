@@ -1,4 +1,4 @@
-import { fetchWithTimeout, parseNumberOrNull } from "../../utils/coreUtils.mjs";
+import { fetchWithTimeout, parseNumber } from "../../utils/coreUtils.mjs";
 
 const BASE_PRICE_URL = process.env.BASE_PRICE_URL;
 
@@ -19,7 +19,7 @@ function parseBasePriceText(text) {
   const [baseDate, basePriceStr] = lastLine.split(",").map((s) => s.trim());
 
   // 使用共用工具進行安全的數字解析
-  const basePrice = parseNumberOrNull(basePriceStr);
+  const basePrice = parseNumber(basePriceStr);
 
   if (!baseDate || basePrice === null) {
     throw new Error("基準格式錯誤，無法解析最後一行");

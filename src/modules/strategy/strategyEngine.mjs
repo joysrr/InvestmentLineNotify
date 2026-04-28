@@ -58,6 +58,9 @@ import {
   resolveBudgetSynergy,
 } from "./policies/index.mjs";
 
+import { parseNumber } from "../../utils/coreUtils.mjs";
+import { normalizeMarketData } from "../../utils/normalizer.mjs";
+
 /**
  * 決策大腦：綜合估值、維持率、槓桿、斜率與評分矩陣產出最終建議
  */
@@ -437,9 +440,6 @@ export async function buildDecision(
   };
 }
 
-import { normalizeMarketData, toNum } from "../../utils/normalizer.mjs";
-import { MARKET_SCHEMA } from "../../api/schema/contract.mjs";
-
 export async function evaluateInvestmentSignal(data, strategy) {
   // ── 2.0 標準化數據清洗 ────────────────────────────────────────
   const marketState = normalizeMarketData({
@@ -451,8 +451,8 @@ export async function evaluateInvestmentSignal(data, strategy) {
     rawFx: data.rawFx || { currentRate: data.currentRate },
   });
 
-  const currentPrice = toNum(data.currentPrice);
-  const basePrice = toNum(data.basePrice);
+  const currentPrice = parseNumber(data.currentPrice);
+  const basePrice = parseNumber(data.basePrice);
   const priceChangePercent = ((currentPrice - basePrice) / basePrice) * 100;
   const priceUpPercent = Math.max(0, priceChangePercent);
   const priceDropPercent = Math.max(0, -priceChangePercent);
@@ -625,33 +625,25 @@ export async function evaluateInvestmentSignal(data, strategy) {
 
   const macdSignal = getMACDSignal(data.macdArr);
 
-// ── 回填 valuationGuard PR 到 marketState ──
-const finalPR = decision.valuationGuardResult?.currentPR
-  ?? ctx.valuationGuardResult?.currentPR
-  ?? null;
-if (finalPR != null) {
-  marketState.valuation.pr = finalPR;
-}
-
   return {
     id: data.date || new Date().toISOString().split("T")[0],
     date: data.date || new Date().toISOString(),
     marketState, // 2.0 標準化分類數據
     strategySnapshot: strategy, // 完整拷貝策略，供未來回溯
     signals: {
-      RSI: toNum(data.RSI), // 技術指標 RSI 數值
+      RSI: parseNumber(data.RSI), // 技術指標 RSI 數值
       // KD 最後值（從 kdArr 最後一筆拆出）
-      KD_K: toNum(
+      KD_K: parseNumber(
         Array.isArray(data.kdArr) && data.kdArr.length
           ? data.kdArr[data.kdArr.length - 1]?.k
           : null,
       ),
-      KD_D: toNum(
+      KD_D: parseNumber(
         Array.isArray(data.kdArr) && data.kdArr.length
           ? data.kdArr[data.kdArr.length - 1]?.d
           : null,
       ),
-      bias240: toNum(bias240), // 乖離率 MA240
+      bias240: parseNumber(bias240), // 乖離率 MA240
       reversal: ctx.reversal ?? null, // 轉弱訊號（reversalTriggers 結果）
       sellSignals: ctx.sellSignals ?? null, // 賣出訊號（sellSignals 結果）
       priceChangePercentText: Number.isFinite(priceChangePercent)
@@ -666,15 +658,15 @@ if (finalPR != null) {
         ? { level: marginAnalysis.riskLevel }
         : { level: "Normal" }, // 維持率風險等級（包成前端期待的 { level } 結構）
       status: decision.marketStatus || "🌱",
-      score: toNum(ctx.entry.weightScore),
+      score: parseNumber(ctx.entry.weightScore),
       target: decision.target || "🔹 0050 DCA",
       suggestion: decision.targetSuggestion || "維持觀望",
       weightDetails: ctx.entry.weightDetails,
-      priceChangePercent: toNum(priceChangePercent),
-      actualLeverage: toNum(actualLeverage),
-      maintenanceMargin: toNum(maintenanceMargin),
-      z2Ratio: toNum(z2Ratio),
-      grossLeverage: toNum(grossLeverageResult?.grossLeverage),
+      priceChangePercent: parseNumber(priceChangePercent),
+      actualLeverage: parseNumber(actualLeverage),
+      maintenanceMargin: parseNumber(maintenanceMargin),
+      z2Ratio: parseNumber(z2Ratio),
+      grossLeverage: parseNumber(grossLeverageResult?.grossLeverage),
       grossLeverageStatus: grossLeverageResult?.status || "normal",
       entryGateLevel: decision.entryGateLevel ?? null,
       cooldownStatus,

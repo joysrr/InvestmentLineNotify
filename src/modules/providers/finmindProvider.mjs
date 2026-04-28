@@ -1,6 +1,6 @@
 import {
   fetchWithTimeout,
-  parseNumberOrNull,
+  parseNumber,
   TwDate,
 } from "../../utils/coreUtils.mjs";
 
@@ -89,8 +89,8 @@ async function fetchTotalMarginSummary(startDate, endDate) {
   rows.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   const latest = rows[rows.length - 1];
 
-  const todayBalanceRaw = parseNumberOrNull(latest.TodayBalance);
-  const yesBalanceRaw = parseNumberOrNull(latest.YesBalance);
+  const todayBalanceRaw = parseNumber(latest.TodayBalance);
+  const yesBalanceRaw = parseNumber(latest.YesBalance);
 
   if (todayBalanceRaw === null) return null;
 
@@ -123,7 +123,7 @@ async function fetchTotalExchangeMarginMaintenance(startDate, endDate) {
   rows.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   const latest = rows[rows.length - 1];
 
-  const ratio = parseNumberOrNull(latest.TotalExchangeMarginMaintenance);
+  const ratio = parseNumber(latest.TotalExchangeMarginMaintenance);
   if (ratio === null) return null;
 
   return {

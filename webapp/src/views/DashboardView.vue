@@ -383,7 +383,7 @@ const vixLevel = computed(() => {
 
 // ── PB PR level ──
 const pbPrValue = computed(() => {
-  const v = latestReport.value?.marketState?.valuation?.pr;
+  const v = latestReport.value?.signals?.valuationGuardResult?.currentPR;
   return v != null ? Math.round(v) : "—";
 });
 

@@ -1,4 +1,4 @@
-import { fetchWithTimeout, parseNumberOrNull } from "../../utils/coreUtils.mjs";
+import { fetchWithTimeout, parseNumber } from "../../utils/coreUtils.mjs";
 
 /**
  * 取得台股大盤「上市融資餘額」與「融資維持率」
@@ -56,17 +56,17 @@ export async function fetchTwseMarginData() {
 
     result.date = todayData.V1;
 
-    const ratio = parseNumberOrNull(todayData.V6);
+    const ratio = parseNumber(todayData.V6);
     if (ratio !== null) {
       result.maintenanceRatio = ratio;
     }
 
-    const todayBalanceRaw = parseNumberOrNull(todayData.V3);
+    const todayBalanceRaw = parseNumber(todayData.V3);
     if (todayBalanceRaw !== null) {
       const todayBalance100M = todayBalanceRaw / 10000;
       result.marginBalance100M = Number(todayBalance100M.toFixed(2));
 
-      const prevBalanceRaw = parseNumberOrNull(prevData?.V3);
+      const prevBalanceRaw = parseNumber(prevData?.V3);
       if (prevBalanceRaw !== null) {
         const prevBalance100M = prevBalanceRaw / 10000;
         result.marginBalanceChange100M = Number(

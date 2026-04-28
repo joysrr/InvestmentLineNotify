@@ -208,7 +208,7 @@ flowchart TD
 > | `src/modules/data/newsPoolManager.mjs` | 新聞池 CRUD、TTL 清理、archive、fuzzy dedupe。 |
 > | `src/modules/notifications/` | 將決策結果輸出成 Telegram 訊息與週期報告格式。 |
 > | `src/modules/storage.mjs` | 與 Google Sheets 同步持股狀態與每日紀錄，包含 `avgCost0050` / `avgCostZ2` 均價欄位讀取。 |
-> | `src/utils/coreUtils.mjs` | 通用工具：`TwDate`、`fetchWithTimeout`、`parseNumberOrNull`、`stepTimer` 等。 |
+> | `src/utils/coreUtils.mjs` | 通用工具：`TwDate`、`fetchWithTimeout`、`parseNumber`、`stepTimer` 等。 |
 > | `src/test/` | 手動測試與回測腳本，不在排程流程內。 |
 
 ### `src/test/` 測試腳本

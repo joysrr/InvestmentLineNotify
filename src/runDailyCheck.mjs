@@ -10,6 +10,7 @@ async function main() {
   // 預設行為 (手動執行時的預設值)
   let isTelegramEnabled = true; // 預設發 Telegram
   let isAIAdvisor = true; // 預設產出AI建議
+  let isCallAI = true; // 預設呼叫AI
 
   if (args.includes("--telegram=false")) isTelegramEnabled = false;
   if (args.includes("--telegram=true")) isTelegramEnabled = true;
@@ -17,12 +18,19 @@ async function main() {
   if (args.includes("--aiAdvisor=false")) isAIAdvisor = false;
   if (args.includes("--aiAdvisor=true")) isAIAdvisor = true;
 
-  logger.info({ isTelegramEnabled, isAIAdvisor }, "啟動 dailyCheck 排程任務");
+  if (args.includes("--isCallAI=false")) isCallAI = false;
+  if (args.includes("--isCallAI=true")) isCallAI = true;
+
+  logger.info(
+    { isTelegramEnabled, isAIAdvisor, isCallAI },
+    "啟動 dailyCheck 排程任務",
+  );
 
   try {
     await dailyCheck({
       isTelegramEnabled: isTelegramEnabled,
       isAIAdvisor: isAIAdvisor,
+      isCallAI: isCallAI,
     });
   } catch (err) {
     logger.error(err, "❌ 系統發生嚴重錯誤");

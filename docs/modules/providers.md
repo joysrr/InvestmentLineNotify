@@ -481,7 +481,7 @@ Yield = Σ(市值_i × Yield_i%) / Σ(所有普通股市值)
 | 函式                                      | 說明                                                              | 主要使用 Provider       |
 | ----------------------------------------- | ----------------------------------------------------------------- | ----------------------- |
 | `fetchWithTimeout(url, options, timeout)` | 具備 `AbortController` 的 fetch 封裝，timeout 預設 8000ms         | 全部                    |
-| `parseNumberOrNull(v)`                    | 安全數字轉換：處理逗號千分位、`--`、空字串；無效回傳 `null`       | 全部                    |
+| `parseNumber(v)`                          | 安全數字轉換：處理逗號千分位、`--`、空字串；無效回傳 `null`       | 全部                    |
 | `TwDate(input?)`                          | 台北時間 Factory，含 `formatDateKey()`、`formatMonthKey()` 等方法 | twse, quote, marketData |
 | `rocDateToIso(rocYMD)`                    | 民國日期轉 ISO：`"106/08/01"` → `"2017-08-01"`                    | twseProvider            |
 | `isoDateToROC(isoText, withSlash)`        | ISO 轉民國（支援純月份格式）：`"2026-03"` → `"11503"`             | ndcProvider             |

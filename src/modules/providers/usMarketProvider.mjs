@@ -1,5 +1,5 @@
 import { fetchStrategyConfig } from "../strategy/signalRules.mjs";
-import { fetchWithTimeout, parseNumberOrNull } from "../../utils/coreUtils.mjs";
+import { fetchWithTimeout, parseNumber } from "../../utils/coreUtils.mjs";
 
 async function analyzeUsRisk(data) {
   const strategy = await fetchStrategyConfig();
@@ -11,8 +11,8 @@ async function analyzeUsRisk(data) {
   const VIX_LOW = th.vixLowComplacency || 13.5;
 
   // 使用 coreUtils 進行安全的數字轉換 (若無效會回傳 null)
-  const vixVal = parseNumberOrNull(data?.vix?.value);
-  const spxChg = parseNumberOrNull(data?.spx?.changePercent);
+  const vixVal = parseNumber(data?.vix?.value);
+  const spxChg = parseNumber(data?.spx?.changePercent);
 
   const spxChgText = spxChg !== null ? `${spxChg.toFixed(2)}%` : "N/A";
   const vixText = vixVal !== null ? vixVal.toFixed(2) : "N/A";
@@ -101,7 +101,7 @@ async function fetchFredSeriesLast2(seriesId) {
     // 從後往前挑兩個「可用數值」（FRED 的假日或無效值會回傳 "."）
     const vals = [];
     for (let i = 0; i < obs.length && vals.length < 2; i++) {
-      const v = parseNumberOrNull(obs[i]?.value); // 安全轉換：若是 "." 會變 null
+      const v = parseNumber(obs[i]?.value); // 安全轉換：若是 "." 會變 null
       if (v !== null) {
         vals.push({ date: obs[i].date, value: v });
       }

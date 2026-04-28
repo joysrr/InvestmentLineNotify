@@ -1053,7 +1053,7 @@ function formatDate(pubDate) {
 | `latestReport.signals?.valuationGuardResult`                         | `signals.valuationGuardResult`                       | ✅                                                     |
 | `latestReport.signals?.valuationMomentumResult`                      | `signals.valuationMomentumResult`                    | ✅                                                     |
 | `latestReport.marketState?.sentiment?.vix`                           | `marketState.sentiment.vix`                          | ✅                                                     |
-| `latestReport.marketState?.valuation?.pr`                            | `marketState.valuation.pr`                           | ✅                                                     |
+| `atestReport.value?.signals?.valuationGuardResult?.currentPR`        | `signals.valuationGuardResult.currentPR`             | ✅                                                     |
 | `latestReport.marketState?.economy?.ndcLight`                        | `marketState.economy.ndcLight`                       | ✅                                                     |
 | `latestReport.strategySnapshot?.indicator?.buy?.minWeightScoreToBuy` | `strategySnapshot.indicator.buy.minWeightScoreToBuy` | ✅                                                     |
 | `latestReport.ai?.risk_warnings`                                     | `ai.risk_warnings`                                   | ✅ snake_case 確認                                     |

@@ -19,6 +19,6 @@ export default [
     },
   },
   {
-    ignores: ["node_modules/", "dist/", "webapp/dist/"],
+    ignores: ["node_modules/", "dist/", "webapp/dist/", ".agents/"],
   },
 ];
