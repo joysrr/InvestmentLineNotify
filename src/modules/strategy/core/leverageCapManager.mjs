@@ -30,7 +30,9 @@ export function evaluateGrossLeverage(
         targetSuggestion: grossLeverageResult.message,
         suggestion: `• ${grossLeverageResult.message}`,
       };
-    } else if (grossLeverageResult.status === "hardcap_breach") {
+    }
+
+    if (grossLeverageResult.status === "hardcap_breach") {
       return {
         maintenanceLayer: "normal",
         grossLeverageStatus: "hardcap_breach",
