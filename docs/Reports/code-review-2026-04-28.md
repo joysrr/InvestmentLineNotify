@@ -23,7 +23,7 @@
 
 | 順序  | 檔案             | 原因                                                                        | 預估複雜度 | 是否完成 |
 | ----- | ---------------- | --------------------------------------------------------------------------- | ---------- | -------- |
-| **8** | `policies/` 整層 | entryGate、vixOverride、macroSentiment 等 policy 模組，確認各 policy 隔離性 | ⭐⭐       | -        |
+| **8** | `policies/` 整層 | entryGate、vixOverride、macroSentiment 等 policy 模組，確認各 policy 隔離性 | ⭐⭐       | OK       |
 
 ### Phase 4：基礎設施層
 
