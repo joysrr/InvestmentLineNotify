@@ -1,95 +1,35 @@
+/**
+ * signalRules.mjs
+ * Strategy 模組的統一入口 (Facade)。
+ *
+ * 自身實作：
+ *  - fetchStrategyConfig()     策略載入（含 memory cache）
+ *  - computeReversalTriggers() 轉弱指標
+ *  - computeOverheatState()    過熱指標
+ *
+ * Re-export（原始實作在各自 policy 模組）：
+ *  - validateStrategyConfig    ← strategySchema.mjs
+ *  - computeEntryScore         ← policies/entryScoringPolicy.mjs
+ *  - computeSellSignals        ← policies/sellScoringPolicy.mjs
+ */
 import {
-  calculateIndicators,
-  last2,
-  crossUpLevel,
-  crossDownLevel,
-  roseAboveAfterBelow,
   fellBelowAfterAbove,
-  wasAboveLevel,
-  wasBelowLevel,
-  macdCrossUp,
   macdCrossDown,
   kdCrossDown,
-  kdCrossUp,
   lastKD,
   kdSeries,
-  getMACDSignal,
 } from "./indicators.mjs";
-import { archiveManager } from "../data/archiveManager.mjs";
-import { readFile } from "fs/promises";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
+import { fetchStrategyConfigUnified } from "./strategyLoader.mjs";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-const STRATEGY_URL = process.env.STRATEGY_URL;
-
-/** 本地 Strategy.json 路徑（相對於專案根目錄） */
-const LOCAL_STRATEGY_PATH = resolve(
-  __dirname,
-  "../../../data/config/Strategy.json",
-);
+import { validateStrategyConfig } from "./strategySchema.mjs";
+export { validateStrategyConfig };
+export { computeEntryScore } from "./policies/entryScoringPolicy.mjs";
 
 /* 記憶體暫存 */
 let _cache = {
-  url: null,
   strategy: null,
   loadedAt: null,
 };
-
-/**
- * 從本地 data/config/Strategy.json 讀取策略設定。
- * 驗證通過後回傳，否則拋出錯誤。
- */
-async function fetchStrategyLocal() {
-  const text = await readFile(LOCAL_STRATEGY_PATH, "utf-8");
-  let json;
-  try {
-    json = JSON.parse(text);
-  } catch (e) {
-    throw new Error(`[Strategy] 本地 JSON 解析失敗：${e.message}`);
-  }
-  validateStrategyConfig(json);
-  return json;
-}
-
-/**
- * 從遠端 STRATEGY_URL 讀取策略設定。
- * 驗證通過後同步備份至 archiveManager，並回傳。
- */
-async function fetchStrategyRemote() {
-  if (!STRATEGY_URL) throw new Error("[Strategy] STRATEGY_URL 未設定");
-
-  const res = await fetch(STRATEGY_URL, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 strategy-client",
-      Accept: "application/json",
-    },
-  });
-
-  const text = await res.text();
-  if (!res.ok) {
-    throw new Error(
-      `[Strategy] 遠端 HTTP ${res.status}: ${text.slice(0, 200)}`,
-    );
-  }
-
-  let json;
-  try {
-    json = JSON.parse(text);
-  } catch (e) {
-    throw new Error(`[Strategy] 遠端 JSON 解析失敗：${e.message}`);
-  }
-
-  validateStrategyConfig(json);
-
-  // 驗證通過後同步備份
-  await archiveManager.saveStrategyCache(json);
-
-  return json;
-}
-
-import { fetchStrategyConfigUnified } from "./strategyLoader.mjs";
 
 /**
  * 載入策略設定。優先順序已移交至 strategyLoader.mjs
@@ -101,13 +41,9 @@ export async function fetchStrategyConfig() {
   }
 
   const json = await fetchStrategyConfigUnified();
-  _cache = { url: "unified", strategy: json, loadedAt: new Date() };
+  _cache = { strategy: json, loadedAt: new Date() };
   return json;
 }
-
-import { validateStrategyConfig } from "./strategySchema.mjs";
-export { validateStrategyConfig };
-export { computeEntryScore } from "./policies/entryScoringPolicy.mjs";
 
 // 轉弱指標計算
 export function computeReversalTriggers(data, strategy) {
