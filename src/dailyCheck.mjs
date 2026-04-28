@@ -534,25 +534,14 @@ export async function dailyCheck({
 
     // 1) 帳戶快照：有金鑰才加密存入，否則略過
     //    這裡先組 snapshotPayload，後面同時給 IlnState 與 saveReport 使用
-    let snapshotField = {};
-    let snapshotPayload = null;
-
-    if (isSnapshotEncryptEnabled() && lastState) {
-      snapshotPayload = {
-        ...lastState,
-        price0050: price0050 ?? null,
-        priceZ2: finalPriceZ2 ?? null,
-      };
-      const encrypted = encryptSnapshot(snapshotPayload);
-      if (encrypted) {
-        snapshotField = { snapshot: encrypted };
-        logger.info("🔐 [Snapshot] 帳戶快照已加密（含市價），納入報告");
-      } else {
-        logger.warn("⚠️ [Snapshot] 加密失敗，本次報告不含快照");
-      }
-    } else if (!isSnapshotEncryptEnabled()) {
-      logger.info("ℹ️ [Snapshot] SNAPSHOT_ENCRYPT_KEY 未設定，略過快照");
-    }
+    const snapshotPayload =
+      isSnapshotEncryptEnabled() && lastState
+        ? {
+            ...lastState,
+            price0050: price0050 ?? null,
+            priceZ2: finalPriceZ2 ?? null,
+          }
+        : null;
 
     // 2) 用當日結果建立 IlnState（統一 domain 物件）
     const state = new IlnState({
@@ -596,9 +585,6 @@ export async function dailyCheck({
         us: newsStructured.us,
         generatedAt: dateText,
       },
-
-      // 如果 ilnState.toReportObject 已經幫你處理 snapshot，可以視情況移除這一段
-      ...snapshotField,
     });
 
     // 若有需要清理舊檔，可以在這裡或 archiveManager 內處理

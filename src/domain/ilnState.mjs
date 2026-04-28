@@ -245,16 +245,7 @@ export async function loadStateFromLatestFiles() {
   let latestReport = null;
 
   try {
-    const dates = await archiveManager.listArchiveDates();
-    if (dates.length > 0) {
-      const latestDate = dates[0];
-      const filePath = path.join(REPORTS_DIR, `${latestDate}.json`);
-      const content = await fs.readFile(filePath, "utf-8");
-      latestReport = JSON.parse(content);
-      if (!latestReport.date) {
-        latestReport.date = latestDate;
-      }
-    }
+    latestReport = await archiveManager.getLatestReport();
   } catch {
     latestReport = null;
   }
@@ -296,9 +287,8 @@ export async function loadStateFromReport(reportDate) {
   }
 
   try {
-    const filePath = path.join(REPORTS_DIR, `${reportDate}.json`);
-    const content = await fs.readFile(filePath, "utf-8");
-    const report = JSON.parse(content);
+    const report = await archiveManager.getReportByDate(reportDate);
+    if (!report) return null;
 
     if (!report.date) {
       report.date = reportDate;
