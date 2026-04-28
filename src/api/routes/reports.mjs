@@ -1,18 +1,7 @@
-// src/api/routes/reports.mjs
-
-import { readdir, readFile } from "fs/promises";
-import { resolve, dirname, join } from "path";
-//import { REPORT_SCHEMA } from "../schema/contract.mjs";
-import { fileURLToPath } from "url";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPORTS_DIR = resolve(__dirname, "../../../data/reports");
 import {
   aggregateByWeek,
   aggregateByMonth,
 } from "../utils/reportAggregator.mjs";
-// ❌ 不再需要直接在這裡 decrypt snapshot
-// import { decryptSnapshot } from "../../utils/snapshotCrypto.mjs";
 import {
   normaliseSnapshot,
   aggregateSnapshotsByWeek,
@@ -20,8 +9,7 @@ import {
 } from "../utils/snapshotAggregator.mjs";
 
 import { loadStateFromReport } from "../../domain/ilnState.mjs";
-
-const DATE_PATTERN = /^(\d{4}-\d{2}-\d{2})\.json$/;
+import { archiveManager } from "../../modules/data/archiveManager.mjs";
 
 // Simple TTL Cache to prevent file I/O spikes
 const cache = new Map();
@@ -43,11 +31,7 @@ async function getCached(key, fetcher) {
  */
 async function getSortedDates() {
   return getCached("sortedDates", async () => {
-    const entries = await readdir(REPORTS_DIR);
-    return entries
-      .filter((f) => DATE_PATTERN.test(f))
-      .map((f) => f.replace(".json", ""))
-      .sort((a, b) => b.localeCompare(a)); // DESC
+    return archiveManager.listArchiveDates(); // 已排序 DESC，格式 YYYY-MM-DD[]
   });
 }
 
@@ -61,17 +45,12 @@ async function loadReports(dates, limit) {
   return getCached(cacheKey, async () => {
     const selected = dates.slice(0, limit);
     const results = await Promise.all(
-      selected.map(async (date) => {
-        try {
-          const raw = await readFile(
-            join(REPORTS_DIR, `${date}.json`),
-            "utf-8",
-          );
-          return { date, ...JSON.parse(raw) };
-        } catch {
-          return null; // skip broken files
-        }
-      }),
+      selected.map((date) =>
+        archiveManager
+          .getReportByDate(date)
+          .then((r) => (r ? { date, ...r } : null))
+          .catch(() => null),
+      ),
     );
     return results.filter(Boolean);
   });
@@ -109,33 +88,22 @@ export default async function reportsRoute(fastify) {
   fastify.get("/report/news", async (_req, reply) => {
     try {
       const dates = await getSortedDates();
-      if (!dates.length) {
+      if (!dates.length)
         return reply.send({ tw: [], us: [], generatedAt: null });
-      }
 
-      // Walk recent reports (max 10) until we find one with news
       const candidates = dates.slice(0, 10);
       for (const date of candidates) {
-        try {
-          const raw = await readFile(
-            join(REPORTS_DIR, `${date}.json`),
-            "utf-8",
-          );
-          const report = JSON.parse(raw);
-          const news = report.news;
-          if (news && (news.tw?.length || news.us?.length)) {
-            return reply.send({
-              tw: news.tw ?? [],
-              us: news.us ?? [],
-              generatedAt: news.generatedAt ?? date,
-            });
-          }
-        } catch {
-          continue;
+        const report = await archiveManager.getReportByDate(date);
+        if (!report) continue;
+        const news = report.news;
+        if (news && (news.tw?.length || news.us?.length)) {
+          return reply.send({
+            tw: news.tw ?? [],
+            us: news.us ?? [],
+            generatedAt: news.generatedAt ?? date,
+          });
         }
       }
-
-      // No report with news found
       return reply.send({ tw: [], us: [], generatedAt: null });
     } catch (err) {
       fastify.log.error({ err }, "Failed to read report news");
