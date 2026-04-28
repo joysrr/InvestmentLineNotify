@@ -580,7 +580,7 @@ export async function dailyCheck({
       // ── 帳戶快照（有金鑰時才存在此欄位）──────────────────────────────
       ...snapshotField,
     });
-    await archiveManager.cleanOldArchives(30);
+    // await archiveManager.cleanOldArchives(30); // 目前資料已保存於server不需清除
     done();
   } catch (err) {
     logger.warn(err, "⚠️ 儲存最終報告或清理快取失敗");
