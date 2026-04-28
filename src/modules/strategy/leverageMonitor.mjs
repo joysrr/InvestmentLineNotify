@@ -29,14 +29,17 @@
 /**
  * @typedef {Object} GrossLeverageResult
  * @property {number}  grossLeverage         - 計算出的綜合曝險倍數
- * @property {'normal' | 'ceiling_breach' | 'hardcap_breach'} status - 當前天花板狀態
+ * @property {'normal' | 'ceiling_breach' | 'hardcap_breach' | 'error'} status - 當前天花板狀態
  * @property {boolean} blockNewLeverage      - 是否禁止新增借款與00675L買入
  * @property {boolean} forceDeleverage       - 是否強制觸發降槓桿賣出
  * @property {number}  recoveryTarget        - 強制平倉的著陸目標倍數（forceDeleverage 時才具意義）
  * @property {string}  message               - 人類可讀的狀態說明
  */
 
-/** 00675L 內含期貨槓桿係數（固定值） */
+/**
+ * 00675L 內含期貨槓桿係數（固定值 2x）。
+ * TODO: 若未來支援其他槓桿 ETF（如 1.5x、3x），考慮改由 config 傳入各商品係數 Map。
+ */
 const LEVERAGE_ETF_MULTIPLIER = 2;
 
 /**
@@ -50,17 +53,28 @@ export function computeGrossLeverage(input, config) {
   const { etf0050Value, etf675LValue, netAssetValue } = input;
   const { ceiling, hardCap, recoveryTarget } = config;
 
+  const values = { etf0050Value, etf675LValue, netAssetValue };
+  for (const [key, val] of Object.entries(values)) {
+    if (typeof val !== "number" || !Number.isFinite(val) || val < 0) {
+      return buildResult({
+        message: `⚠️ 輸入欄位 ${key} 不是合法的非負數字，Gross Leverage 計算跳過`,
+      });
+    }
+  }
+
   // 防禦：淨值不可為零或負數，避免除以零或產生無意義結果
-  if (!netAssetValue || netAssetValue <= 0) {
-    return {
-      grossLeverage: null,
-      status: "error",
-      blockNewLeverage: true,
-      forceDeleverage: false,
-      recoveryTarget: recoveryTarget,
+  if (typeof netAssetValue !== "number" || !Number.isFinite(netAssetValue)) {
+    return buildResult({
+      message:
+        "⚠️ 帳戶淨值非合法數字，Gross Leverage 計算跳過，保守起見封鎖加碼",
+    });
+  }
+
+  if (netAssetValue <= 0) {
+    return buildResult({
       message:
         "⚠️ 帳戶淨值異常（≤0），Gross Leverage 計算跳過，保守起見封鎖加碼",
-    };
+    });
   }
 
   const grossLeverage =
@@ -68,35 +82,42 @@ export function computeGrossLeverage(input, config) {
 
   // 被動危機紅線：hardCap 觸發優先級高於 ceiling
   if (grossLeverage > hardCap) {
-    return {
+    return buildResult({
       grossLeverage,
       status: "hardcap_breach",
-      blockNewLeverage: true,
       forceDeleverage: true,
-      recoveryTarget: recoveryTarget,
+      recoveryTarget,
       message: `🚨 Gross Leverage ${grossLeverage.toFixed(2)}x 超越危機紅線 ${hardCap}x，強制降槓至 ${recoveryTarget}x`,
-    };
+    });
   }
 
   // 主動擴張上限：ceiling 觸發，禁止加碼但不強制砍倉
   if (grossLeverage > ceiling) {
-    return {
+    return buildResult({
       grossLeverage,
       status: "ceiling_breach",
       blockNewLeverage: true,
-      forceDeleverage: false,
-      recoveryTarget: recoveryTarget,
       message: `⚠️ Gross Leverage ${grossLeverage.toFixed(2)}x 超越主動上限 ${ceiling}x，一票否決新增槓桿`,
-    };
+    });
   }
 
   // 正常範圍
-  return {
+  return buildResult({
     grossLeverage,
     status: "normal",
     blockNewLeverage: false,
-    forceDeleverage: false,
-    recoveryTarget: recoveryTarget,
     message: `✅ Gross Leverage ${grossLeverage.toFixed(2)}x（正常範圍）`,
+  });
+}
+
+function buildResult(overrides) {
+  return {
+    grossLeverage: null,
+    status: "error",
+    blockNewLeverage: true,
+    forceDeleverage: false,
+    recoveryTarget: null, // 預設 null，僅 forceDeleverage 時填入有意義的值
+    message: "",
+    ...overrides,
   };
 }
