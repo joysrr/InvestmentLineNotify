@@ -35,7 +35,7 @@ export async function checkCooldown(lastBuyDate, cooldownTradingDays) {
     return {
       inCooldown: false,
       daysLeft: 0,
-      lastBuyDate: lastBuy.toISOString().split("T")[0],
+      lastBuyDate: TwDate(lastBuy).formatDateKey(),
       message: `⚠️ lastBuyDate 為未來日期，視為無冷卻限制`,
     };
   }
