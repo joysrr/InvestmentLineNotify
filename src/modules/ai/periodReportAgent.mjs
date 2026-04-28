@@ -23,35 +23,23 @@ async function safeLangfuseScore(payload) {
  * @returns {Array<Object>} 依日期升序排列的 report 陣列
  */
 export async function loadRecentReports(days) {
-  const fs = (await import("fs/promises")).default;
-  const path = (await import("path")).default;
-  const reportsDir = path.join(process.cwd(), "data", "reports");
-
-  let files;
-  try {
-    files = await fs.readdir(reportsDir);
-  } catch {
-    return [];
-  }
-
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - days);
+  const cutoffStr = cutoff.toISOString().slice(0, 10); // YYYY-MM-DD
 
-  const reports = [];
-  for (const file of files) {
-    if (!file.endsWith(".json") || file === ".gitkeep") continue;
-    const dateStr = file.replace(".json", ""); // YYYY-MM-DD
-    const fileDate = new Date(dateStr);
-    if (isNaN(fileDate.getTime()) || fileDate < cutoff) continue;
-    try {
-      const content = await fs.readFile(path.join(reportsDir, file), "utf-8");
-      reports.push(JSON.parse(content));
-    } catch {
-      // 單檔損壞不影響整體
-    }
-  }
+  const dates = await archiveManager.listArchiveDates(); // DESC
+  const filtered = dates.filter((d) => d >= cutoffStr);
 
-  return reports.sort((a, b) => a.date.localeCompare(b.date));
+  const reports = await Promise.all(
+    filtered.map((date) =>
+      archiveManager
+        .getReportByDate(date)
+        .then((r) => (r ? { date, ...r } : null))
+        .catch(() => null),
+    ),
+  );
+
+  return reports.filter(Boolean).sort((a, b) => a.date.localeCompare(b.date)); // ASC
 }
 
 /**
