@@ -16,35 +16,19 @@
  * - 輸出 API payload（例如 /api/status）→ toStatusPayload()
  */
 
-/// ====== Imports（需依實際實作調整路徑與名稱） ==========================
+/// ====== Imports（依實際實作調整後版本） ==========================
 
-import { fetchAllMacroData } from "../modules/providers/marketData.mjs"; // 總經 / 市場 slot 抽象層 [rawXxx][cite:50]
+import { fetchAllMacroData } from "../modules/providers/marketData.mjs"; // 總經 / 市場 slot 抽象層
 
-import {
-  loadLatestMarketData, // 讀 data/market/latest.json
-  saveMarketData, // 寫 data/market/latest.json（若你想在 createStateFromTodayRun 順便更新）
-  loadLatestReport, // 讀最近一份報告 data/reports/*.json
-  loadReportByDate, // 讀指定日期的報告
-  saveReport, // 寫入報告 data/reports/*.json
-} from "../modules/data/archiveManager.mjs"; // 實際函式名稱依你現在 archiveManager 實作調整[cite:46][cite:50]
+import { archiveManager } from "../modules/data/archiveManager.mjs"; // getLatestMarketData / saveMarketData / listArchiveDates / saveReport 等
 
-import {
-  encrypt as encryptSnapshot,
-  decrypt as decryptSnapshot,
-} from "../utils/snapshotCrypto.mjs"; // AES-256-GCM 加解密快照[cite:46]
+import { encryptSnapshot, decryptSnapshot } from "../utils/snapshotCrypto.mjs"; // AES-256-GCM 加解密快照
 
-import { normaliseSnapshot } from "../api/utils/snapshotNormalizer.mjs";
-// 若目前 normaliser 放在別處，請調整路徑；
-// 這個函式應該負責把 snapshot 轉成 { date, netValueMarket, qty0050, qtyZ2, totalLoan, ... } 之類統一結構。
+import { normaliseSnapshot } from "../api/utils/snapshotAggregator.mjs";
+// ↑ 實際檔名是 snapshotAggregator.mjs（原本 skeleton 寫成 snapshotNormalizer）
 
-import { loadPortfolioState } from "../modules/storage.mjs";
-// 讀取目前持股、均價等；若已有更適合的函式，請改用。
-
-import { runStrategyEngine } from "../modules/strategy/strategyEngine.mjs";
-// 給定 macro + portfolioRaw → 回傳 { signals, strategySnapshot } 等。
-
-import { runDailyAiPipeline } from "../modules/ai/dailyPipeline.mjs";
-// 建議包一個 high-level AI pipeline：給定 { macro, signals, portfolioRaw } → 回傳 ai 物件（含 macroAnalysis / actions / news 等）。
+// 注意：暫時先不在這裡直接 import storage/strategy/ai，
+// createStateFromTodayRun 先關閉，避免依賴不存在的 exported 函式。
 
 /// ====== IlnState 類別 ==================================================
 
@@ -251,69 +235,19 @@ export class IlnState {
 /// ====== Factory / Loader：建立 IlnState ================================
 
 /**
- * 從「今日重新運算」建立 IlnState。
- * - 會呼叫 providers、storage、strategyEngine、AI pipeline
- * - 視需要，亦可在此順便更新 data/market/latest.json 與報告檔。
- *
- * 注意：這個函式應該只在 dailyCheck runner 裡用，
- * API route 不應該呼叫它（避免每次 request 都重算）。
- */
-export async function createStateFromTodayRun(options = {}) {
-  const now = options.now ?? new Date();
-
-  // 1) 取得總經 / 市場資料（含 STALE 標籤與 _meta.sources）
-  const macro = await fetchAllMacroData();
-
-  // 視需要同步寫回 data/market/latest.json
-  // await saveMarketData(macro);
-
-  // 2) 讀取目前持股狀態（Google Sheets / storage）
-  const portfolioRaw = await loadPortfolioState();
-
-  // 3) 策略引擎：計算 signals + strategySnapshot
-  const { signals, strategySnapshot } = await runStrategyEngine({
-    macro,
-    portfolioRaw,
-    now,
-  });
-
-  // 4) AI pipeline
-  const ai = await runDailyAiPipeline({
-    macro,
-    signals,
-    portfolioRaw,
-    strategySnapshot,
-    now,
-  });
-
-  const state = new IlnState({
-    macro,
-    portfolioRaw,
-    signals,
-    strategySnapshot,
-    ai,
-    reportDate: now.toISOString().slice(0, 10),
-    meta: macro?._meta ?? null,
-  });
-
-  // 如果你希望 createStateFromTodayRun 就直接把報告寫檔，可以在這裡做：
-  // const report = state.toReportObject();
-  // await saveReport(report);
-
-  return state;
-}
-
-/**
  * 從「現有檔案」載入最新狀態。
  * - 適用場景：/api/status、Bot /status_debug
  * - 只做 IO，不重算 strategy / AI
  */
 export async function loadStateFromLatestFiles() {
   // 1) 最新市場資料（data/market/latest.json）
-  const latestMarket = await loadLatestMarketData(); // { _meta, data }
+  const latestMarket = await archiveManager.getLatestMarketData(); // { _meta, data } 或 null
 
   // 2) 最新報告（data/reports/*.json）
-  const latestReport = await loadLatestReport(); // { marketState, signals, strategySnapshot, ai, snapshot, date, id, ... }
+  const latestReport = await archiveManager.getLatestReport(); // 我們等一下會在 archiveManager 裡加上這個方法
+  if (!latestMarket && !latestReport) {
+    return null;
+  }
 
   // 3) snapshot 解密
   let portfolioRaw = null;
@@ -340,7 +274,7 @@ export async function loadStateFromLatestFiles() {
  * - 適用場景：/api/report/:date、Bot /daily YYYY-MM-DD
  */
 export async function loadStateFromReport(reportDate) {
-  const report = await loadReportByDate(reportDate);
+  const report = await archiveManager.getReportByDate(reportDate);
   if (!report) {
     return null;
   }
@@ -359,4 +293,14 @@ export async function loadStateFromReport(reportDate) {
     reportDate: report.date ?? reportDate,
     meta: report._meta ?? null,
   });
+}
+
+/**
+ * ⚠️ createStateFromTodayRun 目前先保留為 TODO，
+ * 等之後我們把 dailyCheck 的主邏輯正式搬進來再實作。
+ */
+export async function createStateFromTodayRun() {
+  throw new Error(
+    "createStateFromTodayRun 尚未實作，請先透過 dailyCheck 現有流程產生報告，再用 loadStateFromLatestFiles/loadStateFromReport 載入。",
+  );
 }

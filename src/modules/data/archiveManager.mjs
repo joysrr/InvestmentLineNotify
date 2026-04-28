@@ -15,10 +15,10 @@ const DIRS = {
 };
 
 const FILES = {
-  LAST_BUY:               path.join(DATA_DIR, "last_buy.json"),
-  STRATEGY_CACHE:         path.join(DIRS.CACHE, "strategy_cache.json"),
-  PB_HISTORY:             path.join(DATA_DIR, "pbHistory.json"),
-  VALUATION_GUARD_STATE:  path.join(DATA_DIR, "valuationGuardState.json"),
+  LAST_BUY: path.join(DATA_DIR, "last_buy.json"),
+  STRATEGY_CACHE: path.join(DIRS.CACHE, "strategy_cache.json"),
+  PB_HISTORY: path.join(DATA_DIR, "pbHistory.json"),
+  VALUATION_GUARD_STATE: path.join(DATA_DIR, "valuationGuardState.json"),
 };
 
 async function ensureDirectories() {
@@ -26,7 +26,7 @@ async function ensureDirectories() {
     try {
       await fs.mkdir(dir, { recursive: true });
       const gitkeep = path.join(dir, ".gitkeep");
-      await fs.writeFile(gitkeep, "").catch(() => { });
+      await fs.writeFile(gitkeep, "").catch(() => {});
     } catch (err) {
       if (err.code !== "EEXIST") throw err;
     }
@@ -52,7 +52,10 @@ export const archiveManager = {
 
   async getLatestMarketData() {
     try {
-      const content = await fs.readFile(path.join(DIRS.MARKET, "latest.json"), "utf-8");
+      const content = await fs.readFile(
+        path.join(DIRS.MARKET, "latest.json"),
+        "utf-8",
+      );
       return JSON.parse(content);
     } catch {
       return null;
@@ -92,6 +95,70 @@ export const archiveManager = {
     await ensureDirectories();
     const filePath = path.join(DIRS.REPORTS, `${getTwDateStr()}.json`);
     await fs.writeFile(filePath, JSON.stringify(reportData, null, 2));
+  },
+
+  // ==========================================================================
+  // 2.x 報告讀取 Helper
+  // ==========================================================================
+
+  /**
+   * 讀取最新的一份報告（data/reports/YYYY-MM-DD.json）
+   * @returns {Promise<Object|null>} 報告物件，若無任何報告則回傳 null
+   */
+  async getLatestReport() {
+    try {
+      const files = await fs.readdir(DIRS.REPORTS);
+      const candidates = files
+        .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+        .sort()
+        .reverse(); // 由新到舊
+
+      if (candidates.length === 0) {
+        return null;
+      }
+
+      const latestFile = candidates[0];
+      const filePath = path.join(DIRS.REPORTS, latestFile);
+      const content = await fs.readFile(filePath, "utf-8");
+      const report = JSON.parse(content);
+
+      // 加上 date 欄位保險一下（通常檔內已有）
+      if (!report.date) {
+        report.date = latestFile.replace(".json", "");
+      }
+
+      return report;
+    } catch (err) {
+      console.warn("⚠️ [Archive] getLatestReport 失敗:", err.message);
+      return null;
+    }
+  },
+
+  /**
+   * 讀取指定日期的報告（data/reports/YYYY-MM-DD.json）
+   * @param {string} dateStr - YYYY-MM-DD
+   * @returns {Promise<Object|null>} 報告物件，不存在則回傳 null
+   */
+  async getReportByDate(dateStr) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      console.warn("⚠️ [Archive] getReportByDate 參數格式不正確:", dateStr);
+      return null;
+    }
+
+    try {
+      const filePath = path.join(DIRS.REPORTS, `${dateStr}.json`);
+      const content = await fs.readFile(filePath, "utf-8");
+      const report = JSON.parse(content);
+      if (!report.date) {
+        report.date = dateStr;
+      }
+      return report;
+    } catch (err) {
+      if (err.code !== "ENOENT") {
+        console.warn("⚠️ [Archive] getReportByDate 讀取失敗:", err.message);
+      }
+      return null;
+    }
   },
 
   // ==========================================================================
@@ -147,17 +214,20 @@ export const archiveManager = {
       }
 
       // 萃取欄位
-      const actionItems = Array.isArray(ai.action_items) && ai.action_items.length > 0
-        ? ai.action_items.map((a) => `  - ${a}`).join("\n")
-        : "  - （無）";
+      const actionItems =
+        Array.isArray(ai.action_items) && ai.action_items.length > 0
+          ? ai.action_items.map((a) => `  - ${a}`).join("\n")
+          : "  - （無）";
 
-      const mindset = typeof ai.mindset_advice === "string" && ai.mindset_advice.trim()
-        ? ai.mindset_advice.trim()
-        : "（無）";
+      const mindset =
+        typeof ai.mindset_advice === "string" && ai.mindset_advice.trim()
+          ? ai.mindset_advice.trim()
+          : "（無）";
 
-      const riskWarnings = Array.isArray(ai.risk_warnings) && ai.risk_warnings.length > 0
-        ? ai.risk_warnings.map((r) => `  - ${r}`).join("\n")
-        : "  - （無）";
+      const riskWarnings =
+        Array.isArray(ai.risk_warnings) && ai.risk_warnings.length > 0
+          ? ai.risk_warnings.map((r) => `  - ${r}`).join("\n")
+          : "  - （無）";
 
       const prevMarketStatus = signals?.marketStatus ?? "未知";
       const prevSuggestion = signals?.targetSuggestionShort ?? "未知";
@@ -211,15 +281,17 @@ ${riskWarnings}
   async getHistoricalLoan(daysAgo) {
     const dates = await this.listArchiveDates();
     if (dates.length === 0) return 0;
-    
+
     // 計算目標日期字串
     const targetTime = Date.now() - daysAgo * 24 * 60 * 60 * 1000;
-    const targetDateStr = new Date(targetTime).toLocaleDateString("en-CA", {
-      timeZone: "Asia/Taipei",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).replace(/\//g, "-");
+    const targetDateStr = new Date(targetTime)
+      .toLocaleDateString("en-CA", {
+        timeZone: "Asia/Taipei",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
+      .replace(/\//g, "-");
 
     // 找到小於或等於目標日期的最接近的報表 (dates 已由新到舊排序)
     let targetDate = dates[dates.length - 1]; // fallback to oldest
@@ -229,9 +301,12 @@ ${riskWarnings}
         break;
       }
     }
-    
+
     try {
-      const content = await fs.readFile(path.join(DIRS.REPORTS, `${targetDate}.json`), "utf-8");
+      const content = await fs.readFile(
+        path.join(DIRS.REPORTS, `${targetDate}.json`),
+        "utf-8",
+      );
       const report = JSON.parse(content);
       // 依據報表結構萃取 totalLoan
       return report?.signals?.totalLoan || report?.portfolio?.totalLoan || 0;
@@ -250,12 +325,14 @@ ${riskWarnings}
     try {
       const months = new Set();
       const now = new Date();
-      
+
       const buyDateObj = new Date(dateStr);
       if (isNaN(buyDateObj.getTime())) return [];
-      
+
       // 計算買入日與現在相差的月數 (至少 3 個月)
-      const diffMonths = (now.getFullYear() - buyDateObj.getFullYear()) * 12 + (now.getMonth() - buyDateObj.getMonth());
+      const diffMonths =
+        (now.getFullYear() - buyDateObj.getFullYear()) * 12 +
+        (now.getMonth() - buyDateObj.getMonth());
       const lookupMonths = Math.max(3, diffMonths + 1);
 
       // 獲取所需涵蓋月份的資料
@@ -265,7 +342,7 @@ ${riskWarnings}
         const m = String(d.getMonth() + 1).padStart(2, "0");
         months.add(`${y}${m}`);
       }
-      
+
       const sortedMonths = Array.from(months).sort();
       let allHighs = [];
       const buyKey = dateStr.replace(/-/g, "");
@@ -273,8 +350,8 @@ ${riskWarnings}
       for (const mKey of sortedMonths) {
         const hist = await this.getStockHistory(stockNo, mKey);
         if (hist && Array.isArray(hist)) {
-          const rows = hist.filter(h => h.date.replace(/-/g, "") >= buyKey);
-          allHighs.push(...rows.map(r => r.high));
+          const rows = hist.filter((h) => h.date.replace(/-/g, "") >= buyKey);
+          allHighs.push(...rows.map((r) => r.high));
         }
       }
       return allHighs;
@@ -308,7 +385,9 @@ ${riskWarnings}
     };
 
     await fs.writeFile(filePath, JSON.stringify(payload, null, 2));
-    console.log(`📰 [Archive] 新聞篩選紀錄已儲存 (${region}): ${filePath} [${articles.length} 篇]`);
+    console.log(
+      `📰 [Archive] 新聞篩選紀錄已儲存 (${region}): ${filePath} [${articles.length} 篇]`,
+    );
   },
 
   // ==========================================================================
@@ -324,11 +403,7 @@ ${riskWarnings}
     const msToKeep = daysToKeep * 24 * 60 * 60 * 1000;
     let deletedCount = 0;
 
-    const dateCycleDirs = [
-      DIRS.MARKET_HISTORY,
-      DIRS.REPORTS,
-      DIRS.NEWS_LOGS,
-    ];
+    const dateCycleDirs = [DIRS.MARKET_HISTORY, DIRS.REPORTS, DIRS.NEWS_LOGS];
 
     for (const dir of dateCycleDirs) {
       try {
@@ -337,7 +412,7 @@ ${riskWarnings}
           if (!file.endsWith(".json")) continue;
           const filePath = path.join(dir, file);
           const dateMatch = file.match(/^(\d{4}-\d{2}-\d{2})\.json$/);
-          
+
           let fileTimeMs = 0;
           if (dateMatch) {
             fileTimeMs = new Date(`${dateMatch[1]}T00:00:00Z`).getTime();
@@ -352,7 +427,8 @@ ${riskWarnings}
           }
         }
       } catch (err) {
-        if (err.code !== "ENOENT") console.warn(`⚠️ [Archive] 清理 ${dir} 失敗:`, err.message);
+        if (err.code !== "ENOENT")
+          console.warn(`⚠️ [Archive] 清理 ${dir} 失敗:`, err.message);
       }
     }
 
@@ -370,12 +446,15 @@ ${riskWarnings}
           }
         }
       } catch (err) {
-        if (err.code !== "ENOENT") console.warn(`⚠️ [Archive] 清理 AI_LOGS 失敗:`, err.message);
+        if (err.code !== "ENOENT")
+          console.warn(`⚠️ [Archive] 清理 AI_LOGS 失敗:`, err.message);
       }
     }
 
     if (deletedCount > 0) {
-      console.log(`🧹 [Archive] 自動清理完成，已刪除 ${deletedCount} 個超過保留期限的檔案。`);
+      console.log(
+        `🧹 [Archive] 自動清理完成，已刪除 ${deletedCount} 個超過保留期限的檔案。`,
+      );
     }
   },
 
@@ -386,7 +465,8 @@ ${riskWarnings}
   async getStockHistory(stockNo, monthKey) {
     try {
       const content = await fs.readFile(
-        path.join(DIRS.STOCK_HISTORY, `${stockNo}_${monthKey}.json`), "utf-8"
+        path.join(DIRS.STOCK_HISTORY, `${stockNo}_${monthKey}.json`),
+        "utf-8",
       );
       return JSON.parse(content);
     } catch {
@@ -481,9 +561,11 @@ ${riskWarnings}
       const content = await fs.readFile(FILES.PB_HISTORY, "utf-8");
       const parsed = JSON.parse(content);
       // 容錯處理：可能是 { _meta, records: [...] } 或是純陣列 [...]
-      const records = Array.isArray(parsed?.records) ? parsed.records
-                    : Array.isArray(parsed) ? parsed
-                    : [];
+      const records = Array.isArray(parsed?.records)
+        ? parsed.records
+        : Array.isArray(parsed)
+          ? parsed
+          : [];
       return records.sort((a, b) => a.date.localeCompare(b.date));
     } catch {
       return [];
@@ -499,7 +581,7 @@ ${riskWarnings}
     if (!Array.isArray(data)) return;
 
     await ensureDirectories();
-    
+
     // 去重與過濾無效資料
     const map = new Map();
     for (const r of data) {
@@ -507,12 +589,16 @@ ${riskWarnings}
         map.set(r.date, { date: r.date, pb: r.pb });
       }
     }
-    
+
     // 排序
-    const sorted = [...map.values()].sort((a, b) => a.date.localeCompare(b.date));
-    
+    const sorted = [...map.values()].sort((a, b) =>
+      a.date.localeCompare(b.date),
+    );
+
     await fs.writeFile(FILES.PB_HISTORY, JSON.stringify(sorted, null, 2));
-    console.log(`📈 [Archive] pbHistory 已更新（${sorted.length} 筆，已排序去重）`);
+    console.log(
+      `📈 [Archive] pbHistory 已更新（${sorted.length} 筆，已排序去重）`,
+    );
   },
 
   /**
@@ -527,7 +613,7 @@ ${riskWarnings}
     }
 
     const records = await this.getPbHistory();
-    if (records.some(r => r.date === date)) {
+    if (records.some((r) => r.date === date)) {
       console.log(`ℹ️ [Archive] PB 為 ${date} 的紀錄已存在，略過追加`);
       return false;
     }
@@ -557,7 +643,12 @@ ${riskWarnings}
   async saveValuationGuardState(state) {
     await ensureDirectories();
     const payload = { ...state, updatedAt: new Date().toISOString() };
-    await fs.writeFile(FILES.VALUATION_GUARD_STATE, JSON.stringify(payload, null, 2));
-    console.log(`🛡️ [Archive] valuationGuardState 已更新（defenseLatch: ${payload.defenseLatch}）`);
+    await fs.writeFile(
+      FILES.VALUATION_GUARD_STATE,
+      JSON.stringify(payload, null, 2),
+    );
+    console.log(
+      `🛡️ [Archive] valuationGuardState 已更新（defenseLatch: ${payload.defenseLatch}）`,
+    );
   },
 };
