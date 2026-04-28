@@ -45,11 +45,13 @@ export function calculateIndicators(history) {
     .filter((x) => Number.isFinite(x.k) && Number.isFinite(x.d));
 
   // ── Phase 0-4：MA / ATR / Slope 計算 ──────────────────────────────────────
-  const ma20Arr   = calcMA20(closes);
-  const ma60Arr   = calcMA60(closes);
-  const atrArr    = calcATR(highs, lows, closes, 14);
+  const ma20Arr = calcMA20(closes);
+  const ma60Arr = calcMA60(closes);
+  const atrArr = calcATR(highs, lows, closes, 14);
   const ma60Slope = calcSlopeN(ma60Arr, 5);
-  
+  const ma240Arr = calcMA240(closes);
+  const ma240 = Number.isFinite(ma240Arr.at(-1)) ? ma240Arr.at(-1) : null;
+
   return {
     closes,
     highs,
@@ -66,6 +68,8 @@ export function calculateIndicators(history) {
     kdArr: kdArrSlow,
     ma20Arr,
     ma60Arr,
+    ma240Arr,
+    ma240,
     atrArr,
     ma60Slope,
   };
@@ -291,6 +295,17 @@ export function calcMA60(closes) {
 }
 
 /**
+ * MA240 — 240 日簡單移動平均線。
+ * 回傳與輸入等長的陣列，前 239 筆為 NaN。
+ *
+ * @param {number[]} closes - 收盤價序列，由舊到新排列
+ * @returns {number[]}
+ */
+export function calcMA240(closes) {
+  return calcSMA(closes, 240);
+}
+
+/**
  * ATR（Average True Range）— 平均真實波幅。
  * True Range = max(high-low, |high-prevClose|, |low-prevClose|)
  * 回傳與輸入等長的陣列，第 0 筆及前 (period-1) 筆為 NaN。
@@ -307,10 +322,10 @@ export function calcATR(highs, lows, closes, period = 14) {
 
   const trArr = new Array(len).fill(NaN);
   for (let i = 1; i < len; i++) {
-    const hl  = highs[i]  - lows[i];
-    const hpc = Math.abs(highs[i]  - closes[i - 1]);
-    const lpc = Math.abs(lows[i]   - closes[i - 1]);
-    trArr[i]  = Math.max(hl, hpc, lpc);
+    const hl = highs[i] - lows[i];
+    const hpc = Math.abs(highs[i] - closes[i - 1]);
+    const lpc = Math.abs(lows[i] - closes[i - 1]);
+    trArr[i] = Math.max(hl, hpc, lpc);
   }
 
   const atrArr = new Array(len).fill(NaN);

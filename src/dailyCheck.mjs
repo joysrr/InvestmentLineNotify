@@ -3,7 +3,7 @@ import "dotenv/config";
 import { assertEnv } from "./utils/envGuard.mjs";
 assertEnv();
 
-import { calculateIndicators } from "./modules/strategy/indicators.mjs";
+import { buildSignalContext } from "./domain/signalContext.mjs";
 import { getInvestmentSignalAsync } from "./modules/strategy/strategyEngine.mjs";
 import { broadcastDailyReport } from "./modules/notifications/notifier.mjs";
 import { getAiInvestmentAdvice } from "./modules/ai/aiCoach.mjs";
@@ -74,73 +74,10 @@ export async function dailyCheck({
     logger.info("😴 當日無開市，跳過通知");
   }
 
-  // ── Step 2：計算技術指標 ────────────────────────────────────────────────────
-  logger.info("🧠 正在計算 00675L 指標...");
-  let indicatorsZ2;
-  {
-    const done = stepTimer("calculateIndicatorsZ2");
-    indicatorsZ2 = calculateIndicators(historyZ2);
-    done();
-  }
-
-  logger.info("🧠 正在計算 0050 指標...");
-  let indicators0050;
-  {
-    const done = stepTimer("calculateIndicators0050");
-    indicators0050 = calculateIndicators(history0050);
-    done();
-  }
-
-  const { closes, rsiArr, macdArr, kdArr } = indicatorsZ2;
-  const latestClose = closes[closes.length - 1];
-  const latestRSI = rsiArr[rsiArr.length - 1];
-  const latestKD = kdArr[kdArr.length - 1];
-
-  // [P2-6] finalPriceZ2 語意邊界：
-  // 1. currentPriceZ2 有值（MIS 即時價）→ 使用即時價，反映真實市況。
-  // 2. null（MIS 失敗）→ fallback 至 latestClose（前一交易日收盤價）。
-  //    此 fallback 可能導致劇烈波動日延遲停損判斷，應盡量確保 MIS 正常。
-  const finalPriceZ2 = currentPriceZ2 || latestClose;
-
-  const ma240 =
-    closes.length >= 240
-      ? closes.slice(-240).reduce((a, b) => a + b, 0) / 240
-      : null;
-
+  // ── Step 2+3：指標計算 & 策略引擎 ──────────────────────────────────────────
+  logger.info("🧠 正在計算技術指標並組裝 signalData...");
+  const { signalData, finalPriceZ2 } = buildSignalContext(ctx);
   logger.info("✅ 指標計算完成");
-
-  // ── Step 3：策略引擎 ────────────────────────────────────────────────────────
-  const signalData = {
-    RSI: latestRSI,
-    KD_K: latestKD ? latestKD.k : null,
-    KD_D: latestKD ? latestKD.d : null,
-    currentPrice: finalPriceZ2,
-    basePrice,
-    price0050: price0050 || 0,
-    VIX: vixData?.value ?? null,
-    VIXTime: vixData?.dateTimeText ?? vixData?.time ?? null,
-    VIXStatus: vixData?.status ?? null,
-    ma240,
-    portfolio: lastState,
-    rsiArr,
-    macdArr,
-    kdArr,
-    closeArr: indicatorsZ2.closes || [],
-    ma20Arr: indicatorsZ2.ma20Arr || [],
-    atrArr: indicatorsZ2.atrArr || [],
-    indicators0050: {
-      rsi: indicators0050.rsiArr[indicators0050.rsiArr.length - 1],
-      rsiArr: indicators0050.rsiArr,
-      ma60Slope: indicators0050.ma60Slope,
-      kd: indicators0050.kdArr[indicators0050.kdArr.length - 1],
-    },
-    macroMarketDirection,
-    valuationGuardState,
-    pbRecords,
-    pbRecordsObjects,
-    rawValuation: macroData?.rawValuation ?? null,
-    usRisk,
-  };
 
   logger.info("🧠 正在計算投資訊號...");
   let result;
