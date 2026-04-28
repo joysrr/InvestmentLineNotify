@@ -36,6 +36,7 @@ import {
 } from "./utils/snapshotCrypto.mjs";
 import logger from "./utils/logger.mjs";
 import { sendTelegramBatch } from "./modules/notifications/transports/telegramClient.mjs";
+import { IlnState } from "./domain/ilnState.mjs";
 
 const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
@@ -531,11 +532,13 @@ export async function dailyCheck({
     logger.info("🧹 正在清理過期快取並儲存最終報告...");
     const done = stepTimer("saveReport");
 
-    // 帳戶快照：有金鑰才加密存入，否則略過
-    // 補存 price0050 / priceZ2 市價欄位，供圖表市價法淨値計算使用
+    // 1) 帳戶快照：有金鑰才加密存入，否則略過
+    //    這裡先組 snapshotPayload，後面同時給 IlnState 與 saveReport 使用
     let snapshotField = {};
+    let snapshotPayload = null;
+
     if (isSnapshotEncryptEnabled() && lastState) {
-      const snapshotPayload = {
+      snapshotPayload = {
         ...lastState,
         price0050: price0050 ?? null,
         priceZ2: finalPriceZ2 ?? null,
@@ -551,13 +554,31 @@ export async function dailyCheck({
       logger.info("ℹ️ [Snapshot] SNAPSHOT_ENCRYPT_KEY 未設定，略過快照");
     }
 
+    // 2) 用當日結果建立 IlnState（統一 domain 物件）
+    const state = new IlnState({
+      // macro / marketState：直接塞入 strategyEngine 填好的 marketState
+      macro: result.marketState ?? {},
+      // portfolioRaw：用尚未加密前的 snapshotPayload（若有）
+      portfolioRaw: snapshotPayload,
+      // signals / strategySnapshot：從 strategyEngine 結果來
+      signals: result.signals ?? {},
+      strategySnapshot: result.strategySnapshot ?? {},
+      // ai：沿用目前的 aiAdvice 結構
+      ai: aiAdvice ?? {},
+      // 報告日期
+      reportDate: dateText,
+      // meta：可以放 macroData._meta 或留空，視你的 ilnState 設計而定
+      meta: macroData?._meta ?? null,
+    });
+
+    // 3) 從 IlnState 輸出標準報告主體（含 snapshot，如 ilnState.toReportObject 有處理）
+    const baseReport = state.toReportObject();
+
+    // 4) 保留原本報告裡的附加欄位（quote / vixData / usRisk / macroData / macroAnalysis / news）
     await archiveManager.saveReport({
-      date: dateText,
-      marketState: result.marketState,
-      strategySnapshot: result.strategySnapshot,
-      signals: result.signals,
-      ai: aiAdvice,
-      // ── 補存欄位：Mini App 歷史查閱需要 ────────────────────────────────
+      ...baseReport,
+
+      // === 以下是原來你存進報告、給 Mini App 看的欄位 ===
       quote,
       vixData,
       usRisk,
@@ -567,20 +588,22 @@ export async function dailyCheck({
         rawFx: macroData?.rawFx ?? null,
         rawNdc: macroData?.rawNdc ?? null,
         rawValuation: macroData?.rawValuation ?? null,
-        // ── 新增：大盤量價概覽 (FMTQIK) ────────────────────────────────
         rawMarketOverview: macroData?.rawMarketOverview ?? null,
       },
       macroAnalysis,
-      // ── 補存 AI 精選新跡給 Mini App 使用 ───────────────────────────────
       news: {
         tw: newsStructured.tw,
         us: newsStructured.us,
         generatedAt: dateText,
       },
-      // ── 帳戶快照（有金鑰時才存在此欄位）──────────────────────────────
+
+      // 如果 ilnState.toReportObject 已經幫你處理 snapshot，可以視情況移除這一段
       ...snapshotField,
     });
-    // await archiveManager.cleanOldArchives(30); // 目前資料已保存於server不需清除
+
+    // 若有需要清理舊檔，可以在這裡或 archiveManager 內處理
+    // await archiveManager.cleanOldArchives(30);
+
     done();
   } catch (err) {
     logger.warn(err, "⚠️ 儲存最終報告或清理快取失敗");
