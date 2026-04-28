@@ -91,7 +91,5 @@ export function getPostSellAllocation(strategy) {
     );
   }
 
-  const rule = rules.at(-n);
-  if (!rule) throw new Error("取得 post allocation 失敗");
-  return rule;
+  return rules.at(-n);
 }
