@@ -625,6 +625,14 @@ export async function evaluateInvestmentSignal(data, strategy) {
 
   const macdSignal = getMACDSignal(data.macdArr);
 
+// ── 回填 valuationGuard PR 到 marketState ──
+const finalPR = decision.valuationGuardResult?.currentPR
+  ?? ctx.valuationGuardResult?.currentPR
+  ?? null;
+if (finalPR != null) {
+  marketState.valuation.pr = finalPR;
+}
+
   return {
     id: data.date || new Date().toISOString().split("T")[0],
     date: data.date || new Date().toISOString(),
