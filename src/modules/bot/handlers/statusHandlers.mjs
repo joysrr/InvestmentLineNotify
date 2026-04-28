@@ -1,16 +1,20 @@
-import { readFile } from "fs/promises";
-import { join } from "path";
 import { InlineKeyboard } from "grammy";
+import { loadStateFromLatestFiles } from "../../../domain/ilnState.mjs";
 
-// latest.json 結構：{ _meta: { lastRun, sources }, data: { rawCnn, rawUsMarket, rawNdc, rawMargin, rawFx, rawValuation } }
+// ─── /status ──────────────────────────────────────────────────────────────────
 export async function handleStatus(ctx, MINI_APP_URL) {
-  const latestPath = join(process.cwd(), "data", "market", "latest.json");
-
   try {
-    const raw = await readFile(latestPath, "utf-8");
-    const parsed = JSON.parse(raw);
-    const meta = parsed._meta ?? {};
-    const d = parsed.data ?? {};
+    const state = await loadStateFromLatestFiles();
+
+    if (!state) {
+      await ctx.reply("⚠️ 尚無市場快取資料，請先執行 /daily 。");
+      return;
+    }
+
+    // toStatusPayload() → { _meta, data }（與 /api/status 回傳結構完全一致）
+    const payload = state.toStatusPayload();
+    const meta = payload._meta ?? {};
+    const d = payload.data ?? {};
 
     const lines = ["📊 <b>最新市場快取</b>", ""];
 
@@ -70,23 +74,25 @@ export async function handleStatus(ctx, MINI_APP_URL) {
       reply_markup: replyMarkup,
     });
   } catch (err) {
-    if (err.code === "ENOENT") {
-      await ctx.reply("⚠️ 尚無市場快取資料，請先執行 /daily 。");
-    } else {
-      await ctx.reply(`❌ 讀取市場快取失敗：<code>${err.message}</code>`, {
-        parse_mode: "HTML",
-      });
-    }
+    await ctx.reply(`❌ 讀取市場快取失敗：<code>${err.message}</code>`, {
+      parse_mode: "HTML",
+    });
   }
 }
 
-export async function handleStatusDebug(ctx) {
-  const latestPath = join(process.cwd(), "data", "market", "latest.json");
+// ─── /status_debug ────────────────────────────────────────────────────────────
 
+export async function handleStatusDebug(ctx) {
   try {
-    const raw = await readFile(latestPath, "utf-8");
-    const parsed = JSON.parse(raw);
-    const meta = parsed._meta ?? {};
+    const state = await loadStateFromLatestFiles();
+
+    if (!state) {
+      await ctx.reply("⚠️ 尚無市場快取資料，請先執行 /daily 。");
+      return;
+    }
+
+    const payload = state.toStatusPayload();
+    const meta = payload._meta ?? {};
     const sources = meta.sources ?? {};
     const lastRun = meta.lastRun
       ? new Date(meta.lastRun).toLocaleString("zh-TW", {
@@ -136,12 +142,8 @@ export async function handleStatusDebug(ctx) {
 
     await ctx.reply(lines.join("\n"), { parse_mode: "HTML" });
   } catch (err) {
-    if (err.code === "ENOENT") {
-      await ctx.reply("⚠️ 尚無市場快取資料，請先執行 /daily 。");
-    } else {
-      await ctx.reply(`❌ 讀取 Debug 資訊失敗：<code>${err.message}</code>`, {
-        parse_mode: "HTML",
-      });
-    }
+    await ctx.reply(`❌ 讀取 Debug 資訊失敗：<code>${err.message}</code>`, {
+      parse_mode: "HTML",
+    });
   }
 }

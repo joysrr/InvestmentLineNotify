@@ -189,6 +189,7 @@ export async function dailyCheck({
     const snapshotPayload =
       isSnapshotEncryptEnabled() && lastState
         ? {
+            // price0050 / priceZ2 注入快照，供 normaliseSnapshot 計算當日市值
             ...lastState,
             price0050: price0050 ?? null,
             priceZ2: finalPriceZ2 ?? null,
@@ -196,7 +197,9 @@ export async function dailyCheck({
         : null;
 
     const state = new IlnState({
-      macro: result.marketState ?? {},
+      marketState: result.marketState ?? {},
+      rawMarket: null,
+      macroData: macroData ?? null,
       portfolioRaw: snapshotPayload,
       signals: result.signals ?? {},
       strategySnapshot: result.strategySnapshot ?? {},
@@ -212,14 +215,6 @@ export async function dailyCheck({
       quote,
       vixData,
       usRisk,
-      macroData: {
-        rawCnn: macroData?.rawCnn ?? null,
-        rawMargin: macroData?.rawMargin ?? null,
-        rawFx: macroData?.rawFx ?? null,
-        rawNdc: macroData?.rawNdc ?? null,
-        rawValuation: macroData?.rawValuation ?? null,
-        rawMarketOverview: macroData?.rawMarketOverview ?? null,
-      },
       macroAnalysis,
       news: {
         tw: newsStructured.tw,

@@ -1,5 +1,3 @@
-// src/domain/ilnState.mjs
-
 /**
  * ILN Domain State / IlnState
  *
@@ -25,7 +23,9 @@ import { normaliseSnapshot } from "../api/utils/snapshotAggregator.mjs";
 export class IlnState {
   /**
    * @param {Object} args
-   * @param {Object} args.macro            - 總經 / 市場 canonical state（通常對應 report.marketState 或 latest.json）
+   * @param {Object} args.marketState          - strategyEngine 高階輸出
+   * @param {Object} args.rawMarket            - { _meta, data: rawProviderSlots }（loadStateFromFiles 路徑）
+   * @param {Object} args.macroData            - 原始完整 macroData（供 toReportObject 做 slot pick）
    * @param {Object|null} args.portfolioRaw - 原始快照 / 持股資料（解密後、尚未 normalise 的物件；可能為 null）
    * @param {Object} args.signals          - 策略與風控 signals 子樹（report.signals）
    * @param {Object} args.strategySnapshot - 策略設定完整快照（report.strategySnapshot）
@@ -35,7 +35,9 @@ export class IlnState {
    * @param {Object|null} args.rawReport   - 原始報告 JSON（若是從報告檔載入）
    */
   constructor({
-    macro,
+    marketState,
+    rawMarket,
+    macroData,
     portfolioRaw,
     signals,
     strategySnapshot,
@@ -44,18 +46,16 @@ export class IlnState {
     meta = null,
     rawReport = null,
   }) {
-    this.macro = macro ?? {};
+    this.marketState = marketState ?? {};
+    this.rawMarket = rawMarket ?? null;
+    this.macroData = macroData ?? null;
     this.portfolioRaw = portfolioRaw ?? null;
     this.signals = signals ?? {};
     this.strategySnapshot = strategySnapshot ?? {};
     this.ai = ai ?? {};
     this.reportDate = reportDate;
     this.meta = meta ?? null;
-
-    // 原始報告（若有從報告檔載入，方便 /api/report/:date 直接輸出）
     this.rawReport = rawReport ?? null;
-
-    // 內部 lazy cache
     this._derived = Object.create(null);
   }
 
@@ -64,29 +64,35 @@ export class IlnState {
   /** 台股估值 (PE) */
   get valuationPe() {
     return (
-      this.macro?.valuation?.pe ?? this.macro?.data?.rawValuation?.pe ?? null
+      this.marketState?.valuation?.pe ??
+      this.rawMarket?.data?.rawValuation?.pe ??
+      null
     );
   }
 
   /** 台股估值 (PB) */
   get valuationPb() {
     return (
-      this.macro?.valuation?.pb ?? this.macro?.data?.rawValuation?.pb ?? null
+      this.marketState?.valuation?.pb ??
+      this.rawMarket?.data?.rawValuation?.pb ??
+      null
     );
   }
 
   /** CNN 恐懼貪婪分數 */
   get cnnScore() {
     return (
-      this.macro?.sentiment?.cnnScore ?? this.macro?.data?.rawCnn?.score ?? null
+      this.marketState?.sentiment?.cnnScore ??
+      this.rawMarket?.data?.rawCnn?.score ??
+      null
     );
   }
 
   /** USD/TWD 匯率 */
   get fxRate() {
     return (
-      this.macro?.liquidity?.usdTwd?.currentRate ??
-      this.macro?.data?.rawFx?.currentRate ??
+      this.marketState?.liquidity?.usdTwd?.currentRate ??
+      this.rawMarket?.data?.rawFx?.currentRate ??
       null
     );
   }
@@ -94,8 +100,8 @@ export class IlnState {
   /** 大盤成交金額（億元） */
   get marketTurnover100M() {
     return (
-      this.macro?.liquidity?.twMarket?.turnover100M ??
-      this.macro?.data?.rawMarketOverview?.turnover100M ??
+      this.marketState?.liquidity?.twMarket?.turnover100M ??
+      this.rawMarket?.data?.rawMarketOverview?.turnover100M ??
       null
     );
   }
@@ -197,10 +203,20 @@ export class IlnState {
    */
   toStatusPayload() {
     return {
-      _meta: this.meta ?? this.macro?._meta ?? undefined,
-      data: this.macro?.data ?? this.macro ?? {},
+      _meta: this.meta ?? this.rawMarket?._meta ?? undefined,
+      data: this.rawMarket?.data ?? {},
     };
   }
+
+  // 允許進報告的 macroData slot 白名單（新增 provider 只需改這裡）
+  static MACRO_REPORT_SLOTS = [
+    "rawCnn",
+    "rawMargin",
+    "rawFx",
+    "rawNdc",
+    "rawValuation",
+    "rawMarketOverview",
+  ];
 
   /**
    * 報告完整物件主體（不含 quote / news 等附加欄位）
@@ -214,14 +230,23 @@ export class IlnState {
 
     const dateStr = this.reportDate ?? new Date().toISOString().slice(0, 10);
 
+    const macroDataPicked = this.macroData
+      ? Object.fromEntries(
+          IlnState.MACRO_REPORT_SLOTS.filter(
+            (k) => this.macroData[k] != null,
+          ).map((k) => [k, this.macroData[k]]),
+        )
+      : undefined;
+
     return {
       id: dateStr,
       date: dateStr,
-      marketState: this.macro,
+      marketState: this.marketState,
       signals: this.signals,
       strategySnapshot: this.strategySnapshot,
       ai: this.ai,
       snapshot: snapshotEncrypted,
+      ...(macroDataPicked ? { macroData: macroDataPicked } : {}),
     };
   }
 }
@@ -255,11 +280,11 @@ export async function loadStateFromLatestFiles() {
   }
 
   return new IlnState({
-    macro:
-      latestReport?.marketState ??
-      (latestMarket
-        ? { _meta: latestMarket._meta, data: latestMarket.data }
-        : {}),
+    marketState: latestReport?.marketState ?? {},
+    rawMarket: latestMarket
+      ? { _meta: latestMarket._meta, data: latestMarket.data }
+      : null,
+    macroData: null,
     portfolioRaw,
     signals: latestReport?.signals ?? {},
     strategySnapshot: latestReport?.strategySnapshot ?? {},
@@ -295,7 +320,9 @@ export async function loadStateFromReport(reportDate) {
     }
 
     return new IlnState({
-      macro: report.marketState ?? {},
+      marketState: report.marketState ?? {},
+      rawMarket: null,
+      macroData: null,
       portfolioRaw,
       signals: report.signals ?? {},
       strategySnapshot: report.strategySnapshot ?? {},
