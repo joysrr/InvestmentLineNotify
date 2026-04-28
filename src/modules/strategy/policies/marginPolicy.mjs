@@ -139,3 +139,32 @@ export function analyzeSurvival(portfolio, currentPrice0050, strategy) {
     isVulnerable: core.currentMargin < core.safetyTarget,
   };
 }
+
+/**
+ * 資金解耦分析 (Decoupling Analysis)
+ * 計算 00675L (槓桿部位) vs 帳戶淨值的比重，區分戰術資產與基礎資產。
+ */
+export function analyzeCapitalDecoupling(portfolio, prices) {
+  const { qty0050, qtyZ2, totalLoan, cash } = portfolio;
+  const { price0050, priceZ2 } = prices;
+
+  const val0050 = (qty0050 || 0) * price0050;
+  const valZ2 = (qtyZ2 || 0) * priceZ2;
+  const netAsset = val0050 + valZ2 - (totalLoan || 0) + (cash || 0);
+
+  // 戰術槓桿部位佔比 (00675L 市值 / 淨資產)
+  const tacticRatio = netAsset > 0 ? (valZ2 / netAsset) * 100 : 0;
+
+  // 基礎 D CA 部位佔比 (0050 市值 - 借貸 / 淨資產)
+  // 這裡假設借貸主要用於 00675L 及其餘槓桿操作
+  const baseWealth = val0050 - (totalLoan || 0);
+  const baseRatio = netAsset > 0 ? (baseWealth / netAsset) * 100 : 0;
+
+  return {
+    netAsset: Math.round(netAsset),
+    tacticRatio: Number(tacticRatio.toFixed(2)),
+    baseRatio: Number(baseRatio.toFixed(2)),
+    baseWealth: Math.round(baseWealth),
+    tacticalWealth: Math.round(valZ2),
+  };
+}

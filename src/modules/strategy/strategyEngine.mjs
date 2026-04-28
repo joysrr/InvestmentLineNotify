@@ -32,10 +32,6 @@ import {
 } from "./indicators.mjs";
 import { loadHolidaySet } from "../providers/twseProvider.mjs";
 import { computeGrossLeverage } from "./leverageMonitor.mjs";
-import {
-  analyzeMarginRisk,
-  analyzeCapitalDecoupling,
-} from "./marginManager.mjs";
 import { generateScoringMatrix } from "./signalGenerator.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 
@@ -54,7 +50,8 @@ import {
   resolveEntryGate,
   resolveVixOverride,
   resolveMacroSentiment,
-  buildSellBackToAllocation,
+  analyzeMarginRisk,
+  analyzeCapitalDecoupling,
   analyzeSurvival,
   resolveBudgetSynergy,
 } from "./policies/index.mjs";
@@ -460,7 +457,7 @@ export async function evaluateInvestmentSignal(data, strategy) {
   const current0050Value = data.portfolio.qty0050 * data.price0050;
   const currentZ2Value = data.portfolio.qtyZ2 * currentPrice;
 
-  // ── 使用 marginManager 計算維持率與壓力測試 (排除 00675L) ───────
+  // ── 使用 marginPolicy 計算維持率與壓力測試 (排除 00675L) ───────
   const marginAnalysis = analyzeMarginRisk(
     data.portfolio,
     data.price0050,
