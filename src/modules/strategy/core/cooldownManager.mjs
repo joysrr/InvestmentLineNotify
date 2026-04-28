@@ -1,4 +1,5 @@
 import { loadHolidaySet } from "../../providers/twseProvider.mjs";
+import { TwDate } from "../../utils/coreUtils.mjs";
 
 /**
  * 檢查是否在 Cooldown 期間 (以「交易日」計算)
@@ -17,15 +18,34 @@ export async function checkCooldown(lastBuyDate, cooldownTradingDays) {
   }
 
   const today = new Date();
-  const lastBuy = new Date(lastBuyDate);
-
   today.setHours(0, 0, 0, 0);
+
+  const lastBuy = new Date(lastBuyDate);
   lastBuy.setHours(0, 0, 0, 0);
+  if (isNaN(lastBuy.getTime())) {
+    return {
+      inCooldown: false,
+      daysLeft: 0,
+      lastBuyDate: null,
+      message: `⚠️ lastBuyDate 格式無效：${lastBuyDate}`,
+    };
+  }
+
+  if (lastBuy > today) {
+    return {
+      inCooldown: false,
+      daysLeft: 0,
+      lastBuyDate: lastBuy.toISOString().split("T")[0],
+      message: `⚠️ lastBuyDate 為未來日期，視為無冷卻限制`,
+    };
+  }
 
   const startYear = lastBuy.getFullYear();
   const endYear = today.getFullYear();
 
   const holidays = new Set();
+
+  let holidayFallback = false;
 
   try {
     for (let y = startYear; y <= endYear; y++) {
@@ -34,6 +54,7 @@ export async function checkCooldown(lastBuyDate, cooldownTradingDays) {
     }
   } catch (e) {
     console.warn("⚠️ 無法取得 TWSE 假日，將退回使用六日計算交易日:", e.message);
+    holidayFallback = true;
   }
 
   let tradingDaysPassed = 0;
@@ -42,7 +63,7 @@ export async function checkCooldown(lastBuyDate, cooldownTradingDays) {
 
   while (currentDate <= today) {
     const dayOfWeek = currentDate.getDay();
-    const isoDate = currentDate.toISOString().split("T")[0];
+    const isoDate = TwDate(currentDate).formatDateKey();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
     const isHoliday = holidays.has(isoDate);
 
@@ -54,13 +75,14 @@ export async function checkCooldown(lastBuyDate, cooldownTradingDays) {
   }
 
   const daysLeft = Math.max(0, cooldownTradingDays - tradingDaysPassed);
-  const lastBuyStr = lastBuy.toISOString().split("T")[0];
+  const lastBuyStr = TwDate(lastBuy).formatDateKey();
 
   return {
     inCooldown: daysLeft > 0,
     daysLeft,
     lastBuyDate: lastBuyStr,
     tradingDaysPassed,
+    holidayFallback,
     message:
       daysLeft > 0
         ? `最後買入：${lastBuyStr}，經過 ${tradingDaysPassed} 交易日`
