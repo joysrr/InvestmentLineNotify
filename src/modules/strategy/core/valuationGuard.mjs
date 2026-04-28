@@ -17,7 +17,9 @@ export function resolveValuationGuard(currentPB, pbRecords, config) {
   const rank = sorted.findIndex((v) => v >= currentPB);
   const currentPR = rank === -1 ? 100 : (rank / sorted.length) * 100;
 
-  const tiers = config?.valuationGuard?.tiers || [];
+  const tiers = [...(config?.valuationGuard?.tiers || [])].sort(
+    (a, b) => a.minPr - b.minPr,
+  );
   let hitTier = null;
   let hitTierIndex = -1;
   let multiplier = 1.0;
@@ -75,6 +77,8 @@ export function resolveTrendConfirmation(priceData, config) {
   };
 }
 
+// TODO: previousVix 目前未被使用，VIX 動量邏輯尚未實作
+// 呼叫端傳入 previousVix: null，待實作時需補充歷史 VIX 資料來源
 export function resolveValuationMomentum(
   currentPR,
   pbRecordsObjects,
@@ -85,7 +89,8 @@ export function resolveValuationMomentum(
   if (!cfg?.enabled)
     return { prMomentum: 0, momentumAdjustment: 1.0, momentumLabel: "" };
 
-  const { currentVix, previousVix } = vixData;
+  // TODO: currentVix / previousVix 待 VIX 動量邏輯實作後接入
+  // const { currentVix, previousVix } = vixData;
 
   // Simple momentum: compare current PR with PR 5 days ago
   const historyLen = pbRecordsObjects?.length || 0;
@@ -106,18 +111,10 @@ export function resolveValuationMomentum(
   return { prMomentum, momentumAdjustment, momentumLabel };
 }
 
-export function evaluateValuationGuard(
-  ctx,
-  strategy,
-  trendConfirmation,
-  vgResult,
-  ma60Slope,
-) {
+export function evaluateValuationGuard(ctx, strategy, vgResult) {
   const vgCfg = strategy?.valuationGuard;
   if (!vgCfg?.enabled) return null;
 
-  const currentPB = ctx.valuation?.pb ?? null;
-  const pbRecords = ctx.pbRecords ?? [];
   const latchState = ctx.valuationGuardState ?? {
     latchActive: false,
     latchTriggeredAt: null,
@@ -174,9 +171,6 @@ export function evaluateValuationGuard(
     if (typeof momentumResult.momentumAdjustment === "number") {
       finalMultiplier *= momentumResult.momentumAdjustment;
     }
-
-    ctx.valuationGuardMultiplier = finalMultiplier;
-    ctx.valuationGuardResult = vgResult;
 
     // If multiplier is very low, we might want to return a decision object
     if (finalMultiplier < 0.5) {

@@ -148,14 +148,7 @@ export async function buildDecision(
     const currentPB = ctx.valuation?.pb ?? null;
     const pbRecords = ctx.pbRecords ?? [];
     const vgResult = resolveValuationGuard(currentPB, pbRecords, strategy);
-    ctx.valuationGuardResult = vgResult;
-    const vgEval = evaluateValuationGuard(
-      ctx,
-      strategy,
-      trendConfirmation,
-      vgResult,
-      ma60Slope,
-    );
+    const vgEval = evaluateValuationGuard(ctx, strategy, vgResult);
     if (vgEval) return vgEval;
   }
 
