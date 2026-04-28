@@ -60,7 +60,16 @@ import { parseNumber } from "../../utils/coreUtils.mjs";
 import { normalizeMarketData } from "../../utils/normalizer.mjs";
 
 /**
- * 決策大腦：綜合估值、維持率、槓桿、斜率與評分矩陣產出最終建議
+ * 決策優先鏈（Priority 由高到低，越高越優先 early return）：
+ *  P1 - 維持率 4 層狀態機     → evaluateMarginLayer
+ *  P2 - Gross Leverage 警戒  → evaluateGrossLeverage
+ *       ↑ P3 isPanicBypass 旗標在 P2 之前預算，作為參數注入 P2
+ *  P4 - 估值守衛              → resolveValuationGuard / evaluateValuationGuard
+ *  P5 - EntryGate 前置過濾   → resolveEntryGate
+ *  P6 - 停損 / 移動停利       → stopLossTriggered / trailingTriggered
+ *  P7 - 估值泡沫 (PB ≥ 2.2)  → 直接 return
+ *  P8 - 再平衡 (z2RatioHigh) → 直接 return
+ *  P9 - 評分驅動決策          → buy_tactical / sell_tactical / neutral
  */
 export async function buildDecision(
   ctx,
@@ -84,6 +93,11 @@ export async function buildDecision(
     valuation,
   } = ctx;
 
+  const engineState = {
+    panicBypassActive: false,
+    valuationGuardResult: null,
+  };
+
   const reserveStatus = getReserveStatus(ctx, strategy);
   const marginLayer = getMarginLayer(maintenanceMargin, maint, th);
 
@@ -91,10 +105,9 @@ export async function buildDecision(
   // 維持率 4 層狀態機（越危險越優先，最先被檢出）
   // ─────────────────────────────────────────────────────────────
 
-  const safeCtx = Object.freeze({ ...ctx });
   const marginLayerObj = evaluateMarginLayer(
     marginLayer,
-    safeCtx,
+    ctx,
     strategy,
     reserveStatus,
   );
@@ -103,8 +116,7 @@ export async function buildDecision(
   // 🟢 Layer 3：常態運行 >= protectTrigger(160)
   // 以下為原有策略邏輯完整執行
 
-  // ── 預先計算 Priority 3 極端恐慌破冰 (Extremely Panic Bypass) ──
-  // 供 Priority 2 (Gross Leverage) 與 Priority 7 使用
+  // ── [P3 旗標預算] isPanicBypass：須在 P2 之前計算，以參數形式注入 evaluateGrossLeverage ──
   const ohCfg = strategy?.overrideHierarchy;
   const panicBypassEnabled = ohCfg?.panicBypassEnabled ?? false;
   const panicBypassDropPct = ohCfg?.panicBypassDropPct ?? 0.2;
@@ -116,21 +128,15 @@ export async function buildDecision(
     ctx.vix > panicVixThreshold;
 
   // 將狀態存入 ctx 供後續模組讀取
-  ctx.panicBypassActive = isPanicBypass;
+  engineState.panicBypassActive = isPanicBypass;
 
   // ─────────────────────────────────────────────────────────────
   const leverageObj = evaluateGrossLeverage(
     grossLeverageResult,
     strategy,
-    ctx.panicBypassActive,
+    engineState.panicBypassActive,
   );
   if (leverageObj) return leverageObj;
-
-  // 移除之前重複添加的 Priority 3 代碼（因為已經移到上面了）
-
-  // ─────────────────────────────────────────────────────────────
-  // Priority 3：極端恐慌破冰 (已移至 Priority 2 之前計算)
-  // ─────────────────────────────────────────────────────────────
 
   // ─────────────────────────────────────────────────────────────
   const vgCfg = strategy?.valuationGuard;
@@ -142,11 +148,15 @@ export async function buildDecision(
     },
     strategy,
   );
-  if (vgCfg?.enabled && ctx.pbRecords != null && !ctx.panicBypassActive) {
+  if (
+    vgCfg?.enabled &&
+    ctx.pbRecords != null &&
+    !engineState.panicBypassActive
+  ) {
     const currentPB = ctx.valuation?.pb ?? null;
     const pbRecords = ctx.pbRecords ?? [];
     const vgResult = resolveValuationGuard(currentPB, pbRecords, strategy);
-    ctx.valuationGuardResult = vgResult; // ← 由 Engine 層統一持有，供後續節點讀取
+    engineState.valuationGuardResult = vgResult; // ← 由 Engine 層統一持有，供後續節點讀取
     const vgEval = evaluateValuationGuard(ctx, strategy, vgResult);
     if (vgEval) return vgEval;
   }
@@ -186,7 +196,7 @@ export async function buildDecision(
       entryGateLevel: tierIndex,
       entryGateLabel: tierLabel,
       entryGateBlocked: true,
-      valuationGuardResult: ctx.valuationGuardResult ?? null,
+      valuationGuardResult: engineState.valuationGuardResult ?? null,
       marketStatus: `${tierEmoji}【前置過濾：${tierLabel}】`,
       target: "🚧 槓桿封鎖",
       targetSuggestionShort: `${tier.note}（跌幅 ${ctx.priceDropPercent.toFixed(1)}%）`,
@@ -214,7 +224,7 @@ export async function buildDecision(
           : 0,
     ma60SlopeHistory: ctx.ma60SlopeHistory || [],
     hasTacticalPosition: ctx.z2Ratio > 15,
-    currentPR: ctx.valuationGuardResult?.currentPR || 0,
+    currentPR: engineState.valuationGuardResult?.currentPR || 0,
   };
 
   const scoreResult = generateScoringMatrix(
@@ -245,45 +255,10 @@ export async function buildDecision(
   const finalAvailableBudget = Math.min(availableDaily, availableRolling);
 
   // --- 1.5.B) 動態移動停利 (Trailing Stop) 監控 ---
-  const tsCfg = strategy.sell?.trailingStop;
-  let trailingActive = false;
-  let dynamicAnchor = null;
-
-  if (tsCfg?.enabled && ctx.z2Ratio > 0 && ctx.portfolio?.lastBuyDate) {
-    const buyDate = ctx.portfolio.lastBuyDate;
-    const highsSince = await archiveManager.getHighsSince(buyDate);
-    const currentPrice = ctx.currentPrice;
-
-    // 啟動條件 1：獲利 > 10% (基於收盤價簡單推算，完美應記錄買入均價)
-    const profitOk =
-      currentPrice >
-      (ctx.portfolio.avgCostZ2 || ctx.basePrice || 9999) *
-        (1 + tsCfg.activationProfitPct);
-
-    // 啟動條件 2：連續 2 日站穩 MA20
-    const ma20Arr = ctx.indicators?.ma20Arr || [];
-    const closeArr = ctx.indicators?.closes || [];
-    let ma20Stable = false;
-    if (closeArr.length >= 2 && ma20Arr.length >= 2) {
-      const c1 = closeArr.at(-1),
-        c2 = closeArr.at(-2);
-      const m1 = ma20Arr.at(-1),
-        m2 = ma20Arr.at(-2);
-      if (c1 > m1 && c2 > m2) ma20Stable = true;
-    }
-
-    if (profitOk || ma20Stable) {
-      trailingActive = true;
-      if (tsCfg.anchorType === "ma20") {
-        dynamicAnchor = ma20Arr.at(-1) * (1 - tsCfg.stopLossBuffer);
-      } else if (tsCfg.anchorType === "atr") {
-        const allHighs = [...highsSince, currentPrice];
-        const hhv = calcHHV(allHighs, allHighs.length).at(-1) ?? currentPrice;
-        const atr = ctx.indicators?.atrArr?.at(-1) || 0;
-        dynamicAnchor = hhv - atr * tsCfg.atrMultiplier;
-      }
-    }
-  }
+  const { trailingActive, dynamicAnchor } = await computeTrailingStop(
+    ctx,
+    strategy,
+  );
 
   // 1.5.C) 停損與絕對優先權 Override (Priority High)
   const stopLossTriggered =
@@ -310,7 +285,7 @@ export async function buildDecision(
       categoryResults,
       trailingActive,
       dynamicAnchor,
-      valuationGuardResult: ctx.valuationGuardResult ?? null,
+      valuationGuardResult: engineState.valuationGuardResult ?? null,
     };
   }
 
@@ -325,7 +300,7 @@ export async function buildDecision(
       suggestion:
         `• 大盤股價淨值比 (PB)：${pbValue} (極端門檻 2.2)\n` +
         `• 風控說明：歷史數據顯示大盤 PB 超過 2.2 常伴隨毀滅性回檔。即使技術面呈多頭，系統仍強制在此階段停止買進，保護資金安全。`,
-      valuationGuardResult: ctx.valuationGuardResult ?? null,
+      valuationGuardResult: engineState.valuationGuardResult ?? null,
     };
   }
 
@@ -392,7 +367,7 @@ export async function buildDecision(
       categoryResults,
       signalDirection,
       scalingRatio: finalAllocRatio,
-      valuationGuardResult: ctx.valuationGuardResult ?? null,
+      valuationGuardResult: engineState.valuationGuardResult ?? null,
       budgetInfo: { availableRolling, finalAvailableBudget, budgetCapped },
     };
   }
@@ -411,7 +386,7 @@ export async function buildDecision(
       signalDirection,
       trailingActive,
       dynamicAnchor,
-      valuationGuardResult: ctx.valuationGuardResult ?? null,
+      valuationGuardResult: engineState.valuationGuardResult ?? null,
     };
   }
 
@@ -432,7 +407,7 @@ export async function buildDecision(
     categoryResults,
     trailingActive,
     dynamicAnchor,
-    valuationGuardResult: ctx.valuationGuardResult ?? null,
+    valuationGuardResult: engineState.valuationGuardResult ?? null,
     valuationMomentumResult: ctx.valuationMomentumResult ?? null,
   };
 }
@@ -530,53 +505,42 @@ export async function evaluateInvestmentSignal(data, strategy) {
     cooldownStatus.message += ` (⚠️ 空頭情緒延長冷卻至 ${effectiveCooldownDays} 交易日)`;
   }
 
-  const ctx = {
+  // ── 衍生值計算（集中於此，不散落在組裝物件內）────────────────
+  const entry = computeEntryScore(
+    data,
+    priceDropPercent,
+    strategy,
+    macroSentiment,
+  );
+  const overheat = computeOverheatState(data, bias240, strategy);
+  const reversal = computeReversalTriggers(data, strategy);
+  const sellSignals = computeSellSignals(data, strategy);
+  const survivalAnalysis = analyzeSurvival(
+    data.portfolio,
+    data.price0050,
+    strategy,
+  );
+
+  // ── 組裝 ctx（純組裝，不含邏輯）──────────────────────────────
+  const ctx = buildEngineContext(data, {
     priceChangePercent,
     priceUpPercent,
     priceDropPercent,
-
     maintenanceMargin,
     z2Ratio,
     netAsset,
     currentZ2Value,
-    vix: data.VIX,
-    rsi: data.RSI,
-    indicators0050: data.indicators0050 || {}, // [NEW] 注入 0050 參考指標
-
-    reserveCash: data.portfolio?.cash || 0,
-
+    vixArr,
     cooldownStatus,
     macroSentiment,
-
-    entry: computeEntryScore(data, priceDropPercent, strategy, macroSentiment),
-    overheat: computeOverheatState(data, bias240, strategy),
-    reversal: computeReversalTriggers(data, strategy),
-    sellSignals: computeSellSignals(data, strategy),
-    valuation: data.rawValuation || null,
-    // ── valuationGuard 所需欄位 ──────────────────────────────
-    pbRecords: data.pbRecords ?? [],
-    pbRecordsObjects: data.pbRecordsObjects ?? [],
-    valuationGuardState: data.valuationGuardState ?? null,
-    closeArr: data.closeArr ?? [],
-    ma20Arr: data.ma20Arr ?? [],
-    atrArr: data.atrArr ?? [],
-    macdArr: data.macdArr ?? [],
-    // ── valuationMomentum 所需欄位 ───────────────────────────
-    vixArr: vixArr,
-    ma60SlopeHistory: data.ma60SlopeArr || [],
-    institutionalNet: data.institutionalNet || 0,
-    institutionalHistory: data.institutionalHistory || [],
-    // ── 壓力測試與解耦數據 ──────────────────────────────────
     marginAnalysis,
-    survivalAnalysis: analyzeSurvival(data.portfolio, data.price0050, strategy), // [NEW]
     decouplingAnalysis,
-    // ── 指標序列供計分矩陣使用 ───────────────────────────────
-    indicators: {
-      rsiArr: data.rsiArr || [],
-      kdArr: data.kdArr || [],
-      macdArr: data.macdArr || [],
-    },
-  };
+    survivalAnalysis,
+    entry,
+    overheat,
+    reversal,
+    sellSignals,
+  });
 
   // ── Gross Leverage 計算 ──────────────────────────────────────
   const etf0050Value = data.portfolio.qty0050 * data.price0050;
@@ -601,77 +565,34 @@ export async function evaluateInvestmentSignal(data, strategy) {
     ma60Slope,
   );
 
-  // [NEW] 預算協同分析 (DCA 攔截)
+  // 預算協同分析 (DCA 攔截)
   const budgetSynergy = resolveBudgetSynergy(
     ctx,
     strategy,
     decision.weightScore || 0,
   );
-  if (budgetSynergy) {
-    decision.budgetSynergy = budgetSynergy;
-    // 如果觸發預算攔截，且當前是中性或觀望，提升其行動建議
-    if (decision.target === "觀望" || decision.target === "Neutral") {
-      decision.target = budgetSynergy.label;
-      decision.targetSuggestionShort = budgetSynergy.suggestedAmount
-        ? `提前動用 $${budgetSynergy.suggestedAmount.toLocaleString()} 攔截`
-        : "提前撥款攔截";
-      decision.suggestion =
-        (decision.suggestion || "") + "\n\n" + budgetSynergy.suggestion;
-    }
-  }
+  const finalDecision = applyBudgetSynergy(decision, budgetSynergy);
 
   const macdSignal = getMACDSignal(data.macdArr);
+
+  const signals = formatSignalOutput(ctx, finalDecision, {
+    priceChangePercent,
+    bias240,
+    actualLeverage,
+    maintenanceMargin,
+    z2Ratio,
+    grossLeverageResult,
+    marginAnalysis,
+    decouplingAnalysis,
+    macdSignal,
+  });
 
   return {
     id: data.date || new Date().toISOString().split("T")[0],
     date: data.date || new Date().toISOString(),
     marketState, // 2.0 標準化分類數據
     strategySnapshot: strategy, // 完整拷貝策略，供未來回溯
-    signals: {
-      RSI: parseNumber(data.RSI), // 技術指標 RSI 數值
-      // KD 最後值（從 kdArr 最後一筆拆出）
-      KD_K: parseNumber(
-        Array.isArray(data.kdArr) && data.kdArr.length
-          ? data.kdArr[data.kdArr.length - 1]?.k
-          : null,
-      ),
-      KD_D: parseNumber(
-        Array.isArray(data.kdArr) && data.kdArr.length
-          ? data.kdArr[data.kdArr.length - 1]?.d
-          : null,
-      ),
-      bias240: parseNumber(bias240), // 乖離率 MA240
-      reversal: ctx.reversal ?? null, // 轉弱訊號（reversalTriggers 結果）
-      sellSignals: ctx.sellSignals ?? null, // 賣出訊號（sellSignals 結果）
-      priceChangePercentText: Number.isFinite(priceChangePercent)
-        ? Math.abs(priceChangePercent).toFixed(2)
-        : "0.00", // 漲跌幅文字（前端用來顯示 badge）
-      valuationGuardResult:
-        decision.valuationGuardResult ?? ctx.valuationGuardResult ?? null, // 估值守衛結果（從 decision 轉接）
-      valuationMomentumResult:
-        decision.valuationMomentumResult ?? ctx.valuationMomentumResult ?? null, // 動量補正結果（從 decision 轉接）
-      panicBypassActive: ctx.panicBypassActive ?? false, // 恐慌破冰狀態
-      maintenanceRisk: marginAnalysis?.riskLevel
-        ? { level: marginAnalysis.riskLevel }
-        : { level: "Normal" }, // 維持率風險等級（包成前端期待的 { level } 結構）
-      status: decision.marketStatus || "🌱",
-      score: parseNumber(ctx.entry.weightScore),
-      target: decision.target || "🔹 0050 DCA",
-      signalDirection: decision.signalDirection ?? "hold",
-      suggestion: decision.targetSuggestion || "維持觀望",
-      weightDetails: ctx.entry.weightDetails,
-      priceChangePercent: parseNumber(priceChangePercent),
-      actualLeverage: parseNumber(actualLeverage),
-      maintenanceMargin: parseNumber(maintenanceMargin),
-      z2Ratio: parseNumber(z2Ratio),
-      grossLeverage: parseNumber(grossLeverageResult?.grossLeverage),
-      grossLeverageStatus: grossLeverageResult?.status || "normal",
-      entryGateLevel: decision.entryGateLevel ?? null,
-      cooldownStatus,
-      marginAnalysis,
-      decouplingAnalysis,
-      macdSignal,
-    },
+    signals,
   };
 }
 
@@ -679,4 +600,234 @@ export async function getInvestmentSignalAsync(data) {
   const strategy = await fetchStrategyConfig();
   validateStrategyConfig(strategy);
   return await evaluateInvestmentSignal(data, strategy);
+}
+
+/**
+ * 計算動態移動停利狀態
+ * @returns {{ trailingActive: boolean, dynamicAnchor: number | null }}
+ */
+async function computeTrailingStop(ctx, strategy) {
+  const tsCfg = strategy.sell?.trailingStop;
+  if (!tsCfg?.enabled || ctx.z2Ratio <= 0 || !ctx.portfolio?.lastBuyDate) {
+    return { trailingActive: false, dynamicAnchor: null };
+  }
+
+  const buyDate = ctx.portfolio.lastBuyDate;
+  const highsSince = await archiveManager.getHighsSince(buyDate);
+  const currentPrice = ctx.currentPrice;
+
+  const profitOk =
+    currentPrice >
+    (ctx.portfolio.avgCostZ2 || ctx.basePrice || 9999) *
+      (1 + tsCfg.activationProfitPct);
+
+  const ma20Arr = ctx.indicators?.ma20Arr || [];
+  const closeArr = ctx.indicators?.closes || [];
+  const c1 = closeArr.at(-1),
+    c2 = closeArr.at(-2);
+  const m1 = ma20Arr.at(-1),
+    m2 = ma20Arr.at(-2);
+  const ma20Stable =
+    closeArr.length >= 2 && ma20Arr.length >= 2 && c1 > m1 && c2 > m2;
+
+  if (!profitOk && !ma20Stable) {
+    return { trailingActive: false, dynamicAnchor: null };
+  }
+
+  let dynamicAnchor = null;
+  if (tsCfg.anchorType === "ma20") {
+    dynamicAnchor = ma20Arr.at(-1) * (1 - tsCfg.stopLossBuffer);
+  } else if (tsCfg.anchorType === "atr") {
+    const allHighs = [...highsSince, currentPrice];
+    const hhv = calcHHV(allHighs, allHighs.length).at(-1) ?? currentPrice;
+    const atr = ctx.indicators?.atrArr?.at(-1) || 0;
+    dynamicAnchor = hhv - atr * tsCfg.atrMultiplier;
+  }
+
+  return { trailingActive: true, dynamicAnchor };
+}
+
+/**
+ * 將預算協同分析結果合併進 decision（不可變，回傳新物件）
+ * @returns {object} 合併後的 decision
+ */
+function applyBudgetSynergy(decision, synergy) {
+  if (!synergy) return decision;
+
+  const base = { ...decision, budgetSynergy: synergy };
+
+  if (decision.target !== "觀望" && decision.target !== "Neutral") {
+    return base;
+  }
+
+  return {
+    ...base,
+    target: synergy.label,
+    targetSuggestionShort: synergy.suggestedAmount
+      ? `提前動用 $${synergy.suggestedAmount.toLocaleString()} 攔截`
+      : "提前撥款攔截",
+    suggestion: (decision.suggestion || "") + "\n\n" + synergy.suggestion,
+  };
+}
+
+/**
+ * 組裝決策引擎所需的 ctx 輸入物件（純組裝，不含計算邏輯）
+ * 所有衍生值皆由 evaluateInvestmentSignal 預先計算後傳入
+ */
+function buildEngineContext(data, derived) {
+  const {
+    priceChangePercent,
+    priceUpPercent,
+    priceDropPercent,
+    maintenanceMargin,
+    z2Ratio,
+    netAsset,
+    currentZ2Value,
+    vixArr,
+    cooldownStatus,
+    macroSentiment,
+    marginAnalysis,
+    decouplingAnalysis,
+  } = derived;
+
+  return {
+    // ── 價格衍生 ────────────────────────────────────────────
+    priceChangePercent,
+    priceUpPercent,
+    priceDropPercent,
+    currentPrice: data.currentPrice,
+    basePrice: data.basePrice,
+
+    // ── 維持率與資產 ─────────────────────────────────────────
+    maintenanceMargin,
+    z2Ratio,
+    netAsset,
+    currentZ2Value,
+
+    // ── 市場情緒 ─────────────────────────────────────────────
+    vix: data.VIX,
+    rsi: data.RSI,
+    vixArr,
+
+    // ── 投資組合 ─────────────────────────────────────────────
+    portfolio: data.portfolio,
+    reserveCash: data.portfolio?.cash || 0,
+    indicators0050: data.indicators0050 || {},
+
+    // ── 冷卻與情緒狀態 ───────────────────────────────────────
+    cooldownStatus,
+    macroSentiment,
+
+    // ── 技術訊號（由 signalRules 計算） ─────────────────────
+    entry: derived.entry,
+    overheat: derived.overheat,
+    reversal: derived.reversal,
+    sellSignals: derived.sellSignals,
+
+    // ── 估值 ─────────────────────────────────────────────────
+    valuation: data.rawValuation || null,
+    pbRecords: data.pbRecords ?? [],
+    pbRecordsObjects: data.pbRecordsObjects ?? [],
+    valuationGuardState: data.valuationGuardState ?? null,
+
+    // ── 技術指標序列 ─────────────────────────────────────────
+    closeArr: data.closeArr ?? [],
+    ma20Arr: data.ma20Arr ?? [],
+    atrArr: data.atrArr ?? [],
+    macdArr: data.macdArr ?? [],
+
+    // ── 機構籌碼與斜率歷史 ───────────────────────────────────
+    ma60SlopeHistory: data.ma60SlopeArr || [],
+    institutionalNet: data.institutionalNet || 0,
+    institutionalHistory: data.institutionalHistory || [],
+
+    // ── 壓力測試與解耦 ───────────────────────────────────────
+    marginAnalysis,
+    decouplingAnalysis,
+    survivalAnalysis: derived.survivalAnalysis,
+
+    // ── 計分矩陣用指標序列 ───────────────────────────────────
+    indicators: {
+      rsiArr: data.rsiArr || [],
+      kdArr: data.kdArr || [],
+      macdArr: data.macdArr || [],
+    },
+  };
+}
+
+/**
+ * 將內部決策結果格式化為對外輸出的 signals 結構
+ * 此函式只做欄位映射與格式轉換，不含任何業務判斷邏輯
+ */
+function formatSignalOutput(ctx, finalDecision, derived) {
+  const {
+    priceChangePercent,
+    bias240,
+    actualLeverage,
+    maintenanceMargin,
+    z2Ratio,
+    grossLeverageResult,
+    marginAnalysis,
+    decouplingAnalysis,
+    macdSignal,
+  } = derived;
+
+  return {
+    RSI: parseNumber(ctx.rsi),
+    KD_K: parseNumber(
+      Array.isArray(ctx.portfolio?.kdArr) && ctx.portfolio.kdArr.length
+        ? ctx.portfolio.kdArr.at(-1)?.k
+        : null,
+    ),
+    KD_D: parseNumber(
+      Array.isArray(ctx.portfolio?.kdArr) && ctx.portfolio.kdArr.length
+        ? ctx.portfolio.kdArr.at(-1)?.d
+        : null,
+    ),
+    bias240: parseNumber(bias240),
+    reversal: ctx.reversal ?? null,
+    sellSignals: ctx.sellSignals ?? null,
+
+    // ── UI 顯示用欄位 ─────────────────────────────────────────
+    priceChangePercentText: Number.isFinite(priceChangePercent)
+      ? Math.abs(priceChangePercent).toFixed(2)
+      : "0.00",
+    status: finalDecision.marketStatus || "🌱",
+    target: finalDecision.target || "🔹 0050 DCA",
+    suggestion: finalDecision.targetSuggestion || "維持觀望",
+    signalDirection: finalDecision.signalDirection ?? "hold",
+
+    // ── 決策評分 ──────────────────────────────────────────────
+    score: parseNumber(ctx.entry.weightScore),
+    weightDetails: ctx.entry.weightDetails,
+    finalScore: finalDecision.finalScore ?? null,
+    categoryResults: finalDecision.categoryResults ?? null,
+    scalingRatio: finalDecision.scalingRatio ?? null,
+
+    // ── 風控數據 ──────────────────────────────────────────────
+    priceChangePercent: parseNumber(priceChangePercent),
+    actualLeverage: parseNumber(actualLeverage),
+    maintenanceMargin: parseNumber(maintenanceMargin),
+    z2Ratio: parseNumber(z2Ratio),
+    grossLeverage: parseNumber(grossLeverageResult?.grossLeverage),
+    grossLeverageStatus: grossLeverageResult?.status || "normal",
+    maintenanceRisk: marginAnalysis?.riskLevel
+      ? { level: marginAnalysis.riskLevel }
+      : { level: "Normal" },
+    marginAnalysis,
+    decouplingAnalysis,
+
+    // ── Guard / Override 狀態 ─────────────────────────────────
+    valuationGuardResult: finalDecision.valuationGuardResult ?? null,
+    valuationMomentumResult: finalDecision.valuationMomentumResult ?? null,
+    panicBypassActive: finalDecision.panicBypassActive ?? false,
+
+    // ── 其他 ──────────────────────────────────────────────────
+    entryGateLevel: finalDecision.entryGateLevel ?? null,
+    cooldownStatus: ctx.cooldownStatus,
+    budgetInfo: finalDecision.budgetInfo ?? null,
+    trailingActive: finalDecision.trailingActive ?? false,
+    dynamicAnchor: finalDecision.dynamicAnchor ?? null,
+    macdSignal,
+  };
 }
