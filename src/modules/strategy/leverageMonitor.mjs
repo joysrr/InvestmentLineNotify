@@ -63,13 +63,6 @@ export function computeGrossLeverage(input, config) {
   }
 
   // 防禦：淨值不可為零或負數，避免除以零或產生無意義結果
-  if (typeof netAssetValue !== "number" || !Number.isFinite(netAssetValue)) {
-    return buildResult({
-      message:
-        "⚠️ 帳戶淨值非合法數字，Gross Leverage 計算跳過，保守起見封鎖加碼",
-    });
-  }
-
   if (netAssetValue <= 0) {
     return buildResult({
       message:
