@@ -69,3 +69,7 @@ export const fetchSnapshotsMonthly = (limit = 120) =>
   apiFetch(`/api/reports/snapshots/monthly?limit=${limit}`);
 
 export const fetchStrategyConfig = () => apiFetch("/api/strategy-config");
+
+// 載入單日 signals summary（IlnState 導出的標準格式）
+export const fetchReportSignals = (date) =>
+  apiFetch(`/api/report/${date}/signals`);

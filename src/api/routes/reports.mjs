@@ -1,3 +1,5 @@
+// src/api/routes/reports.mjs
+
 import { readdir, readFile } from "fs/promises";
 import { resolve, dirname, join } from "path";
 //import { REPORT_SCHEMA } from "../schema/contract.mjs";
@@ -9,12 +11,15 @@ import {
   aggregateByWeek,
   aggregateByMonth,
 } from "../utils/reportAggregator.mjs";
-import { decryptSnapshot } from "../../utils/snapshotCrypto.mjs";
+// ❌ 不再需要直接在這裡 decrypt snapshot
+// import { decryptSnapshot } from "../../utils/snapshotCrypto.mjs";
 import {
   normaliseSnapshot,
   aggregateSnapshotsByWeek,
   aggregateSnapshotsByMonth,
 } from "../utils/snapshotAggregator.mjs";
+
+import { loadStateFromReport } from "../../domain/ilnState.mjs";
 
 const DATE_PATTERN = /^(\d{4}-\d{2}-\d{2})\.json$/;
 
@@ -73,7 +78,7 @@ async function loadReports(dates, limit) {
 }
 
 /**
- * Walks date files and collects decrypted snapshot entries.
+ * Walks date files and collects decrypted snapshot entries (via IlnState).
  * Stops once `limit` valid snapshots are collected or all dates are exhausted.
  * @param {string[]} dates  - sorted DESC
  * @param {number}   limit  - max snapshot entries to collect
@@ -84,12 +89,10 @@ async function loadSnapshotEntries(dates, limit) {
   for (const date of dates) {
     if (entries.length >= limit) break;
     try {
-      const raw = await readFile(join(REPORTS_DIR, `${date}.json`), "utf-8");
-      const report = JSON.parse(raw);
-      if (!report.snapshot) continue;
-      const decrypted = decryptSnapshot(report.snapshot);
-      if (!decrypted) continue;
-      entries.push({ date, snap: decrypted });
+      const state = await loadStateFromReport(date);
+      if (!state || !state.portfolioRaw) continue;
+      // portfolioRaw 即為 decrypted snapshot，與 snapshotAggregator 的預期 shape 相符
+      entries.push({ date, snap: state.portfolioRaw });
     } catch {
       continue;
     }
@@ -147,7 +150,7 @@ export default async function reportsRoute(fastify) {
    */
   fastify.get(
     "/reports",
-    // { schema: { response: { 200: { type: "array", items: REPORT_SCHEMA } } } }, // Fastify Response Schema 剝除了 signals 子欄位，故不傳入SCHEMA
+    // { schema: { response: { 200: { type: "array", items: REPORT_SCHEMA } } } },
     async (request, reply) => {
       const rawLimit = parseInt(request.query.limit ?? "30", 10);
       const limit =
@@ -216,38 +219,34 @@ export default async function reportsRoute(fastify) {
    * GET /api/report/:date
    * Returns the full JSON for a single daily report.
    * :date must match YYYY-MM-DD.  404 if not found.
+   *
+   * 改為透過 IlnState loader，並回傳 state.rawReport，
+   * 以維持原本報告結構（含 quote / news 等附加欄位）。
    */
-  fastify.get(
-    "/report/:date",
-    // { schema: { response: { 200: REPORT_SCHEMA } } }, // Fastify Response Schema 剝除了 signals 子欄位，故不傳入SCHEMA
-    async (request, reply) => {
-      const { date } = request.params;
+  fastify.get("/report/:date", async (request, reply) => {
+    const { date } = request.params;
 
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        return reply
-          .code(400)
-          .send({ error: "Invalid date format. Expected YYYY-MM-DD" });
-      }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return reply
+        .code(400)
+        .send({ error: "Invalid date format. Expected YYYY-MM-DD" });
+    }
 
-      const filePath = join(REPORTS_DIR, `${date}.json`);
-      try {
-        const raw = await readFile(filePath, "utf-8");
-        return reply.send(JSON.parse(raw));
-      } catch (err) {
-        if (err.code === "ENOENT") {
-          return reply
-            .code(404)
-            .send({ error: `Report for ${date} not found` });
-        }
-        fastify.log.error({ err }, "Failed to read report");
-        return reply.code(500).send({ error: "Internal server error" });
+    try {
+      const state = await loadStateFromReport(date);
+      if (!state || !state.rawReport) {
+        return reply.code(404).send({ error: `Report for ${date} not found` });
       }
-    },
-  );
+      return reply.send(state.rawReport);
+    } catch (err) {
+      fastify.log.error({ err }, "Failed to read report via IlnState");
+      return reply.code(500).send({ error: "Internal server error" });
+    }
+  });
 
   /**
    * GET /api/reports/snapshots?limit=N
-   * Returns decrypted portfolio snapshots from historical reports.
+   * Returns decrypted portfolio snapshots from historical reports (via IlnState).
    * Only includes reports that contain an encrypted snapshot field.
    * Default limit: 30.  Capped at 365 (supports 1-year daily chart).
    *

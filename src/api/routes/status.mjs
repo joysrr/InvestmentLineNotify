@@ -2,9 +2,8 @@ import { loadStateFromLatestFiles } from "../../domain/ilnState.mjs";
 
 /**
  * GET /api/status
- * Returns the current market status payload derived from latest report + market cache.
- * - 若僅有 latest.json 而無報告，也會回傳 { _meta, data } 結構。
- * - 若兩者皆無，回 404。
+ * 使用 IlnState 載入最新狀態，回傳 data/market/latest.json 結構。
+ * 若 market + report 都不存在則回 404。
  */
 export default async function statusRoute(fastify) {
   fastify.get("/status", async (_request, reply) => {
