@@ -133,6 +133,11 @@ export class IlnState {
     return this.signals?.bias ?? null;
   }
 
+  /** 訊號方向：'long' | 'short' | 'hold' */
+  get signalDirection() {
+    return this.signals?.signalDirection ?? "hold";
+  }
+
   // ----- 投組快照 getter（lazy normalise） ------------------------------------
 
   /**

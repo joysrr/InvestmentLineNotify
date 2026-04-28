@@ -225,7 +225,8 @@ export async function buildDecision(
     strategy,
     scoringData,
   );
-  const { finalScore, signal, scalingRatio, categoryResults } = scoreResult;
+  const { finalScore, signal, signalDirection, scalingRatio, categoryResults } =
+    scoreResult;
 
   // --- 1.5.A) 預算管控 (Budget Control) ---
   const budgetCfg = strategy.trading?.budget;
@@ -390,6 +391,7 @@ export async function buildDecision(
           .join("\n"),
       finalScore,
       categoryResults,
+      signalDirection,
       scalingRatio: finalAllocRatio,
       valuationGuardResult: ctx.valuationGuardResult ?? null,
       budgetInfo: { availableRolling, finalAvailableBudget, budgetCapped },
@@ -407,6 +409,7 @@ export async function buildDecision(
       suggestion: `• 決策總分：${finalScore.toFixed(1)} 分\n• 訊號原因：${reason}\n• 行動：結清戰術加碼部位，降低利息支出並提高維持率`,
       finalScore,
       categoryResults,
+      signalDirection,
       trailingActive,
       dynamicAnchor,
       valuationGuardResult: ctx.valuationGuardResult ?? null,
@@ -425,6 +428,7 @@ export async function buildDecision(
     suggestion:
       `• 決策總分：${finalScore.toFixed(1)} 分 (中性區 -4 ~ +4)\n` +
       `• 行動建議：維持 0050 基礎加碼，不觸發 00675L 戰術槓桿，節省利息並靜待訊號共振`,
+    signalDirection: "hold",
     finalScore,
     categoryResults,
     trailingActive,
@@ -654,6 +658,7 @@ export async function evaluateInvestmentSignal(data, strategy) {
       status: decision.marketStatus || "🌱",
       score: parseNumber(ctx.entry.weightScore),
       target: decision.target || "🔹 0050 DCA",
+      signalDirection: decision.signalDirection ?? "hold",
       suggestion: decision.targetSuggestion || "維持觀望",
       weightDetails: ctx.entry.weightDetails,
       priceChangePercent: parseNumber(priceChangePercent),

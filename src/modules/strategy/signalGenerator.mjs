@@ -91,9 +91,9 @@ export function generateScoringMatrix(
       groupRawScore += contrib;
       catDetails.push({
         factor: fKey,
-        norm: normVal.toFixed(2),
+        norm: +normVal.toFixed(4),
         weight,
-        score: contrib.toFixed(2),
+        score: +contrib.toFixed(4),
       });
     }
 
@@ -113,39 +113,42 @@ export function generateScoringMatrix(
   };
 
   // --- 1. 定義各因子標準化數值 ---
+  const macdHistArr = (indicators.macdArr || [])
+    .map((m) => m.histogram)
+    .filter(Number.isFinite);
+
+  const ma60SlopeArr = extraData.ma60SlopeHistory || [];
+
   const factorPool = {
-    // 估值價值組 - 採非線性前端加權 (Square Root)
     priceDrop: Math.min(1.0, Math.sqrt((priceDropPercent || 0) / 40)),
-
-    // 技術趨勢組
-    macd: (() => {
-      const histArr = (indicators.macdArr || [])
-        .map((m) => m.histogram)
-        .filter(Number.isFinite);
-      return normalizeUnbounded(
-        histArr.at(-1),
-        histArr.slice(-lookback - 1, -1),
-      );
-    })(),
-    ma60Slope: (() => {
-      const slopeArr = extraData.ma60SlopeHistory || [];
-      return normalizeUnbounded(
-        slopeArr.at(-1),
-        slopeArr.slice(-lookback - 1, -1),
-      );
-    })(),
-
-    // 籌碼動能組
+    macd: normalizeUnbounded(
+      macdHistArr.at(-1),
+      macdHistArr.slice(-lookback - 1, -1),
+    ),
+    ma60Slope: normalizeUnbounded(
+      ma60SlopeArr.at(-1),
+      ma60SlopeArr.slice(-lookback - 1, -1),
+    ),
     institutional: normalizeUnbounded(
       extraData.institutionalNet,
       extraData.institutionalHistory,
     ),
     sentiment: Math.max(-1, Math.min(1, extraData.sentimentScore || 0)),
-
-    // 極值震盪組
-    rsi: normalizeBounded(50 - (indicators.rsiArr?.at(-1) || 50), 0, 50),
-    kd: normalizeBounded(50 - (indicators.kdArr?.at(-1)?.k || 50), 0, 50),
+    rsi: normalizeBounded(50 - (indicators.rsiArr?.at(-1) ?? 50), 0, 50),
+    kd: normalizeBounded(50 - (indicators.kdArr?.at(-1)?.k ?? 50), 0, 50),
   };
+
+  const allExpectedKeys = Object.values(categories).flatMap((cat) =>
+    Object.keys(cat.weights),
+  );
+  const missingKeys = [...new Set(allExpectedKeys)].filter(
+    (k) => !(k in factorPool),
+  );
+  if (missingKeys.length > 0) {
+    console.warn(
+      `[signalGenerator] factorPool 缺少以下 key: ${missingKeys.join(", ")}，分數將以 0 計算`,
+    );
+  }
 
   // --- 2. 依分類聚合分數 ---
   for (const catKey of Object.keys(categories)) {
@@ -158,7 +161,8 @@ export function generateScoringMatrix(
 
   // 判斷是否啟動「多頭增益」門檻 (MA60 斜率 > 0 且 估值未過熱)
   const isBullishTrend = (extraData.ma60SlopeHistory?.at(-1) || 0) > 0;
-  const isOverheat = (extraData.currentPR || 0) >= 90;
+  const OVERHEAT_PR_THRESHOLD = thresholds.overheatPR ?? 90;
+  const isOverheat = (extraData.currentPR ?? 0) >= OVERHEAT_PR_THRESHOLD;
   const buyThreshold =
     isBullishTrend && !isOverheat && thresholds.buyTacticalBullish
       ? thresholds.buyTacticalBullish
@@ -182,10 +186,20 @@ export function generateScoringMatrix(
     scalingRatio = 0.0;
   }
 
+  const signalDirection =
+    signal === "buy_tactical"
+      ? "long"
+      : signal === "sell_tactical"
+        ? "short"
+        : signal === "exit_buffer"
+          ? "short"
+          : "hold";
+
   return {
     finalScore,
     signal,
     scalingRatio, // 回傳給引擎決定撥款比例
+    signalDirection,
     categoryResults,
     factorPool,
     config: thresholds,

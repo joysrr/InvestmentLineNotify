@@ -230,9 +230,10 @@ export async function dailyCheck({
 
   // ── Step 8：LLM Judge（背景評估，不阻塞主流程）─────────────────────────────
   const vixValue = vixData?.value ?? 0;
+  const signalDirection = result?.signals?.signalDirection ?? "hold";
   const isHighRiskDay =
     vixValue >= 30 ||
-    (result?.signals?.action && result.signals.action !== "HOLD") ||
+    signalDirection !== "hold" || // ← long/short 都算高風險日
     valuationGuardState.latchActive !==
       (result?.signals?.latchNowActive ?? false);
 
