@@ -1,9 +1,4 @@
-import {
-  getTargetLeverageByScore,
-  getReserveStatus,
-  getExtremeDropThreshold,
-  getPostSellAllocation,
-} from "./riskManagement.mjs";
+import { getReserveStatus } from "./riskManagement.mjs";
 import {
   validateStrategyConfig,
   fetchStrategyConfig,
@@ -12,25 +7,7 @@ import {
   computeOverheatState,
   computeSellSignals,
 } from "./signalRules.mjs";
-import {
-  calculateIndicators,
-  last2,
-  crossUpLevel,
-  crossDownLevel,
-  roseAboveAfterBelow,
-  fellBelowAfterAbove,
-  wasAboveLevel,
-  wasBelowLevel,
-  macdCrossUp,
-  macdCrossDown,
-  kdCrossDown,
-  kdCrossUp,
-  lastKD,
-  kdSeries,
-  calcHHV,
-  getMACDSignal,
-} from "./indicators.mjs";
-import { loadHolidaySet } from "../providers/twseProvider.mjs";
+import { calcHHV, getMACDSignal } from "./indicators.mjs";
 import { computeGrossLeverage } from "./leverageMonitor.mjs";
 import { generateScoringMatrix } from "./signalGenerator.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
@@ -41,7 +18,6 @@ import {
   evaluateGrossLeverage,
   resolveValuationGuard,
   resolveTrendConfirmation,
-  resolveValuationMomentum,
   evaluateValuationGuard,
   checkCooldown,
 } from "./core/index.mjs";
@@ -642,7 +618,7 @@ async function computeTrailingStop(ctx, strategy) {
   } else if (tsCfg.anchorType === "atr") {
     const allHighs = [...highsSince, currentPrice];
     const hhv = calcHHV(allHighs, allHighs.length).at(-1) ?? currentPrice;
-    const atr = ctx.indicators?.atrArr?.at(-1) || 0;
+    const atr = ctx.atrArr?.at(-1) || 0;
     dynamicAnchor = hhv - atr * tsCfg.atrMultiplier;
   }
 
