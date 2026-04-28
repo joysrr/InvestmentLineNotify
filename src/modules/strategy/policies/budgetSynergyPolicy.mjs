@@ -3,16 +3,18 @@ import { TwDate } from "../../../utils/coreUtils.mjs";
 /**
  * 生命週期投資法 - DCA 預算協同模組
  * 判斷是否需要提前動用資金「攔截」低點
+ *
+ * @param {Object} ctx - 執行上下文
+ * @param {Object} strategy - 策略設定
+ * @param {number} score - 當前進場評分
+ * @param {Object} [now=TwDate()] - 當前日期物件（可注入以利測試）
  */
-export function resolveBudgetSynergy(ctx, strategy, score) {
+export function resolveBudgetSynergy(ctx, strategy, score, now = TwDate()) {
   const lifecycle = strategy?.lifecycle;
   if (!lifecycle || !lifecycle.monthlyDcaAmount) return null;
 
   const { payDay, preInjectDays = 5, monthlyDcaAmount } = lifecycle;
-  const now = TwDate();
-  const currentDay = now.date;
-  const currentYear = now.year;
-  const currentMonth = now.month;
+  const { date: currentDay, year: currentYear, month: currentMonth } = now;
 
   // 1. 計算距離下一個撥款日的天數
   let daysToPayDay = 0;
@@ -36,7 +38,10 @@ export function resolveBudgetSynergy(ctx, strategy, score) {
       daysToPayDay,
       suggestedAmount: monthlyDcaAmount,
       reason: `距離撥款日僅剩 ${daysToPayDay} 天且評分達標 (${score}pt)，建議提前動用額度攔截低點。`,
-      suggestion: `• 偵測到發薪日前出現極端機會\n• 建議提前買入約 $${monthlyDcaAmount.toLocaleString("zh-TW")} 的部位\n• 等發薪日資金到位後再行歸還質押額度`,
+      suggestion:
+        `• 偵測到發薪日前出現極端機會\n` +
+        `• 建議提前買入約 $${monthlyDcaAmount.toLocaleString("zh-TW")} 的部位\n` +
+        `• 等發薪日資金到位後再行歸還質押額度`,
     };
   }
 

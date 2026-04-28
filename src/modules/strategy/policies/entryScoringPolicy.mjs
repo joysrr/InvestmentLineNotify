@@ -48,17 +48,14 @@ export function computeEntryScore(
   };
 
   // 左側交易與技術濾網去相關化 (Left-side vs Technical Decoupling)
-  const isLeftSideRegime = !!dropRule;
-  let momentumScore = 0;
+  // 無論左側/右側，動能分數統一取 MAX 解決 RSI/KD 共線性 (Collinearity) 問題
+  const momentumScore = Math.max(details.rsiScore, details.kdScore);
 
+  // 左側區間：在訊號 label 加上前綴，明示為「確認訊號」而非主要觸發依據
+  const isLeftSideRegime = !!dropRule;
   if (isLeftSideRegime) {
-    // 在左側下跌區間，只保留最高的動能分數作為確認訊號，避免無腦疊加
-    momentumScore = Math.max(details.rsiScore, details.kdScore);
-    details.rsiInfo = signals.rsiRebound ? `[左側確認] RSI 反轉` : `RSI 未反轉`;
-    details.kdInfo = signals.kdBullLow ? `[左側確認] KD 低檔交叉` : `KD 無交叉`;
-  } else {
-    // 使用 MAX 取代相加，解決 RSI/KD 的共線性 (Collinearity) 問題
-    momentumScore = Math.max(details.rsiScore, details.kdScore);
+    if (signals.rsiRebound) details.rsiInfo = `[左側確認] RSI 反轉`;
+    if (signals.kdBullLow) details.kdInfo = `[左側確認] KD 低檔交叉`;
   }
 
   let sentimentScore = 0;

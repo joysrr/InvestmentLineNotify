@@ -53,7 +53,7 @@ import {
 import {
   resolveEntryGate,
   resolveVixOverride,
-  buildMacroSentiment,
+  resolveMacroSentiment,
   buildSellBackToAllocation,
   analyzeSurvival,
   resolveBudgetSynergy,
@@ -496,7 +496,7 @@ export async function evaluateInvestmentSignal(data, strategy) {
   const baseCooldownDays = strategy.trading.cooldownDays || 20;
   const cfg = strategy?.macroSentiment;
 
-  // ─── VIX 情緒短路：先解析短路狀態，再傳入 buildMacroSentiment ───
+  // ─── VIX 情緒短路：先解析短路狀態，再傳入 resolveMacroSentiment ───
   // resolveVixOverride 使用 data.vixArr（歷史序列）判斷趨勢；
   // 若 data.vixArr 不存在，fallback 為 [data.VIX]，趨勢判斷降為 'flat'
   const vixArr =
@@ -507,8 +507,8 @@ export async function evaluateInvestmentSignal(data, strategy) {
         : [];
   const vixOverride = resolveVixOverride(data.VIX, vixArr, strategy);
 
-  // macroSentiment：傳入 vixOverride，由 buildMacroSentiment 決定是否屏蔽 bearishPenalty
-  const macroSentiment = buildMacroSentiment(
+  // macroSentiment：傳入 vixOverride，由 resolveMacroSentiment 決定是否屏蔽 bearishPenalty
+  const macroSentiment = resolveMacroSentiment(
     data.macroMarketDirection ?? null,
     strategy,
     vixOverride,

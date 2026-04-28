@@ -97,7 +97,7 @@ DailyCheck 的主要步驟如下：
    - Daily pipeline 讀取台指 VIX，並透過 Strategy.json 的 `threshold.vixLowComplacency`、`vixHighFear`、`vixPanic`、`vixExtreme` 等參數定義自滿、恐慌、極端恐慌區間。目前極端恐慌買入條件採用 `vix >= vixPanic (28)`，且 `vix >= vixExtreme (35)` 時進一步放大建議槓桿。
 
 2. **MacroSentiment 與冷卻期調整**
-   - AI Macro Analyst 會輸出 `market_direction`，再透過 `buildMacroSentiment()` 與 Strategy.json 中的 `macroSentiment` 配置轉成 bonus/penalty：BULLISH 加分（目前 +3）、BEARISH 扣分（目前 -5），並在空頭情緒下用 `bearishCooldownMultiplier`（目前 1.5）延長冷卻期交易日數。
+   - AI Macro Analyst 會輸出 `market_direction`，再透過 `resolveMacroSentiment()` 與 Strategy.json 中的 `macroSentiment` 配置轉成 bonus/penalty：BULLISH 加分（目前 +3）、BEARISH 扣分（目前 -5），並在空頭情緒下用 `bearishCooldownMultiplier`（目前 1.5）延長冷卻期交易日數。
 
 ### 4.4 預備金與資金分層
 

@@ -168,7 +168,7 @@ sentimentScore:
       : 0,
 ```
 
-`ctx.macroSentiment` 是從 `buildMacroSentiment()` 的返回值取得，但 `ctx` 物件建構時 **沒有包含 `macroSentiment` 欄位**（只有 `macroSentiment` 在 `scoringData` 中從 `ctx` 讀取，形成循環依賴），`?.` 防禦讓它靜默為 0，但 sentimentScore 永遠不會反映實際情緒狀態。
+`ctx.macroSentiment` 是從 `resolveMacroSentiment()` 的返回值取得，但 `ctx` 物件建構時 **沒有包含 `macroSentiment` 欄位**（只有 `macroSentiment` 在 `scoringData` 中從 `ctx` 讀取，形成循環依賴），`?.` 防禦讓它靜默為 0，但 sentimentScore 永遠不會反映實際情緒狀態。
 
 ---
 
