@@ -17,14 +17,6 @@ export function calculateIndicators(history) {
   const highs = rows.map((x) => x.high);
   const lows = rows.map((x) => x.low);
 
-  function SMA(values, period) {
-    if (values.length < period) return [];
-    return values.slice(-values.length + period - 1).map((_, i) => {
-      const slice = values.slice(i, i + period);
-      return slice.reduce((a, b) => a + b, 0) / period;
-    });
-  }
-
   const fastKD = Stochastic.calculate({
     high: highs,
     low: lows,
@@ -34,14 +26,15 @@ export function calculateIndicators(history) {
   });
 
   // Slow KD(9,3,3)：Slow K = SMA3(Fast %K)，Slow D = SMA3(Slow K)
-  const slowK = SMA(
-    fastKD.map((x) => x.k),
+  const fastKDK = fastKD.map((x) => x.k);
+  const slowKFull = calcSMA(fastKDK, 3);
+  const slowDFull = calcSMA(
+    slowKFull.map((v) => (Number.isFinite(v) ? v : NaN)),
     3,
   );
-  const slowD = SMA(slowK, 3);
 
   const kdArrSlow = fastKD
-    .map((_, i) => ({ k: slowK[i] ?? NaN, d: slowD[i] ?? NaN }))
+    .map((_, i) => ({ k: slowKFull[i], d: slowDFull[i] }))
     .filter((x) => Number.isFinite(x.k) && Number.isFinite(x.d));
 
   // ── Phase 0-4：MA / ATR / Slope 計算 ──────────────────────────────────────
@@ -206,9 +199,7 @@ export function macdCrossUp(macdArr) {
   const v = last2(macdArr);
   if (!v) return false;
   const [prev, curr] = v;
-  return (
-    prev.MACD <= prev.signal && curr.MACD > curr.signal && curr.histogram > 0
-  );
+  return prev.MACD <= prev.signal && curr.MACD > curr.signal;
 }
 
 export function macdCrossDown(macdArr) {
@@ -222,6 +213,7 @@ export function kdCrossDown(kdArr) {
   const v = last2(kdArr);
   if (!v) return false;
   const [prev, curr] = v;
+  if (![prev.k, prev.d, curr.k, curr.d].every(Number.isFinite)) return false;
   return prev.k >= prev.d && curr.k < curr.d; // 死叉
 }
 
@@ -229,6 +221,7 @@ export function kdCrossUp(kdArr) {
   const v = last2(kdArr);
   if (!v) return false;
   const [prev, curr] = v;
+  if (![prev.k, prev.d, curr.k, curr.d].every(Number.isFinite)) return false;
   return prev.k <= prev.d && curr.k > curr.d; // 黃金交叉
 }
 
@@ -265,10 +258,11 @@ export function calcSMA(prices, period) {
     return [];
   }
   const result = new Array(prices.length).fill(NaN);
-  for (let i = period - 1; i < prices.length; i++) {
-    let sum = 0;
-    for (let j = i - period + 1; j <= i; j++) sum += prices[j];
-    result[i] = sum / period;
+  let sum = 0;
+  for (let i = 0; i < prices.length; i++) {
+    sum += prices[i];
+    if (i >= period) sum -= prices[i - period];
+    if (i >= period - 1) result[i] = sum / period;
   }
   return result;
 }

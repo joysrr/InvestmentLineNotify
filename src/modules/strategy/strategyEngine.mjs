@@ -27,6 +27,7 @@ import {
   kdCrossUp,
   lastKD,
   kdSeries,
+  calcHHV,
   getMACDSignal,
 } from "./indicators.mjs";
 import { loadHolidaySet } from "../providers/twseProvider.mjs";
@@ -279,7 +280,8 @@ export async function buildDecision(
       if (tsCfg.anchorType === "ma20") {
         dynamicAnchor = ma20Arr.at(-1) * (1 - tsCfg.stopLossBuffer);
       } else if (tsCfg.anchorType === "atr") {
-        const hhv = Math.max(...highsSince, currentPrice); // 含今日
+        const allHighs = [...highsSince, currentPrice];
+        const hhv = calcHHV(allHighs, allHighs.length).at(-1) ?? currentPrice;
         const atr = ctx.indicators?.atrArr?.at(-1) || 0;
         dynamicAnchor = hhv - atr * tsCfg.atrMultiplier;
       }
