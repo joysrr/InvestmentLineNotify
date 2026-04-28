@@ -27,7 +27,6 @@ export function evaluateMarginLayer(marginLayer, ctx, strategy, reserveStatus) {
   const { maintenanceMargin, totalLoan = 0 } = ctx;
   const { marginCallThreshold, frozenZone, protectTrigger, protectTarget } =
     resolveThresholds(strategy.maintenance);
-  const maint = strategy.maintenance;
   // 🔴 Layer 0：斷頭危機 < marginCallThreshold(135)
   // 強制市價降槓桿警示，一票否決所有加碼，優先指示補足保證金
   if (marginLayer === "critical") {
@@ -43,7 +42,7 @@ export function evaluateMarginLayer(marginLayer, ctx, strategy, reserveStatus) {
         `• ⚠️ 警告：系統已進入強制降槓桿模式，所有加碼操作被一票否決\n` +
         `• 優先行動 1：立即補充保證金（現金或追加擔保品）\n` +
         `• 優先行動 2：若無現金，市價賣出部分 00675L 降低槓桿\n` +
-        `• 目標：維持率回升至 ${maint.frozenZone ?? 145}% 以上後再評估後續操作`,
+        `• 目標：維持率回升至 ${frozenZone}% 以上後再評估後續操作`,
       maintenanceMargin,
       marginCallThreshold,
     };
