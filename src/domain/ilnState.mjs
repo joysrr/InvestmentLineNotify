@@ -18,14 +18,9 @@
  * - loadStateFromReport(date)：從指定日期報告載入狀態
  */
 
-import fs from "fs/promises";
-import path from "path";
-
 import { archiveManager } from "../modules/data/archiveManager.mjs"; // getLatestMarketData / listArchiveDates
 import { encryptSnapshot, decryptSnapshot } from "../utils/snapshotCrypto.mjs";
 import { normaliseSnapshot } from "../api/utils/snapshotAggregator.mjs";
-
-const REPORTS_DIR = path.join(process.cwd(), "data", "reports");
 
 export class IlnState {
   /**
