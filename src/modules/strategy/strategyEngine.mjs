@@ -459,12 +459,6 @@ export async function evaluateInvestmentSignal(data, strategy) {
 
   const grossAsset = current0050Value + currentZ2Value + data.portfolio.cash;
   const actualLeverage = netAsset > 0 ? grossAsset / netAsset : 0;
-
-  let historicalLevel = "⚖️【中位階】";
-  if (bias240 > 25) historicalLevel = "🔥【極高位階/過熱】";
-  else if (bias240 > 15) historicalLevel = "🏜️【高位階/偏貴】";
-  else if (bias240 < 0) historicalLevel = "🧊【低位階/便宜】";
-
   const baseCooldownDays = strategy.trading.cooldownDays || 20;
   const cfg = strategy?.macroSentiment;
 
@@ -565,6 +559,14 @@ export async function evaluateInvestmentSignal(data, strategy) {
     ma60Slope,
   );
 
+  const ohCfg = strategy?.overrideHierarchy;
+  const isPanicBypass =
+    (ohCfg?.panicBypassEnabled ?? false) &&
+    ctx.priceDropPercent > (ohCfg?.panicBypassDropPct ?? 0.2) &&
+    ctx.vix > (ohCfg?.panicVixThreshold ?? 35);
+
+  decision.panicBypassActive = isPanicBypass;
+
   // 預算協同分析 (DCA 攔截)
   const budgetSynergy = resolveBudgetSynergy(
     ctx,
@@ -621,8 +623,8 @@ async function computeTrailingStop(ctx, strategy) {
     (ctx.portfolio.avgCostZ2 || ctx.basePrice || 9999) *
       (1 + tsCfg.activationProfitPct);
 
-  const ma20Arr = ctx.indicators?.ma20Arr || [];
-  const closeArr = ctx.indicators?.closes || [];
+  const ma20Arr = ctx.ma20Arr || [];
+  const closeArr = ctx.closeArr || [];
   const c1 = closeArr.at(-1),
     c2 = closeArr.at(-2);
   const m1 = ma20Arr.at(-1),
@@ -775,13 +777,13 @@ function formatSignalOutput(ctx, finalDecision, derived) {
   return {
     RSI: parseNumber(ctx.rsi),
     KD_K: parseNumber(
-      Array.isArray(ctx.portfolio?.kdArr) && ctx.portfolio.kdArr.length
-        ? ctx.portfolio.kdArr.at(-1)?.k
+      Array.isArray(ctx.indicators?.kdArr) && ctx.indicators.kdArr.length
+        ? ctx.indicators.kdArr.at(-1)?.k
         : null,
     ),
     KD_D: parseNumber(
-      Array.isArray(ctx.portfolio?.kdArr) && ctx.portfolio.kdArr.length
-        ? ctx.portfolio.kdArr.at(-1)?.d
+      Array.isArray(ctx.indicators?.kdArr) && ctx.indicators.kdArr.length
+        ? ctx.indicators.kdArr.at(-1)?.d
         : null,
     ),
     bias240: parseNumber(bias240),
