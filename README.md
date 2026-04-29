@@ -33,14 +33,14 @@
 
 ## 核心特色
 
-| 特色 | 說明 |
-|---|---|
-| **無資料庫設計** | 以 `data/` 檔案庫 + Google Sheets 取代傳統 DB，降低維護成本 |
-| **多階段 AI 管線** | 新聞過濾器 → 總經多空分析師 → 投資教練 → LLM Judge，結構化輸出防幻覺 |
-| **動態量化風控** | 維持率斷頭計算、RSI/KD/MACD 過熱閥値、冷卻期與極端恐慰破冰機制 |
-| **帳戶快照加密** | 持倉數字以 AES-256-GCM 加密存儲，`.env` 金鑰本地管理 |
-| **全面 VM 排程** | 所有定時任務已統一由 Oracle VM crontab 執行，避免 GitHub Actions schedule 延遲 |
-| **Telegram Mini App** | Fastify API Server + Vue 3 前端，即時瀏覽資產趨勢、市場雷達與新聞池 |
+| 特色                    | 說明                                                                                                       |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **無資料庫設計**        | 以 `data/` 檔案庫 + Google Sheets 取代傳統 DB，降低維護成本                                                |
+| **多階段 AI 管線**      | 新聞過濾器 → 總經多空分析師 → 投資教練 → LLM Judge，結構化輸出防幻覺                                       |
+| **動態量化風控**        | 維持率斷頭計算、RSI/KD/MACD 過熱閥値、冷卻期與極端恐慰破冰機制                                             |
+| **帳戶快照加密**        | 持倉數字以 AES-256-GCM 加密存儲，`.env` 金鑰本地管理                                                       |
+| **全面 VM 排程**        | 所有定時任務已統一由 Oracle VM crontab 執行，避免 GitHub Actions schedule 延遲                             |
+| **Telegram Mini App**   | Fastify API Server + Vue 3 前端，即時瀏覽資產趨勢、市場雷達與新聞池                                        |
 | **Provider 架構抽象化** | `dataSourceConfig.mjs` + `providerRegistry.mjs` Slot-based 設計，抽換資料來源只需改 config，不動上層程式碼 |
 
 ---
@@ -76,7 +76,7 @@ VM crontab / CLI ─→ Runner Layer
     └────────────────────┘
 ```
 
-> 完整 Mermaid 架構圖請見 [`docs/architecture.md`](docs/architecture.md)
+> 完整 Mermaid 架構圖請見 [`docs/modules/_index.md`](docs/modules/_index.md)
 
 ---
 
@@ -129,7 +129,7 @@ pm2 start src/api/server.mjs --name api-server --max-memory-restart 300M
 pm2 save && pm2 startup
 ```
 
-> ⚠️ `bot-daemon` 啟動時自動帶入 `drop_pending_updates: true`，避免 Bot 重啟後吹送舊指令積塊。詳見 [`docs/modules/entry_and_notifications.md`](docs/modules/entry_and_notifications.md)。
+> ⚠️ `bot-daemon` 啟動時自動帶入 `drop_pending_updates: true`，避免 Bot 重啟後吹送舊指令積塊。詳見 [`docs/modules/presentation/_index.md`](docs/modules/presentation/_index.md)。
 
 ### 6. 設定 VM crontab
 
@@ -175,27 +175,27 @@ crontab -e
 
 ## 環境變數設定
 
-> 完整說明請見 [`docs/env-vars.md`](docs/env-vars.md)
+> 完整說明請見 [`docs/modules/operations/env_vars.md`](docs/modules/operations/env_vars.md)
 
 ### 必填項目
 
-| 分類 | 變數名稱 | 說明 |
-|---|---|---|
-| **Telegram** | `TELEGRAM_API_TOKEN` | 主 Bot Token（每日 / 週 / 月報告推播） |
-| **Telegram** | `TELEGRAM_LOG_API_TOKEN` | Log Bot Token（Workflow 異常告警） |
-| **Telegram** | `TELEGRAM_USER_ID` | 接收訊息的使用者 ID |
-| **Telegram** | `TELEGRAM_WEBAPP_URL` | Mini App URL |
-| **Google Sheets** | `GOOGLE_SERVICE_ACCOUNT_EMAIL` | GCP 服務帳號 Email |
-| **Google Sheets** | `GOOGLE_PRIVATE_KEY` | GCP 服務帳號私鑰（PEM 格式） |
-| **Google Sheets** | `GOOGLE_SHEET_ID` | 持股記錄試算表 ID |
-| **Gemini AI** | `GEMINI_API_KEY1` ~ `GEMINI_API_KEY3` | Gemini API 金鑰（三把輪替） |
-| **Gemini AI** | `GEMINI_MODEL` | 模型名稱，如 `gemini-2.0-flash` |
-| **市場資料** | `FRED_API_KEY` | FRED 聯準會資料庫 API |
-| **市場資料** | `BASE_PRICE_URL` | 0050 基準價外部服務端點 |
-| **VM 部署** | `VM_HOST` | Oracle VM IP 或 Domain |
-| **VM 部署** | `VM_USER` | SSH 登入使用者名稱 |
-| **VM 部署** | `VM_SSH_PRIVATE_KEY` | SSH 私鑰（供 Actions 連線 VM） |
-| **快照加密** | `SNAPSHOT_ENCRYPT_KEY` | AES-256-GCM 金鑰（64 位 hex 字元） |
+| 分類              | 變數名稱                              | 說明                                   |
+| ----------------- | ------------------------------------- | -------------------------------------- |
+| **Telegram**      | `TELEGRAM_API_TOKEN`                  | 主 Bot Token（每日 / 週 / 月報告推播） |
+| **Telegram**      | `TELEGRAM_LOG_API_TOKEN`              | Log Bot Token（Workflow 異常告警）     |
+| **Telegram**      | `TELEGRAM_USER_ID`                    | 接收訊息的使用者 ID                    |
+| **Telegram**      | `TELEGRAM_WEBAPP_URL`                 | Mini App URL                           |
+| **Google Sheets** | `GOOGLE_SERVICE_ACCOUNT_EMAIL`        | GCP 服務帳號 Email                     |
+| **Google Sheets** | `GOOGLE_PRIVATE_KEY`                  | GCP 服務帳號私鑰（PEM 格式）           |
+| **Google Sheets** | `GOOGLE_SHEET_ID`                     | 持股記錄試算表 ID                      |
+| **Gemini AI**     | `GEMINI_API_KEY1` ~ `GEMINI_API_KEY3` | Gemini API 金鑰（三把輪替）            |
+| **Gemini AI**     | `GEMINI_MODEL`                        | 模型名稱，如 `gemini-2.0-flash`        |
+| **市場資料**      | `FRED_API_KEY`                        | FRED 聯準會資料庫 API                  |
+| **市場資料**      | `BASE_PRICE_URL`                      | 0050 基準價外部服務端點                |
+| **VM 部署**       | `VM_HOST`                             | Oracle VM IP 或 Domain                 |
+| **VM 部署**       | `VM_USER`                             | SSH 登入使用者名稱                     |
+| **VM 部署**       | `VM_SSH_PRIVATE_KEY`                  | SSH 私鑰（供 Actions 連線 VM）         |
+| **快照加密**      | `SNAPSHOT_ENCRYPT_KEY`                | AES-256-GCM 金鑰（64 位 hex 字元）     |
 
 **產生快照加密金鑰：**
 
@@ -205,39 +205,39 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ### 選填項目
 
-| 變數名稱 | 說明 |
-|---|---|
+| 變數名稱              | 說明                                 |
+| --------------------- | ------------------------------------ |
 | `LANGFUSE_SECRET_KEY` | Langfuse AI 決策追蹤（未設定時略過） |
-| `LANGFUSE_PUBLIC_KEY` | Langfuse 前端金鑰 |
-| `LANGFUSE_BASE_URL` | Langfuse 服務端點 |
+| `LANGFUSE_PUBLIC_KEY` | Langfuse 前端金鑰                    |
+| `LANGFUSE_BASE_URL`   | Langfuse 服務端點                    |
 
 ---
 
 ## 排程總覽
 
-> 完整說明請見 [`docs/schedules.md`](docs/schedules.md)
+> 完整說明請見 [`docs/modules/operations/schedules.md`](docs/modules/operations/schedules.md)
 
 ### Oracle VM crontab（所有定時任務）
 
-| 台灣時間 | 用途 |
-|---|---|
-| 每 5 分鐘 | DuckDNS IP 更新 |
-| 07:30 每日 | 🔴 盤前完整報告 |
-| 10:30 每日 | 🟡 盤中觀測 |
-| 12:00 每日 | 🟡 午盤回報 |
-| 13:45 每日 | 🟡 收盤後總結 |
-| 21:30 每日 | 🌙 夜間美股觀測 |
-| 每 4 小時 | 📰 新聞池更新 |
-| 02:00 每日 | ⚙️ Rule Optimizer |
-| 週一 09:30 | 📊 AI 週報生成 |
-| 每月 1 日 09:00 | 📅 AI 月報生成 |
-| 週日 03:00 | 🧹 清理 30 天前 log |
+| 台灣時間        | 用途                |
+| --------------- | ------------------- |
+| 每 5 分鐘       | DuckDNS IP 更新     |
+| 07:30 每日      | 🔴 盤前完整報告     |
+| 10:30 每日      | 🟡 盤中觀測         |
+| 12:00 每日      | 🟡 午盤回報         |
+| 13:45 每日      | 🟡 收盤後總結       |
+| 21:30 每日      | 🌙 夜間美股觀測     |
+| 每 4 小時       | 📰 新聞池更新       |
+| 02:00 每日      | ⚙️ Rule Optimizer   |
+| 週一 09:30      | 📊 AI 週報生成      |
+| 每月 1 日 09:00 | 📅 AI 月報生成      |
+| 週日 03:00      | 🧹 清理 30 天前 log |
 
 ### Oracle VM PM2 長駐程序
 
-| 程序名稱 | 說明 |
-|---|---|
-| `api-server` | Fastify HTTP API（Port 3000），供 Mini App 呼叫 |
+| 程序名稱     | 說明                                                                                          |
+| ------------ | --------------------------------------------------------------------------------------------- |
+| `api-server` | Fastify HTTP API（Port 3000），供 Mini App 呼叫                                               |
 | `bot-daemon` | Telegram Bot Long-Polling，處理即時指令；帶 `drop_pending_updates: true` 防止重啟後消化舊指令 |
 
 > 目前所有定時任務已全面移轉至 Oracle VM，`README` 不再將 GitHub Actions 視為主要排程平台。
@@ -335,17 +335,16 @@ InvestmentLineNotify/
 
 > 本 README 為快速上手指南，詳細系統設計請查閱 `docs/`。
 
-| 文件 | 說明 |
-|---|---|
-| [`docs/architecture.md`](docs/architecture.md) | 系統總覽、Mermaid 架構圖、目錄責任對照 |
-| [`docs/env-vars.md`](docs/env-vars.md) | 完整環境變數清單與 SOP |
-| [`docs/schedules.md`](docs/schedules.md) | 排程總覽（以 VM crontab 為主） |
-| [`docs/modules/providers.md`](docs/modules/providers.md) | 市場資料 Provider 層：各 provider 欄位、快取策略、Slot-based 架構說明（`dataSourceConfig` / `providerRegistry`）、8 個資料 Slot 詳解 |
-| [`docs/modules/ai_pipeline.md`](docs/modules/ai_pipeline.md) | AI 決策管線詳細設計 |
-| [`docs/modules/market_strategy.md`](docs/modules/market_strategy.md) | 策略引擎 / 技術指標 / 新聞治理 |
-| [`docs/modules/core_infrastructure.md`](docs/modules/core_infrastructure.md) | storage / archiveManager / snapshotCrypto |
-| [`docs/modules/entry_and_notifications.md`](docs/modules/entry_and_notifications.md) | Runner / Bot / 通知層設計 |
-| [`docs/appendix/deployment-oracle-vm.md`](docs/appendix/deployment-oracle-vm.md) | Oracle VM 完整部署手冊 |
+| 文件                                                                                                 | 說明                                                                                                                                 |
+| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| [`docs/modules/_index.md`](docs/modules/_index.md)                                                   | 系統總覽、Mermaid 架構圖、目錄責任對照                                                                                               |
+| [`docs/modules/operations/env_vars.md`](docs/modules/operations/env_vars.md)                         | 完整環境變數清單與 SOP                                                                                                               |
+| [`docs/modules/strategy/providers.md`](docs/modules/strategy/providers.md)                           | 市場資料 Provider 層：各 provider 欄位、快取策略、Slot-based 架構說明（`dataSourceConfig` / `providerRegistry`）、8 個資料 Slot 詳解 |
+| [`docs/modules/ai_news/ai_pipeline.md`](docs/modules/ai_news/ai_pipeline.md)                         | AI 決策管線詳細設計                                                                                                                  |
+| [`docs/modules/strategy/_index.md`](docs/modules/strategy/_index.md)                                 | 策略引擎 / 技術指標 / 新聞治理                                                                                                       |
+| [`docs/modules/infrastructure/_index.md`](docs/modules/infrastructure/_index.md)                     | storage / archiveManager / snapshotCrypto                                                                                            |
+| [`docs/modules/presentation/_index.md`](docs/modules/presentation/_index.md)                         | Runner / Bot / 通知層設計                                                                                                            |
+| [`docs/modules/operations/deployment_oracle_vm.md`](docs/modules/operations/deployment_oracle_vm.md) | Oracle VM 完整部署手冊                                                                                                               |
 
 ---
 
