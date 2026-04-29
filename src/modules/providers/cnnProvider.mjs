@@ -1,3 +1,4 @@
+import logger from "../../utils/logger.mjs";
 import { fetchWithTimeout, parseNumber } from "../../utils/coreUtils.mjs";
 
 /**
@@ -68,11 +69,9 @@ export async function fetchFearAndGreedIndex() {
   } catch (error) {
     // 捕捉所有錯誤：包括網路斷線、Timeout 或 API 格式改變
     if (error.message.includes("Timeout")) {
-      console.warn(
-        "⚠️ 獲取 CNN 恐懼與貪婪指數超時 (Timeout)，使用預設中性數值",
-      );
+      logger.warn("⚠️ 獲取 CNN 恐懼與貪婪指數超時 (Timeout)，使用預設中性數值");
     } else {
-      console.error("❌ 獲取 CNN 恐懼與貪婪指數失敗:", error.message);
+      logger.error({ error: error.message }, "❌ 獲取 CNN 恐懼與貪婪指數失敗");
     }
     return defaultFallback;
   }

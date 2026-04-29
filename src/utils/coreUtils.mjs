@@ -1,6 +1,16 @@
+// 導入統一的重試工具
+import {
+  ProviderError,
+  isRetryableError,
+  calculateBackoffDelay,
+  delay,
+  fetchWithTimeout as _fetchWithTimeout,
+} from "./retryUtils.mjs";
+import logger from "./logger.mjs";
+
 /**
  * 等待執行時間
- * @param {number} ms - 等待時間(毫秒)
+ * @param {number} ms - 等待時間 (毫秒)
  */
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -25,16 +35,16 @@ export function isoDateToROC(isoText, withSlash = true) {
   if (isNaN(d.getTime())) return null;
 
   const adY = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const m = String(adY - 1911);
+  const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
 
-  const rocY = String(adY - 1911);
   const isMonthOnly = isoText.trim().length === 7;
 
   if (withSlash) {
-    return isMonthOnly ? `${rocY}/${m}` : `${rocY}/${m}/${day}`;
+    return isMonthOnly ? `${m}/${month}` : `${m}/${month}/${day}`;
   } else {
-    return isMonthOnly ? `${rocY}${m}` : `${rocY}${m}${day}`;
+    return isMonthOnly ? `${m}${month}` : `${m}${month}${day}`;
   }
 }
 
@@ -149,7 +159,7 @@ export function TwDate(input = new Date()) {
 
   // 若傳入無效日期，回傳防呆空物件避免整個系統崩潰
   if (isNaN(sourceDate.getTime())) {
-    console.warn("⚠️ TwDate 收到無效的日期格式:", input);
+    logger.warn({ input }, "TwDate 收到無效的日期格式");
     return {
       isValid: false,
       formatDateKey: () => "",
@@ -209,70 +219,6 @@ export function TwDate(input = new Date()) {
 }
 
 // ============================================================================
-// 🌐 網路請求封裝
-// ============================================================================
-
-/**
- * 具備 Timeout + Retry 功能的 fetch 封裝
- * @param {string} url
- * @param {RequestInit} [options={}]
- * @param {number} [timeout=8000]  - 單次請求逾時 ms
- * @param {number} [retries=3]     - 最大重試次數
- * @param {number} [backoff=500]   - 首次重試等待 ms（線性遞增：500→1000→1500）
- */
-export async function fetchWithTimeout(
-  url,
-  options = {},
-  timeout = 30000,
-  retries = 3,
-  backoff = 500,
-) {
-  let lastError;
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeout);
-
-    try {
-      const response = await fetch(url, {
-        ...options,
-        signal: controller.signal,
-      });
-      return response;
-    } catch (error) {
-      lastError =
-        error.name === "AbortError"
-          ? new Error(`Request Timeout after ${timeout}ms: ${url}`)
-          : error;
-
-      // 判斷是否為可重試的網路暫態錯誤
-      const isRetryable =
-        error.name === "AbortError" ||
-        /ETIMEDOUT|ECONNRESET|ECONNREFUSED|fetch failed|network/i.test(
-          error.message,
-        );
-
-      if (isRetryable && attempt < retries) {
-        const waitMs = backoff * (attempt + 1);
-        console.warn(
-          `⚠️ [fetchWithTimeout] Attempt ${attempt + 1} failed, retrying in ${waitMs}ms... (${url})`,
-        );
-        await sleep(waitMs);
-      } else if (!isRetryable) {
-        // 非暫態錯誤，立即拋出不重試
-        throw lastError;
-      }
-    } finally {
-      clearTimeout(id);
-    }
-  }
-
-  throw new Error(
-    `[fetchWithTimeout] All ${retries} retries failed: ${lastError.message}`,
-  );
-}
-
-// ============================================================================
 // ⏱️ 執行步驟計時工具
 // ============================================================================
 
@@ -293,7 +239,17 @@ export function stepTimer(label) {
   const start = Date.now();
   return () => {
     const ms = Date.now() - start;
-    console.log(`⏱ [${label}] ${ms}ms`);
+    logger.debug({ label, ms }, "步驟執行耗時");
     return ms;
   };
 }
+
+// ============================================================================
+// 🔁 向下相容匯出（建議直接從 retryUtils 導入）
+// ============================================================================
+
+/**
+ * fetchWithTimeout（從 retryUtils 重新匯出）
+ * @deprecated 建議直接從 `./retryUtils.mjs` 導入
+ */
+export const fetchWithTimeout = _fetchWithTimeout;

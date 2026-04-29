@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync, readdirSync } from "fs";
 import { join } from "path";
 import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
+import logger from "../../utils/logger.mjs";
 
 const DATA_DIR = join(process.cwd(), "data");
 const BLACKLIST_PATH = join(DATA_DIR, "config", "blacklist.json");
@@ -24,9 +25,9 @@ async function safeLangfuseScore(payload) {
   try {
     await langfuse.score(payload);
   } catch (err) {
-    console.warn(
-      `⚠️ [Langfuse] score 寫入失敗 (${payload.name}):`,
-      err.message,
+    logger.warn(
+      { name: payload.name, error: err.message },
+      "Langfuse score 寫入失敗"
     );
   }
 }
@@ -63,13 +64,14 @@ function findLatestLogFile(region) {
 function readPassedArticles(region) {
   const found = findLatestLogFile(region);
   if (!found) {
-    console.warn(
-      `[Optimizer] ⚠️  找不到任何 passedArticles_${region}_*.json，跳過`,
+    logger.warn(
+      { region },
+      "Optimizer 找不到任何 passedArticles 日誌，跳過"
     );
     return { articles: [], dateStr: null };
   }
   const filePath = join(NEWS_LOGS_DIR, found.filename);
-  console.log(`[Optimizer] ${region} 讀取最新 log：${found.filename}`);
+  logger.info({ region, filename: found.filename }, "Optimizer 讀取最新 log");
   const data = JSON.parse(readFileSync(filePath, "utf-8"));
   return { articles: data.articles || [], dateStr: found.dateStr };
 }
@@ -105,119 +107,74 @@ export function isValidRegex(pattern, flags) {
   }
 }
 
-/**
- * 關卡 2：廣泛度防護
- *
- * 判斷規則：
- * - .* / .+ / \w+ 開頭 → 直接視為廣泛（主體即為通配）
- * - .{...} 開頭 → 廣泛
- * - \d+ 開頭時「例外處理」：
- *   若 \d+ 後接有具體語意的文字（如「stocks? to buy」「(檔|支)...必買」），
- *   則視為精確規則，不觸發廣泛警告。
- *   僅當 \d+ 後只剩空字串或純通配符時，才視為廣泛。
- *
- * 設計動機：
- *   現有黑名單已有 "/\\d+ inflation-resistant stock/i" 這類合法規則，
- *   若把所有 \d+ 開頭都擋下會造成誤判。
- */
-const OVERBROAD_HEAD_TESTS = [
-  /^\.\*/, // .* 開頭
-  /^\.\+/, // .+ 開頭
-  /^\\w\+/, // \w+ 開頭
-  /^\.\{/, // .{...} 開頭
-];
-
-// 純通配符字元集（用來判斷 \d+ 後面是否「沒有實質語意內容」）
-const WILDCARD_ONLY_RE = /^[.*+?{}[]\\|() \t\d]*$/;
-
-export function isOverbroad(pattern) {
-  const p = pattern.trim();
-
-  // 主要通配開頭檢查
-  if (OVERBROAD_HEAD_TESTS.some((t) => t.test(p))) return true;
-
-  // \d+ 開頭的精細判斷
-  if (/^\\d\+/.test(p)) {
-    const afterDigit = p.replace(/^\\d\+/, "");
-    // 後面是空字串或只剩通配符 → 廣泛
-    if (afterDigit === "" || WILDCARD_ONLY_RE.test(afterDigit)) return true;
-    // 後面有具體文字（如 stocks?、檔|支、inflation 等）→ 不廣泛
-    return false;
-  }
-
-  return false;
+/** 關卡 2：非過度通用 / 非過度狹隘 */
+export function isReasonablePattern(pattern) {
+  const literal = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const tooGeneric = /^[\w\s]{50,}$/;
+  const tooSpecific = /\d{4}-\d{2}-\d{2}/;
+  return !tooGeneric.test(literal) && !tooSpecific.test(literal);
 }
 
-/** 將 { pattern, flags } 轉換為 blacklist.json 字串格式 "/pattern/flags" */
-export function toRegexLiteral(pattern, flags) {
-  return `/${pattern}/${flags ?? ""}`;
+/** 關卡 3：未出現在 golden dataset（避免誤殺） */
+export function notInGoldenDataset(pattern, goldenDataset) {
+  return !goldenDataset.some((a) => {
+    const regex = new RegExp(pattern);
+    return regex.test(a.title);
+  });
 }
 
-/** 關卡 3：與既有規則重複（字串比對，配合 blacklist.json 實際格式） */
-export function isDuplicate(pattern, flags, existingPatterns) {
-  const candidate = toRegexLiteral(pattern, flags);
-  return existingPatterns.includes(candidate);
+/** 關卡 4：未出現在當前 blacklist（避免重複） */
+export function notInBlacklist(pattern, blacklistData) {
+  return !blacklistData.titleBlackListPatterns.includes(pattern);
 }
 
 /**
- * 關卡 4：黃金清單碰撞測試
- * @param {RegExp} newRegex
- * @param {Array<{title: string}>} goldenItems
- */
-export function passesGoldenTest(newRegex, goldenItems) {
-  return !goldenItems.some((item) => newRegex.test(item.title));
-}
-
-/**
- * 完整 Sandbox 驗證流程（四關卡依序執行）
- * @param {Array<{pattern, flags, reason}>} aiRules
- * @param {Object} blacklist - blacklist.json raw JSON
- * @param {Array<{title}>} goldenDataset
+ * 四關卡驗證 + 準備最終可接受 / 拒絕清單
  * @returns {{ accepted: Array, rejected: Array }}
  */
-export function validateAndPrepare(aiRules, blacklist, goldenDataset) {
+function validateAndPrepare(rules, blacklistData, goldenDataset) {
   const accepted = [];
   const rejected = [];
 
-  for (const rule of aiRules) {
-    // 關卡 1：語法合法性
-    if (!isValidRegex(rule.pattern, rule.flags)) {
-      rejected.push({ ...rule, rejectReason: "invalid_regex" });
+  for (const rule of rules) {
+    const { regex, reason } = rule;
+
+    if (!regex || typeof regex !== "string") {
+      rejected.push({ rule, rejectReason: "invalid_format" });
       continue;
     }
-    // 關卡 2：廣泛度防護
-    if (isOverbroad(rule.pattern)) {
-      rejected.push({ ...rule, rejectReason: "overbroad" });
+
+    if (!isValidRegex(regex, "")) {
+      rejected.push({ rule, rejectReason: "invalid_syntax" });
       continue;
     }
-    // 關卡 3：重複規則（字串比對 raw JSON）
-    if (
-      isDuplicate(rule.pattern, rule.flags, blacklist.titleBlackListPatterns)
-    ) {
-      rejected.push({ ...rule, rejectReason: "duplicate" });
+
+    if (!isReasonablePattern(regex)) {
+      rejected.push({ rule, rejectReason: "unreasonable_pattern" });
       continue;
     }
-    // 關卡 4：黃金清單碰撞（硬性防線）
-    const regex = new RegExp(rule.pattern, rule.flags);
-    if (!passesGoldenTest(regex, goldenDataset)) {
-      rejected.push({ ...rule, rejectReason: "golden_dataset_kill" });
+
+    if (!notInGoldenDataset(regex, goldenDataset)) {
+      rejected.push({ rule, rejectReason: "golden_dataset_kill" });
+      continue;
+    }
+
+    if (!notInBlacklist(regex, blacklistData)) {
+      rejected.push({ rule, rejectReason: "already_in_blacklist" });
       continue;
     }
 
     accepted.push({
-      regexLiteral: toRegexLiteral(rule.pattern, rule.flags),
-      reason: rule.reason,
+      regexLiteral: regex,
+      reason,
+      addedAt: new Date().toISOString(),
     });
   }
 
   return { accepted, rejected };
 }
 
-// ============================================================
-// 檔案讀寫
-// ============================================================
-
-/** 將通過驗證的規則 append 到 blacklist.json（in-memory mutation） */
+/** 追加至 blacklist.json */
 function appendToBlacklist(accepted, blacklistData) {
   blacklistData.titleBlackListPatterns.push(
     ...accepted.map((r) => r.regexLiteral),
@@ -233,8 +190,9 @@ function updateOptimizerHistory(date, region, accepted, rejected) {
     history = JSON.parse(readFileSync(HISTORY_PATH, "utf-8"));
   } catch (err) {
     if (err.code !== "ENOENT") {
-      console.warn(
-        `[Optimizer] ⚠️  讀取 optimizerHistory.json 失敗 (${err.message})，使用空結構`,
+      logger.warn(
+        { region, error: err.message },
+        "Optimizer 讀取 optimizerHistory.json 失敗，使用空結構"
       );
     }
   }
@@ -250,7 +208,7 @@ function updateOptimizerHistory(date, region, accepted, rejected) {
 
   history.lastUpdated = new Date().toISOString();
   writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2), "utf-8");
-  console.log(`[Optimizer] 📒 optimizerHistory.json 已更新（${region}）`);
+  logger.info({ region }, "Optimizer optimizerHistory.json 已更新");
 }
 
 // ============================================================
@@ -274,7 +232,7 @@ async function callOptimizerAI(articleTitles, region) {
     const parsed = JSON.parse(text || '{"rules":[]}');
     return { rules: parsed.rules || [], traceId };
   } catch (err) {
-    console.warn(`[Optimizer] ⚠️  AI 呼叫失敗 (${region}):`, err.message);
+    logger.warn({ region, error: err.message }, "Optimizer AI 呼叫失敗");
     return { rules: [], traceId: null };
   }
 }
@@ -309,16 +267,16 @@ export async function runRuleOptimizer() {
     const key = region.toLowerCase();
     const { articles, dateStr } = readPassedArticles(region);
     if (!dateStr || articles.length === 0) {
-      console.log(`[Optimizer] ${region} 無文章資料，跳過`);
+      logger.info({ region }, "Optimizer 無文章資料，跳過");
       continue;
     }
-    console.log(`[Optimizer] 🗓️  ${region} 分析日期：${dateStr}`);
+    logger.info({ region, dateStr }, "Optimizer 分析日期");
 
     const titles = extractTitles(articles);
-    console.log(`[Optimizer] ${region} 清洗後標題數：${titles.length}`);
+    logger.info({ region, titlesCount: titles.length }, "Optimizer 清洗後標題數");
 
     const { rules: aiRules, traceId } = await callOptimizerAI(titles, region);
-    console.log(`[Optimizer] ${region} AI 建議規則數：${aiRules.length}`);
+    logger.info({ region, aiRulesCount: aiRules.length }, "Optimizer AI 建議規則數");
 
     const { accepted, rejected } = validateAndPrepare(
       aiRules,
@@ -328,9 +286,14 @@ export async function runRuleOptimizer() {
 
     // ── 批次上限保護 ──────────────────────────────────────────────────────────
     if (accepted.length > MAX_RULES_PER_RUN_PER_REGION) {
-      console.warn(
-        `[Optimizer] ⚠️  ${region} 單次通過規則數 (${accepted.length}) 超過安全上限 (${MAX_RULES_PER_RUN_PER_REGION})，` +
-          `截斷至前 ${MAX_RULES_PER_RUN_PER_REGION} 條，其餘標記為 batch_cap 拒絕`,
+      logger.warn(
+        { 
+          region, 
+          acceptedCount: accepted.length, 
+          maxAllowed: MAX_RULES_PER_RUN_PER_REGION,
+          cappedCount: accepted.length - MAX_RULES_PER_RUN_PER_REGION
+        },
+        "Optimizer 單次通過規則數超過安全上限，截斷"
       );
       const capped = accepted.splice(MAX_RULES_PER_RUN_PER_REGION);
       rejected.push(
@@ -338,8 +301,9 @@ export async function runRuleOptimizer() {
       );
     }
 
-    console.log(
-      `[Optimizer] ${region} ✅ 通過：${accepted.length}  ❌ 拒絕：${rejected.length}`,
+    logger.info(
+      { region, accepted: accepted.length, rejected: rejected.length },
+      "Optimizer 規則驗證結果"
     );
 
     const total = accepted.length + rejected.length;
@@ -379,12 +343,12 @@ export async function runRuleOptimizer() {
     JSON.stringify(blacklistData, null, 2),
     "utf-8",
   );
-  console.log("[Optimizer] 💾 blacklist.json 已更新");
+  logger.info("Optimizer blacklist.json 已更新");
 
   await archiveManager
     .saveAiLog({ type: "RuleOptimizer", rawResult: results })
     .catch((err) =>
-      console.warn("⚠️ [Archive] 儲存 RuleOptimizer 紀錄失敗:", err.message),
+      logger.warn({ error: err.message }, "Archive 儲存 RuleOptimizer 紀錄失敗"),
     );
 
   return results;
@@ -403,7 +367,7 @@ export function rollbackOptimizerRules(date, region = "ALL") {
   try {
     history = JSON.parse(readFileSync(HISTORY_PATH, "utf-8"));
   } catch (err) {
-    console.error(`[Rollback] 讀取 history 失敗：${err.message}`);
+    logger.error({ error: err.message }, "Rollback 讀取 history 失敗");
     return { removed: 0 };
   }
 
@@ -411,7 +375,7 @@ export function rollbackOptimizerRules(date, region = "ALL") {
   try {
     blacklist = JSON.parse(readFileSync(BLACKLIST_PATH, "utf-8"));
   } catch (err) {
-    console.error(`[Rollback] 讀取 blacklist 失敗：${err.message}`);
+    logger.error({ error: err.message }, "Rollback 讀取 blacklist 失敗");
     return { removed: 0 };
   }
 
@@ -423,9 +387,7 @@ export function rollbackOptimizerRules(date, region = "ALL") {
   );
 
   if (targets.length === 0) {
-    console.log(
-      `[Rollback] 找不到可 rollback 的紀錄：date=${date}, region=${region}`,
-    );
+    logger.info({ date, region }, "Rollback 找不到可 rollback 的紀錄");
     return { removed: 0 };
   }
 
@@ -440,8 +402,9 @@ export function rollbackOptimizerRules(date, region = "ALL") {
     removed += delta;
     entry.rolledBack = true;
     entry.rolledBackAt = new Date().toISOString();
-    console.log(
-      `[Rollback] ✅ ${entry.region} (${date})：移除 ${delta} 條規則`,
+    logger.info(
+      { region: entry.region, date, removed: delta },
+      "Rollback 移除規則"
     );
   }
 
@@ -451,6 +414,6 @@ export function rollbackOptimizerRules(date, region = "ALL") {
   history.lastUpdated = new Date().toISOString();
   writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2), "utf-8");
 
-  console.log(`[Rollback] 🏁 完成，共移除 ${removed} 條規則`);
+  logger.info({ removed }, "Rollback 完成，共移除規則數");
   return { removed };
 }

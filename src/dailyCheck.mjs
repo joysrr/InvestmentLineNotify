@@ -15,7 +15,7 @@ import { isSnapshotEncryptEnabled } from "./utils/snapshotCrypto.mjs";
 import { sendTelegramBatch } from "./modules/notifications/transports/telegramClient.mjs";
 import { IlnState } from "./domain/ilnState.mjs";
 import { buildDailyRunContext } from "./domain/dailyRunContext.mjs";
-import logger from "./utils/logger.mjs";
+import logger, { setGlobalContext, clearGlobalContext } from "./utils/logger.mjs";
 
 const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
@@ -26,6 +26,9 @@ export async function dailyCheck({
   isAIAdvisor = true,
   isCallAI = true,
 }) {
+  // 設定日誌上下文追蹤
+  const traceId = `dailyCheck-${Date.now()}`;
+  setGlobalContext({ traceId, sessionId, runType: "dailyCheck" });
   logger.info("🚀 開始執行 dailyCheck...");
 
   // ── Step 1：統一資料撈取 ────────────────────────────────────────────────────
@@ -42,6 +45,7 @@ export async function dailyCheck({
         },
       ]);
     }
+    clearGlobalContext();
     return "❌ 資料不足";
   }
 
@@ -111,9 +115,9 @@ export async function dailyCheck({
         await archiveManager.saveValuationGuardState(newState);
         logger.info(
           `🛡️ [dailyCheck] valuationGuardState 已更新：defenseLatch=${newState.defenseLatch}` +
-            (newState.latchTriggeredAt
-              ? `，觸發日 ${newState.latchTriggeredAt}`
-              : ""),
+          (newState.latchTriggeredAt
+            ? `，觸發日 ${newState.latchTriggeredAt}`
+            : ""),
         );
       } catch (err) {
         logger.error(err, "❌ [dailyCheck] valuationGuardState.json 寫入失敗");
@@ -189,11 +193,11 @@ export async function dailyCheck({
     const snapshotPayload =
       isSnapshotEncryptEnabled() && lastState
         ? {
-            // price0050 / priceZ2 注入快照，供 normaliseSnapshot 計算當日市值
-            ...lastState,
-            price0050: price0050 ?? null,
-            priceZ2: finalPriceZ2 ?? null,
-          }
+          // price0050 / priceZ2 注入快照，供 normaliseSnapshot 計算當日市值
+          ...lastState,
+          price0050: price0050 ?? null,
+          priceZ2: finalPriceZ2 ?? null,
+        }
         : null;
 
     const state = new IlnState({
@@ -235,7 +239,7 @@ export async function dailyCheck({
     vixValue >= 30 ||
     signalDirection !== "hold" || // ← long/short 都算高風險日
     valuationGuardState.latchActive !==
-      (result?.signals?.latchNowActive ?? false);
+    (result?.signals?.latchNowActive ?? false);
 
   if (isHighRiskDay) {
     logger.info(
@@ -246,18 +250,17 @@ export async function dailyCheck({
   const judgeContext = { forceRun: isHighRiskDay };
   const judgeTasks = [];
 
-  if (
-    shouldRunJudge(judgeContext) &&
-    adviceTraceId &&
-    typeof aiAdvice === "object"
-  ) {
+  const shouldRun = shouldRunJudge(judgeContext);
+  const canRun = adviceTraceId && typeof aiAdvice === "object";
+
+  if (shouldRun && canRun) {
     logger.info("🔍 [LLMJudge] 今日觸發 Judge，排入背景任務...");
     judgeTasks.push(
       runJudge(adviceTraceId, aiAdvice, sessionId).catch((err) =>
         logger.warn(err, "⚠️ [LLMJudge] 背景任務發生例外"),
       ),
     );
-  } else if (shouldRunJudge(judgeContext)) {
+  } else if (shouldRun) {
     logger.warn(
       "⚠️ [LLMJudge] 今日應觸發但 adviceTraceId 無效或 aiAdvice 非物件，跳過",
     );
@@ -270,6 +273,9 @@ export async function dailyCheck({
     await Promise.allSettled(judgeTasks);
     logger.info("✅ [LLMJudge] 背景 Judge 任務完成");
   }
+
+  // 清除日誌上下文
+  clearGlobalContext();
 
   return "✅ dailyCheck 執行成功";
 }

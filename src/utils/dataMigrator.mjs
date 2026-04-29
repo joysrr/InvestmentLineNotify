@@ -1,3 +1,4 @@
+import logger from "../../utils/logger.mjs";
 import { readFile, writeFile, readdir, mkdir, copyFile } from "fs/promises";
 import { resolve, join } from "path";
 import { fileURLToPath } from "url";
@@ -17,16 +18,19 @@ export async function migrate() {
     const files = (await readdir(REPORTS_DIR)).filter((f) =>
       f.endsWith(".json"),
     );
-    if (files.length === 0) return console.log("📭 無資料需要遷移");
+    if (files.length === 0) {
+      logger.info("📭 無資料需要遷移");
+      return;
+    }
 
-    console.log(`🛡️ 開始安全遷移：發現 ${files.length} 份報告`);
+    logger.info({ count: files.length }, `🛡️ 開始安全遷移：發現 ${files.length} 份報告`);
 
     // 1. 強制備份
     await mkdir(backupDir, { recursive: true });
     for (const file of files) {
       await copyFile(join(REPORTS_DIR, file), join(backupDir, file));
     }
-    console.log(`✅ 備份完成：${backupDir}`);
+    logger.info(`✅ 備份完成：${backupDir}`);
 
     let successCount = 0;
 
@@ -109,16 +113,14 @@ export async function migrate() {
         await writeFile(path, JSON.stringify(content, null, 2));
         successCount++;
       } catch (err) {
-        console.error(`❌ 檔案 ${file} 轉換失敗，跳過:`, err.message);
+        logger.error({ file, error: err.message }, `❌ 檔案 ${file} 轉換失敗，跳過`);
       }
     }
 
-    console.log(`🎉 遷移大功告成！成功轉換 ${successCount} 份檔案。`);
-    console.log(
-      `💡 如果 Mini App 顯示異常，請將 ${backupDir} 內容拷貝回 data/reports/`,
-    );
+    logger.info(`🎉 遷移大功告成！成功轉換 ${successCount} 份檔案。`);
+    logger.info(`💡 如果 Mini App 顯示異常，請將 ${backupDir} 內容拷貝回 data/reports/`);
   } catch (err) {
-    console.error(`🚨 遷移中斷: ${err.message}`);
+    logger.error({ error: err.message }, `🚨 遷移中斷`);
   }
 }
 

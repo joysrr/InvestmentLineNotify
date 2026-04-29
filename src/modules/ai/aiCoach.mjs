@@ -1,5 +1,7 @@
 import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
 import { formatQuantDataForCoach } from "./aiDataPreprocessor.mjs";
+import { AIServiceError } from "../../utils/retryUtils.mjs";
+import logger from "../../utils/logger.mjs";
 import { baseTwQueries, baseUsQueries } from "../keywordConfig.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 import { saveFilteredPool } from "../data/newsPoolManager.mjs";
@@ -32,9 +34,9 @@ async function safeLangfuseScore(payload) {
   try {
     await langfuse.score(payload);
   } catch (err) {
-    console.warn(
-      `⚠️ [Langfuse] score 寫入失敗 (${payload.name}):`,
-      err.message,
+    logger.warn(
+      { name: payload.name, error: err.message },
+      "Langfuse score 寫入失敗"
     );
   }
 }
@@ -209,7 +211,7 @@ export async function generateDailySearchQueries(marketData) {
         rawResult: result,
       })
       .catch((err) =>
-        console.warn("⚠️ [Archive] 儲存關鍵字生成紀錄失敗:", err.message),
+        logger.warn({ error: err.message }, "Archive 儲存關鍵字生成紀錄失敗"),
       );
 
     return {
@@ -218,7 +220,22 @@ export async function generateDailySearchQueries(marketData) {
       traceId,
     };
   } catch (error) {
-    console.warn("動態產生關鍵字失敗，回傳空陣列");
+    const errorMsg = error instanceof AIServiceError
+      ? `AI Service Error (${error.provider}/${error.model}): ${error.message}`
+      : `Unexpected Error: ${error.message}`;
+
+    logger.warn({ error: errorMsg }, "generateDailySearchQueries 失敗");
+
+    // 記錄錯誤至 Langfuse（若 traceId 存在）
+    if (traceId) {
+      await safeLangfuseScore({
+        traceId,
+        name: "Schema_Validation",
+        value: 0,
+        comment: `Failed: ${error instanceof AIServiceError ? error.name : error.constructor.name}`,
+      });
+    }
+    
     return { twQueries: [], usQueries: [], traceId: null };
   }
 }
@@ -245,8 +262,9 @@ export async function filterAndCategorizeAllNewsWithAI(
 
   // ── 選取送入 AI 的子集 ──────────────────────────────────────────────────────────────────────
   const selectedNews = selectNewsForAi(allNewsArray);
-  console.log(
-    `🧓 [NewsAI] 本次送入 AI ${selectedNews.length}/${allNewsArray.length} 篇（perRegionLimit=30, totalLimit=60）`,
+  logger.info(
+    { selected: selectedNews.length, total: allNewsArray.length, perRegionLimit: 30, totalLimit: 60 },
+    "NewsAI 送入 AI 處理"
   );
 
   // ── 3-A：矛盾分群標記 ────────────────────────────────────────────────────────────────────────────
@@ -304,12 +322,13 @@ export async function filterAndCategorizeAllNewsWithAI(
           `- ${e.event ?? "（未命名事件）"}：${e.conflict_note ?? "（無描述）"}`,
       );
       conflictSummary =
-        `[⚠️ 矛盾新聞偉測]\n以下事件在本次新聞池中存在矛盾報導，請納入分析時特別留意：\n` +
+        `[⚠️ 矛盾新聞預測]\n以下事件在本次新聞池中存在矛盾報導，請納入分析時特別留意：\n` +
         lines.join("\n");
     }
 
-    console.log(
-      `⚔️ [ConflictDetect] 矛盾事件偉測數：${conflictedEvents.length}`,
+    logger.info(
+      { conflictedEvents: conflictedEvents.length },
+      "ConflictDetect 矛盾事件預測"
     );
 
     await safeLangfuseScore({
@@ -320,9 +339,14 @@ export async function filterAndCategorizeAllNewsWithAI(
     });
 
     const thinkContent = aiResult.think;
-    console.log("📊 事件盤點數:", thinkContent.event_inventory.length);
-    console.log("📐 維度覆蓋:", thinkContent.dimension_check);
-    console.log("🗑️ 捨棄筆數:", thinkContent.excluded.length);
+    logger.info(
+      { 
+        eventInventory: thinkContent.event_inventory?.length ?? 0,
+        dimensionCheck: thinkContent.dimension_check,
+        excluded: thinkContent.excluded?.length ?? 0,
+      },
+      "AI 分析結果詳情"
+    );
 
     // AI 回傳的 id 對應的是 taggedNews 的索引
     const news = aiResult.news.map((aiItem) => ({
@@ -337,17 +361,31 @@ export async function filterAndCategorizeAllNewsWithAI(
         rawResult: aiResult,
       })
       .catch((err) =>
-        console.warn("⚠️ [Archive] 儲存新聞過濾紀錄失敗:", err.message),
+        logger.warn({ error: err.message }, "Archive 儲存新聞過濾紀錄失敗"),
       );
 
     saveFilteredPool(news, sourcePoolUpdatedAt).catch((err) =>
-      console.warn("⚠️ [NewsPool] Filter 結果回存失敗:", err.message),
+      logger.warn({ error: err.message }, "NewsPool Filter 結果回存失敗"),
     );
 
     // ── 3-C：return { news, conflictSummary } ──────────────────────────────────────────────
     return { news, conflictSummary };
   } catch (error) {
-    console.error("AI 處理新聞時發生錯誤:", error);
+    const errorMsg = error instanceof AIServiceError
+      ? `AI Service Error (${error.provider}/${error.model}): ${error.message}`
+      : `Unexpected Error: ${error.message}`;
+
+    logger.error({ error: errorMsg }, "filterAndCategorizeAllNewsWithAI 失敗");
+
+    if (traceId) {
+      await safeLangfuseScore({
+        traceId,
+        name: "Schema_Validation",
+        value: 0,
+        comment: `Failed: ${error instanceof AIServiceError ? error.name : error.constructor.name}`,
+      });
+    }
+    
     return { news: [], conflictSummary: "" };
   }
 }
@@ -406,12 +444,26 @@ export async function analyzeMacroNewsWithAI(
         rawResult: result,
       })
       .catch((err) =>
-        console.warn("⚠️ [Archive] 儲存總經分析紀錄失敗:", err.message),
+        logger.warn({ error: err.message }, "Archive 儲存總經分析紀錄失敗"),
       );
 
     return result;
   } catch (error) {
-    console.warn("宏觀新聞分析失敗，回傳空物件");
+    const errorMsg = error instanceof AIServiceError
+      ? `AI Service Error (${error.provider}/${error.model}): ${error.message}`
+      : `Unexpected Error: ${error.message}`;
+
+    logger.warn({ error: errorMsg }, "analyzeMacroNewsWithAI 失敗");
+    
+    if (traceId) {
+      await safeLangfuseScore({
+        traceId,
+        name: "Schema_Validation",
+        value: 0,
+        comment: `Failed: ${error instanceof AIServiceError ? error.name : error.constructor.name}`,
+      });
+    }
+    
     return {
       bull_events: [],
       bear_events: [],
@@ -548,8 +600,9 @@ export async function getAiInvestmentAdvice(
       comment: `字元數=${thinkingLen}，深度分=${thinkingDepth}`,
     });
 
-    console.log(
-      `🧠 [Coach] Confidence=${confidencePresent} | Thinking_Depth=${thinkingDepth} (len=${thinkingLen})`,
+    logger.info(
+      { confidence: confidencePresent, thinkingDepth, thinkingLen },
+      "Coach 分析結果"
     );
 
     archiveManager
@@ -559,12 +612,26 @@ export async function getAiInvestmentAdvice(
         rawResult: result,
       })
       .catch((err) =>
-        console.warn("⚠️ [Archive] 儲存投資建議紀錄失敗:", err.message),
+        logger.warn({ error: err.message }, "Archive 儲存投資建議紀錄失敗"),
       );
 
     return { advice: result, traceId };
   } catch (error) {
-    console.error("AI 投資建議生成失敗:", error);
+    const errorMsg = error instanceof AIServiceError
+      ? `AI Service Error (${error.provider}/${error.model}): ${error.message}`
+      : `Unexpected Error: ${error.message}`;
+
+    logger.error({ error: errorMsg }, "getAiInvestmentAdvice 失敗");
+    
+    if (traceId) {
+      await safeLangfuseScore({
+        traceId,
+        name: "Schema_Validation",
+        value: 0,
+        comment: `Failed: ${error instanceof AIServiceError ? error.name : error.constructor.name}`,
+      });
+    }
+    
     return {
       advice: "AI 決策引擎暫時無法運作，請依技術指標自行判斷。",
       traceId: null,

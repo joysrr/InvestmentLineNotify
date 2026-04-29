@@ -229,7 +229,7 @@ async function load() {
       latestReport.value = res[0];
     }
   } catch (err) {
-    console.error("Failed to load technical indicators:", err);
+    console.error('[TechnicalView] Failed to load technical indicators:', err);
   } finally {
     loading.value = false;
   }

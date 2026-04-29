@@ -276,7 +276,7 @@ async function load() {
     // 按日期升序排列供圖表使用
     reports.value = (rData || []).reverse();
   } catch (e) {
-    console.error(e);
+    console.error('[AccountView] 無法載入運作狀態:', e);
     error.value = "無法載入運作狀態，請稍後再試";
   } finally {
     loading.value = false;

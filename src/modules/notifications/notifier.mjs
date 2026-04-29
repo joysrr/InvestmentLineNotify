@@ -1,3 +1,4 @@
+import logger from "../../utils/logger.mjs";
 import {
   buildTelegramMessages,
   buildCompactMessage,
@@ -35,21 +36,21 @@ export async function broadcastDailyReport(
       // ── 精簡提醒卡模式：1 則 + WebApp 按鈕 ──────────────────────
       // 新聞已整合進 Mini App 新聞 Tab（精選報告 + 新聞池），不再重複推送
       tgMsgs = buildCompactMessage(data, webAppUrl);
-      console.log("[Notifier] MiniApp 模式：發送精簡提醒卡（新聞訊息略過）");
+      logger.info(`[Notifier] MiniApp 模式：發送精簡提醒卡（新聞訊息略過）`);
     } else {
       // ── 原有完整模式：3 則詳細訊息 + 新聞訊息 ───────────────────
       tgMsgs = buildTelegramMessages(data);
       if (newsMessages.length) {
         tgMsgs = tgMsgs.concat(newsMessages);
       }
-      console.log("[Notifier] 完整模式：發送三則戰報 + 新聞訊息");
+      logger.info(`[Notifier] 完整模式：發送三則戰報 + 新聞訊息`);
     }
 
     tasks.push(
       unpinAllChatMessages()
         .then(() => sendTelegramBatch(tgMsgs))
-        .then(() => console.log("✅ Telegram 戰報發送成功"))
-        .catch((e) => console.error("❌ Telegram 發送失敗", e)),
+        .then(() => logger.info("✅ Telegram 戰報發送成功"))
+        .catch((e) => logger.error({ error: e }, "❌ Telegram 發送失敗")),
     );
   }
 
@@ -72,7 +73,7 @@ export async function broadcastOptimizerResult(result, totalRuleCount) {
   const usR = result?.us?.rejected ?? [];
 
   if (twA.length + usA.length === 0) {
-    console.log("[OptimizerNotify] 本次無新增規則，跳過通知");
+    logger.info("[OptimizerNotify] 本次無新增規則，跳過通知");
     return;
   }
 
@@ -125,6 +126,6 @@ export async function broadcastOptimizerResult(result, totalRuleCount) {
   try {
     await sendSystemMessage(text);
   } catch (err) {
-    console.warn("[OptimizerNotify] 發送失敗（不影響主流程）:", err.message);
+    logger.warn({ error: err.message }, "[OptimizerNotify] 發送失敗（不影響主流程）");
   }
 }

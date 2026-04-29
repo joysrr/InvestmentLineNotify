@@ -1,5 +1,6 @@
+import logger from "../../../utils/logger.mjs";
 import { loadHolidaySet } from "../../providers/twseProvider.mjs";
-import { TwDate } from "../../utils/coreUtils.mjs";
+import { TwDate } from "../../../utils/coreUtils.mjs";
 
 /**
  * 檢查是否在 Cooldown 期間 (以「交易日」計算)
@@ -53,7 +54,7 @@ export async function checkCooldown(lastBuyDate, cooldownTradingDays) {
       yearHolidays.forEach((dateStr) => holidays.add(dateStr));
     }
   } catch (e) {
-    console.warn("⚠️ 無法取得 TWSE 假日，將退回使用六日計算交易日:", e.message);
+    logger.warn({ error: e.message }, "⚠️ 無法取得 TWSE 假日，將退回使用六日計算交易日");
     holidayFallback = true;
   }
 

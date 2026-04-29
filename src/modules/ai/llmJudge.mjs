@@ -1,4 +1,6 @@
 import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
+import { AIServiceError } from "../../utils/retryUtils.mjs";
+import logger from "../../utils/logger.mjs";
 
 // ── 觸發策略 ─────────────────────────────────────────────────────────────────
 
@@ -6,7 +8,7 @@ import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
  * 依 LLM_JUDGE_MODE 環境變數決定今天是否執行 Judge
  *
  * 支援三種模式：
- *   weekly  (預設) — 僅在 LLM_JUDGE_WEEKDAY 指定的星期幾執行 (0=日, 1=一...6=六)
+ *   weekly  (預設) — 僅在 LLM_JUDGE_WEEKDAY 指定的星期幾執行 (0=日，1=一...6=六)
  *   random         — 依 LLM_JUDGE_SAMPLE_RATE 機率抽樣執行
  *   always         — 每次都執行，適合短期驗證
  *
@@ -16,7 +18,7 @@ import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
 export function shouldRunJudge(context = {}) {
   // ── 高風險強制觸發 ─────────────────────────────────────────────────────────
   if (context.forceRun === true) {
-    console.log("⚠️ [LLMJudge] 高風險日強制觸發 Judge（forceRun=true）");
+    logger.warn({ forceRun: true }, "LLMJudge 高風險日強制觸發");
     return true;
   }
 
@@ -31,7 +33,7 @@ export function shouldRunJudge(context = {}) {
 
   // 預設 weekly
   const targetDay = parseInt(process.env.LLM_JUDGE_WEEKDAY ?? "1", 10);
-  const todayDay = new Date().getDay(); // 0=日, 1=一 ...
+  const todayDay = new Date().getDay(); // 0=日，1=一 ...
   return todayDay === targetDay;
 }
 
@@ -41,9 +43,9 @@ async function safeLangfuseScore(payload) {
   try {
     await langfuse.score(payload);
   } catch (err) {
-    console.warn(
-      `⚠️ [LLMJudge] score 寫入失敗 (${payload.name}):`,
-      err.message,
+    logger.warn(
+      { name: payload.name, error: err.message },
+      "LLMJudge score 寫入失敗"
     );
   }
 }
@@ -60,7 +62,10 @@ async function safeLangfuseScore(payload) {
  */
 export async function runJudge(adviceTraceId, adviceObj, sessionId) {
   if (!adviceTraceId || !adviceObj || typeof adviceObj !== "object") {
-    console.warn("⚠️ [LLMJudge] adviceTraceId 或 adviceObj 無效，跳過 Judge");
+    logger.warn(
+      { adviceTraceId, hasAdviceObj: !!adviceObj },
+      "LLMJudge adviceTraceId 或 adviceObj 無效，跳過 Judge"
+    );
     return;
   }
 
@@ -85,7 +90,7 @@ export async function runJudge(adviceTraceId, adviceObj, sessionId) {
 
   for (const { promptName, scoreName, promptVariables } of tasks) {
     try {
-      console.log(`🔍 [LLMJudge] 執行 ${scoreName} Judge...`);
+      logger.debug({ scoreName }, "LLMJudge 執行 Judge");
 
       const { text } = await callAI(promptName, {
         sessionId,
@@ -99,8 +104,9 @@ export async function runJudge(adviceTraceId, adviceObj, sessionId) {
       const score = Number(judgeResult.score);
 
       if (!Number.isFinite(score) || score < 0 || score > 1) {
-        console.warn(
-          `⚠️ [LLMJudge] ${scoreName} score 超出範圍: ${judgeResult.score}`,
+        logger.warn(
+          { scoreName, score: judgeResult.score },
+          "LLMJudge score 超出範圍"
         );
         continue;
       }
@@ -112,12 +118,24 @@ export async function runJudge(adviceTraceId, adviceObj, sessionId) {
         comment: judgeResult.reason ?? "",
       });
 
-      console.log(
-        `✅ [LLMJudge] ${scoreName} = ${score.toFixed(2)}` +
-          (judgeResult.reason ? ` | ${judgeResult.reason.slice(0, 80)}` : ""),
+      logger.info(
+        { scoreName, score, reason: judgeResult.reason?.slice(0, 80) },
+        "LLMJudge 評分完成"
       );
     } catch (err) {
-      console.warn(`⚠️ [LLMJudge] ${scoreName} Judge 執行失敗:`, err.message);
+      const errorMsg = err instanceof AIServiceError
+        ? `AI Service Error (${err.provider}/${err.model}): ${err.message}`
+        : `Unexpected Error: ${err.message}`;
+
+      logger.warn({ scoreName, error: errorMsg }, "LLMJudge Judge 執行失敗");
+
+      // 記錄錯誤至 Langfuse
+      await safeLangfuseScore({
+        traceId: adviceTraceId,
+        name: scoreName,
+        value: 0,
+        comment: `Failed: ${err instanceof AIServiceError ? err.name : err.constructor.name}`,
+      });
     }
   }
 }

@@ -1,6 +1,7 @@
 import "dotenv/config";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import rateLimit from "@fastify/rate-limit";
 import { fileURLToPath } from "url";
 import { assertEnv } from "../utils/envGuard.mjs";
 import logger from "../utils/logger.mjs";
@@ -32,6 +33,27 @@ export async function buildApp(opts = {}) {
   await fastify.register(cors, {
     origin: corsOrigins,
     methods: ["GET", "HEAD", "OPTIONS"],
+  });
+
+  // ─── Rate Limiter ────────────────────────────────────────────────────────────
+  // 每分鐘最多 100 次請求，/health 端點除外
+  await fastify.register(rateLimit, {
+    max: 100,
+    timeWindow: "1 minute",
+    skip: (request) => {
+      // 跳過 /health 端點
+      return request.url.startsWith("/health");
+    },
+    onExceed: (request, reply) => {
+      logger.warn(
+        `[RateLimit] IP ${request.ip} 超過速率限制，URL: ${request.url}`
+      );
+    },
+    errorResponseBuilder: (request, context) => ({
+      error: "Too Many Requests",
+      message: `請求過於頻繁，請在 ${Math.ceil(context.after / 1000)} 秒後再試`,
+      retryAfter: context.after,
+    }),
   });
 
   // ─── Global hook: Telegram initData guard ────────────────────────────────────
@@ -68,12 +90,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
     const app = await buildApp();
     await app.listen({ port: PORT, host: HOST });
-    console.log(`[api] 🚀 Server started successfully!`);
-    console.log(`[api] Current Working Directory: ${process.cwd()}`);
-    console.log(`[api] Listening on ${HOST}:${PORT}`);
+    logger.info({ port: PORT, host: HOST, cwd: process.cwd() }, `[api] 🚀 Server started successfully! Listening on ${HOST}:${PORT}`);
   } catch (err) {
-    console.error("❌ [api] 啟動失敗 (Fatal Error):");
-    console.error(err.stack || err);
+    logger.error({ err: err.stack || err }, "❌ [api] 啟動失敗 (Fatal Error)");
     process.exit(1);
   }
 }

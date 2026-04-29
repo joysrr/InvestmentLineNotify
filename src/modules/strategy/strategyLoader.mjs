@@ -1,3 +1,4 @@
+import logger from "../../utils/logger.mjs";
 import { readFile } from "fs/promises";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
@@ -36,7 +37,7 @@ export async function loadModularStrategy() {
     validateStrategyConfig(merged);
     return merged;
   } catch (err) {
-    console.warn(`⚠️ [StrategyLoader] 模組化加載失敗：${err.message}`);
+    logger.warn({ error: err.message }, `⚠️ [StrategyLoader] 模組化加載失敗`);
     return null;
   }
 }
@@ -51,7 +52,7 @@ async function loadLegacyStrategy() {
     validateStrategyConfig(json);
     return json;
   } catch (err) {
-    console.warn(`⚠️ [StrategyLoader] 舊版備援讀取失敗：${err.message}`);
+    logger.warn({ error: err.message }, `⚠️ [StrategyLoader] 舊版備援讀取失敗`);
     return null;
   }
 }
@@ -80,9 +81,7 @@ export async function fetchStrategyConfigUnified() {
     throw new Error("[StrategyLoader] 所有策略來源均失效，系統無法啟動");
   }
 
-  console.log(
-    `[StrategyLoader] 成功載入策略 (來源: ${source}) v${strategy.version || "Unknown"}`,
-  );
+  logger.info({ source, version: strategy.version || "Unknown" }, `[StrategyLoader] 成功載入策略 (來源：${source}) v${strategy.version || "Unknown"}`);
   return strategy;
 }
 
@@ -90,15 +89,16 @@ export async function fetchStrategyConfigUnified() {
 if (process.argv.includes("--test-merge")) {
   fetchStrategyConfigUnified()
     .then((s) => {
-      console.log("✅ 策略聚合測試成功！");
-      console.log("核心欄位檢查：");
-      console.log(`- Version: ${s.version}`);
-      console.log(`- Description: ${s.description}`);
-      console.log(`- Buy Rules: ${s.buy?.dropScoreRules?.length} 條`);
-      console.log(`- Valuation Tiers: ${s.valuationGuard?.tiers?.length} 條`);
+      logger.info("✅ 策略聚合測試成功！");
+      logger.info({
+        version: s.version,
+        description: s.description,
+        buyRules: s.buy?.dropScoreRules?.length,
+        valuationTiers: s.valuationGuard?.tiers?.length
+      }, "核心欄位檢查");
     })
     .catch((err) => {
-      console.error("❌ 策略聚合測試失敗：", err.message);
+      logger.error({ error: err.message }, "❌ 策略聚合測試失敗");
       process.exit(1);
     });
 }

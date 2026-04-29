@@ -31,8 +31,9 @@ import { join, resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 import { Bot, InlineKeyboard } from "grammy";
+import logger from "./utils/logger.mjs";
 import { adminGuard } from "./modules/bot/middleware/adminGuard.mjs";
-import { acquireLock, releaseLock } from "./modules/bot/runnerLock.mjs";
+import { acquireLock, releaseLock, registerShutdownHandlers } from "./modules/bot/runnerLock.mjs";
 import { dailyCheck } from "./dailyCheck.mjs";
 import { runNewsFetch } from "./runNewsFetch.mjs";
 import { runWeeklyReport } from "./runWeeklyReport.mjs";
@@ -41,10 +42,13 @@ import { runRuleOptimizer } from "./modules/ai/ruleOptimizerAgent.mjs";
 import { broadcastOptimizerResult } from "./modules/notifications/notifier.mjs";
 import { langfuse } from "./modules/ai/aiClient.mjs";
 
+// ── 註冊進程終止處理器（啟動初期）──────────────────────────────────────────
+registerShutdownHandlers();
+
 // ── 環境變數檢查 ───────────────────────────────────────────────────────────
 const token = process.env.TELEGRAM_API_TOKEN;
 if (!token) {
-  console.error("[Bot] ❌ TELEGRAM_API_TOKEN 未設定，無法啟動。");
+  logger.error("TELEGRAM_API_TOKEN 未設定，無法啟動");
   process.exit(1);
 }
 
@@ -63,9 +67,13 @@ bot.use(adminGuard);
  * @param {import('grammy').Context} ctx
  * @param {string} runnerName - 顯示用名稱
  * @param {Function} fn - async runner 函數
+ * @param {Object} options - 選項
+ * @param {number} options.maxConcurrent - 最大並發數
  */
-async function withRunner(ctx, runnerName, fn) {
-  const lock = acquireLock(runnerName);
+async function withRunner(ctx, runnerName, fn, options = {}) {
+  const { maxConcurrent = 2 } = options;
+  
+  const lock = await acquireLock(runnerName, { maxConcurrent });
   if (!lock.acquired) {
     await ctx.reply(lock.message, { parse_mode: "HTML" });
     return;
@@ -84,13 +92,13 @@ async function withRunner(ctx, runnerName, fn) {
       parse_mode: "HTML",
     });
   } catch (err) {
-    console.error(`[Bot] ❌ ${runnerName} 執行失敗:`, err);
+    logger.error({ runnerName, error: err }, "Bot runner 執行失敗");
     await ctx.reply(
       `❌ <b>${runnerName}</b> 執行失敗。\n<code>${err.message}</code>`,
       { parse_mode: "HTML" },
     );
   } finally {
-    releaseLock();
+    releaseLock(runnerName);
   }
 }
 
@@ -110,12 +118,9 @@ async function syncBotCommands() {
       { command: "optimize", description: "手動觸發規則優化器" },
       { command: "help", description: "顯示指令說明" },
     ]);
-    console.log("[Bot] ✅ setMyCommands 同步完成。");
+    logger.info("Bot setMyCommands 同步完成");
   } catch (err) {
-    console.warn(
-      "[Bot] ⚠️ setMyCommands 失敗（不影響 Bot 運作）:",
-      err.message,
-    );
+    logger.warn({ error: err.message }, "Bot setMyCommands 失敗（不影響 Bot 運作）");
   }
 }
 
@@ -126,9 +131,9 @@ async function syncMenuButton() {
   const chatId = Number(rawUserId);
 
   if (!rawUserId || !Number.isFinite(chatId)) {
-    console.warn(
-      "[Bot] ⚠️ setChatMenuButton 略過：TELEGRAM_USER_ID 未設定或格式異常",
-      `（值：${rawUserId}）`,
+    logger.warn(
+      { rawUserId },
+      "Bot setChatMenuButton 略過：TELEGRAM_USER_ID 未設定或格式異常"
     );
     return;
   }
@@ -142,14 +147,9 @@ async function syncMenuButton() {
         web_app: { url: MINI_APP_URL },
       },
     });
-    console.log(
-      `[Bot] ✅ setChatMenuButton 設定完成（Mini App：${MINI_APP_URL}）。`,
-    );
+    logger.info({ miniAppUrl: MINI_APP_URL }, "Bot setChatMenuButton 設定完成");
   } catch (err) {
-    console.warn(
-      "[Bot] ⚠️ setChatMenuButton 失敗（不影響 Bot 運作）:",
-      err.message,
-    );
+    logger.warn({ error: err.message }, "Bot setChatMenuButton 失敗（不影響 Bot 運作）");
   }
 }
 
@@ -235,8 +235,10 @@ bot.command("optimize", async (ctx) => {
 // ── 錯誤處理 ──────────────────────────────────────────────────────────────
 bot.catch(async (err) => {
   const ctx = err.ctx;
-  console.error(`[Bot] ❌ 處理 update ${ctx.update.update_id} 時發生錯誤：`);
-  console.error(err.error);
+  logger.error(
+    { updateId: ctx.update.update_id, error: err.error },
+    "Bot 處理 update 時發生錯誤"
+  );
   try {
     if (ctx && ctx.reply) {
       await ctx.reply(
@@ -245,19 +247,19 @@ bot.catch(async (err) => {
       );
     }
   } catch (e) {
-    console.error("[Bot] 嘗試回覆錯誤訊息時再度失敗:", e);
+    logger.error({ error: e }, "Bot 嘗試回覆錯誤訊息時再度失敗");
   }
 });
 
 // ── 啟動 Bot（Long-Polling）──────────────────────────────────────────────
-console.log("[Bot] 🚀 Bot 啟動中（Long-Polling 模式）...");
+logger.info("Bot 啟動中（Long-Polling 模式）");
 bot.start({
   drop_pending_updates: true,
   onStart: async (botInfo) => {
-    console.log(`[Bot] ✅ 已連線：@${botInfo.username}`);
-    console.log(`[Bot] 🔒 白名單 chat_id：${process.env.TELEGRAM_USER_ID}`);
+    logger.info({ username: botInfo.username }, "Bot 已連線");
+    logger.info({ chatId: process.env.TELEGRAM_USER_ID }, "Bot 白名單 chat_id");
     if (MINI_APP_URL) {
-      console.log(`[Bot] 📱 Mini App URL：${MINI_APP_URL}`);
+      logger.info({ miniAppUrl: MINI_APP_URL }, "Bot Mini App URL");
     }
     await syncBotCommands();
     await syncMenuButton();
@@ -266,12 +268,12 @@ bot.start({
 
 // ── 優雅關閉（SIGINT / SIGTERM）──────────────────────────────────────────
 process.once("SIGINT", () => {
-  console.log("[Bot] 🛑 收到 SIGINT，正在關閉...");
+  logger.info("Bot 收到 SIGINT，正在關閉...");
   bot.stop();
   langfuse.shutdownAsync().catch(() => {});
 });
 process.once("SIGTERM", () => {
-  console.log("[Bot] 🛑 收到 SIGTERM，正在關閉...");
+  logger.info("Bot 收到 SIGTERM，正在關閉...");
   bot.stop();
   langfuse.shutdownAsync().catch(() => {});
 });

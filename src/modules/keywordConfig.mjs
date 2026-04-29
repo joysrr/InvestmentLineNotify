@@ -1,6 +1,7 @@
 // keywordConfig.mjs
 import fs from "fs/promises";
 import path from "path";
+import logger from "../utils/logger.mjs";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 
@@ -126,9 +127,7 @@ export async function loadBlacklist() {
       ),
     };
   } catch (err) {
-    console.warn(
-      `⚠️ [KeywordConfig] 讀取 blacklist.json 失敗，將使用空黑名單: ${err.message}`,
-    );
+    logger.warn({ err: err.message }, `⚠️ [KeywordConfig] 讀取 blacklist.json 失敗，將使用空黑名單`);
     return {
       twExcludedSources: [],
       usExcludedSources: [],

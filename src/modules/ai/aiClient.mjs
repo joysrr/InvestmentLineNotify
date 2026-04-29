@@ -1,6 +1,20 @@
 import { GoogleGenAI } from "@google/genai";
 import { Langfuse } from "langfuse";
 import { fetchWithTimeout } from "../../utils/coreUtils.mjs";
+import logger from "../../utils/logger.mjs";
+import {
+  canMakeAIRequest,
+  recordAIRequestResult,
+  getCircuitBreakerStatus,
+  isCircuitOpen,
+  CIRCUIT_STATE,
+} from "./aiCircuitBreaker.mjs";
+import {
+  AIServiceError,
+  isAIRetryableError,
+  calculateBackoffDelay,
+  delay,
+} from "../../utils/retryUtils.mjs";
 
 // 參數&初始化
 const GEMINI_API_KEYS = [
@@ -39,9 +53,15 @@ const _langfuseEnabled =
   !!process.env.LANGFUSE_BASE_URL;
 
 if (!_langfuseEnabled) {
-  console.warn(
-    "⚠️ [Langfuse] 環境變數未完整設定（LANGFUSE_PUBLIC_KEY / LANGFUSE_SECRET_KEY / LANGFUSE_BASE_URL），" +
-      "Langfuse 追蹤已停用，所有 trace 將被靜默忽略。",
+  logger.warn(
+    { 
+      missingKeys: [
+        !process.env.LANGFUSE_PUBLIC_KEY && "LANGFUSE_PUBLIC_KEY",
+        !process.env.LANGFUSE_SECRET_KEY && "LANGFUSE_SECRET_KEY",
+        !process.env.LANGFUSE_BASE_URL && "LANGFUSE_BASE_URL",
+      ].filter(Boolean),
+    },
+    "Langfuse 環境變數未完整設定，追蹤已停用"
   );
 }
 
@@ -65,14 +85,14 @@ export async function flushLangfuse(traceId, status = "success") {
   if (!_langfuseEnabled) return;
   try {
     await langfuse.flushAsync();
-    console.log(
-      `✅ [Langfuse] flush 完成 | traceId: ${traceId} | status: ${status} | url: ${
-        process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com"
-      }/trace/${traceId}`,
+    logger.info(
+      { traceId, status, url: `${process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com"}/trace/${traceId}` },
+      "Langfuse flush 完成"
     );
   } catch (flushErr) {
-    console.error(
-      `❌ [Langfuse] flushAsync 失敗 | traceId: ${traceId} | 原因: ${flushErr.message}`,
+    logger.error(
+      { traceId, error: flushErr.message },
+      "Langfuse flushAsync 失敗"
     );
   }
 }
@@ -138,28 +158,14 @@ function isQuotaError(error) {
  * 服務不穩定類錯誤 → 維持同一把 key，做 backoff 等待後重試
  */
 function isServiceError(error) {
-  const msg = error.message || "";
-  return (
-    msg.includes("503") ||
-    msg.includes("UNAVAILABLE") ||
-    msg.includes("Timeout") ||
-    msg.includes("AbortError") ||
-    msg.includes("ETIMEDOUT") ||
-    msg.includes("ECONNRESET") ||
-    msg.includes("fetch failed")
-  );
-}
-
-/** 向下相容：任一可重試錯誤 */
-function isRetryableError(error) {
-  return isQuotaError(error) || isServiceError(error);
+  // 使用統一的重試判斷工具
+  return isAIRetryableError(error) && !isQuotaError(error);
 }
 
 // Exponential Backoff + Jitter（僅用於 ServiceError）
+// 使用統一的工具函數
 function getBackoffDelay(attempt, baseDelay = 2000) {
-  const exponential = baseDelay * Math.pow(2, attempt);
-  const jitter = Math.random() * 1000;
-  return exponential + jitter;
+  return calculateBackoffDelay(attempt, baseDelay, 10000, 0.5);
 }
 
 // ── 各 prompt 的 hardcoded fallback（Langfuse 斷線時使用）──────────────────────────
@@ -296,8 +302,9 @@ async function resolveChatPrompt(promptName, variables = {}) {
     // 從 Langfuse prompt.config 取出 temperature / responseMimeType / thinkingConfig 等
     langfuseConfig = langfusePromptObj.config ?? {};
   } catch (err) {
-    console.warn(
-      `⚠️ [Langfuse] getPrompt(${promptName}, chat) 失敗，嘗試 hardcoded fallback：${err.message}`,
+    logger.warn(
+      { promptName, error: err.message },
+      "Langfuse getPrompt 失敗，嘗試使用 hardcoded fallback"
     );
 
     const promptKey = promptName.split("/").pop();
@@ -312,13 +319,15 @@ async function resolveChatPrompt(promptName, variables = {}) {
         fallback.user,
       );
       promptSource = "hardcoded-fallback";
-      console.warn(
-        `⚠️ [Langfuse] 使用 hardcoded fallback prompt for: ${promptKey}（輸出品質可能降低）`,
+      logger.warn(
+        { promptKey },
+        "使用 hardcoded fallback prompt（輸出品質可能降低）"
       );
     } else {
       promptSource = "missing";
-      console.error(
-        `❌ [Langfuse] 無可用 prompt for: ${promptName}，且無硬編碼 fallback。`,
+      logger.error(
+        { promptName },
+        "Langfuse 無可用 prompt 且無硬編碼 fallback"
       );
     }
   }
@@ -359,12 +368,24 @@ async function resolveChatPrompt(promptName, variables = {}) {
  * @param {object}  [options.thinkingConfig]    - 覆蓋 Langfuse config
  */
 export async function callAI(promptName, options = {}) {
+  // ── Circuit Breaker 檢查 ────────────────────────────────────────────────
+  if (!canMakeAIRequest()) {
+    const status = getCircuitBreakerStatus();
+    const circuitErr = new Error(
+      `[CircuitBreaker] AI API 處於 ${status.state} 狀態，拒絕請求（失敗率 ${status.failureRate}）`,
+    );
+    circuitErr.code = "CIRCUIT_OPEN";
+    circuitErr.circuitStatus = status;
+    throw circuitErr;
+  }
+
   const provider = options.provider ?? PROVIDERS.GEMINI;
   const cfg = PROVIDER_CONFIG[provider];
   if (!cfg) throw new Error(`[callAI] 未知的 provider: ${provider}`);
 
   const resolvedModel = options.model ?? cfg.defaultModel;
   const isCI = !!process.env.GITHUB_RUN_ID;
+  const startTime = Date.now(); // 記錄開始時間，用於 Circuit Breaker 回應時間監控
 
   // ── Step 1: 從 Langfuse 取得 chat prompt ─────────────────────────────────
   const {
@@ -383,7 +404,10 @@ export async function callAI(promptName, options = {}) {
       `[callAI] Prompt 不可用（Langfuse 斷線且無 hardcoded fallback）：${promptName}。` +
         `本次 AI 呼叫已阻斷，請檢查 Langfuse 連線或補充 PROMPT_HARDCODED_FALLBACK。`,
     );
-    console.error(`❌ ${degradationErr.message}`);
+    logger.error(
+      { promptName },
+      degradationErr.message
+    );
     throw degradationErr;
   }
 
@@ -441,8 +465,9 @@ export async function callAI(promptName, options = {}) {
   });
 
   // ── 診斷日誌：trace 建立確認 ──────────────────────────────────────────────
-  console.log(
-    `📡 [Langfuse] trace 建立 | prompt: ${promptName} | traceId: ${trace.id} | enabled: ${_langfuseEnabled}`,
+  logger.debug(
+    { promptName, traceId: trace.id, enabled: _langfuseEnabled },
+    "Langfuse trace 建立"
   );
 
   // ── Retry Loop（含 key 輪換）──────────────────────────────────────────────
@@ -535,11 +560,21 @@ export async function callAI(promptName, options = {}) {
       trace.update({ output: text });
 
       // ── 診斷日誌 & flush：確認寫入 Langfuse ──────────────────────────────
-      console.log(
-        `📊 [Langfuse] generation 完成 | attempt: ${attempt} | ` +
-          `tokens: in=${inputTokens ?? "?"} out=${outputTokens ?? "?"} total=${totalTokens ?? "?"}` +
-          (thoughtsTokenCount ? ` thoughts=${thoughtsTokenCount}` : ""),
+      logger.info(
+        { 
+          attempt, 
+          inputTokens, 
+          outputTokens, 
+          totalTokens, 
+          thoughtsTokenCount,
+          duration: Date.now() - startTime 
+        },
+        "Langfuse generation 完成"
       );
+
+      // 記錄 Circuit Breaker 成功
+      recordAIRequestResult(Date.now() - startTime, true);
+
       await flushLangfuse(trace.id, "success");
 
       return { text, traceId: trace.id };
@@ -553,30 +588,39 @@ export async function callAI(promptName, options = {}) {
         if (quotaErr && keyCount > 1) {
           const prevKey = currentKeyIndex;
           currentKeyIndex = (currentKeyIndex + 1) % keyCount;
-          console.warn(
-            `⚠️ [callAI] Quota 耗盡 (key: ${prevKey})，` +
-              `立即切換至 key: ${currentKeyIndex}（attempt ${attempt + 1}/${maxRetries}）`,
+          logger.warn(
+            { prevKey, currentKeyIndex, attempt: attempt + 1, maxRetries },
+            "Quota 耗盡，切換至下一個 key"
           );
           generation.end({
             level: "WARNING",
             statusMessage: `Quota exceeded key:${prevKey}, switching to key:${currentKeyIndex}`,
           });
         } else {
-          const delay = getBackoffDelay(attempt);
-          console.warn(
-            `⚠️ [callAI] 服務錯誤 (key: ${currentKeyIndex})，` +
-              `${(delay / 1000).toFixed(1)}s 後重試（attempt ${attempt + 1}/${maxRetries}）原因: ${error.message}`,
+          const backoffDelay = getBackoffDelay(attempt);
+          logger.warn(
+            { 
+              keyIndex: currentKeyIndex, 
+              attempt: attempt + 1, 
+              maxRetries,
+              delaySeconds: (backoffDelay / 1000).toFixed(1),
+              error: error.message 
+            },
+            "服務錯誤，等待後重試"
           );
           generation.end({
             level: "WARNING",
             statusMessage: `Service error retry ${attempt + 1}: ${error.message}`,
           });
-          await new Promise((resolve) => setTimeout(resolve, delay));
+          await delay(backoffDelay);
         }
       } else {
-        console.error(
-          `❌ [callAI] API 呼叫失敗 (key: ${currentKeyIndex}, attempt: ${attempt}):`,
-          error.message,
+        // 記錄 Circuit Breaker 失敗
+        recordAIRequestResult(Date.now() - startTime, false);
+
+        logger.error(
+          { keyIndex: currentKeyIndex, attempt, error: error.message },
+          "API 呼叫失敗"
         );
         generation.end({ level: "ERROR", statusMessage: error.message });
         trace.update({
@@ -599,20 +643,21 @@ export async function listAllModels(provider = PROVIDERS.GEMINI) {
     return listGrokModels();
   }
 
-  console.log("正在獲取 Gemini 可用模型清單...\n");
+  logger.info("正在獲取 Gemini 可用模型清單");
   try {
     const ai = aiInstances[0];
     const models = await ai.models.list();
     let count = 1;
+    const modelList = [];
     for await (const model of models) {
       if (model.supportedActions?.includes("generateContent")) {
-        console.log(`${count}. ${model.name}`);
+        modelList.push(model.name);
         count++;
       }
     }
-    console.log("\n✅ 查詢完畢！請從上方挑選模型名稱放入 GEMINI_MODEL 中。");
+    logger.info({ models: modelList, count: modelList.length }, "Gemini 模型查詢完畢");
   } catch (error) {
-    console.error("獲取 Gemini 模型失敗:", error);
+    logger.error({ error }, "獲取 Gemini 模型失敗");
   }
 }
 
@@ -663,11 +708,11 @@ async function callGrokAPI({ model, systemInstruction, userPrompt, options }) {
 export async function listGrokModels() {
   const cfg = PROVIDER_CONFIG[PROVIDERS.GROK];
   if (!cfg.apiKeys.length) {
-    console.error("❌ 缺少 GROK_API_KEY1");
+    logger.error("缺少 GROK_API_KEY1");
     return;
   }
 
-  console.log("正在獲取 Grok 可用模型清單...\n");
+  logger.info("正在獲取 Grok 可用模型清單");
 
   try {
     const res = await fetchWithTimeout(`${cfg.baseURL}/models`, {
@@ -685,14 +730,13 @@ export async function listGrokModels() {
     const data = await res.json();
     const models = data.data ?? [];
 
-    models.forEach((model, i) => {
-      console.log(`${i + 1}. ${model.id}  (owned_by: ${model.owned_by})`);
-    });
-
-    console.log(
-      `\n✅ 共 ${models.length} 個模型，請從上方挑選 id 放入 GROK_MODEL 中。`,
-    );
+    const modelList = models.map((model, i) => ({
+      id: model.id,
+      ownedBy: model.owned_by,
+    }));
+    
+    logger.info({ models: modelList, count: models.length }, "Grok 模型查詢完畢");
   } catch (error) {
-    console.error("❌ 獲取 Grok 模型失敗:", error.message);
+    logger.error({ error: error.message }, "獲取 Grok 模型失敗");
   }
 }

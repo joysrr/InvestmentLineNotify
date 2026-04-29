@@ -1,30 +1,67 @@
+import logger from "../../../utils/logger.mjs";
+import { fetchWithTimeout, ProviderError } from "../../../utils/retryUtils.mjs";
+
 const token = process.env.TELEGRAM_API_TOKEN;
 const logToken = process.env.TELEGRAM_LOG_API_TOKEN;
 const chatId = process.env.TELEGRAM_USER_ID;
 
+// ============================================================================
+// 📡 統一請求配置
+// ============================================================================
+
+const DEFAULT_TIMEOUT = 10000; // 10 秒 timeout
+const DEFAULT_RETRIES = 2;     // 重試 2 次（共 3 次嘗試）
+const PROVIDER_ID = "telegram";
+
+// ============================================================================
+// 🔔 釘選管理
+// ============================================================================
+
 /**
- * 解除該 chat 中所有釘選訊息。
- * 可在每次 pin 新訊息前獨立呼叫。
+ * 解除該 chat 中所有釘選訊息
+ * 可在每次 pin 新訊息前獨立呼叫
  */
 export async function unpinAllChatMessages() {
   const url = `https://api.telegram.org/bot${token}/unpinAllChatMessages`;
+
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId }),
-    });
+    const response = await fetchWithTimeout(
+      url,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId }),
+      },
+      DEFAULT_TIMEOUT,
+      DEFAULT_RETRIES,
+      1000,
+      PROVIDER_ID,
+      "unpinAllChatMessages"
+    );
+
     const resData = await response.json();
     if (!resData.ok) {
-      console.error(`❌ unpinAllChatMessages 失敗:`, resData.description);
+      logger.error({ description: resData.description }, `❌ [${PROVIDER_ID}] unpinAllChatMessages 失敗`);
     } else {
-      console.log(`✅ 已解除所有釘選訊息`);
+      logger.info(`✅ [${PROVIDER_ID}] 已解除所有釘選訊息`);
     }
-  } catch (err) {
-    console.error(`❌ unpinAllChatMessages 網路錯誤:`, err);
+  } catch (error) {
+    if (error instanceof ProviderError) {
+      logger.error({ error: error.message }, `❌ [${PROVIDER_ID}] unpinAllChatMessages 最終失敗`);
+    } else {
+      logger.error({ error }, `❌ [${PROVIDER_ID}] unpinAllChatMessages unexpected error`);
+    }
   }
 }
 
+// ============================================================================
+// 📨 批次訊息發送
+// ============================================================================
+
+/**
+ * 批次發送 Telegram 訊息
+ * @param {Array} messages - 訊息陣列，每個物件包含 text, pin, disable_notification 等欄位
+ */
 export async function sendTelegramBatch(messages) {
   const sendUrl = `https://api.telegram.org/bot${token}/sendMessage`;
   const pinUrl  = `https://api.telegram.org/bot${token}/pinChatMessage`;
@@ -74,43 +111,77 @@ export async function sendTelegramBatch(messages) {
     }
 
     try {
-      const response = await fetch(sendUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetchWithTimeout(
+        sendUrl,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+        DEFAULT_TIMEOUT,
+        DEFAULT_RETRIES,
+        1000,
+        PROVIDER_ID,
+        `sendMessage[${i + 1}]`
+      );
 
       const resData = await response.json();
       if (!resData.ok) {
-        console.error(`❌ 第 ${i + 1} 則發送失敗:`, resData.description);
+        logger.error({ index: i + 1, description: resData.description }, `❌ [${PROVIDER_ID}] 第 ${i + 1} 則發送失敗`);
         continue;
       } else {
-        console.log(`✅ 第 ${i + 1} 則發送成功`);
+        logger.info(`✅ [${PROVIDER_ID}] 第 ${i + 1} 則發送成功`);
       }
 
       if (msg.pin) {
         const messageId = resData.result.message_id;
-        const pinResponse = await fetch(pinUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            chat_id: chatId,
-            message_id: messageId,
-            disable_notification: true,
-          }),
-        });
-        const pinData = await pinResponse.json();
-        if (!pinData.ok) {
-          console.error(`❌ 第 ${i + 1} 則釘選失敗:`, pinData.description);
-        } else {
-          console.log(`📌 第 ${i + 1} 則已釘選`);
+
+        try {
+          const pinResponse = await fetchWithTimeout(
+            pinUrl,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                chat_id: chatId,
+                message_id: messageId,
+                disable_notification: true,
+              }),
+            },
+            DEFAULT_TIMEOUT,
+            DEFAULT_RETRIES,
+            1000,
+            PROVIDER_ID,
+            `pinChatMessage[${i + 1}]`
+          );
+
+          const pinData = await pinResponse.json();
+          if (!pinData.ok) {
+            logger.error({ index: i + 1, description: pinData.description }, `❌ [${PROVIDER_ID}] 第 ${i + 1} 則釘選失敗`);
+          } else {
+            logger.info(`📌 [${PROVIDER_ID}] 第 ${i + 1} 則已釘選`);
+          }
+        } catch (pinError) {
+          if (pinError instanceof ProviderError) {
+            logger.error({ index: i + 1, error: pinError.message }, `❌ [${PROVIDER_ID}] 第 ${i + 1} 則釘選最終失敗`);
+          } else {
+            logger.error({ index: i + 1, error: pinError }, `❌ [${PROVIDER_ID}] 第 ${i + 1} 則釘選 unexpected error`);
+          }
         }
       }
-    } catch (err) {
-      console.error(`❌ 網路錯誤:`, err);
+    } catch (error) {
+      if (error instanceof ProviderError) {
+        logger.error({ index: i + 1, error: error.message }, `❌ [${PROVIDER_ID}] 第 ${i + 1} 則發送最終失敗`);
+      } else {
+        logger.error({ index: i + 1, error }, `❌ [${PROVIDER_ID}] 第 ${i + 1} 則發送 unexpected error`);
+      }
     }
   }
 }
+
+// ============================================================================
+// 📡 系統訊息（Log 頻道）
+// ============================================================================
 
 /**
  * 發送系統訊息至 Log 頻道（使用 TELEGRAM_LOG_API_TOKEN）
@@ -118,29 +189,44 @@ export async function sendTelegramBatch(messages) {
  */
 export async function sendSystemMessage(text) {
   if (!logToken) {
-    console.warn("[SystemMsg] TELEGRAM_LOG_API_TOKEN 未設定，跳過系統訊息發送");
+    logger.warn(`[${PROVIDER_ID}/SystemMsg] TELEGRAM_LOG_API_TOKEN 未設定，跳過系統訊息發送`);
     return;
   }
+
   const url = `https://api.telegram.org/bot${logToken}/sendMessage`;
+
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text,
-        parse_mode: "HTML",
-        disable_web_page_preview: true,
-        disable_notification: true,
-      }),
-    });
+    const response = await fetchWithTimeout(
+      url,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+          parse_mode: "HTML",
+          disable_web_page_preview: true,
+          disable_notification: true,
+        }),
+      },
+      DEFAULT_TIMEOUT,
+      DEFAULT_RETRIES,
+      1000,
+      `${PROVIDER_ID}/SystemMsg`,
+      "sendSystemMessage"
+    );
+
     const resData = await response.json();
     if (!resData.ok) {
-      console.warn("[SystemMsg] 系統訊息發送失敗:", resData.description);
+      logger.warn({ description: resData.description }, `[${PROVIDER_ID}/SystemMsg] 系統訊息發送失敗`);
     } else {
-      console.log("[SystemMsg] ✅ 系統訊息發送成功");
+      logger.info(`[${PROVIDER_ID}/SystemMsg] ✅ 系統訊息發送成功`);
     }
-  } catch (err) {
-    console.warn("[SystemMsg] 系統訊息網路錯誤:", err.message);
+  } catch (error) {
+    if (error instanceof ProviderError) {
+      logger.warn({ error: error.message }, `[${PROVIDER_ID}/SystemMsg] 系統訊息發送最終失敗`);
+    } else {
+      logger.warn({ error }, `[${PROVIDER_ID}/SystemMsg] 系統訊息 unexpected error`);
+    }
   }
 }

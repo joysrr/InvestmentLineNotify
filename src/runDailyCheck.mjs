@@ -26,6 +26,7 @@ async function main() {
     "啟動 dailyCheck 排程任務",
   );
 
+  let exitCode = 0;
   try {
     await dailyCheck({
       isTelegramEnabled: isTelegramEnabled,
@@ -34,7 +35,7 @@ async function main() {
     });
   } catch (err) {
     logger.error(err, "❌ 系統發生嚴重錯誤");
-    process.exit(1);
+    exitCode = 1;
   } finally {
     logger.info("🚀 dailyCheck 執行結束");
     // 確保 Langfuse 正確關閉，避免資源洩漏
@@ -46,6 +47,22 @@ async function main() {
       logger.warn(e, "⚠️ Langfuse 關閉失敗");
     }
   }
+
+  // 偵錯：列出還活著的 handle
+  const handles = process._getActiveHandles();
+  const requests = process._getActiveRequests();
+  logger.info({
+    activeHandles: handles.length,
+    activeRequests: requests.length,
+    handleTypes: handles.map(h => h.constructor?.name || typeof h),
+    requestTypes: requests.map(r => r.constructor?.name || typeof r),
+  }, "結束時的 active handles");
+
+  // 給 logger 一點時間 flush（pino async transport 需要）
+  await new Promise(resolve => setTimeout(resolve, 200));
+
+  // 強制退出，避免 HTTP keep-alive / Telegram polling / 其他套件殘留 handle
+  process.exit(exitCode);
 }
 
 main();

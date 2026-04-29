@@ -2,6 +2,8 @@ import { GoogleSpreadsheet } from "google-spreadsheet";
 import { JWT } from "google-auth-library";
 import { TwDate, parseNumber } from "../utils/coreUtils.mjs";
 import { archiveManager } from "./data/archiveManager.mjs";
+import logger from "../utils/logger.mjs";
+import { withRetry } from "../utils/retryUtils.mjs";
 
 // 1. 取得並處理私鑰 (自動修復格式問題)
 let privateKey = process.env.GOOGLE_PRIVATE_KEY || "";
@@ -53,86 +55,101 @@ function isValidDateStr(str) {
  */
 export async function fetchLastPortfolioState() {
   try {
-    const doc = await getSheetDoc();
-    const sheet = doc.sheetsByIndex[0];
-    const rows = await sheet.getRows();
+    return await withRetry(
+      async () => {
+        const doc = await getSheetDoc();
+        const sheet = doc.sheetsByIndex[0];
+        const rows = await sheet.getRows();
 
-    if (rows.length === 0) {
-      console.log("⚠️ 資產紀錄表為空，將使用預設值");
-      return null;
-    }
+        if (rows.length === 0) {
+          logger.info("⚠️ 資產紀錄表為空，將使用預設值");
+          return null;
+        }
 
-    // 倒序尋找最後一筆有日期的紀錄，同時記錄最後一筆「主動交易」為「是」的紀錄
-    let lastRow = null;
-    let lastBuyRow = null;
-    for (let i = rows.length - 1; i >= 0; i--) {
-      const dateCell = rows[i].get("日期");
-      if (dateCell && dateCell.trim() !== "") {
+        // 倒序尋找最後一筆有日期的紀錄，同時記錄最後一筆「主動交易」為「是」的紀錄
+        let lastRow = null;
+        let lastBuyRow = null;
+        for (let i = rows.length - 1; i >= 0; i--) {
+          const dateCell = rows[i].get("日期");
+          if (dateCell && dateCell.trim() !== "") {
+            if (!lastRow) {
+              lastRow = rows[i];
+            }
+            if (
+              rows[i].get("主動交易") &&
+              rows[i].get("主動交易").trim() === "是"
+            ) {
+              lastBuyRow = rows[i];
+            }
+            if (lastRow != null && lastBuyRow != null) {
+              break;
+            }
+          }
+        }
+
         if (!lastRow) {
-          lastRow = rows[i];
+          logger.info("⚠️ 找不到有效持股紀錄，將使用預設值");
+          return null;
         }
-        if (
-          rows[i].get("主動交易") &&
-          rows[i].get("主動交易").trim() === "是"
-        ) {
-          lastBuyRow = rows[i];
-        }
-        if (lastRow != null && lastBuyRow != null) {
-          break;
-        }
-      }
-    }
 
-    if (!lastRow) {
-      console.log("⚠️ 找不到有效持股紀錄，將使用預設值");
-      return null;
-    }
+        logger.info(
+          `✅ 讀取持股來源：[${sheet.title}] 日期：${lastRow.get("日期")}`,
+        );
 
-    console.log(
-      `✅ 讀取持股來源: [${sheet.title}] 日期: ${lastRow.get("日期")}`,
+        // ── lastBuyDate 雙來源容錯 ──────────────────────────────────────────────
+        const sheetLastBuyDate = lastBuyRow ? lastBuyRow.get("日期") : null;
+        let resolvedLastBuyDate = null;
+
+        if (isValidDateStr(sheetLastBuyDate)) {
+          // Sheet 讀到合理值 → 更新本地備份
+          resolvedLastBuyDate = sheetLastBuyDate;
+          await archiveManager.saveLastBuyDate(sheetLastBuyDate);
+        } else {
+          // Sheet 值異常 → fallback 至本地備份
+          const localDate = await archiveManager.getLastBuyDate();
+          if (localDate) {
+            logger.warn(
+              `⚠️ [Storage] lastBuyDate Sheet 值異常 ("${sheetLastBuyDate}")` +
+                `，使用本地備份：${localDate}`,
+            );
+            resolvedLastBuyDate = localDate;
+          } else {
+            logger.warn(
+              `⚠️ [Storage] lastBuyDate 無可用來源（Sheet 异常且無本地備份），冷卻期將以無歷史購入處理`,
+            );
+          }
+        }
+        // ──────────────────────────────────────────────────────────────────────────────
+
+        const parsedLoan = parseNumber(lastRow.get("借貸總額"));
+        const parsedCash = parseNumber(lastRow.get("現金儲備"));
+
+        return {
+          date: lastRow.get("日期"),
+          lastBuyDate: resolvedLastBuyDate,
+          qty0050: parseNumber(lastRow.get("0050 股數")) || 0,
+          qtyZ2: parseNumber(lastRow.get("00675L 股數")) || 0,
+          totalLoan: parsedLoan || 0,
+          cash: parsedCash ?? (parseNumber(process.env.CASH_RESERVE) || 0),
+          // 持倉均價（手動維護欄位，空白時為 null，不影響主流程）
+          avgCost0050: parseNumber(lastRow.get("0050 均價")),
+          avgCostZ2: parseNumber(lastRow.get("00675L 均價")),
+        };
+      },
+      {
+        operationName: "fetchLastPortfolioState",
+        maxRetries: 3,
+        baseDelay: 1000,
+        onRetry: (attempt, error, delayMs) => {
+          logger.warn(
+            `[Storage] fetchLastPortfolioState 失敗 (嘗試 ${attempt}/3)，` +
+              `等待 ${Math.round(delayMs)}ms 後重試：${error.message}`
+          );
+        },
+      },
     );
-
-    // ── lastBuyDate 雙來源容錯 ──────────────────────────────────────────────
-    const sheetLastBuyDate = lastBuyRow ? lastBuyRow.get("日期") : null;
-    let resolvedLastBuyDate = null;
-
-    if (isValidDateStr(sheetLastBuyDate)) {
-      // Sheet 讀到合理值 → 更新本地備份
-      resolvedLastBuyDate = sheetLastBuyDate;
-      await archiveManager.saveLastBuyDate(sheetLastBuyDate);
-    } else {
-      // Sheet 值異常 → fallback 至本地備份
-      const localDate = await archiveManager.getLastBuyDate();
-      if (localDate) {
-        console.warn(
-          `⚠️ [Storage] lastBuyDate Sheet 值異常 ("${sheetLastBuyDate}")` +
-            `，使用本地備份: ${localDate}`,
-        );
-        resolvedLastBuyDate = localDate;
-      } else {
-        console.warn(
-          `⚠️ [Storage] lastBuyDate 無可用來源（Sheet 异常且無本地備份），冷卻期將以無歷史購入處理`,
-        );
-      }
-    }
-    // ──────────────────────────────────────────────────────────────────────────────
-
-    const parsedLoan = parseNumber(lastRow.get("借貸總額"));
-    const parsedCash = parseNumber(lastRow.get("現金儲備"));
-
-    return {
-      date: lastRow.get("日期"),
-      lastBuyDate: resolvedLastBuyDate,
-      qty0050: parseNumber(lastRow.get("0050股數")) || 0,
-      qtyZ2: parseNumber(lastRow.get("00675L股數")) || 0,
-      totalLoan: parsedLoan || 0,
-      cash: parsedCash ?? (parseNumber(process.env.CASH_RESERVE) || 0),
-      // 持倉均價（手動維護欄位，空白時為 null，不影響主流程）
-      avgCost0050: parseNumber(lastRow.get("0050均價")),
-      avgCostZ2: parseNumber(lastRow.get("00675L均價")),
-    };
   } catch (err) {
-    console.error("❌ 讀取持股失敗:", err);
+    logger.error("❌ 讀取持股失敗（已重試 3 次）:", err);
     return null;
   }
 }
@@ -143,78 +160,93 @@ export async function fetchLastPortfolioState() {
  */
 export async function logDailyToSheet(data) {
   try {
-    const doc = await getSheetDoc();
-    const targetSheetTitle = "通知紀錄";
+    await withRetry(
+      async () => {
+        const doc = await getSheetDoc();
+        const targetSheetTitle = "通知紀錄";
 
-    let sheet = doc.sheetsByTitle[targetSheetTitle];
+        let sheet = doc.sheetsByTitle[targetSheetTitle];
 
-    if (!sheet) {
-      console.log(`🆕 發現新需求，正在建立 [${targetSheetTitle}] 分頁...`);
-      sheet = await doc.addSheet({ title: targetSheetTitle });
-      await sheet.setHeaderRow([
-        "日期",
-        "0050股數",
-        "00675L股數",
-        "0050市値",
-        "00675L市値",
-        "借貸總額",
-        "現金儲備",
-        "維持率（%）",
-        "總淨資產",
-        "正2占總資產比例",
-        "正2應賣出金額",
-        "備註",
-      ]);
-    }
+        if (!sheet) {
+          logger.info(`🆕 發現新需求，正在建立 [${targetSheetTitle}] 分頁...`);
+          sheet = await doc.addSheet({ title: targetSheetTitle });
+          await sheet.setHeaderRow([
+            "日期",
+            "0050 股數",
+            "00675L 股數",
+            "0050 市値",
+            "00675L 市値",
+            "借貸總額",
+            "現金儲備",
+            "維持率（%）",
+            "總淨資產",
+            "正 2 占總資產比例",
+            "正 2 應賣出金額",
+            "備註",
+          ]);
+        }
 
-    const rows = await sheet.getRows();
-    const dateStr = TwDate().formatDateKey().replace(/-/g, "/");
+        const rows = await sheet.getRows();
+        const dateStr = TwDate().formatDateKey().replace(/-/g, "/");
 
-    const val0050 = Math.round(data.portfolio.qty0050 * data.price0050);
-    const valZ2 = Math.round(data.portfolio.qtyZ2 * data.currentPrice);
-    const loan = data.portfolio.totalLoan || 0;
-    const cash = data.portfolio.cash || 0;
-    const netAsset = val0050 + valZ2 - loan + cash;
+        const val0050 = Math.round(data.portfolio.qty0050 * data.price0050);
+        const valZ2 = Math.round(data.portfolio.qtyZ2 * data.currentPrice);
+        const loan = data.portfolio.totalLoan || 0;
+        const cash = data.portfolio.cash || 0;
+        const netAsset = val0050 + valZ2 - loan + cash;
 
-    let marginStr = "無借貸";
-    if (loan > 0) {
-      marginStr = data.maintenanceMargin.toFixed(2) + "%";
-    }
+        let marginStr = "無借貸";
+        if (loan > 0) {
+          marginStr = data.maintenanceMargin.toFixed(2) + "%";
+        }
 
-    let sellAmount = 0;
-    if (data.z2Ratio > 42) {
-      const targetZ2Value = netAsset * 0.4;
-      sellAmount = Math.round(valZ2 - targetZ2Value);
-    }
+        let sellAmount = 0;
+        if (data.z2Ratio > 42) {
+          const targetZ2Value = netAsset * 0.4;
+          sellAmount = Math.round(valZ2 - targetZ2Value);
+        }
 
-    const rowData = {
-      日期: dateStr,
-      "0050股數": data.portfolio.qty0050,
-      "00675L股數": data.portfolio.qtyZ2,
-      "0050市値": val0050,
-      "00675L市値": valZ2,
-      借貸總額: loan === 0 ? "無借貸" : loan,
-      現金儲備: cash,
-      "維持率（%）": marginStr,
-      總淨資產: netAsset,
-      正2占總資產比例: (data.z2Ratio / 100).toFixed(3),
-      正2應賣出金額: sellAmount,
-      備註: data.suggestion,
-    };
+        const rowData = {
+          日期: dateStr,
+          "0050 股數": data.portfolio.qty0050,
+          "00675L 股數": data.portfolio.qtyZ2,
+          "0050 市値": val0050,
+          "00675L 市値": valZ2,
+          "借貸總額": loan === 0 ? "無借貸" : loan,
+          "現金儲備": cash,
+          "維持率（%）": marginStr,
+          "總淨資產": netAsset,
+          "正 2 占總資產比例": (data.z2Ratio / 100).toFixed(3),
+          "正 2 應賣出金額": sellAmount,
+          "備註": data.suggestion,
+        };
 
-    const lastRow = rows[rows.length - 1];
+        const lastRow = rows[rows.length - 1];
 
-    if (lastRow && lastRow.get("日期") === dateStr) {
-      console.log(`🔄 [${targetSheetTitle}] 今天已有資料，執行更新...`);
-      lastRow.assign(rowData);
-      await lastRow.save();
-    } else {
-      console.log(`📝 [${targetSheetTitle}] 新增今日紀錄...`);
-      await sheet.addRow(rowData);
-    }
+        if (lastRow && lastRow.get("日期") === dateStr) {
+          logger.info(`🔄 [${targetSheetTitle}] 今天已有資料，執行更新...`);
+          lastRow.assign(rowData);
+          await lastRow.save();
+        } else {
+          logger.info(`📝 [${targetSheetTitle}] 新增今日紀錄...`);
+          await sheet.addRow(rowData);
+        }
 
-    console.log("✅ 通知紀錄已同步");
+        logger.info("✅ 通知紀錄已同步");
+      },
+      {
+        operationName: "logDailyToSheet",
+        maxRetries: 3,
+        baseDelay: 1000,
+        onRetry: (attempt, error, delayMs) => {
+          logger.warn(
+            `[Storage] logDailyToSheet 失敗 (嘗試 ${attempt}/3)，` +
+              `等待 ${Math.round(delayMs)}ms 後重試：${error.message}`
+          );
+        },
+      },
+    );
   } catch (err) {
-    console.error("❌ 寫入通知紀錄失敗:", err);
+    logger.error("❌ 寫入通知紀錄失敗（已重試 3 次）:", err);
   }
 }

@@ -1,4 +1,8 @@
 import crypto from "crypto";
+import logger from "../../utils/logger.mjs";
+
+// 生產環境 initData 最大有效時間（5 分鐘，原 24 小時）
+const MAX_AGE_SECONDS = process.env.NODE_ENV === "dev" ? 86400 : 300;
 
 /**
  * Fastify onRequest hook — Telegram initData HMAC-SHA256 validation.
@@ -29,6 +33,10 @@ export async function initDataGuard(request, reply) {
 
   const rawInitData = request.headers["x-telegram-init-data"];
   if (!rawInitData) {
+    const ip = request.ip || request.headers["x-forwarded-for"] || "unknown";
+    logger.warn({ event: "initDataGuard", reason: "missing_header", ip, url: request.url },
+      "⚠️ [initDataGuard] 缺少 X-Telegram-Init-Data header"
+    );
     return reply
       .code(403)
       .send({ error: "Missing X-Telegram-Init-Data header" });
@@ -36,8 +44,8 @@ export async function initDataGuard(request, reply) {
 
   const botToken = process.env.TELEGRAM_API_TOKEN;
   if (!botToken) {
-    request.log.error(
-      "❌ [initDataGuard] 缺少 TELEGRAM_API_TOKEN，無法驗證 initData",
+    logger.error({ event: "initDataGuard", reason: "missing_token" },
+      "❌ [initDataGuard] 缺少 TELEGRAM_API_TOKEN，無法驗證 initData"
     );
     return reply.code(500).send({ error: "Server auth configuration error" });
   }
@@ -46,6 +54,10 @@ export async function initDataGuard(request, reply) {
     const params = new URLSearchParams(rawInitData);
     const receivedHash = params.get("hash");
     if (!receivedHash) {
+      const ip = request.ip || request.headers["x-forwarded-for"] || "unknown";
+      logger.warn({ event: "initDataGuard", reason: "missing_hash", ip, url: request.url },
+        "⚠️ [initDataGuard] initData 缺少 hash 欄位"
+      );
       return reply.code(403).send({ error: "Missing hash in initData" });
     }
 
@@ -72,18 +84,45 @@ export async function initDataGuard(request, reply) {
       .digest("hex");
 
     if (expectedHash !== receivedHash) {
+      const ip = request.ip || request.headers["x-forwarded-for"] || "unknown";
+      logger.error({ 
+        event: "initDataGuard", 
+        reason: "hmac_mismatch", 
+        ip, 
+        url: request.url,
+        receivedHash: receivedHash.substring(0, 16) + "..."
+      },
+        "🚨 [initDataGuard] HMAC 驗證失敗，可能存在篡改攻擊"
+      );
       return reply.code(403).send({ error: "initData validation failed" });
     }
 
     const authDate = Number(params.get("auth_date"));
     if (!authDate || isNaN(authDate)) {
+      const ip = request.ip || request.headers["x-forwarded-for"] || "unknown";
+      logger.warn({ event: "initDataGuard", reason: "invalid_auth_date", ip, url: request.url },
+        "⚠️ [initDataGuard] auth_date 格式錯誤"
+      );
       return reply
         .code(401)
         .send({ error: "Missing or invalid auth_date in initData" });
     }
 
     const now = Math.floor(Date.now() / 1000);
-    if (now - authDate > 86400) {
+    if (now - authDate > MAX_AGE_SECONDS) {
+      const ip = request.ip || request.headers["x-forwarded-for"] || "unknown";
+      const age = now - authDate;
+      logger.warn({ 
+        event: "initDataGuard", 
+        reason: "initData_expired", 
+        ip, 
+        url: request.url,
+        authDate,
+        now,
+        ageSeconds: age
+      },
+        `⚠️ [initDataGuard] initData 已過期 (${Math.round(age / 60)} 分鐘前)，可能為重放攻擊`
+      );
       return reply
         .code(401)
         .send({ error: "initData expired (replay attack prevention)" });
@@ -91,9 +130,36 @@ export async function initDataGuard(request, reply) {
 
     const userStr = params.get("user");
     if (userStr) {
-      request.telegramUser = JSON.parse(userStr);
+      try {
+        request.telegramUser = JSON.parse(userStr);
+        const userId = request.telegramUser?.id;
+        if (userId) {
+          logger.info({ 
+            event: "initDataGuard", 
+            reason: "validation_success",
+            userId,
+            url: request.url
+          },
+            "✅ [initDataGuard] initData 驗證成功"
+          );
+        }
+      } catch (err) {
+        logger.error({ event: "initDataGuard", reason: "parse_user_error", error: err.message },
+          "❌ [initDataGuard] 解析 user 資料失敗"
+        );
+      }
     }
   } catch (err) {
+    const ip = request.ip || request.headers["x-forwarded-for"] || "unknown";
+    logger.error({ 
+      event: "initDataGuard", 
+      reason: "unexpected_error", 
+      ip, 
+      url: request.url,
+      error: err.message
+    },
+      "❌ [initDataGuard] 驗證過程發生未預期錯誤"
+    );
     return reply.code(400).send({ error: "Malformed initData" });
   }
 }

@@ -1,3 +1,5 @@
+import logger from "../../utils/logger.mjs";
+
 /**
  * signalGenerator.mjs
  * 負責指標標準化 (Normalization)、群組權重聚合 (Category Weighting) 與部位縮放計算。
@@ -145,9 +147,7 @@ export function generateScoringMatrix(
     (k) => !(k in factorPool),
   );
   if (missingKeys.length > 0) {
-    console.warn(
-      `[signalGenerator] factorPool 缺少以下 key: ${missingKeys.join(", ")}，分數將以 0 計算`,
-    );
+    logger.warn({ missingKeys }, `[signalGenerator] factorPool 缺少以下 key: ${missingKeys.join(", ")}，分數將以 0 計算`);
   }
 
   // --- 2. 依分類聚合分數 ---

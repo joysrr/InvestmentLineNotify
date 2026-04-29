@@ -2,6 +2,7 @@
 // 週報 / 月報核心：資料彙整（純運算）+ AI 分析（一次呼叫）
 import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
+import logger from "../../utils/logger.mjs";
 
 // ── 觀測工具 ─────────────────────────────────────────────────────────────────
 
@@ -10,9 +11,9 @@ async function safeLangfuseScore(payload) {
   try {
     await langfuse.score(payload);
   } catch (err) {
-    console.warn(
-      `⚠️ [Langfuse] score 寫入失敗 (${payload.name}):`,
-      err.message,
+    logger.warn(
+      { name: payload.name, error: err.message },
+      "Langfuse score 寫入失敗"
     );
   }
 }
@@ -496,13 +497,14 @@ export async function generatePeriodAiSummary(
     });
 
     // CI 觀測 log
-    console.log(`🤖 [PeriodReport] AI 摘要產出完成 (${periodLabel})`);
-    console.log(`  ⚠️  風險事件: ${aiSummary.topRiskEvents?.length ?? 0} 項`);
-    console.log(
-      `  📝 一致性評語: ${aiSummary.consistencyComment?.slice(0, 30) ?? "N/A"}...`,
-    );
-    console.log(
-      `  🔭 展望: ${aiSummary.periodOutlook?.slice(0, 30) ?? "N/A"}...`,
+    logger.info(
+      { 
+        periodLabel,
+        topRiskEvents: aiSummary.topRiskEvents?.length ?? 0,
+        consistencyComment: aiSummary.consistencyComment?.slice(0, 30),
+        periodOutlook: aiSummary.periodOutlook?.slice(0, 30),
+      },
+      "PeriodReport AI 摘要產出完成"
     );
 
     // 持久化 AI 軌跡（非阻塞）
@@ -514,15 +516,15 @@ export async function generatePeriodAiSummary(
         rawResult: aiSummary,
       })
       .catch((err) =>
-        console.warn(
-          "⚠️ [Archive] 儲存 PeriodReport AI 軌跡失敗:",
-          err.message,
+        logger.warn(
+          { error: err.message },
+          "Archive 儲存 PeriodReport AI 軌跡失敗"
         ),
       );
 
     return { aiSummary, traceId };
   } catch (err) {
-    console.warn("⚠️ [PeriodReport] AI 分析失敗:", err.message);
+    logger.warn({ error: err.message }, "PeriodReport AI 分析失敗");
     return { aiSummary: null, traceId: null };
   }
 }

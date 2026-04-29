@@ -11,14 +11,14 @@
  * - 若 TELEGRAM_USER_ID 未設定，直接拒絕所有請求並印出警告。
  */
 
+import logger from "../../../utils/logger.mjs";
+
 const allowedChatId = process.env.TELEGRAM_USER_ID
   ? String(process.env.TELEGRAM_USER_ID)
   : null;
 
 if (!allowedChatId) {
-  console.warn(
-    "[adminGuard] ⚠️  TELEGRAM_USER_ID 未設定，所有 Bot 指令將被拒絕。",
-  );
+  logger.warn("[adminGuard] ⚠️  TELEGRAM_USER_ID 未設定，所有 Bot 指令將被拒絕。");
 }
 
 /**
@@ -38,7 +38,7 @@ export async function adminGuard(ctx, next) {
     fromId !== allowedChatId
   ) {
     // 靜默忽略，不回應
-    console.log(`[adminGuard] 🚫 拒絕非授權來源：chat_id=${incomingId}`);
+    logger.warn({ chat_id: incomingId }, `[adminGuard] 🚫 拒絕非授權來源`);
     return;
   }
 

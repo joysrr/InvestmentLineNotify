@@ -19,6 +19,7 @@
 import { archiveManager } from "../modules/data/archiveManager.mjs"; // getLatestMarketData / listArchiveDates
 import { encryptSnapshot, decryptSnapshot } from "../utils/snapshotCrypto.mjs";
 import { normaliseSnapshot } from "../api/utils/snapshotAggregator.mjs";
+import logger from "../utils/logger.mjs";
 
 export class IlnState {
   /**
@@ -281,7 +282,14 @@ export async function loadStateFromLatestFiles() {
 
   let portfolioRaw = null;
   if (latestReport?.snapshot) {
-    portfolioRaw = decryptSnapshot(latestReport.snapshot);
+    try {
+      portfolioRaw = decryptSnapshot(latestReport.snapshot);
+    } catch (err) {
+      logger.error(
+        `[ilnState] 解密最新報告快照失敗，portfolioRaw 將為 null: ${err.message}`
+      );
+      // 不拋出錯誤，讓系統繼續運作（portfolioRaw 為 null）
+    }
   }
 
   return new IlnState({
@@ -321,7 +329,14 @@ export async function loadStateFromReport(reportDate) {
 
     let portfolioRaw = null;
     if (report.snapshot) {
-      portfolioRaw = decryptSnapshot(report.snapshot);
+      try {
+        portfolioRaw = decryptSnapshot(report.snapshot);
+      } catch (err) {
+        logger.error(
+          `[ilnState] 解密指定日期報告快照失敗 (${reportDate}): ${err.message}`
+        );
+        // 不拋出錯誤，讓系統繼續運作（portfolioRaw 為 null）
+      }
     }
 
     return new IlnState({

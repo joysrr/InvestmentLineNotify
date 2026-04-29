@@ -1,3 +1,4 @@
+import logger from "../../utils/logger.mjs";
 import { fetchWithTimeout, parseNumber } from "../../utils/coreUtils.mjs";
 
 const BASE_PRICE_URL = process.env.BASE_PRICE_URL;
@@ -72,7 +73,7 @@ export async function fetchLatestBasePrice(url = BASE_PRICE_URL) {
 
     return base;
   } catch (err) {
-    console.warn(`⚠️ 獲取 BasePrice 失敗 (${err.message})，嘗試使用快取...`);
+    logger.warn({ error: err.message }, `⚠️ 獲取 BasePrice 失敗，嘗試使用快取...`);
     if (_cache.base) return _cache.base; // fallback
     throw err; // 若無快取可退，則將錯誤往上拋
   }

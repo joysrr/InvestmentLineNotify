@@ -1,3 +1,5 @@
+import logger from "./logger.mjs";
+
 /**
  * envGuard.mjs
  * 啟動時檢查必要環境變數，缺少時立即 fail 並列出缺少清單。
@@ -38,12 +40,10 @@ export function assertEnv() {
   );
 
   if (missing.length > 0) {
-    console.error("\n❌ [envGuard] 程式終止：缺少必要環境變數");
-    console.error(
-      "請確認 GitHub Secrets 與 workflow yaml 的 env: 區塊均已設定以下變數：",
-    );
-    missing.forEach((key) => console.error(`  • ${key}`));
-    console.error("詳情請參考 docs/env-vars.md\n");
+    logger.error("\n❌ [envGuard] 程式終止：缺少必要環境變數");
+    logger.error("請確認 GitHub Secrets 與 workflow yaml 的 env: 區塊均已設定以下變數：");
+    missing.forEach((key) => logger.error(`  • ${key}`));
+    logger.error("詳情請參考 docs/env-vars.md\n");
     process.exit(1);
   }
 
@@ -58,7 +58,7 @@ export function assertEnv() {
 
   for (const { key, reason } of RECOMMENDED_VARS) {
     if (!process.env[key] || process.env[key].trim() === "") {
-      console.warn(`⚠️ [envGuard] 建議設定 ${key} 但未找到：${reason}`);
+      logger.warn(`⚠️ [envGuard] 建議設定 ${key} 但未找到：${reason}`);
     }
   }
 }

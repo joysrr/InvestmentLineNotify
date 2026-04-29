@@ -12,6 +12,9 @@ import {
   fetchStockMarginData,
 } from "./twseProvider.mjs";
 import * as macroProvider from "./macroProvider.mjs";
+import { ProviderError } from "../../utils/retryUtils.mjs";
+
+export { ProviderError };
 
 /**
  * providerRegistry 負責把實際的 provider 實作包裝成統一介面。

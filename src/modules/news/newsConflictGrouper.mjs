@@ -22,6 +22,8 @@
  *   Jaccard = 2/5 = 0.4 ≥ 0.3 → 歸入同一群組 [G1]
  */
 
+import logger from "../../utils/logger.mjs";
+
 /**
  * Jaccard 相似度閾值：≥ 此值視為同一事件的不同報導
  * 中文 bigram 語意密度高，0.3 是合理門檻；
@@ -160,17 +162,15 @@ export function assignConflictGroups(newsList) {
     const groupedCount = result.filter((a) => a._conflictGroup !== null).length;
     const totalGroups = rootToGroupId.size;
     if (totalGroups > 0) {
-      console.log(
-        `🔀 [ConflictGrouper] 偵測到 ${totalGroups} 個衝突群組，共 ${groupedCount}/${n} 篇文章被分群`,
-      );
+      logger.info({ totalGroups, groupedCount, total: n }, `🔀 [ConflictGrouper] 偵測到 ${totalGroups} 個衝突群組，共 ${groupedCount}/${n} 篇文章被分群`);
     } else {
-      console.log(`🔀 [ConflictGrouper] 無衝突群組（共 ${n} 篇）`);
+      logger.info({ n }, `🔀 [ConflictGrouper] 無衝突群組（共 ${n} 篇）`);
     }
 
     return result;
   } catch (err) {
     // 降級安全：分群失敗不阻斷主流程
-    console.warn("⚠️ [ConflictGrouper] 分群失敗，降級為全 null:", err.message);
+    logger.warn({ err: err.message }, "⚠️ [ConflictGrouper] 分群失敗，降級為全 null");
     return newsList.map((article) => ({ ...article, _conflictGroup: null }));
   }
 }
