@@ -5,3 +5,4 @@ export * from "./marginPolicy.mjs"; // 包含 analyzeMarginRisk / analyzeSurviva
 export * from "./rebalancePolicy.mjs";
 export * from "./sellScoringPolicy.mjs";
 export * from "./budgetSynergyPolicy.mjs";
+export * from "./conversionPolicy.mjs";

@@ -30,6 +30,7 @@ import {
   analyzeCapitalDecoupling,
   analyzeSurvival,
   resolveBudgetSynergy,
+  resolveConversionGuard,
 } from "./policies/index.mjs";
 
 import { parseNumber } from "../../utils/coreUtils.mjs";
@@ -276,6 +277,15 @@ export async function buildDecision(
       suggestion:
         `• 大盤股價淨值比 (PB)：${pbValue} (極端門檻 2.2)\n` +
         `• 風控說明：歷史數據顯示大盤 PB 超過 2.2 常伴隨毀滅性回檔。即使技術面呈多頭，系統仍強制在此階段停止買進，保護資金安全。`,
+      valuationGuardResult: engineState.valuationGuardResult ?? null,
+    };
+  }
+
+  // 1.7) 階梯式獲利轉化 (Conversion Guard)
+  const conversionResult = resolveConversionGuard(ctx, strategy);
+  if (conversionResult) {
+    return {
+      ...conversionResult,
       valuationGuardResult: engineState.valuationGuardResult ?? null,
     };
   }

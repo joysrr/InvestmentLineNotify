@@ -198,6 +198,19 @@
     "vixExtreme": 35,
     "usVixPanic": 30
   },
+  "conversionGuard": {
+    "enabled": true,
+    "tiers": [
+      { "profitPct": 0.3, "convertRatio": 0.15 },
+      { "profitPct": 0.6, "convertRatio": 0.25 },
+      { "profitPct": 1.0, "convertRatio": 0.35 }
+    ],
+    "allocation": [
+      { "minMargin": 0, "repayRatio": 1.0 },
+      { "minMargin": 180, "repayRatio": 0.5 },
+      { "minMargin": 240, "repayRatio": 0.0 }
+    ]
+  },
   "macroSentiment": {
     "enabled": true,
     "bullishBonus": 3,

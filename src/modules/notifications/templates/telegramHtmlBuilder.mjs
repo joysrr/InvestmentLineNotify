@@ -326,6 +326,17 @@ function budgetControlTag(result) {
 }
 
 /**
+ * Conversion Guard 轉化標籤
+ * @param {Object} result
+ * @returns {string}
+ */
+function conversionGuardTag(result) {
+  const cg = result?.conversionData;
+  if (!cg) return "";
+  return `\n🔄 <b>獲利轉化</b>：賣出 00675L <code>$${cg.convertAmount.toLocaleString()}</code> → 還款 <code>$${cg.repayAmount.toLocaleString()}</code> / 買 0050 <code>$${cg.buy0050Amount.toLocaleString()}</code>`;
+}
+
+/**
  * 壓力測試簡易表格
  * @param {Object} result - evaluateInvestmentSignal 回傳結果
  * @returns {string} 格式化後的表格 HTML
@@ -613,7 +624,8 @@ export function buildTelegramMessages({
     `${vGuardTag}\n` +
     `${priorityTag}\n` +
     `${trailingStopTag(result)}` +
-    `${budgetControlTag(result)}\n` +
+    `${budgetControlTag(result)}` +
+    `${conversionGuardTag(result)}\n` +
     `<blockquote expandable>${escapeHTML(result.suggestion || "無進階說明")}</blockquote>\n\n` +
     `🌐 <b>市場概況</b>${SEP}\n` +
     `🇺🇸 美股 VIX  <code>${escapeHTML(usRisk?.vix || "N/A")}</code>  ${escapeHTML(usRisk?.riskIcon || "")}\n` +

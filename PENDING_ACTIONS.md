@@ -8,6 +8,8 @@
 
 > 監控模式：`ACTIVE` ｜ 推播設定：`ALL` ｜ 最後更新：`2026-04-24 22:16 by @Lead`
 
+## 🏠 ACTIVE_WORKSPACE: investmentlinenotify
+
 ---
 
 ## 🎯 工作流狀態錨點（State Anchor）
@@ -15,11 +17,11 @@
 > 由 `@Lead` 於每次 Gate Check 後更新。
 > `@Lead` 啟動對話第一動作：讀取本區塊。
 
-- **[CURRENT_STAGE]**：9
-- **[CURRENT_TICKET]**：STORY-DOC-1
-- **[NEXT_AGENT]**：@Retro
+- **[CURRENT_STAGE]**：IDLE
+- **[CURRENT_TICKET]**：none
+- **[NEXT_AGENT]**：none
 - **[ARTIFACT_PATHS]**：docs/
-- **[LAST_UPDATED]**：2026-04-29 21:04 by @Lead
+- **[LAST_UPDATED]**：2026-05-02 22:38 by @Lead
 
 ---
 

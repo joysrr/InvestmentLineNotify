@@ -74,6 +74,8 @@ export function validateStrategyConfig(config) {
     assertOverrideHierarchy(config.overrideHierarchy);
   if (config.macroSentiment !== undefined)
     assertMacroSentiment(config.macroSentiment);
+  if (config.conversionGuard !== undefined)
+    assertConversionGuard(config.conversionGuard);
 
   return true;
 }
@@ -517,4 +519,51 @@ function assertMacroSentiment(ms) {
     ["vixOverrideTrigger", "vixAbsoluteOverride"],
     "macroSentiment",
   );
+}
+
+// ── conversionGuard（選填） ──────────────────────────────
+/**
+ * @param {object}  cg
+ * @param {boolean} cg.enabled
+ * @param {Array}   cg.tiers       [{ profitPct: 0.3, convertRatio: 0.15 }, ...]
+ * @param {Array}   cg.allocation  [{ minMargin: 0, repayRatio: 1.0 }, ...]
+ */
+function assertConversionGuard(cg) {
+  assert(isObject(cg), "conversionGuard 必須是物件");
+  assertBoolean(cg.enabled, "conversionGuard.enabled");
+
+  assert(Array.isArray(cg.tiers), "conversionGuard.tiers 必須是陣列");
+  cg.tiers.forEach((tier, i) => {
+    assertNumber(tier.profitPct, `conversionGuard.tiers[${i}].profitPct`);
+    assertNumber(tier.convertRatio, `conversionGuard.tiers[${i}].convertRatio`);
+    assert(
+      tier.convertRatio > 0 && tier.convertRatio <= 1,
+      `conversionGuard.tiers[${i}].convertRatio 必須介於 0（不含）到 1（含）之間`,
+    );
+  });
+  if (cg.tiers.length > 1) {
+    assertOrderedChain(
+      cg.tiers.map((t) => t.profitPct),
+      cg.tiers.map((_, i) => `conversionGuard.tiers[${i}].profitPct`),
+    );
+  }
+
+  assert(Array.isArray(cg.allocation), "conversionGuard.allocation 必須是陣列");
+  cg.allocation.forEach((alloc, i) => {
+    assertNumber(alloc.minMargin, `conversionGuard.allocation[${i}].minMargin`);
+    assertNumber(
+      alloc.repayRatio,
+      `conversionGuard.allocation[${i}].repayRatio`,
+    );
+    assert(
+      alloc.repayRatio >= 0 && alloc.repayRatio <= 1,
+      `conversionGuard.allocation[${i}].repayRatio 必須介於 0 到 1 之間`,
+    );
+  });
+  if (cg.allocation.length > 1) {
+    assertOrderedChain(
+      cg.allocation.map((a) => a.minMargin),
+      cg.allocation.map((_, i) => `conversionGuard.allocation[${i}].minMargin`),
+    );
+  }
 }
