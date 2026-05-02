@@ -1,0 +1,173 @@
+# 系統參數單點配置 SSOT
+# 依 PROPOSAL_20260422_014 外部化自 RULES_DESIGN_GUIDE.md §十四
+# 修改須透過 RULE_UPDATE_PROPOSAL 提案
+# 版本：v1.2（2026-04-24 新增 rule_edit_large / rule_edit_critical 治本層 + rule_token_thresholds，依 PROPOSAL_20260424_020 Phase B）
+# 歷史版本：v1.1（2026-04-22 新增 complexity_thresholds + MODEL_ROUTING + LANE_ROUTING，依 PROPOSAL_20260422_024 + 032 同 Sprint 執行）
+
+review_cycle:
+  review_cycle_limit: 2          # @Reviewer + @Security 共用複審上限
+  qa_retest_limit: 3             # @QA 重測上限
+
+patrol:
+  patrol_cycle: 3                # 標準巡邏週期（工作對話）
+  patrol_overdue: 5              # 即時觸發門檻（工作對話）
+  pending_yellow_expire: 3       # 🟡 PENDING 過期升 🔴
+  pending_red_expire: 2          # 🔴 BLOCKED 高優異常過期
+  pending_done_expire: 5         # ✅ DONE 未歸檔提示
+
+exemption_and_proposals:
+  exemption_audit_threshold: 5   # 觸發 @Retro 豁免審計
+  proposal_open_warn: 15         # OPEN 規模警示
+  proposal_unarchived_warn: 10   # 完成未歸檔警示
+  proposal_total_warn: 50        # 目錄總量警示
+
+output_and_archive:
+  summary_stale_threshold: 5     # P-13 SUMMARY_STALE 觸發
+  summary_history_limit: 3       # GLOBAL_STATUS_SUMMARY 歷史保留
+
+workspace:
+  workspace_default_fallback: "保守升級"    # CURRENT_WORKSPACE 缺失行為
+  # 分級動作表詳見 lead.md §s_state_anchor §6.1
+
+audit:
+  audit_interval: 10                # @Auditor 定期派遣週期（工作對話）
+  audit_history_retain_months: 12   # AUDIT_HISTORY.md 保留期
+  audit_dimension_min_score: 3.0    # P-15 AUDIT_QUALITY 觸發門檻
+
+intent_regression:
+  # P-14 PROPOSAL_INTENT_REGRESSION 比對關鍵字模式（依 PROPOSAL_20260422_014）
+  keywords:
+    - "必須 → 禁止"
+    - "硬編碼 → 去硬編碼"
+    - "錨定 → 通用"
+    - "Rules 內化 → workspace 注入"
+
+token_budget:
+  token_alwayson_limit: 500      # AlwaysOn 文件上限
+  token_ondemand_limit: 1000     # 按需載入 Rules 上限
+
+# ============================================================
+# Rule Token Thresholds（依 PROPOSAL_20260424_020 Phase B；治本層）
+# 個別 rules/*.md 檔案 token 門檻；超過觸發 force_complex_scenarios
+# 由 tests/rule-token-budget-validator.mjs（Phase F 新建）驗證
+# ============================================================
+# ============================================================
+# Rule Token Thresholds（PROPOSAL_20260501_003 + ADR-0038 升級為 tier-based）
+# 取代原 flat warn/block；token_budget_exception flag 廢止
+# 判定 4 原則見 ADR-0038 §Decision；rule_category 為必填 frontmatter 欄位
+# ============================================================
+rule_token_thresholds:
+  # ADR-0038 tier-based budgets（schema-validator + rule-token-budget-validator SoT）
+  tier:
+    meta:                   # file_type=always_on
+      warn: 500
+      block: 1000
+    worker:                 # 單一職能 agent_rule（單一 artifact / 單一審查維度）
+      warn: 1500
+      block: 2500
+    orchestrator:           # 跨 Agent 協調 / 多階段 / 跨時序 / Hub
+      warn: 1800
+      block: 3000
+    central_orchestrator:   # PROPOSAL_502_011：User-facing entry point 聚合 ≥ 3 orchestrator iron-laws（lead.md only）
+      warn: 2500
+      block: 3500
+    iron_theme:             # 跨切不可變鐵律 first-class artifact（ADR-0037）
+      warn: 600
+      block: 1000
+
+  # rule_edit_* 觸發條件（與 force_complex_scenarios 連動）
+  # 動態：依目標 rule 的 rule_category 取對應 tier warn/block
+  # （非固定數字；validator 依 frontmatter rule_category 判定）
+
+  # ADR-0038 tier-based 取代 flat warn/block（PROPOSAL_502_007 G-1 清理）；
+  # 只保 exempt_files（validator 仍讀；單檔豁免時於此填入）。
+  exempt_files: []
+
+# ============================================================
+# Complexity Thresholds（由 PROPOSAL_024 + 032 共用）
+# 任務複雜度三維度評估；任一維度達標即升等
+# ============================================================
+complexity_thresholds:
+  simple:
+    max_input_tokens: 500
+    max_reasoning_steps: 1
+    max_artifact_paths: 2
+    examples: ["格式化文字", "讀取單一檔案", "字串替換", "純查詢", "錯字修正", "CSS 顏色微調"]
+  medium:
+    max_input_tokens: 2000
+    max_reasoning_steps: 3
+    max_artifact_paths: 5
+    examples: ["代碼審查", "API 設計", "簡易架構決策", "新增一般 API", "新增 UI 元件"]
+  complex:
+    min_input_tokens: 2000
+    min_reasoning_steps: 4
+    min_artifact_paths: 6
+    examples: ["跨模組重構", "多 Agent 協調", "新架構提案", "資料層大重構", "身分驗證導入"]
+
+# ============================================================
+# MODEL_ROUTING（依 PROPOSAL_20260422_024）
+# 任務複雜度 → 模型層級分配；廠商中立語意命名
+# ============================================================
+MODEL_ROUTING:
+  model_tier_map:
+    simple: "haiku"      # 對應 Claude Haiku 4.5 / GPT-4o-mini 等輕量模型
+    medium: "sonnet"     # 對應 Claude Sonnet 4.6 / GPT-4o 等平衡模型
+    complex: "opus"      # 對應 Claude Opus 4.7 / GPT-5 等旗艦模型
+
+  # 強制使用 complex 的場景（覆蓋 complexity 評估）
+  force_complex_scenarios:
+    - "strategyWeight 異動評估"
+    - "資安審查（@Security 任何任務）"
+    # PROPOSAL_021 拆分：Hotfix tier 明文分層（取代原「Hotfix 緊急通道」單一 entry）
+    - "Hotfix heavy: force_model=opus; trigger=hotfix_tier=heavy OR SC-01~10 任一觸發 OR 跨檔變更 OR D1-D4 任一觸發"
+    - "Hotfix light: allowed_models=[sonnet, haiku]; disqualify=cross_file OR business_logic OR SC 觸發 OR D1-D4 觸發"
+    - "提案根因分析（@Retro）"
+    - "定期 5 維度評分（@Auditor）"
+    # PROPOSAL_20260424_020 Phase B 新增（Rules Token 治本層）
+    - "rule_edit_large: 修改 rules/*.md 且目標檔 token_estimate > rule_token_thresholds.warn"
+    - "rule_edit_critical: 修改 rules/*.md 且目標檔 token_estimate > rule_token_thresholds.block（派發時阻斷；要求先立案拆檔提案）"
+
+  # @Assistant 巡邏 P-19 MODEL_ROUTING_VIOLATION 偵測條件
+  violation_triggers:
+    - "派發指令未含 Model: 欄位"
+    - "模型與 complexity 評估不符"
+    - "force_complex_scenarios 場景未使用 complex"
+
+# ============================================================
+# LANE_ROUTING（依 PROPOSAL_20260422_032）
+# 任務複雜度 → 工作流車道分配；與 MODEL_ROUTING 平行對偶
+# ============================================================
+LANE_ROUTING:
+  lane_map:
+    simple: "fast"        # 🏎️ 快車道：@Lead → 單一實作 Agent（~2k tokens 零交叉審查）
+    medium: "standard"    # 🚗 標準車道：@Lead → @Planner → 實作 → @Reviewer（~8-12k）
+    complex: "heavy"      # 🚚 重裝車道：全量 10 階段 + 平行審查（~25k+）
+
+  # 快車道 20 項安全指標 checklist 位置
+  fast_lane_checklist: "tasks/lane-routing-task-classification.md"
+
+  # 自動升級車道的觸發條件（降級防護網三重機制）
+  auto_escalation_triggers:
+    compile_or_test_fail:
+      description: "語法檢查或測試套件返回紅燈"
+      escalate_to: "standard"   # 升級至標準車道喚醒 @Reviewer
+    self_doubt:
+      description: "Agent 發現需修改 20 項指標外的其他檔案"
+      escalate_to:
+        if_no_security_impact: "standard"
+        if_security_impact: "heavy"
+    security_or_critical_path:
+      description: "觸發快車道第 10-12 項（資安/環境變數/併發）"
+      escalate_to: "heavy"
+
+  # @Assistant 巡邏 P-20 LANE_ESCALATION 偵測條件
+  violation_triggers:
+    - "24 小時內同一類任務觸發升級 ≥ 3 次"
+    - "快車道執行中偵測到 force_complex_scenarios 關鍵字"
+    - "派發指令未含 Lane: 欄位"
+
+  # 車道 × Gate Check 矩陣（對齐 PROPOSAL_20260422_012）
+  gate_matrix:
+    fast:    { risk_assessment: true, artifact_paths: true, auto_audit: false, reviewer: false, security: false, consultant: false, qa: false }
+    standard:{ risk_assessment: true, artifact_paths: true, auto_audit: true,  reviewer: true,  security: false, consultant: false, qa: false }
+    heavy:   { risk_assessment: true, artifact_paths: true, auto_audit: true,  reviewer: true,  security: true,  consultant: true,  qa: true  }

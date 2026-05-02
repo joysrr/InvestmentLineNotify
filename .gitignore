@@ -47,3 +47,7 @@ data.backup.*/
 scratch/
 refactor.mjs
 EOF.test.mjs
+
+# MemPalace per-project files (issue #185)
+mempalace.yaml
+entities.json

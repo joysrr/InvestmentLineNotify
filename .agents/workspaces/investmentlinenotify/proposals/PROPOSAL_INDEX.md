@@ -2,18 +2,34 @@
 
 本文件索引專案中所有核心業務邏輯與開發計畫的提案。
 
----
+<!-- AUTO-GENERATED:BEGIN stats -->
 
-## 🚀 業務規則提案 (Business Rule Proposals)
+| 狀態        | 數量  | 目錄位置     |
+| ----------- | ----- | ------------ |
+| OPEN        | 0     | `active/`    |
+| IN_PROGRESS | 0     | `active/`    |
+| DONE        | 0     | `completed/` |
+| CANCELLED   | 0     | `completed/` |
+| ARCHIVED    | 5     | `archived/`  |
+| **合計**    | **5** | —            |
 
-_聚焦於投資策略、數據處理與系統功能的優化。_
+<!-- AUTO-GENERATED:END stats -->
 
-| 日期       | ID                                               | 狀態 | 標題                                      |
-| :--------- | :----------------------------------------------- | :--- | :---------------------------------------- |
-| 2026-04-25 | [ILN_001](./active/ILN_PROPOSAL_20260425_001.md) | DONE | Langfuse AI 降級策略與過期感知            |
-| 2026-04-25 | [ILN_002](./active/ILN_PROPOSAL_20260425_002.md) | DONE | 資料新鮮度標籤注入與過期告警              |
-| 2026-04-25 | [ILN_003](./active/ILN_PROPOSAL_20260425_003.md) | DONE | LLM Judge 觸發機制強化 (高風險日強制評估) |
-| 2026-04-25 | [ILN_004](./active/ILN_PROPOSAL_20260425_004.md) | DONE | 黑名單優化器安全機制與 Rollback           |
+<!-- AUTO-GENERATED:BEGIN open_list -->
+
+| 編號 | 標題                 | 優先級 | 提案日期 | 前置依賴 |
+| ---- | -------------------- | ------ | -------- | -------- |
+| —    | （目前無待執行項目） | —      | —        | —        |
+
+<!-- AUTO-GENERATED:END open_list -->
+
+<!-- AUTO-GENERATED:BEGIN in_progress_list -->
+
+| 編號 | 標題                 | 優先級 | 開始日期 | 預計完成 |
+| ---- | -------------------- | ------ | -------- | -------- |
+| —    | （目前無執行中項目） | —      | —        | —        |
+
+<!-- AUTO-GENERATED:END in_progress_list -->
 
 ---
 
