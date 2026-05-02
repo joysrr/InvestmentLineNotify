@@ -64,25 +64,26 @@ Rules 主文件只保留參照路徑，**禁止在 Rules 主文件內嵌入任�
 
 ### 現有模板 Skill 文件索引
 
-| 模板類型 | 路徑 | 建立提案 |
-|---------|------|---------|
-| User Story | `.agents/skills/user-story-template.md` | PROPOSAL-001 |
-| Draft Features | `.agents/skills/draft-features-template.md` | PROPOSAL-001 |
-| TEST_SPEC | `.agents/skills/test-spec-template.md` | PROPOSAL-001 |
-| TEST_REPORT | `.agents/skills/test-report-template.md` | PROPOSAL-001 |
-| REVIEW_REPORT | `.agents/skills/review-report-template.md` | PROPOSAL-001 |
-| RULE_UPDATE_PROPOSAL | `.agents/skills/rule-update-proposal-template.md` | PROPOSAL-001 |
-| ADVICE | `.agents/skills/advice-template.md` | PROPOSAL-001 |
-| PENDING_ACTIONS | `.agents/skills/pending-actions-template.md` | PROPOSAL_20260422_005 |
-| SECURITY_REPORT | `.agents/skills/security-report-template.md` | PROPOSAL_20260422_003 |
-| GLOBAL_STATUS_SUMMARY | `.agents/skills/global-status-summary-template.md` | PROPOSAL_20260422_004 |
-| Proposal Integration Analysis | `.agents/skills/proposal-integration-analysis-template.md` | PROPOSAL_20260422_007 |
+| 模板類型                      | 路徑                                                                 | 建立提案              |
+| ----------------------------- | -------------------------------------------------------------------- | --------------------- |
+| User Story                    | `.agents/skills/templates/user-story-template.md`                    | PROPOSAL-001          |
+| Draft Features                | `.agents/skills/templates/draft-features-template.md`                | PROPOSAL-001          |
+| TEST_SPEC                     | `.agents/skills/templates/test-spec-template.md`                     | PROPOSAL-001          |
+| TEST_REPORT                   | `.agents/skills/templates/test-report-template.md`                   | PROPOSAL-001          |
+| REVIEW_REPORT                 | `.agents/skills/templates/review-report-template.md`                 | PROPOSAL-001          |
+| RULE_UPDATE_PROPOSAL          | `.agents/skills/rule-update-proposal-template.md`                    | PROPOSAL-001          |
+| ADVICE                        | `.agents/skills/templates/advice-template.md`                        | PROPOSAL-001          |
+| PENDING_ACTIONS               | `.agents/skills/templates/pending-actions-template.md`               | PROPOSAL_20260422_005 |
+| SECURITY_REPORT               | `.agents/skills/templates/security-report-template.md`               | PROPOSAL_20260422_003 |
+| GLOBAL_STATUS_SUMMARY         | `.agents/skills/templates/global-status-summary-template.md`         | PROPOSAL_20260422_004 |
+| Proposal Integration Analysis | `.agents/skills/templates/proposal-integration-analysis-template.md` | PROPOSAL_20260422_007 |
 
 新增模板時，先確認此索引是否已有對應文件，避免重複建立。
 
 ### 產出物範疇（補充於 PROPOSAL_20260422_005）
 
 「產出物」涵蓋兩大類：
+
 1. **開發產出物**：User Story / Draft / Test Spec / Test Report / Review Report / Rule Update Proposal / ADVICE / SECURITY_REPORT
 2. **系統維護產出物**：`PENDING_ACTIONS.md` / `GLOBAL_STATUS_SUMMARY.md` / Proposal Integration Analysis
 
@@ -93,17 +94,18 @@ Rules 主文件只保留參照路徑，**禁止在 Rules 主文件內嵌入任�
 `.agents/` 為 SSOT（Single Source of Truth）；`.agents/docs/agents-overview.md` 為派生視圖。
 所有影響以下項目的提案執行合併前，`@Lead` **必須**檢查 `.agents/docs/agents-overview.md` 是否需同步：
 
-| 觸發條件 | 對應 agents-overview 章節 |
-|---------|-----------------------|
-| 新增 / 移除 / 重命名 Agent | §1.2（Rules 數量）/ §2.1（名冊）/ §9.2（檔案清單）|
-| 巡邏規則 P-XX 增減 | §4.2（巡邏規則表）|
-| 通知分級符號變動 | §4.1（5 符號表）|
-| `§十四` 參數新增 | §7.1（系統參數）|
-| Workflow 階段增減 | §3.1 / §3.2 |
-| 產出物新增 | §9.3（交叉引用表）|
-| 新建 rules / skills / tasks / domains 結構層變化 | §1.2 / §5.2 |
+| 觸發條件                                         | 對應 agents-overview 章節                          |
+| ------------------------------------------------ | -------------------------------------------------- |
+| 新增 / 移除 / 重命名 Agent                       | §1.2（Rules 數量）/ §2.1（名冊）/ §9.2（檔案清單） |
+| 巡邏規則 P-XX 增減                               | §4.2（巡邏規則表）                                 |
+| 通知分級符號變動                                 | §4.1（5 符號表）                                   |
+| `§十四` 參數新增                                 | §7.1（系統參數）                                   |
+| Workflow 階段增減                                | §3.1 / §3.2                                        |
+| 產出物新增                                       | §9.3（交叉引用表）                                 |
+| 新建 rules / skills / tasks / domains 結構層變化 | §1.2 / §5.2                                        |
 
 **執行準則**：
+
 - 需同步 → 於 Phase E 完成 agents-overview 對應章節更新
 - 不需同步 → 於提案 §六 驗收標準明文「agents-overview 無需同步，理由：<具體說明>」
 
@@ -200,13 +202,13 @@ InvestmentLineNotify 的業務安全禁區（靜默失敗、金鑰暴露、策�
 
 ### 通知分級定義
 
-| 級別 | 符號 | 含義 | `@Lead` 處理時限 |
-|------|------|------|--------------|
-| CRITICAL | 🔴 | 需立即處理，可能阻斷系統執行 | 本次對話立即處理 |
-| BLOCKED | ❌ | 執行被阻斷，需要外部解除 | 本次對話立即處理 |
-| WARNING | 🟡 | 需關注，不阻斷但有潛在風險 | 本次對話結束前處理 |
-| DONE | ✅ | 任務 / 項目已完成 | 無需處理，確認即可 |
-| INFO | 🟢 | 資訊性通知，無需立即行動 | 下次巡邏前處理或記錄 |
+| 級別     | 符號 | 含義                         | `@Lead` 處理時限     |
+| -------- | ---- | ---------------------------- | -------------------- |
+| CRITICAL | 🔴   | 需立即處理，可能阻斷系統執行 | 本次對話立即處理     |
+| BLOCKED  | ❌   | 執行被阻斷，需要外部解除     | 本次對話立即處理     |
+| WARNING  | 🟡   | 需關注，不阻斷但有潛在風險   | 本次對話結束前處理   |
+| DONE     | ✅   | 任務 / 項目已完成            | 無需處理，確認即可   |
+| INFO     | 🟢   | 資訊性通知，無需立即行動     | 下次巡邏前處理或記錄 |
 
 ### 通知格式標準
 
@@ -228,10 +230,10 @@ InvestmentLineNotify 的業務安全禁區（靜默失敗、金鑰暴露、策�
 
 以下舊符號在現有 Rules 文件中仍可能出現，對應映射如下：
 
-| 歷史符號 | 映射至 | 備註 |
-|---------|-------|------|
-| ⚠️ | 🟡 WARNING | PROPOSAL-012 DoD 自評機制的「n 項需說明」標記 |
-| （無符號）| 🟢 INFO | 純文字通知視為 INFO 等級 |
+| 歷史符號   | 映射至     | 備註                                          |
+| ---------- | ---------- | --------------------------------------------- |
+| ⚠️         | 🟡 WARNING | PROPOSAL-012 DoD 自評機制的「n 項需說明」標記 |
+| （無符號） | 🟢 INFO    | 純文字通知視為 INFO 等級                      |
 
 ### 設計規範
 

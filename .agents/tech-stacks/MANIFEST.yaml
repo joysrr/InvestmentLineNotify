@@ -121,6 +121,15 @@ stacks:
     installed: true
     platforms: [windows, macos, linux]
 
+  - name: redis
+    category: storage
+    class: F2
+    file: storage/redis.md   # PROPOSAL_502_017 Q-10 stub；待實際採用時補檔
+    depends_on: []
+    installed: false   # stub；採用時翻 true 並建檔
+    platforms: [linux, macos, windows-wsl]
+    notes: "PROPOSAL_502_017 Q-10 stub；解 Sim-A S1 onboarding 熔斷；採用前先建 storage/redis.md"
+
   # ─── desktop ────────────────────────────────────────────
   # Phase F 新增；預設 installed: false，新 Avalonia 專案 opt-in
   - name: avalonia-ui
@@ -140,4 +149,5 @@ stacks:
     installed: false
     platforms: [windows, macos, linux]
     vendor_source: https://github.com/irihitech/Semi.Avalonia
-    vendor_last_vetted: null  # 待 User 提供並審核後填入
+    vendor_version_locked: "12.0.1"
+    vendor_last_vetted: 2026-04-24

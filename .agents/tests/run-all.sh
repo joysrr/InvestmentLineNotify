@@ -18,23 +18,35 @@ case "${1:-}" in
   --full|"")            MODE="full" ;;
   --help|-h)
     cat <<HELP
-run-all.sh — Validator 執行入口（PROPOSAL_20260422_019 + 20260423_008）
+run-all.sh — Validator 執行入口（PROPOSAL_20260422_019 + 20260423_008 + 20260430_005）
 
 USAGE:
-  bash .agents/tests/run-all.sh                    # full（預設；8 並行 + scripts 序列）
+  bash .agents/tests/run-all.sh                    # full（預設；12 並行 + scripts 序列）
   bash .agents/tests/run-all.sh --fast             # fast（依 git diff 只跑相關 validators）
-  bash .agents/tests/run-all.sh --validator <name> # 單一（schema/intent/workspace/drift/ref/sync/loc/scripts）
+  bash .agents/tests/run-all.sh --validator <name> # 單一（見下方 VALIDATORS）
+  bash .agents/tests/run-all.sh --regenerate-indexes # 重生成索引（PROPOSAL_007）
   bash .agents/tests/run-all.sh --help             # 顯示說明
 
-VALIDATORS:
-  schema     - Schema validator (rules/*.md frontmatter + token budget)
-  intent     - Proposal intent consistency
-  workspace  - WORKSPACE_SCHEMA validator + skills/tasks F2 references
-  drift      - Agent drift simulator (Mode A static)
-  ref        - !ref anchor validator + cycle detection
-  sync       - agents-overview.md sync (5 cross-references)
-  loc        - docs location (framework vs project)
-  scripts    - scripts/ tests (L1 unit + L3 smoke; 序列因 workspace 競爭)
+VALIDATORS（15 個；SoT = lib/git-diff-detector.sh §ALL_VALIDATORS；PROPOSAL_502_018 R-5 修正：14→15 含 scripts）:
+  schema          - Schema validator (rules/*.md frontmatter + token budget)
+  intent          - Proposal intent consistency
+  workspace       - WORKSPACE_SCHEMA validator + skills/tasks F2 references
+  drift           - Agent drift simulator (Mode A static)
+  ref             - !ref anchor validator + cycle detection
+  sync            - agents-overview.md sync (5 cross-references)
+  loc             - docs location (framework vs project)
+  index_drift     - INDEX drift validator（PROPOSAL_20260423_012）
+  proposal_scope  - Proposal scope classification（PROPOSAL_20260423_015）
+  tech_stack      - Tech-stack MANIFEST 註冊驗證（PROPOSAL_20260423_017）
+  rule_token      - Rule token budget validator（PROPOSAL_20260424_020）
+  routing_ticket  - ROUTING_TICKET schema 驗證（PROPOSAL_20260424_023）
+  scripts         - scripts/ tests (L1 unit + L3 smoke; 序列因 workspace 競爭)
+
+ON-DEMAND（不在 run-all.sh 自動執行；獨立呼叫）:
+  adr-validator              - ADR 結構驗證（執行：node .agents/tests/adr-validator.mjs）
+  artifact-format-validator  - REVIEW/SECURITY/TEST_REPORT M2M 合約
+  lead-stateless-audit       - @Lead 三鐵律執行歷史檢查
+  validate-auditor-dispatch  - @Auditor 派發頻率檢查
 
 EXIT CODES:
   0 = all pass
@@ -60,6 +72,10 @@ declare -A VALIDATOR_CMD=(
   [index_drift]="bash $SCRIPT_DIR/index-drift-validator.sh"
   [proposal_scope]="node $SCRIPT_DIR/proposal-scope-validator.mjs"
   [tech_stack]="node $SCRIPT_DIR/tech-stack-validator.mjs"
+  [rule_token]="node $SCRIPT_DIR/rule-token-budget-validator.mjs"
+  [routing_ticket]="node $SCRIPT_DIR/routing-ticket-validator.mjs"
+  [iron_theme]="node $SCRIPT_DIR/iron-theme-validator.mjs"
+  [memory_palace]="node $SCRIPT_DIR/memory-palace-validator.mjs"
 )
 
 declare -A VALIDATOR_TITLE=(
@@ -73,6 +89,10 @@ declare -A VALIDATOR_TITLE=(
   [index_drift]="INDEX Drift Validator (PROPOSAL_20260423_012)"
   [proposal_scope]="Proposal Scope Validator (PROPOSAL_20260423_015)"
   [tech_stack]="Tech-Stack Validator (PROPOSAL_20260423_017)"
+  [rule_token]="Rule Token Budget Validator (PROPOSAL_20260424_020)"
+  [routing_ticket]="ROUTING_TICKET Validator (PROPOSAL_20260424_023)"
+  [iron_theme]="Iron Theme Validator (PROPOSAL_20260501_002 + ADR-0037)"
+  [memory_palace]="Memory Palace Validator (PROPOSAL_20260502_001 + ADR-0039)"
 )
 
 # 並行執行傳入的 validator 名稱清單；輸出寫入 /tmp 暫存後串聯
@@ -114,7 +134,7 @@ run_parallel_validators() {
 if [ "$MODE" = "single" ]; then
   if [ -z "$SINGLE_NAME" ] || [ -z "${VALIDATOR_CMD[$SINGLE_NAME]:-}" ] && [ "$SINGLE_NAME" != "scripts" ]; then
     echo "❌ Unknown validator: '$SINGLE_NAME'"
-    echo "Available: schema intent workspace drift ref sync loc scripts"
+    echo "Available: schema intent workspace drift ref sync loc index_drift proposal_scope tech_stack rule_token routing_ticket scripts"
     exit 2
   fi
   if [ "$SINGLE_NAME" = "scripts" ]; then
@@ -126,10 +146,12 @@ if [ "$MODE" = "single" ]; then
   exit $?
 fi
 
-# -------- Regen mode（依 PROPOSAL_20260423_007 啟用）--------
+# -------- Regen mode（依 PROPOSAL_20260423_007 + 20260430_005 補完）--------
+# 自動可重生 4 個（rvi/pi/adr/proposal-summary）；
+# 手動 2 個（changelog/framework-version）需 --proposal 參數，僅顯示提示
 if [ "$MODE" = "regen" ]; then
   GENERATORS_DIR="$SCRIPT_DIR/../scripts/generators"
-  echo "🔧 Regenerating indexes (PROPOSAL_20260423_007)..."
+  echo "🔧 Regenerating indexes (PROPOSAL_20260423_007 + 20260430_005)..."
   echo ""
 
   echo "→ gen-rules-version-index.mjs --write"
@@ -142,17 +164,28 @@ if [ "$MODE" = "regen" ]; then
   REGEN_PI=$?
 
   echo ""
-  echo "ℹ️  CHANGELOG / FRAMEWORK_VERSION 仍需 @Lead 配合提案執行；參考："
+  echo "→ gen-adr-index.mjs（dry-run；輸出可貼至 decisions/README.md）"
+  node "$GENERATORS_DIR/gen-adr-index.mjs" >/dev/null
+  REGEN_ADR=$?
+  [ $REGEN_ADR -eq 0 ] && echo "  ✅ ADR index 生成成功（34+ ADRs）" || echo "  ❌ ADR index 失敗"
+
+  echo ""
+  echo "→ gen-proposal-summary.mjs（季度 summary；無 --period 預設略過）"
+  echo "  ℹ️  使用：node .agents/scripts/generators/gen-proposal-summary.mjs --period 2026Q2 --write"
+  REGEN_SUM=0
+
+  echo ""
+  echo "ℹ️  手動觸發（需 --proposal 參數）："
   echo "    node .agents/scripts/generators/gen-changelog.mjs --proposal <path> --write"
   echo "    node .agents/scripts/generators/gen-framework-version.mjs --bump minor --proposal <id> --write"
 
-  if [ $REGEN_RVI -ne 0 ] || [ $REGEN_PI -ne 0 ]; then
+  if [ $REGEN_RVI -ne 0 ] || [ $REGEN_PI -ne 0 ] || [ $REGEN_ADR -ne 0 ]; then
     echo ""
-    echo "❌ Regenerate 部分失敗（rvi=$REGEN_RVI, pi=$REGEN_PI）"
+    echo "❌ Regenerate 部分失敗（rvi=$REGEN_RVI, pi=$REGEN_PI, adr=$REGEN_ADR）"
     exit 2
   fi
   echo ""
-  echo "✅ Indexes regenerate 完成"
+  echo "✅ Indexes regenerate 完成（4 自動 + 2 手動提示）"
   exit 0
 fi
 
@@ -182,9 +215,11 @@ if [ "$MODE" = "fast" ]; then
   fi
 fi
 
-# -------- Full mode（並行 8 + 序列 scripts）--------
+# -------- Full mode（並行 12 + 序列 scripts）--------
+# Validator 清單由 lib/git-diff-detector.sh §ALL_VALIDATORS 提供（SoT 統一）
 if [ "$MODE" = "full" ]; then
-  RELEVANT_VALIDATORS=(schema intent workspace drift ref sync loc index_drift proposal_scope tech_stack)
+  source "$SCRIPT_DIR/lib/git-diff-detector.sh"
+  read -ra RELEVANT_VALIDATORS <<< "$ALL_VALIDATORS"
   RELEVANT_SCRIPTS=1
 fi
 

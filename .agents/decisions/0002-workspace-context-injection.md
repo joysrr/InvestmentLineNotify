@@ -35,6 +35,7 @@ referenced_by:
 4. **WORKSPACE_SCHEMA SSOT**：所有 workspace 欄位結構由 `.agents/WORKSPACE_SCHEMA.yaml` 單點定義（驗證器以此為準）
 
 違反偵測：
+
 - `@Assistant` 巡邏 P-12 `WORKSPACE_MISSING` — 無 `CURRENT_WORKSPACE` 時 🔴 阻斷
 - `workspace-schema-validator` 檢查 workspace 欄位完整性
 
@@ -73,7 +74,7 @@ referenced_by:
 - `rules/lead.md §任務目標`（workspace 讀取義務）
 - `rules/retro.md §任務目標`（workspace 注入註記）
 - `WORKSPACE_SCHEMA.yaml`（欄位結構 SSOT）
-- `tasks/project-onboarding.md`（新專案初始化 SOP）
+- `tasks/project-onboarding-workflow.md`（新專案初始化 SOP）
 - `scripts/init-workspace.mjs`（互動式 CLI）
 
 ## Notes

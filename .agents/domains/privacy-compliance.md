@@ -1,3 +1,30 @@
+---
+domain_id: privacy-compliance
+file_type: domain
+version: v1.0
+last_modified: 2026-04-30
+last_proposal: PROPOSAL_20260430_005
+scope: framework
+domain_name: "隱私合規（GDPR + 台灣個資法 + PII 生命週期）"
+purpose: |
+  PII 清單、刪除權、保留期、審計日誌、72h 外洩通知、跨境轉移；審查涉及個資儲存/處理計畫。
+audience:
+  - Consultant
+  - Security
+  - Reviewer
+referenced_by:
+  - rules/consultant.md
+  - skills/lead-context-mappings.md
+trigger_keywords:
+  - PII
+  - GDPR
+  - 個資法
+  - 刪除權
+  - 保留期 TTL
+  - 外洩通知
+  - DPA
+---
+
 # Domain: Privacy Compliance (隱私合規領域知識)
 
 > 由 PROPOSAL_20260422_011 建立，供 `@Consultant` / `@Security` 動態注入。
@@ -9,12 +36,12 @@
 
 本專案視為 PII 的資料類型（與 workspace `PROJECT_CONTEXT` 注入欄位對齊）：
 
-| 類別 | 範例 | 儲存位置 | 保留期 |
-|------|------|---------|-------|
-| 身份類 | Telegram user_id / chat_id | `data/users.json` | 帳號刪除前永久 |
-| 資產類 | 持股、成本、維持率 | `data/positions.json` | 帳號刪除 + 1 年 |
-| 行為類 | 通知記錄、點擊記錄 | `data/notifications/` | 90 天滾動 |
-| 敏感配置 | strategyWeight 個人偏好 | `data/strategy_user.json` | 帳號刪除前永久 |
+| 類別     | 範例                       | 儲存位置                  | 保留期          |
+| -------- | -------------------------- | ------------------------- | --------------- |
+| 身份類   | Telegram user_id / chat_id | `data/users.json`         | 帳號刪除前永久  |
+| 資產類   | 持股、成本、維持率         | `data/positions.json`     | 帳號刪除 + 1 年 |
+| 行為類   | 通知記錄、點擊記錄         | `data/notifications/`     | 90 天滾動       |
+| 敏感配置 | strategyWeight 個人偏好    | `data/strategy_user.json` | 帳號刪除前永久  |
 
 ## 二、資料保留期（Retention Policy）
 
@@ -52,6 +79,7 @@
 ## 五、審計日誌
 
 PII 讀寫操作必須記錄：
+
 - 時間戳
 - 操作類型（read / write / delete）
 - Agent 身份（@Backend / @Frontend）
@@ -66,14 +94,15 @@ PII 讀寫操作必須記錄：
 
 發現資料外洩後必須於 72 小時內完成以下步驟：
 
-| 時間窗 | 執行者 | 動作 |
-|-------|-------|------|
-| 0~4 小時 | `@Lead` | 確認外洩範圍 + 影響使用者數量 |
-| 4~24 小時 | `@Security` | 產出 `SECURITY_REPORT.md` 含外洩類型 / 影響 user_id（雜湊）/ 推測原因 |
-| 24~48 小時 | `@Backend` | 通知受影響使用者（Telegram Bot 推送）|
-| 48~72 小時 | User | 向主管機關備案（台灣個資法 §12 / GDPR Art. 33）|
+| 時間窗     | 執行者      | 動作                                                                  |
+| ---------- | ----------- | --------------------------------------------------------------------- |
+| 0~4 小時   | `@Lead`     | 確認外洩範圍 + 影響使用者數量                                         |
+| 4~24 小時  | `@Security` | 產出 `SECURITY_REPORT.md` 含外洩類型 / 影響 user_id（雜湊）/ 推測原因 |
+| 24~48 小時 | `@Backend`  | 通知受影響使用者（Telegram Bot 推送）                                 |
+| 48~72 小時 | User        | 向主管機關備案（台灣個資法 §12 / GDPR Art. 33）                       |
 
 ### 觸發條件
+
 - `data/audit_log.jsonl` 異常存取偵測
 - 外部情資告警（如 API Key 洩漏）
 - 使用者主動回報
@@ -82,33 +111,35 @@ PII 讀寫操作必須記錄：
 
 ## 七、資料處理協議（DPA）
 
-| 第三方 | 處理資料 | DPA 狀態 | 處理依據 |
-|-------|---------|--------|--------|
-| Telegram Bot API | user_id / chat_id / 訊息 | Telegram ToS（視為 DPA）| 服務執行必要 |
-| Google Sheets API | strategyWeight 同步 | Google Cloud DPA | User 同意 |
-| Google Gemini API | 訊號分析 | Google AI DPA | User 同意 |
-| Langfuse | AI 呼叫觀測 | Langfuse DPA（需確認）| 運維必要 |
+| 第三方            | 處理資料                 | DPA 狀態                 | 處理依據     |
+| ----------------- | ------------------------ | ------------------------ | ------------ |
+| Telegram Bot API  | user_id / chat_id / 訊息 | Telegram ToS（視為 DPA） | 服務執行必要 |
+| Google Sheets API | strategyWeight 同步      | Google Cloud DPA         | User 同意    |
+| Google Gemini API | 訊號分析                 | Google AI DPA            | User 同意    |
+| Langfuse          | AI 呼叫觀測              | Langfuse DPA（需確認）   | 運維必要     |
 
 **新增第三方** → `@Security` SC-09 + SC-11 雙審查；缺 DPA → 禁止啟用。
 
 ## 八、跨境資料轉移許可
 
-| 使用者地區 | 合規路徑 |
-|----------|--------|
-| 台灣境內 | ✅ 預設合規（境內儲存）|
-| 歐盟 | 需 SCC（Standard Contractual Clauses）|
-| 中國 | 需符合《個人信息保護法》跨境要求 |
+| 使用者地區 | 合規路徑                               |
+| ---------- | -------------------------------------- |
+| 台灣境內   | ✅ 預設合規（境內儲存）                |
+| 歐盟       | 需 SCC（Standard Contractual Clauses） |
+| 中國       | 需符合《個人信息保護法》跨境要求       |
 
 ⚠️ **當前限制**：僅支援台灣境內用戶；跨境擴展需先完成 SCC 簽署。
 
 ## 九、加密現狀與升級路徑
 
 ### 當前狀態（2026-04-22）
+
 - **靜態加密**：❌ 未啟用（依賴 OS 權限 755）
 - **傳輸加密**：✅ HTTPS 強制
 - **備份加密**：❌ 未啟用
 
 ### 升級路徑
+
 1. **短期**：`data/users.json` + `data/strategy_user.json` 使用 AES-256-GCM 加密
 2. **中期**：所有 `data/*.json` 全面加密
 3. **長期**：導入 KMS 集中金鑰管理

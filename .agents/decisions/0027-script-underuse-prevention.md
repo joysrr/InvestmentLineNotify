@@ -10,8 +10,8 @@ related_proposals:
 referenced_by:
   - tests/index-drift-validator.sh
   - rules/retro.md §s06 Pre/Post-Commit SOP
-  - skills/rule-update-proposal-full-template.md
-  - tasks/periodic-design-review.md §7.#9 SCRIPT_UNDERUSE
+  - skills/templates/rule-update-proposal-full-template.md
+  - tasks/periodic-design-review-workflow.md §7.#9 SCRIPT_UNDERUSE
 ---
 
 # ADR-0027: Script 漏用防護機制（四道防線）
@@ -23,6 +23,7 @@ referenced_by:
 ## Context
 
 ADR-0025（AUTO-GENERATED）+ ADR-0026（並行 validator）提供了工具與機制，但 LLM 代理實務上仍**選擇性使用**：
+
 - 2026-04-24 `ff95f38` 手動 Edit PROPOSAL_INDEX → 留下 3 處 stale 統計
 - 歷史觀察：generator 採納後仍多次手動改 INDEX
 - LLM 跨 session 無持久記憶 → 紀律難靠「記住」
@@ -39,7 +40,7 @@ AUTO-GENERATED 區塊（ADR-0025）讓 `--write` 真正 idempotent；消除「�
 
 ### 第 2 道：SOP 明文化
 
-- `skills/rule-update-proposal-full-template.md` 加「🔧 立案/採納後必跑腳本」章節
+- `skills/templates/rule-update-proposal-full-template.md` 加「🔧 立案/採納後必跑腳本」章節
 - `rules/retro.md §s06` 加「Pre/Post-Commit 腳本執行 SOP」
 - 明文哪個動作要跑哪個 generator
 
@@ -52,7 +53,8 @@ AUTO-GENERATED 區塊（ADR-0025）讓 `--write` 真正 idempotent；消除「�
 
 ### 第 4 道：長期監控
 
-`tasks/periodic-design-review.md §7 警示維度 #9 SCRIPT_UNDERUSE`：
+`tasks/periodic-design-review-workflow.md §7 警示維度 #9 SCRIPT_UNDERUSE`：
+
 - 觸發：30 天內「stale 修正 / INDEX drift / 忘記跑 generator」commit ≥ 2 次
 - WARN（≥2 次）/ ALERT（≥5 次）
 - 納入 @Auditor 月度報告「Generator 使用率」指標（目標 >95%）
@@ -94,8 +96,8 @@ AUTO-GENERATED 區塊（ADR-0025）讓 `--write` 真正 idempotent；消除「�
 
 - `tests/index-drift-validator.sh`（第 3 道防線）
 - `rules/retro.md §s06 Pre/Post-Commit SOP`（第 2 道）
-- `skills/rule-update-proposal-full-template.md`（第 2 道）
-- `tasks/periodic-design-review.md §7.#9 SCRIPT_UNDERUSE`（第 4 道）
+- `skills/templates/rule-update-proposal-full-template.md`（第 2 道）
+- `tasks/periodic-design-review-workflow.md §7.#9 SCRIPT_UNDERUSE`（第 4 道）
 
 ## Notes
 

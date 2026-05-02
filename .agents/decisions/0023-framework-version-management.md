@@ -58,11 +58,13 @@ notes: |
 ## [v5.1] - 2026-04-24
 
 ### Added
+
 - PROPOSAL_20260423_015：...
 
 ### Fixed / Changed / Deprecated / Removed / Security
 
 ### Notes
+
 - <設計原則 / 對偶說明 / 警告>
 ```
 
@@ -81,6 +83,7 @@ notes: |
 ### 多專案升級流程
 
 `tasks/framework-upgrade-workflow.md` 規範：
+
 1. 比對專案當前 `FRAMEWORK_VERSION` vs 最新
 2. 透過 `scripts/framework-diff.mjs` 列差異
 3. 人工審查 workspace 相容性
@@ -90,7 +93,7 @@ notes: |
 
 ### 正面
 
-- 多專案版本對齐機械化
+- 多專案版本對齊機械化
 - CHANGELOG 提供清晰演進歷史
 - drift_score 等關鍵指標追蹤
 - 與 ADR-0025（AUTO-GENERATED）協同：generators 自動維護版本

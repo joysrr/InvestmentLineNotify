@@ -11,72 +11,66 @@
 //   0 = 成功
 //   2 = 錯誤（檔案缺失 / parse 失敗）
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { join, dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { join, dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const AGENTS_ROOT = resolve(join(__dirname, '..', '..'));
-const PROJECT_ROOT = resolve(join(AGENTS_ROOT, '..'));
-const INDEX_PATH = join(AGENTS_ROOT, 'RULES_VERSION_INDEX.md');
+const AGENTS_ROOT = resolve(join(__dirname, "..", ".."));
+const PROJECT_ROOT = resolve(join(AGENTS_ROOT, ".."));
+const INDEX_PATH = join(AGENTS_ROOT, "RULES_VERSION_INDEX.md");
 
 // 14 + 系統層追蹤檔案清單（依現有 RULES_VERSION_INDEX 順序）
 const TRACKED_FILES = [
-  '.agents/RULES_DESIGN_GUIDE.md',
-  '.agents/RULES_METADATA_SCHEMA.md',
-  '.agents/rules/system-prompt.md',
-  '.agents/rules/lead.md',
-  '.agents/rules/planner.md',
-  '.agents/rules/architect.md',
-  '.agents/rules/backend.md',
-  '.agents/rules/frontend.md',
-  '.agents/rules/qa.md',
-  '.agents/rules/reviewer.md',
-  '.agents/rules/consultant.md',
-  '.agents/rules/retro.md',
-  '.agents/rules/assistant.md',
-  '.agents/rules/security.md',
-  '.agents/rules/auditor.md',
-  '.agents/SYSTEM_THRESHOLDS.yaml',
-  '.agents/WORKSPACE_SCHEMA.yaml',
+  ".agents/RULES_DESIGN_GUIDE.md",
+  ".agents/RULES_METADATA_SCHEMA.md",
+  ".agents/rules/system-prompt.md",
+  ".agents/rules/lead.md",
+  ".agents/rules/planner.md",
+  ".agents/rules/architect.md",
+  ".agents/rules/backend.md",
+  ".agents/rules/frontend.md",
+  ".agents/rules/qa.md",
+  ".agents/rules/reviewer.md",
+  ".agents/rules/consultant.md",
+  ".agents/rules/retro.md",
+  ".agents/rules/assistant.md",
+  ".agents/rules/security.md",
+  ".agents/rules/auditor.md",
+  ".agents/SYSTEM_THRESHOLDS.yaml",
+  ".agents/WORKSPACE_SCHEMA.yaml",
 ];
 
 // -------- Pure functions（export for unit test）--------
 
+import {
+  parseFrontmatterText,
+  parseFrontmatter as parseMarkdownFrontmatter,
+} from "./lib/frontmatter.mjs";
+
 export function parseFrontmatter(content) {
-  // markdown: --- frontmatter ---
-  const mdMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
-  if (mdMatch) return parseFrontmatterText(mdMatch[1]);
+  // markdown: --- frontmatter --- → 用集中 lib
+  const mdFm = parseMarkdownFrontmatter(content);
+  if (Object.keys(mdFm).length > 0) return mdFm;
 
   // yaml: 直接讀前 30 行（schema_version / last_modified / last_proposal）
-  const lines = content.split('\n').slice(0, 30);
-  const yamlBlock = lines.filter(l => /^[a-z_]+:/i.test(l)).join('\n');
+  const lines = content.split("\n").slice(0, 30);
+  const yamlBlock = lines.filter((l) => /^[a-z_]+:/i.test(l)).join("\n");
   return yamlBlock ? parseFrontmatterText(yamlBlock) : null;
-}
-
-function parseFrontmatterText(text) {
-  const fm = {};
-  for (const line of text.split('\n')) {
-    const m = line.match(/^([a-z_]+):\s*(.+?)(\s*#.*)?$/);
-    if (m) {
-      fm[m[1]] = m[2].trim().replace(/^["']|["']$/g, '');
-    }
-  }
-  return fm;
 }
 
 export function buildVersionTable(filesInfo) {
   const lines = [
-    '| 文件 | 當前版本 | 最後修改日期 | 最近提案 | 審計基準版本 |',
-    '|------|---------|------------|---------|------------|',
+    "| 文件 | 當前版本 | 最後修改日期 | 最近提案 | 審計基準版本 |",
+    "|------|---------|------------|---------|------------|",
   ];
   for (const info of filesInfo) {
-    const baseline = info.audit_baseline || '—';
+    const baseline = info.audit_baseline || "—";
     lines.push(
-      `| \`${info.path}\` | **${info.version}** | ${info.last_modified} | ${info.last_proposal} | ${baseline} |`
+      `| \`${info.path}\` | **${info.version}** | ${info.last_modified} | ${info.last_proposal} | ${baseline} |`,
     );
   }
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 export function collectFilesInfo(trackedFiles, projectRoot) {
@@ -86,14 +80,14 @@ export function collectFilesInfo(trackedFiles, projectRoot) {
     if (!existsSync(abs)) {
       result.push({
         path: rel,
-        version: '<missing>',
-        last_modified: '<missing>',
-        last_proposal: '<missing>',
+        version: "<missing>",
+        last_modified: "<missing>",
+        last_proposal: "<missing>",
         audit_baseline: null,
       });
       continue;
     }
-    const content = readFileSync(abs, 'utf-8');
+    const content = readFileSync(abs, "utf-8");
     const fm = parseFrontmatter(content);
     // 版本來源優先序：
     //   1. frontmatter `version`（rules .md）
@@ -101,10 +95,12 @@ export function collectFilesInfo(trackedFiles, projectRoot) {
     //   3. 註解中 `# 版本：vX.Y` 或 `# Version: vX.Y`（如 SYSTEM_THRESHOLDS.yaml）
     let version = fm?.version || fm?.schema_version;
     if (!version) {
-      const commentMatch = content.match(/#\s*(?:版本|Version)\s*[:：]\s*(v?[\d.]+)/i);
+      const commentMatch = content.match(
+        /#\s*(?:版本|Version)\s*[:：]\s*(v?[\d.]+)/i,
+      );
       if (commentMatch) version = commentMatch[1];
     }
-    version = version || '<unknown>';
+    version = version || "<unknown>";
 
     // last_modified 同樣支援註解 fallback（如 SYSTEM_THRESHOLDS.yaml）
     let lastModified = fm?.last_modified;
@@ -112,12 +108,12 @@ export function collectFilesInfo(trackedFiles, projectRoot) {
       const dateMatch = content.match(/#\s*版本.*?\((\d{4}-\d{2}-\d{2})/);
       if (dateMatch) lastModified = dateMatch[1];
     }
-    lastModified = lastModified || '<unknown>';
+    lastModified = lastModified || "<unknown>";
     result.push({
       path: rel,
       version,
       last_modified: lastModified,
-      last_proposal: fm?.last_proposal || '<unknown>',
+      last_proposal: fm?.last_proposal || "<unknown>",
       audit_baseline: fm?.audit_baseline,
     });
   }
@@ -128,21 +124,25 @@ export function replaceVersionTableSection(indexContent, newTable) {
   // DEPRECATED fallback（PROPOSAL_20260423_012 前）；優先使用 AUTO-GENERATED 標記
   const pattern = /(## 版本總覽\s*\n\s*\n)([\s\S]*?)(\n## )/;
   if (!pattern.test(indexContent)) {
-    throw new Error('找不到「## 版本總覽」區塊；無法安全替換');
+    throw new Error("找不到「## 版本總覽」區塊；無法安全替換");
   }
   return indexContent.replace(pattern, `$1${newTable}\n$3`);
 }
 
 // -------- CLI entry guard --------
 
-import { replaceBlock, checkDrift, hasBlock } from './lib/auto-generated-block.mjs';
+import {
+  replaceBlock,
+  checkDrift,
+  hasBlock,
+} from "./lib/auto-generated-block.mjs";
 
-const BLOCK_NAME = 'rules_versions';
+const BLOCK_NAME = "rules_versions";
 
 const isMainModule = import.meta.url === `file://${process.argv[1]}`;
 if (isMainModule) {
-  const writeMode = process.argv.includes('--write');
-  const checkMode = process.argv.includes('--check');
+  const writeMode = process.argv.includes("--write");
+  const checkMode = process.argv.includes("--check");
 
   if (!existsSync(INDEX_PATH)) {
     console.error(`❌ ${INDEX_PATH} 不存在`);
@@ -154,24 +154,28 @@ if (isMainModule) {
 
   let warnings = 0;
   for (const info of filesInfo) {
-    if (info.version === '<missing>' || info.version === '<unknown>') {
+    if (info.version === "<missing>" || info.version === "<unknown>") {
       console.error(`⚠️  ${info.path}: ${info.version}`);
       warnings++;
     }
   }
 
   if (!writeMode && !checkMode) {
-    console.log('--- 版本總覽（dry-run）---\n');
+    console.log("--- 版本總覽（dry-run）---\n");
     console.log(table);
-    console.log(`\n（${filesInfo.length} 列；${warnings} warnings；--write 實寫 / --check 比對 drift）`);
+    console.log(
+      `\n（${filesInfo.length} 列；${warnings} warnings；--write 實寫 / --check 比對 drift）`,
+    );
     process.exit(0);
   }
 
-  const indexContent = readFileSync(INDEX_PATH, 'utf-8');
+  const indexContent = readFileSync(INDEX_PATH, "utf-8");
 
   if (checkMode) {
     if (!hasBlock(indexContent, BLOCK_NAME)) {
-      console.error(`❌ AUTO-GENERATED marker missing: "${BLOCK_NAME}" in ${INDEX_PATH}`);
+      console.error(
+        `❌ AUTO-GENERATED marker missing: "${BLOCK_NAME}" in ${INDEX_PATH}`,
+      );
       process.exit(1);
     }
     const res = checkDrift(indexContent, BLOCK_NAME, table);
@@ -185,12 +189,16 @@ if (isMainModule) {
 
   if (writeMode) {
     if (!hasBlock(indexContent, BLOCK_NAME)) {
-      console.error(`❌ AUTO-GENERATED marker missing: "${BLOCK_NAME}"；請於 RULES_VERSION_INDEX.md 加入 <!-- AUTO-GENERATED:BEGIN ${BLOCK_NAME} --> / <!-- AUTO-GENERATED:END ${BLOCK_NAME} --> 標記`);
+      console.error(
+        `❌ AUTO-GENERATED marker missing: "${BLOCK_NAME}"；請於 RULES_VERSION_INDEX.md 加入 <!-- AUTO-GENERATED:BEGIN ${BLOCK_NAME} --> / <!-- AUTO-GENERATED:END ${BLOCK_NAME} --> 標記`,
+      );
       process.exit(2);
     }
     const updated = replaceBlock(indexContent, BLOCK_NAME, table);
     writeFileSync(INDEX_PATH, updated);
-    console.log(`✅ RULES_VERSION_INDEX.md 已更新（${filesInfo.length} 列；${warnings} warnings）`);
+    console.log(
+      `✅ RULES_VERSION_INDEX.md 已更新（${filesInfo.length} 列；${warnings} warnings）`,
+    );
     process.exit(0);
   }
 }

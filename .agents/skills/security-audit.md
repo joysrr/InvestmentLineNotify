@@ -1,6 +1,7 @@
 # Skill: 資安審查範疇與 Checklist
 
 > 本檔由 PROPOSAL-020 建立，承擔雙重職責：
+>
 > - **§1 資安審查範疇清單** — 供 `@Lead` 判斷第 6.5 階段是否觸發 `@Security`
 > - **§2 資安審查 Checklist** — 供 `@Security` 每次觸發時逐項執行
 >
@@ -17,19 +18,19 @@
 
 ### 範疇清單
 
-| 代碼 | 範疇名稱 | 偵測關鍵字 / 情境 |
-|------|---------|-----------------|
-| SC-01 | Token 時效驗證 | Telegram `initData` / JWT / OAuth state / refresh token 等時效性 Token 相關程式碼新增或修改 |
-| SC-02 | 金鑰處理 | `process.env` 新增、`.env.example` 變更、任何 API Key / Bot Token / Secret 常數 |
-| SC-03 | `strategyWeight` 異動 | `src/data/strategy/*` 讀寫、策略權重欄位變更、任何涉及 `strategyWeight` 的路徑 |
-| SC-04 | 資料刪除 | `fs.unlink` / `fs.rm` / `DELETE` SQL / Google Sheets 刪除操作 / 任何現有紀錄的清除 |
-| SC-05 | 新增對外 API 端點 | Express / Koa route 新增、Telegram Bot webhook handler 新增、任何可被外部呼叫的路由 |
-| SC-06 | 檔案 Lock 競爭 | `fs.openSync` 使用、`runnerLock.mjs` 變更、原子寫入機制設計、TOCTOU 防護 |
-| SC-07 | 並發資源 | Cron job 新增、Webhook handler 共享資源存取、多進程資料修改 |
-| SC-08 | 錯誤訊息 | `throw new Error` 含內部資訊、`res.status` 回傳 stack trace、Log 輸出敏感路徑或資料 |
-| SC-09 | 第三方套件 | `package.json` dependencies 新增或升級、`npm audit` 告警項目 |
-| SC-10 | 未知資安範疇 | 本清單未涵蓋的新型資安風險（由 `@Retro` 透過提案新增條目至本清單）|
-| SC-11 | 終端使用者個資（PII / GDPR）| 依 `.agents/domains/privacy-compliance.md`：PII 讀寫、資料刪除權請求、保留期 TTL 清理、審計日誌寫入、72h 外洩通知（§六）、DPA 合規（§七）、跨境轉移許可（§八）、加密現狀（§九）|
+| 代碼  | 範疇名稱                     | 偵測關鍵字 / 情境                                                                                                                                                               |
+| ----- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SC-01 | Token 時效驗證               | Telegram `initData` / JWT / OAuth state / refresh token 等時效性 Token 相關程式碼新增或修改                                                                                     |
+| SC-02 | 金鑰處理                     | `process.env` 新增、`.env.example` 變更、任何 API Key / Bot Token / Secret 常數                                                                                                 |
+| SC-03 | `strategyWeight` 異動        | `src/data/strategy/*` 讀寫、策略權重欄位變更、任何涉及 `strategyWeight` 的路徑                                                                                                  |
+| SC-04 | 資料刪除                     | `fs.unlink` / `fs.rm` / `DELETE` SQL / Google Sheets 刪除操作 / 任何現有紀錄的清除                                                                                              |
+| SC-05 | 新增對外 API 端點            | Express / Koa route 新增、Telegram Bot webhook handler 新增、任何可被外部呼叫的路由                                                                                             |
+| SC-06 | 檔案 Lock 競爭               | `fs.openSync` 使用、`runnerLock.mjs` 變更、原子寫入機制設計、TOCTOU 防護                                                                                                        |
+| SC-07 | 並發資源                     | Cron job 新增、Webhook handler 共享資源存取、多進程資料修改                                                                                                                     |
+| SC-08 | 錯誤訊息                     | `throw new Error` 含內部資訊、`res.status` 回傳 stack trace、Log 輸出敏感路徑或資料                                                                                             |
+| SC-09 | 第三方套件                   | `package.json` dependencies 新增或升級、`npm audit` 告警項目                                                                                                                    |
+| SC-10 | 未知資安範疇                 | 本清單未涵蓋的新型資安風險（由 `@Retro` 透過提案新增條目至本清單）                                                                                                              |
+| SC-11 | 終端使用者個資（PII / GDPR） | 依 `.agents/domains/privacy-compliance.md`：PII 讀寫、資料刪除權請求、保留期 TTL 清理、審計日誌寫入、72h 外洩通知（§六）、DPA 合規（§七）、跨境轉移許可（§八）、加密現狀（§九） |
 
 ### 觸發判斷規則
 
@@ -83,6 +84,8 @@
 
 ### 5. `strategyWeight` 異動審計（對應 SC-03）
 
+> **完整五步驟強制流程**：`skills/checklists/strategyweight-change-checklist.md`（本節為 @Security 審查視角的高階摘要）
+
 - [ ] 數值變更前有現有值讀取與記錄
 - [ ] 變更後有驗證邏輯（數值範圍 / 加總限制）
 - [ ] 異動記錄寫入審計日誌
@@ -91,7 +94,9 @@
 
 ### 6. 資料刪除零容忍（對應 SC-04）
 
-- [ ] **任何刪除操作**均需 User 明確授權（`@Lead` 無權單獨授權，對齊 `lead.md` §豁免授權邊界第 4 條）
+> **完整五步驟強制流程**：`skills/checklists/data-deletion-checklist.md`（本節為 @Security 審查視角的高階摘要）
+
+- [ ] **任何刪除操作**均需 User 明確授權（`@Lead` 無權單獨授權，對齊 `lead.md §s11` 豁免授權邊界五條件第 5 條）
 - [ ] 刪除操作有完整審計日誌（時間 / 執行者 / 範圍 / 授權編號 EX-XXX）
 
 <!-- END: §2 資安審查 Checklist -->
@@ -119,10 +124,10 @@ skill_or_task: security-audit
 > 本 skill 描述**通用資安審查流程**（SC-01~SC-11 基礎清單）；專案特定關鍵路徑與範疇擴充由 workspace 注入。
 > 請參照 `.agents/workspaces/<CURRENT_WORKSPACE>.md` 對應欄位。
 
-| 通用概念 | Workspace 欄位 | Fallback 行為 |
-|---|---|---|
-| 專案關鍵路徑（審查強制觸發）| `CRITICAL_PATHS.*` | 阻斷：無關鍵路徑清單禁止資安審查派發 |
-| 資安範疇擴充（SC-XX）| `SECURITY_SCOPE_EXTENSIONS` | 略過（使用 SC-01~SC-11 基礎清單） |
+| 通用概念                     | Workspace 欄位              | Fallback 行為                        |
+| ---------------------------- | --------------------------- | ------------------------------------ |
+| 專案關鍵路徑（審查強制觸發） | `CRITICAL_PATHS.*`          | 阻斷：無關鍵路徑清單禁止資安審查派發 |
+| 資安範疇擴充（SC-XX）        | `SECURITY_SCOPE_EXTENSIONS` | 略過（使用 SC-01~SC-11 基礎清單）    |
 
 ---
 

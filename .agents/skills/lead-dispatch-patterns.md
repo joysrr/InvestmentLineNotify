@@ -1,6 +1,6 @@
 # Skill: Lead Dispatch Patterns（@Lead 派發指令模板）
 
-> `@Lead` 派發任務至子 Agent 時的**標準指令格式**；對齐 PROPOSAL_001 短指令交接鐵律 + PROPOSAL_024 Model Routing + PROPOSAL_032 Lane Routing。
+> `@Lead` 派發任務至子 Agent 時的**標準指令格式**；對齊 PROPOSAL_001 短指令交接鐵律 + PROPOSAL_024 Model Routing + PROPOSAL_032 Lane Routing。
 
 ---
 
@@ -14,7 +14,8 @@ Tech-stacks: <tech-stack 清單> # 本次任務需讀取的 tech-stacks/*.md
 Artifacts: <檔案路徑清單> # 本次任務將讀取/寫入的檔案
 ```
 
-**鐵律（對齐 `stateless-routing-pattern.md` 三鐵律）**：
+**鐵律（對齊 `stateless-routing-pattern.md` 三鐵律）**：
+
 - 僅傳 Artifact Paths，**絕對禁止**複製貼上 REVIEW/TEST/SECURITY_REPORT 原文
 - 下一步指令 ≤ 5 行純文字
 - 不預測超過 1 步（當前階段派發完即止，下一階段由 Gate Check 觸發）
@@ -29,6 +30,7 @@ Next: @<Agent> | Artifacts: <paths>
 ```
 
 **範例**：
+
 ```
 ✅ Gate Check ✔ S3→S4
 Next: @QA | Artifacts: docs/api/strategy-update.md, docs/plans/draft_features.md
@@ -36,7 +38,7 @@ Next: @QA | Artifacts: docs/api/strategy-update.md, docs/plans/draft_features.md
 
 ---
 
-## 三、三種車道派發範例（對齐 PROPOSAL_032）
+## 三、三種車道派發範例（對齊 PROPOSAL_032）
 
 ### 3.1 🏎️ Fast Lane 範例（simple + haiku）
 
@@ -143,7 +145,7 @@ Artifacts: src/<修復標的>.mjs
 Next: @Retro
 Model: opus（force_complex_scenarios）
 Lane: heavy
-Artifacts: TEST_REPORT.md, REVIEW_REPORT.md（若有）, AUDIT_HISTORY.md（若觸發 P-15）
+Artifacts: TEST_REPORT.md, REVIEW_REPORT.md（若有）, .agents/docs/Reports/AUDIT_HISTORY.md（若觸發 P-15）
 ```
 
 ---
@@ -153,14 +155,15 @@ Artifacts: TEST_REPORT.md, REVIEW_REPORT.md（若有）, AUDIT_HISTORY.md（若�
 - **絕對禁止** 派發指令 > 5 行純文字
 - **絕對禁止** 複製貼上完整報告原文於派發指令
 - **絕對禁止** 同時派發多個 Agent 執行同一任務（平行審查除外，需明示「與 @X 平行」）
-- **絕對禁止** 省略 `Model:` / `Lane:` 欄位（對齐 PROPOSAL_024+032；`@Assistant` P-19/P-20 巡邏偵測）
-- **絕對禁止** 派發時未執行複雜度三步評估（對齐 `lead.md §s_complexity_lane`）
+- **絕對禁止** 省略 `Model:` / `Lane:` 欄位（對齊 PROPOSAL_024+032；`@Assistant` P-19/P-20 巡邏偵測）
+- **絕對禁止** 派發時未執行複雜度三步評估（對齊 `lead.md §s_complexity_lane`）
 
 ---
 
 ## 八、溯源
 
 本檔案抽出自：
+
 - `lead.md §s_state_anchor`（三鐵律摘要）
 - `lead.md §s09 產出物確認機制`（Gate Check 格式部分）
 - PROPOSAL_20260422_001（@Lead 無狀態路由）
@@ -183,10 +186,10 @@ skill_or_task: lead-dispatch-patterns
 > 本 skill 描述**通用派發指令模板**；專案業務規則與關鍵路徑由 workspace 注入。
 > 請參照 `.agents/workspaces/<CURRENT_WORKSPACE>.md` 對應欄位。
 
-| 通用概念 | Workspace 欄位 | Fallback 行為 |
-|---|---|---|
-| 專案業務規則（派發時上下文）| `BUSINESS_RULES` | 警告：無業務規則無法驗證派發合理性 |
-| 關鍵路徑（派發前評估）| `CRITICAL_PATHS.*` | 升級 User：關鍵路徑未定義時強制 complex lane |
+| 通用概念                     | Workspace 欄位     | Fallback 行為                                |
+| ---------------------------- | ------------------ | -------------------------------------------- |
+| 專案業務規則（派發時上下文） | `BUSINESS_RULES`   | 警告：無業務規則無法驗證派發合理性           |
+| 關鍵路徑（派發前評估）       | `CRITICAL_PATHS.*` | 升級 User：關鍵路徑未定義時強制 complex lane |
 
 ---
 

@@ -1,7 +1,7 @@
 # `.agents/docs/` — Framework Documentation
 
 > 由 PROPOSAL_20260423_004 建立。本目錄儲存 `.agents/` 框架層的**說明文件**（非 rule / skill / task）。
-> 對齐 `RULES_DESIGN_GUIDE §二十 文件分層三原則`。
+> 對齊 `RULES_DESIGN_GUIDE §二十 文件分層三原則`。
 
 ## 目錄性質
 
@@ -9,21 +9,25 @@
 
 ## 當前檔案清單
 
-| 檔案 | 性質 | 用途 |
-|-----|-----|------|
-| `agents-overview.md` | framework 總覽 | 13 Agent + 巡邏 + 工作流完整說明（含歷史範例引用如 InvestmentLineNotify workspace 範例；通用化待後續提案）|
-| `quality-audit-checklist.md` | 通用評鑒表 | AI Agent 品質 5 維度 × 15 細項標準 |
-| `quality-audit-automation-manual.md` | 自動化評審手冊 | `@Auditor` Judge LLM Prompt Fragments 基礎 |
+| 檔案                                 | 性質               | 用途                                                                                                       |
+| ------------------------------------ | ------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `agents-overview.md`                 | framework 總覽     | 13 Agent + 巡邏 + 工作流完整說明（含歷史範例引用如 InvestmentLineNotify workspace 範例；通用化待後續提案） |
+| `quality-audit-checklist.md`         | 通用評鑒表         | AI Agent 品質 5 維度 × 15 細項標準                                                                         |
+| `quality-audit-automation-manual.md` | 自動化評審手冊     | `@Auditor` Judge LLM Prompt Fragments 基礎                                                                 |
+| `Reports/AUDIT_HISTORY.md`           | framework 運作紀錄 | `@Auditor` 5 維度評分時序歷史（12 個月滾動；跨專案搬運）                                                   |
+| `Reports/AUDIT_DECISION_LOG.md`      | framework 運作紀錄 | `@Auditor` 派遣決策 + Fragment 清單軌跡                                                                    |
+| `Reports/RETRO_*.md`                 | framework 運作紀錄 | `@Retro` 批次 retro 報告                                                                                   |
 
 ## 文件分層規則
 
 依 `RULES_DESIGN_GUIDE §二十`：
 
-| 層級 | 位置 | 判定 | 範例 |
-|-----|-----|-----|------|
-| **Framework 說明** | `.agents/docs/` | 通用 AI Agent 規範，跨專案適用 | 本目錄所有檔案 |
-| **Framework 運作紀錄** | `docs/Reports/` + `docs/DoD_AUDIT_LOG.md` | Agents 在此專案實例化運作的歷史 | `AUDIT_HISTORY.md` / `GLOBAL_STATUS_SUMMARY.md` / `AUDIT_DECISION_LOG.md` |
-| **專案業務文件** | `docs/`（其他所有位置）| 專案業務邏輯 / API / 架構 | `architecture.md` / `api/` / `modules/` |
+| 層級                                 | 位置                    | 判定                                                   | 範例                                                        |
+| ------------------------------------ | ----------------------- | ------------------------------------------------------ | ----------------------------------------------------------- |
+| **Framework 說明**                   | `.agents/docs/`         | 通用 AI Agent 規範，跨專案適用                         | `agents-overview.md` / `quality-audit-*.md`                 |
+| **Framework 運作紀錄（跨專案通用）** | `.agents/docs/Reports/` | `@Auditor` / `@Retro` 產出的稽核與評分歷史；隨框架搬運 | `AUDIT_HISTORY.md` / `AUDIT_DECISION_LOG.md` / `RETRO_*.md` |
+| **Framework 運作紀錄（專案實例化）** | `docs/Reports/`         | 本專案特有的運作歷史；不隨 `.agents/` 搬運             | `GLOBAL_STATUS_SUMMARY.md` / `DoD_AUDIT_LOG.md`             |
+| **專案業務文件**                     | `docs/`（其他所有位置） | 專案業務邏輯 / API / 架構                              | `architecture.md` / `api/` / `modules/`                     |
 
 ## 新增檔案流程
 
@@ -34,7 +38,7 @@
    > **文件分層**：framework（跨專案通用）
    > **類別**：framework-docs（`.agents/docs/` 層）
    > **維護者**：`@Retro`（透過 RULE_UPDATE_PROPOSAL）
-   > **對齐**：`RULES_DESIGN_GUIDE §二十 文件分層三原則`
+   > **對齊**：`RULES_DESIGN_GUIDE §二十 文件分層三原則`
    ```
 4. 新增後由 `docs-location-validator.mjs`（Phase D 新建）驗證
 
@@ -53,6 +57,6 @@
 ## 溯源
 
 - 建立提案：PROPOSAL_20260423_004
-- 對齐：`RULES_DESIGN_GUIDE §二十`
+- 對齊：`RULES_DESIGN_GUIDE §二十`
 - 搭配 validator：`.agents/tests/docs-location-validator.mjs`（Phase D 新建）
 - 框架層白名單：`.agents/scripts/framework-diff.mjs` `FRAMEWORK_LAYER_PATTERNS` 含 `/^docs\/[^/]+\.md$/`（Phase F 擴充）

@@ -1,3 +1,21 @@
+---
+stack_name: avalonia-ui
+file_type: tech_stack
+category: desktop
+class: F2
+version: v1.0
+last_modified: 2026-04-30
+last_proposal: PROPOSAL_20260430_005
+scope: framework
+manifest_entry: avalonia-ui
+depends_on: []
+audience:
+  - Frontend
+  - Backend
+referenced_by:
+  - rules/frontend.md
+---
+
 # Tech Stack: Avalonia UI (跨平台 .NET Desktop)
 
 > 純通用技術棧；專案特定的 XAML 命名空間前綴 / ViewModel 目錄 / 資源字典位置 → 參照 §專案特化參照 對應 workspace 欄位。
@@ -9,9 +27,15 @@
 
 ## 框架與版本 (Framework & Version)
 
-1. **目標版本**：Avalonia 11.x LTS（不接受 < 11；0.10 已 deprecated）
-2. **.NET runtime**：.NET 8 (LTS) 或 .NET 6（.NET Framework 系不適用）
+1. **目標版本**：
+   - **Avalonia 12.x**（2025-04 起；最低 .NET 8）→ 搭配 Semi.Avalonia 12.0.1 推薦
+   - **Avalonia 11.x LTS**（較保守選擇；相容 .NET 6）
+   - **不接受** < 11；0.10 已 deprecated
+2. **.NET runtime**：
+   - Avalonia 12.x → **必須** .NET 8+（12.0 起移除 netstandard2.0 / net4x 支援）
+   - Avalonia 11.x → .NET 6 / 8
 3. **跨平台目標**：Windows / macOS / Linux；若僅 Windows → 請改評估 WPF tech-stack（本 stack 不適用單平台 Windows 場景）
+4. **版本由 workspace `TECH_STACK.avalonia_version` 欄位指定**；Fallback 為 12.0.1（最新穩定）
 
 ---
 
@@ -81,14 +105,14 @@
 
 下列欄位指向當前 workspace，避免硬編：
 
-| tech-stack 變數 | 參照 workspace 欄位 | 例 |
-|-----------------|---------------------|-----|
-| 專案根命名空間 | `PROJECT_CONTEXT.root_namespace` | `MyApp.Desktop` |
-| ViewModel 目錄 | `PATHS.viewmodels_root` | `src/ViewModels/` |
-| View 目錄 | `PATHS.views_root` | `src/Views/` |
-| 資源字典目錄 | `PATHS.resources_root` | `src/Assets/` |
-| MVVM 庫選擇 | `TECH_STACK.mvvm_framework` | `CommunityToolkit.Mvvm` 或 `ReactiveUI` |
-| 目標平台 | `TECH_STACK.platforms` | `[windows, macos, linux]` |
+| tech-stack 變數 | 參照 workspace 欄位              | 例                                      |
+| --------------- | -------------------------------- | --------------------------------------- |
+| 專案根命名空間  | `PROJECT_CONTEXT.root_namespace` | `MyApp.Desktop`                         |
+| ViewModel 目錄  | `PATHS.viewmodels_root`          | `src/ViewModels/`                       |
+| View 目錄       | `PATHS.views_root`               | `src/Views/`                            |
+| 資源字典目錄    | `PATHS.resources_root`           | `src/Assets/`                           |
+| MVVM 庫選擇     | `TECH_STACK.mvvm_framework`      | `CommunityToolkit.Mvvm` 或 `ReactiveUI` |
+| 目標平台        | `TECH_STACK.platforms`           | `[windows, macos, linux]`               |
 
 **Fallback**：若 workspace 未填，預設 `src/ViewModels/` / `src/Views/` / `src/Assets/` + `CommunityToolkit.Mvvm`。
 
@@ -102,17 +126,21 @@ category: desktop
 class: F2
 language: csharp
 framework: avalonia
-framework_version: "11.x"
+framework_versions_supported: ["11.x", "12.x"]
+framework_version_recommended: "12.0.1"
+dotnet_min_version: "8.0" # Avalonia 12 強制；11.x 可降 6.0
 platforms: [windows, macos, linux]
 mvvm_libraries_allowed: [CommunityToolkit.Mvvm, ReactiveUI]
 file_conventions:
   view: .axaml
   viewmodel: .cs
   code_behind: .axaml.cs
-rules_hash: 20260424-phase-f1-skeleton
+rules_hash: 20260424-phase-f3-v12-update
 ```
 
 ---
 
 **維護紀錄**：
-- 2026-04-24：由 PROPOSAL_20260423_017 Phase F.1 建立（骨架；版本需 User 確認）
+
+- 2026-04-24 Phase F.1：由 PROPOSAL_20260423_017 Phase F.1 建立（骨架）
+- 2026-04-24 Phase F.3：User 確認版本為 12.0.1；§框架與版本補充 11.x vs 12.x 差異（.NET 8+ 強制要求）+ workspace 欄位 Fallback；MACHINE_READABLE 擴展為 versions_supported 陣列

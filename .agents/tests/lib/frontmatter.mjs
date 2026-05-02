@@ -1,0 +1,63 @@
+// tests/lib/frontmatter.mjs
+// 集中 YAML frontmatter 解析（依 PROPOSAL_20260430_005 抽 lib）
+//
+// 集中前 4 個 validator 的獨立實作：
+// - agent-drift-simulator / routing-ticket-validator / schema-validator: parseFrontmatter
+// - proposal-scope-validator: extractFrontmatterScope（特化版本）
+//
+// 任何 frontmatter parsing 變更必先改本檔。
+
+const FM_REGEX = /^---\n([\s\S]*?)\n---/;
+
+/**
+ * 從 markdown 字串擷取 frontmatter 文字（不含 ---）。
+ * @returns {string|null}
+ */
+export function extractFrontmatterText(content) {
+  const m = content.match(FM_REGEX);
+  return m ? m[1] : null;
+}
+
+/**
+ * 簡化 YAML 解析：top-level key:value；不支援 nested。
+ * 接受多種 key pattern（[A-Za-z_]\w*）。
+ *
+ * @returns {Record<string, string> | null} - 無 frontmatter 回 null（保持與既有 validator 行為相容）
+ */
+export function parseFrontmatter(content) {
+  const text = extractFrontmatterText(content);
+  if (text === null) return null;
+
+  const fm = {};
+  for (const line of text.split("\n")) {
+    if (!line.trim() || line.trim().startsWith("#")) continue;
+    const m = line.match(/^([A-Za-z_][\w]*)\s*:\s*(.*)$/);
+    if (m) {
+      fm[m[1]] = m[2]
+        .trim()
+        .replace(/^["']|["']$/g, "")
+        .replace(/\s+#.*$/, "");
+    }
+  }
+  return fm;
+}
+
+/**
+ * 特化：抽 scope 欄位（含舊格式 markdown bullet 兜底）。
+ * 對應 proposal-scope-validator.mjs 的 extractFrontmatterScope。
+ *
+ * @returns {string|null}
+ */
+export function extractFrontmatterScope(content) {
+  // (A) 標準 YAML frontmatter
+  const fm = parseFrontmatter(content);
+  if (fm && fm.scope) return fm.scope.toLowerCase();
+
+  // (B) 舊格式 markdown bullet（向後相容）：`- scope: framework` 或 `- scope: \`framework\``
+  const bulletMatch = content.match(
+    /^[-*]\s*scope[:：]\s*`?([a-zA-Z_:\-]+)`?/m,
+  );
+  if (bulletMatch) return bulletMatch[1].trim().toLowerCase();
+
+  return null;
+}

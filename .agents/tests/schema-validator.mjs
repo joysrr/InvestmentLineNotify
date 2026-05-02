@@ -3,60 +3,61 @@
 // 依 PROPOSAL_20260422_009 + 014 建立
 // 使用：node .agents/tests/schema-validator.mjs [--strict] [--file <path>]
 
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { parseFrontmatter } from "./lib/frontmatter.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const RULES_DIR = join(__dirname, '../rules');
-const SCHEMA_FILE = join(__dirname, '../RULES_METADATA_SCHEMA.md');
+const RULES_DIR = join(__dirname, "../rules");
+const SCHEMA_FILE = join(__dirname, "../RULES_METADATA_SCHEMA.md");
 
 const REQUIRED_FRONTMATTER = [
-  'agent_id', 'agent_name', 'file_type', 'version',
-  'last_modified', 'last_proposal', 'audit_baseline', 'trigger',
+  "agent_id",
+  "agent_name",
+  "file_type",
+  "version",
+  "last_modified",
+  "last_proposal",
+  "audit_baseline",
+  "trigger",
 ];
 
-const TOKEN_LIMITS = {
-  always_on: 500,
-  agent_rule: 1000,
-  design_guide: 3000,
+// PROPOSAL_20260501_003 + ADR-0038：Tier-based budget（取代 file_type 固定值）
+// rule_category 為必填欄位（agent_rule + always_on）；file_type=design_guide 仍用舊 budget
+const TIER_BUDGETS = {
+  meta: { warn: 500, block: 1000 }, // file_type=always_on
+  worker: { warn: 1500, block: 2500 }, // 單一職能 agent_rule
+  orchestrator: { warn: 1800, block: 3000 }, // 跨 Agent 協調 agent_rule
+  central_orchestrator: { warn: 2500, block: 3500 }, // PROPOSAL_502_011；lead.md only
 };
+const DESIGN_GUIDE_BUDGET = { warn: 3000, block: 6000 }; // RULES_DESIGN_GUIDE 系列
 
 let errors = 0;
 let warnings = 0;
 
-function parseFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) return null;
-  const lines = match[1].split('\n');
-  const fm = {};
-  for (const line of lines) {
-    const kv = line.match(/^(\w+):\s*(.+)/);
-    if (kv) fm[kv[1]] = kv[2].trim();
-  }
-  return fm;
-}
-
 function estimateTokens(content) {
   // 中英混合估算：位元組數 × 0.6 / 4
-  const bytes = Buffer.byteLength(content, 'utf-8');
-  return Math.round(bytes * 0.6 / 4);
+  const bytes = Buffer.byteLength(content, "utf-8");
+  return Math.round((bytes * 0.6) / 4);
 }
 
 function validateSections(content) {
   const sections = content.match(/<section id="[^"]+" priority="[^"]+"/g) || [];
-  const ids = sections.map(s => s.match(/id="([^"]+)"/)[1]);
+  const ids = sections.map((s) => s.match(/id="([^"]+)"/)[1]);
   const duplicates = ids.filter((id, i) => ids.indexOf(id) !== i);
   if (duplicates.length) {
-    console.error(`  ❌ Duplicate section ids: ${[...new Set(duplicates)].join(', ')}`);
+    console.error(
+      `  ❌ Duplicate section ids: ${[...new Set(duplicates)].join(", ")}`,
+    );
     errors++;
   }
   return { count: sections.length, duplicates };
 }
 
 function validateFile(filePath) {
-  const content = readFileSync(filePath, 'utf-8');
-  const fileName = filePath.split('/').pop();
+  const content = readFileSync(filePath, "utf-8");
+  const fileName = filePath.split("/").pop();
   console.log(`\n📄 Validating: ${fileName}`);
 
   // 1. Frontmatter 檢查
@@ -67,25 +68,58 @@ function validateFile(filePath) {
     return;
   }
 
-  const missing = REQUIRED_FRONTMATTER.filter(k => !fm[k]);
+  const missing = REQUIRED_FRONTMATTER.filter((k) => !fm[k]);
   if (missing.length) {
-    console.error(`  ❌ Missing required fields: ${missing.join(', ')}`);
+    console.error(`  ❌ Missing required fields: ${missing.join(", ")}`);
     errors++;
   }
 
-  // 2. Token 預算檢查
+  // 2. Token 預算檢查（ADR-0038 tier-based）
   const tokens = estimateTokens(content);
-  const limit = TOKEN_LIMITS[fm.file_type] || TOKEN_LIMITS.agent_rule;
-  const pct = Math.round(tokens / limit * 100);
-  if (tokens > limit) {
-    console.warn(`  ⚠️  Token estimate ${tokens} exceeds limit ${limit} (${pct}%)`);
+  let budget;
+  let tierName;
+  if (fm.file_type === "design_guide") {
+    budget = DESIGN_GUIDE_BUDGET;
+    tierName = "design_guide";
+  } else {
+    // agent_rule + always_on 必填 rule_category
+    const cat = fm.rule_category;
+    if (!cat) {
+      console.error(
+        `  ❌ Missing required field: rule_category（ADR-0038 必填；meta/worker/orchestrator/central_orchestrator）`,
+      );
+      errors++;
+      return;
+    }
+    if (!TIER_BUDGETS[cat]) {
+      console.error(
+        `  ❌ Invalid rule_category: "${cat}"（合法值：meta / worker / orchestrator / central_orchestrator）`,
+      );
+      errors++;
+      return;
+    }
+    budget = TIER_BUDGETS[cat];
+    tierName = cat;
+  }
+  const pct = Math.round((tokens / budget.warn) * 100);
+  if (tokens > budget.block) {
+    console.error(
+      `  ❌ Token estimate ${tokens} exceeds BLOCK ${budget.block} (${tierName} tier; pct=${pct}%)`,
+    );
+    errors++;
+  } else if (tokens > budget.warn) {
+    console.warn(
+      `  ⚠️  Token estimate ${tokens} exceeds WARN ${budget.warn} (${tierName} tier; pct=${pct}%)`,
+    );
     warnings++;
   } else {
-    console.log(`  ✅ Token: ${tokens} / ${limit} (${pct}%)`);
+    console.log(
+      `  ✅ Token: ${tokens} / ${budget.warn} (${tierName} tier; ${pct}%)`,
+    );
   }
 
   // 3. XML section 檢查（AlwaysOn 例外）
-  if (fm.file_type !== 'always_on') {
+  if (fm.file_type !== "always_on") {
     const { count, duplicates } = validateSections(content);
     if (count === 0) {
       console.error(`  ❌ No <section> tags found (required for non-AlwaysOn)`);
@@ -96,7 +130,7 @@ function validateFile(filePath) {
   }
 
   // 4. 版本標頭檢查（AlwaysOn 例外）
-  if (fm.file_type !== 'always_on') {
+  if (fm.file_type !== "always_on") {
     if (!content.match(/\*\*\*\n版本：v\d+\.\d+/)) {
       console.warn(`  ⚠️  Missing body version header`);
       warnings++;
@@ -106,15 +140,15 @@ function validateFile(filePath) {
 
 // 主執行
 const args = process.argv.slice(2);
-const fileArg = args.indexOf('--file');
+const fileArg = args.indexOf("--file");
 const targetFile = fileArg >= 0 ? args[fileArg + 1] : null;
 
-console.log('🔍 Schema Validator (PROPOSAL_20260422_009)\n');
+console.log("🔍 Schema Validator (PROPOSAL_20260422_009)\n");
 
 if (targetFile) {
   validateFile(targetFile);
 } else {
-  const files = readdirSync(RULES_DIR).filter(f => f.endsWith('.md'));
+  const files = readdirSync(RULES_DIR).filter((f) => f.endsWith(".md"));
   for (const f of files) {
     validateFile(join(RULES_DIR, f));
   }

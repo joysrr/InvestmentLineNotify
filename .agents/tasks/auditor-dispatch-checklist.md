@@ -1,5 +1,17 @@
-# Task: Auditor Dispatch Checklist (@Auditor 派遣檢核表)
+---
+task_id: auditor-dispatch-checklist
+file_type: checklist
+owner: @Auditor
+version: v1.0
+last_modified: 2026-04-30
+last_proposal: PROPOSAL_20260430_005
+purpose: |
+  @Auditor 子 Agent 派遣 DoD 檢核表（5 並行 Explore；補入 §s03 強制要求對照）
+referenced_by:
+  - rules/auditor.md
+---
 
+# Task: Auditor Dispatch Checklist (@Auditor 派遣檢核表)
 
 ## 派遣前 DoD
 
@@ -9,6 +21,7 @@
 - [ ] **輸出格式固定**：JSON（scores / rationales / baseline_comparison）+ 每項 rationale ≥ 100 字
 - [ ] **5 個並行派遣**：一維度一個子 Agent，使用 Explore 類型
 - [ ] **讀取範圍明確**：派遣 prompt 中明文列出子 Agent 必讀的檔案清單
+- [ ] **絕對路徑強制**（PROPOSAL_022）：所有檔案引用必用 **repo-root 前綴的絕對路徑**（如 `.agents/docs/Reports/AUDIT_HISTORY.md`）；**禁止裸檔名**（如僅寫 `AUDIT_HISTORY.md`）；外部化產物（`patrol-notification-catalog.md` / `lead-orchestration-guide.md` 等）須明文註記實際位置
 
 ## 派遣後彙整 DoD
 
@@ -16,7 +29,7 @@
 - [ ] 計算整體分數（5 維度平均）
 - [ ] 識別任一維度 < 3.0 → 觸發 P-15 `AUDIT_QUALITY` 🟡
 - [ ] 識別新風險項（對齊 R-編號系統）
-- [ ] 依 `docs/Reports/AUDIT_HISTORY.md` 格式 append 一行
+- [ ] 依 `.agents/docs/Reports/AUDIT_HISTORY.md` 格式 append 一行
 - [ ] 若觸發 P-15，通知 `@Lead` 由 `@Retro` 接手起草改善提案
 
 ## 禁止行為

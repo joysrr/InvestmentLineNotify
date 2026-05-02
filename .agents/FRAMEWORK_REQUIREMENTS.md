@@ -7,41 +7,69 @@
 
 ## 1. 最低 Runtime 要求
 
-| 項目 | 最低版本 | 必需 / 可選 | 用途 |
-|------|---------|-----------|------|
-| **Node.js** | **18.0+** | 必需 | 所有 `.mjs` generators / validators / scripts |
-| **Bash** | **4.0+**（Linux/macOS）/ Git Bash（Windows）| 必需 | `run-all.sh` / `index-drift-validator.sh` / `hooks/*` |
-| **git** | 2.25+ | 必需 | 版本控制 + `git mv` / `git diff` |
-| Python | — | ❌ 禁止 | 框架腳本不用 Python（避免 runtime 分裂）|
-| .NET / Go / Rust | — | ❌ 禁止 | 同上 |
+| 項目             | 最低版本                                     | 必需 / 可選                                     | 用途                                                                              |
+| ---------------- | -------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Node.js**      | **18.0+**                                    | 必需                                            | 所有 `.mjs` generators / validators / scripts                                     |
+| **Bash**         | **4.0+**（Linux/macOS）/ Git Bash（Windows） | 必需                                            | `run-all.sh` / `index-drift-validator.sh` / `hooks/*`                             |
+| **git**          | 2.25+                                        | 必需                                            | 版本控制 + `git mv` / `git diff`                                                  |
+| **Python**       | **3.9+**                                     | **必需**（PROPOSAL_20260502_001 + ADR-0039 後） | MemPalace memory backend                                                          |
+| **pip**          | 24.0+                                        | 必需                                            | `pip install mempalace`                                                           |
+| **mempalace**    | **3.3.4+**                                   | 必需                                            | Memory Palace primary backend（github.com/MemPalace/mempalace；MIT；local-first） |
+| .NET / Go / Rust | —                                            | ❌ 禁止                                         | 避免 runtime 分裂                                                                 |
 
 **檢查指令**：
+
 ```bash
-node --version   # v18.x 或以上
-bash --version   # 4.x 或以上
+node --version              # v18.x 或以上
+bash --version              # 4.x 或以上
+python3 --version           # 3.9.x 或以上（ADR-0039 後）
+pip3 show mempalace         # version 3.3.4+ 必裝
 ```
 
 ---
 
-## 2. 零外部依賴原則（鐵律）
+## 2. 依賴原則（修訂自 PROPOSAL_20260502_001 / ADR-0039）
 
-### 2.1 禁止 npm 依賴
+### 2.1 Node.js 依賴管理（鐵律）
 
 - **絕對禁止** 在 `.agents/scripts/` 下引入 `package.json` / `node_modules`
 - 所有 `.mjs` 只能 import `node:*` 內建模組：
   - ✅ `node:fs` / `node:path` / `node:readline` / `node:child_process` / `node:url` / `node:test` / `node:assert`
   - ❌ 任何第三方 package（如 `yaml`、`marked`、`commander`）
 
-### 2.2 禁止 pip / gem / cargo 依賴
+### 2.2 Python 依賴（PROPOSAL_20260502_001 + ADR-0039）
 
-框架不使用 Python / Ruby / Rust；無此風險。
+**允許依賴白名單**（local-first；MIT/開源；MCP-compatible）：
 
-### 2.3 理由
+| 套件          | 版本                       | 用途                          | 來源                                  |
+| ------------- | -------------------------- | ----------------------------- | ------------------------------------- |
+| **mempalace** | **3.3.4+**                 | Memory Palace primary backend | github.com/MemPalace/mempalace（MIT） |
+| ChromaDB      | embedded（mempalace 自帶） | Vector store                  | mempalace transitive dep              |
 
-- **跨專案搬運零摩擦**：`cp -r .agents/ /new-project/` 即可使用，無需 `npm install` / `pip install`
-- **版本衝突免疫**：不與專案的 `node_modules` / `.venv` 爭搶版本
-- **離線可用**：無需網路環境
-- **LLM Agent 可自檢**：Agent 僅需 grep `node:` 即可確認合規
+**安裝**：
+
+```bash
+pip install mempalace>=3.3.4
+```
+
+**禁止追加**：
+
+- 雲端 API 套件（OpenAI / Anthropic API client 等）
+- 付費 SaaS 整合
+- 違反 local-first 精神的依賴
+
+新增 Python 依賴需先立提案 + 評估與本鐵律衝突。
+
+### 2.3 禁止 gem / cargo 依賴
+
+框架不使用 Ruby / Rust；無此風險。
+
+### 2.4 設計理由
+
+- **跨專案搬運可行**：`cp -r .agents/ /new-project/` + `pip install mempalace` 兩步即可
+- **版本衝突管理**：建議使用 venv（per project / per workspace）
+- **離線可用**：MemPalace local-first；core path 無網路依賴
+- **LLM Agent 可自檢**：grep `node:` 確認 Node 合規；`pip show mempalace` 確認 Python 合規
 
 ---
 
@@ -49,13 +77,13 @@ bash --version   # 4.x 或以上
 
 ### 3.1 優先順序
 
-| 任務類型 | 首選 | 次選 | 禁止 |
-|---------|------|------|------|
-| 資料處理 / generator / validator（邏輯為主）| **Node.js `.mjs`** | — | Python / Go |
-| 跨平台 entry point / 簡單 orchestrator | **Bash `.sh`**（POSIX）| Node.js | 平台專屬 shell |
-| 複雜 CLI / 互動式 | **Node.js `.mjs`** | — | — |
-| Git hooks | Bash / Node.js 皆可 | — | — |
-| 單元 / 整合測試 | **`node:test` + Bash** | — | Jest / Mocha / pytest |
+| 任務類型                                     | 首選                    | 次選    | 禁止                  |
+| -------------------------------------------- | ----------------------- | ------- | --------------------- |
+| 資料處理 / generator / validator（邏輯為主） | **Node.js `.mjs`**      | —       | Python / Go           |
+| 跨平台 entry point / 簡單 orchestrator       | **Bash `.sh`**（POSIX） | Node.js | 平台專屬 shell        |
+| 複雜 CLI / 互動式                            | **Node.js `.mjs`**      | —       | —                     |
+| Git hooks                                    | Bash / Node.js 皆可     | —       | —                     |
+| 單元 / 整合測試                              | **`node:test` + Bash**  | —       | Jest / Mocha / pytest |
 
 ### 3.2 Node.js ESM（`.mjs`）規範
 
@@ -97,17 +125,18 @@ find .agents/scripts -name node_modules -type d
 # （應為空）
 ```
 
-| 違規類型 | 偵測 | 處置 |
-|---------|------|------|
-| `.mjs` 引入第三方 package | 檢查 1 非空 | 🔴 阻斷；重寫為 `node:*` |
-| 新增 `package.json` | 檢查 3 非空 | 🔴 阻斷；刪除 |
-| 新增 `node_modules` | 檢查 4 非空 | 🔴 阻斷；刪除 + `.gitignore` |
+| 違規類型                                | 偵測        | 處置                               |
+| --------------------------------------- | ----------- | ---------------------------------- |
+| `.mjs` 引入第三方 package               | 檢查 1 非空 | 🔴 阻斷；重寫為 `node:*`           |
+| 新增 `package.json`                     | 檢查 3 非空 | 🔴 阻斷；刪除                      |
+| 新增 `node_modules`                     | 檢查 4 非空 | 🔴 阻斷；刪除 + `.gitignore`       |
 | 新增 `.py` / `.go` / `.rs` / `.cs` 腳本 | 檢查 2 非空 | 🟡 WARN；需 Full Proposal 才可導入 |
-| 缺 shebang 的 CLI `.mjs` | 手動 | 🟡 WARN；補 `#!/usr/bin/env node` |
+| 缺 shebang 的 CLI `.mjs`                | 手動        | 🟡 WARN；補 `#!/usr/bin/env node`  |
 
 ### 4.2 例外申請流程
 
 若未來有特殊場景（如 ML drift 偵測需 Python）：
+
 1. 提 Full Proposal 說明 runtime 擴充理由 + ROI 評估
 2. 限縮在單一子目錄（如 `.agents/scripts/ml/`）
 3. 明文標記「此子目錄需額外 runtime」+ 更新本文件
@@ -131,22 +160,23 @@ find .agents/scripts -name node_modules -type d
 
 ### 6.1 三層職責分層（依 ADR-0017 文件分層 + ADR Pattern 導入）
 
-| 層 | 位置 | 用途 | 新專案搬運時 |
-|----|------|------|-------------|
-| **規則層** | `rules/*.md` + `RULES_DESIGN_GUIDE.*.md` + `skills/` + `tasks/` | 當前行為（WHAT）| **必帶** |
-| **決策層** | `decisions/ADR-*.md` | 設計理由（WHY）| **必帶**（跨專案知識資產）|
-| **歷史層** | `proposals/completed/` + `proposals/summaries/` | 官方決議（AUDIT）| 部分帶（見 6.2）|
-| **Project scope** | `workspaces/<project>/proposals/` | 專案特定歷史 | **清除全部** |
+| 層                | 位置                                                            | 用途              | 新專案搬運時               |
+| ----------------- | --------------------------------------------------------------- | ----------------- | -------------------------- |
+| **規則層**        | `rules/*.md` + `RULES_DESIGN_GUIDE.*.md` + `skills/` + `tasks/` | 當前行為（WHAT）  | **必帶**                   |
+| **決策層**        | `decisions/ADR-*.md`                                            | 設計理由（WHY）   | **必帶**（跨專案知識資產） |
+| **歷史層**        | `proposals/completed/` + `proposals/summaries/`                 | 官方決議（AUDIT） | 部分帶（見 6.2）           |
+| **Project scope** | `workspaces/<project>/proposals/`                               | 專案特定歷史      | **清除全部**               |
 
 ### 6.2 三種搬運模式
 
-| 模式 | 保留內容 | 適用情境 |
-|-----|---------|---------|
-| **A. 完整模式**（預設）| 規則 + ADR + proposals/* 全帶；清 workspaces/ | 想要完整審計軌跡 |
-| **B. 精簡模式** | 規則 + ADR + summaries/ + 最近 1 個月 completed/ | 想降低搬運體積 |
-| **C. 極簡模式** | 規則 + ADR + summaries/；清 completed/ 與 workspaces/ | 新專案只需規則與決策理由，不需歷史細節 |
+| 模式                    | 保留內容                                              | 適用情境                               |
+| ----------------------- | ----------------------------------------------------- | -------------------------------------- |
+| **A. 完整模式**（預設） | 規則 + ADR + proposals/\* 全帶；清 workspaces/        | 想要完整審計軌跡                       |
+| **B. 精簡模式**         | 規則 + ADR + summaries/ + 最近 1 個月 completed/      | 想降低搬運體積                         |
+| **C. 極簡模式**         | 規則 + ADR + summaries/；清 completed/ 與 workspaces/ | 新專案只需規則與決策理由，不需歷史細節 |
 
 **關鍵原則**（依 ADR Pattern；PROPOSAL_20260423_016）：
+
 - `rules/` + `decisions/` 為**互補對**：規則描述 WHAT、ADR 描述 WHY
 - 新 LLM 只讀 `rules/` 即可執行任務；需理解歷史決策才讀 `decisions/`
 - `proposals/completed/` 為審計軌跡，可選帶（A/B 模式）
@@ -198,6 +228,7 @@ node .agents/scripts/generators/gen-proposal-index.mjs --workspace <newproject> 
 ```
 
 若上述任一步驟失敗，檢查：
+
 - Node.js 版本是否達 18+
 - Bash 版本是否達 4+（Windows 可用 Git Bash）
 - `.agents/scripts/` 是否意外帶了 `node_modules/`（應為零）

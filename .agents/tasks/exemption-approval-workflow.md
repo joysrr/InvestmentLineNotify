@@ -1,3 +1,20 @@
+---
+task_id: exemption-approval-workflow
+file_type: workflow
+owner: @Lead
+version: v1.0
+last_modified: 2026-04-30
+last_proposal: PROPOSAL_20260430_005
+purpose: |
+  豁免授權 4 步 SOP（申請 → 評估 → 記錄 → 標注）+ 邊界 + 累積警示
+referenced_by:
+  - rules/lead.md
+  - rules/consultant.md
+  - skills/examples/reviewer-security-boundary-examples.md
+  - docs/Reports/AUDIT_HISTORY.md
+  - docs/agents-overview.md
+---
+
 # Task: Exemption Approval Workflow（豁免授權與記錄機制）
 
 > **縱深防禦中間層**：規則禁止 → **豁免記錄** → 全局緊急阻斷。處理「臨時性規則例外」。
@@ -8,8 +25,10 @@
 
 1. **申請**：Agent 說明豁免規則 / 原因 / 影響範圍
 2. **評估**：`@Lead` 決策：
- - **核准**（說明授權範圍與有效期）
- - **拒絕**（附理由）
+
+- **核准**（說明授權範圍與有效期）
+- **拒絕**（附理由）
+
 3. **記錄**（核准時）：依 EXEMPTION_LOG 標準格式寫入 `PENDING_ACTIONS.md` §「豁免記錄」
 4. **標注**：豁免完成後 `@Lead` 標注「已執行」
 
@@ -17,12 +36,12 @@
 
 ## 豁免授權邊界（`@Lead` 無權單獨授權，必升級 User）
 
-| # | 條件 |
-|---|------|
-| 1 | `strategyWeight` 任何數值異動（workspace `CRITICAL_PATHS.strategyWeight` 異動路徑）|
-| 2 | `.agents/` 原始 Rules 直接修改（採納提案例外除外）|
-| 3 | 任何金鑰 / Token 相關操作（對齐 `skills/security-audit.md` SC-01 / SC-02）|
-| 4 | 破壞性架構變更（見 `architect.md §現有架構錨點`）|
+| #   | 條件                                                                                |
+| --- | ----------------------------------------------------------------------------------- |
+| 1   | `strategyWeight` 任何數值異動（workspace `CRITICAL_PATHS.strategyWeight` 異動路徑） |
+| 2   | `.agents/` 原始 Rules 直接修改（採納提案例外除外）                                  |
+| 3   | 任何金鑰 / Token 相關操作（對齊 `skills/security-audit.md` SC-01 / SC-02）          |
+| 4   | 破壞性架構變更（見 `architect.md §現有架構錨點`）                                   |
 
 **違反**：若 `@Lead` 單獨核准觸及以上四條件 → 視同未授權；觸發 `system-prompt.md §全局緊急阻斷` 條件三。
 
@@ -44,6 +63,7 @@
 ```
 
 **編號規則**：
+
 - 全系統唯一，不重用
 - 寫入位置：`PENDING_ACTIONS.md`（依 `assistant.md §s10 PENDING_ACTIONS 標準格式` 區塊定義）
 
@@ -73,7 +93,7 @@
 - `lead.md §s10 行為準則`：豁免授權為 @Lead 唯一授權例外
 - `backend.md §s07 執行豁免申請規範`：@Backend 申請端流程
 - `system-prompt.md §全局緊急阻斷`：豁免授權邊界違反 → 條件三觸發
-- `retro.md §豁免審計機制`：EXEMPTION_ACCUMULATED 後的根因分析
+- `retro.md §s_exemption_audit`：EXEMPTION_ACCUMULATED 後的根因分析 + 4 步流程 + 歸檔執行者鐵律（@Retro；PROPOSAL_502_014 N-6 補）
 - `skills/security-audit.md §1` SC-04：資料刪除零容忍（不接受豁免）
 
 ---

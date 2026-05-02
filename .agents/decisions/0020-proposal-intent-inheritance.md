@@ -11,7 +11,7 @@ related_proposals:
 referenced_by:
   - proposals/PROPOSAL_INDEX.md §🔗 提案意圖繼承關係
   - rules/retro.md §歷史比對機制
-  - skills/proposal-integration-analysis-template.md
+  - skills/templates/proposal-integration-analysis-template.md
 ---
 
 # ADR-0020: 提案意圖繼承機制（§🔗）
@@ -23,6 +23,7 @@ referenced_by:
 ## Context
 
 新提案可能改寫既有規則方向：
+
 - **善意擴充**：PROPOSAL_A 設計某機制；PROPOSAL_B 擴充之
 - **修正範圍**：PROPOSAL_C 設計過廣；PROPOSAL_D 縮窄適用範圍
 - **設計回退**：PROPOSAL_E 推翻 PROPOSAL_F 的決策
@@ -34,18 +35,20 @@ referenced_by:
 建立 **§🔗 提案意圖繼承關係表**（於 `PROPOSAL_INDEX.md` 文末）：
 
 ```markdown
-| 歷史提案 | 原意圖 | 繼承提案 | 繼承方式 | 說明 |
-|---------|-------|---------|---------|------|
+| 歷史提案   | 原意圖       | 繼承提案   | 繼承方式                          | 說明   |
+| ---------- | ------------ | ---------- | --------------------------------- | ------ |
 | PROPOSAL_A | <原設計意圖> | PROPOSAL_B | 擴充 / 修正範圍 / 語意恢復 / 推翻 | <說明> |
 ```
 
 **四種繼承方式**：
+
 - **擴充**：新提案延伸舊提案；不改變核心意圖
 - **修正範圍**：縮窄 / 擴寬舊提案適用條件；核心意圖保留
 - **語意恢復**：回到更早版本的設計（如 ADR-0008 light 路徑恢復初版 3 步）
 - **推翻**：完全取代舊提案決策（罕見）
 
 **強制觸發**：`@Retro` 起草新提案時必執行「設計意圖衝突偵測」：
+
 1. 讀取 §🔗 表
 2. 比對新提案改寫方向與歷史 DONE 提案的設計意圖
 3. 若相關 → 新提案 §七 備註必標注意圖繼承，並於 §🔗 新增條目
@@ -86,7 +89,7 @@ referenced_by:
 
 - `proposals/PROPOSAL_INDEX.md §🔗 提案意圖繼承關係`（主索引）
 - `rules/retro.md §歷史比對機制 + 設計意圖衝突偵測`
-- `skills/proposal-integration-analysis-template.md`
+- `skills/templates/proposal-integration-analysis-template.md`
 - `@Assistant` 巡邏 P-14 `PROPOSAL_INTENT_REGRESSION`
 
 ## Notes

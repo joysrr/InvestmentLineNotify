@@ -1,3 +1,23 @@
+---
+stack_name: testing-nodejs
+file_type: tech_stack
+category: web-backend
+class: F2
+version: v1.0
+last_modified: 2026-04-30
+last_proposal: PROPOSAL_20260430_005
+scope: framework
+manifest_entry: testing-nodejs
+depends_on:
+  - nodejs-esm-backend
+audience:
+  - QA
+  - Backend
+referenced_by:
+  - rules/qa.md
+  - rules/backend.md
+---
+
 # Tech Stack: Node.js Testing Framework
 
 > 純通用技術棧；專案特定的測試根目錄 / fixtures 位置 / 禁止呼叫的實際 API 清單 → 參照 §專案特化參照 對應 workspace 欄位。
@@ -40,11 +60,11 @@ tech_stack: testing-nodejs
 
 > 本 tech-stack 的具體測試根目錄 / fixtures 位置 / 實際 API 清單皆由 workspace 注入；請參照 `.agents/workspaces/<CURRENT_WORKSPACE>.md` 對應欄位。
 
-| Tech-stack 概念 | Workspace 欄位 | Fallback 行為 |
-|---|---|---|
-| 測試根目錄 | `PATHS.test_root` | 缺失 → 警告；`@Lead` 預設 `test/` |
-| 測試框架選擇 | `TECH_STACK.testing_framework` | 缺失 → 警告；`@Lead` 假設 `node:test` |
+| Tech-stack 概念         | Workspace 欄位                   | Fallback 行為                                |
+| ----------------------- | -------------------------------- | -------------------------------------------- |
+| 測試根目錄              | `PATHS.test_root`                | 缺失 → 警告；`@Lead` 預設 `test/`            |
+| 測試框架選擇            | `TECH_STACK.testing_framework`   | 缺失 → 警告；`@Lead` 假設 `node:test`        |
 | 不可呼叫的實際 API 清單 | `TECH_STACK.external_dependency` | 缺失 → 警告；`@Lead` 預設所有外部依賴均 mock |
-| 測試禁止寫入的資料根 | `PATHS.data_root` | 缺失 → 警告；測試仍應避免寫入任何生產路徑 |
+| 測試禁止寫入的資料根    | `PATHS.data_root`                | 缺失 → 警告；測試仍應避免寫入任何生產路徑    |
 
 **引用規範**：本 tech-stack 描述**測試原則與覆蓋率目標**；workspace 描述**具體路徑與禁呼叫清單**。

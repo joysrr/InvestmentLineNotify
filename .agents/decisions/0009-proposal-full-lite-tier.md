@@ -9,8 +9,8 @@ related_proposals:
   - PROPOSAL_20260422_021
   - PROPOSAL_20260423_010
 referenced_by:
-  - skills/rule-update-proposal-full-template.md
-  - skills/rule-update-proposal-lite-template.md
+  - skills/templates/rule-update-proposal-full-template.md
+  - skills/templates/rule-update-proposal-lite-template.md
   - rules/retro.md §s06 提案輕重選擇
   - RULES_DESIGN_GUIDE.SCOPE §二十一
 ---
@@ -29,10 +29,10 @@ referenced_by:
 
 建立 **Full / Lite** 二分：
 
-| 類別 | 適用 | 模板 | 典型長度 | 撰寫時間 |
-|------|------|------|---------|---------|
-| **Full** | 一般變更（新功能 / 架構 / 規則）| `rule-update-proposal-full-template.md` | ~400 行 | ~45 min |
-| **Lite** | 微型變更（typo / 路徑 / 設定常數）| `rule-update-proposal-lite-template.md` | ~70 行 | ~10 min |
+| 類別     | 適用                               | 模板                                    | 典型長度 | 撰寫時間 |
+| -------- | ---------------------------------- | --------------------------------------- | -------- | -------- |
+| **Full** | 一般變更（新功能 / 架構 / 規則）   | `rule-update-proposal-full-template.md` | ~400 行  | ~45 min  |
+| **Lite** | 微型變更（typo / 路徑 / 設定常數） | `rule-update-proposal-lite-template.md` | ~70 行   | ~10 min  |
 
 **預設 Full**；Lite 需**全滿足**以下排除條件（決策樹由嚴至寬）：
 
@@ -45,11 +45,13 @@ referenced_by:
 **不確定 → Full**（保守）。
 
 **Lite 7 欄必填**：
+
 ```
 - Why / Change / Impact / Rollback / Acceptance / 基於 / 採納指令
 ```
 
 **禁止行為**（鐵律）：
+
 - Lite 用於 Agent 行為變更
 - Lite 跨 ≥ 2 主檔
 - Lite 省略「基於」（§🔗 意圖繼承不可斷）
@@ -91,8 +93,8 @@ referenced_by:
 
 ## Referenced By
 
-- `skills/rule-update-proposal-full-template.md`（Full 模板）
-- `skills/rule-update-proposal-lite-template.md`（Lite 模板 + 決策自檢）
+- `skills/templates/rule-update-proposal-full-template.md`（Full 模板）
+- `skills/templates/rule-update-proposal-lite-template.md`（Lite 模板 + 決策自檢）
 - `rules/retro.md §s06 提案輕重選擇`（SOP）
 - `RULES_DESIGN_GUIDE.SCOPE §二十一`（完整規範）
 

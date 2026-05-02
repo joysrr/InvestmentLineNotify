@@ -3,21 +3,21 @@
 # 更新時機：每次觸發 major/minor bump 的提案執行 Phase E 時，由 @Lead 同步
 # patch 版本僅用於修 typo / 回溯記錄；不需要必然更新此檔
 
-framework_version: v6.1
-release_date: 2026-04-24
-baseline_proposal: PROPOSAL_20260423_017
+framework_version: v6.27
+release_date: 2026-05-02
+baseline_proposal: PROPOSAL_20260502_018
 
 proposals_included:
-  total: 71
-  framework: 71
+  total: 106
+  framework: 106
   project: 0
 
-last_included_proposal: PROPOSAL_20260423_017
+last_included_proposal: PROPOSAL_20260502_018
 
 auditor_baseline:
-  last_audit_date: 2026-04-23
-  last_audit_score: 4.62
-  drift_score: 0.957
+  last_audit_date: 2026-05-02   # PROPOSAL_502_018 R-7 sync（v6.21→v6.26 5 sprint 補測 baseline）
+  last_audit_score: 4.62          # 4.62 為 2026-04-23 baseline；下次 @Auditor 觸發後 sync
+  drift_score: 0.883              # 2026-05-02 補測；mirror AUDIT_HISTORY.md SoT；Δ=-0.074 仍 PASS ≥ 0.85
 
 notes: |
   本版本含 PROPOSAL_20260421_001 ~ PROPOSAL_20260422_032 全數採納執行

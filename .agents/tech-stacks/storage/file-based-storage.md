@@ -1,3 +1,20 @@
+---
+stack_name: file-based-storage
+file_type: tech_stack
+category: storage
+class: F2
+version: v1.0
+last_modified: 2026-04-30
+last_proposal: PROPOSAL_20260430_005
+scope: framework
+manifest_entry: file-based-storage
+depends_on: []
+audience:
+  - Backend
+referenced_by:
+  - rules/backend.md
+---
+
 # Tech Stack: File-based Storage
 
 > 純通用技術棧；專案特定路徑 / 儲存容量 / 歸檔實作細節 → 參照 §專案特化參照 對應 workspace 欄位。
@@ -41,12 +58,12 @@ tech_stack: file-based-storage
 
 > 本 tech-stack 的具體路徑、容量上限、歸檔模組位置皆由 workspace 注入；請參照 `.agents/workspaces/<CURRENT_WORKSPACE>.md` 對應欄位。
 
-| Tech-stack 概念 | Workspace 欄位 | Fallback 行為 |
-|---|---|---|
-| 資料根目錄 | `PATHS.data_root` | 缺失 → `@Lead` 阻斷所有寫入任務，要求 User 補填 |
-| 儲存模組實作位置 | `PATHS.source_modules.storage` | 缺失 → `@Lead` 改以「請實作儲存模組」任務升級 |
-| 歸檔模組實作位置 | `PATHS.source_modules.archive` | 缺失 → 允許 warning；歸檔行為降級為 inline 實作 |
-| 記憶體上限 | `DEPLOYMENT_CONSTRAINTS.memory` | 缺失 → 警告；批次大小降級為保守預設（1000 筆/批次）|
-| 儲存容量上限 | `DEPLOYMENT_CONSTRAINTS.storage_limit` | 缺失 → 警告；不觸發自動清理 |
+| Tech-stack 概念  | Workspace 欄位                         | Fallback 行為                                       |
+| ---------------- | -------------------------------------- | --------------------------------------------------- |
+| 資料根目錄       | `PATHS.data_root`                      | 缺失 → `@Lead` 阻斷所有寫入任務，要求 User 補填     |
+| 儲存模組實作位置 | `PATHS.source_modules.storage`         | 缺失 → `@Lead` 改以「請實作儲存模組」任務升級       |
+| 歸檔模組實作位置 | `PATHS.source_modules.archive`         | 缺失 → 允許 warning；歸檔行為降級為 inline 實作     |
+| 記憶體上限       | `DEPLOYMENT_CONSTRAINTS.memory`        | 缺失 → 警告；批次大小降級為保守預設（1000 筆/批次） |
+| 儲存容量上限     | `DEPLOYMENT_CONSTRAINTS.storage_limit` | 缺失 → 警告；不觸發自動清理                         |
 
 **引用規範**：本 tech-stack 描述**概念與鐵律**；workspace 描述**路徑與數值**。違反此分離原則視為提案意圖回退（對齊 `RULES_DESIGN_GUIDE §十六`）。

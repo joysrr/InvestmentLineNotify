@@ -9,7 +9,7 @@ related_proposals:
   - PROPOSAL_20260421_012
   - PROPOSAL_20260422_012
 referenced_by:
-  - skills/dod-audit-checklist-template.md
+  - skills/templates/dod-audit-template.md
   - rules/lead.md §s09 Gate Check
   - rules/qa.md / backend.md / frontend.md
 ---
@@ -28,7 +28,7 @@ Definition of Done（DoD）依各 Agent 職責不同而異（如 @Backend 需測
 
 建立 **DoD 自評框架** + **Gate Check Auto-Audit** 雙層：
 
-1. **DoD Checklist 模板**（`skills/dod-audit-checklist-template.md`）：
+1. **DoD Checklist 模板**（`skills/templates/dod-audit-template.md`）：
    - 每個 Agent 的 rules 含 §DoD 章節
    - 執行任務結束時必填 self-audit（每項✅/❌ + 理由）
    - 產出 `DoD_AUDIT.md` 附於 artifact
@@ -74,7 +74,7 @@ Definition of Done（DoD）依各 Agent 職責不同而異（如 @Backend 需測
 
 ## Referenced By
 
-- `skills/dod-audit-checklist-template.md`（統一模板）
+- `skills/templates/dod-audit-template.md`（統一模板）
 - `rules/lead.md §s09 Gate Check`
 - `rules/qa.md` / `backend.md` / `frontend.md`（各自 DoD 章節）
 - `SYSTEM_THRESHOLDS.yaml#LANE_ROUTING.gate_matrix`

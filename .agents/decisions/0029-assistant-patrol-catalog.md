@@ -1,6 +1,6 @@
 ---
 adr_id: ADR-0029
-title: @Assistant 巡邏規則目錄（P-01 ~ P-22）
+title: @Assistant 巡邏規則目錄（P-01 ~ P-23）
 status: Accepted
 date: 2026-04-22
 supersedes: []
@@ -18,7 +18,7 @@ referenced_by:
   - docs/agents-overview §4.2
 ---
 
-# ADR-0029: @Assistant 巡邏規則目錄（P-01 ~ P-22）
+# ADR-0029: @Assistant 巡邏規則目錄（P-01 ~ P-23）
 
 ## Status
 
@@ -34,20 +34,22 @@ referenced_by:
 
 ### 編號規則
 
-`P-NN` 兩位數字；永久保留不可重用。當前 P-01 ~ P-22。
+`P-NN` 兩位數字；永久保留不可重用。當前 P-01 ~ P-23。
 
 ### 目錄結構（`skills/patrol-notification-catalog.md`）
 
-| P-ID | 名稱 | 偵測條件 | 通知級別 |
-|------|------|---------|---------|
-| P-01~P-08 | 初期基礎偵測 | REVIEW/QA/CONSULTANT 等相關 | 🔴/🟡 |
-| P-10 | SECURITY_AUDIT_FAIL | 資安審查失敗 | 🔴 |
-| P-11 | REVIEW_CYCLE_LIMIT 超限 | 複審次數超門檻 | 🔴 |
-| P-12 | WORKSPACE_MISSING | workspace 未配置 | 🔴 |
-| P-14 | PROPOSAL_INTENT_REGRESSION | 設計意圖回退 | 🔴 |
-| P-15 | AUDIT_QUALITY | 審計分數低 | 🟡 |
-| P-16~P-20 | 擴充偵測 | 各類事件 | - |
-| P-22 | 預留 | - | - |
+| P-ID      | 名稱                       | 偵測條件                                         | 通知級別                     |
+| --------- | -------------------------- | ------------------------------------------------ | ---------------------------- |
+| P-01~P-08 | 初期基礎偵測               | REVIEW/QA/CONSULTANT 等相關                      | 🔴/🟡                        |
+| P-10      | SECURITY_AUDIT_FAIL        | 資安審查失敗                                     | 🔴                           |
+| P-11      | REVIEW_CYCLE_LIMIT 超限    | 複審次數超門檻                                   | 🔴                           |
+| P-12      | WORKSPACE_MISSING          | workspace 未配置                                 | 🔴                           |
+| P-14      | PROPOSAL_INTENT_REGRESSION | 設計意圖回退                                     | 🔴                           |
+| P-15      | AUDIT_QUALITY              | 審計分數低                                       | 🟡                           |
+| P-16~P-20 | 擴充偵測                   | 各類事件                                         | -                            |
+| P-21      | HOTFIX_LIGHT_MISUSE        | light 路徑後 24h 內 SC 事故                      | 🟡                           |
+| P-22      | LITE_OVERUSE               | Lite 提案 LOC > 50 或 phases > 2                 | 🟡                           |
+| P-23      | TECH_STACK_AUDIT_OVERDUE   | workspace `last_audit_date` 過期（PROPOSAL_018） | 🟢（PROPOSAL_004 修正自 💡） |
 
 （詳完整 P-XX 表見 `skills/patrol-notification-catalog.md`）
 
@@ -78,7 +80,7 @@ referenced_by:
 ### 負面 / Tradeoffs
 
 - 巡邏週期非即時（每對話末）
-- P-XX 增長（22 個已不少；需 periodic-design-review §7 監控）
+- P-XX 增長（23 個；需 periodic-design-review §7 監控）
 - 部分 P-XX 跨多提案（如 P-14 涉意圖繼承 ADR-0020）
 
 ## Alternatives Considered
@@ -94,7 +96,7 @@ referenced_by:
 ## Related Proposals
 
 - PROPOSAL_20260422_004（HCI 全局摘要機制）
-- PROPOSAL_20260422_028（agents-overview 同步 validator；P-XX 清單對齐）
+- PROPOSAL_20260422_028（agents-overview 同步 validator；P-XX 清單對齊）
 - PROPOSAL_20260422_029（!ref 自動驗證；ref-validator）
 - PROPOSAL_20260422_030（examples 補充）
 - PROPOSAL_20260423_008（run-all.sh 並行；觸發 P-XX 改善）

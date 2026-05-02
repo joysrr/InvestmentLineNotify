@@ -89,12 +89,13 @@ ADR-0015 §十六.D 僅預留「≥ 5 份同前綴強制子目錄」，但缺乏
 ### 6. Validation（11 個 validator）
 
 新增 `tests/tech-stack-validator.mjs`（runner 第 10 個）：
+
 1. MANIFEST 可解析；categories 合法
 2. 每 stack `category` 屬已定義
 3. `installed: true` → 路徑存在
 4. 實體檔案 ↔ MANIFEST 雙向對應
 5. `depends_on` 合法性 + 循環依賴（DFS 三色）
-6. F2 class 檔案含 workspace.* / 專案特化 / Fallback 關鍵字
+6. F2 class 檔案含 workspace.\* / 專案特化 / Fallback 關鍵字
 7. 資料夾模式必含 README.md（SOURCE.md 警告級）
 8. `vendor_source` 有但 `vendor_last_vetted` 空 → 警告
 
@@ -160,3 +161,4 @@ ADR-0015 §十六.D 僅預留「≥ 5 份同前綴強制子目錄」，但缺乏
 - 與 ADR-0002（workspace 注入）一致：MANIFEST 是框架層，workspace 負責 installed 子集
 - 與 ADR-0015 關係為 **extends** 而非 **supersedes**：6 鐵律 + 純淨原則仍完全有效；本 ADR 只補充 Catalog 層
 - `installed: false` 預設對 **新 Avalonia 專案引入 Semi.Avalonia 時**設計；其他既存 stacks 仍 `true` 以維持現專案相容
+- **Pre-skeleton WebFetch 補遺**（PROPOSAL_20260424_019 F-4；2026-04-24）：`skills/tech-stack-onboarding.md §4.2 Step 0` 明文規定資料夾模式在建 `upstream/` / `README.md` 骨架前**必須** WebFetch vendor 官方 repo 確認定位（元件庫 / 主題 / 工具）+ license + 分類合理性；發現性質不符即停並與 User 確認。此為 017 Phase F.2 → F.3（React vs Avalonia 二次工作）的事後退火

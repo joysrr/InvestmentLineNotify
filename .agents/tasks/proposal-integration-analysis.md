@@ -1,21 +1,45 @@
+---
+task_id: proposal-integration-analysis
+file_type: workflow
+owner: @Retro
+version: v1.0
+last_modified: 2026-04-30
+last_proposal: PROPOSAL_20260430_005
+purpose: |
+  ≥ 2 OPEN 提案時整合分析 5 階段（範圍 / 文件依賴 / 並行衝突 / 風險 / 報告）
+referenced_by:
+  - rules/lead.md
+  - skills/lead-context-mappings.md
+  - skills/templates/proposal-integration-analysis-template.md
+  - skills/retro-analysis-framework.md
+  - skills/lead-orchestration-guide.md
+  - decisions/0020-proposal-intent-inheritance.md
+---
+
 # Task: Proposal Integration Analysis (提案整合性分析)
 
 > 本任務由 PROPOSAL_20260422_007 建立。當 User 於 `active/` OPEN 提案 ≥ 2 份時下達「採納提案」指令，`@Lead` 執行本 task 前必須先詢問 User 是否執行本分析。
-> 分析流程對應模板位於 `.agents/skills/proposal-integration-analysis-template.md`。
+> 分析流程對應模板位於 `.agents/skills/templates/proposal-integration-analysis-template.md`。
 
 ---
 
 ## 觸發時機
 
-| 條件 | `@Lead` 動作 |
-|------|-----------|
-| `active/` OPEN 提案 = 1 份 | 直接執行採納，無需整合性分析 |
+| 條件                       | `@Lead` 動作                                       |
+| -------------------------- | -------------------------------------------------- |
+| `active/` OPEN 提案 = 1 份 | 直接執行採納，無需整合性分析                       |
 | `active/` OPEN 提案 ≥ 2 份 | **必須**向 User 提問：「是否執行提案整合性分析？」 |
-| `active/` OPEN 提案 ≥ 3 份 | **強烈建議**執行分析（`@Lead` 於提問中明示建議）|
+| `active/` OPEN 提案 ≥ 3 份 | **強烈建議**執行分析（`@Lead` 於提問中明示建議）   |
 
 User 明確表示「已審閱，直接採納」時：`@Lead` 記錄跳過豁免於 `PENDING_ACTIONS.md §豁免記錄`。
 
 ## 5 階段分析流程
+
+### Stage 0：Memory Palace 反覆問題查詢（ADR-0039；新增）
+
+- `mempalace.search "<提案關鍵詞 + 涉及 Agent>"` 查 strategy_context（歷史決策脈絡）+ debug_graveyard（相關 incident）
+- 比對是否與 `PROPOSAL_INDEX.md §🔗` 既有意圖衝突（ADR-0020）
+- 若命中歷史 → 將 drawer ref 列入分析報告
 
 ### Stage 1：範圍界定
 
@@ -37,11 +61,13 @@ User 明確表示「已審閱，直接採納」時：`@Lead` 記錄跳過豁免�
 - （未來可擴充其他派生視圖，例如 `docs/architecture.md` 框架部分）
 
 **檢查項**：
+
 1. 提案 §三 提案內容 是否觸發 `RULES_DESIGN_GUIDE §三 派生視圖同步義務` 的觸發條件？
 2. 提案 §五 執行計畫 的 Phase E 是否包含「agents-overview 同步檢查」？
 3. 若未涉及 → 是否於 §六 驗收標準明文「agents-overview 無需同步」？
 
 **影響判定**：
+
 - 觸發且 Phase E 缺同步項 → 於分析報告標注 🟡 建議補齊
 - 觸發且未明文「無需同步」 → 視為驗收標準不完整，要求修訂 Phase E
 - 未觸發 → 無需處理
@@ -49,13 +75,14 @@ User 明確表示「已審閱，直接採納」時：`@Lead` 記錄跳過豁免�
 ### Stage 3：並行衝突分析（派遣子 Agent）
 
 - 對每個高風險檔案，派遣獨立 Explore 子 Agent 執行深度檢查
-- 子 Agent 依 `skills/proposal-integration-analysis-template.md §子 Agent 提示詞模板` 執行
+- 子 Agent 依 `skills/templates/proposal-integration-analysis-template.md §子 Agent 提示詞模板` 執行
 - 子 Agent 回報 5 項檢查結果：
- 1. 章節插入位置是否碰撞
- 2. 語意設計是否衝突
- 3. 執行順序敏感性
- 4. Token 預算累積影響
- 5. 與既有 DONE 提案的意圖回退風險（對齊 `PROPOSAL_INDEX.md §🔗`）
+
+1.  章節插入位置是否碰撞
+2.  語意設計是否衝突
+3.  執行順序敏感性
+4.  Token 預算累積影響
+5.  與既有 DONE 提案的意圖回退風險（對齊 `PROPOSAL_INDEX.md §🔗`）
 
 ### Stage 4：風險彙整
 
@@ -65,7 +92,7 @@ User 明確表示「已審閱，直接採納」時：`@Lead` 記錄跳過豁免�
 
 ### Stage 5：報告輸出
 
-- 依 `skills/proposal-integration-analysis-template.md §報告模板` 產出分析報告
+- 依 `skills/templates/proposal-integration-analysis-template.md §報告模板` 產出分析報告
 - 於對話中呈現給 User
 - 等待 User 決策（修訂 / 新增提案 / 繼續採納 / 暫緩）
 

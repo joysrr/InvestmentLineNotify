@@ -231,6 +231,38 @@ test_gen_framework_version_dry_run() {
   fi
 }
 
+# Test 13: tech-stack-manage audit --dry-run（PROPOSAL_20260424_018 Phase C）
+# 驗證：dry-run 模式輸出正確分級；不改 MANIFEST；不刪檔
+test_tech_stack_audit_dry_run() {
+  local manifest="$AGENTS_ROOT/tech-stacks/MANIFEST.yaml"
+  local before
+  before=$(stat -c %Y "$manifest" 2>/dev/null || echo 0)
+  local out
+  out=$(node "$AGENTS_ROOT/scripts/tech-stack-manage.mjs" audit --dry-run 2>&1)
+  local after
+  after=$(stat -c %Y "$manifest" 2>/dev/null || echo 0)
+
+  # 驗證 1：輸出包含必要標記（標題 + 初步篩選 + DRY-RUN 結尾）
+  if ! echo "$out" | grep -q "Tech-Stack Audit"; then
+    fail "tech-stack-manage audit --dry-run" "輸出缺 'Tech-Stack Audit' 標題"
+    return
+  fi
+  if ! echo "$out" | grep -q "初步篩選"; then
+    fail "tech-stack-manage audit --dry-run" "輸出缺 '初步篩選' 段落"
+    return
+  fi
+  if ! echo "$out" | grep -q "DRY-RUN"; then
+    fail "tech-stack-manage audit --dry-run" "輸出缺 '[DRY-RUN]' 結尾標記"
+    return
+  fi
+  # 驗證 2：MANIFEST 未被修改
+  if [ "$before" != "$after" ]; then
+    fail "tech-stack-manage audit --dry-run" "MANIFEST 被修改（mtime 變化）"
+    return
+  fi
+  pass "tech-stack-manage audit --dry-run 正確（分級輸出 + 不改 MANIFEST）"
+}
+
 # Test 7: run-all.sh --validator <name> 單一模式（PROPOSAL_20260423_008 Part 3）
 test_run_all_single_mode() {
   local out
@@ -305,6 +337,7 @@ test_run_all_help
 test_regenerate_indexes
 test_gen_rules_version_index_dry_run
 test_gen_framework_version_dry_run
+test_tech_stack_audit_dry_run
 
 echo ""
 echo "========================================"

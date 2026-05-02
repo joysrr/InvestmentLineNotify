@@ -39,14 +39,14 @@
 
 依 `tech-stacks/MANIFEST.yaml §categories` 六類：
 
-| Category | 適用 | 例 |
-|----------|------|----|
-| `core` | 幾乎所有專案通用 | git-pr-workflow、testing-basics |
-| `web-backend` | 後端服務 / 語言 / 測試框架 | nodejs-esm-backend、testing-nodejs |
-| `web-frontend` | Web 前端框架 / 打包工具 | vue3-vite、react-nextjs |
-| `desktop` | 桌面應用 UI | avalonia-ui、wpf-mvvm |
-| `messaging` | 即時通訊 / Bot / Mini App | telegram-bot、discord-bot |
-| `storage` | 資料儲存 | file-based-storage、postgres、redis |
+| Category       | 適用                       | 例                                  |
+| -------------- | -------------------------- | ----------------------------------- |
+| `core`         | 幾乎所有專案通用           | git-pr-workflow、testing-basics     |
+| `web-backend`  | 後端服務 / 語言 / 測試框架 | nodejs-esm-backend、testing-nodejs  |
+| `web-frontend` | Web 前端框架 / 打包工具    | vue3-vite、react-nextjs             |
+| `desktop`      | 桌面應用 UI                | avalonia-ui、wpf-mvvm               |
+| `messaging`    | 即時通訊 / Bot / Mini App  | telegram-bot、discord-bot           |
+| `storage`      | 資料儲存                   | file-based-storage、postgres、redis |
 
 判定困難時 → 以「其他專案最可能的 onboarding 路徑」決定（例：某 Vue 專案會看 `web-frontend/`）。
 
@@ -85,6 +85,7 @@
 ### 4.2 資料夾模式步驟
 
 目錄結構：
+
 ```
 tech-stacks/<category>/<name>/
 ├── README.md          ← 我方適配規則（LLM 實際讀取的來源；唯一權威）
@@ -98,6 +99,18 @@ tech-stacks/<category>/<name>/
 ```
 
 步驟：
+
+**Step 0（強制；Pre-skeleton；依 PROPOSAL_20260424_019 F-4）**：
+建任何 `upstream/` / `README.md` 骨架**之前**，先 WebFetch vendor 官方 repo / 首頁 / README：
+
+1. **確認 vendor 定位**（元件庫 / 主題庫 / 工具 / 插件 / 框架）
+2. **確認 license**（MIT / Apache 2.0 / BSD / 閉源；對齊 workspace `BUSINESS_RULES.license_preference`）
+3. **確認對應我方 stack 類別是否合理**（例：React 元件庫不該放 `desktop/`；Vue 主題不該放 `web-backend/`）
+4. **若發現性質不符 / license 不允許 / 分類錯誤 → 停止建骨架**；與 User 確認方向後再回到 Step 1
+
+**為何需要此步驟**：
+依 PROPOSAL_20260424_019 §1.4：017 Phase F.2 曾因未預先確認 vendor 定位，建了不適合 User 實際 vendor（React 版 vs Avalonia 版）的骨架，造成 Phase F.3 需重做 WebFetch 擷取。Pre-skeleton WebFetch 為硬性要求，**不可跳過**。
+
 1. 建立資料夾骨架（含 `README.md` + `SOURCE.md`）
 2. 從 vendor 取得原文 → 放入 `upstream/`，**不作任何修改**
 3. **人工審查 upstream** 內容（見 §五 prompt injection 準則）
@@ -134,6 +147,7 @@ tech-stacks/<category>/<name>/
 ### 5.3 可疑內容辨識
 
 審查 vendor 原文時留意：
+
 - 看似 `Instruction` / `System Message` / `You are` 開頭的段落
 - 要求「忽略上文」/「跳過規則」/「重置角色」的字樣
 - 誘導執行特定命令（`curl | bash`）/ 輸出敏感資訊（API key / token）
@@ -211,9 +225,10 @@ bash .agents/tests/run-all.sh --fast
 - `ADR-0016` — F1/F2/F3 分類
 - `ADR-0031` — Catalog 架構（分類 + MANIFEST + 選擇性搬運；待 PROPOSAL_017 Phase G 立案）
 - `RULES_DESIGN_GUIDE.SCOPE.md §十六` — tech-stacks scope 定義
-- `tasks/project-onboarding.md` — 專案初始化 SOP（含 tech-stack 選擇）
+- `tasks/project-onboarding-workflow.md` — 專案初始化 SOP（含 tech-stack 選擇）
 
 ---
 
 **維護紀錄**：
+
 - 2026-04-24：由 PROPOSAL_20260423_017 Phase D 建立（F1 類 skill）

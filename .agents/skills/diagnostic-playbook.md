@@ -42,7 +42,7 @@
 - [ ] 同樣根因是否存在於其他模組？（grep / 靜態分析）
 - [ ] 修復是否需同步調整相關單元測試？
 - [ ] 是否涉及資料遷移 / migration？
-- [ ] **是否為資安敏感（SC-01~SC-10 任一）→ 觸發 `@Security` 平行介入**（對齐 `RULES_DESIGN_GUIDE §十九.C`）
+- [ ] **是否為資安敏感（SC-01~SC-10 任一）→ 觸發 `@Security` 平行介入**（對齊 `RULES_DESIGN_GUIDE §十九.C`）
 
 ## 三、診斷組協作規範
 
@@ -50,35 +50,36 @@
 
 **三段式職責切換**：
 
-| 階段 | 實作者角色 | @Reviewer 角色 |
-|-----|-----------|---------------|
+| 階段 | 實作者角色    | @Reviewer 角色                                 |
+| ---- | ------------- | ---------------------------------------------- |
 | 診斷 | 主導 Step 1-5 | **第二雙眼睛**：質疑假設、補盲點；**不做審查** |
-| 實作 | 修復實作 | 不介入 |
-| 審查 | 接收審查 | 回歸審查角色（`hotfix-checklist Step 2`） |
+| 實作 | 修復實作      | 不介入                                         |
+| 審查 | 接收審查      | 回歸審查角色（`hotfix-checklist Step 2`）      |
 
 **關鍵分離**：
+
 - 診斷階段 `@Reviewer` 不評判「程式碼品質 / 風格」，只評判「根因假設是否站得住腳」
 - 避免思維混淆：診斷 = 探索未知；審查 = 驗證對錯
 - 職責切換時 `@Lead` 發 Gate Check 明示：「診斷完成 → 進入實作 → 審查」三個階段轉換點
 
 **共識達成**：診斷組需達成「主根因 + 修復範圍」書面共識，才進入實作。共識未達成 → `@Lead` 升級 User 裁決。
 
-## 四、事故上下文包格式（對齐 `RULES_DESIGN_GUIDE §十九.D`）
+## 四、事故上下文包格式（對齊 `RULES_DESIGN_GUIDE §十九.D`）
 
 `@Lead` 派發診斷組時附以下上下文：
 
 ```yaml
 incident_context:
- critical_paths: [<workspace.CRITICAL_PATHS.* 相關項>]
- relevant_tech_stacks: [<tech-stacks/*.md 相關項>]
- business_rules_excerpt: <workspace.BUSINESS_RULES 相關節錄>
- deployment_constraints: <workspace.DEPLOYMENT_CONSTRAINTS.* 相關項>
- source_modules: [<workspace.PATHS.source_modules.* 相關項>]
- related_skills: [<skills/*.md 相關方法論，如 concurrency-guard-pattern>]
- sc_evaluation:
- triggered: <true|false>
- sc_codes: [<SC-XX list if triggered>]
- reason: <若 false，說明為何不觸發；若 true，哪些證據指向 SC>
+  critical_paths: [<workspace.CRITICAL_PATHS.* 相關項>]
+  relevant_tech_stacks: [<tech-stacks/*.md 相關項>]
+  business_rules_excerpt: <workspace.BUSINESS_RULES 相關節錄>
+  deployment_constraints: <workspace.DEPLOYMENT_CONSTRAINTS.* 相關項>
+  source_modules: [<workspace.PATHS.source_modules.* 相關項>]
+  related_skills: [<skills/*.md 相關方法論，如 concurrency-guard-pattern>]
+  sc_evaluation:
+  triggered: <true|false>
+  sc_codes: [<SC-XX list if triggered>]
+  reason: <若 false，說明為何不觸發；若 true，哪些證據指向 SC>
 ```
 
 診斷組收到後首先驗證上下文包完整性；有缺漏 → 向 `@Lead` 要求補齊（不自行補找，保持 @Lead 派發職責集中）。
@@ -89,34 +90,42 @@ incident_context:
 
 ```markdown
 # DIAGNOSIS_NOTE — <事故名稱>
+
 > 建立日期：<YYYY-MM-DD>
 > 診斷組：<@Backend|@Frontend> + @Reviewer
 > 上下文來源：@Lead 派發訊息 `Incident-Context`
 
 ## 一、現象
+
 <Step 1 產出>
 
 ## 二、最小重現
+
 <Step 2 產出>
 
 ## 三、二分法定位
+
 <Step 3 產出>
 
 ## 四、根因假設
-| 假設 | 支持證據 | 反證 | 結論 |
-|-----|---------|-----|-----|
-| H1：<...> | ... | ... | ✅ 主根因 / ❌ 排除 |
+
+| 假設      | 支持證據 | 反證 | 結論                |
+| --------- | -------- | ---- | ------------------- |
+| H1：<...> | ...      | ...  | ✅ 主根因 / ❌ 排除 |
 
 ## 五、影響範圍
+
 <Step 5 產出>
 
 ## 六、修復範圍（由實作者執行）
+
 - 修改檔案：[<list>]
 - 修改函式：[<list>]
 - 單元測試更新：[<list>]
 - 是否 SC 敏感：<true|false + SC 代碼>
 
 ## 七、診斷組共識簽核
+
 - `@Backend|@Frontend`：<簽核時間>
 - `@Reviewer`：<簽核時間>
 ```
@@ -133,10 +142,10 @@ incident_context:
 ## 七、溯源
 
 - 建立提案：PROPOSAL_20260423_003
-- 對齐：`RULES_DESIGN_GUIDE §十九 Hotfix 診斷強化三支柱`
+- 對齊：`RULES_DESIGN_GUIDE §十九 Hotfix 診斷強化三支柱`
 - 搭配：`tasks/hotfix-checklist.md` / `tasks/emergency-shutdown-playbook.md`
 - 觸發條件：`RULES_DESIGN_GUIDE §十九.B` D1-D4
-- 類別：**F2**（通用方法論 + workspace 引用；對齐 `RULES_DESIGN_GUIDE §十六.F`）
+- 類別：**F2**（通用方法論 + workspace 引用；對齊 `RULES_DESIGN_GUIDE §十六.F`）
 
 **修訂方式**：透過 `RULE_UPDATE_PROPOSAL`。
 
@@ -154,13 +163,13 @@ skill_or_task: diagnostic-playbook
 > 本 skill 描述**通用診斷方法論**；專案特定關鍵路徑 / tech-stacks / 源碼位置由 workspace 注入（由 @Lead 派發時打包）。
 > 請參照 `.agents/workspaces/<CURRENT_WORKSPACE>.md` 對應欄位。
 
-| 通用概念 | Workspace 欄位 | Fallback 行為 |
-|---|---|---|
-| 關鍵路徑（事故涉及）| `CRITICAL_PATHS.*` | 阻斷：無關鍵路徑清單禁止啟動診斷 |
-| 源碼模組位置 | `PATHS.source_modules.*` | 警告：使用預設 `src/` 搜尋 |
-| 部署約束（資源限制）| `DEPLOYMENT_CONSTRAINTS.*` | 略過（若事故非資源相關）|
-| 業務規則（觸發條件參考）| `BUSINESS_RULES` | 警告：無業務規則無法驗證根因假設合理性 |
-| 資安範疇擴充（SC-XX 補強）| `SECURITY_SCOPE_EXTENSIONS` | 略過（使用 SC-01~SC-10 基礎清單）|
+| 通用概念                   | Workspace 欄位              | Fallback 行為                          |
+| -------------------------- | --------------------------- | -------------------------------------- |
+| 關鍵路徑（事故涉及）       | `CRITICAL_PATHS.*`          | 阻斷：無關鍵路徑清單禁止啟動診斷       |
+| 源碼模組位置               | `PATHS.source_modules.*`    | 警告：使用預設 `src/` 搜尋             |
+| 部署約束（資源限制）       | `DEPLOYMENT_CONSTRAINTS.*`  | 略過（若事故非資源相關）               |
+| 業務規則（觸發條件參考）   | `BUSINESS_RULES`            | 警告：無業務規則無法驗證根因假設合理性 |
+| 資安範疇擴充（SC-XX 補強） | `SECURITY_SCOPE_EXTENSIONS` | 略過（使用 SC-01~SC-10 基礎清單）      |
 
 ---
 

@@ -10,8 +10,8 @@ related_proposals:
 referenced_by:
   - rules/architect.md §前置強制階段
   - rules/lead.md Prior Art Verification Gate
-  - skills/prior-art-scan-checklist.md
-  - skills/prior-art-report-template.md
+  - skills/checklists/prior-art-scan-checklist.md
+  - skills/templates/prior-art-report-template.md
   - RULES_DESIGN_GUIDE.QUALITY §十八
 ---
 
@@ -36,8 +36,8 @@ referenced_by:
    1. 掃 npm / 內部 skills / 內部 tech-stacks 搜尋關鍵字
    2. 列 ≥ 2 候選方案
    3. 比對採納 / 不採納理由
-   4. 快取結果於 `EVALUATED_PACKAGES.md`（避免重複調研）
-   5. 產 `docs/plans/prior-art-report/<feature>.md`
+   4. 快取結果於 workspace `EVALUATED_PACKAGES` 欄位（`workspaces/<ws>.md` yaml；非獨立 .md 檔；PROPOSAL_502_014 N-5 勘誤）
+   5. 產 `docs/plans/prior-art/<feature>.md`（PROPOSAL_502_014 N-5 勘誤；原文 `prior-art-report/` 為 typo；rules/skills/templates 全用 `prior-art/`）
    6. 提交 @Lead Gate Check
 
 3. **C 階段：@Lead Prior Art Verification Gate**
@@ -45,15 +45,16 @@ referenced_by:
    - 未通過 → 阻斷實作
 
 **禁止行為**：
+
 - 跳過 Prior Art Scan 直接實作
-- `EVALUATED_PACKAGES.md` 未更新
+- workspace `EVALUATED_PACKAGES` 欄位未更新
 
 ## Consequences
 
 ### 正面
 
 - 重工風險顯著降低
-- `EVALUATED_PACKAGES.md` 形成組織記憶（未來新專案搬運可帶）
+- workspace `EVALUATED_PACKAGES` 欄位形成組織記憶（未來新專案搬運可帶）
 - @Architect 職責擴充但合理（架構師本就應掌握技術生態）
 - 與 ADR-0012（診斷組，事後修復）成「事前預防 vs 事後修復」語意對偶
 
@@ -81,11 +82,11 @@ referenced_by:
 
 - `rules/architect.md §前置強制階段`（6 步驟 DoD）
 - `rules/lead.md` Prior Art Verification Gate
-- `skills/prior-art-scan-checklist.md`（F2 類）
-- `skills/prior-art-report-template.md`（F1 類）
+- `skills/checklists/prior-art-scan-checklist.md`（F2 類）
+- `skills/templates/prior-art-report-template.md`（F1 類）
 - `RULES_DESIGN_GUIDE.QUALITY §十八`（完整規範）
 
 ## Notes
 
 - 與 ADR-0008 / 0012（Hotfix 三支柱）成語意對偶：事前預防 vs 事後修復
-- `EVALUATED_PACKAGES.md` 快取是組織記憶資產；搬運新專案時建議保留
+- workspace `EVALUATED_PACKAGES` 欄位快取是組織記憶資產；搬運新專案時建議保留

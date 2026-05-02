@@ -15,9 +15,25 @@ echo "🧪 Running scripts/ Tests (PROPOSAL_20260423_006)"
 echo ""
 
 # -------- L1: Unit Tests --------
-echo "--- L1: Unit Tests（node:test）---"
+# 主套件（node:test 風格）+ 附加 lib 單元測試（自訂 runner，依 PROPOSAL_20260423_012）
+echo "--- L1: Unit Tests（node:test + lib unit）---"
 node --test "$SCRIPT_DIR/unit.test.mjs" 2>&1 | tail -15
-L1_CODE=${PIPESTATUS[0]}
+L1_MAIN=${PIPESTATUS[0]}
+
+echo ""
+echo "  → auto-generated-block.test.mjs"
+node "$SCRIPT_DIR/../auto-generated-block.test.mjs" 2>&1 | tail -3
+L1_AGB=${PIPESTATUS[0]}
+
+echo ""
+echo "  → gen-proposal-index.test.mjs"
+node "$SCRIPT_DIR/../gen-proposal-index.test.mjs" 2>&1 | tail -3
+L1_GPI=${PIPESTATUS[0]}
+
+L1_CODE=0
+[ $L1_MAIN -ne 0 ] && L1_CODE=1
+[ $L1_AGB -ne 0 ] && L1_CODE=1
+[ $L1_GPI -ne 0 ] && L1_CODE=1
 
 echo ""
 

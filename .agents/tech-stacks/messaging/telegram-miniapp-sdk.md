@@ -1,8 +1,31 @@
+---
+stack_name: telegram-miniapp-sdk
+file_type: tech_stack
+category: messaging
+class: F2
+version: v1.0
+last_modified: 2026-04-30
+last_proposal: PROPOSAL_20260430_005
+scope: framework
+manifest_entry: telegram-miniapp-sdk
+depends_on:
+  - telegram-miniapp
+audience:
+  - Frontend
+  - Backend
+  - Security
+referenced_by:
+  - rules/frontend.md
+  - rules/backend.md
+  - rules/security.md
+---
+
 # Tech Stack: Telegram Mini App SDK
 
 > 純通用技術棧；專案特定的 initData middleware 實作位置 / Composables 實作位置 → 參照 §專案特化參照 對應 workspace 欄位。
 >
 > **與 telegram-miniapp.md 關係**：
+>
 > - 本檔（`telegram-miniapp-sdk.md`）：**SDK 協定與認證鐵律**（initData 驗證、HMAC-SHA256、24h 時效、Replay 防護）
 > - `telegram-miniapp.md`：**UI 設計模式與使用者體驗規範**（主題、元件、效能、錯誤處理）
 >
@@ -53,11 +76,11 @@ tech_stack: telegram-miniapp-sdk
 
 > 本 tech-stack 的具體 middleware / composable 實作位置由 workspace 注入；請參照 `.agents/workspaces/<CURRENT_WORKSPACE>.md` 對應欄位。
 
-| Tech-stack 概念 | Workspace 欄位 | Fallback 行為 |
-|---|---|---|
-| initData 驗證 middleware 位置 | `PATHS.source_modules.middleware` | 缺失 → `@Lead` 阻斷所有 Mini App API 路由開發，要求先建立 middleware |
-| 前端 Telegram composable 位置 | `PATHS.source_modules.composables` | 缺失 → `@Lead` 改以「請實作 composable」任務升級 |
-| 前端 Build 工具 | `TECH_STACK.frontend` | 缺失 → 警告；前端開發任務升級為 User 裁決 |
-| 允許的 Bypass 路由清單 | `BUSINESS_RULES` | 缺失 → 視為無 Bypass；所有路由強制驗證 |
+| Tech-stack 概念               | Workspace 欄位                     | Fallback 行為                                                        |
+| ----------------------------- | ---------------------------------- | -------------------------------------------------------------------- |
+| initData 驗證 middleware 位置 | `PATHS.source_modules.middleware`  | 缺失 → `@Lead` 阻斷所有 Mini App API 路由開發，要求先建立 middleware |
+| 前端 Telegram composable 位置 | `PATHS.source_modules.composables` | 缺失 → `@Lead` 改以「請實作 composable」任務升級                     |
+| 前端 Build 工具               | `TECH_STACK.frontend`              | 缺失 → 警告；前端開發任務升級為 User 裁決                            |
+| 允許的 Bypass 路由清單        | `BUSINESS_RULES`                   | 缺失 → 視為無 Bypass；所有路由強制驗證                               |
 
 **引用規範**：本 tech-stack 描述**Telegram SDK 協定與鐵律**；workspace 描述**實作位置與 Bypass 允許清單**。

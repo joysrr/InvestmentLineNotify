@@ -1,7 +1,8 @@
 # 系統參數單點配置 SSOT
 # 依 PROPOSAL_20260422_014 外部化自 RULES_DESIGN_GUIDE.md §十四
 # 修改須透過 RULE_UPDATE_PROPOSAL 提案
-# 版本：v1.1（2026-04-22 新增 complexity_thresholds + MODEL_ROUTING + LANE_ROUTING，依 PROPOSAL_20260422_024 + 032 同 Sprint 執行）
+# 版本：v1.2（2026-04-24 新增 rule_edit_large / rule_edit_critical 治本層 + rule_token_thresholds，依 PROPOSAL_20260424_020 Phase B）
+# 歷史版本：v1.1（2026-04-22 新增 complexity_thresholds + MODEL_ROUTING + LANE_ROUTING，依 PROPOSAL_20260422_024 + 032 同 Sprint 執行）
 
 review_cycle:
   review_cycle_limit: 2          # @Reviewer + @Security 共用複審上限
@@ -46,6 +47,43 @@ token_budget:
   token_ondemand_limit: 1000     # 按需載入 Rules 上限
 
 # ============================================================
+# Rule Token Thresholds（依 PROPOSAL_20260424_020 Phase B；治本層）
+# 個別 rules/*.md 檔案 token 門檻；超過觸發 force_complex_scenarios
+# 由 tests/rule-token-budget-validator.mjs（Phase F 新建）驗證
+# ============================================================
+# ============================================================
+# Rule Token Thresholds（PROPOSAL_20260501_003 + ADR-0038 升級為 tier-based）
+# 取代原 flat warn/block；token_budget_exception flag 廢止
+# 判定 4 原則見 ADR-0038 §Decision；rule_category 為必填 frontmatter 欄位
+# ============================================================
+rule_token_thresholds:
+  # ADR-0038 tier-based budgets（schema-validator + rule-token-budget-validator SoT）
+  tier:
+    meta:                   # file_type=always_on
+      warn: 500
+      block: 1000
+    worker:                 # 單一職能 agent_rule（單一 artifact / 單一審查維度）
+      warn: 1500
+      block: 2500
+    orchestrator:           # 跨 Agent 協調 / 多階段 / 跨時序 / Hub
+      warn: 1800
+      block: 3000
+    central_orchestrator:   # PROPOSAL_502_011：User-facing entry point 聚合 ≥ 3 orchestrator iron-laws（lead.md only）
+      warn: 2500
+      block: 3500
+    iron_theme:             # 跨切不可變鐵律 first-class artifact（ADR-0037）
+      warn: 600
+      block: 1000
+
+  # rule_edit_* 觸發條件（與 force_complex_scenarios 連動）
+  # 動態：依目標 rule 的 rule_category 取對應 tier warn/block
+  # （非固定數字；validator 依 frontmatter rule_category 判定）
+
+  # ADR-0038 tier-based 取代 flat warn/block（PROPOSAL_502_007 G-1 清理）；
+  # 只保 exempt_files（validator 仍讀；單檔豁免時於此填入）。
+  exempt_files: []
+
+# ============================================================
 # Complexity Thresholds（由 PROPOSAL_024 + 032 共用）
 # 任務複雜度三維度評估；任一維度達標即升等
 # ============================================================
@@ -80,9 +118,14 @@ MODEL_ROUTING:
   force_complex_scenarios:
     - "strategyWeight 異動評估"
     - "資安審查（@Security 任何任務）"
-    - "Hotfix 緊急通道"
+    # PROPOSAL_021 拆分：Hotfix tier 明文分層（取代原「Hotfix 緊急通道」單一 entry）
+    - "Hotfix heavy: force_model=opus; trigger=hotfix_tier=heavy OR SC-01~10 任一觸發 OR 跨檔變更 OR D1-D4 任一觸發"
+    - "Hotfix light: allowed_models=[sonnet, haiku]; disqualify=cross_file OR business_logic OR SC 觸發 OR D1-D4 觸發"
     - "提案根因分析（@Retro）"
     - "定期 5 維度評分（@Auditor）"
+    # PROPOSAL_20260424_020 Phase B 新增（Rules Token 治本層）
+    - "rule_edit_large: 修改 rules/*.md 且目標檔 token_estimate > rule_token_thresholds.warn"
+    - "rule_edit_critical: 修改 rules/*.md 且目標檔 token_estimate > rule_token_thresholds.block（派發時阻斷；要求先立案拆檔提案）"
 
   # @Assistant 巡邏 P-19 MODEL_ROUTING_VIOLATION 偵測條件
   violation_triggers:

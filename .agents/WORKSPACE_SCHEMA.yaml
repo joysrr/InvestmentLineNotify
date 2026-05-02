@@ -3,9 +3,23 @@
 # 依 PROPOSAL_20260422_022 建立；tech-stacks / skills 引用時須對齊此 schema
 # 新增/修改欄位 → 同步更新 schema_version + last_proposal
 
-schema_version: v1.2
-last_modified: 2026-04-23
-last_proposal: PROPOSAL_20260422_022+023+PROPOSAL_20260423_002
+schema_version: v1.4
+last_modified: 2026-04-24
+last_proposal: PROPOSAL_20260424_019  # v1.4: 欄位屬性擴充 interactive + auto_populate
+
+# ============================================================
+# 欄位屬性擴充（v1.4；依 PROPOSAL_20260424_019 F-3）
+# ============================================================
+# interactive: true (預設；省略視為 true)  — 進入 collectAnswers 互動迴圈，由 User 回答
+# interactive: false                       — 跳過互動；由 auto_populate 系統填入
+#
+# auto_populate（interactive: false 時必填）：
+#   source: system              — 系統值（搭 value: today 取當天日期）
+#   source: default             — 使用 value 作為預設
+#   source: derive_from_stacks  — 由選中的 tech-stacks MACHINE_READABLE block 推導
+#
+# workspace-schema-validator 強制：
+#   interactive: false → 必有 auto_populate.source ∈ [system, default, derive_from_stacks]
 
 # ============================================================
 # PROJECT_CONTEXT — 專案核心資訊
@@ -73,6 +87,23 @@ TECH_STACK:
     type: string
     required: false
     description: "部署方式"
+  last_audit_date:
+    type: string
+    required: false
+    interactive: false
+    auto_populate:
+      source: system
+      value: today
+    description: "tech-stack 上次審視日期（YYYY-MM-DD；init 自動填當天；audit 指令執行時更新；依 PROPOSAL_20260424_018 + 019）"
+  audit_interval_days:
+    type: integer
+    required: false
+    interactive: false
+    auto_populate:
+      source: default
+      value: 30
+    default: 30
+    description: "tech-stack audit 間隔天數（@Assistant P-23 巡邏據此判定過期；依 PROPOSAL_20260424_018 + 019）"
 
 # ============================================================
 # PATHS — 專案路徑（多 tech-stacks 共用）
@@ -230,7 +261,7 @@ BUSINESS_RULES:
 EVALUATED_PACKAGES:
   type: list
   required: false
-  referenced_by: [skills/prior-art-scan-checklist.md]
+  referenced_by: [skills/checklists/prior-art-scan-checklist.md]
   description: "過去 @Architect 執行 Prior Art Scan 的評估結論快取；避免重複評估同一套件；對齐 RULES_DESIGN_GUIDE §十八.F"
   item_schema:
     package_name:

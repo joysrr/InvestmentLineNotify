@@ -1,3 +1,20 @@
+---
+stack_name: nodejs-esm-backend
+file_type: tech_stack
+category: web-backend
+class: F2
+version: v1.0
+last_modified: 2026-04-30
+last_proposal: PROPOSAL_20260430_005
+scope: framework
+manifest_entry: nodejs-esm-backend
+depends_on: []
+audience:
+  - Backend
+referenced_by:
+  - rules/backend.md
+---
+
 # Tech Stack: Node.js (ESM Strict)
 
 > 純通用技術棧；專案特定的排程器清單 / 併發鎖模組位置 / Bot 事件邊界 → 參照 §專案特化參照 對應 workspace 欄位。
@@ -50,12 +67,12 @@ tech_stack: nodejs-esm-backend
 
 > 本 tech-stack 的具體排程清單、併發鎖位置、網路逾時值皆由 workspace 注入；請參照 `.agents/workspaces/<CURRENT_WORKSPACE>.md` 對應欄位。
 
-| Tech-stack 概念 | Workspace 欄位 | Fallback 行為 |
-|---|---|---|
-| 併發鎖實作位置 | `PATHS.source_modules.concurrency` | 缺失 → `@Lead` 阻斷所有狀態變更任務，要求先建立鎖模組 |
-| 排程任務清單 | `PATHS.schedulers` | 缺失 → 視為無排程；僅允許一次性執行任務 |
-| 網路逾時上限 | `DEPLOYMENT_CONSTRAINTS.network_limit` | 缺失 → 預設 30 秒（本 tech-stack 硬上限）|
-| Runtime 版本 | `DEPLOYMENT_CONSTRAINTS.runtime` | 缺失 → 警告；`@Lead` 預設假設 Node.js LTS |
-| 背景程序監控 | `DEPLOYMENT_CONSTRAINTS.watchdog` | 缺失 → 警告；不觸發 PM2 / systemd 特定規範 |
+| Tech-stack 概念 | Workspace 欄位                         | Fallback 行為                                         |
+| --------------- | -------------------------------------- | ----------------------------------------------------- |
+| 併發鎖實作位置  | `PATHS.source_modules.concurrency`     | 缺失 → `@Lead` 阻斷所有狀態變更任務，要求先建立鎖模組 |
+| 排程任務清單    | `PATHS.schedulers`                     | 缺失 → 視為無排程；僅允許一次性執行任務               |
+| 網路逾時上限    | `DEPLOYMENT_CONSTRAINTS.network_limit` | 缺失 → 預設 30 秒（本 tech-stack 硬上限）             |
+| Runtime 版本    | `DEPLOYMENT_CONSTRAINTS.runtime`       | 缺失 → 警告；`@Lead` 預設假設 Node.js LTS             |
+| 背景程序監控    | `DEPLOYMENT_CONSTRAINTS.watchdog`      | 缺失 → 警告；不觸發 PM2 / systemd 特定規範            |
 
 **引用規範**：本 tech-stack 描述**語法與鐵律**；workspace 描述**具體模組與排程**。

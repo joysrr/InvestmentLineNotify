@@ -1,3 +1,20 @@
+---
+stack_name: vue3-vite
+file_type: tech_stack
+category: web-frontend
+class: F2
+version: v1.0
+last_modified: 2026-04-30
+last_proposal: PROPOSAL_20260430_005
+scope: framework
+manifest_entry: vue3-vite
+depends_on: []
+audience:
+  - Frontend
+referenced_by:
+  - rules/frontend.md
+---
+
 # Tech Stack: Vue 3 & Vite
 
 > 純通用技術棧；專案特定的 composables 命名 / 頁面清單 / 路由檔位置 → 參照 §專案特化參照 對應 workspace 欄位。
@@ -45,10 +62,10 @@ tech_stack: vue3-vite
 
 > 本 tech-stack 的具體 composables 目錄 / 路由檔位置 / 頁面清單皆由 workspace 注入；請參照 `.agents/workspaces/<CURRENT_WORKSPACE>.md` 對應欄位。
 
-| Tech-stack 概念 | Workspace 欄位 | Fallback 行為 |
-|---|---|---|
-| 前端專案根目錄 | `PATHS.frontend_root` | 缺失 → `@Lead` 阻斷前端任務，要求補填 |
+| Tech-stack 概念  | Workspace 欄位                     | Fallback 行為                                              |
+| ---------------- | ---------------------------------- | ---------------------------------------------------------- |
+| 前端專案根目錄   | `PATHS.frontend_root`              | 缺失 → `@Lead` 阻斷前端任務，要求補填                      |
 | Composables 目錄 | `PATHS.source_modules.composables` | 缺失 → `@Lead` 改以「請建立 composables 目錄結構」任務升級 |
-| 前端技術選擇 | `TECH_STACK.frontend` | 缺失 → 警告；`@Lead` 假設 Vue 3 + Vite |
+| 前端技術選擇     | `TECH_STACK.frontend`              | 缺失 → 警告；`@Lead` 假設 Vue 3 + Vite                     |
 
 **引用規範**：本 tech-stack 描述**Vue 3 / Vite 語法與架構原則**；workspace 描述**具體目錄位置與頁面清單**。
