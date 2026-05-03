@@ -1,12 +1,10 @@
-// 所有可計入 sell signal 的訊號數量（新增訊號時務必同步更新此常數）
-const TOTAL_SELL_SIGNALS = 1;
+import { macdCrossDown } from "../indicators.mjs";
+
+// 所有可計入 sell signal 的訊號數量
+const TOTAL_SELL_SIGNALS = 3;
 
 export function computeSellSignals(data, strategy) {
-  const closeArr = data.closeArr || [];
-  const ma20Arr = data.ma20Arr || [];
-  const atrArr = data.atrArr || [];
-
-  if (closeArr.length < 2 || ma20Arr.length < 2 || atrArr.length < 2) {
+  if (!data.closeArr || data.closeArr.length < 2) {
     return {
       flags: {},
       signalCount: 0,
@@ -16,27 +14,38 @@ export function computeSellSignals(data, strategy) {
     };
   }
 
-  const currentClose = closeArr[closeArr.length - 1];
-  const currentMA20 = ma20Arr[ma20Arr.length - 1];
-  const currentATR = atrArr[atrArr.length - 1];
-
-  // 動態追蹤停利 (Trailing Stop)：
-  // 當價格有效跌穿 MA20 軌道下緣 (MA20 - 1.0 * ATR) 時停利出場
-  const atrMultiplier = 1.0;
-  const trailingThreshold = currentMA20 - currentATR * atrMultiplier;
-  const trailingStop = currentClose < trailingThreshold;
-
-  // RSI 超買狀態僅保留作為 stateFlags 紀錄供降槓邏輯參考，不計入 sell signals
-  const sell = strategy.sell || { rsi: { overbought: 75 } };
-  const overbought = sell.rsi?.overbought ?? 75;
+  // 1. RSI 狀態
+  const rsiCfg = strategy.sell?.rsi || { overbought: 75 };
+  const overbought = rsiCfg.overbought ?? 75;
   const rsiStateOverbought =
     Number.isFinite(data.RSI) && data.RSI >= overbought;
 
-  const flags = { trailingStop };
-  const signalCount = trailingStop ? 1 : 0;
+  // 2. KD 狀態
+  const kdCfg = strategy.sell?.kd || { overboughtK: 80 };
+  const overboughtK = kdCfg.overboughtK ?? 80;
+  const lastKD = data.kdArr?.at(-1);
+  const kdStateOverbought = lastKD && lastKD.k >= overboughtK;
 
-  const stateFlags = { rsiStateOverbought };
-  const stateCount = rsiStateOverbought ? 1 : 0;
+  // 3. MACD 死叉
+  const isMacdDeadCross = macdCrossDown(data.macdArr);
+
+  // 賣出訊號計分 (不再包含 hardcoded trailing stop，追蹤停損已交由 Engine 層統一負責)
+  const flags = {
+    rsiOverbought: rsiStateOverbought,
+    kdOverbought: kdStateOverbought,
+    macdDeadCross: isMacdDeadCross,
+  };
+
+  const signalCount =
+    (flags.rsiOverbought ? 1 : 0) +
+    (flags.kdOverbought ? 1 : 0) +
+    (flags.macdDeadCross ? 1 : 0);
+
+  // 狀態紀錄供降槓邏輯參考
+  const stateFlags = { rsiStateOverbought, kdStateOverbought };
+  const stateCount =
+    (stateFlags.rsiStateOverbought ? 1 : 0) +
+    (stateFlags.kdStateOverbought ? 1 : 0);
 
   return {
     flags,

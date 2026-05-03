@@ -51,132 +51,112 @@
       </div>
     </section>
 
-    <!-- Latest Decision -->
-    <section class="section">
-      <h3 class="section-title">最新決策</h3>
-      <div v-if="reportLoading" class="decision-card skeleton-card">
+    <!-- 巨型決策 Hero Card -->
+    <section class="section hero-section">
+      <div v-if="reportLoading" class="hero-card skeleton-card">
         <div class="sk sk-title"></div>
         <div class="sk sk-label" style="margin-top: 12px"></div>
         <div class="sk sk-value" style="width: 60%"></div>
       </div>
       <div v-else-if="reportError" class="inline-error">⚠️ 報告載入失敗</div>
       <div v-else-if="!latestReport" class="inline-hint">📭 尚無報告資料</div>
-      <div v-else class="decision-card">
-        <div class="decision-top">
-          <span class="decision-date">{{ latestReport.date }}</span>
-          <span class="priority-tag" v-if="activePriority">{{
-            activePriority
-          }}</span>
+      <div v-else class="hero-card">
+        <div class="hero-top">
+          <span class="hero-date">{{ latestReport.date }}</span>
+          <span class="priority-tag" v-if="activePriority">{{ activePriority }}</span>
         </div>
-        <div class="decision-main">
-          <div class="decision-status-row">
-            <span class="decision-status-icon">{{ statusEmoji }}</span>
-            <span class="decision-status-text">{{
-              latestReport.signals?.status || "—"
-            }}</span>
+        <div class="hero-main">
+          <div class="hero-target" :class="targetClass">{{ latestReport.signals?.target ?? "—" }}</div>
+          <div class="hero-suggestion">{{ latestReport.signals?.suggestion || "載入中..." }}</div>
+          <div class="hero-badges">
+            <span class="badge" :class="pctClass">{{ pctText }}</span>
+            <span class="badge badge-score">評分 {{ latestReport.signals?.score ?? "—" }}</span>
           </div>
-          <p class="decision-suggestion">
-            {{ latestReport.signals?.suggestion || "載入中..." }}
-          </p>
         </div>
-        <div class="decision-badges">
-          <span class="badge" :class="pctClass">{{ pctText }}</span>
-          <span class="badge badge-score"
-            >評分 {{ latestReport.signals?.score ?? "—" }}</span
-          >
-          <span class="badge badge-target">{{
-            latestReport.signals?.target ?? "—"
-          }}</span>
-        </div>
-
-        <div class="strategy-details border-top">
-          <button
-            class="details-toggle"
-            @click="strategyExpanded = !strategyExpanded"
-          >
-            <span>🔍 策略決策詳情</span>
-            <span class="expand-arrow">{{ strategyExpanded ? "▲" : "▼" }}</span>
-          </button>
-          <div v-if="strategyExpanded" class="details-content">
-            <div class="detail-item">
-              <span class="detail-label">核心路由：</span>
-              <span class="detail-value">{{ routingPath || "—" }}</span>
-            </div>
-            <div class="detail-item" v-if="valuationGuardText">
-              <span class="detail-label">估值防禦：</span>
-              <span class="detail-value" :class="vgClass">{{
-                valuationGuardText
-              }}</span>
-            </div>
-            <div class="detail-item" v-if="momentumText">
-              <span class="detail-label">動量補正：</span>
-              <span class="detail-value">{{ momentumText }}</span>
-            </div>
-          </div>
+        <div class="hero-route border-top">
+          <span class="route-label">核心路由：</span>
+          <span class="route-path">{{ routingPath || "—" }}</span>
         </div>
       </div>
     </section>
 
-    <!-- 評分構成 -->
+    <!-- 攻防推演面板 -->
     <section class="section" v-if="latestReport">
-      <div class="section-header">
-        <h3 class="section-title">📊 評分構成</h3>
-        <button class="toggle-btn" @click="showScoreList = !showScoreList">
-          {{ showScoreList ? "切換雷達圖" : "查看列表" }}
-        </button>
+      <div class="tab-header">
+        <button class="tab-btn" :class="{ active: activeTab === 'offense' }" @click="activeTab = 'offense'">⚔️ 進攻動能</button>
+        <button class="tab-btn" :class="{ active: activeTab === 'defense' }" @click="activeTab = 'defense'">🛡️ 防禦機制</button>
       </div>
-
-      <div v-if="!showScoreList" class="radar-wrapper">
-        <v-chart :option="radarOption" autoresize class="radar-chart" />
-        <div
-          class="radar-verdict"
-          :class="scoreOk ? 'verdict-ok' : 'verdict-wait'"
-        >
-          {{ scoreOk ? "🟢 達標" : "⏸️ 觀望" }} ({{ scoreVal }} /
-          {{ scoreMin }})
+      
+      <div class="tab-content" v-if="activeTab === 'offense'">
+        <div class="offense-panel">
+          <div class="offense-top">
+             <div class="radar-verdict" :class="scoreOk ? 'verdict-ok' : 'verdict-wait'">
+               {{ scoreOk ? "🟢 達標" : "⏸️ 觀望" }} ({{ scoreVal }} / {{ scoreMin }})
+             </div>
+             <button class="toggle-btn" @click="showScoreList = !showScoreList">
+               {{ showScoreList ? "切換雷達圖" : "查看列表" }}
+             </button>
+          </div>
+          
+          <div v-if="!showScoreList" class="radar-wrapper">
+            <v-chart :option="radarOption" autoresize class="radar-chart" />
+          </div>
+          <div v-else class="score-list">
+            <div class="score-row" v-for="row in scoreRows" :key="row.label" :class="row.active ? 'score-row--active' : ''">
+              <span class="score-icon">{{ row.active ? "⭐" : "➖" }}</span>
+              <span class="score-label">{{ row.label }}</span>
+              <span class="score-pt" :class="row.active ? 'score-pt--active' : ''">{{ row.pt }}</span>
+              <span class="score-info">{{ row.info }}</span>
+            </div>
+            <div class="score-verdict" :class="scoreOk ? 'verdict-ok' : 'verdict-wait'">
+              {{ scoreOk ? "🟢 條件達標，可評估入場" : "⏸️ 條件未滿，請維持觀望" }}
+            </div>
+          </div>
+          
+          <router-link to="/technical" class="nav-card mt-3">
+            <div class="nav-card-icon">📈</div>
+            <div class="nav-card-main">
+              <p class="nav-card-title">查看詳細技術指標</p>
+              <p class="nav-card-desc">RSI, KD, MACD 趨勢與訊號雷達</p>
+            </div>
+            <div class="nav-card-arrow">→</div>
+          </router-link>
         </div>
       </div>
 
-      <div v-else>
-        <div class="score-list">
-          <div
-            class="score-row"
-            v-for="row in scoreRows"
-            :key="row.label"
-            :class="row.active ? 'score-row--active' : ''"
-          >
-            <span class="score-icon">{{ row.active ? "⭐" : "➖" }}</span>
-            <span class="score-label">{{ row.label }}</span>
-            <span
-              class="score-pt"
-              :class="row.active ? 'score-pt--active' : ''"
-              >{{ row.pt }}</span
-            >
-            <span class="score-info">{{ row.info }}</span>
+      <div class="tab-content" v-if="activeTab === 'defense'">
+        <div class="defense-panel">
+          <!-- Valuation Guard -->
+          <div class="defense-item">
+            <div class="defense-icon">⚖️</div>
+            <div class="defense-main">
+              <div class="defense-title">估值守衛 (Valuation Guard)</div>
+              <div class="defense-status" :class="vgClass">{{ valuationGuardText }}</div>
+              <div class="defense-desc">當前位階: PR{{ pbPrValue }}% | 動量補正: {{ momentumText || '無' }}</div>
+            </div>
+          </div>
+          
+          <!-- Gross Leverage -->
+          <div class="defense-item">
+            <div class="defense-icon">📊</div>
+            <div class="defense-main">
+              <div class="defense-title">槓桿天花板 (Gross Leverage)</div>
+              <div class="defense-status" :class="glLevel.textClass">{{ glLevel.label }}</div>
+              <div class="defense-desc">當前曝險: {{ glValue }}x</div>
+            </div>
+          </div>
+          
+          <!-- Maintenance Risk -->
+          <div class="defense-item">
+            <div class="defense-icon">🛡️</div>
+            <div class="defense-main">
+              <div class="defense-title">維持率安全 (Maintenance)</div>
+              <div class="defense-status" :class="maintenanceClass">{{ maintenanceText }}</div>
+              <div class="defense-desc">跌破警戒線將觸發降槓桿程序</div>
+            </div>
           </div>
         </div>
-        <div
-          class="score-verdict"
-          :class="scoreOk ? 'verdict-ok' : 'verdict-wait'"
-        >
-          {{ scoreOk ? "🟢 條件達標，可評估入場" : "⏸️ 條件未滿，請維持觀望" }}
-          <span class="verdict-num"
-            >{{ scoreVal }} pt（門檻 {{ scoreMin }} pt）</span
-          >
-        </div>
       </div>
-    </section>
-
-    <!-- 跳轉至技術指標詳情 -->
-    <section class="section">
-      <router-link to="/technical" class="nav-card">
-        <div class="nav-card-icon">📈</div>
-        <div class="nav-card-main">
-          <p class="nav-card-title">查看詳細技術指標</p>
-          <p class="nav-card-desc">RSI, KD, MACD 趨勢與訊號雷達</p>
-        </div>
-        <div class="nav-card-arrow">→</div>
-      </router-link>
     </section>
 
     <!-- AI 教練建議 -->
@@ -333,6 +313,7 @@ const aiRiskExpanded = ref(true);
 const aiActionExpanded = ref(true);
 const aiMindsetExpanded = ref(false);
 const aiThinkingExpanded = ref(false);
+const activeTab = ref("offense");
 
 // ── today label ──
 const todayLabel = computed(() =>
@@ -524,6 +505,29 @@ const momentumText = computed(() => {
   }
   if (vm.vixSpikeTriggered) parts.push("🌊 VIX 暴升補正");
   return parts.length ? parts.join(" | ") : "平穩";
+});
+
+// ── Tab classes & formatting ──
+const targetClass = computed(() => {
+  const target = latestReport.value?.signals?.target || "";
+  if (target.includes("加碼") || target.includes("買")) return "text-ok";
+  if (target.includes("減碼") || target.includes("賣") || target.includes("平倉")) return "text-danger";
+  return "text-warn";
+});
+
+const maintenanceText = computed(() => {
+  const mr = latestReport.value?.signals?.maintenanceRisk;
+  if (!mr) return "—";
+  if (mr.level === "Critical") return "🚨 嚴重不足 (即將斷頭)";
+  if (mr.level === "Warning") return "⚠️ 警戒區間";
+  return "🟢 安全水位";
+});
+
+const maintenanceClass = computed(() => {
+  const mr = latestReport.value?.signals?.maintenanceRisk;
+  if (mr?.level === "Critical") return "text-danger";
+  if (mr?.level === "Warning") return "text-warn";
+  return "text-ok";
 });
 
 // ── Report badges ──
@@ -1221,4 +1225,140 @@ onMounted(async () => {
   color: var(--tg-theme-hint-color, #666);
   line-height: 1.55;
 }
-</style>
+
+/* ── Hero Section ── */
+.hero-card {
+  background: var(--tg-theme-bg-color, #fff);
+  border-radius: 16px;
+  padding: 24px 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  border: 1px solid var(--tg-theme-secondary-bg-color, #f0f0f0);
+}
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.hero-date {
+  font-size: 13px;
+  color: var(--tg-theme-hint-color, #999);
+}
+.hero-target {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.target-buy { color: #26a17b; }
+.target-sell { color: #e84855; }
+.target-wait { color: #d4ac0d; }
+
+.hero-suggestion {
+  font-size: 15px;
+  color: var(--tg-theme-text-color, #333);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.hero-badges {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.hero-route {
+  padding-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.route-label {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #999);
+}
+.route-path {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #111);
+}
+
+/* ── Tabs ── */
+.tab-header {
+  display: flex;
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 16px;
+}
+.tab-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tg-theme-hint-color, #999);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+.tab-btn.active {
+  background: var(--tg-theme-bg-color, #fff);
+  color: var(--tg-theme-text-color, #111);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+.tab-content {
+  background: var(--tg-theme-bg-color, #fff);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--tg-theme-secondary-bg-color, #f0f0f0);
+}
+
+/* ── Offense Panel ── */
+.offense-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.mt-3 {
+  margin-top: 16px;
+}
+
+/* ── Defense Panel ── */
+.defense-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--tg-theme-secondary-bg-color, #f0f0f0);
+}
+.defense-item:first-child {
+  padding-top: 0;
+}
+.defense-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.defense-icon {
+  font-size: 24px;
+  margin-right: 16px;
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  padding: 10px;
+  border-radius: 12px;
+}
+.defense-main {
+  flex: 1;
+}
+.defense-title {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #999);
+  margin-bottom: 4px;
+}
+.defense-status {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.defense-desc {
+  font-size: 13px;
+  color: var(--tg-theme-hint-color, #888);
+}
