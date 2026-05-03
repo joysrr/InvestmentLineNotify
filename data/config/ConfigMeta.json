@@ -1,8 +1,12 @@
 {
-  "asset.cashReserveThreshold": { "label": "現金儲備門檻", "unit": "%", "desc": "低於此水位將停止加碼" },
-  "asset.maxGrossLeverage": { "label": "總槓桿上限", "unit": "x", "desc": "系統最高曝險倍數" },
-  "indicator.buy.minWeightScoreToBuy": { "label": "買入分數門檻", "unit": "pt", "desc": "總分需達到此值才買入" },
-  "indicator.buy.dropScoreRules": { "label": "跌幅加分規則", "unit": "", "desc": "定義跌幅對應的權重加成" },
-  "guard.valuationGuard.tiers": { "label": "估值防禦階梯", "unit": "", "desc": "根據 PB 分位數定義的壓縮倍數" },
-  "system.version": { "label": "系統版本", "unit": "", "desc": "策略邏輯版本" }
+  "version": { "label": "系統版本", "unit": "", "desc": "策略邏輯版本" },
+  "description": { "label": "策略描述", "unit": "", "desc": "策略的文字說明" },
+  "portfolioConfig.cashReserveThreshold": { "label": "現金儲備門檻", "unit": "%", "desc": "低於此水位將停止加碼" },
+  "portfolioConfig.maxGrossLeverage": { "label": "總槓桿上限", "unit": "x", "desc": "系統最高曝險倍數" },
+  "buy.minWeightScoreToBuy": { "label": "買入分數門檻", "unit": "pt", "desc": "總分需達到此值才買入" },
+  "buy.dropScoreRules": { "label": "跌幅加分規則", "unit": "", "desc": "定義跌幅對應的權重加成" },
+  "valuationGuard.tiers": { "label": "估值防禦階梯", "unit": "", "desc": "根據 PB 分位數定義的壓縮倍數" },
+  "conversionGuard.enabled": { "label": "啟動獲利轉化", "unit": "", "desc": "是否啟用階梯式停利與轉入底倉機制" },
+  "conversionGuard.tiers": { "label": "獲利階梯設定", "unit": "", "desc": "根據 00675L 獲利率決定的結清比例" },
+  "conversionGuard.allocation": { "label": "資金動態分配", "unit": "", "desc": "根據維持率決定還款與買入底倉的比例" }
 }

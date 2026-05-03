@@ -245,14 +245,23 @@ const twVixCard = computed(() => {
 
 const lightEmoji = computed(() => {
   const sig = statusData.value?.rawNdc?.light ?? "";
-  if (sig.includes("紅") || sig.includes("熱絡")) return "🔴";
-  if (sig.includes("黃紅") || sig.includes("活絡")) return "🟠";
-  if (sig.includes("綠") || sig.includes("穩定")) return "🟢";
-  if (sig.includes("黃藍") || sig.includes("趨緩")) return "🟡";
-  if (sig.includes("藍") || sig.includes("低迷")) return "🔵";
+  if (sig.includes("黃紅") || sig.includes("活絡") || sig.includes("yellow-red")) return "🟠";
+  if (sig.includes("黃藍") || sig.includes("趨緩") || sig.includes("yellow-blue")) return "🟡";
+  if (sig.includes("紅") || sig.includes("熱絡") || sig === "red") return "🔴";
+  if (sig.includes("綠") || sig.includes("穩定") || sig === "green") return "🟢";
+  if (sig.includes("藍") || sig.includes("低迷") || sig === "blue") return "🔵";
   return "⚪";
 });
-const lightText = computed(() => statusData.value?.rawNdc?.light ?? "—");
+const lightText = computed(() => {
+  const sig = statusData.value?.rawNdc?.light ?? "";
+  if (!sig) return "—";
+  if (sig.includes("黃紅") || sig.includes("yellow-red")) return "黃紅燈";
+  if (sig.includes("黃藍") || sig.includes("yellow-blue")) return "黃藍燈";
+  if (sig.includes("紅") || sig === "red") return "紅燈";
+  if (sig.includes("綠") || sig === "green") return "綠燈";
+  if (sig.includes("藍") || sig === "blue") return "藍燈";
+  return sig;
+});
 
 const marginValue = computed(() => {
   const v =

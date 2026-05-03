@@ -20,23 +20,26 @@
         </div>
 
         <div v-if="expandedModules[modKey]" class="params-list">
-          <!-- 根據 Meta 定義渲染對應參數 -->
+          <!-- 遞迴遍歷渲染所有參數 -->
           <div 
-            v-for="(meta, path) in getMetaForModule(modKey)" 
-            :key="path" 
+            v-for="item in getFlatParamsForModule(modKey)" 
+            :key="item.path" 
             class="param-item"
           >
             <div class="param-main">
               <div class="param-label-group">
-                <span class="param-label">{{ meta.label }}</span>
-                <span class="param-path">{{ path }}</span>
+                <span class="param-label">{{ item.label }}</span>
+                <span class="param-path">{{ item.path }}</span>
               </div>
               <div class="param-value-box">
-                <span class="param-value">{{ getValueByPath(module.content, path.split('.').slice(1).join('.')) }}</span>
-                <span v-if="meta.unit" class="param-unit">{{ meta.unit }}</span>
+                <span class="param-value" v-if="Array.isArray(item.value)">
+                  <pre class="json-inline">{{ formatJson(item.value) }}</pre>
+                </span>
+                <span class="param-value" v-else>{{ String(item.value) }}</span>
+                <span v-if="item.unit" class="param-unit">{{ item.unit }}</span>
               </div>
             </div>
-            <p class="param-desc">{{ meta.description || meta.desc }}</p>
+            <p v-if="item.desc" class="param-desc">{{ item.desc }}</p>
           </div>
 
           <!-- 原有的 JSON 檢視 (折疊) -->
@@ -58,12 +61,7 @@ const config = ref(null)
 const meta = ref({})
 const loading = ref(true)
 const error = ref(null)
-const expandedModules = reactive({
-  asset: true,
-  indicator: false,
-  guard: false,
-  system: false
-})
+const expandedModules = reactive({})
 
 const load = async () => {
   loading.value = true
@@ -71,9 +69,12 @@ const load = async () => {
   try {
     const res = await fetchStrategyConfig()
     meta.value = res._meta || {}
-    // 移除元數據保留模組數據
     const { _meta, ...modules } = res
     config.value = modules
+    // 自動展開所有收到的模組 (例如 strategy)
+    for (const key of Object.keys(modules)) {
+      expandedModules[key] = true
+    }
   } catch (e) {
     error.value = '無法載入策略參數'
   } finally {
@@ -83,19 +84,38 @@ const load = async () => {
 
 const filteredConfig = computed(() => config.value || {})
 
-const getMetaForModule = (modKey) => {
-  const result = {}
-  for (const [path, info] of Object.entries(meta.value)) {
-    if (path.startsWith(modKey + '.')) {
-      result[path] = info
+// 遞迴攤平 JSON 物件
+const flattenConfig = (obj, prefix = '') => {
+  let result = []
+  for (const key in obj) {
+    const path = prefix ? `${prefix}.${key}` : key
+    const val = obj[key]
+    
+    // 陣列或基本型別視為葉節點
+    if (val === null || typeof val !== 'object' || Array.isArray(val)) {
+      result.push({ path, value: val })
+    } else {
+      result = result.concat(flattenConfig(val, path))
     }
   }
   return result
 }
 
-const getValueByPath = (obj, path) => {
-  if (!path) return obj
-  return path.split('.').reduce((acc, part) => acc && acc[part], obj)
+const getFlatParamsForModule = (modKey) => {
+  const module = config.value[modKey]
+  if (!module || !module.content) return []
+  
+  const flats = flattenConfig(module.content)
+  return flats.map(item => {
+    const metaInfo = meta.value[item.path] || {}
+    return {
+      path: item.path,
+      value: item.value,
+      label: metaInfo.label || item.path.split('.').pop(),
+      desc: metaInfo.description || metaInfo.desc || '',
+      unit: metaInfo.unit || ''
+    }
+  })
 }
 
 const toggleModule = (key) => {
@@ -232,6 +252,18 @@ onMounted(load)
   border-radius: 8px;
   margin-top: 8px;
   overflow-x: auto;
+}
+
+.json-inline {
+  font-family: 'SF Mono', monospace;
+  font-size: 11px;
+  background: rgba(0,0,0,0.03);
+  padding: 6px;
+  border-radius: 6px;
+  margin: 0;
+  max-width: 250px;
+  overflow-x: auto;
+  color: var(--tg-theme-text-color, #222);
 }
 
 .sk-card {

@@ -46,9 +46,7 @@
         <div class="snapshot-card">
           <span class="snap-label">景氣燈號</span>
           <span class="snap-value snap-light">{{ lightEmoji }}</span>
-          <span class="snap-sub snap-sub--neutral">{{
-            status?.data?.rawNdc?.light ?? "—"
-          }}</span>
+          <span class="snap-sub snap-sub--neutral">{{ lightText }}</span>
         </div>
       </div>
     </section>
@@ -439,13 +437,24 @@ const glLevel = computed(() => {
 
 // ── Business cycle emoji ──
 const lightEmoji = computed(() => {
-  const sig = latestReport.value?.marketState?.economy?.ndcLight ?? "";
-  if (sig.includes("紅") || sig.includes("熱絡")) return "🔴";
-  if (sig.includes("黃紅") || sig.includes("活絡")) return "🟠";
-  if (sig.includes("綠") || sig.includes("穩定")) return "🟢";
-  if (sig.includes("黃藍") || sig.includes("趨緩")) return "🟡";
-  if (sig.includes("藍") || sig.includes("低迷")) return "🔵";
+  const sig = latestReport.value?.marketState?.economy?.ndcLight ?? status.value?.data?.rawNdc?.light ?? "";
+  if (sig.includes("黃紅") || sig.includes("活絡") || sig.includes("yellow-red")) return "🟠";
+  if (sig.includes("黃藍") || sig.includes("趨緩") || sig.includes("yellow-blue")) return "🟡";
+  if (sig.includes("紅") || sig.includes("熱絡") || sig === "red") return "🔴";
+  if (sig.includes("綠") || sig.includes("穩定") || sig === "green") return "🟢";
+  if (sig.includes("藍") || sig.includes("低迷") || sig === "blue") return "🔵";
   return "⚪";
+});
+
+const lightText = computed(() => {
+  const sig = latestReport.value?.marketState?.economy?.ndcLight ?? status.value?.data?.rawNdc?.light ?? "";
+  if (!sig) return "—";
+  if (sig.includes("黃紅") || sig.includes("yellow-red")) return "黃紅燈";
+  if (sig.includes("黃藍") || sig.includes("yellow-blue")) return "黃藍燈";
+  if (sig.includes("紅") || sig === "red") return "紅燈";
+  if (sig.includes("綠") || sig === "green") return "綠燈";
+  if (sig.includes("藍") || sig === "blue") return "藍燈";
+  return sig;
 });
 
 // ── Decision Helpers ──

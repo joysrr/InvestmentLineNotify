@@ -3,43 +3,15 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-// 定位至專案根目錄的 data/config/parts
-const CONFIG_PARTS_DIR = resolve(__dirname, "../../../data/config/parts");
+const STRATEGY_PATH = resolve(__dirname, "../../../data/config/Strategy.json");
 const META_PATH = resolve(__dirname, "../../../data/config/ConfigMeta.json");
 
 export default async function configRoute(fastify) {
   fastify.get("/strategy-config", async (request, reply) => {
-    const parts = [
-      {
-        key: "system",
-        file: "SystemConfig.json",
-        label: "系統與費用",
-        desc: "系統版本、交易稅費與冷卻天數設定",
-      },
-      {
-        key: "asset",
-        file: "AssetConfig.json",
-        label: "資產與風險",
-        desc: "質押倍數上限、現金儲備門檻與發薪日週期",
-      },
-      {
-        key: "indicator",
-        file: "IndicatorConfig.json",
-        label: "指標與訊號",
-        desc: "買賣訊號規則、計分權重與部位分配矩陣",
-      },
-      {
-        key: "guard",
-        file: "GuardConfig.json",
-        label: "安全守衛",
-        desc: "估值 PB 壓縮層、市場情緒抑制與急跌解鎖機制",
-      },
-    ];
-
     try {
       const data = { _meta: {} };
 
-      // 讀取元數據
+      // 1. 讀取翻譯字典 (ConfigMeta)
       try {
         const metaText = await readFile(META_PATH, "utf-8");
         data._meta = JSON.parse(metaText);
@@ -47,25 +19,24 @@ export default async function configRoute(fastify) {
         request.log.warn("ConfigMeta.json not found, skipping labels");
       }
 
-      for (const part of parts) {
-        const path = resolve(CONFIG_PARTS_DIR, part.file);
-        try {
-          const text = await readFile(path, "utf-8");
-          data[part.key] = {
-            content: JSON.parse(text),
-            label: part.label,
-            desc: part.desc,
-          };
-        } catch (err) {
-          request.log.warn(`Config file missing: ${part.file}`);
-          data[part.key] = {
-            content: null,
-            error: "file not found",
-            label: part.label,
-            desc: part.desc,
-          };
-        }
+      // 2. 讀取唯一的 Strategy.json
+      try {
+        const text = await readFile(STRATEGY_PATH, "utf-8");
+        data.strategy = {
+          content: JSON.parse(text),
+          label: "核心策略設定 (Strategy.json)",
+          desc: "包含所有防護、購買與資金分配之參數",
+        };
+      } catch (err) {
+        request.log.error(`Strategy.json missing: ${err.message}`);
+        data.strategy = {
+          content: null,
+          error: "file not found",
+          label: "核心策略設定",
+          desc: "檔案讀取失敗",
+        };
       }
+
       return data;
     } catch (err) {
       request.log.error(err);

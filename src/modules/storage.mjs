@@ -5,13 +5,22 @@ import { archiveManager } from "./data/archiveManager.mjs";
 import logger from "../utils/logger.mjs";
 import { withRetry } from "../utils/retryUtils.mjs";
 
-// 1. 取得並處理私鑰 (自動修復格式問題)
+// 1. 取得並處理私鑰 (自動修復各種常見格式錯誤)
 let privateKey = process.env.GOOGLE_PRIVATE_KEY || "";
-if (privateKey.includes("\\n")) {
-  privateKey = privateKey.replace(/\\n/g, "\n");
-}
-if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-  privateKey = privateKey.slice(1, -1);
+privateKey = privateKey.replace(/^["']|["']$/g, "");
+privateKey = privateKey.replace(/\\n/g, "\n");
+
+// 若金鑰被壓縮成單行 (無換行符號)，嘗試修復
+if (privateKey.includes("BEGIN PRIVATE KEY") && !privateKey.includes("\n")) {
+  privateKey = privateKey
+    .replace("-----BEGIN PRIVATE KEY-----", "-----BEGIN PRIVATE KEY-----\n")
+    .replace("-----END PRIVATE KEY-----", "\n-----END PRIVATE KEY-----");
+  const parts = privateKey.split("\n");
+  if (parts.length === 3) {
+    // 將金鑰本體內的空格還原為換行
+    const payload = parts[1].replace(/\s+/g, "\n");
+    privateKey = `${parts[0]}\n${payload}\n${parts[2]}`;
+  }
 }
 
 // 2. 初始化驗證
@@ -143,7 +152,7 @@ export async function fetchLastPortfolioState() {
         onRetry: (attempt, error, delayMs) => {
           logger.warn(
             `[Storage] fetchLastPortfolioState 失敗 (嘗試 ${attempt}/3)，` +
-              `等待 ${Math.round(delayMs)}ms 後重試：${error.message}`
+              `等待 ${Math.round(delayMs)}ms 後重試：${error.message}`,
           );
         },
       },
@@ -212,13 +221,13 @@ export async function logDailyToSheet(data) {
           "00675L 股數": data.portfolio.qtyZ2,
           "0050 市値": val0050,
           "00675L 市値": valZ2,
-          "借貸總額": loan === 0 ? "無借貸" : loan,
-          "現金儲備": cash,
+          借貸總額: loan === 0 ? "無借貸" : loan,
+          現金儲備: cash,
           "維持率（%）": marginStr,
-          "總淨資產": netAsset,
+          總淨資產: netAsset,
           "正 2 占總資產比例": (data.z2Ratio / 100).toFixed(3),
           "正 2 應賣出金額": sellAmount,
-          "備註": data.suggestion,
+          備註: data.suggestion,
         };
 
         const lastRow = rows[rows.length - 1];
@@ -241,7 +250,7 @@ export async function logDailyToSheet(data) {
         onRetry: (attempt, error, delayMs) => {
           logger.warn(
             `[Storage] logDailyToSheet 失敗 (嘗試 ${attempt}/3)，` +
-              `等待 ${Math.round(delayMs)}ms 後重試：${error.message}`
+              `等待 ${Math.round(delayMs)}ms 後重試：${error.message}`,
           );
         },
       },

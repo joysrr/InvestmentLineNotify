@@ -13,46 +13,16 @@ const FALLBACK_STRATEGY_PATH = resolve(
 );
 
 /**
- * 載入並聚合策略設定子模組
+ * 載入單一 Strategy.json (唯一的真理來源)
  */
-export async function loadModularStrategy() {
-  const parts = [
-    "SystemConfig.json",
-    "AssetConfig.json",
-    "IndicatorConfig.json",
-    "GuardConfig.json",
-  ];
-
-  const merged = {};
-
-  try {
-    for (const part of parts) {
-      const path = resolve(CONFIG_PARTS_DIR, part);
-      const text = await readFile(path, "utf-8");
-      const json = JSON.parse(text);
-      Object.assign(merged, json);
-    }
-
-    // 驗證聚合後的完整物件
-    validateStrategyConfig(merged);
-    return merged;
-  } catch (err) {
-    logger.warn({ error: err.message }, `⚠️ [StrategyLoader] 模組化加載失敗`);
-    return null;
-  }
-}
-
-/**
- * 載入單一 Strategy.json (舊版備援)
- */
-async function loadLegacyStrategy() {
+async function loadStrategy() {
   try {
     const text = await readFile(FALLBACK_STRATEGY_PATH, "utf-8");
     const json = JSON.parse(text);
     validateStrategyConfig(json);
     return json;
   } catch (err) {
-    logger.warn({ error: err.message }, `⚠️ [StrategyLoader] 舊版備援讀取失敗`);
+    logger.warn({ error: err.message }, `⚠️ [StrategyLoader] 策略檔讀取失敗`);
     return null;
   }
 }
@@ -61,17 +31,11 @@ async function loadLegacyStrategy() {
  * 策略配置門戶：自動判斷加載模式與備援
  */
 export async function fetchStrategyConfigUnified() {
-  // 1. 優先嘗試模組化加載
-  let strategy = await loadModularStrategy();
-  let source = "modular";
+  // 1. 嘗試讀取主要配置檔
+  let strategy = await loadStrategy();
+  let source = "main";
 
-  // 2. 失敗則嘗試舊版單一文件
-  if (!strategy) {
-    strategy = await loadLegacyStrategy();
-    source = "legacy";
-  }
-
-  // 3. 最後嘗試 Archive 備份
+  // 2. 失敗則嘗試 Archive 備份
   if (!strategy) {
     strategy = await archiveManager.getStrategyCache();
     source = "archive";
@@ -81,7 +45,10 @@ export async function fetchStrategyConfigUnified() {
     throw new Error("[StrategyLoader] 所有策略來源均失效，系統無法啟動");
   }
 
-  logger.info({ source, version: strategy.version || "Unknown" }, `[StrategyLoader] 成功載入策略 (來源：${source}) v${strategy.version || "Unknown"}`);
+  logger.info(
+    { source, version: strategy.version || "Unknown" },
+    `[StrategyLoader] 成功載入策略 (來源：${source}) v${strategy.version || "Unknown"}`,
+  );
   return strategy;
 }
 
@@ -90,12 +57,15 @@ if (process.argv.includes("--test-merge")) {
   fetchStrategyConfigUnified()
     .then((s) => {
       logger.info("✅ 策略聚合測試成功！");
-      logger.info({
-        version: s.version,
-        description: s.description,
-        buyRules: s.buy?.dropScoreRules?.length,
-        valuationTiers: s.valuationGuard?.tiers?.length
-      }, "核心欄位檢查");
+      logger.info(
+        {
+          version: s.version,
+          description: s.description,
+          buyRules: s.buy?.dropScoreRules?.length,
+          valuationTiers: s.valuationGuard?.tiers?.length,
+        },
+        "核心欄位檢查",
+      );
     })
     .catch((err) => {
       logger.error({ error: err.message }, "❌ 策略聚合測試失敗");
