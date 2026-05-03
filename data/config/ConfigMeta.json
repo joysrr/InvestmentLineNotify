@@ -1,12 +1,64 @@
 {
   "version": { "label": "系統版本", "unit": "", "desc": "策略邏輯版本" },
   "description": { "label": "策略描述", "unit": "", "desc": "策略的文字說明" },
-  "portfolioConfig.cashReserveThreshold": { "label": "現金儲備門檻", "unit": "%", "desc": "低於此水位將停止加碼" },
-  "portfolioConfig.maxGrossLeverage": { "label": "總槓桿上限", "unit": "x", "desc": "系統最高曝險倍數" },
+
+  "reserve.tiers": { "label": "資產規模對應儲備比例", "unit": "", "desc": "不同總資產級距對應的底線現金保護比例" },
+
+  "lifecycle.monthlyDcaAmount": { "label": "每月預計扣款", "unit": "元", "desc": "每月定期定額投入金額" },
+  "lifecycle.payDay": { "label": "發薪日", "unit": "日", "desc": "每月的入帳日期" },
+  "lifecycle.preInjectDays": { "label": "提早注入天數", "unit": "天", "desc": "發薪日前幾天允許預先借款買入" },
+
+  "maintenance.protectTrigger": { "label": "正常運作安全線", "unit": "%", "desc": "大於此維持率時，策略全功能正常運作" },
+  "maintenance.protectTarget": { "label": "資金還款目標", "unit": "%", "desc": "觸發還款時，將維持率拉抬至此目標" },
+  "maintenance.marginCallThreshold": { "label": "斷頭警戒線", "unit": "%", "desc": "低於此水位將啟動緊急防禦機制" },
+  "maintenance.frozenZone": { "label": "絕對凍結線", "unit": "%", "desc": "低於此水位全面封鎖所有買入與借款" },
+
+  "trading.minAction": { "label": "最小操作金額", "unit": "元", "desc": "低於此金額不發出交易訊號" },
+  "trading.cooldownDays": { "label": "交易冷卻天數", "unit": "天", "desc": "兩次買入操作之間的最小間隔" },
+  "trading.transFee": { "label": "交易手續費率", "unit": "", "desc": "買賣手續費率" },
+  "trading.transFeeDiscount": { "label": "手續費折讓", "unit": "", "desc": "券商手續費折扣" },
+  "trading.taxRate": { "label": "交易稅率", "unit": "", "desc": "賣出時的證交稅" },
+  "trading.loanInterestRate": { "label": "質押借款利率", "unit": "", "desc": "年化借款利率" },
+  "trading.budget.maxDailyLoanIncreasePct": { "label": "單日借款增幅上限", "unit": "%", "desc": "單日最大增加借款之比例" },
+  "trading.budget.maxRollingLoanIncreasePct": { "label": "滾動借款增幅上限", "unit": "%", "desc": "一定天數內最大借款增幅" },
+  "trading.budget.rollingDays": { "label": "滾動計算天數", "unit": "天", "desc": "計算滾動增幅的天數區間" },
+
+  "buy.minDropPercentToConsider": { "label": "最低考慮跌幅", "unit": "%", "desc": "大盤跌幅需達此標準才考慮左側買入" },
   "buy.minWeightScoreToBuy": { "label": "買入分數門檻", "unit": "pt", "desc": "總分需達到此值才買入" },
   "buy.dropScoreRules": { "label": "跌幅加分規則", "unit": "", "desc": "定義跌幅對應的權重加成" },
-  "valuationGuard.tiers": { "label": "估值防禦階梯", "unit": "", "desc": "根據 PB 分位數定義的壓縮倍數" },
+  "buy.entryGate.enabled": { "label": "啟用進擊矩陣", "unit": "", "desc": "是否啟用左側前置過濾" },
+  "buy.entryGate.bullMarketRelaxation": { "label": "牛市條件放寬", "unit": "", "desc": "多頭市場是否放寬進擊條件" },
+  "buy.entryGate.tiers": { "label": "進擊矩陣階梯", "unit": "", "desc": "定義不同跌幅區間的進擊限制" },
+
+  "sell.postAllocationIndexFromEnd": { "label": "賣出調配索引", "unit": "", "desc": "賣出後的資金分配策略索引" },
+  "sell.minUpPercentToSell": { "label": "最小賣出漲幅", "unit": "%", "desc": "漲幅超過此數值才考慮獲利了結" },
+  "sell.minSignalCountToSell": { "label": "最小賣出訊號數", "unit": "", "desc": "需累積幾個賣出訊號才執行" },
+  "sell.ma20StopDays": { "label": "跌破月線天數", "unit": "天", "desc": "連續跌破月線天數" },
+  "sell.trailingStop.enabled": { "label": "啟用追蹤停損", "unit": "", "desc": "是否啟用移動停利/停損" },
+
+  "allocation": { "label": "資金分配矩陣", "unit": "", "desc": "不同評分對應的槓桿與現金比例配置" },
+
+  "threshold.z2TargetRatio": { "label": "正二部位目標比", "unit": "", "desc": "00675L佔總資產的目標比例" },
+  "threshold.reversalTriggerCount": { "label": "反轉觸發計數", "unit": "", "desc": "技術面反轉所需的訊號數" },
+
   "conversionGuard.enabled": { "label": "啟動獲利轉化", "unit": "", "desc": "是否啟用階梯式停利與轉入底倉機制" },
   "conversionGuard.tiers": { "label": "獲利階梯設定", "unit": "", "desc": "根據 00675L 獲利率決定的結清比例" },
-  "conversionGuard.allocation": { "label": "資金動態分配", "unit": "", "desc": "根據維持率決定還款與買入底倉的比例" }
+  "conversionGuard.allocation": { "label": "資金動態分配", "unit": "", "desc": "根據維持率決定還款與買入底倉的比例" },
+
+  "macroSentiment.enabled": { "label": "啟用總經情緒", "unit": "", "desc": "是否根據 AI 總經分析調整分數" },
+  "macroSentiment.bullishBonus": { "label": "多頭加分", "unit": "pt", "desc": "AI 判定多頭時加分" },
+  "macroSentiment.bearishPenalty": { "label": "空頭扣分", "unit": "pt", "desc": "AI 判定空頭時扣分" },
+
+  "grossLeverage.ceiling": { "label": "總槓桿軟上限", "unit": "x", "desc": "超過此上限會發出警告" },
+  "grossLeverage.hardCap": { "label": "總槓桿硬上限", "unit": "x", "desc": "絕對禁止超過的曝險倍數" },
+
+  "valuationGuard.enabled": { "label": "啟用估值守衛", "unit": "", "desc": "是否啟用台股淨值比防禦機制" },
+  "valuationGuard.tiers": { "label": "估值防禦階梯", "unit": "", "desc": "根據 PB 分位數定義的壓縮倍數" },
+  "valuationGuard.latch.enabled": { "label": "啟用高估鎖定", "unit": "", "desc": "一旦觸發最高估值，是否持續鎖定直到條件解除" },
+
+  "scoringMatrix.enabled": { "label": "啟用計分矩陣", "unit": "", "desc": "是否使用動態評分決定買賣" },
+  
+  "overrideHierarchy.panicBypassEnabled": { "label": "恐慌買入通道", "unit": "", "desc": "極端恐慌時是否略過部分防禦限制" },
+  "overrideHierarchy.panicBypassDropPct": { "label": "恐慌跌幅門檻", "unit": "%", "desc": "觸發恐慌通道的跌幅(小數)" },
+  "overrideHierarchy.panicVixThreshold": { "label": "恐慌VIX門檻", "unit": "", "desc": "觸發恐慌通道的VIX數值" }
 }

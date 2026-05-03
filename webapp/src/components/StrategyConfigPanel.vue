@@ -26,17 +26,29 @@
             :key="item.path" 
             class="param-item"
           >
-            <div class="param-main">
+            <div class="param-main" :class="{ 'is-array': Array.isArray(item.value) }">
               <div class="param-label-group">
                 <span class="param-label">{{ item.label }}</span>
                 <span class="param-path">{{ item.path }}</span>
               </div>
               <div class="param-value-box">
-                <span class="param-value" v-if="Array.isArray(item.value)">
-                  <pre class="json-inline">{{ formatJson(item.value) }}</pre>
-                </span>
-                <span class="param-value" v-else>{{ String(item.value) }}</span>
-                <span v-if="item.unit" class="param-unit">{{ item.unit }}</span>
+                <div class="array-container" v-if="Array.isArray(item.value)">
+                  <div class="array-card" v-for="(row, idx) in item.value" :key="idx">
+                    <div v-if="typeof row === 'object' && row !== null">
+                      <div v-for="(v, k) in row" :key="k" class="array-row">
+                        <span class="array-key">{{ k }}</span>
+                        <span class="array-val" :class="{'highlight-val': ['note', 'comment', 'label'].includes(k)}">{{ String(v) }}</span>
+                      </div>
+                    </div>
+                    <div v-else class="array-primitive">
+                      {{ String(row) }}
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="scalar-value-box">
+                  <span class="param-value">{{ String(item.value) }}</span>
+                  <span v-if="item.unit" class="param-unit">{{ item.unit }}</span>
+                </div>
               </div>
             </div>
             <p v-if="item.desc" class="param-desc">{{ item.desc }}</p>
@@ -209,6 +221,23 @@ onMounted(load)
 
 .param-value-box {
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.param-main.is-array {
+  flex-direction: column;
+}
+
+.param-main.is-array .param-value-box {
+  align-items: stretch;
+  max-width: 100%;
+  width: 100%;
+}
+
+.scalar-value-box {
+  display: flex;
   align-items: baseline;
   gap: 2px;
 }
@@ -222,6 +251,62 @@ onMounted(load)
 .param-unit {
   font-size: 11px;
   color: var(--tg-theme-hint-color, #888);
+}
+
+.array-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.array-card {
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.array-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  gap: 12px;
+}
+.array-row:last-child {
+  margin-bottom: 0;
+}
+
+.array-key {
+  color: var(--tg-theme-hint-color, #888);
+  font-family: monospace;
+  font-size: 11px;
+}
+
+.array-val {
+  color: var(--tg-theme-text-color, #333);
+  font-weight: 500;
+  text-align: right;
+  word-break: break-word;
+}
+
+.highlight-val {
+  color: #d9534f;
+  font-weight: 600;
+  background: rgba(217, 83, 79, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.array-primitive {
+  font-size: 13px;
+  color: var(--tg-theme-text-color, #333);
+  font-family: monospace;
 }
 
 .param-desc {
