@@ -12,9 +12,9 @@
  */
 
 import lockfile from "proper-lockfile";
-import { existsSync, readFileSync, unlinkSync, mkdirSync } from "fs";
+import { existsSync, readFileSync, mkdirSync } from "fs";
 import { join } from "path";
-import logger from "../../../utils/logger.mjs";
+import logger from "../../utils/logger.mjs";
 
 const LOCK_PATH = join(process.cwd(), "data", ".bot_lock");
 const LOCK_DIR = join(process.cwd(), "data");
@@ -83,7 +83,9 @@ export async function acquireLock(runnerName, options = {}) {
       logger.warn(`[Lock] ⚠️ Lock 檔損壞，嘗試清理：${err.message}`);
       try {
         await lockfile.unlock(LOCK_PATH);
-      } catch {}
+      } catch {
+        // ignore unlock error during cleanup
+      }
     }
   }
 
@@ -136,7 +138,9 @@ export async function acquireLock(runnerName, options = {}) {
             acquired: false,
             message: `⏳ <b>${lock.runner}</b> 正在執行中（已過 ${Math.round(age / 1000)} 秒），請稍後再試。`,
           };
-        } catch {}
+        } catch {
+          // ignore parse error, fallback to default message
+        }
       }
       return {
         acquired: false,
@@ -234,7 +238,9 @@ export function registerShutdownHandlers() {
         }
         logger.info(`[Lock] 📝 釋放 lock：${runnerName}`);
       } catch (err) {
-        logger.warn(`[Lock] ⚠️ 關閉時釋放 lock 失敗 (${runnerName}): ${err.message}`);
+        logger.warn(
+          `[Lock] ⚠️ 關閉時釋放 lock 失敗 (${runnerName}): ${err.message}`,
+        );
       }
     }
 
@@ -253,6 +259,11 @@ export function registerShutdownHandlers() {
   });
 
   process.on("unhandledRejection", (reason, promise) => {
-    logger.error(`[Lock] ❌ Unhandled Rejection at:`, promise, "reason:", reason);
+    logger.error(
+      `[Lock] ❌ Unhandled Rejection at:`,
+      promise,
+      "reason:",
+      reason,
+    );
   });
 }
