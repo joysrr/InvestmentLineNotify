@@ -9,20 +9,24 @@
     </div>
 
     <div v-else class="config-sections">
-      <!-- 遍歷各個模組 (asset, indicator, guard, system) -->
-      <div v-for="(module, modKey) in filteredConfig" :key="modKey" class="module-section">
+      <div class="search-bar-container">
+        <input type="search" v-model="searchQuery" class="search-input" placeholder="🔍 搜尋參數名稱或說明 (如: 維持率, VIX)..." />
+      </div>
+
+      <!-- 遍歷各個模組區塊 -->
+      <div v-for="(module, modKey) in filteredBlocks" :key="modKey" class="module-section">
         <div class="module-header" @click="toggleModule(modKey)">
           <div class="module-info">
             <h3 class="module-title">{{ module.label }}</h3>
-            <p class="module-desc">{{ module.desc }}</p>
+            <p v-if="module.desc" class="module-desc">{{ module.desc }}</p>
           </div>
-          <span class="module-arrow" :class="{ 'is-expanded': expandedModules[modKey] }">▾</span>
+          <span class="module-arrow" :class="{ 'is-expanded': isModuleExpanded(modKey) }">▾</span>
         </div>
 
-        <div v-if="expandedModules[modKey]" class="params-list">
+        <div v-if="isModuleExpanded(modKey)" class="params-list">
           <!-- 遞迴遍歷渲染所有參數 -->
           <div 
-            v-for="item in getFlatParamsForModule(modKey)" 
+            v-for="item in module.flats" 
             :key="item.path" 
             class="param-item"
           >
@@ -55,7 +59,7 @@
           </div>
 
           <!-- 原有的 JSON 檢視 (折疊) -->
-          <details class="raw-json-details">
+          <details class="raw-json-details" v-if="!searchQuery">
             <summary>查看原始 JSON</summary>
             <pre class="json-content">{{ formatJson(module.content) }}</pre>
           </details>
@@ -74,6 +78,7 @@ const meta = ref({})
 const loading = ref(true)
 const error = ref(null)
 const expandedModules = reactive({})
+const searchQuery = ref('')
 
 const load = async () => {
   loading.value = true
@@ -81,11 +86,25 @@ const load = async () => {
   try {
     const res = await fetchStrategyConfig()
     meta.value = res._meta || {}
-    const { _meta, ...modules } = res
-    config.value = modules
-    // 自動展開所有收到的模組 (例如 strategy)
-    for (const key of Object.keys(modules)) {
-      expandedModules[key] = true
+    
+    if (res.strategy && res.strategy.content) {
+      const blocks = {}
+      for (const [key, val] of Object.entries(res.strategy.content)) {
+        const blockMeta = meta.value[key] || {}
+        blocks[key] = {
+          label: blockMeta.label || key,
+          desc: blockMeta.desc || '',
+          content: val
+        }
+        expandedModules[key] = false
+      }
+      config.value = blocks
+    } else {
+      const { _meta, ...modules } = res
+      config.value = modules
+      for (const key of Object.keys(modules)) {
+        expandedModules[key] = false
+      }
     }
   } catch (e) {
     error.value = '無法載入策略參數'
@@ -94,16 +113,15 @@ const load = async () => {
   }
 }
 
-const filteredConfig = computed(() => config.value || {})
-
-// 遞迴攤平 JSON 物件
 const flattenConfig = (obj, prefix = '') => {
+  if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
+    return [{ path: prefix, value: obj }]
+  }
   let result = []
   for (const key in obj) {
     const path = prefix ? `${prefix}.${key}` : key
     const val = obj[key]
     
-    // 陣列或基本型別視為葉節點
     if (val === null || typeof val !== 'object' || Array.isArray(val)) {
       result.push({ path, value: val })
     } else {
@@ -115,9 +133,9 @@ const flattenConfig = (obj, prefix = '') => {
 
 const getFlatParamsForModule = (modKey) => {
   const module = config.value[modKey]
-  if (!module || !module.content) return []
+  if (!module || module.content === undefined) return []
   
-  const flats = flattenConfig(module.content)
+  const flats = flattenConfig(module.content, modKey)
   return flats.map(item => {
     const metaInfo = meta.value[item.path] || {}
     return {
@@ -130,6 +148,37 @@ const getFlatParamsForModule = (modKey) => {
   })
 }
 
+const filteredBlocks = computed(() => {
+  if (!config.value) return {}
+  const query = searchQuery.value.toLowerCase().trim()
+  const result = {}
+  
+  for (const [modKey, module] of Object.entries(config.value)) {
+    const flats = getFlatParamsForModule(modKey)
+    
+    if (!query) {
+      result[modKey] = { ...module, flats }
+      continue
+    }
+
+    const matchedFlats = flats.filter(item => {
+      return (item.label && item.label.toLowerCase().includes(query)) ||
+             (item.path && item.path.toLowerCase().includes(query)) ||
+             (item.desc && item.desc.toLowerCase().includes(query))
+    })
+
+    if (matchedFlats.length > 0) {
+      result[modKey] = { ...module, flats: matchedFlats }
+    }
+  }
+  return result
+})
+
+const isModuleExpanded = (key) => {
+  if (searchQuery.value.trim() !== '') return true
+  return !!expandedModules[key]
+}
+
 const toggleModule = (key) => {
   expandedModules[key] = !expandedModules[key]
 }
@@ -140,10 +189,36 @@ onMounted(load)
 </script>
 
 <style scoped>
+.search-bar-container {
+  margin-bottom: 12px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: var(--tg-theme-bg-color, #fff);
+  color: var(--tg-theme-text-color, #222);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.search-input:focus {
+  border-color: var(--tg-theme-button-color, #2481cc);
+}
+
 .strategy-config-panel {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.config-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .module-section {
