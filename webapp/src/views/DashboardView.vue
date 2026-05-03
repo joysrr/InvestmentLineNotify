@@ -444,9 +444,11 @@ const activePriority = computed(() => {
   if (sigs?.maintenanceRisk?.level === "Critical") return "P1 維持率危機";
   if (Number(sigs?.grossLeverage) >= 2.5) return "P2 槓桿上限";
   if (sigs?.panicBypassActive) return "P3 恐慌破冰";
-  if (sigs?.valuationGuardResult?.defenseLatchActive) return "P4 守衛鎖定";
-  if (Number(sigs?.valuationGuardResult?.guardTier) > 0) {
-    return `P5 估值防禦 T${sigs.valuationGuardResult.guardTier}`;
+  
+  const vg = sigs?.valuationGuardResult;
+  if (sigs?.status?.includes("鎖定") || sigs?.status?.includes("清算")) return "P4 守衛鎖定";
+  if (vg?.guardActive && vg?.hitTierIndex >= 0) {
+    return `P5 估值防禦 T${vg.hitTierIndex + 1}`;
   }
   return null;
 });
@@ -482,29 +484,24 @@ const routingPath = computed(() => {
 const valuationGuardText = computed(() => {
   const vg = latestReport.value?.signals?.valuationGuardResult;
   if (!vg) return null;
-  if (vg.defenseLatchActive) return "🔒 防禦鎖定中 (跌破 MA20)";
-  if (Number(vg.guardTier) > 0)
-    return `${vg.guardLabel} (${vg.guardMultiplier}x)`;
+  // Latch state is not directly exposed in valuationGuardResult, but we can check if multiplier is very low or guardActive
+  if (vg.guardActive && vg.hitTier) {
+    return `${vg.hitTier.label || '防禦生效'} (${vg.multiplier}x)`;
+  }
   return "🟢 估值安全 (無壓縮)";
 });
 
 const vgClass = computed(() => {
   const vg = latestReport.value?.signals?.valuationGuardResult;
-  if (vg?.defenseLatchActive) return "text-danger";
-  if (Number(vg?.guardTier) >= 3) return "text-danger";
-  if (Number(vg?.guardTier) > 0) return "text-warn";
+  if (vg?.hitTierIndex >= 2) return "text-danger"; // 較高等級的防禦
+  if (vg?.guardActive) return "text-warn";
   return "text-ok";
 });
 
 const momentumText = computed(() => {
   const vm = latestReport.value?.signals?.valuationMomentumResult;
-  if (!vm) return null;
-  const parts = [];
-  if (Number(vm.trendAdjustment) !== 0) {
-    parts.push(`趨勢 ${Number(vm.trendAdjustment) > 0 ? "↗️" : "↘️"}`);
-  }
-  if (vm.vixSpikeTriggered) parts.push("🌊 VIX 暴升補正");
-  return parts.length ? parts.join(" | ") : "平穩";
+  if (!vm || !vm.momentumLabel) return null;
+  return vm.momentumLabel;
 });
 
 // ── Tab classes & formatting ──
@@ -1362,3 +1359,4 @@ onMounted(async () => {
   font-size: 13px;
   color: var(--tg-theme-hint-color, #888);
 }
+</style>
