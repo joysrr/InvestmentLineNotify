@@ -446,7 +446,7 @@ const activePriority = computed(() => {
   if (sigs?.panicBypassActive) return "P3 恐慌破冰";
   
   const vg = sigs?.valuationGuardResult;
-  if (sigs?.status?.includes("鎖定") || sigs?.status?.includes("清算")) return "P4 守衛鎖定";
+  if (vg?.defenseLatchActive) return "P4 守衛鎖定";
   if (vg?.guardActive && vg?.hitTierIndex >= 0) {
     return `P5 估值防禦 T${vg.hitTierIndex + 1}`;
   }
@@ -484,7 +484,7 @@ const routingPath = computed(() => {
 const valuationGuardText = computed(() => {
   const vg = latestReport.value?.signals?.valuationGuardResult;
   if (!vg) return null;
-  // Latch state is not directly exposed in valuationGuardResult, but we can check if multiplier is very low or guardActive
+  if (vg.defenseLatchActive) return "🔒 防禦鎖定中 (跌破 MA20)";
   if (vg.guardActive && vg.hitTier) {
     return `${vg.hitTier.label || '防禦生效'} (${vg.multiplier}x)`;
   }
@@ -493,6 +493,7 @@ const valuationGuardText = computed(() => {
 
 const vgClass = computed(() => {
   const vg = latestReport.value?.signals?.valuationGuardResult;
+  if (vg?.defenseLatchActive) return "text-danger";
   if (vg?.hitTierIndex >= 2) return "text-danger"; // 較高等級的防禦
   if (vg?.guardActive) return "text-warn";
   return "text-ok";

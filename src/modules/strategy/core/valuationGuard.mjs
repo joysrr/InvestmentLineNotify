@@ -85,9 +85,10 @@ export function resolveValuationMomentum(
   config,
   vixData = {},
 ) {
-  const cfg = config?.valuationGuard?.momentum;
-  if (!cfg?.enabled)
+  const cfg = config?.valuationMomentum;
+  if (!cfg?.enabled) {
     return { prMomentum: 0, momentumAdjustment: 1.0, momentumLabel: "" };
+  }
 
   // TODO: currentVix / previousVix 待 VIX 動量邏輯實作後接入
   // const { currentVix, previousVix } = vixData;

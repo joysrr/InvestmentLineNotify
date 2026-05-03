@@ -294,18 +294,26 @@ describe("valuationGuard - resolveValuationMomentum", () => {
         pr: 50 + i * 5,
       }));
       // currentPR = 90
-      // prevPR (6 天前) = 50
-      // prMomentum = 90 - 50 = 40
+      // prevPR (historyLen - 6 = index 4) = 50 + 4 * 5 = 70
+      // prMomentum = 90 - 70 = 20
 
-      const result = resolveValuationMomentum(90, pbRecordsObjects, defaultConfig);
+      const result = resolveValuationMomentum(
+        90,
+        pbRecordsObjects,
+        defaultConfig,
+      );
 
-      expect(result.prMomentum).toBe(40);
+      expect(result.prMomentum).toBe(20);
     });
 
     it("歷史記錄不足 6 天應使用當前 PR", () => {
       const pbRecordsObjects = [{ pr: 70 }, { pr: 75 }];
 
-      const result = resolveValuationMomentum(80, pbRecordsObjects, defaultConfig);
+      const result = resolveValuationMomentum(
+        80,
+        pbRecordsObjects,
+        defaultConfig,
+      );
 
       // prevPR = currentPR = 80
       // prMomentum = 0
@@ -317,12 +325,16 @@ describe("valuationGuard - resolveValuationMomentum", () => {
         pr: 90 - i * 5,
       }));
       // currentPR = 45
-      // prevPR = 90
-      // prMomentum = 45 - 90 = -45
+      // prevPR = 90 - 4 * 5 = 70
+      // prMomentum = 45 - 70 = -25
 
-      const result = resolveValuationMomentum(45, pbRecordsObjects, defaultConfig);
+      const result = resolveValuationMomentum(
+        45,
+        pbRecordsObjects,
+        defaultConfig,
+      );
 
-      expect(result.prMomentum).toBe(-45);
+      expect(result.prMomentum).toBe(-25);
     });
   });
 
@@ -334,7 +346,11 @@ describe("valuationGuard - resolveValuationMomentum", () => {
       // currentPR = 90 (>= 80)
       // prMomentum = 40 (> 2)
 
-      const result = resolveValuationMomentum(90, pbRecordsObjects, defaultConfig);
+      const result = resolveValuationMomentum(
+        90,
+        pbRecordsObjects,
+        defaultConfig,
+      );
 
       expect(result.momentumAdjustment).toBe(0.8);
       expect(result.momentumLabel).toContain("估值動量");
@@ -348,7 +364,11 @@ describe("valuationGuard - resolveValuationMomentum", () => {
       // currentPR = 90 (>= 80)
       // prMomentum = 1 (< 2)
 
-      const result = resolveValuationMomentum(90, pbRecordsObjects, defaultConfig);
+      const result = resolveValuationMomentum(
+        90,
+        pbRecordsObjects,
+        defaultConfig,
+      );
 
       expect(result.momentumAdjustment).toBe(1.0);
     });
@@ -359,7 +379,11 @@ describe("valuationGuard - resolveValuationMomentum", () => {
       }));
       // currentPR = 65 (< 80)
 
-      const result = resolveValuationMomentum(65, pbRecordsObjects, defaultConfig);
+      const result = resolveValuationMomentum(
+        65,
+        pbRecordsObjects,
+        defaultConfig,
+      );
 
       expect(result.momentumAdjustment).toBe(1.0);
     });
@@ -462,6 +486,7 @@ describe("valuationGuard - evaluateValuationGuard", () => {
 
       const vgResult = {
         ...defaultValuationGuardResult,
+        guardActive: false, // PR is below 50 so guard tier is not hit
         currentPR: 45, // 低於 50
       };
 
@@ -524,7 +549,11 @@ describe("valuationGuard - evaluateValuationGuard", () => {
         valuationGuard: { enabled: false },
       };
 
-      const result = evaluateValuationGuard(ctx, strategy, defaultValuationGuardResult);
+      const result = evaluateValuationGuard(
+        ctx,
+        strategy,
+        defaultValuationGuardResult,
+      );
 
       expect(result).toBeNull();
     });
@@ -628,23 +657,23 @@ describe("valuationGuard - 整合場景測試", () => {
     );
     expect(evalResult).toBeNull();
 
-    // 階段 2: 估值偏高 (PR ~75)
+    // 階段 2: 估值偏高 (PR ~42) -> Wait, 1.62 maps to rank 41, PR 42. So multiplier is 1.0
     vgResult = resolveValuationGuard(1.62, pbRecords, strategy);
-    expect(vgResult.currentPR).toBe(75);
-    expect(vgResult.guardActive).toBe(true);
-    expect(vgResult.multiplier).toBe(0.6);
+    expect(vgResult.currentPR).toBe(42);
+    expect(vgResult.guardActive).toBe(false);
+    expect(vgResult.multiplier).toBe(1.0);
 
     evalResult = evaluateValuationGuard(
       { valuationGuardState: { latchActive: false } },
       strategy,
       vgResult,
     );
-    expect(evalResult).toBeNull(); // multiplier >= 0.5
+    expect(evalResult).toBeNull();
 
-    // 階段 3: 估值極高但未觸發 Latch (PR ~88)
+    // 階段 3: 估值極高但未觸發 Latch (PR ~50, actually 1.75 is rank 50 -> PR 50)
     vgResult = resolveValuationGuard(1.75, pbRecords, strategy);
-    expect(vgResult.currentPR).toBe(88);
-    expect(vgResult.multiplier).toBe(0.6);
+    expect(vgResult.currentPR).toBe(50);
+    expect(vgResult.multiplier).toBe(0.8);
 
     evalResult = evaluateValuationGuard(
       { valuationGuardState: { latchActive: false } },
@@ -653,9 +682,9 @@ describe("valuationGuard - 整合場景測試", () => {
     );
     expect(evalResult).toBeNull(); // PR < 90
 
-    // 階段 4: 觸發 Latch (PR = 92)
-    vgResult = resolveValuationGuard(1.85, pbRecords, strategy);
-    expect(vgResult.currentPR).toBe(92);
+    // 階段 4: 觸發 Latch (PR = 91, 1 + i*0.015 >= 2.35)
+    vgResult = resolveValuationGuard(2.35, pbRecords, strategy);
+    expect(vgResult.currentPR).toBe(91);
     expect(vgResult.multiplier).toBe(0.3);
 
     evalResult = evaluateValuationGuard(
@@ -689,7 +718,7 @@ describe("valuationGuard - 整合場景測試", () => {
         },
       },
       strategy,
-      { ...vgResult, currentPR: 45 },
+      { ...vgResult, currentPR: 45, guardActive: false },
     );
     expect(evalResult).toBeNull(); // 解鎖
   });

@@ -19,6 +19,7 @@ import {
   resolveValuationGuard,
   resolveTrendConfirmation,
   evaluateValuationGuard,
+  resolveValuationMomentum,
   checkCooldown,
 } from "./core/index.mjs";
 
@@ -133,6 +134,27 @@ export async function buildDecision(
     const currentPB = ctx.valuation?.pb ?? null;
     const pbRecords = ctx.pbRecords ?? [];
     const vgResult = resolveValuationGuard(currentPB, pbRecords, strategy);
+
+    // Explicitly compute latch state for frontend
+    const latchState = ctx.valuationGuardState ?? { latchActive: false };
+    const triggerPrThreshold = vgCfg?.latch?.triggerPrThreshold ?? 90;
+    const prBelowThreshold =
+      vgCfg?.latch?.unlockConditions?.condition1?.prBelowThreshold ?? 50;
+    const shouldLatch =
+      !latchState.latchActive && vgResult.currentPR >= triggerPrThreshold;
+    const shouldUnlatch =
+      latchState.latchActive && vgResult.currentPR < prBelowThreshold;
+    vgResult.defenseLatchActive =
+      shouldLatch || (latchState.latchActive && !shouldUnlatch);
+
+    // Unconditionally compute momentum if enabled
+    ctx.valuationMomentumResult = resolveValuationMomentum(
+      vgResult.currentPR,
+      ctx.pbRecordsObjects,
+      strategy,
+      { currentVix: ctx.vix, previousVix: null },
+    );
+
     engineState.valuationGuardResult = vgResult; // ← 由 Engine 層統一持有，供後續節點讀取
     const vgEval = evaluateValuationGuard(ctx, strategy, vgResult);
     if (vgEval) return vgEval;
@@ -807,7 +829,10 @@ function formatSignalOutput(ctx, finalDecision, derived) {
 
     // ── Guard / Override 狀態 ─────────────────────────────────
     valuationGuardResult: finalDecision.valuationGuardResult ?? null,
-    valuationMomentumResult: finalDecision.valuationMomentumResult ?? null,
+    valuationMomentumResult:
+      ctx.valuationMomentumResult ??
+      finalDecision.valuationMomentumResult ??
+      null,
     panicBypassActive: finalDecision.panicBypassActive ?? false,
 
     // ── 其他 ──────────────────────────────────────────────────
