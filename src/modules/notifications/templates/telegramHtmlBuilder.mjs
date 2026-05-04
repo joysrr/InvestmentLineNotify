@@ -917,7 +917,7 @@ export function buildCompactMessage(
 
   // ── 每日一句 ──
   const quoteText = quote?.quote
-    ? `\n\n💬 <i>${escapeHTML(quote.quote)}</i>\n— <b>${escapeHTML(quote.author || "")}</b>`
+    ? `💬 <i>${escapeHTML(quote.quote)}</i>\n— <b>${escapeHTML(quote.author || "")}</b>`
     : "";
 
   const SEP = "\n─────────────────\n";
