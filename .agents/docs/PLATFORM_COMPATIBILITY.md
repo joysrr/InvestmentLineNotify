@@ -7,33 +7,35 @@
 
 ---
 
-## 一、支援度總表
+## 一、支援度總表（**2026-05-04 PROPOSAL_502_021 Sprint C 補實測**）
 
-| Harness                               | 整體支援度 | primary use case                          | 移植工時                       |
-| ------------------------------------- | ---------- | ----------------------------------------- | ------------------------------ |
-| **Claude Code CLI**                   | ✅ 100%    | 本框架原生環境                            | 0（直接照 INSTALL.md）         |
-| **Claude Code Web**（claude.ai/code） | 🟡 70-80%  | sandbox 受限；部分功能需 git 同步補位     | 1-2h（hooks/MCP 確認）         |
-| **Antigravity**（Google）             | 🟡 60-70%  | 需驗證 MCP 標準；可能需 sub-agent adapter | 4-8h（驗證 + adapter）         |
-| **自建 Qwen Agent**                   | 🟡 50-60%  | adapter layer 重大；persona drift 風險    | 20-40h（adapter + drift 重測） |
+| Harness                               | 整體支援度                                 | drift_score                                | DoD             | primary use case                                                                                                    | 移植工時                            |
+| ------------------------------------- | ------------------------------------------ | ------------------------------------------ | --------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| **Claude Code CLI**                   | ✅ 100%                                    | **0.883**（baseline；C-1 實測 2026-05-04） | **5/5（100%）** | 本框架原生環境                                                                                                      | 0（直接照 INSTALL.md）              |
+| **Claude Code Web**（claude.ai/code） | 🟡 70-80%                                  | 待 User 跑 cross-harness-validator.mjs     | 待測            | sandbox 受限；部分功能需 git 同步補位                                                                               | 1-2h（hooks/MCP 確認）              |
+| **Antigravity**（Google）             | 🟢 70%（**已實機驗證 2026-05-02**）        | 待 User 跑 cross-harness-validator.mjs     | 待測            | MCP 自有註冊機制可用；**sub-agent 僅 browser_subagent**；其他並行任務 serial mode 通用（PROPOSAL_502_021 Sprint A） | 已驗證；參 `INSTALL_ANTIGRAVITY.md` |
+| **自建 Qwen Agent**                   | 🟢 70-80%（**2026-05-04 修正：MCP 可用**） | 待 User 跑 cross-harness-validator.mjs     | 待測            | serial mode + Qwen MCP；persona drift 仍須重測                                                                      | 6-10h（drift + naming）             |
+
+> **drift / DoD 補測指引**：在目標 harness 執行 `node .agents/scripts/cross-harness-validator.mjs --append --report`；本表會由 User 補完。
 
 ---
 
 ## 二、12 capability dimensions × 4 harness
 
-| Capability                                           | Claude Code CLI     | Claude Code Web                             | Antigravity                  | Qwen Agent                 |
-| ---------------------------------------------------- | ------------------- | ------------------------------------------- | ---------------------------- | -------------------------- |
-| Markdown rules 讀取                                  | ✅                  | ✅                                          | ✅                           | ✅                         |
-| Read/Write/Edit tools                                | ✅                  | ✅                                          | 🟡 命名可能不同              | 🟡 需 adapter              |
-| Bash tool                                            | ✅                  | ✅                                          | 🟡 sandbox 限制              | 🟡 需 shell access         |
-| Sub-agent dispatch（Task）                           | ✅                  | ✅                                          | 🟡 機制可能不同              | 🔴 需重寫                  |
-| MCP server（`.mcp.json`）                            | ✅                  | 🟡 web 載入待證                             | 🟡 是否採 Anthropic MCP 標準 | 🔴 通常無 MCP；需 CLI 直呼 |
-| `settings.local.json` hooks                          | ✅                  | 🟡 sandbox 環境不同                         | 🔴 不同 hook 系統            | 🔴 需自實作                |
-| Discussion vs Execution mode                         | ✅（system-prompt） | ✅                                          | 🟡 mode 概念可能不同         | 🟡 需 prompt engineering   |
-| 持久 file system                                     | ✅                  | 🟡 sandbox session-bounded（git push 補位） | 🟡 視 sandbox                | 🟡 視部署                  |
-| 跨 session state（PENDING_ACTIONS / ROUTING_TICKET） | ✅                  | 🟡 + git push 後可恢復                      | 🟡 視 session model          | 🟡 需 implementation       |
-| mempalace CLI 存取                                   | ✅                  | 🟡 視 sandbox 含 Python/pip                 | 🟡 視 sandbox                | 🟡 sandbox decide          |
-| Workflow stages（10 階段）                           | ✅                  | ✅                                          | ✅（Markdown 層）            | 🟡 + prompt 強化           |
-| Iron-themes immutability                             | ✅                  | ✅                                          | ✅                           | ✅                         |
+| Capability                                           | Claude Code CLI         | Claude Code Web                             | Antigravity                                                                        | Qwen Agent                                                              |
+| ---------------------------------------------------- | ----------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Markdown rules 讀取                                  | ✅                      | ✅                                          | ✅                                                                                 | ✅                                                                      |
+| Read/Write/Edit tools                                | ✅                      | ✅                                          | 🟡 命名可能不同                                                                    | 🟡 需 adapter                                                           |
+| Bash tool                                            | ✅                      | ✅                                          | 🟡 sandbox 限制                                                                    | 🟡 需 shell access                                                      |
+| Sub-agent dispatch（Task）                           | ✅ parallel mode opt-in | ✅ parallel mode opt-in                     | 🟡 **僅 browser_subagent**；走 serial mode（PROPOSAL_502_021 Sprint A 後 default） | 🟡 走 serial mode（PROPOSAL_502_021 Sprint A 後 default）               |
+| MCP server（`.mcp.json`）                            | ✅                      | 🟡 web 載入待證                             | 🟢 **IDE 自有 MCP 註冊**（**非 .mcp.json**；2026-05-02 實證）                      | 🟢 **MCP 可用**（User 實證 2026-05-04；自有註冊機制；非 `.mcp.json`）   |
+| `settings.local.json` hooks                          | ✅                      | 🟡 sandbox 環境不同                         | 🟢 **改用 git pre-commit hook**（PROPOSAL_502_021 Sprint B-5；harness-neutral）    | 🟢 **改用 git pre-commit hook**（同 Antigravity；不依賴 LLM-side hook） |
+| Discussion vs Execution mode                         | ✅（system-prompt）     | ✅                                          | 🟡 mode 概念可能不同                                                               | 🟡 需 prompt engineering                                                |
+| 持久 file system                                     | ✅                      | 🟡 sandbox session-bounded（git push 補位） | 🟡 視 sandbox                                                                      | 🟡 視部署                                                               |
+| 跨 session state（PENDING_ACTIONS / ROUTING_TICKET） | ✅                      | 🟡 + git push 後可恢復                      | 🟡 視 session model                                                                | 🟡 需 implementation                                                    |
+| mempalace CLI 存取                                   | ✅                      | 🟡 視 sandbox 含 Python/pip                 | 🟡 視 sandbox                                                                      | 🟡 sandbox decide                                                       |
+| Workflow stages（10 階段）                           | ✅                      | ✅                                          | ✅（Markdown 層）                                                                  | 🟡 + prompt 強化                                                        |
+| Iron-themes immutability                             | ✅                      | ✅                                          | ✅                                                                                 | ✅                                                                      |
 
 ✅ = 完整支援；🟡 = 大致支援需注意；🔴 = 主要落差需 adapter
 
@@ -56,33 +58,34 @@
 
 **部署建議**：可用；功能 70-80%；MCP/hooks 不確定的功能跳過或手動執行。
 
-### 3.3 Antigravity 🟡
+### 3.3 Antigravity 🟢（**已實機驗證 2026-05-02**）
 
-**未實測**。基於公開資訊推論：
+**已實測**。完整實機回報：Node v24.13 / Python 3.12.13 / mempalace 3.3.3 全達標。
 
-| 限制                            | 影響                                  | Workaround                                                |
-| ------------------------------- | ------------------------------------- | --------------------------------------------------------- |
-| MCP 標準是否相容 Anthropic MCP  | mempalace MCP 可能無法 plug-and-play  | 改用 mempalace CLI 直呼（不依賴 MCP）                     |
-| Sub-agent dispatch 機制可能不同 | Task tool API 名稱 / payload 可能不同 | 寫 dispatch adapter（見 §四 T-2 harness-adapter-pattern） |
-| Hook 系統可能不同               | post-commit / patrol 自動化失效       | 替代 hook 或手動觸發                                      |
-| 工具命名差異                    | Read/Write/Edit/Bash 可能叫別的       | adapter 抽象工具呼叫                                      |
+| 限制                                 | 影響                                                         | Workaround / 實機狀態                                                                      |
+| ------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| MCP 註冊**不用 `.mcp.json`**         | Antigravity 自有 MCP 註冊機制（IDE Settings）                | 不影響功能；改在 IDE Settings 加 mempalace server                                          |
+| `.claude/settings.local.json` 不被讀 | Claude Code 風格 hook 失效                                   | 手動跑 `mempalace mine` 或 git post-commit hook                                            |
+| **Sub-agent 僅 browser_subagent**    | @Auditor 5 並行 / @Retro 多情境 simulation 不可並行          | 改串行（5x 慢；功能等價）；或大型 audit 改用 Claude CLI 跑                                 |
+| 工具命名完全不同                     | Read→view_file / Write→write_to_file / Bash→run_command / 等 | LLM 自動 mapping；framework 文字描述需 mental translation（見 INSTALL_ANTIGRAVITY.md §三） |
+| `mempalace status` CLI 報失敗        | 實際 MCP 路徑可用                                            | 走 `mcp_mempalace_*` 工具；忽略 CLI 失敗                                                   |
 
-**部署建議**：先小範圍 dogfooding（cold start + 簡單任務）；驗證後再決投入 adapter 開發。
+**部署建議**：依 `INSTALL_ANTIGRAVITY.md`；可跑日常開發任務；大規模並行 audit 推薦另環境執行。
 
-### 3.4 自建 Qwen Agent 🟡
+### 3.4 自建 Qwen Agent 🟡（**2026-05-04 修正：MCP 可用**）
 
-| 落差                                                   | 投入                                   |
-| ------------------------------------------------------ | -------------------------------------- |
-| Sub-agent dispatch 完全自實作                          | 6-10h                                  |
-| MCP 整合：要嘛實 MCP client，要嘛改用 CLI 直呼         | 4-6h（CLI 路線）/ 10-15h（MCP client） |
-| Hook 系統自實作                                        | 2-4h                                   |
-| Discussion vs Execution mode 完全靠 prompt engineering | 2-4h（system prompt 調優）             |
-| Persona drift 重測（Qwen vs Claude baseline 不同）     | 2-4h                                   |
-| Tool 命名 + payload 對齊                               | 2-4h                                   |
+| 落差                                                           | 投入                                                             |
+| -------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Sub-agent dispatch 完全自實作（或走 serial mode；推薦 serial） | 0h（serial 通用）/ 6-10h（parallel 實作）                        |
+| MCP 整合：**Qwen-Agent 框架支援 MCP**（User 實證 2026-05-04）  | 0h（直接使用）；adapter 詳 `tasks/harness-adapter-pattern.md §B` |
+| Hook 系統自實作（或走 git pre-commit hook）                    | 0-2h（git hook）/ 2-4h（自實作 LLM-side hook）                   |
+| Discussion vs Execution mode 完全靠 prompt engineering         | 2-4h（system prompt 調優）                                       |
+| Persona drift 重測（Qwen vs Claude baseline 不同）             | 2-4h                                                             |
+| Tool 命名 + payload 對齊                                       | 2-4h                                                             |
 
 **Persona stability 警告**：Qwen 模型 drift_score 可能 < Claude baseline 0.883；需重跑 `agent-drift-simulator` 評估，drift_score < 0.70 時 framework 部分 rule 自評可能失準。
 
-**部署建議**：先確認 Qwen-Agent 框架的 sub-agent + tool 機制；寫 adapter 層；完成後重測 drift baseline + 27 情境模擬。
+**部署建議**：直接使用 Qwen-Agent MCP 機制接 mempalace；sub-agent 走 serial mode（PROPOSAL_502_021 Sprint A 後 default）；hooks 走 git pre-commit；最低工時 ~6-10h（drift 重測 + tool naming + prompt engineering；MCP / sub-agent / hooks 全可用 baseline）。
 
 ---
 

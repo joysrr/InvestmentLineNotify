@@ -32,7 +32,7 @@ related_decisions: [ADR-0001, ADR-0010, ADR-0011]
 | Memory Palace（v2.0 Wings/Rooms/Drawers；ADR-0039 MemPalace primary + markdown SoT backup 雙寫設計；PROPOSAL_502_017 Q-9） | `skills/memory-palace-schema.md` v2.0 + `skills/memory-operations.md`                                                 | rooms：architecture / strategy_context / debug_graveyard / general（4 rooms；framework + per-workspace Wings；MCP=primary, markdown=git audit + re-mine source） |
 | Rule_category 分類 / token tier（PROPOSAL_502_017 Q-9）                                                                    | `decisions/0038-tier-based-rule-budget.md` + `RULES_METADATA_SCHEMA.md §84` + `tests/rule-token-budget-validator.mjs` | 4 tier: meta(500) / worker(1500) / orchestrator(1800) / central_orchestrator(2500) + iron_theme(600)；judgement 5 原則（PROPOSAL_502_011 amend）                 |
 | Rules 瘦身 / 骨架原則                                                                                                      | `RULES_DESIGN_GUIDE.DESIGN.md §三` + 本檔                                                                             | 模板外部化 + 骨架/血肉                                                                                                                                           |
-| Auditor 5 維度評分                                                                                                         | `skills/auditor-rubric-prompts.md`（18 Fragments）+ `decisions/0005-auditor-periodic-scoring.md`                      | 5 並行 Explore SOP                                                                                                                                               |
+| Auditor 5 維度評分                                                                                                         | `skills/auditor-rubric-prompts.md`（18 Fragments）+ `decisions/0005-auditor-periodic-scoring.md`                      | mode-aware：serial 5 輪通用 / parallel Claude Code opt-in（PROPOSAL_502_021 Sprint A）                                                                           |
 | DoD 自評                                                                                                                   | `skills/templates/dod-audit-template.md` + per-agent dod-checklist.md                                                 | `decisions/0013-dod-self-audit.md`                                                                                                                               |
 
 **使用方式**：討論模式中 @Lead 識別主題 → 查表 → `read_artifact(category, name)` 載入 → 引用回答。
@@ -85,15 +85,15 @@ related_decisions: [ADR-0001, ADR-0010, ADR-0011]
 
 ## 四、技術操作技能映射（Skills Mapping）
 
-| 操作情境                                                      | 應附帶的 Skill                                                                      |
-| ------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| 執行部署或伺服器設定                                          | workspace `DEPLOYMENT_SOP` 欄位（參照 `.agents/workspaces/<CURRENT_WORKSPACE>.md`） |
-| 規劃架構時遇到雲端與本地資源限制評估                          | `.agents/skills/infra-constraints.md`                                               |
-| 第 6.5 階段 `@Security` 資安審查（範疇判斷 + Checklist 執行） | `.agents/skills/security-audit.md`                                                  |
-| 設計新模組（≥ 500 行 / ≥ 3 業務子流程）                       | `.agents/skills/orchestrator-pattern.md`（PROPOSAL_024 / ADR-0033）                 |
-| 派發任務需寫 ROUTING_TICKET（PROPOSAL_023 必）                | `.agents/skills/routing-ticket-protocol.md`                                         |
-| 多 Phase 提案執行需雙維度追蹤（PROPOSAL_019 F-2）             | `.agents/skills/checklists/dual-tracking-checklist.md`                              |
-| 派遣 5 並行 @Auditor sub-agents                               | `.agents/skills/auditor-rubric-prompts.md`（18 Fragment）                           |
+| 操作情境                                                      | 應附帶的 Skill                                                                                              |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| 執行部署或伺服器設定                                          | workspace `DEPLOYMENT_SOP` 欄位（參照 `.agents/workspaces/<CURRENT_WORKSPACE>.md`）                         |
+| 規劃架構時遇到雲端與本地資源限制評估                          | `.agents/skills/infra-constraints.md`                                                                       |
+| 第 6.5 階段 `@Security` 資安審查（範疇判斷 + Checklist 執行） | `.agents/skills/security-audit.md`                                                                          |
+| 設計新模組（≥ 500 行 / ≥ 3 業務子流程）                       | `.agents/skills/orchestrator-pattern.md`（PROPOSAL_024 / ADR-0033）                                         |
+| 派發任務需寫 ROUTING_TICKET（PROPOSAL_023 必）                | `.agents/skills/routing-ticket-protocol.md`                                                                 |
+| 多 Phase 提案執行需雙維度追蹤（PROPOSAL_019 F-2）             | `.agents/skills/checklists/dual-tracking-checklist.md`                                                      |
+| @Auditor 5 維度評估（serial default / parallel opt-in）       | `.agents/skills/auditor-rubric-prompts.md`（18 Fragment）+ `tasks/auditor-dispatch-checklist.md` mode-aware |
 
 ---
 

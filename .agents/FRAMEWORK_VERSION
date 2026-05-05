@@ -3,16 +3,16 @@
 # 更新時機：每次觸發 major/minor bump 的提案執行 Phase E 時，由 @Lead 同步
 # patch 版本僅用於修 typo / 回溯記錄；不需要必然更新此檔
 
-framework_version: v6.28
-release_date: 2026-05-02
-baseline_proposal: PROPOSAL_20260502_019
+framework_version: v7.0
+release_date: 2026-05-04
+baseline_proposal: PROPOSAL_20260502_027
 
 proposals_included:
-  total: 107
-  framework: 107
+  total: 115
+  framework: 115
   project: 0
 
-last_included_proposal: PROPOSAL_20260502_019
+last_included_proposal: PROPOSAL_20260502_027
 
 auditor_baseline:
   last_audit_date: 2026-05-02   # PROPOSAL_502_018 R-7 sync（v6.21→v6.26 5 sprint 補測 baseline）

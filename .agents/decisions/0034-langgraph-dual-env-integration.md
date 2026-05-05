@@ -62,8 +62,8 @@ START → lead → [conditional 4-way: planner / auditor / assistant / retro]
   security → [conditional: fail / qa_verification]
   qa_verification → assistant → retro → END
 
-Auditor sub-flow（target_agent="@Auditor" 時）：
-  auditor_dispatch → [5 並行 dim_1..5] → auditor_aggregate → END
+Auditor sub-flow（target_agent="@Auditor" 時；PROPOSAL_502_021 Sprint A 後 mode-aware）：
+  auditor_dispatch → [5 dim_1..5（serial default / parallel opt-in）] → auditor_aggregate → END
 ```
 
 **70% static**：核心階段順序鎖死（規則執行率↑）

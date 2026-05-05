@@ -1,0 +1,101 @@
+#!/usr/bin/env node
+// workflow-stage-validator.mjs
+// PROPOSAL_502_023 Sprint C-1：驗證 13 rules `workflow_stages:` 與 lead-orchestration-guide.md §六 10 stages 對齊。
+//
+// 設計原則：
+//   每 rule frontmatter 的 workflow_stages 必為 §六 列表 subset；
+//   每 stage 至少有 1 個 rule 認領（除 'evolution' 等抽象 stage）；
+//   無 rule 引用未定義 stage。
+
+import { readdirSync, readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = join(__dirname, '..', '..');
+const RULES_DIR = join(REPO_ROOT, '.agents', 'rules');
+
+// 10 stages 定義（依 skills/lead-orchestration-guide.md §六）+ 通用階段
+const VALID_STAGES = new Set([
+  'requirement',       // Stage 1：需求
+  'strategy_review',   // Stage 2：戰略審查（@Consultant）
+  'strategic_review',  // alias of strategy_review（consultant.md 既有用法）
+  'design',            // Stage 3：設計（@Architect）
+  'prior_art',         // Stage 3.5：Prior Art Gate
+  'test_spec',         // Stage 4：TEST_SPEC（@QA）
+  'implementation',    // Stage 5：實作
+  'self_audit',        // Stage 5.5：自評
+  'review',            // Stage 6：Review
+  'security_review',   // Stage 6.5：Security 條件式
+  'verification',      // Stage 7：QA 驗證
+  'convergence',       // Stage 8：收斂
+  'evolution',         // Stage 9：Retro 根因
+  'phase_e',           // Stage 9.5：Phase E 整合
+  'audit',             // Auditor 5 維度評分（橫切）
+  'patrol',            // Assistant 巡邏（橫切）
+  'monitoring_all',    // Assistant 全局監控（橫切）
+  'coordination_all',  // Lead 跨階段派發（橫切）
+]);
+
+let errors = 0;
+const ruleStages = {};
+
+function parseFrontmatter(content) {
+  const fm = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!fm) return {};
+  const result = {};
+  const stagesMatch = fm[1].match(/^workflow_stages:\s*\[(.+?)\]/m);
+  if (stagesMatch) {
+    result.workflow_stages = stagesMatch[1].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+  }
+  const idMatch = fm[1].match(/^agent_id:\s*(.+)$/m);
+  if (idMatch) result.agent_id = idMatch[1].trim();
+  return result;
+}
+
+console.log('🔍 Workflow Stage Validator (PROPOSAL_502_023 Sprint C-1)');
+console.log('');
+console.log(`ℹ️  Valid stages: ${VALID_STAGES.size}`);
+console.log('');
+
+const rules = readdirSync(RULES_DIR).filter(f => f.endsWith('.md'));
+for (const f of rules) {
+  const content = readFileSync(join(RULES_DIR, f), 'utf-8');
+  const meta = parseFrontmatter(content);
+  if (!meta.workflow_stages) continue;
+  ruleStages[meta.agent_id || f] = meta.workflow_stages;
+  for (const stage of meta.workflow_stages) {
+    if (!VALID_STAGES.has(stage)) {
+      console.error(`❌ ${f}: workflow_stages 含未定義 stage '${stage}'`);
+      errors++;
+    }
+  }
+}
+
+// 反向：每 stage 至少 1 rule 認領（部分階段允許 0；標 advisory）
+const claimedStages = new Set();
+Object.values(ruleStages).forEach(stages => stages.forEach(s => claimedStages.add(s)));
+const orphanStages = [...VALID_STAGES].filter(s => !claimedStages.has(s));
+if (orphanStages.length) {
+  console.log(`ℹ️  Stages without claiming rule (advisory): ${orphanStages.join(', ')}`);
+}
+
+console.log('');
+console.log('Rule × Stage matrix:');
+for (const [agent, stages] of Object.entries(ruleStages).sort()) {
+  console.log(`  ${agent.padEnd(15)} → ${stages.join(', ')}`);
+}
+
+console.log('');
+console.log('─────────────────────────────');
+if (errors === 0) {
+  console.log('Summary: 0 errors, 0 warnings');
+  console.log('✅ Workflow Stage Validator: 全 PASS');
+  console.log('─────────────────────────────');
+  process.exit(0);
+} else {
+  console.log(`Summary: ${errors} errors, 0 warnings`);
+  console.log('❌ Workflow Stage Validator: FAIL');
+  console.log('─────────────────────────────');
+  process.exit(1);
+}

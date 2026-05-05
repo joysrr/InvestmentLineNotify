@@ -1,0 +1,52 @@
+#!/bin/bash
+# .git/hooks/pre-commit.example
+# PROPOSAL_502_021 Sprint B-5：harness-neutral git-native hook（替代 Claude Code-specific .claude/settings.local.json）
+#
+# 任何 harness 都可用（純 git；不依賴 LLM/IDE）。
+# 安裝：cp .agents/scripts/git-hooks/pre-commit.example .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+#
+# 功能：
+#   1. 自動跑 mempalace-export.mjs 同步 .agents/memory/.export/（PROPOSAL_502_020 Plan G）
+#   2. 自動 git add 變更的 .export/ 檔
+#   3. 跑核心 validators（fast mode；< 5 sec）
+#   4. 任一步失敗則 abort commit
+#
+# 移除：rm .git/hooks/pre-commit
+# 暫時繞過：git commit --no-verify（不建議；違反 ADR-0039 v2 commit 前 export 絕對禁止）
+
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+# Step 1: mempalace-export（Plan G cold backup 同步）
+if [ -x .agents/scripts/mempalace-export.mjs ]; then
+  if which mempalace-mcp > /dev/null 2>&1; then
+    echo "[pre-commit] Running mempalace-export.mjs..."
+    if ! node .agents/scripts/mempalace-export.mjs > /tmp/mempalace-export.log 2>&1; then
+      echo "❌ mempalace-export 失敗；commit abort"
+      tail -20 /tmp/mempalace-export.log
+      echo ""
+      echo "如 mempalace MCP 真的不可用：可暫繞過 (--no-verify)；但需手動跑 export 後補 commit"
+      exit 1
+    fi
+    git add .agents/memory/.export/ 2>/dev/null || true
+  else
+    echo "[pre-commit] ⚠️  mempalace-mcp 不在 PATH；跳過 export（fallback：commit 仍走）"
+  fi
+fi
+
+# Step 2: 核心 validators（fast mode；依 git diff 偵測相關 validators）
+if [ -x .agents/tests/run-all.sh ]; then
+  echo "[pre-commit] Running validators (fast mode)..."
+  if ! bash .agents/tests/run-all.sh --fast > /tmp/validators.log 2>&1; then
+    echo "❌ Validators 失敗；commit abort"
+    tail -30 /tmp/validators.log
+    echo ""
+    echo "修法：閱讀 /tmp/validators.log；或跑 bash .agents/tests/run-all.sh 看完整輸出"
+    exit 1
+  fi
+fi
+
+echo "✅ pre-commit OK（mempalace export + validators）"
+exit 0

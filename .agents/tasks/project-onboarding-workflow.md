@@ -39,27 +39,32 @@ referenced_by:
 - **驗證收尾**：執行 `node .agents/tests/workspace-schema-validator.mjs` 通過方可結束 onboarding
 - **雙軌共用原則**：軌道 A（AI 對話）與軌道 B（CLI）皆遵守上述原則；CLI 動態讀取 schema 不硬編碼欄位
 
-## 引導模式
+## 引導模式（PROPOSAL_502_024 amended：軌道 A 為 default）
 
-現提供**三軌並存**的引導選擇；三者最終產出與驗證出口一致（均執行 `workspace-schema-validator.mjs`）。
+> **核心原則**：User 0 腳本呼叫；agent 全自動代執行（`.agents/skills/agent-script-orchestration.md`）。
 
-### 軌道 A：@Lead AI 對話引導（原流程）
+### 軌道 A：Agent-Driven Onboarding（**default；推薦所有環境**）
+
+完整 playbook：`.agents/skills/agent-driven-onboarding.md`
+
+特點：
+
+- Agent auto-detect 80% 欄位（package.json / git remote / 子目錄結構）
+- 必要時 multi-choice 詢問 User（≤ 3 題；非 free-form）
+- Optional 欄位 defer（首次 dispatch 時補）
+- Windows / Qwen / Antigravity 100% 相容（Read/Write/LS/Bash tools；無 stdin readline 依賴）
+- User 端 0 命令執行
+
+適用：**任何 LLM 環境的新 workspace 建立**。
+
+### 軌道 B：互動式 CLI 引導（**fallback only**）
+
+⚠️ Windows 環境 readline TTY 不穩；Qwen 環境可能 hang；非 LLM 純 shell 才考慮。
 
 適用：
 
-- 需要解釋欄位意義、業務脈絡複雜需 Q&A
-- 熔斷檢查發現缺 `tech-stacks/*.md` 需 User 決策是否新建提案
-- 新手使用者不熟 CLI 操作
-
-流程：依本文件 §6 步驟流程 由 `@Lead` 逐欄對話收集。
-
-### 軌道 B：互動式 CLI 引導
-
-適用：
-
-- 多專案批次建立
-- 脫離 AI 對話的快速初始化（如 CI scaffold / 新 repo git init 後）
-- User 已熟悉 schema 欄位意義
+- 純 terminal 無 LLM access（極罕見）
+- User 明示「我要自己跑互動 CLI」
 
 執行方式：
 

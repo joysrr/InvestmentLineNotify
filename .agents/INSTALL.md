@@ -6,7 +6,35 @@
 > **適用對象**：solo developer 想在新專案啟用此框架；既有專案想導入。
 > **預估時間**：30-60 分鐘（首次；含 mempalace 安裝與測試）。
 >
-> **版本對齊**：框架 v6.27（2026-05-02）；MemPalace 3.3.4+。
+> **版本對齊**：框架 v6.33（2026-05-04）；MemPalace 3.3.4+；Python 3.9+。
+
+## §0 部署原則 + 跨平台前置
+
+> **核心原則**（PROPOSAL_502_024）：framework 是 **agent 架構**；user 不執行任何 framework
+> 內部腳本。本檔的 `bash` / `python` 區塊**多數標 [Agent 自動]**；user 自跑只在
+> [User 必跑] 標記的 bootstrap 環節（pip install / git clone 等 framework 還沒裝起來時）。
+
+### Windows 用戶 bootstrap 前置
+
+framework 內含 6 個 bash 腳本（PROPOSAL_502_025 後正逐步遷 Python）。
+Windows 用戶請先擇一：
+
+| 選項                                             | 說明                                   |
+| ------------------------------------------------ | -------------------------------------- |
+| ✅ **WSL 2**                                     | 推薦；完整 Linux 環境；無相容性問題    |
+| ✅ **Git Bash**（Git for Windows 內建）          | 多數 IDE Bash tool 後端；夠用          |
+| ✅ **Claude Code / Qwen Code / Antigravity IDE** | 內建 Bash backend；agent 跑無問題      |
+| ❌ Windows native cmd / PowerShell               | bash 腳本不可跑（純 Python 部分仍 OK） |
+
+mac / Linux：原生支援；無前置。
+
+### 標記制度
+
+文中所有命令區塊冠以下 3 種標記之一：
+
+- **[User 必跑]**：framework 還沒就位前的 bootstrap；user 必須在 terminal 自跑
+- **[Agent 自動]**：framework 就位後的 daily ops；agent 用 Bash/run_command tool 代執行
+- **[Reference]**：說明用途；不需執行
 
 ---
 
@@ -98,9 +126,13 @@ ROUTING_TICKET.md.snapshot.*
 
 ## 三、Phase 2：MemPalace 安裝 + 初始化
 
+> **本節 [User 必跑]**：mempalace 還沒裝起來時，agent 也用不了 mempalace MCP。
+> 是 framework 4 個 bootstrap 例外之一（agent-script-orchestration §7）。
+
 ### 3.1 安裝套件
 
 ```bash
+# [User 必跑] — bootstrap；agent 還沒能用 mempalace
 pip install mempalace>=3.3.4
 mempalace --version              # 確認 ≥ 3.3.4
 which mempalace-mcp              # MCP server 命令；必須有
@@ -113,12 +145,26 @@ mempalace init                   # 在 ~/.mempalace/ 建立資料庫
 mempalace status                 # 應顯示「palace 已 init；0 drawers」
 ```
 
-### 3.3 首次採礦（從 framework markdown SoT）
+### 3.3 首次採礦（v2 Plan G：從 cold export 來源）
 
 ```bash
-mempalace mine .agents/memory/ --yes --auto-mine --no-llm
-mempalace status                 # 應顯示 ≥ 5 drawers（framework debug_graveyard 條目）
+# v2：來源從 .agents/memory/ 改 .agents/memory/.export/（每 drawer 一檔；ratio 1:1）
+mempalace mine .agents/memory/.export/
+mempalace status                 # 應顯示 ≥ 25 drawers（framework + workspace export 總和）
 ```
+
+> v1 用的 `--yes --auto-mine --no-llm` 是 `mempalace init` 的 flags；`mine` 沒這些 flags（PROPOSAL_502_020 T-1 調查時釐清）。
+
+### 3.4 Cold export 驗證（Plan G 核心）
+
+```bash
+node .agents/scripts/mempalace-export.mjs --dry-run --verbose
+# 應列出每 drawer would write to .agents/memory/.export/<wing>/<room>/<id>.md
+node .agents/scripts/mempalace-export.mjs
+# 實際 export；確保 `.agents/memory/.export/` 與 mempalace 同步
+```
+
+> Plan G 設計：mempalace = primary SoT（ChromaDB user-global，不跟專案走）；`.export/` = cold backup（commit 進 git；zip 帶走）。每次寫入後（或 commit 前）跑 export 同步。
 
 ---
 
@@ -153,26 +199,53 @@ mempalace status                 # 應顯示 ≥ 5 drawers（framework debug_gra
 
 ## 五、Phase 4：建立第一個 workspace
 
+> **PROPOSAL_502_024 後**：onboarding **不要 User 跑腳本**；對 LLM 說「幫我建 workspace」即可。
+> Agent 走 `.agents/skills/agent-driven-onboarding.md` 自動偵測 + 寫檔 + 驗證。
+> 任何環境（Windows / Qwen / Antigravity）通用。
+
 ### 5.1 選擇 onboarding 路徑
 
-| 你的情境                  | 走哪條                    |
-| ------------------------- | ------------------------- |
-| **綠地新專案**（無 src/） | §5.2 互動 CLI             |
-| **既有專案**（已有 src/） | §5.3 import workflow      |
-| **不確定**（想看選項）    | §5.2 先用 CLI；中途可中止 |
+| 你的情境                      | 走哪條                                                                       |
+| ----------------------------- | ---------------------------------------------------------------------------- |
+| **任何 LLM 環境（推薦）**     | §5.2 對 agent 說「幫我建 workspace」（agent-driven）                         |
+| **既有專案**（已有 src/）     | §5.3 import workflow（agent 走 `tasks/existing-project-import-workflow.md`） |
+| **純 shell 無 LLM**（極罕見） | §5.4 互動 CLI（fallback；Windows 不穩）                                      |
 
-### 5.2 互動 CLI（綠地推薦）
+### 5.2 Agent-driven onboarding（**推薦 default**）
+
+直接對 LLM 說：
+
+> 「幫我啟動新專案 onboarding，workspace 名稱 `<name>`」
+>
+> 或更簡單：「幫我建 workspace」（agent 自動從目錄名 / git remote 推導）
+
+Agent 會：
+
+1. Read `package.json` / `pom.xml` / 等檔自動偵測 tech-stacks
+2. LS 子目錄推導 domains 候選
+3. 必要時用 multi-choice 問你（≤ 3 題；不會 free-form 問細節）
+4. Write 出 `.agents/workspaces/<name>.md` + `CURRENT_WORKSPACE`
+5. Bash 跑 `workspace-schema-validator.mjs` 驗證
+6. mempalace wake-up 注入跨 session 上下文
+
+**完整 playbook**：`.agents/skills/agent-driven-onboarding.md`
+
+### 5.4 互動 CLI（fallback；Windows 不穩；極罕見才用）
+
+⚠️ Windows readline TTY 行為不穩；Qwen Code stdin pipe 可能 hang；**任何 LLM 環境直接走 §5.2 agent-driven**。
+
+僅在「純 shell 無 LLM」時用：
 
 ```bash
 cd <你的專案根>
 node .agents/scripts/init-workspace.mjs --name <project_snake_case>
 ```
 
-依提示填欄位；`--dry-run` 可先預覽不寫檔。完成後：
+完全非互動（CI/CD 自動化）走 yaml：
 
-- `workspaces/<name>.md` 建立
-- `.agents/CURRENT_WORKSPACE` 寫入
-- 自動跑 `mempalace wake-up` 注入 L0+L1 上下文
+```bash
+node .agents/scripts/init-workspace.mjs --config /path/to/init.yaml --force
+```
 
 詳：`.agents/workspaces/README.md`。
 
@@ -195,19 +268,24 @@ node .agents/scripts/init-workspace.mjs --name <ws_name>
 # Step 4: audit baseline（首次掃描報告）
 # → 後續派 @Architect 出 EXISTING_CODEBASE_REPORT.md
 
-# Step 5: 完成
-mempalace mine .agents/workspaces/<ws_name>/memory/
+# Step 5: 完成（v2 Plan G：用 export 同步）
+mempalace mine .agents/workspaces/<ws_name>/memory/.export/   # 若 workspace 已有 .export/
+node .agents/scripts/mempalace-export.mjs --wing <wing_name>  # 反向同步至 .export/
 ```
 
 ---
 
 ## 六、Phase 5：First validation（驗證部署）
 
-### 6.1 跑 15 validators
+> **本節 [Agent 自動]**：framework 已就位後，validator 由 agent 用 Bash tool 自動跑；
+> user 對 agent 說「驗證部署」即可。下方命令為 [Reference]。
+
+### 6.1 跑 18 validators
 
 ```bash
+# [Agent 自動執行] — user 不需自跑
 bash .agents/tests/run-all.sh
-# 期望：✅ All validation passed (15 validators 全 0 errors / 0 warnings)
+# 期望：✅ All validation passed (18 validators 全 0 errors / 0 warnings)
 ```
 
 任一 fail → 對應 validator 細節：
@@ -256,6 +334,9 @@ ls PENDING_ACTIONS.md ROUTING_TICKET.md 2>&1
 
 ## 八、日常維護（部署後）
 
+> **本章全 [Agent 自動]**：對 agent 自然語言陳述需求即可（「接新任務」/「切 workspace」/「採納 PROPOSAL_X」/「跑驗證」）；agent 自動用 Bash/run_command tool 執行下列命令。User 不需離開對話視窗。
+> 下方所有 `bash` 區塊都是 [Reference]，不是命令式。
+
 ### 8.1 接新任務
 
 直接對 Claude Code 說即可；@Lead 自動走對應 workflow：
@@ -294,6 +375,43 @@ User: 採納 PROPOSAL_<id>
 | 每 10 工作對話       | @Auditor 自動觸發 | （rules 內建；不需手動）                                            |
 | Drawer count > 1000  | compress          | `mempalace compress --dry-run` 預覽後 `--yes` 執行                  |
 | 完成提案 ≥ 10 未歸檔 | @Retro 批次歸檔   | （retro.md §s09 自動觸發）                                          |
+
+### 8.x Harness Loader 載入策略（PROPOSAL_502_022 O-1/O-2）
+
+**設計目標**：把每次 dispatch 的 token 注入降到必要量；節省 25-35%。
+
+**Rules（13 個 + 6 iron-themes）載入策略**：
+
+| 檔案類型                  | 載入時機                                                          | 範圍               |
+| ------------------------- | ----------------------------------------------------------------- | ------------------ |
+| `rules/system-prompt.md`  | eager（每次必載）                                                 | meta；500 tokens   |
+| `rules/<active_agent>.md` | eager（被派發 agent 才載）                                        | 1,200-2,000 tokens |
+| `iron-rules/<theme>.md`   | eager **依 active rule 的 `applies_iron_themes`**；不在清單者不載 | 300-700 / theme    |
+| 其他 `rules/*.md`         | lazy（只在 LLM 需要查詢其他 agent 行為時 Read）                   | 不算入 baseline    |
+
+**Skills 載入策略**：
+
+| 檔案類型                        | 載入時機                                         |
+| ------------------------------- | ------------------------------------------------ |
+| `load_priority: lazy` 的 skill  | LLM 主動 Read 才載；不預載                       |
+| `load_priority: eager` 的 skill | 隨 active rule 預載（罕見；只 system-prompt 級） |
+| 無 `load_priority` 欄位         | default = lazy（≥ 3000 tokens 適用）             |
+
+**典型效果**（PROPOSAL_502_022 O-1+O-2+O-3）：
+
+- O-1：dispatch 只載 active agent 的 iron-themes（typically 1-3 個 vs 全 6 個）→ 省 ~1.5K
+- O-2：lead-orchestration-guide.md（8,280 tokens；lazy）等大 skill 不預載 → 省 ~5K（cold start 時）
+- O-3：mempalace.search default `limit=3` → 省 ~600/查詢
+- 合計每 dispatch 節省 ~25-35%
+
+**Harness 各自實作細節**：
+
+- Claude Code CLI：rules 自動載入；skills 透過 LLM Read 才開啟（已是 lazy）
+- Antigravity：IDE Settings 控制（參 INSTALL_ANTIGRAVITY.md §Phase 3）
+- Qwen-Agent：自有 MCP / file API；遵循同策略
+- 任何 harness：rules frontmatter `applies_iron_themes` 為機讀清單；loader 應 honor
+
+詳細成本分析：`.agents/docs/Reports/TOKEN_COST_ANALYSIS_REPORT.md`
 
 ---
 
@@ -351,26 +469,27 @@ User: 正式環境 X 壞了！
 
 ## 十、目錄速查
 
-| 路徑                        | 用途                                                                |
-| --------------------------- | ------------------------------------------------------------------- |
-| `.agents/rules/`            | 13 Agent rules（行為規範）                                          |
-| `.agents/skills/`           | 64+ skills（操作手冊；分 templates / examples / checklists 子目錄） |
-| `.agents/tasks/`            | 14+ tasks（workflow SOP）                                           |
-| `.agents/decisions/`        | 39 ADRs（架構決策；不可動）                                         |
-| `.agents/iron-rules/`       | 6 iron themes（鐵律；immutable）                                    |
-| `.agents/memory/`           | Markdown SoT backup（debug_graveyard）                              |
-| `.agents/workspaces/`       | Per-project 配置 + memory + proposals                               |
-| `.agents/proposals/`        | Framework scope 提案歷史                                            |
-| `.agents/tests/`            | 15 validators + scripts L1+L3                                       |
-| `.agents/scripts/`          | init-workspace + generators + hooks                                 |
-| `.agents/docs/`             | Framework 文件（PRODUCTION_READINESS / etc.）                       |
-| `.agents/CURRENT_WORKSPACE` | active workspace 名稱（單一檔；單行）                               |
-| `.agents/KNOWN_ISSUES.md`   | KI 條目追蹤（4 條 + observation）                                   |
-| `.agents/CHANGELOG.md`      | 框架版本歷史                                                        |
-| `.agents/FRAMEWORK_VERSION` | 當前版本 + drift_score baseline                                     |
-| `PENDING_ACTIONS.md`        | 專案根；@Assistant 維護；跨 session 狀態                            |
-| `ROUTING_TICKET.md`         | 專案根；@Lead 派發必寫                                              |
-| `.mcp.json`                 | 專案根；Claude Code MCP server 註冊                                 |
+| 路徑                        | 用途                                                                                    |
+| --------------------------- | --------------------------------------------------------------------------------------- |
+| `.agents/rules/`            | 13 Agent rules（行為規範）                                                              |
+| `.agents/skills/`           | 64+ skills（操作手冊；分 templates / examples / checklists 子目錄）                     |
+| `.agents/tasks/`            | 14+ tasks（workflow SOP）                                                               |
+| `.agents/decisions/`        | 39 ADRs（架構決策；不可動）                                                             |
+| `.agents/iron-rules/`       | 6 iron themes（鐵律；immutable）                                                        |
+| `.agents/memory/`           | Seed docs（cold-start re-mine 來源；v2 後不活躍維護）                                   |
+| `.agents/memory/.export/`   | **Cold export artifact**（mempalace-export.mjs 自動產；commit + zip 帶走；Plan G 核心） |
+| `.agents/workspaces/`       | Per-project 配置 + memory + proposals                                                   |
+| `.agents/proposals/`        | Framework scope 提案歷史                                                                |
+| `.agents/tests/`            | 15 validators + scripts L1+L3                                                           |
+| `.agents/scripts/`          | init-workspace + generators + hooks                                                     |
+| `.agents/docs/`             | Framework 文件（PRODUCTION_READINESS / etc.）                                           |
+| `.agents/CURRENT_WORKSPACE` | active workspace 名稱（單一檔；單行）                                                   |
+| `.agents/KNOWN_ISSUES.md`   | KI 條目追蹤（4 條 + observation）                                                       |
+| `.agents/CHANGELOG.md`      | 框架版本歷史                                                                            |
+| `.agents/FRAMEWORK_VERSION` | 當前版本 + drift_score baseline                                                         |
+| `PENDING_ACTIONS.md`        | 專案根；@Assistant 維護；跨 session 狀態                                                |
+| `ROUTING_TICKET.md`         | 專案根；@Lead 派發必寫                                                                  |
+| `.mcp.json`                 | 專案根；Claude Code MCP server 註冊                                                     |
 
 ---
 

@@ -47,6 +47,8 @@ modification_policy: |
 
 完整細則 + 實作協議：`skills/lead-orchestration-guide.md §一` + `skills/stateless-routing-pattern.md` + `skills/routing-ticket-protocol.md`。
 
+**CONVERSATION_COUNTER 跨 session 策略**（PROPOSAL_502_023 C-4）：PENDING_ACTIONS.md git-tracked 為 primary；fresh init 時 @Assistant 依 `LAST_CONVERSATION_ISO` wall-clock 推估補位；audit 週期（每 10 對話）對齊由 @Auditor 接觸發時讀 git log 推估補齊。絕對禁止手動清 counter 不通知 User。
+
 ---
 
 ## Applies_to Rules

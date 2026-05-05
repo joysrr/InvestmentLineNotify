@@ -3,22 +3,36 @@ adr_id: ADR-0010
 title: 平行審查制度（@Reviewer + @Security）
 status: Accepted
 date: 2026-04-21
+amended: 2026-05-04 # PROPOSAL_502_021 Sprint A：平行 → mode-aware（serial default / parallel opt-in）
 supersedes: []
 superseded_by: []
 related_proposals:
   - PROPOSAL_20260421_020
+  - PROPOSAL_20260502_021 # Sprint A：mode-aware dispatch
 referenced_by:
   - rules/reviewer.md
   - rules/security.md
   - rules/lead.md §s06
   - skills/security-audit.md
+  - tasks/hotfix-checklist.md
 ---
 
 # ADR-0010: 平行審查制度（@Reviewer + @Security）
 
 ## Status
 
-**Accepted** (2026-04-21)
+**Accepted** (2026-04-21) → **Amended** (2026-05-04 by PROPOSAL_502_021 Sprint A)
+
+### v2 (2026-05-04) Amendment
+
+原 v1：第 6 Review 與 6.5 Security **強制並行**（依賴 Claude Code sub-agent dispatch）。
+
+PROPOSAL_502_021 Sprint A 改為 **mode-aware**：
+
+- **serial（default；通用）**：@Lead 在同對話內先請 @Reviewer 出 review，再請 @Security 補資安審查；DoD 等價但耗時 2x
+- **parallel（opt-in；Claude Code 可用）**：@Reviewer 與 @Security 同步並行；縮短週期
+
+職責分離（§Decision §1）保持不變；衝突仲裁四層防線（§3）保持不變；只變更**執行 mode 是否強制並行**。詳 `tasks/hotfix-checklist.md` §Step 2 mode-aware 註記。
 
 ## Context
 

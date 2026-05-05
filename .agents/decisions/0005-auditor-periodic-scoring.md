@@ -3,24 +3,40 @@ adr_id: ADR-0005
 title: @Auditor 定期 5 維度評分機制
 status: Accepted
 date: 2026-04-22
+amended: 2026-05-04  # PROPOSAL_502_021 Sprint A：5 並行 → mode-aware（serial default / parallel opt-in）
 supersedes: []
 superseded_by: []
 related_proposals:
   - PROPOSAL_20260422_008
   - PROPOSAL_20260422_027
   - PROPOSAL_20260422_031
+  - PROPOSAL_20260502_021  # Sprint A：mode-aware dispatch
 referenced_by:
   - rules/auditor.md
   - rules/retro.md §定期 Judge 派遣
   - skills/auditor-rubric-prompts.md
   - tasks/audit-retro-coordination.md
+  - tasks/auditor-dispatch-checklist.md
 ---
 
 # ADR-0005: @Auditor 定期 5 維度評分機制
 
 ## Status
 
-**Accepted** (2026-04-22)
+**Accepted** (2026-04-22) → **Amended** (2026-05-04 by PROPOSAL_502_021 Sprint A)
+
+### v2 (2026-05-04) Amendment
+
+原 v1 設計：5 並行 Explore sub-agent 派遣（Claude Code Task tool 強依賴）。
+
+User 提出 framework 跨 harness 共用需求；經盤點 sub-agent dispatch 為最大 Claude Code 強依賴。
+
+PROPOSAL_502_021 Sprint A 採 **mode-aware dispatch**：
+
+- **serial（default；通用）**：@Auditor 在同對話內依序處理 5 維度；每維度走完強制要求 1-6；產 1 份 JSON；最後整合。所有 harness 適用。
+- **parallel（opt-in；Claude Code 可用）**：@Lead 派 5 並行 sub-agent；每個處理 1 維度；DoD 等價。
+
+DoD 兩 mode 完全等價；parallel 是優化（~5x faster）而非必須。詳 `rules/auditor.md §s03 執行模式` + `tasks/auditor-dispatch-checklist.md §Mode 選擇`。
 
 ## Context
 

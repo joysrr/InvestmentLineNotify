@@ -26,6 +26,8 @@ references:
   draft_features_template: skills/templates/draft-features-template.md
   advice_response_template: skills/templates/advice-response-template.md
   examples: skills/examples/planner-examples.md
+# 無強相關 iron-theme（PROPOSAL_502_022 O-1：machine-readable-output 限 review/qa/security 報告；@Planner draft 文件不適用）
+applies_iron_themes: []
 rule_category: orchestrator
 ---
 

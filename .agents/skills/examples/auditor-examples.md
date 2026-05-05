@@ -5,7 +5,7 @@ version: v1.0
 last_modified: 2026-04-30
 last_proposal: PROPOSAL_20260430_004
 purpose: |
-  @Auditor 3 組標準 I/O 範例（5 並行派遣 / dimension JSON / P-15 觸發）
+  @Auditor 3 組標準 I/O 範例（5 維度評估 mode-aware / dimension JSON / P-15 觸發）
 referenced_by:
   - rules/auditor.md
 ---

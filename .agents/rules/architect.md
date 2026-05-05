@@ -29,6 +29,8 @@ references:
   orchestrator_pattern: skills/orchestrator-pattern.md
   infra_constraints: skills/infra-constraints.md
   examples: skills/examples/architect-examples.md
+# 無強相關 iron-theme（PROPOSAL_502_022 O-1：明文標 [] 讓 harness loader 跳過所有 iron-themes）
+applies_iron_themes: []
 rule_category: worker
 ---
 
@@ -90,7 +92,7 @@ rule_category: worker
 
 **觸發**：@Lead Workflow 第 3 步呼叫。
 
-**前置 0 — Memory Palace**（ADR-0039）：`mempalace.search <模組關鍵詞>` 查 architecture / debug_graveyard；發現重複 → 警示 + 引用（`skills/memory-operations.md §2.1`）。
+**前置 0 — Memory Palace**（ADR-0039 v2）：`mempalace.search <模組關鍵詞>` 查重複 → 警示 + 引用；新 decision 寫入走 `mcp__mempalace__add_drawer`（`skills/memory-operations.md §2.1 §2.3`）。
 
 **前置 1 — 範疇評估**：依 §s03 → S/M/L 對應 DoD。
 
@@ -117,7 +119,7 @@ rule_category: worker
 **觸發**（兩入口；PROPOSAL_502_014 N-7 補 doc-sync mode 例外）：
 
 - **A. 標準收斂**：@Lead Workflow 第 7 步 + @QA `TEST_REPORT.md` 標「通過」 → 走完整收斂；**禁止提前**（@QA 未通過前）
-- **B. Doc-sync mode**（@Lead 派發 ROUTING_TICKET `task_class: doc-sync`）：純文件回填 / architecture.md 重生 / 無 src/ 變更場景；豁免 @QA 通過前置；DoD 簡化（只看 #1+#2+#3，不看 #4）
+- **B. Doc-sync mode**（@Lead 派發 ROUTING_TICKET `task_class: doc-sync`）：純文件回填 / architecture.md 重生 / 無 src/ 變更場景；豁免 @QA 通過前置；DoD 簡化（只看 #1+#2+#3，不看 #4）。**Stage 8b Gate 條件**（PROPOSAL_502_023 B-7 / HG-1）：豁免 @QA 後 Stage 8 Gate 改為 3 條件：(a) 簡化 DoD 三項全 ✅ (b) `docs/architecture.md` mtime 已更新 (c) 無 .py/.ts/.js src/ 變更（grep 確認）；通過 → 直進 Stage 9 @Retro
 
 **執行**：(1) 更新 `docs/architecture.md` 反映本次系統影響 (2) 更新 `docs/modules/` 受影響模組 (3) 確認 Mermaid 與最新狀態一致 (4) 回報 @Lead → 觸發 Artifact Confirmation。
 

@@ -25,6 +25,8 @@ constraints_ref:
   proposal_open_warn: !ref RULES_DESIGN_GUIDE.QUALITY.md#PROPOSAL_OPEN_WARN
   proposal_unarchived_warn: !ref RULES_DESIGN_GUIDE.QUALITY.md#PROPOSAL_UNARCHIVED_WARN
   proposal_total_warn: !ref RULES_DESIGN_GUIDE.QUALITY.md#PROPOSAL_TOTAL_WARN
+# 無強相關 iron-theme（PROPOSAL_502_022 O-1：machine-readable-output 限 review/qa/security 報告；@Retro proposal 不適用）
+applies_iron_themes: []
 rule_category: orchestrator
 ---
 
@@ -78,7 +80,9 @@ rule_category: orchestrator
 
 意圖衝突（ADR-0020）：對 `PROPOSAL_INDEX.md §🔗`；與 DONE 意圖相反 → §七 標「意圖繼承」+ INDEX 新增條目。
 
-**絕對禁止**：未執行 mempalace.wake-up + search + proposals 三層比對；第 3 次反覆未加警告；意圖相反未新增繼承條目。
+**Memory 寫入**（v2 Plan G；ADR-0039 v2）：retro 結論 / lesson 寫入走 `mcp__mempalace__add_drawer`（細則 `skills/memory-operations.md §2.3`）；commit 前跑 `mempalace-export.mjs` 同步 `.export/`。
+
+**絕對禁止**：未執行 mempalace.wake-up + search + proposals 三層比對；第 3 次反覆未加警告；意圖相反未新增繼承條目；MCP 寫入後 commit 前未跑 export（破壞 zip 攜帶）。
 
 </section>
 

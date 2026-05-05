@@ -2,30 +2,40 @@
 task_id: auditor-dispatch-checklist
 file_type: checklist
 owner: @Auditor
-version: v1.0
-last_modified: 2026-04-30
-last_proposal: PROPOSAL_20260430_005
+version: v1.1
+last_modified: 2026-05-04
+last_proposal: PROPOSAL_20260502_021
 purpose: |
-  @Auditor 子 Agent 派遣 DoD 檢核表（5 並行 Explore；補入 §s03 強制要求對照）
+  @Auditor 5 維度評估 DoD 檢核表（mode-aware：serial 通用；parallel Claude Code opt-in）
 referenced_by:
   - rules/auditor.md
 ---
 
-# Task: Auditor Dispatch Checklist (@Auditor 派遣檢核表)
+# Task: Auditor Dispatch Checklist (@Auditor 評估檢核表)
 
-## 派遣前 DoD
+> **PROPOSAL_502_021 Sprint A-2** harness-neutral 改寫：5 維度評估 mode-aware；serial 通用，parallel opt-in。
 
-- [ ] **Prompt Fragment 已完整貼入**：對應維度的 3~4 份 Fragment 從 `skills/auditor-rubric-prompts.md` **完整複製**到派遣 prompt（非「依手冊」模糊語句）
-- [ ] **評分標準明文列出**：每個細項的 1~5 分標準在派遣 prompt 明文列出
-- [ ] **baseline 比對要求**：若 `AUDIT_HISTORY.md` 存在前次記錄，要求子 Agent 進行 baseline 比對
+## 評估前 DoD（每維度共用；serial / parallel 皆適用）
+
+- [ ] **Prompt Fragment 已完整貼入**：對應維度的 3~4 份 Fragment 從 `skills/auditor-rubric-prompts.md` **完整複製**到 prompt（非「依手冊」模糊語句）
+- [ ] **評分標準明文列出**：每個細項的 1~5 分標準在 prompt 明文列出
+- [ ] **baseline 比對要求**：若 `AUDIT_HISTORY.md` 存在前次記錄，prompt 含 baseline 比對指令
 - [ ] **輸出格式固定**：JSON（scores / rationales / baseline_comparison）+ 每項 rationale ≥ 100 字
-- [ ] **5 個並行派遣**：一維度一個子 Agent，使用 Explore 類型
-- [ ] **讀取範圍明確**：派遣 prompt 中明文列出子 Agent 必讀的檔案清單
-- [ ] **絕對路徑強制**（PROPOSAL_022）：所有檔案引用必用 **repo-root 前綴的絕對路徑**（如 `.agents/docs/Reports/AUDIT_HISTORY.md`）；**禁止裸檔名**（如僅寫 `AUDIT_HISTORY.md`）；外部化產物（`patrol-notification-catalog.md` / `lead-orchestration-guide.md` 等）須明文註記實際位置
+- [ ] **讀取範圍明確**：prompt 明文列出必讀的檔案清單
+- [ ] **絕對路徑強制**：所有檔案引用必用 **repo-root 前綴的絕對路徑**（如 `.agents/docs/Reports/AUDIT_HISTORY.md`）；**禁止裸檔名**
 
-## 派遣後彙整 DoD
+## Mode 選擇
 
-- [ ] 5 份 JSON 全部收到
+| Mode                  | 適用                                                              | 機制                                                                                 |
+| --------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **serial（default）** | 所有 harness（Claude Code Web / Antigravity / Qwen / 自建）       | @Auditor 同對話內依序處理 5 維度；每維度走完評估前 DoD；產 1 份 JSON；全部收齊後整合 |
+| parallel（opt-in）    | Claude Code CLI（`platform-detect` 偵測 sub-agent dispatch 可用） | @Lead 派 5 並行 sub-agent；每個處理 1 維度；最後整合                                 |
+
+> **harness-neutral 原則**：serial 是 baseline；parallel 是優化。任務 DoD 在兩 mode 下完全等價。
+
+## 評估後彙整 DoD
+
+- [ ] 5 份 JSON 全部收到（serial 5 輪 / parallel 5 sub-agent）
 - [ ] 計算整體分數（5 維度平均）
 - [ ] 識別任一維度 < 3.0 → 觸發 P-15 `AUDIT_QUALITY` 🟡
 - [ ] 識別新風險項（對齊 R-編號系統）

@@ -42,6 +42,14 @@ referenced_by:
 - `mempalace.search "<觸發關鍵詞>"` 查 strategy_context（歷史評分趨勢）+ debug_graveyard（已處理 incident）
 - 結果用於 Step 2 交接資訊的「歷史脈絡」欄位
 
+**MCP down fallback**（PROPOSAL_502_023 C-7）：`mempalace status` probe 失敗時改用 `.agents/memory/.export/<wing>/<room>/` 全域 grep；標記 `audit_context: filesystem_fallback`；@Retro 知曉品質下降但不阻斷流程。
+
+**baseline_comparison Δ aggregate 規則**（PROPOSAL_502_023 C-8）：
+
+- 單維度 Δ：直接由 AUDIT_HISTORY 前次該維度分減本次
+- 整體 Δ：5 維度 Δ 加權平均（各 0.2）
+- 多維度同時降分（≥ 2 維度 Δ ≤ -0.5）→ 標 🔴 `BROAD_REGRESSION`；@Retro 優先處理
+
 ### Step 1：識別觸發來源
 
 | 路徑 | 觸發源                | 下一步                           |
@@ -57,8 +65,8 @@ referenced_by:
 `@Auditor` 透過 `@Lead` 通知 `@Retro` 時，**必須**附帶：
 
 - **觸發維度**：如 3.2（模型分層路由）
-- **critical_risks 清單**：子 Agent 派遣輸出的關鍵風險（含編號 R16 / R17 等）
-- **optimization_suggestions 摘要**：子 Agent 建議的改善方向
+- **critical_risks 清單**：5 維度評估輸出的關鍵風險（含編號 R16 / R17 等；mode-aware：serial 5 輪整合 / parallel 5 sub-agent 整合皆適用）
+- **optimization_suggestions 摘要**：5 維度評估建議的改善方向
 - **baseline_comparison Δ**：本次 vs 前次分數變化
 - **AUDIT_DECISION_LOG.md 引用**：記錄位置（依 PROPOSAL_027）
 

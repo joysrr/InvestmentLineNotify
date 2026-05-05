@@ -33,7 +33,7 @@
 | `.agents/rules/retro.md`           | **v2.1** | 2026-05-02   | PROPOSAL_20260502_002                                                                                | v1.0         |
 | `.agents/rules/assistant.md`       | **v2.1** | 2026-05-02   | PROPOSAL_20260502_009                                                                                | v1.0         |
 | `.agents/rules/security.md`        | **v2.1** | 2026-05-02   | PROPOSAL_20260502_002                                                                                | v1.0         |
-| `.agents/rules/auditor.md`         | **v2.0** | 2026-04-30   | PROPOSAL_20260502_004                                                                                | v1.0         |
+| `.agents/rules/auditor.md`         | **v2.1** | 2026-05-04   | PROPOSAL_20260502_021                                                                                | v1.0         |
 | `.agents/SYSTEM_THRESHOLDS.yaml`   | **v1.2** | <unknown>    | <unknown>                                                                                            | —            |
 | `.agents/WORKSPACE_SCHEMA.yaml`    | **v1.4** | 2026-04-24   | PROPOSAL_20260424_019                                                                                | —            |
 

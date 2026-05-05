@@ -1,0 +1,129 @@
+#!/usr/bin/env node
+// sub-agent-dispatch-validator.mjs
+// PROPOSAL_502_021 Sprint A 收尾 validator：
+// 偵測 framework 文件中是否殘留「強制要求 sub-agent dispatch」的硬寫法。
+//
+// 設計原則：
+//   serial mode 為通用 default；parallel mode 為 Claude Code opt-in 優化。
+//   rules / skills / tasks 應描述 mode-aware 流程；不得寫死「派 N 並行 sub-agent」。
+//
+// 例外 allowlist（描述用途；非要求）：
+//   - tasks/harness-adapter-pattern.md（adapter 設計指南；列舉 dispatch interface）
+//   - rules/auditor.md / tasks/auditor-dispatch-checklist.md（mode-aware 對照表內出現 parallel 描述為合法）
+//   - INSTALL_ANTIGRAVITY.md / docs/PLATFORM_COMPATIBILITY.md（限制揭露文件）
+//   - proposals/ / decisions/（歷史記錄；不改動）
+
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, relative, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = join(__dirname, '..', '..');
+const AGENTS_ROOT = join(REPO_ROOT, '.agents');
+
+// 禁用 pattern：描述「強制 / 必 / default」+「N 並行 sub-agent」組合
+const FORBIDDEN_PATTERNS = [
+  /派遣\s*\d+\s*並行(?!\s*[（(])/,           // 「派遣 5 並行」（後無 mode 註記）
+  /派\s*\d+\s*並行\s*sub-agent/i,             // 「派 5 並行 sub-agent」
+  /5\s*個並行派遣(?!\s*[（(])/,              // 「5 個並行派遣」
+  /必\s*派\s*N\s*個\s*sub-agent/,            // 強制要求
+  /強制\s*sub-agent\s*dispatch/i,
+];
+
+// allowlist（mode-aware 對照表 / adapter 設計 / 限制揭露 / 歷史紀錄；可出現 parallel 描述）
+const ALLOWLIST_FILES = [
+  'tasks/harness-adapter-pattern.md',
+  'rules/auditor.md',
+  'tasks/auditor-dispatch-checklist.md',
+  'tests/sub-agent-dispatch-validator.mjs',
+  'INSTALL_ANTIGRAVITY.md',
+  'docs/PLATFORM_COMPATIBILITY.md',
+];
+const ALLOWLIST_DIRS = [
+  'proposals/',
+  'decisions/',
+  'memory/.export/',
+  'docs/Reports/',     // 歷史 audit log；append-only
+];
+
+function* walk(dir) {
+  for (const entry of readdirSync(dir)) {
+    if (entry.startsWith('.') && entry !== '.agents') continue;
+    if (entry === 'node_modules' || entry === '.git') continue;
+    const full = join(dir, entry);
+    const st = statSync(full);
+    if (st.isDirectory()) {
+      yield* walk(full);
+    } else if (entry.endsWith('.md')) {
+      yield full;
+    }
+  }
+}
+
+function isAllowlisted(relPath) {
+  if (ALLOWLIST_FILES.includes(relPath)) return true;
+  return ALLOWLIST_DIRS.some(prefix => relPath.startsWith(prefix));
+}
+
+function checkFile(file) {
+  const rel = relative(AGENTS_ROOT, file);
+  if (isAllowlisted(rel)) return [];
+  const content = readFileSync(file, 'utf-8');
+  const lines = content.split('\n');
+  const hits = [];
+  lines.forEach((line, idx) => {
+    for (const pat of FORBIDDEN_PATTERNS) {
+      if (pat.test(line)) {
+        // 第二層檢查：同行或前一行是否有 'serial' / 'mode-aware' / 'opt-in' 緩衝詞
+        const ctx = (lines[idx - 1] || '') + ' ' + line;
+        if (/serial|mode[- ]aware|opt[- ]in/i.test(ctx)) continue;
+        hits.push({ line: idx + 1, content: line.trim(), pattern: pat.toString() });
+        break;
+      }
+    }
+  });
+  return hits.map(h => ({ file: rel, ...h }));
+}
+
+let totalHits = 0;
+let totalFiles = 0;
+const allHits = [];
+
+for (const file of walk(AGENTS_ROOT)) {
+  totalFiles++;
+  const hits = checkFile(file);
+  if (hits.length) {
+    allHits.push(...hits);
+    totalHits += hits.length;
+  }
+}
+
+console.log('🔍 Sub-agent Dispatch Validator (PROPOSAL_502_021 Sprint A)');
+console.log('');
+console.log(`ℹ️  Scanned ${totalFiles} markdown file(s)`);
+console.log(`ℹ️  Allowlist: ${ALLOWLIST_FILES.length} files + ${ALLOWLIST_DIRS.length} dirs`);
+
+if (totalHits === 0) {
+  console.log(`ℹ️  Forbidden patterns: ${FORBIDDEN_PATTERNS.length} checked`);
+  console.log('');
+  console.log('─────────────────────────────');
+  console.log('Summary: 0 errors, 0 warnings');
+  console.log('✅ Sub-agent Dispatch Validator: 全 PASS（rules 已 mode-neutral）');
+  console.log('─────────────────────────────');
+  process.exit(0);
+}
+
+console.log('');
+console.log(`❌ Found ${totalHits} hardcoded sub-agent dispatch reference(s):`);
+allHits.forEach(h => {
+  console.log(`  ${h.file}:${h.line}`);
+  console.log(`    ${h.content}`);
+});
+console.log('');
+console.log('修法建議：改寫成 mode-aware 描述；或加入 ALLOWLIST_FILES（若為對照表 / 設計指南）');
+console.log('');
+console.log('─────────────────────────────');
+console.log(`Summary: ${totalHits} errors, 0 warnings`);
+console.log('❌ Sub-agent Dispatch Validator: FAIL');
+console.log('─────────────────────────────');
+process.exit(1);

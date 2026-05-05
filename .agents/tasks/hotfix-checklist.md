@@ -43,6 +43,8 @@ complexity_tier: light | heavy # 同 hotfix_tier；保留向後相容
 tier_reason: "<一句話>"
 sc_triggered: [] # 任一非空 → 強制 hotfix_tier=heavy（自動覆蓋）
 d_triggered: [] # 任一非空 → 強制 hotfix_tier=heavy（自動覆蓋）
+light_bypass_reason: "<若 light 必填；說明為何豁免診斷組 + 雙簽>" # PROPOSAL_502_023 C-11
+token_budget_actual: <int> # 完成後填；統計用（PROPOSAL_502_023 C-9 量化基準收集）
 ```
 
 **強制檢查**（PROPOSAL_021）：
@@ -96,7 +98,7 @@ d_triggered: [] # 任一非空 → 強制 hotfix_tier=heavy（自動覆蓋）
 
 ## 🔴 B 路徑：重型路徑 (heavy；5 步驟；對齊 PROPOSAL_20260423_003 三支柱)
 
-### Step 1: 診斷階段 (由 @Backend / @Frontend 執行；D1-D4 觸發時與 @Reviewer 組診斷組)
+### Step 1: 診斷階段 (由 @Backend / @Frontend 執行；D1-D4 觸發時 @Reviewer 加入診斷組；mode-aware：serial 同對話兩視角依序 / parallel Claude Code opt-in 雙 sub-agent)
 
 - [ ] 依 `skills/diagnostic-playbook.md` 五步 SOP 執行：
 - [ ] Step 1.1 收集現象（錯誤訊息 / 日誌 / 重現步驟）
@@ -105,10 +107,10 @@ d_triggered: [] # 任一非空 → 強制 hotfix_tier=heavy（自動覆蓋）
 - [ ] Step 1.4 根因假設驗證（**≥ 2 假設** + 證據比對）
 - [ ] Step 1.5 影響範圍評估（同樣根因是否在其他模組 / 是否 SC 敏感）
 - [ ] 產出 `docs/plans/diagnosis/<事故名稱>.md`
-- [ ] **診斷組共識簽核**（若 D1-D4 觸發）：實作者 + @Reviewer 雙簽
+- [ ] **診斷組共識簽核**（若 D1-D4 觸發）：實作者 + @Reviewer 雙簽（serial mode：同對話內 @Lead 先請實作者出診斷、再請 @Reviewer 複核；parallel mode：Claude Code 可派兩 sub-agent 並行；DoD 等價）
 - [ ] 定位問題根因，並確保修復範圍 **最小化**（嚴禁夾帶重構或其他不相關的新功能）
 
-### Step 2: 修復實作 + 審查 (由 @Backend / @Frontend 實作；@Reviewer + 條件式 @Security 平行審查)
+### Step 2: 修復實作 + 審查 (由 @Backend / @Frontend 實作；@Reviewer + 條件式 @Security 審查；mode-aware：serial 同對話依序 / parallel Claude Code opt-in)
 
 - [ ] 依 `DIAGNOSIS_NOTE.md § 六 修復範圍` 執行修復
 - [ ] 針對引發錯誤的極端數據或 Edge Case，必須在程式碼中加入 Fallback (防呆) 處理

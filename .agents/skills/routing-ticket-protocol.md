@@ -48,7 +48,7 @@ ticket_id: TKT-YYYYMMDD-NNN # 必填；NNN 為當日序號
 created_at: ISO8601 # 必填；UTC
 created_by: "@Lead" # 必填；目前固定為 @Lead（單一 Orchestrator）
 status: dispatched | acknowledged | completed | cancelled | paused | timeout | retried | failed # 必填（PROPOSAL_502_014 N-3 擴展 4 狀態）
-task_class: feature # 選填；enum: feature | modify-existing | doc-sync | hotfix；預設 feature；對應 lead.md §s05 任務分類例外
+task_class: feature # 選填；enum: feature | modify-existing | doc-sync | hotfix | config-adjust；預設 feature；對應 lead.md §s05 任務分類例外。config-adjust（PROPOSAL_502_023 B-2）：純配置常數修改（如 timeout 值），可跳 Stage 3 設計 + Stage 4 TEST_SPEC；但 strategyWeight / 金融敏感參數 hit 時強制升 feature
 
 # ─────── User 原始指令（不得改寫）───────
 original_request: | # 必填；多行字串；保留標點

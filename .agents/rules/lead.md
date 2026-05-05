@@ -90,6 +90,8 @@ rule_category: central_orchestrator # PROPOSAL_502_011；ADR-0038 amend（User-f
 
 順序 🔴/❌ → 🟡 → ✅/🟢。**絕對禁止**：未處理 🔴/❌ 即派新工；多級合併為自由格式。**P-15 AUDIT_QUALITY**：走 `tasks/audit-retro-coordination.md`；連 2 次 → 🔴 升級。
 
+**SC trigger 通知升級**（PROPOSAL_502_023 C-10）：Hotfix `sc_triggered` 含 SC-02（金鑰外洩）/ SC-04（資料刪除）/ SC-09（第三方套件 RCE）任一 → 派發訊息 + P-15 紅通知（不僅 🟡）；通知格式必含 `SC-Code:` 欄位 + 阻斷時限承諾。
+
 </section>
 
 <section id="s_state_anchor" priority="critical">
@@ -113,6 +115,10 @@ rule_category: central_orchestrator # PROPOSAL_502_011；ADR-0038 amend（User-f
 | complex    | `opus`            | 🚚 `heavy`       |
 
 三步（input tokens / 推理層 / artifact paths）任一 complex → 整體 complex（`SYSTEM_THRESHOLDS.yaml`）。**強制升等 7 場景**（完整列舉 `skills/lead-orchestration-guide.md §九`）：strategyWeight / @Security / Hotfix / @Retro 根因 / @Auditor / `rule_edit_large` / `rule_edit_critical`（後者**派發阻斷**先立案）。與 §s10 協同。
+
+**Skip @Architect 條件**（PROPOSAL_502_023 B-1；HG-2）：simple lane + 無 force_complex 7 場景 + 無 strategyWeight / 金鑰 / 資料刪除 / Rules 修改 → 可跳 Stage 3 設計直派 Stage 5 實作。**強制檢查**：派發前掃 ROUTING_TICKET `touched_files` 是否觸 strategyWeight 敏感參數（grep `strategyWeight|risk_limit|金融` 任一 hit → 強制升等不可跳）。
+
+**S6/6.5 並行 queue 同步**（PROPOSAL_502_023 A-5；CR-5）：Stage 6 (@Reviewer) + 6.5 (@Security 條件式) 並行派發時，**必**同時寫入 PENDING_DISPATCHES queue 兩條 child entries（共用 parent ticket_id）；任一退件（複審次數 +1）→ queue 同步更新；達 REVIEW_CYCLE_LIMIT → 阻斷另一 queue 並通知 @Lead 仲裁。Mode-aware：serial 同對話依序時用單一 queue；parallel 時雙 queue 共享 parent。
 
 派發訊息 6 欄位骨架（PROPOSAL_502_017 Q-10 校準；原寫 5 欄為勘誤）：`Next | Model | Lane | Tech-stacks | Artifacts | Ticket`（完整格式 `skills/lead-orchestration-guide.md §2.5`）。
 
@@ -155,7 +161,9 @@ OPEN=1 直接採；OPEN≥2 **必問**「執行整合性分析？」；OPEN≥3 
 
 `@Architect` Stage 3 完成 Prior Art Scan + `docs/plans/prior-art/<功能>.md` → **必進** 3.5。發 🔴 `PRIOR_ART_VERIFY_PENDING`；User 於 `PRIOR_ART_REPORT.md § User 驗證` 填結論前**不得**派 @Backend/@Frontend/@QA；明示 `verified_method: bypass` + 理由 → 同步寫 `AUDIT_HISTORY.md §豁免記錄`。
 
-**絕對禁止**：User 驗證空白即派；Bypass 無豁免；跳 Prior Art 觸發判斷直派 API Spec。
+**Auto-escalation**（PROPOSAL_502_023 A-4；CR-4）：`PRIOR_ART_VERIFY_PENDING` 發出後若 User 24h 未回覆（依 wall-clock 或 5 工作對話 counter，先到先觸發）→ @Assistant 巡邏自動發 P-XX `PRIOR_ART_VERIFY_PENDING_OVERDUE` 🟡 通知；若再 24h / 5 對話無回覆 → 升 🔴 + 阻斷新 ROUTING_TICKET 派發；@Lead 必明寫提醒給 User。
+
+**絕對禁止**：User 驗證空白即派；Bypass 無豁免；跳 Prior Art 觸發判斷直派 API Spec；忽略 `PRIOR_ART_VERIFY_PENDING_OVERDUE` 升級訊號。
 
 </section>
 
@@ -238,20 +246,19 @@ Hotfix=生產事故；分流見 `tasks/hotfix-checklist.md` Step 0：**heavy**�
 </section>
 
 <section id="s_memory_palace" priority="high">
-## 記憶宮殿
+## 記憶宮殿（v2 Plan G；ADR-0039 amended）
 
-**完整 schema**：`skills/memory-palace-schema.md` v2.0（ADR-0039；MemPalace primary backend）。Wings/Rooms/Drawers 三層；framework Wing + per-workspace Wing。
+**完整 schema**：`skills/memory-palace-schema.md` v2.0；操作細則 `skills/memory-operations.md` v2.0。
 
-**派發前查上下文**（透過 MCP tool；對應 ADR-0034）：
+**讀**：`mempalace.search` / `wake-up` / `get_drawer` 取上下文；ROUTING_TICKET `touched_files` 引用 drawer 標籤。
 
-- `mempalace.search` / `mempalace.wake-up` / `mempalace.read` 取上下文
-- ROUTING_TICKET 中 `touched_files` / `relevant_tech_stacks` 必引用查到的 drawer 標籤
+**寫**（v2 唯一路徑）：rules 直呼 `mcp__mempalace__add_drawer/update_drawer`；不雙寫 markdown。寫後（或 commit 前）跑 `node .agents/scripts/mempalace-export.mjs` 同步 `.agents/memory/.export/`（cold backup；確保 zip 帶走）。
 
-**Hybrid fallback**：MCP server 不可達 → 降級讀 markdown SoT（`.agents/memory/` / `workspaces/<ws>/memory/` INDEX）+ 通知 User。
+**Fallback**：MCP down → grep `.agents/memory/.export/`；新寫入暫存 `.agents/memory/.pending/`；MCP 復活後批次 replay。
 
-**Drawer count 健康閾值**：細則 `skills/memory-operations.md §6 Compress 流程`；>5000 → 暫停派發 + compress；>1000 → 🟡 排程。
+**Drawer count 健康**：細則 `memory-operations §6`；>5000 暫停派發 + compress；>1000 🟡 排程。
 
-**絕對禁止**：派發前未透過 MCP tool 查 architecture（或 fallback markdown INDEX）即指定 touched_files；strategy_context 寫入當前數值；debug_graveyard 漏 category/severity；MCP server down 未通知 User 即靜默跳過 memory 查詢；drawer count > 5000 仍續派新工作（必先 compress）。
+**絕對禁止**：派發前未查 memory（MCP 或 .export/ grep）；MCP down 未通知 User 即靜默跳過；MCP 寫入後 commit 前未跑 export（破壞 zip 攜帶）；手寫 `.export/`（必由 script 產）；drawer count > 5000 續派新工作。
 
 </section>
 

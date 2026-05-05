@@ -2,8 +2,11 @@
 type: orchestration-guide
 category: F1
 id: lead-orchestration-guide
-related_proposals: [PROPOSAL_20260424_020]
-related_decisions: [ADR-0001, ADR-0006, ADR-0007, ADR-0008, ADR-0013]
+load_priority: lazy
+size_tokens_approx: 8280
+load_when: "@Lead 需查 §一/§二/§三/§六/§九/§十 完整細則時；rule 內已有摘要的部分不需開本檔"
+related_proposals: [PROPOSAL_20260424_020, PROPOSAL_20260502_022]
+related_decisions: [ADR-0001, ADR-0006, ADR-0007, ADR-0008, ADR-0013, ADR-0038]
 -->
 
 # Skill: Lead Orchestration Guide（@Lead 完整派發指南）
@@ -192,7 +195,7 @@ Artifacts: <paths>
 2. **資安審查（`@Security` 任何任務）** — SC-01~10 範疇均升等
 3. **Hotfix 緊急通道** — 生產事故；詳見 §五
 4. **提案根因分析（`@Retro`）** — 跨歷史提案比對 + 意圖衝突偵測
-5. **定期 5 維度評分（`@Auditor`）** — 派遣 5 並行子 Agent + Fragment 比對
+5. **定期 5 維度評分（`@Auditor`）** — mode-aware：serial 5 輪（通用）/ parallel 5 sub-agent（Claude Code opt-in）+ Fragment 比對
 6. **`rule_edit_large`（PROPOSAL_020 Phase B）** — 修改 `rules/*.md` 且目標檔 `token_estimate > rule_token_thresholds.warn`（預設 3000）→ `@Architect` 先評估後 `@Backend` 實作
 7. **`rule_edit_critical`（PROPOSAL_020 Phase B）** — 修改 `rules/*.md` 且 `token_estimate > rule_token_thresholds.block`（預設 4000）→ **派發阻斷**；必先立案拆檔提案（`@Architect` HITL Gate）
 

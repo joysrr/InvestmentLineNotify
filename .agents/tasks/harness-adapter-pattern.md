@@ -55,27 +55,38 @@ related_decisions:
 
 ## 二、4 個 adapter 切入點
 
-### A. Sub-agent dispatch
+### A. Sub-agent dispatch（**PROPOSAL_502_021 Sprint A：default = serial in rules**）
 
-**Claude Code 行為**：
+**設計原則更新（2026-05-04）**：
+sub-agent dispatch 從**強依賴**降為**opt-in 優化**。所有 framework 流程（@Auditor 5 維度 / Hotfix 雙簽 / @Retro 多情境）**default 走 serial mode（rules 內同對話依序處理）**；Claude Code CLI 等具 sub-agent 能力的 harness 可 opt-in 走 parallel mode。
+
+**Mode 對照**：
+
+| Mode                        | 適用 harness                                           | rules 行為                                                                |
+| --------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------- |
+| **serial（default；通用）** | 所有 harness（Claude Web / Antigravity / Qwen / 自建） | @Lead 在同對話內依序處理 N 視角；每視角獨立 prompt + 結構化輸出；最後整合 |
+| parallel（opt-in）          | Claude Code CLI（具 Task tool）                        | @Lead 派 N 並行 sub-agent；每個處理 1 視角；DoD 等價 serial               |
+
+**Claude Code 範例（parallel mode）**：
 
 ```
-@Lead 寫 ROUTING_TICKET.md → 呼叫 Task tool（subagent_type=Explore|general-purpose|...）
+@Lead → Task tool（subagent_type=Explore|general-purpose|...）
 sub-agent 接 prompt 執行 → 回 string result
 @Lead 收 result → 寫回 PENDING_ACTIONS / ROUTING_TICKET status: completed
 ```
 
-**Adapter interface**（pseudo-spec）：
+**Adapter interface**（**選用**；只在 parallel mode 啟用時相關）：
 
 ```typescript
 interface SubAgentDispatcher {
+  isAvailable(): boolean; // 每 harness 自報是否支援 parallel
   dispatch(opts: {
     description: string;
     prompt: string;
     subagent_type: "general" | "explore" | "plan" | string;
     timeout_ms?: number; // 對齊 P-27 SUBAGENT_TIMEOUT
   }): Promise<{
-    result: string; // 純文字回報
+    result: string;
     status: "completed" | "timeout" | "failed";
     duration_ms: number;
   }>;
@@ -84,10 +95,12 @@ interface SubAgentDispatcher {
 
 **移植範例**：
 
-- Claude Code：使用 native Task tool
-- Antigravity：mapping 至其 sub-agent API（介面可能類似但命名不同）
-- Qwen-Agent：用 Qwen-Agent 框架的 multi-agent class；自行實作 timeout
-- Plain LLM API（無 sub-agent）：fallback 至同 session 多輪 prompt（持續性差；不推薦）
+- Claude Code CLI：parallel via native Task tool（推薦）
+- Antigravity：serial 走 rules 內串行（已實機驗證；功能等價 5x 慢）；或 mapping 至 browser_subagent（限定網頁互動）
+- Qwen-Agent：serial 走 rules 內串行（推薦；adapter 不必實作）；如要 parallel 須自寫 Qwen multi-agent class
+- Plain LLM API：serial 走 rules 內串行（唯一路線）
+
+> **核心原則**：rules 不得寫死「派 N agent」；必須 mode-aware（先檢 `platform-detect.mjs` 報的 sub_agent_dispatch 旗標）。Validator：`tests/sub-agent-dispatch-validator.mjs`（Sprint A 收尾建立）。
 
 ### B. MCP integration
 
@@ -115,8 +128,11 @@ interface MempalaceClient {
 
 **Implementation 兩條路**：
 
-- **路徑 1（MCP）**：寫 MCP client（如果 harness 支援 Anthropic MCP 標準）
-- **路徑 2（CLI）**：直呼 `mempalace search/wake-up/status` CLI（更通用；任何 harness 都能跑 shell）
+- **路徑 1（MCP；推薦）**：使用 harness 自有 MCP 註冊機制接 mempalace MCP server
+  - Claude Code CLI / Web：讀 `.mcp.json`（root）
+  - Antigravity：IDE Settings / MCP servers 註冊（**不讀 `.mcp.json`**；2026-05-02 實證）
+  - **Qwen-Agent：自有 MCP 機制**（**2026-05-04 User 實證**；非 `.mcp.json`；參 Qwen-Agent 文件）
+- **路徑 2（CLI）**：直呼 `mempalace search/wake-up/status` CLI（純 shell；任何 harness 通用）
 
 **Default fallback**：MCP unreachable → 自動切 CLI 路徑（已於 ADR-0039 hybrid fallback 預想）。
 

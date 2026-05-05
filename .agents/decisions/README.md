@@ -53,42 +53,48 @@
 <!-- ⚠️ 下方區塊由 gen-adr-index.mjs --write 管理；手動編輯會在下次執行時被覆蓋 -->
 <!-- AUTO-GENERATED:BEGIN adr_list -->
 
-| ADR                                                   | Title                                                        | Status   | Date       | Supersedes |
-| ----------------------------------------------------- | ------------------------------------------------------------ | -------- | ---------- | ---------- |
-| [ADR-0001](0001-stateless-lead-routing.md)            | Stateless @Lead Routing 三鐵律                               | Accepted | 2026-04-22 | —          |
-| [ADR-0002](0002-workspace-context-injection.md)       | Workspace-based Project Context 靜態注入                     | Accepted | 2026-04-22 | —          |
-| [ADR-0003](0003-agent-drift-simulator.md)             | Agent Drift Simulator — rules 結構 drift 量化偵測            | Accepted | 2026-04-22 | —          |
-| [ADR-0004](0004-file-based-concurrency-protection.md) | File-based 並行防護 + PM2 身份管理                           | Accepted | 2026-04-22 | —          |
-| [ADR-0005](0005-auditor-periodic-scoring.md)          | @Auditor 定期 5 維度評分機制                                 | Accepted | 2026-04-22 | —          |
-| [ADR-0006](0006-model-tier-routing.md)                | 模型分層路由（haiku/sonnet/opus）                            | Accepted | 2026-04-22 | —          |
-| [ADR-0007](0007-lane-routing.md)                      | 多車道路由架構（fast/standard/heavy）                        | Accepted | 2026-04-22 | —          |
-| [ADR-0008](0008-hotfix-dual-track.md)                 | Hotfix 雙軌流程（light 3 步 / heavy 5 步）                   | Accepted | 2026-04-24 | —          |
-| [ADR-0009](0009-proposal-full-lite-tier.md)           | Full/Lite Proposal 分級機制                                  | Accepted | 2026-04-24 | —          |
-| [ADR-0010](0010-parallel-review.md)                   | 平行審查制度（@Reviewer + @Security）                        | Accepted | 2026-04-21 | —          |
-| [ADR-0011](0011-security-conditional-intervention.md) | @Security 條件式介入（SC-01~10 十項觸發）                    | Accepted | 2026-04-21 | —          |
-| [ADR-0012](0012-diagnostic-team.md)                   | 診斷組機制（D1-D4 條件式雙眼診斷）                           | Accepted | 2026-04-23 | —          |
-| [ADR-0013](0013-dod-self-audit.md)                    | DoD 自評框架 + Gate Check Auto-Audit                         | Accepted | 2026-04-22 | —          |
-| [ADR-0014](0014-prior-art-scan.md)                    | Prior Art Scan 強制程序（預防重複造輪子）                    | Accepted | 2026-04-23 | —          |
-| [ADR-0015](0015-tech-stacks-purity.md)                | Tech-Stacks 純淨原則（三分法 + 6 鐵律）                      | Accepted | 2026-04-22 | —          |
-| [ADR-0016](0016-skills-tasks-classification.md)       | skills/tasks 三態分類（F1/F2/F3）+ 專案特化參照              | Accepted | 2026-04-23 | —          |
-| [ADR-0017](0017-document-layering.md)                 | 文件分層三原則（.agents/docs/ vs docs/）                     | Accepted | 2026-04-23 | —          |
-| [ADR-0018](0018-rules-design-guide-subdivision.md)    | RULES_DESIGN_GUIDE 拆檔（DESIGN/SCOPE/QUALITY）              | Accepted | 2026-04-24 | —          |
-| [ADR-0019](0019-proposal-scope-tiering.md)            | Proposal Scope 分層治理（framework vs project）              | Accepted | 2026-04-22 | —          |
-| [ADR-0020](0020-proposal-intent-inheritance.md)       | 提案意圖繼承機制（§🔗）                                      | Accepted | 2026-04-22 | —          |
-| [ADR-0021](0021-proposal-lifecycle.md)                | 提案生命週期（OPEN → IN_PROGRESS → DONE → ARCHIVED）         | Accepted | 2026-04-21 | —          |
-| [ADR-0022](0022-rules-metadata-frontmatter.md)        | Rules 結構標準化（YAML frontmatter + XML section）           | Accepted | 2026-04-21 | —          |
-| [ADR-0023](0023-framework-version-management.md)      | Framework Version 管理（FRAMEWORK_VERSION + CHANGELOG）      | Accepted | 2026-04-23 | —          |
-| [ADR-0024](0024-framework-runtime-requirements.md)    | Framework Runtime 規範（Node.js 18+ / Bash / 零依賴）        | Accepted | 2026-04-24 | —          |
-| [ADR-0025](0025-auto-generated-block-pattern.md)      | AUTO-GENERATED 區塊機制 + 索引自動產生器                     | Accepted | 2026-04-23 | —          |
-| [ADR-0026](0026-validator-parallel-fast-mode.md)      | Validator 並行執行 + --fast / --validator 三模式             | Accepted | 2026-04-23 | —          |
-| [ADR-0027](0027-script-underuse-prevention.md)        | Script 漏用防護機制（四道防線）                              | Accepted | 2026-04-24 | —          |
-| [ADR-0028](0028-proposal-summaries.md)                | 歷史提案摘要機制（summaries/）                               | Accepted | 2026-04-24 | —          |
-| [ADR-0029](0029-assistant-patrol-catalog.md)          | @Assistant 巡邏規則目錄（P-01 ~ P-23）                       | Accepted | 2026-04-22 | —          |
-| [ADR-0030](0030-notification-classification.md)       | 通知分級標準（五級符號體系）                                 | Accepted | 2026-04-21 | —          |
-| [ADR-0031](0031-tech-stacks-catalog.md)               | Tech-Stacks Catalog 架構（分類 + MANIFEST + 選擇性搬運）     | Accepted | 2026-04-24 | —          |
-| [ADR-0032](0032-tech-stack-audit-cycle.md)            | Tech-Stack 生命週期 Audit 機制（定期審視 + 初步篩選）        | Accepted | 2026-04-24 | —          |
-| [ADR-0033](0033-orchestrator-policies-pattern.md)     | Orchestrator + Policies/Core 模式（module 層 Hub-and-Spoke） | Accepted | 2026-04-24 | —          |
-| [ADR-0034](0034-langgraph-dual-env-integration.md)    | LangGraph + MCP 雙環境整合（Qwen / Antigravity）             | Accepted | 2026-04-26 | —          |
+| ADR                                                                | Title                                                                                    | Status   | Date       | Supersedes |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | -------- | ---------- | ---------- |
+| [ADR-0001](0001-stateless-lead-routing.md)                         | Stateless @Lead Routing 三鐵律                                                           | Accepted | 2026-04-22 | —          |
+| [ADR-0002](0002-workspace-context-injection.md)                    | Workspace-based Project Context 靜態注入                                                 | Accepted | 2026-04-22 | —          |
+| [ADR-0003](0003-agent-drift-simulator.md)                          | Agent Drift Simulator — rules 結構 drift 量化偵測                                        | Accepted | 2026-04-22 | —          |
+| [ADR-0004](0004-file-based-concurrency-protection.md)              | File-based 並行防護 + PM2 身份管理                                                       | Accepted | 2026-04-22 | —          |
+| [ADR-0005](0005-auditor-periodic-scoring.md)                       | @Auditor 定期 5 維度評分機制                                                             | Accepted | 2026-04-22 | —          |
+| [ADR-0006](0006-model-tier-routing.md)                             | 模型分層路由（haiku/sonnet/opus）                                                        | Accepted | 2026-04-22 | —          |
+| [ADR-0007](0007-lane-routing.md)                                   | 多車道路由架構（fast/standard/heavy）                                                    | Accepted | 2026-04-22 | —          |
+| [ADR-0008](0008-hotfix-dual-track.md)                              | Hotfix 雙軌流程（light 3 步 / heavy 5 步）                                               | Accepted | 2026-04-24 | —          |
+| [ADR-0009](0009-proposal-full-lite-tier.md)                        | Full/Lite Proposal 分級機制                                                              | Accepted | 2026-04-24 | —          |
+| [ADR-0010](0010-parallel-review.md)                                | 平行審查制度（@Reviewer + @Security）                                                    | Accepted | 2026-04-21 | —          |
+| [ADR-0011](0011-security-conditional-intervention.md)              | @Security 條件式介入（SC-01~10 十項觸發）                                                | Accepted | 2026-04-21 | —          |
+| [ADR-0012](0012-diagnostic-team.md)                                | 診斷組機制（D1-D4 條件式雙眼診斷）                                                       | Accepted | 2026-04-23 | —          |
+| [ADR-0013](0013-dod-self-audit.md)                                 | DoD 自評框架 + Gate Check Auto-Audit                                                     | Accepted | 2026-04-22 | —          |
+| [ADR-0014](0014-prior-art-scan.md)                                 | Prior Art Scan 強制程序（預防重複造輪子）                                                | Accepted | 2026-04-23 | —          |
+| [ADR-0015](0015-tech-stacks-purity.md)                             | Tech-Stacks 純淨原則（三分法 + 6 鐵律）                                                  | Accepted | 2026-04-22 | —          |
+| [ADR-0016](0016-skills-tasks-classification.md)                    | skills/tasks 三態分類（F1/F2/F3）+ 專案特化參照                                          | Accepted | 2026-04-23 | —          |
+| [ADR-0017](0017-document-layering.md)                              | 文件分層三原則（.agents/docs/ vs docs/）                                                 | Accepted | 2026-04-23 | —          |
+| [ADR-0018](0018-rules-design-guide-subdivision.md)                 | RULES_DESIGN_GUIDE 拆檔（DESIGN/SCOPE/QUALITY）                                          | Accepted | 2026-04-24 | —          |
+| [ADR-0019](0019-proposal-scope-tiering.md)                         | Proposal Scope 分層治理（framework vs project）                                          | Accepted | 2026-04-22 | —          |
+| [ADR-0020](0020-proposal-intent-inheritance.md)                    | 提案意圖繼承機制（§🔗）                                                                  | Accepted | 2026-04-22 | —          |
+| [ADR-0021](0021-proposal-lifecycle.md)                             | 提案生命週期（OPEN → IN_PROGRESS → DONE → ARCHIVED）                                     | Accepted | 2026-04-21 | —          |
+| [ADR-0022](0022-rules-metadata-frontmatter.md)                     | Rules 結構標準化（YAML frontmatter + XML section）                                       | Accepted | 2026-04-21 | —          |
+| [ADR-0023](0023-framework-version-management.md)                   | Framework Version 管理（FRAMEWORK_VERSION + CHANGELOG）                                  | Accepted | 2026-04-23 | —          |
+| [ADR-0024](0024-framework-runtime-requirements.md)                 | Framework Runtime 規範（Node.js 18+ / Bash / 零依賴）                                    | Accepted | 2026-04-24 | —          |
+| [ADR-0025](0025-auto-generated-block-pattern.md)                   | AUTO-GENERATED 區塊機制 + 索引自動產生器                                                 | Accepted | 2026-04-23 | —          |
+| [ADR-0026](0026-validator-parallel-fast-mode.md)                   | Validator 並行執行 + --fast / --validator 三模式                                         | Accepted | 2026-04-23 | —          |
+| [ADR-0027](0027-script-underuse-prevention.md)                     | Script 漏用防護機制（四道防線）                                                          | Accepted | 2026-04-24 | —          |
+| [ADR-0028](0028-proposal-summaries.md)                             | 歷史提案摘要機制（summaries/）                                                           | Accepted | 2026-04-24 | —          |
+| [ADR-0029](0029-assistant-patrol-catalog.md)                       | @Assistant 巡邏規則目錄（P-01 ~ P-23）                                                   | Accepted | 2026-04-22 | —          |
+| [ADR-0030](0030-notification-classification.md)                    | 通知分級標準（五級符號體系）                                                             | Accepted | 2026-04-21 | —          |
+| [ADR-0031](0031-tech-stacks-catalog.md)                            | Tech-Stacks Catalog 架構（分類 + MANIFEST + 選擇性搬運）                                 | Accepted | 2026-04-24 | —          |
+| [ADR-0032](0032-tech-stack-audit-cycle.md)                         | Tech-Stack 生命週期 Audit 機制（定期審視 + 初步篩選）                                    | Accepted | 2026-04-24 | —          |
+| [ADR-0033](0033-orchestrator-policies-pattern.md)                  | Orchestrator + Policies/Core 模式（module 層 Hub-and-Spoke）                             | Accepted | 2026-04-24 | —          |
+| [ADR-0034](0034-langgraph-dual-env-integration.md)                 | LangGraph + MCP 雙環境整合（Qwen / Antigravity）                                         | Accepted | 2026-04-26 | —          |
+| [ADR-0035](0035-single-source-of-truth-validator-list.md)          | Single Source of Truth — 跨工具共享清單統一原則                                          | Accepted | 2026-04-30 | —          |
+| [ADR-0036](0036-rule-decomposition-patterns.md)                    | Rule Decomposition Patterns — Rules slim-down 至 token budget 的可重複模式               | Accepted | 2026-05-01 | —          |
+| [ADR-0037](0037-iron-themes-cross-cutting-immutable-governance.md) | Iron Themes — 跨切不可變鐵律 first-class artifact 治理                                   | Accepted | 2026-05-01 | —          |
+| [ADR-0038](0038-tier-based-rule-budget.md)                         | Tier-based Rule Budget — Mutable budget 量化機制（meta / worker / orchestrator 三層）    | Accepted | 2026-05-01 | —          |
+| [ADR-0039](0039-mempalace-memory-backend.md)                       | Memory Backend Migration — MemPalace as Primary SoT (markdown 降為 cold export artifact) | Accepted | 2026-05-02 | —          |
+| [ADR-0040](0040-script-language-policy.md)                         | Script Language Policy（Python primary；Node legacy；Bash deprecated）                   | Accepted | 2026-05-04 | —          |
 
 <!-- AUTO-GENERATED:END adr_list -->
 

@@ -80,7 +80,7 @@ rule_category: orchestrator
 
 兩強制介入點，缺一不可：
 
-**介入一：開發前（Test Spec 產出）** — @Architect 設計完成 → 進實作前 @Lead 呼叫 @QA → 讀 `docs/plans/draft_features.md` AC + **`mempalace.search <功能 / API / 模組關鍵詞>` 查 debug_graveyard 既有踩坑** → 每 AC 轉 TC + 既有踩坑作回歸 TC → 產 `TEST_SPEC_<功能>.md` → 明標哪些 TC 由 @Backend/@Frontend 自覆蓋、哪些由 @QA 執行。**價值**：開發者寫 code 時就知邊界 / 異常情境必處理；歷史踩坑自動成 regression test（ADR-0039）。
+**介入一：開發前（Test Spec 產出）** — @Architect 設計完成 → 進實作前 @Lead 呼叫 @QA → 讀 `docs/plans/draft_features.md` AC + **`mempalace.search <功能 / API / 模組關鍵詞>` 查 debug_graveyard 既有踩坑** → 每 AC 轉 TC + 既有踩坑作回歸 TC → 產 `TEST_SPEC_<功能>.md` → 明標哪些 TC 由 @Backend/@Frontend 自覆蓋、哪些由 @QA 執行。**價值**：開發者寫 code 時就知邊界 / 異常情境必處理；歷史踩坑自動成 regression test（ADR-0039 v2）。**新發現的測試 lesson 寫入**走 `mcp__mempalace__add_drawer`（room=debug_graveyard；`skills/memory-operations.md §2.3`）。
 
 **介入二：開發後（測試執行）** — @Reviewer 通過 → @Lead 呼叫 @QA → 依 TEST_SPEC 逐項執行 → 確認開發者 DoD 完成 → 執行 QA 負責項（§s06）→ 產 `TEST_REPORT.md`。
 

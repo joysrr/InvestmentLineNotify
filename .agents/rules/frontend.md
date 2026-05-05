@@ -28,6 +28,8 @@ references:
   dod_template: skills/templates/dod-audit-template.md
 constraints_ref:
   review_cycle_limit: !ref RULES_DESIGN_GUIDE.QUALITY.md#REVIEW_CYCLE_LIMIT
+# 無強相關 iron-theme（PROPOSAL_502_022 O-1：data-deletion-zero-tolerance 限 backend 等資料層；@Frontend 不適用）
+applies_iron_themes: []
 rule_category: worker
 ---
 

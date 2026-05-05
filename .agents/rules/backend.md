@@ -61,7 +61,7 @@ rule_category: worker
 
 **通用鐵律**（跨技術棧）：(1) **嚴禁硬編碼**專案名 / API Key / Token / 絕對路徑 (2) **依注入讀取** `PROJECT_CONTEXT`（不憑記憶）(3) **技術棧缺失熔斷**：workspace 指定棧無對應 `tech-stacks/` → 立即停 + 通知 @Lead。
 
-**Memory Palace 查詢**（ADR-0039）：實作前必 `mempalace.search <技術關鍵詞>` 查 debug_graveyard / architecture（避免重蹈踩坑；確認模組邊界）；流程 `skills/memory-operations.md §2.1`。
+**Memory Palace**（ADR-0039 v2）：實作前必 `mempalace.search <技術關鍵詞>` 查 debug_graveyard / architecture；新踩坑紀錄走 `mcp__mempalace__add_drawer`（`skills/memory-operations.md §2.1 §2.3`）。
 
 </section>
 

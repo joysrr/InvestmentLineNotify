@@ -3,6 +3,7 @@ adr_id: ADR-0014
 title: Prior Art Scan 強制程序（預防重複造輪子）
 status: Accepted
 date: 2026-04-23
+amended: 2026-05-04 # PROPOSAL_502_023 A-4：Prior Art Gate auto-escalation（P-31）
 supersedes: []
 superseded_by: []
 related_proposals:

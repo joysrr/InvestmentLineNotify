@@ -9,6 +9,299 @@
 
 ---
 
+## [v7.0] - 2026-05-04 — **Node-free milestone（major bump）**
+
+### Added — Full Python Migration（PROPOSAL_502_027；39 .mjs + 6 .sh → .py）
+
+User 反饋：「使用者環境並無 nodejs」→ Framework 全面轉 Python。
+
+**45 檔全 ported**：
+
+- 39 .mjs（17 validators + 6 generators + 7 scripts + 5 unit tests + 4 lib helpers）
+- 6 .sh（Sprint 502_025 + 026 已做）
+
+**驗證**：
+
+- 18/18 validators 全綠 via `python3 .agents/tests/run-all.py`
+- 13/13 smoke tests PASS（init-workspace / framework-diff / generators / tech-stack-manage 等）
+- 17 L1 unit tests PASS（auto-generated-block + gen-proposal-index）
+- Functional parity：3 並行 agent 跑 byte-identical 對比驗證（diff + cmp -s）
+
+**架構升級**：
+
+- `run-all.py` cmd 表全切 `python3 .py`
+- `index-drift-validator.py` cross-call generators 改 `.py`
+- `run.py` L1 unit 改 unittest；L3 smoke 全 .py
+- `git_diff_detector.py` ALL_VALIDATORS 不變
+- 既有 `.mjs` / `.sh` 改名 `.archive` 保留 1 sprint 作 fallback；下輪 audit 移除
+
+### Changed
+
+- 39 `.mjs` → `.mjs.archive`
+- 6 `.sh` → `.sh.archive`
+- 8 `.py` 增量；4 `.py` 修 sort-order parity
+- `.agents/FRAMEWORK_VERSION`：v6.35 → **v7.0**（major bump：Node-free milestone）
+
+### Notes
+
+- **完全消除 Node.js dependency**：Windows native cmd / Docker minimal image 無需裝 Node 即可跑全 framework
+- **Cross-platform 100%**：macOS / Linux / Windows native 全可
+- **Python 3.9+ + pyyaml（mempalace 已要求）**：唯二 runtime 依賴
+- 實際工時：~3h 主執行 + 3 個 background agent 並行（~30 min wall-clock）
+- SCRIPT_MIGRATION_ROADMAP.md Phase 1-4 **全部完成**（roadmap 預估 48-74h；實際以 agent 並行壓到 ~3h）
+
+---
+
+## [v6.35] - 2026-05-04
+
+### Added — smoke.test.sh → Python（PROPOSAL_502_026；MIGRATION_ROADMAP Phase 1）
+
+- 新建 `tests/scripts/smoke_test.py`（13 cases；對齊原 .sh）
+- `tests/scripts/run.py` 自動偵測 .py 優先；fallback .sh
+- 13/13 PASS；測試對象同步至 Python 入口（run-all.py / git_diff_detector.py）
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v6.34 → v6.35（patch；單檔 port）
+
+### Notes
+
+- **Active framework `.sh` 歸零**：6 個原始 .sh 全 ported 至 Python（舊檔保留作 fallback；下輪 audit 移除）
+- Cross-platform：Windows native cmd 100% 可跑全部 framework runtime
+- 實際工時 ~30 min（estimated 2-3h；smoke test 邏輯直觀；subprocess + tempfile + pathlib 直接對應）
+- SCRIPT_MIGRATION_ROADMAP 進度：Phase 1 (1/1) ✅ 完成；Phase 2-4（39 .mjs）按需做
+
+---
+
+## [v6.34] - 2026-05-04
+
+### Added — Cross-Platform Hardening + Python Migration（PROPOSAL_502_025）
+
+User audit 反饋：6 .sh 不支 Windows native；INSTALL.md 仍有 user-執行語氣；後續腳本應走 Python（mempalace 已用；cross-platform 覆蓋率最高）。
+
+- **ADR-0040「Script Language Policy」**（Python primary / Node legacy / Bash deprecated）
+- **`.agents/skills/script-language-policy.md`**（新建；撰寫腳本決策手冊 + boilerplate + 跨平台陷阱）
+- **`.agents/docs/SCRIPT_MIGRATION_ROADMAP.md`**（新建；4 phase 遷移計畫；估 48-74h）
+- **`.agents/tests/user-execution-language-validator.py`**（新建；framework 第一支 Python validator；偵測 user-執行語氣；run-all 第 18 個 validator）
+- **5/6 .sh → Python**（Sprint A + B）：
+  - `tests/index-drift-validator.sh` → `.py`
+  - `tests/scripts/run.sh` → `.py`
+  - `scripts/hooks/mempalace-auto-mine.sh` → `mempalace_auto_mine.py`
+  - `tests/lib/git-diff-detector.sh` → `git_diff_detector.py`
+  - `tests/run-all.sh` → `run-all.py`（並行 18 validators；--fast / --validator / --regenerate-indexes 三 mode 完整 port）
+  - ⏳ `tests/scripts/smoke.test.sh` deferred to Phase 1 follow-up（PROPOSAL_502_026）
+
+### Changed
+
+- `INSTALL.md` §0 新增（部署原則 + Windows bootstrap 前置 + [User 必跑]/[Agent 自動]/[Reference] 標記制度）
+- `INSTALL.md` §三 §六 §八 加標記（明示哪些 user 必跑 / 哪些 agent 自動）
+- `tests/run-all.sh` `tests/lib/git-diff-detector.sh`：保留作 fallback；新主入口 .py
+- `tests/run-all.sh` cmd 表更新：`index_drift` 改 `python3 .py`；`user_execution_language` 加入
+- `.agents/FRAMEWORK_VERSION`：v6.33 → v6.34（minor bump）
+
+### Notes
+
+- **核心策略**：Python primary 為新 script 唯一語言；既有 .mjs 機會主義式遷移；舊 .sh 全部要遷
+- **Cross-platform 提升**：Windows native cmd 從「不可跑 .sh」變成「可跑 .py」；無需強制 WSL/Git Bash（雖仍推薦）
+- **18 validators 全綠**：via 新 `python3 .agents/tests/run-all.py` 入口
+- **實際工時 ~3h**（預估 7-8h）；節省主因：大量 stdlib 即可；Python 寫並行比 bash 簡單
+- **後續觀察**：smoke.test.sh 遷移；39 .mjs 漸進 port（依 SCRIPT_MIGRATION_ROADMAP.md 4 phase）
+
+---
+
+## [v6.33] - 2026-05-04
+
+### Added — Agent-Driven Onboarding + Agent-Script-Orchestration（PROPOSAL_502_024）
+
+User 反饋：CLI 在 Windows 不能跑 / Qwen stdin 卡住 / 互動式問太多 / 應該由 agent 全代勞。
+
+- **`.agents/skills/agent-driven-onboarding.md`**（新建）：agent 對話內驅動 workspace 初始化
+  - Auto-detect 80% 欄位（package.json / pom.xml / requirements.txt / go.mod / Cargo.toml / \*.csproj / git remote / 子目錄）
+  - 必要時 multi-choice 詢問（≤ 3 題；非 free-form）
+  - Optional 欄位 defer（首次 dispatch 時補）
+  - Windows / Qwen / Antigravity 100% 相容（無 stdin readline 依賴）
+- **`.agents/skills/agent-script-orchestration.md`**（新建）：框架治理原則
+  - **核心**：User 0 腳本呼叫；agent 用 Bash/run_command tool 全自動代執行
+  - 完整 script 清單 + agent 觸發時機表（13 個常用 script）
+  - 對話模式範本（正確 vs 錯誤）
+  - 環境差異適配（Claude CLI / Qwen / Antigravity / Web / 自建 LLM 無 shell）
+  - Bash 不可用時的替代策略（agent 純 Read/Write 取代）
+  - 例外白名單（首次 deploy 套件安裝 / disaster recovery / CI/CD 三類合理）
+
+### Changed
+
+- `tasks/project-onboarding-workflow.md`：軌道 A → default 推薦；軌道 B → fallback 標 Windows 不穩
+- `INSTALL.md` §五 重寫：5.1 路徑表 / 5.2 agent-driven 為主 / 5.4 CLI 標警告
+- `qwen.md`：§0 核心原則 + Pointer Index 補 2 條 skill
+- `.agents/FRAMEWORK_VERSION`：v6.32 → v6.33
+
+### Notes
+
+- 設計原則升級：framework 是 **agent 架構**，不是 user 工具
+- `init-workspace.mjs` CLI 不刪除（保留 fallback 給純 shell + CI/CD）；只降為非 default
+- 後續所有新 rule / skill / task 文件**禁止**指示 User 跑腳本（agent-script-orchestration.md §6）
+- 實際工時 ~1h（預估 2-3h）
+
+---
+
+## [v6.32] - 2026-05-04
+
+### Added — Framework Integrity Hardening（PROPOSAL_502_023；Phase A+B+C 全面修補）
+
+由 24 情境靜態模擬發現的 27 異常觸發；3 sprint 全面修補。
+
+- **PROPOSAL_20260502_023**（Full → DONE；P0）：5 critical + 7 high + 14 medium 全處理
+- **Sprint A（5 critical）**：
+  - A-1（CR-1）：`init-workspace.mjs` + `.agents/memory/.pending/.gitkeep` 保證 MCP fallback buffer 目錄；`session-start-checklist.md` Step 5 補保證
+  - A-2（CR-2）：fresh init 自修復（舊 ROUTING_TICKET auto-archive 至 `.agents/archive/routing-tickets/`）
+  - A-3（CR-3）：`PROPOSAL_INDEX.md §🔗` 補 5 條近期意圖繼承；`gen-proposal-index.mjs` 加 `buildIntentInheritanceCandidates()` + AUTO-GENERATED block
+  - A-4（CR-4）：`lead.md §s06b` Prior Art Gate auto-escalation（24h/5 對話 → P-31 OVERDUE 🟡 → 再 → 🔴 阻斷）
+  - A-5（CR-5）：`lead.md §s_complexity_lane` S6/6.5 並行 PENDING_DISPATCHES queue child entries 同步
+- **Sprint B（7 high）**：
+  - B-1（HG-2）：`lead.md` skip @Architect 條件 + strategyWeight 強制檢查
+  - B-2（HG-3）：`routing-ticket-protocol.md` task_class 加 `config-adjust` enum
+  - B-3（HG-4）：`reviewer.md` REVIEW_QUALITY = SECURITY_AUDIT_FAIL parity 對等
+  - B-4（HG-5）：`memory-operations.md §6.4` compress 失敗 retry/escalate 3 步 SOP
+  - B-5（HG-6）：`memory-operations.md §2.6` `.pending/` file-based lock + retry-with-backoff
+  - B-6（HG-7）：`memory-operations.md §2.1` sub-agent 收 `memory_hint='no strong match'` 行為差異化（強制 Prior Art / 高警覺度）
+  - B-7（HG-1）：`architect.md §s05` Doc-sync Stage 8b Gate 3 條件
+  - B-8 deferred：Antigravity / Web / Qwen drift baseline 待 User 在實機環境補
+- **Sprint C（14 medium 統整）**：
+  - C-1：新建 `tests/workflow-stage-validator.mjs`（17th validator；rule × stage 雙向一致）
+  - C-4：`iron-rules/lead-state-anchor.md` 補 CONVERSATION_COUNTER cross-session 策略
+  - C-5：`PROPOSAL_INDEX §🔗` 維護規範補責任鏈
+  - C-6：`patrol-notification-catalog.md` 加 P-30 `PROPOSAL_TOTAL_OVER_50`（>50 🟡 / >100 🔴）
+  - C-7：`audit-retro-coordination.md §0` 補 mempalace MCP down fallback `.export/` grep
+  - C-8：補 baseline_comparison Δ aggregate 規則（單維度 + 整體加權；BROAD_REGRESSION 偵測）
+  - C-9/C-11：`hotfix-checklist.md` Step 0 加 `light_bypass_reason` + `token_budget_actual` 量化收集
+  - C-10：`lead.md §s04` SC-02/04/09 觸發升 P-15 紅
+  - C-12/C-13/C-14/F-5/F-6 部分 deferred 為 follow-up（dynamic test 設計 / validator 增強 / ADR review）
+
+### Changed
+
+- `decisions/0014-prior-art-scan.md`：amended 2026-05-04（A-4 auto-escalation）
+- `decisions/0039-mempalace-memory-backend.md`：amended 2026-05-04（B-4/B-5/B-6 三項）
+- `tests/run-all.sh` + `tests/lib/git-diff-detector.sh`：ALL_VALIDATORS 16 → 17（新 workflow_stage）
+- `docs/agents-overview.md` §4.2：巡邏範圍 P-01~P-29 → P-01~P-31
+- `.agents/FRAMEWORK_VERSION`：v6.31 → v6.32（minor bump；structural hardening）
+
+### Notes
+
+- 觸發：2026-05-04 6 並行 Explore agent 跑 24 情境靜態模擬；報告 `FRAMEWORK_INTEGRITY_SIMULATION_REPORT.md`
+- **核心修補**：5 個阻斷風險（.pending/ crash / fresh init lost / §🔗 表 / Prior Art Gate / S6/6.5 queue）全消除
+- **Validator 升級**：16 → 17（新 workflow_stage）；累計 PROPOSAL_502_018→023 期間從 14 → 17
+- **實際工時**：~8h（預估 21-27h；節省主因 = 多檔合併 commit + §🔗 表已存在 + medium 多為 1 行補強）
+- **Deferred**：跨 harness 實測（B-8）；mode-aware DoD 等價性 dynamic test（C-14）；ADR 低引用檢視（F-6）
+
+---
+
+## [v6.31] - 2026-05-04
+
+### Added — Token 成本優化（PROPOSAL_502_022；Lite tier）
+
+- **PROPOSAL_20260502_022**（Lite → DONE；P1）：3 個高 ROI token 優化（O-1 + O-2 + O-3）
+  - **O-3 mempalace.search 預設 limit 5 → 3**：`skills/memory-operations.md` §2.1 + §5；省 ~600-1K / 查詢；不夠時 follow-up `limit=5`
+  - **O-2 skill lazy-load 標註**：
+    - 新增 schema 3 欄位（`load_priority` / `size_tokens_approx` / `load_when`）至 `RULES_METADATA_SCHEMA.md` §2.2
+    - `skills/lead-orchestration-guide.md`（8,280 tokens）標 `load_priority: lazy`
+    - `INSTALL.md` §8.x 新增 Harness Loader 載入策略章節（rules / iron-themes / skills 三層）
+  - **O-1 applies_iron_themes 補完**：
+    - 4 rules（architect/frontend/planner/retro）frontmatter 加 `applies_iron_themes: []`
+    - 經評估與既有 6 iron-themes 皆非強相關；空清單明確標「harness loader 跳過」
+    - 補 RULES_METADATA_SCHEMA `applies_iron_themes` 欄位 loader 行為說明
+
+### Changed
+
+- `skills/memory-operations.md`：search default 5 → 3
+- `skills/lead-orchestration-guide.md`：frontmatter 加 lazy load metadata
+- `RULES_METADATA_SCHEMA.md`：§2.2 加 3 新欄位
+- `INSTALL.md`：§8.x Harness Loader 載入策略
+- `rules/architect.md` / `frontend.md` / `planner.md` / `retro.md`：frontmatter 加 `applies_iron_themes: []`
+- `.agents/FRAMEWORK_VERSION`：v6.30 → v6.31（patch bump；純優化）
+
+### Notes
+
+- 觸發：User 詢問「自用企業 LLM 在大量呼叫下的負擔/延遲」；2026-05-04 產出 TOKEN_COST_ANALYSIS_REPORT.md 識別 3 個高 ROI 優化
+- **預期效果**：每 dispatch 節省 25-35%；月度 5 人團隊省 ~10M tokens
+- **生效條件**：依 harness loader 是否消費 frontmatter；Claude Code CLI 已是 lazy（先得 O-2 收益）；其他 harness 需 loader 升級
+- **實際工時**：~75 min（預估 3-4h；節省主因：scope 收斂 + skill 已是 lazy 引用模式）
+- **後續觀察**：跨 harness 實測補測（PROPOSAL_502_021 C-2/C-3 deferred）；若 loader 不消費 → follow-up 提案
+
+---
+
+## [v6.30] - 2026-05-04
+
+### Added — Framework Harness-Neutral 化（PROPOSAL_502_021；3 sprint 連跑）
+
+- **PROPOSAL_20260502_021**（Full → DONE；P1）：去 Claude Code 強依賴；rules 自處理 + mode-aware dispatch + 工具命名中性語 + 設定檔 layered + git-native hook
+  - **Sprint A（6 task + validator）**：sub-agent dispatch 從強依賴改為 opt-in 優化
+    - rules/auditor.md v2.0 → v2.1（5 並行 Explore → mode-aware：serial default / parallel opt-in）
+    - tasks/auditor-dispatch-checklist.md v1.0 → v1.1（評估前 DoD 改 mode-neutral；新 §Mode 選擇對照表）
+    - tasks/audit-retro-coordination.md / hotfix-checklist.md / 3 skill 文件去 hardcoded 並行
+    - tasks/harness-adapter-pattern.md §A 完整改寫
+    - 新建 tests/sub-agent-dispatch-validator.mjs（5 forbidden patterns + ALLOWLIST；run-all.sh 15 → 16 validators）
+  - **Sprint B（5 task + Qwen 修正）**：工具命名中性化 + 設定檔 layered + git-native hook
+    - 新建 scripts/tool-name-neutralizer.mjs（11 工具對照；--dry-run/--apply/--report；314 檔掃描 → 2 hits 改寫）
+    - .mcp.json 加 \_per_harness_setup（5 種 harness 載入行為明文化）
+    - 新建 scripts/git-hooks/pre-commit.example（純 git；不依賴 LLM/IDE；ADR-0039 v2 commit 前 export 絕對禁止落實）
+    - 修正 Qwen-Agent MCP 支援度（User 實證 2026-05-04 可用；整體 50-60% → 70-80%；adapter 工時 20-40h → 6-10h）
+  - **Sprint C（baseline + validator + PLATFORM_COMPATIBILITY）**：cross-harness 驗證
+    - C-1 Claude CLI baseline 實測：drift_score=0.883 ✅；DoD 5/5（100%）
+    - 新建 scripts/cross-harness-validator.mjs（platform-detect + drift + validators 三合一）
+    - C-2 Antigravity / C-3 Web 補實測 deferred（待 User 在實機環境跑 --append --report）
+    - docs/PLATFORM_COMPATIBILITY.md §一加 drift_score / DoD 兩欄；§二 sub-agent / hooks 全 mode-aware
+
+### Changed
+
+- `decisions/0005-auditor-periodic-scoring.md`：v1 Accepted → v2 Amended（5 並行 → mode-aware）
+- `decisions/0010-parallel-review.md`：v1 Accepted → v2 Amended（強制並行 → mode-aware）
+- `decisions/0034-langgraph-dual-env-integration.md`：§3 LangGraph flow 圖補 mode-aware 註記
+- `.mcp.json`：加 \_per_harness_setup + \_fallback_when_mcp_unavailable 區塊
+- `tests/run-all.sh` + `tests/lib/git-diff-detector.sh`：ALL_VALIDATORS 15 → 16（新 sub_agent_dispatch）
+- `.agents/FRAMEWORK_VERSION`：v6.29 → v6.30（minor bump）
+
+### Notes
+
+- 解決 User 痛點：「框架不要依賴單一 agent 特色，盡量讓 rules 能夠自行處理即可」
+- **核心轉變**：sub-agent dispatch 從「強制要求」降為「opt-in 優化」；serial mode（rules 內串行）為通用 default；parallel mode（Claude Code Task tool）為加速器
+- **DoD 等價原則**：兩 mode 在功能上完全等價；parallel 只是加速器（~5x faster）非必須；任何 harness 都能跑 serial
+- **工時節省**：預估 24-32h；實際 ~7h（C-2/C-3 deferred 不算）
+  - 節省主因：工具名 hardcoded 遠少於預估（74 處中 72 處本來就合法 context）；mode-aware 改寫機械化；既有 PROPOSAL_502_019 文件已奠定大部分基礎
+- **後續觀察**：C-2/C-3 待 User 補實測；Qwen drift baseline 跑出來若 < 0.70 立 follow-up；4 harness 中 Claude CLI baseline 已立
+
+---
+
+## [v6.29] - 2026-05-04
+
+### Added — MemPalace 寫入機制升級 Plan G（PROPOSAL_502_020）
+
+- **PROPOSAL_20260502_020**（Full → DONE；P1）：mempalace SoT 反轉；MCP-direct 單寫 + 自寫 cold export
+  - T-1：新建 `scripts/mempalace-export.mjs`（252 行 MCP stdio JSON-RPC client；--wing/--dry-run/--verbose；export 25 drawers initial snapshot 至 `.agents/memory/.export/`）
+  - T-2：amend ADR-0039 v1 → v2（SoT 方向反轉；mempalace = primary write target；markdown = cold export artifact；新 v1→v2 對照表 + Plan G 限制揭露）
+  - T-3：rewrite `skills/memory-operations.md` v1.0 → v2.0（情境 C/D MCP-direct 寫；新增情境 E cold export；情境 F/G fallback 改 .export/ + .pending/ buffer 機制）
+  - T-4：update `INSTALL.md` + `INSTALL_ANTIGRAVITY.md`（mine 來源改 .agents/memory/.export/；移除 v1 錯誤 flags `--yes/--auto-mine/--no-llm`；補 cold export 章節 + git pre-commit hook 建議）
+  - T-5：embed MCP-direct write hooks 於 5 高頻 rules（lead/architect/backend/qa/retro）；rule budget 5/5 在預算內
+
+### Changed
+
+- `decisions/0039-mempalace-memory-backend.md`：v1 Accepted → v2 Amended（amended: 2026-05-04）
+- `skills/memory-operations.md`：v1.0 → v2.0
+- `rules/lead.md` §s_memory_palace：完整改寫（讀/寫/fallback/絕對禁止 全更新）
+- `rules/architect.md` §s04 / `rules/backend.md` / `rules/qa.md` §s05 / `rules/retro.md` §s04：嵌入 `mcp__mempalace__add_drawer` 為唯一寫路徑
+- `INSTALL.md` §3.3 §3.4 §5.3 §10：對齊 v2 Plan G
+- `INSTALL_ANTIGRAVITY.md` §Phase 2 §6.3：對齊 v2 Plan G
+- `.agents/FRAMEWORK_VERSION`：v6.28 → v6.29（minor bump）
+
+### Notes
+
+- 解決 User 痛點：「雙寫成本太高」「希望 zip 帶走完整記憶；不依賴 git」「全自動寫入避免遺漏」
+- **SoT 反轉**：v1（markdown SoT → mempalace mine）→ v2（rules 直呼 mcp**mempalace**add_drawer 單寫；scripts/mempalace-export.mjs 反向 cold export 至 .agents/memory/.export/）
+- **限制揭露**：mempalace 3.3.4 user-global ChromaDB 不跟專案；無 native export → 自寫 MCP RPC export script
+- **絕對禁止新增**：「commit 前未跑 export」（lead.md / retro.md）；「手寫 .export/」（必由 script 產）；「fallback 不走 .pending/ buffer」
+- **後續觀察**：git pre-commit hook 自動跑 export（建議）；.pending/ buffer e2e 測試；export incremental mode（drawer 數成長後）
+
+---
+
 ## [v6.28] - 2026-05-02
 
 ### Added — Platform compatibility layer（PROPOSAL_502_019）

@@ -169,6 +169,8 @@ rule_category: worker
 
 **@Reviewer 達上限防死鎖實例**：對同一任務同一實作方案被退件 ≥ `REVIEW_CYCLE_LIMIT` 次 → **必停止退件** + 強制阻斷審交流程 + 產 `REVIEW_QUALITY` 🔴 至 `PENDING_ACTIONS.md` + 將決策權交還 User。詳見 `skills/review-cycle-protocol.md`「達到上限後的 3 步驟流程」。
 
+**REVIEW_QUALITY parity 對等**（PROPOSAL_502_023 B-3；HG-4）：本通知為 @Security `SECURITY_AUDIT_FAIL`（security.md §s05）的對等通知；功能等價：兩者皆阻斷當前 dispatch + 升級 User；差異僅在領域（程式品質 vs 資安）。@Lead 收 REVIEW_QUALITY 🔴 必同 SECURITY_AUDIT_FAIL 處理：阻斷新派發直到 User 回應。
+
 </section>
 
 ---
