@@ -19,6 +19,7 @@ const FILES = {
   STRATEGY_CACHE: path.join(DIRS.CACHE, "strategy_cache.json"),
   PB_HISTORY: path.join(DATA_DIR, "pbHistory.json"),
   VALUATION_GUARD_STATE: path.join(DATA_DIR, "valuationGuardState.json"),
+  VIX_HISTORY: path.join(DATA_DIR, "vixHistory.json"),
 };
 
 async function ensureDirectories() {
@@ -26,7 +27,7 @@ async function ensureDirectories() {
     try {
       await fs.mkdir(dir, { recursive: true });
       const gitkeep = path.join(dir, ".gitkeep");
-      await fs.writeFile(gitkeep, "").catch(() => {});
+      await fs.writeFile(gitkeep, "").catch(() => { });
     } catch (err) {
       if (err.code !== "EEXIST") throw err;
     }
@@ -361,7 +362,63 @@ ${riskWarnings}
   },
 
   // ==========================================================================
-  // 4. 新聞篩選紀錄 (passedArticlesLog)
+  // 4. VIX 歷史紀錄 (vixHistory)
+  // ==========================================================================
+
+  /**
+   * 讀取 VIX 歷史紀錄
+   * @returns {Promise<Array<{date: string, value: number}>>} VIX 歷史陣列，由舊到新排序
+   */
+  async getVixHistory() {
+    try {
+      const content = await fs.readFile(FILES.VIX_HISTORY, "utf-8");
+      const data = JSON.parse(content);
+      return Array.isArray(data) ? data : [];
+    } catch {
+      return [];
+    }
+  },
+
+  /**
+   * 儲存當日 VIX 值到歷史紀錄
+   * @param {number} value - VIX 值
+   * @param {string} [dateStr] - 日期字串 YYYY-MM-DD，預設為今天
+   */
+  async saveVixHistory(value, dateStr = null) {
+    await ensureDirectories();
+    const twDateStr = dateStr || getTwDateStr();
+
+    let history = await this.getVixHistory();
+
+    // 移除同日的舊紀錄（避免重複）
+    history = history.filter((entry) => entry.date !== twDateStr);
+
+    // 新增當日紀錄
+    history.push({
+      date: twDateStr,
+      value: Number(value),
+    });
+
+    // 按日期排序（由舊到新）
+    history.sort((a, b) => a.date.localeCompare(b.date));
+
+    // 只保留最近 90 天的資料
+    const keepDays = 90;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - keepDays);
+    history = history.filter((entry) => new Date(entry.date) >= cutoff);
+
+    await fs.writeFile(
+      FILES.VIX_HISTORY,
+      JSON.stringify(history, null, 2),
+    );
+    console.log(
+      `📈 [Archive] VIX 歷史已更新: ${FILES.VIX_HISTORY} [${history.length} 筆]`,
+    );
+  },
+
+  // ==========================================================================
+  // 5. 新聞篩選紀錄 (passedArticlesLog)
   // ==========================================================================
 
   /**

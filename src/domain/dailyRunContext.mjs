@@ -66,6 +66,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
   const [
     portfolioResult,
     vixResult,
+    vixHistoryResult,
     basePriceResult,
     macroResult,
     historyZ2Result,
@@ -77,6 +78,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
   ] = await Promise.allSettled([
     _fetchPortfolio(),
     _fetchVix(),
+    _fetchVixHistory(),
     _fetchBasePrice(),
     _fetchMacroData(),
     _fetchHistory(SYMBOL_Z2),
@@ -97,6 +99,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     "portfolioState",
   );
   const vixData = _unwrap(vixResult, null, "vixData");
+  const vixArr = _unwrap(vixHistoryResult, [], "vixArr");
   const basePrice = _unwrap(basePriceResult, null, "basePrice");
   const macroData = _unwrap(macroResult, {}, "macroData");
   const historyZ2Raw = _unwrap(historyZ2Result, [], "historyZ2");
@@ -232,6 +235,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     openToday,
     // 行情
     vixData,
+    vixArr,
     basePrice,
     price0050,
     currentPriceZ2,
@@ -293,7 +297,23 @@ async function _fetchVix() {
   const done = stepTimer("fetchVix");
   const result = await getTwVix();
   done();
+
+  // 若成功取得 VIX，儲存到歷史紀錄
+  if (result && typeof result.value === "number") {
+    await archiveManager.saveVixHistory(result.value);
+  }
+
   return result;
+}
+
+/** 台指 VIX 歷史序列（從本地緩存讀取） */
+async function _fetchVixHistory() {
+  const done = stepTimer("fetchVixHistory");
+  const history = await archiveManager.getVixHistory();
+  done();
+
+  // 回傳純數值陣列（由舊到新排序），供 strategyEngine 使用
+  return history.map((entry) => entry.value);
 }
 
 /** 基準價 */
@@ -366,7 +386,7 @@ async function _fetchValuationGuardState() {
     };
     logger.info(
       `✅ [DailyRunContext] valuationGuardState 載入：latchActive=${state.latchActive}` +
-        (state.latchTriggeredAt ? `，觸發日 ${state.latchTriggeredAt}` : ""),
+      (state.latchTriggeredAt ? `，觸發日 ${state.latchTriggeredAt}` : ""),
     );
     return state;
   }
