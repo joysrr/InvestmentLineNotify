@@ -408,10 +408,12 @@ ${riskWarnings}
     cutoff.setDate(cutoff.getDate() - keepDays);
     history = history.filter((entry) => new Date(entry.date) >= cutoff);
 
+    const tmpFile = FILES.VIX_HISTORY + ".tmp";
     await fs.writeFile(
-      FILES.VIX_HISTORY,
+      tmpFile,
       JSON.stringify(history, null, 2),
     );
+    await fs.rename(tmpFile, FILES.VIX_HISTORY);
     console.log(
       `📈 [Archive] VIX 歷史已更新: ${FILES.VIX_HISTORY} [${history.length} 筆]`,
     );

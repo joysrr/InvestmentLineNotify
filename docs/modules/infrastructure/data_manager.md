@@ -13,6 +13,7 @@
 | `data/stock_history/`  | 透過 TWSE API 抓取的歷史 K 線快取，按月份儲存。 | 永久保留           |
 | `data/news/`           | 由 `newsPoolManager.mjs` 管理的新聞池。         | TTL 24 小時後歸檔  |
 | `data/news_logs/`      | 新聞篩選器 (Filter) 通過文章的歷史紀錄。        | 預設保留 30 天     |
+| `data/vixHistory.json` | 台指 VIX 歷史數值紀錄 (用於策略動能計算)。      | 保留最近 90 天     |
 
 ## 2. 新聞池管理 (`newsPoolManager.mjs`)
 

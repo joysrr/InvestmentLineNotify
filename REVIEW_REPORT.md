@@ -1,38 +1,43 @@
-# Review Report: UI Fixes & Config Refactoring
+# 程式碼審查報告 (Review Report)
 
-## 審查概況
+## 📌 審查基本資訊
 
-- **Reviewer**: `@Reviewer`
-- **Target**: `RT-20260503-001`
-- **Verdict**: ✅ **PASS**
+- **負責 Agent**：`@Reviewer`
+- **對應 Ticket**：RT-20260505-001
+- **目標檔案**：
+  - `src/domain/dailyRunContext.mjs`
+  - `src/modules/data/archiveManager.mjs`
+- **審查時間**：2026-05-05
 
-## 審查項目 (RULES_DESIGN_GUIDE.QUALITY.md)
+## 🔍 審查結果：PASS ✅
 
-### 1. 程式碼品質與防禦性設計 (Code Quality)
+### 1. 邏輯正確性 (Logic Correctness)
 
-- `storage.mjs`: 針對 `GOOGLE_PRIVATE_KEY` 加入了引號剝離 (`/^["']|["']$/g`) 以及針對被壓縮成單行無換行符的金鑰 (`!privateKey.includes("\n")`) 的自動還原邏輯。**防禦性極佳**。
-- `StrategyConfigPanel.vue`: 使用 `flattenConfig` 取代原有的白名單寫死邏輯，符合 OCP (Open-Closed Principle)，未來新增策略參數不需再動前端程式碼。
-- `DashboardView.vue` / `MarketRadarView.vue`: `lightEmoji` 和 `lightText` 支援了中英文 fallback，有效解決前後端資料型態脫鉤的問題。
+- **`dailyRunContext.mjs`**：
+  - **修改內容**：將 `_fetchVixHistory()` 自 `Promise.allSettled` 平行區塊移出，改為在平行區塊完結後、依序執行 `await _fetchVixHistory()`。
+  - **審查觀點**：完美解決 `_fetchVix` (含寫入) 與 `_fetchVixHistory` (純讀取) 平行競爭造成的延遲問題。現有邏輯確保讀取一定發生在當日最新資料寫入硬碟之後，`vixArr` 的完整性得保證。
+  - **例外處理**：加入 `try/catch` 捕捉 `_fetchVixHistory()` 的非致命錯誤並套用 `fallback` (空陣列 `[]`)，防護周全。
 
-### 2. 架構收斂性 (Architecture Consistency)
+### 2. 資料一致性與原子性 (Atomicity & Consistency)
 
-- `strategyLoader.mjs` 與 `config.mjs`: 正確移除了冗餘的 `parts/` 模組，確立 `Strategy.json` 作為 Single Source of Truth (SSOT)。這解決了長期以來編輯 `Strategy.json` 卻被舊版緩存覆蓋的設計債。
+- **`archiveManager.mjs`**：
+  - **修改內容**：在 `saveVixHistory` 中引入 `.tmp` 暫存檔，先寫入暫存檔後使用 `fs.rename` 原子性置換原檔。
+  - **審查觀點**：完全符合專案「TOCTOU 原子性鐵律」，有效防範進程或系統崩潰時的 JSON `0 byte` 損毀風險。
 
-### 3. 雙向邏輯測試覆蓋 (Bidirectional Logic Testing)
+### 3. 可維護性與效能 (Maintainability & Performance)
 
-- 本次修改無涉及狀態翻轉 (Toggle) 的純函式，故不適用 §十 的雙向測試強制規定。
+- 本地讀檔 (`fs.readFile`) 耗時極短（通常 < 2ms），將其改為序列化執行完全不影響原本網路請求的整體效能。
+- 程式碼可讀性良好，未增加額外的複雜依賴。
 
-### 4. 效能與安全性 (Performance & Security)
+---
 
-- 遞迴攤平物件 (`flattenConfig`) 時間複雜度在現有配置大小下為常數級，不構成效能負擔。
-- `storage.mjs` 修復金鑰但不印出敏感資訊，無日誌洩露風險。
+## 🛡️ 資安審查判定 (Security Audit Gate)
 
-## 結論
+- **判定結果**：**SKIP (跳過 @Security 平行審查)**
+- **判斷依據**：本次變更僅為本地非敏感資料 (`VIX_HISTORY`) 的競爭條件與檔案寫入優化，**不涉及**對外 API 權限 (SC-01/02)、憑證管理 (SC-03)、注入攻擊 (SC-04/05)、密碼學 (SC-06)、或外部 webhook (SC-07~10)。
 
-本次變更實作優雅且大幅降低了配置管理的複雜度。沒有發現 Code Smell 或架構違反情事，准予通過。
+---
 
-## 產出物 DoD 自評
+## 🏁 下一步建議
 
-- [x] 所有修改檔案的邏輯均已詳盡審查並驗證無明顯邊界錯誤。
-- [x] 無違反 `RULES_DESIGN_GUIDE` 之相關規定。
-- [x] 審查報告已完成，隨時可交由 `@Lead` 進行後續流程推動。
+程式碼健康狀態極佳，可直接推進至 QA 驗證階段（若此為單純 bugfix 甚至可由開發者直接 smoke test 後驗收）。

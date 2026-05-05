@@ -66,7 +66,6 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
   const [
     portfolioResult,
     vixResult,
-    vixHistoryResult,
     basePriceResult,
     macroResult,
     historyZ2Result,
@@ -78,7 +77,6 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
   ] = await Promise.allSettled([
     _fetchPortfolio(),
     _fetchVix(),
-    _fetchVixHistory(),
     _fetchBasePrice(),
     _fetchMacroData(),
     _fetchHistory(SYMBOL_Z2),
@@ -99,8 +97,16 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     "portfolioState",
   );
   const vixData = _unwrap(vixResult, null, "vixData");
-  const vixArr = _unwrap(vixHistoryResult, [], "vixArr");
   const basePrice = _unwrap(basePriceResult, null, "basePrice");
+
+  // 確保在 _fetchVix 寫入完成後再讀取歷史紀錄
+  let vixArr = [];
+  try {
+    vixArr = await _fetchVixHistory();
+  } catch (err) {
+    logger.warn(err, "⚠️ [DailyRunContext] vixArr 撈取失敗，使用 fallback");
+  }
+
   const macroData = _unwrap(macroResult, {}, "macroData");
   const historyZ2Raw = _unwrap(historyZ2Result, [], "historyZ2");
   const history0050 = _unwrap(history0050Result, [], "history0050");
@@ -386,7 +392,7 @@ async function _fetchValuationGuardState() {
     };
     logger.info(
       `✅ [DailyRunContext] valuationGuardState 載入：latchActive=${state.latchActive}` +
-      (state.latchTriggeredAt ? `，觸發日 ${state.latchTriggeredAt}` : ""),
+        (state.latchTriggeredAt ? `，觸發日 ${state.latchTriggeredAt}` : ""),
     );
     return state;
   }
