@@ -57,6 +57,11 @@ export async function fetchAllMacroData() {
   if (cachedData.rawNdc && ndcLastDate === todayStr) {
     console.log("⚡ [Cache] 景氣燈號使用快取資料");
     finalData.rawNdc = cachedData.rawNdc;
+    // 確保 newMetaSources 有正確的 status（舊格式可能沒有 status 欄位）
+    if (newMetaSources[ndcProviderKey]) {
+      newMetaSources[ndcProviderKey].status =
+        newMetaSources[ndcProviderKey].status || "SUCCESS";
+    }
   } else {
     const provider = getProviderForSlot("rawNdc");
 
@@ -95,6 +100,11 @@ export async function fetchAllMacroData() {
   if (cachedData.rawMargin && (twHour < 16 || hoursSinceMarginUpdate < 2)) {
     console.log("⚡ [Cache] 融資餘額使用快取資料");
     finalData.rawMargin = cachedData.rawMargin;
+    // 確保 newMetaSources 有正確的 status（舊格式可能沒有 status 欄位）
+    if (newMetaSources[marginProviderKey]) {
+      newMetaSources[marginProviderKey].status =
+        newMetaSources[marginProviderKey].status || "SUCCESS";
+    }
   } else {
     const provider = getProviderForSlot("rawMargin");
 
@@ -135,6 +145,11 @@ export async function fetchAllMacroData() {
   ) {
     console.log("⚡ [Cache] CNN 恐慌指數使用快取資料");
     finalData.rawCnn = cachedData.rawCnn;
+    // 確保 newMetaSources 有正確的 status
+    if (newMetaSources[cnnProviderKey]) {
+      newMetaSources[cnnProviderKey].status =
+        newMetaSources[cnnProviderKey].status || "SUCCESS";
+    }
   } else {
     const provider = getProviderForSlot("rawCnn");
 
@@ -170,6 +185,11 @@ export async function fetchAllMacroData() {
   if (cachedData.rawUsMarket && usMarketLastDate === todayStr) {
     console.log("⚡ [Cache] FRED 美股數據使用快取資料");
     finalData.rawUsMarket = cachedData.rawUsMarket;
+    // 確保 newMetaSources 有正確的 status
+    if (newMetaSources[usMarketProviderKey]) {
+      newMetaSources[usMarketProviderKey].status =
+        newMetaSources[usMarketProviderKey].status || "SUCCESS";
+    }
   } else {
     const provider = getProviderForSlot("rawUsMarket");
 
@@ -205,6 +225,11 @@ export async function fetchAllMacroData() {
   if (cachedData.rawValuation && valuationLastDate === todayStr) {
     console.log("⚡ [Cache] 大盤估值(PB/PE)使用快取資料");
     finalData.rawValuation = cachedData.rawValuation;
+    // 確保 newMetaSources 有正確的 status
+    if (newMetaSources[valuationProviderKey]) {
+      newMetaSources[valuationProviderKey].status =
+        newMetaSources[valuationProviderKey].status || "SUCCESS";
+    }
   } else {
     const provider = getProviderForSlot("rawValuation");
 
@@ -253,6 +278,11 @@ export async function fetchAllMacroData() {
       `⚡ [Cache] 匯率使用快取資料（距上次更新 < ${fxStaleMinutes} 分鐘）`,
     );
     finalData.rawFx = cachedData.rawFx;
+    // 確保 newMetaSources 有正確的 status
+    if (newMetaSources[fxProviderKey]) {
+      newMetaSources[fxProviderKey].status =
+        newMetaSources[fxProviderKey].status || "SUCCESS";
+    }
   } else {
     const fxProvider = getProviderForSlot("rawFx");
     fetchPromises.push(
@@ -312,6 +342,11 @@ export async function fetchAllMacroData() {
   if (cachedData.rawMarketOverview && overviewLastDate === todayStr) {
     console.log("⚡ [Cache] 大盤量價概覽使用快取資料");
     finalData.rawMarketOverview = cachedData.rawMarketOverview;
+    // 確保 newMetaSources 有正確的 status
+    if (newMetaSources[overviewProviderKey]) {
+      newMetaSources[overviewProviderKey].status =
+        newMetaSources[overviewProviderKey].status || "SUCCESS";
+    }
   } else {
     const provider = getProviderForSlot("rawMarketOverview");
 
@@ -355,6 +390,11 @@ export async function fetchAllMacroData() {
     if (cachedData[slotKey] && (twHour < 16 || lastFetchDate === todayStr)) {
       console.log(`⚡ [Cache] ${slotKey} 使用快取資料`);
       finalData[slotKey] = cachedData[slotKey];
+      // 確保 newMetaSources 有正確的 status
+      if (newMetaSources[providerId]) {
+        newMetaSources[providerId].status =
+          newMetaSources[providerId].status || "SUCCESS";
+      }
     } else {
       const provider = getProviderForSlot(slotKey);
       fetchPromises.push(
@@ -393,6 +433,11 @@ export async function fetchAllMacroData() {
     if (cachedData[slotKey] && lastFetchDate === todayStr) {
       console.log(`⚡ [Cache] ${slotKey} 使用快取資料`);
       finalData[slotKey] = cachedData[slotKey];
+      // 確保 newMetaSources 有正確的 status
+      if (newMetaSources[providerId]) {
+        newMetaSources[providerId].status =
+          newMetaSources[providerId].status || "SUCCESS";
+      }
     } else {
       const provider = getProviderForSlot(slotKey);
       fetchPromises.push(
