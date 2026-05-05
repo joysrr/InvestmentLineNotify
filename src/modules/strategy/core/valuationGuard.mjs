@@ -90,8 +90,15 @@ export function resolveValuationMomentum(
     return { prMomentum: 0, momentumAdjustment: 1.0, momentumLabel: "" };
   }
 
-  // TODO: currentVix / previousVix 待 VIX 動量邏輯實作後接入
-  // const { currentVix, previousVix } = vixData;
+  const { currentVix, previousVix } = vixData;
+  const highPRZone = cfg.highPRZone || { triggerPR: 85 };
+
+  // ── TODO: VIX 歷史數據接入 ────────────────────────────────────
+  // previousVix 尚未接入實際資料來源
+  // 待實作：從 archiveManager 或歷史資料庫取得前一日 VIX
+  // 目前 previousVix 為 undefined，VIX 急升判斷將跳過
+  // VIX 絕對值檢查仍可正常運作（只要有 currentVix）
+  // ─────────────────────────────────────────────────────────────
 
   // Simple momentum: compare current PR with PR 5 days ago
   const historyLen = pbRecordsObjects?.length || 0;
@@ -102,14 +109,51 @@ export function resolveValuationMomentum(
   let momentumAdjustment = 1.0;
   let momentumLabel = "";
 
-  if (currentPR >= (cfg.highPRZone || 80)) {
-    if (prMomentum > (cfg.relaxedMomentumThreshold || 2)) {
-      momentumAdjustment = cfg.risingPenaltyMultiplier || 0.8;
-      momentumLabel = `📈 估值動量 +${prMomentum} -> 壓縮 x${momentumAdjustment}`;
+  // 檢查是否進入高估區
+  const isInHighPRZone = currentPR >= highPRZone.triggerPR;
+
+  if (isInHighPRZone) {
+    // 1. PR 動能檢查
+    const risingThreshold = cfg.relaxedMomentumThreshold || 5;
+    if (prMomentum > risingThreshold) {
+      momentumAdjustment = cfg.risingPenaltyMultiplier || 0.85;
+      momentumLabel = `📈 估值動量 +${prMomentum.toFixed(1)} -> 壓縮 x${momentumAdjustment}`;
+    }
+
+    // 2. VIX 動能檢查（新增）
+    if (currentVix != null && previousVix != null) {
+      const vixSpikeThreshold = highPRZone.vixSpikeThreshold || 0.2;
+      const vixSpikeMultiplier = highPRZone.vixSpikeMultiplier || 0.85;
+      const vixAbsoluteHigh = highPRZone.vixAbsoluteHigh || 30;
+      const vixAbsoluteMultiplier = highPRZone.vixAbsoluteMultiplier || 0.7;
+
+      // VIX 急升（恐慌）
+      const vixSpike = (currentVix - previousVix) / previousVix > vixSpikeThreshold;
+      if (vixSpike) {
+        momentumAdjustment *= vixSpikeMultiplier;
+        momentumLabel += ` | ⚡ VIX 急升 ${(vixSpike * 100).toFixed(0)}% -> 額外壓縮 x${vixSpikeMultiplier}`;
+      }
+
+      // VIX 絕對值過高
+      if (currentVix > vixAbsoluteHigh) {
+        momentumAdjustment *= vixAbsoluteMultiplier;
+        momentumLabel += ` | 🚨 VIX 高位 ${currentVix} -> 額外壓縮 x${vixAbsoluteMultiplier}`;
+      }
+    }
+
+    // 3. VIX 絕對值過高（無 previousVix 時）
+    if (currentVix != null && previousVix == null) {
+      const vixAbsoluteHigh = highPRZone.vixAbsoluteHigh || 30;
+      const vixAbsoluteMultiplier = highPRZone.vixAbsoluteMultiplier || 0.7;
+
+      if (currentVix > vixAbsoluteHigh) {
+        momentumAdjustment *= vixAbsoluteMultiplier;
+        momentumLabel = `🚨 VIX 高位 ${currentVix} -> 壓縮 x${momentumAdjustment}`;
+      }
     }
   }
 
-  return { prMomentum, momentumAdjustment, momentumLabel };
+  return { prMomentum, momentumAdjustment, momentumLabel, isInHighPRZone };
 }
 
 export function evaluateValuationGuard(ctx, strategy, vgResult) {

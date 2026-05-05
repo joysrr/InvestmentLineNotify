@@ -244,8 +244,8 @@ function assertBuyEntryGate(eg) {
     // rsiThreshold 允許 number 或 null
     assert(
       tier.rsiThreshold === null ||
-        (typeof tier.rsiThreshold === "number" &&
-          Number.isFinite(tier.rsiThreshold)),
+      (typeof tier.rsiThreshold === "number" &&
+        Number.isFinite(tier.rsiThreshold)),
       `${p}.rsiThreshold 必須是 number 或 null`,
     );
     assertBoolean(tier.allowLeverage, `${p}.allowLeverage`);
@@ -296,7 +296,6 @@ function assertThreshold(config) {
   const fields = [
     "z2TargetRatio",
     "reversalTriggerCount",
-    "mmDanger",
     "z2RatioHigh",
     "minActionableAmount",
     "overheatCount",

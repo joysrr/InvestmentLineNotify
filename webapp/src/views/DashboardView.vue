@@ -417,8 +417,9 @@ const glLevel = computed(() => {
 });
 
 // ── Business cycle emoji ──
+// 統一使用 /api/status 的 rawNdc.light，確保與 MarketRadar 同步
 const lightEmoji = computed(() => {
-  const sig = latestReport.value?.marketState?.economy?.ndcLight ?? status.value?.data?.rawNdc?.light ?? "";
+  const sig = status.value?.data?.rawNdc?.light ?? "";
   if (sig.includes("黃紅") || sig.includes("活絡") || sig.includes("yellow-red")) return "🟠";
   if (sig.includes("黃藍") || sig.includes("趨緩") || sig.includes("yellow-blue")) return "🟡";
   if (sig.includes("紅") || sig.includes("熱絡") || sig === "red") return "🔴";
@@ -428,7 +429,7 @@ const lightEmoji = computed(() => {
 });
 
 const lightText = computed(() => {
-  const sig = latestReport.value?.marketState?.economy?.ndcLight ?? status.value?.data?.rawNdc?.light ?? "";
+  const sig = status.value?.data?.rawNdc?.light ?? "";
   if (!sig) return "—";
   if (sig.includes("黃紅") || sig.includes("yellow-red")) return "黃紅燈";
   if (sig.includes("黃藍") || sig.includes("yellow-blue")) return "黃藍燈";

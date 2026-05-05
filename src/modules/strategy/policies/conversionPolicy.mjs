@@ -44,7 +44,8 @@ export function resolveConversionGuard(ctx, strategy) {
   // 3. 計算應轉化 (賣出) 的金額與股數
   const currentZ2Value = qtyZ2 * currentPrice;
   const convertAmount = Math.round(currentZ2Value * activeTier.convertRatio);
-  if (convertAmount < (strategy.trading?.minAction || 10000)) {
+  const minAction = strategy?.threshold?.minActionableAmount ?? 10000;
+  if (convertAmount < minAction) {
     return null; // 金額過小不動作
   }
 

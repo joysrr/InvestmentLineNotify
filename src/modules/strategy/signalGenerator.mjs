@@ -63,14 +63,31 @@ export function normalizeUnbounded(val, history) {
  * @param {number} priceDropPercent - 當前跌幅百分比
  * @param {Object} strategy - 策略配置
  * @param {Object} extraData - 包含法人、情緒、斜率等資料
+ * @param {Object} macroSentiment - 宏觀情緒數據（新增）
  */
 export function generateScoringMatrix(
   indicators,
   priceDropPercent,
   strategy,
   extraData = {},
+  macroSentiment = null,
 ) {
   const config = strategy.scoringMatrix;
+
+  // 檢查 enabled flag
+  if (!config?.enabled) {
+    return {
+      finalScore: 0,
+      signal: "neutral",
+      scalingRatio: 0,
+      signalDirection: "hold",
+      categoryResults: {},
+      factorPool: {},
+      config: config?.thresholds ?? {},
+      disabled: true,
+    };
+  }
+
   const categories = config.categories;
   const thresholds = config.thresholds;
   const lookback = config.normalization.lookbackDays || 20;
@@ -120,6 +137,37 @@ export function generateScoringMatrix(
     .filter(Number.isFinite);
 
   const ma60SlopeArr = extraData.ma60SlopeHistory || [];
+
+  // 計算宏觀情緒加成（新增）
+  let macroSentimentBonus = 0;
+  let macroSentimentLabel = "";
+
+  if (macroSentiment && strategy.macroSentiment?.enabled) {
+    const ms = strategy.macroSentiment;
+    if (macroSentiment.direction === "BULLISH") {
+      macroSentimentBonus = ms.bonus ?? 0;
+      macroSentimentLabel = `📈 多頭情緒 +${macroSentimentBonus}`;
+    } else if (macroSentiment.direction === "BEARISH") {
+      macroSentimentBonus = -(ms.penalty ?? 0);
+      macroSentimentLabel = `📉 空頭情緒 ${macroSentimentBonus}`;
+    }
+
+    // VIX 短路覆蓋
+    const vixPanicThreshold = ms.vixOverrideTrigger ?? 28;
+    const vixAbsoluteOverride = ms.vixAbsoluteOverride ?? 35;
+
+    if (macroSentiment.vix != null) {
+      if (macroSentiment.vix >= vixAbsoluteOverride) {
+        // 極端恐慌：強制多頭加成
+        macroSentimentBonus = 5;
+        macroSentimentLabel = `🚨 VIX 恐慌 ${macroSentiment.vix} -> 強制 +5`;
+      } else if (macroSentiment.vix >= vixPanicThreshold && macroSentiment.direction !== "BULLISH") {
+        // VIX 恐慌區：額外加成
+        macroSentimentBonus += 3;
+        macroSentimentLabel += ` | VIX 恐慌 +3`;
+      }
+    }
+  }
 
   const factorPool = {
     priceDrop: Math.min(1.0, Math.sqrt((priceDropPercent || 0) / 40)),
@@ -203,5 +251,7 @@ export function generateScoringMatrix(
     categoryResults,
     factorPool,
     config: thresholds,
+    macroSentimentBonus,
+    macroSentimentLabel,
   };
 }

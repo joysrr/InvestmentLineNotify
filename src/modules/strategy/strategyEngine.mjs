@@ -212,6 +212,13 @@ export async function buildDecision(
   // ─────────────────────────────────────────────────────────────
   // ★ 核心計分矩陣 (Scoring Matrix) 決策引擎注入
   // ─────────────────────────────────────────────────────────────
+
+  // ── TODO: 宏觀情緒數據接入 ────────────────────────────────────
+  // ctx.macroSentiment 尚未接入實際資料來源
+  // 待實作：從新聞/NLP 分析模組取得
+  // 建議結構：{ direction: "BULLISH"|"BEARISH"|"NEUTRAL", vix: number }
+  // 目前傳入 undefined，macroSentimentBonus 將為 0，不影響計分
+  // ─────────────────────────────────────────────────────────────
   const scoringData = {
     institutionalNet: ctx.institutionalNet || 0,
     institutionalHistory: ctx.institutionalHistory || [],
@@ -231,9 +238,17 @@ export async function buildDecision(
     ctx.priceDropPercent,
     strategy,
     scoringData,
+    ctx.macroSentiment,  // ⚠️ TODO: 尚未接入資料來源
   );
-  const { finalScore, signal, signalDirection, scalingRatio, categoryResults } =
-    scoreResult;
+  const {
+    finalScore,
+    signal,
+    signalDirection,
+    scalingRatio,
+    categoryResults,
+    macroSentimentBonus,
+    macroSentimentLabel,
+  } = scoreResult;
 
   // --- 1.5.A) 預算管控 (Budget Control) ---
   const budgetCfg = strategy.trading?.budget;
@@ -492,8 +507,8 @@ export async function evaluateInvestmentSignal(data, strategy) {
   const isBearish = cfg?.enabled && data.macroMarketDirection === "BEARISH";
   const effectiveCooldownDays =
     isBearish &&
-    !vixOverride.overrideActive &&
-    Number.isFinite(cfg.bearishCooldownMultiplier)
+      !vixOverride.overrideActive &&
+      Number.isFinite(cfg.bearishCooldownMultiplier)
       ? Math.round(baseCooldownDays * cfg.bearishCooldownMultiplier)
       : baseCooldownDays;
 
@@ -550,9 +565,9 @@ export async function evaluateInvestmentSignal(data, strategy) {
   const glConfig = strategy.grossLeverage;
   const grossLeverageResult = glConfig
     ? computeGrossLeverage(
-        { etf0050Value, etf675LValue, netAssetValue: netAsset },
-        glConfig,
-      )
+      { etf0050Value, etf675LValue, netAssetValue: netAsset },
+      glConfig,
+    )
     : null;
   // ─────────────────────────────────────────────────────────────
   const ma60Slope =
@@ -629,7 +644,7 @@ async function computeTrailingStop(ctx, strategy) {
   const profitOk =
     currentPrice >
     (ctx.portfolio.avgCostZ2 || ctx.basePrice || 9999) *
-      (1 + tsCfg.activationProfitPct);
+    (1 + tsCfg.activationProfitPct);
 
   const ma20Arr = ctx.ma20Arr || [];
   const closeArr = ctx.closeArr || [];
