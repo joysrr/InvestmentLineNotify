@@ -22,7 +22,7 @@
  *   - 本工具僅供一次性手動修正使用，請勿加入自動化 CI 流程
  *   - 執行完畢後請從本機刪除 plain.json（明文敏感資料）
  */
-
+import "dotenv/config";
 import { encryptSnapshot, decryptSnapshot, isSnapshotEncryptEnabled } from '../src/utils/snapshotCrypto.mjs';
 import { createInterface } from 'readline';
 
