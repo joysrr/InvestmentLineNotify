@@ -4,7 +4,7 @@
 // 月報：3 則（msg1 數據摘要、msg2 AI 分析、msg3 訊號準確率回顧）
 
 const TREND_ICON = { up: "↗", down: "↘", flat: "→" };
-const DIRECTION_ICON = { BULLISH: "📈", BEARISH: "📉", NEUTRAL: "⚖️" };
+const DIRECTION_ICON = { BULL: "📈", BEAR: "📉", NEUTRAL: "⚖️" };
 
 function escHtml(str) {
   return String(str)
@@ -128,7 +128,7 @@ export function buildPeriodReportMessages(stats, aiSummary, period, accuracyStat
   lines1.push("━━ 訊號趨勢 ━━");
   for (const d of stats.dailySignals) {
     const score = d.weightScore > 0 ? ` score:${d.weightScore}` : "";
-    const macro = d.macroDirection ? ` [${d.macroDirection === "BULLISH" ? "多" : d.macroDirection === "BEARISH" ? "空" : "中"}]` : "";
+    const macro = d.macroDirection ? ` [${d.macroDirection === "BULL" ? "多" : d.macroDirection === "BEAR" ? "空" : "中"}]` : "";
     lines1.push(`${d.date} ${escHtml(d.target)}${score}${macro}`);
   }
   lines1.push("");
@@ -148,9 +148,9 @@ export function buildPeriodReportMessages(stats, aiSummary, period, accuracyStat
   lines1.push("");
 
   lines1.push("━━ 總經方向分布 ━━");
-  const { bullishDays, bearishDays, neutralDays, dominantDirection } = stats.macro;
+  const { bullDays, bearDays, neutralDays, dominantDirection } = stats.macro;
   const dIcon = DIRECTION_ICON[dominantDirection] ?? "⚖️";
-  lines1.push(`多頭 ${bullishDays}天 | 空頭 ${bearishDays}天 | 中性 ${neutralDays}天`);
+  lines1.push(`多頭 ${bullDays}天 | 空頭 ${bearDays}天 | 中性 ${neutralDays}天`);
   lines1.push(`主導方向：${dominantDirection} ${dIcon}`);
   lines1.push("");
 
@@ -243,34 +243,34 @@ export function buildPeriodReportMessages(stats, aiSummary, period, accuracyStat
  * @returns {Array<{text: string, pin: boolean, webAppUrl: string}>}
  */
 export function buildCompactPeriodMessage(stats, aiSummary, period, webAppUrl) {
-  const isWeekly  = period === "weekly";
-  const header    = isWeekly ? "📊 本週策略摘要" : "📋 本月策略摘要";
+  const isWeekly = period === "weekly";
+  const header = isWeekly ? "📊 本週策略摘要" : "📋 本月策略摘要";
   const { from, to } = stats.dateRange;
 
   const SEP = "\n─────────────────\n";
 
   // ── 技術指標均値 ──
   const { rsi, kdK, bias240 } = stats.indicators;
-  const rsiAvg   = formatNum(rsi.avg,    1);
-  const kdkAvg   = formatNum(kdK.avg,    1);
-  const biasAvg  = formatNum(bias240.avg, 1);
-  const rsiTrend  = TREND_ICON[rsi.trend]    ?? "→";
-  const kdkTrend  = TREND_ICON[kdK.trend]    ?? "→";
+  const rsiAvg = formatNum(rsi.avg, 1);
+  const kdkAvg = formatNum(kdK.avg, 1);
+  const biasAvg = formatNum(bias240.avg, 1);
+  const rsiTrend = TREND_ICON[rsi.trend] ?? "→";
+  const kdkTrend = TREND_ICON[kdK.trend] ?? "→";
   const biasTrend = TREND_ICON[bias240.trend] ?? "→";
 
   // ── 過熱狀態 ──
   const { overheatDays, totalDays, isEscalating } = stats.overheat;
   const overheatEmoji = overheatDays === 0 ? "✅" : overheatDays >= totalDays * 0.6 ? "🔥" : "⚠️";
-  const escalateHint  = overheatDays > 0 ? (isEscalating ? " 升溫中" : " 緩和中") : "";
-  const overheatLine  = `${overheatEmoji} 過熱 ${overheatDays}/${totalDays} 天${escalateHint}`;
+  const escalateHint = overheatDays > 0 ? (isEscalating ? " 升溫中" : " 緩和中") : "";
+  const overheatLine = `${overheatEmoji} 過熱 ${overheatDays}/${totalDays} 天${escalateHint}`;
 
   // ── 總經方向 ──
-  const { bullishDays, bearishDays, neutralDays, dominantDirection } = stats.macro;
-  const dirIcon    = DIRECTION_ICON[dominantDirection] ?? "⚖️";
-  const macroLine  = `${dirIcon} 多 ${bullishDays}天 / 空 ${bearishDays}天 / 中 ${neutralDays}天  《${dominantDirection}》`;
+  const { bullDays, bearDays, neutralDays, dominantDirection } = stats.macro;
+  const dirIcon = DIRECTION_ICON[dominantDirection] ?? "⚖️";
+  const macroLine = `${dirIcon} 多 ${bullDays}天 / 空 ${bearDays}天 / 中 ${neutralDays}天  《${dominantDirection}》`;
 
   // ── 冷卻期 ──
-  const blockedDays  = stats.cooldown.blockedDays ?? 0;
+  const blockedDays = stats.cooldown.blockedDays ?? 0;
   const cooldownLine = blockedDays > 0
     ? `⏸ 冷卻期封鎖 ${blockedDays} 天`
     : `✅ 無冷卻封鎖`;
@@ -287,8 +287,8 @@ export function buildCompactPeriodMessage(stats, aiSummary, period, webAppUrl) {
     : "";
 
   // ── 訊號統計 ──
-  const buyCount     = stats.dailySignals?.filter(d => d.target?.includes("買") || d.weightScore > 0).length ?? 0;
-  const signalLine   = `🟢 達買入闀値 ${buyCount} 天  ${consistLine}`;
+  const buyCount = stats.dailySignals?.filter(d => d.target?.includes("買") || d.weightScore > 0).length ?? 0;
+  const signalLine = `🟢 達買入闀値 ${buyCount} 天  ${consistLine}`;
 
   const text =
     `<b>${header}</b>  <code>${escHtml(from)} – ${escHtml(to)}</code>  <i>${stats.tradingDays} 交易日</i>${SEP}` +

@@ -63,10 +63,10 @@ export function computeEntryScore(
 
   if (macroSentiment?.direction) {
     const dir = macroSentiment.direction;
-    if (dir === "BULLISH") {
+    if (dir === "BULL") {
       sentimentScore = macroSentiment.bonus ?? 0;
       sentimentInfo = `🌐 總體情緒：📈 新聞偏多 (+${sentimentScore}分)`;
-    } else if (dir === "BEARISH") {
+    } else if (dir === "BEAR") {
       sentimentScore = -(macroSentiment.penalty ?? 0);
       sentimentInfo = `🌐 總體情緒：📉 新聞偏空 (${sentimentScore}分)`;
     } else {

@@ -144,10 +144,10 @@ export function generateScoringMatrix(
 
   if (macroSentiment && strategy.macroSentiment?.enabled) {
     const ms = strategy.macroSentiment;
-    if (macroSentiment.direction === "BULLISH") {
+    if (macroSentiment.direction === "BULL") {
       macroSentimentBonus = ms.bonus ?? 0;
       macroSentimentLabel = `📈 多頭情緒 +${macroSentimentBonus}`;
-    } else if (macroSentiment.direction === "BEARISH") {
+    } else if (macroSentiment.direction === "BEAR") {
       macroSentimentBonus = -(ms.penalty ?? 0);
       macroSentimentLabel = `📉 空頭情緒 ${macroSentimentBonus}`;
     }
@@ -161,7 +161,7 @@ export function generateScoringMatrix(
         // 極端恐慌：強制多頭加成
         macroSentimentBonus = 5;
         macroSentimentLabel = `🚨 VIX 恐慌 ${macroSentiment.vix} -> 強制 +5`;
-      } else if (macroSentiment.vix >= vixPanicThreshold && macroSentiment.direction !== "BULLISH") {
+      } else if (macroSentiment.vix >= vixPanicThreshold && macroSentiment.direction !== "BULL") {
         // VIX 恐慌區：額外加成
         macroSentimentBonus += 3;
         macroSentimentLabel += ` | VIX 恐慌 +3`;

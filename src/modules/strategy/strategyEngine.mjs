@@ -148,11 +148,16 @@ export async function buildDecision(
       shouldLatch || (latchState.latchActive && !shouldUnlatch);
 
     // Unconditionally compute momentum if enabled
+    // vixData: 從 ctx.vixArr 取得 currentVix 和 previousVix
+    const vixArr = ctx.vixArr || [];
+    const currentVix = vixArr.length > 0 ? vixArr[vixArr.length - 1] : null;
+    const previousVix = vixArr.length > 1 ? vixArr[vixArr.length - 2] : null;
+
     ctx.valuationMomentumResult = resolveValuationMomentum(
       vgResult.currentPR,
       ctx.pbRecordsObjects,
       strategy,
-      { currentVix: ctx.vix, previousVix: null },
+      { currentVix, previousVix },
     );
 
     engineState.valuationGuardResult = vgResult; // ← 由 Engine 層統一持有，供後續節點讀取
@@ -213,19 +218,22 @@ export async function buildDecision(
   // ★ 核心計分矩陣 (Scoring Matrix) 決策引擎注入
   // ─────────────────────────────────────────────────────────────
 
-  // ── TODO: 宏觀情緒數據接入 ────────────────────────────────────
-  // ctx.macroSentiment 尚未接入實際資料來源
-  // 待實作：從新聞/NLP 分析模組取得
-  // 建議結構：{ direction: "BULLISH"|"BEARISH"|"NEUTRAL", vix: number }
-  // 目前傳入 undefined，macroSentimentBonus 將為 0，不影響計分
-  // ─────────────────────────────────────────────────────────────
+  // ── 宏觀情緒數據接入（使用現有 dailyRunContext 的多空分析）──────────
+  // ctx.macroSentiment 已從 buildEngineContext 注入，包含：
+  //   - direction: BULL/BEAR/NEUTRAL（從 AI Coach 分析新聞得出）
+  //   - bonus: 多頭加分（從 strategy.macroSentiment.bullishBonus）
+  //   - penalty: 空頭扣分（從 strategy.macroSentiment.bearishPenalty）
+  //   - vix: 當前 VIX 值（供 VIX 短路機制使用）
+  //   - vixOverrideActive: VIX 情緒短路標記
+  // 若 macroSentiment 為 null，則不套用情緒加成
+  // ─────────────────────────────────────────────────────────────────
   const scoringData = {
     institutionalNet: ctx.institutionalNet || 0,
     institutionalHistory: ctx.institutionalHistory || [],
     sentimentScore:
-      ctx.macroSentiment?.direction === "BULLISH"
+      ctx.macroSentiment?.direction === "BULL"
         ? ctx.macroSentiment.bonus || 0
-        : ctx.macroSentiment?.direction === "BEARISH"
+        : ctx.macroSentiment?.direction === "BEAR"
           ? -(ctx.macroSentiment.penalty || 0)
           : 0,
     ma60SlopeHistory: ctx.ma60SlopeHistory || [],
@@ -238,7 +246,7 @@ export async function buildDecision(
     ctx.priceDropPercent,
     strategy,
     scoringData,
-    ctx.macroSentiment,  // ⚠️ TODO: 尚未接入資料來源
+    ctx.macroSentiment,  // ✅ 已從 dailyRunContext.macroMarketDirection 接入
   );
   const {
     finalScore,
@@ -504,7 +512,7 @@ export async function evaluateInvestmentSignal(data, strategy) {
   );
 
   // effectiveCooldownDays：短路啟動時跳過 bearishCooldownMultiplier 延長
-  const isBearish = cfg?.enabled && data.macroMarketDirection === "BEARISH";
+  const isBearish = cfg?.enabled && data.macroMarketDirection === "BEAR";
   const effectiveCooldownDays =
     isBearish &&
       !vixOverride.overrideActive &&

@@ -74,7 +74,7 @@ export function resolveVixOverride(vixValue, vixArr, config) {
  * 若 vixOverride.overrideActive === true，
  * bearishPenalty 強制設為 0（短路屏蔽），並在回傳物件中標記短路狀態。
  *
- * @param {string|null} marketDirection - 'BULLISH' | 'BEARISH' | 'NEUTRAL' | null
+ * @param {string|null} marketDirection - 'BULL' | 'BEAR' | 'NEUTRAL' | null
  * @param {Object} strategy - 完整策略設定
  * @param {{ overrideActive: boolean, overrideReason: string }} vixOverride - VIX 短路狀態
  * @returns {Object|null}
@@ -89,7 +89,7 @@ export function resolveMacroSentiment(marketDirection, strategy, vixOverride) {
   const effectivePenalty = isOverrideActive ? 0 : (cfg.bearishPenalty ?? 0);
 
   return {
-    direction: marketDirection,
+    direction: marketDirection,  // 'BULL' | 'BEAR' | 'NEUTRAL'
     bonus: cfg.bullishBonus ?? 0,
     penalty: effectivePenalty,
     // 短路標記：供 Telegram 模板識別並顯示 ⚡ VIX 情緒短路 提示

@@ -143,16 +143,16 @@ export function buildPeriodStats(reports, period) {
 
   // ⑦ 總經方向
   const macroDir = dailySignals.map((d) => d.macroDirection);
-  const bullishDays = macroDir.filter((d) => d === "BULLISH").length;
-  const bearishDays = macroDir.filter((d) => d === "BEARISH").length;
-  const neutralDays = reports.length - bullishDays - bearishDays;
+  const bullDays = macroDir.filter((d) => d === "BULL").length;
+  const bearDays = macroDir.filter((d) => d === "BEAR").length;
+  const neutralDays = reports.length - bullDays - bearDays;
   let dominantDirection = "NEUTRAL";
-  if (bullishDays > bearishDays && bullishDays > neutralDays)
-    dominantDirection = "BULLISH";
-  else if (bearishDays > bullishDays && bearishDays > neutralDays)
-    dominantDirection = "BEARISH";
+  if (bullDays > bearDays && bullDays > neutralDays)
+    dominantDirection = "BULL";
+  else if (bearDays > bullDays && bearDays > neutralDays)
+    dominantDirection = "BEAR";
 
-  const macro = { bullishDays, bearishDays, neutralDays, dominantDirection };
+  const macro = { bullDays, bearDays, neutralDays, dominantDirection };
 
   // ⑧ 月報：訊號品質
   let signalQuality = null;
@@ -498,7 +498,7 @@ export async function generatePeriodAiSummary(
 
     // CI 觀測 log
     logger.info(
-      { 
+      {
         periodLabel,
         topRiskEvents: aiSummary.topRiskEvents?.length ?? 0,
         consistencyComment: aiSummary.consistencyComment?.slice(0, 30),
