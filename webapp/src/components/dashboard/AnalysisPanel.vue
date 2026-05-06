@@ -97,7 +97,17 @@ const showList = ref(false);
 .radar-verdict { font-weight: 700; font-size: 14px; }
 .verdict-ok { color: #26a17b; }
 .verdict-wait { color: #d4ac0d; }
-.score-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f9f9f9; font-size: 13px; }
+.radar-wrapper {
+  height: 250px;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.score-list {
+  padding: 8px 0;
+}
 .score-row--active { font-weight: 700; color: #2481cc; }
 .defense-item { display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
 .defense-item:last-child { border-bottom: none; }

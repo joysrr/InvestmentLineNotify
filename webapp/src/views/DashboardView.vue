@@ -51,6 +51,8 @@
           :report="latestReport"
           :risks="aiRiskWarnings"
           :actions="aiActionItems"
+          :mindset="aiMindsetAdvice"
+          :thinking="aiInternalThinking"
         />
       </div>
 
@@ -214,14 +216,36 @@ const pctText = computed(() => `${latestReport.value?.signals?.priceChangePercen
 
 const aiRiskWarnings = computed(() => latestReport.value?.ai?.risk_warnings ?? []);
 const aiActionItems = computed(() => latestReport.value?.ai?.action_items ?? []);
+const aiMindsetAdvice = computed(() => latestReport.value?.ai?.mindset_advice ?? []);
+const aiInternalThinking = computed(() => latestReport.value?.ai?.coach_internal_thinking ?? "");
 
 const defenseItems = computed(() => {
   const sigs = latestReport.value?.signals;
   const vg = sigs?.valuationGuardResult;
+  const prLabel = pbPrValue.value !== "—" ? `PR${pbPrValue.value}%` : "分析中";
+  
   return [
-    { icon: '⚖️', title: '估值守衛', statusText: vg?.guardActive ? '防禦生效' : '安全', statusClass: vg?.guardActive ? 'text-warn' : 'text-ok', desc: `PR${pbPrValue.value}%` },
-    { icon: '📊', title: '槓桿天花板', statusText: glLevel.value.label, statusClass: glLevel.value.textClass, desc: `${glValue.value}x` },
-    { icon: '🛡️', title: '維持率安全', statusText: sigs?.maintenanceRisk?.level === 'Normal' ? '安全' : '警告', statusClass: sigs?.maintenanceRisk?.level === 'Normal' ? 'text-ok' : 'text-danger', desc: '跌破將觸發減碼' }
+    { 
+      icon: '⚖️', 
+      title: '估值守衛', 
+      statusText: vg?.guardActive ? '防禦生效' : '安全', 
+      statusClass: vg?.guardActive ? 'text-warn' : 'text-ok', 
+      desc: prLabel 
+    },
+    { 
+      icon: '📊', 
+      title: '槓桿天花板', 
+      statusText: glLevel.value.label, 
+      statusClass: glLevel.value.textClass, 
+      desc: `${glValue.value}x` 
+    },
+    { 
+      icon: '🛡️', 
+      title: '維持率安全', 
+      statusText: sigs?.maintenanceRisk?.level === 'Normal' ? '安全' : '警告', 
+      statusClass: sigs?.maintenanceRisk?.level === 'Normal' ? 'text-ok' : 'text-danger', 
+      desc: '跌破將觸發減碼' 
+    }
   ];
 });
 
@@ -244,7 +268,11 @@ const radarOption = computed(() => {
   return {
     radar: {
       indicator: [
-        { name: "跌幅", max: 5 }, { name: "RSI", max: 3 }, { name: "MACD", max: 3 }, { name: "KD", max: 3 }, { name: "情緒", max: 2 },
+        { name: "跌幅", max: 5 }, 
+        { name: "RSI", max: 5 }, 
+        { name: "MACD", max: 5 }, 
+        { name: "KD", max: 5 }, 
+        { name: "情緒", max: 5 },
       ],
       shape: "polygon",
       axisName: { color: "#999", fontSize: 10 }
@@ -252,7 +280,13 @@ const radarOption = computed(() => {
     series: [{
       type: "radar",
       data: [{
-        value: [w.dropScore, w.rsiScore, w.macdScore, w.kdScore, Math.abs(w.sentimentScore)],
+        value: [
+          Number(w.dropScore || 0), 
+          Number(w.rsiScore || 0), 
+          Number(w.macdScore || 0), 
+          Number(w.kdScore || 0), 
+          Math.abs(Number(w.sentimentScore || 0))
+        ],
         areaStyle: { color: "rgba(36, 129, 204, 0.2)" },
         lineStyle: { color: "#2481cc", width: 2 },
         symbol: "none"

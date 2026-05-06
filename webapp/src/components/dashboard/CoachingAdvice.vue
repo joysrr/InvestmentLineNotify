@@ -14,16 +14,27 @@
       </ul>
     </div>
 
-    <!-- 觀察清單 -->
-    <div class="ai-block" v-if="actions.length">
-      <button class="ai-block-header" @click="actionExpanded = !actionExpanded">
-        <span>📌 下一步觀察清單</span>
-        <span class="ai-count">{{ actions.length }} 項</span>
-        <span class="expand-arrow">{{ actionExpanded ? "▲" : "▼" }}</span>
+    <!-- 行動微調建議 -->
+    <div class="ai-block" v-if="mindset.length">
+      <button class="ai-block-header" @click="mindsetExpanded = !mindsetExpanded">
+        <span>💡 行動微調建議</span>
+        <span class="ai-count">{{ mindset.length }} 項</span>
+        <span class="expand-arrow">{{ mindsetExpanded ? "▲" : "▼" }}</span>
       </button>
-      <ul v-if="actionExpanded" class="ai-list ai-list--action">
-        <li v-for="(item, i) in actions" :key="i">{{ item }}</li>
+      <ul v-if="mindsetExpanded" class="ai-list ai-list--mindset">
+        <li v-for="(item, i) in mindset" :key="i">{{ item }}</li>
       </ul>
+    </div>
+
+    <!-- 教練內心推演 -->
+    <div class="ai-block" v-if="thinking">
+      <button class="ai-block-header" @click="thinkingExpanded = !thinkingExpanded">
+        <span>🧠 教練內心推演</span>
+        <span class="expand-arrow">{{ thinkingExpanded ? "▲" : "▼" }}</span>
+      </button>
+      <p v-if="thinkingExpanded" class="ai-thinking">
+        {{ thinking }}
+      </p>
     </div>
   </section>
 </template>
@@ -34,11 +45,15 @@ import { ref } from 'vue';
 const props = defineProps({
   report: Object,
   risks: Array,
-  actions: Array
+  actions: Array,
+  mindset: Array,
+  thinking: String
 });
 
 const riskExpanded = ref(true);
 const actionExpanded = ref(true);
+const mindsetExpanded = ref(false);
+const thinkingExpanded = ref(false);
 </script>
 
 <style scoped>
@@ -83,5 +98,12 @@ const actionExpanded = ref(true);
   position: absolute;
   left: 0;
   color: var(--tg-theme-button-color, #2481cc);
+}
+.ai-thinking {
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #888);
+  font-style: italic;
+  line-height: 1.5;
 }
 </style>
