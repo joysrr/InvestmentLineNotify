@@ -53,6 +53,8 @@
           :actions="aiActionItems"
           :mindset="aiMindsetAdvice"
           :thinking="aiInternalThinking"
+          :insight="aiCoreInsight"
+          :verdict="aiStrategyVerdict"
         />
       </div>
 
@@ -218,6 +220,8 @@ const aiRiskWarnings = computed(() => latestReport.value?.ai?.risk_warnings ?? [
 const aiActionItems = computed(() => latestReport.value?.ai?.action_items ?? []);
 const aiMindsetAdvice = computed(() => latestReport.value?.ai?.mindset_advice ?? []);
 const aiInternalThinking = computed(() => latestReport.value?.ai?.coach_internal_thinking ?? "");
+const aiCoreInsight = computed(() => latestReport.value?.ai?.core_insight ?? "");
+const aiStrategyVerdict = computed(() => latestReport.value?.ai?.strategy_verdict ?? "");
 
 const defenseItems = computed(() => {
   const sigs = latestReport.value?.signals;
