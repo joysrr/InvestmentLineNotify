@@ -164,12 +164,12 @@ describe("validateStrategyConfig - 有效配置", () => {
         monthlyDcaAmount: 50000,
         payDay: 15,
         preInjectDays: 3,
-        profiles: [
-          { stage: "EARLY", maxLeverage: 3.0 },
-          { stage: "MID", maxLeverage: 2.5 },
-          { stage: "LATE", maxLeverage: 2.0 },
-          { stage: "PRE_RETIRE", maxLeverage: 1.5 },
-        ],
+        profiles: {
+          EARLY: { maxLeverage: 3.0 },
+          MID: { maxLeverage: 2.5 },
+          LATE: { maxLeverage: 2.0 },
+          PRE_RETIRE: { maxLeverage: 1.5 },
+        },
       },
     };
 
@@ -186,45 +186,35 @@ describe("validateStrategyConfig - 必填欄位", () => {
     const invalidConfig = { ...minimalValidConfig };
     delete invalidConfig.version;
 
-    expect(() => validateStrategyConfig(invalidConfig)).toThrow(
-      "version",
-    );
+    expect(() => validateStrategyConfig(invalidConfig)).toThrow("version");
   });
 
   it("缺少 description 應拋出錯誤", () => {
     const invalidConfig = { ...minimalValidConfig };
     delete invalidConfig.description;
 
-    expect(() => validateStrategyConfig(invalidConfig)).toThrow(
-      "description",
-    );
+    expect(() => validateStrategyConfig(invalidConfig)).toThrow("description");
   });
 
   it("缺少 leverage 應拋出錯誤", () => {
     const invalidConfig = { ...minimalValidConfig };
     delete invalidConfig.leverage;
 
-    expect(() => validateStrategyConfig(invalidConfig)).toThrow(
-      "leverage",
-    );
+    expect(() => validateStrategyConfig(invalidConfig)).toThrow("leverage");
   });
 
   it("缺少 reserve 應拋出錯誤", () => {
     const invalidConfig = { ...minimalValidConfig };
     delete invalidConfig.reserve;
 
-    expect(() => validateStrategyConfig(invalidConfig)).toThrow(
-      "reserve",
-    );
+    expect(() => validateStrategyConfig(invalidConfig)).toThrow("reserve");
   });
 
   it("缺少 maintenance 應拋出錯誤", () => {
     const invalidConfig = { ...minimalValidConfig };
     delete invalidConfig.maintenance;
 
-    expect(() => validateStrategyConfig(invalidConfig)).toThrow(
-      "maintenance",
-    );
+    expect(() => validateStrategyConfig(invalidConfig)).toThrow("maintenance");
   });
 
   it("缺少 grossLeverage 應拋出錯誤", () => {
@@ -240,9 +230,7 @@ describe("validateStrategyConfig - 必填欄位", () => {
     const invalidConfig = { ...minimalValidConfig };
     delete invalidConfig.trading;
 
-    expect(() => validateStrategyConfig(invalidConfig)).toThrow(
-      "trading",
-    );
+    expect(() => validateStrategyConfig(invalidConfig)).toThrow("trading");
   });
 
   it("缺少 buy 應拋出錯誤", () => {
@@ -263,18 +251,14 @@ describe("validateStrategyConfig - 必填欄位", () => {
     const invalidConfig = { ...minimalValidConfig };
     delete invalidConfig.allocation;
 
-    expect(() => validateStrategyConfig(invalidConfig)).toThrow(
-      "allocation",
-    );
+    expect(() => validateStrategyConfig(invalidConfig)).toThrow("allocation");
   });
 
   it("缺少 threshold 應拋出錯誤", () => {
     const invalidConfig = { ...minimalValidConfig };
     delete invalidConfig.threshold;
 
-    expect(() => validateStrategyConfig(invalidConfig)).toThrow(
-      "threshold",
-    );
+    expect(() => validateStrategyConfig(invalidConfig)).toThrow("threshold");
   });
 });
 
@@ -299,9 +283,7 @@ describe("validateStrategyConfig - 維持率階梯", () => {
       },
     };
 
-    expect(() => validateStrategyConfig(config)).toThrow(
-      "marginCallThreshold",
-    );
+    expect(() => validateStrategyConfig(config)).toThrow("marginCallThreshold");
   });
 
   it("frozenZone > protectTrigger 應拋出錯誤", () => {
@@ -364,9 +346,7 @@ describe("validateStrategyConfig - Gross Leverage", () => {
       },
     };
 
-    expect(() => validateStrategyConfig(config)).toThrow(
-      "hardCap",
-    );
+    expect(() => validateStrategyConfig(config)).toThrow("hardCap");
   });
 });
 
@@ -494,10 +474,10 @@ describe("validateStrategyConfig - Lifecycle", () => {
         monthlyDcaAmount: 50000,
         payDay: 15,
         preInjectDays: 3,
-        profiles: [
-          { stage: "EARLY", maxLeverage: 3.0 },
-          { stage: "MID", maxLeverage: 2.5 },
-        ],
+        profiles: {
+          EARLY: { maxLeverage: 3.0 },
+          MID: { maxLeverage: 2.5 },
+        },
       },
     };
 
@@ -511,9 +491,9 @@ describe("validateStrategyConfig - Lifecycle", () => {
         monthlyDcaAmount: 50000,
         payDay: 15,
         preInjectDays: 3,
-        profiles: [
-          { stage: "EARLY", maxLeverage: 3.5 }, // > 3.0，錯誤
-        ],
+        profiles: {
+          EARLY: { maxLeverage: 3.5 }, // > 3.0，錯誤
+        },
       },
     };
 
@@ -527,9 +507,9 @@ describe("validateStrategyConfig - Lifecycle", () => {
         monthlyDcaAmount: 50000,
         payDay: 15,
         preInjectDays: 3,
-        profiles: [
-          { stage: "EARLY", maxLeverage: 0 }, // = 0，錯誤
-        ],
+        profiles: {
+          EARLY: { maxLeverage: 0 }, // = 0，錯誤
+        },
       },
     };
 
@@ -560,9 +540,7 @@ describe("validateStrategyConfig - 型別驗證", () => {
   it("allocation.leverage 為負數應拋出錯誤", () => {
     const config = {
       ...minimalValidConfig,
-      allocation: [
-        { minScore: 0, leverage: -1, cash: 1, comment: "錯誤" },
-      ],
+      allocation: [{ minScore: 0, leverage: -1, cash: 1, comment: "錯誤" }],
     };
 
     expect(() => validateStrategyConfig(config)).toThrow("leverage");
@@ -571,9 +549,7 @@ describe("validateStrategyConfig - 型別驗證", () => {
   it("allocation.cash 為負數應拋出錯誤", () => {
     const config = {
       ...minimalValidConfig,
-      allocation: [
-        { minScore: 0, leverage: 1, cash: -1, comment: "錯誤" },
-      ],
+      allocation: [{ minScore: 0, leverage: 1, cash: -1, comment: "錯誤" }],
     };
 
     expect(() => validateStrategyConfig(config)).toThrow("cash");
@@ -614,5 +590,63 @@ describe("validateStrategyConfig - 選填欄位", () => {
   it("缺少 lifecycle 應通過", () => {
     const config = { ...minimalValidConfig };
     expect(() => validateStrategyConfig(config)).not.toThrow();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// Audit Remediation 驗證 (RT-20260506-003)
+// ─────────────────────────────────────────────────────────────
+
+describe("validateStrategyConfig - Audit Remediation (MED-003)", () => {
+  const baseLifecycle = {
+    monthlyDcaAmount: 50000,
+    payDay: 15,
+    preInjectDays: 3,
+  };
+
+  it("retirementAge 低於 50 應拋出錯誤", () => {
+    const config = {
+      ...minimalValidConfig,
+      lifecycle: { ...baseLifecycle, retirementAge: 45 },
+    };
+    expect(() => validateStrategyConfig(config)).toThrow("retirementAge");
+  });
+
+  it("birthYear 與 currentAge 不一致應拋出錯誤", () => {
+    const config = {
+      ...minimalValidConfig,
+      lifecycle: {
+        ...baseLifecycle,
+        birthYear: 1990,
+        currentAge: 20,
+      },
+    };
+    expect(() => validateStrategyConfig(config)).toThrow("不一致");
+  });
+
+  it("targetRetirementYear 在過去應拋出錯誤", () => {
+    const config = {
+      ...minimalValidConfig,
+      lifecycle: {
+        ...baseLifecycle,
+        targetRetirementYear: 2020,
+      },
+    };
+    expect(() => validateStrategyConfig(config)).toThrow(
+      "必須是大於等於今年的年份",
+    );
+  });
+
+  it("maintenance 階梯與合理範圍驗證", () => {
+    const config = {
+      ...minimalValidConfig,
+      maintenance: {
+        marginCallThreshold: 105, // < 110，錯誤
+        frozenZone: 145,
+        protectTrigger: 160,
+        protectTarget: 180,
+      },
+    };
+    expect(() => validateStrategyConfig(config)).toThrow("不得低於 110%");
   });
 });

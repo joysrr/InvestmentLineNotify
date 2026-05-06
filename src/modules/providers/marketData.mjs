@@ -89,18 +89,26 @@ export async function fetchAllMacroData() {
 
   // ====================================================================
   // 判斷邏輯 B: 台股融資餘額 (每日 16:30 更新)
-  // 策略: 16:00 前不抓取直接讀 Cache。16:00 後強制重抓。
+  // 策略: 16:00 前若快取存在則使用。16:00 後且快取非今日則重抓。
   // ====================================================================
   const marginProviderKey = macroDataSlots.rawMargin.providerId;
-  const marginLastTime = new Date(
-    cachedMeta[marginProviderKey]?.lastFetch || 0,
-  );
+  const marginLastFetchStr = cachedMeta[marginProviderKey]?.lastFetch || 0;
+  const marginLastDate = marginLastFetchStr
+    ? marginLastFetchStr.split("T")[0]
+    : null;
+  const marginLastTime = new Date(marginLastFetchStr);
   const hoursSinceMarginUpdate = (now - marginLastTime) / (1000 * 60 * 60);
 
-  if (cachedData.rawMargin && (twHour < 16 || hoursSinceMarginUpdate < 2)) {
-    console.log("⚡ [Cache] 融資餘額使用快取資料");
+  const isMarginToday = marginLastDate === todayStr;
+
+  if (
+    cachedData.rawMargin &&
+    (isMarginToday || (twHour < 16 && marginLastDate))
+  ) {
+    console.log(
+      `⚡ [Cache] 融資餘額使用快取資料 (${isMarginToday ? "今日已更新" : "盤中等待更新"})`,
+    );
     finalData.rawMargin = cachedData.rawMargin;
-    // 確保 newMetaSources 有正確的 status（舊格式可能沒有 status 欄位）
     if (newMetaSources[marginProviderKey]) {
       newMetaSources[marginProviderKey].status =
         newMetaSources[marginProviderKey].status || "SUCCESS";
@@ -374,7 +382,7 @@ export async function fetchAllMacroData() {
 
   // ====================================================================
   // 判斷邏輯 H: 個股籌碼與信用交易 (0050 法人 / 00675L 融資)
-  // 策略: 每日 16:00 後重抓
+  // 策略: 每日 16:00 後重抓；16:00 前若快取是今日的也直接用。
   // ====================================================================
   const stockMetrics = [
     { slot: "rawInstitutional", key: "foreignNetBuy" },
@@ -386,11 +394,16 @@ export async function fetchAllMacroData() {
     const providerId = macroDataSlots[slotKey].providerId;
     const lastFetchDate = cachedMeta[providerId]?.lastFetch?.split("T")[0];
 
-    // 16:00 前或今日已更新則使用快取
-    if (cachedData[slotKey] && (twHour < 16 || lastFetchDate === todayStr)) {
-      console.log(`⚡ [Cache] ${slotKey} 使用快取資料`);
+    // 關鍵修復 (MED-002)：增加 lastFetchDate === todayStr 判斷
+    // 只有當 (16:00 前 且 快取是今天的) 或是 (今日已抓過成功) 才使用快取
+    const isToday = lastFetchDate === todayStr;
+    const isBeforeUpdate = twHour < 16;
+
+    if (cachedData[slotKey] && (isToday || (isBeforeUpdate && lastFetchDate))) {
+      console.log(
+        `⚡ [Cache] ${slotKey} 使用快取資料 (${isToday ? "今日已更新" : "盤中等待更新"})`,
+      );
       finalData[slotKey] = cachedData[slotKey];
-      // 確保 newMetaSources 有正確的 status
       if (newMetaSources[providerId]) {
         newMetaSources[providerId].status =
           newMetaSources[providerId].status || "SUCCESS";

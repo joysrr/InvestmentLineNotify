@@ -1,42 +1,38 @@
-# Routing Ticket: RT-20260506-001
+# Routing Ticket: RT-20260506-003
 
-#Status: COMPLETED
+#Status: OPEN
 Last Updated: 2026-05-06
-Priority: HIGH
-Assignee: @Lead
-Ticket: RT-20260506-001
+Priority: MEDIUM
+Assignee: @Backend
+Ticket: RT-20260506-003
 
 ## 📌 基本資訊
 
-- **Ticket ID**: RT-20260506-001
-- **Task Class**: feature/refactor
-- **Priority**: High
+- **Ticket ID**: RT-20260506-003
+- **Task Class**: modify-existing
+- **Priority**: Medium
 - **Owner**: @Lead
 
 ## 🎯 目標 (Objective)
 
-深度審查並補全生命週期與健康度系統，修復數據抓取問題，並重構前端 UI 至卓越標準 (Rich Aesthetics)。
+執行 Phase 1 審核後留下的非阻斷性建議，優化數據快取、配置驗證與 API 安全性。
 
 ## 📂 涉及檔案 (Touched Files)
 
-- `src/api/routes/portfolioHealth.mjs`
-- `webapp/src/views/DashboardView.vue`
-- `src/modules/strategy/strategyEngine.mjs`
-- `src/modules/strategy/portfolioHealth.mjs`
-- `data/config/Strategy.json`
-- `docs/plans/completed/draft_perplexity_suggestion.md`
+- `src/modules/providers/marketData.mjs` (MED-002: Cache invalidation)
+- `src/modules/strategy/validateStrategyConfig.mjs` (MED-003: Schema strictness)
+- `src/api/server.mjs` (M-001: Rate limiting, M-002: Path hiding)
 
 ## 🚦 階段 (Stages)
 
-1. **Research & Audit**: 審查 commit 邏輯 (Reviewer/Backend)
-2. **Backend implementation**: Smart API & Cache (Backend)
-3. **Frontend implementation**: Redesign UI (Frontend)
-4. **Review & Verify**: QA & Smoke test (Reviewer/QA)
-5. **Converge**: Docs update (Architect)
+1. **Strategic Review**: 評估優化方案 (Backend/Reviewer)
+2. **Implementation**: 實作優化邏輯 (Backend)
+3. **Verification**: 單元測試與安全掃描 (QA/Security)
+4. **Convergence**: 更新 PENDING_ACTIONS (Lead)
 
 ## 🏁 驗收標準 (Acceptance Criteria)
 
-- [x] `/api/portfolio/health` 即使無 query params 也能正確返回最新數據。
-- [x] API 加入快取機制，避免頻繁 Disk I/O。
-- [x] Dashboard 視覺效果大幅提升，符合 Glassmorphism 與漸層色美學。
-- [x] 所有生命週期與 VIX 邏輯通過審查，無遺漏的 export。
+- [x] **MED-002**: `marketData.mjs` 快取失效邏輯修復，確保跨日數據強制更新。
+- [x] **MED-003**: `validateStrategyConfig.mjs` 加入更嚴格的類型與邊界檢查。
+- [x] **M-001**: API 加入基本的速率限制 (Rate Limiting) 保護 (已確認)。
+- [x] **M-002**: 移除錯誤訊息中洩漏的內部檔案路徑。

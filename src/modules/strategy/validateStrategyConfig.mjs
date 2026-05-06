@@ -102,8 +102,7 @@ export function validateStrategyConfig(config) {
     assertMacroSentiment(config.macroSentiment);
   if (config.conversionGuard !== undefined)
     assertConversionGuard(config.conversionGuard);
-  if (config.lifecycle !== undefined)
-    assertLifecycle(config.lifecycle);
+  if (config.lifecycle !== undefined) assertLifecycle(config.lifecycle);
 
   return true;
 }
@@ -166,6 +165,16 @@ function assertMaintenance(config) {
     ],
   );
 
+  // ── 邊界檢查：閾值必須在合理範圍 ───────────────────────────
+  assert(
+    config.maintenance.marginCallThreshold >= 110,
+    "maintenance.marginCallThreshold 不得低於 110% (極端風險)",
+  );
+  assert(
+    config.maintenance.protectTarget > config.maintenance.protectTrigger,
+    "maintenance.protectTarget 必須大於 protectTrigger",
+  );
+
   // ── 硬限制：與預設值比對（可選，用於偵測意外修改） ────────────
   // 若配置值與預設值差異過大，發出警示（不 throw）
   const tolerance = 5; // 允許 ±5 的誤差
@@ -217,8 +226,14 @@ function assertTrading(config) {
   // ── budget 驗證 ──────────────────────────────────────────────
   if (config.trading.budget !== undefined) {
     const budget = config.trading.budget;
-    assertNumber(budget.maxDailyLoanIncreasePct, "trading.budget.maxDailyLoanIncreasePct");
-    assertNumber(budget.maxRollingLoanIncreasePct, "trading.budget.maxRollingLoanIncreasePct");
+    assertNumber(
+      budget.maxDailyLoanIncreasePct,
+      "trading.budget.maxDailyLoanIncreasePct",
+    );
+    assertNumber(
+      budget.maxRollingLoanIncreasePct,
+      "trading.budget.maxRollingLoanIncreasePct",
+    );
     assertNumber(budget.rollingDays, "trading.budget.rollingDays");
 
     // ── 硬限制：預算上限不得超過安全閾值 ───────────────────────
@@ -463,16 +478,25 @@ function assertValuationMomentum(vm) {
 
   // Phase 2.2 新增參數（v2.8+）
   if (vm.accelerationPenaltyMultiplier !== undefined) {
-    assertNumber(vm.accelerationPenaltyMultiplier, "valuationMomentum.accelerationPenaltyMultiplier");
+    assertNumber(
+      vm.accelerationPenaltyMultiplier,
+      "valuationMomentum.accelerationPenaltyMultiplier",
+    );
   }
   if (vm.decelerationReliefMultiplier !== undefined) {
-    assertNumber(vm.decelerationReliefMultiplier, "valuationMomentum.decelerationReliefMultiplier");
+    assertNumber(
+      vm.decelerationReliefMultiplier,
+      "valuationMomentum.decelerationReliefMultiplier",
+    );
   }
   if (vm.extremePRThreshold !== undefined) {
     assertNumber(vm.extremePRThreshold, "valuationMomentum.extremePRThreshold");
   }
   if (vm.extremeOvervaluationMultiplier !== undefined) {
-    assertNumber(vm.extremeOvervaluationMultiplier, "valuationMomentum.extremeOvervaluationMultiplier");
+    assertNumber(
+      vm.extremeOvervaluationMultiplier,
+      "valuationMomentum.extremeOvervaluationMultiplier",
+    );
   }
 
   if (vm.highPRZone !== undefined) {
@@ -565,8 +589,27 @@ function assertLifecycle(lifecycle) {
   if (lifecycle.retirementAge !== undefined) {
     assertNumber(lifecycle.retirementAge, "lifecycle.retirementAge");
     assert(
-      lifecycle.retirementAge > 0 && lifecycle.retirementAge < 100,
-      "lifecycle.retirementAge 必須介於 0 到 100 之間",
+      lifecycle.retirementAge > 50 && lifecycle.retirementAge < 85,
+      "lifecycle.retirementAge 必須介於 50 到 85 之間",
+    );
+  }
+
+  // 選填：birthYear & currentAge 一致性檢查
+  if (lifecycle.birthYear !== undefined && lifecycle.currentAge !== undefined) {
+    const currentYear = new Date().getFullYear();
+    const calculatedAge = currentYear - lifecycle.birthYear;
+    assert(
+      Math.abs(calculatedAge - lifecycle.currentAge) <= 1,
+      `lifecycle.birthYear(${lifecycle.birthYear}) 與 currentAge(${lifecycle.currentAge}) 不一致 (預期約 ${calculatedAge} 歲)`,
+    );
+  }
+
+  // 選填：targetRetirementYear 必須在未來
+  if (lifecycle.targetRetirementYear !== undefined) {
+    const currentYear = new Date().getFullYear();
+    assert(
+      lifecycle.targetRetirementYear >= currentYear,
+      `lifecycle.targetRetirementYear(${lifecycle.targetRetirementYear}) 必須是大於等於今年的年份`,
     );
   }
 
@@ -599,7 +642,10 @@ function assertLifecycle(lifecycle) {
           );
         }
 
-        if (profile.maxLeverage !== undefined && profile.maxLeverageForNewZ2 !== undefined) {
+        if (
+          profile.maxLeverage !== undefined &&
+          profile.maxLeverageForNewZ2 !== undefined
+        ) {
           assert(
             profile.maxLeverageForNewZ2 <= profile.maxLeverage,
             `${p}.maxLeverageForNewZ2 不能大於 maxLeverage`,
@@ -607,7 +653,10 @@ function assertLifecycle(lifecycle) {
         }
 
         if (profile.minSurvivalDropLimit !== undefined) {
-          assertNumber(profile.minSurvivalDropLimit, `${p}.minSurvivalDropLimit`);
+          assertNumber(
+            profile.minSurvivalDropLimit,
+            `${p}.minSurvivalDropLimit`,
+          );
           assert(
             profile.minSurvivalDropLimit >= 100,
             `${p}.minSurvivalDropLimit 不能小於 100`,
@@ -616,7 +665,12 @@ function assertLifecycle(lifecycle) {
 
         if (profile.mode !== undefined) {
           assertString(profile.mode, `${p}.mode`);
-          const validModes = ["aggressive", "balanced", "conservative", "defensive"];
+          const validModes = [
+            "aggressive",
+            "balanced",
+            "conservative",
+            "defensive",
+          ];
           assert(
             validModes.includes(profile.mode),
             `${p}.mode 必須是 ${validModes.join(" | ")}`,

@@ -47,7 +47,7 @@ export async function buildApp(opts = {}) {
     },
     onExceed: (request, reply) => {
       logger.warn(
-        `[RateLimit] IP ${request.ip} 超過速率限制，URL: ${request.url}`
+        `[RateLimit] IP ${request.ip} 超過速率限制，URL: ${request.url}`,
       );
     },
     errorResponseBuilder: (request, context) => ({
@@ -60,12 +60,44 @@ export async function buildApp(opts = {}) {
   // ─── Global hook: Telegram initData guard ────────────────────────────────────
   fastify.addHook("onRequest", initDataGuard);
 
-  // ─── Routes ──────────────────────────────────────────────────────────────────
   await fastify.register(statusRoute, { prefix: "/api" });
   await fastify.register(reportsRoute, { prefix: "/api" });
   await fastify.register(newsRoute, { prefix: "/api" });
   await fastify.register(configRoute, { prefix: "/api" });
   await fastify.register(portfolioHealthRoute, { prefix: "/api" });
+
+  // ─── Global Error Handler (M-002: Path Hiding) ─────────────────────────────
+  fastify.setErrorHandler((error, request, reply) => {
+    const isDev = process.env.NODE_ENV === "dev";
+    const statusCode = error.statusCode || 500;
+
+    // 紀錄完整的錯誤資訊到 Server Logs
+    if (statusCode >= 500) {
+      logger.error(
+        {
+          err: error.stack || error,
+          url: request.url,
+          method: request.method,
+          ip: request.ip,
+        },
+        `[API Error] ${error.message}`,
+      );
+    } else {
+      logger.info({ msg: error.message, statusCode }, "[API Client Error]");
+    }
+
+    // 回傳給客戶端的訊息需去敏化 (Hide internal paths/stack)
+    const response = {
+      error: error.name || "Internal Server Error",
+      message:
+        statusCode >= 500 && !isDev
+          ? "伺服器內部錯誤，請聯絡管理員"
+          : error.message,
+      statusCode,
+    };
+
+    reply.status(statusCode).send(response);
+  });
 
   // ─── Health check (no auth required, skip guard in middleware) ───────────────
   fastify.get("/health", async () => ({ status: "ok", ts: Date.now() }));
@@ -92,7 +124,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
     const app = await buildApp();
     await app.listen({ port: PORT, host: HOST });
-    logger.info({ port: PORT, host: HOST, cwd: process.cwd() }, `[api] 🚀 Server started successfully! Listening on ${HOST}:${PORT}`);
+    logger.info(
+      { port: PORT, host: HOST, cwd: process.cwd() },
+      `[api] 🚀 Server started successfully! Listening on ${HOST}:${PORT}`,
+    );
   } catch (err) {
     logger.error({ err: err.stack || err }, "❌ [api] 啟動失敗 (Fatal Error)");
     process.exit(1);
