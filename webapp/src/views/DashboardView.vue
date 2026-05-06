@@ -3,13 +3,25 @@
     <!-- Header -->
     <div class="dash-header">
       <div class="dash-title-row">
-        <h2 class="dash-title">市場總覽</h2>
+        <h2 class="dash-title">投資儀表板</h2>
         <span class="dash-date">{{ todayLabel }}</span>
+      </div>
+      
+      <!-- Tab Navigation -->
+      <div class="dash-tabs">
+        <button class="tab-item" :class="{ active: currentTab === 'summary' }" @click="currentTab = 'summary'">總覽</button>
+        <button class="tab-item" :class="{ active: currentTab === 'health' }" @click="currentTab = 'health'">
+          健康度
+          <span v-if="healthData?.status === 'RED'" class="tab-badge">!</span>
+        </button>
+        <button class="tab-item" :class="{ active: currentTab === 'analysis' }" @click="currentTab = 'analysis'">詳細分析</button>
       </div>
     </div>
 
-    <!-- Market Snapshot -->
-    <section class="section">
+    <!-- Tab Content: Summary -->
+    <div v-if="currentTab === 'summary'" class="tab-pane fade-in">
+      <!-- Market Snapshot -->
+      <section class="section">
       <h3 class="section-title">市場快照</h3>
       <div v-if="statusLoading" class="snapshot-grid snapshot-grid--4">
         <div v-for="i in 4" :key="i" class="snapshot-card skeleton-card">
@@ -51,106 +63,101 @@
       </div>
     </section>
 
-    <!-- Portfolio Health Dashboard (Phase 1) -->
-    <section class="section" v-if="!healthLoading">
-      <div class="section-header">
-        <h3 class="section-title">Portfolio 健康度</h3>
-        <span v-if="healthError" class="inline-error--small">載入失敗</span>
-      </div>
+      </section>
       
-      <div v-if="healthError" class="inline-error">⚠️ 健康度資料載入失敗</div>
-      
-      <div v-else-if="!healthData" class="inline-hint">📭 尚無健康度資料</div>
-      
-      <div v-else class="health-dashboard-v2">
-        <!-- Health Score Hero Card (Glassmorphism) -->
-        <div class="health-hero-v2" :class="healthData.status.toLowerCase()">
-          <div class="glass-overlay"></div>
-          <div class="health-hero-content">
-            <div class="health-hero-top">
-              <div class="health-hero-status">
-                <span class="health-hero-emoji">{{ healthData.lightStatus.emoji }}</span>
-                <div class="health-hero-labels">
-                  <span class="health-hero-title">帳戶健康評級</span>
-                  <span class="health-hero-label">{{ healthData.lightStatus.label }}</span>
+      <!-- AI 教練建議 (移至總覽) -->
+      <section class="section" v-if="latestReport?.ai">
+        <h3 class="section-title">🤖 AI 教練建議</h3>
+        <div class="ai-block" v-if="aiRiskWarnings.length">
+          <button class="ai-block-header" @click="aiRiskExpanded = !aiRiskExpanded">
+            <span>⚠️ 風險提示</span>
+            <span class="ai-count">{{ aiRiskWarnings.length }} 項</span>
+            <span class="expand-arrow">{{ aiRiskExpanded ? "▲" : "▼" }}</span>
+          </button>
+          <ul v-if="aiRiskExpanded" class="ai-list ai-list--risk">
+            <li v-for="(item, i) in aiRiskWarnings" :key="i">{{ item }}</li>
+          </ul>
+        </div>
+        <div class="ai-block" v-if="aiActionItems.length">
+          <button class="ai-block-header" @click="aiActionExpanded = !aiActionExpanded">
+            <span>📌 下一步觀察清單</span>
+            <span class="ai-count">{{ aiActionItems.length }} 項</span>
+            <span class="expand-arrow">{{ aiActionExpanded ? "▲" : "▼" }}</span>
+          </button>
+          <ul v-if="aiActionExpanded" class="ai-list ai-list--action">
+            <li v-for="(item, i) in aiActionItems" :key="i">{{ item }}</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tab Content: Health -->
+    <div v-if="currentTab === 'health'" class="tab-pane fade-in">
+      <!-- Portfolio Health Dashboard (Phase 1) -->
+      <section class="section" v-if="!healthLoading">
+        <div class="section-header">
+          <h3 class="section-title">帳戶健康監控</h3>
+          <span v-if="healthError" class="inline-error--small">載入失敗</span>
+        </div>
+        
+        <div v-if="healthError" class="inline-error">⚠️ 健康度資料載入失敗</div>
+        <div v-else-if="!healthData" class="inline-hint">📭 尚無健康度資料</div>
+        <div v-else class="health-dashboard-v2">
+          <!-- Health Score Hero Card -->
+          <div class="health-hero-v2" :class="healthData.status.toLowerCase()">
+            <div class="glass-overlay"></div>
+            <div class="health-hero-content">
+              <div class="health-hero-top">
+                <div class="health-hero-status">
+                  <span class="health-hero-emoji">{{ healthData.lightStatus.emoji }}</span>
+                  <div class="health-hero-labels">
+                    <span class="health-hero-title">帳戶健康評級</span>
+                    <span class="health-hero-label">{{ healthData.lightStatus.label }}</span>
+                  </div>
+                </div>
+                <div class="health-hero-score-wrapper">
+                  <span class="health-hero-score">{{ healthData.score }}</span>
+                  <span class="health-hero-score-unit">/100</span>
                 </div>
               </div>
-              <div class="health-hero-score-wrapper">
-                <span class="health-hero-score">{{ healthData.score }}</span>
-                <span class="health-hero-score-unit">/100</span>
+              <p class="health-hero-summary">{{ healthData.summary }}</p>
+            </div>
+          </div>
+
+          <!-- Health Components Grid -->
+          <div class="health-grid-v2">
+            <div v-for="(comp, key) in healthData.components" :key="key" 
+                 class="health-glass-card" :class="comp.status.toLowerCase()">
+              <div class="comp-header">
+                <span class="comp-icon">{{ getCompIcon(key) }}</span>
+                <span class="comp-name">{{ getCompName(key) }}</span>
+              </div>
+              <div class="comp-body">
+                <div class="comp-value">{{ getCompValue(comp) }}</div>
+                <div class="comp-sub">{{ comp.details.message || comp.details.stage || '正常' }}</div>
+              </div>
+              <div class="comp-status-dot"></div>
+            </div>
+          </div>
+
+          <!-- Recommendations -->
+          <div class="health-action-v2" v-if="healthData.recommendations.length">
+            <div class="action-header">
+              <span class="action-icon">💡</span>
+              <span class="action-title">策略建議行動</span>
+            </div>
+            <div class="action-list-v2">
+              <div v-for="(rec, i) in healthData.recommendations" :key="i" class="action-item-v2">
+                {{ rec }}
               </div>
             </div>
-            <p class="health-hero-summary">{{ healthData.summary }}</p>
           </div>
         </div>
+      </section>
+    </div>
 
-        <!-- Health Components Grid (Glass Cards) -->
-        <div class="health-grid-v2">
-          <div v-for="(comp, key) in healthData.components" :key="key" 
-               class="health-glass-card" :class="comp.status.toLowerCase()">
-            <div class="comp-header">
-              <span class="comp-icon">{{ getCompIcon(key) }}</span>
-              <span class="comp-name">{{ getCompName(key) }}</span>
-            </div>
-            <div class="comp-body">
-              <div class="comp-value">{{ getCompValue(comp) }}</div>
-              <div class="comp-sub">{{ comp.details.message || comp.details.stage || '正常' }}</div>
-            </div>
-            <div class="comp-status-dot"></div>
-          </div>
-        </div>
-
-        <!-- Recommendations (Action Items) -->
-        <div class="health-action-v2" v-if="healthData.recommendations.length">
-          <div class="action-header">
-            <span class="action-icon">💡</span>
-            <span class="action-title">策略建議行動</span>
-          </div>
-          <div class="action-list-v2">
-            <div v-for="(rec, i) in healthData.recommendations" :key="i" class="action-item-v2">
-              {{ rec }}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 巨型決策 Hero Card -->
-    <section class="section hero-section">
-      <div v-if="reportLoading" class="hero-card skeleton-card">
-        <div class="sk sk-title"></div>
-        <div class="sk sk-label" style="margin-top: 12px"></div>
-        <div class="sk sk-value" style="width: 60%"></div>
-      </div>
-      <div v-else-if="reportError" class="inline-error">⚠️ 報告載入失敗</div>
-      <div v-else-if="!latestReport" class="inline-hint">📭 尚無報告資料</div>
-      <div v-else class="hero-card">
-        <div class="hero-top">
-          <span class="hero-date">{{ latestReport.date }}</span>
-          <span class="priority-tag" v-if="activePriority">{{ activePriority }}</span>
-        </div>
-        <div class="hero-main">
-          <div class="hero-target" :class="targetClass">{{ latestReport.signals?.target ?? "—" }}</div>
-          <div class="hero-suggestion">{{ latestReport.signals?.suggestion || "載入中..." }}</div>
-          <div class="hero-badges">
-            <span class="badge" :class="pctClass">{{ pctText }}</span>
-            <span class="badge badge-score">評分 {{ latestReport.signals?.score ?? "—" }}</span>
-          </div>
-        </div>
-        <div class="hero-route border-top">
-          <span class="route-label">核心路由：</span>
-          <span class="route-path">{{ routingPath || "—" }}</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- 攻防推演面板 -->
-    <section class="section" v-if="latestReport">
-      <div class="tab-header">
-        <button class="tab-btn" :class="{ active: activeTab === 'offense' }" @click="activeTab = 'offense'">⚔️ 進攻動能</button>
-        <button class="tab-btn" :class="{ active: activeTab === 'defense' }" @click="activeTab = 'defense'">🛡️ 防禦機制</button>
-      </div>
-      
+    <!-- Tab Content: Analysis -->
+    <div v-if="currentTab === 'analysis'" class="tab-pane fade-in">
       <div class="tab-content" v-if="activeTab === 'offense'">
         <div class="offense-panel">
           <div class="offense-top">
@@ -472,7 +479,11 @@ const vixLevel = computed(() => {
 
 // ── PB PR level ──
 const pbPrValue = computed(() => {
-  const v = latestReport.value?.signals?.valuationGuardResult?.currentPR;
+  const sigs = latestReport.value?.signals;
+  // 檢查所有可能路徑：valuationGuardResult, marketState, 或直接在 signals 下
+  const v = sigs?.valuationGuardResult?.currentPR ?? 
+            sigs?.marketState?.valuation?.currentPR ??
+            sigs?.currentPR;
   return v != null ? Math.round(v) : "—";
 });
 
@@ -1400,7 +1411,54 @@ onMounted(async () => {
   color: var(--tg-theme-text-color, #111);
 }
 
-/* ── Tabs ── */
+/* ── Top Nav Tabs ── */
+.dash-tabs {
+  display: flex;
+  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  border-radius: 12px;
+  padding: 4px;
+  margin-top: 16px;
+  gap: 4px;
+}
+.tab-item {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tg-theme-hint-color, #888);
+  border-radius: 9px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+.tab-item.active {
+  background: var(--tg-theme-bg-color, #fff);
+  color: var(--tg-theme-text-color, #111);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.tab-badge {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  background: #e74c3c;
+  color: #fff;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.tab-pane {
+  display: block;
+}
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Tabs (Inner) ── */
 .tab-header {
   display: flex;
   background: var(--tg-theme-secondary-bg-color, #f5f5f5);
