@@ -1,0 +1,109 @@
+<template>
+  <section class="section hero-section">
+    <div v-if="loading" class="hero-card skeleton-card">
+      <div class="sk sk-title"></div>
+      <div class="sk sk-label" style="margin-top: 12px"></div>
+      <div class="sk sk-value" style="width: 60%"></div>
+    </div>
+    <div v-else-if="error" class="inline-error">⚠️ 報告載入失敗</div>
+    <div v-else-if="!report" class="inline-hint">📭 尚無報告資料</div>
+    <div v-else class="hero-card">
+      <div class="hero-top">
+        <span class="hero-date">{{ report.date }}</span>
+        <span class="priority-tag" v-if="activePriority">{{ activePriority }}</span>
+      </div>
+      <div class="hero-main">
+        <div class="hero-target" :class="targetClass">{{ report.signals?.target ?? "—" }}</div>
+        <div class="hero-suggestion">{{ report.signals?.suggestion || "分析中..." }}</div>
+        <div class="hero-badges">
+          <span class="badge" :class="pctClass">{{ pctText }}</span>
+          <span class="badge badge-score">評分 {{ report.signals?.score ?? "—" }}</span>
+        </div>
+      </div>
+      <div class="hero-route border-top">
+        <span class="route-label">核心路由：</span>
+        <span class="route-path">{{ routingPath || "—" }}</span>
+      </div>
+    </div>
+  </section>
+</template>
+
+<script setup>
+defineProps({
+  report: Object,
+  loading: Boolean,
+  error: Boolean,
+  activePriority: String,
+  targetClass: String,
+  pctClass: String,
+  pctText: String,
+  routingPath: String
+});
+</script>
+
+<style scoped>
+.hero-card {
+  background: var(--tg-theme-bg-color, #fff);
+  border-radius: 16px;
+  padding: 24px 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  border: 1px solid var(--tg-theme-secondary-bg-color, #f0f0f0);
+}
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.hero-date {
+  font-size: 13px;
+  color: var(--tg-theme-hint-color, #999);
+}
+.hero-target {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.target-buy { color: #26a17b; }
+.target-sell { color: #e84855; }
+.target-wait { color: #d4ac0d; }
+.hero-suggestion {
+  font-size: 15px;
+  color: var(--tg-theme-text-color, #333);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.hero-badges {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.hero-route {
+  padding-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--tg-theme-secondary-bg-color, #f0f0f0);
+}
+.route-label {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #999);
+}
+.route-path {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #111);
+}
+.badge {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-danger { background: #fee2e2; color: #e84855; }
+.badge-warn { background: #fef3c7; color: #d4ac0d; }
+.badge-ok { background: #d1fae5; color: #26a17b; }
+.badge-score { background: var(--tg-theme-secondary-bg-color, #f5f5f5); color: var(--tg-theme-hint-color, #666); }
+</style>
