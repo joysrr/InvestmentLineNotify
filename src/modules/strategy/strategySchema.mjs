@@ -449,6 +449,10 @@ function assertVgLatch(latch) {
  * @param {number}  vm.fallingThreshold         下跌門檻
  * @param {number}  vm.risingPenaltyMultiplier  上漲懲罰倍率
  * @param {boolean} vm.fallingRelief            下跌時是否提供緩解
+ * @param {number}  vm.accelerationPenaltyMultiplier  動能加速懲罰倍率（v2.8+）
+ * @param {number}  vm.decelerationReliefMultiplier   動能放緩緩解倍率（v2.8+）
+ * @param {number}  vm.extremePRThreshold       極度高估門檻（v2.8+）
+ * @param {number}  vm.extremeOvervaluationMultiplier 極度高估倍率（v2.8+）
  * @param {object}  [vm.highPRZone]             高 PR 區設定（選填）
  */
 function assertValuationMomentum(vm) {
@@ -462,6 +466,20 @@ function assertValuationMomentum(vm) {
     "valuationMomentum.risingPenaltyMultiplier",
   );
   assertBoolean(vm.fallingRelief, "valuationMomentum.fallingRelief");
+
+  // Phase 2.2 新增參數（v2.8+）
+  if (vm.accelerationPenaltyMultiplier !== undefined) {
+    assertNumber(vm.accelerationPenaltyMultiplier, "valuationMomentum.accelerationPenaltyMultiplier");
+  }
+  if (vm.decelerationReliefMultiplier !== undefined) {
+    assertNumber(vm.decelerationReliefMultiplier, "valuationMomentum.decelerationReliefMultiplier");
+  }
+  if (vm.extremePRThreshold !== undefined) {
+    assertNumber(vm.extremePRThreshold, "valuationMomentum.extremePRThreshold");
+  }
+  if (vm.extremeOvervaluationMultiplier !== undefined) {
+    assertNumber(vm.extremeOvervaluationMultiplier, "valuationMomentum.extremeOvervaluationMultiplier");
+  }
 
   if (vm.highPRZone !== undefined) {
     const hpr = vm.highPRZone;

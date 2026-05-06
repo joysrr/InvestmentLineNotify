@@ -1,6 +1,6 @@
 {
-  "version": "2.6",
-  "description": "質押槓桿策略-2026/04/17",
+  "version": "2.8",
+  "description": "質押槓桿策略 -2026/05/06（Phase 2.2: Valuation Momentum 強化：動能趨勢 + PR ≥ 95% 硬條件）",
   "leverage": {},
   "reserve": {
     "tiers": [
@@ -25,14 +25,14 @@
     "retirementAge": 65,
     "profiles": {
       "EARLY": {
-        "maxLeverage": 2.5,
-        "maxLeverageForNewZ2": 2.0,
+        "maxLeverage": 2,
+        "maxLeverageForNewZ2": 1.5,
         "minSurvivalDropLimit": 140,
         "mode": "aggressive",
-        "description": "退休前 15 年以上，槓桿空間最大"
+        "description": "退休前 15 年以上，槓桿空間最大（上限 2.0x，符合 00675L 工具限制）"
       },
       "MID": {
-        "maxLeverage": 2.0,
+        "maxLeverage": 2,
         "maxLeverageForNewZ2": 1.5,
         "minSurvivalDropLimit": 145,
         "mode": "balanced",
@@ -40,13 +40,13 @@
       },
       "LATE": {
         "maxLeverage": 1.5,
-        "maxLeverageForNewZ2": 1.0,
+        "maxLeverageForNewZ2": 1,
         "minSurvivalDropLimit": 150,
         "mode": "conservative",
         "description": "退休前 5-10 年，逐步保守"
       },
       "PRE_RETIRE": {
-        "maxLeverage": 1.0,
+        "maxLeverage": 1,
         "maxLeverageForNewZ2": 0.5,
         "minSurvivalDropLimit": 160,
         "mode": "defensive",
@@ -75,7 +75,7 @@
   },
   "buy": {
     "minDropPercentToConsider": 5,
-    "minWeightScoreToBuy": 3.0,
+    "minWeightScoreToBuy": 3,
     "dropScoreRules": [
       {
         "minDrop": 40,
@@ -232,14 +232,32 @@
   "conversionGuard": {
     "enabled": true,
     "tiers": [
-      { "profitPct": 0.3, "convertRatio": 0.15 },
-      { "profitPct": 0.6, "convertRatio": 0.25 },
-      { "profitPct": 1.0, "convertRatio": 0.35 }
+      {
+        "profitPct": 0.3,
+        "convertRatio": 0.15
+      },
+      {
+        "profitPct": 0.6,
+        "convertRatio": 0.25
+      },
+      {
+        "profitPct": 1,
+        "convertRatio": 0.35
+      }
     ],
     "allocation": [
-      { "minMargin": 0, "repayRatio": 1.0 },
-      { "minMargin": 180, "repayRatio": 0.5 },
-      { "minMargin": 240, "repayRatio": 0.0 }
+      {
+        "minMargin": 0,
+        "repayRatio": 1
+      },
+      {
+        "minMargin": 180,
+        "repayRatio": 0.5
+      },
+      {
+        "minMargin": 240,
+        "repayRatio": 0
+      }
     ]
   },
   "macroSentiment": {
@@ -252,8 +270,8 @@
   },
   "grossLeverage": {
     "ceiling": 2.5,
-    "hardCap": 3.0,
-    "recoveryTarget": 2.0
+    "hardCap": 3,
+    "recoveryTarget": 2
   },
   "valuationGuard": {
     "enabled": true,
@@ -280,7 +298,7 @@
       {
         "prThreshold": 0,
         "label": "合理區間",
-        "multiplier": 1.0,
+        "multiplier": 1,
         "note": "PR < 70，不壓縮"
       }
     ],
@@ -295,7 +313,7 @@
       "singleDayDropThreshold": 0.05,
       "consecutiveDaysThreshold": 3,
       "consecutiveDayDropThreshold": 0.03,
-      "multiplierOverride": 1.0,
+      "multiplierOverride": 1,
       "note": "高估區急跌解鎖：單日跌 5% 或連續 3 日各跌 3%，暫時解除壓縮"
     },
     "latch": {
@@ -326,6 +344,10 @@
     "fallingThreshold": -10,
     "risingPenaltyMultiplier": 0.85,
     "fallingRelief": true,
+    "accelerationPenaltyMultiplier": 0.9,
+    "decelerationReliefMultiplier": 1.05,
+    "extremePRThreshold": 95,
+    "extremeOvervaluationMultiplier": 0.5,
     "highPRZone": {
       "triggerPR": 85,
       "relaxedMomentumThreshold": 5,
@@ -340,45 +362,54 @@
     "categories": {
       "technicalTrend": {
         "label": "技術趨勢組",
-        "cap": 4.0,
+        "cap": 4,
         "weights": {
-          "macd": 2.0,
+          "macd": 2,
           "ma60Slope": 1.5
         }
       },
       "valuationValue": {
         "label": "估值價值組",
-        "cap": 8.0,
+        "cap": 8,
         "weights": {
-          "priceDrop": 8.0
+          "priceDrop": 8
         }
       },
       "flowOfFunds": {
         "label": "籌碼動能組",
-        "cap": 4.0,
+        "cap": 4,
         "weights": {
-          "institutional": 5.0,
-          "sentiment": 3.0
+          "institutional": 5,
+          "sentiment": 3
         }
       },
       "extremeOscillation": {
         "label": "極值震盪組",
-        "cap": 2.0,
+        "cap": 2,
         "weights": {
-          "rsi": 2.0,
-          "kd": 2.0
+          "rsi": 2,
+          "kd": 2
         }
       }
     },
     "thresholds": {
-      "buyTactical": 4.0,
-      "buyTacticalBullish": 3.0,
-      "sellTactical": -4.0,
-      "hysteresisExit": 2.0,
+      "buyTactical": 4,
+      "buyTacticalBullish": 3,
+      "sellTactical": -4,
+      "hysteresisExit": 2,
       "scaling": {
-        "tier1": { "score": 3.0, "ratio": 0.50 },
-        "tier2": { "score": 6.0, "ratio": 0.75 },
-        "tier3": { "score": 8.0, "ratio": 1.00 }
+        "tier1": {
+          "score": 3,
+          "ratio": 0.5
+        },
+        "tier2": {
+          "score": 6,
+          "ratio": 0.75
+        },
+        "tier3": {
+          "score": 8,
+          "ratio": 1
+        }
       }
     },
     "normalization": {
@@ -389,5 +420,30 @@
     "panicBypassEnabled": true,
     "panicBypassDropPct": 0.2,
     "panicVixThreshold": 35
+  },
+  "regime": {
+    "vixOverrideTrigger": 28,
+    "vixAbsoluteOverride": 35,
+    "cautiousLeverageReductionPct": 25,
+    "regimeProfiles": {
+      "NORMAL": {
+        "condition": "VIX < 28 && sentiment != BEAR",
+        "leverageMultiplier": 1,
+        "mode": "normal",
+        "description": "正常模式，允許全槓桿操作"
+      },
+      "CAUTIOUS": {
+        "condition": "28 <= VIX < 35 || sentiment == BEAR",
+        "leverageMultiplier": 0.75,
+        "mode": "reduced",
+        "description": "謹慎模式，maxLeverage 下修 25%"
+      },
+      "CRISIS": {
+        "condition": "VIX >= 35",
+        "leverageMultiplier": 0,
+        "mode": "sell_only",
+        "description": "危機模式，強制 Sell-only（禁止新增部位）"
+      }
+    }
   }
 }

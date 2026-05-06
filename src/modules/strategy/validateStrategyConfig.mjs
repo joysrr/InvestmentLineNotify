@@ -292,8 +292,8 @@ function assertBuyEntryGate(eg) {
     assertNumber(tier.maxDrop, `${p}.maxDrop`);
     assert(
       tier.rsiThreshold === null ||
-      (typeof tier.rsiThreshold === "number" &&
-        Number.isFinite(tier.rsiThreshold)),
+        (typeof tier.rsiThreshold === "number" &&
+          Number.isFinite(tier.rsiThreshold)),
       `${p}.rsiThreshold 必須是 number 或 null`,
     );
     assertBoolean(tier.allowLeverage, `${p}.allowLeverage`);
@@ -460,6 +460,20 @@ function assertValuationMomentum(vm) {
     "valuationMomentum.risingPenaltyMultiplier",
   );
   assertBoolean(vm.fallingRelief, "valuationMomentum.fallingRelief");
+
+  // Phase 2.2 新增參數（v2.8+）
+  if (vm.accelerationPenaltyMultiplier !== undefined) {
+    assertNumber(vm.accelerationPenaltyMultiplier, "valuationMomentum.accelerationPenaltyMultiplier");
+  }
+  if (vm.decelerationReliefMultiplier !== undefined) {
+    assertNumber(vm.decelerationReliefMultiplier, "valuationMomentum.decelerationReliefMultiplier");
+  }
+  if (vm.extremePRThreshold !== undefined) {
+    assertNumber(vm.extremePRThreshold, "valuationMomentum.extremePRThreshold");
+  }
+  if (vm.extremeOvervaluationMultiplier !== undefined) {
+    assertNumber(vm.extremeOvervaluationMultiplier, "valuationMomentum.extremeOvervaluationMultiplier");
+  }
 
   if (vm.highPRZone !== undefined) {
     const hpr = vm.highPRZone;
