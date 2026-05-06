@@ -13,7 +13,10 @@ import {
   getHealthLightStatus,
   HEALTH_STATUS,
 } from "../../modules/strategy/portfolioHealth.mjs";
-import { computeLifecycleContext, DEFAULT_LIFECYCLE_PROFILES } from "../../modules/strategy/lifecycleEngine.mjs";
+import {
+  computeLifecycleContext,
+  DEFAULT_LIFECYCLE_PROFILES,
+} from "../../modules/strategy/lifecycleEngine.mjs";
 
 // ─────────────────────────────────────────────────────────────
 // 共用測試配置
@@ -42,7 +45,11 @@ const DEFAULT_STRATEGY = {
   },
 };
 
-const DEFAULT_LIFECYCLE_CONTEXT = computeLifecycleContext(53, 65, DEFAULT_LIFECYCLE_PROFILES); // 53 歲 = MID 階段 (12 年)
+const DEFAULT_LIFECYCLE_CONTEXT = computeLifecycleContext(
+  53,
+  65,
+  DEFAULT_LIFECYCLE_PROFILES,
+); // 53 歲 = MID 階段 (12 年)
 
 // ─────────────────────────────────────────────────────────────
 // TC-008: Health Score - All GREEN
@@ -53,13 +60,17 @@ describe("Portfolio Health - All GREEN (TC-008)", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25, // < 30% → GREEN
+      survivalDropPercent: 60, // >= 50% → GREEN
       currentGrossLeverage: 1.1, // < 1.2 (2.0*0.6) → GREEN
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.status).toBe(HEALTH_STATUS.GREEN);
     expect(result.score).toBe(100);
@@ -87,7 +98,11 @@ describe("Portfolio Health - Mixed Status (TC-009)", () => {
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.status).toBe(HEALTH_STATUS.GREEN);
     expect(result.components.survival.status).toBe(HEALTH_STATUS.YELLOW);
@@ -107,13 +122,17 @@ describe("Portfolio Health - RED Status (TC-010)", () => {
     const ctx = {
       maintenanceMargin: 130, // Below marginCallThreshold → RED
       z2Ratio: 50, // Above z2TargetRatio → RED
-      survivalDropPercent: 150, // Above minSurvivalDropLimit → RED
+      survivalDropPercent: 20, // < 30% → RED
       currentGrossLeverage: 2.8, // Above hardCap → RED
       vix: 40, // Above vixAbsoluteOverride → RED
       macroSentiment: { direction: "BEAR" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.status).toBe(HEALTH_STATUS.RED);
     expect(result.score).toBeLessThan(50);
@@ -135,13 +154,17 @@ describe("Portfolio Health - Margin Component", () => {
     const ctx = {
       maintenanceMargin: 165,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.margin.status).toBe(HEALTH_STATUS.GREEN);
     expect(result.components.margin.score).toBe(100);
@@ -153,13 +176,17 @@ describe("Portfolio Health - Margin Component", () => {
     const ctx = {
       maintenanceMargin: 148, // 145 ~ 160
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.margin.status).toBe(HEALTH_STATUS.YELLOW);
     expect(result.components.margin.score).toBe(60);
@@ -171,13 +198,17 @@ describe("Portfolio Health - Margin Component", () => {
     const ctx = {
       maintenanceMargin: 140, // 135 ~ 145 (danger zone)
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.margin.status).toBe(HEALTH_STATUS.RED);
     expect(result.components.margin.score).toBe(30);
@@ -188,13 +219,17 @@ describe("Portfolio Health - Margin Component", () => {
     const ctx = {
       maintenanceMargin: 130,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.margin.status).toBe(HEALTH_STATUS.RED);
     expect(result.components.margin.score).toBe(0);
@@ -211,17 +246,21 @@ describe("Portfolio Health - Survival Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60, // >= 50% → GREEN
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.survival.status).toBe(HEALTH_STATUS.GREEN);
     expect(result.components.survival.score).toBe(100);
-    expect(result.components.survival.details.threshold).toBe("30%");
+    expect(result.components.survival.details.threshold).toBe(">= 50%");
   });
 
   it("生存空間 30% ~ 50% 應為 YELLOW", () => {
@@ -234,24 +273,32 @@ describe("Portfolio Health - Survival Component", () => {
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.survival.status).toBe(HEALTH_STATUS.YELLOW);
     expect(result.components.survival.score).toBe(60);
-    expect(result.components.survival.details.threshold).toBe("50%");
+    expect(result.components.survival.details.threshold).toBe(">= 30%");
   });
 
   it("生存空間 >= 50% 應為 RED", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 55,
+      survivalDropPercent: 20, // < 30% → RED
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.survival.status).toBe(HEALTH_STATUS.RED);
     expect(result.components.survival.score).toBe(0);
@@ -267,13 +314,17 @@ describe("Portfolio Health - Survival Component", () => {
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.survival.status).toBe(HEALTH_STATUS.YELLOW);
     expect(result.components.survival.score).toBe(60);
   });
 
-  it("生存空間正好 50% 應為 RED（邊界）", () => {
+  it("生存空間正好 50% 應為 GREEN（邊界）", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
@@ -283,10 +334,14 @@ describe("Portfolio Health - Survival Component", () => {
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
-    expect(result.components.survival.status).toBe(HEALTH_STATUS.RED);
-    expect(result.components.survival.score).toBe(0);
+    expect(result.components.survival.status).toBe(HEALTH_STATUS.GREEN);
+    expect(result.components.survival.score).toBe(100);
   });
 });
 
@@ -299,13 +354,17 @@ describe("Portfolio Health - Decoupling Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20, // < 22.5 (45 * 0.5)
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.decoupling.status).toBe(HEALTH_STATUS.GREEN);
     expect(result.components.decoupling.score).toBe(100);
@@ -315,13 +374,17 @@ describe("Portfolio Health - Decoupling Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 35, // 22.5 ~ 45
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.decoupling.status).toBe(HEALTH_STATUS.YELLOW);
     expect(result.components.decoupling.score).toBe(60);
@@ -331,13 +394,17 @@ describe("Portfolio Health - Decoupling Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 50, // > 45
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.decoupling.status).toBe(HEALTH_STATUS.RED);
     expect(result.components.decoupling.score).toBe(0);
@@ -353,13 +420,17 @@ describe("Portfolio Health - Leverage Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.0, // < 1.2 (2.0 * 0.6)
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.leverage.status).toBe(HEALTH_STATUS.GREEN);
     expect(result.components.leverage.score).toBe(100);
@@ -370,13 +441,17 @@ describe("Portfolio Health - Leverage Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.8, // 1.2 ~ 2.0
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.leverage.status).toBe(HEALTH_STATUS.YELLOW);
     expect(result.components.leverage.score).toBe(60);
@@ -387,13 +462,17 @@ describe("Portfolio Health - Leverage Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 2.2, // > 2.0
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.leverage.status).toBe(HEALTH_STATUS.RED);
     expect(result.components.leverage.details.limit).toBe(2.0);
@@ -403,13 +482,17 @@ describe("Portfolio Health - Leverage Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 2.6, // > 2.5
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.leverage.status).toBe(HEALTH_STATUS.RED);
     expect(result.components.leverage.score).toBe(0);
@@ -426,13 +509,17 @@ describe("Portfolio Health - Lifecycle Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.8, // <= 2.0 (MID maxLeverage)
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.lifecycle.status).toBe(HEALTH_STATUS.GREEN);
     expect(result.components.lifecycle.score).toBe(100);
@@ -444,13 +531,17 @@ describe("Portfolio Health - Lifecycle Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 2.2, // > 2.0 (MID maxLeverage)
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.lifecycle.status).toBe(HEALTH_STATUS.RED);
     expect(result.components.lifecycle.score).toBe(0);
@@ -461,7 +552,7 @@ describe("Portfolio Health - Lifecycle Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 2.5,
       vix: 18,
       macroSentiment: { direction: "BULL" },
@@ -485,13 +576,17 @@ describe("Portfolio Health - Regime Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 38, // >= 35
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.regime.status).toBe(HEALTH_STATUS.RED);
     expect(result.components.regime.score).toBe(0);
@@ -504,13 +599,17 @@ describe("Portfolio Health - Regime Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 32, // 28 ~ 35
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.regime.status).toBe(HEALTH_STATUS.YELLOW);
     expect(result.components.regime.score).toBe(50);
@@ -522,13 +621,17 @@ describe("Portfolio Health - Regime Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.regime.status).toBe(HEALTH_STATUS.GREEN);
     expect(result.components.regime.score).toBe(100);
@@ -539,13 +642,17 @@ describe("Portfolio Health - Regime Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BEAR" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.regime.status).toBe(HEALTH_STATUS.YELLOW);
     expect(result.components.regime.score).toBe(60);
@@ -556,13 +663,17 @@ describe("Portfolio Health - Regime Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 35,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.regime.status).toBe(HEALTH_STATUS.RED);
     expect(result.components.regime.details.level).toBe("panic");
@@ -572,13 +683,17 @@ describe("Portfolio Health - Regime Component", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 28,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.regime.status).toBe(HEALTH_STATUS.YELLOW);
     expect(result.components.regime.details.level).toBe("high_volatility");
@@ -594,13 +709,17 @@ describe("Portfolio Health - Recommendations (TC-020)", () => {
     const ctx = {
       maintenanceMargin: 130,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.recommendations).toContainEqual(
       expect.stringContaining("減碼"),
@@ -611,13 +730,17 @@ describe("Portfolio Health - Recommendations (TC-020)", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 55,
+      survivalDropPercent: 10,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.recommendations).toContainEqual(
       expect.stringContaining("生存空間不足"),
@@ -628,13 +751,17 @@ describe("Portfolio Health - Recommendations (TC-020)", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 38,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.recommendations).toContainEqual(
       expect.stringContaining("極端恐慌"),
@@ -648,13 +775,17 @@ describe("Portfolio Health - Recommendations (TC-020)", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.recommendations).toContainEqual(
       expect.stringContaining("無需特別操作"),
@@ -704,13 +835,17 @@ describe("Portfolio Health - Summary Generation", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.summary).toContain("良好");
   });
@@ -719,13 +854,17 @@ describe("Portfolio Health - Summary Generation", () => {
     const ctx = {
       maintenanceMargin: 130,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.summary).toContain("需關注");
     expect(result.summary).toContain("margin");
@@ -735,13 +874,17 @@ describe("Portfolio Health - Summary Generation", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.summary).toContain("分"); // 包含分數（不一定是 100 分）
   });
@@ -762,7 +905,11 @@ describe("Portfolio Health - Edge Cases", () => {
       macroSentiment: null,
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result).toBeDefined();
     expect(result.status).toBeDefined();
@@ -773,12 +920,16 @@ describe("Portfolio Health - Edge Cases", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.components.regime.status).toBe(HEALTH_STATUS.GREEN);
   });
@@ -787,13 +938,17 @@ describe("Portfolio Health - Edge Cases", () => {
     const ctx = {
       maintenanceMargin: 170,
       z2Ratio: 20,
-      survivalDropPercent: 25,
+      survivalDropPercent: 60,
       currentGrossLeverage: 1.2,
       vix: 18,
       macroSentiment: { direction: "BULL" },
     };
 
-    const result = computePortfolioHealth(ctx, DEFAULT_STRATEGY, DEFAULT_LIFECYCLE_CONTEXT);
+    const result = computePortfolioHealth(
+      ctx,
+      DEFAULT_STRATEGY,
+      DEFAULT_LIFECYCLE_CONTEXT,
+    );
 
     expect(result.timestamp).toBeDefined();
     expect(new Date(result.timestamp)).toBeInstanceOf(Date);

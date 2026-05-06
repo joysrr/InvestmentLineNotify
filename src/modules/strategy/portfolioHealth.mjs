@@ -88,7 +88,11 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
     };
   }
 
-  components.margin = { status: marginStatus, score: marginScore, details: marginDetails };
+  components.margin = {
+    status: marginStatus,
+    score: marginScore,
+    details: marginDetails,
+  };
 
   // ─────────────────────────────────────────────────────────────
   // 2. Survival 健康度（生存空間）
@@ -97,28 +101,28 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
   // 原邏輯: survivalDropPercent < minSurvivalDropLimit * 0.7 可能永遠無法 GREEN
   // 新邏輯: 使用固定閾值，符合實際市場情境
   const survivalDropPercent = ctx.survivalDropPercent || 0;
-  const minSurvivalDropLimit = lifecycleContext?.profile?.minSurvivalDropLimit || 140;
 
   let survivalStatus, survivalScore, survivalDetails;
 
-  // 固定閾值：GREEN < 30%, YELLOW < 50%, RED >= 50%
-  if (survivalDropPercent < 30) {
+  // 新邏輯：存活空間愈大愈安全
+  // GREEN >= 50%, YELLOW >= 30%, RED < 30%
+  if (survivalDropPercent >= 50) {
     survivalStatus = HEALTH_STATUS.GREEN;
     survivalScore = 100;
     survivalDetails = {
       level: "safe",
       message: "生存空間充足",
       dropPercent: survivalDropPercent,
-      threshold: "30%",
+      threshold: ">= 50%",
     };
-  } else if (survivalDropPercent < 50) {
+  } else if (survivalDropPercent >= 30) {
     survivalStatus = HEALTH_STATUS.YELLOW;
     survivalScore = 60;
     survivalDetails = {
       level: "warning",
-      message: "生存空間接近警戒區",
+      message: "生存空間受限",
       dropPercent: survivalDropPercent,
-      threshold: "50%",
+      threshold: ">= 30%",
     };
   } else {
     survivalStatus = HEALTH_STATUS.RED;
@@ -127,11 +131,15 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
       level: "danger",
       message: "生存空間不足",
       dropPercent: survivalDropPercent,
-      threshold: "50%",
+      threshold: "< 30%",
     };
   }
 
-  components.survival = { status: survivalStatus, score: survivalScore, details: survivalDetails };
+  components.survival = {
+    status: survivalStatus,
+    score: survivalScore,
+    details: survivalDetails,
+  };
 
   // ─────────────────────────────────────────────────────────────
   // 3. Decoupling 健康度（資產解耦）
@@ -170,7 +178,11 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
     };
   }
 
-  components.decoupling = { status: decouplingStatus, score: decouplingScore, details: decouplingDetails };
+  components.decoupling = {
+    status: decouplingStatus,
+    score: decouplingScore,
+    details: decouplingDetails,
+  };
 
   // ─────────────────────────────────────────────────────────────
   // 4. Leverage 健康度（槓桿使用）
@@ -192,7 +204,7 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
       message: "槓桿使用保守",
       current: currentGrossLeverage,
       max: effectiveMax,
-      limit: lifecycleMaxLeverage,  // HIGH-002 修正：加入 limit 欄位
+      limit: lifecycleMaxLeverage, // HIGH-002 修正：加入 limit 欄位
     };
   } else if (currentGrossLeverage < effectiveMax) {
     leverageStatus = HEALTH_STATUS.YELLOW;
@@ -202,7 +214,7 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
       message: "槓桿接近上限",
       current: currentGrossLeverage,
       max: effectiveMax,
-      limit: lifecycleMaxLeverage,  // HIGH-002 修正：加入 limit 欄位
+      limit: lifecycleMaxLeverage, // HIGH-002 修正：加入 limit 欄位
     };
   } else if (currentGrossLeverage < grossLeverageHardCap) {
     leverageStatus = HEALTH_STATUS.RED;
@@ -212,7 +224,7 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
       message: "超過槓桿上限",
       current: currentGrossLeverage,
       max: effectiveMax,
-      limit: lifecycleMaxLeverage,  // HIGH-002 修正：加入 limit 欄位
+      limit: lifecycleMaxLeverage, // HIGH-002 修正：加入 limit 欄位
     };
   } else {
     leverageStatus = HEALTH_STATUS.RED;
@@ -222,11 +234,15 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
       message: "觸發槓桿硬頂",
       current: currentGrossLeverage,
       max: effectiveMax,
-      limit: lifecycleMaxLeverage,  // HIGH-002 修正：加入 limit 欄位
+      limit: lifecycleMaxLeverage, // HIGH-002 修正：加入 limit 欄位
     };
   }
 
-  components.leverage = { status: leverageStatus, score: leverageScore, details: leverageDetails };
+  components.leverage = {
+    status: leverageStatus,
+    score: leverageScore,
+    details: leverageDetails,
+  };
 
   // ─────────────────────────────────────────────────────────────
   // 5. Lifecycle 健康度（生命週期槓桿匹配）
@@ -254,7 +270,11 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
     };
   }
 
-  components.lifecycle = { status: lifecycleStatus, score: lifecycleScore, details: lifecycleDetails };
+  components.lifecycle = {
+    status: lifecycleStatus,
+    score: lifecycleScore,
+    details: lifecycleDetails,
+  };
 
   // ─────────────────────────────────────────────────────────────
   // 6. Regime 健康度（市場環境）
@@ -263,7 +283,8 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
   const macroSentiment = ctx.macroSentiment?.direction || "NEUTRAL";
 
   const vixOverrideTrigger = strategy.macroSentiment?.vixOverrideTrigger || 28;
-  const vixAbsoluteOverride = strategy.macroSentiment?.vixAbsoluteOverride || 35;
+  const vixAbsoluteOverride =
+    strategy.macroSentiment?.vixAbsoluteOverride || 35;
 
   let regimeStatus, regimeScore, regimeDetails;
 
@@ -305,13 +326,19 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
     };
   }
 
-  components.regime = { status: regimeStatus, score: regimeScore, details: regimeDetails };
+  components.regime = {
+    status: regimeStatus,
+    score: regimeScore,
+    details: regimeDetails,
+  };
 
   // ─────────────────────────────────────────────────────────────
   // 計算總體健康度
   // ─────────────────────────────────────────────────────────────
   const scores = Object.values(components).map((c) => c.score);
-  const totalScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+  const totalScore = Math.round(
+    scores.reduce((a, b) => a + b, 0) / scores.length,
+  );
 
   let overallStatus;
   if (totalScore >= 80) {

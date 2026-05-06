@@ -62,89 +62,55 @@
       
       <div v-else-if="!healthData" class="inline-hint">📭 尚無健康度資料</div>
       
-      <div v-else class="health-dashboard">
-        <!-- Health Score Hero Card -->
-        <div class="health-hero" :class="healthData.lightStatus.colorClass">
-          <div class="health-hero-main">
-            <div class="health-status">
-              <span class="health-emoji">{{ healthData.lightStatus.emoji }}</span>
-              <span class="health-label">{{ healthData.lightStatus.label }}</span>
+      <div v-else class="health-dashboard-v2">
+        <!-- Health Score Hero Card (Glassmorphism) -->
+        <div class="health-hero-v2" :class="healthData.status.toLowerCase()">
+          <div class="glass-overlay"></div>
+          <div class="health-hero-content">
+            <div class="health-hero-top">
+              <div class="health-hero-status">
+                <span class="health-hero-emoji">{{ healthData.lightStatus.emoji }}</span>
+                <div class="health-hero-labels">
+                  <span class="health-hero-title">帳戶健康評級</span>
+                  <span class="health-hero-label">{{ healthData.lightStatus.label }}</span>
+                </div>
+              </div>
+              <div class="health-hero-score-wrapper">
+                <span class="health-hero-score">{{ healthData.score }}</span>
+                <span class="health-hero-score-unit">/100</span>
+              </div>
             </div>
-            <div class="health-score">{{ healthData.score }}<span class="score-unit">/100</span></div>
-          </div>
-          <div class="health-summary">{{ healthData.summary }}</div>
-        </div>
-
-        <!-- Health Components Grid -->
-        <div class="health-components">
-          <div class="health-card" :class="healthData.components.margin.status.toLowerCase()">
-            <div class="health-card-icon">🛡️</div>
-            <div class="health-card-main">
-              <div class="health-card-label">維持率</div>
-              <div class="health-card-value">{{ healthData.components.margin.details.margin }}</div>
-              <div class="health-card-sub">{{ healthData.components.margin.details.message }}</div>
-            </div>
-          </div>
-
-          <div class="health-card" :class="healthData.components.leverage.status.toLowerCase()">
-            <div class="health-card-icon">📊</div>
-            <div class="health-card-main">
-              <div class="health-card-label">槓桿</div>
-              <div class="health-card-value">{{ healthData.components.leverage.details.current.toFixed(2) }}x</div>
-              <div class="health-card-sub">上限 {{ healthData.components.leverage.details.max }}x</div>
-            </div>
-          </div>
-
-          <div class="health-card" :class="healthData.components.survival.status.toLowerCase()">
-            <div class="health-card-icon">📉</div>
-            <div class="health-card-main">
-              <div class="health-card-label">生存空間</div>
-              <div class="health-card-value">{{ healthData.components.survival.details.dropPercent.toFixed(1) }}%</div>
-              <div class="health-card-sub">臨界值 {{ healthData.components.survival.details.limit }}%</div>
-            </div>
-          </div>
-
-          <div class="health-card" :class="healthData.components.regime.status.toLowerCase()">
-            <div class="health-card-icon">🌤️</div>
-            <div class="health-card-main">
-              <div class="health-card-label">市場環境</div>
-              <div class="health-card-value">VIX {{ healthData.components.regime.details.vix }}</div>
-              <div class="health-card-sub">{{ healthData.components.regime.details.message }}</div>
-            </div>
+            <p class="health-hero-summary">{{ healthData.summary }}</p>
           </div>
         </div>
 
-        <!-- Lifecycle Info -->
-        <div class="health-lifecycle" v-if="healthData.components.lifecycle.details.stage !== 'N/A'">
-          <div class="health-lifecycle-header">
-            <span class="health-lifecycle-icon">📅</span>
-            <span class="health-lifecycle-label">生命週期</span>
-          </div>
-          <div class="health-lifecycle-content">
-            <div class="lifecycle-stat">
-              <div class="lifecycle-stat-label">階段</div>
-              <div class="lifecycle-stat-value">{{ healthData.components.lifecycle.details.stage }}</div>
+        <!-- Health Components Grid (Glass Cards) -->
+        <div class="health-grid-v2">
+          <div v-for="(comp, key) in healthData.components" :key="key" 
+               class="health-glass-card" :class="comp.status.toLowerCase()">
+            <div class="comp-header">
+              <span class="comp-icon">{{ getCompIcon(key) }}</span>
+              <span class="comp-name">{{ getCompName(key) }}</span>
             </div>
-            <div class="lifecycle-stat">
-              <div class="lifecycle-stat-label">距離退休</div>
-              <div class="lifecycle-stat-value">{{ healthData.components.lifecycle.details.yearsToRetirement }}年</div>
+            <div class="comp-body">
+              <div class="comp-value">{{ getCompValue(comp) }}</div>
+              <div class="comp-sub">{{ comp.details.message || comp.details.stage || '正常' }}</div>
             </div>
-            <div class="lifecycle-stat">
-              <div class="lifecycle-stat-label">模式</div>
-              <div class="lifecycle-stat-value">{{ healthData.components.lifecycle.details.mode }}</div>
-            </div>
+            <div class="comp-status-dot"></div>
           </div>
         </div>
 
-        <!-- Recommendations -->
-        <div class="health-recommendations" v-if="healthData.recommendations.length">
-          <div class="recommendations-header">
-            <span class="recommendations-icon">💡</span>
-            <span class="recommendations-label">建議行動</span>
+        <!-- Recommendations (Action Items) -->
+        <div class="health-action-v2" v-if="healthData.recommendations.length">
+          <div class="action-header">
+            <span class="action-icon">💡</span>
+            <span class="action-title">策略建議行動</span>
           </div>
-          <ul class="recommendations-list">
-            <li v-for="(rec, i) in healthData.recommendations" :key="i">{{ rec }}</li>
-          </ul>
+          <div class="action-list-v2">
+            <div v-for="(rec, i) in healthData.recommendations" :key="i" class="action-item-v2">
+              {{ rec }}
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -417,6 +383,42 @@ const aiActionExpanded = ref(true);
 const aiMindsetExpanded = ref(false);
 const aiThinkingExpanded = ref(false);
 const activeTab = ref("offense");
+
+// ── Helper methods ──
+const getCompIcon = (key) => {
+  const icons = {
+    margin: "🛡️",
+    survival: "📉",
+    decoupling: "💰",
+    leverage: "📊",
+    lifecycle: "📅",
+    regime: "🌤️",
+  };
+  return icons[key] || "🔹";
+};
+
+const getCompName = (key) => {
+  const names = {
+    margin: "維持率",
+    survival: "生存空間",
+    decoupling: "資產解耦",
+    leverage: "槓桿率",
+    lifecycle: "生命週期",
+    regime: "市場環境",
+  };
+  return names[key] || key;
+};
+
+const getCompValue = (comp) => {
+  const details = comp.details;
+  if (details.margin) return `${details.margin}%`;
+  if (details.dropPercent != null) return `${details.dropPercent.toFixed(1)}%`;
+  if (details.z2Ratio != null) return `${details.z2Ratio.toFixed(1)}%`;
+  if (details.current != null) return `${details.current.toFixed(2)}x`;
+  if (details.stage) return details.stage;
+  if (details.vix) return `VIX ${details.vix}`;
+  return "—";
+};
 
 // ── today label ──
 const todayLabel = computed(() =>
@@ -1474,129 +1476,244 @@ onMounted(async () => {
   color: var(--tg-theme-hint-color, #888);
 }
 
-/* ── Portfolio Health Dashboard (Phase 1) ── */
-.health-dashboard {
+/* ── Portfolio Health Dashboard v2 (Premium Glassmorphism) ── */
+.health-dashboard-v2 {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.health-hero-v2 {
+  position: relative;
+  border-radius: 24px;
+  padding: 24px;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(36, 129, 204, 0.25);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.health-hero-v2:active {
+  transform: scale(0.98);
+}
+
+.health-hero-v2.green {
+  background: linear-gradient(135deg, #2481cc 0%, #1c639e 100%);
+}
+
+.health-hero-v2.yellow {
+  background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);
+  box-shadow: 0 12px 32px rgba(243, 156, 18, 0.25);
+}
+
+.health-hero-v2.red {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  box-shadow: 0 12px 32px rgba(231, 76, 60, 0.25);
+}
+
+.glass-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  backdrop-filter: blur(4px);
+  z-index: 1;
+}
+
+.health-hero-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  color: #fff;
+}
+
+.health-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.health-hero-status {
+  display: flex;
+  align-items: center;
   gap: 12px;
 }
 
-.health-hero {
-  padding: 20px;
-  border-radius: 16px;
-  color: #fff;
-  position: relative;
-  overflow: hidden;
+.health-hero-emoji {
+  font-size: 40px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 }
 
-.health-hero-main {
+.health-hero-labels {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+  flex-direction: column;
 }
 
-.health-status {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.health-emoji {
-  font-size: 32px;
-}
-
-.health-label {
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.health-score {
-  font-size: 36px;
-  font-weight: 800;
-}
-
-.score-unit {
-  font-size: 14px;
-  font-weight: 400;
-  opacity: 0.9;
-}
-
-.health-summary {
-  font-size: 14px;
-  opacity: 0.95;
-  line-height: 1.5;
-}
-
-/* Health color variants */
-.health-hero.green {
-  background: linear-gradient(135deg, #2ecc71, #27ae60);
-}
-
-.health-hero.yellow {
-  background: linear-gradient(135deg, #f39c12, #e67e22);
-}
-
-.health-hero.red {
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
-}
-
-/* Health components grid */
-.health-components {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.health-card {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 12px;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.health-card-icon {
-  font-size: 24px;
-}
-
-.health-card-main {
-  flex: 1;
-}
-
-.health-card-label {
+.health-hero-title {
   font-size: 11px;
-  opacity: 0.9;
-  margin-bottom: 4px;
-}
-
-.health-card-value {
-  font-size: 18px;
-  font-weight: 700;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
   margin-bottom: 2px;
 }
 
-.health-card-sub {
+.health-hero-label {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.health-hero-score-wrapper {
+  text-align: right;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.health-hero-score {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+  font-family: "Outfit", "Inter", sans-serif;
+}
+
+.health-hero-score-unit {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.health-hero-summary {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.6;
+  opacity: 0.95;
+  margin: 0;
+}
+
+/* Health Grid v2 */
+.health-grid-v2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.health-glass-card {
+  position: relative;
+  background: var(--tg-theme-bg-color, #fff);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+.health-glass-card:active {
+  transform: translateY(2px);
+  background: var(--tg-theme-secondary-bg-color, #f9f9f9);
+}
+
+.comp-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comp-icon {
+  font-size: 18px;
+}
+
+.comp-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tg-theme-hint-color, #888);
+}
+
+.comp-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.comp-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #111);
+  margin-bottom: 2px;
+}
+
+.comp-sub {
   font-size: 11px;
-  opacity: 0.8;
+  font-weight: 500;
+  color: var(--tg-theme-hint-color, #999);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Health card status colors */
-.health-card.green {
-  background: rgba(46, 204, 113, 0.2);
-  border: 1px solid rgba(46, 204, 113, 0.4);
+.comp-status-dot {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }
 
-.health-card.yellow {
-  background: rgba(243, 156, 18, 0.2);
-  border: 1px solid rgba(243, 156, 18, 0.4);
+.health-glass-card.green .comp-status-dot { background: #2ecc71; box-shadow: 0 0 8px rgba(46, 204, 113, 0.5); }
+.health-glass-card.yellow .comp-status-dot { background: #f39c12; box-shadow: 0 0 8px rgba(243, 156, 18, 0.5); }
+.health-glass-card.red .comp-status-dot { background: #e74c3c; box-shadow: 0 0 8px rgba(231, 76, 60, 0.5); }
+
+/* Action List v2 */
+.health-action-v2 {
+  background: var(--tg-theme-secondary-bg-color, #f5f8fa);
+  border-radius: 20px;
+  padding: 16px;
+  border: 1px dashed rgba(36, 129, 204, 0.3);
 }
 
-.health-card.red {
-  background: rgba(231, 76, 60, 0.2);
-  border: 1px solid rgba(231, 76, 60, 0.4);
+.action-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.action-icon { font-size: 18px; }
+.action-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tg-theme-button-color, #2481cc);
+}
+
+.action-list-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.action-item-v2 {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tg-theme-text-color, #333);
+  padding: 10px 12px;
+  background: var(--tg-theme-bg-color, #fff);
+  border-radius: 12px;
+  line-height: 1.4;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 /* Inline error style */

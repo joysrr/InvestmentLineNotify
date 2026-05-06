@@ -262,3 +262,25 @@
   - 完成標準化 backtest pipeline（多策略、多參數組合、多 regime 情境），定期對當前 Strategy.json 做壓力測試；
   - 將任何策略參數調整與 backtest 結果掛鉤，記錄於 `strategy-param-audit.md` 與 `.agents/proposals` 流程，形成可追溯的變更歷史。
   - 逐步將更多「經驗型規則」萃取為條件式，並用 backtest 與實盤資料做驗證與調整。
+
+---
+
+## 2026-05-06 追蹤：Phase 1.5 儀表板與 API 數據管線審核
+
+### 1. 核心變更摘要
+
+- **Smart Data Lookup**: `portfolioHealth.mjs` API 現已具備自動補全能力。若前端未帶入參數，後端將自動從 `data/reports/` 載入最新戰報資料，確保數據一致性。
+- **In-Memory Cache**: 實作 TTL 60秒快取機制，減少 Disk I/O 負擔並提升高併發下的回應速度。
+- **Premium UI Redesign**: `DashboardView.vue` 導入磨砂玻璃 (Glassmorphism) 與漸層藍視覺風格，優化移動端排版（雙欄 Grid），提升專業感。
+- **數據邏輯修正**: 修正了生存空間 (Survival Drop Limit) 的正負評價邏輯（數值愈大代表愈抗跌，應為綠燈）。
+
+### 2. 實作條件式驗證
+
+- **健康度計算**: 嚴格遵循 `computePortfolioHealth` 聚合 Margin / Survival / Decoupling / Leverage / Lifecycle / Regime 六大維度。
+- **數據來源優先序**: Query Params > Latest Report > Default Value。
+- **生命週期對齊**: API 自動從 `Strategy.json` 讀取 `currentAge` 作為預設背景，確保生命週期槓桿封鎖邏輯生效。
+
+### 3. 後續建議
+
+- **Real-time Push**: 目前儀表板採 Pull 模式，未來可考慮透過 WebSocket 同步 `StrategyEngine` 的實時運算結果。
+- **多維度雷達圖**: 雖然目前已有 Grid 呈現，但健康度六大維度的雷達圖 (Radar Chart) 能更直觀展現帳戶弱點。

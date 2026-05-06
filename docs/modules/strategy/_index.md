@@ -7,6 +7,7 @@
 - [`strategy_engine.md`](./strategy_engine.md)：策略引擎的核心運作機制、計分矩陣、狀態機與風控策略。
 - [`providers.md`](./providers.md)：定義系統目前支援的所有外部資料源、API 以及實作規格。
 - [`lifecycle_engine.md`](./lifecycle_engine.md)：生命週期槓桿引擎。
+- [`regime_policy.md`](./regime_policy.md)：市場環境適應性 (Regime-aware) 策略。
 - [`maintenance_state_machine.md`](./maintenance_state_machine.md)：維持率狀態機。
 
 ## 核心設計理念

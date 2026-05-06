@@ -19,6 +19,7 @@
     ]
   },
   "lifecycle": {
+    "currentAge": 40,
     "monthlyDcaAmount": 30000,
     "payDay": 5,
     "preInjectDays": 5,

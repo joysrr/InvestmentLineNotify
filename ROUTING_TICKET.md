@@ -1,21 +1,42 @@
-# Routing Ticket (RT-20260505-001)
+# Routing Ticket: RT-20260506-001
 
-## 📌 任務基本資訊
+#Status: COMPLETED
+Last Updated: 2026-05-06
+Priority: HIGH
+Assignee: @Lead
+Ticket: RT-20260506-001
 
-- **建立時間**：2026-05-05
-- **任務名稱**：修正 VIX 歷史資料的競爭條件與寫入原子性 (modify-existing)
-- **分配給**：`@Backend`
-- **緊急程度**：Normal
-- **task_class**: modify-existing
-- **touched_files**: src/domain/dailyRunContext.mjs, src/modules/data/archiveManager.mjs
+## 📌 基本資訊
 
-## 🎯 任務目標
+- **Ticket ID**: RT-20260506-001
+- **Task Class**: feature/refactor
+- **Priority**: High
+- **Owner**: @Lead
 
-1. **修復 Race Condition**：修改 `src/domain/dailyRunContext.mjs` 中的 `buildDailyRunContext`，將 `_fetchVix()` 和 `_fetchVixHistory()` 的執行順序解耦或序列化，確保 `vixArr` 正確包含當日最新寫入的 VIX 值。
-2. **實作原子寫入防護 (TOCTOU)**：修改 `src/modules/data/archiveManager.mjs` 的 `saveVixHistory`，採用 `.tmp` 暫存檔寫入搭配 `fs.rename` 覆寫機制，確保檔案寫入的原子性，避免進程中斷導致 JSON 損毀。
+## 🎯 目標 (Objective)
 
-## 📝 執行準則
+深度審查並補全生命週期與健康度系統，修復數據抓取問題，並重構前端 UI 至卓越標準 (Rich Aesthetics)。
 
-- `saveVixHistory`：必須使用 `await fs.writeFile(FILES.VIX_HISTORY + ".tmp", ...)` 接著 `await fs.rename(...)`。
-- `buildDailyRunContext`：可考慮 `_fetchVixHistory()` 純粹回傳檔案內容，再手動把今天的 VIX (`vixData.value`) 加入記憶體陣列末尾，或是讓 `Promise.allSettled` 不平行執行這兩者。
-- 此任務被歸類為 `modify-existing`，因此跳過 Stage 1~4，直接進入 Stage 5 實作。
+## 📂 涉及檔案 (Touched Files)
+
+- `src/api/routes/portfolioHealth.mjs`
+- `webapp/src/views/DashboardView.vue`
+- `src/modules/strategy/strategyEngine.mjs`
+- `src/modules/strategy/portfolioHealth.mjs`
+- `data/config/Strategy.json`
+- `docs/plans/completed/draft_perplexity_suggestion.md`
+
+## 🚦 階段 (Stages)
+
+1. **Research & Audit**: 審查 commit 邏輯 (Reviewer/Backend)
+2. **Backend implementation**: Smart API & Cache (Backend)
+3. **Frontend implementation**: Redesign UI (Frontend)
+4. **Review & Verify**: QA & Smoke test (Reviewer/QA)
+5. **Converge**: Docs update (Architect)
+
+## 🏁 驗收標準 (Acceptance Criteria)
+
+- [x] `/api/portfolio/health` 即使無 query params 也能正確返回最新數據。
+- [x] API 加入快取機制，避免頻繁 Disk I/O。
+- [x] Dashboard 視覺效果大幅提升，符合 Glassmorphism 與漸層色美學。
+- [x] 所有生命週期與 VIX 邏輯通過審查，無遺漏的 export。

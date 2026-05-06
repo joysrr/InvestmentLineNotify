@@ -6,14 +6,16 @@
 
 為確保資金安全，系統採由上而下的優先權覆寫機制（Priority Chain）。只要上層條件觸發，就會提早 `return`，絕對不給底層戰術執行的機會：
 
-1. **[P1] 維持率狀態機 (`evaluateMarginLayer`)**：一旦維持率低於門檻，啟動 4 層防禦姿態 (包含強制停損與禁止買進)。
-2. **[P2] 總槓桿率控管 (`evaluateGrossLeverage`)**：確保總槓桿倍數不超過設定閥值 (例如 1.8x)。
-3. **[P3] 估值守衛 (`resolveValuationGuard`)**：偵測大盤 PB 是否過高，若超過門檻啟動過熱防禦機制。
-4. **[P4] 跌幅前置過濾 (`resolveEntryGate`)**：依據市場跌幅與 RSI 將資金分層阻擋，未達跌幅不可買入。
-5. **[P5] 停損與移動停利 (`computeTrailingStop`)**：若觸發技術面 MA20 停損或移動停利錨點，強制減碼。
-6. **[P6] 泡沫阻斷 (`pbValue >= 2.2`)**：無條件停止任何買進行為。
-7. **[P7] 比例再平衡**：00675L 佔比超過設定閾值時，強制減碼至目標比例。
-8. **[P8] 戰術矩陣 (`generateScoringMatrix`)**：若上述風險皆未觸發，進入計分矩陣，由多項技術指標 (MACD, KD, RSI) 決定加減碼力道。
+1. **[P0] 市場環境硬條件 (`determineRegime`)**：偵測 VIX 與市場情緒，當進入 CRISIS 模式時強制 Sell-only。
+2. **[P1] 維持率狀態機 (`evaluateMarginLayer`)**：一旦維持率低於門檻，啟動 4 層防禦姿態 (包含強制停損與禁止買進)。
+3. **[P2] 總槓桿率控管 (`evaluateGrossLeverage`)**：確保總槓桿倍數不超過設定閥值 (例如 1.8x)。
+4. **[P2.5] 生命週期槓桿引擎 (`computeLifecycleContext`)**：根據年齡自動判定階段，動態調整該階段的 `maxLeverage` 上限。
+5. **[P3] 估值守衛 (`resolveValuationGuard`)**：偵測大盤 PB 是否過高，啟動過熱防禦機制與 Valuation Momentum 強化邏輯。
+6. **[P4] 跌幅前置過濾 (`resolveEntryGate`)**：依據市場跌幅與 RSI 將資金分層阻擋，未達跌幅不可買入。
+7. **[P5] 停損與移動停利 (`computeTrailingStop`)**：若觸發技術面 MA20 停損或移動停利錨點，強制減碼。
+8. **[P6] 泡沫阻斷 (`pbValue >= 2.2`)**：無條件停止任何買進行為。
+9. **[P7] 比例再平衡**：00675L 佔比超過設定閾值時，強制減碼至目標比例。
+10. **[P8] 戰術矩陣 (`generateScoringMatrix`)**：若上述風險皆未觸發，進入計分矩陣，由多項技術指標 (MACD, KD, RSI) 決定加減碼力道。
 
 ## 2. 資金協同與預算控制
 
