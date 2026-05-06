@@ -18,54 +18,73 @@
       </div>
     </div>
 
-    <!-- Tab Content: Summary -->
+    <!-- Tab Content: Summary (總覽) -->
     <div v-if="currentTab === 'summary'" class="tab-pane fade-in">
       <!-- Market Snapshot -->
       <section class="section">
-      <h3 class="section-title">市場快照</h3>
-      <div v-if="statusLoading" class="snapshot-grid snapshot-grid--4">
-        <div v-for="i in 4" :key="i" class="snapshot-card skeleton-card">
-          <div class="sk sk-label"></div>
-          <div class="sk sk-value"></div>
-          <div class="sk sk-sub"></div>
+        <h3 class="section-title">市場快照</h3>
+        <div v-if="statusLoading" class="snapshot-grid snapshot-grid--4">
+          <div v-for="i in 4" :key="i" class="snapshot-card skeleton-card">
+            <div class="sk sk-label"></div>
+            <div class="sk sk-value"></div>
+            <div class="sk sk-sub"></div>
+          </div>
         </div>
-      </div>
-      <div v-else-if="statusError" class="inline-error">⚠️ 快照載入失敗</div>
-      <div v-else class="snapshot-grid snapshot-grid--4">
-        <div class="snapshot-card" :class="vixLevel.cardClass">
-          <span class="snap-label">VIX 恐慌</span>
-          <span class="snap-value">{{
-            status?.data?.rawUsMarket?.vix ?? "—"
-          }}</span>
-          <span class="snap-sub" :class="vixLevel.textClass">{{
-            vixLevel.label
-          }}</span>
+        <div v-else-if="statusError" class="inline-error">⚠️ 快照載入失敗</div>
+        <div v-else class="snapshot-grid snapshot-grid--4">
+          <div class="snapshot-card" :class="vixLevel.cardClass">
+            <span class="snap-label">VIX 恐慌</span>
+            <span class="snap-value">{{ status?.data?.rawUsMarket?.vix ?? "—" }}</span>
+            <span class="snap-sub" :class="vixLevel.textClass">{{ vixLevel.label }}</span>
+          </div>
+          <div class="snapshot-card" :class="pbPrLevel.cardClass">
+            <span class="snap-label">PB 分位數</span>
+            <span class="snap-value">{{ pbPrValue }}%</span>
+            <span class="snap-sub" :class="pbPrLevel.textClass">{{ pbPrLevel.label }}</span>
+          </div>
+          <div class="snapshot-card" :class="glLevel.cardClass">
+            <span class="snap-label">總曝險 GL</span>
+            <span class="snap-value">{{ glValue }}x</span>
+            <span class="snap-sub" :class="glLevel.textClass">{{ glLevel.label }}</span>
+          </div>
+          <div class="snapshot-card">
+            <span class="snap-label">景氣燈號</span>
+            <span class="snap-value snap-light">{{ lightEmoji }}</span>
+            <span class="snap-sub snap-sub--neutral">{{ lightText }}</span>
+          </div>
         </div>
-        <div class="snapshot-card" :class="pbPrLevel.cardClass">
-          <span class="snap-label">PB 分位數</span>
-          <span class="snap-value">{{ pbPrValue }}%</span>
-          <span class="snap-sub" :class="pbPrLevel.textClass">{{
-            pbPrLevel.label
-          }}</span>
-        </div>
-        <div class="snapshot-card" :class="glLevel.cardClass">
-          <span class="snap-label">總曝險 GL</span>
-          <span class="snap-value">{{ glValue }}x</span>
-          <span class="snap-sub" :class="glLevel.textClass">{{
-            glLevel.label
-          }}</span>
-        </div>
-        <div class="snapshot-card">
-          <span class="snap-label">景氣燈號</span>
-          <span class="snap-value snap-light">{{ lightEmoji }}</span>
-          <span class="snap-sub snap-sub--neutral">{{ lightText }}</span>
-        </div>
-      </div>
-    </section>
+      </section>
 
+      <!-- 巨型決策 Hero Card (總覽頁核心) -->
+      <section class="section hero-section">
+        <div v-if="reportLoading" class="hero-card skeleton-card">
+          <div class="sk sk-title"></div>
+          <div class="sk sk-label" style="margin-top: 12px"></div>
+          <div class="sk sk-value" style="width: 60%"></div>
+        </div>
+        <div v-else-if="reportError" class="inline-error">⚠️ 報告載入失敗</div>
+        <div v-else-if="!latestReport" class="inline-hint">📭 尚無報告資料</div>
+        <div v-else class="hero-card">
+          <div class="hero-top">
+            <span class="hero-date">{{ latestReport.date }}</span>
+            <span class="priority-tag" v-if="activePriority">{{ activePriority }}</span>
+          </div>
+          <div class="hero-main">
+            <div class="hero-target" :class="targetClass">{{ latestReport.signals?.target ?? "—" }}</div>
+            <div class="hero-suggestion">{{ latestReport.signals?.suggestion || "載入中..." }}</div>
+            <div class="hero-badges">
+              <span class="badge" :class="pctClass">{{ pctText }}</span>
+              <span class="badge badge-score">評分 {{ latestReport.signals?.score ?? "—" }}</span>
+            </div>
+          </div>
+          <div class="hero-route border-top">
+            <span class="route-label">核心路由：</span>
+            <span class="route-path">{{ routingPath || "—" }}</span>
+          </div>
+        </div>
       </section>
       
-      <!-- AI 教練建議 (移至總覽) -->
+      <!-- AI 教練建議 -->
       <section class="section" v-if="latestReport?.ai">
         <h3 class="section-title">🤖 AI 教練建議</h3>
         <div class="ai-block" v-if="aiRiskWarnings.length">
@@ -91,19 +110,16 @@
       </section>
     </div>
 
-    <!-- Tab Content: Health -->
+    <!-- Tab Content: Health (帳戶健康) -->
     <div v-if="currentTab === 'health'" class="tab-pane fade-in">
-      <!-- Portfolio Health Dashboard (Phase 1) -->
       <section class="section" v-if="!healthLoading">
         <div class="section-header">
           <h3 class="section-title">帳戶健康監控</h3>
-          <span v-if="healthError" class="inline-error--small">載入失敗</span>
         </div>
-        
-        <div v-if="healthError" class="inline-error">⚠️ 健康度資料載入失敗</div>
-        <div v-else-if="!healthData" class="inline-hint">📭 尚無健康度資料</div>
+        <div v-if="healthError" class="inline-error">⚠️ 資料載入失敗</div>
+        <div v-else-if="!healthData" class="inline-hint">📭 尚無資料</div>
         <div v-else class="health-dashboard-v2">
-          <!-- Health Score Hero Card -->
+          <!-- Health Hero -->
           <div class="health-hero-v2" :class="healthData.status.toLowerCase()">
             <div class="glass-overlay"></div>
             <div class="health-hero-content">
@@ -117,17 +133,14 @@
                 </div>
                 <div class="health-hero-score-wrapper">
                   <span class="health-hero-score">{{ healthData.score }}</span>
-                  <span class="health-hero-score-unit">/100</span>
                 </div>
               </div>
               <p class="health-hero-summary">{{ healthData.summary }}</p>
             </div>
           </div>
-
-          <!-- Health Components Grid -->
+          <!-- Components Grid -->
           <div class="health-grid-v2">
-            <div v-for="(comp, key) in healthData.components" :key="key" 
-                 class="health-glass-card" :class="comp.status.toLowerCase()">
+            <div v-for="(comp, key) in healthData.components" :key="key" class="health-glass-card" :class="comp.status.toLowerCase()">
               <div class="comp-header">
                 <span class="comp-icon">{{ getCompIcon(key) }}</span>
                 <span class="comp-name">{{ getCompName(key) }}</span>
@@ -136,191 +149,91 @@
                 <div class="comp-value">{{ getCompValue(comp) }}</div>
                 <div class="comp-sub">{{ comp.details.message || comp.details.stage || '正常' }}</div>
               </div>
-              <div class="comp-status-dot"></div>
-            </div>
-          </div>
-
-          <!-- Recommendations -->
-          <div class="health-action-v2" v-if="healthData.recommendations.length">
-            <div class="action-header">
-              <span class="action-icon">💡</span>
-              <span class="action-title">策略建議行動</span>
-            </div>
-            <div class="action-list-v2">
-              <div v-for="(rec, i) in healthData.recommendations" :key="i" class="action-item-v2">
-                {{ rec }}
-              </div>
             </div>
           </div>
         </div>
       </section>
     </div>
 
-    <!-- Tab Content: Analysis -->
+    <!-- Tab Content: Analysis (詳細分析) -->
     <div v-if="currentTab === 'analysis'" class="tab-pane fade-in">
-      <div class="tab-content" v-if="activeTab === 'offense'">
-        <div class="offense-panel">
-          <div class="offense-top">
-             <div class="radar-verdict" :class="scoreOk ? 'verdict-ok' : 'verdict-wait'">
-               {{ scoreOk ? "🟢 達標" : "⏸️ 觀望" }} ({{ scoreVal }} / {{ scoreMin }})
-             </div>
-             <button class="toggle-btn" @click="showScoreList = !showScoreList">
-               {{ showScoreList ? "切換雷達圖" : "查看列表" }}
-             </button>
-          </div>
-          
-          <div v-if="!showScoreList" class="radar-wrapper">
-            <v-chart :option="radarOption" autoresize class="radar-chart" />
-          </div>
-          <div v-else class="score-list">
-            <div class="score-row" v-for="row in scoreRows" :key="row.label" :class="row.active ? 'score-row--active' : ''">
-              <span class="score-icon">{{ row.active ? "⭐" : "➖" }}</span>
-              <span class="score-label">{{ row.label }}</span>
-              <span class="score-pt" :class="row.active ? 'score-pt--active' : ''">{{ row.pt }}</span>
-              <span class="score-info">{{ row.info }}</span>
-            </div>
-            <div class="score-verdict" :class="scoreOk ? 'verdict-ok' : 'verdict-wait'">
-              {{ scoreOk ? "🟢 條件達標，可評估入場" : "⏸️ 條件未滿，請維持觀望" }}
-            </div>
-          </div>
-          
-          <router-link to="/technical" class="nav-card mt-3">
-            <div class="nav-card-icon">📈</div>
-            <div class="nav-card-main">
-              <p class="nav-card-title">查看詳細技術指標</p>
-              <p class="nav-card-desc">RSI, KD, MACD 趨勢與訊號雷達</p>
-            </div>
-            <div class="nav-card-arrow">→</div>
-          </router-link>
+      <section class="section" v-if="latestReport">
+        <div class="tab-header">
+          <button class="tab-btn" :class="{ active: activeTab === 'offense' }" @click="activeTab = 'offense'">⚔️ 進攻動能</button>
+          <button class="tab-btn" :class="{ active: activeTab === 'defense' }" @click="activeTab = 'defense'">🛡️ 防禦機制</button>
         </div>
-      </div>
-
-      <div class="tab-content" v-if="activeTab === 'defense'">
-        <div class="defense-panel">
-          <!-- Valuation Guard -->
-          <div class="defense-item">
-            <div class="defense-icon">⚖️</div>
-            <div class="defense-main">
-              <div class="defense-title">估值守衛 (Valuation Guard)</div>
-              <div class="defense-status" :class="vgClass">{{ valuationGuardText }}</div>
-              <div class="defense-desc">當前位階: PR{{ pbPrValue }}% | 動量補正: {{ momentumText || '無' }}</div>
+        
+        <div v-if="activeTab === 'offense'" class="tab-content">
+          <div class="offense-panel">
+            <div class="offense-top">
+               <div class="radar-verdict" :class="scoreOk ? 'verdict-ok' : 'verdict-wait'">{{ scoreOk ? "🟢 達標" : "⏸️ 觀望" }} ({{ scoreVal }} / {{ scoreMin }})</div>
+               <button class="toggle-btn" @click="showScoreList = !showScoreList">{{ showScoreList ? "切換雷達圖" : "查看列表" }}</button>
             </div>
-          </div>
-          
-          <!-- Gross Leverage -->
-          <div class="defense-item">
-            <div class="defense-icon">📊</div>
-            <div class="defense-main">
-              <div class="defense-title">槓桿天花板 (Gross Leverage)</div>
-              <div class="defense-status" :class="glLevel.textClass">{{ glLevel.label }}</div>
-              <div class="defense-desc">當前曝險: {{ glValue }}x</div>
+            <div v-if="!showScoreList" class="radar-wrapper">
+              <v-chart :option="radarOption" autoresize class="radar-chart" />
             </div>
-          </div>
-          
-          <!-- Maintenance Risk -->
-          <div class="defense-item">
-            <div class="defense-icon">🛡️</div>
-            <div class="defense-main">
-              <div class="defense-title">維持率安全 (Maintenance)</div>
-              <div class="defense-status" :class="maintenanceClass">{{ maintenanceText }}</div>
-              <div class="defense-desc">跌破警戒線將觸發降槓桿程序</div>
+            <div v-else class="score-list">
+              <div class="score-row" v-for="row in scoreRows" :key="row.label" :class="row.active ? 'score-row--active' : ''">
+                <span class="score-label">{{ row.label }}</span>
+                <span class="score-pt">{{ row.pt }}</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- AI 教練建議 -->
-    <section class="section" v-if="latestReport?.ai">
-      <h3 class="section-title">🤖 AI 教練建議</h3>
-
-      <div class="ai-block" v-if="aiRiskWarnings.length">
-        <button
-          class="ai-block-header"
-          @click="aiRiskExpanded = !aiRiskExpanded"
-        >
-          <span>⚠️ 風險提示</span>
-          <span class="ai-count">{{ aiRiskWarnings.length }} 項</span>
-          <span class="expand-arrow">{{ aiRiskExpanded ? "▲" : "▼" }}</span>
-        </button>
-        <ul v-if="aiRiskExpanded" class="ai-list ai-list--risk">
-          <li v-for="(item, i) in aiRiskWarnings" :key="i">{{ item }}</li>
-        </ul>
-      </div>
-
-      <div class="ai-block" v-if="aiActionItems.length">
-        <button
-          class="ai-block-header"
-          @click="aiActionExpanded = !aiActionExpanded"
-        >
-          <span>📌 下一步觀察清單</span>
-          <span class="ai-count">{{ aiActionItems.length }} 項</span>
-          <span class="expand-arrow">{{ aiActionExpanded ? "▲" : "▼" }}</span>
-        </button>
-        <ul v-if="aiActionExpanded" class="ai-list ai-list--action">
-          <li v-for="(item, i) in aiActionItems" :key="i">{{ item }}</li>
-        </ul>
-      </div>
-
-      <div class="ai-block" v-if="aiMindsetAdvice.length">
-        <button
-          class="ai-block-header"
-          @click="aiMindsetExpanded = !aiMindsetExpanded"
-        >
-          <span>💡 行動微調建議</span>
-          <span class="ai-count">{{ aiMindsetAdvice.length }} 項</span>
-          <span class="expand-arrow">{{ aiMindsetExpanded ? "▲" : "▼" }}</span>
-        </button>
-        <ul v-if="aiMindsetExpanded" class="ai-list ai-list--mindset">
-          <li v-for="(item, i) in aiMindsetAdvice" :key="i">{{ item }}</li>
-        </ul>
-      </div>
-
-      <div class="ai-block" v-if="aiInternalThinking">
-        <button
-          class="ai-block-header"
-          @click="aiThinkingExpanded = !aiThinkingExpanded"
-        >
-          <span>🧠 教練內心推演</span>
-          <span class="expand-arrow">{{ aiThinkingExpanded ? "▲" : "▼" }}</span>
-        </button>
-        <p v-if="aiThinkingExpanded" class="ai-thinking">
-          {{ aiInternalThinking }}
-        </p>
-      </div>
-    </section>
-
-    <!-- News Preview -->
-    <section class="section">
-      <div class="section-header">
-        <h3 class="section-title">最新消息</h3>
-        <router-link to="/news" class="section-more">查看全部 →</router-link>
-      </div>
-      <div v-if="newsLoading" class="news-preview-list">
-        <div v-for="i in 3" :key="i" class="news-preview-card skeleton-card">
-          <div class="sk sk-label" style="width: 40%"></div>
-          <div class="sk sk-title" style="margin-top: 6px"></div>
+        <div v-if="activeTab === 'defense'" class="tab-content">
+          <div class="defense-panel">
+            <div class="defense-item" v-for="item in [{i:'⚖️',t:'估值守衛',v:valuationGuardText,c:vgClass,d:'PR'+pbPrValue+'%'},{i:'📊',t:'槓桿天花板',v:glLevel.label,c:glLevel.textClass,d:glValue+'x'},{i:'🛡️',t:'維持率安全',v:maintenanceText,c:maintenanceClass}]" :key="item.t">
+              <div class="defense-icon">{{ item.i }}</div>
+              <div class="defense-main">
+                <div class="defense-title">{{ item.t }}</div>
+                <div class="defense-status" :class="item.c">{{ item.v }}</div>
+                <div class="defense-desc">{{ item.d }}</div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div v-else-if="newsError" class="inline-error">⚠️ 新聞載入失敗</div>
-      <div v-else-if="topNews.length === 0" class="inline-hint">
-        📭 目前無新聞
-      </div>
-      <div v-else class="news-preview-list">
-        <div
-          v-for="article in topNews"
-          :key="article.id || article.url || article.title"
-          class="news-preview-card"
-          @click="openLink(article.url)"
-        >
-          <div class="news-preview-meta">
-            <span
-              class="news-age-dot"
-              :class="ageDotClass(article.age_band)"
-            ></span>
-            <span class="news-preview-source">{{ article.source }}</span>
-            <span class="news-preview-region">{{
-              regionFlag(article._region)
+      </section>
+
+      <!-- News Preview -->
+      <section class="section">
+        <div class="section-header">
+          <h3 class="section-title">最新消息</h3>
+          <router-link to="/news" class="section-more">查看全部 →</router-link>
+        </div>
+        <div v-if="newsLoading" class="news-preview-list">
+          <div v-for="i in 3" :key="i" class="news-preview-card skeleton-card">
+            <div class="sk sk-label" style="width: 40%"></div>
+            <div class="sk sk-title" style="margin-top: 6px"></div>
+          </div>
+        </div>
+        <div v-else-if="newsError" class="inline-error">⚠️ 新聞載入失敗</div>
+        <div v-else-if="topNews.length === 0" class="inline-hint">
+          📭 目前無新聞
+        </div>
+        <div v-else class="news-preview-list">
+          <div
+            v-for="article in topNews"
+            :key="article.id || article.url || article.title"
+            class="news-preview-card"
+            @click="openLink(article.url)"
+          >
+            <div class="news-preview-meta">
+              <span
+                class="news-age-dot"
+                :class="ageDotClass(article.age_band)"
+              ></span>
+              <span class="news-preview-source">{{ article.source }}</span>
+              <span class="news-preview-region">{{
+                regionFlag(article._region)
+              }}</span>
+            </div>
+            <p class="news-preview-title">{{ article.title }}</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
             }}</span>
           </div>
           <p class="news-preview-title">{{ article.title }}</p>
