@@ -402,7 +402,7 @@ const getCompName = (key) => {
     margin: "維持率",
     survival: "生存空間",
     decoupling: "資產解耦",
-    leverage: "槓桿率",
+    leverage: "槓桿比例",
     lifecycle: "生命週期",
     regime: "市場環境",
   };
@@ -412,7 +412,12 @@ const getCompName = (key) => {
 const getCompValue = (comp) => {
   const details = comp.details;
   if (details.margin) return `${details.margin}%`;
-  if (details.dropPercent != null) return `${details.dropPercent.toFixed(1)}%`;
+  // 支援後端傳回的 "N/A (無風險)" 或數值百分比
+  if (details.dropPercent != null) {
+    return typeof details.dropPercent === 'number' 
+      ? `${details.dropPercent.toFixed(1)}%` 
+      : details.dropPercent;
+  }
   if (details.z2Ratio != null) return `${details.z2Ratio.toFixed(1)}%`;
   if (details.current != null) return `${details.current.toFixed(2)}x`;
   if (details.stage) return details.stage;

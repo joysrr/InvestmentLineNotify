@@ -105,14 +105,17 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
   let survivalStatus, survivalScore, survivalDetails;
 
   // 新邏輯：存活空間愈大愈安全
+  // 特殊處理：若維持率極高 (> 300%) 且無債務風險，直接判定為安全
+  const isHighMarginSafe = maintenanceMargin > 300;
+
   // GREEN >= 50%, YELLOW >= 30%, RED < 30%
-  if (survivalDropPercent >= 50) {
+  if (survivalDropPercent >= 50 || isHighMarginSafe) {
     survivalStatus = HEALTH_STATUS.GREEN;
     survivalScore = 100;
     survivalDetails = {
       level: "safe",
       message: "生存空間充足",
-      dropPercent: survivalDropPercent,
+      dropPercent: isHighMarginSafe ? "N/A (無風險)" : survivalDropPercent,
       threshold: ">= 50%",
     };
   } else if (survivalDropPercent >= 30) {
@@ -375,9 +378,19 @@ function generateHealthSummary(status, score, components) {
     [HEALTH_STATUS.RED]: "🔴",
   };
 
+  // 組件名稱中文化對照表 (UX-001)
+  const componentNames = {
+    margin: "維持率",
+    survival: "生存空間",
+    decoupling: "資產解耦",
+    leverage: "槓桿比例",
+    lifecycle: "生命週期",
+    regime: "市場環境",
+  };
+
   const redComponents = Object.entries(components)
     .filter(([_, c]) => c.status === HEALTH_STATUS.RED)
-    .map(([k]) => k);
+    .map(([k]) => componentNames[k] || k);
 
   if (redComponents.length === 0) {
     return `${statusEmoji[status]} 健康度 ${score}分 - 整體狀況良好`;
