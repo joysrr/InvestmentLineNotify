@@ -76,7 +76,7 @@ async function computeTrailingStop(ctx, strategy) {
   const profitOk =
     currentPrice >
     (ctx.portfolio.avgCostZ2 || ctx.basePrice || 9999) *
-    (1 + tsCfg.activationProfitPct);
+      (1 + tsCfg.activationProfitPct);
 
   const ma20Arr = ctx.ma20Arr || [];
   const closeArr = ctx.closeArr || [];
@@ -142,25 +142,69 @@ export async function buildDecision(
   const engineState = {
     panicBypassActive: false,
     valuationGuardResult: null,
+    valuationMomentumResult: null, // Ensure this is initialized
     regimeResult: null,
     adjustedMaxLeverage: null,
   };
 
+  // ── [PRE-CALC] Valuation Indicators (Always calc this for UI/Reporting) ──
+  const vgCfg = strategy?.valuationGuard;
+  if (vgCfg?.enabled && ctx.pbRecords != null) {
+    const currentPB = ctx.valuation?.pb ?? null;
+    const vgResult = resolveValuationGuard(currentPB, ctx.pbRecords, strategy);
+
+    // Latch logic
+    const latchState = ctx.valuationGuardState ?? { latchActive: false };
+    const triggerPrThreshold = vgCfg?.latch?.triggerPrThreshold ?? 90;
+    const prBelowThreshold =
+      vgCfg?.latch?.unlockConditions?.condition1?.prBelowThreshold ?? 50;
+    const shouldLatch =
+      !latchState.latchActive && vgResult.currentPR >= triggerPrThreshold;
+    const shouldUnlatch =
+      latchState.latchActive && vgResult.currentPR < prBelowThreshold;
+    vgResult.defenseLatchActive =
+      shouldLatch || (latchState.latchActive && !shouldUnlatch);
+
+    // Momentum
+    const vixArr = ctx.vixArr || [];
+    const currentVix = vixArr.length > 0 ? vixArr[vixArr.length - 1] : null;
+    const previousVix = vixArr.length > 1 ? vixArr[vixArr.length - 2] : null;
+
+    engineState.valuationMomentumResult = resolveValuationMomentum(
+      vgResult.currentPR,
+      ctx.pbRecordsObjects,
+      strategy,
+      { currentVix, previousVix },
+    );
+    engineState.valuationGuardResult = vgResult;
+    ctx.valuationMomentumResult = engineState.valuationMomentumResult;
+  }
+
   const reserveStatus = getReserveStatus(ctx, strategy);
   const marginLayer = getMarginLayer(maintenanceMargin, maint, th);
+
+  // ── [PRE-CALC] Trend Confirmation ──
+  const trendConfirmation = resolveTrendConfirmation(
+    {
+      closeArr: ctx.closeArr ?? [],
+      ma20Arr: ctx.ma20Arr ?? [],
+      atrArr: ctx.atrArr ?? [],
+    },
+    strategy,
+  );
 
   // ─────────────────────────────────────────────────────────────
   // ★ Regime-aware Policy（P0：最高優先級，在 Lifecycle Engine 之前）
   // ─────────────────────────────────────────────────────────────
   const regimeCfg = strategy.regime || {};
   const vix = ctx.vix;
-  const sentiment = ctx.macroSentiment?.direction || 'NEUTRAL';
+  const sentiment = ctx.macroSentiment?.direction || "NEUTRAL";
 
   const regimeResult = determineRegime(vix, sentiment, regimeCfg);
   engineState.regimeResult = regimeResult;
 
   // CRISIS 模式：立即 return Sell-only 決策（禁止新增部位）
-  if (regimeResult.state === 'CRISIS') {
+  if (regimeResult.state === "CRISIS") {
     return {
       maintenanceLayer: "normal",
       marketStatus: "🚨【VIX 危機模式】",
@@ -171,14 +215,14 @@ export async function buildDecision(
         `• ${formatRegimeStatus(regimeResult)}\n` +
         `• ⚠️ 禁止新增戰術部位（00675L 加碼封鎖）\n` +
         `• 允許操作：0050 DCA 照常執行 + 主動減倉還款`,
-      regimeState: 'CRISIS',
+      regimeState: "CRISIS",
       regimeResult: regimeResult,
       valuationGuardResult: engineState.valuationGuardResult ?? null,
     };
   }
 
   // CAUTIOUS 模式：計算調整後的槓桿上限，注入 ctx 供 Lifecycle Engine 使用
-  if (regimeResult.state === 'CAUTIOUS') {
+  if (regimeResult.state === "CAUTIOUS") {
     const lifecycleCfg = strategy.lifecycle;
     const lifecycleProfiles = lifecycleCfg?.profiles || null;
     const retirementAge = lifecycleCfg?.retirementAge ?? 65;
@@ -191,11 +235,14 @@ export async function buildDecision(
         lifecycleProfiles,
       );
       const baseMaxLeverage = lifecycleContext.profile.maxLeverage;
-      const adjustedMaxLeverage = applyRegimeLeverage(baseMaxLeverage, regimeResult);
+      const adjustedMaxLeverage = applyRegimeLeverage(
+        baseMaxLeverage,
+        regimeResult,
+      );
 
       engineState.adjustedMaxLeverage = adjustedMaxLeverage;
       ctx.regimeAdjustedMaxLeverage = adjustedMaxLeverage;
-      ctx.regimeState = 'CAUTIOUS';
+      ctx.regimeState = "CAUTIOUS";
     }
   }
 
@@ -215,7 +262,8 @@ export async function buildDecision(
   const ohCfg = strategy?.overrideHierarchy;
   const panicBypassEnabled = ohCfg?.panicBypassEnabled ?? false;
   const panicBypassDropPct = ohCfg?.panicBypassDropPct ?? PANIC_BYPASS_DROP_PCT;
-  const panicVixThreshold = ohCfg?.panicVixThreshold ?? PANIC_BYPASS_VIX_THRESHOLD;
+  const panicVixThreshold =
+    ohCfg?.panicVixThreshold ?? PANIC_BYPASS_VIX_THRESHOLD;
 
   const isPanicBypass =
     panicBypassEnabled &&
@@ -243,12 +291,14 @@ export async function buildDecision(
 
     const currentGrossLeverage = grossLeverageResult?.grossLeverage || 0;
     const baseStageMaxLeverage = lifecycleContext.profile.maxLeverage;
-    const stageMaxLeverage = engineState.adjustedMaxLeverage ?? baseStageMaxLeverage;
+    const stageMaxLeverage =
+      engineState.adjustedMaxLeverage ?? baseStageMaxLeverage;
 
     if (currentGrossLeverage > stageMaxLeverage) {
-      const regimeNote = engineState.regimeResult?.state === 'CAUTIOUS'
-        ? `（含 Regime CAUTIOUS 調整：${baseStageMaxLeverage}x × ${engineState.regimeResult.leverageMultiplier} = ${stageMaxLeverage}x）`
-        : '';
+      const regimeNote =
+        engineState.regimeResult?.state === "CAUTIOUS"
+          ? `（含 Regime CAUTIOUS 調整：${baseStageMaxLeverage}x × ${engineState.regimeResult.leverageMultiplier} = ${stageMaxLeverage}x）`
+          : "";
 
       return {
         maintenanceLayer: "normal",
@@ -281,48 +331,13 @@ export async function buildDecision(
   );
   if (leverageObj) return leverageObj;
 
-  // ─────────────────────────────────────────────────────────────
-  const vgCfg = strategy?.valuationGuard;
-  const trendConfirmation = resolveTrendConfirmation(
-    {
-      closeArr: ctx.closeArr ?? [],
-      ma20Arr: ctx.ma20Arr ?? [],
-      atrArr: ctx.atrArr ?? [],
-    },
-    strategy,
-  );
-  if (
-    vgCfg?.enabled &&
-    ctx.pbRecords != null &&
-    !engineState.panicBypassActive
-  ) {
-    const currentPB = ctx.valuation?.pb ?? null;
-    const pbRecords = ctx.pbRecords ?? [];
-    const vgResult = resolveValuationGuard(currentPB, pbRecords, strategy);
-
-    const latchState = ctx.valuationGuardState ?? { latchActive: false };
-    const triggerPrThreshold = vgCfg?.latch?.triggerPrThreshold ?? 90;
-    const prBelowThreshold = vgCfg?.latch?.unlockConditions?.condition1?.prBelowThreshold ?? 50;
-    const shouldLatch =
-      !latchState.latchActive && vgResult.currentPR >= triggerPrThreshold;
-    const shouldUnlatch =
-      latchState.latchActive && vgResult.currentPR < prBelowThreshold;
-    vgResult.defenseLatchActive =
-      shouldLatch || (latchState.latchActive && !shouldUnlatch);
-
-    const vixArr = ctx.vixArr || [];
-    const currentVix = vixArr.length > 0 ? vixArr[vixArr.length - 1] : null;
-    const previousVix = vixArr.length > 1 ? vixArr[vixArr.length - 2] : null;
-
-    ctx.valuationMomentumResult = resolveValuationMomentum(
-      vgResult.currentPR,
-      ctx.pbRecordsObjects,
+  // ── [POST-CALC] Evaluate Valuation Guard ──
+  if (engineState.valuationGuardResult) {
+    const vgEval = evaluateValuationGuard(
+      ctx,
       strategy,
-      { currentVix, previousVix },
+      engineState.valuationGuardResult,
     );
-
-    engineState.valuationGuardResult = vgResult;
-    const vgEval = evaluateValuationGuard(ctx, strategy, vgResult);
     if (vgEval) return vgEval;
   }
 
@@ -420,9 +435,11 @@ export async function buildDecision(
 
   const rollingNetIncrease = Math.max(0, currentLoan - historyLoan10d);
   const dailyCap =
-    effectiveNetAsset * (budgetCfg?.maxDailyLoanIncreasePct || MAX_DAILY_LOAN_INCREASE_PCT);
+    effectiveNetAsset *
+    (budgetCfg?.maxDailyLoanIncreasePct || MAX_DAILY_LOAN_INCREASE_PCT);
   const rollingCap =
-    effectiveNetAsset * (budgetCfg?.maxRollingLoanIncreasePct || MAX_ROLLING_LOAN_INCREASE_PCT);
+    effectiveNetAsset *
+    (budgetCfg?.maxRollingLoanIncreasePct || MAX_ROLLING_LOAN_INCREASE_PCT);
 
   const availableDaily = dailyCap;
   const availableRolling = Math.max(0, rollingCap - rollingNetIncrease);
@@ -677,8 +694,8 @@ export async function evaluateInvestmentSignal(data, strategy) {
   const isBearish = cfg?.enabled && data.macroMarketDirection === "BEAR";
   const effectiveCooldownDays =
     isBearish &&
-      !vixOverride.overrideActive &&
-      Number.isFinite(cfg.bearishCooldownMultiplier)
+    !vixOverride.overrideActive &&
+    Number.isFinite(cfg.bearishCooldownMultiplier)
       ? Math.round(baseCooldownDays * cfg.bearishCooldownMultiplier)
       : baseCooldownDays;
 
@@ -735,9 +752,9 @@ export async function evaluateInvestmentSignal(data, strategy) {
   const glConfig = strategy.grossLeverage;
   const grossLeverageResult = glConfig
     ? computeGrossLeverage(
-      { etf0050Value, etf675LValue, netAssetValue: netAsset },
-      glConfig,
-    )
+        { etf0050Value, etf675LValue, netAssetValue: netAsset },
+        glConfig,
+      )
     : null;
 
   const ma60Slope =
@@ -755,7 +772,8 @@ export async function evaluateInvestmentSignal(data, strategy) {
   const ohCfg = strategy?.overrideHierarchy;
   const isPanicBypass =
     (ohCfg?.panicBypassEnabled ?? false) &&
-    ctx.priceDropPercent > (ohCfg?.panicBypassDropPct ?? PANIC_BYPASS_DROP_PCT) &&
+    ctx.priceDropPercent >
+      (ohCfg?.panicBypassDropPct ?? PANIC_BYPASS_DROP_PCT) &&
     ctx.vix > (ohCfg?.panicVixThreshold ?? PANIC_BYPASS_VIX_THRESHOLD);
 
   decision.panicBypassActive = isPanicBypass;
