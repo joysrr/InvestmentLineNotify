@@ -47,7 +47,7 @@ import {
 } from "./policies/index.mjs";
 
 // ─────────────────────────────────────────────────────────────
-// Regime-aware Policy Module（新增）
+// Regime-aware Policy Module
 // ─────────────────────────────────────────────────────────────
 import {
   determineRegime,
@@ -61,25 +61,58 @@ import { parseNumber } from "../../utils/coreUtils.mjs";
 import { normalizeMarketData } from "../../utils/normalizer.mjs";
 
 /**
- * Trailing Stop Stub（Phase 2.4 Backtest 框架實現）
- * TODO: 實現動態移動停利邏輯
+ * Trailing Stop（動態移動停利邏輯）
  */
 async function computeTrailingStop(ctx, strategy) {
-  return {
-    trailingActive: false,
-    dynamicAnchor: null,
-  };
+  const tsCfg = strategy.sell?.trailingStop;
+  if (!tsCfg?.enabled || ctx.z2Ratio <= 0 || !ctx.portfolio?.lastBuyDate) {
+    return { trailingActive: false, dynamicAnchor: null };
+  }
+
+  const buyDate = ctx.portfolio.lastBuyDate;
+  const highsSince = await archiveManager.getHighsSince(buyDate);
+  const currentPrice = ctx.currentPrice;
+
+  const profitOk =
+    currentPrice >
+    (ctx.portfolio.avgCostZ2 || ctx.basePrice || 9999) *
+    (1 + tsCfg.activationProfitPct);
+
+  const ma20Arr = ctx.ma20Arr || [];
+  const closeArr = ctx.closeArr || [];
+  const c1 = closeArr.at(-1),
+    c2 = closeArr.at(-2);
+  const m1 = ma20Arr.at(-1),
+    m2 = ma20Arr.at(-2);
+  const ma20Stable =
+    closeArr.length >= 2 && ma20Arr.length >= 2 && c1 > m1 && c2 > m2;
+
+  if (!profitOk && !ma20Stable) {
+    return { trailingActive: false, dynamicAnchor: null };
+  }
+
+  let dynamicAnchor = null;
+  if (tsCfg.anchorType === "ma20") {
+    dynamicAnchor = ma20Arr.at(-1) * (1 - tsCfg.stopLossBuffer);
+  } else if (tsCfg.anchorType === "atr") {
+    const allHighs = [...highsSince, currentPrice];
+    const hhv = calcHHV(allHighs, allHighs.length).at(-1) ?? currentPrice;
+    const atr = ctx.atrArr?.at(-1) || 0;
+    dynamicAnchor = hhv - atr * tsCfg.atrMultiplier;
+  }
+
+  return { trailingActive: true, dynamicAnchor };
 }
 
 /**
  * 決策優先鏈（Priority 由高到低，越高越優先 early return）：
- *  P0 - Regime 硬條件檢查    → determineRegime（新增）
+ *  P0 - Regime 硬條件檢查    → determineRegime
  *  P1 - 維持率 4 層狀態機     → evaluateMarginLayer
  *  P2 - Gross Leverage 警戒  → evaluateGrossLeverage
  *       ↑ P3 isPanicBypass 旗標在 P2 之前預算，作為參數注入 P2
  *  P4 - 估值守衛              → resolveValuationGuard / evaluateValuationGuard
  *  P5 - EntryGate 前置過濾   → resolveEntryGate
- *  P6 - 停損/移動停利       → stopLossTriggered / trailingTriggered
+ *  P6 - 停損/移動停利         → stopLossTriggered / trailingTriggered
  *  P7 - 估值泡沫 (PB ≥ 2.2)  → 直接 return
  *  P8 - 再平衡 (z2RatioHigh) → 直接 return
  *  P9 - 評分驅動決策          → buy_tactical / sell_tactical / neutral
@@ -109,8 +142,8 @@ export async function buildDecision(
   const engineState = {
     panicBypassActive: false,
     valuationGuardResult: null,
-    regimeResult: null,           // ← 新增：Regime 判定結果
-    adjustedMaxLeverage: null,    // ← 新增：Regime 調整後的槓桿上限
+    regimeResult: null,
+    adjustedMaxLeverage: null,
   };
 
   const reserveStatus = getReserveStatus(ctx, strategy);
@@ -118,9 +151,8 @@ export async function buildDecision(
 
   // ─────────────────────────────────────────────────────────────
   // ★ Regime-aware Policy（P0：最高優先級，在 Lifecycle Engine 之前）
-  // 根據 VIX 和 MacroSentiment 動態調整槓桿上限與交易模式
   // ─────────────────────────────────────────────────────────────
-  const regimeCfg = strategy.regime || {}; // 向下相容：若無配置則使用預設值
+  const regimeCfg = strategy.regime || {};
   const vix = ctx.vix;
   const sentiment = ctx.macroSentiment?.direction || 'NEUTRAL';
 
@@ -147,7 +179,6 @@ export async function buildDecision(
 
   // CAUTIOUS 模式：計算調整後的槓桿上限，注入 ctx 供 Lifecycle Engine 使用
   if (regimeResult.state === 'CAUTIOUS') {
-    // 若 Lifecycle 已啟用，預先計算調整後的 maxLeverage
     const lifecycleCfg = strategy.lifecycle;
     const lifecycleProfiles = lifecycleCfg?.profiles || null;
     const retirementAge = lifecycleCfg?.retirementAge ?? 65;
@@ -163,7 +194,6 @@ export async function buildDecision(
       const adjustedMaxLeverage = applyRegimeLeverage(baseMaxLeverage, regimeResult);
 
       engineState.adjustedMaxLeverage = adjustedMaxLeverage;
-      // 注入 ctx 供後續 Lifecycle 檢查使用
       ctx.regimeAdjustedMaxLeverage = adjustedMaxLeverage;
       ctx.regimeState = 'CAUTIOUS';
     }
@@ -181,10 +211,7 @@ export async function buildDecision(
   );
   if (marginLayerObj) return marginLayerObj;
 
-  // 🟢 Layer 3：常態運行 >= protectTrigger(160)
-  // 以下為原有策略邏輯完整執行
-
-  // ── [P3 旗標預算] isPanicBypass：須在 P2 之前計算，以參數形式注入 evaluateGrossLeverage ──
+  // ── [P3 旗標預算] isPanicBypass：須在 P2 之前計算 ──
   const ohCfg = strategy?.overrideHierarchy;
   const panicBypassEnabled = ohCfg?.panicBypassEnabled ?? false;
   const panicBypassDropPct = ohCfg?.panicBypassDropPct ?? PANIC_BYPASS_DROP_PCT;
@@ -195,18 +222,15 @@ export async function buildDecision(
     ctx.priceDropPercent > panicBypassDropPct &&
     ctx.vix > panicVixThreshold;
 
-  // 將狀態存入 ctx 供後續模組讀取
   engineState.panicBypassActive = isPanicBypass;
 
   // ─────────────────────────────────────────────────────────────
   // ★ 生命週期槓桿引擎（P2.5：在 Gross Leverage 之前檢查）
-  // 根據年齡與退休目標，動態調整 maxLeverage 上限
   // ─────────────────────────────────────────────────────────────
   const lifecycleCfg = strategy.lifecycle;
   const lifecycleProfiles = lifecycleCfg?.profiles || null;
   const retirementAge = lifecycleCfg?.retirementAge ?? 65;
 
-  // 從 ctx 注入 currentAge（需由 caller 或 dailyRunContext 提供）
   const currentAge = ctx.currentAge ?? null;
   let lifecycleContext = null;
 
@@ -217,14 +241,10 @@ export async function buildDecision(
       lifecycleProfiles,
     );
 
-    // 獲取當前 grossLeverage（已計算）
     const currentGrossLeverage = grossLeverageResult?.grossLeverage || 0;
-
-    // 獲取該階段的 maxLeverage（若 Regime CAUTIOUS 則使用調整後的值）
     const baseStageMaxLeverage = lifecycleContext.profile.maxLeverage;
     const stageMaxLeverage = engineState.adjustedMaxLeverage ?? baseStageMaxLeverage;
 
-    // 檢查是否超過生命週期槓桿上限（含 Regime 調整）
     if (currentGrossLeverage > stageMaxLeverage) {
       const regimeNote = engineState.regimeResult?.state === 'CAUTIOUS'
         ? `（含 Regime CAUTIOUS 調整：${baseStageMaxLeverage}x × ${engineState.regimeResult.leverageMultiplier} = ${stageMaxLeverage}x）`
@@ -280,7 +300,6 @@ export async function buildDecision(
     const pbRecords = ctx.pbRecords ?? [];
     const vgResult = resolveValuationGuard(currentPB, pbRecords, strategy);
 
-    // Explicitly compute latch state for frontend
     const latchState = ctx.valuationGuardState ?? { latchActive: false };
     const triggerPrThreshold = vgCfg?.latch?.triggerPrThreshold ?? 90;
     const prBelowThreshold = vgCfg?.latch?.unlockConditions?.condition1?.prBelowThreshold ?? 50;
@@ -291,8 +310,6 @@ export async function buildDecision(
     vgResult.defenseLatchActive =
       shouldLatch || (latchState.latchActive && !shouldUnlatch);
 
-    // Unconditionally compute momentum if enabled
-    // vixData: 從 ctx.vixArr 取得 currentVix 和 previousVix
     const vixArr = ctx.vixArr || [];
     const currentVix = vixArr.length > 0 ? vixArr[vixArr.length - 1] : null;
     const previousVix = vixArr.length > 1 ? vixArr[vixArr.length - 2] : null;
@@ -304,14 +321,13 @@ export async function buildDecision(
       { currentVix, previousVix },
     );
 
-    engineState.valuationGuardResult = vgResult; // ← 由 Engine 層統一持有，供後續節點讀取
+    engineState.valuationGuardResult = vgResult;
     const vgEval = evaluateValuationGuard(ctx, strategy, vgResult);
     if (vgEval) return vgEval;
   }
 
   // ─────────────────────────────────────────────────────────────
-  // ★ Pre-Entry Gate：左側進擊矩陣前置過濾（依跌幅層級限制允許操作）
-  // entryGate 在估值泡沫/再平衡/恐慌買入之前執行，確保所有買入路徑均受過濾
+  // ★ Pre-Entry Gate
   // ─────────────────────────────────────────────────────────────
   const entryGateCfg = strategy.buy?.entryGate;
   const gateResult = resolveEntryGate(
@@ -361,18 +377,8 @@ export async function buildDecision(
   }
 
   // ─────────────────────────────────────────────────────────────
-  // ★ 核心計分矩陣 (Scoring Matrix) 決策引擎注入
+  // ★ 核心計分矩陣 (Scoring Matrix)
   // ─────────────────────────────────────────────────────────────
-
-  // ── 宏觀情緒數據接入（使用現有 dailyRunContext 的多空分析）──────────
-  // ctx.macroSentiment 已從 buildEngineContext 注入，包含：
-  //   - direction: BULL/BEAR/NEUTRAL（從 AI Coach 分析新聞得出）
-  //   - bonus: 多頭加分（從 strategy.macroSentiment.bullishBonus）
-  //   - penalty: 空頭扣分（從 strategy.macroSentiment.bearishPenalty）
-  //   - vix: 當前 VIX 值（供 VIX 短路機制使用）
-  //   - vixOverrideActive: VIX 情緒短路標記
-  // 若 macroSentiment 為 null，則不套用情緒加成
-  // ─────────────────────────────────────────────────────────────────
   const scoringData = {
     institutionalNet: ctx.institutionalNet || 0,
     institutionalHistory: ctx.institutionalHistory || [],
@@ -392,7 +398,7 @@ export async function buildDecision(
     ctx.priceDropPercent,
     strategy,
     scoringData,
-    ctx.macroSentiment,  // ✅ 已從 dailyRunContext.macroMarketDirection 接入
+    ctx.macroSentiment,
   );
   const {
     finalScore,
@@ -418,7 +424,7 @@ export async function buildDecision(
   const rollingCap =
     effectiveNetAsset * (budgetCfg?.maxRollingLoanIncreasePct || MAX_ROLLING_LOAN_INCREASE_PCT);
 
-  const availableDaily = dailyCap; // 簡化：當日通常只執行一筆
+  const availableDaily = dailyCap;
   const availableRolling = Math.max(0, rollingCap - rollingNetIncrease);
   const finalAvailableBudget = Math.min(availableDaily, availableRolling);
 
@@ -512,7 +518,6 @@ export async function buildDecision(
   // 3) 評分驅動決策 (Scoring Driven)
   // --- 戰術加碼路徑 ---
   if (signal === "buy_tactical") {
-    // 檢查冷卻期
     if (cooldownStatus.inCooldown) {
       return {
         regimeState: engineState.regimeResult?.state ?? null,
@@ -528,8 +533,7 @@ export async function buildDecision(
     const scalingText =
       scalingRatio < 1.0 ? ` (縮放撥款 ${scalingRatio * 100}%)` : "";
 
-    // 檢查預算上限
-    const suggestedValue = dailyCap * scalingRatio; // 假設預算基礎為單日上限
+    const suggestedValue = dailyCap * scalingRatio;
     const budgetCapped = suggestedValue > finalAvailableBudget;
     const finalAllocRatio = budgetCapped
       ? finalAvailableBudget / dailyCap
@@ -602,5 +606,349 @@ export async function buildDecision(
     dynamicAnchor,
     valuationGuardResult: engineState.valuationGuardResult ?? null,
     valuationMomentumResult: ctx.valuationMomentumResult ?? null,
+  };
+}
+
+export async function evaluateInvestmentSignal(data, strategy) {
+  // ── 2.0 標準化數據清洗 ────────────────────────────────────────
+  const marketState = normalizeMarketData({
+    ...data,
+    rawValuation: data.rawValuation || {},
+    rawUsMarket: { vix: data.VIX, ...data.rawUsMarket },
+    rawCnn: data.rawCnn || { score: data.cnnScore },
+    rawMargin: data.rawMargin || { maintenanceRatio: data.maintenanceRatio },
+    rawFx: data.rawFx || { currentRate: data.currentRate },
+  });
+
+  const currentPrice = parseNumber(data.currentPrice);
+  const basePrice = parseNumber(data.basePrice);
+  const priceChangePercent = ((currentPrice - basePrice) / basePrice) * 100;
+  const priceUpPercent = Math.max(0, priceChangePercent);
+  const priceDropPercent = Math.max(0, -priceChangePercent);
+
+  const current0050Value = data.portfolio.qty0050 * data.price0050;
+  const currentZ2Value = data.portfolio.qtyZ2 * currentPrice;
+
+  // ── 使用 marginPolicy 計算維持率與壓力測試 ───────
+  const marginAnalysis = analyzeMarginRisk(
+    data.portfolio,
+    data.price0050,
+    strategy,
+  );
+  const maintenanceMargin = marginAnalysis.currentMargin;
+
+  // ── 資金解耦分析 ──────────────────────────────────────────────
+  const decouplingAnalysis = analyzeCapitalDecoupling(data.portfolio, {
+    price0050: data.price0050,
+    priceZ2: data.currentPrice,
+  });
+
+  const netAsset =
+    current0050Value +
+    currentZ2Value +
+    data.portfolio.cash -
+    data.portfolio.totalLoan;
+  const z2Ratio = netAsset > 0 ? (currentZ2Value / netAsset) * 100 : 0;
+
+  const ma240 =
+    Number.isFinite(data.ma240) && data.ma240 > 0 ? data.ma240 : null;
+  const bias240 = ma240 ? ((data.currentPrice - ma240) / ma240) * 100 : null;
+
+  const grossAsset = current0050Value + currentZ2Value + data.portfolio.cash;
+  const actualLeverage = netAsset > 0 ? grossAsset / netAsset : 0;
+  const baseCooldownDays = strategy.trading.cooldownDays || 20;
+  const cfg = strategy?.macroSentiment;
+
+  // ─── VIX 情緒短路 ───
+  const vixArr =
+    Array.isArray(data.vixArr) && data.vixArr.length > 0
+      ? data.vixArr
+      : Number.isFinite(data.VIX)
+        ? [data.VIX]
+        : [];
+  const vixOverride = resolveVixOverride(data.VIX, vixArr, strategy);
+
+  const macroSentiment = resolveMacroSentiment(
+    data.macroMarketDirection ?? null,
+    strategy,
+    vixOverride,
+  );
+
+  const isBearish = cfg?.enabled && data.macroMarketDirection === "BEAR";
+  const effectiveCooldownDays =
+    isBearish &&
+      !vixOverride.overrideActive &&
+      Number.isFinite(cfg.bearishCooldownMultiplier)
+      ? Math.round(baseCooldownDays * cfg.bearishCooldownMultiplier)
+      : baseCooldownDays;
+
+  const lastBuyDate = data.portfolio?.lastBuyDate ?? null;
+  const cooldownStatus = await checkCooldown(
+    lastBuyDate,
+    effectiveCooldownDays,
+  );
+
+  if (effectiveCooldownDays !== baseCooldownDays) {
+    cooldownStatus.message += ` (⚠️ 空頭情緒延長冷卻至 ${effectiveCooldownDays} 交易日)`;
+  }
+
+  // ── 衍生值計算 ────────────────────────────────────────────
+  const entry = computeEntryScore(
+    data,
+    priceDropPercent,
+    strategy,
+    macroSentiment,
+  );
+  const overheat = computeOverheatState(data, bias240, strategy);
+  const reversal = computeReversalTriggers(data, strategy);
+  const sellSignals = computeSellSignals(data, strategy);
+  const survivalAnalysis = analyzeSurvival(
+    data.portfolio,
+    data.price0050,
+    strategy,
+  );
+
+  // ── 組裝 ctx ──────────────────────────────────────────────
+  const ctx = buildEngineContext(data, {
+    priceChangePercent,
+    priceUpPercent,
+    priceDropPercent,
+    maintenanceMargin,
+    z2Ratio,
+    netAsset,
+    currentZ2Value,
+    vixArr,
+    cooldownStatus,
+    macroSentiment,
+    marginAnalysis,
+    decouplingAnalysis,
+    survivalAnalysis,
+    entry,
+    overheat,
+    reversal,
+    sellSignals,
+  });
+
+  // ── Gross Leverage 計算 ──────────────────────────────────
+  const etf0050Value = data.portfolio.qty0050 * data.price0050;
+  const etf675LValue = data.portfolio.qtyZ2 * data.currentPrice;
+  const glConfig = strategy.grossLeverage;
+  const grossLeverageResult = glConfig
+    ? computeGrossLeverage(
+      { etf0050Value, etf675LValue, netAssetValue: netAsset },
+      glConfig,
+    )
+    : null;
+
+  const ma60Slope =
+    Array.isArray(data.ma60SlopeArr) && data.ma60SlopeArr.length > 0
+      ? data.ma60SlopeArr[data.ma60SlopeArr.length - 1]
+      : null;
+
+  const decision = await buildDecision(
+    ctx,
+    strategy,
+    grossLeverageResult,
+    ma60Slope,
+  );
+
+  const ohCfg = strategy?.overrideHierarchy;
+  const isPanicBypass =
+    (ohCfg?.panicBypassEnabled ?? false) &&
+    ctx.priceDropPercent > (ohCfg?.panicBypassDropPct ?? PANIC_BYPASS_DROP_PCT) &&
+    ctx.vix > (ohCfg?.panicVixThreshold ?? PANIC_BYPASS_VIX_THRESHOLD);
+
+  decision.panicBypassActive = isPanicBypass;
+
+  // 預算協同分析 (DCA 攔截)
+  const budgetSynergy = resolveBudgetSynergy(
+    ctx,
+    strategy,
+    decision.weightScore || 0,
+  );
+  const finalDecision = applyBudgetSynergy(decision, budgetSynergy);
+
+  const macdSignal = getMACDSignal(data.macdArr);
+
+  const signals = formatSignalOutput(ctx, finalDecision, {
+    priceChangePercent,
+    bias240,
+    actualLeverage,
+    maintenanceMargin,
+    z2Ratio,
+    grossLeverageResult,
+    marginAnalysis,
+    decouplingAnalysis,
+    macdSignal,
+  });
+
+  return {
+    id: data.date || new Date().toISOString().split("T")[0],
+    date: data.date || new Date().toISOString(),
+    marketState,
+    strategySnapshot: strategy,
+    signals,
+  };
+}
+
+export async function getInvestmentSignalAsync(data) {
+  const strategy = await fetchStrategyConfig();
+  validateStrategyConfig(strategy);
+  return await evaluateInvestmentSignal(data, strategy);
+}
+
+/**
+ * 將預算協同分析結果合併進 decision（不可變，回傳新物件）
+ */
+function applyBudgetSynergy(decision, synergy) {
+  if (!synergy) return decision;
+
+  const base = { ...decision, budgetSynergy: synergy };
+
+  if (decision.target !== "觀望" && decision.target !== "Neutral") {
+    return base;
+  }
+
+  return {
+    ...base,
+    target: synergy.label,
+    targetSuggestionShort: synergy.suggestedAmount
+      ? `提前動用 $${synergy.suggestedAmount.toLocaleString()} 攔截`
+      : "提前撥款攔截",
+    suggestion: (decision.suggestion || "") + "\n\n" + synergy.suggestion,
+  };
+}
+
+/**
+ * 組裝決策引擎所需的 ctx 輸入物件（純組裝，不含計算邏輯）
+ */
+function buildEngineContext(data, derived) {
+  const {
+    priceChangePercent,
+    priceUpPercent,
+    priceDropPercent,
+    maintenanceMargin,
+    z2Ratio,
+    netAsset,
+    currentZ2Value,
+    vixArr,
+    cooldownStatus,
+    macroSentiment,
+    marginAnalysis,
+    decouplingAnalysis,
+  } = derived;
+
+  return {
+    priceChangePercent,
+    priceUpPercent,
+    priceDropPercent,
+    currentPrice: data.currentPrice,
+    basePrice: data.basePrice,
+    maintenanceMargin,
+    z2Ratio,
+    netAsset,
+    currentZ2Value,
+    vix: data.VIX,
+    rsi: data.RSI,
+    vixArr,
+    portfolio: data.portfolio,
+    reserveCash: data.portfolio?.cash || 0,
+    indicators0050: data.indicators0050 || {},
+    cooldownStatus,
+    macroSentiment,
+    entry: derived.entry,
+    overheat: derived.overheat,
+    reversal: derived.reversal,
+    sellSignals: derived.sellSignals,
+    valuation: data.rawValuation || null,
+    pbRecords: data.pbRecords ?? [],
+    pbRecordsObjects: data.pbRecordsObjects ?? [],
+    valuationGuardState: data.valuationGuardState ?? null,
+    closeArr: data.closeArr ?? [],
+    ma20Arr: data.ma20Arr ?? [],
+    atrArr: data.atrArr ?? [],
+    macdArr: data.macdArr ?? [],
+    ma60SlopeHistory: data.ma60SlopeArr || [],
+    institutionalNet: data.institutionalNet || 0,
+    institutionalHistory: data.institutionalHistory || [],
+    marginAnalysis,
+    decouplingAnalysis,
+    survivalAnalysis: derived.survivalAnalysis,
+    indicators: {
+      rsiArr: data.rsiArr || [],
+      kdArr: data.kdArr || [],
+      macdArr: data.macdArr || [],
+    },
+  };
+}
+
+/**
+ * 將內部決策結果格式化為對外輸出的 signals 結構
+ */
+function formatSignalOutput(ctx, finalDecision, derived) {
+  const {
+    priceChangePercent,
+    bias240,
+    actualLeverage,
+    maintenanceMargin,
+    z2Ratio,
+    grossLeverageResult,
+    marginAnalysis,
+    decouplingAnalysis,
+    macdSignal,
+  } = derived;
+
+  return {
+    RSI: parseNumber(ctx.rsi),
+    KD_K: parseNumber(
+      Array.isArray(ctx.indicators?.kdArr) && ctx.indicators.kdArr.length
+        ? ctx.indicators.kdArr.at(-1)?.k
+        : null,
+    ),
+    KD_D: parseNumber(
+      Array.isArray(ctx.indicators?.kdArr) && ctx.indicators.kdArr.length
+        ? ctx.indicators.kdArr.at(-1)?.d
+        : null,
+    ),
+    bias240: parseNumber(bias240),
+    reversal: ctx.reversal ?? null,
+    sellSignals: ctx.sellSignals ?? null,
+    priceChangePercentText: Number.isFinite(priceChangePercent)
+      ? Math.abs(priceChangePercent).toFixed(2)
+      : "0.00",
+    status: finalDecision.marketStatus || "🌱",
+    target: finalDecision.target || "🔹 0050 DCA",
+    suggestion: finalDecision.targetSuggestion || "維持觀望",
+    signalDirection: finalDecision.signalDirection ?? "hold",
+    score: parseNumber(ctx.entry.weightScore),
+    weightDetails: ctx.entry.weightDetails,
+    finalScore: finalDecision.finalScore ?? null,
+    categoryResults: finalDecision.categoryResults ?? null,
+    scalingRatio: finalDecision.scalingRatio ?? null,
+    priceChangePercent: parseNumber(priceChangePercent),
+    actualLeverage: parseNumber(actualLeverage),
+    maintenanceMargin: parseNumber(maintenanceMargin),
+    z2Ratio: parseNumber(z2Ratio),
+    grossLeverage: parseNumber(grossLeverageResult?.grossLeverage),
+    grossLeverageStatus: grossLeverageResult?.status || "normal",
+    maintenanceRisk: marginAnalysis?.riskLevel
+      ? { level: marginAnalysis.riskLevel }
+      : { level: "Normal" },
+    marginAnalysis,
+    decouplingAnalysis,
+    valuationGuardResult: finalDecision.valuationGuardResult ?? null,
+    valuationMomentumResult:
+      ctx.valuationMomentumResult ??
+      finalDecision.valuationMomentumResult ??
+      null,
+    panicBypassActive: finalDecision.panicBypassActive ?? false,
+    regimeState: finalDecision.regimeState ?? null,
+    regimeResult: finalDecision.regimeResult ?? null,
+    entryGateLevel: finalDecision.entryGateLevel ?? null,
+    cooldownStatus: ctx.cooldownStatus,
+    budgetInfo: finalDecision.budgetInfo ?? null,
+    trailingActive: finalDecision.trailingActive ?? false,
+    dynamicAnchor: finalDecision.dynamicAnchor ?? null,
+    macdSignal,
   };
 }
