@@ -3,14 +3,19 @@
  *
  * 計算帳戶綜合曝險倍數（Gross Leverage Ratio）並判斷雙層天花板狀態。
  *
- * 公式：grossLeverage = (0050市值 + 00675L市值 × 2) / 帳戶淨值
+ * 公式：grossLeverage = (0050 市值 + 00675L 市值 × 2) / 帳戶淨值
  *
  * 00675L 內含 2x 期貨槓桿，係數採固定值 2。
  *
  * 雙層天花板：
- *   - 主動擴張上限（ceiling）：grossLeverage > ceiling → 禁止新增借款與00675L，一票否決加碼
- *   - 被動危機紅線（hardCap）：grossLeverage > hardCap  → 強制賣出00675L至recoveryTarget
+ *   - 主動擴張上限（ceiling）：grossLeverage > ceiling → 禁止新增借款與 00675L，一票否決加碼
+ *   - 被動危機紅線（hardCap）：grossLeverage > hardCap  → 強制賣出 00675L 至 recoveryTarget
  */
+
+import {
+  LEVERAGE_ETF_MULTIPLIER,
+  DEFAULT_GROSS_LEVERAGE_CONFIG,
+} from "./strategyDefaults.mjs";
 
 /**
  * @typedef {Object} GrossLeverageConfig
@@ -30,17 +35,11 @@
  * @typedef {Object} GrossLeverageResult
  * @property {number}  grossLeverage         - 計算出的綜合曝險倍數
  * @property {'normal' | 'ceiling_breach' | 'hardcap_breach' | 'error'} status - 當前天花板狀態
- * @property {boolean} blockNewLeverage      - 是否禁止新增借款與00675L買入
+ * @property {boolean} blockNewLeverage      - 是否禁止新增借款與 00675L 買入
  * @property {boolean} forceDeleverage       - 是否強制觸發降槓桿賣出
  * @property {number}  recoveryTarget        - 強制平倉的著陸目標倍數（forceDeleverage 時才具意義）
  * @property {string}  message               - 人類可讀的狀態說明
  */
-
-/**
- * 00675L 內含期貨槓桿係數（固定值 2x）。
- * TODO: 若未來支援其他槓桿 ETF（如 1.5x、3x），考慮改由 config 傳入各商品係數 Map。
- */
-const LEVERAGE_ETF_MULTIPLIER = 2;
 
 /**
  * 計算綜合曝險倍數並判斷雙層天花板狀態。
@@ -113,4 +112,12 @@ function buildResult(overrides) {
     message: "",
     ...overrides,
   };
+}
+
+/**
+ * 取得預設 Gross Leverage 配置（SSOT）
+ * @returns {GrossLeverageConfig}
+ */
+export function getDefaultGrossLeverageConfig() {
+  return DEFAULT_GROSS_LEVERAGE_CONFIG;
 }

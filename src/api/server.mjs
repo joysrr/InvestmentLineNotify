@@ -10,6 +10,7 @@ import statusRoute from "./routes/status.mjs";
 import reportsRoute from "./routes/reports.mjs";
 import newsRoute from "./routes/news.mjs";
 import configRoute from "./routes/config.mjs";
+import portfolioHealthRoute from "./routes/portfolioHealth.mjs";
 // 啟動前強制檢查環境變數，確保不帶病執行
 assertEnv();
 
@@ -64,6 +65,7 @@ export async function buildApp(opts = {}) {
   await fastify.register(reportsRoute, { prefix: "/api" });
   await fastify.register(newsRoute, { prefix: "/api" });
   await fastify.register(configRoute, { prefix: "/api" });
+  await fastify.register(portfolioHealthRoute, { prefix: "/api" });
 
   // ─── Health check (no auth required, skip guard in middleware) ───────────────
   fastify.get("/health", async () => ({ status: "ok", ts: Date.now() }));

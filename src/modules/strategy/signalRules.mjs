@@ -21,7 +21,7 @@ import {
 } from "./indicators.mjs";
 import { fetchStrategyConfigUnified } from "./strategyLoader.mjs";
 
-import { validateStrategyConfig } from "./strategySchema.mjs";
+import { validateStrategyConfig } from "./validateStrategyConfig.mjs";
 export { validateStrategyConfig };
 export { computeEntryScore } from "./policies/entryScoringPolicy.mjs";
 

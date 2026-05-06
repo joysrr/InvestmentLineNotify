@@ -11,6 +11,18 @@ import { calcHHV, getMACDSignal } from "./indicators.mjs";
 import { computeGrossLeverage } from "./leverageMonitor.mjs";
 import { generateScoringMatrix } from "./signalGenerator.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
+import {
+  PANIC_BYPASS_DROP_PCT,
+  PANIC_BYPASS_VIX_THRESHOLD,
+  MAX_DAILY_LOAN_INCREASE_PCT,
+  MAX_ROLLING_LOAN_INCREASE_PCT,
+  BUDGET_ROLLING_DAYS,
+} from "./strategyDefaults.mjs";
+import {
+  computeLifecycleContext,
+  determineLifecycleStage,
+  LIFECYCLE_STAGE,
+} from "./lifecycleEngine.mjs";
 
 import {
   getMarginLayer,
@@ -97,8 +109,8 @@ export async function buildDecision(
   // ── [P3 旗標預算] isPanicBypass：須在 P2 之前計算，以參數形式注入 evaluateGrossLeverage ──
   const ohCfg = strategy?.overrideHierarchy;
   const panicBypassEnabled = ohCfg?.panicBypassEnabled ?? false;
-  const panicBypassDropPct = ohCfg?.panicBypassDropPct ?? 0.2;
-  const panicVixThreshold = ohCfg?.panicVixThreshold ?? 35;
+  const panicBypassDropPct = ohCfg?.panicBypassDropPct ?? PANIC_BYPASS_DROP_PCT;
+  const panicVixThreshold = ohCfg?.panicVixThreshold ?? PANIC_BYPASS_VIX_THRESHOLD;
 
   const isPanicBypass =
     panicBypassEnabled &&
@@ -107,6 +119,54 @@ export async function buildDecision(
 
   // 將狀態存入 ctx 供後續模組讀取
   engineState.panicBypassActive = isPanicBypass;
+
+  // ─────────────────────────────────────────────────────────────
+  // ★ 生命週期槓桿引擎（P2.5：在 Gross Leverage 之前檢查）
+  // 根據年齡與退休目標，動態調整 maxLeverage 上限
+  // ─────────────────────────────────────────────────────────────
+  const lifecycleCfg = strategy.lifecycle;
+  const lifecycleProfiles = lifecycleCfg?.profiles || null;
+  const retirementAge = lifecycleCfg?.retirementAge ?? 65;
+
+  // 從 ctx 注入 currentAge（需由 caller 或 dailyRunContext 提供）
+  const currentAge = ctx.currentAge ?? null;
+  let lifecycleContext = null;
+
+  if (currentAge != null) {
+    lifecycleContext = computeLifecycleContext(
+      currentAge,
+      retirementAge,
+      lifecycleProfiles,
+    );
+
+    // 獲取當前 grossLeverage（已計算）
+    const currentGrossLeverage = grossLeverageResult?.grossLeverage || 0;
+
+    // 獲取該階段的 maxLeverage
+    const stageMaxLeverage = lifecycleContext.profile.maxLeverage;
+
+    // 檢查是否超過生命週期槓桿上限
+    if (currentGrossLeverage > stageMaxLeverage) {
+      return {
+        maintenanceLayer: "normal",
+        lifecycleStage: lifecycleContext.stage,
+        lifecycleLabel: lifecycleContext.description,
+        lifecycleBlocked: true,
+        valuationGuardResult: engineState.valuationGuardResult ?? null,
+        marketStatus: `📅【生命週期：${lifecycleContext.stage}】`,
+        target: "🚧 生命週期槓桿封鎖",
+        targetSuggestionShort: `超過 ${lifecycleContext.stage} 階段槓桿上限`,
+        targetSuggestion: `生命週期 ${lifecycleContext.stage}：maxLeverage = ${stageMaxLeverage}x`,
+        suggestion:
+          `• 當前年齡：${currentAge}歲（距離退休 ${lifecycleContext.yearsToRetirement}年）\n` +
+          `• 生命週期階段：${lifecycleContext.stage}（${lifecycleContext.profile.mode}）\n` +
+          `• 當前槓桿：${currentGrossLeverage.toFixed(2)}x\n` +
+          `• 階段上限：${stageMaxLeverage}x\n` +
+          `• ⚠️ 超過生命週期槓桿上限，需降低槓桿至 ${stageMaxLeverage}x 以下\n` +
+          `• 允許操作：0050 DCA 照常執行，00675L 需減碼`,
+      };
+    }
+  }
 
   // ─────────────────────────────────────────────────────────────
   const leverageObj = evaluateGrossLeverage(
@@ -260,7 +320,7 @@ export async function buildDecision(
 
   // --- 1.5.A) 預算管控 (Budget Control) ---
   const budgetCfg = strategy.trading?.budget;
-  const rollingLoanDays = budgetCfg?.rollingDays || 10;
+  const rollingLoanDays = budgetCfg?.rollingDays || BUDGET_ROLLING_DAYS;
   const historyLoan10d =
     await archiveManager.getHistoricalLoan(rollingLoanDays);
   const currentLoan = ctx.portfolio?.totalLoan || 0;
@@ -268,9 +328,9 @@ export async function buildDecision(
 
   const rollingNetIncrease = Math.max(0, currentLoan - historyLoan10d);
   const dailyCap =
-    effectiveNetAsset * (budgetCfg?.maxDailyLoanIncreasePct || 0.05);
+    effectiveNetAsset * (budgetCfg?.maxDailyLoanIncreasePct || MAX_DAILY_LOAN_INCREASE_PCT);
   const rollingCap =
-    effectiveNetAsset * (budgetCfg?.maxRollingLoanIncreasePct || 0.15);
+    effectiveNetAsset * (budgetCfg?.maxRollingLoanIncreasePct || MAX_ROLLING_LOAN_INCREASE_PCT);
 
   const availableDaily = dailyCap; // 簡化：當日通常只執行一筆
   const availableRolling = Math.max(0, rollingCap - rollingNetIncrease);
@@ -593,8 +653,8 @@ export async function evaluateInvestmentSignal(data, strategy) {
   const ohCfg = strategy?.overrideHierarchy;
   const isPanicBypass =
     (ohCfg?.panicBypassEnabled ?? false) &&
-    ctx.priceDropPercent > (ohCfg?.panicBypassDropPct ?? 0.2) &&
-    ctx.vix > (ohCfg?.panicVixThreshold ?? 35);
+    ctx.priceDropPercent > (ohCfg?.panicBypassDropPct ?? PANIC_BYPASS_DROP_PCT) &&
+    ctx.vix > (ohCfg?.panicVixThreshold ?? PANIC_BYPASS_VIX_THRESHOLD);
 
   decision.panicBypassActive = isPanicBypass;
 

@@ -1,4 +1,10 @@
 import { parseNumber } from "../../../utils/coreUtils.mjs";
+import {
+  MARGIN_CALL_THRESHOLD,
+  FROZEN_ZONE,
+  PROTECT_TRIGGER,
+  PROTECT_TARGET,
+} from "../strategyDefaults.mjs";
 
 // ─────────────────────────────────────────────────────────
 // 私有核心計算（不 export，僅供本模組內部複用）
@@ -13,8 +19,8 @@ import { parseNumber } from "../../../utils/coreUtils.mjs";
  * @returns {{ currentMargin, survivalDropLimit, refillRequirement, dangerThreshold, safetyTarget }}
  */
 function _calcMarginCore(qty0050, totalLoan, currentPrice, maintConfig) {
-  const dangerThreshold = maintConfig.marginCallThreshold ?? 135;
-  const safetyTarget = maintConfig.protectTarget ?? 160;
+  const dangerThreshold = maintConfig.marginCallThreshold ?? MARGIN_CALL_THRESHOLD;
+  const safetyTarget = maintConfig.protectTarget ?? PROTECT_TARGET;
 
   const currentMargin =
     totalLoan > 0 ? ((qty0050 * currentPrice) / totalLoan) * 100 : 999;
@@ -61,8 +67,8 @@ export function analyzeMarginRisk(portfolio, currentPrice0050, strategy) {
   if (currentPrice <= 0) return null;
 
   const maintConfig = strategy?.maintenance ?? {};
-  const frozenZone = maintConfig.frozenZone ?? 145;
-  const protectTrigger = maintConfig.protectTrigger ?? 160;
+  const frozenZone = maintConfig.frozenZone ?? FROZEN_ZONE;
+  const protectTrigger = maintConfig.protectTrigger ?? PROTECT_TRIGGER;
 
   const core = _calcMarginCore(qty0050, totalLoan, currentPrice, maintConfig);
 
@@ -155,7 +161,7 @@ export function analyzeCapitalDecoupling(portfolio, prices) {
   // 戰術槓桿部位佔比 (00675L 市值 / 淨資產)
   const tacticRatio = netAsset > 0 ? (valZ2 / netAsset) * 100 : 0;
 
-  // 基礎 D CA 部位佔比 (0050 市值 - 借貸 / 淨資產)
+  // 基礎 DCA 部位佔比 (0050 市值 - 借貸 / 淨資產)
   // 這裡假設借貸主要用於 00675L 及其餘槓桿操作
   const baseWealth = val0050 - (totalLoan || 0);
   const baseRatio = netAsset > 0 ? (baseWealth / netAsset) * 100 : 0;

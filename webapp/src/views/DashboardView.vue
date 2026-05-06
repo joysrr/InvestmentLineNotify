@@ -51,6 +51,104 @@
       </div>
     </section>
 
+    <!-- Portfolio Health Dashboard (Phase 1) -->
+    <section class="section" v-if="!healthLoading">
+      <div class="section-header">
+        <h3 class="section-title">Portfolio 健康度</h3>
+        <span v-if="healthError" class="inline-error--small">載入失敗</span>
+      </div>
+      
+      <div v-if="healthError" class="inline-error">⚠️ 健康度資料載入失敗</div>
+      
+      <div v-else-if="!healthData" class="inline-hint">📭 尚無健康度資料</div>
+      
+      <div v-else class="health-dashboard">
+        <!-- Health Score Hero Card -->
+        <div class="health-hero" :class="healthData.lightStatus.colorClass">
+          <div class="health-hero-main">
+            <div class="health-status">
+              <span class="health-emoji">{{ healthData.lightStatus.emoji }}</span>
+              <span class="health-label">{{ healthData.lightStatus.label }}</span>
+            </div>
+            <div class="health-score">{{ healthData.score }}<span class="score-unit">/100</span></div>
+          </div>
+          <div class="health-summary">{{ healthData.summary }}</div>
+        </div>
+
+        <!-- Health Components Grid -->
+        <div class="health-components">
+          <div class="health-card" :class="healthData.components.margin.status.toLowerCase()">
+            <div class="health-card-icon">🛡️</div>
+            <div class="health-card-main">
+              <div class="health-card-label">維持率</div>
+              <div class="health-card-value">{{ healthData.components.margin.details.margin }}</div>
+              <div class="health-card-sub">{{ healthData.components.margin.details.message }}</div>
+            </div>
+          </div>
+
+          <div class="health-card" :class="healthData.components.leverage.status.toLowerCase()">
+            <div class="health-card-icon">📊</div>
+            <div class="health-card-main">
+              <div class="health-card-label">槓桿</div>
+              <div class="health-card-value">{{ healthData.components.leverage.details.current.toFixed(2) }}x</div>
+              <div class="health-card-sub">上限 {{ healthData.components.leverage.details.max }}x</div>
+            </div>
+          </div>
+
+          <div class="health-card" :class="healthData.components.survival.status.toLowerCase()">
+            <div class="health-card-icon">📉</div>
+            <div class="health-card-main">
+              <div class="health-card-label">生存空間</div>
+              <div class="health-card-value">{{ healthData.components.survival.details.dropPercent.toFixed(1) }}%</div>
+              <div class="health-card-sub">臨界值 {{ healthData.components.survival.details.limit }}%</div>
+            </div>
+          </div>
+
+          <div class="health-card" :class="healthData.components.regime.status.toLowerCase()">
+            <div class="health-card-icon">🌤️</div>
+            <div class="health-card-main">
+              <div class="health-card-label">市場環境</div>
+              <div class="health-card-value">VIX {{ healthData.components.regime.details.vix }}</div>
+              <div class="health-card-sub">{{ healthData.components.regime.details.message }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lifecycle Info -->
+        <div class="health-lifecycle" v-if="healthData.components.lifecycle.details.stage !== 'N/A'">
+          <div class="health-lifecycle-header">
+            <span class="health-lifecycle-icon">📅</span>
+            <span class="health-lifecycle-label">生命週期</span>
+          </div>
+          <div class="health-lifecycle-content">
+            <div class="lifecycle-stat">
+              <div class="lifecycle-stat-label">階段</div>
+              <div class="lifecycle-stat-value">{{ healthData.components.lifecycle.details.stage }}</div>
+            </div>
+            <div class="lifecycle-stat">
+              <div class="lifecycle-stat-label">距離退休</div>
+              <div class="lifecycle-stat-value">{{ healthData.components.lifecycle.details.yearsToRetirement }}年</div>
+            </div>
+            <div class="lifecycle-stat">
+              <div class="lifecycle-stat-label">模式</div>
+              <div class="lifecycle-stat-value">{{ healthData.components.lifecycle.details.mode }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="health-recommendations" v-if="healthData.recommendations.length">
+          <div class="recommendations-header">
+            <span class="recommendations-icon">💡</span>
+            <span class="recommendations-label">建議行動</span>
+          </div>
+          <ul class="recommendations-list">
+            <li v-for="(rec, i) in healthData.recommendations" :key="i">{{ rec }}</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
     <!-- 巨型決策 Hero Card -->
     <section class="section hero-section">
       <div v-if="reportLoading" class="hero-card skeleton-card">
@@ -265,7 +363,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { fetchStatus, fetchReports, fetchNews } from "../api/index.js";
+import { fetchStatus, fetchReports, fetchNews, fetchPortfolioHealth } from "../api/index.js";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 // ECharts
@@ -305,6 +403,11 @@ const reportError = ref(false);
 const topNews = ref([]);
 const newsLoading = ref(true);
 const newsError = ref(false);
+
+// ── Portfolio Health (Phase 1) ──
+const healthData = ref(null);
+const healthLoading = ref(true);
+const healthError = ref(false);
 
 // ── expand states ──
 const strategyExpanded = ref(false);
@@ -674,10 +777,11 @@ function formatUpdatedAt(iso) {
 
 // ── Load ──
 async function loadAll() {
-  const [sRes, rRes, nRes] = await Promise.allSettled([
+  const [sRes, rRes, nRes, hRes] = await Promise.allSettled([
     fetchStatus(),
     fetchReports(5),
     fetchNews(),
+    fetchPortfolioHealth(),
   ]);
 
   statusLoading.value = false;
@@ -716,6 +820,14 @@ async function loadAll() {
       .slice(0, 3);
   } else {
     newsError.value = true;
+  }
+
+  healthLoading.value = false;
+  if (hRes.status === "fulfilled") {
+    healthData.value = hRes.value;
+  } else {
+    healthError.value = true;
+    console.warn("Portfolio health API not available");
   }
 }
 
@@ -1360,5 +1472,154 @@ onMounted(async () => {
 .defense-desc {
   font-size: 13px;
   color: var(--tg-theme-hint-color, #888);
+}
+
+/* ── Portfolio Health Dashboard (Phase 1) ── */
+.health-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.health-hero {
+  padding: 20px;
+  border-radius: 16px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.health-hero-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.health-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.health-emoji {
+  font-size: 32px;
+}
+
+.health-label {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.health-score {
+  font-size: 36px;
+  font-weight: 800;
+}
+
+.score-unit {
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.health-summary {
+  font-size: 14px;
+  opacity: 0.95;
+  line-height: 1.5;
+}
+
+/* Health color variants */
+.health-hero.green {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.health-hero.yellow {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.health-hero.red {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+/* Health components grid */
+.health-components {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.health-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.health-card-icon {
+  font-size: 24px;
+}
+
+.health-card-main {
+  flex: 1;
+}
+
+.health-card-label {
+  font-size: 11px;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.health-card-value {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.health-card-sub {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* Health card status colors */
+.health-card.green {
+  background: rgba(46, 204, 113, 0.2);
+  border: 1px solid rgba(46, 204, 113, 0.4);
+}
+
+.health-card.yellow {
+  background: rgba(243, 156, 18, 0.2);
+  border: 1px solid rgba(243, 156, 18, 0.4);
+}
+
+.health-card.red {
+  background: rgba(231, 76, 60, 0.2);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+}
+
+/* Inline error style */
+.inline-error {
+  font-size: 13px;
+  color: var(--tg-theme-text-color, #333);
+  background: rgba(231, 76, 60, 0.1);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-left: 3px solid #e74c3c;
+}
+
+.inline-error--small {
+  font-size: 11px;
+  color: #e74c3c;
+}
+
+.inline-hint {
+  font-size: 13px;
+  color: var(--tg-theme-hint-color, #999);
+  padding: 12px;
+  text-align: center;
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  border-radius: 8px;
 }
 </style>

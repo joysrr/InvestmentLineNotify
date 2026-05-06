@@ -210,3 +210,24 @@ export const fetchStrategyConfig = () => apiFetch("/api/strategy-config");
 
 export const fetchReportSignals = (date) =>
   apiFetch(`/api/report/${date}/signals`);
+
+// ── Portfolio Health (Phase 1) ────────────────────────────────────────────────
+
+export const fetchPortfolioHealth = (params = {}) => {
+  const query = new URLSearchParams();
+  if (params.maintenanceMargin != null)
+    query.append("maintenanceMargin", params.maintenanceMargin);
+  if (params.z2Ratio != null) query.append("z2Ratio", params.z2Ratio);
+  if (params.survivalDropPercent != null)
+    query.append("survivalDropPercent", params.survivalDropPercent);
+  if (params.currentGrossLeverage != null)
+    query.append("currentGrossLeverage", params.currentGrossLeverage);
+  if (params.vix != null) query.append("vix", params.vix);
+  if (params.macroSentiment != null)
+    query.append("macroSentiment", params.macroSentiment);
+  if (params.currentAge != null) query.append("currentAge", params.currentAge);
+
+  return apiFetch(
+    `/api/portfolio/health${query.toString() ? `?${query.toString()}` : ""}`,
+  );
+};

@@ -21,7 +21,38 @@
   "lifecycle": {
     "monthlyDcaAmount": 30000,
     "payDay": 5,
-    "preInjectDays": 5
+    "preInjectDays": 5,
+    "retirementAge": 65,
+    "profiles": {
+      "EARLY": {
+        "maxLeverage": 2.5,
+        "maxLeverageForNewZ2": 2.0,
+        "minSurvivalDropLimit": 140,
+        "mode": "aggressive",
+        "description": "退休前 15 年以上，槓桿空間最大"
+      },
+      "MID": {
+        "maxLeverage": 2.0,
+        "maxLeverageForNewZ2": 1.5,
+        "minSurvivalDropLimit": 145,
+        "mode": "balanced",
+        "description": "退休前 10-15 年，穩健成長"
+      },
+      "LATE": {
+        "maxLeverage": 1.5,
+        "maxLeverageForNewZ2": 1.0,
+        "minSurvivalDropLimit": 150,
+        "mode": "conservative",
+        "description": "退休前 5-10 年，逐步保守"
+      },
+      "PRE_RETIRE": {
+        "maxLeverage": 1.0,
+        "maxLeverageForNewZ2": 0.5,
+        "minSurvivalDropLimit": 160,
+        "mode": "defensive",
+        "description": "退休前 5 年以內，極度保守"
+      }
+    }
   },
   "maintenance": {
     "protectTrigger": 160,
