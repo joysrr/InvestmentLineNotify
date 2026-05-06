@@ -150,7 +150,12 @@ export async function buildDecision(
   // ── [PRE-CALC] Valuation Indicators (Always calc this for UI/Reporting) ──
   const vgCfg = strategy?.valuationGuard;
   if (vgCfg?.enabled && ctx.pbRecords != null) {
-    const currentPB = ctx.valuation?.pb ?? null;
+    // 優先從 valuation 抓取，若無則從歷史紀錄最新一筆抓取 (即時性 Fallback)
+    let currentPB = ctx.valuation?.pb ?? null;
+    if (currentPB == null && ctx.pbRecords.length > 0) {
+      currentPB = ctx.pbRecords[ctx.pbRecords.length - 1];
+    }
+
     const vgResult = resolveValuationGuard(currentPB, ctx.pbRecords, strategy);
 
     // Latch logic

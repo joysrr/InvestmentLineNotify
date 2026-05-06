@@ -79,11 +79,16 @@ export function buildSignalContext(ctx) {
     },
     macroMarketDirection,
     valuationGuardState,
-    pbRecords,
-    pbRecordsObjects,
-    rawValuation: macroData?.rawValuation ?? null,
+    pbRecords: pbRecords ?? [],
+    pbRecordsObjects: pbRecordsObjects ?? [],
+    rawValuation: macroData?.rawValuation ?? {},
     usRisk,
   };
+
+  // 偵錯日誌：確認 PB 數據是否存在
+  if (signalData.rawValuation?.pb == null) {
+    console.warn("⚠️ [SignalContext] rawValuation.pb is MISSING or NULL!");
+  }
 
   return {
     signalData,
