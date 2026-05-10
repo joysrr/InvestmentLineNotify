@@ -36,7 +36,7 @@ referenced_by:
 - **逐欄引導**：依 SCHEMA 頂層區塊順序逐一詢問 User，而非複製模板後補填
 - **required 強制**：Schema 標記 `required: true` 的欄位若 User 無法提供，必須阻斷並升級 User 補齊
 - **optional 分級**：Schema 標記 `required: false` 的欄位採**分級 Fallback**（警告 / 降級 / 略過）
-- **驗證收尾**：執行 `node .agents/tests/workspace-schema-validator.mjs` 通過方可結束 onboarding
+- **驗證收尾**：執行 `python3 .agents/tests/workspace-schema-validator.py` 通過方可結束 onboarding
 - **雙軌共用原則**：軌道 A（AI 對話）與軌道 B（CLI）皆遵守上述原則；CLI 動態讀取 schema 不硬編碼欄位
 
 ## 引導模式（PROPOSAL_502_024 amended：軌道 A 為 default）
@@ -70,19 +70,19 @@ referenced_by:
 
 ```bash
 # 基本互動模式
-node .agents/scripts/init-workspace.mjs
+python3 .agents/scripts/init-workspace.py
 
 # 指定名稱
-node .agents/scripts/init-workspace.mjs --name myapp
+python3 .agents/scripts/init-workspace.py --name myapp
 
 # Dry-run 預覽不寫檔
-node .agents/scripts/init-workspace.mjs --dry-run
+python3 .agents/scripts/init-workspace.py --dry-run
 
 # 強制覆寫已存在的 CURRENT_WORKSPACE
-node .agents/scripts/init-workspace.mjs --force
+python3 .agents/scripts/init-workspace.py --force
 
 # 顯示說明
-node .agents/scripts/init-workspace.mjs --help
+python3 .agents/scripts/init-workspace.py --help
 ```
 
 ### 軌道 C：Agent 對話驅動（PROPOSAL_20260424_018）
@@ -197,7 +197,7 @@ Fallback 策略：
 > 若使用軌道 B（CLI；依 PROPOSAL_20260423_005）或軌道 C（agent 驅動；依 PROPOSAL_20260424_018），以下 Step 6.1~6.4 由 CLI 自動執行；User 只需執行 Step 6.5 的 Gate Check。
 > 軌道 C 完成後 agent 會主動引導 Gate Check（見 `tasks/agent-onboarding-flow.md §Step 5`）。
 
-1. 執行 `node .agents/tests/workspace-schema-validator.mjs --workspace <project_name>`
+1. 執行 `python3 .agents/tests/workspace-schema-validator.py --workspace <project_name>`
 
 - 必須 **exit 0** 才可繼續；exit 2 → 回到對應 Step 補齊
 

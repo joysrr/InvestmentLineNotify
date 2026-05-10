@@ -243,9 +243,9 @@ class FrameworkOrchestrator(Assistant):
 
 新 harness adapter 完成必過以下：
 
-- [ ] `node .agents/scripts/platform-detect.mjs` 偵測為新 harness + 列出可用 capability
-- [ ] `bash .agents/tests/run-all.sh`：15 validators 全綠（純 Node + Bash；不依 harness）
-- [ ] `node .agents/tests/agent-drift-simulator.mjs`：drift_score ≥ 0.85 PASS（**該 harness baseline**；非 Claude baseline 套用）
+- [ ] `python3 .agents/scripts/platform-detect.py` 偵測為新 harness + 列出可用 capability
+- [ ] `python3 .agents/tests/run-all.py`：15 validators 全綠（純 Node + Bash；不依 harness）
+- [ ] `python3 .agents/tests/agent-drift-simulator.py`：drift_score ≥ 0.85 PASS（**該 harness baseline**；非 Claude baseline 套用）
 - [ ] 27 情境（依 PROPOSAL_502_009 / 502_013 / 502_018 重驗紀錄）至少跑：
   - S1 Cold Start
   - S4 新功能開發 hello-world

@@ -57,7 +57,7 @@ source_sections: [§十一, §十二, §十五, §十六, §十七, §二十, §
 
 每次提案執行合併前，`@Lead` 必須執行：
 
-1. `node .agents/tests/schema-validator.mjs` — 驗證 frontmatter + XML section + Token 預算
+1. `python3 .agents/tests/schema-validator.py` — 驗證 frontmatter + XML section + Token 預算
 2. 確認退出碼為 0（或僅 1 警告且已評估）；若為 2（錯誤）必須修正後重提
 3. 涉及產出物變更 → 同時執行 `artifact-format-validator.mjs`
 
@@ -84,7 +84,7 @@ source_sections: [§十一, §十二, §十五, §十六, §十七, §二十, §
 
 若提案修改 `rules/*.md` 的結構性內容（章節新增 / 拆分 / 合併 / 跨檔案引用更動），執行後必須：
 
-1. 執行 `node .agents/tests/agent-drift-simulator.mjs --mode static`
+1. 執行 `python3 .agents/tests/agent-drift-simulator.py --mode static`
 2. 將新 drift_score 記錄於 `.agents/docs/Reports/AUDIT_HISTORY.md §drift_score 記錄` 表
 3. 與拆分前 baseline 比對：
 
@@ -109,7 +109,7 @@ source_sections: [§十一, §十二, §十五, §十六, §十七, §二十, §
 或一次性執行（自動跑 rules-version + proposal-index）：
 
 ```bash
-bash .agents/tests/run-all.sh --regenerate-indexes
+python3 .agents/tests/run-all.py --regenerate-indexes
 ```
 
 **仍需 @Lead 手動處理**（內容判斷無法自動化）：
@@ -125,11 +125,11 @@ bash .agents/tests/run-all.sh --regenerate-indexes
 
 `run-all.sh` 提供 3 種執行模式以平衡速度與覆蓋：
 
-| 模式             | 指令                                               | 用途                                       | 預期時長                          |
-| ---------------- | -------------------------------------------------- | ------------------------------------------ | --------------------------------- |
-| **full**（預設） | `bash .agents/tests/run-all.sh`                    | 完整檢查；提案執行 / 大改動                | < 30 sec（並行 7 + scripts 序列） |
-| **fast**         | `bash .agents/tests/run-all.sh --fast`             | Pre-commit；依 git diff 跳過無關 validator | 通常 < 5 sec                      |
-| **single**       | `bash .agents/tests/run-all.sh --validator <name>` | 開發時反覆測試特定 validator               | 通常 < 1 sec                      |
+| 模式             | 指令                                                  | 用途                                       | 預期時長                          |
+| ---------------- | ----------------------------------------------------- | ------------------------------------------ | --------------------------------- |
+| **full**（預設） | `python3 .agents/tests/run-all.py`                    | 完整檢查；提案執行 / 大改動                | < 30 sec（並行 7 + scripts 序列） |
+| **fast**         | `python3 .agents/tests/run-all.py --fast`             | Pre-commit；依 git diff 跳過無關 validator | 通常 < 5 sec                      |
+| **single**       | `python3 .agents/tests/run-all.py --validator <name>` | 開發時反覆測試特定 validator               | 通常 < 1 sec                      |
 
 **選擇建議**：
 
@@ -378,7 +378,7 @@ PROPOSAL_023 建立本節分層設計；PROPOSAL_015 補執行層強制：
 
 #### G.1 機械性 validator
 
-`.agents/tests/proposal-scope-validator.mjs` 掃：
+`.agents/tests/proposal-scope-validator.py` 掃：
 
 - `.agents/proposals/{active,completed,archived}/` → 必須 `scope: framework`
 - `.agents/workspaces/*/proposals/{active,completed,archived}/` → 必須 `scope: project`
@@ -471,7 +471,7 @@ Step 3：命名與格式對齊
 
 ### D. 違規偵測
 
-由 `.agents/tests/docs-location-validator.mjs` 自動偵測：
+由 `.agents/tests/docs-location-validator.py` 自動偵測：
 
 | 違規類型                                                    | 判定       | 處理                                              |
 | ----------------------------------------------------------- | ---------- | ------------------------------------------------- |

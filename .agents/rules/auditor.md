@@ -48,7 +48,7 @@ rule_category: worker
 <section id="s01" priority="normal">
 ## 任務目標
 
-AI Agent 品質審計員。依 `.agents/docs/quality-audit-checklist.md` + `.agents/docs/quality-audit-automation-manual.md` 執行**定期 5 維度 × 15 細項評分**，產出結構化 AUDIT_REPORT 供 `@Retro` 參照。
+AI Agent 品質審計員。依 `.agents/docs/quality-audit-checklist.md` + `.agents/docs/quality-audit-automation-manual.md` 執行**定期 6 維度 × 20 細項評分**（PROPOSAL_502_048 + ADR-0045 升級；dim 6 Design Coherence 5 子項見 `skills/auditor-design-audit.md`），產出結構化 AUDIT_REPORT 供 `@Retro` 參照。
 
 **專案脈絡**：具體審查細項由 `@Lead` 派發時注入。範例：`skills/examples/auditor-examples.md`。
 
@@ -79,7 +79,7 @@ AI Agent 品質審計員。依 `.agents/docs/quality-audit-checklist.md` + `.age
 5. **`AUDIT_DECISION_LOG.md` 記錄**：每維度完成後 append 一行（日期 / 評審次數 / 維度 / Fragment 清單明文 / dimension_avg / 是否觸發 P-15/P-19/P-20）
 6. **絕對路徑強制**：prompt 內所有檔案引用必用 repo-root 前綴的絕對路徑；**禁止裸檔名**
 
-**驗證**：`node .agents/tests/validate-auditor-dispatch.mjs --dispatch-prompt <file> --dimension <N>` / `--verify-paths` / `--audit`
+**驗證**：`python3 .agents/tests/validate-auditor-dispatch.py --dispatch-prompt <file> --dimension <N>` / `--verify-paths` / `--audit`
 
 ### 執行模式（PROPOSAL_502_021 Sprint A-1：mode-aware）
 

@@ -9,6 +9,857 @@
 
 ---
 
+## [v8.0] - 2026-05-08 🎉 LangGraph Runtime Complete
+
+> **🎉 v8.0 RELEASE**：v7.7 → v8.0 共 14 stabilization+migration proposals + 7 ADRs (含 ADR-0042/0043/0044/0045/0046)；LangGraph runtime + 5 項 governance 組合 + 6-dim audit 全完整；下一階段為 A/B simulation 循環收斂。
+
+### Added — Phase 3 Governance Native + 部署（PROPOSAL_502_052；medium）
+
+- **G-1** `subgraphs/auditor_6dim.py` evaluator-optimizer 模式：dim 1-6 並行 + aggregate；dim 6 < 2.0 阻斷凍結 / < 3.0 P-15 🟡
+- **G-2** `scripts/governance-health.py` Governance Health Dashboard generator：產 `docs/Reports/GOVERNANCE_HEALTH.md`（C-1/C-2 warn + AUDIT 6-dim + KI count + 凍結門檻）解 KI-009
+- **G-5** 21 validators 已整合 commit hook（PROPOSAL_502_049 既有）
+- **G-3/G-4/G-6** 部署選型 / LangSmith / cron 留 v8.x（KI-008 留）
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.24 → **v8.0**；milestone: `langgraph-runtime-v8`；phase: `langgraph-complete`
+- 140 proposals (+1)；3 PROPOSAL stabilization+migration cycle 完成 (502_050 + 051 + 052)
+
+### Notes
+
+- 34/34 tests pass（含 3 Phase 3 tests）
+- 21 既有 v7.22 validators 全綠
+- v8.0 = 「v7.22 stabilization v2 (markdown ground truth) + LangGraph runtime mechanically enforce」
+- 下一階段：A/B simulation 循環確認端到端品質
+
+---
+
+## [v7.24] - 2026-05-08 🚀 LangGraph Phase 2 Behavior Migration
+
+### Added (PROPOSAL_502_051；full tier)
+
+- **B-1** Hybrid LLM Classifier 三層判定 in `nodes/lead.py`：layer 1 結構訊號 (missing_workspace / git rename / existing_files_majority / all_new_files) → layer 2 keyword 7-priority + 中文/口語擴充 → layer 3 LLM fallback (confidence parsing + unsure 同義詞)
+- **B-2** autonomy_mode 對應 stage gate via `hitl.py`（auto / step-by-step / gate-at-design / gate-at-impl）
+- **B-3** `subgraphs/multi_signal.py` (ADR-0043)：≥2 priority fan-out / ≥3 ambiguous interrupt
+- **B-4** `subgraphs/hotfix_tier_upgrade.py`：detect tier upgrade + dual revert_safe + auto cancel / interrupt user 仲裁
+- **B-5** `hitl.py` 7 HITL interrupt helpers (PRIOR_ART_SEARCH/VERIFY/STAGE_VERIFY/MULTI_SIGNAL_AMBIGUOUS/TIER_UPGRADE_REVERT/PROPOSAL_ADOPT/STRATEGY_WEIGHT/HOTFIX_LIGHT_VERIFY)
+- **B-6** `persistence.py`：append_telemetry helper + ROUTING_TICKET sync (write/archive)
+- **B-7** AGENT_BOOTSTRAP §0 + qwen.md §-1：v8.0 強制鐵律 (Q5-B 落地)
+- **B-8** ROUTING_TICKET 雙向 sync 整合進 mcp_server dispatch handler
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.23 → v7.24（phase: langgraph-phase-2）
+- 139 proposals（+1）；Graph 19 nodes（+2: multi_signal_check / tier_upgrade_check）
+
+### Notes
+
+- 31/31 tests pass（含 19 新 Phase 2 tests）
+- 21 v7.22 既有 validators 全綠
+- v8.0 Q5-B 鐵律已寫入 harness bootstrap；v8.0 啟用後 harness 必走 LangGraph
+- 下一步 PROPOSAL_502_052 Phase 3 Governance Native
+
+---
+
+## [v7.23] - 2026-05-08 🚀 LangGraph Phase 1 Foundation
+
+> 第一步遷移；v7.22 文件層 ground truth + LangGraph runtime 骨架建立。
+> ADR-0046 採納；4 harness 設定就緒；Phase 2 Behavior Migration 待續。
+
+### Added — LangGraph Runtime 骨架（PROPOSAL_502_050；full tier；~3000 LOC）
+
+依 stabilization milestone v2 §5 LangGraph 遷移建議；user 確認設計組合 Q1'-A / Q2'-C / Q3'-A / Q5-B / Q6-A / Q7-B（β' 混合 + 100% mechanical enforce + sampling default + 4 harness 全支援 + 文件層為 ground truth）。
+
+**新建 `.agents/runtime/`**（11 檔案）：
+
+- `state.py` v7.22 ROUTING_TICKET schema 完整 TypedDict（30+ 欄位 + 3 reducers）
+- `parser.py` 讀 v7.22 文件層為 system prompt + behavior config（`!ref` custom YAML tag 容錯）
+- `llm_adapter.py` LangChain BaseChatModel 兼容；MCP sampling default + multi-provider API optional + per-node override
+- `graph.py` StateGraph 15 nodes（11 agents + 3 auditor sub + 2 qa phases）+ supervisor pattern + 70/30 static/conditional edges
+- `nodes/` 11 agent node skeleton + auditor 6-dim parallel sub-flow
+- `subgraphs/` skeleton (Phase 2/3 完整實作)
+- `checkpointer.py` AsyncSqliteSaver wrapper
+- `mcp_server.py` MCP server 暴露 `dispatch` tool
+- `setup.py` 一次性 setup（自動寫 .claude/.qwen settings + chmod）
+- `requirements.txt` LangGraph 1.x + LangChain core + MCP + msgpack
+- `tests/integration/` 5 情境 pytest（12/12 passed）
+
+**新建 `.devcontainer/`**（Q2'-C 自動部分）：
+
+- `devcontainer.json` Claude Code Web sandbox 自動 setup 配置
+- `post-create.sh` sandbox 啟動時自動 pip install + setup
+
+**新增 ADR-0046** LangGraph Runtime Architecture：
+
+- 5 layer 設計（user → harness → LangGraph runtime → LLM adapter → memory/tools）
+- 4 harness 整合（CLI 手動 / Web 自動 / Qwen / Antigravity）
+- LLM 雙模可切換（sampling default / API optional）
+- v7.22 文件層為 ground truth；LangGraph 解析執行
+- 與 ADR-0001/0027/0042/0044/0045 關係明文
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.22 → v7.23（milestone 仍 v2；新增 `phase: langgraph-phase-1`）
+- 138 proposals (+1)；46 ADRs (+1)
+- 21 既有 validators 全綠未動
+
+### Notes
+
+- **Phase 1 = 骨架建立；非行為遷移**
+- v7.22 manual workflow 仍有效（Phase 2 完成後才 Q5-B 強制切換）
+- 5 情境 pytest 全綠；Graph 編譯成功 15 nodes；parser 真讀 v7.22 lead.md（17449 chars system prompt）
+- 4 harness 設定就緒（user 跑 setup.py 即啟用）
+- **下一步**：PROPOSAL_502_051 Phase 2 Behavior Migration（Hybrid Classifier + autonomy_mode + multi-signal + hotfix tier upgrade subgraph）
+
+---
+
+## [v7.22] - 2026-05-07 🏁 STABILIZATION MILESTONE v2
+
+> **🏁 STABILIZATION MILESTONE v2 凍結**：v7.7 起 11 proposals + 6 ADRs + 7 rounds simulation 旅程終點；LangGraph v8.0 遷移穩定起點。
+>
+> **完整凍結報告**：`docs/Reports/STABILIZATION_MILESTONE_V2_2026-05-07.md`
+
+### Added — 凍結門檻語意 + 殘留小工程 + KI + LangGraph 起點（PROPOSAL_502_049；Lite）
+
+依 Round 7 報告 + user 選 C 組合（軟化機械門檻 + 凍結 v7.22）。
+
+**T-1 凍結門檻 v2 軟化**（依 Round 7 平台化趨勢）：
+
+- `tasks/integration-walkthrough-protocol §3` + `decisions/0044-*.md` 加註：高嚴重 = 0 + 結構性 SPOF = 0（**硬指標**）+ 總 GR ≤ 5 + C-1/C-2 真信號 ≤ 3（**軟指標**）
+- 「真信號」判定 SOP：區分 noise（regex 誤命中）vs 真信號（drift / schema gap）
+
+**T-2 殘留小工程**：
+
+- **gov-3** `scripts/setup-pre-commit-hook.py` 新建（user 跑後啟用 git pre-commit hook 自動跑 run-all.py --fast）
+- **gov-4** `AUDIT_HISTORY.md` 表 schema 演進加 dim6 欄位 + sample row
+- **gov-2** walkthrough 啟動指令範例補（user boilerplate）
+
+**T-3 KI 登記**（殘留留 v8.x）：
+
+- KI-008 P-40 巡邏需 user 派；無 daemon/cron → v8.0+ LangGraph node-based scheduler 解
+- KI-009 governance health dashboard 缺 → v8.0+ generator 產 GOVERNANCE_HEALTH.md 解
+- KI-010 C-1/C-2 noise warn 殘留 → v8.x validator regex 精準化解
+
+**T-4 凍結報告**：
+
+- 新建 `docs/Reports/STABILIZATION_MILESTONE_V2_2026-05-07.md`（5 章節：旅程總結 / 5 項 governance / GR 趨勢 / 凍結確認 / LangGraph 遷移建議）
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.21 → **v7.22**；新增 `milestone: stabilization-v2` 欄位
+- 137 proposals (+1)
+- KNOWN_ISSUES：KI-008 / KI-009 / KI-010 (+3)
+
+### Notes
+
+- 21/21 validators 全綠；硬指標 100% 達標
+- **5 項 governance 組合互鎖**：ADR-0042 (LLM) + C-1 + C-2 + C-3 + C-4 → mechanic + workflow + semantic + runtime
+- GR 趨勢：48 → 32 → 33 → 25 → 7 → 4 → 5 → 凍結（高嚴重 15→0）
+- **下一里程碑**：v8.0 LangGraph migration（待規劃；建議 Phase 1 保守從 @Lead routing 節點化起步）
+
+---
+
+## [v7.21] - 2026-05-07
+
+### Added — 治理流程層 C-3 + C-4（PROPOSAL_502_048；medium）
+
+依 user 選 C 完整 governance；本 PR 為 5 項組合中**治理流程層**（C-3 + C-4）。
+
+**C-3: ADR-0044 整合 walkthrough SOP**：
+
+- 新建 `decisions/0044-integration-walkthrough-protocol.md`
+- 新建 `tasks/integration-walkthrough-protocol.md`（4 步驟 SOP + 凍結門檻 + 歷史紀錄）
+- 新建 P-40 `INTEGRATION_WALKTHROUGH_DUE` patrol（每 5 proposals 累積觸發；ADR amend 強制；schema 變更）
+- 解 N proposals 累積後跨提案交互盲點（v7.7-v7.20 八輪經驗 SOP 化）
+
+**C-4: ADR-0045 Design Audit Dimension**：
+
+- 新建 `decisions/0045-design-audit-dimension.md`（amends ADR-0005）
+- 新建 `skills/auditor-design-audit.md`（dim 6 5 子項評分 rubric）
+- `rules/auditor.md` 升級 5 dim → 6 dim（dim 6: Design Coherence；5 子項 = 6.1 條文-實作一致性 / 6.2 跨 module 邏輯 / 6.3 設計意圖偏移 / 6.4 schema completeness / 6.5 governance feedback loop 健康）
+- dim 6 < 2.0 → 阻斷凍結 milestone
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.20 → v7.21
+- 45 ADRs（+2：0044 + 0045）；136 proposals（+1）
+- patrol P-01 ~ P-40（+1）
+- `rules/auditor.md` 從 5 dim × 15 細項升 6 dim × 20 細項
+
+### Notes
+
+- 21/21 validators 全綠
+- **5 項 governance 組合完成**：C-1 (condition-claim) + C-2 (schema-completeness) + C-3 (walkthrough SOP) + C-4 (design audit) + ADR-0042 (LLM classifier 既有)
+- v7.21 後 Round 7 驗證凍結 stabilization milestone v2
+
+---
+
+## [v7.20] - 2026-05-07
+
+### Added — R6 收尾 + C-1/C-2 機械對齊層 governance（PROPOSAL_502_047；medium）
+
+依 Round 6 報告 + user 選「C 完整 governance 重構」5 項組合之機械對齊層。
+
+**Phase A: R6 殘留收尾**
+
+- **R6-2** routing-ticket-validator 加 `retry_of` 檢查（archive 反查 prior status=failed）
+- **R6-3（高）** patrol P-39 `COMMIT_HOOK_VS_INLINE_DIVERGENCE` 新建（消除 commit hook 偵測 owner 缺失）
+- **R6-4** §3.6 step 8 補 rollback atomic SOP（7 步驟；任一 fail → 整體 abort）
+- **R6-1** ADR-0043 補「user 仲裁分開派後 multi_signal_primary 鏈接語意」
+
+**Phase B: C-1 Condition-Claim Meta-Validator（20th validator）**
+
+- 新建 `tests/condition-claim-validator.py`
+- 掃 ADR/skill/task 中「validator 驗 X」「P-N」「sub-agent 必執行 Y」claim
+- 反查 `tests/*.py` + patrol catalog 對齊
+- ASCII identifier 限制（避免中文 phrase noise）
+- **首跑揭露 1 真 drift**：PAUSED_TICKET_STALE 條文寫但無 validator（warn level）
+
+**Phase C: C-2 Schema Completeness Meta-Validator（21st validator）**
+
+- 新建 `tests/schema-completeness-validator.py`
+- 抽 routing-ticket-protocol §schema 已定義欄位（59 個）
+- 反查 framework 各處引用 yaml 欄位
+- 引用 - 已定義 = 潛在 schema gap（解 R5-3 雙重盲點 paradigm）
+- 首跑揭露 18 個候選 gap（多為非 ticket schema 欄位 noise；2-3 真信號待補）
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.19 → v7.20
+- patrol P-01 ~ P-39（+1）
+- run-all.py + git_diff_detector ALL_VALIDATORS 從 19 → **21 validators**
+- 135 proposals (+1)
+
+### Notes
+
+- 21/21 validators 全綠
+- C-1/C-2 為「永續性運作 5 項組合」之**機械對齊層**（drift detection）
+- C-3/C-4「治理流程層」由 PROPOSAL_502_048 處理（ADR-0044 整合 walkthrough SOP + ADR-0045 design audit）
+- v7.20 後 Round 7 驗證凍結 stabilization milestone v2
+
+---
+
+## [v7.19] - 2026-05-07
+
+### Added — Round 6 最小修補（PROPOSAL_502_046 + ADR-0043）
+
+依 Round 5 報告 7 GR-R5（含 2 高）；補完才凍結。
+
+**2 高嚴重**：
+
+- **R5-3** routing-ticket-protocol §schema hotfix block 補 `hotfix_tier: light \| heavy` 欄位（5 輪累積 schema gap 修補）+ validator 加檢查
+- **R5-4** 新建 ADR-0043 Multi-Signal Task-Class Dispatch Policy（user 指令含多 priority 命中 → @Lead 拆多 ticket；onboarding+hotfix 等矛盾組合升 user 仲裁）+ §6.3.1.1 拆分流程
+
+**5 中嚴重**：
+
+- **R5-1** §3.6 step 7 改：failed retry 走獨立流程（新 `retry_of` 欄位；非 superseded）
+- **R5-2** §3.6 step 8 加：commit hook ↔ inline validator 一致性 SOP（不一致時自動 rollback）
+- **R5-5** P-38 升 🟡 + 明文每月 day-1 由 @Assistant 觸發 @Auditor
+- **R5-6** ADR-0042 git_rename_detected 描述修（明文 user 已 git mv 才命中）
+- **R5-7** schema 加 `done_at: ISO8601` 欄位（P-34 sort 依此）
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.18 → v7.19
+- 43 ADRs（+1）；134 proposals（+1）
+- routing-ticket-protocol schema 加 4 欄位（done_at / retry_of / multi_signal_secondary / multi_signal_primary）+ hotfix_tier
+
+### Notes
+
+- 19/19 validators 全綠
+- **預估 Round 6 後 GR < 5 + 高 0 → 真凍結 v7.19 為 stabilization milestone v2**
+- 若 Round 6 達門檻將成為 8-proposal stabilization 旅程終點
+
+---
+
+## [v7.18] - 2026-05-07
+
+### Added — Round 4 收尾（PROPOSAL_502_045；Lite）
+
+依 Round 4 報告修 10 GR-R4（3 高 + 主題 A 3 中 + 主題 D 4 中 + 主題 F 1 中）。
+
+**3 高嚴重**：
+
+- **R4-B1** §3.6 加 step 6+7：sub-agent inline call validator + 失敗 retry policy（completing → completed validator trigger 主體明文）
+- **R4-B2** P-34 sort 改用 ticket frontmatter `done_at`（不用 file mtime；解 git checkout 改寫 mtime 失準）
+- **R4-B4** lead.md §s_complexity_lane 派發前 batch 從 4 探測升 5（加結構訊號 grep）
+
+**主題 A ADR-0042 amendment v2**：
+
+- **R4-A1+A3** prompt 模板 `confidence: <high|medium|low>` 結構化 + unsure 同義詞表（unclear / 不確定 / not sure / can't tell / hard to say）
+- **R4-A2** schema 加 5th enum `llm_failed_fallback`（區分 LLM 真失敗 vs 真用 LLM 結果）
+- 新 optional `task_class_source_evidence` 欄位（structural 時填觸發訊號名）
+
+**主題 D Patrol 細節**：
+
+- **R4-D1** P-34 加 awk one-liner 完整偽碼
+- **R4-D2** P-34 加 yq pre-filter（hotfix-light 排除）
+- **R4-D3** P-36 明文「掃 root；archive 不掃」+ validator 防呆
+- **R4-D4** 刪除 P-35 line 63 舊版重複條目（檔案衛生）
+
+**主題 F Feedback Loop**：
+
+- **R4-F1** 新建 P-38 KEYWORD_LIST_EXPAND_PENDING（@Auditor 月度掃 LLM 觸發率 + 高頻同義詞反饋補 closed-list）
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.17 → v7.18
+- patrol P-01 ~ P-38（+1）
+- routing-ticket-validator 加 5 enum source
+
+### Notes
+
+- 19/19 validators 全綠；rule budget lead 2495/2500（trim 後）
+- Round 5 將驗證是否達凍結門檻（GR < 10 + 高 < 2）
+
+---
+
+## [v7.17] - 2026-05-07
+
+### Added — Hybrid LLM Intent Classifier（PROPOSAL_502_044 + ADR-0042；medium tier）
+
+依 Round 3 報告主題 R3-A（6 GR；3 高 2 中 1 低）；user 選**選項 C Hybrid**。
+
+- **新建 ADR-0042 Hybrid LLM Intent Classifier**：三層判定（結構訊號優先 → keyword 快車道 → LLM fallback）；最多每 dispatch +1 LLM call（~$0.0001）
+- **R3-A1** §6.3.1 priority 4 補「加 / 新增 / 補上 / 加上 / 擴充」中文 additive 動詞 + 條件「既有檔比例 ≥80%」
+- **R3-A2** §6.3.1 priority 3 加「OR §C.5 refactor-keyword heuristic fallback 命中 → 視同 modify-existing」（雙軌對齊）
+- **R3-A3** §6.3.1 加層 1 結構訊號（無 CURRENT_WORKSPACE / git rename detected / git status 全新檔）
+- **R3-A4** §C.5 refactor-keyword 加極口語清單 14 詞（砍掉/拿掉/幹掉/合一/收斂/整理/清乾淨/對齊/不對勁/混在一起/亂七八糟/...）
+- **R3-A5** heuristic fallback 加副條件「指令含 ≥1 既有 symbol 名」收緊 false positive
+- **R3-A6** §C.5 suggested_query 加 URL pattern 抽取（`/api/period-summary` → `PeriodSummary`）
+- **schema** ROUTING_TICKET 加 `task_class_source` (4 enum) + `intent_ambiguous` (bool) + validator
+- **KI-007** v7.0 Python-only milestone 豁免登記（agent 呼 LLM 屬框架運行時非自寫腳本）
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.16 → v7.17
+- 42 ADRs（+1）；132 proposals（+1）
+
+### Notes
+
+- 19/19 validators 全綠
+- 預估 80-90% dispatch 仍走 keyword 快車道；10-20% 走 LLM fallback
+- Round 4 預估 GR < 15（顯著收斂）
+
+---
+
+## [v7.16] - 2026-05-07
+
+### Added — v7.16 工程化修補（PROPOSAL_502_043；Lite）
+
+依 Round 3 報告 23 個可工程化 GR（R3-B/C/D/E/F；不含 R3-A 6 個結構性 SPOF）。
+
+- **R3-B1+B2+B5+B9** lead.md §s07 hotfix 鐵律對齊（heavy autonomy=gate-at-impl）+ §s_complexity_lane 加 P-34 🔴 自動降級條文 + status: completing 中介態 + superseded validator
+- **R3-B3** §C.3 step 2 timeout 加 setTimeout 5s 樣板（不依 MCP RPC default 60s）
+- **R3-B4+B8** §3.6 append 三選一實作（Bash heredoc / Edit anchor / Write）+ grep 樣板
+- **R3-B6+B7+B10** P-34 補實作偽碼 + 拆 cross-dispatch vs carry-over 兩句 + hotfix-light 排除
+- **R3-C1** schema 拆 split_into_symbols / split_into_drawer_ids / merged_from_symbols / superseded_drawer_ids / cross_referenced_drawer_id（5 欄；解 type 模糊）
+- **R3-C2** memory-palace-schema 加跨 wing/room supersede 鐵律（debug_graveyard 永不被 supersede）
+- **R3-C3** P-35 三維度補比對 aliases + 副偵測 2（telemetry vs drawer count sync）
+- **R3-C4** in_flight_changes status enum 改 working_tree | staged | committed（git 對齊）
+- **R3-D1** revert_safe 拆 technical_revert_safe + business_impact_revert_safe
+- **R3-D2** 新建 P-36 PAUSED_TICKET_STALE（強制；非 optional）+ @Lead 派發前 batch 加第 5 探測
+- **R3-D3** 新建 P-37 HOTFIX_TIER_UPGRADED 通知（自動 cancel 同時 🟢 通知）
+- **R3-D4** 孤兒 PENDING 歸屬規則（pending_group: GRP-orphan-...）
+- **R3-D5** context_carryover_summary 改 multi-line block + 結構欄位
+- **R3-E1** polyglot 同 root 多語言規則（root 含 ≥2 種主 manifest → polyglot_in_root）
+- **R3-E2** path 白名單加結構特徵 heuristic（Controllers/Services 視為後端；dashboard/widget 視為前端）
+- **R3-E3** polyglot scope 加第 4 分類「FFI/binding caveat」（PyO3/Cython/JNI/WASM）
+- **R3-E4** caller 雙閾值（>10 OR cross-stack ≥3）— 解業務直覺脫節
+- **R3-E5** caller_count_at_write sync 時點明文（同次 probe；atomic）
+- **R3-F1** pending_group=null 場景明文（自建 GRP + 24h anchor = 升級時間點）
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.15 → v7.16
+- patrol catalog P-01 ~ P-37（+2）
+- routing-ticket-validator.py 加 superseded → prior_ticket_id 強制檢查 + completing status 支援
+
+### Notes
+
+- 19/19 validators 全綠；rule budget lead 2481/2500（under warn）
+- 23 GR 修補；R3-A 6 個結構性 SPOF 留 PROPOSAL_502_044 (Hybrid LLM classifier)
+
+---
+
+## [v7.15] - 2026-05-07
+
+### Added — keyword fragility + audit trail + 邊界補強（PROPOSAL_502_042；Lite）
+
+依 Round 2 報告主題 A（4 GR）+ 主題 H（5 GR）共 9 GR。v7.12-v7.15 stabilization 全程結束（4 proposals 修 32 GR）。
+
+- **GR-A1** §C.5 refactor-keyword 大幅擴充：英文 +6 詞 / 中文 +12 詞 / heuristic fallback（既有檔 + 改/同步/影響/全部 + ≥3 caller）
+- **GR-A2** §C.5 frontend-backend-pair 路徑慣例白名單（前端 9 dir × 後端 9 dir + monorepo 4 結構配對）
+- **GR-A3** §C.5 cross-stack heuristic fallback（白名單外 → 程式副檔名 ≥2 種 排配置/文件 → 視為 cross-stack；解 .scala/.cs/.swift/.dart 等次主流 stack）
+- **GR-H1** drawer template 加 `caller_count_at_write: <int>` + `commit_hash_at_write`（時間切片 audit；解 regenerate_via 弱化 audit trail）
+- **GR-H2** P-35 三維度比對（wing + room + tags 含 ticket_id 或 symbol_name）+ 副偵測（mempalace_writes 為空 + drawer 命中 ≥2）
+- **GR-H3** drawer template 加 `aliases: [<old_name>]`（rename 後舊名 search 命中）
+- **GR-H4** §C.5 suggested_query 抽取規則（symbol → fallback context → fallback analyze）
+- **GR-H5** §C.5 前置短路明文：派發前先檢 hotfix-light → skip 整段（優先序硬編開頭；解條文散落多處）
+
+### Notes
+
+- 19/19 validators 全綠；非破壞性
+- v7.11 → v7.15 stabilization：4 proposals (502_039~042) 修 32 GR
+
+---
+
+## [v7.14] - 2026-05-07
+
+### Added — onboarding + drift + schema 一致性（PROPOSAL_502_041；Lite）
+
+依 Round 2 報告 Phase 2（主題 E/F/G 共 12 GR；3 高 9 中）。
+
+- **GR-E1+A4** lead-orchestration-guide §6.3.1 task_class detection 表（7 priority + onboarding/hotfix/refactor 等觸發詞 + fallback feature）+ 漏標 P-X 偵測
+- **GR-E2** agent-driven-onboarding §Step 4 範本加 GITNEXUS_INTEGRATION 占位（新 workspace 自動繼承 v7.11 schema）
+- **GR-E3** §Step 4.5 polyglot 分流（≥2 sub-module → 每 sub-module add `room=index_<sub>` drawer + parent_wing_drawer + submodules 列表）
+- **GR-E4** §Step 4.6 polyglot scope 提示（緊耦合 root analyze / 獨立 deploy per-sub）+ §B 加 Polyglot Scope 段
+- **GR-F1** §C.6 加第三類「結構性 drift（split/merge/move）」+ split_into / merged_from 欄位
+- **GR-F2** ADR-0041 鐵律 2-C 改 stage-agnostic「task close 前必寫」（不綁 Stage 5.5；hotfix-heavy 流程亦適用）
+- **GR-F3** §C.6 加批次 update_drawer step（合併時對 ALL 命中 drawer 逐一）+ P-35 副偵測
+- **GR-F4** ADR-0041 鐵律 2-C 補 hotfix 緊急優先級「fix 提交 + drawer 寫入同 atomic boundary」
+- **GR-G2** 統一 `> 10`（schema/ADR/P-35 三處對齊）
+- **GR-G3** routing-ticket-protocol schema 加 `pending_group` 欄位 + validator 條件式 mandate（sibling_agents 非空 → 必填）
+- **GR-G4** §6.3.2 modify-existing 不跳 S3 4 場景明文表
+
+### Notes
+
+- 19/19 validators 全綠；非破壞性
+- lead.md 不動（細則放 lead-orchestration-guide §6.3.1/6.3.2；保 lead 預算）
+
+---
+
+## [v7.13] - 2026-05-07
+
+### Added — Hotfix Tier 升級 SOP（PROPOSAL_502_040；Lite）
+
+依 Round 2 報告主題 C（5 GR；3 高 2 中）；hotfix-light → heavy 中途升級 5 邊界全包。
+
+- **新建 `tasks/hotfix-tier-upgrade-sop.md`**：5 步驟 SOP（sub-agent 停 + telemetry 寫 → @Lead 評估 + 派新 → autonomy 變更 → pending_group carry-over → telemetry 跨 ticket 累計）
+- **GR-C1+C2** sub-agent 升級觸發條件 + in-flight changes 快照 + revert_safe 仲裁
+- **GR-C3** 新 ticket frontmatter `superseded` + `context_carryover_summary`（解 user context stale）
+- **GR-C4** `pending_group_inherited_from` 欄位（解跨 ticket pending 孤兒）
+- **GR-C5** `prior_ticket_telemetry_carryover: true` + `prior_ticket_probe_history`（P-34 跨 ticket 累計）
+- **schema 補欄位**：`superseded` / `pending_group_inherited_from` / `context_carryover_summary` / `tier_upgrade_required` / `tier_upgrade_reason` / `in_flight_changes`
+- **hotfix-checklist Step A1** cross-link 至新 SOP（不再「立即升級 heavy 重走 Step 0」模糊指令）
+
+### Notes
+
+- `paused` status enum 已存在（PROPOSAL_502_014 N-3）；本提案明確化 paused 行為流程
+- 19/19 validators 全綠；非破壞性
+
+---
+
+## [v7.12] - 2026-05-07
+
+### Added — runtime_telemetry 寫入 + hotfix-heavy 通知收斂 + probe 三分（PROPOSAL_502_039；Lite）
+
+依 Round 2 報告 v7.12 必修第 1 個。修補 7 個 GR（含 4 高 / 3 中）。
+
+- **GR-B1** routing-ticket-protocol §3.6 補 `runtime_telemetry 回填 step`（誰寫=target_agent / 何時=task close 前 / 如何=`# === RUNTIME_TELEMETRY ===` block append；append-only 例外白名單）+ validator 加 mandate
+- **GR-B2** code-graph-exploration §C.3 step 2 改 5 分判定（disabled / crash / timeout / no-index / ok 各對應 telemetry probe）
+- **GR-B3** timeout default 5s 寫入 schema 註解
+- **GR-B4** patrol catalog P-34 補 reset 規則（ok 單次歸零 / 計數讀近 24h archive / 跨 ticket 累計）+ 「自動降級」明文（PENDING_ACTIONS §🔴 active → @Lead 跳過 hint）
+- **GR-D1** routing-ticket-protocol §3.4 hotfix-heavy autonomy default 從 `step-by-step` 改 `gate-at-impl`（解通知爆炸 ≥10 條）
+- **GR-D2** patrol §A 開頭 pending_group 擴：SC P-15 + STAGE_VERIFY 同 ticket → 合併 `combined_trigger_pending`
+- **GR-G1** schema `skip_memory_search` auto-trigger 條件加 hotfix-light
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.11 → v7.12
+- `routing-ticket-validator.py` 加 telemetry mandate + tier_upgrade_required enum
+
+### Notes
+
+- 19/19 validators 全綠；非破壞性
+- P-34/P-35 patrol 從「空殼」變「可執行閉環」
+
+---
+
+## [v7.11] - 2026-05-07
+
+### Added — Phase 3 Stabilization（PROPOSAL_502_038；Lite）
+
+依 SIMULATION 報告 Phase 3 邊界 case 與命名整潔；4 個低嚴重度 gaps + 補強。
+
+- **G5 強化**：`code-graph-exploration §C.5` cross-stack 加白名單副檔名對 + 不算 cross-stack 的 case
+- **G3**：`§A` 場景表加 @QA（TEST_SPEC pattern reuse）+ @Planner（effort estimation）+ @Security（邊界外）
+- **G-E4**：`memory-palace-schema §2.2.0` 加 framework vs workspace wing 判定 flowchart
+- **G-F6**：`WORKSPACE_SCHEMA.yaml` 加 `GITNEXUS_INTEGRATION` block（gitnexus_repo / gitnexus_indexed / gitnexus_last_index_at）
+- **附帶**：active workspace `agent_framework.md` 加 `GITNEXUS_INTEGRATION` 占位（avoid validator warn）；smoke_test 對應升 43 行輸入
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.10 → v7.11
+
+### Notes
+
+- **行為**：邊界規範化；@QA / @Planner 場景明文；wing 命名混淆解；workspace ↔ GitNexus repo mapping 機制
+- 19/19 validators 全綠
+- **Phase 3 完成；GitNexus × MemPalace 整合 stabilization 全程結束**（Phase 1 + 2 + 3 = 4 proposals 修 27 個 gaps）
+
+---
+
+## [v7.10] - 2026-05-07
+
+### Added — Phase 2 Stabilization（PROPOSAL_502_037；Lite）
+
+合併原 037+038 為單一 proposal（Phase 1b 順手解決主題 6 P-34 + 主題 7 鐵律 2-D；殘餘 4 個 gaps）。
+
+- **G-G2**：`rules/lead.md §s_complexity_lane` B-1 寫 hint 前檢查 `.mcp.json` gitnexus key 啟用（disabled 不寫，避免浪費）
+- **G12**：`skills/code-graph-exploration §C.6` 新增 mempalace ↔ GitNexus 結果合併規則（時序仲裁 + 衝突優先級 + agent 合併步驟）
+- **G8**：`rules/lead.md §s_complexity_lane` 加「modify-existing + 4 場景全命中 → 強制不跳 Stage 3」（風險過高）
+- **G9**：`skills/artifact-path-conventions.md` 加 Code Graph Impact 條目（`docs/code-graph/<symbol>-impact.md`）
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.9 → v7.10
+
+### Notes
+
+- **行為**：disabled 場景不再浪費寫 hint；agent 結果合併不再自由心證；千行檔 refactor 強制走 @Architect
+- **rule budget**：lead.md 2498/2500（仍 under warn）
+- 19/19 validators 全綠
+- Phase 2 完成；Phase 3（邊界修補）待議
+
+---
+
+## [v7.9] - 2026-05-07
+
+### Added — Phase 1b Stabilization（PROPOSAL_502_036；Lite）
+
+依 SIMULATION 報告 Phase 1 第二個 proposal；修補 v7.5-v7.7 整合期 2 大架構盲點（共 9 個 gaps）。
+
+- **主題 2：ROUTING_TICKET schema 不完整**（解 G1, G7, G-F7）：
+  - `routing-ticket-protocol §二` 加 `gitnexus_hint` 正式 schema（5 enum triggered_by + optional bool）
+  - 加 `runtime_telemetry` append-only block（gitnexus_probe 5 enum + gitnexus_used + callers_count + mempalace_writes + elapsed_ms）
+  - `routing-ticket-validator.py` 加 enum 驗證（task_class onboarding / autonomy_mode / gitnexus_hint.triggered_by / runtime_telemetry.gitnexus_probe）
+
+- **主題 3：持久化機制空殼修補**（解 G6, G10, G-F1, G-F2, G-F4, G-F5）：
+  - **ADR-0041 鐵律 2 v3 升級**：4 子規則（A 不寫死 caller list / B 該寫判定矩陣 / C 寫入點 / D 衝突仲裁）
+  - `memory-palace-schema §2.2` 新增 `refactor_log` + `index` rooms
+  - `§2.2.1` 新增 `gitnexus_summary` drawer template（含 regenerate_via 指針替代 caller list）
+  - **新增 P-35 GITNEXUS_DRAWER_PENDING patrol**：偵測「該寫沒寫」自動 🟡 提醒
+  - **新增 P-34 GITNEXUS_PROBE_CONSECUTIVE_FAIL patrol**：probe 連續 ≥3 失敗 🟡；≥5 🔴 自動降級
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.8 → v7.9
+- ADR-0041 `amended: 2026-05-07`
+- patrol 標題 P-01~P-33 → P-01~P-35（patrol-notification-catalog + agents-overview）
+
+### Notes
+
+- **行為變化**：
+  - sub-agent 執行期可正式回填 `runtime_telemetry`（不破壞 ticket append-only；屬執行期 status 區塊）
+  - 持久化機制由空殼變可執行：refactor / 大型 impact / debug 根因 → 強制寫 mempalace drawer
+  - 雙 SoT 副本 staleness 解決：drawer 改寫 `regenerate_via` 指針，不寫死 caller list
+- **非破壞性**：所有 schema 新欄位為 optional；既有 ticket 仍合法
+- 19/19 validators 全綠
+
+---
+
+## [v7.8] - 2026-05-07
+
+### Added — Phase 1a Stabilization（PROPOSAL_502_035；Lite）
+
+依 SIMULATION_GITNEXUS_MEMPALACE_2026-05-07 報告 Phase 1 第一個 proposal；
+修補 v7.5-v7.7 整合期 3 大跨情境主題（共 14 個 gaps）。
+
+- **主題 1：Hotfix × 三機制 死鎖**（解 G-C1/C2/C3, G-E3, G-G5, H-5）：
+  - `rules/lead.md §s07` 加鐵律：`hotfix-light → autonomy_mode 強制 auto + skip B-1 hint + skip mempalace.search`
+  - `rules/reviewer.md §s06 #4` 改 short-circuit：先看 hotfix=YES → skip caller scan
+  - `routing-ticket-protocol §3.4` autonomy default 拆 hotfix-light(auto) / hotfix-heavy(step-by-step)
+- **主題 4：Pending 聚合 + 訊息超載**（解 G4, H-1, H-4）：
+  - `lead-orchestration-guide §2.5` 派發訊息 6→7 欄位（加 Pre-Dispatch-Hints 區塊）
+  - `pending_group` 概念：同 ticket 內多 pending 共享 24h 計時 + user 廣播確認
+  - `patrol-notification-catalog §A` 開頭加 pending_group 共享計時規則（影響 P-31/P-32/P-33）
+- **主題 5：Onboarding 場景全套修補**（解 G-D1~D6）：
+  - `routing-ticket-protocol §schema` task_class enum 加 `onboarding`（smart default `gate-at-design`）
+  - `code-graph-exploration §C.5` 加 #5 觸發條件 `onboarding-scenario`
+  - `code-graph-exploration §B` 加「環境裝置類豁免」明文（解 G-D3 死鎖）
+  - `agent-driven-onboarding §2` 加 Step 4.5（mempalace add wing index drawer）+ Step 4.6（optional GitNexus 提示）
+  - `gitnexus_hint.optional: true` 新欄位（onboarding 場景 P-32 只記 🟢）
+- **附帶**（情境 A G5 修補）：cross-stack 條件 `.test.ts/.spec.ts` 視為 `.ts` 避免誤觸發
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.7 → v7.8
+- `rules/lead.md` 多處 trim 維持 budget（autonomy block / Auto-escalation / 任務分類例外）→ 2482/2500
+
+### Notes
+
+- **行為變化**：hotfix 緊急通道恢復快車道；user 訊息聚合；onboarding 不再 loop 阻斷
+- **非破壞性**：所有變更為「補規範 + 條件 short-circuit」；既有正常 dispatch 行為不變
+- **rule budgets**：lead 2482/2500、reviewer 1449/1500
+- 19/19 validators 全綠
+
+---
+
+## [v7.7] - 2026-05-06
+
+### Added — GitNexus 深度整合 B-1+B-2+B-5（PROPOSAL_502_034；Lite）
+
+User profile 確認（跨檔前↔後端 + 千行檔 + 個人開發 noncommercial）→ GitNexus sweet spot 命中；月省保守 7-12 hr + LLM token 50-70%。從 v7.6「外部輔助」升級為「半自動整合」。
+
+- **B-1：lead.md auto-suggest hook**（`rules/lead.md §s_complexity_lane`）：
+  - 派發前 batch 後輕量 grep；4 觸發條件命中 → 寫 ROUTING_TICKET `gitnexus_hint`
+  - 條件：cross-stack ≥3 檔 / LOC>800 / refactor 關鍵字 / 前後端雙路徑
+- **B-2：執行期 agent 直呼**（ADR-0041 鐵律 3 amend）：
+  - sub-agent 接到 task + 場景命中 → 直呼 `mcp__gitnexus__{impact, context, cypher}`；不必透 user
+  - **派發前 batch 仍不加**（維持低 latency；4 探測不變）
+  - **執行期可直呼**（新允；對應 user profile 高頻場景）
+- **B-5：reviewer.md §s06 caller scan 預設**（`rules/reviewer.md §s06 #4`）：
+  - PR diff 含 LOC>800 / cross-stack → 必查 caller graph
+  - Available 直呼；unavailable grep + REVIEW_REPORT `[INFO] caller scan 不完整`
+- **skill 擴充**（`skills/code-graph-exploration.md §C.3-C.5`）：
+  - C.3 B-1+B-2 整合決策樹（agent 接到 task 後）
+  - C.4 B-5 reviewer 規範
+  - C.5 4 觸發場景對照表
+- **AGENT_BOOTSTRAP §3.3.2**：GitNexus auto-hint 章節
+- **ADR-0041 v2 amend**：鐵律 3 區分「派發前不加 / 執行期可直呼」；B-1 fallback 路徑明文（PROPOSAL_502_030 Phase B）
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.6 → v7.7
+- ADR-0041 `amended: 2026-05-06`
+
+### Notes
+
+- **非破壞性**：GitNexus disabled 時所有路徑 fallback 至 grep / Read（v6 既有行為）
+- **效益**：rule budgets：lead 2490/2500、reviewer 1421/1500（皆 under warn）
+- **B-1 + B-2 共存**：B-1 是 fallback；B-2 是 available 時主動快路；不重複
+- 19/19 validators 全綠
+
+---
+
+## [v7.6] - 2026-05-06
+
+### Added — GitNexus 外部 MCP 工具接入（PROPOSAL_502_033；Lite）
+
+User 確認 noncommercial 個人開發用途 + Node 為外部套件原生需求（非自寫腳本）→ 雙重豁免成立；走「外部輔助 + 輕度框架登記」路線（**非深度整合**）。
+
+- **T-1 MCP config 加 gitnexus**（`.mcp.json` + `.qwen/settings.json`）：
+  - **disabled by default**（key prefix `_gitnexus_disabled_by_default`）；user 跑 `npm install -g gitnexus` 後改 key 啟用
+  - 16 MCP tools（query / context / impact / cypher / list_repos / ...）
+- **T-2 `skills/code-graph-exploration.md` 新建**（F2 類）：
+  - §A 場景表（refactor / cross-file impact / onboarding 建議用；hotfix / typo 不需）
+  - §B user 啟用步驟（agent 不代執行 npm install）
+  - §C 輸出處理（Prior Art Phase B 路徑 = 既有機制；零框架改動）
+  - §D SoT 邊界對照表
+  - §E 反模式（5 條禁止）
+- **T-3 Bootstrap docs**：
+  - `AGENT_BOOTSTRAP.md §10` 環境表加 row
+  - `qwen.md §8` pointer index 加 row
+- **T-4 ADR-0041 新建**（amends ADR-0039）：
+  - 確立「mempalace = primary SoT（語意層）/ GitNexus = auxiliary cache（語法層）」雙層職責
+  - 4 條鐵律（mempalace 永遠 SoT / GitNexus 結果寫 mempalace 持久 / 派發前 batch 不加 GitNexus / disabled by default）
+  - 3 個 Alternatives Considered + 拒絕理由
+- **T-5 KI-006 條目**（`KNOWN_ISSUES.md`）：
+  - License 豁免（PolyForm Noncommercial 1.0.0 適 noncommercial）
+  - Node 依賴豁免（套件原生需求；ADR-0040 milestone 不擴及外部 MCP）
+  - 解除條件：用途轉商用 / GitNexus license 變更
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.5 → v7.6
+
+### Notes
+
+- **零行為破壞**：disabled by default；user 不裝即看不出差異
+- **效益**：大型 refactor / cross-file impact / onboarding 場景 agent 主動建議 user 啟用
+- **接入哲學**：透 PROPOSAL_502_030 既有 Prior Art HITL Phase B 吃 user 跑 GitNexus 結果；零新機制
+- 19/19 validators 全綠；rule budgets 全在預算內
+
+---
+
+## [v7.5] - 2026-05-06
+
+### Added — Per-Dispatch autonomy_mode（PROPOSAL_502_032；Lite）
+
+User 質疑「agent 是否會一路自動跑完整 10 stage 開發?」→ 確認會（feature 場景無 HITL gate 觸發）；user 選 Option D（per-dispatch 4 enum mode + smart default per task_class）。
+
+- **T-1 ROUTING_TICKET schema 加 `autonomy_mode` 欄位**（`skills/routing-ticket-protocol.md`）：
+  - 4 enum：`auto` / `step-by-step` / `gate-at-design` / `gate-at-impl`
+  - 缺值 fallback `auto`（既有行為；非破壞性）
+  - §3.4 Autonomy Gate 機制小節（命中 stage → 寫 🟡 STAGE\_<N>\_VERIFY_PENDING）
+- **T-2 `rules/lead.md §s_complexity_lane`** 補 Autonomy mode 智能 default：
+  - feature → `gate-at-design`
+  - modify-existing → `gate-at-impl`
+  - hotfix → `step-by-step`
+  - doc-sync / config-adjust → `auto`
+  - User 自然語 override（"幫我跑完" / "每階段確認" 等）
+  - Trim 既有 verbose 文（S6/6.5 / batch / RUNTIME_CONTEXT 例）使預算內 +autonomy 後 lead.md 2473/2500（仍 under warn）
+- **T-3 `skills/patrol-notification-catalog.md` 加 P-33 `STAGE_VERIFY_PENDING_OVERDUE`**：
+  - 24h / 5 對話無回 → 🟡 OVERDUE；再 24h → 🔴 阻斷新派發直至 user 回應或明示 `autonomy_mode: auto`
+  - §A 標題 P-01~P-29 → P-01~P-33
+- **T-4 `AGENT_BOOTSTRAP.md §3.3.1`** 新建 + `qwen.md §8` pointer index 補 autonomy mode 引用
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.4 → v7.5
+
+### Notes
+
+- **非破壞性**：缺 `autonomy_mode` 欄位 fallback `auto`（既有 v7.4 行為完全保留）
+- **效益**：複雜任務 default 多 HITL（gate-at-design）→ user 早期介入避免錯方向；簡單任務（doc-sync）仍秒過
+- **正交設計**：autonomy_mode 與 task_class / lane / model_tier 各自獨立；不衝突
+- 19/19 validators 全綠；rule budgets：lead 2473/2500、retro 1793/1800
+
+---
+
+## [v7.4] - 2026-05-04
+
+### Added — ROUTING_TICKET lifecycle + Artifact 路徑規範 + Pollution Validator（PROPOSAL_502_031；Lite）
+
+User 實機反饋 3 痛點：(1) ROUTING_TICKET 完成不清空、agent 自建變體 (2) Reports 散落 root (3) docs/ 純度被 per-dispatch reports 稀釋。
+
+- **T-1 ROUTING_TICKET 強化**（`skills/routing-ticket-protocol.md` §3.3-3.4）：
+  - 完成 lifecycle 明文：`completed/cancelled/failed → @Lead auto-archive → reset idle`
+  - 禁建 `ROUTING_TICKET_*.md` 變體；多 phase 同檔逐 phase；並發走 PENDING_DISPATCHES queue
+- **T-2 `skills/artifact-path-conventions.md` 新建**（單檔對照表 SoT）
+- **T-3 Archive 目錄結構**：
+  - `.agents/archive/routing-tickets/`（30 天滾動）
+  - `.agents/archive/reports/{review,security,test}/`（v2；30 天滾動；@Retro 批次清）
+  - `init-workspace.py` 補建立邏輯
+- **T-4 `tests/root-artifact-pollution-validator.py`（19th validator）**：
+  - 偵測 root 散落 ROUTING*TICKET*\*.md / DIAGNOSIS_NOTE / REVIEW_REPORT / SECURITY_REPORT / TEST_REPORT / AUDIT_REPORT 等變體
+  - ALLOWLIST 34 個合法 root 檔（runtime + config + project meta）
+  - 接入 run-all.py + git_diff_detector ALL_VALIDATORS
+- **T-5 `rules/lead.md §s_complexity_lane`**：Ticket 完成 hook（移 archive + reset idle + 清 snapshot + 散落歸正路）
+- **v2 修正**（依 user 反饋）：per-dispatch reports 從 `docs/reports/` 改 `.agents/archive/reports/`
+  - `docs/` 維持「系統架構文件」純度（架 + API spec）
+  - `docs/plans/` 保留（business value 高；diagnosis / prior-art / test-spec）
+  - `rules/retro.md §s09` 補 reports cleanup（30 天滾動；@Retro 批次清）
+
+### Changed
+
+- `.agents/FRAMEWORK_VERSION`：v7.3 → v7.4
+
+### Notes
+
+- **Functional safety**：行為層 hook 加強；既有 artifact 不受影響；30 天保留 audit window
+- **效益**：root 純淨；docs/ 純粹；ROUTING_TICKET 不會殘留與變體
+- 19/19 validators 全綠；rule budgets（lead 2492/2500、retro 1771/1800）全在預算內
+
+---
+
+## [v7.3] - 2026-05-04
+
+### Added — Prior Art Gate HITL-first（PROPOSAL_502_030；Lite）
+
+User 反饋：Prior Art Gate 之前 agent 自查精準度差 + 浪費 LLM token；改 user 自跑 search 回填。
+
+- **三段流程**（agent-prep → user-search → agent-analyze）：
+  - **Phase A**：agent 產 Search Package（keywords / 管道 / 待填表；不做 web search）
+  - **Phase B**：user 用 Chat / 瀏覽器跑 search → 回填 §B 結構化結果表
+  - **Phase C**：agent 讀填好結果 → 評估矩陣 + 推薦
+- **兩階段 HITL gate**：
+  - 🔴 `PRIOR_ART_SEARCH_PENDING`（Phase B 等 user search）
+  - 🔴 `PRIOR_ART_VERIFY_PENDING`（既有 final gate；Phase D 等 user 確認 agent 評估）
+- **新巡邏 P-32 `PRIOR_ART_SEARCH_PENDING_OVERDUE`**：與 P-31 對齊；24h auto-escalate
+- **PRIOR_ART_REPORT.md template v2**：拆 §A/§B/§C/§D 四段；§B 結構化表給 user 填
+- **checklist v2**：Phase A/B/C 完整 SOP；明文「agent 不做 web search」
+
+### Changed
+
+- `decisions/0014-prior-art-scan.md`：amended（v1 agent-first → v2 HITL-first）
+- `rules/architect.md §s04` + `rules/lead.md §s06b`：兩階段 gate
+- `skills/checklists/prior-art-scan-checklist.md`：v1.0 → v2.0
+- `skills/templates/prior-art-report-template.md`：v1.0 → v2.0
+- `skills/patrol-notification-catalog.md`：加 P-32
+- `docs/agents-overview.md` §4.2：P-01~P-31 → P-01~P-32
+- `.agents/FRAMEWORK_VERSION`：v7.2 → v7.3
+
+### Notes
+
+- **效益**：精準度提升（user 自查不被 LLM 訓練截止限制）；token cost -2-5K / scan
+- **Functional safety**：bypass 機制保留；既有 HITL gate 不刪；template 向後相容（既有報告繼續用）
+- **負擔**：user 多一道手動 search；換取準確度 + 信心
+- 18/18 validators 全綠；rule budget 全在預算內
+
+---
+
+## [v7.2] - 2026-05-04
+
+### Added — Scope 判定強化 + Runtime Context + Agent Bootstrap（PROPOSAL_502_029；Lite）
+
+User 反饋 3 個痛點：(1) PROPOSAL 建錯位置（framework vs workspace）(2) 環境特殊 setup 沒記（Windows PATH override 等）(3) Qwen 不照流程走、想要單檔 bootstrap。
+
+- **T-1 Scope 判定強化**：
+  - `rules/retro.md §s06` 補 explicit decision tree（3 步判 framework / project / 必問 User）
+  - `rules/lead.md §s_pre_adoption_check` 補強制驗證（frontmatter scope ≠ 路徑 → 阻斷採納）
+  - 絕對禁止「scope 模糊預設 framework」
+- **T-2 RUNTIME_CONTEXT 機制**：
+  - `WORKSPACE_SCHEMA.yaml` 加新 block（platform / shell / pre_command_hooks / binaries / env_vars）
+  - `agent-driven-onboarding.md §1` 補 platform / binaries 偵測
+  - `rules/lead.md §s_complexity_lane` 派發前注入 ROUTING_TICKET `runtime_setup` 欄位
+  - `routing-ticket-protocol.md` 加 `runtime_setup` ticket field
+  - sub-agent 跑 shell 前**必依序執行 hooks** 才執行主命令
+  - 例：Windows + Node 強制版本：`{command: '$env:Path = "D:\\node-v24...;"+$env:Path', shell: powershell}`
+- **T-3 AGENT_BOOTSTRAP.md（最高優先；新建）**：
+  - 300 行單檔；包 §1 框架架構速覽 + §2 並行 cold-start + §3 派發流程 + §4 mempalace 三件套 + §5 workspace + §6 scope 判定 + §7 鐵律 + §8 對照表 + §9 5 條核心記憶 + §10 環境差異
+  - `qwen.md §0` 強化：明文「session 第一動作 = Read AGENT_BOOTSTRAP.md」+ Pointer Index 補
+  - `workspaces/agent_framework.md` 補 RUNTIME_CONTEXT placeholder（dogfood）
+
+### Changed
+
+- `rules/retro.md` / `rules/lead.md`：scope 判定 + 採納前驗證
+- `WORKSPACE_SCHEMA.yaml`：新 RUNTIME_CONTEXT block
+- `skills/agent-driven-onboarding.md` / `skills/routing-ticket-protocol.md` / `skills/memory-operations.md`
+- `qwen.md`：§0 強化 + Pointer Index
+- `tests/scripts/smoke_test.py`：generate_minimal_input +1 line（schema 新增 RUNTIME_CONTEXT）
+- `.agents/FRAMEWORK_VERSION`：v7.1 → v7.2
+
+### Notes
+
+- **Functional safety**：3 task 均為 schema/rule/document 補強；無破壞性
+- 預期效果：scope 錯放修復；Windows 等特殊環境 agent 可自主處理；Qwen 等 model 一次讀完 bootstrap 進入狀況
+- 實際工時 ~1h（T-3 AGENT_BOOTSTRAP 撰寫 30 min；其餘合計 30 min）
+- 18/18 validators 全綠
+
+---
+
+## [v7.1] - 2026-05-04
+
+### Added — Antigravity / 通用 latency 優化（PROPOSAL_502_028；Lite）
+
+User 反饋：Antigravity 思考時間久；框架側 5 個阻塞點分析後執行 4 個低風險優化。
+
+- **O-1 並行 cold-start**：qwen.md §1 改寫
+  - 5 個探測（mempalace_status / Read CURRENT_WORKSPACE / PENDING_ACTIONS / ROUTING_TICKET / LS .pending/）必須**單一 message 並行**
+  - 禁止串行；節省 IPC overhead 5-10x
+- **O-2 派發 batch**：lead.md §s_complexity_lane 補規則
+  - 4 個派發前探測（PENDING / grep / search / ROUTING_TICKET）單一 message 並行
+- **O-3 simple lane skip search**：
+  - routing-ticket-protocol.md task_class 補 `skip_memory_search` flag
+  - memory-operations.md §2.1 步驟 0：task_class ∈ {doc-sync, config-adjust} 且無敏感參數 → 跳搜
+- **O-4 mempalace.search 預設 limit=1**：
+  - PROPOSAL_502_022 已 5→3；本提案再 3→1
+  - top-1 cosine ≥ 0.4 即用；不足 follow-up 3 / 5 兩階段
+  - 80% 案例 top-1 已足；總 latency -30%
+
+### Changed
+
+- `qwen.md` §1：parallel batch 規則
+- `rules/lead.md` §s_complexity_lane：派發前 batch 規則
+- `skills/routing-ticket-protocol.md`：`skip_memory_search` flag
+- `skills/memory-operations.md` §2.1：limit=1 default + skip_memory_search step 0
+- `.agents/FRAMEWORK_VERSION`：v7.0 → v7.1（patch；latency 優化）
+
+### Notes
+
+- **Functional safety**：4 個優化均為 batch / skip / limit 調整；無破壞性
+  - O-1/O-2 並行：tool calls 獨立；無順序依賴
+  - O-3 skip：task_class enum 已有；補 explicit flag；agent 仍可手動 search 若需
+  - O-4 limit=1：fallback 機制保留 functional parity
+- **預期效果**：cold-start -50%；simple dispatch -50%；standard -25%；token cost 不變
+- **無解項**：sub-agent serial mode（Antigravity 環境限制；PROPOSAL_502_021 mode-aware 已盡力）
+- 實際工時 ~30 min（純文件改寫；無 code）
+- 18/18 validators 全綠
+
+---
+
 ## [v7.0] - 2026-05-04 — **Node-free milestone（major bump）**
 
 ### Added — Full Python Migration（PROPOSAL_502_027；39 .mjs + 6 .sh → .py）
@@ -342,7 +1193,7 @@ User 反饋：CLI 在 Windows 不能跑 / Qwen stdin 卡住 / 互動式問太多
 ### Changed
 
 - `.agents/tasks/workspace-switch-handover.md` / `session-start-checklist.md` / `existing-project-import-workflow.md`（5 個 ADR 連結修正）
-- `.agents/tests/ref-validator.mjs`（SCAN_DIRS 加 tasks + body link scan）
+- `.agents/tests/ref-validator.py`（SCAN_DIRS 加 tasks + body link scan）
 - `.agents/rules/lead.md §s_complexity_lane`（並發排隊串接）
 - `.agents/skills/patrol-notification-catalog.md`（P-29；§A 標題 P-28→P-29）
 - `.agents/rules/retro.md §s_exemption_audit`（trigger vs execute 分離）
@@ -438,7 +1289,7 @@ User 反饋：CLI 在 Windows 不能跑 / Qwen stdin 卡住 / 互動式問太多
 
 ### Changed
 
-- `.agents/tasks/session-start-checklist.md` / `.agents/rules/assistant.md §s05` / `.agents/skills/memory-operations.md` / `.agents/skills/routing-ticket-protocol.md` / `.agents/tests/routing-ticket-validator.mjs`
+- `.agents/tasks/session-start-checklist.md` / `.agents/rules/assistant.md §s05` / `.agents/skills/memory-operations.md` / `.agents/skills/routing-ticket-protocol.md` / `.agents/tests/routing-ticket-validator.py`
 - `.agents/FRAMEWORK_VERSION`：v6.24 → v6.25
 
 ### Notes
@@ -468,7 +1319,7 @@ User 反饋：CLI 在 Windows 不能跑 / Qwen stdin 卡住 / 互動式問太多
 
 - `.agents/decisions/0038-tier-based-rule-budget.md`（5 原則 + 4 tier amend）
 - `.agents/SYSTEM_THRESHOLDS.yaml`（tier block 加 central_orchestrator）
-- `.agents/tests/rule-token-budget-validator.mjs` / `schema-validator.mjs` / `ref-validator.mjs` / `lib/git-diff-detector.sh`（4 validators 升級）
+- `.agents/tests/rule-token-budget-validator.py` / `schema-validator.mjs` / `ref-validator.mjs` / `lib/git-diff-detector.sh`（4 validators 升級）
 - `.agents/rules/lead.md`（rule_category: central_orchestrator + footer ADR-0034/0039）
 - 12 rules frontmatter（lead + 11 sub-agent rules）+ title comment 升版
 - `.agents/proposals/completed/PROPOSAL_20260430_002.md`（superseded_by + ⚠️ banner）
@@ -500,7 +1351,7 @@ User 反饋：CLI 在 Windows 不能跑 / Qwen stdin 卡住 / 互動式問太多
 ### Changed
 
 - `.agents/skills/patrol-notification-catalog.md`：加 P-26（`P-01~P-25` → `P-01~P-26`）；6 處 inline references 同步（rules/assistant.md×3 / lead-context-mappings / assistant-summary-protocol / agents-overview）
-- `.agents/tests/rule-token-budget-validator.mjs`：KI 已知 warning allowlist 邏輯
+- `.agents/tests/rule-token-budget-validator.py`：KI 已知 warning allowlist 邏輯
 - `.agents/FRAMEWORK_VERSION`：v6.22 → v6.23（minor bump）
 
 ### Notes
@@ -619,9 +1470,9 @@ User 反饋：CLI 在 Windows 不能跑 / Qwen stdin 卡住 / 互動式問太多
 
 ### Changed
 
-- `.agents/tests/memory-palace-validator.mjs`：drawer count 健康指標（COMPRESS_WARN_THRESHOLD=1000 / COMPRESS_ERROR_THRESHOLD=5000）
+- `.agents/tests/memory-palace-validator.py`：drawer count 健康指標（COMPRESS_WARN_THRESHOLD=1000 / COMPRESS_ERROR_THRESHOLD=5000）
 - `.agents/skills/memory-operations.md`：新增 §6 Compress 流程（§7 Related Decisions 編號順移）
-- `.agents/scripts/init-workspace.mjs`：新增 `runMempalaceWakeup()` 純函式 + 互動式 / `--config` 雙路徑均呼叫；`--help` 文字加 PROPOSAL_502_003 C-3 註解
+- `.agents/scripts/init-workspace.py`：新增 `runMempalaceWakeup()` 純函式 + 互動式 / `--config` 雙路徑均呼叫；`--help` 文字加 PROPOSAL_502_003 C-3 註解
 - `.agents/rules/assistant.md §s07`（immutable）：1401 → 1489 tokens（orchestrator tier 1800 上限）
 - `.agents/FRAMEWORK_VERSION`：v6.18 → v6.19（minor bump；Lite 提案）
 
@@ -1683,7 +2534,7 @@ User 反饋：CLI 在 Windows 不能跑 / Qwen stdin 卡住 / 互動式問太多
   - `workspace-schema-validator.mjs` 擴充 `validateSkillsAndTasks()`
   - `.agents/FRAMEWORK_VERSION`（YAML v4.0 baseline）
   - `.agents/CHANGELOG.md`（本檔）
-  - `.agents/scripts/framework-diff.mjs`（純 Node.js；framework_layer vs project_layer 比對）
+  - `.agents/scripts/framework-diff.py`（純 Node.js；framework_layer vs project_layer 比對）
   - `.agents/tasks/framework-upgrade-workflow.md`（8 步驟升級 SOP + 禁止行為 + 回滾指引）
 
 ### Changed

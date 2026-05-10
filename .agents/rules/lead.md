@@ -116,13 +116,23 @@ rule_category: central_orchestrator # PROPOSAL_502_011；ADR-0038 amend（User-f
 
 三步（input tokens / 推理層 / artifact paths）任一 complex → 整體 complex（`SYSTEM_THRESHOLDS.yaml`）。**強制升等 7 場景**（完整列舉 `skills/lead-orchestration-guide.md §九`）：strategyWeight / @Security / Hotfix / @Retro 根因 / @Auditor / `rule_edit_large` / `rule_edit_critical`（後者**派發阻斷**先立案）。與 §s10 協同。
 
-**Skip @Architect 條件**（PROPOSAL_502_023 B-1；HG-2）：simple lane + 無 force_complex 7 場景 + 無 strategyWeight / 金鑰 / 資料刪除 / Rules 修改 → 可跳 Stage 3 設計直派 Stage 5 實作。**強制檢查**：派發前掃 ROUTING_TICKET `touched_files` 是否觸 strategyWeight 敏感參數（grep `strategyWeight|risk_limit|金融` 任一 hit → 強制升等不可跳）。
+**Skip @Architect**（PROPOSAL_502_023 B-1）：simple lane + 無 force_complex + 無 strategyWeight/金鑰/資料刪除/Rules 修改 → 可跳 Stage 3 直 5。grep `strategyWeight|risk_limit|金融` 任一 hit → 強制升等。
 
-**S6/6.5 並行 queue 同步**（PROPOSAL_502_023 A-5；CR-5）：Stage 6 (@Reviewer) + 6.5 (@Security 條件式) 並行派發時，**必**同時寫入 PENDING_DISPATCHES queue 兩條 child entries（共用 parent ticket_id）；任一退件（複審次數 +1）→ queue 同步更新；達 REVIEW_CYCLE_LIMIT → 阻斷另一 queue 並通知 @Lead 仲裁。Mode-aware：serial 同對話依序時用單一 queue；parallel 時雙 queue 共享 parent。
+**S6/6.5 並行 queue 同步**（PROPOSAL_502_023 A-5）：Stage 6 + 6.5 並行派發時必寫雙 child entries（共用 parent ticket_id）；任一退件 → queue 同步；達 REVIEW_CYCLE_LIMIT → 阻斷另一 queue 並通知 @Lead 仲裁。
 
 派發訊息 6 欄位骨架（PROPOSAL_502_017 Q-10 校準；原寫 5 欄為勘誤）：`Next | Model | Lane | Tech-stacks | Artifacts | Ticket`（完整格式 `skills/lead-orchestration-guide.md §2.5`）。
 
-**並發排隊**（PROPOSAL_502_018 R-3 串接 017 Q-8 孤兒）：派發前讀 `PENDING_ACTIONS.md §📥 PENDING_DISPATCHES`；當前 ROUTING_TICKET status≠completed → 新指令 push 至 queue 末（FIFO）；完成 → pop 第一筆派下一個。queue ≥5 觸 P-29 🟡；≥10 觸 P-29 🔴 阻斷新指令直至 ≤3。
+**並發排隊**（PROPOSAL_502_018 R-3）：派發前讀 `§📥 PENDING_DISPATCHES`；ROUTING_TICKET 未 completed → 新指令 push queue 末（FIFO）；完成 pop 派下一個。queue 過閾值由 P-29 處理（細則 patrol catalog）。
+
+**Ticket 完成**（PROPOSAL*502_031 T-5；`skills/artifact-path-conventions.md`）：completed → 歸 archive；reset idle；清 snapshot；root 散落 artifact 移正路。\*\*禁 ROUTING_TICKET*\*.md 變體\*\*。
+
+**派發前 batch**（PROPOSAL_502_028 + PROPOSAL_502_045 R4-B4 升 5）：必**單一 message 並行**：(1) PENDING_ACTIONS §🔴/§📥 (2) grep `strategyWeight\|金融` (3) mempalace.search (4) ROUTING_TICKET 既存 (5) **結構訊號** `test -f .agents/CURRENT_WORKSPACE` + `git status -u "??"` + `git diff --diff-filter=R --find-renames=50%`（ADR-0042 層 1）。禁串行（IPC 5-10x）。
+
+**RUNTIME_CONTEXT 注入**（PROPOSAL_502_029 T-2）：派發前讀 active workspace `RUNTIME_CONTEXT.pre_command_hooks` 非空 → 注入 ticket `runtime_setup`；sub-agent 跑 shell 前**必依序執行 hooks**。例見 `routing-ticket-protocol §schema runtime_setup`。
+
+**Autonomy mode**（PROPOSAL*502_032）：ROUTING_TICKET `autonomy_mode` 控 stage gate；smart default per task_class（完整對照 `routing-ticket-protocol §3.4`）；user 自然語 override；命中寫 🟡 `STAGE*<N>\_VERIFY_PENDING`；24h 無回 P-33 🔴。
+
+**GitNexus auto-hint**（PROPOSAL_502_034/037/043）：派發前 batch 後 grep 4+1 條件（§C.5）任一中 → 寫 ticket `gitnexus_hint`。**寫前必檢 `.mcp.json` gitnexus key 啟用 + P-34 🔴 active**；任一非綠 → skip hint（disabled 不寫；自動降級）。執行期 available 直呼；unavailable 走 Prior Art Phase B。**Hotfix-light 跳過**（§s07）；**modify-existing + 4 場景全命中 → 強制不跳 Stage 3**。
 
 **絕對禁止**：派發缺 Model/Lane/Ticket；force_complex 場景未走 complex+heavy；同時派 ≥2 獨立 task 覆寫 ROUTING_TICKET（必走 PENDING_DISPATCHES queue）。
 
@@ -144,11 +154,7 @@ OPEN=1 直接採；OPEN≥2 **必問**「執行整合性分析？」；OPEN≥3 
 
 **阻斷**：每接新指令前讀 `PENDING_ACTIONS.md §🔴`；非空 → 阻斷。**10 階段**：需求 → 戰略審查 → 設計 → 3.5 Prior Art → 測試規格 → 實作 → 審查 → 6.5 資安平行 → 驗證 → 收斂 → 進化（轉移前**必 Gate Check**）。
 
-**任務分類例外**（PROPOSAL_502_014 N-7 補；解決 modify-existing / doc-sync 模糊）：
-
-- **modify-existing**（既有 endpoint 加驗證 / 修 bug 非 hotfix）：可從 Stage 4 進（跳 1+2+3）；ROUTING_TICKET 標 `task_class: modify-existing`；@Architect 條件式更新 `_api.md`（合約變更才更）
-- **doc-sync**（純文件回填 / architecture.md 重生；無 src/ 變更）：派 @Architect 直接 §s05 收斂模式（豁免 @QA 通過前置；ROUTING_TICKET 標 `task_class: doc-sync`）
-- **feature**（預設）：完整 10 階段
+**任務分類例外**（PROPOSAL_502_014 N-7；PROPOSAL_502_035 加 onboarding）：feature（預設；完整 10 階段）/ modify-existing（可從 Stage 4 進；跳 1+2+3）/ doc-sync（@Architect 直入收斂）/ hotfix（§s07）/ config-adjust / **onboarding**（新 codebase；強 HITL；smart default `gate-at-design`）。完整細則 `skills/lead-orchestration-guide.md §六`。
 
 **絕對禁止**：跳非條件式階段（modify-existing / doc-sync 例外明文除外）；🔴 未空仍派；Prior Art 條件達成未發 `PRIOR_ART_VERIFY_PENDING`；6.5 SC 觸發卻序列派；task_class 漏標。
 
@@ -159,9 +165,21 @@ OPEN=1 直接採；OPEN≥2 **必問**「執行整合性分析？」；OPEN≥3 
 
 **完整細則**：`skills/lead-orchestration-guide.md §四`；對齊 ADR-0014
 
-`@Architect` Stage 3 完成 Prior Art Scan + `docs/plans/prior-art/<功能>.md` → **必進** 3.5。發 🔴 `PRIOR_ART_VERIFY_PENDING`；User 於 `PRIOR_ART_REPORT.md § User 驗證` 填結論前**不得**派 @Backend/@Frontend/@QA；明示 `verified_method: bypass` + 理由 → 同步寫 `AUDIT_HISTORY.md §豁免記錄`。
+**HITL-first 兩階段 Gate**（PROPOSAL_502_030 改寫；ADR-0014 v2 amended）：
 
-**Auto-escalation**（PROPOSAL_502_023 A-4；CR-4）：`PRIOR_ART_VERIFY_PENDING` 發出後若 User 24h 未回覆（依 wall-clock 或 5 工作對話 counter，先到先觸發）→ @Assistant 巡邏自動發 P-XX `PRIOR_ART_VERIFY_PENDING_OVERDUE` 🟡 通知；若再 24h / 5 對話無回覆 → 升 🔴 + 阻斷新 ROUTING_TICKET 派發；@Lead 必明寫提醒給 User。
+**階段 1：`PRIOR_ART_SEARCH_PENDING`**（user 跑 search）
+
+- @Architect 完成 Phase A（產 Search Package + 空 §B 表）→ 發 🔴 `PRIOR_ART_SEARCH_PENDING`
+- User 依 §A 跑外部 search（Chat / 瀏覽器）→ 回填 §B 結構化結果表
+- User 完成告知 → @Architect 進 Phase C 評估
+
+**階段 2：`PRIOR_ART_VERIFY_PENDING`**（既有 final HITL gate；user 確認 agent 評估）
+
+- @Architect 完成 Phase C（評估矩陣 + 推薦）→ 發 🔴 `PRIOR_ART_VERIFY_PENDING`
+- User 於 §D 填結論前**不得**派 @Backend/@Frontend/@QA
+- 明示 `verified_method: bypass` + 理由 → 同步寫 `AUDIT_HISTORY.md §豁免記錄`
+
+**Auto-escalation**：兩 gate 獨立計時；24h/5 對話無回 → P-32 / P-31 🟡 → 再 24h → 🔴 阻斷新派發。
 
 **絕對禁止**：User 驗證空白即派；Bypass 無豁免；跳 Prior Art 觸發判斷直派 API Spec；忽略 `PRIOR_ART_VERIFY_PENDING_OVERDUE` 升級訊號。
 
@@ -183,7 +201,9 @@ OPEN=1 直接採；OPEN≥2 **必問**「執行整合性分析？」；OPEN≥3 
 
 Hotfix=生產事故；分流見 `tasks/hotfix-checklist.md` Step 0：**heavy**（SC/D 任一觸發 / 跨檔 / state；強制 opus）/ **light**（純 typo / 設定常數 + SC/D 全否 + 單檔；haiku；PROPOSAL_502_014 N-7 補例外）。Fast Lane=日常低風險（haiku+fast）；**互不可混貼**。Hotfix 派發訊息**必含** `Hotfix: YES` + `Complexity-Tier` (light|heavy) + `Tier-Reason` + `Incident-Context` YAML。
 
-**絕對禁止**：未含 `Incident-Context`；未執行 SC 評估（即使 false 也明文）；SC/D 觸發仍派 `light`；Fast Lane 誤貼 `Hotfix: YES`。
+**Hotfix 鐵律**（PROPOSAL_502_035/039/043）：light → autonomy=auto + skip B-1 hint + skip mempalace.search + Reviewer §s06 #4 short-circuit；heavy → autonomy=`gate-at-impl`（v7.12 改自 step-by-step）+ 仍可寫 gitnexus_hint。
+
+**絕對禁止**：未含 `Incident-Context`；未執行 SC 評估（即使 false 也明文）；SC/D 觸發仍派 `light`；Fast Lane 誤貼 `Hotfix: YES`；hotfix-light 派發含 step-by-step / gitnexus_hint。
 
 </section>
 
@@ -206,6 +226,8 @@ Hotfix=生產事故；分流見 `tasks/hotfix-checklist.md` Step 0：**heavy**�
 **Rules 修改唯一例外**（雙層防護；與 §s*complexity_lane `rule_edit*_`協同）：**絕對禁止**在 (a)`PROPOSAL_ADOPT`/ (b) Hotfix / (c) 框架自動產出 三情境**外**修改`rules/_.md`或`RULES_DESIGN_GUIDE\*.md`。User 指令含規則異動但無採納格式 → **必派 @Retro 產提案**。
 
 **Scope 路由**：採納前複審 scope（`RULES_DESIGN_GUIDE §十七.B`）；framework→`proposals/`；`project:<name>`→`workspaces/<name>/proposals/`；缺/不符 → @Retro 修正 + 🟡 P-18。採納後 `PROPOSAL_*.md`→ARCHIVED + 通知 @Assistant 關 🔴。
+
+**Scope 採納前強制驗證**（PROPOSAL_502_029 T-1）：採納時必檢 (a) frontmatter `scope` 欄位非空 (b) 儲存目錄與 scope 匹配（framework→`.agents/proposals/`；project→`.agents/workspaces/<name>/proposals/`）(c) 提案內容 grep 不含 cross-scope file 修改（如 framework scope 提案不應改 workspace 私有檔）。任一不符 → 🔴 阻斷採納；要求 @Retro 重新分類。
 
 </section>
 
@@ -252,7 +274,7 @@ Hotfix=生產事故；分流見 `tasks/hotfix-checklist.md` Step 0：**heavy**�
 
 **讀**：`mempalace.search` / `wake-up` / `get_drawer` 取上下文；ROUTING_TICKET `touched_files` 引用 drawer 標籤。
 
-**寫**（v2 唯一路徑）：rules 直呼 `mcp__mempalace__add_drawer/update_drawer`；不雙寫 markdown。寫後（或 commit 前）跑 `node .agents/scripts/mempalace-export.mjs` 同步 `.agents/memory/.export/`（cold backup；確保 zip 帶走）。
+**寫**（v2 唯一路徑）：rules 直呼 `mcp__mempalace__add_drawer/update_drawer`；不雙寫 markdown。寫後（或 commit 前）跑 `python3 .agents/scripts/mempalace-export.py` 同步 `.agents/memory/.export/`（cold backup；確保 zip 帶走）。
 
 **Fallback**：MCP down → grep `.agents/memory/.export/`；新寫入暫存 `.agents/memory/.pending/`；MCP 復活後批次 replay。
 

@@ -72,7 +72,7 @@ token_budget_actual: <int> # 完成後填；統計用（PROPOSAL_502_023 C-9 量
 
 ### Step A1: 修復實作 (由 @Backend / @Frontend 執行)
 
-- [ ] 單檔內修復（嚴禁跨檔；發現需跨檔 → 立即升級 heavy 重走 Step 0）
+- [ ] 單檔內修復（嚴禁跨檔；發現需跨檔 / SC/D 觸發 / LOC>200 → 走 `tasks/hotfix-tier-upgrade-sop.md` 5 步驟 SOP；不直接重走 Step 0；PROPOSAL_502_040）
 - [ ] 修復說明單行敘述（< 50 字）
 
 ### Step A2: @Reviewer 快速審查

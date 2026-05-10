@@ -1,0 +1,33 @@
+# LangGraph runtime dependencies (v8.0)
+# 由 PROPOSAL_502_050 + ADR-0046 建立
+# 安裝：pip install -r .agents/runtime/requirements.txt
+
+# Core LangGraph 1.x
+langgraph>=1.0.0,<2.0.0
+langgraph-checkpoint-sqlite>=2.0.0
+
+# LangChain core (BaseChatModel for adapter)
+langchain-core>=0.3.0
+
+# MCP server / sampling
+mcp>=1.0.0
+
+# Optional: per-provider adapters (user 自選；installs 時 pip install -e ".[anthropic,openai,...]")
+# langchain-anthropic>=0.2.0
+# langchain-openai>=0.2.0
+# langchain-ollama>=0.2.0
+
+# Schema / serialization
+pydantic>=2.0.0
+pyyaml>=6.0
+
+# msgpack (checkpointer; LangGraph 預設 serializer)
+msgpack>=1.0.0
+
+# Async / utilities
+anyio>=4.0.0
+typing-extensions>=4.10.0
+
+# Test
+pytest>=8.0.0
+pytest-asyncio>=0.23.0

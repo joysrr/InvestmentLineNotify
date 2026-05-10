@@ -78,7 +78,7 @@ modification_policy: |
 2. **立案**：走標準提案流程（@Retro 產提案 → @Lead 採納）
 3. **建檔**：新建 `iron-rules/<theme>.md` + 完整 frontmatter
 4. **改 rules**：對應 rules 加 `applies_iron_themes` + 1 行入口 section
-5. **驗證**：`bash .agents/tests/run-all.sh --validator iron_theme` 雙向一致性 PASS
+5. **驗證**：`python3 .agents/tests/run-all.py --validator iron_theme` 雙向一致性 PASS
 6. **CHANGELOG**：本提案產 entry
 
 ---

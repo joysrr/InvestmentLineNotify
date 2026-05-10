@@ -50,7 +50,7 @@ cp -r ~/other-project/.agents /tmp/latest-framework
 
 ```bash
 cd <本專案根目錄>
-node .agents/scripts/framework-diff.mjs --target /tmp/latest-framework/.agents
+python3 .agents/scripts/framework-diff.py --target /tmp/latest-framework/.agents
 ```
 
 **預期輸出**：
@@ -87,7 +87,7 @@ node .agents/scripts/framework-diff.mjs --target /tmp/latest-framework/.agents
 cp /tmp/latest-framework/.agents/WORKSPACE_SCHEMA.yaml .agents/WORKSPACE_SCHEMA.yaml
 
 # 驗證本專案 workspace 是否符合新 schema
-node .agents/tests/workspace-schema-validator.mjs --workspace <本專案>
+python3 .agents/tests/workspace-schema-validator.py --workspace <本專案>
 ```
 
 若缺新 required 欄位 → exit 2；**必須先補填 workspace 實值再繼續**。
@@ -95,7 +95,7 @@ node .agents/tests/workspace-schema-validator.mjs --workspace <本專案>
 ### Step 5：執行當前 `.agents/` 驗證（升級前基線）
 
 ```bash
-bash .agents/tests/run-all.sh 2>&1 | tee /tmp/pre-upgrade-validation.log
+python3 .agents/tests/run-all.py 2>&1 | tee /tmp/pre-upgrade-validation.log
 ```
 
 記錄當前狀態：
@@ -130,7 +130,7 @@ cp /tmp/latest-framework/.agents/FRAMEWORK_VERSION .agents/
 ### Step 7：執行升級後驗證
 
 ```bash
-bash .agents/tests/run-all.sh 2>&1 | tee /tmp/post-upgrade-validation.log
+python3 .agents/tests/run-all.py 2>&1 | tee /tmp/post-upgrade-validation.log
 
 # 比對升級前後
 diff /tmp/pre-upgrade-validation.log /tmp/post-upgrade-validation.log
@@ -183,7 +183,7 @@ git commit -m "framework 升級: vX.Y → vZ.W（參照 CHANGELOG）"
 ```bash
 git status # 檢視變更清單
 git restore .agents/ # 回滾所有 .agents/ 變更至升級前
-bash .agents/tests/run-all.sh # 確認回滾成功
+python3 .agents/tests/run-all.py # 確認回滾成功
 ```
 
 ### 回滾方式 B：針對特定檔案
@@ -193,7 +193,7 @@ bash .agents/tests/run-all.sh # 確認回滾成功
 git restore .agents/RULES_DESIGN_GUIDE.md
 git restore .agents/SYSTEM_THRESHOLDS.yaml
 # 再次驗證
-bash .agents/tests/run-all.sh
+python3 .agents/tests/run-all.py
 ```
 
 ### 回滾方式 C：回到特定 commit
@@ -201,7 +201,7 @@ bash .agents/tests/run-all.sh
 ```bash
 git log --oneline -10 .agents/ # 找到升級前 commit
 git checkout <commit-sha> -- .agents/
-bash .agents/tests/run-all.sh
+python3 .agents/tests/run-all.py
 ```
 
 ---
@@ -218,7 +218,7 @@ bash .agents/tests/run-all.sh
 ## 溯源
 
 - 建立提案：PROPOSAL_20260423_001 Part 6
-- 搭配工具：`.agents/scripts/framework-diff.mjs`
+- 搭配工具：`.agents/scripts/framework-diff.py`
 - 版本識別：`.agents/FRAMEWORK_VERSION` + `.agents/CHANGELOG.md`
 - 對齊原則：User 2026-04-23「專注 .agents 自身改善」（無外部 CI/CD / runtime monitor / 第三方評測依賴）
 

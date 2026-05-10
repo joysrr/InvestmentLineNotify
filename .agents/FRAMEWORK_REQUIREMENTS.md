@@ -1,43 +1,45 @@
 # .agents/ Framework Requirements
 
-> 依 PROPOSAL_20260423_013 建立；明文宣告框架跨專案搬運時的 runtime 要求與語言選擇規範。
-> 避免 Agent 自行引入異質 runtime（Python / Go / .NET）造成框架分裂。
+> 依 PROPOSAL_20260423_013 建立；PROPOSAL_502_027 v7.0 後**Python primary**（Node.js / Bash 已 deprecated）。
+> 明文宣告框架跨專案搬運時的 runtime 要求與語言選擇規範；避免 runtime 分裂。
 
 ---
 
-## 1. 最低 Runtime 要求
+## 1. 最低 Runtime 要求（v7.0 Node-free milestone 後）
 
-| 項目             | 最低版本                                     | 必需 / 可選                                     | 用途                                                                              |
-| ---------------- | -------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------- |
-| **Node.js**      | **18.0+**                                    | 必需                                            | 所有 `.mjs` generators / validators / scripts                                     |
-| **Bash**         | **4.0+**（Linux/macOS）/ Git Bash（Windows） | 必需                                            | `run-all.sh` / `index-drift-validator.sh` / `hooks/*`                             |
-| **git**          | 2.25+                                        | 必需                                            | 版本控制 + `git mv` / `git diff`                                                  |
-| **Python**       | **3.9+**                                     | **必需**（PROPOSAL_20260502_001 + ADR-0039 後） | MemPalace memory backend                                                          |
-| **pip**          | 24.0+                                        | 必需                                            | `pip install mempalace`                                                           |
-| **mempalace**    | **3.3.4+**                                   | 必需                                            | Memory Palace primary backend（github.com/MemPalace/mempalace；MIT；local-first） |
-| .NET / Go / Rust | —                                            | ❌ 禁止                                         | 避免 runtime 分裂                                                                 |
+| 項目             | 最低版本   | 必需 / 可選                                     | 用途                                                                              |
+| ---------------- | ---------- | ----------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Python**       | **3.9+**   | **必需**                                        | 所有 framework scripts / validators / generators（v7.0 後唯一 runtime）           |
+| **pip**          | 24.0+      | 必需                                            | `pip install mempalace`                                                           |
+| **mempalace**    | **3.3.4+** | 必需                                            | Memory Palace primary backend（github.com/MemPalace/mempalace；MIT；local-first） |
+| **pyyaml**       | latest     | 必需（mempalace 已要求）                        | YAML parsing for init-workspace --config                                          |
+| **git**          | 2.25+      | 必需                                            | 版本控制                                                                          |
+| ~~Node.js~~      | ~~18.0+~~  | **deprecated**（v7.0 archived；無 active .mjs） | 舊 .mjs.archive 保留作 fallback；不需安裝                                         |
+| ~~Bash~~         | ~~4.0+~~   | **deprecated**（v7.0 archived；無 active .sh）  | 同上                                                                              |
+| .NET / Go / Rust | —          | ❌ 禁止                                         | 避免 runtime 分裂                                                                 |
 
-**檢查指令**：
+**檢查指令**（v7.0 後）：
 
 ```bash
-node --version              # v18.x 或以上
-bash --version              # 4.x 或以上
-python3 --version           # 3.9.x 或以上（ADR-0039 後）
-pip3 show mempalace         # version 3.3.4+ 必裝
+python3 --version           # 3.9+ 必需
+pip3 show mempalace         # 3.3.4+ 必裝
+git --version               # 2.25+ 必需
 ```
+
+> **跨平台 100%**（v7.0 milestone）：Windows native cmd / minimal Docker image 無需裝 Node + Bash 即可跑全 framework。Python 是 mempalace 已要求的 runtime；無新增依賴。
 
 ---
 
-## 2. 依賴原則（修訂自 PROPOSAL_20260502_001 / ADR-0039）
+## 2. 依賴原則（v7.0 後）
 
-### 2.1 Node.js 依賴管理（鐵律）
+### 2.1 ~~Node.js~~ 依賴管理 — **DEPRECATED**
 
-- **絕對禁止** 在 `.agents/scripts/` 下引入 `package.json` / `node_modules`
-- 所有 `.mjs` 只能 import `node:*` 內建模組：
-  - ✅ `node:fs` / `node:path` / `node:readline` / `node:child_process` / `node:url` / `node:test` / `node:assert`
-  - ❌ 任何第三方 package（如 `yaml`、`marked`、`commander`）
+PROPOSAL_502_027 後所有 .mjs → .archive；不再為 active runtime。歷史紀錄：
 
-### 2.2 Python 依賴（PROPOSAL_20260502_001 + ADR-0039）
+- ~~所有 `.mjs` 只能 import `node:*` 內建模組~~（已不適用；v7.0 後 archived）
+- 若需查看 .mjs.archive 可參考歷史；不影響現行 framework
+
+### 2.2 Python 依賴（PROPOSAL_20260502_001 + ADR-0039 + ADR-0040）
 
 **允許依賴白名單**（local-first；MIT/開源；MCP-compatible）：
 
@@ -69,35 +71,32 @@ pip install mempalace>=3.3.4
 - **跨專案搬運可行**：`cp -r .agents/ /new-project/` + `pip install mempalace` 兩步即可
 - **版本衝突管理**：建議使用 venv（per project / per workspace）
 - **離線可用**：MemPalace local-first；core path 無網路依賴
-- **LLM Agent 可自檢**：grep `node:` 確認 Node 合規；`pip show mempalace` 確認 Python 合規
+- **LLM Agent 可自檢**：`pip show mempalace` 確認；`python3 .agents/tests/run-all.py` 18/18 全綠 = 部署完整
 
 ---
 
-## 3. 腳本語言選擇規範
+## 3. 腳本語言規範（v7.0 後；對齊 ADR-0040）
 
 ### 3.1 優先順序
 
-| 任務類型                                     | 首選                    | 次選    | 禁止                  |
-| -------------------------------------------- | ----------------------- | ------- | --------------------- |
-| 資料處理 / generator / validator（邏輯為主） | **Node.js `.mjs`**      | —       | Python / Go           |
-| 跨平台 entry point / 簡單 orchestrator       | **Bash `.sh`**（POSIX） | Node.js | 平台專屬 shell        |
-| 複雜 CLI / 互動式                            | **Node.js `.mjs`**      | —       | —                     |
-| Git hooks                                    | Bash / Node.js 皆可     | —       | —                     |
-| 單元 / 整合測試                              | **`node:test` + Bash**  | —       | Jest / Mocha / pytest |
+| 任務類型                                      | 首選                                       | 禁止                |
+| --------------------------------------------- | ------------------------------------------ | ------------------- |
+| 任何 framework script / validator / generator | **Python 3.9+**                            | Node / Bash / 其他  |
+| Git hooks                                     | **Python**（git pre-commit / post-commit） | Bash（已 archived） |
+| 單元 / 整合測試                               | **`unittest` / 純 Python**                 | `node:test`         |
 
-### 3.2 Node.js ESM（`.mjs`）規範
+### 3.2 Python 規範
 
-- 副檔名一律 `.mjs`（純 ESM；不用 `.js` 或 `.cjs`）
-- CLI 腳本頂部加 shebang：`#!/usr/bin/env node`
-- CLI entry 用 `import.meta.url === \`file://${process.argv[1]}\`` 守衛，支援 test import
-- export 純函式供 `.agents/tests/*.test.mjs` 單元測試
+- 副檔名 `.py`
+- shebang `#!/usr/bin/env python3` + chmod +x
+- 純 stdlib 為主（`subprocess` / `pathlib` / `re` / `json` / `argparse`）
+- pyyaml 唯一允許第三方依賴（mempalace 已要求）
+- 不允許新增 pip 依賴（如需新依賴必先立提案）
+- 完整撰寫規範：`.agents/skills/script-language-policy.md`
 
-### 3.3 Bash 規範
+### 3.3 ~~Bash~~ — DEPRECATED
 
-- 頂部 `#!/bin/bash`（避免 `/bin/sh` 在 Debian/Ubuntu 下退化為 dash）
-- 開頭 `set +e`（框架驗證採警告模式不中斷）
-- 避免 Bash 4+ 專屬語法（如 `declare -A` 僅在確認 Bash 4+ 環境使用）
-- Windows 相容：避免 `readarray` / `mapfile`（Git Bash 舊版不支援）
+v7.0 後不新增；既有 .sh.archive 保留作歷史。
 
 ---
 
@@ -206,25 +205,25 @@ mkdir -p .agents/workspaces/
 # rm -rf .agents/proposals/completed/* .agents/proposals/archived/*
 
 # 4. 驗證框架（含 proposal_scope validator 會自動攔截 scope 誤放）
-bash .agents/tests/run-all.sh --fast
+python3 .agents/tests/run-all.py --fast
 
 # 5. 初始化新 workspace（自動建 project proposals/ 空殼）
-node .agents/scripts/init-workspace.mjs --name <newproject>
+python3 .agents/scripts/init-workspace.py --name <newproject>
 
 # 6. 確認新專案 workspace 就位
-bash .agents/tests/index-drift-validator.sh
+python3 .agents/tests/index-drift-validator.py
 ```
 
 ### 6.4 搬運後驗收
 
 ```bash
 # 檢查 framework 提案均為 scope: framework
-node .agents/tests/proposal-scope-validator.mjs
+python3 .agents/tests/proposal-scope-validator.py
 # 預期：framework area 全 IN_SYNC；workspace area 若已初始化應為空
 
 # 檢查索引同步
-node .agents/scripts/generators/gen-proposal-index.mjs --check
-node .agents/scripts/generators/gen-proposal-index.mjs --workspace <newproject> --check
+python3 .agents/scripts/generators/gen-proposal-index.py --check
+python3 .agents/scripts/generators/gen-proposal-index.py --workspace <newproject> --check
 ```
 
 若上述任一步驟失敗，檢查：

@@ -146,7 +146,7 @@ tech_stacks:
 ### Step 4：呼叫 `init-workspace --config`
 
 ```bash
-node .agents/scripts/init-workspace.mjs --config /tmp/onboarding-<timestamp>.yaml
+python3 .agents/scripts/init-workspace.py --config /tmp/onboarding-<timestamp>.yaml
 ```
 
 Agent 用 Bash 工具執行；等待回傳 exit code。
@@ -165,7 +165,7 @@ init 完成後 agent **主動**：
 1. 回顯 workspace 建立資訊（workspace 路徑 / installed stacks 數）
 2. 提醒 User：
    - 第一次 30 天後會由 `@Assistant P-23` 自動提醒 audit
-   - 可手動任何時候跑 `node .agents/scripts/tech-stack-manage.mjs audit`
+   - 可手動任何時候跑 `python3 .agents/scripts/tech-stack-manage.py audit`
 3. 交棒：
    > ✅ Workspace 建立完成。您可以：
    >

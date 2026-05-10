@@ -23,19 +23,19 @@
 
 ```bash
 # Full（預設；12 並行 + scripts 序列；< 30 sec）
-bash .agents/tests/run-all.sh
+python3 .agents/tests/run-all.py
 
 # Fast（依 git diff 跳過無關 validators；通常 < 5 sec）
-bash .agents/tests/run-all.sh --fast
+python3 .agents/tests/run-all.py --fast
 
 # Single validator（極速反覆測試）
-bash .agents/tests/run-all.sh --validator <name>
+python3 .agents/tests/run-all.py --validator <name>
 
 # Regenerate auto-generated indexes（4 自動 + 2 手動提示）
-bash .agents/tests/run-all.sh --regenerate-indexes
+python3 .agents/tests/run-all.py --regenerate-indexes
 
 # 顯示完整說明
-bash .agents/tests/run-all.sh --help
+python3 .agents/tests/run-all.py --help
 ```
 
 ---
@@ -66,12 +66,12 @@ bash .agents/tests/run-all.sh --help
 
 > 不在 `run-all.sh` 批次內；由特定 Agent 或人工於需要時呼叫。
 
-| Name                            | 用途                                              | 觸發時機                             | 呼叫                                                      |
-| ------------------------------- | ------------------------------------------------- | ------------------------------------ | --------------------------------------------------------- |
-| `adr-validator.mjs`             | ADR 引用清理進度（Type A/B/C 統計；warning mode） | PROPOSAL_20260423_016 Batch 2-5 期間 | `node .agents/tests/adr-validator.mjs`                    |
-| `artifact-format-validator.mjs` | REVIEW/SECURITY/TEST_REPORT M2M 合約              | @QA / @Reviewer / @Security 收尾     | `node .agents/tests/artifact-format-validator.mjs <file>` |
-| `lead-stateless-audit.mjs`      | @Lead 三鐵律（PENDING_ACTIONS + 對話歷史）        | @Auditor 定期評分時                  | `node .agents/tests/lead-stateless-audit.mjs`             |
-| `validate-auditor-dispatch.mjs` | @Auditor 派發頻率合規（避免過頻）                 | @Lead 派發 @Auditor 前 self-check    | `node .agents/tests/validate-auditor-dispatch.mjs`        |
+| Name                            | 用途                                              | 觸發時機                             | 呼叫                                                        |
+| ------------------------------- | ------------------------------------------------- | ------------------------------------ | ----------------------------------------------------------- |
+| `adr-validator.mjs`             | ADR 引用清理進度（Type A/B/C 統計；warning mode） | PROPOSAL_20260423_016 Batch 2-5 期間 | `python3 .agents/tests/adr-validator.py`                    |
+| `artifact-format-validator.mjs` | REVIEW/SECURITY/TEST_REPORT M2M 合約              | @QA / @Reviewer / @Security 收尾     | `python3 .agents/tests/artifact-format-validator.py <file>` |
+| `lead-stateless-audit.mjs`      | @Lead 三鐵律（PENDING_ACTIONS + 對話歷史）        | @Auditor 定期評分時                  | `python3 .agents/tests/lead-stateless-audit.py`             |
+| `validate-auditor-dispatch.mjs` | @Auditor 派發頻率合規（避免過頻）                 | @Lead 派發 @Auditor 前 self-check    | `python3 .agents/tests/validate-auditor-dispatch.py`        |
 
 ---
 
@@ -84,7 +84,7 @@ bash .agents/tests/run-all.sh --help
 | `auto-generated-block.test.mjs` | `scripts/generators/lib/auto-generated-block.mjs`（10 cases）               | 自訂 mini-runner |
 | `gen-proposal-index.test.mjs`   | `scripts/generators/gen-proposal-index.mjs::parseProposalStatus`（7 cases） | 自訂 mini-runner |
 
-呼叫：包含於 `bash .agents/tests/scripts/run.sh`（L1 段 3 套件並列）。
+呼叫：包含於 `python3 .agents/tests/scripts/run.py`（L1 段 3 套件並列）。
 
 ---
 
@@ -99,7 +99,7 @@ bash .agents/tests/run-all.sh --help
 | L1  | `gen-proposal-index.test.mjs`（root）   | parseProposalStatus（PROPOSAL_20260423_012）         |
 | L3  | `smoke.test.sh`                         | init-workspace / framework-diff / run-all bash smoke |
 
-呼叫：`bash .agents/tests/scripts/run.sh`（會被 `run-all.sh` 序列段自動帶起，避免 workspace 競爭）。
+呼叫：`python3 .agents/tests/scripts/run.py`（會被 `run-all.sh` 序列段自動帶起，避免 workspace 競爭）。
 
 ---
 

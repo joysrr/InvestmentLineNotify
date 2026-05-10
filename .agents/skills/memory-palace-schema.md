@@ -54,6 +54,8 @@ Per-Workspace Wing：<workspace_id>（如 agent_framework / investment-line / �
     architecture        — 本 workspace 模組地圖
     strategy_context    — 本 workspace 參數變更脈絡
     debug_graveyard     — 本 workspace 踩坑
+    refactor_log        — refactor/rename/impact 事件摘要（PROPOSAL_502_036；ADR-0041 v3）
+    index               — workspace 索引 drawer（PROPOSAL_502_035 onboarding Step 4.5）
     [User 可加自訂 rooms：如 finance / api / ux 等]
 
   Markdown SoT (backup):
@@ -61,6 +63,72 @@ Per-Workspace Wing：<workspace_id>（如 agent_framework / investment-line / �
     .agents/workspaces/<ws>/memory/strategy_context/INDEX.md + entries
     .agents/workspaces/<ws>/memory/debug_graveyard/INDEX.md + entries
 ```
+
+### 2.2.0 Framework vs Workspace Wing 判定 Flowchart（PROPOSAL_502_038 G-E4 修補）
+
+寫 drawer 時若不確定該入 `framework` wing 還是 `<workspace_id>` wing：
+
+```
+touched_files 主要在 .agents/ 內（rules / skills / tasks / decisions 等）？
+  └─ Yes → framework wing
+  └─ No → 進下一步
+
+touched_files 主要在 src/ / docs/ / 業務碼 / workspace 設定？
+  └─ Yes → <workspace_id> wing（CURRENT_WORKSPACE）
+  └─ No → 混合 → 主要影響哪邊就歸哪邊
+
+特殊：
+  - 框架 API / 套件 / Concurrency 踩坑 → framework/debug_graveyard
+  - 業務邏輯 / endpoint / UI 踩坑 → <ws>/debug_graveyard
+  - 跨 workspace 通用 lesson → framework；單 workspace lesson → <ws>
+```
+
+模糊時 default 走 `<workspace_id>`（避免污染 framework wing）。
+
+### 2.2.1 GitNexus Summary Drawer Template（PROPOSAL_502_036；ADR-0041 v3）
+
+寫入 room=`refactor_log` 的標準 template：
+
+```yaml
+# Header（前 5 行；mempalace embedding index 前 ~256 token）
+File: <event_topic> # 例 "rename getUserOrders"
+Type: refactor | impact_analysis | debug_root_cause | onboarding_index
+Wing: <workspace_id>
+Tags: <comma-separated; 含 symbol 名稱>
+Summary: <one-line takeaway; ≤80 chars>
+---
+# Body（≤200 chars 摘要 + 結構化欄位；caller list 永不寫死於此）
+event_type: refactor | impact | debug | onboarding
+symbol: <function or module name>
+aliases: [] # PROPOSAL_502_042 GR-H3；rename 後舊名清單；search embedding 命中舊名亦可找到（如 [getUserOrders] for new fetchUserOrders drawer）
+decision: <what was decided / done>
+regenerate_via: "gitnexus impact <symbol>" # ← 鐵律 2-A：caller list 改用指針而非寫死
+caller_count_at_write: 0 # PROPOSAL_502_042 GR-H1；數字快照（不寫 list；保 audit trail 時間切片）
+commit_hash_at_write: <git rev-parse HEAD> # PROPOSAL_502_042 GR-H1；commit hash；audit 「當時影響面」+「現在影響面」雙視角
+last_verified_at: <ISO8601>
+related_drawers: [<list of drawer_id>] # 同 wing 相關 drawer
+superseded_by_drawer_id: null # update 時填（解 G-E2 衝突仲裁；同 room 才可 supersede；見下方 R3-C2 鐵律）
+split_into_symbols: [] # PROPOSAL_502_041 + PROPOSAL_502_043 R3-C1 拆 type；結構性 drift 1→N 拆分時填 symbol 名 list
+split_into_drawer_ids: [] # 同上；新拆 drawer 的 id list（語意層；含跨 wing 但 cross-room 用此標）
+merged_from_symbols: [] # PROPOSAL_502_043 R3-C1 拆 type；結構性 drift N→1 合併時填 symbol 名 list
+superseded_drawer_ids: [] # 替代既有 merged_from 模糊；同 wing 可加；跨 wing/不同 room 改用 cross_referenced
+cross_referenced_drawer_id: [] # PROPOSAL_502_043 R3-C2；跨 wing/room 性質不同 drawer 用此（不視為 supersede；保 lesson 不過期）
+body: <事件摘要；≤200 chars>
+```
+
+**跨 wing/room supersede 鐵律**（PROPOSAL_502_043 R3-C2）：
+
+- ❌ **絕對禁止** 跨 room 用 `superseded_by_drawer_id`（如 architecture room drawer 不該被 refactor_log room drawer supersede）
+- ❌ **絕對禁止** debug_graveyard 條目被 supersede（lesson 不過期；race condition 教訓恆有效）
+- ✅ 跨 wing/room 改用 `cross_referenced_drawer_id`（不切斷 search 鏈；保 lesson）
+- ✅ debug_graveyard 條目隨 refactor 變化 → update_drawer 加 `last_verified_at` + `affected_symbol_renamed_to: <new>`（不 supersede）
+
+**為何不寫死 caller list**：
+
+- GitNexus per-repo `.gitnexus/` 索引可重建；每次 `gitnexus analyze` 結果 fresh
+- 若 caller list 寫死進 drawer → 半年後 rename / refactor 後過期 → drawer 變死資料
+- 鐵律 1「mempalace 永遠是 SoT」反讓 agent 信任過期資訊
+- 改寫 `regenerate_via` 指針 → drawer 永遠 fresh；agent 需要 caller 時動態查 GitNexus
 
 ### 2.3 Drawers（單一條目）
 

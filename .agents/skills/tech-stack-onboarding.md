@@ -189,16 +189,16 @@ tech-stacks/<category>/<name>/
 
 ```bash
 # 1. tech-stack-validator 確認 MANIFEST ↔ 實體檔案 ↔ 依賴正確
-node .agents/tests/tech-stack-validator.mjs
+python3 .agents/tests/tech-stack-validator.py
 
 # 2. schema-validator 確認 ADR-0015 六鐵律
-node .agents/tests/schema-validator.mjs
+python3 .agents/tests/schema-validator.py
 
 # 3. ref-validator 確認沒有 broken reference
-node .agents/tests/ref-validator.mjs
+python3 .agents/tests/ref-validator.py
 
 # 4. 全套測試
-bash .agents/tests/run-all.sh --fast
+python3 .agents/tests/run-all.py --fast
 ```
 
 所有 validator 通過 → 提交 commit；撰寫 CHANGELOG 條目（若 framework scope 則同步 bump version）。

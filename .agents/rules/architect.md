@@ -96,12 +96,15 @@ rule_category: worker
 
 **前置 1 — 範疇評估**：依 §s03 → S/M/L 對應 DoD。
 
-**前置 2 — Prior Art Scan**（ADR-0014；`RULES_DESIGN_GUIDE §十八`）：
+**前置 2 — Prior Art Scan**（ADR-0014；PROPOSAL_502_030 HITL-first）：
 
-- **觸發**：`§十八.A C1/C2/C3` 任一（@Planner 標記 / LOC > 500 / User 含「改版/重構/refactor/redesign」）
-- **完整 6 步驟 + DoD + 模板**：`skills/checklists/prior-art-scan-checklist.md` + `skills/templates/prior-art-report-template.md`
-- **產出**：`docs/plans/prior-art/<功能>.md` → 通知 @Lead 觸發 HITL Gate（User WebSearch 驗證）
-- **排除**：`bugfix` / `hotfix` / `style` / `doc` / 單檔 < 100 LOC → API Spec 備註
+- **觸發**：`§十八.A C1/C2/C3` 任一（@Planner 標記 / LOC > 500 / User 含改版重構等）
+- **三段**（agent-prep → user-search → agent-analyze；完整 SOP `skills/checklists/prior-art-scan-checklist.md`）：
+  - Phase A：agent 產 Search Package（keywords + 管道 + 待填表）→ 發 🔴 `PRIOR_ART_SEARCH_PENDING`
+  - Phase B：User 自跑 search（Chat/瀏覽器）→ 回填 §B 結構表
+  - Phase C：agent 讀結果 → 評估矩陣 + 候選排序（≥3；≥2 外部+1 自建）+ 建議 → 發 🔴 `PRIOR_ART_VERIFY_PENDING`
+- **產出**：`docs/plans/prior-art/<功能>.md`；template `skills/templates/prior-art-report-template.md`
+- **排除**：`bugfix`/`hotfix`/`style`/`doc`/單檔 < 100 LOC → API Spec 備註
 
 **Prior Art 絕對禁止**：觸發跳 Scan / 候選 < 3（≥2 外部 + 1 自建）/ 評估矩陣留白 / 未讀 `EVALUATED_PACKAGES` 即開始。
 

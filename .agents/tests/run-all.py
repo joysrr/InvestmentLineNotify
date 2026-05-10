@@ -50,6 +50,9 @@ VALIDATOR_CMD = {
     "sub_agent_dispatch": f"python3 {SCRIPT_DIR / 'sub-agent-dispatch-validator.py'}",
     "workflow_stage": f"python3 {SCRIPT_DIR / 'workflow-stage-validator.py'}",
     "user_execution_language": f"python3 {SCRIPT_DIR / 'user-execution-language-validator.py'}",
+    "root_artifact_pollution": f"python3 {SCRIPT_DIR / 'root-artifact-pollution-validator.py'}",
+    "condition_claim": f"python3 {SCRIPT_DIR / 'condition-claim-validator.py'}",
+    "schema_completeness": f"python3 {SCRIPT_DIR / 'schema-completeness-validator.py'}",
 }
 
 VALIDATOR_TITLE = {
@@ -70,6 +73,9 @@ VALIDATOR_TITLE = {
     "sub_agent_dispatch": "Sub-agent Dispatch Validator",
     "workflow_stage": "Workflow Stage Validator",
     "user_execution_language": "User Execution Language Validator (PROPOSAL_502_025; Python)",
+    "root_artifact_pollution": "Root Artifact Pollution Validator (PROPOSAL_502_031 T-4)",
+    "condition_claim": "Condition-Claim Meta-Validator (PROPOSAL_502_047 C-1)",
+    "schema_completeness": "Schema Completeness Meta-Validator (PROPOSAL_502_047 C-2)",
 }
 
 

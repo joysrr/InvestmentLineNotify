@@ -85,7 +85,7 @@ def failed(name: str, reason: str):
 
 # -------- Helpers --------
 def generate_minimal_input(display_name: str) -> str:
-    """41 行最小輸入序列；對齊 .sh generate_minimal_input。"""
+    """43 行最小輸入序列；對齊 .sh generate_minimal_input。"""
     lines = [
         display_name,    # 1  PROJECT_CONTEXT.display_name
         "示範專案",       # 2  business_domain
@@ -98,7 +98,9 @@ def generate_minimal_input(display_name: str) -> str:
         "", "", "",      # 30-32
         "", "",          # 33-34
         "", "", "", "", "", "",  # 35-40
-        "y",             # 41 確認執行
+        "",              # 41 RUNTIME_CONTEXT block（PROPOSAL_502_029 T-2；optional；空跳過）
+        "",              # 42 GITNEXUS_INTEGRATION block（PROPOSAL_502_038；optional；空跳過）
+        "y",             # 43 確認執行
     ]
     return "\n".join(lines) + "\n"
 

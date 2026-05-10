@@ -104,9 +104,9 @@ OPEN →採納→ IN_PROGRESS →完成→ DONE →2 週期→ ARCHIVED
 User：「採納/拒絕提案 PROPOSAL_YYYYMMDD_NNN[，原因：...]」
 ```
 
-**Scope**：列檔→prefix 分類→跨類強拆；`proposal-scope-validator.mjs` 攔。**Full/Lite**：預設 Full；Lite 須全滿足（不動行為 / 不跨檔 / 不需根因 / LOC ≤ 50 / ≤ 2 phases / ≤ 1h）；觸 Full 立即改。**Pre-Commit**：動 `proposals/` `.md` 或 rules frontmatter `version` → 必跑對應 generator；`run-all.sh index_drift` 自動 block。
+**Scope 起草前判定**（PROPOSAL_502_029 T-1）：(1) 提及 workspace? → `project:<name>`；存 `workspaces/<name>/proposals/`。(2) 涉 `.agents/{rules,decisions,iron-rules,skills,tasks}`? → `framework`。(3) 不確定 → 必問 User；禁擅自選 framework。`proposal-scope-validator.py` 攔誤分類。**Full/Lite**：預設 Full；Lite 須全滿足（不動行為 / 不跨檔 / 不需根因 / LOC ≤ 50 / ≤ 2 phases / ≤ 1h）；觸 Full 立即改。**Pre-Commit**：動 `proposals/` `.md` 或 rules frontmatter `version` → 必跑對應 generator；`run-all.py index_drift` 自動 block。
 
-**絕對禁止**：CANCELLED 編號重用；混合 scope 同提案；Lite 跨 ≥ 2 主檔；動 proposals 後未跑 generator commit。
+**絕對禁止**：CANCELLED 編號重用；混合 scope 同提案；Lite 跨 ≥ 2 主檔；動 proposals 後未跑 generator commit；**scope 模糊預設 framework**（必明確；不確定問 User）。
 
 </section>
 
@@ -143,6 +143,9 @@ framework `PROPOSAL_YYYYMMDD_NNN`；project `<PREFIX>_PROPOSAL_YYYYMMDD_NNN`（P
   - 提案完成日期 > 2 個審計週期前（即 ≥ 20 工作對話前；對齊 retro.md §s07 ARCHIVED 條件）
   - 該提案被新提案明文 `superseded_by` 覆蓋
   - 該提案屬已 closed sprint（無後續引用 / 無 KI 對應）
+
+**Reports cleanup**（PROPOSAL_502_031 v2）：批次歸檔時一併清 `.agents/archive/reports/{review,security,test}/` mtime > 30 天舊檔（無 KI 引用即刪）。
+
 - **保留條件**（任一即保留 completed/）：
   - 完成日期 < 2 個審計週期
   - 被當前 active KI 引用

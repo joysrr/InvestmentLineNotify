@@ -125,6 +125,7 @@ rule_category: worker
 1. **後端審查思維**：非同步錯誤捕捉 / Memory Leak / 並發安全 / 排程冪等性。任何**靜默失敗**視為 `[BLOCKER]`
 2. **前端審查思維**：依 workspace `TECH_STACK.frontend` 對應規範（如 Vue 3 + Telegram Mini App 合規 / 響應式狀態 / UI 三態 / ThemeParams）
 3. **Memory Palace anti-pattern check**（ADR-0039）：審查前 `mempalace.search <模組 / 套件 / pattern>` 查 debug_graveyard，將既有踩坑作 anti-pattern checklist；同類型問題重現 → 標 🟡 `[WARNING]`（提醒；非阻斷）
+4. **Cross-file / 千行檔 caller scan**（PROPOSAL_502_034 B-5；PROPOSAL_502_035 short-circuit 修正）：**短路規則**：先看 `Hotfix: YES` → **整條 skip**（緊急通道優先；G-C2 修補）；非 hotfix 才看條件：PR diff touched_files 含 LOC>800 檔 / cross-stack（前+後端）→ 必查 caller graph。GitNexus available → 直呼 `mcp__gitnexus__impact(symbol=<changed_function>)`；unavailable → grep + REVIEW_REPORT 標 `[INFO] caller scan 不完整 (mode=<disabled|crash|no-index|timeout>)`（非阻斷；提醒風險）。單檔 < 200 LOC 亦 skip。
 
 > 註：資安範疇（金鑰 / Token / initData / strategyWeight）由 @Security 專職（ADR-0010 + ADR-0011 SC-01~10）。**絕對禁止**越界。
 

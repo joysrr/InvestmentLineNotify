@@ -99,17 +99,17 @@ related_decisions: [ADR-0001, ADR-0010, ADR-0011]
 
 ## 五、任務執行檢核表（Tasks Mapping）
 
-| 任務情境                                                        | 應附帶的 Task Checklist                                                                                                                                              |
-| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 執行 Hotfix 緊急修復                                            | `.agents/tasks/hotfix-checklist.md` + `.agents/tasks/emergency-shutdown-playbook.md`                                                                                 |
-| 建立新的領域顧問知識庫                                          | `.agents/tasks/domain-creation-checklist.md`                                                                                                                         |
-| **User 觸發語**「開新專案 / init workspace / 建 Avalonia 專案」 | `.agents/tasks/agent-onboarding-flow.md`（PROPOSAL_018；對話驅動 5 步驟 SOP）                                                                                        |
-| 既有 workspace 超過 `audit_interval_days` 未 audit              | 派發前通知 User：「距上次 tech-stack audit 已 N 天；建議執行 `node .agents/scripts/tech-stack-manage.mjs audit`」（@Assistant P-23 主動偵測；@Lead 收到後傳達 User） |
-| 提案整合性分析（OPEN ≥ 2 份觸發）                               | `.agents/tasks/proposal-integration-analysis.md`（5 階段流程）                                                                                                       |
-| 執行提案（framework scope）                                     | `.agents/proposals/active/`                                                                                                                                          |
-| 執行提案（project scope）                                       | `.agents/workspaces/<CURRENT_WORKSPACE>/proposals/active/`                                                                                                           |
-| 提案索引查詢（framework）                                       | `.agents/proposals/PROPOSAL_INDEX.md`                                                                                                                                |
-| 提案索引查詢（project）                                         | `.agents/workspaces/<CURRENT_WORKSPACE>/proposals/PROPOSAL_INDEX.md`                                                                                                 |
+| 任務情境                                                        | 應附帶的 Task Checklist                                                                                                                                                |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 執行 Hotfix 緊急修復                                            | `.agents/tasks/hotfix-checklist.md` + `.agents/tasks/emergency-shutdown-playbook.md`                                                                                   |
+| 建立新的領域顧問知識庫                                          | `.agents/tasks/domain-creation-checklist.md`                                                                                                                           |
+| **User 觸發語**「開新專案 / init workspace / 建 Avalonia 專案」 | `.agents/tasks/agent-onboarding-flow.md`（PROPOSAL_018；對話驅動 5 步驟 SOP）                                                                                          |
+| 既有 workspace 超過 `audit_interval_days` 未 audit              | 派發前通知 User：「距上次 tech-stack audit 已 N 天；建議執行 `python3 .agents/scripts/tech-stack-manage.py audit`」（@Assistant P-23 主動偵測；@Lead 收到後傳達 User） |
+| 提案整合性分析（OPEN ≥ 2 份觸發）                               | `.agents/tasks/proposal-integration-analysis.md`（5 階段流程）                                                                                                         |
+| 執行提案（framework scope）                                     | `.agents/proposals/active/`                                                                                                                                            |
+| 執行提案（project scope）                                       | `.agents/workspaces/<CURRENT_WORKSPACE>/proposals/active/`                                                                                                             |
+| 提案索引查詢（framework）                                       | `.agents/proposals/PROPOSAL_INDEX.md`                                                                                                                                  |
+| 提案索引查詢（project）                                         | `.agents/workspaces/<CURRENT_WORKSPACE>/proposals/PROPOSAL_INDEX.md`                                                                                                   |
 
 > **註**：原「進行系統白箱審查或包含資安相關實作 → `tasks/security-review.md`」條目已移除，內容遷移至 `skills/security-audit.md`（§四 第 3 列）；@Security 職責分離見 ADR-0010 + ADR-0011。
 

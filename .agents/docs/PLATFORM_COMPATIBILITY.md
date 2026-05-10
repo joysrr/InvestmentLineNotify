@@ -16,7 +16,7 @@
 | **Antigravity**（Google）             | 🟢 70%（**已實機驗證 2026-05-02**）        | 待 User 跑 cross-harness-validator.mjs     | 待測            | MCP 自有註冊機制可用；**sub-agent 僅 browser_subagent**；其他並行任務 serial mode 通用（PROPOSAL_502_021 Sprint A） | 已驗證；參 `INSTALL_ANTIGRAVITY.md` |
 | **自建 Qwen Agent**                   | 🟢 70-80%（**2026-05-04 修正：MCP 可用**） | 待 User 跑 cross-harness-validator.mjs     | 待測            | serial mode + Qwen MCP；persona drift 仍須重測                                                                      | 6-10h（drift + naming）             |
 
-> **drift / DoD 補測指引**：在目標 harness 執行 `node .agents/scripts/cross-harness-validator.mjs --append --report`；本表會由 User 補完。
+> **drift / DoD 補測指引**：在目標 harness 執行 `python3 .agents/scripts/cross-harness-validator.py --append --report`；本表會由 User 補完。
 
 ---
 
@@ -115,14 +115,14 @@
 
 ```bash
 # 1. 跑 platform detect（PROPOSAL_502_019 T-3）
-node .agents/scripts/platform-detect.mjs
+python3 .agents/scripts/platform-detect.py
 # 輸出：harness / capabilities / fallbacks / warnings
 
 # 2. 跑 14/15 validators（純 Node + Bash；任何 harness 都能跑）
-bash .agents/tests/run-all.sh
+python3 .agents/tests/run-all.py
 
 # 3. 重測 drift_score baseline（每 harness baseline 不同）
-node .agents/tests/agent-drift-simulator.mjs
+python3 .agents/tests/agent-drift-simulator.py
 
 # 4. 執行 27 情境簡化版（cold start + hello-world dispatch）驗證行為層
 # （參考 INSTALL.md §七 hello world test）

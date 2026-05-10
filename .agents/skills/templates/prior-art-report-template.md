@@ -1,11 +1,11 @@
 ---
 skill_id: prior-art-report-template
 file_type: template
-version: v1.0
-last_modified: 2026-04-30
-last_proposal: PROPOSAL_20260430_004
+version: v2.0
+last_modified: 2026-05-04
+last_proposal: PROPOSAL_20260502_030
 purpose: |
-  PRIOR_ART_REPORT.md 標準格式（Prior Art Scan 6 必需章節）
+  PRIOR_ART_REPORT.md HITL-first 模板（Phase A search package + Phase B user 結果填寫 + Phase C agent 評估）
 referenced_by:
   - rules/architect.md
   - skills/checklists/prior-art-scan-checklist.md
@@ -13,9 +13,9 @@ referenced_by:
   - docs/agents-overview.md
 ---
 
-# Skill: Prior Art Report Template（PRIOR_ART_REPORT.md 標準模板）
+# Skill: Prior Art Report Template v2（HITL-first PRIOR_ART_REPORT.md 模板）
 
-> 對齊 `RULES_DESIGN_GUIDE §三` 模板外部化強制規定 + `§十八.C` 產出物契約。
+> v2.0 重要變更（PROPOSAL_502_030）：拆三段 Phase A/B/C；agent 寫 §A + §C；user 填 §B。
 
 ## 標準模板
 
@@ -26,34 +26,97 @@ referenced_by:
 > 建立日期：<YYYY-MM-DD>
 > 觸發條件：<C1 / C2 / C3 其中之一；引 User Story AC / LOC 估計 / User 指令>
 > 相關 User Story：`draft_features.md §<功能名稱>`
+> Status：[ ] Phase A done [ ] Phase B done [ ] Phase C done [ ] User verified
 
 ---
 
-## 一、問題陳述
+## §A — Search Package（@Architect 寫；user 用此跑 search）
+
+### A.1 問題陳述
 
 <2-3 句描述此功能要解決的核心問題；不描述實作手段>
 
-## 二、候選方案（≥ 3 含自建）
+### A.2 檢索 keyword 組（≥ 3 組）
 
-### 候選 A：<套件名 或「自建」>
+依 `prior-art-scan-checklist.md §A.1` 抽取：
 
-- GitHub / NPM：<link>
+- 關鍵字組 1：`<keyword1> <keyword2>`（適用：<NPM / PyPI / GitHub>）
+- 關鍵字組 2：`<keyword>`
+- 關鍵字組 3：`<keyword>`
+
+### A.3 建議檢索管道
+
+請 user 用以下任一管道執行 search：
+
+| 管道            | URL pattern                                                                         | 說明         |
+| --------------- | ----------------------------------------------------------------------------------- | ------------ |
+| NPM             | `https://www.npmjs.com/search?q=<keyword>`                                          | Node 套件    |
+| PyPI            | `https://pypi.org/search/?q=<keyword>`                                              | Python 套件  |
+| GitHub Search   | `https://github.com/search?q=<keyword>&type=repositories`                           | 跨語言       |
+| GitHub Trending | `https://github.com/trending/<language>?since=monthly`                              | 月度熱門     |
+| Awesome List    | google `awesome-<topic>`                                                            | 社群精選     |
+| ChatGPT/Claude  | 「列出 [language] 內可實作 [feature] 的前 5 個套件，含 stars / 最近更新 / license」 | LLM 輔助列舉 |
+
+### A.4 候選收集要求
+
+User 在 §B 至少回填 **3 個候選**（≥ 2 外部 + 1 自建）；每個候選提供以下資訊：
+
+- 套件名 + 連結（GitHub / NPM / PyPI URL）
+- 最新版本 + 發布日期
+- License（MIT / Apache-2.0 / BSD / GPL / 專有）
+- GitHub stars
+- 最近 commit 日期
+- 1 句簡介
+- 主要 dep 數量（粗估）
+
+---
+
+## §B — User 結果填寫（user 跑 search 後填；agent 等此完成）
+
+> **Status**：[ ] 未開始 [ ] 進行中 [x] User 已完成
+>
+> User 完成後告知 agent「§B 已填好；請繼續 Phase C 分析」。
+
+### B.1 候選 A：<套件名 或「自建」>
+
+- 連結：<URL>
 - 最新版本：<version>（<release date>）
 - License：<MIT / Apache 2.0 / ...>
+- GitHub stars：<count>
+- 最近 commit：<YYYY-MM-DD>
 - 簡介：<1 句>
+- 主要依賴數：<N>
+- User 找到該方案的管道：<NPM / GitHub / Awesome / Chat 提問>
 
-### 候選 B：<...>
+### B.2 候選 B：<...>
 
-（同上）
+（同 B.1 結構）
 
-### 候選 C：自建（強制列入）
+### B.3 候選 C：自建（強制列入）
 
 - 估計工時：<hr>
-- 需維護的程式碼行數：<LOC>
+- 需維護的 LOC：<LOC>
+- 自建優勢（為何不用既有套件）：<...>
 
-## 三、評估矩陣
+### B.4 User 額外備註
 
-（依 `.agents/skills/checklists/prior-art-scan-checklist.md §三` 5 維度評分）
+<例：「我自己 prefer 候選 A 因為熟悉；但 license 不確定」；agent 在 Phase C 會考慮>
+
+---
+
+## §C — Agent 評估（@Architect 讀 §B 後寫；user 不填）
+
+### C.1 問題陳述（既有 §一）
+
+<延用 A.1>
+
+### C.2 候選方案彙整
+
+> agent 從 §B 讀 user 填的資料；本節為彙整 + agent 補強欄位
+
+### C.3 評估矩陣
+
+（依 `.agents/skills/checklists/prior-art-scan-checklist.md §C.1` 5 維度評分）
 
 | 候選 | 活躍度 | 社群 | License | 依賴 | 客製 | **總評**    |
 | ---- | ------ | ---- | ------- | ---- | ---- | ----------- |
@@ -61,7 +124,7 @@ referenced_by:
 | B    | 3      | 3    | 5       | 5    | 3    | **3.70** 🟡 |
 | 自建 | N/A    | N/A  | 5       | 5    | 1    | **3.40** 🟡 |
 
-## 四、推薦決策
+### C.4 推薦決策
 
 **推薦採納**：候選 <X>
 
@@ -73,7 +136,9 @@ referenced_by:
 
 **次要選項**：<若 X 不可行，退而求其次 Y>
 
-## 五、User 驗證（HITL Gate；依 `RULES_DESIGN_GUIDE §十八.D`）
+---
+
+## §D — User 驗證（HITL final Gate；依 `RULES_DESIGN_GUIDE §十八.D`）
 
 > 本章節由 User 填寫。未填寫前 `@Lead` 不得派發 `@Backend` / `@Frontend` / `@QA`。
 

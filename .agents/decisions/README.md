@@ -95,6 +95,12 @@
 | [ADR-0038](0038-tier-based-rule-budget.md)                         | Tier-based Rule Budget — Mutable budget 量化機制（meta / worker / orchestrator 三層）    | Accepted | 2026-05-01 | —          |
 | [ADR-0039](0039-mempalace-memory-backend.md)                       | Memory Backend Migration — MemPalace as Primary SoT (markdown 降為 cold export artifact) | Accepted | 2026-05-02 | —          |
 | [ADR-0040](0040-script-language-policy.md)                         | Script Language Policy（Python primary；Node legacy；Bash deprecated）                   | Accepted | 2026-05-04 | —          |
+| [ADR-0041](0041-gitnexus-syntax-cache-boundary.md)                 | GitNexus Syntax-Layer Cache Boundary（mempalace 為 SoT；GitNexus 為輔助）                | Accepted | 2026-05-06 | —          |
+| [ADR-0042](0042-hybrid-llm-intent-classifier.md)                   | Hybrid LLM Intent Classifier — closed-list 快車道 + LLM fallback + 結構訊號優先          | Accepted | 2026-05-07 | —          |
+| [ADR-0043](0043-multi-signal-task-class-dispatch.md)               | Multi-Signal Task-Class Dispatch Policy（user 指令含多訊號 → @Lead 拆多 ticket）         | Accepted | 2026-05-07 | —          |
+| [ADR-0044](0044-integration-walkthrough-protocol.md)               | Integration Walkthrough Protocol（每 N proposals 跨提案交互回歸驗證 SOP）                | Accepted | 2026-05-07 | —          |
+| [ADR-0045](0045-design-audit-dimension.md)                         | Design Audit Dimension（@Auditor 升級 5→6 維度；新增 Design Coherence）                  | Accepted | 2026-05-07 | —          |
+| [ADR-0046](0046-langgraph-runtime-architecture.md)                 | LangGraph Runtime Architecture (v8.0)                                                    | Accepted | 2026-05-08 | —          |
 
 <!-- AUTO-GENERATED:END adr_list -->
 

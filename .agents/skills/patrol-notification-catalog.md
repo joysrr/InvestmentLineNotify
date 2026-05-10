@@ -1,6 +1,8 @@
 # Skill: Patrol Notification Catalog (@Assistant 巡邏規則 + 通知目錄)
 
-## §A 巡邏規則表（P-01 ~ P-29）
+## §A 巡邏規則表（P-01 ~ P-40）
+
+> **pending_group 共享計時**（PROPOSAL_502_035 主題 4 + PROPOSAL_502_039 GR-D2 擴）：P-31 / P-32 / P-33 偵測 PENDING_ACTIONS 條目含 `pending_group: <ticket_id>` → 同 group 內所有 pending **視同單一條**（共享 24h 計時 + user 廣播確認）。**GR-D2 擴**：SC trigger 寫的 P-15 紅通知 + autonomy STAGE_VERIFY 同 ticket → 合併 `combined_trigger_pending` 欄位避免雙重通知；user 一次回應對 group 廣播。新建 P-XX 計時類條目時 default 寫 `pending_group: <當前 ticket_id>`。
 
 | #    | 掃描目標                                                                                       | 偵測條件                                                                                                                                                                                                                                                                                                         | 通知類型                           | 級別  | 阻斷新功能 |
 | ---- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | ----- | ---------- |
@@ -35,6 +37,34 @@
 | P-29 | `PENDING_ACTIONS.md §📥 PENDING_DISPATCHES` queue 長度                                         | queue ≥ 5 → 🟡「並發任務超載」；queue ≥ 10 → 🔴 阻斷新指令直至 queue ≤ 3（解 017 Q-8 孤兒；串接 lead.md §s_complexity_lane 並發排隊；PROPOSAL_502_018 R-3）                                                                                                                                                      | `DISPATCH_QUEUE_OVERFLOW`          | 🟡/🔴 | ❌/✅      |
 | P-30 | `proposals/PROPOSAL_INDEX.md` stats 區塊 total                                                 | total > `PROPOSAL_TOTAL_WARN`(50) → 🟡 「提案總量過大；考慮批次歸檔」；> 100 → 🔴 阻斷新提案直到歸檔（PROPOSAL_502_023 C-6 / B-10）                                                                                                                                                                              | `PROPOSAL_TOTAL_OVER_50`           | 🟡/🔴 | ❌/✅      |
 | P-31 | Prior Art Gate `PRIOR_ART_VERIFY_PENDING` 發出時間戳                                           | 24h（或 5 工作對話）User 未回覆 → 🟡 OVERDUE；再 24h（或 5 對話）→ 🔴 阻斷新派發（PROPOSAL_502_023 A-4）                                                                                                                                                                                                         | `PRIOR_ART_VERIFY_PENDING_OVERDUE` | 🟡/🔴 | ❌/✅      |
+| P-32 | Prior Art Gate `PRIOR_ART_SEARCH_PENDING` 發出時間戳                                           | 24h（或 5 工作對話）User 未跑 search 回填 §B → 🟡 OVERDUE；再 24h → 🔴 阻斷（PROPOSAL_502_030 T-5；HITL-first 第一階段）                                                                                                                                                                                         | `PRIOR_ART_SEARCH_PENDING_OVERDUE` | 🟡/🔴 | ❌/✅      |
+| P-33 | `PENDING_ACTIONS.md §🟡 STAGE_<N>_VERIFY_PENDING` 發出時間戳                                   | ROUTING_TICKET `autonomy_mode ∈ {step-by-step, gate-at-design, gate-at-impl}` 命中 stage 後 24h（或 5 工作對話）User 未回應 → 🟡 OVERDUE；再 24h → 🔴 阻斷新派發直至 user 回應或明示 `autonomy_mode: auto`（PROPOSAL_502_032）                                                                                   | `STAGE_VERIFY_PENDING_OVERDUE`     | 🟡/🔴 | ❌/✅      |
+| P-34 | sub-agent ROUTING_TICKET `runtime_telemetry.gitnexus_probe` 連續累計                           | 連續 ≥3 dispatches probe ∈ {disabled, crash, no-index, timeout} → 🟡；≥5 → 🔴（PROPOSAL_502_036/039/043）。**Reset 規則**（PROPOSAL_502_039+043 GR-B4+B6+B7）：(a) 單次 `ok` 即歸零；(b) 計數讀近 24h archive；**實作偽碼**（PROPOSAL_502_043 R3-B6 + PROPOSAL_502_045 R4-B2/D1/D2 強化）：                      |
+
+```bash
+# Step 1: find archive ticket（過去 24h；filter hotfix-light 排除）
+for f in $(find .agents/archive/routing-tickets/ -name "*.md" -mtime -1); do
+  task_class=$(yq '.task_class // "feature"' "$f" 2>/dev/null)
+  hotfix_tier=$(grep -E "^\s*hotfix_tier:" "$f" \| awk '{print $2}')
+  [[ "$task_class" == "hotfix" && "$hotfix_tier" == "light" ]] && continue  # R4-D2 hotfix-light 排除
+  done_at=$(yq '.done_at // .created_at' "$f")  # R4-B2 用 done_at 不用 mtime
+  probe=$(grep -oP '(?<=^gitnexus_probe:\s)\S+' "$f")
+  echo "$done_at $probe"
+done | sort  # 按 done_at 時序
+
+# Step 2: 找最新 ok 之後算連續失敗串（R4-D1 awk script）
+sorted_list | tac | awk '/ok/{exit} /disabled\|crash\|no-index\|timeout/{n++} END{print n}'
+```
+
+連續 ≥3 → 🟡；≥5 → 🔴；(c1) **一般跨 dispatch**：靠 (b) archive 掃描；(c2) **hotfix tier 升級鏈**（PROPOSAL_502_040）：靠 prior_ticket_probe_history carry-over（避免 archive 掃不到 paused ticket）；**hotfix-light 排除**（PROPOSAL_502_043 R3-B10）。**「自動降級」**：寫入 PENDING_ACTIONS §🔴 + lead.md §s_complexity_lane 加判 P-34 🔴 active → skip hint（PROPOSAL_502_043 R3-B2 已對齊）| `GITNEXUS_PROBE_CONSECUTIVE_FAIL` | 🟡/🔴 | ❌/✅ |
+| P-35 | ROUTING_TICKET archive `runtime_telemetry.gitnexus_used: true` + (`gitnexus_callers_count > 10` OR `cross-stack ≥3`)（PROPOSAL_502_043 R3-E4 雙閾值；既有條件之一）但 24h 內無對應 mempalace add_drawer | 持久化機制閉環。**三維度比對**（PROPOSAL_502_042 GR-H2 + PROPOSAL_502_043 R3-C3）：`wing=<ticket workspace_id> AND room=refactor_log AND tags 含 ticket_id 或 symbol_name **或 drawer body aliases 列**`。**副偵測**（GR-F3）：mempalace_writes 為空 + drawer 命中 ≥2 → 🟡（結構性 drift 批次未 update）；**副偵測 2**（PROPOSAL_502_043 R3-E5）：telemetry vs drawer caller_count_at_write 差 >0 → 🟡（sync 失敗）| `GITNEXUS_DRAWER_PENDING` | 🟡 | ❌ |
+| P-36 | ROUTING_TICKET `status: paused` 持續時間 | **掃 root ROUTING_TICKET.md 為主**（PROPOSAL_502_045 R4-D3）；archive 不掃（paused 不入 archive 為前置鐵律；validator 加 archive 內出現 paused → fail 防呆）。paused 寫入後 1h 無 @Lead 處理 → 🟡；4h → 🔴 阻斷新派發直至 user 介入 | `PAUSED_TICKET_STALE` | 🟡/🔴 | ❌/✅ |
+| P-38 | `.agents/archive/routing-tickets/` 近 30 天 telemetry source 統計 | @Auditor 月度掃 `task_class_source: llm_classifier` 比例 + 抽 user 指令 keyword 頻次表；高頻同義詞 ≥3 次/月 → 寫 PENDING `KEYWORD_LIST_EXPAND_PENDING` 至 §🟡（PROPOSAL_502_046 R5-5 升級 🟡）。**調度**（R5-5 補）：每月 day-1 由 @Assistant 巡邏觸發 @Auditor 跑 P-38；不阻斷新派發但 user 應於本 sprint 內處理；解 closed-list 演進 feedback loop | `KEYWORD_LIST_EXPAND_PENDING` | 🟡 | ❌ |
+| P-37 | ROUTING_TICKET archive 標 hotfix tier 升級 + `tier_upgrade_required: heavy` + `revert_safe: true` 自動 cancel | 自動 cancel 同時 @Lead 必發 🟢 通知 `HOTFIX_TIER_UPGRADED`（含舊 ticket_id + 新 ticket_id + reason）至 PENDING_ACTIONS §🟢；user 看到事故鏈轉移；非阻斷類資訊（PROPOSAL_502_043 R3-D3 解 hotfix「事故 user 必知」精神）| `HOTFIX_TIER_UPGRADED` | 🟢 | ❌ |
+| P-39 | git pre-commit hook stderr + ROUTING_TICKET archive 結構 | inline validator pass（status: completing → completed → archive）但 commit hook（`run-all.py --fast` 含 routing-ticket-validator）fail → @Assistant 偵測 stderr 含 `routing-ticket-validator` 相關 fail 訊息 + git log -1 含 ROUTING_TICKET archive 動作。觸發 §3.6 step 8 R5-2 rollback SOP（`git revert HEAD` + 從 archive 還原 ticket → status: failed → @Lead 派 retry_of 新 ticket）（PROPOSAL_502_047 T-2 解 R6-3 高；消除 commit hook 偵測 owner 缺失）| `COMMIT_HOOK_VS_INLINE_DIVERGENCE` | 🔴 | ✅ |
+| P-40 | `proposals/PROPOSAL_INDEX.md` total + ADR amend 狀態 | proposal index total 達 5 倍數（如 130/135/140 ...）→ 🟡 提醒 user 跑 integration walkthrough；ADR amend 既有 ADR 涉鐵律 → 🔴 強制；schema 變更（routing-ticket-protocol §schema 加新欄位）→ 🟡。觸發 `tasks/integration-walkthrough-protocol.md` 4 步驟 SOP（PROPOSAL_502_048 + ADR-0044；governance C-3；解跨提案交互盲點）| `INTEGRATION_WALKTHROUGH_DUE` | 🟡/🔴 | ❌/✅ |
+
+<!-- PROPOSAL_502_045 R4-D4 刪除：原 P-35 line 63 舊版重複；新版於 line 60 -->
 
 ## §B 通知類型完整定義（簡要）
 
@@ -45,7 +75,7 @@
 ```
 @Lead 呼叫 @Assistant 巡邏
  ↓
-依序掃描 P-01 ~ P-29
+依序掃描 P-01 ~ P-40
  ↓
 每條規則：條件成立 → 寫入 PENDING_ACTIONS.md（避免重複）
  ↓
@@ -73,7 +103,7 @@
 - last_audit_date: <YYYY-MM-DD>
 - interval: <N> days
 - overdue_by: <M> days
-- suggested_command: node .agents/scripts/tech-stack-manage.mjs audit
+- suggested_command: python3 .agents/scripts/tech-stack-manage.py audit
 - notification_level: 🟢 INFO（提示；不阻斷）
 - user_command_to_close: "完成 audit 或 推遲 audit <新日期>"
 ```

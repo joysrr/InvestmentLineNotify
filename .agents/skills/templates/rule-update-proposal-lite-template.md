@@ -84,8 +84,8 @@ date: YYYY-MM-DD
 ### 立案時
 
 ```bash
-node .agents/scripts/generators/gen-proposal-index.mjs --write
-bash .agents/tests/index-drift-validator.sh
+python3 .agents/scripts/generators/gen-proposal-index.py --write
+python3 .agents/tests/index-drift-validator.py
 ```
 
 ### 採納 Phase A/B 完成時
@@ -95,13 +95,13 @@ git mv .agents/proposals/active/PROPOSAL_YYYYMMDD_NNN.md \
  .agents/proposals/completed/
 
 # 若動 rules/* version
-node .agents/scripts/generators/gen-rules-version-index.mjs --write
+python3 .agents/scripts/generators/gen-rules-version-index.py --write
 
 # 索引同步
-node .agents/scripts/generators/gen-proposal-index.mjs --write
+python3 .agents/scripts/generators/gen-proposal-index.py --write
 
 # 自檢
-bash .agents/tests/run-all.sh --fast
+python3 .agents/tests/run-all.py --fast
 ```
 
 ---

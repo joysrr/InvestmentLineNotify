@@ -57,7 +57,7 @@ scope=framework → `.agents/proposals/`；scope=`project:<name>` → `.agents/w
 依提案 §二 執行 Phases 的 commits 規劃：
 
 - 每 commit 對應一個 Phase
-- 每個 Phase 後 `bash .agents/tests/run-all.sh` 確認綠
+- 每個 Phase 後 `python3 .agents/tests/run-all.py` 確認綠
 - 寫 ROUTING_TICKET 派發子 agent 變更（如需）
 
 ### Step 4：DONE 狀態 + 移目錄
@@ -74,9 +74,9 @@ git mv active/PROPOSAL_<id>.md completed/
 ### Step 5：版本 bump + indexes 重生
 
 ```bash
-node .agents/scripts/generators/gen-framework-version.mjs --bump <minor|major> --proposal PROPOSAL_<id> --write
-node .agents/scripts/generators/gen-proposal-index.mjs --write
-node .agents/scripts/generators/gen-rules-version-index.mjs --write
+python3 .agents/scripts/generators/gen-framework-version.py --bump <minor|major> --proposal PROPOSAL_<id> --write
+python3 .agents/scripts/generators/gen-proposal-index.py --write
+python3 .agents/scripts/generators/gen-rules-version-index.py --write
 ```
 
 bump 規則：

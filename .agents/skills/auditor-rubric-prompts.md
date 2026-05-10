@@ -40,7 +40,7 @@
   (c) **WORKSPACE_SCHEMA 完整性（新增於 PROPOSAL_20260422_022）**：
 - `.agents/WORKSPACE_SCHEMA.yaml` 存在且可被 validator 解析
 - 當前 active workspace（`.agents/CURRENT_WORKSPACE`）所有 required 欄位齊全
-- `node .agents/tests/workspace-schema-validator.mjs` 回傳 exit 0
+- `python3 .agents/tests/workspace-schema-validator.py` 回傳 exit 0
 - 所有 tech-stacks 含 §專案特化參照 + MACHINE_READABLE anchor
 - tech-stacks / skills 遵守 `RULES_DESIGN_GUIDE §十六` 三分法純淨原則
 - referenced_by 反向索引與實際引用一致（無孤兒欄位 / 斷裂引用）

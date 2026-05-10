@@ -15,7 +15,7 @@
 ### 1.1 Validator 健康（15 validators 必全綠；PROPOSAL_502_018 R-5 校準）
 
 ```bash
-bash .agents/tests/run-all.sh
+python3 .agents/tests/run-all.py
 # 期望：✅ All validation passed (15 validators 全 0)
 # 例外：rule_token 可有 ≤ 1 warning（data-deletion-zero-tolerance 696 > warn 600；KI-001 allowlist 後計 0；可接受）
 ```
@@ -26,7 +26,7 @@ schema / intent / workspace / drift / ref / sync / loc / index_drift / proposal_
 ### 1.2 Drift Score（≥ 0.85）
 
 ```bash
-node .agents/tests/agent-drift-simulator.mjs
+python3 .agents/tests/agent-drift-simulator.py
 # 期望：drift_score ≥ 0.85（baseline 0.883）
 # 三項分數：
 #   persona_stability ≥ 0.70
@@ -37,7 +37,7 @@ node .agents/tests/agent-drift-simulator.mjs
 ### 1.3 Iron Theme 雙向一致
 
 ```bash
-node .agents/tests/iron-theme-validator.mjs
+python3 .agents/tests/iron-theme-validator.py
 # 期望：0 errors / 0 warnings（6 themes × applies_to 全對）
 ```
 
@@ -45,13 +45,13 @@ node .agents/tests/iron-theme-validator.mjs
 
 ```bash
 ls .agents/decisions/00*.md | wc -l   # 期望 ≥ 38
-node .agents/tests/adr-validator.mjs    # warning mode；非 BLOCKER
+python3 .agents/tests/adr-validator.py    # warning mode；非 BLOCKER
 ```
 
 ### 1.5 Memory Palace 健康（MemPalace primary backend；ADR-0039）
 
 ```bash
-node .agents/tests/memory-palace-validator.mjs
+python3 .agents/tests/memory-palace-validator.py
 # 期望：0 errors / 0 warnings
 # 驗證項：
 #   - mempalace ≥ 3.3.4 已安裝
@@ -160,8 +160,8 @@ mempalace wake-up        # 期望：~600-900 tokens 上下文
 **症狀**：pre-commit hook 阻斷 commit（exit 2）
 
 ```
-Step 1: bash .agents/tests/run-all.sh                  # 確認哪 validator fail
-Step 2: bash .agents/tests/run-all.sh --validator <X>  # 單獨跑該 validator 看細節
+Step 1: python3 .agents/tests/run-all.py                  # 確認哪 validator fail
+Step 2: python3 .agents/tests/run-all.py --validator <X>  # 單獨跑該 validator 看細節
 Step 3: 修復對應檔案
 Step 4: 重跑 validator 確認綠
 Step 5: 重 commit
@@ -220,7 +220,7 @@ Step 3: 若 repair 失敗 → 完全 re-init
   - mempalace mine .agents/workspaces/<ws>/memory/
 
 Step 4: 驗證
-  - node .agents/tests/memory-palace-validator.mjs   # 應 PASS
+  - python3 .agents/tests/memory-palace-validator.py   # 應 PASS
   - mempalace search "<關鍵詞>"                       # 應命中已採礦條目
 
 Step 5: @Retro 後續審計

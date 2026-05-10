@@ -543,6 +543,19 @@ def preview_and_commit(name: str, answers: dict, previous_workspace):
         (memory_pending_dir / ".gitkeep").write_text(
             "# PROPOSAL_502_023 A-1: MCP fallback buffer dir\n", encoding="utf-8"
         )
+        # PROPOSAL_502_031 T-3：archive 目錄結構
+        rt_archive_dir = AGENTS_ROOT / "archive" / "routing-tickets"
+        rt_archive_dir.mkdir(parents=True, exist_ok=True)
+        (rt_archive_dir / ".gitkeep").write_text(
+            "# PROPOSAL_502_031 T-3: ROUTING_TICKET archive (TKT-YYYYMMDD-NNN.md)\n", encoding="utf-8"
+        )
+        # PROPOSAL_502_031 v2：reports archive（30 天滾動；@Retro 批次清）
+        for cat in ("review", "security", "test"):
+            d = AGENTS_ROOT / "archive" / "reports" / cat
+            d.mkdir(parents=True, exist_ok=True)
+            (d / ".gitkeep").write_text(
+                f"# PROPOSAL_502_031 v2: {cat} reports archive（per-dispatch；30 天滾動）\n", encoding="utf-8"
+            )
         print("✅ 檔案寫入完成")
     except Exception as e:
         print(f"❌ 寫檔失敗：{e}", file=sys.stderr)

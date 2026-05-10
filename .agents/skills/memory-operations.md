@@ -71,17 +71,22 @@ CLI 對等命令：`mempalace search` / `mempalace wake-up` / `mempalace mine` /
 ```
 觸發：User 下達需求 → @Lead 解析 → 進入 ROUTING_TICKET 撰寫前
 動作：
+  0. 【PROPOSAL_502_028 O-3】先檢 task_class：若 ∈ {doc-sync, config-adjust} 且
+     無 strategyWeight / 敏感參數命中 → skip_memory_search=true；跳本 §2.1 全段；
+     ROUTING_TICKET 標 memory_hint: 'skipped (simple lane)'
   1. 提取需求關鍵詞（如「budget control」「telegram bot」）
-  2. MCP call：palace.search(query="<keywords>", limit=3)   # PROPOSAL_502_022 O-3：default 3 足夠決策；省 40% 查詢成本
-  3. 檢視 hits 的 drawer 內容 + cosine score
-  4. 若 score ≥ 0.4 → 將相關 drawer ref 寫入 ROUTING_TICKET 的 `touched_files` 與 `relevant_tech_stacks`
-  5. 若 score < 0.4（無強相關）→ follow-up `limit=5`；仍無 → 標 routing_ticket.memory_hint: 'no strong match'
+  2. MCP call：palace.search(query="<keywords>", limit=1)   # PROPOSAL_502_028 O-4：default 1 足以決策；單檔通常已足
+  3. 檢視 top-1 drawer 內容 + cosine score
+  4. 若 score ≥ 0.4 → 將該 drawer ref 寫入 ROUTING_TICKET；結束
+  5. 若 score < 0.4 或無命中 → follow-up `limit=3`；仍 < 0.4 → follow-up `limit=5`；仍無 → 標 memory_hint: 'no strong match'
 
-範例 MCP call：
+範例 MCP call（兩階段 fallback）：
   tool: palace.search
-  args: { query: "budget control daily limit", limit: 3 }
-  expected: 3 drawers ranked by cosine + bm25
+  args: { query: "budget control daily limit", limit: 1 }
+  expected: top-1 drawer；cosine 充分時即用，不足時自動升級 limit=3
 ```
+
+**Latency 設計理由**（O-4）：limit=1 比 limit=3 平均省 200-400ms（embedding 計算 + serialization）。實測 80% 案例 top-1 cosine 已 ≥ 0.4；只 20% 需 follow-up；總體 latency 預期 -30%。
 
 **Sub-agent 收 `memory_hint: 'no strong match'` 行為差異化**（PROPOSAL_502_023 B-6 / HG-7）：
 
@@ -118,7 +123,7 @@ CLI 對等命令：`mempalace search` / `mempalace wake-up` / `mempalace mine` /
        source_file="(optional)"
      )
   3. 收 drawer_id 後在後續 ROUTING_TICKET / 自評帶上參照
-  4. （定期 / commit hook）執行 node .agents/scripts/mempalace-export.mjs → 同步 .export/
+  4. （定期 / commit hook）執行 python3 .agents/scripts/mempalace-export.py → 同步 .export/
   5. git commit（涵 .export/ 新檔；確保 zip 帶走）
 
 注意：
@@ -153,7 +158,7 @@ CLI 對等命令：`mempalace search` / `mempalace wake-up` / `mempalace mine` /
   - 手動同步（cold backup 確認）
 
 動作：
-  1. 執行 node .agents/scripts/mempalace-export.mjs（無 flag 即 export 全部 wings）
+  1. 執行 python3 .agents/scripts/mempalace-export.py（無 flag 即 export 全部 wings）
      - 可選 --wing <name> 限定範圍
      - --dry-run 預覽不寫
      - --verbose RPC trace
@@ -210,7 +215,7 @@ sub-agent 接派發 ticket 含 `memory_mode: filesystem_fallback`：
 1. 通知 User：「Memory Palace MCP server 已恢復；切回 mcp 模式」
 2. ROUTING_TICKET 下一張 `memory_mode: mcp`
 3. **批次 replay**：對 `.agents/memory/.pending/*.md` 每檔呼叫 `mcp__mempalace__mempalace_add_drawer` → 成功則刪 buffer 檔
-4. 跑 `node .agents/scripts/mempalace-export.mjs` 同步 .export/
+4. 跑 `python3 .agents/scripts/mempalace-export.py` 同步 .export/
 5. 不需 retry 之前的 fallback 任務（已用 grep 替代成功）
 
 ## 3. 操作邊界（v2 Plan G）
@@ -257,17 +262,17 @@ mempalace status              # 顯示 wings / rooms / drawers count
 mempalace mine .agents/memory/.export/
 
 # 查詢測試（default 3；不夠時 follow-up --results 5）
-mempalace search "<keywords>" --results 3
+mempalace search "<keywords>" --results 1   # PROPOSAL_502_028 O-4：default 1；不足才 follow-up --results 3
 
 # Wake-up
 mempalace wake-up
 
 # Cold export（v2 新增；驗證 .export/ 同步）
-node .agents/scripts/mempalace-export.mjs --dry-run --verbose
-node .agents/scripts/mempalace-export.mjs
+python3 .agents/scripts/mempalace-export.py --dry-run --verbose
+python3 .agents/scripts/mempalace-export.py
 
 # Validator
-node .agents/tests/memory-palace-validator.mjs
+python3 .agents/tests/memory-palace-validator.py
 ```
 
 ## 6. Compress 流程（drawer count 防護；PROPOSAL_502_003 C-2）
@@ -301,7 +306,7 @@ mempalace compress --yes                  # 正式壓縮（AAAK Dialect 30x）
 mempalace status                          # 確認 drawer count 下降
 mempalace search "<key>" --results 5 > after.txt
 diff before.txt after.txt                 # 同關鍵詞應仍能命中（語意保留）
-node .agents/tests/memory-palace-validator.mjs   # 應 0 errors / 0 warnings
+python3 .agents/tests/memory-palace-validator.py   # 應 0 errors / 0 warnings
 ```
 
 ### 6.3 AAAK Dialect 特性（壓縮基礎）

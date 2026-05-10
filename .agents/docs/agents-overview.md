@@ -273,7 +273,7 @@
 - 絕對禁止單一通知混用兩個以上級別（以最高級別為代表）
 - 跨級別需求必須拆分為多個獨立通知
 
-### 4.2 @Assistant 巡邏規則（P-01 ~ P-31）
+### 4.2 @Assistant 巡邏規則（P-01 ~ P-40）
 
 依 `.agents/rules/assistant.md §巡邏規則`，`@Assistant` 依以下規則被動偵測異常，產出寫入 `PENDING_ACTIONS.md`（詳見 `skills/patrol-notification-catalog.md`）：
 

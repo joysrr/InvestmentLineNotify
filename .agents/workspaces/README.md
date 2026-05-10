@@ -18,13 +18,14 @@
 ### 方式一：互動式 CLI（🟢 主推；快速；不留半成品）
 
 ```bash
-node .agents/scripts/init-workspace.mjs              # 基本互動
-node .agents/scripts/init-workspace.mjs --name myapp # 指定名稱
-node .agents/scripts/init-workspace.mjs --dry-run    # 預覽不寫檔
-node .agents/scripts/init-workspace.mjs --help       # 完整說明
+python3 .agents/scripts/init-workspace.py              # 基本互動
+python3 .agents/scripts/init-workspace.py --name myapp # 指定名稱
+python3 .agents/scripts/init-workspace.py --dry-run    # 預覽不寫檔
+python3 .agents/scripts/init-workspace.py --help       # 完整說明
 ```
 
 CLI 自動：
+
 - 逐欄引導填寫（動態讀 `WORKSPACE_SCHEMA.yaml`）
 - 建立 `workspaces/<name>.md`
 - 建立 `workspaces/<name>/proposals/{active,completed,archived}/` 結構（含 `.gitkeep`）
@@ -37,7 +38,7 @@ CLI 自動：
 ### 方式二：AI 對話引導（適合需要解釋欄位意義）
 
 1. 與 `@Lead` 互動：「啟動新專案 `<project_name>`」
-2. `@Lead` 依 `.agents/tasks/project-onboarding.md` 6 步驟 SOP 逐欄引導
+2. `@Lead` 依 `.agents/tasks/project-onboarding-workflow.md` 6 步驟 SOP 逐欄引導
 3. 完成後由 `@Lead` 執行 validator + 更新 `CURRENT_WORKSPACE`
 
 ### 方式三：手動（僅供非標準情境；⚠️ 容易遺漏）
@@ -47,12 +48,12 @@ CLI 自動：
 3. 建立 `workspaces/<project_name>/proposals/{active,completed,archived}/` 目錄含 `.gitkeep`
 4. 建立 `workspaces/<project_name>/proposals/PROPOSAL_INDEX.md` 空殼
 5. 於 `.agents/CURRENT_WORKSPACE` 寫入 `<project_name>` 作為 active workspace
-6. 執行 `node .agents/tests/workspace-schema-validator.mjs` 驗證
+6. 執行 `python3 .agents/tests/workspace-schema-validator.py` 驗證
 7. 手動更新本文件表格
 
 ⚠️ 手動方式容易遺漏 `.gitkeep` 或 `PROPOSAL_INDEX.md`；**建議使用方式一或二**。
 
-詳細流程參考 `.agents/tasks/project-onboarding.md`。
+詳細流程參考 `.agents/tasks/project-onboarding-workflow.md`。
 
 ## 切換 workspace
 
@@ -60,10 +61,10 @@ CLI 自動：
 
 ## 當前已建立的 workspace
 
-| Workspace 名稱 | 對應專案 | 狀態 |
-|---------------|---------|------|
-| `default_env` | （模板）| ⭕ 範本，不供執行使用 |
-| `investmentlinenotify` | InvestmentLineNotify（個人投資通知系統）| ✅ Active |
+| Workspace 名稱    | 對應專案                                                   | 狀態                  |
+| ----------------- | ---------------------------------------------------------- | --------------------- |
+| `default_env`     | （模板）                                                   | ⭕ 範本，不供執行使用 |
+| `agent_framework` | Agent Framework Optimization（Multi-Agent 框架優化與維運） | ✅ Active             |
 
 ## 禁止行為
 
@@ -74,6 +75,7 @@ CLI 自動：
 ## 缺失時的保守升級政策（依 PROPOSAL_20260422_001 + 002）
 
 若 `CURRENT_WORKSPACE` 缺失或指向無效檔案：
+
 1. `@Assistant` 巡邏 P-12 產生 🔴 `WORKSPACE_MISSING` 通知，阻斷新功能
 2. `@Lead` 自動回退為最保守態度：**所有跨技術棧變更均升級 User**
 3. User 執行 `project-onboarding` 或 `切換 workspace <project_name>` 解除阻斷

@@ -40,7 +40,7 @@ mempalace mine .agents/memory/.export/   # v2：來源從 .export/（每 drawer 
 ```
 
 > v2 後寫入路徑：rules 直呼 `mcp__mempalace__add_drawer`（單寫；無雙寫）。
-> 每次 commit 前跑 `node .agents/scripts/mempalace-export.mjs` 同步 `.export/` → 確保 zip 帶走。
+> 每次 commit 前跑 `python3 .agents/scripts/mempalace-export.py` 同步 `.export/` → 確保 zip 帶走。
 
 ### Phase 3 MCP 設定（**與 Claude Code 不同**）
 
@@ -59,7 +59,7 @@ mempalace mine .agents/memory/.export/   # v2：來源從 .export/（每 drawer 
 ### Phase 4 First workspace
 
 ```bash
-node .agents/scripts/init-workspace.mjs --name <ws_name>
+python3 .agents/scripts/init-workspace.py --name <ws_name>
 ```
 
 互動模式應可走（Antigravity terminal 通常支援 stdin）。如不行 → 用 `--config <yaml>` 非互動模式。
@@ -67,9 +67,9 @@ node .agents/scripts/init-workspace.mjs --name <ws_name>
 ### Phase 5 First validation
 
 ```bash
-bash .agents/tests/run-all.sh   # 15 validators 全綠期望
-node .agents/tests/agent-drift-simulator.mjs   # drift_score ≥ 0.85 期望
-node .agents/scripts/platform-detect.mjs       # 應顯 'antigravity' 或 'antigravity_or_custom'
+python3 .agents/tests/run-all.py   # 15 validators 全綠期望
+python3 .agents/tests/agent-drift-simulator.py   # drift_score ≥ 0.85 期望
+python3 .agents/scripts/platform-detect.py       # 應顯 'antigravity' 或 'antigravity_or_custom'
 ```
 
 ### Phase 6 Hello world test
@@ -191,7 +191,7 @@ Harness: antigravity_or_custom (medium confidence)  ← 若沒 env var 但 mempa
 
 ### 6.1 `mempalace status` CLI 失敗 但 IDE MCP 可用
 
-正常。Antigravity sandbox 可能限 CLI 直呼；走 IDE 的 `mcp_mempalace_*` 工具系列即可。`memory-palace-validator.mjs` 偵測 CLI 不通會報 ❌；可忽略（MCP 路徑等同）。
+正常。Antigravity sandbox 可能限 CLI 直呼；走 IDE 的 `mcp_mempalace_*` 工具系列即可。`memory-palace-validator.py` 偵測 CLI 不通會報 ❌；可忽略（MCP 路徑等同）。
 
 ### 6.2 Sub-agent 並行任務卡住
 
@@ -204,15 +204,15 @@ Harness: antigravity_or_custom (medium confidence)  ← 若沒 env var 但 mempa
 **v2 Plan G 替代方案**：
 
 - 寫入：rules 直呼 `mcp__mempalace__add_drawer`（在對話內 LLM 直接呼叫；不依賴 hook）
-- Cold export：建議在 git pre-commit hook（`.git/hooks/pre-commit`）跑 `node .agents/scripts/mempalace-export.mjs`，並 `git add .agents/memory/.export/`；確保每 commit 帶最新 cold backup
+- Cold export：建議在 git pre-commit hook（`.git/hooks/pre-commit`）跑 `python3 .agents/scripts/mempalace-export.py`，並 `git add .agents/memory/.export/`；確保每 commit 帶最新 cold backup
 - v1 的 `mempalace mine` 在 v2 後僅 cold-start 重建用（從 `.export/`）；不再頻繁觸發
 
-### 6.4 Init-workspace.mjs 互動模式卡住
+### 6.4 init-workspace.py 互動模式卡住
 
 sandbox 終端機可能無 tty。改用：
 
 ```bash
-node .agents/scripts/init-workspace.mjs --name <ws> --config /path/to/config.yaml
+python3 .agents/scripts/init-workspace.py --name <ws> --config /path/to/config.yaml
 ```
 
 或在 Antigravity 對話內直接生成 workspace 檔（@Lead 走 `project-onboarding-workflow.md` 軌道 A AI 對話引導）。
@@ -237,7 +237,7 @@ User 跑日常任務遇問題時可補回報；本指南會持續更新。
 - `.agents/INSTALL.md`：CLI 主指南
 - `.agents/docs/PLATFORM_COMPATIBILITY.md`：4 harness 對照表
 - `.agents/tasks/harness-adapter-pattern.md`：adapter 設計指南（如要寫 sub-agent dispatch adapter）
-- `.agents/scripts/platform-detect.mjs`：自動偵測
+- `.agents/scripts/platform-detect.py`：自動偵測
 
 ---
 
@@ -257,4 +257,4 @@ User 跑日常任務遇問題時可補回報；本指南會持續更新。
 - post-commit auto-mine 需手動觸發
 - `mempalace status` CLI 不通；但 MCP 等價可用
 
-**部署成功判定**：跑 platform-detect.mjs 顯 `antigravity` + `bash run-all.sh` 全綠 + IDE 對話跑 cold start checklist 走完 5 步。
+**部署成功判定**：跑 `python3 .agents/scripts/platform-detect.py` 顯 `antigravity` + `python3 .agents/tests/run-all.py` 全綠 + IDE 對話跑 cold start checklist 走完 5 步。

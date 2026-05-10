@@ -110,15 +110,15 @@ def main():
             f"assigned_lane={lane} 與 model_tier={model} 不對應；合法對應 {lane}→{'|'.join(VALID_PAIRS[lane])}"
         )
 
-    valid_status = ["dispatched", "acknowledged", "completed", "cancelled",
-                    "paused", "timeout", "retried", "failed"]
+    valid_status = ["dispatched", "acknowledged", "completing", "completed", "cancelled",
+                    "paused", "timeout", "retried", "failed"]  # PROPOSAL_502_043 R3-B5 加 completing
     if fm.get("status") and fm["status"] not in valid_status:
         err(f'status="{fm["status"]}" 不在合法值 [{"|".join(valid_status)}]')
 
-    valid_task_class = ["feature", "modify-existing", "doc-sync", "hotfix"]
+    valid_task_class = ["feature", "modify-existing", "doc-sync", "hotfix", "config-adjust", "onboarding"]
     if fm.get("task_class") and fm["task_class"] not in valid_task_class:
         err(
-            f'task_class="{fm["task_class"]}" 不在合法值 [{"|".join(valid_task_class)}]；對應 lead.md §s05 任務分類例外'
+            f'task_class="{fm["task_class"]}" 不在合法值 [{"|".join(valid_task_class)}]；對應 lead.md §s05 任務分類例外（PROPOSAL_502_035 加 onboarding）'
         )
 
     valid_memory_mode = ["mcp", "filesystem_fallback"]
@@ -127,8 +127,82 @@ def main():
             f'memory_mode="{fm["memory_mode"]}" 不在合法值 [{"|".join(valid_memory_mode)}]；ADR-0039 hybrid fallback 規範'
         )
 
+    valid_autonomy_mode = ["auto", "step-by-step", "gate-at-design", "gate-at-impl"]
+    if fm.get("autonomy_mode") and fm["autonomy_mode"] not in valid_autonomy_mode:
+        err(
+            f'autonomy_mode="{fm["autonomy_mode"]}" 不在合法值 [{"|".join(valid_autonomy_mode)}]；PROPOSAL_502_032'
+        )
+
+    # PROPOSAL_502_044/045 + ADR-0042 v2: task_class_source enum (5 值)
+    valid_source = ["explicit", "structural", "keyword", "llm_classifier", "llm_failed_fallback"]
+    if fm.get("task_class_source") and fm["task_class_source"] not in valid_source:
+        err(f'task_class_source="{fm["task_class_source"]}" 不在合法值 [{"|".join(valid_source)}]；ADR-0042 三層判定')
+
+    # PROPOSAL_502_036: gitnexus_hint + runtime_telemetry schema validation
+    valid_gitnexus_triggers = ["cross-stack", "large-file", "refactor-keyword", "frontend-backend-pair", "onboarding-scenario"]
+    gh = fm.get("gitnexus_hint")
+    if isinstance(gh, dict):
+        triggers = gh.get("triggered_by", [])
+        if not isinstance(triggers, list):
+            triggers = [triggers] if triggers else []
+        for t in triggers:
+            if t not in valid_gitnexus_triggers:
+                err(f'gitnexus_hint.triggered_by="{t}" 不在合法值 [{"|".join(valid_gitnexus_triggers)}]；ADR-0041 v2 + PROPOSAL_502_035')
+        if "optional" in gh and not isinstance(gh["optional"], bool):
+            err(f'gitnexus_hint.optional 必為 bool；當前 type={type(gh["optional"]).__name__}')
+
+    valid_probe = ["ok", "disabled", "crash", "no-index", "timeout"]
+    valid_tier_upgrade = ["none", "heavy"]
+    rt = fm.get("runtime_telemetry")
+    if isinstance(rt, dict):
+        if rt.get("gitnexus_probe") and rt["gitnexus_probe"] not in valid_probe:
+            err(f'runtime_telemetry.gitnexus_probe="{rt["gitnexus_probe"]}" 不在合法值 [{"|".join(valid_probe)}]；PROPOSAL_502_036 解 G-G1')
+        if rt.get("tier_upgrade_required") and rt["tier_upgrade_required"] not in valid_tier_upgrade:
+            err(f'runtime_telemetry.tier_upgrade_required="{rt["tier_upgrade_required"]}" 不在合法值 [{"|".join(valid_tier_upgrade)}]；PROPOSAL_502_040')
+
+    # PROPOSAL_502_039 GR-B1: telemetry block mandate（status=completed AND task_class ≠ hotfix-light → telemetry 必填）
+    is_hotfix_light = fm.get("task_class") == "hotfix" and "hotfix_tier: light" in text
+    if fm.get("status") == "completed" and not is_hotfix_light and not rt:
+        err("status=completed 但缺 runtime_telemetry block（PROPOSAL_502_039 §3.6 強制；hotfix-light 例外）")
+
+    # PROPOSAL_502_041 GR-G3: pending_group conditional mandate（sibling_agents 非空 → pending_group 必填）
+    siblings = fm.get("sibling_agents", [])
+    if siblings and not fm.get("pending_group"):
+        err("sibling_agents 非空但缺 pending_group（PROPOSAL_502_041 GR-G3；多 sibling 派發必填以共享 24h 計時 + 廣播確認）")
+
+    # PROPOSAL_502_043 R3-B9: superseded → prior_ticket_id 強制繼承
+    if fm.get("superseded") and rt and not rt.get("prior_ticket_id"):
+        err("frontmatter superseded 非空但 runtime_telemetry.prior_ticket_id 缺（PROPOSAL_502_043 R3-B9 §3.2 step 4.5；hotfix tier 升級鏈必繼承）")
+
     if has_hotfix_enabled(text) and not has_sc_evaluation(text):
         err("hotfix.enabled=true 但缺 sc_evaluation 區塊")
+
+    # PROPOSAL_502_046 R5-3 hotfix_tier schema 補修：hotfix.enabled=true → 必填 hotfix_tier ∈ {light, heavy}
+    if has_hotfix_enabled(text):
+        import re as _re
+        m = _re.search(r"^\s*hotfix_tier:\s*(\w+)", text, _re.MULTILINE)
+        if not m:
+            err("hotfix.enabled=true 但缺 hotfix_tier 欄位（PROPOSAL_502_046 R5-3 補修；5 輪累積 schema gap）")
+        elif m.group(1) not in ("light", "heavy"):
+            err(f"hotfix_tier='{m.group(1)}' 不在 [light|heavy]（PROPOSAL_502_046 R5-3）")
+
+    # PROPOSAL_502_047 T-1 解 R6-2: retry_of 條文-實作 drift 修補
+    # routing-ticket-protocol §3.6 step 7 規定「validator 驗 retry_of != null AND prior status=failed」
+    retry_of = fm.get("retry_of")
+    if retry_of:
+        from pathlib import Path as _Path
+        archive_dir = _Path(".agents/archive/routing-tickets/")
+        if archive_dir.is_dir():
+            # 找 retry_of 對應 archive ticket
+            prior_path = archive_dir / f"{retry_of}.md"
+            if prior_path.exists():
+                prior_text = prior_path.read_text(encoding="utf-8")
+                # 驗 prior status=failed
+                if not _re.search(r"^\s*status:\s*failed\b", prior_text, _re.MULTILINE):
+                    err(f"retry_of='{retry_of}' 指向 archive ticket 但 prior status≠failed（PROPOSAL_502_047 T-1 R6-2 解條文-實作 drift；retry chain 必接 failed ticket；非 superseded）")
+            else:
+                err(f"retry_of='{retry_of}' archive ticket 不存在（PROPOSAL_502_047 T-1 R6-2）")
+        # archive 不存在則跳過（不是錯）
 
     summary()
 

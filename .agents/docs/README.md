@@ -58,5 +58,5 @@
 
 - 建立提案：PROPOSAL_20260423_004
 - 對齊：`RULES_DESIGN_GUIDE §二十`
-- 搭配 validator：`.agents/tests/docs-location-validator.mjs`（Phase D 新建）
-- 框架層白名單：`.agents/scripts/framework-diff.mjs` `FRAMEWORK_LAYER_PATTERNS` 含 `/^docs\/[^/]+\.md$/`（Phase F 擴充）
+- 搭配 validator：`.agents/tests/docs-location-validator.py`（Phase D 新建）
+- 框架層白名單：`.agents/scripts/framework-diff.py` `FRAMEWORK_LAYER_PATTERNS` 含 `/^docs\/[^/]+\.md$/`（Phase F 擴充）

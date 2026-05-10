@@ -185,7 +185,7 @@ cat > /tmp/<rule>-slim.md << 'EOF'
 EOF
 
 # 2. 驗證暫存
-node .agents/tests/schema-validator.mjs --file /tmp/<rule>-slim.md
+python3 .agents/tests/schema-validator.py --file /tmp/<rule>-slim.md
 
 # 3. Atomic move
 mv /tmp/<rule>-slim.md .agents/rules/<rule>.md
@@ -268,10 +268,10 @@ PROPOSAL_20260501_001 完成時若有 ≥ 1 例外 → 該提案 §Notes 必註�
 
 ```bash
 # 1. 完整 validator（不跑只跑單檔）
-bash .agents/tests/run-all.sh
+python3 .agents/tests/run-all.py
 
 # 2. drift 對比
-node .agents/tests/agent-drift-simulator.mjs --verbose
+python3 .agents/tests/agent-drift-simulator.py --verbose
 # 與 baseline 0.872 比對；< 0.87 → 警報；< 0.85 → 回滾
 
 # 3. immutable diff 檢查

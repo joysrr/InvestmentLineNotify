@@ -174,8 +174,8 @@ Phase E（X 分）：索引同步 + 派生視圖同步檢查
 ### 立案時（新增 active/\*.md 後，commit 前）
 
 ```bash
-node .agents/scripts/generators/gen-proposal-index.mjs --write
-bash .agents/tests/index-drift-validator.sh
+python3 .agents/scripts/generators/gen-proposal-index.py --write
+python3 .agents/tests/index-drift-validator.py
 ```
 
 ### 採納 Phase G 完成時（移 completed/ 後，commit 前）
@@ -186,25 +186,25 @@ git mv .agents/proposals/active/PROPOSAL_YYYYMMDD_NNN.md \
  .agents/proposals/completed/
 
 # 2. 更新版本索引（若動了 rules/* frontmatter version）
-node .agents/scripts/generators/gen-rules-version-index.mjs --write
+python3 .agents/scripts/generators/gen-rules-version-index.py --write
 
 # 3. 若動了 framework 版本
-node .agents/scripts/generators/gen-framework-version.mjs \
+python3 .agents/scripts/generators/gen-framework-version.py \
  --bump minor --proposal PROPOSAL_YYYYMMDD_NNN --write
-node .agents/scripts/generators/gen-changelog.mjs \
+python3 .agents/scripts/generators/gen-changelog.py \
  --proposal .agents/proposals/completed/PROPOSAL_YYYYMMDD_NNN.md --write
 
 # 4. 更新提案索引（DONE 計數變動）
-node .agents/scripts/generators/gen-proposal-index.mjs --write
+python3 .agents/scripts/generators/gen-proposal-index.py --write
 
 # 5. 自檢全通過再 commit
-bash .agents/tests/run-all.sh
+python3 .agents/tests/run-all.py
 ```
 
 ### 快速自檢（任何時刻）
 
 ```bash
-bash .agents/tests/index-drift-validator.sh
+python3 .agents/tests/index-drift-validator.py
 ```
 
 ### 緊急豁免

@@ -108,7 +108,7 @@ baseline Δ：4.0 → 2.8（-1.2）
 3. `@Auditor` 下次評審時**優先檢視該維度**，驗證改善是否成效
 4. **必 append AUDIT_HISTORY.md**（PROPOSAL_502_016 P-1 強化）：細項變化（如 3.2: 2.8 → 4.5）+ baseline 更新；missing append → @Assistant P-15 升級觸發為 🔴 `AUDIT_HISTORY_APPEND_MISSING`
 5. 同步寫入 `AUDIT_DECISION_LOG.md`（依 PROPOSAL_027 auditor.md §3.0 第 5 條）
-6. **drift_score 同步**（PROPOSAL_502_016 P-2）：每次 minor bump（FRAMEWORK_VERSION 變更）@Lead 必跑 `node .agents/tests/agent-drift-simulator.mjs` 並同步至 AUDIT_HISTORY.md + FRAMEWORK_VERSION `drift_score` 欄位（單一 SoT = AUDIT_HISTORY；FRAMEWORK_VERSION 鏡像最新）
+6. **drift_score 同步**（PROPOSAL_502_016 P-2）：每次 minor bump（FRAMEWORK_VERSION 變更）@Lead 必跑 `python3 .agents/tests/agent-drift-simulator.py` 並同步至 AUDIT_HISTORY.md + FRAMEWORK_VERSION `drift_score` 欄位（單一 SoT = AUDIT_HISTORY；FRAMEWORK_VERSION 鏡像最新）
 
 ---
 

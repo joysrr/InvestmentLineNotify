@@ -211,7 +211,7 @@ Artifacts: <paths>
 | 14-17 | 資料 / 基礎設施        | 資料遷移 / 備份 / 監控 / 告警                                                            | → `heavy`                                 |
 | 18-20 | 其他                   | 純命名 / typo / 格式                                                                     | 輕度偏離 → `standard`；重度偏離 → `heavy` |
 
-### 2.5 派發指令格式擴充
+### 2.5 派發指令格式擴充（PROPOSAL_502_035 主題 4 升級為 7 欄位）
 
 對齊 `skills/stateless-routing-pattern.md §三`；@Lead 派發子 Agent 的標準訊息格式：
 
@@ -221,9 +221,17 @@ Model: <haiku|sonnet|opus>
 Lane: <fast|standard|heavy>
 Tech-stacks: <清單；從 workspace 注入>
 Artifacts: <絕對路徑清單>
+Ticket: ROUTING_TICKET.md
+Pre-Dispatch-Hints:                        # PROPOSAL_502_035 新增；7th 欄位
+  - memory: <drawer ref or "none">         # mempalace.search 結果摘要（既有 memory_hint 重新分類）
+  - gitnexus: <hint summary or "none">     # B-1 hint（v7.7 加；§code-graph-exploration §C.5）
+  - autonomy: <gate stage or "auto">       # autonomy_mode 命中 stage（v7.5 加）
+  - pending_group: <ticket_id>             # 同 ticket 內多 pending 共享 24h 計時 + 廣播確認
 ```
 
-**Hotfix 擴充格式**見 §五（多 `Hotfix: YES` + `Complexity-Tier` + `Tier-Reason` + `Incident-Context` YAML block）。
+**Hotfix 擴充格式**見 §五（多 `Hotfix: YES` + `Complexity-Tier` + `Tier-Reason` + `Incident-Context` YAML block）。Hotfix-light 三機制全關（PROPOSAL_502_035；lead.md §s07）→ Pre-Dispatch-Hints 三條皆 "none"。
+
+**pending_group 機制**（解 H-1/H-4 訊息超載）：同 ticket 內所有 pending（autonomy gate / Prior Art / GitNexus optional 等）共享 `pending_group: <ticket_id>`；user「OK 繼續」廣播確認所有同 group pending；24h 計時以 group 為單位（不個別計時）；P-31/P-32/P-33 patrol 偵測 pending_group → 同 group 視同單一條（避免多 patrol 同時 🟡）。
 
 > **完整範例庫**（fast/standard/heavy + 退件 + Hotfix + Retro 等 7+ 派發範例）：`skills/lead-dispatch-patterns.md`
 
@@ -568,6 +576,88 @@ Artifacts: <paths>
 ### 6.3 階段間 Gate 條件
 
 每階段轉移前 @Lead 必執行 Gate Check（完整條件表 + 短指令格式 + DoD Auto-Audit 見 `skills/lead-artifact-protocols.md §二~§五`）。
+
+### 6.3.1 task_class Detection — Hybrid 三層判定（PROPOSAL_502_044 + ADR-0042 重構）
+
+**三層判定機制**（順序短路；多數 dispatch 不需 LLM call）：
+
+```
+層 1 結構訊號優先（零成本）：
+  - 無 .agents/CURRENT_WORKSPACE → 強制 task_class=onboarding
+  - touched_files 全為新檔（git status -u "??") → 強烈傾向 feature
+  - touched_files 含 git rename detected (`git diff --diff-filter=R --find-renames=50%` 非空) → 強制觸發 refactor-keyword + task_class=modify-existing
+  - touched_files 既有比例 ≥80% AND user 指令含「加 / 新增 / 補上」 → 強烈傾向 modify-existing（解 R3-A1 additive 動詞 miss）
+  → 任一命中 → task_class_source: structural；跳層 2/3
+
+層 2 closed-list keyword 快車道（零成本）：
+  - 下方 7-priority list（既有 v7.14；R3-A1+A4 補擴）
+  - §C.5 refactor-keyword heuristic fallback 命中 → 視同 modify-existing（PROPOSAL_502_044 R3-A2 雙軌對齊）
+  → 命中 → task_class_source: keyword；跳層 3
+
+層 3 LLM-classifier fallback（layer 1+2 全 miss 時）：
+  - @Lead 呼叫 inline LLM (haiku 等)；prompt 推 task_class enum + refactor/cross-stack bool
+  - LLM 回 + confidence ≥0.7 → 採納；task_class_source: llm_classifier
+  - LLM 模糊 (confidence <0.7 或回 "unsure") → fallback feature + intent_ambiguous: true → 提示 user 確認
+```
+
+### 7-Priority Keyword List（層 2；PROPOSAL_502_041 + PROPOSAL_502_044 R3-A1+A4 擴充）：
+
+@Lead 派發前依以下 priority list 推導 task_class（層 2 快車道）：
+
+| Priority | 偵測規則（grep + 結構）                                                                                                                                                                          | 推論 task_class                                     |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| 1        | user 指令含「建 workspace / 新 repo / onboarding / 啟動專案 / 拉了 repo / PROJECT_CONTEXT 建立 / 接入 codebase」之一                                                                             | **onboarding**                                      |
+| 2        | 含「hotfix / 急修 / 生產事故 / 線上掛 / urgent fix」+ 既有檔修改                                                                                                                                 | **hotfix**                                          |
+| 3        | 含「改名 / rename / refactor / 重新命名 / 統一命名 / 同步調整 / 整合呼叫 / 影響分析 / 找出所有」+ 既有檔 **OR §C.5 refactor-keyword heuristic fallback 命中**（PROPOSAL_502_044 R3-A2 雙軌對齊） | **modify-existing**（ + B-1 refactor-keyword 命中） |
+| 4        | 含「修 / fix / 改 / patch / update / 修改 / **加 / 新增 / 補上 / 加上 / 擴充**」+ 既有檔比例 ≥80%（PROPOSAL_502_044 R3-A1 補 additive 動詞）                                                     | **modify-existing**                                 |
+| 5        | 含「文件 / docs / README / architecture / API spec」+ 無 src/ 變更                                                                                                                               | **doc-sync**                                        |
+| 6        | 含「config / 配置 / 常數 / threshold / timeout 值」+ 單一 config 檔                                                                                                                              | **config-adjust**                                   |
+| 7        | 含「新增 / 加 / new / add / 實作」+ 新檔 / 新模組                                                                                                                                                | **feature**                                         |
+| fallback | 無命中                                                                                                                                                                                           | **feature**（最保守 default）                       |
+
+**漏標 fallback**（@Assistant 巡邏）：
+
+- P-X（可選新增）：偵測「workspace 是新建（last_modified 在最近 1h 內）+ ROUTING_TICKET task_class ≠ onboarding」→ 🟡 提醒升 onboarding
+- 同理：偵測「touched_files 全為新檔 + task_class=modify-existing」→ 🟡 提醒改 feature
+
+### 6.3.1.1 多訊號拆分流程（PROPOSAL_502_046 + ADR-0043 R5-4）
+
+**多 priority 命中** = 同 dispatch user 指令觸發 ≥2 個 priority；@Lead 進拆分流程：
+
+```
+Step 1: 計命中 priority 數量
+  - 0 命中 → fallback feature（既有）
+  - 1 命中 → 走原流程
+  - ≥2 命中 → 進 Step 2
+
+Step 2: 例外升 user 仲裁（強制）
+  - onboarding (1) + hotfix (2) 同時命中 → 設計矛盾；發 🔴 MULTI_SIGNAL_AMBIGUOUS 等 user 仲裁
+  - onboarding + 其他任意 → 強制 user 仲裁
+  - ≥3 不同 priority 命中 → 強制 user 仲裁
+
+Step 3: 自動拆分（≤2 priority + 非 onboarding）
+  - 主 ticket task_class = 取最低 priority 編號（最緊急）
+  - 主 ticket frontmatter `multi_signal_secondary: [其他 priority 對應 task_class]`
+  - 次要訊號 push 至 PENDING_DISPATCHES queue（FIFO；繼承 pending_group_inherited_from）
+  - 次 ticket frontmatter `multi_signal_primary: <主 ticket_id>`
+
+Step 4: User 通知（透明度）
+  - PENDING_ACTIONS §🟢 寫 MULTI_SIGNAL_DISPATCHED：「user 指令含 N 訊號；本 ticket 走 <主>；<次> queue 中（主完成後派發）」
+  - User 可明示「合併走單一通道」/「分開派」/「只跑 <某>」覆寫
+```
+
+### 6.3.2 modify-existing 不跳 Stage 3 — 4 場景明文表（PROPOSAL_502_041 解 GR-G4）
+
+`rules/lead.md §s_complexity_lane` 規定「modify-existing + 4 場景全命中 → 強制不跳 Stage 3」；4 場景具體列舉：
+
+| #   | 場景                                                                   | 對應 B-1 條件                             |
+| --- | ---------------------------------------------------------------------- | ----------------------------------------- |
+| 1   | cross-stack（≥3 檔含 ≥2 種主層副檔名）                                 | `code-graph-exploration §C.5` cross-stack |
+| 2   | large-file（任一 touched_file LOC > 800）                              | `§C.5` large-file                         |
+| 3   | refactor-keyword（含 refactor/rename/改名/同步調整 等；§C.5 完整清單） | `§C.5` refactor-keyword                   |
+| 4   | frontend-backend-pair（touched_files 同含前 + 後端路徑）               | `§C.5` frontend-backend-pair              |
+
+**全命中** = 4 條件全 true；任一缺 → 可跳 Stage 3（modify-existing 既有例外）。
 
 ### 6.4 條件式分支處理
 

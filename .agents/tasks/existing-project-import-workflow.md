@@ -65,7 +65,7 @@ git -C $TARGET log -1 --format=%cd
 ### Step 3：workspace 建立（注入欄位 ≠ 修專案）
 
 ```bash
-node .agents/scripts/init-workspace.mjs --name <ws_name> --import-path $TARGET
+python3 .agents/scripts/init-workspace.py --name <ws_name> --import-path $TARGET
 # --import-path 旗標（PROPOSAL_502_017 待補；當前手動執行）：
 #   - PROJECT_CONTEXT.project_root = $TARGET
 #   - PATHS.frontend_root = $TARGET/webapp 或自動偵測

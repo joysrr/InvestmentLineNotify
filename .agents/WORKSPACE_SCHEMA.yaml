@@ -287,3 +287,94 @@ EVALUATED_PACKAGES:
       type: string
       default: "@Architect"
       description: "執行評估者（預設 @Architect）"
+
+# ============================================================
+# RUNTIME_CONTEXT — DEPRECATED (v8.0.9 V90-A-4 / PROPOSAL_502_063)
+# ============================================================
+# DEPRECATED 原因（user feedback 2026-05-08）：
+#   workspace = 專案業務語意；machine-specific 設定（PATH / binary 路徑 / env vars）
+#   不該綁專案。同一 workspace 在不同機器路徑不同 → 跨 dev 共享易踩坑。
+#
+# 新位置：
+#   - MCP child process env → .qwen/settings.json mcpServers.<name>.env
+#   - Shell command PATH 注入 → 啟動 Qwen Code 前手動跑（qwen.md §1 cmd / PowerShell 範本）
+#
+# 本 block 保留 schema 以維持兼容；新專案請填 <not_applicable>。
+# 既有 workspace 仍可用本 block，但 framework 不再保證 agent 讀取行為（v8.1 可能完全移除）。
+RUNTIME_CONTEXT:
+  type: block
+  required: false
+  deprecated: true
+  deprecated_since: "v8.0.9"
+  deprecated_reason: "machine-specific 不應綁 workspace; 移至 .qwen/settings.json env"
+  referenced_by:
+    - rules/lead.md
+    - tasks/session-start-checklist.md
+    - skills/agent-driven-onboarding.md
+  description: "workspace 特化的 runtime / shell 環境設定；agent 執行 shell command 前先讀此塊"
+  schema:
+    platform:
+      type: enum
+      values: [win32, darwin, linux, wsl]
+      required: false
+      description: "目標執行平台；agent 可用此判斷使用 powershell vs bash"
+    shell:
+      type: enum
+      values: [powershell, bash, zsh, cmd, sh]
+      required: false
+      description: "預設 shell；agent 跑 command 時的 wrapper 選擇"
+    pre_command_hooks:
+      type: list
+      required: false
+      description: "每次跑 shell command 前須執行的 setup（順序敏感）；如 PATH override / activate venv"
+      item_schema:
+        description:
+          type: string
+          description: "本 hook 用途；agent 用於決定何時 invoke"
+        command:
+          type: string
+          description: "完整命令字串（如 '$env:Path = \"D:\\node-v22.12.0-win-x64;\" + $env:Path'；V90-A-7: v22 LTS）"
+        shell:
+          type: enum
+          values: [powershell, bash, zsh, cmd, sh]
+          description: "本 hook 用的 shell；可與上層 shell 不同（如 setup script）"
+        reason:
+          type: string
+          required: false
+          description: "為何需要此 hook（給 future agent 決策依據）"
+    binaries:
+      type: map
+      required: false
+      description: "強制使用的 binary 絕對路徑；overrides $PATH 搜尋；如 {node: 'D:\\node-v22.12.0-win-x64\\node.exe'}"
+    env_vars:
+      type: map
+      required: false
+      description: "額外環境變數；session 內必設；如 {NODE_ENV: production, PYTHONPATH: ./src}"
+
+# ============================================================
+# GITNEXUS_INTEGRATION — workspace ↔ GitNexus repo 對齊（PROPOSAL_502_038 G-F6）
+# ============================================================
+GITNEXUS_INTEGRATION:
+  type: block
+  required: false
+  referenced_by:
+    - skills/code-graph-exploration.md
+    - skills/agent-driven-onboarding.md
+  description: "workspace ↔ GitNexus repo 命名 mapping；解決 mempalace wing vs `.gitnexus/` repo 名 mismatch"
+  schema:
+    gitnexus_repo:
+      type: string
+      required: false
+      interactive: false
+      description: "GitNexus repo 名；用於 cross-system query；mempalace wing 與 gitnexus repo 不同名時對齊"
+    gitnexus_indexed:
+      type: bool
+      required: false
+      interactive: false
+      default: false
+      description: "user 是否已對此 workspace 跑 `gitnexus analyze .`（onboarding Step 4.6 寫入）"
+    gitnexus_last_index_at:
+      type: string
+      required: false
+      interactive: false
+      description: "上次 `gitnexus analyze` 時間戳；ISO8601；>30 天提示重 analyze"

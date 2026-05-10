@@ -50,8 +50,8 @@ skills/
 ## 驗證
 
 ```bash
-node .agents/tests/ref-validator.mjs        # 含子目錄遞迴掃 !ref（PROPOSAL_502_012 L-1）
-bash .agents/tests/run-all.sh               # 14 validators 全綠
+python3 .agents/tests/ref-validator.py        # 含子目錄遞迴掃 !ref（PROPOSAL_502_012 L-1）
+python3 .agents/tests/run-all.py               # 14 validators 全綠
 ```
 
 ## Related Decisions

@@ -1,11 +1,11 @@
 ---
 skill_id: prior-art-scan-checklist
 file_type: checklist
-version: v1.0
-last_modified: 2026-04-30
-last_proposal: PROPOSAL_20260430_004
+version: v2.0
+last_modified: 2026-05-04
+last_proposal: PROPOSAL_20260502_030
 purpose: |
-  @Architect Prior Art Scan 6 步驟 + DoD 完整 Checklist
+  @Architect Prior Art Scan HITL-first 三段（Phase A/B/C）+ DoD 完整 Checklist
 referenced_by:
   - rules/architect.md
   - skills/lead-context-mappings.md
@@ -14,11 +14,24 @@ referenced_by:
   - docs/agents-overview.md
 ---
 
-# Skill: Prior Art Scan Checklist（套件生態掃描檢核表）
+# Skill: Prior Art Scan Checklist（HITL-first 套件生態掃描檢核表）
 
-> 對齊 §十六.F F2 類格式（含 §專案特化參照 + MACHINE_READABLE anchor）。
+> 對齊 §十六.F F2 類格式。**v2.0 重要變更**（PROPOSAL_502_030）：改 HITL-first；
+> agent 只做 prep + analyze；user 自己跑 search 確保準確度 + 省 LLM cost。
 
-## 一、掃描觸發條件複查
+## 三段流程總覽（v2.0）
+
+```
+Phase A — @Architect prep（agent；無需 web search）
+   ↓ 發 🔴 PRIOR_ART_SEARCH_PENDING（user-action gate）
+Phase B — User 執行 search（Chat / browser；外部）
+   ↓ user 把結果回填 PRIOR_ART_REPORT.md §B 結構表
+Phase C — @Architect analyze（agent；讀填好的結果）
+   ↓ 發 🔴 PRIOR_ART_VERIFY_PENDING（既有 final HITL gate）
+Done — User 確認 agent 評估
+```
+
+## 一、掃描觸發條件複查（Phase A 第一步）
 
 開始掃描前，再次確認任一觸發條件滿足（`RULES_DESIGN_GUIDE §十八.A`）：
 
@@ -32,7 +45,9 @@ referenced_by:
 - 單檔 < **100 LOC** 異動
 - 純文件 / 純測試調整
 
-## 二、檢索關鍵字模板
+## 二、Phase A — @Architect prep（agent 自動；無需 web search）
+
+### A.1 抽 keyword（≥ 3 組）
 
 依功能性質從下表選取（可組合；建議最少檢索 **3 組關鍵字**避免單一盲區）：
 
@@ -50,15 +65,44 @@ referenced_by:
 | 測試工具        | `testing framework [language]`、`vitest`、`jest`、`playwright`             |
 | 檔案處理        | `file lock [language]`、`proper-lockfile`、`lockfile`、`fs-extra`          |
 
-**檢索管道**（User 執行；Agent 協助提示）：
+### A.2 列檢索管道（給 User）
 
-- NPM：`https://www.npmjs.com/search?q=<keyword>`
-- PyPI：`https://pypi.org/search/?q=<keyword>`
-- GitHub Trending：`https://github.com/trending/<language>?since=monthly`
-- Awesome Lists：`awesome-<topic>` 搜索
-- Stack Overflow：`what [feature] [framework] best library`
+```
+NPM:           https://www.npmjs.com/search?q=<keyword>
+PyPI:          https://pypi.org/search/?q=<keyword>
+GitHub:        https://github.com/search?q=<keyword>&type=repositories
+GitHub Trend:  https://github.com/trending/<language>?since=monthly
+Awesome List:  google "awesome-<topic>"
+Stack Overflow: google "what [feature] [framework] best library"
+ChatGPT/Claude: 「列出 [language] 內可實作 [feature] 的前 5 個套件，含 GitHub stars / 最近更新 / license」
+```
 
-## 三、評估矩陣（強制填寫）
+### A.3 產出 Search Package（agent 寫入 `docs/plans/prior-art/<功能>.md`）
+
+依 `skills/templates/prior-art-report-template.md` v2 寫入：
+
+- `§A keyword 清單`（agent 抽取）
+- `§A 檢索管道清單`（agent 列出）
+- `§B 待 User 填寫的結構化結果表`（**空白**；等 user 填）
+- `§C agent 待 user 完成後執行`（先空；user 填完後 agent 開工）
+
+### A.4 發通知 → 等 user
+
+@Architect 完成 §A 後 → 通知 @Lead → Lead 發 🔴 `PRIOR_ART_SEARCH_PENDING`（PROPOSAL_502_030 新增）
+
+**禁止**：agent 直接做 web search 推導候選；違反 HITL-first 原則。
+
+## 二.5 Phase B — User 執行 search（外部；非 agent）
+
+User 收到 🔴 `PRIOR_ART_SEARCH_PENDING` 通知 + Search Package 後：
+
+1. 依 §A.1 keywords + §A.2 管道自己跑 search（Chat / 瀏覽器 / Awesome list）
+2. 把找到的候選回填 `docs/plans/prior-art/<功能>.md` §B 表（每候選 1 row；至少 3 候選）
+3. User 完成後告知 agent「已填好；請繼續分析」
+
+## 三、Phase C — @Architect analyze（agent 讀 user 填好的結果）
+
+### C.1 評估矩陣（強制填寫）
 
 每候選方案依 5 維度評分（1-5 分；5 最佳）：
 

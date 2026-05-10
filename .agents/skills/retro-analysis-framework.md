@@ -143,12 +143,12 @@ OPEN（待審）
 
 **原則**：凡動 `proposals/active/` / `proposals/completed/` / `proposals/archived/` 下 `.md` 檔，或動 `rules/*.md` frontmatter `version`，**必**於 commit 前跑對應 generator。
 
-| 動作                                                    | 必跑 generator                                                        |
-| ------------------------------------------------------- | --------------------------------------------------------------------- |
-| 新增 / 移動 / 改名 proposal                             | `node .agents/scripts/generators/gen-proposal-index.mjs --write`      |
-| 改動 rules/ 或 RULES_DESIGN_GUIDE frontmatter `version` | `node .agents/scripts/generators/gen-rules-version-index.mjs --write` |
-| 發布 framework 新版本                                   | `gen-framework-version.mjs --bump minor --proposal <id> --write`      |
-| CHANGELOG 新增 [vX.Y] 條目                              | `gen-changelog.mjs --proposal <path> --write`                         |
+| 動作                                                    | 必跑 generator                                                          |
+| ------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 新增 / 移動 / 改名 proposal                             | `python3 .agents/scripts/generators/gen-proposal-index.py --write`      |
+| 改動 rules/ 或 RULES_DESIGN_GUIDE frontmatter `version` | `python3 .agents/scripts/generators/gen-rules-version-index.py --write` |
+| 發布 framework 新版本                                   | `gen-framework-version.mjs --bump minor --proposal <id> --write`        |
+| CHANGELOG 新增 [vX.Y] 條目                              | `gen-changelog.mjs --proposal <path> --write`                           |
 
 **檢查機制**（pre-commit hook 自動執行）：
 
@@ -164,7 +164,7 @@ OPEN（待審）
 **快速自檢**（任何 commit 前可執行）：
 
 ```bash
-bash .agents/tests/index-drift-validator.sh
+python3 .agents/tests/index-drift-validator.py
 ```
 
 ---

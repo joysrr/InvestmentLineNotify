@@ -19,7 +19,8 @@ ALL_VALIDATORS = [
     "schema", "intent", "workspace", "drift", "ref", "sync", "loc",
     "index_drift", "proposal_scope", "tech_stack", "rule_token",
     "routing_ticket", "iron_theme", "memory_palace", "sub_agent_dispatch",
-    "workflow_stage", "user_execution_language",
+    "workflow_stage", "user_execution_language", "root_artifact_pollution",
+    "condition_claim", "schema_completeness",  # PROPOSAL_502_047 C-1/C-2 governance meta-validators
 ]
 
 # 檔案類型 → 觸發 validators 對應規則

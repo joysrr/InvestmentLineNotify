@@ -19,10 +19,10 @@
 | ----------- | ------- | ------------ |
 | OPEN        | 0       | `active/`    |
 | IN_PROGRESS | 0       | `active/`    |
-| DONE        | 114     | `completed/` |
+| DONE        | 118     | `completed/` |
 | CANCELLED   | 1       | `completed/` |
-| ARCHIVED    | 1       | `archived/`  |
-| **合計**    | **116** | —            |
+| ARCHIVED    | 24      | `archived/`  |
+| **合計**    | **143** | —            |
 
 <!-- AUTO-GENERATED:END stats -->
 
@@ -215,23 +215,23 @@ Step 3（P2）：014
 
 > 由 `gen-proposal-index.mjs` 依 frontmatter 自動掃描；@Retro 須人工判斷是否需上方主表記錄
 
-| 提案                  | frontmatter 信號                  | 候選原因       |
-| --------------------- | --------------------------------- | -------------- |
-| PROPOSAL_20260502_012 | related_proposals(2)              | 多前置提案參照 |
-| PROPOSAL_20260502_013 | related_proposals(3)              | 多前置提案參照 |
-| PROPOSAL_20260502_014 | amends_adr / related_proposals(3) | 修訂既有 ADR   |
-| PROPOSAL_20260502_015 | related_proposals(2)              | 多前置提案參照 |
-| PROPOSAL_20260502_016 | related_proposals(3)              | 多前置提案參照 |
-| PROPOSAL_20260502_017 | related_proposals(2)              | 多前置提案參照 |
-| PROPOSAL_20260502_018 | related_proposals(3)              | 多前置提案參照 |
-| PROPOSAL_20260502_020 | amends_adr                        | 修訂既有 ADR   |
-| PROPOSAL_20260502_021 | amends_adr / related_proposals(2) | 修訂既有 ADR   |
-| PROPOSAL_20260502_022 | amends_adr                        | 修訂既有 ADR   |
-| PROPOSAL_20260502_023 | amends_adr / related_proposals(3) | 修訂既有 ADR   |
-| PROPOSAL_20260502_024 | amends_adr / related_proposals(2) | 修訂既有 ADR   |
-| PROPOSAL_20260502_025 | amends_adr                        | 修訂既有 ADR   |
-| PROPOSAL_20260502_026 | amends_adr                        | 修訂既有 ADR   |
-| PROPOSAL_20260502_027 | amends_adr / related_proposals(2) | 修訂既有 ADR   |
+| 提案                  | frontmatter 信號                  | 候選原因     |
+| --------------------- | --------------------------------- | ------------ |
+| PROPOSAL_20260502_036 | amends_adr / related_proposals(3) | 修訂既有 ADR |
+| PROPOSAL_20260502_037 | amends_adr / related_proposals(2) | 修訂既有 ADR |
+| PROPOSAL_20260502_038 | amends_adr / related_proposals(3) | 修訂既有 ADR |
+| PROPOSAL_20260502_039 | amends_adr                        | 修訂既有 ADR |
+| PROPOSAL_20260502_040 | amends_adr                        | 修訂既有 ADR |
+| PROPOSAL_20260502_041 | amends_adr                        | 修訂既有 ADR |
+| PROPOSAL_20260502_042 | amends_adr                        | 修訂既有 ADR |
+| PROPOSAL_20260502_043 | amends_adr                        | 修訂既有 ADR |
+| PROPOSAL_20260502_044 | amends_adr                        | 修訂既有 ADR |
+| PROPOSAL_20260502_045 | amends_adr                        | 修訂既有 ADR |
+| PROPOSAL_20260502_046 | amends_adr                        | 修訂既有 ADR |
+| PROPOSAL_20260502_047 | amends_adr                        | 修訂既有 ADR |
+| PROPOSAL_20260502_048 | amends_adr                        | 修訂既有 ADR |
+| PROPOSAL_20260502_049 | amends_adr                        | 修訂既有 ADR |
+| PROPOSAL_20260502_050 | amends_adr                        | 修訂既有 ADR |
 
 <!-- AUTO-GENERATED:END intent_inheritance_candidates -->
 

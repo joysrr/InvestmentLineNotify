@@ -32,7 +32,7 @@
 ## 一鍵執行
 
 ```bash
-bash .agents/tests/run-all.sh --regenerate-indexes
+python3 .agents/tests/run-all.py --regenerate-indexes
 ```
 
 執行內容（自動跑 2/4；其餘需 `--proposal` 參數）：

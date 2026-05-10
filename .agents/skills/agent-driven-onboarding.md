@@ -29,24 +29,33 @@ User 表達建 workspace / 啟動新專案意圖時，**唯一路徑 = 本 skill
 
 依下列順序 scan 專案根：
 
-| 訊號                                  | 工具       | 推導目標                                   |
-| ------------------------------------- | ---------- | ------------------------------------------ |
-| `package.json` exists                 | Read       | tech-stacks 候選 + name + description seed |
-| `pom.xml` / `build.gradle`            | Read       | java 棧                                    |
-| `requirements.txt` / `pyproject.toml` | Read       | python 棧                                  |
-| `go.mod`                              | Read       | go 棧                                      |
-| `Cargo.toml`                          | Read       | rust 棧                                    |
-| `*.csproj` / `*.sln`                  | Read       | .NET 棧                                    |
-| `composer.json`                       | Read       | PHP 棧                                     |
-| `Gemfile`                             | Read       | Ruby 棧                                    |
-| 子目錄名（`auth/` `payment/` `hr/`）  | LS         | domains 候選                               |
-| `.git/config` remote URL              | Read       | workspace name 候選                        |
-| 目錄名（basename）                    | Bash `pwd` | workspace name fallback                    |
-| `tsconfig.json` / `tsx` 檔            | Read       | TypeScript                                 |
-| `Dockerfile` / `docker-compose.yml`   | Read       | container deployment                       |
-| `.github/workflows/`                  | LS         | CI 已有                                    |
+| 訊號                                  | 工具       | 推導目標                                         |
+| ------------------------------------- | ---------- | ------------------------------------------------ |
+| `package.json` exists                 | Read       | tech-stacks 候選 + name + description seed       |
+| `pom.xml` / `build.gradle`            | Read       | java 棧                                          |
+| `requirements.txt` / `pyproject.toml` | Read       | python 棧                                        |
+| `go.mod`                              | Read       | go 棧                                            |
+| `Cargo.toml`                          | Read       | rust 棧                                          |
+| `*.csproj` / `*.sln`                  | Read       | .NET 棧                                          |
+| `composer.json`                       | Read       | PHP 棧                                           |
+| `Gemfile`                             | Read       | Ruby 棧                                          |
+| 子目錄名（`auth/` `payment/` `hr/`）  | LS         | domains 候選                                     |
+| `.git/config` remote URL              | Read       | workspace name 候選                              |
+| 目錄名（basename）                    | Bash `pwd` | workspace name fallback                          |
+| `tsconfig.json` / `tsx` 檔            | Read       | TypeScript                                       |
+| `Dockerfile` / `docker-compose.yml`   | Read       | container deployment                             |
+| `.github/workflows/`                  | LS         | CI 已有                                          |
+| `uname -s` / `$env:OS`                | Bash       | RUNTIME_CONTEXT.platform（PROPOSAL_502_029 T-2） |
+| `which node` / `which python3`        | Bash       | RUNTIME_CONTEXT.binaries baseline 路徑           |
 
 對每個偵測到的 tech，grep `.agents/tech-stacks/MANIFEST.yaml` 找對應 entry。
+
+**RUNTIME_CONTEXT 偵測**（PROPOSAL_502_029 T-2）：
+
+- platform 自動偵測（`uname -s` / Windows 用 `[System.Environment]::OSVersion.Platform`）
+- binaries：`which node` / `which python3` 取結果填 RUNTIME_CONTEXT.binaries
+- **pre_command_hooks 不自動填**；Step 3 multi-choice 問 User：「需要在執行 shell 前加任何 setup 嗎？（如 PATH override / venv activate）[Y/n]」
+- 預設 N；User Y 時開另一輪 multi-choice 收集 hooks
 
 ### Step 2 — Plan（agent 內部組織；輸出 user 確認單）
 
@@ -115,21 +124,85 @@ maturity: pilot # default
 
 ```bash
 # Agent 用 Write tool 直接寫
-.agents/workspaces/<name>.md          ← workspace 檔
+.agents/workspaces/<name>.md          ← workspace 檔（必含 GITNEXUS_INTEGRATION 占位；PROPOSAL_502_041 GR-E2）
 .agents/CURRENT_WORKSPACE             ← 內容 = <name>
 .agents/workspaces/<name>/proposals/active/.gitkeep      ← 提案目錄
 .agents/workspaces/<name>/proposals/completed/.gitkeep
 .agents/workspaces/<name>/proposals/archived/.gitkeep
 ```
 
+**workspace.md 範本必含區塊**（解 GR-E2；新 workspace 自動繼承 v7.11 schema 升級）：
+
+```yaml
+## GITNEXUS_INTEGRATION
+gitnexus_repo: <not_applicable> # user 啟用後可填 git remote 推導的 repo 名
+gitnexus_indexed: false # 預設 false；Step 4.6 user 跑 analyze 後可改 true
+gitnexus_last_index_at: <not_applicable>
+```
+
 然後跑 validator（用 Bash tool）：
 
 ```bash
-node .agents/tests/workspace-schema-validator.mjs
+python3 .agents/tests/workspace-schema-validator.py
 node .agents/tests/run-all.sh --validator workspace
 ```
 
-驗證失敗 → 報 User，修補；通過 → 跑 `mempalace wake-up` 注入跨 session 上下文。
+驗證失敗 → 報 User，修補；通過 → 進 Step 4.5。
+
+### Step 4.5 — mempalace wing 建立（PROPOSAL_502_035 主題 5；G-D4 修補）
+
+通過 validator 後、`wake-up` 之前：agent 呼 `mcp__mempalace__add_drawer` 建 `wing_<project>` 索引 drawer：
+
+```yaml
+wing: <project_name>
+room: index # 自訂 room；workspace 級索引
+File: workspace_index_<project>
+Type: meta
+Tags: workspace, onboarding, <tech_stacks comma list>
+Summary: workspace <project> 接入索引；首次建立於 <date>
+---
+workspace_path: .agents/workspaces/<name>.md
+created_at: <ISO8601>
+detected_tech_stacks: [...]
+detected_modules: [...]
+gitnexus_indexed: false # 若 user 後續跑 gitnexus analyze → update_drawer 改 true
+```
+
+→ 後續 `mempalace.search` 命中此 drawer 即可快速取得 workspace meta；避免每次重 detect。
+
+**Polyglot multi-stack 分流**（PROPOSAL_502_041 解 GR-E3；monorepo ≥2 sub-module）：
+
+偵測 sub-module（grep `package.json | go.mod | Cargo.toml | pyproject.toml | pom.xml` 等於 ≥2 不同根層 dir）→ 對每 sub-module **額外 add drawer**：
+
+```yaml
+wing: <project_name>
+room: index_<submodule_name> # 例 index_backend-core / index_gateway / index_api-server / index_frontend
+File: workspace_index_<project>_<submodule>
+Type: meta
+Tags: workspace, onboarding, <stack>, submodule
+Summary: <submodule> 子模組索引；<stack> 棧
+---
+submodule_path: <path>
+submodule_stack: <主 stack>
+parent_wing_drawer: workspace_index_<project>
+```
+
+並在 root drawer 加 `submodules: [{name, path, stack}]` 列表 → search 時可從 root drawer 跳 sub-module drawer（解 GR-E3 解析度不足）。
+
+### Step 4.6 — Optional GitNexus 提示（user 啟用且想用語法層）
+
+ROUTING_TICKET 寫 `gitnexus_hint.triggered_by=onboarding-scenario` + `optional: true`：
+
+- P-32 偵測 optional → 只記 🟢（不升 🟡/🔴；不阻斷新派發）
+- 提示 user：「若已 `npm install -g gitnexus` → 可跑 `gitnexus analyze .` 建索引」
+
+**Polyglot scope 提示**（PROPOSAL_502_041 解 GR-E4）：
+
+- monorepo 且子模組獨立 deploy 各 → 提示 user 對每 sub-module 各跑 `cd <submodule> && gitnexus analyze .`
+- monorepo 但子模組緊耦合（cross-module call graph 重要）→ 提示 root 一次 `gitnexus analyze .`（cross-module 完整）
+- 模糊 → 預設 root analyze（較安全；少漏 cross-module impact）
+
+最後跑 `mempalace wake-up` 注入跨 session 上下文。
 
 ## §3 Decision Tree：什麼自動 / 什麼問 / 什麼 defer
 
