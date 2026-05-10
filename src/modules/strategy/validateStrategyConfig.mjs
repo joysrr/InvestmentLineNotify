@@ -514,6 +514,23 @@ function assertValuationMomentum(vm) {
       assertNumber(hpr[f], `valuationMomentum.highPRZone.${f}`),
     );
   }
+
+  if (vm.synergy !== undefined) {
+    const syn = vm.synergy;
+    assert(isObject(syn), "valuationMomentum.synergy 必須是物件");
+    assertNumber(
+      syn.safePRThreshold,
+      "valuationMomentum.synergy.safePRThreshold",
+    );
+    assertBoolean(
+      syn.macdPositiveRequired,
+      "valuationMomentum.synergy.macdPositiveRequired",
+    );
+    assertNumber(
+      syn.scalingTierBoost,
+      "valuationMomentum.synergy.scalingTierBoost",
+    );
+  }
 }
 
 function assertOverrideHierarchy(oh) {

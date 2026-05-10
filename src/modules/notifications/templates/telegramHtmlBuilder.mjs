@@ -827,7 +827,16 @@ export function buildTelegramMessages({
  * @returns {Array} 單元素數組，格式相容於 sendTelegramBatch
  */
 export function buildCompactMessage(
-  { result, vixData, usRisk, macroData, aiAdvice, config, quote },
+  {
+    result,
+    vixData,
+    usRisk,
+    macroData,
+    macroAnalysis,
+    aiAdvice,
+    config,
+    quote,
+  },
   webAppUrl,
 ) {
   const now = TwDate();
@@ -850,18 +859,17 @@ export function buildCompactMessage(
   // ── VIX ──
   const vixVal = vixData?.value != null ? Number(vixData.value) : null;
   const vixStr = vixVal !== null ? vixVal.toFixed(1) : "N/A";
-  const vixEmoji =
-    vixVal === null ? "⚪" : vixVal >= 30 ? "🚨" : vixVal >= 20 ? "⚠️" : "✅";
 
   // ── 評分 ──
   const score = Number(result.weightScore);
   const minScore = Number(result.strategy?.buy?.minWeightScoreToBuy ?? NaN);
-  const scoreOk =
-    Number.isFinite(score) && Number.isFinite(minScore) && score >= minScore;
-  const scoreStr = Number.isFinite(score) ? `${score}pt` : "--";
-  const scoreEmoji = scoreOk ? "🟢" : "⏸️";
+  const scoreStr = Number.isFinite(score) ? `${score.toFixed(1)}pt` : "--";
+  const minScoreStr = Number.isFinite(minScore) ? minScore.toFixed(1) : "--";
+  const biasStr = Number.isFinite(result.bias240)
+    ? `${result.bias240.toFixed(1)}%`
+    : "--";
 
-  // ── 維持率 ──
+  // ── 維持率與健康度 ──
   const mm = Number(result.maintenanceMargin);
   const hasLoan = Number(result.totalLoan || 0) > 0;
   const mmEmoji = !hasLoan
@@ -875,13 +883,28 @@ export function buildCompactMessage(
           : "🔴";
   const mmStr = hasLoan && Number.isFinite(mm) ? `${mm.toFixed(0)}%` : "未借款";
 
+  const levValue = Number(result.actualLeverage);
+  const levStr = Number.isFinite(levValue) ? `${levValue.toFixed(2)}` : "--";
+
+  const dropLimit = result.marginAnalysis?.riskAssessment?.survivalDropLimit;
+  const dropLimitStr = dropLimit != null ? `${dropLimit.toFixed(1)}%` : "N/A";
+
   // ── 轉弱 / 賣出訊號 ──
   const reversalTriggered = result.reversal?.triggeredCount ?? 0;
   const reversalTotal = result.reversal?.totalFactor ?? 4;
   const sellTriggered = result.sellSignals?.signalCount ?? 0;
   const sellTotal = result.sellSignals?.total ?? 3;
-  const rSigIcon = signalIcon(reversalTriggered, reversalTotal);
-  const sSigIcon = signalIcon(sellTriggered, sellTotal);
+
+  // ── AI 預判與市場 ──
+  const aiDirection = escapeHTML(
+    macroAnalysis?.conclusion?.market_direction || "未知",
+  );
+  const aiSummary = escapeHTML(
+    macroAnalysis?.conclusion?.short_summary || "無資料",
+  );
+  const prVal = result?.valuationGuardResult?.currentPR ?? "N/A";
+  const usSpx = escapeHTML(usRisk?.spxChg || "N/A");
+  const usVix = escapeHTML(usRisk?.vix || "N/A");
 
   // ── 冷卻期提示 ──
   const cooldown = result.cooldownStatus;
@@ -905,38 +928,34 @@ export function buildCompactMessage(
   // ── 估值守衛精簡提示（僅警示層才顯示） ──
   const vGuardHint =
     result?.valuationGuardStatus === "latch_triggered"
-      ? `\n🚨 估值守衛 · 清算觸發 PR${result?.valuationGuardResult?.currentPR ?? "N/A"}`
+      ? `\n🚨 估值守衛 · 清算觸發 PR${prVal}`
       : result?.valuationGuardStatus === "latch_active"
-        ? `\n🔒 估值守衛 · 清算鎖定中 PR${result?.valuationGuardResult?.currentPR ?? "N/A"}`
+        ? `\n🔒 估值守衛 · 清算鎖定中 PR${prVal}`
         : result?.valuationGuardResult?.guardActive
-          ? `\n📊 估值守衛 · PR${result?.valuationGuardResult?.currentPR ?? "N/A"} 壓縮 ×${result?.valuationGuardMultiplier ?? result?.valuationGuardResult?.multiplier ?? 1.0}`
+          ? `\n📊 估值守衛 · PR${prVal} 壓縮 ×${result?.valuationGuardMultiplier ?? result?.valuationGuardResult?.multiplier ?? 1.0}`
           : "";
 
   // ── entryGate 通道標示（Compact） ──
   const gateTagCompact = entryGateTag(result);
 
-  // ── 每日一句 ──
-  const quoteText = quote?.quote
-    ? `💬 <i>${escapeHTML(quote.quote)}</i>\n— <b>${escapeHTML(quote.author || "")}</b>`
-    : "";
-
   const SEP = "\n─────────────────\n";
 
   const text =
     `<b>${timeLabel}</b>  <code>${escapeHTML(timeTag)}</code>${SEP}` +
-    `🚦 <b>${marketStatus}</b>\n` +
-    `📌 ${target} · <i>${targetShort}</i>` +
-    `${gateTagCompact}\n` +
-    `${cooldownHint}` +
-    `${vixOverrideHint}` +
-    `${glHint}` +
-    `${vGuardHint}` +
-    (result.marginAnalysis?.riskAssessment?.survivalDropLimit != null
-      ? `\n🛡 <b>0050 可跌空間</b>：<code>${result.marginAnalysis.riskAssessment.survivalDropLimit.toFixed(1)}%</code>`
-      : "") +
-    `${SEP}` +
-    `${quoteText}\n` +
-    `📲 詳細指標與 AI 建議請到 Mini App 查看`;
+    `🚦 <b>狀態：${marketStatus}</b>\n` +
+    `📌 <b>行動：${target}</b> ─ <i>${targetShort}</i>` +
+    `${gateTagCompact}${cooldownHint}${vixOverrideHint}${glHint}${vGuardHint}${SEP}` +
+    `🏦 <b>部位健康度</b>\n` +
+    `⚖️ 實際槓桿：${levStr}x | ${mmEmoji} 維持率：${mmStr}\n` +
+    `🛡 0050可跌空間：${dropLimitStr}\n\n` +
+    `🌍 <b>市場與 AI 總結</b>\n` +
+    `🇹🇼 大盤: PR ${prVal} | VIX: ${vixStr}\n` +
+    `🇺🇸 輔助: S&P ${usSpx} | VIX: ${usVix}\n` +
+    `🤖 <b>預判：</b> [${aiDirection}] ${aiSummary}\n\n` +
+    `📡 <b>技術指標</b>\n` +
+    `評分：${scoreStr} (門檻 ${minScoreStr}) | 乖離：${biasStr}\n` +
+    `轉弱：${reversalTriggered}/${reversalTotal} | 賣出：${sellTriggered}/${sellTotal}${SEP}` +
+    `📲 點擊下方按鈕開啟 Mini App 查看詳細圖表`;
 
   return [
     {

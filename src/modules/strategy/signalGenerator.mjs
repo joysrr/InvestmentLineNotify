@@ -138,36 +138,8 @@ export function generateScoringMatrix(
 
   const ma60SlopeArr = extraData.ma60SlopeHistory || [];
 
-  // 計算宏觀情緒加成（新增）
-  let macroSentimentBonus = 0;
-  let macroSentimentLabel = "";
-
-  if (macroSentiment && strategy.macroSentiment?.enabled) {
-    const ms = strategy.macroSentiment;
-    if (macroSentiment.direction === "BULL") {
-      macroSentimentBonus = ms.bonus ?? 0;
-      macroSentimentLabel = `📈 多頭情緒 +${macroSentimentBonus}`;
-    } else if (macroSentiment.direction === "BEAR") {
-      macroSentimentBonus = -(ms.penalty ?? 0);
-      macroSentimentLabel = `📉 空頭情緒 ${macroSentimentBonus}`;
-    }
-
-    // VIX 短路覆蓋
-    const vixPanicThreshold = ms.vixOverrideTrigger ?? 28;
-    const vixAbsoluteOverride = ms.vixAbsoluteOverride ?? 35;
-
-    if (macroSentiment.vix != null) {
-      if (macroSentiment.vix >= vixAbsoluteOverride) {
-        // 極端恐慌：強制多頭加成
-        macroSentimentBonus = 5;
-        macroSentimentLabel = `🚨 VIX 恐慌 ${macroSentiment.vix} -> 強制 +5`;
-      } else if (macroSentiment.vix >= vixPanicThreshold && macroSentiment.direction !== "BULL") {
-        // VIX 恐慌區：額外加成
-        macroSentimentBonus += 3;
-        macroSentimentLabel += ` | VIX 恐慌 +3`;
-      }
-    }
-  }
+  // 宏觀情緒影響已由 strategyEngine 計算並帶入 extraData.sentimentScore，
+  // 此處不再重複計算，直接利用 factorPool.sentiment 進行評分。
 
   const factorPool = {
     priceDrop: Math.min(1.0, Math.sqrt((priceDropPercent || 0) / 40)),
@@ -195,7 +167,10 @@ export function generateScoringMatrix(
     (k) => !(k in factorPool),
   );
   if (missingKeys.length > 0) {
-    logger.warn({ missingKeys }, `[signalGenerator] factorPool 缺少以下 key: ${missingKeys.join(", ")}，分數將以 0 計算`);
+    logger.warn(
+      { missingKeys },
+      `[signalGenerator] factorPool 缺少以下 key: ${missingKeys.join(", ")}，分數將以 0 計算`,
+    );
   }
 
   // --- 2. 依分類聚合分數 ---
@@ -206,6 +181,7 @@ export function generateScoringMatrix(
   // --- 3. 決策與部位縮放 (Position Scaling) ---
   let signal = "neutral";
   let scalingRatio = 0.0;
+  let synergyBoostApplied = false;
 
   // 判斷是否啟動「多頭增益」門檻 (MA60 斜率 > 0 且 估值未過熱)
   const isBullishTrend = (extraData.ma60SlopeHistory?.at(-1) || 0) > 0;
@@ -220,8 +196,43 @@ export function generateScoringMatrix(
     signal = "buy_tactical";
     // 判斷 Scaling Tier
     const sc = thresholds.scaling;
-    if (finalScore >= sc.tier3.score) scalingRatio = sc.tier3.ratio;
-    else if (finalScore >= sc.tier2.score) scalingRatio = sc.tier2.ratio;
+
+    // 初始等級計算 (1, 2, 3)
+    let currentTier = 1;
+    if (finalScore >= sc.tier3.score) currentTier = 3;
+    else if (finalScore >= sc.tier2.score) currentTier = 2;
+    else currentTier = 1;
+
+    // T-2.2 Valuation Momentum Synergy
+    const synCfg = strategy.valuationMomentum?.synergy;
+    if (synCfg) {
+      const currentPR = extraData.currentPR ?? 100;
+      const currentMacd = macdHistArr.at(-1) ?? 0;
+      const prevMacd = macdHistArr.at(-2) ?? 0;
+
+      const isValuationSafe = currentPR < synCfg.safePRThreshold;
+      const isMacdRising = currentMacd > prevMacd;
+      const isMacdPositive = synCfg.macdPositiveRequired
+        ? currentMacd > 0
+        : true;
+
+      if (isValuationSafe && isMacdRising && isMacdPositive) {
+        currentTier = Math.min(3, currentTier + synCfg.scalingTierBoost);
+        synergyBoostApplied = true;
+
+        categoryResults["synergyBoost"] = {
+          label: "🚀 動能共振：配置升級",
+          rawScore: 0,
+          finalScore: 0,
+          details: [],
+          isCapped: false,
+        };
+      }
+    }
+
+    // 根據最終等級配置比例
+    if (currentTier === 3) scalingRatio = sc.tier3.ratio;
+    else if (currentTier === 2) scalingRatio = sc.tier2.ratio;
     else scalingRatio = sc.tier1.ratio;
   } else if (finalScore <= thresholds.sellTactical) {
     signal = "sell_tactical";
@@ -246,12 +257,11 @@ export function generateScoringMatrix(
   return {
     finalScore,
     signal,
-    scalingRatio, // 回傳給引擎決定撥款比例
+    scalingRatio,
     signalDirection,
     categoryResults,
     factorPool,
     config: thresholds,
-    macroSentimentBonus,
-    macroSentimentLabel,
+    synergyBoostApplied,
   };
 }

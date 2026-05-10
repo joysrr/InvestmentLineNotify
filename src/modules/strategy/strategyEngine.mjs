@@ -420,15 +420,8 @@ export async function buildDecision(
     scoringData,
     ctx.macroSentiment,
   );
-  const {
-    finalScore,
-    signal,
-    signalDirection,
-    scalingRatio,
-    categoryResults,
-    macroSentimentBonus,
-    macroSentimentLabel,
-  } = scoreResult;
+  const { finalScore, signal, signalDirection, scalingRatio, categoryResults } =
+    scoreResult;
 
   // --- 1.5.A) 預算管控 (Budget Control) ---
   const budgetCfg = strategy.trading?.budget;

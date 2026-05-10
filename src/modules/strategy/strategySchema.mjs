@@ -244,8 +244,8 @@ function assertBuyEntryGate(eg) {
     // rsiThreshold 允許 number 或 null
     assert(
       tier.rsiThreshold === null ||
-      (typeof tier.rsiThreshold === "number" &&
-        Number.isFinite(tier.rsiThreshold)),
+        (typeof tier.rsiThreshold === "number" &&
+          Number.isFinite(tier.rsiThreshold)),
       `${p}.rsiThreshold 必須是 number 或 null`,
     );
     assertBoolean(tier.allowLeverage, `${p}.allowLeverage`);
@@ -469,16 +469,25 @@ function assertValuationMomentum(vm) {
 
   // Phase 2.2 新增參數（v2.8+）
   if (vm.accelerationPenaltyMultiplier !== undefined) {
-    assertNumber(vm.accelerationPenaltyMultiplier, "valuationMomentum.accelerationPenaltyMultiplier");
+    assertNumber(
+      vm.accelerationPenaltyMultiplier,
+      "valuationMomentum.accelerationPenaltyMultiplier",
+    );
   }
   if (vm.decelerationReliefMultiplier !== undefined) {
-    assertNumber(vm.decelerationReliefMultiplier, "valuationMomentum.decelerationReliefMultiplier");
+    assertNumber(
+      vm.decelerationReliefMultiplier,
+      "valuationMomentum.decelerationReliefMultiplier",
+    );
   }
   if (vm.extremePRThreshold !== undefined) {
     assertNumber(vm.extremePRThreshold, "valuationMomentum.extremePRThreshold");
   }
   if (vm.extremeOvervaluationMultiplier !== undefined) {
-    assertNumber(vm.extremeOvervaluationMultiplier, "valuationMomentum.extremeOvervaluationMultiplier");
+    assertNumber(
+      vm.extremeOvervaluationMultiplier,
+      "valuationMomentum.extremeOvervaluationMultiplier",
+    );
   }
 
   if (vm.highPRZone !== undefined) {
@@ -494,6 +503,23 @@ function assertValuationMomentum(vm) {
     ];
     fields.forEach((f) =>
       assertNumber(hpr[f], `valuationMomentum.highPRZone.${f}`),
+    );
+  }
+
+  if (vm.synergy !== undefined) {
+    const syn = vm.synergy;
+    assert(isObject(syn), "valuationMomentum.synergy 必須是物件");
+    assertNumber(
+      syn.safePRThreshold,
+      "valuationMomentum.synergy.safePRThreshold",
+    );
+    assertBoolean(
+      syn.macdPositiveRequired,
+      "valuationMomentum.synergy.macdPositiveRequired",
+    );
+    assertNumber(
+      syn.scalingTierBoost,
+      "valuationMomentum.synergy.scalingTierBoost",
     );
   }
 }

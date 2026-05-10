@@ -10,11 +10,14 @@
     </div>
     <div v-else-if="error" class="inline-error">⚠️ 快照載入失敗</div>
     <div v-else class="snapshot-grid snapshot-grid--4">
-      <!-- VIX -->
-      <div class="snapshot-card" :class="vixLevel.cardClass">
-        <span class="snap-label">VIX 恐慌</span>
+      <!-- Regime / VIX -->
+      <div class="snapshot-card" :class="regimeLevel.cardClass">
+        <span class="snap-label">市場環境 (VIX)</span>
         <span class="snap-value">{{ status?.data?.rawUsMarket?.vix ?? "—" }}</span>
-        <span class="snap-sub" :class="vixLevel.textClass">{{ vixLevel.label }}</span>
+        <span class="snap-sub" :class="regimeLevel.textClass">
+          {{ regimeLevel.label }}
+          <span v-if="vixOverrideActive" title="VIX 短路保護生效">⚡</span>
+        </span>
       </div>
       <!-- PB PR -->
       <div class="snapshot-card" :class="pbPrLevel.cardClass">
@@ -43,7 +46,8 @@ defineProps({
   status: Object,
   loading: Boolean,
   error: Boolean,
-  vixLevel: Object,
+  regimeLevel: Object,
+  vixOverrideActive: Boolean,
   pbPrLevel: Object,
   pbPrValue: [Number, String],
   glLevel: Object,

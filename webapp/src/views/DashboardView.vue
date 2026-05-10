@@ -27,7 +27,8 @@
           :status="status" 
           :loading="statusLoading" 
           :error="statusError"
-          :vix-level="vixLevel"
+          :regime-level="regimeLevel"
+          :vix-override-active="vixOverrideActive"
           :pb-pr-level="pbPrLevel"
           :pb-pr-value="pbPrValue"
           :gl-level="glLevel"
@@ -139,12 +140,15 @@ const todayLabel = computed(() =>
   new Date().toLocaleDateString("zh-TW", { month: "long", day: "numeric", weekday: "short" })
 );
 
-const vixLevel = computed(() => {
-  const v = status.value?.data?.rawUsMarket?.vix ?? latestReport.value?.marketState?.sentiment?.vix;
-  if (v == null) return { label: "—", cardClass: "", textClass: "" };
-  if (v >= 30) return { label: "極度恐慌", cardClass: "card-danger", textClass: "text-danger" };
-  if (v >= 20) return { label: "警戒", cardClass: "card-warn", textClass: "text-warn" };
-  return { label: "平穩", cardClass: "card-ok", textClass: "text-ok" };
+const regimeLevel = computed(() => {
+  const state = latestReport.value?.signals?.regimeState || "NORMAL";
+  if (state === "CRISIS") return { label: "極端恐慌", cardClass: "card-danger", textClass: "text-danger" };
+  if (state === "CAUTIOUS") return { label: "高壓警戒", cardClass: "card-warn", textClass: "text-warn" };
+  return { label: "正常", cardClass: "card-ok", textClass: "text-ok" };
+});
+
+const vixOverrideActive = computed(() => {
+  return !!latestReport.value?.marketState?.sentiment?.vixOverrideActive || !!latestReport.value?.signals?.macroSentiment?.vixOverrideActive;
 });
 
 const pbPrValue = computed(() => {

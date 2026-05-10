@@ -10,7 +10,7 @@
 2. **[P1] 維持率狀態機 (`evaluateMarginLayer`)**：一旦維持率低於門檻，啟動 4 層防禦姿態 (包含強制停損與禁止買進)。
 3. **[P2] 總槓桿率控管 (`evaluateGrossLeverage`)**：確保總槓桿倍數不超過設定閥值 (例如 1.8x)。
 4. **[P2.5] 生命週期槓桿引擎 (`computeLifecycleContext`)**：根據年齡自動判定階段，動態調整該階段的 `maxLeverage` 上限。
-5. **[P3] 估值守衛 (`resolveValuationGuard`)**：偵測大盤 PB 是否過高，啟動過熱防禦機制與 Valuation Momentum 強化邏輯。
+5. **[P3] 估值守衛 (`resolveValuationGuard`)**：偵測大盤 PB 是否過高，啟動過熱防禦機制。若身處安全區且 MACD 動能強勢，則啟動 **Valuation Momentum Synergy (共振加碼)** 來主動升級戰術階層。
 6. **[P4] 跌幅前置過濾 (`resolveEntryGate`)**：依據市場跌幅與 RSI 將資金分層阻擋，未達跌幅不可買入。
 7. **[P5] 停損與移動停利 (`computeTrailingStop`)**：若觸發技術面 MA20 停損或移動停利錨點，強制減碼。
 8. **[P6] 泡沫阻斷 (`pbValue >= 2.2`)**：無條件停止任何買進行為。

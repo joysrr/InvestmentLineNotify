@@ -356,6 +356,11 @@
       "vixSpikeMultiplier": 0.85,
       "vixAbsoluteHigh": 30,
       "vixAbsoluteMultiplier": 0.7
+    },
+    "synergy": {
+      "safePRThreshold": 95,
+      "macdPositiveRequired": true,
+      "scalingTierBoost": 1
     }
   },
   "scoringMatrix": {
