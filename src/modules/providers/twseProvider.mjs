@@ -90,12 +90,6 @@ function pickRealtimePrice(msg) {
 }
 
 // ============================================================================
-// ⚡ 優化版 Cookie 快取系統 (加入 Promise Lock 防併發)
-// ============================================================================
-let _cookieCache = { cookie: null, loadedAt: 0 };
-let _cookiePromise = null; // Promise 鎖
-const COOKIE_TTL_MS = 10 * 60 * 1000;
-// ============================================================================
 // 📊 大盤估值快取 (日近似值 + 月報校正偏差)
 // ============================================================================
 let _valuationCache = { result: null, loadedAt: 0 };
@@ -103,53 +97,11 @@ let _sharesCache = { data: null, loadedAt: 0 };
 const VALUATION_TTL_MS = 4 * 60 * 60 * 1000; // 4h
 const SHARES_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7d
 
-async function getMisCookie() {
-  const now = Date.now();
-  if (_cookieCache.cookie && now - _cookieCache.loadedAt < COOKIE_TTL_MS) {
-    return _cookieCache.cookie;
-  }
-
-  if (_cookiePromise) return _cookiePromise;
-
-  _cookiePromise = (async () => {
-    try {
-      const res = await fetchWithTimeout(
-        "https://mis.twse.com.tw/stock/index.jsp",
-        {
-          ...baseFetchOptions,
-          headers: {
-            ...baseFetchOptions.headers,
-            Accept: "text/html,application/xhtml+xml",
-          },
-        },
-        8000,
-      );
-
-      const setCookie = res.headers.raw?.()["set-cookie"] || [];
-      const cookie = setCookie.map((c) => c.split(";")[0]).join("; ") || null;
-
-      _cookieCache = { cookie, loadedAt: Date.now() };
-      return cookie;
-    } catch (err) {
-      console.warn(
-        "⚠️ 獲取 TWSE Cookie 失敗 (將以無 Cookie 重試):",
-        err.message,
-      );
-      return null;
-    } finally {
-      _cookiePromise = null;
-    }
-  })();
-
-  return _cookiePromise;
-}
-
 /**
  * 嘗試抓 MIS 即時價（不含 retry）
  */
 export async function fetchRealtimeFromMis(symbol) {
   const ex_ch = toExCh(symbol);
-  const cookie = await getMisCookie();
   const url = `https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=${encodeURIComponent(ex_ch)}&json=1&delay=0&_=${Date.now()}`;
 
   const res = await fetchWithTimeout(
@@ -160,7 +112,6 @@ export async function fetchRealtimeFromMis(symbol) {
         ...baseFetchOptions.headers,
         Accept: "application/json",
         Referer: "https://mis.twse.com.tw/stock/index.jsp",
-        ...(cookie ? { Cookie: cookie } : {}),
       },
     },
     8000,
