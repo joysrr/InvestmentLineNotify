@@ -230,7 +230,12 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
       logger.warn("⚠️ [DailyRunContext] 無總經方向，策略引擎將不套用情緒調整");
     }
   } else {
-    logger.info("⏭️ [DailyRunContext] isCallAI=false，略過新聞集錦與總經分析");
+    // 💰 節費測試模式
+    logger.info(
+      "💰 [Cost-Saving] isCallAI=false，強行略過新聞分析與總經 LLM 任務",
+    );
+    macroAnalysis = _defaultMacroAnalysis("[節費模式] 略過分析");
+    macroTextForCoach = "[節費模式] 已略過 AI 總經分析";
   }
 
   // ── 組合回傳物件 ──────────────────────────────────────────────────────────

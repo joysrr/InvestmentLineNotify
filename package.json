@@ -4,6 +4,8 @@
   "main": "netlify/functions/pushLine.cjs",
   "scripts": {
     "start": "node src/runDailyCheck.mjs",
+    "dev:no-ai": "node src/runDailyCheck.mjs --no-ai --no-telegram",
+    "dev:force": "node src/runDailyCheck.mjs --force-notify",
     "bot": "node src/bot.mjs",
     "api": "node src/api/server.mjs",
     "prepare": "husky",
