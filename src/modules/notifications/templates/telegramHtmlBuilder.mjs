@@ -1,4 +1,5 @@
 import { escapeHTML, TwDate } from "../../../utils/coreUtils.mjs";
+import { formatRegimeStatus } from "../../strategy/regimePolicy.mjs";
 
 // ── 常數 ─────────────────────────────────────────────────
 const GOAL_ASSET = 74_800_000;
@@ -605,6 +606,9 @@ export function buildTelegramMessages({
 
   // ── VIX 情緒短路標示 ──
   const vixTag = vixOverrideTag(result);
+  const regimeStatus = result.regimeResult
+    ? `\\n${formatRegimeStatus(result.regimeResult)}`
+    : "";
 
   // ── Gross Leverage 曝險標示 ──
   const glTag = grossLeverageTag(result);
@@ -618,6 +622,7 @@ export function buildTelegramMessages({
     `<b>${timeLabel}</b>${SEP}\n` +
     `🚦 狀態：<b>${escapeHTML(result.marketStatus || "未明")}</b>\n` +
     `📌 行動：<b>${escapeHTML(result.target || "觀望")}</b> ─ <i>${escapeHTML(result.targetSuggestionShort || "無特殊操作")}</i>` +
+    `${regimeStatus}` +
     `${gateTag}` +
     `${vixTag}\n` +
     `${glTag}\n` +
@@ -917,6 +922,10 @@ export function buildCompactMessage(
     ? `\n⚡ VIX 情緒短路啟動 · AI BEARISH 抑制已解除`
     : "";
 
+  const regimeHint = result.regimeResult
+    ? `\n${formatRegimeStatus(result.regimeResult)}`
+    : "";
+
   // ── Gross Leverage 提示（精簡卡版，僅警示層才顯示） ──
   const glHint =
     result.grossLeverageStatus === "hardcap_breach"
@@ -944,7 +953,7 @@ export function buildCompactMessage(
     `<b>${timeLabel}</b>  <code>${escapeHTML(timeTag)}</code>${SEP}` +
     `🚦 <b>狀態：${marketStatus}</b>\n` +
     `📌 <b>行動：${target}</b> ─ <i>${targetShort}</i>` +
-    `${gateTagCompact}${cooldownHint}${vixOverrideHint}${glHint}${vGuardHint}${SEP}` +
+    `${gateTagCompact}${cooldownHint}${vixOverrideHint}${regimeHint}${glHint}${vGuardHint}${SEP}` +
     `🏦 <b>部位健康度</b>\n` +
     `⚖️ 實際槓桿：${levStr}x | ${mmEmoji} 維持率：${mmStr}\n` +
     `🛡 0050可跌空間：${dropLimitStr}\n\n` +

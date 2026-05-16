@@ -141,7 +141,7 @@ const todayLabel = computed(() =>
 );
 
 const regimeLevel = computed(() => {
-  const state = latestReport.value?.signals?.regimeState || "NORMAL";
+  const state = latestReport.value?.signals?.regimeState || latestReport.value?.signals?.regimeResult?.state || "NORMAL";
   if (state === "CRISIS") return { label: "極端恐慌", cardClass: "card-danger", textClass: "text-danger" };
   if (state === "CAUTIOUS") return { label: "高壓警戒", cardClass: "card-warn", textClass: "text-warn" };
   return { label: "正常", cardClass: "card-ok", textClass: "text-ok" };
