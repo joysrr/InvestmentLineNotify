@@ -34,7 +34,7 @@ const baseFetchOptions = {
 /**
  * 具有快取功能的單月資料抓取 (依賴 archiveManager)
  */
-async function fetchStockDayMonthWithCache(stockNo, yyyymm01) {
+export async function fetchStockDayMonthWithCache(stockNo, yyyymm01) {
   const monthKey = yyyymm01.substring(0, 6);
   const currentMonthKey = TwDate().formatMonthKey();
 
@@ -44,7 +44,7 @@ async function fetchStockDayMonthWithCache(stockNo, yyyymm01) {
     if (cachedData) return cachedData; // 讀到就直接回傳，不再打 API
   }
 
-  // 2. 打 TWSE API 獲取資料
+  // 2. 打 TWSE API 獲取資料 (帶有重試機制)
   const rows = await fetchStockDayMonth(stockNo, yyyymm01);
 
   // 3. 寫入快取：資料不為空且「不是當月」，才永久存入 data 資料庫
@@ -114,7 +114,7 @@ async function getMisCookie() {
   _cookiePromise = (async () => {
     try {
       const res = await fetchWithTimeout(
-        "https://mis.twse.com.tw/stock/fibest.jsp?lang=zh_tw",
+        "https://mis.twse.com.tw/stock/index.jsp",
         {
           ...baseFetchOptions,
           headers: {
@@ -159,7 +159,7 @@ export async function fetchRealtimeFromMis(symbol) {
       headers: {
         ...baseFetchOptions.headers,
         Accept: "application/json",
-        Referer: "https://mis.twse.com.tw/stock/fibest.jsp",
+        Referer: "https://mis.twse.com.tw/stock/index.jsp",
         ...(cookie ? { Cookie: cookie } : {}),
       },
     },
@@ -242,6 +242,10 @@ export async function getTwVix() {
           body: JSON.stringify({ SymbolID: [symbol] }),
         },
         8000,
+        2,
+        1000,
+        "taifex",
+        "getTwVix",
       );
 
       const data = await res.json();
@@ -353,6 +357,10 @@ async function fetchStockDayMonth(stockNo, yyyymm01) {
           },
         },
         10000,
+        2,
+        2000,
+        "twse",
+        "fetchStockDayMonth",
       );
 
       const text = await res.text();

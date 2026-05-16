@@ -21,11 +21,11 @@
 
 import {
   getTwVix,
-  fetchStockHistory,
   fetchLatestClose,
   fetchRealtimeFromMis,
   isMarketOpenTodayTWSE,
 } from "../modules/providers/twseProvider.mjs";
+import { fetchStockHistoryWithAutoFill } from "../modules/providers/historyProvider.mjs";
 import { fetchLatestBasePrice } from "../modules/providers/basePriceProvider.mjs";
 import { fetchAllMacroData } from "../modules/providers/marketData.mjs";
 import { fetchLastPortfolioState } from "../modules/storage.mjs";
@@ -43,7 +43,7 @@ import logger from "../utils/logger.mjs";
 
 const SYMBOL_Z2 = "00675L.TW";
 const SYMBOL_0050 = "0050.TW";
-const HISTORY_MIN_BARS = 30; // 最低資料筆數；不足時視為致命錯誤
+const HISTORY_MIN_BARS = 60; // 最低資料筆數；不足時視為致命錯誤
 
 // ─── 主要 export ──────────────────────────────────────────────────────────────
 
@@ -341,17 +341,14 @@ async function _fetchMacroData() {
 
 /** 個股歷史 K 棒 */
 async function _fetchHistory(symbol) {
-  const today = new Date();
-  const lastYear = new Date(today);
-  lastYear.setFullYear(lastYear.getFullYear() - 1);
-
-  logger.info(`📥 [DailyRunContext] 正在抓取 ${symbol} 歷史數據...`);
-  const done = stepTimer(`fetchStockHistory_${symbol}`);
-  const result = await fetchStockHistory(
-    symbol,
-    lastYear.toISOString().slice(0, 10),
-    today.toISOString().slice(0, 10),
+  logger.info(
+    `📥 [DailyRunContext] 正在抓取 ${symbol} 歷史數據 (含自動回補)...`,
   );
+  const done = stepTimer(`fetchStockHistory_${symbol}`);
+
+  // 使用自動回補邏輯，預設需求 30 筆
+  const result = await fetchStockHistoryWithAutoFill(symbol, HISTORY_MIN_BARS);
+
   done();
   return result;
 }
