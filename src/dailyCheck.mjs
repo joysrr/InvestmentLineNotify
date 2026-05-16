@@ -15,7 +15,10 @@ import { isSnapshotEncryptEnabled } from "./utils/snapshotCrypto.mjs";
 import { sendTelegramBatch } from "./modules/notifications/transports/telegramClient.mjs";
 import { IlnState } from "./domain/ilnState.mjs";
 import { buildDailyRunContext } from "./domain/dailyRunContext.mjs";
-import logger, { setGlobalContext, clearGlobalContext } from "./utils/logger.mjs";
+import logger, {
+  setGlobalContext,
+  clearGlobalContext,
+} from "./utils/logger.mjs";
 
 const sessionId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_WORKFLOW}-${process.env.GITHUB_RUN_ID}`
@@ -81,6 +84,8 @@ export async function dailyCheck({
   // ── Step 2+3：指標計算 & 策略引擎 ──────────────────────────────────────────
   logger.info("🧠 正在計算技術指標並組裝 signalData...");
   const { signalData, finalPriceZ2 } = buildSignalContext(ctx);
+  // 將補全後的價格回灌 ctx，確保後續策略引擎與 AI 教練使用一致的價格基準
+  ctx.currentPrice = finalPriceZ2;
   logger.info("✅ 指標計算完成");
 
   logger.info("🧠 正在計算投資訊號...");
@@ -115,9 +120,9 @@ export async function dailyCheck({
         await archiveManager.saveValuationGuardState(newState);
         logger.info(
           `🛡️ [dailyCheck] valuationGuardState 已更新：defenseLatch=${newState.defenseLatch}` +
-          (newState.latchTriggeredAt
-            ? `，觸發日 ${newState.latchTriggeredAt}`
-            : ""),
+            (newState.latchTriggeredAt
+              ? `，觸發日 ${newState.latchTriggeredAt}`
+              : ""),
         );
       } catch (err) {
         logger.error(err, "❌ [dailyCheck] valuationGuardState.json 寫入失敗");
@@ -193,11 +198,11 @@ export async function dailyCheck({
     const snapshotPayload =
       isSnapshotEncryptEnabled() && lastState
         ? {
-          // price0050 / priceZ2 注入快照，供 normaliseSnapshot 計算當日市值
-          ...lastState,
-          price0050: price0050 ?? null,
-          priceZ2: finalPriceZ2 ?? null,
-        }
+            // price0050 / priceZ2 注入快照，供 normaliseSnapshot 計算當日市值
+            ...lastState,
+            price0050: price0050 ?? null,
+            priceZ2: finalPriceZ2 ?? null,
+          }
         : null;
 
     const state = new IlnState({
@@ -239,7 +244,7 @@ export async function dailyCheck({
     vixValue >= 30 ||
     signalDirection !== "hold" || // ← long/short 都算高風險日
     valuationGuardState.latchActive !==
-    (result?.signals?.latchNowActive ?? false);
+      (result?.signals?.latchNowActive ?? false);
 
   if (isHighRiskDay) {
     logger.info(

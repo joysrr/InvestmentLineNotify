@@ -875,7 +875,7 @@ export function buildCompactMessage(
     : "--";
 
   // ── 維持率與健康度 ──
-  const mm = Number(result.maintenanceMargin);
+  const mm = Number(result.maintenanceMargin || 0);
   const hasLoan = Number(result.totalLoan || 0) > 0;
   const mmEmoji = !hasLoan
     ? "▫️"
@@ -886,12 +886,15 @@ export function buildCompactMessage(
         : mm >= 135
           ? "🟠"
           : "🔴";
-  const mmStr = hasLoan && Number.isFinite(mm) ? `${mm.toFixed(0)}%` : "未借款";
+  const mmStr =
+    hasLoan && Number.isFinite(mm) && mm > 0 ? `${mm.toFixed(0)}%` : "未借款";
 
   const levValue = Number(result.actualLeverage);
   const levStr = Number.isFinite(levValue) ? `${levValue.toFixed(2)}` : "--";
 
-  const dropLimit = result.marginAnalysis?.riskAssessment?.survivalDropLimit;
+  const dropLimit =
+    result.dropLimit ??
+    result.marginAnalysis?.riskAssessment?.survivalDropLimit;
   const dropLimitStr = dropLimit != null ? `${dropLimit.toFixed(1)}%` : "N/A";
 
   // ── 轉弱 / 賣出訊號 ──

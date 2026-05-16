@@ -473,6 +473,10 @@ function _unwrap(settled, fallback, label) {
 // ─── Log helpers（與原 dailyCheck 行為對齊） ──────────────────────────────────
 
 function _logPortfolio(s) {
+  if (!s) {
+    logger.warn("⚠️ 持股資料為空，請檢查配置");
+    return;
+  }
   logger.info(
     `✅ 持股狀態確認：0050=${s.qty0050}股, 00675L=${s.qtyZ2}股, 借款=${s.totalLoan}`,
   );

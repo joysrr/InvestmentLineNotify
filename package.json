@@ -10,6 +10,7 @@
     "api": "node src/api/server.mjs",
     "prepare": "husky",
     "test": "vitest run src/test",
+    "test:data": "vitest run src/test/integration/dataIntegrity.test.mjs",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

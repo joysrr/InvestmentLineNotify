@@ -43,7 +43,13 @@ export function calculateIndicators(history) {
   const atrArr = calcATR(highs, lows, closes, 14);
   const ma60Slope = calcSlopeN(ma60Arr, 5);
   const ma240Arr = calcMA240(closes);
-  const ma240 = Number.isFinite(ma240Arr.at(-1)) ? ma240Arr.at(-1) : null;
+
+  // Fallback：如果資料不足 240 筆導致 MA240 為 NaN，嘗試 fallback 至現有資料的最大平均值，避免指標崩潰
+  let ma240 = ma240Arr.at(-1);
+  if (!Number.isFinite(ma240)) {
+    // 若不足 240 筆，改用 ma60 作為長線參考的替代值（或回報 null 由下游處理）
+    ma240 = ma60Arr.at(-1) || closes.at(-1) || null;
+  }
 
   return {
     closes,
