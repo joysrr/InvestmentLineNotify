@@ -20,19 +20,19 @@
     </div>
 
     <!-- Loading -->
-    <div v-if="currentState.loading" class="state-box">
+    <div v-if="currentState?.loading" class="state-box">
       <div class="spinner"></div>
       <p>載入中...</p>
     </div>
 
     <!-- Error -->
-    <div v-else-if="currentState.error" class="state-box state-error">
+    <div v-else-if="currentState?.error" class="state-box state-error">
       <p>⚠️ {{ currentState.error }}</p>
       <button class="retry-btn" @click="load(activeTab)">重試</button>
     </div>
 
     <!-- Empty -->
-    <div v-else-if="currentState.items.length === 0" class="state-box">
+    <div v-else-if="!currentState || currentState.items?.length === 0" class="state-box">
       <p>📭 尚無資料</p>
     </div>
 
@@ -280,20 +280,22 @@ const expanded  = reactive({})
 
 // Each tab keeps its own state so switching back doesn't refetch
 const state = reactive({
-  daily:   { loading: false, error: null, items: [], loaded: false },
-  weekly:  { loading: false, error: null, items: [], loaded: false },
-  monthly: { loading: false, error: null, items: [], loaded: false },
+  daily:      { loading: false, error: null, items: [], loaded: false },
+  weekly:     { loading: false, error: null, items: [], loaded: false },
+  monthly:    { loading: false, error: null, items: [], loaded: false },
+  discipline: { loading: false, error: null, items: [1], loaded: true },
 })
 
 const currentState = computed(() => state[activeTab.value])
 
 const subtitleText = computed(() => {
   const s = currentState.value
-  if (s.loading || s.error || !s.items.length) return ''
+  if (!s || s.loading || s.error || !s.items.length) return ''
   const tab = activeTab.value
   if (tab === 'daily')   return `近 ${s.items.length} 份`
   if (tab === 'weekly')  return `近 ${s.items.length} 週`
   if (tab === 'monthly') return `近 ${s.items.length} 個月`
+  if (tab === 'discipline') return '17年實證數據與紀律'
   return ''
 })
 
@@ -361,7 +363,7 @@ function formatPeriodLabel(period) {
 }
 
 onMounted(() => {
-  if (route.query.tab === 'discipline') {
+  if (route?.query?.tab === 'discipline') {
     activeTab.value = 'discipline'
   } else {
     load('daily')

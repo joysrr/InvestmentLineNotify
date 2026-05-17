@@ -12,7 +12,8 @@
     "test": "vitest run --dir src/test",
     "test:data": "vitest run src/test/integration/dataIntegrity.test.mjs",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "verify": "node scripts/verify-all.mjs"
   },
   "type": "module",
   "dependencies": {
