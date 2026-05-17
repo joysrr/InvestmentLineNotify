@@ -175,6 +175,12 @@
       <!-- Comparison Card -->
       <div class="card-section">
         <h4 class="section-sub-title">17年長期回測數據大比拼 (2009 ~ 2026)</h4>
+        
+        <!-- ECharts 圖表區 -->
+        <div class="chart-container" style="height: 300px; margin-bottom: 20px;">
+          <v-chart class="chart" :option="cagrOptions" autoresize />
+        </div>
+
         <div class="table-wrapper">
           <table class="backtest-table">
             <thead>
@@ -192,9 +198,9 @@
                   <strong>進攻模式 (最新 V2.8)</strong><br />
                   <span class="sub-row">訊號觸發減持 50% + 去槓桿守衛</span>
                 </td>
-                <td class="val-gain">NT$ 3,336 萬</td>
-                <td class="val-gain">10.36%</td>
-                <td class="val-safe">-32.05%</td>
+                  <td class="val-gain">NT$ 4,620 萬</td>
+                  <td class="val-gain">12.7%</td>
+                  <td class="val-safe">-41%</td>
                 <td>100%</td>
               </tr>
               <tr>
@@ -265,6 +271,44 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { fetchReports, fetchWeeklyReports, fetchMonthlyReports } from '../api/index.js'
+import VChart from 'vue-echarts'
+import { use } from 'echarts/core'
+import { BarChart, LineChart } from 'echarts/charts'
+import { TitleComponent, TooltipComponent, LegendComponent, GridComponent, DatasetComponent } from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+
+// 註冊 ECharts 組件
+use([TitleComponent, TooltipComponent, LegendComponent, GridComponent, DatasetComponent, BarChart, LineChart, CanvasRenderer])
+
+const cagrOptions = computed(() => {
+  return {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    legend: { textStyle: { color: 'var(--tg-theme-text-color, #333)' } },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: ['進攻模式(最新)', '溫和積極(舊版)', '控制組(基線)'],
+      axisLabel: { color: 'var(--tg-theme-text-color, #333)', interval: 0 }
+    },
+    yAxis: { type: 'value', axisLabel: { color: 'var(--tg-theme-text-color, #333)', formatter: '{value}%' } },
+    series: [
+      {
+        name: '年化報酬 (CAGR)',
+        type: 'bar',
+        data: [12.7, 10.09, 1.44],
+        itemStyle: { color: '#26a17b' },
+        label: { show: true, position: 'top', formatter: '{c}%' }
+      },
+      {
+        name: '最大回撤 (MDD)',
+        type: 'bar',
+        data: [-41, -43.61, -76.94],
+        itemStyle: { color: '#e84855' },
+        label: { show: true, position: 'bottom', formatter: '{c}%' }
+      }
+    ]
+  }
+})
 
 const route = useRoute()
 
