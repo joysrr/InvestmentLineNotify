@@ -1,12 +1,12 @@
 <!--
  監控模式：ACTIVE
  推播設定：ALL
- 最後更新：2026-05-06 17:02 by @Lead (Stage 8 Verification Complete)
+ 最後更新：2026-05-17 15:58 by @Hermes (Phase 2.1 & 2.5 Complete)
 -->
 
 # Pending Actions
 
-> 監控模式：`ACTIVE` ｜ 推播設定：`ALL` ｜ 最後更新：`2026-05-06 15:27 by @Lead (Phase 1 Complete)`
+> 監控模式：`ACTIVE` ｜ 推播設定：`ALL` ｜ 最後更新：`2026-05-17 15:58 by @Hermes (Phase 2.1 & 2.5 Complete)`
 
 ## 🏠 ACTIVE_WORKSPACE: investmentlinenotify
 
@@ -17,8 +17,8 @@
 > 由 `@Lead` 於每次 Gate Check 後更新。
 > `@Lead` 啟動對話第一動作：讀取本區塊。
 
-- **[CURRENT_STAGE]**：Phase 2.1 Synergy & Notification Redesign Completed ✅
-- **[CURRENT_TICKET]**：RT-20260510-001
+- **[CURRENT_STAGE]**：Phase 2.5 Backtest System Integration Completed ✅
+- **[CURRENT_TICKET]**：RT-20260517-001
 - **[NEXT_AGENT]**：@Lead (Wait for next phase)
 - **[ARTIFACT_PATHS]**：
   - `src/modules/strategy/strategyEngine.mjs`
@@ -79,11 +79,13 @@
   - 📄 回顧報告：`docs/Reports/RETROSPECTIVE_PHASE1.md`
   - 🚀 Phase 2 提案：✅ 建議立即啟動（P0: VIX Regime + Backtest）
 - **[NEXT_PHASE]**：
-  - Phase 2: Regime-aware Strategy + Valuation Momentum
-  - P0 Tasks: T-2.1 (VIX Regime, 4h) + T-2.5 (Backtest, 12h)
+  - WebApp 可視化優化 (整合 Phase 2.5 回測數據)
+  - T-2.3: 策略參數視覺化編輯系統
+  - Phase 3: 資產解耦與多標的支援
   - 預計工時：46h (核心) + 8h (審查) = 54h
   - 預計時程：4 週
 - **[LAST_UPDATED]**：2026-05-10 23:02 by @Lead (Synergy & Notification Redesign Complete)
+- **[LAST_UPDATED]**：2026-05-17 15:58 by @Hermes (Phase 2.1 & 2.5 Completed, Backtest Architecture Verified)
 
 ---
 
