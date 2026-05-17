@@ -231,3 +231,8 @@ export const fetchPortfolioHealth = (params = {}) => {
     `/api/portfolio/health${query.toString() ? `?${query.toString()}` : ""}`,
   );
 };
+export const updateStrategyConfig = (config) =>
+  apiFetch("/api/strategy-config", {
+    method: "POST",
+    body: JSON.stringify(config),
+  });

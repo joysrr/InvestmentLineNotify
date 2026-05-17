@@ -707,12 +707,15 @@ function assertLifecycle(lifecycle) {
 // ─────────────────────────────────────────────────────────────
 
 /**
- * 從檔案載入 Strategy.json 並驗證
+ * 從檔案載入 Strategy.default.json 並驗證
  * @returns {Promise<object>} 驗證通過的配置物件
  */
 export async function fetchStrategyConfig() {
-  const strategy = await import("../../../../data/config/Strategy.json", {
-    with: { type: "json" },
-  });
+  const strategy = await import(
+    "../../../../data/config/Strategy.default.json",
+    {
+      with: { type: "json" },
+    }
+  );
   return strategy.default;
 }

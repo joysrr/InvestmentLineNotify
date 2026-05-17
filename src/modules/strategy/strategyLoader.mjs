@@ -6,36 +6,54 @@ import { validateStrategyConfig } from "./strategySchema.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const CONFIG_PARTS_DIR = resolve(__dirname, "../../../data/config/parts");
-const FALLBACK_STRATEGY_PATH = resolve(
+const CUSTOM_STRATEGY_PATH = resolve(
   __dirname,
-  "../../../data/config/Strategy.json",
+  "../../../data/config/Strategy.custom.json",
+);
+const DEFAULT_STRATEGY_PATH = resolve(
+  __dirname,
+  "../../../data/config/Strategy.default.json",
 );
 
 /**
- * 載入單一 Strategy.json (唯一的真理來源)
+ * 載入單一 Strategy JSON 檔案
+ * @param {string} filePath - 檔案路徑
+ * @returns {Promise<Object|null>}
  */
-async function loadStrategy() {
+async function loadStrategyFile(filePath) {
   try {
-    const text = await readFile(FALLBACK_STRATEGY_PATH, "utf-8");
+    const text = await readFile(filePath, "utf-8");
     const json = JSON.parse(text);
     validateStrategyConfig(json);
     return json;
   } catch (err) {
-    logger.warn({ error: err.message }, `⚠️ [StrategyLoader] 策略檔讀取失敗`);
+    if (err.code === "ENOENT") {
+      // 檔案不存在不需印 warn，屬預期行為 (例如 custom 檔可能不存在)
+      return null;
+    }
+    logger.warn(
+      { error: err.message, path: filePath },
+      `⚠️ [StrategyLoader] 策略檔載入或驗證失敗`,
+    );
     return null;
   }
 }
 
 /**
- * 策略配置門戶：自動判斷加載模式與備援
+ * 策略配置門戶：自動判斷加載模式與備援 (Shadow Override)
  */
 export async function fetchStrategyConfigUnified() {
-  // 1. 嘗試讀取主要配置檔
-  let strategy = await loadStrategy();
-  let source = "main";
+  // 1. 優先嘗試讀取客戶自訂配置檔 (Shadow Override)
+  let strategy = await loadStrategyFile(CUSTOM_STRATEGY_PATH);
+  let source = "custom";
 
-  // 2. 失敗則嘗試 Archive 備份
+  // 2. 若無自訂檔或自訂檔毀損，讀取出廠預設值
+  if (!strategy) {
+    strategy = await loadStrategyFile(DEFAULT_STRATEGY_PATH);
+    source = "default";
+  }
+
+  // 3. 失敗則嘗試 Archive 備份 (作為最後保底)
   if (!strategy) {
     strategy = await archiveManager.getStrategyCache();
     source = "archive";
