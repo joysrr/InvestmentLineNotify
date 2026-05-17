@@ -375,14 +375,14 @@
           "ma60Slope": 1.5
         }
       },
-  "valuationValue": {
-      "label": "估值價值組",
-      "cap": 8,
-      "weights": {
-        "priceDrop": 6,
-        "bullMomentum": 2
-      }
-    },
+      "valuationValue": {
+        "label": "估值價值組",
+        "cap": 8,
+        "weights": {
+          "priceDrop": 6,
+          "bullMomentum": 2
+        }
+      },
       "flowOfFunds": {
         "label": "籌碼動能組",
         "cap": 4,
@@ -453,5 +453,10 @@
         "description": "危機模式，強制 Sell-only（禁止新增部位）"
       }
     }
+  },
+  "dynamicDeleverage": {
+    "sellRatio": 0.5,
+    "triggerRatio": 0.95,
+    "targetRatio": 0.8
   }
 }

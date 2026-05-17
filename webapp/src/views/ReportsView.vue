@@ -189,12 +189,12 @@
             <tbody>
               <tr class="row-highlight">
                 <td>
-                  <strong>進攻模式 (V2.8 最新版)</strong><br />
+                  <strong>進攻模式 (最新 V2.8)</strong><br />
                   <span class="sub-row">訊號觸發減持 50% + 去槓桿守衛</span>
                 </td>
-                <td class="val-gain">NT$ 4,943 萬</td>
-                <td class="val-gain">12.93%</td>
-                <td class="val-safe">-32.27%</td>
+                <td class="val-gain">NT$ 3,336 萬</td>
+                <td class="val-gain">10.36%</td>
+                <td class="val-safe">-32.05%</td>
                 <td>100%</td>
               </tr>
               <tr>
@@ -202,25 +202,25 @@
                   <strong>溫和積極組 (舊版)</strong><br />
                   <span class="sub-row">訊號觸發 100% 清倉 + 去槓桿守衛</span>
                 </td>
-                <td>NT$ 3,141 萬</td>
-                <td>10.42%</td>
-                <td>-43.40%</td>
+                <td>NT$ 3,199 萬</td>
+                <td>10.09%</td>
+                <td>-43.61%</td>
                 <td>100%</td>
               </tr>
               <tr>
                 <td>
                   <strong>控制組 (基線)</strong><br />
-                  <span class="sub-row">每月月初 30,000 元 DCA 買 0050</span>
+                  <span class="sub-row">純 DCA 買進 0050 (帳面帳戶)</span>
                 </td>
-                <td>NT$ 1,380 萬</td>
-                <td>8.21%</td>
-                <td>-46.00%</td>
+                <td>NT$ 789 萬*</td>
+                <td>1.44%</td>
+                <td>-76.94%</td>
                 <td>100%</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <p class="table-footnote">* 備註：回測初始資金為 0 起步交易，每月月初堅持 DCA 30,000 元，槓桿部位採用質押上限 60% 折數。溫和積極組雖能在高點完美清倉，但頻繁退場不僅摩擦阻力極大，更容易在牛市大漲早期「踏空」；最新 v2.8 採行的「50% 隨波逐流減半」完美在保留複利與降噪防滑間取得黃金平衡！</p>
+        <p class="table-footnote">* 備註：回測初始資金為 0，每月 DCA 30,000 元，質押率上限 60%。舊版雖能在高點完美清倉，但頻繁全賣退場在反彈初期「踏空摩擦阻力」極大；最新 v2.8 採行的「50% 保留底倉」完美在保留複利與防滑間取得黃金平衡！(0050 基線結果含 1 拆 4 帳面重置偏誤)</p>
       </div>
 
       <!-- Explanatory Grid Cards -->
@@ -231,7 +231,7 @@
           <p class="card-text">
             <strong>避免踏空踏錯與情緒反覆：</strong> 舊版策略在賣出訊號成立時 100% 出清槓桿，回測證明這會導致在牛市的回調和暴漲邊際中陷入「頻繁踏空」，錯失最早、反彈速度最快的複利。
             <br /><br />
-            <strong>隨波逐流減半複利：</strong> 限制最大出清比例為 50%，一來落實主動式防禦避開急跌區，二來保留另外 50% 的核心槓桿以確保牛市動能突然回歸時仍在車上，免遭多頭洗盤。此調校讓年化直接跳升 2.51%，期末淨值擴大 1,800 萬！
+            <strong>保留火種延續複利：</strong> 限制最大減碼比例為 50%，一來落實主動式防禦避開急跌區，二來保留 50% 的核心槓桿等待 V 型反轉，免遭多頭洗盤。配合去槓桿守衛，期末最終淨值大勝傳統全賣清倉！
           </p>
         </div>
 

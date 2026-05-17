@@ -75,8 +75,8 @@ describe("ReportsView.vue", () => {
     await nextTick();
 
     // 驗證內容已正確呼叫渲染而且完全沒有出錯
-    expect(wrapper.text()).toContain("隨波逐流減半");
-    expect(wrapper.text()).toContain("4,943 萬");
+    expect(wrapper.text()).toContain("隨波逐流減倉 50%");
+    expect(wrapper.text()).toContain("3,336 萬");
     expect(wrapper.find(".discipline-container").exists()).toBe(true);
   });
 });

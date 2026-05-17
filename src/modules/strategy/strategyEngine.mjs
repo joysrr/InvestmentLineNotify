@@ -210,16 +210,19 @@ export async function buildDecision(
 
   // CRISIS 模式：立即 return Sell-only 決策（禁止新增部位）
   if (regimeResult.state === "CRISIS") {
+    const deleverageCfg = strategy.dynamicDeleverage || { sellRatio: 1.0 };
+    const sellPercent = Math.round(deleverageCfg.sellRatio * 100);
+
     return {
       maintenanceLayer: "normal",
       marketStatus: "🚨【VIX 危機模式】",
-      target: "🔴 強制賣出",
+      target: "🔴 局部減碼 / 強制賣出",
       targetSuggestionShort: "VIX 超過絕對門檻，禁止新增 00675L 部位",
-      targetSuggestion: "VIX 危機模式啟動，僅允許減倉/還款/DCA 操作",
+      targetSuggestion: `VIX 危機模式啟動，依生命週期投資法實行減碼，建議賣出 00675L 當前持股之 ${sellPercent}%`,
       suggestion:
         `• ${formatRegimeStatus(regimeResult)}\n` +
         `• ⚠️ 禁止新增戰術部位（00675L 加碼封鎖）\n` +
-        `• 允許操作：0050 DCA 照常執行 + 主動減倉還款`,
+        `• 允許操作：0050 DCA 照常執行 + 依比例減倉 ${sellPercent}%`,
       regimeState: "CRISIS",
       regimeResult: regimeResult,
       valuationGuardResult: engineState.valuationGuardResult ?? null,

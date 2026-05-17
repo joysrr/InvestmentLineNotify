@@ -230,8 +230,8 @@ export class BacktestRunner {
       const skipDeleverage = this.config.disableLoanGuard === true;
       if (!skipDeleverage && priceZ2 > 0) {
         this.account.deleverage(price0050, priceZ2, {
-          triggerRatio: 0.85, // 使用率超過 85% 觸發
-          targetRatio: 0.7, // 降回 70%
+          triggerRatio: this.strategy.dynamicDeleverage?.triggerRatio ?? 0.85,
+          targetRatio: this.strategy.dynamicDeleverage?.targetRatio ?? 0.7,
           quiet: this.config.quiet,
         });
       }
@@ -265,7 +265,7 @@ export class BacktestRunner {
 
     // ── 賣出條件（正常 short + CRISIS 強制賣出） ──────────────
     // 「減碼還款」是借款管理訊號，在 disableGuards 模式下不執行
-    const isSell = signalDir === "short" || targetStr.includes("強制賣出");
+    const isSell = signalDir === "short" || targetStr.includes("賣出");
 
     if (isBuy) {
       // ────────────────────────────────────────────────────────
