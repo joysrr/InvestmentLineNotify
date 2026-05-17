@@ -48,6 +48,15 @@
           :routing-path="routingPath"
         />
 
+        <!-- 科學紀律信心橫幅 -->
+        <div class="discipline-banner" @click="goToDiscipline">
+          <div class="banner-icon">🎯</div>
+          <div class="banner-body">
+            <h4 class="banner-title">科學回測：17 年大循環數據信心支持</h4>
+            <p class="banner-desc">策略「隨波逐流減半」相較 100% 清退，資產期末最終增值 1.5 倍 (4,943 萬 vs 3,141 萬) 且回撤收窄，助您看清實證、維持紀律！點擊查看數據 ➔</p>
+          </div>
+        </div>
+
         <CoachingAdvice 
           :report="latestReport"
           :risks="aiRiskWarnings"
@@ -97,6 +106,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { fetchStatus, fetchReports, fetchNews, fetchPortfolioHealth } from "../api/index.js";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
@@ -116,6 +126,11 @@ import { CanvasRenderer } from "echarts/renderers";
 use([RadarChart, RadarComponent, TooltipComponent, CanvasRenderer]);
 
 const { openLink } = useTelegram();
+const router = useRouter();
+
+function goToDiscipline() {
+  router.push({ path: "/reports", query: { tab: "discipline" } });
+}
 
 // ── State ──
 const currentTab = ref("summary");
@@ -356,4 +371,44 @@ onMounted(async () => {
 :deep(.text-danger) { color: #e84855; }
 :deep(.text-warn) { color: #f39c12; }
 :deep(.text-ok) { color: #26a17b; }
+
+/* ── Discipline Banner Styles ── */
+.discipline-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: #fff;
+  padding: 14px 16px;
+  border-radius: 16px;
+  margin-top: 16px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.discipline-banner:active {
+  transform: scale(0.98);
+}
+.banner-icon {
+  font-size: 26px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+.banner-body {
+  flex: 1;
+}
+.banner-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #38bdf8; /* sky-400 */
+  margin: 0 0 4px 0;
+}
+.banner-desc {
+  font-size: 11px;
+  color: #94a3b8; /* slate-400 */
+  margin: 0;
+  line-height: 1.45;
+}
 </style>

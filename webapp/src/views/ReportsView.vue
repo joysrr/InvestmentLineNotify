@@ -87,7 +87,7 @@
     </div>
 
     <!-- Weekly / Monthly List -->
-    <div v-else class="report-list">
+    <div v-else-if="activeTab === 'weekly' || activeTab === 'monthly'" class="report-list">
       <div
         v-for="p in currentState.items"
         :key="p.period"
@@ -161,17 +161,118 @@
         </div>
       </div>
     </div>
+
+    <!-- Science Backtest Tab Content -->
+    <div v-else-if="activeTab === 'discipline'" class="discipline-container fade-in">
+      <div class="discipline-intro-card">
+        <div class="intro-badge">✨ 核心思想：理性數據戰勝直覺</div>
+        <h3 class="intro-title">以長期實證消除踏空焦慮，維持強大紀律</h3>
+        <p class="intro-desc">
+          本系統決策「隨波逐流減倉 50%」及「動態去槓桿守衛」非憑空猜測，而是基於 2009 至 2026 年（跨越 17 年、歷經多次多空大循環）的完整歷史數據模擬。數據為所有理性的投資者提供了強烈的信心支撐，確保在車上享受複利，並在危機到來時安全存活。
+        </p>
+      </div>
+
+      <!-- Comparison Card -->
+      <div class="card-section">
+        <h4 class="section-sub-title">17年長期回測數據大比拼 (2009 ~ 2026)</h4>
+        <div class="table-wrapper">
+          <table class="backtest-table">
+            <thead>
+              <tr>
+                <th>策略模式</th>
+                <th>期末淨資產</th>
+                <th>年化報酬 (CAGR)</th>
+                <th>最大回撤 (MDD)</th>
+                <th>生存率</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="row-highlight">
+                <td>
+                  <strong>進攻模式 (V2.8 最新版)</strong><br />
+                  <span class="sub-row">訊號觸發減持 50% + 去槓桿守衛</span>
+                </td>
+                <td class="val-gain">NT$ 4,943 萬</td>
+                <td class="val-gain">12.93%</td>
+                <td class="val-safe">-32.27%</td>
+                <td>100%</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>溫和積極組 (舊版)</strong><br />
+                  <span class="sub-row">訊號觸發 100% 清倉 + 去槓桿守衛</span>
+                </td>
+                <td>NT$ 3,141 萬</td>
+                <td>10.42%</td>
+                <td>-43.40%</td>
+                <td>100%</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>控制組 (基線)</strong><br />
+                  <span class="sub-row">每月月初 30,000 元 DCA 買 0050</span>
+                </td>
+                <td>NT$ 1,380 萬</td>
+                <td>8.21%</td>
+                <td>-46.00%</td>
+                <td>100%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-footnote">* 備註：回測初始資金為 0 起步交易，每月月初堅持 DCA 30,000 元，槓桿部位採用質押上限 60% 折數。溫和積極組雖能在高點完美清倉，但頻繁退場不僅摩擦阻力極大，更容易在牛市大漲早期「踏空」；最新 v2.8 採行的「50% 隨波逐流減半」完美在保留複利與降噪防滑間取得黃金平衡！</p>
+      </div>
+
+      <!-- Explanatory Grid Cards -->
+      <div class="insights-grid">
+        <div class="insight-card">
+          <div class="card-icon">💡</div>
+          <h4 class="card-title">為什麼「僅減碼 50%」完勝「全數出清」？</h4>
+          <p class="card-text">
+            <strong>避免踏空踏錯與情緒反覆：</strong> 舊版策略在賣出訊號成立時 100% 出清槓桿，回測證明這會導致在牛市的回調和暴漲邊際中陷入「頻繁踏空」，錯失最早、反彈速度最快的複利。
+            <br /><br />
+            <strong>隨波逐流減半複利：</strong> 限制最大出清比例為 50%，一來落實主動式防禦避開急跌區，二來保留另外 50% 的核心槓桿以確保牛市動能突然回歸時仍在車上，免遭多頭洗盤。此調校讓年化直接跳升 2.51%，期末淨值擴大 1,800 萬！
+          </p>
+        </div>
+
+        <div class="insight-card">
+          <div class="card-icon">🛡️</div>
+          <h4 class="card-title">去槓桿守衛：抵禦 2022 升息熊市的盾牌</h4>
+          <p class="card-text">
+            <strong>極端行情的終極底層安防：</strong> 在 2022 年 Fed 歷史級急升息熊市下，帳戶的維持率受到高壓威脅，舊版模擬中的融資使用率（Loan Usage）曾崩潰至觸平警戒的 132%！
+            <br /><br />
+            <strong>自動還款防微杜漸：</strong> V2.8 內嵌 <strong>Deleverage 去槓桿守衛</strong>，在每日滾動迴圈中，當大腦維持率低於 85% 防線時自動觸發市價降倉還款，成功將歷史借款使用率牢牢鎖在極安全的 79% 上限，完美生存！
+          </p>
+        </div>
+
+        <div class="insight-card">
+          <div class="card-icon">📐</div>
+          <h4 class="card-title">完美還原股票分割與真實價格假跳空</h4>
+          <p class="card-text">
+            <strong>數據極致精準度：</strong> 我們的回測歷程不是紙上談兵，而是完全擬合真實世界持產現狀：
+            <br /><br />
+            1. <strong>股票分割處理：</strong> 0050 於 2025-06-18 進行「1 拆 4」分割。程式會自動在當日將庫存股數乘以 4，將歷史買入timeline均值還原，完美消除資料跳空。
+            <br />
+            2. <strong>修護假跳空資料：</strong> 修正了 2014 年 Yahoo 數據庫中 0050 出現單日 -75% 的人工記錄假跌幅，消除一切回測偏誤。
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { fetchReports, fetchWeeklyReports, fetchMonthlyReports } from '../api/index.js'
+
+const route = useRoute()
 
 const tabs = [
   { key: 'daily',   label: '日報' },
   { key: 'weekly',  label: '週報' },
   { key: 'monthly', label: '月報' },
+  { key: 'discipline', label: '科學回測' },
 ]
 
 const activeTab = ref('daily')
@@ -221,6 +322,7 @@ async function load(tab) {
 
 function switchTab(tab) {
   activeTab.value = tab
+  if (tab === 'discipline') return
   if (!state[tab].loaded) load(tab)
 }
 
@@ -258,7 +360,13 @@ function formatPeriodLabel(period) {
   return period
 }
 
-onMounted(() => load('daily'))
+onMounted(() => {
+  if (route.query.tab === 'discipline') {
+    activeTab.value = 'discipline'
+  } else {
+    load('daily')
+  }
+})
 </script>
 
 <style scoped>
@@ -495,4 +603,157 @@ onMounted(() => load('daily'))
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Discipline Styles ── */
+.discipline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+.discipline-intro-card {
+  background: var(--tg-theme-bg-color, #fff);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+.intro-badge {
+  display: inline-block;
+  font-size: 11px;
+  background: rgba(36, 129, 204, 0.10);
+  color: var(--tg-theme-button-color, #2481cc);
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.intro-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--tg-theme-text-color, #222);
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+.intro-desc {
+  font-size: 13px;
+  color: var(--tg-theme-hint-color, #555);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.card-section {
+  background: var(--tg-theme-bg-color, #fff);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+.section-sub-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #333);
+  margin: 0 0 12px 0;
+  border-left: 3px solid var(--tg-theme-button-color, #2481cc);
+  padding-left: 8px;
+}
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--tg-theme-secondary-bg-color, #eee);
+}
+.backtest-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+  min-width: 420px;
+}
+.backtest-table th {
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  color: var(--tg-theme-hint-color, #666);
+  font-weight: 700;
+  padding: 10px 8px;
+}
+.backtest-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--tg-theme-secondary-bg-color, #eee);
+  vertical-align: middle;
+  color: var(--tg-theme-text-color, #333);
+}
+.row-highlight {
+  background: rgba(38, 161, 123, 0.05);
+}
+.dark .row-highlight {
+  background: rgba(38, 161, 123, 0.15);
+}
+.row-highlight td {
+  font-weight: 600;
+}
+.sub-row {
+  font-size: 9px;
+  color: #888;
+  font-weight: normal;
+}
+.val-gain {
+  color: #26a17b !important;
+  font-weight: 700 !important;
+}
+.val-safe {
+  color: #2481cc !important;
+  font-weight: 700 !important;
+}
+.table-footnote {
+  font-size: 10px;
+  color: var(--tg-theme-hint-color, #888);
+  margin: 10px 0 0 0;
+  line-height: 1.4;
+}
+
+.insights-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.insight-card {
+  background: var(--tg-theme-bg-color, #fff);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+.card-icon {
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #222);
+  margin: 0 0 8px 0;
+}
+.card-text {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #555);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* 深色模式修正 */
+.dark .discipline-intro-card,
+.dark .card-section,
+.dark .insight-card {
+  background: #1c1c1d;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.dark .table-wrapper {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.dark .backtest-table th {
+  background: #2c2c2e;
+  color: #aaa;
+}
+.dark .backtest-table td {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
 </style>
