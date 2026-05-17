@@ -33,9 +33,9 @@ _聚焦於讓策略更聰明地應對不同市場環境。_
 
 ### T-2.3: 策略參數視覺化編輯系統 (核心功能)
 
-- [ ] **Metadata Dictionary**：建立 `ConfigMeta.json`，定義參數的中文名稱、描述與 Min/Max 限制。
-- [ ] **Write API**：實作 `POST /api/strategy-config` 支援原子性參數修改。
-- [ ] **UI 編輯器**：在 WebApp 建立條列式表單，允許直接在手機上修改策略參數（如 `vixThreshold`, `leverageCap`）。
+- [x] **Metadata Dictionary**：建立 `ConfigMeta.json`，定義參數的中文名稱、描述與 Min/Max 限制。
+- [x] **Write API**：實作 `POST /api/strategy-config` 支援原子性參數修改。
+- [x] **UI 編輯器**：在 WebApp 建立條列式表單，允許直接在手機上修改策略參數（如 `vixThreshold`, `leverageCap`）。
 
 ---
 
