@@ -867,7 +867,7 @@ describe("Portfolio Health - Summary Generation", () => {
     );
 
     expect(result.summary).toContain("需關注");
-    expect(result.summary).toContain("margin");
+    expect(result.summary).toContain("維持率");
   });
 
   it("應包含健康度分數", () => {

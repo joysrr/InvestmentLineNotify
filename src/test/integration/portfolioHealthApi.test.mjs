@@ -81,7 +81,7 @@ describe("Portfolio Health API - Success Response (TC-016)", () => {
       query: {
         maintenanceMargin: 170,
         z2Ratio: 20,
-        survivalDropPercent: 25,
+        survivalDropPercent: 55,
         currentGrossLeverage: 1.1, // < 1.2 (2.0*0.6) → GREEN
         vix: 18,
         macroSentiment: "BULL",
@@ -104,7 +104,7 @@ describe("Portfolio Health API - Success Response (TC-016)", () => {
       query: {
         maintenanceMargin: 170,
         z2Ratio: 20,
-        survivalDropPercent: 25,
+        survivalDropPercent: 55,
         currentGrossLeverage: 1.2,
         vix: 18,
         macroSentiment: "BULL",
@@ -359,13 +359,22 @@ describe("Portfolio Health API - Response Format", () => {
 
     const body = JSON.parse(response.body);
 
-    const components = ["margin", "survival", "decoupling", "leverage", "lifecycle", "regime"];
+    const components = [
+      "margin",
+      "survival",
+      "decoupling",
+      "leverage",
+      "lifecycle",
+      "regime",
+    ];
 
     for (const component of components) {
       expect(body.components[component]).toBeDefined();
       expect(body.components[component].status).toBeDefined();
       expect(body.components[component].score).toBeDefined();
-      expect(["GREEN", "YELLOW", "RED"]).toContain(body.components[component].status);
+      expect(["GREEN", "YELLOW", "RED"]).toContain(
+        body.components[component].status,
+      );
       expect(typeof body.components[component].score).toBe("number");
     }
   });
@@ -404,7 +413,7 @@ describe("Portfolio Health API - Integration Scenarios", () => {
       query: {
         maintenanceMargin: 180,
         z2Ratio: 20,
-        survivalDropPercent: 20,
+        survivalDropPercent: 55,
         currentGrossLeverage: 1.0,
         vix: 15,
         macroSentiment: "BULL",

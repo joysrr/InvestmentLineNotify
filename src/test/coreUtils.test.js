@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseNumber } from "../src/utils/coreUtils.mjs";
+import { parseNumber } from "../utils/coreUtils.mjs";
 
 describe("coreUtils", () => {
   it("should parse normal number", () => {
@@ -7,7 +7,7 @@ describe("coreUtils", () => {
   });
 
   it("should return null for invalid inputs", () => {
-    expect(parseNumber("--")).toBe(null);
-    expect(parseNumber("abc")).toBe(null);
+    expect(parseNumber("--", { fallback: null })).toBe(null);
+    expect(parseNumber("abc", { fallback: null })).toBe(null);
   });
 });

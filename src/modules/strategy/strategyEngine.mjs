@@ -408,7 +408,8 @@ export async function buildDecision(
         : ctx.macroSentiment?.direction === "BEAR"
           ? -(ctx.macroSentiment.penalty || 0)
           : 0,
-    ma60SlopeHistory: ctx.ma60SlopeHistory || [],
+    ma60SlopeHistory: ctx.ma60SlopeArr || ctx.ma60SlopeHistory || [],
+    closeArr: ctx.closeArr || [], // 【P1】供 bullMomentum 計算近 20 日漲幅
     hasTacticalPosition: ctx.z2Ratio > 15,
     currentPR: engineState.valuationGuardResult?.currentPR || 0,
   };
@@ -482,7 +483,7 @@ export async function buildDecision(
 
   // 1.6) 估值極度昂貴：防泡沫機制 (PB > 2.2)
   const pbValue = valuation?.pb;
-  if (pbValue != null && pbValue >= 2.2) {
+  if (vgCfg?.enabled && pbValue != null && pbValue >= 2.2) {
     return {
       regimeState: engineState.regimeResult?.state ?? null,
       regimeResult: engineState.regimeResult,
@@ -583,14 +584,20 @@ export async function buildDecision(
   // --- 戰術減倉路徑 ---
   if (signal === "sell_tactical" || signal === "exit_buffer") {
     const reason = signal === "exit_buffer" ? "遲滯緩衝退場" : "評分轉空減倉";
+    const sellRatio = strategy.sell?.sellRatioLimit ?? 1.0;
+    const isPartial = sellRatio < 1.0;
+    const partialText = isPartial
+      ? `依生命週期投資法實行減碼，建議賣出 00675L 當前持股之 ${(sellRatio * 100).toFixed(0)}%`
+      : "建議賣出 00675L 全數部位（100%）";
+
     return {
       regimeState: engineState.regimeResult?.state ?? null,
       regimeResult: engineState.regimeResult,
       marketStatus: "🛡️【主動防禦】",
       target: "🔻 降槓桿",
-      targetSuggestionShort: `${reason}（總分 ${finalScore.toFixed(1)}）`,
-      targetSuggestion: `評分已跌破門檻，建議賣出 00675L 還款`,
-      suggestion: `• 決策總分：${finalScore.toFixed(1)} 分\n• 訊號原因：${reason}\n• 行動：結清戰術加碼部位，降低利息支出並提高維持率`,
+      targetSuggestionShort: `${reason}（${(sellRatio * 100).toFixed(0)}% 減碼，分 ${finalScore.toFixed(1)}）`,
+      targetSuggestion: `評分已跌破門檻，${partialText}還款`,
+      suggestion: `• 決策總分：${finalScore.toFixed(1)} 分\n• 訊號原因：${reason}\n• 行動：${partialText}。藉此降低利息支出並提高維持率，同時保留剩餘部分的爆發性複利，維持車上基本曝險。`,
       finalScore,
       categoryResults,
       signalDirection,

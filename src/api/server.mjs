@@ -42,7 +42,7 @@ export async function buildApp(opts = {}) {
     max: 100,
     timeWindow: "1 minute",
     skip: (request) => {
-      // 跳過 /health 端點
+      // 跳過 /health 與 /healthz 端點
       return request.url.startsWith("/health");
     },
     onExceed: (request, reply) => {
@@ -101,6 +101,7 @@ export async function buildApp(opts = {}) {
 
   // ─── Health check (no auth required, skip guard in middleware) ───────────────
   fastify.get("/health", async () => ({ status: "ok", ts: Date.now() }));
+  fastify.get("/healthz", async () => ({ status: "ok", ts: Date.now() }));
 
   return fastify;
 }

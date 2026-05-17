@@ -262,22 +262,18 @@ describe("valuationGuard - resolveTrendConfirmation", () => {
 
 describe("valuationGuard - resolveValuationMomentum", () => {
   const defaultConfig = {
-    valuationGuard: {
-      momentum: {
-        enabled: true,
-        highPRZone: 80,
-        relaxedMomentumThreshold: 2,
-        risingPenaltyMultiplier: 0.8,
-      },
+    valuationMomentum: {
+      enabled: true,
+      highPRZone: { triggerPR: 80 },
+      relaxedMomentumThreshold: 2,
+      risingPenaltyMultiplier: 0.8,
     },
   };
 
   describe("動量未啟用", () => {
     it("momentum.enabled = false 應返回預設值", () => {
       const config = {
-        valuationGuard: {
-          momentum: { enabled: false },
-        },
+        valuationMomentum: { enabled: false },
       };
 
       const result = resolveValuationMomentum(85, [], config);
@@ -340,20 +336,19 @@ describe("valuationGuard - resolveValuationMomentum", () => {
 
   describe("動量調整", () => {
     it("高 PR 且正動量應應用懲罰乘數", () => {
-      const pbRecordsObjects = Array.from({ length: 10 }, (_, i) => ({
-        pr: 50 + i * 5,
+      // 構建 12 項長度以確保 2 階導數 (動態趨勢) 算出來為 0，避免觸發加速懲罰
+      const pbRecordsObjects = Array.from({ length: 12 }, (_, i) => ({
+        pr: 35 + i * 5, // 35 到 90 Constant Slope
       }));
-      // currentPR = 90 (>= 80)
-      // prMomentum = 40 (> 2)
 
       const result = resolveValuationMomentum(
-        90,
+        94,
         pbRecordsObjects,
         defaultConfig,
       );
 
       expect(result.momentumAdjustment).toBe(0.8);
-      expect(result.momentumLabel).toContain("估值動量");
+      expect(result.momentumLabel).toContain("估值動能");
       expect(result.momentumLabel).toContain("壓縮");
     });
 

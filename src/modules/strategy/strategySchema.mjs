@@ -262,6 +262,14 @@ function assertSell(config) {
   assertNumber(config.sell.minUpPercentToSell, "sell.minUpPercentToSell");
   assertNumber(config.sell.minSignalCountToSell, "sell.minSignalCountToSell");
 
+  if (config.sell.sellRatioLimit !== undefined) {
+    assertNumber(config.sell.sellRatioLimit, "sell.sellRatioLimit");
+    assert(
+      config.sell.sellRatioLimit >= 0 && config.sell.sellRatioLimit <= 1,
+      "sell.sellRatioLimit 必須在 0 到 1 之間",
+    );
+  }
+
   assert(isObject(config.sell.rsi), "sell.rsi 必須是物件");
   assertNumber(config.sell.rsi.overbought, "sell.rsi.overbought");
 

@@ -65,7 +65,7 @@ export function buildSignalContext(ctx) {
   const netAsset = Math.max(1, grossAsset - totalLoan);
 
   const maintenanceMargin =
-    totalLoan > 0 ? ((etfZ2Value + etf0050Value) / totalLoan) * 100 : 0;
+    totalLoan > 0 ? ((etfZ2Value + etf0050Value) / totalLoan) * 100 : 999;
   const actualLeverage =
     totalLoan > 0 ? (etfZ2Value * 2 + etf0050Value + cash) / netAsset : 1;
   const z2Ratio = (etfZ2Value / netAsset) * 100;

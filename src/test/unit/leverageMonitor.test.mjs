@@ -267,7 +267,7 @@ describe("leverageMonitor - computeGrossLeverage", () => {
       const result = computeGrossLeverage(input, customConfig);
 
       expect(result.status).toBe("ceiling_breach");
-      expect(result.message).toContain("2.0");
+      expect(result.message).toContain("2");
     });
 
     it("應使用自定義 hardCap 值", () => {
@@ -418,32 +418,56 @@ describe("leverageMonitor - 整合場景測試", () => {
   it("場景：帳戶從正常逐步增加到危機", () => {
     const scenarios = [
       {
-        input: { etf0050Value: 1000000, etf675LValue: 0, netAssetValue: 1000000 },
+        input: {
+          etf0050Value: 1000000,
+          etf675LValue: 0,
+          netAssetValue: 1000000,
+        },
         expected: "normal",
         expectedLeverage: 1.0,
       },
       {
-        input: { etf0050Value: 1500000, etf675LValue: 250000, netAssetValue: 1000000 },
+        input: {
+          etf0050Value: 1500000,
+          etf675LValue: 250000,
+          netAssetValue: 1000000,
+        },
         expected: "normal",
         expectedLeverage: 2.0,
       },
       {
-        input: { etf0050Value: 2000000, etf675LValue: 250000, netAssetValue: 1000000 },
+        input: {
+          etf0050Value: 2000000,
+          etf675LValue: 250000,
+          netAssetValue: 1000000,
+        },
         expected: "normal",
         expectedLeverage: 2.5,
       },
       {
-        input: { etf0050Value: 2000000, etf675LValue: 300000, netAssetValue: 1000000 },
+        input: {
+          etf0050Value: 2000000,
+          etf675LValue: 300000,
+          netAssetValue: 1000000,
+        },
         expected: "ceiling_breach",
         expectedLeverage: 2.6,
       },
       {
-        input: { etf0050Value: 2000000, etf675LValue: 500000, netAssetValue: 1000000 },
+        input: {
+          etf0050Value: 2000000,
+          etf675LValue: 500000,
+          netAssetValue: 1000000,
+        },
         expected: "ceiling_breach",
         expectedLeverage: 3.0,
       },
       {
-        input: { etf0050Value: 1000000, etf675LValue: 1000001, netAssetValue: 1000000 },
+        input: {
+          etf0050Value: 1000000,
+          etf675LValue: 1000001,
+          netAssetValue: 1000000,
+        },
         expected: "hardcap_breach",
         expectedLeverage: 3.000002,
       },

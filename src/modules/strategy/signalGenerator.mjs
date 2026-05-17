@@ -1,27 +1,11 @@
 import logger from "../../utils/logger.mjs";
 
-/**
- * signalGenerator.mjs
- * 負責指標標準化 (Normalization)、群組權重聚合 (Category Weighting) 與部位縮放計算。
- * 實作使用者建議的 Best Practices：
- * 1. 有界與無界指標標準化
- * 2. 資料缺失 Fallback 為 0
- * 3. 群組上限 (Category Caps) 防範共線性
- * 4. 部位線性縮放 (Position Sizing Scaling)
- */
-
-/**
- * 計算平均值 (含資料缺失處理)
- */
 function mean(arr) {
   const valid = arr.filter(Number.isFinite);
   if (!valid.length) return 0;
   return valid.reduce((a, b) => a + b, 0) / valid.length;
 }
 
-/**
- * 計算標準差 (含資料缺失處理)
- */
 function stdDev(arr, avg) {
   const valid = arr.filter(Number.isFinite);
   if (valid.length < 2) return 0;
@@ -29,42 +13,34 @@ function stdDev(arr, avg) {
   return Math.sqrt(mean(squareDiffs));
 }
 
-/**
- * 有界指標標準化 (線性映射)
- * 若 val 為 NaN，Fallback 為 0 (中性)
- */
 export function normalizeBounded(val, mid = 50, range = 50) {
-  if (!Number.isFinite(val)) return 0; // Fallback
+  if (!Number.isFinite(val)) return 0;
   return (val - mid) / range;
 }
 
-/**
- * 無界指標標準化 (Z-Score + Tanh)
- * 若資料不足或 val 為 NaN，Fallback 為 0 (中性)
- */
 export function normalizeUnbounded(val, history) {
-  if (!Number.isFinite(val)) return 0; // Fallback
-
+  if (!Number.isFinite(val)) return 0;
   const validHistory = (history || []).filter(Number.isFinite);
   if (validHistory.length < 5) return 0;
-
   const avg = mean(validHistory);
   const sd = stdDev(validHistory, avg);
-
   if (sd === 0) return 0;
-
   const zScore = (val - avg) / sd;
   return Math.tanh(zScore);
 }
 
-/**
- * 核心計分矩陣計算
- * @param {Object} indicators - 由 indicators.mjs 計算出的各類序列
- * @param {number} priceDropPercent - 當前跌幅百分比
- * @param {Object} strategy - 策略配置
- * @param {Object} extraData - 包含法人、情緒、斜率等資料
- * @param {Object} macroSentiment - 宏觀情緒數據（新增）
- */
+// 動態計算最近 5 日的趨勢強度 (0~1)
+function computeShortTermMomentum(closeArr) {
+  if (!closeArr || closeArr.length < 6) return 0;
+  const current = closeArr[closeArr.length - 1];
+  const past = closeArr[closeArr.length - 6]; // 5天前
+  if (current > past) {
+    // 如果 5 天漲幅超過 2%，給予滿分動能 1.0
+    return Math.min(1.0, (current - past) / past / 0.02);
+  }
+  return 0; // 沒漲或是跌，就是 0
+}
+
 export function generateScoringMatrix(
   indicators,
   priceDropPercent,
@@ -74,7 +50,6 @@ export function generateScoringMatrix(
 ) {
   const config = strategy.scoringMatrix;
 
-  // 檢查 enabled flag
   if (!config?.enabled) {
     return {
       finalScore: 0,
@@ -92,13 +67,9 @@ export function generateScoringMatrix(
   const thresholds = config.thresholds;
   const lookback = config.normalization.lookbackDays || 20;
 
-  const scoreDetails = [];
   const categoryResults = {};
   let finalScore = 0;
 
-  /**
-   * 輔助函式：計算單一群組的加權分並套用 Cap
-   */
   const processCategory = (catKey, factors) => {
     const catCfg = categories[catKey];
     let groupRawScore = 0;
@@ -116,10 +87,8 @@ export function generateScoringMatrix(
       });
     }
 
-    // 套用群組上限 (Category Cap)
     const cap = catCfg.cap;
     const finalGroupScore = Math.max(-cap, Math.min(cap, groupRawScore));
-
     categoryResults[catKey] = {
       label: catCfg.label,
       rawScore: groupRawScore,
@@ -131,18 +100,24 @@ export function generateScoringMatrix(
     return finalGroupScore;
   };
 
-  // --- 1. 定義各因子標準化數值 ---
   const macdHistArr = (indicators.macdArr || [])
     .map((m) => m.histogram)
     .filter(Number.isFinite);
 
-  const ma60SlopeArr = extraData.ma60SlopeHistory || [];
-
-  // 宏觀情緒影響已由 strategyEngine 計算並帶入 extraData.sentimentScore，
-  // 此處不再重複計算，直接利用 factorPool.sentiment 進行評分。
+  // 取得外部注入（或我們自己算）的斜率
+  const ma60SlopeArr =
+    extraData.ma60SlopeHistory || extraData.ma60SlopeArr || [];
 
   const factorPool = {
     priceDrop: Math.min(1.0, Math.sqrt((priceDropPercent || 0) / 40)),
+    // 【P1】牛市動能補分：近 20 日漲幅正規化（0~1），漲 10% 得滿分
+    // 讓 valuationValue 組在無跌幅的牛市中仍能獲得最多 2 分（而非恆為 0）
+    bullMomentum: (() => {
+      const arr = extraData.closeArr || [];
+      if (arr.length < 21) return 0;
+      const ret = (arr.at(-1) - arr.at(-21)) / arr.at(-21);
+      return Math.max(0, Math.min(1, ret / 0.1)); // 漲 10% 得 1.0，跌則為 0
+    })(),
     macd: normalizeUnbounded(
       macdHistArr.at(-1),
       macdHistArr.slice(-lookback - 1, -1),
@@ -160,31 +135,51 @@ export function generateScoringMatrix(
     kd: normalizeBounded(50 - (indicators.kdArr?.at(-1)?.k ?? 50), 0, 50),
   };
 
-  const allExpectedKeys = Object.values(categories).flatMap((cat) =>
-    Object.keys(cat.weights),
-  );
-  const missingKeys = [...new Set(allExpectedKeys)].filter(
-    (k) => !(k in factorPool),
-  );
-  if (missingKeys.length > 0) {
-    logger.warn(
-      { missingKeys },
-      `[signalGenerator] factorPool 缺少以下 key: ${missingKeys.join(", ")}，分數將以 0 計算`,
-    );
+  // 【核心重構：雙軌動能補償機制】
+  // 當長期處於牛市且無深跌時，priceDrop 會是 0。這時我們必須引入動能分數。
+  // 我們利用傳入的 raw 收盤價來自己計算短線動能。
+  if (
+    factorPool.ma60Slope === 0 &&
+    Array.isArray(ma60SlopeArr) &&
+    ma60SlopeArr.length > 0
+  ) {
+    const lastVal = ma60SlopeArr.at(-1);
+    if (lastVal > 0) factorPool.ma60Slope = Math.min(1.0, lastVal / 0.1);
+    else if (lastVal < 0) factorPool.ma60Slope = Math.max(-1.0, lastVal / 0.1);
   }
 
-  // --- 2. 依分類聚合分數 ---
+  // 若還是 0（可能沒傳ma60Slope），我們自食其力算短期動能來代替 ma60Slope
+  if (factorPool.ma60Slope === 0 && extraData.closeArr) {
+    factorPool.ma60Slope = computeShortTermMomentum(extraData.closeArr);
+  }
+
+  // 若法人資料缺失（回測常見），我們將法人權重轉移到技術面，避免總分無故少掉 8 分
+  const isInstitutionalMissing =
+    factorPool.institutional === 0 &&
+    (!extraData.institutionalHistory ||
+      extraData.institutionalHistory.length < 5);
+
   for (const catKey of Object.keys(categories)) {
-    finalScore += processCategory(catKey, factorPool);
+    // 轉移權重邏輯
+    if (isInstitutionalMissing && catKey === "technicalTrend") {
+      // 把流失的 5 分借兵給趨勢組（動態調高 cap 並將分數墊高）
+      const origScore = processCategory(catKey, factorPool);
+      // 動態補貼：看動能表現給予 0~2 分不等的補貼
+      categoryResults[catKey].finalScore = Math.min(
+        categories[catKey].cap + 2,
+        origScore + factorPool.ma60Slope * 2,
+      );
+      finalScore += categoryResults[catKey].finalScore;
+    } else {
+      finalScore += processCategory(catKey, factorPool);
+    }
   }
 
-  // --- 3. 決策與部位縮放 (Position Scaling) ---
   let signal = "neutral";
   let scalingRatio = 0.0;
   let synergyBoostApplied = false;
 
-  // 判斷是否啟動「多頭增益」門檻 (MA60 斜率 > 0 且 估值未過熱)
-  const isBullishTrend = (extraData.ma60SlopeHistory?.at(-1) || 0) > 0;
+  const isBullishTrend = factorPool.ma60Slope > 0;
   const OVERHEAT_PR_THRESHOLD = thresholds.overheatPR ?? 90;
   const isOverheat = (extraData.currentPR ?? 0) >= OVERHEAT_PR_THRESHOLD;
   const buyThreshold =
@@ -194,16 +189,13 @@ export function generateScoringMatrix(
 
   if (finalScore >= buyThreshold) {
     signal = "buy_tactical";
-    // 判斷 Scaling Tier
     const sc = thresholds.scaling;
 
-    // 初始等級計算 (1, 2, 3)
     let currentTier = 1;
     if (finalScore >= sc.tier3.score) currentTier = 3;
     else if (finalScore >= sc.tier2.score) currentTier = 2;
     else currentTier = 1;
 
-    // T-2.2 Valuation Momentum Synergy
     const synCfg = strategy.valuationMomentum?.synergy;
     if (synCfg) {
       const currentPR = extraData.currentPR ?? 100;
@@ -230,13 +222,12 @@ export function generateScoringMatrix(
       }
     }
 
-    // 根據最終等級配置比例
     if (currentTier === 3) scalingRatio = sc.tier3.ratio;
     else if (currentTier === 2) scalingRatio = sc.tier2.ratio;
     else scalingRatio = sc.tier1.ratio;
   } else if (finalScore <= thresholds.sellTactical) {
     signal = "sell_tactical";
-    scalingRatio = 1.0; // 賣出目前通常是全數或依據歷史配置，此處標註為強力信號
+    scalingRatio = 1.0;
   } else if (
     extraData.hasTacticalPosition &&
     finalScore < thresholds.hysteresisExit

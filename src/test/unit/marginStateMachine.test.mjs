@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { getMarginLayer, evaluateMarginLayer } from "../../modules/strategy/core/marginStateMachine.mjs";
+import {
+  getMarginLayer,
+  evaluateMarginLayer,
+} from "../../modules/strategy/core/marginStateMachine.mjs";
 
 describe("marginStateMachine - getMarginLayer", () => {
   const defaultMaint = {
@@ -78,9 +81,9 @@ describe("marginStateMachine - getMarginLayer", () => {
         protectTarget: 170,
       };
 
-      expect(getMarginLayer(125, customMaint)).toBe("critical");
-      expect(getMarginLayer(135, customMaint)).toBe("frozen");
-      expect(getMarginLayer(140, customMaint)).toBe("protect");
+      expect(getMarginLayer(115, customMaint)).toBe("critical");
+      expect(getMarginLayer(125, customMaint)).toBe("frozen");
+      expect(getMarginLayer(135, customMaint)).toBe("protect");
       expect(getMarginLayer(155, customMaint)).toBe("normal");
     });
 
@@ -114,7 +117,12 @@ describe("marginStateMachine - evaluateMarginLayer", () => {
         totalLoan: 1000000,
       };
 
-      const result = evaluateMarginLayer("critical", ctx, defaultStrategy, defaultReserveStatus);
+      const result = evaluateMarginLayer(
+        "critical",
+        ctx,
+        defaultStrategy,
+        defaultReserveStatus,
+      );
 
       expect(result).toBeDefined();
       expect(result.maintenanceLayer).toBe("critical");
@@ -132,9 +140,14 @@ describe("marginStateMachine - evaluateMarginLayer", () => {
         totalLoan: 500000,
       };
 
-      const result = evaluateMarginLayer("critical", ctx, defaultStrategy, defaultReserveStatus);
+      const result = evaluateMarginLayer(
+        "critical",
+        ctx,
+        defaultStrategy,
+        defaultReserveStatus,
+      );
 
-      expect(result.suggestion).toContain("維持率已低於斷頭警戒線");
+      expect(result.targetSuggestion).toContain("維持率已低於斷頭警戒線");
       expect(result.suggestion).toContain("一票否決");
       expect(result.suggestion).toContain("目標：維持率回升至 145% 以上");
     });
@@ -147,7 +160,12 @@ describe("marginStateMachine - evaluateMarginLayer", () => {
         totalLoan: 1000000,
       };
 
-      const result = evaluateMarginLayer("frozen", ctx, defaultStrategy, defaultReserveStatus);
+      const result = evaluateMarginLayer(
+        "frozen",
+        ctx,
+        defaultStrategy,
+        defaultReserveStatus,
+      );
 
       expect(result).toBeDefined();
       expect(result.maintenanceLayer).toBe("frozen");
@@ -169,7 +187,12 @@ describe("marginStateMachine - evaluateMarginLayer", () => {
         totalLoan: 1000000,
       };
 
-      const result = evaluateMarginLayer("frozen", ctx, defaultStrategy, defaultReserveStatus);
+      const result = evaluateMarginLayer(
+        "frozen",
+        ctx,
+        defaultStrategy,
+        defaultReserveStatus,
+      );
 
       expect(result.needAmount).toBe(50000);
     });
@@ -181,7 +204,12 @@ describe("marginStateMachine - evaluateMarginLayer", () => {
       };
 
       const reserveStatus = { currentReserve: 100000 }; // 大於 needAmount (50000)
-      const result = evaluateMarginLayer("frozen", ctx, defaultStrategy, reserveStatus);
+      const result = evaluateMarginLayer(
+        "frozen",
+        ctx,
+        defaultStrategy,
+        reserveStatus,
+      );
 
       expect(result.reserveSufficient).toBe(true);
       expect(result.suggestion).toContain("✅ 充足，可立即動用");
@@ -194,7 +222,12 @@ describe("marginStateMachine - evaluateMarginLayer", () => {
       };
 
       const reserveStatus = { currentReserve: 10000 }; // 小於 needAmount (50000)
-      const result = evaluateMarginLayer("frozen", ctx, defaultStrategy, reserveStatus);
+      const result = evaluateMarginLayer(
+        "frozen",
+        ctx,
+        defaultStrategy,
+        reserveStatus,
+      );
 
       expect(result.reserveSufficient).toBe(false);
       expect(result.suggestion).toContain("⚠️ 不足，需補充額外現金");
@@ -208,7 +241,12 @@ describe("marginStateMachine - evaluateMarginLayer", () => {
         totalLoan: 1000000,
       };
 
-      const result = evaluateMarginLayer("protect", ctx, defaultStrategy, defaultReserveStatus);
+      const result = evaluateMarginLayer(
+        "protect",
+        ctx,
+        defaultStrategy,
+        defaultReserveStatus,
+      );
 
       expect(result).toBeDefined();
       expect(result.maintenanceLayer).toBe("protect");
@@ -230,7 +268,12 @@ describe("marginStateMachine - evaluateMarginLayer", () => {
         totalLoan: 1000000,
       };
 
-      const result = evaluateMarginLayer("protect", ctx, defaultStrategy, defaultReserveStatus);
+      const result = evaluateMarginLayer(
+        "protect",
+        ctx,
+        defaultStrategy,
+        defaultReserveStatus,
+      );
 
       expect(result.needAmount).toBe(300000);
     });
@@ -241,7 +284,12 @@ describe("marginStateMachine - evaluateMarginLayer", () => {
         totalLoan: 500000,
       };
 
-      const result = evaluateMarginLayer("protect", ctx, defaultStrategy, defaultReserveStatus);
+      const result = evaluateMarginLayer(
+        "protect",
+        ctx,
+        defaultStrategy,
+        defaultReserveStatus,
+      );
 
       expect(result.suggestion).toContain("暫停 00675L 槓桿加碼");
       expect(result.suggestion).toContain("允許 0050 baseline DCA 維持");
@@ -255,7 +303,12 @@ describe("marginStateMachine - evaluateMarginLayer", () => {
         totalLoan: 1000000,
       };
 
-      const result = evaluateMarginLayer("normal", ctx, defaultStrategy, defaultReserveStatus);
+      const result = evaluateMarginLayer(
+        "normal",
+        ctx,
+        defaultStrategy,
+        defaultReserveStatus,
+      );
 
       expect(result).toBeNull();
     });
@@ -268,7 +321,12 @@ describe("marginStateMachine - evaluateMarginLayer", () => {
         totalLoan: 1000000,
       };
 
-      const result = evaluateMarginLayer("critical", ctx, defaultStrategy, defaultReserveStatus);
+      const result = evaluateMarginLayer(
+        "critical",
+        ctx,
+        defaultStrategy,
+        defaultReserveStatus,
+      );
 
       expect(result.maintenanceMargin).toBe(0);
       expect(result.marketStatus).toContain("斷頭危機");
@@ -280,7 +338,12 @@ describe("marginStateMachine - evaluateMarginLayer", () => {
         totalLoan: 0,
       };
 
-      const result = evaluateMarginLayer("frozen", ctx, defaultStrategy, defaultReserveStatus);
+      const result = evaluateMarginLayer(
+        "frozen",
+        ctx,
+        defaultStrategy,
+        defaultReserveStatus,
+      );
 
       expect(result.needAmount).toBe(0);
     });
@@ -291,7 +354,12 @@ describe("marginStateMachine - evaluateMarginLayer", () => {
         totalLoan: 1000000,
       };
 
-      const result = evaluateMarginLayer("critical", ctx, defaultStrategy, defaultReserveStatus);
+      const result = evaluateMarginLayer(
+        "critical",
+        ctx,
+        defaultStrategy,
+        defaultReserveStatus,
+      );
 
       expect(result.maintenanceMargin).toBe(134.99);
     });
@@ -316,7 +384,7 @@ describe("marginStateMachine - 整合場景測試", () => {
       { mm: 160, expected: "normal" },
       { mm: 155, expected: "protect" },
       { mm: 150, expected: "protect" },
-      { mm: 145, expected: "frozen" },
+      { mm: 145, expected: "protect" },
       { mm: 140, expected: "frozen" },
       { mm: 135, expected: "frozen" },
       { mm: 134, expected: "critical" },
@@ -335,12 +403,20 @@ describe("marginStateMachine - 整合場景測試", () => {
       totalLoan: 2000000, // 高借款
     };
 
-    const layer = getMarginLayer(highLeverageCtx.maintenanceMargin, strategy.maintenance);
+    const layer = getMarginLayer(
+      highLeverageCtx.maintenanceMargin,
+      strategy.maintenance,
+    );
     expect(layer).toBe("frozen");
 
-    const evalResult = evaluateMarginLayer(layer, highLeverageCtx, strategy, reserveStatus);
+    const evalResult = evaluateMarginLayer(
+      layer,
+      highLeverageCtx,
+      strategy,
+      reserveStatus,
+    );
     expect(evalResult.marketStatus).toContain("高危凍結");
-    expect(evalResult.needAmount).toBe(100000); // (1.45 - 1.42) * 2000000
+    expect(evalResult.needAmount).toBe(60000); // (1.45 - 1.42) * 2000000
   });
 
   it("場景：預備金充足的保護策略", () => {
@@ -351,10 +427,18 @@ describe("marginStateMachine - 整合場景測試", () => {
 
     const richReserve = { currentReserve: 500000 }; // 充足預備金
 
-    const layer = getMarginLayer(protectCtx.maintenanceMargin, strategy.maintenance);
+    const layer = getMarginLayer(
+      protectCtx.maintenanceMargin,
+      strategy.maintenance,
+    );
     expect(layer).toBe("protect");
 
-    const evalResult = evaluateMarginLayer(layer, protectCtx, strategy, richReserve);
+    const evalResult = evaluateMarginLayer(
+      layer,
+      protectCtx,
+      strategy,
+      richReserve,
+    );
     expect(evalResult.reserveSufficient).toBe(true);
     expect(evalResult.suggestion).toContain("動用預備金買入 0050");
   });
