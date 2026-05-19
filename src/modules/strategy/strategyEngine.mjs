@@ -63,14 +63,12 @@ import { normalizeMarketData } from "../../utils/normalizer.mjs";
 /**
  * Trailing Stop（動態移動停利邏輯）
  */
-async function computeTrailingStop(ctx, strategy) {
+function computeTrailingStop(ctx, strategy, highsSince) {
   const tsCfg = strategy.sell?.trailingStop;
   if (!tsCfg?.enabled || ctx.z2Ratio <= 0 || !ctx.portfolio?.lastBuyDate) {
     return { trailingActive: false, dynamicAnchor: null };
   }
 
-  const buyDate = ctx.portfolio.lastBuyDate;
-  const highsSince = await archiveManager.getHighsSince(buyDate);
   const currentPrice = ctx.currentPrice;
 
   const profitOk =
@@ -117,7 +115,7 @@ async function computeTrailingStop(ctx, strategy) {
  *  P8 - 再平衡 (z2RatioHigh) → 直接 return
  *  P9 - 評分驅動決策          → buy_tactical / sell_tactical / neutral
  */
-export async function buildDecision(
+export function buildDecision(
   ctx,
   strategy,
   grossLeverageResult,
@@ -429,9 +427,7 @@ export async function buildDecision(
 
   // --- 1.5.A) 預算管控 (Budget Control) ---
   const budgetCfg = strategy.trading?.budget;
-  const rollingLoanDays = budgetCfg?.rollingDays || BUDGET_ROLLING_DAYS;
-  const historyLoan10d =
-    await archiveManager.getHistoricalLoan(rollingLoanDays);
+  const historyLoan10d = ctx.historyLoan10d ?? 0;
   const currentLoan = ctx.portfolio?.totalLoan || 0;
   const effectiveNetAsset = netAsset || ctx.netAsset || 1;
 
@@ -448,9 +444,10 @@ export async function buildDecision(
   const finalAvailableBudget = Math.min(availableDaily, availableRolling);
 
   // --- 1.5.B) 動態移動停利 (Trailing Stop) 監控 ---
-  const { trailingActive, dynamicAnchor } = await computeTrailingStop(
+  const { trailingActive, dynamicAnchor } = computeTrailingStop(
     ctx,
     strategy,
+    ctx.highsSince ?? [],
   );
 
   // 1.5.C) 停損與絕對優先權 Override (Priority High)
@@ -634,7 +631,36 @@ export async function buildDecision(
   };
 }
 
-export async function evaluateInvestmentSignal(data, strategy) {
+export function evaluateInvestmentSignal(data, arg2, arg3) {
+  let ctxPayload;
+  let strategy;
+
+  if (arg3 !== undefined) {
+    ctxPayload = arg2;
+    strategy = arg3;
+  } else {
+    strategy = arg2;
+    ctxPayload = {
+      highsSince: data.highsSince ?? [],
+      historyLoan10d: data.historyLoan10d ?? 0,
+      cooldownStatus: data.cooldownStatus ?? {
+        inCooldown: false,
+        daysLeft: 0,
+        lastBuyDate: data.portfolio?.lastBuyDate ?? null,
+        message: "無歷史買入記錄",
+      },
+    };
+  }
+
+  const highsSince = ctxPayload.highsSince ?? [];
+  const historyLoan10d = ctxPayload.historyLoan10d ?? 0;
+  const cooldownStatus = ctxPayload.cooldownStatus ?? {
+    inCooldown: false,
+    daysLeft: 0,
+    lastBuyDate: data.portfolio?.lastBuyDate ?? null,
+    message: "無歷史買入記錄",
+  };
+
   // ── 2.0 標準化數據清洗 ────────────────────────────────────────
   const marketState = normalizeMarketData({
     ...data,
@@ -700,22 +726,8 @@ export async function evaluateInvestmentSignal(data, strategy) {
   );
 
   const isBearish = cfg?.enabled && data.macroMarketDirection === "BEAR";
-  const effectiveCooldownDays =
-    isBearish &&
-    !vixOverride.overrideActive &&
-    Number.isFinite(cfg.bearishCooldownMultiplier)
-      ? Math.round(baseCooldownDays * cfg.bearishCooldownMultiplier)
-      : baseCooldownDays;
 
-  const lastBuyDate = data.portfolio?.lastBuyDate ?? null;
-  const cooldownStatus = await checkCooldown(
-    lastBuyDate,
-    effectiveCooldownDays,
-  );
-
-  if (effectiveCooldownDays !== baseCooldownDays) {
-    cooldownStatus.message += ` (⚠️ 空頭情緒延長冷卻至 ${effectiveCooldownDays} 交易日)`;
-  }
+  // cooldownStatus already computed and passed in ctxPayload.
 
   // ── 衍生值計算 ────────────────────────────────────────────
   const entry = computeEntryScore(
@@ -752,6 +764,8 @@ export async function evaluateInvestmentSignal(data, strategy) {
     overheat,
     reversal,
     sellSignals,
+    highsSince,
+    historyLoan10d,
   });
 
   // ── Gross Leverage 計算 ──────────────────────────────────
@@ -770,12 +784,7 @@ export async function evaluateInvestmentSignal(data, strategy) {
       ? data.ma60SlopeArr[data.ma60SlopeArr.length - 1]
       : null;
 
-  const decision = await buildDecision(
-    ctx,
-    strategy,
-    grossLeverageResult,
-    ma60Slope,
-  );
+  const decision = buildDecision(ctx, strategy, grossLeverageResult, ma60Slope);
 
   const ohCfg = strategy?.overrideHierarchy;
   const isPanicBypass =
@@ -820,7 +829,60 @@ export async function evaluateInvestmentSignal(data, strategy) {
 export async function getInvestmentSignalAsync(data) {
   const strategy = await fetchStrategyConfig();
   validateStrategyConfig(strategy);
-  return await evaluateInvestmentSignal(data, strategy);
+
+  // 1. Fetch highsSince for Trailing Stop
+  let highsSince = [];
+  const buyDate = data.portfolio?.lastBuyDate ?? null;
+  const tsEnabled = strategy.sell?.trailingStop?.enabled;
+  if (tsEnabled && buyDate) {
+    highsSince = await archiveManager.getHighsSince(buyDate);
+  }
+
+  // 2. Fetch historyLoan10d for Budget Control
+  const budgetCfg = strategy.trading?.budget;
+  const rollingLoanDays = budgetCfg?.rollingDays || BUDGET_ROLLING_DAYS;
+  const historyLoan10d =
+    await archiveManager.getHistoricalLoan(rollingLoanDays);
+
+  // 3. Fetch cooldownStatus
+  const baseCooldownDays = strategy.trading.cooldownDays || 20;
+  const cfg = strategy?.macroSentiment;
+
+  const isBearish = cfg?.enabled && data.macroMarketDirection === "BEAR";
+
+  const vixArr =
+    Array.isArray(data.vixArr) && data.vixArr.length > 0
+      ? data.vixArr
+      : Number.isFinite(data.VIX)
+        ? [data.VIX]
+        : [];
+  const vixOverride = resolveVixOverride(data.VIX, vixArr, strategy);
+
+  const effectiveCooldownDays =
+    isBearish &&
+    !vixOverride.overrideActive &&
+    Number.isFinite(cfg.bearishCooldownMultiplier)
+      ? Math.round(baseCooldownDays * cfg.bearishCooldownMultiplier)
+      : baseCooldownDays;
+
+  const lastBuyDate = data.portfolio?.lastBuyDate ?? null;
+  const cooldownStatus = await checkCooldown(
+    lastBuyDate,
+    effectiveCooldownDays,
+  );
+
+  if (effectiveCooldownDays !== baseCooldownDays) {
+    cooldownStatus.message += ` (⚠️ 空頭情緒延長冷卻至 ${effectiveCooldownDays} 交易日)`;
+  }
+
+  // 4. Assemble the ctxPayload
+  const ctxPayload = {
+    highsSince,
+    historyLoan10d,
+    cooldownStatus,
+  };
+
+  return evaluateInvestmentSignal(data, ctxPayload, strategy);
 }
 
 /**
@@ -862,6 +924,8 @@ function buildEngineContext(data, derived) {
     macroSentiment,
     marginAnalysis,
     decouplingAnalysis,
+    highsSince,
+    historyLoan10d,
   } = derived;
 
   return {
@@ -905,6 +969,8 @@ function buildEngineContext(data, derived) {
       kdArr: data.kdArr || [],
       macdArr: data.macdArr || [],
     },
+    highsSince: highsSince ?? [],
+    historyLoan10d: historyLoan10d ?? 0,
   };
 }
 

@@ -32,6 +32,7 @@
     "technicalindicators": "^3.1.0"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.6",
     "eslint": "^9.10.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
