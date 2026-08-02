@@ -6,26 +6,41 @@
         <h2 class="dash-title">投資儀表板</h2>
         <span class="dash-date">{{ todayLabel }}</span>
       </div>
-      
+
       <!-- Tab Navigation (Top Level) -->
       <div class="dash-tabs">
-        <button class="tab-item" :class="{ active: currentTab === 'summary' }" @click="currentTab = 'summary'">總覽</button>
-        <button class="tab-item" :class="{ active: currentTab === 'health' }" @click="currentTab = 'health'">
+        <button
+          class="tab-item"
+          :class="{ active: currentTab === 'summary' }"
+          @click="currentTab = 'summary'"
+        >
+          總覽
+        </button>
+        <button
+          class="tab-item"
+          :class="{ active: currentTab === 'health' }"
+          @click="currentTab = 'health'"
+        >
           健康度
           <span v-if="healthData?.status === 'RED'" class="tab-badge">!</span>
         </button>
-        <button class="tab-item" :class="{ active: currentTab === 'analysis' }" @click="currentTab = 'analysis'">分析</button>
+        <button
+          class="tab-item"
+          :class="{ active: currentTab === 'analysis' }"
+          @click="currentTab = 'analysis'"
+        >
+          分析
+        </button>
       </div>
     </div>
 
     <!-- Tab Contents -->
     <div class="tab-content-area fade-in" :key="currentTab">
-      
       <!-- Tab 1: Summary (總覽) -->
       <div v-if="currentTab === 'summary'">
-        <MarketSnapshot 
-          :status="status" 
-          :loading="statusLoading" 
+        <MarketSnapshot
+          :status="status"
+          :loading="statusLoading"
           :error="statusError"
           :regime-level="regimeLevel"
           :vix-override-active="vixOverrideActive"
@@ -37,7 +52,7 @@
           :light-text="lightText"
         />
 
-        <DecisionHero 
+        <DecisionHero
           :report="latestReport"
           :loading="reportLoading"
           :error="reportError"
@@ -53,11 +68,15 @@
           <div class="banner-icon">🔬</div>
           <div class="banner-body">
             <h4 class="banner-title">17 年大循環：真實數據實證</h4>
-            <p class="banner-desc">以歷史大數據驗證「局部減碼 50%」策略完勝全額清倉。有效降低投資段回撤風險，完美保留牛市複利。點此查看信心據點 ➔</p>
+            <p class="banner-desc">
+              以歷史大數據驗證「局部減碼
+              50%」策略完勝全額清倉。有效降低投資段回撤風險，完美保留牛市複利。點此查看信心據點
+              ➔
+            </p>
           </div>
         </div>
 
-        <CoachingAdvice 
+        <CoachingAdvice
           :report="latestReport"
           :risks="aiRiskWarnings"
           :actions="aiActionItems"
@@ -70,7 +89,7 @@
 
       <!-- Tab 2: Health (帳戶健康) -->
       <div v-else-if="currentTab === 'health'">
-        <HealthPanel 
+        <HealthPanel
           :data="healthData"
           :loading="healthLoading"
           :error="healthError"
@@ -79,7 +98,7 @@
 
       <!-- Tab 3: Analysis (詳細分析) -->
       <div v-else-if="currentTab === 'analysis'">
-        <AnalysisPanel 
+        <AnalysisPanel
           :report="latestReport"
           :score-ok="scoreOk"
           :score-val="scoreVal"
@@ -94,7 +113,6 @@
           </template>
         </AnalysisPanel>
       </div>
-
     </div>
 
     <!-- Footer meta -->
@@ -107,7 +125,12 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { fetchStatus, fetchReports, fetchNews, fetchPortfolioHealth } from "../api/index.js";
+import {
+  fetchStatus,
+  fetchReports,
+  fetchNews,
+  fetchPortfolioHealth,
+} from "../api/index.js";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 // Components
@@ -152,32 +175,66 @@ const healthError = ref(false);
 
 // ── Computed: Market Indicators ──
 const todayLabel = computed(() =>
-  new Date().toLocaleDateString("zh-TW", { month: "long", day: "numeric", weekday: "short" })
+  new Date().toLocaleDateString("zh-TW", {
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+  }),
 );
 
 const regimeLevel = computed(() => {
-  const state = latestReport.value?.signals?.regimeState || latestReport.value?.signals?.regimeResult?.state || "NORMAL";
-  if (state === "CRISIS") return { label: "極端恐慌", cardClass: "card-danger", textClass: "text-danger" };
-  if (state === "CAUTIOUS") return { label: "高壓警戒", cardClass: "card-warn", textClass: "text-warn" };
+  const state =
+    latestReport.value?.signals?.regimeState ||
+    latestReport.value?.signals?.regimeResult?.state ||
+    "NORMAL";
+  if (state === "CRISIS")
+    return {
+      label: "極端恐慌",
+      cardClass: "card-danger",
+      textClass: "text-danger",
+    };
+  if (state === "CAUTIOUS")
+    return {
+      label: "高壓警戒",
+      cardClass: "card-warn",
+      textClass: "text-warn",
+    };
   return { label: "正常", cardClass: "card-ok", textClass: "text-ok" };
 });
 
 const vixOverrideActive = computed(() => {
-  return !!latestReport.value?.marketState?.sentiment?.vixOverrideActive || !!latestReport.value?.signals?.macroSentiment?.vixOverrideActive;
+  return (
+    !!latestReport.value?.marketState?.sentiment?.vixOverrideActive ||
+    !!latestReport.value?.signals?.macroSentiment?.vixOverrideActive
+  );
 });
 
 const pbPrValue = computed(() => {
   const sigs = latestReport.value?.signals;
-  const v = sigs?.valuationGuardResult?.currentPR ?? sigs?.marketState?.valuation?.currentPR ?? sigs?.currentPR;
+  const v =
+    sigs?.valuationGuardResult?.currentPR ??
+    sigs?.marketState?.valuation?.currentPR ??
+    sigs?.currentPR;
   return v != null ? Math.round(v) : "—";
 });
 
 const pbPrLevel = computed(() => {
   const v = Number(pbPrValue.value);
   if (isNaN(v)) return { label: "—", cardClass: "", textClass: "" };
-  if (v >= 90) return { label: "極度昂貴", cardClass: "card-danger", textClass: "text-danger" };
-  if (v >= 80) return { label: "估值偏高", cardClass: "card-warn", textClass: "text-warn" };
-  if (v <= 25) return { label: "極度便宜", cardClass: "card-ok", textClass: "text-ok" };
+  if (v >= 90)
+    return {
+      label: "極度昂貴",
+      cardClass: "card-danger",
+      textClass: "text-danger",
+    };
+  if (v >= 80)
+    return {
+      label: "估值偏高",
+      cardClass: "card-warn",
+      textClass: "text-warn",
+    };
+  if (v <= 25)
+    return { label: "極度便宜", cardClass: "card-ok", textClass: "text-ok" };
   return { label: "合理區間", cardClass: "", textClass: "" };
 });
 
@@ -189,8 +246,18 @@ const glValue = computed(() => {
 const glLevel = computed(() => {
   const v = Number(glValue.value);
   if (isNaN(v)) return { label: "—", cardClass: "", textClass: "" };
-  if (v >= 3.0) return { label: "強制砍倉", cardClass: "card-danger", textClass: "text-danger" };
-  if (v >= 2.5) return { label: "暫停加碼", cardClass: "card-warn", textClass: "text-warn" };
+  if (v >= 3.0)
+    return {
+      label: "強制砍倉",
+      cardClass: "card-danger",
+      textClass: "text-danger",
+    };
+  if (v >= 2.5)
+    return {
+      label: "暫停加碼",
+      cardClass: "card-warn",
+      textClass: "text-warn",
+    };
   return { label: "安全水位", cardClass: "card-ok", textClass: "text-ok" };
 });
 
@@ -221,7 +288,7 @@ const routingPath = computed(() => {
   return [
     sigs.maintenanceRisk?.level === "Normal" ? "OK" : "⚠️追繳",
     `${Number(sigs.grossLeverage).toFixed(1)}x`,
-    `PR${Math.round(sigs.valuationGuardResult?.currentPR || 0)}`
+    `PR${Math.round(sigs.valuationGuardResult?.currentPR || 0)}`,
   ].join(" → ");
 });
 
@@ -232,57 +299,87 @@ const targetClass = computed(() => {
   return "target-wait";
 });
 
-const pctClass = computed(() => (Number(latestReport.value?.signals?.priceChangePercent) >= 0 ? "badge-ok" : "badge-danger"));
-const pctText = computed(() => `${latestReport.value?.signals?.priceChangePercentText || '—'}%`);
+const pctClass = computed(() =>
+  Number(latestReport.value?.signals?.priceChangePercent) >= 0
+    ? "badge-ok"
+    : "badge-danger",
+);
+const pctText = computed(
+  () => `${latestReport.value?.signals?.priceChangePercentText || "—"}%`,
+);
 
-const aiRiskWarnings = computed(() => latestReport.value?.ai?.risk_warnings ?? []);
-const aiActionItems = computed(() => latestReport.value?.ai?.action_items ?? []);
-const aiMindsetAdvice = computed(() => latestReport.value?.ai?.mindset_advice ?? []);
-const aiInternalThinking = computed(() => latestReport.value?.ai?.coach_internal_thinking ?? "");
-const aiCoreInsight = computed(() => latestReport.value?.ai?.core_insight ?? "");
-const aiStrategyVerdict = computed(() => latestReport.value?.ai?.strategy_verdict ?? "");
+const aiRiskWarnings = computed(
+  () => latestReport.value?.ai?.risk_warnings ?? [],
+);
+const aiActionItems = computed(
+  () => latestReport.value?.ai?.action_items ?? [],
+);
+const aiMindsetAdvice = computed(
+  () => latestReport.value?.ai?.mindset_advice ?? [],
+);
+const aiInternalThinking = computed(
+  () => latestReport.value?.ai?.coach_internal_thinking ?? "",
+);
+const aiCoreInsight = computed(
+  () => latestReport.value?.ai?.core_insight ?? "",
+);
+const aiStrategyVerdict = computed(
+  () => latestReport.value?.ai?.strategy_verdict ?? "",
+);
 
 const defenseItems = computed(() => {
   const sigs = latestReport.value?.signals;
   const vg = sigs?.valuationGuardResult;
   const prLabel = pbPrValue.value !== "—" ? `PR${pbPrValue.value}%` : "分析中";
-  
+
   return [
-    { 
-      icon: '⚖️', 
-      title: '估值守衛', 
-      statusText: vg?.guardActive ? '防禦生效' : '安全', 
-      statusClass: vg?.guardActive ? 'text-warn' : 'text-ok', 
-      desc: prLabel 
+    {
+      icon: "⚖️",
+      title: "估值守衛",
+      statusText: vg?.guardActive ? "防禦生效" : "安全",
+      statusClass: vg?.guardActive ? "text-warn" : "text-ok",
+      desc: prLabel,
     },
-    { 
-      icon: '📊', 
-      title: '槓桿天花板', 
-      statusText: glLevel.value.label, 
-      statusClass: glLevel.value.textClass, 
-      desc: `${glValue.value}x` 
+    {
+      icon: "📊",
+      title: "槓桿天花板",
+      statusText: glLevel.value.label,
+      statusClass: glLevel.value.textClass,
+      desc: `${glValue.value}x`,
     },
-    { 
-      icon: '🛡️', 
-      title: '維持率安全', 
-      statusText: sigs?.maintenanceRisk?.level === 'Normal' ? '安全' : '警告', 
-      statusClass: sigs?.maintenanceRisk?.level === 'Normal' ? 'text-ok' : 'text-danger', 
-      desc: '跌破將觸發減碼' 
-    }
+    {
+      icon: "🛡️",
+      title: "維持率安全",
+      statusText: sigs?.maintenanceRisk?.level === "Normal" ? "安全" : "警告",
+      statusClass:
+        sigs?.maintenanceRisk?.level === "Normal" ? "text-ok" : "text-danger",
+      desc: "跌破將觸發減碼",
+    },
   ];
 });
 
 // ── Entry Score ──
-const scoreVal = computed(() => Number(latestReport.value?.signals?.score || 0));
-const scoreMin = computed(() => Number(latestReport.value?.strategySnapshot?.indicator?.buy?.minWeightScoreToBuy || 0));
+const scoreVal = computed(() =>
+  Number(latestReport.value?.signals?.score || 0),
+);
+const scoreMin = computed(() =>
+  Number(
+    latestReport.value?.strategySnapshot?.indicator?.buy?.minWeightScoreToBuy ||
+      0,
+  ),
+);
 const scoreOk = computed(() => scoreVal.value >= scoreMin.value);
 const scoreRows = computed(() => {
   const w = latestReport.value?.signals?.weightDetails || {};
   return [
-    { label: '跌幅評分', pt: `${w.dropScore || 0}pt`, active: w.dropScore > 0 },
-    { label: 'RSI評分', pt: `${w.rsiScore || 0}pt`, active: w.rsiScore > 0 },
-    { label: 'MACD評分', pt: `${w.macdScore || 0}pt`, active: w.macdScore > 0 },
-    { label: '情緒加成', pt: `${w.sentimentScore || 0}pt`, active: w.sentimentScore !== 0 }
+    { label: "跌幅評分", pt: `${w.dropScore || 0}pt`, active: w.dropScore > 0 },
+    { label: "RSI評分", pt: `${w.rsiScore || 0}pt`, active: w.rsiScore > 0 },
+    { label: "MACD評分", pt: `${w.macdScore || 0}pt`, active: w.macdScore > 0 },
+    {
+      label: "情緒加成",
+      pt: `${w.sentimentScore || 0}pt`,
+      active: w.sentimentScore !== 0,
+    },
   ];
 });
 
@@ -291,50 +388,64 @@ const radarOption = computed(() => {
   return {
     radar: {
       indicator: [
-        { name: "跌幅", max: 5 }, 
-        { name: "RSI", max: 5 }, 
-        { name: "MACD", max: 5 }, 
-        { name: "KD", max: 5 }, 
+        { name: "跌幅", max: 5 },
+        { name: "RSI", max: 5 },
+        { name: "MACD", max: 5 },
+        { name: "KD", max: 5 },
         { name: "情緒", max: 5 },
       ],
       shape: "polygon",
-      axisName: { color: "#999", fontSize: 10 }
+      axisName: { color: "#999", fontSize: 10 },
     },
-    series: [{
-      type: "radar",
-      data: [{
-        value: [
-          Number(w.dropScore || 0), 
-          Number(w.rsiScore || 0), 
-          Number(w.macdScore || 0), 
-          Number(w.kdScore || 0), 
-          Math.abs(Number(w.sentimentScore || 0))
+    series: [
+      {
+        type: "radar",
+        data: [
+          {
+            value: [
+              Number(w.dropScore || 0),
+              Number(w.rsiScore || 0),
+              Number(w.macdScore || 0),
+              Number(w.kdScore || 0),
+              Math.abs(Number(w.sentimentScore || 0)),
+            ],
+            areaStyle: { color: "rgba(36, 129, 204, 0.2)" },
+            lineStyle: { color: "#2481cc", width: 2 },
+            symbol: "none",
+          },
         ],
-        areaStyle: { color: "rgba(36, 129, 204, 0.2)" },
-        lineStyle: { color: "#2481cc", width: 2 },
-        symbol: "none"
-      }]
-    }]
+      },
+    ],
   };
 });
 
 // ── Logic ──
 async function loadAll() {
   const [sRes, rRes, nRes, hRes] = await Promise.allSettled([
-    fetchStatus(), fetchReports(1), fetchNews(), fetchPortfolioHealth()
+    fetchStatus(),
+    fetchReports(1),
+    fetchNews(),
+    fetchPortfolioHealth(),
   ]);
   if (sRes.status === "fulfilled") status.value = sRes.value;
   statusLoading.value = false;
-  if (rRes.status === "fulfilled") latestReport.value = rRes.value[0] || rRes.value.data?.[0];
+  if (rRes.status === "fulfilled")
+    latestReport.value = rRes.value[0] || rRes.value.data?.[0];
   reportLoading.value = false;
-  if (nRes.status === "fulfilled") topNews.value = (nRes.value.articles || nRes.value).slice(0, 3);
+  if (nRes.status === "fulfilled")
+    topNews.value = (nRes.value.articles || nRes.value).slice(0, 3);
   newsLoading.value = false;
   if (hRes.status === "fulfilled") healthData.value = hRes.value;
   healthLoading.value = false;
 }
 
 function formatUpdatedAt(iso) {
-  return new Date(iso).toLocaleString("zh-TW", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleString("zh-TW", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 onMounted(async () => {
@@ -344,33 +455,109 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.view-container { padding: 16px 16px 32px; max-width: 600px; margin: 0 auto; }
-.dash-header { margin-bottom: 24px; }
-.dash-title-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
-.dash-title { font-size: 22px; font-weight: 800; }
-.dash-date { font-size: 13px; color: #999; }
-
-.dash-tabs { display: flex; background: #f0f0f0; border-radius: 14px; padding: 4px; gap: 4px; }
-.tab-item {
-  flex: 1; border: none; background: transparent; padding: 10px 0;
-  font-size: 13px; font-weight: 700; color: #888; border-radius: 11px;
-  position: relative; transition: all 0.2s ease;
+.view-container {
+  padding: 16px 16px 32px;
+  max-width: 600px;
+  margin: 0 auto;
 }
-.tab-item.active { background: #fff; color: #111; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-.tab-badge { position: absolute; top: 6px; right: 8px; background: #e74c3c; width: 6px; height: 6px; border-radius: 50%; }
+.dash-header {
+  margin-bottom: 24px;
+}
+.dash-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+.dash-title {
+  font-size: 22px;
+  font-weight: 800;
+}
+.dash-date {
+  font-size: 13px;
+  color: #999;
+}
 
-.fade-in { animation: fadeIn 0.3s ease-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.dash-tabs {
+  display: flex;
+  background: #f0f0f0;
+  border-radius: 14px;
+  padding: 4px;
+  gap: 4px;
+}
+.tab-item {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #888;
+  border-radius: 11px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+.tab-item.active {
+  background: #fff;
+  color: #111;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.tab-badge {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: #e74c3c;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
 
-.radar-chart { height: 240px; width: 100%; }
-.update-time { font-size: 10px; color: #bbb; text-align: center; margin-top: 24px; }
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.radar-chart {
+  height: 240px;
+  width: 100%;
+}
+.update-time {
+  font-size: 10px;
+  color: #bbb;
+  text-align: center;
+  margin-top: 24px;
+}
 
 /* Global-ish utility classes for children */
-:deep(.section) { margin-bottom: 24px; }
-:deep(.section-title) { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
-:deep(.text-danger) { color: #e84855; }
-:deep(.text-warn) { color: #f39c12; }
-:deep(.text-ok) { color: #26a17b; }
+:deep(.section) {
+  margin-bottom: 24px;
+}
+:deep(.section-title) {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+:deep(.text-danger) {
+  color: #e84855;
+}
+:deep(.text-warn) {
+  color: #f39c12;
+}
+:deep(.text-ok) {
+  color: #26a17b;
+}
 
 /* ── Discipline Banner Styles ── */
 .discipline-banner {
@@ -385,7 +572,9 @@ onMounted(async () => {
   margin-bottom: 24px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
   text-align: left;
   border: 1px solid var(--tg-theme-hint-color, #e1e8ed);
 }

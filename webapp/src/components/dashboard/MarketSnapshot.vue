@@ -13,7 +13,9 @@
       <!-- Regime / VIX -->
       <div class="snapshot-card" :class="regimeLevel.cardClass">
         <span class="snap-label">市場環境 (VIX)</span>
-        <span class="snap-value">{{ status?.data?.rawUsMarket?.vix ?? "—" }}</span>
+        <span class="snap-value">{{
+          status?.data?.rawUsMarket?.vix ?? "—"
+        }}</span>
         <span class="snap-sub" :class="regimeLevel.textClass">
           {{ regimeLevel.label }}
           <span v-if="vixOverrideActive" title="VIX 短路保護生效">⚡</span>
@@ -23,13 +25,17 @@
       <div class="snapshot-card" :class="pbPrLevel.cardClass">
         <span class="snap-label">PB 分位數</span>
         <span class="snap-value">{{ pbPrValue }}%</span>
-        <span class="snap-sub" :class="pbPrLevel.textClass">{{ pbPrLevel.label }}</span>
+        <span class="snap-sub" :class="pbPrLevel.textClass">{{
+          pbPrLevel.label
+        }}</span>
       </div>
       <!-- GL -->
       <div class="snapshot-card" :class="glLevel.cardClass">
         <span class="snap-label">總曝險 GL</span>
         <span class="snap-value">{{ glValue }}x</span>
-        <span class="snap-sub" :class="glLevel.textClass">{{ glLevel.label }}</span>
+        <span class="snap-sub" :class="glLevel.textClass">{{
+          glLevel.label
+        }}</span>
       </div>
       <!-- Light -->
       <div class="snapshot-card">
@@ -53,7 +59,7 @@ defineProps({
   glLevel: Object,
   glValue: [Number, String],
   lightEmoji: String,
-  lightText: String
+  lightText: String,
 });
 </script>
 
@@ -93,8 +99,16 @@ defineProps({
   margin-top: 2px;
   font-weight: 600;
 }
-.snap-light { font-size: 20px; }
-.card-danger { border-left: 3px solid #e84855; }
-.card-warn { border-left: 3px solid #d4ac0d; }
-.card-ok { border-left: 3px solid #26a17b; }
+.snap-light {
+  font-size: 20px;
+}
+.card-danger {
+  border-left: 3px solid #e84855;
+}
+.card-warn {
+  border-left: 3px solid #d4ac0d;
+}
+.card-ok {
+  border-left: 3px solid #26a17b;
+}
 </style>

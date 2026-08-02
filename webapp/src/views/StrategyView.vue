@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import StrategyConfigPanel from '../components/StrategyConfigPanel.vue'
+import StrategyConfigPanel from "../components/StrategyConfigPanel.vue";
 </script>
 
 <style scoped>

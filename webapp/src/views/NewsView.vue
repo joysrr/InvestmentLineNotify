@@ -1,6 +1,5 @@
 <template>
   <div class="view-container">
-
     <!-- Sub-tab bar -->
     <div class="subtab-bar">
       <button
@@ -21,7 +20,6 @@
 
     <!-- ── 精選報告 tab ── -->
     <div v-if="activeTab === 'report'">
-
       <div v-if="reportLoading" class="state-box">
         <div class="spinner"></div>
         <p>載入中...</p>
@@ -32,13 +30,15 @@
         <button class="retry-btn" @click="loadReport">重試</button>
       </div>
 
-      <div v-else-if="!reportNews.tw.length && !reportNews.us.length" class="state-box">
+      <div
+        v-else-if="!reportNews.tw.length && !reportNews.us.length"
+        class="state-box"
+      >
         <p>📭 今日精選報告尚未產生</p>
         <p class="state-hint">每日早上自動更新</p>
       </div>
 
       <div v-else class="report-content">
-
         <!-- 台灣區塊 -->
         <div v-if="reportNews.tw.length" class="region-section">
           <div class="region-header">
@@ -87,15 +87,18 @@
           </div>
         </div>
 
-        <p class="report-generated">📅 產生時間：{{ reportNews.generatedAt || '—' }}</p>
+        <p class="report-generated">
+          📅 產生時間：{{ reportNews.generatedAt || "—" }}
+        </p>
       </div>
     </div>
 
     <!-- ── 新聞池 tab ── -->
     <div v-if="activeTab === 'pool'">
-
       <div class="pool-header">
-        <span class="view-subtitle" v-if="articles.length">共 {{ articles.length }} 則</span>
+        <span class="view-subtitle" v-if="articles.length"
+          >共 {{ articles.length }} 則</span
+        >
       </div>
 
       <div v-if="poolLoading" class="state-box">
@@ -128,96 +131,97 @@
             <span class="news-time">{{ formatDate(article.pubDate) }}</span>
           </div>
           <p class="news-title">{{ article.title }}</p>
-          <p v-if="article.summary" class="news-summary">{{ article.summary }}</p>
+          <p v-if="article.summary" class="news-summary">
+            {{ article.summary }}
+          </p>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { fetchNews, fetchReportNews } from '../api/index.js'
-import { useTelegram } from '../composables/useTelegram.js'
+import { ref, onMounted } from "vue";
+import { fetchNews, fetchReportNews } from "../api/index.js";
+import { useTelegram } from "../composables/useTelegram.js";
 
 // ── sub-tab 狀態 ──────────────────────────────────────────
-const activeTab = ref('report')
+const activeTab = ref("report");
 
 function switchTab(tab) {
-  activeTab.value = tab
-  if (tab === 'report' && !reportLoaded.value) loadReport()
-  if (tab === 'pool' && !poolLoaded.value) loadPool()
+  activeTab.value = tab;
+  if (tab === "report" && !reportLoaded.value) loadReport();
+  if (tab === "pool" && !poolLoaded.value) loadPool();
 }
 
 // ── 精選報告 ──────────────────────────────────────────────
-const reportNews = ref({ tw: [], us: [], generatedAt: '' })
-const reportLoading = ref(false)
-const reportError = ref(null)
-const reportLoaded = ref(false)
+const reportNews = ref({ tw: [], us: [], generatedAt: "" });
+const reportLoading = ref(false);
+const reportError = ref(null);
+const reportLoaded = ref(false);
 
 async function loadReport() {
-  reportLoading.value = true
-  reportError.value = null
+  reportLoading.value = true;
+  reportError.value = null;
   try {
-    const data = await fetchReportNews()
+    const data = await fetchReportNews();
     reportNews.value = {
       tw: data?.tw ?? [],
       us: data?.us ?? [],
-      generatedAt: data?.generatedAt ?? ''
-    }
+      generatedAt: data?.generatedAt ?? "",
+    };
   } catch (e) {
-    reportError.value = e.message
+    reportError.value = e.message;
   } finally {
-    reportLoaded.value = true
-    reportLoading.value = false
+    reportLoaded.value = true;
+    reportLoading.value = false;
   }
 }
 
 // ── 新聞池 ────────────────────────────────────────────────
-const articles = ref([])
-const poolLoading = ref(false)
-const poolError = ref(null)
-const poolLoaded = ref(false)
+const articles = ref([]);
+const poolLoading = ref(false);
+const poolError = ref(null);
+const poolLoaded = ref(false);
 
 async function loadPool() {
-  poolLoading.value = true
-  poolError.value = null
+  poolLoading.value = true;
+  poolError.value = null;
   try {
-    const data = await fetchNews()
-    const list = Array.isArray(data) ? data : (data?.articles ?? [])
-    articles.value = list
+    const data = await fetchNews();
+    const list = Array.isArray(data) ? data : (data?.articles ?? []);
+    articles.value = list;
   } catch (e) {
-    poolError.value = e.message
+    poolError.value = e.message;
   } finally {
-    poolLoaded.value = true
-    poolLoading.value = false
+    poolLoaded.value = true;
+    poolLoading.value = false;
   }
 }
 
 // ── 共用工具 ──────────────────────────────────────────────
-const { openLink } = useTelegram()
+const { openLink } = useTelegram();
 
 function openArticle(url) {
-  if (url) openLink(url)
+  if (url) openLink(url);
 }
 
 function ageBandClass(band) {
-  if (band === 'fresh') return 'age-fresh'
-  if (band === 'recent') return 'age-recent'
-  return 'age-old'
+  if (band === "fresh") return "age-fresh";
+  if (band === "recent") return "age-recent";
+  return "age-old";
 }
 
 function ageBandLabel(band) {
-  if (band === 'fresh') return '🔴 最新'
-  if (band === 'recent') return '🟡 近期'
-  return '⚪ 舊聞'
+  if (band === "fresh") return "🔴 最新";
+  if (band === "recent") return "🟡 近期";
+  return "⚪ 舊聞";
 }
 
 function regionFlag(region) {
-  if (region === 'TW') return '🇹🇼'
-  if (region === 'US') return '🇺🇸'
-  return '🌐'
+  if (region === "TW") return "🇹🇼";
+  if (region === "US") return "🇺🇸";
+  return "🌐";
 }
 
 function formatDate(pubDate) {
@@ -225,17 +229,19 @@ function formatDate(pubDate) {
   try {
     const d = new Date(pubDate);
     if (isNaN(d.getTime())) return "—";
-    return d.toLocaleString('zh-TW', {
-      month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit'
-    })
+    return d.toLocaleString("zh-TW", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   } catch {
-    return pubDate
+    return pubDate;
   }
 }
 
 // ── 初始化：預設載入精選報告 ──────────────────────────────
-onMounted(loadReport)
+onMounted(loadReport);
 </script>
 
 <style scoped>
@@ -267,7 +273,9 @@ onMounted(loadReport)
   border: none;
   border-bottom: 2px solid transparent;
   cursor: pointer;
-  transition: color 0.18s, border-color 0.18s;
+  transition:
+    color 0.18s,
+    border-color 0.18s;
   margin-bottom: -1px;
 }
 
@@ -342,7 +350,9 @@ onMounted(loadReport)
   cursor: pointer;
 }
 
-.news-card:active { opacity: 0.7; }
+.news-card:active {
+  opacity: 0.7;
+}
 
 .news-header {
   display: flex;
@@ -359,11 +369,23 @@ onMounted(loadReport)
   border-radius: 10px;
 }
 
-.age-fresh  { background: #fdecea; color: #e84855; }
-.age-recent { background: #fef9e7; color: #d4ac0d; }
-.age-old    { background: var(--tg-theme-hint-color, #eee); color: var(--tg-theme-hint-color, #999); opacity: 0.6; }
+.age-fresh {
+  background: #fdecea;
+  color: #e84855;
+}
+.age-recent {
+  background: #fef9e7;
+  color: #d4ac0d;
+}
+.age-old {
+  background: var(--tg-theme-hint-color, #eee);
+  color: var(--tg-theme-hint-color, #999);
+  opacity: 0.6;
+}
 
-.news-region { font-size: 13px; }
+.news-region {
+  font-size: 13px;
+}
 
 .news-source {
   font-size: 11px;
@@ -413,7 +435,9 @@ onMounted(loadReport)
   margin-top: -6px;
 }
 
-.state-error { color: #e84855; }
+.state-error {
+  color: #e84855;
+}
 
 .retry-btn {
   padding: 8px 20px;
@@ -434,5 +458,9 @@ onMounted(loadReport)
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>

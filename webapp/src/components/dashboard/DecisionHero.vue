@@ -10,14 +10,22 @@
     <div v-else class="hero-card">
       <div class="hero-top">
         <span class="hero-date">{{ report.date }}</span>
-        <span class="priority-tag" v-if="activePriority">{{ activePriority }}</span>
+        <span class="priority-tag" v-if="activePriority">{{
+          activePriority
+        }}</span>
       </div>
       <div class="hero-main">
-        <div class="hero-target" :class="targetClass">{{ report.signals?.target ?? "—" }}</div>
-        <div class="hero-suggestion">{{ report.signals?.suggestion || "分析中..." }}</div>
+        <div class="hero-target" :class="targetClass">
+          {{ report.signals?.target ?? "—" }}
+        </div>
+        <div class="hero-suggestion">
+          {{ report.signals?.suggestion || "分析中..." }}
+        </div>
         <div class="hero-badges">
           <span class="badge" :class="pctClass">{{ pctText }}</span>
-          <span class="badge badge-score">評分 {{ report.signals?.score ?? "—" }}</span>
+          <span class="badge badge-score"
+            >評分 {{ report.signals?.score ?? "—" }}</span
+          >
         </div>
       </div>
       <div class="hero-route border-top">
@@ -37,7 +45,7 @@ defineProps({
   targetClass: String,
   pctClass: String,
   pctText: String,
-  routingPath: String
+  routingPath: String,
 });
 </script>
 
@@ -65,9 +73,15 @@ defineProps({
   font-weight: 800;
   margin-bottom: 12px;
 }
-.target-buy { color: #26a17b; }
-.target-sell { color: #e84855; }
-.target-wait { color: #d4ac0d; }
+.target-buy {
+  color: #26a17b;
+}
+.target-sell {
+  color: #e84855;
+}
+.target-wait {
+  color: #d4ac0d;
+}
 .hero-suggestion {
   font-size: 15px;
   color: var(--tg-theme-text-color, #333);
@@ -102,8 +116,20 @@ defineProps({
   font-size: 12px;
   font-weight: 600;
 }
-.badge-danger { background: #fee2e2; color: #e84855; }
-.badge-warn { background: #fef3c7; color: #d4ac0d; }
-.badge-ok { background: #d1fae5; color: #26a17b; }
-.badge-score { background: var(--tg-theme-secondary-bg-color, #f5f5f5); color: var(--tg-theme-hint-color, #666); }
+.badge-danger {
+  background: #fee2e2;
+  color: #e84855;
+}
+.badge-warn {
+  background: #fef3c7;
+  color: #d4ac0d;
+}
+.badge-ok {
+  background: #d1fae5;
+  color: #26a17b;
+}
+.badge-score {
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  color: var(--tg-theme-hint-color, #666);
+}
 </style>

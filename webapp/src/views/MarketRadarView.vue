@@ -245,10 +245,21 @@ const twVixCard = computed(() => {
 
 const lightEmoji = computed(() => {
   const sig = statusData.value?.rawNdc?.light ?? "";
-  if (sig.includes("黃紅") || sig.includes("活絡") || sig.includes("yellow-red")) return "🟠";
-  if (sig.includes("黃藍") || sig.includes("趨緩") || sig.includes("yellow-blue")) return "🟡";
+  if (
+    sig.includes("黃紅") ||
+    sig.includes("活絡") ||
+    sig.includes("yellow-red")
+  )
+    return "🟠";
+  if (
+    sig.includes("黃藍") ||
+    sig.includes("趨緩") ||
+    sig.includes("yellow-blue")
+  )
+    return "🟡";
   if (sig.includes("紅") || sig.includes("熱絡") || sig === "red") return "🔴";
-  if (sig.includes("綠") || sig.includes("穩定") || sig === "green") return "🟢";
+  if (sig.includes("綠") || sig.includes("穩定") || sig === "green")
+    return "🟢";
   if (sig.includes("藍") || sig.includes("低迷") || sig === "blue") return "🔵";
   return "⚪";
 });

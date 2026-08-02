@@ -8,26 +8,38 @@
     <!-- 載入中 -->
     <div v-if="loading" class="skeleton-wrap">
       <div class="sk sk-title"></div>
-      <div class="sk sk-bar" style="margin-top:12px"></div>
+      <div class="sk sk-bar" style="margin-top: 12px"></div>
       <div class="sk sk-bar"></div>
-      <div v-for="i in 4" :key="i" class="sk sk-row" style="margin-top:10px"></div>
+      <div
+        v-for="i in 4"
+        :key="i"
+        class="sk sk-row"
+        style="margin-top: 10px"
+      ></div>
     </div>
 
     <!-- 錯誤 -->
-    <div v-else-if="error" class="inline-error">⚠️ 資料載入失敗，請稍後重試</div>
+    <div v-else-if="error" class="inline-error">
+      ⚠️ 資料載入失敗，請稍後重試
+    </div>
 
     <!-- 無資料 -->
-    <div v-else-if="!macro" class="inline-hint">📭 尚無多空對決資料<br><span class="hint-sub">資料將於每日分析完成後更新</span></div>
+    <div v-else-if="!macro" class="inline-hint">
+      📭 尚無多空對決資料<br /><span class="hint-sub"
+        >資料將於每日分析完成後更新</span
+      >
+    </div>
 
     <!-- 內容 -->
     <template v-else>
-
       <!-- 市場方向 Badge -->
       <div class="direction-row">
         <span class="direction-badge" :class="directionClass">
           {{ directionIcon }} {{ directionText }}
         </span>
-        <span class="direction-hint">{{ macro.conclusion?.short_summary ?? '' }}</span>
+        <span class="direction-hint">{{
+          macro.conclusion?.short_summary ?? ""
+        }}</span>
       </div>
 
       <!-- 多空積分長條 -->
@@ -38,7 +50,10 @@
           <div class="score-bar-row">
             <span class="score-side score-side--bull">多 🟢</span>
             <div class="score-track">
-              <div class="score-fill score-fill--bull" :style="{ width: bullWidth + '%' }"></div>
+              <div
+                class="score-fill score-fill--bull"
+                :style="{ width: bullWidth + '%' }"
+              ></div>
             </div>
             <span class="score-num">{{ bullScore }}</span>
           </div>
@@ -46,7 +61,10 @@
           <div class="score-bar-row">
             <span class="score-side score-side--bear">空 🔴</span>
             <div class="score-track">
-              <div class="score-fill score-fill--bear" :style="{ width: bearWidth + '%' }"></div>
+              <div
+                class="score-fill score-fill--bear"
+                :style="{ width: bearWidth + '%' }"
+              ></div>
             </div>
             <span class="score-num">{{ bearScore }}</span>
           </div>
@@ -68,7 +86,11 @@
       <section v-if="bullEvents.length" class="section">
         <h3 class="section-title">🟢 多方事件（{{ bullEvents.length }}）</h3>
         <div class="event-list">
-          <div v-for="(e, i) in bullEvents" :key="i" class="event-card event-card--bull">
+          <div
+            v-for="(e, i) in bullEvents"
+            :key="i"
+            class="event-card event-card--bull"
+          >
             <div class="event-top">
               <span class="event-score">+{{ e.score }}</span>
               <span class="event-title">{{ e.event }}</span>
@@ -82,7 +104,11 @@
       <section v-if="bearEvents.length" class="section">
         <h3 class="section-title">🔴 空方事件（{{ bearEvents.length }}）</h3>
         <div class="event-list">
-          <div v-for="(e, i) in bearEvents" :key="i" class="event-card event-card--bear">
+          <div
+            v-for="(e, i) in bearEvents"
+            :key="i"
+            class="event-card event-card--bear"
+          >
             <div class="event-top">
               <span class="event-score">-{{ e.score }}</span>
               <span class="event-title">{{ e.event }}</span>
@@ -96,7 +122,11 @@
       <section v-if="neutralEvents.length" class="section">
         <h3 class="section-title">⏳ 觀望事件（{{ neutralEvents.length }}）</h3>
         <div class="event-list">
-          <div v-for="(e, i) in neutralEvents" :key="i" class="event-card event-card--neutral">
+          <div
+            v-for="(e, i) in neutralEvents"
+            :key="i"
+            class="event-card event-card--neutral"
+          >
             <div class="event-top">
               <span class="event-score neutral">0</span>
               <span class="event-title">{{ e.event }}</span>
@@ -105,68 +135,79 @@
           </div>
         </div>
       </section>
-
     </template>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { fetchReports } from '../api/index.js'
+import { ref, computed, onMounted } from "vue";
+import { fetchReports } from "../api/index.js";
 
-const loading = ref(true)
-const error   = ref(false)
-const macro   = ref(null)    // macroAnalysis 物件
-const reportDate = ref('')
+const loading = ref(true);
+const error = ref(false);
+const macro = ref(null); // macroAnalysis 物件
+const reportDate = ref("");
 
 onMounted(async () => {
   try {
-    const reports = await fetchReports(3)
-    const sorted = [...(reports ?? [])].sort((a, b) => b.date.localeCompare(a.date))
-    const latest = sorted[0] ?? null
-    reportDate.value = latest?.date ?? ''
-    macro.value = latest?.macroAnalysis ?? null
+    const reports = await fetchReports(3);
+    const sorted = [...(reports ?? [])].sort((a, b) =>
+      b.date.localeCompare(a.date),
+    );
+    const latest = sorted[0] ?? null;
+    reportDate.value = latest?.date ?? "";
+    macro.value = latest?.macroAnalysis ?? null;
   } catch {
-    error.value = true
+    error.value = true;
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-})
+});
 
 // ── 積分 ──
-const bullScore = computed(() => macro.value?.total_bull_score ?? macro.value?.bullish ?? 0)
-const bearScore = computed(() => macro.value?.total_bear_score ?? macro.value?.bearish ?? 0)
-const totalScore = computed(() => bullScore.value + bearScore.value || 1)
-const bullWidth = computed(() => Math.round((bullScore.value / totalScore.value) * 100))
-const bearWidth = computed(() => Math.round((bearScore.value / totalScore.value) * 100))
+const bullScore = computed(
+  () => macro.value?.total_bull_score ?? macro.value?.bullish ?? 0,
+);
+const bearScore = computed(
+  () => macro.value?.total_bear_score ?? macro.value?.bearish ?? 0,
+);
+const totalScore = computed(() => bullScore.value + bearScore.value || 1);
+const bullWidth = computed(() =>
+  Math.round((bullScore.value / totalScore.value) * 100),
+);
+const bearWidth = computed(() =>
+  Math.round((bearScore.value / totalScore.value) * 100),
+);
 
 // ── 事件 ──
-const bullEvents    = computed(() => macro.value?.bull_events    ?? [])
-const bearEvents    = computed(() => macro.value?.bear_events    ?? [])
-const neutralEvents = computed(() => macro.value?.neutral_events ?? [])
-const takeaways     = computed(() => macro.value?.conclusion?.key_takeaways ?? [])
+const bullEvents = computed(() => macro.value?.bull_events ?? []);
+const bearEvents = computed(() => macro.value?.bear_events ?? []);
+const neutralEvents = computed(() => macro.value?.neutral_events ?? []);
+const takeaways = computed(() => macro.value?.conclusion?.key_takeaways ?? []);
 
 // ── 市場方向 ──
-const direction = computed(() => macro.value?.conclusion?.market_direction ?? '')
+const direction = computed(
+  () => macro.value?.conclusion?.market_direction ?? "",
+);
 const directionText = computed(() => {
-  const d = direction.value?.toUpperCase()
-  if (d === 'BULLISH')  return '多頭偏強'
-  if (d === 'BEARISH')  return '空頭偏弱'
-  if (d === 'NEUTRAL')  return '中性觀望'
-  return direction.value || '待分析'
-})
+  const d = direction.value?.toUpperCase();
+  if (d === "BULLISH") return "多頭偏強";
+  if (d === "BEARISH") return "空頭偏弱";
+  if (d === "NEUTRAL") return "中性觀望";
+  return direction.value || "待分析";
+});
 const directionIcon = computed(() => {
-  const d = direction.value?.toUpperCase()
-  if (d === 'BULLISH') return '📈'
-  if (d === 'BEARISH') return '📉'
-  return '⚖️'
-})
+  const d = direction.value?.toUpperCase();
+  if (d === "BULLISH") return "📈";
+  if (d === "BEARISH") return "📉";
+  return "⚖️";
+});
 const directionClass = computed(() => {
-  const d = direction.value?.toUpperCase()
-  if (d === 'BULLISH') return 'badge-bull'
-  if (d === 'BEARISH') return 'badge-bear'
-  return 'badge-neutral'
-})
+  const d = direction.value?.toUpperCase();
+  if (d === "BULLISH") return "badge-bull";
+  if (d === "BEARISH") return "badge-bear";
+  return "badge-neutral";
+});
 </script>
 
 <style scoped>
@@ -206,9 +247,18 @@ const directionClass = computed(() => {
   border-radius: 20px;
   white-space: nowrap;
 }
-.badge-bull    { background: rgba(38, 161, 123, 0.15); color: #26a17b; }
-.badge-bear    { background: rgba(232, 72, 85, 0.15);  color: #e84855; }
-.badge-neutral { background: rgba(212, 172, 13, 0.15); color: #b8860b; }
+.badge-bull {
+  background: rgba(38, 161, 123, 0.15);
+  color: #26a17b;
+}
+.badge-bear {
+  background: rgba(232, 72, 85, 0.15);
+  color: #e84855;
+}
+.badge-neutral {
+  background: rgba(212, 172, 13, 0.15);
+  color: #b8860b;
+}
 .direction-hint {
   font-size: 12px;
   color: var(--tg-theme-hint-color, #999);
@@ -217,7 +267,9 @@ const directionClass = computed(() => {
 }
 
 /* ── Section ── */
-.section { margin-bottom: 20px; }
+.section {
+  margin-bottom: 20px;
+}
 .section-title {
   font-size: 12px;
   font-weight: 600;
@@ -228,7 +280,11 @@ const directionClass = computed(() => {
 }
 
 /* ── Score bars ── */
-.score-wrap { display: flex; flex-direction: column; gap: 10px; }
+.score-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 .score-bar-row {
   display: flex;
   align-items: center;
@@ -240,8 +296,12 @@ const directionClass = computed(() => {
   width: 36px;
   flex-shrink: 0;
 }
-.score-side--bull { color: #26a17b; }
-.score-side--bear { color: #e84855; }
+.score-side--bull {
+  color: #26a17b;
+}
+.score-side--bear {
+  color: #e84855;
+}
 .score-track {
   flex: 1;
   height: 10px;
@@ -254,8 +314,12 @@ const directionClass = computed(() => {
   border-radius: 5px;
   transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.score-fill--bull { background: #26a17b; }
-.score-fill--bear { background: #e84855; }
+.score-fill--bull {
+  background: #26a17b;
+}
+.score-fill--bear {
+  background: #e84855;
+}
 .score-num {
   font-size: 13px;
   font-weight: 700;
@@ -294,14 +358,24 @@ const directionClass = computed(() => {
 }
 
 /* ── Event cards ── */
-.event-list { display: flex; flex-direction: column; gap: 8px; }
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 .event-card {
   border-radius: 10px;
   padding: 10px 12px;
 }
-.event-card--bull    { background: rgba(38, 161, 123, 0.08); }
-.event-card--bear    { background: rgba(232, 72, 85, 0.08); }
-.event-card--neutral { background: var(--tg-theme-secondary-bg-color, #f5f5f5); }
+.event-card--bull {
+  background: rgba(38, 161, 123, 0.08);
+}
+.event-card--bear {
+  background: rgba(232, 72, 85, 0.08);
+}
+.event-card--neutral {
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+}
 
 .event-top {
   display: flex;
@@ -352,27 +426,45 @@ const directionClass = computed(() => {
   text-align: center;
   line-height: 1.7;
 }
-.hint-sub { font-size: 12px; }
+.hint-sub {
+  font-size: 12px;
+}
 
 /* ── Skeleton ── */
-.skeleton-wrap { padding: 4px; }
+.skeleton-wrap {
+  padding: 4px;
+}
 @keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 .sk {
   border-radius: 6px;
   background: linear-gradient(
     90deg,
     var(--tg-theme-secondary-bg-color, #e8e8e8) 25%,
-    rgba(255,255,255,0.35) 50%,
+    rgba(255, 255, 255, 0.35) 50%,
     var(--tg-theme-secondary-bg-color, #e8e8e8) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
   margin-bottom: 8px;
 }
-.sk-title { height: 20px; width: 55%; }
-.sk-bar   { height: 12px; width: 90%; }
-.sk-row   { height: 56px; width: 100%; border-radius: 10px; }
+.sk-title {
+  height: 20px;
+  width: 55%;
+}
+.sk-bar {
+  height: 12px;
+  width: 90%;
+}
+.sk-row {
+  height: 56px;
+  width: 100%;
+  border-radius: 10px;
+}
 </style>

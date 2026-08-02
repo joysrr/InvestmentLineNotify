@@ -17,13 +17,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { tabs } from '../config/tabsConfig.js'
-import { useIOSSwipeGuard } from '../composables/useIOSSwipeGuard.js'
+import { ref } from "vue";
+import { tabs } from "../config/tabsConfig.js";
+import { useIOSSwipeGuard } from "../composables/useIOSSwipeGuard.js";
 
-const pillRef = ref(null)
+const pillRef = ref(null);
 // 保留 iOS 邊緣滑動保護邏輯，但位置已移開，衝突機率大幅降低
-useIOSSwipeGuard(pillRef)
+useIOSSwipeGuard(pillRef);
 </script>
 
 <style scoped>
