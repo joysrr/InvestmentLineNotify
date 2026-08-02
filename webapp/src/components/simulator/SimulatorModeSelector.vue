@@ -31,7 +31,7 @@ defineProps({
   },
 });
 
-defineEmits(["update:mode"]);
+defineEmits(["update:modelValue"]);
 </script>
 
 <style scoped>

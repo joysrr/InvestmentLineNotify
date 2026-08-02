@@ -225,15 +225,6 @@ function updateValue(val) {
     emit("update:targetValue", val);
   }
 }
-
-// Watch props to emit updates for direction/status
-watch(() => props.targetDirection, (val) => {
-  emit("update:targetDirection", val);
-});
-
-watch(() => props.targetStatus, (val) => {
-  emit("update:targetStatus", val);
-});
 </script>
 
 <style scoped>
