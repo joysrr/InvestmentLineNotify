@@ -1,5 +1,66 @@
 # Finished-plan Features (已完成功能歸檔)
 
+## ✅【P0 已完成】Decision Chain of Responsibility 重構
+
+> **Commit:** `76972b9` / `59afc2b` — feat(strategy): implement Decision Chain of Responsibility pattern + replace buildDecision with Decision Chain delegation
+> **完成日期：** 2026-08-02
+
+### 重構摘要
+
+將 `strategyEngine.mjs` 中 500+ 行的 `buildDecision` 單體函式重構為 Chain of Responsibility 模式，拆分為 11 個獨立決策規則，並建立統一的 Chain Runner 執行引擎。
+
+### 架構變更
+
+| 變更項目           | 修改前                      | 修改後                                                   |
+| ------------------ | --------------------------- | -------------------------------------------------------- |
+| 檔案數             | 1 個 (`strategyEngine.mjs`) | 17 個 (1 runner + 11 rules + 1 base + 1 index + 3 tests) |
+| buildDecision 行數 | ~500 行                     | ~10 行 (委派器)                                          |
+| 單元測試覆蓋       | 僅整合測試                  | 25 單元測試 + 18 整合測試                                |
+| 決策鏈優先級       | 硬編碼順序                  | 靜態排序 (priority 數值)                                 |
+
+### 決策規則清單 (依優先級)
+
+| Priority | 規則類別              | 檔案                      | 功能                                               |
+| -------- | --------------------- | ------------------------- | -------------------------------------------------- |
+| P0       | RegimePolicyRule      | RegimePolicyRule.mjs      | VIX/Regime 硬條件 (CRISIS/CAUTIOUS/NORMAL)         |
+| P10      | MarginLayerRule       | MarginLayerRule.mjs       | 維持率 4 層狀態機 (critical/frozen/caution/normal) |
+| P20      | LifecycleLeverageRule | LifecycleLeverageRule.mjs | 生命週期槓桿上限檢查                               |
+| P30      | GrossLeverageRule     | GrossLeverageRule.mjs     | Gross Leverage 警戒 + panicBypass                  |
+| P40      | ValuationGuardRule    | ValuationGuardRule.mjs    | 估值守衛 (PR 分位數 + Latch + Momentum)            |
+| P50      | EntryGateRule         | EntryGateRule.mjs         | 進場前置過濾 (跌幅 + RSI)                          |
+| P60      | StopLossTrailingRule  | StopLossTrailingRule.mjs  | MA20 停損 + 移動停利                               |
+| P70      | ValuationBubbleRule   | ValuationBubbleRule.mjs   | 估值泡沫保護 (PB ≥ 2.2)                            |
+| P80      | RebalanceRule         | RebalanceRule.mjs         | 再平衡 (z2Ratio 過高)                              |
+| P90      | ConversionGuardRule   | ConversionGuardRule.mjs   | 階梯式獲利轉化                                     |
+| P100     | ScoringDecisionRule   | ScoringDecisionRule.mjs   | 評分驅動決策 (戰術加碼/減倉/中性)                  |
+
+### 關鍵設計決策
+
+1. **介面設計**: ES6 Class 繼承 `DecisionRule` 基底類別，強制契約
+2. **變異控制**: ctx/strategy 唯讀，engineState 為單一可變邊界
+3. **優先級排序**: 模組載入時靜態排序一次 (O(1) 執行期)
+4. **測試策略**: 保留既有 5 支整合測試 + 新增 43 支單元/整合測試
+5. **相容性**: 共享狀態 (regimeResult, valuationGuardResult 等) 由 runner 自動同步回決策結果
+
+### 移除的舊邏輯
+
+- `computeTrailingStop()` → 已移至 `StopLossTrailingRule._computeTrailingStop()`
+- 未使用的 imports: `getMarginLayer`, `evaluateMarginLayer`, `evaluateGrossLeverage`, `resolveValuationGuard`, `resolveTrendConfirmation`, `evaluateValuationGuard`, `resolveValuationMomentum`, `determineRegime`, `applyRegimeLeverage`, `allowsTacticalEntry`, `requiresForcedReduction`, `formatRegimeStatus`, `computeLifecycleContext` 等
+
+### 保留的輔助函式 (供 evaluateInvestmentSignal 使用)
+
+- `applyBudgetSynergy()` - 預算協同分析
+- `buildEngineContext()` - ctx 組裝
+- `formatSignalOutput()` - 輸出格式化
+
+### 測試驗證
+
+- **全專案測試**: 376 passed / 6 todo
+- **新增測試**: 25 單元測試 (各規則獨立驗證) + 18 整合測試 (完整鏈條流程、優先級攔截、早期終止、排序)
+- **既有整合測試**: `strategyEngine.test.mjs` 5 支關鍵測試全部通過 (CRISIS、Frozen、EntryGate、ValuationGuard、Neutral)
+
+---
+
 ## ✅【P0 已完成】技術訊號 lookback window 統一修正
 
 > **Commit:** `fc4897c` — fix(strategy): 修正 signalRules lookback window 與 rsiRebound requireCrossToday
