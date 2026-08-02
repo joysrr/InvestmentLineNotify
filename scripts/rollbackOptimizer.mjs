@@ -17,7 +17,9 @@ const dateIdx = args.indexOf("--date");
 const isDryRun = args.includes("--dry-run");
 
 if (dateIdx === -1 || !args[dateIdx + 1]) {
-  console.error("❌ 用法：node scripts/rollbackOptimizer.mjs --date YYYY-MM-DD [--dry-run]");
+  console.error(
+    "❌ 用法：node scripts/rollbackOptimizer.mjs --date YYYY-MM-DD [--dry-run]",
+  );
   process.exit(1);
 }
 
@@ -42,7 +44,7 @@ const history = JSON.parse(readFileSync(HISTORY_PATH, "utf-8"));
 
 // ---- 找出目標日期的未回滾紀錄 ----
 const records = history.history.filter(
-  (r) => r.date === targetDate && !r.rolledBack
+  (r) => r.date === targetDate && !r.rolledBack,
 );
 
 if (records.length === 0) {
@@ -52,7 +54,7 @@ if (records.length === 0) {
 
 // ---- 收集要移除的規則 ----
 const toRemove = new Set(
-  records.flatMap((r) => r.addedRules.map((x) => x.regexLiteral))
+  records.flatMap((r) => r.addedRules.map((x) => x.regexLiteral)),
 );
 
 if (toRemove.size === 0) {
@@ -60,7 +62,9 @@ if (toRemove.size === 0) {
   process.exit(0);
 }
 
-console.log(`\n📋 即將移除以下 ${toRemove.size} 條規則（日期：${targetDate}）：`);
+console.log(
+  `\n📋 即將移除以下 ${toRemove.size} 條規則（日期：${targetDate}）：`,
+);
 let i = 1;
 toRemove.forEach((r) => console.log(`  [${i++}] ${r}`));
 
@@ -72,7 +76,7 @@ if (isDryRun) {
 // ---- 執行移除 ----
 const before = blacklist.titleBlackListPatterns.length;
 blacklist.titleBlackListPatterns = blacklist.titleBlackListPatterns.filter(
-  (pattern) => !toRemove.has(pattern)
+  (pattern) => !toRemove.has(pattern),
 );
 const removed = before - blacklist.titleBlackListPatterns.length;
 
@@ -81,7 +85,7 @@ const rolledBackAt = new Date().toISOString();
 history.history = history.history.map((r) =>
   r.date === targetDate && !r.rolledBack
     ? { ...r, rolledBack: true, rolledBackAt }
-    : r
+    : r,
 );
 history.lastUpdated = rolledBackAt;
 
@@ -91,5 +95,7 @@ writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2), "utf-8");
 
 console.log(`\n✅ 回滾完成`);
 console.log(`   移除規則數：${removed}`);
-console.log(`   blacklist.json 目前規則總數：${blacklist.titleBlackListPatterns.length}`);
+console.log(
+  `   blacklist.json 目前規則總數：${blacklist.titleBlackListPatterns.length}`,
+);
 console.log(`   操作時間：${rolledBackAt}`);

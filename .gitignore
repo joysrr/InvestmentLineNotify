@@ -48,6 +48,9 @@ scratch/
 refactor.mjs
 EOF.test.mjs
 
+# 測試覆蓋率目錄（一次性產物）
+coverage/
+
 # MemPalace per-project files (issue #185)
 mempalace.yaml
 entities.json

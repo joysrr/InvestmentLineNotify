@@ -33,7 +33,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 import { Bot, InlineKeyboard } from "grammy";
 import logger from "./utils/logger.mjs";
 import { adminGuard } from "./modules/bot/middleware/adminGuard.mjs";
-import { acquireLock, releaseLock, registerShutdownHandlers } from "./modules/bot/runnerLock.mjs";
+import {
+  acquireLock,
+  releaseLock,
+  registerShutdownHandlers,
+} from "./modules/bot/runnerLock.mjs";
 import { dailyCheck } from "./dailyCheck.mjs";
 import { runNewsFetch } from "./runNewsFetch.mjs";
 import { runWeeklyReport } from "./runWeeklyReport.mjs";
@@ -72,7 +76,7 @@ bot.use(adminGuard);
  */
 async function withRunner(ctx, runnerName, fn, options = {}) {
   const { maxConcurrent = 2 } = options;
-  
+
   const lock = await acquireLock(runnerName, { maxConcurrent });
   if (!lock.acquired) {
     await ctx.reply(lock.message, { parse_mode: "HTML" });
@@ -120,7 +124,10 @@ async function syncBotCommands() {
     ]);
     logger.info("Bot setMyCommands 同步完成");
   } catch (err) {
-    logger.warn({ error: err.message }, "Bot setMyCommands 失敗（不影響 Bot 運作）");
+    logger.warn(
+      { error: err.message },
+      "Bot setMyCommands 失敗（不影響 Bot 運作）",
+    );
   }
 }
 
@@ -133,7 +140,7 @@ async function syncMenuButton() {
   if (!rawUserId || !Number.isFinite(chatId)) {
     logger.warn(
       { rawUserId },
-      "Bot setChatMenuButton 略過：TELEGRAM_USER_ID 未設定或格式異常"
+      "Bot setChatMenuButton 略過：TELEGRAM_USER_ID 未設定或格式異常",
     );
     return;
   }
@@ -149,7 +156,10 @@ async function syncMenuButton() {
     });
     logger.info({ miniAppUrl: MINI_APP_URL }, "Bot setChatMenuButton 設定完成");
   } catch (err) {
-    logger.warn({ error: err.message }, "Bot setChatMenuButton 失敗（不影響 Bot 運作）");
+    logger.warn(
+      { error: err.message },
+      "Bot setChatMenuButton 失敗（不影響 Bot 運作）",
+    );
   }
 }
 
@@ -237,7 +247,7 @@ bot.catch(async (err) => {
   const ctx = err.ctx;
   logger.error(
     { updateId: ctx.update.update_id, error: err.error },
-    "Bot 處理 update 時發生錯誤"
+    "Bot 處理 update 時發生錯誤",
   );
   try {
     if (ctx && ctx.reply) {

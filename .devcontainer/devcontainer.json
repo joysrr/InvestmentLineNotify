@@ -9,10 +9,10 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "dbaeumer.vscode-eslint",      // 代碼檢查
-        "esbenp.prettier-vscode",    // 代碼美化
+        "dbaeumer.vscode-eslint", // 代碼檢查
+        "esbenp.prettier-vscode", // 代碼美化
         "github.vscode-github-actions", // 管理 GitHub Actions
-        "irongeek.vscode-env"        // 方便編輯 .env 檔案
+        "irongeek.vscode-env" // 方便編輯 .env 檔案
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",

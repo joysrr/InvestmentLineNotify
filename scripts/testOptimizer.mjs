@@ -32,7 +32,9 @@ const REQUIRED = [BLACKLIST_PATH, GOLDEN_PATH];
 for (const f of REQUIRED) {
   if (!existsSync(f)) {
     console.error(`\n❌ 找不到必要檔案：${f}`);
-    console.error("   請確認 data/config/blacklist.json 與 data/config/goldenDataset.json 已就緒\n");
+    console.error(
+      "   請確認 data/config/blacklist.json 與 data/config/goldenDataset.json 已就緒\n",
+    );
     process.exit(1);
   }
 }
@@ -65,29 +67,35 @@ function assert(name, condition, detail = "") {
 
 // ---- 載入實際資料 ----
 const blacklist = JSON.parse(readFileSync(BLACKLIST_PATH, "utf-8"));
-const golden    = JSON.parse(readFileSync(GOLDEN_PATH, "utf-8"));
+const golden = JSON.parse(readFileSync(GOLDEN_PATH, "utf-8"));
 
 // ============================================================
 // T1：isValidRegex
 // ============================================================
 console.log("\n📋 T1：isValidRegex — 合法 / 非法 regex");
-assert("合法：\\bBrexit\\b 搭配 flag i",         isValidRegex("\\bBrexit\\b", "i"));
-assert("合法：ISM.*University",                    isValidRegex("ISM.*University", "i"));
-assert("合法：中文字符集 [\\u4e00-\\u9fa5]{2,5}", isValidRegex("[\\u4e00-\\u9fa5]{2,5}", ""));
-assert("合法：現有規則格式 Powell Industries",    isValidRegex("Powell Industries", "i"));
-assert("非法：未閉合括號 [abc",                   !isValidRegex("[abc", ""));
-assert("非法：無效 flag z",                        !isValidRegex("test", "z"));
+assert("合法：\\bBrexit\\b 搭配 flag i", isValidRegex("\\bBrexit\\b", "i"));
+assert("合法：ISM.*University", isValidRegex("ISM.*University", "i"));
+assert(
+  "合法：中文字符集 [\\u4e00-\\u9fa5]{2,5}",
+  isValidRegex("[\\u4e00-\\u9fa5]{2,5}", ""),
+);
+assert(
+  "合法：現有規則格式 Powell Industries",
+  isValidRegex("Powell Industries", "i"),
+);
+assert("非法：未閉合括號 [abc", !isValidRegex("[abc", ""));
+assert("非法：無效 flag z", !isValidRegex("test", "z"));
 
 // ============================================================
 // T2：isOverbroad
 // ============================================================
 console.log("\n📋 T2：isOverbroad — 廣泛 / 具體 pattern");
-assert("廣泛：.*",                      isOverbroad(".*"));
-assert("廣泛：.+stock",                 isOverbroad(".+stock"));
-assert("廣泛：\\w+",                    isOverbroad("\\w+"));
-assert("廣泛：\\d+",                    isOverbroad("\\d+"));
-assert("廣泛：.{0,10}買進",             isOverbroad(".{0,10}買進"));
-assert("具體：\\bBrexit\\b 不觸發",     !isOverbroad("\\bBrexit\\b"));
+assert("廣泛：.*", isOverbroad(".*"));
+assert("廣泛：.+stock", isOverbroad(".+stock"));
+assert("廣泛：\\w+", isOverbroad("\\w+"));
+assert("廣泛：\\d+", isOverbroad("\\d+"));
+assert("廣泛：.{0,10}買進", isOverbroad(".{0,10}買進"));
+assert("具體：\\bBrexit\\b 不觸發", !isOverbroad("\\bBrexit\\b"));
 assert("具體：最強.{0,5}概念股 不觸發", !isOverbroad("最強.{0,5}概念股"));
 assert("具體：\\d+ stocks? to buy 不觸發", !isOverbroad("\\d+ stocks? to buy"));
 
@@ -95,12 +103,18 @@ assert("具體：\\d+ stocks? to buy 不觸發", !isOverbroad("\\d+ stocks? to b
 // T3：toRegexLiteral
 // ============================================================
 console.log("\n📋 T3：toRegexLiteral — 字串格式轉換");
-assert("有 flag：Powell Industries → /Powell Industries/i",
-  toRegexLiteral("Powell Industries", "i") === "/Powell Industries/i");
-assert("無 flag：盤前分析 → /盤前分析/",
-  toRegexLiteral("盤前分析", "") === "/盤前分析/");
-assert("undefined flag 仍有結尾 /",
-  toRegexLiteral("test", undefined) === "/test/");
+assert(
+  "有 flag：Powell Industries → /Powell Industries/i",
+  toRegexLiteral("Powell Industries", "i") === "/Powell Industries/i",
+);
+assert(
+  "無 flag：盤前分析 → /盤前分析/",
+  toRegexLiteral("盤前分析", "") === "/盤前分析/",
+);
+assert(
+  "undefined flag 仍有結尾 /",
+  toRegexLiteral("test", undefined) === "/test/",
+);
 
 // ============================================================
 // T4：isDuplicate（對比實際 blacklist.json）
@@ -113,34 +127,63 @@ const m = firstRaw.match(/^\/(.+)\/([gimsuy]*)$/s);
 
 if (m) {
   const [, p, f] = m;
-  assert("現有規則應識別為重複",
+  assert(
+    "現有規則應識別為重複",
     isDuplicate(p, f, blacklist.titleBlackListPatterns),
-    `測試規則：${firstRaw}`);
+    `測試規則：${firstRaw}`,
+  );
 }
-assert("全新規則不應識別為重複",
-  !isDuplicate("完全沒有的測試Pattern_XYZ_9999", "i", blacklist.titleBlackListPatterns));
-assert("相同 pattern 不同 flag 不視為重複（除非 blacklist 也有無 flag 版本）",
-  !isDuplicate("Powell Industries", "", blacklist.titleBlackListPatterns));
+assert(
+  "全新規則不應識別為重複",
+  !isDuplicate(
+    "完全沒有的測試Pattern_XYZ_9999",
+    "i",
+    blacklist.titleBlackListPatterns,
+  ),
+);
+assert(
+  "相同 pattern 不同 flag 不視為重複（除非 blacklist 也有無 flag 版本）",
+  !isDuplicate("Powell Industries", "", blacklist.titleBlackListPatterns),
+);
 
 // ============================================================
 // T5：passesGoldenTest（對比實際 goldenDataset.json）
 // ============================================================
 console.log("\n📋 T5：passesGoldenTest — 對比實際 goldenDataset.json");
 
-assert("農場文規則不誤殺黃金清單",
-  passesGoldenTest(new RegExp("最強.{0,5}(概念股|飆股).{0,10}(布局|卡位|搶先)"), golden));
+assert(
+  "農場文規則不誤殺黃金清單",
+  passesGoldenTest(
+    new RegExp("最強.{0,5}(概念股|飆股).{0,10}(布局|卡位|搶先)"),
+    golden,
+  ),
+);
 
-assert("過廣規則（台積電）碰撞黃金清單應被擋",
-  !passesGoldenTest(new RegExp("台積電", "i"), golden));
+assert(
+  "過廣規則（台積電）碰撞黃金清單應被擋",
+  !passesGoldenTest(new RegExp("台積電", "i"), golden),
+);
 
-assert("精確農場規則 \\d+檔?必買 不誤殺黃金清單",
-  passesGoldenTest(new RegExp("\\d+(檔|支).{0,5}(必買|必存|精選)股", "i"), golden));
+assert(
+  "精確農場規則 \\d+檔?必買 不誤殺黃金清單",
+  passesGoldenTest(
+    new RegExp("\\d+(檔|支).{0,5}(必買|必存|精選)股", "i"),
+    golden,
+  ),
+);
 
-assert("過廣規則（Fed）碰撞黃金清單應被擋",
-  !passesGoldenTest(new RegExp("Fed", "i"), golden));
+assert(
+  "過廣規則（Fed）碰撞黃金清單應被擋",
+  !passesGoldenTest(new RegExp("Fed", "i"), golden),
+);
 
-assert("精確英文農場文規則 stocks? to (buy|watch) 不誤殺黃金清單",
-  passesGoldenTest(new RegExp("\\d+ stocks? to (buy|watch|own)(?! before)", "i"), golden));
+assert(
+  "精確英文農場文規則 stocks? to (buy|watch) 不誤殺黃金清單",
+  passesGoldenTest(
+    new RegExp("\\d+ stocks? to (buy|watch|own)(?! before)", "i"),
+    golden,
+  ),
+);
 
 // ============================================================
 // T6：validateAndPrepare — 四關卡完整流程
@@ -182,23 +225,33 @@ const MOCK_RULES = [
   ...(m ? [{ pattern: m[1], flags: m[2], reason: "重複規則測試" }] : []),
 ];
 
-const { accepted, rejected } = validateAndPrepare(MOCK_RULES, blacklist, golden);
+const { accepted, rejected } = validateAndPrepare(
+  MOCK_RULES,
+  blacklist,
+  golden,
+);
 
-assert(`通過規則數應為 2，實際：${accepted.length}`,   accepted.length === 2);
-assert(`拒絕規則數應 ≥ 3，實際：${rejected.length}`,  rejected.length >= 3);
+assert(`通過規則數應為 2，實際：${accepted.length}`, accepted.length === 2);
+assert(`拒絕規則數應 ≥ 3，實際：${rejected.length}`, rejected.length >= 3);
 
 const reasons = rejected.map((r) => r.rejectReason);
-assert("應有 invalid_regex",       reasons.includes("invalid_regex"));
-assert("應有 overbroad",           reasons.includes("overbroad"));
+assert("應有 invalid_regex", reasons.includes("invalid_regex"));
+assert("應有 overbroad", reasons.includes("overbroad"));
 assert("應有 golden_dataset_kill", reasons.includes("golden_dataset_kill"));
 if (m) {
-  assert("應有 duplicate",         reasons.includes("duplicate"));
+  assert("應有 duplicate", reasons.includes("duplicate"));
 }
 
-assert("通過規則有 regexLiteral 欄位且以 / 開頭",
-  accepted.every((r) => typeof r.regexLiteral === "string" && r.regexLiteral.startsWith("/")));
-assert("通過規則有非空 reason 欄位",
-  accepted.every((r) => typeof r.reason === "string" && r.reason.length > 0));
+assert(
+  "通過規則有 regexLiteral 欄位且以 / 開頭",
+  accepted.every(
+    (r) => typeof r.regexLiteral === "string" && r.regexLiteral.startsWith("/"),
+  ),
+);
+assert(
+  "通過規則有非空 reason 欄位",
+  accepted.every((r) => typeof r.reason === "string" && r.reason.length > 0),
+);
 
 // ============================================================
 // T7：normalizeTitle（內嵌測試，不依賴 export）
@@ -209,11 +262,24 @@ function normalizeTitle(title) {
   return title.replace(/\s*-\s*[^-]{2,40}$/, "").trim();
 }
 
-assert("移除英文來源尾綴",   normalizeTitle("Fed raises rates - Reuters") === "Fed raises rates");
-assert("移除中文來源尾綴",   normalizeTitle("台積電法說 - 經濟日報") === "台積電法說");
-assert("無尾綴保持原樣",     normalizeTitle("Fed raises rates by 25bps") === "Fed raises rates by 25bps");
-assert("多個 - 只移除最後一段",
-  normalizeTitle("S&P 500 up 1% - best day - Reuters").startsWith("S&P 500 up 1%"));
+assert(
+  "移除英文來源尾綴",
+  normalizeTitle("Fed raises rates - Reuters") === "Fed raises rates",
+);
+assert(
+  "移除中文來源尾綴",
+  normalizeTitle("台積電法說 - 經濟日報") === "台積電法說",
+);
+assert(
+  "無尾綴保持原樣",
+  normalizeTitle("Fed raises rates by 25bps") === "Fed raises rates by 25bps",
+);
+assert(
+  "多個 - 只移除最後一段",
+  normalizeTitle("S&P 500 up 1% - best day - Reuters").startsWith(
+    "S&P 500 up 1%",
+  ),
+);
 
 // ============================================================
 // T8：Full Dry Run（臨時目錄，不汙染正式資料）
@@ -222,70 +288,112 @@ console.log("\n📋 T8：Full Dry Run — 模擬完整 optimizer 流程");
 
 // 建立臨時目錄
 if (existsSync(TMP_DIR)) rmSync(TMP_DIR, { recursive: true });
-mkdirSync(join(TMP_DIR, "config"),    { recursive: true });
+mkdirSync(join(TMP_DIR, "config"), { recursive: true });
 mkdirSync(join(TMP_DIR, "news_logs"), { recursive: true });
 
 const tmpBlacklist = join(TMP_DIR, "config", "blacklist.json");
-const tmpGolden    = join(TMP_DIR, "config", "goldenDataset.json");
-const tmpHistory   = join(TMP_DIR, "config", "optimizerHistory.json");
+const tmpGolden = join(TMP_DIR, "config", "goldenDataset.json");
+const tmpHistory = join(TMP_DIR, "config", "optimizerHistory.json");
 
 writeFileSync(tmpBlacklist, readFileSync(BLACKLIST_PATH, "utf-8"));
-writeFileSync(tmpGolden,    readFileSync(GOLDEN_PATH, "utf-8"));
-writeFileSync(tmpHistory,   JSON.stringify({ lastUpdated: "", history: [] }, null, 2));
+writeFileSync(tmpGolden, readFileSync(GOLDEN_PATH, "utf-8"));
+writeFileSync(
+  tmpHistory,
+  JSON.stringify({ lastUpdated: "", history: [] }, null, 2),
+);
 
 // 建立 mock passedArticles（昨日）
-const dateStr = new Date(Date.now() - 86400000)
-  .toLocaleDateString("en-CA", { timeZone: "Asia/Taipei" });
+const dateStr = new Date(Date.now() - 86400000).toLocaleDateString("en-CA", {
+  timeZone: "Asia/Taipei",
+});
 
 const mockArticles = [
   { title: "最強飆股大公開！布局卡位搶先機 - 財經網", source: "財經網" },
-  { title: "Fed raises interest rates - Reuters",       source: "Reuters" },
-  { title: "10檔必買存股推薦，退休族最愛 - 理財周刊",  source: "理財周刊" },
-  { title: "台股大盤收漲 1.2%，外資買超 - 工商時報",  source: "工商時報" },
-  { title: "3 stocks to watch before earnings season",  source: "Motley Fool" },
+  { title: "Fed raises interest rates - Reuters", source: "Reuters" },
+  { title: "10檔必買存股推薦，退休族最愛 - 理財周刊", source: "理財周刊" },
+  { title: "台股大盤收漲 1.2%，外資買超 - 工商時報", source: "工商時報" },
+  { title: "3 stocks to watch before earnings season", source: "Motley Fool" },
 ];
 writeFileSync(
   join(TMP_DIR, "news_logs", `passedArticles_TW_${dateStr}.json`),
-  JSON.stringify({ _savedAt: new Date().toISOString(), region: "TW",
-    count: mockArticles.length, articles: mockArticles.map((a) => ({ ...a, _region: "TW" })) }, null, 2)
+  JSON.stringify(
+    {
+      _savedAt: new Date().toISOString(),
+      region: "TW",
+      count: mockArticles.length,
+      articles: mockArticles.map((a) => ({ ...a, _region: "TW" })),
+    },
+    null,
+    2,
+  ),
 );
 
 // 用 Mock 規則執行驗證（不呼叫 AI）
 const tmpBlacklistData = JSON.parse(readFileSync(tmpBlacklist, "utf-8"));
-const tmpGoldenData    = JSON.parse(readFileSync(tmpGolden, "utf-8"));
+const tmpGoldenData = JSON.parse(readFileSync(tmpGolden, "utf-8"));
 
 const mockRules2 = [
-  { pattern: "\\d+(檔|支).{0,10}(必買|必存|推薦)股", flags: "i", reason: "農場推薦文" },
-  { pattern: "最強.{0,5}(飆股|概念股).{0,10}(大公開|搶先|卡位)", flags: "", reason: "農場 SEO 標題" },
+  {
+    pattern: "\\d+(檔|支).{0,10}(必買|必存|推薦)股",
+    flags: "i",
+    reason: "農場推薦文",
+  },
+  {
+    pattern: "最強.{0,5}(飆股|概念股).{0,10}(大公開|搶先|卡位)",
+    flags: "",
+    reason: "農場 SEO 標題",
+  },
 ];
 
-const dryResult = validateAndPrepare(mockRules2, tmpBlacklistData, tmpGoldenData);
+const dryResult = validateAndPrepare(
+  mockRules2,
+  tmpBlacklistData,
+  tmpGoldenData,
+);
 assert("Dry Run 有規則通過驗證", dryResult.accepted.length > 0);
-assert("Dry Run 無黃金清單誤殺",
-  dryResult.rejected.filter((r) => r.rejectReason === "golden_dataset_kill").length === 0);
+assert(
+  "Dry Run 無黃金清單誤殺",
+  dryResult.rejected.filter((r) => r.rejectReason === "golden_dataset_kill")
+    .length === 0,
+);
 
 // 寫入臨時 blacklist
 const before = tmpBlacklistData.titleBlackListPatterns.length;
-tmpBlacklistData.titleBlackListPatterns.push(...dryResult.accepted.map((r) => r.regexLiteral));
+tmpBlacklistData.titleBlackListPatterns.push(
+  ...dryResult.accepted.map((r) => r.regexLiteral),
+);
 writeFileSync(tmpBlacklist, JSON.stringify(tmpBlacklistData, null, 2));
-const after = JSON.parse(readFileSync(tmpBlacklist, "utf-8")).titleBlackListPatterns.length;
+const after = JSON.parse(readFileSync(tmpBlacklist, "utf-8"))
+  .titleBlackListPatterns.length;
 
-assert(`規則已 append 到臨時 blacklist（${before} → ${after}）`, after > before);
+assert(
+  `規則已 append 到臨時 blacklist（${before} → ${after}）`,
+  after > before,
+);
 
 // 寫入 history
 let tmpHistData = JSON.parse(readFileSync(tmpHistory, "utf-8"));
 tmpHistData.history.push({
-  date: dateStr, region: "TW",
-  addedRules: dryResult.accepted, rejectedRules: dryResult.rejected,
-  savedAt: new Date().toISOString(), rolledBack: false,
+  date: dateStr,
+  region: "TW",
+  addedRules: dryResult.accepted,
+  rejectedRules: dryResult.rejected,
+  savedAt: new Date().toISOString(),
+  rolledBack: false,
 });
 tmpHistData.lastUpdated = new Date().toISOString();
 writeFileSync(tmpHistory, JSON.stringify(tmpHistData, null, 2));
 tmpHistData = JSON.parse(readFileSync(tmpHistory, "utf-8"));
 
-assert("history 有 1 筆紀錄",         tmpHistData.history.length === 1);
-assert(`history.date 正確：${dateStr}`, tmpHistData.history[0].date === dateStr);
-assert("history.rolledBack 預設 false", tmpHistData.history[0].rolledBack === false);
+assert("history 有 1 筆紀錄", tmpHistData.history.length === 1);
+assert(
+  `history.date 正確：${dateStr}`,
+  tmpHistData.history[0].date === dateStr,
+);
+assert(
+  "history.rolledBack 預設 false",
+  tmpHistData.history[0].rolledBack === false,
+);
 
 // 清理臨時目錄
 rmSync(TMP_DIR, { recursive: true });
@@ -297,14 +405,19 @@ console.log("  🧹 臨時測試目錄已清理");
 console.log("\n📋 T9：rollbackOptimizer --dry-run — 正常退出驗證");
 
 try {
-  execSync(
-    `node scripts/rollbackOptimizer.mjs --date 9999-12-31 --dry-run`,
-    { cwd: ROOT, encoding: "utf-8", stdio: "pipe" }
-  );
+  execSync(`node scripts/rollbackOptimizer.mjs --date 9999-12-31 --dry-run`, {
+    cwd: ROOT,
+    encoding: "utf-8",
+    stdio: "pipe",
+  });
   assert("--dry-run 對不存在日期正常退出（exit 0）", true);
 } catch (err) {
   // exit 0 = 正常（無可回滾），非 0 才是異常
-  assert("rollback 腳本可正常執行", err.status === 0, `exit code: ${err.status}`);
+  assert(
+    "rollback 腳本可正常執行",
+    err.status === 0,
+    `exit code: ${err.status}`,
+  );
 }
 
 // ============================================================

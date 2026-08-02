@@ -286,7 +286,7 @@ export async function loadStateFromLatestFiles() {
       portfolioRaw = decryptSnapshot(latestReport.snapshot);
     } catch (err) {
       logger.error(
-        `[ilnState] 解密最新報告快照失敗，portfolioRaw 將為 null: ${err.message}`
+        `[ilnState] 解密最新報告快照失敗，portfolioRaw 將為 null: ${err.message}`,
       );
       // 不拋出錯誤，讓系統繼續運作（portfolioRaw 為 null）
     }
@@ -333,7 +333,7 @@ export async function loadStateFromReport(reportDate) {
         portfolioRaw = decryptSnapshot(report.snapshot);
       } catch (err) {
         logger.error(
-          `[ilnState] 解密指定日期報告快照失敗 (${reportDate}): ${err.message}`
+          `[ilnState] 解密指定日期報告快照失敗 (${reportDate}): ${err.message}`,
         );
         // 不拋出錯誤，讓系統繼續運作（portfolioRaw 為 null）
       }
