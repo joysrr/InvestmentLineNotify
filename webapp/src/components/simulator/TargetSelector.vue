@@ -3,8 +3,8 @@
     <label class="selector-label">選擇目標類型</label>
     <select
       class="selector-field"
-      v-model="targetType"
-      @change="$emit('update:targetType', $event.target.value)"
+      :value="modelValue"
+      @change="$emit('update:modelValue', $event.target.value)"
     >
       <option
         v-for="t in targetTypes"
@@ -29,13 +29,7 @@ defineProps({
   },
 });
 
-defineEmits(["update:targetType"]);
-
-const targetType = ref("maintenanceRatio");
-
-watch(targetType, (val) => {
-  emit("update:targetType", val);
-});
+defineEmits(["update:modelValue"]);
 </script>
 
 <style scoped>

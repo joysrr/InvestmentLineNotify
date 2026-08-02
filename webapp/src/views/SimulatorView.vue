@@ -12,8 +12,10 @@
     <!-- Forward Panel (Mode A) -->
     <ForwardPanel
       v-if="mode === 'forward'"
-      v-model:price0050="forwardInput.price0050"
-      v-model:priceZ2="forwardInput.priceZ2"
+      :price0050="forwardInput.price0050"
+      :priceZ2="forwardInput.priceZ2"
+      @update:price0050="forwardInput.price0050 = $event"
+      @update:priceZ2="forwardInput.priceZ2 = $event"
       :loading="loading"
       :result="result"
       :error="error"
@@ -26,10 +28,14 @@
     <!-- Reverse Panel (Mode B) -->
     <ReversePanel
       v-else-if="mode === 'reverse'"
-      v-model:target-type="reverseInput.targetType"
-      v-model:target-value="reverseInput.targetValue"
-      v-model:target-direction="reverseInput.targetDirection"
-      v-model:target-status="reverseInput.targetStatus"
+      :target-type="reverseInput.targetType"
+      :target-value="reverseInput.targetValue"
+      :target-direction="reverseInput.targetDirection"
+      :target-status="reverseInput.targetStatus"
+      @update:target-type="reverseInput.targetType = $event"
+      @update:target-value="reverseInput.targetValue = $event"
+      @update:target-direction="reverseInput.targetDirection = $event"
+      @update:target-status="reverseInput.targetStatus = $event"
       :loading="loading"
       :result="result"
       :error="error"

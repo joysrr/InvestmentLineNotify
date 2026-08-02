@@ -2,16 +2,20 @@
   <div class="reverse-panel">
     <!-- Target Selector -->
     <TargetSelector
-      v-model:targetType="targetType"
+      :model-value="targetType"
+      @update:model-value="$emit('update:targetType', $event)"
       :target-types="targetTypes"
     />
 
     <!-- Target Input -->
     <TargetInput
       :target-type="targetType"
-      v-model:targetValue="targetValue"
-      v-model:targetDirection="targetDirection"
-      v-model:targetStatus="targetStatus"
+      :target-value="targetValue"
+      :target-direction="targetDirection"
+      :target-status="targetStatus"
+      @update:targetValue="$emit('update:targetValue', $event)"
+      @update:targetDirection="$emit('update:targetDirection', $event)"
+      @update:targetStatus="$emit('update:targetStatus', $event)"
     />
 
     <!-- Action Buttons -->
@@ -56,26 +60,16 @@ import ReverseResultCard from "./ReverseResultCard.vue";
 import LoadingSkeleton from "./Common/LoadingSkeleton.vue";
 
 defineProps({
-  modelValue: {
-    type: Object,
-    default: () => ({
-      targetType: "maintenanceRatio",
-      targetValue: null,
-      targetDirection: "golden",
-      targetStatus: "green",
-    }),
-  },
+  targetType: { type: String, default: "maintenanceRatio" },
+  targetValue: { type: [Number, String, null], default: null },
+  targetDirection: { type: String, default: "golden" },
+  targetStatus: { type: String, default: "green" },
   loading: Boolean,
   result: Object,
   error: String,
 });
 
-defineEmits(["update:modelValue", "run", "clear"]);
-
-const targetType = ref("maintenanceRatio");
-const targetValue = ref(null);
-const targetDirection = ref("golden");
-const targetStatus = ref("green");
+defineEmits(["update:targetType", "update:targetValue", "update:targetDirection", "update:targetStatus", "run", "clear"]);
 
 const targetTypes = [
   { value: "maintenanceRatio", label: "維持率", input: "number", placeholder: "目標維持率 (%)" },
@@ -90,25 +84,28 @@ const targetTypes = [
 ];
 
 const canRun = computed(() => {
-  if (loading.value) return false;
-  if (!targetValue.value && targetType.value !== "kdCross" && targetType.value !== "macdCross" && targetType.value !== "portfolioHealth") {
+  if (props.loading) return false;
+  if (!props.targetValue && props.targetType !== "kdCross" && props.targetType !== "macdCross" && props.targetType !== "portfolioHealth") {
     return false;
   }
   return true;
 });
 
-// Sync with parent
-watch(targetType, (val) => {
-  emit("update:modelValue", { ...props.modelValue, targetType: val });
+// Emit changes to parent
+watch(() => props.targetType, (val) => {
+  emit("update:targetType", val);
 });
 
-watch([targetValue, targetDirection, targetStatus], () => {
-  emit("update:modelValue", {
-    targetType: targetType.value,
-    targetValue: targetValue.value,
-    targetDirection: targetDirection.value,
-    targetStatus: targetStatus.value,
-  });
+watch(() => props.targetValue, (val) => {
+  emit("update:targetValue", val);
+});
+
+watch(() => props.targetDirection, (val) => {
+  emit("update:targetDirection", val);
+});
+
+watch(() => props.targetStatus, (val) => {
+  emit("update:targetStatus", val);
 });
 </script>
 

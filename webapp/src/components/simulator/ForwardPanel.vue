@@ -3,8 +3,10 @@
     <!-- Price Input -->
     <div class="input-section">
       <PriceInput
-        v-model:price0050="price0050"
-        v-model:priceZ2="priceZ2"
+        :price0050="price0050"
+        :priceZ2="priceZ2"
+        @update:price0050="$emit('update:price0050', $event)"
+        @update:priceZ2="$emit('update:priceZ2', $event)"
         :current-price-0050="currentPrice0050"
         :current-price-z2="currentPriceZ2"
         :disabled="loading"
@@ -88,10 +90,8 @@ import IndicatorComparisonTable from "./Common/IndicatorComparisonTable.vue";
 import LoadingSkeleton from "./Common/LoadingSkeleton.vue";
 
 defineProps({
-  modelValue: {
-    type: Object,
-    default: () => ({ price0050: null, priceZ2: null }),
-  },
+  price0050: { type: [Number, String, null], default: null },
+  priceZ2: { type: [Number, String, null], default: null },
   loading: Boolean,
   result: Object,
   error: String,
@@ -99,27 +99,7 @@ defineProps({
   currentPriceZ2: Number,
 });
 
-defineEmits(["update:modelValue", "run", "clear"]);
-
-const price0050 = ref(null);
-const priceZ2 = ref(null);
-
-// Watch props to sync with modelValue
-watch(
-  () => props.modelValue,
-  (val) => {
-    if (val) {
-      price0050.value = val.price0050;
-      priceZ2.value = val.priceZ2;
-    }
-  },
-  { deep: true }
-);
-
-// Emit changes to parent
-watch([price0050, priceZ2], () => {
-  emit("update:modelValue", { price0050: price0050.value, priceZ2: priceZ2.value });
-});
+defineEmits(["update:price0050", "update:priceZ2", "run", "clear"]);
 </script>
 
 <style scoped>
