@@ -51,7 +51,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { apiFetch } from "../api/index.js";
-import { useTelegram } from "../composables/useTelegram.js";
+import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 // Components
 import SimulatorModeSelector from "../components/simulator/SimulatorModeSelector.vue";
@@ -60,8 +60,6 @@ import ReversePanel from "../components/simulator/ReversePanel.vue";
 import DataQualityBadges from "../components/simulator/Common/DataQualityBadges.vue";
 import DisclaimerBanner from "../components/simulator/Common/DisclaimerBanner.vue";
 import LoadingSkeleton from "../components/simulator/Common/LoadingSkeleton.vue";
-
-const { waitReady } = useTelegram();
 
 // State
 const mode = ref("forward"); // 'forward' | 'reverse'
@@ -188,6 +186,7 @@ function clearResult() {
 }
 
 onMounted(async () => {
+  await waitReady();
   await loadCurrentPrices();
 });
 </script>

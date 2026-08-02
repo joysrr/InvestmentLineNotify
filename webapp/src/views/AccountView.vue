@@ -257,6 +257,7 @@
 import { ref, computed, onMounted } from "vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
 import { usePortfolioSnapshots } from "../composables/usePortfolioSnapshots.js";
+import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 // ECharts
 import VChart from "vue-echarts";
@@ -300,7 +301,8 @@ async function load() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await waitReady();
   load();
   loadSnapshots();
 });

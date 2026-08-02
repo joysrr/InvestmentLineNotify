@@ -158,7 +158,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { fetchReports } from "../api/index.js";
-import { useTelegram } from "../composables/useTelegram.js";
+import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 const router = useRouter();
 const { backButton } = useTelegram();
@@ -421,7 +421,8 @@ async function load() {
 
 const goBack = () => router.push("/");
 
-onMounted(() => {
+onMounted(async () => {
+  await waitReady();
   load();
 });
 

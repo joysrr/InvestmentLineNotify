@@ -131,6 +131,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
+import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 const loading = ref(true);
 const error = ref(false);
@@ -140,6 +141,7 @@ const updatedAt = ref("");
 
 // ── 載入 ──────────────────────────────────────────────
 onMounted(async () => {
+  await waitReady();
   const [sRes, rRes] = await Promise.allSettled([
     fetchStatus(),
     fetchReports(3),

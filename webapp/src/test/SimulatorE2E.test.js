@@ -5,11 +5,12 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import SimulatorView from "../views/SimulatorView.vue";
 import { apiFetch } from "../api/index.js";
-import { useTelegram } from "../composables/useTelegram.js";
+import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 vi.mock("../api/index.js", () => ({ apiFetch: vi.fn() }));
 vi.mock("../composables/useTelegram.js", () => ({
-  useTelegram: () => ({ waitReady: vi.fn().mockResolvedValue(undefined) }),
+  useTelegram: () => ({}),
+  waitReady: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("../components/simulator/SimulatorModeSelector.vue", () => ({

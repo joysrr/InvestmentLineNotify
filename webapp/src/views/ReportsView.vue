@@ -365,6 +365,7 @@ import {
   fetchWeeklyReports,
   fetchMonthlyReports,
 } from "../api/index.js";
+import { useTelegram, waitReady } from "../composables/useTelegram.js";
 import VChart from "vue-echarts";
 import { use } from "echarts/core";
 import { BarChart, LineChart } from "echarts/charts";
@@ -521,7 +522,8 @@ function formatPeriodLabel(period) {
   return period;
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await waitReady();
   if (route?.query?.tab === "discipline") {
     activeTab.value = "discipline";
   } else {

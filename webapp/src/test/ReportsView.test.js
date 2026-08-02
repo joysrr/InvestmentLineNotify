@@ -11,6 +11,11 @@ vi.mock("../api/index.js", () => ({
   fetchMonthlyReports: vi.fn(),
 }));
 
+vi.mock("../composables/useTelegram.js", () => ({
+  useTelegram: () => ({}),
+  waitReady: vi.fn().mockResolvedValue(undefined),
+}));
+
 describe("ReportsView.vue", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -34,7 +39,8 @@ describe("ReportsView.vue", () => {
 
     const wrapper = mount(ReportsView);
 
-    // 等待非同步資料載入與 DOM 更新
+    // 等待非同步資料載入與 DOM 更新 (包含 waitReady)
+    await new Promise((resolve) => setTimeout(resolve, 10));
     await nextTick();
     await nextTick(); // 多等一次確保 state 更新
 

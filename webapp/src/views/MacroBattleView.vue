@@ -142,6 +142,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { fetchReports } from "../api/index.js";
+import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 const loading = ref(true);
 const error = ref(false);
@@ -149,6 +150,7 @@ const macro = ref(null); // macroAnalysis 物件
 const reportDate = ref("");
 
 onMounted(async () => {
+  await waitReady();
   try {
     const reports = await fetchReports(3);
     const sorted = [...(reports ?? [])].sort((a, b) =>

@@ -143,7 +143,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { fetchNews, fetchReportNews } from "../api/index.js";
-import { useTelegram } from "../composables/useTelegram.js";
+import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 // ── sub-tab 狀態 ──────────────────────────────────────────
 const activeTab = ref("report");
@@ -241,7 +241,10 @@ function formatDate(pubDate) {
 }
 
 // ── 初始化：預設載入精選報告 ──────────────────────────────
-onMounted(loadReport);
+onMounted(async () => {
+  await waitReady();
+  loadReport();
+});
 </script>
 
 <style scoped>

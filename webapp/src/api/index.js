@@ -38,10 +38,11 @@ function getRetryDelay(attempt) {
  * @returns {string|null} initData 或 null
  */
 function getInitData() {
-  return (
-    window.Telegram?.WebApp?.initData ||
-    (import.meta.env.DEV ? "dev-bypass" : null)
-  );
+  const initData = window.Telegram?.WebApp?.initData;
+  if (!initData || initData === "") {
+    return import.meta.env.DEV ? "dev-bypass" : null;
+  }
+  return initData;
 }
 
 /**
