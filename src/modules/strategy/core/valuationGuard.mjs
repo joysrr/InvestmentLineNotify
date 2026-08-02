@@ -87,10 +87,10 @@ export function resolveValuationMomentum(
 ) {
   const cfg = config?.valuationMomentum;
   if (!cfg?.enabled) {
-    return { 
-      prMomentum: 0, 
+    return {
+      prMomentum: 0,
       prMomentumTrend: 0,
-      momentumAdjustment: 1.0, 
+      momentumAdjustment: 1.0,
       momentumLabel: "",
       isInHighPRZone: false,
       isExtremeOvervaluation: false,
@@ -114,7 +114,7 @@ export function resolveValuationMomentum(
 
   // 二階動能：動能趨勢（加速度）
   // 計算 12 天前的 PR，用於計算動能變化
-  const prevPrevPR = 
+  const prevPrevPR =
     historyLen >= 12 ? pbRecordsObjects[historyLen - 12].pr : prevPR;
   const prevMomentum = prevPR - (prevPrevPR || prevPR);
   const prMomentumTrend = prMomentum - prevMomentum;
@@ -129,7 +129,9 @@ export function resolveValuationMomentum(
   // ── 極度高估硬條件（PR ≥ 95%）──────────────────────────────────
   if (isExtremeOvervaluation) {
     momentumAdjustment = cfg.extremeOvervaluationMultiplier ?? 0.5;
-    momentumLabel.push(`🔴 極度高估 PR${currentPR}% -> 槓桿壓縮 x${momentumAdjustment}`);
+    momentumLabel.push(
+      `🔴 極度高估 PR${currentPR}% -> 槓桿壓縮 x${momentumAdjustment}`,
+    );
   }
   // ─────────────────────────────────────────────────────────────
 
@@ -150,7 +152,10 @@ export function resolveValuationMomentum(
       momentumLabel.push(`⚡ 動能加速 +${prMomentumTrend.toFixed(1)}`);
     } else if (prMomentumTrend < -3) {
       const decelerationRelief = cfg.decelerationReliefMultiplier ?? 1.05;
-      momentumAdjustment = Math.min(momentumAdjustment * decelerationRelief, 1.0);
+      momentumAdjustment = Math.min(
+        momentumAdjustment * decelerationRelief,
+        1.0,
+      );
       momentumLabel.push(`📉 動能放緩 ${prMomentumTrend.toFixed(1)}`);
     }
 
@@ -162,7 +167,8 @@ export function resolveValuationMomentum(
       const vixAbsoluteMultiplier = highPRZone.vixAbsoluteMultiplier || 0.7;
 
       // VIX 急升（恐慌）
-      const vixSpike = (currentVix - previousVix) / previousVix > vixSpikeThreshold;
+      const vixSpike =
+        (currentVix - previousVix) / previousVix > vixSpikeThreshold;
       if (vixSpike) {
         momentumAdjustment *= vixSpikeMultiplier;
         momentumLabel.push(`⚡ VIX 急升 ${(vixSpike * 100).toFixed(0)}%`);
@@ -196,14 +202,15 @@ export function resolveValuationMomentum(
     }
   }
 
-  const finalLabel = momentumLabel.length > 0 
-    ? momentumLabel.join(" → ") + ` -> 壓縮 x${momentumAdjustment.toFixed(2)}`
-    : "";
+  const finalLabel =
+    momentumLabel.length > 0
+      ? momentumLabel.join(" → ") + ` -> 壓縮 x${momentumAdjustment.toFixed(2)}`
+      : "";
 
-  return { 
-    prMomentum, 
+  return {
+    prMomentum,
     prMomentumTrend,
-    momentumAdjustment, 
+    momentumAdjustment,
     momentumLabel: finalLabel,
     isInHighPRZone,
     isExtremeOvervaluation,

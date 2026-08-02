@@ -33,7 +33,7 @@ export const LIFECYCLE_STAGE = {
  */
 export const DEFAULT_LIFECYCLE_PROFILES = {
   [LIFECYCLE_STAGE.EARLY]: {
-    maxLeverage: 2.0,  // 修正：從 2.5 降至 2.0（00675L 僅 2 倍槓桿）
+    maxLeverage: 2.0, // 修正：從 2.5 降至 2.0（00675L 僅 2 倍槓桿）
     maxLeverageForNewZ2: 1.5,
     minSurvivalDropLimit: 140,
     mode: "aggressive",
@@ -125,13 +125,21 @@ export function getLifecycleProfile(stage, lifecycleProfiles = null) {
  * }}
  * @throws {Error} currentAge 非有效數值時拋出錯誤（MED-001 修正）
  */
-export function computeLifecycleContext(currentAge, retirementAge = 65, lifecycleProfiles = null) {
+export function computeLifecycleContext(
+  currentAge,
+  retirementAge = 65,
+  lifecycleProfiles = null,
+) {
   // MED-001 修正：加入參數驗證
-  if (typeof currentAge !== 'number' || isNaN(currentAge)) {
-    throw new Error(`computeLifecycleContext: currentAge 必須是有效數值，收到: ${currentAge}`);
+  if (typeof currentAge !== "number" || isNaN(currentAge)) {
+    throw new Error(
+      `computeLifecycleContext: currentAge 必須是有效數值，收到: ${currentAge}`,
+    );
   }
-  if (typeof retirementAge !== 'number' || isNaN(retirementAge)) {
-    throw new Error(`computeLifecycleContext: retirementAge 必須是有效數值，收到: ${retirementAge}`);
+  if (typeof retirementAge !== "number" || isNaN(retirementAge)) {
+    throw new Error(
+      `computeLifecycleContext: retirementAge 必須是有效數值，收到: ${retirementAge}`,
+    );
   }
 
   const yearsToRetirement = computeYearsToRetirement(currentAge, retirementAge);
@@ -162,11 +170,21 @@ export function validateLifecycleProfiles(lifecycleProfiles) {
     const profile = lifecycleProfiles[stage];
     if (!profile) continue; // 允許部分定義，使用預設值補全
 
-    if (profile.maxLeverage != null && (profile.maxLeverage < 0 || profile.maxLeverage > 3.0)) {
-      throw new Error(`lifecycleProfiles.${stage}.maxLeverage 必須在 0-3.0 之間`);
+    if (
+      profile.maxLeverage != null &&
+      (profile.maxLeverage < 0 || profile.maxLeverage > 3.0)
+    ) {
+      throw new Error(
+        `lifecycleProfiles.${stage}.maxLeverage 必須在 0-3.0 之間`,
+      );
     }
-    if (profile.maxLeverageForNewZ2 != null && profile.maxLeverageForNewZ2 < 0) {
-      throw new Error(`lifecycleProfiles.${stage}.maxLeverageForNewZ2 不能為負數`);
+    if (
+      profile.maxLeverageForNewZ2 != null &&
+      profile.maxLeverageForNewZ2 < 0
+    ) {
+      throw new Error(
+        `lifecycleProfiles.${stage}.maxLeverageForNewZ2 不能為負數`,
+      );
     }
     if (
       profile.maxLeverageForNewZ2 != null &&

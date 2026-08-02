@@ -54,7 +54,10 @@ export async function checkCooldown(lastBuyDate, cooldownTradingDays) {
       yearHolidays.forEach((dateStr) => holidays.add(dateStr));
     }
   } catch (e) {
-    logger.warn({ error: e.message }, "⚠️ 無法取得 TWSE 假日，將退回使用六日計算交易日");
+    logger.warn(
+      { error: e.message },
+      "⚠️ 無法取得 TWSE 假日，將退回使用六日計算交易日",
+    );
     holidayFallback = true;
   }
 

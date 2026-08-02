@@ -96,7 +96,7 @@ export const MAX_DAILY_LOAN_INCREASE_PCT = 0.15; // 15%
  * 硬限制：≤ 20%（提案 ILN_PROPOSAL_20260506_001 T-0.3）
  * @type {number}
  */
-export const MAX_ROLLING_LOAN_INCREASE_PCT = 0.20; // 20%
+export const MAX_ROLLING_LOAN_INCREASE_PCT = 0.2; // 20%
 
 /**
  * 滾動預算計算天數

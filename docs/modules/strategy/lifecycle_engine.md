@@ -22,20 +22,20 @@ Lifecycle Engine 根據投資者的年齡與退休年齡，自動判定生命週
 
 ## Lifecycle Stages
 
-| 階段 | Years to Retirement | maxLeverage | maxLeverageForNewZ2 | minSurvivalDropLimit | Mode |
-|------|---------------------|-------------|---------------------|----------------------|------|
-| EARLY | > 15 | 2.0 | 1.5 | 140% | aggressive |
-| MID | 10-15 (含 15 年) | 2.0 | 1.5 | 145% | balanced |
-| LATE | 5-10 (含 10 年) | 1.5 | 1.0 | 150% | conservative |
-| PRE_RETIRE | ≤ 5 (含 5 年) | 1.0 | 0.5 | 160% | defensive |
+| 階段       | Years to Retirement | maxLeverage | maxLeverageForNewZ2 | minSurvivalDropLimit | Mode         |
+| ---------- | ------------------- | ----------- | ------------------- | -------------------- | ------------ |
+| EARLY      | > 15                | 2.0         | 1.5                 | 140%                 | aggressive   |
+| MID        | 10-15 (含 15 年)    | 2.0         | 1.5                 | 145%                 | balanced     |
+| LATE       | 5-10 (含 10 年)     | 1.5         | 1.0                 | 150%                 | conservative |
+| PRE_RETIRE | ≤ 5 (含 5 年)       | 1.0         | 0.5                 | 160%                 | defensive    |
 
 ### 邊界值判定規則
 
 ```javascript
-if (yearsToRetirement > 15) return 'EARLY';
-if (yearsToRetirement >= 10) return 'MID';
-if (yearsToRetirement >= 5) return 'LATE';
-return 'PRE_RETIRE';
+if (yearsToRetirement > 15) return "EARLY";
+if (yearsToRetirement >= 10) return "MID";
+if (yearsToRetirement >= 5) return "LATE";
+return "PRE_RETIRE";
 ```
 
 ---
@@ -123,19 +123,19 @@ function computeLifecycleContext(currentAge, retirementAge = 65, profiles)
 const lifecycleContext = computeLifecycleContext(
   currentAge,
   config.lifecycle.retirementAge,
-  config.lifecycle.profiles
+  config.lifecycle.profiles,
 );
 
 // 檢查槓桿是否符合生命週期限制
 if (currentGrossLeverage > lifecycleContext.profile.maxLeverage) {
   healthComponents.lifecycle = {
-    status: 'RED',
+    status: "RED",
     score: 0,
     details: {
-      message: '超過生命週期槓桿限制',
+      message: "超過生命週期槓桿限制",
       current: currentGrossLeverage,
-      limit: lifecycleContext.profile.maxLeverage
-    }
+      limit: lifecycleContext.profile.maxLeverage,
+    },
   };
 }
 ```

@@ -41,7 +41,11 @@ describe("marginPolicy - analyzeMarginRisk", () => {
     it("應正確計算當前維持率", () => {
       // 抵押品價值 = 1000 * 500 = 500,000
       // 維持率 = (500,000 / 500,000) * 100 = 100%
-      const result = analyzeMarginRisk(defaultPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeMarginRisk(
+        defaultPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result).toBeDefined();
       expect(result.currentMargin).toBe(100);
@@ -50,7 +54,11 @@ describe("marginPolicy - analyzeMarginRisk", () => {
     });
 
     it("應生成壓力測試報告", () => {
-      const result = analyzeMarginRisk(defaultPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeMarginRisk(
+        defaultPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.stressTests).toBeDefined();
       expect(result.stressTests.length).toBe(4); // -10%, -20%, -30%, -40%
@@ -61,7 +69,11 @@ describe("marginPolicy - analyzeMarginRisk", () => {
     });
 
     it("應計算生存邊際與回補需求", () => {
-      const result = analyzeMarginRisk(defaultPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeMarginRisk(
+        defaultPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.riskAssessment).toBeDefined();
       expect(result.riskAssessment.survivalDropLimit).toBeNull(); // 維持率 < 135%，無生存邊際
@@ -78,7 +90,11 @@ describe("marginPolicy - analyzeMarginRisk", () => {
       // 抵押品 = 2000 * 500 = 1,000,000
       // 維持率 = (1,000,000 / 500,000) * 100 = 200%
 
-      const result = analyzeMarginRisk(safePortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeMarginRisk(
+        safePortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.currentMargin).toBe(200);
       expect(result.riskAssessment.refillRequirement).toBe(0); // 不需要回補
@@ -90,7 +106,11 @@ describe("marginPolicy - analyzeMarginRisk", () => {
         totalLoan: 500000,
       };
 
-      const result = analyzeMarginRisk(safePortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeMarginRisk(
+        safePortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       const drop10 = result.stressTests.find((s) => s.drop === 10);
       expect(drop10.margin).toBe("180.0"); // 200% * 0.9 = 180%
@@ -107,7 +127,11 @@ describe("marginPolicy - analyzeMarginRisk", () => {
       // 抵押品 = 1500 * 500 = 750,000
       // 維持率 = (750,000 / 500,000) * 100 = 150%
 
-      const result = analyzeMarginRisk(warningPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeMarginRisk(
+        warningPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.currentMargin).toBe(150);
       expect(result.riskAssessment.refillRequirement).toBeGreaterThan(0);
@@ -122,7 +146,11 @@ describe("marginPolicy - analyzeMarginRisk", () => {
       };
       // 維持率 = (1480 * 500 / 500000) * 100 = 148%
 
-      const result = analyzeMarginRisk(frozenPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeMarginRisk(
+        frozenPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.currentMargin).toBe(148);
     });
@@ -133,7 +161,11 @@ describe("marginPolicy - analyzeMarginRisk", () => {
         totalLoan: 500000,
       };
 
-      const result = analyzeMarginRisk(frozenPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeMarginRisk(
+        frozenPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       const drop10 = result.stressTests.find((s) => s.drop === 10);
       expect(drop10.margin).toBe("133.2"); // 148% * 0.9 ≈ 133.2%
@@ -149,7 +181,11 @@ describe("marginPolicy - analyzeMarginRisk", () => {
       };
       // 維持率 = (1300 * 500 / 500000) * 100 = 130%
 
-      const result = analyzeMarginRisk(dangerPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeMarginRisk(
+        dangerPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.currentMargin).toBe(130);
       expect(result.riskAssessment.survivalDropLimit).toBeNull(); // 已低於斷頭門檻
@@ -161,7 +197,11 @@ describe("marginPolicy - analyzeMarginRisk", () => {
         totalLoan: 500000,
       };
 
-      const result = analyzeMarginRisk(dangerPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeMarginRisk(
+        dangerPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       result.stressTests.forEach((st) => {
         expect(st.status).toBe("🔴 斷頭");
@@ -186,7 +226,11 @@ describe("marginPolicy - analyzeMarginRisk", () => {
         totalLoan: 500000,
       };
 
-      const result = analyzeMarginRisk(emptyPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeMarginRisk(
+        emptyPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.currentMargin).toBe(0);
     });
@@ -197,7 +241,11 @@ describe("marginPolicy - analyzeMarginRisk", () => {
         totalLoan: 0,
       };
 
-      const result = analyzeMarginRisk(noLoanPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeMarginRisk(
+        noLoanPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.currentMargin).toBe(999);
     });
@@ -221,7 +269,11 @@ describe("marginPolicy - analyzeMarginRisk", () => {
         },
       };
 
-      const result = analyzeMarginRisk(defaultPortfolio, defaultPrice, customStrategy);
+      const result = analyzeMarginRisk(
+        defaultPortfolio,
+        defaultPrice,
+        customStrategy,
+      );
 
       expect(result.riskAssessment.dangerThreshold).toBe(140);
     });
@@ -258,20 +310,32 @@ describe("marginPolicy - analyzeMarginRisk", () => {
 describe("marginPolicy - analyzeSurvival", () => {
   describe("✅ 存活分析", () => {
     it("應計算當前維持率", () => {
-      const result = analyzeSurvival(defaultPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeSurvival(
+        defaultPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.currentMargin).toBe(100);
     });
 
     it("應計算隔日跌停壓力測試", () => {
-      const result = analyzeSurvival(defaultPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeSurvival(
+        defaultPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.nextDayLimitDownMargin).toBe(90); // 100% * 0.9 = 90%
     });
 
     it("應判斷是否脆弱（isVulnerable）", () => {
       // 維持率 100% < protectTarget 180% → isVulnerable = true
-      const result = analyzeSurvival(defaultPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeSurvival(
+        defaultPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.isVulnerable).toBe(true);
     });
@@ -283,7 +347,11 @@ describe("marginPolicy - analyzeSurvival", () => {
       };
       // 維持率 = 200%
 
-      const result = analyzeSurvival(safePortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeSurvival(
+        safePortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.isVulnerable).toBe(false);
     });
@@ -297,7 +365,11 @@ describe("marginPolicy - analyzeSurvival", () => {
       };
       // 維持率 = 200%
 
-      const result = analyzeSurvival(safePortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeSurvival(
+        safePortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.survivalDropLimit).toBeGreaterThan(0);
       // 生存邊際 = ((200 - 135) / 200) * 100 = 32.5%
@@ -311,7 +383,11 @@ describe("marginPolicy - analyzeSurvival", () => {
       };
       // 維持率 = 130%
 
-      const result = analyzeSurvival(dangerPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeSurvival(
+        dangerPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.survivalDropLimit).toBeNull();
     });
@@ -319,7 +395,11 @@ describe("marginPolicy - analyzeSurvival", () => {
 
   describe("💰 回補需求計算", () => {
     it("維持率 < protectTarget 應計算回補需求", () => {
-      const result = analyzeSurvival(defaultPortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeSurvival(
+        defaultPortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.refillRequirement).toBeGreaterThan(0);
       // 目標抵押品 = 180% * 500000 = 900000
@@ -335,7 +415,11 @@ describe("marginPolicy - analyzeSurvival", () => {
       };
       // 維持率 = 200% > 180%
 
-      const result = analyzeSurvival(safePortfolio, defaultPrice, defaultStrategy);
+      const result = analyzeSurvival(
+        safePortfolio,
+        defaultPrice,
+        defaultStrategy,
+      );
 
       expect(result.refillRequirement).toBe(0);
     });

@@ -89,7 +89,7 @@ export function resolveMacroSentiment(marketDirection, strategy, vixOverride) {
   const effectivePenalty = isOverrideActive ? 0 : (cfg.bearishPenalty ?? 0);
 
   return {
-    direction: marketDirection,  // 'BULL' | 'BEAR' | 'NEUTRAL'
+    direction: marketDirection, // 'BULL' | 'BEAR' | 'NEUTRAL'
     bonus: cfg.bullishBonus ?? 0,
     penalty: effectivePenalty,
     // 短路標記：供 Telegram 模板識別並顯示 ⚡ VIX 情緒短路 提示

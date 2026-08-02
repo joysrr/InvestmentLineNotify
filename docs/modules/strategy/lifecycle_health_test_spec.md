@@ -11,6 +11,7 @@
 ## Test Scope
 
 ### In Scope
+
 - ✅ `lifecycleEngine.mjs` - 生命週期階段判定
 - ✅ `portfolioHealth.mjs` - 健康度計算邏輯
 - ✅ `/api/portfolio/health` - API endpoint
@@ -18,6 +19,7 @@
 - ✅ Dashboard UI 資料綁定
 
 ### Out of Scope
+
 - Phase 2: Regime-aware Policy
 - E2E 整合測試 (需完整環境)
 - 性能測試
@@ -41,6 +43,7 @@ $ set NODE_ENV=test
 ```
 
 ### Test Framework
+
 - **Runner**: Vitest
 - **Assertion**: Vitest expect
 - **Mocking**: Vitest spy / mock
@@ -51,42 +54,42 @@ $ set NODE_ENV=test
 
 ### Lifecycle Engine Tests
 
-| Test Case | Description | Status | Coverage |
-|-----------|-------------|--------|----------|
-| TC-001 | Lifecycle Stage - EARLY (16y to retirement) | ✅ Pass | lifecycleEngine.test.mjs |
-| TC-002 | Lifecycle Stage - MID (12y to retirement) | ✅ Pass | lifecycleEngine.test.mjs |
-| TC-003 | Lifecycle Stage - LATE (8y to retirement) | ✅ Pass | lifecycleEngine.test.mjs |
-| TC-004 | Lifecycle Stage - PRE_RETIRE (3y to retirement) | ✅ Pass | lifecycleEngine.test.mjs |
-| TC-005 | Edge case - exactly at boundary (15y) | ✅ Pass | lifecycleEngine.test.mjs |
+| Test Case | Description                                     | Status  | Coverage                 |
+| --------- | ----------------------------------------------- | ------- | ------------------------ |
+| TC-001    | Lifecycle Stage - EARLY (16y to retirement)     | ✅ Pass | lifecycleEngine.test.mjs |
+| TC-002    | Lifecycle Stage - MID (12y to retirement)       | ✅ Pass | lifecycleEngine.test.mjs |
+| TC-003    | Lifecycle Stage - LATE (8y to retirement)       | ✅ Pass | lifecycleEngine.test.mjs |
+| TC-004    | Lifecycle Stage - PRE_RETIRE (3y to retirement) | ✅ Pass | lifecycleEngine.test.mjs |
+| TC-005    | Edge case - exactly at boundary (15y)           | ✅ Pass | lifecycleEngine.test.mjs |
 
 ### Portfolio Health Tests
 
-| Test Case | Description | Status | Coverage |
-|-----------|-------------|--------|----------|
-| TC-101 | Health Score - All GREEN components | ✅ Pass | portfolioHealth.test.mjs |
-| TC-102 | Health Score - Mixed components | ✅ Pass | portfolioHealth.test.mjs |
-| TC-103 | Health Score - All RED components | ✅ Pass | portfolioHealth.test.mjs |
-| TC-104 | Margin Component - Safe zone | ✅ Pass | portfolioHealth.test.mjs |
-| TC-105 | Margin Component - Warning zone | ✅ Pass | portfolioHealth.test.mjs |
-| TC-106 | Margin Component - Critical zone | ✅ Pass | portfolioHealth.test.mjs |
+| Test Case | Description                         | Status  | Coverage                 |
+| --------- | ----------------------------------- | ------- | ------------------------ |
+| TC-101    | Health Score - All GREEN components | ✅ Pass | portfolioHealth.test.mjs |
+| TC-102    | Health Score - Mixed components     | ✅ Pass | portfolioHealth.test.mjs |
+| TC-103    | Health Score - All RED components   | ✅ Pass | portfolioHealth.test.mjs |
+| TC-104    | Margin Component - Safe zone        | ✅ Pass | portfolioHealth.test.mjs |
+| TC-105    | Margin Component - Warning zone     | ✅ Pass | portfolioHealth.test.mjs |
+| TC-106    | Margin Component - Critical zone    | ✅ Pass | portfolioHealth.test.mjs |
 
 ### API Integration Tests
 
-| Test Case | Description | Status | Coverage |
-|-----------|-------------|--------|----------|
-| TC-201 | GET /api/portfolio/health - Basic query | ✅ Pass | portfolioHealthApi.test.mjs |
-| TC-202 | GET /api/portfolio/health - All parameters | ✅ Pass | portfolioHealthApi.test.mjs |
-| TC-203 | GET /api/portfolio/health - Invalid params | ✅ Pass | portfolioHealthApi.test.mjs |
-| TC-204 | GET /api/portfolio/health - Missing params | ✅ Pass | portfolioHealthApi.test.mjs |
+| Test Case | Description                                | Status  | Coverage                    |
+| --------- | ------------------------------------------ | ------- | --------------------------- |
+| TC-201    | GET /api/portfolio/health - Basic query    | ✅ Pass | portfolioHealthApi.test.mjs |
+| TC-202    | GET /api/portfolio/health - All parameters | ✅ Pass | portfolioHealthApi.test.mjs |
+| TC-203    | GET /api/portfolio/health - Invalid params | ✅ Pass | portfolioHealthApi.test.mjs |
+| TC-204    | GET /api/portfolio/health - Missing params | ✅ Pass | portfolioHealthApi.test.mjs |
 
 ### Configuration Validation Tests
 
-| Test Case | Description | Status | Coverage |
-|-----------|-------------|--------|----------|
-| TC-301 | Valid Strategy.json v2.6 | ✅ Pass | validateStrategyConfig.test.mjs |
-| TC-302 | Missing lifecycle.profiles | ✅ Pass | validateStrategyConfig.test.mjs |
-| TC-303 | Invalid maxLeverage (> 3.0) | ✅ Pass | validateStrategyConfig.mjs |
-| TC-304 | Invalid retirementAge (< 0) | ✅ Pass | validateStrategyConfig.test.mjs |
+| Test Case | Description                 | Status  | Coverage                        |
+| --------- | --------------------------- | ------- | ------------------------------- |
+| TC-301    | Valid Strategy.json v2.6    | ✅ Pass | validateStrategyConfig.test.mjs |
+| TC-302    | Missing lifecycle.profiles  | ✅ Pass | validateStrategyConfig.test.mjs |
+| TC-303    | Invalid maxLeverage (> 3.0) | ✅ Pass | validateStrategyConfig.mjs      |
+| TC-304    | Invalid retirementAge (< 0) | ✅ Pass | validateStrategyConfig.test.mjs |
 
 ---
 
@@ -104,12 +107,12 @@ Coverage:    98% statements, 95% branches, 100% functions, 97% lines
 
 ### Coverage by Module
 
-| Module | Statements | Branches | Functions | Lines |
-|--------|-----------|----------|-----------|-------|
-| lifecycleEngine.mjs | 100% | 98% | 100% | 100% |
-| portfolioHealth.mjs | 98% | 95% | 100% | 97% |
-| validateStrategyConfig.mjs | 100% | 100% | 100% | 100% |
-| strategyDefaults.mjs | 100% | 100% | 100% | 100% |
+| Module                     | Statements | Branches | Functions | Lines |
+| -------------------------- | ---------- | -------- | --------- | ----- |
+| lifecycleEngine.mjs        | 100%       | 98%      | 100%      | 100%  |
+| portfolioHealth.mjs        | 98%        | 95%      | 100%      | 97%   |
+| validateStrategyConfig.mjs | 100%       | 100%     | 100%      | 100%  |
+| strategyDefaults.mjs       | 100%       | 100%     | 100%      | 100%  |
 
 ---
 
@@ -154,8 +157,8 @@ const lifecycleContext = {
   profile: {
     maxLeverage: 2.0,
     minSurvivalDropLimit: 130,
-    mode: "balanced"
-  }
+    mode: "balanced",
+  },
 };
 ```
 
@@ -171,17 +174,14 @@ const healthReport = {
     decoupling: { status: "GREEN", score: 100 },
     leverage: { status: "YELLOW", score: 60 },
     lifecycle: { status: "GREEN", score: 100 },
-    regime: { status: "GREEN", score: 100 }
+    regime: { status: "GREEN", score: 100 },
   },
-  recommendations: [
-    "維持當前槓桿水準",
-    "持續監控生存空間"
-  ],
+  recommendations: ["維持當前槓桿水準", "持續監控生存空間"],
   lightStatus: {
     emoji: "🟢",
     label: "健康",
-    colorClass: "green"
-  }
+    colorClass: "green",
+  },
 };
 ```
 

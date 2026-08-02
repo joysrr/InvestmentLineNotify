@@ -19,7 +19,8 @@ import {
  * @returns {{ currentMargin, survivalDropLimit, refillRequirement, dangerThreshold, safetyTarget }}
  */
 function _calcMarginCore(qty0050, totalLoan, currentPrice, maintConfig) {
-  const dangerThreshold = maintConfig.marginCallThreshold ?? MARGIN_CALL_THRESHOLD;
+  const dangerThreshold =
+    maintConfig.marginCallThreshold ?? MARGIN_CALL_THRESHOLD;
   const safetyTarget = maintConfig.protectTarget ?? PROTECT_TARGET;
 
   const currentMargin =

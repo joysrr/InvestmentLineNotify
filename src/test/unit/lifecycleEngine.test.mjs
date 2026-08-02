@@ -167,7 +167,11 @@ describe("Lifecycle Engine - Boundary Tests", () => {
 
 describe("Lifecycle Engine - computeLifecycleContext", () => {
   it("應返回完整的 EARLY 階段上下文（49 歲）", () => {
-    const result = computeLifecycleContext(49, DEFAULT_RETIREMENT_AGE, DEFAULT_LIFECYCLE_PROFILES);
+    const result = computeLifecycleContext(
+      49,
+      DEFAULT_RETIREMENT_AGE,
+      DEFAULT_LIFECYCLE_PROFILES,
+    );
 
     expect(result.stage).toBe(LIFECYCLE_STAGE.EARLY);
     expect(result.yearsToRetirement).toBe(16);
@@ -177,7 +181,11 @@ describe("Lifecycle Engine - computeLifecycleContext", () => {
   });
 
   it("應返回完整的 MID 階段上下文（53 歲）", () => {
-    const result = computeLifecycleContext(53, DEFAULT_RETIREMENT_AGE, DEFAULT_LIFECYCLE_PROFILES);
+    const result = computeLifecycleContext(
+      53,
+      DEFAULT_RETIREMENT_AGE,
+      DEFAULT_LIFECYCLE_PROFILES,
+    );
 
     expect(result.stage).toBe(LIFECYCLE_STAGE.MID);
     expect(result.yearsToRetirement).toBe(12);
@@ -187,7 +195,11 @@ describe("Lifecycle Engine - computeLifecycleContext", () => {
   });
 
   it("應返回完整的 LATE 階段上下文（58 歲）", () => {
-    const result = computeLifecycleContext(58, DEFAULT_RETIREMENT_AGE, DEFAULT_LIFECYCLE_PROFILES);
+    const result = computeLifecycleContext(
+      58,
+      DEFAULT_RETIREMENT_AGE,
+      DEFAULT_LIFECYCLE_PROFILES,
+    );
 
     expect(result.stage).toBe(LIFECYCLE_STAGE.LATE);
     expect(result.yearsToRetirement).toBe(7);
@@ -197,7 +209,11 @@ describe("Lifecycle Engine - computeLifecycleContext", () => {
   });
 
   it("應返回完整的 PRE_RETIRE 階段上下文（62 歲）", () => {
-    const result = computeLifecycleContext(62, DEFAULT_RETIREMENT_AGE, DEFAULT_LIFECYCLE_PROFILES);
+    const result = computeLifecycleContext(
+      62,
+      DEFAULT_RETIREMENT_AGE,
+      DEFAULT_LIFECYCLE_PROFILES,
+    );
 
     expect(result.stage).toBe(LIFECYCLE_STAGE.PRE_RETIRE);
     expect(result.yearsToRetirement).toBe(3);
@@ -238,7 +254,9 @@ describe("Lifecycle Engine - Parameter Validation (MED-001)", () => {
 
   it("retirementAge 為非數值應拋出錯誤", () => {
     expect(() => computeLifecycleContext(50, "invalid")).toThrow();
-    expect(() => computeLifecycleContext(50, "invalid")).toThrow(/retirementAge/);
+    expect(() => computeLifecycleContext(50, "invalid")).toThrow(
+      /retirementAge/,
+    );
   });
 
   it("currentAge 為 null 應拋出錯誤", () => {
@@ -261,7 +279,11 @@ describe("Lifecycle Engine - Parameter Validation (MED-001)", () => {
 
 describe("Lifecycle Engine - Leverage Check", () => {
   it("TC-018: 槓桿超過生命週期限制應返回 RED", () => {
-    const lifecycleContext = computeLifecycleContext(53, DEFAULT_RETIREMENT_AGE, DEFAULT_LIFECYCLE_PROFILES);
+    const lifecycleContext = computeLifecycleContext(
+      53,
+      DEFAULT_RETIREMENT_AGE,
+      DEFAULT_LIFECYCLE_PROFILES,
+    );
     const currentGrossLeverage = 2.2;
     const maxLeverage = lifecycleContext.profile.maxLeverage;
 
@@ -271,7 +293,11 @@ describe("Lifecycle Engine - Leverage Check", () => {
   });
 
   it("TC-019: 槓桿在生命週期限制內應返回 GREEN", () => {
-    const lifecycleContext = computeLifecycleContext(53, DEFAULT_RETIREMENT_AGE, DEFAULT_LIFECYCLE_PROFILES);
+    const lifecycleContext = computeLifecycleContext(
+      53,
+      DEFAULT_RETIREMENT_AGE,
+      DEFAULT_LIFECYCLE_PROFILES,
+    );
     const currentGrossLeverage = 1.8;
     const maxLeverage = lifecycleContext.profile.maxLeverage;
 
