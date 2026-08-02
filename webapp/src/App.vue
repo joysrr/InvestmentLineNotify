@@ -1,11 +1,9 @@
 <template>
   <div class="app-container">
     <main class="app-main">
-      <router-view v-slot="{ Component }">
-        <keep-alive>
-          <component :is="Component" />
-        </keep-alive>
-      </router-view>
+      <keep-alive>
+        <router-view />
+      </keep-alive>
     </main>
 
     <FloatingPill />
