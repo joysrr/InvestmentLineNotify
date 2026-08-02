@@ -91,6 +91,7 @@ export const createMockCtx = (overrides = {}) => {
     pbRecordsObjects: Array(30).fill({ pr: 50 }),
     macroSentiment: { direction: "NEUTRAL" },
     cooldownStatus: { inCooldown: false },
+    valuationGuardState: { latchActive: false },
   };
 
   return mergeDeep(base, overrides);

@@ -14,7 +14,6 @@ import {
 export class ValuationGuardRule extends DecisionRule {
   constructor() {
     super({ priority: 40, name: "ValuationGuardRule" });
-    this._precalculated = false;
   }
 
   /**
@@ -36,11 +35,8 @@ export class ValuationGuardRule extends DecisionRule {
       return null;
     }
 
-    // 預計算估值守衛指標（只做一次，快取在 engineState）
-    if (!this._precalculated) {
-      this._precalculateValuationGuard(ctx, strategy, engineState);
-      this._precalculated = true;
-    }
+    // 每次都預計算估值守衛指標（engineState 每次 runDecisionChain 都會重新建立）
+    this._precalculateValuationGuard(ctx, strategy, engineState);
 
     // 評估估值守衛觸發條件
     if (engineState.valuationGuardResult) {
