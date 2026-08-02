@@ -41,7 +41,9 @@ export function assertEnv() {
 
   if (missing.length > 0) {
     logger.error("\n❌ [envGuard] 程式終止：缺少必要環境變數");
-    logger.error("請確認 GitHub Secrets 與 workflow yaml 的 env: 區塊均已設定以下變數：");
+    logger.error(
+      "請確認 GitHub Secrets 與 workflow yaml 的 env: 區塊均已設定以下變數：",
+    );
     missing.forEach((key) => logger.error(`  • ${key}`));
     logger.error("詳情請參考 docs/env-vars.md\n");
     process.exit(1);

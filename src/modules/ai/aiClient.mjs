@@ -54,14 +54,14 @@ const _langfuseEnabled =
 
 if (!_langfuseEnabled) {
   logger.warn(
-    { 
+    {
       missingKeys: [
         !process.env.LANGFUSE_PUBLIC_KEY && "LANGFUSE_PUBLIC_KEY",
         !process.env.LANGFUSE_SECRET_KEY && "LANGFUSE_SECRET_KEY",
         !process.env.LANGFUSE_BASE_URL && "LANGFUSE_BASE_URL",
       ].filter(Boolean),
     },
-    "Langfuse 環境變數未完整設定，追蹤已停用"
+    "Langfuse 環境變數未完整設定，追蹤已停用",
   );
 }
 
@@ -86,13 +86,17 @@ export async function flushLangfuse(traceId, status = "success") {
   try {
     await langfuse.flushAsync();
     logger.info(
-      { traceId, status, url: `${process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com"}/trace/${traceId}` },
-      "Langfuse flush 完成"
+      {
+        traceId,
+        status,
+        url: `${process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com"}/trace/${traceId}`,
+      },
+      "Langfuse flush 完成",
     );
   } catch (flushErr) {
     logger.error(
       { traceId, error: flushErr.message },
-      "Langfuse flushAsync 失敗"
+      "Langfuse flushAsync 失敗",
     );
   }
 }
@@ -304,7 +308,7 @@ async function resolveChatPrompt(promptName, variables = {}) {
   } catch (err) {
     logger.warn(
       { promptName, error: err.message },
-      "Langfuse getPrompt 失敗，嘗試使用 hardcoded fallback"
+      "Langfuse getPrompt 失敗，嘗試使用 hardcoded fallback",
     );
 
     const promptKey = promptName.split("/").pop();
@@ -321,13 +325,13 @@ async function resolveChatPrompt(promptName, variables = {}) {
       promptSource = "hardcoded-fallback";
       logger.warn(
         { promptKey },
-        "使用 hardcoded fallback prompt（輸出品質可能降低）"
+        "使用 hardcoded fallback prompt（輸出品質可能降低）",
       );
     } else {
       promptSource = "missing";
       logger.error(
         { promptName },
-        "Langfuse 無可用 prompt 且無硬編碼 fallback"
+        "Langfuse 無可用 prompt 且無硬編碼 fallback",
       );
     }
   }
@@ -404,10 +408,7 @@ export async function callAI(promptName, options = {}) {
       `[callAI] Prompt 不可用（Langfuse 斷線且無 hardcoded fallback）：${promptName}。` +
         `本次 AI 呼叫已阻斷，請檢查 Langfuse 連線或補充 PROMPT_HARDCODED_FALLBACK。`,
     );
-    logger.error(
-      { promptName },
-      degradationErr.message
-    );
+    logger.error({ promptName }, degradationErr.message);
     throw degradationErr;
   }
 
@@ -467,7 +468,7 @@ export async function callAI(promptName, options = {}) {
   // ── 診斷日誌：trace 建立確認 ──────────────────────────────────────────────
   logger.debug(
     { promptName, traceId: trace.id, enabled: _langfuseEnabled },
-    "Langfuse trace 建立"
+    "Langfuse trace 建立",
   );
 
   // ── Retry Loop（含 key 輪換）──────────────────────────────────────────────
@@ -561,15 +562,15 @@ export async function callAI(promptName, options = {}) {
 
       // ── 診斷日誌 & flush：確認寫入 Langfuse ──────────────────────────────
       logger.info(
-        { 
-          attempt, 
-          inputTokens, 
-          outputTokens, 
-          totalTokens, 
+        {
+          attempt,
+          inputTokens,
+          outputTokens,
+          totalTokens,
           thoughtsTokenCount,
-          duration: Date.now() - startTime 
+          duration: Date.now() - startTime,
         },
-        "Langfuse generation 完成"
+        "Langfuse generation 完成",
       );
 
       // 記錄 Circuit Breaker 成功
@@ -590,7 +591,7 @@ export async function callAI(promptName, options = {}) {
           currentKeyIndex = (currentKeyIndex + 1) % keyCount;
           logger.warn(
             { prevKey, currentKeyIndex, attempt: attempt + 1, maxRetries },
-            "Quota 耗盡，切換至下一個 key"
+            "Quota 耗盡，切換至下一個 key",
           );
           generation.end({
             level: "WARNING",
@@ -599,14 +600,14 @@ export async function callAI(promptName, options = {}) {
         } else {
           const backoffDelay = getBackoffDelay(attempt);
           logger.warn(
-            { 
-              keyIndex: currentKeyIndex, 
-              attempt: attempt + 1, 
+            {
+              keyIndex: currentKeyIndex,
+              attempt: attempt + 1,
               maxRetries,
               delaySeconds: (backoffDelay / 1000).toFixed(1),
-              error: error.message 
+              error: error.message,
             },
-            "服務錯誤，等待後重試"
+            "服務錯誤，等待後重試",
           );
           generation.end({
             level: "WARNING",
@@ -620,7 +621,7 @@ export async function callAI(promptName, options = {}) {
 
         logger.error(
           { keyIndex: currentKeyIndex, attempt, error: error.message },
-          "API 呼叫失敗"
+          "API 呼叫失敗",
         );
         generation.end({ level: "ERROR", statusMessage: error.message });
         trace.update({
@@ -655,7 +656,10 @@ export async function listAllModels(provider = PROVIDERS.GEMINI) {
         count++;
       }
     }
-    logger.info({ models: modelList, count: modelList.length }, "Gemini 模型查詢完畢");
+    logger.info(
+      { models: modelList, count: modelList.length },
+      "Gemini 模型查詢完畢",
+    );
   } catch (error) {
     logger.error({ error }, "獲取 Gemini 模型失敗");
   }
@@ -734,8 +738,11 @@ export async function listGrokModels() {
       id: model.id,
       ownedBy: model.owned_by,
     }));
-    
-    logger.info({ models: modelList, count: models.length }, "Grok 模型查詢完畢");
+
+    logger.info(
+      { models: modelList, count: models.length },
+      "Grok 模型查詢完畢",
+    );
   } catch (error) {
     logger.error({ error: error.message }, "獲取 Grok 模型失敗");
   }

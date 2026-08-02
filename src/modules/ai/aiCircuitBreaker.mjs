@@ -17,8 +17,8 @@ import logger from "../../utils/logger.mjs";
 
 // Circuit Breaker 狀態列舉
 export const CIRCUIT_STATE = {
-  CLOSED: "CLOSED",   // 正常運作
-  OPEN: "OPEN",       // 觸發降級，拒絕請求
+  CLOSED: "CLOSED", // 正常運作
+  OPEN: "OPEN", // 觸發降級，拒絕請求
   HALF_OPEN: "HALF_OPEN", // 測試恢復
 };
 
@@ -26,12 +26,12 @@ export const CIRCUIT_STATE = {
  * Circuit Breaker 配置（單一模型優化）
  */
 const DEFAULT_CONFIG = {
-  failureThreshold: 0.4,      // 40% 失敗率（較嚴格）
-  minimumRequests: 3,         // 最小請求數才開始計算失敗率
-  openDuration: 30000,        // Open 狀態持續 30 秒
-  halfOpenMaxRequests: 2,     // Half-Open 允許的測試請求數
-  slowThreshold: 15000,       // 15 秒視為慢請求
-  slowRequestWeight: 0.5,     // 慢請求計入失敗的比例（保留設定，目前未啟用）
+  failureThreshold: 0.4, // 40% 失敗率（較嚴格）
+  minimumRequests: 3, // 最小請求數才開始計算失敗率
+  openDuration: 30000, // Open 狀態持續 30 秒
+  halfOpenMaxRequests: 2, // Half-Open 允許的測試請求數
+  slowThreshold: 15000, // 15 秒視為慢請求
+  slowRequestWeight: 0.5, // 慢請求計入失敗的比例（保留設定，目前未啟用）
 };
 
 /**
@@ -199,9 +199,7 @@ class CircuitBreakerState {
       failureCount: this.failureCount,
       totalRequests: this.totalRequests,
       failureRate:
-        this.totalRequests > 0
-          ? this.failureCount / this.totalRequests
-          : 0,
+        this.totalRequests > 0 ? this.failureCount / this.totalRequests : 0,
       halfOpenSuccessCount: this.halfOpenSuccessCount,
       halfOpenFailureCount: this.halfOpenFailureCount,
     });

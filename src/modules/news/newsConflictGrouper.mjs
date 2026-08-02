@@ -162,7 +162,10 @@ export function assignConflictGroups(newsList) {
     const groupedCount = result.filter((a) => a._conflictGroup !== null).length;
     const totalGroups = rootToGroupId.size;
     if (totalGroups > 0) {
-      logger.info({ totalGroups, groupedCount, total: n }, `🔀 [ConflictGrouper] 偵測到 ${totalGroups} 個衝突群組，共 ${groupedCount}/${n} 篇文章被分群`);
+      logger.info(
+        { totalGroups, groupedCount, total: n },
+        `🔀 [ConflictGrouper] 偵測到 ${totalGroups} 個衝突群組，共 ${groupedCount}/${n} 篇文章被分群`,
+      );
     } else {
       logger.info({ n }, `🔀 [ConflictGrouper] 無衝突群組（共 ${n} 篇）`);
     }
@@ -170,7 +173,10 @@ export function assignConflictGroups(newsList) {
     return result;
   } catch (err) {
     // 降級安全：分群失敗不阻斷主流程
-    logger.warn({ err: err.message }, "⚠️ [ConflictGrouper] 分群失敗，降級為全 null");
+    logger.warn(
+      { err: err.message },
+      "⚠️ [ConflictGrouper] 分群失敗，降級為全 null",
+    );
     return newsList.map((article) => ({ ...article, _conflictGroup: null }));
   }
 }

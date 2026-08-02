@@ -13,7 +13,7 @@ async function safeLangfuseScore(payload) {
   } catch (err) {
     logger.warn(
       { name: payload.name, error: err.message },
-      "Langfuse score 寫入失敗"
+      "Langfuse score 寫入失敗",
     );
   }
 }
@@ -147,8 +147,7 @@ export function buildPeriodStats(reports, period) {
   const bearDays = macroDir.filter((d) => d === "BEAR").length;
   const neutralDays = reports.length - bullDays - bearDays;
   let dominantDirection = "NEUTRAL";
-  if (bullDays > bearDays && bullDays > neutralDays)
-    dominantDirection = "BULL";
+  if (bullDays > bearDays && bullDays > neutralDays) dominantDirection = "BULL";
   else if (bearDays > bullDays && bearDays > neutralDays)
     dominantDirection = "BEAR";
 
@@ -504,7 +503,7 @@ export async function generatePeriodAiSummary(
         consistencyComment: aiSummary.consistencyComment?.slice(0, 30),
         periodOutlook: aiSummary.periodOutlook?.slice(0, 30),
       },
-      "PeriodReport AI 摘要產出完成"
+      "PeriodReport AI 摘要產出完成",
     );
 
     // 持久化 AI 軌跡（非阻塞）
@@ -518,7 +517,7 @@ export async function generatePeriodAiSummary(
       .catch((err) =>
         logger.warn(
           { error: err.message },
-          "Archive 儲存 PeriodReport AI 軌跡失敗"
+          "Archive 儲存 PeriodReport AI 軌跡失敗",
         ),
       );
 

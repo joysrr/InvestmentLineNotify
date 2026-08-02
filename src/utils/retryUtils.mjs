@@ -104,8 +104,8 @@ export function isRetryableError(error) {
     "temporary network issue",
   ];
 
-  const isNetworkError = networkErrorPatterns.some((pattern) =>
-    message.includes(pattern) || errorCode.includes(pattern),
+  const isNetworkError = networkErrorPatterns.some(
+    (pattern) => message.includes(pattern) || errorCode.includes(pattern),
   );
 
   // HTTP 5xx 伺服器錯誤
@@ -118,10 +118,7 @@ export function isRetryableError(error) {
   const isExplicitlyRetryable = error.isRetryable === true;
 
   return (
-    isNetworkError ||
-    isServerError ||
-    isRateLimitError ||
-    isExplicitlyRetryable
+    isNetworkError || isServerError || isRateLimitError || isExplicitlyRetryable
   );
 }
 
@@ -193,28 +190,33 @@ export async function withRetry(
       if (!isRetryable(error)) {
         logger.error(
           { operationName, error: error.message },
-          "Retry 遇到非暫態錯誤，跳过重試"
+          "Retry 遇到非暫態錯誤，跳过重試",
         );
         throw error;
       }
 
       // 如果還有重試機會
       if (attempt < maxRetries) {
-        const delayMs = calculateBackoffDelay(attempt, baseDelay, maxDelay, jitterFactor);
+        const delayMs = calculateBackoffDelay(
+          attempt,
+          baseDelay,
+          maxDelay,
+          jitterFactor,
+        );
 
         // 呼叫回調
         if (typeof onRetry === "function") {
           onRetry(attempt + 1, error, delayMs);
         } else {
           logger.warn(
-            { 
-              operationName, 
-              attempt: attempt + 1, 
+            {
+              operationName,
+              attempt: attempt + 1,
               maxRetries,
               delayMs: Math.round(delayMs),
-              error: error.message 
+              error: error.message,
             },
-            "Retry 失敗，等待後重試"
+            "Retry 失敗，等待後重試",
           );
         }
 
@@ -222,7 +224,7 @@ export async function withRetry(
       } else {
         logger.error(
           { operationName, attempts: maxRetries + 1, error: lastError.message },
-          "Retry 最終失敗"
+          "Retry 最終失敗",
         );
       }
     }
@@ -238,7 +240,11 @@ export async function withRetry(
  * @param {number} maxRetries - 最大重試次數
  * @returns {Promise<any>}
  */
-export async function retrySimple(fn, operationName = "unknown", maxRetries = 3) {
+export async function retrySimple(
+  fn,
+  operationName = "unknown",
+  maxRetries = 3,
+) {
   return withRetry(fn, {
     operationName,
     maxRetries,
@@ -303,8 +309,13 @@ export async function fetchWithTimeout(
       if (retryable && attempt < retries) {
         const delayMs = calculateBackoffDelay(attempt, retryDelay, 10000, 0.5);
         logger.warn(
-          { providerId, operation, attempt: attempt + 1, delayMs: Math.round(delayMs) },
-          "Provider fetch 失敗，等待後重試"
+          {
+            providerId,
+            operation,
+            attempt: attempt + 1,
+            delayMs: Math.round(delayMs),
+          },
+          "Provider fetch 失敗，等待後重試",
         );
         await delay(delayMs);
       } else if (!retryable) {

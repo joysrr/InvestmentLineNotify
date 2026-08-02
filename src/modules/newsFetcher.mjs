@@ -52,7 +52,10 @@ export function mergeKeywords(baseList, dynamicList) {
   );
   const invalidCount = dynamicList.length - validated.length;
   if (invalidCount > 0) {
-    logger.warn({ invalidCount }, `⚠️ [Keywords] 已過濾 ${invalidCount} 個不合規動態關鍵字`);
+    logger.warn(
+      { invalidCount },
+      `⚠️ [Keywords] 已過濾 ${invalidCount} 個不合規動態關鍵字`,
+    );
   }
   const mergedMap = new Map();
   [...baseList, ...validated].forEach((item) =>
@@ -93,7 +96,10 @@ async function fetchBatchedByKeywords(
       const result = chunkResults[idx];
       const items = result.status === "fulfilled" ? result.value : [];
       if (result.status === "rejected") {
-        logger.warn({ keyword: item.keyword, error: result.reason?.message }, `⚠️ [RSS] 關鍵字「${item.keyword}」抓取失敗`);
+        logger.warn(
+          { keyword: item.keyword, error: result.reason?.message },
+          `⚠️ [RSS] 關鍵字「${item.keyword}」抓取失敗`,
+        );
       }
       const hit = items.length > 0;
       const isDynamic = !baseList.some(
@@ -154,11 +160,17 @@ function filterNewsByDate(newsList, withinHours = 6) {
     if (!news.pubDate) return false;
     const pubTime = new Date(news.pubDate).getTime();
     if (isNaN(pubTime)) {
-      logger.warn({ title: news.title, pubDate: news.pubDate }, `⚠️ 無法解析時間，略過`);
+      logger.warn(
+        { title: news.title, pubDate: news.pubDate },
+        `⚠️ 無法解析時間，略過`,
+      );
       return false;
     }
     if (pubTime > now + 60 * 60 * 1000) {
-      logger.warn({ title: news.title, pubDate: news.pubDate }, `⚠️ 異常未來時間，略過`);
+      logger.warn(
+        { title: news.title, pubDate: news.pubDate },
+        `⚠️ 異常未來時間，略過`,
+      );
       return false;
     }
     return pubTime >= cutoff;
@@ -187,13 +199,19 @@ function prepareNewsForAI(newsList, maxPerRegion = 20, blacklist = null) {
         : (blacklist?.usExcludedSources ?? []);
     return !excludedSources.includes(source);
   });
-  logger.info({ count: filteredBySource.length }, `📰 排除來源後：${filteredBySource.length} 筆`);
+  logger.info(
+    { count: filteredBySource.length },
+    `📰 排除來源後：${filteredBySource.length} 筆`,
+  );
 
   const activePatterns = blacklist?.titleBlackListPatterns ?? [];
   const titleFiltered = filteredBySource.filter(
     (news) => !activePatterns.some((pattern) => pattern.test(news.title)),
   );
-  logger.info({ count: titleFiltered.length }, `📰 標題黑名單過濾後：${titleFiltered.length} 筆`);
+  logger.info(
+    { count: titleFiltered.length },
+    `📰 標題黑名單過濾後：${titleFiltered.length} 筆`,
+  );
 
   const sourceCount = {};
   const MAX_PER_SOURCE = 5;
@@ -202,12 +220,18 @@ function prepareNewsForAI(newsList, maxPerRegion = 20, blacklist = null) {
     sourceCount[source] = (sourceCount[source] || 0) + 1;
     return sourceCount[source] <= MAX_PER_SOURCE;
   });
-  logger.info({ count: dedupedBySource.length }, `📰 來源去重後：${dedupedBySource.length} 筆`);
+  logger.info(
+    { count: dedupedBySource.length },
+    `📰 來源去重後：${dedupedBySource.length} 筆`,
+  );
 
   const filteredByTitleLength = dedupedBySource.filter(
     (news) => !isTitleTooShort(news.title),
   );
-  logger.info({ count: filteredByTitleLength.length }, `📰 標題長度篩選後：${filteredByTitleLength.length} 筆`);
+  logger.info(
+    { count: filteredByTitleLength.length },
+    `📰 標題長度篩選後：${filteredByTitleLength.length} 筆`,
+  );
 
   const seenFingerprints = new Set();
   const dedupedByTitle = filteredByTitleLength.filter((news) => {
@@ -216,7 +240,10 @@ function prepareNewsForAI(newsList, maxPerRegion = 20, blacklist = null) {
     seenFingerprints.add(fp);
     return true;
   });
-  logger.info({ count: dedupedByTitle.length }, `📰 標題去重後：${dedupedByTitle.length} 筆`);
+  logger.info(
+    { count: dedupedByTitle.length },
+    `📰 標題去重後：${dedupedByTitle.length} 筆`,
+  );
 
   const sorted = dedupedByTitle.sort(
     (a, b) => new Date(b.pubDate) - new Date(a.pubDate),
@@ -262,8 +289,22 @@ export async function getRawNews({ twQueries, usQueries }) {
 
   const mergedTW = mergeKeywords(baseTwQueries, twQueries);
   const mergedUS = mergeKeywords(baseUsQueries, usQueries);
-  logger.info({ twCount: mergedTW.length, twStatic: baseTwQueries.length, twDynamic: mergedTW.length - baseTwQueries.length }, `🔍 [Keywords] TW: ${mergedTW.length} 組（靜態 ${baseTwQueries.length} + 動態 ${mergedTW.length - baseTwQueries.length}）`);
-  logger.info({ usCount: mergedUS.length, usStatic: baseUsQueries.length, usDynamic: mergedUS.length - baseUsQueries.length }, `🔍 [Keywords] US: ${mergedUS.length} 組（靜態 ${baseUsQueries.length} + 動態 ${mergedUS.length - baseUsQueries.length}）`);
+  logger.info(
+    {
+      twCount: mergedTW.length,
+      twStatic: baseTwQueries.length,
+      twDynamic: mergedTW.length - baseTwQueries.length,
+    },
+    `🔍 [Keywords] TW: ${mergedTW.length} 組（靜態 ${baseTwQueries.length} + 動態 ${mergedTW.length - baseTwQueries.length}）`,
+  );
+  logger.info(
+    {
+      usCount: mergedUS.length,
+      usStatic: baseUsQueries.length,
+      usDynamic: mergedUS.length - baseUsQueries.length,
+    },
+    `🔍 [Keywords] US: ${mergedUS.length} 組（靜態 ${baseUsQueries.length} + 動態 ${mergedUS.length - baseUsQueries.length}）`,
+  );
 
   const [twResult, usResult] = await Promise.all([
     fetchBatchedByKeywords(mergedTW, "TW", twExcludeKeywords, baseTwQueries),
@@ -272,14 +313,27 @@ export async function getRawNews({ twQueries, usQueries }) {
 
   const allRawNews = [...twResult.articles, ...usResult.articles];
   const allQueryHits = [...twResult.queryHits, ...usResult.queryHits];
-  logger.info({ count: allRawNews.length }, `📰 總共抓取 ${allRawNews.length} 則新聞`);
+  logger.info(
+    { count: allRawNews.length },
+    `📰 總共抓取 ${allRawNews.length} 則新聞`,
+  );
 
   let filteredNews = prepareNewsForAI(allRawNews, 20, blacklist);
-  logger.info({ from: allRawNews.length, to: filteredNews.length, excluded: allRawNews.length - filteredNews.length }, `📰 篩選結果：${allRawNews.length} 筆 → ${filteredNews.length} 筆（排除 ${allRawNews.length - filteredNews.length} 筆）`);
+  logger.info(
+    {
+      from: allRawNews.length,
+      to: filteredNews.length,
+      excluded: allRawNews.length - filteredNews.length,
+    },
+    `📰 篩選結果：${allRawNews.length} 筆 → ${filteredNews.length} 筆（排除 ${allRawNews.length - filteredNews.length} 筆）`,
+  );
 
   let fallbackTriggered = false;
   if (filteredNews.length < FALLBACK_THRESHOLD) {
-    logger.warn({ current: filteredNews.length, threshold: FALLBACK_THRESHOLD }, `⚠️ [Fallback] 文章不足 (${filteredNews.length} < ${FALLBACK_THRESHOLD})，改用純靜態池重試...`);
+    logger.warn(
+      { current: filteredNews.length, threshold: FALLBACK_THRESHOLD },
+      `⚠️ [Fallback] 文章不足 (${filteredNews.length} < ${FALLBACK_THRESHOLD})，改用純靜態池重試...`,
+    );
     fallbackTriggered = true;
     const [fbTw, fbUs] = await Promise.all([
       fetchBatchedByKeywords(
@@ -300,7 +354,10 @@ export async function getRawNews({ twQueries, usQueries }) {
       20,
       blacklist,
     );
-    logger.info({ count: filteredNews.length }, `🔄 [Fallback] 靜態池結果：${filteredNews.length} 筆`);
+    logger.info(
+      { count: filteredNews.length },
+      `🔄 [Fallback] 靜態池結果：${filteredNews.length} 筆`,
+    );
   }
 
   const usedTwKeywords = mergedTW.map((k) => k.keyword);
@@ -319,14 +376,17 @@ export async function getRawNews({ twQueries, usQueries }) {
   ]);
 
   const metrics = calcYieldMetrics(allQueryHits);
-  logger.info({ 
-    keywordYieldRate: (metrics.keywordYieldRate * 100).toFixed(1),
-    matched: metrics.matchedQueryCount,
-    total: metrics.totalQueryCount,
-    dynamicYieldRate: (metrics.dynamicKeywordYieldRate * 100).toFixed(1),
-    dynamicMatched: metrics.dynamicMatchedQueryCount,
-    dynamicTotal: metrics.dynamicQueryCount
-  }, `📊 [YieldRate] 整體: ${(metrics.keywordYieldRate * 100).toFixed(1)}% (${metrics.matchedQueryCount}/${metrics.totalQueryCount}) | 動態: ${(metrics.dynamicKeywordYieldRate * 100).toFixed(1)}% (${metrics.dynamicMatchedQueryCount}/${metrics.dynamicQueryCount})`);
+  logger.info(
+    {
+      keywordYieldRate: (metrics.keywordYieldRate * 100).toFixed(1),
+      matched: metrics.matchedQueryCount,
+      total: metrics.totalQueryCount,
+      dynamicYieldRate: (metrics.dynamicKeywordYieldRate * 100).toFixed(1),
+      dynamicMatched: metrics.dynamicMatchedQueryCount,
+      dynamicTotal: metrics.dynamicQueryCount,
+    },
+    `📊 [YieldRate] 整體: ${(metrics.keywordYieldRate * 100).toFixed(1)}% (${metrics.matchedQueryCount}/${metrics.totalQueryCount}) | 動態: ${(metrics.dynamicKeywordYieldRate * 100).toFixed(1)}% (${metrics.dynamicMatchedQueryCount}/${metrics.dynamicQueryCount})`,
+  );
 
   return { articles: filteredNews, metrics };
 }
@@ -364,7 +424,10 @@ export async function getNewsTelegramMessages() {
     };
   }
 
-  logger.info({ count: articles.length }, `📰 [NewsTelegram] pool 共 ${articles.length} 篇，送入 AI 過濾`);
+  logger.info(
+    { count: articles.length },
+    `📰 [NewsTelegram] pool 共 ${articles.length} 篇，送入 AI 過濾`,
+  );
 
   const { news: processedNews, conflictSummary } =
     await filterAndCategorizeAllNewsWithAI(articles, meta?.last_updated);

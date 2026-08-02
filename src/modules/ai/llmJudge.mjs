@@ -45,7 +45,7 @@ async function safeLangfuseScore(payload) {
   } catch (err) {
     logger.warn(
       { name: payload.name, error: err.message },
-      "LLMJudge score 寫入失敗"
+      "LLMJudge score 寫入失敗",
     );
   }
 }
@@ -64,7 +64,7 @@ export async function runJudge(adviceTraceId, adviceObj, sessionId) {
   if (!adviceTraceId || !adviceObj || typeof adviceObj !== "object") {
     logger.warn(
       { adviceTraceId, hasAdviceObj: !!adviceObj },
-      "LLMJudge adviceTraceId 或 adviceObj 無效，跳過 Judge"
+      "LLMJudge adviceTraceId 或 adviceObj 無效，跳過 Judge",
     );
     return;
   }
@@ -106,7 +106,7 @@ export async function runJudge(adviceTraceId, adviceObj, sessionId) {
       if (!Number.isFinite(score) || score < 0 || score > 1) {
         logger.warn(
           { scoreName, score: judgeResult.score },
-          "LLMJudge score 超出範圍"
+          "LLMJudge score 超出範圍",
         );
         continue;
       }
@@ -120,12 +120,13 @@ export async function runJudge(adviceTraceId, adviceObj, sessionId) {
 
       logger.info(
         { scoreName, score, reason: judgeResult.reason?.slice(0, 80) },
-        "LLMJudge 評分完成"
+        "LLMJudge 評分完成",
       );
     } catch (err) {
-      const errorMsg = err instanceof AIServiceError
-        ? `AI Service Error (${err.provider}/${err.model}): ${err.message}`
-        : `Unexpected Error: ${err.message}`;
+      const errorMsg =
+        err instanceof AIServiceError
+          ? `AI Service Error (${err.provider}/${err.model}): ${err.message}`
+          : `Unexpected Error: ${err.message}`;
 
       logger.warn({ scoreName, error: errorMsg }, "LLMJudge Judge 執行失敗");
 

@@ -6,8 +6,8 @@ import crypto from "crypto";
 import logger from "./logger.mjs";
 
 const ALGORITHM = "aes-256-gcm";
-const IV_LENGTH = 12;   // GCM 建議 12 bytes
-const KEY_LENGTH = 32;  // AES-256 需要 32 bytes
+const IV_LENGTH = 12; // GCM 建議 12 bytes
+const KEY_LENGTH = 32; // AES-256 需要 32 bytes
 
 /**
  * 自定義錯誤類別
@@ -32,7 +32,7 @@ function getKeyBuffer() {
   if (buf.length !== KEY_LENGTH) {
     logger.warn(
       `[snapshotCrypto] SNAPSHOT_ENCRYPT_KEY 長度不正確 ` +
-      `(應為 ${KEY_LENGTH * 2} 個 hex 字元，實際 ${raw.length})，略過快照加密`
+        `(應為 ${KEY_LENGTH * 2} 個 hex 字元，實際 ${raw.length})，略過快照加密`,
     );
     return null;
   }
@@ -46,48 +46,47 @@ function getKeyBuffer() {
  */
 function validateEncryptedFormat(encrypted) {
   if (!encrypted || typeof encrypted !== "object") {
-    throw new SnapshotCryptoError(
-      "Invalid encrypted data: expected object",
-      { received: encrypted }
-    );
+    throw new SnapshotCryptoError("Invalid encrypted data: expected object", {
+      received: encrypted,
+    });
   }
 
   const { iv, tag, data } = encrypted;
 
   if (typeof iv !== "string" || !iv) {
     throw new SnapshotCryptoError(
-      "Invalid encrypted data: missing or invalid 'iv' field"
+      "Invalid encrypted data: missing or invalid 'iv' field",
     );
   }
 
   if (typeof tag !== "string" || !tag) {
     throw new SnapshotCryptoError(
-      "Invalid encrypted data: missing or invalid 'tag' field"
+      "Invalid encrypted data: missing or invalid 'tag' field",
     );
   }
 
   if (typeof data !== "string" || !data) {
     throw new SnapshotCryptoError(
-      "Invalid encrypted data: missing or invalid 'data' field"
+      "Invalid encrypted data: missing or invalid 'data' field",
     );
   }
 
   // 驗證 hex 格式
   if (!/^[0-9a-fA-F]+$/.test(iv)) {
     throw new SnapshotCryptoError(
-      "Invalid encrypted data: 'iv' is not valid hex"
+      "Invalid encrypted data: 'iv' is not valid hex",
     );
   }
 
   if (!/^[0-9a-fA-F]+$/.test(tag)) {
     throw new SnapshotCryptoError(
-      "Invalid encrypted data: 'tag' is not valid hex"
+      "Invalid encrypted data: 'tag' is not valid hex",
     );
   }
 
   if (!/^[0-9a-fA-F]+$/.test(data)) {
     throw new SnapshotCryptoError(
-      "Invalid encrypted data: 'data' is not valid hex"
+      "Invalid encrypted data: 'data' is not valid hex",
     );
   }
 }
@@ -135,7 +134,7 @@ export function decryptSnapshot(encrypted) {
   const key = getKeyBuffer();
   if (!key) {
     throw new SnapshotCryptoError(
-      "Snapshot decryption disabled: SNAPSHOT_ENCRYPT_KEY not configured"
+      "Snapshot decryption disabled: SNAPSHOT_ENCRYPT_KEY not configured",
     );
   }
 
@@ -172,7 +171,7 @@ export function decryptSnapshot(encrypted) {
 
     throw new SnapshotCryptoError(
       `Failed to decrypt snapshot: ${errorMessage}`,
-      err
+      err,
     );
   }
 }

@@ -18,7 +18,9 @@ const allowedChatId = process.env.TELEGRAM_USER_ID
   : null;
 
 if (!allowedChatId) {
-  logger.warn("[adminGuard] ⚠️  TELEGRAM_USER_ID 未設定，所有 Bot 指令將被拒絕。");
+  logger.warn(
+    "[adminGuard] ⚠️  TELEGRAM_USER_ID 未設定，所有 Bot 指令將被拒絕。",
+  );
 }
 
 /**

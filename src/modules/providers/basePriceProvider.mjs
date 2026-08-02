@@ -73,7 +73,10 @@ export async function fetchLatestBasePrice(url = BASE_PRICE_URL) {
 
     return base;
   } catch (err) {
-    logger.warn({ error: err.message }, `⚠️ 獲取 BasePrice 失敗，嘗試使用快取...`);
+    logger.warn(
+      { error: err.message },
+      `⚠️ 獲取 BasePrice 失敗，嘗試使用快取...`,
+    );
     if (_cache.base) return _cache.base; // fallback
     throw err; // 若無快取可退，則將錯誤往上拋
   }

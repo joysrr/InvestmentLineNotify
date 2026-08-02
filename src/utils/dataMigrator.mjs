@@ -23,7 +23,10 @@ export async function migrate() {
       return;
     }
 
-    logger.info({ count: files.length }, `🛡️ 開始安全遷移：發現 ${files.length} 份報告`);
+    logger.info(
+      { count: files.length },
+      `🛡️ 開始安全遷移：發現 ${files.length} 份報告`,
+    );
 
     // 1. 強制備份
     await mkdir(backupDir, { recursive: true });
@@ -113,12 +116,17 @@ export async function migrate() {
         await writeFile(path, JSON.stringify(content, null, 2));
         successCount++;
       } catch (err) {
-        logger.error({ file, error: err.message }, `❌ 檔案 ${file} 轉換失敗，跳過`);
+        logger.error(
+          { file, error: err.message },
+          `❌ 檔案 ${file} 轉換失敗，跳過`,
+        );
       }
     }
 
     logger.info(`🎉 遷移大功告成！成功轉換 ${successCount} 份檔案。`);
-    logger.info(`💡 如果 Mini App 顯示異常，請將 ${backupDir} 內容拷貝回 data/reports/`);
+    logger.info(
+      `💡 如果 Mini App 顯示異常，請將 ${backupDir} 內容拷貝回 data/reports/`,
+    );
   } catch (err) {
     logger.error({ error: err.message }, `🚨 遷移中斷`);
   }

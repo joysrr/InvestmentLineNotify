@@ -10,7 +10,7 @@ const chatId = process.env.TELEGRAM_USER_ID;
 // ============================================================================
 
 const DEFAULT_TIMEOUT = 10000; // 10 秒 timeout
-const DEFAULT_RETRIES = 2;     // 重試 2 次（共 3 次嘗試）
+const DEFAULT_RETRIES = 2; // 重試 2 次（共 3 次嘗試）
 const PROVIDER_ID = "telegram";
 
 // ============================================================================
@@ -36,20 +36,29 @@ export async function unpinAllChatMessages() {
       DEFAULT_RETRIES,
       1000,
       PROVIDER_ID,
-      "unpinAllChatMessages"
+      "unpinAllChatMessages",
     );
 
     const resData = await response.json();
     if (!resData.ok) {
-      logger.error({ description: resData.description }, `❌ [${PROVIDER_ID}] unpinAllChatMessages 失敗`);
+      logger.error(
+        { description: resData.description },
+        `❌ [${PROVIDER_ID}] unpinAllChatMessages 失敗`,
+      );
     } else {
       logger.info(`✅ [${PROVIDER_ID}] 已解除所有釘選訊息`);
     }
   } catch (error) {
     if (error instanceof ProviderError) {
-      logger.error({ error: error.message }, `❌ [${PROVIDER_ID}] unpinAllChatMessages 最終失敗`);
+      logger.error(
+        { error: error.message },
+        `❌ [${PROVIDER_ID}] unpinAllChatMessages 最終失敗`,
+      );
     } else {
-      logger.error({ error }, `❌ [${PROVIDER_ID}] unpinAllChatMessages unexpected error`);
+      logger.error(
+        { error },
+        `❌ [${PROVIDER_ID}] unpinAllChatMessages unexpected error`,
+      );
     }
   }
 }
@@ -64,7 +73,7 @@ export async function unpinAllChatMessages() {
  */
 export async function sendTelegramBatch(messages) {
   const sendUrl = `https://api.telegram.org/bot${token}/sendMessage`;
-  const pinUrl  = `https://api.telegram.org/bot${token}/pinChatMessage`;
+  const pinUrl = `https://api.telegram.org/bot${token}/pinChatMessage`;
 
   for (let i = 0; i < messages.length; i++) {
     const msg = messages[i];
@@ -122,12 +131,15 @@ export async function sendTelegramBatch(messages) {
         DEFAULT_RETRIES,
         1000,
         PROVIDER_ID,
-        `sendMessage[${i + 1}]`
+        `sendMessage[${i + 1}]`,
       );
 
       const resData = await response.json();
       if (!resData.ok) {
-        logger.error({ index: i + 1, description: resData.description }, `❌ [${PROVIDER_ID}] 第 ${i + 1} 則發送失敗`);
+        logger.error(
+          { index: i + 1, description: resData.description },
+          `❌ [${PROVIDER_ID}] 第 ${i + 1} 則發送失敗`,
+        );
         continue;
       } else {
         logger.info(`✅ [${PROVIDER_ID}] 第 ${i + 1} 則發送成功`);
@@ -152,28 +164,43 @@ export async function sendTelegramBatch(messages) {
             DEFAULT_RETRIES,
             1000,
             PROVIDER_ID,
-            `pinChatMessage[${i + 1}]`
+            `pinChatMessage[${i + 1}]`,
           );
 
           const pinData = await pinResponse.json();
           if (!pinData.ok) {
-            logger.error({ index: i + 1, description: pinData.description }, `❌ [${PROVIDER_ID}] 第 ${i + 1} 則釘選失敗`);
+            logger.error(
+              { index: i + 1, description: pinData.description },
+              `❌ [${PROVIDER_ID}] 第 ${i + 1} 則釘選失敗`,
+            );
           } else {
             logger.info(`📌 [${PROVIDER_ID}] 第 ${i + 1} 則已釘選`);
           }
         } catch (pinError) {
           if (pinError instanceof ProviderError) {
-            logger.error({ index: i + 1, error: pinError.message }, `❌ [${PROVIDER_ID}] 第 ${i + 1} 則釘選最終失敗`);
+            logger.error(
+              { index: i + 1, error: pinError.message },
+              `❌ [${PROVIDER_ID}] 第 ${i + 1} 則釘選最終失敗`,
+            );
           } else {
-            logger.error({ index: i + 1, error: pinError }, `❌ [${PROVIDER_ID}] 第 ${i + 1} 則釘選 unexpected error`);
+            logger.error(
+              { index: i + 1, error: pinError },
+              `❌ [${PROVIDER_ID}] 第 ${i + 1} 則釘選 unexpected error`,
+            );
           }
         }
       }
     } catch (error) {
       if (error instanceof ProviderError) {
-        logger.error({ index: i + 1, error: error.message }, `❌ [${PROVIDER_ID}] 第 ${i + 1} 則發送最終失敗`);
+        logger.error(
+          { index: i + 1, error: error.message },
+          `❌ [${PROVIDER_ID}] 第 ${i + 1} 則發送最終失敗`,
+        );
       } else {
-        logger.error({ index: i + 1, error }, `❌ [${PROVIDER_ID}] 第 ${i + 1} 則發送 unexpected error`);
+        logger.error(
+          { index: i + 1, error },
+          `❌ [${PROVIDER_ID}] 第 ${i + 1} 則發送 unexpected error`,
+        );
       }
     }
   }
@@ -189,7 +216,9 @@ export async function sendTelegramBatch(messages) {
  */
 export async function sendSystemMessage(text) {
   if (!logToken) {
-    logger.warn(`[${PROVIDER_ID}/SystemMsg] TELEGRAM_LOG_API_TOKEN 未設定，跳過系統訊息發送`);
+    logger.warn(
+      `[${PROVIDER_ID}/SystemMsg] TELEGRAM_LOG_API_TOKEN 未設定，跳過系統訊息發送`,
+    );
     return;
   }
 
@@ -213,20 +242,29 @@ export async function sendSystemMessage(text) {
       DEFAULT_RETRIES,
       1000,
       `${PROVIDER_ID}/SystemMsg`,
-      "sendSystemMessage"
+      "sendSystemMessage",
     );
 
     const resData = await response.json();
     if (!resData.ok) {
-      logger.warn({ description: resData.description }, `[${PROVIDER_ID}/SystemMsg] 系統訊息發送失敗`);
+      logger.warn(
+        { description: resData.description },
+        `[${PROVIDER_ID}/SystemMsg] 系統訊息發送失敗`,
+      );
     } else {
       logger.info(`[${PROVIDER_ID}/SystemMsg] ✅ 系統訊息發送成功`);
     }
   } catch (error) {
     if (error instanceof ProviderError) {
-      logger.warn({ error: error.message }, `[${PROVIDER_ID}/SystemMsg] 系統訊息發送最終失敗`);
+      logger.warn(
+        { error: error.message },
+        `[${PROVIDER_ID}/SystemMsg] 系統訊息發送最終失敗`,
+      );
     } else {
-      logger.warn({ error }, `[${PROVIDER_ID}/SystemMsg] 系統訊息 unexpected error`);
+      logger.warn(
+        { error },
+        `[${PROVIDER_ID}/SystemMsg] 系統訊息 unexpected error`,
+      );
     }
   }
 }

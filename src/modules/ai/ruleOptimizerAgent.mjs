@@ -27,7 +27,7 @@ async function safeLangfuseScore(payload) {
   } catch (err) {
     logger.warn(
       { name: payload.name, error: err.message },
-      "Langfuse score 寫入失敗"
+      "Langfuse score 寫入失敗",
     );
   }
 }
@@ -64,10 +64,7 @@ function findLatestLogFile(region) {
 function readPassedArticles(region) {
   const found = findLatestLogFile(region);
   if (!found) {
-    logger.warn(
-      { region },
-      "Optimizer 找不到任何 passedArticles 日誌，跳過"
-    );
+    logger.warn({ region }, "Optimizer 找不到任何 passedArticles 日誌，跳過");
     return { articles: [], dateStr: null };
   }
   const filePath = join(NEWS_LOGS_DIR, found.filename);
@@ -192,7 +189,7 @@ function updateOptimizerHistory(date, region, accepted, rejected) {
     if (err.code !== "ENOENT") {
       logger.warn(
         { region, error: err.message },
-        "Optimizer 讀取 optimizerHistory.json 失敗，使用空結構"
+        "Optimizer 讀取 optimizerHistory.json 失敗，使用空結構",
       );
     }
   }
@@ -273,10 +270,16 @@ export async function runRuleOptimizer() {
     logger.info({ region, dateStr }, "Optimizer 分析日期");
 
     const titles = extractTitles(articles);
-    logger.info({ region, titlesCount: titles.length }, "Optimizer 清洗後標題數");
+    logger.info(
+      { region, titlesCount: titles.length },
+      "Optimizer 清洗後標題數",
+    );
 
     const { rules: aiRules, traceId } = await callOptimizerAI(titles, region);
-    logger.info({ region, aiRulesCount: aiRules.length }, "Optimizer AI 建議規則數");
+    logger.info(
+      { region, aiRulesCount: aiRules.length },
+      "Optimizer AI 建議規則數",
+    );
 
     const { accepted, rejected } = validateAndPrepare(
       aiRules,
@@ -287,13 +290,13 @@ export async function runRuleOptimizer() {
     // ── 批次上限保護 ──────────────────────────────────────────────────────────
     if (accepted.length > MAX_RULES_PER_RUN_PER_REGION) {
       logger.warn(
-        { 
-          region, 
-          acceptedCount: accepted.length, 
+        {
+          region,
+          acceptedCount: accepted.length,
           maxAllowed: MAX_RULES_PER_RUN_PER_REGION,
-          cappedCount: accepted.length - MAX_RULES_PER_RUN_PER_REGION
+          cappedCount: accepted.length - MAX_RULES_PER_RUN_PER_REGION,
         },
-        "Optimizer 單次通過規則數超過安全上限，截斷"
+        "Optimizer 單次通過規則數超過安全上限，截斷",
       );
       const capped = accepted.splice(MAX_RULES_PER_RUN_PER_REGION);
       rejected.push(
@@ -303,7 +306,7 @@ export async function runRuleOptimizer() {
 
     logger.info(
       { region, accepted: accepted.length, rejected: rejected.length },
-      "Optimizer 規則驗證結果"
+      "Optimizer 規則驗證結果",
     );
 
     const total = accepted.length + rejected.length;
@@ -348,7 +351,10 @@ export async function runRuleOptimizer() {
   await archiveManager
     .saveAiLog({ type: "RuleOptimizer", rawResult: results })
     .catch((err) =>
-      logger.warn({ error: err.message }, "Archive 儲存 RuleOptimizer 紀錄失敗"),
+      logger.warn(
+        { error: err.message },
+        "Archive 儲存 RuleOptimizer 紀錄失敗",
+      ),
     );
 
   return results;
@@ -404,7 +410,7 @@ export function rollbackOptimizerRules(date, region = "ALL") {
     entry.rolledBackAt = new Date().toISOString();
     logger.info(
       { region: entry.region, date, removed: delta },
-      "Rollback 移除規則"
+      "Rollback 移除規則",
     );
   }
 

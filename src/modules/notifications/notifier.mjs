@@ -90,7 +90,9 @@ export async function broadcastOptimizerResult(result, totalRuleCount) {
     if (accepted.length > 0) {
       const MAX_SHOW = 5;
       const shown = accepted.slice(0, MAX_SHOW);
-      shown.forEach((r) => lines.push(`  └ <code>${escapeHtml(r.regexLiteral)}</code>`));
+      shown.forEach((r) =>
+        lines.push(`  └ <code>${escapeHtml(r.regexLiteral)}</code>`),
+      );
       if (accepted.length > MAX_SHOW) {
         lines.push(`  └ …等 ${accepted.length - MAX_SHOW} 條`);
       }
@@ -108,9 +110,10 @@ export async function broadcastOptimizerResult(result, totalRuleCount) {
 
   const twSection = formatRegion("🇹🇼", "台股", twA, twR);
   const usSection = formatRegion("🇺🇸", "美股", usA, usR);
-  const totalLine = totalRuleCount != null
-    ? `\n📊 累計黑名單規則總數：${totalRuleCount} 條`
-    : "";
+  const totalLine =
+    totalRuleCount != null
+      ? `\n📊 累計黑名單規則總數：${totalRuleCount} 條`
+      : "";
 
   const text = [
     "🤖 <b>Blacklist Optimizer 執行完成</b>",
@@ -126,6 +129,9 @@ export async function broadcastOptimizerResult(result, totalRuleCount) {
   try {
     await sendSystemMessage(text);
   } catch (err) {
-    logger.warn({ error: err.message }, "[OptimizerNotify] 發送失敗（不影響主流程）");
+    logger.warn(
+      { error: err.message },
+      "[OptimizerNotify] 發送失敗（不影響主流程）",
+    );
   }
 }

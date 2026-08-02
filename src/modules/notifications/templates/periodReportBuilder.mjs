@@ -40,7 +40,9 @@ function buildAccuracySection(acc, period) {
 
   const buyIcon = acc.buySignalCount > 0 ? "🟢" : "⚪";
   const blockIcon = acc.cooldownBlockedCount > 0 ? "⏸" : "✅";
-  lines.push(`${buyIcon} 觸發買進：${acc.buySignalCount} 次  ${blockIcon} 冷卻封鎖：${acc.cooldownBlockedCount} 次`);
+  lines.push(
+    `${buyIcon} 觸發買進：${acc.buySignalCount} 次  ${blockIcon} 冷卻封鎖：${acc.cooldownBlockedCount} 次`,
+  );
 
   if (acc.totalEligibleDays > 0 && acc.cooldownBlockedCount > 0) {
     const blockRatePct = (acc.cooldownBlockRate * 100).toFixed(0);
@@ -113,7 +115,12 @@ function buildAccuracySection(acc, period) {
  * @param {Object|null} accuracyStats - buildSignalAccuracyStats 結果（可選）
  * @returns {Array<{text: string}>}
  */
-export function buildPeriodReportMessages(stats, aiSummary, period, accuracyStats = null) {
+export function buildPeriodReportMessages(
+  stats,
+  aiSummary,
+  period,
+  accuracyStats = null,
+) {
   const isWeekly = period === "weekly";
   const periodLabel = isWeekly ? "週報" : "月報";
   const header = isWeekly ? "📊 本週策略摘要" : "📋 本月策略摘要";
@@ -128,29 +135,43 @@ export function buildPeriodReportMessages(stats, aiSummary, period, accuracyStat
   lines1.push("━━ 訊號趨勢 ━━");
   for (const d of stats.dailySignals) {
     const score = d.weightScore > 0 ? ` score:${d.weightScore}` : "";
-    const macro = d.macroDirection ? ` [${d.macroDirection === "BULL" ? "多" : d.macroDirection === "BEAR" ? "空" : "中"}]` : "";
+    const macro = d.macroDirection
+      ? ` [${d.macroDirection === "BULL" ? "多" : d.macroDirection === "BEAR" ? "空" : "中"}]`
+      : "";
     lines1.push(`${d.date} ${escHtml(d.target)}${score}${macro}`);
   }
   lines1.push("");
 
   lines1.push("━━ 技術指標均値 ━━");
   const { rsi, kdK, bias240 } = stats.indicators;
-  lines1.push(`RSI：${formatNum(rsi.avg)}  趨勢：${TREND_ICON[rsi.trend] ?? "→"} (${rsi.min}~${rsi.max})`);
-  lines1.push(`KD-K：${formatNum(kdK.avg)}  趨勢：${TREND_ICON[kdK.trend] ?? "→"} (${kdK.min}~${kdK.max})`);
-  lines1.push(`乖離率：${formatNum(bias240.avg)}%  趨勢：${TREND_ICON[bias240.trend] ?? "→"} (${bias240.min}~${bias240.max})`);
+  lines1.push(
+    `RSI：${formatNum(rsi.avg)}  趨勢：${TREND_ICON[rsi.trend] ?? "→"} (${rsi.min}~${rsi.max})`,
+  );
+  lines1.push(
+    `KD-K：${formatNum(kdK.avg)}  趨勢：${TREND_ICON[kdK.trend] ?? "→"} (${kdK.min}~${kdK.max})`,
+  );
+  lines1.push(
+    `乖離率：${formatNum(bias240.avg)}%  趨勢：${TREND_ICON[bias240.trend] ?? "→"} (${bias240.min}~${bias240.max})`,
+  );
   lines1.push("");
 
   lines1.push("━━ 過熱狀態 ━━");
   const { overheatDays, totalDays, isEscalating } = stats.overheat;
-  const overheatIcon = overheatDays === 0 ? "✅" : overheatDays >= totalDays * 0.6 ? "🔥" : "⚠️";
-  const escalateText = overheatDays > 0 ? (isEscalating ? " 持續升溫" : " 趨於緩和") : "";
-  lines1.push(`${overheatIcon} 本週期 ${overheatDays}/${totalDays} 天觸發過熱因子${escalateText}`);
+  const overheatIcon =
+    overheatDays === 0 ? "✅" : overheatDays >= totalDays * 0.6 ? "🔥" : "⚠️";
+  const escalateText =
+    overheatDays > 0 ? (isEscalating ? " 持續升溫" : " 趨於緩和") : "";
+  lines1.push(
+    `${overheatIcon} 本週期 ${overheatDays}/${totalDays} 天觸發過熱因子${escalateText}`,
+  );
   lines1.push("");
 
   lines1.push("━━ 總經方向分布 ━━");
   const { bullDays, bearDays, neutralDays, dominantDirection } = stats.macro;
   const dIcon = DIRECTION_ICON[dominantDirection] ?? "⚖️";
-  lines1.push(`多頭 ${bullDays}天 | 空頭 ${bearDays}天 | 中性 ${neutralDays}天`);
+  lines1.push(
+    `多頭 ${bullDays}天 | 空頭 ${bearDays}天 | 中性 ${neutralDays}天`,
+  );
   lines1.push(`主導方向：${dominantDirection} ${dIcon}`);
   lines1.push("");
 
@@ -158,7 +179,9 @@ export function buildPeriodReportMessages(stats, aiSummary, period, accuracyStat
   if (stats.cooldown.blockedDays === 0) {
     lines1.push("本週期無買入訊號被冷卻擋住 ✅");
   } else {
-    lines1.push(`⏸ 共 ${stats.cooldown.blockedDays} 天達買入門滝但被冷卻期擋住`);
+    lines1.push(
+      `⏸ 共 ${stats.cooldown.blockedDays} 天達買入門滝但被冷卻期擋住`,
+    );
     for (const b of stats.cooldown.blockedDetails) {
       lines1.push(`  ${b.date}  score:${b.weightScore}  剩餘 ${b.daysLeft} 天`);
     }
@@ -260,8 +283,10 @@ export function buildCompactPeriodMessage(stats, aiSummary, period, webAppUrl) {
 
   // ── 過熱狀態 ──
   const { overheatDays, totalDays, isEscalating } = stats.overheat;
-  const overheatEmoji = overheatDays === 0 ? "✅" : overheatDays >= totalDays * 0.6 ? "🔥" : "⚠️";
-  const escalateHint = overheatDays > 0 ? (isEscalating ? " 升溫中" : " 緩和中") : "";
+  const overheatEmoji =
+    overheatDays === 0 ? "✅" : overheatDays >= totalDays * 0.6 ? "🔥" : "⚠️";
+  const escalateHint =
+    overheatDays > 0 ? (isEscalating ? " 升溫中" : " 緩和中") : "";
   const overheatLine = `${overheatEmoji} 過熱 ${overheatDays}/${totalDays} 天${escalateHint}`;
 
   // ── 總經方向 ──
@@ -271,15 +296,12 @@ export function buildCompactPeriodMessage(stats, aiSummary, period, webAppUrl) {
 
   // ── 冷卻期 ──
   const blockedDays = stats.cooldown.blockedDays ?? 0;
-  const cooldownLine = blockedDays > 0
-    ? `⏸ 冷卻期封鎖 ${blockedDays} 天`
-    : `✅ 無冷卻封鎖`;
+  const cooldownLine =
+    blockedDays > 0 ? `⏸ 冷卻期封鎖 ${blockedDays} 天` : `✅ 無冷卻封鎖`;
 
   // ── 訊號一致性 ──
   const { isConsistent, flipCount } = stats.consistency;
-  const consistLine = isConsistent
-    ? "✅ 方向一致"
-    : `⚠️ 翻轉 ${flipCount} 次`;
+  const consistLine = isConsistent ? "✅ 方向一致" : `⚠️ 翻轉 ${flipCount} 次`;
 
   // ── AI 展望第一句 ──
   const outlookFirstLine = aiSummary?.periodOutlook
@@ -287,7 +309,10 @@ export function buildCompactPeriodMessage(stats, aiSummary, period, webAppUrl) {
     : "";
 
   // ── 訊號統計 ──
-  const buyCount = stats.dailySignals?.filter(d => d.target?.includes("買") || d.weightScore > 0).length ?? 0;
+  const buyCount =
+    stats.dailySignals?.filter(
+      (d) => d.target?.includes("買") || d.weightScore > 0,
+    ).length ?? 0;
   const signalLine = `🟢 達買入闀値 ${buyCount} 天  ${consistLine}`;
 
   const text =
@@ -304,7 +329,7 @@ export function buildCompactPeriodMessage(stats, aiSummary, period, webAppUrl) {
   return [
     {
       text,
-      pin: false,               // 週報/月報不釘選，避免鏋展日報釘選卡
+      pin: false, // 週報/月報不釘選，避免鏋展日報釘選卡
       disable_notification: false, // 週報/月報讓它鸣鈴
       webAppUrl,
     },

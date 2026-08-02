@@ -10,14 +10,18 @@ import { rollbackOptimizerRules } from "../modules/ai/ruleOptimizerAgent.mjs";
 const [, , date, region = "ALL"] = process.argv;
 
 if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-  logger.error("❌ 用法：node src/scripts/rollbackOptimizer.mjs <YYYY-MM-DD> [TW|US|ALL]");
+  logger.error(
+    "❌ 用法：node src/scripts/rollbackOptimizer.mjs <YYYY-MM-DD> [TW|US|ALL]",
+  );
   process.exit(1);
 }
 
 try {
   const result = rollbackOptimizerRules(date, region);
   if (result.removed === 0) {
-    logger.warn("⚠️ 無規則被移除，請確認日期、region 是否正確，或是否已執行過 rollback");
+    logger.warn(
+      "⚠️ 無規則被移除，請確認日期、region 是否正確，或是否已執行過 rollback",
+    );
     process.exit(1);
   }
   process.exit(0);

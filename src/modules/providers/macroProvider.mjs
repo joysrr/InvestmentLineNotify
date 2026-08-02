@@ -82,10 +82,7 @@ export async function fetchCpiYoY() {
       source: "DGBAS",
     };
   } catch (err) {
-    console.warn(
-      `[${PROVIDER_ID}] fetchCpiYoY 失敗，使用回退值:`,
-      err.message,
-    );
+    console.warn(`[${PROVIDER_ID}] fetchCpiYoY 失敗，使用回退值:`, err.message);
     return { value: 2.0, date: null, source: "fallback" };
   }
 }
@@ -112,10 +109,7 @@ async function fetchLatestFromFred(seriesId) {
     if (!latest) throw new Error(`FRED 系列 ${seriesId} 無回傳資料`);
     return { date: latest.date, value: parseNumber(latest.value) };
   } catch (err) {
-    console.warn(
-      `[${PROVIDER_ID}] fetchFred:${seriesId} 失敗:`,
-      err.message,
-    );
+    console.warn(`[${PROVIDER_ID}] fetchFred:${seriesId} 失敗:`, err.message);
     return null;
   }
 }

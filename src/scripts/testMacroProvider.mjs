@@ -1,5 +1,8 @@
 import logger from "../../utils/logger.mjs";
-import { fetchCentralBankRate, fetchCpiYoY } from "../modules/providers/macroProvider.mjs";
+import {
+  fetchCentralBankRate,
+  fetchCpiYoY,
+} from "../modules/providers/macroProvider.mjs";
 
 async function test() {
   logger.info("🧪 測試宏觀數據 Provider 重構結果...");
