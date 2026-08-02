@@ -2,6 +2,8 @@ import "dotenv/config";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
+import fastifySwagger from "@fastify/swagger";
+import fastifySwaggerUi from "@fastify/swagger-ui";
 import { fileURLToPath } from "url";
 import { assertEnv } from "../utils/envGuard.mjs";
 import logger from "../utils/logger.mjs";
@@ -11,6 +13,7 @@ import reportsRoute from "./routes/reports.mjs";
 import newsRoute from "./routes/news.mjs";
 import configRoute from "./routes/config.mjs";
 import portfolioHealthRoute from "./routes/portfolioHealth.mjs";
+import simulateRoute from "./routes/v1/simulate.mjs";
 // 啟動前強制檢查環境變數，確保不帶病執行
 assertEnv();
 
@@ -57,6 +60,53 @@ export async function buildApp(opts = {}) {
     }),
   });
 
+  // ─── Swagger / OpenAPI ────────────────────────────────────────────────────────
+  await fastify.register(fastifySwagger, {
+    openapi: {
+      info: {
+        title: "InvestmentLineNotify API",
+        description: "0050 / 00675L 生命周期投資決策系統 API 文件",
+        version: "2.0.0",
+      },
+      servers: [
+        { url: "http://localhost:3000", description: "開發環境" },
+        {
+          url: "https://api.investnotif.yourdomain.com",
+          description: "正式環境",
+        },
+      ],
+      tags: [
+        { name: "Status", description: "系統狀態與市場快照" },
+        { name: "Reports", description: "每日/週/月報告查詢" },
+        { name: "News", description: "新聞池與 AI 新聞治理" },
+        { name: "Config", description: "策略設定讀寫" },
+        { name: "Portfolio Health", description: "帳戶健康度試算" },
+        { name: "Simulator", description: "0050 雙向模擬器 (正向/反向)" },
+      ],
+      components: {
+        securitySchemes: {
+          telegramInitData: {
+            type: "apiKey",
+            in: "header",
+            name: "X-Telegram-Init-Data",
+            description: "Telegram WebApp initData (HMAC-SHA256 驗證)",
+          },
+        },
+      },
+      security: [{ telegramInitData: [] }],
+    },
+  });
+
+  await fastify.register(fastifySwaggerUi, {
+    routePrefix: "/docs",
+    uiConfig: {
+      docExpansion: "list",
+      deepLinking: true,
+    },
+    staticCSP: true,
+    transformStaticCSP: (header) => header,
+  });
+
   // ─── Global hook: Telegram initData guard ────────────────────────────────────
   fastify.addHook("onRequest", initDataGuard);
 
@@ -65,6 +115,7 @@ export async function buildApp(opts = {}) {
   await fastify.register(newsRoute, { prefix: "/api" });
   await fastify.register(configRoute, { prefix: "/api" });
   await fastify.register(portfolioHealthRoute, { prefix: "/api" });
+  await fastify.register(simulateRoute, { prefix: "/api/v1" });
 
   // ─── Global Error Handler (M-002: Path Hiding) ─────────────────────────────
   fastify.setErrorHandler((error, request, reply) => {

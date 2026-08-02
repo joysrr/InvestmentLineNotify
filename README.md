@@ -27,21 +27,22 @@
 - 📰 每 4 小時自動更新的新聞池與 AI 新聞治理
 - 📊 每週 / 每月 AI 週報與月報生成
 - 💬 Telegram Bot 即時互動指令（`/daily`、`/status`、`/weekly` 等）
-- 📱 Telegram Mini App 儀表板（總覽 / 雷達 / 多空 / 圖表 / 報告 / 新聞 / 設定）
+- 📱 Telegram Mini App 儀表板（總覽 / 雷達 / 多空 / 圖表 / 報告 / 新聞 / 設定 / **模擬器**）
 
 ---
 
 ## 核心特色
 
-| 特色                    | 說明                                                                                                       |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------- |
-| **無資料庫設計**        | 以 `data/` 檔案庫 + Google Sheets 取代傳統 DB，降低維護成本                                                |
-| **多階段 AI 管線**      | 新聞過濾器 → 總經多空分析師 → 投資教練 → LLM Judge，結構化輸出防幻覺                                       |
-| **動態量化風控**        | 維持率斷頭計算、RSI/KD/MACD 過熱閥値、冷卻期與極端恐慰破冰機制                                             |
-| **帳戶快照加密**        | 持倉數字以 AES-256-GCM 加密存儲，`.env` 金鑰本地管理                                                       |
-| **全面 VM 排程**        | 所有定時任務已統一由 Oracle VM crontab 執行，避免 GitHub Actions schedule 延遲                             |
-| **Telegram Mini App**   | Fastify API Server + Vue 3 前端，即時瀏覽資產趨勢、市場雷達與新聞池                                        |
-| **Provider 架構抽象化** | `dataSourceConfig.mjs` + `providerRegistry.mjs` Slot-based 設計，抽換資料來源只需改 config，不動上層程式碼 |
+| 特色                    | 說明                                                                                                             |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **無資料庫設計**        | 以 `data/` 檔案庫 + Google Sheets 取代傳統 DB，降低維護成本                                                      |
+| **多階段 AI 管線**      | 新聞過濾器 → 總經多空分析師 → 投資教練 → LLM Judge，結構化輸出防幻覺                                             |
+| **動態量化風控**        | 維持率斷頭計算、RSI/KD/MACD 過熱閥値、冷卻期與極端恐慰破冰機制                                                   |
+| **帳戶快照加密**        | 持倉數字以 AES-256-GCM 加密存儲，`.env` 金鑰本地管理                                                             |
+| **全面 VM 排程**        | 所有定時任務已統一由 Oracle VM crontab 執行，避免 GitHub Actions schedule 延遲                                   |
+| **Telegram Mini App**   | Fastify API Server + Vue 3 前端，即時瀏覽資產趨勢、市場雷達與新聞池                                              |
+| **0050 雙向模擬器**     | 正向股價→策略分數、反向目標→股價推導，支援 9 種目標類型（維持率、RSI、MA、KD、MACD、策略分數、Portfolio Health） |
+| **Provider 架構抽象化** | `dataSourceConfig.mjs` + `providerRegistry.mjs` Slot-based 設計，抽換資料來源只需改 config，不動上層程式碼       |
 
 ---
 
@@ -298,12 +299,13 @@ InvestmentLineNotify/
 │   ├── api/
 │   │   ├── server.mjs           ← Fastify API Server（Port 3000）
 │   │   ├── middleware/          ← initDataGuard（HMAC-SHA256 驗證）
-│   │   └── routes/              ← /api/status, /api/reports, /api/news, /api/snapshots
+│   │   └── routes/              ← /api/status, /api/reports, /api/news, /api/snapshots, /api/v1/simulate
 │   ├── modules/
 │   │   ├── providers/           ← 市場資料（TWSE / Yahoo / FRED / CNN / KGI / NDC）
 │   │   │                           含大盤指數收盤與成交金額（FMTQIK）、VIX、PE/PB、匯率等 8 個 Slot
 │   │   │                           架構：dataSourceConfig.mjs + providerRegistry.mjs（Slot-based）
 │   │   ├── strategy/            ← RSI / KD / MACD 量化指標 + 風控引擎
+│   │   ├── simulator/           ← 0050 雙向模擬器（正向/反向/掃描器）
 │   │   ├── ai/                  ← Gemini AI 決策管線（新聞過濾 / 總經分析 / 投資教練）
 │   │   ├── notifications/       ← Telegram HTML 訊息排版與推播
 │   │   ├── data/
@@ -317,7 +319,7 @@ InvestmentLineNotify/
 │   │   └── envGuard.mjs         ← 啟動時環境變數驗證
 │   └── test/                    ← 手動測試與回測腳本
 ├── webapp/                       ← Vite + Vue 3 Telegram Mini App
-│   └── src/views/                ← 7 個 Tab（總覽 / 雷達 / 多空 / 圖表 / 報告 / 新聞 / 設定）
+│   └── src/views/                ← 7 個 Tab（總覽 / 雷達 / 多空 / 圖表 / 報告 / 新聞 / 設定 / 模擬器）
 ├── scripts/
 │   ├── vm-daily-check.sh        ← VM daily runner
 │   ├── vm-news-fetch.sh         ← VM news fetch runner
@@ -335,16 +337,17 @@ InvestmentLineNotify/
 
 > 本 README 為快速上手指南，詳細系統設計請查閱 `docs/`。
 
-| 文件                                                                                                 | 說明                                                                                                                                 |
-| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| [`docs/modules/_index.md`](docs/modules/_index.md)                                                   | 系統總覽、Mermaid 架構圖、目錄責任對照                                                                                               |
-| [`docs/modules/operations/env_vars.md`](docs/modules/operations/env_vars.md)                         | 完整環境變數清單與 SOP                                                                                                               |
-| [`docs/modules/strategy/providers.md`](docs/modules/strategy/providers.md)                           | 市場資料 Provider 層：各 provider 欄位、快取策略、Slot-based 架構說明（`dataSourceConfig` / `providerRegistry`）、8 個資料 Slot 詳解 |
-| [`docs/modules/ai_news/ai_pipeline.md`](docs/modules/ai_news/ai_pipeline.md)                         | AI 決策管線詳細設計                                                                                                                  |
-| [`docs/modules/strategy/_index.md`](docs/modules/strategy/_index.md)                                 | 策略引擎 / 技術指標 / 新聞治理                                                                                                       |
-| [`docs/modules/infrastructure/_index.md`](docs/modules/infrastructure/_index.md)                     | storage / archiveManager / snapshotCrypto                                                                                            |
-| [`docs/modules/presentation/_index.md`](docs/modules/presentation/_index.md)                         | Runner / Bot / 通知層設計                                                                                                            |
-| [`docs/modules/operations/deployment_oracle_vm.md`](docs/modules/operations/deployment_oracle_vm.md) | Oracle VM 完整部署手冊                                                                                                               |
+| 文件                                                                                                           | 說明                                                                                                                                 |
+| -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| [`docs/modules/_index.md`](docs/modules/_index.md)                                                             | 系統總覽、Mermaid 架構圖、目錄責任對照                                                                                               |
+| [`docs/modules/operations/env_vars.md`](docs/modules/operations/env_vars.md)                                   | 完整環境變數清單與 SOP                                                                                                               |
+| [`docs/modules/strategy/providers.md`](docs/modules/strategy/providers.md)                                     | 市場資料 Provider 層：各 provider 欄位、快取策略、Slot-based 架構說明（`dataSourceConfig` / `providerRegistry`）、8 個資料 Slot 詳解 |
+| [`docs/modules/ai_news/ai_pipeline.md`](docs/modules/ai_news/ai_pipeline.md)                                   | AI 決策管線詳細設計                                                                                                                  |
+| [`docs/modules/strategy/_index.md`](docs/modules/strategy/_index.md)                                           | 策略引擎 / 技術指標 / 新聞治理                                                                                                       |
+| [`docs/modules/infrastructure/_index.md`](docs/modules/infrastructure/_index.md)                               | storage / archiveManager / snapshotCrypto                                                                                            |
+| [`docs/modules/presentation/_index.md`](docs/modules/presentation/_index.md)                                   | Runner / Bot / 通知層設計                                                                                                            |
+| [`docs/modules/operations/deployment_oracle_vm.md`](docs/modules/operations/deployment_oracle_vm.md)           | Oracle VM 完整部署手冊                                                                                                               |
+| [`docs/plans/active/0050-simulator-development-plan.md`](docs/plans/active/0050-simulator-development-plan.md) | 0050 模擬器開發規劃 v1.3（含 34 個決策、TD D 流程、API 規格、UX 規格）                                                               |
 
 ---
 

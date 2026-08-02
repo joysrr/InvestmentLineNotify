@@ -2,7 +2,10 @@ import crypto from "crypto";
 import logger from "../../utils/logger.mjs";
 
 // 生產環境 initData 最大有效時間（5 分鐘，原 24 小時）
-const MAX_AGE_SECONDS = process.env.NODE_ENV === "dev" ? 86400 : 300;
+const MAX_AGE_SECONDS =
+  process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "development"
+    ? 86400
+    : 300;
 
 /**
  * Fastify onRequest hook — Telegram initData HMAC-SHA256 validation.
@@ -26,6 +29,7 @@ export async function initDataGuard(request, reply) {
   // Bypass in development mode
   if (
     process.env.NODE_ENV === "dev" ||
+    process.env.NODE_ENV === "development" ||
     process.env.BYPASS_INIT_DATA === "true"
   ) {
     return;

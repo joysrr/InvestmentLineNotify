@@ -31,6 +31,13 @@
         >
           分析
         </button>
+        <button
+          class="tab-item"
+          :class="{ active: currentTab === 'simulator' }"
+          @click="currentTab = 'simulator'"
+        >
+          模擬器
+        </button>
       </div>
     </div>
 
@@ -113,6 +120,11 @@
           </template>
         </AnalysisPanel>
       </div>
+
+      <!-- Tab 4: Simulator (模擬器) -->
+      <div v-else-if="currentTab === 'simulator'">
+        <SimulatorView />
+      </div>
     </div>
 
     <!-- Footer meta -->
@@ -139,6 +151,7 @@ import DecisionHero from "../components/dashboard/DecisionHero.vue";
 import HealthPanel from "../components/dashboard/HealthPanel.vue";
 import CoachingAdvice from "../components/dashboard/CoachingAdvice.vue";
 import AnalysisPanel from "../components/dashboard/AnalysisPanel.vue";
+import SimulatorView from "../views/SimulatorView.vue";
 
 // ECharts (Only needed here for the radar template slot)
 import VChart from "vue-echarts";

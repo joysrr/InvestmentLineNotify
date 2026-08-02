@@ -9,6 +9,7 @@ import MacroBattleView from "../views/MacroBattleView.vue";
 
 import TechnicalView from "../views/TechnicalView.vue";
 import StrategyView from "../views/StrategyView.vue";
+import SimulatorView from "../views/SimulatorView.vue";
 
 export default createRouter({
   history: createWebHashHistory(),
@@ -23,6 +24,7 @@ export default createRouter({
     { path: "/news", component: NewsView },
     { path: "/strategy", component: StrategyView },
     { path: "/account", component: AccountView },
+    { path: "/simulator", component: SimulatorView },
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
   ],
 });
