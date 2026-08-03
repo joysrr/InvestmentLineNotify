@@ -15,7 +15,7 @@
         min="50"
         max="500"
         step="0.01"
-        @input="emit('update:price0050', $event.target.value ? Number($event.target.value) : null)"
+        @input="$emit('update:price0050', $event.target.value ? Number($event.target.value) : null)"
         @blur="validatePrice0050"
       />
       <div v-if="price0050Warning" class="input-warning">{{ price0050Warning }}</div>
@@ -37,7 +37,7 @@
         min="50"
         max="500"
         step="0.01"
-        @input="emit('update:priceZ2', $event.target.value ? Number($event.target.value) : null)"
+        @input="$emit('update:priceZ2', $event.target.value ? Number($event.target.value) : null)"
         @blur="validatePriceZ2"
       />
       <div v-if="priceZ2Warning" class="input-warning">{{ priceZ2Warning }}</div>
