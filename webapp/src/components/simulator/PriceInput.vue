@@ -16,7 +16,7 @@
         max="500"
         step="0.01"
         @input="$emit('update:price0050', $event.target.value ? Number($event.target.value) : null)"
-        @blur="validatePrice0050"
+        @blur="validatePrice0050; recalculateZ2()"
       />
       <div v-if="price0050Warning" class="input-warning">{{ price0050Warning }}</div>
       <div v-if="price0050Error" class="input-error">{{ price0050Error }}</div>
@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, nextTick } from "vue";
 
 const props = defineProps({
   price0050: { type: [Number, String, null], default: null },
@@ -73,38 +73,9 @@ const props = defineProps({
   currentPriceZ2: Number,
 });
 
-const emit = defineEmits(["update:price0050", "update:priceZ2"]);
+const emit = defineEmits(["update:price0050", "update:priceZ2", "recalculate-z2"]);
 
-// 追蹤使用者是否手動編輯過 Z2
-const userEditedZ2 = ref(false);
-
-// 當 price0050 變更時，自動更新 Z2 (除非使用者手動編輯過)
-watch(() => props.price0050, (newVal, oldVal) => {
-  // 0050 有實際變更且使用者未手動編輯 Z2 時，重置 flag 並自動聯動
-  if (newVal !== oldVal && newVal && !userEditedZ2.value && props.currentPrice0050 && props.currentPriceZ2) {
-    const ratio = props.currentPriceZ2 / props.currentPrice0050;
-    const autoZ2 = Math.round(newVal * ratio * 100) / 100;
-    emit("update:priceZ2", autoZ2);
-  }
-  // 0050 變更時，重置 userEditedZ2 以便下次聯動
-  if (newVal !== oldVal) {
-    userEditedZ2.value = false;
-  }
-  validatePrice0050();
-});
-
-// 監聽 Z2 手動輸入：設定 flag 表示使用者已接管
-watch(() => props.priceZ2, (newVal, oldVal) => {
-  // 如果是 emit 觸發的自動更新 (newVal === 我們剛計算的值)，不設定 flag
-  // 這裡用簡單判斷：如果值真的改變且不是 null，假設是手動
-  if (newVal !== oldVal && newVal !== null) {
-    // 可以更精確：比對是否等於自動計算值，但這裡先用簡單版
-    userEditedZ2.value = true;
-  }
-  validatePriceZ2();
-});
 const price0050Deviation = computed(() => {
-  if (!props.currentPrice0050 || !props.price0050) return 0;
   return Math.abs((props.price0050 - props.currentPrice0050) / props.currentPrice0050);
 });
 
@@ -173,6 +144,17 @@ function applyPreset(pct) {
   if (!props.currentPrice0050) return;
   const newPrice = Math.round(props.currentPrice0050 * (1 + pct / 100) * 100) / 100;
   emit("update:price0050", newPrice);
+  // 快速選擇後觸發重新計算 Z2
+  nextTick(() => emit("recalculate-z2"));
+}
+
+// 重新計算 Z2 (聯動) - 在 blur 或快速選擇後呼叫
+function recalculateZ2() {
+  if (props.price0050 && props.currentPrice0050 && props.currentPriceZ2) {
+    const ratio = props.currentPriceZ2 / props.currentPrice0050;
+    const autoZ2 = Math.round(props.price0050 * ratio * 100) / 100;
+    emit("update:priceZ2", autoZ2);
+  }
 }
 </script>
 
