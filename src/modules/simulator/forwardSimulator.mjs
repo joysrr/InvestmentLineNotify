@@ -146,6 +146,13 @@ export async function runForwardSimulation(
             100
           ).toFixed(2)
         : 0,
+    priceDiffPctZ2:
+      currentPriceZ2 > 0
+        ? (
+            ((simulationInput.currentPrice - currentPriceZ2) / currentPriceZ2) *
+            100
+          ).toFixed(2)
+        : 0,
 
     // 指標
     indicators: formatIndicators(simulationInput, signals),
