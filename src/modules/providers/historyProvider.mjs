@@ -36,9 +36,9 @@ export async function fetchStockHistoryWithAutoFill(
 
   logger.info({ symbol, minCount }, "開始抓取歷史資料並自動回補");
 
-  // 最多往回找 12 個月，避免無限迴圈
+  // 最多往回找 13 個月，避免無限迴圈 (Simulator 需要 13 個月)
   let safetyCounter = 0;
-  const MAX_MONTHS = 12;
+  const MAX_MONTHS = 13;
 
   while (allData.length < minCount && safetyCounter < MAX_MONTHS) {
     const yyyy = currentPtr.getFullYear();

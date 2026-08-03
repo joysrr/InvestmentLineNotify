@@ -221,6 +221,11 @@ export async function dailyCheck({
 
     await archiveManager.saveReport({
       ...baseReport,
+      // Simulator 所需扁平化欄位 (直接在報告層級儲存，避免每次查詢重組)
+      price0050,
+      currentPrice: currentPriceZ2,
+      portfolio: lastState,
+      VIX: vixData?.value ?? null,
       quote,
       vixData,
       usRisk,

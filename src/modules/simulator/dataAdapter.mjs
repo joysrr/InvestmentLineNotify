@@ -334,7 +334,7 @@ export async function buildSimulationInput(
 
 /**
  * 取得最新戰報並驗證可用性
- * @returns {Promise<Object>} latestReport
+ * @returns {Promise<Object>} latestReport (含扁平化必要欄位供 simulator 使用)
  */
 export async function getValidatedLatestReport() {
   const report = await archiveManager.getLatestReport();
@@ -347,10 +347,15 @@ export async function getValidatedLatestReport() {
   if (now - reportDate > 24 * 60 * 60 * 1000) {
     throw new Error("REPORT_EXPIRED: 最新戰報超過 24 小時");
   }
-  // 檢查必要欄位
-  const required = ["price0050", "currentPrice", "portfolio", "VIX"];
-  for (const field of required) {
-    if (report[field] === undefined || report[field] === null) {
+  // 檢查必要欄位 (報告現在直接包含扁平化欄位)
+  const required = {
+    price0050: report.price0050,
+    currentPrice: report.currentPrice,
+    portfolio: report.portfolio,
+    VIX: report.VIX,
+  };
+  for (const [field, value] of Object.entries(required)) {
+    if (value === undefined || value === null) {
       throw new Error(`DATA_NOT_READY: 戰報缺少必要欄位 ${field}`);
     }
   }
