@@ -131,6 +131,11 @@ export async function runForwardSimulation(
   ];
 
   // 5. 組裝完整回應
+  // 指標必須為 plain object，避免前端 Vue Proxy 傳遞問題
+  const plainIndicators = JSON.parse(
+    JSON.stringify(formatIndicators(simulationInput, signals)),
+  );
+
   const response = {
     // 價格資訊
     simulatedPrice0050: simulationInput.price0050,
@@ -154,8 +159,8 @@ export async function runForwardSimulation(
           ).toFixed(2)
         : 0,
 
-    // 指標
-    indicators: formatIndicators(simulationInput, signals),
+    // 指標 - 確保為 plain object
+    indicators: plainIndicators,
 
     // 維持率與槓桿
     maintenanceMargin: Number(maintenanceMargin.toFixed(2)),

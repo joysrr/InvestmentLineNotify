@@ -123,67 +123,54 @@ const indicatorRows = computed(() => {
 });
 
 function formatValue(val, format) {
-  // 解開 Vue Proxy/Ref
-  const unwrap = (v) => {
-    if (v === null || v === undefined) return v;
-    // 如果是 Proxy 物件，嘗試取得原始值
-    if (typeof v === "object" && v !== null) {
-      // 檢查是否為 Ref (有 .value)
-      if ("value" in v) return unwrap(v.value);
-      // 檢查是否為 Reactive Proxy，直接返回原值
-      return v;
+  if (val === null || val === undefined) return "—";
+
+  // 處理基本類型
+  if (typeof val !== "object" || val === null) {
+    switch (format) {
+      case "number": return Number(val).toFixed(2);
+      case "integer": return Math.round(Number(val));
+      case "price": return Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      case "pct": return `${Number(val).toFixed(2)}%`;
+      case "text": return String(val);
+      default: return String(val);
     }
-    return v;
-  };
-  
-  const rawVal = unwrap(val);
-  if (rawVal === null || rawVal === undefined) return "—";
-  
+  }
+
+  // 處理物件類型 (kd, macd)
   switch (format) {
-    case "number":
-      return typeof rawVal === "object" ? "—" : Number(rawVal).toFixed(2);
-    case "integer":
-      return typeof rawVal === "object" ? "—" : Math.round(Number(rawVal));
-    case "price":
-      return typeof rawVal === "object" ? "—" : Number(rawVal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    case "pct":
-      return typeof rawVal === "object" ? "—" : `${Number(rawVal).toFixed(2)}%`;
     case "kd":
-      if (!rawVal || typeof rawVal !== "object") return "—";
-      return `K:${Number(rawVal.k).toFixed(1)} D:${Number(rawVal.d).toFixed(1)}`;
+      if (!val) return "—";
+      return `K:${Number(val.k).toFixed(1)} D:${Number(val.d).toFixed(1)}`;
     case "macd":
-      if (!rawVal || typeof rawVal !== "object") return "—";
-      return `MACD:${Number(rawVal.MACD).toFixed(3)} Sig:${Number(rawVal.signal).toFixed(3)}`;
-    case "text":
-      return rawVal || "—";
+      if (!val) return "—";
+      return `MACD:${Number(val.MACD).toFixed(3)} Sig:${Number(val.signal).toFixed(3)}`;
     default:
-      return rawVal;
+      return "—";
   }
 }
 
 function getRsiStatus(rsi) {
   if (rsi === null || rsi === undefined) return "";
-  const val = (typeof rsi === "object" && "value" in rsi) ? rsi.value : rsi;
-  if (val >= 80) return "status-warn";
-  if (val >= 70) return "status-warn";
-  if (val <= 30) return "status-buy";
-  if (val <= 40) return "status-buy";
+  if (rsi >= 80) return "status-warn";
+  if (rsi >= 70) return "status-warn";
+  if (rsi <= 30) return "status-buy";
+  if (rsi <= 40) return "status-buy";
   return "status-normal";
 }
 
 function getRsiStatusText(rsi) {
   if (rsi === null || rsi === undefined) return "—";
-  const val = (typeof rsi === "object" && "value" in rsi) ? rsi.value : rsi;
-  if (val >= 80) return "極度超買";
-  if (val >= 70) return "超買";
-  if (val <= 30) return "極度超賣";
-  if (val <= 40) return "超賣";
+  if (rsi >= 80) return "極度超買";
+  if (rsi >= 70) return "超買";
+  if (rsi <= 30) return "極度超賣";
+  if (rsi <= 40) return "超賣";
   return "正常";
 }
 
 function getKdStatus(kd) {
   if (!kd || typeof kd !== "object") return "";
-  const k = (typeof kd.k === "object" && "value" in kd.k) ? kd.k.value : kd.k;
+  const k = kd.k;
   if (k >= 85) return "status-warn";
   if (k >= 70) return "status-warn";
   if (k <= 20) return "status-buy";
@@ -193,7 +180,7 @@ function getKdStatus(kd) {
 
 function getKdStatusText(kd) {
   if (!kd || typeof kd !== "object") return "—";
-  const k = (typeof kd.k === "object" && "value" in kd.k) ? kd.k.value : kd.k;
+  const k = kd.k;
   if (k >= 85) return "極度過熱";
   if (k >= 70) return "過熱";
   if (k <= 20) return "極度超賣";
@@ -203,8 +190,8 @@ function getKdStatusText(kd) {
 
 function getMacdStatus(macd) {
   if (!macd || typeof macd !== "object") return "";
-  const MACD = (typeof macd.MACD === "object" && "value" in macd.MACD) ? macd.MACD.value : macd.MACD;
-  const signal = (typeof macd.signal === "object" && "value" in macd.signal) ? macd.signal.value : macd.signal;
+  const MACD = macd.MACD;
+  const signal = macd.signal;
   if (typeof MACD === "number" && typeof signal === "number") {
     if (MACD > signal) return "status-buy";
     if (MACD < signal) return "status-sell";
@@ -214,8 +201,8 @@ function getMacdStatus(macd) {
 
 function getMacdStatusText(macd) {
   if (!macd || typeof macd !== "object") return "—";
-  const MACD = (typeof macd.MACD === "object" && "value" in macd.MACD) ? macd.MACD.value : macd.MACD;
-  const signal = (typeof macd.signal === "object" && "value" in macd.signal) ? macd.signal.value : macd.signal;
+  const MACD = macd.MACD;
+  const signal = macd.signal;
   if (typeof MACD === "number" && typeof signal === "number") {
     if (MACD > signal) return "多頭";
     if (MACD < signal) return "空頭";
@@ -225,35 +212,31 @@ function getMacdStatusText(macd) {
 
 function getBiasStatus(bias) {
   if (bias === null || bias === undefined) return "";
-  const val = (typeof bias === "object" && "value" in bias) ? bias.value : bias;
-  if (val >= 25) return "status-warn";
-  if (val >= 15) return "status-warn";
-  if (val < 0) return "status-buy";
+  if (bias >= 25) return "status-warn";
+  if (bias >= 15) return "status-warn";
+  if (bias < 0) return "status-buy";
   return "status-normal";
 }
 
 function getBiasStatusText(bias) {
   if (bias === null || bias === undefined) return "—";
-  const val = (typeof bias === "object" && "value" in bias) ? bias.value : bias;
-  if (val >= 25) return "極高位";
-  if (val >= 15) return "高位偏貴";
-  if (val < 0) return "低位便宜";
+  if (bias >= 25) return "極高位";
+  if (bias >= 15) return "高位偏貴";
+  if (bias < 0) return "低位便宜";
   return "中位正常";
 }
 
 function getMarginStatus(margin) {
   if (margin === null || margin === undefined) return "";
-  const val = (typeof margin === "object" && "value" in margin) ? margin.value : margin;
-  if (val >= 150) return "status-ok";
-  if (val >= 130) return "status-warn";
+  if (margin >= 150) return "status-ok";
+  if (margin >= 130) return "status-warn";
   return "status-danger";
 }
 
 function getMarginStatusText(margin) {
   if (margin === null || margin === undefined) return "—";
-  const val = (typeof margin === "object" && "value" in margin) ? margin.value : margin;
-  if (val >= 150) return "健康 ✅";
-  if (val >= 130) return "警戒 ⚠️";
+  if (margin >= 150) return "健康 ✅";
+  if (margin >= 130) return "警戒 ⚠️";
   return "危險 🔴";
 }
 </script>

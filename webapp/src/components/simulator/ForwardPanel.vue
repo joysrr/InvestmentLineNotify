@@ -78,6 +78,13 @@ watch(() => props.price0050, (newVal) => {
 watch(() => props.priceZ2, (newVal) => {
   console.log('[ForwardPanel] priceZ2 prop changed:', newVal);
 });
+watch(() => props.result, (newVal) => {
+  console.log('[ForwardPanel] result prop changed:', newVal);
+  if (newVal) {
+    console.log('[ForwardPanel] result.indicators:', newVal.indicators);
+    console.log('[ForwardPanel] result.indicators type:', typeof newVal.indicators);
+  }
+});
 </script>
 
 <style scoped>

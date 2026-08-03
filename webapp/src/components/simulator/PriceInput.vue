@@ -75,6 +75,12 @@ const props = defineProps({
 
 const emit = defineEmits(["update:price0050", "update:priceZ2", "recalculate-z2"]);
 
+// Validation refs
+const price0050Warning = ref("");
+const price0050Error = ref("");
+const priceZ2Warning = ref("");
+const priceZ2Error = ref("");
+
 const price0050Deviation = computed(() => {
   return Math.abs((props.price0050 - props.currentPrice0050) / props.currentPrice0050);
 });
