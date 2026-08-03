@@ -265,10 +265,23 @@ export function calcSMA(prices, period) {
   }
   const result = new Array(prices.length).fill(NaN);
   let sum = 0;
+  let count = 0;
   for (let i = 0; i < prices.length; i++) {
-    sum += prices[i];
-    if (i >= period) sum -= prices[i - period];
-    if (i >= period - 1) result[i] = sum / period;
+    const val = prices[i];
+    if (Number.isFinite(val)) {
+      sum += val;
+      count++;
+    }
+    if (i >= period) {
+      const oldVal = prices[i - period];
+      if (Number.isFinite(oldVal)) {
+        sum -= oldVal;
+        count--;
+      }
+    }
+    if (i >= period - 1 && count === period) {
+      result[i] = sum / period;
+    }
   }
   return result;
 }

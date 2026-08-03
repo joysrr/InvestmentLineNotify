@@ -30,6 +30,9 @@ function calculateMaintenanceMargin(portfolio, price0050, priceZ2) {
  * @returns {Object} 格式化後的指標物件
  */
 function formatIndicators(data, signals) {
+  // 從 SimulationInput 直接取得計算好的指標值 (而非從 signals)
+  const lastMACD =
+    data.macdArr?.filter((m) => m && Number.isFinite(m.MACD)).at(-1) || null;
   return {
     rsi: signals.RSI,
     kd: {
@@ -37,17 +40,14 @@ function formatIndicators(data, signals) {
       d: signals.KD_D,
     },
     macd: {
-      MACD:
-        signals.macdSignal === "bull"
-          ? Math.abs(signals.bias240 || 0)
-          : -Math.abs(signals.bias240 || 0),
-      signal: 0, // 策略引擎不直接回傳 MACD 細項，這裡用簡化值
-      histogram: 0,
+      MACD: lastMACD?.MACD ?? 0,
+      signal: lastMACD?.signal ?? 0,
+      histogram: lastMACD?.histogram ?? 0,
     },
     ma20: data.ma20Arr?.filter(Number.isFinite).at(-1) || null,
     ma60: data.ma60Arr?.filter(Number.isFinite).at(-1) || null,
     ma240: data.ma240Arr?.filter(Number.isFinite).at(-1) || null,
-    bias240: signals.bias240,
+    bias240: data.bias240, // 直接使用 SimulationInput 計算好的 bias240
     atr: data.atrArr?.filter(Number.isFinite).at(-1) || null,
   };
 }

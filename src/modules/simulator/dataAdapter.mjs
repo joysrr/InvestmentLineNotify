@@ -266,6 +266,13 @@ export async function buildSimulationInput(
     atrArr: indicatorsZ2.atrArr,
     vixArr: latestReport.vixArr || [],
 
+    // 最新指標單值 (供策略引擎直接使用，避免其自行計算)
+    RSI: indicatorsZ2.rsiArr.at(-1) ?? null,
+    KD_K: indicatorsZ2.kdArr.length > 0 ? indicatorsZ2.kdArr.at(-1).k : null,
+    KD_D: indicatorsZ2.kdArr.length > 0 ? indicatorsZ2.kdArr.at(-1).d : null,
+    MACD: indicatorsZ2.macdArr.length > 0 ? indicatorsZ2.macdArr.at(-1) : null,
+    bias240: ma240,
+
     // 投資組合 (不變)
     portfolio: { ...latestReport.portfolio },
 
