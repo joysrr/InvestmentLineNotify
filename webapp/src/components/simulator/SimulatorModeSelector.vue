@@ -3,8 +3,8 @@
     <div class="mode-tabs">
       <button
         class="mode-tab"
-        :class="{ active: mode === 'forward' }"
-        @click="$emit('update:mode', 'forward')"
+        :class="{ active: modelValue === 'forward' }"
+        @click="$emit('update:modelValue', 'forward')"
       >
         <span class="mode-icon">📈</span>
         <span class="mode-label">股價 → 分數</span>
@@ -12,8 +12,8 @@
       </button>
       <button
         class="mode-tab"
-        :class="{ active: mode === 'reverse' }"
-        @click="$emit('update:mode', 'reverse')"
+        :class="{ active: modelValue === 'reverse' }"
+        @click="$emit('update:modelValue', 'reverse')"
       >
         <span class="mode-icon">🎯</span>
         <span class="mode-label">目標 → 價格</span>
@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({
   modelValue: {
     type: String,
     required: true,

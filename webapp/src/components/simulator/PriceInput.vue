@@ -65,7 +65,7 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 
-defineProps({
+const props = defineProps({
   price0050: { type: [Number, String, null], default: null },
   priceZ2: { type: [Number, String, null], default: null },
   disabled: Boolean,

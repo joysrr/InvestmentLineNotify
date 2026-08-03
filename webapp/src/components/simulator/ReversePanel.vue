@@ -53,13 +53,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import TargetSelector from "./TargetSelector.vue";
 import TargetInput from "./TargetInput.vue";
 import ReverseResultCard from "./ReverseResultCard.vue";
 import LoadingSkeleton from "./Common/LoadingSkeleton.vue";
 
-defineProps({
+const props = defineProps({
   targetType: { type: String, default: "maintenanceRatio" },
   targetValue: { type: [Number, String, null], default: null },
   targetDirection: { type: String, default: "golden" },

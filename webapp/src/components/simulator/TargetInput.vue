@@ -48,7 +48,7 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 
-defineProps({
+const props = defineProps({
   targetType: {
     type: String,
     required: true,
