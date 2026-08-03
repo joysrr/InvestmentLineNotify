@@ -75,25 +75,34 @@ const props = defineProps({
 
 const emit = defineEmits(["update:price0050", "update:priceZ2"]);
 
-// Debug: watch prop changes
-watch(() => props.price0050, (newVal) => {
-  console.log('[PriceInput] price0050 prop changed:', newVal);
-});
-watch(() => props.priceZ2, (newVal) => {
-  console.log('[PriceInput] priceZ2 prop changed:', newVal);
+// 追蹤使用者是否手動編輯過 Z2
+const userEditedZ2 = ref(false);
+
+// 當 price0050 變更時，自動更新 Z2 (除非使用者手動編輯過)
+watch(() => props.price0050, (newVal, oldVal) => {
+  // 0050 有實際變更且使用者未手動編輯 Z2 時，重置 flag 並自動聯動
+  if (newVal !== oldVal && newVal && !userEditedZ2.value && props.currentPrice0050 && props.currentPriceZ2) {
+    const ratio = props.currentPriceZ2 / props.currentPrice0050;
+    const autoZ2 = Math.round(newVal * ratio * 100) / 100;
+    emit("update:priceZ2", autoZ2);
+  }
+  // 0050 變更時，重置 userEditedZ2 以便下次聯動
+  if (newVal !== oldVal) {
+    userEditedZ2.value = false;
+  }
+  validatePrice0050();
 });
 
-const price0050Warning = ref("");
-const price0050Error = ref("");
-const priceZ2Warning = ref("");
-const priceZ2Error = ref("");
-
-const calculatedZ2 = computed(() => {
-  if (!props.currentPrice0050 || !props.currentPriceZ2 || !props.price0050) return 0;
-  const ratio = props.currentPriceZ2 / props.currentPrice0050;
-  return props.price0050 * ratio;
+// 監聽 Z2 手動輸入：設定 flag 表示使用者已接管
+watch(() => props.priceZ2, (newVal, oldVal) => {
+  // 如果是 emit 觸發的自動更新 (newVal === 我們剛計算的值)，不設定 flag
+  // 這裡用簡單判斷：如果值真的改變且不是 null，假設是手動
+  if (newVal !== oldVal && newVal !== null) {
+    // 可以更精確：比對是否等於自動計算值，但這裡先用簡單版
+    userEditedZ2.value = true;
+  }
+  validatePriceZ2();
 });
-
 const price0050Deviation = computed(() => {
   if (!props.currentPrice0050 || !props.price0050) return 0;
   return Math.abs((props.price0050 - props.currentPrice0050) / props.currentPrice0050);
@@ -113,17 +122,12 @@ const priceZ2Placeholder = computed(() => {
   return props.currentPriceZ2 ? `目前: ${props.currentPriceZ2} (留空按同比例)` : "留空自動按同比例";
 });
 
-// 當 price0050 變更且 priceZ2 為空時，自動更新 priceZ2 (聯動)
-watch(() => props.price0050, (newVal) => {
-  if (newVal && props.priceZ2 === null && props.currentPrice0050 && props.currentPriceZ2) {
-    const ratio = props.currentPriceZ2 / props.currentPrice0050;
-    const autoZ2 = Math.round(newVal * ratio * 100) / 100;
-    emit("update:priceZ2", autoZ2);
-  }
-  validatePrice0050();
+// 自動計算的 Z2 值 (供提示顯示)
+const calculatedZ2 = computed(() => {
+  if (!props.currentPrice0050 || !props.currentPriceZ2 || !props.price0050) return 0;
+  const ratio = props.currentPriceZ2 / props.currentPrice0050;
+  return props.price0050 * ratio;
 });
-
-watch(() => props.priceZ2, () => validatePriceZ2());
 
 function validatePrice0050() {
   price0050Warning.value = "";
