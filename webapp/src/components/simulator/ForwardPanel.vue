@@ -84,7 +84,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import PriceInput from "./PriceInput.vue";
 import ForwardResultCard from "./ForwardResultCard.vue";
 import IndicatorComparisonTable from "./Common/IndicatorComparisonTable.vue";
