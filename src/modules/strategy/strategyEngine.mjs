@@ -116,7 +116,14 @@ export async function evaluateInvestmentSignal(data, arg2, arg3) {
     data.price0050,
     strategy,
   );
-  const maintenanceMargin = marginAnalysis.currentMargin;
+
+  // Handle case where marginAnalysis returns null (e.g., invalid price)
+  const maintenanceMargin =
+    marginAnalysis?.currentMargin ??
+    (data.portfolio?.totalLoan > 0 && data.price0050 > 0
+      ? ((data.portfolio.qty0050 * data.price0050) / data.portfolio.totalLoan) *
+        100
+      : 999);
 
   // ── 資金解耦分析 ──────────────────────────────────────────────
   const decouplingAnalysis = analyzeCapitalDecoupling(data.portfolio, {
