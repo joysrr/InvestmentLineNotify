@@ -65,24 +65,24 @@ main() {
   log_info "分支: $BRANCH"
 
   # 1. 本地確認狀態
-  log_info "步驟 1/8: 檢查本地 Git 狀態..."
+  log_info "步驟 1/9: 檢查本地 Git 狀態..."
   run_local "git status --short"
   run_local "git log -1 --oneline"
 
   # 2. 推送最新代碼 (確保 VM 能 pull 到最新)
-  log_info "步驟 2/8: 推送本地變更至 GitHub..."
+  log_info "步驟 2/9: 推送本地變更至 GitHub..."
   run_local "git push origin $BRANCH"
 
   # 3. VM: 進入專案目錄並拉取最新代碼
-  log_info "步驟 3/8: VM 拉取最新代碼..."
+  log_info "步驟 3/9: VM 拉取最新代碼..."
   run_ssh "cd $PROJECT_DIR && git fetch origin && git reset --hard origin/$BRANCH"
 
   # 4. VM: 安裝根目錄依賴
-  log_info "步驟 4/8: VM 安裝根目錄依賴 (npm install)..."
+  log_info "步驟 4/9: VM 安裝根目錄依賴 (npm install)..."
   run_ssh "cd $PROJECT_DIR && npm install"
 
   # 5. VM: 安裝 webapp 依賴
-  log_info "步驟 5/8: VM 安裝 webapp 依賴..."
+  log_info "步驟 5/9: VM 安裝 webapp 依賴..."
   run_ssh "cd $PROJECT_DIR/webapp && npm install"
 
   # 6. VM: 建構前端

@@ -34,42 +34,9 @@
     <!-- Result -->
     <div v-if="result" class="result-section">
       <ForwardResultCard :result="result" />
-      <IndicatorComparisonTable
+      <SimulatedIndicatorsTable
         v-if="result.indicators"
-        :current="{
-          rsi: result.indicators.rsi,
-          kd: result.indicators.kd,
-          macd: result.indicators.macd,
-          ma20: result.indicators.ma20,
-          ma60: result.indicators.ma60,
-          ma240: result.indicators.ma240,
-          bias240: result.indicators.bias240,
-          atr: result.indicators.atr,
-          maintenanceMargin: result.maintenanceMargin,
-          portfolioHealth: result.portfolioHealth,
-          lifecycleStage: result.lifecycleStage,
-          strategyScore: result.strategyScore,
-          strategyStatus: result.strategyStatus,
-          strategyTarget: result.strategyTarget,
-          strategySuggestion: result.strategySuggestion,
-        }"
-        :simulated="{
-          rsi: result.indicators.rsi,
-          kd: result.indicators.kd,
-          macd: result.indicators.macd,
-          ma20: result.indicators.ma20,
-          ma60: result.indicators.ma60,
-          ma240: result.indicators.ma240,
-          bias240: result.indicators.bias240,
-          atr: result.indicators.atr,
-          maintenanceMargin: result.maintenanceMargin,
-          portfolioHealth: result.portfolioHealth,
-          lifecycleStage: result.lifecycleStage,
-          strategyScore: result.strategyScore,
-          strategyStatus: result.strategyStatus,
-          strategyTarget: result.strategyTarget,
-          strategySuggestion: result.strategySuggestion,
-        }"
+        :indicators="result.indicators"
       />
     </div>
 
@@ -87,7 +54,7 @@
 import { ref, computed, watch } from "vue";
 import PriceInput from "./PriceInput.vue";
 import ForwardResultCard from "./ForwardResultCard.vue";
-import IndicatorComparisonTable from "./Common/IndicatorComparisonTable.vue";
+import SimulatedIndicatorsTable from "./SimulatedIndicatorsTable.vue";
 import LoadingSkeleton from "./Common/LoadingSkeleton.vue";
 import DataQualityBadges from "./Common/DataQualityBadges.vue";
 import DisclaimerBanner from "./Common/DisclaimerBanner.vue";
