@@ -57,12 +57,10 @@ export default defineConfig(({ mode }) => ({
       </script>
     `;
 
-        const debugScript = !isProd
-          ? `
+        const debugScript = `
       <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
       <script>eruda.init();</script>
-    `
-          : "";
+    `;
 
         return html
           .replace("<!-- TELEGRAM_SDK_PLACEHOLDER -->", telegramScript)
