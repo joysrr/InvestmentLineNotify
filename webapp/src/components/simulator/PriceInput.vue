@@ -73,7 +73,7 @@ const props = defineProps({
   currentPriceZ2: Number,
 });
 
-defineEmits(["update:price0050", "update:priceZ2"]);
+const emit = defineEmits(["update:price0050", "update:priceZ2"]);
 
 // Debug: watch prop changes
 watch(() => props.price0050, (newVal) => {
@@ -113,7 +113,16 @@ const priceZ2Placeholder = computed(() => {
   return props.currentPriceZ2 ? `目前: ${props.currentPriceZ2} (留空按同比例)` : "留空自動按同比例";
 });
 
-watch(() => props.price0050, () => validatePrice0050());
+// 當 price0050 變更且 priceZ2 為空時，自動更新 priceZ2 (聯動)
+watch(() => props.price0050, (newVal) => {
+  if (newVal && props.priceZ2 === null && props.currentPrice0050 && props.currentPriceZ2) {
+    const ratio = props.currentPriceZ2 / props.currentPrice0050;
+    const autoZ2 = Math.round(newVal * ratio * 100) / 100;
+    emit("update:priceZ2", autoZ2);
+  }
+  validatePrice0050();
+});
+
 watch(() => props.priceZ2, () => validatePriceZ2());
 
 function validatePrice0050() {

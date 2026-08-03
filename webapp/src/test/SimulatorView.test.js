@@ -108,14 +108,12 @@ describe("SimulatorView - Phase E 實機驗收", () => {
     disclaimer: "此為條件分析，非價格預測亦非投資建議。",
   };
 
-  const mockStatusResponse = {
-    data: {
-      marketState: {
-        price0050: 175,
-        currentPrice: 116.5,
-      },
+  const mockReportResponse = [
+    {
+      price0050: 175,
+      currentPrice: 116.5,
     },
-  };
+  ];
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -123,7 +121,8 @@ describe("SimulatorView - Phase E 實機驗收", () => {
 
     // Mock API responses
     apiFetch.mockImplementation((path) => {
-      if (path === "/api/status") return Promise.resolve(mockStatusResponse);
+      if (path === "/api/reports?limit=1")
+        return Promise.resolve(mockReportResponse);
       if (path === "/api/v1/simulate")
         return Promise.resolve(mockForwardResponse);
       if (path === "/api/v1/simulate/reverse")
@@ -154,7 +153,7 @@ describe("SimulatorView - Phase E 實機驗收", () => {
     await flushPromises();
     expect(wrapper.vm.currentPrice0050).toBe(175);
     expect(wrapper.vm.currentPriceZ2).toBe(116.5);
-    expect(apiFetch).toHaveBeenCalledWith("/api/status");
+    expect(apiFetch).toHaveBeenCalledWith("/api/reports?limit=1");
   });
 
   it("Mode A (正向模擬)：輸入價格執行模擬應成功", async () => {

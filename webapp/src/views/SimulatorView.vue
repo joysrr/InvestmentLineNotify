@@ -105,10 +105,11 @@ const targetTypes = [
 // Load current prices on mount
 async function loadCurrentPrices() {
   try {
-    const status = await apiFetch("/api/status");
-    if (status?.data?.marketState) {
-      currentPrice0050.value = status.data.marketState.price0050;
-      currentPriceZ2.value = status.data.marketState.currentPrice;
+    const report = await apiFetch("/api/reports?limit=1");
+    // Get prices from latest report (has price0050 and currentPrice fields)
+    if (report && report.length > 0) {
+      currentPrice0050.value = report[0].price0050;
+      currentPriceZ2.value = report[0].currentPrice;
     }
   } catch (err) {
     console.warn("Failed to load current prices:", err);

@@ -49,9 +49,7 @@ vi.mock("../components/simulator/ReversePanel.vue", () => ({
 describe("SimulatorView - E2E 使用者流程", () => {
   let wrapper;
 
-  const mockStatus = {
-    data: { marketState: { price0050: 175, currentPrice: 116.5 } },
-  };
+  const mockReport = [{ price0050: 175, currentPrice: 116.5 }];
 
   const mockForward = {
     calculationMode: "forward",
@@ -121,7 +119,7 @@ describe("SimulatorView - E2E 使用者流程", () => {
     vi.clearAllMocks();
     apiFetch.mockReset();
     apiFetch.mockImplementation((path) => {
-      if (path === "/api/status") return Promise.resolve(mockStatus);
+      if (path === "/api/reports?limit=1") return Promise.resolve(mockReport);
       if (path === "/api/v1/simulate") return Promise.resolve(mockForward);
       if (path === "/api/v1/simulate/reverse")
         return Promise.resolve(mockReverseRSI);
