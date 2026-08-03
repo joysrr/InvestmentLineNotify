@@ -84,12 +84,15 @@
 </template>
 
 <script setup>
+import { ref, computed } from "vue";
 import PriceInput from "./PriceInput.vue";
 import ForwardResultCard from "./ForwardResultCard.vue";
 import IndicatorComparisonTable from "./Common/IndicatorComparisonTable.vue";
 import LoadingSkeleton from "./Common/LoadingSkeleton.vue";
+import DataQualityBadges from "./Common/DataQualityBadges.vue";
+import DisclaimerBanner from "./Common/DisclaimerBanner.vue";
 
-defineProps({
+const props = defineProps({
   price0050: { type: [Number, String, null], default: null },
   priceZ2: { type: [Number, String, null], default: null },
   loading: Boolean,
@@ -100,6 +103,14 @@ defineProps({
 });
 
 defineEmits(["update:price0050", "update:priceZ2", "run", "clear"]);
+
+// Debug: watch prop changes
+watch(() => props.price0050, (newVal) => {
+  console.log('[ForwardPanel] price0050 prop changed:', newVal);
+});
+watch(() => props.priceZ2, (newVal) => {
+  console.log('[ForwardPanel] priceZ2 prop changed:', newVal);
+});
 </script>
 
 <style scoped>

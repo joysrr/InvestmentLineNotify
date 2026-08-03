@@ -12,10 +12,10 @@
     <!-- Forward Panel (Mode A) -->
     <ForwardPanel
       v-if="mode === 'forward'"
-      :price0050="forwardInput.price0050"
-      :priceZ2="forwardInput.priceZ2"
-      @update:price0050="forwardInput.price0050 = $event"
-      @update:priceZ2="forwardInput.priceZ2 = $event"
+      :price0050="price0050"
+      :priceZ2="priceZ2"
+      @update:price0050="updatePrice0050"
+      @update:priceZ2="updatePriceZ2"
       :loading="loading"
       :result="result"
       :error="error"
@@ -28,14 +28,14 @@
     <!-- Reverse Panel (Mode B) -->
     <ReversePanel
       v-else-if="mode === 'reverse'"
-      :target-type="reverseInput.targetType"
-      :target-value="reverseInput.targetValue"
-      :target-direction="reverseInput.targetDirection"
-      :target-status="reverseInput.targetStatus"
-      @update:target-type="reverseInput.targetType = $event"
-      @update:target-value="reverseInput.targetValue = $event"
-      @update:target-direction="reverseInput.targetDirection = $event"
-      @update:target-status="reverseInput.targetStatus = $event"
+      :target-type="targetType"
+      :target-value="targetValue"
+      :target-direction="targetDirection"
+      :target-status="targetStatus"
+      @update:target-type="updateTargetType"
+      @update:target-value="updateTargetValue"
+      @update:target-direction="updateTargetDirection"
+      @update:target-status="updateTargetStatus"
       :loading="loading"
       :result="result"
       :error="error"
@@ -70,19 +70,15 @@ import LoadingSkeleton from "../components/simulator/Common/LoadingSkeleton.vue"
 // State
 const mode = ref("forward"); // 'forward' | 'reverse'
 
-// Forward Input
-const forwardInput = ref({
-  price0050: null,
-  priceZ2: null,
-});
+// Forward Input - 使用獨立 ref 確保 template 自動解包 (Vue 3 官方建議)
+const price0050 = ref(null);
+const priceZ2 = ref(null);
 
-// Reverse Input
-const reverseInput = ref({
-  targetType: "maintenanceRatio",
-  targetValue: null,
-  targetDirection: "golden",
-  targetStatus: "green",
-});
+// Reverse Input - 使用獨立 ref
+const targetType = ref("maintenanceRatio");
+const targetValue = ref(null);
+const targetDirection = ref("golden");
+const targetStatus = ref("green");
 
 // Result & Status
 const result = ref(null);
@@ -120,7 +116,7 @@ async function loadCurrentPrices() {
 }
 
 async function runForward() {
-  if (!forwardInput.value.price0050) {
+  if (!price0050.value) {
     error.value = "請輸入 0050 價格";
     return;
   }
@@ -130,8 +126,8 @@ async function runForward() {
 
   try {
     const payload = {
-      price0050: Number(forwardInput.value.price0050),
-      priceZ2: forwardInput.value.priceZ2 ? Number(forwardInput.value.priceZ2) : undefined,
+      price0050: Number(price0050.value),
+      priceZ2: priceZ2.value ? Number(priceZ2.value) : undefined,
     };
 
     const response = await apiFetch("/api/v1/simulate", {
@@ -151,9 +147,12 @@ async function runForward() {
 }
 
 async function runReverse() {
-  const { targetType, targetValue, targetDirection, targetStatus } = reverseInput.value;
+  const { value: tType } = targetType;
+  const { value: tValue } = targetValue;
+  const { value: tDirection } = targetDirection;
+  const { value: tStatus } = targetStatus;
 
-  if (!targetValue && targetType !== "kdCross" && targetType !== "macdCross" && targetType !== "portfolioHealth") {
+  if (!tValue && tType !== "kdCross" && tType !== "macdCross" && tType !== "portfolioHealth") {
     error.value = "請輸入目標值";
     return;
   }
@@ -162,14 +161,14 @@ async function runReverse() {
   error.value = null;
 
   try {
-    const target = { type: targetType };
-    
-    if (targetType === "kdCross" || targetType === "macdCross") {
-      target.direction = targetDirection;
-    } else if (targetType === "portfolioHealth") {
-      target.status = targetStatus;
+    const target = { type: tType };
+   
+    if (tType === "kdCross" || tType === "macdCross") {
+      target.direction = tDirection;
+    } else if (tType === "portfolioHealth") {
+      target.status = tStatus;
     } else {
-      target.value = Number(targetValue);
+      target.value = Number(tValue);
     }
 
     const response = await apiFetch("/api/v1/simulate/reverse", {
@@ -190,6 +189,14 @@ function clearResult() {
   result.value = null;
   error.value = null;
 }
+
+// Event handlers for v-model compatibility
+const updatePrice0050 = (val) => { price0050.value = val; };
+const updatePriceZ2 = (val) => { priceZ2.value = val; };
+const updateTargetType = (val) => { targetType.value = val; };
+const updateTargetValue = (val) => { targetValue.value = val; };
+const updateTargetDirection = (val) => { targetDirection.value = val; };
+const updateTargetStatus = (val) => { targetStatus.value = val; };
 
 onMounted(async () => {
   await waitReady();

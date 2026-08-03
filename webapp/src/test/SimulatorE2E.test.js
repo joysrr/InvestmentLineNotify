@@ -146,8 +146,8 @@ describe("SimulatorView - E2E 使用者流程", () => {
     expect(wrapper.vm.currentPriceZ2).toBe(116.5);
 
     // 2. Mode A: 正向模擬
-    wrapper.vm.forwardInput.price0050 = 180;
-    wrapper.vm.forwardInput.priceZ2 = 120;
+    wrapper.vm.price0050 = 180;
+    wrapper.vm.priceZ2 = 120;
     await wrapper.vm.runForward();
     await flushPromises();
 
@@ -160,8 +160,8 @@ describe("SimulatorView - E2E 使用者流程", () => {
     await flushPromises();
 
     // 4. Mode B: 反向推導 RSI 60
-    wrapper.vm.reverseInput.targetType = "rsi";
-    wrapper.vm.reverseInput.targetValue = 60;
+    wrapper.vm.targetType = "rsi";
+    wrapper.vm.targetValue = 60;
     await wrapper.vm.runReverse();
     await flushPromises();
 
@@ -186,8 +186,8 @@ describe("SimulatorView - E2E 使用者流程", () => {
     apiFetch.mockResolvedValueOnce(mockReverseKDCross);
 
     wrapper.vm.mode = "reverse";
-    wrapper.vm.reverseInput.targetType = "kdCross";
-    wrapper.vm.reverseInput.targetDirection = "golden";
+    wrapper.vm.targetType = "kdCross";
+    wrapper.vm.targetDirection = "golden";
 
     await wrapper.vm.runReverse();
     await flushPromises();
@@ -208,7 +208,7 @@ describe("SimulatorView - E2E 使用者流程", () => {
     error.body = { message: "MA240 資料不足 (需 240 個月，僅有 60 個月)" };
     apiFetch.mockRejectedValueOnce(error);
 
-    wrapper.vm.forwardInput.price0050 = 180;
+    wrapper.vm.price0050 = 180;
     await wrapper.vm.runForward();
     await flushPromises();
 
@@ -222,7 +222,7 @@ describe("SimulatorView - E2E 使用者流程", () => {
 
     // 3. 重試成功
     apiFetch.mockResolvedValueOnce(mockForward);
-    wrapper.vm.forwardInput.price0050 = 180;
+    wrapper.vm.price0050 = 180;
     await wrapper.vm.runForward();
     await flushPromises();
 
@@ -234,7 +234,7 @@ describe("SimulatorView - E2E 使用者流程", () => {
     await flushPromises();
 
     // Mode A 執行
-    wrapper.vm.forwardInput.price0050 = 180;
+    wrapper.vm.price0050 = 180;
     await wrapper.vm.runForward();
     await flushPromises();
     expect(wrapper.vm.result).not.toBeNull();
@@ -262,8 +262,8 @@ describe("SimulatorView - E2E 使用者流程", () => {
     });
 
     // 執行 Mode B 後會覆蓋
-    wrapper.vm.reverseInput.targetType = "rsi";
-    wrapper.vm.reverseInput.targetValue = 60;
+    wrapper.vm.targetType = "rsi";
+    wrapper.vm.targetValue = 60;
     await wrapper.vm.runReverse();
     await flushPromises();
     expect(wrapper.vm.result.calculationMode).toBe("reverse_analytical");

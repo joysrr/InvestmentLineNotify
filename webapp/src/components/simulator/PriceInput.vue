@@ -75,6 +75,14 @@ const props = defineProps({
 
 defineEmits(["update:price0050", "update:priceZ2"]);
 
+// Debug: watch prop changes
+watch(() => props.price0050, (newVal) => {
+  console.log('[PriceInput] price0050 prop changed:', newVal);
+});
+watch(() => props.priceZ2, (newVal) => {
+  console.log('[PriceInput] priceZ2 prop changed:', newVal);
+});
+
 const price0050Warning = ref("");
 const price0050Error = ref("");
 const priceZ2Warning = ref("");

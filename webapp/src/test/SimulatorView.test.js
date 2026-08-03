@@ -161,8 +161,8 @@ describe("SimulatorView - Phase E 實機驗收", () => {
     await flushPromises();
 
     // 模擬使用者輸入價格
-    wrapper.vm.forwardInput.price0050 = 180;
-    wrapper.vm.forwardInput.priceZ2 = 120;
+    wrapper.vm.price0050 = 180;
+    wrapper.vm.priceZ2 = 120;
 
     await wrapper.vm.runForward();
     await flushPromises();
@@ -180,7 +180,7 @@ describe("SimulatorView - Phase E 實機驗收", () => {
   it("Mode A：缺少必填價格應顯示錯誤", async () => {
     await flushPromises();
 
-    wrapper.vm.forwardInput.price0050 = null;
+    wrapper.vm.price0050 = null;
 
     await wrapper.vm.runForward();
     await flushPromises();
@@ -198,8 +198,8 @@ describe("SimulatorView - Phase E 實機驗收", () => {
 
     // 切換到 Mode B
     wrapper.vm.mode = "reverse";
-    wrapper.vm.reverseInput.targetType = "maintenanceRatio";
-    wrapper.vm.reverseInput.targetValue = 150;
+    wrapper.vm.targetType = "maintenanceRatio";
+    wrapper.vm.targetValue = 150;
 
     await wrapper.vm.runReverse();
     await flushPromises();
@@ -219,8 +219,8 @@ describe("SimulatorView - Phase E 實機驗收", () => {
     await flushPromises();
 
     wrapper.vm.mode = "reverse";
-    wrapper.vm.reverseInput.targetType = "rsi";
-    wrapper.vm.reverseInput.targetValue = 60;
+    wrapper.vm.targetType = "rsi";
+    wrapper.vm.targetValue = 60;
 
     await wrapper.vm.runReverse();
     await flushPromises();
@@ -235,8 +235,8 @@ describe("SimulatorView - Phase E 實機驗收", () => {
     await flushPromises();
 
     wrapper.vm.mode = "reverse";
-    wrapper.vm.reverseInput.targetType = "kdCross";
-    wrapper.vm.reverseInput.targetDirection = "golden";
+    wrapper.vm.targetType = "kdCross";
+    wrapper.vm.targetDirection = "golden";
 
     await wrapper.vm.runReverse();
     await flushPromises();
@@ -253,8 +253,8 @@ describe("SimulatorView - Phase E 實機驗收", () => {
     await flushPromises();
 
     wrapper.vm.mode = "reverse";
-    wrapper.vm.reverseInput.targetType = "macdCross";
-    wrapper.vm.reverseInput.targetDirection = "dead";
+    wrapper.vm.targetType = "macdCross";
+    wrapper.vm.targetDirection = "dead";
 
     await wrapper.vm.runReverse();
     await flushPromises();
@@ -271,8 +271,8 @@ describe("SimulatorView - Phase E 實機驗收", () => {
     await flushPromises();
 
     wrapper.vm.mode = "reverse";
-    wrapper.vm.reverseInput.targetType = "portfolioHealth";
-    wrapper.vm.reverseInput.targetStatus = "yellow";
+    wrapper.vm.targetType = "portfolioHealth";
+    wrapper.vm.targetStatus = "yellow";
 
     await wrapper.vm.runReverse();
     await flushPromises();
@@ -294,7 +294,7 @@ describe("SimulatorView - Phase E 實機驗收", () => {
     error.body = { message: "MA240 資料不足 (需 240 個月，僅有 60 個月)" };
     apiFetch.mockRejectedValueOnce(error);
 
-    wrapper.vm.forwardInput.price0050 = 180;
+    wrapper.vm.price0050 = 180;
     await wrapper.vm.runForward();
     await flushPromises();
 
@@ -305,7 +305,7 @@ describe("SimulatorView - Phase E 實機驗收", () => {
   it("清除結果應重置狀態", async () => {
     await flushPromises();
 
-    wrapper.vm.forwardInput.price0050 = 180;
+    wrapper.vm.price0050 = 180;
     await wrapper.vm.runForward();
     await flushPromises();
 
@@ -321,7 +321,7 @@ describe("SimulatorView - Phase E 實機驗收", () => {
   it("Mode A 結果應包含完整指標與白話解讀", async () => {
     await flushPromises();
 
-    wrapper.vm.forwardInput.price0050 = 180;
+    wrapper.vm.price0050 = 180;
     await wrapper.vm.runForward();
     await flushPromises();
 
@@ -365,8 +365,8 @@ describe("SimulatorView - Phase E 實機驗收", () => {
     apiFetch.mockResolvedValueOnce(unreachableResponse);
 
     wrapper.vm.mode = "reverse";
-    wrapper.vm.reverseInput.targetType = "maintenanceRatio";
-    wrapper.vm.reverseInput.targetValue = 200;
+    wrapper.vm.targetType = "maintenanceRatio";
+    wrapper.vm.targetValue = 200;
 
     await wrapper.vm.runReverse();
     await flushPromises();
@@ -386,7 +386,7 @@ describe("SimulatorView - Phase E 實機驗收", () => {
       () => new Promise((r) => (resolveForward = r)),
     );
 
-    wrapper.vm.forwardInput.price0050 = 180;
+    wrapper.vm.price0050 = 180;
     const promise = wrapper.vm.runForward();
 
     // 檢查載入中狀態
@@ -405,7 +405,7 @@ describe("SimulatorView - Phase E 實機驗收", () => {
 
     // 模擬價格偏離 > 20%
     wrapper.vm.currentPrice0050 = 175;
-    wrapper.vm.forwardInput.price0050 = 220; // 偏離 ~25.7%
+    wrapper.vm.price0050 = 220; // 偏離 ~25.7%
 
     await wrapper.vm.runForward();
     await flushPromises();
