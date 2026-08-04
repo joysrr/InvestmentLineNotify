@@ -85,5 +85,6 @@ export default defineConfig(({ mode }) => ({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setup.js"],
+    exclude: ["**/node_modules/**", "**/dist/**", "**/src/test/e2e/**"],
   },
 }));
