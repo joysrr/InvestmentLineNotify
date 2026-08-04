@@ -73,6 +73,7 @@ const mockSimulationInput = {
     ma240: "ok",
     atr: "ok",
   },
+  bias240: 16.3,
 };
 
 const mockSignals = {
