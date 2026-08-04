@@ -55,9 +55,6 @@ coverage/
 webapp/playwright-report/
 webapp/test-results/
 
-# 臨時進度筆記（已由 TEST_VERIFICATION_PLAN.md 取代）
-PROGRESS_SUMMARY.md
-
 # MemPalace per-project files (issue #185)
 mempalace.yaml
 entities.json
