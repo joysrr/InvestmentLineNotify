@@ -34,9 +34,12 @@
     "technicalindicators": "^3.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@vitest/coverage-v8": "^4.1.6",
-    "eslint": "^9.10.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-vue": "^10.10.0",
     "glob": "^13.0.6",
+    "globals": "^17.9.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "pino-pretty": "^13.1.3",

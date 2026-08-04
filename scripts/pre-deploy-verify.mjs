@@ -14,8 +14,6 @@ const __dirname = dirname(__filename);
 const PROJECT_ROOT = join(__dirname, "..");
 
 const WEBAPP_DIR = join(PROJECT_ROOT, "webapp");
-const API_BASE = "http://localhost:3000";
-const WEBAPP_URL = "http://localhost:5173";
 
 const COLORS = {
   green: "\x1b[32m",
@@ -52,169 +50,23 @@ function runCmd(cmd, cwd = PROJECT_ROOT, options = {}) {
   }
 }
 
-async function waitFor(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function checkApiHealth() {
-  log("step", "檢查 API Server 健康狀態...");
-  try {
-    const response = await fetch(`${API_BASE}/health`);
-    const data = await response.json();
-    if (data.status === "ok") {
-      log("ok", `API Server 正常 (${response.status})`);
-      return true;
-    }
-    log("fail", `API 回應異常: ${JSON.stringify(data)}`);
-    return false;
-  } catch (e) {
-    log("fail", `API Server 連線失敗: ${e.message}`);
-    return false;
-  }
-}
-
-async function checkApiStatus() {
-  log("step", "檢查 /api/status 端點...");
-  try {
-    const response = await fetch(`${API_BASE}/api/status`);
-    if (!response.ok) {
-      log("fail", `HTTP ${response.status}: ${response.statusText}`);
-      return false;
-    }
-    const data = await response.json();
-    if (data?.data?.marketState) {
-      log("ok", `/api/status 回應正常，含 marketState`);
-      return true;
-    }
-    log(
-      "warn",
-      `/api/status 回應但缺少 marketState: ${JSON.stringify(data).substring(0, 200)}`,
-    );
-    return true; // 不算失敗
-  } catch (e) {
-    log("fail", `/api/status 請求失敗: ${e.message}`);
-    return false;
-  }
-}
-
-async function checkApiSimulate() {
-  log("step", "檢查 /api/v1/simulate 端點 (POST)...");
-  try {
-    const response = await fetch(`${API_BASE}/api/v1/simulate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ price0050: 180, priceZ2: 17.5 }),
-    });
-    if (response.ok) {
-      const data = await response.json();
-      if (data?.strategyScore !== undefined) {
-        log("ok", `正向模擬 API 正常 (分數: ${data.strategyScore})`);
-        return true;
-      }
-      log("warn", `正向模擬回應但缺少 strategyScore`);
-      return true;
-    }
-    log("fail", `正向模擬 API 失敗: HTTP ${response.status}`);
-    return false;
-  } catch (e) {
-    log("fail", `正向模擬 API 請求失敗: ${e.message}`);
-    return false;
-  }
-}
-
-async function checkApiReverse() {
-  log("step", "檢查 /api/v1/simulate/reverse 端點 (POST)...");
-  try {
-    const response = await fetch(`${API_BASE}/api/v1/simulate/reverse`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        target: { type: "maintenanceRatio", value: 150 },
-      }),
-    });
-    if (response.ok) {
-      const data = await response.json();
-      if (data?.reachable !== undefined) {
-        log("ok", `反向推導 API 正常 (reachable: ${data.reachable})`);
-        return true;
-      }
-      log("warn", `反向推導回應但缺少 reachable`);
-      return true;
-    }
-    log("fail", `反向推導 API 失敗: HTTP ${response.status}`);
-    return false;
-  } catch (e) {
-    log("fail", `反向推導 API 請求失敗: ${e.message}`);
-    return false;
-  }
-}
-
-async function startServices() {
-  log("step", "啟動開發服務...");
-
-  // 啟動 API Server (背景)
-  const apiProc = execSync(
-    "NODE_ENV=development node src/api/server.mjs > /tmp/api-verify.log 2>&1 & echo $!",
-    {
-      cwd: PROJECT_ROOT,
-      encoding: "utf-8",
-    },
-  ).trim();
-
-  // 啟動 Webapp (背景)
-  const webappProc = execSync(
-    "NODE_ENV=development npm run dev -- --host 0.0.0.0 --port 5173 > /tmp/webapp-verify.log 2>&1 & echo $!",
-    {
-      cwd: WEBAPP_DIR,
-      encoding: "utf-8",
-    },
-  ).trim();
-
-  log("info", `API Server PID: ${apiProc}`);
-  log("info", `Webapp PID: ${webappProc}`);
-
-  // 等待服務啟動
-  log("info", "等待服務啟動 (10s)...");
-  await waitFor(10000);
-
-  return { apiProc, webappProc };
-}
-
-function killProc(pid) {
-  try {
-    execSync(`kill -9 ${pid} 2>/dev/null || true`);
-  } catch (e) {
-    // 忽略錯誤
-  }
-}
-
 async function runBrowserTests() {
-  log("step", "執行瀏覽器自動化測試...");
+  log("step", "執行 Playwright E2E 測試...");
 
-  // 使用 Playwright 或 Puppeteer
-  // 這裡用簡單的 fetch 檢查靜態資源是否載入
   try {
-    const response = await fetch(WEBAPP_URL);
-    const html = await response.text();
-
-    if (html.includes('id="app"') || html.includes('<div id="app">')) {
-      log("ok", "Webapp HTML 載入正常");
-    } else {
-      log("fail", "Webapp HTML 異常");
-      return false;
+    // 在 webapp 目錄下執行 playwright test
+    const output = runCmd("npm run test:e2e", WEBAPP_DIR, { timeout: 180000 });
+    if (output.includes("passed")) {
+      const match = output.match(/(\d+) passed/);
+      const passed = match ? match[1] : "?";
+      log("ok", `E2E 測試通過: ${passed} tests passed`);
+      return true;
     }
-
-    // 檢查關鍵 JS 是否載入
-    if (html.includes("src/main.js")) {
-      log("ok", "main.js 正確引入");
-    } else {
-      log("fail", "main.js 未正確引入");
-      return false;
-    }
-
-    return true;
+    log("fail", "E2E 測試失敗");
+    console.log(output);
+    return false;
   } catch (e) {
-    log("fail", `Webapp 載入失敗: ${e.message}`);
+    log("fail", `E2E 測試執行失敗: ${e.message}`);
     return false;
   }
 }
@@ -323,8 +175,6 @@ async function main() {
   console.log(`${COLORS.reset}`);
 
   const results = [];
-  let apiProc = null,
-    webappProc = null;
 
   try {
     // 1. 靜態檢查
@@ -337,21 +187,10 @@ async function main() {
     results.push(["Webapp 單元測試", await runUnitTests()]);
     results.push(["Simulator 模組測試", await runServerTests()]);
 
-    // 4. 啟動服務
-    ({ apiProc, webappProc } = await startServices());
-
-    // 5. API 健康檢查
-    results.push(["API 健康檢查", await checkApiHealth()]);
-    results.push(["API /status 端點", await checkApiStatus()]);
-    results.push(["API /simulate 端點", await checkApiSimulate()]);
-    results.push(["API /simulate/reverse 端點", await checkApiReverse()]);
-
-    // 6. 瀏覽器測試
-    results.push(["Webapp 前端載入", await runBrowserTests()]);
+    // 4. Playwright E2E 測試 (會自動啟動開發服務)
+    results.push(["Playwright E2E 測試", await runBrowserTests()]);
   } finally {
-    // 清理
-    if (apiProc) killProc(apiProc);
-    if (webappProc) killProc(webappProc);
+    // 清理任何殘留進程
     execSync("lsof -ti:3000 -ti:5173 | xargs kill -9 2>/dev/null || true");
   }
 
@@ -361,7 +200,7 @@ async function main() {
   );
   console.log("驗證結果總結");
   console.log(
-    `═══════════════════════════════════════════════════════════${COLORS.reset}\n`,
+    `════════════════════════════════════════════════════════════${COLORS.reset}\n`,
   );
 
   let allPassed = true;
