@@ -51,6 +51,13 @@ EOF.test.mjs
 # 測試覆蓋率目錄（一次性產物）
 coverage/
 
+# Playwright 測試產出物（CI artifact，本地不提交）
+webapp/playwright-report/
+webapp/test-results/
+
+# 臨時進度筆記（已由 TEST_VERIFICATION_PLAN.md 取代）
+PROGRESS_SUMMARY.md
+
 # MemPalace per-project files (issue #185)
 mempalace.yaml
 entities.json
