@@ -43,38 +43,38 @@
 
 ### 測試基礎設施現況
 
-| 層級              | 工具                             | 狀態        | 測試數量                                |
-| ----------------- | -------------------------------- | ----------- | --------------------------------------- |
-| 後端單元/整合測試 | Vitest                           | ✅ 通過     | 400 passed + 6 todo                     |
-| 前端單元測試      | Vitest + @vue/test-utils + jsdom | ✅ 通過     | 22 passed                               |
-| Lint 檢查         | ESLint flat config               | ✅ 通過     | 0 errors, 968 warnings                  |
-| 靜態程式碼掃描    | `scripts/pre-deploy-verify.mjs`  | ✅ 存在     | 檢查 `await waitReady()`                |
-| API 健康檢查      | `scripts/pre-deploy-verify.mjs`  | ✅ 存在     | `/health`, `/api/status`                |
-| E2E 瀏覽器測試    | Playwright                       | ✅ 建立完成 | 10 passed (9/10 pass, 1 selector issue) |
+| 層級              | 工具                             | 狀態        | 測試數量                       |
+| ----------------- | -------------------------------- | ----------- | ------------------------------ |
+| 後端單元/整合測試 | Vitest                           | ✅ 通過     | 404 passed + 6 todo            |
+| 前端單元測試      | Vitest + @vue/test-utils + jsdom | ✅ 通過     | 22 passed                      |
+| Lint 檢查         | ESLint flat config               | ✅ 通過     | 0 errors, 968 warnings         |
+| 靜態程式碼掃描    | `scripts/pre-deploy-verify.mjs`  | ✅ 存在     | 檢查 `await waitReady()`       |
+| API 健康檢查      | `scripts/pre-deploy-verify.mjs`  | ✅ 存在     | `/health`, `/api/status`       |
+| E2E 瀏覽器測試    | Playwright                       | ✅ 建立完成 | 9/10 passed (1 selector issue) |
 
 ### 現有腳本
 
-| 腳本                            | 用途                           | 狀態    |
-| ------------------------------- | ------------------------------ | ------- |
-| `npm run test`                  | 後端單元/整合測試              | ✅ 正常 |
-| `cd webapp && npm run test`     | 前端單元測試                   | ✅ 正常 |
-| `cd webapp && npm run test:e2e` | Playwright E2E 測試            | ✅ 正常 |
-| `npm run verify`                | 後端測試 + 前端測試 + 前端建置 | ✅ 正常 |
-| `npm run pre-deploy`            | 完整 pipeline (含 E2E)         | ✅ 正常 |
+| 腳本                            | 用途                              | 狀態    |
+| ------------------------------- | --------------------------------- | ------- |
+| `npm run test`                  | 後端單元/整合測試                 | ✅ 正常 |
+| `cd webapp && npm run test`     | 前端單元測試                      | ✅ 正常 |
+| `cd webapp && npm run test:e2e` | Playwright E2E 測試               | ✅ 正常 |
+| `npm run verify`                | 完整 pipeline (測試+建置+OpenAPI) | ✅ 正常 |
+| `npm run pre-deploy`            | 完整 pipeline (含 E2E)            | ✅ 正常 |
 
 ---
 
 ## 成功指標 (KPIs)
 
-| 指標                            | 當前值             | 目標值      | 期限   |
-| ------------------------------- | ------------------ | ----------- | ------ |
-| 後端測試通過率                  | 100% (400/400)     | 100%        | 持續   |
-| 前端測試通過率                  | 100% (22/22)       | 100%        | 持續   |
-| E2E 測試覆蓋 Simulator 關鍵路徑 | ✅ 90% (9/10)      | 100%        | 階段 1 |
-| API Contract 測試覆蓋端點       | ✅ 80% (Simulator) | 100%        | 階段 2 |
-| 排程程式核心邏輯覆蓋率          | ~0%                | ≥80%        | 階段 3 |
-| CI Pipeline 執行時間            | N/A (無 CI)        | <5 分鐘     | 階段 4 |
-| 部署前驗證自動化                | 半手動             | 100% 自動化 | 階段 4 |
+| 指標                            | 當前值                               | 目標值      | 期限      |
+| ------------------------------- | ------------------------------------ | ----------- | --------- |
+| 後端測試通過率                  | 100% (404/404)                       | 100%        | 持續      |
+| 前端測試通過率                  | 100% (22/22)                         | 100%        | 持續      |
+| E2E 測試覆蓋 Simulator 關鍵路徑 | ✅ 90% (9/10)                        | 100%        | 階段 1    |
+| API Contract 測試覆蓋端點       | ✅ 95% (Simulator + Health + Config) | 100%        | 階段 2 ✅ |
+| 排程程式核心邏輯覆蓋率          | ~0%                                  | ≥80%        | 階段 3    |
+| CI Pipeline 執行時間            | N/A (無 CI)                          | <5 分鐘     | 階段 4    |
+| 部署前驗證自動化                | ✅ 完整自動化                        | 100% 自動化 | 階段 4    |
 
 ---
 
@@ -119,7 +119,7 @@
 
 ```
 Playwright E2E: 9/10 passed ✅ (1 selector issue in data quality badges)
-後端 Vitest:    400 passed + 6 todo ✅
+後端 Vitest:    404 passed + 6 todo ✅
 前端 Vitest:    22 passed ✅
 Lint:           0 errors ✅
 ```
@@ -143,33 +143,42 @@ Lint:           0 errors ✅
   - `src/test/schemas/simulate-reverse-request.schema.json`
   - `src/test/schemas/simulate-reverse-response.schema.json`
   - `src/test/schemas/error-response.schema.json`
-- [x] **2.3** 擴充 API Contract 測試 (共 30 tests，新增 24 tests)
+- [x] **2.3** 擴充 API Contract 測試 (共 34 tests，新增 28 tests)
   - POST `/api/v1/simulate`: Happy path + 5 validation error cases
   - POST `/api/v1/simulate/reverse`: 9 target types + 6 validation errors
   - Error response format consistency (400/409/500)
+  - GET `/api/portfolio/health`: 基本欄位 + query params
+  - GET/POST `/api/strategy-config`: 回傳結構 + 驗證錯誤
 - [x] **2.4** 修正 Mock Data
   - 寫入 `data/reports/YYYY-MM-DD.json` 供 `getLatestReport()` 讀取
   - 確保報告日期在 24 小時內 (使用 1 小時前時間戳)
   - 補齊 `strategySnapshot` 欄位供現有測試使用
+- [x] **2.5** 導出 OpenAPI Spec (`docs/api/openapi.json`)
+  - `scripts/generate-openapi.mjs`：程式化產出
+  - `npm run openapi:generate`
+- [x] **2.6** 建立 Breaking Change 偵測
+  - `scripts/check-openapi-diff.mjs`：比對 git HEAD
+  - 檢查：endpoint 移除、方法移除、schema 移除/修改
+  - `npm run openapi:check`
+- [x] **2.7** 整合至 `verify-all.mjs`
+  - `npm run verify` 現在包含 OpenAPI 生成 + 檢查
+- [x] **2.8** 補充 Portfolio Health & Config 端點 contract tests
+  - GET `/api/portfolio/health` (基本欄位、query params)
+  - GET `/api/strategy-config` (strategy、_meta)
+  - POST `/api/strategy-config` (驗證錯誤)
 
 #### 驗收結果
 
 ```
-API Contract Tests: 30 passed ✅
+API Contract Tests: 34 passed ✅
   - 既有 6 tests (status, reports, snapshots, news, config, health)
-  - 新增 24 tests (simulate forward/reverse + error formats)
-後端 Vitest:    400 passed + 6 todo ✅
+  - 新增 28 tests (simulate forward/reverse, portfolio health, config, error formats)
+後端 Vitest:    404 passed + 6 todo ✅
 前端 Vitest:    22 passed ✅
 E2E Playwright: 9/10 passed ✅
 Lint:           0 errors ✅
+Verify Pipeline: 完整通過 (含 OpenAPI gen + breaking change check) ✅
 ```
-
-#### 待辦：OpenAPI Spec 導出與破壞性變更偵測
-
-- [ ] **2.5** 導出 OpenAPI Spec (`docs/api/openapi.json`)
-- [ ] **2.6** 建立 `scripts/check-openapi-diff.mjs` 偵測 breaking changes
-- [ ] **2.7** 整合至 `pre-deploy-verify.mjs`
-- [ ] **2.8** 補充 Portfolio Health & Config 端點 contract tests
 
 ---
 
@@ -224,11 +233,11 @@ Lint:           0 errors ✅
   ```yaml
   jobs:
     lint: # 並行 - ESLint 根目錄 + webapp
-    backend-test: # 並行 - Vitest 後端 400 tests
+    backend-test: # 並行 - Vitest 後端 404 tests
     frontend-test: # 並行 - Vitest 前端 22 tests
     frontend-build: # 依賴 frontend-test - Vite build
     e2e-test: # 依賴 frontend-build - Playwright 10 tests
-    pre-deploy: # 依賴 e2e-test - 完整驗證門檻
+    pre-deploy: # 依賴 e2e-test - 完整驗證門檻 (含 OpenAPI check)
   ```
 
 - [ ] **4.3** Node.js / Playwright 快取配置
@@ -293,19 +302,25 @@ cd webapp && npm run test:e2e
 
 # Playwright 視覺化除錯
 cd webapp && npm run test:e2e:headed
+
+# OpenAPI Spec 產出
+npm run openapi:generate
+
+# Breaking Change 檢查
+npm run openapi:check
 ```
 
 ### Commit 前執行
 
 ```bash
-# 後端 + 前端 + 前端建置
+# 完整 pipeline (測試 + 建置 + OpenAPI)
 npm run verify
 ```
 
 ### 部署前完整驗證
 
 ```bash
-# 完整 pipeline (Lint + 單元測試 + E2E + 建置)
+# 完整 pipeline (Lint + 單元測試 + E2E + 建置 + OpenAPI)
 npm run pre-deploy
 ```
 
@@ -313,17 +328,17 @@ npm run pre-deploy
 
 ## 進度追蹤
 
-| 階段 | 名稱                    | 狀態      | 完成度                       |
-| ---- | ----------------------- | --------- | ---------------------------- |
-| 1    | Playwright E2E 測試建立 | ✅ 完成   | 90% (1 E2E selector issue)   |
-| 2    | API Contract 測試強化   | ✅ 完成   | 80% (OpenAPI export pending) |
-| 3    | 排程程式測試覆蓋        | ⏳ 待開始 | 0%                           |
-| 4    | CI/CD 整合與自動化      | ⏳ 待開始 | 0%                           |
-| 5    | 文件化與維護指南        | ⏳ 待開始 | 0%                           |
+| 階段 | 名稱                    | 狀態      | 完成度                     |
+| ---- | ----------------------- | --------- | -------------------------- |
+| 1    | Playwright E2E 測試建立 | ✅ 完成   | 90% (1 E2E selector issue) |
+| 2    | API Contract 測試強化   | ✅ 完成   | 100%                       |
+| 3    | 排程程式測試覆蓋        | ⏳ 待開始 | 0%                         |
+| 4    | CI/CD 整合與自動化      | ⏳ 待開始 | 0%                         |
+| 5    | 文件化與維護指南        | ⏳ 待開始 | 0%                         |
 
 ---
 
-_文件版本：v1.2_
+_文件版本：v1.3_
 _建立日期：2026-08-04_
 _最後更新：2026-08-06_
 _作者：LuLuLaLaHaHa_
