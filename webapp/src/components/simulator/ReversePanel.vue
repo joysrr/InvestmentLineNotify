@@ -69,7 +69,7 @@ const props = defineProps({
   error: String,
 });
 
-defineEmits(["update:targetType", "update:targetValue", "update:targetDirection", "update:targetStatus", "run", "clear"]);
+const emit = defineEmits(["update:targetType", "update:targetValue", "update:targetDirection", "update:targetStatus", "run", "clear"]);
 
 const targetTypes = [
   { value: "maintenanceRatio", label: "維持率", input: "number", placeholder: "目標維持率 (%)" },

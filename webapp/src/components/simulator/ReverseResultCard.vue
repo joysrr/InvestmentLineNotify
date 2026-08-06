@@ -126,7 +126,7 @@
 <script setup>
 import { computed } from "vue";
 
-defineProps({
+const props = defineProps({
   result: {
     type: Object,
     required: true,

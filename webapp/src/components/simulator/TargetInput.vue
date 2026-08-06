@@ -68,7 +68,7 @@ const props = defineProps({
   disabled: Boolean,
 });
 
-defineEmits(["update:targetValue", "update:targetDirection", "update:targetStatus"]);
+const emit = defineEmits(["update:targetValue", "update:targetDirection", "update:targetStatus"]);
 
 // Local value that syncs with prop
 const localValue = computed({

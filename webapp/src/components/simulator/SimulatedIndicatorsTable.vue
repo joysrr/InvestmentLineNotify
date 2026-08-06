@@ -28,7 +28,7 @@
 <script setup>
 import { computed } from "vue";
 
-defineProps({
+const props = defineProps({
   indicators: {
     type: Object,
     required: true,

@@ -33,7 +33,7 @@
 <script setup>
 import { computed } from "vue";
 
-defineProps({
+const props = defineProps({
   current: {
     type: Object,
     required: true,
