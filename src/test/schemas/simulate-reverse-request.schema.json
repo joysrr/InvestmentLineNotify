@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investmentlinenotify/api/v1/simulate/reverse-request",
+  "title": "Reverse Simulation Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["target"],
+  "properties": {
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string", "enum": ["maintenanceRatio", "rsi", "ma20", "ma60", "ma240Bias", "kdCross", "macdCross", "strategyScore", "portfolioHealth"] },
+        "value": { "type": ["number", "null"] },
+        "direction": { "type": ["string", "null"], "enum": ["golden", "dead", null] },
+        "status": { "type": ["string", "null"], "enum": ["green", "yellow", "red", null] }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investmentlinenotify/api/v1/simulate/forward-request",
+  "title": "Forward Simulation Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["price0050"],
+  "properties": {
+    "price0050": { "type": "number", "minimum": 50, "maximum": 500 },
+    "priceZ2": { "type": ["number", "null"], "minimum": 50, "maximum": 500 }
+  }
+}

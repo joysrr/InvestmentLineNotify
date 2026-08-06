@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investmentlinenotify/api/v1/simulate/reverse-response",
+  "title": "Reverse Simulation Response",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "target",
+    "reachable",
+    "method",
+    "reason",
+    "calculationMode",
+    "timestamp",
+    "dataAsOf",
+    "disclaimer"
+  ],
+  "properties": {
+    "target": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string", "enum": ["maintenanceRatio", "rsi", "ma20", "ma60", "ma240Bias", "kdCross", "macdCross", "strategyScore", "portfolioHealth"] },
+        "value": { "type": ["number", "null"] },
+        "direction": { "type": ["string", "null"], "enum": ["golden", "dead", null] },
+        "status": { "type": ["string", "null"], "enum": ["green", "yellow", "red", null] }
+      }
+    },
+    "reachable": { "type": "boolean" },
+    "method": { "type": "string", "enum": ["analytical", "scan", "binary_search_converged", "not_implemented"] },
+    "reason": { "type": "string", "minLength": 1 },
+    "results": {
+      "type": ["object", "null"],
+      "properties": {
+        "price0050": { "type": ["number", "null"] },
+        "priceZ2": { "type": ["number", "null"] },
+        "achievedValue": { "type": ["number", "null"] }
+      }
+    },
+    "calculationMode": { "type": "string", "enum": ["reverse_analytical", "reverse_scan"] },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "dataAsOf": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "disclaimer": { "type": "string", "minLength": 10 }
+  }
+}
