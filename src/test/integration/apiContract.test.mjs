@@ -184,6 +184,53 @@ describe("API Contract Testing", () => {
       expect(typeof res.body).toBe("object");
       expect(res.body).not.toBeNull();
     });
+
+    it("應包含 strategy 物件與 _meta", async () => {
+      const res = await request
+        .get("/api/strategy-config")
+        .set("X-Telegram-Init-Data", "dev-bypass")
+        .expect(200);
+
+      expect(res.body).toHaveProperty("strategy");
+      expect(res.body).toHaveProperty("_meta");
+    });
+  });
+
+  // ── /api/portfolio/health ───────────────────────────────────────
+  describe("GET /api/portfolio/health", () => {
+    it("應回傳 200 且包含健康度欄位", async () => {
+      const res = await request
+        .get("/api/portfolio/health")
+        .set("X-Telegram-Init-Data", "dev-bypass")
+        .expect(200);
+
+      expect(typeof res.body).toBe("object");
+      expect(res.body).toHaveProperty("status");
+      expect(res.body).toHaveProperty("lightStatus");
+      expect(res.body).toHaveProperty("_meta");
+    });
+
+    it("應接受 query parameters 覆蓋預設值", async () => {
+      const res = await request
+        .get("/api/portfolio/health?maintenanceMargin=150&z2Ratio=20&vix=18")
+        .set("X-Telegram-Init-Data", "dev-bypass")
+        .expect(200);
+
+      expect(res.body._meta.source).toBe("query");
+    });
+  });
+
+  // ── POST /api/strategy-config ──────────────────────────────────
+  describe("POST /api/strategy-config", () => {
+    it("無效結構應回傳 400 驗證錯誤", async () => {
+      const res = await request
+        .post("/api/strategy-config")
+        .set("X-Telegram-Init-Data", "dev-bypass")
+        .send({ invalid: "structure" })
+        .expect(400);
+
+      expect(res.body.error).toContain("驗證失敗");
+    });
   });
 
   // ── /health (不需 auth) ────────────────────────────────────────

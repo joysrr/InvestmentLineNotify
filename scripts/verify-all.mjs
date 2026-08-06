@@ -27,7 +27,7 @@ function runCommand(command, cwd, name) {
 const backendOk = runCommand(
   "npm run test",
   projectRoot,
-  "後端 329 個單元與整合測試",
+  "後端 400 個單元與整合測試",
 );
 if (!backendOk) process.exit(1);
 
@@ -47,8 +47,23 @@ const frontendBuildOk = runCommand(
 );
 if (!frontendBuildOk) process.exit(1);
 
+// 4. OpenAPI Spec 生成與 Breaking Change 檢查
+const openapiGenOk = runCommand(
+  "npm run openapi:generate",
+  projectRoot,
+  "OpenAPI Spec 生成",
+);
+if (!openapiGenOk) process.exit(1);
+
+const openapiCheckOk = runCommand(
+  "npm run openapi:check",
+  projectRoot,
+  "OpenAPI Breaking Change 檢查",
+);
+if (!openapiCheckOk) process.exit(1);
+
 console.log(
-  "🎉 恭喜！後端測試、前端測試、以及前端 Vite 打包編譯全部 100% 成功通過！",
+  "🎉 恭喜！後端測試、前端測試、前端打包、OpenAPI Spec 生成與檢查全部 100% 成功通過！",
 );
 console.log("✅ 您可以安全地進行 git commit 以及 git push！保證零瑕疵存活！");
 process.exit(0);

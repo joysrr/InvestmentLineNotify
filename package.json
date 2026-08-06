@@ -13,7 +13,9 @@
     "test:data": "vitest run src/test/integration/dataIntegrity.test.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "verify": "node scripts/verify-all.mjs"
+    "verify": "node scripts/verify-all.mjs",
+    "openapi:generate": "node scripts/generate-openapi.mjs",
+    "openapi:check": "node scripts/check-openapi-diff.mjs"
   },
   "type": "module",
   "dependencies": {

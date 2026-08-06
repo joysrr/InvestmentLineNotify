@@ -1,0 +1,223 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "InvestmentLineNotify API",
+    "description": "0050 / 00675L 生命周期投資決策系統 API 文件",
+    "version": "2.0.0"
+  },
+  "components": {
+    "securitySchemes": {
+      "telegramInitData": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Telegram-Init-Data",
+        "description": "Telegram WebApp initData (HMAC-SHA256 驗證)"
+      }
+    },
+    "schemas": {}
+  },
+  "paths": {
+    "/api/status": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/report/news": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/reports": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/reports/weekly": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/reports/monthly": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/report/{date}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "date",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/reports/snapshots": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/reports/snapshots/weekly": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/reports/snapshots/monthly": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/news": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/strategy-config": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/portfolio/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/simulate": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/simulate/reverse": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/healthz": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "開發環境"
+    },
+    {
+      "url": "https://api.investnotif.yourdomain.com",
+      "description": "正式環境"
+    }
+  ],
+  "security": [
+    {
+      "telegramInitData": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Status",
+      "description": "系統狀態與市場快照"
+    },
+    {
+      "name": "Reports",
+      "description": "每日/週/月報告查詢"
+    },
+    {
+      "name": "News",
+      "description": "新聞池與 AI 新聞治理"
+    },
+    {
+      "name": "Config",
+      "description": "策略設定讀寫"
+    },
+    {
+      "name": "Portfolio Health",
+      "description": "帳戶健康度試算"
+    },
+    {
+      "name": "Simulator",
+      "description": "0050 雙向模擬器 (正向/反向)"
+    }
+  ]
+}
