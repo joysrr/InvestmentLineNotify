@@ -182,36 +182,48 @@ Verify Pipeline: 完整通過 (含 OpenAPI gen + breaking change check) ✅
 
 ---
 
-### 階段 3：排程程式測試覆蓋 ⏳ **[待開始]**
+### 階段 3：排程程式測試覆蓋 ⏳ **[進行中]**
 
 **目標：** 排程程式具備可測試性，核心決策邏輯覆蓋率 ≥ 80%
 **前置條件：** 階段 2 完成
 
-#### 任務清單
+#### 完成項目
 
-- [ ] **3.1** 分析排程程式耦合點
-  - 讀取：`src/runDailyCheck.mjs`, `src/dailyCheck.mjs`, `src/runMonthlyReport.mjs`
-  - 識別：外部 API 呼叫、資料庫操作、Telegram Bot 呼叫
-  - 產出：耦合點清單（文件化）
+- [x] **3.1** 分析排程程式耦合點 ✅ **已完成 (2026-08-07)**
+  - 產出：`docs/SCHEDULER_COUPLING_ANALYSIS.md` - 完整耦合點分析報告
+  - 識別 5 個排程程式、24 個核心模組、4 大外部依賴類別
+  - 定義 5 大介面規格 (IDataProvider, INotifier, IAIProvider, INewsProvider, IReportGenerator)
 
-- [ ] **3.2** 抽離純邏輯模組
-  - 核心邏輯從 CLI 進入點 (`runXxx.mjs`) 分離至可 import 的純函數模組
-  - 建立介面層：`src/interfaces/IDataProvider.mjs`, `src/interfaces/INotifier.mjs`
-  - 驗收：`import { runDailyCheck } from './dailyCheck.mjs'` 不會觸發副作用
+- [x] **3.2** 抽離純邏輯模組 + 建立介面層 ✅ **已完成 (2026-08-07)**
+  - 建立 5 大介面：`src/interfaces/IDataProvider.mjs`, `INotifier.mjs`, `IAIProvider.mjs`, `INewsProvider.mjs`, `IReportGenerator.mjs`
+  - 使用 JSDoc `@typedef` 語法 (相容 JS 專案)
+  - 介面涵蓋：資料存取、通知發送、AI 服務、新聞抓取、報告產生
 
-- [ ] **3.3** 建立 Mock 工廠
-  - `src/test/mocks/mockDataProvider.mjs`：模擬資料提供者
-  - `src/test/mocks/mockNotifier.mjs`：模擬通知發送（測試 Telegram 訊息格式）
-  - 驗收：Mock 物件符合介面規格
+- [x] **3.3** 建立 Mock 工廠 ✅ **已完成 (2026-08-07)**
+  - `src/test/mocks/`：5 個 Mock Factory (DataProvider, Notifier, AIProvider, NewsProvider, ReportGenerator)
+  - `src/test/mocks/factories/`：測試資料 Factory (20+ factory functions)
+  - 統一導出：`src/test/mocks/index.mjs`, `src/test/mocks/factories/index.mjs`
 
-- [ ] **3.4** 撰寫排程程式單元測試
-  - `src/test/unit/dailyCheck.test.mjs`
-  - 涵蓋：觸發條件判斷、策略引擎整合、通知格式驗證、錯誤處理
-  - 驗收：`npx vitest run src/test/unit/dailyCheck.test.mjs` 全部通過
+#### 進行中 / 待辦
 
-- [ ] **3.5** 覆蓋率檢查
+- [ ] **3.4** 遷移排程邏輯至 `src/scheduler/` 並提取純邏輯
+  - [ ] 建立 `src/scheduler/` 目錄結構
+  - [ ] 遷移 News Fetch (最簡單，驗證架構) → `src/scheduler/newsFetch.mjs`
+  - [ ] 遷移 Optimizer → `src/scheduler/optimizer.mjs`
+  - [ ] 遷移 Weekly/Monthly Report → `src/scheduler/weeklyReport.mjs`, `monthlyReport.mjs`
+  - [ ] 遷移 Daily Check (最複雜) → `src/scheduler/dailyCheck.mjs` + `dailyCheckLogic.mjs`
+  - [ ] 更新 CLI 入口為薄包裝 (`runNewsFetch.mjs` 等 import 新模組)
+
+- [ ] **3.5** 撰寫特徵測試 + 單元測試
+  - [ ] `src/test/unit/scheduler/newsFetch.test.mjs` - News Fetch 邏輯測試
+  - [ ] `src/test/unit/scheduler/optimizer.test.mjs` - Optimizer 邏輯測試
+  - [ ] `src/test/unit/scheduler/weeklyReport.test.mjs` - 週報邏輯測試
+  - [ ] `src/test/unit/scheduler/monthlyReport.test.mjs` - 月報邏輯測試
+  - [ ] `src/test/unit/scheduler/dailyCheck.test.mjs` - 每日檢查邏輯測試 (含特徵測試)
+
+- [ ] **3.6** 覆蓋率檢查
   - 指令：`npx vitest run --coverage`
-  - 目標：`src/modules/` 核心邏輯覆蓋率 ≥ 80%
+  - 目標：`src/scheduler/` 核心邏輯覆蓋率 ≥ 80%
   - 驗收：產出 `coverage/` 報告，達標才通過
 
 ---
@@ -328,17 +340,17 @@ npm run pre-deploy
 
 ## 進度追蹤
 
-| 階段 | 名稱                    | 狀態      | 完成度                     |
-| ---- | ----------------------- | --------- | -------------------------- |
-| 1    | Playwright E2E 測試建立 | ✅ 完成   | 90% (1 E2E selector issue) |
-| 2    | API Contract 測試強化   | ✅ 完成   | 100%                       |
-| 3    | 排程程式測試覆蓋        | ⏳ 待開始 | 0%                         |
-| 4    | CI/CD 整合與自動化      | ⏳ 待開始 | 0%                         |
-| 5    | 文件化與維護指南        | ⏳ 待開始 | 0%                         |
+| 階段 | 名稱                    | 狀態      | 完成度                             |
+| ---- | ----------------------- | --------- | ---------------------------------- |
+| 1    | Playwright E2E 測試建立 | ✅ 完成   | 90% (1 E2E selector issue)         |
+| 2    | API Contract 測試強化   | ✅ 完成   | 100%                               |
+| 3    | 排程程式測試覆蓋        | ⏳ 進行中 | 30% (介面+Mock完成，遷移+測試待做) |
+| 4    | CI/CD 整合與自動化      | ⏳ 待開始 | 0%                                 |
+| 5    | 文件化與維護指南        | ⏳ 待開始 | 0%                                 |
 
 ---
 
-_文件版本：v1.3_
+_文件版本：v1.4_
 _建立日期：2026-08-04_
-_最後更新：2026-08-06_
+_最後更新：2026-08-07_
 _作者：LuLuLaLaHaHa_
