@@ -1,10 +1,11 @@
 import "dotenv/config";
-import { dailyCheck } from "./dailyCheck.mjs";
+import { fileURLToPath } from "url";
+import { runDailyCheck } from "./scheduler/dailyCheck.mjs";
 import { langfuse } from "./modules/ai/aiClient.mjs";
 import logger from "./utils/logger.mjs";
 
-async function main() {
-  // 解析命令列參數
+/** 解析命令列參數 */
+function parseArgs() {
   const args = process.argv.slice(2);
 
   // 預設行為 (手動執行時的預設值)
@@ -40,18 +41,18 @@ async function main() {
     );
   }
 
-  logger.info(
-    { isTelegramEnabled, isAIAdvisor, isCallAI },
-    "啟動 dailyCheck 排程任務",
-  );
+  return { isTelegramEnabled, isAIAdvisor, isCallAI };
+}
+
+// ── CLI 入口（直接執行此檔案時）──
+async function main() {
+  const options = parseArgs();
+
+  logger.info({ ...options }, "啟動 dailyCheck 排程任務");
 
   let exitCode = 0;
   try {
-    await dailyCheck({
-      isTelegramEnabled: isTelegramEnabled,
-      isAIAdvisor: isAIAdvisor,
-      isCallAI: isCallAI,
-    });
+    await runDailyCheck({}, options);
   } catch (err) {
     logger.error(err, "❌ 系統發生嚴重錯誤");
     exitCode = 1;
@@ -66,19 +67,6 @@ async function main() {
       logger.warn(e, "⚠️ Langfuse 關閉失敗");
     }
   }
-
-  // 偵錯：列出還活著的 handle
-  const handles = process._getActiveHandles();
-  const requests = process._getActiveRequests();
-  logger.info(
-    {
-      activeHandles: handles.length,
-      activeRequests: requests.length,
-      handleTypes: handles.map((h) => h.constructor?.name || typeof h),
-      requestTypes: requests.map((r) => r.constructor?.name || typeof r),
-    },
-    "結束時的 active handles",
-  );
 
   // 給 logger 一點時間 flush（pino async transport 需要）
   await new Promise((resolve) => setTimeout(resolve, 200));

@@ -1,0 +1,382 @@
+/**
+ * Daily Check 排程單元測試
+ * 測試 src/scheduler/dailyCheck.mjs 的核心邏輯
+ */
+
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+// Mock external dependencies at the top level
+vi.mock("../../../../src/modules/ai/aiClient.mjs", () => ({
+  langfuse: { score: vi.fn(), shutdownAsync: vi.fn() },
+}));
+
+vi.mock("../../../../src/utils/logger.mjs", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    default: {
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    },
+    setGlobalContext: vi.fn(),
+    clearGlobalContext: vi.fn(),
+  };
+});
+
+// Mock the internal modules that runDailyCheck uses
+vi.mock("../../../../src/domain/signalContext.mjs", () => ({
+  buildSignalContext: vi.fn(),
+}));
+
+vi.mock("../../../../src/modules/strategy/strategyEngine.mjs", () => ({
+  getInvestmentSignalAsync: vi.fn(),
+}));
+
+vi.mock("../../../../src/modules/notifications/notifier.mjs", () => ({
+  broadcastDailyReport: vi.fn(),
+}));
+
+vi.mock("../../../../src/modules/ai/aiCoach.mjs", () => ({
+  getAiInvestmentAdvice: vi.fn(),
+}));
+
+vi.mock("../../../../src/modules/ai/llmJudge.mjs", () => ({
+  shouldRunJudge: vi.fn(),
+  runJudge: vi.fn(),
+}));
+
+vi.mock("../../../../src/modules/storage.mjs", () => ({
+  logDailyToSheet: vi.fn(),
+}));
+
+vi.mock("../../../../src/modules/data/archiveManager.mjs", () => ({
+  archiveManager: {
+    saveValuationGuardState: vi.fn(),
+  },
+}));
+
+vi.mock("../../../../src/utils/coreUtils.mjs", () => ({
+  TwDate: vi.fn(() => ({ formatDateKey: () => "2026-08-06" })),
+  stepTimer: vi.fn(() => vi.fn()),
+}));
+
+vi.mock("../../../../src/utils/snapshotCrypto.mjs", () => ({
+  isSnapshotEncryptEnabled: vi.fn(() => false),
+}));
+
+vi.mock(
+  "../../../../src/modules/notifications/transports/telegramClient.mjs",
+  () => ({
+    sendTelegramBatch: vi.fn(),
+  }),
+);
+
+vi.mock("../../../../src/domain/ilnState.mjs", () => ({
+  IlnState: vi.fn().mockImplementation((data) => data),
+}));
+
+vi.mock("../../../../src/domain/dailyRunContext.mjs", () => ({
+  buildDailyRunContext: vi.fn(),
+}));
+
+import { runDailyCheck } from "../../../../src/scheduler/dailyCheck.mjs";
+
+describe("DailyCheck Scheduler - 單元測試", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("資料不足時應回傳錯誤並發送 Telegram 通知", async () => {
+    // Arrange
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockRejectedValue(
+      new Error("歷史資料不足 30 筆"),
+    );
+
+    const { sendTelegramBatch } =
+      await import("../../../../src/modules/notifications/transports/telegramClient.mjs");
+    vi.mocked(sendTelegramBatch).mockResolvedValue(undefined);
+
+    const { langfuse } =
+      await import("../../../../src/modules/ai/aiClient.mjs");
+    vi.mocked(langfuse.shutdownAsync).mockResolvedValue(undefined);
+
+    // Act
+    const result = await runDailyCheck(
+      {},
+      { isTelegramEnabled: true, isAIAdvisor: true, isCallAI: true },
+    );
+
+    // Assert
+    expect(result).toBe("❌ 資料不足");
+    expect(sendTelegramBatch).toHaveBeenCalledTimes(1);
+  });
+
+  it("無開市日應跳過通知並返回成功", async () => {
+    // Arrange
+    const mockContext = {
+      lastState: { totalValue: 1000000 },
+      openToday: false,
+      vixData: { value: 15 },
+      basePrice: 150,
+      price0050: 180,
+      currentPriceZ2: 280,
+      historyZ2: [],
+      history0050: [],
+      macroData: {},
+      macroAndChipStr: "",
+      usRisk: {},
+      quote: "test quote",
+      newsMessages: [],
+      newsSummaryText: "news summary",
+      newsStructured: { tw: [], us: [] },
+      macroAnalysis: {},
+      macroTextForCoach: "",
+      macroMarketDirection: "NEUTRAL",
+      previousAdviceSummary: "",
+      valuationGuardState: { defenseLatch: false, latchActive: false },
+      pbRecords: [],
+      pbRecordsObjects: [],
+    };
+
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockResolvedValue(mockContext);
+
+    const { buildSignalContext } =
+      await import("../../../../src/domain/signalContext.mjs");
+    vi.mocked(buildSignalContext).mockReturnValue({
+      signalData: {},
+      finalPriceZ2: 280,
+    });
+
+    const { getInvestmentSignalAsync } =
+      await import("../../../../src/modules/strategy/strategyEngine.mjs");
+    vi.mocked(getInvestmentSignalAsync).mockResolvedValue({
+      signals: { status: "觀望", score: 65, latchNowActive: false },
+      marketState: {},
+      strategySnapshot: {},
+    });
+
+    const { archiveManager } =
+      await import("../../../../src/modules/data/archiveManager.mjs");
+    vi.mocked(archiveManager.saveValuationGuardState).mockResolvedValue(
+      undefined,
+    );
+
+    const { getAiInvestmentAdvice } =
+      await import("../../../../src/modules/ai/aiCoach.mjs");
+    vi.mocked(getAiInvestmentAdvice).mockResolvedValue({
+      advice: { summary: "test", action: "hold" },
+      traceId: "trace-1",
+    });
+
+    const { broadcastDailyReport } =
+      await import("../../../../src/modules/notifications/notifier.mjs");
+    vi.mocked(broadcastDailyReport).mockResolvedValue(undefined);
+
+    const { logDailyToSheet } =
+      await import("../../../../src/modules/storage.mjs");
+    vi.mocked(logDailyToSheet).mockResolvedValue(undefined);
+
+    const { langfuse } =
+      await import("../../../../src/modules/ai/aiClient.mjs");
+    vi.mocked(langfuse.shutdownAsync).mockResolvedValue(undefined);
+
+    const { shouldRunJudge } =
+      await import("../../../../src/modules/ai/llmJudge.mjs");
+    vi.mocked(shouldRunJudge).mockReturnValue(false);
+
+    // Act
+    const result = await runDailyCheck(
+      {},
+      { isTelegramEnabled: true, isAIAdvisor: true, isCallAI: true },
+    );
+
+    // Assert
+    expect(result).toBe("✅ dailyCheck 執行成功");
+  });
+
+  it("Latch 狀態變更時應更新 valuationGuardState", async () => {
+    // Arrange
+    const mockContext = {
+      lastState: { totalValue: 1000000 },
+      openToday: true,
+      vixData: { value: 15 },
+      basePrice: 150,
+      price0050: 180,
+      currentPriceZ2: 280,
+      historyZ2: [],
+      history0050: [],
+      macroData: {},
+      macroAndChipStr: "",
+      usRisk: {},
+      quote: "test quote",
+      newsMessages: [],
+      newsSummaryText: "news summary",
+      newsStructured: { tw: [], us: [] },
+      macroAnalysis: {},
+      macroTextForCoach: "",
+      macroMarketDirection: "NEUTRAL",
+      previousAdviceSummary: "",
+      valuationGuardState: { defenseLatch: false, latchActive: false },
+      pbRecords: [],
+      pbRecordsObjects: [],
+    };
+
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockResolvedValue(mockContext);
+
+    const { buildSignalContext } =
+      await import("../../../../src/domain/signalContext.mjs");
+    vi.mocked(buildSignalContext).mockReturnValue({
+      signalData: {},
+      finalPriceZ2: 280,
+    });
+
+    const { getInvestmentSignalAsync } =
+      await import("../../../../src/modules/strategy/strategyEngine.mjs");
+    vi.mocked(getInvestmentSignalAsync).mockResolvedValue({
+      signals: {
+        status: "觀望",
+        score: 65,
+        latchNowActive: true,
+        shouldLatch: true,
+      },
+      marketState: {},
+      strategySnapshot: {},
+    });
+
+    const { archiveManager } =
+      await import("../../../../src/modules/data/archiveManager.mjs");
+    vi.mocked(archiveManager.saveValuationGuardState).mockResolvedValue(
+      undefined,
+    );
+
+    const { getAiInvestmentAdvice } =
+      await import("../../../../src/modules/ai/aiCoach.mjs");
+    vi.mocked(getAiInvestmentAdvice).mockResolvedValue({
+      advice: { summary: "test", action: "hold" },
+      traceId: "trace-1",
+    });
+
+    const { broadcastDailyReport } =
+      await import("../../../../src/modules/notifications/notifier.mjs");
+    vi.mocked(broadcastDailyReport).mockResolvedValue(undefined);
+
+    const { logDailyToSheet } =
+      await import("../../../../src/modules/storage.mjs");
+    vi.mocked(logDailyToSheet).mockResolvedValue(undefined);
+
+    const { langfuse } =
+      await import("../../../../src/modules/ai/aiClient.mjs");
+    vi.mocked(langfuse.shutdownAsync).mockResolvedValue(undefined);
+
+    const { shouldRunJudge } =
+      await import("../../../../src/modules/ai/llmJudge.mjs");
+    vi.mocked(shouldRunJudge).mockReturnValue(false);
+
+    // Act
+    const result = await runDailyCheck(
+      {},
+      { isTelegramEnabled: true, isAIAdvisor: true, isCallAI: true },
+    );
+
+    // Assert
+    expect(result).toBe("✅ dailyCheck 執行成功");
+  });
+
+  it("高風險日應觸發 LLM Judge 背景任務", async () => {
+    // Arrange
+    const mockContext = {
+      lastState: { totalValue: 1000000 },
+      openToday: true,
+      vixData: { value: 35 }, // High VIX
+      basePrice: 150,
+      price0050: 180,
+      currentPriceZ2: 280,
+      historyZ2: [],
+      history0050: [],
+      macroData: {},
+      macroAndChipStr: "",
+      usRisk: {},
+      quote: "test quote",
+      newsMessages: [],
+      newsSummaryText: "news summary",
+      newsStructured: { tw: [], us: [] },
+      macroAnalysis: {},
+      macroTextForCoach: "",
+      macroMarketDirection: "NEUTRAL",
+      previousAdviceSummary: "",
+      valuationGuardState: { defenseLatch: false, latchActive: false },
+      pbRecords: [],
+      pbRecordsObjects: [],
+    };
+
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockResolvedValue(mockContext);
+
+    const { buildSignalContext } =
+      await import("../../../../src/domain/signalContext.mjs");
+    vi.mocked(buildSignalContext).mockReturnValue({
+      signalData: {},
+      finalPriceZ2: 280,
+    });
+
+    const { getInvestmentSignalAsync } =
+      await import("../../../../src/modules/strategy/strategyEngine.mjs");
+    vi.mocked(getInvestmentSignalAsync).mockResolvedValue({
+      signals: {
+        status: "long",
+        score: 80,
+        latchNowActive: false,
+        signalDirection: "long",
+      },
+      marketState: {},
+      strategySnapshot: {},
+    });
+
+    const { archiveManager } =
+      await import("../../../../src/modules/data/archiveManager.mjs");
+    vi.mocked(archiveManager.saveValuationGuardState).mockResolvedValue(
+      undefined,
+    );
+
+    const { getAiInvestmentAdvice } =
+      await import("../../../../src/modules/ai/aiCoach.mjs");
+    vi.mocked(getAiInvestmentAdvice).mockResolvedValue({
+      advice: { summary: "test", action: "buy" },
+      traceId: "trace-1",
+    });
+
+    const { broadcastDailyReport } =
+      await import("../../../../src/modules/notifications/notifier.mjs");
+    vi.mocked(broadcastDailyReport).mockResolvedValue(undefined);
+
+    const { logDailyToSheet } =
+      await import("../../../../src/modules/storage.mjs");
+    vi.mocked(logDailyToSheet).mockResolvedValue(undefined);
+
+    const { langfuse } =
+      await import("../../../../src/modules/ai/aiClient.mjs");
+    vi.mocked(langfuse.shutdownAsync).mockResolvedValue(undefined);
+
+    const { shouldRunJudge, runJudge } =
+      await import("../../../../src/modules/ai/llmJudge.mjs");
+    vi.mocked(shouldRunJudge).mockReturnValue(true);
+    vi.mocked(runJudge).mockResolvedValue(undefined);
+
+    // Act
+    const result = await runDailyCheck(
+      {},
+      { isTelegramEnabled: true, isAIAdvisor: true, isCallAI: true },
+    );
+
+    // Assert
+    expect(result).toBe("✅ dailyCheck 執行成功");
+  });
+});
