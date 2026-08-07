@@ -4,9 +4,9 @@
 
 **Goal:** 為三類程式碼 (排程程式、API 伺服器、Telegram Mini App) 建立明確且可行的完整測試驗證體系。
 
-**Architecture:** 採用測試金字塔設計，從底層單元測試 → 整合測試 → E2E 測試，以 Mock 隔離外部依賴，並整合至 CI/CD 管線。
+**Architecture:** 採用測試金字塔設計，從底層單元測試 → 整合測試 → E2E 測試，以 Mock 隔離外部依賴，並整合至本地驗證管線。
 
-**Tech Stack:** Vitest (unit/integration), Playwright (E2E), ESLint (lint), GitHub Actions (CI/CD)
+**Tech Stack:** Vitest (unit/integration), Playwright (E2E), ESLint (lint), 本地驗證腳本
 
 ---
 
@@ -73,8 +73,7 @@
 | E2E 測試覆蓋 Simulator 關鍵路徑 | ✅ 100% (10/10)                       | 100%        | 階段 1 ✅ |
 | API Contract 測試覆蓋端點       | ✅ 100% (Simulator + Health + Config) | 100%        | 階段 2 ✅ |
 | 排程程式核心邏輯覆蓋率          | ~71%                                  | ≥80%        | 階段 3    |
-| CI Pipeline 執行時間            | N/A (無 CI)                           | <5 分鐘     | 階段 4    |
-| 部署前驗證自動化                | ✅ 完整自動化                         | 100% 自動化 | 階段 4    |
+| 部署前驗證自動化                | ✅ 完整自動化                         | 100% 自動化 | 階段 3 ✅ |
 
 ---
 
@@ -225,6 +224,10 @@ Verify Pipeline: 完整通過 (含 OpenAPI gen + breaking change check) ✅
   - 結果：整體覆蓋率 71.28%，DailyCheck 80% 達標
   - 待提升：weeklyReport (67.5%)、monthlyReport (69%)、newsFetch (70%)、optimizer (70%)
 
+- [x] **3.7** 整合至部署前驗證管線 ✅ **已完成**
+  - `npm run pre-deploy` 包含所有測試層級 + E2E + OpenAPI 檢查
+  - 本地完整驗證管線已可替代 CI/CD
+
 #### 驗收結果
 
 ```
@@ -241,54 +244,48 @@ Coverage: 71.28% (DailyCheck 80% 達標，其他待提升至 80%)
 E2E: 10/10 passed ✅
 Lint: 0 errors ✅
 Verify Pipeline: 完整通過 ✅
+Pre-deploy Pipeline: 完整通過 ✅
 ```
 
 ---
 
-### 階段 4：CI/CD 整合與自動化 ⏳ **[待開始]**
+### 階段 4：部署流程優化與自動化腳本 ⏳ **[待開始]**
 
-**目標：** 建立完整的自動化驗證管線，Push/PR 觸發自動執行
+**目標：** 優化手動部署流程，減少人為錯誤，提升部署效率
 **前置條件：** 階段 1-3 完成
+**說明：** 本專案採用手動部署至 Oracle VM，不使用 GitHub Actions CI/CD。本階段專注於優化部署腳本與檢查清單。
 
 #### 任務清單
 
-- [ ] **4.1** 建立 GitHub Actions Workflow
-  - 建立：`.github/workflows/ci.yml`
-  - 觸發條件：Push to main、PR to main、手動 `workflow_dispatch`
-  - 驗收：Push 後 GitHub Actions tab 出現執行紀錄
+- [ ] **4.1** 建立部署腳本 `scripts/deploy.mjs`
+  - 自動化：`git pull` → `npm ci --include=dev` → `npm run build` → `pm2 reload`
+  - 內建部署前檢查：確認 `npm run pre-deploy` 通過
+  - 部署後驗證：健康檢查端點、PM2 狀態
+  - 驗收：單一指令完成部署，失敗時自動回滾提示
 
-- [ ] **4.2** 設計階段式 Pipeline
+- [ ] **4.2** 建立部署檢查清單 `docs/DEPLOYMENT_CHECKLIST.md`
+  - 部署前：測試通過、建置成功、環境變數確認
+  - 部署中：資料庫遷移、靜態資源、PM2 重啟
+  - 部署後：健康檢查、錯誤日誌監控、功能驗收
+  - 驗收：每次部署依清單執行，可追蹤
 
-  ```yaml
-  jobs:
-    lint: # 並行 - ESLint 根目錄 + webapp
-    backend-test: # 並行 - Vitest 後端 426 tests
-    frontend-test: # 並行 - Vitest 前端 22 tests
-    frontend-build: # 依賴 frontend-test - Vite build
-    e2e-test: # 依賴 frontend-build - Playwright 10 tests
-    pre-deploy: # 依賴 e2e-test - 完整驗證門檻 (含 OpenAPI check)
-  ```
+- [ ] **4.3** 優化 `npm run pre-deploy` 回饋
+  - 顯示測試統計摘要 (通過/失敗/跳過數量)
+  - 顯示建置大小、耗時
+  - 顯示 OpenAPI 版本變更提醒
+  - 驗收：輸出資訊完整，決策支援度高
 
-- [ ] **4.3** Node.js / Playwright 快取配置
-  - 快取 `node_modules` (hash: `package-lock.json`)
-  - 快取 Playwright 瀏覽器 (`~/.cache/ms-playwright`)
-  - 驗收：第二次 CI 執行時間 < 5 分鐘
-
-- [ ] **4.4** 測試報告產出
-  - GitHub Actions Summary：測試通過數、失敗截圖連結
-  - Artifact 上傳：`webapp/test-results/`（Playwright 截圖/trace）
-  - 驗收：PR 頁面可直接看到測試摘要
-
-- [ ] **4.5** 分支保護規則
-  - main 分支：要求 CI 通過才可合併
-  - 驗收：GitHub Branch Protection 設定完成
+- [ ] **4.4** 環境變數管理優化
+  - 建立 `.env.production.template` 範本
+  - 文件化必要環境變數與來源
+  - 驗收：新環境部署零遺漏
 
 ---
 
 ### 階段 5：文件化與維護指南 ⏳ **[待開始]**
 
 **目標：** 建立完整的測試維護文件，確保可持續維護
-**前置條件：** 階段 4 完成
+**前置條件：** 階段 3 完成 (不依賴階段 4)
 
 #### 任務清單
 
@@ -309,9 +306,9 @@ Verify Pipeline: 完整通過 ✅
   - 驗收：至少涵蓋 5 個已知問題
 
 - [ ] **5.5** 更新 `README.md`
-  - 新增 CI 狀態徽章
   - 新增測試執行指令區塊
-  - 驗收：README 頂部出現 Build Passing / tests 徽章
+  - 新增專案架構圖
+  - 驗收：README 可作為專案快速導覽
 
 ---
 
@@ -353,21 +350,42 @@ npm run verify
 npm run pre-deploy
 ```
 
+### 部署 (手動至 Oracle VM)
+
+```bash
+# 1. 本地驗證
+npm run pre-deploy
+
+# 2. SSH 到 VM
+ssh user@vm
+
+# 3. 拉取代碼並部署 (未來可用 scripts/deploy.mjs)
+cd /path/to/project
+git pull
+npm ci --include=dev
+npm run build
+pm2 reload ecosystem.config.js
+
+# 4. 驗證
+curl https://your-domain/health
+pm2 status
+```
+
 ---
 
 ## 進度追蹤
 
-| 階段 | 名稱                    | 狀態      | 完成度                                      |
-| ---- | ----------------------- | --------- | ------------------------------------------- |
-| 1    | Playwright E2E 測試建立 | ✅ 完成   | 100%                                        |
-| 2    | API Contract 測試強化   | ✅ 完成   | 100%                                        |
-| 3    | 排程程式測試覆蓋        | ✅ 完成   | 90% (覆蓋率 71%，目標 80%，DailyCheck 達標) |
-| 4    | CI/CD 整合與自動化      | ⏳ 待開始 | 0%                                          |
-| 5    | 文件化與維護指南        | ⏳ 待開始 | 0%                                          |
+| 階段 | 名稱                     | 狀態      | 完成度                                      |
+| ---- | ------------------------ | --------- | ------------------------------------------- |
+| 1    | Playwright E2E 測試建立  | ✅ 完成   | 100%                                        |
+| 2    | API Contract 測試強化    | ✅ 完成   | 100%                                        |
+| 3    | 排程程式測試覆蓋         | ✅ 完成   | 90% (覆蓋率 71%，目標 80%，DailyCheck 達標) |
+| 4    | 部署流程優化與自動化腳本 | ⏳ 待開始 | 0%                                          |
+| 5    | 文件化與維護指南         | ⏳ 待開始 | 0%                                          |
 
 ---
 
-_文件版本：v1.5_
+_文件版本：v2.0_
 _建立日期：2026-08-04_
 _最後更新：2026-08-07_
 _作者：LuLuLaLaHaHa_
