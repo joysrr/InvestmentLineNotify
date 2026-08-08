@@ -14,8 +14,11 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "verify": "node scripts/verify-all.mjs",
+    "pre-deploy": "node scripts/verify-all.mjs && cd webapp && npm run test:e2e",
     "openapi:generate": "node scripts/generate-openapi.mjs",
-    "openapi:check": "node scripts/check-openapi-diff.mjs"
+    "openapi:check": "node scripts/check-openapi-diff.mjs",
+    "deploy": "node scripts/deploy.mjs",
+    "deploy:dry": "node scripts/deploy.mjs --dry-run"
   },
   "type": "module",
   "dependencies": {
