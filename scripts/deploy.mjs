@@ -13,6 +13,7 @@
  *   DEPLOY_DOMAIN=your-domain.duckdns.org (用於健康檢查)
  */
 
+import "dotenv/config";
 import { execSync, spawnSync } from "child_process";
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { join, dirname } from "path";
