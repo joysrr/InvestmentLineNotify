@@ -63,7 +63,11 @@ function runCmdSilent(cmd) {
 }
 
 function sshExec(cmd) {
-  return runCmd(`ssh ${VM_HOST} "${cmd}"`);
+  // 使用 heredoc 避免本地 shell 展開 $() 等特殊字元
+  const escapedCmd = cmd.replace(/"/g, '\\"');
+  return runCmd(
+    `ssh ${VM_HOST} "cat << 'REMOTE_EOF'\n${escapedCmd}\nREMOTE_EOF\n"`,
+  );
 }
 
 function getGitInfo() {
