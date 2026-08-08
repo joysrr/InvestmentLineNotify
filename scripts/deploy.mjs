@@ -29,6 +29,7 @@ const PROJECT_ROOT = join(__dirname, "..");
 const VM_HOST = process.env.VM_HOST || "user@your-vm-ip";
 const VM_PATH = process.env.VM_PATH || "~/investnotify";
 const DEPLOY_DOMAIN = process.env.DEPLOY_DOMAIN || "your-domain.duckdns.org";
+const VM_SSH_KEY = process.env.VM_SSH_KEY || ""; // SSH 私鑰路徑，如 ~/.ssh/oracle_vm.pem
 const LOGS_DIR = join(PROJECT_ROOT, "logs");
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -65,8 +66,9 @@ function runCmdSilent(cmd) {
 function sshExec(cmd) {
   // 使用 heredoc 避免本地 shell 展開 $() 等特殊字元
   const escapedCmd = cmd.replace(/"/g, '\\"');
+  const sshKeyOption = VM_SSH_KEY ? `-i ${VM_SSH_KEY} ` : "";
   return runCmd(
-    `ssh ${VM_HOST} "cat << 'REMOTE_EOF'\n${escapedCmd}\nREMOTE_EOF\n"`,
+    `ssh ${sshKeyOption}${VM_HOST} "cat << 'REMOTE_EOF'\n${escapedCmd}\nREMOTE_EOF\n"`,
   );
 }
 
