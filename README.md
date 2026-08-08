@@ -285,6 +285,58 @@ tail -f logs/vm-cron.log
 
 ---
 
+## 測試與驗證指令
+
+> 詳細測試策略請見 [`docs/TESTING.md`](docs/TESTING.md)
+
+### 本地開發 (頻繁執行)
+
+```bash
+# 後端單元/整合測試 (~15s)
+npm run test
+
+# 前端單元測試 (~10s)
+cd webapp && npm run test
+
+# Playwright E2E 測試 (~35s，含自動啟動伺服器)
+cd webapp && npm run test:e2e
+
+# Playwright 有頭模式除錯
+cd webapp && npm run test:e2e:headed
+
+# 觀看覆蓋率報告
+npx vitest run --coverage
+```
+
+### Commit 前 (強制)
+
+```bash
+# 完整 pipeline (測試 + 建置 + OpenAPI)
+npm run verify
+```
+
+### 部署前 (必要)
+
+```bash
+# 完整 pipeline (含 E2E)
+npm run pre-deploy
+```
+
+### 部署
+
+```bash
+# 完整部署 (含 pre-deploy 驗證)
+npm run deploy
+
+# 只跑驗證不部署 (二次確認)
+npm run deploy:dry
+
+# 緊急部署 (跳過 pre-deploy，謹慎使用)
+npm run deploy -- --skip-pre
+```
+
+---
+
 ## 專案結構
 
 ```
