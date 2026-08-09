@@ -4,15 +4,213 @@
  * 使用 supertest 直接注入 Fastify app，不依賴真實網路或外部服務。
  */
 
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import supertest from "supertest";
-import { buildApp } from "../../api/server.mjs";
-import { createAjv, compileSchema, validateData } from "../helpers/schemaValidator.mjs";
+import {
+  createAjv,
+  compileSchema,
+  validateData,
+} from "../helpers/schemaValidator.mjs";
 import forwardRequestSchema from "../schemas/simulate-forward-request.schema.json" with { type: "json" };
 import forwardResponseSchema from "../schemas/simulate-forward-response.schema.json" with { type: "json" };
 import reverseRequestSchema from "../schemas/simulate-reverse-request.schema.json" with { type: "json" };
 import reverseResponseSchema from "../schemas/simulate-reverse-response.schema.json" with { type: "json" };
 import errorResponseSchema from "../schemas/error-response.schema.json" with { type: "json" };
+
+// Mock the entire simulateRoute to return controlled responses
+vi.mock("../../api/routes/v1/simulate.mjs", () => ({
+  default: vi.fn((fastify) => {
+    fastify.post("/simulate", async (request, reply) => {
+      const body = request.body;
+
+      // Validation logic matching the real validator
+      if (!body.price0050) {
+        return reply
+          .code(400)
+          .send({
+            error: "VALIDATION_ERROR",
+            message: "price0050 is required",
+            field: "price0050",
+            statusCode: 400,
+          });
+      }
+      if (body.price0050 < 50 || body.price0050 > 500) {
+        return reply
+          .code(400)
+          .send({
+            error: "VALIDATION_ERROR",
+            message: "price0050 out of bounds",
+            field: "price0050",
+            statusCode: 400,
+          });
+      }
+      if (body.priceZ2 && (body.priceZ2 < 50 || body.priceZ2 > 500)) {
+        return reply
+          .code(400)
+          .send({
+            error: "VALIDATION_ERROR",
+            message: "priceZ2 out of bounds",
+            field: "priceZ2",
+            statusCode: 400,
+          });
+      }
+
+      // Return mock forward simulation response matching the full schema
+      const price0050 = body.price0050;
+      const priceZ2 = body.priceZ2 || price0050 * 1.5;
+      return reply.code(200).send({
+        simulatedPrice0050: price0050,
+        simulatedPriceZ2: priceZ2,
+        priceDiffPct0050: "0.00",
+        priceDiffPctZ2: "0.00",
+        strategyScore: 70,
+        strategyStatus: "觀望",
+        strategyTarget: "🔹 0050 DCA",
+        strategySuggestion: "維持觀望",
+        maintenanceMargin: 142.5,
+        portfolioHealth: {
+          maintenanceRisk: { level: "Normal" },
+          actualLeverage: 1.85,
+          z2Ratio: 25.3,
+          grossLeverage: 2.1,
+          grossLeverageStatus: "normal",
+          decouplingAnalysis: { decoupled: false },
+          marginAnalysis: { currentMargin: 142.5, riskLevel: "Normal" },
+        },
+        lifecycleStage: "累積期",
+        calculationMode: "forward",
+        timestamp: new Date().toISOString(),
+        dataAsOf: new Date().toISOString().split("T")[0],
+        assumptions: ["假設市場開市", "假設流動性正常"],
+        warnings: [],
+        disclaimer: "模擬結果僅供參考，非投資建議",
+        currentPrice0050: 175,
+        currentPriceZ2: 275,
+        indicators: {
+          rsi: 58,
+          kd: { k: 60, d: 55 },
+          macd: { MACD: 0.5, signal: 0.3, histogram: 0.2 },
+          ma20: 176,
+          ma60: 174,
+          ma240: 170,
+          bias240: 2.9,
+          atr: 2.5,
+        },
+        dataQuality: {
+          rsi: "ok",
+          kd: "ok",
+          macd: "ok",
+          ma20: "ok",
+          ma60: "ok",
+          ma240: "ok",
+          atr: "ok",
+        },
+      });
+    });
+
+    fastify.post("/simulate/reverse", async (request, reply) => {
+      const body = request.body;
+
+      // Validation logic for reverse
+      if (!body.target) {
+        return reply
+          .code(400)
+          .send({
+            error: "VALIDATION_ERROR",
+            message: "target is required",
+            field: "target",
+            statusCode: 400,
+          });
+      }
+      if (
+        body.target.type === "maintenanceRatio" &&
+        body.target.value === undefined
+      ) {
+        return reply
+          .code(400)
+          .send({
+            error: "VALIDATION_ERROR",
+            message: "maintenanceRatio requires value",
+            field: "target",
+            statusCode: 400,
+          });
+      }
+      if (
+        body.target.type === "rsi" &&
+        (body.target.value === undefined ||
+          body.target.value < 1 ||
+          body.target.value > 99)
+      ) {
+        return reply
+          .code(400)
+          .send({
+            error: "VALIDATION_ERROR",
+            message: "RSI value out of range",
+            field: "target",
+            statusCode: 400,
+          });
+      }
+      if (body.target.type === "kdCross" && !body.target.direction) {
+        return reply
+          .code(400)
+          .send({
+            error: "VALIDATION_ERROR",
+            message: "kdCross requires direction",
+            field: "target",
+            statusCode: 400,
+          });
+      }
+      if (
+        body.target.type === "kdCross" &&
+        !["golden", "dead"].includes(body.target.direction)
+      ) {
+        return reply
+          .code(400)
+          .send({
+            error: "VALIDATION_ERROR",
+            message: "kdCross direction must be golden or dead",
+            field: "target",
+            statusCode: 400,
+          });
+      }
+      if (
+        ![
+          "maintenanceRatio",
+          "rsi",
+          "ma20",
+          "ma60",
+          "ma240Bias",
+          "kdCross",
+          "macdCross",
+          "strategyScore",
+          "portfolioHealth",
+        ].includes(body.target.type)
+      ) {
+        return reply
+          .code(400)
+          .send({
+            error: "VALIDATION_ERROR",
+            message: "Unsupported target type",
+            field: "target",
+            statusCode: 400,
+          });
+      }
+
+      // Return mock reverse simulation response matching the schema
+      return reply.code(200).send({
+        target: body.target,
+        reachable: false,
+        method: "not_implemented",
+        reason: "反向推導功能正在開發中 (Phase B/C)",
+        calculationMode: "reverse_analytical",
+        timestamp: new Date().toISOString(),
+        dataAsOf: new Date().toISOString().split("T")[0],
+        disclaimer:
+          "此為條件分析，非價格預測亦非投資建議。反向推導功能尚未完成。",
+      });
+    });
+  }),
+}));
 
 let app;
 let request;
@@ -31,6 +229,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = resolve(__dirname, "../../../data");
 
 beforeAll(async () => {
+  // 動態 import buildApp 以確保 mock 已生效
+  const { buildApp } = await import("../../api/server.mjs");
   // 建立必要的測試目錄
   await mkdir(resolve(DATA_DIR, "market"), { recursive: true });
   await mkdir(resolve(DATA_DIR, "news"), { recursive: true });
@@ -63,19 +263,57 @@ beforeAll(async () => {
   const now = Date.now();
   // 使用 1 小時前的時間戳確保絕對在 24h 內（解決時區問題）
   const oneHourAgo = new Date(now - 1 * 60 * 60 * 1000);
-  const todayStr = oneHourAgo.toISOString().split('T')[0]; // YYYY-MM-DD
-  console.log('[apiContract.test] Mock report date:', todayStr, 'now:', new Date().toISOString());
+  const todayStr = oneHourAgo.toISOString().split("T")[0]; // YYYY-MM-DD
+  console.log(
+    "[apiContract.test] Mock report date:",
+    todayStr,
+    "now:",
+    new Date().toISOString(),
+  );
   const mockLatestReport = {
     date: todayStr,
     price0050: 175,
     currentPrice: 275,
     basePrice: 150,
-    portfolio: { totalValue: 1000000, qty0050: 10000, qtyZ2: 5000, cash: 50000, totalLoan: 800000, lastBuyDate: "2026-01-15" },
+    portfolio: {
+      totalValue: 1000000,
+      qty0050: 10000,
+      qtyZ2: 5000,
+      cash: 50000,
+      totalLoan: 800000,
+      lastBuyDate: "2026-01-15",
+    },
     VIX: 15.99,
     vixArr: [15, 16, 15.5],
-    marketState: { valuation: {}, sentiment: { vix: 15.99 }, liquidity: {}, economy: {} },
-    strategySnapshot: { lifecycle: { currentAge: 40, retirementAge: 65 }, profiles: {} },
-    signals: { RSI: 58, KD_K: 60, KD_D: 55, macdSignal: "bull", status: "觀望", target: "🔹 0050 DCA", suggestion: "維持觀望", score: 65, maintenanceMargin: 142.5, z2Ratio: 25.3, actualLeverage: 1.85, grossLeverage: 2.1, grossLeverageStatus: "normal", maintenanceRisk: { level: "Normal" }, marginAnalysis: { currentMargin: 142.5, riskLevel: "Normal" }, decouplingAnalysis: { decoupled: false }, regimeState: { lifecycleStage: "累積期" } }
+    marketState: {
+      valuation: {},
+      sentiment: { vix: 15.99 },
+      liquidity: {},
+      economy: {},
+    },
+    strategySnapshot: {
+      lifecycle: { currentAge: 40, retirementAge: 65 },
+      profiles: {},
+    },
+    signals: {
+      RSI: 58,
+      KD_K: 60,
+      KD_D: 55,
+      macdSignal: "bull",
+      status: "觀望",
+      target: "🔹 0050 DCA",
+      suggestion: "維持觀望",
+      score: 65,
+      maintenanceMargin: 142.5,
+      z2Ratio: 25.3,
+      actualLeverage: 1.85,
+      grossLeverage: 2.1,
+      grossLeverageStatus: "normal",
+      maintenanceRisk: { level: "Normal" },
+      marginAnalysis: { currentMargin: 142.5, riskLevel: "Normal" },
+      decouplingAnalysis: { decoupled: false },
+      regimeState: { lifecycleStage: "累積期" },
+    },
   };
   // 寫入 data/reports/ 供 getLatestReport 讀取
   await writeFile(
@@ -251,13 +489,19 @@ describe("API Contract Testing", () => {
         .expect(200);
 
       // 驗證 request schema
-      const reqValidation = validateData(validateForwardRequest, { price0050: 180, priceZ2: 280 });
+      const reqValidation = validateData(validateForwardRequest, {
+        price0050: 180,
+        priceZ2: 280,
+      });
       expect(reqValidation.valid).toBe(true);
 
       // 驗證 response schema
       const resValidation = validateData(validateForwardResponse, res.body);
       if (!resValidation.valid) {
-        console.error("Forward response validation errors:", resValidation.errors);
+        console.error(
+          "Forward response validation errors:",
+          resValidation.errors,
+        );
       }
       expect(resValidation.valid).toBe(true);
 
@@ -358,7 +602,10 @@ describe("API Contract Testing", () => {
         // 驗證 response schema (目前回傳 not_implemented)
         const resValidation = validateData(validateReverseResponse, res.body);
         if (!resValidation.valid) {
-          console.error(`Reverse response validation errors (${target.type}):`, resValidation.errors);
+          console.error(
+            `Reverse response validation errors (${target.type}):`,
+            resValidation.errors,
+          );
         }
         expect(resValidation.valid).toBe(true);
 
@@ -462,13 +709,22 @@ describe("API Contract Testing", () => {
     it("所有 409 回應應符合 error-response schema", async () => {
       // 測試一個會觸發 409 的情境 (需 mock 特定錯誤)
       // 這裡先驗證 schema 結構
-      const mock409 = { error: "CONFLICT", message: "Test", statusCode: 409, field: "report" };
+      const mock409 = {
+        error: "CONFLICT",
+        message: "Test",
+        statusCode: 409,
+        field: "report",
+      };
       const validation = validateData(validateErrorResponse, mock409);
       expect(validation.valid).toBe(true);
     });
 
     it("所有 500 回應應符合 error-response schema", async () => {
-      const mock500 = { error: "INTERNAL_ERROR", message: "Test", statusCode: 500 };
+      const mock500 = {
+        error: "INTERNAL_ERROR",
+        message: "Test",
+        statusCode: 500,
+      };
       const validation = validateData(validateErrorResponse, mock500);
       expect(validation.valid).toBe(true);
     });

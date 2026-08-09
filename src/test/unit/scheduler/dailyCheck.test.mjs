@@ -5,6 +5,11 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+// Mock envGuard at the very top to prevent assertEnv() from running during module load
+vi.mock("../../../../src/utils/envGuard.mjs", () => ({
+  assertEnv: vi.fn(),
+}));
+
 // Mock external dependencies at the top level
 vi.mock("../../../../src/modules/ai/aiClient.mjs", () => ({
   langfuse: { score: vi.fn(), shutdownAsync: vi.fn() },

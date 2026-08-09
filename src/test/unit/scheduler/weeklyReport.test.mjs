@@ -5,6 +5,10 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+// Set required env vars before any imports
+process.env.TELEGRAM_API_TOKEN = "test_token";
+process.env.TELEGRAM_WEBAPP_URL = "https://test.webapp.url";
+
 // Mock external dependencies at the top level
 vi.mock("../../../../src/modules/ai/aiClient.mjs", () => ({
   langfuse: { score: vi.fn(), shutdownAsync: vi.fn() },
