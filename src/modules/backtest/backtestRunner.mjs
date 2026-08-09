@@ -111,7 +111,20 @@ export class BacktestRunner {
 
     const WARM_UP = 60;
 
-    for (let i = WARM_UP; i < this.timeline.length; i++) {
+    // 如果 timeline 太短，調整 warm-up 但至少要有 1 筆資料
+    const effectiveWarmUp = Math.min(
+      WARM_UP,
+      Math.max(0, this.timeline.length - 1),
+    );
+
+    if (this.timeline.length <= effectiveWarmUp) {
+      console.warn(
+        `⚠️ [Backtest] Timeline 太短 (${this.timeline.length} 筆)，無法進行有效回測 (需至少 ${WARM_UP + 1} 筆)`,
+      );
+      return this.getSummary(); // 回傳 null
+    }
+
+    for (let i = effectiveWarmUp; i < this.timeline.length; i++) {
       const day = this.timeline[i];
       const { date, price0050, price00675L, vix, pb } = day;
 
