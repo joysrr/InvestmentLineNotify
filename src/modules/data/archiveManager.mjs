@@ -257,6 +257,47 @@ ${riskWarnings}
   },
 
   /**
+   * 取得指定日期範圍內的所有歷史報告記錄
+   * 供回測系統使用，一次性讀取多份報告
+   * @param {Object} dateRange - { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' }
+   * @returns {Promise<Array<Object>>} 報告陣列，由舊到新排序
+   */
+  async getArchiveRecords({ start, end }) {
+    try {
+      const files = await fs.readdir(DIRS.REPORTS);
+      const candidates = files
+        .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+        .map((f) => f.replace(".json", ""))
+        .filter((d) => d >= start && d <= end)
+        .sort(); // 由舊到新
+
+      if (candidates.length === 0) {
+        return [];
+      }
+
+      const reports = [];
+      for (const dateStr of candidates) {
+        try {
+          const filePath = path.join(DIRS.REPORTS, `${dateStr}.json`);
+          const content = await fs.readFile(filePath, "utf-8");
+          const report = JSON.parse(content);
+          if (!report.date) {
+            report.date = dateStr;
+          }
+          reports.push(report);
+        } catch (err) {
+          console.warn(`⚠️ [Archive] getArchiveRecords 讀取 ${dateStr} 失敗:`, err.message);
+        }
+      }
+
+      return reports;
+    } catch (err) {
+      console.warn("⚠️ [Archive] getArchiveRecords 失敗:", err.message);
+      return [];
+    }
+  },
+
+  /**
    * 列出所有歷史報告日期（YYYY-MM-DD 格式，由新到舊排序）
    * @returns {Promise<string[]>}
    */
