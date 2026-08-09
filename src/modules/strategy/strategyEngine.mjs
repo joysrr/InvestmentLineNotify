@@ -259,12 +259,20 @@ export async function evaluateInvestmentSignal(data, arg2, arg3) {
     macdSignal,
   });
 
+  // 新增 signalCategory / signalType (供回測與資金管控)
+  const signalCategory = determineSignalCategory(ctx, finalDecision);
+  const signalType = determineSignalType(signalCategory);
+
   return {
     id: data.date || new Date().toISOString().split("T")[0],
     date: data.date || new Date().toISOString(),
     marketState,
     strategySnapshot: strategy,
-    signals,
+    signals: {
+      ...signals,
+      signalCategory,
+      signalType,
+    },
   };
 }
 
@@ -414,6 +422,51 @@ function buildEngineContext(data, derived) {
     highsSince: highsSince ?? [],
     historyLoan10d: historyLoan10d ?? 0,
   };
+}
+
+/**
+ * 判斷 signalCategory (供回測 Phase 2 統計使用)
+ * baseline | deep_drop | panic | take_profit | rebalance
+ */
+function determineSignalCategory(ctx, finalDecision) {
+  // Panic bypass 有最高優先級
+  if (finalDecision.panicBypassActive) return "panic";
+
+  // Trailing stop 觸發
+  if (finalDecision.trailingActive) return "take_profit";
+
+  // Rebalance 觸發
+  if (
+    finalDecision.target?.includes?.("再平衡") ||
+    finalDecision.target?.includes?.("Rebalance")
+  )
+    return "rebalance";
+
+  // 依跌幅與目標判斷
+  const drop = ctx.priceDropPercent ?? 0;
+  const target = finalDecision.target ?? "";
+
+  if (drop >= 30) return "panic";
+  if (drop >= 15 && target !== "🔹 0050 DCA" && target !== "觀望")
+    return "deep_drop";
+
+  // 預設 baseline (DCA 或觀望)
+  return "baseline";
+}
+
+/**
+ * 判斷 signalType (供資金管控 Budget Priority 使用)
+ * baseline | tactical_drop | tactical_panic
+ */
+function determineSignalType(category) {
+  switch (category) {
+    case "panic":
+      return "tactical_panic";
+    case "deep_drop":
+      return "tactical_drop";
+    default:
+      return "baseline";
+  }
 }
 
 /**
