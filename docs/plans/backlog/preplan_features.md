@@ -2,17 +2,18 @@
 
 ## **執行順序總覽**
 
-| 狀態      | 批次        | 項目與核心功能                                   | 依賴關係               | 說明                                   |
-| :-------- | :---------- | :----------------------------------------------- | :--------------------- | :------------------------------------- |
-| ✅ 已完成 | 第零批 (P0) | ⓪ 外部資料接口擴展 (法人、融資、總經)            | 無                     | 基礎設施第一優先：確保策略資料維度完整 |
-| ✅ 已完成 | 第一批      | ① retry/timeout、② lastBuyDate 快取              | 無                     | 基礎設施先行                           |
-| ✅ 已完成 | 第二批      | ③ Gross Leverage → ④ 計畫A → ⑤ 計畫B → ⑥ 計畫C   | 有序                   | 核心風控鏈                             |
-| ✅ 已完成 | 第六批 (P1) | ⑪ Mini App 視覺化 (策略狀態、歷史趨勢、風險儀表) | 第二批完成             | 已先行實作：策略透明化與視覺化監控     |
-| ✅ 已完成 | 第三批      | ⑬ 盤後保證金壓力測試與資金解耦                   | 第零批、第二批完成     | 生存為先：核心風控防護網建置           |
-| ✅ 已完成 | 第四批      | ⑭ 多空訊號衝突解決與評分矩陣重構                 | 第零批、第三批完成     | 解決多空訊號衝突與邏輯死鎖             |
-| ✅ 已完成 | 第五批      | ⑦ 廢除 BasePrice Phase 2 → ⑧ 資金管控            | ⑭ 完成，與計分矩陣整合 | 停利機制升級與資金調配                 |
-| \-        | 第六批 (P2) | ⑨ 回測計畫                                       | 第五批完成             | 分析強化與系統狀態驗證工具             |
-| \-        | 第七批      | ⑩ 生命週期風險預算 → ⑮ 總經與市場狀態辨識        | 第六批完成             | 長期演化與宏觀動態調控                 |
+| 狀態        | 批次        | 項目與核心功能                                   | 依賴關係               | 說明                                           |
+| :---------- | :---------- | :----------------------------------------------- | :--------------------- | :--------------------------------------------- |
+| ✅ 已完成   | 第零批 (P0) | ⓪ 外部資料接口擴展 (法人、融資、總經)            | 無                     | 基礎設施第一優先：確保策略資料維度完整         |
+| ✅ 已完成   | 第一批      | ① retry/timeout、② lastBuyDate 快取              | 無                     | 基礎設施先行                                   |
+| ✅ 已完成   | 第二批      | ③ Gross Leverage → ④ 計畫A → ⑤ 計畫B → ⑥ 計畫C   | 有序                   | 核心風控鏈                                     |
+| ✅ 已完成   | 第六批 (P1) | ⑪ Mini App 視覺化 (策略狀態、歷史趨勢、風險儀表) | 第二批完成             | 已先行實作：策略透明化與視覺化監控             |
+| ✅ 已完成   | 第三批      | ⑬ 盤後保證金壓力測試與資金解耦                   | 第零批、第二批完成     | 生存為先：核心風控防護網建置                   |
+| ✅ 已完成   | 第四批      | ⑭ 多空訊號衝突解決與評分矩陣重構                 | 第零批、第三批完成     | 解決多空訊號衝突與邏輯死鎖                     |
+| 🟡 部分完成 | 第五批      | ⑦ 廢除 BasePrice Phase 2 → ⑧ 資金管控            | ⑭ 完成，與計分矩陣整合 | 停利機制升級✅、資金管控🟡(僅預算攔截)         |
+| 🟡 核心完成 | 第六批 (P2) | ⑨ 回測計畫                                       | 第五批完成             | 框架✅、archiveManager API❌、signalCategory❌ |
+| ✅ 核心完成 | 第七批(前)  | ⑩ 生命週期風險預算                               | 第六批完成             | lifecycleEngine + LifecycleLeverageRule 已實作 |
+| 🟡 部分完成 | 第七批(後)  | ⑮ 總經與市場狀態辨識                             | 第六批完成             | VIX/估值 Regime✅、利息濾網❌、融資券❌        |
 
 ## **🚀【第一優先】📌【基礎設施】第零批：外部資料接口擴展與標準化**
 
@@ -160,13 +161,13 @@
 
 ### **討論狀態**
 
-✅ 已完成 (2026-04-18)
+🟡 **Phase 2/3 完成 (2026-04-18)** — MA20/ATR 停利已實作 (`StopLossTrailingRule.mjs`)，BasePrice 移除完成；Phase 3 回測驗證待回測框架完成後進行
 
 ## **📌【績效分析】績效分析與回測計畫**
 
 ### **狀態**
 
-⚪ 待實作｜難度：⭐⭐⭐ 高
+🟡 **Phase 1 核心框架完成 (2026-07)** — `backtestRunner.mjs` + `accountSimulator.mjs` 已可執行；🟡 **Phase 2/3 待實作** — 缺 `archiveManager.getArchiveRecords()`、`signalCategory`、`runBacktest.mjs` runner
 
 ### **目標摘要**
 
@@ -302,7 +303,7 @@ VIX 情緒短路機制已完成，但尚未驗證「有 sentimentScore + 冷卻�
 
 ### **討論狀態**
 
-⚪ 待確認
+✅ **核心已完成 (2026-07)** — `lifecycleEngine.mjs` + `LifecycleLeverageRule.mjs` (P20) 已整合至決策鏈；Strategy.json 支援 lifecycleProfiles；Mini App 設定頁面待開發
 
 ## **📌【策略演化】總經與市場狀態辨識（Regime Detection）動態過濾器**
 
@@ -341,9 +342,9 @@ VIX 情緒短路機制已完成，但尚未驗證「有 sentimentScore + 冷卻�
 
 ### **討論狀態**
 
-✅ 已完成 (2026-04-18)
+🟡 **部分完成 (2026-04-18)** — `macroSentimentPolicy.mjs` + `RegimePolicyRule.mjs` 完成 VIX/估值 Regime；❌ **缺利息成本濾網、融資券餘額資料流 (dataFeedHandler)**、Phase 3 權重動態調整
 
-## **✅【已完成】📌【前端體驗】Mini App 策略狀態與解釋視覺化**
+## **🟡 部分完成** 📌【前端體驗】Mini App 策略狀態與解釋視覺化
 
 ### **狀態與目標摘要**
 
@@ -375,13 +376,13 @@ VIX 情緒短路機制已完成，但尚未驗證「有 sentimentScore + 冷卻�
 
 ### **討論狀態**
 
-⚪ 待確認
+🟡 **基礎儀表板完成，缺專屬策略狀態專頁** — DashboardView 有基礎資訊，但無 weightScore 構成分解、冷卻期倒數、分數檔位說明等深度頁面
 
-## **📌【資金管控強化】Baseline/Tactical 雙層架構與撥款上限控制**
+## **🟡 Phase 1 完成、Phase 2 待實作** 📌【資金管控強化】Baseline/Tactical 雙層架構與撥款上限控制
 
 ### **狀態**
 
-⚪ 待實作｜難度：⭐⭐⭐ 高
+🟡 **Phase 1 預算攔截完成 (budgetSynergyPolicy.mjs)**、❌ **Phase 2 Budget Priority 待實作**｜難度：⭐⭐⭐ 高
 
 ### **目標摘要**
 
@@ -399,16 +400,17 @@ VIX 情緒短路機制已完成，但尚未驗證「有 sentimentScore + 冷卻�
   - 新增 baselineAllocation 與 tacticalAllocation 概念，baseline 只受輕度技術與估值因素影響；tactical 則要求更嚴格的大跌／恐慌條件。
   - 在 evaluateInvestmentSignal 結果中明確標示 signalType = baseline | tactical_drop | tactical_panic。
 - 報告區分：
-  - 在 Telegram 報告文案中以標題或 emoji 區分兩者（例如「🌱 常態布局」vs「⚡ 戰術加碼」）。
+  - 在 Telegram 報告文案中以標題或 emoji 區分兩者（例如「🌱 常態布局」vs「⚡ 戰術加碼」)。
 
 #### **工作節次**
 
-| 節   | 工作內容                                                      | 涉及檔案                |
-| :--- | :------------------------------------------------------------ | :---------------------- |
-| 節一 | Strategy.json 新增 baseline / tactical 配置區段               | Strategy.json           |
-| 節二 | evaluateInvestmentSignal() 輸出新增 signalType 欄位（baseline | tactical_drop           |
-| 節三 | Telegram 通知模板依 signalType 區分顯示文案（🌱 / ⚡）        | telegramHtmlBuilder.mjs |
-| 節四 | 周/月報統計邏輯分開統計 baseline 與 tactical 的觸發次數       | periodReportAgent.mjs   |
+| 節   | 工作內容                                                | 涉及檔案                | 狀態 |
+| :--- | :------------------------------------------------------ | :---------------------- | :--- |
+| 節一 | Strategy.json 新增 baseline / tactical 配置區段         | Strategy.json           | ❌   |
+| 節二 | evaluateInvestmentSignal() 輸出新增 signalType 欄位     | strategyEngine.mjs      | ❌   |
+| 節三 | Telegram 通知模板依 signalType 區分顯示文案（🌱 / ⚡）  | telegramHtmlBuilder.mjs | ❌   |
+| 節四 | 周/月報統計邏輯分開統計 baseline 與 tactical 的觸發次數 | periodReportAgent.mjs   | ❌   |
+| 節五 | **預算攔截邏輯** (budgetSynergyPolicy.mjs)              | 已實作                  | ✅   |
 
 ### **Phase 2：撥款上限與 Budget Priority（依賴 Phase 1 完成）**
 
@@ -432,13 +434,13 @@ VIX 情緒短路機制已完成，但尚未驗證「有 sentimentScore + 冷卻�
 
 #### **工作節次**
 
-| 節   | 工作內容                                                                                             | 涉及檔案              |
-| :--- | :--------------------------------------------------------------------------------------------------- | :-------------------- |
-| 節一 | Strategy.json 新增 trading.maxDailyLoanIncreasePct 與 trading.maxRollingLoanIncreasePct 參數         | Strategy.json         |
-| 節二 | strategyEngine.mjs 新增 resolveBudgetLimit() 函式，計算當日可用撥款上限（含 Rolling 計算與底部截斷） | strategyEngine.mjs    |
-| 節三 | buildDecision() 整合 Budget Priority：先扣 Baseline 預算，剩餘分配 Tactical                          | strategyEngine.mjs    |
-| 節四 | storage.mjs 新增近 10 日借款/還款紀錄讀取方法，供 Rolling 計算使用                                   | storage.mjs           |
-| 節五 | 月報新增「本月加碼資金節奏」摘要區段                                                                 | periodReportAgent.mjs |
+| 節   | 工作內容                                                                                             | 涉及檔案              | 狀態 |
+| :--- | :--------------------------------------------------------------------------------------------------- | :-------------------- | :--- |
+| 節一 | Strategy.json 新增 trading.maxDailyLoanIncreasePct 與 trading.maxRollingLoanIncreasePct 參數         | Strategy.json         | ❌   |
+| 節二 | strategyEngine.mjs 新增 resolveBudgetLimit() 函式，計算當日可用撥款上限（含 Rolling 計算與底部截斷） | strategyEngine.mjs    | ❌   |
+| 節三 | buildDecision() 整合 Budget Priority：先扣 Baseline 預算，剩餘分配 Tactical                          | strategyEngine.mjs    | ❌   |
+| 節四 | storage.mjs 新增近 10 日借款/還款紀錄讀取方法，供 Rolling 計算使用                                   | storage.mjs           | ❌   |
+| 節五 | 月報新增「本月加碼資金節奏」摘要區段                                                                 | periodReportAgent.mjs | ❌   |
 
 ### **整合影響範圍**
 
@@ -450,7 +452,7 @@ VIX 情緒短路機制已完成，但尚未驗證「有 sentimentScore + 冷卻�
 
 ### **討論狀態**
 
-⚪ 待確認
+🟡 **Phase 1 預算攔截完成、Phase 2 待實作** — 僅有 `budgetSynergyPolicy.mjs` (預算攔截)，缺 signalType、Budget Priority、每日/滾動上限
 
 #### **引用的著作**
 

@@ -348,3 +348,105 @@ grossLeverage = (市值0050 + 市值00675L * 2) / 帳戶淨值;
 | P5       | 計畫 B (valuationGuard)    | 套用 PR 分位數乘數                     |
 | P6       | 計畫 C (valuationMomentum) | 套用動量與 VIX 補正                    |
 | P7       | 常態策略                   | weightScore DCA 決策                   |
+
+---
+
+## ✅【P1 已完成】生命週期風險預算與槓桿曲線 (核心引擎)
+
+> **完成日期：** 2026-07
+> **相關 Commit：** lifecycleEngine 整合、LifecycleLeverageRule (P20) 加入決策鏈
+
+### 完成摘要
+
+實作 `lifecycleEngine.mjs` 核心計算引擎與 `LifecycleLeverageRule.mjs` (Priority 20)，將生命週期參數整合至決策鏈。Strategy.json 新增 `lifecycleProfiles` 區段支援四階段槓桿上限配置。
+
+### 核心功能
+
+- **四階段 Profile**：EARLY (>15年, 2.0x)、MID (10-15年, 2.0x)、LATE (5-10年, 1.5x)、PRE_RETIRE (≤5年, 1.0x)
+- **優先級定位**：Priority 1.5 (介於維持率危機 P1 與 Gross Leverage P30 之間)
+- **後期保守模式**：Sell-only Mode (禁止新增 00675L/質押)、Activation Cushion 強制 Bypass (MA20/ATR 即時生效)
+- **決策鏈整合**：`LifecycleLeverageRule` 在 `engineState.adjustedMaxLeverage` 寫入 Regime CAUTIOUS 調整後的上限
+
+### 影響範圍
+
+- `src/modules/strategy/lifecycleEngine.mjs` (核心計算)
+- `src/modules/strategy/decision/rules/LifecycleLeverageRule.mjs` (P20 規則)
+- `Strategy.json` (lifecycleProfiles 配置)
+- 決策鏈 `createDefaultDecisionChain()` 自動載入
+
+---
+
+## ✅【P2 已完成】回測核心框架
+
+> **完成日期：** 2026-07
+> **相關 Commit：** backtest 模組新增
+
+### 完成摘要
+
+建立 `src/modules/backtest/` 獨立模組，包含 `AccountSimulator` (虛擬券商) 與 `BacktestRunner` (主迴圈)，支援完整歷史回測流程。
+
+### 核心功能
+
+- **資金架構對齊生產**：0050 底倉 DCA、00675L 質押槓桿、現金流、利息結算
+- **動態去槓桿守衛**：`deleverage()` 依 `triggerRatio`/`targetRatio` 自動減碼
+- **策略引擎複用**：直接呼叫 `evaluateInvestmentSignal` + `buildDecision` 確保邏輯一致
+- **股票分割處理**：0050 1拆4 自動調整
+- **彈性配置**：`disableGuards` 觀察純計分矩陣效果、可覆寫買入門檻
+
+### 檔案結構
+
+```
+src/modules/backtest/
+├── accountSimulator.mjs   # Virtual Broker (帳戶模擬、交易執行、利息、去槓桿)
+└── backtestRunner.mjs     # 主迴圈 (Timeline 載入、每日決策、快照輸出)
+```
+
+### 現況缺口 (後續 Phase 處理)
+
+- ❌ `archiveManager.getArchiveRecords(dateRange)` API 缺失
+- ❌ `runBacktest.mjs` CLI runner 缺失
+- ❌ `signalCategory` / `signalType` 欄位缺失 (Phase 2 依賴)
+- ❌ Google Sheet 歷史價格讀取缺失
+
+---
+
+## ✅【獨立功能已完成】Simulator Phase A: 正向模擬與 Mini App UX
+
+> **完成日期：** 2026-08-09
+> **相關 Commit：** simulator 模組、API 路由、Mini App 元件
+
+### 完成摘要
+
+0050 雙向模擬器 Phase A 完整交付：正向模擬 API、快取隔離、輸入驗證、Mini App Mode A/B 介面。
+
+### 核心功能
+
+- **POST /api/v1/simulate**：正向模擬完整流程 (驗證 → 戰報 → 模擬輸入 → 指標重算 → 策略計算)
+- **POST /api/v1/simulate/reverse**：反向推導 API 就緒 (Phase B/C 回傳 not_implemented)
+- **資料隔離**：`dataAdapter.buildSimulationInput` 深層複製 + 完整指標重算
+- **Mini App**：`SimulatorView.vue` + `ForwardPanel`/`ReversePanel` + `DataQualityBadges` + `DisclaimerBanner`
+- **測試**：`apiContract.test.mjs` 34/34 通過 (mock simulateRoute)
+
+### 檔案結構
+
+```
+src/modules/simulator/
+├── dataAdapter.mjs           # 戰報驗證、模擬輸入建構
+├── forwardSimulator.mjs      # 正向模擬核心
+├── analyticalSolvers.mjs     # 解析型反推 (Phase B)
+├── rsiSolver.mjs             # RSI 反推
+├── scanner.mjs               # 掃描器 (Phase C)
+├── reverseEngine.mjs         # 反向引擎註冊表
+├── validator.mjs             # 輸入驗證
+├── constants.mjs             # 錯誤碼、模式定義
+└── *.test.mjs                # 完整單元測試
+
+src/api/routes/v1/simulate.mjs  # API 路由 (含錯誤處理)
+webapp/src/views/SimulatorView.vue  # Mini App 入口
+```
+
+### 待實作 (Phase B/C)
+
+- 🟡 Phase B: 接線 `analyticalSolvers` (RSI/維持率/MA 解析解)
+- 🟡 Phase C: 接線 `scanner` + `reverseEngine` (KD/MACD/策略總分掃描)
+- 需先確認 `pending-decisions.md` 36 項決策 (DEC-01/05/08 等)

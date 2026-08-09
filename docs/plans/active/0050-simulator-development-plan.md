@@ -377,16 +377,16 @@ RED → GREEN → REFACTOR
 
 ---
 
-## 11. 開發階段
+## 11. 開發階段 (更新實際進度)
 
-| 階段    | 內容               | 主要成果                                 |
-| ------- | ------------------ | ---------------------------------------- |
-| Phase A | 基礎模型與正向模擬 | `POST /api/simulate`、快取隔離、輸入驗證 |
-| Phase B | 解析型反向推導     | RSI、維持率、MA 目標反推                 |
-| Phase C | 近似型反向推導     | KD、MACD、策略總分與複合條件掃描         |
-| Phase D | Mini App UX        | Mode A/B、結果卡、比較表、警告與說明     |
-| Phase E | TDD 與整合驗收     | 單元、整合、回歸、效能與 LIFF 測試       |
-| Phase F | 文件與部署         | README、API 文件、變更紀錄與正式部署     |
+| 階段    | 內容               | 狀態      | 實際完成度 | 備註                                   |
+| ------- | ------------------ | --------- | ---------- | -------------------------------------- |
+| Phase A | 基礎模型與正向模擬 | ✅ 完成   | 100%       | API、快取隔離、驗證、Mini App 皆就緒   |
+| Phase B | 解析型反向推導     | 🟡 開發中 | 30%        | analyticalSolvers/rsiSolver 存在未接線 |
+| Phase C | 近似型反向推導     | 🟡 開發中 | 20%        | scanner/reverseEngine 存在未實作       |
+| Phase D | Mini App UX        | ✅ 完成   | 90%        | Mode A/B、結果卡、比較表、警告與說明   |
+| Phase E | TDD 與整合驗收     | 🟡 部分   | 50%        | 正向測試通過、反向測試缺失             |
+| Phase F | 文件與部署         | ⬜ 待開始 | 0%         | 待 Phase B/C 完成後                    |
 
 預估總工時約 38 小時，實際時間依現有 API 路由、快取模組與 Mini App 結構調整。
 
@@ -998,12 +998,8 @@ export function useSimulator() {
 
 ```javascript
 // test/fixtures/simulator.mjs
-export const mockLatestReport = {
-  /* 完整戰報結構 */
-};
-export const mockStrategyConfig = {
-  /* 策略設定 */
-};
+export const mockLatestReport = {/* 完整戰報結構 */};
+export const mockStrategyConfig = {/* 策略設定 */};
 export const mockPortfolio = {
   qty0050: 10000,
   qtyZ2: 5000,
@@ -1011,12 +1007,8 @@ export const mockPortfolio = {
   totalLoan: 800000,
   lastBuyDate: "2026-01-15",
 };
-export const mockHistory0050 = [
-  /* 13個月 OHLCV */
-];
-export const mockHistoryZ2 = [
-  /* 13個月 OHLCV */
-];
+export const mockHistory0050 = [/* 13個月 OHLCV */];
+export const mockHistoryZ2 = [/* 13個月 OHLCV */];
 ```
 
 ### 16.10 效能預算與優化
@@ -1047,50 +1039,50 @@ export const mockHistoryZ2 = [
 
 ### 16.12 決策項確認結果 (Decisions Confirmed)
 
-| 編號   | 決策項目                   | 選項                                                                                       | 確認結果                                                                                                                     | 狀態      |
+| 編號 | 決策項目 | 選項 | 確認結果 | 狀態 |
 | ------ | -------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------------- | --------- |
-| D1     | 價格輸入模式               | A: 僅 0050，Z2 按同比例<br>B: 0050+Z2 獨立<br>C: 僅 0050，Z2 固定                          | **A** - 僅輸入 0050，00675L 按同比例變動                                                                                     | ✅ 已確認 |
-| D2     | 指標重算方式               | A: 完整重算 (含抓歷史)<br>B: 增量更新預計算陣列                                            | **A** - 完整重算：抓 13 月 OHLCV 重跑 calculateIndicators()                                                                  | ✅ 已確認 |
-| D3     | 掃描步距                   | A: 0.1% (300步)<br>B: 0.5% (60步)<br>C: 1% (30步)                                          | **B** - 0.5% 步距 (±15% = 60 步，約 3-6 秒)                                                                                  | ✅ 已確認 |
-| D4     | 掃描上限                   | A: 100 次<br>B: 200 次<br>C: 500 次                                                        | **B** - 200 次上限 (約 10-20 秒)                                                                                             | ✅ 已確認 |
-| D5     | RSI 反推演算法             | A: 二分搜尋<br>B: 牛頓法<br>C: 查表插值                                                    | **A** - 二分搜尋 (穩健、50 次內收斂、誤差 <0.5 RSI 點)                                                                       | ✅ 已確認 |
-| D6     | 歷史資料快取               | A: 每請求讀取<br>B: 記憶體 5min TTL<br>C: 啟動預載                                         | **B** - 記憶體 Map + 5 分鐘 TTL                                                                                              | ✅ 已確認 |
-| D7     | 模擬 API 認證              | A: 同現有 API (initData)<br>B: 公開無認證<br>C: API Key                                    | **A** - 同現有 API，要求 Telegram initData 驗證                                                                              | ✅ 已確認 |
-| D8     | 回應時間戳                 | A: 僅 dataAsOf<br>B: 僅 timestamp<br>C: 兩者皆含                                           | **C** - 同時回傳 dataAsOf (資料基準日) + timestamp (計算時間)                                                                | ✅ 已確認 |
-| DEC-01 | priceZ2 預設聯動行為       | A: 當前比例聯動<br>B: 固定歷史平均比例<br>C: 固定 1:0.5 理論槓桿比                         | **A** - `priceZ2 = price0050 * (currentZ2/current0050)` 使用即時最新比例                                                     | ✅ 已確認 |
-| DEC-02 | high/low 最後一根 K 棒處理 | A: max/min 夾住模擬價<br>B: 高低價同比例調整<br>C: 僅替換 close                            | **A** - `high = max(原high, 模擬價)`, `low = min(原low, 模擬價)` 保證 OHLC 不變量                                            | ✅ 已確認 |
-| DEC-03 | 0050 歷史資料必要性        | A: 必填完整重算<br>B: 選填動態決定<br>C: 不支援用 00675L 代理                              | **A** - 必填，抓 13 月 OHLCV 完整跑 calculateIndicators()，確保策略引擎相容                                                  | ✅ 已確認 |
-| DEC-04 | 反向目標類型擴充設計       | A: 字串聯盟 + 註冊表<br>B: 獨立 API 端點<br>C: GraphQL 風格                                | **A** - `SolverRegistry` 映射處理器，開放封閉原則，新增目標僅需註冊一行                                                      | ✅ 已確認 |
-| DEC-05 | 歷史缺月處理策略           | A: 嚴格模式 409<br>B: 寬鬆向前填補<br>C: 部分可用動態判斷                                  | **A** - 任一必要月份缺失即回傳 409 `歷史資料不完整，無法模擬`，強迫資料管線修補                                              | ✅ 已確認 |
-| DEC-06 | MA240 Fallback 分級        | A: 分級 (MA240→MA60→MA20→null)<br>B: 單一 MA60 代理<br>C: 無 fallback 直接不可用           | **A** - ≥240筆正常、60-239筆用 MA60、20-59筆用 MA20、<20筆回 null + 品質標籤                                                 | ✅ 已確認 |
-| DEC-07 | 指標計算函式來源           | A: 復用現有模組<br>B: 複製獨立演進<br>C: 參數化注入                                        | **A** - 直接 import 策略引擎同一套 `calculateIndicators`，單一真實來源，保證一致性                                           | ✅ 已確認 |
-| DEC-08 | 維持率反推 Z2 價格假設     | A: 同比例聯動<br>B: Z2 價格固定<br>C: 使用者可選                                           | **A** - `fixedZ2Ratio=true`，與正向模擬一致，保證正向/反向可逆性                                                             | ✅ 已確認 |
-| DEC-09 | MA20/MA60 目標輸入格式     | A: 絕對值輸入<br>B: 相對偏離輸入<br>C: 兩者皆支援自動偵測                                  | **A** - `target: {type: 'ma20', value: 180}` 直接輸入目標均線價格，UI 層輔助顯示偏離%                                        | ✅ 已確認 |
-| DEC-10 | MA240 偏離驗證次數         | A: 單次驗證<br>B: 迭代修正最多 3 次<br>C: 無驗證直接回傳                                   | **A** - 估算→正向模擬一次→誤差<0.1%回傳，否則標記近似；MA240 權重 1/240 影響極小                                             | ✅ 已確認 |
-| DEC-11 | RSI 二分搜尋初始範圍       | A: 固定 ±30%<br>B: 動態依 ATR 計算<br>C: 指數級擴展                                        | **A** - `low=current*0.7, high=current*1.3`，覆蓋 99% 合理 RSI 目標，極端即判不可達                                          | ✅ 已確認 |
-| DEC-12 | 掃描方向                   | A: 雙邊掃描 ±15%<br>B: 目標導向單邊<br>C: 自適應雙邊                                       | **A** - 固定 60 步雙邊覆蓋，3 秒可接受，KD/MACD 交叉方向不固定無法硬編碼單邊                                                 | ✅ 已確認 |
-| DEC-13 | 掃描步距類型               | A: 線性相對步距 0.5%<br>B: 對數步距<br>C: 自適應步距                                       | **A** - `stepPct: 0.005` 本質即相對步距，具對數特性，無需額外邏輯                                                            | ✅ 已確認 |
-| DEC-14 | 完全符合判定條件           | A: 精確匹配教科書定義<br>B: 容忍度匹配<br>C: 區間連續匹配                                  | **A** - KD 金叉 `k>d && prevK<=prevD`，MACD `hist>0 && prevHist<=0`，分數 `score>=target`                                    | ✅ 已確認 |
-| DEC-15 | Portfolio Health 邏輯      | A: AND 邏輯<br>B: 加權分數<br>C: 使用者可選                                                | **A** - 所有子條件同時滿足才算達標，符合「安全區間」語意，寧嚴勿鬆                                                           | ✅ 已確認 |
-| DEC-16 | 指標回應完整度             | A: 完整回傳 8 指標 + quality 標籤<br>B: 僅回傳可用指標<br>C: 分層核心/延伸                 | **A** - 固定回傳 rsi/kd/macd/ma20/ma60/ma240/bias240/atr，缺資料者 `quality: 'insufficient_data'`                            | ✅ 已確認 |
-| DEC-17 | 錯誤訊息格式               | A: 繁中結構化 {error, message, code, field}<br>B: 純英文<br>C: 僅 HTTP status              | **A** - 前端可直接顯示 message、依 code 客製化、field 高亮輸入框                                                             | ✅ 已確認 |
-| DEC-18 | 409 Conflict 觸發條件      | A: 明確列舉 4 類<br>B: 統一資料未就緒<br>C: 併入 503                                       | **A** - 1)戰報過期 2)缺月 3)持倉異常 4)設定載入失敗，細分 code 便於前端差別化處理                                            | ✅ 已確認 |
-| DEC-19 | 價格偏離警告分級           | A: 三級 (≤10%無/10-20%黃/>20%紅)<br>B: 僅記錄不回傳<br>C: >20% 硬拒                        | **A** - 回應含 `warnings: string[]`，前端視覺化黃/紅標籤，不阻擋用戶                                                         | ✅ 已確認 |
-| DEC-20 | 不可達時最近結果計算       | A: 掃描過程記錄最接近者<br>B: 事後二次搜尋<br>C: 解析估算                                  | **A** - 掃描器內部維護 `bestDiff/bestPrice/bestValue`，零額外成本、經實際模擬驗證                                            | ✅ 已確認 |
-| DEC-21 | 速率限制策略               | A: 復用現有 API rate limit<br>B: 模擬器專用更嚴格<br>C: 無限制靠無狀態                     | **A** - 延用現有中介軟體 (30 req/min per user)，上線後監控 CPU 再決定是否拆分                                                | ✅ 已確認 |
-| DEC-22 | 模組檔案拆分粒度           | A: 9 檔按職責細分<br>B: 合併 5 檔<br>C: 合併 3 檔                                          | **A** - validator/dataAdapter/forwardSimulator/reverseEngine/analyticalSolvers/rsiSolver/scanner/responseFormatter/constants | ✅ 已確認 |
-| DEC-23 | 常數檔範圍                 | A: 僅純常數字面量<br>B: 含設定預設值<br>C: 含衍生計算                                      | **A** - 僅 export `const` 字面量，衍生值在使用處計算，保證常數檔純粹可安全 mock                                              | ✅ 已確認 |
-| DEC-24 | Mode A/B 狀態保持          | A: 獨立狀態切換不保留<br>B: 共用價格欄位<br>C: 切換時轉換保留                              | **A** - 符合規格 §8.1 禁止混用，兩模式語義完全不同，獨立表單最清晰                                                           | ✅ 已確認 |
-| DEC-25 | 白話解讀生成策略           | A: 後端生成前端直呈<br>B: 前端根據數值生成<br>C: 混合                                      | **A** - API 回應含 `interpretations` 物件，業務邏輯集中、多端一致、300 bytes 增量可忽略                                      | ✅ 已確認 |
-| DEC-26 | 測試 Fixtures 來源         | A: 真實資料抽樣 + 手工極端案例<br>B: 完全手工構造<br>C: 程式化隨機生成                     | **A** - 核心 fixtures 用真實資料保證指標內部一致性，邊界測試手工構造，雙管齊下                                               | ✅ 已確認 |
-| DEC-27 | 整合測試方式               | A: 直接呼叫路由 handler<br>B: 啟動測試 Server<br>C: Supertest 對 dev server                | **A** - `await handler(mockReq, mockRes)` 快、隔離度高、易並行；中介軟體各自獨立單測                                         | ✅ 已確認 |
-| DEC-28 | 快取失效策略               | A: TTL + mtime 雙重檢查<br>B: 僅 TTL<br>C: 檔案監聽                                        | **A** - `if (expired                                                                                                         |           | fs.stat.mtime > cached.mtime) delete`，檔案更新即時生效，TTL 為備援 | ✅ 已確認 |
-| DEC-29 | 掃描並行化策略             | A: 串行 (3-6 秒可接受)<br>B: Promise.all 分批並行<br>C: Worker Threads                     | **A** - Node 單執行緒 CPU 密集無並行效益、反而增記憶體壓力；3 秒用戶可接受                                                   | ✅ 已確認 |
-| DEC-30 | 股票分割調整確認           | A: 依賴 archiveManager 已調整 + 開發期驗證腳本<br>B: 模擬器讀取時再調整<br>C: 版本標記欄位 | **A** - 記憶體確認分割還原已處理，開發期撰寫驗證腳本確認 2025-06 前後價格連續性                                              | ✅ 已確認 |
-| DEC-31 | 融資利息處理               | A: 單日模擬忽略利息<br>B: 估算日利息扣減<br>C: 使用者可輸入利率                            | **A** - 符合「單日情境」定義，日息影響 <0.02%，assumptions 註明「未含融資利息成本」                                          | ✅ 已確認 |
-| DEC-32 | 模擬結果快取/去重          | A: 不快取，每次計算<br>B: 短期快取 30 秒<br>C: 用戶端去重                                  | **A** - 頻率低、計算快、無副作用、去重複雜度>收益；rate limit 已防濫用                                                       | ✅ 已確認 |
-| DEC-33 | 開發環境繞過 initData      | A: NODE_ENV=dev 時繞過<br>B: 專用 header 繞過<br>C: Mock Telegram WebApp                   | **A** - `if (process.env.NODE_ENV==='dev') return next()`，標準做法、零業務碼入侵                                            | ✅ 已確認 |
-| DEC-34 | API 版本控制策略           | A: URL 版本前綴 /api/v1/<br>B: Header 版本<br>C: 無版本向後相容                            | **A** - `/api/v1/simulate`、`/api/v1/simulate/reverse`，業界標準、最低認知負荷                                               | ✅ 已確認 |
+| D1 | 價格輸入模式 | A: 僅 0050，Z2 按同比例<br>B: 0050+Z2 獨立<br>C: 僅 0050，Z2 固定 | **A** - 僅輸入 0050，00675L 按同比例變動 | ✅ 已確認 |
+| D2 | 指標重算方式 | A: 完整重算 (含抓歷史)<br>B: 增量更新預計算陣列 | **A** - 完整重算：抓 13 月 OHLCV 重跑 calculateIndicators() | ✅ 已確認 |
+| D3 | 掃描步距 | A: 0.1% (300步)<br>B: 0.5% (60步)<br>C: 1% (30步) | **B** - 0.5% 步距 (±15% = 60 步，約 3-6 秒) | ✅ 已確認 |
+| D4 | 掃描上限 | A: 100 次<br>B: 200 次<br>C: 500 次 | **B** - 200 次上限 (約 10-20 秒) | ✅ 已確認 |
+| D5 | RSI 反推演算法 | A: 二分搜尋<br>B: 牛頓法<br>C: 查表插值 | **A** - 二分搜尋 (穩健、50 次內收斂、誤差 <0.5 RSI 點) | ✅ 已確認 |
+| D6 | 歷史資料快取 | A: 每請求讀取<br>B: 記憶體 5min TTL<br>C: 啟動預載 | **B** - 記憶體 Map + 5 分鐘 TTL | ✅ 已確認 |
+| D7 | 模擬 API 認證 | A: 同現有 API (initData)<br>B: 公開無認證<br>C: API Key | **A** - 同現有 API，要求 Telegram initData 驗證 | ✅ 已確認 |
+| D8 | 回應時間戳 | A: 僅 dataAsOf<br>B: 僅 timestamp<br>C: 兩者皆含 | **C** - 同時回傳 dataAsOf (資料基準日) + timestamp (計算時間) | ✅ 已確認 |
+| DEC-01 | priceZ2 預設聯動行為 | A: 當前比例聯動<br>B: 固定歷史平均比例<br>C: 固定 1:0.5 理論槓桿比 | **A** - `priceZ2 = price0050 * (currentZ2/current0050)` 使用即時最新比例 | ✅ 已確認 |
+| DEC-02 | high/low 最後一根 K 棒處理 | A: max/min 夾住模擬價<br>B: 高低價同比例調整<br>C: 僅替換 close | **A** - `high = max(原high, 模擬價)`, `low = min(原low, 模擬價)` 保證 OHLC 不變量 | ✅ 已確認 |
+| DEC-03 | 0050 歷史資料必要性 | A: 必填完整重算<br>B: 選填動態決定<br>C: 不支援用 00675L 代理 | **A** - 必填，抓 13 月 OHLCV 完整跑 calculateIndicators()，確保策略引擎相容 | ✅ 已確認 |
+| DEC-04 | 反向目標類型擴充設計 | A: 字串聯盟 + 註冊表<br>B: 獨立 API 端點<br>C: GraphQL 風格 | **A** - `SolverRegistry` 映射處理器，開放封閉原則，新增目標僅需註冊一行 | ✅ 已確認 |
+| DEC-05 | 歷史缺月處理策略 | A: 嚴格模式 409<br>B: 寬鬆向前填補<br>C: 部分可用動態判斷 | **A** - 任一必要月份缺失即回傳 409 `歷史資料不完整，無法模擬`，強迫資料管線修補 | ✅ 已確認 |
+| DEC-06 | MA240 Fallback 分級 | A: 分級 (MA240→MA60→MA20→null)<br>B: 單一 MA60 代理<br>C: 無 fallback 直接不可用 | **A** - ≥240筆正常、60-239筆用 MA60、20-59筆用 MA20、<20筆回 null + 品質標籤 | ✅ 已確認 |
+| DEC-07 | 指標計算函式來源 | A: 復用現有模組<br>B: 複製獨立演進<br>C: 參數化注入 | **A** - 直接 import 策略引擎同一套 `calculateIndicators`，單一真實來源，保證一致性 | ✅ 已確認 |
+| DEC-08 | 維持率反推 Z2 價格假設 | A: 同比例聯動<br>B: Z2 價格固定<br>C: 使用者可選 | **A** - `fixedZ2Ratio=true`，與正向模擬一致，保證正向/反向可逆性 | ✅ 已確認 |
+| DEC-09 | MA20/MA60 目標輸入格式 | A: 絕對值輸入<br>B: 相對偏離輸入<br>C: 兩者皆支援自動偵測 | **A** - `target: {type: 'ma20', value: 180}` 直接輸入目標均線價格，UI 層輔助顯示偏離% | ✅ 已確認 |
+| DEC-10 | MA240 偏離驗證次數 | A: 單次驗證<br>B: 迭代修正最多 3 次<br>C: 無驗證直接回傳 | **A** - 估算→正向模擬一次→誤差<0.1%回傳，否則標記近似；MA240 權重 1/240 影響極小 | ✅ 已確認 |
+| DEC-11 | RSI 二分搜尋初始範圍 | A: 固定 ±30%<br>B: 動態依 ATR 計算<br>C: 指數級擴展 | **A** - `low=current*0.7, high=current*1.3`，覆蓋 99% 合理 RSI 目標，極端即判不可達 | ✅ 已確認 |
+| DEC-12 | 掃描方向 | A: 雙邊掃描 ±15%<br>B: 目標導向單邊<br>C: 自適應雙邊 | **A** - 固定 60 步雙邊覆蓋，3 秒可接受，KD/MACD 交叉方向不固定無法硬編碼單邊 | ✅ 已確認 |
+| DEC-13 | 掃描步距類型 | A: 線性相對步距 0.5%<br>B: 對數步距<br>C: 自適應步距 | **A** - `stepPct: 0.005` 本質即相對步距，具對數特性，無需額外邏輯 | ✅ 已確認 |
+| DEC-14 | 完全符合判定條件 | A: 精確匹配教科書定義<br>B: 容忍度匹配<br>C: 區間連續匹配 | **A** - KD 金叉 `k>d && prevK<=prevD`，MACD `hist>0 && prevHist<=0`，分數 `score>=target` | ✅ 已確認 |
+| DEC-15 | Portfolio Health 邏輯 | A: AND 邏輯<br>B: 加權分數<br>C: 使用者可選 | **A** - 所有子條件同時滿足才算達標，符合「安全區間」語意，寧嚴勿鬆 | ✅ 已確認 |
+| DEC-16 | 指標回應完整度 | A: 完整回傳 8 指標 + quality 標籤<br>B: 僅回傳可用指標<br>C: 分層核心/延伸 | **A** - 固定回傳 rsi/kd/macd/ma20/ma60/ma240/bias240/atr，缺資料者 `quality: 'insufficient_data'` | ✅ 已確認 |
+| DEC-17 | 錯誤訊息格式 | A: 繁中結構化 {error, message, code, field}<br>B: 純英文<br>C: 僅 HTTP status | **A** - 前端可直接顯示 message、依 code 客製化、field 高亮輸入框 | ✅ 已確認 |
+| DEC-18 | 409 Conflict 觸發條件 | A: 明確列舉 4 類<br>B: 統一資料未就緒<br>C: 併入 503 | **A** - 1)戰報過期 2)缺月 3)持倉異常 4)設定載入失敗，細分 code 便於前端差別化處理 | ✅ 已確認 |
+| DEC-19 | 價格偏離警告分級 | A: 三級 (≤10%無/10-20%黃/>20%紅)<br>B: 僅記錄不回傳<br>C: >20% 硬拒 | **A** - 回應含 `warnings: string[]`，前端視覺化黃/紅標籤，不阻擋用戶 | ✅ 已確認 |
+| DEC-20 | 不可達時最近結果計算 | A: 掃描過程記錄最接近者<br>B: 事後二次搜尋<br>C: 解析估算 | **A** - 掃描器內部維護 `bestDiff/bestPrice/bestValue`，零額外成本、經實際模擬驗證 | ✅ 已確認 |
+| DEC-21 | 速率限制策略 | A: 復用現有 API rate limit<br>B: 模擬器專用更嚴格<br>C: 無限制靠無狀態 | **A** - 延用現有中介軟體 (30 req/min per user)，上線後監控 CPU 再決定是否拆分 | ✅ 已確認 |
+| DEC-22 | 模組檔案拆分粒度 | A: 9 檔按職責細分<br>B: 合併 5 檔<br>C: 合併 3 檔 | **A** - validator/dataAdapter/forwardSimulator/reverseEngine/analyticalSolvers/rsiSolver/scanner/responseFormatter/constants | ✅ 已確認 |
+| DEC-23 | 常數檔範圍 | A: 僅純常數字面量<br>B: 含設定預設值<br>C: 含衍生計算 | **A** - 僅 export `const` 字面量，衍生值在使用處計算，保證常數檔純粹可安全 mock | ✅ 已確認 |
+| DEC-24 | Mode A/B 狀態保持 | A: 獨立狀態切換不保留<br>B: 共用價格欄位<br>C: 切換時轉換保留 | **A** - 符合規格 §8.1 禁止混用，兩模式語義完全不同，獨立表單最清晰 | ✅ 已確認 |
+| DEC-25 | 白話解讀生成策略 | A: 後端生成前端直呈<br>B: 前端根據數值生成<br>C: 混合 | **A** - API 回應含 `interpretations` 物件，業務邏輯集中、多端一致、300 bytes 增量可忽略 | ✅ 已確認 |
+| DEC-26 | 測試 Fixtures 來源 | A: 真實資料抽樣 + 手工極端案例<br>B: 完全手工構造<br>C: 程式化隨機生成 | **A** - 核心 fixtures 用真實資料保證指標內部一致性，邊界測試手工構造，雙管齊下 | ✅ 已確認 |
+| DEC-27 | 整合測試方式 | A: 直接呼叫路由 handler<br>B: 啟動測試 Server<br>C: Supertest 對 dev server | **A** - `await handler(mockReq, mockRes)` 快、隔離度高、易並行；中介軟體各自獨立單測 | ✅ 已確認 |
+| DEC-28 | 快取失效策略 | A: TTL + mtime 雙重檢查<br>B: 僅 TTL<br>C: 檔案監聽 | **A** - `if (expired                                                                                                         |           | fs.stat.mtime > cached.mtime) delete`，檔案更新即時生效，TTL 為備援 | ✅ 已確認 |
+| DEC-29 | 掃描並行化策略 | A: 串行 (3-6 秒可接受)<br>B: Promise.all 分批並行<br>C: Worker Threads | **A** - Node 單執行緒 CPU 密集無並行效益、反而增記憶體壓力；3 秒用戶可接受 | ✅ 已確認 |
+| DEC-30 | 股票分割調整確認 | A: 依賴 archiveManager 已調整 + 開發期驗證腳本<br>B: 模擬器讀取時再調整<br>C: 版本標記欄位 | **A** - 記憶體確認分割還原已處理，開發期撰寫驗證腳本確認 2025-06 前後價格連續性 | ✅ 已確認 |
+| DEC-31 | 融資利息處理 | A: 單日模擬忽略利息<br>B: 估算日利息扣減<br>C: 使用者可輸入利率 | **A** - 符合「單日情境」定義，日息影響 <0.02%，assumptions 註明「未含融資利息成本」 | ✅ 已確認 |
+| DEC-32 | 模擬結果快取/去重 | A: 不快取，每次計算<br>B: 短期快取 30 秒<br>C: 用戶端去重 | **A** - 頻率低、計算快、無副作用、去重複雜度>收益；rate limit 已防濫用 | ✅ 已確認 |
+| DEC-33 | 開發環境繞過 initData | A: NODE_ENV=dev 時繞過<br>B: 專用 header 繞過<br>C: Mock Telegram WebApp | **A** - `if (process.env.NODE_ENV==='dev') return next()`，標準做法、零業務碼入侵 | ✅ 已確認 |
+| DEC-34 | API 版本控制策略 | A: URL 版本前綴 /api/v1/<br>B: Header 版本<br>C: 無版本向後相容 | **A** - `/api/v1/simulate`、`/api/v1/simulate/reverse`，業界標準、最低認知負荷 | ✅ 已確認 |
 
 > 以上 34 項決策 (D1-D8 + DEC-01~34) 於 2026-08-02 完整確認，將作為後續開發的固定規格。
 

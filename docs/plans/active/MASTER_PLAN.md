@@ -1,6 +1,7 @@
-# InvestmentLineNotify Master Plan (v3.0)
+# InvestmentLineNotify Master Plan (v4.0)
 
-本文件為專案的唯一真實來源 (Single Source of Truth)，整合了過往 Phase 1 至未來 Phase 3 的所有計畫。
+本文件為專案的唯一真實來源 (Single Source of Truth)，整合了過往 Phase 1 至未來 Phase 4 的所有計畫。
+**更新**: 2026-08-09 對齊實際程式碼狀態，修正文件與實作落差 (詳見 UNIFIED_DEVELOPMENT_PLAN.md)
 
 ---
 
@@ -36,6 +37,14 @@ _聚焦於讓策略更聰明地應對不同市場環境。_
 - [x] **Metadata Dictionary**：建立 `ConfigMeta.json`，定義參數的中文名稱、描述與 Min/Max 限制。
 - [x] **Write API**：實作 `POST /api/strategy-config` 支援原子性參數修改。
 - [x] **UI 編輯器**：在 WebApp 建立條列式表單，允許直接在手機上修改策略參數（如 `vixThreshold`, `leverageCap`）。
+- [ ] **策略狀態專頁**：Dashboard/Account 頁新增專區顯示 weightScore 構成、冷卻期剩餘天數、分數檔位、Lifecycle Stage (文件標記完成但實際缺失專頁)。
+
+### ⚠️ Phase 2 已知落差 (對齊程式碼後更新)
+
+| 項目              | 文件原狀態 | 實際狀態 | 缺口說明                                                    |
+| ----------------- | ---------- | -------- | ----------------------------------------------------------- |
+| 資金管控          | ✅ 已完成  | 🟡 部分  | 僅有預算攔截，缺 signalType、Budget Priority、每日/滾動上限 |
+| 總經/市場狀態辨識 | ✅ 已完成  | 🟡 部分  | VIX/估值 Regime 完成，缺利息成本濾網、融資券餘額資料流      |
 
 ---
 
@@ -53,6 +62,22 @@ _聚焦於系統的通用性與擴充性。_
 - [x] **回測框架**：建立基於歷史 JSON 數據的快進回測引擎 (`BacktestRunner` 與 `AccountSimulator`)。
 - [x] **策略對比**：支援同時跑多組參數，對比 CAGR 與 Max Drawdown。
 - [ ] **Web 整合**：將回測結果匯出成報表、圖表，或部署到 WebApp 上。
+
+### 🟡 Phase 4: 回測與驗證體系 (新增 Phase，40% 完成)
+
+> 來源: preplan_features.md 第六批 P2、finished_features.md 回測框架
+
+| 階段                         | 文件規格                                                                                                    | 實際程式碼                                                                               | 狀態          | 缺口                                                                                                                       |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Phase 1: 基礎架構            | `archiveManager.getArchiveRecords()`<br>`backtestEngine.mjs`<br>`runBacktest.mjs`<br>`storage.mjs` 歷史價格 | `backtestRunner.mjs` ✅<br>`accountSimulator.mjs` ✅<br>讀 `data/backtest/timeline.json` | 🟡 核心跑得動 | ❌ `archiveManager` 缺 `getArchiveRecords(dateRange)`<br>❌ 無 `runBacktest.mjs` runner<br>❌ 無 Google Sheet 歷史價格讀取 |
+| Phase 2: signalCategory 維度 | `signalCategory` 欄位<br>月報分類統計<br>Telegram 分類表格                                                  | **完全未實作**                                                                           | ⬜ 未開始     | 需先完成 Phase 1 + signalType                                                                                              |
+| Phase 3: MacroSentiment 回測 | 三模式比較<br>`--mode sentiment`                                                                            | **未實作**                                                                               | ⬜ 未開始     | 依賴 Phase 1                                                                                                               |
+
+### 關鍵前置依賴
+
+1. **archiveManager.getArchiveRecords(dateRange)** — 回測 Phase 1 封鎖項
+2. **strategyEngine 新增 signalCategory / signalType** — 回測 Phase 2 + 資金管控 Phase 1 封鎖項
+3. **runBacktest.mjs runner** — 串接 archiveManager、CSV 輸出
 
 ### T-3.2: 多標的回測系統整合
 
