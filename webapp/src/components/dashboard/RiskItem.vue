@@ -1,8 +1,9 @@
 <template>
   <div class="risk-item" :class="itemClass">
-    <div class="icon">{{ icon }}</div>
+    <div class="icon" v-if="icon">{{ icon }}</div>
     <div class="label">{{ label }}</div>
-    <div class="value">{{ value }} <span class="unit" v-if="unit">{{ unit }}</span></div>
+    <div class="value">{{ value }}</div>
+    <div class="unit" v-if="unit">{{ unit }}</div>
   </div>
 </template>
 

@@ -1,7 +1,8 @@
 <template>
   <div class="metric-item">
     <div class="label">{{ label }}</div>
-    <div class="value">{{ formattedValue }} <span class="unit" v-if="unit">{{ unit }}</span></div>
+    <div class="value">{{ formattedValue }}</div>
+    <div class="unit" v-if="unit">{{ unit }}</div>
   </div>
 </template>
 

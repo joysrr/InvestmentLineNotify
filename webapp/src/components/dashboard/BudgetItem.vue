@@ -1,7 +1,8 @@
 <template>
   <div class="budget-item">
     <div class="label">{{ label }}</div>
-    <div class="value">{{ formattedValue }} <span class="unit" v-if="unit">{{ unit }}</span></div>
+    <div class="value">{{ formattedValue }}</div>
+    <div class="unit" v-if="unit">{{ unit }}</div>
   </div>
 </template>
 
@@ -11,7 +12,7 @@ import { computed } from "vue";
 const props = defineProps({
   label: { type: String, required: true },
   value: { type: [Number, String], default: 0 },
-  unit: { type: String, default: "元" },
+  unit: { type: String, default: "" },
 });
 
 const formattedValue = computed(() => {

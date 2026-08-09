@@ -6,7 +6,7 @@
       <p class="status-subtitle">
         即時策略決策透視：分數構成、冷卻期、檔位、風控與預度
       </p>
-      <div class="last-updated" v-if="data.timestamp">
+      <div class="last-updated" v-if="data?.timestamp">
         更新：{{ formatTime(data.timestamp) }}
       </div>
     </div>
@@ -22,7 +22,7 @@
     </div>
 
     <!-- Main Content -->
-    <div v-else class="status-content">
+    <div v-else-if="data" class="status-content">
       
       <!-- Section 1: Weight Score Breakdown -->
       <section class="status-section">
@@ -303,7 +303,7 @@ const scoreClass = computed(() => {
   if (score >= 8) return "badge-buy";
   if (score >= 4) return "badge-wait";
   return "badge-sell";
-};
+});
 
 const cooldownClass = computed(() => 
   data.value?.cooldown?.inCooldown ? "badge-warn" : "badge-ok"
@@ -430,38 +430,50 @@ const riskClass = computed(() => {
   return map[regime] ?? "badge-ok";
 });
 
-const signalTypeClass = computed(() => {
-  const type = data.value?.signal?.type ?? "baseline";
-  const map = {
-    tactical_panic: "badge-danger",
-    tactical_drop: "badge-warn",
-    baseline: "badge-ok",
-  };
-  return map[type] ?? "badge-ok";
-});
-
-const signalCategoryClass = computed(() => {
-  const cat = data.value?.signal?.category ?? "baseline";
-  const map = {
-    panic: "badge-danger",
-    deep_drop: "badge-warn",
-    take_profit: "badge-profit",
-    rebalance: "badge-rebalance",
-    baseline: "badge-ok",
-  };
-  return map[cat] ?? "badge-ok";
-});
-
 const directionClass = computed(() => {
   const dir = data.value?.signal?.direction ?? "hold";
   const map = { long: "text-buy", short: "text-sell", hold: "text-wait" };
   return map[dir] ?? "";
 });
 
+// ScoreBar 描述輔助函數
+const getDropScoreDesc = (score) => {
+  if (score >= 4) return "跌幅較大，策略積極加碼";
+  if (score >= 2) return "跌幅中等，觀察機會";
+  return "跌幅較小，維持觀望";
+};
+
+const getRsiScoreDesc = (score) => {
+  if (score >= 4) return "RSI 明顯超賣";
+  if (score >= 2) return "RSI 略微超賣";
+  return "RSI 中性";
+};
+
+const getMacdScoreDesc = (score) => {
+  if (score >= 3) return "MACD 金叉強烈";
+  if (score >= 1) return "MACD 轉強";
+  return "MACD 無明顯訊號";
+};
+
+const getKdScoreDesc = (score) => {
+  if (score >= 3) return "KD 金叉明確";
+  if (score >= 1) return "KD 略微轉強";
+  return "KD 無明顯訊號";
+};
+
+const getSentimentScoreDesc = (score) => {
+  if (score >= 3) return "情緒極度恐慌，反向機會大";
+  if (score >= 1) return "情緒偏恐慌";
+  if (score <= -3) return "情緒極度貪婪，風險增加";
+  if (score <= -1) return "情緒偏貪婪";
+  return "情緒中性";
+};
+
 const allocationTiers = computed(() => {
-  const strategy = data.value?.data?.strategySnapshot ?? {};
-  const allocation = strategy.allocation ?? [];
-  return allocation.map(tier => ({
+  const strategy = data.value?.strategySnapshot ?? {};
+  const allocation = strategy.allocation ?? {};
+  // allocation is an object with current/next, convert to array
+  return Object.values(allocation).map(tier => ({
     minScore: tier.minScore ?? 0,
     leverage: tier.leverage ?? 0,
     cash: tier.cash ?? 0,
@@ -471,17 +483,6 @@ const allocationTiers = computed(() => {
 
 const formatTime = (iso) => new Date(iso).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" });
 const formatDate = (iso) => new Date(iso).toLocaleDateString("zh-TW");
-
-const loadData = async () => {
-  try {
-    const res = await apiFetch("/api/strategy-status");
-    data.value = res;
-  } catch (err) {
-    error.value = "載入失敗：" + err.message;
-  } finally {
-    loading.value = false;
-  }
-};
 
 onMounted(async () => {
   await waitReady();
@@ -578,7 +579,6 @@ onMounted(async () => {
 .badge-wait { background: #f3e5f5; color: #6a1b9a; }
 .badge-sell { background: #fbe9e7; color: #c62828; }
 .badge-profit { background: #e8f5e9; color: #2e7d32; }
-.badge-rebalance { background: #e3f2fd; color: #1565c0; }
 .badge-rebalance { background: #e3f2fd; color: #1565c0; }
 
 /* Score Breakdown */
@@ -823,6 +823,7 @@ onMounted(async () => {
   font-size: 12px;
   color: #888;
   min-width: 60px;
+  text-align: right;
 }
 .tier-bar {
   flex: 1;
