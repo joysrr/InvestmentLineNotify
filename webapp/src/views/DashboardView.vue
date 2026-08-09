@@ -33,6 +33,13 @@
         </button>
         <button
           class="tab-item"
+          :class="{ active: currentTab === 'strategy-status' }"
+          @click="currentTab = 'strategy-status'"
+        >
+          策略狀態
+        </button>
+        <button
+          class="tab-item"
           :class="{ active: currentTab === 'simulator' }"
           @click="currentTab = 'simulator'"
         >
@@ -121,7 +128,12 @@
         </AnalysisPanel>
       </div>
 
-      <!-- Tab 4: Simulator (模擬器) -->
+      <!-- Tab 4: Strategy Status (策略狀態) -->
+      <div v-else-if="currentTab === 'strategy-status'">
+        <StrategyStatusView />
+      </div>
+
+      <!-- Tab 5: Simulator (模擬器) -->
       <div v-else-if="currentTab === 'simulator'">
         <SimulatorView />
       </div>
@@ -152,6 +164,7 @@ import HealthPanel from "../components/dashboard/HealthPanel.vue";
 import CoachingAdvice from "../components/dashboard/CoachingAdvice.vue";
 import AnalysisPanel from "../components/dashboard/AnalysisPanel.vue";
 import SimulatorView from "../views/SimulatorView.vue";
+import StrategyStatusView from "../views/StrategyStatusView.vue";
 
 // ECharts (Only needed here for the radar template slot)
 import VChart from "vue-echarts";

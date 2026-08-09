@@ -13,6 +13,7 @@ import reportsRoute from "./routes/reports.mjs";
 import newsRoute from "./routes/news.mjs";
 import configRoute from "./routes/config.mjs";
 import portfolioHealthRoute from "./routes/portfolioHealth.mjs";
+import strategyStatusRoute from "./routes/strategyStatus.mjs";
 import simulateRoute from "./routes/v1/simulate.mjs";
 // 啟動前強制檢查環境變數，確保不帶病執行
 assertEnv();
@@ -115,6 +116,7 @@ export async function buildApp(opts = {}) {
   await fastify.register(newsRoute, { prefix: "/api" });
   await fastify.register(configRoute, { prefix: "/api" });
   await fastify.register(portfolioHealthRoute, { prefix: "/api" });
+  await fastify.register(strategyStatusRoute, { prefix: "/api" });
   await fastify.register(simulateRoute, { prefix: "/api/v1" });
 
   // ─── Global Error Handler (M-002: Path Hiding) ─────────────────────────────

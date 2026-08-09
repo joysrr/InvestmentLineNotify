@@ -334,13 +334,14 @@ Week 2: #6 Phase C 接線 + #8 TDD 補齊
 
 ## 📄 附錄：檔案對照表
 
-| 計畫文件                           | 對應程式碼模組                                      | 同步狀態           |
-| ---------------------------------- | --------------------------------------------------- | ------------------ |
-| MASTER_PLAN.md                     | 全專案                                              | ⚠️ 需更新 v4.0     |
-| preplan_features.md                | 策略核心模組                                        | ⚠️ 狀態需修正 4 項 |
-| finished_features.md               | 已完成歸檔                                          | ⚠️ 需補記 3 項     |
-| 0050-simulator-development-plan.md | src/modules/simulator/, webapp/src/views/Simulator* | ⚠️ 進度需同步      |
-| UNIFIED_DEVELOPMENT_PLAN.md (本檔) | **單一真實來源**                                    | ✅ 最新            |
+| 計畫文件                           | 對應程式碼模組                                          | 同步狀態           |
+| ---------------------------------- | ------------------------------------------------------- | ------------------ |
+| MASTER_PLAN.md                     | 全專案                                                  | ⚠️ 需更新 v4.0     |
+| preplan_features.md                | 策略核心模組                                            | ⚠️ 狀態需修正 4 項 |
+| finished_features.md               | 已完成歸檔                                              | ⚠️ 需補記 3 項     |
+| 0050-simulator-development-plan.md | src/modules/simulator/, webapp/src/views/Simulator*     | ⚠️ 進度需同步      |
+| **BUDGET_PRIORITY_DESIGN.md**      | **src/modules/strategy/policies/budgetLimitPolicy.mjs** | ✅ **新增 v1.0**   |
+| UNIFIED_DEVELOPMENT_PLAN.md (本檔) | **單一真實來源**                                        | ✅ 最新            |
 
 ---
 
