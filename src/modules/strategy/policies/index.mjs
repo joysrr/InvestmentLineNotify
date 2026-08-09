@@ -6,3 +6,4 @@ export * from "./rebalancePolicy.mjs";
 export * from "./sellScoringPolicy.mjs";
 export * from "./budgetSynergyPolicy.mjs";
 export * from "./conversionPolicy.mjs";
+export * from "./budgetLimitPolicy.mjs";

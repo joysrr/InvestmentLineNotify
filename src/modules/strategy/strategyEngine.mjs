@@ -31,6 +31,9 @@ import {
   analyzeSurvival,
   resolveBudgetSynergy,
   resolveConversionGuard,
+  resolveBudgetLimit,
+  applyRiskOverride,
+  calculateRequestedLoanAmount,
 } from "./policies/index.mjs";
 
 import { parseNumber } from "../../utils/coreUtils.mjs";
@@ -245,6 +248,40 @@ export async function evaluateInvestmentSignal(data, arg2, arg3) {
   );
   const finalDecision = applyBudgetSynergy(decision, budgetSynergy);
 
+  // Budget Priority: 計算請求借款金額並套用額度限制
+  const requestedAmount = calculateRequestedLoanAmount(ctx, finalDecision);
+  let budgetResult = resolveBudgetLimit(
+    ctx,
+    strategy,
+    finalDecision.signals?.signalType ?? "baseline",
+    requestedAmount,
+  );
+  budgetResult = applyRiskOverride(budgetResult, ctx, strategy);
+
+  // 將 Budget 結果合併到 finalDecision
+  finalDecision.budgetInfo = budgetResult.budgetInfo;
+  finalDecision.budgetAllowedAmount = budgetResult.allowedAmount;
+  finalDecision.budgetIsLimited = budgetResult.isLimited;
+  finalDecision.budgetLimitedReason = budgetResult.limitedReason;
+
+  // 如果 Budget 限制導致允許金額為 0，覆寫決策
+  if (
+    budgetResult.allowedAmount === 0 &&
+    budgetResult.signalType !== "baseline"
+  ) {
+    finalDecision.signalDirection = "hold";
+    finalDecision.target = "🛑 預度不足";
+    finalDecision.targetSuggestionShort =
+      budgetResult.limitedReason ?? "Budget exhausted";
+    finalDecision.targetSuggestion =
+      budgetResult.limitedReason ?? "Budget exhausted";
+    finalDecision.scalingRatio = 0;
+  } else if (budgetResult.allowedAmount < requestedAmount) {
+    // 部分限制：調整 scalingRatio
+    const ratio = budgetResult.allowedAmount / requestedAmount;
+    finalDecision.scalingRatio = (finalDecision.scalingRatio ?? 1.0) * ratio;
+  }
+
   const macdSignal = getMACDSignal(data.macdArr);
 
   const signals = formatSignalOutput(ctx, finalDecision, {
@@ -272,6 +309,11 @@ export async function evaluateInvestmentSignal(data, arg2, arg3) {
       ...signals,
       signalCategory,
       signalType,
+      // Budget 資訊
+      budgetInfo: finalDecision.budgetInfo,
+      budgetAllowedAmount: finalDecision.budgetAllowedAmount,
+      budgetIsLimited: finalDecision.budgetIsLimited,
+      budgetLimitedReason: finalDecision.budgetLimitedReason,
     },
   };
 }
