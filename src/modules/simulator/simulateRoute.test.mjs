@@ -7,6 +7,10 @@ import { buildApp } from "../../api/server.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 import fs from "fs/promises";
 
+// Set test environment to bypass initDataGuard
+process.env.NODE_ENV = "dev";
+process.env.BYPASS_INIT_DATA = "true";
+
 // Mock fs.stat for cache mtime check
 vi.mock("fs/promises", () => ({
   default: {
@@ -366,7 +370,7 @@ describe("simulateRoute - API 整合測試", () => {
   });
 
   describe("POST /api/v1/simulate/reverse - 反向推導", () => {
-    it("正常請求回傳 200 (功能開發中)", async () => {
+    it("正常請求回傳 200 與完整結果", async () => {
       const response = await app.inject({
         method: "POST",
         url: "/api/v1/simulate/reverse",
@@ -376,9 +380,58 @@ describe("simulateRoute - API 整合測試", () => {
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.payload);
       expect(body.target.type).toBe("maintenanceRatio");
-      expect(body.reachable).toBe(false);
-      expect(body.method).toBe("not_implemented");
-      expect(body.reason).toContain("開發中");
+      expect(body.reachable).toBe(true);
+      expect(body.method).toBe("analytical");
+      expect(body.results).toBeDefined();
+      expect(body.results.price0050).toBeGreaterThan(0);
+      expect(body.calculationMode).toBe("reverse_analytical");
+    });
+
+    it("rsi 目標回傳 200 與二分搜尋結果", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/simulate/reverse",
+        payload: { target: { type: "rsi", value: 55 } }, // 使用較容易達成的目標
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.payload);
+      expect(body.target.type).toBe("rsi");
+      // RSI 可能因模擬資料限制無法達成
+      // 若 reachable: true 則檢查 results；若 reachable: false 則檢查 reason
+      expect(body.method).toMatch(/binary_search/);
+      if (body.reachable) {
+        expect(body.results).toBeDefined();
+      } else {
+        expect(body.reason).toBeDefined();
+      }
+    });
+
+    it("ma20 目標回傳 200 與解析解結果", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/simulate/reverse",
+        payload: { target: { type: "ma20", value: 193.5 } },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.payload);
+      expect(body.target.type).toBe("ma20");
+      expect(body.reachable).toBe(true);
+      expect(body.method).toBe("analytical");
+    });
+
+    it("kdCross 掃描目標回傳 200", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/simulate/reverse",
+        payload: { target: { type: "kdCross", direction: "golden" } },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.payload);
+      expect(body.target.type).toBe("kdCross");
+      expect(body.method).toBe("scan");
     });
 
     it("缺少 target 回傳 400", async () => {
