@@ -34,6 +34,9 @@ import {
   resolveBudgetLimit,
   applyRiskOverride,
   calculateRequestedLoanAmount,
+  applyInterestCostFilter,
+  applyInterestCostFilterToDecision,
+  getMarginFinancingData,
 } from "./policies/index.mjs";
 
 import { parseNumber } from "../../utils/coreUtils.mjs";
@@ -284,7 +287,7 @@ export async function evaluateInvestmentSignal(data, arg2, arg3) {
 
   const macdSignal = getMACDSignal(data.macdArr);
 
-  const signals = formatSignalOutput(ctx, finalDecision, {
+  const signals1 = formatSignalOutput(ctx, finalDecision, {
     priceChangePercent,
     bias240,
     actualLeverage,
@@ -300,20 +303,52 @@ export async function evaluateInvestmentSignal(data, arg2, arg3) {
   const signalCategory = determineSignalCategory(ctx, finalDecision);
   const signalType = determineSignalType(signalCategory);
 
+  // 利息成本濾網 (Task #9)
+  const interestCostFilterResult = applyInterestCostFilter(
+    ctx,
+    strategy,
+    finalDecision,
+  );
+  const finalDecisionWithInterest = applyInterestCostFilterToDecision(
+    { ...finalDecision, signals: signals1 },
+    interestCostFilterResult,
+  );
+
+  const signals2 = formatSignalOutput(ctx, finalDecisionWithInterest, {
+    priceChangePercent,
+    bias240,
+    actualLeverage,
+    maintenanceMargin,
+    z2Ratio,
+    grossLeverageResult,
+    marginAnalysis,
+    decouplingAnalysis,
+    macdSignal,
+  });
+
+  // 新增 signalCategory / signalType (供回測與資金管控)
+  const signalCategoryNew = determineSignalCategory(
+    ctx,
+    finalDecisionWithInterest,
+  );
+  const signalTypeNew = determineSignalType(signalCategoryNew);
+
   return {
     id: data.date || new Date().toISOString().split("T")[0],
     date: data.date || new Date().toISOString(),
     marketState,
     strategySnapshot: strategy,
     signals: {
-      ...signals,
-      signalCategory,
-      signalType,
+      ...signals2,
+      signalCategory: signalCategoryNew,
+      signalType: signalTypeNew,
       // Budget 資訊
-      budgetInfo: finalDecision.budgetInfo,
-      budgetAllowedAmount: finalDecision.budgetAllowedAmount,
-      budgetIsLimited: finalDecision.budgetIsLimited,
-      budgetLimitedReason: finalDecision.budgetLimitedReason,
+      budgetInfo: finalDecisionWithInterest.budgetInfo,
+      budgetAllowedAmount: finalDecisionWithInterest.budgetAllowedAmount,
+      budgetIsLimited: finalDecisionWithInterest.budgetIsLimited,
+      budgetLimitedReason: finalDecisionWithInterest.budgetLimitedReason,
+      // 利息成本資訊
+      interestCostInfo: finalDecisionWithInterest.interestCostInfo,
     },
   };
 }
