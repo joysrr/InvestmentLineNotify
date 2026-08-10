@@ -1,32 +1,13 @@
 // src/modules/simulator/validator.mjs
 // 輸入驗證：價格範圍、目標類型、必填欄位 (DEC-16, DEC-17, DEC-19)
 
-/** 支援的反向目標類型 */
-export const REVERSE_TARGET_TYPES = [
-  "maintenanceRatio",
-  "rsi",
-  "ma20",
-  "ma60",
-  "ma240Bias",
-  "kdCross",
-  "macdCross",
-  "strategyScore",
-  "portfolioHealth",
-];
-
-/** 價格邊界常數 */
-export const PRICE_BOUNDS = {
-  MIN: 50,
-  MAX: 500,
-  WARNING_THRESHOLD_PCT: 0.1, // 10% 警告
-  DANGER_THRESHOLD_PCT: 0.2, // 20% 危險提示
-};
-
-/** RSI 邊界 */
-export const RSI_BOUNDS = { MIN: 1, MAX: 99 };
-
-/** 策略分數邊界 (實際由引擎決定，這裡給寬鬆範圍) */
-export const STRATEGY_SCORE_BOUNDS = { MIN: -100, MAX: 200 };
+import {
+  REVERSE_TARGET_TYPES,
+  PRICE_BOUNDS,
+  RSI_BOUNDS,
+  STRATEGY_SCORE_BOUNDS,
+  SCANNABLE_PARAMS,
+} from "./constants.mjs";
 
 /**
  * 驗證正向模擬輸入
@@ -316,6 +297,159 @@ export function validateBatchInput(body) {
     sanitized.jobs = jobs;
     sanitized.options =
       Object.keys(sanitizedOptions).length > 0 ? sanitizedOptions : undefined;
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    sanitized: errors.length === 0 ? sanitized : null,
+  };
+}
+
+/**
+ * 驗證敏感度分析輸入
+ * @param {Object} body - { baseParams, targetParam, scanRange, metrics?, multiParams? }
+ * @returns {Object} { valid: boolean, errors: string[], sanitized: Object }
+ */
+export function validateSensitivityInput(body) {
+  const errors = [];
+  const sanitized = {};
+  const SUPPORTED_METRICS = [
+    "strategyScore",
+    "maintenanceMargin",
+    "simulatedPrice0050",
+    "simulatedPriceZ2",
+  ];
+
+  if (!body || typeof body !== "object") {
+    errors.push("body 為必填物件");
+    return { valid: false, errors, sanitized: null };
+  }
+
+  const { baseParams, targetParam, scanRange, metrics, multiParams } = body;
+
+  // 驗證 baseParams
+  if (!baseParams || typeof baseParams !== "object") {
+    errors.push("baseParams 為必填物件");
+  } else {
+    const baseValidation = validateForwardInput(baseParams);
+    if (!baseValidation.valid) {
+      errors.push(...baseValidation.errors.map((e) => `baseParams: ${e}`));
+    } else {
+      sanitized.baseParams = baseValidation.sanitized;
+    }
+  }
+
+  // 驗證 targetParam
+  if (!targetParam || typeof targetParam !== "string") {
+    errors.push("targetParam 為必填字串");
+  } else {
+    // 檢查是否在 SCANNABLE_PARAMS 中
+    const paramDef = SCANNABLE_PARAMS.find((p) => p.path === targetParam);
+    if (!paramDef) {
+      errors.push(`不支援的參數路徑: ${targetParam}`);
+    } else {
+      sanitized.targetParam = targetParam;
+      sanitized.targetParamDef = paramDef;
+    }
+  }
+
+  // 驗證 scanRange
+  if (!scanRange || typeof scanRange !== "object") {
+    errors.push("scanRange 為必填物件");
+  } else {
+    const { min, max, step } = scanRange;
+    if (min === undefined || max === undefined || step === undefined) {
+      errors.push("scanRange 需包含 min, max, step");
+    } else {
+      const minVal = Number(min);
+      const maxVal = Number(max);
+      const stepVal = Number(step);
+
+      if (
+        !Number.isFinite(minVal) ||
+        !Number.isFinite(maxVal) ||
+        !Number.isFinite(stepVal)
+      ) {
+        errors.push("scanRange 的 min, max, step 必須為有效數字");
+      } else if (minVal > maxVal) {
+        errors.push("scanRange.min 不能大於 max");
+      } else if (stepVal <= 0) {
+        errors.push("scanRange.step 必須大於 0");
+      } else if ((maxVal - minVal) / stepVal > 200) {
+        errors.push("掃描點數不能超過 200 (請調大 step 或縮小範圍)");
+      } else {
+        sanitized.scanRange = { min: minVal, max: maxVal, step: stepVal };
+      }
+    }
+  }
+
+  // 驗證 metrics (選填)
+  if (metrics !== undefined) {
+    if (!Array.isArray(metrics)) {
+      errors.push("metrics 必須為陣列");
+    } else if (metrics.length === 0) {
+      errors.push("metrics 至少需要 1 個觀測指標");
+    } else {
+      const invalidMetrics = metrics.filter(
+        (m) => !SUPPORTED_METRICS.includes(m),
+      );
+      if (invalidMetrics.length > 0) {
+        errors.push(
+          `不支援的觀測指標: ${invalidMetrics.join(", ")}，支援: ${SUPPORTED_METRICS.join(", ")}`,
+        );
+      } else {
+        sanitized.metrics = metrics;
+      }
+    }
+  } else {
+    sanitized.metrics = ["strategyScore", "maintenanceMargin"]; // 預設
+  }
+
+  // 驗證 multiParams (選填，用於 Tornado 圖)
+  if (multiParams !== undefined) {
+    if (!Array.isArray(multiParams)) {
+      errors.push("multiParams 必須為陣列");
+    } else if (multiParams.length > 10) {
+      errors.push("multiParams 數量不能超過 10");
+    } else {
+      const validatedMultiParams = [];
+      multiParams.forEach((mp, idx) => {
+        if (!mp || typeof mp !== "object") {
+          errors.push(`multiParams[${idx}] 必須為物件`);
+          return;
+        }
+        const { path, range } = mp;
+        if (!path || typeof path !== "string") {
+          errors.push(`multiParams[${idx}].path 為必填字串`);
+        } else {
+          const paramDef = SCANNABLE_PARAMS.find((p) => p.path === path);
+          if (!paramDef) {
+            errors.push(`multiParams[${idx}].path 不支援: ${path}`);
+          } else if (!range || !Array.isArray(range) || range.length !== 2) {
+            errors.push(`multiParams[${idx}].range 必須為 [min, max] 陣列`);
+          } else {
+            const [rMin, rMax] = range.map(Number);
+            if (
+              !Number.isFinite(rMin) ||
+              !Number.isFinite(rMax) ||
+              rMin > rMax
+            ) {
+              errors.push(`multiParams[${idx}].range 無效`);
+            } else {
+              validatedMultiParams.push({
+                path,
+                range: [rMin, rMax],
+                paramDef,
+              });
+            }
+          }
+        }
+      });
+      if (errors.length === 0) {
+        sanitized.multiParams = validatedMultiParams;
+      }
+    }
   }
 
   return {

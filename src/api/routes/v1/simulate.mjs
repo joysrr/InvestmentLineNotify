@@ -9,9 +9,14 @@ import {
 import { runForwardSimulation } from "../../../modules/simulator/forwardSimulator.mjs";
 import { runReverseEngine } from "../../../modules/simulator/reverseEngine.mjs";
 import {
+  runSensitivitySingleParam,
+  runSensitivityMultiParam,
+} from "../../../modules/simulator/sensitivityEngine.mjs";
+import {
   validateForwardInput,
   validateReverseInput,
   validateBatchInput,
+  validateSensitivityInput,
   createErrorResponse,
 } from "../../../modules/simulator/validator.mjs";
 import {
@@ -316,6 +321,83 @@ export default async function simulateRoute(fastify) {
         dataAsOf: latestReport.date,
         disclaimer:
           "此為批次條件分析，非價格預測亦非投資建議。結果基於固定假設，實際市場表現可能不同。",
+      };
+
+      return reply.code(HTTP_STATUS.OK).send(response);
+    } catch (err) {
+      return handleError(reply, err);
+    }
+  });
+
+  // POST /api/v1/simulate/sensitivity - 敏感度分析
+  fastify.post("/simulate/sensitivity", async (request, reply) => {
+    try {
+      // 1. 輸入驗證
+      const validation = validateSensitivityInput(request.body);
+      if (!validation.valid) {
+        return reply
+          .code(HTTP_STATUS.BAD_REQUEST)
+          .send(
+            createErrorResponse(
+              ERROR_CODES.VALIDATION_ERROR,
+              validation.errors.join("; "),
+              "sensitivity",
+            ),
+          );
+      }
+
+      const { baseParams, targetParam, scanRange, metrics, multiParams } =
+        validation.sanitized;
+
+      // 2. 取得並驗證最新戰報
+      let latestReport;
+      try {
+        latestReport = await getValidatedLatestReport();
+      } catch (err) {
+        return handleError(reply, err);
+      }
+
+      // 3. 建構基礎模擬輸入
+      let baseSimulationInput;
+      try {
+        baseSimulationInput = await buildSimulationInput(
+          latestReport,
+          latestReport.price0050,
+          latestReport.currentPrice,
+        );
+      } catch (err) {
+        return handleError(reply, err);
+      }
+
+      // 4. 執行敏感度分析
+      const singleParamResult = await runSensitivitySingleParam({
+        targetParam,
+        scanRange,
+        metrics,
+        baseSimulationInput,
+        baseParams,
+        latestReport,
+        runForwardSimulation,
+      });
+
+      const multiParamResult = multiParams
+        ? await runSensitivityMultiParam({
+            multiParams,
+            baseSimulationInput,
+            baseParams,
+            latestReport,
+            runForwardSimulation,
+          })
+        : { results: [], keyDrivers: [] };
+
+      // 5. 回傳結果
+      const response = {
+        singleParam: singleParamResult,
+        multiParam: multiParamResult,
+        timestamp: new Date().toISOString(),
+        dataAsOf: latestReport.date,
+        disclaimer:
+          "此為敏感度分析結果，非投資建議。參數變動影響基於模擬假設，實際市場表現可能不同。",
       };
 
       return reply.code(HTTP_STATUS.OK).send(response);

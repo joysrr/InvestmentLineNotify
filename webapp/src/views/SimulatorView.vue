@@ -50,6 +50,13 @@
       :current-price-z2="currentPriceZ2"
     />
 
+    <!-- Sensitivity Panel (Mode D) -->
+    <SensitivityPanel
+      v-else-if="mode === 'sensitivity'"
+      :current-price-0050="currentPrice0050"
+      :current-price-z2="currentPriceZ2"
+    />
+
     <!-- Data Quality Badges (always visible when result exists) -->
     <DataQualityBadges
       v-if="result && result.dataQuality"
@@ -71,6 +78,7 @@ import SimulatorModeSelector from "@/components/simulator/SimulatorModeSelector.
 import ForwardPanel from "@/components/simulator/ForwardPanel.vue";
 import ReversePanel from "@/components/simulator/ReversePanel.vue";
 import BatchPanel from "@/components/simulator/BatchPanel.vue";
+import SensitivityPanel from "@/components/simulator/SensitivityPanel.vue";
 import DataQualityBadges from "@/components/simulator/Common/DataQualityBadges.vue";
 import DisclaimerBanner from "@/components/simulator/Common/DisclaimerBanner.vue";
 import LoadingSkeleton from "@/components/simulator/Common/LoadingSkeleton.vue";

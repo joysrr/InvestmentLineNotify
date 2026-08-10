@@ -28,6 +28,15 @@
         <span class="mode-label">批次模擬</span>
         <span class="mode-desc">多組參數並行，快速比較結果</span>
       </button>
+      <button
+        class="mode-tab"
+        :class="{ active: modelValue === 'sensitivity' }"
+        @click="$emit('update:modelValue', 'sensitivity')"
+      >
+        <span class="mode-icon">📊</span>
+        <span class="mode-label">敏感度分析</span>
+        <span class="mode-desc">參數影響度與關鍵驅動因子</span>
+      </button>
     </div>
   </div>
 </template>
