@@ -1,4 +1,8 @@
 import { loadStateFromLatestFiles } from "../../domain/ilnState.mjs";
+import {
+  determineLifecycleStage,
+  LIFECYCLE_STAGE,
+} from "../../modules/strategy/lifecycleEngine.mjs";
 
 /**
  * GET /api/strategy-status
@@ -78,13 +82,14 @@ export default async function strategyStatusRoute(fastify) {
       const signalType = signals.signalType ?? "baseline";
 
       // 6. 生命週期階段
+      const yearsToRetirement = lifecycle.currentAge
+        ? Math.max(0, (lifecycle.retirementAge ?? 65) - lifecycle.currentAge)
+        : null;
       const lifecycleStage =
         signals.regimeState?.lifecycleStage ||
-        state.determineLifecycleStage?.(
-          lifecycle.currentAge,
-          lifecycle.retirementAge,
-        ) ||
-        "EARLY";
+        (yearsToRetirement !== null
+          ? determineLifecycleStage(yearsToRetirement)
+          : LIFECYCLE_STAGE.EARLY);
 
       // 6. 當前分配檔位資訊
       const allocationInfo = {

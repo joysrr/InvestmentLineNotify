@@ -38,6 +38,10 @@ import {
 import { archiveManager } from "../modules/data/archiveManager.mjs";
 import { stepTimer } from "../utils/coreUtils.mjs";
 import logger from "../utils/logger.mjs";
+import {
+  getDefaultAssetRegistry,
+  SchemaMapper,
+} from "../modules/assets/assetRegistry.mjs";
 
 // ─── 常數 ────────────────────────────────────────────────────────────────────
 
@@ -171,7 +175,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
   const price0050 = _unwrap(price0050Result, null, "price0050");
   const currentPriceZ2 = _unwrap(priceZ2Result, null, "currentPriceZ2");
 
-  // ── Wave 4：AI 新聞/總經分析（isCallAI = false 時全略） ─────────────────
+  // ── Wave 4：AI 新聞/總經分析（isCallAI = false 時全略）─────────────────
   let newsMessages = [];
   let newsSummaryText = "今日無重大市場新聞。";
   let conflictSummary = "";
@@ -239,7 +243,49 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
   }
 
   // ── 組合回傳物件 ──────────────────────────────────────────────────────────
+  // 建立資產註冊表與 SchemaMapper 以支援新舊格式轉換
+  const assetRegistry = getDefaultAssetRegistry();
+  const schemaMapper = new SchemaMapper(assetRegistry);
+
+  // 確保 lastState 不為 null
+  const safeLastState = lastState ?? {};
+
+  // 新格式 portfolio (assets-based)
+  const newPortfolio = {
+    assets: {
+      "0050": {
+        qty: safeLastState.qty0050 ?? 0,
+        avgCost: safeLastState.avgCost0050 ?? null,
+      },
+      "00675L": {
+        qty: safeLastState.qtyZ2 ?? 0,
+        avgCost: safeLastState.avgCostZ2 ?? null,
+      },
+    },
+    cash: safeLastState.cash ?? 0,
+    totalLoan: safeLastState.totalLoan ?? 0,
+    lastBuyDate: safeLastState.lastBuyDate ?? null,
+  };
+
+  // 新格式 marketData (prices-based)
+  const newMarketData = {
+    prices: {
+      "0050": price0050 ?? 0,
+      "00675L": currentPriceZ2 ?? 0,
+    },
+    vix: vixData?.value ?? null,
+    pb: macroData?.rawValuation?.pb ?? null,
+    currentRate: macroData?.rawFx?.currentRate ?? null,
+    cnnScore: macroData?.rawCnn?.score ?? null,
+    maintenanceRatio: macroData?.rawMargin?.maintenanceRatio ?? null,
+  };
+
   return {
+    // === 新格式 (資產抽象化) ===
+    portfolio: newPortfolio,
+    marketData: newMarketData,
+
+    // === 舊格式 (向後相容) ===
     // 持股狀態
     lastState,
     // 開市狀態
@@ -470,7 +516,7 @@ function _unwrap(settled, fallback, label) {
   return typeof fallback === "function" ? fallback() : fallback;
 }
 
-// ─── Log helpers（與原 dailyCheck 行為對齊） ──────────────────────────────────
+// ─── Log helpers（與原 dailyCheck 行為對齊）──────────────────────────────────
 
 function _logPortfolio(s) {
   if (!s) {
@@ -499,12 +545,5 @@ function _logBasePrice(basePrice) {
 }
 
 function _logMacroOverview(macroData) {
-  if (macroData?.rawMarketOverview) {
-    const ov = macroData.rawMarketOverview;
-    logger.info(
-      `✅ 大盤量價：指數 ${ov.taiex ?? "--"} 點，成交 ${ov.tradeValueHundredMillion ?? "--"} 億元 [${ov.date ?? "--"}]`,
-    );
-  } else {
-    logger.warn("⚠️ 大盤量價概覽資料缺失，AI Coach 將略過此指標");
-  }
+  logger.info("🌏 總經概況已載入");
 }
