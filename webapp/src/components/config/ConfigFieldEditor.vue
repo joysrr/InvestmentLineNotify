@@ -17,7 +17,7 @@
         :max="fieldMeta?.max"
         :step="getStep(fieldMeta)"
         :precision="getPrecision(fieldMeta)"
-        :controls-position="right"
+        controls-position="right"
         :placeholder="fieldMeta?.placeholder || '請輸入數值'"
         @change="handleChange"
         class="field-input"
@@ -139,7 +139,7 @@ const currentValue = computed(() => {
 });
 
 // Initialize local value when config or path changes
-watch([currentValue, props.path], ([newVal]) => {
+watch(() => currentValue.value, (newVal) => {
   if (fieldType.value === "array" || fieldType.value === "object") {
     localValueJson.value = JSON.stringify(newVal, null, 2);
   } else {

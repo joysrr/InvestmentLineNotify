@@ -5,13 +5,13 @@
         :path="section.key + '.' + fieldKey"
         :config="config"
         :meta="meta"
-        :error="fieldErrors[fieldKey]"
+        :error="fieldErrors[section.key + '.' + fieldKey] ? fieldErrors[section.key + '.' + fieldKey].join('；') : ''"
         @update="handleFieldUpdate"
       />
     </div>
 
     <!-- Empty state for sections without predefined fields -->
-    <div v-if="section.fields.length === 0" class="empty-section">
+    <div v-if="!section.fields || section.fields.length === 0" class="empty-section">
       <p class="empty-hint">此區塊暫無可編輯欄位，或需透過原始 JSON 編輯</p>
     </div>
   </div>
@@ -48,8 +48,8 @@ const emit = defineEmits(["update"]);
 const fieldErrors = computed(() => {
   const map = {};
   props.errors.forEach((err) => {
-    // Extract field path from error message
-    const match = err.match(/^([^.]+\.[^.]+)/);
+    // Match: first part (no dots), dot, second part (no dots, spaces, or colons)
+    const match = err.match(/^([^.]+\.[^.\s:]+)/);
     if (match) {
       const fieldPath = match[1];
       if (!map[fieldPath]) map[fieldPath] = [];
