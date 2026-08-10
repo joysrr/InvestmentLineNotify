@@ -26,7 +26,6 @@ import { AccountSimulator } from "./accountSimulator.mjs";
 import { buildSignalContext } from "../../domain/signalContext.mjs";
 import { evaluateInvestmentSignal } from "../strategy/strategyEngine.mjs";
 import { fetchStrategyConfigUnified as fetchStrategyConfig } from "../strategy/strategyLoader.mjs";
-import logger from "../../utils/logger.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, "../../..");
@@ -326,7 +325,7 @@ export class BacktestRunner {
   }
 
   // ──────────────────────────────────────────────────────────────
-  // getSummary()
+  // getSummary() + SignalCategory 報告
   // ──────────────────────────────────────────────────────────────
   getSummary() {
     if (this.results.length === 0) return null;
@@ -338,6 +337,9 @@ export class BacktestRunner {
       .filter((m) => isFinite(m) && m !== 999);
     const minMm = mms.length > 0 ? Math.min(...mms) : 999;
 
+    // 計算 signalCategory 統計
+    const signalCategoryStats = this.calculateSignalCategoryStats();
+
     return {
       name: this.config.name,
       returnPct: totalReturn,
@@ -347,6 +349,142 @@ export class BacktestRunner {
       totalLoan: end.totalLoan,
       finalLeverage: end.actualLeverage,
       minMm,
+      signalCategoryStats, // 新增：signalCategory 統計
     };
+  }
+
+  // 計算 signalCategory 分組統計
+  calculateSignalCategoryStats() {
+    if (this.results.length === 0) return { categories: {}, summary: {} };
+
+    const CATEGORY_ORDER = [
+      "baseline",
+      "deep_drop",
+      "panic",
+      "take_profit",
+      "rebalance",
+    ];
+
+    const categoryStats = {};
+    CATEGORY_ORDER.forEach((cat) => {
+      categoryStats[cat] = {
+        category: cat,
+        count: 0,
+        buyCount: 0,
+        sellCount: 0,
+        holdCount: 0,
+        returns: [],
+        scores: [],
+        monthlyBreakdown: {},
+      };
+    });
+
+    const monthlyData = {};
+
+    this.results.forEach((r, _idx) => {
+      const cat = r.signalCategory || r.signals?.signalCategory || "baseline";
+      const date = r.date;
+      const mKey = date.substring(0, 7); // YYYY-MM
+
+      if (!categoryStats[cat]) {
+        categoryStats[cat] = {
+          category: cat,
+          count: 0,
+          buyCount: 0,
+          sellCount: 0,
+          holdCount: 0,
+          returns: [],
+          scores: [],
+          monthlyBreakdown: {},
+        };
+      }
+
+      const stat = categoryStats[cat];
+      stat.count++;
+
+      const signal = r.signal || r.signals?.signalDirection || "hold";
+      if (signal === "long") stat.buyCount++;
+      else if (signal === "short") stat.sellCount++;
+      else stat.holdCount++;
+
+      // 收集報酬率
+      if (typeof r.returnPct === "number") {
+        stat.returns.push(r.returnPct);
+      }
+
+      // 收集分數
+      if (typeof r.score === "number") {
+        stat.scores.push(r.score);
+      }
+
+      // 月度拆解
+      if (!stat.monthlyBreakdown[mKey]) {
+        stat.monthlyBreakdown[mKey] = {
+          count: 0,
+          buyCount: 0,
+          sellCount: 0,
+          holdCount: 0,
+          scores: [],
+        };
+      }
+      const mStat = stat.monthlyBreakdown[mKey];
+      mStat.count++;
+      if (signal === "long") mStat.buyCount++;
+      else if (signal === "short") mStat.sellCount++;
+      else mStat.holdCount++;
+      if (typeof r.score === "number") mStat.scores.push(r.score);
+
+      // 全局月度統計
+      if (!monthlyData[mKey]) {
+        monthlyData[mKey] = { totalDays: 0, categories: {} };
+      }
+      monthlyData[mKey].totalDays++;
+      if (!monthlyData[mKey].categories[cat]) {
+        monthlyData[mKey].categories[cat] = 0;
+      }
+      monthlyData[mKey].categories[cat]++;
+    });
+
+    // 計算衍生指標
+    const summary = {
+      totalDays: this.results.length,
+      totalCategories: Object.keys(categoryStats).filter(
+        (c) => categoryStats[c].count > 0,
+      ).length,
+      startDate: this.results[0]?.date,
+      endDate: this.results[this.results.length - 1]?.date,
+    };
+
+    // 計算每個類別的衍生指標
+    Object.keys(categoryStats).forEach((cat) => {
+      const stat = categoryStats[cat];
+      if (stat.count === 0) return;
+
+      stat.avgReturn =
+        stat.returns.length > 0
+          ? stat.returns.reduce((a, b) => a + b, 0) / stat.returns.length
+          : 0;
+
+      stat.winRate =
+        stat.returns.length > 0
+          ? (stat.returns.filter((r) => r > 0).length / stat.returns.length) *
+            100
+          : 0;
+
+      stat.avgScore =
+        stat.scores.length > 0
+          ? stat.scores.reduce((a, b) => a + b, 0) / stat.scores.length
+          : 0;
+
+      Object.keys(stat.monthlyBreakdown).forEach((month) => {
+        const m = stat.monthlyBreakdown[month];
+        m.avgScore =
+          m.scores.length > 0
+            ? m.scores.reduce((a, b) => a + b, 0) / m.scores.length
+            : 0;
+      });
+    });
+
+    return { categories: categoryStats, monthlyData, summary };
   }
 }

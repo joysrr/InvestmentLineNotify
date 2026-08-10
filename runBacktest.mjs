@@ -192,14 +192,42 @@ async function main() {
       `   最低維持率: ${summary.minMm === 999 ? "N/A (無借款)" : summary.minMm.toFixed(1) + "%"}`,
     );
 
-    // 5. 輸出詳細結果 CSV
+    // 5. 輸出 SignalCategory 統計摘要
+    if (summary.signalCategoryStats) {
+      const { categories: _categories, summary: statsSummary } =
+        summary.signalCategoryStats;
+      console.log("\n📊 [Backtest] ===== SignalCategory 分組統計 =====");
+      console.log(`   總天數: ${statsSummary.totalDays}`);
+      console.log(`   活躍類別數: ${statsSummary.totalCategories}`);
+      console.log(
+        `   期間: ${statsSummary.startDate} ~ ${statsSummary.endDate}`,
+      );
+
+      const CATEGORY_ORDER = [
+        "baseline",
+        "deep_drop",
+        "panic",
+        "take_profit",
+        "rebalance",
+      ];
+      CATEGORY_ORDER.forEach((cat) => {
+        const stat = summary.signalCategoryStats.categories[cat];
+        if (stat && stat.count > 0) {
+          console.log(
+            `   ${cat}: ${stat.count}天 | 買${stat.buyCount} 賣${stat.sellCount} 持${stat.holdCount} | 勝率${stat.winRate?.toFixed(1) || 0}% | 平均分${stat.avgScore?.toFixed(1) || 0}`,
+          );
+        }
+      });
+    }
+
+    // 6. 輸出詳細結果 CSV
     const csvPath = resolve(
       PROJECT_ROOT,
       `data/backtest/results_${config.name}_${config.start}_${config.end}.csv`,
     );
     const { results } = runner;
     const csvHeader =
-      "date,netAsset,qty0050,qtyZ2,totalLoan,actualLeverage,maintenanceMargin,advice,score,signal,price0050,priceZ2";
+      "date,netAsset,qty0050,qtyZ2,totalLoan,actualLeverage,maintenanceMargin,advice,score,signal,signalCategory,signalType,price0050,priceZ2";
     const csvRows = results.map((r) =>
       [
         r.date,
@@ -212,6 +240,8 @@ async function main() {
         r.advice ?? "",
         r.score ?? "",
         r.signal ?? "",
+        r.signalCategory || (r.signals?.signalCategory ?? "baseline"),
+        r.signalType || (r.signals?.signalType ?? "baseline"),
         r.price0050.toFixed(2),
         r.priceZ2.toFixed(2),
       ].join(","),
