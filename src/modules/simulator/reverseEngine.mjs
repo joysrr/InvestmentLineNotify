@@ -99,8 +99,8 @@ export async function runReverseEngine({
         currentPriceZ2,
       );
 
-      // 若未完全收斂 (approx) 視為不可達
-      if (!result.achievable || result.method === "binary_search_approx") {
+      // approx 也視為可達，但標記為近似解
+      if (!result.achievable) {
         return formatUnreachableResponse(
           target,
           result.reason || "目標 RSI 在搜尋範圍內無法達成",
@@ -123,6 +123,8 @@ export async function runReverseEngine({
         scanDetails: result.iterations
           ? { iterations: result.iterations }
           : undefined,
+        note:
+          result.method === "binary_search_approx" ? result.note : undefined,
         assumptions: [`RSI 對價格單調遞增`, `搜尋範圍 ±30%`],
         calculationMode: CALCULATION_MODE.REVERSE_ANALYTICAL,
       };

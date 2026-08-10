@@ -172,64 +172,105 @@ export async function scanPriceRange({
 /**
  * KD 交叉檢查器
  * @param {"golden"|"dead"} direction - 交叉方向
+ * @param {Array} kdHistory - 可選，KD 歷史陣列 [{k, d}, ...]
  */
-export function createKDCrossChecker(direction) {
+export function createKDCrossChecker(direction, kdHistory = null) {
   return (result) => {
-    const kd = result.indicators?.kd;
-    if (!kd || typeof kd.k !== "number" || typeof kd.d !== "number") {
+    // 優先使用傳入的歷史陣列，其次使用 result.kdHistory
+    const history = kdHistory || result.kdHistory || [];
+    if (history.length < 2) {
+      // 回退：僅檢查當前狀態
+      const kd = result.indicators?.kd;
+      if (!kd || typeof kd.k !== "number" || typeof kd.d !== "number") {
+        return { matched: false, error: Infinity };
+      }
+      const k = kd.k;
+      const d = kd.d;
+      let matched = false;
+      if (direction === "golden") matched = k > d;
+      else if (direction === "dead") matched = k < d;
+      return {
+        matched,
+        exactMatch: matched,
+        value: `kd_${direction}`,
+        error: matched ? 0 : Math.abs(k - d),
+      };
+    }
+
+    // 真正的交叉檢測：前一根 vs 當前根
+    const prev = history[history.length - 2];
+    const curr = history[history.length - 1];
+    if (!prev || !curr) {
       return { matched: false, error: Infinity };
     }
 
-    const k = kd.k;
-    const d = kd.d;
-
-    // 注意：這裡只能檢查當前狀態，無法檢查「交叉瞬間」
-    // 真正的交叉檢查需要前一根 K 線資料
-    // 這裡簡化：golden = k > d, dead = k < d
-    // 實際應用中，forwardSimulator 需提供 kdArr 供掃描器檢查前一根
-
     let matched = false;
     if (direction === "golden") {
-      matched = k > d;
+      matched = prev.k <= prev.d && curr.k > curr.d;
     } else if (direction === "dead") {
-      matched = k < d;
+      matched = prev.k >= prev.d && curr.k < curr.d;
     }
 
     return {
       matched,
-      exactMatch: matched, // 簡化處理
+      exactMatch: matched,
       value: `kd_${direction}`,
-      error: matched ? 0 : Math.abs(k - d),
+      error: matched ? 0 : Math.abs(curr.k - curr.d),
     };
   };
 }
 
 /**
  * MACD 交叉檢查器
+ * @param {"golden"|"dead"} direction - 交叉方向
+ * @param {Array} macdHistory - 可選，MACD 歷史陣列 [{MACD, signal, histogram}, ...]
  */
-export function createMACDCrossChecker(direction) {
+export function createMACDCrossChecker(direction, macdHistory = null) {
   return (result) => {
-    const macd = result.indicators.macd;
-    if (
-      !macd ||
-      typeof macd.MACD !== "number" ||
-      typeof macd.signal !== "number"
-    ) {
+    // 優先使用傳入的歷史陣列，其次使用 result.macdHistory
+    const history = macdHistory || result.macdHistory || [];
+    if (history.length < 2) {
+      // 回退：僅檢查當前狀態
+      const macd = result.indicators?.macd;
+      if (
+        !macd ||
+        typeof macd.MACD !== "number" ||
+        typeof macd.signal !== "number"
+      ) {
+        return { matched: false, error: Infinity };
+      }
+
+      let matched = false;
+      if (direction === "golden") matched = macd.MACD > macd.signal;
+      else if (direction === "dead") matched = macd.MACD < macd.signal;
+
+      return {
+        matched,
+        exactMatch: matched,
+        value: `macd_${direction}`,
+        error: matched ? 0 : Math.abs(macd.MACD - macd.signal),
+      };
+    }
+
+    // 真正的交叉檢測：前一根 vs 當前根
+    const prev = history[history.length - 2];
+    const curr = history[history.length - 1];
+    if (!prev || !curr) {
       return { matched: false, error: Infinity };
     }
 
     let matched = false;
     if (direction === "golden") {
-      matched = macd.MACD > macd.signal;
+      matched = prev.MACD <= prev.signal && curr.MACD > curr.signal;
     } else if (direction === "dead") {
-      matched = macd.MACD < macd.signal;
+      matched = prev.MACD >= prev.signal && curr.MACD < curr.signal;
     }
 
     return {
       matched,
       exactMatch: matched,
       value: `macd_${direction}`,
-      error: matched ? 0 : Math.abs(macd.MACD - macd.signal),
+      error: matched ? 0 : Math.abs(curr.MACD - curr.signal),
     };
   };
 }

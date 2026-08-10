@@ -33,11 +33,15 @@ function formatIndicators(data, signals) {
   // 從 SimulationInput 直接取得計算好的指標值 (而非從 signals)
   const lastMACD =
     data.macdArr?.filter((m) => m && Number.isFinite(m.MACD)).at(-1) || null;
+  const lastKD =
+    data.kdArr
+      ?.filter((k) => k && Number.isFinite(k.k) && Number.isFinite(k.d))
+      .at(-1) || null;
   return {
     rsi: signals.RSI,
     kd: {
-      k: signals.KD_K,
-      d: signals.KD_D,
+      k: lastKD?.k ?? signals.KD_K,
+      d: lastKD?.d ?? signals.KD_D,
     },
     macd: {
       MACD: lastMACD?.MACD ?? 0,
@@ -136,6 +140,21 @@ export async function runForwardSimulation(
     JSON.stringify(formatIndicators(simulationInput, signals)),
   );
 
+  // 為掃描器提供完整歷史陣列 (用於交叉檢測)
+  const kdHistory =
+    simulationInput.kdArr
+      ?.filter((k) => k && Number.isFinite(k.k) && Number.isFinite(k.d))
+      .map((k) => ({ k: k.k, d: k.d })) || [];
+
+  const macdHistory =
+    simulationInput.macdArr
+      ?.filter((m) => m && Number.isFinite(m.MACD) && Number.isFinite(m.signal))
+      .map((m) => ({
+        MACD: m.MACD,
+        signal: m.signal,
+        histogram: m.histogram,
+      })) || [];
+
   const response = {
     // 價格資訊
     simulatedPrice0050: simulationInput.price0050,
@@ -183,6 +202,10 @@ export async function runForwardSimulation(
     calculationMode: CALCULATION_MODE.FORWARD,
     timestamp: new Date().toISOString(),
     dataAsOf: simulationInput.date,
+
+    // 為掃描器提供的歷史陣列 (交叉檢測用)
+    kdHistory,
+    macdHistory,
 
     // 假設與警告
     assumptions,

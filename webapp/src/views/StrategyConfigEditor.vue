@@ -213,7 +213,7 @@ async function saveConfig() {
     });
 
     currentConfig.value = JSON.parse(JSON.stringify(editableConfig.value));
-    hasChanges.value = false;
+    // hasChanges 會自動重新計算為 false (currentConfig === editableConfig)
     ElMessage.success("策略設定已儲存");
   } catch (err) {
     ElMessage.error("儲存失敗: " + err.message);
@@ -235,7 +235,7 @@ async function resetToDefault() {
     if (res.success) {
       currentConfig.value = JSON.parse(JSON.stringify(res.config));
       editableConfig.value = JSON.parse(JSON.stringify(res.config));
-      hasChanges.value = false;
+      // hasChanges 會自動重新計算為 false
       validateCurrentConfig();
       ElMessage.success("已重置為預設設定");
     }

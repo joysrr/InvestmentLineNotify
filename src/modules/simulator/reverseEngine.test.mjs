@@ -227,12 +227,12 @@ describe("reverseEngine - 反向推導主流程", () => {
       expect(result.closestResult).toBeDefined();
     });
 
-    it("RSI 目標超出範圍回傳不可達", async () => {
-      // 使用極端目標，在 ±30% 範圍內無法達成
+    it("RSI 目標超出 ±30% 範圍回傳近似解", async () => {
+      // 使用極端目標，在 ±30% 範圍內無法完全收斂
       // mock: RSI = 50 + priceDiff * 0.5
       // ±30% 價格範圍: 175 * 0.7 = 122.5 到 175 * 1.3 = 227.5
       // 最低價格 122.5 -> priceDiff = -52.5 -> RSI = 50 - 26.25 = 23.75
-      // 所以 RSI 5 在 ±30% 內不可達
+      // 所以 RSI 5 在 ±30% 內無法達成，會回傳 binary_search_approx
       const result = await runReverseEngine({
         target: { type: "rsi", value: 5 },
         simulationInput: mockSimulationInput,
@@ -241,8 +241,10 @@ describe("reverseEngine - 反向推導主流程", () => {
         currentPriceZ2,
       });
 
-      expect(result.reachable).toBe(false);
-      expect(result.reason).toBeDefined();
+      expect(result.reachable).toBe(true);
+      expect(result.method).toBe("binary_search_approx");
+      expect(result.note).toBeDefined();
+      expect(result.note).toContain("未在");
     });
   });
 

@@ -92,5 +92,14 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     setupFiles: ["./src/test/setup.js"],
     exclude: ["**/node_modules/**", "**/dist/**", "**/src/test/e2e/**"],
+    coverage: {
+      provider: "v8",
+      thresholds: {
+        lines: 75,
+        functions: 60,
+        branches: 60,
+        statements: 75,
+      },
+    },
   },
 }));

@@ -214,8 +214,11 @@ describe("StrategyConfigEditor", () => {
       const wrapper = createWrapper();
       await flushPromises();
 
-      // Modify editableConfig via ref
-      wrapper.vm.editableConfig.version = "2.9";
+      // Modify editableConfig by replacing the entire object (avoid computed readonly warning)
+      wrapper.vm.editableConfig = {
+        ...wrapper.vm.editableConfig,
+        version: "2.9",
+      };
       expect(wrapper.vm.hasChanges).toBe(true);
 
       await wrapper.vm.saveConfig();
