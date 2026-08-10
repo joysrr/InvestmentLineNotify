@@ -18,6 +18,7 @@ import strategyStatusRoute from "./routes/strategyStatus.mjs";
 import simulateRoute from "./routes/v1/simulate.mjs";
 import backtestRoutes from "./routes/backtestRoutes.mjs";
 import backtestWsRoutes from "./routes/backtestWsRoutes.mjs";
+import backtestResultsRoute from "./routes/backtestResults.mjs";
 // 啟動前強制檢查環境變數，確保不帶病執行
 assertEnv();
 
@@ -126,6 +127,7 @@ export async function buildApp(opts = {}) {
   await fastify.register(simulateRoute, { prefix: "/api/v1" });
   await fastify.register(backtestRoutes, { prefix: "/api" });
   await fastify.register(backtestWsRoutes);
+  await fastify.register(backtestResultsRoute, { prefix: "/api" });
 
   // ─── Global Error Handler (M-002: Path Hiding) ─────────────────────────────
   fastify.setErrorHandler((error, request, reply) => {
@@ -180,7 +182,7 @@ process.on("unhandledRejection", (reason) => {
 
 // ─── 啟動邏輯 (僅在直接執行時觸發) ───────────────────────────────────────────────
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const PORT = parseInt(process.env.PORT || "3000", 10);
+  const PORT = parseInt(process.env.PORT || "3001", 10);
   const HOST = process.env.HOST || "0.0.0.0";
 
   try {

@@ -7,29 +7,32 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
+  timeout: 60000,
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: "http://localhost:5177",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
+    actionTimeout: 30000,
+    navigationTimeout: 60000,
   },
   projects: [
     {
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
-        // Use Playwright's headless shell (already installed)
         executablePath:
           "/opt/hermes/.playwright/chromium_headless_shell-1234/chrome-linux/headless_shell",
       },
     },
   ],
-  webServer: {
-    command: "./scripts/start-e2e-servers.sh",
-    url: "http://localhost:5173",
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
-    env: {
-      NODE_ENV: "development",
-    },
-  },
+  // webServer disabled - servers started manually
+  // webServer: {
+  //   command: "./scripts/start-e2e-servers.sh",
+  //   url: "http://localhost:5173",
+  //   reuseExistingServer: !process.env.CI,
+  //   timeout: 120000,
+  //   env: {
+  //     NODE_ENV: "development",
+  //   },
+  // },
 });

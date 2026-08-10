@@ -81,15 +81,17 @@ export default async function strategyStatusRoute(fastify) {
       const signalCategory = signals.signalCategory ?? "baseline";
       const signalType = signals.signalType ?? "baseline";
 
-      // 6. 生命週期階段
+      // 6. 生命週期
       const yearsToRetirement = lifecycle.currentAge
         ? Math.max(0, (lifecycle.retirementAge ?? 65) - lifecycle.currentAge)
         : null;
-      const lifecycleStage =
-        signals.regimeState?.lifecycleStage ||
+      const lifecycleStageEn =
+        signals.regimeState?.lifecycleStageEn ||
         (yearsToRetirement !== null
           ? determineLifecycleStage(yearsToRetirement)
           : LIFECYCLE_STAGE.EARLY);
+      // 向後相容：也支援中文 lifecycleStage
+      const lifecycleStage = lifecycleStageEn;
 
       // 6. 當前分配檔位資訊
       const allocationInfo = {
@@ -171,6 +173,7 @@ export default async function strategyStatusRoute(fastify) {
         // 6. 生命週期
         lifecycle: {
           stage: lifecycleStage,
+          stageEn: lifecycleStageEn,
           currentAge: lifecycle.currentAge ?? null,
           retirementAge: lifecycle.retirementAge ?? 65,
           yearsToRetirement: lifecycle.currentAge

@@ -18,17 +18,17 @@ let backtestQueue = null;
 let redisPublisher = null;
 let inMemoryJobs = new Map();
 
-// Job 狀態對應
-const JOB_STATUS = {
+// 進度 EventEmitter (供 WebSocket 訂閱)
+const progressEmitter = new EventEmitter();
+
+// Job 狀態對應 (export 供測試使用)
+export const JOB_STATUS = {
   WAITING: "waiting",
   ACTIVE: "active",
   COMPLETED: "completed",
   FAILED: "failed",
   DELAYED: "delayed",
 };
-
-// 進度 EventEmitter (供 WebSocket 訂閱)
-const progressEmitter = new EventEmitter();
 
 /**
  * 發布進度 (Redis 或記憶體)
@@ -451,7 +451,27 @@ export async function shutdownQueue() {
   progressEmitter.removeAllListeners();
 }
 
-// 初始化
-await initRedis();
+/**
+ * 取得所有任務 (記憶體模式)
+ */
+export async function getAllJobs() {
+  if (USE_REDIS && backtestQueue) {
+    // Redis 模式需要不同的實作
+    return [];
+  }
 
-export { JOB_STATUS, progressEmitter };
+  // 記憶體模式
+  return Array.from(inMemoryJobs.values())
+    .map((job) => ({
+      jobId: job.id,
+      name: job.data?.config?.name || job.id,
+      status: job.status,
+      config: job.data?.config,
+      createdAt: job.timestamp,
+      finishedAt: job.finishedOn,
+      summary: job.returnvalue?.summary,
+      error: job.returnvalue?.error,
+      runner: job.returnvalue?.runner,
+    }))
+    .sort((a, b) => b.createdAt - a.createdAt);
+}

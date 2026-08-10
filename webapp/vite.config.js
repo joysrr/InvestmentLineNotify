@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import path from "path";
 
 export default defineConfig(({ mode }) => ({
   plugins: [
@@ -71,6 +72,11 @@ export default defineConfig(({ mode }) => ({
   define: {
     "process.env": {},
     "process.env.NODE_ENV": JSON.stringify(mode),
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
   },
   server: {
     port: 5173,

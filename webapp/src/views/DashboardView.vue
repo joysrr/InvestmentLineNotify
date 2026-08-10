@@ -45,6 +45,13 @@
         >
           模擬器
         </button>
+        <button
+          class="tab-item"
+          :class="{ active: currentTab === 'backtest-report' }"
+          @click="currentTab = 'backtest-report'"
+        >
+          回測報表
+        </button>
       </div>
     </div>
 
@@ -136,6 +143,11 @@
       <!-- Tab 5: Simulator (模擬器) -->
       <div v-else-if="currentTab === 'simulator'">
         <SimulatorView />
+      </div>
+
+      <!-- Tab 6: Backtest Report (回測報表) -->
+      <div v-else-if="currentTab === 'backtest-report'">
+        <BacktestReportView />
       </div>
     </div>
 

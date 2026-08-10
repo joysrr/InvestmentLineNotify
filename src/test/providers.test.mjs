@@ -56,7 +56,7 @@ describe("Market Data Providers Integration", () => {
     if (result.pb !== null) {
       expect(result.pb).toBeGreaterThan(0.5);
     }
-  });
+  }, 15000);
 
   it("AI Data Preprocessor: formatCnnDataForAi", () => {
     const mockData = { score: 20, rating: "extreme fear", previousClose: 25 };

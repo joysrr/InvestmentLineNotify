@@ -6,10 +6,10 @@ import NewsView from "../views/NewsView.vue";
 import AccountView from "../views/AccountView.vue";
 import MarketRadarView from "../views/MarketRadarView.vue";
 import MacroBattleView from "../views/MacroBattleView.vue";
-
 import TechnicalView from "../views/TechnicalView.vue";
 import StrategyView from "../views/StrategyView.vue";
 import SimulatorView from "../views/SimulatorView.vue";
+import BacktestReportView from "../views/BacktestReportView.vue";
 
 export default createRouter({
   history: createWebHashHistory(),
@@ -25,6 +25,7 @@ export default createRouter({
     { path: "/strategy", component: StrategyView },
     { path: "/account", component: AccountView },
     { path: "/simulator", component: SimulatorView },
+    { path: "/backtest-report", component: BacktestReportView },
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
   ],
 });

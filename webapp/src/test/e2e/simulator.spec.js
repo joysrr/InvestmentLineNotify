@@ -3,6 +3,46 @@ import { test, expect } from "@playwright/test";
 test.describe("SimulatorView - Forward Simulation (正向模擬)", () => {
   test.beforeEach(async ({ page }) => {
     // Mock API responses to avoid dependency on real backend data
+    await page.route("**/api/status", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          _meta: { lastRun: new Date().toISOString() },
+          data: { rawUsMarket: { vix: "18" } },
+        }),
+      });
+    });
+
+    await page.route("**/api/portfolio/health", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          maintenanceRisk: { level: "Protect", score: 72 },
+          loanHealth: { level: "OK" },
+        }),
+      });
+    });
+
+    await page.route("**/api/news*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          articles: [
+            {
+              title: "Test News",
+              description: "Test",
+              url: "#",
+              source: "Test",
+              publishedAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      });
+    });
+
     await page.route("**/api/v1/simulate", async (route) => {
       // Return mock forward simulation response
       await route.fulfill({
@@ -84,10 +124,14 @@ test.describe("SimulatorView - Forward Simulation (正向模擬)", () => {
       });
     });
 
-    // Navigate to the simulator page (hash-based routing)
-    await page.goto("#/simulator");
+    // Navigate to the dashboard page (simulator is now a tab within dashboard)
+    await page.goto("#/dashboard", { waitUntil: "networkidle" });
     // Wait for the app to mount and Telegram to be ready
-    await page.waitForSelector(".simulator-view", { timeout: 10000 });
+    await page.waitForSelector("#app > *", { timeout: 60000 });
+    await page.waitForSelector(".dash-tabs", { timeout: 60000 });
+    // Click the simulator tab
+    await page.locator("text=模擬器").click();
+    await page.waitForSelector(".simulator-view", { timeout: 60000 });
   });
 
   test("should load simulator view with forward mode by default", async ({
@@ -177,6 +221,46 @@ test.describe("SimulatorView - Forward Simulation (正向模擬)", () => {
 test.describe("SimulatorView - Reverse Simulation (反向推導)", () => {
   test.beforeEach(async ({ page }) => {
     // Mock API responses
+    await page.route("**/api/status", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          _meta: { lastRun: new Date().toISOString() },
+          data: { rawUsMarket: { vix: "18" } },
+        }),
+      });
+    });
+
+    await page.route("**/api/portfolio/health", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          maintenanceRisk: { level: "Protect", score: 72 },
+          loanHealth: { level: "OK" },
+        }),
+      });
+    });
+
+    await page.route("**/api/news*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          articles: [
+            {
+              title: "Test News",
+              description: "Test",
+              url: "#",
+              source: "Test",
+              publishedAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      });
+    });
+
     await page.route("**/api/v1/simulate/reverse", async (route) => {
       await route.fulfill({
         status: 200,
@@ -217,8 +301,14 @@ test.describe("SimulatorView - Reverse Simulation (反向推導)", () => {
       });
     });
 
-    await page.goto("#/simulator");
-    await page.waitForSelector(".simulator-view", { timeout: 10000 });
+    // Navigate to the dashboard page (simulator is now a tab within dashboard)
+    await page.goto("#/dashboard", { waitUntil: "networkidle" });
+    // Wait for the app to mount and Telegram to be ready
+    await page.waitForSelector("#app > *", { timeout: 60000 });
+    await page.waitForSelector(".dash-tabs", { timeout: 60000 });
+    // Click the simulator tab
+    await page.locator("text=模擬器").click();
+    await page.waitForSelector(".simulator-view", { timeout: 60000 });
   });
 
   test("should switch to reverse mode when tab clicked", async ({ page }) => {
@@ -258,6 +348,46 @@ test.describe("SimulatorView - Reverse Simulation (反向推導)", () => {
 test.describe("SimulatorView - Data Quality & Disclaimer", () => {
   test.beforeEach(async ({ page }) => {
     // Mock API responses
+    await page.route("**/api/status", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          _meta: { lastRun: new Date().toISOString() },
+          data: { rawUsMarket: { vix: "18" } },
+        }),
+      });
+    });
+
+    await page.route("**/api/portfolio/health", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          maintenanceRisk: { level: "Protect", score: 72 },
+          loanHealth: { level: "OK" },
+        }),
+      });
+    });
+
+    await page.route("**/api/news*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          articles: [
+            {
+              title: "Test News",
+              description: "Test",
+              url: "#",
+              source: "Test",
+              publishedAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      });
+    });
+
     await page.route("**/api/v1/simulate", async (route) => {
       await route.fulfill({
         status: 200,
@@ -316,8 +446,14 @@ test.describe("SimulatorView - Data Quality & Disclaimer", () => {
       });
     });
 
-    await page.goto("#/simulator");
-    await page.waitForSelector(".simulator-view", { timeout: 10000 });
+    // Navigate to the dashboard page (simulator is now a tab within dashboard)
+    await page.goto("#/dashboard", { waitUntil: "networkidle" });
+    // Wait for the app to mount and Telegram to be ready
+    await page.waitForSelector("#app > *", { timeout: 60000 });
+    await page.waitForSelector(".dash-tabs", { timeout: 60000 });
+    // Click the simulator tab
+    await page.locator("text=模擬器").click();
+    await page.waitForSelector(".simulator-view", { timeout: 60000 });
   });
 
   test("should show data quality badges after simulation", async ({ page }) => {
@@ -329,11 +465,12 @@ test.describe("SimulatorView - Data Quality & Disclaimer", () => {
       { timeout: 10000 },
     );
 
-    // Check data quality section - the text in the result shows data quality badges
-    // Use more specific selector for the badge label
-    await expect(page.locator('.badge-label:has-text("MA240")')).toBeVisible({
+    // Check data quality section - use broader selector first
+    await expect(page.locator(".quality-badges")).toBeVisible({
       timeout: 5000,
     });
+    // Then check for specific badges
+    await expect(page.locator('.badge-label:has-text("MA240")')).toBeVisible();
     await expect(page.locator('.badge-label:has-text("RSI")')).toBeVisible();
     await expect(page.locator('.badge-label:has-text("KD")')).toBeVisible();
     await expect(page.locator('.badge-label:has-text("MACD")')).toBeVisible();
