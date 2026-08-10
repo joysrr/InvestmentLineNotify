@@ -10,6 +10,7 @@ import TechnicalView from "../views/TechnicalView.vue";
 import StrategyView from "../views/StrategyView.vue";
 import SimulatorView from "../views/SimulatorView.vue";
 import BacktestReportView from "../views/BacktestReportView.vue";
+import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";
 
 export default createRouter({
   history: createWebHashHistory(),
@@ -26,6 +27,7 @@ export default createRouter({
     { path: "/account", component: AccountView },
     { path: "/simulator", component: SimulatorView },
     { path: "/backtest-report", component: BacktestReportView },
+    { path: "/strategy-config", component: StrategyConfigEditorView },
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
   ],
 });
