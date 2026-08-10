@@ -11,6 +11,7 @@ import { runReverseEngine } from "../../../modules/simulator/reverseEngine.mjs";
 import {
   validateForwardInput,
   validateReverseInput,
+  validateBatchInput,
   createErrorResponse,
 } from "../../../modules/simulator/validator.mjs";
 import {
@@ -193,6 +194,128 @@ export default async function simulateRoute(fastify) {
         dataAsOf: latestReport.date,
         disclaimer:
           "此為條件分析，非價格預測亦非投資建議。反向推導基於固定假設，實際市場表現可能不同。",
+      };
+
+      return reply.code(HTTP_STATUS.OK).send(response);
+    } catch (err) {
+      return handleError(reply, err);
+    }
+  });
+
+  // POST /api/v1/simulate/batch - 批次模擬
+  fastify.post("/simulate/batch", async (request, reply) => {
+    try {
+      // 1. 輸入驗證
+      const validation = validateBatchInput(request.body);
+      if (!validation.valid) {
+        return reply
+          .code(HTTP_STATUS.BAD_REQUEST)
+          .send(
+            createErrorResponse(
+              ERROR_CODES.VALIDATION_ERROR,
+              validation.errors.join("; "),
+              "batch",
+            ),
+          );
+      }
+
+      const { jobs, options = {} } = validation.sanitized;
+      const concurrency = options.concurrency ?? 4;
+      const retryAttempts = options.retryAttempts ?? 2;
+      const retryDelayMs = options.retryDelayMs ?? 1000;
+
+      // 2. 取得並驗證最新戰報
+      let latestReport;
+      try {
+        latestReport = await getValidatedLatestReport();
+      } catch (err) {
+        return handleError(reply, err);
+      }
+
+      // 3. 建構基礎模擬輸入
+      let baseSimulationInput;
+      try {
+        baseSimulationInput = await buildSimulationInput(
+          latestReport,
+          latestReport.price0050,
+          latestReport.currentPrice,
+        );
+      } catch (err) {
+        return handleError(reply, err);
+      }
+
+      // 4. 執行批次模擬
+      const results = [];
+      const errors = [];
+
+      // 簡單的併發控制：分批處理
+      for (let i = 0; i < jobs.length; i += concurrency) {
+        const batch = jobs.slice(i, i + concurrency);
+
+        const batchPromises = batch.map(async (job, jobIndex) => {
+          const globalIndex = i + jobIndex;
+
+          // 建構單次模擬輸入
+          const jobSimulationInput = {
+            ...baseSimulationInput,
+            price0050: job.price0050,
+            currentPrice:
+              job.priceZ2 ??
+              job.price0050 *
+                (latestReport.currentPrice / latestReport.price0050),
+          };
+
+          let attempt = 0;
+          let lastError = null;
+
+          while (attempt <= retryAttempts) {
+            try {
+              const result = await runForwardSimulation(
+                jobSimulationInput,
+                latestReport.price0050,
+                latestReport.currentPrice,
+              );
+
+              results[globalIndex] = {
+                jobIndex: globalIndex,
+                success: true,
+                result,
+              };
+              return;
+            } catch (err) {
+              lastError = err;
+              attempt++;
+              if (attempt <= retryAttempts) {
+                // 延遲後重試
+                await new Promise((resolve) =>
+                  setTimeout(resolve, retryDelayMs),
+                );
+              }
+            }
+          }
+
+          // 所有重試都失敗
+          errors[globalIndex] = {
+            jobIndex: globalIndex,
+            success: false,
+            error: lastError?.message || "未知錯誤",
+            input: job,
+          };
+        });
+
+        await Promise.all(batchPromises);
+      }
+
+      // 5. 回傳批次結果
+      const response = {
+        totalJobs: jobs.length,
+        successful: results.filter((r) => r?.success).length,
+        failed: errors.filter((e) => e).length,
+        results: jobs.map((_, idx) => results[idx] || errors[idx]),
+        timestamp: new Date().toISOString(),
+        dataAsOf: latestReport.date,
+        disclaimer:
+          "此為批次條件分析，非價格預測亦非投資建議。結果基於固定假設，實際市場表現可能不同。",
       };
 
       return reply.code(HTTP_STATUS.OK).send(response);

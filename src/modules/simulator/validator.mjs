@@ -214,6 +214,118 @@ export function validateReverseInput(body) {
 }
 
 /**
+ * 驗證批次模擬輸入
+ * @param {Object} body - { jobs: Array, options?: Object }
+ * @returns {Object} { valid: boolean, errors: string[], sanitized: Object }
+ */
+export function validateBatchInput(body) {
+  const errors = [];
+  const sanitized = {};
+
+  if (!body || typeof body !== "object") {
+    errors.push("body 為必填物件");
+    return { valid: false, errors, sanitized: null };
+  }
+
+  const { jobs, options } = body;
+
+  // 驗證 jobs 陣列
+  if (!Array.isArray(jobs)) {
+    errors.push("jobs 必須為陣列");
+  } else if (jobs.length === 0) {
+    errors.push("jobs 至少需要 1 個任務");
+  } else if (jobs.length > 100) {
+    errors.push("jobs 數量不能超過 100");
+  } else {
+    jobs.forEach((job, index) => {
+      if (!job || typeof job !== "object") {
+        errors.push(`jobs[${index}] 必須為物件`);
+        return;
+      }
+
+      // price0050 必填
+      if (job.price0050 === undefined || job.price0050 === null) {
+        errors.push(`jobs[${index}].price0050 為必填欄位`);
+      } else {
+        const price = Number(job.price0050);
+        if (!Number.isFinite(price)) {
+          errors.push(`jobs[${index}].price0050 必須是有效數字`);
+        } else if (price <= 0) {
+          errors.push(`jobs[${index}].price0050 必須大於 0`);
+        } else if (price < PRICE_BOUNDS.MIN || price > PRICE_BOUNDS.MAX) {
+          errors.push(
+            `jobs[${index}].price0050 必須在 ${PRICE_BOUNDS.MIN} 到 ${PRICE_BOUNDS.MAX} 之間`,
+          );
+        }
+      }
+
+      // priceZ2 選填
+      if (job.priceZ2 !== undefined && job.priceZ2 !== null) {
+        const priceZ2 = Number(job.priceZ2);
+        if (!Number.isFinite(priceZ2)) {
+          errors.push(`jobs[${index}].priceZ2 必須是有效數字`);
+        } else if (priceZ2 <= 0) {
+          errors.push(`jobs[${index}].priceZ2 必須大於 0`);
+        } else if (priceZ2 < PRICE_BOUNDS.MIN || priceZ2 > PRICE_BOUNDS.MAX) {
+          errors.push(
+            `jobs[${index}].priceZ2 必須在 ${PRICE_BOUNDS.MIN} 到 ${PRICE_BOUNDS.MAX} 之間`,
+          );
+        }
+      }
+    });
+  }
+
+  // 驗證 options (選填)
+  let sanitizedOptions = {};
+  if (options !== undefined && options !== null) {
+    if (typeof options !== "object") {
+      errors.push("options 必須為物件");
+    } else {
+      const { concurrency, retryAttempts, retryDelayMs } = options;
+
+      if (concurrency !== undefined) {
+        const c = Number(concurrency);
+        if (!Number.isFinite(c) || c < 1 || c > 16) {
+          errors.push("options.concurrency 必須在 1 到 16 之間");
+        } else {
+          sanitizedOptions.concurrency = c;
+        }
+      }
+
+      if (retryAttempts !== undefined) {
+        const r = Number(retryAttempts);
+        if (!Number.isFinite(r) || r < 0 || r > 5) {
+          errors.push("options.retryAttempts 必須在 0 到 5 之間");
+        } else {
+          sanitizedOptions.retryAttempts = r;
+        }
+      }
+
+      if (retryDelayMs !== undefined) {
+        const d = Number(retryDelayMs);
+        if (!Number.isFinite(d) || d < 0 || d > 10000) {
+          errors.push("options.retryDelayMs 必須在 0 到 10000 之間");
+        } else {
+          sanitizedOptions.retryDelayMs = d;
+        }
+      }
+    }
+  }
+
+  if (errors.length === 0) {
+    sanitized.jobs = jobs;
+    sanitized.options =
+      Object.keys(sanitizedOptions).length > 0 ? sanitizedOptions : undefined;
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    sanitized: errors.length === 0 ? sanitized : null,
+  };
+}
+
+/**
  * 產生價格偏離警告
  * @param {number} simulatedPrice - 模擬價格
  * @param {number} currentPrice - 當前價格

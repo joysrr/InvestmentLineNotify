@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="sim-header">
       <h2 class="sim-title">0050 雙向模擬器</h2>
-      <p class="sim-subtitle">股價 ⇄ 策略分數 / 條件反推</p>
+      <p class="sim-subtitle">股價 ⇄ 策略分數 / 條件反推 / 批次模擬</p>
     </div>
 
     <!-- Mode Selector -->
@@ -43,6 +43,13 @@
       @clear="clearResult"
     />
 
+    <!-- Batch Panel (Mode C) -->
+    <BatchPanel
+      v-else-if="mode === 'batch'"
+      :current-price-0050="currentPrice0050"
+      :current-price-z2="currentPriceZ2"
+    />
+
     <!-- Data Quality Badges (always visible when result exists) -->
     <DataQualityBadges
       v-if="result && result.dataQuality"
@@ -60,12 +67,13 @@ import { apiFetch } from "../api/index.js";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 // Components
-import SimulatorModeSelector from "../components/simulator/SimulatorModeSelector.vue";
-import ForwardPanel from "../components/simulator/ForwardPanel.vue";
-import ReversePanel from "../components/simulator/ReversePanel.vue";
-import DataQualityBadges from "../components/simulator/Common/DataQualityBadges.vue";
-import DisclaimerBanner from "../components/simulator/Common/DisclaimerBanner.vue";
-import LoadingSkeleton from "../components/simulator/Common/LoadingSkeleton.vue";
+import SimulatorModeSelector from "@/components/simulator/SimulatorModeSelector.vue";
+import ForwardPanel from "@/components/simulator/ForwardPanel.vue";
+import ReversePanel from "@/components/simulator/ReversePanel.vue";
+import BatchPanel from "@/components/simulator/BatchPanel.vue";
+import DataQualityBadges from "@/components/simulator/Common/DataQualityBadges.vue";
+import DisclaimerBanner from "@/components/simulator/Common/DisclaimerBanner.vue";
+import LoadingSkeleton from "@/components/simulator/Common/LoadingSkeleton.vue";
 
 // State
 const mode = ref("forward"); // 'forward' | 'reverse'

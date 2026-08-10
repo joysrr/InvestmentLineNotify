@@ -19,6 +19,15 @@
         <span class="mode-label">目標 → 價格</span>
         <span class="mode-desc">想達到某指標，反推所需價格</span>
       </button>
+      <button
+        class="mode-tab"
+        :class="{ active: modelValue === 'batch' }"
+        @click="$emit('update:modelValue', 'batch')"
+      >
+        <span class="mode-icon">⚙️</span>
+        <span class="mode-label">批次模擬</span>
+        <span class="mode-desc">多組參數並行，快速比較結果</span>
+      </button>
     </div>
   </div>
 </template>
