@@ -7,6 +7,7 @@ import {
   getValidatedLatestReport,
 } from "../../../modules/simulator/dataAdapter.mjs";
 import { runForwardSimulation } from "../../../modules/simulator/forwardSimulator.mjs";
+import { runReverseEngine } from "../../../modules/simulator/reverseEngine.mjs";
 import {
   validateForwardInput,
   validateReverseInput,
@@ -176,22 +177,25 @@ export default async function simulateRoute(fastify) {
         return handleError(reply, err);
       }
 
-      // 4. 路由到對應的解析器/掃描器
-      // TODO: Phase B/C 實作 analyticalSolvers, rsiSolver, scanner
-      // 目前先回傳「功能開發中」回應
-      const notImplementedResponse = {
+      // 4. 執行反向推導引擎
+      const result = await runReverseEngine({
         target,
-        reachable: false,
-        method: "not_implemented",
-        reason: "反向推導功能正在開發中 (Phase B/C)",
-        calculationMode: CALCULATION_MODE.REVERSE_ANALYTICAL,
+        simulationInput: baseSimulationInput,
+        forwardSimulator: runForwardSimulation,
+        currentPrice0050: latestReport.price0050,
+        currentPriceZ2: latestReport.currentPrice,
+      });
+
+      // 5. 加上通用欄位
+      const response = {
+        ...result,
         timestamp: new Date().toISOString(),
         dataAsOf: latestReport.date,
         disclaimer:
-          "此為條件分析，非價格預測亦非投資建議。反向推導功能尚未完成。",
+          "此為條件分析，非價格預測亦非投資建議。反向推導基於固定假設，實際市場表現可能不同。",
       };
 
-      return reply.code(HTTP_STATUS.OK).send(notImplementedResponse);
+      return reply.code(HTTP_STATUS.OK).send(response);
     } catch (err) {
       return handleError(reply, err);
     }
