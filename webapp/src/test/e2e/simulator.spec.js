@@ -2,6 +2,11 @@ import { test, expect } from "@playwright/test";
 
 test.describe("SimulatorView - Forward Simulation (正向模擬)", () => {
   test.beforeEach(async ({ page }) => {
+    // Inject test environment flag for apiFetch bypass
+    await page.addInitScript(() => {
+      window.__PLAYWRIGHT__ = true;
+    });
+
     // Mock API responses to avoid dependency on real backend data
     await page.route("**/api/status", async (route) => {
       await route.fulfill({

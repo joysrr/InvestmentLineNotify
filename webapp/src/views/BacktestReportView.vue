@@ -164,14 +164,14 @@ import { useRoute, useRouter } from "vue-router";
 import VChart from "vue-echarts";
 import { use } from "echarts/core";
 import { LineChart, BarChart } from "echarts/charts";
-import { TitleComponent, TooltipComponent, LegendComponent, GridComponent, XAxisComponent, YAxisComponent } from "echarts/components";
+import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 import MetricCard from "@/components/dashboard/MetricCard.vue";
 import SignalCategoryTable from "@/views/BacktestReportView/components/SignalCategoryTable.vue";
 
 use([
   LineChart, BarChart,
-  TitleComponent, TooltipComponent, LegendComponent, GridComponent, XAxisComponent, YAxisComponent,
+  TitleComponent, TooltipComponent, LegendComponent, GridComponent,
   CanvasRenderer
 ]);
 

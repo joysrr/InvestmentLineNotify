@@ -177,6 +177,7 @@ import CoachingAdvice from "../components/dashboard/CoachingAdvice.vue";
 import AnalysisPanel from "../components/dashboard/AnalysisPanel.vue";
 import SimulatorView from "../views/SimulatorView.vue";
 import StrategyStatusView from "../views/StrategyStatusView.vue";
+import BacktestReportView from "../views/BacktestReportView.vue";
 
 // ECharts (Only needed here for the radar template slot)
 import VChart from "vue-echarts";
