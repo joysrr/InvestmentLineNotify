@@ -17,7 +17,7 @@ export default defineConfig({
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
-        channel: "chromium", // Use system chromium
+        // Use Playwright's headless shell (already installed)
         executablePath:
           "/opt/hermes/.playwright/chromium_headless_shell-1234/chrome-linux/headless_shell",
       },

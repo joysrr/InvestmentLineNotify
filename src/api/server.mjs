@@ -4,6 +4,7 @@ import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
+import fastifyWebsocket from "@fastify/websocket";
 import { fileURLToPath } from "url";
 import { assertEnv } from "../utils/envGuard.mjs";
 import logger from "../utils/logger.mjs";
@@ -15,6 +16,8 @@ import configRoute from "./routes/config.mjs";
 import portfolioHealthRoute from "./routes/portfolioHealth.mjs";
 import strategyStatusRoute from "./routes/strategyStatus.mjs";
 import simulateRoute from "./routes/v1/simulate.mjs";
+import backtestRoutes from "./routes/backtestRoutes.mjs";
+import backtestWsRoutes from "./routes/backtestWsRoutes.mjs";
 // 啟動前強制檢查環境變數，確保不帶病執行
 assertEnv();
 
@@ -60,6 +63,9 @@ export async function buildApp(opts = {}) {
       retryAfter: context.after,
     }),
   });
+
+  // ─── WebSocket ──────────────────────────────────────────────────────────────
+  await fastify.register(fastifyWebsocket);
 
   // ─── Swagger / OpenAPI ────────────────────────────────────────────────────────
   await fastify.register(fastifySwagger, {
@@ -118,6 +124,8 @@ export async function buildApp(opts = {}) {
   await fastify.register(portfolioHealthRoute, { prefix: "/api" });
   await fastify.register(strategyStatusRoute, { prefix: "/api" });
   await fastify.register(simulateRoute, { prefix: "/api/v1" });
+  await fastify.register(backtestRoutes, { prefix: "/api" });
+  await fastify.register(backtestWsRoutes);
 
   // ─── Global Error Handler (M-002: Path Hiding) ─────────────────────────────
   fastify.setErrorHandler((error, request, reply) => {

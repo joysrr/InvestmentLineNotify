@@ -1,10 +1,10 @@
 # InvestmentLineNotify 統一開發計畫 (Unified Development Plan)
 
-**版本**: v4.0  
-**更新日期**: 2026-08-09  
-**狀態**: Active  
-**文件類型**: Master Planning / Technical Specification  
-**基於**: MASTER_PLAN.md v3.0、preplan_features.md、0050-simulator-development-plan.md、finished_features.md  
+**版本**: v4.1
+**更新日期**: 2026-08-10
+**狀態**: Active
+**文件類型**: Master Planning / Technical Specification
+**基於**: MASTER_PLAN.md v3.0、preplan_features.md、0050-simulator-development-plan.md、finished_features.md
 **目的**: 整合所有既有計畫文件，對齊實際程式碼狀態，提供單一真實來源
 
 ---
@@ -17,16 +17,15 @@
 | v2.0     | 2026-07-xx     | 完成 Phase 1、Phase 2 核心、Simulator 計畫         | 架構重構完成                   |
 | v3.0     | 2026-08-02     | MASTER_PLAN 更新、Simulator 詳細規劃               | 文件整理                       |
 | **v4.0** | **2026-08-09** | **對齊實際程式碼狀態、合併重複計畫、更新所有狀態** | **代碼審計發現文件與實作落差** |
+| **v4.1** | **2026-08-10** | **新增 Mini App 回測非同步 API 架構 (P0 #5)**      | **Mini App 部署決策**          |
 
-### 🔄 本次疊代關鍵變更 (v3.0 → v4.0)
+### 🔄 本次疊代關鍵變更 (v4.0 → v4.1)
 
-| 變更類別           | 說明                                                                                |
-| ------------------ | ----------------------------------------------------------------------------------- |
-| **狀態修正**       | 12 項文件標記「✅ 已完成」但程式碼缺失 → 修正為「🟡 部分完成」或「⬜ 待實作」       |
-| **計畫合併**       | 3 個回測相關計畫合併為單一「回測計畫」；資金管控相關合併                            |
-| **依賴關係修正**   | 生命週期引擎已完成但文件標記「待確認」；Regime Detection 部分實作                   |
-| **新增遺漏項目**   | `archiveManager.getArchiveRecords()`、signalCategory/signalType、Budget Priority 等 |
-| **Simulator 計畫** | 納入統一規劃，標記 Phase A 完成、Phase B/C 待實作                                   |
+| 變更類別         | 說明                                                                                |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| **新增 P0 #5**   | 回測非同步 API 架構 (Job Queue + WebSocket 進度) - 解鎖 Mini App 整合、排程自動回測 |
+| **關鍵路徑更新** | #1 → #2 → #3/#4 並行 → #5 解鎖 Mini App 整合                                        |
+| **架構決策記錄** | 確認「後端計算 + Mini App 顯示/觸發」架構，不在 Mini App 端執行回測計算             |
 
 ---
 
@@ -44,7 +43,7 @@ Simulator (獨立功能)            ████████████░░�
 
 ## ✅ Phase 1: 系統審計與架構硬化 (已完成 100%)
 
-> **完成日期**: 2026-04 ~ 2026-07  
+> **完成日期**: 2026-04 ~ 2026-07
 > **驗收**: 全測試 420 passed、決策鏈重構、安全性修補、動態停利、前端基建
 
 | 項目                        | 狀態 | 關鍵 Commit         | 備註                      |
@@ -157,38 +156,41 @@ signalType: "baseline" | "tactical_drop" | "tactical_panic";
 | 2   | `runBacktest.mjs` runner (串接 archiveManager)        | 回測 Phase 1            | 1 天     | 回測驗證                         |
 | 3   | `strategyEngine` 新增 `signalCategory` / `signalType` | 回測 Phase 2 + 資金管控 | 1 天     | 回測 Phase 2、資金管控 Phase 1/2 |
 | 4   | `budgetSynergyPolicy` → 完整 Budget Priority 實作     | preplan 資金管控        | 2 天     | 資金管控 Phase 2                 |
+| 5   | **回測非同步 API 架構** (Job Queue + WebSocket 進度)  | Mini App 整合決策       | 2 天     | Mini App 回測頁面、排程自動回測  |
+
+> **關鍵路徑**：#1 → #2 → #3/#4 並行 → #5 解鎖 Mini App 整合
 
 ### P1 - 短期 (1-2 週)
 
 | #   | 任務                                                | 來源               | 預估工時 | 備註                       |
 | --- | --------------------------------------------------- | ------------------ | -------- | -------------------------- |
-| 5   | Simulator Phase B: 接線 analyticalSolvers/rsiSolver | Simulator 計畫     | 2 天     | 需先完成 DEC-01/05/08 決策 |
-| 6   | Simulator Phase C: 接線 scanner/reverseEngine       | Simulator 計畫     | 3 天     |                            |
-| 7   | 回測 Phase 1: Google Sheet 歷史價格讀取 + CSV 輸出  | 回測計畫           | 1.5 天   |                            |
-| 8   | MacroSentiment 利息成本濾網 + 融資券資料流          | Phase 2 T-2.3 補完 | 2 天     |                            |
-| 9   | Mini App 策略狀態專頁 (weightScore 構成、冷卻期)    | preplan 第六批 P1  | 2 天     | 文件標記 ✅ 但實際無專頁   |
+| 6   | Simulator Phase B: 接線 analyticalSolvers/rsiSolver | Simulator 計畫     | 2 天     | 需先完成 DEC-01/05/08 決策 |
+| 7   | Simulator Phase C: 接線 scanner/reverseEngine       | Simulator 計畫     | 3 天     |                            |
+| 8   | 回測 Phase 1: Google Sheet 歷史價格讀取 + CSV 輸出  | 回測計畫           | 1.5 天   |                            |
+| 9   | MacroSentiment 利息成本濾網 + 融資券資料流          | Phase 2 T-2.3 補完 | 2 天     |                            |
+| 10  | Mini App 策略狀態專頁 (weightScore 構成、冷卻期)    | preplan 第六批 P1  | 2 天     | **✅ 已完成**              |
 
 ### P2 - 中期 (1 個月)
 
 | #   | 任務                                             | 來源     | 預估工時 | 備註           |
 | --- | ------------------------------------------------ | -------- | -------- | -------------- |
-| 10  | 回測 Phase 2: signalCategory 分組統計 + 月報整合 | 回測計畫 | 3 天     | 依賴 #3        |
-| 11  | 回測 Phase 3: MacroSentiment 三模式比較          | 回測計畫 | 2 天     | 依賴 #7        |
-| 12  | Phase 3 T-3.1: 資產抽象化 (移除硬編碼)           | Phase 3  | 5 天     | Schema Mapping |
-| 13  | Phase 3 T-3.2 Web 整合: 回測報表、圖表           | Phase 3  | 3 天     | 依賴 #7        |
+| 11  | 回測 Phase 2: signalCategory 分組統計 + 月報整合 | 回測計畫 | 3 天     | 依賴 #3        |
+| 12  | 回測 Phase 3: MacroSentiment 三模式比較          | 回測計畫 | 2 天     | 依賴 #8        |
+| 13  | Phase 3 T-3.1: 資產抽象化 (移除硬編碼)           | Phase 3  | 5 天     | Schema Mapping |
+| 14  | Phase 3 T-3.2 Web 整合: 回測報表、圖表           | Phase 3  | 3 天     | 依賴 #8        |
 
 ### P3 - 長期 / 條件觸發
 
 | #   | 任務                        | 來源              | 觸發條件           |
 | --- | --------------------------- | ----------------- | ------------------ |
-| 14  | 語音化每日摘要 (Gemini TTS) | ideas_features.md | 4 項待確認清單解決 |
-| 15  | 多標的支援完整重構          | Phase 3           | T-3.1 完成後       |
+| 15  | 語音化每日摘要 (Gemini TTS) | ideas_features.md | 4 項待確認清單解決 |
+| 16  | 多標的支援完整重構          | Phase 3           | T-3.1 完成後       |
 
 ---
 
 ## 📝 既有文件狀態同步更新
 
-### docs/plans/active/MASTER_PLAN.md → **需更新版本為 v4.0**
+### docs/plans/active/MASTER_PLAN.md → **需更新版本為 v4.1**
 
 ```markdown
 ## 🟡 Phase 2: 策略進化與環境感知 (進行中)
@@ -227,6 +229,7 @@ signalType: "baseline" | "tactical_drop" | "tactical_panic";
 - 生命週期槓桿引擎 (2026-07 完成)
 - 回測核心框架 (2026-07 完成)
 - Simulator Phase A (2026-08 完成)
+- Mini App 策略狀態專頁 (2026-08 完成)
 
 ### docs/plans/active/0050-simulator-development-plan.md → **狀態同步**
 
@@ -252,20 +255,25 @@ graph TD
     B --> C[回測 Phase 1 完成]
     C --> D[回測 Phase 2: signalCategory]
     C --> E[回測 Phase 3: MacroSentiment]
+    C --> F[回測非同步 API #5]
 
-    F[strategyEngine: signalCategory/signalType] --> D
-    F --> G[資金管控 Phase 1: Baseline/Tactical 拆分]
-    G --> H[資金管控 Phase 2: Budget Priority]
+    G[strategyEngine: signalCategory/signalType] --> D
+    G --> H[資金管控 Phase 1: Baseline/Tactical 拆分]
+    H --> I[資金管控 Phase 2: Budget Priority]
 
-    I[Simulator DEC-01/05/08 決策] --> J[Phase B 接線 analyticalSolvers]
-    J --> K[Phase C 接線 scanner]
+    J[Simulator DEC-01/05/08 決策] --> K[Phase B 接線 analyticalSolvers]
+    K --> L[Phase C 接線 scanner]
 
-    L[MacroSentiment 利息濾網] -.-> E
-    M[資產抽象化 T-3.1] -.-> N[Phase 3 T-3.2 Web 整合]
+    M[MacroSentiment 利息濾網] -.-> E
+    N[資產抽象化 T-3.1] -.-> O[Phase 3 T-3.2 Web 整合]
+
+    F --> P[Mini App 回測頁面]
+    F --> Q[排程自動回測]
 
     style A fill:#ffcccc
-    style F fill:#ffcccc
-    style I fill:#ffffcc
+    style G fill:#ffcccc
+    style F fill:#ffffcc
+    style J fill:#ffffcc
 ```
 
 > **紅框 = P0 關鍵路徑**，黃框 = 需決策/前置條件
@@ -294,21 +302,21 @@ Duration  9.51s
 
 ## 🚀 執行建議：下一步動作
 
-### 選項 A：專注回測體系 (推薦)
+### 選項 A：專注回測體系 (推薦) ⭐
 
 ```
 Week 1: #1 archiveManager API + #2 runBacktest runner
-Week 2: #3 signalCategory/signalType + #7 歷史價格/CSV
-Week 3: #10 回測 Phase 2 + #11 Phase 3
+Week 2: #3 signalCategory/signalType + #8 歷史價格/CSV
+Week 3: #5 回測非同步 API + #11 回測 Phase 2
 ```
 
-**優點**: 解鎖最多後續工作、驗證策略品質、支援參數調優
+**優點**: 解鎖最多後續工作、驗證策略品質、支援參數調優、解鎖 Mini App 回測整合
 
 ### 選項 B：完成 Simulator (用戶可見度高)
 
 ```
-Week 1: 確認 DEC-01/05/08 → #5 Phase B 接線
-Week 2: #6 Phase C 接線 + #8 TDD 補齊
+Week 1: 確認 DEC-01/05/08 → #6 Phase B 接線
+Week 2: #7 Phase C 接線 + TDD 補齊
 ```
 
 **優點**: Mini App 完整功能、使用者價值即時可見
@@ -329,6 +337,7 @@ Week 2: #6 Phase C 接線 + #8 TDD 補齊
 | **signalType 設計**         | 3 類                                                      | **3 類** (baseline/tactical_drop/tactical_panic)          | 影響資金管控 Budget Priority |
 | **Simulator Phase B 範圍**  | 全部解析解 vs 僅 RSI/維持率/MA                            | **三項優先** (RSI/維持率/MA20/MA60)                       | KD/MACD 留 Phase C           |
 | **archiveManager API 設計** | `getArchiveRecords(dateRange)` vs `getReportsByDateRange` | **前者** (通用性)                                         | 回測 Phase 1 直接可用        |
+| **回測非同步架構**          | Bull/Redis vs 簡易 in-memory queue                        | **Bull/Redis** (生產級、支援擴充、持久化)                 | 影響 #5 實作複雜度           |
 
 ---
 
@@ -336,14 +345,40 @@ Week 2: #6 Phase C 接線 + #8 TDD 補齊
 
 | 計畫文件                           | 對應程式碼模組                                          | 同步狀態           |
 | ---------------------------------- | ------------------------------------------------------- | ------------------ |
-| MASTER_PLAN.md                     | 全專案                                                  | ⚠️ 需更新 v4.0     |
+| MASTER_PLAN.md                     | 全專案                                                  | ⚠️ 需更新 v4.1     |
 | preplan_features.md                | 策略核心模組                                            | ⚠️ 狀態需修正 4 項 |
-| finished_features.md               | 已完成歸檔                                              | ⚠️ 需補記 3 項     |
+| finished_features.md               | 已完成歸檔                                              | ⚠️ 需補記 4 項     |
 | 0050-simulator-development-plan.md | src/modules/simulator/, webapp/src/views/Simulator*     | ⚠️ 進度需同步      |
 | **BUDGET_PRIORITY_DESIGN.md**      | **src/modules/strategy/policies/budgetLimitPolicy.mjs** | ✅ **新增 v1.0**   |
-| UNIFIED_DEVELOPMENT_PLAN.md (本檔) | **單一真實來源**                                        | ✅ 最新            |
+| UNIFIED_DEVELOPMENT_PLAN.md (本檔) | **單一真實來源**                                        | ✅ 最新 v4.1       |
 
 ---
 
-**下次檢視排程**: 每 Sprint 結束或重大里程碑完成時  
+## 🏗️ 架構決策記錄 (ADR)
+
+### ADR-001: 回測計算端選擇 - 後端而非 Mini App
+
+- **日期**: 2026-08-10
+- **決策**: 採用「後端計算 + Mini App 觸發/顯示」架構
+- **理由**:
+  - Mini App (WebView) CPU/記憶體/執行時間嚴重受限
+  - 回測需載入大量歷史資料、長時間計算、多進程並行
+  - 後端具備完整 Node.js 生態、檔案系統、資料庫存取
+  - 現有 `backtestRunner.mjs`、`accountSimulator.mjs` 可直接複用
+- **影響**: 新增 P0 #5 回測非同步 API 架構
+
+### ADR-002: 非同步 Job Queue 技術選型 - Bull + Redis
+
+- **日期**: 2026-08-10
+- **決策**: 使用 Bull/Redis 而非 in-memory queue
+- **理由**:
+  - 生產級持久化、支援重啟恢復
+  - 支援水平擴充多 Worker
+  - 內建重試、延遲、優先級、進度回報
+  - Redis 已是基礎設施標配
+- **替代方案評估**: in-memory 簡單但不支援多進程、重啟遺失、無持久化
+
+---
+
+**下次檢視排程**: 每 Sprint 結束或重大里程碑完成時
 **維護責任**: @Lead + @Planner (參照 agents_overview.md 職責分工)
