@@ -125,9 +125,12 @@
       <el-button @click="importJobs" :disabled="importing">
         <el-icon><Upload /></el-icon> 匯入 JSON
       </el-button>
-      <el-button @click="exportJobs" :disabled="jobs.length === 0 || exporting">
-        <el-icon><Download /></el-icon> 匯出 JSON
-      </el-button>
+      <ExportButton
+        :jsonData="{ jobs: jobs.map(j => ({ price0050: j.price0050, priceZ2: j.priceZ2 })), options: options }"
+        :filename="'batch-config'"
+        type="default"
+        size="small"
+      />
       <input type="file" ref="fileInput" @change="handleFileImport" accept=".json" style="display: none" />
     </div>
 
@@ -174,9 +177,13 @@
       <div class="results-header">
         <h4>批次結果 ({{ lastResult.totalJobs }} 任務, 成功 {{ lastResult.successful }}, 失敗 {{ lastResult.failed }})</h4>
         <div class="results-actions">
-          <el-button size="small" @click="exportResults">
-            <el-icon><Download /></el-icon> 匯出結果
-          </el-button>
+          <ExportButton
+            :csvData="tableData"
+            :jsonData="lastResult"
+            :filename="'batch-result'"
+            type="primary"
+            size="small"
+          />
           <el-button size="small" @click="clearResults">
             <el-icon><Delete /></el-icon> 清除結果
           </el-button>
@@ -243,6 +250,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { Plus, Delete, DocumentCopy, Upload, Download, VideoPlay, Loading, Stop } from "@element-plus/icons-vue";
 import { apiFetch } from "@/api/index.js";
 import ReverseResultCard from "./ReverseResultCard.vue";
+import ExportButton from "@/components/common/ExportButton.vue";
 
 const props = defineProps({
   currentPrice0050: { type: Number, default: null },
@@ -428,26 +436,6 @@ function handleFileImport(event) {
 
 function importJobs() {
   fileInput.value?.click();
-}
-
-function exportResults() {
-  if (!lastResult.value) return;
-
-  exporting.value = true;
-  const data = {
-    ...lastResult.value,
-    exportedAt: new Date().toISOString(),
-  };
-
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `batch-result-${Date.now()}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  exporting.value = false;
-  ElMessage.success("結果已匯出");
 }
 
 function clearResults() {

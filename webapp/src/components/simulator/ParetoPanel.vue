@@ -188,7 +188,7 @@
       </div>
 
       <!-- Pareto Scatter Chart -->
-      <ParetoScatterChart :data="result" :objectives="objectives" :knee-point="result.kneePoint" />
+      <ParetoScatterChart ref="paretoChart" :data="result" :objectives="objectives" :knee-point="result.kneePoint" />
 
       <!-- Pareto Front Table -->
       <div class="pareto-table-section">
@@ -222,12 +222,12 @@
 
       <!-- Export -->
       <div class="export-section">
-        <el-button @click="exportCSV">
-          <el-icon><Download /></el-icon> 匯出 CSV
-        </el-button>
-        <el-button @click="exportJSON">
-          <el-icon><Download /></el-icon> 匯出 JSON
-        </el-button>
+        <ExportButton
+          :csvData="paretoTableData"
+          :jsonData="result"
+          :chartInstance="$refs.paretoChart?.chartInstance"
+          :filename="'pareto-result'"
+        />
       </div>
     </div>
 
@@ -244,6 +244,7 @@ import { ElMessage } from "element-plus";
 import { ArrowUp, ArrowDown, Plus, Delete, Loading, Collection, Download } from "@element-plus/icons-vue";
 import { apiFetch } from "@/api/index.js";
 import ParetoScatterChart from "./ParetoScatterChart.vue";
+import ExportButton from "@/components/common/ExportButton.vue";
 import { SCANNABLE_PARAMS } from "@/constants/simulator.js";
 
 const props = defineProps({

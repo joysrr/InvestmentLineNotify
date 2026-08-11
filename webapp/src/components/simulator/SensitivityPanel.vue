@@ -172,12 +172,12 @@
 
       <!-- Sensitivity Chart -->
       <div v-if="chartType === 'sensitivity' && result.singleParam">
-        <SensitivityChart :data="result.singleParam" />
+        <SensitivityChart ref="sensitivityChart" :data="result.singleParam" />
       </div>
 
       <!-- Tornado Chart -->
       <div v-if="chartType === 'tornado' && result.multiParam">
-        <TornadoChart :data="result.multiParam" />
+        <TornadoChart ref="tornadoChart" :data="result.multiParam" />
       </div>
 
       <!-- Key Drivers Panel -->
@@ -195,6 +195,16 @@
     <div v-if="result" class="disclaimer">
       {{ result.disclaimer }}
     </div>
+
+    <!-- Export -->
+    <div v-if="result" class="export-section">
+      <ExportButton
+        :csvData="result.singleParam ? [result.singleParam] : []"
+        :jsonData="result"
+        :chartInstance="chartType === 'sensitivity' ? $refs.sensitivityChart?.chartInstance : $refs.tornadoChart?.chartInstance"
+        :filename="'sensitivity-result'"
+      />
+    </div>
   </div>
 </template>
 
@@ -205,6 +215,7 @@ import { TrendCharts, Loading, Plus, Delete } from "@element-plus/icons-vue";
 import { apiFetch } from "@/api/index.js";
 import SensitivityChart from "./SensitivityChart.vue";
 import TornadoChart from "./TornadoChart.vue";
+import ExportButton from "@/components/common/ExportButton.vue";
 import { SCANNABLE_PARAMS } from "@/constants/simulator.js";
 
 const props = defineProps({
