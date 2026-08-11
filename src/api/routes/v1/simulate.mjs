@@ -12,19 +12,18 @@ import {
   runSensitivitySingleParam,
   runSensitivityMultiParam,
 } from "../../../modules/simulator/sensitivityEngine.mjs";
+import { runParetoAnalysis } from "../../../modules/simulator/paretoEngine.mjs";
 import {
   validateForwardInput,
   validateReverseInput,
   validateBatchInput,
   validateSensitivityInput,
+  validateParetoInput,
   createErrorResponse,
 } from "../../../modules/simulator/validator.mjs";
 import {
   ERROR_CODES,
   HTTP_STATUS,
-  CONFLICT_REASONS,
-  REVERSE_TARGET_TYPES,
-  CALCULATION_MODE,
 } from "../../../modules/simulator/constants.mjs";
 
 /** 解析錯誤代碼並回傳對應的 HTTP 狀態碼與錯誤回應 */
@@ -398,6 +397,76 @@ export default async function simulateRoute(fastify) {
         dataAsOf: latestReport.date,
         disclaimer:
           "此為敏感度分析結果，非投資建議。參數變動影響基於模擬假設，實際市場表現可能不同。",
+      };
+
+      return reply.code(HTTP_STATUS.OK).send(response);
+    } catch (err) {
+      return handleError(reply, err);
+    }
+  });
+
+  // POST /api/v1/simulate/pareto - Pareto 前沿分析
+  fastify.post("/simulate/pareto", async (request, reply) => {
+    try {
+      // 1. 輸入驗證
+      const validation = validateParetoInput(request.body);
+      if (!validation.valid) {
+        return reply
+          .code(HTTP_STATUS.BAD_REQUEST)
+          .send(
+            createErrorResponse(
+              ERROR_CODES.VALIDATION_ERROR,
+              validation.errors.join("; "),
+              "pareto",
+            ),
+          );
+      }
+
+      const { baseParams, scanParams, objectives, weights, sampling } =
+        validation.sanitized;
+
+      // 2. 取得並驗證最新戰報
+      let latestReport;
+      try {
+        latestReport = await getValidatedLatestReport();
+      } catch (err) {
+        return handleError(reply, err);
+      }
+
+      // 3. 建構基礎模擬輸入
+      let baseSimulationInput;
+      try {
+        baseSimulationInput = await buildSimulationInput(
+          latestReport,
+          latestReport.price0050,
+          latestReport.currentPrice,
+        );
+      } catch (err) {
+        return handleError(reply, err);
+      }
+
+      // 4. 執行 Pareto 分析
+      const paretoResult = await runParetoAnalysis({
+        scanParams,
+        objectives,
+        weights,
+        sampling,
+        baseSimulationInput,
+        baseParams,
+        latestReport,
+        runForwardSimulation,
+      });
+
+      // 5. 回傳結果
+      const response = {
+        allPoints: paretoResult.allPoints,
+        paretoFront: paretoResult.paretoFront,
+        kneePoint: paretoResult.kneePoint,
+        weights: paretoResult.weights,
+        timestamp: new Date().toISOString(),
+        dataAsOf: latestReport.date,
+        disclaimer:
+          "此為 Pareto 前沿分析結果，非投資建議。多目標優化基於模擬假設，實際市場表現可能不同。",
       };
 
       return reply.code(HTTP_STATUS.OK).send(response);

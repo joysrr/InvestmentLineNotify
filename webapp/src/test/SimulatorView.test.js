@@ -145,7 +145,7 @@ describe("SimulatorView - Phase E 實機驗收", () => {
     await flushPromises();
     expect(wrapper.find(".sim-title").text()).toBe("0050 雙向模擬器");
     expect(wrapper.find(".sim-subtitle").text()).toBe(
-      "股價 ⇄ 策略分數 / 條件反推 / 批次模擬",
+      "股價 ⇄ 策略分數 / 條件反推 / 批次模擬 / 敏感度分析 / Pareto 前沿",
     );
   });
 

@@ -37,6 +37,15 @@
         <span class="mode-label">敏感度分析</span>
         <span class="mode-desc">參數影響度與關鍵驅動因子</span>
       </button>
+      <button
+        class="mode-tab"
+        :class="{ active: modelValue === 'pareto' }"
+        @click="$emit('update:modelValue', 'pareto')"
+      >
+        <span class="mode-icon">📈</span>
+        <span class="mode-label">Pareto 前沿</span>
+        <span class="mode-desc">多目標優化與最佳折衷解</span>
+      </button>
     </div>
   </div>
 </template>

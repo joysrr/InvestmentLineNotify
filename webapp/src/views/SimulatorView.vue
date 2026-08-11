@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="sim-header">
       <h2 class="sim-title">0050 雙向模擬器</h2>
-      <p class="sim-subtitle">股價 ⇄ 策略分數 / 條件反推 / 批次模擬</p>
+      <p class="sim-subtitle">股價 ⇄ 策略分數 / 條件反推 / 批次模擬 / 敏感度分析 / Pareto 前沿</p>
     </div>
 
     <!-- Mode Selector -->
@@ -57,6 +57,13 @@
       :current-price-z2="currentPriceZ2"
     />
 
+    <!-- Pareto Panel (Mode E) -->
+    <ParetoPanel
+      v-else-if="mode === 'pareto'"
+      :current-price-0050="currentPrice0050"
+      :current-price-z2="currentPriceZ2"
+    />
+
     <!-- Data Quality Badges (always visible when result exists) -->
     <DataQualityBadges
       v-if="result && result.dataQuality"
@@ -79,6 +86,7 @@ import ForwardPanel from "@/components/simulator/ForwardPanel.vue";
 import ReversePanel from "@/components/simulator/ReversePanel.vue";
 import BatchPanel from "@/components/simulator/BatchPanel.vue";
 import SensitivityPanel from "@/components/simulator/SensitivityPanel.vue";
+import ParetoPanel from "@/components/simulator/ParetoPanel.vue";
 import DataQualityBadges from "@/components/simulator/Common/DataQualityBadges.vue";
 import DisclaimerBanner from "@/components/simulator/Common/DisclaimerBanner.vue";
 import LoadingSkeleton from "@/components/simulator/Common/LoadingSkeleton.vue";

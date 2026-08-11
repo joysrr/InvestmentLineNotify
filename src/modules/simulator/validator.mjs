@@ -460,6 +460,168 @@ export function validateSensitivityInput(body) {
 }
 
 /**
+ * 驗證 Pareto 前沿分析輸入
+ * @param {Object} body - { baseParams, scanParams, objectives, weights?, sampling? }
+ * @returns {Object} { valid: boolean, errors: string[], sanitized: Object }
+ */
+export function validateParetoInput(body) {
+  const errors = [];
+  const sanitized = {};
+  const SUPPORTED_METRICS = [
+    "strategyScore",
+    "maintenanceMargin",
+    "simulatedPrice0050",
+    "simulatedPriceZ2",
+  ];
+  const VALID_DIRECTIONS = ["maximize", "minimize"];
+  const VALID_SAMPLING_METHODS = ["lhs", "random", "grid"];
+
+  if (!body || typeof body !== "object") {
+    errors.push("body 為必填物件");
+    return { valid: false, errors, sanitized: null };
+  }
+
+  const { baseParams, scanParams, objectives, weights, sampling } = body;
+
+  // 驗證 baseParams
+  if (!baseParams || typeof baseParams !== "object") {
+    errors.push("baseParams 為必填物件");
+  } else {
+    const baseValidation = validateForwardInput(baseParams);
+    if (!baseValidation.valid) {
+      errors.push(...baseValidation.errors.map((e) => `baseParams: ${e}`));
+    } else {
+      sanitized.baseParams = baseValidation.sanitized;
+    }
+  }
+
+  // 驗證 scanParams
+  if (!scanParams || !Array.isArray(scanParams)) {
+    errors.push("scanParams 為必填陣列");
+  } else if (scanParams.length === 0) {
+    errors.push("scanParams 至少需要 1 個掃描參數");
+  } else if (scanParams.length > 5) {
+    errors.push("scanParams 數量不能超過 5");
+  } else {
+    const validatedScanParams = [];
+    scanParams.forEach((sp, idx) => {
+      if (!sp || typeof sp !== "object") {
+        errors.push(`scanParams[${idx}] 必須為物件`);
+        return;
+      }
+      const { path, range } = sp;
+      if (!path || typeof path !== "string") {
+        errors.push(`scanParams[${idx}].path 為必填字串`);
+      } else {
+        const paramDef = SCANNABLE_PARAMS.find((p) => p.path === path);
+        if (!paramDef) {
+          errors.push(`scanParams[${idx}].path 不支援: ${path}`);
+        } else if (!range || !Array.isArray(range) || range.length !== 2) {
+          errors.push(`scanParams[${idx}].range 必須為 [min, max] 陣列`);
+        } else {
+          const [rMin, rMax] = range.map(Number);
+          if (
+            !Number.isFinite(rMin) ||
+            !Number.isFinite(rMax) ||
+            rMin >= rMax
+          ) {
+            errors.push(`scanParams[${idx}].range 無效: min 必須小於 max`);
+          } else {
+            validatedScanParams.push({ path, range: [rMin, rMax], paramDef });
+          }
+        }
+      }
+    });
+    if (errors.length === 0) {
+      sanitized.scanParams = validatedScanParams;
+    }
+  }
+
+  // 驗證 objectives
+  if (!objectives || !Array.isArray(objectives)) {
+    errors.push("objectives 為必填陣列");
+  } else if (objectives.length < 2) {
+    errors.push("objectives 至少需要 2 個目標 (Pareto 前沿需雙目標以上)");
+  } else if (objectives.length > 3) {
+    errors.push("objectives 數量不能超過 3");
+  } else {
+    const validatedObjectives = [];
+    objectives.forEach((obj, idx) => {
+      if (!obj || typeof obj !== "object") {
+        errors.push(`objectives[${idx}] 必須為物件`);
+        return;
+      }
+      const { metric, direction } = obj;
+      if (!metric || typeof metric !== "string") {
+        errors.push(`objectives[${idx}].metric 為必填字串`);
+      } else if (!SUPPORTED_METRICS.includes(metric)) {
+        errors.push(
+          `objectives[${idx}].metric 不支援: ${metric}，支援: ${SUPPORTED_METRICS.join(", ")}`,
+        );
+      } else if (!direction || !VALID_DIRECTIONS.includes(direction)) {
+        errors.push(
+          `objectives[${idx}].direction 必須為 "maximize" 或 "minimize"`,
+        );
+      } else {
+        validatedObjectives.push({ metric, direction });
+      }
+    });
+    if (errors.length === 0) {
+      sanitized.objectives = validatedObjectives;
+    }
+  }
+
+  // 驗證 weights (選填)
+  if (weights !== undefined) {
+    if (!Array.isArray(weights)) {
+      errors.push("weights 必須為陣列");
+    } else if (weights.length !== objectives?.length) {
+      errors.push("weights 長度必須等於 objectives 數量");
+    } else {
+      const sum = weights.reduce((s, w) => s + Number(w), 0);
+      if (Math.abs(sum - 1.0) > 0.01) {
+        errors.push("weights 總和必須等於 1");
+      } else if (weights.some((w) => !Number.isFinite(w) || w < 0 || w > 1)) {
+        errors.push("weights 每項必須在 0 到 1 之間");
+      } else {
+        sanitized.weights = weights.map(Number);
+      }
+    }
+  } else {
+    // 預設等權重
+    sanitized.weights = objectives
+      ? Array(objectives.length).fill(1 / objectives.length)
+      : [];
+  }
+
+  // 驗證 sampling (選填)
+  if (sampling !== undefined) {
+    if (!sampling || typeof sampling !== "object") {
+      errors.push("sampling 必須為物件");
+    } else {
+      const { method, samples } = sampling;
+      if (!method || !VALID_SAMPLING_METHODS.includes(method)) {
+        errors.push(
+          `sampling.method 必須為: ${VALID_SAMPLING_METHODS.join(", ")}`,
+        );
+      } else if (!Number.isFinite(samples) || samples < 10 || samples > 500) {
+        errors.push("sampling.samples 必須在 10 到 500 之間");
+      } else {
+        sanitized.sampling = { method, samples: Number(samples) };
+      }
+    }
+  } else {
+    sanitized.sampling = { method: "lhs", samples: 200 }; // 預設
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    sanitized: errors.length === 0 ? sanitized : null,
+  };
+}
+
+/**
  * 產生價格偏離警告
  * @param {number} simulatedPrice - 模擬價格
  * @param {number} currentPrice - 當前價格

@@ -189,28 +189,28 @@ const SCANNABLE_PARAMS = [
 
 ### RED 階段 (先寫測試) ✅ **完成**
 
-| 測試檔案                                                        | 測試案例                                   | 數量 | 狀態                       |
-| --------------------------------------------------------------- | ------------------------------------------ | ---- | -------------------------- |
-| `src/test/unit/simulator/sensitivity.test.mjs`                  | API 驗證、單參數掃描、多參數掃描、斜率計算 | 18   | ✅ 通過                    |
-| `webapp/src/test/components/simulator/SensitivityPanel.test.js` | 組件渲染、參數選擇、圖表切換、API 呼叫     | 12   | ✅ 通過 (10 待 GREEN 實作) |
-| `webapp/src/test/e2e/sensitivity.spec.js`                       | 完整流程：選參數→設定範圍→跑圖→看結果      | 8    | ✅ 就緒                    |
+| 測試檔案                                                        | 測試案例                                   | 數量 | 狀態    |
+| --------------------------------------------------------------- | ------------------------------------------ | ---- | ------- |
+| `src/test/unit/simulator/sensitivity.test.mjs`                  | API 驗證、單參數掃描、多參數掃描、斜率計算 | 18   | ✅ 通過 |
+| `webapp/src/test/components/simulator/SensitivityPanel.test.js` | 組件渲染、參數選擇、圖表切換、API 呼叫     | 13   | ✅ 通過 |
+| `webapp/src/test/e2e/sensitivity.spec.js`                       | 完整流程：選參數→設定範圍→跑圖→看結果      | 8    | ✅ 就緒 |
 
-### GREEN 階段 (實作通過測試) 🚀 **進行中**
+### GREEN 階段 (實作通過測試) ✅ **完成**
 
-1. 後端 validator 新增 `validateSensitivityInput()`
-2. 後端 route 新增 `/api/v1/simulate/sensitivity`
-3. 前端 SensitivityPanel.vue + ECharts 整合
-4. SimulatorView 新增 Tab
+1. 後端 validator 新增 `validateSensitivityInput()` ✅
+2. 後端 route 新增 `/api/v1/simulate/sensitivity` ✅
+3. 前端 SensitivityPanel.vue + ECharts 整合 ✅
+4. SimulatorView 新增 Tab ✅
 
-### REFACTOR 階段
+### REFACTOR 階段 ✅ **完成**
 
-- 圖表效能優化 (大量資料點取樣)
-- 參數路徑驗證快取
+- 圖表效能優化 (固定 20 點掃描)
+- 參數路徑驗證快取 (SCANNABLE_PARAMS)
 - 錯誤處理統一化
 
-### VERIFY 階段
+### VERIFY 階段 ✅ **完成**
 
-- 全測試通過 (後端 560+、前端 110+、E2E 30+)
+- 全測試通過 (後端 578+、前端 123+)
 - Coverage 門檻達成
 
 ---
