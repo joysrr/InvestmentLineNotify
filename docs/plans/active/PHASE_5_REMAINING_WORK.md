@@ -38,7 +38,7 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 | 任務 | 優先級 | 預估工時 | 說明 |
 |------|--------|----------|------|
 | **5.2.1** 修復 `apiContract.test.mjs` - `app.close()` undefined | 🟡 Medium | 1h | 檢查 app 建立邏輯，確保正確匯出 close 方法 |
-| **5.2.2** 修復 `backtestRoutes.test.mjs` / `strategyStatus.test.mjs` - Vite 解析失敗 | 🟡 Medium | **1.5h** ⬅️ 從 2h 調整 | **專案全面統一 .mjs 副檔名** (DEC-29)，包含源檔與測試檔，修正所有 import 路徑，配合 vitest/esbuild transform 處理 |
+| **5.2.2** 修復 `backtestRoutes.test.mjs` / `strategyStatus.test.mjs` - Vite 解析失敗 | 🟡 Medium | **1.5h** ⬅️ 從 2h 調整 | **專案全面統一 .mjs 副檔名** (DEC-29)，包含源檔與測試檔，修正所有 import 路徑，配合 vitest/esbuild transform 處理，**先在 feature branch 實驗單一模組驗證** (DEC-38)，確認 Vite/TypeScript/Vitest 全通後再全專案推廣 |
 | **5.2.3** 修復 `dataIntegrity.test.mjs` - Hook timeout | 🟢 Low | 1h | 增加 hookTimeout 或優化資料載入邏輯 |
 | **5.2.4** 修復 `test_import.test.mjs` / `test_scheduler_direct.test.mjs` - 舊 import 路徑 | 🟢 Low | **0.5h** ⬅️ 從 1h 調整 | 更新 import 路徑指向 `.mjs` 檔案，移除過時測試檔 |
 | **5.2.5** 整合測試執行驗證 | 🟢 Low | 1h | 執行 `npx vitest run src/test/integration` 全綠燈 |
@@ -76,7 +76,7 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 | 任務 | 優先級 | 預估工時 | 說明 |
 |------|--------|----------|------|
 | **5.4.1** 執行覆蓋率測試並生成報告 | 🟡 Medium | **0.5h** ⬅️ 從 1h 調整 | `npx vitest run --coverage`，**先檢查並補上 thresholds 配置 (lines:80, functions:80, branches:80)** (DEC-31)，再跑基準測確認現況 |
-| **5.4.2** 分析覆蓋率缺口，補齊關鍵路徑測試 | 🟡 Medium | **待基準測確認** ⬅️ 從 2h 調整 | 針對 lines < 80% 的模組補測試，**工時視基準測結果調整** |
+| **5.4.2** 分析覆蓋率缺口，補齊關鍵路徑測試 | 🟡 Medium | **待基準測確認，上限 6h** ⬅️ 從 2h 調整 | 針對 lines < 80% 的模組補測試，**工時視基準測結果調整**；若基準測 < 65% 採**分階段門檻**：Phase 5 達 70%，Phase 6 達 80% (DEC-39) |
 | **5.4.3** 驗證 CI 環境覆蓋率門檻生效 | 🟢 Low | 1h | 確認 vitest.config coverage thresholds 設定正確 |
 
 ### 驗收標準
@@ -137,6 +137,34 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 
 ---
 
+## 📋 各階段驗收指令與中止條件
+
+| 階段 | 驗收指令 | 成功標準 | 時間盒上限 | 中止條件與替代方案 |
+|------|----------|----------|------------|-------------------|
+| **5.1** | `npx vitest run src/test/integration/backtestScheduler.test.mjs` | 10/10 pass, 0 unhandled rejection | 4h | 超時 → 檢查 Mock 策略、調整超時設定 |
+| **5.2** | `npx vitest run src/test/integration` | 全綠燈，0 Vite 解析錯誤 | **8h** | 超時 → **啟用替代方案**：配置 vitest esbuild transform 處理 .ts，不強制統一副檔名 (DEC-41) |
+| **5.3** | `ls dogfood-output/report.md && head -20 dogfood-output/report.md` | 報告存在、格式完整、含 3 頁面掃描結果 | 4h | 超時 → 縮減範圍至核心 API + 1 頁面 |
+| **5.4** | `npx vitest run --coverage` | lines/functions/branches ≥ 70% (Phase 5 門檻) | **10h** (含 5.4.2 上限 6h) | 基準測 < 65% → 分階段門檻 (DEC-39)；超時 → 鎖定 70% 交付 |
+| **5.5** | `ls docs/architecture/DEC-*.md && npm run openapi:generate` | DEC 文件存在、OpenAPI 含新端點 | 3h | 無中止風險，僅文件產出 |
+| **5.6** | `npx eslint src/ && npx prettier --check .` | 0 errors、Prettier pass | 6h | Warnings 清理超時 → 僅清 errors，warnings 留 Phase 6 |
+
+> **註**: 每階段結束需執行對應驗收指令並記錄實際工時，更新文件狀態 ⏳→✅。
+
+---
+
+## 🔄 文件同步機制
+
+| 觸發時機 | 動作 | 負責 |
+|----------|------|------|
+| **每完成一子任務** | 更新 `PHASE_5_REMAINING_WORK.md`：狀態 ⏳→✅、記錄實際工時、新發現決策 (DEC-XX) | 執行者 |
+| **每階段驗收通過** | 更新階段狀態、同步 `MASTER_PLAN.md` 概覽表 | 執行者 |
+| **發現新風險/決策變更** | 即時新增 DEC 記錄、調整相依/工時估算 | 執行者 |
+| **每日結束** | 檢查文件完整性、確認無遺漏決策 | 執行者 |
+
+> **原則**: 邊做邊記，拒絕事後補記。決策即時入文件。
+
+---
+
 ## 📅 總時程彙總 (Phase 5)
 
 | 階段 | 預估工時 | 優先級 |
@@ -153,7 +181,7 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 
 ---
 
-## 🔗 相依關係與執行順序 (單人單機循序執行)
+## 🔗 相依關係與執行順序 (單人單機循序執行，不並行以確保品質)
 
 ```
 5.1 (測試環境修復, 3h)
@@ -162,7 +190,7 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 5.6 (程式碼品質, 5h)  [獨立，建議在 5.2 後執行，需穩定測試環境驗證]
     └─> 5.4 (Coverage, 4h+) [需 5.1/5.2/5.6 完成，測試穩定且 lint 乾淨]
 
-5.3 (dogfood QA, 3h)  [獨立，可穿插在任意階段]
+5.3 (dogfood QA, 3h)  [獨立，不並行執行，確保品質 (DEC-40)，在 5.4 後執行]
 
 5.5 (文件/DEC, 2h)   [獨立，可隨時執行，建議最後彙整]
 ```
@@ -189,6 +217,10 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 | DEC-35 | 5.1.1 Mock 最小集合：只 Mock `metrics` 關鍵指標，依測試需求擴充 | ✅ | 2026-08-12 |
 | DEC-36 | 5.6.2 Warnings 分類處理：自動修復 `_` 前綴、手動清理未使用、保留測試框架需要 | ✅ | 2026-08-12 |
 | DEC-37 | 5.6.3 Prettier 排除 archive/ 歷史文件，只格式化作用中代碼 | ✅ | 2026-08-12 |
+| DEC-38 | 5.2.2 先在 feature branch 實驗單一模組驗證 .mjs 統一，再全專案推廣 | ✅ | 2026-08-12 |
+| DEC-39 | 5.4.2 Coverage 上限 6h，若基準測 < 65% 採分階段門檻 (Phase 5: 70%、Phase 6: 80%) | ✅ | 2026-08-12 |
+| DEC-40 | 5.3 dogfood 不並行執行，確保品質，循序在 5.4 後執行 | ✅ | 2026-08-12 |
+| DEC-41 | 5.2 時間盒 8h，超時啟用替代方案：配置 esbuild transform 處理 .ts，不強制統一副檔名 | ✅ | 2026-08-12 |
 
 ---
 

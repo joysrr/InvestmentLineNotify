@@ -55,20 +55,21 @@ archiveManager.getArchiveRecords(dateRange)
 
 ## 📋 Phase 5: 後續改善與優化計畫 (疊代自 Phase 1-4 審計)
 
-**總工時**: 22h+ (含緩衝) | **文件**: `PHASE_5_REMAINING_WORK.md` | **執行順序**: 5.1→5.2→5.6→5.4→5.3→5.5
+**總工時**: 22h+ (含緩衝) | **文件**: `PHASE_5_REMAINING_WORK.md` | **執行順序**: 5.1→5.2→5.6→5.4→5.3→5.5 (不並行)
 
 | 階段 | 預估工時 | 優先級 | 狀態 | 關鍵決策 |
 |------|----------|--------|------|----------|
 | **5.1** 測試環境修復與穩定化 | 3h | 🟡 High | ⏳ | DEC-28/35: Mock 最小集合 |
-| **5.2** 既有整合測試基礎設施修復 | 5h | 🟡 High | ⏳ | DEC-29: 全面統一 .mjs |
-| **5.3** dogfood 探索式 QA 報告補齊 | 3h | 🟢 Low | ⏳ | DEC-30: Playwright 自訂腳本 |
-| **5.4** Coverage 門檻實際驗證與提升 | 4h+ | 🟡 Medium | ⏳ | DEC-31: 先補 thresholds 再基準測 |
+| **5.2** 既有整合測試基礎設施修復 | 5h | 🟡 High | ⏳ | DEC-29/38/41: 全面統一 .mjs、feature branch 驗證、8h 時間盒 |
+| **5.3** dogfood 探索式 QA 報告補齊 | 3h | 🟢 Low | ⏳ | DEC-30/40: Playwright 自訂腳本、不並行 |
+| **5.4** Coverage 門檻實際驗證與提升 | 4h+ | 🟡 Medium | ⏳ | DEC-31/39: 先補 thresholds、分階段門檻、6h 上限 |
 | **5.5** 文件完善與架構決策補充 | 2h | 🟢 Low | ⏳ | DEC-32: DEC 輕量格式 |
 | **5.6** 既有程式碼品質問題修復 | 5h | 🟡 Medium | ⏳ | DEC-33/34/36/37: vitest globals、暫緩 warnings、分類清理、排除 archive |
 
 > **DEC-27**: 既有程式碼品質問題納入 Phase 5.6 統一修復
-> **DoD**: 5 條門檻 (測試綠燈、ESLint 0 errors、Prettier pass、Coverage≥80%、Dogfood報告)
-> **註**: 5.4 總工時待基準測確認；建議循序執行，預估 3-4 工作天
+> **DoD**: 5 條門檻 (測試綠燈、ESLint 0 errors、Prettier pass、Coverage≥70%(P5)/80%(P6)、Dogfood報告)
+> **時間盒**: 5.2=8h、5.4.2=6h、5.6=6h；超時啟用替代方案
+> **註**: 不並行執行，確保品質；預估 3-4 工作天
 
 ---
 
