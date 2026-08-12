@@ -21,7 +21,7 @@ import {
   triggerSchedule,
   getAllSchedules,
   getSchedulerStats,
-} from "../../modules/backtest/backtestScheduler.mjs";
+} from "../../modules/backtest/backtestScheduler.ts";
 
 const BACKTEST_CONFIG_SCHEMA = {
   type: "object",

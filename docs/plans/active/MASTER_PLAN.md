@@ -60,7 +60,7 @@ archiveManager.getArchiveRecords(dateRange)
 | 階段 | 預估工時 | 優先級 | 狀態 | 關鍵決策 |
 |------|----------|--------|------|----------|
 | **5.1** 測試環境修復與穩定化 | 3h | 🟡 High | ✅ 完成 | DEC-28/35: Mock 最小集合 |
-| **5.2** 既有整合測試基礎設施修復 | 5h | 🟡 High | ⏳ | DEC-29/38/41: 全面統一 .mjs、feature branch 驗證、8h 時間盒 |
+| **5.2** 既有整合測試基礎設施修復 | 5h | 🟡 High | ✅ 完成 | DEC-29/38/41: 全面統一 .mjs、feature branch 驗證、8h 時間盒 |
 | **5.3** dogfood 探索式 QA 報告補齊 | 3h | 🟢 Low | ⏳ | DEC-30/40: Playwright 自訂腳本、不並行 |
 | **5.4** Coverage 門檻實際驗證與提升 | 4h+ | 🟡 Medium | ⏳ | DEC-31/39: 先補 thresholds、分階段門檻、6h 上限 |
 | **5.5** 文件完善與架構決策補充 | 2h | 🟢 Low | ⏳ | DEC-32: DEC 輕量格式 |

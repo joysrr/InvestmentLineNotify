@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { backtestScheduler } from "../../modules/backtest/backtestScheduler.mjs";
+import backtestScheduler from "../../modules/backtest/backtestScheduler.ts";
 
 describe("Direct scheduler import test", () => {
   it("should import scheduler", () => {

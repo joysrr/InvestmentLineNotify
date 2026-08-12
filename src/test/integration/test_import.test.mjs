@@ -1,4 +1,4 @@
-import { backtestScheduler } from "../../modules/backtest/backtestScheduler.mjs";
+import backtestScheduler from "../../modules/backtest/backtestScheduler.ts";
 
 describe("Import test", () => {
   it("should import successfully", () => {
