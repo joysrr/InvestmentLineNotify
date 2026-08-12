@@ -102,6 +102,24 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 
 ---
 
+## 🎯 Phase 5.6: 既有程式碼品質問題修復 (預估 6h)
+
+### 目標
+修復 commit 過程中 husky pre-commit hook 檢出的既有程式碼品質問題 (eslint errors、prettier 格式、重複 key 等)，這些為 Phase 1-4 開發過程中累積的技術債，非 Phase 4 新增代碼導致。
+
+| 任務 | 優先級 | 預估工時 | 說明 |
+|------|--------|----------|------|
+| **5.6.1** 修復 ESLint Errors (9 errors) | 🟡 Medium | 3h | - `src/api/routes/backtestRoutes.mjs` 解析錯誤<br>- `src/modules/monitoring/metricsCollector.mjs` Duplicate reset()<br>- `src/test/unit/assetRegistry.test.mjs` Duplicate key 'macroData'<br>- `src/test/unit/strategyEngine.test.mjs` Duplicate keys (indicators, marketStatus, trailingActive)<br>- `src/test/integration/test_import.test.mjs` Undefined vitest globals (describe/it/expect) |
+| **5.6.2** 清理 ESLint Warnings (61 warnings) | 🟢 Low | 2h | 未使用變數、未使用 import、參數前綴 _ 規範 |
+| **5.6.3** Prettier 格式化全專案 | 🟢 Low | 1h | 執行 `npx prettier --write .` 統一格式 |
+
+### 驗收標準
+- [ ] `npx eslint src/` 零 error (warnings 可接受)
+- [ ] `npx prettier --check .` 通過
+- [ ] Husky pre-commit hook 正常通過
+
+---
+
 ## 📅 總時程彙總 (Phase 5)
 
 | 階段 | 預估工時 | 優先級 |
@@ -111,7 +129,8 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 | **5.3** dogfood 探索式 QA 報告補齊 | 3h | 🟢 Low |
 | **5.4** Coverage 門檻實際驗證與提升 | 4h | 🟡 Medium |
 | **5.5** 文件完善與架構決策補充 | 2h | 🟢 Low |
-| **總計** | **19h** | |
+| **5.6** 既有程式碼品質問題修復 | 6h | 🟡 Medium |
+| **總計** | **25h** | |
 
 ---
 
@@ -120,12 +139,14 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 ```
 5.1 (測試環境修復) 
     └─> 5.2 (整合測試基礎設施) 可並行
-    
+
 5.3 (dogfood QA) 獨立
-    
+
 5.4 (Coverage) 需 5.1/5.2 完成後執行 (測試需穩定)
-    
+
 5.5 (文件) 獨立，可隨時執行
+
+5.6 (程式碼品質) 獨立，建議在 5.1/5.2 後執行 (需穩定測試環境)
 ```
 
 ---
@@ -136,6 +157,7 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 |------|------|------|------|
 | DEC-25 | Phase 5 為疊代改善計畫，不阻擋 Phase 1-4 核心功能上線 | ✅ | 2026-08-12 |
 | DEC-26 | 整合測試基礎設施修復優先於新功能開發 | ✅ | 2026-08-12 |
+| DEC-27 | 既有程式碼品質問題 (ESLint/Prettier) 納入 Phase 5.6 統一修復 | ✅ | 2026-08-12 |
 
 ---
 
