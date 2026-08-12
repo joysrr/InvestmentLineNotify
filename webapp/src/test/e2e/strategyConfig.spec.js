@@ -506,63 +506,63 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
 
     // Navigate to strategy config page
     await page.goto("#/strategy-config", { waitUntil: "networkidle" });
-    await page.waitForSelector(".editor-title", { timeout: 30000 });
+    await page.waitForSelector("[data-testid=strategy-config-editor]", { timeout: 30000 });
   });
 
   test("應正確載入並顯示策略設定頁面", async ({ page }) => {
     // Check header
-    await expect(page.locator(".editor-title")).toHaveText("策略參數設定");
-    await expect(page.locator(".editor-subtitle")).toHaveText(
+    await expect(page.locator("[data-testid=strategy-config-editor] .editor-title")).toHaveText("策略參數設定");
+    await expect(page.locator("[data-testid=strategy-config-editor] .editor-subtitle")).toHaveText(
       "編輯並即時驗證策略參數",
     );
 
     // Check tabs exist
-    await expect(page.locator("text=基本資訊")).toBeVisible();
-    await expect(page.locator("text=維持率防禦")).toBeVisible();
-    await expect(page.locator("text=交易設定")).toBeVisible();
-    await expect(page.locator("text=買入設定")).toBeVisible();
-    await expect(page.locator("text=賣出設定")).toBeVisible();
+    await expect(page.locator("[data-testid=config-tabs] text=基本資訊")).toBeVisible();
+    await expect(page.locator("[data-testid=config-tabs] text=維持率防禦")).toBeVisible();
+    await expect(page.locator("[data-testid=config-tabs] text=交易設定")).toBeVisible();
+    await expect(page.locator("[data-testid=config-tabs] text=買入設定")).toBeVisible();
+    await expect(page.locator("[data-testid=config-tabs] text=賣出設定")).toBeVisible();
 
     // Check action buttons
-    await expect(page.locator('button:has-text("儲存")')).toBeVisible();
-    await expect(page.locator('button:has-text("重置為預設")')).toBeVisible();
-    await expect(page.locator('button:has-text("僅驗證")')).toBeVisible();
+    await expect(page.locator("[data-testid=btn-save]")).toBeVisible();
+    await expect(page.locator("[data-testid=btn-reset]")).toBeVisible();
+    await expect(page.locator("[data-testid=btn-validate]")).toBeVisible();
 
     // Wait for meta to load and validation to complete (indicated by "未變更，無需儲存" alert)
-    await expect(page.locator("text=未變更，無需儲存")).toBeVisible({
+    await expect(page.locator("[data-testid=alert-no-changes]")).toBeVisible({
       timeout: 15000,
     });
   });
 
   test("切換 Tab 顯示對應區塊欄位", async ({ page }) => {
     // Click 維持率防禦 tab
-    await page.locator("text=維持率防禦").click();
+    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
 
     // Wait for meta to load and fields to render with correct labels
-    await expect(page.locator("text=正常運作安全線")).toBeVisible({
+    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
       timeout: 10000,
     });
-    await expect(page.locator("text=資金還款目標")).toBeVisible();
+    await expect(page.locator("[data-testid=panel-maintenance] text=資金還款目標")).toBeVisible();
 
     // Click 交易設定 tab
-    await page.locator("text=交易設定").click();
-    await expect(page.locator("text=最小操作金額")).toBeVisible({
+    await page.locator("[data-testid=config-tabs] text=交易設定").click();
+    await expect(page.locator("[data-testid=panel-trading] text=最小操作金額")).toBeVisible({
       timeout: 5000,
     });
-    await expect(page.locator("text=交易冷卻天數")).toBeVisible();
+    await expect(page.locator("[data-testid=panel-trading] text=交易冷卻天數")).toBeVisible();
   });
 
   test("修改數值欄位", async ({ page }) => {
-    await page.locator("text=維持率防禦").click();
+    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
 
     // Wait for fields to render
-    await expect(page.locator("text=正常運作安全線")).toBeVisible({
+    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
       timeout: 10000,
     });
 
     // Find the protectTrigger input and enter a value
     const protectTriggerInput = page
-      .locator('input[placeholder="請輸入數值"]')
+      .locator("[data-testid=panel-maintenance] input[placeholder='請輸入數值']")
       .first();
     await protectTriggerInput.waitFor({ state: "visible", timeout: 10000 });
     await protectTriggerInput.fill("165");
@@ -578,12 +578,12 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
   test("布林欄位切換", async ({ page }) => {
     // The sell.trailingStop.enabled is a nested boolean field
     // Click on the sell tab
-    await page.locator("text=賣出設定").click();
+    await page.locator("[data-testid=config-tabs] text=賣出設定").click();
     await page.waitForTimeout(500);
 
     // The trailingStop is an object with enabled boolean inside
     // Check if there's a select for trailingStop.enabled
-    const select = page.locator("select").first();
+    const select = page.locator("[data-testid=panel-sell] select").first();
     // The select might be hidden if it's inside a collapsed object renderer
     // Just skip if not visible - this test is flaky
     const isVisible = await select
@@ -599,16 +599,16 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
   });
 
   test("儲存功能", async ({ page }) => {
-    await page.locator("text=維持率防禦").click();
+    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
 
     // Wait for fields to render
-    await expect(page.locator("text=正常運作安全線")).toBeVisible({
+    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
       timeout: 10000,
     });
 
     // Modify a value
     const protectTriggerInput = page
-      .locator('input[placeholder="請輸入數值"]')
+      .locator("[data-testid=panel-maintenance] input[placeholder='請輸入數值']")
       .first();
     await protectTriggerInput.waitFor({ state: "visible", timeout: 10000 });
     await protectTriggerInput.fill("165");
@@ -618,7 +618,7 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
     await page.waitForTimeout(1000);
 
     // Click save
-    await page.locator('button:has-text("儲存")').click();
+    await page.locator("[data-testid=btn-save]").click();
 
     // Check success message
     await expect(page.locator(".el-message--success")).toContainText(
@@ -629,12 +629,12 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
 
   test("重置為預設：確認對話框 → 取消", async ({ page }) => {
     // First make a change so the reset button is enabled
-    await page.locator("text=維持率防禦").click();
-    await expect(page.locator("text=正常運作安全線")).toBeVisible({
+    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
+    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
       timeout: 10000,
     });
     const protectTriggerInput = page
-      .locator('input[placeholder="請輸入數值"]')
+      .locator("[data-testid=panel-maintenance] input[placeholder='請輸入數值']")
       .first();
     await protectTriggerInput.waitFor({ state: "visible", timeout: 10000 });
     await protectTriggerInput.fill("190");
@@ -642,44 +642,44 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
     await page.waitForTimeout(500);
 
     // Now the reset button should be enabled
-    const resetBtn = page.locator('button:has-text("重置為預設")');
+    const resetBtn = page.locator("[data-testid=btn-reset]");
     await resetBtn.waitFor({ state: "visible", timeout: 5000 });
     await resetBtn.click();
 
     // Confirm dialog should appear
-    await expect(page.locator(".el-message-box")).toBeVisible();
-    await expect(page.locator(".el-message-box__message")).toContainText(
+    await expect(page.locator("[data-testid=reset-confirm-dialog]")).toBeVisible();
+    await expect(page.locator("[data-testid=reset-confirm-dialog] .el-message-box__message")).toContainText(
       "確定要重置為預設設定",
     );
 
     // Click cancel
-    await page.locator('button:has-text("取消")').click();
+    await page.locator('[data-testid=reset-confirm-dialog] button:has-text("取消")').click();
 
     // Dialog should close
-    await expect(page.locator(".el-message-box")).not.toBeVisible();
+    await expect(page.locator("[data-testid=reset-confirm-dialog]")).not.toBeVisible();
   });
 
   test("重置為預設：確認 → 載入預設值", async ({ page }) => {
-    await page.locator("text=維持率防禦").click();
+    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
 
     // Wait for fields to render
-    await expect(page.locator("text=正常運作安全線")).toBeVisible({
+    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
       timeout: 10000,
     });
 
     // Modify a value first
     const protectTriggerInput = page
-      .locator('input[placeholder="請輸入數值"]')
+      .locator("[data-testid=panel-maintenance] input[placeholder='請輸入數值']")
       .first();
     await protectTriggerInput.waitFor({ state: "visible", timeout: 10000 });
     await protectTriggerInput.fill("190");
     await protectTriggerInput.blur();
 
     // Click reset
-    await page.locator('button:has-text("重置為預設")').click();
+    await page.locator("[data-testid=btn-reset]").click();
 
     // Confirm
-    await page.locator('button:has-text("確定重置")').click();
+    await page.locator("[data-testid=btn-confirm-reset]").click();
 
     // Check success message
     await expect(page.locator(".el-message--success")).toContainText(
@@ -692,17 +692,17 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
   });
 
   test("僅驗證功能", async ({ page }) => {
-    await page.locator("text=維持率防禦").click();
+    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
 
     // Enter valid value
     const protectTriggerInput = page
-      .locator('input[placeholder="請輸入數值"]')
+      .locator("[data-testid=panel-maintenance] input[placeholder='請輸入數值']")
       .first();
     await protectTriggerInput.fill("170");
     await protectTriggerInput.blur();
 
     // Click validate only
-    await page.locator('button:has-text("僅驗證")').click();
+    await page.locator("[data-testid=btn-validate]").click();
 
     // Should show success message
     await expect(page.locator(".el-message--success")).toContainText(
@@ -713,41 +713,41 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
 
   test("JSON 原始檢視可展開/摺疊", async ({ page }) => {
     // Click collapse header
-    await page.locator("text=原始 JSON 檢視").click();
+    await page.locator("[data-testid=json-collapse] text=原始 JSON 檢視").click();
 
     // Check JSON content visible
-    await expect(page.locator(".json-viewer pre")).toContainText("version");
-    await expect(page.locator(".json-viewer pre")).toContainText("2.8");
+    await expect(page.locator("[data-testid=json-viewer] pre")).toContainText("version");
+    await expect(page.locator("[data-testid=json-viewer] pre")).toContainText("2.8");
 
     // Click again to collapse
-    await page.locator("text=原始 JSON 檢視").click();
+    await page.locator("[data-testid=json-collapse] text=原始 JSON 檢視").click();
 
     // Content should be hidden
-    await expect(page.locator(".json-viewer")).toBeHidden();
+    await expect(page.locator("[data-testid=json-viewer]")).toBeHidden();
   });
 
   test("範圍提示顯示正確", async ({ page }) => {
-    await page.locator("text=維持率防禦").click();
+    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
 
     // Wait for fields to render
-    await expect(page.locator("text=正常運作安全線")).toBeVisible({
+    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
       timeout: 10000,
     });
 
     // Check range hint for protectTrigger (min: 100, max: 200) - use the first range-hint which is for protectTrigger
-    const rangeHint = page.locator(".range-hint").first();
+    const rangeHint = page.locator("[data-testid=panel-maintenance] .range-hint").first();
     await expect(rangeHint).toContainText("最小 100");
     await expect(rangeHint).toContainText("最大 200");
   });
 
   test("說明 Tooltip 顯示", async ({ page }) => {
-    await page.locator("text=維持率防禦").click();
-    await expect(page.locator("text=正常運作安全線")).toBeVisible({
+    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
+    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
       timeout: 10000,
     });
 
     // Hover over help icon - the icon might be hidden if the field is at edge of screen
-    const helpIcon = page.locator(".help-icon").first();
+    const helpIcon = page.locator("[data-testid=panel-maintenance] .help-icon").first();
     const isVisible = await helpIcon
       .isVisible({ timeout: 2000 })
       .catch(() => false);

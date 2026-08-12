@@ -1,0 +1,36 @@
+# InvestmentLineNotify API Server
+# 安裝: sudo cp scripts/systemd/investment-line-notify.service /etc/systemd/system/
+# 啟用: sudo systemctl enable investment-line-notify
+# 啟動: sudo systemctl start investment-line-notify
+
+[Unit]
+Description=InvestmentLineNotify API Server
+Documentation=https://github.com/joysrr/InvestmentLineNotify
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/data/projects/InvestmentLineNotify
+Environment=NODE_ENV=production
+EnvironmentFile=-/etc/investment-line-notify.env
+ExecStart=/usr/bin/node src/api/server.mjs
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=3
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=investment-line-notify
+# 安全性設定
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/data/projects/InvestmentLineNotify/data
+ReadWritePaths=/opt/data/projects/InvestmentLineNotify/logs
+
+[Install]
+WantedBy=multi-user.target

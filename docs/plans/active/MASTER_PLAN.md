@@ -6,15 +6,9 @@
 
 ---
 
-## 📊 專案整體進度 (2026-08-10 更新)
+## 📊 專案整體進度 (2026-08-11 更新)
 
-```
-Phase 1: 系統審計與架構硬化     ████████████████████ 100% ✅
-Phase 2: 策略進化與環境感知     ████████████████░░  85% 🟡
-Phase 3: 資產解耦與多標的支援   ████░░░░░░░░░░░░░░  20% ⬜
-Phase 4: 回測與驗證體系         ████████░░░░░░░░░░  40% 🟡
-Simulator (獨立功能)            ████████████░░░░░░  60% 🟡
-```
+```\nPhase 1: 系統審計與架構硬化     ████████████████████ 100% ✅\nPhase 2: 策略進化與環境感知     ████████████████████ 100% ✅\nPhase 3: 資產解耦與多標的支援   ████████████████████ 100% ✅\nPhase 4: 生產級基礎設施         ████████████████████ 100% ✅\nSimulator (獨立功能)            ████████████████░░░░  80% 🟡\n```
 
 ---
 
@@ -23,26 +17,25 @@ Simulator (獨立功能)            ████████████░░�
 | 階段          | 完成項目                                                      | 驗收             |
 | ------------- | ------------------------------------------------------------- | ---------------- |
 | **Phase 1**   | 模組化重構、安全性修補、動態停利、前端基建、儀表板重構        | 420 tests passed |
-| **Phase 2**   | VIX Regime、估值動能、策略參數編輯器                          | 85%              |
-| **Phase 3**   | T-3.1 Asset Abstraction、T-3.2 回測報表、T-3.3 策略參數編輯器 | 100% (Task #14)  |
-| **Simulator** | Phase B/C 接線、Phase 0 技術債清理                            | 60% (Task #6)    |
-| **TDD 補課**  | 48 測試補完 + E2E 21 測試                                     | 100%             |
+| **Phase 2**   | 批次模擬、敏感度分析、Pareto 前沿、匯出功能                   | 100%             |
+| **Phase 3**   | Asset Abstraction、回測報表、策略參數編輯器、回測非同步 API   | 100%             |
+| **Simulator** | Phase B/C/D 接線、Phase 0 技術債清理、E2E (30 tests)          | 80% (Task #6)    |
+| **TDD 補課**  | 48 測試補完 + E2E 30 測試                                     | 100%             |
 
 ---
 
 ## 🎯 當前執行焦點
 
-### Phase 1: Simulator Phase D (前端反向推導 UI)
+### Phase 4: 生產級基礎設施 (單人單機部署)
 
-- **狀態**: 待開始 (Day 3-4)
-- **目標**: 結果展示、參數表單、歷史記錄、E2E 測試
-- **工時**: 16h
-
-### Phase 2: T-3.4 參數調優 UI (Task #15)
-
-- **狀態**: 待開始 (Day 5-7)
-- **目標**: 批次模擬、敏感度分析、Pareto 前沿
-- **工時**: 20h
+- **狀態**: ✅ 完成
+- **目標**: 回測排程自動化、監控告警、部署腳本 (含 Mini App 遠端部署按鈕)
+- **工時**: 14h (4.1: 6h, 4.2: 4h, 4.3: 4h)
+- **環境**: 單人單機，無 Redis，無 GitHub Actions (DEC-24)
+- **完成項目**:
+  - 4.1 回測排程自動化 (Cron + Bull 記憶體佇列、多配置併行、失敗重試、結果持久化)
+  - 4.2 監控/告警 (錯誤追蹤 SQLite、效能指標 p50/p95/p99、告警引擎、儀表板 API)
+  - 4.3 部署自動化 (部署 API adminGuard、執行器 git pull→npm ci→build→pm2 reload、WebSocket 日誌流、DeployButton.vue、deploy-local.mjs --rollback、Systemd 服務)
 
 ---
 
@@ -55,49 +48,54 @@ archiveManager.getArchiveRecords(dateRange)
             → signalCategory/signalType
                 → 回測 Phase 2 + 資金管控 Phase 2
                     → 回測非同步 API (Job Queue + WebSocket)
-                        → Mini App 回測整合、排程自動回測
+                        → 排程自動回測、監控告警、部署自動化 (含 Mini App 遠端部署)
 ```
 
 ---
 
 ## 📁 文件索引
 
-| 文件                                          | 用途             | 狀態        |
-| --------------------------------------------- | ---------------- | ----------- |
-| **UNIFIED_DEVELOPMENT_PLAN.md**               | 詳細單一真實來源 | ✅ Active   |
-| **MASTER_PLAN.md** (本檔)                     | 高層級概覽       | ✅ Active   |
-| **BUDGET_PRIORITY_DESIGN.md**                 | 資金管控設計規格 | ✅ Active   |
-| **docs/plans/archive/2026-08-10_old_active/** | 舊版計畫歸檔     | 📦 Archived |
+|| 文件                                          | 用途             | 狀態        ||
+|| --------------------------------------------- | ---------------- | ----------- ||
+|| **UNIFIED_DEVELOPMENT_PLAN.md**               | 詳細單一真實來源 (Phase 1-4 完成版) | ✅ Active   ||
+|| **PHASE_1_4_AUDIT_REPORT.md**                 | Phase 1-4 審計報告 | ✅ Active   ||
+|| **PHASE_5_REMAINING_WORK.md**                 | Phase 5 後續改善計畫 | ✅ Active   ||
+|| **MASTER_PLAN.md** (本檔)                     | 高層級概覽       | ✅ Active   ||
+|| **BUDGET_PRIORITY_DESIGN.md**                 | 資金管控設計規格 | ✅ Active   ||
+|| **docs/plans/archive/2026-08-10_old_active/** | 舊版計畫歸檔     | 📦 Archived ||
 
 ---
 
-## 📈 測試基線 (2026-08-10)
+## 📈 測試基線 (2026-08-12)
 
 | 類別             | 結果                |
 | ---------------- | ------------------- |
-| 後端單元/整合    | 560 passed / 6 todo |
-| 前端單元         | 110 passed          |
-| E2E (Playwright) | 21 passed           |
+| 後端單元/整合    | 640+ passed / 6 todo |
+| 前端單元         | 163 passed          |
+| E2E (Playwright) | 30 passed           |
 | Simulator 專用   | 72 passed           |
 
 ---
 
 ## 🛑 閘門條件
 
-| 閘門   | 目標日期 | 條件                              |
-| ------ | -------- | --------------------------------- |
-| **G1** | Day 4    | Phase D E2E ≥ 8 tests、全測試通過 |
-| **G2** | Day 7    | T-3.4 核心功能可用                |
-| **G3** | Day 8    | 技術債清單清零、Coverage 門檻生效 |
-| **G4** | Day 10   | 生產部署就緒                      |
+| 閘門   | 目標日期 | 條件                                   |
+| ------ | -------- | -------------------------------------- |
+| **G1** | Day 4    | Phase D E2E ≥ 8 tests、全測試通過      |
+| **G2** | Day 7    | T-3.4 核心功能可用                     |
+| **G3** | Day 8    | 技術債清單清零、Coverage 門檻生效      |
+| **G4** | Day 10   | 生產級基礎設施就緒 (排程、監控、部署)   |
 
 ---
 
 ## 📌 維護說明
 
-- **單一真實來源**：`UNIFIED_DEVELOPMENT_PLAN.md`
-- **高層概覽**：本檔案 (MASTER_PLAN.md)
-- **歸檔舊版**：`docs/plans/archive/2026-08-10_old_active/`
-- **更新頻率**：每 Sprint 結束或重大里程碑
+- **單一真實來源 (Phase 1-4)**: `UNIFIED_DEVELOPMENT_PLAN.md`
+- **Phase 1-4 審計報告**: `PHASE_1_4_AUDIT_REPORT.md`
+- **Phase 5 後續改善計畫**: `PHASE_5_REMAINING_WORK.md` (單一真實來源)
+- **高層概覽**: 本檔案 (MASTER_PLAN.md)
+- **歸檔舊版**: `docs/plans/archive/2026-08-10_old_active/`
+- **更新頻率**: 每 Sprint 結束或重大里程碑
 
-> 詳細規劃、決策記錄、測試缺口、執行建議請參考 **UNIFIED_DEVELOPMENT_PLAN.md**
+> 詳細規劃、決策記錄、測試缺口、執行建議請參考 **UNIFIED_DEVELOPMENT_PLAN.md**  
+> 後續改善項目請參考 **PHASE_5_REMAINING_WORK.md**

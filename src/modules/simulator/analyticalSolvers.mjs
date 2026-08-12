@@ -125,6 +125,8 @@ export function solvePriceForMA(targetMA, closeArr, period) {
  * @param {number[]} closeArr - 收盤價陣列
  * @param {Object} simulationInput - 完整模擬輸入 (用於驗證)
  * @param {Function} forwardSimulator - 正向模擬函式
+ * @param {Object} [options] - 選項
+ * @param {number} [options.tolerance=0.1] - 驗證容忍度 (%)
  * @returns {Promise<Object>} { price0050, priceZ2, achievedBias, method }
  */
 export async function solvePriceForMA240Bias(
@@ -132,7 +134,9 @@ export async function solvePriceForMA240Bias(
   closeArr,
   simulationInput,
   forwardSimulator,
+  options = {},
 ) {
+  const { tolerance = 0.1 } = options;
   // 1. 估算 MA240 (分級 fallback)
   let ma240;
   if (closeArr.length >= MA240_FALLBACK_THRESHOLDS.FULL) {
@@ -171,8 +175,8 @@ export async function solvePriceForMA240Bias(
     const achievedBias = result.indicators.bias240;
     const error = Math.abs(achievedBias - targetBias);
 
-    // 允許 0.1% 誤差 (MA240 權重 1/240，影響極小)
-    if (error <= 0.1) {
+    // 允許配置的容忍度誤差 (MA240 權重 1/240，影響極小)
+    if (error <= tolerance) {
       return {
         achievable: true,
         price0050,
@@ -188,7 +192,7 @@ export async function solvePriceForMA240Bias(
       priceZ2,
       achievedValue: achievedBias,
       method: "analytical_approx",
-      note: `驗證誤差 ${error.toFixed(2)}% > 0.1%，標記為近似解`,
+      note: `驗證誤差 ${error.toFixed(2)}% > ${tolerance}%，標記為近似解`,
     };
   } catch (err) {
     return {

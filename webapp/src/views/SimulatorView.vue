@@ -1,5 +1,5 @@
 <template>
-  <div class="simulator-view">
+  <div class="simulator-view" data-testid="simulator-view">
     <!-- Header -->
     <div class="sim-header">
       <h2 class="sim-title">0050 雙向模擬器</h2>
@@ -7,7 +7,7 @@
     </div>
 
     <!-- Mode Selector -->
-    <SimulatorModeSelector v-model="mode" />
+    <SimulatorModeSelector v-model="mode" data-testid="mode-selector" />
 
     <!-- Forward Panel (Mode A) -->
     <ForwardPanel
@@ -23,6 +23,7 @@
       :current-price-z2="currentPriceZ2"
       @run="runForward"
       @clear="clearResult"
+      data-testid="forward-panel"
     />
 
     <!-- Reverse Panel (Mode B) -->
@@ -41,6 +42,7 @@
       :error="error"
       @run="runReverse"
       @clear="clearResult"
+      data-testid="reverse-panel"
     />
 
     <!-- Batch Panel (Mode C) -->
@@ -48,6 +50,7 @@
       v-else-if="mode === 'batch'"
       :current-price-0050="currentPrice0050"
       :current-price-z2="currentPriceZ2"
+      data-testid="batch-panel"
     />
 
     <!-- Sensitivity Panel (Mode D) -->
@@ -55,6 +58,7 @@
       v-else-if="mode === 'sensitivity'"
       :current-price-0050="currentPrice0050"
       :current-price-z2="currentPriceZ2"
+      data-testid="sensitivity-panel"
     />
 
     <!-- Pareto Panel (Mode E) -->
@@ -62,16 +66,18 @@
       v-else-if="mode === 'pareto'"
       :current-price-0050="currentPrice0050"
       :current-price-z2="currentPriceZ2"
+      data-testid="pareto-panel"
     />
 
     <!-- Data Quality Badges (always visible when result exists) -->
     <DataQualityBadges
       v-if="result && result.dataQuality"
       :data-quality="result.dataQuality"
+      data-testid="data-quality-badges"
     />
 
     <!-- Disclaimer -->
-    <DisclaimerBanner v-if="result" :disclaimer="result.disclaimer" />
+    <DisclaimerBanner v-if="result" :disclaimer="result.disclaimer" data-testid="disclaimer-banner" />
   </div>
 </template>
 

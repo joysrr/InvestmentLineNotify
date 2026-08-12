@@ -1,5 +1,5 @@
 <template>
-  <div class="result-card">
+  <div class="result-card" data-testid="forward-result-card">
     <!-- Price Summary -->
     <div class="price-summary">
       <div class="price-item">

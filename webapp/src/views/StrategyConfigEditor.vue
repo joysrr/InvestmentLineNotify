@@ -1,5 +1,5 @@
 <template>
-  <div class="strategy-config-editor">
+  <div class="strategy-config-editor" data-testid="strategy-config-editor">
     <!-- Header -->
     <div class="editor-header">
       <div class="header-left">
@@ -7,20 +7,20 @@
         <span class="editor-subtitle">編輯並即時驗證策略參數</span>
       </div>
       <div class="header-right">
-        <el-button type="primary" @click="saveConfig" :loading="saving" :disabled="!hasChanges || !isValid">
+        <el-button type="primary" @click="saveConfig" :loading="saving" :disabled="!hasChanges || !isValid" data-testid="btn-save">
           <el-icon><Checked /></el-icon> 儲存
         </el-button>
-        <el-button @click="resetToDefault" :loading="resetting" :disabled="!hasChanges">
+        <el-button @click="resetToDefault" :loading="resetting" :disabled="!hasChanges" data-testid="btn-reset">
           <el-icon><Refresh /></el-icon> 重置為預設
         </el-button>
-        <el-button @click="validateOnly" :loading="validating">
+        <el-button @click="validateOnly" :loading="validating" data-testid="btn-validate">
           <el-icon><Check /></el-icon> 僅驗證
         </el-button>
       </div>
     </div>
 
     <!-- Validation Status Bar -->
-    <div class="validation-bar" :class="{ 'has-errors': validationErrors.length > 0 }">
+    <div class="validation-bar" :class="{ 'has-errors': validationErrors.length > 0 }" data-testid="validation-bar">
       <el-alert
         v-if="validationErrors.length > 0"
         title="設定驗證失敗"
@@ -29,6 +29,7 @@
         closable
         show-icon
         class="validation-alert"
+        data-testid="alert-validation-error"
       />
       <el-alert
         v-else-if="validating"
@@ -36,6 +37,7 @@
         type="info"
         show-icon
         class="validation-alert"
+        data-testid="alert-validating"
       />
       <el-alert
         v-else-if="isValid && hasChanges"
@@ -43,6 +45,7 @@
         type="success"
         show-icon
         class="validation-alert"
+        data-testid="alert-valid"
       />
       <el-alert
         v-else-if="isValid && !hasChanges"
@@ -50,12 +53,13 @@
         type="info"
         show-icon
         class="validation-alert"
+        data-testid="alert-no-changes"
       />
     </div>
 
     <!-- Section Tabs -->
-    <div class="section-tabs">
-      <el-tabs v-model="activeSection" type="card" class="config-tabs">
+    <div class="section-tabs" data-testid="section-tabs">
+      <el-tabs v-model="activeSection" type="card" class="config-tabs" data-testid="config-tabs">
         <el-tab-pane
           v-for="section in sections"
           :key="section.key"
@@ -68,19 +72,35 @@
             :meta="configMeta"
             :errors="getSectionErrors(section.key)"
             @update="handleFieldUpdate"
+            data-testid="config-section-editor"
           />
         </el-tab-pane>
       </el-tabs>
     </div>
 
     <!-- Raw JSON Viewer (Collapsible) -->
-    <el-collapse v-model="jsonCollapse" class="json-collapse">
+    <el-collapse v-model="jsonCollapse" class="json-collapse" data-testid="json-collapse">
       <el-collapse-item name="1" title="原始 JSON 檢視">
-        <div class="json-viewer">
+        <div class="json-viewer" data-testid="json-viewer">
           <pre>{{ formattedJson }}</pre>
         </div>
       </el-collapse-item>
     </el-collapse>
+
+    <!-- Reset Confirm Dialog -->
+    <el-dialog
+      v-model="resetConfirmVisible"
+      title="確定重置為預設?"
+      :show-close="false"
+      width="400"
+      data-testid="reset-confirm-dialog"
+    >
+      <span>確定要重置為預設設定嗎？此操作將覆蓋所有未儲存的變更。</span>
+      <template #footer>
+        <el-button @click="resetConfirmVisible = false">取消</el-button>
+        <el-button type="danger" @click="confirmResetToDefault" data-testid="btn-confirm-reset">確定重置</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -108,6 +128,7 @@ const resetting = ref(false);
 const validating = ref(false);
 const validationErrors = ref([]);
 const jsonCollapse = ref([]);
+const resetConfirmVisible = ref(false);
 
 // Sections configuration
 const sections = [
@@ -223,26 +244,24 @@ async function saveConfig() {
 }
 
 async function resetToDefault() {
-  try {
-    await ElMessageBox.confirm(
-      "確定要重置為預設設定嗎？這將覆寫所有目前的修改。",
-      "確認重置",
-      { confirmButtonText: "確定重置", cancelButtonText: "取消", type: "warning" }
-    );
+  resetConfirmVisible.value = true;
+}
 
-    resetting.value = true;
+async function confirmResetToDefault() {
+  resetting.value = true;
+  try {
     const res = await apiFetch("/strategy-config/default");
     if (res.success) {
       currentConfig.value = JSON.parse(JSON.stringify(res.config));
       editableConfig.value = JSON.parse(JSON.stringify(res.config));
-      // hasChanges 會自動重新計算為 false
       validateCurrentConfig();
       ElMessage.success("已重置為預設設定");
     }
   } catch (err) {
-    if (err !== "cancel") ElMessage.error("重置失敗: " + err.message);
+    ElMessage.error("重置失敗: " + err.message);
   } finally {
     resetting.value = false;
+    resetConfirmVisible.value = false;
   }
 }
 

@@ -131,12 +131,11 @@ test.describe("SimulatorView - Forward Simulation (正向模擬)", () => {
 
     // Navigate to the dashboard page (simulator is now a tab within dashboard)
     await page.goto("#/dashboard", { waitUntil: "networkidle" });
-    // Wait for the app to mount and Telegram to be ready
-    await page.waitForSelector("#app > *", { timeout: 60000 });
-    await page.waitForSelector(".dash-tabs", { timeout: 60000 });
-    // Click the simulator tab
-    await page.locator("text=模擬器").click();
-    await page.waitForSelector(".simulator-view", { timeout: 60000 });
+    // Wait for the simulator tab to be visible and click it
+    await page.waitForSelector("text=模���擬器", { timeout: 60000 });
+    await page.locator("text=模���擬器").click();
+    // Wait for the simulator view to mount
+    await page.waitForSelector("[data-testid=simulator-view]", { timeout: 10000 });
   });
 
   test("should load simulator view with forward mode by default", async ({
@@ -145,34 +144,33 @@ test.describe("SimulatorView - Forward Simulation (正向模擬)", () => {
     // Check header
     await expect(page.locator(".sim-title")).toHaveText("0050 雙向模擬器");
     await expect(page.locator(".sim-subtitle")).toHaveText(
-      "股價 ⇄ 策略分數 / 條件反推",
+      "股價 ⇄ 策略分數 / 條件反推 / 批次模擬 / 敏感度分析 / Pareto 前沿",
     );
 
     // Check mode tabs
-    await expect(page.locator("text=股價 → 分數")).toBeVisible();
-    await expect(page.locator("text=目標 → 價格")).toBeVisible();
+    await expect(page.locator("[data-testid=mode-selector] text=股價 → 分數")).toBeVisible();
+    await expect(page.locator("[data-testid=mode-selector] text=目標 → 價格")).toBeVisible();
 
-    // Check input fields exist (by label text)
-    await expect(page.locator("text=0050 預估價格")).toBeVisible();
-    await expect(page.locator("text=00675L 預估價格")).toBeVisible();
-    await expect(page.locator('button:has-text("執行模擬")')).toBeVisible();
+    // Check input fields exist
+    await expect(page.locator("[data-testid=forward-panel] label:has-text('0050 預估價格')")).toBeVisible();
+    await expect(page.locator("[data-testid=forward-panel] label:has-text('00675L 預估價格')")).toBeVisible();
+    await expect(page.locator('[data-testid=forward-panel] button:has-text("執行模擬")')).toBeVisible();
   });
 
   test("should run forward simulation with valid inputs", async ({ page }) => {
-    // Fill in price inputs - use label to find input
-    await page.locator('label:has-text("0050 預估價格") ~ input').fill("180");
-    await page.locator('label:has-text("00675L 預估價格") ~ input').fill("280");
+    // Fill in price inputs
+    await page.locator("[data-testid=forward-panel] label:has-text('0050 預估價格') ~ input").fill("180");
+    await page.locator("[data-testid=forward-panel] label:has-text('00675L 預估價格') ~ input").fill("280");
 
     // Click run button
-    await page.locator('button:has-text("執行模擬")').click();
+    await page.locator('[data-testid=forward-panel] button:has-text("執行模擬")').click();
 
-    // Since mock API responds instantly, result appears immediately
-    // Just wait for result card to appear
+    // Wait for result card to appear
     await expect(page.locator('.score-label:has-text("策略分數")')).toBeVisible(
       { timeout: 10000 },
     );
 
-    // Check for key result elements - match actual rendered text
+    // Check for key result elements
     await expect(page.locator("text=建議維持現狀")).toBeVisible(); // strategySuggestion
     await expect(page.locator("text=模擬 0050")).toBeVisible(); // price summary
     await expect(page.locator("text=模擬 00675L")).toBeVisible();
@@ -182,22 +180,22 @@ test.describe("SimulatorView - Forward Simulation (正向模擬)", () => {
     page,
   }) => {
     // Only fill Z2 price
-    await page.locator('label:has-text("00675L 預估價格") ~ input').fill("280");
+    await page.locator("[data-testid=forward-panel] label:has-text('00675L 預估價格') ~ input").fill("280");
     // Button should be disabled when 0050 is empty
-    await expect(page.locator('button:has-text("執行模擬")')).toBeDisabled();
+    await expect(page.locator('[data-testid=forward-panel] button:has-text("執行模擬")')).toBeDisabled();
   });
 
   test("should clear result when clear button clicked", async ({ page }) => {
     // First run a simulation
-    await page.locator('label:has-text("0050 預估價格") ~ input').fill("180");
-    await page.locator('label:has-text("00675L 預估價格") ~ input').fill("280");
-    await page.locator('button:has-text("執行模擬")').click();
+    await page.locator("[data-testid=forward-panel] label:has-text('0050 預估價格') ~ input").fill("180");
+    await page.locator("[data-testid=forward-panel] label:has-text('00675L 預估價格') ~ input").fill("280");
+    await page.locator('[data-testid=forward-panel] button:has-text("執行模擬")').click();
     await expect(page.locator('.score-label:has-text("策略分數")')).toBeVisible(
       { timeout: 10000 },
     );
 
     // Click clear
-    await page.locator('button:has-text("清除結果")').click();
+    await page.locator('[data-testid=forward-panel] button:has-text("清除結果")').click();
 
     // Result should be gone
     await expect(page.locator('.score-label:has-text("策略分數")')).toBeHidden({
@@ -209,9 +207,9 @@ test.describe("SimulatorView - Forward Simulation (正向模擬)", () => {
     page,
   }) => {
     // Use a price far from market (assuming market ~180)
-    await page.locator('label:has-text("0050 預估價格") ~ input').fill("250");
-    await page.locator('label:has-text("00675L 預估價格") ~ input').fill("280");
-    await page.locator('button:has-text("執行模擬")').click();
+    await page.locator("[data-testid=forward-panel] label:has-text('0050 預估價格') ~ input").fill("250");
+    await page.locator("[data-testid=forward-panel] label:has-text('00675L 預估價格') ~ input").fill("280");
+    await page.locator('[data-testid=forward-panel] button:has-text("執行模擬")').click();
     await expect(page.locator('.score-label:has-text("策略分數")')).toBeVisible(
       { timeout: 10000 },
     );

@@ -12,6 +12,9 @@ export const PRICE_BOUNDS = {
 /** RSI 邊界 */
 export const RSI_BOUNDS = { MIN: 1, MAX: 99 };
 
+/** 策略分數邊界 */
+export const STRATEGY_SCORE_BOUNDS = { MIN: 0, MAX: 100 };
+
 /** 掃描器參數 (DEC-12, DEC-13, D3, D4) */
 export const SCAN_CONFIG = {
   RANGE_PCT: 0.15, // ±15%

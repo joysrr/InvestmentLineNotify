@@ -1,5 +1,5 @@
 <template>
-  <div class="batch-panel">
+  <div class="batch-panel" data-testid="batch-panel">
     <!-- Header -->
     <div class="batch-header">
       <h3 class="batch-title">批次模擬</h3>
@@ -22,7 +22,7 @@
 
       <div class="jobs-list">
         <template v-for="(job, index) in jobs" :key="index">
-          <div class="job-card" :class="{ 'has-error': jobErrors[index]?.length }">
+          <div class="job-card" :class="{ 'has-error': jobErrors[index]?.length }" data-testid="job-card">
             <div class="job-header">
               <span class="job-number">任務 {{ index + 1 }}</span>
               <div class="job-actions">
@@ -50,6 +50,7 @@
                   placeholder="請輸入 0050 價格"
                   style="width: 100%"
                   @change="validateJob(index)"
+                  data-testid="job-price0050"
                 />
               </el-form-item>
 
@@ -63,6 +64,7 @@
                   placeholder="留空則自動按比例計算"
                   style="width: 100%"
                   @change="validateJob(index)"
+                  data-testid="job-priceZ2"
                 />
               </el-form-item>
             </div>
@@ -74,14 +76,14 @@
         </template>
       </div>
 
-      <div v-if="jobs.length === 0" class="empty-state">
+      <div v-if="jobs.length === 0" class="empty-state" data-testid="empty-state">
         <el-icon><Document /></el-icon>
         <p>暫無任務，請點擊「新增任務」開始配置</p>
       </div>
     </div>
 
     <!-- Execution Options -->
-    <el-collapse v-model="optionsCollapse" class="options-section">
+    <el-collapse v-model="optionsCollapse" class="options-section" data-testid="options-collapse">
       <el-collapse-item name="1" title="執行選項">
         <div class="options-grid">
           <el-form-item label="併發數" prop="concurrency">
@@ -91,6 +93,7 @@
               :max="16"
               :step="1"
               style="width: 100%"
+              data-testid="option-concurrency"
             />
             <span class="help-text">同時執行的任務數量 (1-16)</span>
           </el-form-item>
@@ -102,6 +105,7 @@
               :max="5"
               :step="1"
               style="width: 100%"
+              data-testid="option-retryAttempts"
             />
             <span class="help-text">失敗時的重試次數 (0-5)</span>
           </el-form-item>
@@ -113,6 +117,7 @@
               :max="10000"
               :step="100"
               style="width: 100%"
+              data-testid="option-retryDelayMs"
             />
             <span class="help-text">重試間隔毫秒數 (0-10000)</span>
           </el-form-item>
@@ -121,8 +126,8 @@
     </el-collapse>
 
     <!-- Import/Export -->
-    <div class="import-export-section">
-      <el-button @click="importJobs" :disabled="importing">
+    <div class="import-export-section" data-testid="import-export-section">
+      <el-button @click="importJobs" :disabled="importing" data-testid="btn-import">
         <el-icon><Upload /></el-icon> 匯入 JSON
       </el-button>
       <ExportButton
@@ -130,12 +135,13 @@
         :filename="'batch-config'"
         type="default"
         size="small"
+        data-testid="export-config-btn"
       />
       <input type="file" ref="fileInput" @change="handleFileImport" accept=".json" style="display: none" />
     </div>
 
     <!-- Execute Button -->
-    <div class="execute-section">
+    <div class="execute-section" data-testid="execute-section">
       <el-button
         type="primary"
         size="large"
@@ -143,18 +149,19 @@
         :disabled="jobs.length === 0 || executing || !isValid"
         @click="executeBatch"
         class="execute-btn"
+        data-testid="btn-execute"
       >
         <el-icon v-if="executing"><Loading /></el-icon>
         <el-icon v-else><VideoPlay /></el-icon>
         <span>{{ executing ? `執行中... ${completedCount}/${jobs.length}` : '開始批次模擬' }}</span>
       </el-button>
-      <el-button v-if="executing" @click="cancelExecution" class="cancel-btn">
-        <el-icon><Stop /></el-icon> 取消
+      <el-button v-if="executing" @click="cancelExecution" class="cancel-btn" data-testid="btn-cancel">
+        <el-icon><Close /></el-icon> 取消
       </el-button>
     </div>
 
     <!-- Progress -->
-    <div v-if="executing || (lastResult && lastResult.totalJobs > 0)" class="progress-section">
+    <div v-if="executing || (lastResult && lastResult.totalJobs > 0)" class="progress-section" data-testid="progress-section">
       <div class="progress-header">
         <span class="progress-title">執行進度</span>
         <span class="progress-stats">{{ completedCount }} / {{ jobs.length }} 完成</span>
@@ -164,6 +171,7 @@
         :status="executing ? undefined : (lastResult?.failed > 0 ? 'exception' : 'success')"
         :stroke-width="12"
         show-text
+        data-testid="progress-bar"
       />
       <div class="progress-details">
         <span :class="['stat', 'success']">成功: {{ lastResult?.successful || 0 }}</span>
@@ -173,7 +181,7 @@
     </div>
 
     <!-- Results Table -->
-    <div v-if="lastResult && lastResult.results && lastResult.results.length > 0" class="results-section">
+    <div v-if="lastResult && lastResult.results && lastResult.results.length > 0" class="results-section" data-testid="results-section">
       <div class="results-header">
         <h4>批次結果 ({{ lastResult.totalJobs }} 任務, 成功 {{ lastResult.successful }}, 失敗 {{ lastResult.failed }})</h4>
         <div class="results-actions">
@@ -183,8 +191,9 @@
             :filename="'batch-result'"
             type="primary"
             size="small"
+            data-testid="export-results-btn"
           />
-          <el-button size="small" @click="clearResults">
+          <el-button size="small" @click="clearResults" data-testid="btn-clear-results">
             <el-icon><Delete /></el-icon> 清除結果
           </el-button>
         </div>
@@ -196,6 +205,7 @@
         stripe
         style="width: 100%"
         max-height="400"
+        data-testid="results-table"
       >
         <el-table-column prop="jobIndex" label="任務" width="80" align="center" />
         <el-table-column prop="price0050" label="0050 價格" width="120" align="center" />
@@ -219,6 +229,7 @@
               type="primary"
               link
               @click="viewDetail(scope.row)"
+              data-testid="btn-view-detail"
             >
               查看詳情
             </el-button>
@@ -233,12 +244,13 @@
       :title="detailTitle"
       width="800"
       :fullscreen="false"
+      data-testid="detail-dialog"
     >
       <div v-if="detailData" class="detail-content">
         <ReverseResultCard :result="detailData.result" />
       </div>
       <template #footer>
-        <el-button @click="detailVisible = false">關閉</el-button>
+        <el-button @click="detailVisible = false" data-testid="btn-close-detail">關閉</el-button>
       </template>
     </el-dialog>
   </div>
@@ -247,7 +259,7 @@
 <script setup>
 import { ref, computed, watch, nextTick } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { Plus, Delete, DocumentCopy, Upload, Download, VideoPlay, Loading, Stop } from "@element-plus/icons-vue";
+import { Plus, Delete, DocumentCopy, Upload, Download, VideoPlay, Loading, Close } from "@element-plus/icons-vue";
 import { apiFetch } from "@/api/index.js";
 import ReverseResultCard from "./ReverseResultCard.vue";
 import ExportButton from "@/components/common/ExportButton.vue";

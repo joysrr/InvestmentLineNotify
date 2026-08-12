@@ -415,7 +415,7 @@ export async function getInvestmentSignalAsync(data) {
 /**
  * 將預算協同分析結果合併進 decision（不可變，回傳新物件）
  */
-export function applyBudgetSynergy(decision, synergy) {
+function applyBudgetSynergy(decision, synergy) {
   if (!synergy) return decision;
 
   const base = { ...decision, budgetSynergy: synergy };
@@ -460,7 +460,7 @@ function buildEngineContext(data, derived) {
     priceUpPercent,
     priceDropPercent,
     currentPrice: data.currentPrice,
-    basePrice: data.basePrice,
+    basePrice: data.basePrice ?? data.price0050,  // fallback to price0050 for backward compat
     maintenanceMargin,
     z2Ratio,
     netAsset,
@@ -614,5 +614,8 @@ function formatSignalOutput(ctx, finalDecision, derived) {
     trailingActive: finalDecision.trailingActive ?? false,
     dynamicAnchor: finalDecision.dynamicAnchor ?? null,
     macdSignal,
+    // 新格式：portfolio.assets 包含完整資產資訊（向後相容同時保留舊欄位）
+    portfolio: ctx.portfolio,
   };
 }
+export { buildEngineContext, formatSignalOutput, determineSignalCategory, determineSignalType, applyBudgetSynergy };

@@ -1,5 +1,5 @@
 <template>
-  <div class="sensitivity-panel">
+  <div class="sensitivity-panel" data-testid="sensitivity-panel">
     <!-- Header -->
     <div class="sensitivity-header">
       <h3 class="sensitivity-title">敏感度分析</h3>
@@ -7,13 +7,14 @@
     </div>
 
     <!-- Parameter Selector -->
-    <div class="param-selector">
+    <div class="param-selector" data-testid="param-selector">
       <label>目標參數</label>
       <el-select
         v-model="targetParam"
         placeholder="選擇要分析的參數"
         style="width: 100%"
         clearable
+        data-testid="select-target-param"
       >
         <el-option
           v-for="param in scannableParams"
@@ -25,7 +26,7 @@
     </div>
 
     <!-- Scan Range Config -->
-    <div class="range-config">
+    <div class="range-config" data-testid="range-config">
       <div class="range-row">
         <el-form-item label="最小值" prop="min">
           <el-input-number
@@ -34,6 +35,7 @@
             :max="getParamMax()"
             :step="scanRange.step"
             style="width: 100%"
+            data-testid="input-scan-min"
           />
         </el-form-item>
         <el-form-item label="最大值" prop="max">
@@ -43,6 +45,7 @@
             :max="getParamMax()"
             :step="scanRange.step"
             style="width: 100%"
+            data-testid="input-scan-max"
           />
         </el-form-item>
         <el-form-item label="步長" prop="step">
@@ -52,6 +55,7 @@
             :max="100"
             :step="0.1"
             style="width: 100%"
+            data-testid="input-scan-step"
           />
         </el-form-item>
       </div>
@@ -61,7 +65,7 @@
     </div>
 
     <!-- Metric Selector -->
-    <div class="metric-selector">
+    <div class="metric-selector" data-testid="metric-selector">
       <label>觀測指標</label>
       <el-select
         v-model="metrics"
@@ -69,6 +73,7 @@
         placeholder="選擇觀測指標"
         style="width: 100%"
         collapse-tags
+        data-testid="select-metrics"
       >
         <el-option
           v-for="m in supportedMetrics"
@@ -80,24 +85,25 @@
     </div>
 
     <!-- Chart Toggle -->
-    <div class="chart-toggle">
-      <el-tabs v-model="chartType" type="card">
+    <div class="chart-toggle" data-testid="chart-toggle">
+      <el-tabs v-model="chartType" type="card" data-testid="tabs-chart-type">
         <el-tab-pane label="敏感度曲線" name="sensitivity" />
         <el-tab-pane label="Tornado 圖" name="tornado" />
       </el-tabs>
     </div>
 
     <!-- Multi-params for Tornado (collapsible) -->
-    <el-collapse v-model="multiParamsCollapse" class="multi-params-section">
+    <el-collapse v-model="multiParamsCollapse" class="multi-params-section" data-testid="multi-params-collapse">
       <el-collapse-item name="1" title="Tornado 圖參數 (多參數掃描)">
         <div class="multi-params-list">
           <template v-for="(mp, idx) in multiParams" :key="idx">
-            <div class="multi-param-row">
+            <div class="multi-param-row" data-testid="multi-param-row">
               <el-select
                 v-model="mp.path"
                 :placeholder="`參數 ${idx + 1}`"
                 style="width: 40%"
                 clearable
+                data-testid="select-multi-param-path"
               >
                 <el-option
                   v-for="param in scannableParams"
@@ -112,6 +118,7 @@
                 :max="getMultiParamMax(mp.path)"
                 placeholder="最小"
                 style="width: 25%"
+                data-testid="input-multi-param-min"
               />
               <el-input-number
                 v-model="mp.range[1]"
@@ -119,6 +126,7 @@
                 :max="getMultiParamMax(mp.path)"
                 placeholder="最大"
                 style="width: 25%"
+                data-testid="input-multi-param-max"
               />
               <el-button
                 size="small"
@@ -131,14 +139,14 @@
             </div>
           </template>
         </div>
-        <el-button size="small" @click="addMultiParam">
+        <el-button size="small" @click="addMultiParam" data-testid="btn-add-multi-param">
           <el-icon><Plus /></el-icon> 新增參數
         </el-button>
       </el-collapse-item>
     </el-collapse>
 
     <!-- Execute Button -->
-    <div class="execute-section">
+    <div class="execute-section" data-testid="execute-section">
       <el-button
         type="primary"
         size="large"
@@ -146,6 +154,7 @@
         :disabled="!canExecute"
         @click="executeAnalysis"
         class="execute-btn"
+        data-testid="btn-execute"
       >
         <el-icon v-if="loading"><Loading /></el-icon>
         <el-icon v-else><TrendCharts /></el-icon>
@@ -154,14 +163,14 @@
     </div>
 
     <!-- Progress -->
-    <div v-if="loading" class="progress-section">
-      <el-progress :percentage="progress" :stroke-width="12" show-text />
+    <div v-if="loading" class="progress-section" data-testid="progress-section">
+      <el-progress :percentage="progress" :stroke-width="12" show-text data-testid="progress-bar" />
     </div>
 
     <!-- Result Charts -->
-    <div v-if="result" class="result-section">
+    <div v-if="result" class="result-section" data-testid="result-section">
       <!-- Stats -->
-      <div class="chart-stats">
+      <div class="chart-stats" data-testid="chart-stats">
         <span v-if="result.singleParam" class="stat">
           斜率: {{ result.singleParam.slope }}
         </span>
@@ -171,17 +180,17 @@
       </div>
 
       <!-- Sensitivity Chart -->
-      <div v-if="chartType === 'sensitivity' && result.singleParam">
-        <SensitivityChart ref="sensitivityChart" :data="result.singleParam" />
+      <div v-if="chartType === 'sensitivity' && result.singleParam" data-testid="sensitivity-chart-container">
+        <SensitivityChart ref="sensitivityChart" :data="result.singleParam" data-testid="sensitivity-chart" />
       </div>
 
       <!-- Tornado Chart -->
-      <div v-if="chartType === 'tornado' && result.multiParam">
-        <TornadoChart ref="tornadoChart" :data="result.multiParam" />
+      <div v-if="chartType === 'tornado' && result.multiParam" data-testid="tornado-chart-container">
+        <TornadoChart ref="tornadoChart" :data="result.multiParam" data-testid="tornado-chart" />
       </div>
 
       <!-- Key Drivers Panel -->
-      <div v-if="result.multiParam?.keyDrivers?.length" class="key-drivers-panel">
+      <div v-if="result.multiParam?.keyDrivers?.length" class="key-drivers-panel" data-testid="key-drivers-panel">
         <h4>關鍵驅動因子 (Top 3)</h4>
         <ul>
           <li v-for="(driver, idx) in result.multiParam.keyDrivers" :key="idx">
@@ -192,17 +201,18 @@
     </div>
 
     <!-- Disclaimer -->
-    <div v-if="result" class="disclaimer">
+    <div v-if="result" class="disclaimer" data-testid="disclaimer">
       {{ result.disclaimer }}
     </div>
 
     <!-- Export -->
-    <div v-if="result" class="export-section">
+    <div v-if="result" class="export-section" data-testid="export-section">
       <ExportButton
         :csvData="result.singleParam ? [result.singleParam] : []"
         :jsonData="result"
         :chartInstance="chartType === 'sensitivity' ? $refs.sensitivityChart?.chartInstance : $refs.tornadoChart?.chartInstance"
         :filename="'sensitivity-result'"
+        data-testid="export-btn"
       />
     </div>
   </div>

@@ -245,18 +245,20 @@ describe("StrategyConfigEditor", () => {
       const wrapper = createWrapper();
       await flushPromises();
 
+      // First call opens dialog
       await wrapper.vm.resetToDefault();
       await flushPromises();
+      expect(wrapper.vm.resetConfirmVisible).toBe(true);
 
+      // Second call (confirm) triggers API
+      await wrapper.vm.confirmResetToDefault();
+      await flushPromises();
       expect(mockApiFetch).toHaveBeenCalledWith("/strategy-config/default");
       expect(wrapper.vm.currentConfig).toEqual(mockDefaultConfig);
       expect(wrapper.vm.editableConfig).toEqual(mockDefaultConfig);
     });
 
     it("取消重置不觸發 API", async () => {
-      const { ElMessageBox } = await import("element-plus");
-      ElMessageBox.confirm.mockRejectedValueOnce("cancel");
-
       mockApiFetch
         .mockResolvedValueOnce({ success: true, meta: {} })
         .mockResolvedValueOnce({ strategy: { content: { version: "2.8" } } });
@@ -266,7 +268,11 @@ describe("StrategyConfigEditor", () => {
 
       await wrapper.vm.resetToDefault();
       await flushPromises();
+      expect(wrapper.vm.resetConfirmVisible).toBe(true);
 
+      // Cancel - just close dialog, don't call API
+      wrapper.vm.resetConfirmVisible = false;
+      await flushPromises();
       expect(mockApiFetch).toHaveBeenCalledTimes(2);
     });
   });

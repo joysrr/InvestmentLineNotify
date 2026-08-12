@@ -143,6 +143,7 @@ export class AssetRegistry {
 /**
  * SchemaMapper - Schema 雙向轉換器
  * 處理新舊格式之間的轉換，確保向後相容
+ * 泛型化：根據 Registry 內容動態生成 legacy 欄位
  */
 export class SchemaMapper {
   constructor(assetRegistry) {
@@ -153,21 +154,26 @@ export class SchemaMapper {
 
   /**
    * 新 Schema → 舊欄位格式 (向後相容)
+   * 動態根據 Registry 中的資產生成 legacy 欄位
    * @param {Object} newPortfolio - 新格式 portfolio
    * @returns {Object} 舊格式 portfolio
    */
   toLegacyPortfolio(newPortfolio) {
     const assets = newPortfolio?.assets || {};
-
-    return {
-      qty0050: assets["0050"]?.qty ?? 0,
-      qtyZ2: assets["00675L"]?.qty ?? 0,
+    const legacy = {
       cash: newPortfolio?.cash ?? 0,
       totalLoan: newPortfolio?.totalLoan ?? 0,
-      // 保留其他可能的舊欄位
-      avgCost0050: assets["0050"]?.avgCost ?? null,
-      avgCostZ2: assets["00675L"]?.avgCost ?? null,
     };
+
+    // 動態生成 legacy 欄位：根據 registry 中的資產
+    for (const asset of this.registry.getAllAssets()) {
+      const assetData = assets[asset.id] || {};
+      const fieldName = this._getLegacyFieldName(asset);
+      legacy[`qty${fieldName}`] = assetData.qty ?? 0;
+      legacy[`avgCost${fieldName}`] = assetData.avgCost ?? null;
+    }
+
+    return legacy;
   }
 
   /**
@@ -176,17 +182,18 @@ export class SchemaMapper {
    * @returns {Object} 新格式 portfolio
    */
   fromLegacyPortfolio(legacyPortfolio) {
+    const assets = {};
+
+    for (const asset of this.registry.getAllAssets()) {
+      const fieldName = this._getLegacyFieldName(asset);
+      assets[asset.id] = {
+        qty: legacyPortfolio?.[`qty${fieldName}`] ?? 0,
+        avgCost: legacyPortfolio?.[`avgCost${fieldName}`] ?? null,
+      };
+    }
+
     return {
-      assets: {
-        "0050": {
-          qty: legacyPortfolio?.qty0050 ?? 0,
-          avgCost: legacyPortfolio?.avgCost0050 ?? null,
-        },
-        "00675L": {
-          qty: legacyPortfolio?.qtyZ2 ?? 0,
-          avgCost: legacyPortfolio?.avgCostZ2 ?? null,
-        },
-      },
+      assets,
       cash: legacyPortfolio?.cash ?? 0,
       totalLoan: legacyPortfolio?.totalLoan ?? 0,
     };
@@ -201,18 +208,26 @@ export class SchemaMapper {
    */
   toLegacyMarketData(newMarketData) {
     const prices = newMarketData?.prices || {};
-
-    return {
-      price0050: prices["0050"] ?? 0,
-      price00675L: prices["00675L"] ?? 0,
-      priceZ2: prices["00675L"] ?? 0, // 別名
+    const legacy = {
       vix: newMarketData?.vix ?? null,
       pb: newMarketData?.pb ?? null,
-      // 保留其他市場資料
       currentRate: newMarketData?.currentRate ?? null,
       cnnScore: newMarketData?.cnnScore ?? null,
       maintenanceRatio: newMarketData?.maintenanceRatio ?? null,
     };
+
+    // 動態生成價格欄位
+    for (const asset of this.registry.getAllAssets()) {
+      const fieldName = this._getLegacyPriceFieldName(asset);
+      legacy[`price${fieldName}`] = prices[asset.id] ?? 0;
+    }
+
+    // 向後相容：priceZ2 為 00675L 別名
+    if (prices["00675L"] !== undefined) {
+      legacy.priceZ2 = prices["00675L"];
+    }
+
+    return legacy;
   }
 
   /**
@@ -221,15 +236,20 @@ export class SchemaMapper {
    * @returns {Object}
    */
   fromLegacyMarketData(legacyMarketData) {
-    // 支援 price00675L 和 priceZ2 兩種別名
-    const priceZ2 =
-      legacyMarketData?.price00675L ?? legacyMarketData?.priceZ2 ?? 0;
+    const prices = {};
+
+    for (const asset of this.registry.getAllAssets()) {
+      const fieldName = this._getLegacyPriceFieldName(asset);
+      prices[asset.id] = legacyMarketData?.[`price${fieldName}`] ?? 0;
+    }
+
+    // 支援 priceZ2 別名 (00675L)
+    if (legacyMarketData?.priceZ2 !== undefined) {
+      prices["00675L"] = legacyMarketData.priceZ2;
+    }
 
     return {
-      prices: {
-        "0050": legacyMarketData?.price0050 ?? 0,
-        "00675L": priceZ2,
-      },
+      prices,
       vix: legacyMarketData?.vix ?? null,
       pb: legacyMarketData?.pb ?? null,
       currentRate: legacyMarketData?.currentRate ?? null,
@@ -250,48 +270,47 @@ export class SchemaMapper {
     const portfolio = newCtx?.portfolio || {};
     const assets = portfolio.assets || {};
 
-    return {
+    const legacy = {
       // 價格
-      price0050: prices["0050"] ?? 0,
-      price00675L: prices["00675L"] ?? 0,
-      currentPrice: prices["00675L"] ?? 0,
       basePrice: newCtx?.basePrice ?? 0,
-
-      // 投資組合
-      portfolio: {
-        qty0050: assets["0050"]?.qty ?? 0,
-        qtyZ2: assets["00675L"]?.qty ?? 0,
-        cash: portfolio.cash ?? 0,
-        totalLoan: portfolio.totalLoan ?? 0,
-        lastBuyDate: portfolio.lastBuyDate ?? null,
-      },
-
-      // 市場狀態
       vixArr: newCtx?.vixArr ?? [],
       vixData: newCtx?.vixData ?? {},
       ma60SlopeArr: newCtx?.ma60SlopeArr ?? [],
       closeArr: newCtx?.closeArr ?? [],
-
-      // 估值
       pbRecords: newCtx?.pbRecords ?? [],
       pbRecordsObjects: newCtx?.pbRecordsObjects ?? [],
       macroData: newCtx?.macroData ?? {},
-
-      // 總經
       macroMarketDirection: newCtx?.macroMarketDirection ?? "NEUTRAL",
-
-      // 守衛狀態
       valuationGuardState: newCtx?.valuationGuardState ?? {},
       cooldownStatus: newCtx?.cooldownStatus ?? {},
-
-      // 歷史資料
       history0050: newCtx?.history0050 ?? [],
       historyZ2: newCtx?.historyZ2 ?? [],
-
-      // 機構
       institutionalNet: newCtx?.institutionalNet ?? 0,
       institutionalHistory: newCtx?.institutionalHistory ?? [],
     };
+
+    // 動態生成價格欄位 (使用價格欄位名稱)
+    for (const asset of this.registry.getAllAssets()) {
+      const fieldName = this._getLegacyPriceFieldName(asset);
+      legacy[`price${fieldName}`] = prices[asset.id] ?? 0;
+    }
+
+    // currentPrice = 00675L 價格 (向後相容)
+    legacy.currentPrice = prices["00675L"] ?? 0;
+
+    // Portfolio (使用 portfolio 欄位名稱)
+    legacy.portfolio = {
+      cash: portfolio.cash ?? 0,
+      totalLoan: portfolio.totalLoan ?? 0,
+      lastBuyDate: portfolio.lastBuyDate ?? null,
+    };
+    for (const asset of this.registry.getAllAssets()) {
+      const fieldName = this._getLegacyFieldName(asset);
+      legacy.portfolio[`qty${fieldName}`] = assets[asset.id]?.qty ?? 0;
+      legacy.portfolio[`avgCost${fieldName}`] = assets[asset.id]?.avgCost ?? null;
+    }
+
+    return legacy;
   }
 
   /**
@@ -300,22 +319,29 @@ export class SchemaMapper {
    * @returns {Object}
    */
   fromLegacySignalContext(legacyCtx) {
+    const marketData = this.fromLegacyMarketData({
+      price0050: legacyCtx.price0050,
+      price00675L: legacyCtx.price00675L,
+      vix: legacyCtx.vixData?.value,
+      pb: legacyCtx.macroData?.rawValuation?.pb,
+      currentRate: legacyCtx.currentRate,
+      cnnScore: legacyCtx.cnnScore,
+      maintenanceRatio: legacyCtx.maintenanceRatio,
+    });
+
+    const portfolio = this.fromLegacyPortfolio({
+      qty0050: legacyCtx.portfolio?.qty0050,
+      qtyZ2: legacyCtx.portfolio?.qtyZ2,
+      cash: legacyCtx.portfolio?.cash,
+      totalLoan: legacyCtx.portfolio?.totalLoan,
+      avgCost0050: legacyCtx.portfolio?.avgCost0050,
+      avgCostZ2: legacyCtx.portfolio?.avgCostZ2,
+      lastBuyDate: legacyCtx.portfolio?.lastBuyDate,
+    });
+
     return {
-      marketData: this.fromLegacyMarketData({
-        price0050: legacyCtx.price0050,
-        price00675L: legacyCtx.price00675L,
-        vix: legacyCtx.vixData?.value,
-        pb: legacyCtx.macroData?.rawValuation?.pb,
-      }),
-      portfolio: this.fromLegacyPortfolio({
-        qty0050: legacyCtx.portfolio?.qty0050,
-        qtyZ2: legacyCtx.portfolio?.qtyZ2,
-        cash: legacyCtx.portfolio?.cash,
-        totalLoan: legacyCtx.portfolio?.totalLoan,
-        avgCost0050: legacyCtx.portfolio?.avgCost0050,
-        avgCostZ2: legacyCtx.portfolio?.avgCostZ2,
-        lastBuyDate: legacyCtx.portfolio?.lastBuyDate,
-      }),
+      marketData,
+      portfolio,
       basePrice: legacyCtx.basePrice,
       vixArr: legacyCtx.vixArr,
       vixData: legacyCtx.vixData,
@@ -332,6 +358,31 @@ export class SchemaMapper {
       institutionalNet: legacyCtx.institutionalNet,
       institutionalHistory: legacyCtx.institutionalHistory,
     };
+  }
+
+  // ==================== Helper Methods ====================
+
+  /**
+   * 取得資產的 legacy 欄位名稱 (用於 portfolio 欄位: qty, avgCost)
+   * @param {Object} asset
+   * @returns {string}
+   */
+  _getLegacyFieldName(asset) {
+    // 0050 -> 0050
+    // 00675L -> Z2 (特殊處理，向後相容 portfolio 欄位)
+    // 其他資產直接用 id
+    if (asset.id === "00675L") return "Z2";
+    return asset.id;
+  }
+
+  /**
+   * 取得資產的 legacy 價格欄位名稱 (用於 price 欄位)
+   * @param {Object} asset
+   * @returns {string}
+   */
+  _getLegacyPriceFieldName(asset) {
+    // 價格欄位直接使用 asset id
+    return asset.id;
   }
 }
 

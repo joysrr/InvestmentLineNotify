@@ -1,5 +1,5 @@
 <template>
-  <div class="pareto-panel">
+  <div class="pareto-panel" data-testid="pareto-panel">
     <!-- Header -->
     <div class="pareto-header">
       <h3 class="pareto-title">Pareto 前沿分析</h3>
@@ -7,7 +7,7 @@
     </div>
 
     <!-- Objective Selector -->
-    <div class="objective-selector">
+    <div class="objective-selector" data-testid="objective-selector">
       <label>優化目標 (雙目標)</label>
       <el-select
         v-model="objectives"
@@ -16,6 +16,7 @@
         style="width: 100%"
         collapse-tags
         :filterable="false"
+        data-testid="select-objectives"
       >
         <el-option
           v-for="obj in supportedObjectives"
@@ -35,13 +36,14 @@
     </div>
 
     <!-- Direction indicators -->
-        <div class="direction-indicators" v-if="objectives.length === 2">
+        <div class="direction-indicators" v-if="objectives.length === 2" data-testid="direction-indicators">
           <el-tag
             v-for="(obj, idx) in objectives"
             :key="idx"
             :type="getDirectionType(obj)"
             effect="dark"
             class="direction-tag"
+            data-testid="direction-tag"
           >
             <el-icon v-if="obj.direction === 'maximize'"><ArrowUp /></el-icon>
             <el-icon v-else><ArrowDown /></el-icon>
@@ -50,16 +52,17 @@
         </div>
 
     <!-- Scan Parameters -->
-    <div class="scan-params-section">
+    <div class="scan-params-section" data-testid="scan-params-section">
       <label>掃描參數 (2-5個)</label>
-      <div class="scan-params-list">
+      <div class="scan-params-list" data-testid="scan-params-list">
         <template v-for="(sp, idx) in scanParams" :key="idx">
-          <div class="scan-param-row">
+          <div class="scan-param-row" data-testid="scan-param-row">
             <el-select
               v-model="sp.path"
               :placeholder="`參數 ${idx + 1}`"
               style="width: 40%"
               clearable
+              data-testid="select-scan-param-path"
             >
               <el-option
                 v-for="param in scannableParams"
@@ -74,6 +77,7 @@
               :max="getScanParamMax(sp.path)"
               placeholder="最小"
               style="width: 25%"
+              data-testid="input-scan-param-min"
             />
             <el-input-number
               v-model="sp.range[1]"
@@ -81,6 +85,7 @@
               :max="getScanParamMax(sp.path)"
               placeholder="最大"
               style="width: 25%"
+              data-testid="input-scan-param-max"
             />
             <el-button
               size="small"
@@ -93,16 +98,16 @@
           </div>
         </template>
       </div>
-      <el-button size="small" @click="addScanParam" :disabled="scanParams.length >= 5">
+      <el-button size="small" @click="addScanParam" :disabled="scanParams.length >= 5" data-testid="btn-add-scan-param">
         <el-icon><Plus /></el-icon> 新增參數
       </el-button>
       <p class="hint">建議 2-3 個參數，最多 5 個</p>
     </div>
 
     <!-- Weight Sliders -->
-    <div class="weight-section" v-if="objectives.length === 2">
+    <div class="weight-section" v-if="objectives.length === 2" data-testid="weight-section">
       <label>目標權重 (膝點檢測用)</label>
-      <div class="weight-slider">
+      <div class="weight-slider" data-testid="weight-slider">
         <el-slider
           v-model="weight1"
           :min="0"
@@ -110,6 +115,7 @@
           :step="0.01"
           show-stops
           @change="onWeightChange"
+          data-testid="slider-weight1"
         >
           <template #default="{ value }">
             <span class="slider-label">
@@ -117,7 +123,7 @@
             </span>
           </template>
         </el-slider>
-        <span class="weight-display">
+        <span class="weight-display" data-testid="weight-display">
           {{ objectives[0]?.label }}: {{ (weight1 * 100).toFixed(0) }}% |
           {{ objectives[1]?.label }}: {{ (weight2 * 100).toFixed(0) }}%
         </span>
@@ -125,11 +131,11 @@
     </div>
 
     <!-- Sampling Config -->
-    <el-collapse v-model="samplingCollapse" class="sampling-section">
+    <el-collapse v-model="samplingCollapse" class="sampling-section" data-testid="sampling-collapse">
       <el-collapse-item name="1" title="採樣設定">
-        <div class="sampling-config">
+        <div class="sampling-config" data-testid="sampling-config">
           <el-form-item label="採樣方法" prop="method">
-            <el-select v-model="sampling.method" style="width: 100%">
+            <el-select v-model="sampling.method" style="width: 100%" data-testid="select-sampling-method">
               <el-option label="Latin Hypercube (推薦)" value="lhs" />
               <el-option label="隨機採樣" value="random" />
               <el-option label="網格採樣" value="grid" />
@@ -142,6 +148,7 @@
               :max="500"
               :step="10"
               style="width: 100%"
+              data-testid="input-sampling-samples"
             />
             <span class="hint">更多點 = 更精確但更慢 (建議 200-300)</span>
           </el-form-item>
@@ -150,7 +157,7 @@
     </el-collapse>
 
     <!-- Execute Button -->
-    <div class="execute-section">
+    <div class="execute-section" data-testid="execute-section">
       <el-button
         type="primary"
         size="large"
@@ -158,6 +165,7 @@
         :disabled="!canExecute"
         @click="executePareto"
         class="execute-btn"
+        data-testid="btn-execute"
       >
         <el-icon v-if="loading"><Loading /></el-icon>
         <el-icon v-else><Collection /></el-icon>
@@ -166,32 +174,32 @@
     </div>
 
     <!-- Progress -->
-    <div v-if="loading" class="progress-section">
-      <el-progress :percentage="progress" :stroke-width="12" show-text />
+    <div v-if="loading" class="progress-section" data-testid="progress-section">
+      <el-progress :percentage="progress" :stroke-width="12" show-text data-testid="progress-bar" />
     </div>
 
     <!-- Result -->
-    <div v-if="result" class="result-section">
+    <div v-if="result" class="result-section" data-testid="result-section">
       <!-- Knee Point Highlight -->
-      <div v-if="result.kneePoint" class="knee-point-card">
+      <div v-if="result.kneePoint" class="knee-point-card" data-testid="knee-point-card">
         <h4>🎯 膝點 (最佳折衷解)</h4>
-        <div class="knee-details">
-          <div class="knee-objectives">
+        <div class="knee-details" data-testid="knee-details">
+          <div class="knee-objectives" data-testid="knee-objectives">
             <span v-for="(val, key) in result.kneePoint.objectives" :key="key">
               {{ formatObjective(key, val) }}
             </span>
           </div>
-          <div class="knee-weights">
+          <div class="knee-weights" data-testid="knee-weights">
             權重分佈: {{ result.kneePoint.weights.map((w, i) => `${(w * 100).toFixed(0)}%`).join(' / ') }}
           </div>
         </div>
       </div>
 
       <!-- Pareto Scatter Chart -->
-      <ParetoScatterChart ref="paretoChart" :data="result" :objectives="objectives" :knee-point="result.kneePoint" />
+      <ParetoScatterChart ref="paretoChart" :data="result" :objectives="objectives" :knee-point="result.kneePoint" data-testid="pareto-scatter-chart" />
 
       <!-- Pareto Front Table -->
-      <div class="pareto-table-section">
+      <div class="pareto-table-section" data-testid="pareto-table-section">
         <h4>Pareto 前沿解 ({{ result.paretoFront?.length || 0 }} 個)</h4>
         <el-table
           :data="paretoTableData"
@@ -199,6 +207,7 @@
           stripe
           style="width: 100%"
           max-height="300"
+          data-testid="pareto-table"
         >
           <el-table-column prop="rank" label="序號" width="60" align="center" />
           <el-table-column
@@ -212,7 +221,7 @@
           <el-table-column
             v-for="(sp, idx) in scanParams"
             :key="idx"
-            :prop="`param_${sp.path.replace(/\./g, '_')}`"
+            :prop="`param_${sp.path.replace(/\\./g, '_')}`"
             :label="sp.path"
             width="120"
             align="center"
@@ -221,18 +230,19 @@
       </div>
 
       <!-- Export -->
-      <div class="export-section">
+      <div class="export-section" data-testid="export-section">
         <ExportButton
           :csvData="paretoTableData"
           :jsonData="result"
           :chartInstance="$refs.paretoChart?.chartInstance"
           :filename="'pareto-result'"
+          data-testid="export-btn"
         />
       </div>
     </div>
 
     <!-- Disclaimer -->
-    <div v-if="result" class="disclaimer">
+    <div v-if="result" class="disclaimer" data-testid="disclaimer">
       {{ result.disclaimer }}
     </div>
   </div>

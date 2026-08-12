@@ -1,9 +1,9 @@
 <template>
-  <div class="price-input">
+  <div class="price-input" data-testid="price-input">
     <!-- 0050 Price (Required) -->
-    <div class="input-group">
-      <label class="input-label">
-        <span class="label-text">0050 預估價格 <span class="required">*</span></span>
+    <div class="input-group" data-testid="price-input-group-0050">
+      <label class="input-label" data-testid="price-input-label-0050">
+        <span class="label-text">0050 � 預估�價格 <span class="required">*</span></span>
         <span class="label-hint">元</span>
       </label>
       <input
@@ -17,16 +17,17 @@
         step="0.01"
         @input="$emit('update:price0050', $event.target.value ? Number($event.target.value) : null)"
         @blur="validatePrice0050; recalculateZ2()"
+        data-testid="price-input-0050"
       />
-      <div v-if="price0050Warning" class="input-warning">{{ price0050Warning }}</div>
-      <div v-if="price0050Error" class="input-error">{{ price0050Error }}</div>
+      <div v-if="price0050Warning" class="input-warning" data-testid="price-input-warning-0050">{{ price0050Warning }}</div>
+      <div v-if="price0050Error" class="input-error" data-testid="price-input-error-0050">{{ price0050Error }}</div>
     </div>
 
     <!-- Z2 Price (Optional) -->
-    <div class="input-group">
-      <label class="input-label">
-        <span class="label-text">00675L 預估價格</span>
-        <span class="label-hint optional">選填，元</span>
+    <div class="input-group" data-testid="price-input-group-z2">
+      <label class="input-label" data-testid="price-input-label-z2">
+        <span class="label-text">00675L � 預估�價格</span>
+        <span class="label-hint optional">選�填，元</span>
       </label>
       <input
         type="number"
@@ -39,22 +40,24 @@
         step="0.01"
         @input="$emit('update:priceZ2', $event.target.value ? Number($event.target.value) : null)"
         @blur="validatePriceZ2"
+        data-testid="price-input-z2"
       />
-      <div v-if="priceZ2Warning" class="input-warning">{{ priceZ2Warning }}</div>
-      <div v-if="priceZ2Error" class="input-error">{{ priceZ2Error }}</div>
-      <div v-if="priceZ2 === null && price0050 && currentPrice0050 && currentPriceZ2" class="input-hint">
+      <div v-if="priceZ2Warning" class="input-warning" data-testid="price-input-warning-z2">{{ priceZ2Warning }}</div>
+      <div v-if="priceZ2Error" class="input-error" data-testid="price-input-error-z2">{{ priceZ2Error }}</div>
+      <div v-if="priceZ2 === null && price0050 && currentPrice0050 && currentPriceZ2" class="input-hint" data-testid="price-input-hint-z2">
         自動計算: {{ calculatedZ2.toFixed(2) }} 元 (同比例聯動)
       </div>
     </div>
 
     <!-- Quick Presets -->
-    <div v-if="currentPrice0050 && !disabled" class="preset-buttons">
-      <span class="preset-label">快速選擇:</span>
+    <div v-if="currentPrice0050 && !disabled" class="preset-buttons" data-testid="price-input-preset-buttons">
+      <span class="preset-label" data-testid="price-input-preset-label">快速選�擇:</span>
       <button
         v-for="pct in [-10, -5, 5, 10]"
         :key="pct"
         class="preset-btn"
         @click="applyPreset(pct)"
+        data-testid="price-input-preset-btn"
       >
         {{ pct > 0 ? '+' : '' }}{{ pct }}%
       </button>

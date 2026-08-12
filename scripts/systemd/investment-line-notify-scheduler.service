@@ -1,0 +1,36 @@
+# InvestmentLineNotify Scheduler Service
+# 安裝: sudo cp scripts/systemd/investment-line-notify-scheduler.service /etc/systemd/system/
+# 啟用: sudo systemctl enable investment-line-notify-scheduler
+# 啟動: sudo systemctl start investment-line-notify-scheduler
+
+[Unit]
+Description=InvestmentLineNotify Backtest Scheduler
+Documentation=https://github.com/joysrr/InvestmentLineNotify
+After=network.target investment-line-notify.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/data/projects/InvestmentLineNotify
+Environment=NODE_ENV=production
+EnvironmentFile=-/etc/investment-line-notify.env
+ExecStart=/usr/bin/node src/modules/backtest/backtestScheduler.mjs
+Restart=on-failure
+RestartSec=10
+StartLimitIntervalSec=60
+StartLimitBurst=3
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=investment-line-notify-scheduler
+# 安全性設定
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/data/projects/InvestmentLineNotify/data
+ReadWritePaths=/opt/data/projects/InvestmentLineNotify/logs
+
+[Install]
+WantedBy=multi-user.target

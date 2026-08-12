@@ -1,7 +1,7 @@
 <template>
-  <div class="forward-panel">
+  <div class="forward-panel" data-testid="forward-panel">
     <!-- Price Input -->
-    <div class="input-section">
+    <div class="input-section" data-testid="forward-input-section">
       <PriceInput
         :price0050="price0050"
         :priceZ2="priceZ2"
@@ -10,13 +10,15 @@
         :current-price-0050="currentPrice0050"
         :current-price-z2="currentPriceZ2"
         :disabled="loading"
+        data-testid="price-input"
       />
 
-      <div class="action-buttons">
+      <div class="action-buttons" data-testid="forward-action-buttons">
         <button
           class="btn btn-primary btn-lg"
           :disabled="loading || !price0050"
           @click="$emit('run')"
+          data-testid="btn-run-forward"
         >
           <span v-if="loading" class="btn-spinner"></span>
           <span v-else>執行模擬</span>
@@ -25,6 +27,7 @@
           class="btn btn-secondary"
           :disabled="loading"
           @click="$emit('clear')"
+          data-testid="btn-clear-forward"
         >
           清除結果
         </button>
@@ -32,21 +35,22 @@
     </div>
 
     <!-- Result -->
-    <div v-if="result" class="result-section">
-      <ForwardResultCard :result="result" />
+    <div v-if="result" class="result-section" data-testid="forward-result-section">
+      <ForwardResultCard :result="result" data-testid="forward-result-card" />
       <SimulatedIndicatorsTable
         v-if="result.indicators"
         :indicators="result.indicators"
+        data-testid="simulated-indicators-table"
       />
     </div>
 
     <!-- Error -->
-    <div v-if="error && !result" class="error-banner">
+    <div v-if="error && !result" class="error-banner" data-testid="forward-error-banner">
       {{ error }}
     </div>
 
     <!-- Loading Skeleton -->
-    <LoadingSkeleton v-if="loading" />
+    <LoadingSkeleton v-if="loading" data-testid="forward-loading-skeleton" />
   </div>
 </template>
 

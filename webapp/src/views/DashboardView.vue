@@ -36,14 +36,15 @@
           :class="{ active: currentTab === 'strategy-status' }"
           @click="currentTab = 'strategy-status'"
         >
-          策略狀態
+          策略�狀態
         </button>
         <button
           class="tab-item"
           :class="{ active: currentTab === 'simulator' }"
           @click="currentTab = 'simulator'"
+          data-testid="simulator-tab"
         >
-          模擬器
+          ��� � � 模���擬器
         </button>
         <button
           class="tab-item"

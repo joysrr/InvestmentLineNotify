@@ -1,5 +1,5 @@
 <template>
-  <div class="mode-selector">
+  <div class="mode-selector" data-testid="mode-selector">
     <div class="mode-tabs">
       <button
         class="mode-tab"

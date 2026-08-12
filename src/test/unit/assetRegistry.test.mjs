@@ -85,6 +85,42 @@ describe("AssetRegistry", () => {
         registry.registerAsset({ id: "0050" }); // 缺 symbol
       }).toThrow("Asset symbol is required");
     });
+
+    it("無效 type 應拋出錯誤", () => {
+      expect(() => {
+        registry.registerAsset({
+          id: "0050",
+          symbol: "0050.TW",
+          type: "INVALID",
+        });
+      }).toThrow("Invalid asset type");
+    });
+
+    it("槓桿倍數必須為正數", () => {
+      expect(() => {
+        registry.registerAsset({
+          id: "0050",
+          symbol: "0050.TW",
+          type: ASSET_TYPES.BASE,
+          leverage: -1,
+        });
+      }).toThrow("Asset leverage must be a positive number");
+    });
+
+    it("註冊時應設定預設值", () => {
+      registry.registerAsset({
+        id: "TEST",
+        symbol: "TEST.TW",
+        type: ASSET_TYPES.BASE,
+      });
+
+      const asset = registry.getAsset("TEST");
+      expect(asset.leverage).toBe(1);
+      expect(asset.isDca).toBe(false);
+      expect(asset.sellable).toBe(false);
+      expect(asset.splitHistory).toEqual([]);
+      expect(asset.createdAt).toBeDefined();
+    });
   });
 
   describe("getAsset()", () => {
@@ -118,6 +154,10 @@ describe("AssetRegistry", () => {
       expect(assets.map((a) => a.id)).toContain("0050");
       expect(assets.map((a) => a.id)).toContain("00675L");
     });
+
+    it("空註冊表應回傳空陣列", () => {
+      expect(registry.getAllAssets()).toEqual([]);
+    });
   });
 
   describe("getAssetsByType()", () => {
@@ -150,6 +190,14 @@ describe("AssetRegistry", () => {
       const baseAssets = registry.getAssetsByType(ASSET_TYPES.BASE);
       expect(baseAssets).toHaveLength(2);
       expect(baseAssets.every((a) => a.type === ASSET_TYPES.BASE)).toBe(true);
+
+      const leveragedAssets = registry.getAssetsByType(ASSET_TYPES.LEVERAGED);
+      expect(leveragedAssets).toHaveLength(1);
+      expect(leveragedAssets[0].id).toBe("00675L");
+    });
+
+    it("不存在的類型應回傳空陣列", () => {
+      expect(registry.getAssetsByType("NONEXISTENT")).toEqual([]);
     });
   });
 
@@ -200,6 +248,119 @@ describe("AssetRegistry", () => {
       const sellableAssets = registry.getSellableAssets();
       expect(sellableAssets).toHaveLength(1);
       expect(sellableAssets[0].id).toBe("00675L");
+    });
+  });
+
+  describe("getPledgeableAssets()", () => {
+    it("應只回傳可質押的資產 (BASE 類型)", () => {
+      registry.registerAsset({
+        id: "0050",
+        symbol: "0050.TW",
+        type: ASSET_TYPES.BASE,
+        leverage: 1,
+        isDca: true,
+        sellable: false,
+      });
+      registry.registerAsset({
+        id: "00675L",
+        symbol: "00675L.TW",
+        type: ASSET_TYPES.LEVERAGED,
+        leverage: 2,
+        isDca: false,
+        sellable: true,
+      });
+      registry.registerAsset({
+        id: "CASH",
+        symbol: "CASH",
+        type: ASSET_TYPES.CASH,
+        leverage: 1,
+        isDca: false,
+        sellable: false,
+      });
+
+      const pledgeableAssets = registry.getPledgeableAssets();
+      expect(pledgeableAssets).toHaveLength(1);
+      expect(pledgeableAssets[0].id).toBe("0050");
+      expect(pledgeableAssets[0].type).toBe(ASSET_TYPES.BASE);
+    });
+  });
+
+  describe("getLeveragedAssets()", () => {
+    it("應只回傳槓桿資產 (LEVERAGED 類型)", () => {
+      registry.registerAsset({
+        id: "0050",
+        symbol: "0050.TW",
+        type: ASSET_TYPES.BASE,
+        leverage: 1,
+        isDca: true,
+        sellable: false,
+      });
+      registry.registerAsset({
+        id: "00675L",
+        symbol: "00675L.TW",
+        type: ASSET_TYPES.LEVERAGED,
+        leverage: 2,
+        isDca: false,
+        sellable: true,
+      });
+
+      const leveragedAssets = registry.getLeveragedAssets();
+      expect(leveragedAssets).toHaveLength(1);
+      expect(leveragedAssets[0].id).toBe("00675L");
+      expect(leveragedAssets[0].type).toBe(ASSET_TYPES.LEVERAGED);
+    });
+  });
+
+  describe("hasAsset()", () => {
+    it("存在的資產應回傳 true", () => {
+      registry.registerAsset({
+        id: "0050",
+        symbol: "0050.TW",
+        type: ASSET_TYPES.BASE,
+      });
+      expect(registry.hasAsset("0050")).toBe(true);
+    });
+
+    it("不存在的資產應回傳 false", () => {
+      expect(registry.hasAsset("NONEXISTENT")).toBe(false);
+    });
+  });
+
+  describe("removeAsset()", () => {
+    it("應能移除已註冊資產", () => {
+      registry.registerAsset({
+        id: "0050",
+        symbol: "0050.TW",
+        type: ASSET_TYPES.BASE,
+      });
+      expect(registry.hasAsset("0050")).toBe(true);
+
+      registry.removeAsset("0050");
+      expect(registry.hasAsset("0050")).toBe(false);
+      expect(registry.getAsset("0050")).toBeUndefined();
+    });
+
+    it("移除不存在資產不應拋錯", () => {
+      expect(() => registry.removeAsset("NONEXISTENT")).not.toThrow();
+    });
+  });
+
+  describe("clear()", () => {
+    it("應清空所有資產", () => {
+      registry.registerAsset({
+        id: "0050",
+        symbol: "0050.TW",
+        type: ASSET_TYPES.BASE,
+      });
+      registry.registerAsset({
+        id: "00675L",
+        symbol: "00675L.TW",
+        type: ASSET_TYPES.LEVERAGED,
+      });
+
+      registry.clear();
+      expect(registry.getAllAssets()).toEqual([]);
+      expect(registry.hasAsset("0050")).toBe(false);
     });
   });
 });
@@ -329,6 +490,72 @@ describe("SchemaMapper", () => {
     });
   });
 
+  describe("toLegacySignalContext()", () => {
+    it("應將新格式 SignalContext 轉換為舊格式", () => {
+      const newCtx = {
+        marketData: { prices: { "0050": 150, "00675L": 300 } },
+        portfolio: { assets: { "0050": { qty: 1000 }, "00675L": { qty: 500 } }, cash: 50000, totalLoan: 100000 },
+        basePrice: 250,
+        vixArr: [20, 22],
+        vixData: { value: 20 },
+        ma60SlopeArr: [0.1],
+        closeArr: [150, 151],
+        pbRecords: [],
+        pbRecordsObjects: [],
+        macroData: {},
+        macroMarketDirection: "BULL",
+        valuationGuardState: {},
+        cooldownStatus: { inCooldown: false },
+        history0050: [],
+        historyZ2: [],
+        institutionalNet: 0,
+        institutionalHistory: [],
+      };
+
+      const legacy = mapper.toLegacySignalContext(newCtx);
+
+      expect(legacy.price0050).toBe(150);
+      expect(legacy.price00675L).toBe(300);
+      expect(legacy.currentPrice).toBe(300);
+      expect(legacy.portfolio.qty0050).toBe(1000);
+      expect(legacy.portfolio.qtyZ2).toBe(500);
+      expect(legacy.basePrice).toBe(250);
+    });
+  });
+
+  describe("fromLegacySignalContext()", () => {
+    it("應將舊格式 SignalContext 轉換為新格式", () => {
+      const legacyCtx = {
+        price0050: 150,
+        price00675L: 300,
+        vixData: { value: 20 },
+        macroData: { rawValuation: { pb: 2.5 } },
+        portfolio: { qty0050: 1000, qtyZ2: 500, cash: 50000, totalLoan: 100000, avgCost0050: 100, avgCostZ2: 200, lastBuyDate: "2024-01-01" },
+        basePrice: 250,
+        vixArr: [20],
+        ma60SlopeArr: [0.1],
+        closeArr: [150],
+        pbRecords: [],
+        pbRecordsObjects: [],
+        macroData: {},
+        macroMarketDirection: "BULL",
+        valuationGuardState: {},
+        cooldownStatus: { inCooldown: false },
+        history0050: [],
+        historyZ2: [],
+        institutionalNet: 0,
+        institutionalHistory: [],
+      };
+
+      const newCtx = mapper.fromLegacySignalContext(legacyCtx);
+
+      expect(newCtx.marketData.prices["0050"]).toBe(150);
+      expect(newCtx.marketData.prices["00675L"]).toBe(300);
+      expect(newCtx.portfolio.assets["0050"].qty).toBe(1000);
+      expect(newCtx.basePrice).toBe(250);
+    });
+  });
+
   describe("雙向轉換一致性", () => {
     it("portfolio 雙向轉換應保持資料完整", () => {
       const original = {
@@ -397,6 +624,60 @@ describe("validateAssetConfig()", () => {
     };
     expect(() => validateAssetConfig(config)).toThrow(
       "Asset leverage must be a positive number",
+    );
+  });
+
+  it("isDca 必須是布林值", () => {
+    const config = {
+      id: "0050",
+      symbol: "0050.TW",
+      type: ASSET_TYPES.BASE,
+      isDca: "true",
+    };
+    expect(() => validateAssetConfig(config)).toThrow("isDca must be a boolean");
+  });
+
+  it("sellable 必須是布林值", () => {
+    const config = {
+      id: "0050",
+      symbol: "0050.TW",
+      type: ASSET_TYPES.BASE,
+      sellable: "false",
+    };
+    expect(() => validateAssetConfig(config)).toThrow("sellable must be a boolean");
+  });
+
+  it("splitHistory 必須是陣列", () => {
+    const config = {
+      id: "0050",
+      symbol: "0050.TW",
+      type: ASSET_TYPES.BASE,
+      splitHistory: "invalid",
+    };
+    expect(() => validateAssetConfig(config)).toThrow("splitHistory must be an array");
+  });
+
+  it("splitHistory 項目必須有 date 和 ratio", () => {
+    const config = {
+      id: "0050",
+      symbol: "0050.TW",
+      type: ASSET_TYPES.BASE,
+      splitHistory: [{ date: "2025-01-01" }], // 缺 ratio
+    };
+    expect(() => validateAssetConfig(config)).toThrow(
+      "splitHistory items must have date (string) and ratio (number)",
+    );
+  });
+
+  it("ratio 必須是數字", () => {
+    const config = {
+      id: "0050",
+      symbol: "0050.TW",
+      type: ASSET_TYPES.BASE,
+      splitHistory: [{ date: "2025-01-01", ratio: "4" }], // ratio 是字串
+    };
+    expect(() => validateAssetConfig(config)).toThrow(
+      "splitHistory items must have date (string) and ratio (number)",
     );
   });
 });
