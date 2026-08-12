@@ -59,14 +59,15 @@ archiveManager.getArchiveRecords(dateRange)
 
 | 階段 | 預估工時 | 優先級 | 狀態 | 關鍵決策 |
 |------|----------|--------|------|----------|
-| **5.1** 測試環境修復與穩定化 | 3h | 🟡 High | ⏳ | DEC-28: Mock 方案 |
-| **5.2** 既有整合測試基礎設施修復 | 5h | 🟡 High | ⏳ | DEC-29: 統一 .mjs 副檔名 |
-| **5.3** dogfood 探索式 QA 報告補齊 | 3h | 🟢 Low | ⏳ | DEC-30: 核心 API + 3 頁面 |
-| **5.4** Coverage 門檻實際驗證與提升 | 4h+ | 🟡 Medium | ⏳ | DEC-31: 先基準測再定工時 |
-| **5.5** 文件完善與架構決策補充 | 2h | 🟢 Low | ⏳ | DEC-32: DEC 格式記錄 |
-| **5.6** 既有程式碼品質問題修復 | 5h | 🟡 Medium | ⏳ | DEC-33: vitest globals、DEC-34: 暫緩 warnings |
+| **5.1** 測試環境修復與穩定化 | 3h | 🟡 High | ⏳ | DEC-28/35: Mock 最小集合 |
+| **5.2** 既有整合測試基礎設施修復 | 5h | 🟡 High | ⏳ | DEC-29: 全面統一 .mjs |
+| **5.3** dogfood 探索式 QA 報告補齊 | 3h | 🟢 Low | ⏳ | DEC-30: Playwright 自訂腳本 |
+| **5.4** Coverage 門檻實際驗證與提升 | 4h+ | 🟡 Medium | ⏳ | DEC-31: 先補 thresholds 再基準測 |
+| **5.5** 文件完善與架構決策補充 | 2h | 🟢 Low | ⏳ | DEC-32: DEC 輕量格式 |
+| **5.6** 既有程式碼品質問題修復 | 5h | 🟡 Medium | ⏳ | DEC-33/34/36/37: vitest globals、暫緩 warnings、分類清理、排除 archive |
 
 > **DEC-27**: 既有程式碼品質問題納入 Phase 5.6 統一修復
+> **DoD**: 5 條門檻 (測試綠燈、ESLint 0 errors、Prettier pass、Coverage≥80%、Dogfood報告)
 > **註**: 5.4 總工時待基準測確認；建議循序執行，預估 3-4 工作天
 
 ---

@@ -19,7 +19,7 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 
 | 任務 | 優先級 | 預估工時 | 說明 |
 |------|--------|----------|------|
-| **5.1.1** 修復 backtestScheduler 測試資料問題 | 🟡 Medium | **1h** ⬅️ 從 2h 調整 | **Mock `backtestRunner.run()` 回傳固定結果** (DEC-28)，不建立測試資料庫種子 |
+| **5.1.1** 修復 backtestScheduler 測試資料問題 | 🟡 Medium | **1h** ⬅️ 從 2h 調整 | **Mock `backtestRunner.run()` 回傳固定結果** (DEC-28)，不建立測試資料庫種子，**最小集合**：只 Mock `metrics: { totalReturn, winRate, maxDrawdown }`，其他依測試需求擴充 (DEC-35) |
 | **5.1.2** 清理 deploy.test.mjs 背景 async 清理 | 🟢 Low | 1h | 在 `afterAll` 中等待所有部署任務完成並釋放鎖 |
 | **5.1.3** 統一測試超時設定 | 🟢 Low | 1h | vitest.config.mjs 設定 `testTimeout`、`hookTimeout` 適應長跑測試 |
 
@@ -38,7 +38,7 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 | 任務 | 優先級 | 預估工時 | 說明 |
 |------|--------|----------|------|
 | **5.2.1** 修復 `apiContract.test.mjs` - `app.close()` undefined | 🟡 Medium | 1h | 檢查 app 建立邏輯，確保正確匯出 close 方法 |
-| **5.2.2** 修復 `backtestRoutes.test.mjs` / `strategyStatus.test.mjs` - Vite 解析失敗 | 🟡 Medium | **1.5h** ⬅️ 從 2h 調整 | **統一副檔名為 .mjs** (DEC-29)，不使用 .ts，修正 import 路徑 |
+| **5.2.2** 修復 `backtestRoutes.test.mjs` / `strategyStatus.test.mjs` - Vite 解析失敗 | 🟡 Medium | **1.5h** ⬅️ 從 2h 調整 | **專案全面統一 .mjs 副檔名** (DEC-29)，包含源檔與測試檔，修正所有 import 路徑，配合 vitest/esbuild transform 處理 |
 | **5.2.3** 修復 `dataIntegrity.test.mjs` - Hook timeout | 🟢 Low | 1h | 增加 hookTimeout 或優化資料載入邏輯 |
 | **5.2.4** 修復 `test_import.test.mjs` / `test_scheduler_direct.test.mjs` - 舊 import 路徑 | 🟢 Low | **0.5h** ⬅️ 從 1h 調整 | 更新 import 路徑指向 `.mjs` 檔案，移除過時測試檔 |
 | **5.2.5** 整合測試執行驗證 | 🟢 Low | 1h | 執行 `npx vitest run src/test/integration` 全綠燈 |
@@ -57,7 +57,7 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 
 | 任務 | 優先級 | 預估工時 | 說明 |
 |------|--------|----------|------|
-| **5.3.1** 執行 dogfood 掃描 Vite dev server + API server | 🟢 Low | 1h | 使用 `dogfood` skill 掃描全流程，**範圍：核心 API + 關鍵頁面 3 個 (Dashboard/Simulator/Account)** (DEC-30) |
+| **5.3.1** 執行 dogfood 掃描 Vite dev server + API server | 🟢 Low | 1h | 使用 **Playwright 自訂腳本** (DEC-30) 掃描核心 API + 關鍵頁面 3 個 (Dashboard/Simulator/Account)，檢測 Console 錯誤/網路失敗/JS 例外 |
 | **5.3.2** 整理 Bug 分類報告 (Critical/High/Medium/Low) | 🟢 Low | 1h | 含截圖、Console 錯誤、重現步驟 |
 | **5.3.3** 輸出 `dogfood-output/report.md` | 🟢 Low | 1h | 符合 Phase 4.2 計畫格式要求 |
 
@@ -75,7 +75,7 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 
 | 任務 | 優先級 | 預估工時 | 說明 |
 |------|--------|----------|------|
-| **5.4.1** 執行覆蓋率測試並生成報告 | 🟡 Medium | **0.5h** ⬅️ 從 1h 調整 | `npx vitest run --coverage`，**先跑基準測確認現況** (DEC-31) |
+| **5.4.1** 執行覆蓋率測試並生成報告 | 🟡 Medium | **0.5h** ⬅️ 從 1h 調整 | `npx vitest run --coverage`，**先檢查並補上 thresholds 配置 (lines:80, functions:80, branches:80)** (DEC-31)，再跑基準測確認現況 |
 | **5.4.2** 分析覆蓋率缺口，補齊關鍵路徑測試 | 🟡 Medium | **待基準測確認** ⬅️ 從 2h 調整 | 針對 lines < 80% 的模組補測試，**工時視基準測結果調整** |
 | **5.4.3** 驗證 CI 環境覆蓋率門檻生效 | 🟢 Low | 1h | 確認 vitest.config coverage thresholds 設定正確 |
 
@@ -109,15 +109,31 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 
 | 任務 | 優先級 | 預估工時 | 說明 |
 |------|--------|----------|------|
-| **5.6.1** 修復 ESLint Errors (9 errors) | 🟡 Medium | **2h** ⬅️ 從 3h 調整 | - `backtestRoutes.mjs` 解析錯誤 (多餘大括號)\n- `metricsCollector.mjs` Duplicate reset()\n- `assetRegistry.test.mjs` Duplicate key 'macroData'\n- `strategyEngine.test.mjs` Duplicate keys (indicators, marketStatus, trailingActive)\n- `test_import.test.mjs` **啟用 vitest globals 配置** (DEC-33)，一次修好所有測試檔 |
-| **5.6.2** 清理 ESLint Warnings (61 warnings) | 🟢 Low | **2h** | 未使用變數、未使用 import、參數前綴 `_` 規範，**分批清理** |
-| **5.6.3** Prettier 格式化全專案 | 🟢 Low | **1h** | 執行 `npx prettier --write .` 統一格式 |
+| **5.6.1** 修復 ESLint Errors (9 errors) | 🟡 Medium | **2h** ⬅️ 從 3h 調整 | - `backtestRoutes.mjs` 解析錯誤 (多餘大括號)\n- `metricsCollector.mjs` Duplicate reset()\n- `assetRegistry.test.mjs` Duplicate key 'macroData'\n- `strategyEngine.test.mjs` Duplicate keys (indicators, marketStatus, trailingActive)\n- `test_import.test.mjs` **先 grep 檢查現有 vitest import 情況，再決定是否啟用 globals 配置** (DEC-33)，避免重複宣告衝突 |
+| **5.6.2** 清理 ESLint Warnings (61 warnings) | 🟢 Low | **2h** | **分類處理** (DEC-36)：1) `_` 前綴參數自動修復 (`eslint --fix`)；2) 真正未使用的 import/變數手動刪除；3) 測試檔 `vi`/`beforeAll`/測試框架需要的保留 |
+| **5.6.3** Prettier 格式化全專案 | 🟢 Low | **1h** | 執行 `npx prettier --write . --ignore-path .prettierignore`，**排除 `archive/`、`docs/plans/archive/` 歷史文件** (DEC-37)，只格式化 `src/`、`webapp/`、`scripts/`、`*.config.*` 等作用中代碼 |
 | **5.6.4** Husky pre-commit hook 調整 | 🟢 Low | **0.5h** | **暫時關閉 `--max-warnings=0`** (DEC-34)，Phase 5.6 完成後再啟用 |
 
 ### 驗收標準
 - [ ] `npx eslint src/` 零 error (warnings 可接受)
 - [ ] `npx prettier --check .` 通過
 - [ ] Husky pre-commit hook 正常通過
+
+---
+
+## ✅ Phase 5 完成定義 (Definition of Done)
+
+完成所有 Phase 5 任務後，必須同時滿足以下 5 條門檻：
+
+| # | 驗收項目 | 指令驗證 |
+|---|----------|----------|
+| 1 | **所有測試綠燈** (含整合測試) | `npx vitest run` → 0 failed |
+| 2 | **ESLint zero errors** | `npx eslint src/` → 0 errors |
+| 3 | **Prettier 格式通過** | `npx prettier --check .` → pass |
+| 4 | **前端 Coverage ≥ 80%** | `npx vitest run --coverage` → lines/functions/branches ≥ 80% |
+| 5 | **Dogfood 報告產出** | `dogfood-output/report.md` 存在且格式完整 |
+
+> **註**: 以上 5 條為 Phase 5 整體交付門檻 (DoD)，缺一不可。
 
 ---
 
@@ -164,12 +180,15 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 | DEC-26 | 整合測試基礎設施修復優先於新功能開發 | ✅ | 2026-08-12 |
 | DEC-27 | 既有程式碼品質問題 (ESLint/Prettier) 納入 Phase 5.6 統一修復 | ✅ | 2026-08-12 |
 | DEC-28 | 5.1.1 採 Mock 方案：Mock `backtestRunner.run()` 回傳固定結果，不建立測試資料庫種子 | ✅ | 2026-08-12 |
-| DEC-29 | 5.2.2 統一副檔名為 .mjs，不使用 .ts，修正 import 路徑 | ✅ | 2026-08-12 |
-| DEC-30 | 5.3.1 dogfood 掃描範圍：核心 API + 關鍵頁面 3 個 (Dashboard/Simulator/Account) | ✅ | 2026-08-12 |
-| DEC-31 | 5.4.1 先執行覆蓋率基準測，5.4.2 工時視基準測結果調整 | ✅ | 2026-08-12 |
-| DEC-32 | 5.5.1 Phase 4 架構決策記錄為 DEC-28/29/30 輕量格式，不建立正式 ADR | ✅ | 2026-08-12 |
-| DEC-33 | 5.6.1 啟用 vitest globals 配置，一次修好所有測試檔 undefined globals 問題 | ✅ | 2026-08-12 |
+| DEC-29 | 5.2.2 專案全面統一 .mjs 副檔名，包含源檔與測試檔 | ✅ | 2026-08-12 |
+| DEC-30 | 5.3.1 dogfood 掃描用 Playwright 自訂腳本，範圍：核心 API + 3 頁面 | ✅ | 2026-08-12 |
+| DEC-31 | 5.4.1 先檢查並補上 coverage thresholds 配置 (80/80/80)，再跑基準測 | ✅ | 2026-08-12 |
+| DEC-32 | 5.5.1 Phase 4 架構決策記錄為 DEC 輕量格式，不建立正式 ADR | ✅ | 2026-08-12 |
+| DEC-33 | 5.6.1 先 grep 檢查現有 vitest import 情況，再決定是否啟用 globals 配置 | ✅ | 2026-08-12 |
 | DEC-34 | 5.6.4 暫時關閉 husky `--max-warnings=0`，Phase 5.6 完成後再啟用 | ✅ | 2026-08-12 |
+| DEC-35 | 5.1.1 Mock 最小集合：只 Mock `metrics` 關鍵指標，依測試需求擴充 | ✅ | 2026-08-12 |
+| DEC-36 | 5.6.2 Warnings 分類處理：自動修復 `_` 前綴、手動清理未使用、保留測試框架需要 | ✅ | 2026-08-12 |
+| DEC-37 | 5.6.3 Prettier 排除 archive/ 歷史文件，只格式化作用中代碼 | ✅ | 2026-08-12 |
 
 ---
 
