@@ -64,7 +64,7 @@ archiveManager.getArchiveRecords(dateRange)
 | **5.3** dogfood 探索式 QA 報告補齊 | 3h | 🟢 Low | ⏳ | DEC-30/40: Playwright 自訂腳本、不並行 |
 | **5.4** Coverage 門檻實際驗證與提升 | 4h+ | 🟡 Medium | ⏳ | DEC-31/39: 先補 thresholds、分階段門檻、6h 上限 |
 | **5.5** 文件完善與架構決策補充 | 2h | 🟢 Low | ⏳ | DEC-32: DEC 輕量格式 |
-| **5.6** 既有程式碼品質問題修復 | 5h | 🟡 Medium | ⏳ | DEC-33/34/36/37: vitest globals、暫緩 warnings、分類清理、排除 archive |
+| **5.6** 既有程式碼品質問題修復 | 5h | 🟡 Medium | 🔄 進行中 (5.6.1/3/4 完成) | DEC-33/34/36/37: vitest globals、暫緩 warnings、分類清理、排除 archive |
 
 > **DEC-27**: 既有程式碼品質問題納入 Phase 5.6 統一修復
 > **DoD**: 5 條門檻 (測試綠燈、ESLint 0 errors、Prettier pass、Coverage≥70%(P5)/80%(P6)、Dogfood報告)

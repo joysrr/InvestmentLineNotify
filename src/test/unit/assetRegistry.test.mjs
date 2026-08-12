@@ -494,7 +494,11 @@ describe("SchemaMapper", () => {
     it("應將新格式 SignalContext 轉換為舊格式", () => {
       const newCtx = {
         marketData: { prices: { "0050": 150, "00675L": 300 } },
-        portfolio: { assets: { "0050": { qty: 1000 }, "00675L": { qty: 500 } }, cash: 50000, totalLoan: 100000 },
+        portfolio: {
+          assets: { "0050": { qty: 1000 }, "00675L": { qty: 500 } },
+          cash: 50000,
+          totalLoan: 100000,
+        },
         basePrice: 250,
         vixArr: [20, 22],
         vixData: { value: 20 },
@@ -530,14 +534,21 @@ describe("SchemaMapper", () => {
         price00675L: 300,
         vixData: { value: 20 },
         macroData: { rawValuation: { pb: 2.5 } },
-        portfolio: { qty0050: 1000, qtyZ2: 500, cash: 50000, totalLoan: 100000, avgCost0050: 100, avgCostZ2: 200, lastBuyDate: "2024-01-01" },
+        portfolio: {
+          qty0050: 1000,
+          qtyZ2: 500,
+          cash: 50000,
+          totalLoan: 100000,
+          avgCost0050: 100,
+          avgCostZ2: 200,
+          lastBuyDate: "2024-01-01",
+        },
         basePrice: 250,
         vixArr: [20],
         ma60SlopeArr: [0.1],
         closeArr: [150],
         pbRecords: [],
         pbRecordsObjects: [],
-        macroData: {},
         macroMarketDirection: "BULL",
         valuationGuardState: {},
         cooldownStatus: { inCooldown: false },
@@ -634,7 +645,9 @@ describe("validateAssetConfig()", () => {
       type: ASSET_TYPES.BASE,
       isDca: "true",
     };
-    expect(() => validateAssetConfig(config)).toThrow("isDca must be a boolean");
+    expect(() => validateAssetConfig(config)).toThrow(
+      "isDca must be a boolean",
+    );
   });
 
   it("sellable 必須是布林值", () => {
@@ -644,7 +657,9 @@ describe("validateAssetConfig()", () => {
       type: ASSET_TYPES.BASE,
       sellable: "false",
     };
-    expect(() => validateAssetConfig(config)).toThrow("sellable must be a boolean");
+    expect(() => validateAssetConfig(config)).toThrow(
+      "sellable must be a boolean",
+    );
   });
 
   it("splitHistory 必須是陣列", () => {
@@ -654,7 +669,9 @@ describe("validateAssetConfig()", () => {
       type: ASSET_TYPES.BASE,
       splitHistory: "invalid",
     };
-    expect(() => validateAssetConfig(config)).toThrow("splitHistory must be an array");
+    expect(() => validateAssetConfig(config)).toThrow(
+      "splitHistory must be an array",
+    );
   });
 
   it("splitHistory 項目必須有 date 和 ratio", () => {

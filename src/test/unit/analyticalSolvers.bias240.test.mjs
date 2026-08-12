@@ -72,7 +72,9 @@ describe("MA240 Bias 容忍度與邊界條件 (TD-004)", () => {
 
       expect(result.achievable).toBe(true);
       expect(result.method).toBe("analytical_verified");
-      expect(Math.abs(result.achievedValue - targetBias)).toBeLessThanOrEqual(0.1);
+      expect(Math.abs(result.achievedValue - targetBias)).toBeLessThanOrEqual(
+        0.1,
+      );
     });
 
     it("應標記為近似解當誤差 > 0.1%", async () => {
@@ -137,7 +139,9 @@ describe("MA240 Bias 容忍度與邊界條件 (TD-004)", () => {
       );
 
       expect(result.achievable).toBe(true);
-      expect(closeArr.length).toBeGreaterThanOrEqual(MA240_FALLBACK_THRESHOLDS.FULL);
+      expect(closeArr.length).toBeGreaterThanOrEqual(
+        MA240_FALLBACK_THRESHOLDS.FULL,
+      );
     });
 
     it("資料 60-239 筆應使用 MA60 PROXY", async () => {
@@ -157,7 +161,9 @@ describe("MA240 Bias 容忍度與邊界條件 (TD-004)", () => {
       );
 
       expect(result.achievable).toBe(true);
-      expect(closeArr.length).toBeGreaterThanOrEqual(MA240_FALLBACK_THRESHOLDS.MA60_PROXY);
+      expect(closeArr.length).toBeGreaterThanOrEqual(
+        MA240_FALLBACK_THRESHOLDS.MA60_PROXY,
+      );
       expect(closeArr.length).toBeLessThan(MA240_FALLBACK_THRESHOLDS.FULL);
     });
 
@@ -178,8 +184,12 @@ describe("MA240 Bias 容忍度與邊界條件 (TD-004)", () => {
       );
 
       expect(result.achievable).toBe(true);
-      expect(closeArr.length).toBeGreaterThanOrEqual(MA240_FALLBACK_THRESHOLDS.MA20_PROXY);
-      expect(closeArr.length).toBeLessThan(MA240_FALLBACK_THRESHOLDS.MA60_PROXY);
+      expect(closeArr.length).toBeGreaterThanOrEqual(
+        MA240_FALLBACK_THRESHOLDS.MA20_PROXY,
+      );
+      expect(closeArr.length).toBeLessThan(
+        MA240_FALLBACK_THRESHOLDS.MA60_PROXY,
+      );
     });
 
     it("資料 < 20 筆應回傳失敗", async () => {
@@ -386,8 +396,14 @@ describe("MA240 Bias 容忍度與邊界條件 (TD-004)", () => {
   describe("stock split 後 MA240 計算", () => {
     it("分割後價格序列應正確計算 MA240", async () => {
       // 模擬 0050 分割後的價格序列 (1拆4)
-      const preSplitPrices = Array.from({ length: 150 }, (_, i) => 600 + i * 0.1); // 分割前價格 ~600
-      const postSplitPrices = Array.from({ length: 100 }, (_, i) => 150 + i * 0.1); // 分割後價格 ~150
+      const preSplitPrices = Array.from(
+        { length: 150 },
+        (_, i) => 600 + i * 0.1,
+      ); // 分割前價格 ~600
+      const postSplitPrices = Array.from(
+        { length: 100 },
+        (_, i) => 150 + i * 0.1,
+      ); // 分割後價格 ~150
       const closeArr = [...preSplitPrices, ...postSplitPrices];
 
       const targetBias = 5;

@@ -460,7 +460,7 @@ function buildEngineContext(data, derived) {
     priceUpPercent,
     priceDropPercent,
     currentPrice: data.currentPrice,
-    basePrice: data.basePrice ?? data.price0050,  // fallback to price0050 for backward compat
+    basePrice: data.basePrice ?? data.price0050, // fallback to price0050 for backward compat
     maintenanceMargin,
     z2Ratio,
     netAsset,
@@ -618,4 +618,10 @@ function formatSignalOutput(ctx, finalDecision, derived) {
     portfolio: ctx.portfolio,
   };
 }
-export { buildEngineContext, formatSignalOutput, determineSignalCategory, determineSignalType, applyBudgetSynergy };
+export {
+  buildEngineContext,
+  formatSignalOutput,
+  determineSignalCategory,
+  determineSignalType,
+  applyBudgetSynergy,
+};

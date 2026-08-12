@@ -89,12 +89,10 @@ export default async function configRoute(fastify) {
           { errors: validationResult.errors },
           "[ConfigRouter] 儲存失敗: ConfigMeta 驗證未通過",
         );
-        return reply
-          .status(400)
-          .send({
-            error: "欄位驗證失敗",
-            details: validationResult.errors.join("; "),
-          });
+        return reply.status(400).send({
+          error: "欄位驗證失敗",
+          details: validationResult.errors.join("; "),
+        });
       }
 
       // 3. 寫入到 Strategy.custom.json

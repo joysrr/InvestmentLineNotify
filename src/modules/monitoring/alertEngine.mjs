@@ -44,7 +44,7 @@ class AlertEngine extends EventEmitter {
    * 移除告警規則
    */
   removeRule(name) {
-    this.rules = this.rules.filter(r => r.name !== name);
+    this.rules = this.rules.filter((r) => r.name !== name);
     logger.info({ name }, "Alert rule removed");
   }
 
@@ -96,7 +96,10 @@ class AlertEngine extends EventEmitter {
           logger.warn({ alert }, "Alert triggered");
         }
       } catch (err) {
-        logger.error({ rule: rule.name, err: err.message }, "Alert rule evaluation failed");
+        logger.error(
+          { rule: rule.name, err: err.message },
+          "Alert rule evaluation failed",
+        );
       }
     }
 
@@ -133,7 +136,9 @@ class AlertEngine extends EventEmitter {
  * 預設通知發送器
  */
 export async function defaultNotifier(alert) {
-  const { sendTelegramMessage } = await import("../telegram/notify.mjs").catch(() => ({ sendTelegramMessage: null }));
+  const { sendTelegramMessage } = await import("../telegram/notify.mjs").catch(
+    () => ({ sendTelegramMessage: null }),
+  );
 
   // Console log
   console.log(`[ALERT] ${alert.severity.toUpperCase()}: ${alert.message}`, {
@@ -153,12 +158,18 @@ export async function defaultNotifier(alert) {
   await writeFile(ALERT_LOG, JSON.stringify(alert) + "\n", { flag: "a" });
 
   // Telegram 通知 (如果配置了)
-  if (sendTelegramMessage && process.env.TELEGRAM_BOT_TOKEN && process.env.ADMIN_USER_IDS) {
-    const adminIds = process.env.ADMIN_USER_IDS.split(",").map(id => id.trim());
+  if (
+    sendTelegramMessage &&
+    process.env.TELEGRAM_BOT_TOKEN &&
+    process.env.ADMIN_USER_IDS
+  ) {
+    const adminIds = process.env.ADMIN_USER_IDS.split(",").map((id) =>
+      id.trim(),
+    );
     const message = `🚨 *${alert.severity.toUpperCase()}* - ${alert.message}\nTime: ${new Date(alert.timestamp).toISOString()}`;
 
     for (const adminId of adminIds) {
-      await sendTelegramMessage(adminId, message).catch(err => {
+      await sendTelegramMessage(adminId, message).catch((err) => {
         logger.error({ err: err.message }, "Failed to send Telegram alert");
       });
     }

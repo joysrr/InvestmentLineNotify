@@ -11,7 +11,11 @@ import {
   determineSignalType,
   applyBudgetSynergy,
 } from "../../modules/strategy/strategyEngine.mjs";
-import { AssetRegistry, ASSET_TYPES, createDefaultAssetRegistry } from "../../modules/assets/assetRegistry.mjs";
+import {
+  AssetRegistry,
+  ASSET_TYPES,
+  createDefaultAssetRegistry,
+} from "../../modules/assets/assetRegistry.mjs";
 
 // Mock dependencies
 vi.mock("../../modules/strategy/signalRules.mjs", () => ({
@@ -46,7 +50,9 @@ vi.mock("../../modules/strategy/lifecycleEngine.mjs", () => ({
 }));
 
 vi.mock("../../modules/strategy/core/index.mjs", () => ({
-  checkCooldown: vi.fn(() => Promise.resolve({ inCooldown: false, daysLeft: 0 })),
+  checkCooldown: vi.fn(() =>
+    Promise.resolve({ inCooldown: false, daysLeft: 0 }),
+  ),
 }));
 
 vi.mock("../../modules/strategy/policies/index.mjs", () => ({
@@ -58,7 +64,10 @@ vi.mock("../../modules/strategy/policies/index.mjs", () => ({
   analyzeSurvival: vi.fn(() => ({})),
   resolveBudgetSynergy: vi.fn(() => null),
   resolveConversionGuard: vi.fn(() => null),
-  resolveBudgetLimit: vi.fn(() => ({ allowedAmount: 100000, isLimited: false })),
+  resolveBudgetLimit: vi.fn(() => ({
+    allowedAmount: 100000,
+    isLimited: false,
+  })),
   applyRiskOverride: vi.fn((r) => r),
   calculateRequestedLoanAmount: vi.fn(() => 50000),
   applyInterestCostFilter: vi.fn(() => ({})),
@@ -75,31 +84,36 @@ vi.mock("../../utils/normalizer.mjs", () => ({
 }));
 
 vi.mock("../../modules/strategy/decision/chain.mjs", () => ({
-  runDecisionChain: vi.fn(() => Promise.resolve({
-    signalDirection: "long",
-    target: "🔹 0050 DCA",
-    targetSuggestion: "維持觀望",
-    marketStatus: "🌱",
-    weightScore: 50,
-    finalScore: 50,
-    scalingRatio: 1,
-    categoryResults: {},
-    panicBypassActive: false,
-    regimeState: "NORMAL",
-    regimeResult: {},
-    entryGateLevel: "OK",
-    trailingActive: false,
-    dynamicAnchor: null,
-    budgetInfo: {},
-    valuationGuardResult: null,
-    valuationMomentumResult: null,
-    cooldownStatus: { inCooldown: false },
-  })),
+  runDecisionChain: vi.fn(() =>
+    Promise.resolve({
+      signalDirection: "long",
+      target: "🔹 0050 DCA",
+      targetSuggestion: "維持觀望",
+      marketStatus: "🌱",
+      weightScore: 50,
+      finalScore: 50,
+      scalingRatio: 1,
+      categoryResults: {},
+      panicBypassActive: false,
+      regimeState: "NORMAL",
+      regimeResult: {},
+      entryGateLevel: "OK",
+      trailingActive: false,
+      dynamicAnchor: null,
+      budgetInfo: {},
+      valuationGuardResult: null,
+      valuationMomentumResult: null,
+      cooldownStatus: { inCooldown: false },
+    }),
+  ),
   createDefaultDecisionChain: vi.fn(() => []),
 }));
 
 vi.mock("../../modules/strategy/policies/budgetLimitPolicy.mjs", () => ({
-  resolveBudgetLimit: vi.fn(() => ({ allowedAmount: 100000, isLimited: false })),
+  resolveBudgetLimit: vi.fn(() => ({
+    allowedAmount: 100000,
+    isLimited: false,
+  })),
 }));
 
 vi.mock("../../modules/strategy/policies/budgetSynergyPolicy.mjs", () => ({
@@ -112,15 +126,17 @@ vi.mock("../../modules/strategy/policies/interestCostFilterPolicy.mjs", () => ({
 }));
 
 vi.mock("../../modules/strategy/strategyLoader.mjs", () => ({
-  fetchStrategyConfigUnified: vi.fn(() => Promise.resolve({
-    trading: { cooldownDays: 20, budget: { rollingDays: 10 } },
-    macroSentiment: { enabled: true, bearishCooldownMultiplier: 1.5 },
-    sell: { trailingStop: { enabled: false } },
-    grossLeverage: { enabled: true, maxRatio: 3 },
-    dynamicDeleverage: { triggerRatio: 0.85, targetRatio: 0.7 },
-    valuationGuard: { enabled: true },
-    buy: { entryGate: { enabled: true }, minDropPercentToConsider: 1 },
-  })),
+  fetchStrategyConfigUnified: vi.fn(() =>
+    Promise.resolve({
+      trading: { cooldownDays: 20, budget: { rollingDays: 10 } },
+      macroSentiment: { enabled: true, bearishCooldownMultiplier: 1.5 },
+      sell: { trailingStop: { enabled: false } },
+      grossLeverage: { enabled: true, maxRatio: 3 },
+      dynamicDeleverage: { triggerRatio: 0.85, targetRatio: 0.7 },
+      valuationGuard: { enabled: true },
+      buy: { entryGate: { enabled: true }, minDropPercentToConsider: 1 },
+    }),
+  ),
 }));
 
 describe("StrategyEngine - N-asset Registry 查詢", () => {
@@ -129,7 +145,7 @@ describe("StrategyEngine - N-asset Registry 查詢", () => {
 
   beforeEach(() => {
     registry = createDefaultAssetRegistry();
-    
+
     strategy = {
       trading: { cooldownDays: 20, budget: { rollingDays: 10 } },
       macroSentiment: { enabled: true, bearishCooldownMultiplier: 1.5 },
@@ -139,7 +155,11 @@ describe("StrategyEngine - N-asset Registry 查詢", () => {
       valuationGuard: { enabled: true },
       buy: { entryGate: { enabled: true }, minDropPercentToConsider: 1 },
       scoringMatrix: { thresholds: { buyTactical: 5, buyTacticalBullish: 3 } },
-      overrideHierarchy: { panicBypassEnabled: true, panicBypassDropPct: 20, panicVixThreshold: 30 },
+      overrideHierarchy: {
+        panicBypassEnabled: true,
+        panicBypassDropPct: 20,
+        panicVixThreshold: 30,
+      },
     };
   });
 
@@ -277,36 +297,42 @@ describe("StrategyEngine - N-asset Registry 查詢", () => {
     it("getDcaAssets 應回傳可 DCA 的資產", () => {
       const dcaAssets = registry.getDcaAssets();
       expect(dcaAssets.length).toBeGreaterThan(0);
-      expect(dcaAssets.every(a => a.isDca === true)).toBe(true);
-      expect(dcaAssets.map(a => a.id)).toContain("0050");
+      expect(dcaAssets.every((a) => a.isDca === true)).toBe(true);
+      expect(dcaAssets.map((a) => a.id)).toContain("0050");
     });
 
     it("getSellableAssets 應回傳可賣出的資產", () => {
       const sellableAssets = registry.getSellableAssets();
       expect(sellableAssets.length).toBeGreaterThan(0);
-      expect(sellableAssets.every(a => a.sellable === true)).toBe(true);
-      expect(sellableAssets.map(a => a.id)).toContain("00675L");
+      expect(sellableAssets.every((a) => a.sellable === true)).toBe(true);
+      expect(sellableAssets.map((a) => a.id)).toContain("00675L");
     });
 
     it("getPledgeableAssets 應回傳可質押的資產 (BASE 類型)", () => {
       const pledgeableAssets = registry.getPledgeableAssets();
       expect(pledgeableAssets.length).toBeGreaterThan(0);
-      expect(pledgeableAssets.every(a => a.type === ASSET_TYPES.BASE)).toBe(true);
-      expect(pledgeableAssets.map(a => a.id)).toContain("0050");
+      expect(pledgeableAssets.every((a) => a.type === ASSET_TYPES.BASE)).toBe(
+        true,
+      );
+      expect(pledgeableAssets.map((a) => a.id)).toContain("0050");
     });
 
     it("getLeveragedAssets 應回傳槓桿資產 (LEVERAGED 類型)", () => {
       const leveragedAssets = registry.getLeveragedAssets();
       expect(leveragedAssets.length).toBeGreaterThan(0);
-      expect(leveragedAssets.every(a => a.type === ASSET_TYPES.LEVERAGED)).toBe(true);
-      expect(leveragedAssets.map(a => a.id)).toContain("00675L");
+      expect(
+        leveragedAssets.every((a) => a.type === ASSET_TYPES.LEVERAGED),
+      ).toBe(true);
+      expect(leveragedAssets.map((a) => a.id)).toContain("00675L");
     });
 
     it("getAssetsByType 應按類型過濾", () => {
       const baseAssets = registry.getAssetsByType(ASSET_TYPES.BASE);
       const leveragedAssets = registry.getAssetsByType(ASSET_TYPES.LEVERAGED);
-      expect(baseAssets.every(a => a.type === ASSET_TYPES.BASE)).toBe(true);
-      expect(leveragedAssets.every(a => a.type === ASSET_TYPES.LEVERAGED)).toBe(true);
+      expect(baseAssets.every((a) => a.type === ASSET_TYPES.BASE)).toBe(true);
+      expect(
+        leveragedAssets.every((a) => a.type === ASSET_TYPES.LEVERAGED),
+      ).toBe(true);
     });
 
     it("hasAsset 應正確檢查存在性", () => {
@@ -344,7 +370,6 @@ describe("StrategyEngine - N-asset Registry 查詢", () => {
         sellSignals: null,
         entry: { weightScore: 50, weightDetails: {} },
         cooldownStatus: { inCooldown: false },
-        indicators: { kdArr: [{ k: 60, d: 50 }], macdArr: [], rsiArr: [] },
         vix: 20,
         vixArr: [20],
       };
@@ -358,7 +383,6 @@ describe("StrategyEngine - N-asset Registry 查詢", () => {
         finalScore: 50,
         categoryResults: {},
         scalingRatio: 1,
-        marketStatus: "🌱",
         panicBypassActive: false,
         regimeState: "NORMAL",
         regimeResult: {},
@@ -369,7 +393,6 @@ describe("StrategyEngine - N-asset Registry 查詢", () => {
         valuationGuardResult: null,
         valuationMomentumResult: null,
         cooldownStatus: { inCooldown: false },
-        trailingActive: false,
       };
 
       const derived = {
@@ -398,37 +421,61 @@ describe("StrategyEngine - N-asset Registry 查詢", () => {
   describe("determineSignalCategory", () => {
     it("panicBypassActive 應回傳 panic", () => {
       const ctx = { priceDropPercent: 10 };
-      const finalDecision = { panicBypassActive: true, target: "觀望", trailingActive: false };
+      const finalDecision = {
+        panicBypassActive: true,
+        target: "觀望",
+        trailingActive: false,
+      };
       expect(determineSignalCategory(ctx, finalDecision)).toBe("panic");
     });
 
     it("trailingActive 應回傳 take_profit", () => {
       const ctx = { priceDropPercent: 10 };
-      const finalDecision = { panicBypassActive: false, target: "觀望", trailingActive: true };
+      const finalDecision = {
+        panicBypassActive: false,
+        target: "觀望",
+        trailingActive: true,
+      };
       expect(determineSignalCategory(ctx, finalDecision)).toBe("take_profit");
     });
 
     it("target 包含 再平衡 應回傳 rebalance", () => {
       const ctx = { priceDropPercent: 10 };
-      const finalDecision = { panicBypassActive: false, target: "再平衡", trailingActive: false };
+      const finalDecision = {
+        panicBypassActive: false,
+        target: "再平衡",
+        trailingActive: false,
+      };
       expect(determineSignalCategory(ctx, finalDecision)).toBe("rebalance");
     });
 
     it("跌幅 >= 30% 應回傳 panic", () => {
       const ctx = { priceDropPercent: 35 };
-      const finalDecision = { panicBypassActive: false, target: "觀望", trailingActive: false };
+      const finalDecision = {
+        panicBypassActive: false,
+        target: "觀望",
+        trailingActive: false,
+      };
       expect(determineSignalCategory(ctx, finalDecision)).toBe("panic");
     });
 
     it("跌幅 >= 15% 且非 DCA/觀望 應回傳 deep_drop", () => {
       const ctx = { priceDropPercent: 20 };
-      const finalDecision = { panicBypassActive: false, target: "🔹 加碼", trailingActive: false };
+      const finalDecision = {
+        panicBypassActive: false,
+        target: "🔹 加碼",
+        trailingActive: false,
+      };
       expect(determineSignalCategory(ctx, finalDecision)).toBe("deep_drop");
     });
 
     it("預設 baseline", () => {
       const ctx = { priceDropPercent: 5 };
-      const finalDecision = { panicBypassActive: false, target: "🔹 0050 DCA", trailingActive: false };
+      const finalDecision = {
+        panicBypassActive: false,
+        target: "🔹 0050 DCA",
+        trailingActive: false,
+      };
       expect(determineSignalCategory(ctx, finalDecision)).toBe("baseline");
     });
   });
@@ -453,14 +500,22 @@ describe("StrategyEngine - N-asset Registry 查詢", () => {
 
     it("target 不為觀望時不修改", () => {
       const decision = { target: "🔹 0050 DCA" };
-      const synergy = { label: "提前 DCA", suggestedAmount: 10000, suggestion: "建議提前" };
+      const synergy = {
+        label: "提前 DCA",
+        suggestedAmount: 10000,
+        suggestion: "建議提前",
+      };
       const result = applyBudgetSynergy(decision, synergy);
       expect(result.target).toBe("🔹 0050 DCA");
     });
 
     it("target 為觀望時套用 synergy", () => {
       const decision = { target: "觀望", suggestion: "" };
-      const synergy = { label: "提前 DCA", suggestedAmount: 10000, suggestion: "建議提前" };
+      const synergy = {
+        label: "提前 DCA",
+        suggestedAmount: 10000,
+        suggestion: "建議提前",
+      };
       const result = applyBudgetSynergy(decision, synergy);
       expect(result.target).toBe("提前 DCA");
       expect(result.targetSuggestionShort).toContain("10,000");

@@ -75,7 +75,7 @@ export default async function monitoringRoutes(fastify) {
         reply.code(500);
         return { success: false, error: err.message };
       }
-    }
+    },
   );
 
   /**
@@ -115,7 +115,7 @@ export default async function monitoringRoutes(fastify) {
       }
 
       return { errors, total: errors.length };
-    }
+    },
   );
 
   /**
@@ -141,7 +141,7 @@ export default async function monitoringRoutes(fastify) {
     async (request, reply) => {
       const stats = await errorStore.getStats();
       return stats;
-    }
+    },
   );
 
   /**
@@ -172,19 +172,16 @@ export default async function monitoringRoutes(fastify) {
         metrics,
         alerts,
       };
-    }
+    },
   );
 
   /**
    * GET /api/monitoring/metrics - 取得原始指標
    */
-  fastify.get(
-    "/monitoring/metrics",
-    async (request, reply) => {
-      const snapshot = metricsCollector.getSnapshot();
-      return snapshot;
-    }
-  );
+  fastify.get("/monitoring/metrics", async (request, reply) => {
+    const snapshot = metricsCollector.getSnapshot();
+    return snapshot;
+  });
 
   /**
    * POST /api/monitoring/alerts/rules - 新增告警規則
@@ -199,7 +196,11 @@ export default async function monitoringRoutes(fastify) {
           properties: {
             name: { type: "string" },
             condition: { type: "string" }, // JavaScript 表達式字串
-            severity: { type: "string", enum: ["low", "medium", "high", "critical"], default: "medium" },
+            severity: {
+              type: "string",
+              enum: ["low", "medium", "high", "critical"],
+              default: "medium",
+            },
             message: { type: "string" },
             cooldownMs: { type: "integer", default: 300000 },
             enabled: { type: "boolean", default: true },
@@ -219,7 +220,10 @@ export default async function monitoringRoutes(fastify) {
     async (request, reply) => {
       try {
         // 將 condition 字串轉為函數 (簡單實作，生產環境應更安全)
-        const conditionFn = new Function("metrics", `return ${request.body.condition}`);
+        const conditionFn = new Function(
+          "metrics",
+          `return ${request.body.condition}`,
+        );
 
         const rule = {
           name: request.body.name,
@@ -239,30 +243,26 @@ export default async function monitoringRoutes(fastify) {
         reply.code(400);
         return { success: false, error: err.message };
       }
-    }
+    },
   );
 
   /**
    * GET /api/monitoring/alerts/rules - 取得告警規則
    */
-  fastify.get(
-    "/monitoring/alerts/rules",
-    async (request, reply) => {
-      const rules = alertEngine.getRules();
-      return { rules: rules.map(r => ({ ...r, condition: r.condition.toString() })) };
-    }
-  );
+  fastify.get("/monitoring/alerts/rules", async (request, reply) => {
+    const rules = alertEngine.getRules();
+    return {
+      rules: rules.map((r) => ({ ...r, condition: r.condition.toString() })),
+    };
+  });
 
   /**
    * DELETE /api/monitoring/alerts/rules/:name - 刪除告警規則
    */
-  fastify.delete(
-    "/monitoring/alerts/rules/:name",
-    async (request, reply) => {
-      alertEngine.removeRule(request.params.name);
-      return { success: true };
-    }
-  );
+  fastify.delete("/monitoring/alerts/rules/:name", async (request, reply) => {
+    alertEngine.removeRule(request.params.name);
+    return { success: true };
+  });
 
   /**
    * GET /api/monitoring/alerts/history - 取得告警歷史
@@ -290,19 +290,16 @@ export default async function monitoringRoutes(fastify) {
     async (request, reply) => {
       const alerts = alertEngine.getHistory(request.query.limit || 50);
       return { alerts };
-    }
+    },
   );
 
   /**
    * POST /api/monitoring/alerts/test - 測試告警
    */
-  fastify.post(
-    "/monitoring/alerts/test",
-    async (request, reply) => {
-      await alertEngine.check({ testValue: 1000 }); // 觸發所有規則
-      return { success: true };
-    }
-  );
+  fastify.post("/monitoring/alerts/test", async (request, reply) => {
+    await alertEngine.check({ testValue: 1000 }); // 觸發所有規則
+    return { success: true };
+  });
 
   /**
    * POST /api/monitoring/metrics/http - 記錄 HTTP 指標 (內部使用)
@@ -329,7 +326,7 @@ export default async function monitoringRoutes(fastify) {
     async (request, reply) => {
       metricsCollector.recordHttpRequest(request.body);
       return { success: true };
-    }
+    },
   );
 
   /**
@@ -354,7 +351,7 @@ export default async function monitoringRoutes(fastify) {
     async (request, reply) => {
       metricsCollector.recordQueueDepth(request.body.depth);
       return { success: true };
-    }
+    },
   );
 
   /**
@@ -379,7 +376,7 @@ export default async function monitoringRoutes(fastify) {
     async (request, reply) => {
       metricsCollector.recordWorkerHeartbeat(request.body.workerId);
       return { success: true };
-    }
+    },
   );
 }
 
@@ -431,7 +428,8 @@ function registerDefaultRules() {
   // 高記憶體使用告警
   alertEngine.addRule({
     name: "high_memory_usage",
-    condition: (metrics) => metrics.systemResources.memoryUsage > 500 * 1024 * 1024, // 500MB
+    condition: (metrics) =>
+      metrics.systemResources.memoryUsage > 500 * 1024 * 1024, // 500MB
     severity: "medium",
     message: "記憶體使用超過 500MB",
     cooldownMs: 300000,

@@ -80,7 +80,7 @@ export default async function deployRoutes(fastify) {
         reply.code(500);
         return { error: "Internal Server Error", message: err.message };
       }
-    }
+    },
   );
 
   /**
@@ -130,7 +130,7 @@ export default async function deployRoutes(fastify) {
       }
 
       return state;
-    }
+    },
   );
 
   /**
@@ -155,11 +155,15 @@ export default async function deployRoutes(fastify) {
       }
 
       // 訂閱即時進度
-      const unsubscribe = deploymentExecutor.subscribeDeployProgress(jobId, (progress) => {
-        if (connection.socket.readyState === 1) { // OPEN
-          connection.socket.send(JSON.stringify(progress));
-        }
-      });
+      const unsubscribe = deploymentExecutor.subscribeDeployProgress(
+        jobId,
+        (progress) => {
+          if (connection.socket.readyState === 1) {
+            // OPEN
+            connection.socket.send(JSON.stringify(progress));
+          }
+        },
+      );
 
       // 連線關閉時清理
       connection.socket.on("close", () => {
@@ -168,15 +172,17 @@ export default async function deployRoutes(fastify) {
 
       // 如果任務已完成，發送完成訊息後關閉
       if (["completed", "failed", "cancelled"].includes(state.status)) {
-        connection.socket.send(JSON.stringify({
-          type: "done",
-          status: state.status,
-          exitCode: state.exitCode,
-          error: state.error,
-        }));
+        connection.socket.send(
+          JSON.stringify({
+            type: "done",
+            status: state.status,
+            exitCode: state.exitCode,
+            error: state.error,
+          }),
+        );
         connection.socket.close(1000, "Deployment finished");
       }
-    }
+    },
   );
 
   /**
@@ -206,7 +212,7 @@ export default async function deployRoutes(fastify) {
       const { limit = 20 } = request.query;
       const history = await deploymentExecutor.getDeployHistory(limit);
       return { history };
-    }
+    },
   );
 
   /**
@@ -260,6 +266,6 @@ export default async function deployRoutes(fastify) {
       }
 
       return { success: true, message: "部署任務已取消" };
-    }
+    },
   );
 }

@@ -77,7 +77,10 @@ async function acquireLock(jobId) {
   }
 
   // 建立鎖
-  await writeFile(getLockFile(), JSON.stringify({ jobId, acquiredAt: Date.now() }));
+  await writeFile(
+    getLockFile(),
+    JSON.stringify({ jobId, acquiredAt: Date.now() }),
+  );
   isLocked = true;
 }
 
@@ -89,7 +92,10 @@ async function releaseLock(jobId) {
     const lockContent = await readFile(getLockFile(), "utf8");
     const lock = JSON.parse(lockContent);
     if (lock.jobId === jobId) {
-      await writeFile(getLockFile(), JSON.stringify({ jobId: null, releasedAt: Date.now() }));
+      await writeFile(
+        getLockFile(),
+        JSON.stringify({ jobId: null, releasedAt: Date.now() }),
+      );
       isLocked = false;
     }
   } catch (err) {
@@ -149,7 +155,10 @@ export async function getDeployHistory(limit = 20) {
   for (const file of files) {
     if (file.endsWith(".json")) {
       try {
-        const content = await readFile(resolve(getDeployJobsDir(), file), "utf8");
+        const content = await readFile(
+          resolve(getDeployJobsDir(), file),
+          "utf8",
+        );
         jobs.push(JSON.parse(content));
       } catch {
         // 忽略無法解析的檔案
@@ -157,9 +166,7 @@ export async function getDeployHistory(limit = 20) {
     }
   }
 
-  return jobs
-    .sort((a, b) => b.startedAt - a.startedAt)
-    .slice(0, limit);
+  return jobs.sort((a, b) => b.startedAt - a.startedAt).slice(0, limit);
 }
 
 /**
@@ -260,7 +267,9 @@ export async function executeDeploy(jobId, options = {}) {
           resolve({ stdout, stderr });
         } else {
           addLog("error", `[${name}] 失敗 (exit code: ${code})`);
-          reject(new Error(`${name} 失敗 (exit code: ${code}): ${stderr || stdout}`));
+          reject(
+            new Error(`${name} 失敗 (exit code: ${code}): ${stderr || stdout}`),
+          );
         }
       });
 
@@ -275,14 +284,24 @@ export async function executeDeploy(jobId, options = {}) {
     // 步驟 1: Git 拉取最新代碼
     if (!rollback) {
       await runStep("git-fetch", "git", ["fetch", "--all"], deployPath);
-      await runStep("git-reset", "git", ["reset", "--hard", "origin/main"], deployPath);
+      await runStep(
+        "git-reset",
+        "git",
+        ["reset", "--hard", "origin/main"],
+        deployPath,
+      );
     } else {
       // 回滾模式
-      const targetTag = rollbackTarget || await getLastDeployTag();
+      const targetTag = rollbackTarget || (await getLastDeployTag());
       if (!targetTag) throw new Error("找不到可回滾的部署標籤");
 
       await runStep("git-fetch-tags", "git", ["fetch", "--tags"], deployPath);
-      await runStep("git-checkout-tag", "git", ["checkout", targetTag], deployPath);
+      await runStep(
+        "git-checkout-tag",
+        "git",
+        ["checkout", targetTag],
+        deployPath,
+      );
     }
 
     // 步驟 2: 後端依賴安裝
@@ -298,7 +317,12 @@ export async function executeDeploy(jobId, options = {}) {
     await runStep("npm-build-frontend", "npm", ["run", "build"], webappPath);
 
     // 步驟 6: PM2 重啟服務
-    await runStep("pm2-reload", "pm2", ["reload", pm2Ecosystem, "--update-env"], deployPath);
+    await runStep(
+      "pm2-reload",
+      "pm2",
+      ["reload", pm2Ecosystem, "--update-env"],
+      deployPath,
+    );
 
     // 步驟 7: 打標籤記錄部署版本
     if (!rollback) {
@@ -313,7 +337,6 @@ export async function executeDeploy(jobId, options = {}) {
     state.exitCode = 0;
 
     addLog("info", `部署${rollback ? "回滾" : ""}成功完成`);
-
   } catch (err) {
     state.status = DEPLOY_STATUS.FAILED;
     state.completedAt = Date.now();
@@ -339,12 +362,18 @@ async function getLastDeployTag() {
   try {
     const projectRoot = getProjectRoot();
     const { stdout } = await new Promise((resolve, reject) => {
-      const child = spawn("git", ["tag", "-l", "deploy-*", "--sort=-creatordate"], {
-        cwd: process.env.DEPLOY_PATH || projectRoot,
-      });
+      const child = spawn(
+        "git",
+        ["tag", "-l", "deploy-*", "--sort=-creatordate"],
+        {
+          cwd: process.env.DEPLOY_PATH || projectRoot,
+        },
+      );
       let stdout = "";
-      child.stdout.on("data", (data) => stdout += data.toString());
-      child.on("close", (code) => code === 0 ? resolve({ stdout }) : reject(new Error("Git tag failed")));
+      child.stdout.on("data", (data) => (stdout += data.toString()));
+      child.on("close", (code) =>
+        code === 0 ? resolve({ stdout }) : reject(new Error("Git tag failed")),
+      );
       child.on("error", reject);
     });
 
@@ -360,15 +389,27 @@ async function getLastDeployTag() {
  */
 async function sendFailureNotification(jobId, state, errorMessage) {
   try {
-    const { sendTelegramMessage } = await import("../telegram/notify.mjs").catch(() => ({ sendTelegramMessage: null }));
+    const { sendTelegramMessage } =
+      await import("../telegram/notify.mjs").catch(() => ({
+        sendTelegramMessage: null,
+      }));
 
-    if (sendTelegramMessage && process.env.TELEGRAM_BOT_TOKEN && process.env.ADMIN_USER_IDS) {
-      const adminIds = process.env.ADMIN_USER_IDS.split(",").map(id => id.trim());
+    if (
+      sendTelegramMessage &&
+      process.env.TELEGRAM_BOT_TOKEN &&
+      process.env.ADMIN_USER_IDS
+    ) {
+      const adminIds = process.env.ADMIN_USER_IDS.split(",").map((id) =>
+        id.trim(),
+      );
       const message = `🚨 部署失敗\nJob ID: ${jobId}\n時間: ${new Date(state.startedAt).toISOString()}\n錯誤: ${errorMessage}\n部署路徑: ${state.deployPath}`;
 
       for (const adminId of adminIds) {
-        await sendTelegramMessage(adminId, message).catch(err => {
-          logger.error({ err: err.message }, "Failed to send Telegram deployment failure notification");
+        await sendTelegramMessage(adminId, message).catch((err) => {
+          logger.error(
+            { err: err.message },
+            "Failed to send Telegram deployment failure notification",
+          );
         });
       }
     }

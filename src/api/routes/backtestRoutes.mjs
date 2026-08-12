@@ -206,13 +206,32 @@ async function backtestRoutes(fastify) {
               minItems: 1,
               items: BACKTEST_CONFIG_SCHEMA,
             },
-            cron: { type: "string", pattern: "^(\\*|[0-9\\-/,]+)\\s+(\\*|[0-9\\-/,]+)\\s+(\\*|[0-9\\-/,]+)\\s+(\\*|[0-9\\-/,]+)\\s+(\\*|[0-9\\-/,]+)$" },
-            concurrency: { type: "integer", minimum: 1, maximum: 4, default: 1 },
+            cron: {
+              type: "string",
+              pattern:
+                "^(\\*|[0-9\\-/,]+)\\s+(\\*|[0-9\\-/,]+)\\s+(\\*|[0-9\\-/,]+)\\s+(\\*|[0-9\\-/,]+)\\s+(\\*|[0-9\\-/,]+)$",
+            },
+            concurrency: {
+              type: "integer",
+              minimum: 1,
+              maximum: 4,
+              default: 1,
+            },
             retry: {
               type: "object",
               properties: {
-                maxAttempts: { type: "integer", minimum: 1, maximum: 5, default: 3 },
-                backoffMs: { type: "integer", minimum: 1000, maximum: 60000, default: 5000 },
+                maxAttempts: {
+                  type: "integer",
+                  minimum: 1,
+                  maximum: 5,
+                  default: 3,
+                },
+                backoffMs: {
+                  type: "integer",
+                  minimum: 1000,
+                  maximum: 60000,
+                  default: 5000,
+                },
               },
             },
           },
@@ -237,7 +256,9 @@ async function backtestRoutes(fastify) {
       // 驗證每個 config 的日期
       for (const config of configs) {
         if (config.start > config.end) {
-          return reply.code(400).send({ error: `config ${config.name || "unnamed"}: 開始日期不能晚於結束日期` });
+          return reply.code(400).send({
+            error: `config ${config.name || "unnamed"}: 開始日期不能晚於結束日期`,
+          });
         }
         const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
         if (!dateRegex.test(config.start) || !dateRegex.test(config.end)) {
@@ -246,7 +267,12 @@ async function backtestRoutes(fastify) {
       }
 
       try {
-        const { jobId, status, nextRun } = await createSchedule({ configs, cron, concurrency, retry });
+        const { jobId, status, nextRun } = await createSchedule({
+          configs,
+          cron,
+          concurrency,
+          retry,
+        });
         return reply.code(202).send({
           jobId,
           status,

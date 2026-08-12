@@ -46,9 +46,11 @@ class MetricsCollector extends EventEmitter {
    */
   recordHttpRequest({ method, path, statusCode, duration }) {
     this.httpRequests.total++;
-    this.httpRequests.byMethod[method] = (this.httpRequests.byMethod[method] || 0) + 1;
+    this.httpRequests.byMethod[method] =
+      (this.httpRequests.byMethod[method] || 0) + 1;
     this.httpRequests.byPath[path] = (this.httpRequests.byPath[path] || 0) + 1;
-    this.httpRequests.byStatus[String(statusCode)] = (this.httpRequests.byStatus[String(statusCode)] || 0) + 1;
+    this.httpRequests.byStatus[String(statusCode)] =
+      (this.httpRequests.byStatus[String(statusCode)] || 0) + 1;
     this.httpRequests.durations.push(duration);
 
     if (statusCode >= 400) {
@@ -129,7 +131,7 @@ class MetricsCollector extends EventEmitter {
     if (durations.length === 0) return { p50: 0, p95: 0, p99: 0 };
 
     const sorted = [...durations].sort((a, b) => a - b);
-    const getPercentile = (p) => sorted[Math.floor(sorted.length * p / 100)];
+    const getPercentile = (p) => sorted[Math.floor((sorted.length * p) / 100)];
 
     return {
       p50: getPercentile(50),
@@ -143,7 +145,10 @@ class MetricsCollector extends EventEmitter {
    */
   getMetrics() {
     const latency = this.calculatePercentiles(this.httpRequests.durations);
-    const errorRate = this.httpRequests.total > 0 ? this.httpRequests.errors / this.httpRequests.total : 0;
+    const errorRate =
+      this.httpRequests.total > 0
+        ? this.httpRequests.errors / this.httpRequests.total
+        : 0;
 
     return {
       httpRequests: {
@@ -159,7 +164,10 @@ class MetricsCollector extends EventEmitter {
         current: this.queueDepth.current,
         max: this.queueDepth.max,
         min: this.queueDepth.min === Infinity ? 0 : this.queueDepth.min,
-        avg: this.queueDepth.count > 0 ? this.queueDepth.sum / this.queueDepth.count : 0,
+        avg:
+          this.queueDepth.count > 0
+            ? this.queueDepth.sum / this.queueDepth.count
+            : 0,
       },
       systemResources: { ...this.systemResources },
       workerStatus: this.getWorkerStatus(),

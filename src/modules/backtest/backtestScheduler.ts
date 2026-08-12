@@ -6,7 +6,12 @@
 import { EventEmitter } from "events";
 import cron from "node-cron";
 import { v4 as uuidv4 } from "uuid";
-import { submitBacktestJob, getQueueStats, shutdownQueue, getJobStatus } from "./backtestQueue.mjs";
+import {
+  submitBacktestJob,
+  getQueueStats,
+  shutdownQueue,
+  getJobStatus,
+} from "./backtestQueue.mjs";
 import { writeFile, mkdir, readdir, readFile } from "fs/promises";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -59,7 +64,12 @@ export function subscribeScheduleProgress(scheduleId, callback) {
 /**
  * Create schedule
  */
-export async function createSchedule({ configs, cron: cronExpression, concurrency = 1, retry = { maxAttempts: 3, backoffMs: 5000 } }) {
+export async function createSchedule({
+  configs,
+  cron: cronExpression,
+  concurrency = 1,
+  retry = { maxAttempts: 3, backoffMs: 5000 },
+}) {
   const scheduleId = uuidv4();
 
   // Validate configs
@@ -73,7 +83,9 @@ export async function createSchedule({ configs, cron: cronExpression, concurrenc
       throw new Error("Each config must have start and end");
     }
     if (config.start > config.end) {
-      throw new Error(`config ${config.name || "unnamed"}: start cannot be after end`);
+      throw new Error(
+        `config ${config.name || "unnamed"}: start cannot be after end`,
+      );
     }
   }
 
@@ -98,16 +110,23 @@ export async function createSchedule({ configs, cron: cronExpression, concurrenc
 
   // Register cron job if cron expression provided
   if (cronExpression) {
-    const job = cron.schedule(cronExpression, async () => {
-      await executeScheduledRun(scheduleId);
-    }, {
-      scheduled: true,
-      timezone: "Asia/Taipei",
-    });
+    const job = cron.schedule(
+      cronExpression,
+      async () => {
+        await executeScheduledRun(scheduleId);
+      },
+      {
+        scheduled: true,
+        timezone: "Asia/Taipei",
+      },
+    );
     cronJobs.set(scheduleId, job);
   }
 
-  logger.info({ scheduleId, configsCount: configs.length, cron: cronExpression }, "Schedule created");
+  logger.info(
+    { scheduleId, configsCount: configs.length, cron: cronExpression },
+    "Schedule created",
+  );
 
   return {
     jobId: scheduleId,
@@ -213,7 +232,10 @@ async function executeScheduledRun(scheduleId) {
   if (!schedule) return;
 
   if (schedule.status === SCHEDULE_STATUS.RUNNING) {
-    logger.warn({ scheduleId }, "Schedule already running, skipping this trigger");
+    logger.warn(
+      { scheduleId },
+      "Schedule already running, skipping this trigger",
+    );
     return;
   }
 
@@ -283,12 +305,19 @@ async function executeScheduledRun(scheduleId) {
         }
       } catch (err) {
         lastError = err;
-        logger.warn({ err: err.message, attempt, maxAttempts: schedule.retry.maxAttempts }, "Scheduled job failed, retrying");
+        logger.warn(
+          {
+            err: err.message,
+            attempt,
+            maxAttempts: schedule.retry.maxAttempts,
+          },
+          "Scheduled job failed, retrying",
+        );
 
         if (attempt <= schedule.retry.maxAttempts) {
           // Exponential backoff
           const backoff = schedule.retry.backoffMs * Math.pow(2, attempt - 1);
-          await new Promise(r => setTimeout(r, backoff));
+          await new Promise((r) => setTimeout(r, backoff));
         }
       }
 
@@ -310,7 +339,7 @@ async function executeScheduledRun(scheduleId) {
     for (const result of schedule.results) {
       configResults.set(result.configName, result);
     }
-    
+
     let failedConfigCount = 0;
     for (const config of schedule.configs) {
       const lastResult = configResults.get(config.name);
@@ -318,31 +347,36 @@ async function executeScheduledRun(scheduleId) {
         failedConfigCount++;
       }
     }
-    
+
     if (failedConfigCount === schedule.configs.length) {
-          schedule.status = SCHEDULE_STATUS.FAILED;
-          schedule.error = "All configs failed";
-        } else if (failedConfigCount > 0) {
-          schedule.status = SCHEDULE_STATUS.COMPLETED; // Partial success counts as completed
-        } else {
-          schedule.status = SCHEDULE_STATUS.COMPLETED;
-        }
+      schedule.status = SCHEDULE_STATUS.FAILED;
+      schedule.error = "All configs failed";
+    } else if (failedConfigCount > 0) {
+      schedule.status = SCHEDULE_STATUS.COMPLETED; // Partial success counts as completed
+    } else {
+      schedule.status = SCHEDULE_STATUS.COMPLETED;
+    }
 
-        // Persist results
-        await persistScheduleResults(scheduleId);
+    // Persist results
+    await persistScheduleResults(scheduleId);
 
-        const successCount = schedule.configs.length - failedConfigCount;
+    const successCount = schedule.configs.length - failedConfigCount;
 
-        publishScheduleProgress(scheduleId, {
-          stage: schedule.status === SCHEDULE_STATUS.FAILED ? "failed" : "completed",
-          percent: 100,
-          message: schedule.status === SCHEDULE_STATUS.FAILED
-            ? "Schedule execution failed"
-            : `Schedule completed (success: ${successCount}/${schedule.configs.length})`,
-        });
+    publishScheduleProgress(scheduleId, {
+      stage:
+        schedule.status === SCHEDULE_STATUS.FAILED ? "failed" : "completed",
+      percent: 100,
+      message:
+        schedule.status === SCHEDULE_STATUS.FAILED
+          ? "Schedule execution failed"
+          : `Schedule completed (success: ${successCount}/${schedule.configs.length})`,
+    });
 
-    logger.info({ scheduleId, status: schedule.status, results: schedule.results.length }, "Schedule execution completed");
-}
+    logger.info(
+      { scheduleId, status: schedule.status, results: schedule.results.length },
+      "Schedule execution completed",
+    );
+  }
 }
 
 /**
@@ -357,12 +391,18 @@ async function waitForJobCompletion(jobId, scheduleId, timeoutMs = 300000) {
       // Check if schedule was cancelled
       const schedule = schedules.get(scheduleId);
       if (schedule?.status === SCHEDULE_STATUS.CANCELLED) {
-        return resolve({ status: "cancelled", result: { error: "Schedule cancelled" } });
+        return resolve({
+          status: "cancelled",
+          result: { error: "Schedule cancelled" },
+        });
       }
 
       const status = await getJobStatus(jobId);
       if (!status) {
-        return resolve({ status: "not_found", result: { error: "Job not found" } });
+        return resolve({
+          status: "not_found",
+          result: { error: "Job not found" },
+        });
       }
 
       if (status.status === "completed") {
@@ -370,7 +410,10 @@ async function waitForJobCompletion(jobId, scheduleId, timeoutMs = 300000) {
       } else if (status.status === "failed") {
         resolve({ status: "failed", result: status.result });
       } else if (Date.now() - startTime > timeoutMs) {
-        resolve({ status: "timeout", result: { error: "Job execution timeout" } });
+        resolve({
+          status: "timeout",
+          result: { error: "Job execution timeout" },
+        });
       } else {
         setTimeout(check, pollInterval);
       }
@@ -437,8 +480,12 @@ export function stop() {
  */
 export async function getSchedulerStats() {
   const queueStats = await getQueueStats();
-  const scheduledCount = Array.from(schedules.values()).filter(s => s.status === SCHEDULE_STATUS.SCHEDULED).length;
-  const runningCount = Array.from(schedules.values()).filter(s => s.status === SCHEDULE_STATUS.RUNNING).length;
+  const scheduledCount = Array.from(schedules.values()).filter(
+    (s) => s.status === SCHEDULE_STATUS.SCHEDULED,
+  ).length;
+  const runningCount = Array.from(schedules.values()).filter(
+    (s) => s.status === SCHEDULE_STATUS.RUNNING,
+  ).length;
 
   return {
     ...queueStats,

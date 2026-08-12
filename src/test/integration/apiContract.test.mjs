@@ -25,34 +25,28 @@ vi.mock("../../api/routes/v1/simulate.mjs", () => ({
 
       // Validation logic matching the real validator
       if (!body.price0050) {
-        return reply
-          .code(400)
-          .send({
-            error: "VALIDATION_ERROR",
-            message: "price0050 is required",
-            field: "price0050",
-            statusCode: 400,
-          });
+        return reply.code(400).send({
+          error: "VALIDATION_ERROR",
+          message: "price0050 is required",
+          field: "price0050",
+          statusCode: 400,
+        });
       }
       if (body.price0050 < 50 || body.price0050 > 500) {
-        return reply
-          .code(400)
-          .send({
-            error: "VALIDATION_ERROR",
-            message: "price0050 out of bounds",
-            field: "price0050",
-            statusCode: 400,
-          });
+        return reply.code(400).send({
+          error: "VALIDATION_ERROR",
+          message: "price0050 out of bounds",
+          field: "price0050",
+          statusCode: 400,
+        });
       }
       if (body.priceZ2 && (body.priceZ2 < 50 || body.priceZ2 > 500)) {
-        return reply
-          .code(400)
-          .send({
-            error: "VALIDATION_ERROR",
-            message: "priceZ2 out of bounds",
-            field: "priceZ2",
-            statusCode: 400,
-          });
+        return reply.code(400).send({
+          error: "VALIDATION_ERROR",
+          message: "priceZ2 out of bounds",
+          field: "priceZ2",
+          statusCode: 400,
+        });
       }
 
       // Return mock forward simulation response matching the full schema
@@ -113,27 +107,23 @@ vi.mock("../../api/routes/v1/simulate.mjs", () => ({
 
       // Validation logic for reverse
       if (!body.target) {
-        return reply
-          .code(400)
-          .send({
-            error: "VALIDATION_ERROR",
-            message: "target is required",
-            field: "target",
-            statusCode: 400,
-          });
+        return reply.code(400).send({
+          error: "VALIDATION_ERROR",
+          message: "target is required",
+          field: "target",
+          statusCode: 400,
+        });
       }
       if (
         body.target.type === "maintenanceRatio" &&
         body.target.value === undefined
       ) {
-        return reply
-          .code(400)
-          .send({
-            error: "VALIDATION_ERROR",
-            message: "maintenanceRatio requires value",
-            field: "target",
-            statusCode: 400,
-          });
+        return reply.code(400).send({
+          error: "VALIDATION_ERROR",
+          message: "maintenanceRatio requires value",
+          field: "target",
+          statusCode: 400,
+        });
       }
       if (
         body.target.type === "rsi" &&
@@ -141,37 +131,31 @@ vi.mock("../../api/routes/v1/simulate.mjs", () => ({
           body.target.value < 1 ||
           body.target.value > 99)
       ) {
-        return reply
-          .code(400)
-          .send({
-            error: "VALIDATION_ERROR",
-            message: "RSI value out of range",
-            field: "target",
-            statusCode: 400,
-          });
+        return reply.code(400).send({
+          error: "VALIDATION_ERROR",
+          message: "RSI value out of range",
+          field: "target",
+          statusCode: 400,
+        });
       }
       if (body.target.type === "kdCross" && !body.target.direction) {
-        return reply
-          .code(400)
-          .send({
-            error: "VALIDATION_ERROR",
-            message: "kdCross requires direction",
-            field: "target",
-            statusCode: 400,
-          });
+        return reply.code(400).send({
+          error: "VALIDATION_ERROR",
+          message: "kdCross requires direction",
+          field: "target",
+          statusCode: 400,
+        });
       }
       if (
         body.target.type === "kdCross" &&
         !["golden", "dead"].includes(body.target.direction)
       ) {
-        return reply
-          .code(400)
-          .send({
-            error: "VALIDATION_ERROR",
-            message: "kdCross direction must be golden or dead",
-            field: "target",
-            statusCode: 400,
-          });
+        return reply.code(400).send({
+          error: "VALIDATION_ERROR",
+          message: "kdCross direction must be golden or dead",
+          field: "target",
+          statusCode: 400,
+        });
       }
       if (
         ![
@@ -186,14 +170,12 @@ vi.mock("../../api/routes/v1/simulate.mjs", () => ({
           "portfolioHealth",
         ].includes(body.target.type)
       ) {
-        return reply
-          .code(400)
-          .send({
-            error: "VALIDATION_ERROR",
-            message: "Unsupported target type",
-            field: "target",
-            statusCode: 400,
-          });
+        return reply.code(400).send({
+          error: "VALIDATION_ERROR",
+          message: "Unsupported target type",
+          field: "target",
+          statusCode: 400,
+        });
       }
 
       // Return mock reverse simulation response matching the schema

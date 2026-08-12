@@ -17,7 +17,7 @@ function getAdminUserIds() {
       .split(",")
       .map((id) => id.trim())
       .filter(Boolean)
-      .map((id) => BigInt(id)) // 使用 BigInt 處理大數字
+      .map((id) => BigInt(id)), // 使用 BigInt 處理大數字
   );
 }
 
@@ -29,7 +29,10 @@ const ADMIN_USER_IDS = getAdminUserIds();
  */
 export async function adminGuard(request, reply) {
   // 開發環境繞過
-  if (process.env.NODE_ENV === "development" && process.env.BYPASS_ADMIN_GUARD === "true") {
+  if (
+    process.env.NODE_ENV === "development" &&
+    process.env.BYPASS_ADMIN_GUARD === "true"
+  ) {
     request.user = { id: 123456789n, isAdmin: true };
     return;
   }
@@ -47,7 +50,10 @@ export async function adminGuard(request, reply) {
   const isAdmin = ADMIN_USER_IDS.has(userId);
 
   if (!isAdmin) {
-    logger.warn({ userId: userId.toString() }, "Admin guard: user not authorized");
+    logger.warn(
+      { userId: userId.toString() },
+      "Admin guard: user not authorized",
+    );
     return reply.code(403).send({
       error: "Forbidden",
       message: "需要管理員權限",

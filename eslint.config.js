@@ -32,6 +32,15 @@ export default [
     },
   },
   {
+    files: ["**/*.test.mjs", "**/*.test.ts", "**/test/**/*.mjs", "**/test/**/*.ts"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.vitest,
+      },
+    },
+  },
+  {
     ignores: ["node_modules/", "dist/", "webapp/dist/", ".agents/", "scratch/"],
   },
 ];

@@ -5,7 +5,11 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AccountSimulator } from "../../modules/backtest/accountSimulator.mjs";
-import { AssetRegistry, ASSET_TYPES, createDefaultAssetRegistry } from "../../modules/assets/assetRegistry.mjs";
+import {
+  AssetRegistry,
+  ASSET_TYPES,
+  createDefaultAssetRegistry,
+} from "../../modules/assets/assetRegistry.mjs";
 import { SchemaMapper } from "../../modules/assets/assetRegistry.mjs";
 
 describe("AccountSimulator - N-asset 支援", () => {
@@ -14,7 +18,7 @@ describe("AccountSimulator - N-asset 支援", () => {
 
   beforeEach(() => {
     registry = createDefaultAssetRegistry();
-    
+
     simulator = new AccountSimulator({
       cash: 100000,
       qty0050: 1000,
@@ -99,7 +103,7 @@ describe("AccountSimulator - N-asset 支援", () => {
     it("應根據 BASE 類型資產總值計算質押額度", () => {
       const registry = createDefaultAssetRegistry();
       const baseAssets = registry.getAssetsByType("base");
-      
+
       let totalPledgeValue = 0;
       for (const asset of baseAssets) {
         const qty = `qty${asset.id === "00675L" ? "Z2" : asset.id}`;
@@ -115,7 +119,7 @@ describe("AccountSimulator - N-asset 支援", () => {
     it("應處理 0050 股票分割", () => {
       const registry = createDefaultAssetRegistry();
       const asset0050 = registry.getAsset("0050");
-      
+
       expect(asset0050.splitHistory).toHaveLength(1);
       expect(asset0050.splitHistory[0].date).toBe("2025-06-18");
       expect(asset0050.splitHistory[0].ratio).toBe(4);
@@ -123,7 +127,7 @@ describe("AccountSimulator - N-asset 支援", () => {
       const simulator2 = new AccountSimulator({
         qty0050: 1000,
       });
-      
+
       simulator2.processStockSplit("2025-06-18", true);
       expect(simulator2.qty0050).toBe(4000);
       expect(simulator2._splitProcessed_20250618).toBe(true);
@@ -133,7 +137,7 @@ describe("AccountSimulator - N-asset 支援", () => {
       const simulator2 = new AccountSimulator({
         qty0050: 1000,
       });
-      
+
       simulator2.processStockSplit("2025-06-18", true);
       simulator2.processStockSplit("2025-06-18", true);
       expect(simulator2.qty0050).toBe(4000);
@@ -143,7 +147,7 @@ describe("AccountSimulator - N-asset 支援", () => {
       const simulator2 = new AccountSimulator({
         qty0050: 1000,
       });
-      
+
       simulator2.processStockSplit("2024-01-01", true);
       expect(simulator2.qty0050).toBe(1000);
     });
@@ -161,11 +165,19 @@ describe("AccountSimulator - N-asset 支援", () => {
       const price0050 = 175;
       const priceZ2 = 275;
 
-      const sold1 = simulator2.deleverage(price0050, 275, { triggerRatio: 0.85, targetRatio: 0.7, quiet: true });
+      const sold1 = simulator2.deleverage(price0050, 275, {
+        triggerRatio: 0.85,
+        targetRatio: 0.7,
+        quiet: true,
+      });
       expect(sold1).toBe(0);
 
       simulator2.totalLoan = 90000;
-      const sold2 = simulator2.deleverage(price0050, 275, { triggerRatio: 0.85, targetRatio: 0.7, quiet: true });
+      const sold2 = simulator2.deleverage(price0050, 275, {
+        triggerRatio: 0.85,
+        targetRatio: 0.7,
+        quiet: true,
+      });
       expect(sold2).toBeGreaterThan(0);
       expect(simulator2.totalLoan).toBeLessThan(90000);
     });

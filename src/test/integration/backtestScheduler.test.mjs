@@ -3,7 +3,15 @@
  * 回測排程器整合測試
  */
 
-import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from "vitest";
 
 // Mock submitBacktestJob at TOP LEVEL to control backtest execution (DEC-28/35)
 // 直接 Mock 佇列層，避免 backtestQueue 內部實例化 BacktestRunner
@@ -17,14 +25,14 @@ vi.mock("../../modules/backtest/backtestQueue.mjs", () => {
       // 返回會失敗的 job
       return Promise.resolve({
         jobId: `mock-fail-${Date.now()}-${Math.random()}`,
-        status: "waiting"
+        status: "waiting",
       });
     }
 
     // 正常成功
     return Promise.resolve({
       jobId: `mock-success-${Date.now()}-${Math.random()}`,
-      status: "waiting"
+      status: "waiting",
     });
   });
 
@@ -33,7 +41,7 @@ vi.mock("../../modules/backtest/backtestQueue.mjs", () => {
       return Promise.resolve({
         jobId,
         status: "failed",
-        result: { error: "找不到指定日期範圍內的報告" }
+        result: { error: "找不到指定日期範圍內的報告" },
       });
     }
     return Promise.resolve({
@@ -54,30 +62,45 @@ vi.mock("../../modules/backtest/backtestQueue.mjs", () => {
           signalCategoryStats: {
             categories: {},
             monthlyData: {},
-            summary: { totalDays: 65, totalCategories: 1, startDate: "2026-08-01", endDate: "2026-10-05" }
-          }
-        }
-      }
+            summary: {
+              totalDays: 65,
+              totalCategories: 1,
+              startDate: "2026-08-01",
+              endDate: "2026-10-05",
+            },
+          },
+        },
+      },
     });
   });
 
   return {
     submitBacktestJob: mockSubmitBacktestJob,
     getJobStatus: mockGetJobStatus,
-    getQueueStats: vi.fn().mockResolvedValue({ waiting: 0, active: 0, completed: 0, failed: 0, delayed: 0 }),
+    getQueueStats: vi.fn().mockResolvedValue({
+      waiting: 0,
+      active: 0,
+      completed: 0,
+      failed: 0,
+      delayed: 0,
+    }),
     shutdownQueue: vi.fn().mockResolvedValue(undefined),
     JOB_STATUS: {
       WAITING: "waiting",
       ACTIVE: "active",
       COMPLETED: "completed",
       FAILED: "failed",
-      DELAYED: "delayed"
-    }
+      DELAYED: "delayed",
+    },
   };
 });
 
 import backtestScheduler from "../../modules/backtest/backtestScheduler.ts";
-import { submitBacktestJob, getQueueStats, shutdownQueue } from "../../modules/backtest/backtestQueue.mjs";
+import {
+  submitBacktestJob,
+  getQueueStats,
+  shutdownQueue,
+} from "../../modules/backtest/backtestQueue.mjs";
 import { archiveManager } from "../../modules/data/archiveManager.mjs";
 
 // 設定開發環境變數
@@ -188,7 +211,9 @@ describe("Backtest Scheduler", () => {
 
       expect(status).toBeDefined();
       expect(status.jobId).toBe(jobId);
-      expect(["scheduled", "running", "completed", "failed"]).toContain(status.status);
+      expect(["scheduled", "running", "completed", "failed"]).toContain(
+        status.status,
+      );
       expect(status.nextRun).toBeDefined();
       expect(status.configs).toBeDefined();
       expect(Array.isArray(status.configs)).toBe(true);
@@ -220,7 +245,9 @@ describe("Backtest Scheduler", () => {
     });
 
     it("取消不存在的排程應回傳 false", async () => {
-      const cancelled = await backtestScheduler.cancelScheduledJob("non-existent-job-id");
+      const cancelled = await backtestScheduler.cancelScheduledJob(
+        "non-existent-job-id",
+      );
       expect(cancelled).toBe(false);
     });
   });
@@ -368,13 +395,18 @@ describe("Backtest Scheduler", () => {
       console.log("Looking for result files in:", resultDir);
       const files = await fs.readdir(resultDir);
       console.log("Files found:", files);
-      const resultFiles = files.filter(f => f.includes(jobId) || f.includes("test-persist"));
+      const resultFiles = files.filter(
+        (f) => f.includes(jobId) || f.includes("test-persist"),
+      );
 
       expect(resultFiles.length).toBeGreaterThan(0);
 
       // 驗證檔案格式
       for (const file of resultFiles) {
-        const content = await fs.readFile(path.resolve(resultDir, file), "utf-8");
+        const content = await fs.readFile(
+          path.resolve(resultDir, file),
+          "utf-8",
+        );
         const data = JSON.parse(content);
         expect(data).toHaveProperty("jobId");
         // The persisted file has results array with summary inside

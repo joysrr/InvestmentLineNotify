@@ -64,7 +64,7 @@ function generateErrorHash(error) {
   let hash = 0;
   const str = parts.join("|");
   for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash = (hash << 5) - hash + str.charCodeAt(i);
     hash |= 0;
   }
   return Math.abs(hash).toString(16);
@@ -96,7 +96,7 @@ export async function save(error) {
     error.request?.method || null,
     error.request?.body ? JSON.stringify(error.request.body) : null,
     now,
-    now
+    now,
   );
 
   logger.debug({ hash, message: error.message }, "Error saved");
@@ -114,7 +114,7 @@ export async function getAll(limit = 100, offset = 0) {
     LIMIT ? OFFSET ?
   `);
 
-  return stmt.all(limit, offset).map(row => ({
+  return stmt.all(limit, offset).map((row) => ({
     ...row,
     statusCode: row.status_code,
     requestBody: row.request_body ? JSON.parse(row.request_body) : null,
@@ -134,7 +134,7 @@ export async function getSince(since, limit = 100) {
     LIMIT ?
   `);
 
-  return stmt.all(since, limit).map(row => ({
+  return stmt.all(since, limit).map((row) => ({
     ...row,
     statusCode: row.status_code,
     requestBody: row.request_body ? JSON.parse(row.request_body) : null,

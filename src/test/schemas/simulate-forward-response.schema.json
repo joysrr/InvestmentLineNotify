@@ -40,22 +40,43 @@
     "portfolioHealth": {
       "type": "object",
       "additionalProperties": true,
-      "required": ["maintenanceRisk", "actualLeverage", "z2Ratio", "grossLeverage", "grossLeverageStatus", "decouplingAnalysis", "marginAnalysis"],
+      "required": [
+        "maintenanceRisk",
+        "actualLeverage",
+        "z2Ratio",
+        "grossLeverage",
+        "grossLeverageStatus",
+        "decouplingAnalysis",
+        "marginAnalysis"
+      ],
       "properties": {
         "maintenanceRisk": { "type": "object", "additionalProperties": true },
         "actualLeverage": { "type": "number" },
         "z2Ratio": { "type": "number" },
         "grossLeverage": { "type": "number" },
-        "grossLeverageStatus": { "type": "string", "enum": ["normal", "warning", "danger"] },
-        "decouplingAnalysis": { "type": "object", "additionalProperties": true },
+        "grossLeverageStatus": {
+          "type": "string",
+          "enum": ["normal", "warning", "danger"]
+        },
+        "decouplingAnalysis": {
+          "type": "object",
+          "additionalProperties": true
+        },
         "marginAnalysis": { "type": "object", "additionalProperties": true }
       }
     },
-    "lifecycleStage": { "type": "string", "enum": ["累積期", "成長期", "成熟期", "防守期", "退休期"] },
+    "lifecycleStage": {
+      "type": "string",
+      "enum": ["累積期", "成長期", "成熟期", "防守期", "退休期"]
+    },
     "calculationMode": { "type": "string", "const": "forward" },
     "timestamp": { "type": "string", "format": "date-time" },
     "dataAsOf": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
-    "assumptions": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "assumptions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
     "warnings": { "type": "array", "items": { "type": "string" } },
     "disclaimer": { "type": "string", "minLength": 10 },
     "currentPrice0050": { "type": "number" },
@@ -65,8 +86,18 @@
       "additionalProperties": true,
       "properties": {
         "rsi": { "type": "number" },
-        "kd": { "type": "object", "properties": { "k": { "type": "number" }, "d": { "type": "number" } } },
-        "macd": { "type": "object", "properties": { "MACD": { "type": "number" }, "signal": { "type": "number" }, "histogram": { "type": "number" } } },
+        "kd": {
+          "type": "object",
+          "properties": { "k": { "type": "number" }, "d": { "type": "number" } }
+        },
+        "macd": {
+          "type": "object",
+          "properties": {
+            "MACD": { "type": "number" },
+            "signal": { "type": "number" },
+            "histogram": { "type": "number" }
+          }
+        },
         "ma20": { "type": ["number", "null"] },
         "ma60": { "type": ["number", "null"] },
         "ma240": { "type": ["number", "null"] },
@@ -79,13 +110,34 @@
       "additionalProperties": false,
       "required": ["rsi", "kd", "macd", "ma20", "ma60", "ma240", "atr"],
       "properties": {
-        "rsi": { "type": "string", "enum": ["ok", "fallback_used", "insufficient_data"] },
-        "kd": { "type": "string", "enum": ["ok", "fallback_used", "insufficient_data"] },
-        "macd": { "type": "string", "enum": ["ok", "fallback_used", "insufficient_data"] },
-        "ma20": { "type": "string", "enum": ["ok", "fallback_used", "insufficient_data"] },
-        "ma60": { "type": "string", "enum": ["ok", "fallback_used", "insufficient_data"] },
-        "ma240": { "type": "string", "enum": ["ok", "fallback_used", "insufficient_data"] },
-        "atr": { "type": "string", "enum": ["ok", "fallback_used", "insufficient_data"] }
+        "rsi": {
+          "type": "string",
+          "enum": ["ok", "fallback_used", "insufficient_data"]
+        },
+        "kd": {
+          "type": "string",
+          "enum": ["ok", "fallback_used", "insufficient_data"]
+        },
+        "macd": {
+          "type": "string",
+          "enum": ["ok", "fallback_used", "insufficient_data"]
+        },
+        "ma20": {
+          "type": "string",
+          "enum": ["ok", "fallback_used", "insufficient_data"]
+        },
+        "ma60": {
+          "type": "string",
+          "enum": ["ok", "fallback_used", "insufficient_data"]
+        },
+        "ma240": {
+          "type": "string",
+          "enum": ["ok", "fallback_used", "insufficient_data"]
+        },
+        "atr": {
+          "type": "string",
+          "enum": ["ok", "fallback_used", "insufficient_data"]
+        }
       }
     }
   }

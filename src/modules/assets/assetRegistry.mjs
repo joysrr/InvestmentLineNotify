@@ -307,7 +307,8 @@ export class SchemaMapper {
     for (const asset of this.registry.getAllAssets()) {
       const fieldName = this._getLegacyFieldName(asset);
       legacy.portfolio[`qty${fieldName}`] = assets[asset.id]?.qty ?? 0;
-      legacy.portfolio[`avgCost${fieldName}`] = assets[asset.id]?.avgCost ?? null;
+      legacy.portfolio[`avgCost${fieldName}`] =
+        assets[asset.id]?.avgCost ?? null;
     }
 
     return legacy;

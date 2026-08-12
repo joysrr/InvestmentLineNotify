@@ -11,10 +11,29 @@
       "additionalProperties": false,
       "required": ["type"],
       "properties": {
-        "type": { "type": "string", "enum": ["maintenanceRatio", "rsi", "ma20", "ma60", "ma240Bias", "kdCross", "macdCross", "strategyScore", "portfolioHealth"] },
+        "type": {
+          "type": "string",
+          "enum": [
+            "maintenanceRatio",
+            "rsi",
+            "ma20",
+            "ma60",
+            "ma240Bias",
+            "kdCross",
+            "macdCross",
+            "strategyScore",
+            "portfolioHealth"
+          ]
+        },
         "value": { "type": ["number", "null"] },
-        "direction": { "type": ["string", "null"], "enum": ["golden", "dead", null] },
-        "status": { "type": ["string", "null"], "enum": ["green", "yellow", "red", null] }
+        "direction": {
+          "type": ["string", "null"],
+          "enum": ["golden", "dead", null]
+        },
+        "status": {
+          "type": ["string", "null"],
+          "enum": ["green", "yellow", "red", null]
+        }
       }
     }
   }

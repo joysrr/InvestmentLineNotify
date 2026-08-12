@@ -3,7 +3,15 @@
  * 監控模組整合測試
  */
 
-import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from "vitest";
 import { errorStore } from "../../modules/monitoring/errorStore.mjs";
 import { metricsCollector } from "../../modules/monitoring/metricsCollector.mjs";
 import { alertEngine } from "../../modules/monitoring/alertEngine.mjs";
@@ -23,7 +31,11 @@ describe("Monitoring Module", () => {
     it("應能儲存錯誤", async () => {
       const error = new Error("Test error");
       error.statusCode = 500;
-      error.request = { url: "/api/test", method: "POST", body: { test: true } };
+      error.request = {
+        url: "/api/test",
+        method: "POST",
+        body: { test: true },
+      };
 
       await errorStore.save(error);
 
@@ -98,8 +110,12 @@ describe("Monitoring Module", () => {
 
       const metrics = metricsCollector.getMetrics();
       expect(metrics.httpRequests.latency.p50).toBeGreaterThan(0);
-      expect(metrics.httpRequests.latency.p95).toBeGreaterThan(metrics.httpRequests.latency.p50);
-      expect(metrics.httpRequests.latency.p99).toBeGreaterThan(metrics.httpRequests.latency.p95);
+      expect(metrics.httpRequests.latency.p95).toBeGreaterThan(
+        metrics.httpRequests.latency.p50,
+      );
+      expect(metrics.httpRequests.latency.p99).toBeGreaterThan(
+        metrics.httpRequests.latency.p95,
+      );
     });
 
     it("應能記錄佇列深度", () => {
@@ -125,7 +141,12 @@ describe("Monitoring Module", () => {
     });
 
     it("應能輸出快照", () => {
-      metricsCollector.recordHttpRequest({ method: "GET", path: "/api/test", statusCode: 200, duration: 100 });
+      metricsCollector.recordHttpRequest({
+        method: "GET",
+        path: "/api/test",
+        statusCode: 200,
+        duration: 100,
+      });
       metricsCollector.recordQueueDepth(5);
 
       const snapshot = metricsCollector.getSnapshot();
@@ -188,7 +209,7 @@ describe("Monitoring Module", () => {
         expect.objectContaining({
           name: "notify_test",
           severity: "critical",
-        })
+        }),
       );
     });
   });
