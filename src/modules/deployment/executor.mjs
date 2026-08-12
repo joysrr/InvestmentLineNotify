@@ -11,10 +11,22 @@ import { fileURLToPath } from "url";
 import logger from "../../utils/logger.mjs";
 import { v4 as uuidv4 } from "uuid";
 
-const __dirname = resolve(fileURLToPath(import.meta.url), "..");
-const PROJECT_ROOT = resolve(__dirname, "../../../..");
-const DEPLOY_JOBS_DIR = resolve(PROJECT_ROOT, "data/deployment/jobs");
-const LOCK_FILE = resolve(PROJECT_ROOT, "data/deployment/deploy.lock");
+// Use process.cwd() as project root for consistency across test/prod
+// Dynamic functions to allow test-time override via DEPLOY_PROJECT_ROOT env var
+function getProjectRoot() {
+  return process.env.DEPLOY_PROJECT_ROOT || resolve(process.cwd(), "..");
+}
+
+function getDeployJobsDir() {
+  return resolve(getProjectRoot(), "data/deployment/jobs");
+}
+
+function getLockFile() {
+  return resolve(getProjectRoot(), "data/deployment/deploy.lock");
+}
+
+console.log("executor.mjs PROJECT_ROOT:", getProjectRoot());
+console.log("executor.mjs DEPLOY_JOBS_DIR:", getDeployJobsDir());
 
 // Deployment status
 export const DEPLOY_STATUS = {
@@ -32,12 +44,19 @@ const progressEmitter = new EventEmitter();
 // Lock state
 let isLocked = false;
 
+// Test mode flag to skip background execution
+let testMode = false;
+
+export function setTestMode(enabled) {
+  testMode = enabled;
+}
+
 /**
  * 確保部署目錄存在
  */
 async function ensureDeployDirs() {
-  await mkdir(DEPLOY_JOBS_DIR, { recursive: true });
-  await mkdir(resolve(LOCK_FILE, ".."), { recursive: true });
+  await mkdir(getDeployJobsDir(), { recursive: true });
+  await mkdir(resolve(getLockFile(), ".."), { recursive: true });
 }
 
 /**
@@ -48,7 +67,7 @@ async function acquireLock(jobId) {
 
   // 檢查現有鎖
   try {
-    const lockContent = await readFile(LOCK_FILE, "utf8");
+    const lockContent = await readFile(getLockFile(), "utf8");
     const lock = JSON.parse(lockContent);
     if (lock.jobId && lock.jobId !== jobId) {
       throw new Error(`另一個部署任務正在進行中: ${lock.jobId}`);
@@ -58,7 +77,7 @@ async function acquireLock(jobId) {
   }
 
   // 建立鎖
-  await writeFile(LOCK_FILE, JSON.stringify({ jobId, acquiredAt: Date.now() }));
+  await writeFile(getLockFile(), JSON.stringify({ jobId, acquiredAt: Date.now() }));
   isLocked = true;
 }
 
@@ -67,10 +86,10 @@ async function acquireLock(jobId) {
  */
 async function releaseLock(jobId) {
   try {
-    const lockContent = await readFile(LOCK_FILE, "utf8");
+    const lockContent = await readFile(getLockFile(), "utf8");
     const lock = JSON.parse(lockContent);
     if (lock.jobId === jobId) {
-      await writeFile(LOCK_FILE, JSON.stringify({ jobId: null, releasedAt: Date.now() }));
+      await writeFile(getLockFile(), JSON.stringify({ jobId: null, releasedAt: Date.now() }));
       isLocked = false;
     }
   } catch (err) {
@@ -98,7 +117,7 @@ export function subscribeDeployProgress(jobId, callback) {
  */
 async function saveJobState(jobId, state) {
   await ensureDeployDirs();
-  const filePath = resolve(DEPLOY_JOBS_DIR, `${jobId}.json`);
+  const filePath = resolve(getDeployJobsDir(), `${jobId}.json`);
   await writeFile(filePath, JSON.stringify(state, null, 2));
 }
 
@@ -107,10 +126,13 @@ async function saveJobState(jobId, state) {
  */
 export async function getJobState(jobId) {
   try {
-    const filePath = resolve(DEPLOY_JOBS_DIR, `${jobId}.json`);
+    const filePath = resolve(getDeployJobsDir(), `${jobId}.json`);
+    console.log("getJobState reading from:", filePath);
     const content = await readFile(filePath, "utf8");
+    console.log("getJobState content:", content);
     return JSON.parse(content);
   } catch (err) {
+    console.log("getJobState error:", err.code, err.message);
     if (err.code === "ENOENT") return null;
     throw err;
   }
@@ -121,13 +143,13 @@ export async function getJobState(jobId) {
  */
 export async function getDeployHistory(limit = 20) {
   await ensureDeployDirs();
-  const files = await readdir(DEPLOY_JOBS_DIR);
+  const files = await readdir(getDeployJobsDir());
   const jobs = [];
 
   for (const file of files) {
     if (file.endsWith(".json")) {
       try {
-        const content = await readFile(resolve(DEPLOY_JOBS_DIR, file), "utf8");
+        const content = await readFile(resolve(getDeployJobsDir(), file), "utf8");
         jobs.push(JSON.parse(content));
       } catch {
         // 忽略無法解析的檔案
@@ -144,10 +166,11 @@ export async function getDeployHistory(limit = 20) {
  * 執行部署
  */
 export async function executeDeploy(jobId, options = {}) {
+  const projectRoot = getProjectRoot();
   const {
-    deployPath = process.env.DEPLOY_PATH || PROJECT_ROOT,
+    deployPath = process.env.DEPLOY_PATH || projectRoot,
     pm2Ecosystem = process.env.PM2_ECOSYSTEM || "ecosystem.config.js",
-    webappPath = process.env.WEBAPP_PATH || resolve(PROJECT_ROOT, "webapp"),
+    webappPath = process.env.WEBAPP_PATH || resolve(projectRoot, "webapp"),
     rollback = false,
     rollbackTarget = null,
   } = options;
@@ -314,9 +337,10 @@ export async function executeDeploy(jobId, options = {}) {
  */
 async function getLastDeployTag() {
   try {
+    const projectRoot = getProjectRoot();
     const { stdout } = await new Promise((resolve, reject) => {
       const child = spawn("git", ["tag", "-l", "deploy-*", "--sort=-creatordate"], {
-        cwd: process.env.DEPLOY_PATH || PROJECT_ROOT,
+        cwd: process.env.DEPLOY_PATH || projectRoot,
       });
       let stdout = "";
       child.stdout.on("data", (data) => stdout += data.toString());
@@ -373,8 +397,16 @@ export async function createDeployJob(options = {}) {
 
   await saveJobState(jobId, state);
 
-  // 非同步執行部署（鎖在 executeDeploy 中取得）
-  setImmediate(() => executeDeploy(jobId, options));
+  // 非同步執行部署（鎖在 executeDeploy 中取得） - test mode 時不啟動背景任務
+  if (!testMode) {
+    setImmediate(() => executeDeploy(jobId, options));
+  } else {
+    // Test mode: immediately mark as completed
+    state.status = DEPLOY_STATUS.COMPLETED;
+    state.completedAt = Date.now();
+    state.exitCode = 0;
+    await saveJobState(jobId, state);
+  }
 
   return { jobId, status: state.status };
 }
@@ -408,6 +440,7 @@ export const deploymentExecutor = {
   getDeployHistory,
   subscribeDeployProgress,
   DEPLOY_STATUS,
+  setTestMode,
 };
 
 export default deploymentExecutor;

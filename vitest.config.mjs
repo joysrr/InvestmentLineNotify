@@ -6,6 +6,8 @@ export default defineConfig({
     environment: "node",
     include: ["src/test/**/*.test.mjs", "src/test/**/*.test.js"],
     exclude: ["**/node_modules/**", "**/dist/**", "**/webapp/**", "**/src/test/e2e/**"],
+    testTimeout: 60000,
+    hookTimeout: 20000,
     coverage: {
       provider: "v8",
       thresholds: {

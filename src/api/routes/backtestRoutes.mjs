@@ -449,5 +449,6 @@ async function backtestRoutes(fastify) {
       return await getSchedulerStats();
     },
   );
+}
 
 export default backtestRoutes;

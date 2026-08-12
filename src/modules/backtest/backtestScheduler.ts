@@ -254,6 +254,7 @@ async function executeScheduledRun(scheduleId) {
     while (attempt <= schedule.retry.maxAttempts && !success) {
       attempt++;
       schedule.currentAttempt = attempt;
+      schedule.attempts++; // Track total attempts across all configs
 
       try {
         publishScheduleProgress(scheduleId, {
@@ -303,27 +304,42 @@ async function executeScheduledRun(scheduleId) {
       }
     }
 
-    // Determine final status
-    const failedCount = schedule.results.filter(r => r.status === "failed").length;
-    if (failedCount === schedule.configs.length) {
-      schedule.status = SCHEDULE_STATUS.FAILED;
-      schedule.error = "All configs failed";
-    } else if (failedCount > 0) {
-      schedule.status = SCHEDULE_STATUS.COMPLETED; // Partial success counts as completed
-    } else {
-      schedule.status = SCHEDULE_STATUS.COMPLETED;
+    // Determine final status - check if ANY config ultimately succeeded
+    // A config succeeds if its LAST attempt was completed
+    const configResults = new Map(); // configName -> last result
+    for (const result of schedule.results) {
+      configResults.set(result.configName, result);
     }
+    
+    let failedConfigCount = 0;
+    for (const config of schedule.configs) {
+      const lastResult = configResults.get(config.name);
+      if (!lastResult || lastResult.status === "failed") {
+        failedConfigCount++;
+      }
+    }
+    
+    if (failedConfigCount === schedule.configs.length) {
+          schedule.status = SCHEDULE_STATUS.FAILED;
+          schedule.error = "All configs failed";
+        } else if (failedConfigCount > 0) {
+          schedule.status = SCHEDULE_STATUS.COMPLETED; // Partial success counts as completed
+        } else {
+          schedule.status = SCHEDULE_STATUS.COMPLETED;
+        }
 
-    // Persist results
-    await persistScheduleResults(scheduleId);
+        // Persist results
+        await persistScheduleResults(scheduleId);
 
-    publishScheduleProgress(scheduleId, {
-      stage: schedule.status === SCHEDULE_STATUS.FAILED ? "failed" : "completed",
-      percent: 100,
-      message: schedule.status === SCHEDULE_STATUS.FAILED
-        ? "Schedule execution failed"
-        : `Schedule completed (success: ${schedule.configs.length - failedCount}/${schedule.configs.length})`,
-    });
+        const successCount = schedule.configs.length - failedConfigCount;
+
+        publishScheduleProgress(scheduleId, {
+          stage: schedule.status === SCHEDULE_STATUS.FAILED ? "failed" : "completed",
+          percent: 100,
+          message: schedule.status === SCHEDULE_STATUS.FAILED
+            ? "Schedule execution failed"
+            : `Schedule completed (success: ${successCount}/${schedule.configs.length})`,
+        });
 
     logger.info({ scheduleId, status: schedule.status, results: schedule.results.length }, "Schedule execution completed");
 }

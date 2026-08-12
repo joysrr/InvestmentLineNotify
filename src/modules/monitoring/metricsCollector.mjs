@@ -4,7 +4,6 @@
  */
 
 import { EventEmitter } from "events";
-import logger from "../../utils/logger.mjs";
 
 class MetricsCollector extends EventEmitter {
   constructor() {
@@ -15,6 +14,9 @@ class MetricsCollector extends EventEmitter {
     this.reset();
   }
 
+  /**
+   * 重設所有指標
+   */
   reset() {
     this.httpRequests = {
       total: 0,
@@ -173,33 +175,6 @@ class MetricsCollector extends EventEmitter {
       timestamp: Date.now(),
       metrics: this.getMetrics(),
     };
-  }
-
-  /**
-   * 重設所有指標
-   */
-  reset() {
-    this.httpRequests = {
-      total: 0,
-      byMethod: {},
-      byPath: {},
-      byStatus: {},
-      durations: [],
-      errors: 0,
-    };
-    this.queueDepth = {
-      current: 0,
-      max: 0,
-      min: Infinity,
-      sum: 0,
-      count: 0,
-    };
-    this.systemResources = {
-      memoryUsage: 0,
-      cpuUsage: 0,
-    };
-    this.workerHeartbeats.clear();
-    this.customMetrics.clear();
   }
 }
 

@@ -19,14 +19,17 @@ Phase 1-4 核心功能已全部交付完成。本計畫針對審計發現的**�
 
 | 任務 | 優先級 | 預估工時 | 說明 |
 |------|--------|----------|------|
-| **5.1.1** 修復 backtestScheduler 測試資料問題 | 🟡 Medium | **1h** ⬅️ 從 2h 調整 | **Mock `backtestRunner.run()` 回傳固定結果** (DEC-28)，不建立測試資料庫種子，**最小集合**：只 Mock `metrics: { totalReturn, winRate, maxDrawdown }`，其他依測試需求擴充 (DEC-35) |
-| **5.1.2** 清理 deploy.test.mjs 背景 async 清理 | 🟢 Low | 1h | 在 `afterAll` 中等待所有部署任務完成並釋放鎖 |
-| **5.1.3** 統一測試超時設定 | 🟢 Low | 1h | vitest.config.mjs 設定 `testTimeout`、`hookTimeout` 適應長跑測試 |
+| **5.1.1** 修復 backtestScheduler 測試資料問題 | 🟡 Medium | **1h** ⬅️ 從 2h 調整 | **Mock `backtestRunner.run()` 回傳固定結果** (DEC-28)，不建立測試資料庫種子，**最小集合**：只 Mock `metrics: { totalReturn, winRate, maxDrawdown }`，其他依測試需求擴充 (DEC-35) | ✅ 完成 |
+| **5.1.2** 清理 deploy.test.mjs 背景 async 清理 | 🟢 Low | 1h | 在 `afterAll` 中等待所有部署任務完成並釋放鎖 | ✅ 完成 |
+| **5.1.3** 統一測試超時設定 | 🟢 Low | 1h | vitest.config.mjs 設定 `testTimeout`、`hookTimeout` 適應長跑測試 | ✅ 完成 |
 
 ### 驗收標準
-- [ ] `backtestScheduler.test.mjs` 10/10 tests pass
-- [ ] `deploy.test.mjs` 0 unhandled rejection
-- [ ] 整合測試套件無背景錯誤
+- [x] `backtestScheduler.test.mjs` 10/10 tests pass
+- [x] `deploy.test.mjs` 0 unhandled rejection
+- [x] 整合測試套件無背景錯誤
+
+**Phase 5.1 完成時間**: 2026-08-12 05:14 UTC
+**實際工時**: ~2.5h (預估 3h)
 
 ---
 
