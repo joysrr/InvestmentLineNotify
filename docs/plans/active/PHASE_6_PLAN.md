@@ -148,3 +148,59 @@
 | DEC | 決策 | 狀態 | 日期 |
 |-----|------|------|------|
 | -- | (執行時記錄) | -- | -- |
+
+---
+
+## 🛡️ 最低驗收標準 (Minimum Viable DoD)
+
+> **重要**：這是 Phase 6 的「絕不可妥協」底線。若 9.5h 預估超時但已達最低門檻，視為階段成功；最高目標（Phase 6 DoD）作為持續努力方向。
+
+### 最低門檻 vs 最高目標
+
+| 指標 | 最低門檻 (不可妥協) | 最高目標 (Phase 6 DoD) |
+| ---- | ------------------ | ---------------------- |
+| ESLint Warnings | < 50 (從 292) | 0 (或 < 20 + DEC) |
+| Branches 覆蓋率 | >= 65% (從 60.14%) | >= 70% |
+| Dogfood High bugs | < 3 (從 9) | 0 |
+| Dogfood Medium bugs | < 5 (從 6) | < 3 |
+| vitest unhandled errors | 0 | 0 |
+| 測試全綠 | 100% | 100% |
+
+### 階段對照表（每階段結束填寫）
+
+| 階段 | 開始時 | 結束時 | 達成最低？ |
+| ---- | ------ | ------ | ---------- |
+| 6.0 vitest Worker | (baseline) | __ | __ |
+| 6.1 ESLint Warnings | 292 | __ | __ (< 50) |
+| 6.2 Branches 覆蓋率 | 60.14% | __ | __ (>= 65%) |
+| 6.3 Dogfood Bug | High 9, Med 6 | __ | __ (H<3, M<5) |
+| 6.4 vitest 穩定性 | __ | __ | __ |
+
+---
+
+## 📋 決策記錄（Phase 6 規劃階段）
+
+| DEC | 決策 | 狀態 | 日期 |
+| ---- | ---- | ---- | ---- |
+| **DEC-007** | Phase 6 執行順序：6.0 → 6.1 → 6.2 → 6.3 → 6.4 (循序) | ✅ | 2026-08-13 |
+| **DEC-008** | Phase 6 在獨立 `phase-6` branch 執行，結束後保留各階段 commits 一次合併 | ✅ | 2026-08-13 |
+| **DEC-009** | ESLint Warnings 清理策略：自動修復 (underscore args + catch) + 測試檔 import 全清 + source 121 個用 knip 交叉驗證 | ✅ | 2026-08-13 |
+| **DEC-010** | eslint-disable 白名單：reflection metadata、export re-export、JSX prop typing、type assertion only（4 種情境） | ✅ | 2026-08-13 |
+| **DEC-011** | Branches 補測範圍：aiClient (Provider fallback chain) + monitoring (errorStore CRUD + alertEngine 規則評估)；simulate 留 P7 | ✅ | 2026-08-13 |
+| **DEC-012** | initData guard 雙重條件：`NODE_ENV !== 'production' AND TEST_MODE === 'true'` 跳過 hash 驗證 | ✅ | 2026-08-13 |
+| **DEC-013** | initData guard 修改獨立 commit，訊息明確標示「測試環境 bypass」 | ✅ | 2026-08-13 |
+| **DEC-014** | Phase 6 最低門檻：Branches >= 65%, Warnings < 50, High bugs < 3 | ✅ | 2026-08-13 |
+| **DEC-015** | Phase 6 時程緩衝：接受 10% 緩衝（10-11h），最低門檻達成即視為成功 | ✅ | 2026-08-13 |
+
+---
+
+## 📌 Baseline 記錄 (2026-08-13)
+
+| 指標 | Baseline |
+| ---- | -------- |
+| ESLint Warnings | 292 (285 no-unused-vars + 7 vue/one-component-per-file) |
+| Branches 覆蓋率 | 60.14% |
+| Dogfood High bugs | 9 |
+| Dogfood Medium bugs | 6 |
+| 測試通過 | 1398 passed, 6 todo, 89 test files |
+| 覆蓋率全項 | Lines 70.05% / Functions 60.14% / Branches 60.14% / Statements 71.02% |
