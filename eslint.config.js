@@ -21,7 +21,14 @@ export default [
       },
     },
     rules: {
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^(err|e)$",
+        },
+      ],
       "no-console": "off",
       // Vue SFC formatting rules — downgrade to warn (project-wide style, not errors)
       "vue/max-attributes-per-line": "warn",
@@ -32,12 +39,26 @@ export default [
     },
   },
   {
+    // Fastify route handlers — convention is (request, reply) but reply may be unused
+    files: ["src/api/**/*.mjs", "src/api/**/*.js"],
+    rules: {
+      "no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^(request|reply|_)$" },
+      ],
+    },
+  },
+  {
     files: ["**/*.test.mjs", "**/*.test.ts", "**/test/**/*.mjs", "**/test/**/*.ts"],
     languageOptions: {
       globals: {
         ...globals.node,
         ...globals.vitest,
       },
+    },
+    rules: {
+      // Test files: allow unused vars in mock factories and test utilities
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", ignoreRestSiblings: true }],
     },
   },
   {
