@@ -312,7 +312,7 @@ describe("validator - 反向推導輸入驗證", () => {
           ].includes(type)
         ) {
           baseInput.target.value =
-            type === "rsi" ? 50 : type === "ma240Bias" ? 0 : 150;
+            type === "rsi" ? 50 : type === "ma240Bias" ? 0 : 80;
         }
         if (["kdCross", "macdCross"].includes(type)) {
           baseInput.target.direction = "golden";

@@ -38,7 +38,7 @@ export function getMonthKey(dateStr) {
  * @param {Array} reports  - array of { date, signals, ... }
  * @returns {Object}
  */
-function buildSummary(reports) {
+export function buildSummary(reports) {
   const rsiArr = reports.map((r) => r.signals?.RSI).filter(Number.isFinite);
   const kdKArr = reports.map((r) => r.signals?.KD_K).filter(Number.isFinite);
   const kdDArr = reports.map((r) => r.signals?.KD_D).filter(Number.isFinite);

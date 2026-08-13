@@ -4,8 +4,20 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    include: ["src/test/**/*.test.mjs", "src/test/**/*.test.js"],
-    exclude: ["**/node_modules/**", "**/dist/**", "**/webapp/**", "**/src/test/e2e/**"],
+    include: [
+      "src/test/**/*.test.mjs",
+      "src/test/**/*.test.js",
+      "src/modules/**/*.test.mjs",
+      "src/modules/**/*.test.js",
+      "src/api/**/*.test.mjs",
+      "src/api/**/*.test.js",
+    ],
+    exclude: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/webapp/**",
+      "**/src/test/e2e/**",
+    ],
     testTimeout: 60000,
     hookTimeout: 20000,
     coverage: {

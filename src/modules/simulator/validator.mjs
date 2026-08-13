@@ -9,6 +9,14 @@ import {
   SCANNABLE_PARAMS,
 } from "./constants.mjs";
 
+export {
+  REVERSE_TARGET_TYPES,
+  PRICE_BOUNDS,
+  RSI_BOUNDS,
+  STRATEGY_SCORE_BOUNDS,
+  SCANNABLE_PARAMS,
+} from "./constants.mjs";
+
 /**
  * 驗證正向模擬輸入
  * @param {Object} body - { price0050, priceZ2? }

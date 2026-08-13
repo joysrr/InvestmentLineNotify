@@ -95,6 +95,10 @@ export async function runParetoAnalysis({
  * @returns {Array} 採樣點陣列
  */
 function generateSamples(scanParams, method, samples) {
+  // 空參數直接回傳空陣列
+  if (!scanParams || scanParams.length === 0) {
+    return [];
+  }
   const _paramCount = scanParams.length;
   const _samplesArray = [];
 
@@ -249,7 +253,7 @@ function fastNonDominatedSort(points, objectives) {
 
   // 逐層建立前沿
   let frontIdx = 0;
-  while (fronts[frontIdx].length > 0) {
+  while (frontIdx < fronts.length && fronts[frontIdx].length > 0) {
     const nextFront = [];
     for (const i of fronts[frontIdx]) {
       for (const j of dominatedSet[i]) {

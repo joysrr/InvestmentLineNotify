@@ -28,7 +28,7 @@ const mockSimulationInput = {
     signal: 0.3,
     histogram: 0.2,
   })),
-  kdArr: Array.from({ length: 250 }, () => ({ k: 60, d: 55 })),
+  kdArr: Array.from({ length: 250 }, () => ({ k: 62.1, d: 58.4 })),
   rsiArr: Array.from({ length: 250 }, () => 58),
   atrArr: Array.from({ length: 250 }, () => 2.1),
   vixArr: Array.from({ length: 30 }, () => 18),

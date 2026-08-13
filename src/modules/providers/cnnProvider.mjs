@@ -5,7 +5,9 @@ import { fetchWithTimeout, parseNumber } from "../../utils/coreUtils.mjs";
  * 安全的數字處理工具 (內部使用)：若為空值則回傳 fallback，若為數字則取到小數點後兩位
  */
 function safeFormatNumber(val, fallback = 50) {
-  const num = parseNumber(val);
+  const num = parseNumber(val, { decimals: null, fallback: null });
+  // parseNumber 回傳 null 表示解析失敗，使用 fallback
+  // 否則格式化為小數點後兩位
   return num !== null ? Number(num.toFixed(2)) : fallback;
 }
 
