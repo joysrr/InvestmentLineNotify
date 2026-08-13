@@ -6,7 +6,9 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 vi.mock("../../utils/coreUtils.mjs", () => ({
   fetchWithTimeout: vi.fn(),
   isoDateToROC: vi.fn((date) => date),
-  parseNumber: vi.fn((val) => (val === null || val === undefined || val === "" ? null : parseFloat(val))),
+  parseNumber: vi.fn((val) =>
+    val === null || val === undefined || val === "" ? null : parseFloat(val),
+  ),
 }));
 
 import { fetchBusinessIndicator } from "./ndcProvider.mjs";
@@ -154,7 +156,9 @@ describe("ndcProvider - 國發會景氣指標 Provider", () => {
         status: 500,
       });
 
-      await expect(fetchBusinessIndicator()).rejects.toThrow("Gov API HTTP 500");
+      await expect(fetchBusinessIndicator()).rejects.toThrow(
+        "Gov API HTTP 500",
+      );
     });
 
     it("網路異常拋出錯誤", async () => {
@@ -168,17 +172,34 @@ describe("ndcProvider - 國發會景氣指標 Provider", () => {
     it("正確判斷各燈號區間", () => {
       const getLightStatus = (score) => {
         if (score >= 38) return { light: "紅燈 (過熱)", lightColor: "red" };
-        if (score >= 32) return { light: "黃紅燈 (轉熱)", lightColor: "yellow-red" };
+        if (score >= 32)
+          return { light: "黃紅燈 (轉熱)", lightColor: "yellow-red" };
         if (score >= 23) return { light: "綠燈 (穩定)", lightColor: "green" };
-        if (score >= 17) return { light: "黃藍燈 (轉弱)", lightColor: "yellow-blue" };
+        if (score >= 17)
+          return { light: "黃藍燈 (轉弱)", lightColor: "yellow-blue" };
         return { light: "藍燈 (低迷)", lightColor: "blue" };
       };
 
-      expect(getLightStatus(40)).toEqual({ light: "紅燈 (過熱)", lightColor: "red" });
-      expect(getLightStatus(35)).toEqual({ light: "黃紅燈 (轉熱)", lightColor: "yellow-red" });
-      expect(getLightStatus(25)).toEqual({ light: "綠燈 (穩定)", lightColor: "green" });
-      expect(getLightStatus(20)).toEqual({ light: "黃藍燈 (轉弱)", lightColor: "yellow-blue" });
-      expect(getLightStatus(10)).toEqual({ light: "藍燈 (低迷)", lightColor: "blue" });
+      expect(getLightStatus(40)).toEqual({
+        light: "紅燈 (過熱)",
+        lightColor: "red",
+      });
+      expect(getLightStatus(35)).toEqual({
+        light: "黃紅燈 (轉熱)",
+        lightColor: "yellow-red",
+      });
+      expect(getLightStatus(25)).toEqual({
+        light: "綠燈 (穩定)",
+        lightColor: "green",
+      });
+      expect(getLightStatus(20)).toEqual({
+        light: "黃藍燈 (轉弱)",
+        lightColor: "yellow-blue",
+      });
+      expect(getLightStatus(10)).toEqual({
+        light: "藍燈 (低迷)",
+        lightColor: "blue",
+      });
     });
   });
 });

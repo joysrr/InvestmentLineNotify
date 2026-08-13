@@ -32,11 +32,29 @@ describe("historyProvider - 歷史資料 Provider", () => {
   describe("fetchStockHistoryWithAutoFill", () => {
     it("成功抓取歷史資料並自動回補", async () => {
       fetchStockDayMonthWithCache.mockResolvedValueOnce([
-        { date: "2024-01-15", open: 100, high: 105, low: 99, close: 102, volume: 1000 },
-        { date: "2024-01-14", open: 98, high: 102, low: 97, close: 100, volume: 900 },
+        {
+          date: "2024-01-15",
+          open: 100,
+          high: 105,
+          low: 99,
+          close: 102,
+          volume: 1000,
+        },
+        {
+          date: "2024-01-14",
+          open: 98,
+          high: 102,
+          low: 97,
+          close: 100,
+          volume: 900,
+        },
       ]);
 
-      const result = await fetchStockHistoryWithAutoFill("0050.TW", 2, "2024-01-15");
+      const result = await fetchStockHistoryWithAutoFill(
+        "0050.TW",
+        2,
+        "2024-01-15",
+      );
 
       expect(result).toHaveLength(2);
       // 資料會按日期升冪排序
@@ -47,13 +65,31 @@ describe("historyProvider - 歷史資料 Provider", () => {
     it("資料筆數不足時自動往前推月份", async () => {
       fetchStockDayMonthWithCache
         .mockResolvedValueOnce([
-          { date: "2024-01-15", open: 100, high: 105, low: 99, close: 102, volume: 1000 },
+          {
+            date: "2024-01-15",
+            open: 100,
+            high: 105,
+            low: 99,
+            close: 102,
+            volume: 1000,
+          },
         ])
         .mockResolvedValueOnce([
-          { date: "2023-12-29", open: 95, high: 98, low: 94, close: 97, volume: 800 },
+          {
+            date: "2023-12-29",
+            open: 95,
+            high: 98,
+            low: 94,
+            close: 97,
+            volume: 800,
+          },
         ]);
 
-      const result = await fetchStockHistoryWithAutoFill("0050.TW", 2, "2024-01-15");
+      const result = await fetchStockHistoryWithAutoFill(
+        "0050.TW",
+        2,
+        "2024-01-15",
+      );
 
       expect(result).toHaveLength(2);
       expect(fetchStockDayMonthWithCache).toHaveBeenCalledTimes(2);
@@ -61,22 +97,53 @@ describe("historyProvider - 歷史資料 Provider", () => {
 
     it("過濾掉晚於 endISO 的資料", async () => {
       fetchStockDayMonthWithCache.mockResolvedValueOnce([
-        { date: "2024-01-16", open: 100, high: 105, low: 99, close: 102, volume: 1000 },
-        { date: "2024-01-15", open: 98, high: 102, low: 97, close: 100, volume: 900 },
+        {
+          date: "2024-01-16",
+          open: 100,
+          high: 105,
+          low: 99,
+          close: 102,
+          volume: 1000,
+        },
+        {
+          date: "2024-01-15",
+          open: 98,
+          high: 102,
+          low: 97,
+          close: 100,
+          volume: 900,
+        },
       ]);
 
-      const result = await fetchStockHistoryWithAutoFill("0050.TW", 10, "2024-01-15");
+      const result = await fetchStockHistoryWithAutoFill(
+        "0050.TW",
+        10,
+        "2024-01-15",
+      );
 
       // 只應保留 2024-01-15 及之前的資料
-      expect(result.every((r) => new Date(r.date) <= new Date("2024-01-15"))).toBe(true);
+      expect(
+        result.every((r) => new Date(r.date) <= new Date("2024-01-15")),
+      ).toBe(true);
     });
 
     it("避免重複日期", async () => {
       fetchStockDayMonthWithCache.mockResolvedValueOnce([
-        { date: "2024-01-15", open: 100, high: 105, low: 99, close: 102, volume: 1000 },
+        {
+          date: "2024-01-15",
+          open: 100,
+          high: 105,
+          low: 99,
+          close: 102,
+          volume: 1000,
+        },
       ]);
 
-      const result = await fetchStockHistoryWithAutoFill("0050.TW", 10, "2024-01-15");
+      const result = await fetchStockHistoryWithAutoFill(
+        "0050.TW",
+        10,
+        "2024-01-15",
+      );
 
       // 去重後只有一筆
       const uniqueDates = new Set(result.map((r) => r.date));
@@ -87,21 +154,34 @@ describe("historyProvider - 歷史資料 Provider", () => {
       fetchStockDayMonthWithCache.mockResolvedValueOnce([]);
 
       const loggerModule = await import("../../utils/logger.mjs");
-      const warnSpy = vi.spyOn(loggerModule.default, "warn").mockImplementation(() => {});
+      const warnSpy = vi
+        .spyOn(loggerModule.default, "warn")
+        .mockImplementation(() => {});
 
-      const result = await fetchStockHistoryWithAutoFill("0050.TW", 60, "2024-01-15");
+      const result = await fetchStockHistoryWithAutoFill(
+        "0050.TW",
+        60,
+        "2024-01-15",
+      );
 
       expect(result).toEqual([]);
       expect(warnSpy).toHaveBeenCalledWith(
         { symbol: "0050.TW", count: 0, minCount: 60 },
-        "歷史資料筆數仍不足需求筆數"
+        "歷史資料筆數仍不足需求筆數",
       );
       warnSpy.mockRestore();
     });
 
     it("當月資料時等待 1500ms", async () => {
       fetchStockDayMonthWithCache.mockResolvedValueOnce([
-        { date: "2024-01-15", open: 100, high: 105, low: 99, close: 102, volume: 1000 },
+        {
+          date: "2024-01-15",
+          open: 100,
+          high: 105,
+          low: 99,
+          close: 102,
+          volume: 1000,
+        },
       ]);
 
       await fetchStockHistoryWithAutoFill("0050.TW", 1, "2024-01-15");
@@ -113,7 +193,11 @@ describe("historyProvider - 歷史資料 Provider", () => {
     it("最多往回找 13 個月", async () => {
       fetchStockDayMonthWithCache.mockResolvedValue([]);
 
-      const result = await fetchStockHistoryWithAutoFill("0050.TW", 100, "2024-01-15");
+      const result = await fetchStockHistoryWithAutoFill(
+        "0050.TW",
+        100,
+        "2024-01-15",
+      );
 
       expect(result).toEqual([]);
       // 最多呼叫 13 次

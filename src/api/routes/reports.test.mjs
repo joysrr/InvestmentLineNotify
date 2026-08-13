@@ -29,8 +29,15 @@ vi.mock("../utils/snapshotAggregator.mjs", () => ({
 import reportsRoute from "./reports.mjs";
 import { archiveManager } from "../../modules/data/archiveManager.mjs";
 import { loadStateFromReport } from "../../domain/ilnState.mjs";
-import { aggregateByWeek, aggregateByMonth } from "../utils/reportAggregator.mjs";
-import { normaliseSnapshot, aggregateSnapshotsByWeek, aggregateSnapshotsByMonth } from "../utils/snapshotAggregator.mjs";
+import {
+  aggregateByWeek,
+  aggregateByMonth,
+} from "../utils/reportAggregator.mjs";
+import {
+  normaliseSnapshot,
+  aggregateSnapshotsByWeek,
+  aggregateSnapshotsByMonth,
+} from "../utils/snapshotAggregator.mjs";
 
 describe("reportsRoute - 報表 API 路由", () => {
   let app;
@@ -71,7 +78,10 @@ describe("reportsRoute - 報表 API 路由", () => {
       await freshApp.register(freshReportsRoute);
       await freshApp.ready();
 
-      archiveManager.listArchiveDates.mockResolvedValue(["2024-01-02", "2024-01-01"]);
+      archiveManager.listArchiveDates.mockResolvedValue([
+        "2024-01-02",
+        "2024-01-01",
+      ]);
       archiveManager.getReportByDate
         .mockResolvedValueOnce(null) // 2024-01-02 沒有報告
         .mockResolvedValueOnce({
@@ -92,7 +102,10 @@ describe("reportsRoute - 報表 API 路由", () => {
     });
 
     it("多天都無新聞回傳空陣列", async () => {
-      archiveManager.listArchiveDates.mockResolvedValue(["2024-01-02", "2024-01-01"]);
+      archiveManager.listArchiveDates.mockResolvedValue([
+        "2024-01-02",
+        "2024-01-01",
+      ]);
       archiveManager.getReportByDate.mockResolvedValue({
         news: { tw: [], us: [] },
       });
@@ -114,7 +127,9 @@ describe("reportsRoute - 報表 API 路由", () => {
       await freshApp.register(freshReportsRoute);
       await freshApp.ready();
 
-      archiveManager.listArchiveDates.mockRejectedValueOnce(new Error("DB error"));
+      archiveManager.listArchiveDates.mockRejectedValueOnce(
+        new Error("DB error"),
+      );
 
       const response = await freshApp.inject({
         method: "GET",
@@ -128,7 +143,10 @@ describe("reportsRoute - 報表 API 路由", () => {
 
   describe("GET /reports - 取得最近每日報表", () => {
     it("預設 limit 30 回傳報表列表", async () => {
-      archiveManager.listArchiveDates.mockResolvedValue(["2024-01-02", "2024-01-01"]);
+      archiveManager.listArchiveDates.mockResolvedValue([
+        "2024-01-02",
+        "2024-01-01",
+      ]);
       archiveManager.getReportByDate
         .mockResolvedValueOnce({ date: "2024-01-02", value: 100 })
         .mockResolvedValueOnce({ date: "2024-01-01", value: 200 });
@@ -180,7 +198,9 @@ describe("reportsRoute - 報表 API 路由", () => {
       await freshApp.register(freshReportsRoute);
       await freshApp.ready();
 
-      archiveManager.listArchiveDates.mockRejectedValueOnce(new Error("DB error"));
+      archiveManager.listArchiveDates.mockRejectedValueOnce(
+        new Error("DB error"),
+      );
 
       const response = await freshApp.inject({
         method: "GET",
@@ -218,7 +238,9 @@ describe("reportsRoute - 報表 API 路由", () => {
       await freshApp.register(freshReportsRoute);
       await freshApp.ready();
 
-      archiveManager.listArchiveDates.mockRejectedValueOnce(new Error("DB error"));
+      archiveManager.listArchiveDates.mockRejectedValueOnce(
+        new Error("DB error"),
+      );
 
       const response = await freshApp.inject({
         method: "GET",

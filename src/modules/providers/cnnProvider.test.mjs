@@ -56,7 +56,11 @@ describe("cnnProvider - CNN Fear & Greed Provider", () => {
     });
 
     it("HTTP 錯誤回傳預設值", async () => {
-      const mockResponse = { ok: false, status: 500, statusText: "Internal Server Error" };
+      const mockResponse = {
+        ok: false,
+        status: 500,
+        statusText: "Internal Server Error",
+      };
       fetchWithTimeout.mockResolvedValue(mockResponse);
 
       const result = await fetchFearAndGreedIndex();
@@ -90,7 +94,7 @@ describe("cnnProvider - CNN Fear & Greed Provider", () => {
       fetchWithTimeout.mockResolvedValue(mockResponse);
       parseNumber.mockImplementation((val, options) => {
         if (options?.fallback === null) {
-          if (val === null || val === undefined || val === '') return null;
+          if (val === null || val === undefined || val === "") return null;
           return val;
         }
         return val;
@@ -113,7 +117,7 @@ describe("cnnProvider - CNN Fear & Greed Provider", () => {
       fetchWithTimeout.mockResolvedValue(mockResponse);
       parseNumber.mockImplementation((val, options) => {
         if (options?.fallback === null) {
-          if (val === null || val === undefined || val === '') return null;
+          if (val === null || val === undefined || val === "") return null;
           return val;
         }
         return val;
@@ -121,7 +125,9 @@ describe("cnnProvider - CNN Fear & Greed Provider", () => {
 
       const result = await fetchFearAndGreedIndex();
 
-      expect(result.timestamp.getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(result.timestamp.getTime()).toBeGreaterThanOrEqual(
+        before.getTime(),
+      );
     });
 
     it("網路超時回傳預設值並記錄警告", async () => {
@@ -181,7 +187,7 @@ describe("cnnProvider - CNN Fear & Greed Provider", () => {
       parseNumber.mockImplementation((val, options) => {
         if (options?.fallback === null) {
           // 當 fallback 為 null 時，解析失敗返回 null
-          if (val === null || val === undefined || val === '') return null;
+          if (val === null || val === undefined || val === "") return null;
           return val;
         }
         return val;

@@ -59,7 +59,12 @@ describe("strategyStatusRoute - 策略狀態 API", () => {
           },
           weightScore: 5.8,
           score: 5.8,
-          cooldownStatus: { inCooldown: false, daysLeft: 0, lastBuyDate: null, message: "無冷卻期" },
+          cooldownStatus: {
+            inCooldown: false,
+            daysLeft: 0,
+            lastBuyDate: null,
+            message: "無冷卻期",
+          },
           budgetInfo: { tier: "A", used: 100000 },
           budgetAllowedAmount: 500000,
           budgetIsLimited: false,
@@ -91,8 +96,21 @@ describe("strategyStatusRoute - 策略狀態 API", () => {
             { minScore: 6, leverage: 1.0, cash: 0.0, comment: "全倉" },
           ],
           buy: { minWeightScoreToBuy: 3 },
-          scoringMatrix: { thresholds: { buyTactical: 4, buyTacticalBullish: 1.5 } },
-          lifecycle: { currentAge: 35, retirementAge: 65, profiles: { EARLY: { maxLeverage: 2.0, maxLeverageForNewZ2: 1.5, minSurvivalDropLimit: 140, mode: "aggressive" } } },
+          scoringMatrix: {
+            thresholds: { buyTactical: 4, buyTacticalBullish: 1.5 },
+          },
+          lifecycle: {
+            currentAge: 35,
+            retirementAge: 65,
+            profiles: {
+              EARLY: {
+                maxLeverage: 2.0,
+                maxLeverageForNewZ2: 1.5,
+                minSurvivalDropLimit: 140,
+                mode: "aggressive",
+              },
+            },
+          },
         },
       });
 

@@ -54,13 +54,34 @@ describe("reportAggregator - 報表彙總工具", () => {
     it("計算平均值與範圍", () => {
       const reports = [
         {
-          signals: { RSI: 60, KD_K: 65, KD_D: 55, bias240: 2.5, weightScore: 5.0, target: "0050" },
+          signals: {
+            RSI: 60,
+            KD_K: 65,
+            KD_D: 55,
+            bias240: 2.5,
+            weightScore: 5.0,
+            target: "0050",
+          },
         },
         {
-          signals: { RSI: 70, KD_K: 75, KD_D: 65, bias240: 3.0, weightScore: 6.0, target: "Z2" },
+          signals: {
+            RSI: 70,
+            KD_K: 75,
+            KD_D: 65,
+            bias240: 3.0,
+            weightScore: 6.0,
+            target: "Z2",
+          },
         },
         {
-          signals: { RSI: 50, KD_K: 55, KD_D: 45, bias240: 1.5, weightScore: 4.0, target: "0050" },
+          signals: {
+            RSI: 50,
+            KD_K: 55,
+            KD_D: 45,
+            bias240: 1.5,
+            weightScore: 4.0,
+            target: "0050",
+          },
         },
       ];
 
@@ -74,11 +95,7 @@ describe("reportAggregator - 報表彙總工具", () => {
     });
 
     it("缺少 signals 字段被過濾", () => {
-      const reports = [
-        { signals: { RSI: 60 } },
-        { signals: {} },
-        {},
-      ];
+      const reports = [{ signals: { RSI: 60 } }, { signals: {} }, {}];
 
       const result = buildSummary(reports);
       expect(result.avgRSI).toBe(60.0);
@@ -152,59 +169,65 @@ describe("reportAggregator - 報表彙總工具", () => {
 
     it("summary 包含統計資料", () => {
       const reports = [
-        { date: "2024-01-03", signals: { RSI: 60, weightScore: 5, target: "0050" } },
-        { date: "2024-01-02", signals: { RSI: 70, weightScore: 6, target: "Z2" } },
+        {
+          date: "2024-01-03",
+          signals: { RSI: 60, weightScore: 5, target: "0050" },
+        },
+        {
+          date: "2024-01-02",
+          signals: { RSI: 70, weightScore: 6, target: "Z2" },
+        },
       ];
 
       const result = aggregateByWeek(reports, 10);
 
       expect(result[0].summary.avgRSI).toBe(65.0);
-            expect(result[0].summary.scoreRange).toEqual({ min: 5.0, max: 6.0 });
-            expect(result[0].summary.decisions).toEqual(["Z2", "0050"]);
-          });
+      expect(result[0].summary.scoreRange).toEqual({ min: 5.0, max: 6.0 });
+      expect(result[0].summary.decisions).toEqual(["Z2", "0050"]);
+    });
 
-          it("空陣列回傳空陣列", () => {
-            expect(aggregateByWeek([], 10)).toEqual([]);
-          });
-        });
+    it("空陣列回傳空陣列", () => {
+      expect(aggregateByWeek([], 10)).toEqual([]);
+    });
+  });
 
-        describe("aggregateByMonth - 月彙總", () => {
-          it("單一月期", () => {
-            const reports = [
-              { date: "2024-01-31", signals: { weightScore: 5 } },
-              { date: "2024-01-15", signals: { weightScore: 4 } },
-              { date: "2024-01-02", signals: { weightScore: 3 } },
-            ];
+  describe("aggregateByMonth - 月彙總", () => {
+    it("單一月期", () => {
+      const reports = [
+        { date: "2024-01-31", signals: { weightScore: 5 } },
+        { date: "2024-01-15", signals: { weightScore: 4 } },
+        { date: "2024-01-02", signals: { weightScore: 3 } },
+      ];
 
-            const result = aggregateByMonth(reports, 10);
+      const result = aggregateByMonth(reports, 10);
 
-            expect(result).toHaveLength(1);
-            expect(result[0].period).toBe("2024-01");
-            expect(result[0].startDate).toBe("2024-01-02");
-            expect(result[0].endDate).toBe("2024-01-31");
-            expect(result[0].tradingDays).toBe(3);
-            expect(result[0].lastReport.signals.weightScore).toBe(5);
-          });
+      expect(result).toHaveLength(1);
+      expect(result[0].period).toBe("2024-01");
+      expect(result[0].startDate).toBe("2024-01-02");
+      expect(result[0].endDate).toBe("2024-01-31");
+      expect(result[0].tradingDays).toBe(3);
+      expect(result[0].lastReport.signals.weightScore).toBe(5);
+    });
 
-          it("多月期各取最新報表", () => {
-            const reports = [
-              { date: "2024-02-29", signals: { weightScore: 8 } },
-              { date: "2024-02-15", signals: { weightScore: 7 } },
-              { date: "2024-01-31", signals: { weightScore: 6 } },
-              { date: "2024-01-15", signals: { weightScore: 5 } },
-            ];
+    it("多月期各取最新報表", () => {
+      const reports = [
+        { date: "2024-02-29", signals: { weightScore: 8 } },
+        { date: "2024-02-15", signals: { weightScore: 7 } },
+        { date: "2024-01-31", signals: { weightScore: 6 } },
+        { date: "2024-01-15", signals: { weightScore: 5 } },
+      ];
 
-            const result = aggregateByMonth(reports, 10);
+      const result = aggregateByMonth(reports, 10);
 
-            expect(result).toHaveLength(2);
-            expect(result[0].period).toBe("2024-02");
-            expect(result[0].endDate).toBe("2024-02-29");
-            expect(result[0].lastReport.signals.weightScore).toBe(8);
+      expect(result).toHaveLength(2);
+      expect(result[0].period).toBe("2024-02");
+      expect(result[0].endDate).toBe("2024-02-29");
+      expect(result[0].lastReport.signals.weightScore).toBe(8);
 
-            expect(result[1].period).toBe("2024-01");
-            expect(result[1].endDate).toBe("2024-01-31");
-            expect(result[1].lastReport.signals.weightScore).toBe(6);
-          });
+      expect(result[1].period).toBe("2024-01");
+      expect(result[1].endDate).toBe("2024-01-31");
+      expect(result[1].lastReport.signals.weightScore).toBe(6);
+    });
 
     it("空陣列回傳空陣列", () => {
       expect(aggregateByMonth([], 10)).toEqual([]);

@@ -232,7 +232,9 @@ describe("newsConflictGrouper - 矛盾新聞分群", () => {
       const result = assignConflictGroups(news);
 
       // 應有 2 個群組 (G1: 伊朗, G2: 台股)
-      const groups = result.map(r => r._conflictGroup).filter(g => g !== null);
+      const groups = result
+        .map((r) => r._conflictGroup)
+        .filter((g) => g !== null);
       expect(groups).toContain("G1");
       expect(groups).toContain("G2");
       // 比特幣孤立

@@ -176,7 +176,8 @@ describe("retryUtils - 重試工具", () => {
     });
 
     it("暫態錯誤應重試並在成功後回傳", async () => {
-      const fn = vi.fn()
+      const fn = vi
+        .fn()
         .mockRejectedValueOnce(new Error("timeout"))
         .mockResolvedValue("success");
 
@@ -196,7 +197,9 @@ describe("retryUtils - 重試工具", () => {
       const err400 = new Error("Bad Request");
       err400.statusCode = 400;
 
-      await expect(withRetry(fn, { maxRetries: 3 })).rejects.toThrow("Bad Request");
+      await expect(withRetry(fn, { maxRetries: 3 })).rejects.toThrow(
+        "Bad Request",
+      );
       expect(fn).toHaveBeenCalledTimes(1);
     });
 
@@ -204,7 +207,12 @@ describe("retryUtils - 重試工具", () => {
       const fn = vi.fn().mockRejectedValue(new Error("timeout"));
 
       await expect(
-        withRetry(fn, { maxRetries: 2, baseDelay: 10, maxDelay: 20, jitterFactor: 0 }),
+        withRetry(fn, {
+          maxRetries: 2,
+          baseDelay: 10,
+          maxDelay: 20,
+          jitterFactor: 0,
+        }),
       ).rejects.toThrow("timeout");
 
       expect(fn).toHaveBeenCalledTimes(3); // 初始 + 2 次重試
@@ -212,7 +220,8 @@ describe("retryUtils - 重試工具", () => {
 
     it("onRetry 回調應被呼叫", async () => {
       const onRetry = vi.fn();
-      const fn = vi.fn()
+      const fn = vi
+        .fn()
         .mockRejectedValueOnce(new Error("timeout"))
         .mockResolvedValue("success");
 
@@ -223,7 +232,11 @@ describe("retryUtils - 重試工具", () => {
       });
 
       expect(onRetry).toHaveBeenCalledTimes(1);
-      expect(onRetry).toHaveBeenCalledWith(1, expect.any(Error), expect.any(Number));
+      expect(onRetry).toHaveBeenCalledWith(
+        1,
+        expect.any(Error),
+        expect.any(Number),
+      );
     });
   });
 

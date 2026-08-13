@@ -34,7 +34,7 @@ describe("kgiProvider - KGI / MoneyDJ Provider", () => {
       let callCount = 0;
       parseNumber.mockImplementation((val) => {
         callCount++;
-        if (callCount === 1) return 180.5;    // today V6
+        if (callCount === 1) return 180.5; // today V6
         if (callCount === 2) return 35000000; // today V3
         if (callCount === 3) return 34500000; // prev V3
         return null;
@@ -53,7 +53,9 @@ describe("kgiProvider - KGI / MoneyDJ Provider", () => {
       const mockResponse = { ok: false, status: 500 };
       fetchWithTimeout.mockResolvedValue(mockResponse);
 
-      await expect(fetchTwseMarginData()).rejects.toThrow("MoneyDJ API HTTP 500");
+      await expect(fetchTwseMarginData()).rejects.toThrow(
+        "MoneyDJ API HTTP 500",
+      );
     });
 
     it("JSON 結構不符合預期拋出錯誤", async () => {
@@ -63,17 +65,23 @@ describe("kgiProvider - KGI / MoneyDJ Provider", () => {
       };
       fetchWithTimeout.mockResolvedValue(mockResponse);
 
-      await expect(fetchTwseMarginData()).rejects.toThrow("MoneyDJ JSON 結構不符合預期");
+      await expect(fetchTwseMarginData()).rejects.toThrow(
+        "MoneyDJ JSON 結構不符合預期",
+      );
     });
 
     it("Result 陣列長度不足拋出錯誤", async () => {
       const mockResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({ ResultSet: { Result: [{ V1: "2024/01/15" }] } }),
+        json: vi
+          .fn()
+          .mockResolvedValue({ ResultSet: { Result: [{ V1: "2024/01/15" }] } }),
       };
       fetchWithTimeout.mockResolvedValue(mockResponse);
 
-      await expect(fetchTwseMarginData()).rejects.toThrow("MoneyDJ JSON 結構不符合預期");
+      await expect(fetchTwseMarginData()).rejects.toThrow(
+        "MoneyDJ JSON 結構不符合預期",
+      );
     });
 
     it("V6 解析失敗使用預設值", async () => {
@@ -93,9 +101,9 @@ describe("kgiProvider - KGI / MoneyDJ Provider", () => {
       let callCount = 0;
       parseNumber.mockImplementation((val) => {
         callCount++;
-        if (callCount === 1) return null;      // today V6 -> 使用預設 165
-        if (callCount === 2) return 35000000;  // today V3
-        if (callCount === 3) return 34500000;  // prev V3
+        if (callCount === 1) return null; // today V6 -> 使用預設 165
+        if (callCount === 2) return 35000000; // today V3
+        if (callCount === 3) return 34500000; // prev V3
         return null;
       });
 

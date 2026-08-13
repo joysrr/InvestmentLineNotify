@@ -25,8 +25,8 @@ describe("yahooProvider - Yahoo Finance Provider", () => {
               {
                 meta: {
                   regularMarketPrice: 31.5432,
-                  previousClose: 31.4000,
-                  chartPreviousClose: 31.3000,
+                  previousClose: 31.4,
+                  chartPreviousClose: 31.3,
                 },
                 indicators: {
                   quote: [{ close: [31.1, 31.2, 31.3, 31.4, 31.5432] }],
@@ -86,7 +86,7 @@ describe("yahooProvider - Yahoo Finance Provider", () => {
               {
                 meta: {
                   regularMarketPrice: 31.5432,
-                  chartPreviousClose: 31.4000,
+                  chartPreviousClose: 31.4,
                 },
                 indicators: {
                   quote: [{ close: [31.4, 31.5432] }],
@@ -137,7 +137,7 @@ describe("yahooProvider - Yahoo Finance Provider", () => {
               {
                 meta: {
                   regularMarketPrice: 31.5432,
-                  previousClose: 31.4000,
+                  previousClose: 31.4,
                 },
                 indicators: {
                   quote: [{ close: [31.1, null, 31.3, null, 31.5432] }],
@@ -186,7 +186,7 @@ describe("yahooProvider - Yahoo Finance Provider", () => {
               {
                 meta: {
                   regularMarketPrice: "invalid",
-                  previousClose: 31.4000,
+                  previousClose: 31.4,
                 },
                 indicators: {
                   quote: [{ close: [31.4] }],

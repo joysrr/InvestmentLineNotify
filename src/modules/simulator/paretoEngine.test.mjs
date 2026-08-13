@@ -149,7 +149,12 @@ describe("paretoEngine - Pareto 前沿分析", () => {
       calculationMode: "forward",
       timestamp: new Date().toISOString(),
       dataAsOf: "2026-08-01",
-      assumptions: ["同比例聯動", "市場資料 (VIX、持倉、融資等) 維持不變", "單一最新收盤價情境", "極端行情下指標可能失真"],
+      assumptions: [
+        "同比例聯動",
+        "市場資料 (VIX、持倉、融資等) 維持不變",
+        "單一最新收盤價情境",
+        "極端行情下指標可能失真",
+      ],
       disclaimer: "本分析為條件分析，非價格預測，非投資建議",
       warnings: [],
     });
@@ -268,9 +273,7 @@ describe("paretoEngine - Pareto 前沿分析", () => {
             max: 0.1,
           },
         ],
-        objectives: [
-          { metric: "strategyScore", direction: "maximize" },
-        ],
+        objectives: [{ metric: "strategyScore", direction: "maximize" }],
         weights: [1],
         sampling: { method: "lhs", samples: 15 },
         baseSimulationInput: mockBaseSimulationInput,
@@ -368,7 +371,9 @@ describe("paretoEngine - Pareto 前沿分析", () => {
 
       // 驗證所有採樣點都在範圍內
       result.allPoints.forEach((p) => {
-        expect(p.params["maintenance.protectTrigger"]).toBeGreaterThanOrEqual(140);
+        expect(p.params["maintenance.protectTrigger"]).toBeGreaterThanOrEqual(
+          140,
+        );
         expect(p.params["maintenance.protectTrigger"]).toBeLessThanOrEqual(180);
       });
       expect(result.allPoints).toHaveLength(20);

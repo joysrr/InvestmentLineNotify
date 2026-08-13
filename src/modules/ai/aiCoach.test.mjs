@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 vi.mock("./aiClient.mjs", () => ({
   callAI: vi.fn(),
   PROVIDERS: { GEMINI: "gemini", GROK: "grok" },
-  langfuse: { 
+  langfuse: {
     score: vi.fn(),
     trace: vi.fn().mockReturnValue({
       id: "test-trace-id",
@@ -43,9 +43,11 @@ vi.mock("../keywordConfig.mjs", () => ({
 }));
 
 vi.mock("../data/archiveManager.mjs", () => ({
-  archiveManager: { 
+  archiveManager: {
     saveAiLog: vi.fn().mockResolvedValue(undefined),
-    getPreviousAdviceSummary: vi.fn().mockResolvedValue("Previous advice summary"),
+    getPreviousAdviceSummary: vi
+      .fn()
+      .mockResolvedValue("Previous advice summary"),
   },
 }));
 
@@ -54,7 +56,9 @@ vi.mock("../data/newsPoolManager.mjs", () => ({
 }));
 
 vi.mock("../news/newsConflictGrouper.mjs", () => ({
-  assignConflictGroups: vi.fn((news) => news.map((n, i) => ({ ...n, _conflictGroup: `group-${i}` }))),
+  assignConflictGroups: vi.fn((news) =>
+    news.map((n, i) => ({ ...n, _conflictGroup: `group-${i}` })),
+  ),
 }));
 
 describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
@@ -69,26 +73,26 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    
+
     const aiClientModule = await import("./aiClient.mjs");
     mockCallAI = aiClientModule.callAI;
     mockLangfuse = aiClientModule.langfuse;
-    
+
     const preprocessorModule = await import("./aiDataPreprocessor.mjs");
     mockFormatQuantData = preprocessorModule.formatQuantDataForCoach;
-    
+
     const archiveModule = await import("../data/archiveManager.mjs");
     mockArchiveManager = archiveModule.archiveManager;
-    
+
     const newsPoolModule = await import("../data/newsPoolManager.mjs");
     mockSaveFilteredPool = newsPoolModule.saveFilteredPool;
-    
+
     const conflictModule = await import("../news/newsConflictGrouper.mjs");
     mockAssignConflictGroups = conflictModule.assignConflictGroups;
-    
+
     const loggerModule = await import("../../utils/logger.mjs");
     mockLogger = loggerModule.default;
-    
+
     // 動態導入被測模組
     aiCoach = await import("./aiCoach.mjs");
   });
@@ -96,11 +100,17 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
   describe("calcDiversityScore - 維度覆蓋率", () => {
     it("空輸入應回傳 0", () => {
       const VALID_DIMENSIONS = [
-        "macro_economy", "tw_market", "semiconductor", "geopolitics", "capital_flow",
+        "macro_economy",
+        "tw_market",
+        "semiconductor",
+        "geopolitics",
+        "capital_flow",
       ];
       const calcDiversityScore = (dimensionCheck = {}) => {
         if (!dimensionCheck) return 0;
-        const covered = VALID_DIMENSIONS.filter((key) => dimensionCheck[key] === true).length;
+        const covered = VALID_DIMENSIONS.filter(
+          (key) => dimensionCheck[key] === true,
+        ).length;
         return covered / VALID_DIMENSIONS.length;
       };
       expect(calcDiversityScore({})).toBe(0);
@@ -110,28 +120,47 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
 
     it("部分維度覆蓋", () => {
       const VALID_DIMENSIONS = [
-        "macro_economy", "tw_market", "semiconductor", "geopolitics", "capital_flow",
+        "macro_economy",
+        "tw_market",
+        "semiconductor",
+        "geopolitics",
+        "capital_flow",
       ];
       const calcDiversityScore = (dimensionCheck = {}) => {
-        const covered = VALID_DIMENSIONS.filter((key) => dimensionCheck[key] === true).length;
+        const covered = VALID_DIMENSIONS.filter(
+          (key) => dimensionCheck[key] === true,
+        ).length;
         return covered / VALID_DIMENSIONS.length;
       };
       expect(calcDiversityScore({ macro_economy: true })).toBe(0.2);
-      expect(calcDiversityScore({ macro_economy: true, tw_market: true })).toBe(0.4);
+      expect(calcDiversityScore({ macro_economy: true, tw_market: true })).toBe(
+        0.4,
+      );
     });
 
     it("完整覆蓋應回傳 1", () => {
       const VALID_DIMENSIONS = [
-        "macro_economy", "tw_market", "semiconductor", "geopolitics", "capital_flow",
+        "macro_economy",
+        "tw_market",
+        "semiconductor",
+        "geopolitics",
+        "capital_flow",
       ];
       const calcDiversityScore = (dimensionCheck = {}) => {
-        const covered = VALID_DIMENSIONS.filter((key) => dimensionCheck[key] === true).length;
+        const covered = VALID_DIMENSIONS.filter(
+          (key) => dimensionCheck[key] === true,
+        ).length;
         return covered / VALID_DIMENSIONS.length;
       };
-      expect(calcDiversityScore({
-        macro_economy: true, tw_market: true, semiconductor: true,
-        geopolitics: true, capital_flow: true,
-      })).toBe(1);
+      expect(
+        calcDiversityScore({
+          macro_economy: true,
+          tw_market: true,
+          semiconductor: true,
+          geopolitics: true,
+          capital_flow: true,
+        }),
+      ).toBe(1);
     });
   });
 
@@ -140,7 +169,8 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
       const calcSpreadScore = (scores = []) => {
         if (!scores.length) return 0;
         const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
-        const variance = scores.reduce((sum, x) => sum + (x - mean) ** 2, 0) / scores.length;
+        const variance =
+          scores.reduce((sum, x) => sum + (x - mean) ** 2, 0) / scores.length;
         const stdDev = Math.sqrt(variance);
         return Math.max(0, Math.min(1, stdDev / 2));
       };
@@ -151,7 +181,8 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
       const calcSpreadScore = (scores = []) => {
         if (!scores.length) return 0;
         const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
-        const variance = scores.reduce((sum, x) => sum + (x - mean) ** 2, 0) / scores.length;
+        const variance =
+          scores.reduce((sum, x) => sum + (x - mean) ** 2, 0) / scores.length;
         const stdDev = Math.sqrt(variance);
         return Math.max(0, Math.min(1, stdDev / 2));
       };
@@ -162,7 +193,8 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
       const calcSpreadScore = (scores = []) => {
         if (!scores.length) return 0;
         const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
-        const variance = scores.reduce((sum, x) => sum + (x - mean) ** 2, 0) / scores.length;
+        const variance =
+          scores.reduce((sum, x) => sum + (x - mean) ** 2, 0) / scores.length;
         const stdDev = Math.sqrt(variance);
         return Math.max(0, Math.min(1, stdDev / 2));
       };
@@ -174,7 +206,8 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
       const calcSpreadScore = (scores = []) => {
         if (!scores.length) return 0;
         const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
-        const variance = scores.reduce((sum, x) => sum + (x - mean) ** 2, 0) / scores.length;
+        const variance =
+          scores.reduce((sum, x) => sum + (x - mean) ** 2, 0) / scores.length;
         const stdDev = Math.sqrt(variance);
         return Math.max(0, Math.min(1, stdDev / 2));
       };
@@ -184,7 +217,8 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
 
   describe("isNonEmptyString - 非空字串檢查", () => {
     it("正確識別非空字串", () => {
-      const isNonEmptyString = (value) => typeof value === "string" && value.trim().length > 0;
+      const isNonEmptyString = (value) =>
+        typeof value === "string" && value.trim().length > 0;
       expect(isNonEmptyString("hello")).toBe(true);
       expect(isNonEmptyString("  hello  ")).toBe(true);
       expect(isNonEmptyString("")).toBe(false);
@@ -199,7 +233,9 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
   describe("isNonEmptyStringArray - 非空字串陣列檢查", () => {
     it("正確識別非空字串陣列", () => {
       const isNonEmptyStringArray = (value) =>
-        Array.isArray(value) && value.length > 0 && value.every((v) => typeof v === "string" && v.trim().length > 0);
+        Array.isArray(value) &&
+        value.length > 0 &&
+        value.every((v) => typeof v === "string" && v.trim().length > 0);
       expect(isNonEmptyStringArray(["a", "b"])).toBe(true);
       expect(isNonEmptyStringArray(["  a  "])).toBe(true);
       expect(isNonEmptyStringArray([])).toBe(false);
@@ -214,7 +250,9 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
     it("空輸入回傳 0", () => {
       const calcThinkingDepth = (thinking = "") => {
         if (!thinking || typeof thinking !== "string") return 0;
-        const wordCount = (thinking.match(/[\u4e00-\u9fa5]/g) || []).length + (thinking.match(/\b[a-zA-Z]+\b/g) || []).length;
+        const wordCount =
+          (thinking.match(/[\u4e00-\u9fa5]/g) || []).length +
+          (thinking.match(/\b[a-zA-Z]+\b/g) || []).length;
         let score = 0;
         if (wordCount >= 80) score += 0.4;
         if (/\d+(\.\d+)?%?/.test(thinking)) score += 0.2;
@@ -231,7 +269,9 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
     it("字數 ≥ 80 加 0.4", () => {
       const calcThinkingDepth = (thinking = "") => {
         if (!thinking || typeof thinking !== "string") return 0;
-        const wordCount = (thinking.match(/[\u4e00-\u9fa5]/g) || []).length + (thinking.match(/\b[a-zA-Z]+\b/g) || []).length;
+        const wordCount =
+          (thinking.match(/[\u4e00-\u9fa5]/g) || []).length +
+          (thinking.match(/\b[a-zA-Z]+\b/g) || []).length;
         let score = 0;
         if (wordCount >= 80) score += 0.4;
         if (/\d+(\.\d+)?%?/.test(thinking)) score += 0.2;
@@ -246,7 +286,9 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
     it("包含數字/百分比 加 0.2", () => {
       const calcThinkingDepth = (thinking = "") => {
         if (!thinking || typeof thinking !== "string") return 0;
-        const wordCount = (thinking.match(/[\u4e00-\u9fa5]/g) || []).length + (thinking.match(/\b[a-zA-Z]+\b/g) || []).length;
+        const wordCount =
+          (thinking.match(/[\u4e00-\u9fa5]/g) || []).length +
+          (thinking.match(/\b[a-zA-Z]+\b/g) || []).length;
         let score = 0;
         if (wordCount >= 80) score += 0.4;
         if (/\d+(\.\d+)?%?/.test(thinking)) score += 0.2;
@@ -262,7 +304,9 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
     it("包含因果關鍵字 加 0.2", () => {
       const calcThinkingDepth = (thinking = "") => {
         if (!thinking || typeof thinking !== "string") return 0;
-        const wordCount = (thinking.match(/[\u4e00-\u9fa5]/g) || []).length + (thinking.match(/\b[a-zA-Z]+\b/g) || []).length;
+        const wordCount =
+          (thinking.match(/[\u4e00-\u9fa5]/g) || []).length +
+          (thinking.match(/\b[a-zA-Z]+\b/g) || []).length;
         let score = 0;
         if (wordCount >= 80) score += 0.4;
         if (/\d+(\.\d+)?%?/.test(thinking)) score += 0.2;
@@ -279,7 +323,9 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
     it("包含反向思考關鍵字 加 0.2", () => {
       const calcThinkingDepth = (thinking = "") => {
         if (!thinking || typeof thinking !== "string") return 0;
-        const wordCount = (thinking.match(/[\u4e00-\u9fa5]/g) || []).length + (thinking.match(/\b[a-zA-Z]+\b/g) || []).length;
+        const wordCount =
+          (thinking.match(/[\u4e00-\u9fa5]/g) || []).length +
+          (thinking.match(/\b[a-zA-Z]+\b/g) || []).length;
         let score = 0;
         if (wordCount >= 80) score += 0.4;
         if (/\d+(\.\d+)?%?/.test(thinking)) score += 0.2;
@@ -295,7 +341,9 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
     it("完整要素可達 1.0", () => {
       const calcThinkingDepth = (thinking = "") => {
         if (!thinking || typeof thinking !== "string") return 0;
-        const wordCount = (thinking.match(/[\u4e00-\u9fa5]/g) || []).length + (thinking.match(/\b[a-zA-Z]+\b/g) || []).length;
+        const wordCount =
+          (thinking.match(/[\u4e00-\u9fa5]/g) || []).length +
+          (thinking.match(/\b[a-zA-Z]+\b/g) || []).length;
         let score = 0;
         if (wordCount >= 80) score += 0.4;
         if (/\d+(\.\d+)?%?/.test(thinking)) score += 0.2;
@@ -303,7 +351,10 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
         if (/但|然而|不過|另一方面|風險/.test(thinking)) score += 0.2;
         return Math.min(1, score);
       };
-      const fullText = "因為技術指標顯示上漲趨勢，價格突破 150 元並站穩 5% 漲幅，但需注意成交量萎縮風險，另一方面若大盤回調則應減碼".repeat(2);
+      const fullText =
+        "因為技術指標顯示上漲趨勢，價格突破 150 元並站穩 5% 漲幅，但需注意成交量萎縮風險，另一方面若大盤回調則應減碼".repeat(
+          2,
+        );
       expect(calcThinkingDepth(fullText)).toBe(1);
     });
   });
@@ -373,7 +424,9 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
     }
 
     function sortNewsForAi(a, b) {
-      const ageDiff = (AGE_BAND_PRIORITY[a?.age_band] ?? 99) - (AGE_BAND_PRIORITY[b?.age_band] ?? 99);
+      const ageDiff =
+        (AGE_BAND_PRIORITY[a?.age_band] ?? 99) -
+        (AGE_BAND_PRIORITY[b?.age_band] ?? 99);
       if (ageDiff !== 0) return ageDiff;
       return toTimestamp(b) - toTimestamp(a);
     }
@@ -404,7 +457,11 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
   });
 
   describe("selectNewsForAi - 新聞選取", () => {
-    function selectNewsForAi(allNewsArray, perRegionLimit = 30, totalLimit = 60) {
+    function selectNewsForAi(
+      allNewsArray,
+      perRegionLimit = 30,
+      totalLimit = 60,
+    ) {
       const AGE_BAND_PRIORITY = { fresh: 0, recent: 1, stale: 2 };
       function toTimestamp(article) {
         const raw = article?.pubDate || article?.fetched_at;
@@ -412,7 +469,9 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
         return Number.isFinite(ts) ? ts : 0;
       }
       function sortNewsForAi(a, b) {
-        const ageDiff = (AGE_BAND_PRIORITY[a?.age_band] ?? 99) - (AGE_BAND_PRIORITY[b?.age_band] ?? 99);
+        const ageDiff =
+          (AGE_BAND_PRIORITY[a?.age_band] ?? 99) -
+          (AGE_BAND_PRIORITY[b?.age_band] ?? 99);
         if (ageDiff !== 0) return ageDiff;
         return toTimestamp(b) - toTimestamp(a);
       }
@@ -455,7 +514,9 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
 
     it("totalLimit 限制總數", () => {
       const news = Array.from({ length: 100 }, (_, i) => ({
-        _region: "TW", age_band: "fresh", pubDate: `2024-01-${String(i + 1).padStart(2, "0")}`,
+        _region: "TW",
+        age_band: "fresh",
+        pubDate: `2024-01-${String(i + 1).padStart(2, "0")}`,
       }));
       const result = selectNewsForAi(news, 50, 10);
       expect(result.length).toBe(10);
@@ -469,7 +530,10 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
   describe("generateDailySearchQueries - 導出函數測試", () => {
     it("成功生成搜尋關鍵字", async () => {
       mockCallAI.mockResolvedValueOnce({
-        text: JSON.stringify({ twQueries: ["台股", "台積電"], usQueries: ["美股", "蘋果"] }),
+        text: JSON.stringify({
+          twQueries: ["台股", "台積電"],
+          usQueries: ["美股", "蘋果"],
+        }),
         traceId: "trace-123",
       });
 
@@ -492,7 +556,7 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
             vix: 15,
             staticPoolText: expect.stringContaining("台股"),
           }),
-        })
+        }),
       );
       expect(mockArchiveManager.saveAiLog).toHaveBeenCalled();
     });
@@ -503,7 +567,10 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
         traceId: "trace-456",
       });
 
-      const result = await aiCoach.generateDailySearchQueries({ marketStatus: "CLOSED", vix: 20 });
+      const result = await aiCoach.generateDailySearchQueries({
+        marketStatus: "CLOSED",
+        vix: 20,
+      });
 
       expect(result.twQueries).toEqual([]);
       expect(result.usQueries).toEqual([]);
@@ -512,9 +579,17 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
 
     it("AI 呼叫失敗時回傳空陣列並記錄錯誤", async () => {
       const { AIServiceError } = await import("../../utils/retryUtils.mjs");
-      mockCallAI.mockRejectedValueOnce(new AIServiceError("API Error", { provider: "gemini", model: "gemini-3" }));
+      mockCallAI.mockRejectedValueOnce(
+        new AIServiceError("API Error", {
+          provider: "gemini",
+          model: "gemini-3",
+        }),
+      );
 
-      const result = await aiCoach.generateDailySearchQueries({ marketStatus: "OPEN", vix: 15 });
+      const result = await aiCoach.generateDailySearchQueries({
+        marketStatus: "OPEN",
+        vix: 15,
+      });
 
       expect(result.twQueries).toEqual([]);
       expect(result.usQueries).toEqual([]);
@@ -547,11 +622,24 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
       });
 
       const allNewsArray = [
-        { title: "新聞 1", _region: "TW", age_band: "fresh", pubDate: "2024-01-01" },
-        { title: "新聞 2", _region: "US", age_band: "recent", pubDate: "2024-01-02" },
+        {
+          title: "新聞 1",
+          _region: "TW",
+          age_band: "fresh",
+          pubDate: "2024-01-01",
+        },
+        {
+          title: "新聞 2",
+          _region: "US",
+          age_band: "recent",
+          pubDate: "2024-01-02",
+        },
       ];
 
-      const result = await aiCoach.filterAndCategorizeAllNewsWithAI(allNewsArray, "2024-01-01");
+      const result = await aiCoach.filterAndCategorizeAllNewsWithAI(
+        allNewsArray,
+        "2024-01-01",
+      );
 
       expect(result.news).toBeDefined();
       expect(result.news.length).toBe(2);
@@ -561,7 +649,7 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
         expect.objectContaining({
           provider: "gemini",
           keyIndex: 1,
-        })
+        }),
       );
       expect(mockAssignConflictGroups).toHaveBeenCalled();
       expect(mockSaveFilteredPool).toHaveBeenCalled();
@@ -569,7 +657,10 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
     });
 
     it("空新聞陣列回傳空結果", async () => {
-      const result = await aiCoach.filterAndCategorizeAllNewsWithAI([], "2024-01-01");
+      const result = await aiCoach.filterAndCategorizeAllNewsWithAI(
+        [],
+        "2024-01-01",
+      );
       expect(result.news).toEqual([]);
       expect(result.conflictSummary).toBe("");
       expect(mockCallAI).not.toHaveBeenCalled();
@@ -592,10 +683,18 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
       });
 
       const allNewsArray = [
-        { title: "新聞 1", _region: "TW", age_band: "fresh", pubDate: "2024-01-01" },
+        {
+          title: "新聞 1",
+          _region: "TW",
+          age_band: "fresh",
+          pubDate: "2024-01-01",
+        },
       ];
 
-      const result = await aiCoach.filterAndCategorizeAllNewsWithAI(allNewsArray, "2024-01-01");
+      const result = await aiCoach.filterAndCategorizeAllNewsWithAI(
+        allNewsArray,
+        "2024-01-01",
+      );
 
       expect(result.conflictSummary).toContain("矛盾新聞預測");
       expect(result.conflictSummary).toContain("事件 A");
@@ -603,11 +702,23 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
 
     it("AI 呼叫失敗回傳空結果", async () => {
       const { AIServiceError } = await import("../../utils/retryUtils.mjs");
-      mockCallAI.mockRejectedValueOnce(new AIServiceError("Service Error", { provider: "gemini", model: "gemini-3" }));
+      mockCallAI.mockRejectedValueOnce(
+        new AIServiceError("Service Error", {
+          provider: "gemini",
+          model: "gemini-3",
+        }),
+      );
 
       const result = await aiCoach.filterAndCategorizeAllNewsWithAI(
-        [{ title: "新聞", _region: "TW", age_band: "fresh", pubDate: "2024-01-01" }],
-        "2024-01-01"
+        [
+          {
+            title: "新聞",
+            _region: "TW",
+            age_band: "fresh",
+            pubDate: "2024-01-01",
+          },
+        ],
+        "2024-01-01",
       );
 
       expect(result.news).toEqual([]);
@@ -629,7 +740,10 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
         traceId: "trace-macro",
       });
 
-      const result = await aiCoach.analyzeMacroNewsWithAI("今日新聞摘要", "矛盾摘要");
+      const result = await aiCoach.analyzeMacroNewsWithAI(
+        "今日新聞摘要",
+        "矛盾摘要",
+      );
 
       expect(result.bull_events).toHaveLength(1);
       expect(result.bear_events).toHaveLength(1);
@@ -642,7 +756,7 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
           promptVariables: expect.objectContaining({
             newsText: expect.stringContaining("矛盾摘要"),
           }),
-        })
+        }),
       );
       expect(mockArchiveManager.saveAiLog).toHaveBeenCalled();
     });
@@ -650,8 +764,10 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
     it("無矛盾摘要時正常處理", async () => {
       mockCallAI.mockResolvedValueOnce({
         text: JSON.stringify({
-          bull_events: [], bear_events: [],
-          total_bull_score: 0, total_bear_score: 0,
+          bull_events: [],
+          bear_events: [],
+          total_bull_score: 0,
+          total_bear_score: 0,
           conclusion: { market_direction: "NEUTRAL", analysis: "中性" },
         }),
         traceId: "trace-no-conflict",
@@ -663,7 +779,9 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
 
     it("AI 呼叫失敗回傳預設中性結果", async () => {
       const { AIServiceError } = await import("../../utils/retryUtils.mjs");
-      mockCallAI.mockRejectedValueOnce(new AIServiceError("Error", { provider: "gemini", model: "gemini-3" }));
+      mockCallAI.mockRejectedValueOnce(
+        new AIServiceError("Error", { provider: "gemini", model: "gemini-3" }),
+      );
 
       const result = await aiCoach.analyzeMacroNewsWithAI("新聞", "");
 
@@ -678,7 +796,14 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
   describe("getAiInvestmentAdvice - 導出函數測試", () => {
     it("onlyPrompt 為 true 時回傳停止訊息", async () => {
       const result = await aiCoach.getAiInvestmentAdvice(
-        {}, {}, {}, "新聞", "宏觀", "籌碼", "", true
+        {},
+        {},
+        {},
+        "新聞",
+        "宏觀",
+        "籌碼",
+        "",
+        true,
       );
       expect(result.advice).toBe("AI 決策引擎停止運作中。");
       expect(result.traceId).toBeNull();
@@ -688,7 +813,8 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
     it("成功獲取投資建議", async () => {
       mockCallAI.mockResolvedValueOnce({
         text: JSON.stringify({
-          coach_internal_thinking: "因為技術指標顯示上漲趨勢，價格突破 150 元並站穩 5% 漲幅，但需注意成交量萎縮風險",
+          coach_internal_thinking:
+            "因為技術指標顯示上漲趨勢，價格突破 150 元並站穩 5% 漲幅，但需注意成交量萎縮風險",
           action_items: ["買入台積電", "設定停損"],
           mindset_advice: "保持耐心",
           risk_warnings: ["成交量萎縮", "大盤風險"],
@@ -702,8 +828,14 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
       const vixData = { vix: 15 };
 
       const result = await aiCoach.getAiInvestmentAdvice(
-        marketData, portfolio, vixData,
-        "新聞摘要", "宏觀分析", "籌碼字串", "前次建議", false
+        marketData,
+        portfolio,
+        vixData,
+        "新聞摘要",
+        "宏觀分析",
+        "籌碼字串",
+        "前次建議",
+        false,
       );
 
       expect(result.advice).toBeDefined();
@@ -713,7 +845,11 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
       expect(result.advice.risk_warnings).toHaveLength(2);
       expect(result.advice.confidence).toBe(0.8);
       expect(result.traceId).toBe("trace-advice");
-      expect(mockFormatQuantData).toHaveBeenCalledWith(marketData, portfolio, vixData);
+      expect(mockFormatQuantData).toHaveBeenCalledWith(
+        marketData,
+        portfolio,
+        vixData,
+      );
       expect(mockCallAI).toHaveBeenCalledWith(
         "Report/InvestmentAdvice",
         expect.objectContaining({
@@ -726,7 +862,7 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
             macroAndChipStr: "籌碼字串",
             previousAdviceSummary: "前次建議",
           }),
-        })
+        }),
       );
       expect(mockArchiveManager.saveAiLog).toHaveBeenCalled();
     });
@@ -738,7 +874,14 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
       });
 
       const result = await aiCoach.getAiInvestmentAdvice(
-        {}, {}, {}, "新聞", "宏觀", "籌碼", "", false
+        {},
+        {},
+        {},
+        "新聞",
+        "宏觀",
+        "籌碼",
+        "",
+        false,
       );
 
       expect(result.advice).toEqual({});
@@ -747,13 +890,27 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
 
     it("AI 呼叫失敗回傳預設錯誤訊息", async () => {
       const { AIServiceError } = await import("../../utils/retryUtils.mjs");
-      mockCallAI.mockRejectedValueOnce(new AIServiceError("Service Down", { provider: "gemini", model: "gemini-3" }));
-
-      const result = await aiCoach.getAiInvestmentAdvice(
-        {}, {}, {}, "新聞", "宏觀", "籌碼", "", false
+      mockCallAI.mockRejectedValueOnce(
+        new AIServiceError("Service Down", {
+          provider: "gemini",
+          model: "gemini-3",
+        }),
       );
 
-      expect(result.advice).toBe("AI 決策引擎暫時無法運作，請依技術指標自行判斷。");
+      const result = await aiCoach.getAiInvestmentAdvice(
+        {},
+        {},
+        {},
+        "新聞",
+        "宏觀",
+        "籌碼",
+        "",
+        false,
+      );
+
+      expect(result.advice).toBe(
+        "AI 決策引擎暫時無法運作，請依技術指標自行判斷。",
+      );
       expect(result.traceId).toBeNull();
       expect(mockLogger.error).toHaveBeenCalled();
     });
@@ -769,7 +926,14 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
       });
 
       const result = await aiCoach.getAiInvestmentAdvice(
-        {}, {}, {}, "新聞", "宏觀", "籌碼", "", false
+        {},
+        {},
+        {},
+        "新聞",
+        "宏觀",
+        "籌碼",
+        "",
+        false,
       );
 
       expect(result.advice).toBeDefined();
@@ -779,7 +943,7 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
           promptVariables: expect.objectContaining({
             previousAdviceSummary: "",
           }),
-        })
+        }),
       );
     });
   });
@@ -794,8 +958,9 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
       });
 
       // 應該不拋出錯誤
-      await expect(aiCoach.generateDailySearchQueries({ marketStatus: "OPEN", vix: 15 }))
-        .resolves.toBeDefined();
+      await expect(
+        aiCoach.generateDailySearchQueries({ marketStatus: "OPEN", vix: 15 }),
+      ).resolves.toBeDefined();
     });
   });
 
@@ -804,11 +969,24 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
       // 實際上 getAiInvestmentAdvice 接收 previousAdviceSummary 作為參數
       // 不會內部呼叫 archiveManager.getPreviousAdviceSummary()
       mockCallAI.mockResolvedValueOnce({
-        text: JSON.stringify({ coach_internal_thinking: "思考", action_items: [], mindset_advice: "" }),
+        text: JSON.stringify({
+          coach_internal_thinking: "思考",
+          action_items: [],
+          mindset_advice: "",
+        }),
         traceId: "trace-empty-prev",
       });
 
-      await aiCoach.getAiInvestmentAdvice({}, {}, {}, "新聞", "宏觀", "籌碼", "外部傳入的前次建議", false);
+      await aiCoach.getAiInvestmentAdvice(
+        {},
+        {},
+        {},
+        "新聞",
+        "宏觀",
+        "籌碼",
+        "外部傳入的前次建議",
+        false,
+      );
 
       expect(mockCallAI).toHaveBeenCalledWith(
         "Report/InvestmentAdvice",
@@ -816,7 +994,7 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
           promptVariables: expect.objectContaining({
             previousAdviceSummary: "外部傳入的前次建議",
           }),
-        })
+        }),
       );
     });
   });

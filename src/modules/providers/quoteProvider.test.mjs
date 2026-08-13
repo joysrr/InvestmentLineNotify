@@ -29,7 +29,11 @@ describe("quoteProvider - 每日一句 Provider", () => {
     it("成功回傳名言資料", async () => {
       fetchWithTimeout.mockResolvedValueOnce({
         ok: true,
-        json: vi.fn().mockResolvedValue([{ content: "Test quote", author: "Test Author" }]),
+        json: vi
+          .fn()
+          .mockResolvedValue([
+            { content: "Test quote", author: "Test Author" },
+          ]),
       });
 
       // 透過 getDailyQuote 間接測試
@@ -155,7 +159,9 @@ describe("quoteProvider - 每日一句 Provider", () => {
 
       fetchWithTimeout.mockResolvedValueOnce({
         ok: true,
-        json: vi.fn().mockResolvedValue([{ content: "New quote", author: "New Author" }]),
+        json: vi
+          .fn()
+          .mockResolvedValue([{ content: "New quote", author: "New Author" }]),
       });
 
       const result = await getDailyQuote();
@@ -165,11 +171,15 @@ describe("quoteProvider - 每日一句 Provider", () => {
     });
 
     it("讀取快取失敗繼續執行 API 抓取", async () => {
-      archiveManager.getLatestMarketData.mockRejectedValueOnce(new Error("Cache error"));
+      archiveManager.getLatestMarketData.mockRejectedValueOnce(
+        new Error("Cache error"),
+      );
 
       fetchWithTimeout.mockResolvedValueOnce({
         ok: true,
-        json: vi.fn().mockResolvedValue([{ content: "API quote", author: "API Author" }]),
+        json: vi
+          .fn()
+          .mockResolvedValue([{ content: "API quote", author: "API Author" }]),
       });
 
       const result = await getDailyQuote();

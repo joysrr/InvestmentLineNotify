@@ -58,7 +58,12 @@ describe("monitoringRoutes - 監控 API 路由", () => {
     alertEngine.getHistory.mockReturnValue([]);
     errorStore.getAll.mockResolvedValue([]);
     errorStore.getSince.mockResolvedValue([]);
-    errorStore.getStats.mockResolvedValue({ total: 0, byStatus: {}, lastHour: 0, lastDay: 0 });
+    errorStore.getStats.mockResolvedValue({
+      total: 0,
+      byStatus: {},
+      lastHour: 0,
+      lastDay: 0,
+    });
     metricsCollector.getMetrics.mockReturnValue({});
     metricsCollector.getSnapshot.mockReturnValue({});
 

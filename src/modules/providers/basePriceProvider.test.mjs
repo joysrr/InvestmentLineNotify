@@ -29,7 +29,9 @@ describe("basePriceProvider - 基準價 Provider", () => {
     });
 
     it("缺少 URL 時拋出錯誤", async () => {
-      await expect(fetchLatestBasePrice(undefined)).rejects.toThrow("缺少 BASE_PRICE_URL");
+      await expect(fetchLatestBasePrice(undefined)).rejects.toThrow(
+        "缺少 BASE_PRICE_URL",
+      );
     });
 
     it("成功取得並回傳結果", async () => {
@@ -40,7 +42,9 @@ describe("basePriceProvider - 基準價 Provider", () => {
       fetchWithTimeout.mockResolvedValueOnce(mockResponse);
       parseNumber.mockReturnValue(125.67);
 
-      const result = await fetchLatestBasePrice("http://test.com/BasePrice.txt");
+      const result = await fetchLatestBasePrice(
+        "http://test.com/BasePrice.txt",
+      );
 
       expect(result.baseDate).toBe("2024-01-15");
       expect(result.basePrice).toBe(125.67);
@@ -49,8 +53,9 @@ describe("basePriceProvider - 基準價 Provider", () => {
     it("HTTP 錯誤且無快取時拋出錯誤", async () => {
       // 重置模組確保無快取
       vi.resetModules();
-      const { fetchLatestBasePrice: freshFetch } = await import("./basePriceProvider.mjs");
-      
+      const { fetchLatestBasePrice: freshFetch } =
+        await import("./basePriceProvider.mjs");
+
       const mockResponse = {
         ok: false,
         status: 404,
@@ -58,7 +63,9 @@ describe("basePriceProvider - 基準價 Provider", () => {
       };
       fetchWithTimeout.mockResolvedValueOnce(mockResponse);
 
-      await expect(freshFetch("http://test.com/BasePrice.txt")).rejects.toThrow("HTTP 404");
+      await expect(freshFetch("http://test.com/BasePrice.txt")).rejects.toThrow(
+        "HTTP 404",
+      );
     });
   });
 });

@@ -10,7 +10,11 @@ vi.mock("../../utils/coreUtils.mjs", () => ({
 }));
 
 import { fetchFinMindMarginData } from "./finmindProvider.mjs";
-import { fetchWithTimeout, parseNumber, TwDate } from "../../utils/coreUtils.mjs";
+import {
+  fetchWithTimeout,
+  parseNumber,
+  TwDate,
+} from "../../utils/coreUtils.mjs";
 
 describe("finmindProvider - FinMind Provider", () => {
   beforeEach(() => {
@@ -26,12 +30,23 @@ describe("finmindProvider - FinMind Provider", () => {
   describe("fetchFinMindMarginData", () => {
     it("成功回傳融資與維持率資料", async () => {
       // Mock fetchFinMindData to return the expected results directly
-      const mockFetchFinMindData = vi.fn()
-        .mockResolvedValueOnce([ // Margin summary
-          { date: "2024-01-12", TodayBalance: "350000000000", YesBalance: "345000000000" },
-          { date: "2024-01-15", TodayBalance: "360000000000", YesBalance: "350000000000" },
+      const mockFetchFinMindData = vi
+        .fn()
+        .mockResolvedValueOnce([
+          // Margin summary
+          {
+            date: "2024-01-12",
+            TodayBalance: "350000000000",
+            YesBalance: "345000000000",
+          },
+          {
+            date: "2024-01-15",
+            TodayBalance: "360000000000",
+            YesBalance: "350000000000",
+          },
         ])
-        .mockResolvedValueOnce([ // Ratio
+        .mockResolvedValueOnce([
+          // Ratio
           { date: "2024-01-12", TotalExchangeMarginMaintenance: "178.5" },
           { date: "2024-01-15", TotalExchangeMarginMaintenance: "180.0" },
         ]);
@@ -45,8 +60,16 @@ describe("finmindProvider - FinMind Provider", () => {
           status: 200,
           msg: "success",
           data: [
-            { date: "2024-01-12", TodayBalance: "350000000000", YesBalance: "345000000000" },
-            { date: "2024-01-15", TodayBalance: "360000000000", YesBalance: "350000000000" },
+            {
+              date: "2024-01-12",
+              TodayBalance: "350000000000",
+              YesBalance: "345000000000",
+            },
+            {
+              date: "2024-01-15",
+              TodayBalance: "360000000000",
+              YesBalance: "350000000000",
+            },
           ],
         }),
       };
@@ -62,11 +85,11 @@ describe("finmindProvider - FinMind Provider", () => {
           ],
         }),
       };
-      
+
       fetchWithTimeout
         .mockResolvedValueOnce(mockResponse1)
         .mockResolvedValueOnce(mockResponse2);
-      
+
       // parseNumber calls: TodayBalance, YesBalance, TotalExchangeMarginMaintenance
       parseNumber
         .mockReturnValueOnce(360000000000)
@@ -90,14 +113,16 @@ describe("finmindProvider - FinMind Provider", () => {
         json: vi.fn().mockResolvedValue({
           status: 200,
           msg: "success",
-          data: [{ date: "2024-01-15", TotalExchangeMarginMaintenance: "180.0" }],
+          data: [
+            { date: "2024-01-15", TotalExchangeMarginMaintenance: "180.0" },
+          ],
         }),
       };
-      
+
       fetchWithTimeout
         .mockResolvedValueOnce(mockResponse1)
         .mockResolvedValueOnce(mockResponse2);
-      
+
       parseNumber.mockReturnValue(180.0);
 
       const result = await fetchFinMindMarginData();
@@ -115,17 +140,25 @@ describe("finmindProvider - FinMind Provider", () => {
           status: 200,
           msg: "success",
           data: [
-            { date: "2024-01-12", TodayBalance: "350000000000", YesBalance: "345000000000" },
-            { date: "2024-01-15", TodayBalance: "360000000000", YesBalance: "350000000000" },
+            {
+              date: "2024-01-12",
+              TodayBalance: "350000000000",
+              YesBalance: "345000000000",
+            },
+            {
+              date: "2024-01-15",
+              TodayBalance: "360000000000",
+              YesBalance: "350000000000",
+            },
           ],
         }),
       };
       const mockResponse2 = { ok: false, status: 500, json: vi.fn() };
-      
+
       fetchWithTimeout
         .mockResolvedValueOnce(mockResponse1)
         .mockResolvedValueOnce(mockResponse2);
-      
+
       parseNumber
         .mockReturnValueOnce(360000000000)
         .mockReturnValueOnce(350000000000);
@@ -159,7 +192,7 @@ describe("finmindProvider - FinMind Provider", () => {
         json: vi.fn().mockResolvedValue({ status: 402, msg: "Quota exceeded" }),
       };
       const mockResponse2 = { ok: false, status: 500, json: vi.fn() };
-      
+
       fetchWithTimeout
         .mockResolvedValueOnce(mockResponse1)
         .mockResolvedValueOnce(mockResponse2);
@@ -181,11 +214,11 @@ describe("finmindProvider - FinMind Provider", () => {
         }),
       };
       const mockResponse2 = { ok: false, status: 500, json: vi.fn() };
-      
+
       fetchWithTimeout
         .mockResolvedValueOnce(mockResponse1)
         .mockResolvedValueOnce(mockResponse2);
-      
+
       parseNumber.mockReturnValue(null);
 
       const result = await fetchFinMindMarginData();
@@ -198,10 +231,12 @@ describe("finmindProvider - FinMind Provider", () => {
       const mockResponse1 = {
         ok: true,
         status: 200,
-        json: vi.fn().mockResolvedValue({ status: 200, msg: "success", data: [] }),
+        json: vi
+          .fn()
+          .mockResolvedValue({ status: 200, msg: "success", data: [] }),
       };
       const mockResponse2 = { ok: false, status: 500, json: vi.fn() };
-      
+
       fetchWithTimeout
         .mockResolvedValueOnce(mockResponse1)
         .mockResolvedValueOnce(mockResponse2);
@@ -229,15 +264,21 @@ describe("finmindProvider - FinMind Provider", () => {
         json: vi.fn().mockResolvedValue({
           status: 200,
           msg: "success",
-          data: [{ date: "2024-01-15", TodayBalance: "360000000000", YesBalance: "350000000000" }],
+          data: [
+            {
+              date: "2024-01-15",
+              TodayBalance: "360000000000",
+              YesBalance: "350000000000",
+            },
+          ],
         }),
       };
       const mockResponse2 = { ok: false, status: 500, json: vi.fn() };
-      
+
       fetchWithTimeout
         .mockResolvedValueOnce(mockResponse1)
         .mockResolvedValueOnce(mockResponse2);
-      
+
       parseNumber
         .mockReturnValueOnce(360000000000)
         .mockReturnValueOnce(350000000000);

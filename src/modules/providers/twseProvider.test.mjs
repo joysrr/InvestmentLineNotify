@@ -26,9 +26,11 @@ vi.mock("../../utils/coreUtils.mjs", () => ({
     return "2024-01-01";
   }),
   toTwseStockNo: vi.fn((symbol) => symbol.replace(".TW", "")),
-  parseNumber: vi.fn((val) => (val === null || val === undefined || val === "" ? null : parseFloat(val))),
+  parseNumber: vi.fn((val) =>
+    val === null || val === undefined || val === "" ? null : parseFloat(val),
+  ),
   enumerateMonths: vi.fn((start, end) => ["20240101"]),
-  rocDateToIso: vi.fn((roc) => `2024-${roc.slice(0,2)}-${roc.slice(2,4)}`),
+  rocDateToIso: vi.fn((roc) => `2024-${roc.slice(0, 2)}-${roc.slice(2, 4)}`),
   sleep: vi.fn().mockResolvedValue(undefined),
   toExCh: vi.fn((symbol) => `tse_${symbol.replace(".TW", "").tw}`),
   parseMisTimeToDate: vi.fn((d, t) => new Date()),
@@ -48,7 +50,7 @@ vi.mock("../data/archiveManager.mjs", () => ({
   },
 }));
 
-import { 
+import {
   fetchStockDayMonthWithCache,
   fetchRealtimeFromMis,
   getTwVix,
@@ -71,13 +73,23 @@ describe("twseProvider - 台股 Provider", () => {
   describe("fetchStockDayMonthWithCache", () => {
     it("非當月且有快取時直接回傳快取", async () => {
       archiveManager.getStockHistory.mockResolvedValueOnce([
-        { date: "2023-12-29", open: 100, high: 105, low: 99, close: 102, volume: 1000 },
+        {
+          date: "2023-12-29",
+          open: 100,
+          high: 105,
+          low: 99,
+          close: 102,
+          volume: 1000,
+        },
       ]);
 
       const result = await fetchStockDayMonthWithCache("0050", "20231201");
 
       expect(result).toHaveLength(1);
-      expect(archiveManager.getStockHistory).toHaveBeenCalledWith("0050", "202312");
+      expect(archiveManager.getStockHistory).toHaveBeenCalledWith(
+        "0050",
+        "202312",
+      );
       expect(fetchWithTimeout).not.toHaveBeenCalled();
     });
 
@@ -86,10 +98,12 @@ describe("twseProvider - 台股 Provider", () => {
       fetchWithTimeout.mockResolvedValueOnce({
         ok: true,
         headers: { get: () => "application/json" },
-        text: vi.fn().mockResolvedValue(JSON.stringify({
-          stat: "OK",
-          data: [["113/01/15", "1000", "100000", "100", "105", "99", "102"]],
-        })),
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify({
+            stat: "OK",
+            data: [["113/01/15", "1000", "100000", "100", "105", "99", "102"]],
+          }),
+        ),
       });
 
       const result = await fetchStockDayMonthWithCache("0050", "20240101");
@@ -103,10 +117,12 @@ describe("twseProvider - 台股 Provider", () => {
       fetchWithTimeout.mockResolvedValueOnce({
         ok: true,
         headers: { get: () => "application/json" },
-        text: vi.fn().mockResolvedValue(JSON.stringify({
-          stat: "OK",
-          data: [["113/01/15", "1000", "100000", "100", "105", "99", "102"]],
-        })),
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify({
+            stat: "OK",
+            data: [["113/01/15", "1000", "100000", "100", "105", "99", "102"]],
+          }),
+        ),
       });
 
       await fetchStockDayMonthWithCache("0050", "20231201");
@@ -131,16 +147,20 @@ describe("twseProvider - 台股 Provider", () => {
     it("成功回傳即時價", async () => {
       fetchWithTimeout.mockResolvedValueOnce({
         ok: true,
-        text: vi.fn().mockResolvedValue(JSON.stringify({
-          msgArray: [{
-            z: "102.5",
-            b: "102.3_102.2",
-            a: "102.6_102.7",
-            tlong: "1705312200000",
-            d: "20240115",
-            t: "133000",
-          }],
-        })),
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify({
+            msgArray: [
+              {
+                z: "102.5",
+                b: "102.3_102.2",
+                a: "102.6_102.7",
+                tlong: "1705312200000",
+                d: "20240115",
+                t: "133000",
+              },
+            ],
+          }),
+        ),
       });
 
       const result = await fetchRealtimeFromMis("0050.TW");
@@ -152,13 +172,17 @@ describe("twseProvider - 台股 Provider", () => {
     it("無 last 價格時使用 bid1", async () => {
       fetchWithTimeout.mockResolvedValueOnce({
         ok: true,
-        text: vi.fn().mockResolvedValue(JSON.stringify({
-          msgArray: [{
-            b: "102.3_102.2",
-            a: "102.6_102.7",
-            tlong: "1705312200000",
-          }],
-        })),
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify({
+            msgArray: [
+              {
+                b: "102.3_102.2",
+                a: "102.6_102.7",
+                tlong: "1705312200000",
+              },
+            ],
+          }),
+        ),
       });
 
       const result = await fetchRealtimeFromMis("0050.TW");
@@ -169,12 +193,16 @@ describe("twseProvider - 台股 Provider", () => {
     it("無 bid1 時使用 ask1", async () => {
       fetchWithTimeout.mockResolvedValueOnce({
         ok: true,
-        text: vi.fn().mockResolvedValue(JSON.stringify({
-          msgArray: [{
-            a: "102.6_102.7",
-            tlong: "1705312200000",
-          }],
-        })),
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify({
+            msgArray: [
+              {
+                a: "102.6_102.7",
+                tlong: "1705312200000",
+              },
+            ],
+          }),
+        ),
       });
 
       const result = await fetchRealtimeFromMis("0050.TW");
@@ -200,7 +228,9 @@ describe("twseProvider - 台股 Provider", () => {
         text: vi.fn().mockResolvedValue("Error"),
       });
 
-      await expect(fetchRealtimeFromMis("0050.TW")).rejects.toThrow("TWSE MIS HTTP 500");
+      await expect(fetchRealtimeFromMis("0050.TW")).rejects.toThrow(
+        "TWSE MIS HTTP 500",
+      );
     });
   });
 

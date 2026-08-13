@@ -13,7 +13,9 @@ import {
 describe("snapshotAggregator - 快照彙總工具", () => {
   describe("calcNetValueCost - 成本基礎淨值", () => {
     it("兩檔位數量和貸款皆為 0 回傳 null", () => {
-      expect(calcNetValueCost({ qty0050: 0, qtyZ2: 0, totalLoan: 0 })).toBeNull();
+      expect(
+        calcNetValueCost({ qty0050: 0, qtyZ2: 0, totalLoan: 0 }),
+      ).toBeNull();
     });
 
     it("有持倉計算成本淨值", () => {

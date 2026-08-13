@@ -154,7 +154,7 @@ describe("configRoute - 策略設定 API", () => {
 
     it("validateConfig 失敗回傳 400", async () => {
       validateStrategyConfig.mockReturnValue(undefined);
-      readFile.mockResolvedValue('{}');
+      readFile.mockResolvedValue("{}");
       validateConfig.mockReturnValue({
         valid: false,
         errors: ["ma240: must be number"],
@@ -173,7 +173,7 @@ describe("configRoute - 策略設定 API", () => {
 
     it("寫入失敗回傳 500", async () => {
       validateStrategyConfig.mockReturnValue(undefined);
-      readFile.mockResolvedValue('{}');
+      readFile.mockResolvedValue("{}");
       validateConfig.mockReturnValue({ valid: true, errors: [] });
       writeFile.mockRejectedValue(new Error("Disk full"));
 
@@ -233,7 +233,7 @@ describe("configRoute - 策略設定 API", () => {
   describe("POST /strategy-config/validate - 驗證設定", () => {
     it("驗證通過回傳 valid: true", async () => {
       validateStrategyConfig.mockReturnValue(undefined);
-      readFile.mockResolvedValue('{}');
+      readFile.mockResolvedValue("{}");
       validateConfig.mockReturnValue({ valid: true, errors: [] });
 
       const response = await app.inject({
@@ -265,7 +265,7 @@ describe("configRoute - 策略設定 API", () => {
 
     it("ConfigMeta 驗證失敗回傳 errors", async () => {
       validateStrategyConfig.mockReturnValue(undefined);
-      readFile.mockResolvedValue('{}');
+      readFile.mockResolvedValue("{}");
       validateConfig.mockReturnValue({
         valid: false,
         errors: ["ma240: out of range"],

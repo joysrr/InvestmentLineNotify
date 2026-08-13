@@ -36,10 +36,7 @@ vi.mock("./macroProvider.mjs", () => ({
   fetchCpiYoY: vi.fn(),
 }));
 
-import {
-  providerRegistry,
-  ProviderError,
-} from "./providerRegistry.mjs";
+import { providerRegistry, ProviderError } from "./providerRegistry.mjs";
 import { fetchUsMarketData } from "./usMarketProvider.mjs";
 import { fetchFearAndGreedIndex } from "./cnnProvider.mjs";
 import { fetchTwseMarginData } from "./kgiProvider.mjs";
@@ -62,7 +59,9 @@ describe("providerRegistry - Provider 註冊表", () => {
 
   describe("ndcBusinessIndicator", () => {
     it("有正確的 label", () => {
-      expect(providerRegistry.ndcBusinessIndicator.label).toBe("景氣燈號 (NDC)");
+      expect(providerRegistry.ndcBusinessIndicator.label).toBe(
+        "景氣燈號 (NDC)",
+      );
     });
 
     it("呼叫 fetchBusinessIndicator", async () => {
@@ -92,7 +91,9 @@ describe("providerRegistry - Provider 註冊表", () => {
 
   describe("marginFinMind", () => {
     it("有正確的 label", () => {
-      expect(providerRegistry.marginFinMind.label).toBe("融資餘額 / 維持率 (FinMind)");
+      expect(providerRegistry.marginFinMind.label).toBe(
+        "融資餘額 / 維持率 (FinMind)",
+      );
     });
 
     it("呼叫 fetchFinMindMarginData", async () => {
@@ -111,7 +112,10 @@ describe("providerRegistry - Provider 註冊表", () => {
     });
 
     it("呼叫 fetchFearAndGreedIndex", async () => {
-      fetchFearAndGreedIndex.mockResolvedValue({ index: 50, classification: "Neutral" });
+      fetchFearAndGreedIndex.mockResolvedValue({
+        index: 50,
+        classification: "Neutral",
+      });
 
       const result = await providerRegistry.cnnFearGreed.fetch();
 
@@ -137,7 +141,9 @@ describe("providerRegistry - Provider 註冊表", () => {
 
   describe("twMarketValuation", () => {
     it("有正確的 label", () => {
-      expect(providerRegistry.twMarketValuation.label).toBe("台股大盤估值 (PB/PE)");
+      expect(providerRegistry.twMarketValuation.label).toBe(
+        "台股大盤估值 (PB/PE)",
+      );
     });
 
     it("呼叫 fetchMarketValuation", async () => {
@@ -182,7 +188,9 @@ describe("providerRegistry - Provider 註冊表", () => {
 
   describe("stockInstitutionalTwse", () => {
     it("有正確的 label", () => {
-      expect(providerRegistry.stockInstitutionalTwse.label).toBe("個股三大法人買賣超");
+      expect(providerRegistry.stockInstitutionalTwse.label).toBe(
+        "個股三大法人買賣超",
+      );
     });
 
     it("預設 ticker 為 0050", async () => {
@@ -197,7 +205,8 @@ describe("providerRegistry - Provider 註冊表", () => {
     it("接受自訂 ticker", async () => {
       fetchStockInstitutionalData.mockResolvedValue({ institutional: "sell" });
 
-      const result = await providerRegistry.stockInstitutionalTwse.fetch("2330");
+      const result =
+        await providerRegistry.stockInstitutionalTwse.fetch("2330");
 
       expect(fetchStockInstitutionalData).toHaveBeenCalledWith("2330");
     });
@@ -228,7 +237,9 @@ describe("providerRegistry - Provider 註冊表", () => {
 
   describe("twCentralBankRate", () => {
     it("有正確的 label", () => {
-      expect(providerRegistry.twCentralBankRate.label).toBe("台灣基準利率 (央行)");
+      expect(providerRegistry.twCentralBankRate.label).toBe(
+        "台灣基準利率 (央行)",
+      );
     });
 
     it("呼叫 macroProvider.fetchCentralBankRate", async () => {
@@ -243,7 +254,9 @@ describe("providerRegistry - Provider 註冊表", () => {
 
   describe("twCpiYoY", () => {
     it("有正確的 label", () => {
-      expect(providerRegistry.twCpiYoY.label).toBe("消費者物價指數年增率 (CPI)");
+      expect(providerRegistry.twCpiYoY.label).toBe(
+        "消費者物價指數年增率 (CPI)",
+      );
     });
 
     it("呼叫 macroProvider.fetchCpiYoY", async () => {

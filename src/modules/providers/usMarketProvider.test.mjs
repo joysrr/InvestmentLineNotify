@@ -42,14 +42,14 @@ describe("usMarketProvider - US Market Provider", () => {
     // 但也可以直接測試核心邏輯
     it("解析數字邏輯正確", async () => {
       parseNumber.mockReturnValue(18.5);
-      
+
       const result = parseNumber("18.5");
       expect(result).toBe(18.5);
     });
 
     it("parseNumber 回傳 null 時處理正確", async () => {
       parseNumber.mockReturnValue(null);
-      
+
       const result = parseNumber("invalid");
       expect(result).toBeNull();
     });

@@ -21,12 +21,12 @@ describe("initDataGuard - Telegram initData 驗證 Middleware", () => {
   const createApp = async (env = {}) => {
     // 設定環境變數
     Object.assign(process.env, env);
-    
+
     // 重新 import 以獲得新的模組實例
     vi.resetModules();
     const { initDataGuard: guard } = await import("./initDataGuard.mjs");
     const { default: logger } = await import("../../utils/logger.mjs");
-    
+
     const testApp = Fastify({ logger: false });
     testApp.addHook("onRequest", guard);
     testApp.get("/test", async () => ({ ok: true }));
@@ -42,7 +42,7 @@ describe("initDataGuard - Telegram initData 驗證 Middleware", () => {
     process.env.NODE_ENV = "test";
     process.env.TELEGRAM_API_TOKEN = "123456789:TEST_TOKEN";
     delete process.env.BYPASS_INIT_DATA;
-    
+
     const result = await createApp({});
     app = result.app;
   });
@@ -75,7 +75,10 @@ describe("initDataGuard - Telegram initData 驗證 Middleware", () => {
     });
 
     it("BYPASS_INIT_DATA=true 繞過驗證", async () => {
-      const result = await createApp({ NODE_ENV: "production", BYPASS_INIT_DATA: "true" });
+      const result = await createApp({
+        NODE_ENV: "production",
+        BYPASS_INIT_DATA: "true",
+      });
       const response = await result.app.inject({
         method: "GET",
         url: "/test",
@@ -128,7 +131,10 @@ describe("initDataGuard - Telegram initData 驗證 Middleware", () => {
     });
 
     it("缺少 TELEGRAM_API_TOKEN 回傳 500", async () => {
-      const result = await createApp({ ...baseEnv, TELEGRAM_API_TOKEN: undefined });
+      const result = await createApp({
+        ...baseEnv,
+        TELEGRAM_API_TOKEN: undefined,
+      });
       const response = await result.app.inject({
         method: "GET",
         url: "/test",
@@ -227,12 +233,17 @@ describe("initDataGuard - Telegram initData 驗證 Middleware", () => {
       const response = await result.app.inject({
         method: "GET",
         url: "/test",
-        headers: { "x-telegram-init-data": `${rawInitData}&hash=${expectedHash}` },
+        headers: {
+          "x-telegram-init-data": `${rawInitData}&hash=${expectedHash}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
       expect(result.logger.info).toHaveBeenCalledWith(
-        expect.objectContaining({ reason: "validation_success", userId: 123456789 }),
+        expect.objectContaining({
+          reason: "validation_success",
+          userId: 123456789,
+        }),
         expect.any(String),
       );
       await result.app.close();
@@ -260,7 +271,9 @@ describe("initDataGuard - Telegram initData 驗證 Middleware", () => {
       const response = await result.app.inject({
         method: "GET",
         url: "/test",
-        headers: { "x-telegram-init-data": `${rawInitData}&hash=${expectedHash}` },
+        headers: {
+          "x-telegram-init-data": `${rawInitData}&hash=${expectedHash}`,
+        },
       });
 
       // 因為 data-check-string 使用解碼值，HMAC 會不匹配，回傳 403
@@ -276,7 +289,9 @@ describe("initDataGuard - Telegram initData 驗證 Middleware", () => {
       const response = await result.app.inject({
         method: "GET",
         url: "/test",
-        headers: { "x-telegram-init-data": "this is not a valid query string%%%" },
+        headers: {
+          "x-telegram-init-data": "this is not a valid query string%%%",
+        },
       });
 
       // 如果 URLSearchParams 解析成功但 HMAC 失敗，回傳 403

@@ -96,13 +96,19 @@ describe("llmJudge - LLM Judge", () => {
     });
 
     it("呼叫 callAI 兩次 (Actionability + Tone_and_Empathy)", async () => {
-      callAI.mockResolvedValue({ text: JSON.stringify({ score: 0.8, reason: "good" }) });
+      callAI.mockResolvedValue({
+        text: JSON.stringify({ score: 0.8, reason: "good" }),
+      });
 
-      await runJudge("trace-1", {
-        action_items: ["買入"],
-        risk_warnings: ["風險"],
-        mindset_advice: ["耐心"],
-      }, "session-1");
+      await runJudge(
+        "trace-1",
+        {
+          action_items: ["買入"],
+          risk_warnings: ["風險"],
+          mindset_advice: ["耐心"],
+        },
+        "session-1",
+      );
 
       expect(callAI).toHaveBeenCalledTimes(2);
       expect(callAI).toHaveBeenCalledWith(
@@ -124,13 +130,19 @@ describe("llmJudge - LLM Judge", () => {
     });
 
     it("score 寫入 langfuse", async () => {
-      callAI.mockResolvedValue({ text: JSON.stringify({ score: 0.75, reason: "ok" }) });
+      callAI.mockResolvedValue({
+        text: JSON.stringify({ score: 0.75, reason: "ok" }),
+      });
 
-      await runJudge("trace-1", {
-        action_items: [],
-        risk_warnings: [],
-        mindset_advice: [],
-      }, "session-1");
+      await runJudge(
+        "trace-1",
+        {
+          action_items: [],
+          risk_warnings: [],
+          mindset_advice: [],
+        },
+        "session-1",
+      );
 
       expect(langfuse.score).toHaveBeenCalledTimes(2);
       expect(langfuse.score).toHaveBeenCalledWith(
@@ -143,7 +155,9 @@ describe("llmJudge - LLM Judge", () => {
     });
 
     it("score 超出範圍不寫入 langfuse", async () => {
-      callAI.mockResolvedValue({ text: JSON.stringify({ score: 1.5, reason: "too high" }) });
+      callAI.mockResolvedValue({
+        text: JSON.stringify({ score: 1.5, reason: "too high" }),
+      });
 
       await runJudge("trace-1", { action_items: [] }, "session-1");
 
@@ -175,7 +189,9 @@ describe("llmJudge - LLM Judge", () => {
 
     it("AIServiceError 正確記錄錯誤", async () => {
       const { AIServiceError } = await import("../../utils/retryUtils.mjs");
-      callAI.mockRejectedValue(new AIServiceError("Rate limited", "gemini", "gemini-1.5-pro"));
+      callAI.mockRejectedValue(
+        new AIServiceError("Rate limited", "gemini", "gemini-1.5-pro"),
+      );
 
       await runJudge("trace-1", { action_items: [] }, "session-1");
 
@@ -188,7 +204,9 @@ describe("llmJudge - LLM Judge", () => {
     });
 
     it("傳遞正確的 promptVariables", async () => {
-      callAI.mockResolvedValue({ text: JSON.stringify({ score: 0.5, reason: "test" }) });
+      callAI.mockResolvedValue({
+        text: JSON.stringify({ score: 0.5, reason: "test" }),
+      });
 
       const advice = {
         action_items: ["動作1"],

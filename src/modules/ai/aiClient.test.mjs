@@ -61,7 +61,9 @@ vi.mock("../../utils/logger.mjs", () => ({
 
 vi.mock("./aiCircuitBreaker.mjs", () => ({
   canMakeAIRequest: vi.fn().mockReturnValue(true),
-  getCircuitBreakerStatus: vi.fn().mockReturnValue({ state: "closed", failureRate: 0 }),
+  getCircuitBreakerStatus: vi
+    .fn()
+    .mockReturnValue({ state: "closed", failureRate: 0 }),
   recordAIRequestResult: vi.fn(),
   isCircuitOpen: vi.fn().mockReturnValue(false),
   CIRCUIT_STATE: { CLOSED: "closed", OPEN: "open", HALF_OPEN: "half_open" },
@@ -179,7 +181,8 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
       const variables = { price: "175", date: "2024-01-01" };
 
       const result = Object.entries(variables).reduce(
-        (tmpl, [k, v]) => tmpl.replace(new RegExp(`{{${k}}}`, "g"), String(v ?? "")),
+        (tmpl, [k, v]) =>
+          tmpl.replace(new RegExp(`{{${k}}}`, "g"), String(v ?? "")),
         fallback.user,
       );
 
@@ -191,7 +194,8 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
       const variables = { price: "175" };
 
       const result = Object.entries(variables).reduce(
-        (tmpl, [k, v]) => tmpl.replace(new RegExp(`{{${k}}}`, "g"), String(v ?? "")),
+        (tmpl, [k, v]) =>
+          tmpl.replace(new RegExp(`{{${k}}}`, "g"), String(v ?? "")),
         fallback.user,
       );
 
@@ -262,7 +266,8 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
       const resolvedOptions = {
         ...options,
         ...langfuseConfig,
-        responseSchema: langfuseConfig.response_schema ?? options.responseSchema ?? undefined,
+        responseSchema:
+          langfuseConfig.response_schema ?? options.responseSchema ?? undefined,
       };
 
       expect(resolvedOptions.responseSchema).toEqual({ type: "object" });
@@ -275,7 +280,8 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
       const resolvedOptions = {
         ...options,
         ...langfuseConfig,
-        responseSchema: langfuseConfig.response_schema ?? options.responseSchema ?? undefined,
+        responseSchema:
+          langfuseConfig.response_schema ?? options.responseSchema ?? undefined,
       };
 
       expect(resolvedOptions.responseSchema).toEqual({ type: "string" });
@@ -288,7 +294,8 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
       const resolvedOptions = {
         ...options,
         ...langfuseConfig,
-        responseSchema: langfuseConfig.response_schema ?? options.responseSchema ?? undefined,
+        responseSchema:
+          langfuseConfig.response_schema ?? options.responseSchema ?? undefined,
       };
 
       expect(resolvedOptions.responseSchema).toBeUndefined();
@@ -359,7 +366,8 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
     });
 
     it("Service 錯誤時應計算 backoff 並延遲", async () => {
-      const { calculateBackoffDelay, delay } = await import("../../utils/retryUtils.mjs");
+      const { calculateBackoffDelay, delay } =
+        await import("../../utils/retryUtils.mjs");
       expect(typeof calculateBackoffDelay).toBe("function");
       expect(typeof delay).toBe("function");
     });
@@ -373,7 +381,9 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
       const isQuotaError = (error) => {
         const msg = error.message || "";
         return (
-          msg.includes("429") || msg.includes("RATE_LIMIT") || msg.includes("quota")
+          msg.includes("429") ||
+          msg.includes("RATE_LIMIT") ||
+          msg.includes("quota")
         );
       };
 
@@ -393,7 +403,9 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
       const isQuotaError = (error) => {
         const msg = error.message || "";
         return (
-          msg.includes("429") || msg.includes("RATE_LIMIT") || msg.includes("quota")
+          msg.includes("429") ||
+          msg.includes("RATE_LIMIT") ||
+          msg.includes("quota")
         );
       };
       const isServiceError = (error) => {
@@ -407,7 +419,8 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
     });
 
     it("getBackoffDelay 內部邏輯驗證", async () => {
-      const { calculateBackoffDelay } = await import("../../utils/retryUtils.mjs");
+      const { calculateBackoffDelay } =
+        await import("../../utils/retryUtils.mjs");
       // 驗證函數存在且可被呼叫
       expect(typeof calculateBackoffDelay).toBe("function");
       const delay = calculateBackoffDelay(0, 2000, 10000, 0.5);
@@ -435,7 +448,9 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
 
       // 驗證 HALF_OPEN 時 canMakeAIRequest 返回 true
       expect(mockCircuitBreaker.canMakeAIRequest()).toBe(true);
-      expect(mockCircuitBreaker.getCircuitBreakerStatus().state).toBe("half_open");
+      expect(mockCircuitBreaker.getCircuitBreakerStatus().state).toBe(
+        "half_open",
+      );
     });
 
     it("Circuit OPEN 狀態應阻擋請求並拋出 CIRCUIT_OPEN 錯誤", async () => {
@@ -460,7 +475,7 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
       // 驗證錯誤訊息格式
       const degradationErr = new Error(
         `[callAI] Prompt 不可用（Langfuse 斷線且無 hardcoded fallback）：Test/Prompt。` +
-          `本次 AI 呼叫已阻斷，請檢查 Langfuse 連線或補充 PROMPT_HARDCODED_FALLBACK。`
+          `本次 AI 呼叫已阻斷，請檢查 Langfuse 連線或補充 PROMPT_HARDCODED_FALLBACK。`,
       );
       expect(degradationErr.message).toContain("Prompt 不可用");
       expect(degradationErr.message).toContain("hardcoded fallback");
@@ -495,7 +510,9 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
       const isQuotaError = (error) => {
         const msg = error.message || "";
         return (
-          msg.includes("429") || msg.includes("RATE_LIMIT") || msg.includes("quota")
+          msg.includes("429") ||
+          msg.includes("RATE_LIMIT") ||
+          msg.includes("quota")
         );
       };
 
@@ -515,7 +532,9 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
       const isQuotaError = (error) => {
         const msg = error.message || "";
         return (
-          msg.includes("429") || msg.includes("RATE_LIMIT") || msg.includes("quota")
+          msg.includes("429") ||
+          msg.includes("RATE_LIMIT") ||
+          msg.includes("quota")
         );
       };
       const isServiceError = (error) => {
@@ -529,7 +548,8 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
     });
 
     it("getBackoffDelay 內部邏輯驗證", async () => {
-      const { calculateBackoffDelay } = await import("../../utils/retryUtils.mjs");
+      const { calculateBackoffDelay } =
+        await import("../../utils/retryUtils.mjs");
       // 驗證函數存在且可被呼叫
       expect(typeof calculateBackoffDelay).toBe("function");
       const delay = calculateBackoffDelay(0, 2000, 10000, 0.5);
@@ -556,7 +576,8 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
     });
 
     it("Service 錯誤且未達最大重試次數時應計算 backoff 並延遲", async () => {
-      const { calculateBackoffDelay, delay } = await import("../../utils/retryUtils.mjs");
+      const { calculateBackoffDelay, delay } =
+        await import("../../utils/retryUtils.mjs");
       expect(typeof calculateBackoffDelay).toBe("function");
       expect(typeof delay).toBe("function");
 
@@ -581,7 +602,9 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
 
       // 驗證 HALF_OPEN 時 canMakeAIRequest 返回 true
       expect(mockCircuitBreaker.canMakeAIRequest()).toBe(true);
-      expect(mockCircuitBreaker.getCircuitBreakerStatus().state).toBe("half_open");
+      expect(mockCircuitBreaker.getCircuitBreakerStatus().state).toBe(
+        "half_open",
+      );
     });
 
     it("Circuit OPEN 狀態應阻擋請求並拋出 CIRCUIT_OPEN 錯誤", async () => {
@@ -690,7 +713,7 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
 
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({ error: expect.any(Error) }),
-        "獲取 Gemini 模型失敗"
+        "獲取 Gemini 模型失敗",
       );
     });
   });
@@ -743,7 +766,9 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
     it("flushLangfuse - 未啟用時直接返回", async () => {
       const { flushLangfuse } = await import("./aiClient.mjs");
       // 不會拋出錯誤
-      await expect(flushLangfuse("test-trace", "success")).resolves.toBeUndefined();
+      await expect(
+        flushLangfuse("test-trace", "success"),
+      ).resolves.toBeUndefined();
     });
   });
 
@@ -752,7 +777,9 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
       const isQuotaError = (error) => {
         const msg = error.message || "";
         return (
-          msg.includes("429") || msg.includes("RATE_LIMIT") || msg.includes("quota")
+          msg.includes("429") ||
+          msg.includes("RATE_LIMIT") ||
+          msg.includes("quota")
         );
       };
 
@@ -826,7 +853,8 @@ describe("aiClient - AI 呼叫核心完整測試", () => {
       const resolvedOptions = {
         ...options,
         ...langfuseConfig,
-        responseSchema: langfuseConfig.response_schema ?? options.responseSchema ?? undefined,
+        responseSchema:
+          langfuseConfig.response_schema ?? options.responseSchema ?? undefined,
       };
       expect(resolvedOptions.responseSchema).toEqual({ type: "object" });
     });
