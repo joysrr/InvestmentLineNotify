@@ -734,7 +734,7 @@ export async function listGrokModels() {
     const data = await res.json();
     const models = data.data ?? [];
 
-    const modelList = models.map((model, i) => ({
+    const modelList = models.map((model, _i) => ({
       id: model.id,
       ownedBy: model.owned_by,
     }));

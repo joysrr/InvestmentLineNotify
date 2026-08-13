@@ -21,7 +21,7 @@ const BLACKLIST_PATH = join(process.cwd(), "data", "config", "blacklist.json");
  * @returns {Promise<Object>} 優化結果
  */
 export async function runOptimizer(deps = {}) {
-  const { dataProvider, aiProvider, notifier } = deps;
+  const { _dataProvider, _aiProvider, _notifier } = deps;
 
   logger.info("=".repeat(60));
   logger.info("[Optimizer] 🚀 Starting daily blacklist optimization...");

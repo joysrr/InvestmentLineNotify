@@ -40,7 +40,7 @@ const sessionId = process.env.GITHUB_RUN_ID
  * @returns {Promise<string>} 執行結果訊息
  */
 export async function runDailyCheck(deps = {}, options = {}) {
-  const { dataProvider, aiProvider, notifier } = deps;
+  const { dataProvider, _aiProvider, _notifier } = deps;
   const {
     isTelegramEnabled = true,
     isAIAdvisor = true,

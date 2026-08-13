@@ -1,4 +1,4 @@
-import { getReserveStatus } from "./riskManagement.mjs";
+import { _getReserveStatus } from "./riskManagement.mjs";
 import {
   validateStrategyConfig,
   fetchStrategyConfig,
@@ -7,9 +7,9 @@ import {
   computeOverheatState,
   computeSellSignals,
 } from "./signalRules.mjs";
-import { calcHHV, getMACDSignal } from "./indicators.mjs";
+import { getMACDSignal } from "./indicators.mjs";
 import { computeGrossLeverage } from "./leverageMonitor.mjs";
-import { generateScoringMatrix } from "./signalGenerator.mjs";
+import { _generateScoringMatrix } from "./signalGenerator.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 import {
   PANIC_BYPASS_DROP_PCT,
@@ -18,7 +18,7 @@ import {
   MAX_ROLLING_LOAN_INCREASE_PCT,
   BUDGET_ROLLING_DAYS,
 } from "./strategyDefaults.mjs";
-import { computeLifecycleContext } from "./lifecycleEngine.mjs";
+import { _computeLifecycleContext } from "./lifecycleEngine.mjs";
 
 import { checkCooldown } from "./core/index.mjs";
 
@@ -150,7 +150,7 @@ export async function evaluateInvestmentSignal(data, arg2, arg3) {
 
   const grossAsset = current0050Value + currentZ2Value + data.portfolio.cash;
   const actualLeverage = netAsset > 0 ? grossAsset / netAsset : 0;
-  const baseCooldownDays = strategy.trading.cooldownDays || 20;
+  const _baseCooldownDays = strategy.trading.cooldownDays || 20;
   const cfg = strategy?.macroSentiment;
 
   // ─── VIX 情緒短路 ───
@@ -168,7 +168,7 @@ export async function evaluateInvestmentSignal(data, arg2, arg3) {
     vixOverride,
   );
 
-  const isBearish = cfg?.enabled && data.macroMarketDirection === "BEAR";
+  const _isBearish = cfg?.enabled && data.macroMarketDirection === "BEAR";
 
   // cooldownStatus already computed and passed in ctxPayload.
 
@@ -301,7 +301,7 @@ export async function evaluateInvestmentSignal(data, arg2, arg3) {
 
   // 新增 signalCategory / signalType (供回測與資金管控)
   const signalCategory = determineSignalCategory(ctx, finalDecision);
-  const signalType = determineSignalType(signalCategory);
+  const _signalType = determineSignalType(signalCategory);
 
   // 利息成本濾網 (Task #9)
   const interestCostFilterResult = applyInterestCostFilter(

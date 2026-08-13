@@ -190,7 +190,7 @@ export function calculateSignalCategoryStats(results, _config = {}) {
  * @returns {string} Markdown 表格
  */
 export function generateMonthlyReportMarkdown(stats) {
-  const { categories: _categories, monthlyData, summary } = stats;
+  const { categories: _categories, _monthlyData, summary } = stats;
 
   let md = `# 回測 SignalCategory 月報\n\n`;
   md += `**回測期間**: ${summary.startDate} ~ ${summary.endDate}\n`;

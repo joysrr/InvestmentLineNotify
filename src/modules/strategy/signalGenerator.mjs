@@ -46,7 +46,7 @@ export function generateScoringMatrix(
   priceDropPercent,
   strategy,
   extraData = {},
-  macroSentiment = null,
+  _macroSentiment = null,
 ) {
   const config = strategy.scoringMatrix;
 

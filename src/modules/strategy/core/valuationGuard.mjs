@@ -43,7 +43,7 @@ export function resolveValuationGuard(currentPB, pbRecords, config) {
   };
 }
 
-export function resolveTrendConfirmation(priceData, config) {
+export function resolveTrendConfirmation(priceData, _config) {
   const { closeArr, ma20Arr, atrArr } = priceData;
   if (!closeArr || !ma20Arr || closeArr.length < 2 || ma20Arr.length < 2) {
     return {

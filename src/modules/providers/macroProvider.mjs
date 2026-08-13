@@ -1,5 +1,5 @@
 import { fetchWithTimeout, parseNumber } from "../../utils/coreUtils.mjs";
-import { ProviderError } from "../../utils/retryUtils.mjs";
+import { _ProviderError } from "../../utils/retryUtils.mjs";
 
 const FRED_API_KEY =
   process.env.FRED_API_KEY || "abcdefghijklmnopqrstuvwxyz123456";
@@ -90,7 +90,7 @@ export async function fetchCpiYoY() {
 // ============================================================================
 // 🇺🇸 美度指標抓取 (FRED)
 // ============================================================================
-async function fetchLatestFromFred(seriesId) {
+async function _fetchLatestFromFred(seriesId) {
   const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=1`;
 
   try {

@@ -9,7 +9,7 @@
  * 4. 提供利息成本占淨值比例、年化成本率等指標
  */
 
-import { DEFAULT_BUDGET_CONFIG } from "../strategyDefaults.mjs";
+import { _DEFAULT_BUDGET_CONFIG } from "../strategyDefaults.mjs";
 
 /**
  * 利息成本濾網結果
@@ -38,7 +38,7 @@ import { DEFAULT_BUDGET_CONFIG } from "../strategyDefaults.mjs";
  */
 export function applyInterestCostFilter(ctx, strategy, decision = null) {
   // 1. 取得參數
-  const budget = strategy?.trading?.budget || {};
+  const _budget = strategy?.trading?.budget || {};
   const loanInterestRate = strategy?.trading?.loanInterestRate ?? 0.022;
 
   const netAsset = ctx?.netAsset ?? 0;

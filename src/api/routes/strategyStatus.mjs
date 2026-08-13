@@ -28,7 +28,7 @@ export default async function strategyStatusRoute(fastify) {
       const signals = state.signals ?? {};
       const strategy = state.strategySnapshot ?? {};
       const lifecycle = strategy.lifecycle ?? {};
-      const trading = strategy.trading ?? {};
+      const _trading = strategy.trading ?? {};
 
       // 1. Weight Score 構成細項
       const weightDetails = signals.weightDetails ?? {};
@@ -72,14 +72,14 @@ export default async function strategyStatusRoute(fastify) {
       }
 
       // 4. Budget Priority 資訊
-      const budgetInfo = signals.budgetInfo ?? {};
-      const budgetAllowedAmount = signals.budgetAllowedAmount ?? null;
-      const budgetIsLimited = signals.budgetIsLimited ?? false;
-      const budgetLimitedReason = signals.budgetLimitedReason ?? null;
+      const _budgetInfo = signals.budgetInfo ?? {};
+      const _budgetAllowedAmount = signals.budgetAllowedAmount ?? null;
+      const _budgetIsLimited = signals.budgetIsLimited ?? false;
+      const _budgetLimitedReason = signals.budgetLimitedReason ?? null;
 
       // 5. 信號分類
-      const signalCategory = signals.signalCategory ?? "baseline";
-      const signalType = signals.signalType ?? "baseline";
+      const _signalCategory = signals.signalCategory ?? "baseline";
+      const _signalType = signals.signalType ?? "baseline";
 
       // 6. 生命週期
       const yearsToRetirement = lifecycle.currentAge

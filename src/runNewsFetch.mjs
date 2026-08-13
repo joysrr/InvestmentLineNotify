@@ -5,7 +5,7 @@ import { langfuse } from "./modules/ai/aiClient.mjs";
 import logger from "./utils/logger.mjs";
 
 /** Langfuse score 回寫，失敗不阻斷主流程 */
-async function safeLangfuseScore(payload) {
+async function _safeLangfuseScore(payload) {
   try {
     await langfuse.score(payload);
   } catch (err) {

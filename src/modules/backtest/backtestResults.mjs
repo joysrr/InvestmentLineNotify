@@ -12,7 +12,7 @@ import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 import { getAllJobs, getJobStatus } from "./backtestQueue.mjs";
-import { calculateSignalCategoryStats } from "./backtestSignalCategoryStats.mjs";
+import { _calculateSignalCategoryStats } from "./backtestSignalCategoryStats.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, "../../..");
@@ -71,7 +71,7 @@ export async function getBacktestResult(jobId) {
  * @param {Object} [options] - 選項
  * @returns {Object} ECharts 相容的圖表配置
  */
-export function generateChartData(data, type, options = {}) {
+export function generateChartData(data, type, _options = {}) {
   // 權益曲線
   if (type === "equity") {
     const results = Array.isArray(data) ? data : data?.results || [];
@@ -173,9 +173,9 @@ export function generateChartData(data, type, options = {}) {
     const countData = validCats.map((c) => categories[c].count);
     const winRateData = validCats.map((c) => categories[c].winRate || 0);
     const avgScoreData = validCats.map((c) => categories[c].avgScore || 0);
-    const buyData = validCats.map((c) => categories[c].buyCount || 0);
-    const sellData = validCats.map((c) => categories[c].sellCount || 0);
-    const holdData = validCats.map((c) => categories[c].holdCount || 0);
+    const _buyData = validCats.map((c) => categories[c].buyCount || 0);
+    const _sellData = validCats.map((c) => categories[c].sellCount || 0);
+    const _holdData = validCats.map((c) => categories[c].holdCount || 0);
 
     return {
       labels,

@@ -97,7 +97,7 @@ export async function fetchAllMacroData() {
     ? marginLastFetchStr.split("T")[0]
     : null;
   const marginLastTime = new Date(marginLastFetchStr);
-  const hoursSinceMarginUpdate = (now - marginLastTime) / (1000 * 60 * 60);
+  const _hoursSinceMarginUpdate = (now - marginLastTime) / (1000 * 60 * 60);
 
   const isMarginToday = marginLastDate === todayStr;
 

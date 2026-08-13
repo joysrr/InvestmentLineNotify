@@ -245,7 +245,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
   // ── 組合回傳物件 ──────────────────────────────────────────────────────────
   // 建立資產註冊表與 SchemaMapper 以支援新舊格式轉換
   const assetRegistry = getDefaultAssetRegistry();
-  const schemaMapper = new SchemaMapper(assetRegistry);
+  const _schemaMapper = new SchemaMapper(assetRegistry);
 
   // 確保 lastState 不為 null
   const safeLastState = lastState ?? {};
@@ -544,6 +544,6 @@ function _logBasePrice(basePrice) {
   logger.info(`💰 取得基準價：${basePrice}`);
 }
 
-function _logMacroOverview(macroData) {
+function _logMacroOverview(_macroData) {
   logger.info("🌏 總經概況已載入");
 }

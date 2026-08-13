@@ -20,7 +20,7 @@ function goalBar(current, target, width = 20) {
 }
 
 /** 預算進度條 */
-function budgetBar(used, total, width = 10) {
+function _budgetBar(used, total, width = 10) {
   const ratio = Math.min(1, Math.max(0, used / total));
   const filled = Math.round(ratio * width);
   const icon = ratio >= 0.9 ? "🔴" : ratio >= 0.7 ? "🟡" : "🟢";
@@ -89,7 +89,7 @@ function fmtValDate(dateStr) {
 }
 
 /** 進場評分列 (有分數給星星，沒分數留白) */
-function scoreRow(label, score, info) {
+function _scoreRow(label, score, info) {
   const isScored = Number.isFinite(score) && score > 0;
   const icon = isScored ? "⭐" : "➖";
   const scoreStr = Number.isFinite(score) ? `${score}pt` : "--";
@@ -456,10 +456,10 @@ export function buildTelegramMessages({
   const scoreOk =
     Number.isFinite(score) && Number.isFinite(minScore) && score >= minScore;
 
-  const dropScore = Number.isFinite(w.dropScore) ? w.dropScore : 0;
-  const rsiScore = Number.isFinite(w.rsiScore) ? w.rsiScore : 0;
-  const macdScore = Number.isFinite(w.macdScore) ? w.macdScore : 0;
-  const kdScore = Number.isFinite(w.kdScore) ? w.kdScore : 0;
+  const _dropScore = Number.isFinite(w.dropScore) ? w.dropScore : 0;
+  const _rsiScore = Number.isFinite(w.rsiScore) ? w.rsiScore : 0;
+  const _macdScore = Number.isFinite(w.macdScore) ? w.macdScore : 0;
+  const _kdScore = Number.isFinite(w.kdScore) ? w.kdScore : 0;
 
   // ── 技術指標 ──
   const rsi = Number(result.RSI);
@@ -590,8 +590,8 @@ export function buildTelegramMessages({
     timeLabel = "🦉 夜間國際觀測";
   }
 
-  const sVal = Number.isFinite(score) ? score : "--";
-  const mVal = Number.isFinite(minScore) ? minScore : "--";
+  const _sVal = Number.isFinite(score) ? score : "--";
+  const _mVal = Number.isFinite(minScore) ? minScore : "--";
 
   const scoreSection = [
     scoringCabinetTable(result),

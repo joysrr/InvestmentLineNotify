@@ -145,7 +145,7 @@ export function requiresForcedReduction(regimeResult) {
  * @returns {string} 狀態描述字串
  */
 export function formatRegimeStatus(regimeResult) {
-  const { state, mode, reason, context } = regimeResult;
+  const { state, mode, reason, _context } = regimeResult;
 
   const stateEmoji = {
     NORMAL: "✅",
