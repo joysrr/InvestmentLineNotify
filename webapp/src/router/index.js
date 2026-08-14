@@ -12,7 +12,7 @@ import SimulatorView from "../views/SimulatorView.vue";
 import BacktestReportView from "../views/BacktestReportView.vue";
 import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";
 
-export default createRouter({
+const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: "/", redirect: "/dashboard" },
@@ -31,3 +31,26 @@ export default createRouter({
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
   ],
 });
+
+// Auth guard - ����� Telegram initData
+router.beforeEach((to, from, next) => {
+  // 開發環境跳過��查
+  if (import.meta.env.DEV) {
+    next();
+    return;
+  }
+
+  // ���查 Telegram WebApp SDK 是否就��
+  const initData = window.Telegram?.WebApp?.initData;
+  if (!initData || initData === "") {
+    // 未授權：導向����頁或��示提示
+    console.warn("[Auth Guard] Telegram initData 不存在，����路由:", to.path);
+    next(false);
+    return;
+  }
+
+  // ��權通過
+  next();
+});
+
+export default router;
