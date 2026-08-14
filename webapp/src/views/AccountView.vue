@@ -1,5 +1,6 @@
 <template>
-  <div class="account-view">
+  <GlobalErrorBoundary>
+    <div class="account-view">
     <!-- ── Header ── -->
     <div class="page-header">
       <h1 class="page-title">系統狀態</h1>
@@ -251,6 +252,7 @@
       </div>
     </template>
   </div>
+  </GlobalErrorBoundary>
 </template>
 
 <script setup>
@@ -258,6 +260,7 @@ import { ref, computed, onMounted } from "vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
 import { usePortfolioSnapshots } from "../composables/usePortfolioSnapshots.js";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
+import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
 
 // ECharts
 import VChart from "vue-echarts";
