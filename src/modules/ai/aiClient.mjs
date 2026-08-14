@@ -146,6 +146,9 @@ function getHumanReviewMeta(promptName) {
   );
 }
 
+// 導出供測試用
+export { getHumanReviewMeta, extractCompiledText, resolveChatPrompt };
+
 // ── 錯誤分類 ─────────────────────────────────────────────────────────────────
 
 /**
