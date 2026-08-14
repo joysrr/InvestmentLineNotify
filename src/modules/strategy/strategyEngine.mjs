@@ -1,4 +1,4 @@
-import { _getReserveStatus } from "./riskManagement.mjs";
+import { getReserveStatus } from "./riskManagement.mjs";
 import {
   validateStrategyConfig,
   fetchStrategyConfig,
@@ -9,7 +9,7 @@ import {
 } from "./signalRules.mjs";
 import { getMACDSignal } from "./indicators.mjs";
 import { computeGrossLeverage } from "./leverageMonitor.mjs";
-import { _generateScoringMatrix } from "./signalGenerator.mjs";
+import { generateScoringMatrix } from "./signalGenerator.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 import {
   PANIC_BYPASS_DROP_PCT,
@@ -18,7 +18,7 @@ import {
   MAX_ROLLING_LOAN_INCREASE_PCT,
   BUDGET_ROLLING_DAYS,
 } from "./strategyDefaults.mjs";
-import { _computeLifecycleContext } from "./lifecycleEngine.mjs";
+import { computeLifecycleContext } from "./lifecycleEngine.mjs";
 
 import { checkCooldown } from "./core/index.mjs";
 

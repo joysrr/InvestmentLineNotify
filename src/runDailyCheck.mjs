@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { _fileURLToPath } from "url";
+import { fileURLToPath } from "url";
 import { runDailyCheck } from "./scheduler/dailyCheck.mjs";
 import { langfuse } from "./modules/ai/aiClient.mjs";
 import logger from "./utils/logger.mjs";

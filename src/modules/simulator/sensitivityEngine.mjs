@@ -1,7 +1,7 @@
 // src/modules/simulator/sensitivityEngine.mjs
 // 敏感度分析引擎
 
-import { _buildSimulationInput } from "./dataAdapter.mjs";
+import { buildSimulationInput } from "./dataAdapter.mjs";
 
 /**
  * 執行單參數敏感度掃描

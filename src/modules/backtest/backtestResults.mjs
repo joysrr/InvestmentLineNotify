@@ -12,7 +12,7 @@ import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 import { getAllJobs, getJobStatus } from "./backtestQueue.mjs";
-import { _calculateSignalCategoryStats } from "./backtestSignalCategoryStats.mjs";
+import { calculateSignalCategoryStats } from "./backtestSignalCategoryStats.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, "../../..");

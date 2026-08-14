@@ -12,7 +12,7 @@ vi.mock("../../modules/backtest/backtestQueue.mjs", () => ({
   getQueueStats: vi.fn(),
 }));
 
-vi.mock("../../modules/backtest/backtestScheduler.ts", () => ({
+vi.mock("../../modules/backtest/backtestScheduler.mjs", () => ({
   createSchedule: vi.fn(),
   getScheduleStatus: vi.fn(),
   cancelScheduledJob: vi.fn(),
@@ -35,7 +35,7 @@ import {
   triggerSchedule,
   getAllSchedules,
   getSchedulerStats,
-} from "../../modules/backtest/backtestScheduler.ts";
+} from "../../modules/backtest/backtestScheduler.mjs";
 
 describe("backtestRoutes - 回測 API 路由", () => {
   let app;

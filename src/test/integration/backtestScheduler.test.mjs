@@ -95,7 +95,7 @@ vi.mock("../../modules/backtest/backtestQueue.mjs", () => {
   };
 });
 
-import backtestScheduler from "../../modules/backtest/backtestScheduler.ts";
+import backtestScheduler from "../../modules/backtest/backtestScheduler.mjs";
 import {
   submitBacktestJob,
   getQueueStats,

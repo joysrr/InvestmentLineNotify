@@ -1,4 +1,4 @@
-import { _TwDate } from "../../../utils/coreUtils.mjs";
+import { TwDate } from "../../../utils/coreUtils.mjs";
 
 /**
  * 階梯式獲利轉化 (Conversion Guard)
