@@ -18,6 +18,7 @@ export default defineConfig({
       "**/webapp/**",
       "**/src/test/e2e/**",
     ],
+    setupFiles: ["./src/test/setup.mjs"],
     testTimeout: 60000,
     hookTimeout: 20000,
     coverage: {

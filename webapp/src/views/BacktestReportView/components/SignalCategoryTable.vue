@@ -19,7 +19,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="cat in categoryOrder" :key="cat" v-if="stats?.categories[cat]?.count > 0">
+          <tr v-for="cat in activeCategories" :key="cat">
             <td>
               <span class="badge" :class="categoryClass(cat)">{{ cat }}</span>
             </td>
@@ -50,7 +50,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="cat in categoryOrder" :key="cat" v-if="stats.categories[cat]?.monthlyBreakdown?.[month]">
+              <tr v-for="cat in getActiveCategoriesForMonth(month)" :key="cat">
                 <td><span class="badge" :class="categoryClass(cat)">{{ cat }}</span></td>
                 <td>{{ stats.categories[cat].monthlyBreakdown[month].count }}</td>
                 <td>{{ ((stats.categories[cat].monthlyBreakdown[month].count / monthlyTotals[month]) * 100).toFixed(1) }}%</td>
@@ -74,6 +74,16 @@ const props = defineProps({
 });
 
 const categoryOrder = ["baseline", "deep_drop", "panic", "take_profit", "rebalance"];
+
+const activeCategories = computed(() => {
+  if (!props.stats?.categories) return [];
+  return categoryOrder.filter(cat => props.stats.categories[cat]?.count > 0);
+});
+
+const getActiveCategoriesForMonth = (month) => {
+  if (!props.stats?.categories) return [];
+  return categoryOrder.filter(cat => props.stats.categories[cat]?.monthlyBreakdown?.[month]);
+};
 
 const monthlyTotals = computed(() => {
   const totals = {};

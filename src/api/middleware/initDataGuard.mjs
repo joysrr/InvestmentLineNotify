@@ -28,12 +28,12 @@ export async function initDataGuard(request, reply) {
   // Skip guard for /health and /healthz endpoints
   if (request.url.startsWith("/health")) return;
 
-  // Bypass in development / test mode
+  // Bypass ONLY in development environment or explicit bypass flag.
+  // TEST_MODE is removed — use generateValidInitData() instead for real auth testing.
   if (
     process.env.NODE_ENV === "dev" ||
     process.env.NODE_ENV === "development" ||
-    process.env.BYPASS_INIT_DATA === "true" ||
-    process.env.TEST_MODE === "true"
+    process.env.BYPASS_INIT_DATA === "true"
   ) {
     return;
   }

@@ -11,6 +11,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { spawn } from "child_process";
+import { generateValidInitData } from "../../src/test/utils/authMock.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -107,7 +108,7 @@ async function stopServers(apiServer, viteServer) {
   await delay(1000);
 }
 
-async function scanAPIs(page) {
+async function scanAPIs(page, validInitData) {
   console.log("\n📡 掃描核心 API 端點...");
   const results = [];
   
@@ -118,8 +119,8 @@ async function scanAPIs(page) {
         method: endpoint.method || "GET",
         headers: {
           "Content-Type": "application/json",
-          // Skip auth for health endpoints
-          ...(endpoint.skipAuth ? {} : { "X-Telegram-Init-Data": "test" }),
+          // Skip auth for health endpoints, otherwise use valid initData
+          ...(endpoint.skipAuth ? {} : { "X-Telegram-Init-Data": validInitData }),
         },
       };
       
@@ -164,7 +165,7 @@ async function scanAPIs(page) {
   return results;
 }
 
-async function scanPages(page) {
+async function scanPages(page, validInitData) {
   console.log("\n🌐 掃描關鍵頁面...");
   const results = [];
   
@@ -213,6 +214,19 @@ async function scanPages(page) {
     
     try {
       const startTime = Date.now();
+
+      // 在導航前注入 Telegram WebApp mock
+      await page.addInitScript((initData) => {
+        window.Telegram = {
+          WebApp: {
+            initData,
+            ready: () => {},
+            expand: () => {},
+            close: () => {},
+          },
+        };
+      }, validInitData);
+
       await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
       pageResult.loadTime = Date.now() - startTime;
       
@@ -466,11 +480,21 @@ async function main() {
     });
     const page = await context.newPage();
     
+    // 產生合法的 Telegram initData (需要 BOT_TOKEN 環境變數)
+    const botToken = process.env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_API_TOKEN;
+    let validInitData = "dev-bypass";
+    if (botToken) {
+      validInitData = generateValidInitData(botToken);
+      console.log("🔐 使用真實 HMAC-SHA256 簽名 (Bot Token 已設定)");
+    } else {
+      console.log("⚠️  TELEGRAM_BOT_TOKEN 未設定，請確保伺服器端使用 NODE_ENV=development");
+    }
+
     // 掃描 API
-    const apiResults = await scanAPIs(page);
+    const apiResults = await scanAPIs(page, validInitData);
     
     // 掃描頁面
-    const pageResults = await scanPages(page);
+    const pageResults = await scanPages(page, validInitData);
     
     // 關閉瀏覽器
     await browser.close();

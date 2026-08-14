@@ -159,7 +159,7 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-// import { ElMessage } from "element-plus"; // REMOVED - not installed
+import { ElMessage } from "element-plus";
 // import { Download, Document } from "@element-plus/icons-vue"; // REMOVED - not installed
 import VChart from "vue-echarts";
 import { use } from "echarts/core";

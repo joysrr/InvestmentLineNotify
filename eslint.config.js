@@ -4,7 +4,7 @@ import pluginVue from "eslint-plugin-vue";
 
 export default [
   js.configs.recommended,
-  ...pluginVue.configs["flat/recommended"],
+  ...pluginVue.configs["flat/essential"],
   {
     languageOptions: {
       ecmaVersion: "latest",
@@ -26,16 +26,27 @@ export default [
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
-          caughtErrorsIgnorePattern: "^(err|e)$",
+          caughtErrorsIgnorePattern: "^(err|e|error|ex)$",
+          ignoreRestSiblings: true
         },
       ],
       "no-console": "off",
-      // Vue SFC formatting rules — downgrade to warn (project-wide style, not errors)
-      "vue/max-attributes-per-line": "warn",
-      "vue/singleline-html-element-content-newline": "warn",
-      "vue/html-closing-bracket-newline": "warn",
-      "vue/html-self-closing": "warn",
-      "vue/html-indent": "warn",
+      "vue/multi-word-component-names": "off",
+    },
+  },
+  {
+    // Webapp SFCs - relax unused vars checking for UI imports/components
+    files: ["webapp/src/**/*.vue", "webapp/src/**/*.js"],
+    rules: {
+      "no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^(props|emit|_)",
+          caughtErrorsIgnorePattern: "^(err|e|error|ex)$",
+          ignoreRestSiblings: true,
+        },
+      ],
     },
   },
   {

@@ -128,7 +128,7 @@ async function handleCommand(command) {
         ElMessage.success(`PNG 已匯出: ${pngFilename.value}.png`);
         break;
         
-      case "all":
+      case "all": {
         const availableFormats = [];
         if (hasCSVData.value) availableFormats.push("csv");
         if (hasJSONData.value) availableFormats.push("json");
@@ -147,6 +147,7 @@ async function handleCommand(command) {
         );
         ElMessage.success(`已匯出: ${availableFormats.join(", ").toUpperCase()}`);
         break;
+      }
     }
     
     emit("export-complete", command, result);
