@@ -1,5 +1,6 @@
 <template>
-  <div class="backtest-report-view">
+  <GlobalErrorBoundary>
+    <div class="backtest-report-view">
     <!-- Header -->
     <div class="view-header">
       <div class="header-left">
@@ -154,6 +155,7 @@
       </div>
     </div>
   </div>
+  </GlobalErrorBoundary>
 </template>
 
 <script setup>
@@ -168,6 +170,7 @@ import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from
 import { CanvasRenderer } from "echarts/renderers";
 import MetricCard from "@/components/dashboard/MetricCard.vue";
 import SignalCategoryTable from "@/views/BacktestReportView/components/SignalCategoryTable.vue";
+import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 
 use([
   LineChart, BarChart,
