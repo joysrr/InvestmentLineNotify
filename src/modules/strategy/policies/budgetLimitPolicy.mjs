@@ -36,7 +36,7 @@ export function resolveBudgetLimit(
   strategy,
   signalType,
   requestedAmount,
-  now = TwDate(),
+  _now = TwDate(),
 ) {
   // 1. 取得預算參數 (支援熱更新)
   const budget = strategy.trading?.budget || DEFAULT_BUDGET_CONFIG;
@@ -45,7 +45,7 @@ export function resolveBudgetLimit(
   const {
     maxDailyLoanIncreasePct = budget.maxDailyLoanIncreasePct,
     maxRollingLoanIncreasePct = budget.maxRollingLoanIncreasePct,
-    rollingDays = budget.rollingDays || BUDGET_ROLLING_DAYS,
+    _rollingDays = budget.rollingDays || BUDGET_ROLLING_DAYS,
   } = budget;
 
   const monthlyDcaAmount = lifecycle.monthlyDcaAmount || 30000;
@@ -168,7 +168,7 @@ export function resolveBudgetLimit(
  * @param {Object} strategy - 策略設定
  * @returns {Object} 調整後的 budgetResult
  */
-export function applyRiskOverride(budgetResult, ctx, strategy) {
+export function applyRiskOverride(budgetResult, ctx, _strategy) {
   const result = { ...budgetResult };
   const riskOverrides = [];
 

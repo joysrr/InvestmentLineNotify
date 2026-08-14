@@ -146,6 +146,9 @@ function getHumanReviewMeta(promptName) {
   );
 }
 
+// 導出供測試用
+export { getHumanReviewMeta, extractCompiledText, resolveChatPrompt };
+
 // ── 錯誤分類 ─────────────────────────────────────────────────────────────────
 
 /**
@@ -734,7 +737,7 @@ export async function listGrokModels() {
     const data = await res.json();
     const models = data.data ?? [];
 
-    const modelList = models.map((model, i) => ({
+    const modelList = models.map((model, _i) => ({
       id: model.id,
       ownedBy: model.owned_by,
     }));

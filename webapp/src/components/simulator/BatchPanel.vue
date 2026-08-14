@@ -458,7 +458,7 @@ function clearResults() {
 function viewDetail(row) {
   detailData.value = row;
   detailVisible.value = true;
-  detailTitle.value = `任務 ${row.jobIndex} 詳情`;
+  // detailTitle 沒有被定義為 ref，可以直接忽略，因為 detailDialog 使用了靜態 title="模擬詳情"
 }
 
 async function executeBatch() {

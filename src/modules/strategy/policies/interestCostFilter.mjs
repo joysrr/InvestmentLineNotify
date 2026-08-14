@@ -38,7 +38,7 @@ import { DEFAULT_BUDGET_CONFIG } from "../strategyDefaults.mjs";
  */
 export function applyInterestCostFilter(ctx, strategy, decision = null) {
   // 1. 取得參數
-  const budget = strategy?.trading?.budget || {};
+  const _budget = strategy?.trading?.budget || {};
   const loanInterestRate = strategy?.trading?.loanInterestRate ?? 0.022;
 
   const netAsset = ctx?.netAsset ?? 0;

@@ -29,7 +29,7 @@ export class DecisionRule {
    * @param {Object} engineState - 可變共享狀態（跨規則傳遞旗標、預計算值）
    * @returns {Object|null} DecisionResult 或 null（繼續下一條）
    */
-  evaluate(ctx, strategy, engineState) {
+  evaluate(_ctx, _strategy, _engineState) {
     throw new Error(`DecisionRule "${this.name}": 必須實作 evaluate() 方法`);
   }
 
@@ -37,7 +37,7 @@ export class DecisionRule {
    * 選擇性：規則初始化（模組載入時呼叫一次）
    * 可用於預計算、驗證策略設定等
    */
-  initialize(strategy) {
+  initialize(_strategy) {
     // 預設無操作，子類別可覆寫
   }
 

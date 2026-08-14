@@ -28,7 +28,7 @@ import logger from "../utils/logger.mjs";
  * @returns {Promise<Object>} 執行結果
  */
 export async function runMonthlyReport(deps = {}) {
-  const { dataProvider, aiProvider, notifier } = deps;
+  const { _dataProvider, _aiProvider, _notifier } = deps;
 
   logger.info("📋 [MonthlyReport] 開始產生月報...");
 

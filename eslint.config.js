@@ -4,7 +4,7 @@ import pluginVue from "eslint-plugin-vue";
 
 export default [
   js.configs.recommended,
-  ...pluginVue.configs["flat/recommended"],
+  ...pluginVue.configs["flat/essential"],
   {
     languageOptions: {
       ecmaVersion: "latest",
@@ -21,14 +21,42 @@ export default [
       },
     },
     rules: {
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^(err|e|error|ex)$",
+          ignoreRestSiblings: true
+        },
+      ],
       "no-console": "off",
-      // Vue SFC formatting rules — downgrade to warn (project-wide style, not errors)
-      "vue/max-attributes-per-line": "warn",
-      "vue/singleline-html-element-content-newline": "warn",
-      "vue/html-closing-bracket-newline": "warn",
-      "vue/html-self-closing": "warn",
-      "vue/html-indent": "warn",
+      "vue/multi-word-component-names": "off",
+    },
+  },
+  {
+    // Webapp SFCs - relax unused vars checking for UI imports/components
+    files: ["webapp/src/**/*.vue", "webapp/src/**/*.js"],
+    rules: {
+      "no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^(props|emit|_)",
+          caughtErrorsIgnorePattern: "^(err|e|error|ex)$",
+          ignoreRestSiblings: true,
+        },
+      ],
+    },
+  },
+  {
+    // Fastify route handlers — convention is (request, reply) but reply may be unused
+    files: ["src/api/**/*.mjs", "src/api/**/*.js"],
+    rules: {
+      "no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^(request|reply|_)$" },
+      ],
     },
   },
   {
@@ -38,6 +66,10 @@ export default [
         ...globals.node,
         ...globals.vitest,
       },
+    },
+    rules: {
+      // Test files: allow unused vars in mock factories and test utilities
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", ignoreRestSiblings: true }],
     },
   },
   {

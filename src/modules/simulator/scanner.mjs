@@ -27,7 +27,7 @@ export async function scanPriceRange({
     rangePct = SCAN_CONFIG.RANGE_PCT,
     stepPct = SCAN_CONFIG.STEP_PCT,
     maxIterations = SCAN_CONFIG.MAX_ITERATIONS,
-    tolerance = SCAN_CONFIG.TOLERANCE,
+    _tolerance = SCAN_CONFIG.TOLERANCE,
     earlyStop = SCAN_CONFIG.EARLY_STOP,
   } = options;
 

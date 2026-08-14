@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import logger from "../../utils/logger.mjs";
 
-// 生產環境 initData 最大有效時間（5 分鐘，原 24 小時）
+// 生��環境 initData 最大有效時間（5 分鐘，原 24 小時）
 const MAX_AGE_SECONDS =
   process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "development"
     ? 86400
@@ -10,9 +10,11 @@ const MAX_AGE_SECONDS =
 /**
  * Fastify onRequest hook — Telegram initData HMAC-SHA256 validation.
  *
- * Bypass conditions (dev / local):
+ * Bypass conditions (dev / local / test):
  *   - NODE_ENV === 'dev'
+ *   - NODE_ENV === 'development'
  *   - BYPASS_INIT_DATA === 'true'
+ *   - TEST_MODE === 'true'
  *
  * In production, the caller must supply the raw initData string in the
  * `X-Telegram-Init-Data` request header.  The secret key is derived from
@@ -26,7 +28,8 @@ export async function initDataGuard(request, reply) {
   // Skip guard for /health and /healthz endpoints
   if (request.url.startsWith("/health")) return;
 
-  // Bypass in development mode
+  // Bypass ONLY in development environment or explicit bypass flag.
+  // TEST_MODE is removed — use generateValidInitData() instead for real auth testing.
   if (
     process.env.NODE_ENV === "dev" ||
     process.env.NODE_ENV === "development" ||

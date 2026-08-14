@@ -219,7 +219,7 @@ async function executeBacktest({ jobId, config, updateProgress }) {
 /**
  * 初始化 Redis 連線 (僅生產環境)
  */
-async function initRedis() {
+async function _initRedis() {
   if (!USE_REDIS) return;
 
   try {

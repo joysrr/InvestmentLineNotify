@@ -27,10 +27,10 @@ import {
   handleStatus,
   handleStatusDebug,
 } from "./modules/bot/handlers/statusHandlers.mjs";
-import { join, resolve, dirname } from "path";
+import { dirname } from "path";
 import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
-import { Bot, InlineKeyboard } from "grammy";
+import { Bot } from "grammy";
 import logger from "./utils/logger.mjs";
 import { adminGuard } from "./modules/bot/middleware/adminGuard.mjs";
 import {
