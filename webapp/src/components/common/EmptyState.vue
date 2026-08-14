@@ -26,7 +26,7 @@ import {
   Folder,
   Connection,
   Warning,
-  Search,
+  Search as SearchIcon,
   Box,
 } from "@element-plus/icons-vue";
 
@@ -89,7 +89,7 @@ export default {
     Folder,
     Connection,
     Warning,
-    Search,
+    SearchIcon,
     Box,
   },
 };
