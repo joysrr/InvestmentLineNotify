@@ -5,6 +5,7 @@ import router from "./router/index.js";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 import * as ElementPlusIconsVue from "@element-plus/icons-vue";
+import "./shared-styles.css";
 
 const app = createApp(App);
 const pinia = createPinia();

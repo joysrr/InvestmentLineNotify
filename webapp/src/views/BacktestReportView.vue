@@ -171,6 +171,7 @@ import { CanvasRenderer } from "echarts/renderers";
 import MetricCard from "@/components/dashboard/MetricCard.vue";
 import SignalCategoryTable from "@/views/BacktestReportView/components/SignalCategoryTable.vue";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
+import { apiFetch } from "@/api/index.js";
 
 use([
   LineChart, BarChart,
@@ -214,8 +215,7 @@ const signalCategoryOption = ref({});
 // Load job list
 async function loadJobList() {
   try {
-    const res = await fetch("/api/backtest/results");
-    const data = await res.json();
+    const data = await apiFetch("/api/backtest/results");
     jobList.value = data;
     if (!selectedJobId.value && data.length > 0) {
       selectedJobId.value = data[0].jobId;
@@ -233,9 +233,7 @@ async function loadReport() {
   error.value = null;
   
   try {
-    const res = await fetch(`/api/backtest/results/${selectedJobId.value}`);
-    if (!res.ok) throw new Error("載入失敗");
-    const data = await res.json();
+    const data = await apiFetch(`/api/backtest/results/${selectedJobId.value}`);
     currentReport.value = data;
     renderAllCharts();
   } catch (e) {

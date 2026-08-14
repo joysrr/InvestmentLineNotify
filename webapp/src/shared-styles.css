@@ -1,0 +1,137 @@
+/*
+  Global shared styles for consistent layout across pages
+  Import in main.js: import "./shared-styles.css"
+*/
+
+/* ============================================================
+   View Container - 統一外層容器
+   ============================================================ */
+.view-container,
+.account-view,
+.simulator-view,
+.strategy-status-view,
+.backtest-report-view,
+.market-radar-view,
+.macro-battle-view,
+.news-view,
+.reports-view,
+.technical-view,
+.chart-view,
+.strategy-config-editor {
+  padding: 16px 16px 100px; /* 底部留空間給浮動導航 */
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   View Header - 統一頁面標題區
+   ============================================================ */
+.view-header,
+.page-header,
+.dash-header,
+.sim-header,
+.status-header,
+.editor-header,
+.header-top {
+  margin-bottom: 20px;
+  padding-left: 4px;
+}
+
+.view-title,
+.page-title,
+.dash-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--tg-theme-text-color, #111);
+  margin: 0 0 4px;
+}
+
+.view-subtitle,
+.page-subtitle {
+  font-size: 13px;
+  color: var(--tg-theme-hint-color, #888);
+  margin: 0;
+}
+
+/* ============================================================
+   Section - 統一內容區塊
+   ============================================================ */
+.section {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #111);
+  margin: 0 0 12px;
+  padding-left: 4px;
+}
+
+/* ============================================================
+   Card - 統一卡片樣式
+   ============================================================ */
+.metric-card,
+.indicator-card,
+.signal-card,
+.config-card {
+  background: var(--tg-theme-bg-color, #fff);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* ============================================================
+   Loading / Empty / Error States - 統一狀態樣式
+   ============================================================ */
+.loading-state,
+.skeleton-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  color: var(--tg-theme-hint-color, #888);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--tg-theme-hint-color, #888);
+}
+
+/* ============================================================
+   Button Groups - 統一按鈕群組
+   ============================================================ */
+.header-right,
+.header-left,
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ============================================================
+   Responsive - 響應式斷點
+   ============================================================ */
+@media (max-width: 480px) {
+  .view-container,
+  .account-view,
+  .simulator-view,
+  .strategy-status-view,
+  .backtest-report-view,
+  .market-radar-view,
+  .macro-battle-view,
+  .news-view,
+  .reports-view,
+  .technical-view,
+  .chart-view,
+  .strategy-config-editor {
+    padding: 12px 12px 90px;
+  }
+  
+  .view-title,
+  .page-title,
+  .dash-title {
+    font-size: 20px;
+  }
+}
