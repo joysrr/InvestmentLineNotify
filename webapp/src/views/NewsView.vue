@@ -1,5 +1,6 @@
 <template>
-  <div class="view-container">
+    <GlobalErrorBoundary>
+    <div class="view-container">
     <!-- Sub-tab bar -->
     <div class="subtab-bar">
       <button
@@ -138,11 +139,13 @@
       </div>
     </div>
   </div>
+  </GlobalErrorBoundary>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { fetchNews, fetchReportNews } from "../api/index.js";
+import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 // ── sub-tab 狀態 ──────────────────────────────────────────

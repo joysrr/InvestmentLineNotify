@@ -1,5 +1,6 @@
 <template>
-  <div class="view-container">
+    <GlobalErrorBoundary>
+    <div class="view-container">
     <div class="view-header">
       <div class="header-top">
         <button class="back-btn" @click="$router.push('/')">
@@ -152,12 +153,14 @@
       <p>📭 尚無指標數據</p>
     </div>
   </div>
+  </GlobalErrorBoundary>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { fetchReports } from "../api/index.js";
+import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 const router = useRouter();

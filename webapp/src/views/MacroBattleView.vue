@@ -1,5 +1,6 @@
 <template>
-  <div class="view-container">
+    <GlobalErrorBoundary>
+    <div class="view-container">
     <div class="page-header">
       <h2 class="page-title">⚖️ 總經多空對決</h2>
       <span class="page-date">{{ reportDate }}</span>
@@ -137,11 +138,13 @@
       </section>
     </template>
   </div>
+  </GlobalErrorBoundary>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { fetchReports } from "../api/index.js";
+import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 const loading = ref(true);

@@ -1,5 +1,6 @@
 <template>
-  <div class="strategy-config-editor" data-testid="strategy-config-editor">
+    <GlobalErrorBoundary>
+    <div class="strategy-config-editor" data-testid="strategy-config-editor">
     <!-- Header -->
     <div class="editor-header">
       <div class="header-left">
@@ -102,6 +103,7 @@
       </template>
     </el-dialog>
   </div>
+  </GlobalErrorBoundary>
 </template>
 
 <script setup>
@@ -111,6 +113,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { Refresh, Check, Download, Upload, Checked } from "@element-plus/icons-vue";
 
 import { apiFetch } from "../api/index.js";
+import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 import ConfigSectionEditor from "../components/config/ConfigSectionEditor.vue";

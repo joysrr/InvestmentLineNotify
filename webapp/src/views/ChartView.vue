@@ -1,5 +1,6 @@
 <template>
-  <div class="view-container">
+    <GlobalErrorBoundary>
+    <div class="view-container">
     <!-- 標題列 -->
     <div class="view-header">
       <h2 class="view-title">📊 資產趨勢</h2>
@@ -92,6 +93,7 @@
       </div>
     </template>
   </div>
+  </GlobalErrorBoundary>
 </template>
 
 <script setup>
@@ -112,6 +114,7 @@ import {
   fetchSnapshotsWeekly,
   fetchSnapshotsMonthly,
 } from "../api/index.js";
+import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
 
 use([
   LineChart,

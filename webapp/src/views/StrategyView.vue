@@ -1,5 +1,6 @@
 <template>
-  <div class="view-container">
+    <GlobalErrorBoundary>
+    <div class="view-container">
     <div class="view-header">
       <h2 class="view-title">⚙️ 投資策略設定</h2>
       <p class="view-subtitle">管理核心邏輯與風險參數</p>
@@ -7,6 +8,7 @@
 
     <StrategyConfigPanel />
   </div>
+  </GlobalErrorBoundary>
 </template>
 
 <script setup>

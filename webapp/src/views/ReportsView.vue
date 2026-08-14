@@ -1,5 +1,6 @@
 <template>
-  <div class="view-container">
+    <GlobalErrorBoundary>
+    <div class="view-container">
     <!-- Header -->
     <div class="view-header">
       <h2 class="view-title">報告摘要</h2>
@@ -355,6 +356,7 @@
       </div>
     </div>
   </div>
+  </GlobalErrorBoundary>
 </template>
 
 <script setup>
@@ -365,6 +367,7 @@ import {
   fetchWeeklyReports,
   fetchMonthlyReports,
 } from "../api/index.js";
+import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 import VChart from "vue-echarts";
 import { use } from "echarts/core";
