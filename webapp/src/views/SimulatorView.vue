@@ -1,5 +1,6 @@
 <template>
-  <div class="simulator-view" data-testid="simulator-view">
+  <GlobalErrorBoundary>
+    <div class="simulator-view" data-testid="simulator-view">
     <!-- Header -->
     <div class="sim-header">
       <h2 class="sim-title">0050 雙向模擬器</h2>
@@ -79,6 +80,7 @@
     <!-- Disclaimer -->
     <DisclaimerBanner v-if="result" :disclaimer="result.disclaimer" data-testid="disclaimer-banner" />
   </div>
+  </GlobalErrorBoundary>
 </template>
 
 <script setup>
@@ -96,6 +98,7 @@ import ParetoPanel from "@/components/simulator/ParetoPanel.vue";
 import DataQualityBadges from "@/components/simulator/Common/DataQualityBadges.vue";
 import DisclaimerBanner from "@/components/simulator/Common/DisclaimerBanner.vue";
 import LoadingSkeleton from "@/components/simulator/Common/LoadingSkeleton.vue";
+import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 
 // State
 const mode = ref("forward"); // 'forward' | 'reverse'
