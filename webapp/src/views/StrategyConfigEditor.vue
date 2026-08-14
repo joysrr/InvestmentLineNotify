@@ -162,8 +162,8 @@ const sections = [
 async function loadAll() {
   try {
     const [metaRes, configRes] = await Promise.all([
-      apiFetch("/strategy-config/meta"),
-      apiFetch("/strategy-config"),
+      apiFetch("/api/strategy-config/meta"),
+      apiFetch("/api/strategy-config"),
     ]);
 
     if (metaRes.success) {
@@ -187,7 +187,7 @@ async function validateCurrentConfig() {
   if (!configMeta.value || Object.keys(configMeta.value).length === 0) return;
 
   try {
-    const res = await apiFetch("/strategy-config/validate", {
+    const res = await apiFetch("/api/strategy-config/validate", {
       method: "POST",
       body: JSON.stringify(editableConfig.value),
     });
@@ -231,7 +231,7 @@ async function saveConfig() {
 
   saving.value = true;
   try {
-    await apiFetch("/strategy-config", {
+    await apiFetch("/api/strategy-config", {
       method: "POST",
       body: JSON.stringify(editableConfig.value),
     });
@@ -253,7 +253,7 @@ async function resetToDefault() {
 async function confirmResetToDefault() {
   resetting.value = true;
   try {
-    const res = await apiFetch("/strategy-config/default");
+    const res = await apiFetch("/api/strategy-config/default");
     if (res.success) {
       currentConfig.value = JSON.parse(JSON.stringify(res.config));
       editableConfig.value = JSON.parse(JSON.stringify(res.config));
