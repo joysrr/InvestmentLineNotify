@@ -1,5 +1,6 @@
 <template>
-  <div class="view-container">
+  <GlobalErrorBoundary>
+    <div class="view-container">
     <!-- Header -->
     <div class="dash-header">
       <div class="dash-title-row">
@@ -169,6 +170,7 @@
       資料更新：{{ formatUpdatedAt(status._meta.lastRun) }}
     </p>
   </div>
+  </GlobalErrorBoundary>
 </template>
 
 <script setup>
@@ -181,6 +183,7 @@ import {
   fetchPortfolioHealth,
 } from "../api/index.js";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
+import { useApiRequestBatch } from "../composables/useApiRequest.js";
 
 // Components
 import MarketSnapshot from "../components/dashboard/MarketSnapshot.vue";
@@ -192,6 +195,8 @@ import SimulatorView from "../views/SimulatorView.vue";
 import StrategyStatusView from "../views/StrategyStatusView.vue";
 import BacktestReportView from "../views/BacktestReportView.vue";
 import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";
+import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
+import ErrorAlert from "../components/common/ErrorAlert.vue";
 
 // ECharts (Only needed here for the radar template slot)
 import VChart from "vue-echarts";
