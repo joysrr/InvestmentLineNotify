@@ -5,6 +5,7 @@
         class="mode-tab"
         :class="{ active: modelValue === 'forward' }"
         @click="$emit('update:modelValue', 'forward')"
+        data-testid="tab-forward"
       >
         <span class="mode-icon">📈</span>
         <span class="mode-label">股價 → 分數</span>
@@ -14,37 +15,41 @@
         class="mode-tab"
         :class="{ active: modelValue === 'reverse' }"
         @click="$emit('update:modelValue', 'reverse')"
+        data-testid="tab-reverse"
       >
-        <span class="mode-icon">🎯</span>
+        <span class="mode-icon">🔍</span>
         <span class="mode-label">目標 → 價格</span>
-        <span class="mode-desc">想達到某指標，反推所需價格</span>
+        <span class="mode-desc">輸入目標分數，反推價格</span>
       </button>
       <button
         class="mode-tab"
         :class="{ active: modelValue === 'batch' }"
         @click="$emit('update:modelValue', 'batch')"
+        data-testid="tab-batch"
       >
-        <span class="mode-icon">⚙️</span>
+        <span class="mode-icon">📊</span>
         <span class="mode-label">批次模擬</span>
-        <span class="mode-desc">多組參數並行，快速比較結果</span>
+        <span class="mode-desc">多組參數一次算完</span>
       </button>
       <button
         class="mode-tab"
         :class="{ active: modelValue === 'sensitivity' }"
         @click="$emit('update:modelValue', 'sensitivity')"
+        data-testid="tab-sensitivity"
       >
-        <span class="mode-icon">📊</span>
+        <span class="mode-icon">🎯</span>
         <span class="mode-label">敏感度分析</span>
-        <span class="mode-desc">參數影響度與關鍵驅動因子</span>
+        <span class="mode-desc">參數變動對結果的影響</span>
       </button>
       <button
         class="mode-tab"
         :class="{ active: modelValue === 'pareto' }"
         @click="$emit('update:modelValue', 'pareto')"
+        data-testid="tab-pareto"
       >
-        <span class="mode-icon">📈</span>
-        <span class="mode-label">Pareto 前沿</span>
-        <span class="mode-desc">多目標優化與最佳折衷解</span>
+        <span class="mode-icon">⚡</span>
+        <span class="mode-label">Pareto 分析</span>
+        <span class="mode-desc">效率前沿找最優解</span>
       </button>
     </div>
   </div>

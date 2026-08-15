@@ -1,94 +1,94 @@
 <template>
   <div class="forward-panel" data-testid="forward-panel">
-    <!-- Price Input -->
-    <div class="input-section" data-testid="forward-input-section">
-      <PriceInput
-        :price0050="price0050"
-        :priceZ2="priceZ2"
-        @update:price0050="$emit('update:price0050', $event)"
-        @update:priceZ2="$emit('update:priceZ2', $event)"
-        :current-price-0050="currentPrice0050"
-        :current-price-z2="currentPriceZ2"
-        :disabled="loading"
-        data-testid="price-input"
-      />
-
-      <div class="action-buttons" data-testid="forward-action-buttons">
-        <button
-          class="btn btn-primary btn-lg"
-          :disabled="loading || !price0050"
-          @click="$emit('run')"
-          data-testid="btn-run-forward"
-        >
-          <span v-if="loading" class="btn-spinner"></span>
-          <span v-else>執行模擬</span>
-        </button>
-        <button
-          class="btn btn-secondary"
+    <div class="input-section">
+      <div class="price-inputs">
+        <PriceInput
+          v-model="price0050"
+          label="0050 預估價格"
+          placeholder="請輸入 0050 預估價格"
           :disabled="loading"
-          @click="$emit('clear')"
-          data-testid="btn-clear-forward"
-        >
-          清除結果
-        </button>
+          data-testid="input-price0050"
+        />
+        <PriceInput
+          v-model="priceZ2"
+          label="00675L (Z2) 預估價格"
+          placeholder="請輸入 00675L 預估價格"
+          :disabled="loading"
+          data-testid="input-pricez2"
+        />
       </div>
     </div>
 
-    <!-- Result -->
-    <div v-if="result" class="result-section" data-testid="forward-result-section">
-      <ForwardResultCard :result="result" data-testid="forward-result-card" />
-      <SimulatedIndicatorsTable
-        v-if="result.indicators"
-        :indicators="result.indicators"
-        data-testid="simulated-indicators-table"
-      />
+    <div class="action-buttons">
+      <el-button
+        type="primary"
+        :loading="loading"
+        :disabled="!price0050 || !priceZ2 || loading"
+        @click="run"
+        data-testid="btn-run-forward"
+      >
+        {{ loading ? '計算中...' : '開始計算' }}
+      </el-button>
+      <el-button
+        v-if="result"
+        @click="clear"
+        data-testid="btn-clear-forward"
+      >
+        清除結果
+      </el-button>
     </div>
 
-    <!-- Error -->
-    <div v-if="error && !result" class="error-banner" data-testid="forward-error-banner">
+    <LoadingSkeleton v-if="loading" data-testid="loading-skeleton" />
+
+    <div v-else-if="error" class="error-message" data-testid="error-message">
       {{ error }}
     </div>
 
-    <!-- Loading Skeleton -->
-    <LoadingSkeleton v-if="loading" data-testid="forward-loading-skeleton" />
+    <div v-else-if="result" class="result-section" data-testid="result-section">
+      <ForwardResultCard
+        :result="result"
+        :current-price-0050="currentPrice0050"
+        :current-price-z2="currentPriceZ2"
+        data-testid="result-card"
+      />
+      <IndicatorComparisonTable
+        :indicators="result.indicators"
+        data-testid="indicators-table"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
-import PriceInput from "./PriceInput.vue";
-import ForwardResultCard from "./ForwardResultCard.vue";
-import SimulatedIndicatorsTable from "./SimulatedIndicatorsTable.vue";
-import LoadingSkeleton from "./Common/LoadingSkeleton.vue";
-import DataQualityBadges from "./Common/DataQualityBadges.vue";
-import DisclaimerBanner from "./Common/DisclaimerBanner.vue";
+import { ref, watch } from "vue";
+import PriceInput from "@/components/simulator/PriceInput.vue";
+import ForwardResultCard from "@/components/simulator/ForwardResultCard.vue";
+import IndicatorComparisonTable from "@/components/simulator/IndicatorComparisonTable.vue";
+import LoadingSkeleton from "@/components/simulator/Common/LoadingSkeleton.vue";
 
 const props = defineProps({
-  price0050: { type: [Number, String, null], default: null },
-  priceZ2: { type: [Number, String, null], default: null },
-  loading: Boolean,
-  result: Object,
-  error: String,
-  currentPrice0050: Number,
-  currentPriceZ2: Number,
+  price0050: { type: [Number, String], default: "" },
+  priceZ2: { type: [Number, String], default: "" },
+  loading: { type: Boolean, default: false },
+  result: { type: Object, default: null },
+  error: { type: String, default: null },
+  currentPrice0050: { type: [Number, String], default: "" },
+  currentPriceZ2: { type: [Number, String], default: "" },
 });
 
-defineEmits(["update:price0050", "update:priceZ2", "run", "clear"]);
+const emit = defineEmits(["update:price0050", "update:priceZ2", "run", "clear"]);
 
-// Debug: watch prop changes
-watch(() => props.price0050, (newVal) => {
-  console.log('[ForwardPanel] price0050 prop changed:', newVal);
-});
-watch(() => props.priceZ2, (newVal) => {
-  console.log('[ForwardPanel] priceZ2 prop changed:', newVal);
-});
-watch(() => props.result, (newVal) => {
-  console.log('[ForwardPanel] result prop changed:', newVal);
-  if (newVal) {
-    console.log('[ForwardPanel] result.indicators:', newVal.indicators);
-    console.log('[ForwardPanel] result.indicators type:', typeof newVal.indicators);
-  }
-});
+const run = () => emit("run");
+const clear = () => emit("clear");
+
+watch(
+  () => props.price0050,
+  (val) => emit("update:price0050", val),
+);
+watch(
+  () => props.priceZ2,
+  (val) => emit("update:priceZ2", val),
+);
 </script>
 
 <style scoped>
@@ -99,88 +99,34 @@ watch(() => props.result, (newVal) => {
 }
 
 .input-section {
-  background: #fafafa;
-  border-radius: 16px;
-  padding: 20px;
+  padding: 16px;
+  background: var(--tg-theme-bg-color, #fafafa);
+  border-radius: 12px;
+}
+
+.price-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .action-buttons {
   display: flex;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.btn {
-  flex: 1;
-  padding: 14px 0;
-  border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 8px;
+  justify-content: flex-start;
 }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: #2481cc;
-  color: #fff;
-}
-
-.btn-primary:not(:disabled):active {
-  background: #1a6bb8;
-}
-
-.btn-secondary {
-  background: #f0f0f0;
-  color: #333;
-}
-
-.btn-secondary:not(:disabled):active {
-  background: #e0e0e0;
-}
-
-.btn-lg {
-  padding: 16px 0;
-  font-size: 16px;
-}
-
-.btn-spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.error-message {
+  color: var(--tg-theme-destructive-color, #f44336);
+  padding: 12px;
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: 8px;
+  text-align: center;
 }
 
 .result-section {
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.error-banner {
-  background: #ffe6e6;
-  border: 1px solid #ffcccc;
-  color: #cc0000;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 </style>

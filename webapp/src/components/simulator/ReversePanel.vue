@@ -1,10 +1,11 @@
 <template>
-  <div class="reverse-panel">
+  <div class="reverse-panel" data-testid="reverse-panel">
     <!-- Target Selector -->
     <TargetSelector
       :model-value="targetType"
       @update:model-value="$emit('update:targetType', $event)"
       :target-types="targetTypes"
+      data-testid="target-selector"
     />
 
     <!-- Target Input -->
@@ -16,6 +17,7 @@
       @update:targetValue="$emit('update:targetValue', $event)"
       @update:targetDirection="$emit('update:targetDirection', $event)"
       @update:targetStatus="$emit('update:targetStatus', $event)"
+      data-testid="target-input"
     />
 
     <!-- Action Buttons -->
@@ -24,6 +26,7 @@
         class="btn btn-primary btn-lg"
         :disabled="loading || !canRun"
         @click="$emit('run')"
+        data-testid="btn-run-reverse"
       >
         <span v-if="loading" class="btn-spinner"></span>
         <span v-else>反向推導</span>
@@ -32,23 +35,24 @@
         class="btn btn-secondary"
         :disabled="loading"
         @click="$emit('clear')"
+        data-testid="btn-clear-reverse"
       >
         清除結果
       </button>
     </div>
 
     <!-- Result -->
-    <div v-if="result" class="result-section">
-      <ReverseResultCard :result="result" />
+    <div v-if="result" class="result-section" data-testid="reverse-result-section">
+      <ReverseResultCard :result="result" data-testid="reverse-result-card" />
     </div>
 
     <!-- Error -->
-    <div v-if="error && !result" class="error-banner">
+    <div v-if="error && !result" class="error-banner" data-testid="error-banner">
       {{ error }}
     </div>
 
     <!-- Loading Skeleton -->
-    <LoadingSkeleton v-if="loading" />
+    <LoadingSkeleton v-if="loading" data-testid="loading-skeleton" />
   </div>
 </template>
 
