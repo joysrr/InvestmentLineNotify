@@ -1,4 +1,4 @@
-# WebApp 各頁面操作功能 E2E 測試驗證計畫 v1.1
+# WebApp 各頁面操作功能 E2E 測試驗證計畫 v1.2
 
 > **建立時間**: 2026-08-15  
 > **專案版本**: InvestmentLineNotify WebApp (Vue 3 + Vite + Playwright)  
@@ -13,15 +13,15 @@
 
 | 測試類型 | 檔案路徑 | 涵蓋目標 | 現狀評估 |
 |:---|:---|:---|:---|
-| **E2E Spec** | `webapp/src/test/e2e/strategyConfig.spec.js` | 策略參數編輯器與驗證 | 🟢 已具備基本測試，需補全 Toast 斷言 |
-| **E2E Spec** | `webapp/src/test/e2e/simulator.spec.js` | 雙向模擬器單次算與切換 | 🟢 基本流暢，需補齊分頁切換與敏感度 |
-| **E2E Spec** | `webapp/src/test/e2e/simulatorReversePhaseD.spec.js` | 反向模擬 Phase D 計算 | 🟢 核心功能覆蓋 |
-| **E2E Spec** | `webapp/src/test/e2e/sensitivity.spec.js` | 敏感度矩陣分析 | 🟡 測試穩定度待強化 |
+| **E2E Spec** | `webapp/src/test/e2e/strategyConfig.spec.js` | 策略參數編輯器與驗證 | 🟡 存在舊選擇器語法問題，需重構修正 |
+| **E2E Spec** | `webapp/src/test/e2e/simulator.spec.js` | 雙向模擬器單次試算與切換 | 🟡 存在舊選擇器語法問題，需重構修正 |
+| **E2E Spec** | `webapp/src/test/e2e/simulatorReversePhaseD.spec.js` | 反向模擬 Phase D 計算 | 🟡 存在舊選擇器語法問題，需重構修正 |
+| **E2E Spec** | `webapp/src/test/e2e/sensitivity.spec.js` | 敏感度矩陣分析 | 🟡 存在舊選擇器語法問題，需重構修正 |
 | **E2E Mock** | `webapp/src/test/e2e/telegram-mock.js` | Telegram SDK 全域 Mock | 🟢 可運作 |
 | **Unit/Component** | `webapp/src/components/common/*.test.js` (4 檔) | Phase 1 共用 UI 元件 | 🟢 43 個測試全數通過 |
 | **Backend Route** | `src/api/routes/backtestRoutes.test.mjs` | 後端回測 API | 🟢 正常運作 |
 
-### 1.2 核心設計決策 (Architectural Decisions - Refined via Grill-Me)
+### 1.2 核心設計與執行決策 (Refined via Grill-Me Final Round)
 
 1. **雙軌 API 驗證策略 (Dual-Track API Strategy)**：
    - **Mocking 測試 (Unit-level UI)**：單個功能點（如輸入框極值、欄位驗證 Toast、分頁切換）使用 `page.route()` 攔截，確保測試執行快速且不受後端動態數據波動影響。
@@ -31,11 +31,27 @@
    - 在 `playwright.config.js` 中重新啟用原生 `webServer` 配置，自動執行 `./scripts/start-e2e-servers.sh` 啟動 API Server (`BYPASS_INIT_DATA=true`) 與 Vite (5173)。
    - 支援 `npx playwright test` 一鍵獨立運行。
 
-3. **全頁面 `data-testid` 屬性規範 (Selector Standard)**：
-   - 淘汰倚賴中文 UI 文字與變動 CSS Class 的弱選擇器。
-   - 撰寫各頁面 E2E 測試時，同步於對應 Vue 元件中補充強型別 `data-testid`（如 `data-testid="btn-submit"`, `data-testid="input-price"`）。
+3. **全頁面 `data-testid` 屬性與舊 Selector 重構規範**：
+   - 淘汰倚賴中文 UI 文字與變動 CSS Class 的弱選擇器（修復舊檔如 `[data-testid=mode-selector] text=股價` 語法錯誤）。
+   - 保留現有 4 個舊測試檔的寶貴業務斷言，邊推進邊修復 selector。
+   - 撰寫各頁面 E2E 測試時，同步於對應 Vue 元件中補充強型別 `data-testid`。
 
-4. **環境資源與併發控制 (Concurrency & Resource Control)**：
+4. **視圖對齊命名法 (View-Aligned File Structure)**：
+   - 全站 12 個 Vue 頁面採取數字前綴與 View 1:1 對齊命名，統一存放於 `webapp/src/test/e2e/`：
+     - `01-dashboard.spec.js`
+     - `02-simulator.spec.js`
+     - `03-backtestReport.spec.js`
+     - `04-account.spec.js`
+     - `05-technical.spec.js`
+     - `06-marketRadar.spec.js`
+     - `07-macroBattle.spec.js`
+     - `08-chartView.spec.js`
+     - `09-reports.spec.js`
+     - `10-news.spec.js`
+     - `11-strategy.spec.js`
+     - `12-strategyConfig.spec.js`
+
+5. **環境資源與併發控制 (Concurrency Control)**：
    - 全域設定 `workers: 2`，避免在無頭環境多進程併發擠爆 Thread/Memory 導致僵屍進程。
 
 ---
@@ -50,7 +66,7 @@
   2. 正向模擬參數輸入（股數、現值、維持率目標）與「開始計算」按鈕
   3. 反向模擬參數輸入（目標跌幅、加碼步幅）與「開始模擬」按鈕
   4. 模擬結果表格顯示與圖表切換
-* **E2E 測試案例 (`simulator.spec.js`)**：
+* **E2E 測試案例 (`02-simulator.spec.js`)**：
   - `[SIM-001]` 預設載入 Mode 選擇器並顯示正向面板
   - `[SIM-002]` 正向模擬輸入參數後點擊計算，驗證結果卡片正確顯示
   - `[SIM-003]` 切換至反向模擬面板，執行試算並斷言結果表格列數 > 0
@@ -63,7 +79,7 @@
   3. 「僅驗證」按鈕 (`data-testid="btn-validate"`)
   4. 「儲存」按鈕 (`data-testid="btn-save"`)
   5. 「重置為預設」按鈕 (`data-testid="btn-reset"`) 與 Confirm Modal
-* **E2E 測試案例 (`strategyConfig.spec.js`)**：
+* **E2E 測試案例 (`12-strategyConfig.spec.js`)**：
   - `[CFG-001]` 載入當前策略設定並正確填入各區塊欄位
   - `[CFG-002]` 修改維持率欄位後點擊「僅驗證」，斷言驗證成功 Toast 出現
   - `[CFG-003]` 輸入無效數值（如負數維持率）點擊驗證，斷言錯誤警告列 (`data-testid="validation-bar"`) 出現
@@ -75,7 +91,7 @@
   2. 「匯出 CSV」與「匯出 JSON」按鈕點擊
   3. 基準 0050 Buy & Hold 勾選框切換
   4. 訊號分類統計表格過濾與排序
-* **E2E 測試案例 (`backtestReport.spec.js`)**：
+* **E2E 測試案例 (`03-backtestReport.spec.js`)**：
   - `[BKT-001]` 預設載入第一個回測任務報表並渲染 ECharts 圖表
   - `[BKT-002]` 切換任務下拉選單，確認報表內容與摘要數據重新載入
   - `[BKT-003]` 點擊「匯出 CSV」，驗證觸發檔案下載流程
@@ -89,7 +105,7 @@
 * **UI 互動與功能卡片**：
   1. 概覽卡片（總資產、槓桿比率、維持率、未實現損益）
   2. 快速導航入口（雙向模擬器、策略設定、回測報表）
-* **E2E 測試案例 (`dashboard.spec.js`)**：
+* **E2E 測試案例 (`01-dashboard.spec.js`)**：
   - `[DSH-001]` 載入儀表板，斷言 4 大指標卡片數值非空且格式正確
   - `[DSH-002]` 點擊「雙向模擬器」快捷卡片，驗證成功導航至 `/#/simulator`
 
@@ -97,7 +113,7 @@
 * **UI 互動與功能**：
   1. 指標展延/摺疊（買入訊號區塊、賣出訊號區塊、轉折預警區塊）
   2. 指標卡片細節顯示（MA240、RSI、KD、MACD）
-* **E2E 測試案例 (`technical.spec.js`)**：
+* **E2E 測試案例 (`05-technical.spec.js`)**：
   - `[TEC-001]` 載入技術指標頁，確認各指標現值與燈號正確顯示
   - `[TEC-002]` 點擊買入訊號摺疊區，驗證細節展開/收合狀態切換
 
@@ -105,7 +121,7 @@
 * **UI 互動與功能**：
   1. 台股市場概況、信用交易（融資融券）、三大法人買賣超
   2. 美股指標（VIX、SPX 變動率、美債殖利率）
-* **E2E 測試案例 (`marketRadar.spec.js`)**：
+* **E2E 測試案例 (`06-marketRadar.spec.js`)**：
   - `[RAD-001]` 載入市場雷達，驗證台股與美股區塊資料皆完成加載
   - `[RAD-002]` 斷言融資維持率與 VIX 風險燈號正常顯示
 
@@ -113,7 +129,7 @@
 * **UI 互動與功能**：
   1. 景氣對策訊號（紅燈/綠燈/藍燈）燈號與分數
   2. 多頭因子 vs 空頭因子比對清單
-* **E2E 測試案例 (`macroBattle.spec.js`)**：
+* **E2E 測試案例 (`07-macroBattle.spec.js`)**：
   - `[MAC-001]` 載入總經頁面，驗證景氣燈號與當前分數顯示
   - `[MAC-002]` 檢查多空對決清單包含至少一項評估因子
 
@@ -121,7 +137,7 @@
 * **UI 互動與功能**：
   1. 時間跨度切換（1M / 3M / 6M / 1Y / ALL）
   2. 指標切換（淨值 / 槓桿 / 維持率）
-* **E2E 測試案例 (`chartView.spec.js`)**：
+* **E2E 測試案例 (`08-chartView.spec.js`)**：
   - `[CRT-001]` 載入趨勢圖表，驗證 Canvas 圖表元素正常渲染
   - `[CRT-002]` 切換時間跨度按鈕（如 3M -> 1Y），確認圖表觸發重繪
 
@@ -133,7 +149,7 @@
 * **UI 互動與功能**：
   1. 報告類型 Tab 切換（日報 / 週報 / 月報）
   2. 報告展開與內文預覽
-* **E2E 測試案例 (`reports.spec.js`)**：
+* **E2E 測試案例 (`09-reports.spec.js`)**：
   - `[RPT-001]` 預設載入最新日報，驗證摘要內文顯示
   - `[RPT-002]` 切換至「週報」Tab，驗證週報列表重新加載
 
@@ -141,7 +157,7 @@
 * **UI 互動與功能**：
   1. 新聞分頁 Tab 切換（重點新聞 / 聚焦池）
   2. 外部新聞連結開啓
-* **E2E 測試案例 (`news.spec.js`)**：
+* **E2E 測試案例 (`10-news.spec.js`)**：
   - `[NWS-001]` 載入新聞頁面，確認新聞卡片列表數 > 0
   - `[NWS-002]` 點擊「聚焦池」Tab，驗證聚焦個股新聞列出
 
@@ -149,7 +165,7 @@
 * **UI 互動與功能**：
   1. 系統健康度檢查狀態顯示
   2. API Data Sources 詳細狀態展開/摺疊
-* **E2E 測試案例 (`account.spec.js`)**：
+* **E2E 測試案例 (`04-account.spec.js`)**：
   - `[ACC-001]` 載入系統狀態頁，確認系統服務狀態為健康
   - `[ACC-002]` 點擊「展開資料源細節」，驗證各大 Provider 狀態載入
 
@@ -157,7 +173,7 @@
 * **UI 互動與功能**：
   1. 核心策略邏輯文字與規則簡介
   2. 當前觸發狀態燈號
-* **E2E 測試案例 (`strategy.spec.js`)**：
+* **E2E 測試案例 (`11-strategy.spec.js`)**：
   - `[STR-001]` 載入策略頁面，確認策略說明與規則文字呈現
   - `[STR-002]` 驗證風險控制與位階規則說明區塊完整
 
@@ -165,28 +181,29 @@
 
 ## 3. 落地執行路線圖與時程規劃 (Implementation Roadmap)
 
-### Phase 1: E2E 測試基礎建設與配置優化 (1-2 天)
+### Phase 1: E2E 測試基礎建設與舊 Selector 重構修復
 - [x] 更新 `webapp/playwright.config.js` 啟用 `webServer` 管理生命週期。
 - [x] 更新 `webapp/scripts/start-e2e-servers.sh` 自動傳遞 `BYPASS_INIT_DATA=true`。
 - [ ] 補齊全站可重用測試工具 `webapp/src/test/e2e/e2e-utils.js` (含全域 Mock 與 initData 注入)。
+- [ ] 重構並修復 4 個既有 E2E 測試檔 Selector 語法錯誤（`simulator.spec.js`, `strategyConfig.spec.js`, `sensitivity.spec.js`, `simulatorReversePhaseD.spec.js`）。
 
-### Phase 2: 核心頁面 (P0) E2E 測試與 `data-testid` 補全 (2-3 天)
-- [ ] 補全 `simulator.spec.js` 並於 `SimulatorView.vue` 加入缺少的 `data-testid`
-- [ ] 補全 `strategyConfig.spec.js` 並驗證 Toast 提示與預設值還原
-- [ ] 新增 `backtestReport.spec.js` 驗證 CSV/JSON 匯出與下拉任務切換
+### Phase 2: 核心頁面 (P0) E2E 測試與 `data-testid` 補全
+- [ ] 完成 `02-simulator.spec.js`（對齊 `SimulatorView.vue` `data-testid`）
+- [ ] 完成 `12-strategyConfig.spec.js`（對齊 `StrategyConfigEditor.vue` `data-testid`）
+- [ ] 新增並完成 `03-backtestReport.spec.js`
 
-### Phase 3: 資訊與內容頁面 (P1 + P2) E2E 測試編寫 (2-3 天)
-- [ ] 新增 `dashboard.spec.js`, `technical.spec.js`, `marketRadar.spec.js`, `macroBattle.spec.js`, `chartView.spec.js`
-- [ ] 新增 `reports.spec.js`, `news.spec.js`, `account.spec.js`, `strategy.spec.js`
+### Phase 3: 資訊與內容頁面 (P1 + P2) E2E 測試編寫
+- [ ] 完成 `01-dashboard.spec.js`, `04-account.spec.js`, `05-technical.spec.js`, `06-marketRadar.spec.js`
+- [ ] 完成 `07-macroBattle.spec.js`, `08-chartView.spec.js`, `09-reports.spec.js`, `10-news.spec.js`, `11-strategy.spec.js`
 
-### Phase 4: CI/CD 與完整性驗證 (1 天)
-- [ ] 執行 `npx playwright test` 確保所有 E2E 測試案例 100% PASS。
+### Phase 4: CI/CD 與完整性驗收
+- [ ] 執行 `npx playwright test` 確保 12 頁面 E2E 測試 100% PASS。
 - [ ] 測試結束後自動驗證無殘留僵屍進程。
 
 ---
 
 ## 4. 驗收標準 (Definition of Done)
 
-1. 📄 **計畫與架構落地**：`docs/plans/active/E2E_TESTING_PLAN.md` 包含雙軌 API 策略與 `webServer` 自動化配置。
+1. 📄 **計畫與架構落地**：`docs/plans/active/E2E_TESTING_PLAN.md` 包含雙軌 API 策略、視圖對齊命名法與 `webServer` 自動化配置。
 2. 🚀 **一鍵獨立運行**：執行 `npx playwright test` 即可全自動啟動服務並完成測試。
-3. 💯 **100% 通過率**：12 頁面共 28+ 個 E2E 測試案例在 Playwright 測試框架下達標 100% PASS。
+3. 💯 **100% 通過率**：全站 12 頁面 01~12 E2E 測試檔案在 Playwright 框架下達標 100% PASS。
