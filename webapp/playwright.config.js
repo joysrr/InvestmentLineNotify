@@ -5,7 +5,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 2,
   reporter: "html",
   timeout: 60000,
   use: {
@@ -25,14 +25,14 @@ export default defineConfig({
       },
     },
   ],
-  // webServer disabled - servers started manually
-  // webServer: {
-  //   command: "./scripts/start-e2e-servers.sh",
-  //   url: "http://localhost:5173",
-  //   reuseExistingServer: !process.env.CI,
-  //   timeout: 120000,
-  //   env: {
-  //     NODE_ENV: "development",
-  //   },
-  // },
+  webServer: {
+    command: "./scripts/start-e2e-servers.sh",
+    url: "http://localhost:5173",
+    reuseExistingServer: true,
+    timeout: 30000,
+    env: {
+      NODE_ENV: "development",
+      BYPASS_INIT_DATA: "true",
+    },
+  },
 });

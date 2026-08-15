@@ -4,18 +4,18 @@
 # Get the project root directory (parent of webapp/)
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-# Start API server in background
+# Start API server in background with BYPASS_INIT_DATA=true
 cd "$ROOT_DIR"
-NODE_ENV=development node src/api/server.mjs > /tmp/api-e2e.log 2>&1 &
+NODE_ENV=development BYPASS_INIT_DATA=true node src/api/server.mjs > /tmp/api-e2e.log 2>&1 &
 API_PID=$!
 echo "API Server PID: $API_PID"
 
 # Wait for API server to be ready
 sleep 3
 
-# Start Vite dev server (this will block)
+# Start Vite dev server
 cd "$ROOT_DIR/webapp"
-npm run dev -- --host 0.0.0.0 --port 5173
+npx vite --port 5173 --strictPort
 
 # Cleanup on exit
 kill $API_PID 2>/dev/null || true

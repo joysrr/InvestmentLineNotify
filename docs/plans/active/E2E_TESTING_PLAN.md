@@ -1,14 +1,14 @@
-# WebApp 各頁面操作功能 E2E 測試驗證計畫 v1.0
+# WebApp 各頁面操作功能 E2E 測試驗證計畫 v1.1
 
 > **建立時間**: 2026-08-15  
 > **專案版本**: InvestmentLineNotify WebApp (Vue 3 + Vite + Playwright)  
-> **目標**: 針對全站 12 個 Vue 頁面建立 100% 覆蓋的操作功能驗證與 Playwright E2E 測試矩陣。每次版版更新後可自動執行，確保無功能迴歸 (Regression-Free)。
+> **目標**: 針對全站 12 個 Vue 頁面建立 100% 覆蓋的操作功能驗證與 Playwright E2E 測試矩陣。每次改版更新後可自動執行，確保無功能迴歸 (Regression-Free)。
 
 ---
 
-## 1. 現有測試資產盤點與交叉比對 (Baseline Audit)
+## 1. 現有測試資產盤點與決策架構 (Baseline Audit & Architecture Decisions)
 
-### 1.1 現有測試檔案盤點
+### 1.1 現有測試資產盤點
 經過全專案掃描，目前 `webapp/src/test/e2e/` 與 `src/test/` 目錄下共有以下測試資產：
 
 | 測試類型 | 檔案路徑 | 涵蓋目標 | 現狀評估 |
@@ -21,10 +21,22 @@
 | **Unit/Component** | `webapp/src/components/common/*.test.js` (4 檔) | Phase 1 共用 UI 元件 | 🟢 43 個測試全數通過 |
 | **Backend Route** | `src/api/routes/backtestRoutes.test.mjs` | 後端回測 API | 🟢 正常運作 |
 
-### 1.2 缺口分析 (Gap Analysis)
-- ❌ **缺口 1**：8 個視圖頁面（DashboardView, BacktestReportView, TechnicalView, MarketRadarView, MacroBattleView, ChartView, ReportsView, NewsView, AccountView, StrategyView, StrategyStatusView）**完全缺乏專屬 E2E 測試**。
-- ❌ **缺口 2**： lacked 統一的 E2E 執行指令腳本（現僅有單獨執行指令，缺乏一鍵連同 API Server + Web Server 啟動的整體驗證腳本）。
-- ❌ **缺口 3**：缺少以 `data-testid` 驅動的選擇器標準，部分舊測試倚賴 CSS 選擇器容易因樣式變更而斷裂。
+### 1.2 核心設計決策 (Architectural Decisions - Refined via Grill-Me)
+
+1. **雙軌 API 驗證策略 (Dual-Track API Strategy)**：
+   - **Mocking 測試 (Unit-level UI)**：單個功能點（如輸入框極值、欄位驗證 Toast、分頁切換）使用 `page.route()` 攔截，確保測試執行快速且不受後端動態數據波動影響。
+   - **Real 連線測試 (Smoke & End-to-End)**：全頁面整合掃描腳本 (`run-playwright-sweep.mjs`) 直接連線後端 3001 埠，真實驗證前後端 API 連通與數據解析。
+
+2. **自給自足生命週期管理 (Self-Contained webServer)**：
+   - 在 `playwright.config.js` 中重新啟用原生 `webServer` 配置，自動執行 `./scripts/start-e2e-servers.sh` 啟動 API Server (`BYPASS_INIT_DATA=true`) 與 Vite (5173)。
+   - 支援 `npx playwright test` 一鍵獨立運行。
+
+3. **全頁面 `data-testid` 屬性規範 (Selector Standard)**：
+   - 淘汰倚賴中文 UI 文字與變動 CSS Class 的弱選擇器。
+   - 撰寫各頁面 E2E 測試時，同步於對應 Vue 元件中補充強型別 `data-testid`（如 `data-testid="btn-submit"`, `data-testid="input-price"`）。
+
+4. **環境資源與併發控制 (Concurrency & Resource Control)**：
+   - 全域設定 `workers: 2`，避免在無頭環境多進程併發擠爆 Thread/Memory 導致僵屍進程。
 
 ---
 
@@ -153,33 +165,28 @@
 
 ## 3. 落地執行路線圖與時程規劃 (Implementation Roadmap)
 
-### Phase 1: E2E 測試基礎建設與自動化 CLI (1-2 天)
-- [ ] 建立一鍵執行腳本 `webapp/scripts/run-e2e-all.mjs`：
-  - 自動在背景啟動 API Server (`BYPASS_INIT_DATA=true`) 及 Vite Dev Server
-  - 使用 Playwright 批次平行跑全套 `.spec.js`
-  - 執行完畢後**自動 100% 清理背景進程** (防 Thread 耗盡)
-- [ ] 在 `webapp/package.json` 加入快捷指令 `npm run test:e2e:all`
+### Phase 1: E2E 測試基礎建設與配置優化 (1-2 天)
+- [x] 更新 `webapp/playwright.config.js` 啟用 `webServer` 管理生命週期。
+- [x] 更新 `webapp/scripts/start-e2e-servers.sh` 自動傳遞 `BYPASS_INIT_DATA=true`。
+- [ ] 補齊全站可重用測試工具 `webapp/src/test/e2e/e2e-utils.js` (含全域 Mock 與 initData 注入)。
 
-### Phase 2: 核心頁面 (P0) E2E 測試編寫 (2-3 天)
-- [ ] 撰寫/補全 `simulator.spec.js`
-- [ ] 撰寫/補全 `strategyConfig.spec.js`
-- [ ] 新增並撰寫 `backtestReport.spec.js`
-- [ ] **驗收**：執行 `npm run test:e2e:all` 確保 P0 測試全過
+### Phase 2: 核心頁面 (P0) E2E 測試與 `data-testid` 補全 (2-3 天)
+- [ ] 補全 `simulator.spec.js` 並於 `SimulatorView.vue` 加入缺少的 `data-testid`
+- [ ] 補全 `strategyConfig.spec.js` 並驗證 Toast 提示與預設值還原
+- [ ] 新增 `backtestReport.spec.js` 驗證 CSV/JSON 匯出與下拉任務切換
 
 ### Phase 3: 資訊與內容頁面 (P1 + P2) E2E 測試編寫 (2-3 天)
 - [ ] 新增 `dashboard.spec.js`, `technical.spec.js`, `marketRadar.spec.js`, `macroBattle.spec.js`, `chartView.spec.js`
 - [ ] 新增 `reports.spec.js`, `news.spec.js`, `account.spec.js`, `strategy.spec.js`
-- [ ] **驗收**：達成全站 12 頁面 100% 測試案例覆蓋
 
-### Phase 4: CI/CD 與 Git Hook 整合 (1 天)
-- [ ] 整合至改版 SOP 文件與 Deployment Checklist
-- [ ] 每次版本 release / 改版前執行 `npm run test:e2e:all` 作為 Mandatory Quality Gate
-- [ ] 產出最終 E2E 測試覆蓋率與驗證報告
+### Phase 4: CI/CD 與完整性驗證 (1 天)
+- [ ] 執行 `npx playwright test` 確保所有 E2E 測試案例 100% PASS。
+- [ ] 測試結束後自動驗證無殘留僵屍進程。
 
 ---
 
 ## 4. 驗收標準 (Definition of Done)
 
-1. 📄 **計畫落地**：`docs/plans/active/E2E_TESTING_PLAN.md` 完成建立並納入 Git 版本控管。
-2. 🚀 **一鍵自動化**：執行 `npm run test:e2e:all` 即可自動完成前後端啟動、全頁面 E2E 掃描測試、並自動清理背景進程。
-3. 💯 **100% 通過率**：12 頁面共 28+ 個 E2E 測試案例在無頭瀏覽器環境下達到 100% PASS。
+1. 📄 **計畫與架構落地**：`docs/plans/active/E2E_TESTING_PLAN.md` 包含雙軌 API 策略與 `webServer` 自動化配置。
+2. 🚀 **一鍵獨立運行**：執行 `npx playwright test` 即可全自動啟動服務並完成測試。
+3. 💯 **100% 通過率**：12 頁面共 28+ 個 E2E 測試案例在 Playwright 測試框架下達標 100% PASS。
