@@ -1,11 +1,11 @@
 import crypto from "crypto";
 import logger from "../../utils/logger.mjs";
 
-// 生��環境 initData 最大有效時間（5 分鐘，原 24 小時）
+// 生產環境 initData 最大有效時間（原 5 分鐘放寬至 2 小時，避免 Mini App 長時間操作過期）
 const MAX_AGE_SECONDS =
   process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "development"
     ? 86400
-    : 300;
+    : 7200;
 
 /**
  * Fastify onRequest hook — Telegram initData HMAC-SHA256 validation.

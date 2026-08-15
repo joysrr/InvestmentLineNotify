@@ -291,7 +291,11 @@ const loadData = async () => {
     const res = await apiFetch("/api/strategy-status");
     data.value = res;
   } catch (err) {
-    error.value = "無法載入策略狀態：" + err.message;
+    if (err.status === 404) {
+      error.value = "策略狀態數據尚未產生或服務升級中，請稍後再試。";
+    } else {
+      error.value = "無法載入策略狀態：" + err.message;
+    }
   } finally {
     loading.value = false;
   }

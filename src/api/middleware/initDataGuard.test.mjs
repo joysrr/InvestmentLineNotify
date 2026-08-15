@@ -3,6 +3,7 @@
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import Fastify from "fastify";
+import crypto from "crypto";
 
 vi.mock("../../utils/logger.mjs", () => ({
   default: {
@@ -192,9 +193,43 @@ describe("initDataGuard - Telegram initData 驗證 Middleware", () => {
       await result.app.close();
     });
 
+    it("initData 30 分鐘前 (1800 秒) 仍有效並通過驗證", async () => {
+      const result = await createApp({ NODE_ENV: "production" });
+      const now = Math.floor(Date.now() / 1000);
+      const authDate = now - 1800; // 30 分鐘前
+
+      const params = new URLSearchParams({
+        auth_date: String(authDate),
+        user: JSON.stringify({ id: 12345 }),
+      });
+
+      const secretKey = crypto
+        .createHmac("sha256", "WebAppData")
+        .update("123456789:TEST_TOKEN")
+        .digest();
+
+      const dataCheckString = `auth_date=${authDate}\nuser={"id":12345}`;
+      const hash = crypto
+        .createHmac("sha256", secretKey)
+        .update(dataCheckString)
+        .digest("hex");
+
+      params.append("hash", hash);
+
+      const response = await result.app.inject({
+        method: "GET",
+        url: "/test",
+        headers: {
+          "X-Telegram-Init-Data": params.toString(),
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+    });
+
     it("initData 過期回傳 401", async () => {
-      const result = await createApp(baseEnv);
-      const oldAuthDate = Math.floor(Date.now() / 1000) - 600;
+      const result = await createApp({ NODE_ENV: "production" });
+      const oldAuthDate = Math.floor(Date.now() / 1000) - 7300;
       // 不計算精確 HMAC，直接測試過期判斷
       const rawInitData = `auth_date=${oldAuthDate}&query_id=123&hash=dummy`;
 

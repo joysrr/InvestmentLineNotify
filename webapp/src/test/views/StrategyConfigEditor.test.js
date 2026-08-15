@@ -114,8 +114,8 @@ describe("StrategyConfigEditor", () => {
       const wrapper = createWrapper();
       await flushPromises();
 
-      expect(mockApiFetch).toHaveBeenCalledWith("/strategy-config/meta");
-      expect(mockApiFetch).toHaveBeenCalledWith("/strategy-config");
+      expect(mockApiFetch).toHaveBeenCalledWith("/api/strategy-config/meta");
+      expect(mockApiFetch).toHaveBeenCalledWith("/api/strategy-config");
     });
 
     it("載入成功後設定 currentConfig 和 editableConfig", async () => {
@@ -198,7 +198,8 @@ describe("StrategyConfigEditor", () => {
       await flushPromises();
 
       const saveCalls = mockApiFetch.mock.calls.filter(
-        (call) => call[0] === "/strategy-config" && call[1]?.method === "POST",
+        (call) =>
+          call[0] === "/api/strategy-config" && call[1]?.method === "POST",
       );
       expect(saveCalls.length).toBe(1);
       expect(saveCalls[0][1].body).toContain("2.8");
@@ -253,7 +254,7 @@ describe("StrategyConfigEditor", () => {
       // Second call (confirm) triggers API
       await wrapper.vm.confirmResetToDefault();
       await flushPromises();
-      expect(mockApiFetch).toHaveBeenCalledWith("/strategy-config/default");
+      expect(mockApiFetch).toHaveBeenCalledWith("/api/strategy-config/default");
       expect(wrapper.vm.currentConfig).toEqual(mockDefaultConfig);
       expect(wrapper.vm.editableConfig).toEqual(mockDefaultConfig);
     });

@@ -3,7 +3,7 @@
     <!-- 0050 Price (Required) -->
     <div class="input-group" data-testid="price-input-group-0050">
       <label class="input-label" data-testid="price-input-label-0050">
-        <span class="label-text">0050 � 預估�價格 <span class="required">*</span></span>
+        <span class="label-text">0050 預估價格 <span class="required">*</span></span>
         <span class="label-hint">元</span>
       </label>
       <input
@@ -26,8 +26,8 @@
     <!-- Z2 Price (Optional) -->
     <div class="input-group" data-testid="price-input-group-z2">
       <label class="input-label" data-testid="price-input-label-z2">
-        <span class="label-text">00675L � 預估�價格</span>
-        <span class="label-hint optional">選�填，元</span>
+        <span class="label-text">00675L 預估價格</span>
+        <span class="label-hint optional">選填，元</span>
       </label>
       <input
         type="number"
@@ -51,7 +51,7 @@
 
     <!-- Quick Presets -->
     <div v-if="currentPrice0050 && !disabled" class="preset-buttons" data-testid="price-input-preset-buttons">
-      <span class="preset-label" data-testid="price-input-preset-label">快速選�擇:</span>
+      <span class="preset-label" data-testid="price-input-preset-label">快速選擇:</span>
       <button
         v-for="pct in [-10, -5, 5, 10]"
         :key="pct"

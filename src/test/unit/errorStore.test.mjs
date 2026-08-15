@@ -1,5 +1,5 @@
 // src/test/unit/errorStore.test.mjs
-// TDD: Error Store SQLite CRUD 分支��試
+// TDD: Error Store SQLite CRUD 分支試
 
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 
@@ -37,7 +37,7 @@ vi.mock("../../utils/logger.mjs", () => ({
   },
 }));
 
-describe("errorStore - �������存 SQLite CRUD 分支", () => {
+describe("errorStore - 存 SQLite CRUD 分支", () => {
   let errorStore;
   let mockLogger;
 
@@ -61,14 +61,18 @@ describe("errorStore - �������存 SQLite CRUD 分支", () => {
     errorStore.close();
   });
 
-  describe("initDb - ��料庫初始化", () => {
+  describe("initDb - 料庫初始化", () => {
     it("應建立資料表與索引", async () => {
       await errorStore.save({ message: "test" });
 
       expect(lastDbInstance.exec).toHaveBeenCalled();
       const execCalls = lastDbInstance.exec.mock.calls;
-      expect(execCalls.some((call) => call[0].includes("CREATE TABLE"))).toBe(true);
-      expect(execCalls.some((call) => call[0].includes("CREATE INDEX"))).toBe(true);
+      expect(execCalls.some((call) => call[0].includes("CREATE TABLE"))).toBe(
+        true,
+      );
+      expect(execCalls.some((call) => call[0].includes("CREATE INDEX"))).toBe(
+        true,
+      );
     });
 
     it("應建立目錄", async () => {
@@ -78,16 +82,20 @@ describe("errorStore - �������存 SQLite CRUD 分支", () => {
     });
   });
 
-  describe("generateErrorHash - ���������生成", () => {
-    it("相同����生成相同����", async () => {
-      const error = { message: "test error", statusCode: 500, request: { url: "/api", method: "GET" } };
+  describe("generateErrorHash - 生成", () => {
+    it("相同生成相同", async () => {
+      const error = {
+        message: "test error",
+        statusCode: 500,
+        request: { url: "/api", method: "GET" },
+      };
       await errorStore.save(error);
       await errorStore.save(error);
 
       expect(mockStmt.run).toHaveBeenCalledTimes(2);
     });
 
-    it("不同����生成不同����", async () => {
+    it("不同生成不同", async () => {
       await errorStore.save({ message: "error 1", statusCode: 500 });
       await errorStore.save({ message: "error 2", statusCode: 404 });
 
@@ -95,8 +103,8 @@ describe("errorStore - �������存 SQLite CRUD 分支", () => {
     });
   });
 
-  describe("save - �������存", () => {
-    it("新����應 INSERT", async () => {
+  describe("save - 存", () => {
+    it("新應 INSERT", async () => {
       await errorStore.save({
         message: "New error",
         statusCode: 500,
@@ -115,7 +123,7 @@ describe("errorStore - �������存 SQLite CRUD 分支", () => {
       expect(args[6]).toBe('{"foo":"bar"}');
     });
 
-    it("現有����應 UPDATE count", async () => {
+    it("現有應 UPDATE count", async () => {
       const error = { message: "Duplicate error", statusCode: 500 };
       await errorStore.save(error);
       await errorStore.save(error);
@@ -123,7 +131,7 @@ describe("errorStore - �������存 SQLite CRUD 分支", () => {
       expect(mockStmt.run).toHaveBeenCalledTimes(2);
     });
 
-    it("��少選����位時使用預設值", async () => {
+    it("少選位時使用預設值", async () => {
       await errorStore.save({ message: "Minimal error" });
 
       const args = mockStmt.run.mock.calls[0];
@@ -135,10 +143,22 @@ describe("errorStore - �������存 SQLite CRUD 分支", () => {
     });
   });
 
-  describe("getAll - 取得所有����", () => {
-    it("應返回����列表", async () => {
+  describe("getAll - 取得所有", () => {
+    it("應返回列表", async () => {
       const mockRows = [
-        { id: 1, hash: "abc", message: "Error 1", stack: "stack1", status_code: 500, request_url: "/a", request_method: "GET", request_body: null, count: 2, first_seen: 1000, last_seen: 2000 },
+        {
+          id: 1,
+          hash: "abc",
+          message: "Error 1",
+          stack: "stack1",
+          status_code: 500,
+          request_url: "/a",
+          request_method: "GET",
+          request_body: null,
+          count: 2,
+          first_seen: 1000,
+          last_seen: 2000,
+        },
       ];
       mockStmt.all.mockReturnValue(mockRows);
 
@@ -154,13 +174,13 @@ describe("errorStore - �������存 SQLite CRUD 分支", () => {
       expect(mockStmt.all).toHaveBeenCalledWith(50, 0);
     });
 
-    it("空結果返回空��列", async () => {
+    it("空結果返回空列", async () => {
       mockStmt.all.mockReturnValue([]);
       const result = await errorStore.getAll();
       expect(result).toEqual([]);
     });
 
-    it("解�� requestBody JSON", async () => {
+    it("解 requestBody JSON", async () => {
       mockStmt.all.mockReturnValue([{ request_body: '{"key":"value"}' }]);
       const result = await errorStore.getAll();
       expect(result[0].requestBody).toEqual({ key: "value" });
@@ -173,15 +193,15 @@ describe("errorStore - �������存 SQLite CRUD 分支", () => {
     });
   });
 
-  describe("getSince - 取得特定時間後的����", () => {
-    it("應查�� since 之後的����", async () => {
+  describe("getSince - 取得特定時間後的", () => {
+    it("應查 since 之後的", async () => {
       mockStmt.all.mockReturnValue([]);
       await errorStore.getSince(1000000, 50);
       expect(mockStmt.all).toHaveBeenCalledWith(1000000, 50);
     });
   });
 
-  describe("getStats - 取得����統計", () => {
+  describe("getStats - 取得統計", () => {
     it("應返回統計資料", async () => {
       mockStmt.get.mockReturnValueOnce({ total: 10 });
       mockStmt.all.mockReturnValueOnce([
@@ -201,8 +221,8 @@ describe("errorStore - �������存 SQLite CRUD 分支", () => {
     });
   });
 
-  describe("cleanOld - ��理������", () => {
-    it("應��除��記錄並返回��除數", async () => {
+  describe("cleanOld - 理", () => {
+    it("應除記錄並返回除數", async () => {
       mockStmt.run.mockReturnValue({ changes: 5 });
       const deleted = await errorStore.cleanOld(30);
       expect(deleted).toBe(5);
@@ -210,7 +230,7 @@ describe("errorStore - �������存 SQLite CRUD 分支", () => {
     });
   });
 
-  describe("clear - ��空所有���� (��試用)", () => {
+  describe("clear - 空所有 (試用)", () => {
     it("應清空資料表", async () => {
       await errorStore.clear();
       expect(mockStmt.run).toHaveBeenCalled();

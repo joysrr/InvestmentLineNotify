@@ -1,5 +1,5 @@
 // src/modules/ai/aiClient.test.mjs
-// TDD: AI Client ��心��輯��試 - 完整分支����
+// TDD: AI Client 心輯試 - 完整分支
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
@@ -13,7 +13,7 @@ import {
   resolveChatPrompt,
 } from "./aiClient.mjs";
 
-// Mock 依��模組 - 使用 vi.hoisted 解決 hoisting ��題
+// Mock 依模組 - 使用 vi.hoisted 解決 hoisting 題
 const { MockLangfuseClass } = vi.hoisted(() => {
   class MockLangfuse {
     constructor() {
@@ -114,7 +114,7 @@ vi.mock("../../utils/retryUtils.mjs", () => ({
   },
 }));
 
-// 設置環境��數
+// 設置環境數
 vi.stubEnv("GEMINI_API_KEY1", "test-key-1");
 vi.stubEnv("GEMINI_API_KEY2", "test-key-2");
 vi.stubEnv("GEMINI_API_KEY3", "test-key-3");
@@ -123,7 +123,7 @@ vi.stubEnv("LANGFUSE_PUBLIC_KEY", "test-public");
 vi.stubEnv("LANGFUSE_SECRET_KEY", "test-secret");
 vi.stubEnv("LANGFUSE_BASE_URL", "https://test.langfuse.com");
 
-describe("aiClient - AI ���叫��心完整��試", () => {
+describe("aiClient - AI 叫心完整試", () => {
   let mockGoogleGenAI;
   let mockFetchWithTimeout;
   let mockLogger;
@@ -149,14 +149,14 @@ describe("aiClient - AI ���叫��心完整��試", () => {
     mockRetryUtils = retryUtilsModule;
   });
 
-  describe("PROVIDERS ��數", () => {
+  describe("PROVIDERS 數", () => {
     it("應包含 GEMINI 和 GROK", () => {
       expect(PROVIDERS.GEMINI).toBe("gemini");
       expect(PROVIDERS.GROK).toBe("grok");
     });
   });
 
-  describe("extractCompiledText - Langfuse 編��結果解��", () => {
+  describe("extractCompiledText - Langfuse 編結果解", () => {
     const extractCompiledText = (raw) => {
       if (typeof raw === "string") return raw;
       if (Array.isArray(raw)) {
@@ -171,11 +171,11 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       return String(raw ?? "");
     };
 
-    it("字��直接回��", () => {
+    it("字直接回", () => {
       expect(extractCompiledText("hello")).toBe("hello");
     });
 
-    it("��列格式提取 content", () => {
+    it("列格式提取 content", () => {
       const input = [
         { role: "system", content: "sys" },
         { role: "user", content: "user" },
@@ -187,19 +187,19 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(extractCompiledText({ content: "hello" })).toBe("hello");
     });
 
-    it("null/undefined 回��空字��", () => {
+    it("null/undefined 回空字", () => {
       expect(extractCompiledText(null)).toBe("");
       expect(extractCompiledText(undefined)).toBe("");
     });
 
-    it("數字/布林��字��", () => {
+    it("數字/布林字", () => {
       expect(extractCompiledText(123)).toBe("123");
       expect(extractCompiledText(true)).toBe("true");
     });
   });
 
-  describe("fallback ��板��數��值", () => {
-    it("應替��所有 {{key}} ��位符", () => {
+  describe("fallback 板數值", () => {
+    it("應替所有 {{key}} 位符", () => {
       const fallback = { user: "Price: {{price}}, Date: {{date}}" };
       const variables = { price: "175", date: "2024-01-01" };
 
@@ -212,7 +212,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(result).toBe("Price: 175, Date: 2024-01-01");
     });
 
-    it("��少��數時保留��位符 (不被 Object.entries 遍歷)", () => {
+    it("少數時保留位符 (不被 Object.entries 遍歷)", () => {
       const fallback = { user: "Price: {{price}}, Date: {{date}}" };
       const variables = { price: "175" };
 
@@ -225,7 +225,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(result).toBe("Price: 175, Date: {{date}}");
     });
 
-    it("��數值為 null 時��為空字��", () => {
+    it("數值為 null 時為空字", () => {
       const fallback = { user: "Price: {{price}}" };
       const variables = { price: null };
 
@@ -239,8 +239,8 @@ describe("aiClient - AI ���叫��心完整��試", () => {
     });
   });
 
-  describe("callAI - Circuit Breaker ��態分支", () => {
-    it("Circuit HALF_OPEN ��態應��許��求通過", async () => {
+  describe("callAI - Circuit Breaker 態分支", () => {
+    it("Circuit HALF_OPEN 態應許求通過", async () => {
       mockCircuitBreaker.canMakeAIRequest.mockReturnValue(true);
       mockCircuitBreaker.getCircuitBreakerStatus.mockReturnValue({
         state: "half_open",
@@ -253,7 +253,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       );
     });
 
-    it("Circuit OPEN ��態應������求並��出 CIRCUIT_OPEN �����", async () => {
+    it("Circuit OPEN 態應求並出 CIRCUIT_OPEN ", async () => {
       mockCircuitBreaker.canMakeAIRequest.mockReturnValue(false);
       mockCircuitBreaker.getCircuitBreakerStatus.mockReturnValue({
         state: "open",
@@ -264,7 +264,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(mockCircuitBreaker.canMakeAIRequest).toHaveBeenCalled();
     });
 
-    it("Circuit CLOSED ��態應正常通過", async () => {
+    it("Circuit CLOSED 態應正常通過", async () => {
       mockCircuitBreaker.canMakeAIRequest.mockReturnValue(true);
       mockCircuitBreaker.getCircuitBreakerStatus.mockReturnValue({
         state: "closed",
@@ -276,13 +276,13 @@ describe("aiClient - AI ���叫��心完整��試", () => {
     });
   });
 
-  describe("callAI - Degradation Policy �� promptSource 分支", () => {
-    it("resolveChatPrompt 返回 promptSource=missing 時��出 degradation error", async () => {
+  describe("callAI - Degradation Policy  promptSource 分支", () => {
+    it("resolveChatPrompt 返回 promptSource=missing 時出 degradation error", async () => {
       expect(typeof callAI).toBe("function");
 
       const degradationErr = new Error(
-        `[callAI] Prompt 不可用（Langfuse ��線且無 hardcoded fallback）：Test/Prompt。` +
-          `本次 AI ���叫已����，����查 Langfuse 連線或補充 PROMPT_HARDCODED_FALLBACK。`,
+        `[callAI] Prompt 不可用（Langfuse 線且無 hardcoded fallback）：Test/Prompt。` +
+          `本次 AI 叫已，查 Langfuse 連線或補充 PROMPT_HARDCODED_FALLBACK。`,
       );
       expect(degradationErr.message).toContain("Prompt 不可用");
       expect(degradationErr.message).toContain("hardcoded fallback");
@@ -293,7 +293,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
     });
   });
 
-  describe("callAI - Provider �����與����分支", () => {
+  describe("callAI - Provider 與分支", () => {
     beforeEach(() => {
       mockCircuitBreaker.canMakeAIRequest.mockReturnValue(true);
       mockCircuitBreaker.getCircuitBreakerStatus.mockReturnValue({
@@ -302,13 +302,13 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       });
     });
 
-    it("未知 provider �����出����", async () => {
+    it("未知 provider 出", async () => {
       await expect(
         callAI("Test/Prompt", { provider: "unknown" }),
       ).rejects.toThrow("未知的 provider");
     });
 
-    it("GROK provider 無 API key 時應��出����", async () => {
+    it("GROK provider 無 API key 時應出", async () => {
       vi.stubEnv("GROK_API_KEY1", "");
       await expect(
         callAI("Test/Prompt", { provider: PROVIDERS.GROK }),
@@ -316,7 +316,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       vi.stubEnv("GROK_API_KEY1", "test-grok-key");
     });
 
-    it("GEMINI provider 無 API key 時應��出����", async () => {
+    it("GEMINI provider 無 API key 時應出", async () => {
       vi.stubEnv("GEMINI_API_KEY1", "");
       vi.stubEnv("GEMINI_API_KEY2", "");
       vi.stubEnv("GEMINI_API_KEY3", "");
@@ -327,8 +327,8 @@ describe("aiClient - AI ���叫��心完整��試", () => {
     });
   });
 
-  describe("callAI - Retry Loop、Key �����、����分類分支", () => {
-    it("isQuotaError 內部��輯����", () => {
+  describe("callAI - Retry Loop、Key 、分類分支", () => {
+    it("isQuotaError 內部輯", () => {
       const isQuotaError = (error) => {
         const msg = error.message || "";
         return (
@@ -349,7 +349,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(isQuotaError({ message: "quota_exceeded" })).toBe(true);
     });
 
-    it("isServiceError 內部��輯����", async () => {
+    it("isServiceError 內部輯", async () => {
       const { isAIRetryableError } = await import("../../utils/retryUtils.mjs");
       const isQuotaError = (error) => {
         const msg = error.message || "";
@@ -369,7 +369,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(isServiceError({ message: "quota exceeded" })).toBe(false);
     });
 
-    it("getBackoffDelay 內部��輯����", async () => {
+    it("getBackoffDelay 內部輯", async () => {
       const { calculateBackoffDelay } =
         await import("../../utils/retryUtils.mjs");
       expect(typeof calculateBackoffDelay).toBe("function");
@@ -378,7 +378,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(delay).toBe(100);
     });
 
-    it("Quota �����且有多個 key 時應切�� key", async () => {
+    it("Quota 且有多個 key 時應切 key", async () => {
       const keyCount = 3;
       let currentKeyIndex = 0;
 
@@ -392,7 +392,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(currentKeyIndex).toBe(0);
     });
 
-    it("Service �����且未達最大重試次數時應計算 backoff 並延��", async () => {
+    it("Service 且未達最大重試次數時應計算 backoff 並延", async () => {
       const { calculateBackoffDelay, delay } =
         await import("../../utils/retryUtils.mjs");
       expect(typeof calculateBackoffDelay).toBe("function");
@@ -402,14 +402,13 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(typeof backoffDelay).toBe("number");
     });
 
-    it("超過最大重試次數時應��出����並記錄 circuit breaker 失敗", async () => {
+    it("超過最大重試次數時應出並記錄 circuit breaker 失敗", async () => {
       const { recordAIRequestResult } = await import("./aiCircuitBreaker.mjs");
       expect(typeof recordAIRequestResult).toBe("function");
     });
 
-    it("canRetry ��輯：quota error 且非最後一次重試", () => {
-      const isQuotaError = (error) =>
-        (error.message || "").includes("429");
+    it("canRetry 輯：quota error 且非最後一次重試", () => {
+      const isQuotaError = (error) => (error.message || "").includes("429");
       const isServiceError = (error) =>
         (error.message || "").includes("internal");
 
@@ -423,8 +422,8 @@ describe("aiClient - AI ���叫��心完整��試", () => {
     });
   });
 
-  describe("callAI - Circuit Breaker ��態分支����", () => {
-    it("Circuit HALF_OPEN ��態應��許��求通過", async () => {
+  describe("callAI - Circuit Breaker 態分支", () => {
+    it("Circuit HALF_OPEN 態應許求通過", async () => {
       mockCircuitBreaker.canMakeAIRequest.mockReturnValue(true);
       mockCircuitBreaker.getCircuitBreakerStatus.mockReturnValue({
         state: "half_open",
@@ -437,7 +436,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       );
     });
 
-    it("Circuit OPEN ��態應������求並��出 CIRCUIT_OPEN �����", async () => {
+    it("Circuit OPEN 態應求並出 CIRCUIT_OPEN ", async () => {
       mockCircuitBreaker.canMakeAIRequest.mockReturnValue(false);
       mockCircuitBreaker.getCircuitBreakerStatus.mockReturnValue({
         state: "open",
@@ -448,7 +447,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(mockCircuitBreaker.canMakeAIRequest).toHaveBeenCalled();
     });
 
-    it("Circuit CLOSED ��態應正常通過", async () => {
+    it("Circuit CLOSED 態應正常通過", async () => {
       mockCircuitBreaker.canMakeAIRequest.mockReturnValue(true);
       mockCircuitBreaker.getCircuitBreakerStatus.mockReturnValue({
         state: "closed",
@@ -460,7 +459,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
     });
   });
 
-  describe("callAI - Provider ���叫 (Gemini)", () => {
+  describe("callAI - Provider 叫 (Gemini)", () => {
     it("應使用 GoogleGenAI 生成內容", async () => {
       const { GoogleGenAI } = await import("@google/genai");
       expect(GoogleGenAI).toBeDefined();
@@ -471,30 +470,30 @@ describe("aiClient - AI ���叫��心完整��試", () => {
     });
   });
 
-  describe("callAI - Provider ���叫 (Grok) - 分支����", () => {
-    it("callGrokAPI ���正確構建��求", async () => {
+  describe("callAI - Provider 叫 (Grok) - 分支", () => {
+    it("callGrokAPI 正確構建求", async () => {
       const { fetchWithTimeout } = await import("../../utils/coreUtils.mjs");
       expect(fetchWithTimeout).toBeDefined();
     });
 
-    it("listGrokModels ���正確呼叫模型端點", async () => {
+    it("listGrokModels 正確呼叫模型端點", async () => {
       const result = await listGrokModels();
       expect(result).toBeUndefined();
     });
 
-    it("listGrokModels - 成功回��模型列表", async () => {
+    it("listGrokModels - 成功回模型列表", async () => {
       await expect(listGrokModels()).resolves.toBeUndefined();
     });
 
-    it("listGrokModels - HTTP �����處理", async () => {
+    it("listGrokModels - HTTP 處理", async () => {
       await expect(listGrokModels()).resolves.toBeUndefined();
     });
 
-    it("listGrokModels - 網路��常處理", async () => {
+    it("listGrokModels - 網路常處理", async () => {
       await expect(listGrokModels()).resolves.toBeUndefined();
     });
 
-    it("callGrokAPI - 成功回��", async () => {
+    it("callGrokAPI - 成功回", async () => {
       mockFetchWithTimeout.mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
@@ -506,7 +505,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(mockFetchWithTimeout).toBeDefined();
     });
 
-    it("callGrokAPI - HTTP �������出", async () => {
+    it("callGrokAPI - HTTP 出", async () => {
       mockFetchWithTimeout.mockResolvedValueOnce({
         ok: false,
         status: 500,
@@ -516,25 +515,27 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(mockFetchWithTimeout).toBeDefined();
     });
 
-    it("callGrokAPI - 無 API key ��出����", async () => {
+    it("callGrokAPI - 無 API key 出", async () => {
       vi.stubEnv("GROK_API_KEY1", "");
-      await expect(callAI("Test/Prompt", { provider: PROVIDERS.GROK })).rejects.toThrow();
+      await expect(
+        callAI("Test/Prompt", { provider: PROVIDERS.GROK }),
+      ).rejects.toThrow();
       vi.stubEnv("GROK_API_KEY1", "test-grok-key");
     });
   });
 
-  describe("listAllModels - 分支����", () => {
-    it("GEMINI provider ���列出模型", async () => {
+  describe("listAllModels - 分支", () => {
+    it("GEMINI provider 列出模型", async () => {
       const result = await listAllModels(PROVIDERS.GEMINI);
       expect(result).toBeUndefined();
     });
 
-    it("GROK provider ���委派給 listGrokModels", async () => {
+    it("GROK provider 委派給 listGrokModels", async () => {
       const result = await listAllModels(PROVIDERS.GROK);
       expect(result).toBeUndefined();
     });
 
-    it("listAllModels - GEMINI 成功回��模型列表", async () => {
+    it("listAllModels - GEMINI 成功回模型列表", async () => {
       await expect(listAllModels(PROVIDERS.GEMINI)).resolves.toBeUndefined();
     });
 
@@ -550,79 +551,79 @@ describe("aiClient - AI ���叫��心完整��試", () => {
     });
   });
 
-  describe("Circuit Breaker ��合", () => {
-    it("recordAIRequestResult ���被呼叫記錄成功", async () => {
+  describe("Circuit Breaker 合", () => {
+    it("recordAIRequestResult 被呼叫記錄成功", async () => {
       const { recordAIRequestResult } = await import("./aiCircuitBreaker.mjs");
       expect(typeof recordAIRequestResult).toBe("function");
     });
 
-    it("recordAIRequestResult ���被呼叫記錄失敗", async () => {
+    it("recordAIRequestResult 被呼叫記錄失敗", async () => {
       const { recordAIRequestResult } = await import("./aiCircuitBreaker.mjs");
       expect(typeof recordAIRequestResult).toBe("function");
     });
   });
 
-  describe("Langfuse ��合", () => {
-    it("trace ���正確建立", async () => {
+  describe("Langfuse 合", () => {
+    it("trace 正確建立", async () => {
       const { Langfuse } = await import("langfuse");
       expect(Langfuse).toBeDefined();
     });
 
-    it("generation ���正確結束", async () => {
+    it("generation 正確結束", async () => {
       const { Langfuse } = await import("langfuse");
       expect(Langfuse).toBeDefined();
     });
 
-    it("flushAsync ���被呼叫確保資料��入", async () => {
+    it("flushAsync 被呼叫確保資料入", async () => {
       const { Langfuse } = await import("langfuse");
       expect(Langfuse).toBeDefined();
     });
 
-    it("langfuse.trace �����回��包含 generation, update, flushAsync 的物件", async () => {
-          const { langfuse } = await import("./aiClient.mjs");
-          // langfuse 是 mock 物件
-          const trace = langfuse.trace({ name: "test" });
-          // 這����試 mock 行為
-          expect(trace).toBeDefined();
-          expect(typeof trace.generation).toBe("function");
-          expect(typeof trace.update).toBe("function");
-          expect(typeof trace.flushAsync).toBe("function");
-        });
+    it("langfuse.trace 回包含 generation, update, flushAsync 的物件", async () => {
+      const { langfuse } = await import("./aiClient.mjs");
+      // langfuse 是 mock 物件
+      const trace = langfuse.trace({ name: "test" });
+      // 這試 mock 行為
+      expect(trace).toBeDefined();
+      expect(typeof trace.generation).toBe("function");
+      expect(typeof trace.update).toBe("function");
+      expect(typeof trace.flushAsync).toBe("function");
+    });
   });
 
-  describe("flushLangfuse - 導出��數��試", () => {
-      it("flushLangfuse �����為導出��數", async () => {
-        const { flushLangfuse } = await import("./aiClient.mjs");
-        expect(typeof flushLangfuse).toBe("function");
-      });
-
-      it("flushLangfuse - 未��用時直接返回 (早期返回分支)", async () => {
-        const { flushLangfuse } = await import("./aiClient.mjs");
-        // _langfuseEnabled = false 時直接返回
-        await expect(
-          flushLangfuse("test-trace", "success"),
-        ).resolves.toBeUndefined();
-      });
-
-      it("flushLangfuse - ��用時調用 flushAsync", async () => {
-        const { flushLangfuse } = await import("./aiClient.mjs");
-        // ��試��用路�� - 這�� _langfuseEnabled = true (實際環境)
-        // 由於 mock 存在，flushAsync 會被調用
-        await expect(
-          flushLangfuse("test-trace", "success"),
-        ).resolves.toBeUndefined();
-      });
-
-      it("flushLangfuse - �������態", async () => {
-        const { flushLangfuse } = await import("./aiClient.mjs");
-        await expect(
-          flushLangfuse("test-trace", "error"),
-        ).resolves.toBeUndefined();
-      });
+  describe("flushLangfuse - 導出數試", () => {
+    it("flushLangfuse 為導出數", async () => {
+      const { flushLangfuse } = await import("./aiClient.mjs");
+      expect(typeof flushLangfuse).toBe("function");
     });
 
-  describe("����處理與分類 - 完整分支", () => {
-    it("isQuotaError ���正確��別 quota �����", () => {
+    it("flushLangfuse - 未用時直接返回 (早期返回分支)", async () => {
+      const { flushLangfuse } = await import("./aiClient.mjs");
+      // _langfuseEnabled = false 時直接返回
+      await expect(
+        flushLangfuse("test-trace", "success"),
+      ).resolves.toBeUndefined();
+    });
+
+    it("flushLangfuse - 用時調用 flushAsync", async () => {
+      const { flushLangfuse } = await import("./aiClient.mjs");
+      // 試用路 - 這 _langfuseEnabled = true (實際環境)
+      // 由於 mock 存在，flushAsync 會被調用
+      await expect(
+        flushLangfuse("test-trace", "success"),
+      ).resolves.toBeUndefined();
+    });
+
+    it("flushLangfuse - 態", async () => {
+      const { flushLangfuse } = await import("./aiClient.mjs");
+      await expect(
+        flushLangfuse("test-trace", "error"),
+      ).resolves.toBeUndefined();
+    });
+  });
+
+  describe("處理與分類 - 完整分支", () => {
+    it("isQuotaError 正確別 quota ", () => {
       const isQuotaError = (error) => {
         const msg = error.message || "";
         return (
@@ -643,12 +644,12 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(isQuotaError({ message: "quota_exceeded" })).toBe(true);
     });
 
-    it("isServiceError ���正確��別服務����", async () => {
+    it("isServiceError 正確別服務", async () => {
       const { isAIRetryableError } = await import("../../utils/retryUtils.mjs");
       expect(typeof isAIRetryableError).toBe("function");
     });
 
-    it("getBackoffDelay ���回��有效延��", async () => {
+    it("getBackoffDelay 回有效延", async () => {
       const { calculateBackoffDelay } =
         await import("../../utils/retryUtils.mjs");
       expect(typeof calculateBackoffDelay).toBe("function");
@@ -657,31 +658,32 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(delay).toBe(100);
     });
 
-    it("delay ���正確延��", async () => {
+    it("delay 正確延", async () => {
       const { delay } = await import("../../utils/retryUtils.mjs");
       expect(typeof delay).toBe("function");
       await expect(delay(10)).resolves.toBeUndefined();
     });
 
-    it("isRetryableError ���正確判��", async () => {
+    it("isRetryableError 正確判", async () => {
       const { isRetryableError } = await import("../../utils/retryUtils.mjs");
       expect(typeof isRetryableError).toBe("function");
       expect(isRetryableError(new Error("timeout"))).toBe(true);
     });
 
-    it("isAIRetryableError ���正確判��", async () => {
+    it("isAIRetryableError 正確判", async () => {
       const { isAIRetryableError } = await import("../../utils/retryUtils.mjs");
       expect(typeof isAIRetryableError).toBe("function");
       expect(isAIRetryableError(new Error("internal error"))).toBe(true);
     });
   });
 
-  describe("callAI - 完整流程分支����", () => {
-    it("callAI - responseSchema 三��優先��序 (langfuseConfig 勝出)", async () => {
+  describe("callAI - 完整流程分支", () => {
+    it("callAI - responseSchema 三優先序 (langfuseConfig 勝出)", async () => {
       const langfuseConfig = { response_schema: { type: "object" } };
       const options = { responseSchema: { type: "string" } };
 
-      const resolved = langfuseConfig.response_schema ?? options.responseSchema ?? undefined;
+      const resolved =
+        langfuseConfig.response_schema ?? options.responseSchema ?? undefined;
       expect(resolved).toEqual({ type: "object" });
     });
 
@@ -689,7 +691,8 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       const langfuseConfig = {};
       const options = { responseSchema: { type: "string" } };
 
-      const resolved = langfuseConfig.response_schema ?? options.responseSchema ?? undefined;
+      const resolved =
+        langfuseConfig.response_schema ?? options.responseSchema ?? undefined;
       expect(resolved).toEqual({ type: "string" });
     });
 
@@ -697,7 +700,8 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       const langfuseConfig = {};
       const options = {};
 
-      const resolved = langfuseConfig.response_schema ?? options.responseSchema ?? undefined;
+      const resolved =
+        langfuseConfig.response_schema ?? options.responseSchema ?? undefined;
       expect(resolved).toBeUndefined();
     });
 
@@ -713,12 +717,12 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(maxRetries).toBe(2);
     });
 
-    it("callAI - isCI �����", () => {
+    it("callAI - isCI ", () => {
       const isCI = !!process.env.GITHUB_RUN_ID;
       expect(typeof isCI).toBe("boolean");
     });
 
-    it("callAI - trace ��立包含正確 metadata", () => {
+    it("callAI - trace 立包含正確 metadata", () => {
       const traceOptions = {
         name: "test",
         sessionId: "session-1",
@@ -750,10 +754,12 @@ describe("aiClient - AI ���叫��心完整��試", () => {
 
     it("callAI - flushLangfuse 成功", async () => {
       const { flushLangfuse } = await import("./aiClient.mjs");
-      await expect(flushLangfuse("trace-id", "success")).resolves.toBeUndefined();
+      await expect(
+        flushLangfuse("trace-id", "success"),
+      ).resolves.toBeUndefined();
     });
 
-    it("callAI - ��理 markdown code block (JSON)", () => {
+    it("callAI - 理 markdown code block (JSON)", () => {
       const text = "```json\n{}\n```";
       const cleaned = text
         .replace(/^```json\n?/, "")
@@ -762,7 +768,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(cleaned).toBe("{}");
     });
 
-    it("callAI - ��理 markdown code block (其他語言)", () => {
+    it("callAI - 理 markdown code block (其他語言)", () => {
       const text = "```python\nprint('hi')\n```";
       const cleaned = text
         .replace(/^```[a-zA-Z]*\n?/, "")
@@ -771,7 +777,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(cleaned).toBe("print('hi')");
     });
 
-    it("callAI - quota error 切�� key", () => {
+    it("callAI - quota error 切 key", () => {
       const keyCount = 3;
       let currentKeyIndex = 0;
 
@@ -781,7 +787,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       }
     });
 
-    it("callAI - service error 不切�� key", () => {
+    it("callAI - service error 不切 key", () => {
       const keyCount = 3;
       let currentKeyIndex = 0;
       const quotaErr = false;
@@ -792,13 +798,13 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       }
     });
 
-    it("callAI - 第 0 ��重試", () => {
+    it("callAI - 第 0 重試", () => {
       let attempt = 0;
       attempt++;
       expect(attempt).toBe(1);
     });
 
-    it("callAI - 判��是否為最後一次重試", () => {
+    it("callAI - 判是否為最後一次重試", () => {
       const attempt = 5;
       const maxRetries = 5;
       const isLast = attempt === maxRetries;
@@ -814,8 +820,8 @@ describe("aiClient - AI ���叫��心完整��試", () => {
     });
   });
 
-  describe("callAI - ��界情況", () => {
-    it("PROVIDER_CONFIG ���包含正確的 provider", () => {
+  describe("callAI - 界情況", () => {
+    it("PROVIDER_CONFIG 包含正確的 provider", () => {
       const PROVIDER_CONFIG = {
         [PROVIDERS.GEMINI]: { defaultModel: "gemini-pro" },
         [PROVIDERS.GROK]: {
@@ -828,7 +834,7 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(PROVIDER_CONFIG[PROVIDERS.GROK]).toBeDefined();
     });
 
-    it("PROMPT_HARDCODED_FALLBACK ���包含所有必要 prompt", () => {
+    it("PROMPT_HARDCODED_FALLBACK 包含所有必要 prompt", () => {
       const FALLBACK = {
         DailyCheckAnalysis: { system: "", user: "" },
         WeeklyReportAnalysis: { system: "", user: "" },
@@ -841,38 +847,40 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(FALLBACK.DailyCheckAnalysis).toBeDefined();
     });
 
-    it("extractCompiledText �����理各種��入", () => {
-          expect(extractCompiledText("string")).toBe("string");
-          expect(extractCompiledText([{ content: "a" }, { content: "b" }])).toBe("a\nb");
-          expect(extractCompiledText({ content: "obj" })).toBe("obj");
-          expect(extractCompiledText(null)).toBe("");
-          expect(extractCompiledText(123)).toBe("123");
-        });
-      });
+    it("extractCompiledText 理各種入", () => {
+      expect(extractCompiledText("string")).toBe("string");
+      expect(extractCompiledText([{ content: "a" }, { content: "b" }])).toBe(
+        "a\nb",
+      );
+      expect(extractCompiledText({ content: "obj" })).toBe("obj");
+      expect(extractCompiledText(null)).toBe("");
+      expect(extractCompiledText(123)).toBe("123");
+    });
+  });
 
-      describe("getHumanReviewMeta - Human Review 設定", () => {
-          it("已知 prompt 返回設定的 human_review", () => {
-            const meta = getHumanReviewMeta("AI/FilterAndCategorizeNews");
-            expect(meta.human_review).toBe(true);
-            expect(meta.scores).toContain("Summary_Quality");
-          });
+  describe("getHumanReviewMeta - Human Review 設定", () => {
+    it("已知 prompt 返回設定的 human_review", () => {
+      const meta = getHumanReviewMeta("AI/FilterAndCategorizeNews");
+      expect(meta.human_review).toBe(true);
+      expect(meta.scores).toContain("Summary_Quality");
+    });
 
-          it("未知 prompt 返回預設值", () => {
-                      const meta = getHumanReviewMeta("Unknown/Prompt");
-                      expect(meta.human_review).toBe(false);
-                      expect(meta.scores).toEqual([]);
-                      expect(typeof meta.review_notes).toBe('string');
-                    });
-        });
+    it("未知 prompt 返回預設值", () => {
+      const meta = getHumanReviewMeta("Unknown/Prompt");
+      expect(meta.human_review).toBe(false);
+      expect(meta.scores).toEqual([]);
+      expect(typeof meta.review_notes).toBe("string");
+    });
+  });
 
-      describe("resolveChatPrompt - Langfuse prompt 解��分支", () => {
+  describe("resolveChatPrompt - Langfuse prompt 解分支", () => {
     it("Langfuse 成功返回 chat prompt (system + user)", async () => {
-      // 透過 callAI ��試，內部會調用 resolveChatPrompt
-      // 這��主要���� callAI ����正常調用而不��出����
+      // 透過 callAI 試，內部會調用 resolveChatPrompt
+      // 這主要 callAI 正常調用而不出
       expect(typeof resolveChatPrompt).toBe("function");
     });
 
-    it("Langfuse 返回��列格式 compile 結果", async () => {
+    it("Langfuse 返回列格式 compile 結果", async () => {
       expect(typeof resolveChatPrompt).toBe("function");
     });
 
@@ -888,4 +896,4 @@ describe("aiClient - AI ���叫��心完整��試", () => {
       expect(typeof resolveChatPrompt).toBe("function");
     });
   });
-    });
+});

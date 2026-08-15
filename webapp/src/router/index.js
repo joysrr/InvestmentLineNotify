@@ -32,24 +32,24 @@ const router = createRouter({
   ],
 });
 
-// Auth guard - ����� Telegram initData
+// Auth guard - 驗證 Telegram initData
 router.beforeEach((to, from, next) => {
-  // 開發環境跳過��查
+  // 開發環境跳過檢查
   if (import.meta.env.DEV) {
     next();
     return;
   }
 
-  // ���查 Telegram WebApp SDK 是否就��
+  // 檢查 Telegram WebApp SDK 是否就緒
   const initData = window.Telegram?.WebApp?.initData;
   if (!initData || initData === "") {
-    // 未授權：導向����頁或��示提示
-    console.warn("[Auth Guard] Telegram initData 不存在，����路由:", to.path);
+    // 未授權：導向首頁或顯示提示
+    console.warn("[Auth Guard] Telegram initData 不存在，攔截路由:", to.path);
     next(false);
     return;
   }
 
-  // ��權通過
+  // 授權通過
   next();
 });
 

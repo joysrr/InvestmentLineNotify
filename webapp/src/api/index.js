@@ -159,6 +159,17 @@ export async function apiFetch(path, options = {}) {
       );
       lastError = err;
 
+      // 401 錯誤：嘗試刷新一次 Telegram initData
+      if (err.status === 401 && attempt === 0 && !isTestEnv) {
+        logger.warn(
+          { traceId: "api-fetch", path },
+          "⚠️ [apiFetch] 收到 401 Unauthorized，嘗試重新取得 Telegram initData 並重試...",
+        );
+        window.Telegram?.WebApp?.ready?.();
+        await delay(500);
+        continue;
+      }
+
       // 4xx 錯誤不重試（客戶端錯誤）
       if (err.status && err.status >= 400 && err.status < 500) {
         logger.warn(
