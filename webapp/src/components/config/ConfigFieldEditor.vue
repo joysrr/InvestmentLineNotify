@@ -1,5 +1,5 @@
 <template>
-  <div class="config-field-editor">
+  <div class="config-field-editor" :data-testid="'field-' + path">
     <label class="field-label" :for="path">
       <span class="label-text">{{ fieldMeta?.label || path }}</span>
       <span v-if="fieldMeta?.unit" class="label-unit">({{ fieldMeta.unit }})</span>

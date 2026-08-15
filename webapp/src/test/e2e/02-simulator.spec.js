@@ -148,8 +148,8 @@ test.describe("SimulatorView - Forward Simulation (正向模擬)", () => {
     );
 
     // Check mode tabs
-    await expect(page.locator("[data-testid=mode-selector] text=股價 → 分數")).toBeVisible();
-    await expect(page.locator("[data-testid=mode-selector] text=目標 → 價格")).toBeVisible();
+    await expect(page.locator("[data-testid=mode-selector]")).toContainText("股價 → 分數");
+    await expect(page.locator("[data-testid=mode-selector]")).toContainText("目標 → 價格");
 
     // Check input fields exist
     await expect(page.locator("[data-testid=forward-panel] label:has-text('0050 預估價格')")).toBeVisible();

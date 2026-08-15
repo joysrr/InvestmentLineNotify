@@ -1,5 +1,5 @@
 <template>
-  <div class="config-section-editor">
+  <div class="config-section-editor" :data-testid="'panel-' + section.key">
     <div v-for="fieldKey in section.fields" :key="fieldKey" class="config-field-wrapper">
       <ConfigFieldEditor
         :path="section.key + '.' + fieldKey"

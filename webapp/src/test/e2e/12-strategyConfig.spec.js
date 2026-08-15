@@ -8,7 +8,7 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
     });
 
     // Mock API responses for config loading
-    await page.route("**/strategy-config/meta", async (route) => {
+    await page.route(url => url.pathname.includes("/strategy-config/meta"), async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -400,7 +400,7 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
       });
     });
 
-    await page.route("**/strategy-config", async (route) => {
+    await page.route(url => url.pathname === "/api/strategy-config", async (route) => {
       if (route.request().method() === "POST") {
         await route.fulfill({
           status: 200,
@@ -467,7 +467,7 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
     });
 
     // Mock validation endpoint
-    await page.route("**/strategy-config/validate", async (route) => {
+    await page.route(url => url.pathname.includes("/strategy-config/validate"), async (route) => {
       const request = route.request();
       const postData = JSON.parse(request.postData() || "{}");
 
@@ -488,7 +488,7 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
     });
 
     // Mock default config
-    await page.route("**/strategy-config/default", async (route) => {
+    await page.route(url => url.pathname.includes("/strategy-config/default"), async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -517,11 +517,11 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
     );
 
     // Check tabs exist
-    await expect(page.locator("[data-testid=config-tabs] text=基本資訊")).toBeVisible();
-    await expect(page.locator("[data-testid=config-tabs] text=維持率防禦")).toBeVisible();
-    await expect(page.locator("[data-testid=config-tabs] text=交易設定")).toBeVisible();
-    await expect(page.locator("[data-testid=config-tabs] text=買入設定")).toBeVisible();
-    await expect(page.locator("[data-testid=config-tabs] text=賣出設定")).toBeVisible();
+    await expect(page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "基本資訊" })).toBeVisible();
+    await expect(page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "維持率防禦" })).toBeVisible();
+    await expect(page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "交易設定" })).toBeVisible();
+    await expect(page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "買入設定" })).toBeVisible();
+    await expect(page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "賣出設定" })).toBeVisible();
 
     // Check action buttons
     await expect(page.locator("[data-testid=btn-save]")).toBeVisible();
@@ -536,27 +536,27 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
 
   test("切換 Tab 顯示對應區塊欄位", async ({ page }) => {
     // Click 維持率防禦 tab
-    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
+    await page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "維持率防禦" }).click();
 
     // Wait for meta to load and fields to render with correct labels
-    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
+    await expect(page.locator("[data-testid='field-maintenance.protectTrigger']")).toBeVisible({
       timeout: 10000,
     });
-    await expect(page.locator("[data-testid=panel-maintenance] text=資金還款目標")).toBeVisible();
+    await expect(page.locator("[data-testid='field-maintenance.protectTarget']")).toBeVisible();
 
     // Click 交易設定 tab
-    await page.locator("[data-testid=config-tabs] text=交易設定").click();
-    await expect(page.locator("[data-testid=panel-trading] text=最小操作金額")).toBeVisible({
+    await page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "交易設定" }).click();
+    await expect(page.locator("[data-testid='field-trading.minAction']")).toBeVisible({
       timeout: 5000,
     });
-    await expect(page.locator("[data-testid=panel-trading] text=交易冷卻天數")).toBeVisible();
+    await expect(page.locator("[data-testid='field-trading.cooldownDays']")).toBeVisible();
   });
 
   test("修改數值欄位", async ({ page }) => {
-    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
+    await page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "維持率防禦" }).click();
 
     // Wait for fields to render
-    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
+    await expect(page.locator("[data-testid='field-maintenance.protectTrigger']")).toBeVisible({
       timeout: 10000,
     });
 
@@ -578,7 +578,7 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
   test("布林欄位切換", async ({ page }) => {
     // The sell.trailingStop.enabled is a nested boolean field
     // Click on the sell tab
-    await page.locator("[data-testid=config-tabs] text=賣出設定").click();
+    await page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "賣出設定" }).click();
     await page.waitForTimeout(500);
 
     // The trailingStop is an object with enabled boolean inside
@@ -599,10 +599,10 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
   });
 
   test("儲存功能", async ({ page }) => {
-    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
+    await page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "維持率防禦" }).click();
 
     // Wait for fields to render
-    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
+    await expect(page.locator("[data-testid='field-maintenance.protectTrigger']")).toBeVisible({
       timeout: 10000,
     });
 
@@ -629,8 +629,8 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
 
   test("重置為預設：確認對話框 → 取消", async ({ page }) => {
     // First make a change so the reset button is enabled
-    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
-    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
+    await page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "維持率防禦" }).click();
+    await expect(page.locator("[data-testid='field-maintenance.protectTrigger']")).toBeVisible({
       timeout: 10000,
     });
     const protectTriggerInput = page
@@ -660,10 +660,10 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
   });
 
   test("重置為預設：確認 → 載入預設值", async ({ page }) => {
-    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
+    await page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "維持率防禦" }).click();
 
     // Wait for fields to render
-    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
+    await expect(page.locator("[data-testid='field-maintenance.protectTrigger']")).toBeVisible({
       timeout: 10000,
     });
 
@@ -692,7 +692,7 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
   });
 
   test("僅驗證功能", async ({ page }) => {
-    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
+    await page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "維持率防禦" }).click();
 
     // Enter valid value
     const protectTriggerInput = page
@@ -713,24 +713,24 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
 
   test("JSON 原始檢視可展開/摺疊", async ({ page }) => {
     // Click collapse header
-    await page.locator("[data-testid=json-collapse] text=原始 JSON 檢視").click();
+    await page.locator("[data-testid=json-collapse]").filter({ hasText: "原始 JSON 檢視" }).click();
 
     // Check JSON content visible
     await expect(page.locator("[data-testid=json-viewer] pre")).toContainText("version");
     await expect(page.locator("[data-testid=json-viewer] pre")).toContainText("2.8");
 
     // Click again to collapse
-    await page.locator("[data-testid=json-collapse] text=原始 JSON 檢視").click();
+    await page.locator("[data-testid=json-collapse]").filter({ hasText: "原始 JSON 檢視" }).click();
 
     // Content should be hidden
     await expect(page.locator("[data-testid=json-viewer]")).toBeHidden();
   });
 
   test("範圍提示顯示正確", async ({ page }) => {
-    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
+    await page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "維持率防禦" }).click();
 
     // Wait for fields to render
-    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
+    await expect(page.locator("[data-testid='field-maintenance.protectTrigger']")).toBeVisible({
       timeout: 10000,
     });
 
@@ -741,8 +741,8 @@ test.describe("StrategyConfigEditor - 策略參數設定編輯器", () => {
   });
 
   test("說明 Tooltip 顯示", async ({ page }) => {
-    await page.locator("[data-testid=config-tabs] text=維持率防禦").click();
-    await expect(page.locator("[data-testid=panel-maintenance] text=正常運作安全線")).toBeVisible({
+    await page.locator("[data-testid=config-tabs] .el-tabs__item").filter({ hasText: "維持率防禦" }).click();
+    await expect(page.locator("[data-testid='field-maintenance.protectTrigger']")).toBeVisible({
       timeout: 10000,
     });
 
