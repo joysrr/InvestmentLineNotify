@@ -4,6 +4,7 @@
  */
 
 import logger from "../../../src/utils/logger.mjs";
+import { triggerAuthExpired } from "../composables/useAuthExpired.js";
 
 const BASE = import.meta.env.VITE_API_BASE || "";
 
@@ -176,6 +177,9 @@ export async function apiFetch(path, options = {}) {
           { traceId: "api-fetch", path, status: err.status },
           `⚠️ [apiFetch] 4xx 錯誤，停止重試`,
         );
+        if (err.status === 401 && !isTestEnv) {
+          triggerAuthExpired();
+        }
         throw err;
       }
 

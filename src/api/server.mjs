@@ -120,6 +120,35 @@ export async function buildApp(opts = {}) {
   // ─── Global hook: Telegram initData guard ────────────────────────────────────
   fastify.addHook("onRequest", initDataGuard);
 
+  // ─── HTTP Request & Response Audit Logger Hooks ─────────────────────────────
+  fastify.addHook("onRequest", async (request) => {
+    // 排除大量輪詢的健康檢查以避免日誌污染
+    if (request.url.startsWith("/health")) return;
+    logger.info(
+      {
+        traceId: request.id,
+        method: request.method,
+        url: request.url,
+        ip: request.ip,
+      },
+      `📡 [API Request] ${request.method} ${request.url}`,
+    );
+  });
+
+  fastify.addHook("onResponse", async (request, reply) => {
+    if (request.url.startsWith("/health")) return;
+    logger.info(
+      {
+        traceId: request.id,
+        method: request.method,
+        url: request.url,
+        statusCode: reply.statusCode,
+        responseTime: Math.round(reply.elapsedTime),
+      },
+      `✅ [API Response] ${request.method} ${request.url} ${reply.statusCode} (${Math.round(reply.elapsedTime)}ms)`,
+    );
+  });
+
   await fastify.register(statusRoute, { prefix: "/api" });
   await fastify.register(reportsRoute, { prefix: "/api" });
   await fastify.register(newsRoute, { prefix: "/api" });

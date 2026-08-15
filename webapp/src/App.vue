@@ -7,6 +7,7 @@
     </main>
 
     <FloatingPill />
+    <AuthExpiredModal />
   </div>
 </template>
 
@@ -15,6 +16,7 @@ import { onMounted, nextTick, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useTelegram } from "./composables/useTelegram.js";
 import FloatingPill from "./components/FloatingPill.vue";
+import AuthExpiredModal from "./components/common/AuthExpiredModal.vue";
 
 const { expand, backButton } = useTelegram();
 const router = useRouter();

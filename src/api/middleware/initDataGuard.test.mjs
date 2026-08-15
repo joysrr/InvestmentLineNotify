@@ -193,10 +193,10 @@ describe("initDataGuard - Telegram initData 驗證 Middleware", () => {
       await result.app.close();
     });
 
-    it("initData 30 分鐘前 (1800 秒) 仍有效並通過驗證", async () => {
+    it("initData 15 分鐘前 (900 秒) 仍有效並通過驗證", async () => {
       const result = await createApp({ NODE_ENV: "production" });
       const now = Math.floor(Date.now() / 1000);
-      const authDate = now - 1800; // 30 分鐘前
+      const authDate = now - 900; // 15 分鐘前
 
       const params = new URLSearchParams({
         auth_date: String(authDate),
@@ -227,9 +227,9 @@ describe("initDataGuard - Telegram initData 驗證 Middleware", () => {
       expect(response.statusCode).toBe(200);
     });
 
-    it("initData 過期回傳 401", async () => {
+    it("initData 超過 30 分鐘 (1801 秒) 回傳 401", async () => {
       const result = await createApp({ NODE_ENV: "production" });
-      const oldAuthDate = Math.floor(Date.now() / 1000) - 7300;
+      const oldAuthDate = Math.floor(Date.now() / 1000) - 1801;
       // 不計算精確 HMAC，直接測試過期判斷
       const rawInitData = `auth_date=${oldAuthDate}&query_id=123&hash=dummy`;
 

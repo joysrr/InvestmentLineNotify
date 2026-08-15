@@ -23,7 +23,7 @@ const router = createRouter({
     { path: "/chart", component: ChartView },
     { path: "/reports", component: ReportsView },
     { path: "/news", component: NewsView },
-    { path: "/strategy", component: StrategyView },
+    { path: "/strategy", redirect: "/strategy-config" },
     { path: "/account", component: AccountView },
     { path: "/simulator", component: SimulatorView },
     { path: "/backtest-report", component: BacktestReportView },

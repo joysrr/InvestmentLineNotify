@@ -12,6 +12,9 @@
 </template>
 
 <script setup>
+/**
+ * @deprecated StrategyView 已廢棄，請使用 StrategyConfigEditor.vue (/strategy-config)
+ */
 import StrategyConfigPanel from "../components/StrategyConfigPanel.vue";
 </script>
 
