@@ -3,14 +3,14 @@
     <div class="input-section">
       <div class="price-inputs">
         <PriceInput
-          v-model="price0050"
+          v-model="localPrice0050"
           label="0050 預估價格"
           placeholder="請輸入 0050 預估價格"
           :disabled="loading"
           data-testid="input-price0050"
         />
         <PriceInput
-          v-model="priceZ2"
+          v-model="localPriceZ2"
           label="00675L (Z2) 預估價格"
           placeholder="請輸入 00675L 預估價格"
           :disabled="loading"
@@ -23,7 +23,7 @@
       <el-button
         type="primary"
         :loading="loading"
-        :disabled="!price0050 || !priceZ2 || loading"
+        :disabled="!localPrice0050 || !localPriceZ2 || loading"
         @click="run"
         data-testid="btn-run-forward"
       >
@@ -60,10 +60,10 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import PriceInput from "@/components/simulator/PriceInput.vue";
 import ForwardResultCard from "@/components/simulator/ForwardResultCard.vue";
-import IndicatorComparisonTable from "@/components/simulator/IndicatorComparisonTable.vue";
+import IndicatorComparisonTable from "@/components/simulator/Common/IndicatorComparisonTable.vue";
 import LoadingSkeleton from "@/components/simulator/Common/LoadingSkeleton.vue";
 
 const props = defineProps({
@@ -78,17 +78,19 @@ const props = defineProps({
 
 const emit = defineEmits(["update:price0050", "update:priceZ2", "run", "clear"]);
 
+// Local refs to avoid v-model on props directly
+const localPrice0050 = computed({
+  get: () => props.price0050,
+  set: (val) => emit("update:price0050", val),
+});
+
+const localPriceZ2 = computed({
+  get: () => props.priceZ2,
+  set: (val) => emit("update:priceZ2", val),
+});
+
 const run = () => emit("run");
 const clear = () => emit("clear");
-
-watch(
-  () => props.price0050,
-  (val) => emit("update:price0050", val),
-);
-watch(
-  () => props.priceZ2,
-  (val) => emit("update:priceZ2", val),
-);
 </script>
 
 <style scoped>

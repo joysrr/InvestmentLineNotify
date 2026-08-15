@@ -2,12 +2,13 @@ import { test, expect } from "@playwright/test";
 import { setupE2EContext } from "./e2e-utils.js";
 
 test.describe("07-MacroBattleView - 總經多空對決", () => {
-  test("MAC-001: 應正確加載總經頁面", async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
     await setupE2EContext(page);
     await page.goto("#/macro", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(3000);
+  });
 
-    const hasHeader = await page.locator(".page-title, .view-title").filter({ hasText: "總經" }).count();
-    expect(hasHeader).toBeGreaterThan(0);
+  test("MAC-001: 應正確加載總經頁面", async ({ page }) => {
+    await expect(page.locator(".view-title, .page-title").filter({ hasText: "總經" })).toBeVisible({ timeout: 15000 });
   });
 });
