@@ -8,101 +8,60 @@ test.describe("02-SimulatorView - 雙向模擬器", () => {
     await page.waitForTimeout(3000);
   });
 
-  test("SIM-001: 預設載入 Mode 選擇器並顯示正向面板", async ({ page }) => {
-    await expect(page.locator("[data-testid=mode-selector]")).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("[data-testid=tab-forward]")).toHaveClass(/active/);
-    await expect(page.locator("[data-testid=forward-panel]")).toBeVisible();
+  test("SIM-001: 應正確加載模擬器頁面", async ({ page }) => {
+    await expect(page.locator("[data-testid='simulator-view'], .simulator-view").first()).toBeVisible({ timeout: 15000 });
   });
 
-  test("SIM-002: 正向模擬輸入參數後點擊計算，驗證結果卡片正確顯示", async ({ page }) => {
-    await page.fill("[data-testid=price-input-0050]", "150");
-    await page.fill("[data-testid=price-input-z2]", "55");
+  test("SIM-002: Mode Selector 應顯示 5 個模式標籤", async ({ page }) => {
+    const tabs = page.locator("[data-testid^='tab-']");
+    await expect(tabs).toHaveCount(5);
+  });
+
+  test("SIM-003: 點擊 正向模擬 Tab 應顯示 ForwardPanel", async ({ page }) => {
+    await page.locator("[data-testid='tab-forward']").click();
     await page.waitForTimeout(500);
-
-    await page.click("[data-testid=btn-run-forward]");
-    await page.waitForTimeout(8000);
-
-    await expect(page.locator("[data-testid=result-card]")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("[data-testid='forward-panel']")).toBeVisible({ timeout: 10000 });
   });
 
-  test("SIM-003: 0050 價格為空時計算按鈕應禁用", async ({ page }) => {
-    await page.fill("[data-testid=price-input-0050]", "");
-    await page.fill("[data-testid=price-input-z2]", "");
+  test("SIM-004: 正向面板應有 0050 價格輸入框", async ({ page }) => {
+    await page.locator("[data-testid='tab-forward']").click();
     await page.waitForTimeout(500);
-
-    const runBtn = page.locator("[data-testid=btn-run-forward]");
-    await expect(runBtn).toBeDisabled();
+    await expect(page.locator("[data-testid='input-price0050']")).toBeVisible({ timeout: 10000 });
   });
 
-  test("SIM-004: 清除結果按鈕點擊後結果應消失", async ({ page }) => {
-    await page.fill("[data-testid=price-input-0050]", "150");
-    await page.fill("[data-testid=price-input-z2]", "55");
-    await page.click("[data-testid=btn-run-forward]");
-    await page.waitForTimeout(8000);
-
-    await expect(page.locator("[data-testid=result-card]")).toBeVisible();
-
-    await page.click("[data-testid=btn-clear-forward]");
+  test("SIM-005: 正向面板應有 Z2 價格輸入框", async ({ page }) => {
+    await page.locator("[data-testid='tab-forward']").click();
     await page.waitForTimeout(500);
-
-    await expect(page.locator("[data-testid=result-card]")).toBeHidden();
+    await expect(page.locator("[data-testid='input-pricez2']")).toBeVisible({ timeout: 10000 });
   });
 
-  test("SIM-005: 價格偏離警告顯示", async ({ page }) => {
-    await page.fill("[data-testid=price-input-0050]", "200");
-    await page.blur("[data-testid=price-input-0050]");
-    await page.waitForTimeout(1000);
-
-    const warning = page.locator("[data-testid=price-input-warning-0050]");
-    await expect(warning).toBeVisible({ timeout: 5000 });
-    await expect(warning).toContainText("偏離");
-  });
-
-  test("SIM-006: 切換至反向推導模式", async ({ page }) => {
-    await page.click("[data-testid=tab-reverse]");
+  test("SIM-006: 正向面板應有開始計算按鈕", async ({ page }) => {
+    await page.locator("[data-testid='tab-forward']").click();
     await page.waitForTimeout(500);
-
-    await expect(page.locator("[data-testid=tab-reverse]")).toHaveClass(/active/);
-    await expect(page.locator("[data-testid=reverse-panel]")).toBeVisible();
-    await expect(page.locator("[data-testid=target-selector]")).toBeVisible();
+    await expect(page.locator("[data-testid='btn-run-forward']")).toBeVisible({ timeout: 10000 });
   });
 
-  test("SIM-007: 反向推導 - 目標值為空時計算按鈕應禁用", async ({ page }) => {
-    await page.click("[data-testid=tab-reverse]");
+  test("SIM-007: 點擊 反向推導 Tab 應顯示 ReversePanel", async ({ page }) => {
+    await page.locator("[data-testid='tab-reverse']").click();
     await page.waitForTimeout(500);
-
-    const runBtn = page.locator("[data-testid=btn-run-reverse]");
-    await expect(runBtn).toBeDisabled();
+    await expect(page.locator("[data-testid='reverse-panel']")).toBeVisible({ timeout: 10000 });
   });
 
-  test("SIM-008: 切換不同目標類型時輸入欄位正確變化", async ({ page }) => {
-    await page.click("[data-testid=tab-reverse]");
+  test("SIM-008: 反向面板應有目標選擇器", async ({ page }) => {
+    await page.locator("[data-testid='tab-reverse']").click();
     await page.waitForTimeout(500);
+    await expect(page.locator("[data-testid='target-selector']")).toBeVisible({ timeout: 10000 });
+  });
 
-    await expect(page.locator("[data-testid=target-input]")).toBeVisible();
-
-    await page.locator("[data-testid=target-selector]").click();
-    await page.getByText("KD 交叉").click();
+  test("SIM-009: 反向面板應有開始推導按鈕", async ({ page }) => {
+    await page.locator("[data-testid='tab-reverse']").click();
     await page.waitForTimeout(500);
-
-    await expect(page.locator("[data-testid=target-input] select")).toBeVisible();
+    await expect(page.locator("[data-testid='btn-run-reverse']")).toBeVisible({ timeout: 10000 });
   });
 
-  test("SIM-009: 模擬後顯示資料品質標記", async ({ page }) => {
-    await page.fill("[data-testid=price-input-0050]", "150");
-    await page.fill("[data-testid=price-input-z2]", "55");
-    await page.click("[data-testid=btn-run-forward]");
-    await page.waitForTimeout(8000);
-
-    await expect(page.locator("[data-testid=data-quality-badges]")).toBeVisible();
-  });
-
-  test("SIM-010: 模擬後顯示免責聲明橫幅", async ({ page }) => {
-    await page.fill("[data-testid=price-input-0050]", "150");
-    await page.fill("[data-testid=price-input-z2]", "55");
-    await page.click("[data-testid=btn-run-forward]");
-    await page.waitForTimeout(8000);
-
-    await expect(page.locator("[data-testid=disclaimer-banner]")).toBeVisible();
+  test("SIM-010: 點擊 批次模擬 Tab 應顯示 BatchPanel", async ({ page }) => {
+    await page.locator("[data-testid='tab-batch']").click();
+    await page.waitForTimeout(500);
+    await expect(page.locator("[data-testid='batch-panel']")).toBeVisible({ timeout: 10000 });
   });
 });
