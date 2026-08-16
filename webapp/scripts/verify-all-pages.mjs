@@ -44,10 +44,10 @@ const cleanup = () => {
   try { webServer.kill(); } catch (e) {}
 };
 
-process.on("exit", cleanup);
-process.on("SIGINT", cleanup);
+process.on("exit", () => cleanup());
+process.on("SIGINT", () => cleanup());
 
-const apiReady = await waitForServer("http://localhost:3001/health");
+const apiReady = await waitForServer("http://localhost:3000/health");
 const webReady = await waitForServer("http://localhost:5173");
 
 if (!apiReady || !webReady) {

@@ -13,6 +13,7 @@ module.exports = {
       cwd: __dirname,
       env: {
         NODE_ENV: process.env.NODE_ENV || "production",
+        PORT: 3000,
         ...process.env,
       },
       max_memory_restart: "300M",

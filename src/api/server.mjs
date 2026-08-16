@@ -215,7 +215,7 @@ process.on("unhandledRejection", (reason) => {
 
 // ─── 啟動邏輯 (僅在直接執行時觸發) ───────────────────────────────────────────────
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const PORT = parseInt(process.env.PORT || "3001", 10);
+  const PORT = parseInt(process.env.PORT || "3000", 10);
   const HOST = process.env.HOST || "0.0.0.0";
 
   try {

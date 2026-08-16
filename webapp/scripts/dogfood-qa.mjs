@@ -26,7 +26,7 @@ if (!fs.existsSync(OUTPUT_DIR)) {
 }
 
 const BASE_URL = "http://localhost:5173";
-const API_BASE_URL = "http://localhost:3001";
+const API_BASE_URL = "http://localhost:3000";
 
 // 關鍵 API 端點
 const API_ENDPOINTS = [

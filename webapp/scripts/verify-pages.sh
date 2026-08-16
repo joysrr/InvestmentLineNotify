@@ -14,10 +14,11 @@ pkill -f "vite" 2>/dev/null || true
 pkill -f "node.*server" 2>/dev/null || true
 sleep 2
 
-echo "📡 啟動 API Server (3001)..."
+echo "📡 啟動 API Server (3000)..."
 cd "$PROJECT_ROOT"
 export NODE_ENV=development
 export BYPASS_INIT_DATA=true
+export PORT=3000
 node src/api/server.mjs > /tmp/api-server.log 2>&1 &
 API_PID=$!
 echo "API Server PID: $API_PID"
@@ -38,14 +39,14 @@ trap cleanup EXIT
 
 echo "⏳ 等待服務就緒..."
 for i in {1..30}; do
-    if curl -s http://localhost:3001/health > /dev/null && curl -s http://localhost:5173 > /dev/null; then
+    if curl -s http://localhost:3000/health > /dev/null && curl -s http://localhost:5173 > /dev/null; then
         echo "✅ 服務就緒！"
         break
     fi
     sleep 1
 done
 
-if ! curl -s http://localhost:3001/health > /dev/null; then
+if ! curl -s http://localhost:3000/health > /dev/null; then
     echo "❌ API Server 啟動失敗"
     cat /tmp/api-server.log
     exit 1
