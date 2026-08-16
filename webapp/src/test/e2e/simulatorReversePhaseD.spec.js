@@ -378,9 +378,13 @@ test.describe("SimulatorView - Reverse Simulation Phase D (反向推導結果展
 
   test("反向推導 - 維持率目標顯示達成價格與假設條件", async ({ page }) => {
     await page
-      .locator("[data-testid=mode-selector]")
-      .filter({ hasText: "目標 → 價格" })
+      .locator("[data-testid=mode-selector] [data-testid=tab-reverse]")
       .click();
+
+    // Wait for reverse panel to be visible
+    await expect(page.locator("[data-testid=reverse-panel]")).toBeVisible({
+      timeout: 10000,
+    });
 
     // Select maintenance ratio first
     await page
@@ -455,9 +459,13 @@ test.describe("SimulatorView - Reverse Simulation Phase D (反向推導結果展
 
   test("反向推導 - RSI 目標收斂顯示迭代次數", async ({ page }) => {
     await page
-      .locator("[data-testid=mode-selector]")
-      .filter({ hasText: "目標 → 價格" })
+      .locator("[data-testid=mode-selector] [data-testid=tab-reverse]")
       .click();
+
+    // Wait for reverse panel to be visible
+    await expect(page.locator("[data-testid=reverse-panel]")).toBeVisible({
+      timeout: 10000,
+    });
 
     // Select RSI
     await page
@@ -511,9 +519,13 @@ test.describe("SimulatorView - Reverse Simulation Phase D (反向推導結果展
 
   test("反向推導 - RSI 目標不可達顯示近似解與誤差", async ({ page }) => {
     await page
-      .locator("[data-testid=mode-selector]")
-      .filter({ hasText: "目標 → 價格" })
+      .locator("[data-testid=mode-selector] [data-testid=tab-reverse]")
       .click();
+
+    // Wait for reverse panel to be visible
+    await expect(page.locator("[data-testid=reverse-panel]")).toBeVisible({
+      timeout: 10000,
+    });
 
     // Select RSI
     await page
@@ -563,9 +575,13 @@ test.describe("SimulatorView - Reverse Simulation Phase D (反向推導結果展
 
   test("反向推導 - MA20 目標顯示 Z2 價格固定", async ({ page }) => {
     await page
-      .locator("[data-testid=mode-selector]")
-      .filter({ hasText: "目標 → 價格" })
+      .locator("[data-testid=mode-selector] [data-testid=tab-reverse]")
       .click();
+
+    // Wait for reverse panel to be visible
+    await expect(page.locator("[data-testid=reverse-panel]")).toBeVisible({
+      timeout: 10000,
+    });
 
     // Select MA20
     await page
@@ -609,9 +625,13 @@ test.describe("SimulatorView - Reverse Simulation Phase D (反向推導結果展
 
   test("反向推導 - KD 交叉掃描顯示價格區間與掃描詳情", async ({ page }) => {
     await page
-      .locator("[data-testid=mode-selector]")
-      .filter({ hasText: "目標 → 價格" })
+      .locator("[data-testid=mode-selector] [data-testid=tab-reverse]")
       .click();
+
+    // Wait for reverse panel to be visible
+    await expect(page.locator("[data-testid=reverse-panel]")).toBeVisible({
+      timeout: 10000,
+    });
 
     // Select KD Cross
     await page
@@ -667,9 +687,13 @@ test.describe("SimulatorView - Reverse Simulation Phase D (反向推導結果展
     page,
   }) => {
     await page
-      .locator("[data-testid=mode-selector]")
-      .filter({ hasText: "目標 → 價格" })
+      .locator("[data-testid=mode-selector] [data-testid=tab-reverse]")
       .click();
+
+    // Wait for reverse panel to be visible
+    await expect(page.locator("[data-testid=reverse-panel]")).toBeVisible({
+      timeout: 10000,
+    });
 
     // Select Portfolio Health
     await page
@@ -708,9 +732,13 @@ test.describe("SimulatorView - Reverse Simulation Phase D (反向推導結果展
 
   test("反向推導 - 切換目標類型時輸入欄位正確變化", async ({ page }) => {
     await page
-      .locator("[data-testid=mode-selector]")
-      .filter({ hasText: "目標 → 價格" })
+      .locator("[data-testid=mode-selector] [data-testid=tab-reverse]")
       .click();
+
+    // Wait for reverse panel to be visible
+    await expect(page.locator("[data-testid=reverse-panel]")).toBeVisible({
+      timeout: 10000,
+    });
 
     // Test numeric input for maintenanceRatio
     await page
@@ -759,9 +787,13 @@ test.describe("SimulatorView - Reverse Simulation Phase D (反向推導結果展
 
   test("反向推導 - 空值驗證阻止執行", async ({ page }) => {
     await page
-      .locator("[data-testid=mode-selector]")
-      .filter({ hasText: "目標 → 價格" })
+      .locator("[data-testid=mode-selector] [data-testid=tab-reverse]")
       .click();
+
+    // Wait for reverse panel to be visible
+    await expect(page.locator("[data-testid=reverse-panel]")).toBeVisible({
+      timeout: 10000,
+    });
 
     // Select maintenance ratio but don't fill value
     await page
@@ -785,9 +817,13 @@ test.describe("SimulatorView - Reverse Simulation Phase D (反向推導結果展
 
   test("反向推導 - 清除結果功能", async ({ page }) => {
     await page
-      .locator("[data-testid=mode-selector]")
-      .filter({ hasText: "目標 → 價格" })
+      .locator("[data-testid=mode-selector] [data-testid=tab-reverse]")
       .click();
+
+    // Wait for reverse panel to be visible
+    await expect(page.locator("[data-testid=reverse-panel]")).toBeVisible({
+      timeout: 10000,
+    });
 
     // Run a simulation first
     await page

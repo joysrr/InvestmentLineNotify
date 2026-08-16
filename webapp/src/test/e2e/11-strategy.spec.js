@@ -8,7 +8,9 @@ test.describe("11-StrategyView - 策略總覽與狀態", () => {
     await page.waitForTimeout(3000);
   });
 
-  test("STR-001: 應正確加載策略總覽頁面", async ({ page }) => {
-    await expect(page.locator(".view-title").filter({ hasText: "投資策略" })).toBeVisible({ timeout: 15000 });
+  test("STR-001: 應正確重導向至策略設定頁面", async ({ page }) => {
+    // /strategy should redirect to /strategy-config
+    await expect(page).toHaveURL(/.*#\/strategy-config/);
+    await expect(page.locator("h2.editor-title")).toContainText("策略參數設定");
   });
 });
