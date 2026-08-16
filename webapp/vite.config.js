@@ -73,6 +73,18 @@ export default defineConfig(({ mode }) => ({
     "process.env": {},
     "process.env.NODE_ENV": JSON.stringify(mode),
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-vue": ["vue", "vue-router", "@vueuse/core"],
+          "vendor-element": ["element-plus", "@element-plus/icons-vue"],
+          "vendor-echarts": ["echarts", "vue-echarts"],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 500,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

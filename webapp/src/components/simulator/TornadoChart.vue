@@ -3,8 +3,14 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount } from "vue";
-import * as echarts from "echarts";
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import VChart from "vue-echarts";
+import { use, init } from "echarts/core";
+import { BarChart } from "echarts/charts";
+import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from "echarts/components";
+import { CanvasRenderer } from "echarts/renderers";
+
+use([BarChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent, CanvasRenderer]);
 
 const props = defineProps({
   data: { type: Object, required: true },
@@ -23,7 +29,7 @@ watch(() => props.data, () => {
 
 function initChart() {
   if (!chartRef.value) return;
-  chartInstance = echarts.init(chartRef.value);
+  chartInstance = init(chartRef.value);
   updateChart();
 }
 

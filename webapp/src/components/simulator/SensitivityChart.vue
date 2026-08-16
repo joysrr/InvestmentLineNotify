@@ -4,7 +4,13 @@
 
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from "vue";
-import * as echarts from "echarts";
+import VChart from "vue-echarts";
+import { use, init } from "echarts/core";
+import { LineChart } from "echarts/charts";
+import { TitleComponent, TooltipComponent, GridComponent } from "echarts/components";
+import { CanvasRenderer } from "echarts/renderers";
+
+use([LineChart, TitleComponent, TooltipComponent, GridComponent, CanvasRenderer]);
 
 const props = defineProps({
   data: { type: Object, required: true },
@@ -23,7 +29,7 @@ watch(() => props.data, () => {
 
 function initChart() {
   if (!chartRef.value) return;
-  chartInstance = echarts.init(chartRef.value);
+  chartInstance = init(chartRef.value);
   updateChart();
 }
 
