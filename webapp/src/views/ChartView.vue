@@ -114,7 +114,7 @@ import {
   fetchSnapshotsWeekly,
   fetchSnapshotsMonthly,
 } from "../api/index.js";
-import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
+import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 
 use([
   LineChart,

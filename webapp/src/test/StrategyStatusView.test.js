@@ -1,9 +1,10 @@
 // webapp/src/test/StrategyStatusView.test.js
 // StrategyStatusView 頁面單元測試 - 簡化版本
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import StrategyStatusView from "../views/StrategyStatusView.vue";
+import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
 import { apiFetch } from "../api/index.js";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 

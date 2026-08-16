@@ -1,6 +1,7 @@
 <template>
-  <div class="strategy-status-view">
-    <!-- Header -->
+  <GlobalErrorBoundary>
+    <div class="strategy-status-view">
+      <!-- Header -->
     <div class="status-header">
       <h2 class="status-title">策略狀態面板</h2>
       <p class="status-subtitle">
@@ -262,12 +263,14 @@
 
     </div>
   </div>
+  </GlobalErrorBoundary>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { apiFetch } from "../api/index.js";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
+import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 
 // Components
 import ScoreBar from "../components/dashboard/ScoreBar.vue";

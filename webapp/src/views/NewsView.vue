@@ -145,7 +145,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { fetchNews, fetchReportNews } from "../api/index.js";
-import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
+import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 // ── sub-tab 狀態 ──────────────────────────────────────────

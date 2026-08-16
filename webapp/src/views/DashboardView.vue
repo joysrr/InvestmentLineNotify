@@ -195,7 +195,7 @@ import SimulatorView from "../views/SimulatorView.vue";
 import StrategyStatusView from "../views/StrategyStatusView.vue";
 import BacktestReportView from "../views/BacktestReportView.vue";
 import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";
-import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
+import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import ErrorAlert from "../components/common/ErrorAlert.vue";
 
 // ECharts (Only needed here for the radar template slot)

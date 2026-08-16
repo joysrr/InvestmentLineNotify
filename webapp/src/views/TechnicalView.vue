@@ -160,7 +160,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { fetchReports } from "../api/index.js";
-import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
+import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 const router = useRouter();

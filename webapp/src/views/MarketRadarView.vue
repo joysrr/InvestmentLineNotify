@@ -133,7 +133,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
-import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
+import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 const loading = ref(true);

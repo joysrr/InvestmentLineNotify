@@ -113,7 +113,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { Refresh, Check, Download, Upload, Checked } from "@element-plus/icons-vue";
 
 import { apiFetch } from "../api/index.js";
-import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
+import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 import ConfigSectionEditor from "../components/config/ConfigSectionEditor.vue";

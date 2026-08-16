@@ -367,7 +367,7 @@ import {
   fetchWeeklyReports,
   fetchMonthlyReports,
 } from "../api/index.js";
-import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
+import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 import VChart from "vue-echarts";
 import { use } from "echarts/core";
