@@ -4,9 +4,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import StrategyStatusView from "../views/StrategyStatusView.vue";
-import GlobalErrorBoundary from "../components/common/GlobalErrorBoundary.vue";
 import { apiFetch } from "../api/index.js";
-import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 // Use vi.hoisted to define mock components at top level (before vi.mock calls)
 const mockComponents = vi.hoisted(() => ({
@@ -257,6 +255,41 @@ describe("StrategyStatusView", () => {
     await flushPromises();
     const metricItems = wrapper.findAll("[data-testid='metric-item']");
     expect(metricItems.length).toBe(6);
+  });
+
+  it("應顯示冷卻中、受限預算與危機風控狀態", async () => {
+    const variant = structuredClone(mockApiResponse);
+    variant.weightScore = {
+      dropScore: 1,
+      rsiScore: 1,
+      macdScore: 0,
+      kdScore: 0,
+      sentimentScore: -3,
+      total: -1,
+    };
+    variant.cooldown.inCooldown = true;
+    variant.cooldown.daysLeft = 3;
+    variant.allocation.next = null;
+    variant.budget.isLimited = true;
+    variant.budget.limitedReason = "額度不足";
+    variant.signal.direction = "short";
+    variant.lifecycle.yearsToRetirement = null;
+    variant.lifecycleProfile.mode = "unknown";
+    variant.risk.regime = "CRISIS";
+    variant.risk.maintenanceMargin = 140;
+    variant.risk.grossLeverage = 2.6;
+    variant.risk.valuationGuard.latchActive = true;
+    variant.risk.panicBypassActive = true;
+    apiFetch.mockResolvedValueOnce(variant);
+
+    const variantWrapper = mount(StrategyStatusView, {
+      global: { stubs: mockComponents },
+    });
+
+    await flushPromises();
+    expect(variantWrapper.find(".cooldown-label").text()).toBe("冷卻中");
+    expect(variantWrapper.find(".budget-reason").text()).toContain("額度不足");
+    expect(variantWrapper.find(".risk-badge").text()).toContain("危機");
   });
 
   it("API 錯誤時應顯示錯誤狀態", async () => {
