@@ -4,6 +4,19 @@ import { createPinia, setActivePinia } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 
+vi.mock("element-plus", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    ElMessage: {
+      success: vi.fn(),
+      error: vi.fn(),
+      warning: vi.fn(),
+      info: vi.fn(),
+    },
+  };
+});
+
 /**
  * 建立 View 的 GlobalErrorBoundary 集成測試套件
  * 用法：

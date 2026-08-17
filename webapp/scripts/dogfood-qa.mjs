@@ -25,27 +25,27 @@ if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
-const BASE_URL = "http://localhost:5173";
-const API_BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.DOGFOOD_BASE_URL || "http://localhost:5173";
+const API_BASE_URL =
+  process.env.DOGFOOD_API_BASE_URL || "http://localhost:3000";
 
 // 關鍵 API 端點
 const API_ENDPOINTS = [
   { path: "/health", name: "Health Check", skipAuth: true },
   { path: "/healthz", name: "Health Check (alt)", skipAuth: true },
   { path: "/api/status", name: "System Status" },
-  { path: "/api/reports/latest", name: "Latest Report" },
-  { path: "/api/news/pool", name: "News Pool" },
-  { path: "/api/config", name: "Config" },
-  { path: "/api/portfolio-health", name: "Portfolio Health" },
+  { path: "/api/reports/weekly?limit=1", name: "Weekly Reports" },
+  { path: "/api/news", name: "News" },
+  { path: "/api/strategy-config", name: "Strategy Config" },
+  { path: "/api/portfolio/health", name: "Portfolio Health" },
   { path: "/api/strategy-status", name: "Strategy Status" },
   {
     path: "/api/v1/simulate",
     name: "Simulator",
     method: "POST",
-    body: { symbol: "0050.TW", direction: "long", capital: 100000 },
+    body: { price0050: 180, priceZ2: 120 },
   },
-  { path: "/api/backtest/list", name: "Backtest List" },
-  { path: "/api/monitoring/health", name: "Monitoring Health" },
+  { path: "/monitoring/metrics", name: "Monitoring Metrics" },
 ];
 
 // 關鍵頁面
@@ -67,13 +67,27 @@ async function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function waitForServer(url, timeoutMs = 30000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(url);
+      if (response.ok || response.status < 500) return;
+    } catch {
+      // Server is still starting.
+    }
+    await delay(500);
+  }
+  throw new Error(`Server readiness timeout: ${url}`);
+}
+
 function startServer(command, args, cwd, env = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       cwd,
       env: { ...process.env, ...env },
       stdio: ["ignore", "pipe", "pipe"],
-      detached: false,
+      detached: true,
     });
 
     let output = "";
@@ -103,12 +117,11 @@ async function startServers() {
     "node",
     ["src/api/server.mjs"],
     ROOT_DIR,
-    { NODE_ENV: "development" },
+    { NODE_ENV: "development", PORT: "3000", BYPASS_INIT_DATA: "true" },
   );
   console.log(`API Server PID: ${apiServer.pid}`);
 
-  // Wait for API server
-  await delay(3000);
+  await waitForServer(`${API_BASE_URL}/health`);
 
   // Start Vite dev server
   const viteServer = await startServer(
@@ -119,17 +132,22 @@ async function startServers() {
   );
   console.log(`Vite Server PID: ${viteServer.pid}`);
 
-  // Wait for Vite server
-  await delay(5000);
+  await waitForServer(BASE_URL);
 
   return { apiServer, viteServer };
 }
 
 async function stopServers(apiServer, viteServer) {
   console.log("🛑 關閉伺服器...");
-  apiServer.child.kill();
-  viteServer.child.kill();
-  await delay(1000);
+  for (const server of [apiServer, viteServer]) {
+    if (!server?.pid) continue;
+    try {
+      process.kill(-server.pid, "SIGTERM");
+    } catch (error) {
+      if (error.code !== "ESRCH") throw error;
+    }
+  }
+  await delay(1500);
 }
 
 async function scanAPIs(page, validInitData) {
@@ -151,7 +169,7 @@ async function scanAPIs(page, validInitData) {
       };
 
       if (endpoint.body) {
-        options.body = JSON.stringify(endpoint.body);
+        options.data = endpoint.body;
       }
 
       const response = await page.request.fetch(url, options);
@@ -415,7 +433,7 @@ function generateReport(apiResults, pageResults, bugs) {
 
   let md = `# Dogfood 探索式 QA 報告\n\n`;
   md += `**生成時間**: ${timestamp}\n\n`;
-  md += `**測試環境**: Vite Dev Server (localhost:5173) + API Server (localhost:3001)\n\n`;
+  md += `**測試環境**: Vite Dev Server (${BASE_URL}) + API Server (${API_BASE_URL})\n\n`;
 
   md += `## 📊 摘要\n\n`;
   md += `| 指標 | 數值 |\n|------|------|\n`;
@@ -580,8 +598,7 @@ async function main() {
     process.exit(1);
   } finally {
     // 清理伺服器
-    if (apiServer) apiServer.child.kill();
-    if (viteServer) viteServer.child.kill();
+    await stopServers(apiServer, viteServer);
   }
 }
 

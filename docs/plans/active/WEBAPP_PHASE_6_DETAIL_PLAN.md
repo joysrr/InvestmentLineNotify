@@ -81,10 +81,23 @@
 
 ### 6.4 Dogfood
 
-- [ ] 修正 Dogfood 腳本與現行 port、endpoint、測試環境對齊
-- [ ] 不修改產品行為迎合報告
-- [ ] 重新執行並產生新報告
-- [ ] Critical/High/Medium bugs = 0；Low bugs 明確記錄
+- [x] 修正 Dogfood 腳本與現行 port、endpoint、測試環境對齊
+- [x] 不修改產品行為迎合報告
+- [x] 重新執行並產生新報告
+- [x] Critical/High/Medium/Low bugs = 0
+
+**結果**：API 10/10、關鍵頁面 3/3；Critical 0、High 0、Medium 0、Low 0。報告：`dogfood-output/report.md`。腳本使用 readiness polling、`PORT=3000`、`BYPASS_INIT_DATA=true`，並以 process group cleanup 確認零殘留程序。
+
+### 6.5 Performance baseline
+
+- [x] Phase 6 baseline artifact 已建立於 `docs/performance/`
+- [ ] Final comparison after all quality stages
+
+**目前結果**：Frontend test suite 287 tests passed；production lint 0 warnings；build passed；Dogfood API 10/10、頁面 3/3 通過。
+
+**Backend 驗證**：`src/api + src/modules` 單 worker 728/728 passed；完整 `src/test` assertions 1502 passed，但 Vitest worker 在 suite 結束時發生 native segmentation fault，暫不標記完整 Backend gate 通過，待獨立資源污染問題處理。
+
+**Dogfood 產物**：報告與 screenshots 為 generated output，已留在本地驗證但不提交 Git。
 
 ## 檔案邊界
 
