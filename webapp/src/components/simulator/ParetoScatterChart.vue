@@ -3,12 +3,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { ref, onMounted, watch } from "vue";
 import VChart from "vue-echarts";
 import { use, init } from "echarts/core";
 import { ScatterChart, LineChart } from "echarts/charts";
 import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
+import { useEChartsInstance } from "@/composables/useEChartsInstance.js";
 
 use([ScatterChart, LineChart, TitleComponent, TooltipComponent, LegendComponent, GridComponent, CanvasRenderer]);
 
@@ -19,36 +20,29 @@ const props = defineProps({
 });
 
 const chartRef = ref(null);
-let chartInstance = null;
 
-onMounted(() => {
-  initChart();
-});
-
-watch(
-  () => [props.data, props.objectives, props.kneePoint],
-  () => {
-    if (chartInstance) updateChart();
-  },
-  { deep: true }
+// 使用統一的 ECharts 實例管理
+const { initialize, update, isInitialized } = useEChartsInstance(
+  chartRef,
+  () => buildOption(props.data, props.objectives, props.kneePoint),
+  [() => props.data, () => props.objectives, () => props.kneePoint]
 );
 
-function initChart() {
-  if (!chartRef.value) return;
-  chartInstance = init(chartRef.value);
-  updateChart();
-}
+onMounted(() => {
+  initialize();
+});
 
-function updateChart() {
-  if (!chartInstance || !props.data) return;
+function buildOption(data, objectives, kneePoint) {
+  if (!data) return null;
   
-  const { allPoints = [], paretoFront = [], kneePoint = null } = props.data;
-  const { objectives } = props;
+  const { allPoints = [], paretoFront = [], kneePoint: propKneePoint = null } = data;
+  const { objectives: propObjectives } = { objectives };
+  const finalKneePoint = kneePoint || propKneePoint;
   
-  if (objectives.length < 2) return;
+  if (propObjectives.length < 2) return null;
   
-  const obj1 = objectives[0];
-  const obj2 = objectives[1];
+  const obj1 = propObjectives[0];
+  const obj2 = propObjectives[1];
   
   // 準備所有點的資料
   const allPointsData = allPoints
@@ -71,11 +65,11 @@ function updateChart() {
     .map(p => [p.objectives[obj1.metric], p.objectives[obj2.metric]]);
   
   // 膝點
-  const kneeData = kneePoint && kneePoint.objectives[obj1.metric] != null && kneePoint.objectives[obj2.metric] != null
-    ? [[kneePoint.objectives[obj1.metric], kneePoint.objectives[obj2.metric]]]
+  const kneeData = finalKneePoint && finalKneePoint.objectives[obj1.metric] != null && finalKneePoint.objectives[obj2.metric] != null
+    ? [[finalKneePoint.objectives[obj1.metric], finalKneePoint.objectives[obj2.metric]]]
     : [];
   
-  const option = {
+  return {
     title: {
       text: 'Pareto 前沿分析',
       subtext: `目標: ${obj1.label} vs ${obj2.label}`,
@@ -165,13 +159,7 @@ function updateChart() {
       },
     ],
   };
-  
-  chartInstance.setOption(option);
 }
-
-onBeforeUnmount(() => {
-  if (chartInstance) chartInstance.dispose();
-});
 </script>
 
 <style scoped>

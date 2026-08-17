@@ -3,66 +3,99 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, watch } from "vue";
 import VChart from "vue-echarts";
 import { use, init } from "echarts/core";
 import { LineChart } from "echarts/charts";
-import { TitleComponent, TooltipComponent, GridComponent } from "echarts/components";
+import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
+import { useEChartsInstance } from "@/composables/useEChartsInstance.js";
 
-use([LineChart, TitleComponent, TooltipComponent, GridComponent, CanvasRenderer]);
+use([LineChart, TitleComponent, TooltipComponent, LegendComponent, GridComponent, CanvasRenderer]);
 
 const props = defineProps({
   data: { type: Object, required: true },
 });
 
 const chartRef = ref(null);
-let chartInstance = null;
+
+// 使用統一的 ECharts 實例管理
+const { initialize, update, isInitialized } = useEChartsInstance(
+  chartRef,
+  () => buildOption(props.data),
+  [() => props.data]
+);
 
 onMounted(() => {
-  initChart();
+  initialize();
 });
 
-watch(() => props.data, () => {
-  if (chartInstance) updateChart();
-}, { deep: true });
-
-function initChart() {
-  if (!chartRef.value) return;
-  chartInstance = init(chartRef.value);
-  updateChart();
-}
-
-function updateChart() {
-  if (!chartInstance || !props.data) return;
+function buildOption(data) {
+  if (!data) return null;
   
-  const { points = [], slope = 0, correlation = 0 } = props.data;
+  const { points, slope, correlation, paramPath, metric, scanRange } = data;
   
-  const option = {
-    title: { text: "敏感度曲線", left: "center" },
-    tooltip: { trigger: "axis" },
-    xAxis: { type: "value", name: "參數值" },
-    yAxis: { type: "value", name: "指標值" },
+  // 解析 CSV 格式的 points
+  const lines = points.trim().split('\n');
+  const headers = lines[0].split(',');
+  const pointData = lines.slice(1).map(line => {
+    const values = line.split(',');
+    return {
+      maintenanceMargin: parseFloat(values[0]),
+      strategyScore: parseFloat(values[1]),
+      x: parseFloat(values[2]),
+    };
+  });
+
+  const xData = pointData.map(p => p.x);
+  const yData = pointData.map(p => p.strategyScore !== undefined ? p.strategyScore : p[metric] || p.strategyScore);
+
+  return {
+    title: {
+      text: '敏感度曲線',
+      subtext: `參數: ${paramPath} → 指標: ${metric}`,
+      left: 'center',
+    },
+    tooltip: {
+      trigger: 'axis',
+      formatter: (params) => {
+        const p = params[0];
+        return `${p.name}<br/>${metric}: ${p.value[1].toFixed(2)}<br/>參數值: ${p.value[0].toFixed(2)}`;
+      },
+    },
+    grid: {
+      left: '10%',
+      right: '10%',
+      bottom: '15%',
+      top: '15%',
+    },
+    xAxis: {
+      type: 'value',
+      name: '參數值',
+      min: scanRange?.min,
+      max: scanRange?.max,
+    },
+    yAxis: {
+      type: 'value',
+      name: metric === 'strategyScore' ? '策略分數' : metric,
+    },
     series: [{
-      type: "line",
-      data: points,
+      name: metric === 'strategyScore' ? '策略分數' : metric,
+      type: 'line',
+      data: pointData.map(p => [p.x, p.strategyScore !== undefined ? p.strategyScore : p[metric] || p.strategyScore]),
       smooth: true,
-      symbol: "circle",
+      symbol: 'circle',
       symbolSize: 4,
+      lineStyle: { color: '#409EFF', width: 2 },
+      areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(64, 158, 255, 0.3)' }, { offset: 1, color: 'rgba(64, 158, 255, 0)' }] }},
     }],
   };
-  
-  chartInstance.setOption(option);
 }
-
-onBeforeUnmount(() => {
-  if (chartInstance) chartInstance.dispose();
-});
 </script>
 
 <style scoped>
 .sensitivity-chart-container {
   width: 100%;
-  height: 300px;
+  height: 400px;
 }
 </style>
