@@ -65,14 +65,15 @@
 - [x] `NewsView.vue` Branches ≥70%
 - [x] `ChartView.vue` Branches ≥70%
 - [x] `AccountView.vue` Branches ≥70%
-- [ ] Frontend 全域 Branches ≥40%（目前 37.53%，大型 Views/panels 尚有缺口）
+- [x] `TechnicalView.vue` Branches ≥70%
+- [x] Frontend 全域 Branches ≥40%（目前 41.69%）
 - [ ] Backend 另行記錄，不與 Frontend 合併
 - [x] 每個新增缺口先寫行為測試並完成 RED → GREEN
 - [x] 不為提高數字修改產品行為、刪除失敗測試或排除 source
 
-**目前結果**：Frontend Lines 60.95%、Statements 57.48%、Functions 41.16%、Branches 37.53%。`useTelegram` all metrics 100%；`usePortfolioSnapshots` all metrics 100%；`useEChartsInstance` all metrics 100%，Branches 86.36%；`StrategyStatusView` Branches 74.03%；`ReportsView` Branches 64.34%；`MacroBattleView` Branches 71.60%；`NewsView` Branches 77.90%；`ChartView` Branches 70.06%；`AccountView` Branches 77.77%。
+**目前結果**：Frontend Lines 62.62%、Statements 59.17%、Functions 43.64%、Branches 41.69%。`useTelegram` all metrics 100%；`usePortfolioSnapshots` all metrics 100%；`useEChartsInstance` all metrics 100%，Branches 86.36%；`StrategyStatusView` Branches 74.03%；`ReportsView` Branches 64.34%；`MacroBattleView` Branches 71.60%；`NewsView` Branches 77.90%；`ChartView` Branches 70.06%；`AccountView` Branches 77.77%；`TechnicalView` Branches 87.27%。
 
-**未完成缺口**：全域 Branches 仍低於 40%，主要來自未充分測試的大型 Views、simulator panels 與 chart components；保留為後續 coverage slices，不降低門檻。
+**未完成缺口**：部分大型 Views、simulator panels 與 chart components 仍有 coverage 缺口；保留為後續 coverage slices，不降低門檻。
 
 **RED → GREEN slices**：`useEChartsInstance`、`useTelegram`、`usePortfolioSnapshots`、`apiFetch` 401 retry、`SensitivityPanel`、`SimulatorView`。
 
