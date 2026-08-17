@@ -121,6 +121,6 @@ Phase 6: 品質硬化 (規劃中)
 
 ## 🚀 下一步行動
 
-1. **歸檔 WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md v2.0** → completed/
-2. **建立 Phase 3-5 細節確認新計畫** → active/
+1. **歸檔 WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md v2.0** → completed/ ✅
+2. **Phase 3-5 完成**：N1 useApiRequest、N3 ECharts composable、N4 GlobalErrorBoundary tests、N5 MSW 評估 ✅
 3. **開始 Phase 6 規劃** (Coverage 70% / ESLint 0 warnings)
