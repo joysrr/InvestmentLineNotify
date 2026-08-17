@@ -5,13 +5,7 @@
 
 import logger from "../../../src/utils/logger.mjs";
 import { triggerAuthExpired } from "../composables/useAuthExpired.js";
-import {
-  API_BASE,
-  API_VERSION,
-  ENDPOINTS,
-  buildUrl,
-  buildUrlWithQuery,
-} from "./config.js";
+import { API_BASE, ENDPOINTS, buildUrl, buildUrlWithQuery } from "./config.js";
 
 const BASE = API_BASE;
 
@@ -70,7 +64,7 @@ export async function apiFetch(path, options = {}) {
       import.meta.env.MODE === "test");
 
   let lastError;
-  const maxRetries = isTestEnv ? 0 : MAX_RETRIES;
+  const maxRetries = isTestEnv ? 1 : MAX_RETRIES;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     // 檢查 Telegram WebApp SDK 是否就緒
@@ -168,7 +162,7 @@ export async function apiFetch(path, options = {}) {
       lastError = err;
 
       // 401 錯誤：嘗試刷新一次 Telegram initData
-      if (err.status === 401 && attempt === 0 && !isTestEnv) {
+      if (err.status === 401 && attempt === 0) {
         logger.warn(
           { traceId: "api-fetch", path },
           "⚠️ [apiFetch] 收到 401 Unauthorized，嘗試重新取得 Telegram initData 並重試...",

@@ -7,7 +7,6 @@ import AccountView from "../views/AccountView.vue";
 import MarketRadarView from "../views/MarketRadarView.vue";
 import MacroBattleView from "../views/MacroBattleView.vue";
 import TechnicalView from "../views/TechnicalView.vue";
-import StrategyView from "../views/StrategyView.vue";
 import SimulatorView from "../views/SimulatorView.vue";
 import BacktestReportView from "../views/BacktestReportView.vue";
 import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";

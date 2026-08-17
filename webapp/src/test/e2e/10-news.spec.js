@@ -13,7 +13,9 @@ test.describe("10-NewsView - 即時新聞與情意素分析", () => {
     await expect(page.locator("main")).toBeVisible({ timeout: 15000 });
     // 驗證有標題或錯誤區塊
     const hasTitle = await page
-      .locator(".region-header, .news-header, .view-title, .status-error")
+      .locator(
+        ".region-header, .news-header, .view-title, .status-error, .state-box",
+      )
       .first()
       .isVisible({ timeout: 5000 });
     expect(hasTitle).toBeTruthy();

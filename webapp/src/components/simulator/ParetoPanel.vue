@@ -249,9 +249,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { ElMessage } from "element-plus";
-import { ArrowUp, ArrowDown, Plus, Delete, Loading, Collection, Download } from "@element-plus/icons-vue";
+import { ArrowUp, ArrowDown, Plus, Delete, Loading, Collection } from "@element-plus/icons-vue";
 import { apiFetch } from "@/api/index.js";
 import ParetoScatterChart from "./ParetoScatterChart.vue";
 import ExportButton from "@/components/common/ExportButton.vue";
@@ -393,45 +393,6 @@ async function executePareto() {
     loading.value = false;
     progress.value = 0;
   }
-}
-
-function exportCSV() {
-  if (!result.value?.paretoFront) return;
-  
-  const headers = [
-    "Rank",
-    ...objectives.value.map((o) => o.label),
-    ...scanParams.value.map((sp) => sp.path),
-  ];
-  
-  const rows = result.value.paretoFront.map((p, idx) => [
-    idx + 1,
-    ...objectives.value.map((o) => p.objectives[o.metric]?.toFixed(2) ?? ''),
-    ...scanParams.value.map((sp) => p.params[sp.path]?.toFixed(2) ?? ''),
-  ]);
-  
-  const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `pareto-front-${Date.now()}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-  ElMessage.success("CSV 已匯出");
-}
-
-function exportJSON() {
-  if (!result.value) return;
-  
-  const blob = new Blob([JSON.stringify(result.value, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `pareto-result-${Date.now()}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  ElMessage.success("JSON 已匯出");
 }
 
 // Initialize

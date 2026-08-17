@@ -84,9 +84,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { apiFetch } from "../api/index.js";
-import { useTelegram, waitReady } from "../composables/useTelegram.js";
+import { waitReady } from "../composables/useTelegram.js";
 
 // Components
 import SimulatorModeSelector from "@/components/simulator/SimulatorModeSelector.vue";
@@ -97,7 +97,6 @@ import SensitivityPanel from "@/components/simulator/SensitivityPanel.vue";
 import ParetoPanel from "@/components/simulator/ParetoPanel.vue";
 import DataQualityBadges from "@/components/simulator/Common/DataQualityBadges.vue";
 import DisclaimerBanner from "@/components/simulator/Common/DisclaimerBanner.vue";
-import LoadingSkeleton from "@/components/simulator/Common/LoadingSkeleton.vue";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 
 // State
@@ -122,18 +121,6 @@ const error = ref(null);
 const currentPrice0050 = ref(null);
 const currentPriceZ2 = ref(null);
 
-// Target types for reverse panel
-const targetTypes = [
-  { value: "maintenanceRatio", label: "維持率", input: "number", placeholder: "目標維持率 (%)" },
-  { value: "rsi", label: "RSI", input: "number", placeholder: "目標 RSI (1-99)" },
-  { value: "ma20", label: "MA20", input: "number", placeholder: "目標 MA20 價格" },
-  { value: "ma60", label: "MA60", input: "number", placeholder: "目標 MA60 價格" },
-  { value: "ma240Bias", label: "MA240 偏離", input: "number", placeholder: "目標偏離 (%)" },
-  { value: "kdCross", label: "KD 交叉", input: "select", options: ["golden", "dead"] },
-  { value: "macdCross", label: "MACD 交叉", input: "select", options: ["golden", "dead"] },
-  { value: "strategyScore", label: "策略總分", input: "number", placeholder: "目標分數" },
-  { value: "portfolioHealth", label: "Portfolio Health", input: "select", options: ["green", "yellow", "red"] },
-];
 
 // Load current prices on mount
 async function loadCurrentPrices() {

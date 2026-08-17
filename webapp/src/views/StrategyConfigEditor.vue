@@ -107,19 +107,15 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from "vue";
-import { useRouter } from "vue-router";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { Refresh, Check, Download, Upload, Checked } from "@element-plus/icons-vue";
+import { ref, computed, onMounted } from "vue";
+import { ElMessage } from "element-plus";
+import { Refresh, Check, Checked } from "@element-plus/icons-vue";
 
 import { apiFetch } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
-import { useTelegram, waitReady } from "../composables/useTelegram.js";
+import { waitReady } from "../composables/useTelegram.js";
 
 import ConfigSectionEditor from "../components/config/ConfigSectionEditor.vue";
-
-const { openLink } = useTelegram();
-const router = useRouter();
 
 // State
 const configMeta = ref({});

@@ -5,7 +5,6 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import SimulatorView from "../views/SimulatorView.vue";
 import { apiFetch } from "../api/index.js";
-import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 // Mock apiFetch
 vi.mock("../api/index.js", () => ({
@@ -192,6 +191,21 @@ describe("SimulatorView - Phase E 實機驗收", () => {
     );
   });
 
+  it("Mode B：缺少目標值應顯示驗證錯誤且不呼叫 API", async () => {
+    wrapper.vm.mode = "reverse";
+    wrapper.vm.targetType = "rsi";
+    wrapper.vm.targetValue = null;
+
+    await wrapper.vm.runReverse();
+    await flushPromises();
+
+    expect(wrapper.vm.error).toBe("請輸入目標值");
+    expect(apiFetch).not.toHaveBeenCalledWith(
+      "/api/v1/simulate/reverse",
+      expect.any(Object),
+    );
+  });
+
   it("Mode B (反向推導)：選擇維持率目標並執行應成功", async () => {
     await flushPromises();
 
@@ -282,6 +296,22 @@ describe("SimulatorView - Phase E 實機驗收", () => {
         target: { type: "portfolioHealth", status: "yellow" },
       }),
     });
+  });
+
+  it("Mode B API 錯誤應清除結果並顯示錯誤訊息", async () => {
+    const error = new Error("reverse failed");
+    error.body = { message: "反向服務暫時不可用" };
+    apiFetch.mockRejectedValueOnce(error);
+
+    wrapper.vm.mode = "reverse";
+    wrapper.vm.targetType = "rsi";
+    wrapper.vm.targetValue = 60;
+    await wrapper.vm.runReverse();
+    await flushPromises();
+
+    expect(wrapper.vm.error).toBe("反向服務暫時不可用");
+    expect(wrapper.vm.result).toBeNull();
+    expect(wrapper.vm.loading).toBe(false);
   });
 
   it("API 錯誤應正確顯示錯誤訊息", async () => {

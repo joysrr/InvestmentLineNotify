@@ -57,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { computed, watch } from "vue";
 import TargetSelector from "./TargetSelector.vue";
 import TargetInput from "./TargetInput.vue";
 import ReverseResultCard from "./ReverseResultCard.vue";

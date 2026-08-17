@@ -3,9 +3,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
-import VChart from "vue-echarts";
-import { use, init } from "echarts/core";
+import { ref, onMounted } from "vue";
+import { use } from "echarts/core";
 import { LineChart } from "echarts/charts";
 import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
@@ -20,7 +19,7 @@ const props = defineProps({
 const chartRef = ref(null);
 
 // 使用統一的 ECharts 實例管理
-const { initialize, update, isInitialized } = useEChartsInstance(
+const { initialize } = useEChartsInstance(
   chartRef,
   () => buildOption(props.data),
   [() => props.data]
@@ -33,11 +32,10 @@ onMounted(() => {
 function buildOption(data) {
   if (!data) return null;
   
-  const { points, slope, correlation, paramPath, metric, scanRange } = data;
+  const { points, paramPath, metric, scanRange } = data;
   
   // 解析 CSV 格式的 points
   const lines = points.trim().split('\n');
-  const headers = lines[0].split(',');
   const pointData = lines.slice(1).map(line => {
     const values = line.split(',');
     return {
@@ -47,8 +45,6 @@ function buildOption(data) {
     };
   });
 
-  const xData = pointData.map(p => p.x);
-  const yData = pointData.map(p => p.strategyScore !== undefined ? p.strategyScore : p[metric] || p.strategyScore);
 
   return {
     title: {

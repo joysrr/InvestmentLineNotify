@@ -3,15 +3,7 @@
  * 監控模組整合測試
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeAll,
-  afterAll,
-  beforeEach,
-} from "vitest";
+import { describe, it, expect, vi, afterAll, beforeEach } from "vitest";
 import { errorStore } from "../../modules/monitoring/errorStore.mjs";
 import { metricsCollector } from "../../modules/monitoring/metricsCollector.mjs";
 import { alertEngine } from "../../modules/monitoring/alertEngine.mjs";
@@ -22,6 +14,10 @@ process.env.MONITORING_ENABLED = "true";
 process.env.TELEGRAM_BOT_TOKEN = "test-token";
 
 describe("Monitoring Module", () => {
+  afterAll(() => {
+    errorStore.close();
+  });
+
   describe("Error Store", () => {
     beforeEach(async () => {
       // 清理資料庫
