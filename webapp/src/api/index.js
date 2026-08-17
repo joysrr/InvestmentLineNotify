@@ -5,8 +5,15 @@
 
 import logger from "../../../src/utils/logger.mjs";
 import { triggerAuthExpired } from "../composables/useAuthExpired.js";
+import {
+  API_BASE,
+  API_VERSION,
+  ENDPOINTS,
+  buildUrl,
+  buildUrlWithQuery,
+} from "./config.js";
 
-const BASE = import.meta.env.VITE_API_BASE || "";
+const BASE = API_BASE;
 
 // 配置
 const REQUEST_TIMEOUT = 10000; // 10 秒超時
@@ -204,37 +211,38 @@ export async function apiFetch(path, options = {}) {
 }
 
 // ─── 公開 API ────────────────────────────────────────────────────────────────────
+// 使用集中化配置 (src/api/config.js)
 
 export const fetchReports = (limit = 30) =>
-  apiFetch(`/api/reports?limit=${limit}`);
+  apiFetch(buildUrlWithQuery(ENDPOINTS.reports.list, { limit }));
 
 export const fetchWeeklyReports = (limit = 12) =>
-  apiFetch(`/api/reports/weekly?limit=${limit}`);
+  apiFetch(buildUrlWithQuery(ENDPOINTS.reports.weekly, { limit }));
 
 export const fetchMonthlyReports = (limit = 12) =>
-  apiFetch(`/api/reports/monthly?limit=${limit}`);
+  apiFetch(buildUrlWithQuery(ENDPOINTS.reports.monthly, { limit }));
 
-export const fetchNews = () => apiFetch("/api/news");
+export const fetchNews = () => apiFetch(buildUrl(ENDPOINTS.news));
 
-export const fetchStatus = () => apiFetch("/api/status");
+export const fetchStatus = () => apiFetch(buildUrl(ENDPOINTS.status));
 
-export const fetchReportNews = () => apiFetch("/api/report/news");
+export const fetchReportNews = () => apiFetch(buildUrl(ENDPOINTS.reportNews));
 
 // ── Portfolio Snapshots ────────────────────────────────────────────────────────
-
 export const fetchSnapshots = (limit = 90) =>
-  apiFetch(`/api/reports/snapshots?limit=${limit}`);
+  apiFetch(buildUrlWithQuery(ENDPOINTS.reports.snapshots.list, { limit }));
 
 export const fetchSnapshotsWeekly = (limit = 52) =>
-  apiFetch(`/api/reports/snapshots/weekly?limit=${limit}`);
+  apiFetch(buildUrlWithQuery(ENDPOINTS.reports.snapshots.weekly, { limit }));
 
 export const fetchSnapshotsMonthly = (limit = 120) =>
-  apiFetch(`/api/reports/snapshots/monthly?limit=${limit}`);
+  apiFetch(buildUrlWithQuery(ENDPOINTS.reports.snapshots.monthly, { limit }));
 
-export const fetchStrategyConfig = () => apiFetch("/api/strategy-config");
+export const fetchStrategyConfig = () =>
+  apiFetch(buildUrl(ENDPOINTS.strategyConfig));
 
 export const fetchReportSignals = (date) =>
-  apiFetch(`/api/report/${date}/signals`);
+  apiFetch(buildUrl(ENDPOINTS.reports.signals(date)));
 
 // ── Portfolio Health (Phase 1) ────────────────────────────────────────────────
 

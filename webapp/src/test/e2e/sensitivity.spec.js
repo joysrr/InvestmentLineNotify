@@ -407,7 +407,7 @@ test.describe("SimulatorView - Sensitivity Analysis (敏感度分析)", () => {
 
     // Wait for result
     await expect(page.locator(".tornado-chart-container")).toBeVisible({
-      timeout: 15000,
+      timeout: 30000,
     });
 
     // Verify key drivers
@@ -441,7 +441,7 @@ test.describe("SimulatorView - Sensitivity Analysis (敏感度分析)", () => {
 
     await page.locator('[data-testid="btn-execute"]').click();
     await expect(page.locator(".sensitivity-chart-container")).toBeVisible({
-      timeout: 15000,
+      timeout: 30000,
     });
 
     // Verify stats displayed

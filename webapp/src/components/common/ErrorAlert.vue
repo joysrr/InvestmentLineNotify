@@ -38,6 +38,15 @@
 </template>
 
 <script setup>
+/**
+ * @available 此元件備用供未來頁面使用
+ * ErrorAlert 適用場景 (非全頁錯誤，由 GlobalErrorBoundary 處理):
+ * - 表單驗證失敗 inline 提示
+ * - 區塊級 API 失敗 (如圖表載入失敗、局部資料刷新失敗)
+ * - 使用者操作回饋 (刪除失敗、儲存失敗)
+ * 
+ * 輕量級 inline 錯誤條，支援 dismiss/retry/action
+ */
 import { ref } from "vue";
 import { ElAlert, ElButton, ElCollapseTransition } from "element-plus";
 

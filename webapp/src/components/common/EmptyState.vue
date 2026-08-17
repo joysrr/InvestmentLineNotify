@@ -20,6 +20,14 @@
 </template>
 
 <script setup>
+/**
+ * @available 此元件備用供未來頁面使用
+ * EmptyState 適用場景:
+ * - 無回測記錄、無新聞、搜尋無結果
+ * - 無持倉、無交易紀錄、無快照
+ * 
+ * Element Plus ElEmpty 完整包裝，支援自訂 icon/action 按鈕
+ */
 import { ElEmpty, ElButton, ElIcon } from "element-plus";
 import {
   Document,

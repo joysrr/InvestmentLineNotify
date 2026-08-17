@@ -73,6 +73,12 @@
 </template>
 
 <script setup>
+/**
+ * @available 此元件備用供未來頁面使用
+ * Skeleton 效果: 報表載入、圖表渲染中、資料同步中
+ * 
+ * Element Plus Skeleton 包裝器，支援多種骨架屏類型
+ */
 import { ElSkeleton, ElSkeletonItem } from "element-plus";
 
 defineProps({
