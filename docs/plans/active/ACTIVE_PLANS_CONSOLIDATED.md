@@ -102,5 +102,5 @@ Phase 6 已完成並封存。E2E、部署檢查、硬編碼審計、WebApp Phase
 
 - Phase 6 封存計畫：`docs/plans/completed/WEBAPP_PHASE_6_DETAIL_PLAN.md`
 - Final baseline：`docs/performance/PHASE_6_BASELINE.md`
-- Git branch：`phase-6`
-- 最新計畫封存 commit：`be2b889`
+- Git branch：已合併至 `main`
+- 最新 merge commit：`67d5067`（merge: integrate phase-6 into main）
