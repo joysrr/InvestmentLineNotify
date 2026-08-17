@@ -1,0 +1,24 @@
+{
+  "collectedAt": "2026-08-17T09:03:05.953Z",
+  "gitCommit": "9156e8ad3c08d26f6813a529fd07a3016a2b5751",
+  "branch": "phase-6",
+  "frontendTests": { "status": "passed", "tests": 268, "durationMs": 116395 },
+  "backendApiTests": { "status": "passed", "tests": 149, "durationMs": 11809 },
+  "frontendCoverage": {
+    "statements": 47.64,
+    "branches": 24.31,
+    "functions": 30.18,
+    "lines": 51.22
+  },
+  "backendCoverage": { "branches": 63.24 },
+  "frontendLint": { "errors": 0, "warnings": 75 },
+  "frontendTestLint": { "errors": 0, "warnings": 13 },
+  "backendLint": { "errors": 0, "warnings": 219 },
+  "frontendBuild": {
+    "status": "passed",
+    "jsGzipKb": 638.27,
+    "cssGzipKb": 63.09
+  },
+  "e2e": { "passed": 49, "failed": 0 },
+  "dogfood": { "status": "stale", "reason": "existing report uses port 3001" }
+}
