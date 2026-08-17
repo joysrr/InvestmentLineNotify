@@ -2,7 +2,7 @@
 
 > Final measurement date: 2026-08-17
 > Branch: `phase-6`
-> Final documentation commit: populated after commit
+> Final documentation commit: `720f281` (baseline artifact); E2E/latency update: `7c4c148`
 > Raw baseline: `phase6-baseline.json`
 
 ## Baseline vs Final
