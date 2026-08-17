@@ -67,7 +67,13 @@ Phase 6 已完成並封存。E2E、部署檢查、硬編碼審計、WebApp Phase
 4. 不刪除失敗測試、不排除 source。
 5. 每個 slice 完成後重新量測並留下證據。
 
-### 3.4 E2E 延伸品質
+### 3.4 Coverage slice 啟動決策
+
+- 第一個候選範圍：`SimulatorView.vue` 與 simulator panels。
+- 完成標準：行為測試通過、重新量測 coverage、確認沒有產品行為變更；不設定固定 coverage 百分比門檻。
+- 目前不建立 Phase 7；等明確產品需求或使用者問題出現，再依啟動門檻建立正式計畫。
+
+### 3.5 E2E 延伸品質
 
 以下不是目前阻塞項目，只有在明確需求出現時才建立新計畫：
 
