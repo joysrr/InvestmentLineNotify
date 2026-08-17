@@ -150,6 +150,39 @@ describe("SensitivityPanel.vue", () => {
     expect(wrapper.find(".mock-sensitivity-chart").exists()).toBe(true);
   });
 
+  it("API 失敗時應顯示錯誤並結束 loading", async () => {
+    const error = new Error("server error");
+    error.body = { message: "分析服務暫時不可用" };
+    apiFetch.mockRejectedValueOnce(error);
+
+    wrapper.vm.targetParam = "maintenance.protectTrigger";
+    wrapper.vm.scanRange = { min: 140, max: 180, step: 1 };
+    await wrapper.vm.executeAnalysis();
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.loading).toBe(false);
+    expect(wrapper.vm.result).toBe(null);
+  });
+
+  it("Tornado 模式應送出多參數掃描設定", async () => {
+    apiFetch.mockResolvedValueOnce({
+      multiParam: { results: [], keyDrivers: [] },
+    });
+
+    wrapper.vm.chartType = "tornado";
+    wrapper.vm.multiParams = [
+      { path: "maintenance.protectTrigger", range: [140, 180] },
+    ];
+    await wrapper.vm.executeAnalysis();
+
+    expect(apiFetch).toHaveBeenCalledWith(
+      "/api/v1/simulate/sensitivity",
+      expect.objectContaining({
+        body: expect.stringContaining('"multiParams"'),
+      }),
+    );
+  });
+
   it("關鍵驅動因子應正確顯示", async () => {
     apiFetch.mockResolvedValueOnce({
       singleParam: { points: [], slope: 0 },
