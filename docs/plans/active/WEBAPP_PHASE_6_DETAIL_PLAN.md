@@ -61,12 +61,13 @@
 - [x] 核心 auth/data composables tested with behavior tests
 - [x] `usePortfolioSnapshots.js` Branches ≥70%
 - [x] `useEChartsInstance.js` Branches ≥70%
-- [ ] Frontend 全域 Branches ≥40%（目前 27.67%，大型 Views/panels 尚有缺口）
+- [x] `MacroBattleView.vue` Branches ≥70%
+- [ ] Frontend 全域 Branches ≥40%（目前 29.07%，大型 Views/panels 尚有缺口）
 - [ ] Backend 另行記錄，不與 Frontend 合併
 - [x] 每個新增缺口先寫行為測試並完成 RED → GREEN
 - [x] 不為提高數字修改產品行為、刪除失敗測試或排除 source
 
-**目前結果**：Frontend Lines 55.09%、Statements 51.37%、Functions 32.86%、Branches 27.67%。`useTelegram` all metrics 100%；`usePortfolioSnapshots` all metrics 100%；`useEChartsInstance` all metrics 100%，Branches 86.36%；`StrategyStatusView` Branches 74.03%；`ReportsView` Branches 64.34%。
+**目前結果**：Frontend Lines 55.69%、Statements 52.12%、Functions 34.80%、Branches 29.07%。`useTelegram` all metrics 100%；`usePortfolioSnapshots` all metrics 100%；`useEChartsInstance` all metrics 100%，Branches 86.36%；`StrategyStatusView` Branches 74.03%；`ReportsView` Branches 64.34%；`MacroBattleView` Branches 71.60%。
 
 **未完成缺口**：全域 Branches 仍低於 40%，主要來自未充分測試的大型 Views、simulator panels 與 chart components；保留為後續 coverage slices，不降低門檻。
 
