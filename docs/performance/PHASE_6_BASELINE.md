@@ -17,9 +17,9 @@
 | Frontend test lint       | 0 errors / 13 warnings                                             | 0 errors / 8 warnings                                              | `node scripts/phase6-baseline.mjs` includes `src` |
 | Backend lint             | 0 errors / 219 warnings                                            | 0 errors / 219 warnings                                            | `node scripts/phase6-baseline.mjs`                |
 | Frontend build           | JS gzip 638.27 kB, CSS gzip 63.09 kB                               | JS gzip 638.03 kB, CSS gzip 63.09 kB                               | `npm run build`                                   |
-| E2E                      | 49/49 passed                                                       | Not remeasured in this final slice                                 | Historical evidence only                          |
+| E2E                      | 49/49 passed                                                       | 49/49 passed, workers=1                                            | `cd webapp && npx playwright test --workers=1`    |
 | Dogfood                  | Stale, port 3001                                                   | API 10/10; pages 3/3; bugs 0                                       | `dogfood-output/report.md`                        |
-| API health latency       | Not measured                                                       | Not measured                                                       | No long-lived API process retained                |
+| API health latency       | Not measured                                                       | avg 9.569ms, p95 14.589ms, max 15.010ms (30 samples)               | `GET http://127.0.0.1:3000/health`                |
 
 ## Phase 6 Gates
 

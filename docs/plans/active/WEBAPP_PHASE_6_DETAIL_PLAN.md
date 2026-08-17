@@ -100,7 +100,7 @@
 - [x] Phase 6 baseline artifact 已建立於 `docs/performance/`
 - [x] Final comparison after all quality stages
 
-**Final comparison**：Frontend tests 268 → 323；Frontend Branches 24.31% → 41.69%；Frontend production lint warnings 75 → 0；Frontend test warnings 13 → 8；Build gzip JS 638.27 kB → 638.03 kB、CSS 63.09 kB → 63.09 kB。Backend API tests 149 → 149。Backend full-suite native segmentation fault、E2E/API latency/Backend coverage final remeasurement remain separate gaps.
+**Final comparison**：Frontend tests 268 → 323；Frontend Branches 24.31% → 41.69%；Frontend production lint warnings 75 → 0；Frontend test warnings 13 → 8；Build gzip JS 638.27 kB → 638.03 kB、CSS 63.09 kB → 63.09 kB。Backend API tests 149 → 149；E2E 49/49（workers=1）；API health latency avg 9.569ms、p95 14.589ms、max 15.010ms（30 samples）。Backend full-suite native segmentation fault與Backend coverage final remeasurement remain separate gaps。
 
 **目前結果**：Frontend test suite 323 tests passed；production lint 0 warnings；build passed；Dogfood API 10/10、頁面 3/3 通過。
 
