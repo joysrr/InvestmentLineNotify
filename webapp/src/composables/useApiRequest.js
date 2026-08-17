@@ -13,7 +13,11 @@ import { ElMessage } from "element-plus";
  * @param {string} options.errorMessage - 自訂錯誤訊息
  * @param {Function} options.onSuccess - 成功回調
  * @param {Function} options.onError - 錯誤回調
- * @returns {Object} { loading, error, data, execute, reset }
+ * @param {boolean} options.dedup - 相同參數的並行請求是否共用（預設 false）
+ * @param {number} options.retry - 失敗重試次數（預設 0）
+ * @param {number} options.retryDelay - 重試間隔毫秒數（預設 300）
+ * @param {boolean} options.abort - 是否啟用 AbortController（預設 false）
+ * @returns {Object} { loading, error, data, execute, cancel, reset }
  *
  * @example
  * import { useApiRequest } from '@/composables/useApiRequest';
@@ -35,48 +39,98 @@ export function useApiRequest(apiFunc, options = {}) {
     errorMessage = "操作失敗",
     onSuccess = null,
     onError = null,
+    dedup = false,
+    retry = 0,
+    retryDelay = 300,
+    abort = false,
   } = options;
 
   const loading = ref(false);
+  const pendingRequests = new Map();
+  let activeController = null;
   const error = ref(null);
   const data = ref(null);
 
   const execute = async (...args) => {
+    const requestKey = dedup ? JSON.stringify(args) : null;
+    if (requestKey && pendingRequests.has(requestKey)) {
+      return pendingRequests.get(requestKey);
+    }
+
     loading.value = true;
     error.value = null;
-
-    try {
-      const result = await apiFunc(...args);
-      data.value = result;
-
-      if (showSuccessMessage) {
-        ElMessage.success(successMessage);
-      }
-
-      if (onSuccess) {
-        onSuccess(result);
-      }
-
-      return result;
-    } catch (err) {
-      error.value = err;
-
-      if (showErrorMessage) {
-        const message = err.response?.data?.message || err.message || errorMessage;
-        ElMessage.error(message);
-      }
-
-      if (onError) {
-        onError(err);
-      }
-
-      throw err;
-    } finally {
-      loading.value = false;
+    const controller = abort ? new AbortController() : null;
+    if (controller) {
+      activeController = controller;
     }
+
+    const request = (async () => {
+      try {
+        let result;
+        for (let attempt = 0; attempt <= retry; attempt += 1) {
+          try {
+            result = controller
+              ? await apiFunc(...args, { signal: controller.signal })
+              : await apiFunc(...args);
+            break;
+          } catch (err) {
+            if (attempt === retry) {
+              throw err;
+            }
+            if (retryDelay > 0) {
+              await new Promise((resolve) => setTimeout(resolve, retryDelay));
+            }
+          }
+        }
+        data.value = result;
+
+        if (showSuccessMessage) {
+          ElMessage.success(successMessage);
+        }
+
+        if (onSuccess) {
+          onSuccess(result);
+        }
+
+        return result;
+      } catch (err) {
+        error.value = err;
+
+        if (showErrorMessage) {
+          const message =
+            err.response?.data?.message || err.message || errorMessage;
+          ElMessage.error(message);
+        }
+
+        if (onError) {
+          onError(err);
+        }
+
+        throw err;
+      } finally {
+        loading.value = false;
+        if (controller && activeController === controller) {
+          activeController = null;
+        }
+        if (requestKey) {
+          pendingRequests.delete(requestKey);
+        }
+      }
+    })();
+
+    if (requestKey) {
+      pendingRequests.set(requestKey, request);
+    }
+
+    return request;
+  };
+
+  const cancel = () => {
+    activeController?.abort();
   };
 
   const reset = () => {
+    cancel();
     loading.value = false;
     error.value = null;
     data.value = null;
@@ -87,6 +141,7 @@ export function useApiRequest(apiFunc, options = {}) {
     error,
     data,
     execute,
+    cancel,
     reset,
   };
 }
@@ -119,11 +174,15 @@ export function useApiRequestBatch(apiFuncs) {
 
     try {
       const results = await Promise.allSettled(
-        apiFuncs.map((fn) => fn(...args))
+        apiFuncs.map((fn) => fn(...args)),
       );
 
-      dataList.value = results.map((r) => (r.status === "fulfilled" ? r.value : null));
-      errors.value = results.map((r) => (r.status === "rejected" ? r.reason : null));
+      dataList.value = results.map((r) =>
+        r.status === "fulfilled" ? r.value : null,
+      );
+      errors.value = results.map((r) =>
+        r.status === "rejected" ? r.reason : null,
+      );
 
       const failedCount = errors.value.filter((e) => e !== null).length;
       if (failedCount > 0) {

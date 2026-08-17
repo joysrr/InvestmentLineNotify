@@ -26,6 +26,77 @@ describe("useApiRequest", () => {
     expect(data.value).toBe(null);
   });
 
+  it("相同參數的並行請求只執行一次 API", async () => {
+    let resolveRequest;
+    const mockApi = vi.fn(
+      () =>
+        new Promise((resolve) => {
+          resolveRequest = resolve;
+        }),
+    );
+    const { execute } = useApiRequest(mockApi, { dedup: true });
+
+    const first = execute("same");
+    const second = execute("same");
+    resolveRequest("shared-result");
+
+    await expect(Promise.all([first, second])).resolves.toEqual([
+      "shared-result",
+      "shared-result",
+    ]);
+    expect(mockApi).toHaveBeenCalledOnce();
+  });
+
+  it("cancel 會中止目前請求並保留 AbortError", async () => {
+    let rejectRequest;
+    const mockApi = vi.fn(
+      (_args, options) =>
+        new Promise((_, reject) => {
+          rejectRequest = reject;
+          expect(options.signal).toBeInstanceOf(AbortSignal);
+        }),
+    );
+    const { execute, cancel, error } = useApiRequest(mockApi, {
+      abort: true,
+      showErrorMessage: false,
+    });
+
+    const request = execute("request");
+    cancel();
+    rejectRequest(Object.assign(new Error("aborted"), { name: "AbortError" }));
+
+    await expect(request).rejects.toMatchObject({ name: "AbortError" });
+    expect(error.value.name).toBe("AbortError");
+  });
+
+  it("失敗後依設定重試並在成功時更新 data", async () => {
+    const mockApi = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("temporary failure"))
+      .mockResolvedValueOnce("recovered");
+    const { data, execute } = useApiRequest(mockApi, {
+      retry: 1,
+      retryDelay: 0,
+    });
+
+    await expect(execute()).resolves.toBe("recovered");
+    expect(data.value).toBe("recovered");
+    expect(mockApi).toHaveBeenCalledTimes(2);
+  });
+
+  it("超過重試次數後拋出最後一個錯誤", async () => {
+    const finalError = new Error("final failure");
+    const mockApi = vi.fn().mockRejectedValue(finalError);
+    const { execute } = useApiRequest(mockApi, {
+      retry: 2,
+      retryDelay: 0,
+      showErrorMessage: false,
+    });
+
+    await expect(execute()).rejects.toBe(finalError);
+    expect(mockApi).toHaveBeenCalledTimes(3);
+  });
+
   it("成功請求更新 data", async () => {
     const mockApi = vi.fn().mockResolvedValue({ id: 1, name: "test" });
     const { loading, error, data, execute } = useApiRequest(mockApi);
@@ -40,7 +111,7 @@ describe("useApiRequest", () => {
 
   it("請求中 loading 為 true", async () => {
     const mockApi = vi.fn(
-      () => new Promise((resolve) => setTimeout(() => resolve("ok"), 100))
+      () => new Promise((resolve) => setTimeout(() => resolve("ok"), 100)),
     );
     const { loading, execute } = useApiRequest(mockApi);
 
