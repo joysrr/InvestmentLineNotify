@@ -78,6 +78,8 @@ Phase 6 已完成並封存。E2E、部署檢查、硬編碼審計、WebApp Phase
 - 暫不建立 simulator 共用 test helper，重複模式出現後再評估抽取。
 - 完成標準：行為測試通過、重新量測 coverage、確認沒有產品行為變更；不設定固定 coverage 百分比門檻。
 - 目前不建立 Phase 7；等明確產品需求或使用者問題出現，再依啟動門檻建立正式計畫。
+- 啟動條件：使用者回報 Simulator bug，或新增 Simulator 功能需求任一成立；單純 coverage 偏低不構成啟動理由。
+- 需求成立後，先建立獨立 plan，定義 DoD、測試範圍與回滾方式，再進入 TDD。
 
 ### 3.5 E2E 延伸品質
 
