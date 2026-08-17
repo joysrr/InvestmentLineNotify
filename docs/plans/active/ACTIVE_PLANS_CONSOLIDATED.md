@@ -73,6 +73,9 @@ Phase 6 已完成並封存。E2E、部署檢查、硬編碼審計、WebApp Phase
 - 第一階段只處理 Forward／Reverse 核心流程；Batch、Pareto、Sensitivity 與 charts 依後續風險再擴展。
 - 測試以 component tests 為主，沿用既有 E2E 作為跨元件整合保護，不重複建立相同流程。
 - RED 階段先驗證使用者可觀察行為，不以逐 branch 或 snapshot 覆蓋為目標。
+- Forward／Reverse 同時涵蓋輸入驗證、loading、API 錯誤與成功結果呈現。
+- Component tests mock API response；跨整合流程沿用既有 E2E。
+- 暫不建立 simulator 共用 test helper，重複模式出現後再評估抽取。
 - 完成標準：行為測試通過、重新量測 coverage、確認沒有產品行為變更；不設定固定 coverage 百分比門檻。
 - 目前不建立 Phase 7；等明確產品需求或使用者問題出現，再依啟動門檻建立正式計畫。
 
