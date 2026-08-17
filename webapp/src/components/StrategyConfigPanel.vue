@@ -174,7 +174,7 @@
 /**
  * @deprecated StrategyConfigPanel 已廢棄，請使用 StrategyConfigEditor.vue 做帶驗證的結構化策略編輯
  */
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, reactive, onMounted } from "vue";
 import { fetchStrategyConfig, updateStrategyConfig } from "../api/index.js";
 
 const config = ref(null);

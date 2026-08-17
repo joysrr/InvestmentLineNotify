@@ -16,6 +16,7 @@
  * @deprecated StrategyView 已廢棄，請使用 StrategyConfigEditor.vue (/strategy-config)
  */
 import StrategyConfigPanel from "../components/StrategyConfigPanel.vue";
+import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 </script>
 
 <style scoped>
