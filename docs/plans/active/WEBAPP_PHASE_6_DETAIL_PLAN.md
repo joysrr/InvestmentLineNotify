@@ -59,12 +59,14 @@
 - [x] 核心 simulator module `SimulatorView.vue` Branches ≥70%
 - [x] 核心 simulator module `SensitivityPanel.vue` Branches ≥70%
 - [x] 核心 auth/data composables tested with behavior tests
-- [ ] Frontend 全域 Branches ≥40%（目前 25.76%，大型 Views/panels 尚有缺口）
+- [x] `usePortfolioSnapshots.js` Branches ≥70%
+- [x] `useEChartsInstance.js` Branches ≥70%
+- [ ] Frontend 全域 Branches ≥40%（目前 25.88%，大型 Views/panels 尚有缺口）
 - [ ] Backend 另行記錄，不與 Frontend 合併
 - [x] 每個新增缺口先寫行為測試並完成 RED → GREEN
 - [x] 不為提高數字修改產品行為、刪除失敗測試或排除 source
 
-**目前結果**：Frontend Lines 54.11%、Statements 50.30%、Functions 32.03%、Branches 25.76%。`useTelegram` all metrics 100%；`usePortfolioSnapshots` Lines/Functions/Statements 100%、Branches 66.66%；`useEChartsInstance` Branches 68.18%。
+**目前結果**：Frontend Lines 54.43%、Statements 50.62%、Functions 32.11%、Branches 25.88%。`useTelegram` all metrics 100%；`usePortfolioSnapshots` all metrics 100%；`useEChartsInstance` all metrics 100%，Branches 86.36%。
 
 **未完成缺口**：全域 Branches 仍低於 40%，主要來自未充分測試的大型 Views、simulator panels 與 chart components；保留為後續 coverage slices，不降低門檻。
 

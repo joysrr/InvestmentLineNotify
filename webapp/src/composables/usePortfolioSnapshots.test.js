@@ -27,6 +27,18 @@ describe("usePortfolioSnapshots", () => {
     expect(state.error.value).toBe(null);
   });
 
+  it("uses safe defaults when the response omits optional fields", async () => {
+    fetchSnapshots.mockResolvedValue({});
+    const state = usePortfolioSnapshots();
+
+    await state.load();
+
+    expect(state.snapshots.value).toEqual([]);
+    expect(state.latestSnapshot.value).toBe(null);
+    expect(state.hasEncryption.value).toBe(false);
+    expect(state.error.value).toBe(null);
+  });
+
   it("reports HTTP status errors", async () => {
     fetchSnapshots.mockRejectedValue({ status: 503 });
     const state = usePortfolioSnapshots();

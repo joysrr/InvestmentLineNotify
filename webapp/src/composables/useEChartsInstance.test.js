@@ -58,6 +58,75 @@ describe("useEChartsInstance", () => {
     wrapper.unmount();
   });
 
+  it("disposes the previous instance before reinitializing", () => {
+    const chartRef = ref({ nodeType: 1 });
+    const firstChart = createChart();
+    const secondChart = createChart();
+    init.mockReturnValueOnce(firstChart).mockReturnValueOnce(secondChart);
+    const { value: composable, wrapper } = mountComposable(() =>
+      useEChartsInstance(chartRef, () => ({ series: [] })),
+    );
+
+    composable.initialize();
+    composable.initialize();
+
+    expect(firstChart.dispose).toHaveBeenCalledOnce();
+    expect(composable.getInstance()).toEqual(secondChart);
+    wrapper.unmount();
+  });
+
+  it("reports initialization failures from ECharts", () => {
+    init.mockImplementationOnce(() => {
+      throw new Error("init failed");
+    });
+    const { value: composable, wrapper } = mountComposable(() =>
+      useEChartsInstance(ref({ nodeType: 1 }), () => ({})),
+    );
+
+    expect(composable.initialize()).toBe(false);
+    expect(composable.initError.value).toBe("init failed");
+    wrapper.unmount();
+  });
+
+  it("returns false when update cannot initialize the chart", () => {
+    const { value: composable, wrapper } = mountComposable(() =>
+      useEChartsInstance(ref(null), () => ({ series: [] })),
+    );
+
+    expect(composable.update()).toBe(false);
+    wrapper.unmount();
+  });
+
+  it("returns false when the options builder fails", () => {
+    const chart = createChart();
+    init.mockReturnValue(chart);
+    const { value: composable, wrapper } = mountComposable(() =>
+      useEChartsInstance(ref({ nodeType: 1 }), () => {
+        throw new Error("options failed");
+      }),
+    );
+
+    composable.initialize();
+
+    expect(composable.update()).toBe(false);
+    expect(chart.setOption).not.toHaveBeenCalled();
+    wrapper.unmount();
+  });
+
+  it("does not set an empty chart option", () => {
+    const chart = createChart();
+    init.mockReturnValue(chart);
+    const { value: composable, wrapper } = mountComposable(() =>
+      useEChartsInstance(ref({ nodeType: 1 }), () => null),
+    );
+
+    composable.initialize();
+
+    expect(composable.update()).toBe(true);
+    expect(chart.setOption).not.toHaveBeenCalled();
+    wrapper.unmount();
+  });
+
   it("updates, resizes, and disposes the chart instance", () => {
     const chartRef = ref({ nodeType: 1 });
     const chart = createChart();
