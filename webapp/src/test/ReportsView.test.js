@@ -67,6 +67,42 @@ describe("ReportsView.vue", () => {
     expect(api.fetchWeeklyReports).toHaveBeenCalled();
   });
 
+  it("點擊月報 Tab 應載入月報資料", async () => {
+    api.fetchReports.mockResolvedValue([]);
+    api.fetchMonthlyReports.mockResolvedValue([
+      { period: "2026-04", summary: "月報摘要" },
+    ]);
+
+    const wrapper = mount(ReportsView);
+    await nextTick();
+
+    const monthlyTab = wrapper
+      .findAll(".tab-btn")
+      .find((button) => button.text() === "月報");
+    await monthlyTab.trigger("click");
+    await nextTick();
+
+    expect(api.fetchMonthlyReports).toHaveBeenCalledWith(12);
+    expect(wrapper.text()).toContain("2026 年4月");
+  });
+
+  it("API 失敗時應顯示錯誤並可重試", async () => {
+    api.fetchReports.mockRejectedValueOnce(new Error("reports unavailable"));
+    const wrapper = mount(ReportsView);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    await nextTick();
+
+    expect(wrapper.find(".state-error").text()).toContain(
+      "reports unavailable",
+    );
+
+    api.fetchReports.mockResolvedValueOnce([]);
+    await wrapper.find(".retry-btn").trigger("click");
+    await nextTick();
+
+    expect(api.fetchReports).toHaveBeenCalledTimes(2);
+  });
+
   it("點擊「科學回測」分頁不應崩潰且應顯示回測大數據內容", async () => {
     api.fetchReports.mockResolvedValue([]);
     const wrapper = mount(ReportsView);
