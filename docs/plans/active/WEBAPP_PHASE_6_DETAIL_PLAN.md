@@ -104,7 +104,7 @@
 
 **目前結果**：Frontend test suite 323 tests passed；production lint 0 warnings；build passed；Dogfood API 10/10、頁面 3/3 通過。
 
-**Backend 驗證**：`src/api` 149/149、`src/modules` 579/579、`src/test/unit` 600/600 通過；穩定 scope coverage 為 Lines 62.39%、Statements 61.41%、Functions 63.31%、Branches 51.30%，受 global 70% threshold 拒絕。完整 integration scope assertions 1502 passed，但 Vitest worker 在 `backtestScheduler.test.mjs` 執行後 unexpected exit；單檔 10/10 通過，疑似共享 scheduled-result artifacts/非同步資源污染，暫不標記完整 Backend gate 通過。
+**Backend 驗證**：完整 suite 95 files passed、2 skipped；1514 tests passed、6 todo。Coverage 為 Lines 72.99%、Statements 62.73%、Functions 75.69%、Branches 73.90%；native segfault 已由 `better-sqlite3@13.0.3`（Node >=22）降至 Node 20 相容的 `12.11.1` 解除。現有 global Statements 70% threshold 仍未達。
 
 **Dogfood 產物**：報告與 screenshots 為 generated output，已留在本地驗證但不提交 Git。
 
