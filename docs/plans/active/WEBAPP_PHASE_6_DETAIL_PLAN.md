@@ -100,7 +100,7 @@
 - [x] Phase 6 baseline artifact 已建立於 `docs/performance/`
 - [ ] Final comparison after all quality stages
 
-**目前結果**：Frontend test suite 287 tests passed；production lint 0 warnings；build passed；Dogfood API 10/10、頁面 3/3 通過。
+**目前結果**：Frontend test suite 323 tests passed；production lint 0 warnings；build passed；Dogfood API 10/10、頁面 3/3 通過。
 
 **Backend 驗證**：`src/api + src/modules` 單 worker 728/728 passed；完整 `src/test` assertions 1502 passed，但 Vitest worker 在 suite 結束時發生 native segmentation fault，暫不標記完整 Backend gate 通過，待獨立資源污染問題處理。
 
