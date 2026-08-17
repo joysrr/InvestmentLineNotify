@@ -158,13 +158,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
 import { fetchReports } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
-import { useTelegram, waitReady } from "../composables/useTelegram.js";
-
-const router = useRouter();
-const { backButton } = useTelegram();
+import { waitReady } from "../composables/useTelegram.js";
 
 const latestReport = ref(null);
 const loading = ref(true);
@@ -421,8 +417,6 @@ async function load() {
     loading.value = false;
   }
 }
-
-const goBack = () => router.push("/");
 
 onMounted(async () => {
   await waitReady();

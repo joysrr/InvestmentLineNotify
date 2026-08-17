@@ -18,8 +18,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
-import { ElMessage } from "element-plus";
+import { computed } from "vue";
 
 import ConfigFieldEditor from "./ConfigFieldEditor.vue";
 

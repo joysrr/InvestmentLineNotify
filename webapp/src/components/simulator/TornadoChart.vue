@@ -3,9 +3,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
-import VChart from "vue-echarts";
-import { use, init } from "echarts/core";
+import { ref, onMounted } from "vue";
+import { use } from "echarts/core";
 import { BarChart } from "echarts/charts";
 import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
@@ -21,7 +20,7 @@ const props = defineProps({
 const chartRef = ref(null);
 
 // 使用統一的 ECharts 實例管理
-const { initialize, update, isInitialized } = useEChartsInstance(
+const { initialize } = useEChartsInstance(
   chartRef,
   () => buildOption(props.data, props.paramLabels),
   [() => props.data, () => props.paramLabels]
@@ -34,7 +33,7 @@ onMounted(() => {
 function buildOption(data, paramLabels) {
   if (!data || !data.multiParam?.results?.length) return null;
   
-  const { results, keyDrivers } = data.multiParam;
+  const { results } = data.multiParam;
   
   // 準備 Tornado 圖資料：每個參數的影響範圍
   const tornadoData = results.map(r => {

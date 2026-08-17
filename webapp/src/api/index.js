@@ -5,13 +5,7 @@
 
 import logger from "../../../src/utils/logger.mjs";
 import { triggerAuthExpired } from "../composables/useAuthExpired.js";
-import {
-  API_BASE,
-  API_VERSION,
-  ENDPOINTS,
-  buildUrl,
-  buildUrlWithQuery,
-} from "./config.js";
+import { API_BASE, ENDPOINTS, buildUrl, buildUrlWithQuery } from "./config.js";
 
 const BASE = API_BASE;
 

@@ -46,10 +46,12 @@
 
 ### 6.2 ESLint
 
-- [ ] `webapp/src` production source：0 errors、0 warnings
-- [ ] tests：少於 20 warnings
-- [ ] generated coverage、dist、node_modules 不納入結果
-- [ ] 新增/修改檔案先通過 lint；完成後啟用 production source 全量 gate
+- [x] `webapp/src` production source：0 errors、0 warnings
+- [x] tests：少於 20 warnings
+- [x] generated coverage、dist、node_modules 不納入結果
+- [x] 新增/修改檔案先通過 lint；完成後啟用 production source 全量 gate
+
+**結果**：Frontend production source（排除 `src/test/**`）0 errors/0 warnings；Frontend tests 0 errors/13 warnings。清理 23 個 WebApp source 檔案，未修改產品行為，Frontend 268/268 tests 與 production build 通過。
 
 ### 6.3 Coverage
 

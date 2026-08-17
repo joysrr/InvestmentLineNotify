@@ -60,7 +60,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
+import { computed } from "vue";
 import PriceInput from "@/components/simulator/PriceInput.vue";
 import ForwardResultCard from "@/components/simulator/ForwardResultCard.vue";
 import IndicatorComparisonTable from "@/components/simulator/Common/IndicatorComparisonTable.vue";

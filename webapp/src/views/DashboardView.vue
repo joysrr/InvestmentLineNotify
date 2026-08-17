@@ -183,7 +183,6 @@ import {
   fetchPortfolioHealth,
 } from "../api/index.js";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
-import { useApiRequestBatch } from "../composables/useApiRequest.js";
 
 // Components
 import MarketSnapshot from "../components/dashboard/MarketSnapshot.vue";
@@ -196,7 +195,6 @@ import StrategyStatusView from "../views/StrategyStatusView.vue";
 import BacktestReportView from "../views/BacktestReportView.vue";
 import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
-import ErrorAlert from "../components/common/ErrorAlert.vue";
 
 // ECharts (Only needed here for the radar template slot)
 import VChart from "vue-echarts";
@@ -225,7 +223,6 @@ const reportError = ref(false);
 
 const topNews = ref([]);
 const newsLoading = ref(true);
-const newsError = ref(false);
 
 const healthData = ref(null);
 const healthLoading = ref(true);

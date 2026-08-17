@@ -269,7 +269,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { apiFetch } from "../api/index.js";
-import { useTelegram, waitReady } from "../composables/useTelegram.js";
+import { waitReady } from "../composables/useTelegram.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 
 // Components
@@ -314,10 +314,6 @@ const scoreClass = computed(() => {
 
 const cooldownClass = computed(() => 
   data.value?.cooldown?.inCooldown ? "badge-warn" : "badge-ok"
-);
-
-const cooldownClassCard = computed(() => 
-  data.value?.cooldown?.inCooldown ? "in-cooldown" : ""
 );
 
 const budgetClass = computed(() => 

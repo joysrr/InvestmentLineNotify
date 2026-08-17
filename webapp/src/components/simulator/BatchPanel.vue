@@ -259,7 +259,7 @@
 <script setup>
 import { ref, computed, watch, nextTick } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { Plus, Delete, DocumentCopy, Upload, Download, VideoPlay, Loading, Close } from "@element-plus/icons-vue";
+import { Plus, Delete, DocumentCopy, Upload, VideoPlay, Loading, Close } from "@element-plus/icons-vue";
 import { apiFetch } from "@/api/index.js";
 import ReverseResultCard from "./ReverseResultCard.vue";
 import ExportButton from "@/components/common/ExportButton.vue";
@@ -286,7 +286,6 @@ const lastResult = ref(null);
 const detailVisible = ref(false);
 const detailData = ref(null);
 const importing = ref(false);
-const exporting = ref(false);
 const fileInput = ref(null);
 const abortController = ref(null);
 
@@ -389,28 +388,6 @@ function validateJob(index) {
   }
 
   jobErrors.value[index] = errors;
-}
-
-function exportJobs() {
-  exporting.value = true;
-  const data = {
-    jobs: jobs.value.map(j => ({
-      price0050: j.price0050,
-      priceZ2: j.priceZ2,
-    })),
-    options: options.value,
-    exportedAt: new Date().toISOString(),
-  };
-
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `batch-sim-${Date.now()}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  exporting.value = false;
-  ElMessage.success("已匯出");
 }
 
 function handleFileImport(event) {

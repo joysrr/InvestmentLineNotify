@@ -270,7 +270,6 @@ function renderAllCharts() {
   // Drawdown
   const ddData = generateChartData(results.value, "drawdown");
   const maxDD = Math.min(...ddData.datasets[0].data);
-  const maxDDIndex = ddData.datasets[0].data.indexOf(maxDD);
   let peakIdx = 0;
   let maxDDDays = 0;
   let peak = -Infinity;

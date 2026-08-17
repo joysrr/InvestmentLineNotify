@@ -3,9 +3,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
-import VChart from "vue-echarts";
-import { use, init } from "echarts/core";
+import { ref, onMounted } from "vue";
+import { use } from "echarts/core";
 import { ScatterChart, LineChart } from "echarts/charts";
 import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
@@ -22,7 +21,7 @@ const props = defineProps({
 const chartRef = ref(null);
 
 // 使用統一的 ECharts 實例管理
-const { initialize, update, isInitialized } = useEChartsInstance(
+const { initialize } = useEChartsInstance(
   chartRef,
   () => buildOption(props.data, props.objectives, props.kneePoint),
   [() => props.data, () => props.objectives, () => props.kneePoint]
@@ -47,7 +46,7 @@ function buildOption(data, objectives, kneePoint) {
   // 準備所有點的資料
   const allPointsData = allPoints
     .filter(p => p.objectives[obj1.metric] != null && p.objectives[obj2.metric] != null)
-    .map((p, idx) => ({
+    .map((p) => ({
       value: [
         p.objectives[obj1.metric],
         p.objectives[obj2.metric],

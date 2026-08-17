@@ -259,7 +259,7 @@
 import { ref, computed, onMounted } from "vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
 import { usePortfolioSnapshots } from "../composables/usePortfolioSnapshots.js";
-import { useTelegram, waitReady } from "../composables/useTelegram.js";
+import { waitReady } from "../composables/useTelegram.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 
 // ECharts

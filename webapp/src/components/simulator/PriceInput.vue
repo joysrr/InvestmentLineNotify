@@ -66,7 +66,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from "vue";
+import { ref, computed, nextTick } from "vue";
 
 const props = defineProps({
   price0050: { type: [Number, String, null], default: null },
