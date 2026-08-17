@@ -29,16 +29,20 @@
 
 ### 6.0 Baseline
 
-- [ ] `scripts/phase6-baseline.mjs` 可重複執行
-- [ ] `docs/performance/PHASE_6_BASELINE.md` 記錄 coverage、lint、測試時間、E2E、Dogfood、build、API health、git anchor
-- [ ] baseline script 不修改工作樹、不建立 commit、不啟動長駐服務
+- [x] `scripts/phase6-baseline.mjs` 可重複執行
+- [x] `docs/performance/PHASE_6_BASELINE.md` 記錄 coverage、lint、測試時間、E2E、Dogfood、build、API health、git anchor
+- [x] baseline script 不修改工作樹、不建立 commit、不啟動長駐服務
+
+**結果**：Baseline commit `432d265`。Frontend Branches 24.31%、Backend Branches 63.24%、Frontend source 75 warnings、Backend source 219 warnings。
 
 ### 6.1 Worker 穩定性
 
-- [ ] Frontend 完整測試連續 3 次通過
-- [ ] Backend 完整測試連續 3 次通過
-- [ ] 每次記錄執行時間與 worker/unhandled error
-- [ ] 無證據時不修改 Vitest pool 設定
+- [x] Frontend 完整測試連續 3 次通過
+- [x] Backend 完整測試連續 3 次通過
+- [x] 每次記錄執行時間與 worker/unhandled error
+- [x] 無證據時不修改 Vitest pool 設定
+
+**結果**：Frontend 268 tests/run，115.71s、116.91s、117.02s；Backend API 149 tests/run，11.07s、11.11s、11.05s。3 次均無 worker/unhandled error。
 
 ### 6.2 ESLint
 
