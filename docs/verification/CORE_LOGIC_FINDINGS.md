@@ -106,6 +106,27 @@
 - **完整回歸**：最近一次完整 `npx vitest run` 因 Node heap OOM 結束（exit 134）；相關分批測試通過。
 - **補充說明**：前一輪完整回歸曾通過 `101 test files / 1542 tests / 2 skipped / 6 todo`。
 
+## Phase D：Decision Chain Replay 可重現性查核
+
+### 查核結果
+
+- 目前 `data/reports` 實際存在 `2026-08-18.json` 一份報告；不能把先前批次的歷史報告統計當作目前工作樹仍可 replay 的證據。
+- 報告保存輸入價格、portfolio、VIX、marketState、strategySnapshot，以及部分 signals 衍生值。
+- 報告缺少完整 Scoring Matrix replay 所需欄位：`indicators`、`closeArr`、`ma60SlopeArr`、`institutionalHistory`、`macroMarketDirection`。
+- `signals` 目前也缺少 `finalScore`、`categoryResults`、`scalingRatio`，無法逐日比較 P100 實際輸出與重算輸出。
+- `strategySnapshot` 是設定快照，不是當日完整 runtime context；不能用設定快照冒充 replay input。
+
+### 判定
+
+- **完整 decision replay：Not reproducible**。
+- **可執行範圍**：只可驗證已保存的價格、資產、VIX 與部分衍生欄位是否自洽；不可宣稱完整 P0–P100 重播。
+- **不新增 replay scaffolding**：目前沒有產品需求要求保存完整 runtime trace；先記錄資料生命週期缺口，等正式決定 replay 可重現性需求後再設計 snapshot schema。
+
+### 最小後續需求
+
+- 若要完整 replay，報告至少需要保存當日 `signalData`、指標輸入／輸出、歷史 baseline、當日策略版本，以及 decision chain 最終結果。
+- 若只需要可觀測性，保存 `scoringMatrixExecuted`、`finalScore`、category results 與資料 as-of metadata 即可；兩者不可混為同一 DoD。
+
 ## Phase C：Provider → Context → Scoring 資料流結果
 
 ### 已驗證與修正
