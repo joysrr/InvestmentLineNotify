@@ -36,6 +36,21 @@ export function buildDataProvenance({
   };
 }
 
+export function buildSourceProvenance({ sources = {}, datasets = {} } = {}) {
+  return Object.entries(datasets)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([dataset, provider]) => {
+      const meta = sources[provider] ?? {};
+      return {
+        provider,
+        dataset,
+        ...(meta.status !== undefined ? { status: meta.status } : {}),
+        ...(meta.lastFetch !== undefined ? { lastFetch: meta.lastFetch } : {}),
+        integrity: "unverified",
+      };
+    });
+}
+
 export function assessReplayAvailability(replay = {}) {
   const missing = [];
   if (!replay.signalData || Object.keys(replay.signalData).length === 0) {
@@ -131,7 +146,8 @@ export function buildReportReplaySnapshot({
     signalData: result.replaySignalData ?? result.signalData ?? {},
     institutionalHistory: result.institutionalHistory ?? [],
     dataAsOf: result.historyMetadata ?? {},
-    dataProvenance: result.dataProvenance ?? [],
+    dataProvenance:
+      result.dataProvenance ?? buildSourceProvenance(result.sourceMetadata),
     strategy: {
       version: strategySnapshot.version ?? null,
       snapshot: strategySnapshot,

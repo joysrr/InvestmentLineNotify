@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  buildReportReplaySnapshot,
   buildReplaySignalData,
   buildReplaySnapshot,
   canonicalizeJson,
@@ -8,6 +7,8 @@ import {
   normalizeReplayCompatibility,
   assessReplayAvailability,
   buildDataProvenance,
+  buildSourceProvenance,
+  buildReportReplaySnapshot,
   sha256,
 } from "../../domain/replaySnapshot.mjs";
 
@@ -57,6 +58,25 @@ describe("replaySnapshot", () => {
     });
   });
 
+  it("maps provider metadata to unverified source provenance", () => {
+    expect(
+      buildSourceProvenance({
+        sources: {
+          twse: { status: "SUCCESS", lastFetch: "2026-08-18T08:00:00Z" },
+        },
+        datasets: { z2History: "twse" },
+      }),
+    ).toEqual([
+      {
+        provider: "twse",
+        dataset: "z2History",
+        status: "SUCCESS",
+        lastFetch: "2026-08-18T08:00:00Z",
+        integrity: "unverified",
+      },
+    ]);
+  });
+
   it("marks replay availability from required decision inputs", () => {
     expect(
       assessReplayAvailability({
@@ -102,15 +122,29 @@ describe("replaySnapshot", () => {
         signals: { scoringMatrixExecuted: true, signalDirection: "buy" },
         institutionalHistory: [{ date: "2026-08-11", value: 12.4 }],
         historyMetadata: { z2: { latestDate: "2026-08-03" } },
+        sourceMetadata: {
+          sources: {
+            twse: { status: "SUCCESS", lastFetch: "2026-08-17T08:00:00Z" },
+          },
+          datasets: { z2History: "twse" },
+        },
       },
       strategySnapshot: { version: "2.8", threshold: 4 },
-      reportDate: "2026-08-17",
     });
 
     expect(result.schemaVersion).toBe("1.0");
     expect(result.signalData).toEqual({ currentPR: 42 });
     expect(result.finalDecision.signalDirection).toBe("buy");
     expect(result.strategy.version).toBe("2.8");
+    expect(result.dataProvenance).toEqual([
+      {
+        provider: "twse",
+        dataset: "z2History",
+        status: "SUCCESS",
+        lastFetch: "2026-08-17T08:00:00Z",
+        integrity: "unverified",
+      },
+    ]);
   });
 
   it("stores a shadow freshness observation without changing the action", () => {
