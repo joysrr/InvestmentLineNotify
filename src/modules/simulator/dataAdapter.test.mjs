@@ -350,6 +350,23 @@ describe("dataAdapter - 核心資料適配器", () => {
 
       expect(result.institutionalNet).toBeCloseTo(28.074345, 6);
     });
+
+    it("應從 normalized marketState 建立 valuation 與 CNN fallback", async () => {
+      const report = {
+        ...mockLatestReport,
+        rawValuation: undefined,
+        rawCnn: undefined,
+        marketState: {
+          valuation: { pb: 1.8, currentPR: 45 },
+          sentiment: { cnnScore: 45 },
+        },
+      };
+
+      const result = await buildSimulationInput(report, 175, 116.5);
+
+      expect(result.rawValuation).toEqual({ pb: 1.8, currentPR: 45 });
+      expect(result.rawCnn).toEqual({ score: 45 });
+    });
   });
 
   describe("buildSimulationInput - 模擬輸入建構", () => {

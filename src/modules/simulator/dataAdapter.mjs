@@ -290,9 +290,14 @@ export async function buildSimulationInput(
     },
 
     // 原始資料 (不變)
-    rawValuation: latestReport.rawValuation || {},
+    rawValuation:
+      latestReport.rawValuation || latestReport.marketState?.valuation || {},
     rawUsMarket: latestReport.rawUsMarket || {},
-    rawCnn: latestReport.rawCnn || {},
+    rawCnn:
+      latestReport.rawCnn ||
+      (Number.isFinite(latestReport.marketState?.sentiment?.cnnScore)
+        ? { score: latestReport.marketState.sentiment.cnnScore }
+        : {}),
     rawMargin: latestReport.rawMargin || {},
     rawFx: latestReport.rawFx || {},
 

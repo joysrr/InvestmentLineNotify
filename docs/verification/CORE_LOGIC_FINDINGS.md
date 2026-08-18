@@ -123,8 +123,10 @@
 
 ### 尚未驗證
 
-- `rawValuation`、`rawMargin`、`rawFx`、`rawCnn`、`macroMarketDirection` 在正式報告格式與 simulator input 的完整橋接。
+- 已補 `rawValuation` 與 `rawCnn` fallback：正式報告只有 normalized `marketState` 時，simulator 仍可取得 PB／PR／CNN。
+- `rawMargin`、`rawFx`、`macroMarketDirection` 在正式報告格式與 simulator input 的完整橋接仍未完成；目前樣本沒有可直接重建的來源欄位。
 - sensitivity 目前是價格／策略參數敏感度，不是完整的 provider-to-Scoring Matrix replay。
+- 相關 targeted 測試：dataAdapter 24/24、forwardSimulator 11/11、simulateRoute 23/23。修正後 simulator 相關測試共 164/164 通過。
 
 ## Phase D：Decision Chain Replay 可重現性查核
 
