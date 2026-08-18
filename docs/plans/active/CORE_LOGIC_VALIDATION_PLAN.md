@@ -400,6 +400,7 @@ replay schema → legacy compatibility → data-as-of metadata
 - v1.2：完成 Replay／Data Freshness 決策樹；開始依 TDD 實作。
 - 目前狀態：Phase H 已完成 replay snapshot、legacy compatibility、freshness evaluator、P95 guard 與 daily scheduler wiring；Phase I 驗證進行中。
 - 已完成：shadow statistics 累積／10 次封存、`DATA_FRESHNESS_MODE=enforcement` 在 AI 與通知前套用 guard。
-- 已驗證：6 個相關 test files、52 tests passed；包含 scheduler、freshness、replay、strategy、state 回歸。
-- 已新增證據：`docs/verification/CORE_LOGIC_REPLAY_RESULTS.md`，確認 replay availability classification 已完成。
-- 尚未完成：provider/data provenance、版本化 historical report fixture 的完整逐日 replay、simulator 的 margin／FX／market direction raw bridge。
+- 已驗證：7 個相關 test files、57 tests passed；包含 provider、scheduler、freshness、replay、strategy、state 回歸。
+- 已新增證據：`docs/verification/CORE_LOGIC_REPLAY_RESULTS.md`，確認 replay availability classification 與 provenance adapter 已完成。
+- 已完成：daily runtime source metadata wiring；報告 replay 可保存 provider／dataset／status／lastFetch provenance。
+- 尚未完成：raw/normalized verified hashes、版本化 historical report fixture 的完整逐日 replay、simulator 的 margin／FX／market direction raw bridge。

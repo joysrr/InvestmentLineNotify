@@ -56,8 +56,16 @@ npx vitest run \
 
 結果：
 
-- Test files: `6 passed`
-- Tests: `52 passed`
+- Test files: `7 passed`
+- Tests: `57 passed`
+
+## 目前 provenance 進度
+
+- `buildDataProvenance()`：已完成 raw／normalized hash 與 `verified`／`unverified` 判定。
+- `buildSourceProvenance()`：已完成 `_meta.sources` 到 dataset provenance 的 deterministic adapter。
+- `buildReportReplaySnapshot()`：已接收 `sourceMetadata`。
+- `fetchAllMacroData()` → `dailyRunContext` → scheduler：已傳遞 `_meta.sources` 與 slot/provider dataset mapping。
+- 目前 provenance 仍為 `unverified`，因 provider pipeline 尚未保存 raw payload 與 normalized payload hash。
 
 ## 尚未完成
 

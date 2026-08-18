@@ -304,6 +304,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     history0050,
     // 總經
     macroData,
+    sourceMetadata: macroData.sourceMetadata ?? null,
     macroAndChipStr,
     usRisk,
     quote,

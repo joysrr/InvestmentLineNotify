@@ -95,6 +95,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
     historyZ2,
     history0050,
     macroData,
+    sourceMetadata,
     macroAndChipStr,
     usRisk,
     quote,
@@ -269,7 +270,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
         : null;
 
     const replay = buildReportReplaySnapshot({
-      result,
+      result: { ...result, sourceMetadata },
       strategySnapshot: result.strategySnapshot ?? {},
     });
 

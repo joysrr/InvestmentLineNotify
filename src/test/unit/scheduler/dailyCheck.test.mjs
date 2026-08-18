@@ -250,6 +250,12 @@ describe("DailyCheck Scheduler - 單元測試", () => {
         { date: "2026-08-06" },
         { date: "2026-08-07" },
       ],
+      sourceMetadata: {
+        sources: {
+          twse: { status: "SUCCESS", lastFetch: "2026-08-17T08:00:00Z" },
+        },
+        datasets: { z2History: "twse" },
+      },
       macroData: {},
       macroAndChipStr: "",
       usRisk: {},
@@ -350,6 +356,13 @@ describe("DailyCheck Scheduler - 單元測試", () => {
       expect.objectContaining({
         replay: expect.objectContaining({
           shadowGuardDecision: expect.any(Object),
+          dataProvenance: [
+            expect.objectContaining({
+              provider: "twse",
+              dataset: "z2History",
+              integrity: "unverified",
+            }),
+          ],
         }),
       }),
     );

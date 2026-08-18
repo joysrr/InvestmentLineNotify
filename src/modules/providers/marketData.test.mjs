@@ -100,6 +100,12 @@ describe("marketData - 總經與籌碼資料統一介面", () => {
       const result = await fetchAllMacroData();
 
       expect(result).toBeDefined();
+      expect(result.sourceMetadata).toEqual(
+        expect.objectContaining({
+          sources: expect.any(Object),
+          datasets: expect.objectContaining({ rawNdc: "ndcProvider" }),
+        }),
+      );
       expect(archiveManager.saveMarketData).toHaveBeenCalled();
     });
 

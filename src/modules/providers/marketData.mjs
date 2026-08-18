@@ -551,5 +551,16 @@ export async function fetchAllMacroData() {
   const duration = ((Date.now() - startTime) / 1000).toFixed(2);
   console.log(`✅ 總經資料獲取與快取更新完成 (耗時: ${duration}s)`);
 
-  return finalData;
+  return {
+    ...finalData,
+    sourceMetadata: {
+      sources: newMetaSources,
+      datasets: Object.fromEntries(
+        Object.entries(macroDataSlots).map(([dataset, config]) => [
+          dataset,
+          config.providerId,
+        ]),
+      ),
+    },
+  };
 }
