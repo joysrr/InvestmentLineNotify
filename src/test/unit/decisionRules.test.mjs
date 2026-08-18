@@ -508,6 +508,35 @@ describe("ScoringDecisionRule (P100)", () => {
     };
   });
 
+  it("應將 bullish threshold 所需資料傳入 scoring matrix", () => {
+    ctx.ma60SlopeArr = [0.1, 0.2];
+    ctx.closeArr = [100, 105, 110];
+    ctx.macroSentiment = { direction: "BULL", bonus: 2 };
+    engineState.valuationGuardResult.currentPR = 89;
+    generateScoringMatrix.mockReturnValue({
+      finalScore: 0,
+      signal: "neutral",
+      signalDirection: "hold",
+      scalingRatio: 0,
+      categoryResults: {},
+    });
+
+    rule.evaluate(ctx, strategy, engineState);
+
+    expect(generateScoringMatrix).toHaveBeenCalledWith(
+      ctx.indicators,
+      ctx.priceDropPercent,
+      strategy,
+      expect.objectContaining({
+        ma60SlopeHistory: [0.1, 0.2],
+        closeArr: [100, 105, 110],
+        currentPR: 89,
+        sentimentScore: 2,
+      }),
+      ctx.macroSentiment,
+    );
+  });
+
   it("中性訊號應回傳 DCA 決策", () => {
     generateScoringMatrix.mockReturnValue({
       finalScore: 0,
