@@ -95,6 +95,26 @@
 - **完整回歸**：100 test files passed、1536 tests passed、2 skipped、6 todo。
 - **補充說明**：第一次完整回歸曾出現 `strategyStatus` 的非重現失敗；隔離測試與第二次完整回歸均通過，未修改該無關測試。
 
+## Phase C：Provider → Context → Scoring 資料流結果
+
+### 已驗證與修正
+
+- `rawInstitutional.totalNetBuy` 已由 `buildEngineContext` bridge 至 `institutionalNet`。
+- 單位由元轉為百萬，例：`28074345` → `28.074345`。
+- 若呼叫端已提供 `institutionalNet`，優先保留既有值，維持向後相容。
+- `institutionalHistory` 不由單日 raw 資料偽造，資料不足時維持空陣列。
+- `ScoringDecisionRule` 已確認會把 `ctx.institutionalNet` 與 `ctx.institutionalHistory` 傳入 `generateScoringMatrix`。
+
+### 現況邊界
+
+- 單日法人值現在可進入 Scoring Matrix。
+- 法人歷史序列尚未接入，因此 `institutionalHistory=[]` 時仍會啟用既有技術組補貼。
+- CORE-002 第二切片仍需定義並接入法人歷史 schema；在此之前不調整補貼規則。
+
+- **修正提交**：`0e8eb1f`。
+- **驗證提交**：`3ec4492`。
+- **Targeted 測試**：strategyEngine 24/24 通過。
+
 ## Phase G：修正與優化決策草案
 
 > 本節只定義修正邊界與驗證要求，不在 Phase G 修改產品程式碼。
