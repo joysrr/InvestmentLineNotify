@@ -78,6 +78,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     valuationGuardResult,
     pbHistoryResult,
     prevAdviceResult,
+    marketHistoryResult,
   ] = await Promise.allSettled([
     _fetchPortfolio(),
     _fetchVix(),
@@ -89,6 +90,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     _fetchValuationGuardState(),
     _fetchPbHistory(),
     _fetchPreviousAdviceSummary(),
+    _fetchMarketHistory(),
   ]);
 
   wave1Timer();
@@ -126,6 +128,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     "",
     "previousAdviceSummary",
   );
+  const marketHistory = _unwrap(marketHistoryResult, [], "marketHistory");
 
   // 部分 log（與原 dailyCheck 行為對齊）
   _logPortfolio(lastState);
@@ -314,6 +317,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     macroMarketDirection,
     // 前次建議
     previousAdviceSummary,
+    marketHistory,
     // 守衛狀態
     valuationGuardState,
     pbRecords,
@@ -450,6 +454,16 @@ async function _fetchValuationGuardState() {
 /** PB 歷史紀錄 */
 async function _fetchPbHistory() {
   return archiveManager.getPbHistory();
+}
+
+/** 市場歷史快照（非致命；讀取失敗時使用空陣列） */
+async function _fetchMarketHistory() {
+  try {
+    return (await archiveManager.getMarketHistory()) ?? [];
+  } catch (err) {
+    logger.warn(err, "⚠️ [DailyRunContext] 市場歷史快照讀取失敗，使用空陣列");
+    return [];
+  }
 }
 
 /** 前次 AI 建議摘要 */
