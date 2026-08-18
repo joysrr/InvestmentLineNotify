@@ -33,11 +33,12 @@ export async function fetchCentralBankRate() {
 
     if (value === null) throw new Error("解析央行利率 HTML 失敗");
 
-    return {
+    const normalized = {
       value,
       date: new Date().toISOString().split("T")[0],
       source: "CBC",
     };
+    return { raw: html, normalized, ...normalized };
   } catch (err) {
     console.warn(
       `[${PROVIDER_ID}] fetchCentralBankRate 失敗，使用回退值:`,
@@ -76,11 +77,12 @@ export async function fetchCpiYoY() {
 
     if (value === null) throw new Error("解析 DGBAS CPI 數據失敗");
 
-    return {
+    const normalized = {
       value,
       date: `${lastMonth.getFullYear()}-${rocMonth}`,
       source: "DGBAS",
     };
+    return { raw: json, normalized, ...normalized };
   } catch (err) {
     console.warn(`[${PROVIDER_ID}] fetchCpiYoY 失敗，使用回退值:`, err.message);
     return { value: 2.0, date: null, source: "fallback" };

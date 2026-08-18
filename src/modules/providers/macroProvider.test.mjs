@@ -37,6 +37,10 @@ describe("macroProvider - 總經指標 Provider", () => {
       expect(result.value).toBe(1.875);
       expect(result.source).toBe("CBC");
       expect(result.date).toBeDefined();
+      expect(result.raw).toBe(mockHtml);
+      expect(result.normalized).toEqual(
+        expect.objectContaining({ value: 1.875, source: "CBC" }),
+      );
     });
 
     it("HTML 解析失敗回傳 fallback 值", async () => {
@@ -90,6 +94,10 @@ describe("macroProvider - 總經指標 Provider", () => {
       expect(result.value).toBe(2.15);
       expect(result.source).toBe("DGBAS");
       expect(result.date).toMatch(/^\d{4}-\d{2}$/);
+      expect(result.raw).toEqual({ orgdata: [[2.15]] });
+      expect(result.normalized).toEqual(
+        expect.objectContaining({ value: 2.15, source: "DGBAS" }),
+      );
     });
 
     it("數據解析失敗回傳 fallback 值", async () => {
