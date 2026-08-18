@@ -98,9 +98,10 @@
 ### 尚未驗證
 
 - 已驗證 P0–P90 代表性交叉優先級：P0 CRISIS > P10 critical、P70 bubble > P80 rebalance、P60 trailing > P70 bubble、P80 rebalance > P90 conversion。
-- sell tactical／exit buffer 的精確門檻與 hysteresis 交叉邊界。
+- 已驗證 sell／exit 邊界：`finalScore <= -4` 為 sell tactical；`-4 < finalScore < 0` 且有 tactical position 為 exit buffer；`0` 不退場；無 tactical position 不觸發 exit buffer。
+- **Targeted 測試**：signalGenerator、decisionChain、decisionRules 共 69/69 通過。
 
-- **驗證提交**：`04ae098`、`d4339f6`、`107d61e`、`a1c93c8`、`fd4c68a`、`81e8afb`、`5e33271`、`1508a88`、`e9a0f91`。
+- **驗證提交**：`04ae098`、`d4339f6`、`107d61e`、`a1c93c8`、`fd4c68a`、`81e8afb`、`5e33271`、`1508a88`、`e9a0f91`、`9d301a8`。
 - **修正提交**：`1361a9d`。
 - **完整回歸**：最近一次完整 `npx vitest run` 因 Node heap OOM 結束（exit 134）；相關分批測試通過。
 - **補充說明**：前一輪完整回歸曾通過 `101 test files / 1542 tests / 2 skipped / 6 todo`。
