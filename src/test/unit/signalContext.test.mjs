@@ -3,7 +3,7 @@ import { buildSignalContext } from "../../domain/signalContext.mjs";
 
 function makeHistory() {
   return Array.from({ length: 80 }, (_, index) => ({
-    date: `2026-01-${String(index + 1).padStart(2, "0")}`,
+    date: new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10),
     open: 100 + index,
     high: 102 + index,
     low: 99 + index,
@@ -43,6 +43,30 @@ describe("buildSignalContext raw market slots", () => {
       rawFx: { currentRate: 31.882 },
       rawInstitutional: { totalNetBuy: 28074345 },
       rawCnn: { score: 64.97 },
+    });
+  });
+
+  it("records history freshness metadata for reproducibility", () => {
+    const result = buildSignalContext({
+      historyZ2: makeHistory(),
+      history0050: makeHistory(),
+      currentPriceZ2: 313.9,
+      price0050: 106.45,
+      basePrice: 184.9,
+      vixData: { value: 29.07 },
+      vixArr: [29.07],
+      macroData: {},
+      macroMarketDirection: "NEUTRAL",
+      valuationGuardState: {},
+      pbRecords: [],
+      pbRecordsObjects: [],
+      usRisk: {},
+      lastState: {},
+    });
+
+    expect(result.signalData.historyMetadata).toEqual({
+      z2: { count: 80, latestDate: "2026-03-21" },
+      etf0050: { count: 80, latestDate: "2026-03-21" },
     });
   });
 });
