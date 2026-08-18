@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildReplaySnapshot,
   canonicalizeJson,
+  normalizeReplayCompatibility,
   sha256,
 } from "../../domain/replaySnapshot.mjs";
 
@@ -14,6 +15,22 @@ describe("replaySnapshot", () => {
     expect(sha256("hello")).toBe(
       "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
     );
+  });
+
+  it("marks legacy reports as replay unavailable", () => {
+    expect(normalizeReplayCompatibility({ date: "2026-08-17" })).toEqual({
+      date: "2026-08-17",
+      replay: {
+        status: "unavailable",
+        schemaVersion: null,
+        reason: "legacy_report_without_replay_inputs",
+      },
+    });
+  });
+
+  it("preserves an existing replay snapshot", () => {
+    const replay = { schemaVersion: "1.0", status: "available" };
+    expect(normalizeReplayCompatibility({ replay }).replay).toBe(replay);
   });
 
   it("builds the first replay snapshot", () => {

@@ -17,6 +17,18 @@ export function sha256(value) {
   return createHash("sha256").update(String(value)).digest("hex");
 }
 
+export function normalizeReplayCompatibility(report = {}) {
+  if (report.replay) return report;
+  return {
+    ...report,
+    replay: {
+      status: "unavailable",
+      schemaVersion: null,
+      reason: "legacy_report_without_replay_inputs",
+    },
+  };
+}
+
 export function buildReplaySnapshot(input = {}) {
   const strategy = input.strategy || {};
   const strategyPayload = {
