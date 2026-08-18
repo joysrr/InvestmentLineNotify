@@ -63,6 +63,37 @@ export const archiveManager = {
     }
   },
 
+  async getMarketHistory() {
+    let files;
+    try {
+      files = await fs.readdir(DIRS.MARKET_HISTORY);
+    } catch {
+      return [];
+    }
+
+    const dates = files
+      .filter((file) => /^\d{4}-\d{2}-\d{2}\.json$/.test(file))
+      .map((file) => file.replace(".json", ""))
+      .sort();
+
+    const history = [];
+    for (const date of dates) {
+      try {
+        const content = await fs.readFile(
+          path.join(DIRS.MARKET_HISTORY, `${date}.json`),
+          "utf-8",
+        );
+        const payload = JSON.parse(content);
+        if (payload?.data && typeof payload.data === "object") {
+          history.push({ date, data: payload.data });
+        }
+      } catch {
+        // Ignore one malformed or unavailable snapshot; preserve other dates.
+      }
+    }
+    return history;
+  },
+
   async saveMarketData(data) {
     await ensureDirectories();
     const twDateStr = getTwDateStr();

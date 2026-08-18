@@ -55,8 +55,8 @@ describe("archiveManager - 歸檔管理器", () => {
       ]);
       fs.readFile
         .mockResolvedValueOnce(JSON.stringify({ data: { rawInstitutional: { totalNetBuy: 1 } } }))
-        .mockResolvedValueOnce(JSON.stringify({ data: { rawInstitutional: { totalNetBuy: 3 } } }))
-        .mockResolvedValueOnce(JSON.stringify({ data: { rawInstitutional: { totalNetBuy: 2 } } }));
+        .mockResolvedValueOnce(JSON.stringify({ data: { rawInstitutional: { totalNetBuy: 2 } } }))
+        .mockResolvedValueOnce(JSON.stringify({ data: { rawInstitutional: { totalNetBuy: 3 } } }));
 
       const result = await archiveManager.archiveManager.getMarketHistory();
 
