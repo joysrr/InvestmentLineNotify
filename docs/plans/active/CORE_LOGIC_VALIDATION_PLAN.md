@@ -398,4 +398,6 @@ replay schema → legacy compatibility → data-as-of metadata
 - v1.0：建立六階段核心邏輯與分數系統驗證計畫。
 - v1.1：新增 Phase G（發現分類）、Phase H（修正與優化）、Phase I（修正後回歸驗證），並定義驗證證據文件。
 - v1.2：完成 Replay／Data Freshness 決策樹；開始依 TDD 實作。
-- 目前狀態：Phase H 執行中，先建立 replay snapshot 純函式與相容層。
+- 目前狀態：Phase H 已完成 replay snapshot、legacy compatibility、freshness evaluator、P95 guard 與 daily scheduler shadow wiring；Phase I 驗證進行中。
+- 已驗證：`src/test/unit/scheduler/dailyCheck.test.mjs` 5/5；replay、freshness、strategy、state 相關測試 45/45。
+- 尚未完成：shadow statistics 封存、enforcement switch integration、完整 daily report replay 證據、simulator 的 margin／FX／market direction raw bridge。
