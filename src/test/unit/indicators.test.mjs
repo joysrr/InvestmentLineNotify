@@ -70,4 +70,22 @@ describe("calculateIndicators Slow KD golden cases", () => {
   });
 });
 
-// TODO: add independent golden fixtures for MACD, Slow KD, and slope.
+describe("calculateIndicators MACD golden cases", () => {
+  it("uses EMA 12/26/9 and preserves MACD output fields", () => {
+    const closes = Array.from({ length: 40 }, (_, i) => 100 + i * 2 + (i % 3));
+    const history = closes.map((close, index) => ({
+      date: `2026-02-${String(index + 1).padStart(2, "0")}`,
+      high: close + 1,
+      low: close - 1,
+      close,
+    }));
+
+    const latest = calculateIndicators(history).macdArr.at(-1);
+
+    expect(latest.MACD).toBeCloseTo(13.97024150837018, 12);
+    expect(latest.signal).toBeCloseTo(14.003345644533146, 12);
+    expect(latest.histogram).toBeCloseTo(-0.033104136162966924, 12);
+  });
+});
+
+// TODO: add an independent golden fixture for slope.
