@@ -1,7 +1,7 @@
 # Core Logic Findings
 
-> **Phase**：A — 資料流與公式規格盤點
-> **狀態**：In Progress
+> **Phase**：A / G / H — 資料流盤點、修正決策與第一批修正
+> **狀態**：CORE-001/002/003 completed；CORE-004 pending product decision
 > **原則**：本文件只記錄證據與待決策事項；未經確認不修改產品邏輯。
 
 ## 發現索引
@@ -158,6 +158,35 @@
 - CORE-002：採方案 A，分保存與 scoring 接入兩個切片。
 - CORE-003：採方案 A，先補 metadata，再評估 snapshot。
 - CORE-004：等待產品意圖確認。
+
+## Phase H 已完成項目與驗證證據
+
+### CORE-001
+
+- `normalizeMarketData` 缺值不再默認為 0，改為 `null`。
+- `buildSignalContext` 已傳遞 `rawMargin`、`rawFx`、`rawInstitutional`、`rawCnn`。
+- Targeted：4 個相關測試通過；完整回歸最新結果：98 test files passed、1519 tests passed、2 skipped、6 todo。
+- 修正 commit：`638c136`、`9b6aad2`。
+
+### CORE-002 第一切片
+
+- `IlnState.MACRO_REPORT_SLOTS` 已加入 `rawInstitutional`、`rawStockMargin`。
+- 報告保存修正與 scoring 接入分離；目前未改法人權重、z-score 或缺值補貼。
+- Targeted：`ilnState`、`signalContext`、`normalizer` 4/4 通過。
+- 修正 commit：`20bfbff`。
+
+### CORE-003 第一切片
+
+- `signalData.historyMetadata` 已記錄 0050／00675L 的筆數與最新日期。
+- 未保存完整 K 線、不阻止報告生成，符合最小方案。
+- Targeted：27/27 通過；完整回歸最新結果同上。
+- 修正 commit：`d89b01c`。
+
+### 尚未完成
+
+- CORE-002 第二切片：法人歷史 schema、交易日對齊、z-score 與正式 scoring 接入。
+- CORE-003 第二切片：完整 K 線 snapshot 或資料版本，需先評估保存成本。
+- CORE-004：前置攔截時 `finalScore` 的產品契約待確認。
 
 ## Phase H 執行順序草案
 
