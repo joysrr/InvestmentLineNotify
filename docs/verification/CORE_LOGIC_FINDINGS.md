@@ -106,6 +106,26 @@
 - **完整回歸**：最近一次完整 `npx vitest run` 因 Node heap OOM 結束（exit 134）；相關分批測試通過。
 - **補充說明**：前一輪完整回歸曾通過 `101 test files / 1542 tests / 2 skipped / 6 todo`。
 
+## Phase E：Sensitivity／Simulator 資料橋接查核
+
+### 已修正
+
+- `dataAdapter.buildSimulationInput()` 原本只讀取扁平 `latestReport.institutionalNet`；正式報告的法人資料位於 `macroData.rawInstitutional`，因此 simulator 會錯誤退回 `0`。
+- 新增最小 fallback：明確扁平 `institutionalNet` 優先；缺少時讀取 `macroData.rawInstitutional.totalNetBuy / 1_000_000`；仍缺少才使用 `0`。
+- 沒有從報告猜測或重建 `institutionalHistory`，避免引入未定義的歷史 schema。
+
+### 驗證
+
+- TDD regression：先確認正式 `macroData.rawInstitutional` 會得到 `0`（RED），再加入 bridge（GREEN）。
+- `dataAdapter.test.mjs`：23/23 通過。
+- simulator 全套：9 test files、164/164 tests 通過。
+- 修正提交：`4ca0630`。
+
+### 尚未驗證
+
+- `rawValuation`、`rawMargin`、`rawFx`、`rawCnn`、`macroMarketDirection` 在正式報告格式與 simulator input 的完整橋接。
+- sensitivity 目前是價格／策略參數敏感度，不是完整的 provider-to-Scoring Matrix replay。
+
 ## Phase D：Decision Chain Replay 可重現性查核
 
 ### 查核結果
