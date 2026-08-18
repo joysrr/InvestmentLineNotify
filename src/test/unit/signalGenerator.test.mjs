@@ -74,6 +74,26 @@ describe("normalizeUnbounded edge cases", () => {
   });
 });
 
+describe("generateScoringMatrix missing institutional data", () => {
+  it("falls back to zero institutional factor and preserves technical fallback", () => {
+    const result = generateScoringMatrix(
+      { ...baseIndicators, macdArr: [{ histogram: 0 }] },
+      0,
+      strategyWith({
+        technicalTrend: { cap: 4, weights: { ma60Slope: 1 } },
+        valuationValue: { cap: 8, weights: {} },
+        flowOfFunds: { cap: 4, weights: { institutional: 5 } },
+        extremeOscillation: { cap: 2, weights: {} },
+      }),
+      { ma60SlopeArr: [0.1], institutionalHistory: [] },
+    );
+
+    expect(result.factorPool.institutional).toBe(0);
+    expect(result.categoryResults.technicalTrend.finalScore).toBe(3);
+    expect(result.categoryResults.flowOfFunds.finalScore).toBe(0);
+  });
+});
+
 describe("generateScoringMatrix factor bounds", () => {
   it("clamps sentiment and caps bullish momentum at one", () => {
     const closes = Array.from({ length: 21 }, (_, index) =>
