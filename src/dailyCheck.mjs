@@ -4,6 +4,7 @@ import { assertEnv } from "./utils/envGuard.mjs";
 assertEnv();
 
 import { buildSignalContext } from "./domain/signalContext.mjs";
+import { buildReportReplaySnapshot } from "./domain/replaySnapshot.mjs";
 import { getInvestmentSignalAsync } from "./modules/strategy/strategyEngine.mjs";
 import { broadcastDailyReport } from "./modules/notifications/notifier.mjs";
 import { getAiInvestmentAdvice } from "./modules/ai/aiCoach.mjs";
@@ -205,6 +206,11 @@ export async function dailyCheck({
           }
         : null;
 
+    const replay = buildReportReplaySnapshot({
+      result,
+      strategySnapshot: result.strategySnapshot ?? {},
+    });
+
     const state = new IlnState({
       marketState: result.marketState ?? {},
       rawMarket: null,
@@ -215,6 +221,7 @@ export async function dailyCheck({
       ai: aiAdvice ?? {},
       reportDate: dateText,
       meta: macroData?._meta ?? null,
+      replay,
     });
 
     const baseReport = state.toReportObject();

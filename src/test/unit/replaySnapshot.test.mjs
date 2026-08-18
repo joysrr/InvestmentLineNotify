@@ -58,7 +58,7 @@ describe("replaySnapshot", () => {
   it("builds a report replay snapshot from strategy output", () => {
     const result = buildReportReplaySnapshot({
       result: {
-        signalData: { currentPR: 42 },
+        replaySignalData: { currentPR: 42 },
         signals: { scoringMatrixExecuted: true, signalDirection: "buy" },
         institutionalHistory: [{ date: "2026-08-11", value: 12.4 }],
         historyMetadata: { z2: { latestDate: "2026-08-03" } },

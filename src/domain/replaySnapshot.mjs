@@ -81,7 +81,7 @@ export function buildReportReplaySnapshot({
   strategySnapshot = {},
 }) {
   return buildReplaySnapshot({
-    signalData: result.signalData ?? result.signals ?? {},
+    signalData: result.replaySignalData ?? result.signalData ?? {},
     institutionalHistory: result.institutionalHistory ?? [],
     dataAsOf: result.historyMetadata ?? {},
     strategy: {
