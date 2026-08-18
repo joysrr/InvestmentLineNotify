@@ -402,6 +402,7 @@ replay schema → legacy compatibility → data-as-of metadata
 - 已完成：shadow statistics 累積／10 次封存、`DATA_FRESHNESS_MODE=enforcement` 在 AI 與通知前套用 guard。
 - 已驗證：7 個相關 test files、57 tests passed；包含 provider、scheduler、freshness、replay、strategy、state 回歸。
 - 已新增證據：`docs/verification/CORE_LOGIC_REPLAY_RESULTS.md`，確認 replay availability classification 與 provenance adapter 已完成。
-- 已完成：daily runtime source metadata wiring；報告 replay 可保存 provider／dataset／status／lastFetch provenance。
+- 已完成：daily runtime source metadata wiring；報告 replay 可保存 provider／dataset／status／lastFetch provenance；`dataAsOf` 可從 `replaySignalData.historyMetadata` fallback。
+- 已驗證：受影響的 replay、scheduler、provider、simulator、freshness、strategy、state 測試 8 files／90 tests passed。
 - 已查核：simulator 已傳遞 margin／FX／market direction 欄位；但 margin／FX 是否影響模擬仍需產品語意決策。
 - 尚未完成：raw/normalized verified hashes、版本化 historical report fixture 的完整逐日 replay、simulator margin／FX 語意的 golden tests 與 API evidence。

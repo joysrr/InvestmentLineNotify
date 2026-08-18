@@ -145,7 +145,8 @@ export function buildReportReplaySnapshot({
   return buildReplaySnapshot({
     signalData: result.replaySignalData ?? result.signalData ?? {},
     institutionalHistory: result.institutionalHistory ?? [],
-    dataAsOf: result.historyMetadata ?? {},
+    dataAsOf:
+      result.historyMetadata ?? result.replaySignalData?.historyMetadata ?? {},
     dataProvenance:
       result.dataProvenance ?? buildSourceProvenance(result.sourceMetadata),
     strategy: {

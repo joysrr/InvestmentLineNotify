@@ -118,10 +118,12 @@ describe("replaySnapshot", () => {
   it("builds a report replay snapshot from strategy output", () => {
     const result = buildReportReplaySnapshot({
       result: {
-        replaySignalData: { currentPR: 42 },
+        replaySignalData: {
+          currentPR: 42,
+          historyMetadata: { z2: { latestDate: "2026-08-07" } },
+        },
         signals: { scoringMatrixExecuted: true, signalDirection: "buy" },
         institutionalHistory: [{ date: "2026-08-11", value: 12.4 }],
-        historyMetadata: { z2: { latestDate: "2026-08-03" } },
         sourceMetadata: {
           sources: {
             twse: { status: "SUCCESS", lastFetch: "2026-08-17T08:00:00Z" },
@@ -133,9 +135,16 @@ describe("replaySnapshot", () => {
     });
 
     expect(result.schemaVersion).toBe("1.0");
-    expect(result.signalData).toEqual({ currentPR: 42 });
+    expect(result.signalData).toEqual({
+      currentPR: 42,
+      historyMetadata: { z2: { latestDate: "2026-08-07" } },
+    });
     expect(result.finalDecision.signalDirection).toBe("buy");
     expect(result.strategy.version).toBe("2.8");
+    expect(result.dataAsOf).toEqual({
+      z2: { latestDate: "2026-08-07" },
+    });
+    expect(result.status).toBe("available");
     expect(result.dataProvenance).toEqual([
       {
         provider: "twse",

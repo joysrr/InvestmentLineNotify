@@ -64,6 +64,7 @@ npx vitest run \
 - `buildDataProvenance()`：已完成 raw／normalized hash 與 `verified`／`unverified` 判定。
 - `buildSourceProvenance()`：已完成 `_meta.sources` 到 dataset provenance 的 deterministic adapter。
 - `buildReportReplaySnapshot()`：已接收 `sourceMetadata`。
+- `buildReportReplaySnapshot()`：當 `result.historyMetadata` 缺少時，會從 strategy engine 的 `replaySignalData.historyMetadata` fallback，避免正式 replay `dataAsOf` 被錯誤保存為空。
 - `fetchAllMacroData()` → `dailyRunContext` → scheduler：已傳遞 `_meta.sources` 與 slot/provider dataset mapping。
 - 目前 provenance 仍為 `unverified`，因 provider pipeline 尚未保存 raw payload 與 normalized payload hash。
 
