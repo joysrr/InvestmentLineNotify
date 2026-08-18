@@ -587,6 +587,7 @@ function formatSignalOutput(ctx, finalDecision, derived) {
     score: parseNumber(ctx.entry.weightScore),
     weightDetails: ctx.entry.weightDetails,
     finalScore: finalDecision.finalScore ?? null,
+    scoringMatrixExecuted: finalDecision.finalScore != null,
     categoryResults: finalDecision.categoryResults ?? null,
     scalingRatio: finalDecision.scalingRatio ?? null,
     priceChangePercent: parseNumber(priceChangePercent),
