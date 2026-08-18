@@ -128,7 +128,7 @@ export function generateScoringMatrix(
     ),
     institutional: normalizeUnbounded(
       extraData.institutionalNet,
-      extraData.institutionalHistory,
+      (extraData.institutionalHistory || []).slice(-lookback - 1, -1),
     ),
     sentiment: Math.max(-1, Math.min(1, extraData.sentimentScore || 0)),
     rsi: normalizeBounded(50 - (indicators.rsiArr?.at(-1) ?? 50), 0, 50),
