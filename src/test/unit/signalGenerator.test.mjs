@@ -74,6 +74,24 @@ describe("normalizeUnbounded edge cases", () => {
   });
 });
 
+describe("generateScoringMatrix normalization freshness", () => {
+  it("excludes the current institutional value from its history baseline", () => {
+    const result = generateScoringMatrix(
+      baseIndicators,
+      0,
+      strategyWith({
+        technicalTrend: { cap: 4, weights: {} },
+        valuationValue: { cap: 8, weights: {} },
+        flowOfFunds: { cap: 4, weights: { institutional: 1 } },
+        extremeOscillation: { cap: 2, weights: {} },
+      }),
+      { institutionalNet: 6, institutionalHistory: [1, 2, 3, 4, 5, 6] },
+    );
+
+    expect(result.factorPool.institutional).toBeCloseTo(0.971014, 5);
+  });
+});
+
 describe("generateScoringMatrix missing institutional data", () => {
   it("falls back to zero institutional factor and preserves technical fallback", () => {
     const result = generateScoringMatrix(
