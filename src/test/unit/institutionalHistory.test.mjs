@@ -39,6 +39,18 @@ describe("buildInstitutionalHistory", () => {
     expect(result).toEqual([-1, 5]);
   });
 
+  it("uses the last valid record when a trading date is duplicated", () => {
+    expect(
+      buildInstitutionalHistory(
+        [
+          { date: "20260812", totalNetBuy: 1000000 },
+          { date: "20260812", totalNetBuy: 3000000 },
+        ],
+        "20260814",
+      ),
+    ).toEqual([3]);
+  });
+
   it("ignores missing and malformed provider records", () => {
     expect(
       buildInstitutionalHistory(
