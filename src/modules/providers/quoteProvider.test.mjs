@@ -44,6 +44,15 @@ describe("quoteProvider - 每日一句 Provider", () => {
       expect(result.quote).toBe("Test quote");
       expect(result.author).toBe("Test Author");
       expect(result.source).toBe("quotable");
+      expect(result.raw).toEqual(
+        expect.objectContaining({
+          content: "Test quote",
+          author: "Test Author",
+        }),
+      );
+      expect(result.normalized).toEqual(
+        expect.objectContaining({ quote: "Test quote", source: "quotable" }),
+      );
     });
 
     it("HTTP 錯誤拋出錯誤", async () => {

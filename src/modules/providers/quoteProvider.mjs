@@ -11,11 +11,12 @@ async function fetchFromQuotable() {
   const item = Array.isArray(data) ? data[0] : null;
   if (!item?.content) throw new Error("Quotable empty response");
 
-  return {
+  const normalized = {
     text: item.content,
     author: item.author || "Unknown",
     source: "quotable",
   };
+  return { raw: item, normalized, ...normalized };
 }
 
 async function fetchFromZenQuotes() {
@@ -28,11 +29,12 @@ async function fetchFromZenQuotes() {
   const item = Array.isArray(data) ? data[0] : null;
   if (!item?.q) throw new Error("ZenQuotes empty response");
 
-  return {
+  const normalized = {
     text: item.q,
     author: item.a || "Unknown",
     source: "zenquotes",
   };
+  return { raw: item, normalized, ...normalized };
 }
 
 /**
@@ -75,12 +77,16 @@ export async function getDailyQuote() {
     }
   }
 
-  const finalQuote = {
+  const normalized = {
     date: todayStr, // 加入日期標記，供下次快取驗證使用
     quote: quote.text,
     author: quote.author,
     source: quote.source,
   };
 
-  return finalQuote;
+  return {
+    ...(quote.raw ? { raw: quote.raw } : {}),
+    normalized,
+    ...normalized,
+  };
 }
