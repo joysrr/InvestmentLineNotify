@@ -104,7 +104,8 @@ export async function fetchBusinessIndicator() {
       date = `${adY}-${m}`;
     }
 
-    return { date, score, light, lightColor };
+    const normalized = { date, score, light, lightColor };
+    return { raw: data, normalized, ...normalized };
   } catch (err) {
     if (err.message.includes("Timeout")) {
       console.warn("⚠️ 獲取景氣燈號超時 (Timeout)");

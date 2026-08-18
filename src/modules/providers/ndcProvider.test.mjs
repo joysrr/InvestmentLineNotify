@@ -41,6 +41,10 @@ describe("ndcProvider - 國發會景氣指標 Provider", () => {
       expect(result.light).toBe("綠燈 (穩定)");
       expect(result.lightColor).toBe("green");
       expect(result.date).toMatch(/^\d{4}-\d{2}$/);
+      expect(result.raw).toEqual(mockData);
+      expect(result.normalized).toEqual(
+        expect.objectContaining({ score: 28, lightColor: "green" }),
+      );
     });
 
     it("分數 >= 38 回傳紅燈", async () => {
