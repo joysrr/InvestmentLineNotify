@@ -60,5 +60,43 @@ describe("usMarketProvider - US Market Provider", () => {
       expect(typeof fetchWithTimeout).toBe("function");
       expect(typeof parseNumber).toBe("function");
     });
+
+    it("成功回傳 raw 與 normalized envelope", async () => {
+      parseNumber.mockImplementation((value) => {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+      });
+      fetchWithTimeout
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            observations: [
+              { date: "2026-08-18", value: "18.5" },
+              { date: "2026-08-17", value: "17.2" },
+            ],
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            observations: [
+              { date: "2026-08-18", value: "6400" },
+              { date: "2026-08-17", value: "6380" },
+            ],
+          }),
+        });
+
+      const result = await fetchUsMarketData();
+
+      expect(result.raw).toEqual(
+        expect.objectContaining({
+          vix: expect.objectContaining({ observations: expect.any(Array) }),
+          spx: expect.objectContaining({ observations: expect.any(Array) }),
+        }),
+      );
+      expect(result.normalized).toEqual(
+        expect.objectContaining({ source: "FRED", success: true }),
+      );
+    });
   });
 });

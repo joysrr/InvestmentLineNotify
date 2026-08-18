@@ -112,6 +112,7 @@ async function fetchFredSeriesLast2(seriesId) {
     const prev = vals[1];
 
     return {
+      raw: data,
       date: latest.date,
       value: latest.value,
       changePercent:
@@ -132,17 +133,19 @@ export async function fetchUsMarketData() {
     fetchFredSeriesLast2("SP500"),
   ]);
 
-  const riskAnalysis = await analyzeUsRisk({
-    vix: vixResult.status === "fulfilled" ? vixResult.value : null,
-    spx: spxResult.status === "fulfilled" ? spxResult.value : null,
-  });
+  const vix = vixResult.status === "fulfilled" ? vixResult.value : null;
+  const spx = spxResult.status === "fulfilled" ? spxResult.value : null;
+
+  const riskAnalysis = await analyzeUsRisk({ vix, spx });
 
   if (!riskAnalysis.success) {
     throw new Error("FRED API 抓取失敗且無可用資料");
   }
 
-  return {
-    ...riskAnalysis,
-    source: "FRED",
+  const normalized = { ...riskAnalysis, source: "FRED" };
+  const raw = {
+    vix: vix?.raw ?? null,
+    spx: spx?.raw ?? null,
   };
+  return { raw, normalized, ...normalized };
 }
