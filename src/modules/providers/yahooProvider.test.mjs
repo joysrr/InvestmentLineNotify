@@ -1,10 +1,13 @@
 // src/modules/providers/yahooProvider.test.mjs
 // TDD: Yahoo Provider 測試
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
+const { fetchWithTimeoutMock } = vi.hoisted(() => ({
+  fetchWithTimeoutMock: vi.fn(),
+}));
 vi.mock("../../utils/coreUtils.mjs", () => ({
-  fetchWithTimeout: vi.fn(),
+  fetchWithTimeout: fetchWithTimeoutMock,
 }));
 
 import { fetchUsdTwdExchangeRate } from "./yahooProvider.mjs";
@@ -45,6 +48,12 @@ describe("yahooProvider - Yahoo Finance Provider", () => {
       expect(result.previousClose).toBe(31.4);
       expect(result.changePercent).toBeCloseTo(0.46, 1);
       expect(result.historicalPrices).toHaveLength(5);
+      expect(result.raw).toEqual(
+        expect.objectContaining({ chart: expect.any(Object) }),
+      );
+      expect(result.normalized).toEqual(
+        expect.objectContaining({ currentRate: 31.5432 }),
+      );
     });
 
     it("HTTP 錯誤回傳預設空值", async () => {

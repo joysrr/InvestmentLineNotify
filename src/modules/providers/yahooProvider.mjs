@@ -80,7 +80,7 @@ export async function fetchUsdTwdExchangeRate() {
       result.historicalPrices = validPrices.map((p) => Number(p.toFixed(4)));
     }
 
-    return result;
+    return { raw: data, normalized: result, ...result };
   } catch (err) {
     if (err.message.includes("Timeout")) {
       console.warn("⚠️ 獲取 USD/TWD 匯率超時 (Timeout)");
