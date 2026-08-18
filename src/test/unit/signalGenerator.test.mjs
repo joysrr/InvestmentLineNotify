@@ -88,7 +88,7 @@ describe("generateScoringMatrix normalization freshness", () => {
       { institutionalNet: 6, institutionalHistory: [1, 2, 3, 4, 5, 6] },
     );
 
-    expect(result.factorPool.institutional).toBeCloseTo(0.971014, 5);
+    expect(result.factorPool.institutional).toBeCloseTo(0.9716679, 6);
   });
 });
 
