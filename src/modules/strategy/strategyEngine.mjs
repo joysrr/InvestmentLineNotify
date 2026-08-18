@@ -41,6 +41,7 @@ import {
 
 import { parseNumber } from "../../utils/coreUtils.mjs";
 import { normalizeMarketData } from "../../utils/normalizer.mjs";
+import { buildReplaySignalData } from "../../domain/replaySnapshot.mjs";
 import {
   runDecisionChain,
   createDefaultDecisionChain,
@@ -492,6 +493,14 @@ function buildEngineContext(data, derived) {
         ? data.rawInstitutional.totalNetBuy / 1_000_000
         : 0),
     institutionalHistory: data.institutionalHistory || [],
+    replaySignalData: buildReplaySignalData({
+      currentPR: data.rawValuation?.currentPR,
+      priceDropPercent,
+      sentiment: macroSentiment,
+      institutionalNet: data.institutionalNet,
+      institutionalHistory: data.institutionalHistory || [],
+      historyMetadata: data.historyMetadata,
+    }),
     marginAnalysis,
     decouplingAnalysis,
     survivalAnalysis: derived.survivalAnalysis,

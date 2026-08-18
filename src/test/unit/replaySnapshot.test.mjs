@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildReportReplaySnapshot,
+  buildReplaySignalData,
   buildReplaySnapshot,
   canonicalizeJson,
   normalizeReplayCompatibility,
@@ -32,6 +33,26 @@ describe("replaySnapshot", () => {
   it("preserves an existing replay snapshot", () => {
     const replay = { schemaVersion: "1.0", status: "available" };
     expect(normalizeReplayCompatibility({ replay }).replay).toBe(replay);
+  });
+
+  it("keeps only replay-relevant scoring fields", () => {
+    const result = buildReplaySignalData({
+      currentPR: 42,
+      institutionalNet: 12.5,
+      institutionalHistory: [{ date: "2026-08-11", value: 12.4 }],
+      historyMetadata: { z2: { latestDate: "2026-08-03" } },
+      categoryResults: { technical: 2 },
+      closeArr: [1, 2, 3],
+      news: "omit",
+    });
+
+    expect(result).toEqual({
+      currentPR: 42,
+      institutionalNet: 12.5,
+      institutionalHistory: [{ date: "2026-08-11", value: 12.4 }],
+      historyMetadata: { z2: { latestDate: "2026-08-03" } },
+      categoryResults: { technical: 2 },
+    });
   });
 
   it("builds a report replay snapshot from strategy output", () => {

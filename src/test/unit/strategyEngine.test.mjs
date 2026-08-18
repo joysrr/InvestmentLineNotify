@@ -283,6 +283,7 @@ describe("StrategyEngine - N-asset Registry 查詢", () => {
 
       // 驗證 ctx 包含策略需要的所有欄位
       expect(ctx.currentPrice).toBe(275);
+      expect(ctx.replaySignalData).toEqual(expect.any(Object));
       expect(ctx.basePrice).toBe(175);
       expect(ctx.maintenanceMargin).toBe(200);
       expect(ctx.z2Ratio).toBe(50);
