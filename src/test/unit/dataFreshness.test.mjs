@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  appendFreshnessObservation,
   applyFreshnessGuard,
   buildFreshnessGuardDecision,
   buildTechnicalFreshnessObservation,
@@ -128,5 +129,29 @@ describe("data freshness", () => {
         3,
       ),
     ).toEqual({ status: "stale", tradingDayGap: 4 });
+  });
+
+  it("accumulates shadow observations and archives after ten samples", () => {
+    const initial = { samples: [] };
+    const observations = Array.from({ length: 10 }, (_, index) => ({
+      reportDate: `2026-08-${String(index + 1).padStart(2, "0")}`,
+      wouldBlock: index < 2,
+      blockedSignals: index < 2 ? ["buy_tactical"] : [],
+    }));
+
+    const result = observations.reduce(
+      (state, observation) => appendFreshnessObservation(state, observation),
+      initial,
+    );
+
+    expect(result).toEqual({
+      samples: [],
+      archive: {
+        sampleCount: 10,
+        wouldBlockCount: 2,
+        falsePositiveRate: 0.2,
+        observations,
+      },
+    });
   });
 });

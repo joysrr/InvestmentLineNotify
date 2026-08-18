@@ -111,6 +111,22 @@ export function resolveFreshnessConfig(config = {}) {
   };
 }
 
+export function appendFreshnessObservation(state = {}, observation = {}) {
+  const samples = [...(state.samples ?? []), observation];
+  if (samples.length < 10) return { ...state, samples };
+
+  const wouldBlockCount = samples.filter((item) => item.wouldBlock).length;
+  return {
+    samples: [],
+    archive: {
+      sampleCount: samples.length,
+      wouldBlockCount,
+      falsePositiveRate: wouldBlockCount / samples.length,
+      observations: samples,
+    },
+  };
+}
+
 export function freshnessMetadataMismatch(
   historyMetadata = {},
   replayDataAsOf = {},
