@@ -29,6 +29,16 @@ export function normalizeReplayCompatibility(report = {}) {
   };
 }
 
+export function withFreshnessObservation(report, observation) {
+  return {
+    ...report,
+    replay: {
+      ...(report.replay ?? {}),
+      shadowGuardDecision: observation,
+    },
+  };
+}
+
 export function buildReplaySnapshot(input = {}) {
   const strategy = input.strategy || {};
   const strategyPayload = {

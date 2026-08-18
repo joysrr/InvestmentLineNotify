@@ -35,6 +35,33 @@ export function evaluateFreshnessFields(fields = {}) {
   );
 }
 
+export function buildTechnicalFreshnessObservation({
+  historyZ2 = [],
+  history0050 = [],
+  reportDate,
+  staleAfterTradingDays = 3,
+}) {
+  const tradingDays = [
+    ...new Set(
+      [...historyZ2, ...history0050].map((item) => item?.date).filter(Boolean),
+    ),
+  ].sort();
+  return {
+    z2History: evaluateFreshness(
+      historyZ2.at(-1)?.date ?? null,
+      reportDate,
+      tradingDays,
+      staleAfterTradingDays,
+    ),
+    etf0050History: evaluateFreshness(
+      history0050.at(-1)?.date ?? null,
+      reportDate,
+      tradingDays,
+      staleAfterTradingDays,
+    ),
+  };
+}
+
 export function buildFreshnessGuardDecision({
   mode = "shadow",
   freshness = {},

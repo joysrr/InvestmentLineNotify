@@ -7,7 +7,16 @@ import { assertEnv } from "../utils/envGuard.mjs";
 assertEnv();
 
 import { buildSignalContext } from "../domain/signalContext.mjs";
-import { getInvestmentSignalAsync } from "../modules/strategy/strategyEngine.mjs";
+import { buildReportReplaySnapshot } from "../domain/replaySnapshot.mjs";
+import {
+  buildTechnicalFreshnessObservation,
+  resolveFreshnessConfig,
+  buildFreshnessGuardDecision,
+} from "../domain/dataFreshness.mjs";
+import {
+  getInvestmentSignalAsync,
+  fetchStrategyConfig,
+} from "../modules/strategy/strategyEngine.mjs";
 import { broadcastDailyReport } from "../modules/notifications/notifier.mjs";
 import { getAiInvestmentAdvice } from "../modules/ai/aiCoach.mjs";
 import { shouldRunJudge, runJudge } from "../modules/ai/llmJudge.mjs";
@@ -101,6 +110,8 @@ export async function runDailyCheck(deps = {}, options = {}) {
 
   if (!openToday) {
     logger.info("😴 當日無開市，跳過通知");
+    clearGlobalContext();
+    return "✅ dailyCheck 執行成功（非交易日）";
   }
 
   // ── Step 2+3：指標計算 & 策略引擎 ──────────────────────────────────────────
@@ -227,6 +238,39 @@ export async function runDailyCheck(deps = {}, options = {}) {
           }
         : null;
 
+    const replay = buildReportReplaySnapshot({
+      result,
+      strategySnapshot: result.strategySnapshot ?? {},
+    });
+
+    let replayWithObservation = replay;
+    try {
+      const strategy = await fetchStrategyConfig();
+      const freshnessConfig = resolveFreshnessConfig(strategy.dataFreshness);
+      const technicalFreshness = buildTechnicalFreshnessObservation({
+        historyZ2,
+        history0050,
+        reportDate: dateText,
+        staleAfterTradingDays: freshnessConfig.staleAfterTradingDays,
+      });
+
+      const observation = buildFreshnessGuardDecision({
+        mode: freshnessConfig.mode,
+        freshness: technicalFreshness,
+        affectedSignals: ["buy_tactical", "sell_tactical", "exit_buffer"],
+      });
+
+      replayWithObservation = {
+        ...replay,
+        shadowGuardDecision: observation,
+      };
+    } catch (freshnessErr) {
+      logger.warn(
+        freshnessErr,
+        "⚠️ Freshness observation 計算失敗，使用原始 replay",
+      );
+    }
+
     const state = new IlnState({
       marketState: result.marketState ?? {},
       rawMarket: null,
@@ -237,6 +281,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
       ai: aiAdvice ?? {},
       reportDate: dateText,
       meta: macroData?._meta ?? null,
+      replay: replayWithObservation,
     });
 
     const baseReport = state.toReportObject();

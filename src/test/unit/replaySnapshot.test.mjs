@@ -4,6 +4,7 @@ import {
   buildReplaySignalData,
   buildReplaySnapshot,
   canonicalizeJson,
+  withFreshnessObservation,
   normalizeReplayCompatibility,
   sha256,
 } from "../../domain/replaySnapshot.mjs";
@@ -71,6 +72,21 @@ describe("replaySnapshot", () => {
     expect(result.signalData).toEqual({ currentPR: 42 });
     expect(result.finalDecision.signalDirection).toBe("buy");
     expect(result.strategy.version).toBe("2.8");
+  });
+
+  it("stores a shadow freshness observation without changing the action", () => {
+    const report = { signals: { signalDirection: "buy_tactical" } };
+    const observation = {
+      mode: "shadow",
+      wouldBlock: true,
+      blockedSignals: ["buy_tactical"],
+    };
+
+    expect(withFreshnessObservation(report, observation)).toEqual({
+      ...report,
+      replay: { shadowGuardDecision: observation },
+    });
+    expect(report.signals.signalDirection).toBe("buy_tactical");
   });
 
   it("builds the first replay snapshot", () => {

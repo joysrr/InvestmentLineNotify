@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   applyFreshnessGuard,
   buildFreshnessGuardDecision,
+  buildTechnicalFreshnessObservation,
   evaluateFreshness,
   evaluateFreshnessFields,
   freshnessMetadataMismatch,
@@ -85,6 +86,20 @@ describe("data freshness", () => {
       blockedSignals: ["buy_tactical"],
     });
     expect(applyFreshnessGuard(result, decision)).toBe(result);
+  });
+
+  it("builds technical freshness from both history series", () => {
+    expect(
+      buildTechnicalFreshnessObservation({
+        historyZ2: [{ date: "2026-08-03" }, { date: "2026-08-07" }],
+        history0050: [{ date: "2026-08-04" }, { date: "2026-08-07" }],
+        reportDate: "2026-08-07",
+        staleAfterTradingDays: 3,
+      }),
+    ).toEqual({
+      z2History: { status: "fresh", tradingDayGap: 0 },
+      etf0050History: { status: "fresh", tradingDayGap: 0 },
+    });
   });
 
   it("blocks affected tactical signal in enforcement but bypasses P0 decisions", () => {
