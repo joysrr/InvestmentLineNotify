@@ -86,14 +86,24 @@
 - scaling tier 1／2／3 的低於邊界與精確邊界均通過 golden tests。
 - Scoring Matrix targeted tests：9/9 通過。
 
+### 已補充驗證
+
+- bullish market 的買入門檻 `1.5`：精確邊界買入，低於門檻不買入。
+- 非 bullish market 使用普通買入門檻 `4`：精確邊界買入。
+- bullish 且 `currentPR >= 90` 時視為過熱，改用普通門檻。
+- `ScoringDecisionRule` 已驗證把 `ma60SlopeArr`、`closeArr`、`currentPR`、sentiment 傳入 Scoring Matrix。
+- synergy tier：PR `< 95`、MACD 上升且為正時 tier +1；PR `=95`、MACD 非正時不升級；tier 3 不超升。
+- **Targeted 測試**：signalGenerator 17/17、decisionRules mapping 1/1 通過。
+
 ### 尚未驗證
 
-- bullish buy threshold 與完整 decision table 的所有交叉邊界。
+- 完整 decision chain 的 P0–P100 交叉優先級矩陣。
+- sell tactical／exit buffer 的精確門檻與 hysteresis 交叉邊界。
 
-- **驗證提交**：`04ae098`、`d4339f6`、`107d61e`。
+- **驗證提交**：`04ae098`、`d4339f6`、`107d61e`、`a1c93c8`、`fd4c68a`、`81e8afb`。
 - **修正提交**：`1361a9d`。
-- **完整回歸**：100 test files passed、1536 tests passed、2 skipped、6 todo。
-- **補充說明**：第一次完整回歸曾出現 `strategyStatus` 的非重現失敗；隔離測試與第二次完整回歸均通過，未修改該無關測試。
+- **完整回歸**：最近一次完整 `npx vitest run` 因 Node heap OOM 結束（exit 134）；相關分批測試通過。
+- **補充說明**：前一輪完整回歸曾通過 `101 test files / 1542 tests / 2 skipped / 6 todo`。
 
 ## Phase C：Provider → Context → Scoring 資料流結果
 
