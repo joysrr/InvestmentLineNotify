@@ -66,11 +66,12 @@ npx vitest run \
 - `buildReportReplaySnapshot()`：已接收 `sourceMetadata`。
 - `buildReportReplaySnapshot()`：當 `result.historyMetadata` 缺少時，會從 strategy engine 的 `replaySignalData.historyMetadata` fallback，避免正式 replay `dataAsOf` 被錯誤保存為空。
 - `fetchAllMacroData()` → `dailyRunContext` → scheduler：已傳遞 `_meta.sources` 與 slot/provider dataset mapping。
-- Provider hash contract 已完成：provider 可回傳 `{ raw, normalized }` envelope；pipeline 對 normalized data 維持既有 consumer shape，並保存 `rawHash`／`normalizedHash`。
+- Provider hash contract 已完成：daily replay source providers 可回傳 `{ raw, normalized }` envelope；pipeline 對 normalized data 維持既有 consumer shape，並保存 `rawHash`／`normalizedHash`。
+- 已完成 provider：Yahoo FX、NDC、CNN、FRED US market、TWSE valuation、KGI margin、FinMind margin、TWSE market overview、TWSE institutional、TWSE stock margin、CBC rate、DGBAS CPI、quote。
 - envelope 缺少任一 payload 時標記 `integrity: "unverified"`；legacy provider response 不會被誤標 verified。
 - Replay adapter 會保留合法 hash metadata，只有完整 raw／normalized hash 且 integrity 為 verified 時才標記 `integrity: "verified"`。
-- Hash 證據：provider／replay 相關回歸 `9 test files / 92 tests passed`。
-- 目前正式 provider 尚未全部改成 envelope；因此 production data 的 provenance 仍可能是 `unverified`。
+- Hash／provider 回歸：`104 test files / 1591 tests passed / 6 todo`。
+- `basePriceProvider` 與 `historyProvider` 不屬於 `macroDataSlots` daily replay source；本階段未改動，避免擴大非需求範圍。
 
 ## Simulator raw bridge 查核
 
