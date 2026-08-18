@@ -62,6 +62,9 @@
 - **風險**：若報告日後沒有新增 K 線，技術指標可能使用過期歷史資料；若 provider 線上抓到新資料但未落盤，歷史重播又無法重現當日分數。
 - **目前判定**：Medium data-risk，不先判定計算錯誤。
 - **下一步**：確認正式資料生命週期：報告生成是否應等待最新交易日 K 線；是否應將使用的歷史資料截止日與末筆日期寫入報告；重播是否需要保存 K 線快照或資料版本。
+- **目前查核**：`fetchStockHistoryWithAutoFill()` 會往前回補月份；非當月資料寫入 cache，當月資料直接從 provider 取得。`buildSignalContext()` 現在只保存 `count` 與 `latestDate`，沒有 provider fetch time、資料版本或完整 K 線 snapshot。
+- **現場資料**：目前 `data/stock_history/00675L_202608.json` 與 `0050_202608.json` 的最新日期都是 `2026-08-03`；這只能證明本地 cache freshness，不能證明每次 daily run 實際使用的資料。
+- **判定**：資料 freshness 與 replay provenance 未被證明；不是已確認的 indicator formula bug。
 - **修正限制**：先決定可重現性需求，再決定是補 metadata、保存 snapshot，或修正資料匯入；不直接修改 provider。
 
 ## Phase A 系統性統計證據
