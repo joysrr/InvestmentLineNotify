@@ -548,3 +548,50 @@ describe("StrategyEngine - N-asset Registry 查詢", () => {
     });
   });
 });
+
+describe("buildEngineContext raw provider bridge", () => {
+  it("converts raw institutional net buy into scoring input units", () => {
+    const ctx = buildEngineContext(
+      {
+        currentPrice: 300,
+        basePrice: 300,
+        VIX: 20,
+        RSI: 50,
+        portfolio: { assets: {}, cash: 0 },
+        rawValuation: {},
+        rawInstitutional: { totalNetBuy: 28074345 },
+        closeArr: [],
+        ma20Arr: [],
+        atrArr: [],
+        macdArr: [],
+        ma60SlopeArr: [],
+        rsiArr: [],
+        kdArr: [],
+      },
+      {
+        priceChangePercent: 0,
+        priceUpPercent: 0,
+        priceDropPercent: 0,
+        maintenanceMargin: 999,
+        z2Ratio: 0,
+        netAsset: 1,
+        currentZ2Value: 0,
+        vixArr: [],
+        cooldownStatus: { inCooldown: false },
+        macroSentiment: null,
+        marginAnalysis: null,
+        decouplingAnalysis: null,
+        survivalAnalysis: null,
+        entry: { weightScore: 0 },
+        overheat: null,
+        reversal: null,
+        sellSignals: null,
+        highsSince: [],
+        historyLoan10d: 0,
+      },
+    );
+
+    expect(ctx.institutionalNet).toBeCloseTo(28.074345, 6);
+    expect(ctx.institutionalHistory).toEqual([]);
+  });
+});
