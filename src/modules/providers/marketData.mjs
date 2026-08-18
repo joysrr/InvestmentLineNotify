@@ -5,6 +5,33 @@ import { TwDate } from "../../utils/coreUtils.mjs";
 import { macroDataSlots, SLOT_CRITICALITY } from "./dataSourceConfig.mjs";
 import { providerRegistry } from "./providerRegistry.mjs";
 import { sendSystemMessage } from "../notifications/transports/telegramClient.mjs";
+import { buildDataProvenance } from "../../domain/replaySnapshot.mjs";
+
+function applyProviderResult(
+  finalData,
+  sources,
+  slotKey,
+  providerId,
+  result,
+  now,
+) {
+  const hasEnvelope =
+    result &&
+    typeof result === "object" &&
+    Object.prototype.hasOwnProperty.call(result, "raw") &&
+    Object.prototype.hasOwnProperty.call(result, "normalized");
+  finalData[slotKey] = hasEnvelope ? result.normalized : result;
+  sources[providerId] = {
+    status: "SUCCESS",
+    lastFetch: now.toISOString(),
+    ...buildDataProvenance({
+      provider: providerId,
+      dataset: slotKey,
+      raw: hasEnvelope ? result.raw : undefined,
+      normalized: hasEnvelope ? result.normalized : undefined,
+    }),
+  };
+}
 
 function getProviderForSlot(slotKey) {
   const slot = macroDataSlots[slotKey];
@@ -482,6 +509,34 @@ export async function fetchAllMacroData() {
   if (fetchPromises.length > 0) {
     console.log(`🌐 共有 ${fetchPromises.length} 個指標需要重新抓取或驗證...`);
     await Promise.allSettled(fetchPromises);
+  }
+
+  // Provider envelope: retain normalized data for consumers and hashes for replay.
+  for (const [slotKey, config] of Object.entries(macroDataSlots)) {
+    const result = finalData[slotKey];
+    if (
+      result &&
+      typeof result === "object" &&
+      Object.prototype.hasOwnProperty.call(result, "raw") &&
+      Object.prototype.hasOwnProperty.call(result, "normalized")
+    ) {
+      applyProviderResult(
+        finalData,
+        newMetaSources,
+        slotKey,
+        config.providerId,
+        result,
+        now,
+      );
+    } else if (newMetaSources[config.providerId]?.integrity === undefined) {
+      newMetaSources[config.providerId] = {
+        ...newMetaSources[config.providerId],
+        ...buildDataProvenance({
+          provider: config.providerId,
+          dataset: slotKey,
+        }),
+      };
+    }
   }
 
   // ====================================================================

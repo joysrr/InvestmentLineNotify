@@ -91,13 +91,23 @@ describe("marketData - 總經與籌碼資料統一介面", () => {
         data: {},
       });
 
-      // Mock providers to return data
+      // Mock providers to return raw and normalized data
       const { providerRegistry } = await import("./providerRegistry.mjs");
       Object.values(providerRegistry).forEach((p) => {
-        p.fetch.mockResolvedValueOnce({ test: "data" });
+        p.fetch.mockResolvedValueOnce({
+          raw: { source: p.label, value: 1 },
+          normalized: { value: 1 },
+        });
       });
 
       const result = await fetchAllMacroData();
+      expect(result.sourceMetadata.sources.ndcProvider).toEqual(
+        expect.objectContaining({
+          rawHash: expect.stringMatching(/^sha256:[0-9a-f]{64}$/),
+          normalizedHash: expect.stringMatching(/^sha256:[0-9a-f]{64}$/),
+          integrity: "verified",
+        }),
+      );
 
       expect(result).toBeDefined();
       expect(result.sourceMetadata).toEqual(
@@ -120,6 +130,9 @@ describe("marketData - 總經與籌碼資料統一介面", () => {
       const result = await fetchAllMacroData();
 
       expect(result).toBeDefined();
+      expect(result.sourceMetadata.sources.ndcProvider).toEqual(
+        expect.objectContaining({ integrity: "unverified" }),
+      );
     });
   });
 });

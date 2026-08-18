@@ -126,7 +126,15 @@ describe("replaySnapshot", () => {
         institutionalHistory: [{ date: "2026-08-11", value: 12.4 }],
         sourceMetadata: {
           sources: {
-            twse: { status: "SUCCESS", lastFetch: "2026-08-17T08:00:00Z" },
+            twse: {
+              status: "SUCCESS",
+              lastFetch: "2026-08-17T08:00:00Z",
+              rawHash:
+                "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              normalizedHash:
+                "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              integrity: "verified",
+            },
           },
           datasets: { z2History: "twse" },
         },
@@ -151,7 +159,11 @@ describe("replaySnapshot", () => {
         dataset: "z2History",
         status: "SUCCESS",
         lastFetch: "2026-08-17T08:00:00Z",
-        integrity: "unverified",
+        rawHash:
+          "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        normalizedHash:
+          "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        integrity: "verified",
       },
     ]);
   });

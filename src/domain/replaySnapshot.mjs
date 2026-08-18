@@ -46,7 +46,14 @@ export function buildSourceProvenance({ sources = {}, datasets = {} } = {}) {
         dataset,
         ...(meta.status !== undefined ? { status: meta.status } : {}),
         ...(meta.lastFetch !== undefined ? { lastFetch: meta.lastFetch } : {}),
-        integrity: "unverified",
+        ...(meta.rawHash !== undefined ? { rawHash: meta.rawHash } : {}),
+        ...(meta.normalizedHash !== undefined
+          ? { normalizedHash: meta.normalizedHash }
+          : {}),
+        integrity:
+          meta.integrity === "verified" && meta.rawHash && meta.normalizedHash
+            ? "verified"
+            : "unverified",
       };
     });
 }
