@@ -473,6 +473,11 @@ export async function fetchMarketValuation() {
     return JSON.parse(text);
   };
 
+  async function fetchJsonWithRaw(url, timeout = 8000) {
+    const data = await fetchJson(url, timeout);
+    return { raw: data, data };
+  }
+
   async function fetchSharesMap() {
     if (_sharesCache.data && now - _sharesCache.loadedAt < SHARES_TTL_MS) {
       return _sharesCache.data;
@@ -490,14 +495,16 @@ export async function fetchMarketValuation() {
       if (code && !isNaN(shares) && shares > 0) map.set(code, shares);
     }
     _sharesCache = { data: map, loadedAt: now };
-    return map;
+    return { map, raw: data };
   }
 
   try {
     const [bwibbuResult, stockDayResult, sharesMapResult] =
       await Promise.allSettled([
-        fetchJson("https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL"),
-        fetchJson(
+        fetchJsonWithRaw(
+          "https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL",
+        ),
+        fetchJsonWithRaw(
           "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL",
         ),
         fetchSharesMap(),
@@ -514,9 +521,15 @@ export async function fetchMarketValuation() {
       throw new Error(`SharesMap 失敗: ${sharesMapResult.reason?.message}`);
     }
 
-    const bwibbu = bwibbuResult.value;
-    const stockDay = stockDayResult.value;
-    const sharesMap = sharesMapResult.value;
+    const bwibbu = bwibbuResult.value.data;
+    const stockDay = stockDayResult.value.data;
+    const sharesResult = sharesMapResult.value;
+    const sharesMap = sharesResult.map ?? sharesResult;
+    const raw = {
+      bwibbu: bwibbuResult.value.raw,
+      stockDay: stockDayResult.value.raw,
+      shares: sharesResult.raw ?? null,
+    };
 
     const priceMap = new Map();
     for (const s of stockDay) {
@@ -607,7 +620,8 @@ export async function fetchMarketValuation() {
     };
 
     _valuationCache = { result, loadedAt: now };
-    return result;
+    const normalized = result;
+    return { raw, normalized, ...normalized };
   } catch (err) {
     console.warn(`TWSE 估值 API 異常: ${err.message}`);
     throw err;

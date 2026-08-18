@@ -342,8 +342,56 @@ describe("twseProvider - 台股 Provider", () => {
       expect(typeof fetchMarketValuation).toBe("function");
     });
 
-    it("驗證函數存在", async () => {
-      expect(typeof fetchMarketValuation).toBe("function");
+    it("成功回傳 raw 與 normalized envelope", async () => {
+      const responses = [
+        {
+          ok: true,
+          text: vi.fn().mockResolvedValue(
+            JSON.stringify([
+              {
+                Code: "2330",
+                PEratio: "10",
+                PBratio: "2",
+                DividendYield: "3",
+                Date: "20240115",
+              },
+            ]),
+          ),
+        },
+        {
+          ok: true,
+          text: vi
+            .fn()
+            .mockResolvedValue(
+              JSON.stringify([{ Code: "2330", ClosingPrice: "100" }]),
+            ),
+        },
+        {
+          ok: true,
+          text: vi.fn().mockResolvedValue(
+            JSON.stringify([
+              {
+                公司代號: "2330",
+                已發行普通股數或TDR原股發行股數: "1000",
+              },
+            ]),
+          ),
+        },
+      ];
+      fetchWithTimeout.mockImplementation(() => responses.shift());
+
+      const result = await fetchMarketValuation();
+
+      expect(result.raw).toEqual(
+        expect.objectContaining({
+          bwibbu: expect.any(Array),
+          stockDay: expect.any(Array),
+          shares: expect.any(Array),
+        }),
+      );
+      expect(result.normalized).toEqual(
+        expect.objectContaining({ pe: 10, pb: 2, yield: 3 }),
+      );
     });
   });
 });
