@@ -60,6 +60,8 @@ import {
   fetchLatestClose,
   fetchRealTimePrice,
   fetchMarketValuation,
+  fetchMarketOverview,
+  fetchStockInstitutionalData,
 } from "./twseProvider.mjs";
 
 import { fetchWithTimeout } from "../../utils/coreUtils.mjs";
@@ -391,6 +393,79 @@ describe("twseProvider - 台股 Provider", () => {
       );
       expect(result.normalized).toEqual(
         expect.objectContaining({ pe: 10, pb: 2, yield: 3 }),
+      );
+    });
+  });
+
+  describe("fetchMarketOverview", () => {
+    it("成功回傳 raw 與 normalized envelope", async () => {
+      fetchWithTimeout.mockResolvedValue({
+        ok: true,
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify([
+            {
+              Date: "20240112",
+              TAIEX: "17500",
+              TradeValue: "100000000000",
+              Change: "100",
+            },
+            {
+              Date: "20240115",
+              TAIEX: "17600",
+              TradeValue: "120000000000",
+              Change: "100",
+            },
+          ]),
+        ),
+      });
+
+      const result = await fetchMarketOverview();
+
+      expect(result.raw).toEqual(expect.any(Array));
+      expect(result.normalized).toEqual(
+        expect.objectContaining({ date: "2024-01-15", taiex: 17600 }),
+      );
+    });
+  });
+
+  describe("fetchStockInstitutionalData", () => {
+    it("成功回傳 raw 與 normalized envelope", async () => {
+      fetchWithTimeout.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          stat: "OK",
+          date: "2024年01月15日",
+          data: [
+            [
+              "0050",
+              "元大台灣50",
+              "",
+              "",
+              "100",
+              "",
+              "",
+              "",
+              "",
+              "",
+              "",
+              "",
+              "200",
+              "",
+              "",
+              "300",
+              "",
+              "",
+              "600",
+            ],
+          ],
+        }),
+      });
+
+      const result = await fetchStockInstitutionalData("0050");
+
+      expect(result.raw).toEqual(expect.objectContaining({ stat: "OK" }));
+      expect(result.normalized).toEqual(
+        expect.objectContaining({ symbol: "0050", totalNetBuy: 600 }),
       );
     });
   });

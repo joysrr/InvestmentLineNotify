@@ -709,9 +709,9 @@ export async function fetchMarketOverview() {
       ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`
       : rawDate;
 
-  return {
+  const normalized = {
     date, // 最新交易日 YYYY-MM-DD
-    taiex, // 收盤指數 (Number)
+    taiex, // 收盤指數 (Number, 可為負)
     changePoint, // 漲跌點 (Number, 可為負)
     changePercent, // 漲跌幅 % (Number, 可為負)
     tradeValueHundredMillion, // 成交金額（億元）
@@ -719,6 +719,7 @@ export async function fetchMarketOverview() {
     avgTradeValue20dHundredMillion, // 近 20 日平均成交金額（億元）
     maxTradeValue20dHundredMillion, // 近 20 日最大成交金額（億元）
   };
+  return { raw: data, normalized, ...normalized };
 }
 
 // ============================================================================
@@ -755,7 +756,7 @@ export async function fetchStockInstitutionalData(symbol) {
      * 0: 證券代號, 1: 證券名稱
      * 4: 外資買賣超, 12: 投信買賣超, 15: 自營商買賣超, 18: 合計
      */
-    return {
+    const normalized = {
       date: json.date, // 可能是 "2026年04月17日" 格式
       symbol: stockNo,
       foreignNetBuy: parseNumber(row[4]),
@@ -763,6 +764,7 @@ export async function fetchStockInstitutionalData(symbol) {
       dealerNetBuy: parseNumber(row[15]),
       totalNetBuy: parseNumber(row[18]),
     };
+    return { raw: json, normalized, ...normalized };
   } catch (err) {
     console.warn(
       `[twseProvider] fetchStockInstitutionalData 失敗: ${err.message}`,
