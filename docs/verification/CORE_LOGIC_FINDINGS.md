@@ -44,6 +44,15 @@
 - **下一步**：確認正式資料生命週期：報告生成是否應等待最新交易日 K 線；是否應將使用的歷史資料截止日與末筆日期寫入報告；重播是否需要保存 K 線快照或資料版本。
 - **修正限制**：先決定可重現性需求，再決定是補 metadata、保存 snapshot，或修正資料匯入；不直接修改 provider。
 
+## Phase A 系統性統計證據
+
+- **資料範圍**：137 份正式報告，`2026-03-31` 至 `2026-08-17`。
+- **`finalScore`**：137/137 為 `null`，沒有任何報告保存 P100 Scoring Matrix 結果。
+- **`marketState`**：`marginRatio` 135/137 為 0；`fxRate` 135/137 為 0；`institutionalNetBuy` 135/137 為 0；`pr` 133/137 為 0。
+- **raw slot**：137/137 報告沒有 `rawInstitutional`；126/137 有 `rawMargin` 與 `rawFx`，但 normalized 欄位仍幾乎全為 0。
+- **結論**：CORE-001 與 CORE-002 是系統性資料管線問題；CORE-004 是系統性報告契約／決策可觀測性缺口，不是單日資料異常。
+- **方法限制**：這是靜態報告統計，不等同於每一日執行時的完整 runtime trace；修正前仍需用 fixture 建立可重現測試。
+
 ## CORE-004：前置攔截時 finalScore 為 null
 
 - **證據**：`data/reports/2026-08-17.json`：`signals.status` 為 P50 EntryGate，`signalDirection=hold`，`finalScore=null`；程式決策鏈 P0–P100 在 P50 回傳後不執行 P100。

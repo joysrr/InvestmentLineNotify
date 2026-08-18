@@ -99,6 +99,18 @@ extremeOscillation: RSI × 2 + KD × 2，cap 2
 - 賣出：`<= -4`
 - 已有 tactical position 且低於 `0`：`exit_buffer`
 
+## 5. Phase A 系統性統計
+
+| 查核項目                                         |    結果 | 解讀                            |
+| ------------------------------------------------ | ------: | ------------------------------- |
+| 正式報告數量                                     |     137 | `2026-03-31` 至 `2026-08-17`    |
+| `signals.finalScore == null`                     | 137/137 | P100 結果未被任何正式報告保存   |
+| `marketState.liquidity.marginRatio == 0`         | 135/137 | raw margin 存在時仍未正確映射   |
+| `marketState.liquidity.fxRate == 0`              | 135/137 | raw FX 存在時仍未正確映射       |
+| `marketState.liquidity.institutionalNetBuy == 0` | 135/137 | 法人未進 normalized state       |
+| `marketState.valuation.pr == 0`                  | 133/137 | PR 來源／計算結果未保存或未映射 |
+| 報告含 `rawInstitutional`                        |   0/137 | 報告 slot 白名單排除法人資料    |
+
 ## 5. 初步查核結果
 
 1. 正式資料可讀，Git 工作區乾淨。
