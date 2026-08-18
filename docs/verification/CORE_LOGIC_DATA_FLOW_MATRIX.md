@@ -110,4 +110,5 @@ extremeOscillation: RSI × 2 + KD × 2，cap 2
 7. `data/market/latest.json` 的 `rawInstitutional` 與 provider metadata 均成功，但 `IlnState.MACRO_REPORT_SLOTS` 白名單排除它；這已確認為 CORE-002 的報告資料遺失根因。
 8. `signalContext.mjs` 也未將法人資料傳入 scoring context；保存資料與接入分數是兩個獨立修正問題。
 9. 以本地歷史末端重算 00675L，`2026-08-03` 的 KD 與同日報告相符；但 8/17 報告未保存當次 K 線，無法驗證其資料截止日。
-10. `historyProvider.mjs` 已確認具備跨月合併、去重與日期排序；因此目前主要風險是資料新鮮度，而非月份檔單筆本身。
+10. `buildSignalContext()` 遺漏多個 raw market slots，造成 `marketState` 使用錯誤 fallback；CORE-001 已確認為資料映射 bug。
+11. `historyProvider.mjs` 已確認具備跨月合併、去重與日期排序；因此目前主要風險是資料新鮮度，而非月份檔單筆本身。

@@ -13,18 +13,15 @@
 | CORE-003 | data-risk      | Medium pending confirmation | 正式歷史資料截至 2026-08-03，但報告截至 2026-08-17         | Open |
 | CORE-004 | spec-ambiguity | Medium                      | P50 前置攔截時 `finalScore` 為 null                        | Open |
 
-## CORE-001：marketState 部分欄位為 0
+## CORE-001：marketState raw 欄位映射遺漏
 
-- **證據**：`data/reports/2026-08-17.json`
-- **觀察**：`marketState.valuation.pr = 0`、`marketState.liquidity.marginRatio = 0`、`fxRate = 0`、`institutionalNetBuy = 0`；同一份報告的 `macroData.rawValuation.pb = 4.17`、`rawMargin.maintenanceRatio = 194.15`、`rawFx.currentRate = 31.882`。
-- **可能原因**：
-  1. `marketState` 產生時沒有接收對應 raw 欄位。
-  2. 欄位名稱映射不一致。
-  3. raw provider 缺值後報告沿用 0 fallback。
-  4. 這些欄位僅供展示，並未參與核心分數。
-- **不可直接下結論**：需追查 `marketData.mjs` 的組裝與 `IlnState` 報告映射。
-- **下一步**：確認同日 `raw*` → normalized → `marketState` 的完整路徑，並檢查是否有明確的 stale／missing 標記。
-- **修正限制**：若只影響展示，不能直接當作核心計算 bug；若影響決策輸入，列為 High。
+- **證據**：`data/reports/2026-08-17.json` 的 `marketState` 為 `valuation.pr = 0`、`liquidity.marginRatio = 0`、`fxRate = 0`、`institutionalNetBuy = 0`；同日 `macroData` 有 `rawValuation.pb = 4.17`、`rawMargin.maintenanceRatio = 194.15`、`rawFx.currentRate = 31.882`。
+- **根因**：`buildSignalContext()` 的 `signalData` 只傳遞 `rawValuation`，未傳遞 `rawMargin`、`rawFx`、`rawInstitutional`、`rawCnn` 等 raw slots。
+- **下游行為**：`strategyEngine.normalizeMarketData()` 因此只能使用 fallback：`pr` 無值變 0；`marginRatio` 無 raw margin 時使用投資組合維持率；`fxRate` 無 raw FX 時變 0；法人值無 raw slot 時變 0。
+- **影響**：報告中的 `marketState` 不代表同日 raw provider 資料；AI、展示與任何依賴 normalized market state 的風險判讀都可能收到錯誤或混用單位的輸入。這不是單純格式問題。
+- **目前判定**：Confirmed bug，High。
+- **修正限制**：Phase H 必須先建立 regression test，固定 raw slot 到 normalized marketState 的映射與資料來源；投資組合維持率與市場融資維持率必須維持不同欄位，不可用同名 fallback 混淆。
+- **後續驗證**：修正後用 `2026-08-17.json` 的 raw fixture 驗證 PB、PR、market margin、FX、institutional 的輸出；再確認決策鏈是否實際使用這些欄位。
 
 ## CORE-002：法人資料未進入報告與 scoring context
 
