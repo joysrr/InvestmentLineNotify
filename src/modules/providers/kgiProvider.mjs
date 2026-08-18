@@ -82,7 +82,8 @@ export async function fetchTwseMarginData() {
       );
     }
 
-    return result;
+    const normalized = result;
+    return { raw: data, normalized, ...normalized };
   } catch (err) {
     if (err.message.includes("Timeout")) {
       console.warn("⚠️ 獲取 KGI/MoneyDJ 融資資料超時 (Timeout)");

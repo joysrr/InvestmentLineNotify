@@ -103,6 +103,15 @@ describe("finmindProvider - FinMind Provider", () => {
       expect(result.marginBalance100M).toBe(3600);
       expect(result.marginBalanceChange100M).toBe(100);
       expect(result.maintenanceRatio).toBe(180.0);
+      expect(result.raw).toEqual(
+        expect.objectContaining({
+          margin: expect.any(Object),
+          ratio: expect.any(Object),
+        }),
+      );
+      expect(result.normalized).toEqual(
+        expect.objectContaining({ maintenanceRatio: 180.0 }),
+      );
     });
 
     it("融資 API 失敗使用 fallback", async () => {

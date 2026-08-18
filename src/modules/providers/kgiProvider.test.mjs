@@ -47,6 +47,12 @@ describe("kgiProvider - KGI / MoneyDJ Provider", () => {
       expect(result.marginBalance100M).toBe(3500); // 35000000 / 10000
       expect(result.maintenanceRatio).toBe(180.5);
       expect(result.marginBalanceChange100M).toBe(50); // 3500 - 3450
+      expect(result.raw).toEqual(
+        expect.objectContaining({ ResultSet: expect.any(Object) }),
+      );
+      expect(result.normalized).toEqual(
+        expect.objectContaining({ maintenanceRatio: 180.5 }),
+      );
     });
 
     it("HTTP 錯誤拋出錯誤", async () => {

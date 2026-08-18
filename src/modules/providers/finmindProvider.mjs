@@ -66,7 +66,7 @@ async function fetchFinMindData(dataset, params = {}, timeoutMs = 10000) {
   }
 
   const data = Array.isArray(body.data) ? body.data : [];
-  return data;
+  return { raw: body, data };
 }
 
 /**
@@ -75,7 +75,7 @@ async function fetchFinMindData(dataset, params = {}, timeoutMs = 10000) {
  * Columns: TodayBalance, YesBalance, buy, date, name, Return, sell
  */
 async function fetchTotalMarginSummary(startDate, endDate) {
-  const rows = await fetchFinMindData(
+  const response = await fetchFinMindData(
     "TaiwanStockTotalMarginPurchaseShortSale",
     {
       start_date: startDate,
@@ -83,6 +83,7 @@ async function fetchTotalMarginSummary(startDate, endDate) {
     },
   );
 
+  const rows = response.data;
   if (!rows.length) return null;
 
   // FinMind 一般會照日期遞增，保險起見還是 sort 一下
@@ -104,6 +105,7 @@ async function fetchTotalMarginSummary(startDate, endDate) {
     date: latest.date,
     marginBalance100M: Number(marginBalance100M.toFixed(2)),
     marginBalanceChange100M: Number(marginChange100M.toFixed(2)),
+    raw: response.raw,
   };
 }
 
@@ -113,11 +115,15 @@ async function fetchTotalMarginSummary(startDate, endDate) {
  * Columns: date, TotalExchangeMarginMaintenance
  */
 async function fetchTotalExchangeMarginMaintenance(startDate, endDate) {
-  const rows = await fetchFinMindData("TaiwanTotalExchangeMarginMaintenance", {
-    start_date: startDate,
-    end_date: endDate,
-  });
+  const response = await fetchFinMindData(
+    "TaiwanTotalExchangeMarginMaintenance",
+    {
+      start_date: startDate,
+      end_date: endDate,
+    },
+  );
 
+  const rows = response.data;
   if (!rows.length) return null;
 
   rows.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
@@ -129,6 +135,7 @@ async function fetchTotalExchangeMarginMaintenance(startDate, endDate) {
   return {
     date: latest.date,
     maintenanceRatio: Number(ratio.toFixed(2)),
+    raw: response.raw,
   };
 }
 
@@ -184,13 +191,18 @@ export async function fetchFinMindMarginData() {
       throw new Error("FinMind 融資與維持率皆無資料");
     }
 
-    return {
+    const normalized = {
       date: summary?.date || ratio?.date || null,
       marginBalance100M:
         summary?.marginBalance100M ?? fallback.marginBalance100M,
       marginBalanceChange100M:
         summary?.marginBalanceChange100M ?? fallback.marginBalanceChange100M,
       maintenanceRatio: ratio?.maintenanceRatio ?? fallback.maintenanceRatio,
+    };
+    return {
+      raw: { margin: summary?.raw ?? null, ratio: ratio?.raw ?? null },
+      normalized,
+      ...normalized,
     };
   } catch (err) {
     if (err.message.includes("402")) {
