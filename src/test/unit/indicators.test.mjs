@@ -47,4 +47,27 @@ describe("indicator arithmetic golden cases", () => {
   });
 });
 
+describe("calculateIndicators Slow KD golden cases", () => {
+  it("applies SMA(3) to Fast K and then SMA(3) to Slow K", () => {
+    const closes = [
+      10, 11, 12, 13, 14, 10, 11, 12, 13, 14, 10, 11, 12, 13, 14, 10, 11, 12,
+      13, 14,
+    ];
+    const history = closes.map((close, index) => ({
+      date: `2026-01-${String(index + 1).padStart(2, "0")}`,
+      high: close + 2,
+      low: close - 2,
+      close,
+    }));
+
+    const result = calculateIndicators(history);
+
+    expect(result.kdArr).toHaveLength(8);
+    expect(result.kdArr.at(-1)).toEqual({
+      k: 62.5,
+      d: 50,
+    });
+  });
+});
+
 // TODO: add independent golden fixtures for MACD, Slow KD, and slope.
