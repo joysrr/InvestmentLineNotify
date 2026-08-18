@@ -95,6 +95,7 @@ import {
   evaluateMarginLayer,
   evaluateGrossLeverage,
   evaluateValuationGuard,
+  resolveTrendConfirmation,
 } from "../../../src/modules/strategy/core/index.mjs";
 import { resolveEntryGate } from "../../../src/modules/strategy/policies/entryGatePolicy.mjs";
 import { resolveConversionGuard } from "../../../src/modules/strategy/policies/conversionPolicy.mjs";
@@ -354,6 +355,8 @@ describe("Default Decision Chain (完整決策鏈)", () => {
 
     evaluateGrossLeverage.mockReturnValue(null);
     evaluateValuationGuard.mockReturnValue(null);
+    resolveConversionGuard.mockReturnValue(null);
+    resolveTrendConfirmation.mockReturnValue({ ma20BreakDays: 0 });
 
     resolveEntryGate.mockImplementation((drop, rsi, cfg, ma60Slope) => {
       if (drop < 5 && rsi > 60)
