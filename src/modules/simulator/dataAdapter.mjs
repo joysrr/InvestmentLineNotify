@@ -300,7 +300,11 @@ export async function buildSimulationInput(
     pbRecords: latestReport.pbRecords || [],
     pbRecordsObjects: latestReport.pbRecordsObjects || [],
     valuationGuardState: latestReport.valuationGuardState || {},
-    institutionalNet: Number(latestReport.institutionalNet) || 0,
+    institutionalNet: Number.isFinite(Number(latestReport.institutionalNet))
+      ? Number(latestReport.institutionalNet)
+      : Number.isFinite(latestReport.macroData?.rawInstitutional?.totalNetBuy)
+        ? latestReport.macroData.rawInstitutional.totalNetBuy / 1_000_000
+        : 0,
     institutionalHistory: latestReport.institutionalHistory || [],
 
     // 模擬日期

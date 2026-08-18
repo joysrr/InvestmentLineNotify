@@ -335,7 +335,24 @@ describe("dataAdapter - 核心資料適配器", () => {
     });
   });
 
-  describe("buildSimulationInput - 完整流程", () => {
+  describe("buildSimulationInput - formal macro data bridge", () => {
+    it("應從 report.macroData.rawInstitutional 建立 institutionalNet", async () => {
+      const report = {
+        ...mockLatestReport,
+        institutionalNet: undefined,
+        institutionalHistory: undefined,
+        macroData: {
+          rawInstitutional: { totalNetBuy: 28074345 },
+        },
+      };
+
+      const result = await buildSimulationInput(report, 175, 116.5);
+
+      expect(result.institutionalNet).toBeCloseTo(28.074345, 6);
+    });
+  });
+
+  describe("buildSimulationInput - 模擬輸入建構", () => {
     it("正常建構 SimulationInput，包含所有必要欄位", async () => {
       const result = await buildSimulationInput(mockLatestReport, 180);
 
