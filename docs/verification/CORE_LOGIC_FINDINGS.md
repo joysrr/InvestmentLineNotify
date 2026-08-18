@@ -58,8 +58,10 @@
 - **證據**：`data/reports/2026-08-17.json`：`signals.status` 為 P50 EntryGate，`signalDirection=hold`，`finalScore=null`；程式決策鏈 P0–P100 在 P50 回傳後不執行 P100。
 - **風險**：報告使用者可能把 null 理解為未計算或錯誤；但程式可能有意只在 P100 執行時產生 finalScore。
 - **決策**：採方案 A。前置規則攔截時不執行 P100，`finalScore` 維持 `null`。
-- **可觀測性要求**：報告需能明確區分「未執行 P100」與「P100 已執行但分數為 0」；預計加入明確執行狀態欄位。
+- **實作**：`formatSignalOutput` 新增 `scoringMatrixExecuted` 欄位，值為 `finalDecision.finalScore != null`。前置攔截時此欄位為 `false`，可明確區分「P100 未執行」與「P100 已執行但分數為 0」。
 - **修正限制**：不改變前置規則優先級，不計算額外分數，不把 `null` 轉成 0。
+- **驗證**：`strategyEngine` targeted 23/23 通過；完整回歸 98 files passed、1520 tests passed。
+- **修正 commit**：`935d89a`。
 
 ## Phase G：修正與優化決策草案
 
