@@ -11,6 +11,10 @@
 //     供 dailyCheck.mjs 後續 Step（logDailyToSheet、snapshotPayload）使用
 
 import { calculateIndicators } from "../modules/strategy/indicators.mjs";
+import {
+  buildInstitutionalHistory,
+  extractInstitutionalHistoryRecords,
+} from "../modules/strategy/institutionalHistory.mjs";
 
 /**
  * buildSignalContext
@@ -52,6 +56,14 @@ export function buildSignalContext(ctx) {
   // currentPriceZ2 有值（MIS 即時價）→ 使用即時價；
   // null（MIS 失敗）→ fallback 至 latestClose（前一交易日收盤價）。
   const finalPriceZ2 = currentPriceZ2 || latestClose;
+  const currentInstitutional = macroData?.rawInstitutional;
+  const institutionalNet = Number.isFinite(currentInstitutional?.totalNetBuy)
+    ? currentInstitutional.totalNetBuy / 1_000_000
+    : 0;
+  const institutionalHistory = buildInstitutionalHistory(
+    extractInstitutionalHistoryRecords(ctx.marketHistory),
+    currentInstitutional?.date ?? null,
+  );
   const historyMetadata = {
     z2: {
       count: historyZ2.length,
@@ -131,6 +143,8 @@ export function buildSignalContext(ctx) {
     rawMargin: macroData?.rawMargin ?? null,
     rawFx: macroData?.rawFx ?? null,
     rawInstitutional: macroData?.rawInstitutional ?? null,
+    institutionalNet,
+    institutionalHistory,
     rawCnn: macroData?.rawCnn ?? null,
     usRisk,
   };
