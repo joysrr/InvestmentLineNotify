@@ -9,6 +9,7 @@ assertEnv();
 import { buildSignalContext } from "../domain/signalContext.mjs";
 import { buildReportReplaySnapshot } from "../domain/replaySnapshot.mjs";
 import {
+  appendFreshnessObservation,
   buildTechnicalFreshnessObservation,
   resolveFreshnessConfig,
   buildFreshnessGuardDecision,
@@ -264,6 +265,18 @@ export async function runDailyCheck(deps = {}, options = {}) {
         ...replay,
         shadowGuardDecision: observation,
       };
+
+      try {
+        const stats = await archiveManager.getFreshnessShadowStats();
+        const nextStats = appendFreshnessObservation(stats, {
+          reportDate: dateText,
+          wouldBlock: observation.wouldBlock,
+          blockedSignals: observation.blockedSignals,
+        });
+        await archiveManager.saveFreshnessShadowStats(nextStats);
+      } catch (statsErr) {
+        logger.warn(statsErr, "⚠️ Freshness shadow statistics 儲存失敗");
+      }
     } catch (freshnessErr) {
       logger.warn(
         freshnessErr,

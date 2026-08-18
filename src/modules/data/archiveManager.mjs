@@ -20,6 +20,7 @@ const FILES = {
   PB_HISTORY: path.join(DATA_DIR, "pbHistory.json"),
   VALUATION_GUARD_STATE: path.join(DATA_DIR, "valuationGuardState.json"),
   VIX_HISTORY: path.join(DATA_DIR, "vixHistory.json"),
+  FRESHNESS_SHADOW_STATS: path.join(DATA_DIR, "freshnessShadowStats.json"),
 };
 
 async function ensureDirectories() {
@@ -758,6 +759,30 @@ ${riskWarnings}
    * 讀取 ValuationGuard 防禦鎖定狀態（data/valuationGuardState.json）
    * @returns {Object | null}
    */
+  async getFreshnessShadowStats() {
+    try {
+      const content = await fs.readFile(FILES.FRESHNESS_SHADOW_STATS, "utf-8");
+      const parsed = JSON.parse(content);
+      return {
+        samples: Array.isArray(parsed?.samples) ? parsed.samples : [],
+      };
+    } catch {
+      return { samples: [] };
+    }
+  },
+
+  async saveFreshnessShadowStats(stats = {}) {
+    await ensureDirectories();
+    const payload = {
+      samples: Array.isArray(stats.samples) ? stats.samples : [],
+      ...(stats.archive ? { archive: stats.archive } : {}),
+    };
+    await fs.writeFile(
+      FILES.FRESHNESS_SHADOW_STATS,
+      JSON.stringify(payload, null, 2),
+    );
+  },
+
   async getValuationGuardState() {
     try {
       const content = await fs.readFile(FILES.VALUATION_GUARD_STATE, "utf-8");

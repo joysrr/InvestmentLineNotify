@@ -63,6 +63,8 @@ vi.mock("../../../../src/modules/data/archiveManager.mjs", () => ({
     getHighsSince: vi.fn().mockResolvedValue([]),
     getHistoricalLoan: vi.fn().mockResolvedValue(0),
     getMarketHistory: vi.fn().mockResolvedValue([]),
+    getFreshnessShadowStats: vi.fn().mockResolvedValue({ samples: [] }),
+    saveFreshnessShadowStats: vi.fn().mockResolvedValue(undefined),
   },
 }));
 
@@ -328,6 +330,13 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     });
 
     vi.mocked(archiveManager.saveReport).mockResolvedValue(undefined);
+    vi.mocked(archiveManager.getFreshnessShadowStats).mockResolvedValue({
+      samples: Array.from({ length: 9 }, (_, index) => ({
+        reportDate: `2026-07-${String(index + 20).padStart(2, "0")}`,
+        wouldBlock: false,
+        blockedSignals: [],
+      })),
+    });
 
     // Act
     const result = await runDailyCheck(
@@ -344,6 +353,13 @@ describe("DailyCheck Scheduler - 單元測試", () => {
         }),
       }),
     );
+    expect(archiveManager.saveFreshnessShadowStats).toHaveBeenCalledWith({
+      samples: [],
+      archive: expect.objectContaining({
+        sampleCount: 10,
+        falsePositiveRate: 0,
+      }),
+    });
   });
 
   it("Latch 狀態變更時應更新 valuationGuardState", async () => {
