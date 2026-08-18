@@ -45,6 +45,29 @@ describe("archiveManager - 歸檔管理器", () => {
     archiveManager = await import("./archiveManager.mjs");
   });
 
+  describe("getMarketHistory - 讀取市場歷史快照", () => {
+    it("只讀取日期檔並依日期由舊到新回傳 data", async () => {
+      fs.readdir.mockResolvedValueOnce([
+        "2026-08-12.json",
+        "ignore.txt",
+        "2026-08-14.json",
+        "2026-08-13.json",
+      ]);
+      fs.readFile
+        .mockResolvedValueOnce(JSON.stringify({ data: { rawInstitutional: { totalNetBuy: 1 } } }))
+        .mockResolvedValueOnce(JSON.stringify({ data: { rawInstitutional: { totalNetBuy: 3 } } }))
+        .mockResolvedValueOnce(JSON.stringify({ data: { rawInstitutional: { totalNetBuy: 2 } } }));
+
+      const result = await archiveManager.archiveManager.getMarketHistory();
+
+      expect(result).toEqual([
+        { date: "2026-08-12", data: { rawInstitutional: { totalNetBuy: 1 } } },
+        { date: "2026-08-13", data: { rawInstitutional: { totalNetBuy: 2 } } },
+        { date: "2026-08-14", data: { rawInstitutional: { totalNetBuy: 3 } } },
+      ]);
+    });
+  });
+
   describe("getLatestReport - 讀取最新報告", () => {
     it("有報告時應回傳解析後資料", async () => {
       const mockReport = { date: "2024-01-15", signals: { RSI: 55 } };
