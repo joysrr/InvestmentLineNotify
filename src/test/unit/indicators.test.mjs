@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { calculateIndicators } from "../../modules/strategy/indicators.mjs";
+import {
+  calcATR,
+  calcSMA,
+  calculateIndicators,
+} from "../../modules/strategy/indicators.mjs";
 
 describe("calculateIndicators RSI golden cases", () => {
   it("calculates the initial RSI from 13 gains and 1 loss", () => {
@@ -18,4 +22,29 @@ describe("calculateIndicators RSI golden cases", () => {
   });
 });
 
-// TODO: add independent golden fixtures for MACD, Slow KD, MA, ATR, and slope.
+describe("indicator arithmetic golden cases", () => {
+  it("calculates SMA with leading unavailable values", () => {
+    const result = calcSMA([1, 2, 3, 4], 3);
+
+    expect(Number.isNaN(result[0])).toBe(true);
+    expect(Number.isNaN(result[1])).toBe(true);
+    expect(result[2]).toBe(2);
+    expect(result[3]).toBe(3);
+  });
+
+  it("calculates the first ATR from three constant true ranges", () => {
+    const result = calcATR(
+      [11, 12, 13, 14],
+      [9, 10, 11, 12],
+      [10, 11, 12, 13],
+      3,
+    );
+
+    expect(Number.isNaN(result[0])).toBe(true);
+    expect(Number.isNaN(result[1])).toBe(true);
+    expect(Number.isNaN(result[2])).toBe(true);
+    expect(result[3]).toBe(2);
+  });
+});
+
+// TODO: add independent golden fixtures for MACD, Slow KD, and slope.
