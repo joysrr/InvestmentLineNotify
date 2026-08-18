@@ -63,6 +63,30 @@
 - **驗證**：`strategyEngine` targeted 23/23 通過；完整回歸 98 files passed、1520 tests passed。
 - **修正 commit**：`935d89a`。
 
+## Phase B：純數學與 Scoring Matrix 驗證結果
+
+### 已驗證
+
+- RSI(14)：13 漲 1 跌的 golden case 通過；輸出精度為 `technicalindicators` 的兩位小數（`92.86`）。
+- SMA：前置不足資料為 `NaN`，足量資料平均值正確。
+- ATR：True Range 與第一個 ATR、Wilder smoothing 起點通過 golden case。
+- Slow KD(9,3,3)：Fast K → SMA3 → SMA3 的最新值與輸出長度通過；NaN 過濾不影響最新值對齊。
+- MACD(12,26,9)：`MACD`、`signal`、`histogram` 欄位與 EMA 參數通過 golden case。
+- MA slope：五期斜率與端點 `NaN` 行為通過。
+- Scoring Matrix：權重、分類 cap、缺值 normalization、sentiment clamp、bull momentum cap 通過。
+
+### 風險觀察
+
+- 法人歷史不足時，`institutional=0` 並啟用技術組補貼；測試已鎖定現行行為。這不是公式錯誤，但會放大 CORE-002 資料管線缺失對最終分數的影響。
+
+### 尚未驗證
+
+- normalization 歷史是否排除當日，避免 look-ahead leakage。
+- scaling tier 邊界與 bullish buy threshold 的完整 decision table。
+
+- **驗證提交**：`04ae098`。
+- **完整回歸**：100 test files passed、1532 tests passed、2 skipped、6 todo。
+
 ## Phase G：修正與優化決策草案
 
 > 本節只定義修正邊界與驗證要求，不在 Phase G 修改產品程式碼。
