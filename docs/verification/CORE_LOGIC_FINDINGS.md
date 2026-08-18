@@ -6,12 +6,12 @@
 
 ## 發現索引
 
-| ID       | 類型           | 嚴重度                      | 主題                                                       | 狀態 |
-| -------- | -------------- | --------------------------- | ---------------------------------------------------------- | ---- |
-| CORE-001 | data-risk      | High pending confirmation   | 正式報告部分 marketState 欄位為 0                          | Open |
-| CORE-002 | data-risk      | High pending confirmation   | 法人資料未在抽樣報告中出現，且目前 signal context 未見傳遞 | Open |
-| CORE-003 | data-risk      | Medium pending confirmation | 正式歷史資料截至 2026-08-03，但報告截至 2026-08-17         | Open |
-| CORE-004 | spec-ambiguity | Medium                      | P50 前置攔截時 `finalScore` 為 null                        | Open |
+| ID       | 類型           | 嚴重度 | 主題                                                                              | 狀態                                |
+| -------- | -------------- | ------ | --------------------------------------------------------------------------------- | ----------------------------------- |
+| CORE-001 | confirmed-bug  | High   | signalContext 遺漏 raw market slots，造成 marketState 欄位錯誤為 0／錯用 fallback | Confirmed; remediation in Phase G/H |
+| CORE-002 | confirmed-bug  | High   | 法人資料存在 cache，但報告白名單排除，且未傳入 scoring context                    | Confirmed; remediation in Phase G/H |
+| CORE-003 | data-risk      | Medium | 正式歷史資料截至 2026-08-03，報告截至 2026-08-17，且報告未保存 K 線快照           | Open; needs data lifecycle decision |
+| CORE-004 | spec-ambiguity | Medium | P50 前置攔截時 `finalScore` 為 null                                               | Open                                |
 
 ## CORE-001：marketState raw 欄位映射遺漏
 
@@ -59,3 +59,116 @@
 - **風險**：報告使用者可能把 null 理解為未計算或錯誤；但程式可能有意只在 P100 執行時產生 finalScore。
 - **下一步**：確認產品需求是「前置攔截時不計分」還是「仍計算分數但不允許交易」。
 - **修正限制**：這是規格問題，不先視為 bug。
+
+## Phase G：修正與優化決策草案
+
+> 本節只定義修正邊界與驗證要求，不在 Phase G 修改產品程式碼。
+
+### CORE-001：marketState raw 映射
+
+**方案 A — 最小映射修正（推薦）**
+
+- 在 `buildSignalContext()` 傳遞需要的 raw slots。
+- 在 `normalizeMarketData()` 明確區分市場融資維持率、投組維持率、匯率、法人淨買超。
+- 缺值保留 `null`，不以 0 假裝真實數值。
+- **優點**：最小 diff、保留現有架構、能直接驗證資料是否正確流動。
+- **缺點**：仍需後續決定哪些 normalized 欄位真正進入決策。
+
+**方案 B — 由 `marketState` 直接讀取完整 raw data**
+
+- 統一在報告組裝層完成 raw → normalized。
+- **不推薦**：會把計算責任移出純計算層，增加 daily run 與報告組裝耦合。
+
+**Phase H DoD**：
+
+- raw fixture 的 PB、PR、market margin、FX、法人值能正確映射。
+- 缺值輸出為 `null` 或明確 unavailable，不輸出 0 假值。
+- 投組維持率與市場融資維持率欄位不混用。
+- 現有決策行為未被未授權改變。
+
+**回滾**：單一 commit revert；不改策略設定檔。
+
+### CORE-002：法人資料保存與 scoring 接入
+
+**方案 A — 分兩個垂直切片（推薦）**
+
+1. 先將 `rawInstitutional` 與 `rawStockMargin` 加入報告白名單，保留原始證據。
+2. 另建立法人歷史序列的資料來源與 schema，再決定是否接入 `institutionalNet`／`institutionalHistory`。
+
+- **優點**：先修資料遺失，再評估策略意義；避免把保存 bug 與權重變更混在一起。
+- **缺點**：需要兩個 TDD cycle。
+
+**方案 B — 立即把單日法人值接入 Scoring Matrix**
+
+- **不推薦**：目前只有單日資料，無法正確建立 z-score 歷史基準；會讓分數看似有法人因子但統計意義不足。
+
+**Phase H DoD（第一切片）**：
+
+- `rawInstitutional`、`rawStockMargin` 成功取得時保留在正式報告。
+- provider failure、null 與 stale 狀態可區分。
+- 不改變 `institutional` 權重與缺值補貼規則。
+
+**後續 DoD（第二切片）**：
+
+- 定義法人歷史資料格式、單位與交易日對齊。
+- 用固定歷史 fixture 驗證 z-score、tanh 與缺值分支。
+- 取得策略意圖確認後才接入正式分數。
+
+**回滾**：先回滾報告白名單變更；scoring 接入若另立 commit，獨立回滾。
+
+### CORE-003：歷史 K 線新鮮度與重現性
+
+**方案 A — 先加入 metadata（推薦）**
+
+- 報告保存 `historyAsOf`、兩檔資料筆數、最新 K 線日期與資料來源狀態。
+- **優點**：最小變更，先讓每日分數可被追溯。
+- **缺點**：不能完整重建當日指標。
+
+**方案 B — 保存當次 K 線 snapshot**
+
+- 報告或 market history 保存實際使用的 K 線序列／版本 ID。
+- **優點**：可完整重播。
+- **缺點**：檔案較大，需設計保存與清理策略。
+
+**方案 C — 報告前強制檢查最新交易日**
+
+- K 線未更新時阻止報告或標記 degraded。
+- **不推薦作為第一步**：可能因假日、API 延遲或盤中時間造成不必要中止。
+
+**Phase H DoD（第一切片）**：
+
+- 報告明確記錄兩檔歷史最新日期與筆數。
+- 過期資料不再靜默通過，至少輸出 degraded/stale 狀態。
+- 歷史重播能辨認資料截止日。
+
+**回滾**：metadata 欄位為附加欄位，可單一 commit revert，不影響既有報告讀取。
+
+### CORE-004：前置攔截時 `finalScore=null`
+
+此項需要產品意圖確認後才執行。技術上有兩個方案：
+
+- **方案 A**：維持 `null`，報告明確標示「未執行 P100」。（最小變更）
+- **方案 B**：即使前置規則攔截，仍計算並保存 `finalScore`，但不允許交易。（可觀測性較佳，但可能讓使用者誤以為分數具有決策效力）
+
+目前不自行採用 A 或 B；Phase G 保留待確認。
+
+### Phase G 結論
+
+- CORE-001：採方案 A。
+- CORE-002：採方案 A，分保存與 scoring 接入兩個切片。
+- CORE-003：採方案 A，先補 metadata，再評估 snapshot。
+- CORE-004：等待產品意圖確認。
+
+## Phase H 執行順序草案
+
+1. CORE-001 regression test → raw mapping 最小修正。
+2. CORE-002 report preservation regression test → 報告白名單修正。
+3. CORE-003 metadata regression test → 記錄歷史資料新鮮度。
+4. CORE-002 scoring 接入另立決策與測試，不與前三項合併。
+5. CORE-004 取得產品決策後，再建立對應 regression test。
+
+每一項均遵守：
+
+```text
+RED → GREEN → 相關測試 → 完整驗證 → 歷史重播 → commit
+```
