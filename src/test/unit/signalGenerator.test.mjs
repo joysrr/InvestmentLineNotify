@@ -308,4 +308,58 @@ describe("generateScoringMatrix synergy tier boost", () => {
   });
 });
 
+describe("generateScoringMatrix sell and exit boundaries", () => {
+  function runAtScore(score, hasTacticalPosition) {
+    return generateScoringMatrix(
+      baseIndicators,
+      score < 0 ? 40 : 0,
+      {
+        scoringMatrix: {
+          enabled: true,
+          categories: {
+            technicalTrend: { cap: 4, weights: {} },
+            valuationValue: { cap: 8, weights: {} },
+            flowOfFunds: { cap: 4, weights: { sentiment: 4 } },
+            extremeOscillation: { cap: 2, weights: {} },
+          },
+          thresholds: {
+            buyTactical: 999,
+            buyTacticalBullish: 999,
+            sellTactical: -4,
+            hysteresisExit: 0,
+            scaling: {
+              tier1: { score: 1.5, ratio: 0.4 },
+              tier2: { score: 3.5, ratio: 0.7 },
+              tier3: { score: 6, ratio: 1 },
+            },
+          },
+          normalization: { lookbackDays: 20 },
+        },
+      },
+      {
+        ma60SlopeArr: [0],
+        sentimentScore: score < 0 ? score / 4 : 0,
+        institutionalHistory: [0, 0, 0, 0, 0],
+        hasTacticalPosition,
+      },
+    );
+  }
+
+  it("uses sell tactical at the exact -4 boundary", () => {
+    expect(runAtScore(-4, true).signal).toBe("sell_tactical");
+  });
+
+  it("uses exit buffer below zero but above sell threshold", () => {
+    expect(runAtScore(-3.99, true).signal).toBe("exit_buffer");
+  });
+
+  it("does not exit at the exact zero boundary", () => {
+    expect(runAtScore(0, true).signal).toBe("neutral");
+  });
+
+  it("does not use exit buffer without a tactical position", () => {
+    expect(runAtScore(-3.99, false).signal).toBe("neutral");
+  });
+});
+
 // TODO: add independent golden fixtures for institutional fallback.
