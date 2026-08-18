@@ -79,13 +79,21 @@
 
 - 法人歷史不足時，`institutional=0` 並啟用技術組補貼；測試已鎖定現行行為。這不是公式錯誤，但會放大 CORE-002 資料管線缺失對最終分數的影響。
 
+### 已補充驗證
+
+- institutional normalization 原先把當日值納入 baseline，已確認為 look-ahead leakage。
+- 修正為與 MACD／MA slope 相同的規則：baseline 使用 `slice(-lookback - 1, -1)`，排除當日值。
+- scaling tier 1／2／3 的低於邊界與精確邊界均通過 golden tests。
+- Scoring Matrix targeted tests：9/9 通過。
+
 ### 尚未驗證
 
-- normalization 歷史是否排除當日，避免 look-ahead leakage。
-- scaling tier 邊界與 bullish buy threshold 的完整 decision table。
+- bullish buy threshold 與完整 decision table 的所有交叉邊界。
 
-- **驗證提交**：`04ae098`。
-- **完整回歸**：100 test files passed、1532 tests passed、2 skipped、6 todo。
+- **驗證提交**：`04ae098`、`d4339f6`、`107d61e`。
+- **修正提交**：`1361a9d`。
+- **完整回歸**：100 test files passed、1536 tests passed、2 skipped、6 todo。
+- **補充說明**：第一次完整回歸曾出現 `strategyStatus` 的非重現失敗；隔離測試與第二次完整回歸均通過，未修改該無關測試。
 
 ## Phase G：修正與優化決策草案
 
