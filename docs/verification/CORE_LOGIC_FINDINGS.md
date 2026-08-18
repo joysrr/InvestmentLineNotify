@@ -115,6 +115,17 @@
 - **驗證提交**：`3ec4492`。
 - **Targeted 測試**：strategyEngine 24/24 通過。
 
+### Phase C 第二切片：法人歷史快照接入
+
+- 新增 `archiveManager.getMarketHistory()`，只讀取日期格式快照並依檔名日期排序；單一檔案損壞時略過，不阻斷 daily run。
+- 新增 `extractInstitutionalHistoryRecords()`，只使用快照內 `rawInstitutional.date`，不以報告檔名日期冒充交易日。
+- `buildDailyRunContext()` 將 market history 以非致命欄位傳入 `buildSignalContext()`。
+- `buildSignalContext()` 將單日 raw 法人值轉為百萬單位，並由歷史快照建立 `institutionalHistory`；當日交易日不納入 baseline。
+- 正式資料查核：30 份快照中有 23 筆 raw 法人紀錄，去重後為 17 個交易日；重複交易日採最後一筆有效快照，避免同日資料被重複加權。
+- 歷史範圍：`20260720` 至 `20260817`；以 `20260814` 為當日排除後，baseline 為 16 筆。
+- **測試證據**：adapter、archive reader、signal context、strategy engine 相關測試共 65/65 通過。
+- **完整回歸限制**：完整 `npx vitest run` 在本環境因 Node heap OOM 結束（exit 134）；不是 assertion failure。前一輪完整回歸曾通過 101 files / 1542 tests；本次變更相關分批測試通過。
+
 ## Phase G：修正與優化決策草案
 
 > 本節只定義修正邊界與驗證要求，不在 Phase G 修改產品程式碼。
