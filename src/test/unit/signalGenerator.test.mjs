@@ -136,4 +136,44 @@ describe("generateScoringMatrix factor bounds", () => {
   });
 });
 
-// TODO: add independent golden fixtures for institutional fallback and tier thresholds.
+describe("generateScoringMatrix scaling tiers", () => {
+  function runAtScore(score) {
+    return generateScoringMatrix(baseIndicators, (score / 8) ** 2 * 40, {
+      scoringMatrix: {
+        enabled: true,
+        categories: {
+          technicalTrend: { cap: 4, weights: {} },
+          valuationValue: { cap: 8, weights: { priceDrop: 8 } },
+          flowOfFunds: { cap: 4, weights: {} },
+          extremeOscillation: { cap: 2, weights: {} },
+        },
+        thresholds: {
+          buyTactical: 1,
+          buyTacticalBullish: 1,
+          sellTactical: -999,
+          hysteresisExit: 0,
+          scaling: {
+            tier1: { score: 1.5, ratio: 0.4 },
+            tier2: { score: 3.5, ratio: 0.7 },
+            tier3: { score: 6, ratio: 1 },
+          },
+        },
+        normalization: { lookbackDays: 20 },
+      },
+    });
+  }
+
+  it("uses tier 1 below the tier 2 boundary", () => {
+    expect(runAtScore(2).scalingRatio).toBe(0.4);
+  });
+
+  it("uses tier 2 at its exact boundary", () => {
+    expect(runAtScore(3.5).scalingRatio).toBe(0.7);
+  });
+
+  it("uses tier 3 at its exact boundary", () => {
+    expect(runAtScore(6).scalingRatio).toBe(1);
+  });
+});
+
+// TODO: add independent golden fixtures for institutional fallback.
