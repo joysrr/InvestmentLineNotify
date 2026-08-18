@@ -20,3 +20,64 @@ export function evaluateFreshness(
   }
   return { status: "fresh", tradingDayGap: gap };
 }
+
+export function evaluateFreshnessFields(fields = {}) {
+  return Object.fromEntries(
+    Object.entries(fields).map(([name, input]) => [
+      name,
+      evaluateFreshness(
+        input.latestDate,
+        input.reportDate,
+        input.tradingDays,
+        input.staleAfterTradingDays,
+      ),
+    ]),
+  );
+}
+
+export function buildFreshnessGuardDecision({
+  mode = "shadow",
+  freshness = {},
+  affectedSignals = [],
+}) {
+  const blockedSignals = Object.values(freshness).some(
+    (value) => value.status !== "fresh",
+  )
+    ? [...new Set(affectedSignals)]
+    : [];
+  return {
+    mode,
+    wouldBlock: blockedSignals.length > 0,
+    blockedSignals,
+  };
+}
+
+export function applyFreshnessGuard(result, decision) {
+  if (decision.mode !== "enforcement" || !decision.wouldBlock) return result;
+  const signal = result?.signals?.signalDirection;
+  if (!decision.blockedSignals.includes(signal)) return result;
+  return {
+    ...result,
+    signals: {
+      ...result.signals,
+      rawSignal: signal,
+      signalDirection: "hold",
+      blockedByDataFreshness: true,
+      blockedSignals: decision.blockedSignals,
+    },
+  };
+}
+
+export function freshnessMetadataMismatch(
+  historyMetadata = {},
+  replayDataAsOf = {},
+) {
+  const names = new Set([
+    ...Object.keys(historyMetadata),
+    ...Object.keys(replayDataAsOf),
+  ]);
+  return [...names].some(
+    (name) =>
+      historyMetadata[name]?.latestDate !== replayDataAsOf[name]?.latestDate,
+  );
+}
