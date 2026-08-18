@@ -147,7 +147,8 @@
 ### 尚未驗證
 
 - 已補 `rawValuation` 與 `rawCnn` fallback：正式報告只有 normalized `marketState` 時，simulator 仍可取得 PB／PR／CNN。
-- `rawMargin`、`rawFx`、`macroMarketDirection` 在正式報告格式與 simulator input 的完整橋接仍未完成；目前樣本沒有可直接重建的來源欄位。
+- `rawMargin`、`rawFx`、`macroMarketDirection` 在正式報告格式與 simulator input 的完整橋接仍未完成；目前樣本的 `marketState` 也沒有可直接重建的 margin、FX 或 market direction 欄位。
+- 不以投組維持率冒充 market margin，不以 CNN 分數猜測 market direction，不填入任意 FX fallback；這些值需要正式 schema 或 provider provenance。
 - sensitivity 目前是價格／策略參數敏感度，不是完整的 provider-to-Scoring Matrix replay。
 - 相關 targeted 測試：dataAdapter 24/24、forwardSimulator 11/11、simulateRoute 23/23。修正後 simulator 相關測試共 164/164 通過。
 
