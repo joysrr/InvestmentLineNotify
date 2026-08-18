@@ -1,5 +1,12 @@
 const TRADING_DATE = /^\d{8}$/;
 
+export function extractInstitutionalHistoryRecords(snapshots) {
+  return (Array.isArray(snapshots) ? snapshots : [])
+    .map((snapshot) => snapshot?.data?.rawInstitutional)
+    .filter((record) => record && typeof record === "object")
+    .map(({ date, totalNetBuy }) => ({ date, totalNetBuy }));
+}
+
 export function buildInstitutionalHistory(records, currentDate = null) {
   return (Array.isArray(records) ? records : [])
     .filter(

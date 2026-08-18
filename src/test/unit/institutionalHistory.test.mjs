@@ -1,5 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { buildInstitutionalHistory } from "../../modules/strategy/institutionalHistory.mjs";
+import {
+  buildInstitutionalHistory,
+  extractInstitutionalHistoryRecords,
+} from "../../modules/strategy/institutionalHistory.mjs";
+
+describe("extractInstitutionalHistoryRecords", () => {
+  it("extracts raw institutional records from market snapshots", () => {
+    expect(
+      extractInstitutionalHistoryRecords([
+        {
+          date: "2026-08-14",
+          data: {
+            rawInstitutional: { date: "20260813", totalNetBuy: 5000000 },
+          },
+        },
+        {
+          date: "2026-08-15",
+          data: { rawInstitutional: null },
+        },
+      ]),
+    ).toEqual([{ date: "20260813", totalNetBuy: 5000000 }]);
+  });
+});
 
 describe("buildInstitutionalHistory", () => {
   it("sorts valid trading dates, converts units, and excludes the current date", () => {
