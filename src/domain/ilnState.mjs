@@ -222,6 +222,8 @@ export class IlnState {
     "rawNdc",
     "rawValuation",
     "rawMarketOverview",
+    "rawInstitutional",
+    "rawStockMargin",
   ];
 
   /**
