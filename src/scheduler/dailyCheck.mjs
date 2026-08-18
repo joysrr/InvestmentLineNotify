@@ -10,6 +10,7 @@ import { buildSignalContext } from "../domain/signalContext.mjs";
 import { buildReportReplaySnapshot } from "../domain/replaySnapshot.mjs";
 import {
   appendFreshnessObservation,
+  applyFreshnessGuard,
   buildTechnicalFreshnessObservation,
   resolveFreshnessConfig,
   buildFreshnessGuardDecision,
@@ -174,6 +175,34 @@ export async function runDailyCheck(deps = {}, options = {}) {
 
   const dateText = TwDate().formatDateKey();
 
+  let freshnessDecision = null;
+  try {
+    const strategy = await fetchStrategyConfig();
+    const freshnessConfig = resolveFreshnessConfig(strategy.dataFreshness);
+    const technicalFreshness = buildTechnicalFreshnessObservation({
+      historyZ2,
+      history0050,
+      reportDate: dateText,
+      staleAfterTradingDays: freshnessConfig.staleAfterTradingDays,
+    });
+    freshnessDecision = buildFreshnessGuardDecision({
+      mode: freshnessConfig.mode,
+      freshness: technicalFreshness,
+      affectedSignals: ["buy_tactical", "sell_tactical", "exit_buffer"],
+    });
+    result = applyFreshnessGuard(result, freshnessDecision);
+
+    const stats = await archiveManager.getFreshnessShadowStats();
+    const nextStats = appendFreshnessObservation(stats, {
+      reportDate: dateText,
+      wouldBlock: freshnessDecision.wouldBlock,
+      blockedSignals: freshnessDecision.blockedSignals,
+    });
+    await archiveManager.saveFreshnessShadowStats(nextStats);
+  } catch (freshnessErr) {
+    logger.warn(freshnessErr, "⚠️ Freshness guard 計算失敗，使用原始 decision");
+  }
+
   // ── Step 4：AI 決策報告 ─────────────────────────────────────────────────────
   logger.info("🤖 正在產生 AI 決策分析...");
   let aiAdvice, adviceTraceId;
@@ -244,45 +273,9 @@ export async function runDailyCheck(deps = {}, options = {}) {
       strategySnapshot: result.strategySnapshot ?? {},
     });
 
-    let replayWithObservation = replay;
-    try {
-      const strategy = await fetchStrategyConfig();
-      const freshnessConfig = resolveFreshnessConfig(strategy.dataFreshness);
-      const technicalFreshness = buildTechnicalFreshnessObservation({
-        historyZ2,
-        history0050,
-        reportDate: dateText,
-        staleAfterTradingDays: freshnessConfig.staleAfterTradingDays,
-      });
-
-      const observation = buildFreshnessGuardDecision({
-        mode: freshnessConfig.mode,
-        freshness: technicalFreshness,
-        affectedSignals: ["buy_tactical", "sell_tactical", "exit_buffer"],
-      });
-
-      replayWithObservation = {
-        ...replay,
-        shadowGuardDecision: observation,
-      };
-
-      try {
-        const stats = await archiveManager.getFreshnessShadowStats();
-        const nextStats = appendFreshnessObservation(stats, {
-          reportDate: dateText,
-          wouldBlock: observation.wouldBlock,
-          blockedSignals: observation.blockedSignals,
-        });
-        await archiveManager.saveFreshnessShadowStats(nextStats);
-      } catch (statsErr) {
-        logger.warn(statsErr, "⚠️ Freshness shadow statistics 儲存失敗");
-      }
-    } catch (freshnessErr) {
-      logger.warn(
-        freshnessErr,
-        "⚠️ Freshness observation 計算失敗，使用原始 replay",
-      );
-    }
+    const replayWithObservation = freshnessDecision
+      ? { ...replay, shadowGuardDecision: freshnessDecision }
+      : replay;
 
     const state = new IlnState({
       marketState: result.marketState ?? {},

@@ -360,6 +360,49 @@ describe("DailyCheck Scheduler - 單元測試", () => {
         falsePositiveRate: 0,
       }),
     });
+
+    const previousMode = process.env.DATA_FRESHNESS_MODE;
+    process.env.DATA_FRESHNESS_MODE = "enforcement";
+    try {
+      mockContext.historyZ2 = [{ date: "2026-08-03" }];
+      vi.mocked(getInvestmentSignalAsync).mockResolvedValue({
+        signals: {
+          signalDirection: "buy_tactical",
+          status: "買進",
+          score: 80,
+          latchNowActive: false,
+        },
+        marketState: {},
+        strategySnapshot: {},
+      });
+      vi.mocked(archiveManager.getFreshnessShadowStats).mockResolvedValue({
+        samples: [],
+      });
+
+      await runDailyCheck(
+        {},
+        { isTelegramEnabled: true, isAIAdvisor: true, isCallAI: true },
+      );
+
+      expect(getAiInvestmentAdvice).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          signals: expect.objectContaining({
+            signalDirection: "hold",
+            blockedByDataFreshness: true,
+          }),
+        }),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+      );
+    } finally {
+      if (previousMode === undefined) delete process.env.DATA_FRESHNESS_MODE;
+      else process.env.DATA_FRESHNESS_MODE = previousMode;
+    }
   });
 
   it("Latch 狀態變更時應更新 valuationGuardState", async () => {
