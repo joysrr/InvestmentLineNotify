@@ -51,6 +51,31 @@ export function buildReplaySnapshot(input = {}) {
   };
 }
 
+export function buildReplaySignalData(data = {}) {
+  const fields = [
+    "currentPR",
+    "priceDropPercent",
+    "sentiment",
+    "bullMomentum",
+    "RSI",
+    "KD_K",
+    "KD_D",
+    "MACD",
+    "ma60Slope",
+    "institutionalNet",
+    "institutionalHistory",
+    "historyMetadata",
+    "categoryResults",
+    "finalScore",
+    "scalingRatio",
+  ];
+  return Object.fromEntries(
+    fields
+      .filter((field) => data[field] !== undefined)
+      .map((field) => [field, data[field]]),
+  );
+}
+
 export function buildReportReplaySnapshot({
   result = {},
   strategySnapshot = {},
