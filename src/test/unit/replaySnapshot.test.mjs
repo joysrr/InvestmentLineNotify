@@ -7,6 +7,7 @@ import {
   withFreshnessObservation,
   normalizeReplayCompatibility,
   assessReplayAvailability,
+  buildDataProvenance,
   sha256,
 } from "../../domain/replaySnapshot.mjs";
 
@@ -35,6 +36,25 @@ describe("replaySnapshot", () => {
   it("preserves an existing replay snapshot", () => {
     const replay = { schemaVersion: "1.0", status: "available" };
     expect(normalizeReplayCompatibility({ replay }).replay).toBe(replay);
+  });
+
+  it("builds deterministic data provenance hashes", () => {
+    expect(
+      buildDataProvenance({
+        provider: "twse",
+        dataset: "z2History",
+        path: "data/history/z2.json",
+        raw: { b: 2, a: 1 },
+        normalized: [{ date: "2026-08-07", close: 280 }],
+      }),
+    ).toEqual({
+      provider: "twse",
+      dataset: "z2History",
+      path: "data/history/z2.json",
+      rawHash: expect.stringMatching(/^sha256:/),
+      normalizedHash: expect.stringMatching(/^sha256:/),
+      integrity: "verified",
+    });
   });
 
   it("marks replay availability from required decision inputs", () => {
@@ -113,6 +133,9 @@ describe("replaySnapshot", () => {
       signalData: { currentPR: 42, institutionalNet: 12.5 },
       institutionalHistory: [{ date: "2026-08-11", value: 12.4 }],
       dataAsOf: { z2History: { latestDate: "2026-08-03" } },
+      dataProvenance: [
+        { provider: "twse", dataset: "z2History", integrity: "unverified" },
+      ],
       strategy: { version: "2.8", snapshot: { threshold: 4 } },
       rawDecision: { signal: "buy_tactical", finalScore: 4.2 },
       finalDecision: { signal: "buy_tactical" },
@@ -125,6 +148,9 @@ describe("replaySnapshot", () => {
       { date: "2026-08-11", value: 12.4 },
     ]);
     expect(result.strategy.hash).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(result.dataProvenance).toEqual([
+      { provider: "twse", dataset: "z2History", integrity: "unverified" },
+    ]);
     expect(result.rawDecision.signal).toBe("buy_tactical");
   });
 });

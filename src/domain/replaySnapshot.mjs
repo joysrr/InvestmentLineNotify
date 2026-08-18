@@ -17,6 +17,25 @@ export function sha256(value) {
   return createHash("sha256").update(String(value)).digest("hex");
 }
 
+export function buildDataProvenance({
+  provider = null,
+  dataset = null,
+  path = null,
+  raw,
+  normalized,
+} = {}) {
+  const provenance = { provider, dataset, path };
+  if (raw === undefined || normalized === undefined) {
+    return { ...provenance, integrity: "unverified" };
+  }
+  return {
+    ...provenance,
+    rawHash: `sha256:${sha256(canonicalizeJson(raw))}`,
+    normalizedHash: `sha256:${sha256(canonicalizeJson(normalized))}`,
+    integrity: "verified",
+  };
+}
+
 export function assessReplayAvailability(replay = {}) {
   const missing = [];
   if (!replay.signalData || Object.keys(replay.signalData).length === 0) {
@@ -67,6 +86,7 @@ export function buildReplaySnapshot(input = {}) {
     signalData: input.signalData ?? {},
     institutionalHistory: input.institutionalHistory ?? [],
     dataAsOf: input.dataAsOf ?? {},
+    dataProvenance: input.dataProvenance ?? [],
     strategy: {
       ...strategyPayload,
       hash: `sha256:${sha256(canonicalizeJson(strategyPayload))}`,
@@ -111,6 +131,7 @@ export function buildReportReplaySnapshot({
     signalData: result.replaySignalData ?? result.signalData ?? {},
     institutionalHistory: result.institutionalHistory ?? [],
     dataAsOf: result.historyMetadata ?? {},
+    dataProvenance: result.dataProvenance ?? [],
     strategy: {
       version: strategySnapshot.version ?? null,
       snapshot: strategySnapshot,
