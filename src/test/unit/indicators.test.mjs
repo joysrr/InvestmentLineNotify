@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   calcATR,
   calcSMA,
+  calcSlopeN,
   calculateIndicators,
 } from "../../modules/strategy/indicators.mjs";
 
@@ -88,4 +89,12 @@ describe("calculateIndicators MACD golden cases", () => {
   });
 });
 
-// TODO: add an independent golden fixture for slope.
+describe("calcSlopeN golden cases", () => {
+  it("calculates the average five-period slope", () => {
+    expect(calcSlopeN([10, 12, 14, 16, 18, 20], 5)).toBe(2);
+  });
+
+  it("returns NaN when the lookback endpoint is unavailable", () => {
+    expect(Number.isNaN(calcSlopeN([NaN, 12, 14, 16, 18, 20], 5))).toBe(true);
+  });
+});
