@@ -6,6 +6,7 @@ import {
   canonicalizeJson,
   withFreshnessObservation,
   normalizeReplayCompatibility,
+  assessReplayAvailability,
   sha256,
 } from "../../domain/replaySnapshot.mjs";
 
@@ -34,6 +35,24 @@ describe("replaySnapshot", () => {
   it("preserves an existing replay snapshot", () => {
     const replay = { schemaVersion: "1.0", status: "available" };
     expect(normalizeReplayCompatibility({ replay }).replay).toBe(replay);
+  });
+
+  it("marks replay availability from required decision inputs", () => {
+    expect(
+      assessReplayAvailability({
+        signalData: { currentPR: 42 },
+        dataAsOf: { z2History: { latestDate: "2026-08-07" } },
+        strategy: { hash: "sha256:abc" },
+        finalDecision: { signalDirection: "hold" },
+      }),
+    ).toEqual({ status: "available", missing: [] });
+
+    expect(
+      assessReplayAvailability({ signalData: {}, finalDecision: null }),
+    ).toEqual({
+      status: "unavailable",
+      missing: ["signalData", "dataAsOf", "strategy.hash", "finalDecision"],
+    });
   });
 
   it("keeps only replay-relevant scoring fields", () => {

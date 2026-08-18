@@ -17,6 +17,22 @@ export function sha256(value) {
   return createHash("sha256").update(String(value)).digest("hex");
 }
 
+export function assessReplayAvailability(replay = {}) {
+  const missing = [];
+  if (!replay.signalData || Object.keys(replay.signalData).length === 0) {
+    missing.push("signalData");
+  }
+  if (!replay.dataAsOf || Object.keys(replay.dataAsOf).length === 0) {
+    missing.push("dataAsOf");
+  }
+  if (!replay.strategy?.hash) missing.push("strategy.hash");
+  if (!replay.finalDecision) missing.push("finalDecision");
+  return {
+    status: missing.length === 0 ? "available" : "unavailable",
+    missing,
+  };
+}
+
 export function normalizeReplayCompatibility(report = {}) {
   if (report.replay) return report;
   return {
@@ -46,7 +62,7 @@ export function buildReplaySnapshot(input = {}) {
     snapshot: strategy.snapshot ?? {},
   };
 
-  return {
+  const replay = {
     schemaVersion: "1.0",
     signalData: input.signalData ?? {},
     institutionalHistory: input.institutionalHistory ?? [],
@@ -59,6 +75,7 @@ export function buildReplaySnapshot(input = {}) {
     finalDecision: input.finalDecision ?? null,
     scoringMatrixExecuted: input.scoringMatrixExecuted === true,
   };
+  return { ...replay, status: assessReplayAvailability(replay).status };
 }
 
 export function buildReplaySignalData(data = {}) {
