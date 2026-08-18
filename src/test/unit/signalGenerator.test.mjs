@@ -236,4 +236,76 @@ describe("generateScoringMatrix buy threshold matrix", () => {
   });
 });
 
+describe("generateScoringMatrix synergy tier boost", () => {
+  function run({ currentPR = 50, macd = [0.1, 0.2], score = 2 }) {
+    return generateScoringMatrix(
+      {
+        ...baseIndicators,
+        macdArr: macd.map((histogram) => ({ histogram })),
+      },
+      40,
+      {
+        scoringMatrix: {
+          enabled: true,
+          categories: {
+            technicalTrend: { cap: 4, weights: {} },
+            valuationValue: { cap: 8, weights: { priceDrop: score } },
+            flowOfFunds: { cap: 4, weights: {} },
+            extremeOscillation: { cap: 2, weights: {} },
+          },
+          thresholds: {
+            buyTactical: 1,
+            buyTacticalBullish: 1,
+            sellTactical: -999,
+            hysteresisExit: 0,
+            scaling: {
+              tier1: { score: 1.5, ratio: 0.4 },
+              tier2: { score: 3.5, ratio: 0.7 },
+              tier3: { score: 6, ratio: 1 },
+            },
+          },
+          normalization: { lookbackDays: 20 },
+        },
+        valuationMomentum: {
+          synergy: {
+            safePRThreshold: 95,
+            macdPositiveRequired: true,
+            scalingTierBoost: 1,
+          },
+        },
+      },
+      {
+        currentPR,
+        institutionalHistory: [0, 0, 0, 0, 0],
+        macdArr: [],
+      },
+    );
+  }
+
+  it("boosts tier 1 to tier 2 when valuation and MACD conditions hold", () => {
+    const result = run({});
+    expect(result.signal).toBe("buy_tactical");
+    expect(result.scalingRatio).toBe(0.7);
+    expect(result.synergyBoostApplied).toBe(true);
+  });
+
+  it("does not boost when PR equals the safe threshold", () => {
+    const result = run({ currentPR: 95 });
+    expect(result.scalingRatio).toBe(0.4);
+    expect(result.synergyBoostApplied).toBe(false);
+  });
+
+  it("does not boost when MACD is not positive", () => {
+    const result = run({ macd: [-0.2, -0.1] });
+    expect(result.scalingRatio).toBe(0.4);
+    expect(result.synergyBoostApplied).toBe(false);
+  });
+
+  it("does not exceed tier 3 after the boost", () => {
+    const result = run({ score: 6 });
+    expect(result.scalingRatio).toBe(1);
+    expect(result.synergyBoostApplied).toBe(true);
+  });
+});
+
 // TODO: add independent golden fixtures for institutional fallback.
