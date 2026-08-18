@@ -10,28 +10,33 @@ import { parseNumber } from "./coreUtils.mjs";
 export function normalizeMarketData(raw) {
   return {
     valuation: {
-      pe: parseNumber(raw.rawValuation?.pe),
-      pb: parseNumber(raw.rawValuation?.pb),
-      pr: parseNumber(raw.rawValuation?.currentPR || raw.rawValuation?.pr),
-      yield: parseNumber(raw.rawValuation?.yield),
+      pe: parseNumber(raw.rawValuation?.pe, { fallback: null }),
+      pb: parseNumber(raw.rawValuation?.pb, { fallback: null }),
+      pr: parseNumber(raw.rawValuation?.currentPR || raw.rawValuation?.pr, {
+        fallback: null,
+      }),
+      yield: parseNumber(raw.rawValuation?.yield, { fallback: null }),
     },
     sentiment: {
-      vix: parseNumber(raw.rawUsMarket?.vix),
-      fearGreed: parseNumber(raw.rawCnn?.score),
+      vix: parseNumber(raw.rawUsMarket?.vix, { fallback: null }),
+      fearGreed: parseNumber(raw.rawCnn?.score, { fallback: null }),
       isPanic: raw.rawUsMarket?.vix > 30, // 範例邏輯，未來可擴充
     },
     liquidity: {
-      marginRatio: parseNumber(raw.rawMargin?.maintenanceRatio),
-      fxRate: parseNumber(raw.rawFx?.currentRate),
+      marginRatio: parseNumber(raw.rawMargin?.maintenanceRatio, {
+        fallback: null,
+      }),
+      fxRate: parseNumber(raw.rawFx?.currentRate, { fallback: null }),
       institutionalNetBuy: parseNumber(
         raw.rawInstitutional?.totalNetBuy / 1000000,
+        { fallback: null },
       ), // 轉為百萬
     },
     economy: {
-      ndcScore: parseNumber(raw.rawNdc?.score),
+      ndcScore: parseNumber(raw.rawNdc?.score, { fallback: null }),
       ndcLight: raw.rawNdc?.light || "未知",
-      cpiYoY: parseNumber(raw.rawCpi?.value),
-      bankRate: parseNumber(raw.rawBankRate?.value),
+      cpiYoY: parseNumber(raw.rawCpi?.value, { fallback: null }),
+      bankRate: parseNumber(raw.rawBankRate?.value, { fallback: null }),
     },
   };
 }
