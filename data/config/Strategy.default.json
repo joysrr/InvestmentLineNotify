@@ -458,5 +458,15 @@
     "sellRatio": 0.5,
     "triggerRatio": 0.95,
     "targetRatio": 0.8
+  },
+  "dataFreshness": {
+    "mode": "shadow",
+    "staleAfterTradingDays": 3,
+    "dependencies": {
+      "technical": ["z2History", "etf0050History"],
+      "institutional": ["institutionalHistory"],
+      "valuation": ["valuation"],
+      "risk": ["marketMargin", "vix"]
+    }
   }
 }

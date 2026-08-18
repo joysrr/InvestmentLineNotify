@@ -68,6 +68,22 @@ export function applyFreshnessGuard(result, decision) {
   };
 }
 
+export function resolveFreshnessConfig(config = {}) {
+  return {
+    mode:
+      process.env.DATA_FRESHNESS_MODE === "enforcement"
+        ? "enforcement"
+        : "shadow",
+    staleAfterTradingDays: Number(config.staleAfterTradingDays ?? 3),
+    dependencies: config.dependencies ?? {
+      technical: ["z2History", "etf0050History"],
+      institutional: ["institutionalHistory"],
+      valuation: ["valuation"],
+      risk: ["marketMargin", "vix"],
+    },
+  };
+}
+
 export function freshnessMetadataMismatch(
   historyMetadata = {},
   replayDataAsOf = {},
