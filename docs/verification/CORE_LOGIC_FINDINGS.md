@@ -1,34 +1,34 @@
 # Core Logic Findings
 
 > **Phase**：A / B / C / D / E / F / G / H — 資料流、數學、決策鏈、重播與 simulator 查核
-> **狀態**：CORE-001/002/004 remediation completed；CORE-003 freshness 已完成 shadow wiring，完整 replay、shadow statistics、enforcement 與部分 simulator raw bridge open
+> **狀態**：CORE-001/002/004 remediation completed；CORE-003 freshness shadow statistics 與 enforcement 已接通，完整 replay 與部分 simulator raw bridge open
 > **原則**：本文件只記錄證據與待決策事項；未經確認不修改產品邏輯。
 
 ## 發現索引
 
-| ID       | 類型           | 嚴重度 | 主題                                                                              | 狀態                                                        |
-| -------- | -------------- | ------ | --------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| CORE-001 | confirmed-bug  | High   | signalContext 遺漏 raw market slots，造成 marketState 欄位錯誤為 0／錯用 fallback | Remediated; targeted tests pass                             |
-| CORE-002 | confirmed-bug  | High   | 法人資料存在 cache，但報告白名單排除，且未傳入 scoring context                    | Remediated; daily and simulator bridges pass                |
-| CORE-003 | data-risk      | Medium | 正式歷史資料截至 2026-08-03，報告截至 2026-08-17，且報告未保存 K 線快照           | Shadow guard wired; enforcement and lifecycle evidence open |
-| CORE-004 | spec-ambiguity | Medium | P50 前置攔截時 `finalScore` 為 null                                               | Resolved; `scoringMatrixExecuted` added                     |
+| ID       | 類型           | 嚴重度 | 主題                                                                              | 狀態                                                           |
+| -------- | -------------- | ------ | --------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| CORE-001 | confirmed-bug  | High   | signalContext 遺漏 raw market slots，造成 marketState 欄位錯誤為 0／錯用 fallback | Remediated; targeted tests pass                                |
+| CORE-002 | confirmed-bug  | High   | 法人資料存在 cache，但報告白名單排除，且未傳入 scoring context                    | Remediated; daily and simulator bridges pass                   |
+| CORE-003 | data-risk      | Medium | 正式歷史資料截至 2026-08-03，報告截至 2026-08-17，且報告未保存 K 線快照           | Shadow statistics + enforcement wired; lifecycle evidence open |
+| CORE-004 | spec-ambiguity | Medium | P50 前置攔截時 `finalScore` 為 null                                               | Resolved; `scoringMatrixExecuted` added                        |
 
 ## Phase F：風險分類
 
-| 類別     | Finding                          | 目前判定                                        | 決策影響                                                         |
-| -------- | -------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------- |
-| 資料風險 | CORE-001 marketState raw mapping | 已修正並有 targeted tests                       | 高；錯誤的 PR、market margin、FX、法人值會污染 normalized inputs |
-| 資料風險 | CORE-002 institutional pipeline  | 已接通單日值與歷史快照；simulator bridge 已補   | 高；缺值會觸發 institutional fallback／技術補貼                  |
-| 資料風險 | CORE-003 K-line freshness        | Shadow guard 已接通；統計與 enforcement open    | 中至高；過期 baseline 會改變 RSI、KD、MACD、slope 與 scoring     |
-| 決策風險 | P0–P100 intersections            | 代表性交叉已驗證，非完整矩陣                    | 高；優先級錯誤可能讓低優先級 action 覆蓋風控攔截                 |
-| 決策風險 | bullish／sell／exit thresholds   | 邊界已驗證                                      | 高；門檻一格差異會直接改變 buy／sell／exit                       |
-| 可觀測性 | CORE-004 scoring execution state | 已修正                                          | 中；`null` 與未執行狀態已可區分                                  |
-| 可觀測性 | Phase D full replay              | Schema 已接通；完整逐日 replay 尚未完成         | 高；無法逐日證明報告 action 由哪些輸入產生                       |
-| 可觀測性 | Simulator raw market bridge      | valuation／CNN 已補；margin／FX／direction open | 中至高；敏感度結果可能與 daily runtime 使用不同資料              |
+| 類別     | Finding                          | 目前判定                                                         | 決策影響                                                         |
+| -------- | -------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------- |
+| 資料風險 | CORE-001 marketState raw mapping | 已修正並有 targeted tests                                        | 高；錯誤的 PR、market margin、FX、法人值會污染 normalized inputs |
+| 資料風險 | CORE-002 institutional pipeline  | 已接通單日值與歷史快照；simulator bridge 已補                    | 高；缺值會觸發 institutional fallback／技術補貼                  |
+| 資料風險 | CORE-003 K-line freshness        | Shadow statistics 與 enforcement 已接通；lifecycle evidence open | 中至高；過期 baseline 會改變 RSI、KD、MACD、slope 與 scoring     |
+| 決策風險 | P0–P100 intersections            | 代表性交叉已驗證，非完整矩陣                                     | 高；優先級錯誤可能讓低優先級 action 覆蓋風控攔截                 |
+| 決策風險 | bullish／sell／exit thresholds   | 邊界已驗證                                                       | 高；門檻一格差異會直接改變 buy／sell／exit                       |
+| 可觀測性 | CORE-004 scoring execution state | 已修正                                                           | 中；`null` 與未執行狀態已可區分                                  |
+| 可觀測性 | Phase D full replay              | Schema 已接通；完整逐日 replay 尚未完成                          | 高；無法逐日證明報告 action 由哪些輸入產生                       |
+| 可觀測性 | Simulator raw market bridge      | valuation／CNN 已補；margin／FX／direction open                  | 中至高；敏感度結果可能與 daily runtime 使用不同資料              |
 
 ### 優先級
 
-1. **P0：** CORE-003 freshness enforcement／統計與 Phase D 完整 replay 證據，因兩者直接限制正式決策可驗證性。
+1. **P0：** Phase D 完整 replay 證據與 CORE-003 data lifecycle evidence，因兩者直接限制正式決策可驗證性。
 2. **P1：** simulator 尚未完成的 margin／FX／macro direction bridge；先確認正式報告 schema，再決定是否修正。
 3. **P2：** 完整 P0–P100 交叉矩陣與更多 historical replay；目前代表性交叉已足以檢查主要短路順序。
 4. **不做：** 未有產品需求前，不新增完整 simulator／replay framework 或策略權重調整。
