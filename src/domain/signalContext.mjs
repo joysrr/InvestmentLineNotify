@@ -52,6 +52,16 @@ export function buildSignalContext(ctx) {
   // currentPriceZ2 有值（MIS 即時價）→ 使用即時價；
   // null（MIS 失敗）→ fallback 至 latestClose（前一交易日收盤價）。
   const finalPriceZ2 = currentPriceZ2 || latestClose;
+  const historyMetadata = {
+    z2: {
+      count: historyZ2.length,
+      latestDate: historyZ2.at(-1)?.date ?? null,
+    },
+    etf0050: {
+      count: history0050.length,
+      latestDate: history0050.at(-1)?.date ?? null,
+    },
+  };
 
   // ── 預先計算帳戶快照（確保週末或無 MIS 時也能顯示部位） ────────────────────────
   const qtyZ2 = Number(safeLastState.qtyZ2 || 0);
@@ -90,6 +100,7 @@ export function buildSignalContext(ctx) {
     VIX: vixData?.value ?? null,
     VIXTime: vixData?.dateTimeText ?? vixData?.time ?? null,
     VIXStatus: vixData?.status ?? null,
+    historyMetadata,
     vixArr,
     ma240,
     portfolio: safeLastState,
