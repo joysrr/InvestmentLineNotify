@@ -486,7 +486,11 @@ function buildEngineContext(data, derived) {
     atrArr: data.atrArr ?? [],
     macdArr: data.macdArr ?? [],
     ma60SlopeHistory: data.ma60SlopeArr || [],
-    institutionalNet: data.institutionalNet || 0,
+    institutionalNet:
+      data.institutionalNet ??
+      (Number.isFinite(data.rawInstitutional?.totalNetBuy)
+        ? data.rawInstitutional.totalNetBuy / 1_000_000
+        : 0),
     institutionalHistory: data.institutionalHistory || [],
     marginAnalysis,
     decouplingAnalysis,
