@@ -107,5 +107,6 @@ extremeOscillation: RSI × 2 + KD × 2，cap 2
 4. 2026-08 月檔目前各只有 1 筆，但跨月 provider 會合併所有月份；真正待查核的是歷史資料最新日 `2026-08-03` 與報告日 `2026-08-17` 的落差。
 5. `data/reports/2026-08-17.json` 的 `signals.finalScore` 為 `null`，而 `status` 是 P50 EntryGate 前置過濾；這與決策鏈「前置規則可在 P100 前終止」一致，需 Phase D 建立明確驗證案例。
 6. 正式報告 `marketState` 中 `pr`、`institutionalNetBuy`、`marginRatio`、`fxRate` 等欄位出現 0；目前不能判定是 provider 缺值、normalizer fallback 或報告組裝問題，列為 `CORE-001` 待查。
-7. 正式報告 `macroData.rawInstitutional` 未出現在已抽樣輸出中；`marketData.mjs` 有抓取 slot，但 `signalContext.mjs` 未見組裝法人核心分數輸入，需追查 provider schema 與傳遞設計。
-8. `historyProvider.mjs` 已確認具備跨月合併、去重與日期排序；因此目前主要風險是資料新鮮度，而非月份檔單筆本身。
+7. `data/market/latest.json` 的 `rawInstitutional` 與 provider metadata 均成功，但 `IlnState.MACRO_REPORT_SLOTS` 白名單排除它；這已確認為 CORE-002 的報告資料遺失根因。
+8. `signalContext.mjs` 也未將法人資料傳入 scoring context；保存資料與接入分數是兩個獨立修正問題。
+9. `historyProvider.mjs` 已確認具備跨月合併、去重與日期排序；因此目前主要風險是資料新鮮度，而非月份檔單筆本身。

@@ -26,14 +26,15 @@
 - **下一步**：確認同日 `raw*` → normalized → `marketState` 的完整路徑，並檢查是否有明確的 stale／missing 標記。
 - **修正限制**：若只影響展示，不能直接當作核心計算 bug；若影響決策輸入，列為 High。
 
-## CORE-002：法人資料是否長期缺失
+## CORE-002：法人資料未進入報告與 scoring context
 
 - **證據**：抽樣 `2026-08-17.json` 的 `macroData` 未見 `rawInstitutional`；`marketState.liquidity.institutionalNetBuy = 0`。
-- **程式證據**：`marketData.mjs` 確實配置並抓取 `rawInstitutional`；`normalizer.mjs` 只將 `rawInstitutional.totalNetBuy / 1000000` 映射至展示欄位。`signalContext.mjs` 未組裝 `institutionalNet` 或 `institutionalHistory`，`strategyEngine.mjs` 則對缺失值 fallback 為 0／空陣列。
-- **風險**：Scoring Matrix 的法人因子可能長期為 0，並觸發 `signalGenerator.mjs` 的法人缺失技術組補貼邏輯。
-- **目前判定**：High data-risk，尚未確認 provider 回傳 schema 與是否存在歷史序列。
-- **下一步**：查核 `stockInstitutionalTwse` provider 的實際回傳欄位、cache 內容，以及是否有設計上要傳入策略的歷史資料。
-- **修正限制**：先確認資料應否進入核心分數，再評估補貼合理性；不得先刪除 fallback。
+- **程式證據**：`data/market/latest.json` 確實有 `rawInstitutional.totalNetBuy = 28074345`，且 `_meta.sources.stockInstitutionalTwse.status = SUCCESS`。
+- **根因**：`IlnState.MACRO_REPORT_SLOTS` 只列出 `rawCnn`、`rawMargin`、`rawFx`、`rawNdc`、`rawValuation`、`rawMarketOverview`，漏列 `rawInstitutional` 與 `rawStockMargin`；`toReportObject()` 因此將已成功取得的資料排除在正式報告外。
+- **第二個缺口**：`signalContext.mjs` 未將 `macroData.rawInstitutional` 組裝成 `institutionalNet`／`institutionalHistory`；因此 Scoring Matrix 目前無法使用法人資料。
+- **影響**：法人因子可能為 0，並觸發 `signalGenerator.mjs` 的法人缺失技術組補貼邏輯；正式報告也無法保存法人證據。
+- **目前判定**：Confirmed bug，High。
+- **修正限制**：Phase H 需先以 regression test 固定「成功取得的 rawInstitutional 必須保留於報告」，再單獨決定是否把法人資料接入核心分數；不得把資料保存修正與策略權重變更綁成一個修改。
 
 ## CORE-003：正式歷史資料與報告日期不一致
 
