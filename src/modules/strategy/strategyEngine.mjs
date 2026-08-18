@@ -334,24 +334,27 @@ export async function evaluateInvestmentSignal(data, arg2, arg3) {
   );
   const signalTypeNew = determineSignalType(signalCategoryNew);
 
-  return {
-    id: data.date || new Date().toISOString().split("T")[0],
-    date: data.date || new Date().toISOString(),
-    marketState,
-    strategySnapshot: strategy,
-    signals: {
-      ...signals2,
-      signalCategory: signalCategoryNew,
-      signalType: signalTypeNew,
-      // Budget 資訊
-      budgetInfo: finalDecisionWithInterest.budgetInfo,
-      budgetAllowedAmount: finalDecisionWithInterest.budgetAllowedAmount,
-      budgetIsLimited: finalDecisionWithInterest.budgetIsLimited,
-      budgetLimitedReason: finalDecisionWithInterest.budgetLimitedReason,
-      // 利息成本資訊
-      interestCostInfo: finalDecisionWithInterest.interestCostInfo,
+  return attachReplaySignalData(
+    {
+      id: data.date || new Date().toISOString().split("T")[0],
+      date: data.date || new Date().toISOString(),
+      marketState,
+      strategySnapshot: strategy,
+      signals: {
+        ...signals2,
+        signalCategory: signalCategoryNew,
+        signalType: signalTypeNew,
+        // Budget 資訊
+        budgetInfo: finalDecisionWithInterest.budgetInfo,
+        budgetAllowedAmount: finalDecisionWithInterest.budgetAllowedAmount,
+        budgetIsLimited: finalDecisionWithInterest.budgetIsLimited,
+        budgetLimitedReason: finalDecisionWithInterest.budgetLimitedReason,
+        // 利息成本資訊
+        interestCostInfo: finalDecisionWithInterest.interestCostInfo,
+      },
     },
-  };
+    ctx,
+  );
 }
 
 export async function getInvestmentSignalAsync(data) {
@@ -632,10 +635,16 @@ function formatSignalOutput(ctx, finalDecision, derived) {
     portfolio: ctx.portfolio,
   };
 }
+
+function attachReplaySignalData(result, ctx) {
+  return { ...result, replaySignalData: ctx.replaySignalData ?? {} };
+}
+
 export {
   buildEngineContext,
   formatSignalOutput,
   determineSignalCategory,
   determineSignalType,
   applyBudgetSynergy,
+  attachReplaySignalData,
 };

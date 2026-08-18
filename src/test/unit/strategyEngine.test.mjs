@@ -6,10 +6,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   buildEngineContext,
+  evaluateInvestmentSignal,
   formatSignalOutput,
   determineSignalCategory,
   determineSignalType,
   applyBudgetSynergy,
+  attachReplaySignalData,
 } from "../../modules/strategy/strategyEngine.mjs";
 import {
   AssetRegistry,
@@ -551,6 +553,16 @@ describe("StrategyEngine - N-asset Registry 查詢", () => {
 });
 
 describe("buildEngineContext raw provider bridge", () => {
+  it("attaches replay scoring data without changing result", () => {
+    const result = { signals: { signalDirection: "hold" } };
+    const ctx = { replaySignalData: { currentPR: 42 } };
+
+    expect(attachReplaySignalData(result, ctx)).toEqual({
+      ...result,
+      replaySignalData: { currentPR: 42 },
+    });
+  });
+
   it("converts raw institutional net buy into scoring input units", () => {
     const ctx = buildEngineContext(
       {
