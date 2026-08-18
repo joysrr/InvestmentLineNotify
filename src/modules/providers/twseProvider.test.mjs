@@ -62,6 +62,7 @@ import {
   fetchMarketValuation,
   fetchMarketOverview,
   fetchStockInstitutionalData,
+  fetchStockMarginData,
 } from "./twseProvider.mjs";
 
 import { fetchWithTimeout } from "../../utils/coreUtils.mjs";
@@ -424,6 +425,31 @@ describe("twseProvider - 台股 Provider", () => {
       expect(result.raw).toEqual(expect.any(Array));
       expect(result.normalized).toEqual(
         expect.objectContaining({ date: "2024-01-15", taiex: 17600 }),
+      );
+    });
+  });
+
+  describe("fetchStockMarginData", () => {
+    it("成功回傳 raw 與 normalized envelope", async () => {
+      const data = [
+        {
+          股票代號: "0050",
+          融資今日餘額: "1000",
+          融券今日餘額: "200",
+          融資限額: "5000",
+          融券限額: "3000",
+        },
+      ];
+      fetchWithTimeout.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue(data),
+      });
+
+      const result = await fetchStockMarginData("0050");
+
+      expect(result.raw).toBe(data);
+      expect(result.normalized).toEqual(
+        expect.objectContaining({ symbol: "0050", marginBalance: 1000 }),
       );
     });
   });

@@ -798,13 +798,14 @@ export async function fetchStockMarginData(symbol) {
     const row = data.find((r) => r["股票代號"] === stockNo);
     if (!row) return null;
 
-    return {
+    const normalized = {
       symbol: stockNo,
       marginBalance: parseNumber(row["融資今日餘額"]),
       shortBalance: parseNumber(row["融券今日餘額"]),
       marginLimit: parseNumber(row["融資限額"]),
       shortLimit: parseNumber(row["融券限額"]),
     };
+    return { raw: data, normalized, ...normalized };
   } catch (err) {
     console.warn(`[twseProvider] fetchStockMarginData 失敗: ${err.message}`);
     return null;
