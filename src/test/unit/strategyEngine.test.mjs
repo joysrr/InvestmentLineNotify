@@ -416,6 +416,32 @@ describe("StrategyEngine - N-asset Registry 查詢", () => {
       expect(output.maintenanceMargin).toBe(200);
       expect(output.z2Ratio).toBe(50);
     });
+
+    it("前置攔截時 finalScore 為 null 且明確標示 P100 未執行", () => {
+      const output = formatSignalOutput(
+        {
+          portfolio: {},
+          rsi: 50,
+          indicators: { kdArr: [] },
+          entry: { weightScore: 0, weightDetails: {} },
+        },
+        { finalScore: null },
+        {
+          priceChangePercent: 0,
+          bias240: null,
+          actualLeverage: 1,
+          maintenanceMargin: 999,
+          z2Ratio: 0,
+          grossLeverageResult: null,
+          marginAnalysis: null,
+          decouplingAnalysis: null,
+          macdSignal: null,
+        },
+      );
+
+      expect(output.finalScore).toBeNull();
+      expect(output.scoringMatrixExecuted).toBe(false);
+    });
   });
 
   describe("determineSignalCategory", () => {
