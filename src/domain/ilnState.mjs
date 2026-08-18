@@ -46,6 +46,7 @@ export class IlnState {
     reportDate = null,
     meta = null,
     rawReport = null,
+    replay = null,
   }) {
     this.marketState = marketState ?? {};
     this.rawMarket = rawMarket ?? null;
@@ -57,6 +58,7 @@ export class IlnState {
     this.reportDate = reportDate;
     this.meta = meta ?? null;
     this.rawReport = rawReport ?? null;
+    this.replay = replay ?? null;
     this._derived = Object.create(null);
   }
 
@@ -253,6 +255,7 @@ export class IlnState {
       signals: this.signals,
       strategySnapshot: this.strategySnapshot,
       ai: this.ai,
+      ...(this.replay ? { replay: this.replay } : {}),
       snapshot: snapshotEncrypted,
       ...(macroDataPicked ? { macroData: macroDataPicked } : {}),
     };
