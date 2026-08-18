@@ -46,6 +46,44 @@ describe("buildSignalContext raw market slots", () => {
     });
   });
 
+  it("bridges market history into scoring inputs without including today", () => {
+    const result = buildSignalContext({
+      historyZ2: makeHistory(),
+      history0050: makeHistory(),
+      currentPriceZ2: 313.9,
+      price0050: 106.45,
+      basePrice: 184.9,
+      vixData: { value: 29.07 },
+      vixArr: [29.07],
+      macroData: {
+        rawInstitutional: { date: "20260814", totalNetBuy: 28074345 },
+      },
+      marketHistory: [
+        {
+          date: "2026-08-13",
+          data: {
+            rawInstitutional: { date: "20260812", totalNetBuy: -1000000 },
+          },
+        },
+        {
+          date: "2026-08-14",
+          data: {
+            rawInstitutional: { date: "20260813", totalNetBuy: 5000000 },
+          },
+        },
+      ],
+      macroMarketDirection: "NEUTRAL",
+      valuationGuardState: {},
+      pbRecords: [],
+      pbRecordsObjects: [],
+      usRisk: {},
+      lastState: {},
+    });
+
+    expect(result.signalData.institutionalNet).toBeCloseTo(28.074345, 6);
+    expect(result.signalData.institutionalHistory).toEqual([-1, 5]);
+  });
+
   it("records history freshness metadata for reproducibility", () => {
     const result = buildSignalContext({
       historyZ2: makeHistory(),
