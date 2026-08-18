@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildReportReplaySnapshot,
   buildReplaySnapshot,
   canonicalizeJson,
   normalizeReplayCompatibility,
@@ -31,6 +32,24 @@ describe("replaySnapshot", () => {
   it("preserves an existing replay snapshot", () => {
     const replay = { schemaVersion: "1.0", status: "available" };
     expect(normalizeReplayCompatibility({ replay }).replay).toBe(replay);
+  });
+
+  it("builds a report replay snapshot from strategy output", () => {
+    const result = buildReportReplaySnapshot({
+      result: {
+        signalData: { currentPR: 42 },
+        signals: { scoringMatrixExecuted: true, signalDirection: "buy" },
+        institutionalHistory: [{ date: "2026-08-11", value: 12.4 }],
+        historyMetadata: { z2: { latestDate: "2026-08-03" } },
+      },
+      strategySnapshot: { version: "2.8", threshold: 4 },
+      reportDate: "2026-08-17",
+    });
+
+    expect(result.schemaVersion).toBe("1.0");
+    expect(result.signalData).toEqual({ currentPR: 42 });
+    expect(result.finalDecision.signalDirection).toBe("buy");
+    expect(result.strategy.version).toBe("2.8");
   });
 
   it("builds the first replay snapshot", () => {

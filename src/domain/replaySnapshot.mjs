@@ -50,3 +50,21 @@ export function buildReplaySnapshot(input = {}) {
     scoringMatrixExecuted: input.scoringMatrixExecuted === true,
   };
 }
+
+export function buildReportReplaySnapshot({
+  result = {},
+  strategySnapshot = {},
+}) {
+  return buildReplaySnapshot({
+    signalData: result.signalData ?? result.signals ?? {},
+    institutionalHistory: result.institutionalHistory ?? [],
+    dataAsOf: result.historyMetadata ?? {},
+    strategy: {
+      version: strategySnapshot.version ?? null,
+      snapshot: strategySnapshot,
+    },
+    rawDecision: result.rawDecision ?? null,
+    finalDecision: result.finalDecision ?? result.signals ?? null,
+    scoringMatrixExecuted: result.signals?.scoringMatrixExecuted === true,
+  });
+}
