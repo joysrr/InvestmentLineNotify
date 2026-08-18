@@ -117,6 +117,10 @@ export function buildSignalContext(ctx) {
     pbRecords: pbRecords ?? [],
     pbRecordsObjects: pbRecordsObjects ?? [],
     rawValuation: macroData?.rawValuation ?? {},
+    rawMargin: macroData?.rawMargin ?? null,
+    rawFx: macroData?.rawFx ?? null,
+    rawInstitutional: macroData?.rawInstitutional ?? null,
+    rawCnn: macroData?.rawCnn ?? null,
     usRisk,
   };
 
