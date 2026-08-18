@@ -53,6 +53,12 @@ describe("cnnProvider - CNN Fear & Greed Provider", () => {
       expect(result.previous1Month).toBe(60);
       expect(result.previous1Year).toBe(40);
       expect(result.timestamp).toEqual(new Date("2024-01-15T12:00:00Z"));
+      expect(result.raw).toEqual(
+        expect.objectContaining({ fear_and_greed: expect.any(Object) }),
+      );
+      expect(result.normalized).toEqual(
+        expect.objectContaining({ score: 45, rating: "fear" }),
+      );
     });
 
     it("HTTP 錯誤回傳預設值", async () => {

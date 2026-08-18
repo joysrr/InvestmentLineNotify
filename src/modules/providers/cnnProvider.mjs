@@ -59,7 +59,7 @@ export async function fetchFearAndGreedIndex() {
     }
 
     // 將 CNN 的 snake_case 轉為 JS 慣用的 camelCase，並使用安全轉換工具
-    return {
+    const normalized = {
       score: safeFormatNumber(fgData.score),
       rating: fgData.rating || "neutral",
       previousClose: safeFormatNumber(fgData.previous_close),
@@ -68,6 +68,7 @@ export async function fetchFearAndGreedIndex() {
       previous1Year: safeFormatNumber(fgData.previous_1_year),
       timestamp: fgData.timestamp ? new Date(fgData.timestamp) : new Date(),
     };
+    return { raw: data, normalized, ...normalized };
   } catch (error) {
     // 捕捉所有錯誤：包括網路斷線、Timeout 或 API 格式改變
     if (error.message.includes("Timeout")) {
