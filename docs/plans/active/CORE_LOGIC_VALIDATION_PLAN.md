@@ -405,4 +405,5 @@ replay schema → legacy compatibility → data-as-of metadata
 - 已完成：daily runtime source metadata wiring；報告 replay 可保存 provider／dataset／status／lastFetch provenance；`dataAsOf` 可從 `replaySignalData.historyMetadata` fallback。
 - 已驗證：受影響的 replay、scheduler、provider、simulator、freshness、strategy、state 測試 8 files／90 tests passed。
 - 已查核：simulator 已傳遞 margin／FX／market direction 欄位；但 margin／FX 是否影響模擬仍需產品語意決策。
+- 已查核：`data/reports/*.json` 目前只有一份且無 `replay` 欄位；尚無可用的多日版本化 historical fixture。
 - 尚未完成：raw/normalized verified hashes、版本化 historical report fixture 的完整逐日 replay、simulator margin／FX 語意的 golden tests 與 API evidence。

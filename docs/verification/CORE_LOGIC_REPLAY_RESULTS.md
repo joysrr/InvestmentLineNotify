@@ -75,6 +75,12 @@ npx vitest run \
 - `rawFx`：已保存於 SimulationInput，但目前不是 simulator 或 scoring 的直接因子；沒有下游計算效果。
 - 結論：raw bridge 的欄位傳遞已存在；margin／FX 的業務語意尚未完成正式決策，不能標記 simulator bridge 完成。
 
+## Historical fixture 查核
+
+- 實際掃描 `data/reports/*.json`：目前只有 `2026-08-18.json`。
+- 該報告沒有 `replay` 欄位，因此不能作為完整 replay fixture。
+- 結論：目前缺少多日、版本化、含 replay inputs 的 historical fixture；不新增空殼或假資料。
+
 ## 尚未完成
 
 以下項目仍不能宣稱完成：
