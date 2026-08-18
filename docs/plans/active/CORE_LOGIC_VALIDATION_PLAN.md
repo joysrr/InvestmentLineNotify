@@ -358,8 +358,44 @@ Phase A → Phase B → Phase C → Phase D → Phase E → Phase F
 - `docs/verification/CORE_LOGIC_REPLAY_RESULTS.md`
 - `docs/verification/CORE_LOGIC_SENSITIVITY_RESULTS.md`
 
-## 12. 計畫版本紀錄
+## 12. 已確認實作契約：Replay 與 Data Freshness
+
+### Replay
+
+- 目標：完整 replay，但第一階段先保存 metadata 與 Scoring 所需欄位，不重複保存大型 OHLCV、新聞全文或 AI prompt／response。
+- 位置：`report.replay`。
+- 建立方式：純函式 `src/domain/replaySnapshot.mjs` 的 `buildReplaySnapshot()`。
+- schema：`schemaVersion: "1.0"`。
+- 保存 `signalData` 中驅動 Scoring 的欄位、category results、`finalScore`、`rawDecision`、`finalDecision`、`scoringMatrixExecuted`、完整 `institutionalHistory` 與 `dataAsOf`。
+- strategy 保存 version、snapshot 與 canonical JSON SHA-256 hash。
+- data source 保存 provider、dataset、workspace-relative path、raw file hash、normalized data hash；hash 不能計算時標記 `integrity: "unverified"`。
+- canonical JSON 使用 recursive object-key sorting，不新增 dependency。
+- 舊報告不回填；loader 統一補 `replay.status = "unavailable"` 與 `reason = "legacy_report_without_replay_inputs"`。
+
+### Data freshness
+
+- `dataFreshness.mode` 預設 `shadow`，可由 `DATA_FRESHNESS_MODE=shadow|enforcement` override。
+- `staleAfterTradingDays: 3` 定義為交易日差距 `>= 3` 即 stale；無資料為 unavailable。
+- 交易日差距使用實際 K 線日期序列，不自行建立週一至週五假日曆。
+- shadow 只保存 `shadowGuardDecision.wouldBlock`，不修改 action；enforcement 才套用封鎖。
+- P0–P90 風控優先於 freshness guard；P95 只處理 P100 tactical signals。
+- category dependency 放入 `Strategy.default.json`，第一階段定義 technical、institutional、valuation、risk。
+- tactical signal 初始集合：`buy_tactical`、`sell_tactical`、`exit_buffer`。
+- category blocking 採依賴矩陣，不以任何單一缺失欄位無條件封鎖全部 tactical signals。
+- shadow 累積統計達 10 次後封存；切換 enforcement 的門檻為 false positive rate `<= 5%` 且所有 wouldBlock 案例可追溯。
+- rollback 使用 `DATA_FRESHNESS_MODE=shadow`。
+
+### 實作順序
+
+```text
+replay schema → legacy compatibility → data-as-of metadata
+→ freshness evaluator → P95 guard → shadow statistics
+→ enforcement switch → integration tests
+```
+
+## 13. 計畫版本紀錄
 
 - v1.0：建立六階段核心邏輯與分數系統驗證計畫。
 - v1.1：新增 Phase G（發現分類）、Phase H（修正與優化）、Phase I（修正後回歸驗證），並定義驗證證據文件。
-- 目前狀態：僅完成程式碼盤點；尚未進入公式修正或策略變更。
+- v1.2：完成 Replay／Data Freshness 決策樹；開始依 TDD 實作。
+- 目前狀態：Phase H 執行中，先建立 replay snapshot 純函式與相容層。
