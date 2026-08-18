@@ -97,6 +97,7 @@ import {
   evaluateValuationGuard,
 } from "../../../src/modules/strategy/core/index.mjs";
 import { resolveEntryGate } from "../../../src/modules/strategy/policies/entryGatePolicy.mjs";
+import { resolveConversionGuard } from "../../../src/modules/strategy/policies/conversionPolicy.mjs";
 import { generateScoringMatrix } from "../../../src/modules/strategy/signalGenerator.mjs";
 
 describe("Decision Chain Runner", () => {
@@ -602,6 +603,37 @@ describe("Default Decision Chain (完整決策鏈)", () => {
     expect(result.marketStatus).toContain("前置過濾");
   });
 
+  it("P60 trailing stop 應優先於同時命中的估值泡沫", async () => {
+    ctx.valuation.pb = 2.5;
+    ctx.portfolio.lastBuyDate = "2024-01-01";
+    ctx.currentPrice = 90;
+    ctx.z2Ratio = 20;
+    ctx.closeArr = [110, 105];
+    ctx.ma20Arr = [100, 100];
+    strategy.sell.trailingStop = {
+      enabled: true,
+      anchorType: "ma20",
+      activationProfitPct: 0.1,
+      stopLossBuffer: 0.02,
+    };
+    ctx.ma20Arr = [100, 100];
+    const { resolveTrendConfirmation } =
+      await import("../../../src/modules/strategy/core/index.mjs");
+    resolveTrendConfirmation.mockReturnValue({ ma20BreakDays: 3 });
+
+    const chain = await createDefaultDecisionChain();
+    const result = await runDecisionChain(
+      ctx,
+      strategy,
+      grossLeverageResult,
+      ma60Slope,
+      chain,
+    );
+
+    expect(result.marketStatus).toContain("動態停損/停利");
+    expect(result.marketStatus).not.toContain("估值泡沫");
+  });
+
   it("PB >= 2.2 應觸發估值泡沫保護", async () => {
     ctx.valuation.pb = 2.5;
 
@@ -616,6 +648,31 @@ describe("Default Decision Chain (完整決策鏈)", () => {
 
     expect(result.marketStatus).toContain("估值泡沫");
     expect(result.target).toContain("鎖定風險");
+  });
+
+  it("P80 再平衡應優先於同時命中的獲利轉化", async () => {
+    ctx.z2Ratio = 35;
+    ctx.currentZ2Value = 350000;
+    strategy.sell.trailingStop = { enabled: false };
+    const { resolveTrendConfirmation } =
+      await import("../../../src/modules/strategy/core/index.mjs");
+    resolveTrendConfirmation.mockReturnValue({ ma20BreakDays: 0 });
+    resolveConversionGuard.mockReturnValue({
+      marketStatus: "💰【獲利轉化】",
+      target: "轉換",
+    });
+
+    const chain = await createDefaultDecisionChain();
+    const result = await runDecisionChain(
+      ctx,
+      strategy,
+      grossLeverageResult,
+      ma60Slope,
+      chain,
+    );
+
+    expect(result.marketStatus).toContain("再平衡");
+    expect(result.marketStatus).not.toContain("獲利轉化");
   });
 
   it("z2Ratio 超過門檻應觸發再平衡", async () => {
