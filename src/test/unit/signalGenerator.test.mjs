@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { generateScoringMatrix } from "../../modules/strategy/signalGenerator.mjs";
+import {
+  generateScoringMatrix,
+  normalizeUnbounded,
+} from "../../modules/strategy/signalGenerator.mjs";
 
 const baseIndicators = {
   rsiArr: [50],
@@ -64,5 +67,35 @@ describe("generateScoringMatrix golden cases", () => {
   });
 });
 
-// TODO: add independent golden fixtures for normalization, institutional fallback,
-// sentiment clamp, bullish momentum, and tier thresholds.
+describe("normalizeUnbounded edge cases", () => {
+  it("returns zero when history is insufficient or constant", () => {
+    expect(normalizeUnbounded(10, [1, 2, 3, 4])).toBe(0);
+    expect(normalizeUnbounded(10, [5, 5, 5, 5, 5])).toBe(0);
+  });
+});
+
+describe("generateScoringMatrix factor bounds", () => {
+  it("clamps sentiment and caps bullish momentum at one", () => {
+    const closes = Array.from({ length: 21 }, (_, index) =>
+      index === 0 ? 100 : 110,
+    );
+    const result = generateScoringMatrix(
+      baseIndicators,
+      0,
+      strategyWith({
+        technicalTrend: { cap: 4, weights: {} },
+        valuationValue: { cap: 8, weights: { bullMomentum: 2 } },
+        flowOfFunds: { cap: 4, weights: { sentiment: 3 } },
+        extremeOscillation: { cap: 2, weights: {} },
+      }),
+      { closeArr: closes, sentimentScore: 2 },
+    );
+
+    expect(result.factorPool.bullMomentum).toBe(1);
+    expect(result.factorPool.sentiment).toBe(1);
+    expect(result.categoryResults.valuationValue.finalScore).toBe(2);
+    expect(result.categoryResults.flowOfFunds.finalScore).toBe(3);
+  });
+});
+
+// TODO: add independent golden fixtures for institutional fallback and tier thresholds.
