@@ -465,6 +465,42 @@ describe("Default Decision Chain (完整決策鏈)", () => {
     expect(determineRegime).toHaveBeenCalled();
   });
 
+  it("P0 CRISIS 應優先於同時命中的 critical 維持率", async () => {
+    ctx.vix = 50;
+    ctx.maintenanceMargin = 130;
+
+    const chain = await createDefaultDecisionChain();
+    const result = await runDecisionChain(
+      ctx,
+      strategy,
+      grossLeverageResult,
+      ma60Slope,
+      chain,
+    );
+
+    expect(result.regimeState).toBe("CRISIS");
+    expect(result.target).toContain("強制賣出");
+    expect(result.target).not.toContain("強制降槓桿");
+  });
+
+  it("P70 估值泡沫應優先於同時命中的再平衡", async () => {
+    ctx.valuation.pb = 2.5;
+    ctx.z2Ratio = 35;
+    ctx.currentZ2Value = 350000;
+
+    const chain = await createDefaultDecisionChain();
+    const result = await runDecisionChain(
+      ctx,
+      strategy,
+      grossLeverageResult,
+      ma60Slope,
+      chain,
+    );
+
+    expect(result.marketStatus).toContain("估值泡沫");
+    expect(result.marketStatus).not.toContain("再平衡");
+  });
+
   it("CAUTIOUS regime 應計算調整後槓桿並繼續後續規則", async () => {
     ctx.vix = 35; // 觸發 CAUTIOUS
 
