@@ -176,4 +176,64 @@ describe("generateScoringMatrix scaling tiers", () => {
   });
 });
 
+describe("generateScoringMatrix buy threshold matrix", () => {
+  function run({ score, bullish, currentPR = 50 }) {
+    return generateScoringMatrix(
+      baseIndicators,
+      40,
+      {
+        scoringMatrix: {
+          enabled: true,
+          categories: {
+            technicalTrend: { cap: 4, weights: {} },
+            valuationValue: { cap: 8, weights: { priceDrop: score } },
+            flowOfFunds: { cap: 4, weights: {} },
+            extremeOscillation: { cap: 2, weights: {} },
+          },
+          normalization: { lookbackDays: 20 },
+          thresholds: {
+            buyTactical: 4,
+            buyTacticalBullish: 1.5,
+            sellTactical: -999,
+            hysteresisExit: 0,
+            scaling: {
+              tier1: { score: 1.5, ratio: 0.4 },
+              tier2: { score: 3.5, ratio: 0.7 },
+              tier3: { score: 6, ratio: 1 },
+            },
+          },
+        },
+      },
+      {
+        ma60SlopeArr: bullish ? [0.1] : [0],
+        institutionalNet: 0,
+        institutionalHistory: [0, 0, 0, 0, 0],
+        currentPR,
+      },
+    );
+  }
+
+  it("uses the bullish threshold at its exact boundary", () => {
+    expect(run({ score: 1.5, bullish: true }).signal).toBe("buy_tactical");
+  });
+
+  it("does not buy below the bullish threshold", () => {
+    expect(run({ score: 1.49, bullish: true }).signal).not.toBe("buy_tactical");
+  });
+
+  it("uses the normal threshold when bullish valuation is overheated", () => {
+    expect(run({ score: 1.5, bullish: true, currentPR: 90 }).signal).not.toBe(
+      "buy_tactical",
+    );
+    expect(run({ score: 4, bullish: true, currentPR: 90 }).signal).toBe(
+      "buy_tactical",
+    );
+  });
+
+  it("uses the normal threshold in a non-bullish market", () => {
+    expect(run({ score: 1.5, bullish: false }).signal).not.toBe("buy_tactical");
+    expect(run({ score: 4, bullish: false }).signal).toBe("buy_tactical");
+  });
+});
+
 // TODO: add independent golden fixtures for institutional fallback.
