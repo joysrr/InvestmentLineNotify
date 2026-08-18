@@ -120,8 +120,8 @@
 
 - **完整 decision replay：Not reproducible**。
 - **可執行範圍**：只可驗證已保存的價格、資產、VIX 與部分衍生欄位是否自洽；不可宣稱完整 P0–P100 重播。
-- **Snapshot integrity finding**：`2026-08-18.json` 的 `signals` 輸入欄位與衍生欄位不一致。同一份 `signals` 保存 `currentPrice=285`、`basePrice=150`，但 `priceChangePercent=2.5`；依公式應為 `90`。同樣地，保存的 `netAsset=1050000`、`z2Ratio=22.5` 與同一 portfolio／價格重算結果 `3026000`、`56.5102445` 不一致。
-- **判定限制**：目前只能確認報告內存在不一致，不能從單一檔案判斷是報告組裝前的 context 被覆寫、輸入來源不同，或歷史格式轉換造成；不直接修改歷史資料。
+- **Snapshot integrity finding（現場 artifact，非正式版本證據）**：目前環境的 ignored 檔案 `data/reports/2026-08-18.json` 中，`signals` 輸入欄位與衍生欄位不一致。同一份 `signals` 保存 `currentPrice=285`、`basePrice=150`，但 `priceChangePercent=2.5`；依公式應為 `90`。同樣地，保存的 `netAsset=1050000`、`z2Ratio=22.5` 與同一 portfolio／價格重算結果 `3026000`、`56.5102445` 不一致。
+- **判定限制**：該報告未被 Git 追蹤，不能直接視為 production regression 或正式歷史資料。只能記錄現場 artifact 的不一致；不能從單一 ignored 檔案判斷是報告組裝前的 context 被覆寫、輸入來源不同，或人工／測試資料造成；不直接修改歷史資料。`buildSignalContext` 現行公式仍需以可追蹤 fixture 或 live capture 重新驗證。
 - **不新增 replay scaffolding**：目前沒有產品需求要求保存完整 runtime trace；先記錄資料生命週期缺口，等正式決定 replay 可重現性需求後再設計 snapshot schema。
 
 ### 最小後續需求
