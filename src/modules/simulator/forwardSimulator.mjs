@@ -130,6 +130,8 @@ export async function runForwardSimulation(
   const assumptions = [
     `假設 00675L 按 0050 同比例聯動 (當前比例: 1:${(currentPriceZ2 / currentPrice0050).toFixed(2)})`,
     "假設其他市場資料 (VIX、持倉、融資等) 維持不變",
+    "維持率由模擬投資組合重新計算；live raw margin 僅作 baseline",
+    "FX 僅保存為 baseline，不納入本次模擬計算",
     "模擬結果基於單一最新收盤價情境，非多日價格路徑預測",
     "⚠️ 極端行情下槓桿標的跌幅可能遠超同比例，維持率風險被低估",
   ];
@@ -202,6 +204,12 @@ export async function runForwardSimulation(
     calculationMode: CALCULATION_MODE.FORWARD,
     timestamp: new Date().toISOString(),
     dataAsOf: simulationInput.date,
+    liveBaseline: simulationInput.liveBaseline || {
+      rawMargin: simulationInput.rawMargin || {},
+      rawFx: simulationInput.rawFx || {},
+      marginPolicy: "recalculate_from_simulated_portfolio",
+      fxPolicy: "not_applied",
+    },
 
     // 為掃描器提供的歷史陣列 (交叉檢測用)
     kdHistory,

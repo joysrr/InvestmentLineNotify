@@ -404,7 +404,7 @@ replay schema → legacy compatibility → data-as-of metadata
 - 已新增證據：`docs/verification/CORE_LOGIC_REPLAY_RESULTS.md`，確認 replay availability classification 與 provenance adapter 已完成。
 - 已完成：daily runtime source metadata wiring；報告 replay 可保存 provider／dataset／status／lastFetch provenance；`dataAsOf` 可從 `replaySignalData.historyMetadata` fallback。
 - 已驗證：受影響的 replay、scheduler、provider、simulator、freshness、strategy、state 測試 8 files／90 tests passed。
-- 已查核：simulator 已傳遞 margin／FX／market direction 欄位；但 margin／FX 是否影響模擬仍需產品語意決策。
+- 已完成：simulator raw bridge contract；`rawMargin` 僅作 live baseline，維持率由模擬 portfolio／價格重算；`rawFx` 僅保存 baseline，不納入 simulator 或 scoring。Golden tests 與 `/api/v1/simulate` API evidence 已通過。
 - 已查核：`data/reports/*.json` 目前只有一份且無 `replay` 欄位；尚無可用的多日版本化 historical fixture。
 - 已完成：daily replay source providers 的 raw/normalized hash contract、provider hash 計算與 replay provenance 保留；legacy/fallback response 仍正確標記 `unverified`。已驗證全量 `104 test files / 1591 tests passed / 6 todo`。`basePriceProvider` 與 `historyProvider` 不屬於 daily `macroDataSlots`，本階段未改動。
-- 尚未完成：版本化 historical report fixture 的完整逐日 replay、simulator margin／FX 語意的 golden tests 與 API evidence。
+- 尚未完成：版本化 historical report fixture 的完整逐日 replay。

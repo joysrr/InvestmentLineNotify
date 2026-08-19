@@ -223,6 +223,18 @@ describe("simulateRoute - API 整合測試", () => {
       expect(body.calculationMode).toBe("forward");
       expect(body.timestamp).toBeDefined();
       expect(body.dataAsOf).toBe(today);
+      expect(body.liveBaseline).toEqual(
+        expect.objectContaining({
+          marginPolicy: "recalculate_from_simulated_portfolio",
+          fxPolicy: "not_applied",
+        }),
+      );
+      expect(body.assumptions).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining("live raw margin 僅作 baseline"),
+          expect.stringContaining("FX 僅保存為 baseline"),
+        ]),
+      );
     });
 
     it("提供 priceZ2 時使用指定值", async () => {

@@ -300,6 +300,12 @@ export async function buildSimulationInput(
         : {}),
     rawMargin: latestReport.rawMargin || {},
     rawFx: latestReport.rawFx || {},
+    liveBaseline: {
+      rawMargin: latestReport.rawMargin || {},
+      rawFx: latestReport.rawFx || {},
+      marginPolicy: "recalculate_from_simulated_portfolio",
+      fxPolicy: "not_applied",
+    },
 
     // 歷史記錄 (不變)
     pbRecords: latestReport.pbRecords || [],

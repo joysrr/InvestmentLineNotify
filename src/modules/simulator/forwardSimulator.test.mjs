@@ -164,6 +164,12 @@ describe("forwardSimulator - 正向模擬主流程", () => {
     expect(result.calculationMode).toBe("forward");
     expect(result.timestamp).toBeDefined();
     expect(result.dataAsOf).toBe("2026-08-01");
+    expect(result.liveBaseline).toEqual({
+      rawMargin: mockSimulationInput.rawMargin,
+      rawFx: mockSimulationInput.rawFx,
+      marginPolicy: "recalculate_from_simulated_portfolio",
+      fxPolicy: "not_applied",
+    });
 
     // 假設與警告
     expect(Array.isArray(result.assumptions)).toBe(true);
@@ -206,6 +212,43 @@ describe("forwardSimulator - 正向模擬主流程", () => {
     const result = await runForwardSimulation(mockSimulationInput, 175, 116.5);
 
     expect(result.maintenanceMargin).toBeCloseTo(206.25, 1);
+  });
+
+  it("live raw margin 只作 baseline，不改變模擬維持率", async () => {
+    const baseline = await runForwardSimulation(
+      { ...mockSimulationInput, rawMargin: { maintenanceRatio: 142.5 } },
+      180,
+      120,
+    );
+    const changedLiveMargin = await runForwardSimulation(
+      { ...mockSimulationInput, rawMargin: { maintenanceRatio: 999.9 } },
+      180,
+      120,
+    );
+
+    expect(changedLiveMargin.maintenanceMargin).toBe(
+      baseline.maintenanceMargin,
+    );
+    expect(changedLiveMargin.liveBaseline.rawMargin).toEqual({
+      maintenanceRatio: 999.9,
+    });
+  });
+
+  it("FX 只保存 baseline，不改變模擬結果", async () => {
+    const baseline = await runForwardSimulation(
+      { ...mockSimulationInput, rawFx: { currentRate: 31.2 } },
+      180,
+      120,
+    );
+    const changedFx = await runForwardSimulation(
+      { ...mockSimulationInput, rawFx: { currentRate: 999 } },
+      180,
+      120,
+    );
+
+    expect(changedFx.maintenanceMargin).toBe(baseline.maintenanceMargin);
+    expect(changedFx.strategyScore).toBe(baseline.strategyScore);
+    expect(changedFx.liveBaseline.rawFx).toEqual({ currentRate: 999 });
   });
 
   it("呼叫 evaluateInvestmentSignal 並傳入正確參數", async () => {

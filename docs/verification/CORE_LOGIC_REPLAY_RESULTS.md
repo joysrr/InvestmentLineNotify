@@ -78,7 +78,10 @@ npx vitest run \
 - `macroMarketDirection`：已接入 `buildSimulationInput()`，並由 strategy engine 的 macro sentiment 消費。
 - `rawMargin`：已保存於 SimulationInput，但正向 simulator 以模擬 portfolio／價格重算 `maintenanceMargin`；未直接套用 live raw margin。這是目前較合理的模擬語意，但仍需明確產品契約。
 - `rawFx`：已保存於 SimulationInput，但目前不是 simulator 或 scoring 的直接因子；沒有下游計算效果。
-- 結論：raw bridge 的欄位傳遞已存在；margin／FX 的業務語意尚未完成正式決策，不能標記 simulator bridge 完成。
+- 已決策：`rawMargin` 僅作 live baseline，維持率由模擬 portfolio／價格重算；`rawFx` 僅保存 baseline，不納入 simulator 或 scoring 計算。
+- Golden tests 已驗證：live raw margin／FX 改變不會改變模擬維持率與策略分數；模擬價格仍會影響重算後維持率。
+- API evidence 已驗證：`/api/v1/simulate` 回傳 `liveBaseline` 與兩項 policy assumptions。
+- 結論：simulator margin／FX raw bridge contract 已完成；FX exposure calculation 仍不在本階段範圍。
 
 ## Historical fixture 查核
 

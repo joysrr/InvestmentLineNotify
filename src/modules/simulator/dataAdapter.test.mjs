@@ -398,6 +398,12 @@ describe("dataAdapter - 核心資料適配器", () => {
       // 市場環境
       expect(result.VIX).toBe(18.5);
       expect(result.macroMarketDirection).toBe("NEUTRAL");
+      expect(result.liveBaseline).toEqual({
+        rawMargin: mockLatestReport.rawMargin,
+        rawFx: mockLatestReport.rawFx,
+        marginPolicy: "recalculate_from_simulated_portfolio",
+        fxPolicy: "not_applied",
+      });
 
       // 資料品質標籤
       expect(result.dataQuality).toBeDefined();
