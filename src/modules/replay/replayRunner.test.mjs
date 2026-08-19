@@ -41,6 +41,29 @@ describe("replayRunner fixture loader", () => {
       "2026-08-18",
     ]);
     expect(result.map((item) => item.matches)).toEqual([true, true, true]);
+    expect(result[0]).toMatchObject({
+      fixtureSource: "synthetic",
+      dataAsOf: { market: { latestDate: "2026-08-14" } },
+      strategyHash: expect.stringMatching(/^sha256:[0-9a-f]{64}$/),
+      dataProvenance: [
+        { provider: "synthetic", dataset: "market", integrity: "unverified" },
+      ],
+    });
+  });
+
+  it("產生 deterministic replay result hash", async () => {
+    const evaluator = async (report) => report.replay.finalDecision;
+    const first = await replayFixture(
+      "data/replay-fixtures/core-logic-v1.json",
+      evaluator,
+    );
+    const second = await replayFixture(
+      "data/replay-fixtures/core-logic-v1.json",
+      evaluator,
+    );
+
+    expect(first.resultHash).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(second.resultHash).toBe(first.resultHash);
   });
 });
 

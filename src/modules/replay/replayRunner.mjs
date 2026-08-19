@@ -1,6 +1,10 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { assessReplayAvailability } from "../../domain/replaySnapshot.mjs";
+import {
+  assessReplayAvailability,
+  canonicalizeJson,
+  sha256,
+} from "../../domain/replaySnapshot.mjs";
 
 const SUPPORTED_SCHEMA = "1.0";
 
@@ -43,12 +47,16 @@ export async function replayFixture(source, evaluator) {
   }
 
   const fixture = await loadReplayFixture(source);
-  return Promise.all(
+  const results = await Promise.all(
     fixture.reports.map(async (report) => {
       const replayDecision = await evaluator(report);
       const expectedDecision = report.replay.finalDecision;
       return {
         date: report.date,
+        fixtureSource: fixture.fixtureSource,
+        dataAsOf: report.replay.dataAsOf,
+        dataProvenance: report.replay.dataProvenance,
+        strategyHash: report.replay.strategy.hash,
         status: report.replay.status,
         expectedDecision,
         replayDecision,
@@ -57,6 +65,10 @@ export async function replayFixture(source, evaluator) {
       };
     }),
   );
+
+  const resultHash = `sha256:${sha256(canonicalizeJson(results))}`;
+  results.resultHash = resultHash;
+  return results;
 }
 
 export { SUPPORTED_SCHEMA };
