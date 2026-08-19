@@ -89,7 +89,8 @@ npx vitest run \
 - 該報告沒有 `replay` 欄位，因此不能作為 production replay fixture。
 - 已新增 `data/replay-fixtures/core-logic-v1.json`：三日、版本化、明確標記 `fixtureSource: "synthetic"`，僅驗證 schema、排序與 replay availability，不代表真實市場資料。
 - Fixture contract test 已驗證三筆報告皆為 `status: "available"`，strategy hash 格式正確。
-- 結論：schema-level historical replay fixture 已完成；真實多日 production report 仍待資料累積。
+- Replay runner 已完成 loader、可注入 evaluator 逐日 replay、provenance metadata 與 deterministic result hash；runner 測試 `4 passed`。
+- 結論：schema-level historical replay flow 已完成；真實多日 production report 仍待資料累積。
 
 ## 尚未完成
 
