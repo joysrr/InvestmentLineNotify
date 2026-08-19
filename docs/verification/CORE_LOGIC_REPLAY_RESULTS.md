@@ -85,8 +85,10 @@ npx vitest run \
 
 ## Historical fixture 查核
 
-- 實際掃描 `data/reports/*.json`：目前只有 `2026-08-18.json`。
-- 該報告沒有 `replay` 欄位，因此不能作為 production replay fixture。
+- 實際掃描 `data/reports/*.json`：目前包含 `2026-08-18.json` legacy report 與 `2026-08-19.json` 真實 provider report。
+- `2026-08-18.json` 沒有 `replay` 欄位，因此不能作為 production replay fixture。
+- `2026-08-19.json` 已具備 replay、strategy hash 與 11 筆 provider provenance；10 筆含 raw／normalized hash，quote fallback/cache 維持 `unverified`。
+- `dailyCheck` stale strategy import 已修正；`--no-sheets` 可在真實 provider 累積模式停用 Google Sheets，同時保留本地 report persistence。
 - 已新增 `data/replay-fixtures/core-logic-v1.json`：三日、版本化、明確標記 `fixtureSource: "synthetic"`，僅驗證 schema、排序與 replay availability，不代表真實市場資料。
 - Fixture contract test 已驗證三筆報告皆為 `status: "available"`，strategy hash 格式正確。
 - Replay runner 已完成 loader、可注入 evaluator 逐日 replay、provenance metadata 與 deterministic result hash；runner 測試 `4 passed`。

@@ -15,10 +15,8 @@ import {
   resolveFreshnessConfig,
   buildFreshnessGuardDecision,
 } from "../domain/dataFreshness.mjs";
-import {
-  getInvestmentSignalAsync,
-  fetchStrategyConfig,
-} from "../modules/strategy/strategyEngine.mjs";
+import { getInvestmentSignalAsync } from "../modules/strategy/strategyEngine.mjs";
+import { fetchStrategyConfig } from "../modules/strategy/signalRules.mjs";
 import { broadcastDailyReport } from "../modules/notifications/notifier.mjs";
 import { getAiInvestmentAdvice } from "../modules/ai/aiCoach.mjs";
 import { shouldRunJudge, runJudge } from "../modules/ai/llmJudge.mjs";
@@ -29,6 +27,7 @@ import { isSnapshotEncryptEnabled } from "../utils/snapshotCrypto.mjs";
 import { sendTelegramBatch } from "../modules/notifications/transports/telegramClient.mjs";
 import { IlnState } from "../domain/ilnState.mjs";
 import { buildDailyRunContext } from "../domain/dailyRunContext.mjs";
+import { shouldWriteSheet } from "./sideEffectPolicy.mjs";
 import logger, {
   setGlobalContext,
   clearGlobalContext,
@@ -56,6 +55,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
     isTelegramEnabled = true,
     isAIAdvisor = true,
     isCallAI = true,
+    isSheetEnabled = true,
   } = options;
 
   // 設定日誌上下文追蹤
@@ -240,18 +240,22 @@ export async function runDailyCheck(deps = {}, options = {}) {
   await broadcastDailyReport(reportDailyData, newsMessages, isTelegramEnabled);
 
   // ── Step 6：寫入試算表 ──────────────────────────────────────────────────────
-  logger.info("📝 正在寫入試算表...");
-  try {
-    const done = stepTimer("logToSheet");
-    await logDailyToSheet({
-      ...result,
-      price0050,
-      currentPrice: finalPriceZ2,
-      portfolio: lastState,
-    });
-    done();
-  } catch (sheetErr) {
-    logger.error(sheetErr, "❌ 寫入試算表失敗（不影響發送通知）");
+  if (shouldWriteSheet({ isSheetEnabled })) {
+    logger.info("📝 正在寫入試算表...");
+    try {
+      const done = stepTimer("logToSheet");
+      await logDailyToSheet({
+        ...result,
+        price0050,
+        currentPrice: finalPriceZ2,
+        portfolio: lastState,
+      });
+      done();
+    } catch (sheetErr) {
+      logger.error(sheetErr, "❌ 寫入試算表失敗（不影響發送通知）");
+    }
+  } else {
+    logger.info("⏭️ 累積模式已停用 Google Sheets 寫入");
   }
 
   // ── Step 7：儲存最終報告 ────────────────────────────────────────────────────

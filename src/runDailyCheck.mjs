@@ -12,6 +12,7 @@ function parseArgs() {
   let isTelegramEnabled = true; // 預設發 Telegram
   let isAIAdvisor = true; // 預設產出AI建議
   let isCallAI = true; // 預設呼叫AI
+  let isSheetEnabled = true; // 預設寫入試算表
 
   // 1. 檢測全域總體開關 (優先級最高)
   if (args.includes("--no-ai")) {
@@ -21,6 +22,10 @@ function parseArgs() {
 
   if (args.includes("--no-telegram")) {
     isTelegramEnabled = false;
+  }
+
+  if (args.includes("--no-sheets")) {
+    isSheetEnabled = false;
   }
 
   // 2. 個別局部參數檢測 (保持舊有相容性，但也支援 --xxx=false)
@@ -41,7 +46,7 @@ function parseArgs() {
     );
   }
 
-  return { isTelegramEnabled, isAIAdvisor, isCallAI };
+  return { isTelegramEnabled, isAIAdvisor, isCallAI, isSheetEnabled };
 }
 
 // ── CLI 入口（直接執行此檔案時）──

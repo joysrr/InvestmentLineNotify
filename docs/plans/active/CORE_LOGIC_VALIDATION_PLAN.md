@@ -405,7 +405,9 @@ replay schema → legacy compatibility → data-as-of metadata
 - 已完成：daily runtime source metadata wiring；報告 replay 可保存 provider／dataset／status／lastFetch provenance；`dataAsOf` 可從 `replaySignalData.historyMetadata` fallback。
 - 已驗證：受影響的 replay、scheduler、provider、simulator、freshness、strategy、state 測試 8 files／90 tests passed。
 - 已完成：simulator raw bridge contract；`rawMargin` 僅作 live baseline，維持率由模擬 portfolio／價格重算；`rawFx` 僅保存 baseline，不納入 simulator 或 scoring。Golden tests 與 `/api/v1/simulate` API evidence 已通過。
-- 已查核：`data/reports/*.json` 目前只有一份且無 `replay` 欄位，不能作為 production replay fixture。
+- 已查核：`data/reports/*.json` 原先只有一份 legacy report；目前已累積 `2026-08-19.json`，該報告具備 replay 與 provider provenance，但尚未達到正式 replay 的 10 個交易日門檻。
+- 已完成：修正 `dailyCheck` stale strategy import；新增 `--no-sheets` 累積模式，保留真實 provider 與 `archiveManager.saveReport`，停用 Google Sheets 寫入。
+- 已驗證：`NODE_ENV=test BYPASS_INIT_DATA=true node src/runDailyCheck.mjs --no-ai --no-telegram --no-sheets` 成功執行；報告 `2026-08-19.json` 保存 replay、strategy hash 與 11 筆 provider provenance。10 筆 provider provenance 有 raw／normalized hash，quote fallback/cache 維持 `unverified`。
 - 已完成：新增 `data/replay-fixtures/core-logic-v1.json` 三日 synthetic、版本化 fixture；contract test 驗證 schema、日期排序、replay availability 與 strategy hash。真實多日 production report 仍待資料累積。
 - 已完成：子計畫 `.hermes/plans/2026-08-19_003000-scoring-replay-runner.md` 的 loader、可注入 evaluator 逐日 replay、provenance metadata 與 deterministic result hash；相關測試 `4 passed`。
 - 已完成：daily replay source providers 的 raw/normalized hash contract、provider hash 計算與 replay provenance 保留；legacy/fallback response 仍正確標記 `unverified`。已驗證全量 `104 test files / 1591 tests passed / 6 todo`。`basePriceProvider` 與 `historyProvider` 不屬於 daily `macroDataSlots`，本階段未改動。
