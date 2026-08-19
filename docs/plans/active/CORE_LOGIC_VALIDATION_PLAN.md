@@ -408,10 +408,27 @@ replay schema → legacy compatibility → data-as-of metadata
 - 已查核：`data/reports/*.json` 原先只有一份 legacy report；目前已累積 `2026-08-19.json`，該報告具備 replay 與 provider provenance，但尚未達到正式 replay 的 10 個交易日門檻。
 - 已完成：修正 `dailyCheck` stale strategy import；新增 `--no-sheets` 累積模式，保留真實 provider 與 `archiveManager.saveReport`，停用 Google Sheets 寫入。
 - 已驗證：`NODE_ENV=test BYPASS_INIT_DATA=true node src/runDailyCheck.mjs --no-ai --no-telegram --no-sheets` 成功執行；報告 `2026-08-19.json` 保存 replay、strategy hash 與 11 筆 provider provenance。10 筆 provider provenance 有 raw／normalized hash，quote fallback/cache 維持 `unverified`。
-- 已完成：新增 `data/replay-fixtures/core-logic-v1.json` 三日 synthetic、版本化 fixture；contract test 驗證 schema、日期排序、replay availability 與 strategy hash。真實多日 production report 仍待資料累積。
-- 已完成：子計畫 `.hermes/plans/2026-08-19_003000-scoring-replay-runner.md` 的 loader、可注入 evaluator 逐日 replay、provenance metadata 與 deterministic result hash；相關測試 `4 passed`。
-- 已完成：daily replay source providers 的 raw/normalized hash contract、provider hash 計算與 replay provenance 保留；legacy/fallback response 仍正確標記 `unverified`。已驗證全量 `104 test files / 1591 tests passed / 6 todo`。`basePriceProvider` 與 `historyProvider` 不屬於 daily `macroDataSlots`，本階段未改動。
-- 尚未完成：使用真實多日 production reports 的逐日 replay 驗證。
+- 已完成：新增 `scripts/collect-real-report.sh`，保存每次執行 log 至 `logs/replay-accumulation/`，平時 silent，失敗或達 5／10 日門檻時通知。
+- 已設定：cron job `db59ed112cd4`，週一至週五 UTC 09:00（台灣 17:00）執行 watchdog script；使用 `--no-ai --no-telegram --no-sheets`，不寫 Google Sheets、不發 Telegram。
+- 目前累積：`1 / 10` 個真實交易日報告。
+
+### 14.1 Cron 執行紀錄
+
+- Job：`investment-real-report-accumulation`
+- Job ID：`db59ed112cd4`
+- Schedule：`0 9 * * 1-5`（UTC）
+- Script：`scripts/collect-real-report.sh`
+- Local logs：`logs/replay-accumulation/run-<timestamp>.log`
+- Delivery：只在腳本 stdout 非空時回報 Han；未達門檻時保持 silent。
+- 達到 10 個報告後，通知並繼續 §14 正式 production replay。
+- Job 由 cron 管理；若需停止，先以 `cronjob list` 取得最新 job ID，再移除，不手動猜測 ID。
+
+#### 14.1.1 真實資料產生條件
+
+- 每個交易日最多保留該日 `data/reports/YYYY-MM-DD.json` 一份。
+- 同日重跑會更新該日報告，不增加有效交易日數量。
+- `data/reports/` 為本地執行資料，不提交 repository；log 亦不提交。
+- synthetic fixture 不計入真實報告數量。
 
 ## 14. 下一步：真實報告累積與 Production Replay
 
