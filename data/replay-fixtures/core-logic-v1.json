@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1.0",
+  "fixtureSource": "synthetic",
+  "description": "Synthetic multi-day replay fixture for schema and availability tests; not production market data.",
+  "reports": [
+    {
+      "date": "2026-08-14",
+      "replay": {
+        "schemaVersion": "1.0",
+        "signalData": {
+          "currentPR": 44.8,
+          "finalScore": 3.2,
+          "categoryResults": { "technical": 2, "valuation": 1.2 }
+        },
+        "institutionalHistory": [{ "date": "2026-08-14", "value": 12.4 }],
+        "dataAsOf": { "market": { "latestDate": "2026-08-14" } },
+        "dataProvenance": [{ "provider": "synthetic", "dataset": "market", "integrity": "unverified" }],
+        "strategy": {
+          "version": "fixture-1",
+          "snapshot": { "threshold": 4, "mode": "synthetic" },
+          "hash": "sha256:981ef783fca08c480753a1aa221a1b94926538c77d31a6272cd192e69c47637d"
+        },
+        "rawDecision": { "signal": "hold", "finalScore": 3.2 },
+        "finalDecision": { "signal": "hold" },
+        "scoringMatrixExecuted": true,
+        "status": "available"
+      }
+    },
+    {
+      "date": "2026-08-17",
+      "replay": {
+        "schemaVersion": "1.0",
+        "signalData": {
+          "currentPR": 45.1,
+          "finalScore": 4.1,
+          "categoryResults": { "technical": 2.5, "valuation": 1.6 }
+        },
+        "institutionalHistory": [{ "date": "2026-08-17", "value": 15.1 }],
+        "dataAsOf": { "market": { "latestDate": "2026-08-17" } },
+        "dataProvenance": [{ "provider": "synthetic", "dataset": "market", "integrity": "unverified" }],
+        "strategy": {
+          "version": "fixture-1",
+          "snapshot": { "threshold": 4, "mode": "synthetic" },
+          "hash": "sha256:981ef783fca08c480753a1aa221a1b94926538c77d31a6272cd192e69c47637d"
+        },
+        "rawDecision": { "signal": "buy_tactical", "finalScore": 4.1 },
+        "finalDecision": { "signal": "buy_tactical" },
+        "scoringMatrixExecuted": true,
+        "status": "available"
+      }
+    },
+    {
+      "date": "2026-08-18",
+      "replay": {
+        "schemaVersion": "1.0",
+        "signalData": {
+          "currentPR": 45,
+          "finalScore": 3.8,
+          "categoryResults": { "technical": 2.3, "valuation": 1.5 }
+        },
+        "institutionalHistory": [{ "date": "2026-08-18", "value": 14.2 }],
+        "dataAsOf": { "market": { "latestDate": "2026-08-18" } },
+        "dataProvenance": [{ "provider": "synthetic", "dataset": "market", "integrity": "unverified" }],
+        "strategy": {
+          "version": "fixture-1",
+          "snapshot": { "threshold": 4, "mode": "synthetic" },
+          "hash": "sha256:981ef783fca08c480753a1aa221a1b94926538c77d31a6272cd192e69c47637d"
+        },
+        "rawDecision": { "signal": "hold", "finalScore": 3.8 },
+        "finalDecision": { "signal": "hold" },
+        "scoringMatrixExecuted": true,
+        "status": "available"
+      }
+    }
+  ]
+}
