@@ -86,8 +86,10 @@ npx vitest run \
 ## Historical fixture 查核
 
 - 實際掃描 `data/reports/*.json`：目前只有 `2026-08-18.json`。
-- 該報告沒有 `replay` 欄位，因此不能作為完整 replay fixture。
-- 結論：目前缺少多日、版本化、含 replay inputs 的 historical fixture；不新增空殼或假資料。
+- 該報告沒有 `replay` 欄位，因此不能作為 production replay fixture。
+- 已新增 `data/replay-fixtures/core-logic-v1.json`：三日、版本化、明確標記 `fixtureSource: "synthetic"`，僅驗證 schema、排序與 replay availability，不代表真實市場資料。
+- Fixture contract test 已驗證三筆報告皆為 `status: "available"`，strategy hash 格式正確。
+- 結論：schema-level historical replay fixture 已完成；真實多日 production report 仍待資料累積。
 
 ## 尚未完成
 
