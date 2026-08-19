@@ -36,9 +36,23 @@ if [ "${EXIT_CODE}" -ne 0 ]; then
   exit "${EXIT_CODE}"
 fi
 
-# 計算已累積的真實交易日報告數量
-REPORT_COUNT=$(find "${REPORT_DIR}" -maxdepth 1 -name '*.json' \
-  -not -name '.*' | wc -l | tr -d ' ')
+# 只計算具備 replay 的真實報告；legacy JSON 不得觸發門檻通知。
+REPORT_COUNT=$(REPORT_DIR="${REPORT_DIR}" python3 - <<'PY'
+import json
+import os
+from pathlib import Path
+
+count = 0
+for path in sorted(Path(os.environ["REPORT_DIR"]).glob("*.json")):
+    try:
+        report = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError):
+        continue
+    if isinstance(report.get("replay"), dict):
+        count += 1
+print(count)
+PY
+)
 
 log "目前累積真實報告數量: ${REPORT_COUNT}"
 log "--- 報告清單 ---"
