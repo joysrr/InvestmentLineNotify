@@ -96,11 +96,15 @@ npx vitest run \
 
 以下項目仍不能宣稱完成：
 
-1. 決定 simulator 是否需要把 FX 納入資產／風險計算。
-2. 決定 live raw margin 是否只作 baseline／校準，或完全由模擬 portfolio 重算。
-3. 對上述決策補上 golden tests 與 API evidence。
-4. 對版本化 historical report fixture 執行完整 scoring replay。
-5. 保存 provider、dataset、workspace-relative path、raw file hash、normalized data hash。
-6. 對每一份正式報告產生可追蹤的 replay result artifact。
+1. 累積至少 10 個真實交易日報告，通過 schema／provenance audit。
+2. 使用真實 fixture 執行完整 scoring replay，逐日比對原始與 replay decision。
+3. 對差異進行分類與處置，產生 replay result artifact 與 deterministic hash。
 
-因此目前結論是：**Replay availability classification 已完成；完整逐日 decision replay 尚未完成。**
+已完成項目（不再列為待辦）：
+
+- Simulator FX／margin baseline policy 已定義並測試。
+- Golden tests 與 API evidence 已通過。
+- Synthetic replay runner（loader、逐日 replay、provenance、deterministic hash）已完成並歸檔。
+- Provider raw／normalized hash contract 已完成。
+
+因此目前結論是：**Replay availability classification 與 synthetic replay flow 已完成；完整真實 production replay 尚待真實多日報告累積。**

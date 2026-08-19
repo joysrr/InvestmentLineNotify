@@ -410,3 +410,79 @@ replay schema → legacy compatibility → data-as-of metadata
 - 已完成：子計畫 `.hermes/plans/2026-08-19_003000-scoring-replay-runner.md` 的 loader、可注入 evaluator 逐日 replay、provenance metadata 與 deterministic result hash；相關測試 `4 passed`。
 - 已完成：daily replay source providers 的 raw/normalized hash contract、provider hash 計算與 replay provenance 保留；legacy/fallback response 仍正確標記 `unverified`。已驗證全量 `104 test files / 1591 tests passed / 6 todo`。`basePriceProvider` 與 `historyProvider` 不屬於 daily `macroDataSlots`，本階段未改動。
 - 尚未完成：使用真實多日 production reports 的逐日 replay 驗證。
+
+## 14. 下一步：真實報告累積與 Production Replay
+
+### 可立即執行
+
+1. **測試環境採真實 provider、隔離副作用**
+   - 測試環境執行既有 `dailyCheck`，不使用 mock market data。
+   - 保留 `archiveManager.saveReport`，讓正式報告寫入 `data/reports/YYYY-MM-DD.json`。
+   - 關閉 Telegram／LINE／Google Sheets／LLM judge 等外部通知或非必要副作用；不可關閉 provider provenance、replay snapshot 與 report persistence。
+   - 不設定 `BYPASS_INIT_DATA` 以外的 production credential；測試環境不得共用 production secret 或通知目的地。
+
+2. **每日執行與資料品質檢查**
+   - 每個交易日執行一次，使用台北日期作為 report date。
+   - 保存每份報告的 `replay`、`dataAsOf`、provider／dataset、`rawHash`、`normalizedHash` 與 strategy hash。
+   - 每次執行後檢查：檔案存在、JSON 可解析、`replay.status` 可用、provenance 完整、日期沒有覆蓋既有報告。
+   - 失敗時保留錯誤 evidence，不生成看似成功的 fixture。
+
+3. **累積門檻**
+   - 先累積至少 5 個真實交易日，確認報告格式穩定。
+   - 再累積至少 10 個真實交易日，執行第一輪正式 scoring replay。
+   - 10 日不足以證明長期正確性，只作為第一個可追蹤 evidence window。
+
+4. **正式 replay 驗證**
+   - 將通過 schema／provenance 檢查的真實報告建立版本化 fixture；synthetic fixture 保留不變。
+   - 使用既有 replay runner，將 evaluator 接到既有 scoring engine，不重建 scoring 規則。
+   - 逐日比對原始 decision 與 replay decision，產生 result hash 與差異報告。
+   - 任何差異先分類為資料缺失、策略版本差異、非 deterministic 輸入或實際邏輯回歸，不直接修改 expected result。
+
+### 測試環境建議配置
+
+- **資料來源：** 真實 provider API。
+- **執行入口：** 既有 scheduler／`dailyCheck`。
+- **保存：** 啟用 `archiveManager.saveReport` 與 replay snapshot。
+- **通知：** 關閉所有外部通知與 LLM judge side effect。
+- **驗證：** 每日 smoke check + 每 5 日 schema／provenance audit。
+- **隔離：** 獨立測試資料目錄、獨立環境變數、不可連 production notification channel。
+- **清理：** 不刪除真實報告；只清除暫存 cache，保留報告與驗證 log。
+
+### 不立即執行
+
+- 不把單一 legacy report 轉成 production fixture。
+- 不以 synthetic fixture 代替真實 evidence。
+- 不新增第二個總計畫；本節屬於本主計畫的下一階段。
+- 不在沒有 10 個真實交易日之前宣稱完整 production replay 完成。
+
+### 完成與歸檔條件
+
+- 至少 10 個真實交易日報告通過 schema／provenance audit。
+- 逐日 scoring replay 完成，差異均有分類與處置。
+- result artifact 與 deterministic hash 已保存。
+- 回填本主計畫及 `docs/verification/CORE_LOGIC_REPLAY_RESULTS.md` 後，才將本主計畫移至 `docs/plans/completed/`。
+- 若資料累積期間發現格式問題，只更新本主計畫與驗證文件，不建立新的平行計畫。
+
+---
+
+## 15. 風險與限制
+
+- 真實 provider 可能受 API rate limit、休市、來源延遲或欄位變更影響；這些狀況必須標記為 unavailable／unverified，不得補造資料。
+- 測試環境的真實資料可能包含敏感資訊；報告需限制存取，提交 repository 前確認 `.gitignore` 與 secret scan。
+- 通知關閉不代表流程可簡化；`saveReport`、replay metadata 與 hash 是本階段必要路徑。
+- 目前沒有連續多日真實資料，因此 production replay 仍是待完成項目。
+
+---
+
+## 16. 計畫關聯與歸檔規則
+
+- 本檔案是唯一總計畫。
+- `.hermes/plans/completed/2026-08-19_003000-scoring-replay-runner.md` 是已完成的子計畫，不再新增同層級替代檔案。
+- 新增實作若需要子計畫，必須先掛在本檔案的明確章節；完成後回填本檔案並歸檔子計畫。
+- 真實 replay 完成後，本檔案與相關 evidence 一起更新並歸檔。
+
+---
+
+## 13. 計畫版本紀錄（續）
+
+- v1.3：完成 synthetic replay runner 子計畫；定義真實報告累積方案、10 個交易日 replay 門檻、測試環境隔離與歸檔規則。
