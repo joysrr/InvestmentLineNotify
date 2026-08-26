@@ -126,7 +126,17 @@ export const archiveManager = {
 
   async saveReport(reportData) {
     await ensureDirectories();
-    const filePath = path.join(DIRS.REPORTS, `${getTwDateStr()}.json`);
+    let filePath = path.join(DIRS.REPORTS, `${getTwDateStr()}.json`);
+    try {
+      await fs.access(filePath);
+      // 檔案已存在 → 加上時分秒避免覆蓋
+      const now = new Date();
+      const hhmmss = now.toTimeString().slice(0, 8).replace(/:/g, "");
+      filePath = path.join(DIRS.REPORTS, `${getTwDateStr()}_${hhmmss}.json`);
+      console.log(`⚠️ [Archive] 同日報告已存在，改存為 ${path.basename(filePath)}`);
+    } catch {
+      // 檔案不存在，使用原檔名
+    }
     await fs.writeFile(filePath, JSON.stringify(reportData, null, 2));
   },
 
@@ -142,7 +152,7 @@ export const archiveManager = {
     try {
       const files = await fs.readdir(DIRS.REPORTS);
       const candidates = files
-        .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+        .filter((f) => /^\d{4}-\d{2}-\d{2}(_\d{6})?\.json$/.test(f))
         .sort()
         .reverse(); // 由新到舊
 
