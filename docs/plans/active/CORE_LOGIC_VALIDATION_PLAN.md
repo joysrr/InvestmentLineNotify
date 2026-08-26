@@ -405,10 +405,11 @@ replay schema → legacy compatibility → data-as-of metadata
 - 已完成：daily runtime source metadata wiring；報告 replay 可保存 provider／dataset／status／lastFetch provenance；`dataAsOf` 可從 `replaySignalData.historyMetadata` fallback。
 - 已驗證：受影響的 replay、scheduler、provider、simulator、freshness、strategy、state 測試 8 files／90 tests passed。
 - 已完成：simulator raw bridge contract；`rawMargin` 僅作 live baseline，維持率由模擬 portfolio／價格重算；`rawFx` 僅保存 baseline，不納入 simulator 或 scoring。Golden tests 與 `/api/v1/simulate` API evidence 已通過。
-- 已查核：`data/reports/*.json` 原先只有一份 legacy report；目前已累積 `2026-08-19.json`，該報告具備 replay 與 provider provenance，但尚未達到正式 replay 的 10 個交易日門檻。
+- 已查核：`data/reports/*.json` 僅有今日（2026-08-26）執行後的單份 baseline report（45,851 bytes，含完整 `replay` envelope、`replay.status: "available"`、12 筆 provider provenance）。先前 2026-08-19 ~ 2026-08-25 的報告檔案實際上並未留存；先前累積進度紀錄（6/10）為誤判。
+- **決策**：採用「方案 A」，從 2026-08-26 baseline 起重新累積；目標 10 個交易日後進入正式 production replay fixture 階段。
 - 已完成：修正 `dailyCheck` stale strategy import；新增 `--no-sheets` 累積模式，保留真實 provider 與 `archiveManager.saveReport`，停用 Google Sheets 寫入。
-- 已驗證：`NODE_ENV=test BYPASS_INIT_DATA=true node src/runDailyCheck.mjs --no-ai --no-telegram --no-sheets` 成功執行；報告 `2026-08-19.json` 保存 replay、strategy hash 與 11 筆 provider provenance。10 筆 provider provenance 有 raw／normalized hash，quote fallback/cache 維持 `unverified`。
-- 已完成：新增 `scripts/collect-real-report.sh`，保存每次執行 log 至 `logs/replay-accumulation/`，平時 silent，失敗或達 5／10 日門檻時通知。
+- 已驗證：`NODE_ENV=test BYPASS_INIT_DATA=true node src/runDailyCheck.mjs --no-ai --no-telegram --no-sheets` 成功執行；報告 `2026-08-26.json`（45,851 bytes）保存完整 `replay` envelope、`status: "available"`、12 筆 provider provenance。
+- 已完成：新增 `scripts/collect-real-report.sh`，保存每次執行 log 至 `logs/replay-accumulation/`，平時 silent，失敗或達 5／10 日才通知。
 - 已設定：cron job `db59ed112cd4`，週一至週五 UTC 09:00（台灣 17:00）執行 watchdog script；使用 `--no-ai --no-telegram --no-sheets`，不寫 Google Sheets、不發 Telegram。
 - 目前累積：`1 / 10` 個真實交易日報告。
 

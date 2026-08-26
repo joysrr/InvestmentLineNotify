@@ -1,112 +1,29 @@
-# Core Logic Replay Results
+# Core Logic 驗證結果 — Replay 階段
 
-> **查核日期**：2026-08-18
-> **範圍**：Replay schema、legacy compatibility、daily report replay status
-> **結論**：目前可判定 replay input 是否足夠；尚未完成完整逐日 decision replay。
+> 本文件記錄 production-grade dailyCheck 流程在「真實報告累積」階段的驗證結果。
+> 與計畫 `docs/plans/active/CORE_LOGIC_VALIDATION_PLAN.md` §14 同步。
 
-## 已驗證契約
+## 1. 報告清單盤點（截至 2026-08-26）
 
-`report.replay` 目前包含：
+- 實際掃描 `data/reports/*.json`：目前僅有 `2026-08-26.json` 一份（45,851 bytes，含完整 `replay` envelope、`replay.status: "available"`、12 筆 provider provenance）作為本次重新累積的 baseline。
+- 先前 2026-08-19 ~ 2026-08-25 的報告檔案未留存；先前累積進度紀錄（6/10）為誤判，已於 2026-08-26 確認後決定「方案 A」從 baseline 重新累積。
 
-- `schemaVersion: "1.0"`
-- Scoring 相關 `signalData`
-- `institutionalHistory`
-- `dataAsOf`
-- strategy snapshot、version、canonical JSON SHA-256 hash
-- `rawDecision`
-- `finalDecision`
-- `scoringMatrixExecuted`
-- `status`: `available` 或 `unavailable`
+## 2. Replay Envelope 檢查（`2026-08-26.json`）
 
-`assessReplayAvailability()` 以必要欄位判定：
+- `replay.schemaVersion = "1.0"` ✅
+- `replay.status = "available"` ✅
+- `replay.strategy.hash` 存在（SHA-256，sha256:65d115e89e754ea29...）✅
+- `replay.dataProvenance` 共 12 筆 ✅
+- `replay.finalDecision` 為完整 `signals` 物件快照 ✅
 
-- `signalData`
-- `dataAsOf`
-- `strategy.hash`
-- `finalDecision`
+## 3. 累積進度
 
-缺少任一必要欄位時，回傳 `status: "unavailable"` 與缺少欄位清單；不猜測、不回填舊報告。
+- 當前：1 / 10（baseline）
+- 下個交易日（2026-08-27）執行後：2 / 10
+- 中途審核（5 / 10）：第 5 份報告保存後進行 schema/provenance audit
+- 正式 replay（10 / 10）：達成後進入 §14 production replay fixture 階段
 
-## Legacy report 行為
+## 4. 已知限制
 
-沒有 `report.replay` 的舊報告會由 compatibility layer 標記：
-
-```json
-{
-  "status": "unavailable",
-  "schemaVersion": null,
-  "reason": "legacy_report_without_replay_inputs"
-}
-```
-
-## 測試證據
-
-執行命令：
-
-```bash
-npx vitest run \
-  src/test/unit/replaySnapshot.test.mjs \
-  src/test/unit/dataFreshness.test.mjs \
-  src/test/unit/dataFreshnessConfig.test.mjs \
-  src/test/unit/scheduler/dailyCheck.test.mjs \
-  src/test/unit/strategyEngine.test.mjs \
-  src/test/unit/ilnState.test.mjs \
-  --no-coverage
-```
-
-結果：
-
-- Test files: `7 passed`
-- Tests: `57 passed`
-
-## 目前 provenance 進度
-
-- `buildDataProvenance()`：已完成 raw／normalized hash 與 `verified`／`unverified` 判定。
-- `buildSourceProvenance()`：已完成 `_meta.sources` 到 dataset provenance 的 deterministic adapter。
-- `buildReportReplaySnapshot()`：已接收 `sourceMetadata`。
-- `buildReportReplaySnapshot()`：當 `result.historyMetadata` 缺少時，會從 strategy engine 的 `replaySignalData.historyMetadata` fallback，避免正式 replay `dataAsOf` 被錯誤保存為空。
-- `fetchAllMacroData()` → `dailyRunContext` → scheduler：已傳遞 `_meta.sources` 與 slot/provider dataset mapping。
-- Provider hash contract 已完成：daily replay source providers 可回傳 `{ raw, normalized }` envelope；pipeline 對 normalized data 維持既有 consumer shape，並保存 `rawHash`／`normalizedHash`。
-- 已完成 provider：Yahoo FX、NDC、CNN、FRED US market、TWSE valuation、KGI margin、FinMind margin、TWSE market overview、TWSE institutional、TWSE stock margin、CBC rate、DGBAS CPI、quote。
-- envelope 缺少任一 payload 時標記 `integrity: "unverified"`；legacy provider response 不會被誤標 verified。
-- Replay adapter 會保留合法 hash metadata，只有完整 raw／normalized hash 且 integrity 為 verified 時才標記 `integrity: "verified"`。
-- Hash／provider 回歸：`104 test files / 1591 tests passed / 6 todo`。
-- `basePriceProvider` 與 `historyProvider` 不屬於 `macroDataSlots` daily replay source；本階段未改動，避免擴大非需求範圍。
-
-## Simulator raw bridge 查核
-
-- `macroMarketDirection`：已接入 `buildSimulationInput()`，並由 strategy engine 的 macro sentiment 消費。
-- `rawMargin`：已保存於 SimulationInput，但正向 simulator 以模擬 portfolio／價格重算 `maintenanceMargin`；未直接套用 live raw margin。這是目前較合理的模擬語意，但仍需明確產品契約。
-- `rawFx`：已保存於 SimulationInput，但目前不是 simulator 或 scoring 的直接因子；沒有下游計算效果。
-- 已決策：`rawMargin` 僅作 live baseline，維持率由模擬 portfolio／價格重算；`rawFx` 僅保存 baseline，不納入 simulator 或 scoring 計算。
-- Golden tests 已驗證：live raw margin／FX 改變不會改變模擬維持率與策略分數；模擬價格仍會影響重算後維持率。
-- API evidence 已驗證：`/api/v1/simulate` 回傳 `liveBaseline` 與兩項 policy assumptions。
-- 結論：simulator margin／FX raw bridge contract 已完成；FX exposure calculation 仍不在本階段範圍。
-
-## Historical fixture 查核
-
-- 實際掃描 `data/reports/*.json`：目前包含 `2026-08-18.json` legacy report 與 `2026-08-19.json` 真實 provider report。
-- `2026-08-18.json` 沒有 `replay` 欄位，因此不能作為 production replay fixture。
-- `2026-08-19.json` 已具備 replay、strategy hash 與 11 筆 provider provenance；10 筆含 raw／normalized hash，quote fallback/cache 維持 `unverified`。
-- `dailyCheck` stale strategy import 已修正；`--no-sheets` 可在真實 provider 累積模式停用 Google Sheets，同時保留本地 report persistence。
-- 已新增 `data/replay-fixtures/core-logic-v1.json`：三日、版本化、明確標記 `fixtureSource: "synthetic"`，僅驗證 schema、排序與 replay availability，不代表真實市場資料。
-- Fixture contract test 已驗證三筆報告皆為 `status: "available"`，strategy hash 格式正確。
-- Replay runner 已完成 loader、可注入 evaluator 逐日 replay、provenance metadata 與 deterministic result hash；runner 測試 `4 passed`。
-- 結論：schema-level historical replay flow 已完成；真實多日 production report 仍待資料累積。
-
-## 尚未完成
-
-以下項目仍不能宣稱完成：
-
-1. 累積至少 10 個真實交易日報告，通過 schema／provenance audit。
-2. 使用真實 fixture 執行完整 scoring replay，逐日比對原始與 replay decision。
-3. 對差異進行分類與處置，產生 replay result artifact 與 deterministic hash。
-
-已完成項目（不再列為待辦）：
-
-- Simulator FX／margin baseline policy 已定義並測試。
-- Golden tests 與 API evidence 已通過。
-- Synthetic replay runner（loader、逐日 replay、provenance、deterministic hash）已完成並歸檔。
-- Provider raw／normalized hash contract 已完成。
-
-因此目前結論是：**Replay availability classification 與 synthetic replay flow 已完成；完整真實 production replay 尚待真實多日報告累積。**
+- `data/reports/` 未被 git 追蹤（不在 `.gitignore` 但歷史上從未 commit），實際報告落地於本地工作目錄。CRON job 部署於正式區後，須確認 `process.cwd()` 與 `archiveManager` 的 `DATA_DIR` 解析路徑一致。
+- 8/19 ~ 8/25 報告曾因同名檔案覆寫／清理流程而未留存。如需更早歷史，建議建立 date-keyed 的 `data/reports/YYYY-MM-DD/<run-id>.json` 結構以避免同日覆寫。
