@@ -405,11 +405,12 @@ replay schema → legacy compatibility → data-as-of metadata
 - 已完成：daily runtime source metadata wiring；報告 replay 可保存 provider／dataset／status／lastFetch provenance；`dataAsOf` 可從 `replaySignalData.historyMetadata` fallback。
 - 已驗證：受影響的 replay、scheduler、provider、simulator、freshness、strategy、state 測試 8 files／90 tests passed。
 - 已完成：simulator raw bridge contract；`rawMargin` 僅作 live baseline，維持率由模擬 portfolio／價格重算；`rawFx` 僅保存 baseline，不納入 simulator 或 scoring。Golden tests 與 `/api/v1/simulate` API evidence 已通過。
-- 已查核：`data/reports/*.json` 目前已累積 `2026-08-27.json` (45,748B) 與 `2026-08-28.json` (45,805B) 兩份跨日報告，皆具備完整 `replay` envelope、`replay.status: "available"`、12 筆 provider provenance。
+- 已查核：`data/reports/*.json` 目前已累積 `2026-08-27.json` (45,748B)、`2026-08-28.json` (45,805B)、`2026-08-31.json` (45,729B) 三份跨日報告，皆具備完整 `replay` envelope、`replay.status: "available"`、12 筆 provider provenance。
 - **決策**：採用「方案 A（減量確定性驗證）」，以 **3 個真實交易日** 作為 Core Scoring Logic 確定性驗證門檻。
 - 已完成：修正 `dailyCheck` stale strategy import；新增 `--no-sheets` 累積模式；修復 `archiveManager.saveReport` 同日加時間戳防覆寫機制。
-- 已驗證：`scripts/run-interim-replay.mjs` 在 8/27 及 8/28 跨日資料下執行達到 **2/2 (100% MATCH)**，確定性 Overall Result Hash 為 `sha256:baad7e75bafc9a8a9de2d9fc73b23a280ea955425e78bc8b761c183e57e56119`。
-- 目前進度：**2 / 3** 個真實交易日報告（尚差 1 份即可完成全套驗證）。
+- 已驗證：`scripts/run-interim-replay.mjs` 在 8/27、8/28、8/31 三組跨日資料下執行達到 **3/3 (100% MATCH)**，確定性 Overall Result Hash 為 `sha256:9cdff8131e871d9bbc6e72f4bedcf69d7f4e885016aa120bdf73f116a1b4a567`。
+- **✅ 驗證通過**：方案 A 已達門檻，Core Scoring Logic 確定性驗證完成。
+- 目前累積：3 / 3 個真實交易日報告（已完成）。
 - 已完成：新增 `scripts/collect-real-report.sh`，保存每次執行 log 至 `logs/replay-accumulation/`，平時 silent，失敗或達 5／10 日才通知。
 - 已設定：cron job `db59ed112cd4`，週一至週五 UTC 09:00（台灣 17:00）執行 watchdog script；使用 `--no-ai --no-telegram --no-sheets`，不寫 Google Sheets、不發 Telegram。
 - 目前累積：`1 / 10` 個真實交易日報告。
