@@ -94,15 +94,16 @@ Phase 6 已完成並封存。E2E、部署檢查、硬編碼審計、WebApp Phase
 
 以下文件已完成、過期或內容已由新基線取代，移至 `docs/plans/completed/`：
 
-| 原文件                                   | 歸檔理由                                                           |
-| ---------------------------------------- | ------------------------------------------------------------------ |
-| `E2E_TEST_FIX_PLAN.md`                   | 實際 E2E 已達 49/49；原文件仍是 27 passed / 22 failed 的過期狀態。 |
-| `E2E_TESTING_PLAN.md`                    | Phase 1–4 已完成；延伸測試保留於本文件後續分析項目。               |
-| `DEPLOYMENT_CHECKLIST.md`                | 部署檢查已完成；舊測試數據由 Phase 6 final baseline 取代。         |
-| `HARDCODED_AUDIT.md`                     | 審計已完成，結論為 UI 設定型 hardcoded 維持原位。                  |
-| `MASTER_PLAN.md`                         | 高層總綱已過期，且與系統性優化及 Phase 3–5 文件重複。              |
-| `WEBAPP_PHASE_3-5_DETAIL_PLAN.md`        | Phase 5 已結案；Phase 3/4 決策已濃縮至本文件。                     |
-| `WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md` | Phase 1–2 已完成，Phase 3–5 決策已結案或降為選用。                 |
+| 原文件                                   | 歸檔理由                                                               |
+| ---------------------------------------- | ---------------------------------------------------------------------- |
+| `E2E_TEST_FIX_PLAN.md`                   | 實際 E2E 已達 49/49；原文件仍是 27 passed / 22 failed 的過期狀態。     |
+| `E2E_TESTING_PLAN.md`                    | Phase 1–4 已完成；延伸測試保留於本文件後續分析項目。                   |
+| `DEPLOYMENT_CHECKLIST.md`                | 部署檢查已完成；舊測試數據由 Phase 6 final baseline 取代。             |
+| `HARDCODED_AUDIT.md`                     | 審計已完成，結論為 UI 設定型 hardcoded 維持原位。                      |
+| `MASTER_PLAN.md`                         | 高層總綱已過期，且與系統性優化及 Phase 3–5 文件重複。                  |
+| `WEBAPP_PHASE_3-5_DETAIL_PLAN.md`        | Phase 5 已結案；Phase 3/4 決策已濃縮至本文件。                         |
+| `WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md` | Phase 1–2 已完成，Phase 3–5 決策已結案或降為選用。                     |
+| `CORE_LOGIC_VALIDATION_PLAN.md`          | Core Scoring Logic 確定性驗證 3/3 (100% MATCH) 通過，方案 A 門檻達成。 |
 
 原文件內容完整保留；本文件是目前唯一 active 入口，不是刪除歷史紀錄。
 
