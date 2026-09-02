@@ -102,7 +102,7 @@ Phase 6 已完成並封存。E2E、部署檢查、硬編碼審計、WebApp Phase
 | `HARDCODED_AUDIT.md`                     | 審計已完成，結論為 UI 設定型 hardcoded 維持原位。                      |
 | `MASTER_PLAN.md`                         | 高層總綱已過期，且與系統性優化及 Phase 3–5 文件重複。                  |
 | `WEBAPP_PHASE_3-5_DETAIL_PLAN.md`        | Phase 5 已結案；Phase 3/4 決策已濃縮至本文件。                         |
-| `MINIAPP_UIUX_IMPROVEMENT_PLAN.md`       | Telegram Mini App UI/UX 重構計畫 (Task 1–4 進行中)                     |
+| `MINIAPP_UIUX_IMPROVEMENT_PLAN.md`       | Telegram Mini App UI/UX 重構計畫已全數完成結案 (Task 1–4 綠燈)。       |
 | `WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md` | Phase 1–2 已完成，Phase 3–5 決策已結案或降為選用。                     |
 | `CORE_LOGIC_VALIDATION_PLAN.md`          | Core Scoring Logic 確定性驗證 3/3 (100% MATCH) 通過，方案 A 門檻達成。 |
 
