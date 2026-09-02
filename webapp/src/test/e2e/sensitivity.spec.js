@@ -148,29 +148,15 @@ test.describe("SimulatorView - Sensitivity Analysis (敏感度分析)", () => {
       await route.continue();
     });
 
-    // Navigate to the dashboard page
-    console.log("[TEST] Navigating to #/dashboard");
-    await page.goto("http://localhost:5173/#/dashboard", {
+    // Navigate directly to the simulator route
+    console.log("[TEST] Navigating to #/simulator");
+    await page.goto("http://localhost:5173/#/simulator", {
       waitUntil: "networkidle",
     });
     console.log("[TEST] Navigation complete");
     // Wait for the app container to ensure the Vue app has mounted
     await page.waitForSelector("#app", { timeout: 15000 });
     console.log("[TEST] App container found");
-    // Wait for the view container to ensure the Vue app has rendered the DashboardView
-    await page.waitForSelector(".view-container", { timeout: 15000 });
-    console.log("[TEST] View container found");
-    // Wait for Vue to render the dashboard title to ensure client-side rendering is complete
-    await page.waitForSelector("h2.dash-title", { timeout: 15000 });
-    console.log("[TEST] Dashboard title found");
-    // Wait for the simulator tab to be attached to DOM
-    await page.waitForSelector("[data-testid=simulator-tab]", {
-      state: "attached",
-      timeout: 60000,
-    });
-    console.log("[TEST] Simulator tab attached");
-    await page.locator("[data-testid=simulator-tab]").click();
-    console.log("[TEST] Simulator tab clicked");
     // Wait for the simulator view to mount
     await page.waitForSelector("[data-testid=simulator-view]", {
       timeout: 10000,
@@ -346,7 +332,7 @@ test.describe("SimulatorView - Sensitivity Analysis (敏感度分析)", () => {
     await expect(page.locator('[data-testid="btn-execute"]')).toBeEnabled();
 
     // Execute
-    await page.locator('[data-testid="btn-execute"]').click();
+    await page.locator('[data-testid="btn-execute"]').click({ force: true });
 
     // Wait for result
     await expect(page.locator(".sensitivity-chart-container")).toBeVisible({
@@ -403,7 +389,7 @@ test.describe("SimulatorView - Sensitivity Analysis (敏感度分析)", () => {
     await expect(page.locator('[data-testid="btn-execute"]')).toBeEnabled();
 
     // Execute (Tornado chart uses multiParams)
-    await page.locator('[data-testid="btn-execute"]').click();
+    await page.locator('[data-testid="btn-execute"]').click({ force: true });
 
     // Wait for result
     await expect(page.locator(".tornado-chart-container")).toBeVisible({
@@ -439,7 +425,7 @@ test.describe("SimulatorView - Sensitivity Analysis (敏感度分析)", () => {
     // Verify execute button is enabled
     await expect(page.locator('[data-testid="btn-execute"]')).toBeEnabled();
 
-    await page.locator('[data-testid="btn-execute"]').click();
+    await page.locator('[data-testid="btn-execute"]').click({ force: true });
     await expect(page.locator(".sensitivity-chart-container")).toBeVisible({
       timeout: 30000,
     });

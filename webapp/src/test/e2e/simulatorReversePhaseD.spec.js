@@ -365,11 +365,8 @@ test.describe("SimulatorView - Reverse Simulation Phase D (反向推導結果展
       });
     });
 
-    // Navigate to the dashboard page (simulator is now a tab within dashboard)
-    await page.goto("#/dashboard", { waitUntil: "networkidle" });
-    // Wait for the simulator tab to be visible and click it
-    await page.waitForSelector("text=0050 雙向模擬器", { timeout: 60000 });
-    await page.locator("text=0050 雙向模擬器").click();
+    // Navigate directly to the simulator route (simulator is a dedicated route now)
+    await page.goto("#/simulator", { waitUntil: "networkidle" });
     // Wait for the simulator view to mount
     await page.waitForSelector("[data-testid=simulator-view]", {
       timeout: 10000,
