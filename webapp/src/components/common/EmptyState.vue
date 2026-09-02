@@ -1,6 +1,10 @@
 <template>
   <div class="empty-state">
-    <el-empty :description="description" :image="imageUrl">
+    <el-empty :description="displayDescription" :image="imageUrl">
+      <template v-if="displayTitle" #description>
+        <div class="empty-title">{{ displayTitle }}</div>
+        <div v-if="displayMessage" class="empty-message">{{ displayMessage }}</div>
+      </template>
       <template v-if="icon" #image>
         <el-icon :size="iconSize" :color="iconColor">
           <component :is="icon" />
@@ -20,14 +24,7 @@
 </template>
 
 <script setup>
-/**
- * @available 此元件備用供未來頁面使用
- * EmptyState 適用場景:
- * - 無回測記錄、無新聞、搜尋無結果
- * - 無持倉、無交易紀錄、無快照
- * 
- * Element Plus ElEmpty 完整包裝，支援自訂 icon/action 按鈕
- */
+import { computed } from "vue";
 import { ElEmpty, ElButton, ElIcon } from "element-plus";
 import {
   Document,
@@ -38,8 +35,17 @@ import {
   Box,
 } from "@element-plus/icons-vue";
 
-defineProps({
-  // 描述文字
+const props = defineProps({
+  // 支援 Task 1 規格 props: title, message
+  title: {
+    type: String,
+    default: "",
+  },
+  message: {
+    type: String,
+    default: "",
+  },
+  // 原有相容描述文字
   description: {
     type: String,
     default: "暫無資料",
@@ -50,7 +56,6 @@ defineProps({
     default: "",
   },
   // 使用 Element Plus icon（與 imageUrl 互斥）
-  // 可選值: 'Document', 'Folder', 'Connection', 'Warning', 'Search', 'Box'
   icon: {
     type: String,
     default: "",
@@ -88,6 +93,13 @@ defineProps({
 });
 
 defineEmits(["action"]);
+
+const displayTitle = computed(() => props.title);
+const displayMessage = computed(() => props.message);
+const displayDescription = computed(() => {
+  if (props.title) return "";
+  return props.description;
+});
 </script>
 
 <script>
@@ -110,5 +122,15 @@ export default {
   justify-content: center;
   min-height: 200px;
   padding: 40px 20px;
+}
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--el-text-color-primary, #303133);
+  margin-bottom: 4px;
+}
+.empty-message {
+  font-size: 14px;
+  color: var(--el-text-color-secondary, #909399);
 }
 </style>

@@ -1,6 +1,15 @@
 <template>
   <div class="skeleton-loader">
+    <div v-if="linesCount > 0" class="skeleton-lines">
+      <div
+        v-for="i in linesCount"
+        :key="i"
+        class="skeleton-line"
+        :style="{ height: lineStyleHeight, marginBottom: '8px' }"
+      />
+    </div>
     <el-skeleton
+      v-else
       :rows="rows"
       :animated="animated"
       :loading="true"
@@ -73,15 +82,20 @@
 </template>
 
 <script setup>
-/**
- * @available 此元件備用供未來頁面使用
- * Skeleton 效果: 報表載入、圖表渲染中、資料同步中
- * 
- * Element Plus Skeleton 包裝器，支援多種骨架屏類型
- */
+import { computed } from "vue";
 import { ElSkeleton, ElSkeletonItem } from "element-plus";
 
-defineProps({
+const props = defineProps({
+  // 支援 lines (Task 1 規格)
+  lines: {
+    type: Number,
+    default: 0,
+  },
+  // 支援 height (Task 1 規格)
+  height: {
+    type: String,
+    default: "",
+  },
   // 骨架屏行數（variant=default 時有效）
   rows: {
     type: Number,
@@ -93,21 +107,35 @@ defineProps({
     default: true,
   },
   // 骨架屏變體
-  // default: 純文字行
-  // card: 卡片（圖片 + 標題 + 描述）
-  // list: 列表（頭像 + 兩行文字）
-  // chart: 圖表（大矩形 + 按鈕組）
-  // table: 表格（表頭 + 多行）
   variant: {
     type: String,
     default: "default",
     validator: (v) => ["default", "card", "list", "chart", "table"].includes(v),
   },
 });
+
+const linesCount = computed(() => props.lines);
+
+const lineStyleHeight = computed(() => {
+  if (props.height) {
+    return typeof props.height === "number" ? `${props.height}px` : props.height;
+  }
+  return "16px";
+});
 </script>
 
 <style scoped>
 .skeleton-loader {
   width: 100%;
+}
+.skeleton-line {
+  background: var(--el-skeleton-color, #f2f2f2);
+  border-radius: 4px;
+  animation: skeleton-loading 1.4s ease infinite;
+}
+@keyframes skeleton-loading {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }
 </style>
