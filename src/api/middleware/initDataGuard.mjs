@@ -28,6 +28,9 @@ export async function initDataGuard(request, reply) {
   // Skip guard for /health and /healthz endpoints
   if (request.url.startsWith("/health")) return;
 
+  // Skip guard for OPTIONS preflight requests
+  if (request.method === "OPTIONS") return;
+
   // Bypass ONLY in development environment or explicit bypass flag.
   // TEST_MODE is removed — use generateValidInitData() instead for real auth testing.
   if (

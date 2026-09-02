@@ -37,13 +37,36 @@ export async function buildApp(opts = {}) {
   });
 
   // ─── CORS ────────────────────────────────────────────────────────────────────
+  const defaultOrigins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://joysrr.duckdns.org",
+  ];
   const corsOrigins = process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(",")
-    : ["http://localhost:5173", "http://127.0.0.1:5173"];
+    : defaultOrigins;
 
   await fastify.register(cors, {
-    origin: corsOrigins,
-    methods: ["GET", "HEAD", "OPTIONS"],
+    origin: (origin, cb) => {
+      // 允許無 origin (如同源、手機 App 原生 WebView、Curl 或工具請求)
+      if (!origin) return cb(null, true);
+      if (
+        corsOrigins.includes(origin) ||
+        origin.endsWith(".duckdns.org") ||
+        origin.includes("telegram.org")
+      ) {
+        return cb(null, true);
+      }
+      return cb(null, true); // 防衛型寬鬆放行跨域，避免 Mini App WebView Origin 阻擋
+    },
+    methods: ["GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Telegram-Init-Data",
+      "x-telegram-init-data",
+    ],
+    credentials: true,
   });
 
   // ─── Rate Limiter ────────────────────────────────────────────────────────────
