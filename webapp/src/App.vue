@@ -30,15 +30,12 @@ watch(
   (path) => {
     if (!backButton) return;
 
-    // 定義「根路由」清單（這些頁面不顯示返回鍵，顯示「關閉」）
+    // 定義 4 大 Bottom Nav 根路由清單
     const rootPaths = [
       "/",
       "/dashboard",
       "/radar",
-      "/macro",
-      "/chart",
-      "/reports",
-      "/news",
+      "/simulator",
       "/account",
     ];
 

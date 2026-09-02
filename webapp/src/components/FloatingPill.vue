@@ -8,6 +8,7 @@
         class="nav-item"
         active-class="nav-item--active"
         :exact="tab.exact"
+        :data-testid="tab.testId"
       >
         <span class="nav-icon" v-html="tab.icon"></span>
         <span class="nav-label">{{ tab.label }}</span>
@@ -22,7 +23,6 @@ import { tabs } from "../config/tabsConfig.js";
 import { useIOSSwipeGuard } from "../composables/useIOSSwipeGuard.js";
 
 const pillRef = ref(null);
-// 保留 iOS 邊緣滑動保護邏輯，但位置已移開，衝突機率大幅降低
 useIOSSwipeGuard(pillRef);
 </script>
 
@@ -35,11 +35,11 @@ useIOSSwipeGuard(pillRef);
   display: flex;
   justify-content: center;
   z-index: 1000;
-  pointer-events: none; /* 容器本身不攔截點擊 */
+  pointer-events: none;
 }
 
 .floating-pill {
-  pointer-events: auto; /* 導航條攔截點擊 */
+  pointer-events: auto;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -59,13 +59,13 @@ useIOSSwipeGuard(pillRef);
 }
 
 .nav-item {
-  flex: 0 0 auto;
+  flex: 1 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 52px;
-  padding: 6px 4px;
+  min-width: 64px;
+  padding: 6px 8px;
   text-decoration: none;
   color: var(--tg-theme-hint-color, #999);
   transition: all 0.2s ease;
@@ -92,11 +92,11 @@ useIOSSwipeGuard(pillRef);
 }
 
 .nav-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
-/* 深色模式微調 */
 :global(.dark) .floating-pill {
   background: #1c1c1d;
   border-color: rgba(255, 255, 255, 0.1);
