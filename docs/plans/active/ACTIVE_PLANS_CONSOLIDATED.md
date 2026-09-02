@@ -1,8 +1,9 @@
 # Active Plans Consolidated
 
 > **狀態**：Active — 唯一現行計畫索引
-> **整理日期**：2026-08-17
-> **目的**：統整 `docs/plans/active/` 原有計畫，避免重複、過期狀態與已完成工作繼續佔用 active。
+> **整理日期**：2026-09-02
+> **現行計畫**：`docs/plans/active/DASHBOARD_INTEGRATION_AND_CONFIG_FIX_PLAN.md` (總覽頁整合與策略設定型別修復計畫)
+> **目的**：統整 `docs/plans/active/` 現行計畫。
 
 ## 1. 現況結論
 
