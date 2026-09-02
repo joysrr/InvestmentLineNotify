@@ -67,6 +67,23 @@
         class="field-input json-input"
       />
 
+      <!-- Enum Select -->
+      <el-select
+        v-else-if="fieldType === 'enum'"
+        v-model="localValue"
+        :placeholder="fieldMeta?.placeholder || '請選擇'"
+        style="width: 100%"
+        @change="handleChange"
+        class="field-input"
+      >
+        <el-option
+          v-for="opt in enumOptions"
+          :key="opt"
+          :label="opt"
+          :value="opt"
+        />
+      </el-select>
+
       <!-- Fallback -->
       <div v-else class="unsupported-type">
         <span class="unsupported-label">不支援的型別: {{ fieldType }}</span>
@@ -127,18 +144,68 @@ const fieldMeta = computed(() => {
   return props.meta[props.path] || null;
 });
 
+// Normalize meta.type (and non-standard aliases) into canonical editor type
+function normalizeType(rawType) {
+  switch (rawType) {
+    case "integer":
+    case "float":
+    case "double":
+    case "decimal":
+    case "real":
+      return "number";
+    case "text":
+    case "string":
+    case "str":
+      return "string";
+    case "bool":
+    case "boolean":
+      return "boolean";
+    case "list":
+    case "array":
+      return "array";
+    case "json":
+    case "object":
+    case "dict":
+    case "map":
+      return "object";
+    case "enum":
+    case "select":
+    case "choice":
+      return "enum";
+    case "number":
+    case "string":
+    case "boolean":
+    case "array":
+    case "object":
+      return rawType;
+    default:
+      return null;
+  }
+}
+
+// Enum options resolved from meta.options or meta.enum
+const enumOptions = computed(() => {
+  const opts = fieldMeta.value?.options || fieldMeta.value?.enum;
+  return Array.isArray(opts) ? opts : [];
+});
+
 // Determine field type
 const fieldType = computed(() => {
-  if (fieldMeta.value && fieldMeta.value.type) {
-    return fieldMeta.value.type;
+  const metaType = normalizeType(fieldMeta.value?.type);
+  if (metaType) {
+    // enum without options degrades to string so it stays editable
+    if (metaType === "enum" && enumOptions.value.length === 0) return "string";
+    return metaType;
   }
+
   const val = currentValue.value;
   if (typeof val === "string") return "string";
   if (typeof val === "number") return "number";
   if (typeof val === "boolean") return "boolean";
   if (Array.isArray(val)) return "array";
   if (val !== null && typeof val === "object") return "object";
-  return "unknown";
+  // undefined/null -> fallback to string so every field stays editable
+  return "string";
 });
 
 // Get current value from config using path

@@ -315,14 +315,102 @@ describe("ConfigFieldEditor", () => {
     });
   });
 
+  describe("Type Normalization", () => {
+    it("integer 型別渲染 el-input-number", () => {
+      const wrapper = createWrapper({
+        meta: { "test.field": { type: "integer", label: "整數" } },
+      });
+      expect(wrapper.findComponent({ name: "ElInputNumber" }).exists()).toBe(
+        true,
+      );
+      expect(wrapper.text()).not.toContain("不支援的型別");
+    });
+
+    it("float 型別渲染 el-input-number", () => {
+      const wrapper = createWrapper({
+        meta: { "test.field": { type: "float", label: "浮點" } },
+      });
+      expect(wrapper.findComponent({ name: "ElInputNumber" }).exists()).toBe(
+        true,
+      );
+    });
+
+    it("text 型別渲染 el-input", () => {
+      const wrapper = createWrapper({
+        meta: { "test.field": { type: "text", label: "文字" } },
+      });
+      expect(wrapper.findComponent({ name: "ElInput" }).exists()).toBe(true);
+    });
+
+    it("bool 型別渲染 el-select", () => {
+      const wrapper = createWrapper({
+        meta: { "test.field": { type: "bool", label: "開關" } },
+      });
+      expect(wrapper.findComponent({ name: "ElSelect" }).exists()).toBe(true);
+    });
+
+    it("list 型別渲染 textarea", () => {
+      const wrapper = createWrapper({
+        meta: { "test.field": { type: "list", label: "清單" } },
+      });
+      expect(wrapper.findAll("textarea").length).toBeGreaterThan(0);
+    });
+
+    it("dict 型別渲染 textarea", () => {
+      const wrapper = createWrapper({
+        meta: { "test.field": { type: "dict", label: "字典" } },
+      });
+      expect(wrapper.findAll("textarea").length).toBeGreaterThan(0);
+    });
+
+    it("enum 型別 + options 渲染 el-select 及選項", () => {
+      const wrapper = createWrapper({
+        meta: {
+          "test.field": {
+            type: "enum",
+            label: "模式",
+            options: ["a", "b", "c"],
+          },
+        },
+      });
+      expect(wrapper.findComponent({ name: "ElSelect" }).exists()).toBe(true);
+      const options = wrapper.findAllComponents({ name: "ElOption" });
+      expect(options.length).toBe(3);
+    });
+
+    it("enum 型別 + enum 陣列渲染 el-select 及選項", () => {
+      const wrapper = createWrapper({
+        meta: {
+          "test.field": {
+            type: "enum",
+            label: "模式",
+            enum: ["x", "y"],
+          },
+        },
+      });
+      expect(wrapper.findComponent({ name: "ElSelect" }).exists()).toBe(true);
+      const options = wrapper.findAllComponents({ name: "ElOption" });
+      expect(options.length).toBe(2);
+    });
+
+    it("undefined type 渲染可編輯 el-input 而非 unsupported-type", () => {
+      const wrapper = createWrapper({
+        meta: { "test.field": { label: "未知欄位" } },
+        config: {},
+      });
+      expect(wrapper.findComponent({ name: "ElInput" }).exists()).toBe(true);
+      expect(wrapper.text()).not.toContain("不支援的型別");
+    });
+  });
+
   describe("Unsupported Type", () => {
-    it("未知型別顯示原始 JSON", () => {
+    it("未知型別值為 object 時依值型別退回 JSON object 編輯器，不再顯示 unknown", () => {
       const wrapper = createWrapper({
         meta: { "test.field": { type: "unknown", label: "測試" } },
         config: { test: { field: { nested: "value" } } },
       });
-      expect(wrapper.text()).toContain("不支援的型別: unknown");
-      expect(wrapper.text()).toContain("nested");
+      expect(wrapper.text()).not.toContain("不支援的型別: unknown");
+      expect(wrapper.findAll("textarea").length).toBeGreaterThan(0);
     });
   });
 
