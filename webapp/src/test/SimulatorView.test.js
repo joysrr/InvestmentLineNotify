@@ -135,6 +135,10 @@ describe("SimulatorView - Phase E 實機驗收", () => {
           SimulatorModeSelector: true,
           ForwardPanel: true,
           ReversePanel: true,
+          BacktestReportView: {
+            template:
+              '<div class="backtest-report-stub" data-testid="backtest-report-stub" />',
+          },
         },
       },
     });
@@ -145,6 +149,31 @@ describe("SimulatorView - Phase E 實機驗收", () => {
     expect(wrapper.find(".sim-title").text()).toBe("0050 雙向模擬器");
     expect(wrapper.find(".sim-subtitle").text()).toBe(
       "股價 ⇄ 策略分數 / 條件反推 / 批次模擬 / 敏感度分析 / Pareto 前沿",
+    );
+  });
+
+  it("應渲染子頁籤 (試算模擬器 / 歷史回測報表)，預設為試算模擬器", async () => {
+    await flushPromises();
+    const seg = wrapper.find('[data-testid="simulator-subtabs"]');
+    expect(seg.exists()).toBe(true);
+    const btns = seg.findAll("button");
+    expect(btns.length).toBe(2);
+    expect(btns[0].text()).toContain("試算模擬器");
+    expect(btns[1].text()).toContain("歷史回測報表");
+    // 預設顯示 ForwardPanel（試算模式），不顯示回測報表
+    expect(wrapper.find('[data-testid="backtest-report-stub"]').exists()).toBe(
+      false,
+    );
+  });
+
+  it("切換到歷史回測報表子頁籤時顯示 BacktestReportView", async () => {
+    await flushPromises();
+    const seg = wrapper.find('[data-testid="simulator-subtabs"]');
+    const btns = seg.findAll("button");
+    await btns[1].trigger("click");
+    await flushPromises();
+    expect(wrapper.find('[data-testid="backtest-report-stub"]').exists()).toBe(
+      true,
     );
   });
 

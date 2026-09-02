@@ -43,21 +43,6 @@
         </button>
         <button
           class="tab-item"
-          :class="{ active: currentTab === 'simulator' }"
-          @click="currentTab = 'simulator'"
-          data-testid="simulator-tab"
-        >
-          0050 雙向模擬器
-        </button>
-        <button
-          class="tab-item"
-          :class="{ active: currentTab === 'backtest-report' }"
-          @click="currentTab = 'backtest-report'"
-        >
-          回測報表
-        </button>
-        <button
-          class="tab-item"
           :class="{ active: currentTab === 'strategy-config' }"
           @click="currentTab = 'strategy-config'"
         >
@@ -151,17 +136,7 @@
         <StrategyStatusView />
       </div>
 
-      <!-- Tab 5: Simulator (模擬器) -->
-      <div v-else-if="currentTab === 'simulator'">
-        <SimulatorView />
-      </div>
-
-      <!-- Tab 6: Backtest Report (回測報表) -->
-      <div v-else-if="currentTab === 'backtest-report'">
-        <BacktestReportView />
-      </div>
-
-      <!-- Tab 7: Strategy Config (策略設定) -->
+      <!-- Tab 5: Strategy Config (策略設定) -->
       <div v-else-if="currentTab === 'strategy-config'">
         <StrategyConfigEditorView />
       </div>
@@ -192,9 +167,7 @@ import DecisionHero from "../components/dashboard/DecisionHero.vue";
 import HealthPanel from "../components/dashboard/HealthPanel.vue";
 import CoachingAdvice from "../components/dashboard/CoachingAdvice.vue";
 import AnalysisPanel from "../components/dashboard/AnalysisPanel.vue";
-import SimulatorView from "../views/SimulatorView.vue";
 import StrategyStatusView from "../views/StrategyStatusView.vue";
-import BacktestReportView from "../views/BacktestReportView.vue";
 import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 

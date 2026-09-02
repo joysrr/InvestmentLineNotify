@@ -7,6 +7,31 @@
       <p class="sim-subtitle">股價 ⇄ 策略分數 / 條件反推 / 批次模擬 / 敏感度分析 / Pareto 前沿</p>
     </div>
 
+    <!-- Sub-tabs: 試算模擬器 | 歷史回測報表 -->
+    <div class="sim-subtabs" data-testid="simulator-subtabs">
+      <button
+        class="subtab-item"
+        :class="{ active: activeSubTab === 'calculator' }"
+        @click="activeSubTab = 'calculator'"
+        data-testid="subtab-calculator"
+      >
+        🧮 試算模擬器
+      </button>
+      <button
+        class="subtab-item"
+        :class="{ active: activeSubTab === 'backtest-report' }"
+        @click="activeSubTab = 'backtest-report'"
+        data-testid="subtab-backtest-report"
+      >
+        📊 歷史回測報表
+      </button>
+    </div>
+
+    <!-- Backtest Report sub-tab -->
+    <BacktestReportView v-if="activeSubTab === 'backtest-report'" />
+
+    <!-- Calculator sub-tab -->
+    <template v-else>
     <!-- Mode Selector -->
     <SimulatorModeSelector v-model="mode" data-testid="mode-selector" />
 
@@ -79,6 +104,7 @@
 
     <!-- Disclaimer -->
     <DisclaimerBanner v-if="result" :disclaimer="result.disclaimer" data-testid="disclaimer-banner" />
+    </template>
   </div>
   </GlobalErrorBoundary>
 </template>
@@ -98,9 +124,11 @@ import ParetoPanel from "@/components/simulator/ParetoPanel.vue";
 import DataQualityBadges from "@/components/simulator/Common/DataQualityBadges.vue";
 import DisclaimerBanner from "@/components/simulator/Common/DisclaimerBanner.vue";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
+import BacktestReportView from "@/views/BacktestReportView.vue";
 
 // State
 const mode = ref("forward"); // 'forward' | 'reverse'
+const activeSubTab = ref("calculator"); // 'calculator' | 'backtest-report'
 
 // Forward Input - 使用獨立 ref 確保 template 自動解包 (Vue 3 官方建議)
 const price0050 = ref(null);
@@ -246,5 +274,31 @@ onMounted(async () => {
 .sim-subtitle {
   font-size: 13px;
   color: #888;
+}
+
+.sim-subtabs {
+  display: flex;
+  background: #f0f0f0;
+  border-radius: 14px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+.subtab-item {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #888;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.subtab-item.active {
+  background: #fff;
+  color: #111;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 </style>
