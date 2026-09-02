@@ -14,6 +14,25 @@
 
 ---
 
+## Architecture & Grilling Decisions (決策定案)
+
+本計畫經過 Grilling 訪談與設計樹對齊，確定以下 4 大關鍵架構決策：
+
+1. **Q1: 總覽頁視覺採「單頁式精簡戰情儀表板 (Single Integrated View)」**
+   - **決策**：移除「健康度」、「分析」、「策略狀態」這三個重複度高的獨立 Tab 按鈕。
+   - **理由**：改為單頁式戰情儀表板，頂部放 Key Metrics Banner（總體策略健康分數 + 燈號 + 建議動作），下方分左右卡片併陳「保證金跌幅防禦」與「市場多空指標」，無須切換 Tab 即可一目了然。
+2. **Q2: 歷史回測報表遷移至 `SimulatorView.vue` 採「 Segmented Control 頂部子頁籤」**
+   - **決策**：在 `SimulatorView.vue` 頂部新增 `[🧮 試算模擬器 | 📊 歷史回測報表]` 兩個 Segmented Button，預設為「試算模擬器」。
+   - **理由**：避免與試算模擬器在同一頁垂直排列導致頁面過長與圖表負載過重，兼顧分類與效能。
+3. **Q3: 策略設定編輯器 (`ConfigFieldEditor.vue`) `unknown` 型別防護**
+   - **決策**：採「雙重防禦機制 (Default to String + Diagnostic Logger)」。當型別未定義且值為 `null`/`undefined` 時，預設退回 `string` 編輯器並嘗試轉型，絕不顯示 `不支援的型別: unknown`。
+   - **理由**：確保 100% 欄位皆可檢視與編輯，不遺漏選填欄位或破壞畫面。
+4. **Q4: 廢棄狀態與測試案例對齊 (Clean Architecture)**
+   - **決策**：更新 `navigationStore.js` 併入 `simulatorSubTab`（記錄 `calculator` 與 `backtest-report`），清理 `dashboardTab` 死碼狀態並更新 5 個關聯測試檔。
+   - **理由**：避免留下技術債與舊欄位。
+
+---
+
 ## Global Constraints
 
 - **TDD Mandatory:** RED-GREEN-REFACTOR-VERIFY. Tests must be written before implementation.
