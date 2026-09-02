@@ -87,7 +87,10 @@ export async function apiFetch(path, options = {}) {
     }
 
     try {
-      const url = `${BASE}${path}`;
+      const url =
+        path.startsWith("http://") || path.startsWith("https://")
+          ? path
+          : `${BASE}${path}`;
       logger.info(
         {
           traceId: "api-fetch",
