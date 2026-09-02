@@ -9,11 +9,12 @@
       </div>
 
       <!-- Tab Navigation (Top Level) -->
-      <div class="dash-tabs">
+      <div class="dash-tabs" data-testid="dashboard-tabs">
         <button
           class="tab-item"
           :class="{ active: currentTab === 'summary' }"
           @click="currentTab = 'summary'"
+          data-testid="dash-tab-summary"
         >
           總覽
         </button>
@@ -21,6 +22,7 @@
           class="tab-item"
           :class="{ active: currentTab === 'health' }"
           @click="currentTab = 'health'"
+          data-testid="dash-tab-health"
         >
           健康度
           <span v-if="healthData?.status === 'RED'" class="tab-badge">!</span>
