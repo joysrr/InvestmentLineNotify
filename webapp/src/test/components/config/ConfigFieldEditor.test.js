@@ -147,6 +147,26 @@ describe("ConfigFieldEditor", () => {
       expect(wrapper.findComponent({ name: "ElInput" }).exists()).toBe(true);
     });
 
+    it("無 meta.type 但值為 string 時自動推斷型別並渲染 el-input", () => {
+      const wrapper = createWrapper({
+        path: "basic.version",
+        meta: { "basic.version": { label: "系統版本" } },
+        config: { basic: { version: "2.8" } },
+      });
+      expect(wrapper.findComponent({ name: "ElInput" }).exists()).toBe(true);
+      expect(wrapper.text()).not.toContain("不支援的型別: unknown");
+    });
+
+    it("無 meta 但值為 string 時自動推斷型別並渲染 el-input", () => {
+      const wrapper = createWrapper({
+        path: "basic.description",
+        meta: {},
+        config: { basic: { description: "預設策略" } },
+      });
+      expect(wrapper.findComponent({ name: "ElInput" }).exists()).toBe(true);
+      expect(wrapper.text()).not.toContain("不支援的型別: unknown");
+    });
+
     it("輸入字串觸發 update", async () => {
       const wrapper = createWrapper({
         meta: { "test.field": { type: "string", label: "描述" } },

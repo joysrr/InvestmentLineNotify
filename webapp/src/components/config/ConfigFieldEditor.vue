@@ -129,8 +129,16 @@ const fieldMeta = computed(() => {
 
 // Determine field type
 const fieldType = computed(() => {
-  if (!fieldMeta.value) return "unknown";
-  return fieldMeta.value.type || "unknown";
+  if (fieldMeta.value && fieldMeta.value.type) {
+    return fieldMeta.value.type;
+  }
+  const val = currentValue.value;
+  if (typeof val === "string") return "string";
+  if (typeof val === "number") return "number";
+  if (typeof val === "boolean") return "boolean";
+  if (Array.isArray(val)) return "array";
+  if (val !== null && typeof val === "object") return "object";
+  return "unknown";
 });
 
 // Get current value from config using path
