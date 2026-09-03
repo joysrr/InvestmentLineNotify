@@ -255,7 +255,7 @@ onMounted(async () => {
 
 <style scoped>
 .simulator-view {
-  padding: 16px;
+  padding: 16px 16px 130px;
   max-width: 600px;
   margin: 0 auto;
 }

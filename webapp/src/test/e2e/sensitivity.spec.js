@@ -133,20 +133,11 @@ test.describe("SimulatorView - Sensitivity Analysis (敏感度分析)", () => {
       }
     });
 
-    // Catch-all for any unmocked API to see what's being called
-    await page.route("**/api/**", async (route) => {
-      const url = route.request().url();
-      if (
-        !url.includes("/api/status") &&
-        !url.includes("/api/news") &&
-        !url.includes("/api/portfolio/health") &&
-        !url.includes("/api/reports") &&
-        !url.includes("/api/v1/simulate/sensitivity")
-      ) {
-        console.log("[UNMOCKED API] ", route.request().method(), url);
-      }
-      await route.continue();
-    });
+    // NOTE: no catch-all `**/api/**` route here. Playwright routes match
+    // LIFO (last registered wins), so a catch-all would swallow every /api
+    // request above and route.continue() it to the real backend, defeating
+    // the specific mocks. Unmatched requests fall through to the network
+    // automatically.
 
     // Navigate directly to the simulator route
     console.log("[TEST] Navigating to #/simulator");
@@ -332,7 +323,7 @@ test.describe("SimulatorView - Sensitivity Analysis (敏感度分析)", () => {
     await expect(page.locator('[data-testid="btn-execute"]')).toBeEnabled();
 
     // Execute
-    await page.locator('[data-testid="btn-execute"]').click({ force: true });
+    await page.locator('[data-testid="btn-execute"]').click();
 
     // Wait for result
     await expect(page.locator(".sensitivity-chart-container")).toBeVisible({
@@ -389,7 +380,7 @@ test.describe("SimulatorView - Sensitivity Analysis (敏感度分析)", () => {
     await expect(page.locator('[data-testid="btn-execute"]')).toBeEnabled();
 
     // Execute (Tornado chart uses multiParams)
-    await page.locator('[data-testid="btn-execute"]').click({ force: true });
+    await page.locator('[data-testid="btn-execute"]').click();
 
     // Wait for result
     await expect(page.locator(".tornado-chart-container")).toBeVisible({
@@ -425,7 +416,7 @@ test.describe("SimulatorView - Sensitivity Analysis (敏感度分析)", () => {
     // Verify execute button is enabled
     await expect(page.locator('[data-testid="btn-execute"]')).toBeEnabled();
 
-    await page.locator('[data-testid="btn-execute"]').click({ force: true });
+    await page.locator('[data-testid="btn-execute"]').click();
     await expect(page.locator(".sensitivity-chart-container")).toBeVisible({
       timeout: 30000,
     });
