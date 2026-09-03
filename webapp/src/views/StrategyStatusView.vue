@@ -8,64 +8,64 @@
         即時策略決策透視：分數構成、冷卻期、檔位、風控與預度
       </p>
       <div class="last-updated" v-if="data?.timestamp">
-        更新：{{ formatTime(data.timestamp) }}
+        更新：{{ formatTime(health.timestamp) }}
       </div>
     </div>
 
     <!-- Loading / Error States -->
-    <div v-if="loading" class="status-skeleton">
+    <div v-if="isLoading" class="status-skeleton">
       <div class="sk-card" v-for="i in 4" :key="i"></div>
     </div>
 
-    <div v-else-if="error" class="status-error">
-      <p>{{ error }}</p>
+    <div v-else-if="loadError" class="status-error">
+      <p>{{ loadError }}</p>
       <button class="tg-button retry-btn" @click="loadData">重試</button>
     </div>
 
     <!-- Main Content -->
-    <div v-else-if="data" class="status-content">
+    <div v-else-if="health" class="status-content">
       
       <!-- Section 1: Weight Score Breakdown -->
       <section class="status-section">
         <div class="section-header">
           <h3 class="section-title">📊 策略分數構成 (Weight Score)</h3>
-          <span class="section-badge" :class="scoreClass">{{ data.weightScore.total }}pt</span>
+          <span class="section-badge" :class="scoreClass">{{ health.weightScore.total }}pt</span>
         </div>
         <div class="score-breakdown">
           <ScoreBar 
             label="跌幅評分" 
-            :value="data.weightScore.dropScore" 
+            :value="health.weightScore.dropScore" 
             :max="5" 
             color="#e91e63"
-            :description="getDropScoreDesc(data.weightScore.dropScore)"
+            :description="getDropScoreDesc(health.weightScore.dropScore)"
           />
           <ScoreBar 
             label="RSI 評分" 
-            :value="data.weightScore.rsiScore" 
+            :value="health.weightScore.rsiScore" 
             :max="5" 
             color="#2196f3"
-            :description="getRsiScoreDesc(data.weightScore.rsiScore)"
+            :description="getRsiScoreDesc(health.weightScore.rsiScore)"
           />
           <ScoreBar 
             label="MACD 評分" 
-            :value="data.weightScore.macdScore" 
+            :value="health.weightScore.macdScore" 
             :max="5" 
             color="#ff9800"
-            :description="getMacdScoreDesc(data.weightScore.macdScore)"
+            :description="getMacdScoreDesc(health.weightScore.macdScore)"
           />
           <ScoreBar 
             label="KD 評分" 
-            :value="data.weightScore.kdScore" 
+            :value="health.weightScore.kdScore" 
             :max="5" 
             color="#9c27b0"
-            :description="getKdScoreDesc(data.weightScore.kdScore)"
+            :description="getKdScoreDesc(health.weightScore.kdScore)"
           />
           <ScoreBar 
             label="情緒加成" 
-            :value="data.weightScore.sentimentScore" 
+            :value="health.weightScore.sentimentScore" 
             :max="5" 
             color="#607d8b"
-            :description="getSentimentScoreDesc(data.weightScore.sentimentScore)"
+            :description="getSentimentScoreDesc(health.weightScore.sentimentScore)"
           />
         </div>
       </section>
@@ -75,24 +75,24 @@
         <div class="section-header">
           <h3 class="section-title">❄️ 冷卻期狀態</h3>
           <span class="section-badge" :class="cooldownClass">
-            {{ data.cooldown.inCooldown ? `剩餘 ${data.cooldown.daysLeft} 天` : '無冷卻期' }}
+            {{ health.cooldown.inCooldown ? `剩餘 ${health.cooldown.daysLeft} 天` : '無冷卻期' }}
           </span>
         </div>
-        <div class="cooldown-card" :class="{ 'in-cooldown': data.cooldown.inCooldown }">
+        <div class="cooldown-card" :class="{ 'in-cooldown': health.cooldown.inCooldown }">
           <div class="cooldown-main">
-            <div class="cooldown-icon" :class="{ active: data.cooldown.inCooldown }">
-              {{ data.cooldown.inCooldown ? '⏳' : '✅' }}
+            <div class="cooldown-icon" :class="{ active: health.cooldown.inCooldown }">
+              {{ health.cooldown.inCooldown ? '⏳' : '✅' }}
             </div>
             <div class="cooldown-info">
-              <div class="cooldown-label">{{ data.cooldown.inCooldown ? '冷卻中' : '可正常交易' }}</div>
-              <div class="cooldown-days" v-if="data.cooldown.inCooldown">
-                剩餘 <strong>{{ data.cooldown.daysLeft }} 個交易日</strong> 解除
+              <div class="cooldown-label">{{ health.cooldown.inCooldown ? '冷卻中' : '可正常交易' }}</div>
+              <div class="cooldown-days" v-if="health.cooldown.inCooldown">
+                剩餘 <strong>{{ health.cooldown.daysLeft }} 個交易日</strong> 解除
               </div>
-              <div class="cooldown-message">{{ data.cooldown.message }}</div>
+              <div class="cooldown-message">{{ health.cooldown.message }}</div>
             </div>
-            <div class="cooldown-detail" v-if="data.cooldown.lastBuyDate">
+            <div class="cooldown-detail" v-if="health.cooldown.lastBuyDate">
               <span class="detail-label">上次買入：</span>
-              <span class="detail-value">{{ formatDate(data.cooldown.lastBuyDate) }}</span>
+              <span class="detail-value">{{ formatDate(health.cooldown.lastBuyDate) }}</span>
             </div>
           </div>
         </div>
@@ -102,20 +102,20 @@
       <section class="status-section">
         <div class="section-header">
           <h3 class="section-title">🎯 策略分數檔位與目標槓桿</h3>
-          <span class="section-badge">{{ data.allocation.current.comment }}</span>
+          <span class="section-badge">{{ health.allocation.current.comment }}</span>
         </div>
         <div class="allocation-tiers">
           <AllocationTier
             v-for="tier in allocationTiers"
             :key="tier.minScore"
             :tier="tier"
-            :is-current="tier.minScore === data.allocation.current.minScore"
-            :is-next="data.allocation.next && tier.minScore === data.allocation.next.minScore"
+            :is-current="tier.minScore === health.allocation.current.minScore"
+            :is-next="health.allocation.next && tier.minScore === health.allocation.next.minScore"
           />
         </div>
-        <div class="score-to-next" v-if="data.allocation.next">
+        <div class="score-to-next" v-if="health.allocation.next">
           <span class="next-label">距離下一檔位</span>
-          <span class="next-score">+{{ data.allocation.next.scoreToNext }}pt (需達 {{ data.allocation.next.minScore }}pt)</span>
+          <span class="next-score">+{{ health.allocation.next.scoreToNext }}pt (需達 {{ health.allocation.next.minScore }}pt)</span>
         </div>
       </section>
 
@@ -125,9 +125,9 @@
           <h3 class="section-title">📈 評分門檻</h3>
         </div>
         <div class="thresholds-grid">
-          <ThresholdItem label="起始買入門檻" :value="data.scoring.minScoreToBuy" unit="pt" />
-          <ThresholdItem label="戰術加碼門檻" :value="data.scoring.buyTactical" unit="pt" />
-          <ThresholdItem label="牛市戰術門檻" :value="data.scoring.buyTacticalBullish" unit="pt" />
+          <ThresholdItem label="起始買入門檻" :value="health.scoring.minScoreToBuy" unit="pt" />
+          <ThresholdItem label="戰術加碼門檻" :value="health.scoring.buyTactical" unit="pt" />
+          <ThresholdItem label="牛市戰術門檻" :value="health.scoring.buyTacticalBullish" unit="pt" />
         </div>
       </section>
 
@@ -136,20 +136,20 @@
         <div class="section-header">
           <h3 class="section-title">💰 Budget Priority (資金預度管控)</h3>
           <span class="section-badge" :class="budgetClass">
-            {{ data.budget.isLimited ? '⚠️ 受限' : '✅ 正常' }}
+            {{ health.budget.isLimited ? '⚠️ 受限' : '✅ 正常' }}
           </span>
         </div>
-        <div class="budget-card" :class="{ limited: data.budget.isLimited }">
+        <div class="budget-card" :class="{ limited: health.budget.isLimited }">
           <div class="budget-grid">
-            <BudgetItem label="每日總可用" :value="data.budget.details.dailyAvailable" unit="元" />
-            <BudgetItem label="Baseline 預留" :value="data.budget.details.dailyDcaReserve" unit="元" />
-            <BudgetItem label="Tactical 可用池" :value="data.budget.details.tacticalPool" unit="元" />
-            <BudgetItem label="當前請求" :value="data.budget.details.poolAmount" unit="元" />
-            <BudgetItem label="實際允許" :value="data.budget.allowedAmount" unit="元" />
+            <BudgetItem label="每日總可用" :value="health.budget.details.dailyAvailable" unit="元" />
+            <BudgetItem label="Baseline 預留" :value="health.budget.details.dailyDcaReserve" unit="元" />
+            <BudgetItem label="Tactical 可用池" :value="health.budget.details.tacticalPool" unit="元" />
+            <BudgetItem label="當前請求" :value="health.budget.details.poolAmount" unit="元" />
+            <BudgetItem label="實際允許" :value="health.budget.allowedAmount" unit="元" />
           </div>
-          <div class="budget-reason" v-if="data.budget.isLimited">
+          <div class="budget-reason" v-if="health.budget.isLimited">
             <span class="reason-icon">⚠️</span>
-            <span class="reason-text">{{ data.budget.limitedReason }}</span>
+            <span class="reason-text">{{ health.budget.limitedReason }}</span>
           </div>
           <div class="budget-signal-type">
             <span class="type-label">信號類型：</span>
@@ -171,15 +171,15 @@
           <div class="signal-details">
             <div class="signal-row">
               <span class="detail-label">方向</span>
-              <span class="detail-value signal-direction" :class="directionClass">{{ data.signal.direction }}</span>
+              <span class="detail-value signal-direction" :class="directionClass">{{ health.signal.direction }}</span>
             </div>
             <div class="signal-row">
               <span class="detail-label">目標</span>
-              <span class="detail-value">{{ data.signal.target }}</span>
+              <span class="detail-value">{{ health.signal.target }}</span>
             </div>
             <div class="signal-row">
               <span class="detail-label">建議</span>
-              <span class="detail-value">{{ data.signal.suggestion }}</span>
+              <span class="detail-value">{{ health.signal.suggestion }}</span>
             </div>
           </div>
         </div>
@@ -189,15 +189,15 @@
       <section class="status-section">
         <div class="section-header">
           <h3 class="section-title">👤 生命週期階段</h3>
-          <span class="section-badge lifecycle-badge" :class="lifecycleClass">{{ data.lifecycle.stage }}</span>
+          <span class="section-badge lifecycle-badge" :class="lifecycleClass">{{ health.lifecycle.stage }}</span>
         </div>
         <div class="lifecycle-card">
           <div class="lifecycle-grid">
             <LifecycleItem label="當前階段" :value="lifecycleStageLabel" :icon="lifecycleIcon" />
-            <LifecycleItem v-if="data.lifecycle.yearsToRetirement != null" label="距退休" :value="data.lifecycle.yearsToRetirement" unit="年" />
-            <LifecycleItem label="槓桿上限" :value="data.lifecycleProfile.maxLeverage" unit="x" />
-            <LifecycleItem label="新增Z2上限" :value="data.lifecycleProfile.maxLeverageForNewZ2" unit="x" />
-            <LifecycleItem label="最低生存跌幅" :value="data.lifecycleProfile.minSurvivalDropLimit" unit="%" />
+            <LifecycleItem v-if="health.lifecycle.yearsToRetirement != null" label="距退休" :value="health.lifecycle.yearsToRetirement" unit="年" />
+            <LifecycleItem label="槓桿上限" :value="health.lifecycleProfile.maxLeverage" unit="x" />
+            <LifecycleItem label="新增Z2上限" :value="health.lifecycleProfile.maxLeverageForNewZ2" unit="x" />
+            <LifecycleItem label="最低生存跌幅" :value="health.lifecycleProfile.minSurvivalDropLimit" unit="%" />
             <LifecycleItem label="模式" :value="lifecycleModeLabel" />
           </div>
         </div>
@@ -212,36 +212,36 @@
         <div class="risk-grid">
           <RiskItem 
             label="Regime 狀態" 
-            :value="data.risk.regime" 
+            :value="health.risk.regime" 
             :icon="regimeIcon" 
             :class="regimeClass"
           />
           <RiskItem 
             label="維持率" 
-            :value="data.risk.maintenanceMargin" 
+            :value="health.risk.maintenanceMargin" 
             unit="%"
-            :icon="data.risk.maintenanceMargin < 145 ? '🔴' : data.risk.maintenanceMargin < 160 ? '🟠' : '🟢'"
+            :icon="health.risk.maintenanceMargin < 145 ? '🔴' : health.risk.maintenanceMargin < 160 ? '🟠' : '🟢'"
           />
           <RiskItem 
             label="綜合槓桿" 
-            :value="data.risk.grossLeverage" 
+            :value="health.risk.grossLeverage" 
             unit="x"
-            :icon="data.risk.grossLeverage > 2.5 ? '🔴' : data.risk.grossLeverage > 2.0 ? '🟠' : '🟢'"
+            :icon="health.risk.grossLeverage > 2.5 ? '🔴' : health.risk.grossLeverage > 2.0 ? '🟠' : '🟢'"
           />
           <RiskItem 
             label="估值守衛" 
-            :value="data.risk.valuationGuard?.latchActive ? '生效' : '未生效'"
-            :icon="data.risk.valuationGuard?.latchActive ? '🔒' : '🔓'"
+            :value="health.risk.valuationGuard?.latchActive ? '生效' : '未生效'"
+            :icon="health.risk.valuationGuard?.latchActive ? '🔒' : '🔓'"
           />
           <RiskItem 
             label="恐慌破冰" 
-            :value="data.risk.panicBypassActive ? '生效' : '未生效'"
-            :icon="data.risk.panicBypassActive ? '⚡' : '🔓'"
+            :value="health.risk.panicBypassActive ? '生效' : '未生效'"
+            :icon="health.risk.panicBypassActive ? '⚡' : '🔓'"
           />
           <RiskItem 
             label="移動停利" 
-            :value="data.risk.trailingActive ? '啟動' : '待機'"
-            :icon="data.risk.trailingActive ? '📉' : '⏸️'"
+            :value="health.risk.trailingActive ? '啟動' : '待機'"
+            :icon="health.risk.trailingActive ? '📉' : '⏸️'"
           />
         </div>
       </section>
@@ -252,12 +252,12 @@
           <h3 class="section-title">📋 關鍵指標速覽</h3>
         </div>
         <div class="metrics-grid">
-          <MetricItem label="維持率" :value="data.keyMetrics.maintenanceMargin" unit="%" />
-          <MetricItem label="綜合槓桿" :value="data.keyMetrics.grossLeverage" unit="x" />
-          <MetricItem label="Z2 佔比" :value="data.keyMetrics.z2Ratio" unit="%" />
-          <MetricItem label="估值 PR" :value="data.keyMetrics.currentPr" unit="%" />
-          <MetricItem label="淨資產" :value="data.keyMetrics.netAsset" unit="元" format="number" />
-          <MetricItem label="實際槓桿" :value="data.keyMetrics.actualLeverage" unit="x" />
+          <MetricItem label="維持率" :value="health.keyMetrics.maintenanceMargin" unit="%" />
+          <MetricItem label="綜合槓桿" :value="health.keyMetrics.grossLeverage" unit="x" />
+          <MetricItem label="Z2 佔比" :value="health.keyMetrics.z2Ratio" unit="%" />
+          <MetricItem label="估值 PR" :value="health.keyMetrics.currentPr" unit="%" />
+          <MetricItem label="淨資產" :value="health.keyMetrics.netAsset" unit="元" format="number" />
+          <MetricItem label="實際槓桿" :value="health.keyMetrics.actualLeverage" unit="x" />
         </div>
       </section>
 
@@ -281,47 +281,64 @@ import LifecycleItem from "../components/dashboard/LifecycleItem.vue";
 import RiskItem from "../components/dashboard/RiskItem.vue";
 import MetricItem from "../components/dashboard/MetricItem.vue";
 
-// State
-const data = ref(null);
-const loading = ref(true);
-const error = ref(null);
+// Props (Phase 3: prop-driven, parent DashboardView passes :health)
+const props = defineProps({
+  health: { type: Object, default: null },
+  loading: { type: Boolean, default: false },
+  error: { type: String, default: null },
+});
 
-// Load data
+// Internal state for fallback self-load mode (used when no :health prop)
+const data = ref(null);
+const internalLoading = ref(true);
+const internalError = ref(null);
+
+// Computed: prefer prop health, fall back to internal data
+const health = computed(() => props.health ?? data.value);
+const isLoading = computed(
+  () => (props.health != null ? props.loading : internalLoading.value),
+);
+const loadError = computed(
+  () => (props.health != null ? props.error : internalError.value),
+);
+
+// Load data (only when no :health prop provided by parent)
 const loadData = async () => {
-  loading.value = true;
-  error.value = null;
+  if (props.health != null) return; // prop-driven: skip self-load
+  internalLoading.value = true;
+  internalError.value = null;
   try {
     const res = await apiFetch("/api/strategy-status");
     data.value = res;
   } catch (err) {
     if (err.status === 404) {
-      error.value = "策略狀態數據尚未產生或服務升級中，請稍後再試。";
+      internalError.value = "策略狀態數據尚未產生或服務升級中，請稍後再試。";
     } else {
-      error.value = "無法載入策略狀態：" + err.message;
+      internalError.value = "無法載入策略狀態：" + err.message;
     }
   } finally {
-    loading.value = false;
+    internalLoading.value = false;
   }
 };
 
 // Computed helpers
 const scoreClass = computed(() => {
-  const score = data.value?.weightScore?.total ?? 0;
+  const score = health.value?.weightScore?.total ?? 0;
   if (score >= 8) return "badge-buy";
   if (score >= 4) return "badge-wait";
   return "badge-sell";
 });
 
 const cooldownClass = computed(() => 
-  data.value?.cooldown?.inCooldown ? "badge-warn" : "badge-ok"
+  health.value?.cooldown?.inCooldown ? "badge-warn" : "badge-ok"
 );
 
 const budgetClass = computed(() => 
-  data.value?.budget?.isLimited ? "badge-danger" : "badge-ok"
+  health.value?.budget?.isLimited ? "badge-danger" : "badge-ok"
 );
 
 const signalCategoryClass = computed(() => {
-  const cat = data.value?.signal?.category ?? "baseline";
+  const cat = health.value?.signal?.category ?? "baseline";
   const map = {
     panic: "badge-danger",
     deep_drop: "badge-warn",
@@ -333,7 +350,7 @@ const signalCategoryClass = computed(() => {
 });
 
 const signalCategoryLabel = computed(() => {
-  const cat = data.value?.signal?.category ?? "baseline";
+  const cat = health.value?.signal?.category ?? "baseline";
   const map = {
     panic: "🔴 恐慌",
     deep_drop: "🟠 深度回撤",
@@ -345,7 +362,7 @@ const signalCategoryLabel = computed(() => {
 });
 
 const signalTypeClass = computed(() => {
-  const type = data.value?.signal?.type ?? "baseline";
+  const type = health.value?.signal?.type ?? "baseline";
   const map = {
     tactical_panic: "badge-danger",
     tactical_drop: "badge-warn",
@@ -355,7 +372,7 @@ const signalTypeClass = computed(() => {
 });
 
 const signalTypeLabel = computed(() => {
-  const type = data.value?.signal?.type ?? "baseline";
+  const type = health.value?.signal?.type ?? "baseline";
   const map = {
     tactical_panic: "⚡ 戰術恐慌",
     tactical_drop: "🎯 戰術回撤",
@@ -365,7 +382,7 @@ const signalTypeLabel = computed(() => {
 });
 
 const lifecycleClass = computed(() => {
-  const stage = data.value?.lifecycle?.stage ?? "EARLY";
+  const stage = health.value?.lifecycle?.stage ?? "EARLY";
   const map = {
     EARLY: "badge-buy",
     MID: "badge-wait",
@@ -376,7 +393,7 @@ const lifecycleClass = computed(() => {
 });
 
 const lifecycleStageLabel = computed(() => {
-  const stage = data.value?.lifecycle?.stage ?? "EARLY";
+  const stage = health.value?.lifecycle?.stage ?? "EARLY";
   const map = {
     EARLY: "🌱 早期累積期 (>15年)",
     MID: "🌿 中期平衡期 (10-15年)",
@@ -387,7 +404,7 @@ const lifecycleStageLabel = computed(() => {
 });
 
 const lifecycleIcon = computed(() => {
-  const stage = data.value?.lifecycle?.stage ?? "EARLY";
+  const stage = health.value?.lifecycle?.stage ?? "EARLY";
   const map = {
     EARLY: "🌱",
     MID: "🌿",
@@ -398,7 +415,7 @@ const lifecycleIcon = computed(() => {
 });
 
 const lifecycleModeLabel = computed(() => {
-  const mode = data.value?.lifecycleProfile?.mode ?? "unknown";
+  const mode = health.value?.lifecycleProfile?.mode ?? "unknown";
   const map = {
     aggressive: "積極",
     balanced: "平衡",
@@ -410,31 +427,31 @@ const lifecycleModeLabel = computed(() => {
 });
 
 const regimeIcon = computed(() => {
-  const regime = data.value?.risk?.regime ?? "NORMAL";
+  const regime = health.value?.risk?.regime ?? "NORMAL";
   const map = { CRISIS: "🔴", CAUTIOUS: "🟠", NORMAL: "🟢" };
   return map[regime] ?? "⚪";
 });
 
 const regimeClass = computed(() => {
-  const regime = data.value?.risk?.regime ?? "NORMAL";
+  const regime = health.value?.risk?.regime ?? "NORMAL";
   const map = { CRISIS: "badge-danger", CAUTIOUS: "badge-warn", NORMAL: "badge-ok" };
   return map[regime] ?? "badge-ok";
 });
 
 const riskLabel = computed(() => {
-  const regime = data.value?.risk?.regime ?? "NORMAL";
+  const regime = health.value?.risk?.regime ?? "NORMAL";
   const map = { CRISIS: "🔴 危機", CAUTIOUS: "🟠 警戒", NORMAL: "🟢 正常" };
   return map[regime] ?? regime;
 });
 
 const riskClass = computed(() => {
-  const regime = data.value?.risk?.regime ?? "NORMAL";
+  const regime = health.value?.risk?.regime ?? "NORMAL";
   const map = { CRISIS: "badge-danger", CAUTIOUS: "badge-warn", NORMAL: "badge-ok" };
   return map[regime] ?? "badge-ok";
 });
 
 const directionClass = computed(() => {
-  const dir = data.value?.signal?.direction ?? "hold";
+  const dir = health.value?.signal?.direction ?? "hold";
   const map = { long: "text-buy", short: "text-sell", hold: "text-wait" };
   return map[dir] ?? "";
 });
@@ -473,7 +490,7 @@ const getSentimentScoreDesc = (score) => {
 };
 
 const allocationTiers = computed(() => {
-  const strategy = data.value?.strategySnapshot ?? {};
+  const strategy = health.value?.strategySnapshot ?? {};
   const allocation = strategy.allocation ?? {};
   // allocation is an object with current/next, convert to array
   return Object.values(allocation).map(tier => ({

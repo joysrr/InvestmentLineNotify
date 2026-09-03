@@ -93,7 +93,7 @@
           <span class="toggle-icon">{{ ssExpanded ? "▼" : "▶" }}</span>
         </header>
           <div v-show="ssExpanded" class="card-body">
-            <StrategyStatusView :health="healthData" />
+          <StrategyStatusView :health="strategyStatus" :loading="strategyStatusLoading" />
           </div>
       </section>
 
@@ -138,6 +138,7 @@ import {
   fetchReports,
   fetchNews,
   fetchPortfolioHealth,
+  fetchStrategyStatus,
 } from "../api/index.js";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
@@ -182,9 +183,12 @@ const reportError = ref(false);
 const topNews = ref([]);
 const newsLoading = ref(true);
 
-const healthData = ref(null);
+const healthData = ref(null); // portfolio/health summary (NEW schema) for HealthCard
 const healthLoading = ref(true);
 const healthError = ref(false);
+
+const strategyStatus = ref(null); // /api/strategy-status (detail) for StrategyStatusView
+const strategyStatusLoading = ref(true);
 
 // ── Computed: Market Indicators ──
 const todayLabel = computed(() =>
@@ -434,11 +438,12 @@ const radarOption = computed(() => {
 
 // ── Logic ──
 async function loadAll() {
-  const [sRes, rRes, nRes, hRes] = await Promise.allSettled([
+  const [sRes, rRes, nRes, hRes, ssRes] = await Promise.allSettled([
     fetchStatus(),
     fetchReports(1),
     fetchNews(),
     fetchPortfolioHealth(),
+    fetchStrategyStatus(),
   ]);
   if (sRes.status === "fulfilled") status.value = sRes.value;
   statusLoading.value = false;
@@ -450,6 +455,8 @@ async function loadAll() {
   newsLoading.value = false;
   if (hRes.status === "fulfilled") healthData.value = hRes.value;
   healthLoading.value = false;
+  if (ssRes.status === "fulfilled") strategyStatus.value = ssRes.value;
+  strategyStatusLoading.value = false;
 }
 
 function formatUpdatedAt(iso) {

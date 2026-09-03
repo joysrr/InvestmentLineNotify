@@ -46,6 +46,12 @@ vi.mock("@/api/index.js", () => ({
       lightStatus: { emoji: "🟢", label: "穩健" },
       components: [],
     }),
+  fetchStrategyStatus: () =>
+    Promise.resolve({
+      weightScore: { total: 62 },
+      cooldown: { inCooldown: false },
+      allocation: { current: { minScore: 6, comment: "一般訊號" } },
+    }),
 }));
 
 //  Stub child components, stub ECharts

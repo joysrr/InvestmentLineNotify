@@ -261,6 +261,9 @@ export const fetchPortfolioHealth = (params = {}) => {
     `/api/portfolio/health${query.toString() ? `?${query.toString()}` : ""}`,
   );
 };
+
+// ── Strategy Status (StrategyStatusView: detailed breakdown) ────────────────
+export const fetchStrategyStatus = () => apiFetch("/api/strategy-status");
 export const updateStrategyConfig = (config) =>
   apiFetch("/api/strategy-config", {
     method: "POST",

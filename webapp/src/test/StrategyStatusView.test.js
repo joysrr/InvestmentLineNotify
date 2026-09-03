@@ -328,4 +328,30 @@ describe("StrategyStatusView", () => {
     // Should have been called again (retry after error)
     expect(apiFetch).toHaveBeenCalled();
   });
+
+  // ── Phase 3: prop-driven (parent provides :health) ──
+  it("透過 :health prop 渲染不應呼叫 API (DashboardView 單頁用)", async () => {
+    const callCount = apiFetch.mock.calls.length;
+    const wrapper = mount(StrategyStatusView, {
+      props: { health: mockApiResponse, loading: false, error: null },
+      global: { stubs: mockComponents },
+    });
+    await flushPromises();
+    // Prop-driven: no API call should fire
+    expect(apiFetch.mock.calls.length).toBe(callCount);
+    // Still renders weight score block from prop
+    expect(wrapper.findAll("[data-testid='score-bar']").length).toBe(5);
+    expect(wrapper.find(".signal-category-badge").text()).toBe("🌱 底倉/觀望");
+  });
+
+  it("當 :health prop 為 null 時應回退自載 API", async () => {
+    apiFetch.mockResolvedValueOnce(mockApiResponse);
+    const wrapper = mount(StrategyStatusView, {
+      props: { health: null, loading: true, error: null },
+      global: { stubs: mockComponents },
+    });
+    await flushPromises();
+    expect(apiFetch).toHaveBeenCalledWith("/api/strategy-status");
+    expect(wrapper.findAll("[data-testid='score-bar']").length).toBe(5);
+  });
 });
