@@ -270,3 +270,32 @@ Refs: `activeTab`, `reportNews`, `articles`, 各 loading/error/loaded states.
 - [x] FloatingPill nav 結構確認 (4 tab, 缺 News)
 - [x] Router: `/news` route 存在, `/strategy-config` redirect存在
 - [ ] **Han 問題 1/2/3 回答後** → 細化實作
+
+## 6. Phase 執行結果 (2026-09-02, Han: "依照你的建議執行")
+
+| Phase | 目標                                         | 結果                               | Commit   |
+| ----- | -------------------------------------------- | ---------------------------------- | -------- |
+| 0     | 環境盤點 + anchor commit                     | Unit 353/353, E2E 50/50            | (anchor) |
+| 1     | News tab 加回 bottom nav                     | DSH-004 E2E pass; DSH-002/003 修正 | 32784d0  |
+| 2     | DashboardView 單頁 Card Carousel             | Unit 357/357, E2E 4/4              | c8e633a  |
+| 3     | StrategyStatusView prop-driven + schema 修正 | Unit 359/359, E2E 4/4              | 2240a22  |
+| 4     | News tab E2E 驗證                            | NWS-001/002/003 pass               | 7c9df03  |
+
+- TDD: RED → GREEN, tests-first
+- 0 個 fabricate; 0 個未驗證 commit
+- ESLint/Prettier hooks auto-pass (lint-staged)
+
+### Schema mismatch 發現 (Phase 3 關鍵)
+
+DashboardView `healthData` (from `/api/portfolio/health`, NEW summary schema) 餵给 StrategyStatusView 但後者需 `/api/strategy-status` detail schema → vue warn "Cannot read 'total' of undefined".
+
+**解法**: 加 `fetchStrategyStatus` API fn, DashboardView parallel 抓兩者:
+
+- `healthData` (portfolio/health) → HealthPanel card (summary)
+- `strategyStatus` (/api/strategy-status) → StrategyStatusView prop (detail)
+
+兩 endpoint 互補 (summary vs detail), 皆保留。
+
+### 完成
+
+設計盤點 + 實作 + 測試全驗通過。歸檔於此。
