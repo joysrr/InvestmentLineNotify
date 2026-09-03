@@ -1,0 +1,17 @@
+{
+  "total_lines": 208,
+  "template_lines": 190,
+  "script_lines": 18,
+  "testids": [],
+  "props": ["defineProps({"],
+  "emits": ["defineEmits([\"open-news\"]);"],
+  "computed_count": 0,
+  "functions_count": 0,
+  "computeds_preview": [],
+  "functions_preview": [],
+  "refs_preview": [
+    "const activeTab = ref(\"offense\");",
+    "const showList = ref(false);"
+  ],
+  "imports": []
+}

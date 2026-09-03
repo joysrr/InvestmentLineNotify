@@ -1,0 +1,266 @@
+{
+  "DashboardView": {
+    "total_lines": 633,
+    "template_lines": 300,
+    "script_lines": 333,
+    "testids": [
+      "<div class=\"dash-tabs\" data-testid=\"dashboard-tabs\">",
+      "data-testid=\"dash-tab-summary\"",
+      "data-testid=\"dash-tab-health\""
+    ],
+    "props": [],
+    "emits": [],
+    "computed_count": 27,
+    "functions_count": 3,
+    "computeds_preview": [
+      "import { ref, computed, onMounted } from \"vue\";",
+      "const todayLabel = computed(() =>",
+      "const regimeLevel = computed(() => {",
+      "const vixOverrideActive = computed(() => {",
+      "const pbPrValue = computed(() => {",
+      "const pbPrLevel = computed(() => {",
+      "const glValue = computed(() => {",
+      "const glLevel = computed(() => {"
+    ],
+    "functions_preview": [
+      "function goToDiscipline() {",
+      "async function loadAll() {",
+      "function formatUpdatedAt(iso) {"
+    ],
+    "refs_preview": [
+      "const currentTab = ref(\"summary\");",
+      "const status = ref(null);",
+      "const statusLoading = ref(true);",
+      "const statusError = ref(false);",
+      "const latestReport = ref(null);",
+      "const reportLoading = ref(true);",
+      "const reportError = ref(false);",
+      "const topNews = ref([]);",
+      "const newsLoading = ref(true);",
+      "const healthData = ref(null);",
+      "const healthLoading = ref(true);",
+      "const healthError = ref(false);"
+    ],
+    "imports": []
+  },
+  "HealthPanel": {
+    "total_lines": 299,
+    "template_lines": 254,
+    "script_lines": 45,
+    "testids": [],
+    "props": ["const props = defineProps({"],
+    "emits": [],
+    "computed_count": 0,
+    "functions_count": 0,
+    "computeds_preview": [],
+    "functions_preview": [],
+    "refs_preview": [],
+    "imports": []
+  },
+  "AnalysisPanel": {
+    "total_lines": 208,
+    "template_lines": 190,
+    "script_lines": 18,
+    "testids": [],
+    "props": ["defineProps({"],
+    "emits": ["defineEmits([\"open-news\"]);"],
+    "computed_count": 0,
+    "functions_count": 0,
+    "computeds_preview": [],
+    "functions_preview": [],
+    "refs_preview": [
+      "const activeTab = ref(\"offense\");",
+      "const showList = ref(false);"
+    ],
+    "imports": []
+  },
+  "StrategyStatusView": {
+    "total_lines": 862,
+    "template_lines": 636,
+    "script_lines": 226,
+    "testids": [],
+    "props": [],
+    "emits": [],
+    "computed_count": 18,
+    "functions_count": 0,
+    "computeds_preview": [
+      "import { ref, computed, onMounted } from \"vue\";",
+      "const scoreClass = computed(() => {",
+      "const cooldownClass = computed(() =>",
+      "const budgetClass = computed(() =>",
+      "const signalCategoryClass = computed(() => {",
+      "const signalCategoryLabel = computed(() => {",
+      "const signalTypeClass = computed(() => {",
+      "const signalTypeLabel = computed(() => {"
+    ],
+    "functions_preview": [],
+    "refs_preview": [
+      "const data = ref(null);",
+      "const loading = ref(true);",
+      "const error = ref(null);"
+    ],
+    "imports": []
+  },
+  "StrategyHealthOverview": {
+    "total_lines": 269,
+    "template_lines": 230,
+    "script_lines": 39,
+    "testids": [
+      "<div class=\"summary-banner\" :class=\"signalClass\" data-testid=\"summary-banner\">",
+      "<div class=\"soh-card\" data-testid=\"health-risk-card\">",
+      "<div class=\"soh-card\" data-testid=\"market-tactics-card\">"
+    ],
+    "props": ["const props = defineProps({"],
+    "emits": [],
+    "computed_count": 6,
+    "functions_count": 0,
+    "computeds_preview": [
+      "import { computed } from \"vue\";",
+      "const healthComponents = computed(() => {",
+      "const signalClass = computed(() => {",
+      "const targetClass = computed(() => {",
+      "const prText = computed(() => {",
+      "const leverageText = computed(() => {"
+    ],
+    "functions_preview": [],
+    "refs_preview": [],
+    "imports": []
+  },
+  "NewsView": {
+    "total_lines": 472,
+    "template_lines": 365,
+    "script_lines": 107,
+    "testids": [],
+    "props": [],
+    "emits": [],
+    "computed_count": 0,
+    "functions_count": 8,
+    "computeds_preview": [],
+    "functions_preview": [
+      "function switchTab(tab) {",
+      "async function loadReport() {",
+      "async function loadPool() {",
+      "function openArticle(url) {",
+      "function ageBandClass(band) {",
+      "function ageBandLabel(band) {",
+      "function regionFlag(region) {",
+      "function formatDate(pubDate) {"
+    ],
+    "refs_preview": [
+      "const activeTab = ref(\"report\");",
+      "const reportNews = ref({ tw: [], us: [], generatedAt: \"\" });",
+      "const reportLoading = ref(false);",
+      "const reportError = ref(null);",
+      "const reportLoaded = ref(false);",
+      "const articles = ref([]);",
+      "const poolLoading = ref(false);",
+      "const poolError = ref(null);",
+      "const poolLoaded = ref(false);"
+    ],
+    "imports": []
+  },
+  "MarketSnapshot": {
+    "total_lines": 114,
+    "template_lines": 99,
+    "script_lines": 15,
+    "testids": [],
+    "props": ["defineProps({"],
+    "emits": [],
+    "computed_count": 0,
+    "functions_count": 0,
+    "computeds_preview": [],
+    "functions_preview": [],
+    "refs_preview": [],
+    "imports": []
+  },
+  "DecisionHero": {
+    "total_lines": 135,
+    "template_lines": 123,
+    "script_lines": 12,
+    "testids": [],
+    "props": ["defineProps({"],
+    "emits": [],
+    "computed_count": 0,
+    "functions_count": 0,
+    "computeds_preview": [],
+    "functions_preview": [],
+    "refs_preview": [],
+    "imports": []
+  },
+  "CoachingAdvice": {
+    "total_lines": 203,
+    "template_lines": 185,
+    "script_lines": 18,
+    "testids": [],
+    "props": ["const props = defineProps({"],
+    "emits": [],
+    "computed_count": 0,
+    "functions_count": 0,
+    "computeds_preview": [],
+    "functions_preview": [],
+    "refs_preview": [
+      "const riskExpanded = ref(true);",
+      "const actionExpanded = ref(true);",
+      "const mindsetExpanded = ref(false);",
+      "const thinkingExpanded = ref(false);"
+    ],
+    "imports": []
+  },
+  "StrategyConfigEditorView": {
+    "total_lines": 364,
+    "template_lines": 187,
+    "script_lines": 177,
+    "testids": [
+      "<div class=\"strategy-config-editor\" data-testid=\"strategy-config-editor\">",
+      "<el-button type=\"primary\" @click=\"saveConfig\" :loading=\"saving\" :disabled=\"!hasChanges || !isValid\" data-testid=\"btn-save\">",
+      "<el-button @click=\"resetToDefault\" :loading=\"resetting\" :disabled=\"!hasChanges\" data-testid=\"btn-reset\">",
+      "<el-button @click=\"validateOnly\" :loading=\"validating\" data-testid=\"btn-validate\">",
+      "<div class=\"validation-bar\" :class=\"{ 'has-errors': validationErrors.length > 0 }\" data-testid=\"validation-bar\">",
+      "data-testid=\"alert-validation-error\"",
+      "data-testid=\"alert-validating\"",
+      "data-testid=\"alert-valid\"",
+      "data-testid=\"alert-no-changes\"",
+      "<div class=\"section-tabs\" data-testid=\"section-tabs\">",
+      "<el-tabs v-model=\"activeSection\" type=\"card\" class=\"config-tabs\" data-testid=\"config-tabs\">",
+      "data-testid=\"config-section-editor\"",
+      "<el-collapse v-model=\"jsonCollapse\" class=\"json-collapse\" data-testid=\"json-collapse\">",
+      "<div class=\"json-viewer\" data-testid=\"json-viewer\">",
+      "data-testid=\"reset-confirm-dialog\"",
+      "<el-button type=\"danger\" @click=\"confirmResetToDefault\" data-testid=\"btn-confirm-reset\">確定重置</el-button>"
+    ],
+    "props": [],
+    "emits": [],
+    "computed_count": 4,
+    "functions_count": 9,
+    "computeds_preview": [
+      "import { ref, computed, onMounted } from \"vue\";",
+      "const isValid = computed(() => validationErrors.value.length === 0);",
+      "const hasChanges = computed(() => JSON.stringify(editableConfig.value) !== JSON.stringify(currentConfig.value));",
+      "const formattedJson = computed(() => JSON.stringify(editableConfig.value, null, 2));"
+    ],
+    "functions_preview": [
+      "async function loadAll() {",
+      "async function validateCurrentConfig() {",
+      "function getSectionErrors(sectionKey) {",
+      "function handleFieldUpdate({ path, value }) {",
+      "function setNestedValue(obj, path, value) {",
+      "async function saveConfig() {",
+      "async function resetToDefault() {",
+      "async function confirmResetToDefault() {",
+      "async function validateOnly() {"
+    ],
+    "refs_preview": [
+      "const configMeta = ref({});",
+      "const currentConfig = ref({});",
+      "const editableConfig = ref({});",
+      "const activeSection = ref(\"basic\");",
+      "const saving = ref(false);",
+      "const resetting = ref(false);",
+      "const validating = ref(false);",
+      "const validationErrors = ref([]);",
+      "const jsonCollapse = ref([]);",
+      "const resetConfirmVisible = ref(false);"
+    ],
+    "imports": []
+  }
+}

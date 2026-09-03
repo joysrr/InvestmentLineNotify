@@ -1,0 +1,44 @@
+{
+  "total_lines": 633,
+  "template_lines": 300,
+  "script_lines": 333,
+  "testids": [
+    "<div class=\"dash-tabs\" data-testid=\"dashboard-tabs\">",
+    "data-testid=\"dash-tab-summary\"",
+    "data-testid=\"dash-tab-health\""
+  ],
+  "props": [],
+  "emits": [],
+  "computed_count": 27,
+  "functions_count": 3,
+  "computeds_preview": [
+    "import { ref, computed, onMounted } from \"vue\";",
+    "const todayLabel = computed(() =>",
+    "const regimeLevel = computed(() => {",
+    "const vixOverrideActive = computed(() => {",
+    "const pbPrValue = computed(() => {",
+    "const pbPrLevel = computed(() => {",
+    "const glValue = computed(() => {",
+    "const glLevel = computed(() => {"
+  ],
+  "functions_preview": [
+    "function goToDiscipline() {",
+    "async function loadAll() {",
+    "function formatUpdatedAt(iso) {"
+  ],
+  "refs_preview": [
+    "const currentTab = ref(\"summary\");",
+    "const status = ref(null);",
+    "const statusLoading = ref(true);",
+    "const statusError = ref(false);",
+    "const latestReport = ref(null);",
+    "const reportLoading = ref(true);",
+    "const reportError = ref(false);",
+    "const topNews = ref([]);",
+    "const newsLoading = ref(true);",
+    "const healthData = ref(null);",
+    "const healthLoading = ref(true);",
+    "const healthError = ref(false);"
+  ],
+  "imports": []
+}

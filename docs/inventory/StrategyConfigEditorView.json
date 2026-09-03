@@ -1,0 +1,57 @@
+{
+  "total_lines": 364,
+  "template_lines": 187,
+  "script_lines": 177,
+  "testids": [
+    "<div class=\"strategy-config-editor\" data-testid=\"strategy-config-editor\">",
+    "<el-button type=\"primary\" @click=\"saveConfig\" :loading=\"saving\" :disabled=\"!hasChanges || !isValid\" data-testid=\"btn-save\">",
+    "<el-button @click=\"resetToDefault\" :loading=\"resetting\" :disabled=\"!hasChanges\" data-testid=\"btn-reset\">",
+    "<el-button @click=\"validateOnly\" :loading=\"validating\" data-testid=\"btn-validate\">",
+    "<div class=\"validation-bar\" :class=\"{ 'has-errors': validationErrors.length > 0 }\" data-testid=\"validation-bar\">",
+    "data-testid=\"alert-validation-error\"",
+    "data-testid=\"alert-validating\"",
+    "data-testid=\"alert-valid\"",
+    "data-testid=\"alert-no-changes\"",
+    "<div class=\"section-tabs\" data-testid=\"section-tabs\">",
+    "<el-tabs v-model=\"activeSection\" type=\"card\" class=\"config-tabs\" data-testid=\"config-tabs\">",
+    "data-testid=\"config-section-editor\"",
+    "<el-collapse v-model=\"jsonCollapse\" class=\"json-collapse\" data-testid=\"json-collapse\">",
+    "<div class=\"json-viewer\" data-testid=\"json-viewer\">",
+    "data-testid=\"reset-confirm-dialog\"",
+    "<el-button type=\"danger\" @click=\"confirmResetToDefault\" data-testid=\"btn-confirm-reset\">確定重置</el-button>"
+  ],
+  "props": [],
+  "emits": [],
+  "computed_count": 4,
+  "functions_count": 9,
+  "computeds_preview": [
+    "import { ref, computed, onMounted } from \"vue\";",
+    "const isValid = computed(() => validationErrors.value.length === 0);",
+    "const hasChanges = computed(() => JSON.stringify(editableConfig.value) !== JSON.stringify(currentConfig.value));",
+    "const formattedJson = computed(() => JSON.stringify(editableConfig.value, null, 2));"
+  ],
+  "functions_preview": [
+    "async function loadAll() {",
+    "async function validateCurrentConfig() {",
+    "function getSectionErrors(sectionKey) {",
+    "function handleFieldUpdate({ path, value }) {",
+    "function setNestedValue(obj, path, value) {",
+    "async function saveConfig() {",
+    "async function resetToDefault() {",
+    "async function confirmResetToDefault() {",
+    "async function validateOnly() {"
+  ],
+  "refs_preview": [
+    "const configMeta = ref({});",
+    "const currentConfig = ref({});",
+    "const editableConfig = ref({});",
+    "const activeSection = ref(\"basic\");",
+    "const saving = ref(false);",
+    "const resetting = ref(false);",
+    "const validating = ref(false);",
+    "const validationErrors = ref([]);",
+    "const jsonCollapse = ref([]);",
+    "const resetConfirmVisible = ref(false);"
+  ],
+  "imports": []
+}
