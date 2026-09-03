@@ -42,4 +42,20 @@ test.describe("01-DashboardView - 投資儀表板", () => {
       page.locator(".view-title").filter({ hasText: "回測報表" }).first(),
     ).toBeVisible({ timeout: 15000 });
   });
+
+  test("DSH-004: Bottom nav 應顯示新聞 Tab 並可導航至 NewsView", async ({
+    page,
+  }) => {
+    // News Tab 應顯示於 bottom nav
+    await expect(page.locator("[data-testid='nav-tab-news']")).toBeVisible();
+    // 點擊後導航至 /news
+    await page.locator("[data-testid='nav-tab-news']").click();
+    await page.waitForTimeout(2000);
+    await expect(page.locator(".subtab-bar .subtab-btn").first()).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(page.locator(".subtab-bar .subtab-btn").first()).toContainText(
+      "精選報告",
+    );
+  });
 });

@@ -30,7 +30,19 @@ export const tabs = [
     </svg>`,
   },
   {
-    to: "/simulator",
+    to: "/news",
+    exact: false,
+    label: "新聞",
+    testId: "nav-tab-news",
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17h11A2.5 2.5 0 0 1 20 19.5V21a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/>
+      <path d="M8 3h8a2 2 0 0 1 2 2v9H6V5a2 2 0 0 1 2-2z"/>
+      <path d="M8 11V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6"/>
+      <circle cx="10" cy="8" r="1"/><circle cx="14" cy="8" r="1"/>
+      <path d="M6 15h12v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/>
+    </svg>`,
+  },
+  {
     exact: false,
     label: "模擬器",
     testId: "nav-tab-simulator",
