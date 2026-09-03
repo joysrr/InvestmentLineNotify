@@ -20,9 +20,13 @@ test.describe("01-DashboardView - 投資儀表板", () => {
     // 模擬器與回測報表已移至 /simulator 的獨立子頁籤，總覽頁不應再出現
     const simTab = page.locator("[data-testid='simulator-tab']");
     await expect(simTab).toHaveCount(0);
-    const tabsText = page.locator(".dash-tabs");
-    await expect(tabsText).not.toContainText("0050 雙向模擬器");
-    await expect(tabsText).not.toContainText("回測報表");
+    // 新單頁版 DashboardView 無頂層 dash-tabs；模擬器只在底部導覽 bar 單一呈現
+    await expect(
+      page.locator("[data-testid='nav-tab-simulator']"),
+    ).toBeVisible();
+    await expect(page.locator("[data-testid='nav-tab-backtest']")).toHaveCount(
+      0,
+    );
   });
 
   test("DSH-003: 模擬器子頁籤可切換試算與歷史回測報表", async ({ page }) => {

@@ -5,141 +5,121 @@
     <div class="dash-header">
       <div class="dash-title-row">
         <h2 class="dash-title">投資儀表板</h2>
-        <span class="dash-date">{{ todayLabel }}</span>
-      </div>
-
-      <!-- Tab Navigation (Top Level) -->
-      <div class="dash-tabs" data-testid="dashboard-tabs">
+        <!-- FAB: Strategy Config -->
         <button
-          class="tab-item"
-          :class="{ active: currentTab === 'summary' }"
-          @click="currentTab = 'summary'"
-          data-testid="dash-tab-summary"
+          class="config-fab"
+          data-testid="fab-strategy-config"
+          @click="configDrawerVisible = true"
+          title="策略設定"
         >
-          總覽
-        </button>
-        <button
-          class="tab-item"
-          :class="{ active: currentTab === 'health' }"
-          @click="currentTab = 'health'"
-          data-testid="dash-tab-health"
-        >
-          健康度
-          <span v-if="healthData?.status === 'RED'" class="tab-badge">!</span>
-        </button>
-        <button
-          class="tab-item"
-          :class="{ active: currentTab === 'analysis' }"
-          @click="currentTab = 'analysis'"
-        >
-          分析
-        </button>
-        <button
-          class="tab-item"
-          :class="{ active: currentTab === 'strategy-status' }"
-          @click="currentTab = 'strategy-status'"
-        >
-          策略狀態
-        </button>
-        <button
-          class="tab-item"
-          :class="{ active: currentTab === 'strategy-config' }"
-          @click="currentTab = 'strategy-config'"
-        >
-          策略設定
+          ⚙️
         </button>
       </div>
+      <span class="dash-date">{{ todayLabel }}</span>
     </div>
 
+    <!-- Strategy Config Drawer -->
+    <el-drawer
+      v-model="configDrawerVisible"
+      title="策略設定"
+      :append-to-body="true"
+      size="80%"
+    >
+      <StrategyConfigEditorView />
+    </el-drawer>
+
     <!-- Tab Contents -->
-    <div class="tab-content-area fade-in" :key="currentTab">
-      <!-- Tab 1: Summary (總覽) -->
-      <div v-if="currentTab === 'summary'">
-        <MarketSnapshot
-          :status="status"
-          :loading="statusLoading"
-          :error="statusError"
-          :regime-level="regimeLevel"
-          :vix-override-active="vixOverrideActive"
-          :pb-pr-level="pbPrLevel"
-          :pb-pr-value="pbPrValue"
-          :gl-level="glLevel"
-          :gl-value="glValue"
-          :light-emoji="lightEmoji"
-          :light-text="lightText"
-        />
+    <div class="tab-content-area fade-in">
+      <!-- Summary Card (always visible in single-page layout) -->
+      <MarketSnapshot
+        :status="status"
+        :loading="statusLoading"
+        :error="statusError"
+        :regime-level="regimeLevel"
+        :vix-override-active="vixOverrideActive"
+        :pb-pr-level="pbPrLevel"
+        :pb-pr-value="pbPrValue"
+        :gl-level="glLevel"
+        :gl-value="glValue"
+        :light-emoji="lightEmoji"
+        :light-text="lightText"
+      />
 
-        <DecisionHero
-          :report="latestReport"
-          :loading="reportLoading"
-          :error="reportError"
-          :active-priority="activePriority"
-          :target-class="targetClass"
-          :pct-class="pctClass"
-          :pct-text="pctText"
-          :routing-path="routingPath"
-        />
+      <DecisionHero
+        :report="latestReport"
+        :loading="reportLoading"
+        :error="reportError"
+        :active-priority="activePriority"
+        :target-class="targetClass"
+        :pct-class="pctClass"
+        :pct-text="pctText"
+        :routing-path="routingPath"
+      />
 
-        <!-- 科學紀律信心橫幅 -->
-        <div class="discipline-banner" @click="goToDiscipline">
-          <div class="banner-icon">🔬</div>
-          <div class="banner-body">
-            <h4 class="banner-title">17 年大循環：真實數據實證</h4>
-            <p class="banner-desc">
-              以歷史大數據驗證「局部減碼
-              50%」策略完勝全額清倉。有效降低投資段回撤風險，完美保留牛市複利。點此查看信心據點
-              ➔
-            </p>
-          </div>
+      <!-- 科學紀律信心橫幅 -->
+      <div class="discipline-banner" @click="goToDiscipline">
+        <div class="banner-icon">🔬</div>
+        <div class="banner-body">
+          <h4 class="banner-title">17 年大循環：真實數據實證</h4>
+          <p class="banner-desc">
+            以歷史大數據驗證「局部減碼 50%」策略完勝全額清倉。有效降低投資段回撤風險，完美保留牛市複利。點此查看信心據點 ➔
+          </p>
         </div>
-
-        <CoachingAdvice
-          :report="latestReport"
-          :risks="aiRiskWarnings"
-          :actions="aiActionItems"
-          :mindset="aiMindsetAdvice"
-          :thinking="aiInternalThinking"
-          :insight="aiCoreInsight"
-          :verdict="aiStrategyVerdict"
-        />
       </div>
 
-      <!-- Tab 2: Health (帳戶健康) -->
-      <div v-else-if="currentTab === 'health'">
+      <CoachingAdvice
+        :report="latestReport"
+        :risks="aiRiskWarnings"
+        :actions="aiActionItems"
+        :mindset="aiMindsetAdvice"
+        :thinking="aiInternalThinking"
+        :insight="aiCoreInsight"
+        :verdict="aiStrategyVerdict"
+      />
+
+      <!-- Health Card -->
+      <section class="dashboard-card health-card">
         <HealthPanel
           :data="healthData"
           :loading="healthLoading"
           :error="healthError"
         />
-      </div>
+      </section>
 
-      <!-- Tab 3: Analysis (詳細分析) -->
-      <div v-else-if="currentTab === 'analysis'">
-        <AnalysisPanel
-          :report="latestReport"
-          :score-ok="scoreOk"
-          :score-val="scoreVal"
-          :score-min="scoreMin"
-          :score-rows="scoreRows"
-          :defense-items="defenseItems"
-          :news="topNews"
-          @open-news="openLink"
-        >
-          <template #radar-chart>
-            <v-chart :option="radarOption" autoresize class="radar-chart" />
-          </template>
-        </AnalysisPanel>
-      </div>
+      <!-- Strategy Status Card (collapsible, default collapsed) -->
+      <section class="dashboard-card strategy-status-card">
+        <header class="card-header" @click="ssExpanded = !ssExpanded">
+          <h3>📊 策略狀態</h3>
+          <span class="toggle-icon">{{ ssExpanded ? "▼" : "▶" }}</span>
+        </header>
+          <div v-show="ssExpanded" class="card-body">
+            <StrategyStatusView :health="healthData" />
+          </div>
+      </section>
 
-      <!-- Tab 4: Strategy Status (策略狀態) -->
-      <div v-else-if="currentTab === 'strategy-status'">
-        <StrategyStatusView />
-      </div>
-
-      <!-- Tab 5: Strategy Config (策略設定) -->
-      <div v-else-if="currentTab === 'strategy-config'">
-        <StrategyConfigEditorView />
-      </div>
+      <!-- Market Analysis Card (collapsible, default collapsed) -->
+      <section class="dashboard-card analysis-card">
+        <header class="card-header" @click="analysisExpanded = !analysisExpanded">
+          <h3>📈 市場分析</h3>
+          <span class="toggle-icon">{{ analysisExpanded ? "▼" : "▶" }}</span>
+        </header>
+          <div v-show="analysisExpanded" class="card-body">
+            <AnalysisPanel
+              :report="latestReport"
+              :score-ok="scoreOk"
+              :score-val="scoreVal"
+              :score-min="scoreMin"
+              :score-rows="scoreRows"
+              :defense-items="defenseItems"
+              :news="topNews"
+              @open-news="openLink"
+            >
+              <template #radar-chart>
+                <v-chart :option="radarOption" autoresize class="radar-chart" />
+              </template>
+            </AnalysisPanel>
+          </div>
+      </section>
     </div>
 
     <!-- Footer meta -->
@@ -187,7 +167,10 @@ function goToDiscipline() {
 }
 
 // ── State ──
-const currentTab = ref("summary");
+// Single-page card layout: no top-level tab switcher
+const ssExpanded = ref(false); // Strategy Status card collapsed by default
+const analysisExpanded = ref(false); // Market Analysis card collapsed by default
+const configDrawerVisible = ref(false); // Strategy Config drawer
 const status = ref(null);
 const statusLoading = ref(true);
 const statusError = ref(false);
@@ -486,7 +469,7 @@ onMounted(async () => {
 
 <style scoped>
 .view-container {
-  padding: 16px 16px 32px;
+  padding: 16px 16px 100px; /* room for FloatingPill (bottom nav height ~84px) */
   max-width: 600px;
   margin: 0 auto;
 }
@@ -497,7 +480,6 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 16px;
 }
 .dash-title {
   font-size: 22px;
@@ -508,38 +490,23 @@ onMounted(async () => {
   color: #999;
 }
 
-.dash-tabs {
-  display: flex;
-  background: #f0f0f0;
-  border-radius: 14px;
-  padding: 4px;
-  gap: 4px;
-}
-.tab-item {
-  flex: 1;
+/* FAB: Strategy Config */
+.config-fab {
+  background: var(--tg-theme-button-color, #2481cc);
+  color: #fff;
   border: none;
-  background: transparent;
-  padding: 10px 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: #888;
-  border-radius: 11px;
-  position: relative;
-  transition: all 0.2s ease;
-}
-.tab-item.active {
-  background: #fff;
-  color: #111;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-.tab-badge {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  background: #e74c3c;
-  width: 6px;
-  height: 6px;
   border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.config-fab:active {
+  transform: scale(0.94);
 }
 
 .fade-in {
@@ -554,6 +521,46 @@ onMounted(async () => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Card carousel */
+.dashboard-card {
+  background: #fff;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+.card-header {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-body {
+  padding: 12px 16px;
+}
+.toggle-icon {
+  font-size: 11px;
+  color: #999;
+}
+
+/* Collapse/Expand Animation for dashboard-card body */
+.card-content-enter-active,
+.card-content-leave-active {
+  max-height: 400px;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+.card-content-enter-from,
+.card-content-leave-to {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 16px;
 }
 
 .radar-chart {
