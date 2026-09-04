@@ -11,6 +11,7 @@
           data-testid="fab-strategy-config"
           @click="configDrawerVisible = true"
           title="策略設定"
+          aria-label="策略設定"
         >
           ⚙️
         </button>
@@ -92,9 +93,15 @@
           <h3>📊 策略狀態</h3>
           <span class="toggle-icon">{{ ssExpanded ? "▼" : "▶" }}</span>
         </header>
+        <Transition name="card-content">
           <div v-show="ssExpanded" class="card-body">
-          <StrategyStatusView :health="strategyStatus" :loading="strategyStatusLoading" />
+            <StrategyStatusView
+              :health="strategyStatus"
+              :loading="strategyStatusLoading"
+              :error="strategyStatusError"
+            />
           </div>
+        </Transition>
       </section>
 
       <!-- Market Analysis Card (collapsible, default collapsed) -->
@@ -103,6 +110,7 @@
           <h3>📈 市場分析</h3>
           <span class="toggle-icon">{{ analysisExpanded ? "▼" : "▶" }}</span>
         </header>
+        <Transition name="card-content">
           <div v-show="analysisExpanded" class="card-body">
             <AnalysisPanel
               :report="latestReport"
@@ -119,6 +127,7 @@
               </template>
             </AnalysisPanel>
           </div>
+        </Transition>
       </section>
     </div>
 
@@ -189,6 +198,7 @@ const healthError = ref(false);
 
 const strategyStatus = ref(null); // /api/strategy-status (detail) for StrategyStatusView
 const strategyStatusLoading = ref(true);
+const strategyStatusError = ref(null);
 
 // ── Computed: Market Indicators ──
 const todayLabel = computed(() =>
@@ -455,7 +465,11 @@ async function loadAll() {
   newsLoading.value = false;
   if (hRes.status === "fulfilled") healthData.value = hRes.value;
   healthLoading.value = false;
-  if (ssRes.status === "fulfilled") strategyStatus.value = ssRes.value;
+  if (ssRes.status === "fulfilled") {
+    strategyStatus.value = ssRes.value;
+  } else {
+    strategyStatusError.value = "無法載入策略狀態：" + (ssRes.reason?.message || "網路異常");
+  }
   strategyStatusLoading.value = false;
 }
 

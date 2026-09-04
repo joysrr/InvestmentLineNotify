@@ -295,11 +295,15 @@ const internalError = ref(null);
 
 // Computed: prefer prop health, fall back to internal data
 const health = computed(() => props.health ?? data.value);
-const isLoading = computed(
-  () => (props.health != null ? props.loading : internalLoading.value),
+const isLoading = computed(() =>
+  props.health !== null || props.error !== null
+    ? props.loading
+    : internalLoading.value,
 );
-const loadError = computed(
-  () => (props.health != null ? props.error : internalError.value),
+const loadError = computed(() =>
+  props.health !== null || props.error !== null
+    ? props.error
+    : internalError.value,
 );
 
 // Load data (only when no :health prop provided by parent)
@@ -492,8 +496,11 @@ const getSentimentScoreDesc = (score) => {
 const allocationTiers = computed(() => {
   const strategy = health.value?.strategySnapshot ?? {};
   const allocation = strategy.allocation ?? {};
-  // allocation is an object with current/next, convert to array
-  return Object.values(allocation).map(tier => ({
+  // Filter out null/non-object values before mapping
+  const validTiers = Array.isArray(allocation)
+    ? allocation
+    : Object.values(allocation).filter(t => t && typeof t === "object");
+  return validTiers.map(tier => ({
     minScore: tier.minScore ?? 0,
     leverage: tier.leverage ?? 0,
     cash: tier.cash ?? 0,

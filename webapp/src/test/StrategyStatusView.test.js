@@ -354,4 +354,24 @@ describe("StrategyStatusView", () => {
     expect(apiFetch).toHaveBeenCalledWith("/api/strategy-status");
     expect(wrapper.findAll("[data-testid='score-bar']").length).toBe(5);
   });
+
+  it("當 allocation 包含無效物件或 null 時應安全過濾不爆炸", async () => {
+    const invalidAllocationHealth = {
+      ...mockApiResponse,
+      strategySnapshot: {
+        allocation: {
+          current: { minScore: 0, leverage: 1, cash: 0, comment: "現狀" },
+          invalid: null,
+          next: { minScore: 5, leverage: 1.5, cash: 0.1, comment: "目標" },
+        },
+      },
+    };
+    const wrapper = mount(StrategyStatusView, {
+      props: { health: invalidAllocationHealth, loading: false, error: null },
+      global: { stubs: mockComponents },
+    });
+    await flushPromises();
+    // 應過濾掉 null 僅保留 valid tier
+    expect(wrapper.findAll("[data-testid='allocation-tier']").length).toBe(2);
+  });
 });
