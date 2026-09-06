@@ -1,6 +1,6 @@
 # 未接入頁面復原與科學回測清理計畫 (MISSING_VIEWS_AND_CLEANUP_PLAN.md)
 
-> **狀態**：Active — 計劃已建立，等待用戶確認後啟動
+> **狀態**：Completed — 已完成開發、單元測試、E2E 測試與部署驗證
 > **建立日期**：2026-09-06
 > **背景**：針對盤點發現之未接入頁面 (`ChartView.vue` 個人資產歷史趨勢圖表) 進行 UI 接入，並依據 Han 的要求徹底清理 `ReportsView.vue` 中遺留的「科學回測 (discipline)」靜態區塊。
 
