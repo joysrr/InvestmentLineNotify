@@ -94,32 +94,6 @@
           </div>
         </Transition>
       </section>
-
-      <!-- Market Analysis Card (collapsible, default collapsed) -->
-      <section class="dashboard-card analysis-card">
-        <header class="card-header" @click="analysisExpanded = !analysisExpanded">
-          <h3>📈 市場分析</h3>
-          <span class="toggle-icon">{{ analysisExpanded ? "▼" : "▶" }}</span>
-        </header>
-        <Transition name="card-content">
-          <div v-show="analysisExpanded" class="card-body">
-            <AnalysisPanel
-              :report="latestReport"
-              :score-ok="scoreOk"
-              :score-val="scoreVal"
-              :score-min="scoreMin"
-              :score-rows="scoreRows"
-              :defense-items="defenseItems"
-              :news="topNews"
-              @open-news="openLink"
-            >
-              <template #radar-chart>
-                <v-chart :option="radarOption" autoresize class="radar-chart" />
-              </template>
-            </AnalysisPanel>
-          </div>
-        </Transition>
-      </section>
     </div>
 
     <!-- Footer meta -->
@@ -146,25 +120,15 @@ import MarketSnapshot from "../components/dashboard/MarketSnapshot.vue";
 import DecisionHero from "../components/dashboard/DecisionHero.vue";
 import HealthPanel from "../components/dashboard/HealthPanel.vue";
 import CoachingAdvice from "../components/dashboard/CoachingAdvice.vue";
-import AnalysisPanel from "../components/dashboard/AnalysisPanel.vue";
 import StrategyStatusView from "../views/StrategyStatusView.vue";
 import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
-
-// ECharts (Only needed here for the radar template slot)
-import VChart from "vue-echarts";
-import { use } from "echarts/core";
-import { RadarChart } from "echarts/charts";
-import { RadarComponent, TooltipComponent } from "echarts/components";
-import { CanvasRenderer } from "echarts/renderers";
-use([RadarChart, RadarComponent, TooltipComponent, CanvasRenderer]);
 
 const { openLink } = useTelegram();
 
 // ── State ──
 // Single-page card layout: no top-level tab switcher
 const ssExpanded = ref(false); // Strategy Status card collapsed by default
-const analysisExpanded = ref(false); // Market Analysis card collapsed by default
 const configDrawerVisible = ref(false); // Strategy Config drawer
 const status = ref(null);
 const statusLoading = ref(true);
@@ -338,98 +302,6 @@ const aiCoreInsight = computed(
 const aiStrategyVerdict = computed(
   () => latestReport.value?.ai?.strategy_verdict ?? "",
 );
-
-const defenseItems = computed(() => {
-  const sigs = latestReport.value?.signals;
-  const vg = sigs?.valuationGuardResult;
-  const prLabel = pbPrValue.value !== "—" ? `PR${pbPrValue.value}%` : "分析中";
-
-  return [
-    {
-      icon: "⚖️",
-      title: "估值守衛",
-      statusText: vg?.guardActive ? "防禦生效" : "安全",
-      statusClass: vg?.guardActive ? "text-warn" : "text-ok",
-      desc: prLabel,
-    },
-    {
-      icon: "📊",
-      title: "槓桿天花板",
-      statusText: glLevel.value.label,
-      statusClass: glLevel.value.textClass,
-      desc: `${glValue.value}x`,
-    },
-    {
-      icon: "🛡️",
-      title: "維持率安全",
-      statusText: sigs?.maintenanceRisk?.level === "Normal" ? "安全" : "警告",
-      statusClass:
-        sigs?.maintenanceRisk?.level === "Normal" ? "text-ok" : "text-danger",
-      desc: "跌破將觸發減碼",
-    },
-  ];
-});
-
-// ── Entry Score ──
-const scoreVal = computed(() =>
-  Number(latestReport.value?.signals?.score || 0),
-);
-const scoreMin = computed(() =>
-  Number(
-    latestReport.value?.strategySnapshot?.indicator?.buy?.minWeightScoreToBuy ||
-      0,
-  ),
-);
-const scoreOk = computed(() => scoreVal.value >= scoreMin.value);
-const scoreRows = computed(() => {
-  const w = latestReport.value?.signals?.weightDetails || {};
-  return [
-    { label: "跌幅評分", pt: `${w.dropScore || 0}pt`, active: w.dropScore > 0 },
-    { label: "RSI評分", pt: `${w.rsiScore || 0}pt`, active: w.rsiScore > 0 },
-    { label: "MACD評分", pt: `${w.macdScore || 0}pt`, active: w.macdScore > 0 },
-    {
-      label: "情緒加成",
-      pt: `${w.sentimentScore || 0}pt`,
-      active: w.sentimentScore !== 0,
-    },
-  ];
-});
-
-const radarOption = computed(() => {
-  const w = latestReport.value?.signals?.weightDetails || {};
-  return {
-    radar: {
-      indicator: [
-        { name: "跌幅", max: 5 },
-        { name: "RSI", max: 5 },
-        { name: "MACD", max: 5 },
-        { name: "KD", max: 5 },
-        { name: "情緒", max: 5 },
-      ],
-      shape: "polygon",
-      axisName: { color: "#999", fontSize: 10 },
-    },
-    series: [
-      {
-        type: "radar",
-        data: [
-          {
-            value: [
-              Number(w.dropScore || 0),
-              Number(w.rsiScore || 0),
-              Number(w.macdScore || 0),
-              Number(w.kdScore || 0),
-              Math.abs(Number(w.sentimentScore || 0)),
-            ],
-            areaStyle: { color: "rgba(36, 129, 204, 0.2)" },
-            lineStyle: { color: "#2481cc", width: 2 },
-            symbol: "none",
-          },
-        ],
-      },
-    ],
-  };
-});
 
 // ── Logic ──
 async function loadAll() {

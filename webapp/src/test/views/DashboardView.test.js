@@ -109,13 +109,13 @@ describe("DashboardView - Single Page Card Carousel (Phase 2 target)", () => {
     expect(wrapper.find(".dash-tabs").exists()).toBe(false);
   });
 
-  it("應單頁同時渲染 Summary + Health + Analysis 卡片", async () => {
+  it("應單頁同時渲染 Snapshot + Health + Decision + StrategyStatus 卡片", async () => {
     await mountView();
     const html = wrapper.html();
-    // All cards visible at once (not v-if gated by tabs)
+    // All core cards visible at once
     expect(html).toContain("market-snapshot-stub");
     expect(html).toContain("health-panel-stub");
-    expect(html).toContain("analysis-panel-stub");
+    expect(html).toContain("strategy-status-stub");
   });
 
   it("應渲染 StrategyStatus 卡片 (collapsable)", async () => {

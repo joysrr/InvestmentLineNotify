@@ -165,33 +165,39 @@
               :value="health.risk.regime" 
               :icon="regimeIcon" 
               :class="regimeClass"
+              :desc="health.risk.regime === 'CRISIS' ? '市場極度恐慌' : health.risk.regime === 'CAUTIOUS' ? '波動放大警戒' : '總體環境正常'"
             />
             <RiskItem 
               label="維持率" 
               :value="health.risk.maintenanceMargin" 
               unit="%"
               :icon="health.risk.maintenanceMargin < 145 ? '🔴' : health.risk.maintenanceMargin < 160 ? '🟠' : '🟢'"
+              :desc="health.risk.maintenanceMargin < 145 ? '⚠️ 追繳威脅' : health.risk.maintenanceMargin < 160 ? '⚡ 警戒水位' : '跌破145%觸發減碼'"
             />
             <RiskItem 
               label="綜合槓桿" 
               :value="health.risk.grossLeverage" 
               unit="x"
               :icon="health.risk.grossLeverage > 2.5 ? '🔴' : health.risk.grossLeverage > 2.0 ? '🟠' : '🟢'"
+              :desc="health.risk.grossLeverage > 2.5 ? '⚠️ 槓桿上限' : health.risk.grossLeverage > 2.0 ? '⚡ 偏高水位' : '上限 2.50x'"
             />
             <RiskItem 
               label="估值守衛" 
-              :value="health.risk.valuationGuard?.latchActive ? '生效' : '未生效'"
+              :value="health.risk.valuationGuard?.latchActive ? '防禦生效' : '安全'"
               :icon="health.risk.valuationGuard?.latchActive ? '🔒' : '🔓'"
+              :desc="health.risk.valuationGuard?.currentPR != null ? `PR${health.risk.valuationGuard.currentPR}% (Floor ${health.risk.valuationGuard.floorPR || 70}%)` : '大盤 PB PR分位數'"
             />
             <RiskItem 
               label="恐慌破冰" 
-              :value="health.risk.panicBypassActive ? '生效' : '未生效'"
+              :value="health.risk.panicBypassActive ? '破冰生效' : '待機'"
               :icon="health.risk.panicBypassActive ? '⚡' : '🔓'"
+              :desc="health.risk.panicBypassActive ? 'VIX極端值買入' : 'VIX常態監控'"
             />
             <RiskItem 
               label="移動停利" 
               :value="health.risk.trailingActive ? '啟動' : '待機'"
               :icon="health.risk.trailingActive ? '📉' : '⏸️'"
+              :desc="health.risk.trailingActive ? '高點回撤保護' : '未達停利門檻'"
             />
           </div>
         </section>

@@ -4,6 +4,7 @@
     <div class="label">{{ label }}</div>
     <div class="value" :title="titleText">{{ formattedValue }}</div>
     <div class="unit" v-if="unit">{{ unit }}</div>
+    <div class="desc" v-if="desc">{{ desc }}</div>
   </div>
 </template>
 
@@ -15,6 +16,7 @@ const props = defineProps({
   label: { type: String, required: true },
   value: { type: [Number, String], default: "—" },
   unit: { type: String, default: "" },
+  desc: { type: String, default: "" },
   icon: { type: String, default: "" },
   itemClass: { type: String, default: "" },
 });
@@ -71,5 +73,10 @@ const itemClass = computed(() => {
   font-size: 10px;
   color: #aaa;
   margin-left: 2px;
+}
+.risk-item .desc {
+  font-size: 10px;
+  color: var(--tg-theme-hint-color, #777);
+  margin-top: 2px;
 }
 </style>

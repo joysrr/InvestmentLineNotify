@@ -46,6 +46,19 @@ describe("RiskItem", () => {
     expect(wrapper.find(".icon").exists()).toBe(false);
   });
 
+  it("傳入 desc 時應渲染描述文字", () => {
+    const wrapper = mount(RiskItem, {
+      props: {
+        label: "估值守衛",
+        value: "生效",
+        desc: "PR4.01%",
+      },
+    });
+
+    expect(wrapper.find(".desc").exists()).toBe(true);
+    expect(wrapper.find(".desc").text()).toBe("PR4.01%");
+  });
+
   it("長浮點數應格式化為 2 位小數，並在 title 屬性中保留原精度", () => {
     const wrapper = mount(RiskItem, {
       props: {
