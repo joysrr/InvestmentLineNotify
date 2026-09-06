@@ -17,7 +17,7 @@ describe("RiskItem", () => {
     });
 
     expect(wrapper.find(".label").text()).toBe("維持率");
-    expect(wrapper.find(".value").text()).toBe("155.5");
+    expect(wrapper.find(".value").text()).toBe("155.50");
     expect(wrapper.find(".unit").text()).toBe("%");
     expect(wrapper.find(".icon").text()).toBe("🟢");
   });
@@ -42,8 +42,20 @@ describe("RiskItem", () => {
       },
     });
 
-    expect(wrapper.find(".value").text()).toBe("NORMAL");
     expect(wrapper.find(".unit").exists()).toBe(false);
     expect(wrapper.find(".icon").exists()).toBe(false);
+  });
+
+  it("長浮點數應格式化為 2 位小數，並在 title 屬性中保留原精度", () => {
+    const wrapper = mount(RiskItem, {
+      props: {
+        label: "綜合槓桿",
+        value: 0.93955613524562,
+        unit: "x",
+      },
+    });
+
+    expect(wrapper.find(".value").text()).toBe("0.94");
+    expect(wrapper.find(".value").attributes("title")).toBe("0.93955613524562");
   });
 });

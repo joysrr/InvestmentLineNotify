@@ -2,13 +2,14 @@
   <div class="risk-item" :class="itemClass">
     <div class="icon" v-if="icon">{{ icon }}</div>
     <div class="label">{{ label }}</div>
-    <div class="value">{{ value }}</div>
+    <div class="value" :title="titleText">{{ formattedValue }}</div>
     <div class="unit" v-if="unit">{{ unit }}</div>
   </div>
 </template>
 
 <script setup>
 import { computed } from "vue";
+import { fmtDecimal } from "../../utils/formatters.js";
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -16,6 +17,21 @@ const props = defineProps({
   unit: { type: String, default: "" },
   icon: { type: String, default: "" },
   itemClass: { type: String, default: "" },
+});
+
+const formattedValue = computed(() => {
+  if (props.value === null || props.value === undefined || props.value === "") {
+    return "—";
+  }
+  const num = Number(props.value);
+  if (!isNaN(num) && !Number.isInteger(num)) {
+    return fmtDecimal(num, 2);
+  }
+  return String(props.value);
+});
+
+const titleText = computed(() => {
+  return props.value !== null && props.value !== undefined ? String(props.value) : undefined;
 });
 
 const itemClass = computed(() => {

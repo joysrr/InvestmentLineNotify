@@ -29,7 +29,7 @@ describe("MetricItem", () => {
       },
     });
 
-    expect(wrapper.find(".value").text()).toBe("155.5");
+    expect(wrapper.find(".value").text()).toBe("155.50");
     expect(wrapper.find(".unit").text()).toBe("%");
   });
 

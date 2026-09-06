@@ -1,19 +1,20 @@
 <template>
   <div class="metric-item">
     <div class="label">{{ label }}</div>
-    <div class="value">{{ formattedValue }}</div>
+    <div class="value" :title="titleText">{{ formattedValue }}</div>
     <div class="unit" v-if="unit">{{ unit }}</div>
   </div>
 </template>
 
 <script setup>
 import { computed } from "vue";
+import { fmtDecimal } from "../../utils/formatters.js";
 
 const props = defineProps({
   label: { type: String, required: true },
   value: { type: [Number, String], default: 0 },
   unit: { type: String, default: "" },
-  format: { type: String, default: "number" }, // "number" | "compact"
+  format: { type: String, default: "number" }, // "number" | "compact" | "decimal"
 });
 
 const formattedValue = computed(() => {
@@ -23,7 +24,14 @@ const formattedValue = computed(() => {
   if (props.format === "compact" && num >= 10000) {
     return (num / 10000).toFixed(1) + " 萬";
   }
+  if (props.format === "decimal" || (!Number.isInteger(num) && props.format !== "compact")) {
+    return fmtDecimal(num, 2);
+  }
   return num.toLocaleString();
+});
+
+const titleText = computed(() => {
+  return props.value !== null && props.value !== undefined ? String(props.value) : undefined;
 });
 </script>
 
