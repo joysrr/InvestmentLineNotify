@@ -24,9 +24,28 @@
 
     <!-- Main Content -->
     <div v-else-if="health" class="status-content">
-      
-      <!-- Section 1: Weight Score Breakdown -->
-      <section class="status-section">
+      <!-- Segmented Control Tabs -->
+      <div class="segmented-control">
+        <button
+          class="segmented-btn"
+          :class="{ active: activeTab === 'scores' }"
+          @click="activeTab = 'scores'"
+        >
+          📊 評分與檔位
+        </button>
+        <button
+          class="segmented-btn"
+          :class="{ active: activeTab === 'risk' }"
+          @click="activeTab = 'risk'"
+        >
+          🛡️ 風控與機制
+        </button>
+      </div>
+
+      <!-- TAB 1: 評分與檔位 -->
+      <div v-show="activeTab === 'scores'">
+        <!-- Section 1: Weight Score Breakdown -->
+        <section class="status-section">
         <div class="section-header">
           <h3 class="section-title">📊 策略分數構成 (Weight Score)</h3>
           <span class="section-badge" :class="scoreClass">{{ health.weightScore.total }}pt</span>
@@ -130,133 +149,137 @@
           <ThresholdItem label="牛市戰術門檻" :value="health.scoring.buyTacticalBullish" unit="pt" />
         </div>
       </section>
+      </div>
 
-      <!-- Section 5: Budget Priority -->
-      <section class="status-section">
-        <div class="section-header">
-          <h3 class="section-title">💰 Budget Priority (資金預度管控)</h3>
-          <span class="section-badge" :class="budgetClass">
-            {{ health.budget.isLimited ? '⚠️ 受限' : '✅ 正常' }}
-          </span>
-        </div>
-        <div class="budget-card" :class="{ limited: health.budget.isLimited }">
-          <div class="budget-grid">
-            <BudgetItem label="每日總可用" :value="health.budget.details.dailyAvailable" unit="元" />
-            <BudgetItem label="Baseline 預留" :value="health.budget.details.dailyDcaReserve" unit="元" />
-            <BudgetItem label="Tactical 可用池" :value="health.budget.details.tacticalPool" unit="元" />
-            <BudgetItem label="當前請求" :value="health.budget.details.poolAmount" unit="元" />
-            <BudgetItem label="實際允許" :value="health.budget.allowedAmount" unit="元" />
+      <!-- TAB 2: 風控與機制 -->
+      <div v-show="activeTab === 'risk'">
+        <!-- Section 8: Risk Controls -->
+        <section class="status-section">
+          <div class="section-header">
+            <h3 class="section-title">🛡️ 風控狀態</h3>
+            <span class="section-badge risk-badge" :class="riskClass">{{ riskLabel }}</span>
           </div>
-          <div class="budget-reason" v-if="health.budget.isLimited">
-            <span class="reason-icon">⚠️</span>
-            <span class="reason-text">{{ health.budget.limitedReason }}</span>
+          <div class="risk-grid">
+            <RiskItem 
+              label="Regime 狀態" 
+              :value="health.risk.regime" 
+              :icon="regimeIcon" 
+              :class="regimeClass"
+            />
+            <RiskItem 
+              label="維持率" 
+              :value="health.risk.maintenanceMargin" 
+              unit="%"
+              :icon="health.risk.maintenanceMargin < 145 ? '🔴' : health.risk.maintenanceMargin < 160 ? '🟠' : '🟢'"
+            />
+            <RiskItem 
+              label="綜合槓桿" 
+              :value="health.risk.grossLeverage" 
+              unit="x"
+              :icon="health.risk.grossLeverage > 2.5 ? '🔴' : health.risk.grossLeverage > 2.0 ? '🟠' : '🟢'"
+            />
+            <RiskItem 
+              label="估值守衛" 
+              :value="health.risk.valuationGuard?.latchActive ? '生效' : '未生效'"
+              :icon="health.risk.valuationGuard?.latchActive ? '🔒' : '🔓'"
+            />
+            <RiskItem 
+              label="恐慌破冰" 
+              :value="health.risk.panicBypassActive ? '生效' : '未生效'"
+              :icon="health.risk.panicBypassActive ? '⚡' : '🔓'"
+            />
+            <RiskItem 
+              label="移動停利" 
+              :value="health.risk.trailingActive ? '啟動' : '待機'"
+              :icon="health.risk.trailingActive ? '📉' : '⏸️'"
+            />
           </div>
-          <div class="budget-signal-type">
-            <span class="type-label">信號類型：</span>
-            <span class="type-badge" :class="signalTypeClass">{{ signalTypeLabel }}</span>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Section 6: Signal Classification -->
-      <section class="status-section">
-        <div class="section-header">
-          <h3 class="section-title">📡 當前信號分類</h3>
-        </div>
-        <div class="signal-card">
-          <div class="signal-main">
-            <span class="signal-category-badge" :class="signalCategoryClass">{{ signalCategoryLabel }}</span>
-            <span class="signal-type-badge" :class="signalTypeClass">{{ signalTypeLabel }}</span>
+        <!-- Section 6: Signal Classification -->
+        <section class="status-section">
+          <div class="section-header">
+            <h3 class="section-title">📡 當前信號分類</h3>
           </div>
-          <div class="signal-details">
-            <div class="signal-row">
-              <span class="detail-label">方向</span>
-              <span class="detail-value signal-direction" :class="directionClass">{{ health.signal.direction }}</span>
+          <div class="signal-card">
+            <div class="signal-main">
+              <span class="signal-category-badge" :class="signalCategoryClass">{{ signalCategoryLabel }}</span>
+              <span class="signal-type-badge" :class="signalTypeClass">{{ signalTypeLabel }}</span>
             </div>
-            <div class="signal-row">
-              <span class="detail-label">目標</span>
-              <span class="detail-value">{{ health.signal.target }}</span>
-            </div>
-            <div class="signal-row">
-              <span class="detail-label">建議</span>
-              <span class="detail-value">{{ health.signal.suggestion }}</span>
+            <div class="signal-details">
+              <div class="signal-row">
+                <span class="detail-label">方向</span>
+                <span class="detail-value signal-direction" :class="directionClass">{{ health.signal.direction }}</span>
+              </div>
+              <div class="signal-row">
+                <span class="detail-label">目標</span>
+                <span class="detail-value">{{ health.signal.target }}</span>
+              </div>
+              <div class="signal-row">
+                <span class="detail-label">建議</span>
+                <span class="detail-value">{{ health.signal.suggestion }}</span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Section 7: Lifecycle Stage -->
-      <section class="status-section">
-        <div class="section-header">
-          <h3 class="section-title">👤 生命週期階段</h3>
-          <span class="section-badge lifecycle-badge" :class="lifecycleClass">{{ health.lifecycle.stage }}</span>
-        </div>
-        <div class="lifecycle-card">
-          <div class="lifecycle-grid">
-            <LifecycleItem label="當前階段" :value="lifecycleStageLabel" :icon="lifecycleIcon" />
-            <LifecycleItem v-if="health.lifecycle.yearsToRetirement != null" label="距退休" :value="health.lifecycle.yearsToRetirement" unit="年" />
-            <LifecycleItem label="槓桿上限" :value="health.lifecycleProfile.maxLeverage" unit="x" />
-            <LifecycleItem label="新增Z2上限" :value="health.lifecycleProfile.maxLeverageForNewZ2" unit="x" />
-            <LifecycleItem label="最低生存跌幅" :value="health.lifecycleProfile.minSurvivalDropLimit" unit="%" />
-            <LifecycleItem label="模式" :value="lifecycleModeLabel" />
+        <!-- Section 5: Budget Priority -->
+        <section class="status-section">
+          <div class="section-header">
+            <h3 class="section-title">💰 Budget Priority (資金預度管控)</h3>
+            <span class="section-badge" :class="budgetClass">
+              {{ health.budget.isLimited ? '⚠️ 受限' : '✅ 正常' }}
+            </span>
           </div>
-        </div>
-      </section>
+          <div class="budget-card" :class="{ limited: health.budget.isLimited }">
+            <div class="budget-grid">
+              <BudgetItem label="每日總可用" :value="health.budget.details.dailyAvailable" unit="元" />
+              <BudgetItem label="Baseline 預留" :value="health.budget.details.dailyDcaReserve" unit="元" />
+              <BudgetItem label="Tactical 可用池" :value="health.budget.details.tacticalPool" unit="元" />
+              <BudgetItem label="當前請求" :value="health.budget.details.poolAmount" unit="元" />
+              <BudgetItem label="實際允許" :value="health.budget.allowedAmount" unit="元" />
+            </div>
+            <div class="budget-reason" v-if="health.budget.isLimited">
+              <span class="reason-icon">⚠️</span>
+              <span class="reason-text">{{ health.budget.limitedReason }}</span>
+            </div>
+            <div class="budget-signal-type">
+              <span class="type-label">信號類型：</span>
+              <span class="type-badge" :class="signalTypeClass">{{ signalTypeLabel }}</span>
+            </div>
+          </div>
+        </section>
 
-      <!-- Section 8: Risk Controls -->
-      <section class="status-section">
-        <div class="section-header">
-          <h3 class="section-title">🛡️ 風控狀態</h3>
-          <span class="section-badge risk-badge" :class="riskClass">{{ riskLabel }}</span>
-        </div>
-        <div class="risk-grid">
-          <RiskItem 
-            label="Regime 狀態" 
-            :value="health.risk.regime" 
-            :icon="regimeIcon" 
-            :class="regimeClass"
-          />
-          <RiskItem 
-            label="維持率" 
-            :value="health.risk.maintenanceMargin" 
-            unit="%"
-            :icon="health.risk.maintenanceMargin < 145 ? '🔴' : health.risk.maintenanceMargin < 160 ? '🟠' : '🟢'"
-          />
-          <RiskItem 
-            label="綜合槓桿" 
-            :value="health.risk.grossLeverage" 
-            unit="x"
-            :icon="health.risk.grossLeverage > 2.5 ? '🔴' : health.risk.grossLeverage > 2.0 ? '🟠' : '🟢'"
-          />
-          <RiskItem 
-            label="估值守衛" 
-            :value="health.risk.valuationGuard?.latchActive ? '生效' : '未生效'"
-            :icon="health.risk.valuationGuard?.latchActive ? '🔒' : '🔓'"
-          />
-          <RiskItem 
-            label="恐慌破冰" 
-            :value="health.risk.panicBypassActive ? '生效' : '未生效'"
-            :icon="health.risk.panicBypassActive ? '⚡' : '🔓'"
-          />
-          <RiskItem 
-            label="移動停利" 
-            :value="health.risk.trailingActive ? '啟動' : '待機'"
-            :icon="health.risk.trailingActive ? '📉' : '⏸️'"
-          />
-        </div>
-      </section>
+        <!-- Section 7: Lifecycle Stage -->
+        <section class="status-section">
+          <div class="section-header">
+            <h3 class="section-title">👤 生命週期階段</h3>
+            <span class="section-badge lifecycle-badge" :class="lifecycleClass">{{ health.lifecycle.stage }}</span>
+          </div>
+          <div class="lifecycle-card">
+            <div class="lifecycle-grid">
+              <LifecycleItem label="當前階段" :value="lifecycleStageLabel" :icon="lifecycleIcon" />
+              <LifecycleItem v-if="health.lifecycle.yearsToRetirement != null" label="距退休" :value="health.lifecycle.yearsToRetirement" unit="年" />
+              <LifecycleItem label="槓桿上限" :value="health.lifecycleProfile.maxLeverage" unit="x" />
+              <LifecycleItem label="新增Z2上限" :value="health.lifecycleProfile.maxLeverageForNewZ2" unit="x" />
+              <LifecycleItem label="最低生存跌幅" :value="health.lifecycleProfile.minSurvivalDropLimit" unit="%" />
+              <LifecycleItem label="模式" :value="lifecycleModeLabel" />
+            </div>
+          </div>
+        </section>
 
-      <!-- Section 9: Key Metrics -->
-      <section class="status-section compact">
-        <div class="section-header">
-          <h3 class="section-title">📋 關鍵指標速覽</h3>
-        </div>
-        <div class="metrics-grid">
-          <MetricItem label="淨資產" :value="health.keyMetrics.netAsset" unit="元" format="number" />
-          <MetricItem label="Z2 佔比" :value="health.keyMetrics.z2Ratio" unit="%" />
-          <MetricItem label="實際槓桿" :value="health.keyMetrics.actualLeverage" unit="x" />
-        </div>
-      </section>
+        <!-- Section 9: Key Metrics -->
+        <section class="status-section compact">
+          <div class="section-header">
+            <h3 class="section-title">📋 關鍵指標速覽</h3>
+          </div>
+          <div class="metrics-grid">
+            <MetricItem label="淨資產" :value="health.keyMetrics.netAsset" unit="元" format="number" />
+            <MetricItem label="Z2 佔比" :value="health.keyMetrics.z2Ratio" unit="%" />
+            <MetricItem label="實際槓桿" :value="health.keyMetrics.actualLeverage" unit="x" />
+          </div>
+        </section>
+      </div>
 
     </div>
   </div>
@@ -289,6 +312,7 @@ const props = defineProps({
 const data = ref(null);
 const internalLoading = ref(true);
 const internalError = ref(null);
+const activeTab = ref("scores"); // "scores" | "risk"
 
 // Computed: prefer prop health, fall back to internal data
 const health = computed(() => props.health ?? data.value);
@@ -822,6 +846,33 @@ onMounted(async () => {
   font-size: 10px;
   color: #aaa;
   margin-left: 2px;
+}
+
+/* ── Segmented Control ── */
+.segmented-control {
+  display: flex;
+  background: var(--tg-theme-secondary-bg-color, rgba(0, 0, 0, 0.05));
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  gap: 4px;
+}
+.segmented-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tg-theme-hint-color, #666);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.segmented-btn.active {
+  background: var(--tg-theme-bg-color, #ffffff);
+  color: var(--tg-theme-button-color, #2481cc);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Allocation Tier */

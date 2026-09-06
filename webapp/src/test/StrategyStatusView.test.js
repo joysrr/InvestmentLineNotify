@@ -374,4 +374,26 @@ describe("StrategyStatusView", () => {
     // 應過濾掉 null 僅保留 valid tier
     expect(wrapper.findAll("[data-testid='allocation-tier']").length).toBe(2);
   });
+
+  it("應包含 Segmented Control 子分頁切換鈕，且能切換評分檔位與風控機制視圖", async () => {
+    const wrapper = mount(StrategyStatusView, {
+      props: { health: mockApiResponse, loading: false, error: null },
+      global: { stubs: mockComponents },
+    });
+    await flushPromises();
+
+    const segmentedBtns = wrapper.findAll(".segmented-btn");
+    expect(segmentedBtns.length).toBe(2);
+    expect(segmentedBtns[0].text()).toContain("評分與檔位");
+    expect(segmentedBtns[1].text()).toContain("風控與機制");
+
+    // 預設 Tab 1 (評分檔位)
+    expect(wrapper.findAll("[data-testid='score-bar']").length).toBe(5);
+
+    // 切換至 Tab 2 (風控與機制)
+    await segmentedBtns[1].trigger("click");
+    expect(wrapper.findAll("[data-testid='risk-item']").length).toBeGreaterThan(
+      0,
+    );
+  });
 });

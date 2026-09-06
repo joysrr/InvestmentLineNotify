@@ -1,6 +1,6 @@
 # 投資儀表板 (Telegram Miniapp) 總覽頁面 UI/UX 整合優化計畫 (DASHBOARD_UIUX_OPTIMIZATION_PLAN.md)
 
-> **狀態**：Active — 計畫已確立（採納選項 A：Segmented Control），準備啟動 TDD 開發
+> **狀態**：Completed — 已完成全階段開發、單元測試、E2E 測試與部署驗證
 > **建立日期**：2026-09-06
 > **優化原則**：「資訊零刪減、視覺高收斂」
 
