@@ -103,22 +103,14 @@ describe("ReportsView.vue", () => {
     expect(api.fetchReports).toHaveBeenCalledTimes(2);
   });
 
-  it("點擊「科學回測」分頁不應崩潰且應顯示回測大數據內容", async () => {
+  it("僅包含日報、週報、月報三個分頁，不含科學回測", async () => {
     api.fetchReports.mockResolvedValue([]);
     const wrapper = mount(ReportsView);
     await nextTick();
 
     const buttons = wrapper.findAll(".tab-btn");
-    const disciplineTab = buttons.find((b) => b.text() === "科學回測");
-    expect(disciplineTab).toBeDefined();
-
-    // 觸發點擊，切至科學回測頁籤
-    await disciplineTab.trigger("click");
-    await nextTick();
-
-    // 驗證內容已正確呼叫渲染而且完全沒有出錯
-    expect(wrapper.text()).toContain("隨波逐流減倉 50%");
-    expect(wrapper.text()).toContain("4,620 萬");
-    expect(wrapper.find(".discipline-container").exists()).toBe(true);
+    expect(buttons.length).toBe(3);
+    const labels = buttons.map((b) => b.text());
+    expect(labels).toEqual(["日報", "週報", "月報"]);
   });
 });

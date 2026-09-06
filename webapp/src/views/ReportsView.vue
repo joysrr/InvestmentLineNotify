@@ -229,139 +229,12 @@
         </div>
       </div>
     </div>
-
-    <!-- Science Backtest Tab Content -->
-    <div
-      v-else-if="activeTab === 'discipline'"
-      class="discipline-container fade-in"
-    >
-      <div class="discipline-intro-card">
-        <div class="intro-badge">✨ 核心思想：理性數據戰勝直覺</div>
-        <h3 class="intro-title">以長期實證消除踏空焦慮，維持強大紀律</h3>
-        <p class="intro-desc">
-          本系統決策「隨波逐流減倉 50%」及「動態去槓桿守衛」非憑空猜測，而是基於
-          2009 至 2026 年（跨越 17
-          年、歷經多次多空大循環）的完整歷史數據模擬。數據為所有理性的投資者提供了強烈的信心支撐，確保在車上享受複利，並在危機到來時安全存活。
-        </p>
-      </div>
-
-      <!-- Comparison Card -->
-      <div class="card-section">
-        <h4 class="section-sub-title">17年長期回測數據大比拼 (2009 ~ 2026)</h4>
-
-        <!-- ECharts 圖表區 -->
-        <div class="chart-container" style="height: 300px; margin-bottom: 20px">
-          <v-chart class="chart" :option="cagrOptions" autoresize />
-        </div>
-
-        <div class="table-wrapper">
-          <table class="backtest-table">
-            <thead>
-              <tr>
-                <th>策略模式</th>
-                <th>期末淨資產</th>
-                <th>年化報酬 (CAGR)</th>
-                <th>最大回撤 (MDD)</th>
-                <th>生存率</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="row-highlight">
-                <td>
-                  <strong>進攻模式 (最新 V2.8)</strong><br />
-                  <span class="sub-row">訊號觸發減持 50% + 去槓桿守衛</span>
-                </td>
-                <td class="val-gain">NT$ 4,620 萬</td>
-                <td class="val-gain">12.7%</td>
-                <td class="val-safe">-41%</td>
-                <td>100%</td>
-              </tr>
-              <tr>
-                <td>
-                  <strong>溫和積極組 (舊版)</strong><br />
-                  <span class="sub-row">訊號觸發 100% 清倉 + 去槓桿守衛</span>
-                </td>
-                <td>NT$ 3,199 萬</td>
-                <td>10.09%</td>
-                <td>-43.61%</td>
-                <td>100%</td>
-              </tr>
-              <tr>
-                <td>
-                  <strong>控制組 (基線)</strong><br />
-                  <span class="sub-row">純 DCA 買進 0050 (帳面帳戶)</span>
-                </td>
-                <td>NT$ 789 萬*</td>
-                <td>1.44%</td>
-                <td>-76.94%</td>
-                <td>100%</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="table-footnote">
-          * 備註：回測初始資金為 0，每月 DCA 30,000 元，質押率上限
-          60%。舊版雖能在高點完美清倉，但頻繁全賣退場在反彈初期「踏空摩擦阻力」極大；最新
-          v2.8 採行的「50% 保留底倉」完美在保留複利與防滑間取得黃金平衡！(0050
-          基線結果含 1 拆 4 帳面重置偏誤)
-        </p>
-      </div>
-
-      <!-- Explanatory Grid Cards -->
-      <div class="insights-grid">
-        <div class="insight-card">
-          <div class="card-icon">💡</div>
-          <h4 class="card-title">為什麼「僅減碼 50%」完勝「全數出清」？</h4>
-          <p class="card-text">
-            <strong>避免踏空踏錯與情緒反覆：</strong> 舊版策略在賣出訊號成立時
-            100%
-            出清槓桿，回測證明這會導致在牛市的回調和暴漲邊際中陷入「頻繁踏空」，錯失最早、反彈速度最快的複利。
-            <br /><br />
-            <strong>保留火種延續複利：</strong> 限制最大減碼比例為
-            50%，一來落實主動式防禦避開急跌區，二來保留 50% 的核心槓桿等待 V
-            型反轉，免遭多頭洗盤。配合去槓桿守衛，期末最終淨值大勝傳統全賣清倉！
-          </p>
-        </div>
-
-        <div class="insight-card">
-          <div class="card-icon">🛡️</div>
-          <h4 class="card-title">去槓桿守衛：抵禦 2022 升息熊市的盾牌</h4>
-          <p class="card-text">
-            <strong>極端行情的終極底層安防：</strong> 在 2022 年 Fed
-            歷史級急升息熊市下，帳戶的維持率受到高壓威脅，舊版模擬中的融資使用率（Loan
-            Usage）曾崩潰至觸平警戒的 132%！ <br /><br />
-            <strong>自動還款防微杜漸：</strong> V2.8 內嵌
-            <strong>Deleverage 去槓桿守衛</strong
-            >，在每日滾動迴圈中，當大腦維持率低於 85%
-            防線時自動觸發市價降倉還款，成功將歷史借款使用率牢牢鎖在極安全的 79%
-            上限，完美生存！
-          </p>
-        </div>
-
-        <div class="insight-card">
-          <div class="card-icon">📐</div>
-          <h4 class="card-title">完美還原股票分割與真實價格假跳空</h4>
-          <p class="card-text">
-            <strong>數據極致精準度：</strong>
-            我們的回測歷程不是紙上談兵，而是完全擬合真實世界持產現狀：
-            <br /><br />
-            1. <strong>股票分割處理：</strong> 0050 於 2025-06-18 進行「1 拆
-            4」分割。程式會自動在當日將庫存股數乘以
-            4，將歷史買入timeline均值還原，完美消除資料跳空。
-            <br />
-            2. <strong>修護假跳空資料：</strong> 修正了 2014 年 Yahoo 數據庫中
-            0050 出現單日 -75% 的人工記錄假跌幅，消除一切回測偏誤。
-          </p>
-        </div>
-      </div>
-    </div>
   </div>
   </GlobalErrorBoundary>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
 import {
   fetchReports,
   fetchWeeklyReports,
@@ -369,73 +242,11 @@ import {
 } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { waitReady } from "../composables/useTelegram.js";
-import VChart from "vue-echarts";
-import { use } from "echarts/core";
-import { BarChart, LineChart } from "echarts/charts";
-import {
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent,
-  GridComponent,
-  DatasetComponent,
-} from "echarts/components";
-import { CanvasRenderer } from "echarts/renderers";
-
-// 註冊 ECharts 組件
-use([
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent,
-  GridComponent,
-  DatasetComponent,
-  BarChart,
-  LineChart,
-  CanvasRenderer,
-]);
-
-const cagrOptions = computed(() => {
-  return {
-    tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-    legend: { textStyle: { color: "var(--tg-theme-text-color, #333)" } },
-    grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
-    xAxis: {
-      type: "category",
-      data: ["進攻模式(最新)", "溫和積極(舊版)", "控制組(基線)"],
-      axisLabel: { color: "var(--tg-theme-text-color, #333)", interval: 0 },
-    },
-    yAxis: {
-      type: "value",
-      axisLabel: {
-        color: "var(--tg-theme-text-color, #333)",
-        formatter: "{value}%",
-      },
-    },
-    series: [
-      {
-        name: "年化報酬 (CAGR)",
-        type: "bar",
-        data: [12.7, 10.09, 1.44],
-        itemStyle: { color: "#26a17b" },
-        label: { show: true, position: "top", formatter: "{c}%" },
-      },
-      {
-        name: "最大回撤 (MDD)",
-        type: "bar",
-        data: [-41, -43.61, -76.94],
-        itemStyle: { color: "#e84855" },
-        label: { show: true, position: "bottom", formatter: "{c}%" },
-      },
-    ],
-  };
-});
-
-const route = useRoute();
 
 const tabs = [
   { key: "daily", label: "日報" },
   { key: "weekly", label: "週報" },
   { key: "monthly", label: "月報" },
-  { key: "discipline", label: "科學回測" },
 ];
 
 const activeTab = ref("daily");
@@ -446,7 +257,6 @@ const state = reactive({
   daily: { loading: false, error: null, items: [], loaded: false },
   weekly: { loading: false, error: null, items: [], loaded: false },
   monthly: { loading: false, error: null, items: [], loaded: false },
-  discipline: { loading: false, error: null, items: [1], loaded: true },
 });
 
 const currentState = computed(() => state[activeTab.value]);
@@ -458,7 +268,6 @@ const subtitleText = computed(() => {
   if (tab === "daily") return `近 ${s.items.length} 份`;
   if (tab === "weekly") return `近 ${s.items.length} 週`;
   if (tab === "monthly") return `近 ${s.items.length} 個月`;
-  if (tab === "discipline") return "17年實證數據與紀律";
   return "";
 });
 
@@ -487,7 +296,6 @@ async function load(tab) {
 
 function switchTab(tab) {
   activeTab.value = tab;
-  if (tab === "discipline") return;
   if (!state[tab].loaded) load(tab);
 }
 
@@ -527,11 +335,7 @@ function formatPeriodLabel(period) {
 
 onMounted(async () => {
   await waitReady();
-  if (route?.query?.tab === "discipline") {
-    activeTab.value = "discipline";
-  } else {
-    load("daily");
-  }
+  load("daily");
 });
 </script>
 
