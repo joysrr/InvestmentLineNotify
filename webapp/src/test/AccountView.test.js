@@ -67,7 +67,17 @@ const reports = [
   },
 ];
 
-const mountView = () => mount(AccountView);
+const mountView = () =>
+  mount(AccountView, {
+    global: {
+      stubs: {
+        "router-link": {
+          template: '<a :href="to"><slot /></a>',
+          props: ["to"],
+        },
+      },
+    },
+  });
 
 describe("AccountView", () => {
   beforeEach(() => {
@@ -129,6 +139,15 @@ describe("AccountView", () => {
     expect(wrapper.text()).toContain("2026-08-17 快照");
     expect(wrapper.text()).toContain("最後買進日：2026-08-16");
     expect(wrapper.findAll(".snapshot-card").length).toBeGreaterThanOrEqual(6);
+  });
+
+  it("應包含連結至 /chart 的資產趨勢圖表按鈕", async () => {
+    const wrapper = mountView();
+    await flushPromises();
+    const btn = wrapper.find(".chart-link-btn");
+    expect(btn.exists()).toBe(true);
+    expect(btn.attributes("href")).toBe("/chart");
+    expect(btn.text()).toContain("資產趨勢圖表");
   });
 });
 

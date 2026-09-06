@@ -92,7 +92,12 @@
 
       <!-- 3. 帳戶快照 -->
       <div class="section">
-        <h2 class="section-title">💼 帳戶快照</h2>
+        <div class="section-header-row">
+          <h2 class="section-title">💼 帳戶快照</h2>
+          <router-link to="/chart" class="chart-link-btn">
+            📊 資產趨勢圖表 ↗
+          </router-link>
+        </div>
 
         <!-- 2a. 加密金鑰未設定 -->
         <div v-if="!snapshotEncryption" class="notice-block">
@@ -630,6 +635,22 @@ const peValue = computed(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 4px;
+}
+.section-header-row .section-title {
+  margin-bottom: 0;
+}
+.chart-link-btn {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tg-theme-button-color, #2481cc);
+  background: rgba(36, 129, 204, 0.1);
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.chart-link-btn:hover {
+  background: rgba(36, 129, 204, 0.2);
 }
 
 /* ── Info rows ── */
