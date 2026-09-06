@@ -1,6 +1,6 @@
 # 市場雷達、多空對決與技術指標導覽整合計畫 (NAVIGATE_MACRO_BATTLE_PLAN.md)
 
-> **狀態**：Active — 計畫已建立，進入 TDD 開發階段
+> **狀態**：Completed — 已完成切換列開發、單元測試、E2E 測試與部署驗證
 > **建立日期**：2026-09-06
 > **目標**：在 `MarketRadarView.vue`、`MacroBattleView.vue` 與 `TechnicalView.vue` 頂部加入統一的分頁切換導覽列 (`NavSubtabs`)，使使用者能方便地在「市場雷達 (Radar)」、「多空對決 (Macro)」與「技術指標 (Technical)」三個市場戰情視圖之間順暢切換。
 

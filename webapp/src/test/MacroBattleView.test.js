@@ -11,7 +11,17 @@ vi.mock("../composables/useTelegram.js", () => ({
   waitReady: vi.fn().mockResolvedValue(undefined),
 }));
 
-const mountView = () => mount(MacroBattleView);
+const mountView = () =>
+  mount(MacroBattleView, {
+    global: {
+      stubs: {
+        "router-link": {
+          template: '<a :href="to"><slot /></a>',
+          props: ["to"],
+        },
+      },
+    },
+  });
 
 describe("MacroBattleView", () => {
   beforeEach(() => {
@@ -86,5 +96,15 @@ describe("MacroBattleView", () => {
     ]);
     expect(wrapper.find(".takeaway-list").exists()).toBe(true);
     expect(wrapper.findAll(".event-card")).toHaveLength(3);
+  });
+
+  it("應包含子分頁切換列與多空對決按鈕", async () => {
+    fetchReports.mockResolvedValue([]);
+    const wrapper = mountView();
+    await flushPromises();
+    const subtabs = wrapper.findAll(".subtab-btn");
+    expect(subtabs.length).toBe(3);
+    const textList = subtabs.map((b) => b.text());
+    expect(textList).toEqual(["🌐 市場雷達", "⚖️ 多空對決", "📊 技術指標"]);
   });
 });
