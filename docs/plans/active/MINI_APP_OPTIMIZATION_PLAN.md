@@ -1,21 +1,30 @@
 # Mini App 用戶體驗與版面優化計畫 (MINI_APP_OPTIMIZATION_PLAN.md)
 
-> **狀態**：Active — 計劃已完善，等待用戶確認後啟動開發
+> **狀態**：Active — 計劃已補充同指標不重複原則，等待用戶最後確認
 > **建立日期**：2026-09-06
-> **背景**：根據 Han 對 Mini App 的實測反饋，進行第二階段用戶體驗優化：消除資訊重複、手機端 RWD 溢出修復、恢復日/週/月報專區，並清理無用靜態資訊。
+> **背景**：根據 Han 對 Mini App 的實測反饋，進行第二階段用戶體驗優化：消除資訊重複（確保資訊不消失，但同一指標不重複出現）、手機端 RWD 溢出修復、恢復日/週/月報專區，並清理無用靜態資訊。
 
 ---
 
 ## 🎯 四大優化任務詳細分析與計畫
 
-### 1. 總覽資訊盤點與重複整併 (Overview Deduplication)
+### 1. 總覽資訊盤點與指標重複整併 (Overview Deduplication & SSOT)
 
-- **現狀盤點與問題**：
-  - `DecisionHero`（AI 動作建議）與 `CoachingAdvice`（AI 教練建議）各自獨立佔據大量版面，且「策略定調」與「動作建議」重複。
-  - `MarketSnapshot`（VIX, PR, GL, 燈號）與 `HealthPanel` / `StrategyStatusView` 中的指標高度重疊。
-- **整併方案**：
-  - **Hero 卡片融合**：將 `DecisionHero` 與 `CoachingAdvice` 融合成單一 **「🤖 AI 決策與教練戰術」** 卡片。上方顯眼展示 AI 動作與評分，下方提供折疊式的「核心洞察」與「下一步觀察清單」。
-  - **市場快照緊湊化**：縮減 `MarketSnapshot` 的邊距，將重複率高的欄位交由 `HealthPanel`（健康度）與 `StrategyStatusView`（策略狀態）折疊卡片呈現。
+- **整併原則**：**資訊不消失，但同一指標/數據在頁面中只在最適合的區塊出現一次 (Single Source of Truth)**。
+
+- **跨區塊重複指標點對點梳理**：
+  1. **維持率 & 綜合槓桿 (Maintenance Margin & Gross Leverage)**：
+     - _原情況_：在 `MarketSnapshot`（曝險 GL）、`StrategyStatusView` Section 8（風險矩陣）與 Section 9（關鍵指標速覽）三處重複出現。
+     - _整併_：`MarketSnapshot` 移除 GL，`StrategyStatusView` Section 9 移除重複的維持率與槓桿卡片。**統一由 `StrategyStatusView` Section 8（帶燈號風控矩陣）作為槓桿與維持率的唯一展示點**。
+  2. **估值 PR (PB/PE Percentile)**：
+     - _原情況_：在 `MarketSnapshot`（PB 分位數）、`StrategyStatusView` Section 9（估值 PR）與 `AnalysisPanel` 三處重複。
+     - _整併_：**統一由 `MarketSnapshot` 頂層卡片作為估值 PR 的唯一即時展示點**；`StrategyStatusView` Section 9 刪除重複的 PR 欄位，專注於淨資產與 Z2 佔比。
+  3. **景氣燈號 (Light Status)**：
+     - _原情況_：在 `MarketSnapshot` 與 `HealthPanel` (Hero) 兩處重複。
+     - _整併_：`MarketSnapshot` 展示即時燈號燈標；`HealthPanel` 專注於「帳戶健康綜合評分 (0-100)」，避免圖示與文字雙重疊加。
+  4. **買賣訊號與動作建議 (Target & Suggestion)**：
+     - _原情況_：在 `DecisionHero`、`CoachingAdvice`（策略定調）與 `StrategyStatusView` Section 6 散落重複。
+     - _整併_：**融合成單一「🤖 AI 決策與教練戰術」 Hero 卡片**。上層顯眼標示當日標的與建議，下層折疊收納風險提示與觀察清單，刪除 `CoachingAdvice` 中的重複「策略定調」與 `HealthPanel` 中的重複「建議行動」。
 
 ### 2. 手機端 (Mobile RWD) 排版與溢出最佳化
 
@@ -32,7 +41,7 @@
 
 - **現狀分析**：`ReportsView.vue` 頁面與 API (`/api/reports`) 功能完整，且已支援 daily/weekly/monthly 三分頁，但因 Bottom Nav 與頁面無入口導致功能隱形。
 - **最佳呈現方案**：
-  - **新聞與簡報整合 (News & Reports Hub)**：
+  - **新聞與簡報中心 (News & Reports Hub)**：
     將 `NewsView.vue` (新聞頁面) 擴充為 **新聞與簡報中心**：
     - Subtab 1: 📰 今日新聞集錦 (News Pool)
     - Subtab 2: 📅 日報 / 週報 / 月報歷史簡報 (整合 `ReportsView.vue` 的完整功能)
@@ -50,13 +59,13 @@
 
 ## 📅 開發階段劃分 (Phases)
 
-| Phase       | 任務                                | 預計產出                                                |
-| ----------- | ----------------------------------- | ------------------------------------------------------- |
-| **Phase 1** | 移除 `.discipline-banner` 靜態橫幅  | 刪除無用程式碼 + 更新單元測試 (Commit)                  |
-| **Phase 2** | 新聞與簡報中心整合 (日/週/月報恢復) | 擴充 `NewsView.vue` 選項 + E2E 測試 (Commit)            |
-| **Phase 3** | 手機端 RWD 排版溢出修復             | CSS 自適應優化 + Playwright 375px Viewport E2E (Commit) |
-| **Phase 4** | 總覽 (Overview) 重複資訊整併        | 融合 DecisionHero & CoachingAdvice (Commit)             |
-| **Phase 5** | 全套單元與 E2E 驗證歸檔             | 360+ Unit + 62+ E2E 綠燈 + 歸檔 active 計畫             |
+| Phase       | 任務                                 | 預計產出                                                |
+| ----------- | ------------------------------------ | ------------------------------------------------------- |
+| **Phase 1** | 移除 `.discipline-banner` 靜態橫幅   | 刪除無用程式碼 + 更新單元測試 (Commit)                  |
+| **Phase 2** | 新聞與簡報中心整合 (日/週/月報恢復)  | 擴充 `NewsView.vue` 選項 + E2E 測試 (Commit)            |
+| **Phase 3** | 手機端 RWD 排版溢出修復              | CSS 自適應優化 + Playwright 375px Viewport E2E (Commit) |
+| **Phase 4** | 總覽指標獨立性整併 (SSOT 唯一展示點) | 融合 Hero 卡片、梳理重複指標 (Commit)                   |
+| **Phase 5** | 全套單元與 E2E 驗證歸檔              | 360+ Unit + 62+ E2E 綠燈 + 歸檔 active 計畫             |
 
 ---
 
