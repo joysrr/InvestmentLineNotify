@@ -31,7 +31,19 @@
 
     <!-- Tab Contents -->
     <div class="tab-content-area fade-in">
-      <!-- Summary Card (always visible in single-page layout) -->
+      <!-- 1. 首屏核心決策 hero -->
+      <DecisionHero
+        :report="latestReport"
+        :loading="reportLoading"
+        :error="reportError"
+        :active-priority="activePriority"
+        :target-class="targetClass"
+        :pct-class="pctClass"
+        :pct-text="pctText"
+        :routing-path="routingPath"
+      />
+
+      <!-- 2. 市場大勢與指標快照 -->
       <MarketSnapshot
         :status="status"
         :loading="statusLoading"
@@ -46,17 +58,16 @@
         :light-text="lightText"
       />
 
-      <DecisionHero
-        :report="latestReport"
-        :loading="reportLoading"
-        :error="reportError"
-        :active-priority="activePriority"
-        :target-class="targetClass"
-        :pct-class="pctClass"
-        :pct-text="pctText"
-        :routing-path="routingPath"
-      />
+      <!-- 3. 帳戶健康度監控 (0-100) -->
+      <section class="dashboard-card health-card">
+        <HealthPanel
+          :data="healthData"
+          :loading="healthLoading"
+          :error="healthError"
+        />
+      </section>
 
+      <!-- 4. AI 教練建議與推演 -->
       <CoachingAdvice
         :report="latestReport"
         :risks="aiRiskWarnings"
@@ -66,15 +77,6 @@
         :insight="aiCoreInsight"
         :verdict="aiStrategyVerdict"
       />
-
-      <!-- Health Card -->
-      <section class="dashboard-card health-card">
-        <HealthPanel
-          :data="healthData"
-          :loading="healthLoading"
-          :error="healthError"
-        />
-      </section>
 
       <!-- Strategy Status Card (collapsible, default collapsed) -->
       <section class="dashboard-card strategy-status-card">
