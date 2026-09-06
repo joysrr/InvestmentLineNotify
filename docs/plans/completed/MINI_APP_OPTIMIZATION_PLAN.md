@@ -1,6 +1,6 @@
 # Mini App 用戶體驗與版面優化計畫 (MINI_APP_OPTIMIZATION_PLAN.md)
 
-> **狀態**：Active — 計劃已補充同指標不重複原則，等待用戶最後確認
+> **狀態**：Completed
 > **建立日期**：2026-09-06
 > **背景**：根據 Han 對 Mini App 的實測反饋，進行第二階段用戶體驗優化：消除資訊重複（確保資訊不消失，但同一指標不重複出現）、手機端 RWD 溢出修復、恢復日/週/月報專區，並清理無用靜態資訊。
 
@@ -65,7 +65,7 @@
 | **Phase 2** | 新聞與簡報中心整合 (日/週/月報恢復)  | ✅ 完成：擴充 `NewsView.vue` + `ReportsView` 歷史簡報 subtab + NWS-004 E2E (Commit)                      |
 | **Phase 3** | 手機端 RWD 排版溢出修復              | ✅ 完成：`BudgetItem`/`MetricItem`/`ThresholdItem` `word-break` 防護 + 375px Playwright RWD E2E (Commit) |
 | **Phase 4** | 總覽指標獨立性整併 (SSOT 唯一展示點) | ✅ 完成：`MarketSnapshot`/`StrategyStatusView`/`CoachingAdvice`/`HealthPanel` 重複指標梳理剔除 (Commit)  |
-| **Phase 5** | 全套單元與 E2E 驗證歸檔              | 360+ Unit + 62+ E2E 綠燈 + 歸檔 active 計畫                                                              |
+| **Phase 5** | 全套單元與 E2E 驗證歸檔              | ✅ 完成：360/360 Unit + 65/65 E2E (含 375px RWD) 綠燈 + npm run build 成功 + 歸檔 active 計畫            |
 
 ---
 
