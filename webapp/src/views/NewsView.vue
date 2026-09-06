@@ -17,6 +17,14 @@
       >
         📦 新聞池
       </button>
+      <button
+        class="subtab-btn"
+        :class="{ active: activeTab === 'periodic' }"
+        @click="switchTab('periodic')"
+        data-testid="subtab-periodic"
+      >
+        📊 歷史簡報
+      </button>
     </div>
 
     <!-- ── 精選報告 tab ── -->
@@ -138,6 +146,11 @@
         </div>
       </div>
     </div>
+
+    <!-- ── 歷史簡報 tab (日/週/月報) ── -->
+    <div v-else-if="activeTab === 'periodic'">
+      <ReportsView />
+    </div>
   </div>
   </GlobalErrorBoundary>
 </template>
@@ -146,6 +159,7 @@
 import { ref, onMounted } from "vue";
 import { fetchNews, fetchReportNews } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
+import ReportsView from "./ReportsView.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 // ── sub-tab 狀態 ──────────────────────────────────────────
