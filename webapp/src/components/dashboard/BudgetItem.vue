@@ -44,6 +44,7 @@ const formattedValue = computed(() => {
   font-size: 16px;
   font-weight: 700;
   color: var(--tg-theme-text-color, #222);
+  word-break: break-all;
 }
 .budget-item .unit {
   font-size: 10px;
