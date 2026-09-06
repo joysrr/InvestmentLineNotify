@@ -59,13 +59,13 @@
 
 ## 📅 開發階段劃分 (Phases)
 
-| Phase       | 任務                                 | 預計產出                                                |
-| ----------- | ------------------------------------ | ------------------------------------------------------- |
-| **Phase 1** | 移除 `.discipline-banner` 靜態橫幅   | 刪除無用程式碼 + 更新單元測試 (Commit)                  |
-| **Phase 2** | 新聞與簡報中心整合 (日/週/月報恢復)  | 擴充 `NewsView.vue` 選項 + E2E 測試 (Commit)            |
-| **Phase 3** | 手機端 RWD 排版溢出修復              | CSS 自適應優化 + Playwright 375px Viewport E2E (Commit) |
-| **Phase 4** | 總覽指標獨立性整併 (SSOT 唯一展示點) | 融合 Hero 卡片、梳理重複指標 (Commit)                   |
-| **Phase 5** | 全套單元與 E2E 驗證歸檔              | 360+ Unit + 62+ E2E 綠燈 + 歸檔 active 計畫             |
+| Phase       | 任務                                 | 預計產出                                                   |
+| ----------- | ------------------------------------ | ---------------------------------------------------------- |
+| **Phase 1** | 移除 `.discipline-banner` 靜態橫幅   | ✅ 完成：刪除無用橫幅+CSS+事件，360 Unit/4 E2E 綠 (Commit) |
+| **Phase 2** | 新聞與簡報中心整合 (日/週/月報恢復)  | 擴充 `NewsView.vue` 選項 + E2E 測試 (Commit)               |
+| **Phase 3** | 手機端 RWD 排版溢出修復              | CSS 自適應優化 + Playwright 375px Viewport E2E (Commit)    |
+| **Phase 4** | 總覽指標獨立性整併 (SSOT 唯一展示點) | 融合 Hero 卡片、梳理重複指標 (Commit)                      |
+| **Phase 5** | 全套單元與 E2E 驗證歸檔              | 360+ Unit + 62+ E2E 綠燈 + 歸檔 active 計畫                |
 
 ---
 

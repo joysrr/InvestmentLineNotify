@@ -57,17 +57,6 @@
         :routing-path="routingPath"
       />
 
-      <!-- 科學紀律信心橫幅 -->
-      <div class="discipline-banner" @click="goToDiscipline">
-        <div class="banner-icon">🔬</div>
-        <div class="banner-body">
-          <h4 class="banner-title">17 年大循環：真實數據實證</h4>
-          <p class="banner-desc">
-            以歷史大數據驗證「局部減碼 50%」策略完勝全額清倉。有效降低投資段回撤風險，完美保留牛市複利。點此查看信心據點 ➔
-          </p>
-        </div>
-      </div>
-
       <CoachingAdvice
         :report="latestReport"
         :risks="aiRiskWarnings"
@@ -141,7 +130,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
 import {
   fetchStatus,
   fetchReports,
@@ -170,11 +158,6 @@ import { CanvasRenderer } from "echarts/renderers";
 use([RadarChart, RadarComponent, TooltipComponent, CanvasRenderer]);
 
 const { openLink } = useTelegram();
-const router = useRouter();
-
-function goToDiscipline() {
-  router.push({ path: "/reports", query: { tab: "discipline" } });
-}
 
 // ── State ──
 // Single-page card layout: no top-level tab switcher
@@ -615,47 +598,5 @@ onMounted(async () => {
 }
 :deep(.text-ok) {
   color: #26a17b;
-}
-
-/* ── Discipline Banner Styles ── */
-.discipline-banner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--tg-theme-secondary-bg-color, #f5f8fa);
-  color: var(--tg-theme-text-color, #222);
-  padding: 14px 16px;
-  border-radius: 14px;
-  margin-top: 16px;
-  margin-bottom: 24px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  transition:
-    transform 0.2s ease,
-    opacity 0.2s ease;
-  text-align: left;
-  border: 1px solid var(--tg-theme-hint-color, #e1e8ed);
-}
-.discipline-banner:active {
-  transform: scale(0.98);
-  opacity: 0.8;
-}
-.banner-icon {
-  font-size: 26px;
-}
-.banner-body {
-  flex: 1;
-}
-.banner-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--tg-theme-button-color, #2481cc);
-  margin: 0 0 4px 0;
-}
-.banner-desc {
-  font-size: 11px;
-  color: var(--tg-theme-hint-color, #657786);
-  margin: 0;
-  line-height: 1.45;
 }
 </style>
