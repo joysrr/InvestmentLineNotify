@@ -252,11 +252,8 @@
           <h3 class="section-title">📋 關鍵指標速覽</h3>
         </div>
         <div class="metrics-grid">
-          <MetricItem label="維持率" :value="health.keyMetrics.maintenanceMargin" unit="%" />
-          <MetricItem label="綜合槓桿" :value="health.keyMetrics.grossLeverage" unit="x" />
-          <MetricItem label="Z2 佔比" :value="health.keyMetrics.z2Ratio" unit="%" />
-          <MetricItem label="估值 PR" :value="health.keyMetrics.currentPr" unit="%" />
           <MetricItem label="淨資產" :value="health.keyMetrics.netAsset" unit="元" format="number" />
+          <MetricItem label="Z2 佔比" :value="health.keyMetrics.z2Ratio" unit="%" />
           <MetricItem label="實際槓桿" :value="health.keyMetrics.actualLeverage" unit="x" />
         </div>
       </section>

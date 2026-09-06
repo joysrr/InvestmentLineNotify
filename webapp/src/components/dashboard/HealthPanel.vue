@@ -70,23 +70,6 @@
           <div class="comp-status-dot"></div>
         </div>
       </div>
-
-      <!-- Recommendations -->
-      <div class="health-action-v2" v-if="data.recommendations?.length">
-        <div class="action-header">
-          <span class="action-icon">💡</span>
-          <span class="action-title">策略建議行動</span>
-        </div>
-        <div class="action-list-v2">
-          <div
-            v-for="(rec, i) in data.recommendations"
-            :key="i"
-            class="action-item-v2"
-          >
-            {{ rec }}
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 </template>

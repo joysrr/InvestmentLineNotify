@@ -64,7 +64,7 @@
 | **Phase 1** | 移除 `.discipline-banner` 靜態橫幅   | ✅ 完成：刪除無用橫幅+CSS+事件，360 Unit/4 E2E 綠 (Commit)                                               |
 | **Phase 2** | 新聞與簡報中心整合 (日/週/月報恢復)  | ✅ 完成：擴充 `NewsView.vue` + `ReportsView` 歷史簡報 subtab + NWS-004 E2E (Commit)                      |
 | **Phase 3** | 手機端 RWD 排版溢出修復              | ✅ 完成：`BudgetItem`/`MetricItem`/`ThresholdItem` `word-break` 防護 + 375px Playwright RWD E2E (Commit) |
-| **Phase 4** | 總覽指標獨立性整併 (SSOT 唯一展示點) | 融合 Hero 卡片、梳理重複指標 (Commit)                                                                    |
+| **Phase 4** | 總覽指標獨立性整併 (SSOT 唯一展示點) | ✅ 完成：`MarketSnapshot`/`StrategyStatusView`/`CoachingAdvice`/`HealthPanel` 重複指標梳理剔除 (Commit)  |
 | **Phase 5** | 全套單元與 E2E 驗證歸檔              | 360+ Unit + 62+ E2E 綠燈 + 歸檔 active 計畫                                                              |
 
 ---

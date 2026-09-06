@@ -1,15 +1,15 @@
 <template>
   <section class="section">
     <h3 class="section-title">市場快照</h3>
-    <div v-if="loading" class="snapshot-grid snapshot-grid--4">
-      <div v-for="i in 4" :key="i" class="snapshot-card skeleton-card">
+    <div v-if="loading" class="snapshot-grid snapshot-grid--3">
+      <div v-for="i in 3" :key="i" class="snapshot-card skeleton-card">
         <div class="sk sk-label"></div>
         <div class="sk sk-value"></div>
         <div class="sk sk-sub"></div>
       </div>
     </div>
     <div v-else-if="error" class="inline-error">⚠️ 快照載入失敗</div>
-    <div v-else class="snapshot-grid snapshot-grid--4">
+    <div v-else class="snapshot-grid snapshot-grid--3">
       <!-- Regime / VIX -->
       <div class="snapshot-card" :class="regimeLevel.cardClass">
         <span class="snap-label">市場環境 (VIX)</span>
@@ -27,14 +27,6 @@
         <span class="snap-value">{{ pbPrValue }}%</span>
         <span class="snap-sub" :class="pbPrLevel.textClass">{{
           pbPrLevel.label
-        }}</span>
-      </div>
-      <!-- GL -->
-      <div class="snapshot-card" :class="glLevel.cardClass">
-        <span class="snap-label">總曝險 GL</span>
-        <span class="snap-value">{{ glValue }}x</span>
-        <span class="snap-sub" :class="glLevel.textClass">{{
-          glLevel.label
         }}</span>
       </div>
       <!-- Light -->
@@ -68,12 +60,12 @@ defineProps({
   display: grid;
   gap: 10px;
 }
-.snapshot-grid--4 {
-  grid-template-columns: repeat(2, 1fr);
+.snapshot-grid--3 {
+  grid-template-columns: repeat(3, 1fr);
 }
-@media (min-width: 600px) {
-  .snapshot-grid--4 {
-    grid-template-columns: repeat(4, 1fr);
+@media (max-width: 480px) {
+  .snapshot-grid--3 {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 .snapshot-card {

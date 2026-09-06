@@ -254,7 +254,7 @@ describe("StrategyStatusView", () => {
   it("關鍵指標區塊應存在", async () => {
     await flushPromises();
     const metricItems = wrapper.findAll("[data-testid='metric-item']");
-    expect(metricItems.length).toBe(6);
+    expect(metricItems.length).toBe(3);
   });
 
   it("應顯示冷卻中、受限預算與危機風控狀態", async () => {

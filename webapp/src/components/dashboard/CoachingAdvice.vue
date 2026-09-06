@@ -8,12 +8,6 @@
       <div class="insight-text">{{ insight }}</div>
     </div>
 
-    <!-- 策略定調 -->
-    <div class="ai-verdict" v-if="verdict">
-      <span class="verdict-tag">策略定調</span>
-      <span class="verdict-text">{{ verdict }}</span>
-    </div>
-
     <!-- 風險提示 (點擊控制) -->
     <div class="ai-block" v-if="risks && risks.length">
       <div
