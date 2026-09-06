@@ -86,8 +86,8 @@ const props = defineProps({
   verdict: String,
 });
 
-const riskExpanded = ref(true);
-const actionExpanded = ref(true);
+const riskExpanded = ref(false);
+const actionExpanded = ref(false);
 const mindsetExpanded = ref(false);
 const thinkingExpanded = ref(false);
 </script>
