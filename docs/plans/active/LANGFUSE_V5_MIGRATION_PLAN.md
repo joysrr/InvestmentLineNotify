@@ -121,8 +121,12 @@ Langfuse Cloud 將於 **2026-11-16** 停止支援 v3 SDK 與 legacy ingestion AP
   - `resolveChatPrompt()` 改用 `getPromptFromLangfuse()`
   - 添加臨時 v3 兼容層（Phase 2.4 將移除）
   - 測試：84/84 通過
-- ⏸️ **Phase 2.3 待執行**: 完整重構 `resolveChatPrompt()` prompt 編譯邏輯
-- ⏸️ **Phase 2.4 待執行**: 重構 `callAI()` 為 `observe()` decorator（核心，預估 4-5h）
+- ✅ **Phase 2.3 完成 (2026-09-08 23:42)**: 完整重構 `resolveChatPrompt()` prompt 編譯邏輯
+  - Commit: 868de32
+  - 簡化為 v5 ChatPromptClient.compile() 直接使用
+  - 移除複雜的 extractCompiledText() 邏輯
+  - 測試：84/84 通過
+- 🚧 **Phase 2.4 進行中**: 重構 `callAI()` 為 `observe()` decorator（核心，預估 4-5h）
 - ⏸️ **Phase 2.5 待執行**: 更新測試檔案
 
 ### 目標
