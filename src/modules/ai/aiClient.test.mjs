@@ -1,5 +1,5 @@
 // src/modules/ai/aiClient.test.mjs
-// TDD: AI Client 心輯試 - 完整分支
+// TDD: AI Client 核心邏輯測試 - 完整分支
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
@@ -13,7 +13,40 @@ import {
   resolveChatPrompt,
 } from "./aiClient.mjs";
 
-// Mock 依模組 - 使用 vi.hoisted 解決 hoisting 題
+// Mock langfuseClient.mjs (v5)
+vi.mock("./langfuseClient.mjs", () => ({
+  langfuseEnabled: true,
+  flushLangfuse: vi.fn().mockResolvedValue(undefined),
+  getPromptFromLangfuse: vi.fn().mockResolvedValue({
+    version: 1,
+    name: "test-prompt",
+    prompt: [{ role: "system", content: "You are AI assistant." }],
+    config: {},
+  }),
+  createLangfuseScore: vi.fn().mockResolvedValue(undefined),
+  getCurrentTraceIdSafe: vi.fn().mockReturnValue("test-trace-id"),
+  observeWithLangfuse: vi.fn((fn) => fn),
+  langfuseExporter: {
+    export: vi.fn(),
+    shutdown: vi.fn(),
+  },
+  langfuseClient: {
+    prompts: {
+      get: vi.fn().mockResolvedValue({
+        version: 1,
+        name: "test-prompt",
+        prompt: [{ role: "system", content: "You are AI assistant." }],
+        config: {},
+      }),
+    },
+    score: {
+      create: vi.fn().mockResolvedValue(undefined),
+    },
+    shutdown: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
+// Mock 依賴模組 - 使用 vi.hoisted 解決 hoisting 問題
 const { MockLangfuseClass } = vi.hoisted(() => {
   class MockLangfuse {
     constructor() {

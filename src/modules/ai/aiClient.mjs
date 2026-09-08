@@ -1,5 +1,4 @@
 import { GoogleGenAI } from "@google/genai";
-import { Langfuse } from "langfuse";
 import { fetchWithTimeout } from "../../utils/coreUtils.mjs";
 import logger from "../../utils/logger.mjs";
 import {
@@ -15,6 +14,14 @@ import {
   calculateBackoffDelay,
   delay,
 } from "../../utils/retryUtils.mjs";
+import {
+  langfuseEnabled,
+  getPromptFromLangfuse,
+  createLangfuseScore,
+  flushLangfuse as flushLangfuseV5,
+  getCurrentTraceIdSafe,
+  observeWithLangfuse,
+} from "./langfuseClient.mjs";
 
 // 參數&初始化
 const GEMINI_API_KEYS = [
@@ -45,61 +52,25 @@ const aiInstances = GEMINI_API_KEYS.map(
   (key) => new GoogleGenAI({ apiKey: key }),
 );
 
-// ── Langfuse 初始化（金鑰放 .env）────────────────────────────────────────────
-// isLangfuseEnabled：僅在三個環境變數均有值時才啟用，避免 SDK 靜默失敗
-const _langfuseEnabled =
-  !!process.env.LANGFUSE_PUBLIC_KEY &&
-  !!process.env.LANGFUSE_SECRET_KEY &&
-  !!process.env.LANGFUSE_BASE_URL;
+// ── v5 Langfuse 已在 langfuseClient.mjs 初始化 ──────────────────────────────
+// 相容性：保留 flushLangfuse export，內部委派給 v5
+export const flushLangfuse = flushLangfuseV5;
 
-if (!_langfuseEnabled) {
-  logger.warn(
-    {
-      missingKeys: [
-        !process.env.LANGFUSE_PUBLIC_KEY && "LANGFUSE_PUBLIC_KEY",
-        !process.env.LANGFUSE_SECRET_KEY && "LANGFUSE_SECRET_KEY",
-        !process.env.LANGFUSE_BASE_URL && "LANGFUSE_BASE_URL",
-      ].filter(Boolean),
-    },
-    "Langfuse 環境變數未完整設定，追蹤已停用",
-  );
-}
-
-export const langfuse = new Langfuse({
-  publicKey: process.env.LANGFUSE_PUBLIC_KEY,
-  secretKey: process.env.LANGFUSE_SECRET_KEY,
-  baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
-  // flushAt：累積幾筆後自動送出（預設 15）
-  // flushInterval：最長等多久自動送出（預設 10000ms）
-  // 短命程序中應呼叫 flushAsync() 確保送出，不依賴自動觸發
-});
-
-/**
- * 送出 Langfuse 佇列中所有待寫入的 trace / generation，並印出確認日誌。
- * 應在每次 callAI 回傳（成功或失敗）後呼叫，確保短命 Node 程序不遺漏資料。
- *
- * @param {string} traceId  - 本次 callAI 的 trace.id，僅用於 log 識別
- * @param {'success'|'error'} status - 本次呼叫結果
- */
-export async function flushLangfuse(traceId, status = "success") {
-  if (!_langfuseEnabled) return;
-  try {
-    await langfuse.flushAsync();
-    logger.info(
-      {
-        traceId,
-        status,
-        url: `${process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com"}/trace/${traceId}`,
-      },
-      "Langfuse flush 完成",
-    );
-  } catch (flushErr) {
-    logger.error(
-      { traceId, error: flushErr.message },
-      "Langfuse flushAsync 失敗",
-    );
-  }
-}
+// ── 臨時 v3 兼容層（Phase 2.4 將完全移除）─────────────────────────────────────
+// TODO: Phase 2.4 - 將 callAI() 改用 observe() decorator，移除此兼容層
+const _mockTrace = {
+  id: "pending-migration-trace",
+  generation: () => ({
+    end: () => {},
+  }),
+  update: () => {},
+};
+const _langfuseV3Compat = {
+  getPrompt: getPromptFromLangfuse, // 已在 resolveChatPrompt 使用 v5
+  trace: () => _mockTrace,
+};
+const langfuse = _langfuseV3Compat;
+const _langfuseEnabled = langfuseEnabled;
 
 // ── Human Review Metadata ────────────────────────────────────────────────────
 const HUMAN_REVIEW_CONFIG = {
@@ -271,9 +242,9 @@ async function resolveChatPrompt(promptName, variables = {}) {
   let promptSource = "langfuse";
 
   try {
-    // type: 'chat' → Langfuse 回傳 { prompt: [{role, content}], config, ... }
-    langfusePromptObj = await langfuse.getPrompt(promptName, undefined, {
-      type: "chat",
+    // v5: 使用 REST API Client (TODO: Phase 2.3 完整遷移)
+    langfusePromptObj = await getPromptFromLangfuse(promptName, {
+      label: "production",
     });
 
     const messages = langfusePromptObj.prompt ?? [];
