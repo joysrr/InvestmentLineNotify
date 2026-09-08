@@ -241,50 +241,37 @@ async function resolveChatPrompt(promptName, variables = {}) {
   let langfuseConfig = {};
   let promptSource = "langfuse";
 
-  try {
-    // v5: 使用 REST API Client (TODO: Phase 2.3 完整遷移)
-    langfusePromptObj = await getPromptFromLangfuse(promptName, {
-      label: "production",
-    });
+  const isCI = !!process.env.GITHUB_RUN_ID;
 
-    const messages = langfusePromptObj.prompt ?? [];
+  if (!isCI) {
+    try {
+      // v5: getPromptFromLangfuse 回傳 ChatPromptClient
+      langfusePromptObj = await getPromptFromLangfuse(promptName, {
+        label: "production",
+      });
 
-    // 分離 system / user messages，各自 compile 插值
-    const systemMsg = messages.find((m) => m.role === "system");
-    const userMsg = messages.find((m) => m.role === "user");
+      // v5 ChatPromptClient: .compile(variables) 回傳編譯後的 messages
+      const compiledMessages = langfusePromptObj.compile(variables);
 
-    if (systemMsg) {
-      // compile() 將 {{variable}} 替換為實際值
-      const raw = langfusePromptObj.compile(variables, systemMsg.content);
+      // 從編譯後的 messages 提取 system 和 user content
+      const systemMsg = compiledMessages.find((m) => m.role === "system");
+      const userMsg = compiledMessages.find((m) => m.role === "user");
 
-      if (Array.isArray(raw)) {
-        const compiledSystem = raw.find((m) => m.role === "system");
-        systemInstruction = compiledSystem?.content ?? extractCompiledText(raw);
-      } else {
-        systemInstruction = extractCompiledText(raw);
-      }
+      systemInstruction = systemMsg?.content ?? "";
+      userTemplate = userMsg?.content ?? "";
+
+      // 從 Langfuse prompt.config 取出 temperature / responseMimeType / thinkingConfig 等
+      langfuseConfig = langfusePromptObj.config ?? {};
+    } catch (err) {
+      logger.warn(
+        { promptName, error: err.message },
+        "Langfuse getPrompt 失敗，嘗試使用 hardcoded fallback",
+      );
     }
+  }
 
-    if (userMsg) {
-      // compile() 將 {{variable}} 替換為實際值
-      const raw = langfusePromptObj.compile(variables, userMsg.content);
-
-      if (Array.isArray(raw)) {
-        const compiledUser = raw.find((m) => m.role === "user");
-        userTemplate = compiledUser?.content ?? extractCompiledText(raw);
-      } else {
-        userTemplate = extractCompiledText(raw);
-      }
-    }
-
-    // 從 Langfuse prompt.config 取出 temperature / responseMimeType / thinkingConfig 等
-    langfuseConfig = langfusePromptObj.config ?? {};
-  } catch (err) {
-    logger.warn(
-      { promptName, error: err.message },
-      "Langfuse getPrompt 失敗，嘗試使用 hardcoded fallback",
-    );
-
+  // Fallback 邏輯：無論是 Langfuse 失敗或 CI 環境，都嘗試 hardcoded fallback
+  if (!systemInstruction && !userTemplate) {
     const promptKey = promptName.split("/").pop();
     const fallback = PROMPT_HARDCODED_FALLBACK[promptKey];
 

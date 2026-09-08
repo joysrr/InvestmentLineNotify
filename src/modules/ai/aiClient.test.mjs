@@ -20,8 +20,16 @@ vi.mock("./langfuseClient.mjs", () => ({
   getPromptFromLangfuse: vi.fn().mockResolvedValue({
     version: 1,
     name: "test-prompt",
-    prompt: [{ role: "system", content: "You are AI assistant." }],
+    prompt: [
+      { role: "system", content: "You are AI assistant." },
+      { role: "user", content: "Test prompt with {{variable}}" },
+    ],
     config: {},
+    // v5 ChatPromptClient: compile() 回傳編譯後的 messages
+    compile: vi.fn((vars) => [
+      { role: "system", content: "You are AI assistant." },
+      { role: "user", content: `Test prompt with ${vars.variable || ""}` },
+    ]),
   }),
   createLangfuseScore: vi.fn().mockResolvedValue(undefined),
   getCurrentTraceIdSafe: vi.fn().mockReturnValue("test-trace-id"),
@@ -35,8 +43,15 @@ vi.mock("./langfuseClient.mjs", () => ({
       get: vi.fn().mockResolvedValue({
         version: 1,
         name: "test-prompt",
-        prompt: [{ role: "system", content: "You are AI assistant." }],
+        prompt: [
+          { role: "system", content: "You are AI assistant." },
+          { role: "user", content: "Test prompt" },
+        ],
         config: {},
+        compile: vi.fn(() => [
+          { role: "system", content: "You are AI assistant." },
+          { role: "user", content: "Test prompt" },
+        ]),
       }),
     },
     score: {
