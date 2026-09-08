@@ -1,35 +1,36 @@
-/**
- * Langfuse v5 Client 初始化與封裝
- *
- * 遷移自 langfuse@3.38.20 到 @langfuse/tracing@5.11.0 + @langfuse/otel@5.11.0
- *
- * v5 架構：基於 OpenTelemetry，使用 observe() decorator 或手動 span 管理
- */
+// src/modules/ai/langfuseClient.mjs
+// Langfuse v5 初始化與基礎設施
 
 import { LangfuseExporter } from "@langfuse/otel";
 import { LangfuseAPIClient } from "@langfuse/client";
-import { flush } from "@langfuse/tracing";
+import { observe, getCurrentTraceId, flush } from "@langfuse/tracing";
 import logger from "../../utils/logger.mjs";
 
-// ── Langfuse OTEL Exporter（自動送出 traces）─────────────────────────────────
+const isCI = !!process.env.GITHUB_RUN_ID;
+export const langfuseEnabled =
+  !isCI && process.env.LANGFUSE_PUBLIC_KEY && process.env.LANGFUSE_SECRET_KEY;
+
+// ── Langfuse OTEL Exporter（自動送出 traces）───────────────────────────────────
 export const langfuseExporter = new LangfuseExporter({
   publicKey: process.env.LANGFUSE_PUBLIC_KEY,
   secretKey: process.env.LANGFUSE_SECRET_KEY,
   baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
-
-  // 短命程序設定：每次呼叫立即送出
-  flushAt: 1,
-  flushInterval: 1000, // 1 秒
-
-  // 可選：debug mode
-  debug: process.env.LANGFUSE_DEBUG === "true",
+  flushAt: 1, // 立即送出（適合排程腳本）
+  flushInterval: 1000,
+  requestTimeout: 5000,
+  debug: false,
 });
 
-// ── Langfuse API Client（用於 Prompt 管理與 Score）──────────────────────────
+if (!langfuseEnabled) {
+  logger.info("Langfuse v5 已停用（CI 或缺少金鑰）");
+}
+
+// ── Langfuse API Client（用於 Prompt 管理與 Score）──────────────────────────────
 export const langfuseClient = new LangfuseAPIClient({
   publicKey: process.env.LANGFUSE_PUBLIC_KEY,
   secretKey: process.env.LANGFUSE_SECRET_KEY,
   baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
+  requestTimeout: 5000,
 });
 
 /**
@@ -39,6 +40,8 @@ export const langfuseClient = new LangfuseAPIClient({
  * @param {string} status - success | error
  */
 export async function flushLangfuse(traceId, status = "success") {
+  if (!langfuseEnabled) return;
+
   try {
     await flush();
     logger.info({ traceId, status }, "Langfuse flush 完成");
@@ -51,57 +54,63 @@ export async function flushLangfuse(traceId, status = "success") {
 }
 
 /**
- * 取得 Langfuse Prompt（v5 API Client）
+ * 使用 Langfuse Client 取得 Prompt
+ * （v5 使用 REST API Client，非 trace-based）
  *
  * @param {string} promptName - Prompt 名稱
  * @param {object} options - { label?, version? }
- * @returns {Promise<object>} Prompt 物件
+ * @returns {Promise<object>} Langfuse Prompt 物件
  */
-export async function getLangfusePrompt(promptName, options = {}) {
+export async function getPromptFromLangfuse(promptName, options = {}) {
+  return await langfuseClient.prompts.get({
+    name: promptName,
+    label: options.label,
+    version: options.version,
+  });
+}
+
+/**
+ * 計算 Langfuse Score（用於品質追蹤）
+ *
+ * @param {string} traceId - Trace ID
+ * @param {string} name - Score 名稱（如 "quality", "human_review"）
+ * @param {number} value - 分數值
+ * @param {object} metadata - 額外資訊
+ */
+export async function createLangfuseScore(traceId, name, value, metadata = {}) {
+  await langfuseClient.score.create({
+    traceId,
+    name,
+    value,
+    ...metadata,
+  });
+}
+
+/**
+ * 安全取得當前 Trace ID（v5 透過 OpenTelemetry context）
+ *
+ * @returns {string|null} Trace ID 或 null
+ */
+export function getCurrentTraceIdSafe() {
   try {
-    const prompt = await langfuseClient.prompts.get(promptName, {
-      label: options.label || "production",
-      version: options.version,
-    });
-
-    logger.debug(
-      { promptName, version: prompt.version, label: options.label },
-      "Langfuse prompt 取得成功",
-    );
-
-    return prompt;
+    return getCurrentTraceId();
   } catch (err) {
-    logger.error(
-      { promptName, error: err.message },
-      "Langfuse prompt 取得失敗",
-    );
-    throw err;
+    logger.debug("getCurrentTraceId 失敗（可能不在 observe() context 內）");
+    return null;
   }
 }
 
 /**
- * 寫入 Score 至 Langfuse（v5 API Client）
+ * 包裝函數為 Langfuse observe（用於追蹤 AI 呼叫）
  *
- * @param {object} payload - { traceId, observationId?, name, value, comment? }
+ * @param {Function} fn - 要追蹤的函數
+ * @param {object} options - observe 選項 { as_type, name, model, input, ... }
+ * @returns {Function} 被包裝的函數
  */
-export async function writeLangfuseScore(payload) {
-  try {
-    await langfuseClient.score.create({
-      traceId: payload.traceId,
-      observationId: payload.observationId,
-      name: payload.name,
-      value: payload.value,
-      comment: payload.comment,
-    });
-
-    logger.debug(
-      { traceId: payload.traceId, name: payload.name, value: payload.value },
-      "Langfuse score 寫入成功",
-    );
-  } catch (err) {
-    logger.warn(
-      { name: payload.name, error: err.message },
-      "Langfuse score 寫入失敗（不阻斷主流程）",
-    );
+export function observeWithLangfuse(fn, options = {}) {
+  if (!langfuseEnabled) {
+    // Langfuse 停用時直接回傳原函數
+    return fn;
   }
+  return observe(fn, options);
 }
