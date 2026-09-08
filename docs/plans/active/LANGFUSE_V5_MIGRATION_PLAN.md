@@ -115,9 +115,14 @@ Langfuse Cloud 將於 **2026-11-16** 停止支援 v3 SDK 與 legacy ingestion AP
   - 新增 `getCurrentTraceIdSafe()`, `observeWithLangfuse()`, `getPromptFromLangfuse()`
   - 測試覆蓋：5/5 通過
   - aiClient 測試：84/84 仍然通過（無破壞）
-- ⏸️ **Phase 2.2 待執行**: 更新 `aiClient.mjs` imports
-- ⏸️ **Phase 2.3 待執行**: 重構 `resolveChatPrompt()`
-- ⏸️ **Phase 2.4 待執行**: 重構 `callAI()` 核心函數
+- ✅ **Phase 2.2 完成 (2026-09-08 23:27)**: 更新 `aiClient.mjs` imports + v3 兼容層
+  - Commit: 7566224
+  - 移除 v3 Langfuse import，改用 v5 helpers
+  - `resolveChatPrompt()` 改用 `getPromptFromLangfuse()`
+  - 添加臨時 v3 兼容層（Phase 2.4 將移除）
+  - 測試：84/84 通過
+- ⏸️ **Phase 2.3 待執行**: 完整重構 `resolveChatPrompt()` prompt 編譯邏輯
+- ⏸️ **Phase 2.4 待執行**: 重構 `callAI()` 為 `observe()` decorator（核心，預估 4-5h）
 - ⏸️ **Phase 2.5 待執行**: 更新測試檔案
 
 ### 目標
