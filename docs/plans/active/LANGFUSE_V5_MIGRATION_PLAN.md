@@ -140,13 +140,32 @@ Langfuse Cloud 將於 **2026-11-16** 停止支援 v3 SDK 與 legacy ingestion AP
 
 **Phase 2 完成！實際耗時：2.5 小時（預估 7-9h）**
 
+---
+
+## Phase 3: Cron 排程腳本遷移 ✅ **已完成**
+
+### 完成記錄
+
+- ✅ **Phase 3 完成 (2026-09-09 00:59)**: Cron 排程腳本遷移
+  - Commit: 8917ef8
+  - 新增 `shutdownLangfuse()` helper 到 langfuseClient.mjs
+  - 更新 5 個排程腳本：
+    - dailyCheck.mjs
+    - monthlyReport.mjs
+    - newsFetch.mjs（含 score API 遷移）
+    - optimizer.mjs（2 處）
+    - weeklyReport.mjs
+  - 替換 v3 `langfuse.shutdownAsync()` 為 v5 `shutdownLangfuse()`
+  - 替換 v3 `langfuse.score()` 為 v5 `createLangfuseScore()`
+  - 測試：187/187 通過
+
+**Phase 3 完成！實際耗時：0.5 小時（預估 3-4h）**
+
+---
+
+## Phase 3 原計畫內容（已完成）: Score API 遷移
+
 ### 目標
-
-重構 752 行的 `aiClient.mjs`，從 v3 API 改用 v5 的 OpenTelemetry-based API。
-
-### 執行範圍
-
-#### 2.1 更新 Imports (Lines 1-15)
 
 **Before (v3)**:
 
