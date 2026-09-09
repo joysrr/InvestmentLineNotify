@@ -56,22 +56,6 @@ const aiInstances = GEMINI_API_KEYS.map(
 // 相容性：保留 flushLangfuse export，內部委派給 v5
 export const flushLangfuse = flushLangfuseV5;
 
-// ── 臨時 v3 兼容層（Phase 2.4 將完全移除）─────────────────────────────────────
-// TODO: Phase 2.4 - 將 callAI() 改用 observe() decorator，移除此兼容層
-const _mockTrace = {
-  id: "pending-migration-trace",
-  generation: () => ({
-    end: () => {},
-  }),
-  update: () => {},
-};
-const _langfuseV3Compat = {
-  getPrompt: getPromptFromLangfuse, // 已在 resolveChatPrompt 使用 v5
-  trace: () => _mockTrace,
-};
-const langfuse = _langfuseV3Compat;
-const _langfuseEnabled = langfuseEnabled;
-
 // ── Human Review Metadata ────────────────────────────────────────────────────
 const HUMAN_REVIEW_CONFIG = {
   FilterAndCategorizeNews: {
@@ -311,6 +295,8 @@ async function resolveChatPrompt(promptName, variables = {}) {
 /**
  * 呼叫 AI API，支援 Gemini 與 Grok。
  *
+ * v5 變更：使用 observe() decorator 進行追蹤，不再使用 trace.generation()
+ *
  * prompt 解析：Langfuse chat prompt（system + user messages，含 config）
  *
  * responseSchema 優先順序：
@@ -350,7 +336,7 @@ export async function callAI(promptName, options = {}) {
 
   const resolvedModel = options.model ?? cfg.defaultModel;
   const isCI = !!process.env.GITHUB_RUN_ID;
-  const startTime = Date.now(); // 記錄開始時間，用於 Circuit Breaker 回應時間監控
+  const startTime = Date.now();
 
   // ── Step 1: 從 Langfuse 取得 chat prompt ─────────────────────────────────
   const {
@@ -362,8 +348,6 @@ export async function callAI(promptName, options = {}) {
   } = await resolveChatPrompt(promptName, options.promptVariables ?? {});
 
   // ── Step 1.5: Degradation Policy 防衛檢查 ────────────────────────────────
-  // promptSource = "missing" 表示 Langfuse 斷線且無 hardcoded fallback
-  // 此情況下 AI 會裸跑，直接拋錯阻斷，避免產出無意義通知
   if (promptSource === "missing") {
     const degradationErr = new Error(
       `[callAI] Prompt 不可用（Langfuse 斷線且無 hardcoded fallback）：${promptName}。` +
@@ -373,15 +357,10 @@ export async function callAI(promptName, options = {}) {
     throw degradationErr;
   }
 
-  // ── Step 2: 合併 config（Langfuse config > options）──
+  // ── Step 2: 合併 config ──────────────────────────────────────────────────
   const resolvedOptions = {
-    // 呼叫端 options（中優先）
-    // Langfuse prompt.config（最高優先，可覆蓋 option）
     ...options,
     ...langfuseConfig,
-    // ── responseSchema 三層優先順序 ──────────────────────────────────────────
-    // 1. langfuseConfig.response_schema → Langfuse prompt.config 管理（推薦路徑）
-    // 2. options.responseSchema         → 呼叫端強制覆蓋
     responseSchema:
       langfuseConfig.response_schema ?? options.responseSchema ?? undefined,
   };
@@ -390,211 +369,165 @@ export async function callAI(promptName, options = {}) {
   const keyCount = provider === PROVIDERS.GEMINI ? aiInstances.length : 1;
   const maxRetries = options.maxRetries ?? keyCount * 2;
 
-  // ── Human Review Metadata ────────────────────────────────────────────────
   const humanReviewMeta = getHumanReviewMeta(promptName);
 
-  // ── Langfuse Trace ──────────────────────────────────────────────────────────
-  const trace = langfuse.trace({
-    name: promptName,
-    sessionId: options.sessionId,
-    userId: options.userId ?? (isCI ? "github-actions" : "local-dev"),
-    input: { userTemplate },
-    metadata: {
-      provider,
-      model: resolvedModel,
-      startKeyIndex,
-      human_review: humanReviewMeta,
-      promptSource,
-      schemaSource: options.responseSchema
-        ? "options"
-        : langfuseConfig.response_schema
-          ? "langfuse-config"
-          : "none",
-      ...(isCI && {
-        githubRunId: process.env.GITHUB_RUN_ID,
-        githubWorkflow: process.env.GITHUB_WORKFLOW,
-        githubSha: process.env.GITHUB_SHA,
-      }),
+  // ── v5: 使用 observe() 包裝整個 AI 呼叫流程 ────────────────────────────────
+  // observe() 會自動建立 trace 和 span，不需要手動管理
+  const wrappedCall = observeWithLangfuse(
+    async () => {
+      // ── Retry Loop（含 key 輪換）────────────────────────────────────────────
+      let currentKeyIndex = startKeyIndex % (keyCount || 1);
+
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          let rawText,
+            inputTokens,
+            outputTokens,
+            totalTokens,
+            thoughtsTokenCount;
+
+          if (provider === PROVIDERS.GEMINI) {
+            const ai = aiInstances[currentKeyIndex];
+            const response = await ai.models.generateContent({
+              model: resolvedModel,
+              contents: [{ role: "user", parts: [{ text: userTemplate }] }],
+              config: {
+                systemInstruction,
+                temperature: resolvedOptions.temperature,
+                maxOutputTokens: resolvedOptions.maxOutputTokens,
+                responseMimeType: resolvedOptions.responseMimeType,
+                responseSchema: resolvedOptions.responseSchema,
+                thinkingConfig: resolvedOptions.thinkingConfig,
+              },
+            });
+            rawText = response.text?.trim?.() ?? "";
+            inputTokens = response.usageMetadata?.promptTokenCount;
+            outputTokens = response.usageMetadata?.candidatesTokenCount;
+            totalTokens = response.usageMetadata?.totalTokenCount;
+            thoughtsTokenCount =
+              response.usageMetadata?.thoughtsTokenCount ?? 0;
+          } else if (provider === PROVIDERS.GROK) {
+            const result = await callGrokAPI({
+              model: resolvedModel,
+              systemInstruction,
+              userPrompt: userTemplate,
+              options: resolvedOptions,
+            });
+            rawText = result.text;
+            inputTokens = result.inputTokens;
+            outputTokens = result.outputTokens;
+            totalTokens = result.totalTokens;
+            thoughtsTokenCount = 0;
+          }
+
+          // ── 清理 markdown code block ───────────────────────────────────────────
+          let text = rawText;
+          if (resolvedOptions.responseMimeType === "application/json") {
+            text = text
+              .replace(/^```json\n?/, "")
+              .replace(/```$/, "")
+              .trim();
+          } else {
+            text = text
+              .replace(/^```[a-zA-Z]*\n?/, "")
+              .replace(/```$/, "")
+              .trim();
+          }
+
+          // ── 成功：記錄 Circuit Breaker 並回傳 ────────────────────────────────
+          recordAIRequestResult(Date.now() - startTime, true);
+
+          logger.info(
+            {
+              attempt,
+              inputTokens,
+              outputTokens,
+              totalTokens,
+              thoughtsTokenCount,
+              duration: Date.now() - startTime,
+            },
+            "AI 呼叫成功",
+          );
+
+          const traceId = getCurrentTraceIdSafe() || "no-trace-id";
+          await flushLangfuse(traceId, "success");
+
+          return { text, traceId };
+        } catch (error) {
+          const isLast = attempt === maxRetries;
+          const quotaErr = isQuotaError(error);
+          const serviceErr = isServiceError(error);
+          const canRetry = (quotaErr || serviceErr) && !isLast;
+
+          if (canRetry) {
+            if (quotaErr && keyCount > 1) {
+              const prevKey = currentKeyIndex;
+              currentKeyIndex = (currentKeyIndex + 1) % keyCount;
+              logger.warn(
+                { prevKey, currentKeyIndex, attempt: attempt + 1, maxRetries },
+                "Quota 耗盡，切換至下一個 key",
+              );
+            } else {
+              const backoffDelay = getBackoffDelay(attempt);
+              logger.warn(
+                {
+                  keyIndex: currentKeyIndex,
+                  attempt: attempt + 1,
+                  maxRetries,
+                  delaySeconds: (backoffDelay / 1000).toFixed(1),
+                  error: error.message,
+                },
+                "服務錯誤，等待後重試",
+              );
+              await delay(backoffDelay);
+            }
+          } else {
+            // ── 失敗：記錄 Circuit Breaker 並拋出錯誤 ──────────────────────────
+            recordAIRequestResult(Date.now() - startTime, false);
+
+            logger.error(
+              { keyIndex: currentKeyIndex, attempt, error: error.message },
+              "API 呼叫失敗",
+            );
+
+            const traceId = getCurrentTraceIdSafe() || "no-trace-id";
+            await flushLangfuse(traceId, "error");
+            throw error;
+          }
+        }
+      }
     },
-    tags: [
-      `provider:${provider}`,
-      `model:${resolvedModel}`,
-      `key-slot-${startKeyIndex}`,
-      `feature:${promptName}`,
-      isCI ? "env:ci" : "env:local",
-      ...(humanReviewMeta.human_review ? ["needs-human-review"] : []),
-    ],
-  });
-
-  // ── 診斷日誌：trace 建立確認 ──────────────────────────────────────────────
-  logger.debug(
-    { promptName, traceId: trace.id, enabled: _langfuseEnabled },
-    "Langfuse trace 建立",
-  );
-
-  // ── Retry Loop（含 key 輪換）──────────────────────────────────────────────
-  let currentKeyIndex = startKeyIndex % (keyCount || 1);
-
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    const generation = trace.generation({
-      name: `${promptName}-attempt-${attempt}`,
-      prompt: langfusePromptObj,
+    {
+      as_type: "generation",
+      name: promptName,
+      sessionId: options.sessionId,
+      userId: options.userId ?? (isCI ? "github-actions" : "local-dev"),
       model: resolvedModel,
       input: [
         { role: "system", content: systemInstruction },
         { role: "user", content: userTemplate },
       ],
-      modelParameters: {
-        temperature: resolvedOptions.temperature,
-        maxOutputTokens: resolvedOptions.maxOutputTokens,
-      },
       metadata: {
         provider,
-        keyIndex: currentKeyIndex,
-        ...(resolvedOptions.responseMimeType && {
-          responseMimeType: resolvedOptions.responseMimeType,
+        model: resolvedModel,
+        startKeyIndex,
+        human_review: humanReviewMeta,
+        promptSource,
+        schemaSource: options.responseSchema
+          ? "options"
+          : langfuseConfig.response_schema
+            ? "langfuse-config"
+            : "none",
+        ...(isCI && {
+          githubRunId: process.env.GITHUB_RUN_ID,
+          githubWorkflow: process.env.GITHUB_WORKFLOW,
+          githubSha: process.env.GITHUB_SHA,
         }),
       },
-    });
+    },
+  );
 
-    try {
-      let rawText, inputTokens, outputTokens, totalTokens, thoughtsTokenCount;
-
-      if (provider === PROVIDERS.GEMINI) {
-        const ai = aiInstances[currentKeyIndex];
-        const response = await ai.models.generateContent({
-          model: resolvedModel,
-          contents: [{ role: "user", parts: [{ text: userTemplate }] }],
-          config: {
-            systemInstruction,
-            temperature: resolvedOptions.temperature,
-            maxOutputTokens: resolvedOptions.maxOutputTokens,
-            responseMimeType: resolvedOptions.responseMimeType,
-            responseSchema: resolvedOptions.responseSchema,
-            thinkingConfig: resolvedOptions.thinkingConfig,
-          },
-        });
-        rawText = response.text?.trim?.() ?? "";
-        inputTokens = response.usageMetadata?.promptTokenCount;
-        outputTokens = response.usageMetadata?.candidatesTokenCount;
-        totalTokens = response.usageMetadata?.totalTokenCount;
-        thoughtsTokenCount = response.usageMetadata?.thoughtsTokenCount ?? 0;
-      } else if (provider === PROVIDERS.GROK) {
-        const result = await callGrokAPI({
-          model: resolvedModel,
-          systemInstruction,
-          userPrompt: userTemplate,
-          options: resolvedOptions,
-        });
-        rawText = result.text;
-        inputTokens = result.inputTokens;
-        outputTokens = result.outputTokens;
-        totalTokens = result.totalTokens;
-        thoughtsTokenCount = 0;
-      }
-
-      // ── 清理 markdown code block ───────────────────────────────────────────
-      let text = rawText;
-      if (resolvedOptions.responseMimeType === "application/json") {
-        text = text
-          .replace(/^```json\n?/, "")
-          .replace(/```$/, "")
-          .trim();
-      } else {
-        text = text
-          .replace(/^```[a-zA-Z]*\n?/, "")
-          .replace(/```$/, "")
-          .trim();
-      }
-
-      // ── Generation 成功 ────────────────────────────────────────────────────
-      generation.end({
-        output: text,
-        usage: {
-          input: inputTokens,
-          output: outputTokens,
-          total: totalTokens,
-          unit: "TOKENS",
-        },
-        metadata: { thoughtsTokenCount, resolvedKeyIndex: currentKeyIndex },
-      });
-
-      trace.update({ output: text });
-
-      // ── 診斷日誌 & flush：確認寫入 Langfuse ──────────────────────────────
-      logger.info(
-        {
-          attempt,
-          inputTokens,
-          outputTokens,
-          totalTokens,
-          thoughtsTokenCount,
-          duration: Date.now() - startTime,
-        },
-        "Langfuse generation 完成",
-      );
-
-      // 記錄 Circuit Breaker 成功
-      recordAIRequestResult(Date.now() - startTime, true);
-
-      await flushLangfuse(trace.id, "success");
-
-      return { text, traceId: trace.id };
-    } catch (error) {
-      const isLast = attempt === maxRetries;
-      const quotaErr = isQuotaError(error);
-      const serviceErr = isServiceError(error);
-      const canRetry = (quotaErr || serviceErr) && !isLast;
-
-      if (canRetry) {
-        if (quotaErr && keyCount > 1) {
-          const prevKey = currentKeyIndex;
-          currentKeyIndex = (currentKeyIndex + 1) % keyCount;
-          logger.warn(
-            { prevKey, currentKeyIndex, attempt: attempt + 1, maxRetries },
-            "Quota 耗盡，切換至下一個 key",
-          );
-          generation.end({
-            level: "WARNING",
-            statusMessage: `Quota exceeded key:${prevKey}, switching to key:${currentKeyIndex}`,
-          });
-        } else {
-          const backoffDelay = getBackoffDelay(attempt);
-          logger.warn(
-            {
-              keyIndex: currentKeyIndex,
-              attempt: attempt + 1,
-              maxRetries,
-              delaySeconds: (backoffDelay / 1000).toFixed(1),
-              error: error.message,
-            },
-            "服務錯誤，等待後重試",
-          );
-          generation.end({
-            level: "WARNING",
-            statusMessage: `Service error retry ${attempt + 1}: ${error.message}`,
-          });
-          await delay(backoffDelay);
-        }
-      } else {
-        // 記錄 Circuit Breaker 失敗
-        recordAIRequestResult(Date.now() - startTime, false);
-
-        logger.error(
-          { keyIndex: currentKeyIndex, attempt, error: error.message },
-          "API 呼叫失敗",
-        );
-        generation.end({ level: "ERROR", statusMessage: error.message });
-        trace.update({
-          output: { error: error.message },
-          statusMessage: error.message,
-        });
-        // ── 診斷日誌 & flush：失敗時同樣確保 trace 送出 ──────────────────
-        await flushLangfuse(trace.id, "error");
-        throw error;
-      }
-    }
-  }
+  return await wrappedCall();
 }
 
 /**
