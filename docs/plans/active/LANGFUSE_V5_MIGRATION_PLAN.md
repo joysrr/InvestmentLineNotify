@@ -126,8 +126,13 @@ Langfuse Cloud 將於 **2026-11-16** 停止支援 v3 SDK 與 legacy ingestion AP
   - 簡化為 v5 ChatPromptClient.compile() 直接使用
   - 移除複雜的 extractCompiledText() 邏輯
   - 測試：84/84 通過
-- 🚧 **Phase 2.4 進行中**: 重構 `callAI()` 為 `observe()` decorator（核心，預估 4-5h）
-- ⏸️ **Phase 2.5 待執行**: 更新測試檔案
+- ✅ **Phase 2.4 完成 (2026-09-09 00:32)**: 重構 `callAI()` 為 `observe()` decorator（核心）
+  - Commit: f736822
+  - 完全移除 v3 兼容層和 trace/generation API
+  - 使用 `observeWithLangfuse()` 包裝整個 AI 調用
+  - 保留所有業務邏輯：Circuit Breaker、retry、key rotation
+  - 測試：84/84 通過
+- 🚧 **Phase 2.5 進行中**: 驗證與清理
 
 ### 目標
 
