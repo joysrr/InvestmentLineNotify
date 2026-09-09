@@ -44,7 +44,7 @@ import { runWeeklyReport } from "./runWeeklyReport.mjs";
 import { runMonthlyReport } from "./runMonthlyReport.mjs";
 import { runRuleOptimizer } from "./modules/ai/ruleOptimizerAgent.mjs";
 import { broadcastOptimizerResult } from "./modules/notifications/notifier.mjs";
-import { langfuse } from "./modules/ai/aiClient.mjs";
+import { shutdownLangfuse } from "./modules/ai/langfuseClient.mjs";
 
 // ── 註冊進程終止處理器（啟動初期）──────────────────────────────────────────
 registerShutdownHandlers();
@@ -280,10 +280,10 @@ bot.start({
 process.once("SIGINT", () => {
   logger.info("Bot 收到 SIGINT，正在關閉...");
   bot.stop();
-  langfuse.shutdownAsync().catch(() => {});
+  shutdownLangfuse().catch(() => {});
 });
 process.once("SIGTERM", () => {
   logger.info("Bot 收到 SIGTERM，正在關閉...");
   bot.stop();
-  langfuse.shutdownAsync().catch(() => {});
+  shutdownLangfuse().catch(() => {});
 });

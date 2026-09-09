@@ -6,7 +6,18 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 vi.mock("./aiClient.mjs", () => ({
   callAI: vi.fn(),
   PROVIDERS: { GEMINI: "gemini" },
-  langfuse: { score: vi.fn() },
+}));
+
+vi.mock("./langfuseClient.mjs", () => ({
+  createLangfuseScore: vi.fn().mockResolvedValue(undefined),
+  langfuseEnabled: true,
+  langfuseExporter: { export: vi.fn(), shutdown: vi.fn() },
+  langfuseClient: { prompts: { get: vi.fn() }, score: { create: vi.fn() } },
+  flushLangfuse: vi.fn().mockResolvedValue(undefined),
+  shutdownLangfuse: vi.fn().mockResolvedValue(undefined),
+  getPromptFromLangfuse: vi.fn(),
+  getCurrentTraceIdSafe: vi.fn().mockReturnValue("test-trace-id"),
+  observeWithLangfuse: vi.fn((fn) => fn),
 }));
 
 vi.mock("../../utils/retryUtils.mjs", () => ({
@@ -25,7 +36,8 @@ vi.mock("../../utils/logger.mjs", () => ({
 }));
 
 import { shouldRunJudge, runJudge } from "./llmJudge.mjs";
-import { callAI, langfuse } from "./aiClient.mjs";
+import { callAI } from "./aiClient.mjs";
+import { createLangfuseScore } from "./langfuseClient.mjs";
 
 describe("llmJudge - LLM Judge", () => {
   beforeEach(() => {
@@ -144,13 +156,12 @@ describe("llmJudge - LLM Judge", () => {
         "session-1",
       );
 
-      expect(langfuse.score).toHaveBeenCalledTimes(2);
-      expect(langfuse.score).toHaveBeenCalledWith(
-        expect.objectContaining({
-          traceId: "trace-1",
-          name: "Actionability",
-          value: 0.75,
-        }),
+      expect(createLangfuseScore).toHaveBeenCalledTimes(2);
+      expect(createLangfuseScore).toHaveBeenCalledWith(
+        "trace-1",
+        "Actionability",
+        0.75,
+        expect.objectContaining({ comment: "ok" }),
       );
     });
 
@@ -162,7 +173,7 @@ describe("llmJudge - LLM Judge", () => {
       await runJudge("trace-1", { action_items: [] }, "session-1");
 
       // score 1.5 超出 0-1，應該被略過
-      expect(langfuse.score).not.toHaveBeenCalled();
+      expect(createLangfuseScore).not.toHaveBeenCalled();
     });
 
     it("score 非數字不寫入 langfuse", async () => {
@@ -170,7 +181,7 @@ describe("llmJudge - LLM Judge", () => {
 
       await runJudge("trace-1", { action_items: [] }, "session-1");
 
-      expect(langfuse.score).not.toHaveBeenCalled();
+      expect(createLangfuseScore).not.toHaveBeenCalled();
     });
 
     it("callAI 異常時寫入錯誤分數 0", async () => {
@@ -178,10 +189,11 @@ describe("llmJudge - LLM Judge", () => {
 
       await runJudge("trace-1", { action_items: [] }, "session-1");
 
-      expect(langfuse.score).toHaveBeenCalledWith(
+      expect(createLangfuseScore).toHaveBeenCalledWith(
+        "trace-1",
+        expect.any(String),
+        0,
         expect.objectContaining({
-          traceId: "trace-1",
-          value: 0,
           comment: expect.stringContaining("Failed:"),
         }),
       );
@@ -195,9 +207,11 @@ describe("llmJudge - LLM Judge", () => {
 
       await runJudge("trace-1", { action_items: [] }, "session-1");
 
-      expect(langfuse.score).toHaveBeenCalledWith(
+      expect(createLangfuseScore).toHaveBeenCalledWith(
+        "trace-1",
+        expect.any(String),
+        0,
         expect.objectContaining({
-          value: 0,
           comment: expect.stringContaining("AIServiceError"),
         }),
       );

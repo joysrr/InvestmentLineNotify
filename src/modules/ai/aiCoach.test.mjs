@@ -7,15 +7,22 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 vi.mock("./aiClient.mjs", () => ({
   callAI: vi.fn(),
   PROVIDERS: { GEMINI: "gemini", GROK: "grok" },
-  langfuse: {
-    score: vi.fn(),
-    trace: vi.fn().mockReturnValue({
-      id: "test-trace-id",
-      generation: vi.fn().mockReturnValue({ end: vi.fn() }),
-      update: vi.fn(),
-      flushAsync: vi.fn(),
-    }),
-    flushAsync: vi.fn(),
+  langfuse: { score: vi.fn(), shutdownAsync: vi.fn() },
+  flushLangfuse: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("./langfuseClient.mjs", () => ({
+  langfuseEnabled: true,
+  createLangfuseScore: vi.fn().mockResolvedValue(undefined),
+  shutdownLangfuse: vi.fn().mockResolvedValue(undefined),
+  langfuseExporter: {
+    export: vi.fn(),
+    shutdown: vi.fn(),
+  },
+  langfuseClient: {
+    prompts: { get: vi.fn() },
+    score: { create: vi.fn() },
+    shutdown: vi.fn(),
   },
 }));
 

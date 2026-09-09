@@ -1,4 +1,5 @@
-import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
+import { callAI, PROVIDERS } from "./aiClient.mjs";
+import { createLangfuseScore } from "./langfuseClient.mjs";
 import { AIServiceError } from "../../utils/retryUtils.mjs";
 import logger from "../../utils/logger.mjs";
 
@@ -41,7 +42,9 @@ export function shouldRunJudge(context = {}) {
 
 async function safeLangfuseScore(payload) {
   try {
-    await langfuse.score(payload);
+    await createLangfuseScore(payload.traceId, payload.name, payload.value, {
+      comment: payload.comment,
+    });
   } catch (err) {
     logger.warn(
       { name: payload.name, error: err.message },

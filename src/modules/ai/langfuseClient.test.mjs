@@ -3,6 +3,10 @@
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
+// Set env vars before import so langfuseEnabled is true
+vi.stubEnv("LANGFUSE_PUBLIC_KEY", "test-public-key");
+vi.stubEnv("LANGFUSE_SECRET_KEY", "test-secret-key");
+
 // Mock @langfuse/tracing before import
 vi.mock("@langfuse/tracing", () => ({
   observe: vi.fn((fn) => fn),

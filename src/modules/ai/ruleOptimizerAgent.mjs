@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, readdirSync } from "fs";
 import { join } from "path";
-import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
+import { callAI, PROVIDERS } from "./aiClient.mjs";
+import { createLangfuseScore } from "./langfuseClient.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 import logger from "../../utils/logger.mjs";
 
@@ -23,7 +24,9 @@ const MAX_RULES_PER_RUN_PER_REGION = 5; // 單一 region 每次最多新增 5 �
 
 async function safeLangfuseScore(payload) {
   try {
-    await langfuse.score(payload);
+    await createLangfuseScore(payload.traceId, payload.name, payload.value, {
+      comment: payload.comment,
+    });
   } catch (err) {
     logger.warn(
       { name: payload.name, error: err.message },

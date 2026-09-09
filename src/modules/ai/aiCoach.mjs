@@ -1,4 +1,5 @@
-import { callAI, PROVIDERS, langfuse } from "./aiClient.mjs";
+import { callAI, PROVIDERS } from "./aiClient.mjs";
+import { createLangfuseScore } from "./langfuseClient.mjs";
 import { formatQuantDataForCoach } from "./aiDataPreprocessor.mjs";
 import { AIServiceError } from "../../utils/retryUtils.mjs";
 import logger from "../../utils/logger.mjs";
@@ -32,7 +33,9 @@ const VALID_DIMENSIONS = [
 /** Langfuse score 回寫，失敗不阻斷主流程 */
 async function safeLangfuseScore(payload) {
   try {
-    await langfuse.score(payload);
+    await createLangfuseScore(payload.traceId, payload.name, payload.value, {
+      comment: payload.comment,
+    });
   } catch (err) {
     logger.warn(
       { name: payload.name, error: err.message },

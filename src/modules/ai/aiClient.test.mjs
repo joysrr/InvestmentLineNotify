@@ -23,6 +23,7 @@ import {
 vi.mock("./langfuseClient.mjs", () => ({
   langfuseEnabled: true,
   flushLangfuse: vi.fn().mockResolvedValue(undefined),
+  shutdownLangfuse: vi.fn().mockResolvedValue(undefined),
   getPromptFromLangfuse: vi.fn().mockResolvedValue({
     version: 1,
     name: "test-prompt",

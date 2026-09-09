@@ -21,6 +21,7 @@ import {
   flushLangfuse as flushLangfuseV5,
   getCurrentTraceIdSafe,
   observeWithLangfuse,
+  shutdownLangfuse as shutdownLangfuseV5,
 } from "./langfuseClient.mjs";
 
 // 參數&初始化
@@ -55,6 +56,21 @@ const aiInstances = GEMINI_API_KEYS.map(
 // ── v5 Langfuse 已在 langfuseClient.mjs 初始化 ──────────────────────────────
 // 相容性：保留 flushLangfuse export，內部委派給 v5
 export const flushLangfuse = flushLangfuseV5;
+
+// ── v5 兼容 shim（為舊測試與第三方代碼）───────────────────────────────────────
+// 路由舊有的 langfuse.score() / langfuse.shutdownAsync() 到 v5
+export const langfuse = {
+  shutdownAsync: shutdownLangfuseV5,
+  score: async (payload) => {
+    if (!langfuseEnabled) return;
+    await createLangfuseScore(
+      payload.traceId,
+      payload.name || payload.score_name,
+      payload.value,
+      { comment: payload.comment },
+    );
+  },
+};
 
 // ── Human Review Metadata ────────────────────────────────────────────────────
 const HUMAN_REVIEW_CONFIG = {

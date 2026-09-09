@@ -11,27 +11,32 @@ export const langfuseEnabled =
   !isCI && process.env.LANGFUSE_PUBLIC_KEY && process.env.LANGFUSE_SECRET_KEY;
 
 // ── Langfuse OTEL Exporter（自動送出 traces）───────────────────────────────────
-export const langfuseExporter = new LangfuseExporter({
-  publicKey: process.env.LANGFUSE_PUBLIC_KEY,
-  secretKey: process.env.LANGFUSE_SECRET_KEY,
-  baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
-  flushAt: 1, // 立即送出（適合排程腳本）
-  flushInterval: 1000,
-  requestTimeout: 5000,
-  debug: false,
-});
+// 僅在有金鑰時初始化，避免在 test/CI 環境中拋錯
+export const langfuseExporter = langfuseEnabled
+  ? new LangfuseExporter({
+      publicKey: process.env.LANGFUSE_PUBLIC_KEY,
+      secretKey: process.env.LANGFUSE_SECRET_KEY,
+      baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
+      flushAt: 1,
+      flushInterval: 1000,
+      requestTimeout: 5000,
+      debug: false,
+    })
+  : null;
 
 if (!langfuseEnabled) {
   logger.info("Langfuse v5 已停用（CI 或缺少金鑰）");
 }
 
 // ── Langfuse API Client（用於 Prompt 管理與 Score）──────────────────────────────
-export const langfuseClient = new LangfuseAPIClient({
-  publicKey: process.env.LANGFUSE_PUBLIC_KEY,
-  secretKey: process.env.LANGFUSE_SECRET_KEY,
-  baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
-  requestTimeout: 5000,
-});
+export const langfuseClient = langfuseEnabled
+  ? new LangfuseAPIClient({
+      publicKey: process.env.LANGFUSE_PUBLIC_KEY,
+      secretKey: process.env.LANGFUSE_SECRET_KEY,
+      baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
+      requestTimeout: 5000,
+    })
+  : null;
 
 /**
  * Flush Langfuse traces（確保短命程序送出所有 traces）
@@ -62,6 +67,7 @@ export async function flushLangfuse(traceId, status = "success") {
  * @returns {Promise<object>} Langfuse Prompt 物件
  */
 export async function getPromptFromLangfuse(promptName, options = {}) {
+  if (!langfuseClient) return null;
   return await langfuseClient.prompts.get({
     name: promptName,
     label: options.label,

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { Langfuse } from "langfuse";
+import { LangfuseAPIClient } from "@langfuse/client";
 import "dotenv/config";
 
 // --- Prompt Specs (Simplified for brevity in the walkthrough, but full in code) ---
@@ -34,7 +34,7 @@ const PROMPT_SPECS = [
 ];
 
 describe("Langfuse AI Prompt Validation", () => {
-  let langfuse;
+  let langfuseClient;
 
   beforeAll(() => {
     const missing = ["LANGFUSE_PUBLIC_KEY", "LANGFUSE_SECRET_KEY"].filter(
@@ -46,7 +46,7 @@ describe("Langfuse AI Prompt Validation", () => {
       return;
     }
 
-    langfuse = new Langfuse({
+    langfuseClient = new LangfuseAPIClient({
       publicKey: process.env.LANGFUSE_PUBLIC_KEY,
       secretKey: process.env.LANGFUSE_SECRET_KEY,
       baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
@@ -55,9 +55,12 @@ describe("Langfuse AI Prompt Validation", () => {
 
   PROMPT_SPECS.forEach((spec) => {
     it(`Prompt: ${spec.name} 應符合規範`, async () => {
-      if (!langfuse) return; // Skip if no config
+      if (!langfuseClient) return; // Skip if no config
 
-      const promptObj = await langfuse.getPrompt(spec.name);
+      const promptObj = await langfuseClient.prompts.get({
+        name: spec.name,
+        label: "production",
+      });
       expect(promptObj).toBeDefined();
 
       const messages = promptObj.prompt ?? [];
