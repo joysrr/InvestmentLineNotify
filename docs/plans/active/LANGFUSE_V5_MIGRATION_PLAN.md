@@ -132,7 +132,13 @@ Langfuse Cloud 將於 **2026-11-16** 停止支援 v3 SDK 與 legacy ingestion AP
   - 使用 `observeWithLangfuse()` 包裝整個 AI 調用
   - 保留所有業務邏輯：Circuit Breaker、retry、key rotation
   - 測試：84/84 通過
-- 🚧 **Phase 2.5 進行中**: 驗證與清理
+- ✅ **Phase 2.5 完成 (2026-09-09 00:36)**: 驗證與清理
+  - Commit: bec9647
+  - 移除 `langfuse@3.38.20` 套件（v3 完全替換）
+  - 更新測試：替換 v3 Langfuse 測試為 v5 API 測試
+  - 測試：187/187 通過（整個 ai 模組）
+
+**Phase 2 完成！實際耗時：2.5 小時（預估 7-9h）**
 
 ### 目標
 
