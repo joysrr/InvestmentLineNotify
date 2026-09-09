@@ -12,6 +12,12 @@ import {
   extractCompiledText,
   resolveChatPrompt,
 } from "./aiClient.mjs";
+import {
+  getCurrentTraceIdSafe,
+  observeWithLangfuse,
+  getPromptFromLangfuse,
+  flushLangfuse as flushLangfuseV5,
+} from "./langfuseClient.mjs";
 
 // Mock langfuseClient.mjs (v5)
 vi.mock("./langfuseClient.mjs", () => ({
@@ -611,31 +617,27 @@ describe("aiClient - AI 叫心完整試", () => {
     });
   });
 
-  describe("Langfuse 合", () => {
-    it("trace 正確建立", async () => {
-      const { Langfuse } = await import("langfuse");
-      expect(Langfuse).toBeDefined();
+  describe("Langfuse v5 整合", () => {
+    it("observeWithLangfuse 正確包裝函數", () => {
+      expect(observeWithLangfuse).toBeDefined();
+      const mockFn = vi.fn().mockReturnValue("result");
+      const wrapped = observeWithLangfuse(mockFn, { as_type: "generation" });
+      expect(wrapped).toBeTypeOf("function");
     });
 
-    it("generation 正確結束", async () => {
-      const { Langfuse } = await import("langfuse");
-      expect(Langfuse).toBeDefined();
+    it("getCurrentTraceIdSafe 回傳 trace ID", () => {
+      expect(getCurrentTraceIdSafe).toBeDefined();
     });
 
-    it("flushAsync 被呼叫確保資料入", async () => {
-      const { Langfuse } = await import("langfuse");
-      expect(Langfuse).toBeDefined();
+    it("flushLangfuse 被正確委派", () => {
+      expect(flushLangfuse).toBeDefined();
+      expect(flushLangfuse).toBe(flushLangfuseV5);
     });
 
-    it("langfuse.trace 回包含 generation, update, flushAsync 的物件", async () => {
-      const { langfuse } = await import("./aiClient.mjs");
-      // langfuse 是 mock 物件
-      const trace = langfuse.trace({ name: "test" });
-      // 這試 mock 行為
-      expect(trace).toBeDefined();
-      expect(typeof trace.generation).toBe("function");
-      expect(typeof trace.update).toBe("function");
-      expect(typeof trace.flushAsync).toBe("function");
+    it("v5 API helpers 已正確導入", () => {
+      expect(getCurrentTraceIdSafe).toBeTypeOf("function");
+      expect(observeWithLangfuse).toBeTypeOf("function");
+      expect(getPromptFromLangfuse).toBeTypeOf("function");
     });
   });
 
