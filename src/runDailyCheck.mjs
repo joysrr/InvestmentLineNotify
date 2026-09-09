@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { fileURLToPath } from "url";
 import { runDailyCheck } from "./scheduler/dailyCheck.mjs";
-import { langfuse } from "./modules/ai/aiClient.mjs";
+import { shutdownLangfuse } from "./modules/ai/langfuseClient.mjs";
 import logger from "./utils/logger.mjs";
 
 /** 解析命令列參數 */
@@ -66,7 +66,7 @@ async function main() {
     // 確保 Langfuse 正確關閉，避免資源洩漏
     logger.info("🔒 正在關閉 Langfuse...");
     try {
-      await langfuse.shutdownAsync();
+      await shutdownLangfuse();
       logger.info("✅ Langfuse 已關閉");
     } catch (e) {
       logger.warn(e, "⚠️ Langfuse 關閉失敗");

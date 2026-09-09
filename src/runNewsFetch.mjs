@@ -1,13 +1,18 @@
 import "dotenv/config";
 import { fileURLToPath } from "url";
-import { runNewsFetch } from "./scheduler/newsFetch.mjs";
-import { langfuse } from "./modules/ai/aiClient.mjs";
+import { fetchAndScoreNews } from "./scheduler/newsFetch.mjs";
+import {
+  shutdownLangfuse,
+  createLangfuseScore,
+} from "./modules/ai/langfuseClient.mjs";
 import logger from "./utils/logger.mjs";
 
-/** Langfuse score 回寫，失敗不阻斷主流程 */
-async function _safeLangfuseScore(payload) {
+/** Langfuse score 回寫 */
+async function safeLangfuseScore(payload) {
   try {
-    await langfuse.score(payload);
+    await createLangfuseScore(payload.traceId, payload.name, payload.value, {
+      comment: payload.comment,
+    });
   } catch (err) {
     logger.warn(err, `⚠️ [Langfuse] score 寫入失敗 (${payload.name})`);
   }
@@ -16,14 +21,14 @@ async function _safeLangfuseScore(payload) {
 // ── CLI 入口（直接執行此檔案時）──
 async function main() {
   try {
-    await runNewsFetch({});
+    await fetchAndScoreNews({});
   } catch (err) {
     logger.error(err, "❌ [NewsFetch] 管線發生錯誤");
     process.exit(1);
   } finally {
     logger.info("🔒 [NewsFetch] 正在關閉 Langfuse...");
     try {
-      await langfuse.shutdownAsync();
+      await shutdownLangfuse();
       logger.info("✅ [NewsFetch] Langfuse 已關閉");
     } catch (e) {
       logger.warn(e, "⚠️ Langfuse 關閉失敗");
