@@ -16,7 +16,7 @@ import {
   buildCompactPeriodMessage,
 } from "../modules/notifications/templates/periodReportBuilder.mjs";
 import { sendTelegramBatch } from "../modules/notifications/transports/telegramClient.mjs";
-import { langfuse } from "../modules/ai/aiClient.mjs";
+import { shutdownLangfuse } from "../modules/ai/langfuseClient.mjs";
 import logger from "../utils/logger.mjs";
 
 /**
@@ -101,7 +101,7 @@ async function main() {
   } finally {
     logger.info("🔒 [WeeklyReport] 正在關閉 Langfuse...");
     try {
-      await langfuse.shutdownAsync();
+      await shutdownLangfuse();
       logger.info("✅ [WeeklyReport] Langfuse 已關閉");
     } catch (e) {
       logger.warn(e, "⚠️ Langfuse 關閉失敗");

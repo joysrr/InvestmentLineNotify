@@ -25,6 +25,7 @@ import { archiveManager } from "../modules/data/archiveManager.mjs";
 import { TwDate, stepTimer } from "../utils/coreUtils.mjs";
 import { isSnapshotEncryptEnabled } from "../utils/snapshotCrypto.mjs";
 import { sendTelegramBatch } from "../modules/notifications/transports/telegramClient.mjs";
+import { shutdownLangfuse } from "../modules/ai/langfuseClient.mjs";
 import { IlnState } from "../domain/ilnState.mjs";
 import { buildDailyRunContext } from "../domain/dailyRunContext.mjs";
 import { shouldWriteSheet } from "./sideEffectPolicy.mjs";
@@ -382,8 +383,7 @@ async function main() {
     logger.info("🚀 dailyCheck 執行結束");
     logger.info("🔒 正在關閉 Langfuse...");
     try {
-      const { langfuse } = await import("../modules/ai/aiClient.mjs");
-      await langfuse.shutdownAsync();
+      await shutdownLangfuse();
       logger.info("✅ Langfuse 已關閉");
     } catch (e) {
       logger.warn(e, "⚠️ Langfuse 關閉失敗");

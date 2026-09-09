@@ -114,3 +114,20 @@ export function observeWithLangfuse(fn, options = {}) {
   }
   return observe(fn, options);
 }
+
+/**
+ * 關閉 Langfuse（用於排程腳本結束時確保資料送出）
+ * v5: 主要是 flush，exporter 會自動處理 shutdown
+ */
+export async function shutdownLangfuse() {
+  if (!langfuseEnabled) return;
+
+  try {
+    await flush();
+    // v5: langfuseClient 和 exporter 不需要明確 shutdown
+    // OpenTelemetry 會在 process exit 時自動處理
+    logger.info("Langfuse v5 flush 完成");
+  } catch (err) {
+    logger.warn({ error: err.message }, "Langfuse shutdown 失敗（不阻斷）");
+  }
+}

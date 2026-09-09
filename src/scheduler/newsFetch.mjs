@@ -10,13 +10,18 @@ import {
   updatePool,
   purgeExpiredFromPool,
 } from "../modules/data/newsPoolManager.mjs";
-import { langfuse } from "../modules/ai/aiClient.mjs";
+import {
+  shutdownLangfuse,
+  createLangfuseScore,
+} from "../modules/ai/langfuseClient.mjs";
 import logger from "../utils/logger.mjs";
 
 /** Langfuse score 回寫，失敗不阻斷主流程 */
 async function safeLangfuseScore(payload) {
   try {
-    await langfuse.score(payload);
+    await createLangfuseScore(payload.traceId, payload.name, payload.value, {
+      comment: payload.comment,
+    });
   } catch (err) {
     logger.warn(err, `⚠️ [Langfuse] score 寫入失敗 (${payload.name})`);
   }
@@ -121,8 +126,7 @@ async function main() {
   } finally {
     logger.info("🔒 [NewsFetch] 正在關閉 Langfuse...");
     try {
-      const { langfuse } = await import("../modules/ai/aiClient.mjs");
-      await langfuse.shutdownAsync();
+      await shutdownLangfuse();
       logger.info("✅ [NewsFetch] Langfuse 已關閉");
     } catch (e) {
       logger.warn(e, "⚠️ Langfuse 關閉失敗");
