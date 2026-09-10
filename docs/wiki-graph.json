@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "prototype": true,
+  "stats": {
+    "nodes": 20,
+    "edges": 6
+  },
+  "graph": {
+    "langfuse-prompt-management-v5": [
+      "langfuse",
+      "langfuse-web-ui",
+      "environment-variables",
+      "langfuse-score-analytics",
+      "ai-pipeline",
+      "environment-variables"
+    ]
+  }
+}

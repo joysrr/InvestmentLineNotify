@@ -1,0 +1,235 @@
+{
+  "version": "1.0.0",
+  "prototype": true,
+  "scanned_dirs": ["modules/ai_news", "modules/presentation", "architecture"],
+  "stats": {
+    "total_concepts": 20,
+    "total_edges": 6,
+    "total_code_mappings": 2,
+    "concepts_with_code": 1,
+    "concepts_with_links": 1,
+    "generated_at": "2026-09-10T22:57:08.297Z"
+  },
+  "concepts": {
+    "ai_news": {
+      "primary_doc": "modules/ai_news/_index.md",
+      "title": "AI 管線與新聞處理 (AI & News Pipeline)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "ai-pipeline": {
+      "primary_doc": "modules/ai_news/ai_pipeline.md",
+      "title": "AI 管線架構 (`src/modules/ai/`)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "agent-prompts": {
+      "primary_doc": "modules/ai_news/integrations/agent_prompts.md",
+      "title": "Agent Prompts 導覽 / Prompt Map",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "ai-coach-checklist": {
+      "primary_doc": "modules/ai_news/integrations/ai_coach_checklist.md",
+      "title": "Investment Coach Prompt 優化 Checklist",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "langfuse-prompt-management": {
+      "primary_doc": "modules/ai_news/integrations/langfuse_prompt_management.md",
+      "title": "Langfuse Prompt Management",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "langfuse-prompt-management-v5": {
+      "primary_doc": "modules/ai_news/integrations/langfuse_prompt_management_v5.md",
+      "title": "Langfuse Prompt 管理（v5）",
+      "summary": "使用 Langfuse v5 REST API Client 管理和取得 AI prompts",
+      "related_docs": [
+        "docs/modules/ai_news/integrations/langfuse_score_analytics.md",
+        "docs/modules/ai_news/ai_pipeline.md"
+      ],
+      "related_code": [
+        "src/modules/ai/langfuseClient.mjs",
+        "src/modules/ai/aiClient.mjs"
+      ],
+      "tags": ["langfuse", "ai", "prompts", "observability"],
+      "status": "current",
+      "last_verified": "2026-09-10"
+    },
+    "langfuse-score-analytics": {
+      "primary_doc": "modules/ai_news/integrations/langfuse_score_analytics.md",
+      "title": "Langfuse Analytics Prompts",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "langfuse-score-configs": {
+      "primary_doc": "modules/ai_news/integrations/langfuse_score_configs.md",
+      "title": "Langfuse Score Configs",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "keyword-config": {
+      "primary_doc": "modules/ai_news/keyword_config.md",
+      "title": "關鍵字與黑名單設定 (`keywordConfig.mjs`)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "news-fetcher": {
+      "primary_doc": "modules/ai_news/news_fetcher.md",
+      "title": "新聞採集器 (`newsFetcher.mjs`)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "presentation": {
+      "primary_doc": "modules/presentation/_index.md",
+      "title": "入口與通知層 (Presentation Layer)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "api": {
+      "primary_doc": "modules/presentation/api/_index.md",
+      "title": "API 規格總覽",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "portfolio-health-api": {
+      "primary_doc": "modules/presentation/api/portfolio_health_api.md",
+      "title": "Portfolio Health API Specification",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "report-signals-contract": {
+      "primary_doc": "modules/presentation/api/report_signals_contract.md",
+      "title": "report.signals 欄位契約",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "bot": {
+      "primary_doc": "modules/presentation/bot.md",
+      "title": "Telegram Bot 入口 (`src/modules/bot/`)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "notifications": {
+      "primary_doc": "modules/presentation/notifications.md",
+      "title": "廣播與通知層 (`src/modules/notifications/`)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "dec-004-backtest-scheduler-automation": {
+      "primary_doc": "architecture/DEC-004-backtest-scheduler-automation.md",
+      "title": "DEC-004: Phase 4 架構決策 - 回測排程自動化",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "dec-005-monitoring-alerting": {
+      "primary_doc": "architecture/DEC-005-monitoring-alerting.md",
+      "title": "DEC-005: Phase 4 架構決策 - 監控與告警系統",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "dec-006-deployment-automation": {
+      "primary_doc": "architecture/DEC-006-deployment-automation.md",
+      "title": "DEC-006: Phase 4 架構決策 - 部署自動化與 Mini App 遠端部署",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "backtest-engine-design": {
+      "primary_doc": "architecture/backtest_engine_design.md",
+      "title": "InvestmentLineNotify Backtest Engine Architecture",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    }
+  },
+  "code_map": {
+    "src/modules/ai/langfuseClient.mjs": [
+      {
+        "concept": "langfuse-prompt-management-v5",
+        "doc": "modules/ai_news/integrations/langfuse_prompt_management_v5.md"
+      }
+    ],
+    "src/modules/ai/aiClient.mjs": [
+      {
+        "concept": "langfuse-prompt-management-v5",
+        "doc": "modules/ai_news/integrations/langfuse_prompt_management_v5.md"
+      }
+    ]
+  }
+}
