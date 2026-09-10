@@ -1,16 +1,326 @@
 {
   "version": "1.0.0",
-  "prototype": true,
-  "scanned_dirs": ["modules/ai_news", "modules/presentation", "architecture"],
+  "prototype": false,
+  "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 20,
-    "total_edges": 6,
+    "total_concepts": 134,
+    "total_edges": 20,
     "total_code_mappings": 2,
     "concepts_with_code": 1,
-    "concepts_with_links": 1,
-    "generated_at": "2026-09-10T22:57:08.297Z"
+    "concepts_with_links": 3,
+    "generated_at": "2026-09-10T23:18:38.395Z"
   },
   "concepts": {
+    "api-contract": {
+      "primary_doc": "API_CONTRACT.md",
+      "title": "API 契約管理指南",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "deployment-checklist": {
+      "primary_doc": "DEPLOYMENT_CHECKLIST.md",
+      "title": "部署檢查清單 - InvestmentLineNotify",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "e2e-testing-guide": {
+      "primary_doc": "E2E_TESTING_GUIDE.md",
+      "title": "E2E 測試指南 - Playwright",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "audit-decision-log": {
+      "primary_doc": "Reports/AUDIT_DECISION_LOG.md",
+      "title": "@Auditor 派遣決策日誌",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "audit-history": {
+      "primary_doc": "Reports/AUDIT_HISTORY.md",
+      "title": "AI Agent 品質審計歷史紀錄",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "dod-audit-log": {
+      "primary_doc": "Reports/DoD_AUDIT_LOG.md",
+      "title": "DoD Audit Log",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "global-status-summary": {
+      "primary_doc": "Reports/GLOBAL_STATUS_SUMMARY.md",
+      "title": "🌐 全局狀態摘要 (Global Status Summary)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "review-report": {
+      "primary_doc": "Reports/REVIEW_REPORT.md",
+      "title": "REVIEW_REPORT",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "test-mapping": {
+      "primary_doc": "Reports/TEST_MAPPING.md",
+      "title": "測試映射表 (Test Mapping Registry)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "test-report": {
+      "primary_doc": "Reports/TEST_REPORT.md",
+      "title": "TEST_REPORT",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "agents-overview": {
+      "primary_doc": "Reports/agents_overview.md",
+      "title": "📋 InvestmentLineNotify AI Agents 系統總覽圖表",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "agents-audit-report-202604": {
+      "primary_doc": "Reports/archive/agents_audit_report_202604.md",
+      "title": "📋 InvestmentLineNotify AI Agents 系統評鑑報告",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "code-review-20260428": {
+      "primary_doc": "Reports/archive/code_review_20260428.md",
+      "title": "code-review-20260428",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "leverage-strategy-review-v2.3": {
+      "primary_doc": "Reports/archive/leverage_strategy_review_v2.3.md",
+      "title": "InvestmentLineNotify 槓桿質押策略 2.3-best 架構與邏輯檢視報告",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "main-code-review-20260429": {
+      "primary_doc": "Reports/archive/main_code_review_20260429.md",
+      "title": "專案 Code Review 文件：InvestmentLineNotify-main",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "perplexity-code-review-20260426": {
+      "primary_doc": "Reports/archive/perplexity_code_review_20260426.md",
+      "title": "perplexity-code-review-20260426",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "strategy-review-20260417": {
+      "primary_doc": "Reports/archive/strategy_review_20260417.md",
+      "title": "strategy-review-20260417",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "security-report": {
+      "primary_doc": "Reports/security_report.md",
+      "title": "Security Policy",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "scheduler-coupling-analysis": {
+      "primary_doc": "SCHEDULER_COUPLING_ANALYSIS.md",
+      "title": "排程程式耦合點分析報告",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "system-e2e-build-process": {
+      "primary_doc": "SYSTEM_E2E_BUILD_PROCESS.md",
+      "title": "InvestmentLineNotify E2E 測試體系建置完整紀錄",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "testing": {
+      "primary_doc": "TESTING.md",
+      "title": "InvestmentLineNotify 測試指南",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "test-spec-strategyengine": {
+      "primary_doc": "TEST_SPEC_strategyEngine.md",
+      "title": "Test Specification",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "test-troubleshooting": {
+      "primary_doc": "TEST_TROUBLESHOOTING.md",
+      "title": "測試疑難排解指南",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "decision-chain-api": {
+      "primary_doc": "api/decision-chain_api.md",
+      "title": "Decision Chain Responsibility Architecture Spec",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "dec-004-backtest-scheduler-automation": {
+      "primary_doc": "architecture/DEC-004-backtest-scheduler-automation.md",
+      "title": "DEC-004: Phase 4 架構決策 - 回測排程自動化",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "dec-005-monitoring-alerting": {
+      "primary_doc": "architecture/DEC-005-monitoring-alerting.md",
+      "title": "DEC-005: Phase 4 架構決策 - 監控與告警系統",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "dec-006-deployment-automation": {
+      "primary_doc": "architecture/DEC-006-deployment-automation.md",
+      "title": "DEC-006: Phase 4 架構決策 - 部署自動化與 Mini App 遠端部署",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "backtest-engine-design": {
+      "primary_doc": "architecture/backtest_engine_design.md",
+      "title": "InvestmentLineNotify Backtest Engine Architecture",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "dec-016-vitest-worker-crash": {
+      "primary_doc": "decisions/DEC-016-vitest-worker-crash.md",
+      "title": "DEC-016: Vitest Worker Crash Investigation (Phase 6.0)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "budget-priority-design": {
+      "primary_doc": "design/BUDGET_PRIORITY_DESIGN.md",
+      "title": "Budget Priority 系統設計文件",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "modules": {
+      "primary_doc": "modules/_index.md",
+      "title": "InvestmentLineNotify 總體架構 / System Architecture",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
     "ai_news": {
       "primary_doc": "modules/ai_news/_index.md",
       "title": "AI 管線與新聞處理 (AI & News Pipeline)",
@@ -117,6 +427,66 @@
       "status": "unknown",
       "last_verified": null
     },
+    "infrastructure": {
+      "primary_doc": "modules/infrastructure/_index.md",
+      "title": "底層基礎設施 (Infrastructure)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "data-manager": {
+      "primary_doc": "modules/infrastructure/data_manager.md",
+      "title": "檔案快取與歷檔管理 (`data/`)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "storage": {
+      "primary_doc": "modules/infrastructure/storage.md",
+      "title": "雲端儲存與帳戶狀態同步 (`storage.mjs`)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "deployment-oracle-vm": {
+      "primary_doc": "modules/operations/deployment_oracle_vm.md",
+      "title": "Oracle Cloud VM 部署安裝手冊（附錄）",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "env-vars": {
+      "primary_doc": "modules/operations/env_vars.md",
+      "title": "環境變數清單",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "schedules": {
+      "primary_doc": "modules/operations/schedules.md",
+      "title": "排程總覽 / Schedule Overview",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
     "presentation": {
       "primary_doc": "modules/presentation/_index.md",
       "title": "入口與通知層 (Presentation Layer)",
@@ -177,9 +547,9 @@
       "status": "unknown",
       "last_verified": null
     },
-    "dec-004-backtest-scheduler-automation": {
-      "primary_doc": "architecture/DEC-004-backtest-scheduler-automation.md",
-      "title": "DEC-004: Phase 4 架構決策 - 回測排程自動化",
+    "strategy": {
+      "primary_doc": "modules/strategy/_index.md",
+      "title": "市場策略與數據源 (Strategy & Providers)",
       "summary": null,
       "related_docs": [],
       "related_code": [],
@@ -187,9 +557,9 @@
       "status": "unknown",
       "last_verified": null
     },
-    "dec-005-monitoring-alerting": {
-      "primary_doc": "architecture/DEC-005-monitoring-alerting.md",
-      "title": "DEC-005: Phase 4 架構決策 - 監控與告警系統",
+    "strategy-param-audit": {
+      "primary_doc": "modules/strategy/audit/strategy_param_audit.md",
+      "title": "Strategy.json 參數審計文件",
       "summary": null,
       "related_docs": [],
       "related_code": [],
@@ -197,9 +567,9 @@
       "status": "unknown",
       "last_verified": null
     },
-    "dec-006-deployment-automation": {
-      "primary_doc": "architecture/DEC-006-deployment-automation.md",
-      "title": "DEC-006: Phase 4 架構決策 - 部署自動化與 Mini App 遠端部署",
+    "strategy-param-changes": {
+      "primary_doc": "modules/strategy/audit/strategy_param_changes.md",
+      "title": "Strategy.json 參數異動說明",
       "summary": null,
       "related_docs": [],
       "related_code": [],
@@ -207,9 +577,779 @@
       "status": "unknown",
       "last_verified": null
     },
-    "backtest-engine-design": {
-      "primary_doc": "architecture/backtest_engine_design.md",
-      "title": "InvestmentLineNotify Backtest Engine Architecture",
+    "lifecycle-engine": {
+      "primary_doc": "modules/strategy/lifecycle_engine.md",
+      "title": "Lifecycle Engine Module",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "lifecycle-health-test-spec": {
+      "primary_doc": "modules/strategy/lifecycle_health_test_spec.md",
+      "title": "Lifecycle Engine & Health Dashboard - Test Specification",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "maintenance-state-machine": {
+      "primary_doc": "modules/strategy/maintenance_state_machine.md",
+      "title": "維持率狀態機 4 層重構 — Strategy.json 修改說明",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "providers": {
+      "primary_doc": "modules/strategy/providers.md",
+      "title": "資料來源提供者 (Providers Layer)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "regime-policy": {
+      "primary_doc": "modules/strategy/regime_policy.md",
+      "title": "Regime-aware Policy Module",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "strategy-engine": {
+      "primary_doc": "modules/strategy/strategy_engine.md",
+      "title": "決策引擎 (`strategyEngine.mjs`)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase-6-baseline": {
+      "primary_doc": "performance/PHASE_6_BASELINE.md",
+      "title": "Phase 6 Performance and Quality Baseline",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "documentation-full-modernization-plan": {
+      "primary_doc": "plans/active/DOCUMENTATION_FULL_MODERNIZATION_PLAN.md",
+      "title": "文件系統全面改造計畫",
+      "summary": "一句話說明職責",
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "documentation-modernization-plan": {
+      "primary_doc": "plans/active/DOCUMENTATION_MODERNIZATION_PLAN.md",
+      "title": "文件系統現代化計畫",
+      "summary": "使用 Langfuse v5 REST API Client 管理和取得 AI prompts",
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "wiki-index-prototype-report": {
+      "primary_doc": "plans/active/WIKI_INDEX_PROTOTYPE_REPORT.md",
+      "title": "LLM Wiki 索引原型驗證報告",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "advice": {
+      "primary_doc": "plans/archive/2026-04_remediation_advice/ADVICE.md",
+      "title": "ADVICE: 戰略審查報告 (2026-04 Remediation Plan)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "draft-features": {
+      "primary_doc": "plans/archive/2026-04_remediation_advice/draft_features.md",
+      "title": "Draft Features: System Audit 2026.04 Remediation Plan",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "draft-optimizations": {
+      "primary_doc": "plans/archive/2026-04_remediation_advice/draft_optimizations.md",
+      "title": "優化與技術債清單 (Draft Optimizations)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "draft-perplexity-suggestion": {
+      "primary_doc": "plans/archive/2026-07_completed/draft_perplexity_suggestion.md",
+      "title": "InvestmentLineNotify 投資設計評估與優化建議（0050 DCA + 00675L 槓桿 / 生命週期策略）",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "remediation-spec-202604": {
+      "primary_doc": "plans/archive/2026-07_completed/remediation_spec_202604.md",
+      "title": "Technical Specification: System Audit Remediation (2026-04)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "system-audit-202604": {
+      "primary_doc": "plans/archive/2026-07_completed/system_audit_202604.md",
+      "title": "SYSTEM_AUDIT_202604 (全系統 Code Review 與架構體檢)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "0050-simulator-development-plan.decision-analysis": {
+      "primary_doc": "plans/archive/2026-08-10_old_active/0050-simulator-development-plan.decision-analysis.md",
+      "title": "0050 模擬器決策分析報告",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "0050-simulator-development-plan": {
+      "primary_doc": "plans/archive/2026-08-10_old_active/0050-simulator-development-plan.md",
+      "title": "0050 雙向智慧模擬器開發計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "0050-simulator-development-plan.pending-decisions": {
+      "primary_doc": "plans/archive/2026-08-10_old_active/0050-simulator-development-plan.pending-decisions.md",
+      "title": "0050 模擬器 - 待確認決策清單 (開發前必決)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "execution-plan": {
+      "primary_doc": "plans/archive/2026-08-10_old_active/EXECUTION_PLAN.md",
+      "title": "執行計畫：方案 A + TD-001 阻擋 + 單人",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "master-plan": {
+      "primary_doc": "plans/archive/2026-08-10_old_active/MASTER_PLAN.md",
+      "title": "InvestmentLineNotify Master Plan (v4.0)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "tech-debt-plan": {
+      "primary_doc": "plans/archive/2026-08-10_old_active/TECH_DEBT_PLAN.md",
+      "title": "技術債與待辦處理規劃",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "unified-development-plan": {
+      "primary_doc": "plans/archive/2026-08-10_old_active/UNIFIED_DEVELOPMENT_PLAN.md",
+      "title": "InvestmentLineNotify 統一開發計畫 (Unified Development Plan)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "unified-plan": {
+      "primary_doc": "plans/archive/2026-08-10_old_active/UNIFIED_PLAN.md",
+      "title": "統一開發計畫 v1.0",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "finished-features": {
+      "primary_doc": "plans/archive/2026-08-10_old_active/finished_features.md",
+      "title": "Finished-plan Features (已完成功能歸檔)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase-2-2-sensitivity-plan": {
+      "primary_doc": "plans/archive/2026-08-12_phase2_plans/PHASE_2_2_SENSITIVITY_PLAN.md",
+      "title": "Phase 2.2 敏感度分析 - 詳細執行規劃",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase-2-3-pareto-plan": {
+      "primary_doc": "plans/archive/2026-08-12_phase2_plans/PHASE_2_3_PARETO_PLAN.md",
+      "title": "Phase 2.3 Pareto 前沿 - 詳細執行規劃",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase-2-4-export-plan": {
+      "primary_doc": "plans/archive/2026-08-12_phase2_plans/PHASE_2_4_EXPORT_PLAN.md",
+      "title": "Phase 2.4 匯出功能 - 詳細執行規劃",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase1-entry-points": {
+      "primary_doc": "plans/archive/diagnosis/phase1-entry-points.md",
+      "title": "Phase 1: Entry Points 審查與修復計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase2-core-logic": {
+      "primary_doc": "plans/archive/diagnosis/phase2-core-logic.md",
+      "title": "Phase 2: Core Business Logic 審查與修復計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase3-providers": {
+      "primary_doc": "plans/archive/diagnosis/phase3-providers.md",
+      "title": "Phase 3: 資料提供層 (Providers + ArchiveManager) 審查與修復計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase4-api": {
+      "primary_doc": "plans/archive/diagnosis/phase4-api.md",
+      "title": "Phase 4: API 層 (Fastify Routes, Schema, Guard) 審查與修復計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase5-news": {
+      "primary_doc": "plans/archive/diagnosis/phase5-news.md",
+      "title": "Phase 5: 新聞系統 (RSS, 去重, 新聞池容量) 審查與修復計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase6-bot": {
+      "primary_doc": "plans/archive/diagnosis/phase6-bot.md",
+      "title": "Phase 6: Bot 層 (adminGuard, handler 拆分) 審查與修復計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase7-frontend": {
+      "primary_doc": "plans/archive/diagnosis/phase7-frontend.md",
+      "title": "Phase 7: 前端 Mini App (API 錯誤處理、loading/error 狀態) 審查與修復計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase8-e2e": {
+      "primary_doc": "plans/archive/diagnosis/phase8-e2e.md",
+      "title": "Phase 8: 資料流端對端審查 審查與修復計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase9-api": {
+      "primary_doc": "plans/archive/diagnosis/phase9-api.md",
+      "title": "Phase 9: API 對接正確性稽核 審查與修復計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "ideas-features": {
+      "primary_doc": "plans/backlog/ideas_features.md",
+      "title": "Draft Features（草稿功能池）",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "preplan-features": {
+      "primary_doc": "plans/backlog/preplan_features.md",
+      "title": "**Pre-plan Features (待評估與實作功能池)**",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "preplan-interface": {
+      "primary_doc": "plans/backlog/preplan_interface.md",
+      "title": "preplan-interface",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "system-optimize-suggest": {
+      "primary_doc": "plans/backlog/system_optimize_suggest.md",
+      "title": "system-optimize-suggest",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "active-plans-consolidated": {
+      "primary_doc": "plans/completed/ACTIVE_PLANS_CONSOLIDATED.md",
+      "title": "Active Plans Consolidated",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "code-review-optimization-plan": {
+      "primary_doc": "plans/completed/CODE_REVIEW_OPTIMIZATION_PLAN.md",
+      "title": "Code Review 後續追蹤優化計畫 (CODE_REVIEW_OPTIMIZATION_PLAN.md)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "core-logic-validation-plan": {
+      "primary_doc": "plans/completed/CORE_LOGIC_VALIDATION_PLAN.md",
+      "title": "核心邏輯與分數系統驗證計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "dashboard-integration-and-config-fix-plan": {
+      "primary_doc": "plans/completed/DASHBOARD_INTEGRATION_AND_CONFIG_FIX_PLAN.md",
+      "title": "Dashboard 整合重構與策略設定修復計畫 (DASHBOARD_INTEGRATION_AND_CONFIG_FIX_PLAN)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "dashboard-news-design-analysis": {
+      "primary_doc": "plans/completed/DASHBOARD_NEWS_DESIGN_ANALYSIS.md",
+      "title": "Dashboard + News Tab 功能盤點與設計分析 (v2)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "dashboard-news-e2e-consolidation-plan": {
+      "primary_doc": "plans/completed/DASHBOARD_NEWS_E2E_CONSOLIDATION_PLAN.md",
+      "title": "Dashboard 整合重構、News Tab 修復與 E2E 發現總結計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "dashboard-uiux-optimization-plan": {
+      "primary_doc": "plans/completed/DASHBOARD_UIUX_OPTIMIZATION_PLAN.md",
+      "title": "投資儀表板 (Telegram Miniapp) 總覽頁面 UI/UX 整合優化計畫 (DASHBOARD_UIUX_OPTIMIZATION_PLAN.md)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "e2e-testing-plan": {
+      "primary_doc": "plans/completed/E2E_TESTING_PLAN.md",
+      "title": "E2E 測試計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "e2e-testing-plan-v2.0-20260815": {
+      "primary_doc": "plans/completed/E2E_TESTING_PLAN_v2.0_20260815.md",
+      "title": "E2E 測試計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "e2e-test-fix-plan": {
+      "primary_doc": "plans/completed/E2E_TEST_FIX_PLAN.md",
+      "title": "E2E 測試修正計畫 (v1.0)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "hardcoded-audit": {
+      "primary_doc": "plans/completed/HARDCODED_AUDIT.md",
+      "title": "HARDCODED_AUDIT.md",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "langfuse-v5-migration-plan": {
+      "primary_doc": "plans/completed/LANGFUSE_V5_MIGRATION_PLAN.md",
+      "title": "Langfuse v3 → v5 Migration Plan (分階段執行)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "miniapp-bug-fix-plan": {
+      "primary_doc": "plans/completed/MINIAPP_BUG_FIX_PLAN.md",
+      "title": "Mini App 問題修復與體驗優化計畫 (v4.0 Final Spec)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "miniapp-uiux-improvement-plan": {
+      "primary_doc": "plans/completed/MINIAPP_UIUX_IMPROVEMENT_PLAN.md",
+      "title": "Telegram Mini App UI/UX 系統化重構計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "mini-app-optimization-plan": {
+      "primary_doc": "plans/completed/MINI_APP_OPTIMIZATION_PLAN.md",
+      "title": "Mini App 用戶體驗與版面優化計畫 (MINI_APP_OPTIMIZATION_PLAN.md)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "missing-views-and-cleanup-plan": {
+      "primary_doc": "plans/completed/MISSING_VIEWS_AND_CLEANUP_PLAN.md",
+      "title": "未接入頁面復原與科學回測清理計畫 (MISSING_VIEWS_AND_CLEANUP_PLAN.md)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "navigate-macro-battle-plan": {
+      "primary_doc": "plans/completed/NAVIGATE_MACRO_BATTLE_PLAN.md",
+      "title": "市場雷達、多空對決與技術指標導覽整合計畫 (NAVIGATE_MACRO_BATTLE_PLAN.md)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase2-spec-v5": {
+      "primary_doc": "plans/completed/PHASE2_SPEC_V5.md",
+      "title": "Phase 2 規格說明 — aiClient.mjs v3 → v5 遷移",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase3-score-migration-spec": {
+      "primary_doc": "plans/completed/PHASE3_SCORE_MIGRATION_SPEC.md",
+      "title": "Phase 3: Score API 遷移 (13 處)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase-1-2-verification": {
+      "primary_doc": "plans/completed/PHASE_1-2_VERIFICATION.md",
+      "title": "Phase 1-2 驗證報告",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase-1-4-e2e-completion-summary-20260815": {
+      "primary_doc": "plans/completed/PHASE_1-4_E2E_COMPLETION_SUMMARY_20260815.md",
+      "title": "Phase 1-4 E2E 測試體系建置完成總結",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase-1-4-audit-report": {
+      "primary_doc": "plans/completed/PHASE_1_4_AUDIT_REPORT.md",
+      "title": "Phase 1-4 計畫執行狀況審計報告",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase-5-remaining-work": {
+      "primary_doc": "plans/completed/PHASE_5_REMAINING_WORK.md",
+      "title": "Phase 5: 後續改善與優化計畫 (疊代自 Phase 1-4 審計)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase-5-summary": {
+      "primary_doc": "plans/completed/PHASE_5_SUMMARY.md",
+      "title": "Phase 5 完整疊代計畫 (方案 B) - 最終總結",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase-6-plan": {
+      "primary_doc": "plans/completed/PHASE_6_PLAN.md",
+      "title": "Phase 6: 品質硬化與技術債清理計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase-6-summary": {
+      "primary_doc": "plans/completed/PHASE_6_SUMMARY.md",
+      "title": "Phase 6 完成總結",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase-7-checklist": {
+      "primary_doc": "plans/completed/PHASE_7_CHECKLIST.md",
+      "title": "Phase 7 執行清單：品質收尾與上線準備",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "phase-7-plan": {
+      "primary_doc": "plans/completed/PHASE_7_PLAN.md",
+      "title": "Phase 7 計畫：品質收尾與上線準備 (Quality Finalization & Pre-Launch)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "webapp-improvement-plan": {
+      "primary_doc": "plans/completed/WEBAPP_IMPROVEMENT_PLAN.md",
+      "title": "WebApp 改善計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "webapp-phase-3-5-detail-plan": {
+      "primary_doc": "plans/completed/WEBAPP_PHASE_3-5_DETAIL_PLAN.md",
+      "title": "WebApp Phase 3-5 細節確認與執行計畫 (v1.0)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "webapp-phase-6-detail-plan": {
+      "primary_doc": "plans/completed/WEBAPP_PHASE_6_DETAIL_PLAN.md",
+      "title": "WebApp Phase 6 品質硬化與技術債清理計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "webapp-systematic-optimization-plan": {
+      "primary_doc": "plans/completed/WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md",
+      "title": "WebApp 系統性優化計畫 (v2.0 Final Spec)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "webapp-systematic-optimization-plan-v2.0": {
+      "primary_doc": "plans/completed/WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN_v2.0.md",
+      "title": "WebApp 系統性優化計畫 (v2.0 Final Spec)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "useapirequest-guide": {
+      "primary_doc": "useApiRequest-guide.md",
+      "title": "useApiRequest 使用指南",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "core-logic-data-flow-matrix": {
+      "primary_doc": "verification/CORE_LOGIC_DATA_FLOW_MATRIX.md",
+      "title": "Core Logic Data Flow Matrix",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "core-logic-findings": {
+      "primary_doc": "verification/CORE_LOGIC_FINDINGS.md",
+      "title": "Core Logic Findings",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "unknown",
+      "last_verified": null
+    },
+    "core-logic-replay-results": {
+      "primary_doc": "verification/CORE_LOGIC_REPLAY_RESULTS.md",
+      "title": "Core Logic 驗證結果 — Replay 階段",
       "summary": null,
       "related_docs": [],
       "related_code": [],

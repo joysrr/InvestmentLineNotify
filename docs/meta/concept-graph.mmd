@@ -1,0 +1,22 @@
+graph TB
+  langfuse_prompt_management_v5[langfuse-prompt-management-v5] --> langfuse_score_analytics[langfuse-score-analytics]
+  langfuse_prompt_management_v5[langfuse-prompt-management-v5] --> ai_pipeline[ai-pipeline]
+  wiki_index_prototype_report[wiki-index-prototype-report] --> langfuse_score_analytics[langfuse-score-analytics]
+  wiki_index_prototype_report[wiki-index-prototype-report] --> ai_pipeline[ai-pipeline]
+
+  classDef coreNode fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
+  class langfuse_prompt_management_v5 coreNode
+  class wiki_index_prototype_report coreNode
+  class ai_pipeline coreNode
+  class langfuse_score_analytics coreNode
+  class documentation_full_modernization_plan coreNode
+  class api_contract coreNode
+  class deployment_checklist coreNode
+  class e2e_testing_guide coreNode
+  class audit_decision_log coreNode
+  class audit_history coreNode
+  class dod_audit_log coreNode
+  class global_status_summary coreNode
+  class review_report coreNode
+  class test_mapping coreNode
+  class test_report coreNode

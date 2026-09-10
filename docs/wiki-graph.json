@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "prototype": true,
+  "prototype": false,
   "stats": {
-    "nodes": 20,
-    "edges": 6
+    "nodes": 134,
+    "edges": 20
   },
   "graph": {
     "langfuse-prompt-management-v5": [
@@ -13,6 +13,24 @@
       "langfuse-score-analytics",
       "ai-pipeline",
       "environment-variables"
+    ],
+    "documentation-full-modernization-plan": [
+      "wiki-links",
+      "related-concept-1",
+      "related-concept-2",
+      "wiki-links",
+      "wiki-links"
+    ],
+    "wiki-index-prototype-report": [
+      "wiki-links",
+      "langfuse",
+      "langfuse-web-ui",
+      "environment-variables",
+      "langfuse-score-analytics",
+      "ai-pipeline",
+      "wiki-links",
+      "wiki-links",
+      "concept"
     ]
   }
 }
