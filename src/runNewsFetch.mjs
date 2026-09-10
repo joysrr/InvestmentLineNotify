@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { fileURLToPath } from "url";
-import { fetchAndScoreNews } from "./scheduler/newsFetch.mjs";
+import { runNewsFetch as fetchAndScoreNews } from "./scheduler/newsFetch.mjs";
 import {
   shutdownLangfuse,
   createLangfuseScore,

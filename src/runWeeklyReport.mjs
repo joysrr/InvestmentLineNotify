@@ -1,13 +1,20 @@
 import "dotenv/config";
 import { fileURLToPath } from "url";
-import { runWeeklyReport } from "./scheduler/weeklyReport.mjs";
+import { runWeeklyReport as _runWeeklyReport } from "./scheduler/weeklyReport.mjs";
 import { shutdownLangfuse } from "./modules/ai/langfuseClient.mjs";
 import logger from "./utils/logger.mjs";
+
+/**
+ * Bot 指令呼叫入口 (不自動關閉 Langfuse，由 bot 生命週期管理)
+ */
+export async function runWeeklyReport() {
+  return await _runWeeklyReport({});
+}
 
 // ── CLI 入口（直接執行此檔案時）──
 async function main() {
   try {
-    await runWeeklyReport({});
+    await _runWeeklyReport({});
   } catch (err) {
     logger.error(err, "❌ [WeeklyReport] 執行失敗");
     process.exit(1);

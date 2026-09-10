@@ -1,28 +1,17 @@
 // src/modules/ai/langfuseClient.mjs
 // Langfuse v5 初始化與基礎設施
 
-import { LangfuseExporter } from "@langfuse/otel";
-import { LangfuseAPIClient } from "@langfuse/client";
-import { observe, getCurrentTraceId, flush } from "@langfuse/tracing";
+import { LangfuseClient } from "@langfuse/client";
+import { observe, getActiveTraceId } from "@langfuse/tracing";
 import logger from "../../utils/logger.mjs";
 
 const isCI = !!process.env.GITHUB_RUN_ID;
 export const langfuseEnabled =
   !isCI && process.env.LANGFUSE_PUBLIC_KEY && process.env.LANGFUSE_SECRET_KEY;
 
-// ── Langfuse OTEL Exporter（自動送出 traces）───────────────────────────────────
-// 僅在有金鑰時初始化，避免在 test/CI 環境中拋錯
-export const langfuseExporter = langfuseEnabled
-  ? new LangfuseExporter({
-      publicKey: process.env.LANGFUSE_PUBLIC_KEY,
-      secretKey: process.env.LANGFUSE_SECRET_KEY,
-      baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
-      flushAt: 1,
-      flushInterval: 1000,
-      requestTimeout: 5000,
-      debug: false,
-    })
-  : null;
+// ── Langfuse v5 使用 @langfuse/tracing 的 observe() 進行自動追蹤 ────────────
+// exporter 不再需要，保留 export 以維持測試相容性
+export const langfuseExporter = null;
 
 if (!langfuseEnabled) {
   logger.info("Langfuse v5 已停用（CI 或缺少金鑰）");
@@ -30,7 +19,7 @@ if (!langfuseEnabled) {
 
 // ── Langfuse API Client（用於 Prompt 管理與 Score）──────────────────────────────
 export const langfuseClient = langfuseEnabled
-  ? new LangfuseAPIClient({
+  ? new LangfuseClient({
       publicKey: process.env.LANGFUSE_PUBLIC_KEY,
       secretKey: process.env.LANGFUSE_SECRET_KEY,
       baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
@@ -46,15 +35,12 @@ export const langfuseClient = langfuseEnabled
  */
 export async function flushLangfuse(traceId, status = "success") {
   if (!langfuseEnabled) return;
-
   try {
-    await flush();
+    // Langfuse v5: client.flushAsync() 取代 flush()
+    await langfuseClient.flushAsync();
     logger.info({ traceId, status }, "Langfuse flush 完成");
   } catch (err) {
-    logger.warn(
-      { traceId, error: err.message },
-      "Langfuse flush 失敗（不阻斷主流程）",
-    );
+    logger.warn(err, "Langfuse flush 失敗（不阻斷主流程）");
   }
 }
 
@@ -99,9 +85,9 @@ export async function createLangfuseScore(traceId, name, value, metadata = {}) {
  */
 export function getCurrentTraceIdSafe() {
   try {
-    return getCurrentTraceId();
-  } catch (err) {
-    logger.debug("getCurrentTraceId 失敗（可能不在 observe() context 內）");
+    return getActiveTraceId();
+  } catch {
+    logger.debug("getActiveTraceId 失敗（可能不在 observe() context 內）");
     return null;
   }
 }
@@ -129,10 +115,9 @@ export async function shutdownLangfuse() {
   if (!langfuseEnabled) return;
 
   try {
-    await flush();
-    // v5: langfuseClient 和 exporter 不需要明確 shutdown
-    // OpenTelemetry 會在 process exit 時自動處理
-    logger.info("Langfuse v5 flush 完成");
+    await langfuseClient.flushAsync();
+    await langfuseClient.shutdownAsync();
+    logger.info("Langfuse v5 shutdown 完成");
   } catch (err) {
     logger.warn({ error: err.message }, "Langfuse shutdown 失敗（不阻斷）");
   }
