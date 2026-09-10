@@ -18,6 +18,14 @@ async function safeLangfuseScore(payload) {
   }
 }
 
+/**
+ * Bot 指令呼叫入口 (不自動關閉 Langfuse，由 bot 生命週期管理)
+ */
+export async function runNewsFetch() {
+  const res = await fetchAndScoreNews({});
+  return res;
+}
+
 // ── CLI 入口（直接執行此檔案時）──
 async function main() {
   try {
