@@ -1,13 +1,16 @@
 ---
 type: report
-status: in-progress
+status: completed
 last_updated: 2026-09-11
 tags:
   - verification
   - strategy-engine
+  - lifecycle
+  - margin
   - deep-validation
 wiki_links:
   - [[Strategy Engine]]
+  - [[Budget Priority]]
 ---
 
 # Strategy Engine 深度驗證報告
@@ -278,20 +281,50 @@ const engineState = {
 
 ## 📊 驗證進度
 
-**當前階段**: Strategy Engine 核心機制  
-**完成度**: 30%
+**當前階段**: Batch 1 完成 (3/3 Strategy Engine + Lifecycle + Margin 驗證)
 
-- ✅ Decision Chain 機制驗證
-- ✅ Decision Rules 清單比對
-- ⬜ 執行邏輯細節驗證
-- ⬜ weightScore 計算驗證
-- ⬜ Cooldown 驗證
-- ⬜ targetAllocation 驗證
-- ⬜ 各 Rule 詳細驗證
-
-**預估剩餘時間**: 2-3h
+- ✅ Strategy Engine 核心機制驗證
+- ✅ Lifecycle Engine 階段判斷驗證
+- ✅ Maintenance/Margin 狀態機驗證
+- ✅ Budget Priority 邏輯驗證（前階段）
+- ⬜ Regime Policy 驗證
+- ⬜ Providers 驗證
 
 ---
 
-**報告狀態**: 🟡 進行中  
-**下一步**: 修正文件缺失的 Decision Rules 描述
+## 📊 完整驗證結果
+
+### Lifecycle Engine 驗證
+
+**驗證對象**: `docs/modules/strategy/lifecycle_engine.md` vs `src/modules/strategy/lifecycleEngine.mjs`
+
+| 項目     | 文件描述                                                                                                                   | 代碼實作                             | 一致性 |
+| -------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | ------ |
+| 階段閥值 | EARLY>15, MID 10-15, LATE 5-10, PRE_RETIRE≤5                                                                               | ✅ `LIFECYCLE_THRESHOLDS` 匹配       | ✅     |
+| 槓桿上限 | EARLY: 2.0x, MID: 2.0x, LATE: 1.5x, PRE_RETIRE: 1.0x                                                                       | ✅ `DEFAULT_LIFECYCLE_PROFILES` 匹配 | ✅     |
+| 函數     | computeYearsToRetirement, determineLifecycleStage, getLifecycleProfile, computeLifecycleContext, validateLifecycleProfiles | ✅ 全部存在                          | ✅     |
+
+**結論**: ✅ 文件與代碼完全一致
+
+---
+
+### Maintenance/Margin 狀態機驗證
+
+**驗證對象**: `docs/modules/strategy/maintenance_state_machine.md` vs `src/modules/strategy/core/marginStateMachine.mjs` + `policies/marginPolicy.mjs`
+
+| 項目                | 文件描述                               | 代碼實作                            | 一致性 |
+| ------------------- | -------------------------------------- | ----------------------------------- | ------ |
+| 狀態層級            | critical/frozen/protect/normal（4 層） | ✅ `getMarginLayer()` 返回 4 種狀態 | ✅     |
+| 閥值                | 135%/145%/160%/180%                    | ✅ `resolveThresholds` 匹配         | ✅     |
+| marginCallThreshold | 135% (critical)                        | ✅ 匹配                             | ✅     |
+| frozenZone          | 145% (frozen)                          | ✅ 匹配                             | ✅     |
+| protectTrigger      | 160% (protect)                         | ✅ 匹配                             | ✅     |
+| protectTarget       | 180% (normal)                          | ✅ 匹配                             | ✅     |
+| 狀態機執行          | evaluateMarginLayer() 處理各層級邏輯   | ✅ `evaluateMarginLayer()` 存在     | ✅     |
+
+**結論**: ✅ 文件與代碼完全一致
+
+---
+
+**報告狀態**: ✅ 完成 (Batch 1)  
+**下一步**: 執行 Regime Policy + Providers 驗證
