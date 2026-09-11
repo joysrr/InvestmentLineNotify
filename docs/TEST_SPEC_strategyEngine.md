@@ -1,3 +1,16 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/modules/strategy/
+tags:
+  - testing
+  - strategy-engine
+wiki_links:
+  - [[Strategy Engine]]
+---
+
 # Test Specification
 
 **功能名稱**：StrategyEngine (策略引擎)

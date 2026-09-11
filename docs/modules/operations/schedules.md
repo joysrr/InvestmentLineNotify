@@ -1,3 +1,20 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/scheduler/newsFetch.mjs
+  - src/dailyCheck.mjs
+  - config/crontab.json
+tags:
+  - cron
+  - scheduling
+  - operations
+wiki_links:
+  - [[News Fetcher]]
+  - [[AI News]]
+---
+
 # 排程總覽 / Schedule Overview
 
 > **最後更新：2026-04-15**

@@ -1,3 +1,17 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/modules/infrastructure/
+tags:
+  - infrastructure
+  - data
+  - storage
+wiki_links:
+  - [[AI News]]
+---
+
 # 底層基礎設施 (Infrastructure)
 
 本目錄包含系統最底層的資料持久化 (Persistence) 與共用工具，負責隔離外部依賴失敗風險，並提供穩定、可恢復的資料存取層。

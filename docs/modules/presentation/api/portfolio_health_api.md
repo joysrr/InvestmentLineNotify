@@ -1,3 +1,19 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/api/portfolioHealthApi.mjs
+related_docs:
+  - docs/modules/presentation/api/_index.md
+tags:
+  - api
+  - health
+  - portfolio
+wiki_links:
+  - [[API Index]]
+---
+
 # Portfolio Health API Specification
 
 **Version**: 1.0.0 (Phase 1)

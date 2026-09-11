@@ -1,3 +1,17 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/modules/infrastructure/dataManager.mjs
+tags:
+  - data
+  - storage
+  - json
+wiki_links:
+  - [[AI News]]
+---
+
 # 檔案快取與歷檔管理 (`data/`)
 
 專案所有的持久化狀態（除了帳戶餘額儲存於 Google Sheets 外）皆儲存於本地端的 `data/` 目錄中。主要由 `archiveManager.mjs` 與 `newsPoolManager.mjs` 負責讀寫。

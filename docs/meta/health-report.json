@@ -1,24 +1,24 @@
 {
-  "generated_at": "2026-09-11T00:06:43.352Z",
+  "generated_at": "2026-09-11T00:18:01.161Z",
   "summary": {
-    "total_files": 135,
-    "average_health": 16.4,
+    "total_files": 136,
+    "average_health": 27.1,
     "by_health": {
-      "excellent": 5,
-      "good": 0,
-      "fair": 0,
-      "poor": 130
+      "excellent": 15,
+      "good": 12,
+      "fair": 1,
+      "poor": 108
     },
     "by_category": {
       "other": {
         "count": 11,
-        "avgHealth": 15,
-        "totalHealth": 165
+        "avgHealth": 27,
+        "totalHealth": 300
       },
       "guide": {
         "count": 3,
-        "avgHealth": 15,
-        "totalHealth": 45
+        "avgHealth": 32,
+        "totalHealth": 95
       },
       "report": {
         "count": 15,
@@ -26,9 +26,9 @@
         "totalHealth": 165
       },
       "reference": {
-        "count": 34,
-        "avgHealth": 24,
-        "totalHealth": 810
+        "count": 35,
+        "avgHealth": 60,
+        "totalHealth": 2105
       },
       "explanation": {
         "count": 6,
@@ -58,56 +58,6 @@
         "缺少文件連結",
         "缺少標籤",
         "缺少摘要"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "agent-prompts",
-      "file": "modules/ai_news/integrations/agent_prompts.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 15,
-      "priority": 135,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "strategy-engine",
-      "file": "modules/strategy/strategy_engine.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 15,
-      "priority": 135,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "123 天未修改"
       ],
       "suggestions": [
         "添加 YAML frontmatter",
@@ -166,181 +116,6 @@
       ]
     },
     {
-      "concept": "ai_news",
-      "file": "modules/ai_news/_index.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 10,
-      "priority": 90,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "ai-coach-checklist",
-      "file": "modules/ai_news/integrations/ai_coach_checklist.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 10,
-      "priority": 90,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "keyword-config",
-      "file": "modules/ai_news/keyword_config.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 10,
-      "priority": 90,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "news-fetcher",
-      "file": "modules/ai_news/news_fetcher.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 10,
-      "priority": 90,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "infrastructure",
-      "file": "modules/infrastructure/_index.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 10,
-      "priority": 90,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "data-manager",
-      "file": "modules/infrastructure/data_manager.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 10,
-      "priority": 90,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "128 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "storage",
-      "file": "modules/infrastructure/storage.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 10,
-      "priority": 90,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
       "concept": "deployment-oracle-vm",
       "file": "modules/operations/deployment_oracle_vm.md",
       "category": "reference",
@@ -366,8 +141,8 @@
       ]
     },
     {
-      "concept": "env-vars",
-      "file": "modules/operations/env_vars.md",
+      "concept": "strategy-param-audit",
+      "file": "modules/strategy/audit/strategy_param_audit.md",
       "category": "reference",
       "health": 10,
       "impact": 10,
@@ -391,8 +166,8 @@
       ]
     },
     {
-      "concept": "schedules",
-      "file": "modules/operations/schedules.md",
+      "concept": "strategy-param-changes",
+      "file": "modules/strategy/audit/strategy_param_changes.md",
       "category": "reference",
       "health": 10,
       "impact": 10,
@@ -416,8 +191,8 @@
       ]
     },
     {
-      "concept": "presentation",
-      "file": "modules/presentation/_index.md",
+      "concept": "maintenance-state-machine",
+      "file": "modules/strategy/maintenance_state_machine.md",
       "category": "reference",
       "health": 10,
       "impact": 10,
@@ -441,8 +216,8 @@
       ]
     },
     {
-      "concept": "api",
-      "file": "modules/presentation/api/_index.md",
+      "concept": "providers",
+      "file": "modules/strategy/providers.md",
       "category": "reference",
       "health": 10,
       "impact": 10,
@@ -466,8 +241,8 @@
       ]
     },
     {
-      "concept": "portfolio-health-api",
-      "file": "modules/presentation/api/portfolio_health_api.md",
+      "concept": "regime-policy",
+      "file": "modules/strategy/regime_policy.md",
       "category": "reference",
       "health": 10,
       "impact": 10,
@@ -491,12 +266,12 @@
       ]
     },
     {
-      "concept": "report-signals-contract",
-      "file": "modules/presentation/api/report_signals_contract.md",
+      "concept": "decision-chain-api",
+      "file": "api/decision-chain_api.md",
       "category": "reference",
-      "health": 10,
+      "health": 15,
       "impact": 10,
-      "priority": 90,
+      "priority": 85,
       "issues": [
         "缺少 frontmatter",
         "狀態未知",
@@ -504,8 +279,7 @@
         "缺少代碼連結",
         "缺少文件連結",
         "缺少標籤",
-        "缺少摘要",
-        "134 天未修改"
+        "缺少摘要"
       ],
       "suggestions": [
         "添加 YAML frontmatter",
@@ -516,12 +290,84 @@
       ]
     },
     {
-      "concept": "bot",
-      "file": "modules/presentation/bot.md",
+      "concept": "langfuse-prompt-management-v3-deprecated",
+      "file": "modules/ai_news/integrations/langfuse_prompt_management_v3_deprecated.md",
       "category": "reference",
-      "health": 10,
+      "health": 15,
       "impact": 10,
-      "priority": 90,
+      "priority": 85,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "lifecycle-engine",
+      "file": "modules/strategy/lifecycle_engine.md",
+      "category": "reference",
+      "health": 15,
+      "impact": 10,
+      "priority": 85,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "lifecycle-health-test-spec",
+      "file": "modules/strategy/lifecycle_health_test_spec.md",
+      "category": "reference",
+      "health": 15,
+      "impact": 10,
+      "priority": 85,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "backtest-engine-design",
+      "file": "architecture/backtest_engine_design.md",
+      "category": "explanation",
+      "health": 10,
+      "impact": 8,
+      "priority": 72,
       "issues": [
         "缺少 frontmatter",
         "狀態未知",
@@ -530,7 +376,151 @@
         "缺少文件連結",
         "缺少標籤",
         "缺少摘要",
-        "134 天未修改"
+        "116 天未修改"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "dec-004-backtest-scheduler-automation",
+      "file": "architecture/DEC-004-backtest-scheduler-automation.md",
+      "category": "explanation",
+      "health": 15,
+      "impact": 8,
+      "priority": 68,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "dec-005-monitoring-alerting",
+      "file": "architecture/DEC-005-monitoring-alerting.md",
+      "category": "explanation",
+      "health": 15,
+      "impact": 8,
+      "priority": 68,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "dec-006-deployment-automation",
+      "file": "architecture/DEC-006-deployment-automation.md",
+      "category": "explanation",
+      "health": 15,
+      "impact": 8,
+      "priority": 68,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "dec-016-vitest-worker-crash",
+      "file": "decisions/DEC-016-vitest-worker-crash.md",
+      "category": "explanation",
+      "health": 15,
+      "impact": 8,
+      "priority": 68,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "budget-priority-design",
+      "file": "design/BUDGET_PRIORITY_DESIGN.md",
+      "category": "explanation",
+      "health": 15,
+      "impact": 8,
+      "priority": 68,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "e2e-testing-guide",
+      "file": "E2E_TESTING_GUIDE.md",
+      "category": "guide",
+      "health": 15,
+      "impact": 7,
+      "priority": 59,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要"
       ],
       "suggestions": [
         "添加 YAML frontmatter",
@@ -546,15 +536,15 @@
       "concept": "api-contract",
       "file": "API_CONTRACT.md",
       "category": "other",
-      "health": 15,
-      "status": "unknown"
+      "health": 65,
+      "status": "needs-review"
     },
     {
       "concept": "deployment-checklist",
       "file": "DEPLOYMENT_CHECKLIST.md",
       "category": "guide",
-      "health": 15,
-      "status": "unknown"
+      "health": 65,
+      "status": "needs-review"
     },
     {
       "concept": "e2e-testing-guide",
@@ -679,8 +669,8 @@
       "concept": "system-e2e-build-process",
       "file": "SYSTEM_E2E_BUILD_PROCESS.md",
       "category": "other",
-      "health": 15,
-      "status": "unknown"
+      "health": 50,
+      "status": "needs-review"
     },
     {
       "concept": "testing",
@@ -693,8 +683,8 @@
       "concept": "test-spec-strategyengine",
       "file": "TEST_SPEC_strategyEngine.md",
       "category": "other",
-      "health": 15,
-      "status": "unknown"
+      "health": 65,
+      "status": "needs-review"
     },
     {
       "concept": "test-troubleshooting",
@@ -763,8 +753,8 @@
       "concept": "ai_news",
       "file": "modules/ai_news/_index.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 100,
+      "status": "current"
     },
     {
       "concept": "ai-pipeline",
@@ -777,15 +767,15 @@
       "concept": "agent-prompts",
       "file": "modules/ai_news/integrations/agent_prompts.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 95,
+      "status": "current"
     },
     {
       "concept": "ai-coach-checklist",
       "file": "modules/ai_news/integrations/ai_coach_checklist.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 95,
+      "status": "current"
     },
     {
       "concept": "langfuse-prompt-management",
@@ -826,36 +816,43 @@
       "concept": "keyword-config",
       "file": "modules/ai_news/keyword_config.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 100,
+      "status": "current"
     },
     {
       "concept": "news-fetcher",
       "file": "modules/ai_news/news_fetcher.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 100,
+      "status": "current"
     },
     {
       "concept": "infrastructure",
       "file": "modules/infrastructure/_index.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 60,
+      "status": "needs-review"
     },
     {
       "concept": "data-manager",
       "file": "modules/infrastructure/data_manager.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 60,
+      "status": "needs-review"
     },
     {
       "concept": "storage",
       "file": "modules/infrastructure/storage.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 60,
+      "status": "needs-review"
+    },
+    {
+      "concept": "operations",
+      "file": "modules/operations/_index.md",
+      "category": "reference",
+      "health": 80,
+      "status": "current"
     },
     {
       "concept": "deployment-oracle-vm",
@@ -868,64 +865,64 @@
       "concept": "env-vars",
       "file": "modules/operations/env_vars.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 60,
+      "status": "needs-review"
     },
     {
       "concept": "schedules",
       "file": "modules/operations/schedules.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 60,
+      "status": "needs-review"
     },
     {
       "concept": "presentation",
       "file": "modules/presentation/_index.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 80,
+      "status": "current"
     },
     {
       "concept": "api",
       "file": "modules/presentation/api/_index.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 80,
+      "status": "current"
     },
     {
       "concept": "portfolio-health-api",
       "file": "modules/presentation/api/portfolio_health_api.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 70,
+      "status": "needs-review"
     },
     {
       "concept": "report-signals-contract",
       "file": "modules/presentation/api/report_signals_contract.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 70,
+      "status": "needs-review"
     },
     {
       "concept": "bot",
       "file": "modules/presentation/bot.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 95,
+      "status": "current"
     },
     {
       "concept": "notifications",
       "file": "modules/presentation/notifications.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 90,
+      "status": "current"
     },
     {
       "concept": "strategy",
       "file": "modules/strategy/_index.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 60,
+      "status": "needs-review"
     },
     {
       "concept": "strategy-param-audit",
@@ -980,8 +977,8 @@
       "concept": "strategy-engine",
       "file": "modules/strategy/strategy_engine.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 60,
+      "status": "needs-review"
     },
     {
       "concept": "phase-6-baseline",

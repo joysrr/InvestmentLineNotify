@@ -1,3 +1,25 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/modules/ai/langfuseClient.mjs
+  - .env.example
+  - src/bot.mjs
+  - src/scheduler/newsFetch.mjs
+dependencies:
+  - @langfuse/tracing@5.11.0
+  - @langfuse/client@5.11.0
+  - google-gemini-api@latest
+tags:
+  - env
+  - configuration
+  - langfuse
+  - ai
+wiki_links:
+  - [[Langfuse Prompt Management]]
+---
+
 # 環境變數清單
 
 > 本文件列出專案所有使用到的環境變數。

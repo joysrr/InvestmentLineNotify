@@ -1,3 +1,17 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/modules/infrastructure/storage.mjs
+tags:
+  - storage
+  - persistence
+  - news-pool
+wiki_links:
+  - [[AI News]]
+---
+
 # 雲端儲存與帳戶狀態同步 (`storage.mjs`)
 
 `src/modules/storage.mjs` 負責將 Google Sheets 作為輕量級的帳戶狀態資料庫。

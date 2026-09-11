@@ -1,3 +1,22 @@
+---
+type: reference
+status: current
+last_updated: 2026-09-10
+last_verified: 2026-09-10
+related_code:
+  - src/modules/notifications/
+  - src/modules/ai/aiCoach.mjs
+related_docs:
+  - docs/modules/presentation/bot.md
+tags:
+  - notifications
+  - telegram
+  - mini-app
+wiki_links:
+  - [[Telegram Bot]]
+  - [[AI News]]
+---
+
 # 廣播與通知層 (`src/modules/notifications/`)
 
 負責將最終的結果 (包含 AI 總結、Strategy Signals、新聞摘要) 格式化並推送到指定的通訊軟體。

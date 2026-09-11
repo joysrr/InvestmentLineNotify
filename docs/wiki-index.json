@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 135,
-    "total_edges": 96,
-    "total_code_mappings": 12,
-    "concepts_with_code": 10,
-    "concepts_with_links": 10,
-    "generated_at": "2026-09-11T00:11:09.073Z"
+    "total_concepts": 136,
+    "total_edges": 130,
+    "total_code_mappings": 31,
+    "concepts_with_code": 27,
+    "concepts_with_links": 27,
+    "generated_at": "2026-09-11T00:17:58.064Z"
   },
   "concepts": {
     "api-contract": {
@@ -16,9 +16,9 @@
       "title": "API 契約管理指南",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/api/"],
+      "tags": ["api", "contract", "rest"],
+      "status": "needs-review",
       "last_verified": null
     },
     "deployment-checklist": {
@@ -26,9 +26,9 @@
       "title": "部署檢查清單 - InvestmentLineNotify",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/bot.mjs"],
+      "tags": ["deployment", "checklist"],
+      "status": "needs-review",
       "last_verified": null
     },
     "e2e-testing-guide": {
@@ -207,8 +207,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["e2e", "build", "process"],
+      "status": "needs-review",
       "last_verified": null
     },
     "testing": {
@@ -226,9 +226,9 @@
       "title": "Test Specification",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/modules/strategy/"],
+      "tags": ["testing", "strategy-engine"],
+      "status": "needs-review",
       "last_verified": null
     },
     "test-troubleshooting": {
@@ -534,9 +534,9 @@
       "title": "底層基礎設施 (Infrastructure)",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/modules/infrastructure/"],
+      "tags": ["infrastructure", "data", "storage"],
+      "status": "needs-review",
       "last_verified": null
     },
     "data-manager": {
@@ -544,9 +544,9 @@
       "title": "檔案快取與歷檔管理 (`data/`)",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/modules/infrastructure/dataManager.mjs"],
+      "tags": ["data", "storage", "json"],
+      "status": "needs-review",
       "last_verified": null
     },
     "storage": {
@@ -554,10 +554,20 @@
       "title": "雲端儲存與帳戶狀態同步 (`storage.mjs`)",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/modules/infrastructure/storage.mjs"],
+      "tags": ["storage", "persistence", "news-pool"],
+      "status": "needs-review",
       "last_verified": null
+    },
+    "operations": {
+      "primary_doc": "modules/operations/_index.md",
+      "title": "運維層 (Operations Layer)",
+      "summary": "系統部署、排程、監控與維護",
+      "related_docs": [],
+      "related_code": ["src/modules/operations/", "config/crontab.json"],
+      "tags": ["operations", "deployment", "scheduling", "monitoring"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "deployment-oracle-vm": {
       "primary_doc": "modules/operations/deployment_oracle_vm.md",
@@ -574,9 +584,14 @@
       "title": "環境變數清單",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": [
+        "src/modules/ai/langfuseClient.mjs",
+        ".env.example",
+        "src/bot.mjs",
+        "src/scheduler/newsFetch.mjs"
+      ],
+      "tags": ["env", "configuration", "langfuse", "ai"],
+      "status": "needs-review",
       "last_verified": null
     },
     "schedules": {
@@ -584,9 +599,13 @@
       "title": "排程總覽 / Schedule Overview",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": [
+        "src/scheduler/newsFetch.mjs",
+        "src/dailyCheck.mjs",
+        "config/crontab.json"
+      ],
+      "tags": ["cron", "scheduling", "operations"],
+      "status": "needs-review",
       "last_verified": null
     },
     "presentation": {
@@ -594,69 +613,87 @@
       "title": "入口與通知層 (Presentation Layer)",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
-      "last_verified": null
+      "related_code": ["src/modules/presentation/", "src/bot.mjs", "src/api/"],
+      "tags": ["presentation", "bot", "api", "notifications"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "api": {
       "primary_doc": "modules/presentation/api/_index.md",
       "title": "API 規格總覽",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
-      "last_verified": null
+      "related_code": ["src/api/", "swagger.json"],
+      "tags": ["api", "rest", "swagger"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "portfolio-health-api": {
       "primary_doc": "modules/presentation/api/portfolio_health_api.md",
       "title": "Portfolio Health API Specification",
       "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_docs": ["docs/modules/presentation/api/_index.md"],
+      "related_code": ["src/api/portfolioHealthApi.mjs"],
+      "tags": ["api", "health", "portfolio"],
+      "status": "needs-review",
       "last_verified": null
     },
     "report-signals-contract": {
       "primary_doc": "modules/presentation/api/report_signals_contract.md",
       "title": "report.signals 欄位契約",
       "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_docs": [
+        "docs/modules/strategy/strategy_engine.md",
+        "docs/modules/presentation/api/_index.md"
+      ],
+      "related_code": [
+        "src/modules/strategy/strategyEngine.mjs",
+        "src/modules/presentation/api/signalsApi.mjs"
+      ],
+      "tags": ["api", "signals", "contract", "strategy"],
+      "status": "needs-review",
       "last_verified": null
     },
     "bot": {
       "primary_doc": "modules/presentation/bot.md",
       "title": "Telegram Bot 入口 (`src/modules/bot/`)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
-      "last_verified": null
+      "summary": "處理使用者透過 Telegram 發送的指令 (Commands)",
+      "related_docs": [
+        "docs/modules/presentation/_index.md",
+        "docs/modules/presentation/notifications.md",
+        "docs/modules/ai_news/ai_pipeline.md"
+      ],
+      "related_code": [
+        "src/bot.mjs",
+        "src/runNewsFetch.mjs",
+        "src/runWeeklyReport.mjs",
+        "src/runMonthlyReport.mjs"
+      ],
+      "tags": ["telegram", "bot", "notifications", "commands"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "notifications": {
       "primary_doc": "modules/presentation/notifications.md",
       "title": "廣播與通知層 (`src/modules/notifications/`)",
       "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
-      "last_verified": null
+      "related_docs": ["docs/modules/presentation/bot.md"],
+      "related_code": [
+        "src/modules/notifications/",
+        "src/modules/ai/aiCoach.mjs"
+      ],
+      "tags": ["notifications", "telegram", "mini-app"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "strategy": {
       "primary_doc": "modules/strategy/_index.md",
       "title": "市場策略與數據源 (Strategy & Providers)",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/modules/strategy/"],
+      "tags": ["strategy", "signals", "lifecycle"],
+      "status": "needs-review",
       "last_verified": null
     },
     "strategy-param-audit": {
@@ -734,9 +771,9 @@
       "title": "決策引擎 (`strategyEngine.mjs`)",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/modules/strategy/strategyEngine.mjs"],
+      "tags": ["strategy", "signals", "technical-analysis"],
+      "status": "needs-review",
       "last_verified": null
     },
     "phase-6-baseline": {
@@ -1461,6 +1498,48 @@
     }
   },
   "code_map": {
+    "src/api/": [
+      {
+        "concept": "api-contract",
+        "doc": "API_CONTRACT.md"
+      },
+      {
+        "concept": "presentation",
+        "doc": "modules/presentation/_index.md"
+      },
+      {
+        "concept": "api",
+        "doc": "modules/presentation/api/_index.md"
+      }
+    ],
+    "src/bot.mjs": [
+      {
+        "concept": "deployment-checklist",
+        "doc": "DEPLOYMENT_CHECKLIST.md"
+      },
+      {
+        "concept": "env-vars",
+        "doc": "modules/operations/env_vars.md"
+      },
+      {
+        "concept": "presentation",
+        "doc": "modules/presentation/_index.md"
+      },
+      {
+        "concept": "bot",
+        "doc": "modules/presentation/bot.md"
+      }
+    ],
+    "src/modules/strategy/": [
+      {
+        "concept": "test-spec-strategyengine",
+        "doc": "TEST_SPEC_strategyEngine.md"
+      },
+      {
+        "concept": "strategy",
+        "doc": "modules/strategy/_index.md"
+      }
+    ],
     "src/modules/ai/aiClient.mjs": [
       {
         "concept": "ai_news",
@@ -1507,6 +1586,10 @@
       {
         "concept": "langfuse-score-configs",
         "doc": "modules/ai_news/integrations/langfuse_score_configs.md"
+      },
+      {
+        "concept": "notifications",
+        "doc": "modules/presentation/notifications.md"
       }
     ],
     "src/modules/ai/llmJudge.mjs": [
@@ -1583,6 +1666,10 @@
       {
         "concept": "langfuse-score-configs",
         "doc": "modules/ai_news/integrations/langfuse_score_configs.md"
+      },
+      {
+        "concept": "env-vars",
+        "doc": "modules/operations/env_vars.md"
       }
     ],
     "src/modules/ai/periodReportAgent.mjs": [
@@ -1633,6 +1720,14 @@
       {
         "concept": "news-fetcher",
         "doc": "modules/ai_news/news_fetcher.md"
+      },
+      {
+        "concept": "env-vars",
+        "doc": "modules/operations/env_vars.md"
+      },
+      {
+        "concept": "schedules",
+        "doc": "modules/operations/schedules.md"
       }
     ],
     "src/modules/ai/prompts.mjs": [
@@ -1655,6 +1750,110 @@
       {
         "concept": "news-fetcher",
         "doc": "modules/ai_news/news_fetcher.md"
+      }
+    ],
+    "src/modules/infrastructure/": [
+      {
+        "concept": "infrastructure",
+        "doc": "modules/infrastructure/_index.md"
+      }
+    ],
+    "src/modules/infrastructure/dataManager.mjs": [
+      {
+        "concept": "data-manager",
+        "doc": "modules/infrastructure/data_manager.md"
+      }
+    ],
+    "src/modules/infrastructure/storage.mjs": [
+      {
+        "concept": "storage",
+        "doc": "modules/infrastructure/storage.md"
+      }
+    ],
+    "src/modules/operations/": [
+      {
+        "concept": "operations",
+        "doc": "modules/operations/_index.md"
+      }
+    ],
+    "config/crontab.json": [
+      {
+        "concept": "operations",
+        "doc": "modules/operations/_index.md"
+      },
+      {
+        "concept": "schedules",
+        "doc": "modules/operations/schedules.md"
+      }
+    ],
+    ".env.example": [
+      {
+        "concept": "env-vars",
+        "doc": "modules/operations/env_vars.md"
+      }
+    ],
+    "src/dailyCheck.mjs": [
+      {
+        "concept": "schedules",
+        "doc": "modules/operations/schedules.md"
+      }
+    ],
+    "src/modules/presentation/": [
+      {
+        "concept": "presentation",
+        "doc": "modules/presentation/_index.md"
+      }
+    ],
+    "swagger.json": [
+      {
+        "concept": "api",
+        "doc": "modules/presentation/api/_index.md"
+      }
+    ],
+    "src/api/portfolioHealthApi.mjs": [
+      {
+        "concept": "portfolio-health-api",
+        "doc": "modules/presentation/api/portfolio_health_api.md"
+      }
+    ],
+    "src/modules/strategy/strategyEngine.mjs": [
+      {
+        "concept": "report-signals-contract",
+        "doc": "modules/presentation/api/report_signals_contract.md"
+      },
+      {
+        "concept": "strategy-engine",
+        "doc": "modules/strategy/strategy_engine.md"
+      }
+    ],
+    "src/modules/presentation/api/signalsApi.mjs": [
+      {
+        "concept": "report-signals-contract",
+        "doc": "modules/presentation/api/report_signals_contract.md"
+      }
+    ],
+    "src/runNewsFetch.mjs": [
+      {
+        "concept": "bot",
+        "doc": "modules/presentation/bot.md"
+      }
+    ],
+    "src/runWeeklyReport.mjs": [
+      {
+        "concept": "bot",
+        "doc": "modules/presentation/bot.md"
+      }
+    ],
+    "src/runMonthlyReport.mjs": [
+      {
+        "concept": "bot",
+        "doc": "modules/presentation/bot.md"
+      }
+    ],
+    "src/modules/notifications/": [
+      {
+        "concept": "notifications",
+        "doc": "modules/presentation/notifications.md"
       }
     ]
   }

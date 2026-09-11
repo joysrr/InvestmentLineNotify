@@ -1,3 +1,16 @@
+---
+type: guide
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/bot.mjs
+tags:
+  - deployment
+  - checklist
+wiki_links:
+  - [[Telegram Bot]]
+---
+
 # 部署檢查清單 - InvestmentLineNotify
 
 > **用途**：每次部署至 Oracle VM 前/中/後必須確認的項目

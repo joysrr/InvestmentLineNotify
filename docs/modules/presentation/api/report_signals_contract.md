@@ -1,3 +1,23 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/modules/strategy/strategyEngine.mjs
+  - src/modules/presentation/api/signalsApi.mjs
+related_docs:
+  - docs/modules/strategy/strategy_engine.md
+  - docs/modules/presentation/api/_index.md
+tags:
+  - api
+  - signals
+  - contract
+  - strategy
+wiki_links:
+  - [[Strategy Engine]]
+  - [[API Index]]
+---
+
 # report.signals 欄位契約
 
 > 來源：`src/modules/strategy/strategyEngine.mjs` + `src/modules/strategy/core/*` + `src/modules/strategy/policies/*`  

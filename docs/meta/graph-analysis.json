@@ -1,13 +1,93 @@
 {
-  "generated_at": "2026-09-10T23:21:18.540Z",
+  "generated_at": "2026-09-11T00:17:58.120Z",
   "stats": {
-    "total_nodes": 134,
-    "total_edges": 20,
-    "isolated_nodes": 129,
-    "weakly_connected": 2,
-    "connectivity": "3.7"
+    "total_nodes": 136,
+    "total_edges": 130,
+    "isolated_nodes": 107,
+    "weakly_connected": 6,
+    "connectivity": "21.3"
   },
   "core_concepts": [
+    {
+      "concept": "ai-pipeline",
+      "outbound": 14,
+      "inbound": 13,
+      "codeLinks": 8,
+      "total": 35,
+      "importance": 69
+    },
+    {
+      "concept": "langfuse-prompt-management",
+      "outbound": 9,
+      "inbound": 8,
+      "codeLinks": 6,
+      "total": 23,
+      "importance": 45
+    },
+    {
+      "concept": "langfuse-score-analytics",
+      "outbound": 12,
+      "inbound": 9,
+      "codeLinks": 3,
+      "total": 24,
+      "importance": 45
+    },
+    {
+      "concept": "ai_news",
+      "outbound": 18,
+      "inbound": 0,
+      "codeLinks": 9,
+      "total": 27,
+      "importance": 36
+    },
+    {
+      "concept": "strategy-engine",
+      "outbound": 1,
+      "inbound": 10,
+      "codeLinks": 1,
+      "total": 12,
+      "importance": 33
+    },
+    {
+      "concept": "langfuse-score-configs",
+      "outbound": 8,
+      "inbound": 5,
+      "codeLinks": 3,
+      "total": 16,
+      "importance": 29
+    },
+    {
+      "concept": "news-fetcher",
+      "outbound": 7,
+      "inbound": 5,
+      "codeLinks": 3,
+      "total": 15,
+      "importance": 28
+    },
+    {
+      "concept": "keyword-config",
+      "outbound": 8,
+      "inbound": 4,
+      "codeLinks": 2,
+      "total": 14,
+      "importance": 24
+    },
+    {
+      "concept": "agent-prompts",
+      "outbound": 0,
+      "inbound": 3,
+      "codeLinks": 5,
+      "total": 8,
+      "importance": 19
+    },
+    {
+      "concept": "bot",
+      "outbound": 8,
+      "inbound": 0,
+      "codeLinks": 4,
+      "total": 12,
+      "importance": 16
+    },
     {
       "concept": "langfuse-prompt-management-v5",
       "outbound": 6,
@@ -15,6 +95,30 @@
       "codeLinks": 2,
       "total": 8,
       "importance": 10
+    },
+    {
+      "concept": "operations",
+      "outbound": 5,
+      "inbound": 0,
+      "codeLinks": 2,
+      "total": 7,
+      "importance": 9
+    },
+    {
+      "concept": "env-vars",
+      "outbound": 1,
+      "inbound": 0,
+      "codeLinks": 4,
+      "total": 5,
+      "importance": 9
+    },
+    {
+      "concept": "presentation",
+      "outbound": 3,
+      "inbound": 0,
+      "codeLinks": 3,
+      "total": 6,
+      "importance": 9
     },
     {
       "concept": "wiki-index-prototype-report",
@@ -25,153 +129,47 @@
       "importance": 9
     },
     {
-      "concept": "ai-pipeline",
-      "outbound": 0,
-      "inbound": 2,
-      "codeLinks": 0,
-      "total": 2,
-      "importance": 6
-    },
-    {
-      "concept": "langfuse-score-analytics",
-      "outbound": 0,
-      "inbound": 2,
-      "codeLinks": 0,
-      "total": 2,
-      "importance": 6
-    },
-    {
-      "concept": "documentation-full-modernization-plan",
-      "outbound": 5,
+      "concept": "schedules",
+      "outbound": 2,
       "inbound": 0,
-      "codeLinks": 0,
+      "codeLinks": 3,
       "total": 5,
-      "importance": 5
+      "importance": 8
+    },
+    {
+      "concept": "api",
+      "outbound": 1,
+      "inbound": 1,
+      "codeLinks": 2,
+      "total": 4,
+      "importance": 8
     },
     {
       "concept": "api-contract",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
+      "outbound": 1,
+      "inbound": 1,
+      "codeLinks": 1,
+      "total": 3,
+      "importance": 6
     },
     {
-      "concept": "deployment-checklist",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
+      "concept": "infrastructure",
+      "outbound": 1,
+      "inbound": 1,
+      "codeLinks": 1,
+      "total": 3,
+      "importance": 6
     },
     {
-      "concept": "e2e-testing-guide",
-      "outbound": 0,
+      "concept": "report-signals-contract",
+      "outbound": 2,
       "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
-    },
-    {
-      "concept": "audit-decision-log",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
-    },
-    {
-      "concept": "audit-history",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
-    },
-    {
-      "concept": "dod-audit-log",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
-    },
-    {
-      "concept": "global-status-summary",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
-    },
-    {
-      "concept": "review-report",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
-    },
-    {
-      "concept": "test-mapping",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
-    },
-    {
-      "concept": "test-report",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
-    },
-    {
-      "concept": "agents-overview",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
-    },
-    {
-      "concept": "agents-audit-report-202604",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
-    },
-    {
-      "concept": "code-review-20260428",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
-    },
-    {
-      "concept": "leverage-strategy-review-v2.3",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
-    },
-    {
-      "concept": "main-code-review-20260429",
-      "outbound": 0,
-      "inbound": 0,
-      "codeLinks": 0,
-      "total": 0,
-      "importance": 0
+      "codeLinks": 2,
+      "total": 4,
+      "importance": 6
     }
   ],
   "isolated_nodes": [
-    "api-contract",
-    "deployment-checklist",
     "e2e-testing-guide",
     "audit-decision-log",
     "audit-history",
@@ -191,7 +189,6 @@
     "scheduler-coupling-analysis",
     "system-e2e-build-process",
     "testing",
-    "test-spec-strategyengine",
     "test-troubleshooting",
     "decision-chain-api",
     "dec-004-backtest-scheduler-automation",
@@ -201,26 +198,8 @@
     "dec-016-vitest-worker-crash",
     "budget-priority-design",
     "modules",
-    "ai_news",
-    "agent-prompts",
-    "ai-coach-checklist",
-    "langfuse-prompt-management",
-    "langfuse-score-configs",
-    "keyword-config",
-    "news-fetcher",
-    "infrastructure",
-    "data-manager",
-    "storage",
+    "langfuse-prompt-management-v3-deprecated",
     "deployment-oracle-vm",
-    "env-vars",
-    "schedules",
-    "presentation",
-    "api",
-    "portfolio-health-api",
-    "report-signals-contract",
-    "bot",
-    "notifications",
-    "strategy",
     "strategy-param-audit",
     "strategy-param-changes",
     "lifecycle-engine",
@@ -228,7 +207,6 @@
     "maintenance-state-machine",
     "providers",
     "regime-policy",
-    "strategy-engine",
     "phase-6-baseline",
     "documentation-modernization-plan",
     "advice",
@@ -300,5 +278,12 @@
     "core-logic-findings",
     "core-logic-replay-results"
   ],
-  "weakly_connected": ["ai-pipeline", "langfuse-score-analytics"]
+  "weakly_connected": [
+    "deployment-checklist",
+    "test-spec-strategyengine",
+    "ai-coach-checklist",
+    "data-manager",
+    "storage",
+    "portfolio-health-api"
+  ]
 }

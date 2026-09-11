@@ -2,10 +2,13 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 135,
-    "edges": 96
+    "nodes": 136,
+    "edges": 130
   },
   "graph": {
+    "api-contract": ["api-index"],
+    "deployment-checklist": ["telegram-bot"],
+    "test-spec-strategyengine": ["strategy-engine"],
     "ai_news": [
       "ai-pipeline",
       "langfuse-prompt-management",
@@ -104,6 +107,35 @@
       "ai-news",
       "schedule"
     ],
+    "infrastructure": ["ai-news"],
+    "data-manager": ["ai-news"],
+    "storage": ["ai-news"],
+    "operations": [
+      "ai-news",
+      "telegram-bot",
+      "ai-news",
+      "telegram-bot",
+      "strategy-engine"
+    ],
+    "env-vars": ["langfuse-prompt-management"],
+    "schedules": ["news-fetcher", "ai-news"],
+    "presentation": ["ai-news", "telegram-bot", "api"],
+    "api": ["api-contract"],
+    "portfolio-health-api": ["api-index"],
+    "report-signals-contract": ["strategy-engine", "api-index"],
+    "bot": [
+      "ai-news",
+      "notification",
+      "strategy-engine",
+      "langfuse",
+      "ai-news",
+      "notification",
+      "strategy-engine",
+      "langfuse"
+    ],
+    "notifications": ["telegram-bot", "ai-news"],
+    "strategy": ["ai-news", "strategy-engine"],
+    "strategy-engine": ["ai-news"],
     "documentation-full-modernization-plan": [
       "wiki-links",
       "related-concept-1",

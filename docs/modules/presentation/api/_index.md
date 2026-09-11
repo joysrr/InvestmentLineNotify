@@ -1,3 +1,19 @@
+---
+type: reference
+status: current
+last_updated: 2026-09-10
+last_verified: 2026-09-10
+related_code:
+  - src/api/
+  - swagger.json
+tags:
+  - api
+  - rest
+  - swagger
+wiki_links:
+  - [[API Contract]]
+---
+
 # API 規格總覽
 
 本專案的 HTTP API 介面規格，主要由 `fastify-swagger` 自動生成並維護於專案根目錄的 `swagger.json`。

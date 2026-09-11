@@ -1,3 +1,17 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/modules/strategy/strategyEngine.mjs
+tags:
+  - strategy
+  - signals
+  - technical-analysis
+wiki_links:
+  - [[AI News]]
+---
+
 # 決策引擎 (`strategyEngine.mjs`)
 
 `src/modules/strategy/` 是整個系統的心臟。它不會發送任何 HTTP Request，它只負責接收從 Providers 整理好的 `MarketData`，套用 `Strategy.json` 的參數，然後吐出最終行動建議 (`signals`)。

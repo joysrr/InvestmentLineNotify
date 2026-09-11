@@ -1,3 +1,17 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/api/
+tags:
+  - api
+  - contract
+  - rest
+wiki_links:
+  - [[API Index]]
+---
+
 # API 契約管理指南
 
 > **版本**：v1.0  

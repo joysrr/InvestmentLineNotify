@@ -1,3 +1,23 @@
+---
+type: reference
+status: current
+last_updated: 2026-09-10
+last_verified: 2026-09-10
+related_code:
+  - src/modules/presentation/
+  - src/bot.mjs
+  - src/api/
+tags:
+  - presentation
+  - bot
+  - api
+  - notifications
+wiki_links:
+  - [[AI News]]
+  - [[Telegram Bot]]
+  - [[API]]
+---
+
 # 入口與通知層 (Presentation Layer)
 
 本目錄負責將策略引擎產出的決策結果，轉化為人類可讀的介面，以及處理外部的互動請求。

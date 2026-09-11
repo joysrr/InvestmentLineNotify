@@ -1,3 +1,18 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/modules/strategy/
+tags:
+  - strategy
+  - signals
+  - lifecycle
+wiki_links:
+  - [[AI News]]
+  - [[Strategy Engine]]
+---
+
 # 市場策略與數據源 (Strategy & Providers)
 
 本目錄包含系統的核心決策大腦 (Strategy Engine) 與負責收集外部市場資訊的供應商介面 (Providers)。
