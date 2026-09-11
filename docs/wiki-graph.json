@@ -173,7 +173,6 @@
     "regime-policy": ["strategy-engine"],
     "strategy-engine": ["ai-news"],
     "deep-content-verification-plan": ["documentation", "strategy-engine"],
-    "module-docs-verification-plan": ["documentation"],
     "documentation-full-modernization-plan": [
       "wiki-links",
       "related-concept-1",
@@ -181,6 +180,7 @@
       "wiki-links",
       "wiki-links"
     ],
+    "module-docs-verification-plan": ["documentation"],
     "wiki-index-prototype-report": [
       "wiki-links",
       "langfuse",

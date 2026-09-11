@@ -8,7 +8,7 @@
     "total_code_mappings": 48,
     "concepts_with_code": 37,
     "concepts_with_links": 47,
-    "generated_at": "2026-09-11T13:36:36.849Z"
+    "generated_at": "2026-09-11T15:20:23.723Z"
   },
   "concepts": {
     "api-contract": {
@@ -899,36 +899,6 @@
       "status": "archived",
       "last_verified": null
     },
-    "deep-content-verification-plan": {
-      "primary_doc": "plans/active/DEEP_CONTENT_VERIFICATION_PLAN.md",
-      "title": "模組文件內容深度驗證計畫",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": ["verification", "deep-validation", "documentation"],
-      "status": "in-progress",
-      "last_verified": null
-    },
-    "documentation-modernization-plan": {
-      "primary_doc": "plans/active/DOCUMENTATION_MODERNIZATION_PLAN.md",
-      "title": "文件系統現代化計畫",
-      "summary": "使用 Langfuse v5 REST API Client 管理和取得 AI prompts",
-      "related_docs": [],
-      "related_code": [],
-      "tags": ["documentation", "modernization"],
-      "status": "superseded",
-      "last_verified": null
-    },
-    "module-docs-verification-plan": {
-      "primary_doc": "plans/active/MODULE_DOCS_VERIFICATION_PLAN.md",
-      "title": "模組文件完整性驗證計畫",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": ["verification", "modules", "documentation"],
-      "status": "in-progress",
-      "last_verified": null
-    },
     "advice": {
       "primary_doc": "plans/archive/2026-04_remediation_advice/ADVICE.md",
       "title": "ADVICE: 戰略審查報告 (2026-04 Remediation Plan)",
@@ -1309,6 +1279,16 @@
       "status": "completed",
       "last_verified": null
     },
+    "deep-content-verification-plan": {
+      "primary_doc": "plans/completed/DEEP_CONTENT_VERIFICATION_PLAN.md",
+      "title": "模組文件內容深度驗證計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["verification", "deep-validation", "documentation"],
+      "status": "completed",
+      "last_verified": null
+    },
     "documentation-full-modernization-plan": {
       "primary_doc": "plans/completed/DOCUMENTATION_FULL_MODERNIZATION_PLAN.md",
       "title": "文件系統全面改造計畫",
@@ -1317,6 +1297,16 @@
       "related_code": [],
       "tags": ["documentation", "modernization", "sprint", "completed"],
       "status": "completed",
+      "last_verified": null
+    },
+    "documentation-modernization-plan": {
+      "primary_doc": "plans/completed/DOCUMENTATION_MODERNIZATION_PLAN.md",
+      "title": "文件系統現代化計畫",
+      "summary": "使用 Langfuse v5 REST API Client 管理和取得 AI prompts",
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["documentation", "modernization"],
+      "status": "superseded",
       "last_verified": null
     },
     "e2e-testing-plan": {
@@ -1406,6 +1396,16 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
+      "status": "completed",
+      "last_verified": null
+    },
+    "module-docs-verification-plan": {
+      "primary_doc": "plans/completed/MODULE_DOCS_VERIFICATION_PLAN.md",
+      "title": "模組文件完整性驗證計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["verification", "modules", "documentation"],
       "status": "completed",
       "last_verified": null
     },

@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-09-11T13:36:49.706Z",
+  "generated_at": "2026-09-11T15:20:32.059Z",
   "summary": {
     "total_files": 145,
-    "average_health": 55.3,
+    "average_health": 55.2,
     "by_health": {
       "excellent": 19,
       "good": 21,
-      "fair": 104,
-      "poor": 1
+      "fair": 102,
+      "poor": 3
     },
     "by_category": {
       "other": {
@@ -28,7 +28,7 @@
       "reference": {
         "count": 36,
         "avgHealth": 79,
-        "totalHealth": 2850
+        "totalHealth": 2860
       },
       "explanation": {
         "count": 6,
@@ -38,7 +38,7 @@
       "plan": {
         "count": 68,
         "avgHealth": 45,
-        "totalHealth": 3070
+        "totalHealth": 3040
       }
     }
   },
@@ -158,6 +158,26 @@
       ]
     },
     {
+      "concept": "deep-content-verification-plan",
+      "file": "plans/completed/DEEP_CONTENT_VERIFICATION_PLAN.md",
+      "category": "plan",
+      "health": 35,
+      "impact": 9,
+      "priority": 59,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
       "concept": "langfuse-prompt-management-v3-deprecated",
       "file": "modules/ai_news/integrations/langfuse_prompt_management_v3_deprecated.md",
       "category": "reference",
@@ -178,12 +198,12 @@
       ]
     },
     {
-      "concept": "deep-content-verification-plan",
-      "file": "plans/active/DEEP_CONTENT_VERIFICATION_PLAN.md",
+      "concept": "module-docs-verification-plan",
+      "file": "plans/completed/MODULE_DOCS_VERIFICATION_PLAN.md",
       "category": "plan",
-      "health": 45,
-      "impact": 9,
-      "priority": 50,
+      "health": 35,
+      "impact": 7,
+      "priority": 46,
       "issues": [
         "狀態未知",
         "從未驗證",
@@ -268,26 +288,6 @@
       ]
     },
     {
-      "concept": "module-docs-verification-plan",
-      "file": "plans/active/MODULE_DOCS_VERIFICATION_PLAN.md",
-      "category": "plan",
-      "health": 45,
-      "impact": 7,
-      "priority": 39,
-      "issues": [
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少摘要"
-      ],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
       "concept": "phase-7-checklist",
       "file": "plans/completed/PHASE_7_CHECKLIST.md",
       "category": "guide",
@@ -342,6 +342,20 @@
       ]
     },
     {
+      "concept": "documentation-modernization-plan",
+      "file": "plans/completed/DOCUMENTATION_MODERNIZATION_PLAN.md",
+      "category": "plan",
+      "health": 40,
+      "impact": 5,
+      "priority": 30,
+      "issues": ["狀態未知", "從未驗證", "缺少代碼連結", "缺少文件連結"],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
       "concept": "advice",
       "file": "plans/archive/2026-04_remediation_advice/ADVICE.md",
       "category": "plan",
@@ -364,26 +378,6 @@
     {
       "concept": "draft-features",
       "file": "plans/archive/2026-04_remediation_advice/draft_features.md",
-      "category": "plan",
-      "health": 45,
-      "impact": 5,
-      "priority": 28,
-      "issues": [
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少摘要"
-      ],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
-      "concept": "draft-optimizations",
-      "file": "plans/archive/2026-04_remediation_advice/draft_optimizations.md",
       "category": "plan",
       "health": 45,
       "impact": 5,
@@ -743,7 +737,7 @@
       "concept": "news-pool",
       "file": "modules/infrastructure/news_pool.md",
       "category": "reference",
-      "health": 90,
+      "health": 100,
       "status": "current"
     },
     {
@@ -892,27 +886,6 @@
       "category": "other",
       "health": 45,
       "status": "archived"
-    },
-    {
-      "concept": "deep-content-verification-plan",
-      "file": "plans/active/DEEP_CONTENT_VERIFICATION_PLAN.md",
-      "category": "plan",
-      "health": 45,
-      "status": "in-progress"
-    },
-    {
-      "concept": "documentation-modernization-plan",
-      "file": "plans/active/DOCUMENTATION_MODERNIZATION_PLAN.md",
-      "category": "plan",
-      "health": 50,
-      "status": "superseded"
-    },
-    {
-      "concept": "module-docs-verification-plan",
-      "file": "plans/active/MODULE_DOCS_VERIFICATION_PLAN.md",
-      "category": "plan",
-      "health": 45,
-      "status": "in-progress"
     },
     {
       "concept": "advice",
@@ -1181,11 +1154,25 @@
       "status": "completed"
     },
     {
+      "concept": "deep-content-verification-plan",
+      "file": "plans/completed/DEEP_CONTENT_VERIFICATION_PLAN.md",
+      "category": "plan",
+      "health": 35,
+      "status": "completed"
+    },
+    {
       "concept": "documentation-full-modernization-plan",
       "file": "plans/completed/DOCUMENTATION_FULL_MODERNIZATION_PLAN.md",
       "category": "plan",
       "health": 50,
       "status": "completed"
+    },
+    {
+      "concept": "documentation-modernization-plan",
+      "file": "plans/completed/DOCUMENTATION_MODERNIZATION_PLAN.md",
+      "category": "plan",
+      "health": 40,
+      "status": "superseded"
     },
     {
       "concept": "e2e-testing-plan",
@@ -1248,6 +1235,13 @@
       "file": "plans/completed/MISSING_VIEWS_AND_CLEANUP_PLAN.md",
       "category": "plan",
       "health": 45,
+      "status": "completed"
+    },
+    {
+      "concept": "module-docs-verification-plan",
+      "file": "plans/completed/MODULE_DOCS_VERIFICATION_PLAN.md",
+      "category": "plan",
+      "health": 35,
       "status": "completed"
     },
     {

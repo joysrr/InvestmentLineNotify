@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T13:36:40.868Z",
+  "generated_at": "2026-09-11T15:20:26.518Z",
   "stats": {
     "total_nodes": 145,
     "total_edges": 178,
@@ -195,7 +195,6 @@
     "strategy-param-audit",
     "strategy-param-changes",
     "phase-6-baseline",
-    "documentation-modernization-plan",
     "advice",
     "draft-features",
     "draft-optimizations",
@@ -234,6 +233,7 @@
     "dashboard-news-design-analysis",
     "dashboard-news-e2e-consolidation-plan",
     "dashboard-uiux-optimization-plan",
+    "documentation-modernization-plan",
     "e2e-testing-plan",
     "e2e-testing-plan-v2.0-20260815",
     "e2e-test-fix-plan",
