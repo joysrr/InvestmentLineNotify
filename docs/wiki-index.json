@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 134,
-    "total_edges": 20,
-    "total_code_mappings": 2,
-    "concepts_with_code": 1,
-    "concepts_with_links": 3,
-    "generated_at": "2026-09-10T23:18:38.395Z"
+    "total_concepts": 135,
+    "total_edges": 63,
+    "total_code_mappings": 8,
+    "concepts_with_code": 5,
+    "concepts_with_links": 7,
+    "generated_at": "2026-09-11T00:02:19.341Z"
   },
   "concepts": {
     "api-contract": {
@@ -334,12 +334,27 @@
     "ai-pipeline": {
       "primary_doc": "modules/ai_news/ai_pipeline.md",
       "title": "AI 管線架構 (`src/modules/ai/`)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
-      "last_verified": null
+      "summary": "系統所有的 LLM 呼叫集中在此模組，依賴 Gemini API 和 [[Langfuse]] v5 進行觀測",
+      "related_docs": [
+        "docs/modules/ai_news/integrations/langfuse_prompt_management_v5.md",
+        "docs/modules/ai_news/integrations/langfuse_score_analytics.md",
+        "docs/modules/ai_news/integrations/langfuse_score_configs.md",
+        "docs/modules/ai_news/integrations/agent_prompts.md",
+        "docs/modules/strategy/strategy_engine.md"
+      ],
+      "related_code": [
+        "src/modules/ai/aiClient.mjs",
+        "src/modules/ai/aiCircuitBreaker.mjs",
+        "src/modules/ai/aiDataPreprocessor.mjs",
+        "src/modules/ai/aiCoach.mjs",
+        "src/modules/ai/llmJudge.mjs",
+        "src/modules/ai/periodReportAgent.mjs",
+        "src/modules/ai/ruleOptimizerAgent.mjs",
+        "src/modules/ai/langfuseClient.mjs"
+      ],
+      "tags": ["ai", "gemini", "langfuse", "circuit-breaker", "pipeline"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "agent-prompts": {
       "primary_doc": "modules/ai_news/integrations/agent_prompts.md",
@@ -363,6 +378,28 @@
     },
     "langfuse-prompt-management": {
       "primary_doc": "modules/ai_news/integrations/langfuse_prompt_management.md",
+      "title": "Langfuse Prompt 管理（v5）",
+      "summary": "使用 Langfuse v5 REST API Client 管理和取得 AI prompts",
+      "related_docs": [
+        "docs/modules/ai_news/integrations/langfuse_score_analytics.md",
+        "docs/modules/ai_news/integrations/langfuse_score_configs.md",
+        "docs/modules/ai_news/ai_pipeline.md",
+        "docs/modules/operations/env_vars.md"
+      ],
+      "related_code": [
+        "src/modules/ai/langfuseClient.mjs",
+        "src/modules/ai/aiClient.mjs",
+        "src/modules/ai/aiCoach.mjs",
+        "src/modules/ai/llmJudge.mjs",
+        "src/modules/ai/periodReportAgent.mjs",
+        "src/modules/ai/ruleOptimizerAgent.mjs"
+      ],
+      "tags": ["langfuse", "prompts", "gemini", "ai"],
+      "status": "current",
+      "last_verified": "2026-09-10"
+    },
+    "langfuse-prompt-management-v3-deprecated": {
+      "primary_doc": "modules/ai_news/integrations/langfuse_prompt_management_v3_deprecated.md",
       "title": "Langfuse Prompt Management",
       "summary": null,
       "related_docs": [],
@@ -389,23 +426,38 @@
     },
     "langfuse-score-analytics": {
       "primary_doc": "modules/ai_news/integrations/langfuse_score_analytics.md",
-      "title": "Langfuse Analytics Prompts",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
-      "last_verified": null
+      "title": "Langfuse Score 分析與追蹤（v5）",
+      "summary": "使用 Langfuse v5 追蹤和分析 AI 模型輸出品質評分",
+      "related_docs": [
+        "docs/modules/ai_news/integrations/langfuse_prompt_management_v5.md",
+        "docs/modules/ai_news/integrations/langfuse_score_configs.md",
+        "docs/modules/ai_news/ai_pipeline.md"
+      ],
+      "related_code": [
+        "src/modules/ai/langfuseClient.mjs",
+        "src/modules/ai/aiCoach.mjs",
+        "src/modules/ai/llmJudge.mjs"
+      ],
+      "tags": ["langfuse", "observability", "scoring", "analytics", "ai"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "langfuse-score-configs": {
       "primary_doc": "modules/ai_news/integrations/langfuse_score_configs.md",
-      "title": "Langfuse Score Configs",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
-      "last_verified": null
+      "title": "Langfuse Score 配置清單（v5）",
+      "summary": "系統中所有 Langfuse Score 的配置規範與說明",
+      "related_docs": [
+        "docs/modules/ai_news/integrations/langfuse_score_analytics.md",
+        "docs/modules/ai_news/integrations/langfuse_prompt_management_v5.md"
+      ],
+      "related_code": [
+        "src/modules/ai/langfuseClient.mjs",
+        "src/modules/ai/llmJudge.mjs",
+        "src/modules/ai/aiCoach.mjs"
+      ],
+      "tags": ["langfuse", "configuration", "scoring", "metrics"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "keyword-config": {
       "primary_doc": "modules/ai_news/keyword_config.md",
@@ -1359,16 +1411,108 @@
     }
   },
   "code_map": {
-    "src/modules/ai/langfuseClient.mjs": [
+    "src/modules/ai/aiClient.mjs": [
+      {
+        "concept": "ai-pipeline",
+        "doc": "modules/ai_news/ai_pipeline.md"
+      },
+      {
+        "concept": "langfuse-prompt-management",
+        "doc": "modules/ai_news/integrations/langfuse_prompt_management.md"
+      },
       {
         "concept": "langfuse-prompt-management-v5",
         "doc": "modules/ai_news/integrations/langfuse_prompt_management_v5.md"
       }
     ],
-    "src/modules/ai/aiClient.mjs": [
+    "src/modules/ai/aiCircuitBreaker.mjs": [
+      {
+        "concept": "ai-pipeline",
+        "doc": "modules/ai_news/ai_pipeline.md"
+      }
+    ],
+    "src/modules/ai/aiDataPreprocessor.mjs": [
+      {
+        "concept": "ai-pipeline",
+        "doc": "modules/ai_news/ai_pipeline.md"
+      }
+    ],
+    "src/modules/ai/aiCoach.mjs": [
+      {
+        "concept": "ai-pipeline",
+        "doc": "modules/ai_news/ai_pipeline.md"
+      },
+      {
+        "concept": "langfuse-prompt-management",
+        "doc": "modules/ai_news/integrations/langfuse_prompt_management.md"
+      },
+      {
+        "concept": "langfuse-score-analytics",
+        "doc": "modules/ai_news/integrations/langfuse_score_analytics.md"
+      },
+      {
+        "concept": "langfuse-score-configs",
+        "doc": "modules/ai_news/integrations/langfuse_score_configs.md"
+      }
+    ],
+    "src/modules/ai/llmJudge.mjs": [
+      {
+        "concept": "ai-pipeline",
+        "doc": "modules/ai_news/ai_pipeline.md"
+      },
+      {
+        "concept": "langfuse-prompt-management",
+        "doc": "modules/ai_news/integrations/langfuse_prompt_management.md"
+      },
+      {
+        "concept": "langfuse-score-analytics",
+        "doc": "modules/ai_news/integrations/langfuse_score_analytics.md"
+      },
+      {
+        "concept": "langfuse-score-configs",
+        "doc": "modules/ai_news/integrations/langfuse_score_configs.md"
+      }
+    ],
+    "src/modules/ai/periodReportAgent.mjs": [
+      {
+        "concept": "ai-pipeline",
+        "doc": "modules/ai_news/ai_pipeline.md"
+      },
+      {
+        "concept": "langfuse-prompt-management",
+        "doc": "modules/ai_news/integrations/langfuse_prompt_management.md"
+      }
+    ],
+    "src/modules/ai/ruleOptimizerAgent.mjs": [
+      {
+        "concept": "ai-pipeline",
+        "doc": "modules/ai_news/ai_pipeline.md"
+      },
+      {
+        "concept": "langfuse-prompt-management",
+        "doc": "modules/ai_news/integrations/langfuse_prompt_management.md"
+      }
+    ],
+    "src/modules/ai/langfuseClient.mjs": [
+      {
+        "concept": "ai-pipeline",
+        "doc": "modules/ai_news/ai_pipeline.md"
+      },
+      {
+        "concept": "langfuse-prompt-management",
+        "doc": "modules/ai_news/integrations/langfuse_prompt_management.md"
+      },
       {
         "concept": "langfuse-prompt-management-v5",
         "doc": "modules/ai_news/integrations/langfuse_prompt_management_v5.md"
+      },
+      {
+        "concept": "langfuse-score-analytics",
+        "doc": "modules/ai_news/integrations/langfuse_score_analytics.md"
+      },
+      {
+        "concept": "langfuse-score-configs",
+        "doc": "modules/ai_news/integrations/langfuse_score_configs.md"
       }
     ]
   }

@@ -2,10 +2,37 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 134,
-    "edges": 20
+    "nodes": 135,
+    "edges": 63
   },
   "graph": {
+    "ai-pipeline": [
+      "langfuse",
+      "langfuse",
+      "langfuse-prompt-management",
+      "langfuse-score-analytics",
+      "llm-judge",
+      "ai-news",
+      "strategy-engine",
+      "period-report",
+      "langfuse-prompt-management",
+      "langfuse-score-analytics",
+      "langfuse-score-configs",
+      "agent-prompts",
+      "strategy-engine",
+      "ai-news"
+    ],
+    "langfuse-prompt-management": [
+      "langfuse",
+      "langfuse-score-analytics",
+      "langfuse-score-configs",
+      "ai-pipeline",
+      "environment-variables",
+      "langfuse-score-analytics",
+      "langfuse-score-configs",
+      "ai-pipeline",
+      "environment-variables"
+    ],
     "langfuse-prompt-management-v5": [
       "langfuse",
       "langfuse-web-ui",
@@ -13,6 +40,30 @@
       "langfuse-score-analytics",
       "ai-pipeline",
       "environment-variables"
+    ],
+    "langfuse-score-analytics": [
+      "langfuse",
+      "langfuse-prompt-management",
+      "ai-pipeline",
+      "llm-judge",
+      "environment-variables",
+      "langfuse-score-configs",
+      "langfuse-prompt-management",
+      "langfuse-prompt-management",
+      "langfuse-score-configs",
+      "ai-pipeline",
+      "llm-judge",
+      "environment-variables"
+    ],
+    "langfuse-score-configs": [
+      "langfuse",
+      "langfuse-score-analytics",
+      "llm-judge",
+      "ai-pipeline",
+      "langfuse-score-analytics",
+      "langfuse-prompt-management",
+      "llm-judge",
+      "ai-pipeline"
     ],
     "documentation-full-modernization-plan": [
       "wiki-links",
