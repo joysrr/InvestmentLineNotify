@@ -6,7 +6,7 @@ last_verified: 2026-09-11
 related_code:
   - src/modules/newsFetcher.mjs
   - src/runNewsFetch.mjs
-  - src/modules/data/newsPoolManager.mjs
+  - src/modules/news/newsConflictGrouper.mjs
 related_docs:
   - docs/modules/ai_news/keyword_config.md
   - docs/modules/ai_news/ai_pipeline.md
@@ -16,6 +16,7 @@ tags:
   - rss
   - fetching
   - filtering
+  - conflict-grouper
 ---
 
 # 新聞採集器 (`newsFetch.mjs`)
@@ -78,7 +79,29 @@ const results = await Promise.allSettled(
 
 排除發布時間超過 6 小時的舊聞。
 
-### 1.4 來源過濾
+---
+
+## 1.6 衝突事件分群 (Conflict Grouper)
+
+抓取完成後，呼叫 `newsConflictGrouper.mjs` 的 `assignConflictGroups` 進行衝突分群預處理。
+
+**演算法**:
+
+- 使用 **Jaccard 相似度** 比較標題相似度
+- 中文閾值: 0.3, 英文閾值: 0.45
+- 使用 **Union-Find** 將相似文章歸為同一群組
+- 群組大小 ≥ 2 才標記 ID (G1, G2...)
+
+```javascript
+// src/modules/news/newsConflictGrouper.mjs
+const tagged = assignConflictGroups(fetchedNews);
+```
+
+**目的**: 將不同媒體對同一事件的多篇報導歸組，便於後續 AI 進行事件摘要。
+
+---
+
+## 2. AI 過濾與摘要
 
 讀取黑名單 (`blacklist.json`) 排除農場內容。
 

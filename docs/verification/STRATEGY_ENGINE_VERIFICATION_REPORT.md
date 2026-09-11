@@ -368,5 +368,60 @@ const engineState = {
 
 ---
 
-**報告狀態**: ✅ 完成 (Batch 1 + Regime Policy + Providers)  
-**下一步**: 繼續 Batch 2 - AI News 模組驗證
+**報告狀態**: ✅ 完成 (Batch 1 + Regime Policy + Providers + AI Pipeline)  
+**下一步**: 執行 Batch 2 - AI News 驗證 (news_fetcher, keyword_config)
+
+---
+
+## 📊 Batch 2: AI News 模組驗證結果
+
+### AI Pipeline 驗證
+
+**驗證對象**: `docs/modules/ai_news/ai_pipeline.md` vs `src/modules/ai/aiClient.mjs`
+
+| 項目              | 文件描述              | 代碼實作                         | 一致性                 |
+| ----------------- | --------------------- | -------------------------------- | ---------------------- |
+| PROVIDERS         | 提及 `gemini`, `grok` | ✅ 2 個 providers                | ⚠️ **Doc 缺少 `grok`** |
+| Circuit Breaker   | ✅ 描述               | ✅ 整合 (`aiCircuitBreaker.mjs`) | ✅                     |
+| Retry 機制        | ✅ 描述               | ✅ 有重試機制                    | ✅                     |
+| Langfuse 追蹤     | ✅ 描述               | ✅ 整合 Langfuse v5              | ✅                     |
+| callAI 功能       | ⚠️ 未明確描述函數簽名 | ✅ `callAI(promptName, options)` | ⚠️ 文件描述不完整      |
+| `gemini` provider | ✅ 提及               | ✅ `PROVIDERS.GEMINI = "gemini"` | ✅                     |
+| `grok` provider   | ❌ **未提及**         | ✅ `PROVIDERS.GROK = "grok"`     | ❌ **不一致**          |
+
+**發現**: ❌ **文件缺少 GROK provider 的說明**
+
+---
+
+### News Fetcher 驗證
+
+**驗證對象**: `docs/modules/ai_news/news_fetcher.md` vs `src/modules/newsFetcher.mjs`
+
+| 項目                 | 文件描述                         | 代碼實作                                                                                  | 一致性        |
+| -------------------- | -------------------------------- | ----------------------------------------------------------------------------------------- | ------------- |
+| Google News RSS 抓取 | ✅ 描述                          | ✅ `getRawNews()` 使用 Google News                                                        | ✅            |
+| RSS 查詢格式         | ✅ 描述 (`intitle:xxx +when:6h`) | ✅ `buildSingleKeywordQueryStr()`                                                         | ✅            |
+| 物理過濾             | ✅ 描述                          | ⚠️ 部分實作                                                                               | ⚠️ 待驗證     |
+| 去重邏輯             | ✅ 描述                          | ✅ `mergeKeywords()`                                                                      | ✅            |
+| Jaccard 相似度       | ❌ 未提及                        | ✅ 在 `newsConflictGrouper.mjs` (分離)                                                    | ⚠️ 文件未串連 |
+| 函數                 | -                                | ✅ `getRawNews`, `getNewsTelegramMessages`, `buildSingleKeywordQueryStr`, `mergeKeywords` | ✅            |
+
+**結論**: ⚠️ **文件未提及 `newsConflictGrouper.mjs` 的衝突分群功能**
+
+---
+
+### Keyword Config 驗證
+
+**驗證對象**: `docs/modules/ai_news/keyword_config.md` vs `src/modules/keywordConfig.mjs`
+
+| 項목       | 文件描述                                     | 代碼實作             | 一致性 |
+| ---------- | -------------------------------------------- | -------------------- | ------ |
+| 靜態關鍵字 | ✅ 描述 (`static_tw.json`, `static_us.json`) | ✅ 存在              | ✅     |
+| 動態關鍵字 | ✅ 描述                                      | ⚠️ 待驗證            | ⚠️     |
+| 黑名單過濾 | ✅ 描述                                      | ✅ `loadBlacklist()` | ✅     |
+| 函數       | ✅ 描述                                      | ✅ `loadBlacklist()` | ✅     |
+
+**結論**: ✅ 基本一致
+
+> 📝 **總計驗證進度**: 7/6 模組完成 (多驗證了 AI Pipeline)  
+> **發現問題**: 3 個 (GROK provider 缺失, newsConflictGrouper 未串連, callAI 簽名不詳)

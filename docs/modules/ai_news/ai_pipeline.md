@@ -21,9 +21,11 @@ related_docs:
 dependencies:
   - "@langfuse/tracing@5.11.0"
   - "google-gemini-api@latest"
+  - "grok-sdk@latest"
 tags:
   - ai
   - gemini
+  - grok
   - langfuse
   - circuit-breaker
   - pipeline
