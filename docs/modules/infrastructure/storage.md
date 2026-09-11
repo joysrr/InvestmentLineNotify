@@ -1,9 +1,9 @@
 ---
 type: reference
-status: needs-review
-last_updated: 2026-09-10
+status: current
+last_updated: 2026-09-11
 related_code:
-  - src/modules/infrastructure/storage.mjs
+  - src/modules/storage.mjs
 tags:
   - storage
   - persistence

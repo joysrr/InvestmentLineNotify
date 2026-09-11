@@ -1,9 +1,10 @@
 ---
 type: reference
-status: needs-review
-last_updated: 2026-09-10
+status: current
+last_updated: 2026-09-11
 related_code:
-  - src/modules/infrastructure/dataManager.mjs
+  - src/modules/data/archiveManager.mjs
+  - src/modules/storage.mjs
 tags:
   - data
   - storage
