@@ -1,3 +1,17 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/modules/strategy/lifecycle/
+tags:
+  - testing
+  - lifecycle
+  - health-check
+wiki_links:
+  - [[Strategy Engine]]
+---
+
 # Lifecycle Engine & Health Dashboard - Test Specification
 
 **Version**: 1.0.0 (Phase 1)

@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 136,
-    "total_edges": 130,
-    "total_code_mappings": 31,
-    "concepts_with_code": 27,
-    "concepts_with_links": 27,
-    "generated_at": "2026-09-11T00:17:58.064Z"
+    "total_concepts": 137,
+    "total_edges": 149,
+    "total_code_mappings": 36,
+    "concepts_with_code": 33,
+    "concepts_with_links": 38,
+    "generated_at": "2026-09-11T00:21:51.594Z"
   },
   "concepts": {
     "api-contract": {
@@ -257,8 +257,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["backtest", "scheduler", "automation"],
+      "status": "archived",
       "last_verified": null
     },
     "dec-005-monitoring-alerting": {
@@ -267,8 +267,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["monitoring", "alerting", "langfuse"],
+      "status": "archived",
       "last_verified": null
     },
     "dec-006-deployment-automation": {
@@ -277,18 +277,36 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["deployment", "automation", "docker"],
+      "status": "archived",
       "last_verified": null
+    },
+    "readme": {
+      "primary_doc": "architecture/README.md",
+      "title": "架構決策記錄索引 (ADR/DEC)",
+      "summary": "所有架構決策記錄的索引與分類",
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "architecture",
+        "decisions",
+        "adr",
+        "dec",
+        "design",
+        "architecture",
+        "decisions"
+      ],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "backtest-engine-design": {
       "primary_doc": "architecture/backtest_engine_design.md",
       "title": "InvestmentLineNotify Backtest Engine Architecture",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/modules/strategy/backtest/"],
+      "tags": ["backtest", "engine", "design"],
+      "status": "needs-review",
       "last_verified": null
     },
     "dec-016-vitest-worker-crash": {
@@ -297,8 +315,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["vitest", "crash", "debugging"],
+      "status": "archived",
       "last_verified": null
     },
     "budget-priority-design": {
@@ -721,9 +739,9 @@
       "title": "Lifecycle Engine Module",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/modules/strategy/lifecycle/"],
+      "tags": ["strategy", "lifecycle", "state-machine"],
+      "status": "needs-review",
       "last_verified": null
     },
     "lifecycle-health-test-spec": {
@@ -731,9 +749,9 @@
       "title": "Lifecycle Engine & Health Dashboard - Test Specification",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/modules/strategy/lifecycle/"],
+      "tags": ["testing", "lifecycle", "health-check"],
+      "status": "needs-review",
       "last_verified": null
     },
     "maintenance-state-machine": {
@@ -741,9 +759,9 @@
       "title": "維持率狀態機 4 層重構 — Strategy.json 修改說明",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/modules/strategy/maintenance/"],
+      "tags": ["maintenance", "state-machine", "automation"],
+      "status": "needs-review",
       "last_verified": null
     },
     "providers": {
@@ -751,19 +769,19 @@
       "title": "資料來源提供者 (Providers Layer)",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
-      "last_verified": null
+      "related_code": ["src/modules/strategy/providers/"],
+      "tags": ["providers", "data-source", "market-data"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "regime-policy": {
       "primary_doc": "modules/strategy/regime_policy.md",
       "title": "Regime-aware Policy Module",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/modules/strategy/regimePolicy.mjs"],
+      "tags": ["regime", "policy", "market-state"],
+      "status": "needs-review",
       "last_verified": null
     },
     "strategy-engine": {
@@ -1540,6 +1558,12 @@
         "doc": "modules/strategy/_index.md"
       }
     ],
+    "src/modules/strategy/backtest/": [
+      {
+        "concept": "backtest-engine-design",
+        "doc": "architecture/backtest_engine_design.md"
+      }
+    ],
     "src/modules/ai/aiClient.mjs": [
       {
         "concept": "ai_news",
@@ -1854,6 +1878,34 @@
       {
         "concept": "notifications",
         "doc": "modules/presentation/notifications.md"
+      }
+    ],
+    "src/modules/strategy/lifecycle/": [
+      {
+        "concept": "lifecycle-engine",
+        "doc": "modules/strategy/lifecycle_engine.md"
+      },
+      {
+        "concept": "lifecycle-health-test-spec",
+        "doc": "modules/strategy/lifecycle_health_test_spec.md"
+      }
+    ],
+    "src/modules/strategy/maintenance/": [
+      {
+        "concept": "maintenance-state-machine",
+        "doc": "modules/strategy/maintenance_state_machine.md"
+      }
+    ],
+    "src/modules/strategy/providers/": [
+      {
+        "concept": "providers",
+        "doc": "modules/strategy/providers.md"
+      }
+    ],
+    "src/modules/strategy/regimePolicy.mjs": [
+      {
+        "concept": "regime-policy",
+        "doc": "modules/strategy/regime_policy.md"
       }
     ]
   }

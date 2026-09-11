@@ -1,3 +1,17 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/modules/strategy/maintenance/
+tags:
+  - maintenance
+  - state-machine
+  - automation
+wiki_links:
+  - [[Strategy Engine]]
+---
+
 # 維持率狀態機 4 層重構 — Strategy.json 修改說明
 
 > 對應計畫：`docs/plans/backlog/preplan_features.md` P0【維持率狀態機 4 層重構】  

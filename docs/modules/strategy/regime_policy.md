@@ -1,3 +1,17 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/modules/strategy/regimePolicy.mjs
+tags:
+  - regime
+  - policy
+  - market-state
+wiki_links:
+  - [[Strategy Engine]]
+---
+
 # Regime-aware Policy Module
 
 **Version**: 1.0.0  
@@ -21,11 +35,11 @@ Regime-aware Policy 模組負責根據市場的宏觀環境（如 VIX 波動率�
 
 ## Regime States
 
-| 模式         | 判定條件                      | 槓桿倍數 (Multiplier) | 描述                       |
+| 模式 | 判定條件 | 槓桿倍數 (Multiplier) | 描述 |
 | ------------ | ----------------------------- | --------------------- | -------------------------- | ----- | ------------------------------ |
-| **NORMAL**   | VIX < 28 && Sentiment != BEAR | 1.0x                  | 正常模式，允許全槓桿操作   |
-| **CAUTIOUS** | 28 ≤ VIX < 35                 |                       | Sentiment == BEAR          | 0.75x | 謹慎模式，maxLeverage 下修 25% |
-| **CRISIS**   | VIX ≥ 35                      | 0x (Sell-only)        | 危機模式，強制禁止新增部位 |
+| **NORMAL** | VIX < 28 && Sentiment != BEAR | 1.0x | 正常模式，允許全槓桿操作 |
+| **CAUTIOUS** | 28 ≤ VIX < 35 | | Sentiment == BEAR | 0.75x | 謹慎模式，maxLeverage 下修 25% |
+| **CRISIS** | VIX ≥ 35 | 0x (Sell-only) | 危機模式，強制禁止新增部位 |
 
 ---
 

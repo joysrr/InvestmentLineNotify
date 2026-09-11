@@ -2,13 +2,24 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 136,
-    "edges": 130
+    "nodes": 137,
+    "edges": 149
   },
   "graph": {
     "api-contract": ["api-index"],
     "deployment-checklist": ["telegram-bot"],
     "test-spec-strategyengine": ["strategy-engine"],
+    "dec-004-backtest-scheduler-automation": ["ai-news", "strategy-engine"],
+    "dec-005-monitoring-alerting": ["langfuse", "ai-pipeline"],
+    "dec-006-deployment-automation": ["telegram-bot", "operations"],
+    "readme": [
+      "architecture",
+      "architecture",
+      "strategy-engine",
+      "ai-pipeline"
+    ],
+    "backtest-engine-design": ["strategy-engine"],
+    "dec-016-vitest-worker-crash": ["testing", "vitest"],
     "ai_news": [
       "ai-pipeline",
       "langfuse-prompt-management",
@@ -135,6 +146,11 @@
     ],
     "notifications": ["telegram-bot", "ai-news"],
     "strategy": ["ai-news", "strategy-engine"],
+    "lifecycle-engine": ["strategy-engine"],
+    "lifecycle-health-test-spec": ["strategy-engine"],
+    "maintenance-state-machine": ["strategy-engine"],
+    "providers": ["strategy-engine", "news-fetcher"],
+    "regime-policy": ["strategy-engine"],
     "strategy-engine": ["ai-news"],
     "documentation-full-modernization-plan": [
       "wiki-links",

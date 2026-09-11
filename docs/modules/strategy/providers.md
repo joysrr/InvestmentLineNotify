@@ -1,3 +1,19 @@
+---
+type: reference
+status: current
+last_updated: 2026-09-10
+last_verified: 2026-09-10
+related_code:
+  - src/modules/strategy/providers/
+tags:
+  - providers
+  - data-source
+  - market-data
+wiki_links:
+  - [[Strategy Engine]]
+  - [[News Fetcher]]
+---
+
 # 資料來源提供者 (Providers Layer)
 
 `src/modules/providers/` 的職責是將外部的骯髒資料，轉換為系統內部可信任的規格。

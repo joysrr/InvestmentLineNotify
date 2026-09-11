@@ -1,3 +1,17 @@
+---
+type: explanation
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/modules/strategy/backtest/
+tags:
+  - backtest
+  - engine
+  - design
+wiki_links:
+  - [[Strategy Engine]]
+---
+
 # InvestmentLineNotify Backtest Engine Architecture
 
 ## 1. 架構設計說明 (Architecture Overview)

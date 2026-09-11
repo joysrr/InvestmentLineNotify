@@ -1,3 +1,17 @@
+---
+type: reference
+status: needs-review
+last_updated: 2026-09-10
+related_code:
+  - src/modules/strategy/lifecycle/
+tags:
+  - strategy
+  - lifecycle
+  - state-machine
+wiki_links:
+  - [[Strategy Engine]]
+---
+
 # Lifecycle Engine Module
 
 **Version**: 1.0.0 (Phase 1)  
