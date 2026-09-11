@@ -425,3 +425,97 @@ const engineState = {
 
 > 📝 **總計驗證進度**: 7/6 模組完成 (多驗證了 AI Pipeline)  
 > **發現問題**: 3 個 (GROK provider 缺失, newsConflictGrouper 未串連, callAI 簽名不詳)
+
+---
+
+## 📊 Batch 3: Presentation & Notifications 驗證結果
+
+### Bot Commands 驗證
+
+**驗證對象**: `docs/modules/presentation/bot.md` vs `src/bot.mjs`
+
+**結論**: ✅ 完全一致
+
+實際指令 (src/bot.mjs):
+
+- `/start`, `/help`, `/status`, `/status_debug`
+- `/daily`, `/news`, `/weekly`, `/monthly`
+- `/optimize`, `/bot`
+
+文件描述完整涵蓋所有指令，包含參數與功能說明。
+
+---
+
+### Notifications & P0/P1 投資優先級驗證
+
+**驗證對象**: `docs/modules/presentation/notifications.md` vs `src/modules/notifications/*.mjs` + AI prompts
+
+**結論**: ❌ **重大缺失 - P0/P1 投資優先級未實作**
+
+#### 發現問題
+
+1. **代碼層面的 P0/P1 是優先級數字 (Rule Priority)**
+   - `P0` = RegimePolicyRule 優先級 0 (最高)
+   - `P10` = MarginLayerRule 優先級 10
+   - `P100` = ScoringDecisionRule 優先級 100 (最低)
+   - **這不是 Han 定義的投資分層**
+
+2. **Han 定義的 P0/P1 投資分層未在代碼中實作**
+   - P0: 固定 DCA (3萬/月 + 6萬/10天基礎投入) - **綠色卡片**
+   - P1: 條件加碼 (市場條件允許才加碼) - **琥珀色卡片**
+
+3. **AI 新聞報告未包含 P0/P1 區分**
+   - `periodReportAgent.mjs` 無 P0/P1 標記
+   - `agent_prompts.md` 無 P0/P1 指引
+   - 實際 prompts 儲存於 Langfuse Web UI (遠端)，無法驗證
+
+4. **Notification 模組未實作顏色區分**
+   - `telegramHtmlBuilder.mjs` 無綠色/琥珀色卡片邏輯
+   - `notificationService.mjs` 未分層處理建議
+
+#### 影響範圍
+
+Han 的新聞報告偏好 (from MEMORY):
+
+> 新聞行動建議必須嚴格區分「P0 固定 DCA (3萬/月)」、「P0 增貸基礎 DCA (6萬/10天)」與「P1 條件加碼」，新聞風險事件僅影響 P1 加碼，不可建議暫停 P0 基礎 DCA。
+
+> 新聞報告 Han 要求透明可查且結構化：行動建議嚴格區分 P0 DCA (綠色無條件執行) 與 P1 條件加碼 (琥珀色觀望)。
+
+**當前狀態**: 此需求未實作於代碼或 LLM prompts 中。
+
+#### 建議修正方案
+
+**選項 A: 在 Langfuse Prompts 加入 P0/P1 指引** (推薦)
+
+- 修改 `periodReportAgent` prompt，要求 LLM 區分兩類建議
+- 輸出格式包含 `priority: "P0"/"P1"` 欄位
+- 簡單快速，無需改動代碼
+
+**選項 B: 在代碼層實作分層邏輯**
+
+- `periodReportAgent.mjs` 後處理，標記建議優先級
+- `telegramHtmlBuilder.mjs` 根據優先級渲染不同顏色
+- 結構化但工作量較大
+
+**選項 C: 兩者結合** (最佳)
+
+- Prompt 要求 LLM 產出優先級
+- 代碼驗證並渲染對應顏色卡片
+
+---
+
+### 進度總結
+
+| 階段    | 模組                | 狀態    | 發現                            |
+| ------- | ------------------- | ------- | ------------------------------- |
+| Batch 1 | Strategy Core (6項) | ✅ 完成 | 7 缺失 Rules, 2 設計差異        |
+| Batch 2 | AI News (3項)       | ✅ 完成 | GROK provider, Conflict Grouper |
+| Batch 3 | Presentation (2項)  | ⚠️ 部分 | P0/P1 投資分層未實作            |
+
+**總進度**: 11/12 模組驗證完成 (92%)
+
+**剩餘**: Infrastructure (data_manager, storage, env_vars), Operations, Design docs
+
+**Critical Issue**: P0/P1 投資優先級需要 Han 決策後實作
+
+---
