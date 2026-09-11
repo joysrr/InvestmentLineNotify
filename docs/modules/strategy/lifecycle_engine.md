@@ -1,12 +1,13 @@
 ---
 type: reference
-status: needs-review
-last_updated: 2026-09-10
+status: current
+last_updated: 2026-09-11
 related_code:
-  - src/modules/strategy/lifecycle/
+  - src/modules/strategy/lifecycleEngine.mjs
+  - src/modules/strategy/decision/rules/LifecycleLeverageRule.mjs
 tags:
-  - strategy
   - lifecycle
+  - strategy
   - state-machine
 wiki_links:
   - [[Strategy Engine]]

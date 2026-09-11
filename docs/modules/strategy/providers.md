@@ -1,10 +1,11 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-10
-last_verified: 2026-09-10
+last_updated: 2026-09-11
+last_verified: 2026-09-11
 related_code:
-  - src/modules/strategy/providers/
+  - src/modules/newsFetcher.mjs
+  - src/runNewsFetch.mjs
 tags:
   - providers
   - data-source

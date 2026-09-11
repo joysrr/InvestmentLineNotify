@@ -1,9 +1,10 @@
 ---
 type: reference
-status: needs-review
-last_updated: 2026-09-10
+status: current
+last_updated: 2026-09-11
 related_code:
-  - src/modules/strategy/maintenance/
+  - src/modules/strategy/policies/marginPolicy.mjs
+  - src/modules/strategy/core/marginStateMachine.mjs
 tags:
   - maintenance
   - state-machine
