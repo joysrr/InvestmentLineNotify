@@ -4,11 +4,11 @@
   "scanned_dirs": ["all"],
   "stats": {
     "total_concepts": 135,
-    "total_edges": 63,
-    "total_code_mappings": 8,
-    "concepts_with_code": 5,
-    "concepts_with_links": 7,
-    "generated_at": "2026-09-11T00:02:19.341Z"
+    "total_edges": 96,
+    "total_code_mappings": 12,
+    "concepts_with_code": 10,
+    "concepts_with_links": 10,
+    "generated_at": "2026-09-11T00:11:09.073Z"
   },
   "concepts": {
     "api-contract": {
@@ -324,12 +324,31 @@
     "ai_news": {
       "primary_doc": "modules/ai_news/_index.md",
       "title": "AI 管線與新聞處理 (AI & News Pipeline)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
-      "last_verified": null
+      "summary": "負責專案所有的自然語言處理，包含新聞採集、AI 分析與 Langfuse 觀測",
+      "related_docs": [
+        "docs/modules/ai_news/ai_pipeline.md",
+        "docs/modules/ai_news/news_fetcher.md",
+        "docs/modules/ai_news/keyword_config.md",
+        "docs/modules/ai_news/integrations/agent_prompts.md",
+        "docs/modules/ai_news/integrations/ai_coach_checklist.md",
+        "docs/modules/ai_news/integrations/langfuse_prompt_management.md",
+        "docs/modules/ai_news/integrations/langfuse_score_analytics.md",
+        "docs/modules/ai_news/integrations/langfuse_score_configs.md"
+      ],
+      "related_code": [
+        "src/modules/ai/aiClient.mjs",
+        "src/modules/ai/aiCoach.mjs",
+        "src/modules/ai/llmJudge.mjs",
+        "src/modules/ai/aiCircuitBreaker.mjs",
+        "src/modules/ai/aiDataPreprocessor.mjs",
+        "src/modules/ai/langfuseClient.mjs",
+        "src/modules/ai/periodReportAgent.mjs",
+        "src/modules/ai/ruleOptimizerAgent.mjs",
+        "src/scheduler/newsFetch.mjs"
+      ],
+      "tags": ["ai", "news", "pipeline", "langfuse", "gemini", "observability"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "ai-pipeline": {
       "primary_doc": "modules/ai_news/ai_pipeline.md",
@@ -360,21 +379,38 @@
       "primary_doc": "modules/ai_news/integrations/agent_prompts.md",
       "title": "Agent Prompts 導覽 / Prompt Map",
       "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
-      "last_verified": null
+      "related_docs": [
+        "docs/modules/ai_news/integrations/langfuse_prompt_management.md",
+        "docs/modules/ai_news/ai_pipeline.md",
+        "docs/modules/strategy/strategy_engine.md"
+      ],
+      "related_code": [
+        "src/modules/ai/aiCoach.mjs",
+        "src/modules/ai/llmJudge.mjs",
+        "src/modules/ai/periodReportAgent.mjs",
+        "src/modules/ai/prompts.mjs",
+        "src/modules/ai/ruleOptimizerAgent.mjs"
+      ],
+      "tags": ["prompts", "ai", "gemini", "langfuse", "architecture"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "ai-coach-checklist": {
       "primary_doc": "modules/ai_news/integrations/ai_coach_checklist.md",
       "title": "Investment Coach Prompt 優化 Checklist",
       "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
-      "last_verified": null
+      "related_docs": [
+        "docs/modules/ai_news/integrations/agent_prompts.md",
+        "docs/modules/ai_news/integrations/langfuse_score_analytics.md",
+        "docs/modules/ai_news/ai_pipeline.md"
+      ],
+      "related_code": [
+        "src/modules/ai/aiCoach.mjs",
+        "src/modules/ai/llmJudge.mjs"
+      ],
+      "tags": ["ai", "quality", "checklist", "validation"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "langfuse-prompt-management": {
       "primary_doc": "modules/ai_news/integrations/langfuse_prompt_management.md",
@@ -462,22 +498,36 @@
     "keyword-config": {
       "primary_doc": "modules/ai_news/keyword_config.md",
       "title": "關鍵字與黑名單設定 (`keywordConfig.mjs`)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
-      "last_verified": null
+      "summary": "統一管理新聞搜尋的靜態/動態關鍵字庫與排除條件",
+      "related_docs": [
+        "docs/modules/ai_news/news_fetcher.md",
+        "docs/modules/ai_news/ai_pipeline.md"
+      ],
+      "related_code": [
+        "src/modules/ai/keywordConfig.mjs",
+        "src/scheduler/newsFetch.mjs"
+      ],
+      "tags": ["keywords", "configuration", "filtering", "news"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "news-fetcher": {
       "primary_doc": "modules/ai_news/news_fetcher.md",
-      "title": "新聞採集器 (`newsFetcher.mjs`)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
-      "last_verified": null
+      "title": "新聞採集器 (`newsFetch.mjs`)",
+      "summary": "從 Google News RSS 批量抓取新聞，進行物理層篩選",
+      "related_docs": [
+        "docs/modules/ai_news/keyword_config.md",
+        "docs/modules/ai_news/ai_pipeline.md",
+        "docs/modules/operations/schedules.md"
+      ],
+      "related_code": [
+        "src/scheduler/newsFetch.mjs",
+        "src/modules/news/newsPoolManager.mjs",
+        "src/modules/ai/keywordConfig.mjs"
+      ],
+      "tags": ["news", "rss", "fetching", "filtering"],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "infrastructure": {
       "primary_doc": "modules/infrastructure/_index.md",
@@ -1413,6 +1463,10 @@
   "code_map": {
     "src/modules/ai/aiClient.mjs": [
       {
+        "concept": "ai_news",
+        "doc": "modules/ai_news/_index.md"
+      },
+      {
         "concept": "ai-pipeline",
         "doc": "modules/ai_news/ai_pipeline.md"
       },
@@ -1425,22 +1479,22 @@
         "doc": "modules/ai_news/integrations/langfuse_prompt_management_v5.md"
       }
     ],
-    "src/modules/ai/aiCircuitBreaker.mjs": [
-      {
-        "concept": "ai-pipeline",
-        "doc": "modules/ai_news/ai_pipeline.md"
-      }
-    ],
-    "src/modules/ai/aiDataPreprocessor.mjs": [
-      {
-        "concept": "ai-pipeline",
-        "doc": "modules/ai_news/ai_pipeline.md"
-      }
-    ],
     "src/modules/ai/aiCoach.mjs": [
       {
+        "concept": "ai_news",
+        "doc": "modules/ai_news/_index.md"
+      },
+      {
         "concept": "ai-pipeline",
         "doc": "modules/ai_news/ai_pipeline.md"
+      },
+      {
+        "concept": "agent-prompts",
+        "doc": "modules/ai_news/integrations/agent_prompts.md"
+      },
+      {
+        "concept": "ai-coach-checklist",
+        "doc": "modules/ai_news/integrations/ai_coach_checklist.md"
       },
       {
         "concept": "langfuse-prompt-management",
@@ -1457,8 +1511,20 @@
     ],
     "src/modules/ai/llmJudge.mjs": [
       {
+        "concept": "ai_news",
+        "doc": "modules/ai_news/_index.md"
+      },
+      {
         "concept": "ai-pipeline",
         "doc": "modules/ai_news/ai_pipeline.md"
+      },
+      {
+        "concept": "agent-prompts",
+        "doc": "modules/ai_news/integrations/agent_prompts.md"
+      },
+      {
+        "concept": "ai-coach-checklist",
+        "doc": "modules/ai_news/integrations/ai_coach_checklist.md"
       },
       {
         "concept": "langfuse-prompt-management",
@@ -1473,27 +1539,31 @@
         "doc": "modules/ai_news/integrations/langfuse_score_configs.md"
       }
     ],
-    "src/modules/ai/periodReportAgent.mjs": [
+    "src/modules/ai/aiCircuitBreaker.mjs": [
+      {
+        "concept": "ai_news",
+        "doc": "modules/ai_news/_index.md"
+      },
       {
         "concept": "ai-pipeline",
         "doc": "modules/ai_news/ai_pipeline.md"
-      },
-      {
-        "concept": "langfuse-prompt-management",
-        "doc": "modules/ai_news/integrations/langfuse_prompt_management.md"
       }
     ],
-    "src/modules/ai/ruleOptimizerAgent.mjs": [
+    "src/modules/ai/aiDataPreprocessor.mjs": [
+      {
+        "concept": "ai_news",
+        "doc": "modules/ai_news/_index.md"
+      },
       {
         "concept": "ai-pipeline",
         "doc": "modules/ai_news/ai_pipeline.md"
-      },
-      {
-        "concept": "langfuse-prompt-management",
-        "doc": "modules/ai_news/integrations/langfuse_prompt_management.md"
       }
     ],
     "src/modules/ai/langfuseClient.mjs": [
+      {
+        "concept": "ai_news",
+        "doc": "modules/ai_news/_index.md"
+      },
       {
         "concept": "ai-pipeline",
         "doc": "modules/ai_news/ai_pipeline.md"
@@ -1513,6 +1583,78 @@
       {
         "concept": "langfuse-score-configs",
         "doc": "modules/ai_news/integrations/langfuse_score_configs.md"
+      }
+    ],
+    "src/modules/ai/periodReportAgent.mjs": [
+      {
+        "concept": "ai_news",
+        "doc": "modules/ai_news/_index.md"
+      },
+      {
+        "concept": "ai-pipeline",
+        "doc": "modules/ai_news/ai_pipeline.md"
+      },
+      {
+        "concept": "agent-prompts",
+        "doc": "modules/ai_news/integrations/agent_prompts.md"
+      },
+      {
+        "concept": "langfuse-prompt-management",
+        "doc": "modules/ai_news/integrations/langfuse_prompt_management.md"
+      }
+    ],
+    "src/modules/ai/ruleOptimizerAgent.mjs": [
+      {
+        "concept": "ai_news",
+        "doc": "modules/ai_news/_index.md"
+      },
+      {
+        "concept": "ai-pipeline",
+        "doc": "modules/ai_news/ai_pipeline.md"
+      },
+      {
+        "concept": "agent-prompts",
+        "doc": "modules/ai_news/integrations/agent_prompts.md"
+      },
+      {
+        "concept": "langfuse-prompt-management",
+        "doc": "modules/ai_news/integrations/langfuse_prompt_management.md"
+      }
+    ],
+    "src/scheduler/newsFetch.mjs": [
+      {
+        "concept": "ai_news",
+        "doc": "modules/ai_news/_index.md"
+      },
+      {
+        "concept": "keyword-config",
+        "doc": "modules/ai_news/keyword_config.md"
+      },
+      {
+        "concept": "news-fetcher",
+        "doc": "modules/ai_news/news_fetcher.md"
+      }
+    ],
+    "src/modules/ai/prompts.mjs": [
+      {
+        "concept": "agent-prompts",
+        "doc": "modules/ai_news/integrations/agent_prompts.md"
+      }
+    ],
+    "src/modules/ai/keywordConfig.mjs": [
+      {
+        "concept": "keyword-config",
+        "doc": "modules/ai_news/keyword_config.md"
+      },
+      {
+        "concept": "news-fetcher",
+        "doc": "modules/ai_news/news_fetcher.md"
+      }
+    ],
+    "src/modules/news/newsPoolManager.mjs": [
+      {
+        "concept": "news-fetcher",
+        "doc": "modules/ai_news/news_fetcher.md"
       }
     ]
   }

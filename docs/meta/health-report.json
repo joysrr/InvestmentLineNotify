@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-09-10T23:20:19.958Z",
+  "generated_at": "2026-09-11T00:06:43.352Z",
   "summary": {
-    "total_files": 134,
-    "average_health": 13.7,
+    "total_files": 135,
+    "average_health": 16.4,
     "by_health": {
-      "excellent": 1,
+      "excellent": 5,
       "good": 0,
       "fair": 0,
-      "poor": 133
+      "poor": 130
     },
     "by_category": {
       "other": {
@@ -26,9 +26,9 @@
         "totalHealth": 165
       },
       "reference": {
-        "count": 33,
-        "avgHealth": 13,
-        "totalHealth": 435
+        "count": 34,
+        "avgHealth": 24,
+        "totalHealth": 810
       },
       "explanation": {
         "count": 6,
@@ -68,12 +68,12 @@
       ]
     },
     {
-      "concept": "ai-pipeline",
-      "file": "modules/ai_news/ai_pipeline.md",
+      "concept": "agent-prompts",
+      "file": "modules/ai_news/integrations/agent_prompts.md",
       "category": "reference",
       "health": 10,
-      "impact": 20,
-      "priority": 180,
+      "impact": 15,
+      "priority": 135,
       "issues": [
         "缺少 frontmatter",
         "狀態未知",
@@ -93,12 +93,12 @@
       ]
     },
     {
-      "concept": "langfuse-score-analytics",
-      "file": "modules/ai_news/integrations/langfuse_score_analytics.md",
+      "concept": "strategy-engine",
+      "file": "modules/strategy/strategy_engine.md",
       "category": "reference",
       "health": 10,
-      "impact": 20,
-      "priority": 180,
+      "impact": 15,
+      "priority": 135,
       "issues": [
         "缺少 frontmatter",
         "狀態未知",
@@ -107,7 +107,7 @@
         "缺少文件連結",
         "缺少標籤",
         "缺少摘要",
-        "134 天未修改"
+        "123 天未修改"
       ],
       "suggestions": [
         "添加 YAML frontmatter",
@@ -191,83 +191,8 @@
       ]
     },
     {
-      "concept": "agent-prompts",
-      "file": "modules/ai_news/integrations/agent_prompts.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 10,
-      "priority": 90,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
       "concept": "ai-coach-checklist",
       "file": "modules/ai_news/integrations/ai_coach_checklist.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 10,
-      "priority": 90,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "langfuse-prompt-management",
-      "file": "modules/ai_news/integrations/langfuse_prompt_management.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 10,
-      "priority": 90,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "langfuse-score-configs",
-      "file": "modules/ai_news/integrations/langfuse_score_configs.md",
       "category": "reference",
       "health": 10,
       "impact": 10,
@@ -539,6 +464,81 @@
         "添加 related_docs",
         "添加 tags"
       ]
+    },
+    {
+      "concept": "portfolio-health-api",
+      "file": "modules/presentation/api/portfolio_health_api.md",
+      "category": "reference",
+      "health": 10,
+      "impact": 10,
+      "priority": 90,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要",
+        "127 天未修改"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "report-signals-contract",
+      "file": "modules/presentation/api/report_signals_contract.md",
+      "category": "reference",
+      "health": 10,
+      "impact": 10,
+      "priority": 90,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要",
+        "134 天未修改"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "bot",
+      "file": "modules/presentation/bot.md",
+      "category": "reference",
+      "health": 10,
+      "impact": 10,
+      "priority": 90,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要",
+        "134 天未修改"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
     }
   ],
   "all_files": [
@@ -770,8 +770,8 @@
       "concept": "ai-pipeline",
       "file": "modules/ai_news/ai_pipeline.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 100,
+      "status": "current"
     },
     {
       "concept": "agent-prompts",
@@ -791,7 +791,14 @@
       "concept": "langfuse-prompt-management",
       "file": "modules/ai_news/integrations/langfuse_prompt_management.md",
       "category": "reference",
-      "health": 10,
+      "health": 100,
+      "status": "current"
+    },
+    {
+      "concept": "langfuse-prompt-management-v3-deprecated",
+      "file": "modules/ai_news/integrations/langfuse_prompt_management_v3_deprecated.md",
+      "category": "reference",
+      "health": 15,
       "status": "unknown"
     },
     {
@@ -805,15 +812,15 @@
       "concept": "langfuse-score-analytics",
       "file": "modules/ai_news/integrations/langfuse_score_analytics.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 100,
+      "status": "current"
     },
     {
       "concept": "langfuse-score-configs",
       "file": "modules/ai_news/integrations/langfuse_score_configs.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 100,
+      "status": "current"
     },
     {
       "concept": "keyword-config",

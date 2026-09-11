@@ -1,3 +1,26 @@
+---
+type: reference
+status: current
+last_updated: 2026-09-10
+last_verified: 2026-09-10
+related_code:
+  - src/modules/ai/aiCoach.mjs
+  - src/modules/ai/llmJudge.mjs
+  - src/modules/ai/periodReportAgent.mjs
+  - src/modules/ai/prompts.mjs
+  - src/modules/ai/ruleOptimizerAgent.mjs
+related_docs:
+  - docs/modules/ai_news/integrations/langfuse_prompt_management.md
+  - docs/modules/ai_news/ai_pipeline.md
+  - docs/modules/strategy/strategy_engine.md
+tags:
+  - prompts
+  - ai
+  - gemini
+  - langfuse
+  - architecture
+---
+
 # Agent Prompts 導覽 / Prompt Map
 
 > [!NOTE]

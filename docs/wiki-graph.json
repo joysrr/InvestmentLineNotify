@@ -3,9 +3,29 @@
   "prototype": false,
   "stats": {
     "nodes": 135,
-    "edges": 63
+    "edges": 96
   },
   "graph": {
+    "ai_news": [
+      "ai-pipeline",
+      "langfuse-prompt-management",
+      "langfuse-score-analytics",
+      "news-fetcher",
+      "keyword-config",
+      "agent-prompts",
+      "langfuse",
+      "langfuse",
+      "news-fetcher",
+      "keyword-config",
+      "ai-pipeline",
+      "agent-prompts",
+      "strategy-engine",
+      "notification",
+      "environment-variables",
+      "strategy-engine",
+      "telegram-bot",
+      "infrastructure"
+    ],
     "ai-pipeline": [
       "langfuse",
       "langfuse",
@@ -64,6 +84,25 @@
       "langfuse-prompt-management",
       "llm-judge",
       "ai-pipeline"
+    ],
+    "keyword-config": [
+      "news-fetcher",
+      "ai-news",
+      "social-sentiment",
+      "social-sentiment",
+      "news-fetcher",
+      "ai-pipeline",
+      "social-sentiment",
+      "blacklist-management"
+    ],
+    "news-fetcher": [
+      "keyword-config",
+      "ai-pipeline",
+      "ai-news",
+      "keyword-config",
+      "ai-pipeline",
+      "ai-news",
+      "schedule"
     ],
     "documentation-full-modernization-plan": [
       "wiki-links",

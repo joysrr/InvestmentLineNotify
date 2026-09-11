@@ -1,3 +1,22 @@
+---
+type: reference
+status: current
+last_updated: 2026-09-10
+last_verified: 2026-09-10
+related_code:
+  - src/modules/ai/aiCoach.mjs
+  - src/modules/ai/llmJudge.mjs
+related_docs:
+  - docs/modules/ai_news/integrations/agent_prompts.md
+  - docs/modules/ai_news/integrations/langfuse_score_analytics.md
+  - docs/modules/ai_news/ai_pipeline.md
+tags:
+  - ai
+  - quality
+  - checklist
+  - validation
+---
+
 # Investment Coach Prompt 優化 Checklist
 
 本文件用來指導如何透過 Langfuse 的數據與實際輸出內容，系統化優化 Investment Coach（`InvestmentAdvice`）的 Prompt 與整體決策品質。
@@ -19,7 +38,7 @@
 - `Format_Compliance`
 - `Risk_Coverage`
 - `Confidence_Field_Present`（AI 是否回傳 `confidence` / `confidence_level` 欄位；持續為 0 代表 Prompt 模板未要求此欄位）
-- `Thinking_Depth`（`coach_internal_thinking` 推理深度估算 0~1；字數、數字量化、因果推理、反向思考各佔 0.2~0.4）
+- `Thinking_Depth`（`coach_internal_thinking` 推理深度估算 0~~1；字數、數字量化、因果推理、反向思考各佔 0.2~~0.4）
 - `Actionability`
 - `Tone_and_Empathy`
 - （未來人工 / LLM）`Context_Alignment`
