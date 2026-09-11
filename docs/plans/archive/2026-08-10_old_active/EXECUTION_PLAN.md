@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # 執行計畫：方案 A + TD-001 阻擋 + 單人
 
 > 執行模式：循序單人，技術債優先清除再開發新功能

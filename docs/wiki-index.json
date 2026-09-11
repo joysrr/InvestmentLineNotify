@@ -8,7 +8,7 @@
     "total_code_mappings": 39,
     "concepts_with_code": 36,
     "concepts_with_links": 39,
-    "generated_at": "2026-09-11T00:25:54.446Z"
+    "generated_at": "2026-09-11T00:27:59.370Z"
   },
   "concepts": {
     "api-contract": {
@@ -159,8 +159,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "code-review"],
+      "status": "archived",
       "last_verified": null
     },
     "leverage-strategy-review-v2.3": {
@@ -169,8 +169,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "code-review"],
+      "status": "archived",
       "last_verified": null
     },
     "main-code-review-20260429": {
@@ -189,8 +189,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "code-review"],
+      "status": "archived",
       "last_verified": null
     },
     "strategy-review-20260417": {
@@ -199,8 +199,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "code-review"],
+      "status": "archived",
       "last_verified": null
     },
     "security-report": {
@@ -269,8 +269,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["api", "decision-chain"],
+      "status": "current",
       "last_verified": null
     },
     "dec-004-backtest-scheduler-automation": {
@@ -329,8 +329,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["design", "budget", "priority"],
+      "status": "current",
       "last_verified": null
     },
     "modules": {
@@ -339,8 +339,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["modules", "index"],
+      "status": "current",
       "last_verified": null
     },
     "ai_news": {
@@ -462,8 +462,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["langfuse", "deprecated", "v3"],
+      "status": "deprecated",
       "last_verified": null
     },
     "langfuse-prompt-management-v5": {
@@ -597,8 +597,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["deployment", "oracle", "vm"],
+      "status": "current",
       "last_verified": null
     },
     "env-vars": {
@@ -724,8 +724,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["strategy", "audit", "parameters"],
+      "status": "current",
       "last_verified": null
     },
     "strategy-param-changes": {
@@ -734,8 +734,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["strategy", "audit", "changes"],
+      "status": "current",
       "last_verified": null
     },
     "lifecycle-engine": {
@@ -804,8 +804,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["performance", "baseline"],
+      "status": "archived",
       "last_verified": null
     },
     "documentation-full-modernization-plan": {
@@ -844,8 +844,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "draft-features": {
@@ -854,8 +854,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "draft-optimizations": {
@@ -864,8 +864,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "draft-perplexity-suggestion": {
@@ -874,8 +874,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "remediation-spec-202604": {
@@ -884,8 +884,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "system-audit-202604": {
@@ -894,8 +894,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "0050-simulator-development-plan.decision-analysis": {
@@ -904,8 +904,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "0050-simulator-development-plan": {
@@ -914,8 +914,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "0050-simulator-development-plan.pending-decisions": {
@@ -924,8 +924,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "execution-plan": {
@@ -934,8 +934,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "master-plan": {
@@ -944,7 +944,7 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": ["completed", "archived"],
+      "tags": ["archived", "historical", "completed", "archived"],
       "status": "completed",
       "last_verified": null
     },
@@ -954,8 +954,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "unified-development-plan": {
@@ -964,7 +964,7 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": ["completed", "archived"],
+      "tags": ["archived", "historical", "completed", "archived"],
       "status": "completed",
       "last_verified": null
     },
@@ -974,8 +974,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "finished-features": {
@@ -984,8 +984,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "phase-2-2-sensitivity-plan": {
@@ -994,8 +994,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "phase-2-3-pareto-plan": {
@@ -1004,8 +1004,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "phase-2-4-export-plan": {
@@ -1014,8 +1014,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "phase1-entry-points": {
@@ -1024,8 +1024,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "phase2-core-logic": {
@@ -1034,8 +1034,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "phase3-providers": {
@@ -1044,8 +1044,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "phase4-api": {
@@ -1054,8 +1054,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "phase5-news": {
@@ -1064,8 +1064,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "phase6-bot": {
@@ -1074,8 +1074,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "phase7-frontend": {
@@ -1084,8 +1084,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "phase8-e2e": {
@@ -1094,8 +1094,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "phase9-api": {
@@ -1104,8 +1104,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "historical"],
+      "status": "archived",
       "last_verified": null
     },
     "ideas-features": {
@@ -1114,8 +1114,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["ideas", "features", "backlog"],
+      "status": "backlog",
       "last_verified": null
     },
     "preplan-features": {
@@ -1124,8 +1124,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["features", "backlog", "planning"],
+      "status": "backlog",
       "last_verified": null
     },
     "preplan-interface": {
@@ -1134,8 +1134,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["interface", "backlog", "planning"],
+      "status": "backlog",
       "last_verified": null
     },
     "system-optimize-suggest": {
@@ -1144,8 +1144,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["optimization", "backlog", "suggestions"],
+      "status": "backlog",
       "last_verified": null
     },
     "active-plans-consolidated": {
@@ -1494,8 +1494,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["verification", "core-logic", "validation"],
+      "status": "archived",
       "last_verified": null
     },
     "core-logic-findings": {
@@ -1504,8 +1504,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["verification", "core-logic", "validation"],
+      "status": "archived",
       "last_verified": null
     },
     "core-logic-replay-results": {
@@ -1514,8 +1514,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["verification", "core-logic", "validation"],
+      "status": "archived",
       "last_verified": null
     }
   },

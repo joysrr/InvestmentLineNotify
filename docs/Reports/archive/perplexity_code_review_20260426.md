@@ -1,3 +1,13 @@
+---
+type: report
+status: archived
+last_updated: 2026-04-01
+tags:
+  - archived
+  - code-review
+wiki_links: []
+---
+
 ## 階段一審查結果：Entry Points 入口層
 
 ---

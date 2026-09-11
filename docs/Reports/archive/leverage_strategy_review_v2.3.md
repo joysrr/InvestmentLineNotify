@@ -1,3 +1,13 @@
+---
+type: report
+status: archived
+last_updated: 2026-04-01
+tags:
+  - archived
+  - code-review
+wiki_links: []
+---
+
 # InvestmentLineNotify 槓桿質押策略 2.3-best 架構與邏輯檢視報告
 
 ## 一、執行摘要

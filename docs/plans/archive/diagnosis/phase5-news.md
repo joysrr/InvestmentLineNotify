@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # Phase 5: 新聞系統 (RSS, 去重, 新聞池容量) 審查與修復計畫
 
 ## 診斷結果

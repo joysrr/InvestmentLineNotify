@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # ADVICE: 戰略審查報告 (2026-04 Remediation Plan)
 
 ## 審查視角

@@ -1,3 +1,14 @@
+---
+type: reference
+status: current
+last_updated: 2026-09-11
+tags:
+  - deployment
+  - oracle
+  - vm
+wiki_links: []
+---
+
 # Oracle Cloud VM 部署安裝手冊（附錄）
 
 > **狀態：✅ 已完成**

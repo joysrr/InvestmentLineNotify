@@ -1,3 +1,14 @@
+---
+type: explanation
+status: current
+last_updated: 2026-09-11
+tags:
+  - design
+  - budget
+  - priority
+wiki_links: []
+---
+
 # Budget Priority 系統設計文件
 
 > **適用對象**：投資人、策略開發者、風控人員  

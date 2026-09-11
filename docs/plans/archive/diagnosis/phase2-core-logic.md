@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # Phase 2: Core Business Logic 審查與修復計畫
 
 ## 診斷結果

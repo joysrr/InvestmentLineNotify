@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # 優化與技術債清單 (Draft Optimizations)
 
 > 本文件記錄於 2026-04-29 的 `docs/` 混合式架構重構過程中，透過程式碼與文件一致性驗證所發掘的系統痛點與優化建議。

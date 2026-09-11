@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # Technical Specification: System Audit Remediation (2026-04)
 
 ## 📍 總覽

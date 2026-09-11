@@ -1,3 +1,14 @@
+---
+type: plan
+status: backlog
+last_updated: 2026-09-11
+tags:
+  - features
+  - backlog
+  - planning
+wiki_links: []
+---
+
 # **Pre-plan Features (待評估與實作功能池)**
 
 ## **執行順序總覽**

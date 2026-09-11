@@ -1,3 +1,14 @@
+---
+type: report
+status: archived
+last_updated: 2026-09-11
+tags:
+  - verification
+  - core-logic
+  - validation
+wiki_links: []
+---
+
 # Core Logic 驗證結果 — Replay 階段
 
 > 本文件記錄 production-grade dailyCheck 流程在「真實報告累積」階段的驗證結果。

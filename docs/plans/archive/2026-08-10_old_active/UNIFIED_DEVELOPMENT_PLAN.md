@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # InvestmentLineNotify 統一開發計畫 (Unified Development Plan)
 
 **版本**: v4.1

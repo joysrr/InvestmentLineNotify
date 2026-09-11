@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # Phase 7: 前端 Mini App (API 錯誤處理、loading/error 狀態) 審查與修復計畫
 
 ## 診斷結果

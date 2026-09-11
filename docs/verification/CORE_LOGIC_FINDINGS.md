@@ -1,3 +1,14 @@
+---
+type: report
+status: archived
+last_updated: 2026-09-11
+tags:
+  - verification
+  - core-logic
+  - validation
+wiki_links: []
+---
+
 # Core Logic Findings
 
 > **Phase**：A / B / C / D / E / F / G / H — 資料流、數學、決策鏈、重播與 simulator 查核

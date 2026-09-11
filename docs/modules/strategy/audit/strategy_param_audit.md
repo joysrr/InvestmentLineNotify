@@ -1,3 +1,14 @@
+---
+type: reference
+status: current
+last_updated: 2026-09-11
+tags:
+  - strategy
+  - audit
+  - parameters
+wiki_links: []
+---
+
 # Strategy.json 參數審計文件
 
 > 建立日期：2026-04-16  

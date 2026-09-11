@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # 0050 模擬器 - 待確認決策清單 (開發前必決)
 
 **版本**: v1.0 (基於規劃 v1.2 掃描)

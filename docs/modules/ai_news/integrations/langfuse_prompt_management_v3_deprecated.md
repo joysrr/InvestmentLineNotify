@@ -1,3 +1,14 @@
+---
+type: reference
+status: deprecated
+last_updated: 2026-09-11
+tags:
+  - langfuse
+  - deprecated
+  - v3
+wiki_links: []
+---
+
 # Langfuse Prompt Management
 
 本文件說明 InvestmentLineNotify 所有 AI prompt 在 Langfuse 的管理方式與設定規範。

@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # Phase 3: 資料提供層 (Providers + ArchiveManager) 審查與修復計畫
 
 ## 診斷結果

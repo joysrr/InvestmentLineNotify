@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # InvestmentLineNotify Master Plan (v4.0)
 
 本文件為專案的唯一真實來源 (Single Source of Truth)，整合了過往 Phase 1 至未來 Phase 4 的所有計畫。

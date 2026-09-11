@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # Phase 2.3 Pareto 前沿 - 詳細執行規劃
 
 > 執行時間：2026-08-11

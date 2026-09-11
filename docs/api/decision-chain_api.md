@@ -1,3 +1,13 @@
+---
+type: reference
+status: current
+last_updated: 2026-09-11
+tags:
+  - api
+  - decision-chain
+wiki_links: []
+---
+
 # Decision Chain Responsibility Architecture Spec
 
 ## Scope Information

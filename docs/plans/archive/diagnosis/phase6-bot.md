@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # Phase 6: Bot 層 (adminGuard, handler 拆分) 審查與修復計畫
 
 ## 診斷結果

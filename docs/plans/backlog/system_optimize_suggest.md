@@ -1,3 +1,14 @@
+---
+type: plan
+status: backlog
+last_updated: 2026-09-11
+tags:
+  - optimization
+  - backlog
+  - suggestions
+wiki_links: []
+---
+
 身為系統架構師，針對 InvestmentLineNotify 這個專案（包含 Node.js 後端核心與 Vue 3 建立的 Telegram Mini App 前端），我已經進行了系統架構、程式碼邏輯與風格的綜合分析。  
 這是一個具備高度領域知識的系統，將量化交易策略（0050/00675L）、AI 摘要與 Telegram 通知進行了良好的整合。架構上採用「無傳統資料庫（File-based / Google Sheets）」輕量化設計，適合個人或小團隊的自動化投資監控。  
 以下是為您整理的 **Code Review 與架構優化分析報告**：
@@ -43,7 +54,7 @@
     JavaScript  
     // 在 useIOSSwipeGuard.js 中封裝  
     export function useIOSSwipeGuard(targetRef) {  
-     // 將 touchStart / touchMove 邏輯放此  
+    // 將 touchStart / touchMove 邏輯放此  
     }  
     // App.vue 只需要：  
     useIOSSwipeGuard(tabBarRef)

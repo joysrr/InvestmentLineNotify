@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # InvestmentLineNotify 投資設計評估與優化建議（0050 DCA + 00675L 槓桿 / 生命週期策略）
 
 ## 一、結論摘要
@@ -48,7 +58,7 @@
     - 條件：`grossLeverage <= lifecyclePhase.maxLeverage AND marginLayer.status < frozenZone`  
       → 動作：允許 0050 DCA 持續／小幅加碼。
     - 條件：`marginLayer.status >= frozenZone OR survivalDropLimit < X%`  
-       → 動作：暫停 0050 DCA，僅保守還款或持現金。  
+      → 動作：暫停 0050 DCA，僅保守還款或持現金。  
       這類條件目前在 `buildDecision` 中是透過多層 early return 間接達成，建議整理成更明確的 decision table。 s
 
 ### 00675L 槓桿與戰術配置

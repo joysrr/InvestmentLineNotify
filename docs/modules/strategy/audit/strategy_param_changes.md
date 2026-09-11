@@ -1,3 +1,14 @@
+---
+type: reference
+status: current
+last_updated: 2026-09-11
+tags:
+  - strategy
+  - audit
+  - changes
+wiki_links: []
+---
+
 # Strategy.json 參數異動說明
 
 > **最後更新：** 2026-04-18

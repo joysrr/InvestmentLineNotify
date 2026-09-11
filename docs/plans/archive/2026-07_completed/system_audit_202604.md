@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # SYSTEM_AUDIT_202604 (全系統 Code Review 與架構體檢)
 
 > ⚠️ **文件區隔說明**（依 PROPOSAL_20260422_021 T-3）：

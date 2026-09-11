@@ -1,3 +1,14 @@
+---
+type: plan
+status: backlog
+last_updated: 2026-09-11
+tags:
+  - interface
+  - backlog
+  - planning
+wiki_links: []
+---
+
 ### 最終確認版：外部資料 API 接口對接規格書
 
 #### 接口一：ETF 每日盤後價格與極值 API (價格與技術指標基礎)

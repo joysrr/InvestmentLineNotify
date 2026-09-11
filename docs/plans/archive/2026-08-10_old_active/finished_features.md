@@ -1,3 +1,13 @@
+---
+type: plan
+status: archived
+last_updated: 2026-09-11
+tags:
+  - archived
+  - historical
+wiki_links: []
+---
+
 # Finished-plan Features (已完成功能歸檔)
 
 ## ✅【P0 已完成】Decision Chain of Responsibility 重構

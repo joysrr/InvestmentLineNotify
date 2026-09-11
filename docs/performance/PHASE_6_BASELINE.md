@@ -1,3 +1,13 @@
+---
+type: report
+status: archived
+last_updated: 2026-09-11
+tags:
+  - performance
+  - baseline
+wiki_links: []
+---
+
 # Phase 6 Performance and Quality Baseline
 
 > Final measurement date: 2026-08-17

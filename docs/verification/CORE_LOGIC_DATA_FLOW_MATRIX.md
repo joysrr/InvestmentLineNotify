@@ -1,3 +1,14 @@
+---
+type: report
+status: archived
+last_updated: 2026-09-11
+tags:
+  - verification
+  - core-logic
+  - validation
+wiki_links: []
+---
+
 # Core Logic Data Flow Matrix
 
 > **Phase**：A — 資料流與公式規格盤點

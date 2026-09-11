@@ -1,3 +1,13 @@
+---
+type: report
+status: archived
+last_updated: 2026-04-01
+tags:
+  - archived
+  - code-review
+wiki_links: []
+---
+
 你好！身為專注於財經系統分析與生命週期投資法（Lifecycle Investing）的實踐者，我非常樂意為你的 `Strategy.json` 與 `strategyEngine.mjs` 進行深度檢視。
 
 雖然目前的系統讀取工具無法直接列出您所有的程式碼細節，但從上一份「第二批上線計畫 — 完整執行進度總覽」的架構軌跡（包含 `grossLeverage` 監控、`valuationGuard` 估值防護、優先序路由 1→7、MA60 斜率輔助與 ATR/HHV 等指標），我能清楚掌握這套「槓桿質押策略」的核心運作邏輯。

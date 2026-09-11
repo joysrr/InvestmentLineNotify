@@ -1,3 +1,13 @@
+---
+type: report
+status: archived
+last_updated: 2026-04-01
+tags:
+  - archived
+  - code-review
+wiki_links: []
+---
+
 ## 📋 Code Review 規劃
 
 掃描完整 `strategy/` 目錄結構後，依照**風險高低 × 職責核心度**規劃以下順序：

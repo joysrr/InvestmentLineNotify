@@ -1,3 +1,14 @@
+---
+type: plan
+status: backlog
+last_updated: 2026-09-11
+tags:
+  - ideas
+  - features
+  - backlog
+wiki_links: []
+---
+
 # Draft Features（草稿功能池）
 
 > 此文件存放**尚在調研階段**的功能草稿，待所有待確認清單解決後，才升格移入 `preplan_features.md`。

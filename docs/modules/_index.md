@@ -1,3 +1,13 @@
+---
+type: reference
+status: current
+last_updated: 2026-09-11
+tags:
+  - modules
+  - index
+wiki_links: []
+---
+
 # InvestmentLineNotify 總體架構 / System Architecture
 
 ## 1. 系統定位
