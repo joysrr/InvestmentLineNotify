@@ -326,5 +326,47 @@ const engineState = {
 
 ---
 
-**報告狀態**: ✅ 完成 (Batch 1)  
-**下一步**: 執行 Regime Policy + Providers 驗證
+### Regime Policy 驗證
+
+**驗證對象**: `docs/modules/strategy/regime_policy.md` vs `src/modules/strategy/regimePolicy.mjs`
+
+| 項目                         | 文件描述                                                                                                                     | 代碼實作                                    | 一致性 |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- | ------ |
+| Regime States                | NORMAL/CAUTIOUS/CRISIS (3 種)                                                                                                | ✅ 3 種: `"NORMAL"`/`"CAUTIOUS"`/`"CRISIS"` | ✅     |
+| NORMAL 門檻                  | VIX < 28                                                                                                                     | ✅ `vixValue < vixOverrideTrigger (28)`     | ✅     |
+| CAUTIOUS 門檻                | 28 ≤ VIX < 35 或 Sentiment == BEAR                                                                                           | ✅ `vixValue >= 28 OR sentiment == "BEAR"`  | ✅     |
+| CRISIS 門檻                  | VIX ≥ 35                                                                                                                     | ✅ `vixValue >= 35`                         | ✅     |
+| NORMAL multiplier            | 1.0x                                                                                                                         | ✅ 0.75x → 1.0x                             | ✅     |
+| CAUTIOUS multiplier          | 0.75x (maxLeverage -25%)                                                                                                     | ✅ 0.75x                                    | ✅     |
+| CRISIS multiplier            | 0x (Sell-only)                                                                                                               | ✅ 0                                        | ✅     |
+| vixOverrideTrigger           | 28                                                                                                                           | ✅ 28                                       | ✅     |
+| vixAbsoluteOverride          | 35                                                                                                                           | ✅ 35                                       | ✅     |
+| cautiousLeverageReductionPct | 25%                                                                                                                          | ✅ 25                                       | ✅     |
+| 函數                         | determineRegime, applyRegimeLeverage, allowsTacticalEntry, requiresForcedReduction, formatRegimeStatus, validateRegimeConfig | ✅ 全部 6 個存在                            | ✅     |
+
+**結論**: ✅ 文件與代碼完全一致
+
+---
+
+### Providers 驗證
+
+**驗證對象**: `docs/modules/strategy/providers.md` vs `src/interfaces/INewsProvider.mjs` + `src/modules/newsFetcher.mjs`
+
+| 項目                 | 文件描述                  | 代碼實作                              | 一致性    |
+| -------------------- | ------------------------- | ------------------------------------- | --------- |
+| Provider 概念        | 資料來源抽象              | ✅ `INewsProvider.mjs` 介面           | ✅        |
+| News Provider        | `INewsProvider` 介面      | ✅ `src/interfaces/INewsProvider.mjs` | ✅        |
+| Market Data Provider | marketData providers 抽象 | ⚠️ 未找到對應代碼                     | ⚠️ 待驗證 |
+| newsFetcher 整合     | 使用 Provider 抓取        | ✅ `newsFetcher.mjs` 使用 provider    | ✅        |
+
+**補充發現**: `IML` (InvestmentLineNotify) 專案中，資料提供者抽象主要在：
+
+- `src/interfaces/INewsProvider.mjs` - 新聞提供者介面
+- `src/modules/news/newsConflictGrouper.mjs` - 衝突分群 (Jaccard 相似度)
+
+**結論**: ⚠️ **文件描述過於抽象，部分未直接對應代碼路徑**
+
+---
+
+**報告狀態**: ✅ 完成 (Batch 1 + Regime Policy + Providers)  
+**下一步**: 繼續 Batch 2 - AI News 模組驗證
