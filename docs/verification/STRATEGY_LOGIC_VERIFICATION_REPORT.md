@@ -60,18 +60,20 @@ wiki_links:
 
 ## ⚠️ 發現的次要差異
 
-### 差異 1：`strategyDefaults.mjs` fallback 值偏高
+### 差異 1：`strategyDefaults.mjs` 常數用途說明不清（已補充 JSDoc）
 
-**問題**：`strategyDefaults.mjs` 中的 fallback 常數與文件描述的預設值不一致：
+**背景釐清**：`strategyDefaults.mjs` 中的常數並非 fallback 預設值，而是**驗證用硬上限**，供 `validateStrategyConfig.mjs` 確保 Strategy.json 不超過安全邊界：
 
-| 參數                        | 文件描述 | `Strategy.json`（主要來源） | `strategyDefaults.mjs`（fallback） |
-| --------------------------- | -------- | --------------------------- | ---------------------------------- |
-| `maxDailyLoanIncreasePct`   | 5%       | **5%** ✅                   | 15% ⚠️                             |
-| `maxRollingLoanIncreasePct` | 15%      | **15%** ✅                  | 20% ⚠️                             |
+| 常數                                      | 用途                   | 值          |
+| ----------------------------------------- | ---------------------- | ----------- |
+| `MAX_DAILY_LOAN_INCREASE_PCT`             | 硬上限（validator 用） | 15%         |
+| `MAX_ROLLING_LOAN_INCREASE_PCT`           | 硬上限（validator 用） | 20%         |
+| `Strategy.json maxDailyLoanIncreasePct`   | 實際操作值             | 5%（保守）  |
+| `Strategy.json maxRollingLoanIncreasePct` | 實際操作值             | 15%（保守） |
 
-**影響**：低。代碼中 `Strategy.json` 優先於 `strategyDefaults.mjs`，只有在 `strategy.trading.budget` 完全缺失時才會使用 fallback。實際運行以 `Strategy.json` 為準，數值正確。
+設計意圖：硬上限（15%/20%）是「絕對不可超過的安全邊界」，Strategy.json 的實際值（5%/15%）是「日常保守操作值」，兩者角色不同，不應對齊。
 
-**建議**：將 `strategyDefaults.mjs` 的 fallback 值對齊 `Strategy.json`，避免在配置缺失時產生意外行為。
+**修正**：原 JSDoc 說明誤導為 fallback 值，已更新為「驗證用硬上限」，並補充實際操作值說明。
 
 ---
 

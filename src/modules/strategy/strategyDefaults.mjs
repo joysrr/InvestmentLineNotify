@@ -84,19 +84,19 @@ export const GROSS_LEVERAGE_RECOVERY_TARGET = 2.0;
 
 /**
  * 單日借款增幅上限（%）
- * 每日借款增加不得超過淨值的此比例
- * 硬限制：≤ 15%（提案 ILN_PROPOSAL_20260506_001 T-0.3）
+ * 驗證用硬上限：Strategy.json 中的 maxDailyLoanIncreasePct 不得超過此值
+ * 實際操作值定義於 Strategy.json（預設 5%，遠低於此硬上限）
  * @type {number}
  */
-export const MAX_DAILY_LOAN_INCREASE_PCT = 0.15; // 15%
+export const MAX_DAILY_LOAN_INCREASE_PCT = 0.15; // 15%（硬上限）
 
 /**
  * 10 天滾動借款增幅上限（%）
- * 10 天內借款累計增加不得超過淨值的此比例
- * 硬限制：≤ 20%（提案 ILN_PROPOSAL_20260506_001 T-0.3）
+ * 驗證用硬上限：Strategy.json 中的 maxRollingLoanIncreasePct 不得超過此值
+ * 實際操作值定義於 Strategy.json（預設 15%，遠低於此硬上限）
  * @type {number}
  */
-export const MAX_ROLLING_LOAN_INCREASE_PCT = 0.2; // 20%
+export const MAX_ROLLING_LOAN_INCREASE_PCT = 0.2; // 20%（硬上限）
 
 /**
  * 滾動預算計算天數
