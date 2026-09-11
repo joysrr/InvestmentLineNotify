@@ -1,3 +1,16 @@
+---
+type: tutorial
+status: current
+last_updated: 2026-09-11
+related_code:
+  - tests/
+tags:
+  - testing
+  - vitest
+  - unit-test
+wiki_links: []
+---
+
 # InvestmentLineNotify 測試指南
 
 > **版本**：v1.0  

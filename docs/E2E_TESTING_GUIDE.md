@@ -1,3 +1,16 @@
+---
+type: tutorial
+status: current
+last_updated: 2026-09-11
+related_code:
+  - tests/e2e/
+tags:
+  - e2e
+  - testing
+  - playwright
+wiki_links: []
+---
+
 # E2E 測試指南 - Playwright
 
 > **版本**：v1.0  

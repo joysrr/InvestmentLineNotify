@@ -1,3 +1,14 @@
+---
+type: reference
+status: current
+last_updated: 2026-09-11
+tags:
+  - testing
+  - troubleshooting
+  - debugging
+wiki_links: []
+---
+
 # 測試疑難排解指南
 
 > **版本**：v1.0  

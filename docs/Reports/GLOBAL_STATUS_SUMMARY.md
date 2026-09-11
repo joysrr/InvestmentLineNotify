@@ -1,3 +1,13 @@
+---
+type: report
+status: current
+last_updated: 2026-09-10
+tags:
+  - status
+  - summary
+wiki_links: []
+---
+
 # 🌐 全局狀態摘要 (Global Status Summary)
 
 **最後更新**：（尚未執行首次摘要產出）

@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # 部署準備檢查清單
 
 **合併提交**: `57e3b3b` (main)

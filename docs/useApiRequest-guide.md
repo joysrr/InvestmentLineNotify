@@ -1,3 +1,16 @@
+---
+type: tutorial
+status: current
+last_updated: 2026-09-11
+related_code:
+  - src/composables/useApiRequest.mjs
+tags:
+  - composable
+  - api
+  - vue
+wiki_links: []
+---
+
 # useApiRequest 使用指南
 
 `useApiRequest` 統一管理 API 請求的 loading、error、data 與重試行為。

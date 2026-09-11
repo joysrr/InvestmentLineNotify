@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # Mini App 用戶體驗與版面優化計畫 (MINI_APP_OPTIMIZATION_PLAN.md)
 
 > **狀態**：Completed

@@ -1,3 +1,14 @@
+---
+type: plan
+status: superseded
+last_updated: 2026-09-10
+superseded_by: DOCUMENTATION_FULL_MODERNIZATION_PLAN.md
+tags:
+  - documentation
+  - modernization
+wiki_links: []
+---
+
 # 文件系統現代化計畫
 
 **建立日期**: 2026-09-10  

@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # Dashboard + News Tab 功能盤點與設計分析 (v2)
 
 > **狀態**：Phase 0 — 精確功能盤點 (Content Inventory)

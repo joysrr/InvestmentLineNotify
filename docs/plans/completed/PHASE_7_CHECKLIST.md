@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # Phase 7 執行清單：品質收尾與上線準備
 
 這份清單定義了 Phase 7 的所有具體工作項目。請逐一透過指令要求 AI 完成各個階段，AI 將在每個階段內部自動執行並提交，不需要中斷確認。

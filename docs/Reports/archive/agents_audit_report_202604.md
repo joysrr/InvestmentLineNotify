@@ -1,3 +1,13 @@
+---
+type: report
+status: archived
+last_updated: 2026-04-01
+tags:
+  - archived
+  - audit
+wiki_links: []
+---
+
 # 📋 InvestmentLineNotify AI Agents 系統評鑑報告
 
 > 產出日期: 2026/04/21
@@ -370,21 +380,21 @@ backend.md 範例：
 
 ### Token 估算總表
 
-| Rule               | 估算 Token   | 評分 | 主要問題             | AlwaysOn |
-| ------------------ | ------------ | ---- | -------------------- | -------- |
-| `system-prompt.md` | ~350~420     | 5/5  | 無 ✅                | ✅       |
-| `architect.md`     | ~900~1,050   | 5/5  | 臨界但無模板 ✅      | ❌       |
-| `backend.md`       | ~950~1,100   | 5/5  | 臨界但無模板 ✅      | ❌       |
-| `assistant.md`     | ~1,500~1,750 | 4/5  | 巡邏機制冗長         | ❌       |
-| `consultant.md`    | ~950~1,100   | 3/5  | 單模板嵌入           | ❌       |
-| `retro.md`         | ~900~1,100   | 3/5  | 單模板嵌入（臨界）   | ❌       |
-| `reviewer.md`      | ~850~1,050   | 3/5  | 單模板嵌入（臨界）   | ❌       |
-| `lead.md`          | ~1,800~2,100 | 3/5  | 架構性過重           | ❌       |
-| `frontend.md`      | ~1,050~1,250 | 3/5  | DoD 過多 + 模板嵌入  | ❌       |
-| `planner.md`       | ~1,000~1,200 | 3/5  | 雙模板嵌入           | ❌       |
-| `qa.md`            | ~1,100~1,350 | 2/5  | 雙模板 + 交叉污染 🔴 | ❌       |
+| Rule               | 估算 Token     | 評分 | 主要問題             | AlwaysOn |
+| ------------------ | -------------- | ---- | -------------------- | -------- |
+| `system-prompt.md` | ~~350~~420     | 5/5  | 無 ✅                | ✅       |
+| `architect.md`     | ~~900~~1,050   | 5/5  | 臨界但無模板 ✅      | ❌       |
+| `backend.md`       | ~~950~~1,100   | 5/5  | 臨界但無模板 ✅      | ❌       |
+| `assistant.md`     | ~~1,500~~1,750 | 4/5  | 巡邏機制冗長         | ❌       |
+| `consultant.md`    | ~~950~~1,100   | 3/5  | 單模板嵌入           | ❌       |
+| `retro.md`         | ~~900~~1,100   | 3/5  | 單模板嵌入（臨界）   | ❌       |
+| `reviewer.md`      | ~~850~~1,050   | 3/5  | 單模板嵌入（臨界）   | ❌       |
+| `lead.md`          | ~~1,800~~2,100 | 3/5  | 架構性過重           | ❌       |
+| `frontend.md`      | ~~1,050~~1,250 | 3/5  | DoD 過多 + 模板嵌入  | ❌       |
+| `planner.md`       | ~~1,000~~1,200 | 3/5  | 雙模板嵌入           | ❌       |
+| `qa.md`            | ~~1,100~~1,350 | 2/5  | 雙模板 + 交叉污染 🔴 | ❌       |
 
-**系統按需載入 Rules 估算總 Token**：~11,300~13,900 tokens（10 份，不含 AlwaysOn）
+**系統按需載入 Rules 估算總 Token**：~~11,300~~13,900 tokens（10 份，不含 AlwaysOn）
 
 ---
 
@@ -426,7 +436,7 @@ backend.md 範例：
 
 - 資源映射表中「技術手冊類」條目（技術細節）可移至 `.agents/skills/` 參照
 - Workflow Engine 流程圖的文字說明可精簡（保留結構，壓縮說明文字）
-- 估計可節省 ~300~400 tokens，從 ~1,950 降至 ~1,550~1,650
+- 估計可節省 ~~300~~400 tokens，從 ~1,950 降至 ~~1,550~~1,650
 
 #### 類型三：DoD 過多型（需條目審查）
 
@@ -436,7 +446,7 @@ backend.md 範例：
 
 - 合併同語意條目（例如「響應式狀態」相關的 3 條可合併為 1 條）
 - 將「Telegram Mini App 合規」類條目移至 `.agents/skills/telegram-miniapp-pattern.md` 並在 DoD 中以單條參照取代
-- 估計可節省 ~100~150 tokens
+- 估計可節省 ~~100~~150 tokens
 
 ---
 
@@ -815,8 +825,8 @@ Step 4：DoD 精簡（12 條 → 8 條以內，合併同語意條目）
 Step 5：模板外部化（與高風險項目一統一處理）
 ```
 
-**預計修復時間**：45~60 分鐘  
-**預期評分提升**：18/25 → 22~23/25
+**預計修復時間**：45~~60 分鐘  
+**預期評分提升**：18/25 → 22~~23/25
 
 ---
 
@@ -1801,15 +1811,16 @@ QW-06 → QW-09
 
 ```markdown
 // lead.md 資源映射表補充
-| 模板類型 | 路徑 |
-|---------|------|
-| User Story | .agents/skills/user-story-template.md |
-| Draft Features | .agents/skills/draft-features-template.md |
-| TEST_SPEC | .agents/skills/test-spec-template.md |
-| TEST_REPORT | .agents/skills/test-report-template.md |
-| REVIEW_REPORT | .agents/skills/review-report-template.md |
+
+| 模板類型             | 路徑                                            |
+| -------------------- | ----------------------------------------------- |
+| User Story           | .agents/skills/user-story-template.md           |
+| Draft Features       | .agents/skills/draft-features-template.md       |
+| TEST_SPEC            | .agents/skills/test-spec-template.md            |
+| TEST_REPORT          | .agents/skills/test-report-template.md          |
+| REVIEW_REPORT        | .agents/skills/review-report-template.md        |
 | RULE_UPDATE_PROPOSAL | .agents/skills/rule-update-proposal-template.md |
-| ADVICE | .agents/skills/advice-template.md |
+| ADVICE               | .agents/skills/advice-template.md               |
 ```
 
 **Step 4：建立 `.agents/RULES_DESIGN_GUIDE.md` 防止重犯（15 分鐘）**
@@ -1838,7 +1849,7 @@ QW-06 → QW-09
 
 ### MT-02：`frontend.md` 全面重構
 
-**時間**：45~60 分鐘　**效益**：18/25 → 22~23/25，修復唯一低於 20 分的 Rules
+**時間**：45~~60 分鐘　**效益**：18/25 → 22~~23/25，修復唯一低於 20 分的 Rules
 
 #### 重構範疇
 
@@ -2269,11 +2280,12 @@ changelog:
 
 ```markdown
 // .agents/RULES_CHANGELOG.md（統一版本記錄）
-| Rules | 版本 | 更新日期 | 變更摘要 |
-|-------|------|---------|---------|
-| system-prompt.md | 1.1.0 | 2026-04-21 | QW-01~03 |
-| frontend.md | 2.0.0 | 2026-04-21 | MT-02 全面重構 |
-| ... | | | |
+
+| Rules            | 版本  | 更新日期   | 變更摘要       |
+| ---------------- | ----- | ---------- | -------------- |
+| system-prompt.md | 1.1.0 | 2026-04-21 | QW-01~03       |
+| frontend.md      | 2.0.0 | 2026-04-21 | MT-02 全面重構 |
+| ...              |       |            |                |
 ```
 
 **效益說明**：`retro.md` 在執行 Retro 時可對比 Rules 版本記錄，判斷某個反覆問題是否在 Rules 更新後消失，提升根因分析的精準度。
@@ -2438,8 +2450,9 @@ SUGGEST → 不阻斷，記錄於報告供參考
 
 ```markdown
 // PENDING_ACTIONS.md
-| 項目 | 等待事項 | 觸發時間 | 狀態 |
-|-----|---------|---------|------|
+
+| 項目       | 等待事項         | 觸發時間   | 狀態    |
+| ---------- | ---------------- | ---------- | ------- |
 | REVIEW-007 | BLOCKER 修復確認 | 2026-04-21 | PENDING |
 ```
 

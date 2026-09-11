@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # 核心邏輯與分數系統驗證計畫
 
 > **狀態**：Active — 依階段執行，尚未開始修改產品邏輯

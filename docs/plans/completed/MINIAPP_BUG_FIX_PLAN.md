@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # Mini App 問題修復與體驗優化計畫 (v4.0 Final Spec)
 
 > **版本**: v4.0 (經 Grill-Me 嚴格架構審查與主流規範確認)  

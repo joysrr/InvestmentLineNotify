@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # Phase 3: Score API 遷移 (13 處)
 
 > **前置**: Phase 2 完成（aiClient.mjs 已使用 v5 API）

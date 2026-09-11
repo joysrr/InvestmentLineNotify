@@ -1,3 +1,13 @@
+---
+type: report
+status: archived
+last_updated: 2026-09-10
+tags:
+  - audit
+  - history
+wiki_links: []
+---
+
 # AI Agent 品質審計歷史紀錄
 
 > 由 PROPOSAL_20260422_008 建立。`@Auditor` 每次執行評審後 append 一行。

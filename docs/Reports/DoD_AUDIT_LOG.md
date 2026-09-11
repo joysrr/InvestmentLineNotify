@@ -1,3 +1,13 @@
+---
+type: report
+status: current
+last_updated: 2026-09-10
+tags:
+  - audit
+  - definition-of-done
+wiki_links: []
+---
+
 # DoD Audit Log
 
 > 由 PROPOSAL_20260422_012 建立。每次 Workflow 階段轉移時由 @Lead append 一行。

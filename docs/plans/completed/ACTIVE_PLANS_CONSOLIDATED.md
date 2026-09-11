@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # Active Plans Consolidated
 
 > **狀態**：Active — 唯一現行計畫索引

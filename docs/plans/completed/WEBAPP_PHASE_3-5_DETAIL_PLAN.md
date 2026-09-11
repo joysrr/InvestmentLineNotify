@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # WebApp Phase 3-5 細節確認與執行計畫 (v1.0)
 
 > **版本**: v1.0

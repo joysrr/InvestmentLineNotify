@@ -1,3 +1,15 @@
+---
+type: explanation
+status: archived
+last_updated: 2026-09-11
+completed_date: 2026-09-01
+tags:
+  - scheduler
+  - cron
+  - coupling
+wiki_links: []
+---
+
 # 排程程式耦合點分析報告
 
 **分析日期**：2026-08-07

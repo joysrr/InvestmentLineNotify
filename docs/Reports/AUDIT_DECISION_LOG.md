@@ -1,3 +1,13 @@
+---
+type: report
+status: archived
+last_updated: 2026-09-10
+tags:
+  - audit
+  - decisions
+wiki_links: []
+---
+
 # @Auditor 派遣決策日誌
 
 > 由 PROPOSAL_20260422_027 建立。`@Auditor` 每次派遣子 Agent 後 append 一行。

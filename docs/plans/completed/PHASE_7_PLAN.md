@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # Phase 7 計畫：品質收尾與上線準備 (Quality Finalization & Pre-Launch)
 
 ## 目標

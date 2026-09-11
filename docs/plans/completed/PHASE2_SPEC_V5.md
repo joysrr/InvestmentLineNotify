@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # Phase 2 規格說明 — aiClient.mjs v3 → v5 遷移
 
 **目的**：以最小變更將 752 行核心邏輯從 Langfuse v3 遷移到 v5，並保證**零功能損失**（Circuit Breaker、retry、key rotation、provider 切換、score 遞送全部保留）

@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # 市場雷達、多空對決與技術指標導覽整合計畫 (NAVIGATE_MACRO_BATTLE_PLAN.md)
 
 > **狀態**：Completed — 已完成切換列開發、單元測試、E2E 測試與部署驗證

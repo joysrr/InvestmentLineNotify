@@ -1,3 +1,15 @@
+---
+type: plan
+status: in-progress
+last_updated: 2026-09-10
+progress: 70%
+tags:
+  - documentation
+  - modernization
+  - sprint
+wiki_links: []
+---
+
 # 文件系統全面改造計畫
 
 **日期**: 2026-09-10  

@@ -1,3 +1,13 @@
+---
+type: report
+status: archived
+last_updated: 2026-09-10
+tags:
+  - testing
+  - mapping
+wiki_links: []
+---
+
 # 測試映射表 (Test Mapping Registry)
 
 本文檔定義了本專案原始碼模組與其對應測試程式的映射關係，用於指導 `@QA` 與自動化腳本在修改程式後應執行的驗證範疇。

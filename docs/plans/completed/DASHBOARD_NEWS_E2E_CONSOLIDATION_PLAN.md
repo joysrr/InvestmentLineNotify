@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # Dashboard 整合重構、News Tab 修復與 E2E 發現總結計畫
 
 > **狀態**：Active — 目前現行計畫

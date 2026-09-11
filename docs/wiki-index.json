@@ -4,11 +4,11 @@
   "scanned_dirs": ["all"],
   "stats": {
     "total_concepts": 137,
-    "total_edges": 149,
-    "total_code_mappings": 36,
-    "concepts_with_code": 33,
-    "concepts_with_links": 38,
-    "generated_at": "2026-09-11T00:21:51.594Z"
+    "total_edges": 150,
+    "total_code_mappings": 39,
+    "concepts_with_code": 36,
+    "concepts_with_links": 39,
+    "generated_at": "2026-09-11T00:25:54.446Z"
   },
   "concepts": {
     "api-contract": {
@@ -27,8 +27,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": ["src/bot.mjs"],
-      "tags": ["deployment", "checklist"],
-      "status": "needs-review",
+      "tags": ["deployment", "checklist", "completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "e2e-testing-guide": {
@@ -36,9 +36,9 @@
       "title": "E2E 測試指南 - Playwright",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["tests/e2e/"],
+      "tags": ["e2e", "testing", "playwright"],
+      "status": "current",
       "last_verified": null
     },
     "audit-decision-log": {
@@ -47,8 +47,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["audit", "decisions"],
+      "status": "archived",
       "last_verified": null
     },
     "audit-history": {
@@ -57,8 +57,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["audit", "history"],
+      "status": "archived",
       "last_verified": null
     },
     "dod-audit-log": {
@@ -67,8 +67,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["audit", "definition-of-done"],
+      "status": "current",
       "last_verified": null
     },
     "global-status-summary": {
@@ -77,9 +77,31 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["status", "summary"],
+      "status": "current",
       "last_verified": null
+    },
+    "readme": {
+      "primary_doc": "Reports/README.md",
+      "title": "報告中心 (Reports Center)",
+      "summary": "包含審計報告、測試報告、安全報告和狀態摘要",
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "reports",
+        "audits",
+        "testing",
+        "status",
+        "architecture",
+        "decisions",
+        "adr",
+        "dec",
+        "design",
+        "architecture",
+        "decisions"
+      ],
+      "status": "current",
+      "last_verified": "2026-09-10"
     },
     "review-report": {
       "primary_doc": "Reports/REVIEW_REPORT.md",
@@ -87,8 +109,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["review", "code-quality"],
+      "status": "archived",
       "last_verified": null
     },
     "test-mapping": {
@@ -97,8 +119,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["testing", "mapping"],
+      "status": "archived",
       "last_verified": null
     },
     "test-report": {
@@ -107,8 +129,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["testing", "results"],
+      "status": "archived",
       "last_verified": null
     },
     "agents-overview": {
@@ -117,8 +139,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["agents", "overview"],
+      "status": "archived",
       "last_verified": null
     },
     "agents-audit-report-202604": {
@@ -127,8 +149,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["archived", "audit"],
+      "status": "archived",
       "last_verified": null
     },
     "code-review-20260428": {
@@ -182,13 +204,13 @@
       "last_verified": null
     },
     "security-report": {
-      "primary_doc": "Reports/security_report.md",
+      "primary_doc": "Reports/current/security-report.md",
       "title": "Security Policy",
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["security", "audit", "vulnerabilities"],
+      "status": "current",
       "last_verified": null
     },
     "scheduler-coupling-analysis": {
@@ -197,8 +219,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["scheduler", "cron", "coupling"],
+      "status": "archived",
       "last_verified": null
     },
     "system-e2e-build-process": {
@@ -216,9 +238,9 @@
       "title": "InvestmentLineNotify 測試指南",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["tests/"],
+      "tags": ["testing", "vitest", "unit-test"],
+      "status": "current",
       "last_verified": null
     },
     "test-spec-strategyengine": {
@@ -237,8 +259,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["testing", "troubleshooting", "debugging"],
+      "status": "current",
       "last_verified": null
     },
     "decision-chain-api": {
@@ -280,24 +302,6 @@
       "tags": ["deployment", "automation", "docker"],
       "status": "archived",
       "last_verified": null
-    },
-    "readme": {
-      "primary_doc": "architecture/README.md",
-      "title": "架構決策記錄索引 (ADR/DEC)",
-      "summary": "所有架構決策記錄的索引與分類",
-      "related_docs": [],
-      "related_code": [],
-      "tags": [
-        "architecture",
-        "decisions",
-        "adr",
-        "dec",
-        "design",
-        "architecture",
-        "decisions"
-      ],
-      "status": "current",
-      "last_verified": "2026-09-10"
     },
     "backtest-engine-design": {
       "primary_doc": "architecture/backtest_engine_design.md",
@@ -810,8 +814,8 @@
       "summary": "一句話說明職責",
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["documentation", "modernization", "sprint"],
+      "status": "in-progress",
       "last_verified": null
     },
     "documentation-modernization-plan": {
@@ -820,8 +824,8 @@
       "summary": "使用 Langfuse v5 REST API Client 管理和取得 AI prompts",
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["documentation", "modernization"],
+      "status": "superseded",
       "last_verified": null
     },
     "wiki-index-prototype-report": {
@@ -830,8 +834,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["wiki", "prototype", "report"],
+      "status": "completed",
       "last_verified": null
     },
     "advice": {
@@ -940,8 +944,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "tech-debt-plan": {
@@ -960,8 +964,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "unified-plan": {
@@ -1150,8 +1154,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "code-review-optimization-plan": {
@@ -1160,8 +1164,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "core-logic-validation-plan": {
@@ -1170,8 +1174,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "dashboard-integration-and-config-fix-plan": {
@@ -1180,8 +1184,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "dashboard-news-design-analysis": {
@@ -1190,8 +1194,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "dashboard-news-e2e-consolidation-plan": {
@@ -1200,8 +1204,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "dashboard-uiux-optimization-plan": {
@@ -1210,8 +1214,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "e2e-testing-plan": {
@@ -1220,8 +1224,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "e2e-testing-plan-v2.0-20260815": {
@@ -1230,8 +1234,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "e2e-test-fix-plan": {
@@ -1240,8 +1244,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "hardcoded-audit": {
@@ -1250,8 +1254,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "langfuse-v5-migration-plan": {
@@ -1260,8 +1264,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "miniapp-bug-fix-plan": {
@@ -1270,8 +1274,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "miniapp-uiux-improvement-plan": {
@@ -1280,8 +1284,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "mini-app-optimization-plan": {
@@ -1290,8 +1294,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "missing-views-and-cleanup-plan": {
@@ -1300,8 +1304,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "navigate-macro-battle-plan": {
@@ -1310,8 +1314,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "phase2-spec-v5": {
@@ -1320,8 +1324,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "phase3-score-migration-spec": {
@@ -1330,8 +1334,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "phase-1-2-verification": {
@@ -1340,8 +1344,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "phase-1-4-e2e-completion-summary-20260815": {
@@ -1350,8 +1354,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "phase-1-4-audit-report": {
@@ -1360,8 +1364,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "phase-5-remaining-work": {
@@ -1370,8 +1374,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "phase-5-summary": {
@@ -1380,8 +1384,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "phase-6-plan": {
@@ -1390,8 +1394,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "phase-6-summary": {
@@ -1400,8 +1404,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "phase-7-checklist": {
@@ -1410,8 +1414,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "phase-7-plan": {
@@ -1420,8 +1424,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "webapp-improvement-plan": {
@@ -1430,8 +1434,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "webapp-phase-3-5-detail-plan": {
@@ -1440,8 +1444,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "webapp-phase-6-detail-plan": {
@@ -1450,8 +1454,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "webapp-systematic-optimization-plan": {
@@ -1460,8 +1464,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "webapp-systematic-optimization-plan-v2.0": {
@@ -1470,8 +1474,8 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "tags": ["completed", "archived"],
+      "status": "completed",
       "last_verified": null
     },
     "useapirequest-guide": {
@@ -1479,9 +1483,9 @@
       "title": "useApiRequest 使用指南",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
-      "tags": [],
-      "status": "unknown",
+      "related_code": ["src/composables/useApiRequest.mjs"],
+      "tags": ["composable", "api", "vue"],
+      "status": "current",
       "last_verified": null
     },
     "core-logic-data-flow-matrix": {
@@ -1546,6 +1550,18 @@
       {
         "concept": "bot",
         "doc": "modules/presentation/bot.md"
+      }
+    ],
+    "tests/e2e/": [
+      {
+        "concept": "e2e-testing-guide",
+        "doc": "E2E_TESTING_GUIDE.md"
+      }
+    ],
+    "tests/": [
+      {
+        "concept": "testing",
+        "doc": "TESTING.md"
       }
     ],
     "src/modules/strategy/": [
@@ -1906,6 +1922,12 @@
       {
         "concept": "regime-policy",
         "doc": "modules/strategy/regime_policy.md"
+      }
+    ],
+    "src/composables/useApiRequest.mjs": [
+      {
+        "concept": "useapirequest-guide",
+        "doc": "useApiRequest-guide.md"
       }
     ]
   }

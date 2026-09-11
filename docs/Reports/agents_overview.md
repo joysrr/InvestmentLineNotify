@@ -1,3 +1,13 @@
+---
+type: report
+status: archived
+last_updated: 2026-09-10
+tags:
+  - agents
+  - overview
+wiki_links: []
+---
+
 # 📋 InvestmentLineNotify AI Agents 系統總覽圖表
 
 > **對齊基準**：`.agents/` v1.x（PROPOSAL-021 執行後）

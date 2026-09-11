@@ -1,3 +1,15 @@
+---
+type: report
+status: current
+last_updated: 2026-09-10
+tags:
+  - security
+  - audit
+  - vulnerabilities
+wiki_links:
+  - [[Operations]]
+---
+
 # Security Policy
 
 ## 專案性質聲明

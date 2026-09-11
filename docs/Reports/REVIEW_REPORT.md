@@ -1,3 +1,13 @@
+---
+type: report
+status: archived
+last_updated: 2026-09-10
+tags:
+  - review
+  - code-quality
+wiki_links: []
+---
+
 # REVIEW_REPORT
 
 > ⚠️ **時間點快照**（依 PROPOSAL_20260422_021 T-2）：

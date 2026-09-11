@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # WebApp 系統性優化計畫 (v2.0 Final Spec)
 
 > **版本**: v2.0 (經 Grill-Me 審查確認，鎖定執行規格)

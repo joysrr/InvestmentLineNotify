@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # Langfuse v3 → v5 Migration Plan (分階段執行)
 
 > **建立日期**: 2026-09-08  

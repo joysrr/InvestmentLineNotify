@@ -1,44 +1,44 @@
 {
-  "generated_at": "2026-09-11T00:18:01.161Z",
+  "generated_at": "2026-09-11T00:25:56.831Z",
   "summary": {
-    "total_files": 136,
-    "average_health": 27.1,
+    "total_files": 137,
+    "average_health": 43.7,
     "by_health": {
-      "excellent": 15,
-      "good": 12,
-      "fair": 1,
-      "poor": 108
+      "excellent": 16,
+      "good": 21,
+      "fair": 55,
+      "poor": 45
     },
     "by_category": {
       "other": {
         "count": 11,
-        "avgHealth": 27,
-        "totalHealth": 300
+        "avgHealth": 44,
+        "totalHealth": 480
       },
       "guide": {
         "count": 3,
-        "avgHealth": 32,
-        "totalHealth": 95
+        "avgHealth": 58,
+        "totalHealth": 175
       },
       "report": {
-        "count": 15,
-        "avgHealth": 11,
-        "totalHealth": 165
+        "count": 16,
+        "avgHealth": 35,
+        "totalHealth": 555
       },
       "reference": {
         "count": 35,
-        "avgHealth": 60,
-        "totalHealth": 2105
+        "avgHealth": 70,
+        "totalHealth": 2465
       },
       "explanation": {
         "count": 6,
-        "avgHealth": 14,
-        "totalHealth": 85
+        "avgHealth": 43,
+        "totalHealth": 260
       },
       "plan": {
         "count": 66,
-        "avgHealth": 14,
-        "totalHealth": 940
+        "avgHealth": 31,
+        "totalHealth": 2050
       }
     }
   },
@@ -47,47 +47,20 @@
       "concept": "wiki-index-prototype-report",
       "file": "plans/active/WIKI_INDEX_PROTOTYPE_REPORT.md",
       "category": "plan",
-      "health": 15,
+      "health": 45,
       "impact": 23,
-      "priority": 195,
+      "priority": 126,
       "issues": [
-        "缺少 frontmatter",
         "狀態未知",
         "從未驗證",
         "缺少代碼連結",
         "缺少文件連結",
-        "缺少標籤",
         "缺少摘要"
       ],
       "suggestions": [
-        "添加 YAML frontmatter",
         "添加 last_verified 日期",
         "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "documentation-full-modernization-plan",
-      "file": "plans/active/DOCUMENTATION_FULL_MODERNIZATION_PLAN.md",
-      "category": "plan",
-      "health": 20,
-      "impact": 15,
-      "priority": 120,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
+        "添加 related_docs"
       ]
     },
     {
@@ -191,81 +164,6 @@
       ]
     },
     {
-      "concept": "maintenance-state-machine",
-      "file": "modules/strategy/maintenance_state_machine.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 10,
-      "priority": 90,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "providers",
-      "file": "modules/strategy/providers.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 10,
-      "priority": 90,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "regime-policy",
-      "file": "modules/strategy/regime_policy.md",
-      "category": "reference",
-      "health": 10,
-      "impact": 10,
-      "priority": 90,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "127 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
       "concept": "decision-chain-api",
       "file": "api/decision-chain_api.md",
       "category": "reference",
@@ -314,172 +212,17 @@
       ]
     },
     {
-      "concept": "lifecycle-engine",
-      "file": "modules/strategy/lifecycle_engine.md",
-      "category": "reference",
-      "health": 15,
-      "impact": 10,
-      "priority": 85,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要"
-      ],
+      "concept": "documentation-full-modernization-plan",
+      "file": "plans/active/DOCUMENTATION_FULL_MODERNIZATION_PLAN.md",
+      "category": "plan",
+      "health": 50,
+      "impact": 15,
+      "priority": 75,
+      "issues": ["狀態未知", "從未驗證", "缺少代碼連結", "缺少文件連結"],
       "suggestions": [
-        "添加 YAML frontmatter",
         "添加 last_verified 日期",
         "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "lifecycle-health-test-spec",
-      "file": "modules/strategy/lifecycle_health_test_spec.md",
-      "category": "reference",
-      "health": 15,
-      "impact": 10,
-      "priority": 85,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "backtest-engine-design",
-      "file": "architecture/backtest_engine_design.md",
-      "category": "explanation",
-      "health": 10,
-      "impact": 8,
-      "priority": 72,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要",
-        "116 天未修改"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "dec-004-backtest-scheduler-automation",
-      "file": "architecture/DEC-004-backtest-scheduler-automation.md",
-      "category": "explanation",
-      "health": 15,
-      "impact": 8,
-      "priority": 68,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "dec-005-monitoring-alerting",
-      "file": "architecture/DEC-005-monitoring-alerting.md",
-      "category": "explanation",
-      "health": 15,
-      "impact": 8,
-      "priority": 68,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "dec-006-deployment-automation",
-      "file": "architecture/DEC-006-deployment-automation.md",
-      "category": "explanation",
-      "health": 15,
-      "impact": 8,
-      "priority": 68,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
-      ]
-    },
-    {
-      "concept": "dec-016-vitest-worker-crash",
-      "file": "decisions/DEC-016-vitest-worker-crash.md",
-      "category": "explanation",
-      "health": 15,
-      "impact": 8,
-      "priority": 68,
-      "issues": [
-        "缺少 frontmatter",
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少標籤",
-        "缺少摘要"
-      ],
-      "suggestions": [
-        "添加 YAML frontmatter",
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs",
-        "添加 tags"
+        "添加 related_docs"
       ]
     },
     {
@@ -507,12 +250,92 @@
       ]
     },
     {
-      "concept": "e2e-testing-guide",
-      "file": "E2E_TESTING_GUIDE.md",
-      "category": "guide",
-      "health": 15,
-      "impact": 7,
-      "priority": 59,
+      "concept": "dec-004-backtest-scheduler-automation",
+      "file": "architecture/DEC-004-backtest-scheduler-automation.md",
+      "category": "explanation",
+      "health": 45,
+      "impact": 12,
+      "priority": 66,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "dec-005-monitoring-alerting",
+      "file": "architecture/DEC-005-monitoring-alerting.md",
+      "category": "explanation",
+      "health": 45,
+      "impact": 12,
+      "priority": 66,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "dec-006-deployment-automation",
+      "file": "architecture/DEC-006-deployment-automation.md",
+      "category": "explanation",
+      "health": 45,
+      "impact": 12,
+      "priority": 66,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "dec-016-vitest-worker-crash",
+      "file": "decisions/DEC-016-vitest-worker-crash.md",
+      "category": "explanation",
+      "health": 45,
+      "impact": 12,
+      "priority": 66,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "phase1-entry-points",
+      "file": "plans/archive/diagnosis/phase1-entry-points.md",
+      "category": "plan",
+      "health": 10,
+      "impact": 5,
+      "priority": 45,
       "issues": [
         "缺少 frontmatter",
         "狀態未知",
@@ -520,7 +343,158 @@
         "缺少代碼連結",
         "缺少文件連結",
         "缺少標籤",
-        "缺少摘要"
+        "缺少摘要",
+        "127 天未修改"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "phase2-core-logic",
+      "file": "plans/archive/diagnosis/phase2-core-logic.md",
+      "category": "plan",
+      "health": 10,
+      "impact": 5,
+      "priority": 45,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要",
+        "127 天未修改"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "phase3-providers",
+      "file": "plans/archive/diagnosis/phase3-providers.md",
+      "category": "plan",
+      "health": 10,
+      "impact": 5,
+      "priority": 45,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要",
+        "127 天未修改"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "phase4-api",
+      "file": "plans/archive/diagnosis/phase4-api.md",
+      "category": "plan",
+      "health": 10,
+      "impact": 5,
+      "priority": 45,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要",
+        "127 天未修改"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "phase5-news",
+      "file": "plans/archive/diagnosis/phase5-news.md",
+      "category": "plan",
+      "health": 10,
+      "impact": 5,
+      "priority": 45,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要",
+        "127 天未修改"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "phase6-bot",
+      "file": "plans/archive/diagnosis/phase6-bot.md",
+      "category": "plan",
+      "health": 10,
+      "impact": 5,
+      "priority": 45,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要",
+        "127 天未修改"
+      ],
+      "suggestions": [
+        "添加 YAML frontmatter",
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs",
+        "添加 tags"
+      ]
+    },
+    {
+      "concept": "phase7-frontend",
+      "file": "plans/archive/diagnosis/phase7-frontend.md",
+      "category": "plan",
+      "health": 10,
+      "impact": 5,
+      "priority": 45,
+      "issues": [
+        "缺少 frontmatter",
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少標籤",
+        "缺少摘要",
+        "127 天未修改"
       ],
       "suggestions": [
         "添加 YAML frontmatter",
@@ -543,78 +517,85 @@
       "concept": "deployment-checklist",
       "file": "DEPLOYMENT_CHECKLIST.md",
       "category": "guide",
-      "health": 65,
-      "status": "needs-review"
+      "health": 60,
+      "status": "completed"
     },
     {
       "concept": "e2e-testing-guide",
       "file": "E2E_TESTING_GUIDE.md",
       "category": "guide",
-      "health": 15,
-      "status": "unknown"
+      "health": 70,
+      "status": "current"
     },
     {
       "concept": "audit-decision-log",
       "file": "Reports/AUDIT_DECISION_LOG.md",
       "category": "report",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "archived"
     },
     {
       "concept": "audit-history",
       "file": "Reports/AUDIT_HISTORY.md",
       "category": "report",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "archived"
     },
     {
       "concept": "dod-audit-log",
       "file": "Reports/DoD_AUDIT_LOG.md",
       "category": "report",
-      "health": 10,
-      "status": "unknown"
+      "health": 50,
+      "status": "current"
     },
     {
       "concept": "global-status-summary",
       "file": "Reports/GLOBAL_STATUS_SUMMARY.md",
       "category": "report",
-      "health": 15,
-      "status": "unknown"
+      "health": 55,
+      "status": "current"
+    },
+    {
+      "concept": "readme",
+      "file": "Reports/README.md",
+      "category": "report",
+      "health": 65,
+      "status": "current"
     },
     {
       "concept": "review-report",
       "file": "Reports/REVIEW_REPORT.md",
       "category": "report",
-      "health": 10,
-      "status": "unknown"
+      "health": 40,
+      "status": "archived"
     },
     {
       "concept": "test-mapping",
       "file": "Reports/TEST_MAPPING.md",
       "category": "report",
-      "health": 10,
-      "status": "unknown"
+      "health": 40,
+      "status": "archived"
     },
     {
       "concept": "test-report",
       "file": "Reports/TEST_REPORT.md",
       "category": "report",
-      "health": 10,
-      "status": "unknown"
+      "health": 40,
+      "status": "archived"
     },
     {
       "concept": "agents-overview",
       "file": "Reports/agents_overview.md",
       "category": "report",
-      "health": 10,
-      "status": "unknown"
+      "health": 40,
+      "status": "archived"
     },
     {
       "concept": "agents-audit-report-202604",
       "file": "Reports/archive/agents_audit_report_202604.md",
       "category": "report",
-      "health": 10,
-      "status": "unknown"
+      "health": 40,
+      "status": "archived"
     },
     {
       "concept": "code-review-20260428",
@@ -653,17 +634,17 @@
     },
     {
       "concept": "security-report",
-      "file": "Reports/security_report.md",
+      "file": "Reports/current/security-report.md",
       "category": "report",
-      "health": 10,
-      "status": "unknown"
+      "health": 45,
+      "status": "current"
     },
     {
       "concept": "scheduler-coupling-analysis",
       "file": "SCHEDULER_COUPLING_ANALYSIS.md",
       "category": "other",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "archived"
     },
     {
       "concept": "system-e2e-build-process",
@@ -676,8 +657,8 @@
       "concept": "testing",
       "file": "TESTING.md",
       "category": "other",
-      "health": 15,
-      "status": "unknown"
+      "health": 70,
+      "status": "current"
     },
     {
       "concept": "test-spec-strategyengine",
@@ -690,8 +671,8 @@
       "concept": "test-troubleshooting",
       "file": "TEST_TROUBLESHOOTING.md",
       "category": "other",
-      "health": 15,
-      "status": "unknown"
+      "health": 55,
+      "status": "current"
     },
     {
       "concept": "decision-chain-api",
@@ -704,36 +685,36 @@
       "concept": "dec-004-backtest-scheduler-automation",
       "file": "architecture/DEC-004-backtest-scheduler-automation.md",
       "category": "explanation",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "archived"
     },
     {
       "concept": "dec-005-monitoring-alerting",
       "file": "architecture/DEC-005-monitoring-alerting.md",
       "category": "explanation",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "archived"
     },
     {
       "concept": "dec-006-deployment-automation",
       "file": "architecture/DEC-006-deployment-automation.md",
       "category": "explanation",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "archived"
     },
     {
       "concept": "backtest-engine-design",
       "file": "architecture/backtest_engine_design.md",
       "category": "explanation",
-      "health": 10,
-      "status": "unknown"
+      "health": 65,
+      "status": "needs-review"
     },
     {
       "concept": "dec-016-vitest-worker-crash",
       "file": "decisions/DEC-016-vitest-worker-crash.md",
       "category": "explanation",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "archived"
     },
     {
       "concept": "budget-priority-design",
@@ -830,28 +811,28 @@
       "concept": "infrastructure",
       "file": "modules/infrastructure/_index.md",
       "category": "reference",
-      "health": 60,
+      "health": 65,
       "status": "needs-review"
     },
     {
       "concept": "data-manager",
       "file": "modules/infrastructure/data_manager.md",
       "category": "reference",
-      "health": 60,
+      "health": 65,
       "status": "needs-review"
     },
     {
       "concept": "storage",
       "file": "modules/infrastructure/storage.md",
       "category": "reference",
-      "health": 60,
+      "health": 65,
       "status": "needs-review"
     },
     {
       "concept": "operations",
       "file": "modules/operations/_index.md",
       "category": "reference",
-      "health": 80,
+      "health": 90,
       "status": "current"
     },
     {
@@ -865,63 +846,63 @@
       "concept": "env-vars",
       "file": "modules/operations/env_vars.md",
       "category": "reference",
-      "health": 60,
+      "health": 65,
       "status": "needs-review"
     },
     {
       "concept": "schedules",
       "file": "modules/operations/schedules.md",
       "category": "reference",
-      "health": 60,
+      "health": 65,
       "status": "needs-review"
     },
     {
       "concept": "presentation",
       "file": "modules/presentation/_index.md",
       "category": "reference",
-      "health": 80,
+      "health": 85,
       "status": "current"
     },
     {
       "concept": "api",
       "file": "modules/presentation/api/_index.md",
       "category": "reference",
-      "health": 80,
+      "health": 85,
       "status": "current"
     },
     {
       "concept": "portfolio-health-api",
       "file": "modules/presentation/api/portfolio_health_api.md",
       "category": "reference",
-      "health": 70,
+      "health": 75,
       "status": "needs-review"
     },
     {
       "concept": "report-signals-contract",
       "file": "modules/presentation/api/report_signals_contract.md",
       "category": "reference",
-      "health": 70,
+      "health": 75,
       "status": "needs-review"
     },
     {
       "concept": "bot",
       "file": "modules/presentation/bot.md",
       "category": "reference",
-      "health": 95,
+      "health": 100,
       "status": "current"
     },
     {
       "concept": "notifications",
       "file": "modules/presentation/notifications.md",
       "category": "reference",
-      "health": 90,
+      "health": 95,
       "status": "current"
     },
     {
       "concept": "strategy",
       "file": "modules/strategy/_index.md",
       "category": "reference",
-      "health": 60,
+      "health": 65,
       "status": "needs-review"
     },
     {
@@ -942,42 +923,42 @@
       "concept": "lifecycle-engine",
       "file": "modules/strategy/lifecycle_engine.md",
       "category": "reference",
-      "health": 15,
-      "status": "unknown"
+      "health": 65,
+      "status": "needs-review"
     },
     {
       "concept": "lifecycle-health-test-spec",
       "file": "modules/strategy/lifecycle_health_test_spec.md",
       "category": "reference",
-      "health": 15,
-      "status": "unknown"
+      "health": 65,
+      "status": "needs-review"
     },
     {
       "concept": "maintenance-state-machine",
       "file": "modules/strategy/maintenance_state_machine.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 65,
+      "status": "needs-review"
     },
     {
       "concept": "providers",
       "file": "modules/strategy/providers.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 85,
+      "status": "current"
     },
     {
       "concept": "regime-policy",
       "file": "modules/strategy/regime_policy.md",
       "category": "reference",
-      "health": 10,
-      "status": "unknown"
+      "health": 65,
+      "status": "needs-review"
     },
     {
       "concept": "strategy-engine",
       "file": "modules/strategy/strategy_engine.md",
       "category": "reference",
-      "health": 60,
+      "health": 65,
       "status": "needs-review"
     },
     {
@@ -991,22 +972,22 @@
       "concept": "documentation-full-modernization-plan",
       "file": "plans/active/DOCUMENTATION_FULL_MODERNIZATION_PLAN.md",
       "category": "plan",
-      "health": 20,
-      "status": "unknown"
+      "health": 50,
+      "status": "in-progress"
     },
     {
       "concept": "documentation-modernization-plan",
       "file": "plans/active/DOCUMENTATION_MODERNIZATION_PLAN.md",
       "category": "plan",
-      "health": 20,
-      "status": "unknown"
+      "health": 50,
+      "status": "superseded"
     },
     {
       "concept": "wiki-index-prototype-report",
       "file": "plans/active/WIKI_INDEX_PROTOTYPE_REPORT.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "advice",
@@ -1082,8 +1063,8 @@
       "concept": "master-plan",
       "file": "plans/archive/2026-08-10_old_active/MASTER_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "tech-debt-plan",
@@ -1096,8 +1077,8 @@
       "concept": "unified-development-plan",
       "file": "plans/archive/2026-08-10_old_active/UNIFIED_DEVELOPMENT_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "unified-plan",
@@ -1229,239 +1210,239 @@
       "concept": "active-plans-consolidated",
       "file": "plans/completed/ACTIVE_PLANS_CONSOLIDATED.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "code-review-optimization-plan",
       "file": "plans/completed/CODE_REVIEW_OPTIMIZATION_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "core-logic-validation-plan",
       "file": "plans/completed/CORE_LOGIC_VALIDATION_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "dashboard-integration-and-config-fix-plan",
       "file": "plans/completed/DASHBOARD_INTEGRATION_AND_CONFIG_FIX_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "dashboard-news-design-analysis",
       "file": "plans/completed/DASHBOARD_NEWS_DESIGN_ANALYSIS.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "dashboard-news-e2e-consolidation-plan",
       "file": "plans/completed/DASHBOARD_NEWS_E2E_CONSOLIDATION_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "dashboard-uiux-optimization-plan",
       "file": "plans/completed/DASHBOARD_UIUX_OPTIMIZATION_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "e2e-testing-plan",
       "file": "plans/completed/E2E_TESTING_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "e2e-testing-plan-v2.0-20260815",
       "file": "plans/completed/E2E_TESTING_PLAN_v2.0_20260815.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "e2e-test-fix-plan",
       "file": "plans/completed/E2E_TEST_FIX_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "hardcoded-audit",
       "file": "plans/completed/HARDCODED_AUDIT.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "langfuse-v5-migration-plan",
       "file": "plans/completed/LANGFUSE_V5_MIGRATION_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "miniapp-bug-fix-plan",
       "file": "plans/completed/MINIAPP_BUG_FIX_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "miniapp-uiux-improvement-plan",
       "file": "plans/completed/MINIAPP_UIUX_IMPROVEMENT_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "mini-app-optimization-plan",
       "file": "plans/completed/MINI_APP_OPTIMIZATION_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "missing-views-and-cleanup-plan",
       "file": "plans/completed/MISSING_VIEWS_AND_CLEANUP_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "navigate-macro-battle-plan",
       "file": "plans/completed/NAVIGATE_MACRO_BATTLE_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "phase2-spec-v5",
       "file": "plans/completed/PHASE2_SPEC_V5.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "phase3-score-migration-spec",
       "file": "plans/completed/PHASE3_SCORE_MIGRATION_SPEC.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "phase-1-2-verification",
       "file": "plans/completed/PHASE_1-2_VERIFICATION.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "phase-1-4-e2e-completion-summary-20260815",
       "file": "plans/completed/PHASE_1-4_E2E_COMPLETION_SUMMARY_20260815.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "phase-1-4-audit-report",
       "file": "plans/completed/PHASE_1_4_AUDIT_REPORT.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "phase-5-remaining-work",
       "file": "plans/completed/PHASE_5_REMAINING_WORK.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "phase-5-summary",
       "file": "plans/completed/PHASE_5_SUMMARY.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "phase-6-plan",
       "file": "plans/completed/PHASE_6_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "phase-6-summary",
       "file": "plans/completed/PHASE_6_SUMMARY.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "phase-7-checklist",
       "file": "plans/completed/PHASE_7_CHECKLIST.md",
       "category": "guide",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "phase-7-plan",
       "file": "plans/completed/PHASE_7_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "webapp-improvement-plan",
       "file": "plans/completed/WEBAPP_IMPROVEMENT_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "webapp-phase-3-5-detail-plan",
       "file": "plans/completed/WEBAPP_PHASE_3-5_DETAIL_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "webapp-phase-6-detail-plan",
       "file": "plans/completed/WEBAPP_PHASE_6_DETAIL_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "webapp-systematic-optimization-plan",
       "file": "plans/completed/WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "webapp-systematic-optimization-plan-v2.0",
       "file": "plans/completed/WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN_v2.0.md",
       "category": "plan",
-      "health": 15,
-      "status": "unknown"
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "useapirequest-guide",
       "file": "useApiRequest-guide.md",
       "category": "other",
-      "health": 15,
-      "status": "unknown"
+      "health": 70,
+      "status": "current"
     },
     {
       "concept": "core-logic-data-flow-matrix",

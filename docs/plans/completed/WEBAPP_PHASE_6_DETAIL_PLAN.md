@@ -1,3 +1,13 @@
+---
+type: plan
+status: completed
+last_updated: 2026-09-10
+tags:
+  - completed
+  - archived
+wiki_links: []
+---
+
 # WebApp Phase 6 品質硬化與技術債清理計畫
 
 > 版本：v1.0
