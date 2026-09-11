@@ -1,9 +1,9 @@
 ---
 type: reference
-status: needs-review
-last_updated: 2026-09-10
+status: current
+last_updated: 2026-09-11
 related_code:
-  - src/api/portfolioHealthApi.mjs
+  - src/api/routes/portfolioHealth.mjs
 related_docs:
   - docs/modules/presentation/api/_index.md
 tags:

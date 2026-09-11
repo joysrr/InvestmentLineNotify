@@ -1,12 +1,12 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-10
-last_verified: 2026-09-10
+last_updated: 2026-09-11
+last_verified: 2026-09-11
 related_code:
-  - src/scheduler/newsFetch.mjs
-  - src/modules/news/newsPoolManager.mjs
-  - src/modules/ai/keywordConfig.mjs
+  - src/modules/newsFetcher.mjs
+  - src/runNewsFetch.mjs
+  - src/modules/data/newsPoolManager.mjs
 related_docs:
   - docs/modules/ai_news/keyword_config.md
   - docs/modules/ai_news/ai_pipeline.md
