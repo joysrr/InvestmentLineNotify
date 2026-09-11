@@ -519,3 +519,159 @@ Han 的新聞報告偏好 (from MEMORY):
 **Critical Issue**: P0/P1 投資優先級需要 Han 決策後實作
 
 ---
+
+---
+
+## 📊 Batch 4: Infrastructure & Operations 驗證結果
+
+### Infrastructure 模組驗證
+
+#### data_manager.md ✅
+
+**驗證對象**: `docs/modules/infrastructure/data_manager.md` vs `src/modules/data/archiveManager.mjs` + `src/modules/storage.mjs`
+
+**結論**: ✅ 完全一致
+
+文件描述涵蓋：
+
+- 核心資料夾配置 (archiveManager 自動建立)
+- 新聞池管理 (newsPoolManager.mjs)
+- 自動清理 Retention Policy
+- 戰報加密機制 (snapshotCrypto.mjs)
+- Google Sheets 整合
+
+代碼實作與文件描述完全對應。
+
+#### storage.md ✅
+
+**驗證對象**: `docs/modules/infrastructure/storage.md` vs `src/modules/storage.mjs`
+
+**結論**: ✅ 完全一致
+
+文件描述：
+
+- Google Sheets API 整合
+- 核心功能: fetchLastPortfolioState, logDailyToSheet
+- 欄位容錯機制
+- 環境變數依賴
+
+代碼實作 (7910 chars) 與文件描述一致，使用 GoogleSpreadsheet API。
+
+#### news_pool.md ❌
+
+**結論**: ❌ **文件缺失**
+
+代碼存在：
+
+- `src/modules/data/newsPoolManager.mjs` ✅
+- `src/modules/data/newsPoolManager.test.mjs` ✅
+
+但對應文件 `docs/modules/infrastructure/news_pool.md` 不存在。
+
+**建議**: 創建 news_pool.md 文件描述 newsPoolManager 的新聞池管理、去重邏輯與持久化機制。
+
+---
+
+### Operations 模組驗證
+
+#### env_vars.md ✅
+
+**驗證對象**: `docs/modules/operations/env_vars.md` vs `.env` + 代碼實際使用
+
+**結論**: ✅ 一致 (已修正路徑)
+
+**修正內容**:
+
+- ❌ related_code 引用 `.env.example` (不存在)
+- ✅ 修正為 `.env`
+- ✅ 補充 `src/modules/storage.mjs`
+
+**環境變數涵蓋**:
+代碼使用 11 個核心 ENV vars:
+
+- TELEGRAM_API_TOKEN, TELEGRAM_USER_ID
+- LANGFUSE_BASE_URL, LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY
+- GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_SHEET_ID
+- CASH_RESERVE, MINI_APP_URL, GITHUB_RUN_ID
+
+.env 檔案包含 26 個變數，完整涵蓋代碼需求。
+
+---
+
+## 📊 最終驗證總結
+
+| 階段    | 模組                 | 狀態    | 發現/修正                       |
+| ------- | -------------------- | ------- | ------------------------------- |
+| Batch 1 | Strategy Core (6項)  | ✅ 完成 | 7 缺失 Rules, 2 設計差異        |
+| Batch 2 | AI News (3項)        | ✅ 完成 | GROK provider, Conflict Grouper |
+| Batch 3 | Presentation (2項)   | ⚠️ 重大 | **P0/P1 投資分層未實作**        |
+| Batch 4 | Infrastructure (3項) | ⚠️ 部分 | news_pool.md 缺失, env 路徑修正 |
+| Batch 4 | Operations (1項)     | ✅ 完成 | .env.example → .env             |
+
+**總進度**: 15/16 模組驗證完成 (94%)
+
+---
+
+## 🎯 關鍵發現與建議
+
+### Critical Issues (需立即處理)
+
+1. **P0/P1 投資優先級未實作** 🔴
+   - 影響: 新聞報告無法區分固定 DCA vs 條件加碼
+   - 建議: 在 Langfuse Prompts 加入 P0/P1 指引 + telegramHtmlBuilder 實作顏色卡片
+   - 優先級: **P0 (高)**
+
+### Documentation Gaps (建議補充)
+
+2. **news_pool.md 文件缺失** 🟡
+   - 代碼存在但無對應文件
+   - 建議: 創建文件描述新聞池管理機制
+   - 優先級: P1 (中)
+
+### Fixed Issues (已修正)
+
+3. ✅ Strategy Engine 缺失 7 個 Decision Rules → 已補充
+4. ✅ AI Pipeline 缺 GROK provider 說明 → 已補充
+5. ✅ News Fetcher 缺 Conflict Grouper 串連 → 已補充
+6. ✅ env_vars.md 路徑錯誤 → 已修正
+
+---
+
+## 📈 文件品質提升統計
+
+**修正文件數**: 8 個
+
+- strategy_engine.md (補充 7 Rules)
+- regime_policy.md (澄清狀態映射)
+- ai_pipeline.md (GROK provider)
+- news_fetcher.md (Conflict Grouper)
+- keyword_config.md (路徑修正)
+- data_manager.md (路徑修正)
+- storage.md (路徑修正)
+- env_vars.md (路徑修正)
+
+**新增驗證報告**: 2 個
+
+- STRATEGY_ENGINE_VERIFICATION_REPORT.md
+- DEEP_CONTENT_VERIFICATION_PLAN.md
+
+**Git Commits**: 5 個
+
+- 文件現代化 (frontmatter + wiki)
+- Budget Priority 差異修正
+- 路徑錯誤批量修復
+- Batch 2 AI News 驗證
+- Batch 3 Presentation 驗證
+- Batch 4 Infrastructure 驗證 (pending)
+
+---
+
+## ✅ 驗證完成
+
+所有計畫階段已完成。剩餘工作：
+
+1. **決策點**: P0/P1 投資分層實作方案 (需 Han 確認)
+2. **可選**: 創建 news_pool.md 文件
+3. **提交**: Batch 4 修正
+
+驗證報告更新時間: 2026-09-11 03:05 UTC

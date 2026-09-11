@@ -4,9 +4,10 @@ status: needs-review
 last_updated: 2026-09-10
 related_code:
   - src/modules/ai/langfuseClient.mjs
-  - .env.example
+  - .env
   - src/bot.mjs
   - src/scheduler/newsFetch.mjs
+  - src/modules/storage.mjs
 dependencies:
   - @langfuse/tracing@5.11.0
   - @langfuse/client@5.11.0
