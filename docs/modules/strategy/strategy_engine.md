@@ -18,6 +18,37 @@ wiki_links:
 
 ## 1. 決策優先鏈 (Decision Priority Chain)
 
+Strategy Engine 採用 **優先級鏈式決策架構**，依序執行 11 個決策規則，第一個回傳結果的規則即終止後續執行。
+
+### 執行邏輯
+
+1. **Priority 排序**: 規則依 priority 升序執行 (P0 → P100，數值越小越優先)
+2. **早期終止**: 第一個回傳 non-null 的規則即終止後續規則
+3. **狀態共享**: 規則間透過 `engineState` 共享狀態 (如 Regime 判斷結果)
+4. **Fallback 保證**: `ScoringDecisionRule` (P100) 作為最後規則，總是回傳結果
+
+### Decision Rules 完整清單
+
+| Priority | Rule                    | 功能                | 觸發條件                           |
+| -------- | ----------------------- | ------------------- | ---------------------------------- |
+| **P0**   | `RegimePolicyRule`      | Regime 硬條件封鎖   | 熊市 + 特定條件 → 禁止進場         |
+| **P10**  | `MarginLayerRule`       | 維持率 4 層狀態機   | 維持率 < 160% → 觸發保護/斷頭      |
+| **P20**  | `LifecycleLeverageRule` | 生命週期槓桿封鎖    | PRE_RETIRE 階段 → 禁止槓桿         |
+| **P30**  | `GrossLeverageRule`     | Gross Leverage 警戒 | 綜合槓桿 > 硬上限 → 強制降槓       |
+| **P40**  | `ValuationGuardRule`    | 估值守衛            | 估值過高 → 限制加碼                |
+| **P50**  | `EntryGateRule`         | EntryGate 前置過濾  | 市場條件不符 → 禁止進場            |
+| **P60**  | `StopLossTrailingRule`  | 停損/移動停利       | 00675L 觸發停損條件 → 賣出         |
+| **P70**  | `ValuationBubbleRule`   | 估值泡沫警戒        | PB ≥ 2.2 → 停止加碼 00675L         |
+| **P80**  | `RebalanceRule`         | 再平衡              | 配置偏離目標 → 調整部位            |
+| **P90**  | `ConversionGuardRule`   | 階梯式獲利轉化      | 00675L 獲利達標 → 轉化為 0050      |
+| **P100** | `ScoringDecisionRule`   | 評分驅動決策 (最後) | 依 weightScore 產生決策 (Fallback) |
+
+### 設計哲學
+
+- **防禦優先**: 風險控制規則 (P0-P30) 優先於進攻規則
+- **明確邊界**: 每個規則職責單一，避免邏輯耦合
+- **可擴展**: 透過 Builder Pattern 輕鬆新增/移除規則
+
 為確保資金安全，系統採由上而下的優先權覆寫機制（Priority Chain）。只要上層條件觸發，就會提早 `return`，絕對不給底層戰術執行的機會：
 
 1. **[P0] 市場環境硬條件 (`determineRegime`)**：偵測 VIX 與市場情緒，當進入 CRISIS 模式時強制 Sell-only。
