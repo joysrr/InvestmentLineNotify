@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-09-11T00:28:01.023Z",
+  "generated_at": "2026-09-11T13:36:49.706Z",
   "summary": {
-    "total_files": 137,
-    "average_health": 54.1,
+    "total_files": 145,
+    "average_health": 55.3,
     "by_health": {
-      "excellent": 16,
+      "excellent": 19,
       "good": 21,
-      "fair": 99,
+      "fair": 104,
       "poor": 1
     },
     "by_category": {
       "other": {
-        "count": 11,
+        "count": 15,
         "avgHealth": 55,
-        "totalHealth": 600
+        "totalHealth": 830
       },
       "guide": {
         "count": 3,
@@ -21,14 +21,14 @@
         "totalHealth": 175
       },
       "report": {
-        "count": 16,
-        "avgHealth": 45,
-        "totalHealth": 725
+        "count": 17,
+        "avgHealth": 47,
+        "totalHealth": 800
       },
       "reference": {
-        "count": 35,
-        "avgHealth": 77,
-        "totalHealth": 2695
+        "count": 36,
+        "avgHealth": 79,
+        "totalHealth": 2850
       },
       "explanation": {
         "count": 6,
@@ -36,16 +36,16 @@
         "totalHealth": 300
       },
       "plan": {
-        "count": 66,
-        "avgHealth": 44,
-        "totalHealth": 2920
+        "count": 68,
+        "avgHealth": 45,
+        "totalHealth": 3070
       }
     }
   },
   "priority_list": [
     {
       "concept": "wiki-index-prototype-report",
-      "file": "plans/active/WIKI_INDEX_PROTOTYPE_REPORT.md",
+      "file": "plans/completed/WIKI_INDEX_PROTOTYPE_REPORT.md",
       "category": "plan",
       "health": 45,
       "impact": 23,
@@ -65,7 +65,7 @@
     },
     {
       "concept": "documentation-full-modernization-plan",
-      "file": "plans/active/DOCUMENTATION_FULL_MODERNIZATION_PLAN.md",
+      "file": "plans/completed/DOCUMENTATION_FULL_MODERNIZATION_PLAN.md",
       "category": "plan",
       "health": 50,
       "impact": 15,
@@ -178,78 +178,18 @@
       ]
     },
     {
-      "concept": "modules",
-      "file": "modules/_index.md",
-      "category": "reference",
-      "health": 50,
-      "impact": 10,
+      "concept": "deep-content-verification-plan",
+      "file": "plans/active/DEEP_CONTENT_VERIFICATION_PLAN.md",
+      "category": "plan",
+      "health": 45,
+      "impact": 9,
       "priority": 50,
       "issues": [
+        "狀態未知",
         "從未驗證",
         "缺少代碼連結",
         "缺少文件連結",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
-      "concept": "deployment-oracle-vm",
-      "file": "modules/operations/deployment_oracle_vm.md",
-      "category": "reference",
-      "health": 50,
-      "impact": 10,
-      "priority": 50,
-      "issues": [
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
-      "concept": "strategy-param-audit",
-      "file": "modules/strategy/audit/strategy_param_audit.md",
-      "category": "reference",
-      "health": 50,
-      "impact": 10,
-      "priority": 50,
-      "issues": [
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少摘要",
-        "134 天未修改"
-      ],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
-      "concept": "strategy-param-changes",
-      "file": "modules/strategy/audit/strategy_param_changes.md",
-      "category": "reference",
-      "health": 50,
-      "impact": 10,
-      "priority": 50,
-      "issues": [
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少摘要",
-        "134 天未修改"
+        "缺少摘要"
       ],
       "suggestions": [
         "添加 last_verified 日期",
@@ -265,6 +205,82 @@
       "impact": 10,
       "priority": 45,
       "issues": ["從未驗證", "缺少代碼連結", "缺少文件連結", "缺少摘要"],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "modules",
+      "file": "modules/_index.md",
+      "category": "reference",
+      "health": 55,
+      "impact": 10,
+      "priority": 45,
+      "issues": ["從未驗證", "缺少代碼連結", "缺少文件連結", "缺少摘要"],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "deployment-oracle-vm",
+      "file": "modules/operations/deployment_oracle_vm.md",
+      "category": "reference",
+      "health": 55,
+      "impact": 10,
+      "priority": 45,
+      "issues": ["從未驗證", "缺少代碼連結", "缺少文件連結", "缺少摘要"],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "strategy-param-audit",
+      "file": "modules/strategy/audit/strategy_param_audit.md",
+      "category": "reference",
+      "health": 55,
+      "impact": 10,
+      "priority": 45,
+      "issues": ["從未驗證", "缺少代碼連結", "缺少文件連結", "缺少摘要"],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "strategy-param-changes",
+      "file": "modules/strategy/audit/strategy_param_changes.md",
+      "category": "reference",
+      "health": 55,
+      "impact": 10,
+      "priority": 45,
+      "issues": ["從未驗證", "缺少代碼連結", "缺少文件連結", "缺少摘要"],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "module-docs-verification-plan",
+      "file": "plans/active/MODULE_DOCS_VERIFICATION_PLAN.md",
+      "category": "plan",
+      "health": 45,
+      "impact": 7,
+      "priority": 39,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
       "suggestions": [
         "添加 last_verified 日期",
         "添加 related_code",
@@ -306,19 +322,18 @@
       ]
     },
     {
-      "concept": "phase1-entry-points",
-      "file": "plans/archive/diagnosis/phase1-entry-points.md",
-      "category": "plan",
-      "health": 40,
-      "impact": 5,
-      "priority": 30,
+      "concept": "strategy-engine-verification-report",
+      "file": "verification/STRATEGY_ENGINE_VERIFICATION_REPORT.md",
+      "category": "other",
+      "health": 45,
+      "impact": 6,
+      "priority": 33,
       "issues": [
         "狀態未知",
         "從未驗證",
         "缺少代碼連結",
         "缺少文件連結",
-        "缺少摘要",
-        "127 天未修改"
+        "缺少摘要"
       ],
       "suggestions": [
         "添加 last_verified 日期",
@@ -327,19 +342,18 @@
       ]
     },
     {
-      "concept": "phase2-core-logic",
-      "file": "plans/archive/diagnosis/phase2-core-logic.md",
+      "concept": "advice",
+      "file": "plans/archive/2026-04_remediation_advice/ADVICE.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "impact": 5,
-      "priority": 30,
+      "priority": 28,
       "issues": [
         "狀態未知",
         "從未驗證",
         "缺少代碼連結",
         "缺少文件連結",
-        "缺少摘要",
-        "127 天未修改"
+        "缺少摘要"
       ],
       "suggestions": [
         "添加 last_verified 日期",
@@ -348,19 +362,18 @@
       ]
     },
     {
-      "concept": "phase3-providers",
-      "file": "plans/archive/diagnosis/phase3-providers.md",
+      "concept": "draft-features",
+      "file": "plans/archive/2026-04_remediation_advice/draft_features.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "impact": 5,
-      "priority": 30,
+      "priority": 28,
       "issues": [
         "狀態未知",
         "從未驗證",
         "缺少代碼連結",
         "缺少文件連結",
-        "缺少摘要",
-        "127 天未修改"
+        "缺少摘要"
       ],
       "suggestions": [
         "添加 last_verified 日期",
@@ -369,61 +382,18 @@
       ]
     },
     {
-      "concept": "phase4-api",
-      "file": "plans/archive/diagnosis/phase4-api.md",
+      "concept": "draft-optimizations",
+      "file": "plans/archive/2026-04_remediation_advice/draft_optimizations.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "impact": 5,
-      "priority": 30,
+      "priority": 28,
       "issues": [
         "狀態未知",
         "從未驗證",
         "缺少代碼連結",
         "缺少文件連結",
-        "缺少摘要",
-        "127 天未修改"
-      ],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
-      "concept": "phase5-news",
-      "file": "plans/archive/diagnosis/phase5-news.md",
-      "category": "plan",
-      "health": 40,
-      "impact": 5,
-      "priority": 30,
-      "issues": [
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少摘要",
-        "127 天未修改"
-      ],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
-      "concept": "phase6-bot",
-      "file": "plans/archive/diagnosis/phase6-bot.md",
-      "category": "plan",
-      "health": 40,
-      "impact": 5,
-      "priority": 30,
-      "issues": [
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少摘要",
-        "127 天未修改"
+        "缺少摘要"
       ],
       "suggestions": [
         "添加 last_verified 日期",
@@ -467,6 +437,13 @@
       "category": "report",
       "health": 45,
       "status": "archived"
+    },
+    {
+      "concept": "documentation-work-summary-20260911",
+      "file": "Reports/DOCUMENTATION_WORK_SUMMARY_20260911.md",
+      "category": "report",
+      "health": 55,
+      "status": "current"
     },
     {
       "concept": "dod-audit-log",
@@ -528,14 +505,14 @@
       "concept": "code-review-20260428",
       "file": "Reports/archive/code_review_20260428.md",
       "category": "report",
-      "health": 40,
+      "health": 45,
       "status": "archived"
     },
     {
       "concept": "leverage-strategy-review-v2.3",
       "file": "Reports/archive/leverage_strategy_review_v2.3.md",
       "category": "report",
-      "health": 40,
+      "health": 45,
       "status": "archived"
     },
     {
@@ -549,14 +526,14 @@
       "concept": "perplexity-code-review-20260426",
       "file": "Reports/archive/perplexity_code_review_20260426.md",
       "category": "report",
-      "health": 40,
+      "health": 45,
       "status": "archived"
     },
     {
       "concept": "strategy-review-20260417",
       "file": "Reports/archive/strategy_review_20260417.md",
       "category": "report",
-      "health": 40,
+      "health": 45,
       "status": "archived"
     },
     {
@@ -651,10 +628,24 @@
       "status": "current"
     },
     {
+      "concept": "documentation-standards",
+      "file": "meta/documentation-standards.md",
+      "category": "other",
+      "health": 60,
+      "status": "current"
+    },
+    {
+      "concept": "maintenance-schedule",
+      "file": "meta/maintenance-schedule.md",
+      "category": "other",
+      "health": 55,
+      "status": "current"
+    },
+    {
       "concept": "modules",
       "file": "modules/_index.md",
       "category": "reference",
-      "health": 50,
+      "health": 55,
       "status": "current"
     },
     {
@@ -738,22 +729,29 @@
       "concept": "infrastructure",
       "file": "modules/infrastructure/_index.md",
       "category": "reference",
-      "health": 65,
-      "status": "needs-review"
+      "health": 85,
+      "status": "current"
     },
     {
       "concept": "data-manager",
       "file": "modules/infrastructure/data_manager.md",
       "category": "reference",
-      "health": 65,
-      "status": "needs-review"
+      "health": 70,
+      "status": "current"
+    },
+    {
+      "concept": "news-pool",
+      "file": "modules/infrastructure/news_pool.md",
+      "category": "reference",
+      "health": 90,
+      "status": "current"
     },
     {
       "concept": "storage",
       "file": "modules/infrastructure/storage.md",
       "category": "reference",
-      "health": 65,
-      "status": "needs-review"
+      "health": 70,
+      "status": "current"
     },
     {
       "concept": "operations",
@@ -766,7 +764,7 @@
       "concept": "deployment-oracle-vm",
       "file": "modules/operations/deployment_oracle_vm.md",
       "category": "reference",
-      "health": 50,
+      "health": 55,
       "status": "current"
     },
     {
@@ -801,8 +799,8 @@
       "concept": "portfolio-health-api",
       "file": "modules/presentation/api/portfolio_health_api.md",
       "category": "reference",
-      "health": 75,
-      "status": "needs-review"
+      "health": 80,
+      "status": "current"
     },
     {
       "concept": "report-signals-contract",
@@ -836,22 +834,22 @@
       "concept": "strategy-param-audit",
       "file": "modules/strategy/audit/strategy_param_audit.md",
       "category": "reference",
-      "health": 50,
+      "health": 55,
       "status": "current"
     },
     {
       "concept": "strategy-param-changes",
       "file": "modules/strategy/audit/strategy_param_changes.md",
       "category": "reference",
-      "health": 50,
+      "health": 55,
       "status": "current"
     },
     {
       "concept": "lifecycle-engine",
       "file": "modules/strategy/lifecycle_engine.md",
       "category": "reference",
-      "health": 65,
-      "status": "needs-review"
+      "health": 70,
+      "status": "current"
     },
     {
       "concept": "lifecycle-health-test-spec",
@@ -864,8 +862,8 @@
       "concept": "maintenance-state-machine",
       "file": "modules/strategy/maintenance_state_machine.md",
       "category": "reference",
-      "health": 65,
-      "status": "needs-review"
+      "health": 70,
+      "status": "current"
     },
     {
       "concept": "providers",
@@ -896,10 +894,10 @@
       "status": "archived"
     },
     {
-      "concept": "documentation-full-modernization-plan",
-      "file": "plans/active/DOCUMENTATION_FULL_MODERNIZATION_PLAN.md",
+      "concept": "deep-content-verification-plan",
+      "file": "plans/active/DEEP_CONTENT_VERIFICATION_PLAN.md",
       "category": "plan",
-      "health": 50,
+      "health": 45,
       "status": "in-progress"
     },
     {
@@ -910,11 +908,11 @@
       "status": "superseded"
     },
     {
-      "concept": "wiki-index-prototype-report",
-      "file": "plans/active/WIKI_INDEX_PROTOTYPE_REPORT.md",
+      "concept": "module-docs-verification-plan",
+      "file": "plans/active/MODULE_DOCS_VERIFICATION_PLAN.md",
       "category": "plan",
       "health": 45,
-      "status": "completed"
+      "status": "in-progress"
     },
     {
       "concept": "advice",
@@ -1046,70 +1044,70 @@
       "concept": "phase1-entry-points",
       "file": "plans/archive/diagnosis/phase1-entry-points.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "status": "archived"
     },
     {
       "concept": "phase2-core-logic",
       "file": "plans/archive/diagnosis/phase2-core-logic.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "status": "archived"
     },
     {
       "concept": "phase3-providers",
       "file": "plans/archive/diagnosis/phase3-providers.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "status": "archived"
     },
     {
       "concept": "phase4-api",
       "file": "plans/archive/diagnosis/phase4-api.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "status": "archived"
     },
     {
       "concept": "phase5-news",
       "file": "plans/archive/diagnosis/phase5-news.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "status": "archived"
     },
     {
       "concept": "phase6-bot",
       "file": "plans/archive/diagnosis/phase6-bot.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "status": "archived"
     },
     {
       "concept": "phase7-frontend",
       "file": "plans/archive/diagnosis/phase7-frontend.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "status": "archived"
     },
     {
       "concept": "phase8-e2e",
       "file": "plans/archive/diagnosis/phase8-e2e.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "status": "archived"
     },
     {
       "concept": "phase9-api",
       "file": "plans/archive/diagnosis/phase9-api.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "status": "archived"
     },
     {
       "concept": "ideas-features",
       "file": "plans/backlog/ideas_features.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "status": "backlog"
     },
     {
@@ -1123,14 +1121,14 @@
       "concept": "preplan-interface",
       "file": "plans/backlog/preplan_interface.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "status": "backlog"
     },
     {
       "concept": "system-optimize-suggest",
       "file": "plans/backlog/system_optimize_suggest.md",
       "category": "plan",
-      "health": 40,
+      "health": 45,
       "status": "backlog"
     },
     {
@@ -1180,6 +1178,13 @@
       "file": "plans/completed/DASHBOARD_UIUX_OPTIMIZATION_PLAN.md",
       "category": "plan",
       "health": 45,
+      "status": "completed"
+    },
+    {
+      "concept": "documentation-full-modernization-plan",
+      "file": "plans/completed/DOCUMENTATION_FULL_MODERNIZATION_PLAN.md",
+      "category": "plan",
+      "health": 50,
       "status": "completed"
     },
     {
@@ -1365,6 +1370,13 @@
       "status": "completed"
     },
     {
+      "concept": "wiki-index-prototype-report",
+      "file": "plans/completed/WIKI_INDEX_PROTOTYPE_REPORT.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
+    },
+    {
       "concept": "useapirequest-guide",
       "file": "useApiRequest-guide.md",
       "category": "other",
@@ -1391,6 +1403,20 @@
       "category": "other",
       "health": 45,
       "status": "archived"
+    },
+    {
+      "concept": "strategy-engine-verification-report",
+      "file": "verification/STRATEGY_ENGINE_VERIFICATION_REPORT.md",
+      "category": "other",
+      "health": 45,
+      "status": "completed"
+    },
+    {
+      "concept": "strategy-logic-verification-report",
+      "file": "verification/STRATEGY_LOGIC_VERIFICATION_REPORT.md",
+      "category": "other",
+      "health": 70,
+      "status": "current"
     }
   ]
 }

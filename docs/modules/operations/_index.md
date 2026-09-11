@@ -4,8 +4,8 @@ status: current
 last_updated: 2026-09-10
 last_verified: 2026-09-10
 related_code:
-  - src/modules/operations/
-  - config/crontab.json
+  - src/scheduler/newsFetch.mjs
+  - src/dailyCheck.mjs
 tags:
   - operations
   - deployment

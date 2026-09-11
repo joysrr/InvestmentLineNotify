@@ -5,7 +5,7 @@ last_updated: 2026-09-11
 last_verified: 2026-09-11
 related_code:
   - src/modules/keywordConfig.mjs
-  - data/config/keywords.json
+  - data/config/blacklist.json
 related_docs:
   - docs/modules/ai_news/news_fetcher.md
   - docs/modules/ai_news/ai_pipeline.md

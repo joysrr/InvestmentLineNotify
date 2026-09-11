@@ -1,15 +1,19 @@
 ---
 type: reference
-status: needs-review
-last_updated: 2026-09-10
+status: current
+last_updated: 2026-09-11
+last_verified: 2026-09-11
 related_code:
-  - src/modules/infrastructure/
+  - src/modules/data/archiveManager.mjs
+  - src/modules/data/newsPoolManager.mjs
+  - src/modules/storage.mjs
 tags:
   - infrastructure
   - data
   - storage
 wiki_links:
-  - [[AI News]]
+  - "[[AI News]]"
+  - "[[News Fetcher]]"
 ---
 
 # 底層基礎設施 (Infrastructure)
@@ -19,7 +23,8 @@ wiki_links:
 ## 模組列表
 
 - [`storage.md`](./storage.md)：Google Sheets 同步層（帳戶狀態與每日戰報寫入）。
-- [`data_manager.md`](./data_manager.md)：本機檔案快取與歷檔管理（Market Data、AI Logs、新聞池）。
+- [`data_manager.md`](./data_manager.md)：本機檔案快取與歷檔管理（Market Data、AI Logs、檔案結構）。
+- [`news_pool.md`](./news_pool.md)：新聞池管理（標題指紋去重、活躍池視窗、滾動生命週期封存）。
 
 ## 核心設計理念
 

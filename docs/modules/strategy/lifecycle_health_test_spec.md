@@ -3,7 +3,9 @@ type: reference
 status: needs-review
 last_updated: 2026-09-10
 related_code:
-  - src/modules/strategy/lifecycle/
+  - src/modules/strategy/lifecycleEngine.mjs
+  - src/modules/strategy/decision/rules/LifecycleLeverageRule.mjs
+  - src/test/unit/lifecycleEngine.test.mjs
 tags:
   - testing
   - lifecycle

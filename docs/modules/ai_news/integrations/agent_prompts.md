@@ -7,7 +7,7 @@ related_code:
   - src/modules/ai/aiCoach.mjs
   - src/modules/ai/llmJudge.mjs
   - src/modules/ai/periodReportAgent.mjs
-  - src/modules/ai/prompts.mjs
+  - src/modules/ai/langfuseClient.mjs
   - src/modules/ai/ruleOptimizerAgent.mjs
 related_docs:
   - docs/modules/ai_news/integrations/langfuse_prompt_management.md

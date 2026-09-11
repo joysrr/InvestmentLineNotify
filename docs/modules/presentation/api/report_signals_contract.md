@@ -4,7 +4,8 @@ status: needs-review
 last_updated: 2026-09-10
 related_code:
   - src/modules/strategy/strategyEngine.mjs
-  - src/modules/presentation/api/signalsApi.mjs
+  - src/api/schema/contract.mjs
+  - src/api/routes/reports.mjs
 related_docs:
   - docs/modules/strategy/strategy_engine.md
   - docs/modules/presentation/api/_index.md

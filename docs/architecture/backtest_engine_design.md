@@ -3,7 +3,9 @@ type: explanation
 status: needs-review
 last_updated: 2026-09-10
 related_code:
-  - src/modules/strategy/backtest/
+  - src/modules/backtest/backtestRunner.mjs
+  - src/modules/backtest/backtestQueue.mjs
+  - src/modules/backtest/accountSimulator.mjs
 tags:
   - backtest
   - engine

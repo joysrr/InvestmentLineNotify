@@ -3,7 +3,8 @@ type: tutorial
 status: current
 last_updated: 2026-09-11
 related_code:
-  - tests/e2e/
+  - webapp/src/test/e2e/
+  - webapp/scripts/start-e2e-servers.sh
 tags:
   - e2e
   - testing

@@ -3,7 +3,8 @@ type: tutorial
 status: current
 last_updated: 2026-09-11
 related_code:
-  - src/composables/useApiRequest.mjs
+  - webapp/src/composables/useApiRequest.js
+  - webapp/src/composables/useApiRequest.test.js
 tags:
   - composable
   - api

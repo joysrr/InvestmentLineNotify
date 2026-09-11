@@ -2,12 +2,13 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 137,
-    "edges": 150
+    "nodes": 145,
+    "edges": 178
   },
   "graph": {
     "api-contract": ["api-index"],
     "deployment-checklist": ["telegram-bot"],
+    "documentation-work-summary-20260911": ["documentation"],
     "readme": [
       "architecture",
       "architecture",
@@ -21,6 +22,23 @@
     "dec-006-deployment-automation": ["telegram-bot", "operations"],
     "backtest-engine-design": ["strategy-engine"],
     "dec-016-vitest-worker-crash": ["testing", "vitest"],
+    "documentation-standards": [
+      "documentation",
+      "wiki-index",
+      "concept-name",
+      "strategy-engine",
+      "ai-pipeline",
+      "langfuse",
+      "related-concept-1",
+      "related-concept-2",
+      "strategy",
+      "strategy",
+      "strategyengine",
+      "strategy-engine",
+      "...",
+      "related-concept"
+    ],
+    "maintenance-schedule": ["documentation", "operations"],
     "ai_news": [
       "ai-pipeline",
       "langfuse-prompt-management",
@@ -119,8 +137,9 @@
       "ai-news",
       "schedule"
     ],
-    "infrastructure": ["ai-news"],
+    "infrastructure": ["ai-news", "news-fetcher"],
     "data-manager": ["ai-news"],
+    "news-pool": ["infrastructure", "ai-news", "news-fetcher"],
     "storage": ["ai-news"],
     "operations": [
       "ai-news",
@@ -153,6 +172,8 @@
     "providers": ["strategy-engine", "news-fetcher"],
     "regime-policy": ["strategy-engine"],
     "strategy-engine": ["ai-news"],
+    "deep-content-verification-plan": ["documentation", "strategy-engine"],
+    "module-docs-verification-plan": ["documentation"],
     "documentation-full-modernization-plan": [
       "wiki-links",
       "related-concept-1",
@@ -170,6 +191,11 @@
       "wiki-links",
       "wiki-links",
       "concept"
-    ]
+    ],
+    "strategy-engine-verification-report": [
+      "strategy-engine",
+      "budget-priority"
+    ],
+    "strategy-logic-verification-report": ["strategy-engine", "budget-priority"]
   }
 }

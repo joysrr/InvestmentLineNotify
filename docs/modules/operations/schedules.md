@@ -5,7 +5,8 @@ last_updated: 2026-09-10
 related_code:
   - src/scheduler/newsFetch.mjs
   - src/dailyCheck.mjs
-  - config/crontab.json
+  - scripts/vm-daily-check.sh
+  - scripts/vm-news-fetch.sh
 tags:
   - cron
   - scheduling

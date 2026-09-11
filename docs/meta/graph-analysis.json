@@ -1,20 +1,28 @@
 {
-  "generated_at": "2026-09-11T00:17:58.120Z",
+  "generated_at": "2026-09-11T13:36:40.868Z",
   "stats": {
-    "total_nodes": 136,
-    "total_edges": 130,
-    "isolated_nodes": 107,
-    "weakly_connected": 6,
-    "connectivity": "21.3"
+    "total_nodes": 145,
+    "total_edges": 178,
+    "isolated_nodes": 93,
+    "weakly_connected": 20,
+    "connectivity": "35.9"
   },
   "core_concepts": [
     {
       "concept": "ai-pipeline",
       "outbound": 14,
-      "inbound": 13,
+      "inbound": 16,
       "codeLinks": 8,
-      "total": 35,
-      "importance": 69
+      "total": 38,
+      "importance": 78
+    },
+    {
+      "concept": "strategy-engine",
+      "outbound": 1,
+      "inbound": 23,
+      "codeLinks": 1,
+      "total": 25,
+      "importance": 72
     },
     {
       "concept": "langfuse-prompt-management",
@@ -33,6 +41,14 @@
       "importance": 45
     },
     {
+      "concept": "news-fetcher",
+      "outbound": 7,
+      "inbound": 8,
+      "codeLinks": 3,
+      "total": 18,
+      "importance": 37
+    },
+    {
       "concept": "ai_news",
       "outbound": 18,
       "inbound": 0,
@@ -41,28 +57,12 @@
       "importance": 36
     },
     {
-      "concept": "strategy-engine",
-      "outbound": 1,
-      "inbound": 10,
-      "codeLinks": 1,
-      "total": 12,
-      "importance": 33
-    },
-    {
       "concept": "langfuse-score-configs",
       "outbound": 8,
       "inbound": 5,
       "codeLinks": 3,
       "total": 16,
       "importance": 29
-    },
-    {
-      "concept": "news-fetcher",
-      "outbound": 7,
-      "inbound": 5,
-      "codeLinks": 3,
-      "total": 15,
-      "importance": 28
     },
     {
       "concept": "keyword-config",
@@ -81,12 +81,52 @@
       "importance": 19
     },
     {
+      "concept": "operations",
+      "outbound": 5,
+      "inbound": 3,
+      "codeLinks": 2,
+      "total": 10,
+      "importance": 18
+    },
+    {
       "concept": "bot",
       "outbound": 8,
       "inbound": 0,
       "codeLinks": 4,
       "total": 12,
       "importance": 16
+    },
+    {
+      "concept": "documentation-standards",
+      "outbound": 14,
+      "inbound": 0,
+      "codeLinks": 0,
+      "total": 14,
+      "importance": 14
+    },
+    {
+      "concept": "infrastructure",
+      "outbound": 2,
+      "inbound": 2,
+      "codeLinks": 3,
+      "total": 7,
+      "importance": 14
+    },
+    {
+      "concept": "env-vars",
+      "outbound": 1,
+      "inbound": 0,
+      "codeLinks": 5,
+      "total": 6,
+      "importance": 11
+    },
+    {
+      "concept": "presentation",
+      "outbound": 3,
+      "inbound": 0,
+      "codeLinks": 4,
+      "total": 7,
+      "importance": 11
     },
     {
       "concept": "langfuse-prompt-management-v5",
@@ -97,28 +137,20 @@
       "importance": 10
     },
     {
-      "concept": "operations",
-      "outbound": 5,
-      "inbound": 0,
-      "codeLinks": 2,
-      "total": 7,
-      "importance": 9
-    },
-    {
-      "concept": "env-vars",
-      "outbound": 1,
+      "concept": "schedules",
+      "outbound": 2,
       "inbound": 0,
       "codeLinks": 4,
-      "total": 5,
-      "importance": 9
+      "total": 6,
+      "importance": 10
     },
     {
-      "concept": "presentation",
-      "outbound": 3,
-      "inbound": 0,
-      "codeLinks": 3,
-      "total": 6,
-      "importance": 9
+      "concept": "strategy",
+      "outbound": 2,
+      "inbound": 2,
+      "codeLinks": 1,
+      "total": 5,
+      "importance": 10
     },
     {
       "concept": "wiki-index-prototype-report",
@@ -129,48 +161,15 @@
       "importance": 9
     },
     {
-      "concept": "schedules",
-      "outbound": 2,
-      "inbound": 0,
-      "codeLinks": 3,
-      "total": 5,
-      "importance": 8
-    },
-    {
       "concept": "api",
       "outbound": 1,
       "inbound": 1,
       "codeLinks": 2,
       "total": 4,
       "importance": 8
-    },
-    {
-      "concept": "api-contract",
-      "outbound": 1,
-      "inbound": 1,
-      "codeLinks": 1,
-      "total": 3,
-      "importance": 6
-    },
-    {
-      "concept": "infrastructure",
-      "outbound": 1,
-      "inbound": 1,
-      "codeLinks": 1,
-      "total": 3,
-      "importance": 6
-    },
-    {
-      "concept": "report-signals-contract",
-      "outbound": 2,
-      "inbound": 0,
-      "codeLinks": 2,
-      "total": 4,
-      "importance": 6
     }
   ],
   "isolated_nodes": [
-    "e2e-testing-guide",
     "audit-decision-log",
     "audit-history",
     "dod-audit-log",
@@ -185,28 +184,16 @@
     "main-code-review-20260429",
     "perplexity-code-review-20260426",
     "strategy-review-20260417",
-    "security-report",
     "scheduler-coupling-analysis",
     "system-e2e-build-process",
-    "testing",
     "test-troubleshooting",
     "decision-chain-api",
-    "dec-004-backtest-scheduler-automation",
-    "dec-005-monitoring-alerting",
-    "dec-006-deployment-automation",
-    "backtest-engine-design",
-    "dec-016-vitest-worker-crash",
     "budget-priority-design",
     "modules",
     "langfuse-prompt-management-v3-deprecated",
     "deployment-oracle-vm",
     "strategy-param-audit",
     "strategy-param-changes",
-    "lifecycle-engine",
-    "lifecycle-health-test-spec",
-    "maintenance-state-machine",
-    "providers",
-    "regime-policy",
     "phase-6-baseline",
     "documentation-modernization-plan",
     "advice",
@@ -273,17 +260,30 @@
     "webapp-phase-6-detail-plan",
     "webapp-systematic-optimization-plan",
     "webapp-systematic-optimization-plan-v2.0",
-    "useapirequest-guide",
     "core-logic-data-flow-matrix",
     "core-logic-findings",
     "core-logic-replay-results"
   ],
   "weakly_connected": [
     "deployment-checklist",
+    "e2e-testing-guide",
+    "documentation-work-summary-20260911",
+    "security-report",
+    "testing",
     "test-spec-strategyengine",
+    "dec-004-backtest-scheduler-automation",
+    "dec-005-monitoring-alerting",
+    "dec-006-deployment-automation",
+    "dec-016-vitest-worker-crash",
+    "maintenance-schedule",
     "ai-coach-checklist",
-    "data-manager",
     "storage",
-    "portfolio-health-api"
+    "portfolio-health-api",
+    "regime-policy",
+    "deep-content-verification-plan",
+    "module-docs-verification-plan",
+    "useapirequest-guide",
+    "strategy-engine-verification-report",
+    "strategy-logic-verification-report"
   ]
 }
