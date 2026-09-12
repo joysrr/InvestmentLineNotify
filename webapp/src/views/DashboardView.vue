@@ -43,19 +43,42 @@
         :routing-path="routingPath"
       />
 
-      <!-- 2. 市場大勢與指標快照 -->
-      <MarketSnapshot
-        :status="status"
-        :loading="statusLoading"
-        :error="statusError"
-        :regime-level="regimeLevel"
-        :vix-override-active="vixOverrideActive"
-        :pb-pr-level="pbPrLevel"
+      <!-- 2. 雙核心駕駛艙 (L2: 總經象限 + 資產安全防護) -->
+      <section class="cockpit-section" data-testid="dual-cockpit-section">
+        <MacroCockpitCard
+          :regime-level="regimeLevel"
+          :vix="status?.data?.rawUsMarket?.vix ?? latestReport?.signals?.vix ?? '—'"
+          :vix-override-active="vixOverrideActive"
+          @open-drawer="marketDrawerVisible = true"
+        />
+        <PortfolioShieldCard
+          :margin-ratio="latestReport?.portfolio?.maintenanceRatio ?? latestReport?.signals?.portfolio?.maintenanceRatio ?? 0"
+          :warning-threshold="160"
+          :gross-leverage="glValue"
+          @open-drawer="riskDrawerVisible = true"
+        />
+      </section>
+
+      <!-- L3: 市場總經環境明細抽屜 -->
+      <MarketDetailDrawer
+        v-model:visible="marketDrawerVisible"
+        :vix="status?.data?.rawUsMarket?.vix ?? latestReport?.signals?.vix ?? '—'"
         :pb-pr-value="pbPrValue"
-        :gl-level="glLevel"
-        :gl-value="glValue"
+        :pb-pr-level="pbPrLevel"
         :light-emoji="lightEmoji"
         :light-text="lightText"
+        :margin-change5d="status?.data?.rawMargin?.marginBalanceChangePercent5d ?? 0"
+        :margin-overheated="latestReport?.signals?.macroRegime?.isMarginOverheated ?? false"
+      />
+
+      <!-- L3: 資產風控與維持率明細抽屜 -->
+      <RiskDetailDrawer
+        v-model:visible="riskDrawerVisible"
+        :margin-ratio="latestReport?.portfolio?.maintenanceRatio ?? latestReport?.signals?.portfolio?.maintenanceRatio ?? 0"
+        :gross-leverage="glValue"
+        :hard-cap-leverage="3.0"
+        :warning-threshold="160"
+        :drop-buffer-percent="dropBufferPercent"
       />
 
       <!-- 3. 帳戶健康度監控 (0-100) -->
@@ -116,7 +139,10 @@ import {
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 
 // Components
-import MarketSnapshot from "../components/dashboard/MarketSnapshot.vue";
+import MacroCockpitCard from "../components/dashboard/MacroCockpitCard.vue";
+import PortfolioShieldCard from "../components/dashboard/PortfolioShieldCard.vue";
+import MarketDetailDrawer from "../components/dashboard/MarketDetailDrawer.vue";
+import RiskDetailDrawer from "../components/dashboard/RiskDetailDrawer.vue";
 import DecisionHero from "../components/dashboard/DecisionHero.vue";
 import HealthPanel from "../components/dashboard/HealthPanel.vue";
 import CoachingAdvice from "../components/dashboard/CoachingAdvice.vue";
@@ -148,6 +174,16 @@ const healthError = ref(false);
 const strategyStatus = ref(null); // /api/strategy-status (detail) for StrategyStatusView
 const strategyStatusLoading = ref(true);
 const strategyStatusError = ref(null);
+
+// L3 Drawers 顯示控制
+const marketDrawerVisible = ref(false);
+const riskDrawerVisible = ref(false);
+
+const dropBufferPercent = computed(() => {
+  const m = Number(latestReport.value?.portfolio?.maintenanceRatio ?? latestReport.value?.signals?.portfolio?.maintenanceRatio) || 0;
+  if (m <= 160) return 0;
+  return Math.round(((m - 160) / m) * 100);
+});
 
 // ── Computed: Market Indicators ──
 const todayLabel = computed(() =>

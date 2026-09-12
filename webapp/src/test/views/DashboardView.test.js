@@ -72,6 +72,10 @@ const stubs = {
     template: '<div class="error-boundary"><slot /></div>',
   },
   MarketSnapshot: { template: '<div class="market-snapshot-stub" />' },
+  MacroCockpitCard: { template: '<div class="macro-cockpit-stub" />' },
+  PortfolioShieldCard: { template: '<div class="portfolio-shield-stub" />' },
+  MarketDetailDrawer: { template: '<div class="market-detail-drawer-stub" />' },
+  RiskDetailDrawer: { template: '<div class="risk-detail-drawer-stub" />' },
   DecisionHero: { template: '<div class="decision-hero-stub" />' },
   DisciplineBanner: true,
   HealthPanel: { template: '<div class="health-panel-stub" />' },
@@ -109,11 +113,12 @@ describe("DashboardView - Single Page Card Carousel (Phase 2 target)", () => {
     expect(wrapper.find(".dash-tabs").exists()).toBe(false);
   });
 
-  it("應單頁同時渲染 Snapshot + Health + Decision + StrategyStatus 卡片", async () => {
+  it("應單頁同時渲染 Cockpit + Health + Decision + StrategyStatus 卡片", async () => {
     await mountView();
     const html = wrapper.html();
     // All core cards visible at once
-    expect(html).toContain("market-snapshot-stub");
+    expect(html).toContain("macro-cockpit-stub");
+    expect(html).toContain("portfolio-shield-stub");
     expect(html).toContain("health-panel-stub");
     expect(html).toContain("strategy-status-stub");
   });
