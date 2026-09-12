@@ -177,11 +177,6 @@
     "providers": ["strategy-engine", "news-fetcher"],
     "regime-policy": ["strategy-engine", "macro-regime-advanced-spec"],
     "strategy-engine": ["ai-news"],
-    "native-social-sentiment-engine-spec": [
-      "regime-policy",
-      "signal-generator",
-      "macro-battle-view"
-    ],
     "dashboard-ux-pyramid-spec": [
       "dashboard-view",
       "market-snapshot",
@@ -201,6 +196,11 @@
       "budget-priority-design"
     ],
     "module-docs-verification-plan": ["documentation"],
+    "native-social-sentiment-engine-spec": [
+      "regime-policy",
+      "signal-generator",
+      "macro-battle-view"
+    ],
     "social-sentiment-integration-spec": [
       "macro-battle-view",
       "market-snapshot",

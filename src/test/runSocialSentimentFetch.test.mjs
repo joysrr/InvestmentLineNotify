@@ -1,26 +1,26 @@
 import { describe, it, expect, vi } from "vitest";
 
-// TDD: Verify /sentiment bot command triggers social sentiment snapshot generation
-// RED phase
-describe("runSocialSentimentFetch - Manual sentiment update trigger (Phase 4)", () => {
-  it("應執行 daily_snapshot.py 並寫入社群情緒 JSON", async () => {
-    // Mock execFile to simulate successful execution
-    const mockChild = {
-      on: vi.fn(),
-    };
-    const mockExecFile = vi.fn((cmd, args, opts, callback) => {
-      // Call callback with success result
-      callback(null, "snapshot complete", "");
-      return mockChild;
-    });
+describe("runSocialSentimentFetch - Native Implementation (Phase 3)", () => {
+  it("應能調用原生 collectSocialSentiment 與 generateDailySnapshot 並成功產生快照", async () => {
+    vi.doMock("../modules/sentiment/socialCollector.mjs", () => ({
+      collectSocialSentiment: vi.fn().mockResolvedValue({
+        date: "2026-09-12",
+        score: 65,
+        itemsCount: 5,
+      }),
+      DEFAULT_NEWS_HISTORY_PATH: "/tmp/mock_news_history.jsonl",
+    }));
 
-    vi.doMock("child_process", () => ({ execFile: mockExecFile }));
-    vi.doMock("../utils/logger.mjs", () => ({
-      default: {
-        info: vi.fn(),
-        warn: vi.fn(),
-        error: vi.fn(),
-      },
+    vi.doMock("../modules/sentiment/sentimentEngine.mjs", () => ({
+      generateDailySnapshot: vi.fn().mockReturnValue({
+        date: "2026-09-12",
+        score: 65,
+        ma3: 62.5,
+        ma7: 60.0,
+        divergenceStatus: "NONE",
+        signals: [],
+        hotTopics: [],
+      }),
     }));
 
     vi.resetModules();
@@ -30,26 +30,18 @@ describe("runSocialSentimentFetch - Manual sentiment update trigger (Phase 4)", 
     const result = await runSocialSentimentFetch();
 
     expect(result.success).toBe(true);
+    expect(result.snapshot).toBeDefined();
+    expect(result.snapshot.score).toBe(65);
     expect(result.outputPath).toContain("social_sentiment_daily.json");
-    expect(mockExecFile).toHaveBeenCalledTimes(1);
-    expect(mockExecFile.mock.calls[0][0]).toBe("python3");
-    // Verify env includes PYTHONPATH pointing to social-sentiment-optimizer/src
-    const opts = mockExecFile.mock.calls[0][2];
-    expect(opts.timeout).toBe(60000);
-    expect(opts.env.PYTHONPATH).toContain("social-sentiment-optimizer/src");
   });
 
-  it("當 execFile callback 回傳 error 時，應回傳 success: false 並帶錯誤訊息", async () => {
-    const mockChild = {
-      on: vi.fn(),
-    };
-    const mockExecFile = vi.fn((cmd, args, opts, callback) => {
-      const err = new Error("Command failed: ENOENT");
-      callback(err, "", "No module named social_optimizer");
-      return mockChild;
-    });
-
-    vi.doMock("child_process", () => ({ execFile: mockExecFile }));
+  it("當採集或計算過程發生例外時，應優雅捕捉並回傳 success: false 與 error 訊息", async () => {
+    vi.doMock("../modules/sentiment/socialCollector.mjs", () => ({
+      collectSocialSentiment: vi
+        .fn()
+        .mockRejectedValue(new Error("Network timeout")),
+      DEFAULT_NEWS_HISTORY_PATH: "/tmp/mock_news_history.jsonl",
+    }));
 
     vi.resetModules();
     const { runSocialSentimentFetch } =
@@ -58,40 +50,6 @@ describe("runSocialSentimentFetch - Manual sentiment update trigger (Phase 4)", 
     const result = await runSocialSentimentFetch();
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("Command failed: ENOENT");
-  });
-
-  it("當 child process 'error' 事件觸發時 (python3 not found)，應回傳 success: false", async () => {
-    let errorHandler = null;
-    const mockChild = {
-      on: vi.fn((event, handler) => {
-        errorHandler = handler;
-      }),
-    };
-    const mockExecFile = vi.fn(() => mockChild);
-
-    vi.doMock("child_process", () => ({ execFile: mockExecFile }));
-    vi.doMock("../utils/logger.mjs", () => ({
-      default: {
-        info: vi.fn(),
-        warn: vi.fn(),
-        error: vi.fn(),
-      },
-    }));
-
-    vi.resetModules();
-    // Import but don't await — we need to trigger the error handler manually
-    const { runSocialSentimentFetch } =
-      await import("../runSocialSentimentFetch.mjs");
-
-    const promise = runSocialSentimentFetch();
-    // Simulate the 'error' event firing (e.g., python3 not found)
-    errorHandler(new Error("spawn python3 ENOENT"));
-
-    const result = await promise;
-
-    expect(result.success).toBe(false);
-    expect(result.error).toContain("spawn python3 ENOENT");
-    expect(result.error).toContain("Child process error");
+    expect(result.error).toContain("Network timeout");
   });
 });

@@ -1,8 +1,8 @@
 ---
 type: plan
-status: active
+status: completed
 last_updated: 2026-09-12
-progress: 66%
+progress: 100%
 tags:
   - plan
   - sentiment-migration
@@ -62,8 +62,9 @@ wiki_links:
 
 ### 🔹 Phase 3: Bot 指令 `/sentiment` 重構與端到端驗證
 
-- [ ] 重構 `src/runSocialSentimentFetch.mjs`，完全改調用原生 `socialCollector` + `sentimentEngine`。
-- [ ] 移除 `child_process` 與外部路徑依賴。
-- [ ] 驗證 Telegram Bot `/sentiment` 觸發後的定格產出與 Telegram 訊息反饋。
-- [ ] 執行全套測試驗證（無 regression）。
-- [ ] 更新 Wiki 索引並封存計畫文件至 `docs/plans/completed/`。
+- [x] 重構 `src/runSocialSentimentFetch.mjs`，完全改調用原生 `socialCollector` + `sentimentEngine`。
+- [x] 移除 `child_process`、Python 與外部路徑依賴。
+- [x] 升級 Telegram Bot `/sentiment` 回覆訊息卡片（呈現 Score、MA3、MA7、背離狀態、熱門話題）。
+- [x] 執行實體驗證（已成功抓取 PTT 文章 19 筆並產出定格快照）。
+- [x] 全套情緒整合與策略測試通過 (23/23 pass)。
+- [x] 更新 Wiki 索引並封存計畫文件至 `docs/plans/completed/`。

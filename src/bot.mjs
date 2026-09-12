@@ -229,12 +229,22 @@ bot.command("news", async (ctx) => {
 });
 
 // ── 指令：/sentiment ───────────────────────────────────────────────────────
-// 手動觸發社群情緒快照生成（呼叫 daily_snapshot.py）
+// 原生手動觸發社群情緒採集與快照生成 (PTT + Bluesky + MA3/MA7 + 背離計算)
 bot.command("sentiment", async (ctx) => {
   await withRunner(ctx, "社群情緒更新 (sentiment)", async () => {
     const res = await runSocialSentimentFetch();
     if (!res.success) {
       throw new Error(`更新失敗: ${res.error || "unknown error"}`);
+    }
+    const snap = res.snapshot;
+    if (snap) {
+      return (
+        `✅ <b>社群情緒快照更新完成</b>\n` +
+        `📅 日期: <code>${snap.date}</code>\n` +
+        `📊 情緒得分: <b>${snap.score}</b> (3D: ${snap.ma3} | 7D: ${snap.ma7})\n` +
+        `⚖️ 背離狀態: <code>${snap.divergenceStatus}</code>\n` +
+        `🔥 焦點話題: ${snap.hotTopics?.map((t) => t.title).join(", ") || "無"}`
+      );
     }
     return `✅ 社群情緒快照更新完成\n路徑: <code>${res.outputPath}</code>`;
   });

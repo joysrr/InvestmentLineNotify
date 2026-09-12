@@ -1,154 +1,127 @@
 // src/runSocialSentimentFetch.mjs
 //
-// 職責：Telegram Bot /sentiment 指令用 — 手動觸發社群情緒快照生成。
-// 呼叫 social-sentiment-optimizer 的 daily_snapshot.py，
-// 產生 data/sentiment/social_sentiment_daily.json 供 InvestmentLineNotify 使用。
+// 職責：Telegram Bot /sentiment 指令用 — 手動觸發社群情緒採集與快照生成。
+// 100% 純 JS 原生實作，無 Python 與外部目錄相依。
 //
-// 此指令會覆蓋現有 social_sentiment_daily.json，
-// 但不影響 han-investment-news-collector.sh 的正常排程。
+// 流程：
+// 1. 執行原生社群採集 (PTT + Bluesky) 並計分寫入 news_history.jsonl
+// 2. 讀取 news_history.jsonl 與 reports 歷史價格
+// 3. 透過 sentimentEngine 計算 3D/7D MA 與頂底背離
+// 4. 寫入 data/sentiment/social_sentiment_daily.json 供 Mini App 與策略層使用
 
-import { execFile } from "child_process";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import logger from "./utils/logger.mjs";
 import { DEFAULT_SENTIMENT_FILE_PATH } from "./modules/providers/socialSentimentProvider.mjs";
+import {
+  collectSocialSentiment,
+  DEFAULT_NEWS_HISTORY_PATH,
+} from "./modules/sentiment/socialCollector.mjs";
+import { generateDailySnapshot } from "./modules/sentiment/sentimentEngine.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.resolve(__dirname, "..");
+const REPORTS_DIR = path.resolve(PROJECT_ROOT, "data/reports");
 
 /**
- * 動態解析 social-sentiment-optimizer 專案根目錄
- * 遵循專案慣例：優先同層相對目錄 ../social-sentiment-optimizer，或由環境變數覆蓋
+ * 從 news_history.jsonl 讀取社群歷史記錄
  */
-export function resolveOptimizerRoot() {
-  if (process.env.SOCIAL_OPTIMIZER_PATH) {
-    return path.resolve(process.env.SOCIAL_OPTIMIZER_PATH);
+export function loadSentimentHistory(historyPath = DEFAULT_NEWS_HISTORY_PATH) {
+  if (!fs.existsSync(historyPath)) {
+    return [];
   }
-
-  // 嘗試相對路徑：專案同層 (如 /home/ubuntu/social-sentiment-optimizer 或 /workspace/projects/social-sentiment-optimizer)
-  const siblingPath = path.resolve(
-    PROJECT_ROOT,
-    "..",
-    "social-sentiment-optimizer",
-  );
-  if (fs.existsSync(siblingPath)) {
-    return siblingPath;
+  const lines = fs.readFileSync(historyPath, "utf-8").split("\n");
+  const records = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    try {
+      records.push(JSON.parse(trimmed));
+    } catch {
+      // 忽略單行壞死格式
+    }
   }
-
-  // 嘗試專案內部子目錄
-  const nestedPath = path.resolve(PROJECT_ROOT, "social-sentiment-optimizer");
-  if (fs.existsSync(nestedPath)) {
-    return nestedPath;
-  }
-
-  return siblingPath;
+  return records;
 }
 
 /**
- * 手動觸發 daily_snapshot.py 生成社群情緒快照。
- *
- * @returns {Promise<{success: boolean, outputPath: string, stdout?: string, stderr?: string, error?: string}>}
+ * 從 data/reports/YYYY-MM-DD.json 讀取價格歷史供背離比對
  */
-export async function runSocialSentimentFetch() {
-  logger.info("💬 [SocialSentiment] 開始手動觸發社群情緒快照生成...");
-
-  const optimizerRoot = resolveOptimizerRoot();
-  const outputPath = DEFAULT_SENTIMENT_FILE_PATH;
-  const historyFile = path.resolve(
-    optimizerRoot,
-    "data",
-    "raw",
-    "news_history.jsonl",
-  );
-  const priceFile = path.resolve(
-    optimizerRoot,
-    "data",
-    "raw",
-    "price_history.jsonl",
-  );
-
-  if (!fs.existsSync(optimizerRoot)) {
-    const errorMsg = `找不到社群分析模組目錄: ${optimizerRoot}`;
-    logger.error(errorMsg);
-    return {
-      success: false,
-      outputPath,
-      error: errorMsg,
-    };
+export function loadPriceHistoryFromReports(reportsDir = REPORTS_DIR) {
+  if (!fs.existsSync(reportsDir)) {
+    return [];
   }
 
-  const args = [
-    "-m",
-    "social_optimizer.daily_snapshot",
-    "--history",
-    historyFile,
-    "--price-history",
-    priceFile,
-    "--output",
-    outputPath,
-  ];
+  const files = fs
+    .readdirSync(reportsDir)
+    .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+    .sort();
+  const prices = [];
 
-  return new Promise((resolve) => {
-    let resolved = false;
-    const safeResolve = (val) => {
-      if (!resolved) {
-        resolved = true;
-        resolve(val);
+  for (const file of files) {
+    try {
+      const fullPath = path.resolve(reportsDir, file);
+      const data = JSON.parse(fs.readFileSync(fullPath, "utf-8"));
+      const date = data.date || file.replace(".json", "");
+      const close = data.price0050 || data.currentPrice || data.close;
+      if (close !== undefined && close !== null) {
+        prices.push({ date, close: Number(close) });
       }
-    };
+    } catch {
+      // 略過讀取失敗之個別檔案
+    }
+  }
 
-    const child = execFile(
-      "python3",
-      args,
-      {
-        cwd: optimizerRoot,
-        timeout: 60000,
-        env: {
-          ...process.env,
-          PYTHONPATH: `${path.resolve(optimizerRoot, "src")}:${process.env.PYTHONPATH || ""}`,
-        },
-      },
-      (err, stdout, stderr) => {
-        if (err) {
-          logger.error(err, "❌ [SocialSentiment] daily_snapshot.py 執行失敗");
-          safeResolve({
-            success: false,
-            outputPath,
-            stdout,
-            stderr,
-            error: err.message,
-          });
-          return;
-        }
+  return prices;
+}
 
-        if (stderr) {
-          logger.warn(
-            stderr,
-            "⚠️ [SocialSentiment] daily_snapshot.py 有 stderr 輸出",
-          );
-        }
+/**
+ * 手動觸發原生社群情緒採集與快照生成
+ * @returns {Promise<{success: boolean, outputPath: string, snapshot?: Object, error?: string}>}
+ */
+export async function runSocialSentimentFetch() {
+  logger.info("💬 [SocialSentiment] 開始原生手動觸發社群情緒採集與快照生成...");
 
-        logger.info(`✅ [SocialSentiment] 社群情緒快照已更新: ${outputPath}`);
-        safeResolve({
-          success: true,
-          outputPath,
-          stdout,
-          stderr,
-        });
-      },
+  try {
+    // 1. 原生採集並記錄
+    await collectSocialSentiment();
+
+    // 2. 載入歷史記錄
+    const sentimentHistory = loadSentimentHistory();
+    const priceHistory = loadPriceHistoryFromReports();
+
+    // 3. 計算指標並生成每日快照
+    const outputPath = DEFAULT_SENTIMENT_FILE_PATH;
+    const snapshot = generateDailySnapshot(
+      sentimentHistory,
+      priceHistory,
+      outputPath,
     );
 
-    child.on("error", (error) => {
-      logger.error(error, "❌ [SocialSentiment] Child process error");
-      safeResolve({
-        success: false,
+    logger.info(
+      {
+        date: snapshot.date,
+        score: snapshot.score,
+        ma3: snapshot.ma3,
+        ma7: snapshot.ma7,
         outputPath,
-        stdout: "",
-        stderr: error.message,
-        error: `Child process error: ${error.message}`,
-      });
-    });
-  });
+      },
+      "✅ [SocialSentiment] 原生社群情緒快照已成功更新",
+    );
+
+    return {
+      success: true,
+      outputPath,
+      snapshot,
+    };
+  } catch (err) {
+    logger.error(err, "❌ [SocialSentiment] 社群情緒更新過程失敗");
+    return {
+      success: false,
+      outputPath: DEFAULT_SENTIMENT_FILE_PATH,
+      error: err.message,
+    };
+  }
 }

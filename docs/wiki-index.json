@@ -8,7 +8,7 @@
     "total_code_mappings": 55,
     "concepts_with_code": 38,
     "concepts_with_links": 52,
-    "generated_at": "2026-09-12T13:38:58.271Z"
+    "generated_at": "2026-09-12T13:55:13.594Z"
   },
   "concepts": {
     "api-contract": {
@@ -924,23 +924,6 @@
       "status": "archived",
       "last_verified": null
     },
-    "native-social-sentiment-engine-spec": {
-      "primary_doc": "plans/active/NATIVE_SOCIAL_SENTIMENT_ENGINE_SPEC.md",
-      "title": "社群情緒模組原生物生化計畫 (Native Social Sentiment Engine Spec)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [
-        "plan",
-        "sentiment-migration",
-        "nodejs-esm",
-        "ptt",
-        "bsky",
-        "bot"
-      ],
-      "status": "active",
-      "last_verified": null
-    },
     "advice": {
       "primary_doc": "plans/archive/2026-04_remediation_advice/ADVICE.md",
       "title": "ADVICE: 戰略審查報告 (2026-04 Remediation Plan)",
@@ -1474,6 +1457,23 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["verification", "modules", "documentation"],
+      "status": "completed",
+      "last_verified": null
+    },
+    "native-social-sentiment-engine-spec": {
+      "primary_doc": "plans/completed/NATIVE_SOCIAL_SENTIMENT_ENGINE_SPEC.md",
+      "title": "社群情緒模組原生物生化計畫 (Native Social Sentiment Engine Spec)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "plan",
+        "sentiment-migration",
+        "nodejs-esm",
+        "ptt",
+        "bsky",
+        "bot"
+      ],
       "status": "completed",
       "last_verified": null
     },
