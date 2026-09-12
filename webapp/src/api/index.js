@@ -221,6 +221,15 @@ export const fetchMonthlyReports = (limit = 12) =>
 
 export const fetchNews = () => apiFetch(buildUrl(ENDPOINTS.news));
 
+export const fetchSocialSentiment = async () => {
+  try {
+    const data = await apiFetch(buildUrl(ENDPOINTS.socialSentiment));
+    return data;
+  } catch {
+    return null;
+  }
+};
+
 export const fetchStatus = () => apiFetch(buildUrl(ENDPOINTS.status));
 
 export const fetchReportNews = () => apiFetch(buildUrl(ENDPOINTS.reportNews));

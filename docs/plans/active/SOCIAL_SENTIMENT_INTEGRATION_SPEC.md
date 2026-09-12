@@ -2,7 +2,7 @@
 type: plan
 status: in-progress
 last_updated: 2026-09-12
-progress: 30%
+progress: 65%
 tags:
   - plan
   - social-sentiment

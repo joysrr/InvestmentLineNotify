@@ -29,6 +29,9 @@ export const ENDPOINTS = {
   news: "/news",
   reportNews: "/report/news",
 
+  // 社群情緒
+  socialSentiment: "/social-sentiment",
+
   // 狀態
   status: "/status",
 

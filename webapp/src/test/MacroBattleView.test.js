@@ -1,10 +1,11 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
 import MacroBattleView from "../views/MacroBattleView.vue";
-import { fetchReports } from "../api/index.js";
+import { fetchReports, fetchSocialSentiment } from "../api/index.js";
 
 vi.mock("../api/index.js", () => ({
   fetchReports: vi.fn(),
+  fetchSocialSentiment: vi.fn(),
 }));
 
 vi.mock("../composables/useTelegram.js", () => ({
@@ -26,6 +27,7 @@ const mountView = () =>
 describe("MacroBattleView", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    fetchSocialSentiment.mockResolvedValue(null); // default fallback
   });
 
   it("載入無資料時應顯示 empty state", async () => {
@@ -106,5 +108,41 @@ describe("MacroBattleView", () => {
     expect(subtabs.length).toBe(3);
     const textList = subtabs.map((b) => b.text());
     expect(textList).toEqual(["🌐 市場雷達", "⚖️ 多空對決", "📊 技術指標"]);
+  });
+
+  it("應在社群情緒資料就緒時渲染 SocialSentimentCard", async () => {
+    fetchReports.mockResolvedValue([
+      {
+        date: "2026-09-12",
+        macroAnalysis: {
+          total_bull_score: 4,
+          total_bear_score: 2,
+          conclusion: {
+            market_direction: "BULLISH",
+            short_summary: "多頭優勢",
+            key_takeaways: ["測試"],
+          },
+          bull_events: [],
+          bear_events: [],
+          neutral_events: [],
+        },
+      },
+    ]);
+    fetchSocialSentiment.mockResolvedValue({
+      date: "2026-09-12",
+      score: 72.5,
+      ma3: 68.0,
+      ma7: 64.2,
+      divergenceStatus: "NONE",
+      signals: [],
+      hotTopics: [],
+    });
+
+    const wrapper = mountView();
+    await flushPromises();
+
+    expect(wrapper.find('[data-testid="social-sentiment-card"]').exists()).toBe(
+      true,
+    );
   });
 });

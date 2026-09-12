@@ -79,6 +79,9 @@
         </div>
       </section>
 
+      <!-- 社群情緒 -->
+      <SocialSentimentCard :sentiment="socialSentiment" />
+
       <!-- Key Takeaways -->
       <section v-if="takeaways.length" class="section">
         <h3 class="section-title">📌 核心驅動邏輯</h3>
@@ -151,12 +154,15 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { fetchReports } from "../api/index.js";
+import { fetchSocialSentiment } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
+import SocialSentimentCard from "@/components/macro/SocialSentimentCard.vue";
 import { waitReady } from "../composables/useTelegram.js";
 
 const loading = ref(true);
 const error = ref(false);
 const macro = ref(null); // macroAnalysis 物件
+const socialSentiment = ref(null);
 const reportDate = ref("");
 
 onMounted(async () => {
@@ -171,6 +177,13 @@ onMounted(async () => {
     macro.value = latest?.macroAnalysis ?? null;
   } catch {
     error.value = true;
+  }
+
+  // Fetch social sentiment (safe-fallback: errors swallowed, null fallback)
+  try {
+    socialSentiment.value = await fetchSocialSentiment();
+  } catch {
+    socialSentiment.value = null;
   } finally {
     loading.value = false;
   }
