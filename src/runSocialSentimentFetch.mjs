@@ -77,9 +77,16 @@ export async function runSocialSentimentFetch() {
       },
     );
 
-    // Handle child process timeout
+    // Handle child process error (e.g., python3 not found, module not found)
     child.on("error", (error) => {
       logger.error(error, "❌ [SocialSentiment] Child process error");
+      resolve({
+        success: false,
+        outputPath: OUTPUT_PATH,
+        stdout: "",
+        stderr: error.message,
+        error: `Child process error: ${error.message}`,
+      });
     });
   });
 }
