@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 148,
-    "total_edges": 188,
+    "total_concepts": 149,
+    "total_edges": 192,
     "total_code_mappings": 55,
     "concepts_with_code": 38,
-    "concepts_with_links": 50,
-    "generated_at": "2026-09-12T03:00:57.014Z"
+    "concepts_with_links": 51,
+    "generated_at": "2026-09-12T04:10:10.139Z"
   },
   "concepts": {
     "api-contract": {
@@ -922,6 +922,24 @@
       "related_code": [],
       "tags": ["performance", "baseline"],
       "status": "archived",
+      "last_verified": null
+    },
+    "social-sentiment-integration-spec": {
+      "primary_doc": "plans/active/SOCIAL_SENTIMENT_INTEGRATION_SPEC.md",
+      "title": "社群情緒與散戶背離整合計畫 (Social Sentiment & Macro Battle Integration Spec)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "plan",
+        "social-sentiment",
+        "macro-battle",
+        "ptt",
+        "bluesky",
+        "divergence",
+        "miniapp"
+      ],
+      "status": "in-progress",
       "last_verified": null
     },
     "advice": {

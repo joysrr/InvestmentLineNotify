@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 148,
-    "edges": 188
+    "nodes": 149,
+    "edges": 192
   },
   "graph": {
     "api-contract": ["api-index"],
@@ -177,6 +177,12 @@
     "providers": ["strategy-engine", "news-fetcher"],
     "regime-policy": ["strategy-engine", "macro-regime-advanced-spec"],
     "strategy-engine": ["ai-news"],
+    "social-sentiment-integration-spec": [
+      "macro-battle-view",
+      "market-snapshot",
+      "regime-policy",
+      "signal-generator"
+    ],
     "dashboard-ux-pyramid-spec": [
       "dashboard-view",
       "market-snapshot",
