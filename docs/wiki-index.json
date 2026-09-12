@@ -8,7 +8,7 @@
     "total_code_mappings": 55,
     "concepts_with_code": 38,
     "concepts_with_links": 50,
-    "generated_at": "2026-09-12T02:52:26.764Z"
+    "generated_at": "2026-09-12T03:00:57.014Z"
   },
   "concepts": {
     "api-contract": {
@@ -924,16 +924,6 @@
       "status": "archived",
       "last_verified": null
     },
-    "dashboard-ux-pyramid-spec": {
-      "primary_doc": "plans/active/DASHBOARD_UX_PYRAMID_SPEC.md",
-      "title": "Mini App 儀表板三層金字塔整合與 UX 瘦身計畫 (DASHBOARD_UX_PYRAMID_SPEC)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": ["webapp", "ux", "dashboard", "mobile-rwd", "macro-regime"],
-      "status": "in-progress",
-      "last_verified": null
-    },
     "advice": {
       "primary_doc": "plans/archive/2026-04_remediation_advice/ADVICE.md",
       "title": "ADVICE: 戰略審查報告 (2026-04 Remediation Plan)",
@@ -1311,6 +1301,16 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
+      "status": "completed",
+      "last_verified": null
+    },
+    "dashboard-ux-pyramid-spec": {
+      "primary_doc": "plans/completed/DASHBOARD_UX_PYRAMID_SPEC.md",
+      "title": "Mini App 儀表板三層金字塔整合與 UX 瘦身計畫 (DASHBOARD_UX_PYRAMID_SPEC)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["webapp", "ux", "dashboard", "mobile-rwd", "macro-regime"],
       "status": "completed",
       "last_verified": null
     },

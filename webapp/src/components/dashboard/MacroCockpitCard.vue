@@ -24,7 +24,7 @@
         <span class="metric-value">{{ formatNumber(vix) }}</span>
       </div>
       <div class="cockpit-action">
-        <span>明細</span>
+        <span class="drawer-hint">點擊查看市場明細</span>
         <span class="chevron">❯</span>
       </div>
     </div>

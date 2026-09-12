@@ -31,7 +31,7 @@
         </div>
       </div>
       <div class="cockpit-action">
-        <span>風控</span>
+        <span class="drawer-hint">點擊查看風控明細</span>
         <span class="chevron">❯</span>
       </div>
     </div>
