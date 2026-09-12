@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 147,
-    "total_edges": 185,
+    "total_concepts": 148,
+    "total_edges": 188,
     "total_code_mappings": 55,
     "concepts_with_code": 38,
-    "concepts_with_links": 49,
-    "generated_at": "2026-09-12T01:27:04.120Z"
+    "concepts_with_links": 50,
+    "generated_at": "2026-09-12T02:26:29.166Z"
   },
   "concepts": {
     "api-contract": {
@@ -922,6 +922,16 @@
       "related_code": [],
       "tags": ["performance", "baseline"],
       "status": "archived",
+      "last_verified": null
+    },
+    "dashboard-ux-pyramid-spec": {
+      "primary_doc": "plans/active/DASHBOARD_UX_PYRAMID_SPEC.md",
+      "title": "Mini App 儀表板三層金字塔整合與 UX 瘦身計畫 (DASHBOARD_UX_PYRAMID_SPEC)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["webapp", "ux", "dashboard", "mobile-rwd", "macro-regime"],
+      "status": "in-progress",
       "last_verified": null
     },
     "advice": {
