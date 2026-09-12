@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 149,
-    "total_edges": 192,
+    "total_concepts": 150,
+    "total_edges": 195,
     "total_code_mappings": 55,
     "concepts_with_code": 38,
-    "concepts_with_links": 51,
-    "generated_at": "2026-09-12T08:06:14.875Z"
+    "concepts_with_links": 52,
+    "generated_at": "2026-09-12T13:38:58.271Z"
   },
   "concepts": {
     "api-contract": {
@@ -922,6 +922,23 @@
       "related_code": [],
       "tags": ["performance", "baseline"],
       "status": "archived",
+      "last_verified": null
+    },
+    "native-social-sentiment-engine-spec": {
+      "primary_doc": "plans/active/NATIVE_SOCIAL_SENTIMENT_ENGINE_SPEC.md",
+      "title": "社群情緒模組原生物生化計畫 (Native Social Sentiment Engine Spec)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "plan",
+        "sentiment-migration",
+        "nodejs-esm",
+        "ptt",
+        "bsky",
+        "bot"
+      ],
+      "status": "active",
       "last_verified": null
     },
     "advice": {

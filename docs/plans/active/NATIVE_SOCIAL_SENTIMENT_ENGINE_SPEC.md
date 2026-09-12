@@ -2,7 +2,7 @@
 type: plan
 status: active
 last_updated: 2026-09-12
-progress: 0%
+progress: 66%
 tags:
   - plan
   - sentiment-migration
@@ -46,18 +46,19 @@ wiki_links:
 
 ### 🔹 Phase 1: 原生情緒指標與背離計算引擎 (`src/modules/sentiment/sentimentEngine.mjs`)
 
-- [ ] 定義計算契約與介面（接收歷史 records + 價格 records）。
-- [ ] TDD 實作 3D / 7D 移動平均 (MA) 計算。
-- [ ] TDD 實作頂背離（`BEARISH_DIVERGENCE`）與底背離（`BULLISH_DIVERGENCE`）演算法。
-- [ ] TDD 實作每日定格 JSON (`social_sentiment_daily.json`) 產生器。
-- [ ] 單元測試驗證計算準確性（對齊原 Python 運算規則）。
+- [x] 定義計算契約與介面（接收歷史 records + 價格 records）。
+- [x] TDD 實作 3D / 7D 移動平均 (MA) 計算。
+- [x] TDD 實作頂背離（`BEARISH_DIVERGENCE`）與底背離（`BULLISH_DIVERGENCE`）演算法。
+- [x] TDD 實作每日定格 JSON (`social_sentiment_daily.json`) 產生器。
+- [x] 單元測試驗證計算準確性（對齊原 Python 運算規則，7/7 pass）。
 
 ### 🔹 Phase 2: 原生 PTT & Bluesky 爬蟲適配器 (`src/modules/sentiment/crawlers/`)
 
-- [ ] TDD 實作 `pttCrawler.mjs`：純 JS 解析 PTT 股版最新文章列表與多空標籤。
-- [ ] TDD 實作 `bskyCrawler.mjs`：呼叫 Bluesky ATProto REST API 抓取社群關鍵字貼文。
-- [ ] TDD 實作彙整器 `socialCollector.mjs`：整合雙軌貼文、計分並寫入本專案的 `data/sentiment/news_history.jsonl`。
-- [ ] 單元測試（Mock 外部 API 與 HTML 驗證）。
+- [x] TDD 實作 `pttCrawler.mjs`：純 JS 解析 PTT 股版最新文章列表與多空標籤。
+- [x] TDD 實作 `bskyCrawler.mjs`：呼叫 Bluesky ATProto REST API 抓取社群關鍵字貼文。
+- [x] TDD 實作 `socialScoreCalculator.mjs`：多空關鍵字計分器。
+- [x] TDD 實作彙整器 `socialCollector.mjs`：整合雙軌貼文、計分並寫入本專案的 `data/sentiment/news_history.jsonl`。
+- [x] 單元測試與整合測試全數通過（6/6 pass，Phase 1+2 累計 13/13 pass）。
 
 ### 🔹 Phase 3: Bot 指令 `/sentiment` 重構與端到端驗證
 
