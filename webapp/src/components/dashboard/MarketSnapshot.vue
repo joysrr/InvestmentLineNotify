@@ -12,13 +12,16 @@
     <div v-else class="snapshot-grid snapshot-grid--3">
       <!-- Regime / VIX -->
       <div class="snapshot-card" :class="regimeLevel.cardClass">
-        <span class="snap-label">市場環境 (VIX)</span>
+        <span class="snap-label">總經狀態 (Macro Regime)</span>
         <span class="snap-value">{{
           status?.data?.rawUsMarket?.vix ?? "—"
         }}</span>
         <span class="snap-sub" :class="regimeLevel.textClass">
           {{ regimeLevel.label }}
           <span v-if="vixOverrideActive" title="VIX 短路保護生效">⚡</span>
+        </span>
+        <span v-if="regimeLevel.subLabel" class="snap-hint">
+          {{ regimeLevel.subLabel }}
         </span>
       </div>
       <!-- PB PR -->
@@ -90,6 +93,12 @@ defineProps({
   font-size: 11px;
   margin-top: 2px;
   font-weight: 600;
+}
+.snap-hint {
+  font-size: 10px;
+  color: var(--tg-theme-hint-color, #888);
+  margin-top: 2px;
+  line-height: 1.2;
 }
 .snap-light {
   font-size: 20px;
