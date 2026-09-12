@@ -12,6 +12,7 @@ import {
   formatRegimeStatus,
 } from "../../regimePolicy.mjs";
 import { computeLifecycleContext } from "../../lifecycleEngine.mjs";
+import { classifyMacroRegime } from "../../macroRegimeClassifier.mjs";
 
 export class RegimePolicyRule extends DecisionRule {
   constructor() {
@@ -30,9 +31,30 @@ export class RegimePolicyRule extends DecisionRule {
     const vix = ctx.vix;
     const sentiment = ctx.macroSentiment?.direction || "NEUTRAL";
 
-    // 判斷 Regime 狀態
+    // 判定 Regime 狀態
     const regimeResult = determineRegime(vix, sentiment, regimeCfg);
     engineState.regimeResult = regimeResult;
+
+    // Phase 4: 同步評估四象限 Macro Regime 2.0 分類
+    if (ctx.indicators?.ma60 !== undefined || ctx.price0050 !== undefined) {
+      try {
+        const macroRegime = classifyMacroRegime(
+          {
+            price0050: ctx.price0050,
+            ma60: ctx.indicators?.ma60,
+            ma60Slope: ctx.indicators?.ma60Slope,
+            vix: ctx.vix,
+            marginChangePercent5d: ctx.marginChangePercent5d,
+            indexChangePercent5d: ctx.indexChangePercent5d,
+          },
+          engineState.macroRegime || null,
+        );
+        engineState.macroRegime = macroRegime;
+        ctx.macroRegime = macroRegime;
+      } catch (err) {
+        // Fallback: 若無法計算則靜默略過
+      }
+    }
 
     // CRISIS 模式：立即回傳 Sell-only 決策（禁止新增部位）
     if (regimeResult.state === "CRISIS") {

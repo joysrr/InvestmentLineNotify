@@ -8,7 +8,7 @@
     "total_code_mappings": 54,
     "concepts_with_code": 38,
     "concepts_with_links": 49,
-    "generated_at": "2026-09-12T01:08:59.855Z"
+    "generated_at": "2026-09-12T01:18:16.113Z"
   },
   "concepts": {
     "api-contract": {
@@ -920,22 +920,6 @@
       "status": "archived",
       "last_verified": null
     },
-    "macro-regime-advanced-spec": {
-      "primary_doc": "plans/active/MACRO_REGIME_ADVANCED_SPEC.md",
-      "title": "總經與市場狀態進階辨識 (Macro Regime 2.0) 工程計畫",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [
-        "macro",
-        "regime-detection",
-        "scoring-matrix",
-        "strategy",
-        "risk-management"
-      ],
-      "status": "in-progress",
-      "last_verified": null
-    },
     "advice": {
       "primary_doc": "plans/archive/2026-04_remediation_advice/ADVICE.md",
       "title": "ADVICE: 戰略審查報告 (2026-04 Remediation Plan)",
@@ -1393,6 +1377,22 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
+      "status": "completed",
+      "last_verified": null
+    },
+    "macro-regime-advanced-spec": {
+      "primary_doc": "plans/completed/MACRO_REGIME_ADVANCED_SPEC.md",
+      "title": "總經與市場狀態進階辨識 (Macro Regime 2.0) 工程計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "macro",
+        "regime-detection",
+        "scoring-matrix",
+        "strategy",
+        "risk-management"
+      ],
       "status": "completed",
       "last_verified": null
     },

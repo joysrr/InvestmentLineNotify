@@ -159,23 +159,51 @@ const todayLabel = computed(() =>
 );
 
 const regimeLevel = computed(() => {
-  const state =
-    latestReport.value?.signals?.regimeState ||
-    latestReport.value?.signals?.regimeResult?.state ||
-    "NORMAL";
-  if (state === "CRISIS")
+  const sigs = latestReport.value?.signals;
+  // 優先讀取 Macro Regime 2.0 四象限狀態，回退至舊版 regimeResult
+  const macroState = sigs?.macroRegime?.state || sigs?.regimeState;
+
+  if (macroState === "BULL_TREND") {
     return {
-      label: "極端恐慌",
+      label: "強趨勢多頭",
+      cardClass: "card-ok",
+      textClass: "text-ok",
+      subLabel: "動能 70% 順勢進攻",
+    };
+  }
+  if (macroState === "BULL_VOLATILE") {
+    return {
+      label: "劇烈震盪多頭",
+      cardClass: "card-warn",
+      textClass: "text-warn",
+      subLabel: "左側逢低超跌買進",
+    };
+  }
+  if (macroState === "BEAR_CHOPPY") {
+    return {
+      label: "陰跌盤整期",
+      cardClass: "card-warn",
+      textClass: "text-warn",
+      subLabel: "持有成本濾網 (僅DCA)",
+    };
+  }
+  if (macroState === "BEAR_PANIC" || macroState === "CRISIS") {
+    return {
+      label: "極端恐慌危機",
       cardClass: "card-danger",
       textClass: "text-danger",
+      subLabel: "強制 Sell-only 保全部位",
     };
-  if (state === "CAUTIOUS")
+  }
+  if (macroState === "CAUTIOUS") {
     return {
       label: "高壓警戒",
       cardClass: "card-warn",
       textClass: "text-warn",
+      subLabel: "降槓桿防守",
     };
-  return { label: "正常", cardClass: "card-ok", textClass: "text-ok" };
+  }
+  return { label: "正常", cardClass: "card-ok", textClass: "text-ok", subLabel: "常態運作" };
 });
 
 const vixOverrideActive = computed(() => {

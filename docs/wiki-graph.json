@@ -177,11 +177,6 @@
     "providers": ["strategy-engine", "news-fetcher"],
     "regime-policy": ["strategy-engine"],
     "strategy-engine": ["ai-news"],
-    "macro-regime-advanced-spec": [
-      "strategy-engine",
-      "regime-policy",
-      "budget-priority"
-    ],
     "deep-content-verification-plan": ["documentation", "strategy-engine"],
     "documentation-full-modernization-plan": [
       "wiki-links",
@@ -189,6 +184,11 @@
       "related-concept-2",
       "wiki-links",
       "wiki-links"
+    ],
+    "macro-regime-advanced-spec": [
+      "strategy-engine",
+      "regime-policy",
+      "budget-priority-design"
     ],
     "module-docs-verification-plan": ["documentation"],
     "wiki-index-prototype-report": [

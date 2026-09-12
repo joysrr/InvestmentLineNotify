@@ -1,8 +1,8 @@
 ---
 type: plan
-status: in-progress
-last_updated: 2026-09-11
-progress: 10%
+status: completed
+last_updated: 2026-09-12
+progress: 100%
 tags:
   - macro
   - regime-detection
@@ -12,7 +12,7 @@ tags:
 wiki_links:
   - "[[Strategy Engine]]"
   - "[[Regime Policy]]"
-  - "[[Budget Priority]]"
+  - "[[Budget Priority Design]]"
 ---
 
 # 總經與市場狀態進階辨識 (Macro Regime 2.0) 工程計畫

@@ -39,6 +39,7 @@ export class ScoringDecisionRule extends DecisionRule {
       closeArr: ctx.closeArr || [], // 供 bullMomentum 計算近 20 日漲幅
       hasTacticalPosition: ctx.z2Ratio > 15,
       currentPR: engineState.valuationGuardResult?.currentPR || 0,
+      macroRegime: engineState.macroRegime || ctx.macroRegime || null,
     };
 
     const scoreResult = generateScoringMatrix(
