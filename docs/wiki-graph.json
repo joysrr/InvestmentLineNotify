@@ -3,7 +3,7 @@
   "prototype": false,
   "stats": {
     "nodes": 147,
-    "edges": 184
+    "edges": 185
   },
   "graph": {
     "api-contract": ["api-index"],
@@ -175,7 +175,7 @@
     ],
     "maintenance-state-machine": ["strategy-engine"],
     "providers": ["strategy-engine", "news-fetcher"],
-    "regime-policy": ["strategy-engine"],
+    "regime-policy": ["strategy-engine", "macro-regime-advanced-spec"],
     "strategy-engine": ["ai-news"],
     "deep-content-verification-plan": ["documentation", "strategy-engine"],
     "documentation-full-modernization-plan": [

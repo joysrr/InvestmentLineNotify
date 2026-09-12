@@ -4,11 +4,11 @@
   "scanned_dirs": ["all"],
   "stats": {
     "total_concepts": 147,
-    "total_edges": 184,
-    "total_code_mappings": 54,
+    "total_edges": 185,
+    "total_code_mappings": 55,
     "concepts_with_code": 38,
     "concepts_with_links": 49,
-    "generated_at": "2026-09-12T01:18:16.113Z"
+    "generated_at": "2026-09-12T01:27:04.120Z"
   },
   "concepts": {
     "api-contract": {
@@ -892,13 +892,17 @@
     },
     "regime-policy": {
       "primary_doc": "modules/strategy/regime_policy.md",
-      "title": "Regime-aware Policy Module",
+      "title": "Regime-aware Policy Module (Macro Regime 2.0)",
       "summary": null,
       "related_docs": [],
-      "related_code": ["src/modules/strategy/regimePolicy.mjs"],
-      "tags": ["regime", "policy", "market-state"],
-      "status": "needs-review",
-      "last_verified": null
+      "related_code": [
+        "src/modules/strategy/regimePolicy.mjs",
+        "src/modules/strategy/macroRegimeClassifier.mjs",
+        "src/modules/strategy/decision/rules/RegimePolicyRule.mjs"
+      ],
+      "tags": ["regime", "policy", "market-state", "macro-regime-2"],
+      "status": "current",
+      "last_verified": "2026-09-12"
     },
     "strategy-engine": {
       "primary_doc": "modules/strategy/strategy_engine.md",
@@ -2195,6 +2199,10 @@
       {
         "concept": "macro-regime-metrics-analysis",
         "doc": "modules/strategy/macro_regime_metrics_analysis.md"
+      },
+      {
+        "concept": "regime-policy",
+        "doc": "modules/strategy/regime_policy.md"
       }
     ],
     "src/modules/strategy/policies/interestCostFilter.mjs": [
@@ -2216,6 +2224,12 @@
       }
     ],
     "src/modules/strategy/regimePolicy.mjs": [
+      {
+        "concept": "regime-policy",
+        "doc": "modules/strategy/regime_policy.md"
+      }
+    ],
+    "src/modules/strategy/macroRegimeClassifier.mjs": [
       {
         "concept": "regime-policy",
         "doc": "modules/strategy/regime_policy.md"
