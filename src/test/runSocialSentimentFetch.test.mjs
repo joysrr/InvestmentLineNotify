@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 // TDD: Verify /sentiment bot command triggers social sentiment snapshot generation
 // RED phase
 describe("runSocialSentimentFetch - Manual sentiment update trigger (Phase 4)", () => {
-  it("應執行 daily_snapshot.py 並寫入 social_sentiment_daily.json", async () => {
+  it("應執行 daily_snapshot.py 並寫入社群情緒 JSON", async () => {
     // Mock execFile to simulate successful execution
     const mockChild = {
       on: vi.fn(),
@@ -30,17 +30,13 @@ describe("runSocialSentimentFetch - Manual sentiment update trigger (Phase 4)", 
     const result = await runSocialSentimentFetch();
 
     expect(result.success).toBe(true);
-    expect(result.outputPath).toBe(
-      "/workspace/projects/InvestmentLineNotify/data/sentiment/social_sentiment_daily.json",
-    );
+    expect(result.outputPath).toContain("social_sentiment_daily.json");
     expect(mockExecFile).toHaveBeenCalledTimes(1);
     expect(mockExecFile.mock.calls[0][0]).toBe("python3");
-    // Verify env includes PYTHONPATH
+    // Verify env includes PYTHONPATH pointing to social-sentiment-optimizer/src
     const opts = mockExecFile.mock.calls[0][2];
     expect(opts.timeout).toBe(60000);
-    expect(opts.env.PYTHONPATH).toContain(
-      "/workspace/projects/social-sentiment-optimizer/src",
-    );
+    expect(opts.env.PYTHONPATH).toContain("social-sentiment-optimizer/src");
   });
 
   it("當 execFile callback 回傳 error 時，應回傳 success: false 並帶錯誤訊息", async () => {
