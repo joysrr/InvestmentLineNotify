@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 145,
-    "total_edges": 178,
+    "total_concepts": 146,
+    "total_edges": 181,
     "total_code_mappings": 48,
     "concepts_with_code": 37,
-    "concepts_with_links": 47,
-    "generated_at": "2026-09-11T15:20:23.723Z"
+    "concepts_with_links": 48,
+    "generated_at": "2026-09-12T00:52:03.797Z"
   },
   "concepts": {
     "api-contract": {
@@ -897,6 +897,22 @@
       "related_code": [],
       "tags": ["performance", "baseline"],
       "status": "archived",
+      "last_verified": null
+    },
+    "macro-regime-advanced-spec": {
+      "primary_doc": "plans/active/MACRO_REGIME_ADVANCED_SPEC.md",
+      "title": "總經與市場狀態進階辨識 (Macro Regime 2.0) 工程計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "macro",
+        "regime-detection",
+        "scoring-matrix",
+        "strategy",
+        "risk-management"
+      ],
+      "status": "in-progress",
       "last_verified": null
     },
     "advice": {
