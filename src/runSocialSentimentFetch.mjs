@@ -1,6 +1,6 @@
 // src/runSocialSentimentFetch.mjs
 //
-// 職責：Telegram Bot /sentiment 指令用 — 手動觸發社群情緒快照生成。
+// 職責：Telegram Bot /sentiment 指令用 — 手動觸發社群情編快照生成。
 // 呼叫 social-sentiment-optimizer 的 daily_snapshot.py，
 // 產生 data/sentiment/social_sentiment_daily.json 供 InvestmentLineNotify 使用。
 //
@@ -22,7 +22,7 @@ const PRICE_FILE = `${OPTIMIZER_ROOT}/data/raw/price_history.jsonl`;
  * @returns {Promise<{success: boolean, outputPath: string, stdout?: string, stderr?: string, error?: string}>}
  */
 export async function runSocialSentimentFetch() {
-  logger.info("💬 [SocialSentiment] 開始手動觸發社群情緒快照生成...");
+  logger.info("💬 [SocialSentiment] 開始手動觸發社群情緻快照生成...");
 
   const args = [
     "-m",
@@ -36,10 +36,17 @@ export async function runSocialSentimentFetch() {
   ];
 
   return new Promise((resolve) => {
-    execFile(
+    const child = execFile(
       "python3",
       args,
-      { cwd: OPTIMIZER_ROOT },
+      {
+        cwd: OPTIMIZER_ROOT,
+        timeout: 60000, // 60 second timeout
+        env: {
+          ...process.env,
+          PYTHONPATH: `${OPTIMIZER_ROOT}/src:${process.env.PYTHONPATH || ""}`,
+        },
+      },
       (err, stdout, stderr) => {
         if (err) {
           logger.error(err, "❌ [SocialSentiment] daily_snapshot.py 執行失敗");
@@ -60,7 +67,7 @@ export async function runSocialSentimentFetch() {
           );
         }
 
-        logger.info(`✅ [SocialSentiment] 社群情緒快照已更新: ${OUTPUT_PATH}`);
+        logger.info(`✅ [SocialSentiment] 社群情緻快照已更新: ${OUTPUT_PATH}`);
         resolve({
           success: true,
           outputPath: OUTPUT_PATH,
@@ -69,5 +76,10 @@ export async function runSocialSentimentFetch() {
         });
       },
     );
+
+    // Handle child process timeout
+    child.on("error", (error) => {
+      logger.error(error, "❌ [SocialSentiment] Child process error");
+    });
   });
 }
