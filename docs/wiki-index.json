@@ -8,7 +8,7 @@
     "total_code_mappings": 55,
     "concepts_with_code": 38,
     "concepts_with_links": 51,
-    "generated_at": "2026-09-12T05:41:40.755Z"
+    "generated_at": "2026-09-12T06:39:41.940Z"
   },
   "concepts": {
     "api-contract": {
@@ -924,24 +924,6 @@
       "status": "archived",
       "last_verified": null
     },
-    "social-sentiment-integration-spec": {
-      "primary_doc": "plans/active/SOCIAL_SENTIMENT_INTEGRATION_SPEC.md",
-      "title": "社群情緒與散戶背離整合計畫 (Social Sentiment & Macro Battle Integration Spec)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [
-        "plan",
-        "social-sentiment",
-        "macro-battle",
-        "ptt",
-        "bluesky",
-        "divergence",
-        "miniapp"
-      ],
-      "status": "in-progress",
-      "last_verified": null
-    },
     "advice": {
       "primary_doc": "plans/archive/2026-04_remediation_advice/ADVICE.md",
       "title": "ADVICE: 戰略審查報告 (2026-04 Remediation Plan)",
@@ -1595,6 +1577,24 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
+      "status": "completed",
+      "last_verified": null
+    },
+    "social-sentiment-integration-spec": {
+      "primary_doc": "plans/completed/SOCIAL_SENTIMENT_INTEGRATION_SPEC.md",
+      "title": "社群情緒與散戶背離整合計畫 (Social Sentiment & Macro Battle Integration Spec)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "plan",
+        "social-sentiment",
+        "macro-battle",
+        "ptt",
+        "bluesky",
+        "divergence",
+        "miniapp"
+      ],
       "status": "completed",
       "last_verified": null
     },

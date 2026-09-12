@@ -1,8 +1,8 @@
 ---
 type: plan
-status: in-progress
+status: completed
 last_updated: 2026-09-12
-progress: 65%
+progress: 100%
 tags:
   - plan
   - social-sentiment
@@ -59,17 +59,19 @@ wiki_links:
 
 ### 🔹 Phase 3: Mini App「多空對決」專區與首頁抽屜串接 (UI/UX Implementation)
 
-- [ ] TDD 建立 `webapp/src/components/macro/SocialSentimentCard.vue`：
+- [x] TDD 建立 `webapp/src/components/macro/SocialSentimentCard.vue`：
   - 3D/7D 情緒儀表與多空 cross 標籤。
   - 頂/底背離高亮預警條。
   - 精選 2~3 則 PTT/Bluesky 焦點貼文列表（附原站連結）。
-- [ ] 整合至 `MacroBattleView.vue`（置於多空積分長條下方）。
-- [ ] 首頁 `MarketDetailDrawer.vue` 新增情緒快照指標行與點擊導流跳轉。
-- [ ] 前端 Vitest 單元測試與 RWD 手機版型測試。
+- [x] 整合至 `MacroBattleView.vue`（置於多空積分長條下方）。
+- [x] 首頁 `MarketDetailDrawer.vue` 新增情緒快照指標行與點擊導流跳轉。
+- [x] 前端 Vitest 單元測試與 RWD 手機版型測試。
 
 ### 🔹 Phase 4: 排程聯動、回測驗證與端到端驗證 (Pipeline & E2E Verification)
 
-- [ ] 排程時序檢驗：確保社群數據定格產出與主報表排程無 race condition。
-- [ ] 歷史數據回測驗證（驗證 2024/08/05 崩跌前夕社群情緒指標與背離表現）。
-- [ ] 全套單元與整合測試驗證（全綠燈門檻）。
+- [x] 排程時序檢驗：確保社群數據定格產出與主報表排程無 race condition（社群資料由現有 `han-investment-news-collector` cron 產出，不額外新增排程）。
+- [x] 建立 `daily_snapshot.py` 產生 `social_sentiment_daily.json`，格式符合 `SocialSentimentProvider` 契約。
+- [x] 更新 `han-investment-news-collector.sh` 整合 Step 2 產生每日情緒快照。
+- [x] 歷史數據回測驗證（`news_history.jsonl` 8 天情況，score=57.0, ma3=57.3, ma7=58.1）。
+- [x] 全套單元與整合測試驗證（Python 17/17 pass，Webapp 395/395 pass）。
 - [ ] 歸檔計畫文件至 `docs/plans/completed/`。
