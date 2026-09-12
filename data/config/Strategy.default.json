@@ -422,6 +422,32 @@
     },
     "normalization": {
       "lookbackDays": 20
+    },
+    "regimeWeightsMapping": {
+      "BULL_TREND": {
+        "technicalTrend": { "cap": 7, "multiplier": 1.75 },
+        "valuationValue": { "cap": 2, "multiplier": 0.25 },
+        "flowOfFunds": { "cap": 4, "multiplier": 1.0 },
+        "extremeOscillation": { "cap": 1, "multiplier": 0.5 }
+      },
+      "BULL_VOLATILE": {
+        "technicalTrend": { "cap": 2, "multiplier": 0.5 },
+        "valuationValue": { "cap": 8, "multiplier": 1.0 },
+        "flowOfFunds": { "cap": 4, "multiplier": 1.0 },
+        "extremeOscillation": { "cap": 3, "multiplier": 1.5 }
+      },
+      "BEAR_CHOPPY": {
+        "technicalTrend": { "cap": 0, "multiplier": 0.0 },
+        "valuationValue": { "cap": 0, "multiplier": 0.0 },
+        "flowOfFunds": { "cap": 0, "multiplier": 0.0 },
+        "extremeOscillation": { "cap": 0, "multiplier": 0.0 }
+      },
+      "BEAR_PANIC": {
+        "technicalTrend": { "cap": 0, "multiplier": 0.0 },
+        "valuationValue": { "cap": 0, "multiplier": 0.0 },
+        "flowOfFunds": { "cap": 0, "multiplier": 0.0 },
+        "extremeOscillation": { "cap": 0, "multiplier": 0.0 }
+      }
     }
   },
   "overrideHierarchy": {

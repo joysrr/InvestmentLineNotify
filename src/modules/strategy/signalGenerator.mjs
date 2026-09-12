@@ -67,6 +67,15 @@ export function generateScoringMatrix(
   const thresholds = config.thresholds;
   const lookback = config.normalization.lookbackDays || 20;
 
+  // Phase 3: Macro Regime 2.0 動態權重與象限配置
+  const macroRegime = extraData.macroRegime || null;
+  const regimeState = macroRegime?.state || null;
+  const regimeWeightsMapping = config.regimeWeightsMapping || null;
+  const activeRegimeWeights =
+    regimeState && regimeWeightsMapping
+      ? regimeWeightsMapping[regimeState]
+      : null;
+
   const categoryResults = {};
   let finalScore = 0;
 
@@ -75,8 +84,16 @@ export function generateScoringMatrix(
     let groupRawScore = 0;
     const catDetails = [];
 
-    for (const [fKey, weight] of Object.entries(catCfg.weights)) {
+    // 若當前 Regime 針對該分類有動態乘數與 cap 覆寫
+    const overrideCfg = activeRegimeWeights?.[catKey];
+    const catCap =
+      overrideCfg?.cap !== undefined ? overrideCfg.cap : catCfg.cap;
+    const weightMultiplier =
+      overrideCfg?.multiplier !== undefined ? overrideCfg.multiplier : 1.0;
+
+    for (const [fKey, baseWeight] of Object.entries(catCfg.weights)) {
       const normVal = factors[fKey] || 0;
+      const weight = baseWeight * weightMultiplier;
       const contrib = normVal * weight;
       groupRawScore += contrib;
       catDetails.push({
@@ -87,14 +104,14 @@ export function generateScoringMatrix(
       });
     }
 
-    const cap = catCfg.cap;
-    const finalGroupScore = Math.max(-cap, Math.min(cap, groupRawScore));
+    const finalGroupScore =
+      catCap === 0 ? 0 : Math.max(-catCap, Math.min(catCap, groupRawScore));
     categoryResults[catKey] = {
       label: catCfg.label,
       rawScore: groupRawScore,
       finalScore: finalGroupScore,
       details: catDetails,
-      isCapped: Math.abs(groupRawScore) > cap,
+      isCapped: Math.abs(groupRawScore) > catCap,
     };
 
     return finalGroupScore;
@@ -225,6 +242,11 @@ export function generateScoringMatrix(
     if (currentTier === 3) scalingRatio = sc.tier3.ratio;
     else if (currentTier === 2) scalingRatio = sc.tier2.ratio;
     else scalingRatio = sc.tier1.ratio;
+
+    // Phase 3: 套用 Macro Regime 散戶過熱阻尼器或持有成本濾網
+    if (macroRegime?.dampingMultiplier !== undefined) {
+      scalingRatio = +(scalingRatio * macroRegime.dampingMultiplier).toFixed(4);
+    }
   } else if (finalScore <= thresholds.sellTactical) {
     signal = "sell_tactical";
     scalingRatio = 1.0;
@@ -233,6 +255,12 @@ export function generateScoringMatrix(
     finalScore < thresholds.hysteresisExit
   ) {
     signal = "exit_buffer";
+    scalingRatio = 0.0;
+  }
+
+  // 若處於 BEAR_CHOPPY 且 costOfCarryFilterActive，嚴禁戰術加碼
+  if (macroRegime?.costOfCarryFilterActive && signal === "buy_tactical") {
+    signal = "neutral";
     scalingRatio = 0.0;
   }
 
@@ -254,5 +282,8 @@ export function generateScoringMatrix(
     factorPool,
     config: thresholds,
     synergyBoostApplied,
+    macroRegimeApplied: Boolean(activeRegimeWeights),
+    regimeState: regimeState || null,
+    dampingApplied: (macroRegime?.dampingMultiplier ?? 1.0) < 1.0,
   };
 }

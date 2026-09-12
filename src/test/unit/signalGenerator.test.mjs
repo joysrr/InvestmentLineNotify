@@ -308,6 +308,96 @@ describe("generateScoringMatrix synergy tier boost", () => {
   });
 });
 
+describe("generateScoringMatrix Phase 3: Macro Regime 2.0 動態權重與阻尼器", () => {
+  const baseStrategy = {
+    scoringMatrix: {
+      enabled: true,
+      categories: {
+        technicalTrend: { cap: 4, weights: { ma60Slope: 2 } },
+        valuationValue: { cap: 8, weights: { priceDrop: 4 } },
+        flowOfFunds: { cap: 4, weights: {} },
+        extremeOscillation: { cap: 2, weights: {} },
+      },
+      thresholds: {
+        buyTactical: 2,
+        buyTacticalBullish: 1.5,
+        sellTactical: -4,
+        hysteresisExit: 0,
+        scaling: {
+          tier1: { score: 1.5, ratio: 0.4 },
+          tier2: { score: 3.5, ratio: 0.7 },
+          tier3: { score: 6, ratio: 1.0 },
+        },
+      },
+      normalization: { lookbackDays: 20 },
+      regimeWeightsMapping: {
+        BULL_TREND: {
+          technicalTrend: { cap: 7, multiplier: 1.75 },
+          valuationValue: { cap: 2, multiplier: 0.25 },
+        },
+        BEAR_CHOPPY: {
+          technicalTrend: { cap: 0, multiplier: 0 },
+          valuationValue: { cap: 0, multiplier: 0 },
+        },
+      },
+    },
+  };
+
+  it("在 BULL_TREND 下應放大趨勢權重並壓縮抄底權重", () => {
+    const result = generateScoringMatrix(
+      baseIndicators,
+      20, // 有部分跌幅
+      baseStrategy,
+      {
+        ma60SlopeArr: [0.05],
+        macroRegime: {
+          state: "BULL_TREND",
+          dampingMultiplier: 1.0,
+        },
+        institutionalHistory: [0, 0, 0, 0, 0],
+      },
+    );
+
+    // technicalTrend 的 cap 被放大至 7
+    expect(result.categoryResults.technicalTrend.finalScore).toBeGreaterThan(0);
+    expect(result.macroRegimeApplied).toBe(true);
+    expect(result.regimeState).toBe("BULL_TREND");
+  });
+
+  it("當散戶融資過熱觸發阻尼器時，scalingRatio 應乘上 dampingMultiplier (0.5)", () => {
+    const result = generateScoringMatrix(baseIndicators, 40, baseStrategy, {
+      ma60SlopeArr: [0.05],
+      macroRegime: {
+        state: "BULL_VOLATILE",
+        dampingMultiplier: 0.5,
+        isMarginOverheated: true,
+      },
+      institutionalHistory: [0, 0, 0, 0, 0],
+    });
+
+    expect(result.signal).toBe("buy_tactical");
+    // tier 2 ratio 0.7 乘上 0.5 應變為 0.35
+    expect(result.scalingRatio).toBeCloseTo(0.35, 2);
+    expect(result.dampingApplied).toBe(true);
+  });
+
+  it("在 BEAR_CHOPPY 或 BEAR_PANIC 下，戰術權重全歸零且 scalingRatio 為 0", () => {
+    const result = generateScoringMatrix(baseIndicators, 40, baseStrategy, {
+      ma60SlopeArr: [-0.05],
+      macroRegime: {
+        state: "BEAR_CHOPPY",
+        dampingMultiplier: 0,
+        costOfCarryFilterActive: true,
+      },
+      institutionalHistory: [0, 0, 0, 0, 0],
+    });
+
+    expect(result.finalScore).toBe(0);
+    expect(result.scalingRatio).toBe(0);
+    expect(result.signal).not.toBe("buy_tactical");
+  });
+});
+
 describe("generateScoringMatrix sell and exit boundaries", () => {
   function runAtScore(score, hasTacticalPosition) {
     return generateScoringMatrix(
