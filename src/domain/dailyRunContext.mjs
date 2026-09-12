@@ -29,6 +29,7 @@ import { fetchStockHistoryWithAutoFill } from "../modules/providers/historyProvi
 import { fetchLatestBasePrice } from "../modules/providers/basePriceProvider.mjs";
 import { fetchAllMacroData } from "../modules/providers/marketData.mjs";
 import { fetchLastPortfolioState } from "../modules/storage.mjs";
+import { fetchSocialSentimentData } from "../modules/providers/socialSentimentProvider.mjs";
 import { getNewsTelegramMessages } from "../modules/newsFetcher.mjs";
 import { analyzeMacroNewsWithAI } from "../modules/ai/aiCoach.mjs";
 import {
@@ -72,6 +73,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     vixResult,
     basePriceResult,
     macroResult,
+    socialSentimentResult,
     historyZ2Result,
     history0050Result,
     openTodayResult,
@@ -84,6 +86,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     _fetchVix(),
     _fetchBasePrice(),
     _fetchMacroData(),
+    _fetchSocialSentiment(),
     _fetchHistory(SYMBOL_Z2),
     _fetchHistory(SYMBOL_0050),
     _checkMarketOpen(),
@@ -114,6 +117,11 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
   }
 
   const macroData = _unwrap(macroResult, {}, "macroData");
+  const socialSentiment = _unwrap(
+    socialSentimentResult,
+    null,
+    "socialSentiment",
+  );
   const historyZ2Raw = _unwrap(historyZ2Result, [], "historyZ2");
   const history0050 = _unwrap(history0050Result, [], "history0050");
   const openToday = _unwrap(openTodayResult, false, "openToday");
@@ -304,6 +312,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     history0050,
     // 總經
     macroData,
+    socialSentiment,
     sourceMetadata: macroData.sourceMetadata ?? null,
     macroAndChipStr,
     usRisk,
@@ -393,6 +402,21 @@ async function _fetchMacroData() {
   const result = await fetchAllMacroData();
   done();
   return result;
+}
+
+/** 社群情緒數據（來自 socialSentimentProvider） */
+async function _fetchSocialSentiment() {
+  logger.info("💬 [DailyRunContext] 正在獲取社群情緒資料...");
+  const done = stepTimer("fetchSocialSentiment");
+  try {
+    const result = await fetchSocialSentimentData();
+    done();
+    return result;
+  } catch (err) {
+    done();
+    logger.warn(err, "⚠️ [DailyRunContext] 社群情緒資料撈取失敗，回傳 null");
+    return null;
+  }
 }
 
 /** 個股歷史 K 棒 */
