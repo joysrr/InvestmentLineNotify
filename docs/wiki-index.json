@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 146,
-    "total_edges": 181,
-    "total_code_mappings": 48,
-    "concepts_with_code": 37,
-    "concepts_with_links": 48,
-    "generated_at": "2026-09-12T00:52:03.797Z"
+    "total_concepts": 147,
+    "total_edges": 184,
+    "total_code_mappings": 54,
+    "concepts_with_code": 38,
+    "concepts_with_links": 49,
+    "generated_at": "2026-09-12T01:00:00.622Z"
   },
   "concepts": {
     "api-contract": {
@@ -845,6 +845,27 @@
       "tags": ["testing", "lifecycle", "health-check"],
       "status": "needs-review",
       "last_verified": null
+    },
+    "macro-regime-metrics-analysis": {
+      "primary_doc": "modules/strategy/macro_regime_metrics_analysis.md",
+      "title": "Phase 1: 總經與市場狀態資源盤點與指標量化定義報告",
+      "summary": null,
+      "related_docs": [
+        "docs/plans/active/MACRO_REGIME_ADVANCED_SPEC.md",
+        "docs/modules/strategy/regime_policy.md",
+        "docs/modules/strategy/strategy_engine.md"
+      ],
+      "related_code": [
+        "src/modules/providers/dataSourceConfig.mjs",
+        "src/modules/providers/providerRegistry.mjs",
+        "src/modules/providers/marketData.mjs",
+        "src/modules/strategy/signalGenerator.mjs",
+        "src/modules/strategy/decision/rules/RegimePolicyRule.mjs",
+        "src/modules/strategy/policies/interestCostFilter.mjs"
+      ],
+      "tags": ["macro", "regime", "analysis", "architecture", "inventory"],
+      "status": "current",
+      "last_verified": "2026-09-11"
     },
     "maintenance-state-machine": {
       "primary_doc": "modules/strategy/maintenance_state_machine.md",
@@ -2144,6 +2165,42 @@
       {
         "concept": "lifecycle-health-test-spec",
         "doc": "modules/strategy/lifecycle_health_test_spec.md"
+      }
+    ],
+    "src/modules/providers/dataSourceConfig.mjs": [
+      {
+        "concept": "macro-regime-metrics-analysis",
+        "doc": "modules/strategy/macro_regime_metrics_analysis.md"
+      }
+    ],
+    "src/modules/providers/providerRegistry.mjs": [
+      {
+        "concept": "macro-regime-metrics-analysis",
+        "doc": "modules/strategy/macro_regime_metrics_analysis.md"
+      }
+    ],
+    "src/modules/providers/marketData.mjs": [
+      {
+        "concept": "macro-regime-metrics-analysis",
+        "doc": "modules/strategy/macro_regime_metrics_analysis.md"
+      }
+    ],
+    "src/modules/strategy/signalGenerator.mjs": [
+      {
+        "concept": "macro-regime-metrics-analysis",
+        "doc": "modules/strategy/macro_regime_metrics_analysis.md"
+      }
+    ],
+    "src/modules/strategy/decision/rules/RegimePolicyRule.mjs": [
+      {
+        "concept": "macro-regime-metrics-analysis",
+        "doc": "modules/strategy/macro_regime_metrics_analysis.md"
+      }
+    ],
+    "src/modules/strategy/policies/interestCostFilter.mjs": [
+      {
+        "concept": "macro-regime-metrics-analysis",
+        "doc": "modules/strategy/macro_regime_metrics_analysis.md"
       }
     ],
     "src/modules/strategy/policies/marginPolicy.mjs": [

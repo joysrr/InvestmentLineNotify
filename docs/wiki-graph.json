@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 146,
-    "edges": 181
+    "nodes": 147,
+    "edges": 184
   },
   "graph": {
     "api-contract": ["api-index"],
@@ -168,6 +168,11 @@
     "strategy": ["ai-news", "strategy-engine"],
     "lifecycle-engine": ["strategy-engine"],
     "lifecycle-health-test-spec": ["strategy-engine"],
+    "macro-regime-metrics-analysis": [
+      "macro-regime-advanced-spec",
+      "strategy-engine",
+      "regime-policy"
+    ],
     "maintenance-state-machine": ["strategy-engine"],
     "providers": ["strategy-engine", "news-fetcher"],
     "regime-policy": ["strategy-engine"],
