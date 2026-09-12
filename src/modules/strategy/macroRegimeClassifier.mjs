@@ -124,6 +124,16 @@ export function classifyMacroRegime(currentData, previousState = null) {
   const index5d = currentData.indexChangePercent5d ?? 0;
   const isMarginOverheated = margin5d > 2.0 && margin5d > index5d * 1.5;
 
+  // 【P1】社群情緒雙重確認阻尼器
+  // 當融資過熱 + 社群情緒出現頂背離時，進一步下調 dampingMultiplier
+  let isSentimentDivergence = false;
+  if (isMarginOverheated && currentData.socialSentiment) {
+    const sd = currentData.socialSentiment;
+    if (sd.divergenceStatus === "BEARISH_DIVERGENCE") {
+      isSentimentDivergence = true;
+    }
+  }
+
   // 依最終狀態設定交易模式與動態權重
   let mode = "normal";
   let leverageMultiplier = 1.0;
@@ -170,10 +180,15 @@ export function classifyMacroRegime(currentData, previousState = null) {
 
   // 計算阻尼乘數
   let dampingMultiplier = 1.0;
+  let dampingReason = "";
   if (finalState === MacroRegimeState.BEAR_PANIC) {
     dampingMultiplier = 0.0;
+    dampingReason = "BEAR_PANIC";
   } else if (isMarginOverheated) {
-    dampingMultiplier = 0.5;
+    dampingMultiplier = isSentimentDivergence ? 0.25 : 0.5;
+    dampingReason = isSentimentDivergence
+      ? "融資過熱 + 散戶情緒頂背離，進一步下調阻尼"
+      : "散戶融資過熱";
   }
 
   return {
@@ -183,10 +198,11 @@ export function classifyMacroRegime(currentData, previousState = null) {
     weights,
     dampingMultiplier,
     isMarginOverheated,
+    isSentimentDivergence,
     costOfCarryFilterActive,
     consecutiveDays,
     candidateState,
     candidateDays,
-    reason,
+    reason: [reason, dampingReason].filter(Boolean).join("；"),
   };
 }

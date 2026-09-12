@@ -147,7 +147,25 @@ export function generateScoringMatrix(
       extraData.institutionalNet,
       (extraData.institutionalHistory || []).slice(-lookback - 1, -1),
     ),
-    sentiment: Math.max(-1, Math.min(1, extraData.sentimentScore || 0)),
+    sentiment: (() => {
+      // 從 socialSentimentProvider 注入的正規化分數 (0~100) 轉換為 (-1, 1)
+      if (
+        extraData.socialSentiment &&
+        typeof extraData.socialSentiment.score === "number" &&
+        extraData.socialSentiment.score >= 0 &&
+        extraData.socialSentiment.score <= 100
+      ) {
+        return Math.max(
+          -1,
+          Math.min(1, (extraData.socialSentiment.score - 50) / 50),
+        );
+      }
+      // 向後相容：接受直接注入的 sentimentScore (已正規化 -1~1，原樣回傳)
+      if (typeof extraData.sentimentScore === "number") {
+        return Math.max(-1, Math.min(1, extraData.sentimentScore));
+      }
+      return 0;
+    })(),
     rsi: normalizeBounded(50 - (indicators.rsiArr?.at(-1) ?? 50), 0, 50),
     kd: normalizeBounded(50 - (indicators.kdArr?.at(-1)?.k ?? 50), 0, 50),
   };

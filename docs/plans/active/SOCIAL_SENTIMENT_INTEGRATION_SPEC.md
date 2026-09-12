@@ -53,9 +53,9 @@ wiki_links:
 
 ### 🔹 Phase 2: 策略引擎融合與風控阻尼增強 (Strategy & Signal Engine)
 
-- [ ] 更新 `src/modules/strategy/signalGenerator.mjs`：將社群情緒分數正規化後納入 `factorPool.sentiment`。
-- [ ] 更新 `src/modules/strategy/macroRegimeClassifier.mjs`：散戶融資過熱阻尼器升級為「融資增幅 + 散戶情緒頂背離 (`BEARISH_DIVERGENCE`)」雙重確認。
-- [ ] 單元測試驗證多空情境下的權重計算與阻尼調節。
+- [x] 更新 `signalGenerator.mjs`：將社群情緒分數正規化到 `factorPool.sentiment (-1~1)`，支援 `extraData.socialSentiment` 與向後相容 `extraData.sentimentScore`。
+- [x] 更新 `macroRegimeClassifier.mjs`：散戶融資過熱阻尼器升級為「融資增幅 + 社群情緒頂背離」雙重確認，dampingMultiplier 由 0.5 進一步下調為 0.25，並納入 `reason`。
+- [x] 單元測試驗證多空情境下的權重計算與阻尼調節（`socialSentimentIntegration.test.mjs` 6/6 pass）。
 
 ### 🔹 Phase 3: Mini App「多空對決」專區與首頁抽屜串接 (UI/UX Implementation)
 
