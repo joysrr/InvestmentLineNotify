@@ -14,6 +14,7 @@
  *   /status_debug   — 查看最新市場快取（含來源狀態，供除錯用）
  *   /daily    — 手動觸發每日報告
  *   /news     — 手動更新新聞池
+ *   /sentiment — 手動更新社群情緒快照
  *   /weekly   — 手動觸發週報
  *   /monthly  — 手動觸發月報
  *   /optimize — 手動觸發規則優化器
@@ -40,6 +41,7 @@ import {
 } from "./modules/bot/runnerLock.mjs";
 import { dailyCheck } from "./dailyCheck.mjs";
 import { runNewsFetch } from "./runNewsFetch.mjs";
+import { runSocialSentimentFetch } from "./runSocialSentimentFetch.mjs";
 import { runWeeklyReport } from "./runWeeklyReport.mjs";
 import { runMonthlyReport } from "./runMonthlyReport.mjs";
 import { runRuleOptimizer } from "./modules/ai/ruleOptimizerAgent.mjs";
@@ -189,6 +191,7 @@ bot.command("help", async (ctx) => {
       "<b>── 手動觸發排程 ──</b>",
       "/daily — 執行每日報告（含 AI 分析）",
       "/news — 更新新聞池",
+      "/sentiment — 更新社群情緒快照",
       "/weekly — 生成週報",
       "/monthly — 生成月報",
       "/optimize — 執行規則優化器",
@@ -221,6 +224,18 @@ bot.command("news", async (ctx) => {
   await withRunner(ctx, "新聞更新 (news)", async () => {
     const res = await runNewsFetch();
     return `新增: ${res.appended} 篇\npool 總量: ${res.total} 篇`;
+  });
+});
+
+// ── 指令：/sentiment ───────────────────────────────────────────────────────
+// 手動觸發社群情緒快照生成（呼叫 daily_snapshot.py）
+bot.command("sentiment", async (ctx) => {
+  await withRunner(ctx, "社群情緒更新 (sentiment)", async () => {
+    const res = await runSocialSentimentFetch();
+    if (!res.success) {
+      throw new Error(`更新失敗: ${res.error || "unknown error"}`);
+    }
+    return `✅ 社群情緒快照更新完成\n路徑: <code>${res.outputPath}</code>`;
   });
 });
 
