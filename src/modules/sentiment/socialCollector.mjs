@@ -11,6 +11,7 @@ import logger from "../../utils/logger.mjs";
 import { fetchPttStockPosts } from "./crawlers/pttCrawler.mjs";
 import { fetchBskyStockPosts } from "./crawlers/bskyCrawler.mjs";
 import { calcSocialSentimentScore } from "./crawlers/socialScoreCalculator.mjs";
+import { resolveSocialKeywords } from "./socialKeywordResolver.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,13 +26,17 @@ export const DEFAULT_NEWS_HISTORY_PATH = path.resolve(
  * @param {Object} options
  * @param {string} [options.historyPath]
  * @param {Array<string>} [options.keywords]
+ * @param {Array<string>} [options.dynamicKeywords]
  * @returns {Promise<{date: string, score: number, itemsCount: number, record: Object}>}
  */
 export async function collectSocialSentiment(options = {}) {
   const historyPath = options.historyPath || DEFAULT_NEWS_HISTORY_PATH;
-  const keywords = options.keywords || ["台股", "0050", "台積電"];
+  const keywords = resolveSocialKeywords({
+    customKeywords: options.keywords,
+    dynamicKeywords: options.dynamicKeywords,
+  });
 
-  logger.info("📡 開始執行原生社群輿情採集 (PTT + Bluesky)...");
+  logger.info({ keywords }, "📡 開始執行原生社群輿情採集 (PTT + Bluesky)...");
 
   // 1. 平行抓取 PTT 與 Bluesky
   const [pttItems, bskyItems] = await Promise.all([
