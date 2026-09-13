@@ -70,6 +70,7 @@ export async function createBskySession(handle, appPassword) {
 
 /**
  * 抓取 Bluesky 台股相關貼文
+ * 對每個關鍵字獨立發起查詢後合併去重（Bluesky search 不支援中文複合 OR 語法）
  */
 export async function fetchBskyStockPosts(
   keywords = ["台股", "0050", "台積電"],
@@ -86,20 +87,42 @@ export async function fetchBskyStockPosts(
     const token = await createBskySession(handle, password);
     if (!token) return [];
 
-    const q = keywords.join(" OR ");
-    const searchUrl = `${BSKY_SEARCH_API}?q=${encodeURIComponent(q)}&limit=30`;
+    const allPosts = [];
+    const seenUris = new Set();
 
-    const res = await fetch(searchUrl, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    for (const kw of keywords) {
+      try {
+        const searchUrl = `${BSKY_SEARCH_API}?q=${encodeURIComponent(kw)}&limit=15`;
+        const res = await fetch(searchUrl, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-    if (!res.ok) {
-      logger.warn({ status: res.status }, "Bluesky 搜尋失敗");
-      return [];
+        if (!res.ok) {
+          logger.warn(
+            { status: res.status, keyword: kw },
+            "Bluesky 單詞搜尋失敗",
+          );
+          continue;
+        }
+
+        const data = await res.json();
+        const parsed = parseBskyPosts(data);
+
+        for (const post of parsed) {
+          if (!seenUris.has(post.url)) {
+            seenUris.add(post.url);
+            allPosts.push(post);
+          }
+        }
+      } catch (err) {
+        logger.warn(
+          { err: err.message, keyword: kw },
+          "Bluesky 關鍵字查詢錯誤",
+        );
+      }
     }
 
-    const data = await res.json();
-    return parseBskyPosts(data);
+    return allPosts;
   } catch (err) {
     logger.error(err, "Bluesky 貼文抓取失敗");
     return [];
