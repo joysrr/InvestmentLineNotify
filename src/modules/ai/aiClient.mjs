@@ -246,9 +246,19 @@ async function resolveChatPrompt(promptName, variables = {}) {
   if (!isCI) {
     try {
       // v5: getPromptFromLangfuse 回傳 ChatPromptClient
-      langfusePromptObj = await getPromptFromLangfuse(promptName, {
-        label: "production",
-      });
+      // 加入 3 秒逾時保護：Langfuse 連不上時快速降級到 hardcoded fallback，
+      // 避免整個 callAI 流程卡死（症狀：macroAnalysis 永遠為 0）
+      const LANGFUSE_TIMEOUT_MS = 3000;
+      langfusePromptObj = await Promise.race([
+        getPromptFromLangfuse(promptName, { label: "production" }),
+        new Promise((_, reject) =>
+          setTimeout(
+            () =>
+              reject(new Error(`Langfuse timeout (${LANGFUSE_TIMEOUT_MS}ms)`)),
+            LANGFUSE_TIMEOUT_MS,
+          ),
+        ),
+      ]);
 
       // v5 ChatPromptClient: .compile(variables) 回傳編譯後的 messages
       const compiledMessages = langfusePromptObj.compile(variables);
