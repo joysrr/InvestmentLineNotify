@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { fetchWithTimeout } from "../../utils/coreUtils.mjs";
+import { buildGeminiModelListFromEnv } from "./modelFallback.mjs";
 import logger from "../../utils/logger.mjs";
 import {
   canMakeAIRequest,
@@ -37,9 +38,12 @@ export const PROVIDERS = {
 };
 
 // 各 provider 的 base URL 與預設 model
+const GEMINI_MODEL_LIST = buildGeminiModelListFromEnv();
+
 const PROVIDER_CONFIG = {
   [PROVIDERS.GEMINI]: {
-    defaultModel: process.env.GEMINI_MODEL || "gemini-3-flash-preview",
+    defaultModel: GEMINI_MODEL_LIST[0],
+    modelList: GEMINI_MODEL_LIST,
   },
   [PROVIDERS.GROK]: {
     baseURL: "https://api.x.ai/v1",
@@ -393,7 +397,12 @@ export async function callAI(promptName, options = {}) {
 
   const startKeyIndex = options.keyIndex ?? 0;
   const keyCount = provider === PROVIDERS.GEMINI ? aiInstances.length : 1;
-  const maxRetries = options.maxRetries ?? keyCount * 2;
+  // 多模型 Fallback：Gemini 使用 modelList，Grok 固定單一模型
+  const modelList =
+    provider === PROVIDERS.GEMINI
+      ? (cfg.modelList ?? [resolvedModel])
+      : [resolvedModel];
+  const maxRetries = options.maxRetries ?? keyCount * modelList.length * 2;
 
   const humanReviewMeta = getHumanReviewMeta(promptName);
 
@@ -401,10 +410,12 @@ export async function callAI(promptName, options = {}) {
   // observe() 會自動建立 trace 和 span，不需要手動管理
   const wrappedCall = observeWithLangfuse(
     async () => {
-      // ── Retry Loop（含 key 輪換）────────────────────────────────────────────
+      // ── Retry Loop（含 key 輪換 + 模型輪換）───────────────────────────────
       let currentKeyIndex = startKeyIndex % (keyCount || 1);
+      let currentModelIndex = 0;
 
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        const activeModel = modelList[currentModelIndex] ?? resolvedModel;
         try {
           let rawText,
             inputTokens,
@@ -415,7 +426,7 @@ export async function callAI(promptName, options = {}) {
           if (provider === PROVIDERS.GEMINI) {
             const ai = aiInstances[currentKeyIndex];
             const response = await ai.models.generateContent({
-              model: resolvedModel,
+              model: activeModel,
               contents: [{ role: "user", parts: [{ text: userTemplate }] }],
               config: {
                 systemInstruction,
@@ -486,13 +497,40 @@ export async function callAI(promptName, options = {}) {
           const canRetry = (quotaErr || serviceErr) && !isLast;
 
           if (canRetry) {
-            if (quotaErr && keyCount > 1) {
-              const prevKey = currentKeyIndex;
-              currentKeyIndex = (currentKeyIndex + 1) % keyCount;
-              logger.warn(
-                { prevKey, currentKeyIndex, attempt: attempt + 1, maxRetries },
-                "Quota 耗盡，切換至下一個 key",
-              );
+            if (quotaErr) {
+              // quota 耗盡策略：
+              // 先在當前 model 下輪換所有 key；
+              // 所有 key 對該 model 都耗盡時，切換到下一個備用 model 並重置 key index
+              const nextKeyIndex = (currentKeyIndex + 1) % keyCount;
+              const allKeysExhausted =
+                nextKeyIndex === startKeyIndex % keyCount;
+
+              if (!allKeysExhausted) {
+                const prevKey = currentKeyIndex;
+                currentKeyIndex = nextKeyIndex;
+                logger.warn(
+                  {
+                    prevKey,
+                    currentKeyIndex,
+                    attempt: attempt + 1,
+                    model: activeModel,
+                  },
+                  "Quota 耗盡，切換至下一個 key",
+                );
+              } else if (currentModelIndex < modelList.length - 1) {
+                // 所有 key 對當前 model 均耗盡 → 切換備用 model 並重置 key
+                const prevModel = activeModel;
+                currentModelIndex += 1;
+                currentKeyIndex = 0;
+                logger.warn(
+                  {
+                    prevModel,
+                    nextModel: modelList[currentModelIndex],
+                    attempt: attempt + 1,
+                  },
+                  "所有 Key 對當前模型 quota 耗盡，切換至備用模型",
+                );
+              }
             } else {
               const backoffDelay = getBackoffDelay(attempt);
               logger.warn(
