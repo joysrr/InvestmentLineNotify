@@ -115,8 +115,8 @@ export async function shutdownLangfuse() {
   if (!langfuseEnabled) return;
 
   try {
-    await langfuseClient.flushAsync();
-    await langfuseClient.shutdownAsync();
+    // LangfuseClient (REST API client) 不提供 shutdownAsync()
+    // @langfuse/tracing observe() 自動管理生命週期，此處僅記錄
     logger.info("Langfuse v5 shutdown 完成");
   } catch (err) {
     logger.warn({ error: err.message }, "Langfuse shutdown 失敗（不阻斷）");
