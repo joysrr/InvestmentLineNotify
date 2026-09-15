@@ -36,8 +36,8 @@ export const langfuseClient = langfuseEnabled
 export async function flushLangfuse(traceId, status = "success") {
   if (!langfuseEnabled) return;
   try {
-    // Langfuse v5: client.flushAsync() 取代 flush()
-    await langfuseClient.flushAsync();
+    // LangfuseClient (REST API client) 不提供 flushAsync()
+    // flush 由 @langfuse/tracing observe() 自動管理，此處僅記錄狀態
     logger.info({ traceId, status }, "Langfuse flush 完成");
   } catch (err) {
     logger.warn(err, "Langfuse flush 失敗（不阻斷主流程）");
