@@ -17,12 +17,19 @@ vi.mock("@langfuse/tracing", () => ({
 vi.mock("@langfuse/client", () => {
   class MockLangfuseAPIClient {
     constructor() {
-      this.prompts = {
-        get: vi.fn().mockResolvedValue({
-          version: 1,
-          name: "test-prompt",
-          prompt: [{ role: "system", content: "You are AI assistant." }],
-          config: {},
+      this.prompt = {
+        get: vi.fn((name) => {
+          if (typeof name !== "string") {
+            return Promise.reject(
+              new TypeError("prompt name must be a string"),
+            );
+          }
+          return Promise.resolve({
+            version: 1,
+            name: "test-prompt",
+            prompt: [{ role: "system", content: "You are AI assistant." }],
+            config: {},
+          });
         }),
       };
       this.score = {
@@ -34,6 +41,7 @@ vi.mock("@langfuse/client", () => {
 
   return {
     Langfuse: MockLangfuseAPIClient,
+    LangfuseClient: MockLangfuseAPIClient,
     LangfuseAPIClient: MockLangfuseAPIClient,
   };
 });

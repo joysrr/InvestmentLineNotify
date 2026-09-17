@@ -54,8 +54,7 @@ export async function flushLangfuse(traceId, status = "success") {
  */
 export async function getPromptFromLangfuse(promptName, options = {}) {
   if (!langfuseClient) return null;
-  return await langfuseClient.prompts.get({
-    name: promptName,
+  return await langfuseClient.prompt.get(promptName, {
     label: options.label,
     version: options.version,
   });
