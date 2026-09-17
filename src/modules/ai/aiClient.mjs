@@ -61,8 +61,8 @@ const aiInstances = GEMINI_API_KEYS.map(
 // 相容性：保留 flushLangfuse export，內部委派給 v5
 export const flushLangfuse = flushLangfuseV5;
 
-// ── v5 兼容 shim（為舊測試與第三方代碼）───────────────────────────────────────
-// 路由舊有的 langfuse.score() / langfuse.shutdownAsync() 到 v5
+// ── v5 相容 shim（供既有模組與第三方程式使用）────────────────────────────────
+// 將 legacy facade 操作轉送至 v5 helper
 export const langfuse = {
   shutdownAsync: shutdownLangfuseV5,
   score: async (payload) => {

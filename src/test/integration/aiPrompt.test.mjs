@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { LangfuseAPIClient } from "@langfuse/client";
+import { LangfuseClient } from "@langfuse/client";
 import "dotenv/config";
 
 // --- Prompt Specs (Simplified for brevity in the walkthrough, but full in code) ---
@@ -46,7 +46,7 @@ describe("Langfuse AI Prompt Validation", () => {
       return;
     }
 
-    langfuseClient = new LangfuseAPIClient({
+    langfuseClient = new LangfuseClient({
       publicKey: process.env.LANGFUSE_PUBLIC_KEY,
       secretKey: process.env.LANGFUSE_SECRET_KEY,
       baseUrl: process.env.LANGFUSE_BASE_URL || "https://cloud.langfuse.com",
@@ -57,8 +57,7 @@ describe("Langfuse AI Prompt Validation", () => {
     it(`Prompt: ${spec.name} 應符合規範`, async () => {
       if (!langfuseClient) return; // Skip if no config
 
-      const promptObj = await langfuseClient.prompts.get({
-        name: spec.name,
+      const promptObj = await langfuseClient.prompt.get(spec.name, {
         label: "production",
       });
       expect(promptObj).toBeDefined();

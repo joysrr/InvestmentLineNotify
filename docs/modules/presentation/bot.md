@@ -45,15 +45,16 @@ wiki_links:
 
 **根因**: Langfuse v3 → v5 遷移不完整
 
-- `langfuseClient.mjs` 使用舊 API (`LangfuseAPIClient`, `getCurrentTraceId`, `flush`)
+- `langfuseClient.mjs` 曾使用不相容的 Prompt API 參數格式
 - `runNewsFetch.mjs` 和 `runWeeklyReport.mjs` 沒有 export 函數
 
 **修復**:
 
-1. 更新 `langfuseClient.mjs` 使用 v5 API (`LangfuseClient`, `getActiveTraceId`, `flushAsync`)
+1. `langfuseClient.mjs` 使用 `LangfuseClient.prompt.get(name, options)`、`getActiveTraceId()` 與 v5 封裝的 flush／shutdown
 2. 補充 `runNewsFetch`, `runWeeklyReport` export 函數
+3. 整合測試改用 `LangfuseClient` 與 v5 Prompt API
 
-**驗證**: ✅ Bot 成功啟動並連線 (HuskyLangBot)
+**驗證**: ✅ 真實 Langfuse production prompts 可成功取得；AI 相關測試 133/133 通過
 
 ---
 

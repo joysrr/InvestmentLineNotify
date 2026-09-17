@@ -15,7 +15,7 @@ vi.mock("@langfuse/tracing", () => ({
 }));
 
 vi.mock("@langfuse/client", () => {
-  class MockLangfuseAPIClient {
+  class MockLangfuseClient {
     constructor() {
       this.prompt = {
         get: vi.fn((name) => {
@@ -40,9 +40,7 @@ vi.mock("@langfuse/client", () => {
   }
 
   return {
-    Langfuse: MockLangfuseAPIClient,
-    LangfuseClient: MockLangfuseAPIClient,
-    LangfuseAPIClient: MockLangfuseAPIClient,
+    LangfuseClient: MockLangfuseClient,
   };
 });
 

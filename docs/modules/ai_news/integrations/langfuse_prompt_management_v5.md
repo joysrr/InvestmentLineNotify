@@ -29,7 +29,7 @@ tags:
 
 ## 架構概述
 
-所有 AI prompts 統一在 [[Langfuse Web UI]] 管理，透過 `langfuseClient.prompts.get()` 取得。
+所有 AI prompts 統一在 [[Langfuse Web UI]] 管理，透過 `langfuseClient.prompt.get(name, options)` 取得。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -70,8 +70,7 @@ const prompt = await langfuse.getPrompt(name, { cacheTtlSeconds: 60 });
 **v5 API (當前)**:
 
 ```javascript
-const prompt = await langfuseClient.prompts.get({
-  name: promptName,
+const prompt = await langfuseClient.prompt.get(promptName, {
   label: "production", // 或 'latest'
   version: 2, // 可選，指定版本
 });
@@ -93,10 +92,9 @@ export async function getLangfusePrompt(name, options = {}) {
   const { label = "production", version } = options;
 
   try {
-    const prompt = await langfuseClient.prompts.get({
-      name,
+    const prompt = await langfuseClient.prompt.get(name, {
       label,
-      ...(version && { version }),
+      ...(version !== undefined && { version }),
     });
     return prompt;
   } catch (err) {

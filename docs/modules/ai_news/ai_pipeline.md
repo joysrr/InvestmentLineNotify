@@ -249,9 +249,9 @@ Trace (dailyCheck-123456)
 | 觀測 AI 呼叫  | `langfuse.observe()`           | `observe()` from `@langfuse/tracing`          |
 | 取得 Trace ID | `langfuse.getCurrentTraceId()` | `getActiveTraceId()` from `@langfuse/tracing` |
 | 記錄 Score    | `langfuse.score()`             | `langfuseClient.score.create()`               |
-| 取得 Prompt   | `langfuse.getPrompt()`         | `langfuseClient.prompts.get()`                |
-| 關閉客戶端    | `langfuse.shutdown()`          | `langfuseClient.shutdownAsync()`              |
-| 刷新緩衝      | `langfuse.flush()`             | `langfuseClient.flushAsync()`                 |
+| 取得 Prompt   | `langfuse.getPrompt()`         | `langfuseClient.prompt.get(name, options)`    |
+| 關閉客戶端    | `langfuse.shutdown()`          | `shutdownLangfuse()` 封裝函式                 |
+| 刷新緩衝      | `langfuse.flush()`             | `flushLangfuse()` 封裝函式                    |
 
 ### 代碼實例
 

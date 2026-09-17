@@ -53,8 +53,7 @@ const prompt = await langfuse.getPrompt("MyPrompt", {
 
 ```javascript
 // v5: 使用 langfuseClient 取得
-const prompt = await langfuseClient.prompts.get({
-  name: "MyPrompt",
+const prompt = await langfuseClient.prompt.get("MyPrompt", {
   label: "production", // 或 'latest'
   version: 2, // 可選，指定版本
 });
@@ -65,18 +64,18 @@ const messages = prompt.prompt; // 或 prompt.messages
 
 ### 主要變更
 
-| 項目     | v3                               | v5                                                     |
-| -------- | -------------------------------- | ------------------------------------------------------ |
-| 取得方式 | `langfuse.getPrompt(name, opts)` | `langfuseClient.prompts.get({ name, label, version })` |
-| 回傳格式 | `prompt`                         | `{ name, version, prompt: [], config: {} }`            |
-| 快取     | `cacheTtlSeconds`                | 不支援 (Langfuse 內部處理)                             |
-| 版本管理 | 限異動                           | `label` + `version`                                    |
+| 項目     | v3                               | v5                                                    |
+| -------- | -------------------------------- | ----------------------------------------------------- |
+| 取得方式 | `langfuse.getPrompt(name, opts)` | `langfuseClient.prompt.get(name, { label, version })` |
+| 回傳格式 | `prompt`                         | `{ name, version, prompt: [], config: {} }`           |
+| 快取     | `cacheTtlSeconds`                | 不支援 (Langfuse 內部處理)                            |
+| 版本管理 | 限異動                           | `label` + `version`                                   |
 
 ---
 
 ## API 參考
 
-### `langfuseClient.prompts.get()`
+### `langfuseClient.prompt.get(name, options)`
 
 **代碼位置**: `src/modules/ai/langfuseClient.mjs`
 
@@ -90,10 +89,9 @@ export async function getLangfusePrompt(name, options = {}) {
   const { label = "production", version } = options;
 
   try {
-    const prompt = await langfuseClient.prompts.get({
-      name,
+    const prompt = await langfuseClient.prompt.get(name, {
       label,
-      ...(version && { version }),
+      ...(version !== undefined && { version }),
     });
     return prompt;
   } catch (err) {
