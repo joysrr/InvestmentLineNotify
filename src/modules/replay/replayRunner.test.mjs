@@ -1,17 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { loadReplayFixture, replayFixture } from "./replayRunner.mjs";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = path.resolve(__dirname, "../../..");
-const REPORTS_DIR = path.join(PROJECT_ROOT, "data/reports");
+const SYNTHETIC_FIXTURE = "data/replay-fixtures/core-logic-v1.json";
 
 describe("replayRunner fixture loader", () => {
   it("依日期排序並驗證 fixture 的 replay inputs", async () => {
-    const fixture = await loadReplayFixture(
-      "data/replay-fixtures/core-logic-v1.json",
-    );
+    const fixture = await loadReplayFixture(SYNTHETIC_FIXTURE);
 
     expect(fixture.fixtureSource).toBe("synthetic");
     expect(fixture.reports.map((report) => report.date)).toEqual([
@@ -25,13 +22,28 @@ describe("replayRunner fixture loader", () => {
   });
 
   it("支援載入 production 報告目錄或報告物件", async () => {
-    const fixture = await loadReplayFixture(REPORTS_DIR);
+    const sourceFixture = await loadReplayFixture(SYNTHETIC_FIXTURE);
+    const reportsDir = await mkdtemp(path.join(os.tmpdir(), "replay-reports-"));
 
-    expect(fixture.fixtureSource).toBe("production");
-    expect(fixture.reports.length).toBeGreaterThanOrEqual(1);
-    expect(
-      fixture.reports.every((report) => report.replay.status === "available"),
-    ).toBe(true);
+    try {
+      await Promise.all(
+        sourceFixture.reports.map((report) =>
+          writeFile(
+            path.join(reportsDir, `${report.date}.json`),
+            JSON.stringify(report),
+          ),
+        ),
+      );
+      const fixture = await loadReplayFixture(reportsDir);
+
+      expect(fixture.fixtureSource).toBe("production");
+      expect(fixture.reports.length).toBe(sourceFixture.reports.length);
+      expect(
+        fixture.reports.every((report) => report.replay.status === "available"),
+      ).toBe(true);
+    } finally {
+      await rm(reportsDir, { recursive: true, force: true });
+    }
   });
 
   it("拒絕不支援的 fixture schema", async () => {

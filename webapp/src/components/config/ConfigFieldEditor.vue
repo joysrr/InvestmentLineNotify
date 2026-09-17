@@ -152,6 +152,7 @@ function normalizeType(rawType) {
     case "double":
     case "decimal":
     case "real":
+    case "number":
       return "number";
     case "text":
     case "string":
@@ -172,12 +173,6 @@ function normalizeType(rawType) {
     case "select":
     case "choice":
       return "enum";
-    case "number":
-    case "string":
-    case "boolean":
-    case "array":
-    case "object":
-      return rawType;
     default:
       return null;
   }
