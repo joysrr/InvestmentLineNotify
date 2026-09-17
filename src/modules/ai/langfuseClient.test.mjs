@@ -10,7 +10,7 @@ vi.stubEnv("LANGFUSE_SECRET_KEY", "test-secret-key");
 // Mock @langfuse/tracing before import
 vi.mock("@langfuse/tracing", () => ({
   observe: vi.fn((fn) => fn),
-  getCurrentTraceId: vi.fn().mockReturnValue("test-trace-id"),
+  getActiveTraceId: vi.fn().mockReturnValue("test-trace-id"),
   flush: vi.fn().mockResolvedValue(undefined),
 }));
 
