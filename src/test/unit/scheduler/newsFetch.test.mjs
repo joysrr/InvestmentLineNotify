@@ -36,6 +36,10 @@ vi.mock("../../../../src/modules/data/newsPoolManager.mjs", () => ({
   purgeExpiredFromPool: vi.fn(),
 }));
 
+vi.mock("../../../../src/runSocialSentimentFetch.mjs", () => ({
+  runSocialSentimentFetch: vi.fn(),
+}));
+
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { runNewsFetch } from "../../../../src/scheduler/newsFetch.mjs";
 
@@ -170,6 +174,60 @@ describe("NewsFetch Scheduler - 單元測試", () => {
     expect(result).toHaveProperty("total");
     expect(typeof result.appended).toBe("number");
     expect(typeof result.total).toBe("number");
+  });
+
+  it("新聞流程完成後應更新社群情緒快照", async () => {
+    const { archiveManager } =
+      await import("../../../../src/modules/data/archiveManager.mjs");
+    archiveManager.getLatestMarketData.mockResolvedValue({
+      data: { rawUsMarket: { vix: 18.5 } },
+    });
+
+    const { generateDailySearchQueries } =
+      await import("../../../../src/modules/ai/aiCoach.mjs");
+    generateDailySearchQueries.mockResolvedValue({
+      twQueries: ["0050"],
+      usQueries: [],
+      traceId: null,
+    });
+
+    const { getRawNews } =
+      await import("../../../../src/modules/newsFetcher.mjs");
+    getRawNews.mockResolvedValue({ articles: [], metrics: {} });
+
+    const { runSocialSentimentFetch } =
+      await import("../../../../src/runSocialSentimentFetch.mjs");
+    runSocialSentimentFetch.mockResolvedValue({ success: true });
+
+    await runNewsFetch({});
+
+    expect(runSocialSentimentFetch).toHaveBeenCalledOnce();
+  });
+
+  it("社群情緒更新失敗時不應阻斷新聞流程", async () => {
+    const { archiveManager } =
+      await import("../../../../src/modules/data/archiveManager.mjs");
+    archiveManager.getLatestMarketData.mockResolvedValue({ data: {} });
+
+    const { generateDailySearchQueries } =
+      await import("../../../../src/modules/ai/aiCoach.mjs");
+    generateDailySearchQueries.mockResolvedValue({
+      twQueries: ["0050"],
+      usQueries: [],
+      traceId: null,
+    });
+
+    const { getRawNews } =
+      await import("../../../../src/modules/newsFetcher.mjs");
+    getRawNews.mockResolvedValue({ articles: [], metrics: {} });
+
+    const { runSocialSentimentFetch } =
+      await import("../../../../src/runSocialSentimentFetch.mjs");
+    runSocialSentimentFetch.mockRejectedValue(
+      new Error("sentiment unavailable"),
+    );
+
+    await expect(runNewsFetch({})).resolves.toEqual({ appended: 0, total: 0 });
   });
 
   it("無有效文章時應回傳 appended: 0, total: 0", async () => {

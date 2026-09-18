@@ -14,7 +14,23 @@ import {
   shutdownLangfuse,
   createLangfuseScore,
 } from "../modules/ai/langfuseClient.mjs";
+import { runSocialSentimentFetch } from "../runSocialSentimentFetch.mjs";
 import logger from "../utils/logger.mjs";
+
+/** 社群情緒快照更新，失敗不阻斷主流程 */
+async function safeSocialSentimentFetch() {
+  try {
+    const result = await runSocialSentimentFetch();
+    if (result?.success === false) {
+      logger.warn(
+        { error: result.error },
+        "⚠️ [NewsFetch] 社群情緒快照更新失敗",
+      );
+    }
+  } catch (err) {
+    logger.warn(err, "⚠️ [NewsFetch] 社群情緒快照更新發生例外");
+  }
+}
 
 /** Langfuse score 回寫，失敗不阻斷主流程 */
 async function safeLangfuseScore(payload) {
@@ -93,6 +109,7 @@ export async function runNewsFetch(_deps = {}) {
 
   if (articles.length === 0) {
     logger.warn("⚠️ [NewsFetch] 無有效文章，跳過寫入 pool");
+    await safeSocialSentimentFetch();
     return { appended: 0, total: 0 };
   }
 
@@ -113,6 +130,7 @@ export async function runNewsFetch(_deps = {}) {
   }
 
   // updatePool 已包含 purgeExpiredFromPool 的邏輯，故移除重複呼叫
+  await safeSocialSentimentFetch();
   return { appended, total };
 }
 
