@@ -235,16 +235,15 @@ flowchart TD
 
 ### `scripts/` 運維腳本層
 
-| Path                            | 說明                                                                                        |
-| ------------------------------- | ------------------------------------------------------------------------------------------- |
-| `scripts/vm-daily-check.sh`     | VM crontab 執行腳本，觸發 `runDailyCheck`（每日 5 次）。內建 lockfile、log 輸出與錯誤通知。 |
-| `scripts/vm-news-fetch.sh`      | VM crontab 執行腳本，觸發 `runNewsFetch`（每 4 小時）。                                     |
-| `scripts/vm-optimizer.sh`       | VM crontab 執行腳本，觸發 `runOptimizer`（每日 02:00）。                                    |
-| `scripts/vm-weekly-report.sh`   | VM crontab 執行腳本，觸發 `runWeeklyReport`（每週一 09:30）。                               |
-| `scripts/vm-monthly-report.sh`  | VM crontab 執行腳本，觸發 `runMonthlyReport`（每月 1 日 09:00）。                           |
-| `scripts/notify-error.sh`       | 錯誤通知腳本，各 vm-\*.sh 失敗時呼叫，發送 Telegram 告警。                                  |
-| `scripts/rollbackOptimizer.mjs` | 手動 rollback 最近一次 Rule Optimizer 對 blacklist 與歷史紀錄的變更。                       |
-| `scripts/testOptimizer.mjs`     | Rule Optimizer 壓力測試腳本。                                                               |
+| Path                                | 說明                                                                                        |
+| ----------------------------------- | ------------------------------------------------------------------------------------------- |
+| `scripts/vm-daily-check.sh`         | VM crontab 執行腳本，觸發 `runDailyCheck`（每日 5 次）。內建 lockfile、log 輸出與錯誤通知。 |
+| `scripts/vm-news-fetch.sh`          | VM crontab 執行腳本，觸發 `runNewsFetch`（每 4 小時）。                                     |
+| `scripts/vm-optimizer.sh`           | VM crontab 執行腳本，觸發 `runOptimizer`（每日 02:00）。                                    |
+| `scripts/vm-weekly-report.sh`       | VM crontab 執行腳本，觸發 `runWeeklyReport`（每週一 09:30）。                               |
+| `scripts/vm-monthly-report.sh`      | VM crontab 執行腳本，觸發 `runMonthlyReport`（每月 1 日 09:00）。                           |
+| `scripts/notify-error.sh`           | 錯誤通知腳本，各 vm-\*.sh 失敗時呼叫，發送 Telegram 告警。                                  |
+| `src/scripts/rollbackOptimizer.mjs` | 手動 rollback 指定日期與 region 的 Rule Optimizer 變更。                                    |
 
 ### `.github/workflows/` 監控層
 

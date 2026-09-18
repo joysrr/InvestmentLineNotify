@@ -95,17 +95,17 @@ wiki_links: []
 
 ## `trading`
 
-| 欄位                               | 當前值   | 引用位置                                                                     | 狀態        |
-| ---------------------------------- | -------- | ---------------------------------------------------------------------------- | ----------- |
-| `minAction`                        | 10000    | `strategyEngine.mjs` → 未直接引用（由 `threshold.minActionableAmount` 承擔） | ⚠️ 部分引用 |
-| `cooldownDays`                     | 20       | `strategyEngine.mjs` → `evaluateInvestmentSignal()` → `checkCooldown()`      | ✅          |
-| `transFee`                         | 0.001425 | `scripts/testOptimizer.mjs` → 交易成本計算                                   | ✅          |
-| `transFeeDiscount`                 | 0.6      | `scripts/testOptimizer.mjs`                                                  | ✅          |
-| `taxRate`                          | 0.003    | `scripts/testOptimizer.mjs`                                                  | ✅          |
-| `loanInterestRate`                 | 0.025    | `scripts/testOptimizer.mjs`                                                  | ✅          |
-| `budget.maxDailyLoanIncreasePct`   | 0.05     | `strategyEngine.mjs` → 單日撥款上限                                          | ✅          |
-| `budget.maxRollingLoanIncreasePct` | 0.15     | `strategyEngine.mjs` → 10 日滾動上限                                         | ✅          |
-| `budget.rollingDays`               | 10       | `strategyEngine.mjs` → 滾動計算天數                                          | ✅          |
+| 欄位                               | 當前值   | 引用位置                                                                     | 狀態          |
+| ---------------------------------- | -------- | ---------------------------------------------------------------------------- | ------------- |
+| `minAction`                        | 10000    | `strategyEngine.mjs` → 未直接引用（由 `threshold.minActionableAmount` 承擔） | ⚠️ 部分引用   |
+| `cooldownDays`                     | 20       | `strategyEngine.mjs` → `evaluateInvestmentSignal()` → `checkCooldown()`      | ✅            |
+| `transFee`                         | 0.001425 | 現行腳本未找到有效引用                                                       | ⚠️ 待重新核對 |
+| `transFeeDiscount`                 | 0.6      | 現行腳本未找到有效引用                                                       | ⚠️ 待重新核對 |
+| `taxRate`                          | 0.003    | 現行腳本未找到有效引用                                                       | ⚠️ 待重新核對 |
+| `loanInterestRate`                 | 0.025    | 現行腳本未找到有效引用                                                       | ⚠️ 待重新核對 |
+| `budget.maxDailyLoanIncreasePct`   | 0.05     | `strategyEngine.mjs` → 單日撥款上限                                          | ✅            |
+| `budget.maxRollingLoanIncreasePct` | 0.15     | `strategyEngine.mjs` → 10 日滾動上限                                         | ✅            |
+| `budget.rollingDays`               | 10       | `strategyEngine.mjs` → 滾動計算天數                                          | ✅            |
 
 > **注意**：`trading.minAction` 與 `threshold.minActionableAmount` 語意重疊，建議統一為一個欄位。
 
