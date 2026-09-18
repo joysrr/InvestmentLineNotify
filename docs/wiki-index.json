@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 150,
+    "total_concepts": 151,
     "total_edges": 195,
     "total_code_mappings": 55,
     "concepts_with_code": 38,
     "concepts_with_links": 52,
-    "generated_at": "2026-09-17T12:04:09.851Z"
+    "generated_at": "2026-09-18T01:40:15.848Z"
   },
   "concepts": {
     "api-contract": {
@@ -1232,6 +1232,16 @@
       "related_code": [],
       "tags": ["optimization", "backlog", "suggestions"],
       "status": "backlog",
+      "last_verified": null
+    },
+    "2026-09-18-social-sentiment-snapshot-and-miniapp-plan": {
+      "primary_doc": "plans/completed/2026-09-18-social-sentiment-snapshot-and-miniapp-plan.md",
+      "title": "社群情緒快照與 Mini App 可追溯顯示實作計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["social-sentiment", "mini-app", "scheduling", "observability"],
+      "status": "completed",
       "last_verified": null
     },
     "active-plans-consolidated": {

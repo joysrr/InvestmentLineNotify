@@ -1,7 +1,8 @@
 ---
 type: plan
-status: in-progress
+status: completed
 last_updated: 2026-09-18
+progress: 100%
 tags:
   - social-sentiment
   - mini-app
@@ -82,7 +83,7 @@ npx vitest run src/test/unit/scheduler/newsFetch.test.mjs
 
 預期：新增測試失敗，因 `runNewsFetch()` 尚未呼叫社群情緒入口。
 
-- [ ] **Step 3：寫最小實作**
+- [x] **Step 3：寫最小實作**
 
 在 `src/scheduler/newsFetch.mjs` 使用靜態 import 匯入 `runSocialSentimentFetch`，於新聞池更新完成後呼叫：
 
@@ -102,7 +103,7 @@ try {
 
 不得改變新聞池的回傳值或錯誤處理契約。
 
-- [ ] **Step 4：執行測試確認 GREEN**
+- [x] **Step 4：執行測試確認 GREEN**
 
 ```bash
 npx vitest run src/test/unit/scheduler/newsFetch.test.mjs
@@ -110,7 +111,7 @@ npx vitest run src/test/unit/scheduler/newsFetch.test.mjs
 
 預期：該測試檔全部通過。
 
-- [ ] **Step 5：提交**
+- [x] **Step 5：提交**
 
 ```bash
 git add src/scheduler/newsFetch.mjs src/test/unit/scheduler/newsFetch.test.mjs
@@ -155,7 +156,7 @@ git commit -m "feat: update social sentiment with news schedule"
 
 分數語意門檻固定為：`0–29 恐慌`、`30–44 偏空`、`45–55 中性`、`56–70 偏多`、`71–100 過熱`。趨勢以 `ma3 - ma7` 判斷，差值大於 `1` 為升溫、小於 `-1` 為降溫、其餘為穩定。
 
-- [ ] **Step 1：寫失敗測試**
+- [x] **Step 1：寫失敗測試**
 
 在 sentiment engine 測試中加入：
 
@@ -178,7 +179,7 @@ it("每日快照應保存更新時間、來源樣本統計與白話判斷", () =
 });
 ```
 
-- [ ] **Step 2：執行測試確認 RED**
+- [x] **Step 2：執行測試確認 RED**
 
 ```bash
 npx vitest run src/test/sentiment/sentimentEngine.test.mjs
@@ -186,13 +187,13 @@ npx vitest run src/test/sentiment/sentimentEngine.test.mjs
 
 預期：metadata 斷言失敗，因現行快照沒有這些欄位。
 
-- [ ] **Step 3：寫最小實作**
+- [x] **Step 3：寫最小實作**
 
 調整 `generateDailySnapshot(sentimentHistory, priceHistory, outputPath, metadata = {})`，將 metadata 寫入快照；由 `runSocialSentimentFetch()` 使用 `collectSocialSentiment()` 的 `record` 填入實際時間與 PTT／Bluesky／總樣本數。
 
 同日快照寫入必須維持單一檔案覆寫，並保留既有 `date`、`score`、`ma3`、`ma7`、`divergenceStatus`、`signals`、`hotTopics` 欄位。
 
-- [ ] **Step 4：執行測試確認 GREEN**
+- [x] **Step 4：執行測試確認 GREEN**
 
 ```bash
 npx vitest run src/test/sentiment/sentimentEngine.test.mjs src/test/runSocialSentimentFetch.test.mjs
@@ -200,7 +201,7 @@ npx vitest run src/test/sentiment/sentimentEngine.test.mjs src/test/runSocialSen
 
 預期：相關測試全部通過。
 
-- [ ] **Step 5：提交**
+- [x] **Step 5：提交**
 
 ```bash
 git add src/modules/sentiment/sentimentEngine.mjs src/runSocialSentimentFetch.mjs src/test/sentiment/sentimentEngine.test.mjs src/test/runSocialSentimentFetch.test.mjs
@@ -222,7 +223,7 @@ git commit -m "feat: add traceable sentiment snapshot metadata"
 
 **Produces:** `GET /api/social-sentiment` 使用 `fetchSocialSentimentData()`，成功回傳正規化資料；檔案不存在或格式錯誤時回傳既有安全預設值，且保留 `reason`／log 可診斷性。
 
-- [ ] **Step 1：寫失敗測試**
+- [x] **Step 1：寫失敗測試**
 
 加入 API 測試，驗證：
 
@@ -231,7 +232,7 @@ git commit -m "feat: add traceable sentiment snapshot metadata"
 快照檔案缺少 optional metadata 時仍回傳合法 fallback 欄位
 ```
 
-- [ ] **Step 2：執行測試確認 RED**
+- [x] **Step 2：執行測試確認 RED**
 
 ```bash
 npx vitest run src/api/routes/socialSentiment.test.mjs
@@ -239,11 +240,11 @@ npx vitest run src/api/routes/socialSentiment.test.mjs
 
 預期：新欄位正規化／fallback 測試失敗。
 
-- [ ] **Step 3：寫最小實作**
+- [x] **Step 3：寫最小實作**
 
 將 route 改為呼叫 `fetchSocialSentimentData()`，並擴充 provider 的正規化欄位；不讓 API 直接暴露任意 JSON 結構。
 
-- [ ] **Step 4：執行測試確認 GREEN**
+- [x] **Step 4：執行測試確認 GREEN**
 
 ```bash
 npx vitest run src/api/routes/socialSentiment.test.mjs src/modules/providers/socialSentimentProvider.test.mjs
@@ -251,7 +252,7 @@ npx vitest run src/api/routes/socialSentiment.test.mjs src/modules/providers/soc
 
 預期：API 與 provider 測試全部通過。
 
-- [ ] **Step 5：提交**
+- [x] **Step 5：提交**
 
 ```bash
 git add src/api/routes/socialSentiment.mjs src/api/routes/socialSentiment.test.mjs src/modules/providers/socialSentimentProvider.mjs src/modules/providers/socialSentimentProvider.test.mjs
@@ -301,7 +302,7 @@ Bottom Sheet 顯示：
 - 代表性話題、來源、情緒標籤與連結
 ```
 
-- [ ] **Step 1：寫失敗測試**
+- [x] **Step 1：寫失敗測試**
 
 測試使用固定 fixture，驗證 DOM 包含：
 
@@ -317,7 +318,7 @@ Bluesky
 
 並驗證點擊後 Bottom Sheet 顯示計分依據，空 URL 不渲染成可點擊的壞連結。
 
-- [ ] **Step 2：執行測試確認 RED**
+- [x] **Step 2：執行測試確認 RED**
 
 ```bash
 cd webapp && npx vitest run src/test/SocialSentimentCard.test.js
@@ -325,7 +326,7 @@ cd webapp && npx vitest run src/test/SocialSentimentCard.test.js
 
 預期：新增斷言失敗，因現有卡片只有數字與話題。
 
-- [ ] **Step 3：寫最小實作**
+- [x] **Step 3：寫最小實作**
 
 加入：
 
@@ -338,7 +339,7 @@ cd webapp && npx vitest run src/test/SocialSentimentCard.test.js
 
 在 `MacroBattleView.vue` 將社群區塊標題與總經多空區塊明確分隔，不將社群分數併入 `bullScore`／`bearScore`。
 
-- [ ] **Step 4：執行測試確認 GREEN**
+- [x] **Step 4：執行測試確認 GREEN**
 
 ```bash
 cd webapp && npx vitest run src/test/SocialSentimentCard.test.js
@@ -346,7 +347,7 @@ cd webapp && npx vitest run src/test/SocialSentimentCard.test.js
 
 再執行相關 Macro Battle 測試，預期全部通過。
 
-- [ ] **Step 5：提交**
+- [x] **Step 5：提交**
 
 ```bash
 git add webapp/src/components/macro/SocialSentimentCard.vue webapp/src/views/MacroBattleView.vue webapp/src/test/SocialSentimentCard.test.js
@@ -373,7 +374,7 @@ git add webapp/src/components/macro/SocialSentimentCard.vue webapp/src/views/Mac
 - 記錄社群採集失敗不阻斷新聞排程。
 - 記錄 Mini App 的社群情緒區塊與 Bottom Sheet 判斷依據。
 
-- [ ] **Step 1：先確認文件驗證入口**
+- [x] **Step 1：先確認文件驗證入口**
 
 先檢查 `package.json` 與 `scripts/` 目前實際存在的文件驗證命令；不得引用不存在的驗證腳本。若沒有專用文件檢查入口，至少執行：
 
@@ -381,17 +382,17 @@ git add webapp/src/components/macro/SocialSentimentCard.vue webapp/src/views/Mac
 git diff --check
 ```
 
-- [ ] **Step 2：修改文件**
+- [x] **Step 2：修改文件**
 
 只同步本計畫實際落地的路徑與行為，不補寫尚未實作的欄位。
 
-- [ ] **Step 3：驗證文件**
+- [x] **Step 3：驗證文件**
 
 ```bash
 git diff --check
 ```
 
-- [ ] **Step 4：提交**
+- [x] **Step 4：提交**
 
 ```bash
 git add docs/modules/operations/schedules.md docs/modules/_index.md docs/TESTING.md
@@ -407,14 +408,14 @@ git commit -m "docs: document scheduled social sentiment updates"
 - No planned source changes.
 - Any unexpected generated file must be reviewed and excluded unless explicitly required by the task.
 
-- [ ] **Step 1：執行後端與前端相關測試**
+- [x] **Step 1：執行後端與前端相關測試**
 
 ```bash
 npx vitest run src/test/unit/scheduler/newsFetch.test.mjs src/test/sentiment/sentimentEngine.test.mjs src/test/runSocialSentimentFetch.test.mjs src/api/routes/socialSentiment.test.mjs src/modules/providers/socialSentimentProvider.test.mjs
 cd webapp && npx vitest run src/test/SocialSentimentCard.test.js
 ```
 
-- [ ] **Step 2：執行完整驗證**
+- [x] **Step 2：執行完整驗證**
 
 ```bash
 npm run verify
@@ -422,11 +423,11 @@ npm run verify
 
 成功條件：lint 0 errors、所有既有測試通過、OpenAPI 無 breaking changes。
 
-- [ ] **Step 3：必要時執行 Mini App E2E**
+- [x] **Step 3：必要時執行 Mini App E2E**
 
 依專案既有 `verify-pages.sh`／Playwright 流程執行，測試社群情緒區塊可顯示、Bottom Sheet 可開啟、手機寬度不溢出；執行後清理所有 API、Vite、Playwright 與 Chromium 程序。
 
-- [ ] **Step 4：檢查追蹤完整性**
+- [x] **Step 4：檢查追蹤完整性**
 
 ```bash
 git diff --check
@@ -436,7 +437,7 @@ git log --oneline -8
 
 確認所有計畫 checkbox 與實際 commit 對應，沒有未追蹤資料或秘密內容。
 
-- [ ] **Step 5：計畫結案**
+- [x] **Step 5：計畫結案**
 
 全部驗證通過後：
 
@@ -464,5 +465,5 @@ git log --oneline -8
 - [x] Task 2：快照 metadata
 - [x] Task 3：API 契約
 - [x] Task 4：Mini App UI
-- [ ] Task 5：文件同步
-- [ ] Task 6：完整驗證與結案
+- [x] Task 5：文件同步
+- [x] Task 6：完整驗證與結案
