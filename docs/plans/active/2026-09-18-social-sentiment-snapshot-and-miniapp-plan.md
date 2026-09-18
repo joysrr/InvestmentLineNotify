@@ -63,7 +63,7 @@ wiki_links: []
 
 **Produces:** `runNewsFetch()` 在新聞池處理完成後，以受控錯誤隔離方式呼叫 `runSocialSentimentFetch()`；回傳既有 `{ appended, total }` 契約，不因社群更新失敗而改變新聞排程結果。
 
-- [ ] **Step 1：寫失敗測試**
+- [x] **Step 1：寫失敗測試**
 
 在 `newsFetch.test.mjs` 建立 mock，驗證新聞流程會呼叫 `runSocialSentimentFetch()`，並驗證該呼叫 rejection 不會使 `runNewsFetch()` rejection。
 
@@ -74,7 +74,7 @@ runNewsFetch triggers shared social sentiment snapshot update
 runNewsFetch keeps news result when social sentiment update fails
 ```
 
-- [ ] **Step 2：執行測試確認 RED**
+- [x] **Step 2：執行測試確認 RED**
 
 ```bash
 npx vitest run src/test/unit/scheduler/newsFetch.test.mjs
@@ -460,9 +460,9 @@ git log --oneline -8
 - [x] 設計決策：社群情緒在 `MacroBattleView` 中維持獨立區塊，不新增頂層頁面。
 - [x] 設計決策：詳細依據使用 Bottom Sheet。
 - [x] 計畫落地至 `docs/plans/active/`。
-- [ ] Task 1：排程綁定
-- [ ] Task 2：快照 metadata
-- [ ] Task 3：API 契約
-- [ ] Task 4：Mini App UI
+- [x] Task 1：排程綁定
+- [x] Task 2：快照 metadata
+- [x] Task 3：API 契約
+- [x] Task 4：Mini App UI
 - [ ] Task 5：文件同步
 - [ ] Task 6：完整驗證與結案

@@ -48,7 +48,7 @@ wiki_links:
 | 12:00 每日      | `0 12 * * *`  | `scripts/vm-daily-check.sh`    | 🟡 午盤回報                              | 中         |
 | 13:45 每日      | `45 13 * * *` | `scripts/vm-daily-check.sh`    | 🟡 收盤後總結（13:30 收盤後 15 分）      | 中         |
 | 21:30 每日      | `30 21 * * *` | `scripts/vm-daily-check.sh`    | 🌙 夜間美股開盤觀測                      | 中         |
-| 每 4 小時       | `0 */4 * * *` | `scripts/vm-news-fetch.sh`     | 新聞池更新                               | 低         |
+| 每 4 小時       | `0 */4 * * *` | `scripts/vm-news-fetch.sh`     | 新聞池與社群情緒快照更新                 | 低         |
 | 02:00 每日      | `0 2 * * *`   | `scripts/vm-optimizer.sh`      | Rule Optimizer（新聞治理規則優化）       | 低         |
 | 09:30 每週一    | `30 9 * * 1`  | `scripts/vm-weekly-report.sh`  | AI 週報生成                              | 低         |
 | 09:00 每月 1 日 | `0 9 1 * *`   | `scripts/vm-monthly-report.sh` | AI 月報生成                              | 低         |
@@ -131,11 +131,17 @@ pm2 monit
 
 ### `scripts/vm-news-fetch.sh`
 
-| 項目        | 說明                     |
-| ----------- | ------------------------ |
-| 對應 Runner | `src/runNewsFetch.mjs`   |
-| Log 輸出    | `logs/vm-news-fetch.log` |
-| 執行頻率    | 每 4 小時                |
+| 項目        | 說明                                                 |
+| ----------- | ---------------------------------------------------- |
+| 對應 Runner | `src/runNewsFetch.mjs`                               |
+| 執行頻率    | 每 4 小時                                            |
+| 更新內容    | 新聞池、`data/sentiment/social_sentiment_daily.json` |
+| 錯誤隔離    | 社群情緒採集失敗不阻斷新聞池流程                     |
+| Log 輸出    | `logs/vm-news-fetch.log`                             |
+
+`src/runNewsFetch.mjs` 會進入 `src/scheduler/newsFetch.mjs`。新聞池更新完成後，排程共用 `/sentiment` 使用的 `runSocialSentimentFetch()`，寫入每日社群情緒快照。手動 `/sentiment` 仍可立即觸發相同流程，但不再是唯一更新入口。
+
+社群快照由 `src/modules/providers/socialSentimentProvider.mjs` 正規化後提供給 `GET /api/social-sentiment`；Mini App 在「社群情緒觀察」區塊顯示摘要，詳細依據由 Bottom Sheet 呈現。
 
 ### `scripts/vm-optimizer.sh`
 
