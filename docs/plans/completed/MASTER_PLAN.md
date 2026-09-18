@@ -1,7 +1,7 @@
 ---
 type: plan
-status: completed
-last_updated: 2026-09-10
+status: reference-only
+last_updated: 2026-09-18
 tags:
   - completed
   - archived
@@ -17,17 +17,17 @@ wiki_links: []
 
 ## 🎯 當前執行焦點
 
-### WebApp 系統性優化計畫 (進行中)
+### WebApp 系統性優化計畫（歷史總覽）
 
-- **狀態**: 🔴 Active
-- **目標**: 打包體積優化 (2.47MB → 300KB gzip) / 防禦網全覆蓋 / 公共元件死碼活用 / API 層收斂
-- **計畫文件**: [WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md](./WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md) (v2.0)
+- **狀態**: superseded
+- **實際後續證據**: [WEBAPP_PHASE_6_DETAIL_PLAN.md](./WEBAPP_PHASE_6_DETAIL_PLAN.md)
+- **說明**: 原 v2.0 執行規格已由 Phase 6 實際基線取代。
 
-### Phase 6: 品質硬化與技術債清理 (規劃中)
+### Phase 6: 品質硬化與技術債清理（已完成）
 
-- **狀態**: ⏳ 規劃中
-- **目標**: 測試覆蓋率門檻、ESLint 零警告、效能基準線
-- **依賴**: WebApp 系統性優化 Phase 1-2 完成
+- **狀態**: ✅ Completed
+- **實際證據**: [WEBAPP_PHASE_6_DETAIL_PLAN.md](./WEBAPP_PHASE_6_DETAIL_PLAN.md)
+- **結果**: E2E 49/49、production lint 0 warnings、backend 1514 tests passed；後續 coverage slices 保留為需求驅動工作
 
 ### E2E 測試修正 (22→0)
 
@@ -59,14 +59,14 @@ wiki_links: []
 
 ## 📁 文件索引
 
-| 文件                                       | 用途                      | 狀態         |
-| ------------------------------------------ | ------------------------- | ------------ |
-| **WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md** | 系統性優化總綱 (v2.0)     | 🔴 Active    |
-| **MASTER_PLAN.md** (本檔)                  | 高層級概覽                | ✅ Active    |
-| **MINIAPP_BUG_FIX_PLAN.md**                | Mini App Bug Fix 完整記錄 | 📦 Completed |
-| **E2E_TEST_FIX_PLAN.md**                   | E2E 22→0 修正記錄         | 📦 Completed |
-| **DEPLOYMENT_CHECKLIST.md**                | 部署檢查清單              | 📦 Completed |
-| **HARDCODED_AUDIT.md**                     | 硬編碼審計                | 📦 Completed |
+| 文件                                       | 用途                      | 狀態              |
+| ------------------------------------------ | ------------------------- | ----------------- |
+| **WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md** | 系統性優化歷史規格        | 📦 Superseded     |
+| **MASTER_PLAN.md** (本檔)                  | 歷史高層級概覽            | 📚 Reference-only |
+| **MINIAPP_BUG_FIX_PLAN.md**                | Mini App Bug Fix 完整記錄 | 📦 Completed      |
+| **E2E_TEST_FIX_PLAN.md**                   | E2E 22→0 修正記錄         | 📦 Completed      |
+| **DEPLOYMENT_CHECKLIST.md**                | 部署檢查清單              | 📦 Completed      |
+| **HARDCODED_AUDIT.md**                     | 硬編碼審計                | 📦 Completed      |
 
 ---
 

@@ -11,7 +11,7 @@ wiki_links: []
 # WebApp Phase 6 品質硬化與技術債清理計畫
 
 > 版本：v1.0
-> 狀態：Active
+> 狀態：completed
 > Branch：`phase-6`
 > Baseline anchor：`9156e8a`
 > 建立日期：2026-08-17

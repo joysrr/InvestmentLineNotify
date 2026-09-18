@@ -8,7 +8,7 @@
     "total_code_mappings": 55,
     "concepts_with_code": 38,
     "concepts_with_links": 51,
-    "generated_at": "2026-09-18T01:50:25.852Z"
+    "generated_at": "2026-09-18T03:58:45.671Z"
   },
   "concepts": {
     "api-contract": {
@@ -1031,7 +1031,7 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["archived", "historical", "completed", "archived"],
-      "status": "completed",
+      "status": "reference-only",
       "last_verified": null
     },
     "tech-debt-plan": {
@@ -1251,7 +1251,7 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
-      "status": "completed",
+      "status": "reference-only",
       "last_verified": null
     },
     "code-review-optimization-plan": {
@@ -1381,7 +1381,7 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
-      "status": "completed",
+      "status": "superseded",
       "last_verified": null
     },
     "hardcoded-audit": {
@@ -1427,7 +1427,7 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
-      "status": "completed",
+      "status": "partially-completed",
       "last_verified": null
     },
     "miniapp-uiux-improvement-plan": {
@@ -1632,7 +1632,7 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
-      "status": "completed",
+      "status": "superseded",
       "last_verified": null
     },
     "webapp-phase-3-5-detail-plan": {
@@ -1642,7 +1642,7 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
-      "status": "completed",
+      "status": "reference-only",
       "last_verified": null
     },
     "webapp-phase-6-detail-plan": {
@@ -1662,7 +1662,7 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
-      "status": "completed",
+      "status": "superseded",
       "last_verified": null
     },
     "webapp-systematic-optimization-plan-v2.0": {
@@ -1672,7 +1672,7 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
-      "status": "completed",
+      "status": "superseded",
       "last_verified": null
     },
     "wiki-index-prototype-report": {

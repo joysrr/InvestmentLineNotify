@@ -1,7 +1,8 @@
 ---
 type: plan
-status: completed
-last_updated: 2026-09-10
+status: superseded
+last_updated: 2026-09-18
+superseded_by: WEBAPP_PHASE_6_DETAIL_PLAN.md
 tags:
   - completed
   - archived
@@ -12,7 +13,8 @@ wiki_links: []
 
 > **版本**: v2.0 (經 Grill-Me 審查確認，鎖定執行規格)
 > **更新日期**: 2026-08-16
-> **狀態**: 🔴 Active
+> **狀態**: superseded — 原始 v2.0 執行規格已由 Phase 6 實際基線取代
+> **後續證據**: `WEBAPP_PHASE_6_DETAIL_PLAN.md`
 > **目標分支**: `optimize/webapp-systematic`
 > **前置條件**: Mini App Bug Fix Phase 1-3 已完成並部署至正式區
 

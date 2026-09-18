@@ -13,7 +13,7 @@ wiki_links: []
 
 # 社群情緒快照與 Mini App 可追溯顯示實作計畫
 
-**狀態：** in-progress  
+**狀態：** completed
 **建立日期：** 2026-09-18  
 **負責範圍：** 社群情緒採集、既有新聞排程整合、快照資料契約、API 與 Mini App 顯示  
 **追蹤原則：** 每個任務依 RED → GREEN → REFACTOR → VERIFY 執行，完成一個可獨立驗證的任務後提交 commit。

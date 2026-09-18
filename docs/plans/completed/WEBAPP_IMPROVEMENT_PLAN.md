@@ -1,7 +1,8 @@
 ---
 type: plan
-status: completed
-last_updated: 2026-09-10
+status: superseded
+last_updated: 2026-09-18
+superseded_by: WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN_v2.0.md
 tags:
   - completed
   - archived
@@ -12,7 +13,8 @@ wiki_links: []
 
 **版本**: v1.0  
 **建立日期**: 2026-08-14  
-**狀態**: Active  
+**狀態**: superseded — 早期 WebApp 盤點已由 v2.0 系統性優化規格取代
+**後續證據**: `WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN_v2.0.md` 及 `WEBAPP_PHASE_6_DETAIL_PLAN.md`
 **負責人**: Han  
 **專案**: InvestmentLineNotify WebApp
 

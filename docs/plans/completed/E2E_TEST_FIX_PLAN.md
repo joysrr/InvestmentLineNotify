@@ -1,7 +1,8 @@
 ---
 type: plan
-status: completed
-last_updated: 2026-09-10
+status: superseded
+last_updated: 2026-09-18
+superseded_by: WEBAPP_PHASE_6_DETAIL_PLAN.md
 tags:
   - completed
   - archived
@@ -12,9 +13,10 @@ wiki_links: []
 
 > **版本**: v1.0
 > **建立日期**: 2026-08-16
-> **狀態**: 🔴 Active — 待細節確認
+> **狀態**: superseded — 原始失敗修正清單已由後續整合與 Phase 6 驗證取代
 > **前提**: Phase 1 (Code Splitting) + Phase 2 (GlobalErrorBoundary) 已完成
-> **當前 E2E 結果**: 27 passed, 22 failed (49 total)
+> **原始 E2E 結果**: 27 passed, 22 failed (49 total)
+> **後續結果**: `WEBAPP_PHASE_6_DETAIL_PLAN.md` 記錄 E2E 49/49 通過（workers=1）。
 
 ---
 

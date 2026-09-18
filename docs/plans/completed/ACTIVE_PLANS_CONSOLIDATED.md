@@ -1,7 +1,7 @@
 ---
 type: plan
-status: completed
-last_updated: 2026-09-10
+status: reference-only
+last_updated: 2026-09-18
 tags:
   - completed
   - archived
@@ -10,16 +10,16 @@ wiki_links: []
 
 # Active Plans Consolidated
 
-> **狀態**：Active — 唯一現行計畫索引
-> **整理日期**：2026-09-02
-> **現行計畫**：`docs/plans/active/DASHBOARD_INTEGRATION_AND_CONFIG_FIX_PLAN.md` (總覽頁整合與策略設定型別修復計畫)
-> **目的**：統整 `docs/plans/active/` 現行計畫。
+> **狀態**：reference-only — 歷史計畫狀態索引
+> **整理日期**：2026-09-18
+> **現況**：`docs/plans/active/` 目前沒有現行計畫。
+> **目的**：保留歷史計畫的完成、取代與延期判定；新的執行計畫必須另建於 `docs/plans/active/`。
 
 ## 1. 現況結論
 
 Phase 6 已完成並封存。E2E、部署檢查、硬編碼審計、WebApp Phase 1–5 的主要決策與系統性優化 Phase 1–2 也已有實際成果或已結案。
 
-目前不保留新的立即執行項目；active 僅保留後續需要重新分析後才決定是否執行的工作：
+目前不保留新的立即執行項目；以下是歷史上曾列出的、需要重新分析後才決定是否執行的工作：
 
 - WebApp Phase 3：未使用共用元件是否保留，依實際產品需求決定。
 - WebApp Phase 4：`useApiRequest` 文件化與下一個新 View 的實戰驗證；不強制遷移既有 Views。

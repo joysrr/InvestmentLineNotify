@@ -1,7 +1,7 @@
 ---
 type: plan
-status: completed
-last_updated: 2026-09-10
+status: partially-completed
+last_updated: 2026-09-18
 tags:
   - completed
   - archived
@@ -12,7 +12,8 @@ wiki_links: []
 
 > **版本**: v4.0 (經 Grill-Me 嚴格架構審查與主流規範確認)  
 > **更新日期**: 2026-08-15  
-> **狀態**: 🔴 Active  
+> **狀態**: partially-completed — Phase C 已有實作證據；Phase B／D 未完成驗收
+> **證據**: `src/api/middleware/initDataGuard.mjs`、`webapp/src/api/index.js`、`src/api/server.mjs`
 > **目標分支**: `fix/miniapp-bugs`
 
 ---
