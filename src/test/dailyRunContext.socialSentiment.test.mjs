@@ -12,8 +12,9 @@ vi.mock("../modules/providers/twseProvider.mjs", () => ({
   isMarketOpenTodayTWSE: vi.fn().mockResolvedValue(false),
 }));
 vi.mock("../modules/providers/historyProvider.mjs", () => ({
-  fetchStockHistoryWithAutoFill: vi.fn().mockResolvedValue(
-    Array(60).fill({
+  fetchStockHistoryWithAutoFillDetailed: vi.fn().mockResolvedValue({
+    status: "available",
+    data: Array(60).fill({
       date: "2026-09-12",
       close: 100,
       open: 100,
@@ -21,7 +22,11 @@ vi.mock("../modules/providers/historyProvider.mjs", () => ({
       low: 100,
       volume: 1000,
     }),
-  ),
+    required: 60,
+    count: 60,
+    failedMonths: [],
+    lastError: null,
+  }),
 }));
 vi.mock("../modules/providers/basePriceProvider.mjs", () => ({
   fetchLatestBasePrice: vi.fn().mockResolvedValue({ basePrice: null }),

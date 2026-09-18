@@ -291,8 +291,30 @@ function buildUrls(stockNo, yyyymm01) {
   ];
 }
 
+export function parseStockDayResponse(json, stockNo, monthKey) {
+  if (json?.stat !== "OK") {
+    throw new Error(
+      `TWSE STOCK_DAY ${stockNo} ${monthKey}: ${json?.stat ?? "invalid response"}`,
+    );
+  }
+
+  return (json.data || []).map((row) => {
+    const [rocDate, volumeStr, _amount, openStr, highStr, lowStr, closeStr] =
+      row;
+    return {
+      date: rocDateToIso(rocDate),
+      open: parseNumber(openStr),
+      high: parseNumber(highStr),
+      low: parseNumber(lowStr),
+      close: parseNumber(closeStr),
+      volume: parseNumber(volumeStr),
+    };
+  });
+}
+
 async function fetchStockDayMonth(stockNo, yyyymm01) {
   const urls = buildUrls(stockNo, yyyymm01);
+  let lastError = null;
 
   for (const url of urls) {
     try {
@@ -326,27 +348,7 @@ async function fetchStockDayMonth(stockNo, yyyymm01) {
         } catch {
           continue;
         }
-        if (json.stat !== "OK") return [];
-
-        return (json.data || []).map((row) => {
-          const [
-            rocDate,
-            volumeStr,
-            _amount,
-            openStr,
-            highStr,
-            lowStr,
-            closeStr,
-          ] = row;
-          return {
-            date: rocDateToIso(rocDate),
-            open: parseNumber(openStr),
-            high: parseNumber(highStr),
-            low: parseNumber(lowStr),
-            close: parseNumber(closeStr),
-            volume: parseNumber(volumeStr),
-          };
-        });
+        return parseStockDayResponse(json, stockNo, yyyymm01.substring(0, 6));
       }
 
       if (
@@ -359,11 +361,13 @@ async function fetchStockDayMonth(stockNo, yyyymm01) {
         `TWSE STOCK_DAY HTTP ${res.status}: ${text.slice(0, 200)}`,
       );
     } catch (e) {
+      lastError = e;
       if (e.message.includes("Timeout"))
         console.warn(`TWSE STOCK_DAY ${e.message}`);
     }
   }
 
+  if (lastError) throw lastError;
   throw new Error("TWSE STOCK_DAY: all endpoints failed (non-JSON or blocked)");
 }
 

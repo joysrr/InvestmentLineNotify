@@ -11,11 +11,11 @@
 // 並行策略：
 //   Wave 1 — 完全獨立、無相互依賴的資料來源，全部同時並行
 //   Wave 2 — 依賴 history（Z2 資料量檢查）才能繼續的後續步驟
-//             （實際上 dailyCheck 已在拿到 history 後才判斷 < 30 筆，
+//             （實際上 dailyCheck 已在拿到 history 後才判斷是否低於 60 筆，
 //              故此層僅封裝，不改變原有提前終止語意）
 //
 // 錯誤處理原則：
-//   - 致命性（history < 30 筆）→ 拋出，由 dailyCheck 捕捉並提前返回
+//   - 致命性（history < 60 筆或來源不可用）→ 拋出，由 dailyCheck 捕捉並提前返回
 //   - 非致命性（VIX / price / archive 讀取失敗）→ 記錄 warn，回傳 null / 預設值
 //   - isCallAI = false 時，新聞與總經分析整段略過，相關欄位回傳空預設
 
@@ -25,7 +25,7 @@ import {
   fetchRealtimeFromMis,
   isMarketOpenTodayTWSE,
 } from "../modules/providers/twseProvider.mjs";
-import { fetchStockHistoryWithAutoFill } from "../modules/providers/historyProvider.mjs";
+import { fetchStockHistoryWithAutoFillDetailed } from "../modules/providers/historyProvider.mjs";
 import { fetchLatestBasePrice } from "../modules/providers/basePriceProvider.mjs";
 import { fetchAllMacroData } from "../modules/providers/marketData.mjs";
 import { fetchLastPortfolioState } from "../modules/storage.mjs";
@@ -122,8 +122,23 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     null,
     "socialSentiment",
   );
-  const historyZ2Raw = _unwrap(historyZ2Result, [], "historyZ2");
-  const history0050 = _unwrap(history0050Result, [], "history0050");
+  const historyZ2ResultValue = _unwrap(
+    historyZ2Result,
+    {
+      status: "source_unavailable",
+      data: [],
+      failedMonths: [],
+      lastError: null,
+    },
+    "historyZ2",
+  );
+  const historyZ2Raw = Array.isArray(historyZ2ResultValue)
+    ? historyZ2ResultValue
+    : historyZ2ResultValue.data;
+  const history0050ResultValue = _unwrap(history0050Result, [], "history0050");
+  const history0050 = Array.isArray(history0050ResultValue)
+    ? history0050ResultValue
+    : (history0050ResultValue.data ?? []);
   const openToday = _unwrap(openTodayResult, false, "openToday");
   const valuationGuardState = _unwrap(
     valuationGuardResult,
@@ -146,10 +161,26 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
   _logMacroOverview(macroData);
 
   // ── 致命性檢查：Z2 歷史資料量 ────────────────────────────────────────────
-  if (historyZ2Raw.length < HISTORY_MIN_BARS) {
-    const msg = `❌ [DailyRunContext] 00675L 歷史資料不足 ${HISTORY_MIN_BARS} 筆（實際 ${historyZ2Raw.length} 筆），中止執行`;
-    logger.error(msg);
-    throw new Error(msg);
+  if (historyZ2ResultValue.status !== "available") {
+    const isSourceUnavailable =
+      historyZ2ResultValue.status === "source_unavailable";
+    const error = new Error(
+      isSourceUnavailable
+        ? "00675L history source unavailable"
+        : "00675L history insufficient",
+    );
+    error.code = isSourceUnavailable
+      ? "HISTORY_SOURCE_UNAVAILABLE"
+      : "HISTORY_INSUFFICIENT";
+    error.details = {
+      symbol: "00675L",
+      required: HISTORY_MIN_BARS,
+      count: historyZ2Raw.length,
+      failedMonths: historyZ2ResultValue.failedMonths ?? [],
+      lastError: historyZ2ResultValue.lastError ?? null,
+    };
+    logger.error({ err: error, details: error.details }, error.message);
+    throw error;
   }
 
   // ── Wave 2：依賴 macroData 的衍生值 ──────────────────────────────────────
@@ -426,8 +457,10 @@ async function _fetchHistory(symbol) {
   );
   const done = stepTimer(`fetchStockHistory_${symbol}`);
 
-  // 使用自動回補邏輯，預設需求 30 筆
-  const result = await fetchStockHistoryWithAutoFill(symbol, HISTORY_MIN_BARS);
+  const result = await fetchStockHistoryWithAutoFillDetailed(
+    symbol,
+    HISTORY_MIN_BARS,
+  );
 
   done();
   return result;

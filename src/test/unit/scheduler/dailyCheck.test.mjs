@@ -101,31 +101,54 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     vi.clearAllMocks();
   });
 
-  it("資料不足時應回傳錯誤並發送 Telegram 通知", async () => {
-    // Arrange
+  it("歷史資料真的不足時，通知應包含實際門檻與筆數", async () => {
     const { buildDailyRunContext } =
       await import("../../../../src/domain/dailyRunContext.mjs");
     vi.mocked(buildDailyRunContext).mockRejectedValue(
-      new Error("歷史資料不足 30 筆"),
+      Object.assign(new Error("00675L history insufficient"), {
+        code: "HISTORY_INSUFFICIENT",
+        details: { symbol: "00675L", required: 60, count: 12 },
+      }),
     );
 
     const { sendTelegramBatch } =
       await import("../../../../src/modules/notifications/transports/telegramClient.mjs");
     vi.mocked(sendTelegramBatch).mockResolvedValue(undefined);
 
-    const { langfuse } =
-      await import("../../../../src/modules/ai/aiClient.mjs");
-    vi.mocked(langfuse.shutdownAsync).mockResolvedValue(undefined);
-
-    // Act
     const result = await runDailyCheck(
       {},
       { isTelegramEnabled: true, isAIAdvisor: true, isCallAI: true },
     );
 
-    // Assert
     expect(result).toBe("❌ 資料不足");
-    expect(sendTelegramBatch).toHaveBeenCalledTimes(1);
+    expect(sendTelegramBatch.mock.calls[0][0][0].text).toContain("60");
+    expect(sendTelegramBatch.mock.calls[0][0][0].text).toContain("12");
+    expect(sendTelegramBatch.mock.calls[0][0][0].text).not.toContain("30 筆");
+  });
+
+  it("歷史來源暫時失敗時，通知應標示來源不可用而非資料不足", async () => {
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockRejectedValue(
+      Object.assign(new Error("TWSE timeout"), {
+        code: "HISTORY_SOURCE_UNAVAILABLE",
+        details: { symbol: "00675L", failedMonths: ["202609"] },
+      }),
+    );
+
+    const { sendTelegramBatch } =
+      await import("../../../../src/modules/notifications/transports/telegramClient.mjs");
+    vi.mocked(sendTelegramBatch).mockResolvedValue(undefined);
+
+    await runDailyCheck(
+      {},
+      { isTelegramEnabled: true, isAIAdvisor: true, isCallAI: true },
+    );
+
+    const text = sendTelegramBatch.mock.calls[0][0][0].text;
+    expect(text).toContain("資料來源暫時不可用");
+    expect(text).toContain("202609");
+    expect(text).not.toContain("歷史資料不足");
   });
 
   it("無開市日應跳過通知並返回成功", async () => {

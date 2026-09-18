@@ -133,16 +133,17 @@ describe("twseProvider - 台股 Provider", () => {
       expect(archiveManager.saveStockHistory).toHaveBeenCalled();
     });
 
-    it("stat 不為 OK 回傳空陣列", async () => {
+    it("stat 不為 OK 回傳來源錯誤", async () => {
       archiveManager.getStockHistory.mockResolvedValueOnce(null);
-      fetchWithTimeout.mockResolvedValueOnce({
+      fetchWithTimeout.mockResolvedValue({
         ok: true,
         headers: { get: () => "application/json" },
         text: vi.fn().mockResolvedValue(JSON.stringify({ stat: "ERROR" })),
       });
 
-      const result = await fetchStockDayMonthWithCache("0050", "20240101");
-      expect(result).toEqual([]);
+      await expect(
+        fetchStockDayMonthWithCache("0050", "20240101"),
+      ).rejects.toThrow(/TWSE STOCK_DAY 0050 202401/);
     });
   });
 
