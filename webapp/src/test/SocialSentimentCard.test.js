@@ -134,6 +134,11 @@ describe("SocialSentimentCard (TDD RED-GREEN)", () => {
     expect(
       wrapper.find('[data-testid="sentiment-evidence-sheet"]').text(),
     ).toContain("無背離現象");
+    const sheetContent = wrapper.find(".evidence-sheet__content");
+    expect(sheetContent.classes()).toContain(
+      "evidence-sheet__content--nav-safe",
+    );
+    expect(sheetContent.attributes("data-nav-safe-area")).toBe("true");
   });
 
   it("應在情緒資料缺失時顯示 graceful fallback", () => {

@@ -30,7 +30,10 @@
 
     <div class="sentiment-meta" data-testid="sentiment-metadata">
       <span>更新時間：{{ updatedAtText }}</span>
-      <span>樣本：{{ sampleCount }} 筆（PTT {{ pttItems }}、Bluesky {{ bskyItems }}）</span>
+      <span
+        >樣本：{{ sampleCount }} 筆（PTT {{ pttItems }}、Bluesky
+        {{ bskyItems }}）</span
+      >
       <span>趨勢：{{ trendText }}</span>
     </div>
 
@@ -45,26 +48,19 @@
 
     <!-- Divergence + signals -->
     <div class="sentiment-row">
-      <span
-        class="sentiment-divergence"
-        :class="divergenceClass"
-      >{{ divergenceText }}</span>
+      <span class="sentiment-divergence" :class="divergenceClass">{{
+        divergenceText
+      }}</span>
       <div v-if="sentiment.signals?.length" class="sentiment-signals">
-        <span
-          v-for="(s, i) in sentiment.signals"
-          :key="i"
-          class="signal-tag"
-        >{{ signalLabel(s) }}</span>
+        <span v-for="(s, i) in sentiment.signals" :key="i" class="signal-tag">{{
+          signalLabel(s)
+        }}</span>
       </div>
     </div>
 
     <!-- Hot topics -->
     <div v-if="sentiment.hotTopics?.length" class="hot-topics">
-      <div
-        v-for="(topic, i) in sentiment.hotTopics"
-        :key="i"
-        class="hot-topic"
-      >
+      <div v-for="(topic, i) in sentiment.hotTopics" :key="i" class="hot-topic">
         <span class="hot-topic-source">{{ topic.source }}</span>
         <a
           v-if="topic.url"
@@ -72,12 +68,20 @@
           class="hot-topic-link"
           target="_blank"
           rel="noopener noreferrer"
-        >{{ topic.title }}</a>
+          >{{ topic.title }}</a
+        >
         <span v-else class="hot-topic-text">{{ topic.title }}</span>
         <span
           class="hot-topic-bias"
           :class="`bias-${(topic.sentiment || 'NEUTRAL').toLowerCase()}`"
-        >{{ topic.sentiment === 'BULL' ? '🟢' : topic.sentiment === 'BEAR' ? '🔴' : '⚪' }}</span>
+          >{{
+            topic.sentiment === "BULL"
+              ? "🟢"
+              : topic.sentiment === "BEAR"
+                ? "🔴"
+                : "⚪"
+          }}</span
+        >
       </div>
     </div>
 
@@ -88,17 +92,47 @@
       role="dialog"
       aria-modal="true"
     >
-      <div class="evidence-sheet__backdrop" @click="isEvidenceOpen = false"></div>
-      <div class="evidence-sheet__content">
+      <div
+        class="evidence-sheet__backdrop"
+        @click="isEvidenceOpen = false"
+      ></div>
+      <div
+        class="evidence-sheet__content evidence-sheet__content--nav-safe"
+        data-nav-safe-area="true"
+      >
         <div class="evidence-sheet__header">
           <h4>本次判斷依據</h4>
-          <button type="button" class="evidence-close" @click="isEvidenceOpen = false">關閉</button>
+          <button
+            type="button"
+            class="evidence-close"
+            @click="isEvidenceOpen = false"
+          >
+            關閉
+          </button>
         </div>
         <dl class="evidence-list">
-          <div><dt>情緒判定</dt><dd>{{ sentiment.score }} 分・{{ scoreLabel }}</dd></div>
-          <div><dt>均線趨勢</dt><dd>3D {{ sentiment.ma3 }} / 7D {{ sentiment.ma7 }}・{{ trendText }}（Δ {{ deltaText }}）</dd></div>
-          <div><dt>資料樣本</dt><dd>{{ sampleCount }} 筆・PTT {{ pttItems }}・Bluesky {{ bskyItems }}</dd></div>
-          <div><dt>背離檢查</dt><dd>{{ sentiment.divergenceDetail || divergenceText }}</dd></div>
+          <div>
+            <dt>情緒判定</dt>
+            <dd>{{ sentiment.score }} 分・{{ scoreLabel }}</dd>
+          </div>
+          <div>
+            <dt>均線趨勢</dt>
+            <dd>
+              3D {{ sentiment.ma3 }} / 7D {{ sentiment.ma7 }}・{{
+                trendText
+              }}（Δ {{ deltaText }}）
+            </dd>
+          </div>
+          <div>
+            <dt>資料樣本</dt>
+            <dd>
+              {{ sampleCount }} 筆・PTT {{ pttItems }}・Bluesky {{ bskyItems }}
+            </dd>
+          </div>
+          <div>
+            <dt>背離檢查</dt>
+            <dd>{{ sentiment.divergenceDetail || divergenceText }}</dd>
+          </div>
         </dl>
       </div>
     </div>
@@ -362,6 +396,11 @@ function signalLabel(s) {
   border-radius: 18px 18px 0 0;
   background: var(--tg-theme-bg-color, #fff);
   color: var(--tg-theme-text-color, #222);
+}
+
+.evidence-sheet__content--nav-safe {
+  padding-bottom: calc(24px + 88px + env(safe-area-inset-bottom, 0px));
+  scroll-padding-bottom: calc(24px + 88px + env(safe-area-inset-bottom, 0px));
 }
 
 .evidence-sheet__header {
