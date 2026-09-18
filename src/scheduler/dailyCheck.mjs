@@ -73,14 +73,15 @@ export async function runDailyCheck(deps = {}, options = {}) {
   try {
     ctx = await buildDailyRunContext({ isCallAI, dataProvider });
   } catch (err) {
-    // 致命錯誤（Z2 歷史不足）：通知後提前返回
     logger.error(err, "❌ [dailyCheck] buildDailyRunContext 失敗，中止執行");
     if (isTelegramEnabled) {
-      await sendTelegramBatch([
-        {
-          text: `⚠️ <b>嚴重錯誤</b>\n00675L 歷史資料不足 30 筆，今日 dailyCheck 強制終止。`,
-        },
-      ]);
+      const details = err.details ?? {};
+      const failedMonths = details.failedMonths?.join(", ") || "未知";
+      const text =
+        err.code === "HISTORY_SOURCE_UNAVAILABLE"
+          ? `⚠️ <b>嚴重錯誤</b>\n00675L 歷史資料來源暫時不可用，今日 dailyCheck 強制終止。\n失敗月份：${failedMonths}\n原因：${details.lastError ?? err.message}`
+          : `⚠️ <b>嚴重錯誤</b>\n00675L 歷史資料不足 ${details.required ?? 60} 筆（實際 ${details.count ?? 0} 筆），今日 dailyCheck 強制終止。`;
+      await sendTelegramBatch([{ text }]);
     }
     clearGlobalContext();
     return "❌ 資料不足";
