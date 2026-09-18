@@ -50,6 +50,51 @@ describe("socialSentimentProvider - 社群情緒資料適配器 (TDD)", () => {
     expect(result.data.hotTopics[0].source).toBe("PTT");
   });
 
+  it("應保留可追溯 metadata 與情緒語意欄位", async () => {
+    vi.spyOn(fs, "existsSync").mockReturnValue(true);
+    vi.spyOn(fs.promises, "readFile").mockResolvedValue(
+      JSON.stringify({
+        ...mockValidData,
+        updatedAt: "2026-09-18T00:05:14.000Z",
+        scoreLabel: "偏多",
+        trend: "穩定",
+        delta: -0.3,
+        sampleCount: 42,
+        pttItems: 30,
+        bskyItems: 12,
+        divergenceDetail: "無背離現象",
+      }),
+    );
+
+    const result = await fetchSocialSentimentData("/path/to/sentiment.json");
+
+    expect(result.data.updatedAt).toBe("2026-09-18T00:05:14.000Z");
+    expect(result.data.scoreLabel).toBe("偏多");
+    expect(result.data.trend).toBe("穩定");
+    expect(result.data.delta).toBe(-0.3);
+    expect(result.data.sampleCount).toBe(42);
+    expect(result.data.pttItems).toBe(30);
+    expect(result.data.bskyItems).toBe(12);
+    expect(result.data.divergenceDetail).toBe("無背離現象");
+  });
+
+  it("metadata 缺漏時應補齊安全 fallback 欄位", async () => {
+    vi.spyOn(fs, "existsSync").mockReturnValue(true);
+    vi.spyOn(fs.promises, "readFile").mockResolvedValue(
+      JSON.stringify(mockValidData),
+    );
+
+    const result = await fetchSocialSentimentData("/path/to/sentiment.json");
+
+    expect(result.data.updatedAt).toBeNull();
+    expect(result.data.scoreLabel).toBe("過熱");
+    expect(result.data.trend).toBe("升溫");
+    expect(result.data.sampleCount).toBe(0);
+    expect(result.data.pttItems).toBe(0);
+    expect(result.data.bskyItems).toBe(0);
+    expect(result.data.divergenceDetail).toBe("資料不足");
+  });
+
   it("當檔案不存在時，應 Safe-Fallback 回傳預設值，不擲出例外阻斷主流程", async () => {
     vi.spyOn(fs, "existsSync").mockReturnValue(false);
 
