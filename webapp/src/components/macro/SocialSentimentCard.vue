@@ -4,13 +4,13 @@
     class="sentiment-section"
     data-testid="social-sentiment-card"
   >
-    <h3 class="section-title">🗣️ 社群多空情緒</h3>
+    <h3 class="section-title">🗣️ 社群情緒觀察</h3>
 
     <!-- Sentiment Score + MA -->
     <div class="sentiment-row">
       <div class="sentiment-score-badge">
         <span class="score-value">{{ sentiment.score }}</span>
-        <span class="score-label">情緒分</span>
+        <span class="score-label">{{ scoreLabel }}</span>
       </div>
       <div class="ma-indicators">
         <span class="ma-item">
@@ -27,6 +27,21 @@
         </span>
       </div>
     </div>
+
+    <div class="sentiment-meta" data-testid="sentiment-metadata">
+      <span>更新時間：{{ updatedAtText }}</span>
+      <span>樣本：{{ sampleCount }} 筆（PTT {{ pttItems }}、Bluesky {{ bskyItems }}）</span>
+      <span>趨勢：{{ trendText }}</span>
+    </div>
+
+    <button
+      type="button"
+      class="evidence-trigger"
+      data-testid="sentiment-evidence-trigger"
+      @click="isEvidenceOpen = true"
+    >
+      查看判斷依據
+    </button>
 
     <!-- Divergence + signals -->
     <div class="sentiment-row">
@@ -52,15 +67,39 @@
       >
         <span class="hot-topic-source">{{ topic.source }}</span>
         <a
+          v-if="topic.url"
           :href="topic.url"
           class="hot-topic-link"
           target="_blank"
           rel="noopener noreferrer"
         >{{ topic.title }}</a>
+        <span v-else class="hot-topic-text">{{ topic.title }}</span>
         <span
           class="hot-topic-bias"
           :class="`bias-${(topic.sentiment || 'NEUTRAL').toLowerCase()}`"
         >{{ topic.sentiment === 'BULL' ? '🟢' : topic.sentiment === 'BEAR' ? '🔴' : '⚪' }}</span>
+      </div>
+    </div>
+
+    <div
+      v-if="isEvidenceOpen"
+      class="evidence-sheet"
+      data-testid="sentiment-evidence-sheet"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="evidence-sheet__backdrop" @click="isEvidenceOpen = false"></div>
+      <div class="evidence-sheet__content">
+        <div class="evidence-sheet__header">
+          <h4>本次判斷依據</h4>
+          <button type="button" class="evidence-close" @click="isEvidenceOpen = false">關閉</button>
+        </div>
+        <dl class="evidence-list">
+          <div><dt>情緒判定</dt><dd>{{ sentiment.score }} 分・{{ scoreLabel }}</dd></div>
+          <div><dt>均線趨勢</dt><dd>3D {{ sentiment.ma3 }} / 7D {{ sentiment.ma7 }}・{{ trendText }}（Δ {{ deltaText }}）</dd></div>
+          <div><dt>資料樣本</dt><dd>{{ sampleCount }} 筆・PTT {{ pttItems }}・Bluesky {{ bskyItems }}</dd></div>
+          <div><dt>背離檢查</dt><dd>{{ sentiment.divergenceDetail || divergenceText }}</dd></div>
+        </dl>
       </div>
     </div>
   </section>
@@ -72,7 +111,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const props = defineProps({
   sentiment: {
@@ -83,6 +122,19 @@ const props = defineProps({
 
 defineOptions({
   name: "SocialSentimentCard",
+});
+
+const isEvidenceOpen = ref(false);
+const scoreLabel = computed(() => props.sentiment?.scoreLabel || "中性");
+const trendText = computed(() => props.sentiment?.trend || "穩定");
+const sampleCount = computed(() => props.sentiment?.sampleCount ?? 0);
+const pttItems = computed(() => props.sentiment?.pttItems ?? 0);
+const bskyItems = computed(() => props.sentiment?.bskyItems ?? 0);
+const updatedAtText = computed(() => {
+  if (!props.sentiment?.updatedAt) return "尚無更新時間";
+  return new Date(props.sentiment.updatedAt).toLocaleString("zh-TW", {
+    hour12: false,
+  });
 });
 
 const deltaText = computed(() => {
@@ -168,6 +220,25 @@ function signalLabel(s) {
 .score-label {
   font-size: 11px;
   color: var(--tg-theme-hint-color, #999);
+}
+
+.sentiment-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin: 2px 0 8px;
+  font-size: 10px;
+  color: var(--tg-theme-hint-color, #999);
+}
+
+.evidence-trigger {
+  border: 0;
+  padding: 0;
+  margin: 0 0 8px;
+  background: transparent;
+  color: var(--tg-theme-link-color, #2481cc);
+  font-size: 11px;
+  cursor: pointer;
 }
 
 .ma-indicators {
@@ -257,7 +328,8 @@ function signalLabel(s) {
   white-space: nowrap;
 }
 
-.hot-topic-link {
+.hot-topic-link,
+.hot-topic-text {
   flex: 1;
   color: var(--tg-theme-text-color, #333);
   text-decoration: none;
@@ -265,6 +337,73 @@ function signalLabel(s) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.evidence-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+}
+
+.evidence-sheet__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.evidence-sheet__content {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  max-height: 78vh;
+  overflow-y: auto;
+  padding: 18px 16px 24px;
+  border-radius: 18px 18px 0 0;
+  background: var(--tg-theme-bg-color, #fff);
+  color: var(--tg-theme-text-color, #222);
+}
+
+.evidence-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.evidence-sheet__header h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.evidence-close {
+  border: 0;
+  background: transparent;
+  color: var(--tg-theme-link-color, #2481cc);
+  cursor: pointer;
+}
+
+.evidence-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.evidence-list > div {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 10px;
+}
+
+.evidence-list dt {
+  color: var(--tg-theme-hint-color, #999);
+  font-size: 11px;
+}
+
+.evidence-list dd {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .hot-topic-bias {

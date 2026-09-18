@@ -86,6 +86,56 @@ describe("SocialSentimentCard (TDD RED-GREEN)", () => {
     );
   });
 
+  it("應顯示可追溯摘要並可開啟判斷依據", async () => {
+    const wrapper = mount(SocialSentimentCard, {
+      props: {
+        sentiment: {
+          date: "2026-09-18",
+          updatedAt: "2026-09-18T00:05:14.000Z",
+          score: 57,
+          scoreLabel: "偏多",
+          trend: "穩定",
+          ma3: 56.7,
+          ma7: 57,
+          delta: -0.3,
+          sampleCount: 42,
+          pttItems: 30,
+          bskyItems: 12,
+          divergenceStatus: "NONE",
+          divergenceDetail: "無背離現象",
+          signals: [],
+          hotTopics: [
+            {
+              title: "無連結話題",
+              source: "PTT",
+              sentiment: "NEUTRAL",
+              url: "",
+            },
+          ],
+        },
+      },
+    });
+
+    expect(wrapper.find(".score-label").text()).toContain("偏多");
+    expect(wrapper.text()).toContain("更新時間");
+    expect(wrapper.text()).toContain("42 筆");
+    expect(wrapper.text()).toContain("PTT 30");
+    expect(wrapper.text()).toContain("Bluesky 12");
+    expect(wrapper.text()).toContain("穩定");
+    expect(wrapper.find(".hot-topic-link").exists()).toBe(false);
+
+    await wrapper
+      .find('[data-testid="sentiment-evidence-trigger"]')
+      .trigger("click");
+
+    expect(
+      wrapper.find('[data-testid="sentiment-evidence-sheet"]').exists(),
+    ).toBe(true);
+    expect(
+      wrapper.find('[data-testid="sentiment-evidence-sheet"]').text(),
+    ).toContain("無背離現象");
+  });
+
   it("應在情緒資料缺失時顯示 graceful fallback", () => {
     const wrapper = mount(SocialSentimentCard, {
       props: {
