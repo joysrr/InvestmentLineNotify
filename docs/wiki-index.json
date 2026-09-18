@@ -4,11 +4,11 @@
   "scanned_dirs": ["all"],
   "stats": {
     "total_concepts": 151,
-    "total_edges": 195,
+    "total_edges": 180,
     "total_code_mappings": 55,
     "concepts_with_code": 38,
-    "concepts_with_links": 52,
-    "generated_at": "2026-09-18T01:40:15.848Z"
+    "concepts_with_links": 51,
+    "generated_at": "2026-09-18T01:50:25.852Z"
   },
   "concepts": {
     "api-contract": {

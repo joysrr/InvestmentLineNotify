@@ -3,42 +3,34 @@
   "prototype": false,
   "stats": {
     "nodes": 151,
-    "edges": 195
+    "edges": 180
   },
   "graph": {
-    "api-contract": ["api-index"],
-    "deployment-checklist": ["telegram-bot"],
-    "documentation-work-summary-20260911": ["documentation"],
-    "readme": [
-      "architecture",
-      "architecture",
-      "strategy-engine",
-      "ai-pipeline"
-    ],
+    "api-contract": ["api"],
+    "deployment-checklist": ["bot"],
+    "documentation-work-summary-20260911": ["documentation-standards"],
+    "readme": ["readme", "readme", "strategy-engine", "ai-pipeline"],
     "security-report": ["operations"],
     "test-spec-strategyengine": ["strategy-engine"],
-    "dec-004-backtest-scheduler-automation": ["ai-news", "strategy-engine"],
-    "dec-005-monitoring-alerting": ["langfuse", "ai-pipeline"],
-    "dec-006-deployment-automation": ["telegram-bot", "operations"],
+    "dec-004-backtest-scheduler-automation": ["ai_news", "strategy-engine"],
+    "dec-005-monitoring-alerting": [
+      "langfuse-prompt-management-v5",
+      "ai-pipeline"
+    ],
+    "dec-006-deployment-automation": ["bot", "operations"],
     "backtest-engine-design": ["strategy-engine"],
-    "dec-016-vitest-worker-crash": ["testing", "vitest"],
+    "dec-016-vitest-worker-crash": ["testing", "dec-016-vitest-worker-crash"],
     "documentation-standards": [
-      "documentation",
-      "wiki-index",
-      "concept-name",
+      "documentation-standards",
       "strategy-engine",
       "ai-pipeline",
-      "langfuse",
-      "related-concept-1",
-      "related-concept-2",
+      "langfuse-prompt-management-v5",
       "strategy",
       "strategy",
-      "strategyengine",
       "strategy-engine",
-      "...",
-      "related-concept"
+      "strategy-engine"
     ],
-    "maintenance-schedule": ["documentation", "operations"],
+    "maintenance-schedule": ["documentation-standards", "operations"],
     "ai_news": [
       "ai-pipeline",
       "langfuse-prompt-management",
@@ -46,126 +38,120 @@
       "news-fetcher",
       "keyword-config",
       "agent-prompts",
-      "langfuse",
-      "langfuse",
+      "langfuse-prompt-management-v5",
+      "langfuse-prompt-management-v5",
       "news-fetcher",
       "keyword-config",
       "ai-pipeline",
       "agent-prompts",
       "strategy-engine",
-      "notification",
-      "environment-variables",
+      "notifications",
+      "env-vars",
       "strategy-engine",
-      "telegram-bot",
+      "bot",
       "infrastructure"
     ],
     "ai-pipeline": [
-      "langfuse",
-      "langfuse",
+      "langfuse-prompt-management-v5",
+      "langfuse-prompt-management-v5",
       "langfuse-prompt-management",
       "langfuse-score-analytics",
-      "llm-judge",
-      "ai-news",
+      "ai-pipeline",
+      "ai_news",
       "strategy-engine",
-      "period-report",
+      "ai-pipeline",
       "langfuse-prompt-management",
       "langfuse-score-analytics",
       "langfuse-score-configs",
       "agent-prompts",
       "strategy-engine",
-      "ai-news"
+      "ai_news"
     ],
     "langfuse-prompt-management": [
-      "langfuse",
+      "langfuse-prompt-management-v5",
       "langfuse-score-analytics",
       "langfuse-score-configs",
       "ai-pipeline",
-      "environment-variables",
+      "env-vars",
       "langfuse-score-analytics",
       "langfuse-score-configs",
       "ai-pipeline",
-      "environment-variables"
+      "env-vars"
     ],
     "langfuse-prompt-management-v5": [
-      "langfuse",
-      "langfuse-web-ui",
-      "environment-variables",
+      "langfuse-prompt-management-v5",
+      "langfuse-prompt-management-v5",
+      "env-vars",
       "langfuse-score-analytics",
       "ai-pipeline",
-      "environment-variables"
+      "env-vars"
     ],
     "langfuse-score-analytics": [
-      "langfuse",
+      "langfuse-prompt-management-v5",
       "langfuse-prompt-management",
       "ai-pipeline",
-      "llm-judge",
-      "environment-variables",
+      "ai-pipeline",
+      "env-vars",
       "langfuse-score-configs",
       "langfuse-prompt-management",
       "langfuse-prompt-management",
       "langfuse-score-configs",
       "ai-pipeline",
-      "llm-judge",
-      "environment-variables"
+      "ai-pipeline",
+      "env-vars"
     ],
     "langfuse-score-configs": [
-      "langfuse",
+      "langfuse-prompt-management-v5",
       "langfuse-score-analytics",
-      "llm-judge",
+      "ai-pipeline",
       "ai-pipeline",
       "langfuse-score-analytics",
       "langfuse-prompt-management",
-      "llm-judge",
+      "ai-pipeline",
       "ai-pipeline"
     ],
     "keyword-config": [
       "news-fetcher",
-      "ai-news",
-      "social-sentiment",
-      "social-sentiment",
+      "ai_news",
+      "social-sentiment-integration-spec",
+      "social-sentiment-integration-spec",
       "news-fetcher",
       "ai-pipeline",
-      "social-sentiment",
-      "blacklist-management"
+      "social-sentiment-integration-spec",
+      "keyword-config"
     ],
     "news-fetcher": [
       "keyword-config",
       "ai-pipeline",
-      "ai-news",
+      "ai_news",
       "keyword-config",
       "ai-pipeline",
-      "ai-news",
-      "schedule"
+      "ai_news",
+      "schedules"
     ],
-    "infrastructure": ["ai-news", "news-fetcher"],
-    "data-manager": ["ai-news"],
-    "news-pool": ["infrastructure", "ai-news", "news-fetcher"],
-    "storage": ["ai-news"],
-    "operations": [
-      "ai-news",
-      "telegram-bot",
-      "ai-news",
-      "telegram-bot",
-      "strategy-engine"
-    ],
+    "infrastructure": ["ai_news", "news-fetcher"],
+    "data-manager": ["ai_news"],
+    "news-pool": ["infrastructure", "ai_news", "news-fetcher"],
+    "storage": ["ai_news"],
+    "operations": ["ai_news", "bot", "ai_news", "bot", "strategy-engine"],
     "env-vars": ["langfuse-prompt-management"],
-    "schedules": ["news-fetcher", "ai-news"],
-    "presentation": ["ai-news", "telegram-bot", "api"],
+    "schedules": ["news-fetcher", "ai_news"],
+    "presentation": ["ai_news", "bot", "api"],
     "api": ["api-contract"],
-    "portfolio-health-api": ["api-index"],
-    "report-signals-contract": ["strategy-engine", "api-index"],
+    "portfolio-health-api": ["api"],
+    "report-signals-contract": ["strategy-engine", "api"],
     "bot": [
-      "ai-news",
-      "notification",
+      "ai_news",
+      "notifications",
       "strategy-engine",
-      "langfuse",
-      "ai-news",
-      "notification",
+      "langfuse-prompt-management-v5",
+      "ai_news",
+      "notifications",
       "strategy-engine",
-      "langfuse"
+      "langfuse-prompt-management-v5"
     ],
-    "notifications": ["telegram-bot", "ai-news"],
-    "strategy": ["ai-news", "strategy-engine"],
+    "notifications": ["bot", "ai_news"],
+    "strategy": ["ai_news", "strategy-engine"],
     "lifecycle-engine": ["strategy-engine"],
     "lifecycle-health-test-spec": ["strategy-engine"],
     "macro-regime-metrics-analysis": [
@@ -176,52 +162,47 @@
     "maintenance-state-machine": ["strategy-engine"],
     "providers": ["strategy-engine", "news-fetcher"],
     "regime-policy": ["strategy-engine", "macro-regime-advanced-spec"],
-    "strategy-engine": ["ai-news"],
+    "strategy-engine": ["ai_news"],
     "dashboard-ux-pyramid-spec": [
-      "dashboard-view",
-      "market-snapshot",
+      "dashboard-ux-pyramid-spec",
+      "macro-regime-metrics-analysis",
       "macro-regime-advanced-spec"
     ],
-    "deep-content-verification-plan": ["documentation", "strategy-engine"],
-    "documentation-full-modernization-plan": [
-      "wiki-links",
-      "related-concept-1",
-      "related-concept-2",
-      "wiki-links",
-      "wiki-links"
+    "deep-content-verification-plan": [
+      "documentation-standards",
+      "strategy-engine"
     ],
     "macro-regime-advanced-spec": [
       "strategy-engine",
       "regime-policy",
       "budget-priority-design"
     ],
-    "module-docs-verification-plan": ["documentation"],
+    "module-docs-verification-plan": ["documentation-standards"],
     "native-social-sentiment-engine-spec": [
       "regime-policy",
-      "signal-generator",
-      "macro-battle-view"
+      "native-social-sentiment-engine-spec",
+      "navigate-macro-battle-plan"
     ],
     "social-sentiment-integration-spec": [
-      "macro-battle-view",
-      "market-snapshot",
+      "navigate-macro-battle-plan",
+      "macro-regime-metrics-analysis",
       "regime-policy",
-      "signal-generator"
+      "native-social-sentiment-engine-spec"
     ],
     "wiki-index-prototype-report": [
-      "wiki-links",
-      "langfuse",
-      "langfuse-web-ui",
-      "environment-variables",
+      "langfuse-prompt-management-v5",
+      "langfuse-prompt-management-v5",
+      "env-vars",
       "langfuse-score-analytics",
-      "ai-pipeline",
-      "wiki-links",
-      "wiki-links",
-      "concept"
+      "ai-pipeline"
     ],
     "strategy-engine-verification-report": [
       "strategy-engine",
-      "budget-priority"
+      "budget-priority-design"
     ],
-    "strategy-logic-verification-report": ["strategy-engine", "budget-priority"]
+    "strategy-logic-verification-report": [
+      "strategy-engine",
+      "budget-priority-design"
+    ]
   }
 }

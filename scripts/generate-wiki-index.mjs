@@ -226,18 +226,68 @@ function buildConceptIndex(documents) {
 }
 
 /**
+ * Wiki link 中的歷史別名與文件範例 placeholder。
+ * 別名只映射到實際存在的概念；placeholder 不建立虛假節點。
+ */
+const WIKI_LINK_ALIASES = Object.freeze({
+  "ai-news": "ai_news",
+  langfuse: "langfuse-prompt-management-v5",
+  "environment-variables": "env-vars",
+  "telegram-bot": "bot",
+  documentation: "documentation-standards",
+  "llm-judge": "ai-pipeline",
+  "api-index": "api",
+  notification: "notifications",
+  "social-sentiment": "social-sentiment-integration-spec",
+  architecture: "readme",
+  "langfuse-web-ui": "langfuse-prompt-management-v5",
+  "market-snapshot": "macro-regime-metrics-analysis",
+  "signal-generator": "native-social-sentiment-engine-spec",
+  "macro-battle-view": "navigate-macro-battle-plan",
+  "budget-priority": "budget-priority-design",
+  vitest: "dec-016-vitest-worker-crash",
+  "period-report": "ai-pipeline",
+  "blacklist-management": "keyword-config",
+  schedule: "schedules",
+  "dashboard-view": "dashboard-ux-pyramid-spec",
+  strategyengine: "strategy-engine",
+});
+
+const WIKI_LINK_PLACEHOLDERS = new Set([
+  "...",
+  "concept",
+  "concept-name",
+  "related-concept",
+  "related-concept-1",
+  "related-concept-2",
+  "wiki-links",
+]);
+
+function normalizeWikiLink(link) {
+  return link.toLowerCase().replace(/\s+/g, "-");
+}
+
+function resolveWikiLink(link, concepts) {
+  const normalized = normalizeWikiLink(link);
+  if (WIKI_LINK_PLACEHOLDERS.has(normalized)) return null;
+  const candidate = WIKI_LINK_ALIASES[normalized] || normalized;
+  return concepts[candidate] ? candidate : null;
+}
+
+/**
  * 建立知識圖譜
  */
-function buildKnowledgeGraph(documents) {
+function buildKnowledgeGraph(documents, concepts) {
   const graph = {};
 
   for (const doc of documents) {
     const { concept, wikiLinks } = doc;
+    const resolvedLinks = wikiLinks
+      .map((link) => resolveWikiLink(link, concepts))
+      .filter(Boolean);
 
-    if (wikiLinks.length > 0) {
-      graph[concept] = wikiLinks.map((link) =>
-        link.toLowerCase().replace(/\s+/g, "-"),
-      );
+    if (resolvedLinks.length > 0) {
+      graph[concept] = resolvedLinks;
     }
   }
 
@@ -324,7 +374,7 @@ async function main() {
   // 建立索引
   console.log("🔨 建立索引...");
   const concepts = buildConceptIndex(allDocuments);
-  const graph = buildKnowledgeGraph(allDocuments);
+  const graph = buildKnowledgeGraph(allDocuments, concepts);
   const codeMap = buildCodeMap(concepts);
   const stats = generateStats(concepts, graph, codeMap);
 

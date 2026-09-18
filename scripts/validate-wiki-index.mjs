@@ -342,6 +342,10 @@ async function main() {
 
     const allPass = test1Pass && integrityPass;
 
+    if (!integrityPass) {
+      process.exitCode = 1;
+    }
+
     if (allPass) {
       console.log("🎉 原型驗證成功！\n");
       console.log("建議下一步:");
