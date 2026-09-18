@@ -86,7 +86,7 @@ export async function runSocialSentimentFetch() {
 
   try {
     // 1. 原生採集並記錄
-    await collectSocialSentiment();
+    const collection = await collectSocialSentiment();
 
     // 2. 載入歷史記錄
     const sentimentHistory = loadSentimentHistory();
@@ -98,6 +98,12 @@ export async function runSocialSentimentFetch() {
       sentimentHistory,
       priceHistory,
       outputPath,
+      {
+        updatedAt: collection.record?.timestamp,
+        sampleCount: collection.record?.total_items ?? collection.itemsCount,
+        pttItems: collection.record?.ptt_items,
+        bskyItems: collection.record?.bsky_items,
+      },
     );
 
     logger.info(

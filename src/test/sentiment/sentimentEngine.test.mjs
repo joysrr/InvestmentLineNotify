@@ -118,5 +118,27 @@ describe("Phase 1: sentimentEngine (TDD)", () => {
       expect(snapshot).toHaveProperty("signals");
       expect(snapshot).toHaveProperty("hotTopics");
     });
+
+    it("應保存更新時間、來源樣本統計與白話判斷", () => {
+      const sentimentHistory = [
+        { date: "2026-09-17", score: 55, topic_names: [] },
+        { date: "2026-09-18", score: 60, topic_names: [] },
+      ];
+      const snapshot = generateDailySnapshot(sentimentHistory, [], null, {
+        updatedAt: "2026-09-18T00:05:14.000Z",
+        sampleCount: 42,
+        pttItems: 30,
+        bskyItems: 12,
+      });
+
+      expect(snapshot.updatedAt).toBe("2026-09-18T00:05:14.000Z");
+      expect(snapshot.sampleCount).toBe(42);
+      expect(snapshot.pttItems).toBe(30);
+      expect(snapshot.bskyItems).toBe(12);
+      expect(snapshot.scoreLabel).toBe("偏多");
+      expect(snapshot.trend).toBe("穩定");
+      expect(snapshot).toHaveProperty("delta");
+      expect(snapshot).toHaveProperty("divergenceDetail");
+    });
   });
 });

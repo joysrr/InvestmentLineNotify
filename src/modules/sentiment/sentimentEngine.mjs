@@ -282,6 +282,7 @@ export function generateDailySnapshot(
   sentimentHistory = [],
   priceHistory = [],
   outputPath = null,
+  metadata = {},
 ) {
   const indicators = calculateSentimentIndicators(sentimentHistory);
   const divergence = calculateDivergence(sentimentHistory, priceHistory, 10);
@@ -303,16 +304,36 @@ export function generateDailySnapshot(
 
   const signals = indicators.signals.map((s) => s.type);
   const hotTopics = extractHotTopics(sentimentHistory, 3);
+  const delta = Math.round((ma3 - ma7) * 10) / 10;
+  const scoreLabel =
+    score <= 29
+      ? "恐慌"
+      : score <= 44
+        ? "偏空"
+        : score <= 55
+          ? "中性"
+          : score <= 70
+            ? "偏多"
+            : "過熱";
+  const trend = delta > 1 ? "升溫" : delta < -1 ? "降溫" : "穩定";
 
   const snapshot = {
     date:
       indicators.date !== "資料累積中"
         ? indicators.date
         : new Date().toISOString().slice(0, 10),
+    updatedAt: metadata.updatedAt || new Date().toISOString(),
     score: Math.round(score * 10) / 10,
+    scoreLabel,
+    trend,
     ma3: Math.round(ma3 * 10) / 10,
     ma7: Math.round(ma7 * 10) / 10,
+    delta,
+    sampleCount: Number(metadata.sampleCount ?? 0),
+    pttItems: Number(metadata.pttItems ?? 0),
+    bskyItems: Number(metadata.bskyItems ?? 0),
     divergenceStatus,
+    divergenceDetail: divergence.detail,
     signals,
     hotTopics,
   };
