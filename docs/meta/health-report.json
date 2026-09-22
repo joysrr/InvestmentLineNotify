@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-09-11T15:20:32.059Z",
+  "generated_at": "2026-09-22T05:09:30.824Z",
   "summary": {
-    "total_files": 145,
-    "average_health": 55.2,
+    "total_files": 152,
+    "average_health": 55.7,
     "by_health": {
-      "excellent": 19,
-      "good": 21,
-      "fair": 102,
-      "poor": 3
+      "excellent": 22,
+      "good": 20,
+      "fair": 109,
+      "poor": 1
     },
     "by_category": {
       "other": {
-        "count": 15,
-        "avgHealth": 55,
-        "totalHealth": 830
+        "count": 16,
+        "avgHealth": 57,
+        "totalHealth": 915
       },
       "guide": {
         "count": 3,
@@ -26,9 +26,9 @@
         "totalHealth": 800
       },
       "reference": {
-        "count": 36,
-        "avgHealth": 79,
-        "totalHealth": 2860
+        "count": 37,
+        "avgHealth": 80,
+        "totalHealth": 2975
       },
       "explanation": {
         "count": 6,
@@ -36,20 +36,20 @@
         "totalHealth": 300
       },
       "plan": {
-        "count": 68,
+        "count": 73,
         "avgHealth": 45,
-        "totalHealth": 3040
+        "totalHealth": 3295
       }
     }
   },
   "priority_list": [
     {
-      "concept": "wiki-index-prototype-report",
-      "file": "plans/completed/WIKI_INDEX_PROTOTYPE_REPORT.md",
+      "concept": "macro-regime-advanced-spec",
+      "file": "plans/completed/MACRO_REGIME_ADVANCED_SPEC.md",
       "category": "plan",
       "health": 45,
-      "impact": 23,
-      "priority": 126,
+      "impact": 26,
+      "priority": 143,
       "issues": [
         "狀態未知",
         "從未驗證",
@@ -64,13 +64,133 @@
       ]
     },
     {
-      "concept": "documentation-full-modernization-plan",
-      "file": "plans/completed/DOCUMENTATION_FULL_MODERNIZATION_PLAN.md",
+      "concept": "native-social-sentiment-engine-spec",
+      "file": "plans/completed/NATIVE_SOCIAL_SENTIMENT_ENGINE_SPEC.md",
       "category": "plan",
-      "health": 50,
+      "health": 45,
+      "impact": 21,
+      "priority": 116,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "budget-priority-design",
+      "file": "design/BUDGET_PRIORITY_DESIGN.md",
+      "category": "explanation",
+      "health": 55,
+      "impact": 23,
+      "priority": 103,
+      "issues": ["從未驗證", "缺少代碼連結", "缺少文件連結", "缺少摘要"],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "social-sentiment-integration-spec",
+      "file": "plans/completed/SOCIAL_SENTIMENT_INTEGRATION_SPEC.md",
+      "category": "plan",
+      "health": 45,
+      "impact": 18,
+      "priority": 99,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "dec-016-vitest-worker-crash",
+      "file": "decisions/DEC-016-vitest-worker-crash.md",
+      "category": "explanation",
+      "health": 45,
+      "impact": 17,
+      "priority": 94,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "dashboard-ux-pyramid-spec",
+      "file": "plans/completed/DASHBOARD_UX_PYRAMID_SPEC.md",
+      "category": "plan",
+      "health": 45,
+      "impact": 16,
+      "priority": 88,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "navigate-macro-battle-plan",
+      "file": "plans/completed/NAVIGATE_MACRO_BATTLE_PLAN.md",
+      "category": "plan",
+      "health": 45,
       "impact": 15,
-      "priority": 75,
-      "issues": ["狀態未知", "從未驗證", "缺少代碼連結", "缺少文件連結"],
+      "priority": 83,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
+      "concept": "wiki-index-prototype-report",
+      "file": "plans/completed/WIKI_INDEX_PROTOTYPE_REPORT.md",
+      "category": "plan",
+      "health": 45,
+      "impact": 15,
+      "priority": 83,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
       "suggestions": [
         "添加 last_verified 日期",
         "添加 related_code",
@@ -138,46 +258,6 @@
       ]
     },
     {
-      "concept": "dec-016-vitest-worker-crash",
-      "file": "decisions/DEC-016-vitest-worker-crash.md",
-      "category": "explanation",
-      "health": 45,
-      "impact": 12,
-      "priority": 66,
-      "issues": [
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少摘要"
-      ],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
-      "concept": "deep-content-verification-plan",
-      "file": "plans/completed/DEEP_CONTENT_VERIFICATION_PLAN.md",
-      "category": "plan",
-      "health": 35,
-      "impact": 9,
-      "priority": 59,
-      "issues": [
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少摘要"
-      ],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
       "concept": "langfuse-prompt-management-v3-deprecated",
       "file": "modules/ai_news/integrations/langfuse_prompt_management_v3_deprecated.md",
       "category": "reference",
@@ -198,12 +278,12 @@
       ]
     },
     {
-      "concept": "module-docs-verification-plan",
-      "file": "plans/completed/MODULE_DOCS_VERIFICATION_PLAN.md",
+      "concept": "deep-content-verification-plan",
+      "file": "plans/completed/DEEP_CONTENT_VERIFICATION_PLAN.md",
       "category": "plan",
-      "health": 35,
-      "impact": 7,
-      "priority": 46,
+      "health": 45,
+      "impact": 9,
+      "priority": 50,
       "issues": [
         "狀態未知",
         "從未驗證",
@@ -288,9 +368,9 @@
       ]
     },
     {
-      "concept": "phase-7-checklist",
-      "file": "plans/completed/PHASE_7_CHECKLIST.md",
-      "category": "guide",
+      "concept": "module-docs-verification-plan",
+      "file": "plans/completed/MODULE_DOCS_VERIFICATION_PLAN.md",
+      "category": "plan",
       "health": 45,
       "impact": 7,
       "priority": 39,
@@ -308,80 +388,12 @@
       ]
     },
     {
-      "concept": "budget-priority-design",
-      "file": "design/BUDGET_PRIORITY_DESIGN.md",
-      "category": "explanation",
-      "health": 55,
-      "impact": 8,
-      "priority": 36,
-      "issues": ["從未驗證", "缺少代碼連結", "缺少文件連結", "缺少摘要"],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
-      "concept": "strategy-engine-verification-report",
-      "file": "verification/STRATEGY_ENGINE_VERIFICATION_REPORT.md",
-      "category": "other",
+      "concept": "phase-7-checklist",
+      "file": "plans/completed/PHASE_7_CHECKLIST.md",
+      "category": "guide",
       "health": 45,
-      "impact": 6,
-      "priority": 33,
-      "issues": [
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少摘要"
-      ],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
-      "concept": "documentation-modernization-plan",
-      "file": "plans/completed/DOCUMENTATION_MODERNIZATION_PLAN.md",
-      "category": "plan",
-      "health": 40,
-      "impact": 5,
-      "priority": 30,
-      "issues": ["狀態未知", "從未驗證", "缺少代碼連結", "缺少文件連結"],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
-      "concept": "advice",
-      "file": "plans/archive/2026-04_remediation_advice/ADVICE.md",
-      "category": "plan",
-      "health": 45,
-      "impact": 5,
-      "priority": 28,
-      "issues": [
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少摘要"
-      ],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
-      "concept": "draft-features",
-      "file": "plans/archive/2026-04_remediation_advice/draft_features.md",
-      "category": "plan",
-      "health": 45,
-      "impact": 5,
-      "priority": 28,
+      "impact": 7,
+      "priority": 39,
       "issues": [
         "狀態未知",
         "從未驗證",
@@ -550,6 +562,13 @@
       "category": "other",
       "health": 50,
       "status": "needs-review"
+    },
+    {
+      "concept": "technical-indicators-spec",
+      "file": "TECHNICAL_INDICATORS_SPEC.md",
+      "category": "other",
+      "health": 85,
+      "status": "current"
     },
     {
       "concept": "testing",
@@ -853,6 +872,13 @@
       "status": "needs-review"
     },
     {
+      "concept": "macro-regime-metrics-analysis",
+      "file": "modules/strategy/macro_regime_metrics_analysis.md",
+      "category": "reference",
+      "health": 95,
+      "status": "current"
+    },
+    {
       "concept": "maintenance-state-machine",
       "file": "modules/strategy/maintenance_state_machine.md",
       "category": "reference",
@@ -870,8 +896,8 @@
       "concept": "regime-policy",
       "file": "modules/strategy/regime_policy.md",
       "category": "reference",
-      "health": 65,
-      "status": "needs-review"
+      "health": 85,
+      "status": "current"
     },
     {
       "concept": "strategy-engine",
@@ -962,7 +988,7 @@
       "file": "plans/archive/2026-08-10_old_active/MASTER_PLAN.md",
       "category": "plan",
       "health": 45,
-      "status": "completed"
+      "status": "reference-only"
     },
     {
       "concept": "tech-debt-plan",
@@ -1105,11 +1131,18 @@
       "status": "backlog"
     },
     {
+      "concept": "2026-09-18-social-sentiment-snapshot-and-miniapp-plan",
+      "file": "plans/completed/2026-09-18-social-sentiment-snapshot-and-miniapp-plan.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
+    },
+    {
       "concept": "active-plans-consolidated",
       "file": "plans/completed/ACTIVE_PLANS_CONSOLIDATED.md",
       "category": "plan",
       "health": 45,
-      "status": "completed"
+      "status": "reference-only"
     },
     {
       "concept": "code-review-optimization-plan",
@@ -1154,10 +1187,17 @@
       "status": "completed"
     },
     {
+      "concept": "dashboard-ux-pyramid-spec",
+      "file": "plans/completed/DASHBOARD_UX_PYRAMID_SPEC.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
+    },
+    {
       "concept": "deep-content-verification-plan",
       "file": "plans/completed/DEEP_CONTENT_VERIFICATION_PLAN.md",
       "category": "plan",
-      "health": 35,
+      "health": 45,
       "status": "completed"
     },
     {
@@ -1171,7 +1211,7 @@
       "concept": "documentation-modernization-plan",
       "file": "plans/completed/DOCUMENTATION_MODERNIZATION_PLAN.md",
       "category": "plan",
-      "health": 40,
+      "health": 50,
       "status": "superseded"
     },
     {
@@ -1193,7 +1233,7 @@
       "file": "plans/completed/E2E_TEST_FIX_PLAN.md",
       "category": "plan",
       "health": 45,
-      "status": "completed"
+      "status": "superseded"
     },
     {
       "concept": "hardcoded-audit",
@@ -1210,11 +1250,18 @@
       "status": "completed"
     },
     {
+      "concept": "macro-regime-advanced-spec",
+      "file": "plans/completed/MACRO_REGIME_ADVANCED_SPEC.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
+    },
+    {
       "concept": "miniapp-bug-fix-plan",
       "file": "plans/completed/MINIAPP_BUG_FIX_PLAN.md",
       "category": "plan",
       "health": 45,
-      "status": "completed"
+      "status": "partially-completed"
     },
     {
       "concept": "miniapp-uiux-improvement-plan",
@@ -1241,7 +1288,14 @@
       "concept": "module-docs-verification-plan",
       "file": "plans/completed/MODULE_DOCS_VERIFICATION_PLAN.md",
       "category": "plan",
-      "health": 35,
+      "health": 45,
+      "status": "completed"
+    },
+    {
+      "concept": "native-social-sentiment-engine-spec",
+      "file": "plans/completed/NATIVE_SOCIAL_SENTIMENT_ENGINE_SPEC.md",
+      "category": "plan",
+      "health": 45,
       "status": "completed"
     },
     {
@@ -1329,18 +1383,25 @@
       "status": "completed"
     },
     {
+      "concept": "social-sentiment-integration-spec",
+      "file": "plans/completed/SOCIAL_SENTIMENT_INTEGRATION_SPEC.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
+    },
+    {
       "concept": "webapp-improvement-plan",
       "file": "plans/completed/WEBAPP_IMPROVEMENT_PLAN.md",
       "category": "plan",
       "health": 45,
-      "status": "completed"
+      "status": "superseded"
     },
     {
       "concept": "webapp-phase-3-5-detail-plan",
       "file": "plans/completed/WEBAPP_PHASE_3-5_DETAIL_PLAN.md",
       "category": "plan",
       "health": 45,
-      "status": "completed"
+      "status": "reference-only"
     },
     {
       "concept": "webapp-phase-6-detail-plan",
@@ -1354,14 +1415,14 @@
       "file": "plans/completed/WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md",
       "category": "plan",
       "health": 45,
-      "status": "completed"
+      "status": "superseded"
     },
     {
       "concept": "webapp-systematic-optimization-plan-v2.0",
       "file": "plans/completed/WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN_v2.0.md",
       "category": "plan",
       "health": 45,
-      "status": "completed"
+      "status": "superseded"
     },
     {
       "concept": "wiki-index-prototype-report",

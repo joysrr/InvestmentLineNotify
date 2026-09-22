@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 151,
-    "edges": 180
+    "nodes": 152,
+    "edges": 181
   },
   "graph": {
     "api-contract": ["api"],
@@ -11,6 +11,7 @@
     "documentation-work-summary-20260911": ["documentation-standards"],
     "readme": ["readme", "readme", "strategy-engine", "ai-pipeline"],
     "security-report": ["operations"],
+    "technical-indicators-spec": ["strategy-engine"],
     "test-spec-strategyengine": ["strategy-engine"],
     "dec-004-backtest-scheduler-automation": ["ai_news", "strategy-engine"],
     "dec-005-monitoring-alerting": [

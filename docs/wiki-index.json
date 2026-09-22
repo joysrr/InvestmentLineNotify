@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 151,
-    "total_edges": 180,
-    "total_code_mappings": 55,
-    "concepts_with_code": 38,
-    "concepts_with_links": 51,
-    "generated_at": "2026-09-18T03:58:45.671Z"
+    "total_concepts": 152,
+    "total_edges": 181,
+    "total_code_mappings": 60,
+    "concepts_with_code": 39,
+    "concepts_with_links": 52,
+    "generated_at": "2026-09-22T05:09:03.576Z"
   },
   "concepts": {
     "api-contract": {
@@ -245,6 +245,29 @@
       "tags": ["e2e", "build", "process"],
       "status": "needs-review",
       "last_verified": null
+    },
+    "technical-indicators-spec": {
+      "primary_doc": "TECHNICAL_INDICATORS_SPEC.md",
+      "title": "技術指標與訊號判讀規格",
+      "summary": null,
+      "related_docs": ["docs/E2E_TESTING_GUIDE.md"],
+      "related_code": [
+        "src/modules/strategy/indicators.mjs",
+        "src/modules/strategy/signalRules.mjs",
+        "src/modules/strategy/policies/sellScoringPolicy.mjs",
+        "src/modules/notifications/templates/telegramHtmlBuilder.mjs",
+        "webapp/src/views/TechnicalView.vue"
+      ],
+      "tags": [
+        "technical-analysis",
+        "rsi",
+        "kd",
+        "macd",
+        "signal-contract",
+        "investment-risk"
+      ],
+      "status": "current",
+      "last_verified": "2026-09-22"
     },
     "testing": {
       "primary_doc": "TESTING.md",
@@ -1798,6 +1821,36 @@
       {
         "concept": "e2e-testing-guide",
         "doc": "E2E_TESTING_GUIDE.md"
+      }
+    ],
+    "src/modules/strategy/indicators.mjs": [
+      {
+        "concept": "technical-indicators-spec",
+        "doc": "TECHNICAL_INDICATORS_SPEC.md"
+      }
+    ],
+    "src/modules/strategy/signalRules.mjs": [
+      {
+        "concept": "technical-indicators-spec",
+        "doc": "TECHNICAL_INDICATORS_SPEC.md"
+      }
+    ],
+    "src/modules/strategy/policies/sellScoringPolicy.mjs": [
+      {
+        "concept": "technical-indicators-spec",
+        "doc": "TECHNICAL_INDICATORS_SPEC.md"
+      }
+    ],
+    "src/modules/notifications/templates/telegramHtmlBuilder.mjs": [
+      {
+        "concept": "technical-indicators-spec",
+        "doc": "TECHNICAL_INDICATORS_SPEC.md"
+      }
+    ],
+    "webapp/src/views/TechnicalView.vue": [
+      {
+        "concept": "technical-indicators-spec",
+        "doc": "TECHNICAL_INDICATORS_SPEC.md"
       }
     ],
     "tests/": [
