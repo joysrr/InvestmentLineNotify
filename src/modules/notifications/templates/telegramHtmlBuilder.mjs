@@ -657,13 +657,13 @@ export function buildTelegramMessages({
 
   const reversalSignals = [
     {
-      name: "RSI 轉弱",
+      name: "RSI 近期轉弱",
       value: Number.isFinite(rsi) ? rsi.toFixed(1) : "--",
       condition: `> ${th.rsiReversalLevel} → <${th.rsiReversalLevel}`,
       triggered: Boolean(r.rsiDrop),
     },
     {
-      name: "KD(保守)轉弱",
+      name: "KD(保守)近期轉弱",
       value: Number.isFinite(kdCons) ? kdCons.toFixed(1) : "--",
       condition: `> ${th.kReversalLevel} → <${th.kReversalLevel}`,
       triggered: Boolean(r.kdDrop),
@@ -685,21 +685,21 @@ export function buildTelegramMessages({
   const sellSignals = [
     {
       name: "RSI",
-      value: s.flags.rsiSell ? "已觸發" : "未觸發",
-      condition: `> ${sellTh.rsi?.overbought} → ${sellTh.rsi?.overbought}↘`,
-      triggered: Boolean(s.flags.rsiSell),
+      value: s.flags.rsiOverbought ? "已觸發" : "未觸發",
+      condition: `目前 ≥ ${sellTh.rsi?.overbought}（超買狀態）`,
+      triggered: Boolean(s.flags.rsiOverbought),
     },
     {
       name: "KD",
-      value: s.flags.kdSell ? "已觸發" : "未觸發",
-      condition: `K↘D & min≥${sellTh.kd?.overboughtK} | D↘${sellTh.kd?.overboughtK} `,
-      triggered: Boolean(s.flags.kdSell),
+      value: s.flags.kdOverbought ? "已觸發" : "未觸發",
+      condition: `K ≥ ${sellTh.kd?.overboughtK}（超買狀態）`,
+      triggered: Boolean(s.flags.kdOverbought),
     },
     {
       name: "MACD",
-      value: s.flags.macdSell ? "已觸發" : "未觸發",
-      condition: "DIF↘DEA & +→−",
-      triggered: Boolean(s.flags.macdSell),
+      value: s.flags.macdDeadCross ? "已觸發" : "未觸發",
+      condition: "最新 DIF 下穿 DEA（死叉）",
+      triggered: Boolean(s.flags.macdDeadCross),
     },
   ];
 

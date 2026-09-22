@@ -31,7 +31,11 @@ const report = {
     sellSignals: {
       signalCount: 2,
       total: 3,
-      flags: { rsiSell: true, kdSell: true, macdSell: false },
+      flags: {
+        rsiOverbought: true,
+        kdOverbought: true,
+        macdDeadCross: false,
+      },
     },
     strategy: {
       threshold: { rsiReversalLevel: 60, kReversalLevel: 75 },
@@ -65,8 +69,10 @@ describe("TechnicalView", () => {
     expect(wrapper.text()).toContain("過熱");
     expect(wrapper.text()).toContain("超賣");
     expect(wrapper.text()).toContain("多頭");
+    expect(wrapper.text()).toContain("近期轉弱");
     expect(wrapper.text()).toContain("3 / 4");
     expect(wrapper.text()).toContain("2 / 3");
+    expect(wrapper.text()).toContain("已觸發");
   });
 
   it("API 失敗後應結束 loading 並顯示 empty state", async () => {

@@ -77,7 +77,7 @@
         <h3 class="section-title">📡 訊號雷達</h3>
         <div class="risk-summary">
           <div class="risk-bar" :class="reversalRiskClass">
-            <span class="risk-bar-label">轉弱訊號</span>
+            <span class="risk-bar-label">近期轉弱</span>
             <span class="risk-bar-count"
               >{{ reversalTriggered }} / {{ reversalTotal }}</span
             >
@@ -362,7 +362,7 @@ const reversalSignals = computed(() => {
   const kdCons = Math.min(kd_k, kd_d);
   return [
     {
-      name: "RSI 轉弱",
+      name: "RSI 近期轉弱",
       value: Number.isFinite(Number(latestReport.value?.signals?.RSI))
         ? Number(latestReport.value?.signals?.RSI).toFixed(1)
         : "--",
@@ -370,7 +370,7 @@ const reversalSignals = computed(() => {
       triggered: Boolean(r.value.rsiDrop),
     },
     {
-      name: "KD(保守)轉弱",
+      name: "KD(保守)近期轉弱",
       value: Number.isFinite(kdCons) ? kdCons.toFixed(1) : "--",
       condition: `> ${th.value.kReversalLevel ?? "75"} → <${th.value.kReversalLevel ?? "75"}`,
       triggered: Boolean(r.value.kdDrop),
@@ -393,21 +393,21 @@ const reversalSignals = computed(() => {
 const sellSignals = computed(() => [
   {
     name: "RSI",
-    value: s.value.flags?.rsiSell ? "已觸發" : "未觸發",
-    condition: `> ${sellTh.value.rsi?.overbought ?? "75"} → 回落`,
-    triggered: Boolean(s.value.flags?.rsiSell),
+    value: s.value.flags?.rsiOverbought ? "已觸發" : "未觸發",
+    condition: `目前 ≥ ${sellTh.value.rsi?.overbought ?? "75"}（超買狀態）`,
+    triggered: Boolean(s.value.flags?.rsiOverbought),
   },
   {
     name: "KD",
-    value: s.value.flags?.kdSell ? "已觸發" : "未觸發",
-    condition: `K↘D & min≥${sellTh.value.kd?.overboughtK ?? "80"}`,
-    triggered: Boolean(s.value.flags?.kdSell),
+    value: s.value.flags?.kdOverbought ? "已觸發" : "未觸發",
+    condition: `K ≥ ${sellTh.value.kd?.overboughtK ?? "80"}（超買狀態）`,
+    triggered: Boolean(s.value.flags?.kdOverbought),
   },
   {
     name: "MACD",
-    value: s.value.flags?.macdSell ? "已觸發" : "未觸發",
-    condition: "DIF↘DEA & +→−",
-    triggered: Boolean(s.value.flags?.macdSell),
+    value: s.value.flags?.macdDeadCross ? "已觸發" : "未觸發",
+    condition: "最新 DIF 下穿 DEA（死叉）",
+    triggered: Boolean(s.value.flags?.macdDeadCross),
   },
 ]);
 
