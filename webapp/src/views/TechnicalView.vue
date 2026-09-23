@@ -438,7 +438,7 @@ onUnmounted(() => {
 
 <style scoped>
 .view-container {
-  padding: 16px 16px 24px;
+  padding: 16px 16px calc(112px + env(safe-area-inset-bottom, 0px));
 }
 .view-header {
   margin-bottom: 20px;

@@ -266,7 +266,7 @@ onMounted(async () => {
 
 <style scoped>
 .view-container {
-  padding: 0 0 16px;
+  padding: 0 0 calc(112px + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
 }
 

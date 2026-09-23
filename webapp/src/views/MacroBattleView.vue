@@ -237,7 +237,7 @@ const directionClass = computed(() => {
 
 <style scoped>
 .view-container {
-  padding: 16px 16px 32px;
+  padding: 16px 16px calc(112px + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
 }
 
