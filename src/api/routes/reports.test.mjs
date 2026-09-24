@@ -41,9 +41,13 @@ import {
 
 describe("reportsRoute - 報表 API 路由", () => {
   let app;
+  let fakeNow = Date.now();
 
   beforeEach(async () => {
-    vi.clearAllMocks();
+    vi.useFakeTimers();
+    fakeNow += 3000;
+    vi.setSystemTime(fakeNow);
+    vi.resetAllMocks();
     vi.resetModules();
 
     app = Fastify({ logger: false });
@@ -53,6 +57,7 @@ describe("reportsRoute - 報表 API 路由", () => {
 
   afterEach(async () => {
     await app.close();
+    vi.useRealTimers();
   });
 
   describe("GET /report/news - 取得 AI 篩選新聞", () => {
@@ -82,11 +87,9 @@ describe("reportsRoute - 報表 API 路由", () => {
         "2024-01-02",
         "2024-01-01",
       ]);
-      archiveManager.getReportByDate
-        .mockResolvedValueOnce(null) // 2024-01-02 沒有報告
-        .mockResolvedValueOnce({
-          news: { tw: [{ title: "新聞1" }], us: [], generatedAt: "2024-01-01" },
-        }); // 2024-01-01 有新聞
+      archiveManager.getReportByDate.mockResolvedValueOnce({
+        news: { tw: [{ title: "新聞1" }], us: [], generatedAt: "2024-01-02" },
+      });
 
       const response = await freshApp.inject({
         method: "GET",
@@ -96,9 +99,40 @@ describe("reportsRoute - 報表 API 路由", () => {
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.payload);
       expect(body.tw).toHaveLength(1);
-      expect(body.generatedAt).toBe("2024-01-01");
+      expect(body.generatedAt).toBe("2024-01-02");
 
       await freshApp.close();
+    });
+
+    it("最新報告無新聞時不回退到舊新聞", async () => {
+      // 與前一測試使用相同日期，避免模組層級 TTL cache 污染測試資料。
+      archiveManager.listArchiveDates.mockResolvedValue([
+        "2024-01-02",
+        "2024-01-01",
+      ]);
+      archiveManager.getReportByDate
+        .mockResolvedValueOnce({
+          news: { tw: [], us: [], generatedAt: "2024-01-02" },
+        })
+        .mockResolvedValueOnce({
+          news: {
+            tw: [{ title: "舊新聞" }],
+            us: [],
+            generatedAt: "2024-01-01",
+          },
+        });
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/report/news",
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.payload);
+      expect(body.tw).toEqual([]);
+      expect(body.us).toEqual([]);
+      expect(body.generatedAt).toBe("2024-01-02");
+      expect(archiveManager.getReportByDate).toHaveBeenCalledTimes(1);
     });
 
     it("多天都無新聞回傳空陣列", async () => {

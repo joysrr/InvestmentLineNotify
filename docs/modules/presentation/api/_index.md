@@ -28,3 +28,4 @@ wiki_links:
 除了對外的 HTTP API，針對內部模組之間的資料交換合約，請參考本目錄下的子文件，例如：
 
 - [`report_signals_contract.md`](./report_signals_contract.md)：規範 `strategyEngine` 產出的 `report.signals` 結構與前端的介面對接。
+- [`report_news_contract.md`](./report_news_contract.md)：規範 `/api/report/news` 只讀最新每日報告，最新報告無新聞時不回退舊資料。

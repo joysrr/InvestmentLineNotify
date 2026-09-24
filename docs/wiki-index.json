@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 152,
-    "total_edges": 181,
-    "total_code_mappings": 60,
-    "concepts_with_code": 39,
-    "concepts_with_links": 52,
-    "generated_at": "2026-09-22T05:09:03.576Z"
+    "total_concepts": 153,
+    "total_edges": 183,
+    "total_code_mappings": 61,
+    "concepts_with_code": 40,
+    "concepts_with_links": 53,
+    "generated_at": "2026-09-24T05:15:29.023Z"
   },
   "concepts": {
     "api-contract": {
@@ -762,6 +762,23 @@
       "tags": ["api", "health", "portfolio"],
       "status": "current",
       "last_verified": null
+    },
+    "report-news-contract": {
+      "primary_doc": "modules/presentation/api/report_news_contract.md",
+      "title": "`/api/report/news` 新聞報告契約",
+      "summary": null,
+      "related_docs": [
+        "docs/modules/presentation/api/_index.md",
+        "docs/modules/presentation/api/report_signals_contract.md"
+      ],
+      "related_code": [
+        "src/api/routes/reports.mjs",
+        "src/modules/data/archiveManager.mjs",
+        "src/api/routes/reports.test.mjs"
+      ],
+      "tags": ["api", "news", "report", "data-freshness"],
+      "status": "current",
+      "last_verified": "2026-09-24"
     },
     "report-signals-contract": {
       "primary_doc": "modules/presentation/api/report_signals_contract.md",
@@ -2127,6 +2144,10 @@
       {
         "concept": "data-manager",
         "doc": "modules/infrastructure/data_manager.md"
+      },
+      {
+        "concept": "report-news-contract",
+        "doc": "modules/presentation/api/report_news_contract.md"
       }
     ],
     "src/modules/data/newsPoolManager.mjs": [
@@ -2219,6 +2240,22 @@
         "doc": "modules/presentation/api/portfolio_health_api.md"
       }
     ],
+    "src/api/routes/reports.mjs": [
+      {
+        "concept": "report-news-contract",
+        "doc": "modules/presentation/api/report_news_contract.md"
+      },
+      {
+        "concept": "report-signals-contract",
+        "doc": "modules/presentation/api/report_signals_contract.md"
+      }
+    ],
+    "src/api/routes/reports.test.mjs": [
+      {
+        "concept": "report-news-contract",
+        "doc": "modules/presentation/api/report_news_contract.md"
+      }
+    ],
     "src/modules/strategy/strategyEngine.mjs": [
       {
         "concept": "report-signals-contract",
@@ -2230,12 +2267,6 @@
       }
     ],
     "src/api/schema/contract.mjs": [
-      {
-        "concept": "report-signals-contract",
-        "doc": "modules/presentation/api/report_signals_contract.md"
-      }
-    ],
-    "src/api/routes/reports.mjs": [
       {
         "concept": "report-signals-contract",
         "doc": "modules/presentation/api/report_signals_contract.md"

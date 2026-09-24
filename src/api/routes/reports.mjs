@@ -82,8 +82,8 @@ async function loadSnapshotEntries(dates, limit) {
 export default async function reportsRoute(fastify) {
   /**
    * GET /api/report/news
-   * Returns today's AI-curated news (tw + us) from the latest report.
-   * Falls back to the most recent report that has news if today's is empty.
+   * Returns AI-curated news from the latest daily report only.
+   * An empty latest report must not silently display stale news.
    */
   fastify.get("/report/news", async (_req, reply) => {
     try {
@@ -91,20 +91,14 @@ export default async function reportsRoute(fastify) {
       if (!dates.length)
         return reply.send({ tw: [], us: [], generatedAt: null });
 
-      const candidates = dates.slice(0, 10);
-      for (const date of candidates) {
-        const report = await archiveManager.getReportByDate(date);
-        if (!report) continue;
-        const news = report.news;
-        if (news && (news.tw?.length || news.us?.length)) {
-          return reply.send({
-            tw: news.tw ?? [],
-            us: news.us ?? [],
-            generatedAt: news.generatedAt ?? date,
-          });
-        }
-      }
-      return reply.send({ tw: [], us: [], generatedAt: null });
+      const date = dates[0];
+      const report = await archiveManager.getReportByDate(date);
+      const news = report?.news;
+      return reply.send({
+        tw: news?.tw ?? [],
+        us: news?.us ?? [],
+        generatedAt: news?.generatedAt ?? date,
+      });
     } catch (err) {
       fastify.log.error({ err }, "Failed to read report news");
       return reply.code(500).send({ error: "Internal server error" });

@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 152,
-    "edges": 181
+    "nodes": 153,
+    "edges": 183
   },
   "graph": {
     "api-contract": ["api"],
@@ -140,6 +140,7 @@
     "presentation": ["ai_news", "bot", "api"],
     "api": ["api-contract"],
     "portfolio-health-api": ["api"],
+    "report-news-contract": ["api", "report-signals-contract"],
     "report-signals-contract": ["strategy-engine", "api"],
     "bot": [
       "ai_news",
