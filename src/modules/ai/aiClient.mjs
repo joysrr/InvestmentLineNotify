@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { fetchWithTimeout } from "../../utils/coreUtils.mjs";
 import { buildGeminiModelListFromEnv } from "./modelFallback.mjs";
+import { shouldRetryWithoutThinkingConfig } from "./thinkingConfigPolicy.mjs";
 import logger from "../../utils/logger.mjs";
 import {
   canMakeAIRequest,
@@ -413,6 +414,7 @@ export async function callAI(promptName, options = {}) {
       // ── Retry Loop（含 key 輪換 + 模型輪換）───────────────────────────────
       let currentKeyIndex = startKeyIndex % (keyCount || 1);
       let currentModelIndex = 0;
+      let disableThinkingConfig = false;
 
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         const activeModel = modelList[currentModelIndex] ?? resolvedModel;
@@ -434,7 +436,9 @@ export async function callAI(promptName, options = {}) {
                 maxOutputTokens: resolvedOptions.maxOutputTokens,
                 responseMimeType: resolvedOptions.responseMimeType,
                 responseSchema: resolvedOptions.responseSchema,
-                thinkingConfig: resolvedOptions.thinkingConfig,
+                ...(disableThinkingConfig
+                  ? {}
+                  : { thinkingConfig: resolvedOptions.thinkingConfig }),
               },
             });
             rawText = response.text?.trim?.() ?? "";
@@ -494,10 +498,21 @@ export async function callAI(promptName, options = {}) {
           const isLast = attempt === maxRetries;
           const quotaErr = isQuotaError(error);
           const serviceErr = isServiceError(error);
-          const canRetry = (quotaErr || serviceErr) && !isLast;
+          const thinkingConfigErr = shouldRetryWithoutThinkingConfig(error);
+          const canRetry =
+            (quotaErr ||
+              serviceErr ||
+              (thinkingConfigErr && !disableThinkingConfig)) &&
+            !isLast;
 
           if (canRetry) {
-            if (quotaErr) {
+            if (thinkingConfigErr && !disableThinkingConfig) {
+              disableThinkingConfig = true;
+              logger.warn(
+                { model: activeModel, attempt: attempt + 1 },
+                "模型不支援 thinking level，移除 thinkingConfig 後重試",
+              );
+            } else if (quotaErr) {
               // quota 耗盡策略：
               // 先在當前 model 下輪換所有 key；
               // 所有 key 對該 model 都耗盡時，切換到下一個備用 model 並重置 key index

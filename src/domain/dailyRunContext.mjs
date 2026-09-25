@@ -221,6 +221,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
   let newsMessages = [];
   let newsSummaryText = "今日無重大市場新聞。";
   let conflictSummary = "";
+  let newsAnalysisStatus = "success";
   let newsStructured = { tw: [], us: [] };
   let macroAnalysis = _defaultMacroAnalysis("無新聞數據，無法進行總經分析。");
   let macroTextForCoach = macroAnalysis.summary;
@@ -235,6 +236,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
       newsMessages = newsResult.messages;
       newsSummaryText = newsResult.summaryText;
       conflictSummary = newsResult.conflictSummary ?? "";
+      newsAnalysisStatus = newsResult.analysisStatus ?? "success";
       newsStructured = newsResult.structured ?? { tw: [], us: [] };
     } catch (err) {
       logger.error(err, "❌ [DailyRunContext] 取得新聞集錦失敗（不影響通知）");
@@ -352,6 +354,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     newsMessages,
     newsSummaryText,
     conflictSummary,
+    newsAnalysisStatus,
     newsStructured,
     macroAnalysis,
     macroTextForCoach,

@@ -730,6 +730,7 @@ describe("aiCoach - AI 投資教練核心邏輯完整測試", () => {
 
       expect(result.news).toEqual([]);
       expect(result.conflictSummary).toBe("");
+      expect(result.analysisStatus).toBe("failed");
       expect(mockLogger.error).toHaveBeenCalled();
     });
   });

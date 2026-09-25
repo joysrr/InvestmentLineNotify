@@ -40,12 +40,9 @@ vi.mock("../modules/providers/socialSentimentProvider.mjs", () => ({
 vi.mock("../modules/storage.mjs", () => ({
   fetchLastPortfolioState: vi.fn().mockResolvedValue({}),
 }));
+const mockGetNewsTelegramMessages = vi.fn();
 vi.mock("../modules/newsFetcher.mjs", () => ({
-  getNewsTelegramMessages: vi.fn().mockResolvedValue({
-    messages: [],
-    summaryText: "",
-    structured: { tw: [], us: [] },
-  }),
+  getNewsTelegramMessages: mockGetNewsTelegramMessages,
 }));
 vi.mock("../modules/ai/aiCoach.mjs", () => ({
   analyzeMacroNewsWithAI: vi.fn().mockResolvedValue({}),
@@ -79,9 +76,30 @@ vi.mock("../utils/logger.mjs", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockGetNewsTelegramMessages.mockResolvedValue({
+    messages: [],
+    summaryText: "",
+    structured: { tw: [], us: [] },
+  });
 });
 
 describe("DailyRunContext - Social Sentiment Integration (Phase 4)", () => {
+  it("AI 新聞精選失敗時應保留失敗狀態", async () => {
+    mockGetNewsTelegramMessages.mockResolvedValueOnce({
+      messages: [],
+      summaryText: "",
+      structured: { tw: [], us: [] },
+      analysisStatus: "failed",
+    });
+
+    const { buildDailyRunContext } =
+      await import("../domain/dailyRunContext.mjs");
+
+    const ctx = await buildDailyRunContext({ isCallAI: true });
+
+    expect(ctx.newsAnalysisStatus).toBe("failed");
+  });
+
   it("應包含 socialSentiment 字段在 buildDailyRunContext 回傳物件中", async () => {
     mockFetchSocialSentiment.mockResolvedValue({
       date: "2026-09-12",

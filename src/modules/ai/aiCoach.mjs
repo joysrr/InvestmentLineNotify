@@ -402,7 +402,7 @@ export async function filterAndCategorizeAllNewsWithAI(
       });
     }
 
-    return { news: [], conflictSummary: "" };
+    return { news: [], conflictSummary: "", analysisStatus: "failed" };
   }
 }
 

@@ -429,8 +429,11 @@ export async function getNewsTelegramMessages() {
     `📰 [NewsTelegram] pool 共 ${articles.length} 篇，送入 AI 過濾`,
   );
 
-  const { news: processedNews, conflictSummary } =
-    await filterAndCategorizeAllNewsWithAI(articles, meta?.last_updated);
+  const {
+    news: processedNews,
+    conflictSummary,
+    analysisStatus,
+  } = await filterAndCategorizeAllNewsWithAI(articles, meta?.last_updated);
 
   if (processedNews.length === 0) {
     return {
@@ -438,6 +441,7 @@ export async function getNewsTelegramMessages() {
       summaryText: "今日無重大市場新聞。",
       conflictSummary,
       structured: emptyStructured,
+      ...(analysisStatus ? { analysisStatus } : {}),
     };
   }
 
