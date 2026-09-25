@@ -240,6 +240,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
       newsStructured = newsResult.structured ?? { tw: [], us: [] };
     } catch (err) {
       logger.error(err, "❌ [DailyRunContext] 取得新聞集錦失敗（不影響通知）");
+      newsAnalysisStatus = "failed";
       newsSummaryText = "新聞集錦取得失敗，請檢查系統日誌。";
     }
     newsTimer();

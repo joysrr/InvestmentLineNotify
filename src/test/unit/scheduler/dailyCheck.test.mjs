@@ -251,6 +251,80 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     expect(result).toMatch(/^✅ dailyCheck 執行成功/);
   });
 
+  it("新聞分析失敗時不得覆寫每日報告", async () => {
+    const mockContext = {
+      lastState: { totalValue: 1000000 },
+      openToday: true,
+      vixData: { value: 15 },
+      price0050: 180,
+      currentPriceZ2: 280,
+      historyZ2: [],
+      history0050: [],
+      macroData: {},
+      macroAndChipStr: "",
+      usRisk: {},
+      quote: "test quote",
+      newsMessages: [],
+      newsSummaryText: "新聞集錦取得失敗",
+      newsAnalysisStatus: "failed",
+      newsStructured: { tw: [], us: [] },
+      macroAnalysis: {},
+      macroTextForCoach: "",
+      previousAdviceSummary: "",
+      valuationGuardState: { defenseLatch: false, latchActive: false },
+      pbRecords: [],
+      pbRecordsObjects: [],
+    };
+
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockResolvedValue(mockContext);
+
+    const { buildSignalContext } =
+      await import("../../../../src/domain/signalContext.mjs");
+    vi.mocked(buildSignalContext).mockReturnValue({
+      signalData: {},
+      finalPriceZ2: 280,
+    });
+
+    const { getInvestmentSignalAsync, fetchStrategyConfig } =
+      await import("../../../../src/modules/strategy/strategyEngine.mjs");
+    vi.mocked(getInvestmentSignalAsync).mockResolvedValue({
+      signals: { status: "觀望", score: 65, latchNowActive: false },
+      marketState: {},
+      strategySnapshot: {},
+    });
+    vi.mocked(fetchStrategyConfig).mockResolvedValue({
+      dataFreshness: { mode: "shadow", staleAfterTradingDays: 3 },
+    });
+
+    const { archiveManager } =
+      await import("../../../../src/modules/data/archiveManager.mjs");
+    vi.mocked(archiveManager.saveReport).mockResolvedValue(undefined);
+    vi.mocked(archiveManager.getFreshnessShadowStats).mockResolvedValue({
+      samples: [],
+    });
+
+    const { getAiInvestmentAdvice } =
+      await import("../../../../src/modules/ai/aiCoach.mjs");
+    vi.mocked(getAiInvestmentAdvice).mockResolvedValue({
+      advice: { summary: "test", action: "hold" },
+      traceId: "trace-1",
+    });
+
+    const { broadcastDailyReport } =
+      await import("../../../../src/modules/notifications/notifier.mjs");
+    vi.mocked(broadcastDailyReport).mockResolvedValue(undefined);
+
+    const result = await runDailyCheck(
+      {},
+      { isTelegramEnabled: false, isAIAdvisor: true, isCallAI: true },
+    );
+
+    expect(result).toMatch(/^✅ dailyCheck 執行成功/);
+    expect(archiveManager.saveReport).not.toHaveBeenCalled();
+  });
+
   it("開市日會儲存帶有 freshness shadow observation 的報告", async () => {
     // Arrange
     const mockContext = {

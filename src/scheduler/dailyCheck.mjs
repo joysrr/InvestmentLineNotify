@@ -29,6 +29,7 @@ import { shutdownLangfuse } from "../modules/ai/langfuseClient.mjs";
 import { IlnState } from "../domain/ilnState.mjs";
 import { buildDailyRunContext } from "../domain/dailyRunContext.mjs";
 import { shouldWriteSheet } from "./sideEffectPolicy.mjs";
+import { shouldPersistDailyReport } from "../domain/reportWritePolicy.mjs";
 import logger, {
   setGlobalContext,
   clearGlobalContext,
@@ -103,6 +104,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
     quote,
     newsMessages,
     newsSummaryText,
+    newsAnalysisStatus,
     newsStructured,
     macroAnalysis,
     macroTextForCoach,
@@ -299,23 +301,30 @@ export async function runDailyCheck(deps = {}, options = {}) {
 
     const baseReport = state.toReportObject();
 
-    await archiveManager.saveReport({
-      ...baseReport,
-      // Simulator 所需扁平化欄位 (直接在報告層級儲存，避免每次查詢重組)
-      price0050,
-      currentPrice: currentPriceZ2,
-      portfolio: lastState,
-      VIX: vixData?.value ?? null,
-      quote,
-      vixData,
-      usRisk,
-      macroAnalysis,
-      news: {
-        tw: newsStructured.tw,
-        us: newsStructured.us,
-        generatedAt: dateText,
-      },
-    });
+    if (shouldPersistDailyReport({ newsAnalysisStatus })) {
+      await archiveManager.saveReport({
+        ...baseReport,
+        // Simulator 所需扁平化欄位 (直接在報告層級儲存，避免每次查詢重組)
+        price0050,
+        currentPrice: currentPriceZ2,
+        portfolio: lastState,
+        VIX: vixData?.value ?? null,
+        quote,
+        vixData,
+        usRisk,
+        macroAnalysis,
+        news: {
+          tw: newsStructured.tw,
+          us: newsStructured.us,
+          generatedAt: dateText,
+        },
+      });
+    } else {
+      logger.warn(
+        { newsAnalysisStatus },
+        "⚠️ 新聞分析失敗，略過每日報告寫入以避免空結果覆寫",
+      );
+    }
 
     done();
   } catch (err) {

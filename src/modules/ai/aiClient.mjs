@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { fetchWithTimeout } from "../../utils/coreUtils.mjs";
 import { buildGeminiModelListFromEnv } from "./modelFallback.mjs";
+import { getNextModelIndex } from "./modelFallbackPolicy.mjs";
 import { shouldRetryWithoutThinkingConfig } from "./thinkingConfigPolicy.mjs";
 import logger from "../../utils/logger.mjs";
 import {
@@ -547,6 +548,23 @@ export async function callAI(promptName, options = {}) {
                 );
               }
             } else {
+              if (serviceErr && modelList.length > 1) {
+                const previousModel = activeModel;
+                currentModelIndex = getNextModelIndex({
+                  currentModelIndex,
+                  modelCount: modelList.length,
+                  errorType: "service",
+                });
+                logger.warn(
+                  {
+                    previousModel,
+                    nextModel: modelList[currentModelIndex],
+                    attempt: attempt + 1,
+                  },
+                  "服務錯誤，切換至下一個模型後重試",
+                );
+              }
+
               const backoffDelay = getBackoffDelay(attempt);
               logger.warn(
                 {
