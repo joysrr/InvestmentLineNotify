@@ -18,6 +18,7 @@ import {
 import { getInvestmentSignalAsync } from "../modules/strategy/strategyEngine.mjs";
 import { fetchStrategyConfig } from "../modules/strategy/signalRules.mjs";
 import { broadcastDailyReport } from "../modules/notifications/notifier.mjs";
+import { buildNonTradingDayMessage } from "../modules/notifications/templates/telegramHtmlBuilder.mjs";
 import { getAiInvestmentAdvice } from "../modules/ai/aiCoach.mjs";
 import { shouldRunJudge, runJudge } from "../modules/ai/llmJudge.mjs";
 import { logDailyToSheet } from "../modules/storage.mjs";
@@ -117,12 +118,76 @@ export async function runDailyCheck(deps = {}, options = {}) {
   } = ctx;
 
   if (!openToday) {
-    logger.info("😴 當日無開市，跳過通知");
-    if (isTelegramEnabled) {
-      await sendTelegramBatch([
-        { text: "😴 <b>本日休市</b>\n今日台股無開市，每日報告略過執行。" },
-      ]);
+    logger.info("😴 當日無開市，進入休市日市場與輿情情報管線...");
+    const dateText = TwDate().formatDateKey();
+
+    // 建立休市日情報報告物件
+    const nonTradingReport = {
+      reportDate: dateText,
+      timestamp: new Date().toISOString(),
+      openToday: false,
+      marketStatus: "休市觀測",
+      totalValue: lastState?.totalValue ?? 0,
+      cash: lastState?.cash ?? 0,
+      price0050: price0050 ?? null,
+      currentPrice: currentPriceZ2 ?? null,
+      portfolio: lastState ?? {},
+      VIX: vixData?.value ?? null,
+      vixData: vixData ?? null,
+      quote: quote ?? null,
+      usRisk: usRisk || {},
+      macro: macroData || {},
+      socialSentiment: ctx.socialSentiment || null,
+      newsSummary: newsSummaryText || "",
+      newsStructured: newsStructured || { tw: [], us: [] },
+      news: {
+        tw: newsStructured?.tw || [],
+        us: newsStructured?.us || [],
+        generatedAt: dateText,
+      },
+      macroAnalysis: macroAnalysis || {},
+      newsPoolCount: newsMessages?.length || 0,
+      newsAnalysisStatus: newsAnalysisStatus || "skipped",
+      note: "非交易日市場情報觀測報告",
+    };
+
+    let reportPersisted = false;
+    if (shouldPersistDailyReport({ newsAnalysisStatus })) {
+      try {
+        await archiveManager.saveReport(nonTradingReport);
+        reportPersisted = true;
+        logger.info(`📁 [休市情報] 每日報告已成功存檔 (${dateText})`);
+      } catch (saveErr) {
+        logger.error(saveErr, "❌ [休市情報] 儲存休市報告失敗");
+      }
+    } else {
+      logger.warn(
+        { newsAnalysisStatus },
+        "⚠️ 新聞分析失敗，略過休市日報告寫入以避免空結果覆寫",
+      );
     }
+
+    if (isTelegramEnabled) {
+      const miniappUrl =
+        process.env.TELEGRAM_MINIAPP_URL ||
+        "https://t.me/InvestmentLineNotifyBot/app";
+      const messages = buildNonTradingDayMessage(ctx, miniappUrl);
+      await sendTelegramBatch(messages);
+      logger.info("📢 [休市情報] Telegram 休市情報卡已送出");
+    }
+
+    const durationMs = Date.now() - runStartMs;
+    logger.info(
+      `[dailyCheck runSummary] ${JSON.stringify({
+        runId: traceId,
+        durationMs,
+        openToday: false,
+        newsPoolCount: newsMessages?.length || 0,
+        newsAnalysisStatus: newsAnalysisStatus || "skipped",
+        reportPersisted,
+      })}`,
+    );
+
     clearGlobalContext();
     return "✅ dailyCheck 執行成功（非交易日）";
   }

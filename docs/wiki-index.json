@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 153,
+    "total_concepts": 154,
     "total_edges": 183,
     "total_code_mappings": 61,
     "concepts_with_code": 40,
     "concepts_with_links": 53,
-    "generated_at": "2026-09-28T08:44:12.000Z"
+    "generated_at": "2026-09-28T11:03:11.304Z"
   },
   "concepts": {
     "api-contract": {
@@ -1535,6 +1535,22 @@
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
+      "last_verified": null
+    },
+    "non-trading-day-intelligence-pipeline": {
+      "primary_doc": "plans/completed/NON_TRADING_DAY_INTELLIGENCE_PIPELINE.md",
+      "title": "休市日市場與輿情情報管線實作計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "scheduler",
+        "dailyCheck",
+        "non-trading-day",
+        "market-intelligence",
+        "telegram"
+      ],
+      "status": "archived",
       "last_verified": null
     },
     "phase2-spec-v5": {

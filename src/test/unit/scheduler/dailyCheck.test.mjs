@@ -68,10 +68,17 @@ vi.mock("../../../../src/modules/data/archiveManager.mjs", () => ({
   },
 }));
 
-vi.mock("../../../../src/utils/coreUtils.mjs", () => ({
-  TwDate: vi.fn(() => ({ formatDateKey: () => "2026-08-06" })),
-  stepTimer: vi.fn(() => vi.fn()),
-}));
+vi.mock("../../../../src/utils/coreUtils.mjs", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    TwDate: vi.fn(() => ({
+      formatDateKey: () => "2026-08-06",
+      formatDateTime: () => "2026/08/06 14:30",
+    })),
+    stepTimer: vi.fn(() => vi.fn()),
+  };
+});
 
 vi.mock("../../../../src/utils/snapshotCrypto.mjs", () => ({
   isSnapshotEncryptEnabled: vi.fn(() => false),
@@ -295,8 +302,11 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     // Assert
     expect(result).toMatch(/^✅ dailyCheck 執行成功/);
     expect(sendTelegramBatch).toHaveBeenCalledOnce();
-    const msg = vi.mocked(sendTelegramBatch).mock.calls[0][0][0].text;
+    const batch = vi.mocked(sendTelegramBatch).mock.calls[0][0];
+    const msg = batch[0].text;
     expect(msg).toContain("休市");
+    expect(msg).toContain("市場情報觀測");
+    expect(batch[0].webAppUrl).toBeDefined();
   });
 
   it("非交易日且 isTelegramEnabled=false 時不應發送任何 Telegram 訊息", async () => {
@@ -335,13 +345,64 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     vi.mocked(sendTelegramBatch).mockClear();
 
     // Act
-    await runDailyCheck(
+    const result = await runDailyCheck(
       {},
       { isTelegramEnabled: false, isAIAdvisor: true, isCallAI: true },
     );
 
     // Assert
+    expect(result).toMatch(/^✅ dailyCheck 執行成功/);
     expect(sendTelegramBatch).not.toHaveBeenCalled();
+  });
+
+  it("非交易日應正確儲存休市日市場情報報告", async () => {
+    // Arrange
+    const mockContext = {
+      lastState: { totalValue: 1000000, cash: 500000 },
+      openToday: false,
+      vixData: { value: 15.2 },
+      basePrice: 150,
+      price0050: 180,
+      currentPriceZ2: 280,
+      historyZ2: [],
+      history0050: [],
+      macroData: { fx: { usdTwd: 32.1 } },
+      macroAndChipStr: "",
+      usRisk: { riskLevel: "低風險" },
+      quote: "test quote",
+      newsMessages: [{ title: "週末重要頭條", url: "https://example.com" }],
+      newsSummaryText: "週末市場動態摘要",
+      newsStructured: { tw: [{ title: "頭條", summary: "內文" }], us: [] },
+      macroAnalysis: {},
+      macroTextForCoach: "",
+      macroMarketDirection: "NEUTRAL",
+      previousAdviceSummary: "",
+      valuationGuardState: { defenseLatch: false, latchActive: false },
+      pbRecords: [],
+      pbRecordsObjects: [],
+    };
+
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockResolvedValue(mockContext);
+
+    const { archiveManager } =
+      await import("../../../../src/modules/data/archiveManager.mjs");
+    vi.mocked(archiveManager.saveReport).mockClear();
+
+    // Act
+    const result = await runDailyCheck(
+      {},
+      { isTelegramEnabled: false, isAIAdvisor: true, isCallAI: true },
+    );
+
+    // Assert
+    expect(result).toMatch(/^✅ dailyCheck 執行成功/);
+    expect(archiveManager.saveReport).toHaveBeenCalledOnce();
+    const savedReport = vi.mocked(archiveManager.saveReport).mock.calls[0][0];
+    expect(savedReport.marketStatus).toBe("休市觀測");
+    expect(savedReport.openToday).toBe(false);
+    expect(savedReport.newsSummary).toBe("週末市場動態摘要");
   });
 
   it("新聞分析失敗時不得覆寫每日報告", async () => {
@@ -612,7 +673,7 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     // Arrange
     const mockContext = {
       lastState: { totalValue: 1000000 },
-      openToday: false,
+      openToday: true,
       vixData: { value: 15 },
       basePrice: 150,
       price0050: 180,
@@ -711,6 +772,9 @@ describe("DailyCheck Scheduler - 單元測試", () => {
 
     // Assert
     expect(result).toMatch(/^✅ dailyCheck 執行成功/);
+    expect(archiveManager.saveValuationGuardState).toHaveBeenCalledWith(
+      expect.objectContaining({ defenseLatch: true }),
+    );
   });
 
   it("高風險日應觸發 LLM Judge 背景任務", async () => {

@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-09-28T08:44:14.581Z",
+  "generated_at": "2026-09-28T11:02:40.034Z",
   "summary": {
-    "total_files": 153,
-    "average_health": 56,
+    "total_files": 154,
+    "average_health": 55.8,
     "by_health": {
       "excellent": 23,
       "good": 20,
       "fair": 109,
-      "poor": 1
+      "poor": 2
     },
     "by_category": {
       "other": {
@@ -36,9 +36,9 @@
         "totalHealth": 300
       },
       "plan": {
-        "count": 73,
+        "count": 74,
         "avgHealth": 45,
-        "totalHealth": 3295
+        "totalHealth": 3330
       }
     }
   },
@@ -1310,6 +1310,13 @@
       "file": "plans/completed/NAVIGATE_MACRO_BATTLE_PLAN.md",
       "category": "plan",
       "health": 45,
+      "status": "completed"
+    },
+    {
+      "concept": "non-trading-day-intelligence-pipeline",
+      "file": "plans/completed/NON_TRADING_DAY_INTELLIGENCE_PIPELINE.md",
+      "category": "plan",
+      "health": 35,
       "status": "completed"
     },
     {

@@ -122,13 +122,14 @@ pm2 monit
 
 ### `scripts/vm-daily-check.sh`
 
-| 項目         | 說明                                                                      |
-| ------------ | ------------------------------------------------------------------------- |
-| 位置         | `/home/ubuntu/investnotify/scripts/vm-daily-check.sh`                     |
-| Log 輸出     | `logs/daily.log`（包含 runSummary 結構化執行摘要）                        |
-| Lock 機制    | `/tmp/investnotify-daily.lock.d`（原子目錄鎖，含 PID 檢查與過期自動清理） |
-| 逾時防護     | 45 分鐘（2700 秒，可透過 `TIMEOUT_SECONDS` 設定）                         |
-| 每日執行次數 | 5 次（07:30 / 10:30 / 12:00 / 13:45 / 21:30）                             |
+| 項目         | 說明                                                                                                         |
+| ------------ | ------------------------------------------------------------------------------------------------------------ |
+| 位置         | `/home/ubuntu/investnotify/scripts/vm-daily-check.sh`                                                        |
+| Log 輸出     | `logs/daily.log`（包含 runSummary 結構化執行摘要）                                                           |
+| Lock 機制    | `/tmp/investnotify-daily.lock.d`（原子目錄鎖，含 PID 檢查與過期自動清理）                                    |
+| 逾時防護     | 45 分鐘（2700 秒，可透過 `TIMEOUT_SECONDS` 設定）                                                            |
+| 每日執行次數 | 5 次（07:30 / 10:30 / 12:00 / 13:45 / 21:30）                                                                |
+| 休市日行為   | **雙軌分離模式**：跳過台股買賣評分，採集最新國際總經、AI新聞與社群情緒，落地當日報告並發送「休市情報觀測卡」 |
 
 ### `scripts/vm-news-fetch.sh`
 

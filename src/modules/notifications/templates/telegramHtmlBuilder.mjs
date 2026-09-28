@@ -977,3 +977,85 @@ export function buildCompactMessage(
     },
   ];
 }
+
+/**
+ * 休市日市場與輿情情報卡（精簡版）
+ *
+ * 專為非交易日、節假日設計：
+ *   - 不計算台股即時技術指標
+ *   - 凸顯國際市場、美股 VIX、總經風險與社群最新情報
+ *   - 提供 AI 新聞速覽與 Mini App 入口
+ *
+ * @param {object} data
+ * @param {string} webAppUrl
+ * @returns {Array} 相容於 sendTelegramBatch 的格式
+ */
+export function buildNonTradingDayMessage(data, webAppUrl) {
+  const now = TwDate();
+  const timeTag =
+    typeof now?.formatDateTime === "function"
+      ? now.formatDateTime()
+      : `${TwDate().formatDateKey?.() || "2026-08-06"} 14:30`;
+
+  const usRisk = data.usRisk || {};
+  const macroData = data.macroData || {};
+  const newsStructured = data.newsStructured || { tw: [], us: [] };
+  const socialSentiment = data.socialSentiment || null;
+
+  const usSpx = escapeHTML(usRisk.spxChg || "N/A");
+  const usVix = escapeHTML(usRisk.vix || "N/A");
+  const fxUsdTwd =
+    macroData.fx?.usdTwd != null
+      ? Number(macroData.fx.usdTwd).toFixed(2)
+      : "N/A";
+  const riskLevel = escapeHTML(usRisk.riskLevel || "正常");
+
+  // 社群情緒描述
+  let sentimentStr = "無即時社群數據";
+  if (socialSentiment?.sentimentSummary) {
+    sentimentStr = escapeHTML(socialSentiment.sentimentSummary);
+  } else if (socialSentiment?.score != null) {
+    const s = Number(socialSentiment.score);
+    sentimentStr =
+      s > 0.2 ? "多方情緒偏濃" : s < -0.2 ? "空方情緒發酵" : "市場情緒偏向中性";
+  }
+
+  // 整理 2~3 則焦點新聞
+  const articles = [
+    ...(newsStructured.tw || []),
+    ...(newsStructured.us || []),
+  ].slice(0, 3);
+
+  let newsSection = "";
+  if (articles.length > 0) {
+    const list = articles
+      .map(
+        (a, idx) => `  ${idx + 1}. <b>${escapeHTML(a.title || "無標題")}</b>`,
+      )
+      .join("\n");
+    newsSection = `\n📰 <b>焦點市場情報：</b>\n${list}\n`;
+  } else if (data.newsSummaryText) {
+    newsSection = `\n📰 <b>情報摘要：</b>\n${escapeHTML(data.newsSummaryText.slice(0, 150))}…\n`;
+  }
+
+  const SEP = "\n─────────────────\n";
+
+  const text =
+    `😴 <b>市場情報觀測（本日休市）</b>  <code>${escapeHTML(timeTag)}</code>${SEP}` +
+    `🇹🇼 <b>台股狀態：休市暫停交易</b>\n` +
+    `💡 <i>投資部位與各項技術指標維持前一交易日定格。</i>${SEP}` +
+    `🌐 <b>外圍市場與總經風險</b>\n` +
+    `🇺🇸 美股波動：S&P ${usSpx} | VIX: ${usVix}\n` +
+    `💵 美元匯率：USD/TWD ${fxUsdTwd} | 風險評級：${riskLevel}\n` +
+    `💬 社群輿情：${sentimentStr}\n` +
+    `${newsSection}${SEP}` +
+    `📲 點擊下方按鈕開啟 Mini App 查看最新新聞池與市場雷達`;
+
+  return [
+    {
+      text,
+      pin: false,
+      webAppUrl: webAppUrl || null,
+    },
+  ];
+}
