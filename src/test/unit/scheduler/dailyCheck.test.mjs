@@ -710,4 +710,104 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     // Assert
     expect(result).toMatch(/^✅ dailyCheck 執行成功/);
   });
+
+  // ── P1 可觀測性：執行摘要 ──────────────────────────────────────────────────
+  it("成功完成交易日時應記錄帶有 runSummary 的結構化摘要日誌", async () => {
+    // Arrange
+    const mockContext = {
+      lastState: { totalValue: 1000000 },
+      openToday: true,
+      vixData: { value: 15 },
+      basePrice: 150,
+      price0050: 180,
+      currentPriceZ2: 280,
+      historyZ2: [{ date: "2026-09-01" }, { date: "2026-09-02" }],
+      history0050: [],
+      macroData: {},
+      macroAndChipStr: "",
+      usRisk: {},
+      quote: "test quote",
+      newsMessages: [{ text: "新聞1" }, { text: "新聞2" }, { text: "新聞3" }],
+      newsSummaryText: "新聞摘要",
+      newsAnalysisStatus: "success",
+      newsStructured: { tw: [{ title: "A" }], us: [{ title: "B" }] },
+      macroAnalysis: {},
+      macroTextForCoach: "",
+      previousAdviceSummary: "",
+      macroMarketDirection: "neutral",
+      valuationGuardState: { defenseLatch: false, latchActive: false },
+      pbRecords: [],
+      pbRecordsObjects: [],
+    };
+
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockResolvedValue(mockContext);
+
+    const { buildSignalContext } =
+      await import("../../../../src/domain/signalContext.mjs");
+    vi.mocked(buildSignalContext).mockReturnValue({
+      signalData: {},
+      finalPriceZ2: 280,
+    });
+
+    const { getInvestmentSignalAsync, fetchStrategyConfig } =
+      await import("../../../../src/modules/strategy/strategyEngine.mjs");
+    vi.mocked(getInvestmentSignalAsync).mockResolvedValue({
+      signals: { status: "觀望", score: 65, latchNowActive: false },
+      marketState: {},
+      strategySnapshot: {},
+    });
+    vi.mocked(fetchStrategyConfig).mockResolvedValue({
+      dataFreshness: { mode: "shadow", staleAfterTradingDays: 3 },
+    });
+
+    const { archiveManager } =
+      await import("../../../../src/modules/data/archiveManager.mjs");
+    vi.mocked(archiveManager.saveReport).mockResolvedValue(undefined);
+    vi.mocked(archiveManager.getFreshnessShadowStats).mockResolvedValue({
+      samples: [],
+    });
+
+    const { getAiInvestmentAdvice } =
+      await import("../../../../src/modules/ai/aiCoach.mjs");
+    vi.mocked(getAiInvestmentAdvice).mockResolvedValue({
+      advice: { summary: "test", action: "hold" },
+      traceId: "trace-summary-1",
+    });
+
+    const { broadcastDailyReport } =
+      await import("../../../../src/modules/notifications/notifier.mjs");
+    vi.mocked(broadcastDailyReport).mockResolvedValue(undefined);
+
+    const { shouldRunJudge } =
+      await import("../../../../src/modules/ai/llmJudge.mjs");
+    vi.mocked(shouldRunJudge).mockReturnValue(false);
+
+    const logger = (await import("../../../../src/utils/logger.mjs")).default;
+    vi.mocked(logger.info).mockClear();
+
+    // Act
+    await runDailyCheck(
+      {},
+      { isTelegramEnabled: false, isAIAdvisor: true, isCallAI: true },
+    );
+
+    // Assert: logger.info 應至少有一次呼叫帶有 runSummary 欄位
+    const summaryCall = vi
+      .mocked(logger.info)
+      .mock.calls.find(
+        (args) =>
+          args[0] && typeof args[0] === "object" && "runSummary" in args[0],
+      );
+    expect(summaryCall).toBeDefined();
+
+    const summary = summaryCall[0].runSummary;
+    expect(summary).toMatchObject({
+      newsAnalysisStatus: "success",
+      reportPersisted: true,
+      durationMs: expect.any(Number),
+      newsPoolCount: expect.any(Number),
+    });
+  });
 });

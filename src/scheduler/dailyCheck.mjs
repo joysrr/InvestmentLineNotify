@@ -61,7 +61,8 @@ export async function runDailyCheck(deps = {}, options = {}) {
   } = options;
 
   // 設定日誌上下文追蹤
-  const traceId = `dailyCheck-${Date.now()}`;
+  const runStartMs = Date.now();
+  const traceId = `dailyCheck-${runStartMs}`;
   setGlobalContext({ traceId, sessionId, runType: "dailyCheck" });
   logger.info("🚀 開始執行 dailyCheck...", {
     isTelegramEnabled,
@@ -372,6 +373,22 @@ export async function runDailyCheck(deps = {}, options = {}) {
     await Promise.allSettled(judgeTasks);
     logger.info("✅ [LLMJudge] 背景 Judge 任務完成");
   }
+
+  // ── 執行摘要（可觀測性：方便排錯，不影響主流程）────────────────────────────
+  const runEndMs = Date.now();
+  logger.info(
+    {
+      runSummary: {
+        runId: traceId,
+        durationMs: runEndMs - runStartMs,
+        openToday,
+        newsPoolCount: newsMessages?.length ?? 0,
+        newsAnalysisStatus,
+        reportPersisted: shouldPersistDailyReport({ newsAnalysisStatus }),
+      },
+    },
+    "📊 dailyCheck 執行摘要",
+  );
 
   // 清除日誌上下文
   clearGlobalContext();
