@@ -167,7 +167,7 @@ function calculateImpactScore(concept, data, wikiIndex, wikiGraph) {
 
   // 1. 被引用次數（inbound links）
   let inboundCount = 0;
-  for (const [source, targets] of Object.entries(wikiGraph.graph || {})) {
+  for (const [_source, targets] of Object.entries(wikiGraph.graph || {})) {
     if (targets.includes(concept)) {
       inboundCount++;
     }

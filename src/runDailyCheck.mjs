@@ -1,5 +1,4 @@
 import "dotenv/config";
-import { fileURLToPath } from "url";
 import { runDailyCheck } from "./scheduler/dailyCheck.mjs";
 import { shutdownLangfuse } from "./modules/ai/langfuseClient.mjs";
 import logger from "./utils/logger.mjs";

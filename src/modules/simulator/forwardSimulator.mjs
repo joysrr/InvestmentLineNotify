@@ -3,11 +3,7 @@
 
 import { evaluateInvestmentSignal } from "../strategy/strategyEngine.mjs";
 import { fetchStrategyConfigUnified } from "../strategy/strategyLoader.mjs";
-import {
-  PRICE_BOUNDS,
-  DATA_QUALITY_LABELS,
-  CALCULATION_MODE,
-} from "./constants.mjs";
+import { DATA_QUALITY_LABELS, CALCULATION_MODE } from "./constants.mjs";
 import { generatePriceDeviationWarnings } from "./validator.mjs";
 
 /**

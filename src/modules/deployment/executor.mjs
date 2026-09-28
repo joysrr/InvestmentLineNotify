@@ -7,7 +7,6 @@ import { EventEmitter } from "events";
 import { spawn } from "child_process";
 import { writeFile, mkdir, readFile, readdir } from "fs/promises";
 import { resolve } from "path";
-import { fileURLToPath } from "url";
 import logger from "../../utils/logger.mjs";
 import { v4 as uuidv4 } from "uuid";
 
@@ -42,7 +41,7 @@ export const DEPLOY_STATUS = {
 const progressEmitter = new EventEmitter();
 
 // Lock state
-let isLocked = false;
+let _isLocked = false;
 
 // Test mode flag to skip background execution
 let testMode = false;
@@ -81,7 +80,7 @@ async function acquireLock(jobId) {
     getLockFile(),
     JSON.stringify({ jobId, acquiredAt: Date.now() }),
   );
-  isLocked = true;
+  _isLocked = true;
 }
 
 /**
@@ -96,7 +95,7 @@ async function releaseLock(jobId) {
         getLockFile(),
         JSON.stringify({ jobId: null, releasedAt: Date.now() }),
       );
-      isLocked = false;
+      _isLocked = false;
     }
   } catch (err) {
     if (err.code !== "ENOENT") throw err;

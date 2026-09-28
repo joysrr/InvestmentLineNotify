@@ -136,7 +136,7 @@ import {
   fetchPortfolioHealth,
   fetchStrategyStatus,
 } from "../api/index.js";
-import { useTelegram, waitReady } from "../composables/useTelegram.js";
+import { waitReady } from "../composables/useTelegram.js";
 
 // Components
 import MacroCockpitCard from "../components/dashboard/MacroCockpitCard.vue";
@@ -150,15 +150,12 @@ import StrategyStatusView from "../views/StrategyStatusView.vue";
 import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 
-const { openLink } = useTelegram();
-
 // ── State ──
 // Single-page card layout: no top-level tab switcher
 const ssExpanded = ref(false); // Strategy Status card collapsed by default
 const configDrawerVisible = ref(false); // Strategy Config drawer
 const status = ref(null);
 const statusLoading = ref(true);
-const statusError = ref(false);
 
 const latestReport = ref(null);
 const reportLoading = ref(true);
@@ -281,24 +278,6 @@ const pbPrLevel = computed(() => {
 const glValue = computed(() => {
   const v = latestReport.value?.signals?.grossLeverage;
   return v != null ? Number(v).toFixed(2) : "—";
-});
-
-const glLevel = computed(() => {
-  const v = Number(glValue.value);
-  if (isNaN(v)) return { label: "—", cardClass: "", textClass: "" };
-  if (v >= 3.0)
-    return {
-      label: "強制砍倉",
-      cardClass: "card-danger",
-      textClass: "text-danger",
-    };
-  if (v >= 2.5)
-    return {
-      label: "暫停加碼",
-      cardClass: "card-warn",
-      textClass: "text-warn",
-    };
-  return { label: "安全水位", cardClass: "card-ok", textClass: "text-ok" };
 });
 
 const lightEmoji = computed(() => {

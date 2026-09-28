@@ -9,10 +9,9 @@ import { v4 as uuidv4 } from "uuid";
 import {
   submitBacktestJob,
   getQueueStats,
-  shutdownQueue,
   getJobStatus,
 } from "./backtestQueue.mjs";
-import { writeFile, mkdir, readdir, readFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import logger from "../../utils/logger.mjs";
@@ -138,7 +137,7 @@ export async function createSchedule({
 /**
  * Get next cron run time
  */
-function getNextCronRun(cronExpression) {
+function getNextCronRun(_cronExpression) {
   try {
     const now = new Date();
     // Simple implementation: return next minute as approximation
@@ -457,7 +456,7 @@ async function persistScheduleResults(scheduleId) {
  */
 export async function getAllSchedules() {
   const all = [];
-  for (const [id, schedule] of schedules) {
+  for (const [id, _schedule] of schedules) {
     all.push(await getScheduleStatus(id));
   }
   return all.sort((a, b) => b.createdAt - a.createdAt);
@@ -467,7 +466,7 @@ export async function getAllSchedules() {
  * Stop scheduler
  */
 export function stop() {
-  for (const [id, job] of cronJobs) {
+  for (const [_id, job] of cronJobs) {
     job.stop();
   }
   cronJobs.clear();

@@ -6,10 +6,7 @@ import { fileURLToPath } from "url";
 import { archiveManager } from "../modules/data/archiveManager.mjs";
 import { generateDailySearchQueries } from "../modules/ai/aiCoach.mjs";
 import { getRawNews } from "../modules/newsFetcher.mjs";
-import {
-  updatePool,
-  purgeExpiredFromPool,
-} from "../modules/data/newsPoolManager.mjs";
+import { updatePool } from "../modules/data/newsPoolManager.mjs";
 import {
   shutdownLangfuse,
   createLangfuseScore,

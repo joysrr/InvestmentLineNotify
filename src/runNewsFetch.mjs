@@ -8,7 +8,7 @@ import {
 import logger from "./utils/logger.mjs";
 
 /** Langfuse score 回寫 */
-async function safeLangfuseScore(payload) {
+async function _safeLangfuseScore(payload) {
   try {
     await createLangfuseScore(payload.traceId, payload.name, payload.value, {
       comment: payload.comment,

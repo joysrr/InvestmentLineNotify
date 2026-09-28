@@ -3,11 +3,7 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { fetchStrategyConfigUnified } from "../../modules/strategy/strategyLoader.mjs";
 import { validateStrategyConfig } from "../../modules/strategy/validateStrategyConfig.mjs";
-import {
-  validateConfig,
-  flattenConfig,
-  unflattenConfig,
-} from "../../modules/config/configValidator.mjs";
+import { validateConfig } from "../../modules/config/configValidator.mjs";
 import logger from "../../utils/logger.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

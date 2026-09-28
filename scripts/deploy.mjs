@@ -14,8 +14,8 @@
  */
 
 import "dotenv/config";
-import { execSync, spawnSync } from "child_process";
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
+import { execSync } from "child_process";
+import { writeFileSync, mkdirSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -44,7 +44,11 @@ function log(info, type = "info") {
 }
 
 function runCmd(cmd, opts = {}) {
-  const { stdio = "inherit", encoding = "utf8", silent = false } = opts;
+  const {
+    stdio = "inherit",
+    encoding = "utf8",
+    silent: _silent = false,
+  } = opts;
   log(`$ ${cmd}`, "step");
   try {
     const result = execSync(cmd, {
@@ -142,7 +146,7 @@ function stepGitPush() {
   log("代碼已推送", "ok");
 }
 
-async function stepRemoteDeploy(gitInfo) {
+async function stepRemoteDeploy(_gitInfo) {
   log("在 VM 上執行部署...", "step");
 
   const deployScript = `

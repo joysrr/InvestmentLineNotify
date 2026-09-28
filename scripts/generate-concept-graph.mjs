@@ -38,7 +38,7 @@ async function main() {
   }
 
   // 計算 inbound links
-  for (const [source, targets] of Object.entries(wikiGraph.graph)) {
+  for (const [_source, targets] of Object.entries(wikiGraph.graph)) {
     for (const target of targets) {
       if (conceptStats[target]) {
         conceptStats[target].inbound++;
@@ -47,18 +47,18 @@ async function main() {
   }
 
   // 計算總連結數和重要性
-  for (const [concept, stats] of Object.entries(conceptStats)) {
+  for (const [_concept, stats] of Object.entries(conceptStats)) {
     stats.total = stats.inbound + stats.outbound + stats.codeLinks;
     stats.importance = stats.inbound * 3 + stats.outbound + stats.codeLinks * 2;
   }
 
   // 分類
   const isolated = Object.entries(conceptStats)
-    .filter(([c, s]) => s.total === 0)
+    .filter(([_c, s]) => s.total === 0)
     .map(([c]) => c);
 
   const weaklyConnected = Object.entries(conceptStats)
-    .filter(([c, s]) => s.total > 0 && s.total <= 2)
+    .filter(([_c, s]) => s.total > 0 && s.total <= 2)
     .map(([c]) => c);
 
   const coreConcepts = Object.entries(conceptStats)

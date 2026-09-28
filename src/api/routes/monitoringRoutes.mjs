@@ -415,7 +415,7 @@ function registerDefaultRules() {
   alertEngine.addRule({
     name: "worker_heartbeat_timeout",
     condition: (metrics) => {
-      for (const [workerId, status] of Object.entries(metrics.workerStatus)) {
+      for (const [_workerId, status] of Object.entries(metrics.workerStatus)) {
         if (!status.alive) return true;
       }
       return false;

@@ -12,8 +12,6 @@
 
 import { TwDate } from "../../../utils/coreUtils.mjs";
 import {
-  MAX_DAILY_LOAN_INCREASE_PCT,
-  MAX_ROLLING_LOAN_INCREASE_PCT,
   BUDGET_ROLLING_DAYS,
   DEFAULT_BUDGET_CONFIG,
 } from "../strategyDefaults.mjs";

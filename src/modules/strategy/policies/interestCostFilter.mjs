@@ -9,7 +9,7 @@
  * 4. 提供利息成本占淨值比例、年化成本率等指標
  */
 
-import { DEFAULT_BUDGET_CONFIG } from "../strategyDefaults.mjs";
+import { DEFAULT_BUDGET_CONFIG as _DEFAULT_BUDGET_CONFIG } from "../strategyDefaults.mjs";
 
 /**
  * 利息成本濾網結果

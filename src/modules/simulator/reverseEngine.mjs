@@ -6,10 +6,7 @@ import {
   solvePriceForMA,
   solvePriceForMA240Bias,
 } from "./analyticalSolvers.mjs";
-import {
-  solvePriceForRSI,
-  solvePriceForRSIWithExpandingBounds,
-} from "./rsiSolver.mjs";
+import { solvePriceForRSI } from "./rsiSolver.mjs";
 import {
   scanPriceRange,
   createKDCrossChecker,

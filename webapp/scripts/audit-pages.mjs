@@ -14,7 +14,7 @@ const ROUTES = [
 ];
 
 // 從環境變數讀取 batch index
-const BATCH_TOTAL = parseInt(process.env.AUDIT_BATCH || "1");
+const _BATCH_TOTAL = parseInt(process.env.AUDIT_BATCH || "1");
 const BATCH_IDX = parseInt(process.env.AUDIT_BATCH_IDX || "0");
 const allBatches = [
   [
@@ -38,7 +38,7 @@ const allBatches = [
     { path: "/#/strategy-config", name: "策略設定" },
   ],
 ];
-const ROUTES_TO_RUN = allBatches[BATCH_IDX] || allBatches[0];
+const _ROUTES_TO_RUN = allBatches[BATCH_IDX] || allBatches[0];
 
 const audit = {
   timestamp: new Date().toISOString(),
@@ -46,8 +46,12 @@ const audit = {
   summary: { ok: 0, warning: 0, error: 0 },
 };
 
-const browser = await chromium.launch({ args: ["--no-sandbox", "--disable-dev-shm-usage"] });
-const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+const browser = await chromium.launch({
+  args: ["--no-sandbox", "--disable-dev-shm-usage"],
+});
+const context = await browser.newContext({
+  viewport: { width: 1280, height: 800 },
+});
 
 for (const route of ROUTES) {
   const page = await context.newPage();
@@ -59,12 +63,21 @@ for (const route of ROUTES) {
     if (msg.type() === "error") errors.push(msg.text().substring(0, 200));
     if (msg.type() === "warning") warnings.push(msg.text().substring(0, 200));
   });
-  page.on("pageerror", (err) => errors.push("UNCAUGHT: " + err.message.substring(0, 200)));
-  page.on("requestfailed", (req) => failedRequests.push(`${req.method()} ${req.url()} - ${req.failure()?.errorText}`));
+  page.on("pageerror", (err) =>
+    errors.push("UNCAUGHT: " + err.message.substring(0, 200)),
+  );
+  page.on("requestfailed", (req) =>
+    failedRequests.push(
+      `${req.method()} ${req.url()} - ${req.failure()?.errorText}`,
+    ),
+  );
 
   const startTime = Date.now();
   try {
-    await page.goto(`${BASE_URL}${route.path}`, { waitUntil: "domcontentloaded", timeout: 10000 });
+    await page.goto(`${BASE_URL}${route.path}`, {
+      waitUntil: "domcontentloaded",
+      timeout: 10000,
+    });
     await page.waitForTimeout(2500); // 等 Vue 完整 render
     const loadTime = Date.now() - startTime;
 
@@ -77,7 +90,8 @@ for (const route of ROUTES) {
         links: document.querySelectorAll("a").length,
         hasContent: document.body.innerText.length > 100,
         title: document.title,
-        mainText: document.querySelector("main")?.innerText?.substring(0, 200) || "N/A",
+        mainText:
+          document.querySelector("main")?.innerText?.substring(0, 200) || "N/A",
       };
     });
 
@@ -121,16 +135,22 @@ console.log("📊 WebApp 頁面盤點結果");
 console.log("================================================\n");
 for (const p of audit.pages) {
   const icon = p.status === "OK" ? "✅" : p.status === "ERROR" ? "❌" : "⏱️ ";
-  console.log(`${icon} ${p.name.padEnd(12)} ${p.path.padEnd(25)} ${p.loadTimeMs || "?"}ms`);
+  console.log(
+    `${icon} ${p.name.padEnd(12)} ${p.path.padEnd(25)} ${p.loadTimeMs || "?"}ms`,
+  );
   if (p.errors?.length > 0) {
     for (const e of p.errors) console.log(`     ❌ ${e}`);
   }
   if (p.interactives) {
-    console.log(`     📦 buttons=${p.interactives.buttons} inputs=${p.interactives.inputs} selects=${p.interactives.selects}`);
+    console.log(
+      `     📦 buttons=${p.interactives.buttons} inputs=${p.interactives.inputs} selects=${p.interactives.selects}`,
+    );
   }
   console.log();
 }
 
 console.log("================================================");
-console.log(`📊 總計: ✅ ${audit.summary.ok} OK | ❌ ${audit.summary.error} ERROR`);
+console.log(
+  `📊 總計: ✅ ${audit.summary.ok} OK | ❌ ${audit.summary.error} ERROR`,
+);
 console.log("================================================");

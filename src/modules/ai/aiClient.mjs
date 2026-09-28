@@ -8,11 +8,8 @@ import {
   canMakeAIRequest,
   recordAIRequestResult,
   getCircuitBreakerStatus,
-  isCircuitOpen,
-  CIRCUIT_STATE,
 } from "./aiCircuitBreaker.mjs";
 import {
-  AIServiceError,
   isAIRetryableError,
   calculateBackoffDelay,
   delay,
@@ -374,7 +371,7 @@ export async function callAI(promptName, options = {}) {
   const {
     systemInstruction,
     userTemplate,
-    langfusePromptObj,
+    _langfusePromptObj,
     langfuseConfig,
     promptSource,
   } = await resolveChatPrompt(promptName, options.promptVariables ?? {});
@@ -639,12 +636,10 @@ export async function listAllModels(provider = PROVIDERS.GEMINI) {
   try {
     const ai = aiInstances[0];
     const models = await ai.models.list();
-    let count = 1;
     const modelList = [];
     for await (const model of models) {
       if (model.supportedActions?.includes("generateContent")) {
         modelList.push(model.name);
-        count++;
       }
     }
     logger.info(

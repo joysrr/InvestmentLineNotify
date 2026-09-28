@@ -28,7 +28,7 @@ async function main() {
 
   // 轉成 Map 加快查找 (Date -> Value)
   const vixMap = new Map(vixHistory.map((i) => [i.date, i.value]));
-  const pbMap = new Map(pbHistory.map((i) => [i.date, i.pb]));
+  const _pbMap = new Map(pbHistory.map((i) => [i.date, i.pb]));
 
   // 2. 掃描 0050 / 00675L 的歷史檔案
   const files = await fs.readdir(STOCK_HISTORY_DIR);

@@ -1,8 +1,6 @@
 // src/modules/simulator/sensitivityEngine.mjs
 // 敏感度分析引擎
 
-import { buildSimulationInput } from "./dataAdapter.mjs";
-
 /**
  * 執行單參數敏感度掃描
  * @param {Object} params
@@ -13,7 +11,7 @@ export async function runSensitivitySingleParam({
   scanRange,
   metrics,
   baseSimulationInput,
-  baseParams,
+  _baseParams,
   latestReport,
   runForwardSimulation,
 }) {
@@ -79,7 +77,7 @@ export async function runSensitivitySingleParam({
 export async function runSensitivityMultiParam({
   multiParams,
   baseSimulationInput,
-  baseParams,
+  _baseParams,
   latestReport,
   runForwardSimulation,
 }) {

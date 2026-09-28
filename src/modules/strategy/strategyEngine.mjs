@@ -1,4 +1,3 @@
-import { getReserveStatus } from "./riskManagement.mjs";
 import {
   validateStrategyConfig,
   fetchStrategyConfig,
@@ -9,34 +8,27 @@ import {
 } from "./signalRules.mjs";
 import { getMACDSignal } from "./indicators.mjs";
 import { computeGrossLeverage } from "./leverageMonitor.mjs";
-import { generateScoringMatrix } from "./signalGenerator.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 import {
   PANIC_BYPASS_DROP_PCT,
   PANIC_BYPASS_VIX_THRESHOLD,
-  MAX_DAILY_LOAN_INCREASE_PCT,
-  MAX_ROLLING_LOAN_INCREASE_PCT,
   BUDGET_ROLLING_DAYS,
 } from "./strategyDefaults.mjs";
-import { computeLifecycleContext } from "./lifecycleEngine.mjs";
 
 import { checkCooldown } from "./core/index.mjs";
 
 import {
-  resolveEntryGate,
   resolveVixOverride,
   resolveMacroSentiment,
   analyzeMarginRisk,
   analyzeCapitalDecoupling,
   analyzeSurvival,
   resolveBudgetSynergy,
-  resolveConversionGuard,
   resolveBudgetLimit,
   applyRiskOverride,
   calculateRequestedLoanAmount,
   applyInterestCostFilter,
   applyInterestCostFilterToDecision,
-  getMarginFinancingData,
 } from "./policies/index.mjs";
 
 import { parseNumber } from "../../utils/coreUtils.mjs";

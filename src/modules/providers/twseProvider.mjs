@@ -546,19 +546,19 @@ export async function fetchMarketValuation() {
     let sumMktCap = 0;
 
     // PE 統計
-    let peValidMktCap = 0;
-    let peInvalidMktCap = 0;
-    let peInvalidCount = 0;
+    let _peValidMktCap = 0;
+    let _peInvalidMktCap = 0;
+    let _peInvalidCount = 0;
     let sumEarnings = 0;
 
     // PB 統計
-    let pbValidMktCap = 0;
-    let pbInvalidMktCap = 0;
-    let pbInvalidCount = 0;
+    let _pbValidMktCap = 0;
+    let _pbInvalidMktCap = 0;
+    let _pbInvalidCount = 0;
     let sumNetAsset = 0;
 
     let sumDividend = 0;
-    let joinCount = 0;
+    let _joinCount = 0;
 
     // 收集所有成功 JOIN 的個股資料，用於排序
     const allStocks = [];
@@ -576,7 +576,7 @@ export async function fetchMarketValuation() {
       const mktCap = price * shares;
       if (mktCap <= 0) continue;
 
-      joinCount++;
+      _joinCount++;
       sumMktCap += mktCap;
 
       // 儲存明細
@@ -584,20 +584,20 @@ export async function fetchMarketValuation() {
 
       // PE 處理
       if (pe !== null && pe > 0) {
-        peValidMktCap += mktCap;
+        _peValidMktCap += mktCap;
         sumEarnings += mktCap / pe;
       } else {
-        peInvalidMktCap += mktCap;
-        peInvalidCount++;
+        _peInvalidMktCap += mktCap;
+        _peInvalidCount++;
       }
 
       // PB 處理
       if (pb !== null && pb > 0) {
-        pbValidMktCap += mktCap;
+        _pbValidMktCap += mktCap;
         sumNetAsset += mktCap / pb;
       } else {
-        pbInvalidMktCap += mktCap;
-        pbInvalidCount++;
+        _pbInvalidMktCap += mktCap;
+        _pbInvalidCount++;
       }
 
       // Yield 處理

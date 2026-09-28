@@ -27,7 +27,7 @@ export default [
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
           caughtErrorsIgnorePattern: "^(err|e|error|ex)$",
-          ignoreRestSiblings: true
+          ignoreRestSiblings: true,
         },
       ],
       "no-console": "off",
@@ -50,17 +50,34 @@ export default [
     },
   },
   {
+    // Webapp tests - allow unused vars in tests
+    files: ["webapp/src/test/**/*.js", "webapp/src/test/**/*.ts"],
+    rules: {
+      "no-unused-vars": "off",
+    },
+  },
+  {
     // Fastify route handlers — convention is (request, reply) but reply may be unused
     files: ["src/api/**/*.mjs", "src/api/**/*.js"],
     rules: {
       "no-unused-vars": [
         "warn",
-        { argsIgnorePattern: "^(request|reply|_)$" },
+        {
+          argsIgnorePattern: "^(request|reply|_)$",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^(err|e|error|ex)$",
+          ignoreRestSiblings: true,
+        },
       ],
     },
   },
   {
-    files: ["**/*.test.mjs", "**/*.test.ts", "**/test/**/*.mjs", "**/test/**/*.ts"],
+    files: [
+      "**/*.test.mjs",
+      "**/*.test.ts",
+      "**/test/**/*.mjs",
+      "**/test/**/*.ts",
+    ],
     languageOptions: {
       globals: {
         ...globals.node,
@@ -69,10 +86,18 @@ export default [
     },
     rules: {
       // Test files: allow unused vars in mock factories and test utilities
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", ignoreRestSiblings: true }],
+      "no-unused-vars": "off",
     },
   },
   {
-    ignores: ["node_modules/", "dist/", "webapp/dist/", ".agents/", "scratch/"],
+    ignores: [
+      "node_modules/",
+      "dist/",
+      "webapp/dist/",
+      ".agents/",
+      "scratch/",
+      "coverage/",
+      "**/*.backup.mjs",
+    ],
   },
 ];

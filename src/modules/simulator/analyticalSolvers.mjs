@@ -1,10 +1,7 @@
 // src/modules/simulator/analyticalSolvers.mjs
 // 解析型反向推導：維持率、MA20、MA60、MA240偏離
 
-import {
-  MA240_FALLBACK_THRESHOLDS,
-  DATA_QUALITY_LABELS,
-} from "./constants.mjs";
+import { MA240_FALLBACK_THRESHOLDS } from "./constants.mjs";
 
 /**
  * 維持率反推 (線性解析解)

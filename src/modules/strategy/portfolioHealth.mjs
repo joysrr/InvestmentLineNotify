@@ -5,7 +5,7 @@
  * 聚合 Margin / Survival / Decoupling / Regime 狀態，計算紅黃綠燈號
  */
 
-import { computeLifecycleContext } from "./lifecycleEngine.mjs";
+import { computeLifecycleContext as _computeLifecycleContext } from "./lifecycleEngine.mjs";
 
 /**
  * 健康度燈號枚举

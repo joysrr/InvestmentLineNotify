@@ -93,7 +93,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
     lastState,
     openToday,
     vixData,
-    basePrice,
+    _basePrice,
     price0050,
     currentPriceZ2,
     historyZ2,
@@ -109,11 +109,11 @@ export async function runDailyCheck(deps = {}, options = {}) {
     newsStructured,
     macroAnalysis,
     macroTextForCoach,
-    macroMarketDirection,
+    _macroMarketDirection,
     previousAdviceSummary,
     valuationGuardState,
-    pbRecords,
-    pbRecordsObjects,
+    _pbRecords,
+    _pbRecordsObjects,
   } = ctx;
 
   if (!openToday) {

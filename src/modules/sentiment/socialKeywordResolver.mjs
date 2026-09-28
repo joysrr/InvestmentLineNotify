@@ -4,7 +4,7 @@
 // 結合系統新聞核心詞池 (baseTwQueries) 與 AI 動態發現詞，
 // 確保社群輿情採集貼合投資組合標的（0050、00675L、台積電）與最新市場焦點。
 
-import { baseTwQueries } from "../keywordConfig.mjs";
+import { baseTwQueries as _baseTwQueries } from "../keywordConfig.mjs";
 
 /**
  * 預設必備核心資產標的詞

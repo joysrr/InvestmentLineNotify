@@ -11,12 +11,6 @@
  *  - PRE_RETIRE: yearsToRetirement <= 5 年（槓桿上限 1.0x）
  */
 
-import {
-  LEVERAGE_ETF_MULTIPLIER,
-  MAX_DAILY_LOAN_INCREASE_PCT,
-  MAX_ROLLING_LOAN_INCREASE_PCT,
-} from "./strategyDefaults.mjs";
-
 /**
  * 生命週期階段枚举
  */

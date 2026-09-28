@@ -635,7 +635,7 @@ export function formatMacroChipForCoach(rawMarketData) {
 
   // 3. 檢查資料新鮮度告警
   const staleSlots = Object.entries(rawMarketData)
-    .filter(([key, val]) => val && val._stale)
+    .filter(([_key, val]) => val && val._stale)
     .map(([key, val]) => {
       const hours = val._stale.hoursOld;
       const status = val._stale.status;

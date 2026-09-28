@@ -1,5 +1,4 @@
 import { fetchWithTimeout, parseNumber } from "../../utils/coreUtils.mjs";
-import { ProviderError } from "../../utils/retryUtils.mjs";
 
 const FRED_API_KEY =
   process.env.FRED_API_KEY || "abcdefghijklmnopqrstuvwxyz123456";

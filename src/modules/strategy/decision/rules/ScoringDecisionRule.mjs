@@ -9,7 +9,6 @@ import { generateScoringMatrix } from "../../signalGenerator.mjs";
 import {
   MAX_DAILY_LOAN_INCREASE_PCT,
   MAX_ROLLING_LOAN_INCREASE_PCT,
-  BUDGET_ROLLING_DAYS,
 } from "../../strategyDefaults.mjs";
 
 export class ScoringDecisionRule extends DecisionRule {

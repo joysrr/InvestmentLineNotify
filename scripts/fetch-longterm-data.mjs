@@ -254,7 +254,7 @@ async function main() {
   const pbHistory = await loadPbHistory();
 
   // 3. 建立快速查找 Map
-  const map0050 = new Map(rows0050.map((r) => [r.date, r.close]));
+  const _map0050 = new Map(rows0050.map((r) => [r.date, r.close]));
   const map00675L = new Map(rows00675L.map((r) => [r.date, r.close]));
   const mapVix = new Map(rowsVix.map((r) => [r.date, r.close]));
 
