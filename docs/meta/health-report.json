@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-09-22T05:09:30.824Z",
+  "generated_at": "2026-09-28T08:44:14.581Z",
   "summary": {
-    "total_files": 152,
-    "average_health": 55.7,
+    "total_files": 153,
+    "average_health": 56,
     "by_health": {
-      "excellent": 22,
+      "excellent": 23,
       "good": 20,
       "fair": 109,
       "poor": 1
@@ -12,8 +12,8 @@
     "by_category": {
       "other": {
         "count": 16,
-        "avgHealth": 57,
-        "totalHealth": 915
+        "avgHealth": 58,
+        "totalHealth": 925
       },
       "guide": {
         "count": 3,
@@ -26,9 +26,9 @@
         "totalHealth": 800
       },
       "reference": {
-        "count": 37,
-        "avgHealth": 80,
-        "totalHealth": 2975
+        "count": 38,
+        "avgHealth": 81,
+        "totalHealth": 3070
       },
       "explanation": {
         "count": 6,
@@ -567,7 +567,7 @@
       "concept": "technical-indicators-spec",
       "file": "TECHNICAL_INDICATORS_SPEC.md",
       "category": "other",
-      "health": 85,
+      "health": 95,
       "status": "current"
     },
     {
@@ -813,6 +813,13 @@
       "file": "modules/presentation/api/portfolio_health_api.md",
       "category": "reference",
       "health": 80,
+      "status": "current"
+    },
+    {
+      "concept": "report-news-contract",
+      "file": "modules/presentation/api/report_news_contract.md",
+      "category": "reference",
+      "health": 95,
       "status": "current"
     },
     {

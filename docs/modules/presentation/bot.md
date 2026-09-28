@@ -76,21 +76,21 @@ wiki_links:
 
 ## 3. 主要指令
 
-| 指令            | 功能                | 對應代碼                              |
-| --------------- | ------------------- | ------------------------------------- |
-| `/start`        | 顯示歡迎訊息        | src/bot.mjs                           |
-| `/help`         | 顯示指令說明        | src/bot.mjs                           |
-| `/status`       | 系統健康度          | src/bot.mjs                           |
-| `/status_debug` | 詳細狀態 (管理員)   | src/bot.mjs                           |
-| `/daily`        | 手動觸發 dailyCheck | src/dailyCheck.mjs                    |
-| `/news`         | 手動觸發新聞採集    | src/runNewsFetch.mjs                  |
-| `/weekly`       | 手動觸發週報        | src/runWeeklyReport.mjs               |
-| `/monthly`      | 手動觸發月報        | src/runMonthlyReport.mjs              |
-| `/optimize`     | 策略規則優化        | src/modules/ai/ruleOptimizerAgent.mjs |
+| 指令            | 功能                                    | 對應代碼                              |
+| --------------- | --------------------------------------- | ------------------------------------- |
+| `/start`        | 顯示歡迎訊息                            | src/bot.mjs                           |
+| `/help`         | 顯示指令說明                            | src/bot.mjs                           |
+| `/status`       | 系統健康度                              | src/bot.mjs                           |
+| `/status_debug` | 詳細狀態 (管理員)                       | src/bot.mjs                           |
+| `/daily`        | 手動觸發 dailyCheck（非交易日回覆休市） | src/scheduler/dailyCheck.mjs          |
+| `/news`         | 手動觸發新聞採集                        | src/runNewsFetch.mjs                  |
+| `/weekly`       | 手動觸發週報                            | src/runWeeklyReport.mjs               |
+| `/monthly`      | 手動觸發月報                            | src/runMonthlyReport.mjs              |
+| `/optimize`     | 策略規則優化                            | src/modules/ai/ruleOptimizerAgent.mjs |
 
 ### 指令說明
 
-- `/daily`: 手動觸發 dailyCheck 流程
+- `/daily`: 手動觸發 dailyCheck 流程（調用 `runDailyCheck`；非交易日會回覆休市提示並跳過後續重計算）
 - `/news`: 觸發 runNewsFetch()，回傳採集結果摘要
 - `/weekly`: 觸發 runWeeklyReport()
 - `/monthly`: 觸發 runMonthlyReport()
