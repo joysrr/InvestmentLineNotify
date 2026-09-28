@@ -39,7 +39,7 @@ import {
   releaseLock,
   registerShutdownHandlers,
 } from "./modules/bot/runnerLock.mjs";
-import { dailyCheck } from "./dailyCheck.mjs";
+import { runDailyCheck } from "./scheduler/dailyCheck.mjs";
 import { runNewsFetch } from "./runNewsFetch.mjs";
 import { runSocialSentimentFetch } from "./runSocialSentimentFetch.mjs";
 import { runWeeklyReport } from "./runWeeklyReport.mjs";
@@ -216,7 +216,7 @@ bot.command("status_debug", handleStatusDebug);
 // ── 指令：/daily ──────────────────────────────────────────────────────────
 bot.command("daily", async (ctx) => {
   await withRunner(ctx, "每日報告 (daily)", async () =>
-    dailyCheck({ isTelegramEnabled: true, isAIAdvisor: true }),
+    runDailyCheck({}, { isTelegramEnabled: true, isAIAdvisor: true }),
   );
 });
 

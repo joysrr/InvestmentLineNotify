@@ -118,6 +118,11 @@ export async function runDailyCheck(deps = {}, options = {}) {
 
   if (!openToday) {
     logger.info("😴 當日無開市，跳過通知");
+    if (isTelegramEnabled) {
+      await sendTelegramBatch([
+        { text: "😴 <b>本日休市</b>\n今日台股無開市，每日報告略過執行。" },
+      ]);
+    }
     clearGlobalContext();
     return "✅ dailyCheck 執行成功（非交易日）";
   }

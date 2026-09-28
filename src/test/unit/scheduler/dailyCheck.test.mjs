@@ -251,6 +251,99 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     expect(result).toMatch(/^✅ dailyCheck 執行成功/);
   });
 
+  it("非交易日且 isTelegramEnabled=true 時應發送休市訊息", async () => {
+    // Arrange
+    const mockContext = {
+      lastState: { totalValue: 1000000 },
+      openToday: false,
+      vixData: { value: 15 },
+      basePrice: 150,
+      price0050: 180,
+      currentPriceZ2: 280,
+      historyZ2: [],
+      history0050: [],
+      macroData: {},
+      macroAndChipStr: "",
+      usRisk: {},
+      quote: "test quote",
+      newsMessages: [],
+      newsSummaryText: "news summary",
+      newsStructured: { tw: [], us: [] },
+      macroAnalysis: {},
+      macroTextForCoach: "",
+      macroMarketDirection: "NEUTRAL",
+      previousAdviceSummary: "",
+      valuationGuardState: { defenseLatch: false, latchActive: false },
+      pbRecords: [],
+      pbRecordsObjects: [],
+    };
+
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockResolvedValue(mockContext);
+
+    const { sendTelegramBatch } =
+      await import("../../../../src/modules/notifications/transports/telegramClient.mjs");
+    vi.mocked(sendTelegramBatch).mockClear();
+
+    // Act
+    const result = await runDailyCheck(
+      {},
+      { isTelegramEnabled: true, isAIAdvisor: true, isCallAI: true },
+    );
+
+    // Assert
+    expect(result).toMatch(/^✅ dailyCheck 執行成功/);
+    expect(sendTelegramBatch).toHaveBeenCalledOnce();
+    const msg = vi.mocked(sendTelegramBatch).mock.calls[0][0][0].text;
+    expect(msg).toContain("休市");
+  });
+
+  it("非交易日且 isTelegramEnabled=false 時不應發送任何 Telegram 訊息", async () => {
+    // Arrange
+    const mockContext = {
+      lastState: { totalValue: 1000000 },
+      openToday: false,
+      vixData: { value: 15 },
+      basePrice: 150,
+      price0050: 180,
+      currentPriceZ2: 280,
+      historyZ2: [],
+      history0050: [],
+      macroData: {},
+      macroAndChipStr: "",
+      usRisk: {},
+      quote: "test quote",
+      newsMessages: [],
+      newsSummaryText: "news summary",
+      newsStructured: { tw: [], us: [] },
+      macroAnalysis: {},
+      macroTextForCoach: "",
+      macroMarketDirection: "NEUTRAL",
+      previousAdviceSummary: "",
+      valuationGuardState: { defenseLatch: false, latchActive: false },
+      pbRecords: [],
+      pbRecordsObjects: [],
+    };
+
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockResolvedValue(mockContext);
+
+    const { sendTelegramBatch } =
+      await import("../../../../src/modules/notifications/transports/telegramClient.mjs");
+    vi.mocked(sendTelegramBatch).mockClear();
+
+    // Act
+    await runDailyCheck(
+      {},
+      { isTelegramEnabled: false, isAIAdvisor: true, isCallAI: true },
+    );
+
+    // Assert
+    expect(sendTelegramBatch).not.toHaveBeenCalled();
+  });
+
   it("新聞分析失敗時不得覆寫每日報告", async () => {
     const mockContext = {
       lastState: { totalValue: 1000000 },
