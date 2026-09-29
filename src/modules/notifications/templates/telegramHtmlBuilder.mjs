@@ -831,9 +831,8 @@ export function buildTelegramMessages({
  * @param {string} webAppUrl - TELEGRAM_WEBAPP_URL
  * @returns {Array} 單元素數組，格式相容於 sendTelegramBatch
  */
-export function buildCompactMessage(
-  {
-    result,
+export function buildCompactMessage(data, webAppUrl) {
+  const {
     vixData,
     usRisk,
     macroData: _macroData,
@@ -841,9 +840,7 @@ export function buildCompactMessage(
     aiAdvice: _aiAdvice,
     config: _config,
     quote: _quote,
-  },
-  webAppUrl,
-) {
+  } = data;
   const now = TwDate();
   const twHour = now.hour;
   const timeTag = now.formatDateTime();
@@ -857,26 +854,29 @@ export function buildCompactMessage(
   else if (twHour >= 21 && twHour <= 23) timeLabel = "🦉 夜間國際觀測";
 
   // ── 核心資訊 ──
-  const marketStatus = escapeHTML(result.marketStatus || "未知");
-  const target = escapeHTML(result.target || "觀望");
-  const targetShort = escapeHTML(result.targetSuggestionShort || "無特殊操作");
+  const resObj = data.result || data.advice || data;
+  const marketStatus = escapeHTML(
+    resObj.marketStatus || data.marketStatus || "未知",
+  );
+  const target = escapeHTML(resObj.target || "觀望");
+  const targetShort = escapeHTML(resObj.targetSuggestionShort || "無特殊操作");
 
   // ── VIX ──
   const vixVal = vixData?.value != null ? Number(vixData.value) : null;
   const vixStr = vixVal !== null ? vixVal.toFixed(1) : "N/A";
 
   // ── 評分 ──
-  const score = Number(result.weightScore);
-  const minScore = Number(result.strategy?.buy?.minWeightScoreToBuy ?? NaN);
+  const score = Number(resObj.weightScore);
+  const minScore = Number(resObj.strategy?.buy?.minWeightScoreToBuy ?? NaN);
   const scoreStr = Number.isFinite(score) ? `${score.toFixed(1)}pt` : "--";
   const minScoreStr = Number.isFinite(minScore) ? minScore.toFixed(1) : "--";
-  const biasStr = Number.isFinite(result.bias240)
-    ? `${result.bias240.toFixed(1)}%`
+  const biasStr = Number.isFinite(resObj.bias240)
+    ? `${resObj.bias240.toFixed(1)}%`
     : "--";
 
   // ── 維持率與健康度 ──
-  const mm = Number(result.maintenanceMargin || 0);
-  const hasLoan = Number(result.totalLoan || 0) > 0;
+  const mm = Number(resObj.maintenanceMargin || 0);
+  const hasLoan = Number(resObj.totalLoan || 0) > 0;
   const mmEmoji = !hasLoan
     ? "▫️"
     : mm >= 160
@@ -889,19 +889,19 @@ export function buildCompactMessage(
   const mmStr =
     hasLoan && Number.isFinite(mm) && mm > 0 ? `${mm.toFixed(0)}%` : "未借款";
 
-  const levValue = Number(result.actualLeverage);
+  const levValue = Number(resObj.actualLeverage);
   const levStr = Number.isFinite(levValue) ? `${levValue.toFixed(2)}` : "--";
 
   const dropLimit =
-    result.dropLimit ??
-    result.marginAnalysis?.riskAssessment?.survivalDropLimit;
+    resObj.dropLimit ??
+    resObj.marginAnalysis?.riskAssessment?.survivalDropLimit;
   const dropLimitStr = dropLimit != null ? `${dropLimit.toFixed(1)}%` : "N/A";
 
   // ── 轉弱 / 賣出訊號 ──
-  const reversalTriggered = result.reversal?.triggeredCount ?? 0;
-  const reversalTotal = result.reversal?.totalFactor ?? 4;
-  const sellTriggered = result.sellSignals?.signalCount ?? 0;
-  const sellTotal = result.sellSignals?.total ?? 3;
+  const reversalTriggered = resObj.reversal?.triggeredCount ?? 0;
+  const reversalTotal = resObj.reversal?.totalFactor ?? 4;
+  const sellTriggered = resObj.sellSignals?.signalCount ?? 0;
+  const sellTotal = resObj.sellSignals?.total ?? 3;
 
   // ── AI 預判與市場 ──
   const aiDirection = escapeHTML(
@@ -910,45 +910,45 @@ export function buildCompactMessage(
   const aiSummary = escapeHTML(
     macroAnalysis?.conclusion?.short_summary || "無資料",
   );
-  const prVal = result?.valuationGuardResult?.currentPR ?? "N/A";
+  const prVal = resObj?.valuationGuardResult?.currentPR ?? "N/A";
   const usSpx = escapeHTML(usRisk?.spxChg || "N/A");
   const usVix = escapeHTML(usRisk?.vix || "N/A");
 
   // ── 冷卻期提示 ──
-  const cooldown = result.cooldownStatus;
+  const cooldown = resObj.cooldownStatus;
   const cooldownHint = cooldown?.inCooldown
     ? `\n⏰ 冷卻期中 · 剩 ${cooldown.daysLeft} 交易日`
     : "";
 
   // ── VIX 情緒短路提示（精簡卡版） ──
-  const vixOverrideHint = result.macroSentiment?.vixOverrideActive
+  const vixOverrideHint = resObj.macroSentiment?.vixOverrideActive
     ? `\n⚡ VIX 情緒短路啟動 · AI BEARISH 抑制已解除`
     : "";
 
-  const regimeHint = result.regimeResult
-    ? `\n${formatRegimeStatus(result.regimeResult)}`
+  const regimeHint = resObj.regimeResult
+    ? `\n${formatRegimeStatus(resObj.regimeResult)}`
     : "";
 
   // ── Gross Leverage 提示（精簡卡版，僅警示層才顯示） ──
   const glHint =
-    result.grossLeverageStatus === "hardcap_breach"
-      ? `\n🚨 Gross Leverage ${Number.isFinite(result.grossLeverage) ? result.grossLeverage.toFixed(2) + "x" : "--"} · 超越危機紅線`
-      : result.grossLeverageStatus === "ceiling_breach"
-        ? `\n⚠️ Gross Leverage ${Number.isFinite(result.grossLeverage) ? result.grossLeverage.toFixed(2) + "x" : "--"} · 超越主動上限`
+    resObj.grossLeverageStatus === "hardcap_breach"
+      ? `\n🚨 Gross Leverage ${Number.isFinite(resObj.grossLeverage) ? resObj.grossLeverage.toFixed(2) + "x" : "--"} · 超越危機紅線`
+      : resObj.grossLeverageStatus === "ceiling_breach"
+        ? `\n⚠️ Gross Leverage ${Number.isFinite(resObj.grossLeverage) ? resObj.grossLeverage.toFixed(2) + "x" : "--"} · 超越主動上限`
         : "";
 
   // ── 估值守衛精簡提示（僅警示層才顯示） ──
   const vGuardHint =
-    result?.valuationGuardStatus === "latch_triggered"
+    resObj?.valuationGuardStatus === "latch_triggered"
       ? `\n🚨 估值守衛 · 清算觸發 PR${prVal}`
-      : result?.valuationGuardStatus === "latch_active"
+      : resObj?.valuationGuardStatus === "latch_active"
         ? `\n🔒 估值守衛 · 清算鎖定中 PR${prVal}`
-        : result?.valuationGuardResult?.guardActive
-          ? `\n📊 估值守衛 · PR${prVal} 壓縮 ×${result?.valuationGuardMultiplier ?? result?.valuationGuardResult?.multiplier ?? 1.0}`
+        : resObj?.valuationGuardResult?.guardActive
+          ? `\n📊 估值守衛 · PR${prVal} 壓縮 ×${resObj?.valuationGuardMultiplier ?? resObj?.valuationGuardResult?.multiplier ?? 1.0}`
           : "";
 
   // ── entryGate 通道標示（Compact） ──
-  const gateTagCompact = entryGateTag(result);
+  const gateTagCompact = entryGateTag(resObj);
 
   const SEP = "\n─────────────────\n";
 
