@@ -21,10 +21,11 @@ describe("vm-daily-check wrapper contract", () => {
     expect(script).toMatch(/LOCK_DIR=.*\$\{LOCK_DIR:-/);
   });
 
-  it("wraps the daily runner with a bounded timeout", async () => {
+  it("wraps the daily runner with a bounded timeout and ipv4-first dns order", async () => {
     const script = await readFile(scriptPath, "utf8");
 
-    expect(script).toMatch(/timeout[\s\S]*node\s+--env-file/);
+    expect(script).toMatch(/timeout[\s\S]*node\s+.*--env-file/);
+    expect(script).toMatch(/--dns-result-order=ipv4first/);
     expect(script).toMatch(/TIMEOUT_SECONDS/);
   });
 });

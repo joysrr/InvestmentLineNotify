@@ -299,12 +299,25 @@ export async function fetchWithTimeout(
 
       return response;
     } catch (error) {
+      const cause = error?.cause;
+      const causeInfo = cause?.code || cause?.message || "";
+      const baseMsg = error.message || "";
+      const detailedMsg = causeInfo
+        ? `${baseMsg} (cause: ${causeInfo})`
+        : baseMsg;
+
       lastError =
         error.name === "AbortError"
           ? new Error(`Request Timeout after ${timeout}ms: ${url}`)
-          : error;
+          : new Error(detailedMsg);
+      if (cause) {
+        lastError.cause = cause;
+      }
+      if (error.statusCode) {
+        lastError.statusCode = error.statusCode;
+      }
 
-      const retryable = isRetryableError(lastError);
+      const retryable = isRetryableError(error) || isRetryableError(lastError);
 
       if (retryable && attempt < retries) {
         const delayMs = calculateBackoffDelay(attempt, retryDelay, 10000, 0.5);

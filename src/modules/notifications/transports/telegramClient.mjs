@@ -9,8 +9,9 @@ const chatId = process.env.TELEGRAM_USER_ID;
 // 📡 統一請求配置
 // ============================================================================
 
-const DEFAULT_TIMEOUT = 10000; // 10 秒 timeout
-const DEFAULT_RETRIES = 2; // 重試 2 次（共 3 次嘗試）
+const DEFAULT_TIMEOUT = 15000; // 15 秒 timeout（因應海外 VM 網路抖動）
+const DEFAULT_RETRIES = 3; // 重試 3 次（共 4 次嘗試）
+const DEFAULT_RETRY_DELAY = 2000; // 基礎延遲 2 秒（指數退避涵蓋 15~25 秒抖動）
 const PROVIDER_ID = "telegram";
 
 // ============================================================================
@@ -34,7 +35,7 @@ export async function unpinAllChatMessages() {
       },
       DEFAULT_TIMEOUT,
       DEFAULT_RETRIES,
-      1000,
+      DEFAULT_RETRY_DELAY,
       PROVIDER_ID,
       "unpinAllChatMessages",
     );
@@ -74,6 +75,9 @@ export async function unpinAllChatMessages() {
 export async function sendTelegramBatch(messages) {
   const sendUrl = `https://api.telegram.org/bot${token}/sendMessage`;
   const pinUrl = `https://api.telegram.org/bot${token}/pinChatMessage`;
+
+  let successCount = 0;
+  let lastFailureError = null;
 
   for (let i = 0; i < messages.length; i++) {
     const msg = messages[i];
@@ -129,19 +133,24 @@ export async function sendTelegramBatch(messages) {
         },
         DEFAULT_TIMEOUT,
         DEFAULT_RETRIES,
-        1000,
+        DEFAULT_RETRY_DELAY,
         PROVIDER_ID,
         `sendMessage[${i + 1}]`,
       );
 
       const resData = await response.json();
       if (!resData.ok) {
+        lastFailureError = new ProviderError(
+          `Telegram API error: ${resData.description}`,
+          { providerId: PROVIDER_ID, operation: `sendMessage[${i + 1}]` },
+        );
         logger.error(
           { index: i + 1, description: resData.description },
           `❌ [${PROVIDER_ID}] 第 ${i + 1} 則發送失敗`,
         );
         continue;
       } else {
+        successCount++;
         logger.info(`✅ [${PROVIDER_ID}] 第 ${i + 1} 則發送成功`);
       }
 
@@ -162,7 +171,7 @@ export async function sendTelegramBatch(messages) {
             },
             DEFAULT_TIMEOUT,
             DEFAULT_RETRIES,
-            1000,
+            DEFAULT_RETRY_DELAY,
             PROVIDER_ID,
             `pinChatMessage[${i + 1}]`,
           );
@@ -191,6 +200,7 @@ export async function sendTelegramBatch(messages) {
         }
       }
     } catch (error) {
+      lastFailureError = error;
       if (error instanceof ProviderError) {
         logger.error(
           { index: i + 1, error: error.message },
@@ -203,6 +213,11 @@ export async function sendTelegramBatch(messages) {
         );
       }
     }
+  }
+
+  // 若傳入訊息且每一則都發送失敗，拋出最後的錯誤，拒絕虛假成功
+  if (messages.length > 0 && successCount === 0 && lastFailureError) {
+    throw lastFailureError;
   }
 }
 
