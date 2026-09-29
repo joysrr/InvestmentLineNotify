@@ -836,6 +836,7 @@ export function buildCompactMessage(data, webAppUrl) {
     vixData,
     usRisk,
     macroData: _macroData,
+    socialSentiment,
     macroAnalysis,
     aiAdvice: _aiAdvice,
     config: _config,
@@ -910,6 +911,21 @@ export function buildCompactMessage(data, webAppUrl) {
   const aiSummary = escapeHTML(
     macroAnalysis?.conclusion?.short_summary || "無資料",
   );
+  const bullScore = macroAnalysis?.total_bull_score ?? 0;
+  const bearScore = macroAnalysis?.total_bear_score ?? 0;
+  const battleStr = `🟢利多 ${bullScore} vs 🔴利空 ${bearScore}`;
+
+  // 社群輿情
+  let sentimentStr = "無即時數據";
+  if (socialSentiment?.sentimentSummary) {
+    sentimentStr = escapeHTML(socialSentiment.sentimentSummary);
+  } else if (socialSentiment?.score != null) {
+    const s = Number(socialSentiment.score);
+    const scoreVal = Number.isFinite(s) ? `${s.toFixed(0)}分` : "";
+    const label = s >= 65 ? "偏多" : s <= 45 ? "偏空" : "中性震盪";
+    sentimentStr = `${label} (${scoreVal})`;
+  }
+
   const prVal = resObj?.valuationGuardResult?.currentPR ?? "N/A";
   const usSpx = escapeHTML(usRisk?.spxChg || "N/A");
   const usVix = escapeHTML(usRisk?.vix || "N/A");
@@ -960,10 +976,12 @@ export function buildCompactMessage(data, webAppUrl) {
     `🏦 <b>部位健康度</b>\n` +
     `⚖️ 實際槓桿：${levStr}x | ${mmEmoji} 維持率：${mmStr}\n` +
     `🛡 0050可跌空間：${dropLimitStr}\n\n` +
-    `🌍 <b>市場與 AI 總結</b>\n` +
+    `🌍 <b>市場與總經總結</b>\n` +
     `🇹🇼 大盤: PR ${prVal} | VIX: ${vixStr}\n` +
     `🇺🇸 輔助: S&P ${usSpx} | VIX: ${usVix}\n` +
-    `🤖 <b>預判：</b> [${aiDirection}] ${aiSummary}\n\n` +
+    `💬 社群輿情：${sentimentStr}\n` +
+    `⚔️ <b>多空對決：</b>[${aiDirection}] (${battleStr})\n` +
+    `📝 <i>${aiSummary}</i>\n\n` +
     `📡 <b>技術指標</b>\n` +
     `評分：${scoreStr} (門檻 ${minScoreStr}) | 乖離：${biasStr}\n` +
     `轉弱：${reversalTriggered}/${reversalTotal} | 賣出：${sellTriggered}/${sellTotal}${SEP}` +
