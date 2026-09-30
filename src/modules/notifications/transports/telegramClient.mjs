@@ -1,5 +1,83 @@
+import https from "node:https";
 import logger from "../../../utils/logger.mjs";
-import { fetchWithTimeout, ProviderError } from "../../../utils/retryUtils.mjs";
+import {
+  calculateBackoffDelay,
+  isRetryableError,
+  ProviderError,
+} from "../../../utils/retryUtils.mjs";
+
+function requestTelegramJson(
+  url,
+  options,
+  timeout,
+  retries,
+  retryDelay,
+  operation,
+) {
+  return new Promise((resolve, reject) => {
+    const request = https.request(
+      new URL(url),
+      {
+        ...options,
+        family: 4,
+        timeout,
+      },
+      (response) => {
+        const chunks = [];
+        response.on("data", (chunk) => chunks.push(chunk));
+        response.on("end", () => {
+          const body = Buffer.concat(chunks).toString("utf8");
+          if (response.statusCode < 200 || response.statusCode >= 300) {
+            const error = new Error(`HTTP ${response.statusCode}`);
+            error.statusCode = response.statusCode;
+            reject(error);
+            return;
+          }
+          resolve({ json: async () => JSON.parse(body) });
+        });
+      },
+    );
+
+    request.on("timeout", () => request.destroy(new Error("Request Timeout")));
+    request.on("error", reject);
+    request.end(options.body);
+  }).catch(async (error) => {
+    if (!isRetryableError(error) || retries <= 0) {
+      throw new ProviderError(error.message, {
+        providerId: PROVIDER_ID,
+        operation,
+        statusCode: error.statusCode,
+        isRetryable: isRetryableError(error),
+        cause: error,
+      });
+    }
+
+    const delayMs = calculateBackoffDelay(
+      DEFAULT_RETRIES - retries,
+      retryDelay,
+      10000,
+      0.5,
+    );
+    logger.warn(
+      {
+        providerId: PROVIDER_ID,
+        operation,
+        attempt: DEFAULT_RETRIES - retries + 1,
+        delayMs: Math.round(delayMs),
+      },
+      "Provider HTTPS 失敗，等待後重試",
+    );
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, delayMs));
+    return requestTelegramJson(
+      url,
+      options,
+      timeout,
+      retries - 1,
+      retryDelay,
+      operation,
+    );
+  });
+}
 
 const token = process.env.TELEGRAM_API_TOKEN;
 const logToken = process.env.TELEGRAM_LOG_API_TOKEN;
@@ -26,7 +104,7 @@ export async function unpinAllChatMessages() {
   const url = `https://api.telegram.org/bot${token}/unpinAllChatMessages`;
 
   try {
-    const response = await fetchWithTimeout(
+    const response = await requestTelegramJson(
       url,
       {
         method: "POST",
@@ -124,7 +202,7 @@ export async function sendTelegramBatch(messages) {
     }
 
     try {
-      const response = await fetchWithTimeout(
+      const response = await requestTelegramJson(
         sendUrl,
         {
           method: "POST",
@@ -158,7 +236,7 @@ export async function sendTelegramBatch(messages) {
         const messageId = resData.result.message_id;
 
         try {
-          const pinResponse = await fetchWithTimeout(
+          const pinResponse = await requestTelegramJson(
             pinUrl,
             {
               method: "POST",
@@ -240,7 +318,7 @@ export async function sendSystemMessage(text) {
   const url = `https://api.telegram.org/bot${logToken}/sendMessage`;
 
   try {
-    const response = await fetchWithTimeout(
+    const response = await requestTelegramJson(
       url,
       {
         method: "POST",

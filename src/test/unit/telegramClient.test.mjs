@@ -1,3 +1,4 @@
+import { EventEmitter } from "node:events";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // 先 mock logger，避免測試輸出干擾
@@ -9,8 +10,15 @@ vi.mock("../../utils/logger.mjs", () => ({
   },
 }));
 
-const { mockFetchWithTimeout } = vi.hoisted(() => ({
+const { mockFetchWithTimeout, mockHttpsRequest } = vi.hoisted(() => ({
   mockFetchWithTimeout: vi.fn(),
+  mockHttpsRequest: vi.fn(),
+}));
+
+vi.mock("node:https", () => ({
+  default: {
+    request: mockHttpsRequest,
+  },
 }));
 
 // Mock retryUtils 中的 fetchWithTimeout
@@ -33,6 +41,23 @@ describe("telegramClient unit tests", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockHttpsRequest.mockImplementation((_url, _options, callback) => {
+      const response = new EventEmitter();
+      response.statusCode = 200;
+      const request = new EventEmitter();
+      request.end = vi.fn(() => {
+        callback(response);
+        response.emit(
+          "data",
+          Buffer.from(
+            JSON.stringify({ ok: true, result: { message_id: 999 } }),
+          ),
+        );
+        response.emit("end");
+      });
+      request.destroy = vi.fn();
+      return request;
+    });
     process.env = {
       ...originalEnv,
       TELEGRAM_API_TOKEN: "mock-token",
@@ -55,25 +80,25 @@ describe("telegramClient unit tests", () => {
       sendTelegramBatch([{ text: "測試成功訊息" }]),
     ).resolves.not.toThrow();
 
-    expect(mockFetchWithTimeout).toHaveBeenCalledOnce();
-    const callArgs = mockFetchWithTimeout.mock.calls[0];
-    expect(callArgs[0]).toContain("sendMessage");
-    // 確認可涵蓋長時間跨境網路中斷 (>=30s, >=5次, retryDelay>=5000)
-    expect(callArgs[2]).toBeGreaterThanOrEqual(30000);
-    expect(callArgs[3]).toBeGreaterThanOrEqual(5);
-    expect(callArgs[4]).toBeGreaterThanOrEqual(5000);
+    expect(mockHttpsRequest).toHaveBeenCalledOnce();
+    expect(mockFetchWithTimeout).not.toHaveBeenCalled();
+    const callArgs = mockHttpsRequest.mock.calls[0];
+    expect(callArgs[0].pathname).toContain("sendMessage");
+    expect(callArgs[1].family).toBe(4);
+    expect(callArgs[1].timeout).toBeGreaterThanOrEqual(30000);
   });
 
   it("當所有 sendMessage 發送皆失敗時，sendTelegramBatch 應拋出 ProviderError 拒絕虛假成功", async () => {
-    mockFetchWithTimeout.mockRejectedValue(
-      new ProviderError(
-        "[fetchWithTimeout] All 3 retries failed: fetch failed",
-        {
-          providerId: "telegram",
-          operation: "sendMessage[1]",
-        },
-      ),
-    );
+    mockHttpsRequest.mockImplementation((_url, _options, callback) => {
+      const request = new EventEmitter();
+      request.end = vi.fn(() => {
+        const error = new Error("HTTP 400");
+        error.statusCode = 400;
+        request.emit("error", error);
+      });
+      request.destroy = vi.fn();
+      return request;
+    });
 
     await expect(sendTelegramBatch([{ text: "測試失敗訊息" }])).rejects.toThrow(
       ProviderError,
