@@ -9,9 +9,9 @@ const chatId = process.env.TELEGRAM_USER_ID;
 // 📡 統一請求配置
 // ============================================================================
 
-const DEFAULT_TIMEOUT = 15000; // 15 秒 timeout（因應海外 VM 網路抖動）
-const DEFAULT_RETRIES = 3; // 重試 3 次（共 4 次嘗試）
-const DEFAULT_RETRY_DELAY = 2000; // 基礎延遲 2 秒（指數退避涵蓋 15~25 秒抖動）
+const DEFAULT_TIMEOUT = 30000; // 30 秒 timeout（因應跨境網路長時間抖動）
+const DEFAULT_RETRIES = 5; // 重試 5 次（共 6 次嘗試）
+const DEFAULT_RETRY_DELAY = 5000; // 基礎延遲 5 秒（退避窗口約 45 秒）
 const PROVIDER_ID = "telegram";
 
 // ============================================================================

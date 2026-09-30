@@ -58,10 +58,10 @@ describe("telegramClient unit tests", () => {
     expect(mockFetchWithTimeout).toHaveBeenCalledOnce();
     const callArgs = mockFetchWithTimeout.mock.calls[0];
     expect(callArgs[0]).toContain("sendMessage");
-    // 確認超時與重試設定符合強化後的規格 (>=15s, >=3次, retryDelay>=2000)
-    expect(callArgs[2]).toBeGreaterThanOrEqual(15000);
-    expect(callArgs[3]).toBeGreaterThanOrEqual(3);
-    expect(callArgs[4]).toBeGreaterThanOrEqual(2000);
+    // 確認可涵蓋長時間跨境網路中斷 (>=30s, >=5次, retryDelay>=5000)
+    expect(callArgs[2]).toBeGreaterThanOrEqual(30000);
+    expect(callArgs[3]).toBeGreaterThanOrEqual(5);
+    expect(callArgs[4]).toBeGreaterThanOrEqual(5000);
   });
 
   it("當所有 sendMessage 發送皆失敗時，sendTelegramBatch 應拋出 ProviderError 拒絕虛假成功", async () => {
