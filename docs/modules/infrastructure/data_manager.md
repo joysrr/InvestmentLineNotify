@@ -1,7 +1,8 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-11
+last_updated: 2026-10-01
+last_verified: 2026-10-01
 related_code:
   - src/modules/data/archiveManager.mjs
   - src/modules/storage.mjs
@@ -11,6 +12,7 @@ tags:
   - json
 wiki_links:
   - [[AI News]]
+  - [[History Provider]]
 ---
 
 # 檔案快取與歷檔管理 (`data/`)
@@ -43,3 +45,16 @@ wiki_links:
 ## 4. 戰報加密機制 (`snapshotCrypto.mjs`)
 
 在寫入 `data/reports/` 時，若環境變數配置了 `SNAPSHOT_ENCRYPT_KEY`（必須為 32 bytes hex，共 64 字元），系統會自動透過 AES-256-GCM 將持有部位的私密資訊加密寫入 JSON 的 `snapshot` 欄位。API 取用時需使用同把金鑰解密，確保即便機器遭入侵，靜態 JSON 檔案也無法洩漏個人持股明細。
+
+## 5. 歷史 K 線快取與資料量契約
+
+`data/stock_history/` 的檔案以 `{stockNo}_YYYYMM.json` 按月份保存 TWSE STOCK_DAY 歷史資料。月份是外部 API 的查詢批次，不是歷史資料是否可用的成功條件。
+
+`historyProvider.mjs` 會從結束日期所在月份開始，逐月往前查詢並合併資料，直到達到呼叫端要求的最低筆數（目前 dailyCheck 為 60 筆）或用盡回補月份。合併時會依日期去重並排序。
+
+- 當月尚未開市或尚無成交資料，TWSE 可能回覆「很抱歉，沒有符合條件的資料!」。這是可預期的空月份，會略過並繼續往前回補。
+- 真正的連線逾時、HTTP/JSON 異常或非預期來源錯誤，會記錄失敗月份；若最後仍不足最低筆數，才會回報來源不可用或歷史資料不足。
+- 即使某個月份為空，只要累積資料達到最低筆數，整體結果仍為 `available`，不得因空的當月資料中止 dailyCheck。
+- 非當月且取得有效資料的月份會寫入 `archiveManager` 快取；當月資料不永久寫入月份快取，避免將未完成月份視為完整歷史。
+
+這個契約同時適用於 00675L 與 0050，實際程式入口為 `src/modules/providers/historyProvider.mjs`，TWSE 月資料與快取實作位於 `src/modules/providers/twseProvider.mjs`。

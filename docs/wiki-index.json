@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 154,
-    "total_edges": 183,
-    "total_code_mappings": 61,
-    "concepts_with_code": 40,
-    "concepts_with_links": 53,
-    "generated_at": "2026-09-28T11:03:11.304Z"
+    "total_concepts": 155,
+    "total_edges": 185,
+    "total_code_mappings": 65,
+    "concepts_with_code": 41,
+    "concepts_with_links": 54,
+    "generated_at": "2026-10-01T01:42:35.845Z"
   },
   "concepts": {
     "api-contract": {
@@ -626,11 +626,13 @@
       "related_code": [
         "src/modules/data/archiveManager.mjs",
         "src/modules/data/newsPoolManager.mjs",
+        "src/modules/providers/historyProvider.mjs",
+        "src/modules/providers/twseProvider.mjs",
         "src/modules/storage.mjs"
       ],
       "tags": ["infrastructure", "data", "storage"],
       "status": "current",
-      "last_verified": "2026-09-11"
+      "last_verified": "2026-10-01"
     },
     "data-manager": {
       "primary_doc": "modules/infrastructure/data_manager.md",
@@ -643,7 +645,22 @@
       ],
       "tags": ["data", "storage", "json"],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-10-01"
+    },
+    "history-provider": {
+      "primary_doc": "modules/infrastructure/history_provider.md",
+      "title": "歷史資料回補提供者 (`historyProvider`)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [
+        "src/modules/providers/historyProvider.mjs",
+        "src/modules/providers/twseProvider.mjs",
+        "src/domain/dailyRunContext.mjs",
+        "src/test/historyProvider.resilience.test.mjs"
+      ],
+      "tags": ["providers", "twse", "historical-data", "resilience"],
+      "status": "current",
+      "last_verified": "2026-10-01"
     },
     "news-pool": {
       "primary_doc": "modules/infrastructure/news_pool.md",
@@ -2176,6 +2193,26 @@
         "doc": "modules/infrastructure/news_pool.md"
       }
     ],
+    "src/modules/providers/historyProvider.mjs": [
+      {
+        "concept": "infrastructure",
+        "doc": "modules/infrastructure/_index.md"
+      },
+      {
+        "concept": "history-provider",
+        "doc": "modules/infrastructure/history_provider.md"
+      }
+    ],
+    "src/modules/providers/twseProvider.mjs": [
+      {
+        "concept": "infrastructure",
+        "doc": "modules/infrastructure/_index.md"
+      },
+      {
+        "concept": "history-provider",
+        "doc": "modules/infrastructure/history_provider.md"
+      }
+    ],
     "src/modules/storage.mjs": [
       {
         "concept": "infrastructure",
@@ -2192,6 +2229,18 @@
       {
         "concept": "env-vars",
         "doc": "modules/operations/env_vars.md"
+      }
+    ],
+    "src/domain/dailyRunContext.mjs": [
+      {
+        "concept": "history-provider",
+        "doc": "modules/infrastructure/history_provider.md"
+      }
+    ],
+    "src/test/historyProvider.resilience.test.mjs": [
+      {
+        "concept": "history-provider",
+        "doc": "modules/infrastructure/history_provider.md"
       }
     ],
     "src/modules/data/newsPoolManager.test.mjs": [

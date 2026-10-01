@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 154,
-    "edges": 183
+    "nodes": 155,
+    "edges": 185
   },
   "graph": {
     "api-contract": ["api"],
@@ -131,7 +131,8 @@
       "schedules"
     ],
     "infrastructure": ["ai_news", "news-fetcher"],
-    "data-manager": ["ai_news"],
+    "data-manager": ["ai_news", "history-provider"],
+    "history-provider": ["data-manager"],
     "news-pool": ["infrastructure", "ai_news", "news-fetcher"],
     "storage": ["ai_news"],
     "operations": ["ai_news", "bot", "ai_news", "bot", "strategy-engine"],

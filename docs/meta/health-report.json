@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-09-28T11:02:40.034Z",
+  "generated_at": "2026-10-01T01:42:38.646Z",
   "summary": {
-    "total_files": 154,
-    "average_health": 55.8,
+    "total_files": 155,
+    "average_health": 56.1,
     "by_health": {
-      "excellent": 23,
+      "excellent": 24,
       "good": 20,
-      "fair": 109,
-      "poor": 2
+      "fair": 110,
+      "poor": 1
     },
     "by_category": {
       "other": {
@@ -26,9 +26,9 @@
         "totalHealth": 800
       },
       "reference": {
-        "count": 38,
+        "count": 39,
         "avgHealth": 81,
-        "totalHealth": 3070
+        "totalHealth": 3160
       },
       "explanation": {
         "count": 6,
@@ -38,7 +38,7 @@
       "plan": {
         "count": 74,
         "avgHealth": 45,
-        "totalHealth": 3330
+        "totalHealth": 3340
       }
     }
   },
@@ -749,7 +749,14 @@
       "concept": "data-manager",
       "file": "modules/infrastructure/data_manager.md",
       "category": "reference",
-      "health": 70,
+      "health": 85,
+      "status": "current"
+    },
+    {
+      "concept": "history-provider",
+      "file": "modules/infrastructure/history_provider.md",
+      "category": "reference",
+      "health": 75,
       "status": "current"
     },
     {
@@ -1316,8 +1323,8 @@
       "concept": "non-trading-day-intelligence-pipeline",
       "file": "plans/completed/NON_TRADING_DAY_INTELLIGENCE_PIPELINE.md",
       "category": "plan",
-      "health": 35,
-      "status": "completed"
+      "health": 45,
+      "status": "archived"
     },
     {
       "concept": "phase2-spec-v5",

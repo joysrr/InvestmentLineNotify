@@ -1,11 +1,13 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-11
-last_verified: 2026-09-11
+last_updated: 2026-10-01
+last_verified: 2026-10-01
 related_code:
   - src/modules/data/archiveManager.mjs
   - src/modules/data/newsPoolManager.mjs
+  - src/modules/providers/historyProvider.mjs
+  - src/modules/providers/twseProvider.mjs
   - src/modules/storage.mjs
 tags:
   - infrastructure
@@ -24,6 +26,7 @@ wiki_links:
 
 - [`storage.md`](./storage.md)：Google Sheets 同步層（帳戶狀態與每日戰報寫入）。
 - [`data_manager.md`](./data_manager.md)：本機檔案快取與歷檔管理（Market Data、AI Logs、檔案結構）。
+- [`history_provider.md`](./history_provider.md)：TWSE 歷史 K 線按月查詢、按筆數回補、空月份與來源錯誤契約。
 - [`news_pool.md`](./news_pool.md)：新聞池管理（標題指紋去重、活躍池視窗、滾動生命週期封存）。
 
 ## 核心設計理念
