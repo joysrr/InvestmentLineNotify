@@ -838,6 +838,8 @@ export function buildCompactMessage(data, webAppUrl) {
     macroData: _macroData,
     socialSentiment,
     macroAnalysis,
+    newsStructured,
+    newsMessages,
     aiAdvice: _aiAdvice,
     config: _config,
     quote: _quote,
@@ -855,12 +857,48 @@ export function buildCompactMessage(data, webAppUrl) {
   else if (twHour >= 21 && twHour <= 23) timeLabel = "🦉 夜間國際觀測";
 
   // ── 核心資訊 ──
-  const resObj = data.result || data.advice || data;
+  const baseObj = data.result || data.advice || data;
+  const signals = baseObj.signals || data.signals || baseObj;
+  const resObj = { ...baseObj, ...signals };
+  const derivedTrend =
+    signals.signalDirection === "long" &&
+    signals.regimeResult?.state === "NORMAL"
+      ? "正常偏多"
+      : signals.signalDirection === "long"
+        ? "偏多但需控風險"
+        : signals.signalDirection === "short"
+          ? "偏空防守"
+          : "中性觀望";
+  const derivedMarketStatus = derivedTrend;
   const marketStatus = escapeHTML(
-    resObj.marketStatus || data.marketStatus || "未知",
+    signals.marketStatus ??
+      resObj.marketStatus ??
+      data.marketStatus ??
+      derivedMarketStatus,
   );
-  const target = escapeHTML(resObj.target || "觀望");
-  const targetShort = escapeHTML(resObj.targetSuggestionShort || "無特殊操作");
+  const trend = escapeHTML(
+    signals.macroMarketDirection ??
+      macroAnalysis?.conclusion?.market_direction ??
+      derivedTrend,
+  );
+  const target = escapeHTML(signals.target ?? resObj.target ?? "觀望");
+  const targetShort = escapeHTML(
+    signals.targetSuggestionShort ??
+      resObj.targetSuggestionShort ??
+      "無特殊操作",
+  );
+  const newsHeadlines = [
+    ...(newsStructured?.tw || []),
+    ...(newsStructured?.us || []),
+    ...(newsMessages || []),
+  ]
+    .map((item) => item?.title || item?.text || item)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((title) => escapeHTML(title));
+  const newsSection = newsHeadlines.length
+    ? `\n📰 <b>今日重大事件</b>\n${newsHeadlines.map((title) => `• ${title}`).join("\n")}\n`
+    : "\n📰 <b>今日重大事件</b>\n• 今日無重大事件\n";
 
   // ── VIX ──
   const vixVal = vixData?.value != null ? Number(vixData.value) : null;
@@ -942,7 +980,7 @@ export function buildCompactMessage(data, webAppUrl) {
     : "";
 
   const regimeHint = resObj.regimeResult
-    ? `\n${formatRegimeStatus(resObj.regimeResult)}`
+    ? `\n${formatRegimeStatus(resObj.regimeResult).replace(/\nundefined/g, "")}`
     : "";
 
   // ── Gross Leverage 提示（精簡卡版，僅警示層才顯示） ──
@@ -970,9 +1008,12 @@ export function buildCompactMessage(data, webAppUrl) {
 
   const text =
     `<b>${timeLabel}</b>  <code>${escapeHTML(timeTag)}</code>${SEP}` +
-    `🚦 <b>狀態：${marketStatus}</b>\n` +
-    `📌 <b>行動：${target}</b> ─ <i>${targetShort}</i>` +
+    `🌐 <b>大趨勢：${marketStatus}</b>\n` +
+    `📌 <b>投資方向：${target}</b> ─ <i>${targetShort}</i>\n` +
+    `🧭 市場方向：<b>${trend}</b>` +
     `${gateTagCompact}${cooldownHint}${vixOverrideHint}${regimeHint}${glHint}${vGuardHint}${SEP}` +
+    newsSection +
+    SEP +
     `🏦 <b>部位健康度</b>\n` +
     `⚖️ 實際槓桿：${levStr}x | ${mmEmoji} 維持率：${mmStr}\n` +
     `🛡 0050可跌空間：${dropLimitStr}\n\n` +

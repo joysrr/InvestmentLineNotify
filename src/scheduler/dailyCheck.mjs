@@ -308,6 +308,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
     macroData,
     socialSentiment,
     macroAnalysis,
+    newsStructured,
     config: lastState,
     dateText,
     aiAdvice,

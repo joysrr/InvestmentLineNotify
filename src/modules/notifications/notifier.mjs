@@ -35,7 +35,10 @@ export async function broadcastDailyReport(
     if (webAppUrl) {
       // ── 精簡提醒卡模式：1 則 + WebApp 按鈕 ──────────────────────
       // 新聞已整合進 Mini App 新聞 Tab（精選報告 + 新聞池），不再重複推送
-      tgMsgs = buildCompactMessage(data, webAppUrl);
+      const compactData = newsMessages.length
+        ? { ...data, newsMessages }
+        : data;
+      tgMsgs = buildCompactMessage(compactData, webAppUrl);
       logger.info(`[Notifier] MiniApp 模式：發送精簡提醒卡（新聞訊息略過）`);
     } else {
       // ── 原有完整模式：3 則詳細訊息 + 新聞訊息 ───────────────────

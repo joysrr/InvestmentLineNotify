@@ -1,8 +1,8 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-22
-last_verified: 2026-09-22
+last_updated: 2026-10-01
+last_verified: 2026-10-01
 tags:
   - technical-analysis
   - rsi
@@ -121,7 +121,18 @@ macdSell
 4. 最後看賣出訊號數量與詳細旗標。
 5. 將技術訊號與維持率、槓桿、估值及固定 DCA 政策合併判斷；技術訊號不得自動覆蓋既定 P0 基礎投入政策。
 
-## 7. 同步與驗證要求
+## 7. Telegram 速報卡的方向摘要契約
+
+Telegram Mini App 模式的速報卡不是完整報告，而是讓使用者快速判斷「市場往哪裡走」與「目前採取哪一種投資方向」。顯示順序固定為：
+
+- `大趨勢`：使用 `signals.marketStatus`；缺少時依 `signals.signalDirection` 與 `signals.regimeResult.state` 推導。
+- `投資方向`：使用 `signals.target` 與 `signals.targetSuggestionShort`。這是策略引擎已產生的方向，不是通知層重新計算的買賣建議。
+- `市場方向`：依序使用 `signals.macroMarketDirection`、`macroAnalysis.conclusion.market_direction`，最後才使用正式訊號推導值。
+- `今日重大事件`：使用 `newsStructured.tw`、`newsStructured.us` 與執行期 `newsMessages` 的標題，最多 2 筆；完整摘要、來源與細節留在 Mini App。
+
+當正式報告缺少上述選用欄位時，通知層只能使用已存在的正式訊號推導中性結果，不得虛構新聞、分數或宏觀結論。這確保 Telegram、WebApp 與後端報告對同一份資料契約負責。
+
+## 8. 同步與驗證要求
 
 修改以下任一技術訊號欄位或判定時，必須同步檢查：
 

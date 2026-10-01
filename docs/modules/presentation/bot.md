@@ -1,8 +1,8 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-10
-last_verified: 2026-09-10
+last_updated: 2026-10-01
+last_verified: 2026-10-01
 related_code:
   - src/bot.mjs
   - src/runNewsFetch.mjs
@@ -108,3 +108,19 @@ Bot 透過 `setChatMenuButton` 設置 Mini App 按鈕，用戶可開啟 WebApp �
 - 每日訊號
 
 **配置**: `MINI_APP_URL` 環境變數
+
+## 5. Mini App 模式 Telegram 速報卡資料契約
+
+當 `TELEGRAM_WEBAPP_URL` 已設定時，通知層只發送一張精簡速報卡；完整事件、圖表與技術細項仍由 Mini App 提供。速報卡的閱讀優先級如下：
+
+1. **大趨勢**：優先讀取 `result.signals.marketStatus`；若正式報告沒有此欄位，依 `signalDirection` 與 `regimeResult.state` 推導：
+   - `long` + `NORMAL` → `正常偏多`
+   - `long` + 其他狀態 → `偏多但需控風險`
+   - `short` → `偏空防守`
+   - 其他 → `中性觀望`
+2. **投資方向**：讀取 `result.signals.target` 與 `result.signals.targetSuggestionShort`，呈現既定 P0/P1 策略方向，不由通知層自行改寫交易決策。
+3. **市場方向**：優先讀取 `result.signals.macroMarketDirection`，其次讀取 `macroAnalysis.conclusion.market_direction`，最後使用上述正式訊號推導值。
+4. **重大事件**：從已整理的 `newsStructured.tw`、`newsStructured.us`，以及執行期 `newsMessages` 依序取標題，最多顯示 2 筆；完整摘要與來源細節留在 Mini App。
+5. **風控與技術摘要**：接續顯示槓桿、維持率、估值守衛、評分、乖離、近期轉弱與賣出訊號計數。
+
+通知層不得因缺少 `macroAnalysis` 或新聞資料而產生虛構內容；缺少資料時應顯示中性或無重大事件。正式報告的 `signals` 目前是主要資料來源，欄位異常應先修正報告契約，不應在 Telegram builder 建立另一套策略邏輯。
