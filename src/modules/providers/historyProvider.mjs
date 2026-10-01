@@ -73,7 +73,14 @@ export async function fetchStockHistoryWithAutoFillDetailed(
     }
 
     if (monthError) {
-      failedMonths.push(monthKey);
+      const isEmptyCurrentMonth =
+        monthKey === currentMonthKey &&
+        monthError.message.includes("沒有符合條件的資料");
+      if (isEmptyCurrentMonth) {
+        lastError = null;
+      } else {
+        failedMonths.push(monthKey);
+      }
     } else if (rows?.length) {
       const filteredRows = rows.filter((row) => new Date(row.date) <= end);
       for (const row of filteredRows) {
