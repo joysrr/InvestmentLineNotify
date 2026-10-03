@@ -86,7 +86,8 @@ export function isRetryableError(error) {
   if (!error) return false;
 
   const message = error.message?.toLowerCase() || "";
-  const errorCode = error.code?.toLowerCase() || "";
+  const errorCode =
+    typeof error.code === "string" ? error.code.toLowerCase() : "";
   const statusCode = error.statusCode || error.status;
 
   // 網路相關錯誤

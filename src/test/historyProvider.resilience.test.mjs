@@ -92,4 +92,30 @@ describe("history provider resilience", () => {
     expect(result.failedMonths).toEqual(["202609"]);
     expect(result.lastError).toContain("TWSE blocked");
   });
+
+  it("does not throw TypeError when error.code is a number (e.g. HTTP status)", async () => {
+    // 重現 TWSE 回傳 HTTP 404 時，error.code 是數字導致 isRetryableError 拋出
+    // TypeError: error.code?.toLowerCase is not a function
+    const numericCodeError = new Error(
+      "TWSE STOCK_DAY 202610: 很抱歉，沒有符合條件的資料!",
+    );
+    numericCodeError.code = 404; // 數字，不是字串
+
+    const rows = Array.from({ length: 64 }, (_, index) => {
+      const date = new Date(Date.UTC(2026, 6, 1 + index));
+      return { date: date.toISOString().slice(0, 10), close: 100 + index };
+    });
+
+    fetchStockDayMonthWithCache
+      .mockRejectedValueOnce(numericCodeError)
+      .mockResolvedValueOnce(rows);
+
+    // 不應拋出 TypeError，應正常視為當月空資料並回傳 available
+    await expect(
+      fetchStockHistoryWithAutoFillDetailed("00675L.TW", 60, "2026-10-01", {
+        retryAttempts: 0,
+        retryDelayMs: 0,
+      }),
+    ).resolves.toMatchObject({ status: "available", failedMonths: [] });
+  });
 });

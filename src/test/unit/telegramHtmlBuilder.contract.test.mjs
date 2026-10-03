@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import { describe, expect, it } from "vitest";
 import { buildCompactMessage } from "../../modules/notifications/templates/telegramHtmlBuilder.mjs";
 
@@ -63,9 +62,22 @@ describe("Telegram compact market card contract", () => {
   });
 
   it("maps the real daily report schema and curated runtime headlines", () => {
-    const report = JSON.parse(
-      fs.readFileSync("data/reports/2026-10-01.json", "utf8"),
-    );
+    // 使用內嵌 fixture 模擬正式報告結構（真實 schema，不依賴外部檔案）
+    const report = {
+      signals: {
+        signalDirection: "long",
+        target: "🔹 0050 DCA",
+        targetSuggestionShort: "維持觀望",
+        regimeResult: {
+          state: "NORMAL",
+          leverageMultiplier: 1,
+          mode: "normal",
+        },
+        weightScore: 62,
+        reversal: { triggeredCount: 0, totalFactor: 4 },
+        sellSignals: { signalCount: 0, total: 3 },
+      },
+    };
     const [{ text }] = buildCompactMessage(
       {
         result: report,
