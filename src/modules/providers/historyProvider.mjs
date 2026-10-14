@@ -73,9 +73,13 @@ export async function fetchStockHistoryWithAutoFillDetailed(
     }
 
     if (monthError) {
+      const isCurrentMonth = monthKey === currentMonthKey;
       const isEmptyCurrentMonth =
-        monthKey === currentMonthKey &&
-        monthError.message.includes("沒有符合條件的資料");
+        isCurrentMonth &&
+        (monthError.message.includes("沒有符合條件的資料") ||
+          monthError.message.includes(
+            "TWSE STOCK_DAY: all endpoints failed (non-JSON or blocked)",
+          ));
       if (isEmptyCurrentMonth) {
         lastError = null;
       } else {

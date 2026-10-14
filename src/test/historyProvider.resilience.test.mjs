@@ -118,4 +118,53 @@ describe("history provider resilience", () => {
       }),
     ).resolves.toMatchObject({ status: "available", failedMonths: [] });
   });
+
+  it("treats 'all endpoints failed (non-JSON or blocked)' as empty current month, not source failure", async () => {
+    // 重現今天的真實場景：202610 當月 TWSE 回傳 HTML（WAF 攔截），
+    // fetchStockDayMonth 兩個 URL 都 fallthrough，最終拋出固定訊息
+    // isEmptyCurrentMonth 目前只比對 "沒有符合條件的資料"，不會匹配這個錯誤
+    const blockedError = new Error(
+      "TWSE STOCK_DAY: all endpoints failed (non-JSON or blocked)",
+    );
+
+    const rows = Array.from({ length: 64 }, (_, index) => {
+      const date = new Date(Date.UTC(2026, 6, 1 + index));
+      return { date: date.toISOString().slice(0, 10), close: 100 + index };
+    });
+
+    fetchStockDayMonthWithCache
+      .mockRejectedValueOnce(blockedError) // 202610 當月：被 WAF 擋
+      .mockResolvedValueOnce(rows); // 202609：正常取得
+
+    // 預期：當月 blocked 不應列為 failedMonths，應繼續回補並回傳 available
+    const result = await fetchStockHistoryWithAutoFillDetailed(
+      "00675L.TW",
+      60,
+      "2026-10-14",
+      { retryAttempts: 0, retryDelayMs: 0 },
+    );
+
+    expect(result.status).toBe("available");
+    expect(result.failedMonths).toEqual([]);
+    expect(result.lastError).toBeNull();
+  });
+
+  it("still reports source_unavailable when a non-current month is blocked", async () => {
+    // 確保修改後不影響：非當月的 blocked 仍然是真正的失敗
+    const blockedError = new Error(
+      "TWSE STOCK_DAY: all endpoints failed (non-JSON or blocked)",
+    );
+
+    fetchStockDayMonthWithCache.mockRejectedValue(blockedError);
+
+    const result = await fetchStockHistoryWithAutoFillDetailed(
+      "00675L.TW",
+      60,
+      "2026-09-30", // 非當月（currentMonthKey = 202610）
+      { maxMonths: 1, retryAttempts: 0, retryDelayMs: 0 },
+    );
+
+    expect(result.status).toBe("source_unavailable");
+    expect(result.failedMonths).toEqual(["202609"]);
+  });
 });
