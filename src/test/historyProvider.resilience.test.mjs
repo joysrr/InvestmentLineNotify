@@ -149,6 +149,64 @@ describe("history provider resilience", () => {
     expect(result.lastError).toBeNull();
   });
 
+  it("returns available when only current month failed but prior data meets minCount", async () => {
+    // 核心場景：當月 TWSE API 完全 blocked（任何 error），但前幾個月已有 ≥60 筆
+    // 不管 error message 是什麼，只要當月是唯一失敗、且資料足夠，就應繼續
+    const anyCurrentMonthError = new Error(
+      "some completely new TWSE error format XYZ",
+    );
+
+    const rows = Array.from({ length: 64 }, (_, index) => {
+      const date = new Date(Date.UTC(2026, 6, 1 + index));
+      return { date: date.toISOString().slice(0, 10), close: 100 + index };
+    });
+
+    fetchStockDayMonthWithCache
+      .mockRejectedValueOnce(anyCurrentMonthError) // 202610 當月：任意錯誤
+      .mockResolvedValueOnce(rows); // 202609：正常
+
+    const result = await fetchStockHistoryWithAutoFillDetailed(
+      "00675L.TW",
+      60,
+      "2026-10-14",
+      { retryAttempts: 0, retryDelayMs: 0 },
+    );
+
+    // 資料足夠 (64 >= 60)，唯一失敗是當月 → 應為 available
+    expect(result.status).toBe("available");
+    expect(result.count).toBeGreaterThanOrEqual(60);
+    // failedMonths 可選：包含或不包含 202610 都可接受，但不應造成 source_unavailable
+  });
+
+  it("returns source_unavailable when only current month failed AND prior data is insufficient", async () => {
+    // 邊界守護：當月失敗 + 資料不足 → 仍應失敗，不能假裝 available
+    const anyCurrentMonthError = new Error(
+      "some completely new TWSE error format XYZ",
+    );
+
+    const rows = Array.from({ length: 30 }, (_, index) => {
+      // 只有 30 筆，不足 minCount=60
+      const date = new Date(Date.UTC(2026, 6, 1 + index));
+      return { date: date.toISOString().slice(0, 10), close: 100 + index };
+    });
+
+    fetchStockDayMonthWithCache
+      .mockRejectedValueOnce(anyCurrentMonthError) // 202610 當月失敗
+      .mockResolvedValueOnce(rows) // 202609：只有 30 筆
+      .mockRejectedValue(new Error("TWSE blocked")); // 再更早的月份也失敗
+
+    const result = await fetchStockHistoryWithAutoFillDetailed(
+      "00675L.TW",
+      60,
+      "2026-10-14",
+      { maxMonths: 3, retryAttempts: 0, retryDelayMs: 0 },
+    );
+
+    // 資料不足 → 不應偽裝成 available
+    expect(result.status).not.toBe("available");
+    expect(result.count).toBeLessThan(60);
+  });
+
   it("still reports source_unavailable when a non-current month is blocked", async () => {
     // 確保修改後不影響：非當月的 blocked 仍然是真正的失敗
     const blockedError = new Error(

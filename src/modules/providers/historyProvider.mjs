@@ -74,13 +74,9 @@ export async function fetchStockHistoryWithAutoFillDetailed(
 
     if (monthError) {
       const isCurrentMonth = monthKey === currentMonthKey;
-      const isEmptyCurrentMonth =
-        isCurrentMonth &&
-        (monthError.message.includes("沒有符合條件的資料") ||
-          monthError.message.includes(
-            "TWSE STOCK_DAY: all endpoints failed (non-JSON or blocked)",
-          ));
-      if (isEmptyCurrentMonth) {
+      if (isCurrentMonth) {
+        // 當月 API 失敗（任何原因）：清除 lastError，不列入 failedMonths。
+        // 狀態機最後會依資料量決定：足夠 → available，不足 → insufficient_history。
         lastError = null;
       } else {
         failedMonths.push(monthKey);
