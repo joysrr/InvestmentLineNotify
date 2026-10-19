@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 155,
+    "total_concepts": 156,
     "total_edges": 185,
     "total_code_mappings": 65,
     "concepts_with_code": 41,
     "concepts_with_links": 54,
-    "generated_at": "2026-10-01T08:32:31.289Z"
+    "generated_at": "2026-10-19T23:15:45.380Z"
   },
   "concepts": {
     "api-contract": {
@@ -979,6 +979,16 @@
       "related_code": [],
       "tags": ["performance", "baseline"],
       "status": "archived",
+      "last_verified": null
+    },
+    "2026-10-19-leading-indicator-upgrade": {
+      "primary_doc": "plans/active/2026-10-19_leading-indicator-upgrade.md",
+      "title": "報告領先指標升級與實效研究計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["auto-generated"],
+      "status": "current",
       "last_verified": null
     },
     "advice": {
