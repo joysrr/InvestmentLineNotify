@@ -30,6 +30,10 @@ import { fetchLatestBasePrice } from "../modules/providers/basePriceProvider.mjs
 import { fetchAllMacroData } from "../modules/providers/marketData.mjs";
 import { fetchLastPortfolioState } from "../modules/storage.mjs";
 import { fetchSocialSentimentData } from "../modules/providers/socialSentimentProvider.mjs";
+import {
+  fetchTaifexNightSession,
+  fetchTaifexSmallTxRetailSentiment,
+} from "../modules/providers/taifexProvider.mjs";
 import { getNewsTelegramMessages } from "../modules/newsFetcher.mjs";
 import { analyzeMacroNewsWithAI } from "../modules/ai/aiCoach.mjs";
 import {
@@ -74,6 +78,8 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     basePriceResult,
     macroResult,
     socialSentimentResult,
+    taifexNightResult,
+    taifexRetailSentimentResult,
     historyZ2Result,
     history0050Result,
     openTodayResult,
@@ -87,6 +93,8 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     _fetchBasePrice(),
     _fetchMacroData(),
     _fetchSocialSentiment(),
+    _fetchTaifexNight(),
+    _fetchTaifexRetailSentiment(),
     _fetchHistory(SYMBOL_Z2),
     _fetchHistory(SYMBOL_0050),
     _checkMarketOpen(),
@@ -121,6 +129,27 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     socialSentimentResult,
     null,
     "socialSentiment",
+  );
+  const taifexNight = _unwrap(
+    taifexNightResult,
+    {
+      close: null,
+      daySessionClose: null,
+      dayToNightChangePct: null,
+      dataStatus: "SOURCE_UNAVAILABLE",
+    },
+    "taifexNight",
+  );
+  const taifexRetailSentiment = _unwrap(
+    taifexRetailSentimentResult,
+    {
+      totalOi: null,
+      institutionalNetOi: null,
+      retailNetOi: null,
+      rsr: null,
+      dataStatus: "SOURCE_UNAVAILABLE",
+    },
+    "taifexRetailSentiment",
   );
   const historyZ2ResultValue = _unwrap(
     historyZ2Result,
@@ -347,6 +376,8 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     // 總經
     macroData,
     socialSentiment,
+    taifexNight,
+    taifexRetailSentiment,
     sourceMetadata: macroData.sourceMetadata ?? null,
     macroAndChipStr,
     usRisk,
@@ -451,6 +482,47 @@ async function _fetchSocialSentiment() {
     done();
     logger.warn(err, "⚠️ [DailyRunContext] 社群情緒資料撈取失敗，回傳 null");
     return null;
+  }
+}
+
+/** TAIFEX 台指期日盤／夜盤行情 */
+async function _fetchTaifexNight() {
+  logger.info("📥 [DailyRunContext] 正在抓取 TAIFEX 夜盤資料...");
+  const done = stepTimer("fetchTaifexNight");
+  try {
+    const result = await fetchTaifexNightSession();
+    done();
+    return result;
+  } catch (err) {
+    done();
+    logger.warn(err, "⚠️ [DailyRunContext] TAIFEX 夜盤資料撈取失敗");
+    return {
+      close: null,
+      daySessionClose: null,
+      dayToNightChangePct: null,
+      dataStatus: "SOURCE_UNAVAILABLE",
+    };
+  }
+}
+
+/** TAIFEX 非三大法人淨部位比率 */
+async function _fetchTaifexRetailSentiment() {
+  logger.info("📥 [DailyRunContext] 正在抓取 TAIFEX 非三大法人部位資料...");
+  const done = stepTimer("fetchTaifexRetailSentiment");
+  try {
+    const result = await fetchTaifexSmallTxRetailSentiment();
+    done();
+    return result;
+  } catch (err) {
+    done();
+    logger.warn(err, "⚠️ [DailyRunContext] TAIFEX 非三大法人資料撈取失敗");
+    return {
+      totalOi: null,
+      institutionalNetOi: null,
+      retailNetOi: null,
+      rsr: null,
+      dataStatus: "SOURCE_UNAVAILABLE",
+    };
   }
 }
 

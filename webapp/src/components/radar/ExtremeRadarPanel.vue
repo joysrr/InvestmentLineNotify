@@ -45,7 +45,7 @@
                   @click.stop="toggleRadarInfo(r.radarId)"
                 >ⓘ</button>
               </div>
-              <div class="mini-purpose">{{ r.definition }}</div>
+              <div class="mini-purpose">{{ r.displayDefinition }}</div>
               <div class="mini-summary">{{ r.displaySummary }}</div>
               <div v-if="openRadarInfo === r.radarId" class="radar-info-panel">
                 <strong>這個指標在看什麼？</strong>
@@ -205,6 +205,7 @@ const RADAR_CONFIG = {
     desc: "費半 / 台積ADR / 夜盤",
     defaultSummary: "美股與夜盤走勢平穩無異常",
     definition: "監測跨日價格是否出現異常跳動。",
+    dataDefinition: "日盤到夜盤變化率＝(夜盤收盤−日盤收盤)／日盤收盤。",
     thresholdHint: "跨日波動明顯放大，或海外市場與夜盤同步急挫時。",
   },
   MARGIN_SETTLING: {
@@ -223,15 +224,32 @@ const RADAR_CONFIG = {
   },
   RETAIL_SENTIMENT: {
     name: "散戶多空情緒",
-    desc: "小台指散戶多空比",
-    defaultSummary: "散戶部位均衡，無極端多殺多風險",
-    definition: "評估散戶交易部位與討論熱度的多空傾向。",
-    thresholdHint: "散戶多空部位過度偏向一側，且與市場走勢背離時。",
+    desc: "非三大法人淨部位比率",
+    defaultSummary: "非三大法人部位無法確認，暫不判讀",
+    definition: "觀察非三大法人淨部位，作為散戶為主的市場部位估計。",
+    dataDefinition: "RSR＝−三大法人淨未平倉／小台全市場未平倉總量。",
+    thresholdHint: "僅在部位極端且與市場走勢背離時，作為多殺多或軋空的輔助確認。",
   },
 };
 
 function normalizeRadarId(radarId) {
   return String(radarId || "").replace(/^RADAR_+/, "");
+}
+
+function getDisplayDefinition(radarId, metrics = {}, config) {
+  if (metrics?.dataStatus === "UNAVAILABLE") {
+    return `${config.definition} 目前資料不足，暫不判讀。`;
+  }
+
+  if (radarId === "OVERNIGHT_SHOCK" && metrics?.dayToNightChangePct != null) {
+    return `${config.definition} ${config.dataDefinition}`;
+  }
+
+  if (radarId === "RETAIL_SENTIMENT") {
+    return `${config.definition} ${config.dataDefinition}`;
+  }
+
+  return config.definition;
 }
 
 function getRadarConfig(radarId, fallbackSummary = "指標平穩正常") {
@@ -263,6 +281,7 @@ const normalizedRadars = computed(() => {
       displayCode: `RADAR_${normalizedId}`,
       displayDesc: conf.desc,
       displaySummary: r.cardSummary || conf.defaultSummary,
+      displayDefinition: getDisplayDefinition(normalizedId, r.metrics, conf),
       definition: conf.definition,
       thresholdHint: conf.thresholdHint,
       isTriggered: Boolean(r.triggered),

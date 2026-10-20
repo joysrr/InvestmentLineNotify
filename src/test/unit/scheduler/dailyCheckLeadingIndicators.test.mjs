@@ -22,6 +22,18 @@ vi.mock("../../../domain/dailyRunContext.mjs", () => ({
     },
     vixData: { value: 20.0 },
     usRisk: { soxChg: -0.05, tsmChg: -0.04 },
+    taifexNight: {
+      changePct: -0.0015,
+      dayToNightChangePct: 0.00694,
+      dataStatus: "VERIFIED",
+    },
+    taifexRetailSentiment: {
+      totalOi: 20051,
+      institutionalNetOi: -9142,
+      retailNetOi: 9142,
+      rsr: 45.59,
+      dataStatus: "VERIFIED",
+    },
     macroData: {
       rawMargin: {
         maintenanceRatio: "138.0",
@@ -103,6 +115,17 @@ describe("Phase A: dailyCheck Leading Indicators Integration", () => {
     });
 
     expect(evaluateSpy).toHaveBeenCalledTimes(1);
+    expect(evaluateSpy.mock.calls[0][0].marketData.rNight).toBeCloseTo(
+      0.00694,
+      5,
+    );
+    expect(evaluateSpy.mock.calls[0][0].marketData.nightDataStatus).toBe(
+      "VERIFIED",
+    );
+    expect(evaluateSpy.mock.calls[0][0].marketData.rsr).toBeCloseTo(45.59, 2);
+    expect(
+      evaluateSpy.mock.calls[0][0].marketData.retailSentimentDataStatus,
+    ).toBe("VERIFIED");
     const saveReportCalls = vi.mocked(archiveManager.saveReport).mock.calls;
     expect(saveReportCalls.length).toBeGreaterThan(0);
     const savedReport = saveReportCalls[0][0];

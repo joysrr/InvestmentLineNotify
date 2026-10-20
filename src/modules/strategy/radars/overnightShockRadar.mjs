@@ -61,6 +61,7 @@ export function evaluateOvernightShockRadar({
   rSox = 0,
   rTsm = 0,
   rNight = 0,
+  nightDataStatus = "VERIFIED",
   soxHistory = [],
   tsmHistory = [],
 }) {
@@ -95,6 +96,7 @@ export function evaluateOvernightShockRadar({
         rSox,
         rTsm,
         rNight,
+        dataStatus: nightDataStatus,
         zSox,
         zTsm,
         shockScore,
@@ -148,6 +150,7 @@ export function evaluateOvernightShockRadar({
         rSox,
         rTsm,
         rNight,
+        dataStatus: nightDataStatus,
         zSox,
         zTsm,
         shockScore,

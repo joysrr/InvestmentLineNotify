@@ -45,7 +45,28 @@ export function calculateRsrFromTaifex({
  * @param {number[]} [input.rsrHistory] - 過去歷史 RSR 數值序列 (建議 250 天)
  * @returns {Object} 雷達標準輸出合約
  */
-export function evaluateRetailSentimentRadar({ rsr = 0, rsrHistory = [] }) {
+export function evaluateRetailSentimentRadar({
+  rsr = null,
+  rsrHistory = [],
+  dataStatus = "UNAVAILABLE",
+}) {
+  if (rsr === null || rsr === undefined) {
+    return {
+      ...createRadarResult({
+        radarId: RADAR_IDS.RETAIL_SENTIMENT,
+        triggered: false,
+        metrics: { rsr: null, dataStatus },
+        constraints: {
+          freeze00675L: false,
+          allowLeft0050: false,
+          pauseP1: false,
+        },
+        cardSummary: null,
+      }),
+      subType: "UNAVAILABLE",
+    };
+  }
+
   const hasHistory = Array.isArray(rsrHistory) && rsrHistory.length >= 30;
   const p90Rsr = hasHistory ? calcPercentile(rsrHistory, 90) : 30.0;
   const p10Rsr = hasHistory ? calcPercentile(rsrHistory, 10) : -30.0;
@@ -66,6 +87,7 @@ export function evaluateRetailSentimentRadar({ rsr = 0, rsrHistory = [] }) {
         triggered: false,
         metrics: {
           rsr,
+          dataStatus,
           p90Rsr,
           p10Rsr,
         },
@@ -90,6 +112,7 @@ export function evaluateRetailSentimentRadar({ rsr = 0, rsrHistory = [] }) {
         triggered: true,
         metrics: {
           rsr,
+          dataStatus,
           p90Rsr,
           p10Rsr,
           isLongLiquidation: true,

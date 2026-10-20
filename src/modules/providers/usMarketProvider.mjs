@@ -73,6 +73,58 @@ async function analyzeUsRisk(data) {
   };
 }
 
+export async function fetchYahooChartSeriesLast2(
+  symbol,
+  { fetcherFn = null } = {},
+) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=10d&interval=1d`;
+
+  try {
+    const response =
+      typeof fetcherFn === "function"
+        ? await fetcherFn(url)
+        : await fetchWithTimeout(
+            url,
+            {
+              headers: {
+                "User-Agent": "Mozilla/5.0",
+                Accept: "application/json",
+              },
+            },
+            12000,
+          );
+    if (!response.ok)
+      throw new Error(`Yahoo Chart API HTTP ${response.status}`);
+
+    const result = (await response.json())?.chart?.result?.[0];
+    const timestamps = result?.timestamp ?? [];
+    const closes = result?.indicators?.quote?.[0]?.close ?? [];
+    const rows = timestamps
+      .map((timestamp, index) => ({
+        date: new Date(timestamp * 1000).toISOString().slice(0, 10),
+        value: parseNumber(closes[index]),
+      }))
+      .filter((row) => row.value !== null);
+
+    if (rows.length < 2) return null;
+
+    const latest = rows.at(-1);
+    const previous = rows.at(-2);
+    return {
+      symbol: result?.meta?.symbol ?? symbol,
+      latest,
+      previous,
+      changePercent:
+        previous.value !== 0
+          ? ((latest.value - previous.value) / previous.value) * 100
+          : null,
+    };
+  } catch (error) {
+    console.warn(`⚠️ 獲取 Yahoo Chart 資料 (${symbol}) 失敗:`, error.message);
+    return null;
+  }
+}
+
 async function fetchFredSeriesLast2(seriesId) {
   const apiKey = process.env.FRED_API_KEY; // 建議加，穩定
   const url =
@@ -128,13 +180,19 @@ async function fetchFredSeriesLast2(seriesId) {
 
 export async function fetchUsMarketData() {
   // VIXCLS: VIX 收盤；SP500: S&P500 收盤
-  const [vixResult, spxResult] = await Promise.allSettled([
-    fetchFredSeriesLast2("VIXCLS"),
-    fetchFredSeriesLast2("SP500"),
-  ]);
+  const [vixResult, spxResult, soxResult, tsmResult] = await Promise.allSettled(
+    [
+      fetchFredSeriesLast2("VIXCLS"),
+      fetchFredSeriesLast2("SP500"),
+      fetchYahooChartSeriesLast2("^SOX"),
+      fetchYahooChartSeriesLast2("TSM"),
+    ],
+  );
 
   const vix = vixResult.status === "fulfilled" ? vixResult.value : null;
   const spx = spxResult.status === "fulfilled" ? spxResult.value : null;
+  const sox = soxResult.status === "fulfilled" ? soxResult.value : null;
+  const tsm = tsmResult.status === "fulfilled" ? tsmResult.value : null;
 
   const riskAnalysis = await analyzeUsRisk({ vix, spx });
 
@@ -142,10 +200,17 @@ export async function fetchUsMarketData() {
     throw new Error("FRED API 抓取失敗且無可用資料");
   }
 
-  const normalized = { ...riskAnalysis, source: "FRED" };
+  const normalized = {
+    ...riskAnalysis,
+    soxChg: sox?.changePercent ?? null,
+    tsmChg: tsm?.changePercent ?? null,
+    source: "FRED+YAHOO",
+  };
   const raw = {
     vix: vix?.raw ?? null,
     spx: spx?.raw ?? null,
+    sox,
+    tsm,
   };
   return { raw, normalized, ...normalized };
 }

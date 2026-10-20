@@ -55,6 +55,38 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
       expect(result.telegramCard).toBeNull(); // 常態靜默
     });
 
+    it("缺少夜盤資料時標記不可用，不將來源不可用誤判為正常", () => {
+      const result = evaluateLeadingIndicators({
+        marketData: {
+          ...mockCleanMarketData,
+          rNight: null,
+          nightDataStatus: "UNAVAILABLE",
+        },
+        portfolio: mockSafePortfolio,
+      });
+
+      expect(result.radars.overnightShock.metrics.rNight).toBeNull();
+      expect(result.radars.overnightShock.metrics.dataStatus).toBe(
+        "UNAVAILABLE",
+      );
+    });
+
+    it("缺少 RSR 時保留 null，不轉成 0", () => {
+      const result = evaluateLeadingIndicators({
+        marketData: {
+          ...mockCleanMarketData,
+          rsr: null,
+          retailSentimentDataStatus: "SOURCE_UNAVAILABLE",
+        },
+        portfolio: mockSafePortfolio,
+      });
+
+      expect(result.radars.retailSentiment.metrics.rsr).toBeNull();
+      expect(result.radars.retailSentiment.metrics.dataStatus).toBe(
+        "SOURCE_UNAVAILABLE",
+      );
+    });
+
     it("TC-02: 雷達 1 隔夜衝擊觸發時，狀態轉入 TRIGGERED，凍結 00675L 並暫緩 P1", () => {
       const shockMarketData = {
         ...mockCleanMarketData,

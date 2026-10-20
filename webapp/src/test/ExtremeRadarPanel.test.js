@@ -233,6 +233,44 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
     expect(wrapper.findAll(".mini-badge-ok").length).toBe(4);
   });
 
+  it("顯示新資料口徑，避免把夜盤交易流量誤稱為散戶多空比", async () => {
+    const wrapper = mount(ExtremeRadarPanel, {
+      props: {
+        leadingIndicators: {
+          ...normalLeadingIndicators,
+          radars: [
+            {
+              radarId: "OVERNIGHT_SHOCK",
+              triggered: false,
+              severity: "NORMAL",
+              metrics: {
+                rNight: 0.00694,
+                dayToNightChangePct: 0.00694,
+                dataStatus: "VERIFIED",
+              },
+            },
+            {
+              radarId: "RETAIL_SENTIMENT",
+              triggered: false,
+              severity: "NORMAL",
+              metrics: {
+                rsr: null,
+                dataStatus: "UNAVAILABLE",
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    await wrapper.find(".radar-panel-header").trigger("click");
+
+    expect(wrapper.text()).toContain("日盤到夜盤變化率");
+    expect(wrapper.text()).toContain("非三大法人淨部位比率");
+    expect(wrapper.text()).toContain("資料不足");
+    expect(wrapper.text()).not.toContain("散戶多空比 0%");
+  });
+
   it("以中文主標題、用途說明與次要英文代碼改善使用者理解", async () => {
     const wrapper = mount(ExtremeRadarPanel, {
       props: {

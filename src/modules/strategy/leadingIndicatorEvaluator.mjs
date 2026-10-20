@@ -115,11 +115,12 @@ export function evaluateLeadingIndicators({
 } = {}) {
   // 1. 執行四大純感測器雷達
   const radar1 = evaluateOvernightShockRadar({
-    rSox: marketData.rSox || 0,
-    rTsm: marketData.rTsm || 0,
-    rNight: marketData.rNight || 0,
-    soxHistory: marketData.soxHistory || [],
-    tsmHistory: marketData.tsmHistory || [],
+    rSox: marketData.rSox === undefined ? 0 : marketData.rSox,
+    rTsm: marketData.rTsm === undefined ? 0 : marketData.rTsm,
+    rNight: marketData.rNight === undefined ? 0 : marketData.rNight,
+    nightDataStatus: marketData.nightDataStatus ?? "VERIFIED",
+    soxHistory: marketData.soxHistory ?? [],
+    tsmHistory: marketData.tsmHistory ?? [],
   });
 
   const radar2 = evaluateMarginSettlingRadar({
@@ -136,8 +137,9 @@ export function evaluateLeadingIndicators({
   });
 
   const radar4 = evaluateRetailSentimentRadar({
-    rsr: marketData.rsr || 0,
+    rsr: marketData.rsr ?? null,
     rsrHistory: marketData.rsrHistory || [],
+    dataStatus: marketData.retailSentimentDataStatus ?? "UNAVAILABLE",
   });
 
   const allRadars = [radar1, radar2, radar3, radar4];

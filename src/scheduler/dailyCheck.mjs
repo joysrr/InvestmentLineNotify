@@ -32,11 +32,8 @@ import { buildDailyRunContext } from "../domain/dailyRunContext.mjs";
 import { shouldWriteSheet } from "./sideEffectPolicy.mjs";
 import { shouldPersistDailyReport } from "../domain/reportWritePolicy.mjs";
 import { evaluateLeadingIndicators } from "../modules/strategy/leadingIndicatorEvaluator.mjs";
+import { mapLeadingIndicatorInputs } from "../modules/strategy/leadingIndicatorInputMapper.mjs";
 import { SYSTEM_STATES } from "../modules/strategy/marginStateMachine.mjs";
-import {
-  fetchTaifexSmallTxRetailSentiment,
-  fetchTaifexNightSession,
-} from "../modules/providers/taifexProvider.mjs";
 import logger, {
   setGlobalContext,
   clearGlobalContext,
@@ -107,6 +104,8 @@ export async function runDailyCheck(deps = {}, options = {}) {
     history0050,
     macroData,
     socialSentiment,
+    taifexNight,
+    taifexRetailSentiment,
     sourceMetadata,
     macroAndChipStr,
     usRisk,
@@ -325,28 +324,36 @@ export async function runDailyCheck(deps = {}, options = {}) {
       const prevUsedBatches = prevReport?.leadingIndicators?.usedBatches ?? 0;
 
       const rawMargin = macroData?.rawMargin ?? {};
-      const marginRatio = parseFloat(rawMargin.maintenanceRatio) || 160.0;
+      const leadingIndicatorInputs = mapLeadingIndicatorInputs({
+        rawMargin,
+        rawMarketOverview: macroData?.rawMarketOverview ?? {},
+      });
+      const marginRatio = leadingIndicatorInputs.maintenanceRatio ?? 160.0;
       const marginBalanceChangePct =
-        (parseFloat(rawMargin.dayChangeRate) || 0) / 100;
+        leadingIndicatorInputs.marginBalanceChangePct ?? 0;
 
-      const taifexSentiment = await fetchTaifexSmallTxRetailSentiment().catch(
-        () => ({ rsr: 0 }),
-      );
-      const taifexNight = await fetchTaifexNightSession().catch(() => ({
-        changePct: 0,
-      }));
-
+      const taifexSentiment = taifexRetailSentiment ?? {
+        rsr: null,
+        dataStatus: "SOURCE_UNAVAILABLE",
+      };
       leadingIndicators = evaluateLeadingIndicators({
         marketData: {
           rSox: usRisk?.soxChg ?? 0,
           rTsm: usRisk?.tsmChg ?? 0,
-          rNight: taifexNight?.changePct ?? 0,
+          rNight:
+            taifexNight?.dayToNightChangePct ?? taifexNight?.changePct ?? null,
+          nightDataStatus: taifexNight?.dataStatus ?? "UNAVAILABLE",
           maintenanceRatio: marginRatio,
           marginBalanceChangePct,
           vix: vixData?.value ?? 18.0,
-          taiexReturn: result?.marketState?.twMarket?.changePct ?? 0,
+          taiexReturn:
+            leadingIndicatorInputs.taiexReturn ??
+            result?.marketState?.twMarket?.changePct ??
+            0,
           bias60: result?.marketState?.twMarket?.bias60 ?? 0,
-          rsr: taifexSentiment?.rsr ?? 0,
+          rsr: taifexSentiment?.rsr ?? null,
+          retailSentimentDataStatus:
+            taifexSentiment?.dataStatus ?? "UNAVAILABLE",
         },
         portfolio: lastState ?? {},
         currentState: prevState,

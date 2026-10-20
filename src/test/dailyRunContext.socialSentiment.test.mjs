@@ -2,6 +2,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock the socialSentimentProvider module factory function
 const mockFetchSocialSentiment = vi.fn();
+const mockFetchTaifexNightSession = vi.fn();
+const mockFetchTaifexSmallTxRetailSentiment = vi.fn();
+
+vi.mock("../modules/providers/taifexProvider.mjs", () => ({
+  fetchTaifexNightSession: mockFetchTaifexNightSession,
+  fetchTaifexSmallTxRetailSentiment: mockFetchTaifexSmallTxRetailSentiment,
+}));
 
 // TDD: Verify dailyRunContext includes socialSentiment in the context
 // Mock ALL providers to isolate the dailyRunContext logic
@@ -84,6 +91,60 @@ beforeEach(() => {
 });
 
 describe("DailyRunContext - Social Sentiment Integration (Phase 4)", () => {
+  it("應將 TAIFEX 夜盤資料與狀態帶入 dailyRunContext", async () => {
+    mockFetchTaifexNightSession.mockResolvedValue({
+      close: 46701,
+      daySessionClose: 46379,
+      dayToNightChangePct: 0.00694,
+      dataStatus: "VERIFIED",
+    });
+
+    const { buildDailyRunContext } =
+      await import("../domain/dailyRunContext.mjs");
+
+    const ctx = await buildDailyRunContext({ isCallAI: false });
+
+    expect(ctx).toHaveProperty("taifexNight");
+    expect(ctx.taifexNight.dayToNightChangePct).toBeCloseTo(0.00694, 5);
+    expect(ctx.taifexNight.dataStatus).toBe("VERIFIED");
+  });
+
+  it("應將 TAIFEX 非三大法人淨部位比率與狀態帶入 dailyRunContext", async () => {
+    mockFetchTaifexSmallTxRetailSentiment.mockResolvedValue({
+      totalOi: 20051,
+      institutionalNetOi: -9142,
+      retailNetOi: 9142,
+      rsr: 45.59,
+      dataStatus: "VERIFIED",
+    });
+
+    const { buildDailyRunContext } =
+      await import("../domain/dailyRunContext.mjs");
+
+    const ctx = await buildDailyRunContext({ isCallAI: false });
+
+    expect(ctx.taifexRetailSentiment.rsr).toBeCloseTo(45.59, 2);
+    expect(ctx.taifexRetailSentiment.dataStatus).toBe("VERIFIED");
+  });
+
+  it("TAIFEX 非三大法人資料不足時保留 null", async () => {
+    mockFetchTaifexSmallTxRetailSentiment.mockResolvedValue({
+      totalOi: null,
+      institutionalNetOi: null,
+      retailNetOi: null,
+      rsr: null,
+      dataStatus: "SOURCE_UNAVAILABLE",
+    });
+
+    const { buildDailyRunContext } =
+      await import("../domain/dailyRunContext.mjs");
+
+    const ctx = await buildDailyRunContext({ isCallAI: false });
+
+    expect(ctx.taifexRetailSentiment.rsr).toBeNull();
+    expect(ctx.taifexRetailSentiment.dataStatus).toBe("SOURCE_UNAVAILABLE");
+  });
+
   it("AI 新聞精選失敗時應保留失敗狀態", async () => {
     mockGetNewsTelegramMessages.mockResolvedValueOnce({
       messages: [],
