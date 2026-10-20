@@ -29,6 +29,12 @@
 
     <!-- 內容 -->
     <template v-else>
+      <!-- 極端雷達與防禦層 (常態精簡/極端醒目) -->
+      <ExtremeRadarPanel
+        :leading-indicators="leadingIndicators"
+        :p1-balance="p1Balance"
+      />
+
       <!-- 美股區 -->
       <section class="section">
         <h3 class="section-title">🇺🇸 美股市場</h3>
@@ -141,6 +147,7 @@
 import { ref, computed, onMounted } from "vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
+import ExtremeRadarPanel from "@/components/radar/ExtremeRadarPanel.vue";
 import { waitReady } from "../composables/useTelegram.js";
 
 const loading = ref(true);
@@ -148,6 +155,21 @@ const error = ref(false);
 const statusData = ref(null); // /api/status  data 欄位
 const reportData = ref(null); // 最新 report（含 vixData / usRisk）
 const updatedAt = ref("");
+
+const leadingIndicators = computed(
+  () =>
+    reportData.value?.leadingIndicators ??
+    statusData.value?.leadingIndicators ??
+    null,
+);
+
+const p1Balance = computed(() => {
+  return (
+    reportData.value?.config?.p1Balance ??
+    statusData.value?.portfolio?.p1Balance ??
+    540000
+  );
+});
 
 // ── 載入 ──────────────────────────────────────────────
 onMounted(async () => {
