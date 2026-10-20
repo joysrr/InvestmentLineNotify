@@ -29,12 +29,11 @@ wiki_links:
 
 ## 📋 全部決策記錄
 
-| ID      | 標題                | 狀態        | 完成日期 | 影響模組                 |
-| ------- | ------------------- | ----------- | -------- | ------------------------ |
-| DEC-004 | Backtest 排程自動化 | ✅ archived | 2026-08  | strategy, operations     |
-| DEC-005 | 監控與告警          | ✅ archived | 2026-08  | ai_news, operations      |
-| DEC-006 | 部署自動化          | ✅ archived | 2026-08  | operations, presentation |
-| DEC-016 | Vitest Worker 崩潰  | ✅ archived | 2026-08  | testing                  |
+| ID      | 標題               | 狀態        | 完成日期 | 影響模組                 |
+| ------- | ------------------ | ----------- | -------- | ------------------------ |
+| DEC-005 | 監控與告警         | ✅ archived | 2026-08  | ai_news, operations      |
+| DEC-006 | 部署自動化         | ✅ archived | 2026-08  | operations, presentation |
+| DEC-016 | Vitest Worker 崩潰 | ✅ archived | 2026-08  | testing                  |
 
 ---
 
@@ -42,7 +41,6 @@ wiki_links:
 
 ### 基礎設施
 
-- [DEC-004: Backtest 排程自動化](DEC-004-backtest-scheduler-automation.md)
 - [DEC-006: 部署自動化](DEC-006-deployment-automation.md)
 
 ### 可觀測性

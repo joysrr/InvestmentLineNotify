@@ -117,18 +117,17 @@ wait-for-it localhost:5173 --timeout=30
 
 #### 2.2.2 10 個核心頁面測試檔案
 
-| 檔案                      | 頁面               | 測試數 | 關鍵選擇器                                     |
-| ------------------------- | ------------------ | ------ | ---------------------------------------------- |
-| 01-dashboard.spec.js      | DashboardView      | 2      | `.dash-title`, `[data-testid='simulator-tab']` |
-| 03-backtestReport.spec.js | BacktestReportView | 2      | `.view-title:has-text("回測報表")`             |
-| 04-account.spec.js        | AccountView        | 1      | `.page-title:has-text("系統狀態")`             |
-| 05-technical.spec.js      | TechnicalView      | 1      | `.view-title:has-text("技術指標")`             |
-| 06-marketRadar.spec.js    | MarketRadarView    | 1      | `.page-title:has-text("市場雷達")`             |
-| 07-macroBattle.spec.js    | MacroBattleView    | 1      | `.view-title:has-text("總經")`                 |
-| 08-chartView.spec.js      | ChartView          | 1      | `.view-title:has-text("資產趨勢")`             |
-| 09-reports.spec.js        | ReportsView        | 1      | `.view-title:has-text("報告摘要")`             |
-| 10-news.spec.js           | NewsView           | 1      | `.region-header, .news-header`                 |
-| 11-strategy.spec.js       | StrategyView       | 1      | `.view-title:has-text("投資策略")`             |
+| 檔案                   | 頁面            | 測試數 | 關鍵選擇器                                     |
+| ---------------------- | --------------- | ------ | ---------------------------------------------- |
+| 01-dashboard.spec.js   | DashboardView   | 2      | `.dash-title`, `[data-testid='simulator-tab']` |
+| 04-account.spec.js     | AccountView     | 1      | `.page-title:has-text("系統狀態")`             |
+| 05-technical.spec.js   | TechnicalView   | 1      | `.view-title:has-text("技術指標")`             |
+| 06-marketRadar.spec.js | MarketRadarView | 1      | `.page-title:has-text("市場雷達")`             |
+| 07-macroBattle.spec.js | MacroBattleView | 1      | `.view-title:has-text("總經")`                 |
+| 08-chartView.spec.js   | ChartView       | 1      | `.view-title:has-text("資產趨勢")`             |
+| 09-reports.spec.js     | ReportsView     | 1      | `.view-title:has-text("報告摘要")`             |
+| 10-news.spec.js        | NewsView        | 1      | `.region-header, .news-header`                 |
+| 11-strategy.spec.js    | StrategyView    | 1      | `.view-title:has-text("投資策略")`             |
 
 **關鍵修復**:
 
@@ -289,7 +288,6 @@ webapp/
 │   │   │   ├── e2e-utils.js               # ★ 共用 Helper
 │   │   │   ├── 01-dashboard.spec.js
 │   │   │   ├── 02-simulator.spec.js       # ★ 深度重構
-│   │   │   ├── 03-backtestReport.spec.js
 │   │   │   ├── 04-account.spec.js
 │   │   │   ├── 05-technical.spec.js
 │   │   │   ├── 06-marketRadar.spec.js

@@ -65,7 +65,6 @@ export PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_BROWSERS_PATH"
 # Run specific test files with workers=2
 npx playwright test \
     src/test/e2e/01-dashboard.spec.js \
-    src/test/e2e/03-backtestReport.spec.js \
     src/test/e2e/04-account.spec.js \
     src/test/e2e/05-technical.spec.js \
     src/test/e2e/06-marketRadar.spec.js \

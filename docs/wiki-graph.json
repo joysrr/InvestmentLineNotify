@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 158,
-    "edges": 187
+    "nodes": 156,
+    "edges": 184
   },
   "graph": {
     "api-contract": ["api"],
@@ -13,13 +13,11 @@
     "security-report": ["operations"],
     "technical-indicators-spec": ["strategy-engine"],
     "test-spec-strategyengine": ["strategy-engine"],
-    "dec-004-backtest-scheduler-automation": ["ai_news", "strategy-engine"],
     "dec-005-monitoring-alerting": [
       "langfuse-prompt-management-v5",
       "ai-pipeline"
     ],
     "dec-006-deployment-automation": ["bot", "operations"],
-    "backtest-engine-design": ["strategy-engine"],
     "dec-016-vitest-worker-crash": ["testing", "dec-016-vitest-worker-crash"],
     "documentation-standards": [
       "documentation-standards",

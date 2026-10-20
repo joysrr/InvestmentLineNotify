@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 158,
-    "total_edges": 187,
-    "total_code_mappings": 69,
-    "concepts_with_code": 42,
-    "concepts_with_links": 55,
-    "generated_at": "2026-10-20T05:10:56.677Z"
+    "total_concepts": 156,
+    "total_edges": 184,
+    "total_code_mappings": 66,
+    "concepts_with_code": 41,
+    "concepts_with_links": 53,
+    "generated_at": "2026-10-20T06:05:43.786Z"
   },
   "concepts": {
     "api-contract": {
@@ -309,16 +309,6 @@
       "status": "current",
       "last_verified": null
     },
-    "dec-004-backtest-scheduler-automation": {
-      "primary_doc": "architecture/DEC-004-backtest-scheduler-automation.md",
-      "title": "DEC-004: Phase 4 架構決策 - 回測排程自動化",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": ["backtest", "scheduler", "automation"],
-      "status": "archived",
-      "last_verified": null
-    },
     "dec-005-monitoring-alerting": {
       "primary_doc": "architecture/DEC-005-monitoring-alerting.md",
       "title": "DEC-005: Phase 4 架構決策 - 監控與告警系統",
@@ -337,20 +327,6 @@
       "related_code": [],
       "tags": ["deployment", "automation", "docker"],
       "status": "archived",
-      "last_verified": null
-    },
-    "backtest-engine-design": {
-      "primary_doc": "architecture/backtest_engine_design.md",
-      "title": "InvestmentLineNotify Backtest Engine Architecture",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [
-        "src/modules/backtest/backtestRunner.mjs",
-        "src/modules/backtest/backtestQueue.mjs",
-        "src/modules/backtest/accountSimulator.mjs"
-      ],
-      "tags": ["backtest", "engine", "design"],
-      "status": "needs-review",
       "last_verified": null
     },
     "dec-016-vitest-worker-crash": {
@@ -1964,24 +1940,6 @@
       {
         "concept": "strategy",
         "doc": "modules/strategy/_index.md"
-      }
-    ],
-    "src/modules/backtest/backtestRunner.mjs": [
-      {
-        "concept": "backtest-engine-design",
-        "doc": "architecture/backtest_engine_design.md"
-      }
-    ],
-    "src/modules/backtest/backtestQueue.mjs": [
-      {
-        "concept": "backtest-engine-design",
-        "doc": "architecture/backtest_engine_design.md"
-      }
-    ],
-    "src/modules/backtest/accountSimulator.mjs": [
-      {
-        "concept": "backtest-engine-design",
-        "doc": "architecture/backtest_engine_design.md"
       }
     ],
     "src/modules/ai/aiClient.mjs": [

@@ -34,7 +34,6 @@ const allBatches = [
   ],
   [
     { path: "/#/simulator", name: "策略模擬器" },
-    { path: "/#/backtest-report", name: "回測報告" },
     { path: "/#/strategy-config", name: "策略設定" },
   ],
 ];

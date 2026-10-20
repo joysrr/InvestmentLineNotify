@@ -72,7 +72,6 @@ console.log("✅ 伺服器就緒！開始 Playwright 掃描...\n");
 const pages = [
   { path: "/#/dashboard", name: "DashboardView" },
   { path: "/#/simulator", name: "SimulatorView" },
-  { path: "/#/backtest-report", name: "BacktestReportView" },
   { path: "/#/account", name: "AccountView" },
   { path: "/#/technical", name: "TechnicalView" },
   { path: "/#/radar", name: "MarketRadarView" },

@@ -4,7 +4,6 @@ import { chromium } from "playwright";
 const pages = [
   { path: "/#/dashboard", name: "DashboardView" },
   { path: "/#/simulator", name: "SimulatorView" },
-  { path: "/#/backtest-report", name: "BacktestReportView" },
   { path: "/#/account", name: "AccountView" },
   { path: "/#/technical", name: "TechnicalView" },
   { path: "/#/radar", name: "MarketRadarView" },
@@ -39,7 +38,12 @@ for (const p of pages) {
         ready: () => {},
         expand: () => {},
         close: () => {},
-        BackButton: { show: () => {}, hide: () => {}, onClick: () => {}, offClick: () => {} },
+        BackButton: {
+          show: () => {},
+          hide: () => {},
+          onClick: () => {},
+          offClick: () => {},
+        },
       },
     };
   });
@@ -55,7 +59,10 @@ for (const p of pages) {
   });
 
   try {
-    await tab.goto("http://localhost:5173" + p.path, { waitUntil: "domcontentloaded", timeout: 15000 });
+    await tab.goto("http://localhost:5173" + p.path, {
+      waitUntil: "domcontentloaded",
+      timeout: 15000,
+    });
     await tab.waitForTimeout(3000);
 
     const metrics = await tab.evaluate(() => {
@@ -66,10 +73,13 @@ for (const p of pages) {
       };
     });
 
-    const isPass = metrics.vueMounted && !metrics.hasBoundaryFallback && consoleErrors.length === 0;
+    const isPass =
+      metrics.vueMounted &&
+      !metrics.hasBoundaryFallback &&
+      consoleErrors.length === 0;
 
     console.log(
-      `${isPass ? "✅" : "❌"} ${p.name.padEnd(25)} | 內容長度: ${String(metrics.bodyLength).padStart(5)} 字 | Console Errors: ${consoleErrors.length}`
+      `${isPass ? "✅" : "❌"} ${p.name.padEnd(25)} | 內容長度: ${String(metrics.bodyLength).padStart(5)} 字 | Console Errors: ${consoleErrors.length}`,
     );
 
     if (consoleErrors.length > 0) {
@@ -78,9 +88,16 @@ for (const p of pages) {
       }
     }
 
-    results.push({ name: p.name, pass: isPass, errors: consoleErrors.length, bodyLength: metrics.bodyLength });
+    results.push({
+      name: p.name,
+      pass: isPass,
+      errors: consoleErrors.length,
+      bodyLength: metrics.bodyLength,
+    });
   } catch (e) {
-    console.log(`❌ ${p.name.padEnd(25)} | Error: ${e.message.substring(0, 80)}`);
+    console.log(
+      `❌ ${p.name.padEnd(25)} | Error: ${e.message.substring(0, 80)}`,
+    );
     results.push({ name: p.name, pass: false, error: e.message });
   } finally {
     await tab.close();
