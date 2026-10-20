@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 157,
-    "total_edges": 185,
-    "total_code_mappings": 65,
-    "concepts_with_code": 41,
-    "concepts_with_links": 54,
-    "generated_at": "2026-10-20T05:05:16.917Z"
+    "total_concepts": 158,
+    "total_edges": 187,
+    "total_code_mappings": 69,
+    "concepts_with_code": 42,
+    "concepts_with_links": 55,
+    "generated_at": "2026-10-20T05:10:56.677Z"
   },
   "concepts": {
     "api-contract": {
@@ -873,6 +873,27 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["strategy", "audit", "changes"],
+      "status": "current",
+      "last_verified": null
+    },
+    "leading-indicator-radars": {
+      "primary_doc": "modules/strategy/leading_indicator_radars.md",
+      "title": "領先指標四大極端雷達與動態防禦層架構",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [
+        "src/modules/strategy/radars/",
+        "src/modules/strategy/marginStateMachine.mjs",
+        "src/modules/strategy/leadingIndicatorEvaluator.mjs",
+        "webapp/src/components/radar/ExtremeRadarPanel.vue"
+      ],
+      "tags": [
+        "strategy",
+        "leading-indicators",
+        "radars",
+        "margin",
+        "risk-management"
+      ],
       "status": "current",
       "last_verified": null
     },
@@ -2373,6 +2394,30 @@
       {
         "concept": "bot",
         "doc": "modules/presentation/bot.md"
+      }
+    ],
+    "src/modules/strategy/radars/": [
+      {
+        "concept": "leading-indicator-radars",
+        "doc": "modules/strategy/leading_indicator_radars.md"
+      }
+    ],
+    "src/modules/strategy/marginStateMachine.mjs": [
+      {
+        "concept": "leading-indicator-radars",
+        "doc": "modules/strategy/leading_indicator_radars.md"
+      }
+    ],
+    "src/modules/strategy/leadingIndicatorEvaluator.mjs": [
+      {
+        "concept": "leading-indicator-radars",
+        "doc": "modules/strategy/leading_indicator_radars.md"
+      }
+    ],
+    "webapp/src/components/radar/ExtremeRadarPanel.vue": [
+      {
+        "concept": "leading-indicator-radars",
+        "doc": "modules/strategy/leading_indicator_radars.md"
       }
     ],
     "src/modules/strategy/lifecycleEngine.mjs": [
