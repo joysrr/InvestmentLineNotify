@@ -8,7 +8,7 @@
     "total_code_mappings": 65,
     "concepts_with_code": 41,
     "concepts_with_links": 54,
-    "generated_at": "2026-10-20T01:21:29.452Z"
+    "generated_at": "2026-10-20T02:06:08.441Z"
   },
   "concepts": {
     "api-contract": {
@@ -983,7 +983,7 @@
     },
     "2026-10-19-leading-indicator-upgrade": {
       "primary_doc": "plans/active/2026-10-19_leading-indicator-upgrade.md",
-      "title": "報告領先指標升級與實效研究計畫（v2.2 聚焦生產實作版）",
+      "title": "報告領先指標升級與實效研究計畫（v2.3 規格終極凍結版）",
       "summary": null,
       "related_docs": [],
       "related_code": [],
