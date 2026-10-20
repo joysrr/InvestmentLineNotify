@@ -8,7 +8,7 @@
     "total_code_mappings": 65,
     "concepts_with_code": 41,
     "concepts_with_links": 54,
-    "generated_at": "2026-10-20T02:15:24.312Z"
+    "generated_at": "2026-10-20T02:55:49.933Z"
   },
   "concepts": {
     "api-contract": {
@@ -983,7 +983,7 @@
     },
     "2026-10-19-leading-indicator-upgrade": {
       "primary_doc": "plans/active/2026-10-19_leading-indicator-upgrade.md",
-      "title": "報告領先指標升級與實效研究計畫（v2.4 終極量化閉環凍結版）",
+      "title": "報告領先指標升級與實效研究計畫（v2.5 全面量化與金融風控升級版）",
       "summary": null,
       "related_docs": [],
       "related_code": [],
