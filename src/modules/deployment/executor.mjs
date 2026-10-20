@@ -8,7 +8,7 @@ import { spawn } from "child_process";
 import { writeFile, mkdir, readFile, readdir } from "fs/promises";
 import { resolve } from "path";
 import logger from "../../utils/logger.mjs";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID as uuidv4 } from "crypto";
 
 // Use process.cwd() as project root for consistency across test/prod
 // Dynamic functions to allow test-time override via DEPLOY_PROJECT_ROOT env var

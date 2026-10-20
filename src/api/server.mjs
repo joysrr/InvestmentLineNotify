@@ -17,9 +17,6 @@ import configRoute from "./routes/config.mjs";
 import portfolioHealthRoute from "./routes/portfolioHealth.mjs";
 import strategyStatusRoute from "./routes/strategyStatus.mjs";
 import simulateRoute from "./routes/v1/simulate.mjs";
-import backtestRoutes from "./routes/backtestRoutes.mjs";
-import backtestWsRoutes from "./routes/backtestWsRoutes.mjs";
-import backtestResultsRoute from "./routes/backtestResults.mjs";
 import monitoringRoutes from "./routes/monitoringRoutes.mjs";
 import deployRoutes from "./routes/deployRoutes.mjs";
 // 啟動前強制檢查環境變數，確保不帶病執行
@@ -181,9 +178,6 @@ export async function buildApp(opts = {}) {
   await fastify.register(portfolioHealthRoute, { prefix: "/api" });
   await fastify.register(strategyStatusRoute, { prefix: "/api" });
   await fastify.register(simulateRoute, { prefix: "/api/v1" });
-  await fastify.register(backtestRoutes, { prefix: "/api" });
-  await fastify.register(backtestWsRoutes);
-  await fastify.register(backtestResultsRoute, { prefix: "/api" });
   await fastify.register(monitoringRoutes);
   await fastify.register(deployRoutes);
 

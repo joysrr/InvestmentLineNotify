@@ -201,7 +201,7 @@ describe("Deployment Module", () => {
 
     it("應能取消排隊中的部署", async () => {
       // 在 test mode 下需要手動創建 queued 狀態的任務
-      const { v4: uuidv4 } = await import("uuid");
+      const { randomUUID: uuidv4 } = await import("crypto");
       const { writeFile, access } = await import("fs/promises");
       const { resolve } = await import("path");
       const { fileURLToPath } = await import("url");
