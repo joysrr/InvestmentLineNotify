@@ -31,6 +31,12 @@ import { IlnState } from "../domain/ilnState.mjs";
 import { buildDailyRunContext } from "../domain/dailyRunContext.mjs";
 import { shouldWriteSheet } from "./sideEffectPolicy.mjs";
 import { shouldPersistDailyReport } from "../domain/reportWritePolicy.mjs";
+import { evaluateLeadingIndicators } from "../modules/strategy/leadingIndicatorEvaluator.mjs";
+import { SYSTEM_STATES } from "../modules/strategy/marginStateMachine.mjs";
+import {
+  fetchTaifexSmallTxRetailSentiment,
+  fetchTaifexNightSession,
+} from "../modules/providers/taifexProvider.mjs";
 import logger, {
   setGlobalContext,
   clearGlobalContext,
@@ -300,6 +306,70 @@ export async function runDailyCheck(deps = {}, options = {}) {
     done();
   }
 
+  // ── Step 4.5：領先指標四大極端雷達與狀態機評估 ──────────────────────────────
+  logger.info("📡 正在評估領先指標四大極端雷達與狀態機...");
+  let leadingIndicators = null;
+  {
+    const done = stepTimer("evaluateLeadingIndicators");
+    try {
+      const prevReport = await archiveManager
+        .getLatestReport()
+        .catch(() => null);
+      const prevState =
+        prevReport?.leadingIndicators?.stateMachine?.state ??
+        SYSTEM_STATES.IDLE;
+      const prevCooldownDays =
+        prevReport?.leadingIndicators?.stateMachine?.cooldownDays ?? 0;
+      const prevActiveDays =
+        prevReport?.leadingIndicators?.stateMachine?.activeDays ?? 0;
+      const prevUsedBatches = prevReport?.leadingIndicators?.usedBatches ?? 0;
+
+      const rawMargin = macroData?.rawMargin ?? {};
+      const marginRatio = parseFloat(rawMargin.maintenanceRatio) || 160.0;
+      const marginBalanceChangePct =
+        (parseFloat(rawMargin.dayChangeRate) || 0) / 100;
+
+      const taifexSentiment = await fetchTaifexSmallTxRetailSentiment().catch(
+        () => ({ rsr: 0 }),
+      );
+      const taifexNight = await fetchTaifexNightSession().catch(() => ({
+        changePct: 0,
+      }));
+
+      leadingIndicators = evaluateLeadingIndicators({
+        marketData: {
+          rSox: usRisk?.soxChg ?? 0,
+          rTsm: usRisk?.tsmChg ?? 0,
+          rNight: taifexNight?.changePct ?? 0,
+          maintenanceRatio: marginRatio,
+          marginBalanceChangePct,
+          vix: vixData?.value ?? 18.0,
+          taiexReturn: result?.marketState?.twMarket?.changePct ?? 0,
+          bias60: result?.marketState?.twMarket?.bias60 ?? 0,
+          rsr: taifexSentiment?.rsr ?? 0,
+        },
+        portfolio: lastState ?? {},
+        currentState: prevState,
+        cooldownDays: prevCooldownDays,
+        activeDays: prevActiveDays,
+        usedBatches: prevUsedBatches,
+      });
+
+      // 極端發聲：若有 Telegram 警報卡片且 Telegram 功能啟用，發送獨立警報卡
+      if (leadingIndicators?.telegramCard && isTelegramEnabled) {
+        try {
+          await sendTelegramBatch([{ text: leadingIndicators.telegramCard }]);
+          logger.info("🚨 已發送領先指標極端警報卡至 Telegram");
+        } catch (cardErr) {
+          logger.error({ error: cardErr }, "❌ 發送領先指標極端警報卡失敗");
+        }
+      }
+    } catch (radarErr) {
+      logger.warn(radarErr, "⚠️ 領先指標評估失敗，跳過極端雷達檢查");
+    }
+    done();
+  }
+
   // ── Step 5：推送至 Telegram ─────────────────────────────────────────────────
   const reportDailyData = {
     result,
@@ -313,6 +383,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
     dateText,
     aiAdvice,
     quote,
+    leadingIndicators,
   };
 
   await broadcastDailyReport(reportDailyData, newsMessages, isTelegramEnabled);
@@ -371,6 +442,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
       reportDate: dateText,
       meta: macroData?._meta ?? null,
       replay: replayWithObservation,
+      leadingIndicators,
     });
 
     const baseReport = state.toReportObject();
@@ -378,6 +450,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
     if (shouldPersistDailyReport({ newsAnalysisStatus })) {
       await archiveManager.saveReport({
         ...baseReport,
+        leadingIndicators,
         // Simulator 所需扁平化欄位 (直接在報告層級儲存，避免每次查詢重組)
         price0050,
         currentPrice: currentPriceZ2,

@@ -47,6 +47,7 @@ export class IlnState {
     meta = null,
     rawReport = null,
     replay = null,
+    leadingIndicators = null,
   }) {
     this.marketState = marketState ?? {};
     this.rawMarket = rawMarket ?? null;
@@ -59,6 +60,8 @@ export class IlnState {
     this.meta = meta ?? null;
     this.rawReport = rawReport ?? null;
     this.replay = replay ?? null;
+    this.leadingIndicators =
+      leadingIndicators ?? rawReport?.leadingIndicators ?? null;
     this._derived = Object.create(null);
   }
 
@@ -213,6 +216,7 @@ export class IlnState {
     return {
       _meta: this.meta ?? this.rawMarket?._meta ?? undefined,
       data: this.rawMarket?.data ?? {},
+      leadingIndicators: this.leadingIndicators ?? null,
     };
   }
 
@@ -258,6 +262,9 @@ export class IlnState {
       ...(this.replay ? { replay: this.replay } : {}),
       snapshot: snapshotEncrypted,
       ...(macroDataPicked ? { macroData: macroDataPicked } : {}),
+      ...(this.leadingIndicators
+        ? { leadingIndicators: this.leadingIndicators }
+        : {}),
     };
   }
 }
@@ -310,6 +317,7 @@ export async function loadStateFromLatestFiles() {
     reportDate: latestReport?.date ?? null,
     meta: latestMarket?._meta ?? latestReport?._meta ?? null,
     rawReport: latestReport ?? null,
+    leadingIndicators: latestReport?.leadingIndicators ?? null,
   });
 }
 
@@ -355,6 +363,7 @@ export async function loadStateFromReport(reportDate) {
       reportDate: report.date ?? reportDate,
       meta: report._meta ?? null,
       rawReport: report,
+      leadingIndicators: report.leadingIndicators ?? null,
     });
   } catch (err) {
     if (err.code === "ENOENT") {
