@@ -29,22 +29,12 @@ test.describe("01-DashboardView - 投資儀表板", () => {
     );
   });
 
-  test("DSH-003: 模擬器子頁籤可切換試算與歷史回測報表", async ({ page }) => {
+  test("DSH-003: 模擬器頁面應正常載入雙向模擬器面板", async ({ page }) => {
     await page.goto("#/simulator", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(3000);
-    await expect(page.locator("[data-testid='simulator-subtabs']")).toBeVisible(
-      { timeout: 15000 },
-    );
-    // 預設顯示試算模擬器
-    await expect(
-      page.locator("[data-testid='simulator-subtabs'] .subtab-item").first(),
-    ).toHaveClass(/active/);
-    // 點擊歷史回測報表子頁籤
-    await page.locator("[data-testid='subtab-backtest-report']").click();
-    await page.waitForTimeout(1000);
-    await expect(
-      page.locator(".view-title").filter({ hasText: "回測報表" }).first(),
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("[data-testid='mode-selector']")).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test("DSH-004: Bottom nav 應顯示新聞 Tab 並可導航至 NewsView", async ({

@@ -38,13 +38,6 @@ export const ENDPOINTS = {
   // 策略設定
   strategyConfig: "/strategy-config",
 
-  // 回測
-  backtest: {
-    run: "/backtest/run",
-    status: (jobId) => `/backtest/${jobId}/status`,
-    result: (jobId) => `/backtest/${jobId}/result`,
-  },
-
   // 快照
   snapshots: {
     list: "/snapshots",

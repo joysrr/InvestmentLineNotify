@@ -8,7 +8,6 @@ import MarketRadarView from "../views/MarketRadarView.vue";
 import MacroBattleView from "../views/MacroBattleView.vue";
 import TechnicalView from "../views/TechnicalView.vue";
 import SimulatorView from "../views/SimulatorView.vue";
-import BacktestReportView from "../views/BacktestReportView.vue";
 import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";
 
 const router = createRouter({
@@ -25,7 +24,6 @@ const router = createRouter({
     { path: "/strategy", redirect: "/strategy-config" },
     { path: "/account", component: AccountView },
     { path: "/simulator", component: SimulatorView },
-    { path: "/backtest-report", component: BacktestReportView },
     { path: "/strategy-config", component: StrategyConfigEditorView },
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
   ],

@@ -667,53 +667,6 @@ onMounted(async () => {
   border-radius: 8px;
   border: 1px solid var(--tg-theme-secondary-bg-color, #eee);
 }
-.backtest-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 12px;
-  min-width: 420px;
-}
-.backtest-table th {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
-  color: var(--tg-theme-hint-color, #666);
-  font-weight: 700;
-  padding: 10px 8px;
-}
-.backtest-table td {
-  padding: 10px 8px;
-  border-bottom: 1px solid var(--tg-theme-secondary-bg-color, #eee);
-  vertical-align: middle;
-  color: var(--tg-theme-text-color, #333);
-}
-.row-highlight {
-  background: rgba(38, 161, 123, 0.05);
-}
-.dark .row-highlight {
-  background: rgba(38, 161, 123, 0.15);
-}
-.row-highlight td {
-  font-weight: 600;
-}
-.sub-row {
-  font-size: 9px;
-  color: #888;
-  font-weight: normal;
-}
-.val-gain {
-  color: #26a17b !important;
-  font-weight: 700 !important;
-}
-.val-safe {
-  color: #2481cc !important;
-  font-weight: 700 !important;
-}
-.table-footnote {
-  font-size: 10px;
-  color: var(--tg-theme-hint-color, #888);
-  margin: 10px 0 0 0;
-  line-height: 1.4;
-}
 
 .insights-grid {
   display: flex;
@@ -753,12 +706,5 @@ onMounted(async () => {
 }
 .dark .table-wrapper {
   border-color: rgba(255, 255, 255, 0.1);
-}
-.dark .backtest-table th {
-  background: #2c2c2e;
-  color: #aaa;
-}
-.dark .backtest-table td {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 </style>
