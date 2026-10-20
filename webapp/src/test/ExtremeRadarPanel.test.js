@@ -256,6 +256,29 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
     expect(wrapper.text()).toContain("目前未超過警戒門檻");
   });
 
+  it("後端 radarId 帶 RADAR_ 前綴時仍顯示中文名稱且不重複英文代碼", async () => {
+    const wrapper = mount(ExtremeRadarPanel, {
+      props: {
+        leadingIndicators: {
+          ...normalLeadingIndicators,
+          radars: normalLeadingIndicators.radars.map((radar) => ({
+            ...radar,
+            radarId: `RADAR_${radar.radarId}`,
+          })),
+        },
+      },
+    });
+
+    await wrapper.find(".radar-panel-header").trigger("click");
+
+    expect(wrapper.findAll(".mini-name")[0].text()).toBe("美股隔夜衝擊");
+    expect(wrapper.findAll(".radar-code")[0].text()).toBe(
+      "RADAR_OVERNIGHT_SHOCK",
+    );
+    expect(wrapper.findAll(".mini-name")[0].text()).not.toMatch(/^RADAR_/);
+    expect(wrapper.text()).not.toContain("RADAR_RADAR_");
+  });
+
   it("無 leadingIndicators 資料時優雅不崩潰", () => {
     const wrapper = mount(ExtremeRadarPanel, {
       props: {

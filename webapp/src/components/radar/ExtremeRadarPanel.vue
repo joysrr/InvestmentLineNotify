@@ -230,6 +230,21 @@ const RADAR_CONFIG = {
   },
 };
 
+function normalizeRadarId(radarId) {
+  return String(radarId || "").replace(/^RADAR_+/, "");
+}
+
+function getRadarConfig(radarId, fallbackSummary = "指標平穩正常") {
+  const normalizedId = normalizeRadarId(radarId);
+  return RADAR_CONFIG[normalizedId] || {
+    name: "未知雷達",
+    desc: "即時監控",
+    defaultSummary: fallbackSummary,
+    definition: "這是用來觀察市場異常變化的即時監控指標。",
+    thresholdHint: "指標明顯偏離常態範圍時。",
+  };
+}
+
 const normalizedRadars = computed(() => {
   const raw = props.leadingIndicators?.radars;
   const list = Array.isArray(raw)
@@ -239,17 +254,13 @@ const normalizedRadars = computed(() => {
     : [];
 
   return list.map((r) => {
-    const conf = RADAR_CONFIG[r.radarId] || {
-      name: r.radarId || "未知雷達",
-      desc: "即時監控",
-      defaultSummary: "指標平穩正常",
-      definition: "這是用來觀察市場異常變化的即時監控指標。",
-      thresholdHint: "指標明顯偏離常態範圍時。",
-    };
+    const normalizedId = normalizeRadarId(r.radarId);
+    const conf = getRadarConfig(normalizedId);
     return {
       ...r,
+      radarId: normalizedId,
       displayName: conf.name,
-      displayCode: `RADAR_${r.radarId}`,
+      displayCode: `RADAR_${normalizedId}`,
       displayDesc: conf.desc,
       displaySummary: r.cardSummary || conf.defaultSummary,
       definition: conf.definition,
@@ -262,15 +273,13 @@ const normalizedRadars = computed(() => {
 const rawTriggeredRadars = computed(() => props.leadingIndicators?.triggeredRadars ?? []);
 const triggeredRadars = computed(() => {
   return rawTriggeredRadars.value.map((r) => {
-    const conf = RADAR_CONFIG[r.radarId] || {
-      name: r.radarId || "未知雷達",
-      desc: "即時監控",
-      defaultSummary: "觸發警報",
-    };
+    const normalizedId = normalizeRadarId(r.radarId);
+    const conf = getRadarConfig(normalizedId, "觸發警報");
     return {
       ...r,
+      radarId: normalizedId,
       displayName: conf.name,
-      displayCode: `RADAR_${r.radarId}`,
+      displayCode: `RADAR_${normalizedId}`,
       displaySummary: r.cardSummary || conf.defaultSummary,
     };
   });
