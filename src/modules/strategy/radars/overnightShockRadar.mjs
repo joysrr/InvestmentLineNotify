@@ -139,24 +139,27 @@ export function evaluateOvernightShockRadar({
     summaryText = `🛡【隔夜衝擊：夜盤抗跌背離】美股跌 ${rSoxPct}% 但夜盤抗跌 (${rNightPct}%)。紀律：00675L 禁止買入防震盪，P1 維持正常，P0 正常執行。`;
   }
 
-  return createRadarResult({
-    radarId: RADAR_IDS.OVERNIGHT_SHOCK,
-    triggered: true,
-    severity,
-    metrics: {
-      rSox,
-      rTsm,
-      rNight,
-      zSox,
-      zTsm,
-      shockScore,
-      p95Sox,
-    },
-    constraints: {
-      freeze00675L,
-      pauseP1,
-      allowLeft0050: false,
-    },
-    cardSummary: summaryText,
-  });
+  return {
+    ...createRadarResult({
+      radarId: RADAR_IDS.OVERNIGHT_SHOCK,
+      triggered: true,
+      severity,
+      metrics: {
+        rSox,
+        rTsm,
+        rNight,
+        zSox,
+        zTsm,
+        shockScore,
+        p95Sox,
+      },
+      constraints: {
+        freeze00675L,
+        pauseP1,
+        allowLeft0050: false,
+      },
+      cardSummary: summaryText,
+    }),
+    subType: severity,
+  };
 }

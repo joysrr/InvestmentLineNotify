@@ -1,7 +1,8 @@
 ---
 type: plan
-status: current
+status: completed
 last_updated: 2026-10-20
+completed_date: 2026-10-20
 tags:
   - investment
   - leading-indicators

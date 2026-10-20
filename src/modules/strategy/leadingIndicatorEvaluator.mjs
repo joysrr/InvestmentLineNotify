@@ -170,9 +170,9 @@ export function evaluateLeadingIndicators({
     hasAnyRadarTriggered,
   });
 
-  // 5. 0050 P1 加碼額度試算 (若允許加碼且未被暫緩/凍結)
+  // 5. 0050 P1 加碼額度試算 (若允許加碼且個人斷路器未觸發)
   let p1Allocation0050 = { allowed: false, allocatedAmount: 0 };
-  if (allowLeft0050 && !pauseP1 && !personalBreaker.breakerTriggered) {
+  if (allowLeft0050 && !personalBreaker.breakerTriggered) {
     const isExtremePanic = radar3.triggered;
     p1Allocation0050 = evaluateP1Allocation({
       targetAsset: "0050",

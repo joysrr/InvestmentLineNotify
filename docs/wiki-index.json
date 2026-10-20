@@ -8,7 +8,7 @@
     "total_code_mappings": 65,
     "concepts_with_code": 41,
     "concepts_with_links": 54,
-    "generated_at": "2026-10-20T04:16:27.049Z"
+    "generated_at": "2026-10-20T04:23:30.350Z"
   },
   "concepts": {
     "api-contract": {
@@ -981,22 +981,6 @@
       "status": "archived",
       "last_verified": null
     },
-    "2026-10-19-leading-indicator-upgrade": {
-      "primary_doc": "plans/active/2026-10-19_leading-indicator-upgrade.md",
-      "title": "報告領先指標升級計畫：四大極端市場雷達系統（v3.0 初心回歸版）",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [
-        "investment",
-        "leading-indicators",
-        "risk-management",
-        "strategy-engine",
-        "radar"
-      ],
-      "status": "current",
-      "last_verified": null
-    },
     "2026-10-20-leading-indicator-review": {
       "primary_doc": "plans/active/2026-10-20_leading-indicator-review.md",
       "title": "領先指標升級計畫：專業審閱意見與修訂建議",
@@ -1324,6 +1308,22 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["social-sentiment", "mini-app", "scheduling", "observability"],
+      "status": "completed",
+      "last_verified": null
+    },
+    "2026-10-19-leading-indicator-upgrade": {
+      "primary_doc": "plans/completed/2026-10-19_leading-indicator-upgrade.md",
+      "title": "報告領先指標升級計畫：四大極端市場雷達系統（v3.0 初心回歸版）",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "investment",
+        "leading-indicators",
+        "risk-management",
+        "strategy-engine",
+        "radar"
+      ],
       "status": "completed",
       "last_verified": null
     },
