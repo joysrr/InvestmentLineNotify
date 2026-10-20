@@ -8,7 +8,7 @@
     "total_code_mappings": 65,
     "concepts_with_code": 41,
     "concepts_with_links": 54,
-    "generated_at": "2026-10-19T23:52:01.536Z"
+    "generated_at": "2026-10-20T00:22:20.907Z"
   },
   "concepts": {
     "api-contract": {
@@ -983,11 +983,17 @@
     },
     "2026-10-19-leading-indicator-upgrade": {
       "primary_doc": "plans/active/2026-10-19_leading-indicator-upgrade.md",
-      "title": "報告領先指標升級與實效研究計畫",
+      "title": "報告領先指標升級與實效研究計畫（v2.0 完整量化修訂版）",
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": ["auto-generated"],
+      "tags": [
+        "investment",
+        "leading-indicators",
+        "risk-management",
+        "strategy-engine",
+        "radar"
+      ],
       "status": "current",
       "last_verified": null
     },
