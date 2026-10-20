@@ -14,8 +14,9 @@
         <div class="header-left">
           <span class="status-icon">🛡️</span>
           <span class="status-title">極端防禦狀態：</span>
-          <span class="status-badge badge-idle">常態平穩 (IDLE)</span>
-          <span class="status-summary">● 4 雷達監控中 · 全數正常</span>
+          <span class="status-badge badge-idle">常態平穩</span>
+          <span class="status-sub">監控狀態：IDLE（未觸發異常警報）</span>
+          <span class="status-summary">● 4 項指標監控中 · 全數正常</span>
         </div>
         <div class="header-right">
           <span class="toggle-btn" data-testid="toggle-radar-btn">{{ isExpanded ? "▲ 收合" : "▼ 展開" }}</span>
@@ -34,9 +35,25 @@
             <div class="mini-info">
               <div class="mini-title-row">
                 <span class="mini-name">{{ r.displayName }}</span>
+                <span class="radar-code">{{ r.displayCode }}</span>
                 <span v-if="r.displayDesc" class="mini-desc">{{ r.displayDesc }}</span>
+                <button
+                  class="radar-info-button"
+                  type="button"
+                  :aria-label="`查看${r.displayName}說明`"
+                  :data-testid="`radar-info-${r.radarId}`"
+                  @click.stop="toggleRadarInfo(r.radarId)"
+                >ⓘ</button>
               </div>
+              <div class="mini-purpose">{{ r.definition }}</div>
               <div class="mini-summary">{{ r.displaySummary }}</div>
+              <div v-if="openRadarInfo === r.radarId" class="radar-info-panel">
+                <strong>這個指標在看什麼？</strong>
+                <span>{{ r.definition }}</span>
+                <strong>何時需要注意？</strong>
+                <span>{{ r.thresholdHint }}</span>
+                <span class="radar-info-status">目前未超過警戒門檻</span>
+              </div>
             </div>
           </div>
           <div class="mini-item-right">
@@ -155,6 +172,7 @@ const props = defineProps({
 });
 
 const isExpanded = ref(false);
+const openRadarInfo = ref(null);
 
 const stateMachine = computed(() => {
   return (
@@ -186,21 +204,29 @@ const RADAR_CONFIG = {
     name: "美股隔夜衝擊",
     desc: "費半 / 台積ADR / 夜盤",
     defaultSummary: "美股與夜盤走勢平穩無異常",
+    definition: "監測跨日價格是否出現異常跳動。",
+    thresholdHint: "跨日波動明顯放大，或海外市場與夜盤同步急挫時。",
   },
   MARGIN_SETTLING: {
     name: "籌碼沉澱偵測",
     desc: "融資維持率與斷頭潮",
     defaultSummary: "維持率在安全區間，籌碼穩定",
+    definition: "觀察融資維持率與籌碼變化，評估槓桿部位壓力。",
+    thresholdHint: "維持率快速下滑，或融資部位出現異常收縮時。",
   },
   EXTREME_PANIC: {
     name: "歷史極度恐慌",
     desc: "台股 VIX 與季線偏離",
     defaultSummary: "市場情緒平靜，未見恐慌性拋售",
+    definition: "偵測急跌、恐慌性賣壓與波動率是否同時升高。",
+    thresholdHint: "恐慌指標與價格偏離程度同步超過警戒範圍時。",
   },
   RETAIL_SENTIMENT: {
     name: "散戶多空情緒",
     desc: "小台指散戶多空比",
     defaultSummary: "散戶部位均衡，無極端多殺多風險",
+    definition: "評估散戶交易部位與討論熱度的多空傾向。",
+    thresholdHint: "散戶多空部位過度偏向一側，且與市場走勢背離時。",
   },
 };
 
@@ -217,12 +243,17 @@ const normalizedRadars = computed(() => {
       name: r.radarId || "未知雷達",
       desc: "即時監控",
       defaultSummary: "指標平穩正常",
+      definition: "這是用來觀察市場異常變化的即時監控指標。",
+      thresholdHint: "指標明顯偏離常態範圍時。",
     };
     return {
       ...r,
-      displayName: r.radarName || conf.name,
+      displayName: conf.name,
+      displayCode: `RADAR_${r.radarId}`,
       displayDesc: conf.desc,
       displaySummary: r.cardSummary || conf.defaultSummary,
+      definition: conf.definition,
+      thresholdHint: conf.thresholdHint,
       isTriggered: Boolean(r.triggered),
     };
   });
@@ -238,7 +269,8 @@ const triggeredRadars = computed(() => {
     };
     return {
       ...r,
-      displayName: r.radarName || conf.name,
+      displayName: conf.name,
+      displayCode: `RADAR_${r.radarId}`,
       displaySummary: r.cardSummary || conf.defaultSummary,
     };
   });
@@ -258,6 +290,10 @@ if (!isIdle.value) {
 
 function toggleExpanded() {
   isExpanded.value = !isExpanded.value;
+}
+
+function toggleRadarInfo(radarId) {
+  openRadarInfo.value = openRadarInfo.value === radarId ? null : radarId;
 }
 
 const stateLabel = computed(() => {
@@ -481,6 +517,61 @@ function formatMoney(amount) {
   background: rgba(0, 0, 0, 0.04);
   padding: 1px 5px;
   border-radius: 4px;
+}
+
+.radar-code {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+  color: var(--tg-theme-hint-color, #8e8e93);
+  opacity: 0.85;
+}
+
+.radar-info-button {
+  border: 0;
+  padding: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(36, 129, 204, 0.1);
+  color: #2481cc;
+  font-size: 13px;
+  line-height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.radar-info-panel {
+  display: grid;
+  gap: 3px;
+  margin-top: 7px;
+  padding: 8px 9px;
+  border-left: 2px solid #2481cc;
+  border-radius: 0 7px 7px 0;
+  background: rgba(36, 129, 204, 0.06);
+  color: var(--tg-theme-hint-color, #555);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.radar-info-panel strong {
+  color: var(--tg-theme-text-color, #1c1c1e);
+  font-size: 11px;
+}
+
+.radar-info-status {
+  margin-top: 3px;
+  color: #26a17b;
+  font-weight: 600;
+}
+
+.mini-purpose {
+  color: var(--tg-theme-text-color, #444);
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .mini-summary {

@@ -136,8 +136,8 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
     // 點擊展開折疊
     await wrapper.find(".radar-panel-header").trigger("click");
     expect(wrapper.find(".radar-detail-list").exists()).toBe(true);
-    expect(wrapper.text()).toContain("隔夜美股與夜盤暴跌");
-    expect(wrapper.text()).toContain("融資維持率斷頭潮");
+    expect(wrapper.text()).toContain("美股隔夜衝擊");
+    expect(wrapper.text()).toContain("籌碼沉澱偵測");
   });
 
   it("極端警報觸發時預設展開警報面板並清晰呈現行動紀律", () => {
@@ -154,7 +154,7 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
     expect(wrapper.text()).toContain("ACTIVE_DEFENSE");
 
     // 觸發的雷達項目呈現
-    expect(wrapper.text()).toContain("隔夜美股與夜盤暴跌");
+    expect(wrapper.text()).toContain("美股隔夜衝擊");
     expect(wrapper.text()).toContain("費半 -5.2%");
 
     // 行動紀律
@@ -231,6 +231,29 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
     // 應顯示常態說明與狀態標籤
     expect(wrapper.text()).toContain("平穩");
     expect(wrapper.findAll(".mini-badge-ok").length).toBe(4);
+  });
+
+  it("以中文主標題、用途說明與次要英文代碼改善使用者理解", async () => {
+    const wrapper = mount(ExtremeRadarPanel, {
+      props: {
+        leadingIndicators: normalLeadingIndicators,
+      },
+    });
+
+    await wrapper.find(".radar-panel-header").trigger("click");
+
+    expect(wrapper.text()).toContain("監控狀態：IDLE");
+    expect(wrapper.text()).toContain("隔夜衝擊");
+    expect(wrapper.text()).toContain("監測跨日價格是否出現異常跳動");
+    expect(wrapper.text()).toContain("RADAR_OVERNIGHT_SHOCK");
+    expect(wrapper.find(".radar-code").exists()).toBe(true);
+
+    await wrapper
+      .find("[data-testid='radar-info-OVERNIGHT_SHOCK']")
+      .trigger("click");
+    expect(wrapper.text()).toContain("這個指標在看什麼？");
+    expect(wrapper.text()).toContain("何時需要注意？");
+    expect(wrapper.text()).toContain("目前未超過警戒門檻");
   });
 
   it("無 leadingIndicators 資料時優雅不崩潰", () => {
