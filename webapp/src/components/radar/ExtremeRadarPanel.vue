@@ -18,20 +18,30 @@
           <span class="status-summary">● 4 雷達監控中 · 全數正常</span>
         </div>
         <div class="header-right">
-          <span class="toggle-icon">{{ isExpanded ? "▲ 收合" : "▼ 展開" }}</span>
+          <span class="toggle-btn" data-testid="toggle-radar-btn">{{ isExpanded ? "▲ 收合" : "▼ 展開" }}</span>
         </div>
       </div>
 
-      <!-- 常態展開檢視微型雷達燈號 -->
+      <!-- 常態展開檢視微型雷達詳細清單 -->
       <div v-if="isExpanded" class="radar-detail-list">
         <div
-          v-for="r in radars"
+          v-for="r in normalizedRadars"
           :key="r.radarId"
           class="radar-mini-item"
         >
-          <div class="mini-status-dot dot-normal"></div>
-          <div class="mini-name">{{ r.radarName }}</div>
-          <div class="mini-summary">{{ r.cardSummary }}</div>
+          <div class="mini-item-left">
+            <div class="mini-status-dot dot-normal"></div>
+            <div class="mini-info">
+              <div class="mini-title-row">
+                <span class="mini-name">{{ r.displayName }}</span>
+                <span v-if="r.displayDesc" class="mini-desc">{{ r.displayDesc }}</span>
+              </div>
+              <div class="mini-summary">{{ r.displaySummary }}</div>
+            </div>
+          </div>
+          <div class="mini-item-right">
+            <span class="mini-badge-ok">正常 ✅</span>
+          </div>
         </div>
       </div>
     </div>
@@ -52,7 +62,7 @@
           </span>
         </div>
         <div class="header-right">
-          <span class="toggle-icon">{{ isExpanded ? "▲ 收合" : "▼ 展開" }}</span>
+          <span class="toggle-btn" data-testid="toggle-radar-btn">{{ isExpanded ? "▲ 收合" : "▼ 展開" }}</span>
         </div>
       </div>
 
@@ -68,12 +78,12 @@
               class="triggered-item"
             >
               <div class="ti-header">
-                <span class="ti-name">{{ r.radarName }}</span>
+                <span class="ti-name">{{ r.displayName }}</span>
                 <span class="ti-severity" :class="`sev-${r.severity.toLowerCase()}`">
                   {{ r.severity }}
                 </span>
               </div>
-              <div class="ti-summary">{{ r.cardSummary }}</div>
+              <div class="ti-summary">{{ r.displaySummary }}</div>
             </div>
           </div>
         </div>
@@ -171,8 +181,68 @@ const p1Allocation = computed(() => {
   );
 });
 
-const radars = computed(() => props.leadingIndicators?.radars ?? []);
-const triggeredRadars = computed(() => props.leadingIndicators?.triggeredRadars ?? []);
+const RADAR_CONFIG = {
+  OVERNIGHT_SHOCK: {
+    name: "美股隔夜衝擊",
+    desc: "費半 / 台積ADR / 夜盤",
+    defaultSummary: "美股與夜盤走勢平穩無異常",
+  },
+  MARGIN_SETTLING: {
+    name: "籌碼沉澱偵測",
+    desc: "融資維持率與斷頭潮",
+    defaultSummary: "維持率在安全區間，籌碼穩定",
+  },
+  EXTREME_PANIC: {
+    name: "歷史極度恐慌",
+    desc: "台股 VIX 與季線偏離",
+    defaultSummary: "市場情緒平靜，未見恐慌性拋售",
+  },
+  RETAIL_SENTIMENT: {
+    name: "散戶多空情緒",
+    desc: "小台指散戶多空比",
+    defaultSummary: "散戶部位均衡，無極端多殺多風險",
+  },
+};
+
+const normalizedRadars = computed(() => {
+  const raw = props.leadingIndicators?.radars;
+  const list = Array.isArray(raw)
+    ? raw
+    : raw && typeof raw === "object"
+    ? Object.values(raw)
+    : [];
+
+  return list.map((r) => {
+    const conf = RADAR_CONFIG[r.radarId] || {
+      name: r.radarId || "未知雷達",
+      desc: "即時監控",
+      defaultSummary: "指標平穩正常",
+    };
+    return {
+      ...r,
+      displayName: r.radarName || conf.name,
+      displayDesc: conf.desc,
+      displaySummary: r.cardSummary || conf.defaultSummary,
+      isTriggered: Boolean(r.triggered),
+    };
+  });
+});
+
+const rawTriggeredRadars = computed(() => props.leadingIndicators?.triggeredRadars ?? []);
+const triggeredRadars = computed(() => {
+  return rawTriggeredRadars.value.map((r) => {
+    const conf = RADAR_CONFIG[r.radarId] || {
+      name: r.radarId || "未知雷達",
+      desc: "即時監控",
+      defaultSummary: "觸發警報",
+    };
+    return {
+      ...r,
+      displayName: r.radarName || conf.name,
+      displaySummary: r.cardSummary || conf.defaultSummary,
+    };
+  });
+});
 
 const isIdle = computed(() => {
   return (
@@ -225,40 +295,43 @@ function formatMoney(amount) {
 .empty-radar-bar {
   padding: 10px 14px;
   font-size: 13px;
-  color: var(--text-secondary, #888);
-  background: var(--bg-card, #1c1c1e);
-  border-radius: 8px;
-  border: 1px solid var(--border-color, #2c2c2e);
+  color: var(--tg-theme-hint-color, #888);
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .radar-panel {
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
-  transition: all 0.2s ease;
-  border: 1px solid var(--border-color, #2c2c2e);
+  transition: all 0.25s ease;
 }
 
+/* 常態平穩（IDLE） - 柔和清新淺綠微透風格，與美股卡片完美融合 */
 .radar-panel-idle {
-  background: var(--bg-card, #1c1c1e);
+  background: var(--tg-theme-secondary-bg-color, #f8faf9);
+  border: 1px solid rgba(38, 161, 123, 0.22);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
 }
 
+/* 極端警報觸發狀態 */
 .radar-panel-alert {
-  background: rgba(255, 69, 58, 0.08);
-  border-color: rgba(255, 69, 58, 0.4);
+  background: rgba(232, 72, 85, 0.06);
+  border: 1px solid rgba(232, 72, 85, 0.35);
 }
 
 .panel-severity-critical {
-  border-color: #ff453a;
-  background: rgba(255, 69, 58, 0.12);
+  border-color: #e84855;
+  background: rgba(232, 72, 85, 0.1);
 }
 
 .panel-severity-alert {
   border-color: #ff9f0a;
-  background: rgba(255, 159, 10, 0.12);
+  background: rgba(255, 159, 10, 0.1);
 }
 
 .radar-panel-header {
-  padding: 10px 14px;
+  padding: 11px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -271,90 +344,170 @@ function formatMoney(amount) {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  flex: 1;
+}
+
+.header-right {
+  flex-shrink: 0;
+  margin-left: 8px;
 }
 
 .status-icon {
   font-size: 16px;
+  line-height: 1;
 }
 
 .status-title {
   font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary, #fff);
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #1c1c1e);
 }
 
 .status-badge {
   font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 2px 7px;
+  border-radius: 6px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .badge-idle {
-  background: rgba(48, 209, 88, 0.15);
-  color: #30d158;
-  border: 1px solid rgba(48, 209, 88, 0.3);
+  background: rgba(38, 161, 123, 0.12);
+  color: #26a17b;
+  border: 1px solid rgba(38, 161, 123, 0.28);
 }
 
 .badge-active {
-  background: rgba(255, 69, 58, 0.2);
-  color: #ff453a;
-  border: 1px solid rgba(255, 69, 58, 0.4);
+  background: rgba(232, 72, 85, 0.18);
+  color: #e84855;
+  border: 1px solid rgba(232, 72, 85, 0.35);
 }
 
 .status-summary {
   font-size: 12px;
-  color: var(--text-secondary, #8e8e93);
+  color: var(--tg-theme-hint-color, #707579);
 }
 
 .status-sub {
   font-size: 11px;
-  color: var(--text-secondary, #8e8e93);
+  color: var(--tg-theme-hint-color, #707579);
 }
 
-.toggle-icon {
+.toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
   font-size: 11px;
-  color: var(--text-secondary, #8e8e93);
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--tg-theme-hint-color, #707579);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
 }
 
+.toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* 展開詳細清單 */
 .radar-detail-list {
-  padding: 8px 14px 12px;
-  border-top: 1px solid var(--border-color, #2c2c2e);
+  padding: 8px 12px 12px;
+  border-top: 1px solid rgba(38, 161, 123, 0.15);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 
 .radar-mini-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 8px 11px;
+  border-radius: 9px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+}
+
+.mini-item-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  flex: 1;
+  min-width: 0;
 }
 
 .mini-status-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
 }
 
 .dot-normal {
-  background: #30d158;
+  background: #26a17b;
+  box-shadow: 0 0 5px rgba(38, 161, 123, 0.45);
+}
+
+.mini-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.mini-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .mini-name {
-  color: var(--text-primary, #fff);
-  font-weight: 500;
+  color: var(--tg-theme-text-color, #1c1c1e);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mini-desc {
+  font-size: 10px;
+  color: var(--tg-theme-hint-color, #888);
+  background: rgba(0, 0, 0, 0.04);
+  padding: 1px 5px;
+  border-radius: 4px;
 }
 
 .mini-summary {
-  color: var(--text-secondary, #8e8e93);
+  color: var(--tg-theme-hint-color, #666);
   font-size: 11px;
+  line-height: 1.35;
 }
 
+.mini-item-right {
+  flex-shrink: 0;
+}
+
+.mini-badge-ok {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(38, 161, 123, 0.12);
+  color: #26a17b;
+  white-space: nowrap;
+}
+
+/* 警報面板主體 */
 .radar-alert-body {
-  padding: 10px 14px 14px;
-  border-top: 1px solid rgba(255, 69, 58, 0.2);
+  padding: 12px 14px 14px;
+  border-top: 1px solid rgba(232, 72, 85, 0.18);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -362,11 +515,10 @@ function formatMoney(amount) {
 
 .section-subtitle {
   font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary, #8e8e93);
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #1c1c1e);
   margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 .triggered-list {
@@ -376,34 +528,36 @@ function formatMoney(amount) {
 }
 
 .triggered-item {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
   padding: 8px 10px;
-  border-left: 3px solid #ff453a;
+  border-left: 3px solid #e84855;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-left-width: 3px;
 }
 
 .ti-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .ti-name {
   font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary, #fff);
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #1c1c1e);
 }
 
 .ti-severity {
   font-size: 10px;
   font-weight: bold;
-  padding: 1px 4px;
-  border-radius: 3px;
+  padding: 1px 5px;
+  border-radius: 4px;
 }
 
 .sev-critical {
-  background: #ff453a;
+  background: #e84855;
   color: #fff;
 }
 
@@ -418,39 +572,40 @@ function formatMoney(amount) {
 }
 
 .ti-summary {
-  font-size: 12px;
-  color: var(--text-secondary, #ebebf599);
+  font-size: 11px;
+  color: var(--tg-theme-hint-color, #555);
+  line-height: 1.35;
 }
 
 .discipline-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
   gap: 8px;
 }
 
 .discipline-card {
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.7);
   padding: 8px 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border: 1px solid var(--border-color, #2c2c2e);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .card-freeze {
-  border-color: rgba(255, 69, 58, 0.4);
-  background: rgba(255, 69, 58, 0.05);
+  border-color: rgba(232, 72, 85, 0.35);
+  background: rgba(232, 72, 85, 0.06);
 }
 
 .dc-label {
   font-size: 11px;
-  color: var(--text-secondary, #8e8e93);
+  color: var(--tg-theme-hint-color, #707579);
 }
 
 .dc-status {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .dc-note {
@@ -461,18 +616,72 @@ function formatMoney(amount) {
 }
 
 .text-danger {
-  color: #ff453a;
+  color: #e84855;
 }
 
 .text-success {
-  color: #30d158;
+  color: #26a17b;
 }
 
 .text-info {
-  color: #64d2ff;
+  color: #2481cc;
 }
 
 .text-muted {
+  color: var(--tg-theme-hint-color, #8e8e93);
+}
+
+/* ── 深色主題相容 ── */
+.dark .radar-panel-idle,
+:global(.dark) .radar-panel-idle {
+  background: #1c1c1e;
+  border-color: rgba(38, 161, 123, 0.3);
+}
+
+.dark .radar-mini-item,
+:global(.dark) .radar-mini-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark .status-title,
+:global(.dark) .status-title,
+.dark .mini-name,
+:global(.dark) .mini-name,
+.dark .section-subtitle,
+:global(.dark) .section-subtitle,
+.dark .ti-name,
+:global(.dark) .ti-name {
+  color: #f2f2f7;
+}
+
+.dark .status-summary,
+:global(.dark) .status-summary,
+.dark .mini-summary,
+:global(.dark) .mini-summary,
+.dark .ti-summary,
+:global(.dark) .ti-summary {
   color: #8e8e93;
+}
+
+.dark .toggle-btn,
+:global(.dark) .toggle-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #aaa;
+}
+
+.dark .mini-desc,
+:global(.dark) .mini-desc {
+  background: rgba(255, 255, 255, 0.08);
+  color: #aaa;
+}
+
+.dark .triggered-item,
+:global(.dark) .triggered-item,
+.dark .discipline-card,
+:global(.dark) .discipline-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 </style>

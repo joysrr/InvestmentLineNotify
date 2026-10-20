@@ -172,6 +172,67 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
     expect(wrapper.text()).toContain("正常扣款");
   });
 
+  it("當後端傳入真實物件格式且無 radarName 時，能自動補充中文名稱與常態說明", async () => {
+    const rawBackendLeadingIndicators = {
+      evaluatedAt: "2026-10-20T08:30:00.000Z",
+      radars: {
+        overnightShock: {
+          radarId: "OVERNIGHT_SHOCK",
+          triggered: false,
+          severity: "NONE",
+          cardSummary: null,
+        },
+        marginSettling: {
+          radarId: "MARGIN_SETTLING",
+          triggered: false,
+          severity: "NONE",
+          cardSummary: null,
+        },
+        extremePanic: {
+          radarId: "EXTREME_PANIC",
+          triggered: false,
+          severity: "NONE",
+          cardSummary: null,
+        },
+        retailSentiment: {
+          radarId: "RETAIL_SENTIMENT",
+          triggered: false,
+          severity: "NONE",
+          cardSummary: null,
+        },
+      },
+      triggeredRadars: [],
+      stateMachine: {
+        state: "IDLE",
+        cooldownDays: 0,
+        activeDays: 0,
+        p1Frozen: false,
+        freeze00675L: false,
+        allowLeft0050: true,
+        p0Exempt: true,
+      },
+    };
+
+    const wrapper = mount(ExtremeRadarPanel, {
+      props: {
+        leadingIndicators: rawBackendLeadingIndicators,
+      },
+    });
+
+    await wrapper.find(".radar-panel-header").trigger("click");
+    expect(wrapper.find(".radar-detail-list").exists()).toBe(true);
+
+    // 應補充繁體中文雷達名稱，不可為空白
+    expect(wrapper.text()).toContain("美股隔夜衝擊");
+    expect(wrapper.text()).toContain("籌碼沉澱偵測");
+    expect(wrapper.text()).toContain("歷史極度恐慌");
+    expect(wrapper.text()).toContain("散戶多空情緒");
+
+    // 應顯示常態說明與狀態標籤
+    expect(wrapper.text()).toContain("平穩");
+    expect(wrapper.findAll(".mini-badge-ok").length).toBe(4);
+  });
+
   it("無 leadingIndicators 資料時優雅不崩潰", () => {
     const wrapper = mount(ExtremeRadarPanel, {
       props: {
