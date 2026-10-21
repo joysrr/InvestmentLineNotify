@@ -10,7 +10,11 @@
 //   - 輸出的 SignalContext 包含 signalData 及計算中間產物，
 //     供 dailyCheck.mjs 後續 Step（logDailyToSheet、snapshotPayload）使用
 
-import { calculateIndicators } from "../modules/strategy/indicators.mjs";
+import {
+  calculateIndicators,
+  calcBias,
+  calcMA60,
+} from "../modules/strategy/indicators.mjs";
 import {
   buildInstitutionalHistory,
   extractInstitutionalHistoryRecords,
@@ -38,6 +42,7 @@ export function buildSignalContext(ctx) {
     pbRecordsObjects,
     usRisk,
     lastState = {}, // 預設空物件避免解構失敗
+    taiexHistory = { status: "SOURCE_UNAVAILABLE", data: [] },
   } = ctx;
 
   const safeLastState = lastState || {};
@@ -45,6 +50,22 @@ export function buildSignalContext(ctx) {
   // ── 計算技術指標 ──────────────────────────────────────────────────────────
   const indicatorsZ2 = calculateIndicators(historyZ2);
   const indicators0050 = calculateIndicators(history0050);
+  const taiexCloses = Array.isArray(taiexHistory?.data)
+    ? taiexHistory.data
+        .map((row) => row?.close)
+        .filter((close) => Number.isFinite(close))
+    : [];
+  const taiexMa60 = calcMA60(taiexCloses).at(-1);
+  const taiexBias60Value = calcBias(taiexCloses.at(-1), taiexMa60);
+  const taiexBias60 = Number.isFinite(taiexBias60Value)
+    ? taiexBias60Value
+    : null;
+  const bias60DataStatus =
+    taiexHistory?.status === "source_unavailable"
+      ? "SOURCE_UNAVAILABLE"
+      : taiexBias60 == null
+        ? "INSUFFICIENT_HISTORY"
+        : "VERIFIED";
 
   const { closes, rsiArr, macdArr, kdArr, ma20Arr, atrArr, ma240 } =
     indicatorsZ2;
@@ -112,6 +133,8 @@ export function buildSignalContext(ctx) {
     VIX: vixData?.value ?? null,
     VIXTime: vixData?.dateTimeText ?? vixData?.time ?? null,
     VIXStatus: vixData?.status ?? null,
+    bias60: taiexBias60,
+    bias60DataStatus,
     historyMetadata,
     vixArr,
     ma240,
@@ -158,6 +181,12 @@ export function buildSignalContext(ctx) {
     signalData,
     indicatorsZ2,
     indicators0050,
+    indicatorsTaiex: {
+      closes: taiexCloses,
+      ma60: taiexMa60,
+      bias60: taiexBias60,
+      bias60DataStatus,
+    },
     finalPriceZ2,
   };
 }

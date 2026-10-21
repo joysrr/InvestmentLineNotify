@@ -271,6 +271,34 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
     expect(wrapper.text()).not.toContain("散戶多空比 0%");
   });
 
+  it("顯示台股大盤 60 日乖離率定義與資料不足狀態", async () => {
+    const wrapper = mount(ExtremeRadarPanel, {
+      props: {
+        leadingIndicators: {
+          ...normalLeadingIndicators,
+          radars: normalLeadingIndicators.radars.map((radar) =>
+            radar.radarId === "EXTREME_PANIC"
+              ? {
+                  ...radar,
+                  metrics: {
+                    bias60: null,
+                    bias60DataStatus: "INSUFFICIENT_HISTORY",
+                  },
+                }
+              : radar,
+          ),
+        },
+      },
+    });
+
+    await wrapper.find(".radar-panel-header").trigger("click");
+
+    expect(wrapper.text()).toContain("60 日乖離率");
+    expect(wrapper.text()).toContain("資料不足");
+    expect(wrapper.text()).toContain("暫不判讀");
+    expect(wrapper.text()).not.toContain("0.0%");
+  });
+
   it("以中文主標題、用途說明與次要英文代碼改善使用者理解", async () => {
     const wrapper = mount(ExtremeRadarPanel, {
       props: {

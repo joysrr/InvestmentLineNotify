@@ -19,10 +19,26 @@ vi.mock("../../utils/coreUtils.mjs", () => ({
 
 vi.mock("./twseProvider.mjs", () => ({
   fetchStockDayMonthWithCache: vi.fn(),
+  fetchTaiexIndexByDate: vi.fn(),
 }));
 
-import { fetchStockHistoryWithAutoFill } from "./historyProvider.mjs";
-import { fetchStockDayMonthWithCache } from "./twseProvider.mjs";
+vi.mock("../../utils/logger.mjs", () => ({
+  default: {
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+  },
+}));
+
+import {
+  fetchTaiexHistoryWithAutoFill,
+  fetchTaiexHistoryWithAutoFillDetailed,
+  fetchStockHistoryWithAutoFill,
+} from "./historyProvider.mjs";
+import {
+  fetchStockDayMonthWithCache,
+  fetchTaiexIndexByDate,
+} from "./twseProvider.mjs";
 
 describe("historyProvider - 歷史資料 Provider", () => {
   beforeEach(() => {
@@ -202,6 +218,39 @@ describe("historyProvider - 歷史資料 Provider", () => {
       expect(result).toEqual([]);
       // 最多呼叫 13 次
       expect(fetchStockDayMonthWithCache).toHaveBeenCalledTimes(13);
+    });
+  });
+
+  describe("fetchTaiexHistoryWithAutoFill", () => {
+    it("逐日回補、去重並以日期升冪回傳", async () => {
+      fetchTaiexIndexByDate
+        .mockResolvedValueOnce({ date: "2024-01-15", close: 102 })
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ date: "2024-01-12", close: 100 })
+        .mockResolvedValueOnce({ date: "2024-01-11", close: 99 });
+
+      const result = await fetchTaiexHistoryWithAutoFill("2024-01-15", 3);
+
+      expect(result).toEqual([
+        { date: "2024-01-11", close: 99 },
+        { date: "2024-01-12", close: 100 },
+        { date: "2024-01-15", close: 102 },
+      ]);
+      expect(fetchTaiexIndexByDate).toHaveBeenCalledTimes(4);
+    });
+
+    it("來源持續不可用時回傳 source_unavailable 詳細狀態", async () => {
+      fetchTaiexIndexByDate.mockRejectedValue(new Error("network down"));
+
+      const result = await fetchTaiexHistoryWithAutoFillDetailed(
+        "2024-01-15",
+        2,
+        { maxDays: 2, retryAttempts: 0 },
+      );
+
+      expect(result.status).toBe("source_unavailable");
+      expect(result.data).toEqual([]);
+      expect(result.failedDates).toEqual(["2024-01-15", "2024-01-14"]);
     });
   });
 });

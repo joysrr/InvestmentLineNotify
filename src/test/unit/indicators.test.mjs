@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   calcATR,
+  calcBias,
   calcSMA,
   calcSlopeN,
   calculateIndicators,
@@ -31,6 +32,29 @@ describe("indicator arithmetic golden cases", () => {
     expect(Number.isNaN(result[1])).toBe(true);
     expect(result[2]).toBe(2);
     expect(result[3]).toBe(3);
+  });
+
+  it("calculates bias from close and moving average", () => {
+    expect(calcBias(110, 100)).toBeCloseTo(0.1);
+  });
+
+  it("returns NaN when close or moving average is unavailable", () => {
+    expect(Number.isNaN(calcBias(110, Number.NaN))).toBe(true);
+    expect(Number.isNaN(calcBias(Number.NaN, 100))).toBe(true);
+  });
+
+  it("exposes the latest 60-day bias from calculateIndicators", () => {
+    const history = Array.from({ length: 60 }, (_, index) => ({
+      high: 101,
+      low: 99,
+      close: index === 59 ? 110 : 100,
+    }));
+
+    const result = calculateIndicators(history);
+
+    const expectedBias = (110 - 100.16666666666667) / 100.16666666666667;
+    expect(result.bias60Arr.at(-1)).toBeCloseTo(expectedBias);
+    expect(result.bias60).toBeCloseTo(expectedBias);
   });
 
   it("calculates the first ATR from three constant true ranges", () => {

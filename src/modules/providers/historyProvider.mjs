@@ -1,5 +1,8 @@
 import { TwDate, toTwseStockNo, sleep } from "../../utils/coreUtils.mjs";
-import { fetchStockDayMonthWithCache } from "./twseProvider.mjs";
+import {
+  fetchStockDayMonthWithCache,
+  fetchTaiexIndexByDate,
+} from "./twseProvider.mjs";
 import logger from "../../utils/logger.mjs";
 
 /**
@@ -28,6 +31,86 @@ export async function fetchStockHistoryWithAutoFill(
  * 回傳歷史資料與來源診斷資訊，供 dailyCheck 分類錯誤。
  * @returns {Promise<{status: string, data: Array, required: number, count: number, monthsProcessed: number, failedMonths: string[], lastError: string|null}>}
  */
+/**
+ * 抓取台股加權指數歷史收盤價，供 MA60 / bias60 使用。
+ *
+ * @param {string} endISO - 結束日期
+ * @param {number} minCount - 最少交易日筆數
+ * @returns {Promise<Array<{date: string, close: number}>>}
+ */
+export async function fetchTaiexHistoryWithAutoFill(
+  endISO = null,
+  minCount = 60,
+) {
+  const result = await fetchTaiexHistoryWithAutoFillDetailed(endISO, minCount);
+  return result.data;
+}
+
+/**
+ * 大盤歷史回補的診斷版本。null 代表休市日，例外代表來源不可用。
+ */
+export async function fetchTaiexHistoryWithAutoFillDetailed(
+  endISO = null,
+  minCount = 60,
+  { maxDays = 90, retryAttempts = 2, retryDelayMs = 2000 } = {},
+) {
+  const end = endISO ? new Date(endISO) : new Date();
+  end.setHours(23, 59, 59, 999);
+  const data = [];
+  const failedDates = [];
+  let lastError = null;
+
+  for (
+    let offset = 0;
+    offset < maxDays && data.length < minCount;
+    offset += 1
+  ) {
+    const current = new Date(end);
+    current.setDate(end.getDate() - offset);
+    const date = current.toISOString().slice(0, 10);
+    let result = null;
+    let error = null;
+
+    for (let attempt = 0; attempt <= retryAttempts; attempt += 1) {
+      try {
+        result = await fetchTaiexIndexByDate(date);
+        error = null;
+        break;
+      } catch (caught) {
+        error = caught;
+        lastError = caught;
+        if (attempt < retryAttempts && retryDelayMs > 0) {
+          await sleep(retryDelayMs);
+        }
+      }
+    }
+
+    if (error) {
+      failedDates.push(date);
+    } else if (result?.date && Number.isFinite(result.close)) {
+      if (!data.some((item) => item.date === result.date)) data.push(result);
+    }
+  }
+
+  data.sort((a, b) => new Date(a.date) - new Date(b.date));
+  const status =
+    failedDates.length > 0
+      ? "source_unavailable"
+      : data.length < minCount
+        ? "insufficient_history"
+        : "available";
+
+  return {
+    status,
+    data,
+    required: minCount,
+    count: data.length,
+    daysProcessed: Math.min(maxDays, data.length + failedDates.length),
+    failedDates,
+    lastError: lastError?.message ?? null,
+  };
+}
+
 export async function fetchStockHistoryWithAutoFillDetailed(
   symbol,
   minCount = 60,

@@ -33,6 +33,7 @@ export function evaluateExtremePanicRadar({
   vix = 18.0,
   taiexReturn = 0,
   bias60 = 0,
+  bias60DataStatus = "VERIFIED",
   vixHistory = [],
 }) {
   const hasHistory = Array.isArray(vixHistory) && vixHistory.length >= 30;
@@ -41,7 +42,7 @@ export function evaluateExtremePanicRadar({
   // 1. 觸發條件檢驗 (任一滿足即為歷史級恐慌)
   const isVixExtreme = vix >= 35.0 || (hasHistory && vix >= p98Vix);
   const isTaiexCrash = taiexReturn <= -0.045; // 單日崩跌 >= 4.5%
-  const isBiasOversold = bias60 <= -0.12; // 季線負乖離 >= 12%
+  const isBiasOversold = Number.isFinite(bias60) && bias60 <= -0.12; // 季線負乖離 >= 12%
 
   const isTriggered = isVixExtreme || isTaiexCrash || isBiasOversold;
 
@@ -54,6 +55,7 @@ export function evaluateExtremePanicRadar({
         p98Vix,
         taiexReturn,
         bias60,
+        bias60DataStatus,
         isVixExtreme,
         isTaiexCrash,
         isBiasOversold,
@@ -85,6 +87,7 @@ export function evaluateExtremePanicRadar({
       p98Vix,
       taiexReturn,
       bias60,
+      bias60DataStatus,
       isVixExtreme,
       isTaiexCrash,
       isBiasOversold,

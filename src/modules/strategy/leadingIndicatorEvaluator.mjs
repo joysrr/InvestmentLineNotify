@@ -132,7 +132,8 @@ export function evaluateLeadingIndicators({
   const radar3 = evaluateExtremePanicRadar({
     vix: marketData.vix || 18.0,
     taiexReturn: marketData.taiexReturn || 0,
-    bias60: marketData.bias60 || 0,
+    bias60: marketData.bias60 === undefined ? 0 : marketData.bias60,
+    bias60DataStatus: marketData.bias60DataStatus ?? "VERIFIED",
     vixHistory: marketData.vixHistory || [],
   });
 

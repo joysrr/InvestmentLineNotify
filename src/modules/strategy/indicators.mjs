@@ -40,6 +40,9 @@ export function calculateIndicators(history) {
   // ── Phase 0-4：MA / ATR / Slope 計算 ──────────────────────────────────────
   const ma20Arr = calcMA20(closes);
   const ma60Arr = calcMA60(closes);
+  const bias60Arr = closes.map((close, index) =>
+    calcBias(close, ma60Arr[index]),
+  );
   const atrArr = calcATR(highs, lows, closes, 14);
   const ma60Slope = calcSlopeN(ma60Arr, 5);
   const ma240Arr = calcMA240(closes);
@@ -67,6 +70,8 @@ export function calculateIndicators(history) {
     kdArr: kdArrSlow,
     ma20Arr,
     ma60Arr,
+    bias60Arr,
+    bias60: bias60Arr.at(-1),
     ma240Arr,
     ma240,
     atrArr,
@@ -285,6 +290,25 @@ export function calcSMA(prices, period) {
   }
   return result;
 }
+/**
+ * 價格相對移動平均線的乖離率。
+ * bias = (close - movingAverage) / movingAverage
+ *
+ * @param {number} close - 當日收盤價
+ * @param {number} movingAverage - 同日移動平均線
+ * @returns {number} 缺少有效輸入時回傳 NaN
+ */
+export function calcBias(close, movingAverage) {
+  if (
+    !Number.isFinite(close) ||
+    !Number.isFinite(movingAverage) ||
+    movingAverage === 0
+  ) {
+    return Number.NaN;
+  }
+  return (close - movingAverage) / movingAverage;
+}
+
 /**
  * MA20 — 20 日簡單移動平均線。
  * 回傳與輸入等長的陣列，前 19 筆為 NaN。

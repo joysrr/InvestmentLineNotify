@@ -632,6 +632,64 @@ export async function fetchMarketValuation() {
   }
 }
 
+/**
+ * 解析 TWSE MI_INDEX 官方回應中的發行量加權股價指數。
+ *
+ * @param {Object} json - MI_INDEX response JSON
+ * @returns {{date: string, close: number}|null}
+ */
+export function parseTaiexIndexResponse(json) {
+  if (json?.stat !== "OK" || !Array.isArray(json.tables)) return null;
+
+  const table = json.tables.find((item) =>
+    String(item?.title ?? "").includes("價格指數(臺灣證券交易所)"),
+  );
+  const row = table?.data?.find((item) => item?.[0] === "發行量加權股價指數");
+  const closeText = String(row?.[1] ?? "")
+    .replaceAll(",", "")
+    .trim();
+  const close = parseNumber(closeText);
+  const rawDate = String(json.date ?? "");
+
+  if (!/^\d{8}$/.test(rawDate) || close == null || close <= 0) return null;
+
+  return {
+    date: `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`,
+    close,
+  };
+}
+
+/**
+ * 抓取指定交易日的 TWSE 發行量加權股價指數。
+ * 休市日、來源不可用或格式異常皆回傳 null。
+ *
+ * @param {string} date - ISO date (YYYY-MM-DD)
+ * @returns {Promise<{date: string, close: number}|null>}
+ */
+export async function fetchTaiexIndexByDate(date) {
+  const rawDate = String(date ?? "").replaceAll("-", "");
+  if (!/^\d{8}$/.test(rawDate)) return null;
+
+  const url = `https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=${rawDate}&type=ALLBUT0999`;
+
+  try {
+    const res = await fetchWithTimeout(
+      url,
+      {
+        ...baseFetchOptions,
+        headers: { ...baseFetchOptions.headers, Accept: "application/json" },
+      },
+      10000,
+    );
+    const text = await res.text();
+    if (!res.ok || !text.trim()) return null;
+    return parseTaiexIndexResponse(JSON.parse(text));
+  } catch (error) {
+    console.warn(`TWSE MI_INDEX ${date} unavailable: ${error.message}`);
+    return null;
+  }
+}
+
 // ============================================================================
 // 📊 大盤量價概覽 — 收盤指數 + 成交金額 (TWSE FMTQIK)
 //

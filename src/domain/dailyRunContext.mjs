@@ -25,7 +25,10 @@ import {
   fetchRealtimeFromMis,
   isMarketOpenTodayTWSE,
 } from "../modules/providers/twseProvider.mjs";
-import { fetchStockHistoryWithAutoFillDetailed } from "../modules/providers/historyProvider.mjs";
+import {
+  fetchStockHistoryWithAutoFillDetailed,
+  fetchTaiexHistoryWithAutoFillDetailed,
+} from "../modules/providers/historyProvider.mjs";
 import { fetchLatestBasePrice } from "../modules/providers/basePriceProvider.mjs";
 import { fetchAllMacroData } from "../modules/providers/marketData.mjs";
 import { fetchLastPortfolioState } from "../modules/storage.mjs";
@@ -82,6 +85,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     taifexRetailSentimentResult,
     historyZ2Result,
     history0050Result,
+    taiexHistoryResult,
     openTodayResult,
     valuationGuardResult,
     pbHistoryResult,
@@ -97,6 +101,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     _fetchTaifexRetailSentiment(),
     _fetchHistory(SYMBOL_Z2),
     _fetchHistory(SYMBOL_0050),
+    _fetchTaiexHistory(),
     _checkMarketOpen(),
     _fetchValuationGuardState(),
     _fetchPbHistory(),
@@ -168,7 +173,31 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
   const history0050 = Array.isArray(history0050ResultValue)
     ? history0050ResultValue
     : (history0050ResultValue.data ?? []);
+  const taiexHistory = _unwrap(
+    taiexHistoryResult,
+    {
+      status: "source_unavailable",
+      data: [],
+      required: HISTORY_MIN_BARS,
+      count: 0,
+      failedDates: [],
+      lastError: null,
+    },
+    "taiexHistory",
+  );
   const openToday = _unwrap(openTodayResult, false, "openToday");
+
+  if (taiexHistory.status !== "available") {
+    logger.warn(
+      {
+        status: taiexHistory.status,
+        count: taiexHistory.count,
+        required: taiexHistory.required,
+        failedDates: taiexHistory.failedDates,
+      },
+      "⚠️ [DailyRunContext] 台股大盤歷史資料不足或來源不可用，bias60 將保持 unavailable",
+    );
+  }
   const valuationGuardState = _unwrap(
     valuationGuardResult,
     _defaultValuationGuardState(),
@@ -373,6 +402,7 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     // 歷史 K 棒
     historyZ2: historyZ2Raw,
     history0050,
+    taiexHistory,
     // 總經
     macroData,
     socialSentiment,
@@ -522,6 +552,31 @@ async function _fetchTaifexRetailSentiment() {
       retailNetOi: null,
       rsr: null,
       dataStatus: "SOURCE_UNAVAILABLE",
+    };
+  }
+}
+
+/** 台股加權指數歷史收盤價 */
+async function _fetchTaiexHistory() {
+  logger.info("📥 [DailyRunContext] 正在抓取台股大盤歷史收盤價...");
+  const done = stepTimer("fetchTaiexHistory");
+  try {
+    const result = await fetchTaiexHistoryWithAutoFillDetailed(
+      null,
+      HISTORY_MIN_BARS,
+    );
+    done();
+    return result;
+  } catch (error) {
+    done();
+    logger.warn(error, "⚠️ [DailyRunContext] 台股大盤歷史資料撈取失敗");
+    return {
+      status: "source_unavailable",
+      data: [],
+      required: HISTORY_MIN_BARS,
+      count: 0,
+      failedDates: [],
+      lastError: error.message,
     };
   }
 }

@@ -350,7 +350,8 @@ export async function runDailyCheck(deps = {}, options = {}) {
             leadingIndicatorInputs.taiexReturn ??
             result?.marketState?.twMarket?.changePct ??
             0,
-          bias60: result?.marketState?.twMarket?.bias60 ?? 0,
+          bias60: signalData?.bias60 ?? null,
+          bias60DataStatus: signalData?.bias60DataStatus ?? "UNAVAILABLE",
           rsr: taifexSentiment?.rsr ?? null,
           retailSentimentDataStatus:
             taifexSentiment?.dataStatus ?? "UNAVAILABLE",

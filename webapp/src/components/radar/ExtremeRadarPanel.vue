@@ -217,9 +217,10 @@ const RADAR_CONFIG = {
   },
   EXTREME_PANIC: {
     name: "歷史極度恐慌",
-    desc: "台股 VIX 與季線偏離",
+    desc: "台股 VIX 與 60 日乖離",
     defaultSummary: "市場情緒平靜，未見恐慌性拋售",
     definition: "偵測急跌、恐慌性賣壓與波動率是否同時升高。",
+    dataDefinition: "60 日乖離率＝(最新收盤價−MA60)／MA60。",
     thresholdHint: "恐慌指標與價格偏離程度同步超過警戒範圍時。",
   },
   RETAIL_SENTIMENT: {
@@ -237,15 +238,28 @@ function normalizeRadarId(radarId) {
 }
 
 function getDisplayDefinition(radarId, metrics = {}, config) {
-  if (metrics?.dataStatus === "UNAVAILABLE") {
-    return `${config.definition} 目前資料不足，暫不判讀。`;
+  const bias60Status = metrics?.bias60DataStatus;
+  const dataUnavailable =
+    metrics?.dataStatus === "UNAVAILABLE" ||
+    (radarId === "EXTREME_PANIC" &&
+      bias60Status != null &&
+      bias60Status !== "VERIFIED");
+
+  if (dataUnavailable) {
+    const dataDefinition = config.dataDefinition
+      ? ` ${config.dataDefinition}`
+      : "";
+    return `${config.definition}${dataDefinition} 目前資料不足，暫不判讀。`;
   }
 
-  if (radarId === "OVERNIGHT_SHOCK" && metrics?.dayToNightChangePct != null) {
+  if (
+    radarId === "OVERNIGHT_SHOCK" &&
+    metrics?.dayToNightChangePct != null
+  ) {
     return `${config.definition} ${config.dataDefinition}`;
   }
 
-  if (radarId === "RETAIL_SENTIMENT") {
+  if (radarId === "EXTREME_PANIC" || radarId === "RETAIL_SENTIMENT") {
     return `${config.definition} ${config.dataDefinition}`;
   }
 

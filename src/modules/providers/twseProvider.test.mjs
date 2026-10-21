@@ -63,6 +63,8 @@ import {
   fetchMarketOverview,
   fetchStockInstitutionalData,
   fetchStockMarginData,
+  parseTaiexIndexResponse,
+  fetchTaiexIndexByDate,
 } from "./twseProvider.mjs";
 
 import { fetchWithTimeout } from "../../utils/coreUtils.mjs";
@@ -396,6 +398,68 @@ describe("twseProvider - 台股 Provider", () => {
       expect(result.normalized).toEqual(
         expect.objectContaining({ pe: 10, pb: 2, yield: 3 }),
       );
+    });
+  });
+
+  describe("fetchTaiexIndexByDate", () => {
+    it("使用指定日期抓取並解析大盤收盤指數", async () => {
+      fetchWithTimeout.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify({
+            stat: "OK",
+            date: "20261020",
+            tables: [
+              {
+                title: "115年10月20日 價格指數(臺灣證券交易所)",
+                data: [["發行量加權股價指數", "46,292.93", "-", "529.15"]],
+              },
+            ],
+          }),
+        ),
+      });
+
+      const result = await fetchTaiexIndexByDate("2026-10-20");
+
+      expect(result).toEqual({ date: "2026-10-20", close: 46292.93 });
+      expect(fetchWithTimeout).toHaveBeenCalledWith(
+        expect.stringContaining("date=20261020"),
+        expect.any(Object),
+        10000,
+      );
+    });
+
+    it("來源 HTTP 失敗時回傳 null", async () => {
+      fetchWithTimeout.mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        text: vi.fn().mockResolvedValue("unavailable"),
+      });
+
+      await expect(fetchTaiexIndexByDate("2026-10-20")).resolves.toBeNull();
+    });
+  });
+
+  describe("parseTaiexIndexResponse", () => {
+    it("解析官方 MI_INDEX 的發行量加權股價指數", () => {
+      const result = parseTaiexIndexResponse({
+        stat: "OK",
+        date: "20261020",
+        tables: [
+          {
+            title: "115年10月20日 價格指數(臺灣證券交易所)",
+            fields: ["指數", "收盤指數", "漲跌(+/-)"],
+            data: [["發行量加權股價指數", "46,292.93", "-", "529.15"]],
+          },
+        ],
+      });
+
+      expect(result).toEqual({ date: "2026-10-20", close: 46292.93 });
+    });
+
+    it("找不到大盤指數時回傳 null", () => {
+      expect(parseTaiexIndexResponse({ stat: "OK", tables: [] })).toBeNull();
     });
   });
 
