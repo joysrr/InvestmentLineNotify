@@ -59,7 +59,13 @@ vi.mock("../../../domain/dailyRunContext.mjs", () => ({
 }));
 
 vi.mock("../../../domain/signalContext.mjs", () => ({
-  buildSignalContext: vi.fn().mockReturnValue({}),
+  buildSignalContext: vi.fn().mockReturnValue({
+    signalData: {
+      bias60: 0.0039,
+      bias60DataStatus: "VERIFIED",
+    },
+    finalPriceZ2: 102,
+  }),
 }));
 
 vi.mock("../../../modules/strategy/strategyEngine.mjs", () => ({
@@ -133,5 +139,150 @@ describe("Phase A: dailyCheck Leading Indicators Integration", () => {
     // 驗證報告中儲存了 leadingIndicators 欄位
     expect(savedReport.leadingIndicators).toBeDefined();
     expect(savedReport.leadingIndicators.stateMachine).toBeDefined();
+  });
+
+  it("evaluator 收到正確的 bias60 與 bias60DataStatus，且 saveReport payload 保留這些值", async () => {
+    const evaluateSpy = vi.spyOn(leadingEvaluator, "evaluateLeadingIndicators");
+
+    await runDailyCheck({
+      isTelegramEnabled: false,
+      isAIAdvisor: false,
+      isCallAI: false,
+      isSheetEnabled: false,
+    });
+
+    // 確認 evaluator 收到 signalContext 的 bias60
+    expect(evaluateSpy).toHaveBeenCalledTimes(1);
+    const marketData = evaluateSpy.mock.calls[0][0].marketData;
+    expect(marketData.bias60).toBeCloseTo(0.0039, 4);
+    expect(marketData.bias60DataStatus).toBe("VERIFIED");
+
+    // 確認 saveReport payload 保留 bias60 相關指標
+    const saveReportCalls = vi.mocked(archiveManager.saveReport).mock.calls;
+    expect(saveReportCalls.length).toBeGreaterThan(0);
+    const savedReport = saveReportCalls[0][0];
+
+    expect(savedReport.leadingIndicators.radars.extremePanic).toBeDefined();
+    const epMetrics = savedReport.leadingIndicators.radars.extremePanic.metrics;
+    expect(epMetrics.bias60).toBeCloseTo(0.0039, 4);
+    expect(epMetrics.bias60DataStatus).toBe("VERIFIED");
+  });
+
+  it("evaluator 收到正確的 rsr 與 retailSentimentDataStatus，且 saveReport payload 保留這些值", async () => {
+    const evaluateSpy = vi.spyOn(leadingEvaluator, "evaluateLeadingIndicators");
+
+    await runDailyCheck({
+      isTelegramEnabled: false,
+      isAIAdvisor: false,
+      isCallAI: false,
+      isSheetEnabled: false,
+    });
+
+    const marketData = evaluateSpy.mock.calls[0][0].marketData;
+    expect(marketData.rsr).toBeCloseTo(45.59, 2);
+    expect(marketData.retailSentimentDataStatus).toBe("VERIFIED");
+
+    const savedReport = vi.mocked(archiveManager.saveReport).mock.calls[0][0];
+    const rsMetrics =
+      savedReport.leadingIndicators.radars.retailSentiment.metrics;
+    expect(rsMetrics.rsr).toBeCloseTo(45.59, 2);
+    expect(rsMetrics.dataStatus).toBe("VERIFIED");
+  });
+
+  it("bias60 為 null（來源不可用）時不能轉換為 0，且 report 中保留 null", async () => {
+    // 覆寫 signalContext mock 返回不可用的 bias60
+    const { buildSignalContext } =
+      await import("../../../domain/signalContext.mjs");
+    vi.mocked(buildSignalContext).mockReturnValueOnce({
+      signalData: {
+        bias60: null,
+        bias60DataStatus: "SOURCE_UNAVAILABLE",
+      },
+      finalPriceZ2: 102,
+    });
+
+    const evaluateSpy = vi.spyOn(leadingEvaluator, "evaluateLeadingIndicators");
+
+    await runDailyCheck({
+      isTelegramEnabled: false,
+      isAIAdvisor: false,
+      isCallAI: false,
+      isSheetEnabled: false,
+    });
+
+    const marketData = evaluateSpy.mock.calls[0][0].marketData;
+    // null 不可被轉為 0
+    expect(marketData.bias60).toBeNull();
+    expect(marketData.bias60DataStatus).toBe("SOURCE_UNAVAILABLE");
+
+    const savedReport = vi.mocked(archiveManager.saveReport).mock.calls[0][0];
+    const epMetrics = savedReport.leadingIndicators.radars.extremePanic.metrics;
+    // report 中的 bias60 必須是 null，不能是 0
+    expect(epMetrics.bias60).toBeNull();
+  });
+
+  it("rsr 為 null（來源不可用）時 report 中保留 null 而非 0", async () => {
+    // 覆寫 dailyRunContext mock 返回不可用的 taifexRetailSentiment
+    const { buildDailyRunContext } =
+      await import("../../../domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockResolvedValueOnce({
+      openToday: true,
+      lastState: {
+        totalAssets: 3500000,
+        totalLiabilities: 1500000,
+        netAssetValue: 2000000,
+        p1Balance: 450000,
+      },
+      vixData: { value: 20.0 },
+      usRisk: { soxChg: -0.05, tsmChg: -0.04 },
+      taifexNight: {
+        changePct: null,
+        dayToNightChangePct: null,
+        dataStatus: "SOURCE_UNAVAILABLE",
+      },
+      taifexRetailSentiment: {
+        totalOi: null,
+        institutionalNetOi: null,
+        retailNetOi: null,
+        rsr: null,
+        dataStatus: "SOURCE_UNAVAILABLE",
+      },
+      macroData: {
+        rawMargin: { maintenanceRatio: "138.0", dayChangeRate: "-2.5" },
+      },
+      socialSentiment: {},
+      historyZ2: { closes: [100, 102], dates: ["2026-10-19", "2026-10-20"] },
+      history0050: { closes: [150, 151], dates: ["2026-10-19", "2026-10-20"] },
+      currentPriceZ2: 102,
+      finalPriceZ2: 102,
+      price0050: 151,
+      newsStructured: { tw: [], us: [] },
+      newsSummaryText: "新聞摘要",
+      macroTextForCoach: "宏觀",
+      macroAndChipStr: "籌碼",
+      previousAdviceSummary: "前期建議",
+      quote: { quote: "名言" },
+      sourceMetadata: {},
+      newsAnalysisStatus: "success",
+      valuationGuardState: { latchActive: false },
+    });
+
+    const evaluateSpy = vi.spyOn(leadingEvaluator, "evaluateLeadingIndicators");
+
+    await runDailyCheck({
+      isTelegramEnabled: false,
+      isAIAdvisor: false,
+      isCallAI: false,
+      isSheetEnabled: false,
+    });
+
+    const marketData = evaluateSpy.mock.calls[0][0].marketData;
+    expect(marketData.rsr).toBeNull();
+    expect(marketData.retailSentimentDataStatus).toBe("SOURCE_UNAVAILABLE");
+
+    const savedReport = vi.mocked(archiveManager.saveReport).mock.calls[0][0];
+    const rsMetrics =
+      savedReport.leadingIndicators.radars.retailSentiment.metrics;
+    expect(rsMetrics.rsr).toBeNull();
   });
 });

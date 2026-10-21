@@ -363,6 +363,20 @@ export async function runDailyCheck(deps = {}, options = {}) {
         usedBatches: prevUsedBatches,
       });
 
+      logger.info(
+        {
+          bias60: signalData?.bias60 ?? null,
+          bias60DataStatus: signalData?.bias60DataStatus ?? "UNAVAILABLE",
+          rsr: taifexSentiment?.rsr ?? null,
+          retailSentimentDataStatus:
+            taifexSentiment?.dataStatus ?? "UNAVAILABLE",
+          rNight:
+            taifexNight?.dayToNightChangePct ?? taifexNight?.changePct ?? null,
+          nightDataStatus: taifexNight?.dataStatus ?? "UNAVAILABLE",
+        },
+        "📡 [LeadingIndicator] evaluator 輸入邊界紀錄",
+      );
+
       // 極端發聲：若有 Telegram 警報卡片且 Telegram 功能啟用，發送獨立警報卡
       if (leadingIndicators?.telegramCard && isTelegramEnabled) {
         try {
@@ -474,6 +488,21 @@ export async function runDailyCheck(deps = {}, options = {}) {
           generatedAt: dateText,
         },
       });
+      logger.info(
+        {
+          extremePanicBias60:
+            leadingIndicators?.radars?.extremePanic?.metrics?.bias60 ?? "N/A",
+          extremePanicBias60DataStatus:
+            leadingIndicators?.radars?.extremePanic?.metrics
+              ?.bias60DataStatus ?? "N/A",
+          retailSentimentRsr:
+            leadingIndicators?.radars?.retailSentiment?.metrics?.rsr ?? "N/A",
+          retailSentimentDataStatus:
+            leadingIndicators?.radars?.retailSentiment?.metrics?.dataStatus ??
+            "N/A",
+        },
+        "📁 [LeadingIndicator] report 序列化邊界紀錄",
+      );
     } else {
       logger.warn(
         { newsAnalysisStatus },
