@@ -117,6 +117,58 @@ describe("Phase 3: TAIFEX Data Provider (taifexProvider)", () => {
       expect(result.dataStatus).toBe("VERIFIED");
     });
 
+    it("完整官方多月份資料必須加總所有 MTX 日盤未沖銷契約數", () => {
+      const result = parseTaifexSmallTxMarketOiRows({
+        rows: [
+          {
+            契約: "MTX",
+            "到期月份(週別)": "202610",
+            交易時段: "一般",
+            未沖銷契約數: "20051",
+          },
+          {
+            契約: "MTX",
+            "到期月份(週別)": "202610W4",
+            交易時段: "一般",
+            未沖銷契約數: "19",
+          },
+          {
+            契約: "MTX",
+            "到期月份(週別)": "202611",
+            交易時段: "一般",
+            未沖銷契約數: "19486",
+          },
+          {
+            契約: "MTX",
+            "到期月份(週別)": "202612",
+            交易時段: "一般",
+            未沖銷契約數: "2502",
+          },
+          {
+            契約: "MTX",
+            "到期月份(週別)": "202703",
+            交易時段: "一般",
+            未沖銷契約數: "589",
+          },
+          {
+            契約: "MTX",
+            "到期月份(週別)": "202706",
+            交易時段: "一般",
+            未沖銷契約數: "217",
+          },
+          {
+            契約: "MTX",
+            "到期月份(週別)": "202709",
+            交易時段: "一般",
+            未沖銷契約數: "265",
+          },
+        ],
+      });
+
+      expect(result.totalOi).toBe(43129);
+      expect(result.dataStatus).toBe("VERIFIED");
+    });
+
     it("沒有有效日盤未平倉量時回傳 null", () => {
       const result = parseTaifexSmallTxMarketOiRows({ rows: [] });
 
@@ -252,7 +304,48 @@ describe("Phase 3: TAIFEX Data Provider (taifexProvider)", () => {
   describe("3.5 官方資料合併與 RSR", () => {
     it("合併全市場 MTX 未平倉與 MXF 法人未平倉，計算非三大法人淨部位比率", async () => {
       const marketRows = [
-        { 契約: "MTX", 交易時段: "一般", 未沖銷契約數: "20051" },
+        {
+          契約: "MTX",
+          "到期月份(週別)": "202610",
+          交易時段: "一般",
+          未沖銷契約數: "20051",
+        },
+        {
+          契約: "MTX",
+          "到期月份(週別)": "202610W4",
+          交易時段: "一般",
+          未沖銷契約數: "19",
+        },
+        {
+          契約: "MTX",
+          "到期月份(週別)": "202611",
+          交易時段: "一般",
+          未沖銷契約數: "19486",
+        },
+        {
+          契約: "MTX",
+          "到期月份(週別)": "202612",
+          交易時段: "一般",
+          未沖銷契約數: "2502",
+        },
+        {
+          契約: "MTX",
+          "到期月份(週別)": "202703",
+          交易時段: "一般",
+          未沖銷契約數: "589",
+        },
+        {
+          契約: "MTX",
+          "到期月份(週別)": "202706",
+          交易時段: "一般",
+          未沖銷契約數: "217",
+        },
+        {
+          契約: "MTX",
+          "到期月份(週別)": "202709",
+          交易時段: "一般",
+          未沖銷契約數: "265",
+        },
       ];
       const institutionalRows = [
         {
@@ -275,9 +368,9 @@ describe("Phase 3: TAIFEX Data Provider (taifexProvider)", () => {
           .mockResolvedValue({ rows: institutionalRows }),
       });
 
-      expect(result.totalOi).toBe(20051);
+      expect(result.totalOi).toBe(43129);
       expect(result.institutionalNetOi).toBe(-9142);
-      expect(result.rsr).toBeCloseTo(45.59, 2);
+      expect(result.rsr).toBeCloseTo(21.2, 2);
       expect(result.dataStatus).toBe("VERIFIED");
     });
 
