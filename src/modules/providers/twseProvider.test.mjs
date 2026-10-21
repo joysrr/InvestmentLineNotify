@@ -430,14 +430,17 @@ describe("twseProvider - 台股 Provider", () => {
       );
     });
 
-    it("來源 HTTP 失敗時回傳 null", async () => {
+    it("來源 HTTP 失敗（非 2xx）應拋出，讓 historyProvider 記為 failedDate", async () => {
+      // 語意修正：307/404/500/503 等一律拋出（之前錯誤地 return null，會被誤認為休市日）
       fetchWithTimeout.mockResolvedValueOnce({
         ok: false,
         status: 503,
         text: vi.fn().mockResolvedValue("unavailable"),
       });
 
-      await expect(fetchTaiexIndexByDate("2026-10-20")).resolves.toBeNull();
+      await expect(fetchTaiexIndexByDate("2026-10-20")).rejects.toThrow(
+        /HTTP 503/,
+      );
     });
   });
 

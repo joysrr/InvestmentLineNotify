@@ -52,7 +52,7 @@ export async function fetchTaiexHistoryWithAutoFill(
 export async function fetchTaiexHistoryWithAutoFillDetailed(
   endISO = null,
   minCount = 60,
-  { maxDays = 90, retryAttempts = 2, retryDelayMs = 2000 } = {},
+  { maxDays = 120, retryAttempts = 2, retryDelayMs = 2000 } = {},
 ) {
   const end = endISO ? new Date(endISO) : new Date();
   end.setHours(23, 59, 59, 999);

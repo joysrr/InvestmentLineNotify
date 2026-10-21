@@ -672,22 +672,22 @@ export async function fetchTaiexIndexByDate(date) {
 
   const url = `https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=${rawDate}&type=ALLBUT0999`;
 
-  try {
-    const res = await fetchWithTimeout(
-      url,
-      {
-        ...baseFetchOptions,
-        headers: { ...baseFetchOptions.headers, Accept: "application/json" },
-      },
-      10000,
-    );
-    const text = await res.text();
-    if (!res.ok || !text.trim()) return null;
-    return parseTaiexIndexResponse(JSON.parse(text));
-  } catch (error) {
-    console.warn(`TWSE MI_INDEX ${date} unavailable: ${error.message}`);
-    return null;
+  const res = await fetchWithTimeout(
+    url,
+    {
+      ...baseFetchOptions,
+      headers: { ...baseFetchOptions.headers, Accept: "application/json" },
+    },
+    10000,
+  );
+  if (!res.ok) {
+    // 非 2xx（含 307 redirect、404、500 等）一律拋出，
+    // 讓 historyProvider 的 catch 把此日期記入 failedDates → source_unavailable
+    throw new Error(`TWSE MI_INDEX ${date} HTTP ${res.status}`);
   }
+  const text = await res.text();
+  if (!text.trim()) return null;
+  return parseTaiexIndexResponse(JSON.parse(text));
 }
 
 // ============================================================================
