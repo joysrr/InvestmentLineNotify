@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-10-01T08:32:34.057Z",
+  "generated_at": "2026-10-21T03:00:16.149Z",
   "summary": {
-    "total_files": 155,
-    "average_health": 56.2,
+    "total_files": 156,
+    "average_health": 55.6,
     "by_health": {
-      "excellent": 25,
-      "good": 19,
-      "fair": 110,
+      "excellent": 26,
+      "good": 18,
+      "fair": 111,
       "poor": 1
     },
     "by_category": {
       "other": {
         "count": 16,
         "avgHealth": 58,
-        "totalHealth": 925
+        "totalHealth": 920
       },
       "guide": {
         "count": 3,
@@ -23,22 +23,22 @@
       "report": {
         "count": 17,
         "avgHealth": 47,
-        "totalHealth": 800
+        "totalHealth": 795
       },
       "reference": {
-        "count": 39,
-        "avgHealth": 81,
-        "totalHealth": 3170
+        "count": 40,
+        "avgHealth": 79,
+        "totalHealth": 3165
       },
       "explanation": {
-        "count": 6,
-        "avgHealth": 50,
-        "totalHealth": 300
+        "count": 4,
+        "avgHealth": 48,
+        "totalHealth": 190
       },
       "plan": {
-        "count": 74,
+        "count": 76,
         "avgHealth": 45,
-        "totalHealth": 3340
+        "totalHealth": 3430
       }
     }
   },
@@ -184,26 +184,6 @@
       "health": 45,
       "impact": 15,
       "priority": 83,
-      "issues": [
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少摘要"
-      ],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
-      "concept": "dec-004-backtest-scheduler-automation",
-      "file": "architecture/DEC-004-backtest-scheduler-automation.md",
-      "category": "explanation",
-      "health": 45,
-      "impact": 12,
-      "priority": 66,
       "issues": [
         "狀態未知",
         "從未驗證",
@@ -406,6 +386,26 @@
         "添加 related_code",
         "添加 related_docs"
       ]
+    },
+    {
+      "concept": "strategy-engine-verification-report",
+      "file": "verification/STRATEGY_ENGINE_VERIFICATION_REPORT.md",
+      "category": "other",
+      "health": 45,
+      "impact": 6,
+      "priority": 33,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
     }
   ],
   "all_files": [
@@ -469,7 +469,7 @@
       "concept": "readme",
       "file": "Reports/README.md",
       "category": "report",
-      "health": 75,
+      "health": 70,
       "status": "current"
     },
     {
@@ -599,13 +599,6 @@
       "status": "current"
     },
     {
-      "concept": "dec-004-backtest-scheduler-automation",
-      "file": "architecture/DEC-004-backtest-scheduler-automation.md",
-      "category": "explanation",
-      "health": 45,
-      "status": "archived"
-    },
-    {
       "concept": "dec-005-monitoring-alerting",
       "file": "architecture/DEC-005-monitoring-alerting.md",
       "category": "explanation",
@@ -618,13 +611,6 @@
       "category": "explanation",
       "health": 45,
       "status": "archived"
-    },
-    {
-      "concept": "backtest-engine-design",
-      "file": "architecture/backtest_engine_design.md",
-      "category": "explanation",
-      "health": 65,
-      "status": "needs-review"
     },
     {
       "concept": "dec-016-vitest-worker-crash",
@@ -665,35 +651,35 @@
       "concept": "ai_news",
       "file": "modules/ai_news/_index.md",
       "category": "reference",
-      "health": 100,
+      "health": 95,
       "status": "current"
     },
     {
       "concept": "ai-pipeline",
       "file": "modules/ai_news/ai_pipeline.md",
       "category": "reference",
-      "health": 100,
+      "health": 95,
       "status": "current"
     },
     {
       "concept": "agent-prompts",
       "file": "modules/ai_news/integrations/agent_prompts.md",
       "category": "reference",
-      "health": 95,
+      "health": 90,
       "status": "current"
     },
     {
       "concept": "ai-coach-checklist",
       "file": "modules/ai_news/integrations/ai_coach_checklist.md",
       "category": "reference",
-      "health": 95,
+      "health": 90,
       "status": "current"
     },
     {
       "concept": "langfuse-prompt-management",
       "file": "modules/ai_news/integrations/langfuse_prompt_management.md",
       "category": "reference",
-      "health": 100,
+      "health": 95,
       "status": "current"
     },
     {
@@ -707,35 +693,35 @@
       "concept": "langfuse-prompt-management-v5",
       "file": "modules/ai_news/integrations/langfuse_prompt_management_v5.md",
       "category": "reference",
-      "health": 100,
+      "health": 95,
       "status": "current"
     },
     {
       "concept": "langfuse-score-analytics",
       "file": "modules/ai_news/integrations/langfuse_score_analytics.md",
       "category": "reference",
-      "health": 100,
+      "health": 95,
       "status": "current"
     },
     {
       "concept": "langfuse-score-configs",
       "file": "modules/ai_news/integrations/langfuse_score_configs.md",
       "category": "reference",
-      "health": 100,
+      "health": 95,
       "status": "current"
     },
     {
       "concept": "keyword-config",
       "file": "modules/ai_news/keyword_config.md",
       "category": "reference",
-      "health": 100,
+      "health": 95,
       "status": "current"
     },
     {
       "concept": "news-fetcher",
       "file": "modules/ai_news/news_fetcher.md",
       "category": "reference",
-      "health": 100,
+      "health": 95,
       "status": "current"
     },
     {
@@ -763,7 +749,7 @@
       "concept": "news-pool",
       "file": "modules/infrastructure/news_pool.md",
       "category": "reference",
-      "health": 100,
+      "health": 95,
       "status": "current"
     },
     {
@@ -777,7 +763,7 @@
       "concept": "operations",
       "file": "modules/operations/_index.md",
       "category": "reference",
-      "health": 90,
+      "health": 85,
       "status": "current"
     },
     {
@@ -805,14 +791,14 @@
       "concept": "presentation",
       "file": "modules/presentation/_index.md",
       "category": "reference",
-      "health": 85,
+      "health": 80,
       "status": "current"
     },
     {
       "concept": "api",
       "file": "modules/presentation/api/_index.md",
       "category": "reference",
-      "health": 85,
+      "health": 80,
       "status": "current"
     },
     {
@@ -847,7 +833,7 @@
       "concept": "notifications",
       "file": "modules/presentation/notifications.md",
       "category": "reference",
-      "health": 95,
+      "health": 90,
       "status": "current"
     },
     {
@@ -872,6 +858,13 @@
       "status": "current"
     },
     {
+      "concept": "leading-indicator-radars",
+      "file": "modules/strategy/leading_indicator_radars.md",
+      "category": "reference",
+      "health": 85,
+      "status": "current"
+    },
+    {
       "concept": "lifecycle-engine",
       "file": "modules/strategy/lifecycle_engine.md",
       "category": "reference",
@@ -889,7 +882,7 @@
       "concept": "macro-regime-metrics-analysis",
       "file": "modules/strategy/macro_regime_metrics_analysis.md",
       "category": "reference",
-      "health": 95,
+      "health": 90,
       "status": "current"
     },
     {
@@ -903,14 +896,14 @@
       "concept": "providers",
       "file": "modules/strategy/providers.md",
       "category": "reference",
-      "health": 85,
+      "health": 80,
       "status": "current"
     },
     {
       "concept": "regime-policy",
       "file": "modules/strategy/regime_policy.md",
       "category": "reference",
-      "health": 85,
+      "health": 80,
       "status": "current"
     },
     {
@@ -926,6 +919,13 @@
       "category": "other",
       "health": 45,
       "status": "archived"
+    },
+    {
+      "concept": "2026-10-20-leading-indicator-review",
+      "file": "plans/active/2026-10-20_leading-indicator-review.md",
+      "category": "plan",
+      "health": 45,
+      "status": "draft-for-han-review"
     },
     {
       "concept": "advice",
@@ -1147,6 +1147,13 @@
     {
       "concept": "2026-09-18-social-sentiment-snapshot-and-miniapp-plan",
       "file": "plans/completed/2026-09-18-social-sentiment-snapshot-and-miniapp-plan.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
+    },
+    {
+      "concept": "2026-10-19-leading-indicator-upgrade",
+      "file": "plans/completed/2026-10-19_leading-indicator-upgrade.md",
       "category": "plan",
       "health": 45,
       "status": "completed"
@@ -1491,7 +1498,7 @@
       "concept": "strategy-logic-verification-report",
       "file": "verification/STRATEGY_LOGIC_VERIFICATION_REPORT.md",
       "category": "other",
-      "health": 70,
+      "health": 65,
       "status": "current"
     }
   ]

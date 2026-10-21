@@ -5,10 +5,10 @@
   "stats": {
     "total_concepts": 156,
     "total_edges": 184,
-    "total_code_mappings": 66,
+    "total_code_mappings": 67,
     "concepts_with_code": 41,
     "concepts_with_links": 53,
-    "generated_at": "2026-10-20T06:05:43.786Z"
+    "generated_at": "2026-10-21T03:00:13.025Z"
   },
   "concepts": {
     "api-contract": {
@@ -858,9 +858,14 @@
       "summary": null,
       "related_docs": [],
       "related_code": [
+        "src/domain/dailyRunContext.mjs",
+        "src/domain/signalContext.mjs",
+        "src/modules/providers/twseProvider.mjs",
+        "src/modules/providers/historyProvider.mjs",
+        "src/modules/strategy/indicators.mjs",
         "src/modules/strategy/radars/",
-        "src/modules/strategy/marginStateMachine.mjs",
         "src/modules/strategy/leadingIndicatorEvaluator.mjs",
+        "src/scheduler/dailyCheck.mjs",
         "webapp/src/components/radar/ExtremeRadarPanel.vue"
       ],
       "tags": [
@@ -871,7 +876,7 @@
         "risk-management"
       ],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-10-21"
     },
     "lifecycle-engine": {
       "primary_doc": "modules/strategy/lifecycle_engine.md",
@@ -1900,6 +1905,10 @@
       {
         "concept": "technical-indicators-spec",
         "doc": "TECHNICAL_INDICATORS_SPEC.md"
+      },
+      {
+        "concept": "leading-indicator-radars",
+        "doc": "modules/strategy/leading_indicator_radars.md"
       }
     ],
     "src/modules/strategy/signalRules.mjs": [
@@ -2206,6 +2215,10 @@
       {
         "concept": "history-provider",
         "doc": "modules/infrastructure/history_provider.md"
+      },
+      {
+        "concept": "leading-indicator-radars",
+        "doc": "modules/strategy/leading_indicator_radars.md"
       }
     ],
     "src/modules/providers/twseProvider.mjs": [
@@ -2216,6 +2229,10 @@
       {
         "concept": "history-provider",
         "doc": "modules/infrastructure/history_provider.md"
+      },
+      {
+        "concept": "leading-indicator-radars",
+        "doc": "modules/strategy/leading_indicator_radars.md"
       }
     ],
     "src/modules/storage.mjs": [
@@ -2240,6 +2257,10 @@
       {
         "concept": "history-provider",
         "doc": "modules/infrastructure/history_provider.md"
+      },
+      {
+        "concept": "leading-indicator-radars",
+        "doc": "modules/strategy/leading_indicator_radars.md"
       }
     ],
     "src/test/historyProvider.resilience.test.mjs": [
@@ -2354,19 +2375,25 @@
         "doc": "modules/presentation/bot.md"
       }
     ],
+    "src/domain/signalContext.mjs": [
+      {
+        "concept": "leading-indicator-radars",
+        "doc": "modules/strategy/leading_indicator_radars.md"
+      }
+    ],
     "src/modules/strategy/radars/": [
       {
         "concept": "leading-indicator-radars",
         "doc": "modules/strategy/leading_indicator_radars.md"
       }
     ],
-    "src/modules/strategy/marginStateMachine.mjs": [
+    "src/modules/strategy/leadingIndicatorEvaluator.mjs": [
       {
         "concept": "leading-indicator-radars",
         "doc": "modules/strategy/leading_indicator_radars.md"
       }
     ],
-    "src/modules/strategy/leadingIndicatorEvaluator.mjs": [
+    "src/scheduler/dailyCheck.mjs": [
       {
         "concept": "leading-indicator-radars",
         "doc": "modules/strategy/leading_indicator_radars.md"

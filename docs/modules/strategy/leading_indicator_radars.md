@@ -1,11 +1,17 @@
 ---
 type: reference
 status: current
-last_updated: 2026-10-20
+last_updated: 2026-10-21
+last_verified: 2026-10-21
 related_code:
+  - src/domain/dailyRunContext.mjs
+  - src/domain/signalContext.mjs
+  - src/modules/providers/twseProvider.mjs
+  - src/modules/providers/historyProvider.mjs
+  - src/modules/strategy/indicators.mjs
   - src/modules/strategy/radars/
-  - src/modules/strategy/marginStateMachine.mjs
   - src/modules/strategy/leadingIndicatorEvaluator.mjs
+  - src/scheduler/dailyCheck.mjs
   - webapp/src/components/radar/ExtremeRadarPanel.vue
 tags:
   - strategy
@@ -33,14 +39,42 @@ wiki_links:
 
 ## 2. 四大極端雷達矩陣
 
-| 雷達代號           | 雷達名稱             | 觸發條件                                                            | 嚴重等級         | 防禦約束                          |
-| :----------------- | :------------------- | :------------------------------------------------------------------ | :--------------- | :-------------------------------- |
-| `OVERNIGHT_SHOCK`  | 隔夜美股與夜盤暴跌   | 費半/TSM ADR/夜盤綜合 ShockScore $\ge 0.70$ 或單一極端跌幅          | CRITICAL / ALERT | 凍結 00675L，暫緩當日 P1 加碼     |
-| `MARGIN_SETTLING`  | 融資維持率斷頭出清   | 大盤維持率 $< 140\%$ **且** 融資單日減幅 $\le -1.5\%$（雙條件確認） | ALERT / CRITICAL | 凍結 00675L，允許 0050 逆週期低接 |
-| `EXTREME_PANIC`    | 系統性恐慌極端拋售   | VIX $\ge 35$ 或單日跌幅 $\le -4.5\%$ 或 60日乖離 $\le -12\%$        | CRITICAL         | 放寬 0050 GL 至 2.7x，凍結 00675L |
-| `RETAIL_SENTIMENT` | 小台散戶多空極端情緒 | 小台非法人多空比 (RSR) $\ge +30\%$ 或高分位多殺多擠壓               | ALERT / CRITICAL | 警示多殺多連鎖踩踏，凍結 00675L   |
+| 雷達代號           | 雷達名稱             | 觸發條件                                                                 | 嚴重等級         | 防禦約束                          |
+| :----------------- | :------------------- | :----------------------------------------------------------------------- | :--------------- | :-------------------------------- |
+| `OVERNIGHT_SHOCK`  | 隔夜美股與夜盤暴跌   | 費半/TSM ADR/夜盤綜合 ShockScore $\ge 0.70$ 或單一極端跌幅               | CRITICAL / ALERT | 凍結 00675L，暫緩當日 P1 加碼     |
+| `MARGIN_SETTLING`  | 融資維持率斷頭出清   | 大盤維持率 $< 140\%$ **且** 融資單日減幅 $\le -1.5\%$（雙條件確認）      | ALERT / CRITICAL | 凍結 00675L，允許 0050 逆週期低接 |
+| `EXTREME_PANIC`    | 系統性恐慌極端拋售   | VIX $\ge 35$ 或單日跌幅 $\le -4.5\%$ 或 60 日乖離 $\le -12\%$            | CRITICAL         | 放寬 0050 GL 至 2.7x，凍結 00675L |
+| `RETAIL_SENTIMENT` | 非三大法人淨部位比率 | TAIFEX 推估比率 $\ge +30\%$ 或高分位多殺多擠壓；屬估計值，非直接散戶分類 | ALERT / CRITICAL | 警示多殺多連鎖踩踏，凍結 00675L   |
 
-## 3. 防禦狀態機（4 態轉換）
+### 2.1 `bias60` 契約
+
+- **官方來源**：TWSE `MI_INDEX` 的「發行量加權股價指數」收盤價。
+- **歷史回補**：`fetchTaiexHistoryWithAutoFillDetailed()` 往回查詢日資料，預設最多 90 個日曆日，直到取得 60 筆交易日。
+- **計算公式**：`bias60 = (最新收盤價 - MA60) / MA60`。
+- **共用邏輯**：MA60 使用 `src/modules/strategy/indicators.mjs` 的既有 `calcMA60()`；乖離計算使用同檔的 `calcBias()`。
+- **狀態**：`VERIFIED`、`INSUFFICIENT_HISTORY`、`SOURCE_UNAVAILABLE`。後兩者的值均為 `null`。
+- **前端呈現**：Mini App 顯示 `60 日乖離率＝(最新收盤價−MA60)／MA60`；非 `VERIFIED` 時顯示「目前資料不足，暫不判讀」，不顯示 `0.0%`。
+
+## 3. 資料流與錯誤降級
+
+```text
+TWSE MI_INDEX
+  → twseProvider.fetchTaiexIndexByDate
+  → historyProvider.fetchTaiexHistoryWithAutoFillDetailed
+  → dailyRunContext.taiexHistory
+  → signalContext.bias60 / bias60DataStatus
+  → dailyCheck leading-indicator input
+  → leadingIndicatorEvaluator
+  → extremePanicRadar
+  → API / MarketRadarView / ExtremeRadarPanel
+```
+
+- 休市日沒有資料是正常情況，不列為來源失敗。
+- HTTP、網路或來源格式錯誤會記錄 `failedDates`，並降級為 `SOURCE_UNAVAILABLE`。
+- TAIEX 歷史資料是非致命輸入；不足時每日流程仍可完成，但 Radar 3 不做乖離判讀。
+- 雷達 metrics 保留資料狀態，讓前端區分「未觸發」與「無法判讀」。
+
+## 4. 防禦狀態機（4 態轉換）
 
 - `IDLE（常態平穩）`：無雷達觸發，Telegram 靜默，Mini App 呈現微型平穩橫條。
 - `ACTIVE_DEFENSE（主動防禦）`：任一雷達觸發當日進入，Telegram 發送高醒目獨立警報卡，Mini App 展開行動紀律。

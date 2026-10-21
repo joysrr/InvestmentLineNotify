@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-24T05:15:29.637Z",
+  "generated_at": "2026-10-21T03:00:16.782Z",
   "stats": {
-    "total_nodes": 153,
-    "total_edges": 183,
-    "isolated_nodes": 93,
-    "weakly_connected": 19,
-    "connectivity": "39.2"
+    "total_nodes": 156,
+    "total_edges": 184,
+    "isolated_nodes": 96,
+    "weakly_connected": 18,
+    "connectivity": "38.5"
   },
   "core_concepts": [
     {
@@ -19,18 +19,18 @@
     {
       "concept": "ai_news",
       "outbound": 18,
-      "inbound": 19,
+      "inbound": 18,
       "codeLinks": 9,
-      "total": 46,
-      "importance": 93
+      "total": 45,
+      "importance": 90
     },
     {
       "concept": "strategy-engine",
       "outbound": 1,
-      "inbound": 27,
+      "inbound": 26,
       "codeLinks": 1,
-      "total": 29,
-      "importance": 84
+      "total": 28,
+      "importance": 81
     },
     {
       "concept": "langfuse-prompt-management-v5",
@@ -121,6 +121,14 @@
       "importance": 20
     },
     {
+      "concept": "leading-indicator-radars",
+      "outbound": 2,
+      "inbound": 0,
+      "codeLinks": 9,
+      "total": 11,
+      "importance": 20
+    },
+    {
       "concept": "regime-policy",
       "outbound": 2,
       "inbound": 4,
@@ -137,6 +145,14 @@
       "importance": 19
     },
     {
+      "concept": "infrastructure",
+      "outbound": 2,
+      "inbound": 2,
+      "codeLinks": 5,
+      "total": 9,
+      "importance": 18
+    },
+    {
       "concept": "operations",
       "outbound": 5,
       "inbound": 3,
@@ -151,22 +167,6 @@
       "codeLinks": 2,
       "total": 7,
       "importance": 15
-    },
-    {
-      "concept": "infrastructure",
-      "outbound": 2,
-      "inbound": 2,
-      "codeLinks": 3,
-      "total": 7,
-      "importance": 14
-    },
-    {
-      "concept": "schedules",
-      "outbound": 2,
-      "inbound": 1,
-      "codeLinks": 4,
-      "total": 7,
-      "importance": 13
     }
   ],
   "isolated_nodes": [
@@ -194,6 +194,7 @@
     "strategy-param-audit",
     "strategy-param-changes",
     "phase-6-baseline",
+    "2026-10-20-leading-indicator-review",
     "advice",
     "draft-features",
     "draft-optimizations",
@@ -226,6 +227,7 @@
     "preplan-interface",
     "system-optimize-suggest",
     "2026-09-18-social-sentiment-snapshot-and-miniapp-plan",
+    "2026-10-19-leading-indicator-upgrade",
     "active-plans-consolidated",
     "code-review-optimization-plan",
     "core-logic-validation-plan",
@@ -244,6 +246,7 @@
     "miniapp-uiux-improvement-plan",
     "mini-app-optimization-plan",
     "missing-views-and-cleanup-plan",
+    "non-trading-day-intelligence-pipeline",
     "phase2-spec-v5",
     "phase3-score-migration-spec",
     "phase-1-2-verification",
@@ -271,7 +274,6 @@
     "security-report",
     "testing",
     "test-spec-strategyengine",
-    "dec-004-backtest-scheduler-automation",
     "dec-005-monitoring-alerting",
     "dec-006-deployment-automation",
     "maintenance-schedule",
