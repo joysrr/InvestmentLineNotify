@@ -83,9 +83,9 @@ export function toExCh(symbol) {
  * @param {any} val - 要轉換的值
  * @param {object} options - 設定項
  * @param {number} options.decimals - 小數點位數 (不傳則不處理)
- * @param {any} options.fallback - 解析失敗時的回傳值 (預設為 0，傳 null 表示解析失敗回傳 null)
+ * @param {any} options.fallback - 解析失敗時的回傳值 (預設為 null，需明確傳 0 才回傳 0)
  */
-export function parseNumber(val, { decimals = null, fallback = 0 } = {}) {
+export function parseNumber(val, { decimals = null, fallback = null } = {}) {
   // 1. 基本空值處理
   if (val === null || val === undefined || val === "") return fallback;
 

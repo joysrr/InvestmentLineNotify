@@ -196,10 +196,6 @@ export async function fetchUsMarketData() {
 
   const riskAnalysis = await analyzeUsRisk({ vix, spx });
 
-  if (!riskAnalysis.success) {
-    throw new Error("FRED API 抓取失敗且無可用資料");
-  }
-
   const normalized = {
     ...riskAnalysis,
     soxChg: sox?.changePercent ?? null,

@@ -123,6 +123,53 @@ describe("usMarketProvider - US Market Provider", () => {
       expect(typeof parseNumber).toBe("function");
     });
 
+    it("FRED 來源回傳 HTTP 400 時，不得產生 0 風險值", async () => {
+      parseNumber.mockImplementation((value) => {
+        if (value === null || value === undefined || value === "") return null;
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+      });
+      fetchWithTimeout.mockResolvedValue({ ok: false, status: 400 });
+
+      const result = await fetchUsMarketData();
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          vix: "N/A",
+          spxChg: "N/A",
+          success: false,
+        }),
+      );
+      expect(result.vix).not.toBe("0.00");
+      expect(result.spxChg).not.toBe("0.00%");
+    });
+
+    it("Yahoo 最新收盤價為 null 時，不得計算成 -100%", async () => {
+      parseNumber.mockImplementation((value) => {
+        if (value === null || value === undefined || value === "") return null;
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+      });
+      const result = await fetchYahooChartSeriesLast2("TSM", {
+        fetcherFn: vi.fn().mockResolvedValue({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            chart: {
+              result: [
+                {
+                  meta: { symbol: "TSM" },
+                  timestamp: [1791321600, 1791408000],
+                  indicators: { quote: [{ close: [420.22, null] }] },
+                },
+              ],
+            },
+          }),
+        }),
+      });
+
+      expect(result).toBeNull();
+    });
+
     it("聚合 FRED、SOX 與 TSM ADR，回傳四項市場資料", async () => {
       parseNumber.mockImplementation((value) => {
         const parsed = Number(value);
