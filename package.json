@@ -20,7 +20,8 @@
     "openapi:generate": "node scripts/generate-openapi.mjs",
     "openapi:check": "node scripts/check-openapi-diff.mjs",
     "deploy": "node scripts/deploy.mjs",
-    "deploy:dry": "node scripts/deploy.mjs --dry-run"
+    "deploy:dry": "node scripts/deploy.mjs --dry-run",
+    "deploy:production": "node scripts/deploy-production.mjs"
   },
   "type": "module",
   "dependencies": {
