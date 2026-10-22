@@ -24,6 +24,7 @@ async function createFixture() {
   await writeFile(join(sourceDataDir, "reports.json"), '{"ok":true}');
   await writeFile(join(sourceLogsDir, "api.log"), "request log");
   await writeFile(join(sourceDataDir, ".env"), "SECRET=should-not-copy");
+  await writeFile(join(sourceDataDir, ".bot_lock"), "runtime-lock");
 
   return { sourceDataDir, sourceLogsDir, destinationRoot };
 }
@@ -52,6 +53,9 @@ describe("syncProductionArtifacts", () => {
     ).toBe("request log");
     await expect(
       readFile(join(result.snapshotDir, "data", ".env"), "utf8"),
+    ).rejects.toThrow();
+    await expect(
+      readFile(join(result.snapshotDir, "data", ".bot_lock"), "utf8"),
     ).rejects.toThrow();
 
     const manifest = JSON.parse(await readFile(result.manifestPath, "utf8"));

@@ -7,7 +7,12 @@ import { createHash } from "crypto";
 import { cp, mkdir, readdir, readFile, stat, writeFile } from "fs/promises";
 import { join, relative, resolve } from "path";
 
-const EXCLUDED_NAMES = new Set([".env", ".env.local", ".env.production"]);
+const EXCLUDED_NAMES = new Set([
+  ".env",
+  ".env.local",
+  ".env.production",
+  ".bot_lock",
+]);
 
 function isExcluded(relativePath) {
   return relativePath

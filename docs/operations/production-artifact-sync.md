@@ -63,6 +63,7 @@ npm run sync:production-artifacts -- --dry-run \
 - `.env`
 - `.env.local`
 - `.env.production`
+- `.bot_lock`
 - 任一層級名稱以 `.secret` 結尾的檔案
 
 同步前仍應確認正式資料目錄沒有其他 credentials、tokens、private keys 或連線字串。發現敏感資料時，應先更新排除規則再同步。
