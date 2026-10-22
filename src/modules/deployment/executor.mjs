@@ -168,6 +168,10 @@ export async function getDeployHistory(limit = 20) {
   return jobs.sort((a, b) => b.startedAt - a.startedAt).slice(0, limit);
 }
 
+export function buildNpmCiArgs() {
+  return ["ci", "--include=dev"];
+}
+
 /**
  * 執行部署
  */
@@ -303,8 +307,8 @@ export async function executeDeploy(jobId, options = {}) {
       );
     }
 
-    // 步驟 2: 後端依賴安裝
-    await runStep("npm-ci-backend", "npm", ["ci"], deployPath);
+    // 步驟 2: 後端依賴安裝；部署需要 devDependencies（包含 Husky prepare）
+    await runStep("npm-ci-backend", "npm", buildNpmCiArgs(), deployPath);
 
     // 步驟 3: 後端建置
     await runStep("npm-build-backend", "npm", ["run", "build"], deployPath);
