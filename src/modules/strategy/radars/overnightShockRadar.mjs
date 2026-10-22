@@ -84,8 +84,17 @@ export function evaluateOvernightShockRadar({
   const absSoxHistory = hasSoxHistory ? soxHistory.map((v) => Math.abs(v)) : [];
   const p95Sox = hasSoxHistory ? calcPercentile(absSoxHistory, 95) : 0.035;
 
+  // 夜盤資料不可用時，不得將 null 解讀為 0% 抗跌
+  const hasVerifiedNightData =
+    nightDataStatus === "VERIFIED" && Number.isFinite(rNight);
+
   // 2. 觸發條件判定 (AND)
-  const isTriggered = Math.abs(shockScore) >= 2.0 && Math.abs(rSox) >= p95Sox;
+  const isTriggered =
+    hasVerifiedNightData &&
+    rSox < 0 &&
+    rTsm < 0 &&
+    shockScore <= -2.0 &&
+    Math.abs(rSox) >= p95Sox;
 
   if (!isTriggered) {
     return createRadarResult({

@@ -21,7 +21,7 @@ vi.mock("../../../domain/dailyRunContext.mjs", () => ({
       p1Balance: 450000,
     },
     vixData: { value: 20.0 },
-    usRisk: { soxChg: -0.05, tsmChg: -0.04 },
+    usRisk: { soxChg: -5, tsmChg: -4 },
     taifexNight: {
       changePct: -0.0015,
       dayToNightChangePct: 0.00694,
@@ -121,6 +121,8 @@ describe("Phase A: dailyCheck Leading Indicators Integration", () => {
     });
 
     expect(evaluateSpy).toHaveBeenCalledTimes(1);
+    expect(evaluateSpy.mock.calls[0][0].marketData.rSox).toBeCloseTo(-0.05, 5);
+    expect(evaluateSpy.mock.calls[0][0].marketData.rTsm).toBeCloseTo(-0.04, 5);
     expect(evaluateSpy.mock.calls[0][0].marketData.rNight).toBeCloseTo(
       0.00694,
       5,
@@ -234,7 +236,7 @@ describe("Phase A: dailyCheck Leading Indicators Integration", () => {
         p1Balance: 450000,
       },
       vixData: { value: 20.0 },
-      usRisk: { soxChg: -0.05, tsmChg: -0.04 },
+      usRisk: { soxChg: -5, tsmChg: -4 },
       taifexNight: {
         changePct: null,
         dayToNightChangePct: null,

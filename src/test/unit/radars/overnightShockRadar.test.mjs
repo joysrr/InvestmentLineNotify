@@ -91,7 +91,41 @@ describe("Radar 1: Overnight Shock Radar (evaluateOvernightShockRadar)", () => {
     expect(result.cardSummary).toContain("P1 維持正常");
   });
 
-  it("TC-05: 缺歷史數據時的安全降級處置 (Fallbacks)", () => {
+  it("TC-05: 夜盤資料不可用時不應觸發背離警報", () => {
+    const result = evaluateOvernightShockRadar({
+      rSox: -0.04,
+      rTsm: -0.038,
+      rNight: null,
+      nightDataStatus: "UNAVAILABLE",
+      soxHistory: mockSoxHistory,
+      tsmHistory: mockTsmHistory,
+    });
+
+    expect(result.triggered).toBe(false);
+    expect(result.severity).toBe(NIGHT_SESSION_SEVERITY.NONE);
+    expect(result.constraints.freeze00675L).toBe(false);
+    expect(result.constraints.pauseP1).toBe(false);
+    expect(result.cardSummary).toBeNull();
+    expect(result.metrics.rNight).toBeNull();
+    expect(result.metrics.dataStatus).toBe("UNAVAILABLE");
+  });
+
+  it("TC-06: 正向極端波動不得觸發下跌警報", () => {
+    const result = evaluateOvernightShockRadar({
+      rSox: 0.04,
+      rTsm: 0.038,
+      rNight: 0.012,
+      nightDataStatus: "VERIFIED",
+      soxHistory: mockSoxHistory,
+      tsmHistory: mockTsmHistory,
+    });
+
+    expect(result.triggered).toBe(false);
+    expect(result.severity).toBe(NIGHT_SESSION_SEVERITY.NONE);
+    expect(result.cardSummary).toBeNull();
+  });
+
+  it("TC-07: 缺歷史數據時的安全降級處置 (Fallbacks)", () => {
     // 當歷史數據為空陣列時，依賴絕對門檻 (-3.5%) 作為安全兜底
     const result = evaluateOvernightShockRadar({
       rSox: -0.04, // -4.0%

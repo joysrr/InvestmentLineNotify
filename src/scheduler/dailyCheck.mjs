@@ -338,8 +338,8 @@ export async function runDailyCheck(deps = {}, options = {}) {
       };
       leadingIndicators = evaluateLeadingIndicators({
         marketData: {
-          rSox: usRisk?.soxChg ?? 0,
-          rTsm: usRisk?.tsmChg ?? 0,
+          rSox: usRisk?.soxChg == null ? 0 : usRisk.soxChg / 100,
+          rTsm: usRisk?.tsmChg == null ? 0 : usRisk.tsmChg / 100,
           rNight:
             taifexNight?.dayToNightChangePct ?? taifexNight?.changePct ?? null,
           nightDataStatus: taifexNight?.dataStatus ?? "UNAVAILABLE",
