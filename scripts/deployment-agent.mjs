@@ -33,6 +33,7 @@ const server = createDeploymentAgentServer({
     });
     return job;
   },
+  getJobStatus: (jobId) => deploymentExecutor.getJobState(jobId),
 });
 
 await server.start();

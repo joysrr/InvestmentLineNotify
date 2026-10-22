@@ -13,6 +13,18 @@ const ROUTES = new Map([
   ["POST /deploy-production", "deploy"],
 ]);
 
+function resolveOperation(request, getJobStatus) {
+  const fixedOperation = ROUTES.get(`${request.method} ${request.url}`);
+  if (fixedOperation) return { name: fixedOperation };
+
+  const match = request.url.match(/^\/deployments\/([^/]+)$/);
+  if (request.method === "GET" && match && getJobStatus) {
+    return { name: "jobStatus", jobId: decodeURIComponent(match[1]) };
+  }
+
+  return null;
+}
+
 async function readJsonBody(request) {
   let body = "";
   for await (const chunk of request) body += chunk;
@@ -29,7 +41,12 @@ function sendJson(response, statusCode, payload) {
   response.end(JSON.stringify(payload));
 }
 
-export function createDeploymentAgentServer({ socketPath, sync, deploy }) {
+export function createDeploymentAgentServer({
+  socketPath,
+  sync,
+  deploy,
+  getJobStatus,
+}) {
   if (
     !socketPath ||
     typeof sync !== "function" ||
@@ -37,16 +54,19 @@ export function createDeploymentAgentServer({ socketPath, sync, deploy }) {
   ) {
     throw new Error("socketPath, sync and deploy handlers are required");
   }
+  if (getJobStatus !== undefined && typeof getJobStatus !== "function") {
+    throw new Error("getJobStatus must be a function when provided");
+  }
 
   const server = createServer(async (request, response) => {
-    const operation = ROUTES.get(`${request.method} ${request.url}`);
+    const operation = resolveOperation(request, getJobStatus);
     if (!operation) {
       sendJson(response, 404, { error: "Not Found" });
       return;
     }
 
     try {
-      if (operation === "status") {
+      if (operation.name === "status") {
         sendJson(response, 200, {
           service: "investnotify-deploy-agent",
           status: "ok",
@@ -54,9 +74,19 @@ export function createDeploymentAgentServer({ socketPath, sync, deploy }) {
         return;
       }
 
+      if (operation.name === "jobStatus") {
+        const result = await getJobStatus(operation.jobId);
+        if (!result) {
+          sendJson(response, 404, { error: "Deployment job not found" });
+          return;
+        }
+        sendJson(response, 200, result);
+        return;
+      }
+
       const payload = await readJsonBody(request);
       const result =
-        operation === "sync" ? await sync(payload) : await deploy(payload);
+        operation.name === "sync" ? await sync(payload) : await deploy(payload);
       sendJson(response, 200, result);
     } catch (error) {
       sendJson(response, 400, { error: error.message });

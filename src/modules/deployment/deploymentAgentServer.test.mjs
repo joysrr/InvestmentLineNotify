@@ -86,12 +86,10 @@ describe("deployment agent Unix socket API", () => {
 
   it("routes sync and deploy independently", async () => {
     const socketPath = await createSocketPath();
-    const sync = vi
-      .fn()
-      .mockResolvedValue({
-        status: "completed",
-        snapshotDir: "/diagnostics/one",
-      });
+    const sync = vi.fn().mockResolvedValue({
+      status: "completed",
+      snapshotDir: "/diagnostics/one",
+    });
     const deploy = vi
       .fn()
       .mockResolvedValue({ jobId: "job-1", status: "completed" });
@@ -116,6 +114,33 @@ describe("deployment agent Unix socket API", () => {
     expect(sync).toHaveBeenCalledWith({ dryRun: true });
     expect(deployResponse.statusCode).toBe(200);
     expect(deploy).toHaveBeenCalledWith({ rollback: false });
+  });
+
+  it("returns deployment job status through the read-only status route", async () => {
+    const socketPath = await createSocketPath();
+    const sync = vi.fn();
+    const deploy = vi.fn();
+    const getJobStatus = vi
+      .fn()
+      .mockResolvedValue({ jobId: "job-1", status: "completed", exitCode: 0 });
+    const server = createDeploymentAgentServer({
+      socketPath,
+      sync,
+      deploy,
+      getJobStatus,
+    });
+    servers.push(server);
+    await server.start();
+
+    const response = await callAgent(socketPath, "GET", "/deployments/job-1");
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual({
+      jobId: "job-1",
+      status: "completed",
+      exitCode: 0,
+    });
+    expect(getJobStatus).toHaveBeenCalledWith("job-1");
   });
 
   it("rejects unknown routes and arbitrary command fields", async () => {
