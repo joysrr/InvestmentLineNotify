@@ -2,12 +2,18 @@ import { describe, expect, it, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import DataEvidenceCard from "./DataEvidenceCard.vue";
 
+const telegramState = vi.hoisted(() => ({
+  waitReady: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("../../api/index.js", () => ({
   fetchDataEvidenceReport: vi.fn().mockResolvedValue({
     generatedAt: "2026-10-21T00:00:00.000Z",
     items: [{ field: "pb", value: 4.05 }],
   }),
 }));
+
+vi.mock("../../composables/useTelegram.js", () => telegramState);
 
 vi.mock("../../components/common/ExportButton.vue", () => ({
   default: {
@@ -28,6 +34,7 @@ describe("DataEvidenceCard", () => {
     });
 
     await vi.waitFor(() => expect(wrapper.text()).toContain("1 個核對項目"));
+    expect(telegramState.waitReady).toHaveBeenCalledOnce();
     const exportButton = wrapper.get('[data-testid="evidence-export"]');
     expect(exportButton.exists()).toBe(true);
     expect(exportButton.attributes("data-direct-command")).toBe("json");

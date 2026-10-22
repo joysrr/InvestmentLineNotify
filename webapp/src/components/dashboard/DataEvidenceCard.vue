@@ -36,6 +36,7 @@
 <script setup>
 import { computed, onMounted, shallowRef } from "vue";
 import { fetchDataEvidenceReport } from "../../api/index.js";
+import { waitReady } from "../../composables/useTelegram.js";
 import ExportButton from "../common/ExportButton.vue";
 
 const report = shallowRef(null);
@@ -56,7 +57,10 @@ async function loadReport() {
   }
 }
 
-onMounted(loadReport);
+onMounted(async () => {
+  await waitReady();
+  await loadReport();
+});
 </script>
 
 <style scoped>
