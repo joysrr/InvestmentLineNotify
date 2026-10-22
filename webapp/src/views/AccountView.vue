@@ -202,6 +202,10 @@
 
       <!-- 4. 資料來源健康度 -->
       <div class="section">
+        <DataEvidenceCard />
+      </div>
+
+      <div class="section">
         <div class="section-header-row">
           <h2 class="section-title">📡 資料來源</h2>
           <button
@@ -266,6 +270,7 @@ import { fetchStatus, fetchReports } from "../api/index.js";
 import { usePortfolioSnapshots } from "../composables/usePortfolioSnapshots.js";
 import { waitReady } from "../composables/useTelegram.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
+import DataEvidenceCard from "../components/dashboard/DataEvidenceCard.vue";
 
 // ECharts
 import VChart from "vue-echarts";

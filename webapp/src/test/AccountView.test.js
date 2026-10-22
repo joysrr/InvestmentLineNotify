@@ -1,7 +1,11 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
 import AccountView from "../views/AccountView.vue";
-import { fetchStatus, fetchReports } from "../api/index.js";
+import {
+  fetchDataEvidenceReport,
+  fetchStatus,
+  fetchReports,
+} from "../api/index.js";
 
 const snapshotState = vi.hoisted(() => {
   const fakeRef = (value) => ({
@@ -22,6 +26,7 @@ const snapshotState = vi.hoisted(() => {
 });
 
 vi.mock("../api/index.js", () => ({
+  fetchDataEvidenceReport: vi.fn(),
   fetchStatus: vi.fn(),
   fetchReports: vi.fn(),
 }));
@@ -86,6 +91,20 @@ describe("AccountView", () => {
     snapshotState.hasEncryption.value = true;
     fetchStatus.mockResolvedValue(status);
     fetchReports.mockResolvedValue(reports);
+    fetchDataEvidenceReport.mockResolvedValue({
+      verificationScope: "persisted evidence only",
+      generatedAt: "2026-10-21T00:00:00Z",
+      items: [{ field: "test.field" }],
+    });
+  });
+
+  it("應在設定與帳戶頁顯示資料證據卡", async () => {
+    const wrapper = mountView();
+    await flushPromises();
+    expect(wrapper.find('[data-testid="data-evidence-card"]').exists()).toBe(
+      true,
+    );
+    expect(wrapper.text()).toContain("資料證據");
   });
 
   it("應載入系統狀態並顯示來源健康度", async () => {
