@@ -323,8 +323,8 @@ export async function executeDeploy(jobId, options = {}) {
       await runStep("npm-build-backend", "npm", backendBuildArgs, deployPath);
     }
 
-    // 步驟 4: 前端依賴安裝
-    await runStep("npm-ci-frontend", "npm", ["ci"], webappPath);
+    // 步驟 4: 前端依賴安裝；Vite plugin 位於 devDependencies
+    await runStep("npm-ci-frontend", "npm", buildNpmCiArgs(), webappPath);
 
     // 步驟 5: 前端建置
     await runStep("npm-build-frontend", "npm", ["run", "build"], webappPath);
