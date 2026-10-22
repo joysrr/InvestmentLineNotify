@@ -32,6 +32,9 @@ export const ENDPOINTS = {
   // 社群情緒
   socialSentiment: "/social-sentiment",
 
+  // 資料證據報告
+  dataEvidenceReport: "/data-evidence-report",
+
   // 狀態
   status: "/status",
 

@@ -13,6 +13,7 @@ import statusRoute from "./routes/status.mjs";
 import reportsRoute from "./routes/reports.mjs";
 import newsRoute from "./routes/news.mjs";
 import socialSentimentRoute from "./routes/socialSentiment.mjs";
+import dataEvidenceReportRoute from "./routes/dataEvidenceReport.mjs";
 import configRoute from "./routes/config.mjs";
 import portfolioHealthRoute from "./routes/portfolioHealth.mjs";
 import strategyStatusRoute from "./routes/strategyStatus.mjs";
@@ -174,6 +175,7 @@ export async function buildApp(opts = {}) {
   await fastify.register(reportsRoute, { prefix: "/api" });
   await fastify.register(newsRoute, { prefix: "/api" });
   await fastify.register(socialSentimentRoute, { prefix: "/api" });
+  await fastify.register(dataEvidenceReportRoute, { prefix: "/api" });
   await fastify.register(configRoute, { prefix: "/api" });
   await fastify.register(portfolioHealthRoute, { prefix: "/api" });
   await fastify.register(strategyStatusRoute, { prefix: "/api" });

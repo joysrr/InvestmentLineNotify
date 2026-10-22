@@ -230,6 +230,9 @@ export const fetchSocialSentiment = async () => {
   }
 };
 
+export const fetchDataEvidenceReport = () =>
+  apiFetch(buildUrl(ENDPOINTS.dataEvidenceReport));
+
 export const fetchStatus = () => apiFetch(buildUrl(ENDPOINTS.status));
 
 export const fetchReportNews = () => apiFetch(buildUrl(ENDPOINTS.reportNews));

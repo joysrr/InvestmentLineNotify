@@ -1,0 +1,746 @@
+{
+  "schemaVersion": "1.0",
+  "reportType": "data-evidence",
+  "generatedAt": "2026-10-22T00:05:45.214Z",
+  "verificationScope": "persisted evidence only; no external API re-fetch was performed",
+  "instructions": [
+    "確認每項指標的來源是否真實且可查證。",
+    "確認資料日期、抓取時間與更新頻率是否一致。",
+    "使用官方來源或可靠第二來源核對相同日期的數值。",
+    "確認單位、倍率、小數位與百分比方向沒有錯誤。",
+    "對衍生指標重新計算所有列出的中間步驟。",
+    "將結果分類為已確認、來源可信但無法重現、過期、不一致、定義不明或證據不足。"
+  ],
+  "items": [
+    {
+      "field": "data.rawMargin.marginBalance100M",
+      "value": 6381,
+      "unit": null,
+      "source": {
+        "provider": "marginKgi",
+        "dataset": "rawMargin",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:df313a367018cc13633711ec7260f9a443fc4a3118b63676bf3791db1e14dfa2",
+        "normalizedHash": "sha256:6d1d896b11201b20023dfa320dd5508a71e64ba7a95cfca3dc53b3736e55eb82",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "2026/10/20",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "以來源自身資料日期和 provider lastFetch 判斷，不能只依檔案修改時間。"
+      },
+      "verification": {
+        "background": "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
+        "checks": [
+          "查核 provider 對應的原始來源與相同資料日期。",
+          "確認單位、倍率、日期和數值轉換。"
+        ],
+        "calculation": "來源直接提供或由 provider 正規化；需核對 provenance 與原始回應。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawMargin.maintenanceRatio",
+      "value": 178.9,
+      "unit": null,
+      "source": {
+        "provider": "marginKgi",
+        "dataset": "rawMargin",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:df313a367018cc13633711ec7260f9a443fc4a3118b63676bf3791db1e14dfa2",
+        "normalizedHash": "sha256:6d1d896b11201b20023dfa320dd5508a71e64ba7a95cfca3dc53b3736e55eb82",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "2026/10/20",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "以來源自身資料日期和 provider lastFetch 判斷，不能只依檔案修改時間。"
+      },
+      "verification": {
+        "background": "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
+        "checks": [
+          "查核 provider 對應的原始來源與相同資料日期。",
+          "確認單位、倍率、日期和數值轉換。"
+        ],
+        "calculation": "來源直接提供或由 provider 正規化；需核對 provenance 與原始回應。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawCnn.score",
+      "value": 29.03,
+      "unit": "分",
+      "source": {
+        "provider": "cnnFearGreed",
+        "dataset": "rawCnn",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:a86d544ea398bfbebb7377cf1757fa2ea8e05fb2875e44b5f5dc79d4df192414",
+        "normalizedHash": "sha256:569d769ac2481949f563bdb4d82374472c72b40066ead810f13ce1fceacdfe49",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "2026-10-21T11:59:42.000Z",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "美股市場情緒指標，通常每日更新，需以 timestamp 判斷時效。"
+      },
+      "verification": {
+        "background": "CNN Fear & Greed 指數，將市場情緒量化為 0 到 100；低值通常代表較恐懼。",
+        "checks": [
+          "查核 CNN 原始資料相同 timestamp 或最近更新值。",
+          "確認 score 在 0 到 100 且沒有被快取舊值取代。"
+        ],
+        "calculation": "來源直接提供 score；本系統未自行計算。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawFx.currentRate",
+      "value": 32.363,
+      "unit": null,
+      "source": {
+        "provider": "usdTwdYahoo",
+        "dataset": "rawFx",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:a12788e76db86b93d7c58cdfa87fff7e873fc5e73da8b686f0b3a1f242f500a6",
+        "normalizedHash": "sha256:7fb8faae2546e7d415a8266f6e780bdd7b6ecf2531eede7aa584326cb057ee51",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": null,
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "以來源自身資料日期和 provider lastFetch 判斷，不能只依檔案修改時間。"
+      },
+      "verification": {
+        "background": "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
+        "checks": [
+          "查核 provider 對應的原始來源與相同資料日期。",
+          "確認單位、倍率、日期和數值轉換。"
+        ],
+        "calculation": "來源直接提供或由 provider 正規化；需核對 provenance 與原始回應。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawCpi.value",
+      "value": 2.73,
+      "unit": null,
+      "source": {
+        "provider": "twCpiYoY",
+        "dataset": "rawCpi",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:a4b5a90adfc1b7ee25cad9e38efb67ca7fe9c606dfdffccf20dfacdc5a9ab5cb",
+        "normalizedHash": "sha256:47f2ee3b8ef67a6a8e4fa3d73ecfc476d0705d6be196d0b326f7bba2a8ccc7ff",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "2026-09",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "以來源自身資料日期和 provider lastFetch 判斷，不能只依檔案修改時間。"
+      },
+      "verification": {
+        "background": "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
+        "checks": [
+          "查核 provider 對應的原始來源與相同資料日期。",
+          "確認單位、倍率、日期和數值轉換。"
+        ],
+        "calculation": "來源直接提供或由 provider 正規化；需核對 provenance 與原始回應。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawMarketOverview.taiex",
+      "value": 46292.93,
+      "unit": "點",
+      "source": {
+        "provider": "twMarketOverview",
+        "dataset": "rawMarketOverview",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:ee3b0fbaf066f50891e53fb15d694534fc31d9c77044cc66651c09f9570534ff",
+        "normalizedHash": "sha256:bdd3ef0f29a95a7ce4c750e7a0539010e39d0d6dd5b576febae2a4364bd739ad",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "1151020",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "台股交易日資料，非交易日可沿用最近交易日，但必須保留來源日期。"
+      },
+      "verification": {
+        "background": "臺灣加權股價指數（TAIEX）收盤或最新市場指數。",
+        "checks": [
+          "查核 TWSE 相同日期的 TAIEX。",
+          "確認 date 的民國年格式已正確轉換。"
+        ],
+        "calculation": "來源直接提供指數；本系統未自行計算。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawMarketOverview.tradeValueHundredMillion",
+      "value": 8029,
+      "unit": null,
+      "source": {
+        "provider": "twMarketOverview",
+        "dataset": "rawMarketOverview",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:ee3b0fbaf066f50891e53fb15d694534fc31d9c77044cc66651c09f9570534ff",
+        "normalizedHash": "sha256:bdd3ef0f29a95a7ce4c750e7a0539010e39d0d6dd5b576febae2a4364bd739ad",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "1151020",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "以來源自身資料日期和 provider lastFetch 判斷，不能只依檔案修改時間。"
+      },
+      "verification": {
+        "background": "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
+        "checks": [
+          "查核 provider 對應的原始來源與相同資料日期。",
+          "確認單位、倍率、日期和數值轉換。"
+        ],
+        "calculation": "來源直接提供或由 provider 正規化；需核對 provenance 與原始回應。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawUsMarket.soxChg",
+      "value": -0.28746285359631035,
+      "unit": null,
+      "source": {
+        "provider": "usMarketFred",
+        "dataset": "rawUsMarket",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:ebff14e7cc191b09b105065a0e163774aee90a3f328481b4a4d0080079460089",
+        "normalizedHash": "sha256:6305e15dbbb760c8560c7eb78c6d18bb486bd219aa2413ff699ee727fd3bc016",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": null,
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "以來源自身資料日期和 provider lastFetch 判斷，不能只依檔案修改時間。"
+      },
+      "verification": {
+        "background": "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
+        "checks": [
+          "查核 provider 對應的原始來源與相同資料日期。",
+          "確認單位、倍率、日期和數值轉換。"
+        ],
+        "calculation": "來源直接提供或由 provider 正規化；需核對 provenance 與原始回應。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawUsMarket.tsmChg",
+      "value": 1.1565335627634712,
+      "unit": null,
+      "source": {
+        "provider": "usMarketFred",
+        "dataset": "rawUsMarket",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:ebff14e7cc191b09b105065a0e163774aee90a3f328481b4a4d0080079460089",
+        "normalizedHash": "sha256:6305e15dbbb760c8560c7eb78c6d18bb486bd219aa2413ff699ee727fd3bc016",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": null,
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "以來源自身資料日期和 provider lastFetch 判斷，不能只依檔案修改時間。"
+      },
+      "verification": {
+        "background": "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
+        "checks": [
+          "查核 provider 對應的原始來源與相同資料日期。",
+          "確認單位、倍率、日期和數值轉換。"
+        ],
+        "calculation": "來源直接提供或由 provider 正規化；需核對 provenance 與原始回應。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawValuation.pe",
+      "value": 24.79,
+      "unit": null,
+      "source": {
+        "provider": "twMarketValuation",
+        "dataset": "rawValuation",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:f4457bb4ebe2729d8215f35c8c61d2dda4294195d6f62c04bbd3d5e05389ee73",
+        "normalizedHash": "sha256:a6943544a1f8eb0ac41f19d463e6c3fd1afebd0a8c9b87ece859c9fbeaa181e0",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "20261020",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "以來源自身資料日期和 provider lastFetch 判斷，不能只依檔案修改時間。"
+      },
+      "verification": {
+        "background": "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
+        "checks": [
+          "查核 provider 對應的原始來源與相同資料日期。",
+          "確認單位、倍率、日期和數值轉換。"
+        ],
+        "calculation": "來源直接提供或由 provider 正規化；需核對 provenance 與原始回應。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawValuation.pb",
+      "value": 4.05,
+      "unit": "倍",
+      "source": {
+        "provider": "twMarketValuation",
+        "dataset": "rawValuation",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:f4457bb4ebe2729d8215f35c8c61d2dda4294195d6f62c04bbd3d5e05389ee73",
+        "normalizedHash": "sha256:a6943544a1f8eb0ac41f19d463e6c3fd1afebd0a8c9b87ece859c9fbeaa181e0",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "20261020",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "通常以最近一個台股交易日公布；需核對資料日期，不可只看寫入時間。"
+      },
+      "verification": {
+        "background": "台股市場整體淨值比（PB），代表市場價格相對於帳面價值的倍數；不是 0050 個別 ETF 的 PB。",
+        "checks": [
+          "查核相同資料日期的市場 PB。",
+          "確認來源定義為台股市場整體 PB。",
+          "確認沒有日期延遲、倍率或四捨五入錯誤。"
+        ],
+        "calculation": "來源直接提供 PB；本系統未自行計算。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawValuation.yield",
+      "value": 1.63,
+      "unit": null,
+      "source": {
+        "provider": "twMarketValuation",
+        "dataset": "rawValuation",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:f4457bb4ebe2729d8215f35c8c61d2dda4294195d6f62c04bbd3d5e05389ee73",
+        "normalizedHash": "sha256:a6943544a1f8eb0ac41f19d463e6c3fd1afebd0a8c9b87ece859c9fbeaa181e0",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "20261020",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "以來源自身資料日期和 provider lastFetch 判斷，不能只依檔案修改時間。"
+      },
+      "verification": {
+        "background": "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
+        "checks": [
+          "查核 provider 對應的原始來源與相同資料日期。",
+          "確認單位、倍率、日期和數值轉換。"
+        ],
+        "calculation": "來源直接提供或由 provider 正規化；需核對 provenance 與原始回應。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawBankRate.value",
+      "value": 2,
+      "unit": null,
+      "source": {
+        "provider": "twCentralBankRate",
+        "dataset": "rawBankRate",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:16c84f64c40588ba5b4ec0f27e2deb88cc9effe340bcd17fb7680aa7ea68d2a2",
+        "normalizedHash": "sha256:f723b3b7597c2bce598638754c842520c1c06c71a072a66b27df9789e4fd7749",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "2026-10-21",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "以來源自身資料日期和 provider lastFetch 判斷，不能只依檔案修改時間。"
+      },
+      "verification": {
+        "background": "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
+        "checks": [
+          "查核 provider 對應的原始來源與相同資料日期。",
+          "確認單位、倍率、日期和數值轉換。"
+        ],
+        "calculation": "來源直接提供或由 provider 正規化；需核對 provenance 與原始回應。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawNdc.score",
+      "value": 41,
+      "unit": null,
+      "source": {
+        "provider": "ndcBusinessIndicator",
+        "dataset": "rawNdc",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:e527c3edf4b3ce4543c726ddb2fa3234b5195b572e259c8ae46fbb8d14c3c998",
+        "normalizedHash": "sha256:33c3dddeb4c1295791e3afe76571d46edc7400c08afbcd9c87f7602823ba7097",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "2026-08",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "以來源自身資料日期和 provider lastFetch 判斷，不能只依檔案修改時間。"
+      },
+      "verification": {
+        "background": "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
+        "checks": [
+          "查核 provider 對應的原始來源與相同資料日期。",
+          "確認單位、倍率、日期和數值轉換。"
+        ],
+        "calculation": "來源直接提供或由 provider 正規化；需核對 provenance 與原始回應。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawInstitutional.foreignNetBuy",
+      "value": -16220116,
+      "unit": null,
+      "source": {
+        "provider": "stockInstitutionalTwse",
+        "dataset": "rawInstitutional",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:42372ef344ba8d0933b06f0c3f5b76d7b91950cadedc1168f8116c596f8be513",
+        "normalizedHash": "sha256:197f491922bef5991289f03e63309e763c366b18052dec2f44029210c17c4c52",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "20261021",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "以來源自身資料日期和 provider lastFetch 判斷，不能只依檔案修改時間。"
+      },
+      "verification": {
+        "background": "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
+        "checks": [
+          "查核 provider 對應的原始來源與相同資料日期。",
+          "確認單位、倍率、日期和數值轉換。"
+        ],
+        "calculation": "來源直接提供或由 provider 正規化；需核對 provenance 與原始回應。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.rawStockMargin.marginBalance",
+      "value": 3238,
+      "unit": null,
+      "source": {
+        "provider": "stockMarginTwse",
+        "dataset": "rawStockMargin",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:5e970043b47f1e783027e44d01e9935d9f7eef4240bfeb22c8321d013f796d7f",
+        "normalizedHash": "sha256:aa165230a9eb2478b32ee08d451f51e17b1e87e8d49662ca03b369842f3a4f07",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": null,
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "以來源自身資料日期和 provider lastFetch 判斷，不能只依檔案修改時間。"
+      },
+      "verification": {
+        "background": "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
+        "checks": [
+          "查核 provider 對應的原始來源與相同資料日期。",
+          "確認單位、倍率、日期和數值轉換。"
+        ],
+        "calculation": "來源直接提供或由 provider 正規化；需核對 provenance 與原始回應。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.pbHistory.latest.pb",
+      "value": 4.05,
+      "unit": null,
+      "source": {
+        "provider": "twMarketValuation",
+        "dataset": "rawValuation",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:f4457bb4ebe2729d8215f35c8c61d2dda4294195d6f62c04bbd3d5e05389ee73",
+        "normalizedHash": "sha256:a6943544a1f8eb0ac41f19d463e6c3fd1afebd0a8c9b87ece859c9fbeaa181e0",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "20261020",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "歷史資料的最後日期應接近最近可取得的交易日。"
+      },
+      "verification": {
+        "background": "歷史序列的最新觀測值；外部 Agent 應核對最新日期、序列連續性及來源值。",
+        "checks": [
+          "查核最後一筆相同日期的原始資料。",
+          "檢查序列是否有缺日、重複日或不合理跳值。"
+        ],
+        "calculation": "歷史序列保存的 PB 觀測值；應與 data.rawValuation.pb 及官方相同日期資料核對。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.vixHistory.latest.value",
+      "value": 28.09,
+      "unit": null,
+      "source": {
+        "provider": "usMarketFred",
+        "dataset": "rawUsMarket",
+        "status": "SUCCESS",
+        "lastFetch": "2026-10-21T12:19:54.469Z",
+        "endpoint": null,
+        "rawHash": "sha256:ebff14e7cc191b09b105065a0e163774aee90a3f328481b4a4d0080079460089",
+        "normalizedHash": "sha256:6305e15dbbb760c8560c7eb78c6d18bb486bd219aa2413ff699ee727fd3bc016",
+        "integrity": "verified"
+      },
+      "temporal": {
+        "dataDate": "2026-10-21",
+        "fetchedAt": "2026-10-21T12:19:54.469Z",
+        "persistedAt": "2026-10-21T12:19:54.469Z",
+        "freshnessBasis": "歷史資料的最後日期應接近最近可取得的交易日。"
+      },
+      "verification": {
+        "background": "歷史序列的最新觀測值；外部 Agent 應核對最新日期、序列連續性及來源值。",
+        "checks": [
+          "查核最後一筆相同日期的原始資料。",
+          "檢查序列是否有缺日、重複日或不合理跳值。"
+        ],
+        "calculation": "歷史序列保存的 VIX 觀測值；應與相同美股交易日的 FRED 或 Yahoo 原始資料核對。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.sentiment.social_sentiment_daily.score",
+      "value": 39,
+      "unit": "分",
+      "source": {
+        "provider": "socialSentimentEngine",
+        "dataset": "social_sentiment_daily",
+        "status": "INTERNAL_DERIVED",
+        "endpoint": null
+      },
+      "temporal": {
+        "dataDate": "2026-10-21",
+        "fetchedAt": "2026-10-21T04:00:42.402Z",
+        "persistedAt": "2026-10-21T04:00:42.402Z",
+        "freshnessBasis": "每日定格資料，需同時核對 date、updatedAt、樣本數與原始貼文集合。"
+      },
+      "verification": {
+        "background": "PTT 與 Bluesky 貼文彙整後的社群情緒結果，不是官方市場指標；score 是系統演算法產物。",
+        "checks": [
+          "核對 score 是否能由原始貼文與演算法重現。",
+          "核對 sampleCount 是否等於 PTT 與 Bluesky 筆數總和。",
+          "核對 ma3、ma7 使用的日期範圍。"
+        ],
+        "calculation": "score、ma3、ma7、delta 為系統計算值；不能當成官方數字直接查核。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.sentiment.social_sentiment_daily.ma3",
+      "value": 33.7,
+      "unit": "分",
+      "source": {
+        "provider": "socialSentimentEngine",
+        "dataset": "social_sentiment_daily",
+        "status": "INTERNAL_DERIVED",
+        "endpoint": null
+      },
+      "temporal": {
+        "dataDate": "2026-10-21",
+        "fetchedAt": "2026-10-21T04:00:42.402Z",
+        "persistedAt": "2026-10-21T04:00:42.402Z",
+        "freshnessBasis": "每日定格資料，需同時核對 date、updatedAt、樣本數與原始貼文集合。"
+      },
+      "verification": {
+        "background": "PTT 與 Bluesky 貼文彙整後的社群情緒結果，不是官方市場指標；score 是系統演算法產物。",
+        "checks": [
+          "核對 score 是否能由原始貼文與演算法重現。",
+          "核對 sampleCount 是否等於 PTT 與 Bluesky 筆數總和。",
+          "核對 ma3、ma7 使用的日期範圍。"
+        ],
+        "calculation": "score、ma3、ma7、delta 為系統計算值；不能當成官方數字直接查核。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.sentiment.social_sentiment_daily.ma7",
+      "value": 34.6,
+      "unit": "分",
+      "source": {
+        "provider": "socialSentimentEngine",
+        "dataset": "social_sentiment_daily",
+        "status": "INTERNAL_DERIVED",
+        "endpoint": null
+      },
+      "temporal": {
+        "dataDate": "2026-10-21",
+        "fetchedAt": "2026-10-21T04:00:42.402Z",
+        "persistedAt": "2026-10-21T04:00:42.402Z",
+        "freshnessBasis": "每日定格資料，需同時核對 date、updatedAt、樣本數與原始貼文集合。"
+      },
+      "verification": {
+        "background": "PTT 與 Bluesky 貼文彙整後的社群情緒結果，不是官方市場指標；score 是系統演算法產物。",
+        "checks": [
+          "核對 score 是否能由原始貼文與演算法重現。",
+          "核對 sampleCount 是否等於 PTT 與 Bluesky 筆數總和。",
+          "核對 ma3、ma7 使用的日期範圍。"
+        ],
+        "calculation": "score、ma3、ma7、delta 為系統計算值；不能當成官方數字直接查核。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.sentiment.social_sentiment_daily.delta",
+      "value": -0.9,
+      "unit": "分",
+      "source": {
+        "provider": "socialSentimentEngine",
+        "dataset": "social_sentiment_daily",
+        "status": "INTERNAL_DERIVED",
+        "endpoint": null
+      },
+      "temporal": {
+        "dataDate": "2026-10-21",
+        "fetchedAt": "2026-10-21T04:00:42.402Z",
+        "persistedAt": "2026-10-21T04:00:42.402Z",
+        "freshnessBasis": "每日定格資料，需同時核對 date、updatedAt、樣本數與原始貼文集合。"
+      },
+      "verification": {
+        "background": "PTT 與 Bluesky 貼文彙整後的社群情緒結果，不是官方市場指標；score 是系統演算法產物。",
+        "checks": [
+          "核對 score 是否能由原始貼文與演算法重現。",
+          "核對 sampleCount 是否等於 PTT 與 Bluesky 筆數總和。",
+          "核對 ma3、ma7 使用的日期範圍。"
+        ],
+        "calculation": "score、ma3、ma7、delta 為系統計算值；不能當成官方數字直接查核。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.sentiment.social_sentiment_daily.sampleCount",
+      "value": 122,
+      "unit": "筆",
+      "source": {
+        "provider": "socialSentimentEngine",
+        "dataset": "social_sentiment_daily",
+        "status": "INTERNAL_DERIVED",
+        "endpoint": null
+      },
+      "temporal": {
+        "dataDate": "2026-10-21",
+        "fetchedAt": "2026-10-21T04:00:42.402Z",
+        "persistedAt": "2026-10-21T04:00:42.402Z",
+        "freshnessBasis": "每日定格資料，需同時核對 date、updatedAt、樣本數與原始貼文集合。"
+      },
+      "verification": {
+        "background": "PTT 與 Bluesky 貼文彙整後的社群情緒結果，不是官方市場指標；score 是系統演算法產物。",
+        "checks": [
+          "核對 score 是否能由原始貼文與演算法重現。",
+          "核對 sampleCount 是否等於 PTT 與 Bluesky 筆數總和。",
+          "核對 ma3、ma7 使用的日期範圍。"
+        ],
+        "calculation": "score、ma3、ma7、delta 為系統計算值；不能當成官方數字直接查核。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.sentiment.social_sentiment_daily.pttItems",
+      "value": 20,
+      "unit": "筆",
+      "source": {
+        "provider": "socialSentimentEngine",
+        "dataset": "social_sentiment_daily",
+        "status": "INTERNAL_DERIVED",
+        "endpoint": null
+      },
+      "temporal": {
+        "dataDate": "2026-10-21",
+        "fetchedAt": "2026-10-21T04:00:42.402Z",
+        "persistedAt": "2026-10-21T04:00:42.402Z",
+        "freshnessBasis": "每日定格資料，需同時核對 date、updatedAt、樣本數與原始貼文集合。"
+      },
+      "verification": {
+        "background": "PTT 與 Bluesky 貼文彙整後的社群情緒結果，不是官方市場指標；score 是系統演算法產物。",
+        "checks": [
+          "核對 score 是否能由原始貼文與演算法重現。",
+          "核對 sampleCount 是否等於 PTT 與 Bluesky 筆數總和。",
+          "核對 ma3、ma7 使用的日期範圍。"
+        ],
+        "calculation": "score、ma3、ma7、delta 為系統計算值；不能當成官方數字直接查核。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    },
+    {
+      "field": "data.sentiment.social_sentiment_daily.bskyItems",
+      "value": 102,
+      "unit": "筆",
+      "source": {
+        "provider": "socialSentimentEngine",
+        "dataset": "social_sentiment_daily",
+        "status": "INTERNAL_DERIVED",
+        "endpoint": null
+      },
+      "temporal": {
+        "dataDate": "2026-10-21",
+        "fetchedAt": "2026-10-21T04:00:42.402Z",
+        "persistedAt": "2026-10-21T04:00:42.402Z",
+        "freshnessBasis": "每日定格資料，需同時核對 date、updatedAt、樣本數與原始貼文集合。"
+      },
+      "verification": {
+        "background": "PTT 與 Bluesky 貼文彙整後的社群情緒結果，不是官方市場指標；score 是系統演算法產物。",
+        "checks": [
+          "核對 score 是否能由原始貼文與演算法重現。",
+          "核對 sampleCount 是否等於 PTT 與 Bluesky 筆數總和。",
+          "核對 ma3、ma7 使用的日期範圍。"
+        ],
+        "calculation": "score、ma3、ma7、delta 為系統計算值；不能當成官方數字直接查核。",
+        "externalAgentStatus": "PENDING_EXTERNAL_VERIFICATION"
+      }
+    }
+  ]
+}

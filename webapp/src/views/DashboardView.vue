@@ -81,6 +81,9 @@
         :drop-buffer-percent="dropBufferPercent"
       />
 
+      <!-- L3: 外部 Agent 資料核對證據 -->
+      <DataEvidenceCard />
+
       <!-- 3. 帳戶健康度監控 (0-100) -->
       <section class="dashboard-card health-card">
         <HealthPanel
@@ -143,6 +146,7 @@ import MacroCockpitCard from "../components/dashboard/MacroCockpitCard.vue";
 import PortfolioShieldCard from "../components/dashboard/PortfolioShieldCard.vue";
 import MarketDetailDrawer from "../components/dashboard/MarketDetailDrawer.vue";
 import RiskDetailDrawer from "../components/dashboard/RiskDetailDrawer.vue";
+import DataEvidenceCard from "../components/dashboard/DataEvidenceCard.vue";
 import DecisionHero from "../components/dashboard/DecisionHero.vue";
 import HealthPanel from "../components/dashboard/HealthPanel.vue";
 import CoachingAdvice from "../components/dashboard/CoachingAdvice.vue";

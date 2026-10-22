@@ -52,9 +52,36 @@ wiki_links: []
 
 ---
 
-## 2. 測試層級詳細說明
+## 2. 外部 Agent 資料證據報告
 
-### 2.1 後端單元測試 (Vitest)
+產生可交給外部 Agent 查核的資料證據報告：
+
+```bash
+npm run verify:data-evidence
+```
+
+輸出檔案：
+
+- `data/verification-reports/YYYY-MM-DD-data-evidence.json`
+- `data/verification-reports/YYYY-MM-DD-data-evidence.md`
+
+報告會列出每個已落地數值的：
+
+- 指標背景、單位與資料定義
+- provider、dataset、來源狀態與 provenance hash
+- 資料本身日期、抓取時間與落地時間
+- 更新週期與時效核對依據
+- 外部 Agent 應查核的項目與衍生計算說明
+
+**重要限制：** 目前報告是「已落地資料的證據彙整」，不會重新呼叫外部 API，也不會宣稱資料已經被外部核實。報告中的 `verificationScope` 會明確標示這一點。外部 Agent 必須依 provider、日期與核對項目查詢真實來源後，再回填查核結論。
+
+後續若整合 Mini App，應直接重用此報告模型與 JSON 輸出，不要在前端重新定義資料來源或計算規則。
+
+---
+
+## 3. 測試層級詳細說明
+
+### 3.1 後端單元測試 (Vitest)
 
 **位置**：`src/test/unit/`  
 **執行**：`npm run test`  

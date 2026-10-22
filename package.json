@@ -13,6 +13,7 @@
     "test:data": "vitest run src/test/integration/dataIntegrity.test.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "verify:data-evidence": "node scripts/generate-data-evidence-report.mjs",
     "verify": "npm run lint && npm test && npm run openapi:check",
     "pre-deploy": "npm run verify && npm --prefix webapp run lint && npm --prefix webapp run test && npm --prefix webapp run test:e2e",
     "openapi:generate": "node scripts/generate-openapi.mjs",
