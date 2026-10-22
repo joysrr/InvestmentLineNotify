@@ -172,6 +172,10 @@ export function buildNpmCiArgs() {
   return ["ci", "--include=dev"];
 }
 
+export function getBackendBuildArgs(packageJson) {
+  return packageJson?.scripts?.build ? ["run", "build"] : null;
+}
+
 /**
  * 執行部署
  */
@@ -310,8 +314,14 @@ export async function executeDeploy(jobId, options = {}) {
     // 步驟 2: 後端依賴安裝；部署需要 devDependencies（包含 Husky prepare）
     await runStep("npm-ci-backend", "npm", buildNpmCiArgs(), deployPath);
 
-    // 步驟 3: 後端建置
-    await runStep("npm-build-backend", "npm", ["run", "build"], deployPath);
+    // 步驟 3: 後端建置（僅在後端宣告 build script 時執行）
+    const backendPackageJson = JSON.parse(
+      await readFile(resolve(deployPath, "package.json"), "utf8"),
+    );
+    const backendBuildArgs = getBackendBuildArgs(backendPackageJson);
+    if (backendBuildArgs) {
+      await runStep("npm-build-backend", "npm", backendBuildArgs, deployPath);
+    }
 
     // 步驟 4: 前端依賴安裝
     await runStep("npm-ci-frontend", "npm", ["ci"], webappPath);
