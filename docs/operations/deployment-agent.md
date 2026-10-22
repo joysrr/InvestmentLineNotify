@@ -23,20 +23,48 @@ Host Deployment Agent 讓 Docker、CLI 或後續 Bot 透過 Unix socket 請求�
 
 ## Installation on production host
 
-以下指令必須由管理者在正式 Host 手動執行；repository 測試不會代替正式安裝：
+以下步驟必須由管理者在正式 Host 手動執行；repository 測試不會代替正式安裝。
+
+先定義已在 Host 確認過的專案路徑：
+
+```bash
+PROJECT_ROOT="__VERIFIED_PROJECT_ROOT__"
+DIAGNOSTICS_DIR="__VERIFIED_EXTERNAL_DIAGNOSTICS_DIR__"
+```
+
+`PROJECT_ROOT`、`DIAGNOSTICS_DIR` 必須替換成該 Host 的真實路徑；不可直接使用 placeholder。
+
+建立專用群組與診斷目錄：
 
 ```bash
 sudo groupadd --system investnotify-deploy || true
 sudo usermod -aG investnotify-deploy ubuntu
-sudo install -d -o ubuntu -g investnotify-deploy -m 0770 /home/ubuntu/investnotify-diagnostics
+sudo install -d -o ubuntu -g investnotify-deploy -m 0770 "$DIAGNOSTICS_DIR"
 sudo install -d -o root -g investnotify-deploy -m 0770 /etc/investnotify
-sudo install -o root -g root -m 0644 \
-  deploy/systemd/investnotify-deploy-agent.service \
-  /etc/systemd/system/investnotify-deploy-agent.service
+```
+
+建立 Host 專用設定檔：
+
+```bash
+sudo install -o root -g investnotify-deploy -m 0640 \
+  "$PROJECT_ROOT/deploy/systemd/deploy-agent.env.example" \
+  /etc/investnotify/deploy-agent.env
+sudo editor /etc/investnotify/deploy-agent.env
+```
+
+請將所有 `__VERIFIED_*__` placeholder 替換完成。設定檔只放路徑與非敏感設定，不要放 token、密碼或 API key。
+
+安裝 systemd template 前，先把 `__PROJECT_ROOT__` 替換成同一個已確認的專案路徑：
+
+```bash
+sed "s|__PROJECT_ROOT__|$PROJECT_ROOT|g" \
+  "$PROJECT_ROOT/deploy/systemd/investnotify-deploy-agent.service" \
+  | sudo tee /etc/systemd/system/investnotify-deploy-agent.service >/dev/null
 sudo systemctl daemon-reload
 sudo systemctl enable --now investnotify-deploy-agent
 ```
 
+啟動前必須確認 unit 內沒有殘留 `__PROJECT_ROOT__`。
 確認 service：
 
 ```bash

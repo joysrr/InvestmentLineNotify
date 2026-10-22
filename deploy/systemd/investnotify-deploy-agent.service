@@ -9,16 +9,12 @@ Group=investnotify-deploy
 UMask=0007
 RuntimeDirectory=investnotify
 RuntimeDirectoryMode=0770
-WorkingDirectory=/home/ubuntu/investnotify
+# Replace __PROJECT_ROOT__ during Host installation with the verified repo path.
+WorkingDirectory=__PROJECT_ROOT__
+EnvironmentFile=/etc/investnotify/deploy-agent.env
 Environment=NODE_ENV=production
-Environment=INVESTNOTIFY_AGENT_SOCKET=/run/investnotify/deploy-agent.sock
-Environment=DEPLOY_PATH=/home/ubuntu/investnotify
-Environment=WEBAPP_PATH=/home/ubuntu/investnotify/webapp
-Environment=PM2_ECOSYSTEM=ecosystem.config.cjs
-Environment=PRODUCTION_DATA_DIR=/home/ubuntu/investnotify/data
-Environment=PRODUCTION_LOGS_DIR=/home/ubuntu/investnotify/logs
-Environment=DIAGNOSTICS_DIR=/home/ubuntu/investnotify-diagnostics
-ExecStart=/usr/bin/node /home/ubuntu/investnotify/scripts/deployment-agent.mjs
+ExecStart=/usr/bin/node __PROJECT_ROOT__/scripts/deployment-agent.mjs
+# Do not enable this template before replacing __PROJECT_ROOT__.
 Restart=on-failure
 RestartSec=5
 

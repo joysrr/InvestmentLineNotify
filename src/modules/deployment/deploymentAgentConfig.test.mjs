@@ -7,6 +7,26 @@ import { describe, expect, it } from "vitest";
 import { createDeploymentAgentConfig } from "./deploymentAgentConfig.mjs";
 
 describe("createDeploymentAgentConfig", () => {
+  it("rejects missing production path configuration", () => {
+    expect(() => createDeploymentAgentConfig({})).toThrow(
+      /Missing required deployment agent configuration: .*DEPLOY_PATH/,
+    );
+  });
+
+  it("rejects diagnostics output inside the production checkout", () => {
+    expect(() =>
+      createDeploymentAgentConfig({
+        INVESTNOTIFY_AGENT_SOCKET: "/run/investnotify/agent.sock",
+        DEPLOY_PATH: "/srv/investnotify",
+        WEBAPP_PATH: "/srv/investnotify/webapp",
+        PM2_ECOSYSTEM: "ecosystem.config.cjs",
+        PRODUCTION_DATA_DIR: "/srv/investnotify/data",
+        PRODUCTION_LOGS_DIR: "/srv/investnotify/logs",
+        DIAGNOSTICS_DIR: "/srv/investnotify/data/diagnostics",
+      }),
+    ).toThrow("DIAGNOSTICS_DIR must be outside DEPLOY_PATH");
+  });
+
   it("uses explicit Host paths and keeps sync output outside the checkout", () => {
     const config = createDeploymentAgentConfig({
       INVESTNOTIFY_AGENT_SOCKET: "/run/investnotify/agent.sock",
