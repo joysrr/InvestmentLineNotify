@@ -1,6 +1,20 @@
 <template>
   <div class="export-button-wrapper">
-    <el-dropdown @command="handleCommand" trigger="click">
+    <el-button
+      v-if="directCommand"
+      :type="type"
+      :size="size"
+      :disabled="disabled"
+      :loading="exporting"
+      class="export-btn"
+      @click="handleCommand(directCommand)"
+    >
+      <el-icon><Download /></el-icon>
+      <span v-if="!exporting">{{ buttonText }}</span>
+      <span v-else>匯出中...</span>
+    </el-button>
+
+    <el-dropdown v-else @command="handleCommand" trigger="click">
       <el-button
         :type="type"
         :size="size"
@@ -61,6 +75,7 @@ const props = defineProps({
   type: { type: String, default: "primary" },
   size: { type: String, default: "default" },
   buttonText: { type: String, default: "匯出" },
+  directCommand: { type: String, default: null },
   disabled: { type: Boolean, default: false },
   
   // CSV 選項

@@ -10,7 +10,11 @@ vi.mock("../../api/index.js", () => ({
 }));
 
 vi.mock("../../components/common/ExportButton.vue", () => ({
-  default: { template: '<button data-testid="evidence-export">匯出</button>' },
+  default: {
+    props: ["directCommand"],
+    template:
+      '<button data-testid="evidence-export" :data-direct-command="directCommand">匯出</button>',
+  },
 }));
 
 describe("DataEvidenceCard", () => {
@@ -24,6 +28,8 @@ describe("DataEvidenceCard", () => {
     });
 
     await vi.waitFor(() => expect(wrapper.text()).toContain("1 個核對項目"));
-    expect(wrapper.get('[data-testid="evidence-export"]').exists()).toBe(true);
+    const exportButton = wrapper.get('[data-testid="evidence-export"]');
+    expect(exportButton.exists()).toBe(true);
+    expect(exportButton.attributes("data-direct-command")).toBe("json");
   });
 });

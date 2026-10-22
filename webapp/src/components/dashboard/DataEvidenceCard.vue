@@ -1,8 +1,12 @@
 <template>
-  <section class="data-evidence-card" data-testid="data-evidence-card">
+  <section
+    class="data-evidence-card"
+    data-testid="data-evidence-card"
+    aria-labelledby="data-evidence-title"
+  >
     <div class="card-header">
       <div>
-        <h3>資料證據</h3>
+        <h3 id="data-evidence-title">資料證據</h3>
         <p class="card-subtitle">供外部 Agent 核對已落地資料</p>
       </div>
       <ExportButton
@@ -10,6 +14,7 @@
         :json-data="report"
         filename="data-evidence-report"
         button-text="匯出證據"
+        direct-command="json"
         size="small"
       />
     </div>
@@ -57,9 +62,9 @@ onMounted(loadReport);
 <style scoped>
 .data-evidence-card {
   padding: 16px;
-  border: 1px solid var(--el-border-color, #dcdfe6);
   border-radius: 12px;
-  background: var(--el-bg-color, #fff);
+  background: var(--tg-theme-bg-color, #fff);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .card-header {
@@ -71,7 +76,9 @@ onMounted(loadReport);
 
 .card-header h3 {
   margin: 0;
-  color: var(--el-text-color-primary, #303133);
+  color: var(--tg-theme-text-color, #111);
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .card-subtitle,
@@ -79,19 +86,34 @@ onMounted(loadReport);
 .updated-text,
 .status-text {
   margin: 6px 0 0;
-  color: var(--el-text-color-secondary, #909399);
+  color: var(--tg-theme-hint-color, #888);
   font-size: 13px;
   line-height: 1.5;
 }
 
 .evidence-count {
   margin: 16px 0 0;
-  color: var(--el-color-primary, #409eff);
+  color: var(--tg-theme-button-color, #2481cc);
   font-size: 20px;
   font-weight: 700;
 }
 
 .error-text {
-  color: var(--el-color-danger, #f56c6c);
+  color: var(--tg-theme-destructive-text-color, #d93025);
+}
+
+@media (max-width: 480px) {
+  .card-header {
+    flex-wrap: wrap;
+  }
+
+  .card-header > div:first-child {
+    min-width: 0;
+    flex: 1 1 180px;
+  }
+
+  .card-header :deep(.export-btn) {
+    flex: 0 0 auto;
+  }
 }
 </style>
