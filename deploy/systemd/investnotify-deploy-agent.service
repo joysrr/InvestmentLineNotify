@@ -1,0 +1,26 @@
+[Unit]
+Description=InvestmentLineNotify Host Deployment Agent
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=investnotify-deploy
+UMask=0007
+RuntimeDirectory=investnotify
+RuntimeDirectoryMode=0770
+WorkingDirectory=/home/ubuntu/investnotify
+Environment=NODE_ENV=production
+Environment=INVESTNOTIFY_AGENT_SOCKET=/run/investnotify/deploy-agent.sock
+Environment=DEPLOY_PATH=/home/ubuntu/investnotify
+Environment=WEBAPP_PATH=/home/ubuntu/investnotify/webapp
+Environment=PM2_ECOSYSTEM=ecosystem.config.cjs
+Environment=PRODUCTION_DATA_DIR=/home/ubuntu/investnotify/data
+Environment=PRODUCTION_LOGS_DIR=/home/ubuntu/investnotify/logs
+Environment=DIAGNOSTICS_DIR=/home/ubuntu/investnotify-diagnostics
+ExecStart=/usr/bin/node /home/ubuntu/investnotify/scripts/deployment-agent.mjs
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

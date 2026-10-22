@@ -21,7 +21,8 @@
     "openapi:check": "node scripts/check-openapi-diff.mjs",
     "deploy": "node scripts/deploy.mjs",
     "deploy:dry": "node scripts/deploy.mjs --dry-run",
-    "deploy:production": "node scripts/deploy-production.mjs"
+    "deploy:production": "node scripts/deploy-production.mjs",
+    "deployment:agent": "node scripts/deployment-agent.mjs"
   },
   "type": "module",
   "dependencies": {
