@@ -1,0 +1,263 @@
+import { describe, expect, it } from "vitest";
+import {
+  calculateCurrentLeverage,
+  calculateEstimatedMaintenance,
+  calculateGrossExposure,
+  calculateCrashTolerance,
+  calculateHumanCapital,
+  calculateKellyLimits,
+  calculateTrueExposure,
+} from "../../modules/strategy/theoreticalEngine.mjs";
+
+describe("theoreticalEngine.calculateGrossExposure", () => {
+  it("calculates 0050 plus leveraged 00675L directional exposure", () => {
+    expect(
+      calculateGrossExposure({
+        value0050: 100000,
+        value00675L: 50000,
+        leverageMultiplier: 2,
+      }),
+    ).toEqual({
+      status: "OK",
+      grossExposure: 200000,
+    });
+  });
+});
+
+describe("theoreticalEngine.calculateCurrentLeverage", () => {
+  it("calculates current leverage", () => {
+    expect(
+      calculateCurrentLeverage({
+        grossExposure: 600000,
+        accountNetAsset: 300000,
+      }),
+    ).toEqual({
+      status: "OK",
+      currentLeverage: 2,
+    });
+  });
+
+  it("returns UNAVAILABLE for non-positive net assets", () => {
+    expect(
+      calculateCurrentLeverage({
+        grossExposure: 600000,
+        accountNetAsset: 0,
+      }),
+    ).toEqual({
+      status: "UNAVAILABLE",
+      reason: "INVALID_ACCOUNT_NET_ASSET",
+      currentLeverage: null,
+    });
+  });
+});
+
+describe("theoreticalEngine.calculateGrossExposure invalid inputs", () => {
+  it("returns UNAVAILABLE for non-finite values", () => {
+    expect(
+      calculateGrossExposure({
+        value0050: Number.NaN,
+        value00675L: 100000,
+        leverageMultiplier: 2,
+      }),
+    ).toEqual({
+      status: "UNAVAILABLE",
+      reason: "INVALID_EXPOSURE_INPUT",
+      grossExposure: null,
+    });
+  });
+});
+
+describe("theoreticalEngine.calculateEstimatedMaintenance", () => {
+  it("calculates estimated maintenance as collateral divided by debt", () => {
+    expect(
+      calculateEstimatedMaintenance({
+        collateralValue: 180000,
+        totalDebt: 100000,
+      }),
+    ).toEqual({
+      status: "ESTIMATED",
+      maintenanceRatio: 180,
+    });
+  });
+
+  it("returns Infinity and NO_DEBT when debt is zero", () => {
+    expect(
+      calculateEstimatedMaintenance({
+        collateralValue: 180000,
+        totalDebt: 0,
+      }),
+    ).toEqual({
+      status: "NO_DEBT",
+      maintenanceRatio: Infinity,
+    });
+  });
+});
+
+describe("theoreticalEngine.calculateKellyLimits", () => {
+  it("returns UNAVAILABLE when required research inputs are missing", () => {
+    expect(
+      calculateKellyLimits({
+        mu: null,
+        sigma: 0.2,
+        borrowRate: 0.025,
+        productCostAdjustment: 0.01,
+        protectiveScale: 0.5,
+      }),
+    ).toEqual({
+      status: "UNAVAILABLE",
+      reason: "MISSING_RESEARCH_INPUT",
+      kellyMax: null,
+      halfKelly: null,
+    });
+  });
+
+  it("returns UNMODELED when product cost is missing", () => {
+    expect(
+      calculateKellyLimits({
+        mu: 0.1,
+        sigma: 0.2,
+        borrowRate: 0.025,
+        productCostAdjustment: null,
+        protectiveScale: 0.5,
+      }),
+    ).toEqual({
+      status: "UNMODELED",
+      reason: "MISSING_PRODUCT_COST",
+      kellyMax: null,
+      halfKelly: null,
+    });
+  });
+
+  it("does not output positive leverage when excess return is non-positive", () => {
+    expect(
+      calculateKellyLimits({
+        mu: 0.03,
+        sigma: 0.2,
+        borrowRate: 0.025,
+        productCostAdjustment: 0.01,
+        protectiveScale: 0.5,
+      }),
+    ).toEqual({
+      status: "NO_POSITIVE_KELLY",
+      reason: "NON_POSITIVE_EXCESS_RETURN",
+      kellyMax: 0,
+      halfKelly: 0,
+    });
+  });
+
+  it.each([0, -0.2, Number.NaN])(
+    "returns INVALID_INPUT when sigma is not a positive finite number (%s)",
+    (sigma) => {
+      expect(
+        calculateKellyLimits({
+          mu: 0.1,
+          sigma,
+          borrowRate: 0.025,
+          productCostAdjustment: 0.01,
+          protectiveScale: 0.5,
+        }),
+      ).toEqual({
+        status: "INVALID_INPUT",
+        reason: "INVALID_SIGMA",
+        kellyMax: null,
+        halfKelly: null,
+      });
+    },
+  );
+});
+
+describe("theoreticalEngine.calculateHumanCapital", () => {
+  it("discounts explicit investable cash flows", () => {
+    expect(
+      calculateHumanCapital({
+        cashFlows: [100000, 100000],
+        growthRate: 0,
+        discountRate: 0.1,
+      }),
+    ).toMatchObject({
+      status: "OK",
+    });
+    expect(
+      calculateHumanCapital({
+        cashFlows: [100000, 100000],
+        growthRate: 0,
+        discountRate: 0.1,
+      }).humanCapital,
+    ).toBeCloseTo(190909.0909090909, 10);
+  });
+
+  it("returns UNAVAILABLE when cash flows are missing", () => {
+    expect(
+      calculateHumanCapital({
+        cashFlows: null,
+        growthRate: 0,
+        discountRate: 0.1,
+      }),
+    ).toEqual({
+      status: "UNAVAILABLE",
+      reason: "MISSING_CASH_FLOWS",
+      humanCapital: null,
+    });
+  });
+});
+
+describe("theoreticalEngine.calculateTrueExposure", () => {
+  it("divides gross exposure by financial capital plus human capital", () => {
+    expect(
+      calculateTrueExposure({
+        grossExposure: 300000,
+        financialCapital: 100000,
+        humanCapital: 200000,
+      }),
+    ).toEqual({
+      status: "OK",
+      trueExposure: 1,
+    });
+  });
+
+  it("returns UNAVAILABLE when human capital is missing", () => {
+    expect(
+      calculateTrueExposure({
+        grossExposure: 300000,
+        financialCapital: 100000,
+        humanCapital: null,
+      }),
+    ).toEqual({
+      status: "UNAVAILABLE",
+      reason: "MISSING_HUMAN_CAPITAL",
+      trueExposure: null,
+    });
+  });
+});
+
+describe("theoreticalEngine.calculateCrashTolerance", () => {
+  it("calculates the proportional decline to a target maintenance ratio", () => {
+    expect(
+      calculateCrashTolerance({
+        currentMaintenance: 200,
+        targetMaintenance: 160,
+      }),
+    ).toMatchObject({
+      status: "ESTIMATED",
+    });
+    expect(
+      calculateCrashTolerance({
+        currentMaintenance: 200,
+        targetMaintenance: 160,
+      }).crashTolerance,
+    ).toBeCloseTo(0.2, 10);
+  });
+
+  it("returns UNAVAILABLE when maintenance inputs are invalid", () => {
+    expect(
+      calculateCrashTolerance({
+        currentMaintenance: null,
+        targetMaintenance: 160,
+      }),
+    ).toEqual({
+      status: "UNAVAILABLE",
+      reason: "INVALID_MAINTENANCE_INPUT",
+      crashTolerance: null,
+    });
+  });
+});
