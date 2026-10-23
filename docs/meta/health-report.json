@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-10-23T12:59:52.011Z",
+  "generated_at": "2026-10-23T13:58:28.481Z",
   "summary": {
-    "total_files": 160,
+    "total_files": 162,
     "average_health": 56.2,
     "by_health": {
       "excellent": 29,
-      "good": 18,
+      "good": 20,
       "fair": 112,
       "poor": 1
     },
     "by_category": {
       "other": {
-        "count": 20,
-        "avgHealth": 62,
-        "totalHealth": 1230
+        "count": 22,
+        "avgHealth": 61,
+        "totalHealth": 1350
       },
       "guide": {
         "count": 3,
@@ -953,7 +953,7 @@
       "file": "plans/active/2026-10-20_leading-indicator-review.md",
       "category": "plan",
       "health": 45,
-      "status": "draft-for-han-review"
+      "status": "in-review"
     },
     {
       "concept": "advice",
@@ -1486,6 +1486,20 @@
       "category": "plan",
       "health": 45,
       "status": "completed"
+    },
+    {
+      "concept": "investment-theories-current-system-guide",
+      "file": "research/investment-theories-current-system-guide.md",
+      "category": "other",
+      "health": 60,
+      "status": "current"
+    },
+    {
+      "concept": "leveraged-etf-kelly-dynamic-leverage-review",
+      "file": "research/leveraged-etf-kelly-dynamic-leverage-review.md",
+      "category": "other",
+      "health": 60,
+      "status": "current"
     },
     {
       "concept": "useapirequest-guide",

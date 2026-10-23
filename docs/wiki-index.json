@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 160,
+    "total_concepts": 162,
     "total_edges": 185,
     "total_code_mappings": 76,
     "concepts_with_code": 44,
     "concepts_with_links": 54,
-    "generated_at": "2026-10-23T12:59:51.126Z"
+    "generated_at": "2026-10-23T13:58:27.562Z"
   },
   "concepts": {
     "api-contract": {
@@ -1052,7 +1052,7 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["investment", "risk-management", "system-design"],
-      "status": "draft-for-han-review",
+      "status": "in-review",
       "last_verified": null
     },
     "advice": {
@@ -1847,6 +1847,31 @@
       "tags": ["wiki", "prototype", "report"],
       "status": "completed",
       "last_verified": null
+    },
+    "investment-theories-current-system-guide": {
+      "primary_doc": "research/investment-theories-current-system-guide.md",
+      "title": "目前投資系統理論與可擴充研究指南",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["investment-theory", "risk-control", "leverage", "research"],
+      "status": "current",
+      "last_verified": "2026-10-23"
+    },
+    "leveraged-etf-kelly-dynamic-leverage-review": {
+      "primary_doc": "research/leveraged-etf-kelly-dynamic-leverage-review.md",
+      "title": "Kelly 與動態合理槓桿套用評估",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "kelly-criterion",
+        "leveraged-etf",
+        "dynamic-leverage",
+        "research"
+      ],
+      "status": "current",
+      "last_verified": "2026-10-23"
     },
     "useapirequest-guide": {
       "primary_doc": "useApiRequest-guide.md",
