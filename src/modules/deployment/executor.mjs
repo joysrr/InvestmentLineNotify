@@ -9,6 +9,8 @@ import { writeFile, mkdir, readFile, readdir } from "fs/promises";
 import { resolve } from "path";
 import logger from "../../utils/logger.mjs";
 import { randomUUID as uuidv4 } from "crypto";
+import { buildDeploymentVerification } from "./deploymentVerification.mjs";
+import { buildVerificationCommands } from "./deploymentVerificationCommands.mjs";
 
 // Use process.cwd() as project root for consistency across test/prod
 // Dynamic functions to allow test-time override via DEPLOY_PROJECT_ROOT env var
@@ -337,7 +339,38 @@ export async function executeDeploy(jobId, options = {}) {
       deployPath,
     );
 
-    // 步驟 7: 打標籤記錄部署版本
+    // 步驟 7: 驗證 commit、PM2 與 API health
+    const verificationCommands = buildVerificationCommands();
+    const commitResult = await runStep(
+      "verify-commit",
+      verificationCommands.commit[0],
+      verificationCommands.commit[1],
+      deployPath,
+    );
+    const pm2Result = await runStep(
+      "verify-pm2",
+      verificationCommands.pm2[0],
+      verificationCommands.pm2[1],
+      deployPath,
+    );
+    const healthResult = await runStep(
+      "verify-health",
+      verificationCommands.health[0],
+      verificationCommands.health[1],
+      deployPath,
+    );
+    state.verification = buildDeploymentVerification({
+      commit: commitResult.stdout.trim(),
+      pm2: pm2Result.stdout,
+      health: healthResult.stdout,
+      expectedCwd: deployPath,
+      expectedProcesses: ["api-server", "bot-daemon"],
+    });
+    if (!state.verification.ok) {
+      throw new Error("部署後驗證失敗");
+    }
+
+    // 步驟 8: 打標籤記錄部署版本
     if (!rollback) {
       const tagName = `deploy-${new Date().toISOString().replace(/[:.]/g, "-")}`;
       await runStep("git-tag", "git", ["tag", tagName], deployPath);
