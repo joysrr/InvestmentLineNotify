@@ -183,6 +183,10 @@ export function getBackendBuildArgs(packageJson) {
   return packageJson?.scripts?.build ? ["run", "build"] : null;
 }
 
+export function buildFrontendPermissionArgs() {
+  return ["-R", "a+rX", "dist"];
+}
+
 /**
  * 執行部署
  */
@@ -368,7 +372,15 @@ export async function executeDeploy(jobId, options = {}) {
     // 步驟 5: 前端建置
     await runStep("npm-build-frontend", "npm", ["run", "build"], webappPath);
 
-    // 步驟 6: PM2 重啟服務
+    // 步驟 6: 公開前端產物需可由 Nginx worker 讀取
+    await runStep(
+      "chmod-frontend-dist",
+      "chmod",
+      buildFrontendPermissionArgs(),
+      resolve(webappPath),
+    );
+
+    // 步驟 7: PM2 重啟服務
     await runStep(
       "pm2-reload",
       "pm2",
