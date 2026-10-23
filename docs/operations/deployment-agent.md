@@ -125,7 +125,9 @@ curl --fail-with-body \
   | jq '{jobId,status,completedAt,exitCode,error,verification}'
 ```
 
-成功時 `status` 必須是 `completed`，且 `verification.ok` 必須是 `true`。驗證內容包括：
+若遠端 `origin/main` 與正式機目前 `HEAD` 相同，job 會是 `skipped`，並附上 `skipReason: already-up-to-date`；此時不會執行 reset、依賴安裝、build 或 PM2 reload。
+
+若版本不同，成功時 `status` 必須是 `completed`，且 `verification.ok` 必須是 `true`。驗證內容包括：
 
 - 實際部署 commit
 - `api-server`、`bot-daemon` 都是 `online`

@@ -11,6 +11,10 @@ import logger from "../../utils/logger.mjs";
 import { randomUUID as uuidv4 } from "crypto";
 import { buildDeploymentVerification } from "./deploymentVerification.mjs";
 import { buildVerificationCommands } from "./deploymentVerificationCommands.mjs";
+import {
+  buildVersionCheckCommands,
+  shouldSkipDeployment,
+} from "./deploymentVersionGate.mjs";
 
 // Use process.cwd() as project root for consistency across test/prod
 // Dynamic functions to allow test-time override via DEPLOY_PROJECT_ROOT env var
@@ -35,6 +39,7 @@ export const DEPLOY_STATUS = {
   RUNNING: "running",
   COMPLETED: "completed",
   FAILED: "failed",
+  SKIPPED: "skipped",
   CANCELLED: "cancelled",
   ROLLING_BACK: "rolling_back",
 };
@@ -293,6 +298,38 @@ export async function executeDeploy(jobId, options = {}) {
     // 步驟 1: Git 拉取最新代碼
     if (!rollback) {
       await runStep("git-fetch", "git", ["fetch", "--all"], deployPath);
+
+      const versionCommands = buildVersionCheckCommands();
+      const localVersion = await runStep(
+        "git-version-local",
+        versionCommands.local[0],
+        versionCommands.local[1],
+        deployPath,
+      );
+      const remoteVersion = await runStep(
+        "git-version-remote",
+        versionCommands.remote[0],
+        versionCommands.remote[1],
+        deployPath,
+      );
+      const versionGate = shouldSkipDeployment(
+        localVersion.stdout.trim(),
+        remoteVersion.stdout.trim(),
+      );
+      state.version = {
+        local: localVersion.stdout.trim(),
+        remote: remoteVersion.stdout.trim(),
+      };
+      if (versionGate.skip) {
+        state.status = DEPLOY_STATUS.SKIPPED;
+        state.skipReason = versionGate.reason;
+        state.commit = versionGate.commit;
+        state.completedAt = Date.now();
+        state.exitCode = 0;
+        addLog("info", `部署略過：版本已是最新 (${versionGate.commit})`);
+        return state;
+      }
+
       await runStep(
         "git-reset",
         "git",
