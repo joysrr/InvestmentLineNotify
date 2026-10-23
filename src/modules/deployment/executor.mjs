@@ -187,6 +187,14 @@ export function buildFrontendPermissionArgs() {
   return ["-R", "a+rX", "dist"];
 }
 
+export function buildFrontendPermissionStep(webappPath) {
+  return {
+    command: "chmod",
+    args: buildFrontendPermissionArgs(),
+    cwd: webappPath,
+  };
+}
+
 /**
  * 執行部署
  */
@@ -325,6 +333,13 @@ export async function executeDeploy(jobId, options = {}) {
         remote: remoteVersion.stdout.trim(),
       };
       if (versionGate.skip) {
+        const permissionStep = buildFrontendPermissionStep(webappPath);
+        await runStep(
+          "chmod-frontend-dist",
+          permissionStep.command,
+          permissionStep.args,
+          permissionStep.cwd,
+        );
         state.status = DEPLOY_STATUS.SKIPPED;
         state.skipReason = versionGate.reason;
         state.commit = versionGate.commit;
