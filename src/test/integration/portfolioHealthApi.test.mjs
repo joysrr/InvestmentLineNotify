@@ -9,7 +9,15 @@
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import Fastify from "fastify";
-import portfolioHealthRoute from "../../api/routes/portfolioHealth.mjs";
+import portfolioHealthRoute, {
+  resolveCurrentAge,
+} from "../../api/routes/portfolioHealth.mjs";
+
+describe("resolveCurrentAge", () => {
+  it("uses age 33 when query and strategy lifecycle are absent", () => {
+    expect(resolveCurrentAge({}, {})).toBe(33);
+  });
+});
 
 // ─────────────────────────────────────────────────────────────
 // Test Setup

@@ -9,6 +9,10 @@ import { archiveManager } from "../../modules/data/archiveManager.mjs";
 const cache = new Map();
 const CACHE_TTL_MS = 60000;
 
+export function resolveCurrentAge(query = {}, strategy = {}) {
+  return Number(query.currentAge) || strategy.lifecycle?.currentAge || 33;
+}
+
 async function getCached(key, fetcher) {
   const cached = cache.get(key);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
@@ -68,8 +72,7 @@ export default async function portfolioHealthRoute(fastify) {
         latestReport?.macroAnalysis?.conclusion?.market_direction ||
         "NEUTRAL";
 
-      const currentAge =
-        Number(query.currentAge) || strategy.lifecycle?.currentAge || 40;
+      const currentAge = resolveCurrentAge(query, strategy);
 
       // 計算生命週期上下文
       const { computeLifecycleContext } =
