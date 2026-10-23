@@ -158,6 +158,7 @@ describe("Portfolio Health API - Missing Parameters (TC-017)", () => {
     const body = JSON.parse(response.body);
     expect(body.status).toBeDefined();
     expect(body.score).toBeDefined();
+    expect(body.components.lifecycle.details.yearsToRetirement).toBe(32);
   });
 
   it("缺少 macroSentiment 應使用預設值", async () => {

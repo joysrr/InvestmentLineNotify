@@ -1,10 +1,17 @@
 import { describe, expect, it } from "vitest";
-import strategy from "../../../data/config/Strategy.default.json";
+import strategyConfig from "../../../data/config/Strategy.default.json";
 import { resolveFreshnessConfig } from "../../domain/dataFreshness.mjs";
+
+describe("strategy lifecycle age configuration", () => {
+  it("uses the user's confirmed current age and does not imply automatic ageing without birthYear", () => {
+    expect(strategyConfig.lifecycle.currentAge).toBe(33);
+    expect(strategyConfig.lifecycle.birthYear).toBeUndefined();
+  });
+});
 
 describe("data freshness config", () => {
   it("provides shadow defaults and category dependencies", () => {
-    expect(resolveFreshnessConfig(strategy.dataFreshness)).toEqual({
+    expect(resolveFreshnessConfig(strategyConfig.dataFreshness)).toEqual({
       mode: "shadow",
       staleAfterTradingDays: 3,
       dependencies: {
