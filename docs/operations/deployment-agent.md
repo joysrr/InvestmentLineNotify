@@ -145,9 +145,11 @@ Agent 會在 PM2 reload 後對 `/health` 進行有限重試，以等待服務完
 
 若由隔離 Docker Terminal 觸發 Agent，必須同時滿足：
 
-- bind mount `/run/investnotify/deploy-agent.sock:/run/investnotify/deploy-agent.sock`
+- **掛載父目錄** `/run/investnotify:/run/investnotify`，不要只掛載單一 socket 檔案
 - 將 Terminal container 加入 `investnotify-deploy` supplementary group GID `988`
 - 保持 Terminal container 不掛載 Host `/var/run/docker.sock`
+
+只掛載 `/run/investnotify/deploy-agent.sock` 會固定住建立當下的 Unix socket inode。Host Agent 重啟後會重新建立 socket；此時 container 內檔案仍存在但會得到 `Connection refused`。掛載父目錄後，container 會透過相同路徑看到新 inode。若已使用舊的 file mount，必須重建 Terminal container（`up -d --force-recreate`），單純重啟 Host service 不會更新該 mount。
 
 驗證 Terminal 實際連線：
 

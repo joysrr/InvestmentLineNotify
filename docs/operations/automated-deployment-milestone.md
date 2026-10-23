@@ -87,6 +87,19 @@ Production commit: be79cd5
 verification.ok: true
 ```
 
+同日完成 `/api/deploy` route 修正後，再次由 Docker Terminal 實際部署並完成驗證：
+
+```text
+Agent status: {"service":"investnotify-deploy-agent","status":"ok"}
+Job ID: 3086d7b1-82b2-4e18-ae7a-3ed0d6da2939
+Job status: completed
+Exit code: 0
+Production commit: e027369
+verification.ok: true
+```
+
+本次故障排除確認：Terminal 若只 bind mount `/run/investnotify/deploy-agent.sock`，Host Agent 重啟後會保留舊 socket inode，造成 `Connection refused`。永久配置應掛載父目錄 `/run/investnotify:/run/investnotify`；若既有 container 已使用 file mount，需重建 Terminal container 才會取得新 mount。之後 Docker Terminal 可直接自動觸發部署，不需改以 Host shell 執行。
+
 Production verification：
 
 - `api-server`: `online`

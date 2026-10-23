@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-10-23T07:51:20.192Z",
+  "generated_at": "2026-10-23T12:59:52.011Z",
   "summary": {
     "total_files": 160,
-    "average_health": 56.1,
+    "average_health": 56.2,
     "by_health": {
-      "excellent": 28,
-      "good": 19,
+      "excellent": 29,
+      "good": 18,
       "fair": 112,
       "poor": 1
     },
     "by_category": {
       "other": {
         "count": 20,
-        "avgHealth": 61,
-        "totalHealth": 1220
+        "avgHealth": 62,
+        "totalHealth": 1230
       },
       "guide": {
         "count": 3,
@@ -28,7 +28,7 @@
       "reference": {
         "count": 40,
         "avgHealth": 79,
-        "totalHealth": 3165
+        "totalHealth": 3170
       },
       "explanation": {
         "count": 4,
@@ -763,7 +763,7 @@
       "concept": "operations",
       "file": "modules/operations/_index.md",
       "category": "reference",
-      "health": 85,
+      "health": 90,
       "status": "current"
     },
     {
@@ -917,7 +917,7 @@
       "concept": "automated-deployment-milestone",
       "file": "operations/automated-deployment-milestone.md",
       "category": "other",
-      "health": 75,
+      "health": 85,
       "status": "current"
     },
     {

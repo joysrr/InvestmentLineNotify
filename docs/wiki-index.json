@@ -8,7 +8,7 @@
     "total_code_mappings": 76,
     "concepts_with_code": 44,
     "concepts_with_links": 54,
-    "generated_at": "2026-10-23T07:51:19.372Z"
+    "generated_at": "2026-10-23T12:59:51.126Z"
   },
   "concepts": {
     "api-contract": {
@@ -678,7 +678,7 @@
       "related_code": ["src/scheduler/newsFetch.mjs", "src/dailyCheck.mjs"],
       "tags": ["operations", "deployment", "scheduling", "monitoring"],
       "status": "current",
-      "last_verified": "2026-09-10"
+      "last_verified": "2026-10-23"
     },
     "deployment-oracle-vm": {
       "primary_doc": "modules/operations/deployment_oracle_vm.md",
