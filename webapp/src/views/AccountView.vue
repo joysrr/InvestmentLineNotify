@@ -200,7 +200,12 @@
         </div>
       </div>
 
-      <!-- 4. 資料來源健康度 -->
+      <!-- 4. 部署管理（管理員操作） -->
+      <div class="section">
+        <DeploymentControl />
+      </div>
+
+      <!-- 5. 資料來源健康度 -->
       <div class="section">
         <DataEvidenceCard />
       </div>
@@ -271,6 +276,7 @@ import { usePortfolioSnapshots } from "../composables/usePortfolioSnapshots.js";
 import { waitReady } from "../composables/useTelegram.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import DataEvidenceCard from "../components/dashboard/DataEvidenceCard.vue";
+import DeploymentControl from "../components/common/DeploymentControl.vue";
 
 // ECharts
 import VChart from "vue-echarts";

@@ -4,6 +4,10 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import Fastify from "fastify";
 
+vi.mock("../../modules/deployment/deploymentAgentClient.mjs", () => ({
+  createDeploymentAgentClient: vi.fn(),
+}));
+
 vi.mock("../../modules/deployment/executor.mjs", () => ({
   deploymentExecutor: {
     createDeployJob: vi.fn(),
@@ -26,9 +30,19 @@ vi.mock("../../utils/logger.mjs", () => ({
 
 import deployRoutes from "./deployRoutes.mjs";
 import { deploymentExecutor } from "../../modules/deployment/executor.mjs";
+import { createDeploymentAgentClient } from "../../modules/deployment/deploymentAgentClient.mjs";
 
 describe("deployRoutes - 部署 API 路由", () => {
   let app;
+  let agentClient;
+
+  beforeEach(() => {
+    agentClient = {
+      createDeployJob: vi.fn(),
+      getJobState: vi.fn(),
+    };
+    createDeploymentAgentClient.mockReturnValue(agentClient);
+  });
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -45,7 +59,7 @@ describe("deployRoutes - 部署 API 路由", () => {
 
   describe("POST /deploy - 觸發部署", () => {
     it("新部署回傳 202 和 jobId", async () => {
-      deploymentExecutor.createDeployJob.mockResolvedValue({
+      agentClient.createDeployJob.mockResolvedValue({
         jobId: "deploy-123",
         status: "queued",
       });
@@ -62,8 +76,32 @@ describe("deployRoutes - 部署 API 路由", () => {
       expect(body.status).toBe("queued");
     });
 
+    it("保留 Agent 回傳的版本閘門結果", async () => {
+      agentClient.createDeployJob.mockResolvedValue({
+        jobId: "deploy-123",
+        status: "skipped",
+        skipReason: "already-up-to-date",
+        commit: "ef4ca31",
+        version: { local: "ef4ca31", remote: "ef4ca31" },
+      });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/deploy",
+        payload: {},
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(JSON.parse(response.payload)).toMatchObject({
+        status: "skipped",
+        skipReason: "already-up-to-date",
+        commit: "ef4ca31",
+        version: { local: "ef4ca31", remote: "ef4ca31" },
+      });
+    });
+
     it("rollback 參數正確傳遞", async () => {
-      deploymentExecutor.createDeployJob.mockResolvedValue({
+      agentClient.createDeployJob.mockResolvedValue({
         jobId: "deploy-123",
         status: "queued",
       });
@@ -74,14 +112,13 @@ describe("deployRoutes - 部署 API 路由", () => {
         payload: { rollback: true, rollbackTarget: "v1.0.0" },
       });
 
-      expect(deploymentExecutor.createDeployJob).toHaveBeenCalledWith({
+      expect(agentClient.createDeployJob).toHaveBeenCalledWith({
         rollback: true,
-        rollbackTarget: "v1.0.0",
       });
     });
 
     it("部署衝突回傳 409", async () => {
-      deploymentExecutor.createDeployJob.mockResolvedValue({
+      agentClient.createDeployJob.mockResolvedValue({
         jobId: "existing-job",
         status: "running",
       });
@@ -115,7 +152,7 @@ describe("deployRoutes - 部署 API 路由", () => {
 
   describe("GET /deploy/:jobId - 查詢部署狀態", () => {
     it("找到任務回傳狀態", async () => {
-      deploymentExecutor.getJobState.mockResolvedValue({
+      agentClient.getJobState.mockResolvedValue({
         jobId: "deploy-123",
         status: "completed",
         startedAt: Date.now(),

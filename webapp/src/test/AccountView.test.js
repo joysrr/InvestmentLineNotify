@@ -36,6 +36,11 @@ vi.mock("../composables/usePortfolioSnapshots.js", () => ({
 vi.mock("../composables/useTelegram.js", () => ({
   waitReady: vi.fn().mockResolvedValue(undefined),
 }));
+vi.mock("../components/common/DeploymentControl.vue", () => ({
+  default: {
+    template: '<section data-testid="deployment-control" />',
+  },
+}));
 vi.mock("vue-echarts", () => ({
   default: { template: '<div class="mock-chart" />', props: ["option"] },
 }));
@@ -96,6 +101,18 @@ describe("AccountView", () => {
       generatedAt: "2026-10-21T00:00:00Z",
       items: [{ field: "test.field" }],
     });
+  });
+
+  it("應在帳戶設定頁顯示部署控制，且位於資料證據之前", async () => {
+    const wrapper = mountView();
+    await flushPromises();
+    const deployment = wrapper.find('[data-testid="deployment-control"]');
+    const evidence = wrapper.find('[data-testid="data-evidence-card"]');
+    expect(deployment.exists()).toBe(true);
+    expect(
+      deployment.element.compareDocumentPosition(evidence.element) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it("應在設定與帳戶頁顯示資料證據卡", async () => {

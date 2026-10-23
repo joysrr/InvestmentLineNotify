@@ -4,6 +4,7 @@
  */
 
 import { deploymentExecutor } from "../../modules/deployment/executor.mjs";
+import { createDeploymentAgentClient } from "../../modules/deployment/deploymentAgentClient.mjs";
 import { adminGuard } from "../middleware/adminGuard.mjs";
 import logger from "../../utils/logger.mjs";
 
@@ -11,6 +12,8 @@ import logger from "../../utils/logger.mjs";
  * 註冊部署路由
  */
 export default async function deployRoutes(fastify) {
+  const deploymentAgent = createDeploymentAgentClient();
+
   // 所有部署端點都需要管理員權限
   fastify.addHook("preHandler", adminGuard);
 
@@ -29,6 +32,17 @@ export default async function deployRoutes(fastify) {
           },
         },
         response: {
+          200: {
+            type: "object",
+            properties: {
+              jobId: { type: "string" },
+              status: { type: "string" },
+              skipReason: { type: "string" },
+              commit: { type: "string" },
+              version: { type: "object", additionalProperties: true },
+              verification: { type: "object", additionalProperties: true },
+            },
+          },
           202: {
             type: "object",
             properties: {
@@ -49,16 +63,13 @@ export default async function deployRoutes(fastify) {
     },
     async (request, reply) => {
       try {
-        const { rollback = false, rollbackTarget } = request.body;
+        const { rollback = false } = request.body;
 
-        const result = await deploymentExecutor.createDeployJob({
-          rollback,
-          rollbackTarget,
-        });
+        const result = await deploymentAgent.createDeployJob({ rollback });
 
-        if (result.status === "queued") {
-          reply.code(202);
-          return { jobId: result.jobId, status: result.status };
+        if (["queued", "skipped"].includes(result.status)) {
+          reply.code(result.status === "queued" ? 202 : 200);
+          return result;
         } else {
           reply.code(409);
           return {
@@ -108,6 +119,10 @@ export default async function deployRoutes(fastify) {
               exitCode: { type: "integer" },
               error: { type: "string" },
               deployTag: { type: "string" },
+              skipReason: { type: "string" },
+              commit: { type: "string" },
+              version: { type: "object", additionalProperties: true },
+              verification: { type: "object", additionalProperties: true },
             },
           },
           404: {
@@ -123,7 +138,7 @@ export default async function deployRoutes(fastify) {
     async (request, reply) => {
       const { jobId } = request.params;
 
-      const state = await deploymentExecutor.getJobState(jobId);
+      const state = await deploymentAgent.getJobState(jobId);
       if (!state) {
         reply.code(404);
         return { error: "Not Found", message: "部署任務不存在" };
