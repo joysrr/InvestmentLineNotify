@@ -6,10 +6,11 @@
 import logger from "../../utils/logger.mjs";
 
 /**
- * 解析 ADMIN_USER_IDS 環境變數
+ * 解析管理員 Telegram user ID 清單。
+ * ADMIN_USER_IDS 優先；單一使用者部署環境 fallback 到 TELEGRAM_USER_ID。
  */
 function getAdminUserIds() {
-  const ids = process.env.ADMIN_USER_IDS;
+  const ids = process.env.ADMIN_USER_IDS || process.env.TELEGRAM_USER_ID;
   if (!ids) return new Set();
 
   return new Set(
