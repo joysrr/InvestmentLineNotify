@@ -14,10 +14,11 @@ wiki_links: []
 
 ## Purpose
 
-Host Deployment Agent 讓 Docker、CLI 或後續 Bot 透過 Unix socket 請求兩個受限操作：
+Host Deployment Agent 讓 Docker、CLI 或後續 Bot 透過 Unix socket 請求三個受限操作：
 
 - `sync-production-artifacts`
 - `deploy-production`
+- `deployments/:jobId`（唯讀狀態查詢）
 
 它不開公開 HTTP port，也不接受任意 shell command。
 
@@ -108,7 +109,30 @@ curl --unix-socket /run/investnotify/deploy-agent.sock \
   -d '{"rollback":false}'
 ```
 
-目前 API 回傳部署 job 建立結果；部署狀態應使用既有 job state 查詢機制。後續若要由 Docker 顯示完整進度，需新增唯讀 status endpoint，不應讓 Docker 直接執行 PM2。
+部署 API 只回傳建立任務的確認，不代表部署成功：
+
+```json
+{ "jobId": "...", "status": "queued" }
+```
+
+使用 job ID 查詢實際狀態：
+
+```bash
+JOB_ID="your-job-id"
+curl --fail-with-body \
+  --unix-socket /run/investnotify/deploy-agent.sock \
+  "http://localhost/deployments/$JOB_ID" \
+  | jq '{jobId,status,completedAt,exitCode,error,verification}'
+```
+
+成功時 `status` 必須是 `completed`，且 `verification.ok` 必須是 `true`。驗證內容包括：
+
+- 實際部署 commit
+- `api-server`、`bot-daemon` 都是 `online`
+- PM2 工作目錄符合正式專案路徑
+- `/health` 回傳 `status: ok`
+
+Agent 會在 PM2 reload 後對 `/health` 進行有限重試，以等待服務完成啟動；重試後仍失敗會將 job 標記為 `failed`。
 
 ## Security boundary
 

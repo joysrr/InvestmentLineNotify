@@ -58,8 +58,9 @@ CLI 只負責解析參數、檢查路徑並委派既有 `deploymentExecutor`。e
 3. 安裝後端與前端依賴。
 4. 建置前端。
 5. reload PM2。
-6. 保存 job 狀態與部署日誌。
-7. 失敗時釋放鎖並回傳失敗狀態。
+6. 驗證部署 commit、PM2 程序／cwd 與 `/health`；health check 具有有限啟動重試。
+7. 保存 job 狀態、部署日誌與 `verification` 摘要。
+8. 失敗時釋放鎖並回傳失敗狀態。
 
 ## Separation rule
 
