@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 156,
-    "total_edges": 184,
-    "total_code_mappings": 67,
-    "concepts_with_code": 41,
-    "concepts_with_links": 53,
-    "generated_at": "2026-10-21T03:00:13.025Z"
+    "total_concepts": 160,
+    "total_edges": 185,
+    "total_code_mappings": 76,
+    "concepts_with_code": 44,
+    "concepts_with_links": 54,
+    "generated_at": "2026-10-23T07:51:19.372Z"
   },
   "concepts": {
     "api-contract": {
@@ -972,6 +972,68 @@
       "tags": ["strategy", "signals", "technical-analysis"],
       "status": "needs-review",
       "last_verified": null
+    },
+    "automated-deployment-milestone": {
+      "primary_doc": "operations/automated-deployment-milestone.md",
+      "title": "自動化開發與正式部署里程碑",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [
+        "src/modules/deployment/deploymentAgentClient.mjs",
+        "src/modules/deployment/deploymentAgentServer.mjs",
+        "src/modules/deployment/executor.mjs",
+        "src/api/routes/deployRoutes.mjs",
+        "webapp/src/components/common/DeploymentControl.vue",
+        "webapp/src/views/AccountView.vue"
+      ],
+      "tags": [
+        "operations",
+        "deployment",
+        "automation",
+        "docker",
+        "unix-socket",
+        "telegram-mini-app"
+      ],
+      "status": "current",
+      "last_verified": "2026-10-23"
+    },
+    "deployment-agent": {
+      "primary_doc": "operations/deployment-agent.md",
+      "title": "Host Deployment Agent",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [
+        "src/modules/deployment/deploymentAgentServer.mjs",
+        "src/modules/deployment/executor.mjs",
+        "scripts/deployment-agent.mjs"
+      ],
+      "tags": ["operations", "deployment", "systemd", "unix-socket"],
+      "status": "current",
+      "last_verified": "2026-10-23"
+    },
+    "production-artifact-sync": {
+      "primary_doc": "operations/production-artifact-sync.md",
+      "title": "Production Artifact Sync",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["operations", "production", "diagnostics", "snapshots"],
+      "status": "current",
+      "last_verified": null
+    },
+    "production-code-deploy": {
+      "primary_doc": "operations/production-code-deploy.md",
+      "title": "Production Code Deployment",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [
+        "src/modules/deployment/executor.mjs",
+        "src/modules/deployment/deploymentVerification.mjs",
+        "scripts/deploy-production.mjs"
+      ],
+      "tags": ["operations", "production", "deployment", "pm2"],
+      "status": "current",
+      "last_verified": "2026-10-23"
     },
     "phase-6-baseline": {
       "primary_doc": "performance/PHASE_6_BASELINE.md",
@@ -2493,6 +2555,72 @@
       {
         "concept": "regime-policy",
         "doc": "modules/strategy/regime_policy.md"
+      }
+    ],
+    "src/modules/deployment/deploymentAgentClient.mjs": [
+      {
+        "concept": "automated-deployment-milestone",
+        "doc": "operations/automated-deployment-milestone.md"
+      }
+    ],
+    "src/modules/deployment/deploymentAgentServer.mjs": [
+      {
+        "concept": "automated-deployment-milestone",
+        "doc": "operations/automated-deployment-milestone.md"
+      },
+      {
+        "concept": "deployment-agent",
+        "doc": "operations/deployment-agent.md"
+      }
+    ],
+    "src/modules/deployment/executor.mjs": [
+      {
+        "concept": "automated-deployment-milestone",
+        "doc": "operations/automated-deployment-milestone.md"
+      },
+      {
+        "concept": "deployment-agent",
+        "doc": "operations/deployment-agent.md"
+      },
+      {
+        "concept": "production-code-deploy",
+        "doc": "operations/production-code-deploy.md"
+      }
+    ],
+    "src/api/routes/deployRoutes.mjs": [
+      {
+        "concept": "automated-deployment-milestone",
+        "doc": "operations/automated-deployment-milestone.md"
+      }
+    ],
+    "webapp/src/components/common/DeploymentControl.vue": [
+      {
+        "concept": "automated-deployment-milestone",
+        "doc": "operations/automated-deployment-milestone.md"
+      }
+    ],
+    "webapp/src/views/AccountView.vue": [
+      {
+        "concept": "automated-deployment-milestone",
+        "doc": "operations/automated-deployment-milestone.md"
+      }
+    ],
+    "scripts/deployment-agent.mjs": [
+      {
+        "concept": "deployment-agent",
+        "doc": "operations/deployment-agent.md"
+      }
+    ],
+    "src/modules/deployment/deploymentVerification.mjs": [
+      {
+        "concept": "production-code-deploy",
+        "doc": "operations/production-code-deploy.md"
+      }
+    ],
+    "scripts/deploy-production.mjs": [
+      {
+        "concept": "production-code-deploy",
+        "doc": "operations/production-code-deploy.md"
       }
     ],
     "webapp/src/composables/useApiRequest.js": [

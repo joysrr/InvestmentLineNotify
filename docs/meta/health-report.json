@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-10-21T03:00:16.149Z",
+  "generated_at": "2026-10-23T07:51:20.192Z",
   "summary": {
-    "total_files": 156,
-    "average_health": 55.6,
+    "total_files": 160,
+    "average_health": 56.1,
     "by_health": {
-      "excellent": 26,
-      "good": 18,
-      "fair": 111,
+      "excellent": 28,
+      "good": 19,
+      "fair": 112,
       "poor": 1
     },
     "by_category": {
       "other": {
-        "count": 16,
-        "avgHealth": 58,
-        "totalHealth": 920
+        "count": 20,
+        "avgHealth": 61,
+        "totalHealth": 1220
       },
       "guide": {
         "count": 3,
@@ -912,6 +912,34 @@
       "category": "reference",
       "health": 65,
       "status": "needs-review"
+    },
+    {
+      "concept": "automated-deployment-milestone",
+      "file": "operations/automated-deployment-milestone.md",
+      "category": "other",
+      "health": 75,
+      "status": "current"
+    },
+    {
+      "concept": "deployment-agent",
+      "file": "operations/deployment-agent.md",
+      "category": "other",
+      "health": 85,
+      "status": "current"
+    },
+    {
+      "concept": "production-artifact-sync",
+      "file": "operations/production-artifact-sync.md",
+      "category": "other",
+      "health": 55,
+      "status": "current"
+    },
+    {
+      "concept": "production-code-deploy",
+      "file": "operations/production-code-deploy.md",
+      "category": "other",
+      "health": 85,
+      "status": "current"
     },
     {
       "concept": "phase-6-baseline",

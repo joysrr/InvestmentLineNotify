@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 156,
-    "edges": 184
+    "nodes": 160,
+    "edges": 185
   },
   "graph": {
     "api-contract": ["api"],
@@ -165,6 +165,7 @@
     "providers": ["strategy-engine", "news-fetcher"],
     "regime-policy": ["strategy-engine", "macro-regime-advanced-spec"],
     "strategy-engine": ["ai_news"],
+    "automated-deployment-milestone": ["operations"],
     "dashboard-ux-pyramid-spec": [
       "dashboard-ux-pyramid-spec",
       "macro-regime-metrics-analysis",

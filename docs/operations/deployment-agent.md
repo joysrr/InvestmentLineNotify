@@ -1,7 +1,12 @@
 ---
 type: reference
 status: current
-last_updated: 2026-10-22
+last_updated: 2026-10-23
+last_verified: 2026-10-23
+related_code:
+  - src/modules/deployment/deploymentAgentServer.mjs
+  - src/modules/deployment/executor.mjs
+  - scripts/deployment-agent.mjs
 tags:
   - operations
   - deployment
@@ -135,6 +140,24 @@ curl --fail-with-body \
 - `/health` 回傳 `status: ok`
 
 Agent 會在 PM2 reload 後對 `/health` 進行有限重試，以等待服務完成啟動；重試後仍失敗會將 job 標記為 `failed`。
+
+## Isolated Terminal integration
+
+若由隔離 Docker Terminal 觸發 Agent，必須同時滿足：
+
+- bind mount `/run/investnotify/deploy-agent.sock:/run/investnotify/deploy-agent.sock`
+- 將 Terminal container 加入 `investnotify-deploy` supplementary group GID `988`
+- 保持 Terminal container 不掛載 Host `/var/run/docker.sock`
+
+驗證 Terminal 實際連線：
+
+```bash
+curl --fail-with-body --silent --show-error \
+  --unix-socket /run/investnotify/deploy-agent.sock \
+  http://localhost/status
+```
+
+成功只代表 Agent 可達；部署仍必須等待 `GET /deployments/:jobId` 的 terminal status，並確認 `verification.ok: true`。
 
 ## Security boundary
 

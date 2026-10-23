@@ -1,7 +1,12 @@
 ---
 type: reference
 status: current
-last_updated: 2026-10-22
+last_updated: 2026-10-23
+last_verified: 2026-10-23
+related_code:
+  - src/modules/deployment/executor.mjs
+  - src/modules/deployment/deploymentVerification.mjs
+  - scripts/deploy-production.mjs
 tags:
   - operations
   - production
@@ -72,6 +77,23 @@ CLI 只負責解析參數、檢查路徑並委派既有 `deploymentExecutor`。e
 
 這些是診斷快照流程的參數。部署時若需要同步正式證據，必須先另行執行 `sync:production-artifacts`，再執行部署；兩次操作的 snapshot 與 job 狀態分開保存。
 
-## Current limitation
+## Automated trigger and verification
 
-目前 CLI 已完成 Host-side 執行入口，但尚未建立 systemd／Unix socket service。Docker、Telegram 或其他外部觸發器仍不能直接控制 Host PM2；下一階段再建立受限的 Host service。
+目前正式流程由隔離 Docker Terminal 透過 Host Deployment Agent 的 Unix socket 觸發。Terminal container 只掛載 `/run/investnotify/deploy-agent.sock`，並加入 `investnotify-deploy` supplementary group GID `988`；不掛載 Host Docker socket。
+
+觸發回應 `{ jobId, status: "queued" }` 只是 acknowledgement，不代表成功。必須使用唯讀 job status 查詢，直到狀態為 `completed`、`skipped` 或 `failed`。
+
+只有以下條件成立時才能宣稱完成：
+
+- `status: completed`
+- `exitCode: 0`
+- `error: null`
+- `verification.ok: true`
+- verification commit 符合預期
+- `api-server` 與 `bot-daemon` 為 `online`
+- PM2 cwd 為正式專案目錄
+- `/health` 回傳 `status: ok`
+
+若 production HEAD 已與 `origin/main` 相同，結果應為 `skipped` 並帶有 `skipReason: already-up-to-date`；這代表沒有重複 reload，不應誤報成新的 deployment。
+
+正式環境實際驗證紀錄（2026-10-23）：job `8dff8d59-775f-4cd9-a754-ce521cc935ce` 完成，commit `be79cd5`，`verification.ok: true`，兩個 PM2 程序 online，health status 為 `ok`。
