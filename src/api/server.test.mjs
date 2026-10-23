@@ -27,6 +27,15 @@ describe("buildApp - Fastify Server Audit & Logger Hook", () => {
     expect(typeof body.ts).toBe("number");
   });
 
+  it("應將部署路由掛在 /api 前綴下", async () => {
+    app = await buildApp();
+
+    expect(app.hasRoute({ method: "POST", url: "/api/deploy" })).toBe(true);
+    expect(app.hasRoute({ method: "GET", url: "/api/deploy/:jobId" })).toBe(
+      true,
+    );
+  });
+
   it("應觸發 onRequest 與 onResponse 日誌審計", async () => {
     process.env.BYPASS_INIT_DATA = "true";
     const loggerInfoSpy = vi.spyOn(logger, "info");

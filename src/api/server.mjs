@@ -181,7 +181,7 @@ export async function buildApp(opts = {}) {
   await fastify.register(strategyStatusRoute, { prefix: "/api" });
   await fastify.register(simulateRoute, { prefix: "/api/v1" });
   await fastify.register(monitoringRoutes);
-  await fastify.register(deployRoutes);
+  await fastify.register(deployRoutes, { prefix: "/api" });
 
   // ─── Global Error Handler (M-002: Path Hiding) ─────────────────────────────
   fastify.setErrorHandler((error, request, reply) => {
