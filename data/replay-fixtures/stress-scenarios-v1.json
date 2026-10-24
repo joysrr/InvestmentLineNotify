@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.0",
+  "fixtureSource": "synthetic",
+  "scenarios": [
+    {
+      "scenarioId": "COVID_CIRCUIT_BREAKER",
+      "days": [
+        {
+          "day": 1,
+          "dailyReturn": -3.5,
+          "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 },
+          "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true }
+        }
+      ]
+    },
+    {
+      "scenarioId": "BEAR_CHOPPY",
+      "days": [
+        {
+          "day": 1,
+          "dailyReturn": -2,
+          "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 },
+          "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true }
+        }
+      ]
+    },
+    {
+      "scenarioId": "FLASH_CRASH",
+      "days": [
+        {
+          "day": 1,
+          "dailyReturn": -8.5,
+          "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 },
+          "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true }
+        }
+      ]
+    },
+    {
+      "scenarioId": "VALUATION_REVERSION",
+      "days": [
+        {
+          "day": 1,
+          "dailyReturn": -1.5,
+          "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 },
+          "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true }
+        }
+      ]
+    }
+  ]
+}
