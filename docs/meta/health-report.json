@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-10-23T13:58:28.481Z",
+  "generated_at": "2026-10-24T12:11:04.707Z",
   "summary": {
-    "total_files": 162,
-    "average_health": 56.2,
+    "total_files": 163,
+    "average_health": 56.3,
     "by_health": {
       "excellent": 29,
       "good": 20,
-      "fair": 112,
+      "fair": 113,
       "poor": 1
     },
     "by_category": {
       "other": {
         "count": 22,
-        "avgHealth": 61,
-        "totalHealth": 1350
+        "avgHealth": 62,
+        "totalHealth": 1370
       },
       "guide": {
         "count": 3,
@@ -28,7 +28,7 @@
       "reference": {
         "count": 40,
         "avgHealth": 79,
-        "totalHealth": 3170
+        "totalHealth": 3165
       },
       "explanation": {
         "count": 4,
@@ -36,9 +36,9 @@
         "totalHealth": 190
       },
       "plan": {
-        "count": 76,
+        "count": 77,
         "avgHealth": 45,
-        "totalHealth": 3430
+        "totalHealth": 3475
       }
     }
   },
@@ -812,7 +812,7 @@
       "concept": "report-news-contract",
       "file": "modules/presentation/api/report_news_contract.md",
       "category": "reference",
-      "health": 95,
+      "health": 90,
       "status": "current"
     },
     {
@@ -954,6 +954,13 @@
       "category": "plan",
       "health": 45,
       "status": "in-review"
+    },
+    {
+      "concept": "投資系統理論升級與資產動態整合計畫書",
+      "file": "plans/active/投資系統理論升級與資產動態整合計畫書.md",
+      "category": "plan",
+      "health": 45,
+      "status": "paused"
     },
     {
       "concept": "advice",
@@ -1491,14 +1498,14 @@
       "concept": "investment-theories-current-system-guide",
       "file": "research/investment-theories-current-system-guide.md",
       "category": "other",
-      "health": 60,
+      "health": 70,
       "status": "current"
     },
     {
       "concept": "leveraged-etf-kelly-dynamic-leverage-review",
       "file": "research/leveraged-etf-kelly-dynamic-leverage-review.md",
       "category": "other",
-      "health": 60,
+      "health": 70,
       "status": "current"
     },
     {

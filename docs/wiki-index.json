@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 162,
+    "total_concepts": 163,
     "total_edges": 185,
     "total_code_mappings": 76,
     "concepts_with_code": 44,
     "concepts_with_links": 54,
-    "generated_at": "2026-10-23T13:58:27.562Z"
+    "generated_at": "2026-10-24T12:11:02.485Z"
   },
   "concepts": {
     "api-contract": {
@@ -1053,6 +1053,22 @@
       "related_code": [],
       "tags": ["investment", "risk-management", "system-design"],
       "status": "in-review",
+      "last_verified": null
+    },
+    "投資系統理論升級與資產動態整合計畫書": {
+      "primary_doc": "plans/active/投資系統理論升級與資產動態整合計畫書.md",
+      "title": "InvestmentLineNotify 投資系統理論升級與資產動態整合計畫書",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "investment-theory",
+        "theoretical-engine",
+        "shadow-mode",
+        "risk-management",
+        "implementation-plan"
+      ],
+      "status": "paused",
       "last_verified": null
     },
     "advice": {
