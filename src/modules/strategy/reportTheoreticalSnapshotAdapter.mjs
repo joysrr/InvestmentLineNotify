@@ -24,8 +24,27 @@ export function mapReportTheoreticalSnapshot(report) {
 
   const source = portfolio.accountNetAssetSource;
   const asOf = portfolio.accountNetAssetAsOf;
+  const collateralSource = portfolio.collateralValueSource;
+  const collateralAsOf = portfolio.collateralValueAsOf;
   if (source == null || asOf == null) {
     return unavailable("MISSING_PROVENANCE");
+  }
+
+  if (
+    (typeof source === "string" && source.startsWith("DERIVED_")) ||
+    (typeof collateralSource === "string" &&
+      collateralSource.startsWith("DERIVED_"))
+  ) {
+    return unavailable("NON_VERIFIED_ACCOUNT_FIELDS");
+  }
+
+  if (
+    portfolio.accountNetAsset == null ||
+    portfolio.collateralValue == null ||
+    collateralSource == null ||
+    collateralAsOf == null
+  ) {
+    return unavailable("MISSING_VERIFIED_ACCOUNT_FIELDS");
   }
 
   if (

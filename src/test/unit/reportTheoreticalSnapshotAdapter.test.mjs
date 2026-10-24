@@ -73,6 +73,22 @@ describe("reportTheoreticalSnapshotAdapter", () => {
     });
   });
 
+  it("rejects derived account fields from the verified adapter", () => {
+    const report = structuredClone(completeReport);
+    report.portfolio.accountNetAssetSource =
+      "DERIVED_FROM_PORTFOLIO_FIELDS_AND_MARKET_PRICES";
+    report.portfolio.accountNetAssetAsOf = "2026-10-24T06:00:00+08:00";
+    report.portfolio.collateralValueSource =
+      "DERIVED_FROM_PORTFOLIO_FIELDS_AND_MARKET_PRICES";
+    report.portfolio.collateralValueAsOf = "2026-10-24T06:00:00+08:00";
+
+    expect(mapReportTheoreticalSnapshot(report)).toEqual({
+      status: "UNAVAILABLE",
+      reason: "NON_VERIFIED_ACCOUNT_FIELDS",
+      snapshot: null,
+    });
+  });
+
   it("fails closed when verified account fields are incomplete", () => {
     const report = structuredClone(completeReport);
     delete report.portfolio.collateralValueAsOf;
