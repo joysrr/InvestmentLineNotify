@@ -141,6 +141,12 @@ describe("Phase A: dailyCheck Leading Indicators Integration", () => {
     // 驗證報告中儲存了 leadingIndicators 欄位
     expect(savedReport.leadingIndicators).toBeDefined();
     expect(savedReport.leadingIndicators.stateMachine).toBeDefined();
+    expect(savedReport.portfolioSnapshot).toEqual({
+      status: "UNAVAILABLE",
+      reason: "ACCOUNT_FIELDS_NOT_VERIFIED",
+      source: "INTERNAL_DERIVATION_ONLY",
+      asOf: null,
+    });
   });
 
   it("evaluator 收到正確的 bias60 與 bias60DataStatus，且 saveReport payload 保留這些值", async () => {
