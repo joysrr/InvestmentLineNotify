@@ -413,11 +413,23 @@ export async function fetchLatestClose(symbol) {
   return rows[rows.length - 1];
 }
 
+export function buildTwsePriceEnvelope({ price, time, source }) {
+  return {
+    price,
+    time,
+    source: source === "STOCK_DAY" ? "TWSE_STOCK_DAY" : "TWSE_MIS",
+  };
+}
+
 export async function fetchRealTimePrice(symbol) {
   try {
     const realtime = await fetchRealtimeFromMis(symbol);
     if (realtime && realtime.price != null) {
-      return { price: realtime.price, time: realtime.time };
+      return buildTwsePriceEnvelope({
+        price: realtime.price,
+        time: realtime.time,
+        source: "MIS",
+      });
     }
   } catch (err) {
     console.warn("MIS 即時價獲取失敗，改走收盤 fallback:", err.message);
@@ -425,10 +437,11 @@ export async function fetchRealTimePrice(symbol) {
 
   const latest = await fetchLatestClose(symbol);
   if (latest?.close != null) {
-    return {
+    return buildTwsePriceEnvelope({
       price: latest.close,
       time: new Date(`${latest.date}T13:30:00+08:00`),
-    };
+      source: "STOCK_DAY",
+    });
   }
 
   return { price: null, time: null };

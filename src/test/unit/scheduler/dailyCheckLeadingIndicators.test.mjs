@@ -6,6 +6,7 @@ vi.mock("../../../utils/envGuard.mjs", () => ({
 }));
 
 import { runDailyCheck } from "../../../scheduler/dailyCheck.mjs";
+import { buildDailyRunContext } from "../../../domain/dailyRunContext.mjs";
 import * as leadingEvaluator from "../../../modules/strategy/leadingIndicatorEvaluator.mjs";
 import * as notifier from "../../../modules/notifications/notifier.mjs";
 import { archiveManager } from "../../../modules/data/archiveManager.mjs";
@@ -147,6 +148,61 @@ describe("Phase A: dailyCheck Leading Indicators Integration", () => {
       source: "INTERNAL_DERIVATION_ONLY",
       asOf: null,
     });
+  });
+
+  it("行情 provenance 完整時，saveReport payload 使用 DERIVED snapshot", async () => {
+    vi.mocked(buildDailyRunContext).mockResolvedValueOnce({
+      openToday: true,
+      lastState: {
+        qty0050: 12000,
+        qtyZ2: 6000,
+        cash: 80000,
+        totalLoan: 900000,
+      },
+      price0050: 151,
+      currentPriceZ2: 102,
+      price0050Snapshot: {
+        price: 151,
+        asOf: "2026-10-24T06:00:00+08:00",
+      },
+      priceZ2Snapshot: {
+        price: 102,
+        asOf: "2026-10-24T06:00:00+08:00",
+      },
+      finalPriceZ2: 102,
+      vixData: { value: 20.0 },
+      usRisk: { soxChg: -5, tsmChg: -4 },
+      taifexNight: {},
+      taifexRetailSentiment: {},
+      macroData: { rawMargin: {} },
+      socialSentiment: {},
+      historyZ2: { closes: [100, 102], dates: ["2026-10-19", "2026-10-20"] },
+      history0050: { closes: [150, 151], dates: ["2026-10-19", "2026-10-20"] },
+      newsStructured: { tw: [], us: [] },
+      newsSummaryText: "新聞摘要",
+      macroTextForCoach: "宏觀",
+      macroAndChipStr: "籌碼",
+      previousAdviceSummary: "前期建議",
+      quote: { quote: "名言" },
+      sourceMetadata: {},
+      newsAnalysisStatus: "success",
+      valuationGuardState: { latchActive: false },
+    });
+
+    await runDailyCheck({
+      isTelegramEnabled: false,
+      isAIAdvisor: false,
+      isCallAI: false,
+      isSheetEnabled: false,
+    });
+
+    const savedReport = vi.mocked(archiveManager.saveReport).mock.calls[0][0];
+    expect(savedReport.portfolioSnapshot).toMatchObject({
+      status: "DERIVED",
+      source: "DERIVED_FROM_PORTFOLIO_FIELDS_AND_MARKET_PRICES",
+      asOf: "2026-10-24T06:00:00+08:00",
+    });
+    expect(savedReport.portfolioSnapshot.accountNetAsset).toBe(1604000);
   });
 
   it("evaluator 收到正確的 bias60 與 bias60DataStatus，且 saveReport payload 保留這些值", async () => {

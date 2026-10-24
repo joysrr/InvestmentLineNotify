@@ -21,8 +21,7 @@
 
 import {
   getTwVix,
-  fetchLatestClose,
-  fetchRealtimeFromMis,
+  fetchRealTimePrice,
   isMarketOpenTodayTWSE,
 } from "../modules/providers/twseProvider.mjs";
 import {
@@ -32,6 +31,7 @@ import {
 import { fetchLatestBasePrice } from "../modules/providers/basePriceProvider.mjs";
 import { fetchAllMacroData } from "../modules/providers/marketData.mjs";
 import { fetchLastPortfolioState } from "../modules/storage.mjs";
+import { buildDailyPriceContext } from "./dailyPriceContext.mjs";
 import { fetchSocialSentimentData } from "../modules/providers/socialSentimentProvider.mjs";
 import {
   fetchTaifexNightSession,
@@ -272,8 +272,11 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
 
   wave3Timer();
 
-  const price0050 = _unwrap(price0050Result, null, "price0050");
-  const currentPriceZ2 = _unwrap(priceZ2Result, null, "currentPriceZ2");
+  const priceContext = buildDailyPriceContext({
+    price0050: _unwrap(price0050Result, null, "price0050"),
+    priceZ2: _unwrap(priceZ2Result, null, "currentPriceZ2"),
+  });
+  const { price0050, currentPriceZ2 } = priceContext;
 
   // ── Wave 4：AI 新聞/總經分析（isCallAI = false 時全略）─────────────────
   let newsMessages = [];
@@ -399,6 +402,8 @@ export async function buildDailyRunContext({ isCallAI = true } = {}) {
     basePrice,
     price0050,
     currentPriceZ2,
+    price0050Snapshot: priceContext.price0050Snapshot,
+    priceZ2Snapshot: priceContext.priceZ2Snapshot,
     // 歷史 K 棒
     historyZ2: historyZ2Raw,
     history0050,
@@ -607,19 +612,14 @@ async function _checkMarketOpen() {
 async function _fetchPrice(symbol) {
   logger.info(`📥 [DailyRunContext] 正在抓取 ${symbol} 即時價...`);
   const done = stepTimer(`fetchPrice_${symbol}`);
-  let price = null;
   try {
-    const rt = await fetchRealtimeFromMis(symbol);
-    price = rt?.price ?? null;
-  } catch (e) {
-    logger.warn(`⚠️ [DailyRunContext] ${symbol} MIS 失敗，轉用收盤價`);
+    return await fetchRealTimePrice(symbol);
+  } catch (err) {
+    logger.warn(err, `⚠️ [DailyRunContext] ${symbol} 行情取得失敗`);
+    return { price: null, time: null, source: null };
+  } finally {
+    done();
   }
-  if (!price) {
-    const latest = await fetchLatestClose(symbol);
-    price = latest?.close ?? null;
-  }
-  done();
-  return price;
 }
 
 /** valuationGuardState（latch 狀態） */

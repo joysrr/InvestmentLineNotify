@@ -51,7 +51,7 @@ export const providerRegistry = {
     },
   },
   usMarketFred: {
-    label: "美股風險 (FRED)",
+    label: "美股風險 (FRED + Yahoo)",
     async fetch() {
       return fetchUsMarketData();
     },

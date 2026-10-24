@@ -32,9 +32,9 @@ export function buildDerivedPortfolioSnapshot({
 
   const value0050 = portfolio.qty0050 * price0050;
   const value00675L = portfolio.qtyZ2 * priceZ2;
-  const collateralValue = value0050 + value00675L;
+  const collateralValue = value0050;
   const accountNetAsset =
-    collateralValue + portfolio.cash - portfolio.totalLoan;
+    value0050 + value00675L + portfolio.cash - portfolio.totalLoan;
 
   if (!Number.isFinite(accountNetAsset) || !Number.isFinite(collateralValue)) {
     return unavailable();

@@ -27,7 +27,7 @@ import { TwDate, stepTimer } from "../utils/coreUtils.mjs";
 import { isSnapshotEncryptEnabled } from "../utils/snapshotCrypto.mjs";
 import { sendTelegramBatch } from "../modules/notifications/transports/telegramClient.mjs";
 import { shutdownLangfuse } from "../modules/ai/langfuseClient.mjs";
-import { buildVerifiedPortfolioState } from "../modules/portfolio/verifiedPortfolioFields.mjs";
+import { buildReportPortfolioSnapshot } from "../modules/portfolio/reportPortfolioSnapshot.mjs";
 import { IlnState } from "../domain/ilnState.mjs";
 import { buildDailyRunContext } from "../domain/dailyRunContext.mjs";
 import { shouldWriteSheet } from "./sideEffectPolicy.mjs";
@@ -101,6 +101,8 @@ export async function runDailyCheck(deps = {}, options = {}) {
     _basePrice,
     price0050,
     currentPriceZ2,
+    price0050Snapshot,
+    priceZ2Snapshot,
     historyZ2,
     history0050,
     macroData,
@@ -139,7 +141,11 @@ export async function runDailyCheck(deps = {}, options = {}) {
       price0050: price0050 ?? null,
       currentPrice: currentPriceZ2 ?? null,
       portfolio: lastState ?? {},
-      portfolioSnapshot: buildVerifiedPortfolioState(lastState),
+      portfolioSnapshot: buildReportPortfolioSnapshot({
+        portfolio: lastState,
+        price0050Snapshot,
+        priceZ2Snapshot,
+      }),
       VIX: vixData?.value ?? null,
       vixData: vixData ?? null,
       quote: quote ?? null,
@@ -479,7 +485,11 @@ export async function runDailyCheck(deps = {}, options = {}) {
         price0050,
         currentPrice: currentPriceZ2,
         portfolio: lastState,
-        portfolioSnapshot: buildVerifiedPortfolioState(lastState),
+        portfolioSnapshot: buildReportPortfolioSnapshot({
+          portfolio: lastState,
+          price0050Snapshot,
+          priceZ2Snapshot,
+        }),
         VIX: vixData?.value ?? null,
         quote,
         vixData,

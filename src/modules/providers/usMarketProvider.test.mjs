@@ -117,13 +117,13 @@ describe("usMarketProvider - US Market Provider", () => {
     });
   });
 
-  describe("fetchFredSeriesLast2 (internal logic)", () => {
+  describe("Yahoo US market aggregation", () => {
     it("fetchWithTimeout 和 parseNumber 可用", async () => {
       expect(typeof fetchWithTimeout).toBe("function");
       expect(typeof parseNumber).toBe("function");
     });
 
-    it("FRED 來源回傳 HTTP 400 時，不得產生 0 風險值", async () => {
+    it("Yahoo 來源回傳 HTTP 400 時，不得產生 0 風險值", async () => {
       parseNumber.mockImplementation((value) => {
         if (value === null || value === undefined || value === "") return null;
         const parsed = Number(value);
@@ -170,7 +170,7 @@ describe("usMarketProvider - US Market Provider", () => {
       expect(result).toBeNull();
     });
 
-    it("聚合 FRED、SOX 與 TSM ADR，回傳四項市場資料", async () => {
+    it("聚合 FRED VIX/SP500 與 Yahoo SOX/TSM，回傳四項市場資料", async () => {
       parseNumber.mockImplementation((value) => {
         const parsed = Number(value);
         return Number.isFinite(parsed) ? parsed : null;
@@ -227,9 +227,29 @@ describe("usMarketProvider - US Market Provider", () => {
 
       expect(result.soxChg).toBe(3);
       expect(result.tsmChg).toBe(2);
+      expect(result.raw.vix.observations).toHaveLength(2);
+      expect(result.raw.spx.observations).toHaveLength(2);
       expect(result.normalized).toEqual(
-        expect.objectContaining({ soxChg: 3, tsmChg: 2 }),
+        expect.objectContaining({
+          vix: "18.50",
+          spxChg: "0.31%",
+          soxChg: 3,
+          tsmChg: 2,
+          source: "FRED+YAHOO",
+        }),
       );
+      expect(fetchWithTimeout.mock.calls.map(([url]) => url)).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining(
+            "api.stlouisfed.org/fred/series/observations",
+          ),
+          expect.stringContaining("series_id=VIXCLS"),
+          expect.stringContaining("series_id=SP500"),
+          expect.stringContaining("%5ESOX"),
+          expect.stringContaining("TSM"),
+        ]),
+      );
+      expect(result.normalized.source).toBe("FRED+YAHOO");
     });
 
     it("來源失敗時保留 SOX 與 TSM 為 null", async () => {
@@ -269,6 +289,20 @@ describe("usMarketProvider - US Market Provider", () => {
         const parsed = Number(value);
         return Number.isFinite(parsed) ? parsed : null;
       });
+      const yahooChart = (symbol, closes) => ({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          chart: {
+            result: [
+              {
+                meta: { symbol },
+                timestamp: [1791321600, 1791580800],
+                indicators: { quote: [{ close: closes }] },
+              },
+            ],
+          },
+        }),
+      });
       fetchWithTimeout
         .mockResolvedValueOnce({
           ok: true,
@@ -287,7 +321,9 @@ describe("usMarketProvider - US Market Provider", () => {
               { date: "2026-08-17", value: "6380" },
             ],
           }),
-        });
+        })
+        .mockResolvedValueOnce(yahooChart("^SOX", [100, 103]))
+        .mockResolvedValueOnce(yahooChart("TSM", [200, 204]));
 
       const result = await fetchUsMarketData();
 
@@ -295,6 +331,8 @@ describe("usMarketProvider - US Market Provider", () => {
         expect.objectContaining({
           vix: expect.objectContaining({ observations: expect.any(Array) }),
           spx: expect.objectContaining({ observations: expect.any(Array) }),
+          sox: expect.objectContaining({ latest: expect.any(Object) }),
+          tsm: expect.objectContaining({ latest: expect.any(Object) }),
         }),
       );
       expect(result.normalized).toEqual(

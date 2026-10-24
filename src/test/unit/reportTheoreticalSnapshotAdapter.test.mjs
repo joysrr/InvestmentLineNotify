@@ -73,6 +73,22 @@ describe("reportTheoreticalSnapshotAdapter", () => {
     });
   });
 
+  it("rejects an explicit derived portfolio snapshot from the verified adapter", () => {
+    const report = {
+      portfolioSnapshot: {
+        status: "DERIVED",
+        source: "DERIVED_FROM_PORTFOLIO_FIELDS_AND_MARKET_PRICES",
+        asOf: "2026-10-24T06:00:00+08:00",
+      },
+    };
+
+    expect(mapReportTheoreticalSnapshot(report)).toEqual({
+      status: "UNAVAILABLE",
+      reason: "NON_VERIFIED_ACCOUNT_FIELDS",
+      snapshot: null,
+    });
+  });
+
   it("rejects derived account fields from the verified adapter", () => {
     const report = structuredClone(completeReport);
     report.portfolio.accountNetAssetSource =

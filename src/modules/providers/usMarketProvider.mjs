@@ -126,7 +126,7 @@ export async function fetchYahooChartSeriesLast2(
 }
 
 async function fetchFredSeriesLast2(seriesId) {
-  const apiKey = process.env.FRED_API_KEY; // 建議加，穩定
+  const apiKey = process.env.FRED_API_KEY;
   const url =
     "https://api.stlouisfed.org/fred/series/observations" +
     `?series_id=${encodeURIComponent(seriesId)}` +
@@ -134,52 +134,44 @@ async function fetchFredSeriesLast2(seriesId) {
     (apiKey ? `&api_key=${encodeURIComponent(apiKey)}` : "");
 
   try {
-    const res = await fetchWithTimeout(
+    const response = await fetchWithTimeout(
       url,
       {
         headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0",
+          "User-Agent": "Mozilla/5.0",
           Accept: "application/json",
         },
       },
       12000,
     );
-    if (!res.ok) throw new Error(`FRED API HTTP ${res.status}`);
+    if (!response.ok) throw new Error(`FRED API HTTP ${response.status}`);
 
-    const data = await res.json();
-    const obs = data?.observations || [];
-
-    // 從後往前挑兩個「可用數值」（FRED 的假日或無效值會回傳 "."）
-    const vals = [];
-    for (let i = 0; i < obs.length && vals.length < 2; i++) {
-      const v = parseNumber(obs[i]?.value); // 安全轉換：若是 "." 會變 null
-      if (v !== null) {
-        vals.push({ date: obs[i].date, value: v });
-      }
+    const data = await response.json();
+    const values = [];
+    for (const observation of data?.observations ?? []) {
+      const value = parseNumber(observation?.value);
+      if (value !== null) values.push({ date: observation.date, value });
+      if (values.length === 2) break;
     }
-    if (vals.length < 2) return null;
+    if (values.length < 2) return null;
 
-    const latest = vals[0];
-    const prev = vals[1];
-
+    const [latest, previous] = values;
     return {
       raw: data,
       date: latest.date,
       value: latest.value,
       changePercent:
-        prev.value !== 0 && prev.value !== null
-          ? ((latest.value - prev.value) / prev.value) * 100
+        previous.value !== 0
+          ? ((latest.value - previous.value) / previous.value) * 100
           : null,
     };
-  } catch (err) {
-    console.warn(`⚠️ 獲取 FRED 資料 (${seriesId}) 失敗:`, err.message);
+  } catch (error) {
+    console.warn(`⚠️ 獲取 FRED 資料 (${seriesId}) 失敗:`, error.message);
     return null;
   }
 }
 
 export async function fetchUsMarketData() {
-  // VIXCLS: VIX 收盤；SP500: S&P500 收盤
   const [vixResult, spxResult, soxResult, tsmResult] = await Promise.allSettled(
     [
       fetchFredSeriesLast2("VIXCLS"),
@@ -195,7 +187,6 @@ export async function fetchUsMarketData() {
   const tsm = tsmResult.status === "fulfilled" ? tsmResult.value : null;
 
   const riskAnalysis = await analyzeUsRisk({ vix, spx });
-
   const normalized = {
     ...riskAnalysis,
     soxChg: sox?.changePercent ?? null,

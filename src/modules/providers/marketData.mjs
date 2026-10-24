@@ -211,14 +211,14 @@ export async function fetchAllMacroData() {
   }
 
   // ====================================================================
-  // 判斷邏輯 D: 美股 FRED 數據 (每日早上更新昨收)
+  // 判斷邏輯 D: FRED + Yahoo 美股數據 (每日早上更新昨收)
   // 策略: 每天抓一次即可
   // ====================================================================
   const usMarketProviderKey = macroDataSlots.rawUsMarket.providerId;
   const usMarketLastDate =
     cachedMeta[usMarketProviderKey]?.lastFetch?.split("T")[0];
   if (cachedData.rawUsMarket && usMarketLastDate === todayStr) {
-    console.log("⚡ [Cache] FRED 美股數據使用快取資料");
+    console.log("⚡ [Cache] FRED + Yahoo 美股數據使用快取資料");
     finalData.rawUsMarket = cachedData.rawUsMarket;
     // 確保 newMetaSources 有正確的 status
     if (newMetaSources[usMarketProviderKey]) {
@@ -239,7 +239,7 @@ export async function fetchAllMacroData() {
           };
         })
         .catch((err) => {
-          console.warn("⚠️ FRED API 失敗:", err.message);
+          console.warn("⚠️ FRED + Yahoo 美股 API 失敗:", err.message);
           finalData.rawUsMarket = cachedData.rawUsMarket || null;
           newMetaSources[usMarketProviderKey] = {
             status: "FAILED",

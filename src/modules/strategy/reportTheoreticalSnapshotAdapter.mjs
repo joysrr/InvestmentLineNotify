@@ -19,6 +19,14 @@ export function mapReportTheoreticalSnapshot(report) {
     );
   }
 
+  if (
+    declaredSnapshot?.status === "DERIVED" ||
+    (typeof declaredSnapshot?.source === "string" &&
+      declaredSnapshot.source.startsWith("DERIVED_"))
+  ) {
+    return unavailable("NON_VERIFIED_ACCOUNT_FIELDS");
+  }
+
   const portfolio = report?.portfolio;
   if (!portfolio) return unavailable("MISSING_PORTFOLIO");
 

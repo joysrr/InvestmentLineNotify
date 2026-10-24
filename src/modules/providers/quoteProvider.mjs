@@ -1,24 +1,6 @@
 import { fetchWithTimeout, TwDate } from "../../utils/coreUtils.mjs";
 import { archiveManager } from "../data/archiveManager.mjs";
 
-async function fetchFromQuotable() {
-  const url = "https://api.quotable.io/quotes/random";
-  const res = await fetchWithTimeout(url, {}, 8000);
-
-  if (!res.ok) throw new Error(`Quotable HTTP ${res.status}`);
-
-  const data = await res.json();
-  const item = Array.isArray(data) ? data[0] : null;
-  if (!item?.content) throw new Error("Quotable empty response");
-
-  const normalized = {
-    text: item.content,
-    author: item.author || "Unknown",
-    source: "quotable",
-  };
-  return { raw: item, normalized, ...normalized };
-}
-
 async function fetchFromZenQuotes() {
   const url = "https://zenquotes.io/api/random";
   const res = await fetchWithTimeout(url, {}, 8000);
@@ -59,22 +41,17 @@ export async function getDailyQuote() {
     console.warn("⚠️ 讀取 Quote 快取失敗，繼續執行 API 抓取:", err.message);
   }
 
-  // 2. 若無快取或跨日，重新向 API 抓取
+  // 2. 若無快取或跨日，使用 ZenQuotes；失敗時使用固定 fallback
   let quote;
   try {
-    quote = await fetchFromQuotable();
-  } catch (err1) {
-    console.warn("⚠️ Quotable 抓取失敗，改用 ZenQuotes:", err1.message);
-    try {
-      quote = await fetchFromZenQuotes();
-    } catch (err2) {
-      console.warn("⚠️ ZenQuotes 抓取失敗，使用 Fallback 名言:", err2.message);
-      quote = {
-        text: "下跌是加碼的禮物，上漲是資產的果實。",
-        author: "—",
-        source: "fallback",
-      };
-    }
+    quote = await fetchFromZenQuotes();
+  } catch (err) {
+    console.warn("⚠️ ZenQuotes 抓取失敗，使用 Fallback 名言:", err.message);
+    quote = {
+      text: "下跌是加碼的禮物，上漲是資產的果實。",
+      author: "—",
+      source: "fallback",
+    };
   }
 
   const normalized = {

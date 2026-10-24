@@ -1,8 +1,5 @@
 import { fetchWithTimeout, parseNumber } from "../../utils/coreUtils.mjs";
 
-const FRED_API_KEY =
-  process.env.FRED_API_KEY || "abcdefghijklmnopqrstuvwxyz123456";
-
 const PROVIDER_ID = "macroProvider";
 
 // ============================================================================
@@ -85,32 +82,5 @@ export async function fetchCpiYoY() {
   } catch (err) {
     console.warn(`[${PROVIDER_ID}] fetchCpiYoY 失敗，使用回退值:`, err.message);
     return { value: 2.0, date: null, source: "fallback" };
-  }
-}
-
-// ============================================================================
-// 🇺🇸 美度指標抓取 (FRED)
-// ============================================================================
-async function _fetchLatestFromFred(seriesId) {
-  const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=1`;
-
-  try {
-    const res = await fetchWithTimeout(
-      url,
-      {},
-      8000,
-      2,
-      1000,
-      PROVIDER_ID,
-      `fetchFred:${seriesId}`,
-    );
-    if (!res.ok) throw new Error(`FRED API HTTP ${res.status}`);
-    const json = await res.json();
-    const latest = json.observations?.[0];
-    if (!latest) throw new Error(`FRED 系列 ${seriesId} 無回傳資料`);
-    return { date: latest.date, value: parseNumber(latest.value) };
-  } catch (err) {
-    console.warn(`[${PROVIDER_ID}] fetchFred:${seriesId} 失敗:`, err.message);
-    return null;
   }
 }

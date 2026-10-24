@@ -126,7 +126,9 @@ describe("providerRegistry - Provider 註冊表", () => {
 
   describe("usMarketFred", () => {
     it("有正確的 label", () => {
-      expect(providerRegistry.usMarketFred.label).toBe("美股風險 (FRED)");
+      expect(providerRegistry.usMarketFred.label).toBe(
+        "美股風險 (FRED + Yahoo)",
+      );
     });
 
     it("呼叫 fetchUsMarketData", async () => {

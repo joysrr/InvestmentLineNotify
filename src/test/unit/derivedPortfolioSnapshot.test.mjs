@@ -21,7 +21,7 @@ describe("derivedPortfolioSnapshot", () => {
       source: "DERIVED_FROM_PORTFOLIO_FIELDS_AND_MARKET_PRICES",
       asOf: "2026-10-24T06:00:00+08:00",
       accountNetAsset: 3026000,
-      collateralValue: 3846000,
+      collateralValue: 2136000,
       accountNetAssetSource: "DERIVED_FROM_PORTFOLIO_FIELDS_AND_MARKET_PRICES",
       accountNetAssetAsOf: "2026-10-24T06:00:00+08:00",
       collateralValueSource: "DERIVED_FROM_PORTFOLIO_FIELDS_AND_MARKET_PRICES",
