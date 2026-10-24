@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0",
+  "fixtureSource": "synthetic",
+  "description": "Synthetic portfolio snapshot fixture for shadow-mode theory mapping; not production data.",
+  "reports": [
+    {
+      "date": "2026-08-20",
+      "replay": {
+        "schemaVersion": "1.0",
+        "portfolioSnapshot": {
+          "qty0050": 1000,
+          "qtyZ2": 500,
+          "totalLoan": 200000,
+          "cash": 100000,
+          "price0050": 200,
+          "priceZ2": 80
+        },
+        "portfolioSource": "synthetic-portfolio",
+        "portfolioAsOf": "2026-08-20T06:00:00Z",
+        "finalDecision": {
+          "signal": "hold"
+        }
+      }
+    }
+  ]
+}

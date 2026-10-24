@@ -3,6 +3,7 @@
  * Market signals are not a substitute for holdings or account data.
  */
 
+import { calculateGrossExposure } from "./theoreticalEngine.mjs";
 import { mapTheoreticalInputs } from "./theoreticalInputMapper.mjs";
 import { createTheoreticalShadowReport } from "./theoreticalShadowReport.mjs";
 
@@ -25,12 +26,23 @@ export function mapReplayTheoreticalInputs(report) {
 
 export function buildReplayTheoreticalShadowReport(report) {
   const mappedInputs = mapReplayTheoreticalInputs(report);
+  const grossExposure =
+    mappedInputs.status === "OK"
+      ? calculateGrossExposure({
+          value0050: mappedInputs.inputs.value0050.value,
+          value00675L: mappedInputs.inputs.value00675L.value,
+          leverageMultiplier: 2,
+        })
+      : null;
+
   return createTheoreticalShadowReport({
     timestamp: report.date,
     actualDecision: report.replay?.finalDecision ?? null,
     mappedInputs,
     theory: {
       status: "RESEARCH_ONLY",
+      grossExposure: grossExposure?.grossExposure ?? null,
+      currentLeverage: null,
       recommendedLeverage: null,
     },
   });

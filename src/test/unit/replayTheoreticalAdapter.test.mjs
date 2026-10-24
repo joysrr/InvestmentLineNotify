@@ -101,6 +101,8 @@ describe("replayTheoreticalAdapter.mapReplayTheoreticalInputs", () => {
       actualDecision: { signal: "hold" },
       theory: {
         status: "RESEARCH_ONLY",
+        grossExposure: null,
+        currentLeverage: null,
         recommendedLeverage: null,
       },
       inputs: null,
