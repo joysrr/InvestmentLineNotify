@@ -27,6 +27,7 @@ import { TwDate, stepTimer } from "../utils/coreUtils.mjs";
 import { isSnapshotEncryptEnabled } from "../utils/snapshotCrypto.mjs";
 import { sendTelegramBatch } from "../modules/notifications/transports/telegramClient.mjs";
 import { shutdownLangfuse } from "../modules/ai/langfuseClient.mjs";
+import { buildVerifiedPortfolioState } from "../modules/portfolio/verifiedPortfolioFields.mjs";
 import { IlnState } from "../domain/ilnState.mjs";
 import { buildDailyRunContext } from "../domain/dailyRunContext.mjs";
 import { shouldWriteSheet } from "./sideEffectPolicy.mjs";
@@ -138,12 +139,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
       price0050: price0050 ?? null,
       currentPrice: currentPriceZ2 ?? null,
       portfolio: lastState ?? {},
-      portfolioSnapshot: {
-        status: "UNAVAILABLE",
-        reason: "ACCOUNT_FIELDS_NOT_VERIFIED",
-        source: "INTERNAL_DERIVATION_ONLY",
-        asOf: null,
-      },
+      portfolioSnapshot: buildVerifiedPortfolioState(lastState),
       VIX: vixData?.value ?? null,
       vixData: vixData ?? null,
       quote: quote ?? null,
@@ -483,12 +479,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
         price0050,
         currentPrice: currentPriceZ2,
         portfolio: lastState,
-        portfolioSnapshot: {
-          status: "UNAVAILABLE",
-          reason: "ACCOUNT_FIELDS_NOT_VERIFIED",
-          source: "INTERNAL_DERIVATION_ONLY",
-          asOf: null,
-        },
+        portfolioSnapshot: buildVerifiedPortfolioState(lastState),
         VIX: vixData?.value ?? null,
         quote,
         vixData,

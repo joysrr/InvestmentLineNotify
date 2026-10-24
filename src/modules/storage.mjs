@@ -4,6 +4,7 @@ import { TwDate, parseNumber } from "../utils/coreUtils.mjs";
 import { archiveManager } from "./data/archiveManager.mjs";
 import logger from "../utils/logger.mjs";
 import { withRetry } from "../utils/retryUtils.mjs";
+import { mapVerifiedPortfolioFields } from "./portfolio/verifiedPortfolioFields.mjs";
 
 // 1. 取得並處理私鑰 (自動修復各種常見格式錯誤)
 let privateKey = process.env.GOOGLE_PRIVATE_KEY || "";
@@ -132,6 +133,7 @@ export async function fetchLastPortfolioState() {
 
         const parsedLoan = parseNumber(lastRow.get("借貸總額"));
         const parsedCash = parseNumber(lastRow.get("現金儲備"));
+        const verifiedFields = mapVerifiedPortfolioFields(lastRow);
 
         return {
           date: lastRow.get("日期"),
@@ -143,6 +145,16 @@ export async function fetchLastPortfolioState() {
           // 持倉均價（手動維護欄位，空白時為 null，不影響主流程）
           avgCost0050: parseNumber(lastRow.get("0050 均價")),
           avgCostZ2: parseNumber(lastRow.get("00675L 均價")),
+          ...(verifiedFields.status === "VERIFIED"
+            ? verifiedFields
+            : {
+                accountNetAsset: null,
+                accountNetAssetSource: null,
+                accountNetAssetAsOf: null,
+                collateralValue: null,
+                collateralValueSource: null,
+                collateralValueAsOf: null,
+              }),
         };
       },
       {
