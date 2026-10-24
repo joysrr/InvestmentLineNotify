@@ -28,6 +28,7 @@ import {
   handleStatus,
   handleStatusDebug,
 } from "./modules/bot/handlers/statusHandlers.mjs";
+import { handleReplay } from "./bot/commands/replayCommand.mjs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -249,6 +250,8 @@ bot.command("sentiment", async (ctx) => {
     return `✅ 社群情緒快照更新完成\n路徑: <code>${res.outputPath}</code>`;
   });
 });
+
+bot.command("replay", handleReplay);
 
 // ── 指令：/weekly ─────────────────────────────────────────────────────────
 bot.command("weekly", async (ctx) => {
