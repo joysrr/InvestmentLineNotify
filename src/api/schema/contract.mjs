@@ -36,3 +36,46 @@ export const REPORT_SCHEMA = {
     ai: { type: "object", additionalProperties: true },
   },
 };
+
+export const READ_ONLY_REPORT_VIEW_SCHEMA = {
+  type: "object",
+  additionalProperties: true,
+  required: [
+    "date",
+    "dataAsOf",
+    "dataProvenance",
+    "strategyHash",
+    "fixtureSource",
+    "theoreticalSnapshot",
+    "availability",
+  ],
+  properties: {
+    date: { type: "string" },
+    dataAsOf: { type: ["object", "null"], additionalProperties: true },
+    dataProvenance: {
+      type: "array",
+      items: { type: "object", additionalProperties: true },
+    },
+    strategyHash: { type: ["string", "null"] },
+    fixtureSource: { type: ["string", "null"] },
+    theoreticalSnapshot: {
+      type: "object",
+      required: ["status", "reason", "snapshot"],
+      properties: {
+        status: { type: "string", enum: ["OK", "UNAVAILABLE"] },
+        reason: { type: ["string", "null"] },
+        snapshot: { type: ["object", "null"], additionalProperties: true },
+      },
+      additionalProperties: true,
+    },
+    availability: {
+      type: "object",
+      required: ["status", "reason"],
+      properties: {
+        status: { type: "string", enum: ["AVAILABLE", "UNAVAILABLE"] },
+        reason: { type: ["string", "null"] },
+      },
+      additionalProperties: false,
+    },
+  },
+};

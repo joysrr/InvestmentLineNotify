@@ -195,6 +195,38 @@ describe("reportsRoute - 報表 API 路由", () => {
       expect(Array.isArray(body)).toBe(true);
     });
 
+    it("回傳唯讀 view metadata 且不改造 legacy provenance", async () => {
+      archiveManager.listArchiveDates.mockResolvedValue(["2024-01-01"]);
+      archiveManager.getReportByDate.mockResolvedValue({
+        date: "2024-01-01",
+        portfolio: { totalLoan: 100000 },
+      });
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/reports?limit=1",
+      });
+
+      expect(response.statusCode).toBe(200);
+      const [report] = JSON.parse(response.payload);
+      expect(report).toMatchObject({
+        date: "2024-01-01",
+        dataAsOf: null,
+        dataProvenance: [],
+        strategyHash: null,
+        fixtureSource: null,
+        theoreticalSnapshot: {
+          status: "UNAVAILABLE",
+          reason: "MISSING_PROVENANCE",
+          snapshot: null,
+        },
+        availability: {
+          status: "UNAVAILABLE",
+          reason: "MISSING_PROVENANCE",
+        },
+      });
+    });
+
     it("無效 limit 使用預設 30", async () => {
       archiveManager.listArchiveDates.mockResolvedValue(["2024-01-01"]);
       archiveManager.getReportByDate.mockResolvedValue({ date: "2024-01-01" });

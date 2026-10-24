@@ -10,6 +10,11 @@ import {
 
 import { loadStateFromReport } from "../../domain/ilnState.mjs";
 import { archiveManager } from "../../modules/data/archiveManager.mjs";
+import { buildReportReadOnlyView } from "../../modules/strategy/reportReadOnlyView.mjs";
+import {
+  READ_ONLY_REPORT_VIEW_SCHEMA,
+  REPORT_SCHEMA,
+} from "../schema/contract.mjs";
 
 // Simple TTL Cache to prevent file I/O spikes
 const cache = new Map();
@@ -48,7 +53,11 @@ async function loadReports(dates, limit) {
       selected.map((date) =>
         archiveManager
           .getReportByDate(date)
-          .then((r) => (r ? { date, ...r } : null))
+          .then((r) => {
+            if (!r) return null;
+            const report = { date, ...r };
+            return { ...report, ...buildReportReadOnlyView(report) };
+          })
           .catch(() => null),
       ),
     );
@@ -112,7 +121,18 @@ export default async function reportsRoute(fastify) {
    */
   fastify.get(
     "/reports",
-    // { schema: { response: { 200: { type: "array", items: REPORT_SCHEMA } } } },
+    {
+      schema: {
+        response: {
+          200: {
+            type: "array",
+            items: {
+              allOf: [REPORT_SCHEMA, READ_ONLY_REPORT_VIEW_SCHEMA],
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       const rawLimit = parseInt(request.query.limit ?? "30", 10);
       const limit =
