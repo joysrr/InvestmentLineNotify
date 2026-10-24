@@ -13,7 +13,10 @@
           "totalLoan": 200000,
           "cash": 100000,
           "price0050": 200,
-          "priceZ2": 80
+          "priceZ2": 80,
+          "accountNetAsset": 140000,
+          "accountNetAssetSource": "synthetic-account-net-asset",
+          "accountNetAssetAsOf": "2026-08-20T06:00:00Z"
         },
         "portfolioSource": "synthetic-portfolio",
         "portfolioAsOf": "2026-08-20T06:00:00Z",

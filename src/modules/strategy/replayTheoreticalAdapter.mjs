@@ -3,7 +3,10 @@
  * Market signals are not a substitute for holdings or account data.
  */
 
-import { calculateGrossExposure } from "./theoreticalEngine.mjs";
+import {
+  calculateCurrentLeverage,
+  calculateGrossExposure,
+} from "./theoreticalEngine.mjs";
 import { mapTheoreticalInputs } from "./theoreticalInputMapper.mjs";
 import { createTheoreticalShadowReport } from "./theoreticalShadowReport.mjs";
 
@@ -34,6 +37,13 @@ export function buildReplayTheoreticalShadowReport(report) {
           leverageMultiplier: 2,
         })
       : null;
+  const currentLeverage =
+    grossExposure?.status === "OK" && mappedInputs.inputs.accountNetAsset
+      ? calculateCurrentLeverage({
+          grossExposure: grossExposure.grossExposure,
+          accountNetAsset: mappedInputs.inputs.accountNetAsset.value,
+        })
+      : null;
 
   return createTheoreticalShadowReport({
     timestamp: report.date,
@@ -42,7 +52,8 @@ export function buildReplayTheoreticalShadowReport(report) {
     theory: {
       status: "RESEARCH_ONLY",
       grossExposure: grossExposure?.grossExposure ?? null,
-      currentLeverage: null,
+      currentLeverage: currentLeverage?.currentLeverage ?? null,
+      accountNetAsset: mappedInputs.inputs?.accountNetAsset?.value ?? null,
       recommendedLeverage: null,
     },
   });

@@ -103,6 +103,7 @@ describe("replayTheoreticalAdapter.mapReplayTheoreticalInputs", () => {
         status: "RESEARCH_ONLY",
         grossExposure: null,
         currentLeverage: null,
+        accountNetAsset: null,
         recommendedLeverage: null,
       },
       inputs: null,

@@ -67,6 +67,18 @@ export function mapTheoreticalInputs({ snapshot, source, asOf }) {
         asOf,
         unit: "TWD",
       }),
+      ...(snapshot.accountNetAsset != null &&
+      snapshot.accountNetAssetSource != null &&
+      snapshot.accountNetAssetAsOf != null &&
+      Number.isFinite(snapshot.accountNetAsset)
+        ? {
+            accountNetAsset: createInput(snapshot.accountNetAsset, {
+              source: snapshot.accountNetAssetSource,
+              asOf: snapshot.accountNetAssetAsOf,
+              unit: "TWD",
+            }),
+          }
+        : {}),
     },
   };
 }

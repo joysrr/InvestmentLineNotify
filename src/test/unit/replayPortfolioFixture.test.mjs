@@ -46,6 +46,13 @@ describe("portfolio-shadow-v1 replay fixture", () => {
           unit: "TWD",
           status: "VERIFIED",
         },
+        accountNetAsset: {
+          value: 140000,
+          source: "synthetic-account-net-asset",
+          asOf: "2026-08-20T06:00:00Z",
+          unit: "TWD",
+          status: "VERIFIED",
+        },
       },
     });
   });
@@ -60,7 +67,8 @@ describe("portfolio-shadow-v1 replay fixture", () => {
       theory: {
         status: "RESEARCH_ONLY",
         grossExposure: 280000,
-        currentLeverage: null,
+        currentLeverage: 2,
+        accountNetAsset: 140000,
       },
     });
   });
