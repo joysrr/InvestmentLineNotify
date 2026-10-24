@@ -56,6 +56,23 @@ describe("reportTheoreticalSnapshotAdapter", () => {
     });
   });
 
+  it("preserves an explicit unavailable portfolio snapshot reason", () => {
+    const report = {
+      portfolioSnapshot: {
+        status: "UNAVAILABLE",
+        reason: "ACCOUNT_FIELDS_NOT_VERIFIED",
+        source: "INTERNAL_DERIVATION_ONLY",
+        asOf: null,
+      },
+    };
+
+    expect(mapReportTheoreticalSnapshot(report)).toEqual({
+      status: "UNAVAILABLE",
+      reason: "ACCOUNT_FIELDS_NOT_VERIFIED",
+      snapshot: null,
+    });
+  });
+
   it("fails closed when verified account fields are incomplete", () => {
     const report = structuredClone(completeReport);
     delete report.portfolio.collateralValueAsOf;

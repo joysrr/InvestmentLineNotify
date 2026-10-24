@@ -12,6 +12,13 @@ function hasFiniteValues(values) {
 }
 
 export function mapReportTheoreticalSnapshot(report) {
+  const declaredSnapshot = report?.portfolioSnapshot;
+  if (declaredSnapshot?.status === "UNAVAILABLE") {
+    return unavailable(
+      declaredSnapshot.reason ?? "PORTFOLIO_SNAPSHOT_UNAVAILABLE",
+    );
+  }
+
   const portfolio = report?.portfolio;
   if (!portfolio) return unavailable("MISSING_PORTFOLIO");
 
