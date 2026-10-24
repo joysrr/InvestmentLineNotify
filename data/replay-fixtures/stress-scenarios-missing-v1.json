@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0",
+  "fixtureSource": "synthetic",
+  "scenarioId": "MISSING_DATA_FAIL_CLOSED",
+  "day": {
+    "day": 1,
+    "dailyReturn": -4,
+    "snapshot": {
+      "totalAssets": null,
+      "totalLiabilities": 100000
+    },
+    "expectedState": {
+      "freeze00675L": true,
+      "pauseP1": true,
+      "p0Exempt": true
+    }
+  }
+}

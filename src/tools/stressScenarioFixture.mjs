@@ -7,6 +7,12 @@ const FIXTURE_PATH = resolve(
     import.meta.url,
   ).pathname,
 );
+const MISSING_FIXTURE_PATH = resolve(
+  new URL(
+    "../../data/replay-fixtures/stress-scenarios-missing-v1.json",
+    import.meta.url,
+  ).pathname,
+);
 
 function assertValidDay(day) {
   if (
@@ -41,6 +47,20 @@ export async function loadStressScenarioFixture() {
       throw new Error("Invalid stress scenario");
     }
     scenario.days.forEach(assertValidDay);
+  }
+
+  return fixture;
+}
+
+export async function loadMissingStressScenarioFixture() {
+  const fixture = JSON.parse(await readFile(MISSING_FIXTURE_PATH, "utf8"));
+  if (
+    fixture.schemaVersion !== "1.0" ||
+    fixture.fixtureSource !== "synthetic" ||
+    fixture.scenarioId !== "MISSING_DATA_FAIL_CLOSED" ||
+    !fixture.day
+  ) {
+    throw new Error("Invalid missing stress scenario fixture");
   }
 
   return fixture;
