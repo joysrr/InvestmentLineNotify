@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { evaluateStressDay } from "../../tools/stressTestEvaluator.mjs";
+import { getStressScenarios } from "../../tools/stressScenarios.mjs";
 
 describe("stressTestEvaluator", () => {
   it("reports the maintenance defense state without producing a trade signal", () => {
@@ -33,6 +34,27 @@ describe("stressTestEvaluator", () => {
       differences: [],
       tradeSignal: null,
     });
+  });
+
+  it("exposes the four fixed shadow scenarios without production inputs", () => {
+    const scenarios = getStressScenarios();
+
+    expect(scenarios.map(({ id }) => id)).toEqual([
+      "COVID_CIRCUIT_BREAKER",
+      "BEAR_CHOPPY",
+      "FLASH_CRASH",
+      "VALUATION_REVERSION",
+    ]);
+    expect(scenarios).toHaveLength(4);
+    for (const scenario of scenarios) {
+      expect(scenario.mode).toBe("SHADOW_ONLY");
+      expect(scenario.dailyReturns.length).toBeGreaterThan(0);
+      expect(scenario.validationTarget).toEqual(expect.any(String));
+      expect(scenario).not.toHaveProperty("snapshot");
+    }
+
+    scenarios[0].dailyReturns[0] = 999;
+    expect(getStressScenarios()[0].dailyReturns[0]).toBe(-3.5);
   });
 
   it("reports state differences while keeping the evaluator read-only", () => {
