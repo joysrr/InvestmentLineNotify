@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { loadStressScenarioFixture } from "../../tools/stressScenarioFixture.mjs";
+import { getStressScenarios } from "../../tools/stressScenarios.mjs";
 
 describe("stressScenarioFixture", () => {
   it("loads the synthetic fixture with four complete scenarios", async () => {
@@ -31,6 +32,22 @@ describe("stressScenarioFixture", () => {
           p0Exempt: true,
         });
       }
+    }
+  });
+
+  it("keeps file-backed daily returns aligned with canonical scenarios", async () => {
+    const fixture = await loadStressScenarioFixture();
+    const canonicalScenarios = getStressScenarios();
+
+    expect(fixture.scenarios).toHaveLength(canonicalScenarios.length);
+    for (const scenario of canonicalScenarios) {
+      const fileScenario = fixture.scenarios.find(
+        ({ scenarioId }) => scenarioId === scenario.id,
+      );
+      expect(fileScenario.days).toHaveLength(scenario.dailyReturns.length);
+      expect(fileScenario.days.map(({ dailyReturn }) => dailyReturn)).toEqual(
+        scenario.dailyReturns,
+      );
     }
   });
 });
