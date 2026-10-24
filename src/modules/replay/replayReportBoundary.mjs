@@ -60,10 +60,25 @@ export async function verifyReplayReportFile({
 
   const content = await readFile(reportPath, "utf8");
   const report = JSON.parse(content);
-  if (report.date !== replayDate) {
+  const reportDate = report.date ?? report.reportDate;
+  if (reportDate !== replayDate) {
     throw new Error(
-      `Replay report date mismatch: expected ${replayDate}, got ${report.date}`,
+      `Replay report date mismatch: expected ${replayDate}, got ${reportDate}`,
     );
+  }
+
+  if (report.openToday === false) {
+    return {
+      status: "UNAVAILABLE",
+      reason: "NON_TRADING_DAY_NOT_REPLAYABLE",
+      replayDate,
+      dataAsOf,
+      reportPath,
+      reportHash: hashContent(content),
+      ...replayMetadata(report),
+      snapshot: null,
+      writePerformed: false,
+    };
   }
 
   const snapshot = mapReportTheoreticalSnapshot(report);

@@ -1,4 +1,4 @@
-import { mkdtemp, readFile } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
@@ -68,7 +68,7 @@ describe("replay report boundary", () => {
     expect(writeFile).not.toHaveBeenCalled();
   });
 
-  it("file-backed verification fails closed for the existing report without portfolio provenance", async () => {
+  it("file-backed verification marks a non-trading report as not replayable", async () => {
     const result = await verifyReplayReportFile({
       reportPath: "data/reports/2026-10-24.json",
       replayDate: "2026-10-24",
@@ -77,12 +77,35 @@ describe("replay report boundary", () => {
 
     expect(result).toMatchObject({
       status: "UNAVAILABLE",
-      reason: "MISSING_PROVENANCE",
+      reason: "NON_TRADING_DAY_NOT_REPLAYABLE",
       replayDate: "2026-10-24",
       dataAsOf: "2026-10-24T06:00:00+08:00",
       writePerformed: false,
     });
     expect(result.reportPath).toBe("data/reports/2026-10-24.json");
+  });
+
+  it("file-backed verification keeps trading reports unavailable without provenance", async () => {
+    const outputDir = await mkdtemp(path.join(os.tmpdir(), "legacy-report-"));
+    const reportPath = path.join(outputDir, "2026-10-22.json");
+    await writeFile(
+      reportPath,
+      JSON.stringify({ date: "2026-10-22", openToday: true, portfolio: {} }),
+    );
+
+    const result = await verifyReplayReportFile({
+      reportPath,
+      replayDate: "2026-10-22",
+      dataAsOf: "2026-10-22T06:00:00+08:00",
+    });
+
+    expect(result).toMatchObject({
+      status: "UNAVAILABLE",
+      reason: "MISSING_PROVENANCE",
+      replayDate: "2026-10-22",
+      dataAsOf: "2026-10-22T06:00:00+08:00",
+      writePerformed: false,
+    });
   });
 
   it("builds a traceable envelope without inventing legacy replay metadata", async () => {
@@ -103,7 +126,7 @@ describe("replay report boundary", () => {
       strategyHash: null,
       reportHash: expect.stringMatching(/^sha256:[0-9a-f]{64}$/),
       status: "UNAVAILABLE",
-      reason: "MISSING_PROVENANCE",
+      reason: "NON_TRADING_DAY_NOT_REPLAYABLE",
     });
   });
 
