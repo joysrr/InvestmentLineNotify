@@ -79,6 +79,18 @@ export function mapTheoreticalInputs({ snapshot, source, asOf }) {
             }),
           }
         : {}),
+      ...(snapshot.collateralValue != null &&
+      snapshot.collateralValueSource != null &&
+      snapshot.collateralValueAsOf != null &&
+      Number.isFinite(snapshot.collateralValue)
+        ? {
+            collateralValue: createInput(snapshot.collateralValue, {
+              source: snapshot.collateralValueSource,
+              asOf: snapshot.collateralValueAsOf,
+              unit: "TWD",
+            }),
+          }
+        : {}),
     },
   };
 }

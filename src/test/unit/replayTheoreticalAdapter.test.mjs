@@ -104,6 +104,7 @@ describe("replayTheoreticalAdapter.mapReplayTheoreticalInputs", () => {
         grossExposure: null,
         currentLeverage: null,
         accountNetAsset: null,
+        estimatedMaintenance: null,
         recommendedLeverage: null,
       },
       inputs: null,

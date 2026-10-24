@@ -53,6 +53,13 @@ describe("portfolio-shadow-v1 replay fixture", () => {
           unit: "TWD",
           status: "VERIFIED",
         },
+        collateralValue: {
+          value: 240000,
+          source: "synthetic-collateral",
+          asOf: "2026-08-20T06:00:00Z",
+          unit: "TWD",
+          status: "VERIFIED",
+        },
       },
     });
   });
@@ -69,6 +76,7 @@ describe("portfolio-shadow-v1 replay fixture", () => {
         grossExposure: 280000,
         currentLeverage: 2,
         accountNetAsset: 140000,
+        estimatedMaintenance: 120,
       },
     });
   });

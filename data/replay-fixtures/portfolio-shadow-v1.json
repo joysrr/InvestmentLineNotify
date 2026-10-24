@@ -16,7 +16,10 @@
           "priceZ2": 80,
           "accountNetAsset": 140000,
           "accountNetAssetSource": "synthetic-account-net-asset",
-          "accountNetAssetAsOf": "2026-08-20T06:00:00Z"
+          "accountNetAssetAsOf": "2026-08-20T06:00:00Z",
+          "collateralValue": 240000,
+          "collateralValueSource": "synthetic-collateral",
+          "collateralValueAsOf": "2026-08-20T06:00:00Z"
         },
         "portfolioSource": "synthetic-portfolio",
         "portfolioAsOf": "2026-08-20T06:00:00Z",

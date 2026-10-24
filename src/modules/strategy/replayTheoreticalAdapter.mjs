@@ -5,6 +5,7 @@
 
 import {
   calculateCurrentLeverage,
+  calculateEstimatedMaintenance,
   calculateGrossExposure,
 } from "./theoreticalEngine.mjs";
 import { mapTheoreticalInputs } from "./theoreticalInputMapper.mjs";
@@ -44,6 +45,13 @@ export function buildReplayTheoreticalShadowReport(report) {
           accountNetAsset: mappedInputs.inputs.accountNetAsset.value,
         })
       : null;
+  const estimatedMaintenance =
+    mappedInputs.status === "OK" && mappedInputs.inputs.collateralValue
+      ? calculateEstimatedMaintenance({
+          collateralValue: mappedInputs.inputs.collateralValue.value,
+          totalDebt: mappedInputs.inputs.totalDebt.value,
+        })
+      : null;
 
   return createTheoreticalShadowReport({
     timestamp: report.date,
@@ -54,6 +62,7 @@ export function buildReplayTheoreticalShadowReport(report) {
       grossExposure: grossExposure?.grossExposure ?? null,
       currentLeverage: currentLeverage?.currentLeverage ?? null,
       accountNetAsset: mappedInputs.inputs?.accountNetAsset?.value ?? null,
+      estimatedMaintenance: estimatedMaintenance?.maintenanceRatio ?? null,
       recommendedLeverage: null,
     },
   });
