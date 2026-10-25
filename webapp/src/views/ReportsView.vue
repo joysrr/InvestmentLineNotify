@@ -235,32 +235,32 @@
       <div
         v-for="evidence in currentState.items"
         :key="evidence.replayDate"
-        class="report-card replay-card"
+        class="report-card"
+        @click="toggle(evidence.replayDate)"
       >
         <div class="report-summary">
           <div class="report-meta">
             <span class="report-date">{{ evidence.replayDate }}</span>
             <span
-              class="replay-match-badge"
-              :class="evidence.replayMatches ? 'match-yes' : 'match-no'"
+              class="badge"
+              :class="evidence.replayMatches ? 'badge-pos' : 'badge-neg'"
             >
               {{ evidence.replayMatches ? "✓ 一致" : "✗ 不一致" }}
             </span>
           </div>
-          <div class="replay-info">
-            <span class="replay-detail">來源: {{ evidence.fixtureSource }}</span>
-            <span class="replay-detail">資料截至: {{ evidence.dataAsOf }}</span>
+          <div class="report-suggestion">
+            來源: {{ evidence.fixtureSource }} | 資料截至: {{ evidence.dataAsOf }}
           </div>
-          <div class="replay-hashes">
-            <span class="hash-label">Strategy:</span>
-            <code class="hash-value">{{
-              evidence.strategyHash?.substring(0, 8) || 'N/A'
-            }}</code>
-            <span class="hash-label">Data:</span>
-            <code class="hash-value">{{
-              evidence.dataProvenance?.substring(0, 8) || 'N/A'
-            }}</code>
+          <div class="report-badges">
+            <span class="badge">Strategy: {{ evidence.strategyHash?.substring(0, 8) || 'N/A' }}</span>
+            <span class="badge">Data: {{ evidence.dataProvenance?.substring(0, 8) || 'N/A' }}</span>
+            <span class="badge badge-expand">{{
+              expanded[evidence.replayDate] ? "▲" : "▼"
+            }}</span>
           </div>
+        </div>
+        <div v-show="expanded[evidence.replayDate]" class="report-detail" @click.stop>
+          <pre class="detail-json">{{ JSON.stringify(evidence, null, 2) }}</pre>
         </div>
       </div>
     </div>
@@ -751,62 +751,5 @@ onMounted(async () => {
 }
 .dark .table-wrapper {
   border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Replay Evidence Styles */
-.replay-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.replay-match-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.replay-match-badge.match-yes {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
-}
-
-.replay-match-badge.match-no {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-}
-
-.replay-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 8px;
-}
-
-.replay-detail {
-  font-size: 13px;
-  opacity: 0.9;
-}
-
-.replay-hashes {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  font-size: 12px;
-  flex-wrap: wrap;
-}
-
-.hash-label {
-  opacity: 0.8;
-  font-weight: 500;
-}
-
-.hash-value {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: "Monaco", "Consolas", monospace;
-  font-size: 11px;
 }
 </style>
