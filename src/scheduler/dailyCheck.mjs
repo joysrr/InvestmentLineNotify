@@ -195,7 +195,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
 
     if (isTelegramEnabled) {
       const miniappUrl =
-        process.env.TELEGRAM_MINIAPP_URL ||
+        process.env.TELEGRAM_WEBAPP_URL ||
         "https://t.me/InvestmentLineNotifyBot/app";
       const messages = buildNonTradingDayMessage(ctx, miniappUrl);
       await sendTelegramBatch(messages);
