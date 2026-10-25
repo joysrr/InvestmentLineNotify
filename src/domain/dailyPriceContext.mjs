@@ -1,7 +1,7 @@
 function normalizeQuote(quote) {
   return {
     price: quote?.price ?? null,
-    time: quote?.time ?? null,
+    asOf: quote?.asOf ?? quote?.time ?? null,
     source: quote?.source ?? null,
   };
 }

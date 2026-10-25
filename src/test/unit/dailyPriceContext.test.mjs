@@ -7,12 +7,12 @@ describe("buildDailyPriceContext", () => {
       buildDailyPriceContext({
         price0050: {
           price: 178,
-          time: "2026-10-24T06:00:00+08:00",
+          asOf: "2026-10-24T06:00:00+08:00",
           source: "TWSE_MIS",
         },
         priceZ2: {
           price: 285,
-          time: "2026-10-24T06:00:00+08:00",
+          asOf: "2026-10-24T06:00:00+08:00",
           source: "TWSE_STOCK_DAY",
         },
       }),
@@ -21,12 +21,12 @@ describe("buildDailyPriceContext", () => {
       currentPriceZ2: 285,
       price0050Snapshot: {
         price: 178,
-        time: "2026-10-24T06:00:00+08:00",
+        asOf: "2026-10-24T06:00:00+08:00",
         source: "TWSE_MIS",
       },
       priceZ2Snapshot: {
         price: 285,
-        time: "2026-10-24T06:00:00+08:00",
+        asOf: "2026-10-24T06:00:00+08:00",
         source: "TWSE_STOCK_DAY",
       },
     });
@@ -35,14 +35,14 @@ describe("buildDailyPriceContext", () => {
   it("keeps unavailable prices null and preserves their snapshots", () => {
     expect(
       buildDailyPriceContext({
-        price0050: { price: null, time: null, source: null },
-        priceZ2: { price: null, time: null, source: null },
+        price0050: { price: null, asOf: null, source: null },
+        priceZ2: { price: null, asOf: null, source: null },
       }),
     ).toEqual({
       price0050: null,
       currentPriceZ2: null,
-      price0050Snapshot: { price: null, time: null, source: null },
-      priceZ2Snapshot: { price: null, time: null, source: null },
+      price0050Snapshot: { price: null, asOf: null, source: null },
+      priceZ2Snapshot: { price: null, asOf: null, source: null },
     });
   });
 });
