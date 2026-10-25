@@ -102,7 +102,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useTheoryData } from "../composables/useTheoryData.js";
 import { waitReady } from "../composables/useTelegram.js";
 
@@ -120,12 +120,10 @@ import InputDataDetail from "../components/theory/InputDataDetail.vue";
 
 // Composable
 const {
-  data,
   loading,
   error,
   fetch: fetchTheoryData,
   isEmpty,
-  isAvailable,
   theory,
   inputs,
   portfolioSnapshot,
