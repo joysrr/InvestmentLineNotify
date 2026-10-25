@@ -1,6 +1,9 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import Fastify from "fastify";
 
+// Set development mode to bypass auth middleware
+process.env.NODE_ENV = "development";
+
 vi.mock("../../modules/replay/replayEvidenceLoader.mjs", () => ({
   loadReplayEvidenceList: vi.fn(),
 }));
