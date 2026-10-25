@@ -121,6 +121,7 @@ async function syncBotCommands() {
       { command: "daily", description: "手動觸發每日報告（含 AI 分析）" },
       { command: "news", description: "手動更新新聞池" },
       { command: "sentiment", description: "手動更新社群情緒快照" },
+      { command: "replay", description: "查看歷史回測驗證記錄" },
       { command: "weekly", description: "手動觸發週報" },
       { command: "monthly", description: "手動觸發月報" },
       { command: "optimize", description: "手動觸發規則優化器" },
