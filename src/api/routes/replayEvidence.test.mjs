@@ -1,9 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import Fastify from "fastify";
 
-// Set development mode to bypass auth middleware
-process.env.NODE_ENV = "development";
-
 vi.mock("../../modules/replay/replayEvidenceLoader.mjs", () => ({
   loadReplayEvidenceList: vi.fn(),
 }));
@@ -16,8 +13,8 @@ describe("GET /api/replay-evidence", () => {
 
   beforeEach(async () => {
     app = Fastify();
-    await app.register(replayEvidenceRoute);
-    vi.clearAllMocks();
+    await app.register(replayEvidenceRoute, { prefix: "/api" });
+    loadReplayEvidenceList.mockClear();
   });
 
   it("returns empty array when no evidence exists", async () => {
