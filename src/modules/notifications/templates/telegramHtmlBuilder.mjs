@@ -1060,6 +1060,8 @@ export function buildNonTradingDayMessage(data, webAppUrl) {
   const macroData = data.macroData || {};
   const newsStructured = data.newsStructured || { tw: [], us: [] };
   const socialSentiment = data.socialSentiment || null;
+  // Fix: unwrap nested `data` from provider's { success, data: {...} } contract
+  const sentimentData = socialSentiment?.data || socialSentiment || null;
 
   const usSpx = escapeHTML(usRisk.spxChg || "N/A");
   const usVix = escapeHTML(usRisk.vix || "N/A");
@@ -1071,12 +1073,18 @@ export function buildNonTradingDayMessage(data, webAppUrl) {
 
   // 社群情緒描述
   let sentimentStr = "無即時社群數據";
-  if (socialSentiment?.sentimentSummary) {
-    sentimentStr = escapeHTML(socialSentiment.sentimentSummary);
-  } else if (socialSentiment?.score != null) {
-    const s = Number(socialSentiment.score);
+  if (sentimentData?.sentimentSummary) {
+    sentimentStr = escapeHTML(sentimentData.sentimentSummary);
+  } else if (sentimentData?.score != null) {
+    const s = Number(sentimentData.score);
+    // score is 0-100 scale; 50 = neutral
+    const normalizedScore = s / 50 - 1; // maps 0→-1, 50→0, 100→1
     sentimentStr =
-      s > 0.2 ? "多方情緒偏濃" : s < -0.2 ? "空方情緒發酵" : "市場情緒偏向中性";
+      normalizedScore > 0.2
+        ? `${sentimentData.scoreLabel || "偏多"} (得分 ${s})`
+        : normalizedScore < -0.2
+          ? `${sentimentData.scoreLabel || "偏空"} (得分 ${s})`
+          : `中性 (得分 ${s})`;
   }
 
   // 整理 2~3 則焦點新聞

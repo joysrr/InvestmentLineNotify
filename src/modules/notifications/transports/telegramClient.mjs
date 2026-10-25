@@ -28,7 +28,9 @@ function requestTelegramJson(
         response.on("end", () => {
           const body = Buffer.concat(chunks).toString("utf8");
           if (response.statusCode < 200 || response.statusCode >= 300) {
-            const error = new Error(`HTTP ${response.statusCode}`);
+            const error = new Error(
+              `HTTP ${response.statusCode}: ${body.slice(0, 500)}`,
+            );
             error.statusCode = response.statusCode;
             reject(error);
             return;
