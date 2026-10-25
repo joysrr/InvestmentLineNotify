@@ -30,11 +30,13 @@ watch(
   (path) => {
     if (!backButton) return;
 
-    // 定義 4 大 Bottom Nav 根路由清單
+    // 定義 5 大 Bottom Nav 根路由清單
     const rootPaths = [
       "/",
       "/dashboard",
       "/radar",
+      "/news",
+      "/theory",
       "/simulator",
       "/account",
     ];
