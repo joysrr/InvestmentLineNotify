@@ -9,6 +9,7 @@ import MacroBattleView from "../views/MacroBattleView.vue";
 import TechnicalView from "../views/TechnicalView.vue";
 import SimulatorView from "../views/SimulatorView.vue";
 import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";
+import TheoryView from "../views/TheoryView.vue";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -21,6 +22,7 @@ const router = createRouter({
     { path: "/chart", component: ChartView },
     { path: "/reports", component: ReportsView },
     { path: "/news", component: NewsView },
+    { path: "/theory", component: TheoryView },
     { path: "/strategy", redirect: "/strategy-config" },
     { path: "/account", component: AccountView },
     { path: "/simulator", component: SimulatorView },
