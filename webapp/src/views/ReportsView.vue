@@ -324,8 +324,8 @@ async function load(tab) {
     if (tab === "daily") {
       s.items = [...data].sort((a, b) => b.date.localeCompare(a.date));
     } else if (tab === "replay") {
-      // Sort by replayDate DESC
-      s.items = [...data].sort((a, b) =>
+      // API returns { evidence: [...] }, extract the array
+      s.items = [...(data.evidence || [])].sort((a, b) =>
         b.replayDate.localeCompare(a.replayDate),
       );
     } else {
