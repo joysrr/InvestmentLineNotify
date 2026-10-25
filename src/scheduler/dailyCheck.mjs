@@ -28,6 +28,7 @@ import { isSnapshotEncryptEnabled } from "../utils/snapshotCrypto.mjs";
 import { sendTelegramBatch } from "../modules/notifications/transports/telegramClient.mjs";
 import { shutdownLangfuse } from "../modules/ai/langfuseClient.mjs";
 import { buildReportPortfolioSnapshot } from "../modules/portfolio/reportPortfolioSnapshot.mjs";
+import { buildTheoreticalShadowForReport } from "./dailyCheckTheoreticalAdapter.mjs";
 import { IlnState } from "../domain/ilnState.mjs";
 import { buildDailyRunContext } from "../domain/dailyRunContext.mjs";
 import { shouldWriteSheet } from "./sideEffectPolicy.mjs";
@@ -478,6 +479,22 @@ export async function runDailyCheck(deps = {}, options = {}) {
     const baseReport = state.toReportObject();
 
     if (shouldPersistDailyReport({ newsAnalysisStatus })) {
+      // Build portfolio snapshot first (needed for theoretical calculation)
+      const portfolioSnapshot = buildReportPortfolioSnapshot({
+        portfolio: lastState,
+        price0050Snapshot,
+        priceZ2Snapshot,
+      });
+
+      // Build theoretical shadow report
+      const theoreticalShadow = buildTheoreticalShadowForReport({
+        dateText,
+        portfolio: lastState,
+        portfolioSnapshot,
+        price0050Snapshot,
+        priceZ2Snapshot,
+      });
+
       await archiveManager.saveReport({
         ...baseReport,
         leadingIndicators,
@@ -485,11 +502,9 @@ export async function runDailyCheck(deps = {}, options = {}) {
         price0050,
         currentPrice: currentPriceZ2,
         portfolio: lastState,
-        portfolioSnapshot: buildReportPortfolioSnapshot({
-          portfolio: lastState,
-          price0050Snapshot,
-          priceZ2Snapshot,
-        }),
+        portfolioSnapshot,
+        theoreticalShadow:
+          theoreticalShadow.status === "AVAILABLE" ? theoreticalShadow : null,
         VIX: vixData?.value ?? null,
         quote,
         vixData,
