@@ -10,7 +10,8 @@ export function buildReportPortfolioSnapshot({
   if (verified.status === "VERIFIED") return verified;
 
   const marketAsOf =
-    price0050Snapshot?.asOf && priceZ2Snapshot?.asOf === price0050Snapshot.asOf
+    price0050Snapshot?.asOf &&
+    String(priceZ2Snapshot?.asOf) === String(price0050Snapshot.asOf)
       ? price0050Snapshot.asOf
       : null;
 

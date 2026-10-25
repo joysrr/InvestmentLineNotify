@@ -132,6 +132,20 @@ export async function runDailyCheck(deps = {}, options = {}) {
     const dateText = TwDate().formatDateKey();
 
     // 建立休市日情報報告物件
+    const portfolioSnapshot = buildReportPortfolioSnapshot({
+      portfolio: lastState,
+      price0050Snapshot,
+      priceZ2Snapshot,
+    });
+
+    const theoreticalShadow = buildTheoreticalShadowForReport({
+      dateText,
+      portfolio: lastState,
+      portfolioSnapshot,
+      price0050Snapshot,
+      priceZ2Snapshot,
+    });
+
     const nonTradingReport = {
       reportDate: dateText,
       timestamp: new Date().toISOString(),
@@ -142,11 +156,8 @@ export async function runDailyCheck(deps = {}, options = {}) {
       price0050: price0050 ?? null,
       currentPrice: currentPriceZ2 ?? null,
       portfolio: lastState ?? {},
-      portfolioSnapshot: buildReportPortfolioSnapshot({
-        portfolio: lastState,
-        price0050Snapshot,
-        priceZ2Snapshot,
-      }),
+      portfolioSnapshot,
+      theoreticalShadow,
       VIX: vixData?.value ?? null,
       vixData: vixData ?? null,
       quote: quote ?? null,
