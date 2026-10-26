@@ -5,10 +5,10 @@
   "stats": {
     "total_concepts": 163,
     "total_edges": 185,
-    "total_code_mappings": 76,
+    "total_code_mappings": 80,
     "concepts_with_code": 44,
     "concepts_with_links": 54,
-    "generated_at": "2026-10-24T15:10:53.849Z"
+    "generated_at": "2026-10-26T06:22:55.811Z"
   },
   "concepts": {
     "api-contract": {
@@ -920,7 +920,8 @@
         "src/modules/providers/marketData.mjs",
         "src/modules/strategy/signalGenerator.mjs",
         "src/modules/strategy/decision/rules/RegimePolicyRule.mjs",
-        "src/modules/strategy/policies/interestCostFilter.mjs"
+        "src/modules/strategy/policies/interestCostFilter.mjs",
+        "src/modules/strategy/marketRegimeModel.mjs"
       ],
       "tags": ["macro", "regime", "analysis", "architecture", "inventory"],
       "status": "current",
@@ -944,7 +945,11 @@
       "title": "資料來源提供者 (Providers Layer)",
       "summary": null,
       "related_docs": [],
-      "related_code": ["src/modules/newsFetcher.mjs", "src/runNewsFetch.mjs"],
+      "related_code": [
+        "src/modules/newsFetcher.mjs",
+        "src/runNewsFetch.mjs",
+        "src/modules/providers/yahooProvider.mjs"
+      ],
       "tags": ["providers", "data-source", "market-data"],
       "status": "current",
       "last_verified": "2026-09-11"
@@ -968,7 +973,11 @@
       "title": "決策引擎 (`strategyEngine.mjs`)",
       "summary": null,
       "related_docs": [],
-      "related_code": ["src/modules/strategy/strategyEngine.mjs"],
+      "related_code": [
+        "src/modules/strategy/strategyEngine.mjs",
+        "src/modules/strategy/theoreticalEngine.mjs",
+        "src/scheduler/dailyCheckTheoreticalAdapter.mjs"
+      ],
       "tags": ["strategy", "signals", "technical-analysis"],
       "status": "needs-review",
       "last_verified": null
@@ -2574,6 +2583,12 @@
         "doc": "modules/strategy/macro_regime_metrics_analysis.md"
       }
     ],
+    "src/modules/strategy/marketRegimeModel.mjs": [
+      {
+        "concept": "macro-regime-metrics-analysis",
+        "doc": "modules/strategy/macro_regime_metrics_analysis.md"
+      }
+    ],
     "src/modules/strategy/policies/marginPolicy.mjs": [
       {
         "concept": "maintenance-state-machine",
@@ -2586,6 +2601,12 @@
         "doc": "modules/strategy/maintenance_state_machine.md"
       }
     ],
+    "src/modules/providers/yahooProvider.mjs": [
+      {
+        "concept": "providers",
+        "doc": "modules/strategy/providers.md"
+      }
+    ],
     "src/modules/strategy/regimePolicy.mjs": [
       {
         "concept": "regime-policy",
@@ -2596,6 +2617,18 @@
       {
         "concept": "regime-policy",
         "doc": "modules/strategy/regime_policy.md"
+      }
+    ],
+    "src/modules/strategy/theoreticalEngine.mjs": [
+      {
+        "concept": "strategy-engine",
+        "doc": "modules/strategy/strategy_engine.md"
+      }
+    ],
+    "src/scheduler/dailyCheckTheoreticalAdapter.mjs": [
+      {
+        "concept": "strategy-engine",
+        "doc": "modules/strategy/strategy_engine.md"
       }
     ],
     "src/modules/deployment/deploymentAgentClient.mjs": [

@@ -4,6 +4,8 @@ status: needs-review
 last_updated: 2026-09-10
 related_code:
   - src/modules/strategy/strategyEngine.mjs
+  - src/modules/strategy/theoreticalEngine.mjs
+  - src/scheduler/dailyCheckTheoreticalAdapter.mjs
 tags:
   - strategy
   - signals

@@ -10,6 +10,7 @@ related_code:
   - src/modules/strategy/signalGenerator.mjs
   - src/modules/strategy/decision/rules/RegimePolicyRule.mjs
   - src/modules/strategy/policies/interestCostFilter.mjs
+  - src/modules/strategy/marketRegimeModel.mjs
 related_docs:
   - docs/plans/active/MACRO_REGIME_ADVANCED_SPEC.md
   - docs/modules/strategy/regime_policy.md

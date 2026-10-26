@@ -6,6 +6,7 @@ last_verified: 2026-09-11
 related_code:
   - src/modules/newsFetcher.mjs
   - src/runNewsFetch.mjs
+  - src/modules/providers/yahooProvider.mjs
 tags:
   - providers
   - data-source
