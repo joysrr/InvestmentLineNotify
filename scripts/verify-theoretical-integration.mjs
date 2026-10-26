@@ -77,6 +77,19 @@ if (report.theoreticalShadow.status === "AVAILABLE") {
       console.log(
         `     fullKellyLeverage: ${theory.kellyLimits.fullKellyLeverage}`,
       );
+      console.log(
+        `     quarterKellyLeverage: ${theory.kellyLimits.quarterKellyLeverage}`,
+      );
+      console.log(`     kellyFraction: ${theory.kellyLimits.kellyFraction}`);
+    }
+
+    if (theory.marketRegime) {
+      console.log(`   marketRegime:`);
+      console.log(`     mu: ${theory.marketRegime.mu}`);
+      console.log(`     sigma: ${theory.marketRegime.sigma}`);
+      console.log(`     regime: ${theory.marketRegime.regime}`);
+      console.log(`     asOf: ${theory.marketRegime.asOf}`);
+      console.log(`     sampleDays: ${theory.marketRegime.sampleDays}`);
     }
 
     console.log(`   humanCapital: ${theory.humanCapital ?? "N/A"}`);

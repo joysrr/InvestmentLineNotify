@@ -90,3 +90,38 @@ export async function fetchUsdTwdExchangeRate() {
     return result;
   }
 }
+
+// ============================================================================
+// 📈 取得歷史收盤價（用於市場機制模型計算 μ/σ）
+// ============================================================================
+/**
+ * 取得歷史收盤價
+ * @param {string} symbol - 股票代碼（如 "0050.TW"）
+ * @param {number} days - 往前取得天數
+ * @returns {Promise<Array<{date: string, close: number}>>} 歷史收盤價陣列，按日期升序
+ */
+export async function getHistoricalPrices(symbol, days = 126) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=${days}d`;
+  const response = await fetchWithTimeout(url, {
+    ...baseFetchOptions,
+    timeout: 10000,
+  });
+  if (!response.ok) {
+    throw new Error(`Yahoo Finance HTTP ${response.status}`);
+  }
+  const data = await response.json();
+  const result = data?.chart?.result?.[0];
+  if (!result) {
+    return [];
+  }
+  const timestamps = result.timestamp || [];
+  const closes = result.indicators?.quote?.[0]?.close || [];
+  const prices = [];
+  for (let i = 0; i < timestamps.length; i++) {
+    if (closes[i] != null && Number.isFinite(closes[i])) {
+      const date = new Date(timestamps[i] * 1000).toISOString().split("T")[0];
+      prices.push({ date, close: Number(closes[i].toFixed(4)) });
+    }
+  }
+  return prices;
+}

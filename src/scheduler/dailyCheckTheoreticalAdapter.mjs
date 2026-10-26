@@ -14,6 +14,27 @@ import {
 } from "../modules/strategy/theoreticalEngine.mjs";
 import { mapTheoreticalInputs } from "../modules/strategy/theoreticalInputMapper.mjs";
 import { createTheoreticalShadowReport } from "../modules/strategy/theoreticalShadowReport.mjs";
+import { calculateMuSigma } from "../modules/strategy/marketRegimeModel.mjs";
+import { getHistoricalPrices } from "../modules/providers/yahooProvider.mjs";
+import { loadPriceHistoryFromReports } from "../runSocialSentimentFetch.mjs";
+
+/**
+ * 取得 0050 歷史價格（優先 Yahoo，失敗則從既有報告重建）
+ * @returns {Promise<Array<{date: string, close: number}>>}
+ */
+async function fetchPriceHistory0050() {
+  // 嘗試 Yahoo Finance
+  try {
+    const prices = await getHistoricalPrices("0050.TW", 126);
+    if (prices.length >= 60) {
+      return prices;
+    }
+  } catch (err) {
+    // 忽略錯誤，嘗試備援
+  }
+  // 備援：從既有日報重建
+  return loadPriceHistoryFromReports();
+}
 
 /**
  * Builds theoretical shadow report for daily report.
@@ -23,9 +44,9 @@ import { createTheoreticalShadowReport } from "../modules/strategy/theoreticalSh
  * @param {Object} params.portfolioSnapshot - Portfolio snapshot from buildReportPortfolioSnapshot
  * @param {Object} params.price0050Snapshot - 0050 price snapshot
  * @param {Object} params.priceZ2Snapshot - 00675L price snapshot
- * @returns {Object} Theoretical shadow report or UNAVAILABLE status
+ * @returns {Promise<Object>} Theoretical shadow report or UNAVAILABLE status
  */
-export function buildTheoreticalShadowForReport({
+export async function buildTheoreticalShadowForReport({
   dateText,
   portfolio,
   portfolioSnapshot,
@@ -84,6 +105,10 @@ export function buildTheoreticalShadowForReport({
     };
   }
 
+  // Fetch market regime data (μ, σ) for Kelly calculation
+  const priceHistory = await fetchPriceHistory0050();
+  const regimeOutput = calculateMuSigma({ prices: priceHistory, minDays: 60 });
+
   // Calculate theoretical values
   const grossExposure =
     mappedInputs.status === "OK"
@@ -110,18 +135,23 @@ export function buildTheoreticalShadowForReport({
         })
       : null;
 
+  // Kelly Limits: use market regime model output (dynamic μ/σ)
   const kellyLimits =
-    mappedInputs.status === "OK"
+    mappedInputs.status === "OK" && regimeOutput.status === "OK"
       ? calculateKellyLimits({
-          expectedReturn: 0.08, // 8% annual expected return (configurable)
-          volatility: 0.2, // 20% annual volatility (configurable)
+          mu: regimeOutput.mu,
+          sigma: regimeOutput.sigma,
+          borrowRate: 0.025, // 2.5% borrow rate (from margin loan)
+          productCostAdjustment: 0.01, // 1% product cost (ETF fee + slippage)
+          protectiveScale: 0.5, // Half-Kelly for safety
         })
       : null;
 
+  // Human Capital: still uses fixed values (to be implemented in Phase 5.3 Option B)
   const humanCapital =
     mappedInputs.status === "OK"
       ? calculateHumanCapital({
-          annualIncome: 1200000, // 100K/month * 12 (TODO: make configurable)
+          annualIncome: 1200000, // 100K/month * 12 (TODO: make configurable via user profile)
           yearsToRetirement: 25, // TODO: make configurable
           discountRate: 0.03,
         })
@@ -130,7 +160,8 @@ export function buildTheoreticalShadowForReport({
   const trueExposure =
     grossExposure?.status === "OK" && humanCapital?.status === "OK"
       ? calculateTrueExposure({
-          marketExposure: grossExposure.grossExposure,
+          grossExposure: grossExposure.grossExposure,
+          financialCapital: mappedInputs.inputs.accountNetAsset.value,
           humanCapital: humanCapital.presentValue,
         })
       : null;
@@ -138,9 +169,8 @@ export function buildTheoreticalShadowForReport({
   const crashTolerance =
     mappedInputs.status === "OK" && mappedInputs.inputs.accountNetAsset
       ? calculateCrashTolerance({
-          accountNetAsset: mappedInputs.inputs.accountNetAsset.value,
-          grossExposure: grossExposure?.grossExposure ?? 0,
-          maintenanceRatio: 0.3, // 30% maintenance requirement
+          currentMaintenance: estimatedMaintenance?.maintenanceRatio ?? 0,
+          targetMaintenance: 0.3, // 30% maintenance requirement
         })
       : null;
 
@@ -157,18 +187,31 @@ export function buildTheoreticalShadowForReport({
       estimatedMaintenance: estimatedMaintenance?.maintenanceRatio ?? null,
       kellyLimits: kellyLimits
         ? {
-            conservativeLeverage: kellyLimits.conservativeLeverage,
-            fullKellyLeverage: kellyLimits.fullKellyLeverage,
+            conservativeLeverage: kellyLimits.halfKelly,
+            fullKellyLeverage: kellyLimits.fullKelly,
+            quarterKellyLeverage: kellyLimits.quarterKelly,
+            kellyFraction: kellyLimits.kellyFraction,
           }
         : null,
       humanCapital: humanCapital?.presentValue ?? null,
       trueExposure: trueExposure?.trueExposure ?? null,
       crashTolerance: crashTolerance
         ? {
-            maxDrawdownTolerance: crashTolerance.maxDrawdownTolerance,
-            drawdownBeforeMarginCall: crashTolerance.drawdownBeforeMarginCall,
+            maxDrawdownTolerance: crashTolerance.crashTolerance,
+            drawdownBeforeMarginCall: crashTolerance.crashTolerance,
           }
         : null,
+      // Market regime info for transparency
+      marketRegime:
+        regimeOutput.status === "OK"
+          ? {
+              mu: regimeOutput.mu,
+              sigma: regimeOutput.sigma,
+              regime: regimeOutput.regime,
+              asOf: regimeOutput.asOf,
+              sampleDays: regimeOutput.sampleDays,
+            }
+          : null,
     },
   });
 
