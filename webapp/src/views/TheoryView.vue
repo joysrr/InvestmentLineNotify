@@ -3,10 +3,10 @@
     <!-- Summary View (Default) -->
     <div v-if="currentView === 'summary'" class="summary-view">
       <!-- Header -->
-      <div class="view-header">
-        <h2 class="view-title">🎯 投資健康度儀表板</h2>
-        <span v-if="reportDate" class="view-subtitle">數據日期: {{ reportDate }}</span>
-      </div>
+            <div class="view-header">
+              <h2 class="view-title">🎯 投資健康度儀表板</h2>
+              <span v-if="reportDate" class="view-subtitle">📊 理論分析（截至 {{ reportDate }} 收盤）</span>
+            </div>
 
       <!-- Loading State -->
       <div v-if="loading" class="state-box">
@@ -21,10 +21,10 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="isEmpty" class="state-box">
-        <p>📭 尚無理論數據</p>
-        <span class="state-hint">非交易日或數據不足</span>
-      </div>
+            <div v-else-if="isEmpty" class="state-box">
+              <p>📭 暫無任何報告數據</p>
+              <span class="state-hint">尚未生成任何日報報告</span>
+            </div>
 
       <!-- Summary Cards -->
       <div v-else class="cards-container">

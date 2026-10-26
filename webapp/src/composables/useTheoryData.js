@@ -5,7 +5,7 @@
  */
 
 import { ref, computed } from "vue";
-import { fetchReports } from "../api/index.js";
+import { fetchReports, fetchLatestTheoretical } from "../api/index.js";
 
 /**
  * Composable for theoretical shadow data
@@ -18,6 +18,8 @@ export function useTheoryData() {
 
   /**
    * Fetch the latest daily report and extract theoreticalShadow
+   * Priority: 1) Try /api/report/latest-theoretical (searches backward for AVAILABLE)
+   *           2) Fallback to latest report via fetchReports(1)
    */
   async function fetch() {
     loading.value = true;
@@ -25,14 +27,33 @@ export function useTheoryData() {
     data.value = null;
 
     try {
-      const reports = await fetchReports(1); // Fetch only the latest report
+      // First try the dedicated endpoint that finds the latest AVAILABLE theoretical data
+      let latestReport = null;
+      try {
+        latestReport = await fetchLatestTheoretical();
+      } catch (err) {
+        // 404 or other error - fallback to latest report
+        if (err.status !== 404) {
+          console.warn(
+            "[useTheoryData] fetchLatestTheoretical error:",
+            err.message,
+          );
+        }
+      }
 
-      if (!reports || reports.length === 0) {
+      // Fallback: fetch the latest report directly
+      if (!latestReport) {
+        const reports = await fetchReports(1);
+        if (reports && reports.length > 0) {
+          latestReport = reports[0];
+        }
+      }
+
+      if (!latestReport) {
         error.value = "無報告數據";
         return;
       }
 
-      const latestReport = reports[0];
       const theoreticalShadow = latestReport.theoreticalShadow;
 
       // Store the full theoretical data

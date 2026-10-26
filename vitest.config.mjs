@@ -32,11 +32,15 @@ export default defineConfig({
     },
     css: false,
   },
-  // Ensure proper handling of .mjs files
+  // Force esbuild to avoid oxc issues
   esbuild: {
     target: "node20",
     supported: {
       "top-level-await": true,
     },
+  },
+  // Disable oxc
+  transformMode: {
+    web: [/\.[jt]sx?$/],
   },
 });

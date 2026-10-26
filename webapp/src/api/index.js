@@ -219,6 +219,9 @@ export const fetchWeeklyReports = (limit = 12) =>
 export const fetchMonthlyReports = (limit = 12) =>
   apiFetch(buildUrlWithQuery(ENDPOINTS.reports.monthly, { limit }));
 
+export const fetchLatestTheoretical = () =>
+  apiFetch(buildUrl(ENDPOINTS.reports.latestTheoretical));
+
 export const fetchNews = () => apiFetch(buildUrl(ENDPOINTS.news));
 
 export const fetchSocialSentiment = async () => {

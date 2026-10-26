@@ -198,6 +198,41 @@ export default async function reportsRoute(fastify) {
   });
 
   /**
+   * GET /api/report/latest-theoretical
+   * Returns the latest report that has theoreticalShadow.status === 'AVAILABLE'.
+   * Falls back through previous trading days until found or exhausted.
+   */
+  fastify.get("/report/latest-theoretical", async (_request, reply) => {
+    try {
+      const dates = await getSortedDates();
+      if (!dates.length) {
+        return reply.code(404).send({ error: "No reports found" });
+      }
+
+      // Search through dates (newest first) for one with available theoreticalShadow
+      for (const date of dates) {
+        try {
+          const state = await loadStateFromReport(date);
+          if (state?.rawReport?.theoreticalShadow?.status === "AVAILABLE") {
+            return reply.send(state.rawReport);
+          }
+        } catch {
+          // Continue to next date
+          continue;
+        }
+      }
+
+      // No report with available theoretical data found
+      return reply.code(404).send({
+        error: "No report with available theoretical data found",
+      });
+    } catch (err) {
+      fastify.log.error({ err }, "Failed to find latest theoretical report");
+      return reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
+  /**
    * GET /api/report/:date
    * Returns the full JSON for a single daily report.
    * :date must match YYYY-MM-DD.  404 if not found.
