@@ -65,4 +65,50 @@ describe("data evidence report route", () => {
       error: "Data evidence report unavailable",
     });
   });
+
+  it("POST /data-evidence-report generates a fresh evidence report on demand", async () => {
+    const rootDir = await mkdtemp(path.join(os.tmpdir(), "fresh-evidence-"));
+    const app = Fastify({ logger: false });
+    await app.register(dataEvidenceReportRoute, {
+      rootDir,
+      reportsDir: path.join(rootDir, "data/verification-reports"),
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/data-evidence-report",
+    });
+
+    expect(response.statusCode).toBe(200);
+    const payload = response.json();
+    expect(payload.reportType).toBe("data-evidence");
+    expect(payload.items).toBeDefined();
+    expect(payload.generatedAt).toBeDefined();
+  });
+
+  it("GET /data-evidence-report/download serves report with attachment disposition header", async () => {
+    const reportsDir = await mkdtemp(
+      path.join(os.tmpdir(), "evidence-download-"),
+    );
+    const reportPath = path.join(reportsDir, "2026-10-27-data-evidence.json");
+    await writeFile(
+      reportPath,
+      JSON.stringify({ reportType: "data-evidence", items: [] }),
+    );
+
+    const app = Fastify({ logger: false });
+    await app.register(dataEvidenceReportRoute, { reportsDir });
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/data-evidence-report/download",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["content-disposition"]).toContain("attachment;");
+    expect(response.headers["content-disposition"]).toContain(
+      "data-evidence.json",
+    );
+    expect(response.json().reportType).toBe("data-evidence");
+  });
 });

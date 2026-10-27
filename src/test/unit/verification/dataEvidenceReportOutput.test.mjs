@@ -58,5 +58,6 @@ describe("data evidence report output", () => {
     expect(Array.isArray(inputs.pbHistory)).toBe(true);
     expect(Array.isArray(inputs.vixHistory)).toBe(true);
     expect(inputs.sentiment).toBeDefined();
+    expect(inputs.latestReport).toBeDefined();
   });
 });

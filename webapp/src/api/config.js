@@ -35,6 +35,7 @@ export const ENDPOINTS = {
 
   // 資料證據報告
   dataEvidenceReport: "/data-evidence-report",
+  dataEvidenceReportDownload: "/data-evidence-report/download",
 
   // Replay Evidence
   replayEvidence: "/replay-evidence",

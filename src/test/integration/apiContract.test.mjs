@@ -296,6 +296,25 @@ beforeAll(async () => {
       decouplingAnalysis: { decoupled: false },
       regimeState: { lifecycleStage: "累積期" },
     },
+    theoreticalShadow: {
+      status: "AVAILABLE",
+      asOf: todayStr,
+      kellyLimits: {
+        conservative: 1.6033,
+        full: 3.2066,
+      },
+      marketRegime: {
+        regime: "BULL",
+        mu: 0.342376,
+        sigma: 0.309606,
+        sampleDays: 125,
+      },
+      theory: {
+        currentLeverage: 0.8718,
+        accountNetAsset: 2113682.6,
+        grossExposure: 1842688,
+      },
+    },
   };
   // 寫入 data/reports/ 供 getLatestReport 讀取
   await writeFile(

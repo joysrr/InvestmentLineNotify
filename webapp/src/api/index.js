@@ -236,6 +236,12 @@ export const fetchSocialSentiment = async () => {
 export const fetchDataEvidenceReport = () =>
   apiFetch(buildUrl(ENDPOINTS.dataEvidenceReport));
 
+export const generateDataEvidenceReport = () =>
+  apiFetch(buildUrl(ENDPOINTS.dataEvidenceReport), { method: "POST" });
+
+export const getDataEvidenceReportDownloadUrl = () =>
+  buildUrl(ENDPOINTS.dataEvidenceReportDownload);
+
 export const fetchReplayEvidence = () =>
   apiFetch(buildUrl(ENDPOINTS.replayEvidence));
 

@@ -81,6 +81,45 @@ const DEFINITIONS = {
     calculation:
       "score、ma3、ma7、delta 為系統計算值；不能當成官方數字直接查核。",
   },
+  kellyLimits: {
+    background:
+      "連續凱莉準則（Continuous Kelly Criterion）計算之槓桿上限，追求長期複利成長幾何期望值最大化；為理論參考值（RESEARCH_ONLY），不直接影響實際下單策略。",
+    unit: "倍",
+    freshnessBasis:
+      "依每日收盤價歷史序列（126天樣本）及市場體制計算，與每日報告同步產生。",
+    checks: [
+      "核對 mu（預期年化報酬率）與 sigma（年化波動率）計算樣本期（預設126交易日）。",
+      "核對無風險/借貸利率 r（預設 2.5%）與產品持有/滑價成本 c（預設 1.0%）。",
+      "驗算超額報酬 excess = mu - r - c，以及變異數 sigma^2。",
+      "驗算完全凱莉 full = excess / sigma^2，以及保守半凱莉 conservative = full * 0.5。",
+    ],
+    calculation:
+      "以連續凱莉公式 f* = (mu - r - c) / sigma^2 計算完全凱莉上限；保守半凱莉為 f* * 0.5。",
+  },
+  marketRegime: {
+    background:
+      "由 0050 歷史價格序列對數報酬率估算之年化預期報酬率 mu、波動率 sigma 與所屬體制狀態（BULL / BEAR / HIGH_VOLATILITY）。",
+    unit: "",
+    freshnessBasis: "與每日收盤價及每日報告同步更新。",
+    checks: [
+      "查核價格序列天數（sampleDays）。",
+      "核對對數報酬率之年化均值 mu 與標準差 sigma。",
+    ],
+    calculation:
+      "對數報酬年化均值 mu = mean(log_returns) * 252；年化標準差 sigma = std(log_returns) * sqrt(252)。",
+  },
+  currentLeverage: {
+    background:
+      "當前投資組合總曝險（grossExposure）除以帳戶淨資產（accountNetAsset）之實際槓桿倍數。",
+    unit: "倍",
+    freshnessBasis: "與每日投資組合總覽及當日收盤價同步更新。",
+    checks: [
+      "核對 grossExposure 是否等於持有部位市值之總和。",
+      "核對 accountNetAsset 是否等於總資產減去總負債（或包含質押部位後之總淨值）。",
+      "驗算 currentLeverage = grossExposure / accountNetAsset。",
+    ],
+    calculation: "currentLeverage = grossExposure / accountNetAsset。",
+  },
 };
 
 const MARKET_FIELDS = [
@@ -169,6 +208,7 @@ export function buildDataEvidenceReport({
   pbHistory = [],
   vixHistory = [],
   sentiment = null,
+  latestReport = null,
   generatedAt = new Date().toISOString(),
 }) {
   const data = market?.data ?? {};
@@ -254,6 +294,97 @@ export function buildDataEvidenceReport({
           background: sentimentDefinition.background,
           checks: sentimentDefinition.checks,
           calculation: sentimentDefinition.calculation,
+          externalAgentStatus: "PENDING_EXTERNAL_VERIFICATION",
+        },
+      });
+    }
+  }
+
+  const theoreticalShadow = latestReport?.theoreticalShadow;
+  if (theoreticalShadow) {
+    const reportDate = latestReport.date ?? null;
+    const asOf = theoreticalShadow.asOf ?? null;
+
+    if (theoreticalShadow.kellyLimits) {
+      const def = DEFINITIONS.kellyLimits;
+      for (const [key, val] of Object.entries(theoreticalShadow.kellyLimits)) {
+        items.push({
+          field: `theoreticalShadow.kellyLimits.${key}`,
+          value: val,
+          unit: def.unit,
+          source: {
+            provider: "theoreticalEngine",
+            dataset: "theoreticalShadow",
+            status: "INTERNAL_DERIVED",
+            endpoint: null,
+          },
+          temporal: {
+            dataDate: reportDate,
+            fetchedAt: asOf,
+            persistedAt: asOf,
+            freshnessBasis: def.freshnessBasis,
+          },
+          verification: {
+            background: def.background,
+            checks: def.checks,
+            calculation: def.calculation,
+            externalAgentStatus: "PENDING_EXTERNAL_VERIFICATION",
+          },
+        });
+      }
+    }
+
+    if (theoreticalShadow.marketRegime) {
+      const def = DEFINITIONS.marketRegime;
+      for (const [key, val] of Object.entries(theoreticalShadow.marketRegime)) {
+        items.push({
+          field: `theoreticalShadow.marketRegime.${key}`,
+          value: val,
+          unit: key === "sampleDays" ? "天" : def.unit,
+          source: {
+            provider: "marketRegimeModel",
+            dataset: "theoreticalShadow",
+            status: "INTERNAL_DERIVED",
+            endpoint: null,
+          },
+          temporal: {
+            dataDate: reportDate,
+            fetchedAt: asOf,
+            persistedAt: asOf,
+            freshnessBasis: def.freshnessBasis,
+          },
+          verification: {
+            background: def.background,
+            checks: def.checks,
+            calculation: def.calculation,
+            externalAgentStatus: "PENDING_EXTERNAL_VERIFICATION",
+          },
+        });
+      }
+    }
+
+    if (theoreticalShadow.theory?.currentLeverage !== undefined) {
+      const def = DEFINITIONS.currentLeverage;
+      items.push({
+        field: "theoreticalShadow.theory.currentLeverage",
+        value: theoreticalShadow.theory.currentLeverage,
+        unit: def.unit,
+        source: {
+          provider: "theoreticalEngine",
+          dataset: "theoreticalShadow",
+          status: "INTERNAL_DERIVED",
+          endpoint: null,
+        },
+        temporal: {
+          dataDate: reportDate,
+          fetchedAt: asOf,
+          persistedAt: asOf,
+          freshnessBasis: def.freshnessBasis,
+        },
+        verification: {
+          background: def.background,
+          checks: def.checks,
+          calculation: def.calculation,
           externalAgentStatus: "PENDING_EXTERNAL_VERIFICATION",
         },
       });

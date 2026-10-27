@@ -7,6 +7,19 @@ function readJson(rootDir, relativePath, fallback = null) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
+function readLatestReport(rootDir) {
+  const reportsDir = path.resolve(rootDir, "data/reports");
+  if (!fs.existsSync(reportsDir)) return null;
+  const files = fs
+    .readdirSync(reportsDir)
+    .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+    .sort()
+    .reverse();
+  if (files.length === 0) return null;
+  const content = fs.readFileSync(path.join(reportsDir, files[0]), "utf8");
+  return JSON.parse(content);
+}
+
 export function loadPersistedEvidenceInputs(rootDir) {
   return {
     market: readJson(rootDir, "data/market/latest.json", {}),
@@ -17,6 +30,7 @@ export function loadPersistedEvidenceInputs(rootDir) {
       "data/sentiment/social_sentiment_daily.json",
       null,
     ),
+    latestReport: readLatestReport(rootDir),
   };
 }
 

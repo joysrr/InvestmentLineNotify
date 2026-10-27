@@ -105,4 +105,54 @@ describe("data evidence report", () => {
       "PENDING_EXTERNAL_VERIFICATION",
     );
   });
+
+  it("includes theoreticalShadow evidence (Kelly, mu/sigma, regime, leverage) when daily report is present", () => {
+    const report = buildDataEvidenceReport({
+      generatedAt: "2026-10-27T13:00:00.000Z",
+      latestReport: {
+        date: "2026-10-27",
+        theoreticalShadow: {
+          status: "AVAILABLE",
+          asOf: "2026-10-27T06:30:00.000Z",
+          marketRegime: {
+            regime: "BULL",
+            mu: 0.342376,
+            sigma: 0.309606,
+            sampleDays: 125,
+          },
+          kellyLimits: {
+            conservative: 1.6033,
+            full: 3.2066,
+          },
+          theory: {
+            currentLeverage: 0.8718,
+            accountNetAsset: 2113682.6,
+            grossExposure: 1842687.6,
+          },
+        },
+      },
+    });
+
+    const fields = report.items.map((item) => item.field);
+    expect(fields).toEqual(
+      expect.arrayContaining([
+        "theoreticalShadow.kellyLimits.conservative",
+        "theoreticalShadow.kellyLimits.full",
+        "theoreticalShadow.marketRegime.mu",
+        "theoreticalShadow.marketRegime.sigma",
+        "theoreticalShadow.marketRegime.regime",
+        "theoreticalShadow.theory.currentLeverage",
+      ]),
+    );
+
+    const halfKelly = report.items.find(
+      (item) => item.field === "theoreticalShadow.kellyLimits.conservative",
+    );
+    expect(halfKelly.value).toBe(1.6033);
+    expect(halfKelly.unit).toBe("倍");
+    expect(halfKelly.source.provider).toBe("theoreticalEngine");
+    expect(halfKelly.temporal.dataDate).toBe("2026-10-27");
+    expect(halfKelly.verification.checks.length).toBeGreaterThan(0);
+    expect(halfKelly.verification.calculation).toContain("凱莉");
+  });
 });

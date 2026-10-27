@@ -103,14 +103,14 @@ describe("ReportsView.vue", () => {
     expect(api.fetchReports).toHaveBeenCalledTimes(2);
   });
 
-  it("僅包含日報、週報、月報三個分頁，不含科學回測", async () => {
+  it("僅包含日報、週報、月報、Replay 分頁，不含科學回測", async () => {
     api.fetchReports.mockResolvedValue([]);
     const wrapper = mount(ReportsView);
     await nextTick();
 
     const buttons = wrapper.findAll(".tab-btn");
-    expect(buttons.length).toBe(3);
+    expect(buttons.length).toBe(4);
     const labels = buttons.map((b) => b.text());
-    expect(labels).toEqual(["日報", "週報", "月報"]);
+    expect(labels).toEqual(["日報", "週報", "月報", "Replay"]);
   });
 });
