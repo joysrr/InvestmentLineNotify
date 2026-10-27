@@ -185,14 +185,13 @@ export async function buildTheoreticalShadowForReport({
       currentLeverage: currentLeverage?.currentLeverage ?? null,
       accountNetAsset: mappedInputs.inputs?.accountNetAsset?.value ?? null,
       estimatedMaintenance: estimatedMaintenance?.maintenanceRatio ?? null,
-      kellyLimits: kellyLimits
-        ? {
-            conservativeLeverage: kellyLimits.halfKelly,
-            fullKellyLeverage: kellyLimits.fullKelly,
-            quarterKellyLeverage: kellyLimits.quarterKelly,
-            kellyFraction: kellyLimits.kellyFraction,
-          }
-        : null,
+      kellyLimits:
+        kellyLimits?.halfKelly != null && kellyLimits?.kellyMax != null
+          ? {
+              conservative: kellyLimits.halfKelly,
+              full: kellyLimits.kellyMax,
+            }
+          : null,
       humanCapital: humanCapital?.presentValue ?? null,
       trueExposure: trueExposure?.trueExposure ?? null,
       crashTolerance: crashTolerance

@@ -79,6 +79,12 @@ describe("dailyCheck theoretical integration", () => {
     expect(result.theory.currentLeverage).toBeDefined();
     expect(result.theory.estimatedMaintenance).toBeDefined();
     expect(result.theory.kellyLimits).toBeDefined();
+    expect(result.theory.kellyLimits.conservative).toBeTypeOf("number");
+    expect(result.theory.kellyLimits.full).toBeTypeOf("number");
+    expect(result.theory.kellyLimits.conservative).toBeGreaterThan(0);
+    expect(result.theory.kellyLimits.full).toBeGreaterThan(
+      result.theory.kellyLimits.conservative,
+    );
     expect(result.theory.trueExposure).toBeDefined();
     expect(result.theory.crashTolerance).toBeDefined();
     expect(result.theory.marketRegime).toBeDefined();

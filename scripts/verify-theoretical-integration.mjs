@@ -71,16 +71,8 @@ if (report.theoreticalShadow.status === "AVAILABLE") {
 
     if (theory.kellyLimits) {
       console.log(`   kellyLimits:`);
-      console.log(
-        `     conservativeLeverage: ${theory.kellyLimits.conservativeLeverage}`,
-      );
-      console.log(
-        `     fullKellyLeverage: ${theory.kellyLimits.fullKellyLeverage}`,
-      );
-      console.log(
-        `     quarterKellyLeverage: ${theory.kellyLimits.quarterKellyLeverage}`,
-      );
-      console.log(`     kellyFraction: ${theory.kellyLimits.kellyFraction}`);
+      console.log(`     conservative: ${theory.kellyLimits.conservative}`);
+      console.log(`     full: ${theory.kellyLimits.full}`);
     }
 
     if (theory.marketRegime) {
