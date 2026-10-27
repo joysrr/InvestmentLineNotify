@@ -115,8 +115,12 @@ const leverageStatusClass = computed(() => {
 
 // Leverage status text
 const leverageStatusText = computed(() => {
-  if (!hasKellyLimits.value || props.theory?.currentLeverage == null) {
+  if (!hasKellyLimits.value) {
     return "凱莉槓桿未計算（需要 mu/sigma 參數）";
+  }
+
+  if (props.theory?.currentLeverage == null) {
+    return "尚無當前槓桿數據（無法評估偏離）";
   }
 
   const current = props.theory.currentLeverage;

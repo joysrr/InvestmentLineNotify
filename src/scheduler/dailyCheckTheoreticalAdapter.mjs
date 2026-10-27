@@ -87,7 +87,15 @@ export async function buildTheoreticalShadowForReport({
     priceZ2: priceZ2Snapshot.price,
     totalLoan: portfolio.totalLoan,
     accountNetAsset: portfolioSnapshot.accountNetAsset,
+    accountNetAssetSource:
+      portfolioSnapshot.accountNetAssetSource || portfolioSnapshot.source,
+    accountNetAssetAsOf:
+      portfolioSnapshot.accountNetAssetAsOf || portfolioSnapshot.asOf,
     collateralValue: portfolioSnapshot.collateralValue,
+    collateralValueSource:
+      portfolioSnapshot.collateralValueSource || portfolioSnapshot.source,
+    collateralValueAsOf:
+      portfolioSnapshot.collateralValueAsOf || portfolioSnapshot.asOf,
   };
 
   // Map to theoretical inputs
