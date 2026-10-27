@@ -138,7 +138,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
       priceZ2Snapshot,
     });
 
-    const theoreticalShadow = buildTheoreticalShadowForReport({
+    const theoreticalShadow = await buildTheoreticalShadowForReport({
       dateText,
       portfolio: lastState,
       portfolioSnapshot,
@@ -498,7 +498,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
       });
 
       // Build theoretical shadow report
-      const theoreticalShadow = buildTheoreticalShadowForReport({
+      const theoreticalShadow = await buildTheoreticalShadowForReport({
         dateText,
         portfolio: lastState,
         portfolioSnapshot,

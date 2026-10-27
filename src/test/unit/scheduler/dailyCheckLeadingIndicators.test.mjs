@@ -203,6 +203,10 @@ describe("Phase A: dailyCheck Leading Indicators Integration", () => {
       asOf: "2026-10-24T06:00:00+08:00",
     });
     expect(savedReport.portfolioSnapshot.accountNetAsset).toBe(1604000);
+    // 驗證 theoreticalShadow 正確解析非同步 Promise 且持久化為 AVAILABLE
+    expect(savedReport.theoreticalShadow).toBeDefined();
+    expect(savedReport.theoreticalShadow.status).toBe("AVAILABLE");
+    expect(savedReport.theoreticalShadow.theory.kellyLimits).toBeDefined();
   });
 
   it("evaluator 收到正確的 bias60 與 bias60DataStatus，且 saveReport payload 保留這些值", async () => {

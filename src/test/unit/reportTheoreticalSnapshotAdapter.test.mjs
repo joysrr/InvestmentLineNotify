@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { mapReportTheoreticalSnapshot } from "../../modules/strategy/reportTheoreticalSnapshotAdapter.mjs";
 
 const completeReport = {
@@ -20,6 +20,35 @@ const completeReport = {
 };
 
 describe("reportTheoreticalSnapshotAdapter", () => {
+  const fixtureUrl = new URL(
+    "../../../data/reports/2026-10-24.json",
+    import.meta.url,
+  );
+  let createdFixture = false;
+
+  beforeAll(async () => {
+    try {
+      await readFile(fixtureUrl, "utf8");
+    } catch {
+      const { writeFile } = await import("node:fs/promises");
+      await writeFile(
+        fixtureUrl,
+        JSON.stringify({
+          date: "2026-10-24",
+          openToday: false,
+          portfolio: {},
+        }),
+      );
+      createdFixture = true;
+    }
+  });
+
+  afterAll(async () => {
+    if (createdFixture) {
+      const { unlink } = await import("node:fs/promises");
+      await unlink(fixtureUrl).catch(() => {});
+    }
+  });
   it("maps a complete report snapshot with explicit provenance", () => {
     expect(mapReportTheoreticalSnapshot(completeReport)).toEqual({
       status: "OK",

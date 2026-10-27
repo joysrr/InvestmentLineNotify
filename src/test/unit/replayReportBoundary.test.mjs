@@ -1,7 +1,7 @@
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import {
   buildReplayEvidenceEnvelope,
@@ -22,6 +22,31 @@ const report = {
 };
 
 describe("replay report boundary", () => {
+  const fixturePath = "data/reports/2026-10-24.json";
+  let createdFixture = false;
+
+  beforeAll(async () => {
+    try {
+      await readFile(fixturePath, "utf8");
+    } catch {
+      await writeFile(
+        fixturePath,
+        JSON.stringify({
+          date: "2026-10-24",
+          openToday: false,
+          portfolio: {},
+        }),
+      );
+      createdFixture = true;
+    }
+  });
+
+  afterAll(async () => {
+    if (createdFixture) {
+      const { unlink } = await import("node:fs/promises");
+      await unlink(fixturePath).catch(() => {});
+    }
+  });
   it("dry-run separates replayDate from dataAsOf and never writes canonical output", async () => {
     const writeFile = vi.fn();
 

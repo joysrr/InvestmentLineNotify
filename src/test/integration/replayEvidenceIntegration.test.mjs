@@ -1,6 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 describe("Server integration - replay evidence", () => {
+  beforeAll(() => {
+    process.env.BYPASS_INIT_DATA = "true";
+  });
+
+  afterAll(() => {
+    delete process.env.BYPASS_INIT_DATA;
+  });
+
   it("exposes /api/replay-evidence endpoint via buildApp", async () => {
     const { buildApp } = await import("../../api/server.mjs");
     const app = await buildApp();
@@ -27,7 +35,7 @@ describe("Server integration - replay evidence", () => {
 
     const response = await app.inject({
       method: "GET",
-      url: "/api/documentation/json",
+      url: "/docs/json",
       headers: {
         "X-Telegram-Init-Data": "dev-bypass",
       },
