@@ -31,6 +31,15 @@ export async function initDataGuard(request, reply) {
   // Skip guard for OPTIONS preflight requests
   if (request.method === "OPTIONS") return;
 
+  // Skip guard for one-time download ticket requests (ticket validates itself)
+  // ?ticket= 攜帶短效一次性憑證，由路由層自身驗證，不需 Telegram initData
+  if (
+    request.method === "GET" &&
+    request.url.includes("/data-evidence-report/download") &&
+    request.url.includes("ticket=")
+  )
+    return;
+
   // Bypass ONLY in development environment or explicit bypass flag.
   // TEST_MODE is removed — use generateValidInitData() instead for real auth testing.
   if (

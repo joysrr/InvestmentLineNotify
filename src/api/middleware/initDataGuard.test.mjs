@@ -112,6 +112,31 @@ describe("initDataGuard - Telegram initData 驗證 Middleware", () => {
       expect(response.statusCode).toBe(200);
       await result.app.close();
     });
+
+    it("帶有 ticket= 的 /api/data-evidence-report/download 跳過 initData 驗證", async () => {
+      const result = await createApp({ NODE_ENV: "production" });
+      // 帶 ticket 的 download 請求在 initDataGuard 層應直接放行（不需 X-Telegram-Init-Data）
+      // 路由層自身的 Ticket 驗證負責安全性，此測試確認 guard 不會多攔截
+      const response = await result.app.inject({
+        method: "GET",
+        url: "/api/data-evidence-report/download?ticket=any-ticket-value",
+      });
+      // guard 放行後由路由層處理（無對應路由所以 404，但不會是 403 guard 錯誤）
+      expect(response.statusCode).not.toBe(403);
+      await result.app.close();
+    });
+
+    it("不帶 ticket 的 /api/data-evidence-report/download 仍需 initData", async () => {
+      const result = await createApp({ NODE_ENV: "production" });
+      const response = await result.app.inject({
+        method: "GET",
+        url: "/api/data-evidence-report/download",
+      });
+      expect(response.statusCode).toBe(403);
+      const body = response.json();
+      expect(body.error).toBe("Missing X-Telegram-Init-Data header");
+      await result.app.close();
+    });
   });
 
   describe("生產環境驗證", () => {

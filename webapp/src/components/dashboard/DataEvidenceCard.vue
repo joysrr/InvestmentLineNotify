@@ -43,7 +43,6 @@ import { ElMessage } from "element-plus";
 import {
   fetchDataEvidenceReport,
   generateDataEvidenceReport,
-  getDataEvidenceReportDownloadUrl,
 } from "../../api/index.js";
 import { useTelegram, waitReady } from "../../composables/useTelegram.js";
 import { exportJSON } from "../../utils/exportUtility.js";
@@ -80,13 +79,16 @@ async function handleGenerateAndExport() {
       : new Date().toISOString().slice(0, 10);
     const filename = `${dateLabel}-data-evidence`;
 
-    // 若在 Telegram WebApp 內，透過 openLink 打開後端下載端點
-    if (tg) {
-      const downloadUrl = getDataEvidenceReportDownloadUrl();
-      openLink(downloadUrl);
+    // 後端產出時已附帶 60 秒有效一次性 Ticket URL，直接使用
+    const ticketDownloadUrl = freshReport.downloadUrl;
+
+    if (tg && ticketDownloadUrl) {
+      // Telegram WebApp：使用 Ticket URL 透過 openLink 打開外部瀏覽器下載
+      // Ticket 由後端控管，外部瀏覽器不需 X-Telegram-Init-Data header
+      openLink(ticketDownloadUrl);
       ElMessage.success("已即時產出最新驗證報告，正在開啟下載！");
     } else {
-      // 外部瀏覽器直接觸發檔案下載
+      // 外部瀏覽器：直接觸發前端 Blob 下載
       exportJSON(freshReport, filename);
       ElMessage.success(`已即時產出並下載: ${filename}.json`);
     }

@@ -1,6 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { generateDataEvidenceReport } from "../../modules/verification/generateDataEvidenceReport.mjs";
+import { createTicket, redeemTicket } from "../utils/downloadTicket.mjs";
 
 const DEFAULT_REPORT_DIR = path.resolve(
   process.cwd(),
@@ -69,18 +70,23 @@ export default async function dataEvidenceReportRoute(fastify, options = {}) {
     }
   });
 
-  // 2. 即時生成最新資料證據報告並寫入落地檔
+  // 2. 即時生成最新資料證據報告並寫入落地檔，同時回傳一次性下載 Ticket URL
   fastify.post("/data-evidence-report", async (_request, reply) => {
     try {
       const rootDir = options.rootDir || process.cwd();
       const outputDir =
         options.reportsDir ||
         path.resolve(rootDir, "data/verification-reports");
-      const { report } = generateDataEvidenceReport({
+      const { report, jsonPath } = generateDataEvidenceReport({
         rootDir,
         outputDir,
       });
-      return reply.send(report);
+
+      // 產生 60 秒有效一次性下載 Ticket
+      const ticketId = createTicket(jsonPath);
+      const downloadUrl = `/api/data-evidence-report/download?ticket=${ticketId}`;
+
+      return reply.send({ ...report, downloadUrl });
     } catch (error) {
       fastify.log?.error?.(error, "Failed to generate data evidence report");
       return reply.code(500).send({
@@ -91,8 +97,31 @@ export default async function dataEvidenceReportRoute(fastify, options = {}) {
   });
 
   // 3. 檔案下載端點 (帶 Content-Disposition: attachment)
-  fastify.get("/data-evidence-report/download", async (_request, reply) => {
+  //    優先模式：?ticket= 一次性 Ticket（繞過 initDataGuard，供 openLink 外部瀏覽器使用）
+  //    相容模式：無 ticket 時走舊有流程（initDataGuard 在 server.mjs 層負責攔截）
+  fastify.get("/data-evidence-report/download", async (request, reply) => {
     try {
+      const ticket = request.query.ticket;
+
+      if (ticket !== undefined) {
+        // Ticket 模式：驗證一次性 Ticket
+        const ticketPath = redeemTicket(ticket);
+        if (!ticketPath) {
+          return reply.code(403).send({
+            error: "Invalid or expired download ticket",
+          });
+        }
+        const filename = path.basename(ticketPath);
+        const content = await readFile(ticketPath, "utf8");
+        reply.header(
+          "Content-Disposition",
+          `attachment; filename="${filename}"`,
+        );
+        reply.type("application/json; charset=utf-8");
+        return reply.send(content);
+      }
+
+      // 相容模式：舊有流程（由 initDataGuard 控管）
       const reportPath = await resolveReportPath(options);
       if (!reportPath) {
         return reply.code(404).send({
