@@ -171,6 +171,24 @@ export class ScoringDecisionRule extends DecisionRule {
     }
 
     // --- 4) 市場中性區：僅執行 0050 DCA ---
+    let suggestion =
+      `• 決策總分：${finalScore.toFixed(1)} 分 (中性區 -4 ~ +4)\n` +
+      `• 行動建議：維持 0050 基礎加碼，不觸發 00675L 戰術槓桿，節省利息並靜待訊號共振`;
+
+    const cashExposureAnalysis = ctx.cashExposureAnalysis;
+    if (cashExposureAnalysis) {
+      const { status, suggestedDcaAmt, exposureGap } = cashExposureAnalysis;
+      if (status === "RECOMMEND_DCA") {
+        suggestion += `\n💰 現金曝險：建議 DCA $${suggestedDcaAmt.toFixed(0)} | 曝險缺口 $${exposureGap.toFixed(0)}`;
+      } else if (status === "OVER_EXPOSED") {
+        suggestion += "\n💰 已達 Kelly 曝險上限，維持 DCA，不加速";
+      } else if (status === "INSUFFICIENT_CASH") {
+        suggestion += "\n💰 現金不足，維持基礎 DCA";
+      } else if (status === "DEFER") {
+        suggestion += "\n💰 市場雷達異常，暫緩加速";
+      }
+    }
+
     return createDecisionResult({
       ...baseResult,
       marketStatus: "🌱【中性/常態佈局】",
@@ -180,9 +198,7 @@ export class ScoringDecisionRule extends DecisionRule {
         "市場處於中性區間（總分 " +
         finalScore.toFixed(1) +
         "），僅執行 0050 基礎保底投入",
-      suggestion:
-        `• 決策總分：${finalScore.toFixed(1)} 分 (中性區 -4 ~ +4)\n` +
-        `• 行動建議：維持 0050 基礎加碼，不觸發 00675L 戰術槓桿，節省利息並靜待訊號共振`,
+      suggestion,
       signalDirection: "hold",
       budgetInfo,
     });

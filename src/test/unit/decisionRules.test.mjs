@@ -553,6 +553,42 @@ describe("ScoringDecisionRule (P100)", () => {
     expect(result.signalDirection).toBe("hold");
   });
 
+  it("ctx 有 cashExposureAnalysis 時，suggestion 附帶現金/曝險參考行", () => {
+    ctx.cashExposureAnalysis = {
+      status: "RECOMMEND_DCA",
+      suggestedDcaAmt: 100000,
+      exposureGap: 500000,
+      targetExposure: 1500000,
+      cashAdequacy: true,
+      message: "現金充足且市場正常，建議本次 DCA $100000（曝險缺口 $500000）",
+    };
+    generateScoringMatrix.mockReturnValue({
+      finalScore: 0,
+      signal: "neutral",
+      signalDirection: "hold",
+      scalingRatio: 0.3,
+      categoryResults: {},
+    });
+    const result = rule.evaluate(ctx, strategy, engineState);
+    expect(result.suggestion).toContain("現金");
+    expect(result.suggestion).toContain("建議 DCA $100000");
+    expect(result.suggestion).toContain("曝險缺口 $500000");
+  });
+
+  it("ctx 無 cashExposureAnalysis 時，suggestion 不受影響（不崩潰）", () => {
+    delete ctx.cashExposureAnalysis;
+    generateScoringMatrix.mockReturnValue({
+      finalScore: 0,
+      signal: "neutral",
+      signalDirection: "hold",
+      scalingRatio: 0.3,
+      categoryResults: {},
+    });
+    const result = rule.evaluate(ctx, strategy, engineState);
+    expect(result).not.toBeNull();
+    expect(result.target).toContain("0050 DCA");
+  });
+
   it("buy_tactical 訊號應回傳加碼決策", () => {
     generateScoringMatrix.mockReturnValue({
       finalScore: 8,
