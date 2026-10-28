@@ -159,6 +159,28 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
       expect(result.constraints.freeze00675L).toBe(true);
       expect(result.telegramCard).toContain("個人維持率斷路器觸發");
     });
+
+    it("帳戶淨資產與 cash 存在時，回傳 cashExposureAnalysis 行動建議", () => {
+      const result = evaluateLeadingIndicators({
+        marketData: {
+          ...mockCleanMarketData,
+          kellyConservative: 1.6,
+        },
+        portfolio: {
+          ...mockSafePortfolio,
+          cash: 200000,
+          accountNetAsset: 2000000,
+        },
+        currentState: SYSTEM_STATES.IDLE,
+        cooldownDays: 0,
+        activeDays: 0,
+      });
+
+      expect(result.cashExposureAnalysis.status).toBe("RECOMMEND_DCA");
+      expect(result.cashExposureAnalysis.exposureGap).toBe(200000);
+      expect(result.cashExposureAnalysis.suggestedDcaAmt).toBe(100000);
+      expect(result.cashExposureAnalysis.cashAdequacy).toBe(true);
+    });
   });
 
   describe("4.2 Telegram 警報卡片格式化 (formatLeadingIndicatorTelegramCard)", () => {
@@ -208,6 +230,35 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
       });
 
       expect(card).toContain("📊【系統長期防禦模式】已持續 21 日");
+    });
+
+    it("cashExposureAnalysis 存在時，卡片底部附帶現金/曝險摘要行", () => {
+      const card = formatLeadingIndicatorTelegramCard({
+        state: SYSTEM_STATES.IDLE,
+        activeDays: 0,
+        isLongTermDefense: false,
+        triggeredRadars: [],
+        personalBreaker: { breakerTriggered: false },
+        constraints: {
+          freeze00675L: false,
+          allowLeft0050: true,
+          p0Exempt: true,
+        },
+        cashExposureAnalysis: {
+          status: "RECOMMEND_DCA",
+          suggestedDcaAmt: 100000,
+          exposureGap: 500000,
+          targetExposure: 1500000,
+          cashAdequacy: true,
+          message:
+            "現金充足且市場正常，建議本次 DCA $100,000（曝險缺口 $500,000）",
+        },
+      });
+
+      expect(card).toContain("💰");
+      expect(card).toContain("現金");
+      expect(card).toContain("建議 DCA $100000");
+      expect(card).toContain("曝險缺口 $500000");
     });
   });
 });

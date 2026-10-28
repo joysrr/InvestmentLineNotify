@@ -17,6 +17,7 @@ import {
   evaluatePersonalMarginBreaker,
   transitionLeadingIndicatorState,
 } from "./marginStateMachine.mjs";
+import { evaluateCashExposure } from "./cashExposureAdvisor.mjs";
 
 /**
  * 格式化 Telegram 極端警報卡片
@@ -30,6 +31,7 @@ export function formatLeadingIndicatorTelegramCard({
   triggeredRadars = [],
   personalBreaker = {},
   constraints = {},
+  cashExposureAnalysis = null,
 } = {}) {
   const lines = [];
 
@@ -78,6 +80,24 @@ export function formatLeadingIndicatorTelegramCard({
   // 5. F-10 長期防禦模式提示
   if (isLongTermDefense) {
     lines.push(`📊【系統長期防禦模式】已持續 ${activeDays} 日`);
+  }
+
+  // 6. 現金曝險摘要行 (底部)
+  if (cashExposureAnalysis) {
+    const { status, suggestedDcaAmt, exposureGap } = cashExposureAnalysis;
+    if (status === "RECOMMEND_DCA") {
+      lines.push(
+        `└─ 💰 現金曝險：建議 DCA $${suggestedDcaAmt.toFixed(0)} | 曝險缺口 $${exposureGap.toFixed(0)}`,
+      );
+    } else if (status === "OVER_EXPOSED") {
+      lines.push("└─ 💰 已達/超過 Kelly 建議曝險，維持 DCA，不加速");
+    } else if (status === "INSUFFICIENT_CASH") {
+      lines.push("└─ 💰 現金不足，維持基礎 DCA，等待現金補充");
+    } else if (status === "DEFER") {
+      lines.push("└─ 💰 市場雷達異常，暫緩加速，維持基礎 DCA");
+    } else {
+      lines.push("└─ 💰 現金曝險建議暫不提供");
+    }
   }
 
   return lines.join("\n");
@@ -164,6 +184,15 @@ export function evaluateLeadingIndicators({
     p0Exempt,
   };
 
+  // 6. 現金驅動曝險分析 (Sheet cash → Kelly 曝險缺口 → 行動建議)
+  const cashExposureAnalysis = evaluateCashExposure({
+    cash: portfolio.cash ?? 0,
+    grossExposure: portfolio.currentExposure ?? 0,
+    accountNetAsset: portfolio.accountNetAsset,
+    kellyConservative: marketData.kellyConservative,
+    radarTriggered: triggeredRadars.map((r) => r.radarId).filter(Boolean),
+  });
+
   // 5. Telegram 卡片生成 (常態靜默：IDLE 且無任何觸發時為 null)
   let telegramCard = null;
   const isAlertNeeded =
@@ -195,5 +224,6 @@ export function evaluateLeadingIndicators({
     constraints,
     stateMachine,
     telegramCard,
+    cashExposureAnalysis,
   };
 }
