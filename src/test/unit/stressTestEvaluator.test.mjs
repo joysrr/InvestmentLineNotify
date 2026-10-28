@@ -12,7 +12,6 @@ describe("stressTestEvaluator", () => {
       },
       expectedState: {
         freeze00675L: true,
-        pauseP1: true,
         p0Exempt: true,
       },
     });
@@ -23,12 +22,10 @@ describe("stressTestEvaluator", () => {
       day: 1,
       expectedState: {
         freeze00675L: true,
-        pauseP1: true,
         p0Exempt: true,
       },
       actualState: {
         freeze00675L: true,
-        pauseP1: true,
         p0Exempt: true,
       },
       differences: [],
@@ -66,7 +63,6 @@ describe("stressTestEvaluator", () => {
       },
       expectedState: {
         freeze00675L: true,
-        pauseP1: true,
         p0Exempt: true,
       },
     });
@@ -74,12 +70,10 @@ describe("stressTestEvaluator", () => {
     expect(result.status).toBe("OK");
     expect(result.actualState).toEqual({
       freeze00675L: false,
-      pauseP1: false,
       p0Exempt: true,
     });
     expect(result.differences).toEqual([
       { field: "freeze00675L", expected: true, actual: false },
-      { field: "pauseP1", expected: true, actual: false },
     ]);
     expect(result.tradeSignal).toBeNull();
   });

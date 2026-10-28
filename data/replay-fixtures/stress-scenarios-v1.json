@@ -5,50 +5,369 @@
     {
       "scenarioId": "COVID_CIRCUIT_BREAKER",
       "days": [
-        { "day": 1, "dailyReturn": -3.5, "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true } },
-        { "day": 2, "dailyReturn": -4, "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true } },
-        { "day": 3, "dailyReturn": -6.5, "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true } },
-        { "day": 4, "dailyReturn": -5, "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true } },
-        { "day": 5, "dailyReturn": 2, "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true } },
-        { "day": 6, "dailyReturn": -4.5, "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true } },
-        { "day": 7, "dailyReturn": 5, "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true } },
-        { "day": 8, "dailyReturn": 4, "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true } },
-        { "day": 9, "dailyReturn": -2, "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true } },
-        { "day": 10, "dailyReturn": 3, "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true } }
+        {
+          "day": 1,
+          "dailyReturn": -3.5,
+          "snapshot": {
+            "totalAssets": 150000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": true,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 2,
+          "dailyReturn": -4,
+          "snapshot": {
+            "totalAssets": 150000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": true,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 3,
+          "dailyReturn": -6.5,
+          "snapshot": {
+            "totalAssets": 150000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": true,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 4,
+          "dailyReturn": -5,
+          "snapshot": {
+            "totalAssets": 150000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": true,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 5,
+          "dailyReturn": 2,
+          "snapshot": {
+            "totalAssets": 150000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": true,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 6,
+          "dailyReturn": -4.5,
+          "snapshot": {
+            "totalAssets": 150000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": true,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 7,
+          "dailyReturn": 5,
+          "snapshot": {
+            "totalAssets": 150000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": true,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 8,
+          "dailyReturn": 4,
+          "snapshot": {
+            "totalAssets": 150000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": true,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 9,
+          "dailyReturn": -2,
+          "snapshot": {
+            "totalAssets": 150000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": true,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 10,
+          "dailyReturn": 3,
+          "snapshot": {
+            "totalAssets": 150000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": true,
+            "p0Exempt": true
+          }
+        }
       ]
     },
     {
       "scenarioId": "BEAR_CHOPPY",
       "days": [
-        { "day": 1, "dailyReturn": -2, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 2, "dailyReturn": -1.5, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 3, "dailyReturn": -3, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 4, "dailyReturn": 1, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 5, "dailyReturn": -2.5, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 6, "dailyReturn": -2, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 7, "dailyReturn": -3.5, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 8, "dailyReturn": 0.5, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 9, "dailyReturn": -2, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 10, "dailyReturn": -1.5, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } }
+        {
+          "day": 1,
+          "dailyReturn": -2,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 2,
+          "dailyReturn": -1.5,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 3,
+          "dailyReturn": -3,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 4,
+          "dailyReturn": 1,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 5,
+          "dailyReturn": -2.5,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 6,
+          "dailyReturn": -2,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 7,
+          "dailyReturn": -3.5,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 8,
+          "dailyReturn": 0.5,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 9,
+          "dailyReturn": -2,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 10,
+          "dailyReturn": -1.5,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        }
       ]
     },
     {
       "scenarioId": "FLASH_CRASH",
       "days": [
-        { "day": 1, "dailyReturn": -1, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 2, "dailyReturn": -8.5, "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true } },
-        { "day": 3, "dailyReturn": 3.5, "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true } },
-        { "day": 4, "dailyReturn": -1.5, "snapshot": { "totalAssets": 150000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": true, "pauseP1": true, "p0Exempt": true } }
+        {
+          "day": 1,
+          "dailyReturn": -1,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 2,
+          "dailyReturn": -8.5,
+          "snapshot": {
+            "totalAssets": 150000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": true,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 3,
+          "dailyReturn": 3.5,
+          "snapshot": {
+            "totalAssets": 150000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": true,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 4,
+          "dailyReturn": -1.5,
+          "snapshot": {
+            "totalAssets": 150000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": true,
+            "p0Exempt": true
+          }
+        }
       ]
     },
     {
       "scenarioId": "VALUATION_REVERSION",
       "days": [
-        { "day": 1, "dailyReturn": -1.5, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 2, "dailyReturn": -2, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 3, "dailyReturn": -3.5, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 4, "dailyReturn": -2, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } },
-        { "day": 5, "dailyReturn": -3, "snapshot": { "totalAssets": 200000, "totalLiabilities": 100000 }, "expectedState": { "freeze00675L": false, "pauseP1": false, "p0Exempt": true } }
+        {
+          "day": 1,
+          "dailyReturn": -1.5,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 2,
+          "dailyReturn": -2,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 3,
+          "dailyReturn": -3.5,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 4,
+          "dailyReturn": -2,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        },
+        {
+          "day": 5,
+          "dailyReturn": -3,
+          "snapshot": {
+            "totalAssets": 200000,
+            "totalLiabilities": 100000
+          },
+          "expectedState": {
+            "freeze00675L": false,
+            "p0Exempt": true
+          }
+        }
       ]
     }
   ]

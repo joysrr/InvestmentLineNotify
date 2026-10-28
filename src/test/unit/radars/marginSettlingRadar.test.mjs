@@ -65,7 +65,6 @@ describe("Radar 2: Margin Settling Radar (evaluateMarginSettlingRadar)", () => {
     expect(result.triggered).toBe(true);
     expect(result.constraints.allowLeft0050).toBe(true); // 允許 0050 左側定錨低接
     expect(result.constraints.freeze00675L).toBe(true); // 00675L 凍結
-    expect(result.constraints.pauseP1).toBe(false); // P1 預備金允許用於 0050
     expect(result.constraints.p0Exempt).toBe(true);
     expect(result.cardSummary).toContain("籌碼沉澱偵測器");
     expect(result.cardSummary).toContain("136.5%");

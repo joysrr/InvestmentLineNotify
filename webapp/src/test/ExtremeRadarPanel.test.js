@@ -40,16 +40,9 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
       state: "IDLE",
       cooldownDays: 0,
       activeDays: 0,
-      p1Frozen: false,
       freeze00675L: false,
       allowLeft0050: true,
       p0Exempt: true,
-    },
-    p1Allocation: {
-      allocated00675L: 0,
-      allocated0050: 0,
-      p1Frozen: false,
-      glMax0050: 2.5,
     },
     telegramCard: null,
   };
@@ -104,16 +97,9 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
       state: "ACTIVE_DEFENSE",
       cooldownDays: 0,
       activeDays: 1,
-      p1Frozen: false,
       freeze00675L: true,
       allowLeft0050: true,
       p0Exempt: true,
-    },
-    p1Allocation: {
-      allocated00675L: 0,
-      allocated0050: 150000,
-      p1Frozen: false,
-      glMax0050: 2.5,
     },
     telegramCard: "🚨 領先指標極端警報",
   };
@@ -144,7 +130,6 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
     const wrapper = mount(ExtremeRadarPanel, {
       props: {
         leadingIndicators: triggeredLeadingIndicators,
-        p1Balance: 450000,
       },
     });
 
@@ -165,7 +150,6 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
     // 0050 逆週期低接
     expect(wrapper.text()).toContain("0050");
     expect(wrapper.text()).toContain("允許低接");
-    expect(wrapper.text()).toContain("15.0 萬");
 
     // P0 正常豁免
     expect(wrapper.text()).toContain("P0 定期定額");
@@ -206,7 +190,6 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
         state: "IDLE",
         cooldownDays: 0,
         activeDays: 0,
-        p1Frozen: false,
         freeze00675L: false,
         allowLeft0050: true,
         p0Exempt: true,

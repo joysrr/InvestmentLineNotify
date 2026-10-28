@@ -59,7 +59,6 @@ export function evaluateRetailSentimentRadar({
         constraints: {
           freeze00675L: false,
           allowLeft0050: false,
-          pauseP1: false,
         },
         cardSummary: null,
       }),
@@ -94,7 +93,6 @@ export function evaluateRetailSentimentRadar({
         constraints: {
           freeze00675L: false,
           allowLeft0050: false,
-          pauseP1: false,
         },
         cardSummary: null,
       }),
@@ -121,7 +119,6 @@ export function evaluateRetailSentimentRadar({
         constraints: {
           freeze00675L: true, // 嚴禁槓桿進場
           allowLeft0050: false, // 籌碼未沉澱，不急接 0050
-          pauseP1: true, // 暫緩 P1
         },
         cardSummary: summaryText,
       }),
@@ -145,7 +142,6 @@ export function evaluateRetailSentimentRadar({
       constraints: {
         freeze00675L: false, // 不凍結，具軋空順勢動能
         allowLeft0050: false,
-        pauseP1: false,
       },
       cardSummary: summaryText,
     }),

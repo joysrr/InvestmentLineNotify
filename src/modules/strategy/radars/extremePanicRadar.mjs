@@ -63,7 +63,6 @@ export function evaluateExtremePanicRadar({
       constraints: {
         freeze00675L: false,
         allowLeft0050: false,
-        pauseP1: false,
       },
       cardSummary: null,
     });
@@ -95,7 +94,6 @@ export function evaluateExtremePanicRadar({
     constraints: {
       freeze00675L: true, // 00675L 嚴格凍結
       allowLeft0050: true, // 啟動 0050 左側定錨加碼
-      pauseP1: false, // P1 預備金允許打入 0050
     },
     cardSummary: summaryText,
   });

@@ -113,7 +113,6 @@ export function evaluateOvernightShockRadar({
       },
       constraints: {
         freeze00675L: false,
-        pauseP1: false,
         allowLeft0050: false,
       },
       cardSummary: null,
@@ -126,7 +125,6 @@ export function evaluateOvernightShockRadar({
 
   let severity = NIGHT_SESSION_SEVERITY.NONE;
   let freeze00675L = true;
-  let pauseP1 = true;
   let summaryText = "";
 
   const rSoxPct = (rSox * 100).toFixed(1);
@@ -135,19 +133,16 @@ export function evaluateOvernightShockRadar({
   if (absNight >= 0.01 && isSameDirection) {
     severity = NIGHT_SESSION_SEVERITY.STRONG_RESONANCE;
     freeze00675L = true;
-    pauseP1 = true;
-    summaryText = `🚨【隔夜衝擊：強共振】費半重挫 ${rSoxPct}%，台指夜盤共振重挫 ${rNightPct}%。紀律：00675L 禁止買入，P1 暫緩，P0 正常執行。`;
+    summaryText = `🚨【隔夜衝擊：強共振】費半重挫 ${rSoxPct}%，台指夜盤共振重挫 ${rNightPct}%。紀律：00675L 禁止買入，P0 正常執行。`;
   } else if (absNight >= 0.005 && isSameDirection) {
     severity = NIGHT_SESSION_SEVERITY.NORMAL_CONFIRM;
     freeze00675L = true;
-    pauseP1 = true;
-    summaryText = `⚠️【隔夜衝擊：普通確認】費半重挫 ${rSoxPct}%，夜盤跌幅 ${rNightPct}%。紀律：00675L 禁止買入，P1 暫緩，P0 正常執行。`;
+    summaryText = `⚠️【隔夜衝擊：普通確認】費半重挫 ${rSoxPct}%，夜盤跌幅 ${rNightPct}%。紀律：00675L 禁止買入，P0 正常執行。`;
   } else {
     // 夜盤跌幅 < 0.5% 或逆向抗跌翻紅
     severity = NIGHT_SESSION_SEVERITY.DIVERGENCE_BLUNT;
     freeze00675L = true;
-    pauseP1 = false; // P1 正常加碼！
-    summaryText = `🛡【隔夜衝擊：夜盤抗跌背離】美股跌 ${rSoxPct}% 但夜盤抗跌 (${rNightPct}%)。紀律：00675L 禁止買入防震盪，P1 維持正常，P0 正常執行。`;
+    summaryText = `🛡【隔夜衝擊：夜盤抗跌背離】美股跌 ${rSoxPct}% 但夜盤抗跌 (${rNightPct}%)。紀律：00675L 禁止買入防震盪，P0 正常執行。`;
   }
 
   return {
@@ -167,7 +162,6 @@ export function evaluateOvernightShockRadar({
       },
       constraints: {
         freeze00675L,
-        pauseP1,
         allowLeft0050: false,
       },
       cardSummary: summaryText,

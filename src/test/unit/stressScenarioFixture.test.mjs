@@ -28,7 +28,6 @@ describe("stressScenarioFixture", () => {
         });
         expect(day.expectedState).toEqual({
           freeze00675L: expect.any(Boolean),
-          pauseP1: expect.any(Boolean),
           p0Exempt: true,
         });
       }

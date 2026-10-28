@@ -116,7 +116,7 @@
                 🚫 凍結禁止加碼
               </span>
               <span v-else class="dc-status text-success">
-                ✅ 允許加碼 ({{ formatMoney(p1Allocation.allocated00675L) }})
+                ✅ 允許加碼
               </span>
             </div>
 
@@ -124,8 +124,7 @@
             <div class="discipline-card">
               <span class="dc-label">0050 (原型加碼)</span>
               <span v-if="stateMachine.allowLeft0050" class="dc-status text-success">
-                ✅ 允許低接: {{ formatMoney(p1Allocation.allocated0050) }}
-                <small class="dc-note">(GL上限: {{ p1Allocation.glMax0050 }}x)</small>
+                ✅ 允許低接
               </span>
               <span v-else class="dc-status text-muted">
                 ⏸️ 暫停加碼
@@ -137,17 +136,6 @@
               <span class="dc-label">P0 定期定額</span>
               <span class="dc-status text-success">
                 🟢 正常扣款 (最高豁免)
-              </span>
-            </div>
-
-            <!-- P1 加碼狀態 -->
-            <div class="discipline-card">
-              <span class="dc-label">P1 條件加碼額度</span>
-              <span v-if="stateMachine.p1Frozen" class="dc-status text-danger">
-                🔒 全面凍結 (維持率低於 160%)
-              </span>
-              <span v-else class="dc-status text-info">
-                剩餘可用: {{ formatMoney(p1Balance) }}
               </span>
             </div>
           </div>
@@ -165,10 +153,6 @@ const props = defineProps({
     type: Object,
     default: null,
   },
-  p1Balance: {
-    type: Number,
-    default: 0,
-  },
 });
 
 const isExpanded = ref(false);
@@ -180,21 +164,9 @@ const stateMachine = computed(() => {
       state: "IDLE",
       cooldownDays: 0,
       activeDays: 0,
-      p1Frozen: false,
       freeze00675L: false,
       allowLeft0050: true,
       p0Exempt: true,
-    }
-  );
-});
-
-const p1Allocation = computed(() => {
-  return (
-    props.leadingIndicators?.p1Allocation ?? {
-      allocated00675L: 0,
-      allocated0050: 0,
-      p1Frozen: false,
-      glMax0050: 2.5,
     }
   );
 });

@@ -33,7 +33,6 @@ describe("Radar 1: Overnight Shock Radar (evaluateOvernightShockRadar)", () => {
     expect(result.triggered).toBe(false);
     expect(result.severity).toBe(NIGHT_SESSION_SEVERITY.NONE);
     expect(result.constraints.freeze00675L).toBe(false);
-    expect(result.constraints.pauseP1).toBe(false);
     expect(result.constraints.p0Exempt).toBe(true);
     expect(result.cardSummary).toBeNull();
   });
@@ -50,7 +49,6 @@ describe("Radar 1: Overnight Shock Radar (evaluateOvernightShockRadar)", () => {
     expect(result.triggered).toBe(true);
     expect(result.severity).toBe(NIGHT_SESSION_SEVERITY.STRONG_RESONANCE);
     expect(result.constraints.freeze00675L).toBe(true);
-    expect(result.constraints.pauseP1).toBe(true);
     expect(result.constraints.p0Exempt).toBe(true);
     expect(result.cardSummary).toContain("強共振");
     expect(result.cardSummary).toContain("00675L 禁止買入");
@@ -68,7 +66,6 @@ describe("Radar 1: Overnight Shock Radar (evaluateOvernightShockRadar)", () => {
     expect(result.triggered).toBe(true);
     expect(result.severity).toBe(NIGHT_SESSION_SEVERITY.NORMAL_CONFIRM);
     expect(result.constraints.freeze00675L).toBe(true);
-    expect(result.constraints.pauseP1).toBe(true);
     expect(result.constraints.p0Exempt).toBe(true);
     expect(result.cardSummary).toContain("普通確認");
   });
@@ -85,10 +82,8 @@ describe("Radar 1: Overnight Shock Radar (evaluateOvernightShockRadar)", () => {
     expect(result.triggered).toBe(true);
     expect(result.severity).toBe(NIGHT_SESSION_SEVERITY.DIVERGENCE_BLUNT);
     expect(result.constraints.freeze00675L).toBe(true);
-    expect(result.constraints.pauseP1).toBe(false); // P1 正常加碼！
     expect(result.constraints.p0Exempt).toBe(true);
     expect(result.cardSummary).toContain("夜盤抗跌背離");
-    expect(result.cardSummary).toContain("P1 維持正常");
   });
 
   it("TC-05: 夜盤資料不可用時不應觸發背離警報", () => {
@@ -104,7 +99,6 @@ describe("Radar 1: Overnight Shock Radar (evaluateOvernightShockRadar)", () => {
     expect(result.triggered).toBe(false);
     expect(result.severity).toBe(NIGHT_SESSION_SEVERITY.NONE);
     expect(result.constraints.freeze00675L).toBe(false);
-    expect(result.constraints.pauseP1).toBe(false);
     expect(result.cardSummary).toBeNull();
     expect(result.metrics.rNight).toBeNull();
     expect(result.metrics.dataStatus).toBe("UNAVAILABLE");

@@ -32,7 +32,6 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
     totalLiabilities: 1500000, // 維持率 233.3% >= 160%
     netAssetValue: 2000000,
     currentExposure: 3000000,
-    p1Balance: 450000,
   };
 
   describe("4.1 策略引擎整合四大雷達 (evaluateLeadingIndicators)", () => {
@@ -49,7 +48,6 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
       expect(result.stateMachine.state).toBe(SYSTEM_STATES.IDLE);
       expect(result.constraints.freeze00675L).toBe(false);
       expect(result.constraints.allowLeft0050).toBe(false);
-      expect(result.constraints.pauseP1).toBe(false);
       expect(result.constraints.p0Exempt).toBe(true);
       expect(result.triggeredRadars).toHaveLength(0);
       expect(result.telegramCard).toBeNull(); // 常態靜默
@@ -106,7 +104,6 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
       expect(result.hasAnyRadarTriggered).toBe(true);
       expect(result.stateMachine.state).toBe(SYSTEM_STATES.TRIGGERED);
       expect(result.constraints.freeze00675L).toBe(true);
-      expect(result.constraints.pauseP1).toBe(true);
       expect(result.constraints.p0Exempt).toBe(true);
       expect(result.triggeredRadars).toHaveLength(1);
       expect(result.telegramCard).not.toBeNull();
@@ -131,14 +128,11 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
       expect(result.hasAnyRadarTriggered).toBe(true);
       expect(result.constraints.allowLeft0050).toBe(true);
       expect(result.constraints.freeze00675L).toBe(true);
-      expect(result.constraints.pauseP1).toBe(false);
-      expect(result.p1Allocation0050.allowed).toBe(true);
-      expect(result.p1Allocation0050.allocatedAmount).toBe(150000); // 45 萬 * 1/3
       expect(result.telegramCard).toContain("籌碼沉澱偵測器");
-      expect(result.telegramCard).toContain("0050 建議加碼");
+      expect(result.telegramCard).toContain("0050 啟動左側布局");
     });
 
-    it("TC-04: 個人維持率斷路器觸發時 (維持率 < 160%)，強制凌駕外部雷達並凍結 P1", () => {
+    it("TC-04: 個人維持率斷路器觸發時 (維持率 < 160%)，強制凌駕外部雷達並封鎖加碼", () => {
       const marginCrashMarketData = {
         ...mockCleanMarketData,
         maintenanceRatio: 136.0,
@@ -150,7 +144,6 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
         totalLiabilities: 1500000, // 230 / 150 = 153.3% < 160%
         netAssetValue: 800000,
         currentExposure: 2000000,
-        p1Balance: 450000,
       };
 
       const result = evaluateLeadingIndicators({
@@ -163,15 +156,13 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
 
       expect(result.personalBreaker.breakerTriggered).toBe(true);
       expect(result.constraints.allowLeft0050).toBe(false); // 被強制封鎖！
-      expect(result.constraints.pauseP1).toBe(true); // 被強制凍結！
       expect(result.constraints.freeze00675L).toBe(true);
-      expect(result.p1Allocation0050.allowed).toBe(false);
       expect(result.telegramCard).toContain("個人維持率斷路器觸發");
     });
   });
 
   describe("4.2 Telegram 警報卡片格式化 (formatLeadingIndicatorTelegramCard)", () => {
-    it("遵循 F-7「1 行摘要 + 詳情卡 + P1 餘額行」結構輸出", () => {
+    it("遵循「1 行摘要 + 詳情卡 + 行動紀律行」結構輸出", () => {
       const card = formatLeadingIndicatorTelegramCard({
         state: SYSTEM_STATES.TRIGGERED,
         activeDays: 1,
@@ -190,21 +181,15 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
         constraints: {
           freeze00675L: true,
           allowLeft0050: false,
-          pauseP1: true,
           p0Exempt: true,
         },
-        p1Balance: 450000,
-        usedBatches: 0,
       });
 
-      // 檢查 F-7 規範
+      // 檢查規範
       expect(card).toContain("🚨【極端雷達矩陣警報】");
       expect(card).toContain("├─ 詳情卡");
       expect(card).toContain(
         "├─ 🛡 行動紀律：00675L 禁止買入 | 0050 暫緩左側 | P0 定期定額正常執行",
-      );
-      expect(card).toContain(
-        "└─ 💰 P1 預備金餘額：450,000 元（本波已動用：0 / 3 批）",
       );
     });
 
@@ -218,11 +203,8 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
         constraints: {
           freeze00675L: true,
           allowLeft0050: false,
-          pauseP1: false,
           p0Exempt: true,
         },
-        p1Balance: 300000,
-        usedBatches: 1,
       });
 
       expect(card).toContain("📊【系統長期防禦模式】已持續 21 日");

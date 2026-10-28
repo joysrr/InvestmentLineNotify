@@ -25,7 +25,6 @@ describe("Radar 4: Retail Sentiment Radar (evaluateRetailSentimentRadar)", () =>
     expect(result.triggered).toBe(false);
     expect(result.subType).toBe("NEUTRAL");
     expect(result.constraints.freeze00675L).toBe(false);
-    expect(result.constraints.pauseP1).toBe(false);
     expect(result.constraints.p0Exempt).toBe(true);
     expect(result.cardSummary).toBeNull();
   });
@@ -39,7 +38,6 @@ describe("Radar 4: Retail Sentiment Radar (evaluateRetailSentimentRadar)", () =>
     expect(result.triggered).toBe(true);
     expect(result.subType).toBe("LONG_LIQUIDATION");
     expect(result.constraints.freeze00675L).toBe(true); // 嚴禁槓桿進場
-    expect(result.constraints.pauseP1).toBe(true); // P1 暫緩
     expect(result.constraints.p0Exempt).toBe(true);
     expect(result.cardSummary).toContain("多殺多崩跌警報");
     expect(result.cardSummary).toContain("+34.2%");
@@ -55,7 +53,6 @@ describe("Radar 4: Retail Sentiment Radar (evaluateRetailSentimentRadar)", () =>
     expect(result.triggered).toBe(true);
     expect(result.subType).toBe("SHORT_SQUEEZE");
     expect(result.constraints.freeze00675L).toBe(false); // 順勢動能，不凍結
-    expect(result.constraints.pauseP1).toBe(false);
     expect(result.constraints.p0Exempt).toBe(true);
     expect(result.cardSummary).toContain("軋空強多訊號");
     expect(result.cardSummary).toContain("-32.5%");

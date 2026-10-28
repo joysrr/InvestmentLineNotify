@@ -15,7 +15,6 @@ describe("stress scenario missing-data fixture", () => {
       reason: "MISSING_OR_INVALID_STRESS_INPUT",
       expectedState: {
         freeze00675L: true,
-        pauseP1: true,
         p0Exempt: true,
       },
       actualState: null,

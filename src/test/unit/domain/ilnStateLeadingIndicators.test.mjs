@@ -19,7 +19,6 @@ describe("Phase A: IlnState Leading Indicators Support", () => {
       constraints: {
         freeze00675L: true,
         allowLeft0050: false,
-        pauseP1: true,
         p0Exempt: true,
       },
       telegramCard: "🚨【極端雷達矩陣警報】美股隔夜衝擊 觸發",

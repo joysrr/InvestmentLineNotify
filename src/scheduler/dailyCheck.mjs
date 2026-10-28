@@ -341,7 +341,6 @@ export async function runDailyCheck(deps = {}, options = {}) {
         prevReport?.leadingIndicators?.stateMachine?.cooldownDays ?? 0;
       const prevActiveDays =
         prevReport?.leadingIndicators?.stateMachine?.activeDays ?? 0;
-      const prevUsedBatches = prevReport?.leadingIndicators?.usedBatches ?? 0;
 
       const rawMargin = macroData?.rawMargin ?? {};
       const leadingIndicatorInputs = mapLeadingIndicatorInputs({
@@ -380,7 +379,6 @@ export async function runDailyCheck(deps = {}, options = {}) {
         currentState: prevState,
         cooldownDays: prevCooldownDays,
         activeDays: prevActiveDays,
-        usedBatches: prevUsedBatches,
       });
 
       logger.info(

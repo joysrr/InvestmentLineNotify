@@ -1,6 +1,6 @@
 import { evaluatePersonalMarginBreaker } from "../modules/strategy/marginStateMachine.mjs";
 
-const REQUIRED_STATE_KEYS = ["freeze00675L", "pauseP1", "p0Exempt"];
+const REQUIRED_STATE_KEYS = ["freeze00675L", "p0Exempt"];
 
 export function evaluateStressDay({ day, snapshot, expectedState }) {
   if (

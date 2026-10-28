@@ -8,7 +8,6 @@ describe("Phase 5: Leading Indicator E2E Verification (TC-01 ~ TC-07)", () => {
     totalLiabilities: 1500000, // 維持率 233.3% >= 160%
     netAssetValue: 2000000,
     currentExposure: 3000000, // 當前 GL = 1.5x
-    p1Balance: 450000,
   };
 
   it("TC-01: 常態市況基準驗證 (四大雷達靜默、狀態保持 IDLE、P0 正常執行)", () => {
@@ -30,14 +29,12 @@ describe("Phase 5: Leading Indicator E2E Verification (TC-01 ~ TC-07)", () => {
       currentState: SYSTEM_STATES.IDLE,
       cooldownDays: 0,
       activeDays: 0,
-      usedBatches: 0,
     });
 
     expect(result.hasAnyRadarTriggered).toBe(false);
     expect(result.stateMachine.state).toBe(SYSTEM_STATES.IDLE);
     expect(result.constraints.freeze00675L).toBe(false);
     expect(result.constraints.allowLeft0050).toBe(false);
-    expect(result.constraints.pauseP1).toBe(false);
     expect(result.constraints.p0Exempt).toBe(true);
     expect(result.telegramCard).toBeNull(); // 常態靜默
   });
@@ -61,7 +58,6 @@ describe("Phase 5: Leading Indicator E2E Verification (TC-01 ~ TC-07)", () => {
       currentState: SYSTEM_STATES.IDLE,
       cooldownDays: 0,
       activeDays: 0,
-      usedBatches: 0,
     });
 
     expect(result.hasAnyRadarTriggered).toBe(true);
@@ -69,7 +65,6 @@ describe("Phase 5: Leading Indicator E2E Verification (TC-01 ~ TC-07)", () => {
     expect(result.radars.overnightShock.subType).toBe("STRONG_RESONANCE");
     expect(result.stateMachine.state).toBe(SYSTEM_STATES.TRIGGERED);
     expect(result.constraints.freeze00675L).toBe(true);
-    expect(result.constraints.pauseP1).toBe(true);
     expect(result.constraints.p0Exempt).toBe(true);
     expect(result.telegramCard).toContain("美股隔夜衝擊");
     expect(result.telegramCard).toContain("00675L 禁止買入");
@@ -94,7 +89,6 @@ describe("Phase 5: Leading Indicator E2E Verification (TC-01 ~ TC-07)", () => {
       currentState: SYSTEM_STATES.TRIGGERED,
       cooldownDays: 0,
       activeDays: 1,
-      usedBatches: 0,
     });
 
     // Radar 2, Radar 3, Radar 4 皆觸發
@@ -105,14 +99,12 @@ describe("Phase 5: Leading Indicator E2E Verification (TC-01 ~ TC-07)", () => {
     // 約束條件
     expect(result.constraints.freeze00675L).toBe(true);
     expect(result.constraints.allowLeft0050).toBe(true);
-    expect(result.p1Allocation0050.allowed).toBe(true);
-    expect(result.p1Allocation0050.allocatedAmount).toBe(150000); // 45 萬 * 1/3
 
     expect(result.telegramCard).toContain("籌碼沉澱偵測器");
-    expect(result.telegramCard).toContain("0050 建議加碼 150,000 元");
+    expect(result.telegramCard).toContain("0050 啟動左側布局");
   });
 
-  it("TC-04: 個人維持率斷路器 P-1 強制凌駕 (個人維持率 < 160% 凍結一切 P1 加碼)", () => {
+  it("TC-04: 個人維持率斷路器 P-1 強制凌駕 (個人維持率 < 160% 封鎖一切加碼)", () => {
     const panicMarketData = {
       rSox: -0.01,
       rTsm: -0.01,
@@ -130,7 +122,6 @@ describe("Phase 5: Leading Indicator E2E Verification (TC-01 ~ TC-07)", () => {
       totalLiabilities: 1500000, // 230 / 150 = 153.3% < 160%
       netAssetValue: 800000,
       currentExposure: 2000000,
-      p1Balance: 450000,
     };
 
     const result = evaluateLeadingIndicators({
@@ -139,14 +130,10 @@ describe("Phase 5: Leading Indicator E2E Verification (TC-01 ~ TC-07)", () => {
       currentState: SYSTEM_STATES.TRIGGERED,
       cooldownDays: 0,
       activeDays: 1,
-      usedBatches: 0,
     });
 
     expect(result.personalBreaker.breakerTriggered).toBe(true);
     expect(result.constraints.allowLeft0050).toBe(false); // 被斷路器完全封鎖！
-    expect(result.constraints.pauseP1).toBe(true);
-    expect(result.p1Allocation0050.allowed).toBe(false);
-    expect(result.p1Allocation0050.allocatedAmount).toBe(0);
     expect(result.telegramCard).toContain("🚨【個人維持率斷路器觸發】");
   });
 
@@ -169,7 +156,6 @@ describe("Phase 5: Leading Indicator E2E Verification (TC-01 ~ TC-07)", () => {
       currentState: SYSTEM_STATES.CONTINUOUS_SHOCK,
       cooldownDays: 0,
       activeDays: 3,
-      usedBatches: 1,
     });
 
     expect(result.hasAnyRadarTriggered).toBe(false);
@@ -197,7 +183,6 @@ describe("Phase 5: Leading Indicator E2E Verification (TC-01 ~ TC-07)", () => {
       currentState: SYSTEM_STATES.COOLDOWN,
       cooldownDays: 2,
       activeDays: 5,
-      usedBatches: 1,
     });
 
     expect(result.hasAnyRadarTriggered).toBe(true);
@@ -225,7 +210,6 @@ describe("Phase 5: Leading Indicator E2E Verification (TC-01 ~ TC-07)", () => {
       currentState: SYSTEM_STATES.COOLDOWN,
       cooldownDays: 1,
       activeDays: 21,
-      usedBatches: 1,
     });
 
     expect(result.stateMachine.isLongTermDefense).toBe(true);

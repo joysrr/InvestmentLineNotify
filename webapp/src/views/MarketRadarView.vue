@@ -32,7 +32,6 @@
       <!-- 極端雷達與防禦層 (常態精簡/極端醒目) -->
       <ExtremeRadarPanel
         :leading-indicators="leadingIndicators"
-        :p1-balance="p1Balance"
       />
 
       <!-- 美股區 -->
@@ -162,14 +161,6 @@ const leadingIndicators = computed(
     statusData.value?.leadingIndicators ??
     null,
 );
-
-const p1Balance = computed(() => {
-  return (
-    reportData.value?.config?.p1Balance ??
-    statusData.value?.portfolio?.p1Balance ??
-    540000
-  );
-});
 
 // ── 載入 ──────────────────────────────────────────────
 onMounted(async () => {

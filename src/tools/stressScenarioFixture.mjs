@@ -21,7 +21,6 @@ function assertValidDay(day) {
     !Number.isFinite(day.snapshot?.totalAssets) ||
     !Number.isFinite(day.snapshot?.totalLiabilities) ||
     typeof day.expectedState?.freeze00675L !== "boolean" ||
-    typeof day.expectedState?.pauseP1 !== "boolean" ||
     day.expectedState?.p0Exempt !== true
   ) {
     throw new Error("Invalid stress scenario day");

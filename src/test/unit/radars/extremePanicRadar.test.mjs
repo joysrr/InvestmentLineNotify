@@ -45,7 +45,6 @@ describe("Radar 3: Extreme Panic Radar (evaluateExtremePanicRadar)", () => {
     expect(result.triggered).toBe(true);
     expect(result.constraints.allowLeft0050).toBe(true); // 啟動 0050 左側低接
     expect(result.constraints.freeze00675L).toBe(true); // 00675L 嚴格凍結
-    expect(result.constraints.pauseP1).toBe(false); // P1 預備金允許用於 0050
     expect(result.constraints.p0Exempt).toBe(true);
     expect(result.cardSummary).toContain("極度恐慌雷達");
     expect(result.cardSummary).toContain("38.0");

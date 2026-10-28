@@ -43,7 +43,6 @@ export function createRadarResult({
     metrics,
     constraints: {
       freeze00675L: Boolean(constraints.freeze00675L),
-      pauseP1: Boolean(constraints.pauseP1),
       allowLeft0050: Boolean(constraints.allowLeft0050),
       p0Exempt: true, // P0 DCA 神聖不可侵犯，永遠為 true
       ...constraints,
