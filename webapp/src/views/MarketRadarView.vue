@@ -34,6 +34,12 @@
         :leading-indicators="leadingIndicators"
       />
 
+      <!-- 現金曝險分析（同步顯示於行動紀律下方） -->
+      <CashExposureWidget
+        v-if="leadingIndicators?.cashExposureAnalysis"
+        :analysis="leadingIndicators.cashExposureAnalysis"
+      />
+
       <!-- 美股區 -->
       <section class="section">
         <h3 class="section-title">🇺🇸 美股市場</h3>
@@ -147,6 +153,7 @@ import { ref, computed, onMounted } from "vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import ExtremeRadarPanel from "@/components/radar/ExtremeRadarPanel.vue";
+import CashExposureWidget from "@/components/radar/CashExposureWidget.vue";
 import { waitReady } from "../composables/useTelegram.js";
 
 const loading = ref(true);

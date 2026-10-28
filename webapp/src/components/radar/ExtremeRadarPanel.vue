@@ -138,6 +138,9 @@
                 🟢 正常扣款 (最高豁免)
               </span>
             </div>
+
+            <!-- 現金曝險分析 -->
+            <CashExposureWidget v-if="cashExposureAnalysis" :analysis="cashExposureAnalysis" />
           </div>
         </div>
       </div>
@@ -147,6 +150,7 @@
 
 <script setup>
 import { ref, computed } from "vue";
+import CashExposureWidget from "./CashExposureWidget.vue";
 
 const props = defineProps({
   leadingIndicators: {
@@ -169,6 +173,10 @@ const stateMachine = computed(() => {
       p0Exempt: true,
     }
   );
+});
+
+const cashExposureAnalysis = computed(() => {
+  return props.leadingIndicators?.cashExposureAnalysis ?? null;
 });
 
 const RADAR_CONFIG = {
