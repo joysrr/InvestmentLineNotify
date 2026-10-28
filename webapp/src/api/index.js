@@ -237,7 +237,10 @@ export const fetchDataEvidenceReport = () =>
   apiFetch(buildUrl(ENDPOINTS.dataEvidenceReport));
 
 export const generateDataEvidenceReport = () =>
-  apiFetch(buildUrl(ENDPOINTS.dataEvidenceReport), { method: "POST" });
+  apiFetch(buildUrl(ENDPOINTS.dataEvidenceReport), {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
 
 export const getDataEvidenceReportDownloadUrl = () =>
   buildUrl(ENDPOINTS.dataEvidenceReportDownload);

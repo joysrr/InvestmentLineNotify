@@ -30,6 +30,24 @@ async function resolveReportPath(options) {
 }
 
 export default async function dataEvidenceReportRoute(fastify, options = {}) {
+  // 容許 Content-Type: application/json 但無 body 或 body 為空字串之請求 (如前端無載荷動作觸發)
+  fastify.addContentTypeParser(
+    "application/json",
+    { parseAs: "string" },
+    (_request, body, done) => {
+      if (!body || body.trim() === "") {
+        done(null, {});
+        return;
+      }
+      try {
+        done(null, JSON.parse(body));
+      } catch (err) {
+        err.statusCode = 400;
+        done(err, undefined);
+      }
+    },
+  );
+
   // 1. 取得最新資料證據報告 (JSON)
   fastify.get("/data-evidence-report", async (_request, reply) => {
     try {

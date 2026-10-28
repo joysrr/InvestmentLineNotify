@@ -86,6 +86,27 @@ describe("data evidence report route", () => {
     expect(payload.generatedAt).toBeDefined();
   });
 
+  it("POST /data-evidence-report succeeds when called with Content-Type: application/json and empty body", async () => {
+    const rootDir = await mkdtemp(
+      path.join(os.tmpdir(), "empty-body-evidence-"),
+    );
+    const app = Fastify({ logger: false });
+    await app.register(dataEvidenceReportRoute, {
+      rootDir,
+      reportsDir: path.join(rootDir, "data/verification-reports"),
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/data-evidence-report",
+      headers: { "content-type": "application/json" },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const payload = response.json();
+    expect(payload.reportType).toBe("data-evidence");
+  });
+
   it("GET /data-evidence-report/download serves report with attachment disposition header", async () => {
     const reportsDir = await mkdtemp(
       path.join(os.tmpdir(), "evidence-download-"),
