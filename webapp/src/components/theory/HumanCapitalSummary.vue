@@ -84,18 +84,21 @@ const formatAmount = (value) => {
 }
 
 .status-ok {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: rgba(46, 125, 50, 0.1);
+  color: var(--tg-theme-text-color, #2e7d32);
+  border: 1px solid rgba(46, 125, 50, 0.3);
 }
 
 .status-unavailable {
-  background: #ffebee;
-  color: #c62828;
+  background: rgba(198, 40, 40, 0.1);
+  color: var(--tg-theme-text-color, #c62828);
+  border: 1px solid rgba(198, 40, 40, 0.3);
 }
 
 .status-estimated {
-  background: #fff3e0;
-  color: #ef6c00;
+  background: rgba(239, 108, 0, 0.1);
+  color: var(--tg-theme-text-color, #ef6c00);
+  border: 1px solid rgba(239, 108, 0, 0.3);
 }
 
 .theory-reason {

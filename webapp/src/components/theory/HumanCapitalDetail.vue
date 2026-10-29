@@ -6,9 +6,9 @@
     </div>
 
     <!-- UNAVAILABLE State -->
-    <div v-if="!theory" class="detail-unavailable">
+    <div v-if="!theory || humanCapitalStatus === 'UNAVAILABLE'" class="detail-unavailable">
       <p>⚠️ 理論數據未計算</p>
-      <span class="detail-hint">非交易日或數據不足</span>
+      <span class="detail-hint">{{ humanCapitalReason }}</span>
     </div>
 
     <!-- AVAILABLE State -->
@@ -18,16 +18,12 @@
         <h3 class="section-title">當前狀態</h3>
         <div class="status-grid">
           <div class="status-item">
-            <span class="status-label">當前槓桿</span>
-            <span class="status-value large">{{ formatLeverage(theory.currentLeverage) }}</span>
+            <span class="status-label">人力資本金額</span>
+            <span class="status-value large">{{ formatAmount(humanCapitalValue) }}</span>
           </div>
-          <div class="status-item" v-if="hasKellyLimits">
-            <span class="status-label">保守凱莉 (50%)</span>
-            <span class="status-value">{{ formatLeverage(theory.humanCapital.conservative) }}</span>
-          </div>
-          <div class="status-item" v-if="hasKellyLimits">
-            <span class="status-label">完全凱莉 (100%)</span>
-            <span class="status-value">{{ formatLeverage(theory.humanCapital.full) }}</span>
+          <div class="status-item" v-if="humanCapitalStatus">
+            <span class="status-label">計算狀態</span>
+            <span class="status-value">{{ humanCapitalStatus }}</span>
           </div>
         </div>
       </section>
@@ -36,114 +32,52 @@
       <section class="detail-section">
         <h3 class="section-title">理論說明</h3>
         <div class="theory-box">
-          <h4 class="theory-subtitle">凱莉公式（Kelly Criterion）</h4>
+          <h4 class="theory-subtitle">人力資本 (Human Capital)</h4>
           <p class="theory-text">
-            凱莉公式計算幾何成長最大化的最佳槓桿倍數，用於避免過度槓桿導致的破產風險。
+            人力資本代表未來勞動收入的現值，是投資組合中除金融資本外的另一大資本來源。人力資本越高，可承受的投資風險亦越高。
           </p>
           <div class="formula-box">
-            <code class="formula">L* = (μ - r) / σ²</code>
+            <code class="formula">HC = Σ (未來勞動收入 ÷ (1 + 折現率)^t)</code>
           </div>
           <ul class="theory-list">
-            <li><strong>μ</strong>: 預期年化報酬率</li>
-            <li><strong>r</strong>: 借款利率 + 產品成本</li>
-            <li><strong>σ²</strong>: 報酬率變異數</li>
-            <li><strong>L*</strong>: 完全凱莉槓桿（理論最大值）</li>
+            <li><strong>人力資本</strong>: 未來勞動收入現值，以新台幣計價</li>
+            <li><strong>金融資本</strong>: 目前投資組合淨值</li>
+            <li><strong>總資本</strong>: 人力資本 + 金融資本</li>
+            <li><strong>人資佔比</strong>: 人力資本 ÷ 總資本，越高代表未來收入依賴度越大</li>
           </ul>
           <p class="theory-note">
-            💡 保守凱莉 = 0.5 × L*，用於降低波動風險
+            💡 人力資本隨年齡遞減，隨薪資成長遞增，退休後趨近於零
           </p>
         </div>
       </section>
 
-      <!-- Kelly Limits Status -->
-      <section v-if="hasKellyLimits" class="detail-section">
+      <!-- Human Capital Zones -->
+      <section class="detail-section">
         <h3 class="section-title">人力資本區間判斷</h3>
         <div class="leverage-zones">
           <div class="zone-item safe">
             <div class="zone-header">
               <span class="zone-icon">✅</span>
-              <span class="zone-name">安全區</span>
+              <span class="zone-name">充足區</span>
             </div>
-            <p class="zone-range">0x ~ {{ formatLeverage(theory.humanCapital.conservative) }}</p>
-            <p class="zone-desc">低於保守凱莉，長期幾何成長穩健</p>
+            <p class="zone-range">人力資本 > 金融資本</p>
+            <p class="zone-desc">未來勞動收入仍為主要資本，可承受較高投資風險</p>
           </div>
           <div class="zone-item moderate">
             <div class="zone-header">
               <span class="zone-icon">⚠️</span>
-              <span class="zone-name">適中區</span>
+              <span class="zone-name">平衡區</span>
             </div>
-            <p class="zone-range">{{ formatLeverage(theory.humanCapital.conservative) }} ~ {{ formatLeverage(theory.humanCapital.full) }}</p>
-            <p class="zone-desc">介於保守與完全凱莉之間，波動增加</p>
+            <p class="zone-range">人力資本 ≈ 金融資本</p>
+            <p class="zone-desc">人力資本與金融資本相當，風險承受度適中</p>
           </div>
           <div class="zone-item high">
             <div class="zone-header">
               <span class="zone-icon">🚨</span>
-              <span class="zone-name">高風險區</span>
+              <span class="zone-name">依賴區</span>
             </div>
-            <p class="zone-range">> {{ formatLeverage(theory.humanCapital.full) }}</p>
-            <p class="zone-desc">超過完全凱莉，長期破產風險上升</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- No Kelly Limits Warning -->
-      <section v-else class="detail-section">
-        <div class="warning-box">
-          <h4 class="warning-title">⚠️ 凱莉槓桿未計算</h4>
-          <p class="warning-text">
-            需要以下參數才能計算凱莉槓桿限制：
-          </p>
-          <ul class="warning-list">
-            <li>預期報酬率 (μ)</li>
-            <li>報酬率標準差 (σ)</li>
-            <li>借款利率</li>
-            <li>產品成本調整</li>
-          </ul>
-          <p class="warning-note">
-            目前系統尚未配置這些研究參數，因此無法提供凱莉槓桿建議。
-          </p>
-        </div>
-      </section>
-
-      <!-- Gross Exposure -->
-      <section v-if="theory.grossExposure != null" class="detail-section">
-        <h3 class="section-title">總方向現金流計算</h3>
-        <div class="calculation-box">
-          <p class="calc-label">總曝險 (Gross Exposure)</p>
-          <div class="calc-formula">
-            <code>E_gross = V_0050 + (V_00675L × 2)</code>
-          </div>
-          <div class="calc-result">
-            <span class="calc-value">{{ formatAmount(theory.grossExposure) }}</span>
-          </div>
-          <p class="calc-note">
-            註：00675L 乘以 2 是方向曝險近似，不代表長期報酬模型
-          </p>
-        </div>
-      </section>
-
-      <!-- Current Leverage Calculation -->
-      <section v-if="theory.currentLeverage != null && portfolioSnapshot" class="detail-section">
-        <h3 class="section-title">當前人力資本計算</h3>
-        <div class="calculation-box">
-          <p class="calc-label">當前總槓桿 (Current Leverage)</p>
-          <div class="calc-formula">
-            <code>L_current = E_gross / FC</code>
-          </div>
-          <div class="calc-breakdown">
-            <div class="breakdown-row">
-              <span>總曝險 (E_gross)</span>
-              <span>{{ formatAmount(theory.grossExposure) }}</span>
-            </div>
-            <div class="breakdown-row">
-              <span>財務資本 (FC)</span>
-              <span>{{ formatAmount(portfolioSnapshot.accountNetAsset) }}</span>
-            </div>
-            <div class="breakdown-divider"></div>
-            <div class="breakdown-row result">
-              <span>當前槓桿</span>
-              <span>{{ formatLeverage(theory.currentLeverage) }}</span>
-            </div>
+            <p class="zone-range">人力資本 < 金融資本</p>
+            <p class="zone-desc">金融資本佔比較高，應審慎評估投資風險</p>
           </div>
         </div>
       </section>
@@ -153,9 +87,9 @@
         <div class="disclaimer-box">
           <h4 class="disclaimer-title">⚠️ 免責聲明</h4>
           <ul class="disclaimer-list">
-            <li>凱莉公式僅供研究參考，非投資建議</li>
+            <li>人力資本僅為理論估算，非實際資產價值</li>
             <li>實際決策請參考既有風控機制（維持率、槓桿天花板）</li>
-            <li>市場條件變化時，理論參數需要重新校準</li>
+            <li>市場條件與個人收入狀況變化時，理論參數需重新校準</li>
             <li>本系統目前處於研究階段 (RESEARCH_ONLY)</li>
           </ul>
         </div>
@@ -168,38 +102,18 @@
 import { computed } from "vue";
 
 const props = defineProps({
-  theory: {
-    type: Object,
-    default: null,
-  },
-  portfolioSnapshot: {
-    type: Object,
-    default: null,
-  },
+  theory: { type: Object, required: true },
 });
 
-defineEmits(["back"]);
+const humanCapitalData = computed(() => props.theory?.humanCapital);
+const humanCapitalStatus = computed(() => humanCapitalData.value?.status ?? null);
+const humanCapitalValue = computed(() => humanCapitalData.value?.humanCapital ?? null);
+const humanCapitalReason = computed(() => humanCapitalData.value?.reason ?? null);
 
-// Check if Kelly limits are available
-const hasKellyLimits = computed(() => {
-  return (
-    props.theory?.humanCapital &&
-    props.theory.humanCapital.conservative != null &&
-    props.theory.humanCapital.full != null
-  );
-});
-
-// Format leverage value
-function formatLeverage(value) {
-  if (value == null || !Number.isFinite(value)) return "—";
-  return value.toFixed(2) + "x";
-}
-
-// Format currency amount
-function formatAmount(value) {
-  if (value == null || !Number.isFinite(value)) return "—";
-  return (value / 10000).toFixed(1) + "萬";
-}
+const formatAmount = (value) => {
+  if (value == null) return "--";
+  return new Intl.NumberFormat("zh-TW", { style: "currency", currency: "TWD", minimumFractionDigits: 0 }).format(value);
+};
 </script>
 
 <style scoped>
@@ -375,18 +289,18 @@ function formatAmount(value) {
 }
 
 .zone-item.safe {
-  background: rgba(76, 175, 80, 0.1);
-  border-left-color: #4caf50;
+  background: rgba(46, 125, 50, 0.1);
+  border-left-color: var(--tg-theme-text-color, #4caf50);
 }
 
 .zone-item.moderate {
-  background: rgba(255, 152, 0, 0.1);
-  border-left-color: #ff9800;
+  background: rgba(239, 108, 0, 0.1);
+  border-left-color: var(--tg-theme-text-color, #ff9800);
 }
 
 .zone-item.high {
-  background: rgba(244, 67, 54, 0.1);
-  border-left-color: #f44336;
+  background: rgba(198, 40, 40, 0.1);
+  border-left-color: var(--tg-theme-text-color, #f44336);
 }
 
 .zone-header {
@@ -419,71 +333,13 @@ function formatAmount(value) {
   margin: 0;
 }
 
-.calc-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--tg-theme-hint-color, #666);
-  margin: 0 0 8px 0;
-}
-
-.calc-formula {
-  padding: 10px;
-  background: var(--tg-theme-bg-color, #fff);
-  border-radius: 6px;
-  margin-bottom: 12px;
-  text-align: center;
-}
-
-.calc-formula code {
-  font-family: "Courier New", monospace;
-  font-size: 14px;
-  color: var(--tg-theme-text-color, #222);
-}
-
-.calc-result {
-  text-align: center;
-  margin: 12px 0;
-}
-
-.calc-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--tg-theme-link-color, #3390ec);
-}
-
-.calc-breakdown {
-  padding: 12px;
-  background: var(--tg-theme-bg-color, #fff);
-  border-radius: 6px;
-}
-
-.breakdown-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  font-size: 13px;
-  color: var(--tg-theme-text-color, #444);
-}
-
-.breakdown-row.result {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
-}
-
-.breakdown-divider {
-  height: 1px;
-  background: var(--tg-theme-hint-color, #e0e0e0);
-  margin: 8px 0;
-}
-
 .warning-box {
-  background: rgba(255, 152, 0, 0.1);
-  border-left: 4px solid #ff9800;
+  background: rgba(239, 108, 0, 0.1);
+  border-left: 4px solid var(--tg-theme-text-color, #ff9800);
 }
 
 .disclaimer-box {
   background: rgba(158, 158, 158, 0.1);
-  border-left: 4px solid #9e9e9e;
+  border-left: 4px solid var(--tg-theme-text-color, #9e9e9e);
 }
 </style>
