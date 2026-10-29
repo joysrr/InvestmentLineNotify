@@ -1,7 +1,7 @@
 ---
 type: plan
-status: current
-last_updated: 2026-10-28
+status: archived
+last_updated: 2026-10-29
 tags:
   - plan
   - p1-removal
