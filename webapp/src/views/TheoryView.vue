@@ -54,6 +54,24 @@
           @view-detail="showDetail('inputData')"
         />
 
+        <!-- Human Capital -->
+        <HumanCapitalSummary
+          :theory="theory"
+          @view-detail="showDetail('humanCapital')"
+        />
+
+        <!-- True Exposure -->
+        <TrueExposureSummary
+          :theory="theory"
+          @view-detail="showDetail('trueExposure')"
+        />
+
+        <!-- Crash Tolerance -->
+        <CrashToleranceSummary
+          :theory="theory"
+          @view-detail="showDetail('crashTolerance')"
+        />
+
         <!-- Disclaimer -->
         <div class="disclaimer-card">
           <p class="disclaimer-title">⚠️ 免責聲明</p>
@@ -97,6 +115,27 @@
         :report-date="reportDate"
         @back="showSummary"
       />
+
+      <!-- Human Capital Detail -->
+      <HumanCapitalDetail
+        v-else-if="detailType === 'humanCapital'"
+        :theory="theory"
+        @back="showSummary"
+      />
+
+      <!-- True Exposure Detail -->
+      <TrueExposureDetail
+        v-else-if="detailType === 'trueExposure'"
+        :theory="theory"
+        @back="showSummary"
+      />
+
+      <!-- Crash Tolerance Detail -->
+      <CrashToleranceDetail
+        v-else-if="detailType === 'crashTolerance'"
+        :theory="theory"
+        @back="showSummary"
+      />
     </div>
   </div>
 </template>
@@ -111,12 +150,18 @@ import KellyLeverageSummary from "../components/theory/KellyLeverageSummary.vue"
 import ExposureSummary from "../components/theory/ExposureSummary.vue";
 import LifecycleSummary from "../components/theory/LifecycleSummary.vue";
 import InputDataSummary from "../components/theory/InputDataSummary.vue";
+import HumanCapitalSummary from "../components/theory/HumanCapitalSummary.vue";
+import TrueExposureSummary from "../components/theory/TrueExposureSummary.vue";
+import CrashToleranceSummary from "../components/theory/CrashToleranceSummary.vue";
 
 // Detail Components
 import KellyLeverageDetail from "../components/theory/KellyLeverageDetail.vue";
 import ExposureDetail from "../components/theory/ExposureDetail.vue";
 import LifecycleDetail from "../components/theory/LifecycleDetail.vue";
 import InputDataDetail from "../components/theory/InputDataDetail.vue";
+import HumanCapitalDetail from "../components/theory/HumanCapitalDetail.vue";
+import TrueExposureDetail from "../components/theory/TrueExposureDetail.vue";
+import CrashToleranceDetail from "../components/theory/CrashToleranceDetail.vue";
 
 // Composable
 const {
@@ -132,7 +177,7 @@ const {
 
 // View state
 const currentView = ref("summary"); // 'summary' | 'detail'
-const detailType = ref(null); // 'kelly' | 'exposure' | 'lifecycle' | 'inputData'
+const detailType = ref(null); // 'kelly' | 'exposure' | 'lifecycle' | 'inputData' | 'humanCapital' | 'trueExposure' | 'crashTolerance'
 
 // Load data
 async function loadData() {
