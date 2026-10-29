@@ -403,6 +403,9 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     expect(savedReport.marketStatus).toBe("休市觀測");
     expect(savedReport.openToday).toBe(false);
     expect(savedReport.newsSummary).toBe("週末市場動態摘要");
+    // theoreticalShadow 應在非交易日也正確生成（graceful degradation，不缺欄位）
+    expect(savedReport.theoreticalShadow).toBeDefined();
+    expect(savedReport.theoreticalShadow.status).toBeDefined();
   });
 
   it("新聞分析失敗時不得覆寫每日報告", async () => {
