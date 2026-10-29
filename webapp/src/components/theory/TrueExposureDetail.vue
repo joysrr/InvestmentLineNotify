@@ -1,157 +1,489 @@
 <template>
-  <div class="theory-detail true-exposure-detail">
-    <div class="theory-detail-header">
-      <span class="theory-detail-title">真實曝險詳情</span>
-      <span
-        class="theory-status-badge"
-        :class="`status-${trueExposureStatus?.toLowerCase()}`"
-      >
-        {{ trueExposureStatus }}
-      </span>
+  <div class="detail-page">
+    <div class="detail-header">
+      <button class="back-btn" @click="$emit('back')">← 返回</button>
+      <h2 class="detail-title">📊 真實曝險詳細分析</h2>
     </div>
-    <div class="theory-detail-content">
-      <div v-if="trueExposureStatus === 'OK'" class="detail-section">
-        <div class="detail-row">
-          <span class="detail-label">真實曝險比例</span>
-          <span class="detail-value">{{ formatPercent(trueExposureValue) }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">總曝險 (Gross Exposure)</span>
-          <span class="detail-value">{{ formatCurrency(grossExposure) }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">金融資本</span>
-          <span class="detail-value">{{ formatCurrency(financialCapital) }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">人力資本</span>
-          <span class="detail-value">{{ formatCurrency(humanCapital) }}</span>
-        </div>
-      </div>
-      <div v-else-if="trueExposureStatus === 'UNAVAILABLE'" class="detail-section unavailable">
-        <div class="detail-row">
-          <span class="detail-label">狀態</span>
-          <span class="detail-value unavailable">{{ trueExposureReason }}</span>
-        </div>
-        <div class="detail-hint">
-          真實曝險需要人力資本資料才能計算。請先確認人力資本模組已正確輸出。
-        </div>
-      </div>
-      <div v-else class="detail-section">
-        <div class="detail-row">
-          <span class="detail-label">狀態</span>
-          <span class="detail-value">--</span>
-        </div>
-      </div>
+
+    <!-- UNAVAILABLE State -->
+    <div v-if="!theory" class="detail-unavailable">
+      <p>⚠️ 理論數據未計算</p>
+      <span class="detail-hint">非交易日或數據不足</span>
     </div>
-    <div class="theory-shadow-note">
-      <small>Shadow-only：此數值不影響 P0 DCA 執行。</small>
+
+    <!-- AVAILABLE State -->
+    <div v-else class="detail-content">
+      <!-- Current Status -->
+      <section class="detail-section">
+        <h3 class="section-title">當前狀態</h3>
+        <div class="status-grid">
+          <div class="status-item">
+            <span class="status-label">當前槓桿</span>
+            <span class="status-value large">{{ formatLeverage(theory.currentLeverage) }}</span>
+          </div>
+          <div class="status-item" v-if="hasKellyLimits">
+            <span class="status-label">保守凱莉 (50%)</span>
+            <span class="status-value">{{ formatLeverage(theory.trueExposure.conservative) }}</span>
+          </div>
+          <div class="status-item" v-if="hasKellyLimits">
+            <span class="status-label">完全凱莉 (100%)</span>
+            <span class="status-value">{{ formatLeverage(theory.trueExposure.full) }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Theory Explanation -->
+      <section class="detail-section">
+        <h3 class="section-title">理論說明</h3>
+        <div class="theory-box">
+          <h4 class="theory-subtitle">凱莉公式（Kelly Criterion）</h4>
+          <p class="theory-text">
+            凱莉公式計算幾何成長最大化的最佳槓桿倍數，用於避免過度槓桿導致的破產風險。
+          </p>
+          <div class="formula-box">
+            <code class="formula">L* = (μ - r) / σ²</code>
+          </div>
+          <ul class="theory-list">
+            <li><strong>μ</strong>: 預期年化報酬率</li>
+            <li><strong>r</strong>: 借款利率 + 產品成本</li>
+            <li><strong>σ²</strong>: 報酬率變異數</li>
+            <li><strong>L*</strong>: 完全凱莉槓桿（理論最大值）</li>
+          </ul>
+          <p class="theory-note">
+            💡 保守凱莉 = 0.5 × L*，用於降低波動風險
+          </p>
+        </div>
+      </section>
+
+      <!-- Kelly Limits Status -->
+      <section v-if="hasKellyLimits" class="detail-section">
+        <h3 class="section-title">真實曝險區間判斷</h3>
+        <div class="leverage-zones">
+          <div class="zone-item safe">
+            <div class="zone-header">
+              <span class="zone-icon">✅</span>
+              <span class="zone-name">安全區</span>
+            </div>
+            <p class="zone-range">0x ~ {{ formatLeverage(theory.trueExposure.conservative) }}</p>
+            <p class="zone-desc">低於保守凱莉，長期幾何成長穩健</p>
+          </div>
+          <div class="zone-item moderate">
+            <div class="zone-header">
+              <span class="zone-icon">⚠️</span>
+              <span class="zone-name">適中區</span>
+            </div>
+            <p class="zone-range">{{ formatLeverage(theory.trueExposure.conservative) }} ~ {{ formatLeverage(theory.trueExposure.full) }}</p>
+            <p class="zone-desc">介於保守與完全凱莉之間，波動增加</p>
+          </div>
+          <div class="zone-item high">
+            <div class="zone-header">
+              <span class="zone-icon">🚨</span>
+              <span class="zone-name">高風險區</span>
+            </div>
+            <p class="zone-range">> {{ formatLeverage(theory.trueExposure.full) }}</p>
+            <p class="zone-desc">超過完全凱莉，長期破產風險上升</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- No Kelly Limits Warning -->
+      <section v-else class="detail-section">
+        <div class="warning-box">
+          <h4 class="warning-title">⚠️ 凱莉槓桿未計算</h4>
+          <p class="warning-text">
+            需要以下參數才能計算凱莉槓桿限制：
+          </p>
+          <ul class="warning-list">
+            <li>預期報酬率 (μ)</li>
+            <li>報酬率標準差 (σ)</li>
+            <li>借款利率</li>
+            <li>產品成本調整</li>
+          </ul>
+          <p class="warning-note">
+            目前系統尚未配置這些研究參數，因此無法提供凱莉槓桿建議。
+          </p>
+        </div>
+      </section>
+
+      <!-- Gross Exposure -->
+      <section v-if="theory.grossExposure != null" class="detail-section">
+        <h3 class="section-title">總方向敞口計算</h3>
+        <div class="calculation-box">
+          <p class="calc-label">總曝險 (Gross Exposure)</p>
+          <div class="calc-formula">
+            <code>E_gross = V_0050 + (V_00675L × 2)</code>
+          </div>
+          <div class="calc-result">
+            <span class="calc-value">{{ formatAmount(theory.grossExposure) }}</span>
+          </div>
+          <p class="calc-note">
+            註：00675L 乘以 2 是方向曝險近似，不代表長期報酬模型
+          </p>
+        </div>
+      </section>
+
+      <!-- Current Leverage Calculation -->
+      <section v-if="theory.currentLeverage != null && portfolioSnapshot" class="detail-section">
+        <h3 class="section-title">當前真實曝險計算</h3>
+        <div class="calculation-box">
+          <p class="calc-label">當前總槓桿 (Current Leverage)</p>
+          <div class="calc-formula">
+            <code>L_current = E_gross / FC</code>
+          </div>
+          <div class="calc-breakdown">
+            <div class="breakdown-row">
+              <span>總曝險 (E_gross)</span>
+              <span>{{ formatAmount(theory.grossExposure) }}</span>
+            </div>
+            <div class="breakdown-row">
+              <span>財務資本 (FC)</span>
+              <span>{{ formatAmount(portfolioSnapshot.accountNetAsset) }}</span>
+            </div>
+            <div class="breakdown-divider"></div>
+            <div class="breakdown-row result">
+              <span>當前槓桿</span>
+              <span>{{ formatLeverage(theory.currentLeverage) }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Disclaimer -->
+      <section class="detail-section">
+        <div class="disclaimer-box">
+          <h4 class="disclaimer-title">⚠️ 免責聲明</h4>
+          <ul class="disclaimer-list">
+            <li>凱莉公式僅供研究參考，非投資建議</li>
+            <li>實際決策請參考既有風控機制（維持率、槓桿天花板）</li>
+            <li>市場條件變化時，理論參數需要重新校準</li>
+            <li>本系統目前處於研究階段 (RESEARCH_ONLY)</li>
+          </ul>
+        </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useTheoryData } from "@/composables/useTheoryData";
 import { computed } from "vue";
 
-const { theoryData } = useTheoryData();
+const props = defineProps({
+  theory: {
+    type: Object,
+    default: null,
+  },
+  portfolioSnapshot: {
+    type: Object,
+    default: null,
+  },
+});
 
-const trueExposureData = computed(() => theoryData.value?.trueExposure);
-const trueExposureStatus = computed(() => trueExposureData.value?.status ?? null);
-const trueExposureValue = computed(() => trueExposureData.value?.trueExposure ?? null);
-const trueExposureReason = computed(() => trueExposureData.value?.reason ?? "未知");
-const grossExposure = computed(() => trueExposureData.value?.grossExposure ?? 0);
-const financialCapital = computed(() => trueExposureData.value?.financialCapital ?? 0);
-const humanCapital = computed(() => trueExposureData.value?.humanCapital ?? 0);
+defineEmits(["back"]);
 
-const formatPercent = (value) => {
-  if (value == null) return "--";
-  return new Intl.NumberFormat("zh-TW", { style: "percent", minimumFractionDigits: 2 }).format(value);
-};
+// Check if Kelly limits are available
+const hasKellyLimits = computed(() => {
+  return (
+    props.theory?.trueExposure &&
+    props.theory.trueExposure.conservative != null &&
+    props.theory.trueExposure.full != null
+  );
+});
 
-const formatCurrency = (value) => {
-  if (value == null) return "--";
-  return new Intl.NumberFormat("zh-TW").format(value);
-};
+// Format leverage value
+function formatLeverage(value) {
+  if (value == null || !Number.isFinite(value)) return "—";
+  return value.toFixed(2) + "x";
+}
+
+// Format currency amount
+function formatAmount(value) {
+  if (value == null || !Number.isFinite(value)) return "—";
+  return (value / 10000).toFixed(1) + "萬";
+}
 </script>
 
 <style scoped>
-.theory-detail {
-  border: 1px solid var(--tg-theme-border-color, #ddd);
-  border-radius: 8px;
-  padding: 12px;
-  background: var(--tg-theme-card-bg, #fff);
+.detail-page {
+  min-height: 100vh;
+  background: var(--tg-theme-bg-color, #fff);
 }
-.theory-detail-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+
+.detail-header {
+  position: sticky;
+  top: 0;
+  background: var(--tg-theme-bg-color, #fff);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+  z-index: 10;
 }
-.theory-detail-title {
+
+.back-btn {
+  background: transparent;
+  border: none;
   font-size: 14px;
-  font-weight: 600;
+  color: var(--tg-theme-link-color, #3390ec);
+  cursor: pointer;
+  padding: 4px 0;
+  margin-bottom: 8px;
+}
+
+.detail-title {
+  font-size: 18px;
+  font-weight: 700;
   color: var(--tg-theme-text-color, #222);
+  margin: 0;
 }
-.theory-status-badge {
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  text-transform: uppercase;
+
+.detail-unavailable {
+  text-align: center;
+  padding: 40px 16px;
 }
-.status-ok {
-  background: #e8f5e9;
-  color: #2e7d32;
-}
-.status-unavailable {
-  background: #ffebee;
-  color: #c62828;
-}
-.status-estimated {
-  background: #fff3e0;
-  color: #ef6c00;
-}
-.theory-detail-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.detail-section {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.detail-section.unavailable {
-  opacity: 0.7;
-}
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-.detail-label {
-  font-size: 13px;
+
+.detail-unavailable p {
+  font-size: 16px;
   color: var(--tg-theme-hint-color, #999);
+  margin: 0 0 8px 0;
 }
-.detail-value {
-  font-size: 14px;
+
+.detail-hint {
+  font-size: 13px;
+  color: var(--tg-theme-hint-color, #aaa);
+}
+
+.detail-content {
+  padding: 16px;
+}
+
+.detail-section {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 16px;
   font-weight: 600;
   color: var(--tg-theme-text-color, #222);
+  margin: 0 0 12px 0;
 }
-.detail-value.unavailable {
-  color: #c62828;
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
 }
-.detail-hint {
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  border-radius: 8px;
+}
+
+.status-label {
   font-size: 12px;
   color: var(--tg-theme-hint-color, #999);
-  margin-top: 4px;
+  margin-bottom: 6px;
 }
-.theory-shadow-note {
-  margin-top: 8px;
-  padding: 6px;
-  background: #f5f5f5;
-  border-radius: 4px;
-  font-size: 11px;
-  color: #666;
+
+.status-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #222);
+}
+
+.status-value.large {
+  font-size: 20px;
+  color: var(--tg-theme-link-color, #3390ec);
+}
+
+.theory-box,
+.calculation-box,
+.warning-box,
+.disclaimer-box {
+  padding: 16px;
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  border-radius: 10px;
+}
+
+.theory-subtitle,
+.warning-title,
+.disclaimer-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #222);
+  margin: 0 0 8px 0;
+}
+
+.theory-text,
+.warning-text {
+  font-size: 13px;
+  color: var(--tg-theme-text-color, #444);
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+
+.formula-box {
+  padding: 12px;
+  background: var(--tg-theme-bg-color, #fff);
+  border-radius: 6px;
+  margin: 12px 0;
+  text-align: center;
+}
+
+.formula {
+  font-family: "Courier New", monospace;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #222);
+}
+
+.theory-list,
+.warning-list,
+.disclaimer-list {
+  margin: 12px 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: var(--tg-theme-text-color, #444);
+  line-height: 1.8;
+}
+
+.theory-list li,
+.warning-list li,
+.disclaimer-list li {
+  margin-bottom: 6px;
+}
+
+.theory-note,
+.warning-note,
+.calc-note {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #999);
+  font-style: italic;
+  margin: 8px 0 0 0;
+}
+
+.leverage-zones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.zone-item {
+  padding: 14px;
+  border-radius: 8px;
+  border-left: 4px solid;
+}
+
+.zone-item.safe {
+  background: rgba(76, 175, 80, 0.1);
+  border-left-color: #4caf50;
+}
+
+.zone-item.moderate {
+  background: rgba(255, 152, 0, 0.1);
+  border-left-color: #ff9800;
+}
+
+.zone-item.high {
+  background: rgba(244, 67, 54, 0.1);
+  border-left-color: #f44336;
+}
+
+.zone-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.zone-icon {
+  font-size: 16px;
+}
+
+.zone-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #222);
+}
+
+.zone-range {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #222);
+  margin: 0 0 4px 0;
+}
+
+.zone-desc {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #666);
+  margin: 0;
+}
+
+.calc-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tg-theme-hint-color, #666);
+  margin: 0 0 8px 0;
+}
+
+.calc-formula {
+  padding: 10px;
+  background: var(--tg-theme-bg-color, #fff);
+  border-radius: 6px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.calc-formula code {
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  color: var(--tg-theme-text-color, #222);
+}
+
+.calc-result {
+  text-align: center;
+  margin: 12px 0;
+}
+
+.calc-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--tg-theme-link-color, #3390ec);
+}
+
+.calc-breakdown {
+  padding: 12px;
+  background: var(--tg-theme-bg-color, #fff);
+  border-radius: 6px;
+}
+
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--tg-theme-text-color, #444);
+}
+
+.breakdown-row.result {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #222);
+}
+
+.breakdown-divider {
+  height: 1px;
+  background: var(--tg-theme-hint-color, #e0e0e0);
+  margin: 8px 0;
+}
+
+.warning-box {
+  background: rgba(255, 152, 0, 0.1);
+  border-left: 4px solid #ff9800;
+}
+
+.disclaimer-box {
+  background: rgba(158, 158, 158, 0.1);
+  border-left: 4px solid #9e9e9e;
 }
 </style>
