@@ -53,66 +53,6 @@
         </div>
       </section>
 
-      <!-- Human Capital -->
-      <section class="detail-section">
-        <h3 class="section-title">人力資本分析</h3>
-        <div class="hc-status-box">
-          <div class="hc-row">
-            <span class="hc-label">人力資本 (HC)</span>
-            <span class="hc-value">{{ formatHumanCapital(theory.humanCapital) }}</span>
-          </div>
-          <div v-if="!theory.humanCapital" class="hc-missing">
-            <h4 class="missing-title">⚠️ 人力資本未計算</h4>
-            <p class="missing-text">需要以下資料才能計算：</p>
-            <ul class="missing-list">
-              <li>稅後月收入或年收入</li>
-              <li>可投入投資的現金流比例</li>
-              <li>預期收入成長率</li>
-              <li>折現率（通常為 3-5%）</li>
-            </ul>
-            <div class="formula-box">
-              <code>HC = Σ (可投資現金流_t / (1 + 折現率)^t)</code>
-            </div>
-            <p class="missing-note">
-              註：目前系統僅記錄每月 DCA 金額（3萬），但這不等於薪資或完整人力資本
-            </p>
-          </div>
-          <div v-else class="hc-breakdown">
-            <p class="breakdown-text">
-              人力資本代表未來 32 年工作期間可投入投資的現金流總現值
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <!-- True Exposure -->
-      <section v-if="theory.trueExposure != null" class="detail-section">
-        <h3 class="section-title">人生真實曝險</h3>
-        <div class="true-exposure-box">
-          <div class="te-display">
-            <span class="te-label">True Exposure</span>
-            <span class="te-value" :class="trueExposureClass">
-              {{ formatPercent(theory.trueExposure * 100) }}
-            </span>
-          </div>
-          <div class="formula-box">
-            <code>TrueExposure = 投資曝險 / (財務資本 + 人力資本)</code>
-          </div>
-          <p class="te-explanation">
-            相比只看財務資本的曝險比例，真實曝險考慮了人力資本這個「隱性資產」，
-            更真實地反映整體財務狀況的風險暴露。
-          </p>
-        </div>
-      </section>
-      <section v-else class="detail-section">
-        <div class="warning-box">
-          <h4 class="warning-title">⚠️ 真實曝險未計算</h4>
-          <p class="warning-text">
-            需要人力資本數據才能計算人生真實曝險。
-          </p>
-        </div>
-      </section>
-
       <!-- Age-Based Strategy -->
       <section class="detail-section">
         <h3 class="section-title">年齡分段策略</h3>
@@ -219,8 +159,6 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
-
 const props = defineProps({
   theory: {
     type: Object,
@@ -230,27 +168,11 @@ const props = defineProps({
 
 defineEmits(["back"]);
 
-// Format human capital
-function formatHumanCapital(value) {
-  if (value == null || !Number.isFinite(value)) return "未計算";
-  return (value / 10000).toFixed(0) + "萬";
-}
-
 // Format percentage
 function formatPercent(value) {
   if (value == null || !Number.isFinite(value)) return "—";
   return value.toFixed(0) + "%";
 }
-
-// True exposure status class
-const trueExposureClass = computed(() => {
-  if (props.theory?.trueExposure == null) return "";
-  
-  const ratio = props.theory.trueExposure * 100;
-  if (ratio <= 50) return "te-low";
-  if (ratio <= 80) return "te-moderate";
-  return "te-high";
-});
 </script>
 
 <style scoped>

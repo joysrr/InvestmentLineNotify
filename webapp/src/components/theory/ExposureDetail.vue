@@ -134,30 +134,6 @@
         </div>
       </section>
 
-      <!-- Tobin Separation -->
-      <section class="detail-section">
-        <h3 class="section-title">托賓分離定理</h3>
-        <div class="theory-box">
-          <p class="theory-text">
-            托賓分離定理（Tobin's Separation Theorem）指出：投資決策可分為兩個獨立步驟
-          </p>
-          <ol class="theory-list">
-            <li><strong>資產配置</strong>：決定持有哪些風險資產（例如 0050）</li>
-            <li><strong>槓桿決策</strong>：決定使用多少槓桿（例如 00675L）</li>
-          </ol>
-          <p class="theory-text">
-            在本系統中：
-          </p>
-          <ul class="theory-list">
-            <li>核心資產：0050（長期持有，定期定額）</li>
-            <li>槓桿工具：00675L（依市場情緒調整配置）</li>
-          </ul>
-          <p class="theory-note">
-            註：00675L 的產品成本（追蹤誤差、費用率）尚未完整建模，目前標示為 UNMODELED
-          </p>
-        </div>
-      </section>
-
       <!-- Disclaimer -->
       <section class="detail-section">
         <div class="disclaimer-box">
