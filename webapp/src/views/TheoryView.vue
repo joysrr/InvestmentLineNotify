@@ -72,6 +72,18 @@
           @view-detail="showDetail('crashTolerance')"
         />
 
+        <!-- Laplace Criterion -->
+        <LaplaceSummary
+          :theory="theory"
+          @view-detail="showDetail('laplace')"
+        />
+
+        <!-- Tobin Separation -->
+        <TobinSeparationSummary
+          :theory="theory"
+          @view-detail="showDetail('tobinSeparation')"
+        />
+
         <!-- Disclaimer -->
         <div class="disclaimer-card">
           <p class="disclaimer-title">⚠️ 免責聲明</p>
@@ -136,6 +148,20 @@
         :theory="theory"
         @back="showSummary"
       />
+
+      <!-- Laplace Criterion Detail -->
+      <LaplaceDetail
+        v-else-if="detailType === 'laplace'"
+        :theory="theory"
+        @back="showSummary"
+      />
+
+      <!-- Tobin Separation Detail -->
+      <TobinSeparationDetail
+        v-else-if="detailType === 'tobinSeparation'"
+        :theory="theory"
+        @back="showSummary"
+      />
     </div>
   </div>
 </template>
@@ -153,6 +179,8 @@ import InputDataSummary from "../components/theory/InputDataSummary.vue";
 import HumanCapitalSummary from "../components/theory/HumanCapitalSummary.vue";
 import TrueExposureSummary from "../components/theory/TrueExposureSummary.vue";
 import CrashToleranceSummary from "../components/theory/CrashToleranceSummary.vue";
+import LaplaceSummary from "../components/theory/LaplaceSummary.vue";
+import TobinSeparationSummary from "../components/theory/TobinSeparationSummary.vue";
 
 // Detail Components
 import KellyLeverageDetail from "../components/theory/KellyLeverageDetail.vue";
@@ -162,6 +190,8 @@ import InputDataDetail from "../components/theory/InputDataDetail.vue";
 import HumanCapitalDetail from "../components/theory/HumanCapitalDetail.vue";
 import TrueExposureDetail from "../components/theory/TrueExposureDetail.vue";
 import CrashToleranceDetail from "../components/theory/CrashToleranceDetail.vue";
+import LaplaceDetail from "../components/theory/LaplaceDetail.vue";
+import TobinSeparationDetail from "../components/theory/TobinSeparationDetail.vue";
 
 // Composable
 const {
@@ -177,7 +207,7 @@ const {
 
 // View state
 const currentView = ref("summary"); // 'summary' | 'detail'
-const detailType = ref(null); // 'kelly' | 'exposure' | 'lifecycle' | 'inputData' | 'humanCapital' | 'trueExposure' | 'crashTolerance'
+const detailType = ref(null); // 'kelly' | 'exposure' | 'lifecycle' | 'inputData' | 'humanCapital' | 'trueExposure' | 'crashTolerance' | 'laplace' | 'tobinSeparation'
 
 // Load data
 async function loadData() {
