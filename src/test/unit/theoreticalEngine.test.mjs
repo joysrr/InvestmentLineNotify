@@ -7,6 +7,8 @@ import {
   calculateHumanCapital,
   calculateKellyLimits,
   calculateTrueExposure,
+  calculateLaplaceCriterion,
+  calculateTobinSeparation,
 } from "../../modules/strategy/theoreticalEngine.mjs";
 
 describe("theoreticalEngine.calculateGrossExposure", () => {
@@ -258,6 +260,94 @@ describe("theoreticalEngine.calculateCrashTolerance", () => {
       status: "UNAVAILABLE",
       reason: "INVALID_MAINTENANCE_INPUT",
       crashTolerance: null,
+    });
+  });
+});
+
+describe("theoreticalEngine.calculateLaplaceCriterion", () => {
+  it("returns minimax loss and worst scenario", () => {
+    expect(
+      calculateLaplaceCriterion({
+        scenarios: [
+          { name: "COVID 熔斷", maxLoss: 0.4 },
+          { name: "熊市震盪", maxLoss: 0.25 },
+          { name: "閃崩", maxLoss: 0.35 },
+          { name: "估值回歸", maxLoss: 0.2 },
+        ],
+      }),
+    ).toEqual({
+      status: "OK",
+      minimaxLoss: 0.2,
+      worstScenario: "估值回歸",
+    });
+  });
+
+  it("returns UNAVAILABLE when scenarios is empty", () => {
+    expect(
+      calculateLaplaceCriterion({
+        scenarios: [],
+      }),
+    ).toEqual({
+      status: "UNAVAILABLE",
+      reason: "MISSING_SCENARIOS",
+      minimaxLoss: null,
+      worstScenario: null,
+    });
+  });
+
+  it("returns UNAVAILABLE when scenarios is missing", () => {
+    expect(
+      calculateLaplaceCriterion({
+        scenarios: null,
+      }),
+    ).toEqual({
+      status: "UNAVAILABLE",
+      reason: "MISSING_SCENARIOS",
+      minimaxLoss: null,
+      worstScenario: null,
+    });
+  });
+});
+
+describe("theoreticalEngine.calculateTobinSeparation", () => {
+  it("returns risky and risk-free asset ratios", () => {
+    expect(
+      calculateTobinSeparation({
+        riskyAssetValue: 600000,
+        riskFreeAssetValue: 400000,
+      }),
+    ).toEqual({
+      status: "OK",
+      riskyRatio: 0.6,
+      riskFreeRatio: 0.4,
+    });
+  });
+
+  it("returns UNAVAILABLE when values are invalid", () => {
+    expect(
+      calculateTobinSeparation({
+        riskyAssetValue: null,
+        riskFreeAssetValue: 400000,
+      }),
+    ).toEqual({
+      status: "UNAVAILABLE",
+      reason: "INVALID_ASSET_INPUT",
+      riskyRatio: null,
+      riskFreeRatio: null,
+    });
+  });
+
+  it("returns UNAVAILABLE when total asset is zero", () => {
+    expect(
+      calculateTobinSeparation({
+        riskyAssetValue: 0,
+        riskFreeAssetValue: 0,
+      }),
+    ).toEqual({
+      status: "UNAVAILABLE",
+      reason: "ZERO_TOTAL_ASSET",
+      riskyRatio: null,
+      riskFreeRatio: null,
     });
   });
 });

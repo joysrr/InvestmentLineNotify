@@ -11,6 +11,8 @@ import {
   calculateHumanCapital,
   calculateTrueExposure,
   calculateCrashTolerance,
+  calculateLaplaceCriterion,
+  calculateTobinSeparation,
 } from "../modules/strategy/theoreticalEngine.mjs";
 import { mapTheoreticalInputs } from "../modules/strategy/theoreticalInputMapper.mjs";
 import { createTheoreticalShadowReport } from "../modules/strategy/theoreticalShadowReport.mjs";
@@ -182,6 +184,33 @@ export async function buildTheoreticalShadowForReport({
         })
       : null;
 
+  // Laplace Criterion: 壓力情境下的最壞損失評估 (Minimax 原則)
+  const laplaceCriterion =
+    mappedInputs.status === "OK"
+      ? calculateLaplaceCriterion({
+          scenarios: [
+            { name: "COVID 熔斷", maxLoss: 0.4 },
+            { name: "熊市震盪", maxLoss: 0.25 },
+            { name: "閃崩", maxLoss: 0.35 },
+            { name: "估值回歸", maxLoss: 0.2 },
+          ],
+        })
+      : null;
+
+  // Tobin Separation: 風險資產與無風險資產配比
+  const tobinSeparation =
+    mappedInputs.status === "OK"
+      ? calculateTobinSeparation({
+          riskyAssetValue:
+            (mappedInputs.inputs.value0050?.value ?? 0) +
+            (mappedInputs.inputs.value00675L?.value ?? 0),
+          riskFreeAssetValue:
+            (mappedInputs.inputs.accountNetAsset?.value ?? 0) -
+            (mappedInputs.inputs.value0050?.value ?? 0) -
+            (mappedInputs.inputs.value00675L?.value ?? 0),
+        })
+      : null;
+
   // Build shadow report
   const shadowReport = createTheoreticalShadowReport({
     timestamp: dateText,
@@ -208,6 +237,22 @@ export async function buildTheoreticalShadowForReport({
             drawdownBeforeMarginCall: crashTolerance.crashTolerance,
           }
         : null,
+      laplaceCriterion:
+        laplaceCriterion?.minimaxLoss != null
+          ? {
+              minimaxLoss: laplaceCriterion.minimaxLoss,
+              worstScenario: laplaceCriterion.worstScenario,
+              status: laplaceCriterion.status,
+            }
+          : null,
+      tobinSeparation:
+        tobinSeparation?.riskyRatio != null
+          ? {
+              riskyRatio: tobinSeparation.riskyRatio,
+              riskFreeRatio: tobinSeparation.riskFreeRatio,
+              status: tobinSeparation.status,
+            }
+          : null,
       // Market regime info for transparency
       marketRegime:
         regimeOutput.status === "OK"

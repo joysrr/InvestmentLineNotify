@@ -170,3 +170,79 @@ export function calculateKellyLimits({
     halfKelly: kellyMax * protectiveScale,
   };
 }
+
+export function calculateLaplaceCriterion({ scenarios }) {
+  if (!Array.isArray(scenarios) || scenarios.length === 0) {
+    return {
+      status: "UNAVAILABLE",
+      reason: "MISSING_SCENARIOS",
+      minimaxLoss: null,
+      worstScenario: null,
+    };
+  }
+
+  // Laplace Criterion / Minimax: 選擇「最壞損失最小」的情景
+  // minimaxLoss = min( maxLoss of each scenario )
+  let minimaxLoss = Infinity;
+  let worstScenario = null;
+
+  for (const scenario of scenarios) {
+    if (scenario.maxLoss == null || !Number.isFinite(scenario.maxLoss)) {
+      continue;
+    }
+    if (scenario.maxLoss < minimaxLoss) {
+      minimaxLoss = scenario.maxLoss;
+      worstScenario = scenario.name;
+    }
+  }
+
+  if (worstScenario === null) {
+    return {
+      status: "UNAVAILABLE",
+      reason: "INVALID_SCENARIOS",
+      minimaxLoss: null,
+      worstScenario: null,
+    };
+  }
+
+  return {
+    status: "OK",
+    minimaxLoss,
+    worstScenario,
+  };
+}
+
+export function calculateTobinSeparation({
+  riskyAssetValue,
+  riskFreeAssetValue,
+}) {
+  if (
+    riskyAssetValue == null ||
+    riskFreeAssetValue == null ||
+    !Number.isFinite(riskyAssetValue) ||
+    !Number.isFinite(riskFreeAssetValue)
+  ) {
+    return {
+      status: "UNAVAILABLE",
+      reason: "INVALID_ASSET_INPUT",
+      riskyRatio: null,
+      riskFreeRatio: null,
+    };
+  }
+
+  const total = riskyAssetValue + riskFreeAssetValue;
+  if (total <= 0) {
+    return {
+      status: "UNAVAILABLE",
+      reason: "ZERO_TOTAL_ASSET",
+      riskyRatio: null,
+      riskFreeRatio: null,
+    };
+  }
+
+  return {
+    status: "OK",
+    riskyRatio: riskyAssetValue / total,
+    riskFreeRatio: riskFreeAssetValue / total,
+  };
+}
