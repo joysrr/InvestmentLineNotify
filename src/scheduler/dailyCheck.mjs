@@ -161,12 +161,15 @@ export async function runDailyCheck(deps = {}, options = {}) {
               archivedReport?.price0050Snapshot?.price &&
               archivedReport?.priceZ2Snapshot?.price
             ) {
-              // 使用前一交易日的價格快照 + 最新 portfolio 重新計算 theoreticalShadow
+              // 優先使用 archive 中的歷史 portfolio 數據（lastState 可能為空或過時）
+              const fallbackPortfolio =
+                archivedReport?.portfolio ?? lastState ?? {};
+              // 使用前一交易日的價格快照 + portfolio 數據重新計算 theoreticalShadow
               theoreticalShadow = await buildTheoreticalShadowForReport({
                 dateText,
-                portfolio: lastState,
+                portfolio: fallbackPortfolio,
                 portfolioSnapshot: buildReportPortfolioSnapshot({
-                  portfolio: lastState,
+                  portfolio: fallbackPortfolio,
                   price0050Snapshot: archivedReport.price0050Snapshot,
                   priceZ2Snapshot: archivedReport.priceZ2Snapshot,
                 }),

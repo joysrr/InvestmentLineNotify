@@ -568,6 +568,110 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     expect(savedReport.theoreticalShadow.status).toBe("UNAVAILABLE");
   });
 
+  it("非交易日且 lastState 為空時，應從 archive 獲取歷史 portfolio 並重新計算 theoreticalShadow", async () => {
+    // Arrange：lastState 為空（模擬持股資料讀取失敗）
+    const mockContext = {
+      lastState: null,
+      openToday: false,
+      vixData: { value: 15.2 },
+      basePrice: 150,
+      price0050: null,
+      currentPriceZ2: null,
+      historyZ2: [],
+      history0050: [],
+      macroData: { fx: { usdTwd: 32.1 } },
+      macroAndChipStr: "",
+      usRisk: { riskLevel: "低風險" },
+      quote: "test quote",
+      newsMessages: [],
+      newsSummaryText: "週末市場動態摘要",
+      newsStructured: { tw: [], us: [] },
+      macroAnalysis: {},
+      macroTextForCoach: "",
+      previousAdviceSummary: "",
+      valuationGuardState: { defenseLatch: false, latchActive: false },
+      pbRecords: [],
+      pbRecordsObjects: [],
+    };
+
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockResolvedValue(mockContext);
+
+    const { archiveManager } =
+      await import("../../../../src/modules/data/archiveManager.mjs");
+
+    // 模擬 archive 中有最後交易日 (2026-10-30) 的完整報告，包含 portfolio 數據和價格快照
+    vi.mocked(archiveManager.listArchiveDates).mockResolvedValue([
+      "2026-10-31", // 當前非交易日
+      "2026-10-30", // 最後交易日
+      "2026-10-29",
+    ]);
+    vi.mocked(archiveManager.getReportByDate).mockImplementation((date) => {
+      if (date === "2026-10-30") {
+        return {
+          reportDate: "2026-10-30",
+          portfolio: {
+            totalValue: 1000000,
+            cash: 500000,
+            qty0050: 1000,
+            qtyZ2: 500,
+            totalLoan: 200000,
+          },
+          price0050Snapshot: {
+            price: 180,
+            asOf: "2026-10-30",
+            source: "archive",
+          },
+          priceZ2Snapshot: {
+            price: 280,
+            asOf: "2026-10-30",
+            source: "archive",
+          },
+          theoreticalShadow: {
+            status: "AVAILABLE",
+            theory: {
+              humanCapital: 5000000,
+              trueExposure: 3000000,
+              crashTolerance: { maxDrawdownTolerance: 0.4 },
+              kellyLimits: { conservative: 0.5, full: 1.0 },
+            },
+            marketRegime: { mu: 0.05, sigma: 0.15, regime: "BULL" },
+          },
+        };
+      }
+      return null;
+    });
+
+    // Act
+    const result = await runDailyCheck(
+      {},
+      { isTelegramEnabled: false, isAIAdvisor: true, isCallAI: true },
+    );
+
+    // Assert
+    expect(result).toMatch(/^✅ dailyCheck 執行成功/);
+    expect(archiveManager.saveReport).toHaveBeenCalledOnce();
+    const savedReport = vi.mocked(archiveManager.saveReport).mock.calls[0][0];
+    expect(savedReport.theoreticalShadow.status).toBe("AVAILABLE");
+    // 不再需要 isFromLastTradingDay / lastTradingDay 旗標
+    expect(savedReport.theoreticalShadow.isFromLastTradingDay).toBeUndefined();
+    expect(savedReport.theoreticalShadow.lastTradingDay).toBeUndefined();
+    // 理論數據來自重新計算（基於前一交易日價格 + archive 中的歷史 portfolio）
+    expect(typeof savedReport.theoreticalShadow.theory.humanCapital).toBe(
+      "number",
+    );
+    expect(savedReport.theoreticalShadow.theory.humanCapital).toBeGreaterThan(
+      0,
+    );
+    expect(typeof savedReport.theoreticalShadow.theory.trueExposure).toBe(
+      "number",
+    );
+    expect(savedReport.theoreticalShadow.theory.trueExposure).toBeGreaterThan(
+      0,
+    );
+  });
+
   it("新聞分析失敗時不得覆寫每日報告", async () => {
     const mockContext = {
       lastState: { totalValue: 1000000 },
