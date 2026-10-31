@@ -1,7 +1,7 @@
 ---
 type: review
-status: in-review
-last_updated: 2026-10-23
+status: completed
+last_updated: 2026-10-31
 tags:
   - investment
   - risk-management

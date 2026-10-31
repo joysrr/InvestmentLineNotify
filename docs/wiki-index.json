@@ -1055,14 +1055,14 @@
       "last_verified": null
     },
     "2026-10-20-leading-indicator-review": {
-      "primary_doc": "plans/active/2026-10-20_leading-indicator-review.md",
+      "primary_doc": "plans/completed/2026-10-20_leading-indicator-review.md",
       "title": "領先指標升級計畫：專業審閱意見與修訂建議",
       "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["investment", "risk-management", "system-design"],
-      "status": "in-review",
-      "last_verified": null
+      "status": "completed",
+      "last_verified": "2026-10-31"
     },
     "投資系統理論升級與資產動態整合計畫書": {
       "primary_doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md",
