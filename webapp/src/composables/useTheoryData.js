@@ -61,6 +61,8 @@ export function useTheoryData() {
         date: latestReport.date,
         theoreticalShadow: theoreticalShadow || null,
         portfolioSnapshot: latestReport.portfolioSnapshot || null,
+        isFromLastTradingDay: theoreticalShadow?.isFromLastTradingDay || false,
+        lastTradingDay: theoreticalShadow?.lastTradingDay || null,
       };
     } catch (err) {
       console.error("[useTheoryData] fetch error:", err);
@@ -114,6 +116,16 @@ export function useTheoryData() {
     return data.value?.date || null;
   });
 
+  /** Check if theory data comes from last trading day (non-trading day fallback) */
+  const isFromLastTradingDay = computed(() => {
+    return data.value?.isFromLastTradingDay === true;
+  });
+
+  /** Get the last trading day date (when isFromLastTradingDay is true) */
+  const lastTradingDay = computed(() => {
+    return data.value?.lastTradingDay || null;
+  });
+
   return {
     // State
     data,
@@ -130,5 +142,7 @@ export function useTheoryData() {
     inputs,
     portfolioSnapshot,
     reportDate,
+    isFromLastTradingDay,
+    lastTradingDay,
   };
 }

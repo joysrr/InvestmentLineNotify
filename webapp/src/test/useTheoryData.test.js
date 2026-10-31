@@ -53,6 +53,8 @@ describe("useTheoryData", () => {
       date: "2026-10-25",
       theoreticalShadow: mockReport.theoreticalShadow,
       portfolioSnapshot: mockReport.portfolioSnapshot,
+      isFromLastTradingDay: false,
+      lastTradingDay: null,
     });
     expect(isAvailable.value).toBe(true);
   });
@@ -85,6 +87,8 @@ describe("useTheoryData", () => {
       date: "2026-10-26",
       theoreticalShadow: null,
       portfolioSnapshot: null,
+      isFromLastTradingDay: false,
+      lastTradingDay: null,
     });
     expect(isEmpty.value).toBe(true);
     expect(isAvailable.value).toBe(false);
