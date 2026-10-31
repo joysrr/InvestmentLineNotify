@@ -138,13 +138,40 @@ export async function runDailyCheck(deps = {}, options = {}) {
       priceZ2Snapshot,
     });
 
-    const theoreticalShadow = await buildTheoreticalShadowForReport({
+    let theoreticalShadow = await buildTheoreticalShadowForReport({
       dateText,
       portfolio: lastState,
       portfolioSnapshot,
       price0050Snapshot,
       priceZ2Snapshot,
     });
+
+    // 非交易日回退：若理論陰影不可用，嘗試從 archive 獲取最後一個 AVAILABLE 的 theoreticalShadow
+    if (theoreticalShadow.status === "UNAVAILABLE") {
+      try {
+        const archiveDates = await archiveManager.listArchiveDates();
+        for (const archiveDate of archiveDates) {
+          if (archiveDate === dateText) continue;
+          try {
+            const archivedReport =
+              await archiveManager.getReportByDate(archiveDate);
+            if (archivedReport?.theoreticalShadow?.status === "AVAILABLE") {
+              theoreticalShadow = {
+                ...archivedReport.theoreticalShadow,
+                timestamp: dateText,
+                isFromLastTradingDay: true,
+                lastTradingDay: archiveDate,
+              };
+              break;
+            }
+          } catch {
+            // 繼續下一個日期
+          }
+        }
+      } catch {
+        // listArchiveDates 失敗，保持 UNAVAILABLE
+      }
+    }
 
     const nonTradingReport = {
       reportDate: dateText,
