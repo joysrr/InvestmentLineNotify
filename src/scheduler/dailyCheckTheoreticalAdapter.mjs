@@ -161,8 +161,8 @@ export async function buildTheoreticalShadowForReport({
   const humanCapital =
     mappedInputs.status === "OK"
       ? calculateHumanCapital({
-          annualIncome: 1200000, // 100K/month * 12 (TODO: make configurable via user profile)
-          yearsToRetirement: 25, // TODO: make configurable
+          cashFlows: Array.from({ length: 25 }, () => 1200000),
+          growthRate: 0,
           discountRate: 0.03,
         })
       : null;
@@ -172,7 +172,7 @@ export async function buildTheoreticalShadowForReport({
       ? calculateTrueExposure({
           grossExposure: grossExposure.grossExposure,
           financialCapital: mappedInputs.inputs.accountNetAsset.value,
-          humanCapital: humanCapital.presentValue,
+          humanCapital: humanCapital.humanCapital,
         })
       : null;
 
@@ -229,7 +229,7 @@ export async function buildTheoreticalShadowForReport({
               full: kellyLimits.kellyMax,
             }
           : null,
-      humanCapital: humanCapital?.presentValue ?? null,
+      humanCapital: humanCapital?.humanCapital ?? null,
       trueExposure: trueExposure?.trueExposure ?? null,
       crashTolerance: crashTolerance
         ? {

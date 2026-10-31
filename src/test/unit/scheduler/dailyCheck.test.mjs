@@ -410,15 +410,21 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     expect(savedReport.theoreticalShadow.status).toBeDefined();
   });
 
-  it("非交易日且理論陰影為 UNAVAILABLE 時，應回退到最後交易日的 theoreticalShadow 數據", async () => {
-    // Arrange：lastState 缺少 accountNetAsset/collateralValue，導致 portfolioSnapshot UNAVAILABLE
+  it("非交易日且理論陰影為 UNAVAILABLE 時，應使用前一交易日價格重新計算 theoreticalShadow", async () => {
+    // Arrange：lastState 具有完整 portfolio 欄位，允許建立有效的 portfolioSnapshot
     const mockContext = {
-      lastState: { totalValue: 1000000, cash: 500000 },
+      lastState: {
+        totalValue: 1000000,
+        cash: 500000,
+        qty0050: 1000,
+        qtyZ2: 500,
+        totalLoan: 200000,
+      },
       openToday: false,
       vixData: { value: 15.2 },
       basePrice: 150,
-      price0050: 180,
-      currentPriceZ2: 280,
+      price0050: null, // 非交易日無當日價格
+      currentPriceZ2: null, // 非交易日無當日價格
       historyZ2: [],
       history0050: [],
       macroData: { fx: { usdTwd: 32.1 } },
@@ -443,7 +449,7 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     const { archiveManager } =
       await import("../../../../src/modules/data/archiveManager.mjs");
 
-    // 模擬 archive 中有最後交易日 (2026-10-30) 的 AVAILABLE theoreticalShadow
+    // 模擬 archive 中有最後交易日 (2026-10-30) 的 AVAILABLE theoreticalShadow 和價格快照
     vi.mocked(archiveManager.listArchiveDates).mockResolvedValue([
       "2026-10-31", // 當前非交易日
       "2026-10-30", // 最後交易日
@@ -453,6 +459,16 @@ describe("DailyCheck Scheduler - 單元測試", () => {
       if (date === "2026-10-30") {
         return {
           reportDate: "2026-10-30",
+          price0050Snapshot: {
+            price: 180,
+            asOf: "2026-10-30",
+            source: "archive",
+          },
+          priceZ2Snapshot: {
+            price: 280,
+            asOf: "2026-10-30",
+            source: "archive",
+          },
           theoreticalShadow: {
             status: "AVAILABLE",
             theory: {
@@ -479,10 +495,77 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     expect(archiveManager.saveReport).toHaveBeenCalledOnce();
     const savedReport = vi.mocked(archiveManager.saveReport).mock.calls[0][0];
     expect(savedReport.theoreticalShadow.status).toBe("AVAILABLE");
-    expect(savedReport.theoreticalShadow.isFromLastTradingDay).toBe(true);
-    expect(savedReport.theoreticalShadow.lastTradingDay).toBe("2026-10-30");
-    expect(savedReport.theoreticalShadow.theory.humanCapital).toBe(5000000);
-    expect(savedReport.theoreticalShadow.theory.trueExposure).toBe(3000000);
+    // 不再需要 isFromLastTradingDay / lastTradingDay 旗標
+    expect(savedReport.theoreticalShadow.isFromLastTradingDay).toBeUndefined();
+    expect(savedReport.theoreticalShadow.lastTradingDay).toBeUndefined();
+    // 理論數據來自重新計算（基於前一交易日價格 + 最新 portfolio）
+    expect(typeof savedReport.theoreticalShadow.theory.humanCapital).toBe(
+      "number",
+    );
+    expect(savedReport.theoreticalShadow.theory.humanCapital).toBeGreaterThan(
+      0,
+    );
+    expect(typeof savedReport.theoreticalShadow.theory.trueExposure).toBe(
+      "number",
+    );
+    expect(savedReport.theoreticalShadow.theory.trueExposure).toBeGreaterThan(
+      0,
+    );
+  });
+
+  it("非交易日且無可用 archive 時，theoreticalShadow 應為 UNAVAILABLE", async () => {
+    // Arrange
+    const mockContext = {
+      lastState: {
+        totalValue: 1000000,
+        cash: 500000,
+        qty0050: 1000,
+        qtyZ2: 500,
+        totalLoan: 200000,
+      },
+      openToday: false,
+      vixData: { value: 15.2 },
+      basePrice: 150,
+      price0050: null,
+      currentPriceZ2: null,
+      historyZ2: [],
+      history0050: [],
+      macroData: { fx: { usdTwd: 32.1 } },
+      macroAndChipStr: "",
+      usRisk: { riskLevel: "低風險" },
+      quote: "test quote",
+      newsMessages: [],
+      newsSummaryText: "週末市場動態摘要",
+      newsStructured: { tw: [], us: [] },
+      macroAnalysis: {},
+      macroTextForCoach: "",
+      previousAdviceSummary: "",
+      valuationGuardState: { defenseLatch: false, latchActive: false },
+      pbRecords: [],
+      pbRecordsObjects: [],
+    };
+
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockResolvedValue(mockContext);
+
+    const { archiveManager } =
+      await import("../../../../src/modules/data/archiveManager.mjs");
+
+    // 模擬 archive 為空（無可用的歷史報告）
+    vi.mocked(archiveManager.listArchiveDates).mockResolvedValue([]);
+
+    // Act
+    const result = await runDailyCheck(
+      {},
+      { isTelegramEnabled: false, isAIAdvisor: true, isCallAI: true },
+    );
+
+    // Assert
+    expect(result).toMatch(/^✅ dailyCheck 執行成功/);
+    expect(archiveManager.saveReport).toHaveBeenCalledOnce();
+    const savedReport = vi.mocked(archiveManager.saveReport).mock.calls[0][0];
+    expect(savedReport.theoreticalShadow.status).toBe("UNAVAILABLE");
   });
 
   it("新聞分析失敗時不得覆寫每日報告", async () => {

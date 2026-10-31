@@ -146,7 +146,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
       priceZ2Snapshot,
     });
 
-    // 非交易日回退：若理論陰影不可用，嘗試從 archive 獲取最後一個 AVAILABLE 的 theoreticalShadow
+    // 非交易日回退：若理論陰影不可用，從 archive 獲取前一交易日的價格快照並重新計算
     if (theoreticalShadow.status === "UNAVAILABLE") {
       try {
         const archiveDates = await archiveManager.listArchiveDates();
@@ -155,14 +155,27 @@ export async function runDailyCheck(deps = {}, options = {}) {
           try {
             const archivedReport =
               await archiveManager.getReportByDate(archiveDate);
-            if (archivedReport?.theoreticalShadow?.status === "AVAILABLE") {
-              theoreticalShadow = {
-                ...archivedReport.theoreticalShadow,
-                timestamp: dateText,
-                isFromLastTradingDay: true,
-                lastTradingDay: archiveDate,
-              };
-              break;
+            // 尋找有 AVAILABLE theoreticalShadow 且包含價格快照的報告
+            if (
+              archivedReport?.theoreticalShadow?.status === "AVAILABLE" &&
+              archivedReport?.price0050Snapshot?.price &&
+              archivedReport?.priceZ2Snapshot?.price
+            ) {
+              // 使用前一交易日的價格快照 + 最新 portfolio 重新計算 theoreticalShadow
+              theoreticalShadow = await buildTheoreticalShadowForReport({
+                dateText,
+                portfolio: lastState,
+                portfolioSnapshot: buildReportPortfolioSnapshot({
+                  portfolio: lastState,
+                  price0050Snapshot: archivedReport.price0050Snapshot,
+                  priceZ2Snapshot: archivedReport.priceZ2Snapshot,
+                }),
+                price0050Snapshot: archivedReport.price0050Snapshot,
+                priceZ2Snapshot: archivedReport.priceZ2Snapshot,
+              });
+              if (theoreticalShadow.status === "AVAILABLE") {
+                break;
+              }
             }
           } catch {
             // 繼續下一個日期
