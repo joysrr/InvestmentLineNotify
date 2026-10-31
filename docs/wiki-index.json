@@ -1065,20 +1065,29 @@
       "last_verified": null
     },
     "投資系統理論升級與資產動態整合計畫書": {
-      "primary_doc": "plans/active/投資系統理論升級與資產動態整合計畫書.md",
+      "primary_doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md",
       "title": "InvestmentLineNotify 投資系統理論升級與資產動態整合計畫書",
       "summary": null,
       "related_docs": [],
-      "related_code": [],
+      "related_code": [
+        "webapp/src/components/theory/ExposureDetail.vue",
+        "webapp/src/components/theory/LaplaceDetail.vue",
+        "webapp/src/components/theory/LaplaceSummary.vue",
+        "webapp/src/components/theory/LifecycleDetail.vue",
+        "webapp/src/components/theory/TobinSeparationDetail.vue",
+        "webapp/src/components/theory/TobinSeparationSummary.vue",
+        "webapp/src/views/TheoryView.vue"
+      ],
       "tags": [
         "investment-theory",
         "theoretical-engine",
         "shadow-mode",
         "risk-management",
-        "implementation-plan"
+        "implementation-plan",
+        "completed"
       ],
-      "status": "paused",
-      "last_verified": null
+      "status": "completed",
+      "last_verified": "2026-10-30"
     },
     "advice": {
       "primary_doc": "plans/archive/2026-04_remediation_advice/ADVICE.md",
@@ -2707,6 +2716,48 @@
       {
         "concept": "useapirequest-guide",
         "doc": "useApiRequest-guide.md"
+      }
+    ],
+    "webapp/src/components/theory/LaplaceSummary.vue": [
+      {
+        "concept": "投資系統理論升級與資產動態整合計畫書",
+        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
+      }
+    ],
+    "webapp/src/components/theory/LaplaceDetail.vue": [
+      {
+        "concept": "投資系統理論升級與資產動態整合計畫書",
+        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
+      }
+    ],
+    "webapp/src/components/theory/TobinSeparationSummary.vue": [
+      {
+        "concept": "投資系統理論升級與資產動態整合計畫書",
+        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
+      }
+    ],
+    "webapp/src/components/theory/TobinSeparationDetail.vue": [
+      {
+        "concept": "投資系統理論升級與資產動態整合計畫書",
+        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
+      }
+    ],
+    "webapp/src/views/TheoryView.vue": [
+      {
+        "concept": "投資系統理論升級與資產動態整合計畫書",
+        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
+      }
+    ],
+    "webapp/src/components/theory/LifecycleDetail.vue": [
+      {
+        "concept": "投資系統理論升級與資產動態整合計畫書",
+        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
+      }
+    ],
+    "webapp/src/components/theory/ExposureDetail.vue": [
+      {
+        "concept": "投資系統理論升級與資產動態整合計畫書",
+        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
       }
     ]
   }
