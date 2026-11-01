@@ -146,68 +146,61 @@ export async function runDailyCheck(deps = {}, options = {}) {
       priceZ2Snapshot,
     });
 
-    // 非交易日回退：從 archive 獲取前一交易日的 signals（決策訊號）
+    // 非交易日回退：從 archive 獲取前一交易日的資料（合併循環優化）
     let latestSignals = null;
+    let needRecalculateTheory = theoreticalShadow.status === "UNAVAILABLE";
+
     try {
       const archiveDates = await archiveManager.listArchiveDates();
       for (const archiveDate of archiveDates) {
         if (archiveDate === dateText) continue;
+
         try {
           const archivedReport =
             await archiveManager.getReportByDate(archiveDate);
-          if (archivedReport?.signals) {
+
+          // 任務 1: 收集 signals（找到第一個就記錄）
+          if (!latestSignals && archivedReport?.signals) {
             latestSignals = archivedReport.signals;
-            break; // 找到第一個有 signals 的報告就停止
+          }
+
+          // 任務 2: 重新計算 theoreticalShadow（僅在 UNAVAILABLE 時）
+          if (
+            needRecalculateTheory &&
+            archivedReport?.theoreticalShadow?.status === "AVAILABLE" &&
+            archivedReport?.price0050Snapshot?.price &&
+            archivedReport?.priceZ2Snapshot?.price
+          ) {
+            // 優先使用 archive 中的歷史 portfolio 數據（lastState 可能為空或過時）
+            const fallbackPortfolio =
+              archivedReport?.portfolio ?? lastState ?? {};
+            // 使用前一交易日的價格快照 + portfolio 數據重新計算 theoreticalShadow
+            theoreticalShadow = await buildTheoreticalShadowForReport({
+              dateText,
+              portfolio: fallbackPortfolio,
+              portfolioSnapshot: buildReportPortfolioSnapshot({
+                portfolio: fallbackPortfolio,
+                price0050Snapshot: archivedReport.price0050Snapshot,
+                priceZ2Snapshot: archivedReport.priceZ2Snapshot,
+              }),
+              price0050Snapshot: archivedReport.price0050Snapshot,
+              priceZ2Snapshot: archivedReport.priceZ2Snapshot,
+            });
+            if (theoreticalShadow.status === "AVAILABLE") {
+              needRecalculateTheory = false;
+            }
+          }
+
+          // 提早中斷：兩個任務都完成
+          if (latestSignals && !needRecalculateTheory) {
+            break;
           }
         } catch {
-          // 繼續下一個日期
+          // 單一報告讀取失敗，繼續下一個日期
         }
       }
     } catch {
-      // listArchiveDates 失敗，latestSignals 保持 null
-    }
-
-    // 非交易日回退：若理論陰影不可用，從 archive 獲取前一交易日的價格快照並重新計算
-    if (theoreticalShadow.status === "UNAVAILABLE") {
-      try {
-        const archiveDates = await archiveManager.listArchiveDates();
-        for (const archiveDate of archiveDates) {
-          if (archiveDate === dateText) continue;
-          try {
-            const archivedReport =
-              await archiveManager.getReportByDate(archiveDate);
-            // 尋找有 AVAILABLE theoreticalShadow 且包含價格快照的報告
-            if (
-              archivedReport?.theoreticalShadow?.status === "AVAILABLE" &&
-              archivedReport?.price0050Snapshot?.price &&
-              archivedReport?.priceZ2Snapshot?.price
-            ) {
-              // 優先使用 archive 中的歷史 portfolio 數據（lastState 可能為空或過時）
-              const fallbackPortfolio =
-                archivedReport?.portfolio ?? lastState ?? {};
-              // 使用前一交易日的價格快照 + portfolio 數據重新計算 theoreticalShadow
-              theoreticalShadow = await buildTheoreticalShadowForReport({
-                dateText,
-                portfolio: fallbackPortfolio,
-                portfolioSnapshot: buildReportPortfolioSnapshot({
-                  portfolio: fallbackPortfolio,
-                  price0050Snapshot: archivedReport.price0050Snapshot,
-                  priceZ2Snapshot: archivedReport.priceZ2Snapshot,
-                }),
-                price0050Snapshot: archivedReport.price0050Snapshot,
-                priceZ2Snapshot: archivedReport.priceZ2Snapshot,
-              });
-              if (theoreticalShadow.status === "AVAILABLE") {
-                break;
-              }
-            }
-          } catch {
-            // 繼續下一個日期
-          }
-        }
-      } catch {
-        // listArchiveDates 失敗，保持 UNAVAILABLE
-      }
+      // listArchiveDates 失敗，latestSignals 保持 null，theoreticalShadow 保持原狀
     }
 
     const nonTradingReport = {
