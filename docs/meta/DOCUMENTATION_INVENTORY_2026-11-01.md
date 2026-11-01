@@ -354,7 +354,7 @@ node scripts/doc_health_scan.mjs > reports/doc_health_$(date +%Y%m%d).json
 node scripts/validate-wiki-index.mjs
 
 # 3. 查找 needs-review 文件
-grep -r "status: needs-review" docs/ --include="*.md"
+grep -r "status: current" docs/ --include="*.md"
 
 # 4. 查找大型文件 (> 1000 行)
 find docs/ -name "*.md" -exec wc -l {} + | awk '$1 > 1000' | sort -nr
