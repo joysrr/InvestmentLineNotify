@@ -169,7 +169,7 @@ describe("dailyCheckTheoreticalAdapter.buildTheoreticalShadowForReport", () => {
     expect(result.theory.crashTolerance.maxDrawdownTolerance).toBe(0.4);
     expect(result.theory.kellyLimits.conservative).toBe(0.5);
     expect(result.theory.laplaceCriterion.minimaxLoss).toBe(-50000);
-    expect(result.theory.tobinSeparation.riskyRatio).toBe(0.7);
+    expect(result.theory.tobinSeparation).toBeNull(); // ⚠️ 已停用：不追蹤 00740B
   });
 
   it("humanCapital 計算失敗時該欄位應為 null 但整體仍 AVAILABLE", async () => {

@@ -21,14 +21,14 @@ wiki_links:
 
 ### 五大理論模組
 
-| 理論模組                             | 用途                                                | 實作狀態 | 決策整合  |
-| ------------------------------------ | --------------------------------------------------- | -------- | --------- |
-| **Human Capital** (人力資本)         | 評估未來收入現值，納入總資產計算                    | ✅ 實作  | ⚠️ 未整合 |
-| **True Exposure** (真實曝險)         | 計算金融資產相對於總資本（金融+人力）的真實風險暴露 | ✅ 實作  | ⚠️ 未整合 |
-| **Crash Tolerance** (崩盤耐受度)     | 評估帳戶能承受的最大跌幅（距離追繳的安全空間）      | ✅ 實作  | ⚠️ 未整合 |
-| **Kelly Criterion** (凱莉公式)       | 根據預期報酬和波動率計算最佳槓桿比例                | ✅ 實作  | ⚠️ 未整合 |
-| **Laplace Criterion** (拉普拉斯準則) | Minimax 原則，評估最壞情境下的損失                  | ✅ 實作  | ⚠️ 未整合 |
-| **Tobin Separation** (托賓分離)      | 風險資產 vs 無風險資產的配置比例                    | ✅ 實作  | ⚠️ 未整合 |
+| 理論模組                             | 用途                                                | 實作狀態  | 決策整合  |
+| ------------------------------------ | --------------------------------------------------- | --------- | --------- |
+| **Human Capital** (人力資本)         | 評估未來收入現值，納入總資產計算                    | ✅ 實作   | ⚠️ 未整合 |
+| **True Exposure** (真實曝險)         | 計算金融資產相對於總資本（金融+人力）的真實風險暴露 | ✅ 實作   | ⚠️ 未整合 |
+| **Crash Tolerance** (崩盤耐受度)     | 評估帳戶能承受的最大跌幅（距離追繳的安全空間）      | ✅ 實作   | ⚠️ 未整合 |
+| **Kelly Criterion** (凱莉公式)       | 根據預期報酬和波動率計算最佳槓桿比例                | ✅ 實作   | ⚠️ 未整合 |
+| **Laplace Criterion** (拉普拉斯準則) | Minimax 原則，評估最壞情境下的損失                  | ✅ 實作   | ⚠️ 未整合 |
+| **Tobin Separation** (托賓分離)      | 風險資產 vs 無風險資產的配置比例                    | ❌ 已停用 | ❌ 不追蹤 |
 
 ### 當前系統角色
 
@@ -532,7 +532,9 @@ scenarios = [
 
 ---
 
-## 6. Tobin Separation (托賓分離)
+## 6. Tobin Separation (托賓分離) ⚠️ 已停用
+
+> **狀態**: ❌ 已停用 - 系統當前不追蹤 00740B 債券資產，無法準確計算
 
 ### 6.1 理論基礎
 
@@ -579,20 +581,48 @@ Risky Ratio + Risk-Free Ratio = 1
 
 ### 6.4 資料來源
 
-| 參數                 | Slot/Provider     | 計算路徑                                |
-| -------------------- | ----------------- | --------------------------------------- |
-| `riskyAssetValue`    | PortfolioSnapshot | `qty0050 × price0050 + qtyZ2 × priceZ2` |
-| `riskFreeAssetValue` | PortfolioSnapshot | `qty00740B × price00740B`               |
+> ⚠️ **停用原因**: 系統當前未追蹤 00740B 債券資產
 
-**完整資料流**:
+| 參數                 | 需求                                  | 當前狀態  |
+| -------------------- | ------------------------------------- | --------- |
+| `riskyAssetValue`    | qty0050 × price0050 + qtyZ2 × priceZ2 | ✅ 已實作 |
+| `riskFreeAssetValue` | qty00740B × price00740B               | ❌ 未追蹤 |
 
+**問題說明**:
+
+- `portfolio` 資料結構中不存在 `qty00740B` 欄位
+- `theoreticalInputMapper` 未處理債券資產
+- 使用 `accountNetAsset - riskyAsset` 推算會包含現金且可能為負，不適合作為無風險資產
+
+**計算誤差範例**:
+
+```javascript
+// 假設實際持倉
+accountNetAsset = 1,000,000  // 帳戶淨值
+value0050 = 500,000
+value00675L = 300,000
+value00740B = 460,000 (實際持有但未追蹤)
+
+// ❌ 若使用推算邏輯（錯誤）
+riskFreeAsset = 1,000,000 - 500,000 - 300,000 = 200,000
+
+// ✅ 正確應該是
+riskFreeAsset = 460,000
+
+// 誤差: 相差 130%
 ```
-Price0050Snapshot
-PriceZ2Snapshot        →  calculateGrossExposure()
-Price00740BSnapshot               ↓
-                        calculateTobinSeparation()
-                                  ↓
-                          Tobin Separation Result
+
+**停用決策** (2026-11-01):
+
+- 用戶（Han）確認：不需要追蹤 00740B 債券
+- Tobin Separation 功能暫時停用，返回 `null`
+- 前端不展示此指標
+
+**代碼位置**:
+
+```javascript
+// src/scheduler/dailyCheckTheoreticalAdapter.mjs
+const tobinSeparation = null; // ⚠️ 已停用
 ```
 
 ### 6.5 決策運用路徑 (未實作)

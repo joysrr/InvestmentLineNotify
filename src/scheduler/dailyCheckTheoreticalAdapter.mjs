@@ -198,18 +198,9 @@ export async function buildTheoreticalShadowForReport({
       : null;
 
   // Tobin Separation: 風險資產與無風險資產配比
-  const tobinSeparation =
-    mappedInputs.status === "OK"
-      ? calculateTobinSeparation({
-          riskyAssetValue:
-            (mappedInputs.inputs.value0050?.value ?? 0) +
-            (mappedInputs.inputs.value00675L?.value ?? 0),
-          riskFreeAssetValue:
-            (mappedInputs.inputs.accountNetAsset?.value ?? 0) -
-            (mappedInputs.inputs.value0050?.value ?? 0) -
-            (mappedInputs.inputs.value00675L?.value ?? 0),
-        })
-      : null;
+  // ⚠️ 暫時停用：系統當前未追蹤 00740B 債券資產，無法準確計算
+  // 使用 accountNetAsset - riskyAsset 推算會包含現金且可能為負，不適合作為無風險資產
+  const tobinSeparation = null;
 
   // Build shadow report
   const shadowReport = createTheoreticalShadowReport({
