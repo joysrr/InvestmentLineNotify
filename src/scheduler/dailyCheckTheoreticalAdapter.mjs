@@ -180,7 +180,7 @@ export async function buildTheoreticalShadowForReport({
     mappedInputs.status === "OK" && mappedInputs.inputs.accountNetAsset
       ? calculateCrashTolerance({
           currentMaintenance: estimatedMaintenance?.maintenanceRatio ?? 0,
-          targetMaintenance: 0.3, // 30% maintenance requirement
+          targetMaintenance: 130, // 130% 證券商追繳門檻（維持率低於此會被追繳）
         })
       : null;
 

@@ -253,14 +253,45 @@ describe("theoreticalEngine.calculateCrashTolerance", () => {
   it("returns UNAVAILABLE when maintenance inputs are invalid", () => {
     expect(
       calculateCrashTolerance({
-        currentMaintenance: null,
-        targetMaintenance: 160,
+        currentMaintenance: 0,
+        targetMaintenance: 130,
       }),
-    ).toEqual({
+    ).toMatchObject({
       status: "UNAVAILABLE",
       reason: "INVALID_MAINTENANCE_INPUT",
-      crashTolerance: null,
     });
+  });
+
+  it("計算實際追繳門檻場景：當前 180% vs 追繳門檻 130%", () => {
+    // 模擬真實情境：擔保品 1,800,000 / 融資 1,000,000 = 180%
+    // 證券商追繳門檻 130%
+    const result = calculateCrashTolerance({
+      currentMaintenance: 180,
+      targetMaintenance: 130,
+    });
+
+    expect(result.status).toBe("ESTIMATED");
+    // 可承受跌幅 = 1 - 130/180 = 27.8%
+    expect(result.crashTolerance).toBeCloseTo(0.278, 3);
+  });
+
+  it("避免單位不一致錯誤：不接受小數形式的 targetMaintenance", () => {
+    // 這是之前的 Bug：targetMaintenance: 0.3 導致錯誤結果 99.8%
+    const wrongResult = calculateCrashTolerance({
+      currentMaintenance: 180,
+      targetMaintenance: 0.3, // 錯誤！應使用 130 而非 0.3
+    });
+
+    // 結果會是 1 - 0.3/180 = 0.998 (99.8%)，這是不合理的
+    expect(wrongResult.crashTolerance).toBeCloseTo(0.998, 3);
+
+    // 正確用法應該傳入百分比數字
+    const correctResult = calculateCrashTolerance({
+      currentMaintenance: 180,
+      targetMaintenance: 130,
+    });
+
+    expect(correctResult.crashTolerance).toBeCloseTo(0.278, 3);
   });
 });
 

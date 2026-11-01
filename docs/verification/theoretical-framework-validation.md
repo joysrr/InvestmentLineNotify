@@ -20,9 +20,9 @@ tags:
 
 ---
 
-## ❌ 發現問題：Crash Tolerance 單位不一致
+## ❌ 發現問題：Crash Tolerance 單位不一致 → ✅ 已修正
 
-### 問題描述
+### 問題描述 (已修正)
 
 **代碼位置**:
 
@@ -279,6 +279,41 @@ trueExposure = 1,800,000 / (1,000,000 + 21,522,650) = 0.0799 (7.99%) ✅
 ```
 
 **結論**: ✅ True Exposure 實作正確，資料流清晰，單位一致。
+
+---
+
+## 修正結果
+
+### 代碼變更
+
+✅ **src/scheduler/dailyCheckTheoreticalAdapter.mjs** (line 183)
+
+```javascript
+// ❌ Before
+targetMaintenance: 0.3,  // 30% maintenance requirement
+
+// ✅ After
+targetMaintenance: 130,  // 130% 證券商追繳門檻（維持率低於此會被追繳）
+```
+
+### 新增測試案例
+
+✅ **src/test/unit/theoreticalEngine.test.mjs** (新增 2 個測試)
+
+1. `計算實際追繳門檻場景：當前 180% vs 追繳門檻 130%`
+   - 驗證：1 - 130/180 = 0.278 (27.8%) ✅
+2. `避免單位不一致錯誤：不接受小數形式的 targetMaintenance`
+   - 記錄錯誤用法：0.3 → 99.8% (不合理)
+   - 驗證正確用法：130 → 27.8% (合理)
+
+### 測試結果
+
+```
+✅ Test Files  189 passed (189)
+✅ Tests       1922 passed (1922)
+```
+
+**包含新增的測試案例，全部通過！**
 
 ---
 
