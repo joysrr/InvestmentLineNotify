@@ -77,3 +77,30 @@ Strategy Engine 採用 **優先級鏈式決策架構**，依序執行 11 個決�
 - `indicators.mjs`：純函數計算 MA, MACD, RSI, KD, ATR 等技術指標。
 - `signalGenerator.mjs`：產生計分矩陣的分數。
 - `strategySchema.mjs`：定義 `Strategy.json` 的 Schema 校驗規格。
+
+## 4. 測試覆蓋
+
+### theoreticalEngine (src/modules/strategy/theoreticalEngine.mjs)
+
+- **函數覆蓋**: 9/9 (100%)
+- **測試檔案**: `src/test/unit/modules/strategy/theoreticalEngine.test.mjs`
+- **測試狀態**: 完整覆蓋所有計算函數 ✅
+
+### dailyCheckTheoreticalAdapter (src/scheduler/dailyCheckTheoreticalAdapter.mjs)
+
+- **測試檔案**: `src/test/unit/scheduler/dailyCheckTheoreticalAdapter.test.mjs`
+- **測試案例**: 5 個場景
+  - portfolioSnapshot UNAVAILABLE → 提前返回
+  - 價格快照缺失 → UNAVAILABLE
+  - 所有計算成功 → 完整 theory 物件
+  - humanCapital 失敗 → 部分降級 (該欄位 null)
+  - Laplace/Tobin 失敗 → 優雅降級 (對應欄位 null)
+- **測試狀態**: 關鍵路徑完整覆蓋 ✅
+
+### dailyCheck 排程器
+
+- **測試檔案**: `src/test/unit/scheduler/dailyCheck.test.mjs`
+- **測試案例**: 16 個 (含非交易日 fallback、signals 複製邏輯)
+- **測試狀態**: 核心流程完整覆蓋 ✅
+
+**最後更新**: 2026-11-01

@@ -1,12 +1,13 @@
 ---
 type: plan
-status: in-progress
-last_updated: 2026-10-31
+status: completed
+last_updated: 2026-11-01
 tags:
   - non-trading-day
   - theoretical-shadow
   - scheduler
   - frontend
+  - test-coverage
 wiki_links:
   - plans/completed/投資系統理論升級與資產動態整合計畫書.md
 ---
@@ -127,3 +128,39 @@ wiki_links:
 - **風險**：archive 中無可用報告時，非交易日 theoreticalShadow 仍為 `UNAVAILABLE`，前端會顯示 `--`。這與行為一致，可接受。
 - **回滾**：若新邏輯導致問題，可 revert 至舊的 archive fallback 複製邏輯（commit 前已備份舊版）。
 - **生產環境**：需在主機端執行 `npm run build --mode production` + `pm2 restart` 才能生效。
+
+---
+
+## 實作進度
+
+| Commit Hash | Phase                            | Status  | Date       | Note                                                         |
+| ----------- | -------------------------------- | ------- | ---------- | ------------------------------------------------------------ |
+| `a69337d`   | Phase 1-4 (v1: archive fallback) | ✅ DONE | 2026-10-31 | 非交易日從 archive 複製 theory，標記 `isFromLastTradingDay`  |
+| `bd3d85c`   | Phase 1-4 (v2: recalculate)      | ✅ DONE | 2026-11-01 | 改為重新計算 theoreticalShadow，使用前一交易日價格快照       |
+| `f6becbf`   | Enhanced fallback                | ✅ DONE | 2026-11-01 | 增強 fallback: `archivedReport.portfolio ?? lastState ?? {}` |
+| `34514f1`   | Signals fallback                 | ✅ DONE | 2026-11-01 | 非交易日複製 signals，修正前端「分析中」問題                 |
+| `d7cd558`   | Refactor duplicate loops         | ✅ DONE | 2026-11-01 | 合併重複的 archive 迴圈，優化早期退出                        |
+| `2ae7f20`   | Complete test coverage           | ✅ DONE | 2026-11-01 | 補充測試覆蓋：signals fallback + adapter 單元測試 (+7 tests) |
+
+### 測試覆蓋改進
+
+**新增測試文件**：
+
+- `src/test/unit/scheduler/dailyCheckTheoreticalAdapter.test.mjs` (5 測試案例)
+  - portfolioSnapshot UNAVAILABLE 場景
+  - 價格快照缺失場景
+  - 所有計算成功完整流程
+  - humanCapital 失敗部分降級
+  - Laplace/Tobin 失敗優雅降級
+
+**擴充測試文件**：
+
+- `src/test/unit/scheduler/dailyCheck.test.mjs` (+2 測試案例)
+  - 非交易日 signals fallback from archive
+  - archive 無 signals 時 null 處理
+
+**測試統計**：
+
+- Backend: 188 → 189 files, 1913 → 1920 tests (+7)
+- Frontend: 69 files, 424 tests (無變更)
+- **總計**: 257 files, 2344 tests, 100% pass ✅
