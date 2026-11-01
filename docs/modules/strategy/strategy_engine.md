@@ -18,6 +18,10 @@ wiki_links:
 
 `src/modules/strategy/` 是整個系統的心臟。它不會發送任何 HTTP Request，它只負責接收從 Providers 整理好的 `MarketData`，套用 `Strategy.json` 的參數，然後吐出最終行動建議 (`signals`)。
 
+**相關架構文檔**:
+
+- 👉 **[Theoretical Framework (投資理論框架)](../architecture/theoretical-framework.md)** - 五大理論模組完整說明與決策整合規劃
+
 ## 1. 決策優先鏈 (Decision Priority Chain)
 
 Strategy Engine 採用 **優先級鏈式決策架構**，依序執行 11 個決策規則，第一個回傳結果的規則即終止後續執行。

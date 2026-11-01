@@ -37,6 +37,18 @@ wiki_links:
 
 ---
 
+## 🏗️ 架構文檔
+
+### 投資理論框架
+
+- **[Theoretical Framework (投資理論框架)](./theoretical-framework.md)** ⭐ NEW (2026-11-01)
+  - 五大投資理論模組完整說明：Human Capital, True Exposure, Crash Tolerance, Kelly, Laplace, Tobin
+  - 學術基礎、計算公式、參數說明、資料來源映射
+  - 系統整合架構與決策運用路徑規劃
+  - Slot/Provider 完整資料流追蹤
+
+---
+
 ## 📊 按主題分類
 
 ### 基礎設施
