@@ -1,7 +1,7 @@
 ---
 type: reference
-status: needs-review
-last_updated: 2026-09-10
+status: reference-only
+last_updated: 2026-11-01
 related_code:
   - src/api/
 tags:

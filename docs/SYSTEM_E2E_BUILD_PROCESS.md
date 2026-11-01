@@ -1,7 +1,7 @@
 ---
 type: guide
-status: needs-review
-last_updated: 2026-09-10
+status: current
+last_updated: 2026-11-01
 tags:
   - e2e
   - build
