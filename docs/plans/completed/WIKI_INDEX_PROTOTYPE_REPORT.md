@@ -199,7 +199,7 @@ tags:
 ```
 1. 修改: src/modules/ai/langfuseClient.mjs
 2. 查詢代碼映射 → 找到 1 個相關文件
-3. 自動更新文件並設定 status: needs-review
+3. 自動更新文件並設定 status: completed
 ```
 
 ### 場景 3: 探索知識圖譜
