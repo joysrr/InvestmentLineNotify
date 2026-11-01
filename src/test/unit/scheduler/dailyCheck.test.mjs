@@ -672,6 +672,142 @@ describe("DailyCheck Scheduler - 單元測試", () => {
     );
   });
 
+  it("非交易日應從 archive 複製前一交易日的 signals", async () => {
+    // Arrange：非交易日，archive 中有完整的 signals 數據
+    const mockContext = {
+      lastState: {
+        totalValue: 1000000,
+        cash: 500000,
+        qty0050: 1000,
+        qtyZ2: 500,
+      },
+      openToday: false,
+      vixData: { value: 15.2 },
+      basePrice: 150,
+      price0050: null,
+      currentPriceZ2: null,
+      historyZ2: [],
+      history0050: [],
+      macroData: { fx: { usdTwd: 32.1 } },
+      macroAndChipStr: "",
+      usRisk: { riskLevel: "低風險" },
+      quote: "test quote",
+      newsMessages: [],
+      newsSummaryText: "週末市場動態摘要",
+      newsStructured: { tw: [], us: [] },
+      macroAnalysis: {},
+      macroTextForCoach: "",
+      previousAdviceSummary: "",
+      valuationGuardState: { defenseLatch: false, latchActive: false },
+      pbRecords: [],
+      pbRecordsObjects: [],
+    };
+
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockResolvedValue(mockContext);
+
+    const { archiveManager } =
+      await import("../../../../src/modules/data/archiveManager.mjs");
+
+    // 模擬 archive 中有前一交易日的完整報告，包含 signals
+    vi.mocked(archiveManager.listArchiveDates).mockResolvedValue([
+      "2026-10-31", // 當前非交易日
+      "2026-10-30", // 最後交易日，有 signals
+    ]);
+    vi.mocked(archiveManager.getReportByDate).mockImplementation((date) => {
+      if (date === "2026-10-30") {
+        return {
+          reportDate: "2026-10-30",
+          signals: {
+            suggestion: "entryGate 底倉通道：底倉 DCA only，禁止加碼",
+            lightStatus: { color: "green", label: "底倉通道" },
+            reason: "市場處於底倉區間",
+          },
+          theoreticalShadow: { status: "AVAILABLE" },
+        };
+      }
+      return null;
+    });
+
+    // Act
+    const result = await runDailyCheck(
+      {},
+      { isTelegramEnabled: false, isAIAdvisor: false, isCallAI: false },
+    );
+
+    // Assert
+    expect(result).toMatch(/^✅ dailyCheck 執行成功/);
+    expect(archiveManager.saveReport).toHaveBeenCalledOnce();
+    const savedReport = vi.mocked(archiveManager.saveReport).mock.calls[0][0];
+
+    // 非交易日應複製前一交易日的 signals
+    expect(savedReport.signals).toBeDefined();
+    expect(savedReport.signals.suggestion).toBe(
+      "entryGate 底倉通道：底倉 DCA only，禁止加碼",
+    );
+    expect(savedReport.signals.lightStatus.label).toBe("底倉通道");
+  });
+
+  it("非交易日且 archive 無 signals 時，signals 應為 null", async () => {
+    // Arrange：archive 中沒有任何有效的 signals 數據
+    const mockContext = {
+      lastState: {
+        totalValue: 1000000,
+        cash: 500000,
+        qty0050: 1000,
+        qtyZ2: 500,
+      },
+      openToday: false,
+      vixData: { value: 15.2 },
+      basePrice: 150,
+      price0050: null,
+      currentPriceZ2: null,
+      historyZ2: [],
+      history0050: [],
+      macroData: { fx: { usdTwd: 32.1 } },
+      macroAndChipStr: "",
+      usRisk: { riskLevel: "低風險" },
+      quote: "test quote",
+      newsMessages: [],
+      newsSummaryText: "週末市場動態摘要",
+      newsStructured: { tw: [], us: [] },
+      macroAnalysis: {},
+      macroTextForCoach: "",
+      previousAdviceSummary: "",
+      valuationGuardState: { defenseLatch: false, latchActive: false },
+      pbRecords: [],
+      pbRecordsObjects: [],
+    };
+
+    const { buildDailyRunContext } =
+      await import("../../../../src/domain/dailyRunContext.mjs");
+    vi.mocked(buildDailyRunContext).mockResolvedValue(mockContext);
+
+    const { archiveManager } =
+      await import("../../../../src/modules/data/archiveManager.mjs");
+
+    // 模擬 archive 為空或報告中沒有 signals
+    vi.mocked(archiveManager.listArchiveDates).mockResolvedValue([
+      "2026-10-31", // 當前非交易日
+    ]);
+    vi.mocked(archiveManager.getReportByDate).mockResolvedValue(null);
+
+    // Act
+    const result = await runDailyCheck(
+      {},
+      { isTelegramEnabled: false, isAIAdvisor: false, isCallAI: false },
+    );
+
+    // Assert
+    expect(result).toMatch(/^✅ dailyCheck 執行成功/);
+    expect(archiveManager.saveReport).toHaveBeenCalledOnce();
+    const savedReport = vi.mocked(archiveManager.saveReport).mock.calls[0][0];
+
+    // archive 無 signals 時，非交易日報告的 signals 應為 null
+    expect(savedReport.signals).toBeNull();
+  });
+
   it("新聞分析失敗時不得覆寫每日報告", async () => {
     const mockContext = {
       lastState: { totalValue: 1000000 },
