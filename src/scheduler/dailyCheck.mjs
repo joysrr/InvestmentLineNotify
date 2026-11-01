@@ -146,6 +146,27 @@ export async function runDailyCheck(deps = {}, options = {}) {
       priceZ2Snapshot,
     });
 
+    // 非交易日回退：從 archive 獲取前一交易日的 signals（決策訊號）
+    let latestSignals = null;
+    try {
+      const archiveDates = await archiveManager.listArchiveDates();
+      for (const archiveDate of archiveDates) {
+        if (archiveDate === dateText) continue;
+        try {
+          const archivedReport =
+            await archiveManager.getReportByDate(archiveDate);
+          if (archivedReport?.signals) {
+            latestSignals = archivedReport.signals;
+            break; // 找到第一個有 signals 的報告就停止
+          }
+        } catch {
+          // 繼續下一個日期
+        }
+      }
+    } catch {
+      // listArchiveDates 失敗，latestSignals 保持 null
+    }
+
     // 非交易日回退：若理論陰影不可用，從 archive 獲取前一交易日的價格快照並重新計算
     if (theoreticalShadow.status === "UNAVAILABLE") {
       try {
@@ -201,6 +222,7 @@ export async function runDailyCheck(deps = {}, options = {}) {
       portfolio: lastState ?? {},
       portfolioSnapshot,
       theoreticalShadow,
+      signals: latestSignals, // 從前一交易日複製
       VIX: vixData?.value ?? null,
       vixData: vixData ?? null,
       quote: quote ?? null,
