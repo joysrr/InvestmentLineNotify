@@ -391,6 +391,237 @@ export function buildDataEvidenceReport({
     }
   }
 
+  // Portfolio 欄位 (從 latestReport 提取)
+  if (latestReport) {
+    const reportDate = latestReport.date ?? null;
+    const portfolio = latestReport.portfolio ?? {};
+    const signals = latestReport.signals ?? {};
+
+    // Portfolio 核心欄位
+    const portfolioFields = [
+      {
+        field: "portfolio.totalValue",
+        value: portfolio.totalValue,
+        desc: "投資組合總市值",
+      },
+      {
+        field: "portfolio.netAsset",
+        value: signals.netAsset,
+        desc: "帳戶淨資產",
+      },
+      {
+        field: "portfolio.actualLeverage",
+        value: signals.actualLeverage,
+        desc: "實際槓桿倍數",
+      },
+      {
+        field: "portfolio.grossLeverage",
+        value: signals.grossLeverage,
+        desc: "總槓桿倍數",
+      },
+      {
+        field: "portfolio.totalLoan",
+        value: portfolio.totalLoan,
+        desc: "總借款金額",
+      },
+      { field: "portfolio.cash", value: portfolio.cash, desc: "現金餘額" },
+      {
+        field: "portfolio.qty0050",
+        value: portfolio.qty0050,
+        desc: "0050持股數",
+      },
+      {
+        field: "portfolio.qtyZ2",
+        value: portfolio.qtyZ2,
+        desc: "00675L持股數",
+      },
+      {
+        field: "portfolio.lastBuyDate",
+        value: portfolio.lastBuyDate,
+        desc: "最近買入日期",
+      },
+    ];
+
+    portfolioFields.forEach(({ field, value, desc }) => {
+      items.push({
+        field,
+        value: value ?? null,
+        unit: null,
+        source: {
+          provider: "InvestmentLineNotify",
+          dataset: "dailyReport",
+          status: "PERSISTED",
+          endpoint: null,
+        },
+        temporal: {
+          dataDate: reportDate,
+          fetchedAt: generatedAt,
+          persistedAt: generatedAt,
+          freshnessBasis: "daily report generation",
+        },
+        verification: {
+          background: `${desc}：由每日報告產生的投資組合持倉資訊，反映帳戶當前狀態。`,
+          checks: ["與券商對帳單核對", "確認計算邏輯正確", "檢查數值合理性"],
+          calculation: `從 dailyReport 的 ${field} 提取`,
+          externalAgentStatus: "PENDING_EXTERNAL_VERIFICATION",
+        },
+      });
+    });
+
+    // Strategy 欄位
+    const strategyFields = [
+      {
+        field: "strategy.suggestion",
+        value: signals.suggestion,
+        desc: "投資建議",
+      },
+      {
+        field: "strategy.signalDirection",
+        value: signals.signalDirection,
+        desc: "信號方向",
+      },
+      { field: "strategy.score", value: signals.score, desc: "原始市場分數" },
+      {
+        field: "strategy.weightScore",
+        value: signals.weightScore,
+        desc: "加權市場分數",
+      },
+      {
+        field: "strategy.signalCategory",
+        value: signals.signalCategory,
+        desc: "信號分類",
+      },
+      { field: "strategy.target", value: signals.target, desc: "操作標的" },
+      { field: "strategy.status", value: signals.status, desc: "狀態圖示" },
+      {
+        field: "strategy.regimeState",
+        value: signals.regimeState?.lifecycleStage,
+        desc: "生命週期階段",
+      },
+      {
+        field: "strategy.regimeResult.state",
+        value: signals.regimeResult?.state,
+        desc: "市場狀態",
+      },
+      {
+        field: "strategy.regimeResult.leverageMultiplier",
+        value: signals.regimeResult?.leverageMultiplier,
+        desc: "槓桿調整係數",
+      },
+      {
+        field: "strategy.budgetInfo.dailyAvailable",
+        value: signals.budgetInfo?.dailyAvailable,
+        desc: "每日可用額度",
+      },
+      {
+        field: "strategy.budgetInfo.tacticalPool",
+        value: signals.budgetInfo?.tacticalPool,
+        desc: "戰術資金池",
+      },
+      {
+        field: "strategy.cooldownStatus.inCooldown",
+        value: signals.cooldownStatus?.inCooldown,
+        desc: "是否冷卻期",
+      },
+    ];
+
+    strategyFields.forEach(({ field, value, desc }) => {
+      items.push({
+        field,
+        value: value ?? null,
+        unit: null,
+        source: {
+          provider: "InvestmentLineNotify",
+          dataset: "dailyReport",
+          status: "DERIVED",
+          endpoint: null,
+        },
+        temporal: {
+          dataDate: reportDate,
+          fetchedAt: generatedAt,
+          persistedAt: generatedAt,
+          freshnessBasis: "daily report generation",
+        },
+        verification: {
+          background: `${desc}：由策略引擎根據市場指標與風險模型綜合計算產生的決策建議。`,
+          checks: ["確認邏輯一致性", "驗證風險控制", "檢查與其他欄位交叉驗證"],
+          calculation: `從 dailyReport.signals 的 ${field} 提取`,
+          externalAgentStatus: "PENDING_EXTERNAL_VERIFICATION",
+        },
+      });
+    });
+
+    // Theoretical 欄位
+    const theoreticalShadow = latestReport.theoreticalShadow ?? {};
+    const theory = theoreticalShadow.theory ?? {};
+
+    if (Object.keys(theory).length > 0) {
+      const theoreticalFields = [
+        {
+          field: "theoretical.kellyCriterion.optimalLeverage",
+          value: theory.kellyCriterion?.optimalLeverage,
+          desc: "Kelly最佳槓桿",
+        },
+        {
+          field: "theoretical.kellyCriterion.recommendation",
+          value: theory.kellyCriterion?.recommendation,
+          desc: "Kelly建議",
+        },
+        {
+          field: "theoretical.crashTolerance.safetyMargin",
+          value: theory.crashTolerance?.safetyMargin,
+          desc: "安全邊際",
+        },
+        {
+          field: "theoretical.crashTolerance.maxDrawdown",
+          value: theory.crashTolerance?.maxDrawdown,
+          desc: "最大容忍跌幅",
+        },
+        {
+          field: "theoretical.trueExposure.effectiveExposure",
+          value: theory.trueExposure?.effectiveExposure,
+          desc: "有效曝險",
+        },
+        {
+          field: "theoretical.marketRegime.state",
+          value: theory.marketRegime?.state,
+          desc: "市場狀態",
+        },
+        {
+          field: "theoretical.marketRegime.confidence",
+          value: theory.marketRegime?.confidence,
+          desc: "狀態信心度",
+        },
+      ];
+
+      theoreticalFields.forEach(({ field, value, desc }) => {
+        items.push({
+          field,
+          value: value ?? null,
+          unit: null,
+          source: {
+            provider: "theoreticalEngine",
+            dataset: "theoreticalShadow",
+            status: "DERIVED",
+            endpoint: null,
+          },
+          temporal: {
+            dataDate: reportDate,
+            fetchedAt: generatedAt,
+            persistedAt: generatedAt,
+            freshnessBasis: "daily theoretical calculation",
+          },
+          verification: {
+            background: `${desc}：由理論框架模型計算，提供風險管理與倉位優化的學術依據。`,
+            checks: ["確認公式正確", "驗證參數範圍", "與實際狀態交叉驗證"],
+            calculation: `從 theoreticalShadow.theory 的 ${field} 提取`,
+            externalAgentStatus: "PENDING_EXTERNAL_VERIFICATION",
+          },
+        });
+      });
+    }
+  }
+
   return {
     schemaVersion: "1.0",
     reportType: "data-evidence",

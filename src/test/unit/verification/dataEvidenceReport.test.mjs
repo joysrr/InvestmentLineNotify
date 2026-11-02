@@ -156,3 +156,172 @@ describe("data evidence report", () => {
     expect(halfKelly.verification.calculation).toContain("凱莉");
   });
 });
+
+// ============================================================
+// 新增測試：Portfolio 和 Strategy 欄位覆蓋度
+// ============================================================
+
+test("buildDataEvidenceReport should include portfolio fields when latestReport provided", () => {
+  const mockLatestReport = {
+    date: "2026-11-01",
+    portfolio: {
+      totalValue: 1200000,
+      qty0050: 12000,
+      qtyZ2: 6000,
+      cash: 80000,
+      totalLoan: 900000,
+      lastBuyDate: "2026-07-15",
+    },
+    signals: {
+      netAsset: 1050000,
+      actualLeverage: 1.75,
+      grossLeverage: 2.05,
+    },
+  };
+
+  const report = buildDataEvidenceReport({
+    market: { data: {} },
+    pbHistory: [],
+    vixHistory: [],
+    sentiment: null,
+    latestReport: mockLatestReport,
+  });
+
+  // 應該包含 portfolio 相關欄位
+  const portfolioItems = report.items.filter((item) =>
+    item.field.startsWith("portfolio."),
+  );
+
+  expect(portfolioItems.length).toBeGreaterThanOrEqual(8);
+
+  // 檢查關鍵欄位
+  const fields = portfolioItems.map((i) => i.field);
+  expect(fields).toContain("portfolio.totalValue");
+  expect(fields).toContain("portfolio.netAsset");
+  expect(fields).toContain("portfolio.actualLeverage");
+  expect(fields).toContain("portfolio.totalLoan");
+});
+
+test("buildDataEvidenceReport should include strategy/signals fields", () => {
+  const mockLatestReport = {
+    date: "2026-11-01",
+    signals: {
+      suggestion: "維持觀望",
+      signalDirection: "long",
+      score: 62,
+      weightScore: 62,
+      signalCategory: "baseline",
+      target: "🔹 0050 DCA",
+      status: "🌱",
+      regimeResult: { state: "NORMAL", leverageMultiplier: 1 },
+      budgetInfo: {
+        dailyAvailable: 50000,
+        tacticalPool: 48500,
+      },
+    },
+  };
+
+  const report = buildDataEvidenceReport({
+    market: { data: {} },
+    pbHistory: [],
+    vixHistory: [],
+    sentiment: null,
+    latestReport: mockLatestReport,
+  });
+
+  // 應該包含 strategy 相關欄位
+  const strategyItems = report.items.filter((item) =>
+    item.field.startsWith("strategy."),
+  );
+
+  expect(strategyItems.length).toBeGreaterThanOrEqual(10);
+
+  // 檢查關鍵欄位
+  const fields = strategyItems.map((i) => i.field);
+  expect(fields).toContain("strategy.suggestion");
+  expect(fields).toContain("strategy.score");
+  expect(fields).toContain("strategy.signalDirection");
+  expect(fields).toContain("strategy.signalCategory");
+});
+
+test("buildDataEvidenceReport should include theoretical fields when present", () => {
+  const mockLatestReport = {
+    date: "2026-11-01",
+    theoreticalShadow: {
+      theory: {
+        kellyCriterion: {
+          optimalLeverage: 0.65,
+          recommendation: "可加碼",
+        },
+        crashTolerance: {
+          safetyMargin: 0.3,
+          maxDrawdown: 0.45,
+        },
+        marketRegime: {
+          state: "BULL",
+          confidence: 0.85,
+        },
+      },
+    },
+  };
+
+  const report = buildDataEvidenceReport({
+    market: { data: {} },
+    pbHistory: [],
+    vixHistory: [],
+    sentiment: null,
+    latestReport: mockLatestReport,
+  });
+
+  // 應該包含 theoretical 相關欄位
+  const theoreticalItems = report.items.filter((item) =>
+    item.field.startsWith("theoretical."),
+  );
+
+  expect(theoreticalItems.length).toBeGreaterThanOrEqual(5);
+
+  // 檢查關鍵欄位
+  const fields = theoreticalItems.map((i) => i.field);
+  expect(fields).toContain("theoretical.kellyCriterion.optimalLeverage");
+  expect(fields).toContain("theoretical.crashTolerance.safetyMargin");
+});
+
+test("portfolio and strategy items should have complete verification metadata", () => {
+  const mockLatestReport = {
+    date: "2026-11-01",
+    portfolio: { totalValue: 1200000, netAsset: 1050000 },
+    signals: { suggestion: "BUY", score: 70 },
+  };
+
+  const report = buildDataEvidenceReport({
+    market: { data: {} },
+    pbHistory: [],
+    vixHistory: [],
+    sentiment: null,
+    latestReport: mockLatestReport,
+  });
+
+  const newItems = report.items.filter(
+    (item) =>
+      item.field.startsWith("portfolio.") || item.field.startsWith("strategy."),
+  );
+
+  newItems.forEach((item) => {
+    // 每個欄位都應該有完整的 verification
+    expect(item.verification).toBeDefined();
+    expect(item.verification.background).toBeTruthy();
+    expect(item.verification.background.length).toBeGreaterThan(20);
+    expect(item.verification.checks).toBeInstanceOf(Array);
+    expect(item.verification.checks.length).toBeGreaterThan(0);
+    expect(item.verification.calculation).toBeTruthy();
+
+    // 每個欄位都應該有 source
+    expect(item.source).toBeDefined();
+    expect(item.source.provider).toBe("InvestmentLineNotify");
+    expect(item.source.dataset).toBe("dailyReport");
+
+    // 每個欄位都應該有 temporal
+    expect(item.temporal).toBeDefined();
+    expect(item.temporal.dataDate).toBe("2026-11-01");
+  });
+});
