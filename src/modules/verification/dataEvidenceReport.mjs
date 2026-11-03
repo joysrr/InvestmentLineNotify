@@ -43,6 +43,62 @@ const DEFINITIONS = {
     ],
     calculation: "來源直接提供指數；本系統未自行計算。",
   },
+  twCpi: {
+    background:
+      "行政院主計總處（DGBAS）消費者物價指數年增率（CPI YoY）；反應實體經濟通膨水準。",
+    unit: "%",
+    freshnessBasis:
+      "主計總處通常於次月初公布上月統計期數，需核對實際統計年月 ymt，不可直接以發布日當月計算。",
+    checks: [
+      "查核主計總處 DGBAS 相同統計年月的 CPI 年增率。",
+      "確認 date 格式 YYYY-MM 與 DGBAS 民國統計期 ymt (如 11509 -> 2026-09) 正確對應。",
+    ],
+    calculation: "來源直接提供年增率；本系統未自行計算。",
+  },
+  twMarketTradeValue: {
+    background:
+      "證交所（TWSE FMTQIK）集中市場全體證券總成交金額（含股票、ETF、權證、受益憑證等），非僅單純集中市場股票成交值。",
+    unit: "億元",
+    freshnessBasis: "每個台股交易日收盤後更新。",
+    checks: [
+      "查核 TWSE FMTQIK 相同日期的 TradeValue 全體證券成交金額。",
+      "確認原始 TradeValue (元) 正確四捨五入換算為億元 (Math.round(val / 1e8))。",
+    ],
+    calculation: "Math.round(TradeValue / 1e8)。",
+  },
+  twStockInstitutional: {
+    background:
+      "證交所（TWSE T86）個股（預設 0050 ETF）之外陸資買賣超股數（不含外資自營商），非大盤總金額統計。",
+    unit: "股",
+    freshnessBasis: "每個台股交易日約 15:30 後公布當日三大法人買賣超。",
+    checks: [
+      "查核 TWSE T86 個股相同日期的外陸資買賣超股數 (row[4])。",
+      "確認單位為「股」（非元或張），且正負號代表買超/賣超。",
+    ],
+    calculation: "來源直接提供個股買賣超股數；本系統未自行計算。",
+  },
+  twStockMargin: {
+    background:
+      "證交所（TWSE MI_MARGN）指定標的（如 00675L 槓桿 ETF）之融資餘額，非全市場大盤總融資/融券餘額。",
+    unit: "張",
+    freshnessBasis: "每個台股交易日約 21:00 前公布當日信用交易餘額。",
+    checks: [
+      "查核 TWSE MI_MARGN 相同日期該證券代號之融資今日餘額。",
+      "確認單位為「張」，且代表單一標的而非全市場大盤餘額。",
+    ],
+    calculation: "來源直接提供個股融資餘額；本系統未自行計算。",
+  },
+  twVixHistory: {
+    background:
+      "歷史序列保存的期交所台指波動率指數 (TAIFEX Taiwan VIX)，非美股 CBOE VIX 指數；用於台股市場極端情緒短路與防禦決策。",
+    unit: "點",
+    freshnessBasis: "期交所每日台股開盤至收盤盤中撮合與結算點數。",
+    checks: [
+      "查核期交所 TAIFEX 相同日期的 Taiwan VIX 收盤或盤中報價 (TAIWANVIX)。",
+      "確認不可與美股 CBOE VIX 混淆。",
+    ],
+    calculation: "歷史檔案保存 TAIFEX Taiwan VIX 報價；本系統未自行計算。",
+  },
   generic: {
     background:
       "由 InvestmentLineNotify 保存的外部市場或總經數值，需依 provider、dataset 與資料日期追查原始來源。",
@@ -127,13 +183,13 @@ const MARKET_FIELDS = [
   ["rawMargin.maintenanceRatio", "rawMargin", "maintenanceRatio", "generic"],
   ["rawCnn.score", "rawCnn", "score", "cnn"],
   ["rawFx.currentRate", "rawFx", "currentRate", "generic"],
-  ["rawCpi.value", "rawCpi", "value", "generic"],
+  ["rawCpi.value", "rawCpi", "value", "twCpi"],
   ["rawMarketOverview.taiex", "rawMarketOverview", "taiex", "taiex"],
   [
     "rawMarketOverview.tradeValueHundredMillion",
     "rawMarketOverview",
     "tradeValueHundredMillion",
-    "generic",
+    "twMarketTradeValue",
   ],
   ["rawUsMarket.soxChg", "rawUsMarket", "soxChg", "generic"],
   ["rawUsMarket.tsmChg", "rawUsMarket", "tsmChg", "generic"],
@@ -146,13 +202,13 @@ const MARKET_FIELDS = [
     "rawInstitutional.foreignNetBuy",
     "rawInstitutional",
     "foreignNetBuy",
-    "generic",
+    "twStockInstitutional",
   ],
   [
     "rawStockMargin.marginBalance",
     "rawStockMargin",
     "marginBalance",
-    "generic",
+    "twStockMargin",
   ],
 ];
 
@@ -249,13 +305,13 @@ export function buildDataEvidenceReport({
       createItem({
         field: "vixHistory.latest.value",
         value: latestVix.value,
-        slot: "rawUsMarket",
-        valueKey: "vix",
-        definition: DEFINITIONS.history,
+        slot: "vixHistory",
+        valueKey: "value",
+        definition: DEFINITIONS.twVixHistory,
         market,
         dataDate: latestVix.date,
         calculation:
-          "歷史序列保存的 VIX 觀測值；應與相同美股交易日的 FRED 或 Yahoo 原始資料核對。",
+          "歷史序列保存的期交所台指波動率指數 (TAIFEX Taiwan VIX)；不可與美股 CBOE VIX 混淆。",
       }),
     );
   }

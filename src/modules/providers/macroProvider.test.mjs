@@ -80,7 +80,32 @@ describe("macroProvider - 總經指標 Provider", () => {
   });
 
   describe("fetchCpiYoY", () => {
-    it("成功解析 DGBAS CPI 數據", async () => {
+    it("成功解析 DGBAS CPI 數據並依 API ymt 判定真實資料月份", async () => {
+      fetchWithTimeout.mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          ymt: "11509",
+          orgdata: [[2.15]],
+        }),
+      });
+      parseNumber.mockReturnValueOnce(2.15);
+
+      const result = await fetchCpiYoY();
+
+      expect(result.value).toBe(2.15);
+      expect(result.source).toBe("DGBAS");
+      expect(result.date).toBe("2026-09");
+      expect(result.raw).toEqual({ ymt: "11509", orgdata: [[2.15]] });
+      expect(result.normalized).toEqual(
+        expect.objectContaining({
+          value: 2.15,
+          date: "2026-09",
+          source: "DGBAS",
+        }),
+      );
+    });
+
+    it("當 ymt 缺失時回退為計算月份", async () => {
       fetchWithTimeout.mockResolvedValueOnce({
         ok: true,
         json: vi.fn().mockResolvedValue({
@@ -92,12 +117,7 @@ describe("macroProvider - 總經指標 Provider", () => {
       const result = await fetchCpiYoY();
 
       expect(result.value).toBe(2.15);
-      expect(result.source).toBe("DGBAS");
       expect(result.date).toMatch(/^\d{4}-\d{2}$/);
-      expect(result.raw).toEqual({ orgdata: [[2.15]] });
-      expect(result.normalized).toEqual(
-        expect.objectContaining({ value: 2.15, source: "DGBAS" }),
-      );
     });
 
     it("數據解析失敗回傳 fallback 值", async () => {

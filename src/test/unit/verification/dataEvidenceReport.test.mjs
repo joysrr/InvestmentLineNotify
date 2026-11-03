@@ -106,6 +106,54 @@ describe("data evidence report", () => {
     );
   });
 
+  it("各核心市場指標具有明確定義、單位與驗證口徑", () => {
+    const report = buildDataEvidenceReport({
+      market: {
+        data: {
+          rawCpi: { value: 2.73, date: "2026-09" },
+          rawMarketOverview: { tradeValueHundredMillion: 7997 },
+          rawInstitutional: { foreignNetBuy: -31077938 },
+          rawStockMargin: { symbol: "00675L", marginBalance: 3552 },
+        },
+      },
+      vixHistory: [{ date: "2026-11-03", value: 36.05 }],
+    });
+
+    const vix = report.items.find(
+      (item) => item.field === "data.vixHistory.latest.value",
+    );
+    expect(vix.unit).toBe("點");
+    expect(vix.verification.background).toContain(
+      "期交所台指波動率指數 (TAIFEX Taiwan VIX)",
+    );
+
+    const cpi = report.items.find((item) => item.field === "data.rawCpi.value");
+    expect(cpi.unit).toBe("%");
+
+    const tradeValue = report.items.find(
+      (item) =>
+        item.field === "data.rawMarketOverview.tradeValueHundredMillion",
+    );
+    expect(tradeValue.unit).toBe("億元");
+    expect(tradeValue.verification.background).toContain(
+      "集中市場全體證券總成交金額",
+    );
+
+    const inst = report.items.find(
+      (item) => item.field === "data.rawInstitutional.foreignNetBuy",
+    );
+    expect(inst.unit).toBe("股");
+    expect(inst.verification.background).toContain("外陸資買賣超股數");
+
+    const stockMargin = report.items.find(
+      (item) => item.field === "data.rawStockMargin.marginBalance",
+    );
+    expect(stockMargin.unit).toBe("張");
+    expect(stockMargin.verification.background).toContain(
+      "00675L 槓桿 ETF）之融資餘額",
+    );
+  });
+
   it("includes theoreticalShadow evidence (Kelly, mu/sigma, regime, leverage) when daily report is present", () => {
     const report = buildDataEvidenceReport({
       generatedAt: "2026-10-27T13:00:00.000Z",

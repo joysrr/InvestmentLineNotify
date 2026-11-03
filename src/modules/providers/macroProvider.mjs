@@ -73,9 +73,19 @@ export async function fetchCpiYoY() {
 
     if (value === null) throw new Error("解析 DGBAS CPI 數據失敗");
 
+    let dataDate = `${lastMonth.getFullYear()}-${rocMonth}`;
+    if (typeof json.ymt === "string") {
+      const match = json.ymt.trim().match(/^(\d{2,3})(\d{2})$/);
+      if (match) {
+        const year = parseInt(match[1], 10) + 1911;
+        const month = match[2];
+        dataDate = `${year}-${month}`;
+      }
+    }
+
     const normalized = {
       value,
-      date: `${lastMonth.getFullYear()}-${rocMonth}`,
+      date: dataDate,
       source: "DGBAS",
     };
     return { raw: json, normalized, ...normalized };
