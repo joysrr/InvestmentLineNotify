@@ -16,22 +16,35 @@ import {
   shouldSkipDeployment,
 } from "./deploymentVersionGate.mjs";
 
+// Lock TTL: 15 minutes max for deployment lock
+export const DEPLOY_LOCK_TTL_MS = 15 * 60 * 1000;
+
+/**
+ * 檢查進程是否仍然存活
+ */
+export function isProcessAlive(pid) {
+  if (!pid || typeof pid !== "number" || isNaN(pid)) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 // Use process.cwd() as project root for consistency across test/prod
 // Dynamic functions to allow test-time override via DEPLOY_PROJECT_ROOT env var
-function getProjectRoot() {
+export function getProjectRoot() {
   return process.env.DEPLOY_PROJECT_ROOT || resolve(process.cwd(), "..");
 }
 
-function getDeployJobsDir() {
+export function getDeployJobsDir() {
   return resolve(getProjectRoot(), "data/deployment/jobs");
 }
 
-function getLockFile() {
+export function getLockFile() {
   return resolve(getProjectRoot(), "data/deployment/deploy.lock");
 }
-
-console.log("executor.mjs PROJECT_ROOT:", getProjectRoot());
-console.log("executor.mjs DEPLOY_JOBS_DIR:", getDeployJobsDir());
 
 // Deployment status
 export const DEPLOY_STATUS = {
@@ -68,7 +81,7 @@ async function ensureDeployDirs() {
 /**
  * 取得部署鎖
  */
-async function acquireLock(jobId) {
+export async function acquireLock(jobId) {
   await ensureDeployDirs();
 
   // 檢查現有鎖
@@ -76,24 +89,49 @@ async function acquireLock(jobId) {
     const lockContent = await readFile(getLockFile(), "utf8");
     const lock = JSON.parse(lockContent);
     if (lock.jobId && lock.jobId !== jobId) {
-      throw new Error(`另一個部署任務正在進行中: ${lock.jobId}`);
+      // 檢查是否為過期鎖（超過 TTL）或孤兒鎖（進程已不存在）
+      const isStaleByTtl =
+        lock.acquiredAt && Date.now() - lock.acquiredAt > DEPLOY_LOCK_TTL_MS;
+      const isOrphanByPid = lock.pid && !isProcessAlive(lock.pid);
+
+      if (!isStaleByTtl && !isOrphanByPid) {
+        throw new Error(`另一個部署任務正在進行中: ${lock.jobId}`);
+      }
+      logger.warn(
+        {
+          previousJobId: lock.jobId,
+          isStaleByTtl,
+          isOrphanByPid,
+          acquiredAt: lock.acquiredAt,
+        },
+        "Detected stale/orphan deployment lock. Automatically reclaiming lock.",
+      );
     }
   } catch (err) {
-    if (err.code !== "ENOENT") throw err;
+    if (
+      err.code !== "ENOENT" &&
+      !err.message.startsWith("另一個部署任務正在進行中")
+    ) {
+      logger.warn(
+        { err: err.message },
+        "Failed to read lock file, assuming clear",
+      );
+    } else if (err.message.startsWith("另一個部署任務正在進行中")) {
+      throw err;
+    }
   }
 
-  // 建立鎖
-  await writeFile(
-    getLockFile(),
-    JSON.stringify({ jobId, acquiredAt: Date.now() }),
-  );
+  // 建立鎖 (包含 process.pid)
+  const lockData = { jobId, pid: process.pid, acquiredAt: Date.now() };
+  await writeFile(getLockFile(), JSON.stringify(lockData));
   _isLocked = true;
+  return lockData;
 }
 
 /**
  * 釋放部署鎖
  */
-async function releaseLock(jobId) {
+export async function releaseLock(jobId) {
   try {
     const lockContent = await readFile(getLockFile(), "utf8");
     const lock = JSON.parse(lockContent);
@@ -139,12 +177,9 @@ async function saveJobState(jobId, state) {
 export async function getJobState(jobId) {
   try {
     const filePath = resolve(getDeployJobsDir(), `${jobId}.json`);
-    console.log("getJobState reading from:", filePath);
     const content = await readFile(filePath, "utf8");
-    console.log("getJobState content:", content);
     return JSON.parse(content);
   } catch (err) {
-    console.log("getJobState error:", err.code, err.message);
     if (err.code === "ENOENT") return null;
     throw err;
   }
@@ -226,14 +261,24 @@ export async function executeDeploy(jobId, options = {}) {
 
   await saveJobState(jobId, state);
 
-  // 取得部署鎖
-  await acquireLock(jobId);
-
   const addLog = (level, message) => {
     const log = { timestamp: Date.now(), level, message };
     state.logs.push(log);
     publishDeployProgress(jobId, { ...log, jobId });
   };
+
+  try {
+    // 取得部署鎖
+    await acquireLock(jobId);
+  } catch (lockErr) {
+    state.status = DEPLOY_STATUS.FAILED;
+    state.completedAt = Date.now();
+    state.error = lockErr.message;
+    state.exitCode = 1;
+    addLog("error", `無法取得部署鎖: ${lockErr.message}`);
+    await saveJobState(jobId, state);
+    return state;
+  }
 
   const runStep = async (name, command, args, cwd, env = {}) => {
     const stepStart = Date.now();
@@ -592,6 +637,13 @@ export const deploymentExecutor = {
   subscribeDeployProgress,
   DEPLOY_STATUS,
   setTestMode,
+  acquireLock,
+  releaseLock,
+  isProcessAlive,
+  DEPLOY_LOCK_TTL_MS,
+  getLockFile,
+  getProjectRoot,
+  getDeployJobsDir,
 };
 
 export default deploymentExecutor;
