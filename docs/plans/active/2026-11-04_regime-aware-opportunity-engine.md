@@ -440,10 +440,20 @@ const cashExposureAnalysis = evaluateCashExposure({
    - `cashExposureAdvisor.test.mjs` 測試全數轉 GREEN（13/13 passed，包含基本面優先、字串型別防護、同時觸發與 MAX_BATCH 截斷測試）
    - 單元與整合測試 1051 passed，策略核心零 regression
 
-### Phase 4 — Telegram 報告模板格式化（0.5 天）
+### Phase 4 — Telegram 報告模板格式化（已完成 ✅）
 
-1. 實作 `CRISIS_ACCUMULATE` 狀態的動態卡片格式（含 `00675L 震盪市存在複利耗損` 風險提示）
-2. 確保卡片無硬編碼數值，且 P0 DCA 區塊顯示綠色無條件執行
+1. [x] 在 `leadingIndicatorEvaluator.mjs` 中實作 `formatLeadingIndicatorTelegramCard` 支援 `CRISIS_ACCUMULATE` 恐慌加碼視窗
+2. [x] 實作 `formatCrisisAccumulateCard` 專屬卡片格式化器（依計畫書 §6.1 與 v2.2 改善項目 2）：
+   - 純動態計算呈現：`{batchLimit}`、`{targetLeverage}`、`{currentLeverage}`
+   - 納入 `• ✅ P0 DCA 照常執行（鐵律，不受 Regime 影響）`
+   - 納入 `• ⚠️ P1 條件加碼：每批上限 {batchLimit}，VIX 仍高時控制路徑損耗`
+   - 納入 `• ℹ️ 00675L 為 2x 槓桿產品，震盪市存在複利耗損`
+3. [x] 更新 `regimePolicy.mjs` 的 `formatRegimeStatus`，支援 `crisis_accumulate` 模式之 `⚡ CRISIS [恐慌加碼模式]`
+4. [x] 串接 `evaluateLeadingIndicators`：當 `cashExposureAnalysis.status === "CRISIS_ACCUMULATE"` 時自動觸發 `isAlertNeeded` 並傳入卡片格式化
+5. [x] 執行測試驗證：
+   - `leadingIndicatorEvaluator.test.mjs` (12/12 passed)
+   - `regimePolicy.test.mjs` (13/13 passed)
+   - 全套單元與整合測試無 regression (189 test files, 1941 passed)
 
 ### Phase 5 — 整合驗收（0.5 天）
 

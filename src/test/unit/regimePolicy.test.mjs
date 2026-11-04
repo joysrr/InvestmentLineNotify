@@ -119,5 +119,17 @@ describe("RegimePolicy Module", () => {
       expect(status).to.contain("🚨 CRISIS");
       expect(status).to.contain("[強制賣出模式]");
     });
+
+    it("should include lightning emoji for CRISIS crisis_accumulate mode", () => {
+      const crisisResult = {
+        state: "CRISIS",
+        mode: "crisis_accumulate",
+        reason: "無借款帳戶 → 恐慌加碼視窗",
+      };
+      const status = formatRegimeStatus(crisisResult);
+      expect(status).to.contain("⚡ CRISIS");
+      expect(status).to.contain("[恐慌加碼模式]");
+      expect(status).not.to.contain("undefined");
+    });
   });
 });

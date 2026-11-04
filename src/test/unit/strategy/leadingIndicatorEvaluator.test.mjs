@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
-  evaluateLeadingIndicators,
+  formatCrisisAccumulateCard,
   formatLeadingIndicatorTelegramCard,
+  evaluateLeadingIndicators,
 } from "../../../modules/strategy/leadingIndicatorEvaluator.mjs";
 import { SYSTEM_STATES } from "../../../modules/strategy/marginStateMachine.mjs";
 
@@ -259,6 +260,59 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
       expect(card).toContain("現金");
       expect(card).toContain("建議 DCA $100000");
       expect(card).toContain("曝險缺口 $500000");
+    });
+
+    it("cashExposureAnalysis 為 CRISIS_ACCUMULATE 時，附帶恐慌加碼視窗與 00675L 複利耗損提示", () => {
+      const card = formatLeadingIndicatorTelegramCard({
+        state: SYSTEM_STATES.IDLE,
+        activeDays: 0,
+        isLongTermDefense: false,
+        triggeredRadars: [],
+        personalBreaker: { breakerTriggered: false },
+        constraints: {
+          freeze00675L: false,
+          allowLeft0050: true,
+          p0Exempt: true,
+        },
+        cashExposureAnalysis: {
+          status: "CRISIS_ACCUMULATE",
+          suggestedDcaAmt: 50000,
+          exposureGap: 519473,
+          targetExposure: 2939733,
+          cashAdequacy: true,
+          message:
+            "⚡ 恐慌加碼模式：無借款帳戶，建議本批加碼 00675L 上限 50,000 TWD",
+          disclaimer:
+            "P0 DCA 維持不變，本建議僅影響 P1 條件加碼；00675L 為槓桿產品，震盪市存在複利損耗",
+        },
+      });
+
+      expect(card).toContain("⚡【恐慌加碼視窗】無借款帳戶 · VIX 危機模式");
+      expect(card).toContain("目標：📈 分批限速加碼（CRISIS_ACCUMULATE）");
+      expect(card).toContain("建議：本批加碼 00675L 上限 $50,000 TWD");
+      expect(card).toContain("• ✅ P0 DCA 照常執行（鐵律，不受 Regime 影響）");
+      expect(card).toContain(
+        "• ⚠️ P1 條件加碼：每批上限 $50,000，VIX 仍高時控制路徑損耗",
+      );
+      expect(card).toContain("• ℹ️ 00675L 為 2x 槓桿產品，震盪市存在複利耗損");
+    });
+
+    it("formatCrisisAccumulateCard 產出符合計畫書 §5.1 的動態主卡片", () => {
+      const card = formatCrisisAccumulateCard({
+        batchLimit: 50000,
+        targetLeverage: 1.2,
+        currentLeverage: 0.78,
+      });
+
+      expect(card).toContain("⚡【恐慌加碼視窗】無借款帳戶 · VIX 危機模式");
+      expect(card).toContain("目標：📈 分批限速加碼（CRISIS_ACCUMULATE）");
+      expect(card).toContain("建議：本批加碼 00675L 上限 50,000 TWD");
+      expect(card).toContain("• 目標槓桿：1.20x，當前：0.78x");
+      expect(card).toContain("• ✅ P0 DCA 照常執行（鐵律，不受 Regime 影響）");
+      expect(card).toContain(
+        "• ⚠️ P1 條件加碼：每批上限 50,000，VIX 仍高時控制路徑損耗",
+      );
+      expect(card).toContain("• ℹ️ 00675L 為 2x 槓桿產品，震盪市存在複利耗損");
     });
   });
 });

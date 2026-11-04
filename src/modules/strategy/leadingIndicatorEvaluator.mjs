@@ -85,7 +85,17 @@ export function formatLeadingIndicatorTelegramCard({
   // 6. 現金曝險摘要行 (底部)
   if (cashExposureAnalysis) {
     const { status, suggestedDcaAmt, exposureGap } = cashExposureAnalysis;
-    if (status === "RECOMMEND_DCA") {
+    if (status === "CRISIS_ACCUMULATE") {
+      const amtStr = Number(suggestedDcaAmt || 0).toLocaleString();
+      lines.push(
+        `└─ ⚡【恐慌加碼視窗】無借款帳戶 · VIX 危機模式\n` +
+          `   • 目標：📈 分批限速加碼（CRISIS_ACCUMULATE）\n` +
+          `   • 建議：本批加碼 00675L 上限 $${amtStr} TWD\n` +
+          `   • ✅ P0 DCA 照常執行（鐵律，不受 Regime 影響）\n` +
+          `   • ⚠️ P1 條件加碼：每批上限 $${amtStr}，VIX 仍高時控制路徑損耗\n` +
+          `   • ℹ️ 00675L 為 2x 槓桿產品，震盪市存在複利耗損`,
+      );
+    } else if (status === "RECOMMEND_DCA") {
       lines.push(
         `└─ 💰 現金曝險：建議 DCA $${suggestedDcaAmt.toFixed(0)} | 曝險缺口 $${exposureGap.toFixed(0)}`,
       );
@@ -101,6 +111,38 @@ export function formatLeadingIndicatorTelegramCard({
   }
 
   return lines.join("\n");
+}
+
+/**
+ * 格式化恐慌加碼專屬 Telegram 卡片（依計畫書 §5.1 與 v2.2 改善項目 2）
+ * @param {Object} params
+ * @param {number} params.batchLimit - 本批加碼金額上限 (TWD)
+ * @param {number} [params.targetLeverage=1.2] - 目標槓桿倍數
+ * @param {number} [params.currentLeverage] - 當前槓桿倍數
+ * @returns {string} 格式化卡片文字
+ */
+export function formatCrisisAccumulateCard({
+  batchLimit = 0,
+  targetLeverage = 1.2,
+  currentLeverage = null,
+} = {}) {
+  const targetStr = Number.isFinite(targetLeverage)
+    ? `${targetLeverage.toFixed(2)}x`
+    : "1.20x";
+  const currentStr = Number.isFinite(currentLeverage)
+    ? `${currentLeverage.toFixed(2)}x`
+    : "--";
+  const limitStr = Number(batchLimit || 0).toLocaleString();
+
+  return [
+    `⚡【恐慌加碼視窗】無借款帳戶 · VIX 危機模式`,
+    `目標：📈 分批限速加碼（CRISIS_ACCUMULATE）`,
+    `建議：本批加碼 00675L 上限 ${limitStr} TWD`,
+    `• 目標槓桿：${targetStr}，當前：${currentStr}`,
+    `• ✅ P0 DCA 照常執行（鐵律，不受 Regime 影響）`,
+    `• ⚠️ P1 條件加碼：每批上限 ${limitStr}，VIX 仍高時控制路徑損耗`,
+    `• ℹ️ 00675L 為 2x 槓桿產品，震盪市存在複利耗損`,
+  ].join("\n");
 }
 
 /**
@@ -199,7 +241,8 @@ export function evaluateLeadingIndicators({
   const isAlertNeeded =
     hasAnyRadarTriggered ||
     personalBreaker.breakerTriggered ||
-    stateMachine.state !== SYSTEM_STATES.IDLE;
+    stateMachine.state !== SYSTEM_STATES.IDLE ||
+    cashExposureAnalysis.status === "CRISIS_ACCUMULATE";
 
   if (isAlertNeeded) {
     telegramCard = formatLeadingIndicatorTelegramCard({
@@ -209,6 +252,7 @@ export function evaluateLeadingIndicators({
       triggeredRadars,
       personalBreaker,
       constraints,
+      cashExposureAnalysis,
     });
   }
 

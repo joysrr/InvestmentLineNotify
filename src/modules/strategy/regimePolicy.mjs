@@ -168,16 +168,17 @@ export function formatRegimeStatus(regimeResult) {
   const stateEmoji = {
     NORMAL: "✅",
     CAUTIOUS: "⚠️",
-    CRISIS: "🚨",
+    CRISIS: mode === "crisis_accumulate" ? "⚡" : "🚨",
   };
 
   const modeLabel = {
     normal: "正常模式",
     reduced: "降槓桿模式",
     sell_only: "強制賣出模式",
+    crisis_accumulate: "恐慌加碼模式",
   };
 
-  return `${stateEmoji[state]} ${state} [${modeLabel[mode]}]\n${reason}`;
+  return `${stateEmoji[state]} ${state} [${modeLabel[mode] || mode}]\n${reason}`;
 }
 
 /**
