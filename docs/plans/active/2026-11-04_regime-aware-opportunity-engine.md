@@ -455,10 +455,48 @@ const cashExposureAnalysis = evaluateCashExposure({
    - `regimePolicy.test.mjs` (13/13 passed)
    - 全套單元與整合測試無 regression (189 test files, 1941 passed)
 
-### Phase 5 — 整合驗收（0.5 天）
+### Phase 5 — 整合驗收（已完成 ✅）
 
-1. 執行「附錄 A：設計案例（2026-11-04 Fixture）」端到端測試
-2. 驗收動態欄位計算正確性與 Telegram 卡片輸出
+1. [x] 執行「附錄 A：設計案例（2026-11-04 Fixture）」端到端測試：
+   - 新增端到端整合測試套件 `src/test/integration/regimeAwareOpportunityEngine.test.mjs`
+   - 驗收附錄 A 2026-11-04 暴跌情境：`determineRegime` 正確判定 `OPPORTUNITY` + `crisis_accumulate`，`leverageMultiplier=0`
+   - 驗收現金曝險分析：600,000 現金 × 10% = 60,000，正確截斷於 `CRISIS_ACCUMULATE_MAX_BATCH`（50,000 TWD），且三層資訊完整（`message`、`batchRationale`、`disclaimer`）
+   - 驗收 Telegram 卡片產生器 `formatCrisisAccumulateCard` 輸出 100% 符合計畫書 §6.1 規範
+   - 驗收對照組 DEFENSE 模式：`totalDebt > 0` 時維持 `sell_only` 與 `DEFER`，完全維持防爆倉安全邊界
+   - 驗收邊界案例：基本面雷達（如融資斷頭）與恐慌雷達同時觸發時，基本面安全優先，回傳 `DEFER`
+2. [x] 執行測試驗收結果：
+   - `src/test/integration/regimeAwareOpportunityEngine.test.mjs` 7/7 tests passed
+   - 策略核心單元與整合測試 8 個檔案、96 tests passed
+
+---
+
+### Phase 6 — 正式上線部署後執行結果驗證（待執行 ⏳）
+
+依據 Han 的指示與 `deployment-unix-socket-confirmation` 規範，於完成正式代碼部署後進行正式環境端到端真實性驗證，絕不以模擬數據宣稱完成部署：
+
+1. **部署通道與前置探測**：
+   - 檢查 Unix Socket `/run/investnotify/deploy-agent.sock` 連線狀態
+   - 確認正式專案目錄路徑（由 Host 環境變數或 discovery 提供，不臆測路徑）
+2. **部署觸發與進程狀態確認**：
+   - 透過 Deployment Agent 觸發正式部署
+   - 輪詢查詢 Job Status 直至確認收斂：
+     - `status == completed`
+     - `exitCode == 0`
+     - `error == null`
+     - `verification.ok == true`
+     - PM2 程序 `api-server` 與 `bot-daemon` 為 `online` 狀態
+     - `/health` 回傳 `status: ok`
+3. **正式執行結果與產出驗收（Production Evidence）**：
+   - 觸發或查驗正式環境最新一次計算輸出（非 mock fixture）：
+     - 檢查正式環境產出之 `data/reports/YYYY-MM-DD.json` 包含預期的 `debtMode` 判定與 `cashExposureAnalysis` 結構
+     - 確認 `totalDebt === 0` 時未產生錯誤的強制賣出命令
+   - 驗證 Telegram 訊息與卡片呈現：
+     - 確認 Telegram 發送之訊息包含完整的恐慌加碼視窗三層結構
+     - 確認包含 `✅ P0 DCA 照常執行（鐵律，不受 Regime 影響）`
+     - 確認包含 `ℹ️ 00675L 為 2x 槓桿產品，震盪市存在複利耗損`
+   - 檢查正式服務日誌（Logs）：
+     - PM2 日誌無未捕獲例外（Uncaught Exception）或警告風暴
+     - 無過時資料覆蓋或殘留部署鎖（deploy.lock）
 
 ---
 

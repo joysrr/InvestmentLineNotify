@@ -88,6 +88,7 @@ export function evaluateCashExposure({
     if (fundamentalRadars.length > 0) {
       return {
         status: "DEFER",
+        reason: "fundamental_radars_triggered",
         suggestedDcaAmt: 0,
         exposureGap,
         targetExposure,
@@ -104,12 +105,14 @@ export function evaluateCashExposure({
       );
       return {
         status: "CRISIS_ACCUMULATE",
+        reason: "panic_opportunity_mode",
+        batchLimit,
         suggestedDcaAmt: batchLimit,
         exposureGap,
         targetExposure,
         cashAdequacy,
         message: `⚡ 恐慌加碼模式：無借款帳戶，建議本批加碼 00675L 上限 ${batchLimit.toLocaleString()} TWD`,
-        batchRationale: `VIX 恐慌視窗；每批上限 = min(現金×${CRISIS_ACCUMULATE_BATCH_RATIO * 100}%, ${CRISIS_ACCUMULATE_MAX_BATCH})；歷史實證 VIX>40 長期正期望值，限速控制路徑損耗`,
+        batchRationale: `VIX 恐慌視窗；每批上限 = min(現金×${(CRISIS_ACCUMULATE_BATCH_RATIO * 100).toFixed(0)}%, ${CRISIS_ACCUMULATE_MAX_BATCH})；歷史實證 VIX>40 長期正期望值，限速控制路徑損耗`,
         disclaimer:
           "P0 DCA 維持不變，本建議僅影響 P1 條件加碼；00675L 為槓桿產品，震盪市存在複利損耗",
       };
@@ -118,6 +121,7 @@ export function evaluateCashExposure({
     // 3. 有借款帳戶 + 恐慌雷達 → DEFER（防斷頭）
     return {
       status: "DEFER",
+      reason: "debt_defense_mode",
       suggestedDcaAmt: 0,
       exposureGap,
       targetExposure,

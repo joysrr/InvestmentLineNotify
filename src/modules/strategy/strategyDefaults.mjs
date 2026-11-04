@@ -222,11 +222,19 @@ export const ALL_DEFAULTS = {
 // ─────────────────────────────────────────────────────────────
 
 /**
- * 恐慌型雷達清單
+ * 恐慌型雷達清單（相容 RADAR_IDS 常數與各層短名）
  * 在無借款帳戶中代表「市場情緒恐慌加碼機會」，非信用/基本面惡化封鎖訊號
  * @type {string[]}
  */
-export const PANIC_RADARS = ["extremePanicRadar", "vixSpike"];
+export const PANIC_RADARS = [
+  "RADAR_EXTREME_PANIC",
+  "RADAR_RETAIL_SENTIMENT",
+  "extremePanic",
+  "extremePanicRadar",
+  "vixSpike",
+  "retailSentiment",
+  "retailSentimentRadar",
+];
 
 /**
  * 危機加碼批次比例（佔可用現金）
