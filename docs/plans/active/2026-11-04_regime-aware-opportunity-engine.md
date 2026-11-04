@@ -429,11 +429,16 @@ const cashExposureAnalysis = evaluateCashExposure({
 2. [x] 實作 `RegimePolicyRule.evaluate()` 注入狀態不中斷邏輯（含 `Number(totalDebt)` 型別防護與 `totalDebt === 0` OPPORTUNITY 模式判定）
 3. [x] 執行測試驗證：`regimePolicy.test.mjs` 與 `decisionRules.test.mjs` 測試全數轉 GREEN，決策鏈測試 100% 通過（61/61 passed）
 
-### Phase 3 — `cashExposureAdvisor.mjs` + `leadingIndicatorEvaluator.mjs`（1 天）
+### Phase 3 — `cashExposureAdvisor.mjs` + `leadingIndicatorEvaluator.mjs`（已完成 ✅）
 
-1. 實作 `evaluateCashExposure` 恐慌型雷達分流（含 `Number(totalDebt)` 型別防護）
-2. `leadingIndicatorEvaluator.mjs` 補傳 `totalDebt`
-3. 執行 `npm test`：cashExposureAdvisor 測試轉 GREEN
+1. [x] 實作 `evaluateCashExposure` 恐慌型雷達分流：
+   - 引用 `strategyDefaults.mjs` 之集中常數（`PANIC_RADARS`, `CRISIS_ACCUMULATE_BATCH_RATIO`, `CRISIS_ACCUMULATE_MAX_BATCH`）
+   - 新增 `totalDebt = 0` 與 `Number(totalDebt ?? 0)` 型別防護
+   - 實作三層分流：基本面雷達觸發 → 一律 `DEFER`；純恐慌雷達＋無借款 → `CRISIS_ACCUMULATE`（限速加碼並產出 `batchRationale`、`disclaimer` 含複利損耗提示）；純恐慌雷達＋有借款 → `DEFER`
+2. [x] `leadingIndicatorEvaluator.mjs` 補傳 `totalDebt: portfolio.totalDebt ?? 0`
+3. [x] 執行測試驗證：
+   - `cashExposureAdvisor.test.mjs` 測試全數轉 GREEN（13/13 passed，包含基本面優先、字串型別防護、同時觸發與 MAX_BATCH 截斷測試）
+   - 單元與整合測試 1051 passed，策略核心零 regression
 
 ### Phase 4 — Telegram 報告模板格式化（0.5 天）
 

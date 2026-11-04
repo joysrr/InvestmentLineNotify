@@ -191,6 +191,7 @@ export function evaluateLeadingIndicators({
     accountNetAsset: portfolio.accountNetAsset,
     kellyConservative: marketData.kellyConservative,
     radarTriggered: triggeredRadars.map((r) => r.radarId).filter(Boolean),
+    totalDebt: portfolio.totalDebt ?? 0,
   });
 
   // 5. Telegram 卡片生成 (常態靜默：IDLE 且無任何觸發時為 null)
