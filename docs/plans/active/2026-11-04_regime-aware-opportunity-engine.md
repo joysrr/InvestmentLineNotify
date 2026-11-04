@@ -423,11 +423,11 @@ const cashExposureAnalysis = evaluateCashExposure({
    - `cashExposureAdvisor.test.mjs`（恐慌雷達 vs 基本面雷達分流測試，含同時觸發邊界測試、字串型別防護與 MAX_BATCH 截斷測試）
 3. [x] 執行測試驗證：舊有 19 個測試全數 GREEN，新增 6 個測試精準 RED（預期功能未實作而失敗，無語法/路徑錯誤）
 
-### Phase 2 — `regimePolicy.mjs` + `RegimePolicyRule.mjs`（1~2 天）
+### Phase 2 — `regimePolicy.mjs` + `RegimePolicyRule.mjs`（已完成 ✅）
 
-1. 實作 `determineRegime` 之 `debtMode` 分流
-2. 實作 `RegimePolicyRule.evaluate()` 注入狀態不中斷邏輯（含 `Number(totalDebt)` 型別防護）
-3. 執行 `npm test`：regimePolicy 測試轉 GREEN
+1. [x] 實作 `determineRegime` 之 `debtMode` 分流（`OPPORTUNITY` → `crisis_accumulate`，預設 `DEFENSE` → `sell_only`）
+2. [x] 實作 `RegimePolicyRule.evaluate()` 注入狀態不中斷邏輯（含 `Number(totalDebt)` 型別防護與 `totalDebt === 0` OPPORTUNITY 模式判定）
+3. [x] 執行測試驗證：`regimePolicy.test.mjs` 與 `decisionRules.test.mjs` 測試全數轉 GREEN，決策鏈測試 100% 通過（61/61 passed）
 
 ### Phase 3 — `cashExposureAdvisor.mjs` + `leadingIndicatorEvaluator.mjs`（1 天）
 

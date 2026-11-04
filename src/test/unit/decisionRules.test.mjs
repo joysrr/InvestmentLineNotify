@@ -26,10 +26,30 @@ import {
 
 // Mock 外部依賴 - 使用 hoisted vi.mock
 vi.mock("../../../src/modules/strategy/regimePolicy.mjs", () => ({
-  determineRegime: vi.fn((vix, sentiment, cfg) => {
-    if (vix > 40) return { state: "CRISIS", leverageMultiplier: 0.5 };
-    if (vix > 30) return { state: "CAUTIOUS", leverageMultiplier: 0.8 };
-    return { state: "NORMAL", leverageMultiplier: 1.0 };
+  determineRegime: vi.fn((vix, sentiment, cfg, debtMode = "DEFENSE") => {
+    if (vix > 40) {
+      if (debtMode === "OPPORTUNITY") {
+        return {
+          state: "CRISIS",
+          leverageMultiplier: 0,
+          mode: "crisis_accumulate",
+          reason: "恐慌加碼視窗",
+        };
+      }
+      return {
+        state: "CRISIS",
+        leverageMultiplier: 0.5,
+        mode: "sell_only",
+        reason: "強制賣出",
+      };
+    }
+    if (vix > 30)
+      return {
+        state: "CAUTIOUS",
+        leverageMultiplier: 0.8,
+        mode: "reduced",
+      };
+    return { state: "NORMAL", leverageMultiplier: 1.0, mode: "normal" };
   }),
   applyRegimeLeverage: vi.fn(
     (base, regime) => base * regime.leverageMultiplier,
@@ -199,6 +219,18 @@ describe("RegimePolicyRule (P0)", () => {
     expect(result).not.toBeNull();
     expect(result.regimeState).toBe("CRISIS");
     expect(result.target).toContain("強制賣出");
+  });
+
+  it("CRISIS regime 在 totalDebt === 0 時應進入 OPPORTUNITY 模式不中斷決策流（回傳 null）", () => {
+    ctx.vix = 50;
+    ctx.totalDebt = 0;
+    ctx.totalLoan = 0;
+    ctx.portfolio = { totalDebt: 0, totalLoan: 0 };
+    const result = rule.evaluate(ctx, strategy, engineState);
+    expect(result).toBeNull();
+    expect(engineState.crisisAccumulateMode).toBe(true);
+    expect(engineState.debtMode).toBe("OPPORTUNITY");
+    expect(ctx.regimeState).toBe("CRISIS");
   });
 
   it("CAUTIOUS regime 應計算調整後槓桿並存入 engineState", () => {

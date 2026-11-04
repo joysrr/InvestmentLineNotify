@@ -32,7 +32,16 @@ export class RegimePolicyRule extends DecisionRule {
     const sentiment = ctx.macroSentiment?.direction || "NEUTRAL";
 
     // 判定 Regime 狀態
-    const regimeResult = determineRegime(vix, sentiment, regimeCfg);
+    const rawDebt =
+      ctx.totalDebt ??
+      ctx.portfolio?.totalDebt ??
+      ctx.totalLoan ??
+      ctx.portfolio?.totalLoan ??
+      0;
+    const totalDebt = Number(rawDebt);
+    const debtMode = totalDebt === 0 ? "OPPORTUNITY" : "DEFENSE";
+
+    const regimeResult = determineRegime(vix, sentiment, regimeCfg, debtMode);
     engineState.regimeResult = regimeResult;
 
     // Phase 4: 同步評估四象限 Macro Regime 2.0 分類
@@ -56,25 +65,33 @@ export class RegimePolicyRule extends DecisionRule {
       }
     }
 
-    // CRISIS 模式：立即回傳 Sell-only 決策（禁止新增部位）
+    // CRISIS 模式
     if (regimeResult.state === "CRISIS") {
-      const deleverageCfg = strategy.dynamicDeleverage || { sellRatio: 1.0 };
-      const sellPercent = Math.round(deleverageCfg.sellRatio * 100);
+      if (regimeResult.mode === "crisis_accumulate") {
+        // OPPORTUNITY 模式：注入狀態，不中斷決策流，交由後續 CashExposureAdvisor 與後續規則處理
+        engineState.crisisAccumulateMode = true;
+        engineState.debtMode = "OPPORTUNITY";
+        ctx.regimeState = "CRISIS";
+      } else {
+        // DEFENSE 模式：立即回傳 Sell-only 決策（禁止新增部位）
+        const deleverageCfg = strategy.dynamicDeleverage || { sellRatio: 1.0 };
+        const sellPercent = Math.round(deleverageCfg.sellRatio * 100);
 
-      return createDecisionResult({
-        maintenanceLayer: "normal",
-        marketStatus: "🚨【VIX 危機模式】",
-        target: "🔴 局部減碼 / 強制賣出",
-        targetSuggestionShort: "VIX 超過絕對門檻，禁止新增 00675L 部位",
-        targetSuggestion: `VIX 危機模式啟動，依生命週期投資法實行減碼，建議賣出 00675L 當前持股之 ${sellPercent}%`,
-        suggestion:
-          `• ${formatRegimeStatus(regimeResult)}\n` +
-          `• ⚠️ 禁止新增戰術部位（00675L 加碼封鎖）\n` +
-          `• 允許操作：0050 DCA 照常執行 + 依比例減倉 ${sellPercent}%`,
-        regimeState: "CRISIS",
-        regimeResult: regimeResult,
-        valuationGuardResult: engineState.valuationGuardResult ?? null,
-      });
+        return createDecisionResult({
+          maintenanceLayer: "normal",
+          marketStatus: "🚨【VIX 危機模式】",
+          target: "🔴 局部減碼 / 強制賣出",
+          targetSuggestionShort: "VIX 超過絕對門檻，禁止新增 00675L 部位",
+          targetSuggestion: `VIX 危機模式啟動，依生命週期投資法實行減碼，建議賣出 00675L 當前持股之 ${sellPercent}%`,
+          suggestion:
+            `• ${formatRegimeStatus(regimeResult)}\n` +
+            `• ⚠️ 禁止新增戰術部位（00675L 加碼封鎖）\n` +
+            `• 允許操作：0050 DCA 照常執行 + 依比例減倉 ${sellPercent}%`,
+          regimeState: "CRISIS",
+          regimeResult: regimeResult,
+          valuationGuardResult: engineState.valuationGuardResult ?? null,
+        });
+      }
     }
 
     // CAUTIOUS 模式：計算調整後的槓桿上限，存入 engineState 供後續規則使用

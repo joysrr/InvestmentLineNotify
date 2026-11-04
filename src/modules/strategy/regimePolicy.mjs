@@ -38,9 +38,10 @@
  * @param {number} config.vixOverrideTrigger - VIX 警戒門檻（預設 28）
  * @param {number} config.vixAbsoluteOverride - VIX 絕對門檻（預設 35）
  * @param {number} config.cautiousLeverageReductionPct - CAUTIOUS 模式槓桿下修百分比（預設 25）
+ * @param {string} [debtMode="DEFENSE"] - 帳戶負債模式（OPPORTUNITY: 無借款機會模式 | DEFENSE: 有借款防禦模式）
  * @returns {RegimeResult} Regime 判定結果
  */
-export function determineRegime(vix, sentiment, config) {
+export function determineRegime(vix, sentiment, config, debtMode = "DEFENSE") {
   const vixOverrideTrigger = config?.vixOverrideTrigger ?? 28;
   const vixAbsoluteOverride = config?.vixAbsoluteOverride ?? 35;
   const cautiousLeverageReductionPct =
@@ -49,8 +50,24 @@ export function determineRegime(vix, sentiment, config) {
   const vixValue = Number.isFinite(vix) ? vix : 0;
   const sentimentValue = sentiment || "NEUTRAL";
 
-  // 優先級 1: VIX ≥ 35 → CRISIS（強制 Sell-only）
+  // 優先級 1: VIX ≥ 35 → CRISIS
   if (vixValue >= vixAbsoluteOverride) {
+    if (debtMode === "OPPORTUNITY") {
+      return {
+        state: "CRISIS",
+        leverageMultiplier: 0,
+        mode: "crisis_accumulate",
+        reason: `VIX ${vixValue.toFixed(1)} ≥ ${vixAbsoluteOverride}，無借款帳戶 → 恐慌加碼視窗`,
+        context: {
+          vix: vixValue,
+          sentiment: sentimentValue,
+          vixOverrideTrigger,
+          vixAbsoluteOverride,
+          debtMode: "OPPORTUNITY",
+        },
+      };
+    }
+
     return {
       state: "CRISIS",
       leverageMultiplier: 0,
@@ -61,6 +78,7 @@ export function determineRegime(vix, sentiment, config) {
         sentiment: sentimentValue,
         vixOverrideTrigger,
         vixAbsoluteOverride,
+        debtMode: "DEFENSE",
       },
     };
   }
