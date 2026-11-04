@@ -415,13 +415,13 @@ const cashExposureAnalysis = evaluateCashExposure({
 
 ## 8. 分階段執行計畫（TDD 優先）
 
-### Phase 1 — 測試骨架 + strategyDefaults（1 天）
+### Phase 1 — 測試骨架 + strategyDefaults（已完成 ✅）
 
-1. 在 `strategyDefaults.mjs` 定義 3 個常數
-2. 撰寫 RED 測試：
+1. [x] 在 `strategyDefaults.mjs` 定義 3 個集中常數：`PANIC_RADARS`, `CRISIS_ACCUMULATE_BATCH_RATIO`, `CRISIS_ACCUMULATE_MAX_BATCH`
+2. [x] 撰寫 RED 測試：
    - `regimePolicy.test.mjs`（OPPORTUNITY vs DEFENSE 分流測試）
-   - `cashExposureAdvisor.test.mjs`（恐慌雷達 vs 基本面雷達分流測試，含同時觸發邊界測試）
-3. 執行 `npm test`：驗證舊測試全數 GREEN，新測試明確 RED
+   - `cashExposureAdvisor.test.mjs`（恐慌雷達 vs 基本面雷達分流測試，含同時觸發邊界測試、字串型別防護與 MAX_BATCH 截斷測試）
+3. [x] 執行測試驗證：舊有 19 個測試全數 GREEN，新增 6 個測試精準 RED（預期功能未實作而失敗，無語法/路徑錯誤）
 
 ### Phase 2 — `regimePolicy.mjs` + `RegimePolicyRule.mjs`（1~2 天）
 

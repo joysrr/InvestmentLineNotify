@@ -45,6 +45,21 @@ describe("RegimePolicy Module", () => {
       expect(result.reason).to.contain("絕對門檻 35");
     });
 
+    it("should return CRISIS with crisis_accumulate mode when VIX >= 35 and debtMode is OPPORTUNITY", () => {
+      const result = determineRegime(40, "BULL", config, "OPPORTUNITY");
+      expect(result.state).to.equal("CRISIS");
+      expect(result.leverageMultiplier).to.equal(0);
+      expect(result.mode).to.equal("crisis_accumulate");
+      expect(result.reason).to.contain("恐慌加碼視窗");
+    });
+
+    it("should maintain sell_only in CRISIS when debtMode is DEFENSE", () => {
+      const result = determineRegime(40, "BULL", config, "DEFENSE");
+      expect(result.state).to.equal("CRISIS");
+      expect(result.mode).to.equal("sell_only");
+      expect(result.reason).to.contain("絕對門檻 35");
+    });
+
     it("should handle edge cases (VIX exactly at threshold)", () => {
       const result28 = determineRegime(28, "BULL", config);
       expect(result28.state).to.equal("CAUTIOUS");

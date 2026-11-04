@@ -216,3 +216,27 @@ export const ALL_DEFAULTS = {
     PANIC_BYPASS_VIX_THRESHOLD,
   },
 };
+
+// ─────────────────────────────────────────────────────────────
+// 危機加碼（Crisis Accumulate）相關常數
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * 恐慌型雷達清單
+ * 在無借款帳戶中代表「市場情緒恐慌加碼機會」，非信用/基本面惡化封鎖訊號
+ * @type {string[]}
+ */
+export const PANIC_RADARS = ["extremePanicRadar", "vixSpike"];
+
+/**
+ * 危機加碼批次比例（佔可用現金）
+ * @type {number}
+ */
+export const CRISIS_ACCUMULATE_BATCH_RATIO = 0.1; // 10%
+
+/**
+ * 危機加碼單批最大金額（TWD）
+ * 硬上限保護，避免高波動震盪下路徑損耗過大
+ * @type {number}
+ */
+export const CRISIS_ACCUMULATE_MAX_BATCH = 50000; // 5 萬 TWD

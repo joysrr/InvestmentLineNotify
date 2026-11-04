@@ -91,4 +91,91 @@ describe("CashExposureAdvisor: cash-driven exposure analysis", () => {
     expect(result.status).toBe("UNAVAILABLE");
     expect(result.suggestedDcaAmt).toBe(0);
   });
+
+  describe("Debt-Aware Crisis Accumulation (OPPORTUNITY vs DEFENSE)", () => {
+    it("totalDebt === 0 + 純恐慌型雷達 (extremePanicRadar) → CRISIS_ACCUMULATE, batchLimit 10% 現金", () => {
+      const result = evaluateCashExposure({
+        cash: 200000,
+        grossExposure: 500000,
+        accountNetAsset: 1000000,
+        kellyConservative: 1.0,
+        radarTriggered: ["extremePanicRadar"],
+        totalDebt: 0,
+      });
+      expect(result.status).toBe("CRISIS_ACCUMULATE");
+      expect(result.suggestedDcaAmt).toBe(20000); // 200,000 * 10%
+      expect(result.message).toContain("恐慌加碼模式");
+      expect(result.message).toContain("20,000");
+      expect(result.batchRationale).toBeDefined();
+      expect(result.disclaimer).toContain("複利損耗");
+    });
+
+    it("totalDebt === 0 + 現金充足 (600,000) → 受 MAX_BATCH (50,000) 截斷", () => {
+      const result = evaluateCashExposure({
+        cash: 600000,
+        grossExposure: 500000,
+        accountNetAsset: 1000000,
+        kellyConservative: 1.0,
+        radarTriggered: ["extremePanicRadar"],
+        totalDebt: 0,
+      });
+      expect(result.status).toBe("CRISIS_ACCUMULATE");
+      expect(result.suggestedDcaAmt).toBe(50000); // min(60,000, 50,000)
+      expect(result.message).toContain("50,000");
+    });
+
+    it("totalDebt 為字串 '0' 時型別防護正確生效 → CRISIS_ACCUMULATE", () => {
+      const result = evaluateCashExposure({
+        cash: 300000,
+        grossExposure: 500000,
+        accountNetAsset: 1000000,
+        kellyConservative: 1.0,
+        radarTriggered: ["vixSpike"],
+        totalDebt: "0",
+      });
+      expect(result.status).toBe("CRISIS_ACCUMULATE");
+      expect(result.suggestedDcaAmt).toBe(30000);
+    });
+
+    it("totalDebt === 0 + 基本面雷達 → DEFER (suggestedDcaAmt 0)", () => {
+      const result = evaluateCashExposure({
+        cash: 500000,
+        grossExposure: 500000,
+        accountNetAsset: 1000000,
+        kellyConservative: 1.0,
+        radarTriggered: ["macroRecessionRadar"],
+        totalDebt: 0,
+      });
+      expect(result.status).toBe("DEFER");
+      expect(result.suggestedDcaAmt).toBe(0);
+      expect(result.message).toContain("基本面雷達觸發");
+    });
+
+    it("totalDebt === 0 + 同時觸發恐慌與基本面雷達 → DEFER (基本面優先安全原則)", () => {
+      const result = evaluateCashExposure({
+        cash: 500000,
+        grossExposure: 500000,
+        accountNetAsset: 1000000,
+        kellyConservative: 1.0,
+        radarTriggered: ["extremePanicRadar", "macroRecessionRadar"],
+        totalDebt: 0,
+      });
+      expect(result.status).toBe("DEFER");
+      expect(result.suggestedDcaAmt).toBe(0);
+      expect(result.message).toContain("基本面雷達觸發");
+    });
+
+    it("totalDebt > 0 (有借款) + 恐慌雷達 → DEFER (維持防斷頭邏輯)", () => {
+      const result = evaluateCashExposure({
+        cash: 500000,
+        grossExposure: 500000,
+        accountNetAsset: 1000000,
+        kellyConservative: 1.0,
+        radarTriggered: ["extremePanicRadar"],
+        totalDebt: 100000,
+      });
+      expect(result.status).toBe("DEFER");
+      expect(result.suggestedDcaAmt).toBe(0);
+    });
+  });
 });
