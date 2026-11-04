@@ -15,7 +15,7 @@ wiki_links:
   - verification/personalized-design-inventory.md
 ---
 
-# 計畫書：Regime-Aware Opportunity Engine（危機加碼引擎）v2.2
+# 計畫書：Regime-Aware Opportunity Engine（危機加碼引擎）v2.3
 
 ---
 
@@ -163,6 +163,55 @@ CRISIS 狀態直接執行 `return createDecisionResult`，終止決策流，後�
 
 ---
 
+### 4.3 全動態帳戶狀態自適應加碼演算法（徹底消除 5 萬硬編碼）
+
+依照 Han 的原則指示，加碼上限**絕不可採用全域寫死的固定常數（如 50,000 元）**，必須完全依據**當前帳戶資產規模、當前曝險水位、目標槓桿與可用現金**進行純動態自適應計算：
+
+1. **目標曝險（Target Gross Exposure）**：
+   $$\text{TargetExposure} = \text{AccountNetAsset} \times \text{TargetLeverage}$$
+   - `TargetLeverage`：目標總槓桿（預設 `1.2x`，可由策略配置傳入）。
+   - `AccountNetAsset`：當前真實帳戶淨資產（0050 市值 + 00675L 市值 + 現金 - 負債）。
+
+2. **剩餘曝險缺口（Gross Exposure Gap）**：
+   $$\text{ExposureGap} = \max(0, \text{TargetExposure} - \text{GrossExposure})$$
+   - `GrossExposure`：當前總曝險 = $Value_{0050} \times 1 + Value_{00675L} \times 2$。
+
+3. **00675L 總資本加碼缺口（Capital Gap to Target）**：
+   因 00675L 為 2 倍槓桿 ETF，每投入 1 元資本可提供 2 元曝險：
+   $$\text{CapitalGap} = \frac{\text{ExposureGap}}{2}$$
+   - 若 $\text{CapitalGap} \le 0$（槓桿已達到或超越 1.2x）：加碼額自動歸零（`suggestedDcaAmt = 0`），絕不超額加碼。
+
+4. **單批動態加碼限額（Dynamic Batch Limit）**：
+   當 $\text{CapitalGap} > 0$ 時，為防範恐慌持續探底與波動路徑損耗，單批上限由三個動態維度取保守最小值：
+   $$\text{BatchLimit} = \min\left( \left\lfloor\frac{\text{CapitalGap}}{N}\right\rfloor,\; \lfloor\text{Cash} \times \text{CashRatio}\rfloor,\; \text{CapitalGap} \right)$$
+   - **維度一（分批平攤進場）**：$\text{CapitalGap} / N$（分 $N$ 批平攤，預設 $N = 10$ 批）。
+   - **維度二（現金安全流動性防線）**：$\text{Cash} \times \text{CashRatio}$（單批不超過可用現金的 10%，防單次恐慌抽乾防禦現金）。
+   - **維度三（剩餘總缺口封頂）**：$\text{CapitalGap}$（封頂保護，當槓桿已逼近 1.2x 時自動收斂，絕不推破目標上限）。
+   - **最後千元整數化**：向下取整至 1,000 元，方便下單執行。
+
+**自適應優勢對比**：
+
+| 情境                                               | 舊設計（硬編碼）                | 新設計（全動態自適應）                                            | 行為差異與優勢                   |
+| -------------------------------------------------- | ------------------------------- | ----------------------------------------------------------------- | -------------------------------- |
+| 2026-11-04 案例 (淨資產249萬, 現金60萬, 槓桿0.78x) | 硬套 50,000 元                  | 動態計算：Gap 52.3萬，10批=52,300；現金10%=6萬 → 取 **52,000 元** | 符合當前資產規模與分批步調       |
+| 未來淨資產成長至 500 萬 (同比例)                   | 仍然死板給 50,000 元            | 動態計算：Gap 105萬，10批=105,000 → 取 **105,000 元**             | 自動隨資產規模放大，維持戰術效能 |
+| 槓桿已達 1.18x (只差 2 萬達標)                     | 仍然強烈給 50,000 元 (衝破槓桿) | 動態計算：CapitalGap = 2.5萬 → 取 **25,000 元**                   | 自動減速收斂，絕不推破 1.2x 上限 |
+| 現金不足 (現金僅剩 10 萬)                          | 仍然給 50,000 元 (抽乾一半現金) | 現金防線約束：10萬 × 10% → 取 **10,000 元**                       | 保護防禦現金流動性               |
+
+---
+
+### 4.4 正式區資料管線整合與雷達調和
+
+1. **淨資產動態兜底（Dynamic Net Asset Fallback）**：
+   在 `dailyCheck.mjs` 中，傳給 `evaluateLeadingIndicators` 的 `portfolio` 若其 `accountNetAsset` 為空（如來自 Google Sheet），系統動態由現價計算兜底：
+   $$\text{accountNetAsset} = \text{cash} + (\text{qty0050} \times \text{price0050}) + (\text{qty00675L} \times \text{price00675L})$$
+   解決因 Google Sheet 未填寫總資產導致 `cashExposureAdvisor` 前置回傳 `UNAVAILABLE` 的資料斷點。
+
+2. **雷達文字與行動紀律調和（Debt-Aware Radar Wording）**：
+   在 `extremePanicRadar.mjs` 中，傳入 `totalDebt` 狀態。當 `Number(totalDebt) === 0` 時，行動紀律由「`00675L 嚴格凍結防連環爆`」調和為「`00675L 依動態上限分批限速加碼`」，消除同一張 Telegram 卡片中文字自相矛盾的現象。
+
+---
+
 ## 5. 不變更項目（Frozen - 範圍控制護欄）
 
 為確保改動邊界明確，防止過度重構或破壞既有防禦底線，以下核心模組與紀律嚴禁更動：
@@ -236,14 +285,20 @@ export const PANIC_RADARS = ["extremePanicRadar", "vixSpike"];
  * 危機加碼批次比例（佔可用現金）
  * @type {number}
  */
-export const CRISIS_ACCUMULATE_BATCH_RATIO = 0.1; // 10%
+export const CRISIS_ACCUMULATE_BATCH_RATIO = 0.1; // 10% 現金安全流動性防線
 
 /**
- * 危機加碼單批最大金額（TWD）
- * 硬上限保護，避免高波動震盪下路徑損耗過大
+ * 危機加碼平攤批次數
+ * 依據資本缺口分批進場，防範路徑損耗
  * @type {number}
  */
-export const CRISIS_ACCUMULATE_MAX_BATCH = 50000; // 5 萬 TWD
+export const CRISIS_ACCUMULATE_BATCH_COUNT = 10; // 預設 10 批平攤
+
+/**
+ * 危機加碼目標總槓桿
+ * @type {number}
+ */
+export const CRISIS_ACCUMULATE_TARGET_LEVERAGE = 1.2; // 1.2x 目標槓桿上限
 ```
 
 ---
@@ -360,20 +415,47 @@ export function evaluateCashExposure({
       };
     }
 
-    // 2. 純恐慌型雷達觸發 + 無借款帳戶 → 限速加碼
+    // 2. 純恐慌型雷達觸發 + 無借款帳戶 → 全動態自適應加碼
     if (panicRadars.length > 0 && numericDebt === 0) {
-      const batchLimit = Math.min(
-        cash * CRISIS_ACCUMULATE_BATCH_RATIO,
-        CRISIS_ACCUMULATE_MAX_BATCH,
-      );
+      const dynamicTargetLeverage = CRISIS_ACCUMULATE_TARGET_LEVERAGE;
+      const targetExp = accountNetAsset * dynamicTargetLeverage;
+      const currentGrossExp = Number(grossExposure ?? 0);
+      const gap = Math.max(0, targetExp - currentGrossExp);
+      const capitalGap = Math.max(0, gap / 2); // 00675L 為 2x 槓桿
+
+      // 若槓桿已達或超越目標槓桿（缺口為0），不進行超額加碼
+      if (capitalGap <= 0) {
+        return {
+          status: "CRISIS_ACCUMULATE",
+          suggestedDcaAmt: 0,
+          exposureGap: gap,
+          targetExposure: targetExp,
+          cashAdequacy: true,
+          message: `⚡ 恐慌加碼視窗：無借款帳戶，當前槓桿已達目標 ${dynamicTargetLeverage}x，暫無需加碼 00675L`,
+          batchRationale: `當前曝險已達標 (${(currentGrossExp / accountNetAsset).toFixed(2)}x ≥ ${dynamicTargetLeverage}x)；防範槓桿過載`,
+          disclaimer:
+            "P0 DCA 維持不變，本建議僅影響 P1 條件加碼；00675L 為槓桿產品，震盪市存在複利損耗",
+        };
+      }
+
+      // 三維度動態取保守 min：
+      // 1. 缺口均攤分批 (capitalGap / N)
+      // 2. 現金安全流動性防線 (cash * Ratio)
+      // 3. 剩餘總缺口封頂 (capitalGap)
+      const batchByGap = Math.floor(capitalGap / CRISIS_ACCUMULATE_BATCH_COUNT);
+      const batchByCash = Math.floor(cash * CRISIS_ACCUMULATE_BATCH_RATIO);
+      const rawLimit = Math.min(batchByGap, batchByCash, capitalGap);
+      // 整數化至千元
+      const batchLimit = Math.floor(rawLimit / 1000) * 1000;
+
       return {
         status: "CRISIS_ACCUMULATE",
         suggestedDcaAmt: batchLimit,
-        exposureGap,
-        targetExposure,
-        cashAdequacy,
+        exposureGap: gap,
+        targetExposure: targetExp,
+        cashAdequacy: cash >= batchLimit,
         message: `⚡ 恐慌加碼模式：無借款帳戶，建議本批加碼 00675L 上限 ${batchLimit.toLocaleString()} TWD`,
-        batchRationale: `VIX 恐慌視窗；每批上限 = min(現金×${CRISIS_ACCUMULATE_BATCH_RATIO * 100}%, ${CRISIS_ACCUMULATE_MAX_BATCH})；歷史實證 VIX>40 長期正期望值，限速控制路徑損耗`,
+        batchRationale: `VIX 恐慌視窗；自適應計算：目標槓桿 ${dynamicTargetLeverage}x (總缺口 ${Math.round(capitalGap).toLocaleString()} TWD)，分 ${CRISIS_ACCUMULATE_BATCH_COUNT} 批平攤，且單批不超過現金 ${(CRISIS_ACCUMULATE_BATCH_RATIO * 100).toFixed(0)}%`,
         disclaimer:
           "P0 DCA 維持不變，本建議僅影響 P1 條件加碼；00675L 為槓桿產品，震盪市存在複利損耗",
       };
@@ -470,33 +552,46 @@ const cashExposureAnalysis = evaluateCashExposure({
 
 ---
 
-### Phase 6 — 正式上線部署後執行結果驗證（待執行 ⏳）
+### Phase 6 — 正式上線部署後執行結果驗證（已完成，發現實務斷點 ✅）
 
-依據 Han 的指示與 `deployment-unix-socket-confirmation` 規範，於完成正式代碼部署後進行正式環境端到端真實性驗證，絕不以模擬數據宣稱完成部署：
+依據 Han 的指示與 `deployment-unix-socket-confirmation` 規範，於完成正式代碼部署後進行正式環境端到端真實性驗證：
 
-1. **部署通道與前置探測**：
-   - 檢查 Unix Socket `/run/investnotify/deploy-agent.sock` 連線狀態
-   - 確認正式專案目錄路徑（由 Host 環境變數或 discovery 提供，不臆測路徑）
-2. **部署觸發與進程狀態確認**：
-   - 透過 Deployment Agent 觸發正式部署
-   - 輪詢查詢 Job Status 直至確認收斂：
-     - `status == completed`
-     - `exitCode == 0`
-     - `error == null`
-     - `verification.ok == true`
-     - PM2 程序 `api-server` 與 `bot-daemon` 為 `online` 狀態
-     - `/health` 回傳 `status: ok`
-3. **正式執行結果與產出驗收（Production Evidence）**：
-   - 觸發或查驗正式環境最新一次計算輸出（非 mock fixture）：
-     - 檢查正式環境產出之 `data/reports/YYYY-MM-DD.json` 包含預期的 `debtMode` 判定與 `cashExposureAnalysis` 結構
-     - 確認 `totalDebt === 0` 時未產生錯誤的強制賣出命令
-   - 驗證 Telegram 訊息與卡片呈現：
-     - 確認 Telegram 發送之訊息包含完整的恐慌加碼視窗三層結構
-     - 確認包含 `✅ P0 DCA 照常執行（鐵律，不受 Regime 影響）`
-     - 確認包含 `ℹ️ 00675L 為 2x 槓桿產品，震盪市存在複利耗損`
-   - 檢查正式服務日誌（Logs）：
-     - PM2 日誌無未捕獲例外（Uncaught Exception）或警告風暴
-     - 無過時資料覆蓋或殘留部署鎖（deploy.lock）
+1. [x] **正式日誌驗收（Production Logs）**：
+   - 查驗正式區 `logs/daily.log`：確認於 `[2026-11-04 13:45:01]` 完成 `runDailyCheck`，最後輸出 `[runDailyCheck] ✅ 執行完畢`。
+   - 確認發送 Telegram 戰報（`✅ Telegram 戰報發送成功`），無未捕獲例外或 crash。
+2. [x] **正式日報資料結構驗收（Production Data）**：
+   - 查驗正式區 `data/reports/2026-11-04.json`：
+     - `signals.regimeResult`: `state: "CRISIS"`, `mode: "crisis_accumulate"`，成功轉為機會模式，徹底消除強制賣出錯誤！
+     - `decisionChain`: `status: "🌱【前置過濾：底倉通道】"`, `signalDirection: "hold"`，P0 DCA 紀律保持不變。
+3. [x] **實務資料管線三大斷點盤點**：
+   - **斷點 A（主因）**：Google Sheet (`lastState`) 未包含 `accountNetAsset` 欄位（為 null），導致 `cashExposureAdvisor` 被前置防禦攔截，回傳「`帳戶淨資產未驗證，現金曝險建議暫不提供`」，加碼邏輯未被觸發。
+   - **斷點 B（硬編碼問題）**：原計畫與程式碼將加碼上限寫死為全域常數 `50,000` 元，缺乏依據用戶當前淨資產、槓桿曝險缺口與可用現金的動態自適應機制。
+   - **斷點 C（語義矛盾）**：`extremePanicRadar.mjs` 雷達卡片寫死「00675L 禁止買入」，與無借款帳戶的危機加碼目標衝突。
+
+---
+
+### Phase 7 — 全動態自適應加碼與資料鏈整合（待執行 ⏳）
+
+1. **TDD RED 測試**：
+   - 撰寫 `cashExposureAdvisor.test.mjs` 測試動態加碼公式（依資產規模、槓桿缺口自適應，驗證非 5 萬死板數字，驗證達標後自動歸零）。
+   - 撰寫 `dailyCheck.test.mjs` 驗證 `portfolio.accountNetAsset` 為 null 時的動態現價計算兜底。
+   - 撰寫 `extremePanicRadar.test.mjs` 驗證 `totalDebt === 0` 時行動紀律調整為限速加碼。
+2. **實作 GREEN**：
+   - 更新 `strategyDefaults.mjs`：加入 `CRISIS_ACCUMULATE_BATCH_COUNT`、`CRISIS_ACCUMULATE_TARGET_LEVERAGE`。
+   - 更新 `cashExposureAdvisor.mjs`：實作 §4.3 全動態自適應加碼演算法。
+   - 更新 `dailyCheck.mjs`：實作 §4.4 動態淨資產與曝險計算兜底。
+   - 更新 `extremePanicRadar.mjs`：支援零借款語義調和。
+3. **REFACTOR & 驗證**：
+   - 執行單元與端到端整合測試，確保 100% GREEN。
+
+---
+
+### Phase 8 — 正式部署與 Mini App 最終驗收（待執行 ⏳）
+
+1. Push 代碼至 GitHub `main` 分支。
+2. 正式機部署與手動觸發 `/daily` 重跑。
+3. 驗收正式日報 JSON 與 Telegram 卡片中完整出現自適應加碼金額。
+4. Han 驗證 Telegram Mini App 界面顯示。
 
 ---
 
