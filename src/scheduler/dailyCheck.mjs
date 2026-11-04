@@ -418,12 +418,30 @@ export async function runDailyCheck(deps = {}, options = {}) {
       // Phase 7.3: 動態淨資產 fallback（當 Google Sheets 回傳 null 時）
       const portfolioWithFallback = { ...lastState };
       if (portfolioWithFallback.accountNetAsset == null) {
-        // 使用 totalValue 作為 fallback（來自 Google Sheets 的可靠數據）
-        portfolioWithFallback.accountNetAsset =
-          portfolioWithFallback.totalValue ?? 0;
-        if (portfolioWithFallback.accountNetAsset > 0) {
+        // 直接計算 accountNetAsset（來自 portfolio fields + 當前市價）
+        // 公式：value0050 + value00675L + cash - totalLoan
+        const value0050 =
+          (portfolioWithFallback.qty0050 ?? 0) * (price0050 ?? 0);
+        const value00675L =
+          (portfolioWithFallback.qtyZ2 ?? 0) * (currentPriceZ2 ?? 0);
+        const cash = portfolioWithFallback.cash ?? 0;
+        const totalLoan = portfolioWithFallback.totalLoan ?? 0;
+
+        const calculated = value0050 + value00675L + cash - totalLoan;
+
+        if (
+          Number.isFinite(calculated) &&
+          calculated > 0 &&
+          Number.isFinite(value0050) &&
+          Number.isFinite(value00675L)
+        ) {
+          portfolioWithFallback.accountNetAsset = calculated;
           logger.info(
-            `📊 [Phase 7.3] accountNetAsset 為 null，使用 totalValue 兜底: ${portfolioWithFallback.accountNetAsset}`,
+            `📊 [Phase 7.3] accountNetAsset 為 null，即時計算兜底: ${calculated} (0050: ${value0050}, Z2: ${value00675L}, cash: ${cash}, loan: ${totalLoan})`,
+          );
+        } else {
+          logger.warn(
+            `⚠️ [Phase 7.3] accountNetAsset 為 null，計算失敗: 0050價=${price0050}, Z2價=${currentPriceZ2}, 持倉=${portfolioWithFallback.qty0050}/${portfolioWithFallback.qtyZ2}`,
           );
         }
       }
