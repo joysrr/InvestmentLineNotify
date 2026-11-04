@@ -15,7 +15,17 @@ wiki_links:
   - verification/personalized-design-inventory.md
 ---
 
-# 計畫書：Regime-Aware Opportunity Engine（危機加碼引擎）v2.3
+# 計畫書：Regime-Aware Opportunity Engine（危機加碼引擎）v2.4
+
+---
+
+## 修訂記錄
+
+- **v2.4 (2026-11-04)** — 目標槓桿零硬編碼：引入階層式取得函數 `resolveTargetLeverage()`（優先級：用戶指定 > 策略恐慌檔位 > 評分階梯 > 生命週期天花板），移除 `CRISIS_ACCUMULATE_TARGET_LEVERAGE` 和 `CRISIS_ACCUMULATE_MAX_BATCH` 硬編碼，實現單一真理來源（SSOT）於 `Strategy.json` 與生命週期引擎。
+- **v2.3 (2026-11-04)** — 升級至全動態自適應加碼演算法，消除 5 萬單批硬編碼；新增資料鏈淨資產兜底與雷達語義調和規格。
+- **v2.2 (2026-11-04)** — 優化 Telegram 卡片資訊層次、簡化極端恐慌雷達判斷邏輯、補充實測案例與批次計算詳細規格。
+- **v2.1 (2026-11-04)** — 新增程式碼層級改動定位（精確到行號）、端到端測試規格與生命週期引擎風險天花板說明。
+- **v2.0 (2026-11-04)** — 首版計畫書，定義 Debt-Aware 雙模式架構（OPPORTUNITY vs DEFENSE）。
 
 ---
 
@@ -163,13 +173,84 @@ CRISIS 狀態直接執行 `return createDecisionResult`，終止決策流，後�
 
 ---
 
-### 4.3 全動態帳戶狀態自適應加碼演算法（徹底消除 5 萬硬編碼）
+### 4.3 全動態帳戶狀態自適應加碼演算法（徹底消除硬編碼）
 
-依照 Han 的原則指示，加碼上限**絕不可採用全域寫死的固定常數（如 50,000 元）**，必須完全依據**當前帳戶資產規模、當前曝險水位、目標槓桿與可用現金**進行純動態自適應計算：
+依照 Han 的原則指示，加碼上限**絕不可採用全域寫死的固定常數（如 50,000 元）**，且**目標槓桿同樣不可硬編碼**，必須完全依據**當前帳戶資產規模、當前曝險水位、策略配置與可用現金**進行純動態自適應計算：
+
+#### 4.3.1 目標槓桿階層式取得（零硬編碼 SSOT）
+
+**目標槓桿（TargetLeverage）來源優先級**（從高到低，取第一個有效值）：
+
+1. **第一優先（用戶主動指定）**：`portfolio.targetLeverage`  
+   若用戶在帳戶狀態表（Google Sheet）或 Bot 偏好中明確指定（例如 `1.15`、`1.25`、`1.30`），以此為準，系統無條件遵循。
+2. **第二優先（策略配置恐慌檔位）**：`strategy.buy?.panic?.suggestedLeverage`  
+   當純恐慌型雷達觸發且無借款時，讀取策略檔中的恐慌加碼專用槓桿參數。此參數在 `Strategy.default.json` 定義為：
+   ```json
+   "buy": {
+     "panic": { "suggestedLeverage": 0.3 }  // 總槓桿 = 1 + 0.3 = 1.3x
+   }
+   ```
+3. **第三優先（當前市場評分檔位）**：`strategy.allocation` 階梯  
+   依當前大盤評分（跌幅、RSI、KD、MACD 加權總分）對應的 `allocation` 檔位中的 `leverage`：
+   ```json
+   "allocation": [
+     { "minScore": -99, "leverage": 0.15, "comment": "平時/底倉 (1.15x)" },
+     { "minScore": 4,   "leverage": 0.20, "comment": "微量/觀察 (1.20x)" },
+     { "minScore": 6,   "leverage": 0.40, "comment": "一般訊號 (1.40x)" },
+     { "minScore": 8,   "leverage": 0.60, "comment": "積極加碼 (1.60x)" },
+     { "minScore": 10,  "leverage": 0.80, "comment": "槓桿全開 (1.80x)" }
+   ]
+   ```
+   換算為總槓桿 = `1 + allocation[score].leverage`。
+4. **防禦天花板（硬邊界保護，絕不可超越）**：`lifecycleContext.profile.maxLeverageForNewZ2`  
+   無論前三優先級計算出多少，總槓桿絕不超過當前生命週期階段的新開倉上限。Han 目前 33 歲，屬 MID 階段，上限為 **1.5x**。
+
+**階層式取得實作邏輯（偽代碼）**：
+
+```javascript
+function resolveTargetLeverage(
+  portfolio,
+  strategy,
+  lifecycleContext,
+  marketScore,
+) {
+  // 1. 用戶主動指定
+  if (
+    Number.isFinite(portfolio.targetLeverage) &&
+    portfolio.targetLeverage > 0
+  ) {
+    return Math.min(
+      portfolio.targetLeverage,
+      lifecycleContext.profile.maxLeverageForNewZ2,
+    );
+  }
+  // 2. 恐慌檔位
+  if (strategy.buy?.panic?.suggestedLeverage != null) {
+    const panicTotal = 1 + strategy.buy.panic.suggestedLeverage;
+    return Math.min(panicTotal, lifecycleContext.profile.maxLeverageForNewZ2);
+  }
+  // 3. 評分階梯
+  const alloc = getTargetLeverageByScore(marketScore, strategy);
+  const allocTotal = 1 + alloc.leverage;
+  return Math.min(allocTotal, lifecycleContext.profile.maxLeverageForNewZ2);
+}
+```
+
+**設計優勢**：
+
+- **零硬編碼**：程式碼中完全不存在任何寫死的 1.2x、1.3x 數字。
+- **單一真理來源（SSOT）**：所有配置存於 `Strategy.json` 與生命週期引擎，前端 Mini App 與設定檔可直接調整，全系統自動連動。
+- **多層防護**：即使用戶誤填過高值（例如 2.5x），生命週期防禦天花板自動攔截降至 1.5x。
+
+---
+
+#### 4.3.2 全動態自適應加碼金額計算
+
+取得目標槓桿後，進行動態加碼金額計算：
 
 1. **目標曝險（Target Gross Exposure）**：
    $$\text{TargetExposure} = \text{AccountNetAsset} \times \text{TargetLeverage}$$
-   - `TargetLeverage`：目標總槓桿（預設 `1.2x`，可由策略配置傳入）。
+   - `TargetLeverage`：由 §4.3.1 階層式取得。
    - `AccountNetAsset`：當前真實帳戶淨資產（0050 市值 + 00675L 市值 + 現金 - 負債）。
 
 2. **剩餘曝險缺口（Gross Exposure Gap）**：
@@ -255,7 +336,7 @@ _(原則：卡片僅展示決策必要動態值，不顯示用戶總現金、總
   // 簡潔主訊息：
   message: `⚡ 恐慌加碼模式：無借款帳戶，建議本批加碼 00675L 上限 ${batchLimit.toLocaleString()} TWD`,
   // 展開式細節／分析依據：
-  batchRationale: `VIX 恐慌視窗；每批上限 = min(現金×${CRISIS_ACCUMULATE_BATCH_RATIO * 100}%, ${CRISIS_ACCUMULATE_MAX_BATCH})；歷史實證 VIX>40 長期正期望值，限速控制路徑損耗`,
+  batchRationale: `VIX 恐慌視窗；每批上限 = min(缺口/10批, 現金×10%, 總缺口)，千元取整；歷史實證 VIX>40 長期正期望值，限速控制路徑損耗`,
   // 風險提示：
   disclaimer: "P0 DCA 維持不變，本建議僅影響 P1 條件加碼；00675L 為槓桿產品，震盪市存在複利損耗"
 }
@@ -293,13 +374,17 @@ export const CRISIS_ACCUMULATE_BATCH_RATIO = 0.1; // 10% 現金安全流動性�
  * @type {number}
  */
 export const CRISIS_ACCUMULATE_BATCH_COUNT = 10; // 預設 10 批平攤
-
-/**
- * 危機加碼目標總槓桿
- * @type {number}
- */
-export const CRISIS_ACCUMULATE_TARGET_LEVERAGE = 1.2; // 1.2x 目標槓桿上限
 ```
+
+**Phase 7 變更（移除硬編碼常數）**：
+
+- **移除** `CRISIS_ACCUMULATE_MAX_BATCH = 50000`（Phase 1-6 臨時防護，Phase 7 改為完全動態計算，見 §4.3.2）
+- **移除** `CRISIS_ACCUMULATE_TARGET_LEVERAGE = 1.2`（目標槓桿改由階層式取得函數 `resolveTargetLeverage()` 提供，見 §4.3.1）
+
+**設計理由**：
+
+- **目標槓桿零硬編碼**：改由 `cashExposureAdvisor.mjs` 調用新函數 `resolveTargetLeverage(portfolio, strategy, lifecycleContext, marketScore)` 階層式取得（優先級：用戶指定 > 策略恐慌檔位 > 評分階梯 > 生命週期天花板），確保單一真理來源（SSOT）。
+- **批次與比例保留**：`BATCH_COUNT` 和 `BATCH_RATIO` 為純粹的風險管理參數（分批紀律、現金防線），與帳戶狀態無關，保留為全域常數合理。
 
 ---
 
@@ -382,8 +467,37 @@ if (regimeResult.state === "CRISIS") {
 import {
   PANIC_RADARS,
   CRISIS_ACCUMULATE_BATCH_RATIO,
-  CRISIS_ACCUMULATE_MAX_BATCH,
+  CRISIS_ACCUMULATE_BATCH_COUNT,
 } from "./strategyDefaults.mjs";
+import { getTargetLeverageByScore } from "./riskManagement.mjs";
+
+// Phase 7 新增：階層式取得目標槓桿函數（見 §4.3.1）
+function resolveTargetLeverage(
+  portfolio,
+  strategy,
+  lifecycleContext,
+  marketScore,
+) {
+  // 1. 用戶主動指定
+  if (
+    Number.isFinite(portfolio.targetLeverage) &&
+    portfolio.targetLeverage > 0
+  ) {
+    return Math.min(
+      portfolio.targetLeverage,
+      lifecycleContext.profile.maxLeverageForNewZ2,
+    );
+  }
+  // 2. 恐慌檔位
+  if (strategy.buy?.panic?.suggestedLeverage != null) {
+    const panicTotal = 1 + strategy.buy.panic.suggestedLeverage;
+    return Math.min(panicTotal, lifecycleContext.profile.maxLeverageForNewZ2);
+  }
+  // 3. 評分階梯
+  const alloc = getTargetLeverageByScore(marketScore, strategy);
+  const allocTotal = 1 + alloc.leverage;
+  return Math.min(allocTotal, lifecycleContext.profile.maxLeverageForNewZ2);
+}
 
 export function evaluateCashExposure({
   cash,
@@ -417,7 +531,14 @@ export function evaluateCashExposure({
 
     // 2. 純恐慌型雷達觸發 + 無借款帳戶 → 全動態自適應加碼
     if (panicRadars.length > 0 && numericDebt === 0) {
-      const dynamicTargetLeverage = CRISIS_ACCUMULATE_TARGET_LEVERAGE;
+      // Phase 7: 階層式取得目標槓桿（零硬編碼，見 §4.3.1）
+      const dynamicTargetLeverage = resolveTargetLeverage(
+        portfolio,
+        strategy,
+        lifecycleContext,
+        marketScore,
+      );
+
       const targetExp = accountNetAsset * dynamicTargetLeverage;
       const currentGrossExp = Number(grossExposure ?? 0);
       const gap = Math.max(0, targetExp - currentGrossExp);
@@ -499,7 +620,7 @@ const cashExposureAnalysis = evaluateCashExposure({
 
 ### Phase 1 — 測試骨架 + strategyDefaults（已完成 ✅）
 
-1. [x] 在 `strategyDefaults.mjs` 定義 3 個集中常數：`PANIC_RADARS`, `CRISIS_ACCUMULATE_BATCH_RATIO`, `CRISIS_ACCUMULATE_MAX_BATCH`
+1. [x] 在 `strategyDefaults.mjs` 定義 3 個集中常數：`PANIC_RADARS`, `CRISIS_ACCUMULATE_BATCH_RATIO`, `CRISIS_ACCUMULATE_BATCH_COUNT`（Phase 7 移除 `CRISIS_ACCUMULATE_MAX_BATCH` 和 `CRISIS_ACCUMULATE_TARGET_LEVERAGE` 硬編碼）
 2. [x] 撰寫 RED 測試：
    - `regimePolicy.test.mjs`（OPPORTUNITY vs DEFENSE 分流測試）
    - `cashExposureAdvisor.test.mjs`（恐慌雷達 vs 基本面雷達分流測試，含同時觸發邊界測試、字串型別防護與 MAX_BATCH 截斷測試）
@@ -514,7 +635,7 @@ const cashExposureAnalysis = evaluateCashExposure({
 ### Phase 3 — `cashExposureAdvisor.mjs` + `leadingIndicatorEvaluator.mjs`（已完成 ✅）
 
 1. [x] 實作 `evaluateCashExposure` 恐慌型雷達分流：
-   - 引用 `strategyDefaults.mjs` 之集中常數（`PANIC_RADARS`, `CRISIS_ACCUMULATE_BATCH_RATIO`, `CRISIS_ACCUMULATE_MAX_BATCH`）
+   - 引用 `strategyDefaults.mjs` 之集中常數（`PANIC_RADARS`, `CRISIS_ACCUMULATE_BATCH_RATIO`, `CRISIS_ACCUMULATE_BATCH_COUNT`）（Phase 7 移除 `MAX_BATCH` 硬編碼）
    - 新增 `totalDebt = 0` 與 `Number(totalDebt ?? 0)` 型別防護
    - 實作三層分流：基本面雷達觸發 → 一律 `DEFER`；純恐慌雷達＋無借款 → `CRISIS_ACCUMULATE`（限速加碼並產出 `batchRationale`、`disclaimer` 含複利損耗提示）；純恐慌雷達＋有借款 → `DEFER`
 2. [x] `leadingIndicatorEvaluator.mjs` 補傳 `totalDebt: portfolio.totalDebt ?? 0`
@@ -542,7 +663,7 @@ const cashExposureAnalysis = evaluateCashExposure({
 1. [x] 執行「附錄 A：設計案例（2026-11-04 Fixture）」端到端測試：
    - 新增端到端整合測試套件 `src/test/integration/regimeAwareOpportunityEngine.test.mjs`
    - 驗收附錄 A 2026-11-04 暴跌情境：`determineRegime` 正確判定 `OPPORTUNITY` + `crisis_accumulate`，`leverageMultiplier=0`
-   - 驗收現金曝險分析：600,000 現金 × 10% = 60,000，正確截斷於 `CRISIS_ACCUMULATE_MAX_BATCH`（50,000 TWD），且三層資訊完整（`message`、`batchRationale`、`disclaimer`）
+   - 驗收現金曝險分析：600,000 現金動態計算批次上限（Phase 1-6 採用臨時 `MAX_BATCH`=50,000，Phase 7 改為完全動態），且三層資訊完整（`message`、`batchRationale`、`disclaimer`）
    - 驗收 Telegram 卡片產生器 `formatCrisisAccumulateCard` 輸出 100% 符合計畫書 §6.1 規範
    - 驗收對照組 DEFENSE 模式：`totalDebt > 0` 時維持 `sell_only` 與 `DEFER`，完全維持防爆倉安全邊界
    - 驗收邊界案例：基本面雷達（如融資斷頭）與恐慌雷達同時觸發時，基本面安全優先，回傳 `DEFER`
@@ -577,10 +698,11 @@ const cashExposureAnalysis = evaluateCashExposure({
    - 撰寫 `dailyCheck.test.mjs` 驗證 `portfolio.accountNetAsset` 為 null 時的動態現價計算兜底。
    - 撰寫 `extremePanicRadar.test.mjs` 驗證 `totalDebt === 0` 時行動紀律調整為限速加碼。
 2. **實作 GREEN**：
-   - 更新 `strategyDefaults.mjs`：加入 `CRISIS_ACCUMULATE_BATCH_COUNT`、`CRISIS_ACCUMULATE_TARGET_LEVERAGE`。
-   - 更新 `cashExposureAdvisor.mjs`：實作 §4.3 全動態自適應加碼演算法。
+   - 更新 `strategyDefaults.mjs`：移除 `CRISIS_ACCUMULATE_MAX_BATCH` 和 `CRISIS_ACCUMULATE_TARGET_LEVERAGE` 硬編碼，保留 `CRISIS_ACCUMULATE_BATCH_COUNT` 和 `CRISIS_ACCUMULATE_BATCH_RATIO`。
+   - 更新 `cashExposureAdvisor.mjs`：新增 `resolveTargetLeverage()` 階層式取得函數（§4.3.1），實作 §4.3.2 全動態自適應加碼演算法。
    - 更新 `dailyCheck.mjs`：實作 §4.4 動態淨資產與曝險計算兜底。
    - 更新 `extremePanicRadar.mjs`：支援零借款語義調和。
+   - 更新 `leadingIndicatorEvaluator.mjs`：傳遞 `strategy`, `lifecycleContext`, `marketScore` 給 `cashExposureAdvisor`。
 3. **REFACTOR & 驗證**：
    - 執行單元與端到端整合測試，確保 100% GREEN。
 
@@ -597,12 +719,12 @@ const cashExposureAnalysis = evaluateCashExposure({
 
 ## 9. 風險管理表
 
-| 風險項目                                   | 機率 | 影響 | 緩解措施                                                                                |
-| ------------------------------------------ | ---- | ---- | --------------------------------------------------------------------------------------- |
-| 未來復借後 OPPORTUNITY 誤判                | 低   | 高   | `Number(totalDebt) > 0` 自動強制切回 DEFENSE 模式，零人工介入                           |
-| 高波動震盪下的複利損耗（Volatility Decay） | 高   | 中   | `CRISIS_ACCUMULATE_MAX_BATCH` 硬上限防護，避免單批過大；Telegram 卡片與 disclaimer 揭露 |
-| 恐慌時市場續跌（如 2008 續跌約 30%）       | 中   | 中   | 限速加碼即為平攤進場成本，單批金額上限受可用現金比例限制                                |
-| 修改影響既有 1929 個測試                   | 低   | 高   | 所有新參數設有相容預設值（`debtMode="DEFENSE"`），現有測試走既有路徑                    |
+| 風險項目                                   | 機率 | 影響 | 緩解措施                                                                                         |
+| ------------------------------------------ | ---- | ---- | ------------------------------------------------------------------------------------------------ |
+| 未來復借後 OPPORTUNITY 誤判                | 低   | 高   | `Number(totalDebt) > 0` 自動強制切回 DEFENSE 模式，零人工介入                                    |
+| 高波動震盪下的複利損耗（Volatility Decay） | 高   | 中   | 動態批次計算（缺口/10批、現金 10%、總缺口三維 min）限制單批規模；Telegram 卡片與 disclaimer 揭露 |
+| 恐慌時市場續跌（如 2008 續跌約 30%）       | 中   | 中   | 限速加碼即為平攤進場成本，單批金額上限受可用現金比例限制                                         |
+| 修改影響既有 1929 個測試                   | 低   | 高   | 所有新參數設有相容預設值（`debtMode="DEFENSE"`），現有測試走既有路徑                             |
 
 ---
 
