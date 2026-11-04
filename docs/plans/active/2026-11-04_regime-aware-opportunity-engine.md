@@ -15,7 +15,7 @@ wiki_links:
   - verification/personalized-design-inventory.md
 ---
 
-# 計畫書：Regime-Aware Opportunity Engine（危機加碼引擎）v2.0
+# 計畫書：Regime-Aware Opportunity Engine（危機加碼引擎）v2.1
 
 ---
 
@@ -23,38 +23,38 @@ wiki_links:
 
 ### 1.1 現象
 
-2026-11-04，台股單日大跌 -6.3%，VIX 飆至 41.18。
-使用者（Han）的投資策略明確要求「趁恐慌分批加碼 00675L」，但系統給出以下輸出：
+市場發生極端恐慌大跌（如 VIX 飆破 40）時，無借款投資者的策略意圖為「趁恐慌分批建立低成本衛星槓桿」，但系統卻給出以下全面封鎖輸出：
 
-| 模組                  | 觸發邏輯                  | 輸出                              | 實際效果                 |
+| 模組                  | 觸發邏輯                  | 現行輸出                          | 實際副作用               |
 | --------------------- | ------------------------- | --------------------------------- | ------------------------ |
-| `RegimePolicyRule`    | VIX=41 ≥ 35 → CRISIS      | `sell_only`，建議賣出 00675L 100% | 阻止加碼                 |
+| `RegimePolicyRule`    | VIX ≥ 35 → CRISIS         | `sell_only`，建議賣出 00675L 100% | 阻止加碼並要求清倉       |
 | `extremePanicRadar`   | VIX 超門檻觸發            | radarTriggered 清單非空           | 傳入 cashExposureAdvisor |
-| `cashExposureAdvisor` | radarTriggered.length > 0 | `DEFER`，suggestedDcaAmt=0        | 暫緩一切加速             |
-| `theoreticalShadow`   | Kelly=0.31x < 當前 0.78x  | UI 紅燈警示                       | 顯示超出上限             |
+| `cashExposureAdvisor` | radarTriggered.length > 0 | `DEFER`，suggestedDcaAmt=0        | 暫緩一切加速加碼         |
+| `theoreticalShadow`   | 當前槓桿 > Kelly 數值     | UI 紅燈警示                       | 顯示超出上限，誤導決策   |
 
-**四層機制同時亮紅燈，系統在使用者最想加碼的時刻全面封鎖。**
+**四層機制同時亮紅燈，系統在市場出現高期望值恐慌折價時全面封鎖。**
 
 ### 1.2 根本矛盾
 
-現行系統的設計前提是：**使用者有融資借款，VIX 飆高代表斷頭風險**。
+現行系統的設計隱含假設為：**投資人帳戶存在保證金借款／融資負債，VIX 飆高即代表斷頭與追繳風險**。
 
-但使用者的真實狀況是：
+但在**無借款帳戶（`totalDebt === 0`）**的情境下：
 
-- `totalDebt = 0`（無借款，2026-11 增貸已全數還清或投入，無流動負債）
-- `cash = 600,000 TWD`（自有現金，非保證金）
-- 00675L 持倉僅 51,010 TWD（佔淨資產 2.1%）
-- 目標：**主動將金融槓桿從 0.78x 分批調整至 1.2x**
+- 帳戶無流動性負債，無追繳斷頭壓力（`maintenanceRatio` 為 N/A）
+- 現金為純自有防禦資金，非保證金
+- 槓桿 ETF（如 00675L）屬於有限損失資產（最大損失為持倉本金，無負債風險）
 
-**系統在用「防止爆倉」邏輯管理一個根本不會爆倉的帳戶。**
+**系統以「防止爆倉」的防禦性邏輯，過度干預並阻斷了無斷頭風險帳戶的「危機採購機會」。**
+
+_(註：具體帳戶數值請參閱「附錄 A：設計案例與驗收 Fixture」，非每日輸出文案)_
 
 ---
 
-## 2. 佐證與學術根據
+## 2. 佐證與理論校正
 
-### 2.1 VIX>40 的歷史加碼勝率（實證）
+### 2.1 VIX>40 的歷史加碼勝率與路徑風險
 
-> 來源：FinLab 量化研究，1990–2026 回測（36 年、S&P 500，2026-06 更新）
+> 來源：FinLab 量化研究，1990–2026 回測（36 年、S&P 500，2026-06 更新）  
 > URL: https://finlab.finance/blog/vix-us-stock-crash-investing-python
 
 | 策略                                 | 樣本      | 持有 250 日平均報酬 | 勝率    | 最差一次          |
@@ -63,10 +63,7 @@ wiki_links:
 | 訊號 B：VIX 曾破 40、降至 30 再買    | 10 次     | +16.8%              | 90%     | -18.5%            |
 | 任意時點買進（基準）                 | 8,900+ 天 | +10.0%              | 81%     | —                 |
 
-**結論**：VIX>40 當天進場，250 日報酬是任意進場的 **2.2 倍**。恐慌優勢在「報酬幅度」，不在勝率。
-「等 VIX 降溫再買」的策略在全樣本不成立，訊號 A 更優。
-
-> 來源：第一金投信，30 年歷史數據
+> 來源：第一金投信，30 年歷史數據  
 > URL: https://www.fsitc.com.tw/ManagerEDM.aspx?ID=1938&Type=2
 
 | 進場 VIX  | 6M 平均報酬 | 1Y 平均報酬 | 2Y 平均報酬 | 3Y 勝率 |
@@ -74,49 +71,39 @@ wiki_links:
 | VIX 40~50 | +14.2%      | +28.9%      | +45.7%      | 99.4%   |
 | VIX >50   | 更高        | 更高        | 更高        | 100%    |
 
-**台股數據也同樣支持：VIX 越高、長期勝率越高。**
+**理論校正與路徑風險防禦**：
 
-### 2.2 Kelly Criterion 在無借款情境的正確用法
+- **路徑風險揭露**：VIX 破 40 雖長期勝率達 83%~99%，但**並不保證當天即為最低點**（如 2008 年金融海嘯 VIX 首破 40 後，指數仍持續下挫約 30%）。
+- **限速意義**：因此，加碼必須嚴格採「限速分批（Batch Limit）」，限速的目的就是**控制續跌時的路徑損耗**，絕不可單筆重壓。
 
-> 來源：Frontiers in Applied Mathematics and Statistics (2020)
+### 2.2 Kelly Criterion 的語義分流（Debt-Aware）
+
+> 來源：Frontiers in Applied Mathematics and Statistics (2020)  
 > URL: https://doi.org/10.3389/fams.2020.577050
 
-原論文結論：
+原論文指出實務上應採 Half Kelly（0.5×Kelly）降低回撤。在工程設計上，UI 紅燈與警告需依據 `debtMode` 進行**語義分流**：
 
-- Kelly 最大化長期幾何報酬，但 Full Kelly 在短期波動極大
-- 實務上採 **Half Kelly（0.5×Kelly）** 可大幅降低 drawdown，同時保留 75% 的長期報酬
-- **無借款情境下**，Kelly 是「加碼速度的節流器」，而非「強制減倉訊號」
+- **DEFENSE 模式（有借款）**：當前槓桿 > Kelly → **「優先降槓」**（防範斷頭風險）。
+- **OPPORTUNITY 模式（無借款）**：當前槓桿 > Kelly → **「限制新資金加碼速度」**，現有持倉部位不強制賣出，作為分批節流閥。
 
-當前系統誤用：Kelly < 當前槓桿 → 警告 → 建議賣出。
-正確解讀：Kelly < 當前槓桿 → **新資金每批金額放慢，但現有部位不強制賣出。**
+### 2.3 Regime Switching 的區間強度與降噪
 
-### 2.3 Regime Switching 文獻
-
-> 來源：Predictive Signals from VIX Spikes (Preprints, 2026-02)
+> 來源：Predictive Signals from VIX Spikes (Preprints, 2026-02)  
 > URL: https://www.preprints.org/manuscript/202602.1048
 
-核心發現：
+- 歷史實證中，最強烈的反轉訊號通常出現在 **VIX > 45** 的極端區間；在 VIX 35~45 區間，市場震盪可能延長。
+- **降噪處理**：將此類學術區間細節放入 `batchRationale` 或展開式說明中，主通知卡片保持精簡，避免干擾日常決策。
 
-- VIX 急漲後（regime shift），後續 1~3 個月的「局部戰術配置」(tactical allocation) 有顯著正期望值
-- 高 VIX 環境是**採購機會**（opportunity window），而非單純的風險訊號
-- **Regime 與部位大小應分離**：高風險期可降低「每批」金額，但不應封鎖方向
+### 2.4 Antifragile 理論邊界修正與 00675L 複利耗損
 
-### 2.4 Antifragile Portfolio 理論
-
-> 來源：CFA Institute Enterprising Investor (2020)
-> URL: https://rpc.cfainstitute.org/blogs/enterprising-investor/2020/creating-anti-fragile-portfolios
-
-Nassim Taleb 的 Antifragile 概念在投資組合的應用：
-
-- 核心資產（0050）充當穩定錨，不因恐慌賣出
-- 衛星資產（00675L）在市場極端壓力時**小批量進場**，利用高波動率創造非對稱報酬
-- 關鍵：**每批金額受限（例如：自有現金 × 10%）**，而非方向封鎖
+- **Antifragile 正確歸位**：Nassim Taleb 原則嚴格反對負債與金融槓桿。因此，**Antifragile 僅適用於「核心資產 0050 不因恐慌賣出」**的抗脆弱防守，不可用作加碼 2x 槓桿 ETF（00675L）的理論背書。
+- **00675L 波動度耗損（Volatility Decay）**：2x 槓桿 ETF 採每日平衡機制，在盤整或高波動震盪市存在複利損耗。系統必須在風險免責聲明中明確提示「震盪市存在複利耗損」，並以此作為單批加碼金額上限（`MAX_BATCH`）的工程防護理由。
 
 ---
 
 ## 3. 現行問題深度分析
 
-### 3.1 決策鏈全貌（現行，VIX=41 情境）
+### 3.1 決策鏈全貌（現行）
 
 ```
 dailyCheckTheoreticalAdapter.mjs
@@ -125,7 +112,7 @@ dailyCheckTheoreticalAdapter.mjs
        │    └─ extremePanicRadar 觸發 → triggeredRadars 非空
        │
        ├─ [Step 2] RegimePolicyRule.evaluate() [Priority 0]
-       │    └─ determineRegime(VIX=41, ...) → state="CRISIS"
+       │    └─ determineRegime(VIX, ...) → state="CRISIS"
        │         └─ 立即 return sell_only 決策 ← 阻斷所有後續規則
        │
        └─ [Step 3] evaluateCashExposure()
@@ -133,77 +120,23 @@ dailyCheckTheoreticalAdapter.mjs
                  └─ return { status: "DEFER", suggestedDcaAmt: 0 }
 ```
 
-### 3.2 三個根本設計問題（對應到原始碼）
+### 3.2 程式碼層級問題診斷
 
 #### 問題 A：`regimePolicy.mjs` 第 50–65 行
 
-```javascript
-// 現行：CRISIS 無條件 return sell_only，不感知 totalDebt
-if (vixValue >= vixAbsoluteOverride) {   // vixAbsoluteOverride = 35
-  return {
-    state: "CRISIS",
-    leverageMultiplier: 0,
-    mode: "sell_only",          // ← 無論 totalDebt=0 或 500萬，行為相同
-    reason: `VIX ${vixValue.toFixed(1)} ≥ 絕對門檻 ${vixAbsoluteOverride} → 危機模式`,
-    context: { vix: vixValue, ... },
-  };
-}
-```
+`determineRegime` 於 VIX ≥ 35 時無條件回傳 `mode: "sell_only"`，缺乏帳戶負債狀態維度。
 
 #### 問題 B：`RegimePolicyRule.mjs` 第 59–78 行
 
-```javascript
-// 現行：CRISIS 立即 return，阻斷所有後續規則
-if (regimeResult.state === "CRISIS") {
-  const deleverageCfg = strategy.dynamicDeleverage || { sellRatio: 1.0 };
-  const sellPercent = Math.round(deleverageCfg.sellRatio * 100);
-
-  return createDecisionResult({
-    marketStatus: "🚨【VIX 危機模式】",
-    target: "🔴 局部減碼 / 強制賣出",
-    targetSuggestion: `建議賣出 00675L 當前持股之 ${sellPercent}%`,
-    // ← totalDebt=0 時這段邏輯毫無必要
-  });
-}
-```
+CRISIS 狀態直接執行 `return createDecisionResult`，終止決策流，後續規則（含部位評估）完全無法運行。
 
 #### 問題 C：`cashExposureAdvisor.mjs` 第 71–81 行
 
-```javascript
-// 現行：所有雷達觸發一律 DEFER，不區分恐慌型/基本面型
-if (radarTriggered && radarTriggered.length > 0) {
-  return {
-    status: "DEFER",
-    suggestedDcaAmt: 0,
-    message: `市場雷達異常：${radarTriggered.join("，")}，暫緩加速，維持基礎 DCA`,
-    // ← extremePanicRadar（恐慌型）和 creditSpreadRadar（基本面型）獲得完全相同處理
-  };
-}
-```
+`radarTriggered` 不分青紅皂白一律 `DEFER`。未區分「恐慌型雷達（價格超跌折價）」與「基本面/流動性雷達（總經衰退/信用違約）」。
 
 #### 問題 D：`leadingIndicatorEvaluator.mjs` 第 188–194 行
 
-```javascript
-// 現行：呼叫 evaluateCashExposure 時未傳入 totalDebt
-const cashExposureAnalysis = evaluateCashExposure({
-  cash: portfolio.cash ?? 0,
-  grossExposure: portfolio.currentExposure ?? 0,
-  accountNetAsset: portfolio.accountNetAsset,
-  kellyConservative: marketData.kellyConservative,
-  radarTriggered: triggeredRadars.map((r) => r.radarId).filter(Boolean),
-  // ← 沒有 totalDebt，cashExposureAdvisor 無從判斷債務狀態
-});
-```
-
-### 3.3 受影響檔案清單
-
-| 優先級 | 檔案路徑                                                   | 問題                           | 改動範圍                                |
-| ------ | ---------------------------------------------------------- | ------------------------------ | --------------------------------------- |
-| 🔴 P0  | `src/modules/strategy/regimePolicy.mjs`                    | CRISIS = sell_only，不感知債務 | 新增 `debtMode` 參數，約 +20 行         |
-| 🔴 P0  | `src/modules/strategy/decision/rules/RegimePolicyRule.mjs` | CRISIS 直接 return，阻斷後續   | 第 59–78 行改寫，約 +10 行              |
-| 🟠 P1  | `src/modules/strategy/cashExposureAdvisor.mjs`             | 雷達一律 DEFER                 | 第 71–81 行改寫 + 新增 `totalDebt` 參數 |
-| 🟠 P1  | `src/modules/strategy/leadingIndicatorEvaluator.mjs`       | 未傳 totalDebt                 | 第 188–194 行補傳一個參數               |
-| 🟡 P2  | `src/modules/strategy/strategyDefaults.mjs`                | 缺乏恐慌加碼常數               | 尾端追加 3 個常數                       |
+呼叫 `evaluateCashExposure` 時未傳遞 `totalDebt`，下游無法獲知債務邊界。
 
 ---
 
@@ -212,112 +145,114 @@ const cashExposureAnalysis = evaluateCashExposure({
 ### 4.1 核心原則
 
 ```
-帳戶狀態判定（由 leadingIndicatorEvaluator 計算後傳遞）：
-
+帳戶狀態判定：
   portfolio.totalDebt === 0
-    → debtMode = "OPPORTUNITY"（機會型模式，本計畫新增）
+    → debtMode = "OPPORTUNITY"（機會型模式：無斷頭風險，恐慌時限速加碼）
 
   portfolio.totalDebt > 0
-    → debtMode = "DEFENSE"（防禦型模式，現行邏輯 100% 保留）
+    → debtMode = "DEFENSE"（防禦型模式：現行降槓與防斷頭邏輯 100% 完整保留）
 ```
-
-**DEFENSE 模式** = 現有邏輯 100% 不變
-**OPPORTUNITY 模式** = 本計畫新增邏輯
-
-**若未來復借（totalDebt > 0），自動切回 DEFENSE，零人工介入。**
 
 ### 4.2 OPPORTUNITY 模式的 Regime 重定義
 
-| Regime     | VIX 範圍 | DEFENSE 模式（維持不變）   | OPPORTUNITY 模式（新增）                 |
-| ---------- | -------- | -------------------------- | ---------------------------------------- |
-| NORMAL     | < 28     | 允許加碼                   | 允許加碼（同左）                         |
-| CAUTIOUS   | 28–35    | 減速 25%                   | 減速 25%（同左）                         |
-| **CRISIS** | **≥ 35** | **sell_only，建議賣出 X%** | **`crisis_accumulate`，每批限速 ≤ 5 萬** |
+| Regime     | VIX 範圍 | DEFENSE 模式（維持不變）   | OPPORTUNITY 模式（新增）              |
+| ---------- | -------- | -------------------------- | ------------------------------------- |
+| NORMAL     | < 28     | 允許加碼                   | 允許加碼（同左）                      |
+| CAUTIOUS   | 28–35    | 減速 25%                   | 減速 25%（同左）                      |
+| **CRISIS** | **≥ 35** | **sell_only，建議賣出 X%** | **`crisis_accumulate`，每批限速加碼** |
 
-### 4.3 最終使用者看到的輸出變化
+---
 
-**改動前（VIX=41，totalDebt=0）**：
+## 5. 系統輸出模板與降噪設計（避免案例數字寫死）
 
-```
-🚨【VIX 危機模式】
-目標：🔴 局部減碼 / 強制賣出
-建議：依生命週期投資法實行減碼，建議賣出 00675L 當前持股之 100%
-• 禁止新增戰術部位
-• 允許操作：0050 DCA 照常執行 + 依比例減倉 100%
-```
-
-**改動後（VIX=41，totalDebt=0）**：
+### 5.1 Telegram 通知卡片模板（純動態欄位）
 
 ```
 ⚡【恐慌加碼視窗】無借款帳戶 · VIX 危機模式
 目標：📈 分批限速加碼（CRISIS_ACCUMULATE）
-建議：VIX=41，歷史 36 年實證勝率 83%（250 日均報酬 +22.1%）
-• 建議本批加碼 00675L：50,000 TWD（現金 10% 上限）
-• 目標槓桿：1.2x，當前：0.78x，缺口需累計約 52 萬 TWD
-• ✅ P0 DCA 每月 3 萬照常執行（鐵律，不受任何 Regime 影響）
-• ⚠️ P1 條件加碼：每批 5 萬，VIX 仍高時控制路徑損耗
+建議：本批加碼 00675L 上限 {batchLimit} TWD
+• 目標槓桿：{targetLeverage}x，當前：{currentLeverage}x
+• ✅ P0 DCA 照常執行（鐵律，不受 Regime 影響）
+• ⚠️ P1 條件加碼：每批上限 {batchLimit}，VIX 仍高時控制路徑損耗
+```
+
+_(原則：卡片僅展示決策必要動態值，不顯示用戶總現金、總資產或固定缺口)_
+
+### 5.2 cashExposureAdvisor 訊息降噪設計
+
+```javascript
+{
+  status: "CRISIS_ACCUMULATE",
+  suggestedDcaAmt: batchLimit,
+  exposureGap,
+  targetExposure,
+  cashAdequacy,
+  // 簡潔主訊息：
+  message: `⚡ 恐慌加碼模式：無借款帳戶，建議本批加碼 00675L 上限 ${batchLimit.toLocaleString()} TWD`,
+  // 展開式細節／分析依據：
+  batchRationale: `VIX 恐慌視窗；每批上限 = min(現金×${CRISIS_ACCUMULATE_BATCH_RATIO * 100}%, ${CRISIS_ACCUMULATE_MAX_BATCH})；歷史實證 VIX>40 長期正期望值，限速控制路徑損耗`,
+  // 風險提示：
+  disclaimer: "P0 DCA 維持不變，本建議僅影響 P1 條件加碼；00675L 為槓桿產品，震盪市存在複利損耗"
+}
 ```
 
 ---
 
-## 5. 逐檔改動說明（精確到行號）
+## 6. 逐檔改動規格（精確到行號）
 
-### 5.1 `strategyDefaults.mjs`（尾端追加，不改動現有常數）
+### 6.1 `src/modules/strategy/strategyDefaults.mjs`
 
-**位置**：第 218 行之後（`ALL_DEFAULTS` 之後）新增
+**位置**：第 218 行後追加集中管理常數（SSOT）
 
 ```javascript
 // ─────────────────────────────────────────────────────────────
 // 危機加碼（Crisis Accumulate）相關常數
-// 僅在 debtMode = "OPPORTUNITY"（totalDebt=0）時生效
 // ─────────────────────────────────────────────────────────────
 
 /**
  * 恐慌型雷達清單
- * 這些雷達在無借款帳戶中代表「加碼機會」而非封鎖訊號
+ * 在無借款帳戶中代表「市場情緒恐慌加碼機會」，非信用/基本面惡化封鎖訊號
  * @type {string[]}
  */
 export const PANIC_RADARS = ["extremePanicRadar", "vixSpike"];
 
 /**
  * 危機加碼批次比例（佔可用現金）
- * OPPORTUNITY 模式下，每批加碼金額上限 = cash × 此比例
  * @type {number}
  */
 export const CRISIS_ACCUMULATE_BATCH_RATIO = 0.1; // 10%
 
 /**
  * 危機加碼單批最大金額（TWD）
- * 避免路徑損耗過大，即使現金充裕每批也不超過此金額
+ * 硬上限保護，避免高波動震盪下路徑損耗過大
  * @type {number}
  */
-export const CRISIS_ACCUMULATE_MAX_BATCH = 50000; // 5 萬
+export const CRISIS_ACCUMULATE_MAX_BATCH = 50000; // 5 萬 TWD
 ```
 
 ---
 
-### 5.2 `regimePolicy.mjs`（修改 `determineRegime` 函式簽名與 CRISIS 分支）
+### 6.2 `src/modules/strategy/regimePolicy.mjs`
 
 **位置**：第 36–65 行（`determineRegime` 函式）
 
 ```javascript
-// 函式簽名：新增第四個參數（預設 "DEFENSE"，確保向後相容）
+// 函式簽名新增 debtMode（預設 DEFENSE 保持向後相容）
 export function determineRegime(vix, sentiment, config = {}, debtMode = "DEFENSE") {
-  // ...（前處理完全不變）...
+  // ... 前處理不變 ...
 
   if (vixValue >= vixAbsoluteOverride) {
-    // OPPORTUNITY 模式（totalDebt=0）：改為限速加碼，不強制賣出
     if (debtMode === "OPPORTUNITY") {
       return {
         state: "CRISIS",
         leverageMultiplier: 0,
-        mode: "crisis_accumulate",     // ← 新 mode
+        mode: "crisis_accumulate",     // ← OPPORTUNITY 模式輸出
         reason: `VIX ${vixValue.toFixed(1)} ≥ ${vixAbsoluteOverride}，無借款帳戶 → 恐慌加碼視窗`,
         context: { vix: vixValue, debtMode: "OPPORTUNITY", ... },
       };
     }
 
-    // DEFENSE 模式（totalDebt>0 或未傳參數）：原邏輯完整保留
+    // DEFENSE 模式：原防斷頭邏輯 100% 完整保留
     return {
       state: "CRISIS",
       leverageMultiplier: 0,
@@ -327,26 +262,25 @@ export function determineRegime(vix, sentiment, config = {}, debtMode = "DEFENSE
     };
   }
 
-  // CAUTIOUS / NORMAL：完全不變
+  // CAUTIOUS / NORMAL 邏輯不變
 }
 ```
 
 ---
 
-### 5.3 `RegimePolicyRule.mjs`（修改 CRISIS 分支，第 59–78 行）
+### 6.3 `src/modules/strategy/decision/rules/RegimePolicyRule.mjs`
+
+**位置**：第 59–78 行（CRISIS 判定分支）
 
 ```javascript
-// 取得 totalDebt 並計算 debtMode
 const totalDebt = ctx.totalDebt ?? portfolio?.totalDebt ?? 0;
 const debtMode = totalDebt === 0 ? "OPPORTUNITY" : "DEFENSE";
 
-// 判定 Regime 狀態（傳入 debtMode）
 const regimeResult = determineRegime(vix, sentiment, regimeCfg, debtMode);
 
-// CRISIS 模式：依 debtMode 分流
 if (regimeResult.state === "CRISIS") {
   if (regimeResult.mode === "sell_only") {
-    // DEFENSE 模式：原邏輯 100% 保留
+    // DEFENSE 模式：立即 return 強制減碼
     const deleverageCfg = strategy.dynamicDeleverage || { sellRatio: 1.0 };
     const sellPercent = Math.round(deleverageCfg.sellRatio * 100);
     return createDecisionResult({
@@ -359,19 +293,18 @@ if (regimeResult.state === "CRISIS") {
   }
 
   if (regimeResult.mode === "crisis_accumulate") {
-    // OPPORTUNITY 模式：注入狀態到 engineState，不 return，繼續下一規則
+    // OPPORTUNITY 模式：注入狀態，不中斷決策鏈，交由後續 CashExposureAdvisor 計算具體金額
     engineState.crisisAccumulateMode = true;
     engineState.debtMode = "OPPORTUNITY";
-    // 不 return → cashExposureAdvisor 繼續執行，給出具體加碼金額
   }
 }
 ```
 
 ---
 
-### 5.4 `cashExposureAdvisor.mjs`（修改雷達分流，第 71–81 行）
+### 6.4 `src/modules/strategy/cashExposureAdvisor.mjs`
 
-**新增 import**（檔案頂端）：
+**位置**：函式簽名與第 71–81 行
 
 ```javascript
 import {
@@ -379,64 +312,74 @@ import {
   CRISIS_ACCUMULATE_BATCH_RATIO,
   CRISIS_ACCUMULATE_MAX_BATCH,
 } from "./strategyDefaults.mjs";
-```
 
-**函式簽名**：新增 `totalDebt = 0` 參數。
+export function evaluateCashExposure({
+  cash,
+  grossExposure,
+  accountNetAsset,
+  kellyConservative,
+  radarTriggered = [],
+  totalDebt = 0, // ← 新增參數，預設 0
+}) {
+  // ... 前處理計算 ...
 
-**雷達判定段改動**：
+  if (radarTriggered && radarTriggered.length > 0) {
+    const panicRadars = radarTriggered.filter((r) => PANIC_RADARS.includes(r));
+    const fundamentalRadars = radarTriggered.filter(
+      (r) => !PANIC_RADARS.includes(r),
+    );
 
-```javascript
-if (radarTriggered && radarTriggered.length > 0) {
-  const panicRadars = radarTriggered.filter((r) => PANIC_RADARS.includes(r));
-  const fundamentalRadars = radarTriggered.filter(
-    (r) => !PANIC_RADARS.includes(r),
-  );
+    // 1. 若有任何基本面/信用雷達觸發 → 一律 DEFER
+    if (fundamentalRadars.length > 0) {
+      return {
+        status: "DEFER",
+        suggestedDcaAmt: 0,
+        exposureGap,
+        targetExposure,
+        cashAdequacy,
+        message: `基本面雷達觸發：${fundamentalRadars.join("，")}，暫緩加速，維持基礎 DCA`,
+      };
+    }
 
-  // 1. 基本面雷達 → 無論借款狀態，一律 DEFER
-  if (fundamentalRadars.length > 0) {
+    // 2. 純恐慌型雷達觸發 + 無借款帳戶 → 限速加碼
+    if (panicRadars.length > 0 && totalDebt === 0) {
+      const batchLimit = Math.min(
+        cash * CRISIS_ACCUMULATE_BATCH_RATIO,
+        CRISIS_ACCUMULATE_MAX_BATCH,
+      );
+      return {
+        status: "CRISIS_ACCUMULATE",
+        suggestedDcaAmt: batchLimit,
+        exposureGap,
+        targetExposure,
+        cashAdequacy,
+        message: `⚡ 恐慌加碼模式：無借款帳戶，建議本批加碼 00675L 上限 ${batchLimit.toLocaleString()} TWD`,
+        batchRationale: `VIX 恐慌視窗；每批上限 = min(現金×${CRISIS_ACCUMULATE_BATCH_RATIO * 100}%, ${CRISIS_ACCUMULATE_MAX_BATCH})；歷史實證 VIX>40 長期正期望值，限速控制路徑損耗`,
+        disclaimer:
+          "P0 DCA 維持不變，本建議僅影響 P1 條件加碼；00675L 為槓桿產品，震盪市存在複利損耗",
+      };
+    }
+
+    // 3. 有借款帳戶 + 恐慌雷達 → DEFER
     return {
       status: "DEFER",
       suggestedDcaAmt: 0,
       exposureGap,
       targetExposure,
       cashAdequacy,
-      message: `基本面雷達觸發：${fundamentalRadars.join("，")}，暫緩加速，維持基礎 DCA`,
+      message: `市場雷達異常：${radarTriggered.join("，")}，暫緩加速，維持基礎 DCA`,
     };
   }
 
-  // 2. 純恐慌型雷達 + 無借款 → 限速加碼（CRISIS_ACCUMULATE）
-  if (panicRadars.length > 0 && totalDebt === 0) {
-    const batchLimit = Math.min(
-      cash * CRISIS_ACCUMULATE_BATCH_RATIO,
-      CRISIS_ACCUMULATE_MAX_BATCH,
-    );
-    return {
-      status: "CRISIS_ACCUMULATE",
-      suggestedDcaAmt: batchLimit,
-      exposureGap,
-      targetExposure,
-      cashAdequacy,
-      batchRationale: `VIX 恐慌視窗，每批限速 ${batchLimit.toLocaleString()} TWD（現金 10% 上限）`,
-      message: `⚡ 恐慌加碼模式：無借款帳戶，VIX 歷史勝率 83%。建議本批加碼 00675L ${batchLimit.toLocaleString()} TWD`,
-      disclaimer: "P0 DCA（每月 3 萬）維持不變，本建議僅影響 P1 條件加碼",
-    };
-  }
-
-  // 3. 有借款 → 原邏輯 DEFER
-  return {
-    status: "DEFER",
-    suggestedDcaAmt: 0,
-    exposureGap,
-    targetExposure,
-    cashAdequacy,
-    message: `市場雷達異常：${radarTriggered.join("，")}，暫緩加速，維持基礎 DCA`,
-  };
+  // ... 正常 DCA 流程 ...
 }
 ```
 
 ---
 
-### 5.5 `leadingIndicatorEvaluator.mjs`（補傳 totalDebt，第 188–194 行）
+### 6.5 `src/modules/strategy/leadingIndicatorEvaluator.mjs`
+
+**位置**：第 188–194 行
 
 ```javascript
 const cashExposureAnalysis = evaluateCashExposure({
@@ -445,22 +388,9 @@ const cashExposureAnalysis = evaluateCashExposure({
   accountNetAsset: portfolio.accountNetAsset,
   kellyConservative: marketData.kellyConservative,
   radarTriggered: triggeredRadars.map((r) => r.radarId).filter(Boolean),
-  totalDebt: portfolio.totalDebt ?? 0, // ← 新增一行
+  totalDebt: portfolio.totalDebt ?? 0, // ← 補傳 totalDebt
 });
 ```
-
----
-
-## 6. 不變更項目（Frozen）
-
-| 項目                          | 原因                                   |
-| ----------------------------- | -------------------------------------- |
-| P0 DCA 每月 3 萬 0050         | 鐵律，任何 Regime 不干預               |
-| `hardCap` 強制降槓邏輯        | totalDebt > 0 時的爆倉防線             |
-| DEFENSE 模式全部現有邏輯      | 有借款時原邏輯 100% 保留               |
-| `maintenanceRatio` 維持率計算 | 未來復借時仍需要                       |
-| 00675L 停利 +80% 設定         | 策略紀律不變                           |
-| Kelly 在 UI 的顯示警告        | 資訊透明，紅燈維持，但不再觸發賣出建議 |
 
 ---
 
@@ -468,75 +398,96 @@ const cashExposureAnalysis = evaluateCashExposure({
 
 ### Phase 1 — 測試骨架 + strategyDefaults（1 天）
 
-1. 在 `strategyDefaults.mjs` 尾端追加 3 個常數
+1. 在 `strategyDefaults.mjs` 定義 3 個常數
 2. 撰寫 RED 測試：
    - `regimePolicy.test.mjs`（OPPORTUNITY vs DEFENSE 分流測試）
    - `cashExposureAdvisor.test.mjs`（恐慌雷達 vs 基本面雷達分流測試）
-3. 執行 `npm test`：確認舊測試全部 GREEN，新測試全部 RED（確認 RED 才算就緒）
+3. 執行 `npm test`：驗證舊測試全數 GREEN，新測試明確 RED
 
 ### Phase 2 — `regimePolicy.mjs` + `RegimePolicyRule.mjs`（1~2 天）
 
-1. 修改 `determineRegime` 函式簽名，新增 `debtMode` 分流
-2. 修改 `RegimePolicyRule.evaluate()`：計算 `debtMode`，crisis_accumulate 不 return
-3. 執行 `npm test`：regimePolicy 新測試 GREEN，現有測試不受影響
+1. 實作 `determineRegime` 之 `debtMode` 分流
+2. 實作 `RegimePolicyRule.evaluate()` 注入狀態不中斷邏輯
+3. 執行 `npm test`：regimePolicy 測試轉 GREEN
 
 ### Phase 3 — `cashExposureAdvisor.mjs` + `leadingIndicatorEvaluator.mjs`（1 天）
 
-1. 修改 `evaluateCashExposure` 函式簽名，新增 `totalDebt` 參數
-2. 實作恐慌型雷達分流邏輯
-3. 在 `leadingIndicatorEvaluator.mjs` 補傳 `totalDebt`
-4. 執行 `npm test`：cashExposureAdvisor 新測試 GREEN
+1. 實作 `evaluateCashExposure` 恐慌型雷達分流
+2. `leadingIndicatorEvaluator.mjs` 補傳 `totalDebt`
+3. 執行 `npm test`：cashExposureAdvisor 測試轉 GREEN
 
-### Phase 4 — Telegram 報告模板（0.5 天）
+### Phase 4 — Telegram 報告模板格式化（0.5 天）
 
-1. 新增 `CRISIS_ACCUMULATE` 狀態的 Telegram 卡片模板（⚡ 恐慌加碼視窗）
-2. 確保 P0 DCA 區塊顯示 `✅ 綠色無條件執行`，不受 CRISIS_ACCUMULATE 影響
+1. 實作 `CRISIS_ACCUMULATE` 狀態的動態卡片格式
+2. 確保卡片無硬編碼數值，且 P0 DCA 區塊顯示綠色無條件執行
 
 ### Phase 5 — 整合驗收（0.5 天）
 
-1. 以 `data/reports/2026-11-04.json`（VIX=41, totalDebt=0）為輸入跑完整 engine
-2. 驗證輸出：`CRISIS_ACCUMULATE`，建議本批加碼 50,000 TWD
-3. 驗證 P0 DCA 維持 GREEN
-4. `git commit` + `git push`
-
-**估計總工時：3~5 天（不急上線，可分批推進）**
+1. 執行「附錄 A：設計案例（2026-11-04 Fixture）」端到端測試
+2. 驗收動態欄位計算正確性與 Telegram 卡片輸出
 
 ---
 
-## 8. 風險與緩解
+## 8. 風險管理表
 
-| 風險                             | 機率 | 影響 | 緩解措施                                                             |
-| -------------------------------- | ---- | ---- | -------------------------------------------------------------------- |
-| 未來復借後 OPPORTUNITY 誤判      | 低   | 高   | `totalDebt > 0` 自動切回 DEFENSE，零人工介入                         |
-| CRISIS_ACCUMULATE 金額設定不合理 | 中   | 中   | `CRISIS_ACCUMULATE_MAX_BATCH = 50000` 硬上限，常數集中管理可快速調整 |
-| 修改破壞現有 1929 個測試         | 低   | 高   | 所有新參數有預設值（向後相容），Phase 1 先驗證舊測試仍 GREEN         |
-| 市場繼續崩跌，00675L 損失擴大    | 中   | 中   | 每批 5 萬上限保護現金底線；VIX>40 歷史 83% 勝率作為進場依據          |
-| `ctx.totalDebt` 在呼叫鏈不存在   | 低   | 低   | Phase 3 步驟 4 明確驗證，`data/reports` 已確認欄位存在               |
-
----
-
-## 9. 成功標準
-
-- [ ] 所有 1929 個現有測試繼續 GREEN（Phase 1 驗證）
-- [ ] 新增 7 個測試全部 GREEN（Phase 2、3 完成後）
-- [ ] VIX=41、totalDebt=0 輸入 → `cashExposureAnalysis.status = "CRISIS_ACCUMULATE"`
-- [ ] VIX=41、totalDebt=0 輸入 → `regimeResult.mode = "crisis_accumulate"`（不再是 `sell_only`）
-- [ ] VIX=41、totalDebt=500000 輸入 → 維持原輸出 `sell_only` / `DEFER`（DEFENSE 模式不受影響）
-- [ ] P0 DCA（每月 3 萬）區塊在任何 Regime 下維持 GREEN 無條件執行
-- [ ] Telegram 卡片正確顯示 `⚡ 恐慌加碼模式` + 批次金額 + P0 免責聲明
+| 風險項目                                   | 機率 | 影響 | 緩解措施                                                                 |
+| ------------------------------------------ | ---- | ---- | ------------------------------------------------------------------------ |
+| 未來復借後 OPPORTUNITY 誤判                | 低   | 高   | `totalDebt > 0` 自動強制切回 DEFENSE 模式，零人工介入                    |
+| 高波動震盪下的複利損耗（Volatility Decay） | 高   | 中   | `CRISIS_ACCUMULATE_MAX_BATCH` 硬上限防護，避免單批過大；卡片加註風險提醒 |
+| 恐慌時市場續跌（如 2008 續跌 30%）         | 中   | 中   | 限速加碼即為平攤進場成本，單批金額上限受可用現金比例限制                 |
+| 修改影響既有 1929 個測試                   | 低   | 高   | 所有新參數設有相容預設值（`debtMode="DEFENSE"`），現有測試走既有路徑     |
 
 ---
 
-## 10. 參考資料
+## 9. 成功標準（分層）
 
-| 來源                  | 內容摘要                                                                          | URL                                                                                            |
-| --------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| FinLab（2026）        | VIX>40 買進 S&P 500，12 次樣本，250 日平均 +22.1%，勝率 83%                       | https://finlab.finance/blog/vix-us-stock-crash-investing-python                                |
-| 第一金投信            | VIX 40~50 進場，1Y 報酬 +28.9%，3Y 勝率 99.4%（30 年台股數據）                    | https://www.fsitc.com.tw/ManagerEDM.aspx?ID=1938&Type=2                                        |
-| Frontiers FAMS (2020) | Kelly：無借款時為加碼速度節流器，非強制砍倉訊號                                   | https://doi.org/10.3389/fams.2020.577050                                                       |
-| Preprints (2026-02)   | VIX 急漲後局部戰術配置有顯著正期望值，Regime 與部位大小應分離                     | https://www.preprints.org/manuscript/202602.1048                                               |
-| CFA Institute (2020)  | Antifragile Portfolio：衛星資產在市場極端壓力時小批進場，每批金額受限而非方向封鎖 | https://rpc.cfainstitute.org/blogs/enterprising-investor/2020/creating-anti-fragile-portfolios |
+### 9.1 通用成功標準（軟體行為）
+
+- [ ] 現有 1929 個既有測試 100% 保持 GREEN
+- [ ] 新增單元測試完整覆蓋：
+  - `totalDebt === 0` + 恐慌雷達 → `status = "CRISIS_ACCUMULATE"`
+  - `totalDebt === 0` + 基本面雷達 → `status = "DEFER"`
+  - `totalDebt > 0` + 恐慌雷達 → `status = "DEFER"`
+  - 批次金額滿足公式：`batchLimit = min(cash * BATCH_RATIO, MAX_BATCH)`
+- [ ] P0 DCA（每月固定扣款）在任何 Regime 與雷達觸發下均維持 GREEN 無條件執行
+- [ ] Telegram 卡片模板完全參數化，無個人帳戶快照硬編碼
+
+### 9.2 案例驗收標準（2026-11-04 Fixture）
+
+- [ ] 以 `data/reports/2026-11-04.json` 執行時，輸出 `status = "CRISIS_ACCUMULATE"`
+- [ ] 案例計算之 `batchLimit` 精確等於 50,000 TWD（因 600,000 × 10% = 60,000 > 50,000 上限）
+- [ ] 決策建議不再包含「建議賣出 00675L」
 
 ---
 
-_計畫書版本：v2.0 | 建立：2026-11-04 | 最後更新：2026-11-04 | 負責人：Han_
+## 10. 參考文獻
+
+1. FinLab（2026）：VIX>40 買進實證回測（36 年，S&P 500）。
+2. 第一金投信：台股 VIX 40~50 區間 3 年勝率 99.4% 統計研究。
+3. Frontiers in Applied Mathematics and Statistics (2020)：Half Kelly 與投資組合節流應用。
+4. Preprints (2026-02)：Predictive Signals from VIX Spikes 與 Regime-Aware 分批戰術配置。
+
+---
+
+## 附錄 A：設計案例與驗收 Fixture（2026-11-04 快照）
+
+> **注意**：本附錄之數值僅用於重現問題背景、邊界條件測試與驗收 Fixture，**絕非系統日常執行的固定文案**。
+
+- **快照日期**：2026-11-04
+- **市場指標**：TAIEX VIX = 41.18（單日大跌 -6.3%）
+- **帳戶狀態**：
+  - `totalDebt` = 0（增貸已全數還清或投入，無流動負債）
+  - `cash` = 600,000 TWD（自有防禦現金）
+  - `00675L` 市值 = 51,010 TWD
+  - `0050` 市值 = 1,798,768 TWD
+  - 當前總槓桿 = 0.78x，目標槓桿 = 1.2x
+- **驗收預期結果**：
+  - `debtMode` = "OPPORTUNITY"
+  - `regimeResult.mode` = "crisis_accumulate"
+  - `cashExposureAnalysis.status` = "CRISIS_ACCUMULATE"
+  - `suggestedDcaAmt` = 50,000 TWD（受 `MAX_BATCH` 5 萬硬上限截斷）
+  - `P0 DCA` = 綠色無條件執行（不干預）
+
+---
+
+_計畫書版本：v2.1 | 建立：2026-11-04 | 最後更新：2026-11-04 | 負責人：Han_
