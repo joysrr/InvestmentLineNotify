@@ -1,8 +1,51 @@
 import {
   PANIC_RADARS,
   CRISIS_ACCUMULATE_BATCH_RATIO,
-  CRISIS_ACCUMULATE_MAX_BATCH,
+  CRISIS_ACCUMULATE_BATCH_COUNT,
 } from "./strategyDefaults.mjs";
+import { getTargetLeverageByScore } from "./riskManagement.mjs";
+
+/**
+ * Phase 7: 階層式取得目標槓桿（零硬編碼 SSOT）
+ * 優先級：用戶指定 > 策略恐慌檔位 > 評分階梯 > 生命週期天花板
+ * @param {object} portfolio - 包含 targetLeverage（可選）
+ * @param {object} strategy - 包含 buy.panic.suggestedLeverage, allocation
+ * @param {object} lifecycleContext - 包含 profile.maxLeverageForNewZ2
+ * @param {number} marketScore - 市場評分
+ * @returns {number} 目標總槓桿倍數
+ */
+function resolveTargetLeverage(
+  portfolio,
+  strategy,
+  lifecycleContext,
+  marketScore,
+) {
+  const ceiling = lifecycleContext?.profile?.maxLeverageForNewZ2 || 1.5;
+
+  // 1. 用戶主動指定
+  if (
+    Number.isFinite(portfolio?.targetLeverage) &&
+    portfolio.targetLeverage > 0
+  ) {
+    return Math.min(portfolio.targetLeverage, ceiling);
+  }
+
+  // 2. 恐慌檔位
+  if (strategy?.buy?.panic?.suggestedLeverage != null) {
+    const panicTotal = 1 + strategy.buy.panic.suggestedLeverage;
+    return Math.min(panicTotal, ceiling);
+  }
+
+  // 3. 評分階梯
+  if (strategy?.allocation && Array.isArray(strategy.allocation)) {
+    const alloc = getTargetLeverageByScore(marketScore, strategy);
+    const allocTotal = 1 + (alloc?.leverage || 0.15);
+    return Math.min(allocTotal, ceiling);
+  }
+
+  // 4. 預設：當所有參數為空時，回傳天花板（保守策略）
+  return ceiling;
+}
 
 /**
  * CashExposureAdvisor — 現金驅動曝險分析
@@ -26,9 +69,12 @@ export function evaluateCashExposure({
   cash,
   grossExposure,
   accountNetAsset,
-  kellyConservative,
   radarTriggered = [],
   totalDebt = 0,
+  portfolio = {},
+  strategy = {},
+  lifecycleContext = {},
+  marketScore = 0,
 }) {
   // 帳戶淨資產未驗證 → 無法計算，回報 UNAVAILABLE 而非假數字
   if (
@@ -46,7 +92,14 @@ export function evaluateCashExposure({
     };
   }
 
-  const targetExposure = accountNetAsset * kellyConservative;
+  // Phase 7: 動態解析目標槓桿（階層式取得）
+  const targetLeverage = resolveTargetLeverage(
+    portfolio,
+    strategy,
+    lifecycleContext,
+    marketScore,
+  );
+  const targetExposure = accountNetAsset * targetLeverage;
   const exposureGap = targetExposure - grossExposure;
 
   // 已達或超過 Kelly 建議曝險 → 維持，不加速
@@ -97,12 +150,22 @@ export function evaluateCashExposure({
       };
     }
 
-    // 2. 純恐慌型雷達觸發 + 無借款帳戶 → 限速加碼
+    // 2. 純恐慌型雷達觸發 + 無借款帳戶 → 限速加碼（Phase 7 動態批次）
     if (panicRadars.length > 0 && numericDebt === 0) {
-      const batchLimit = Math.min(
-        cash * CRISIS_ACCUMULATE_BATCH_RATIO,
-        CRISIS_ACCUMULATE_MAX_BATCH,
+      // Phase 7: 動態批次計算（00675L 2x 槓桿）
+      const capitalGap = Math.max(0, exposureGap / 2);
+      const batchByCount = Math.floor(
+        capitalGap / CRISIS_ACCUMULATE_BATCH_COUNT,
       );
+      const batchByCash = Math.floor(cash * CRISIS_ACCUMULATE_BATCH_RATIO);
+      const batchRaw = Math.min(batchByCount, batchByCash, capitalGap);
+
+      // 取整：≥1000 千元取整，<1000 百元取整
+      const batchLimit =
+        batchRaw >= 1000
+          ? Math.floor(batchRaw / 1000) * 1000
+          : Math.floor(batchRaw / 100) * 100;
+
       return {
         status: "CRISIS_ACCUMULATE",
         reason: "panic_opportunity_mode",
@@ -112,7 +175,7 @@ export function evaluateCashExposure({
         targetExposure,
         cashAdequacy,
         message: `⚡ 恐慌加碼模式：無借款帳戶，建議本批加碼 00675L 上限 ${batchLimit.toLocaleString()} TWD`,
-        batchRationale: `VIX 恐慌視窗；每批上限 = min(現金×${(CRISIS_ACCUMULATE_BATCH_RATIO * 100).toFixed(0)}%, ${CRISIS_ACCUMULATE_MAX_BATCH})；歷史實證 VIX>40 長期正期望值，限速控制路徑損耗`,
+        batchRationale: `VIX 恐慌視窗；批次上限 = min(缺口÷${CRISIS_ACCUMULATE_BATCH_COUNT}, 現金×${(CRISIS_ACCUMULATE_BATCH_RATIO * 100).toFixed(0)}%, 資本缺口)；歷史實證 VIX>40 長期正期望值，分批控制路徑損耗`,
         disclaimer:
           "P0 DCA 維持不變，本建議僅影響 P1 條件加碼；00675L 為槓桿產品，震盪市存在複利損耗",
       };

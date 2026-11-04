@@ -44,36 +44,43 @@ describe("Phase 5: Regime-Aware Opportunity Engine 端到端整合驗收", () =>
       expect(regime.reason).toContain("恐慌加碼視窗");
     });
 
-    it("現金曝險分析正確計算加碼上限 50,000（受 MAX_BATCH 截斷）並輸出三層資訊", () => {
+    it("現金曝險分析正確計算動態加碼上限並輸出三層資訊", () => {
       const grossExposure =
         portfolio20261104.stock0050Value +
         portfolio20261104.stock00675LValue * 2; // 1,900,788
       const accountNetAsset = portfolio20261104.totalValue; // 2,449,778
-      const kellyConservative = 1.2;
-      const targetExposure = accountNetAsset * kellyConservative; // 2,939,733.6
+      const targetLeverage = 1.2; // Phase 7: 改用 portfolio.targetLeverage
+      const targetExposure = accountNetAsset * targetLeverage; // 2,939,733.6
       const exposureGap = targetExposure - grossExposure; // 1,038,945.6
 
       const exposure = evaluateCashExposure({
         cash: portfolio20261104.cash,
         grossExposure,
         accountNetAsset,
-        kellyConservative,
         totalDebt: portfolio20261104.totalDebt,
         radarTriggered: ["extremePanic", "retailSentiment"],
+        portfolio: { targetLeverage: 1.2 },
+        strategy: { allocation: [{ minScore: -99, leverage: 0.15 }] },
+        lifecycleContext: { profile: { maxLeverageForNewZ2: 1.5 } },
+        marketScore: 4,
       });
 
       expect(exposure.status).toBe("CRISIS_ACCUMULATE");
-      // 600,000 * 10% = 60,000 -> 截斷於 50,000
-      expect(exposure.suggestedDcaAmt).toBe(50000);
-      expect(exposure.batchLimit).toBe(50000);
+      // Phase 7 動態批次計算：
+      // 曝險缺口 = 2,939,733.6 - 1,900,788 = 1,038,945.6
+      // 資本缺口 = 519,472.8
+      // 均攤批次 = 51,947
+      // 現金 10% = 60,000
+      // batchLimit = min(51,947, 60,000, 519,472) = 51,000（千元取整）
+      expect(exposure.suggestedDcaAmt).toBe(51000);
+      expect(exposure.batchLimit).toBe(51000);
       expect(exposure.exposureGap).toBeCloseTo(exposureGap, 1);
 
       // 驗收三層資訊
       expect(exposure.message).toContain("⚡ 恐慌加碼模式");
-      expect(exposure.message).toContain("50,000");
+      expect(exposure.message).toContain("51,000");
 
-      expect(exposure.batchRationale).toContain("每批上限");
-      expect(exposure.batchRationale).toContain("50000");
+      expect(exposure.batchRationale).toContain("批次上限");
       expect(exposure.batchRationale).toContain("10%");
 
       expect(exposure.disclaimer).toContain("P0 DCA 維持不變");
@@ -130,11 +137,18 @@ describe("Phase 5: Regime-Aware Opportunity Engine 端到端整合驗收", () =>
       });
 
       expect(result.cashExposureAnalysis.status).toBe("CRISIS_ACCUMULATE");
-      expect(result.cashExposureAnalysis.suggestedDcaAmt).toBe(50000);
+      // Phase 7 動態批次計算：
+      // 目標曝險 = 2,449,778 × 1.5 = 3,674,667
+      // 曝險缺口 = 3,674,667 - 1,900,788 = 1,773,879
+      // 資本缺口 = 1,773,879 / 2 = 886,940
+      // 均攤批次 = 886,940 / 10 = 88,694
+      // 現金 10% = 600,000 × 0.1 = 60,000（限制因子）
+      // batchLimit = min(88,694, 60,000, 886,940) = 60,000
+      expect(result.cashExposureAnalysis.suggestedDcaAmt).toBe(60000);
       expect(result.telegramCard).toBeDefined();
       expect(result.telegramCard).toContain("⚡【恐慌加碼視窗】");
       expect(result.telegramCard).toContain(
-        "建議：本批加碼 00675L 上限 $50,000 TWD",
+        "建議：本批加碼 00675L 上限 $60,000 TWD",
       );
       expect(result.telegramCard).toContain(
         "✅ P0 DCA 照常執行（鐵律，不受 Regime 影響）",

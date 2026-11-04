@@ -161,6 +161,9 @@ export function evaluateLeadingIndicators({
   currentState = SYSTEM_STATES.IDLE,
   cooldownDays = 0,
   activeDays = 0,
+  strategy = {}, // Phase 7: 策略配置
+  lifecycleContext = {}, // Phase 7: 生命週期上下文
+  marketScore = 0, // Phase 7: 市場評分
 } = {}) {
   // 1. 執行四大純感測器雷達
   const radar1 = evaluateOvernightShockRadar({
@@ -231,9 +234,12 @@ export function evaluateLeadingIndicators({
     cash: portfolio.cash ?? 0,
     grossExposure: portfolio.currentExposure ?? 0,
     accountNetAsset: portfolio.accountNetAsset,
-    kellyConservative: marketData.kellyConservative,
     radarTriggered: triggeredRadars.map((r) => r.radarId).filter(Boolean),
     totalDebt: portfolio.totalDebt ?? 0,
+    portfolio,
+    strategy,
+    lifecycleContext,
+    marketScore,
   });
 
   // 5. Telegram 卡片生成 (常態靜默：IDLE 且無任何觸發時為 null)

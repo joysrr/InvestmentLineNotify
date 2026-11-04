@@ -237,14 +237,14 @@ export const PANIC_RADARS = [
 ];
 
 /**
+ * 危機加碼平攤批次數
+ * 依據資本缺口分批進場，防範路徑損耗
+ * @type {number}
+ */
+export const CRISIS_ACCUMULATE_BATCH_COUNT = 10; // 預設 10 批平攤
+
+/**
  * 危機加碼批次比例（佔可用現金）
  * @type {number}
  */
 export const CRISIS_ACCUMULATE_BATCH_RATIO = 0.1; // 10%
-
-/**
- * 危機加碼單批最大金額（TWD）
- * 硬上限保護，避免高波動震盪下路徑損耗過大
- * @type {number}
- */
-export const CRISIS_ACCUMULATE_MAX_BATCH = 50000; // 5 萬 TWD

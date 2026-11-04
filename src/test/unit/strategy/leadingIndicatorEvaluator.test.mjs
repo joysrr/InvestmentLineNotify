@@ -165,18 +165,22 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
       const result = evaluateLeadingIndicators({
         marketData: {
           ...mockCleanMarketData,
-          kellyConservative: 1.6,
+          kellyConservative: 1.6, // 舊參數保留（不再使用）
         },
         portfolio: {
           ...mockSafePortfolio,
           cash: 200000,
           accountNetAsset: 2000000,
+          targetLeverage: 1.6, // Phase 7: 明確指定目標槓桿
         },
         currentState: SYSTEM_STATES.IDLE,
         cooldownDays: 0,
         activeDays: 0,
+        lifecycleContext: { profile: { maxLeverageForNewZ2: 1.8 } }, // Phase 7: 提供天花板
       });
 
+      // Phase 7: 目標曝險 = 2,000,000 × 1.6 = 3,200,000
+      // 當前曝險 = 3,000,000 → 缺口 200,000
       expect(result.cashExposureAnalysis.status).toBe("RECOMMEND_DCA");
       expect(result.cashExposureAnalysis.exposureGap).toBe(200000);
       expect(result.cashExposureAnalysis.suggestedDcaAmt).toBe(100000);
