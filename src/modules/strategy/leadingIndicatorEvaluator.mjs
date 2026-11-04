@@ -64,10 +64,19 @@ export function formatLeadingIndicatorTelegramCard({
     }
   });
 
-  // 4. 行動紀律行
-  const discipline00675L = constraints.freeze00675L
-    ? "00675L 禁止買入"
-    : "00675L 允許動能";
+  // 4. 行動紀律行（Phase 7.2: debt-aware 動態文字）
+  let discipline00675L;
+  if (cashExposureAnalysis?.status === "CRISIS_ACCUMULATE") {
+    // 恐慌加碼模式：無借款帳戶下的限速加碼
+    discipline00675L = "00675L 限速加碼";
+  } else if (constraints.freeze00675L) {
+    // 傳統防禦模式：有借款或非恐慌雷達時禁止買入
+    discipline00675L = "00675L 禁止買入";
+  } else {
+    // 常態模式：允許動能交易
+    discipline00675L = "00675L 允許動能";
+  }
+
   const discipline0050 = constraints.allowLeft0050
     ? "0050 啟動左側布局"
     : "0050 暫緩左側";

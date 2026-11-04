@@ -336,8 +336,9 @@ export async function runDailyCheck(deps = {}, options = {}) {
   const dateText = TwDate().formatDateKey();
 
   let freshnessDecision = null;
+  let strategy = {}; // Phase 7.4: 提升為外層變數供後續復用
   try {
-    const strategy = await fetchStrategyConfig();
+    strategy = await fetchStrategyConfig();
     const freshnessConfig = resolveFreshnessConfig(strategy.dataFreshness);
     const technicalFreshness = buildTechnicalFreshnessObservation({
       historyZ2,
@@ -413,6 +414,25 @@ export async function runDailyCheck(deps = {}, options = {}) {
         rsr: null,
         dataStatus: "SOURCE_UNAVAILABLE",
       };
+
+      // Phase 7.3: 動態淨資產 fallback（當 Google Sheets 回傳 null 時）
+      const portfolioWithFallback = { ...lastState };
+      if (portfolioWithFallback.accountNetAsset == null) {
+        // 使用 totalValue 作為 fallback（來自 Google Sheets 的可靠數據）
+        portfolioWithFallback.accountNetAsset =
+          portfolioWithFallback.totalValue ?? 0;
+        if (portfolioWithFallback.accountNetAsset > 0) {
+          logger.info(
+            `📊 [Phase 7.3] accountNetAsset 為 null，使用 totalValue 兜底: ${portfolioWithFallback.accountNetAsset}`,
+          );
+        }
+      }
+
+      // Phase 7.4: 準備完整參數（階段 A：復用已載入的 strategy）
+      const strategyForLeadingIndicators = strategy; // 復用 340 行載入的 strategy
+      const lifecycleContextForLeadingIndicators = {}; // TODO: 整合生命週期引擎
+      const marketScoreForLeadingIndicators = 0; // TODO: 從 result 提取評分
+
       leadingIndicators = evaluateLeadingIndicators({
         marketData: {
           rSox: usRisk?.soxChg == null ? 0 : usRisk.soxChg / 100,
@@ -433,10 +453,13 @@ export async function runDailyCheck(deps = {}, options = {}) {
           retailSentimentDataStatus:
             taifexSentiment?.dataStatus ?? "UNAVAILABLE",
         },
-        portfolio: lastState ?? {},
+        portfolio: portfolioWithFallback,
         currentState: prevState,
         cooldownDays: prevCooldownDays,
         activeDays: prevActiveDays,
+        strategy: strategyForLeadingIndicators,
+        lifecycleContext: lifecycleContextForLeadingIndicators,
+        marketScore: marketScoreForLeadingIndicators,
       });
 
       logger.info(
