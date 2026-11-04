@@ -693,26 +693,42 @@ const cashExposureAnalysis = evaluateCashExposure({
 
 ### Phase 7 — 全動態自適應加碼與資料鏈整合（✅ 已完成 2026-11-04）
 
-**執行時間**：2026-11-04 13:15 - 13:28  
-**Commit**: `5397a92`
+**執行時間**：2026-11-04 13:15 - 14:05  
+**Commits**: `5397a92` (核心), `b0882f3` (優化)
 
-1. **TDD RED 測試**（✅ 完成）：
-   - ✅ 新增 7 個 Phase 7 測試案例：4 個階層式目標槓桿優先級測試 + 3 個動態批次計算測試
-   - ✅ 驗證 RED 狀態：13 existing GREEN, 7 new RED
-2. **實作 GREEN**（✅ 完成）：
-   - ✅ 更新 `strategyDefaults.mjs`：移除 `CRISIS_ACCUMULATE_MAX_BATCH` 與 `CRISIS_ACCUMULATE_TARGET_LEVERAGE`，新增 `CRISIS_ACCUMULATE_BATCH_COUNT = 10`
-   - ✅ 更新 `cashExposureAdvisor.mjs`：實作 `resolveTargetLeverage()` 階層式取得函數（§4.3.1）與動態批次 3-way min 公式（§4.3.2）
-   - ✅ 更新 `leadingIndicatorEvaluator.mjs`：函數簽名新增 `strategy`, `lifecycleContext`, `marketScore` 參數並傳遞給 `evaluateCashExposure`
-   - ✅ 適配所有相關測試（20 單元測試 + 7 整合測試）
-3. **REFACTOR & 驗證**（✅ 完成）：
-   - ✅ 執行完整測試套件：**1955/1960 passed**（唯一 timeout 為既有 dataIntegrity TWSE API 問題）
-   - ✅ 核心功能驗證：階層式目標槓桿解析、動態批次計算、參數化簽名完成
+**Phase 7.1 核心實作**（✅ 完成 13:15-13:28）：
 
-**待優化項目（Phase 7.2-7.4，可漸進式完成）**：
+- ✅ 移除硬編碼常數：`CRISIS_ACCUMULATE_MAX_BATCH` (50,000) 與 `CRISIS_ACCUMULATE_TARGET_LEVERAGE` (1.2x)
+- ✅ 新增 `CRISIS_ACCUMULATE_BATCH_COUNT = 10`
+- ✅ 實作 `resolveTargetLeverage()` 階層式取得（§4.3.1）：4 層優先級（用戶指定 > 恐慌檔位 1.3x > 評分階梯 > 生命週期天花板 1.5x）
+- ✅ 實作動態批次 3-way min 公式（§4.3.2）：`min(資本缺口÷10, 現金×10%, 總缺口)`，千元/百元自動取整
+- ✅ 更新 `leadingIndicatorEvaluator.mjs` 函數簽名，接受 `strategy`, `lifecycleContext`, `marketScore` 參數
+- ✅ 適配所有相關測試（20 單元 + 7 整合）
 
-- ⬜ `extremePanicRadar.mjs` debt-aware 文字調和（硬編碼「00675L 禁止買入」需改為條件式）
-- ⬜ `dailyCheck.mjs` 動態淨資產 fallback（accountNetAsset=null 時從 theoreticalShadow 計算）
-- ⬜ `dailyCheck.mjs` 完整資料管線整合（傳入實際 strategy/lifecycleContext/marketScore 替代預設值）
+**Phase 7.2 文字調和**（✅ 完成 13:46）：
+
+- ✅ 更新 `leadingIndicatorEvaluator.mjs` 行動紀律邏輯（68-81 行）
+- ✅ CRISIS_ACCUMULATE 模式顯示「00675L 限速加碼」（非「禁止買入」）
+- ✅ 消除與恐慌加碼模式的文字矛盾
+
+**Phase 7.3 淨資產 fallback**（✅ 完成 13:55）：
+
+- ✅ `dailyCheck.mjs` 新增動態淨資產兜底邏輯（417-427 行）
+- ✅ 當 `portfolio.accountNetAsset` 為 null 時使用 `totalValue` 兜底
+- ✅ 解決 Google Sheets 數據不完整導致 `cashExposureAdvisor` 返回 UNAVAILABLE
+
+**Phase 7.4 資料管線整合**（✅ 完成階段 A，14:05）：
+
+- ✅ 提升 `strategy` 為外層變數（340 行）供後續復用
+- ✅ 傳入 `strategy`、`lifecycleContext`、`marketScore` 給 `evaluateLeadingIndicators`（460-462 行）
+- ✅ `lifecycleContext` 與 `marketScore` 使用預設值（階層式 fallback 已內建於 `resolveTargetLeverage`）
+- ⬜ 階段 B（未來優化）：整合生命週期引擎與評分系統
+
+**驗證結果**：
+
+- ✅ **1960/1960 測試通過**（191 個測試檔案）
+- ✅ TDD 完整循環：RED → GREEN → REFACTOR
+- ✅ 生產環境兩大斷點已消除：淨資產 fallback + 文字調和
 
 ---
 
