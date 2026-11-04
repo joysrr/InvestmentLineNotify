@@ -32,7 +32,7 @@ describe("Phase 4: Leading Indicator Evaluator & Telegram Card Formatter", () =>
     totalAssets: 3500000,
     totalLiabilities: 1500000, // 維持率 233.3% >= 160%
     netAssetValue: 2000000,
-    currentExposure: 3000000,
+    grossExposure: 3000000, // Phase 7.3: 修正欄位名（含槓桿曝險）
   };
 
   describe("4.1 策略引擎整合四大雷達 (evaluateLeadingIndicators)", () => {

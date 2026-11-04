@@ -241,7 +241,7 @@ export function evaluateLeadingIndicators({
   // 6. 現金驅動曝險分析 (Sheet cash → Kelly 曝險缺口 → 行動建議)
   const cashExposureAnalysis = evaluateCashExposure({
     cash: portfolio.cash ?? 0,
-    grossExposure: portfolio.currentExposure ?? 0,
+    grossExposure: portfolio.grossExposure ?? 0,
     accountNetAsset: portfolio.accountNetAsset,
     radarTriggered: triggeredRadars.map((r) => r.radarId).filter(Boolean),
     totalDebt: portfolio.totalDebt ?? 0,

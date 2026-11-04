@@ -415,11 +415,18 @@ export async function runDailyCheck(deps = {}, options = {}) {
         dataStatus: "SOURCE_UNAVAILABLE",
       };
 
-      // Phase 7.3: 動態淨資產 fallback（當 Google Sheets 回傳 null 時）
+      // Phase 7.3: 動態淨資產與曝險 fallback（當 Google Sheets 回傳 null 時）
       const portfolioWithFallback = { ...lastState };
-      if (portfolioWithFallback.accountNetAsset == null) {
-        // 直接計算 accountNetAsset（來自 portfolio fields + 當前市價）
-        // 公式：value0050 + value00675L + cash - totalLoan
+      if (
+        portfolioWithFallback.accountNetAsset == null ||
+        portfolioWithFallback.grossExposure == null
+      ) {
+        // 直接計算 accountNetAsset 和 grossExposure（來自 portfolio fields + 當前市價）
+        // 公式：
+        //   value0050 = qty0050 × price0050
+        //   value00675L = qtyZ2 × priceZ2
+        //   accountNetAsset = value0050 + value00675L + cash - totalLoan
+        //   grossExposure = value0050 + value00675L × 2 (00675L 是 2x 槓桿)
         const value0050 =
           (portfolioWithFallback.qty0050 ?? 0) * (price0050 ?? 0);
         const value00675L =
@@ -427,21 +434,28 @@ export async function runDailyCheck(deps = {}, options = {}) {
         const cash = portfolioWithFallback.cash ?? 0;
         const totalLoan = portfolioWithFallback.totalLoan ?? 0;
 
-        const calculated = value0050 + value00675L + cash - totalLoan;
+        const calculatedNetAsset = value0050 + value00675L + cash - totalLoan;
+        const calculatedGrossExposure = value0050 + value00675L * 2;
 
         if (
-          Number.isFinite(calculated) &&
-          calculated > 0 &&
+          Number.isFinite(calculatedNetAsset) &&
+          calculatedNetAsset > 0 &&
+          Number.isFinite(calculatedGrossExposure) &&
           Number.isFinite(value0050) &&
           Number.isFinite(value00675L)
         ) {
-          portfolioWithFallback.accountNetAsset = calculated;
+          if (portfolioWithFallback.accountNetAsset == null) {
+            portfolioWithFallback.accountNetAsset = calculatedNetAsset;
+          }
+          if (portfolioWithFallback.grossExposure == null) {
+            portfolioWithFallback.grossExposure = calculatedGrossExposure;
+          }
           logger.info(
-            `📊 [Phase 7.3] accountNetAsset 為 null，即時計算兜底: ${calculated} (0050: ${value0050}, Z2: ${value00675L}, cash: ${cash}, loan: ${totalLoan})`,
+            `📊 [Phase 7.3] 即時計算兜底: accountNetAsset=${calculatedNetAsset}, grossExposure=${calculatedGrossExposure} (0050: ${value0050}, Z2: ${value00675L}, cash: ${cash}, loan: ${totalLoan})`,
           );
         } else {
           logger.warn(
-            `⚠️ [Phase 7.3] accountNetAsset 為 null，計算失敗: 0050價=${price0050}, Z2價=${currentPriceZ2}, 持倉=${portfolioWithFallback.qty0050}/${portfolioWithFallback.qtyZ2}`,
+            `⚠️ [Phase 7.3] 計算失敗: 0050價=${price0050}, Z2價=${currentPriceZ2}, 持倉=${portfolioWithFallback.qty0050}/${portfolioWithFallback.qtyZ2}`,
           );
         }
       }
