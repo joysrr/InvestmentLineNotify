@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-10-24T15:10:55.689Z",
+  "generated_at": "2026-11-04T14:20:07.809Z",
   "summary": {
-    "total_files": 163,
-    "average_health": 56.3,
+    "total_files": 176,
+    "average_health": 55.9,
     "by_health": {
-      "excellent": 29,
-      "good": 20,
-      "fair": 113,
+      "excellent": 30,
+      "good": 21,
+      "fair": 124,
       "poor": 1
     },
     "by_category": {
       "other": {
-        "count": 22,
-        "avgHealth": 62,
-        "totalHealth": 1370
+        "count": 29,
+        "avgHealth": 59,
+        "totalHealth": 1705
       },
       "guide": {
         "count": 3,
@@ -26,19 +26,19 @@
         "totalHealth": 795
       },
       "reference": {
-        "count": 40,
-        "avgHealth": 79,
-        "totalHealth": 3165
+        "count": 41,
+        "avgHealth": 80,
+        "totalHealth": 3265
       },
       "explanation": {
-        "count": 4,
+        "count": 6,
         "avgHealth": 48,
-        "totalHealth": 190
+        "totalHealth": 290
       },
       "plan": {
-        "count": 77,
+        "count": 80,
         "avgHealth": 45,
-        "totalHealth": 3475
+        "totalHealth": 3610
       }
     }
   },
@@ -238,6 +238,26 @@
       ]
     },
     {
+      "concept": "theoretical-framework",
+      "file": "architecture/theoretical-framework.md",
+      "category": "explanation",
+      "health": 45,
+      "impact": 10,
+      "priority": 55,
+      "issues": [
+        "狀態未知",
+        "從未驗證",
+        "缺少代碼連結",
+        "缺少文件連結",
+        "缺少摘要"
+      ],
+      "suggestions": [
+        "添加 last_verified 日期",
+        "添加 related_code",
+        "添加 related_docs"
+      ]
+    },
+    {
       "concept": "langfuse-prompt-management-v3-deprecated",
       "file": "modules/ai_news/integrations/langfuse_prompt_management_v3_deprecated.md",
       "category": "reference",
@@ -271,20 +291,6 @@
         "缺少文件連結",
         "缺少摘要"
       ],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
-    },
-    {
-      "concept": "decision-chain-api",
-      "file": "api/decision-chain_api.md",
-      "category": "reference",
-      "health": 55,
-      "impact": 10,
-      "priority": 45,
-      "issues": ["從未驗證", "缺少代碼連結", "缺少文件連結", "缺少摘要"],
       "suggestions": [
         "添加 last_verified 日期",
         "添加 related_code",
@@ -388,19 +394,13 @@
       ]
     },
     {
-      "concept": "strategy-engine-verification-report",
-      "file": "verification/STRATEGY_ENGINE_VERIFICATION_REPORT.md",
-      "category": "other",
-      "health": 45,
-      "impact": 6,
-      "priority": 33,
-      "issues": [
-        "狀態未知",
-        "從未驗證",
-        "缺少代碼連結",
-        "缺少文件連結",
-        "缺少摘要"
-      ],
+      "concept": "theory-page-redesign-draft",
+      "file": "design/theory_page_redesign_draft.md",
+      "category": "explanation",
+      "health": 55,
+      "impact": 8,
+      "priority": 36,
+      "issues": ["從未驗證", "缺少代碼連結", "缺少文件連結", "缺少摘要"],
       "suggestions": [
         "添加 last_verified 日期",
         "添加 related_code",
@@ -413,8 +413,8 @@
       "concept": "api-contract",
       "file": "API_CONTRACT.md",
       "category": "other",
-      "health": 65,
-      "status": "needs-review"
+      "health": 60,
+      "status": "reference-only"
     },
     {
       "concept": "deployment-checklist",
@@ -494,15 +494,15 @@
       "status": "archived"
     },
     {
-      "concept": "agents-overview",
-      "file": "Reports/agents_overview.md",
+      "concept": "agents-audit-report-202604",
+      "file": "Reports/archive/agents_audit_report_202604.md",
       "category": "report",
       "health": 45,
       "status": "archived"
     },
     {
-      "concept": "agents-audit-report-202604",
-      "file": "Reports/archive/agents_audit_report_202604.md",
+      "concept": "agents-overview",
+      "file": "Reports/archive/agents_overview.md",
       "category": "report",
       "health": 45,
       "status": "archived"
@@ -560,14 +560,14 @@
       "concept": "system-e2e-build-process",
       "file": "SYSTEM_E2E_BUILD_PROCESS.md",
       "category": "other",
-      "health": 50,
-      "status": "needs-review"
+      "health": 55,
+      "status": "current"
     },
     {
       "concept": "technical-indicators-spec",
       "file": "TECHNICAL_INDICATORS_SPEC.md",
       "category": "other",
-      "health": 95,
+      "health": 90,
       "status": "current"
     },
     {
@@ -581,8 +581,8 @@
       "concept": "test-spec-strategyengine",
       "file": "TEST_SPEC_strategyEngine.md",
       "category": "other",
-      "health": 65,
-      "status": "needs-review"
+      "health": 70,
+      "status": "current"
     },
     {
       "concept": "test-troubleshooting",
@@ -595,7 +595,7 @@
       "concept": "decision-chain-api",
       "file": "api/decision-chain_api.md",
       "category": "reference",
-      "health": 55,
+      "health": 70,
       "status": "current"
     },
     {
@@ -613,6 +613,13 @@
       "status": "archived"
     },
     {
+      "concept": "theoretical-framework",
+      "file": "architecture/theoretical-framework.md",
+      "category": "explanation",
+      "health": 45,
+      "status": "active"
+    },
+    {
       "concept": "dec-016-vitest-worker-crash",
       "file": "decisions/DEC-016-vitest-worker-crash.md",
       "category": "explanation",
@@ -623,6 +630,20 @@
       "concept": "budget-priority-design",
       "file": "design/BUDGET_PRIORITY_DESIGN.md",
       "category": "explanation",
+      "health": 55,
+      "status": "current"
+    },
+    {
+      "concept": "theory-page-redesign-draft",
+      "file": "design/theory_page_redesign_draft.md",
+      "category": "explanation",
+      "health": 55,
+      "status": "current"
+    },
+    {
+      "concept": "documentation-inventory-2026-11-01",
+      "file": "meta/DOCUMENTATION_INVENTORY_2026-11-01.md",
+      "category": "other",
       "health": 55,
       "status": "current"
     },
@@ -728,21 +749,21 @@
       "concept": "infrastructure",
       "file": "modules/infrastructure/_index.md",
       "category": "reference",
-      "health": 85,
+      "health": 80,
       "status": "current"
     },
     {
       "concept": "data-manager",
       "file": "modules/infrastructure/data_manager.md",
       "category": "reference",
-      "health": 85,
+      "health": 80,
       "status": "current"
     },
     {
       "concept": "history-provider",
       "file": "modules/infrastructure/history_provider.md",
       "category": "reference",
-      "health": 85,
+      "health": 80,
       "status": "current"
     },
     {
@@ -777,15 +798,15 @@
       "concept": "env-vars",
       "file": "modules/operations/env_vars.md",
       "category": "reference",
-      "health": 65,
-      "status": "needs-review"
+      "health": 70,
+      "status": "current"
     },
     {
       "concept": "schedules",
       "file": "modules/operations/schedules.md",
       "category": "reference",
-      "health": 65,
-      "status": "needs-review"
+      "health": 70,
+      "status": "current"
     },
     {
       "concept": "presentation",
@@ -819,14 +840,14 @@
       "concept": "report-signals-contract",
       "file": "modules/presentation/api/report_signals_contract.md",
       "category": "reference",
-      "health": 75,
-      "status": "needs-review"
+      "health": 80,
+      "status": "current"
     },
     {
       "concept": "bot",
       "file": "modules/presentation/bot.md",
       "category": "reference",
-      "health": 100,
+      "health": 95,
       "status": "current"
     },
     {
@@ -840,8 +861,8 @@
       "concept": "strategy",
       "file": "modules/strategy/_index.md",
       "category": "reference",
-      "health": 65,
-      "status": "needs-review"
+      "health": 70,
+      "status": "current"
     },
     {
       "concept": "strategy-param-audit",
@@ -855,6 +876,13 @@
       "file": "modules/strategy/audit/strategy_param_changes.md",
       "category": "reference",
       "health": 55,
+      "status": "current"
+    },
+    {
+      "concept": "cash-exposure-advisor",
+      "file": "modules/strategy/cash_exposure_advisor.md",
+      "category": "reference",
+      "health": 75,
       "status": "current"
     },
     {
@@ -875,8 +903,8 @@
       "concept": "lifecycle-health-test-spec",
       "file": "modules/strategy/lifecycle_health_test_spec.md",
       "category": "reference",
-      "health": 65,
-      "status": "needs-review"
+      "health": 70,
+      "status": "current"
     },
     {
       "concept": "macro-regime-metrics-analysis",
@@ -910,8 +938,8 @@
       "concept": "strategy-engine",
       "file": "modules/strategy/strategy_engine.md",
       "category": "reference",
-      "health": 65,
-      "status": "needs-review"
+      "health": 70,
+      "status": "current"
     },
     {
       "concept": "automated-deployment-milestone",
@@ -949,18 +977,18 @@
       "status": "archived"
     },
     {
-      "concept": "2026-10-20-leading-indicator-review",
-      "file": "plans/active/2026-10-20_leading-indicator-review.md",
+      "concept": "2026-10-31-non-trading-day-theoretical-calculation",
+      "file": "plans/active/2026-10-31_non-trading-day-theoretical-calculation.md",
       "category": "plan",
       "health": 45,
-      "status": "in-review"
+      "status": "completed"
     },
     {
-      "concept": "投資系統理論升級與資產動態整合計畫書",
-      "file": "plans/active/投資系統理論升級與資產動態整合計畫書.md",
+      "concept": "2026-11-04-regime-aware-opportunity-engine",
+      "file": "plans/active/2026-11-04_regime-aware-opportunity-engine.md",
       "category": "plan",
       "health": 45,
-      "status": "paused"
+      "status": "active"
     },
     {
       "concept": "advice",
@@ -1192,6 +1220,20 @@
       "category": "plan",
       "health": 45,
       "status": "completed"
+    },
+    {
+      "concept": "2026-10-20-leading-indicator-review",
+      "file": "plans/completed/2026-10-20_leading-indicator-review.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
+    },
+    {
+      "concept": "2026-10-28-p1-removal-cash-exposure-plan",
+      "file": "plans/completed/2026-10-28-p1-removal-cash-exposure-plan.md",
+      "category": "plan",
+      "health": 45,
+      "status": "archived"
     },
     {
       "concept": "active-plans-consolidated",
@@ -1495,6 +1537,13 @@
       "status": "completed"
     },
     {
+      "concept": "投資系統理論升級與資產動態整合計畫書",
+      "file": "plans/completed/投資系統理論升級與資產動態整合計畫書.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
+    },
+    {
       "concept": "investment-theories-current-system-guide",
       "file": "research/investment-theories-current-system-guide.md",
       "category": "other",
@@ -1549,6 +1598,48 @@
       "category": "other",
       "health": 65,
       "status": "current"
+    },
+    {
+      "concept": "hardcoded-parameters-inventory",
+      "file": "verification/hardcoded-parameters-inventory.md",
+      "category": "other",
+      "health": 45,
+      "status": "active"
+    },
+    {
+      "concept": "personalized-design-inventory",
+      "file": "verification/personalized-design-inventory.md",
+      "category": "other",
+      "health": 45,
+      "status": "active"
+    },
+    {
+      "concept": "personalized-design-system-impact-summary",
+      "file": "verification/personalized-design-system-impact-summary.md",
+      "category": "other",
+      "health": 55,
+      "status": "active"
+    },
+    {
+      "concept": "personalized-design-system-impact",
+      "file": "verification/personalized-design-system-impact.md",
+      "category": "other",
+      "health": 45,
+      "status": "active"
+    },
+    {
+      "concept": "theoretical-framework-validation-v2",
+      "file": "verification/theoretical-framework-validation-v2.md",
+      "category": "other",
+      "health": 45,
+      "status": "critical"
+    },
+    {
+      "concept": "theoretical-framework-validation",
+      "file": "verification/theoretical-framework-validation.md",
+      "category": "other",
+      "health": 45,
+      "status": "in-progress"
     }
   ]
 }

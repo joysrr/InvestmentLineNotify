@@ -121,8 +121,58 @@ if (regimeResult.state === "CRISIS") {
 
 ---
 
+## 債務感知雙模式（2026-11-04 升級）
+
+**升級日期**：2026-11-04  
+**相關計畫**：`docs/plans/active/2026-11-04_regime-aware-opportunity-engine.md` (v2.4)
+
+### 核心變更
+
+Regime Policy 現在支援**債務感知（Debt-Aware）雙模式**，根據 `portfolio.totalDebt` 自動切換行為：
+
+#### OPPORTUNITY_MODE（機會模式）
+
+- **觸發條件**：`totalDebt === 0`（無借款帳戶）
+- **CRISIS 狀態行為**：輸出 `mode: "crisis_accumulate"`（恐慌加碼視窗），不再強制 sell_only
+- **設計理念**：無負債帳戶在系統性大跌時具備安全邊際，可啟動分批加碼 00675L 以利用恐慌性錯殺
+- **協作模組**：`cashExposureAdvisor` 計算具體批次金額與目標槓桿
+
+#### DEFENSE_MODE（防禦模式）
+
+- **觸發條件**：`totalDebt > 0`（有融資或借貸負債）
+- **CRISIS 狀態行為**：保留既有 `mode: "sell_only"`，優先保護帳戶維持率
+- **設計理念**：借款帳戶在暴跌時面臨斷頭風險，必須優先確保生存，暫停所有加碼
+
+### RegimePolicyRule 整合
+
+Decision Chain 中的 `RegimePolicyRule` 已更新為**非阻斷式（Non-blocking）**：
+
+- **OPPORTUNITY 模式**：`crisis_accumulate` 不觸發 early return，讓後續規則（如 Cash Exposure Advisor）接手計算
+- **DEFENSE 模式**：`sell_only` 維持阻斷行為，立即回傳 P0 only + 00675L 禁止
+- **Type guard**：`Number(totalDebt)` 強制轉型，防範字串型態導致誤判
+
+### formatRegimeStatus 更新
+
+Telegram 卡片輸出針對 `crisis_accumulate` 模式調整顯示：
+
+```javascript
+// CRISIS 狀態的 emoji 根據 mode 動態切換
+stateEmoji.CRISIS = mode === "crisis_accumulate" ? "⚡" : "🔴";
+
+// mode 標籤
+modeLabel.crisis_accumulate = "恐慌加碼模式";
+modeLabel.sell_only = "防禦模式";
+```
+
+### P0 DCA 最高豁免
+
+**重要**：無論 OPPORTUNITY 或 DEFENSE 模式，**P0 定期定額（每月 3 萬）始終不受任何 Regime 狀態影響**，無條件正常執行。此豁免權寫死於 `strategyEngine.mjs` 決策鏈最前端。
+
+---
+
 ## Related Documentation
 
 - [Strategy Engine](./strategy_engine.md)
 - [Lifecycle Engine](./lifecycle_engine.md)
+- [Cash Exposure Advisor](./cash_exposure_advisor.md)
 - [Portfolio Health API](../presentation/api/portfolio_health_api.md)

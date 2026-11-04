@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 163,
-    "total_edges": 185,
-    "total_code_mappings": 80,
-    "concepts_with_code": 44,
-    "concepts_with_links": 54,
-    "generated_at": "2026-10-27T13:40:47.395Z"
+    "total_concepts": 176,
+    "total_edges": 199,
+    "total_code_mappings": 82,
+    "concepts_with_code": 45,
+    "concepts_with_links": 57,
+    "generated_at": "2026-11-04T14:19:56.789Z"
   },
   "concepts": {
     "api-contract": {
@@ -18,7 +18,7 @@
       "related_docs": [],
       "related_code": ["src/api/"],
       "tags": ["api", "contract", "rest"],
-      "status": "needs-review",
+      "status": "reference-only",
       "last_verified": null
     },
     "deployment-checklist": {
@@ -146,16 +146,6 @@
       "status": "archived",
       "last_verified": null
     },
-    "agents-overview": {
-      "primary_doc": "Reports/agents_overview.md",
-      "title": "📋 InvestmentLineNotify AI Agents 系統總覽圖表",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": ["agents", "overview"],
-      "status": "archived",
-      "last_verified": null
-    },
     "agents-audit-report-202604": {
       "primary_doc": "Reports/archive/agents_audit_report_202604.md",
       "title": "📋 InvestmentLineNotify AI Agents 系統評鑑報告",
@@ -163,6 +153,16 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["archived", "audit"],
+      "status": "archived",
+      "last_verified": null
+    },
+    "agents-overview": {
+      "primary_doc": "Reports/archive/agents_overview.md",
+      "title": "📋 InvestmentLineNotify AI Agents 系統總覽圖表",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["agents", "overview"],
       "status": "archived",
       "last_verified": null
     },
@@ -243,7 +243,7 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["e2e", "build", "process"],
-      "status": "needs-review",
+      "status": "current",
       "last_verified": null
     },
     "technical-indicators-spec": {
@@ -286,7 +286,7 @@
       "related_docs": [],
       "related_code": ["src/modules/strategy/"],
       "tags": ["testing", "strategy-engine"],
-      "status": "needs-review",
+      "status": "current",
       "last_verified": null
     },
     "test-troubleshooting": {
@@ -305,9 +305,9 @@
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": ["api", "decision-chain"],
+      "tags": ["api", "decision-chain", "regime-policy", "non-blocking"],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-11-04"
     },
     "dec-005-monitoring-alerting": {
       "primary_doc": "architecture/DEC-005-monitoring-alerting.md",
@@ -329,6 +329,21 @@
       "status": "archived",
       "last_verified": null
     },
+    "theoretical-framework": {
+      "primary_doc": "architecture/theoretical-framework.md",
+      "title": "投資理論框架 (Theoretical Framework)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "theoretical-framework",
+        "investment-theory",
+        "risk-management",
+        "system-integration"
+      ],
+      "status": "active",
+      "last_verified": null
+    },
     "dec-016-vitest-worker-crash": {
       "primary_doc": "decisions/DEC-016-vitest-worker-crash.md",
       "title": "DEC-016: Vitest Worker Crash Investigation (Phase 6.0)",
@@ -346,6 +361,26 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["design", "budget", "priority"],
+      "status": "current",
+      "last_verified": null
+    },
+    "theory-page-redesign-draft": {
+      "primary_doc": "design/theory_page_redesign_draft.md",
+      "title": "投資理論頁面重新設計草擬",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["theory-page", "ui-redesign", "design-draft", "phase-5-4"],
+      "status": "current",
+      "last_verified": null
+    },
+    "documentation-inventory-2026-11-01": {
+      "primary_doc": "meta/DOCUMENTATION_INVENTORY_2026-11-01.md",
+      "title": "文檔全面盤點報告",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["documentation", "inventory", "health-check", "wiki"],
       "status": "current",
       "last_verified": null
     },
@@ -703,7 +738,7 @@
         "src/modules/storage.mjs"
       ],
       "tags": ["env", "configuration", "langfuse", "ai"],
-      "status": "needs-review",
+      "status": "current",
       "last_verified": null
     },
     "schedules": {
@@ -718,7 +753,7 @@
         "scripts/vm-news-fetch.sh"
       ],
       "tags": ["cron", "scheduling", "operations"],
-      "status": "needs-review",
+      "status": "current",
       "last_verified": null
     },
     "presentation": {
@@ -787,7 +822,7 @@
         "src/api/routes/reports.mjs"
       ],
       "tags": ["api", "signals", "contract", "strategy"],
-      "status": "needs-review",
+      "status": "current",
       "last_verified": null
     },
     "bot": {
@@ -829,7 +864,7 @@
       "related_docs": [],
       "related_code": ["src/modules/strategy/"],
       "tags": ["strategy", "signals", "lifecycle"],
-      "status": "needs-review",
+      "status": "current",
       "last_verified": null
     },
     "strategy-param-audit": {
@@ -851,6 +886,28 @@
       "tags": ["strategy", "audit", "changes"],
       "status": "current",
       "last_verified": null
+    },
+    "cash-exposure-advisor": {
+      "primary_doc": "modules/strategy/cash_exposure_advisor.md",
+      "title": "現金曝險建議系統（Cash Exposure Advisor）",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [
+        "src/modules/strategy/cashExposureAdvisor.mjs",
+        "src/modules/strategy/leadingIndicatorEvaluator.mjs",
+        "src/modules/strategy/riskManagement.mjs",
+        "src/modules/strategy/lifecycleEngine.mjs",
+        "src/scheduler/dailyCheck.mjs"
+      ],
+      "tags": [
+        "strategy",
+        "cash-exposure",
+        "crisis-accumulate",
+        "leverage-resolution",
+        "dynamic-batching"
+      ],
+      "status": "current",
+      "last_verified": "2026-11-04"
     },
     "leading-indicator-radars": {
       "primary_doc": "modules/strategy/leading_indicator_radars.md",
@@ -902,7 +959,7 @@
         "src/test/unit/lifecycleEngine.test.mjs"
       ],
       "tags": ["testing", "lifecycle", "health-check"],
-      "status": "needs-review",
+      "status": "current",
       "last_verified": null
     },
     "macro-regime-metrics-analysis": {
@@ -979,7 +1036,7 @@
         "src/scheduler/dailyCheckTheoreticalAdapter.mjs"
       ],
       "tags": ["strategy", "signals", "technical-analysis"],
-      "status": "needs-review",
+      "status": "current",
       "last_verified": null
     },
     "automated-deployment-milestone": {
@@ -1054,40 +1111,38 @@
       "status": "archived",
       "last_verified": null
     },
-    "2026-10-20-leading-indicator-review": {
-      "primary_doc": "plans/completed/2026-10-20_leading-indicator-review.md",
-      "title": "領先指標升級計畫：專業審閱意見與修訂建議",
+    "2026-10-31-non-trading-day-theoretical-calculation": {
+      "primary_doc": "plans/active/2026-10-31_non-trading-day-theoretical-calculation.md",
+      "title": "非交易日 theoreticalShadow 重新計畫",
       "summary": null,
       "related_docs": [],
       "related_code": [],
-      "tags": ["investment", "risk-management", "system-design"],
+      "tags": [
+        "non-trading-day",
+        "theoretical-shadow",
+        "scheduler",
+        "frontend",
+        "test-coverage"
+      ],
       "status": "completed",
-      "last_verified": "2026-10-31"
+      "last_verified": null
     },
-    "投資系統理論升級與資產動態整合計畫書": {
-      "primary_doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md",
-      "title": "InvestmentLineNotify 投資系統理論升級與資產動態整合計畫書",
+    "2026-11-04-regime-aware-opportunity-engine": {
+      "primary_doc": "plans/active/2026-11-04_regime-aware-opportunity-engine.md",
+      "title": "計畫書：Regime-Aware Opportunity Engine（危機加碼引擎）v2.4",
       "summary": null,
       "related_docs": [],
-      "related_code": [
-        "webapp/src/components/theory/ExposureDetail.vue",
-        "webapp/src/components/theory/LaplaceDetail.vue",
-        "webapp/src/components/theory/LaplaceSummary.vue",
-        "webapp/src/components/theory/LifecycleDetail.vue",
-        "webapp/src/components/theory/TobinSeparationDetail.vue",
-        "webapp/src/components/theory/TobinSeparationSummary.vue",
-        "webapp/src/views/TheoryView.vue"
-      ],
+      "related_code": [],
       "tags": [
-        "investment-theory",
-        "theoretical-engine",
-        "shadow-mode",
-        "risk-management",
-        "implementation-plan",
-        "completed"
+        "regime-policy",
+        "crisis-buying",
+        "kelly-criterion",
+        "leverage",
+        "strategy-redesign",
+        "debt-aware"
       ],
-      "status": "completed",
-      "last_verified": "2026-10-30"
+      "status": "active",
+      "last_verified": null
     },
     "advice": {
       "primary_doc": "plans/archive/2026-04_remediation_advice/ADVICE.md",
@@ -1423,6 +1478,26 @@
         "radar"
       ],
       "status": "completed",
+      "last_verified": null
+    },
+    "2026-10-20-leading-indicator-review": {
+      "primary_doc": "plans/completed/2026-10-20_leading-indicator-review.md",
+      "title": "領先指標升級計畫：專業審閱意見與修訂建議",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["investment", "risk-management", "system-design"],
+      "status": "completed",
+      "last_verified": null
+    },
+    "2026-10-28-p1-removal-cash-exposure-plan": {
+      "primary_doc": "plans/completed/2026-10-28-p1-removal-cash-exposure-plan.md",
+      "title": "P1 移除 & 現金驅動曝險建議計畫",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["plan", "p1-removal", "cash-exposure"],
+      "status": "archived",
       "last_verified": null
     },
     "active-plans-consolidated": {
@@ -1882,6 +1957,23 @@
       "status": "completed",
       "last_verified": null
     },
+    "投資系統理論升級與資產動態整合計畫書": {
+      "primary_doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md",
+      "title": "InvestmentLineNotify 投資系統理論升級與資產動態整合計畫書",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "investment-theory",
+        "theoretical-engine",
+        "shadow-mode",
+        "risk-management",
+        "implementation-plan",
+        "completed"
+      ],
+      "status": "completed",
+      "last_verified": null
+    },
     "investment-theories-current-system-guide": {
       "primary_doc": "research/investment-theories-current-system-guide.md",
       "title": "目前投資系統理論與可擴充研究指南",
@@ -1975,6 +2067,79 @@
       "tags": ["verification", "strategy", "budget-priority", "validation"],
       "status": "current",
       "last_verified": "2026-09-11"
+    },
+    "hardcoded-parameters-inventory": {
+      "primary_doc": "verification/hardcoded-parameters-inventory.md",
+      "title": "硬編碼參數盤點與合理性分析",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["hardcoded-parameters", "configuration", "code-review"],
+      "status": "active",
+      "last_verified": null
+    },
+    "personalized-design-inventory": {
+      "primary_doc": "verification/personalized-design-inventory.md",
+      "title": "用戶個人化設計盤點",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["personalized-design", "user-profile", "investment-strategy"],
+      "status": "active",
+      "last_verified": null
+    },
+    "personalized-design-system-impact-summary": {
+      "primary_doc": "verification/personalized-design-system-impact-summary.md",
+      "title": "個人化設計對系統架構影響 - 執行摘要",
+      "summary": null,
+      "related_docs": [
+        "personalized-design-system-impact.md",
+        "personalized-design-inventory.md"
+      ],
+      "related_code": [],
+      "tags": ["personalized-design", "system-architecture", "extensibility"],
+      "status": "active",
+      "last_verified": null
+    },
+    "personalized-design-system-impact": {
+      "primary_doc": "verification/personalized-design-system-impact.md",
+      "title": "個人化設計對系統架構的影響分析",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "personalized-design",
+        "system-architecture",
+        "design-constraints",
+        "scalability-analysis"
+      ],
+      "status": "active",
+      "last_verified": null
+    },
+    "theoretical-framework-validation-v2": {
+      "primary_doc": "verification/theoretical-framework-validation-v2.md",
+      "title": "理論框架驗證報告 V2 - 全面驗證",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "theoretical-framework",
+        "validation",
+        "critical-bugs",
+        "data-consistency"
+      ],
+      "status": "critical",
+      "last_verified": null
+    },
+    "theoretical-framework-validation": {
+      "primary_doc": "verification/theoretical-framework-validation.md",
+      "title": "理論框架驗證報告",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["theoretical-framework", "validation", "bugs"],
+      "status": "in-progress",
+      "last_verified": null
     }
   },
   "code_map": {
@@ -2496,6 +2661,52 @@
         "doc": "modules/presentation/bot.md"
       }
     ],
+    "src/modules/strategy/cashExposureAdvisor.mjs": [
+      {
+        "concept": "cash-exposure-advisor",
+        "doc": "modules/strategy/cash_exposure_advisor.md"
+      }
+    ],
+    "src/modules/strategy/leadingIndicatorEvaluator.mjs": [
+      {
+        "concept": "cash-exposure-advisor",
+        "doc": "modules/strategy/cash_exposure_advisor.md"
+      },
+      {
+        "concept": "leading-indicator-radars",
+        "doc": "modules/strategy/leading_indicator_radars.md"
+      }
+    ],
+    "src/modules/strategy/riskManagement.mjs": [
+      {
+        "concept": "cash-exposure-advisor",
+        "doc": "modules/strategy/cash_exposure_advisor.md"
+      }
+    ],
+    "src/modules/strategy/lifecycleEngine.mjs": [
+      {
+        "concept": "cash-exposure-advisor",
+        "doc": "modules/strategy/cash_exposure_advisor.md"
+      },
+      {
+        "concept": "lifecycle-engine",
+        "doc": "modules/strategy/lifecycle_engine.md"
+      },
+      {
+        "concept": "lifecycle-health-test-spec",
+        "doc": "modules/strategy/lifecycle_health_test_spec.md"
+      }
+    ],
+    "src/scheduler/dailyCheck.mjs": [
+      {
+        "concept": "cash-exposure-advisor",
+        "doc": "modules/strategy/cash_exposure_advisor.md"
+      },
+      {
+        "concept": "leading-indicator-radars",
+        "doc": "modules/strategy/leading_indicator_radars.md"
+      }
+    ],
     "src/domain/signalContext.mjs": [
       {
         "concept": "leading-indicator-radars",
@@ -2508,32 +2719,10 @@
         "doc": "modules/strategy/leading_indicator_radars.md"
       }
     ],
-    "src/modules/strategy/leadingIndicatorEvaluator.mjs": [
-      {
-        "concept": "leading-indicator-radars",
-        "doc": "modules/strategy/leading_indicator_radars.md"
-      }
-    ],
-    "src/scheduler/dailyCheck.mjs": [
-      {
-        "concept": "leading-indicator-radars",
-        "doc": "modules/strategy/leading_indicator_radars.md"
-      }
-    ],
     "webapp/src/components/radar/ExtremeRadarPanel.vue": [
       {
         "concept": "leading-indicator-radars",
         "doc": "modules/strategy/leading_indicator_radars.md"
-      }
-    ],
-    "src/modules/strategy/lifecycleEngine.mjs": [
-      {
-        "concept": "lifecycle-engine",
-        "doc": "modules/strategy/lifecycle_engine.md"
-      },
-      {
-        "concept": "lifecycle-health-test-spec",
-        "doc": "modules/strategy/lifecycle_health_test_spec.md"
       }
     ],
     "src/modules/strategy/decision/rules/LifecycleLeverageRule.mjs": [
@@ -2716,48 +2905,6 @@
       {
         "concept": "useapirequest-guide",
         "doc": "useApiRequest-guide.md"
-      }
-    ],
-    "webapp/src/components/theory/LaplaceSummary.vue": [
-      {
-        "concept": "投資系統理論升級與資產動態整合計畫書",
-        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
-      }
-    ],
-    "webapp/src/components/theory/LaplaceDetail.vue": [
-      {
-        "concept": "投資系統理論升級與資產動態整合計畫書",
-        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
-      }
-    ],
-    "webapp/src/components/theory/TobinSeparationSummary.vue": [
-      {
-        "concept": "投資系統理論升級與資產動態整合計畫書",
-        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
-      }
-    ],
-    "webapp/src/components/theory/TobinSeparationDetail.vue": [
-      {
-        "concept": "投資系統理論升級與資產動態整合計畫書",
-        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
-      }
-    ],
-    "webapp/src/views/TheoryView.vue": [
-      {
-        "concept": "投資系統理論升級與資產動態整合計畫書",
-        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
-      }
-    ],
-    "webapp/src/components/theory/LifecycleDetail.vue": [
-      {
-        "concept": "投資系統理論升級與資產動態整合計畫書",
-        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
-      }
-    ],
-    "webapp/src/components/theory/ExposureDetail.vue": [
-      {
-        "concept": "投資系統理論升級與資產動態整合計畫書",
-        "doc": "plans/completed/投資系統理論升級與資產動態整合計畫書.md"
       }
     ]
   }

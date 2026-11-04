@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 163,
-    "edges": 185
+    "nodes": 176,
+    "edges": 199
   },
   "graph": {
     "api-contract": ["api"],
@@ -13,11 +13,18 @@
     "security-report": ["operations"],
     "technical-indicators-spec": ["strategy-engine"],
     "test-spec-strategyengine": ["strategy-engine"],
+    "decision-chain-api": [
+      "regime-policy",
+      "cash-exposure-advisor",
+      "regime-policy",
+      "cash-exposure-advisor"
+    ],
     "dec-005-monitoring-alerting": [
       "langfuse-prompt-management-v5",
       "ai-pipeline"
     ],
     "dec-006-deployment-automation": ["bot", "operations"],
+    "theoretical-framework": ["strategy-engine"],
     "dec-016-vitest-worker-crash": ["testing", "dec-016-vitest-worker-crash"],
     "documentation-standards": [
       "documentation-standards",
@@ -153,7 +160,21 @@
     ],
     "notifications": ["bot", "ai_news"],
     "strategy": ["ai_news", "strategy-engine"],
-    "leading-indicator-radars": ["strategy-engine", "providers"],
+    "cash-exposure-advisor": [
+      "regime-policy",
+      "leading-indicator-radars",
+      "strategy-engine",
+      "regime-policy",
+      "leading-indicator-radars",
+      "lifecycle-engine"
+    ],
+    "leading-indicator-radars": [
+      "strategy-engine",
+      "providers",
+      "cash-exposure-advisor",
+      "regime-policy",
+      "strategy-engine"
+    ],
     "lifecycle-engine": ["strategy-engine"],
     "lifecycle-health-test-spec": ["strategy-engine"],
     "macro-regime-metrics-analysis": [

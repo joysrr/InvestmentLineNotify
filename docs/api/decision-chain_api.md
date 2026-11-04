@@ -1,11 +1,16 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-11
+last_updated: 2026-11-04
+last_verified: 2026-11-04
 tags:
   - api
   - decision-chain
-wiki_links: []
+  - regime-policy
+  - non-blocking
+wiki_links:
+  - [[Regime Policy]]
+  - [[Cash Exposure Advisor]]
 ---
 
 # Decision Chain Responsibility Architecture Spec
@@ -156,3 +161,63 @@ CODE PATHS                                            USER FLOWS
  P9  | Scoring  | --(Calculate)--> [ TACTICAL/DCA ]
      +----------+
 ```
+
+---
+
+## RegimePolicyRule 非阻斷式行為（2026-11-04 升級）
+
+**升級日期**：2026-11-04  
+**相關計畫**：`docs/plans/active/2026-11-04_regime-aware-opportunity-engine.md` (v2.4 Phase 2)
+
+### 核心變更
+
+`RegimePolicyRule` 現已支援**債務感知雙模式**，不再一律阻斷 CRISIS 狀態：
+
+#### OPPORTUNITY_MODE（無借款帳戶）
+
+```javascript
+// totalDebt === 0
+if (
+  regimeResult.state === "CRISIS" &&
+  regimeResult.mode === "crisis_accumulate"
+) {
+  // 注入 crisis_accumulate 狀態到 engineState，但不觸發 early return
+  engineState.regimeResult = regimeResult;
+  return null; // 讓後續規則（Cash Exposure Advisor）接手計算
+}
+```
+
+#### DEFENSE_MODE（有借款帳戶）
+
+```javascript
+// totalDebt > 0
+if (regimeResult.state === "CRISIS" && regimeResult.mode === "sell_only") {
+  // 維持阻斷行為，立即回傳強制賣出
+  return {
+    target: "🔴 強制賣出",
+    targetSuggestion: "VIX 危機模式啟動，禁止新增部位...",
+    p0Exempt: true,
+  };
+}
+```
+
+### 型態安全守護
+
+```javascript
+const debtMode = Number(totalDebt) === 0 ? "OPPORTUNITY" : "DEFENSE";
+```
+
+使用 `Number()` 強制轉型，防範字串型態（如 `"0"` 或 `""`）導致誤判。
+
+### 優先級不變
+
+`RegimePolicyRule` 仍維持 **Priority 10**（高優先級），確保：
+
+- DEFENSE 模式的阻斷行為優先於所有後續規則
+- OPPORTUNITY 模式的狀態注入早於 Cash Exposure Advisor 計算
+
+### 相關文件
+
+- [[Regime Policy]] — 債務感知雙模式完整說明
+- [[Cash Exposure Advisor]] — CRISIS_ACCUMULATE 狀態的現金曝險計算
+- **測試用例**：[`decisionRules.test.mjs`](../../src/test/unit/decisionRules.test.mjs)

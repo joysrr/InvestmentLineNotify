@@ -86,3 +86,50 @@ TWSE MI_INDEX
 - **每日排程**：整合於 `src/scheduler/dailyCheck.mjs`（Step 4.5），無需額外排程。
 - **領域狀態**：`src/domain/ilnState.mjs` 透過 `leadingIndicators` 欄位持久化至最新報告與 API Payload。
 - **Telegram Mini App**：`webapp/src/views/MarketRadarView.vue` 頂部內嵌 `ExtremeRadarPanel.vue`，具備兩段式折疊響應與深色模式適配。
+
+---
+
+## 5. 行動紀律文字調和（2026-11-04 升級）
+
+**升級日期**：2026-11-04  
+**相關計畫**：`docs/plans/active/2026-11-04_regime-aware-opportunity-engine.md` (v2.4 Phase 7.2)
+
+### 債務感知動態文字邏輯
+
+`leadingIndicatorEvaluator.mjs` 的行動紀律（lines 68-81）現已支援**債務感知動態文字**，消除文字與實際狀態矛盾：
+
+#### OPPORTUNITY 模式（無借款）
+
+當 `cashExposureAnalysis.status === "CRISIS_ACCUMULATE"` 時：
+
+- **0050 行動指引**：「✅ 0050 逆週期加碼」（不變）
+- **00675L 行動指引**：「⚠️ 00675L 限速加碼」（原為「禁止買入」）
+- **設計理念**：反映「恐慌加碼視窗」的實際執行策略，用戶可分批加碼 00675L 但需嚴守紀律
+
+#### DEFENSE 模式（有借款）
+
+當 `regimeResult.mode === "sell_only"` 時：
+
+- **0050 行動指引**：「⏸ 0050 暫停買入」
+- **00675L 行動指引**：「🚫 00675L 禁止買入」
+- **設計理念**：借款帳戶優先保護維持率，全面凍結加碼
+
+### Telegram 卡片整合
+
+行動紀律動態文字會反映在：
+
+1. **每日戰報主卡**：領先指標區塊的「行動紀律」欄位
+2. **獨立警報卡**（CRISIS_ACCUMULATE）：顯示 `⚡【恐慌加碼視窗】` 專屬卡片，包含批次金額與目標槓桿
+3. **Mini App 雷達面板**：`ExtremeRadarPanel.vue` 動態呈現當前行動約束
+
+### P0 DCA 最高豁免提示
+
+所有卡片固定顯示：「✅ P0 定期定額（3 萬/月）不受影響」，強調信仰紀律的最高豁免權。
+
+---
+
+## 6. 相關文件
+
+- **現金曝險建議**：[[Cash Exposure Advisor]]
+- **Regime Policy**：[[Regime Policy]]
+- **Strategy Engine**：[[Strategy Engine]]
