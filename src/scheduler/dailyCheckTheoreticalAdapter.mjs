@@ -146,12 +146,18 @@ export async function buildTheoreticalShadowForReport({
       : null;
 
   // Kelly Limits: use market regime model output (dynamic μ/σ)
+  // Debt-aware borrowRate: 無借款用無風險利率，有借款用融資成本
+  const effectiveBorrowRate =
+    mappedInputs.inputs.totalDebt.value > 0
+      ? 0.025 // 有借款：融資成本 2.5%（增貸利率）
+      : 0.01; // 無借款：無風險利率 1%（台灣 1Y 公債 YTM）
+
   const kellyLimits =
     mappedInputs.status === "OK" && regimeOutput.status === "OK"
       ? calculateKellyLimits({
           mu: regimeOutput.mu,
           sigma: regimeOutput.sigma,
-          borrowRate: 0.025, // 2.5% borrow rate (from margin loan)
+          borrowRate: effectiveBorrowRate,
           productCostAdjustment: 0.01, // 1% product cost (ETF fee + slippage)
           protectiveScale: 0.5, // Half-Kelly for safety
         })
