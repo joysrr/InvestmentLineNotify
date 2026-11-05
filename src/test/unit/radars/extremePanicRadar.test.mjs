@@ -34,48 +34,66 @@ describe("Radar 3: Extreme Panic Radar (evaluateExtremePanicRadar)", () => {
     expect(result.cardSummary).toBeNull();
   });
 
-  it("TC-02: VIX 飆升至 38 突破 35 門檻 (觸發極度恐慌)", () => {
+  it("TC-02: VIX 飆升至 38 突破 35 門檻 (觸發極度恐慌) — 無借款模式", () => {
     const result = evaluateExtremePanicRadar({
       vix: 38.0,
       taiexReturn: -0.03,
       bias60: -0.08,
       vixHistory: mockVixHistory,
+      totalDebt: 0, // 無借款 → OPPORTUNITY
     });
 
     expect(result.triggered).toBe(true);
     expect(result.constraints.allowLeft0050).toBe(true); // 啟動 0050 左側低接
-    expect(result.constraints.freeze00675L).toBe(true); // 00675L 嚴格凍結
+    expect(result.constraints.freeze00675L).toBe(false); // Debt-aware: 無借款 → 限速加碼
     expect(result.constraints.p0Exempt).toBe(true);
     expect(result.cardSummary).toContain("極度恐慌雷達");
     expect(result.cardSummary).toContain("38.0");
     expect(result.cardSummary).toContain("0050 左側分批布局啟動");
-    expect(result.cardSummary).toContain("00675L 嚴格凍結");
+    expect(result.cardSummary).toContain("00675L 限速加碼"); // Debt-aware 文案
   });
 
-  it("TC-03: 大盤單日崩跌 <= -4.5% (歷史級單日重挫觸發)", () => {
+  it("TC-03: 大盤單日崩跌 <= -4.5% (歷史級單日重挫觸發) — 無借款模式", () => {
     const result = evaluateExtremePanicRadar({
       vix: 28.0,
-      taiexReturn: -0.052, // -5.2% (如 2024/08/05 股災)
-      bias60: -0.09,
+      taiexReturn: -0.06, // -6%
+      bias60: -0.05,
       vixHistory: mockVixHistory,
+      totalDebt: 0, // 無借款 → OPPORTUNITY
     });
 
     expect(result.triggered).toBe(true);
     expect(result.constraints.allowLeft0050).toBe(true);
-    expect(result.constraints.freeze00675L).toBe(true);
+    expect(result.constraints.freeze00675L).toBe(false); // Debt-aware: 無借款 → 限速加碼
   });
 
-  it("TC-04: 季線負乖離率 <= -12% (深跌超賣觸發)", () => {
+  it("TC-04: 季線負乖離率 <= -12% (深跌超賣觸發) — 無借款模式", () => {
     const result = evaluateExtremePanicRadar({
       vix: 27.5,
       taiexReturn: -0.02,
       bias60: -0.135, // -13.5%
       vixHistory: mockVixHistory,
+      totalDebt: 0, // 無借款 → OPPORTUNITY
     });
 
     expect(result.triggered).toBe(true);
     expect(result.constraints.allowLeft0050).toBe(true);
-    expect(result.constraints.freeze00675L).toBe(true);
+    expect(result.constraints.freeze00675L).toBe(false); // Debt-aware: 無借款 → 限速加碼
+  });
+
+  it("TC-05: 有借款時觸發 — DEFENSE 模式凍結 00675L", () => {
+    const result = evaluateExtremePanicRadar({
+      vix: 38.0,
+      taiexReturn: -0.06,
+      bias60: -0.135,
+      vixHistory: mockVixHistory,
+      totalDebt: 500000, // 有借款 → DEFENSE
+    });
+
+    expect(result.triggered).toBe(true);
+    expect(result.constraints.allowLeft0050).toBe(true);
+    expect(result.constraints.freeze00675L).toBe(true); // Debt-aware: 有借款 → 嚴格凍結
+    expect(result.cardSummary).toContain("00675L 嚴格凍結");
   });
 
   it("TC-05: 缺歷史數據時安全降級 (依賴絕對 35、-4.5%、-12% 門檻)", () => {

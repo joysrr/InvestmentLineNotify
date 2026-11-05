@@ -27,6 +27,7 @@ function calcPercentile(arr, p) {
  * @param {number} input.taiexReturn - 大盤單日報酬率 (如 -0.045 代表 -4.5%)
  * @param {number} input.bias60 - 季線乖離率 (如 -0.12 代表 -12%)
  * @param {number[]} [input.vixHistory] - 過去歷史 VIX 數值序列 (建議 250 天)
+ * @param {number} [input.totalDebt=0] - 當前總負債（用於 debt-aware 文案動態生成）
  * @returns {Object} 雷達標準輸出合約
  */
 export function evaluateExtremePanicRadar({
@@ -35,6 +36,7 @@ export function evaluateExtremePanicRadar({
   bias60 = 0,
   bias60DataStatus = "VERIFIED",
   vixHistory = [],
+  totalDebt = 0,
 }) {
   const hasHistory = Array.isArray(vixHistory) && vixHistory.length >= 30;
   const p98Vix = hasHistory ? calcPercentile(vixHistory, 98) : 35.0;
@@ -76,7 +78,13 @@ export function evaluateExtremePanicRadar({
   if (isBiasOversold)
     triggerReasons.push(`季線負乖離 ${(bias60 * 100).toFixed(1)}%`);
 
-  const summaryText = `🚨【歷史級極度恐慌雷達：觸發】(${triggerReasons.join(" | ")})。市場陷入極度恐慌，紀律：0050 左側分批布局啟動，00675L 嚴格凍結等待右側回落，P0 正常執行。`;
+  // Debt-aware 文案：無借款 → 限速加碼，有借款 → 嚴格凍結
+  const isOpportunityMode = Number(totalDebt) === 0;
+  const z2Discipline = isOpportunityMode
+    ? "00675L 限速加碼（分批控制損耗）"
+    : "00675L 嚴格凍結等待右側回落";
+
+  const summaryText = `🚨【歷史級極度恐慌雷達：觸發】(${triggerReasons.join(" | ")})。市場陷入極度恐慌，紀律：0050 左側分批布局啟動，${z2Discipline}，P0 正常執行。`;
 
   return createRadarResult({
     radarId: RADAR_IDS.EXTREME_PANIC,
@@ -92,7 +100,7 @@ export function evaluateExtremePanicRadar({
       isBiasOversold,
     },
     constraints: {
-      freeze00675L: true, // 00675L 嚴格凍結
+      freeze00675L: !isOpportunityMode, // Debt-aware: 無借款時解凍限速加碼
       allowLeft0050: true, // 啟動 0050 左側定錨加碼
     },
     cardSummary: summaryText,

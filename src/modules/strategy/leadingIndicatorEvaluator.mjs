@@ -196,6 +196,7 @@ export function evaluateLeadingIndicators({
     bias60: marketData.bias60 === undefined ? 0 : marketData.bias60,
     bias60DataStatus: marketData.bias60DataStatus ?? "VERIFIED",
     vixHistory: marketData.vixHistory || [],
+    totalDebt: portfolio.totalDebt ?? 0, // Phase 7.2+: debt-aware 雷達文案
   });
 
   const radar4 = evaluateRetailSentimentRadar({

@@ -173,7 +173,16 @@ export function evaluateCashExposure({
         suggestedDcaAmt: batchLimit,
         exposureGap,
         targetExposure,
+        targetLeverage, // 透明度：目標槓桿（如 1.3x）
+        currentLeverage: grossExposure / accountNetAsset, // 透明度：當前槓桿（如 0.78x）
         cashAdequacy,
+        batchCalculation: {
+          // 透明度：批次計算細節
+          capitalGap,
+          batchByCount,
+          batchByCash,
+          selectedBatch: batchLimit,
+        },
         message: `⚡ 恐慌加碼模式：無借款帳戶，建議本批加碼 00675L 上限 ${batchLimit.toLocaleString()} TWD`,
         batchRationale: `VIX 恐慌視窗；批次上限 = min(缺口÷${CRISIS_ACCUMULATE_BATCH_COUNT}, 現金×${(CRISIS_ACCUMULATE_BATCH_RATIO * 100).toFixed(0)}%, 資本缺口)；歷史實證 VIX>40 長期正期望值，分批控制路徑損耗`,
         disclaimer:
