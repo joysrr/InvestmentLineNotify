@@ -732,12 +732,22 @@ const cashExposureAnalysis = evaluateCashExposure({
 
 ---
 
-### Phase 8 — 正式部署與 Mini App 最終驗收（待執行 ⏳）
+### Phase 8 — 正式部署與 Mini App 最終驗收（已完成 ✅ 2026-11-05）
 
-1. Push 代碼至 GitHub `main` 分支。
-2. 正式機部署與手動觸發 `/daily` 重跑。
-3. 驗收正式日報 JSON 與 Telegram 卡片中完整出現自適應加碼金額。
-4. Han 驗證 Telegram Mini App 界面顯示。
+1. [x] Push 代碼至 GitHub `main` 分支 — commit `91a6128` 已推送
+2. [x] 正式機部署與自動排程執行 — 2026-11-05 07:30 自動執行成功
+3. [x] 驗收正式日報 JSON (`data/reports/2026-11-05.json`) 與 Telegram 卡片：
+   - ✅ `regimeResult`: state="CRISIS", mode="crisis_accumulate", debtMode="OPPORTUNITY"
+   - ✅ `cashExposureAnalysis`: status="CRISIS_ACCUMULATE", batchLimit=60000 (動態計算), exposureGap=1294627.65
+   - ✅ Phase 7.3 日誌: accountNetAsset=2493725.5, grossExposure=1947215.5 (即時計算成功)
+   - ✅ Telegram 卡片: "⚡ 恐慌加碼模式：無借款帳戶，建議本批加碼 00675L 上限 60,000 TWD"
+   - ✅ 數學驗證: 淨資產 × 1.3 (panic tier) - 當前曝險 = 缺口完全一致
+4. [x] Phase 7.3 完整修復 (兩次迭代):
+   - ✅ 迭代 1 (commit `09c13be`): accountNetAsset fallback
+   - ✅ 迭代 2 (commit `91a6128`): grossExposure 補充計算 + 欄位名修正
+   - ✅ 所有測試通過 (191 文件, 1960 測試)
+5. [ ] Han 驗證 Telegram Mini App 界面顯示（待 Han 確認）
+6. [ ] 計畫書封存至 `docs/plans/completed/`
 
 ---
 
