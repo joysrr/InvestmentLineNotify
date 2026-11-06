@@ -6,6 +6,15 @@
       <span class="page-date">{{ todayLabel }}</span>
     </div>
 
+    <!-- 長期防禦模式狀態欄 (Phase 4) -->
+    <div
+      v-if="isLongTermDefense"
+      class="defense-mode-badge card-danger"
+    >
+      <span class="badge-icon">🛡️</span>
+      <span class="badge-text">長期防禦模式中 — 嚴格控制槓桿與加碼</span>
+    </div>
+
     <!-- 市場戰情子分頁切換列 -->
     <div class="subtabs-bar">
       <router-link to="/radar" class="subtab-btn" active-class="active">🌐 市場雷達</router-link>
@@ -198,6 +207,15 @@ onMounted(async () => {
     );
     reportData.value = sorted[0] ?? null;
   }
+});
+
+// ── 長期防禦模式 ────────────────────────────────────────
+const isLongTermDefense = computed(() => {
+  return (
+    reportData.value?.leadingIndicators?.isLongTermDefense ??
+    statusData.value?.leadingIndicators?.isLongTermDefense ??
+    false
+  );
 });
 
 // ── 今日標籤 ──────────────────────────────────────────
@@ -620,5 +638,42 @@ const fxCard = computed(() => {
   background: var(--tg-theme-bg-color, #ffffff);
   color: var(--tg-theme-button-color, #2481cc);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Phase 4: 長期防禦模式狀態欄 */
+.defense-mode-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin: 0 16px 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  animation: pulse-border 2s infinite;
+}
+
+.defense-mode-badge.card-danger {
+  background: rgba(244, 67, 54, 0.12);
+  border: 1px solid rgba(244, 67, 54, 0.35);
+  color: #c62828;
+}
+
+.defense-mode-badge .badge-icon {
+  font-size: 16px;
+}
+
+.defense-mode-badge .badge-text {
+  letter-spacing: 0.2px;
+}
+
+@keyframes pulse-border {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(198, 40, 40, 0.1);
+  }
 }
 </style>
