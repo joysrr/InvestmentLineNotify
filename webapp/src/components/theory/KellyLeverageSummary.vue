@@ -30,7 +30,21 @@
         </div>
       </div>
 
-      <!-- Progress Bar -->
+      <!-- Kelly vs 槓桿對比 (Phase 3) -->
+      <div v-if="theory?.targetLeverage != null" class="leverage-comparison">
+        <div class="comparison-item">
+          <span class="comparison-label">目標槓桿</span>
+          <span class="comparison-value">{{ formatLeverage(theory.targetLeverage) }}</span>
+        </div>
+        <div class="comparison-item" v-if="leverageGap != null" :class="gapClass">
+          <span class="comparison-label">槓桿缺口</span>
+          <span class="comparison-value">{{ formatLeverage(Math.abs(leverageGap)) }}</span>
+        </div>
+        <div class="comparison-item">
+          <span class="comparison-label">建議動作</span>
+          <span class="comparison-value">{{ leverageAction }}</span>
+        </div>
+      </div>
       <div v-if="hasKellyLimits" class="leverage-bar">
         <div class="leverage-bar-track">
           <div
@@ -82,6 +96,38 @@ const hasKellyLimits = computed(() => {
     props.theory.kellyLimits.conservative != null &&
     props.theory.kellyLimits.full != null
   );
+});
+
+// 槓桿缺口 = 目標槓桿 - 當前槓桿
+const leverageGap = computed(() => {
+  const target = props.theory?.targetLeverage;
+  const current = props.theory?.currentLeverage;
+  if (
+    target == null ||
+    !Number.isFinite(target) ||
+    current == null ||
+    !Number.isFinite(current)
+  )
+    return null;
+  return target - current;
+});
+
+// 槓桿建議動作
+const leverageAction = computed(() => {
+  const gap = leverageGap.value;
+  if (gap == null) return null;
+  if (gap > 0.05) return "可增加槓桿";
+  if (gap < -0.05) return "超過建議槓桿";
+  return "維持當前槓桿";
+});
+
+// 槓桿缺口 CSS 類
+const gapClass = computed(() => {
+  const gap = leverageGap.value;
+  if (gap == null) return "";
+  if (gap > 0) return "gap-positive";
+  if (gap < 0) return "gap-negative";
+  return "gap-neutral";
 });
 
 // Format leverage value
@@ -317,5 +363,51 @@ const leverageStatusText = computed(() => {
 
 .theory-detail-btn:active {
   background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+}
+
+/* Phase 3: Kelly vs 槓桿對比 */
+.leverage-comparison {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--vp-c-divider, #eaeaeb);
+}
+
+.comparison-item {
+  background: var(--tg-theme-bg-color, #fff);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  padding: 8px 6px;
+  text-align: center;
+}
+
+.comparison-label {
+  font-size: 10px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.comparison-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #222);
+  word-break: break-all;
+}
+
+.gap-positive .comparison-value {
+  color: var(--vp-c-brand, #1665e3);
+}
+
+.gap-negative .comparison-value {
+  color: #c62828;
+}
+
+.gap-neutral .comparison-value {
+  color: #757575;
 }
 </style>

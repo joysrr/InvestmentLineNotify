@@ -17,8 +17,8 @@ wiki_links: []
 | ------- | ---------------------------------------------------------------------------------- | --------- | ------- |
 | Phase 1 | CashExposureWidget.vue：槓桿儀表板 (targetLeverage/currentLeverage) + 批次計算推導 | ✅ 完成   | e6f75b6 |
 | Phase 2 | Telegram 訊息精簡：僅保留「警報標題 + 行動紀律 + 建議批次」，細節移至 Mini App     | ✅ 完成   | e6f75b6 |
-| Phase 3 | KellyLeverageSummary.vue：加入 Kelly vs 槓桿對比欄，風格參考現有設計               | ⏳ 進行中 | -       |
-| Phase 4 | MarketRadarView.vue：加入長期防禦模式狀態欄                                        | ⏳ 待啟動 | -       |
+| Phase 3 | KellyLeverageSummary.vue：加入 Kelly vs 槓桿對比欄，風格參考現有設計               | ✅ 完成   | -       |
+| Phase 4 | MarketRadarView.vue：加入長期防禦模式狀態欄                                        | ⏳ 進行中 | -       |
 | Phase 5 | E2E 測試驗證 + 最終提交                                                            | ⏳ 待啟動 | -       |
 
 ## 設計原則
