@@ -57,23 +57,13 @@ export function formatLeadingIndicatorTelegramCard({
       : `⚠️【極端雷達矩陣】狀態機運行中 (${state})`;
   lines.push(summaryLine);
 
-  // 3. 詳情卡條目
-  triggeredRadars.forEach((radar, idx) => {
-    if (radar.cardSummary) {
-      lines.push(`├─ 詳情卡 ${idx + 1}：${radar.cardSummary}`);
-    }
-  });
-
-  // 4. 行動紀律行（Phase 7.2: debt-aware 動態文字）
+  // 3. 行動紀律行（Phase 7.2: debt-aware 動態文字）
   let discipline00675L;
   if (cashExposureAnalysis?.status === "CRISIS_ACCUMULATE") {
-    // 恐慌加碼模式：無借款帳戶下的限速加碼
     discipline00675L = "00675L 限速加碼";
   } else if (constraints.freeze00675L) {
-    // 傳統防禦模式：有借款或非恐慌雷達時禁止買入
     discipline00675L = "00675L 禁止買入";
   } else {
-    // 常態模式：允許動能交易
     discipline00675L = "00675L 允許動能";
   }
 
@@ -86,27 +76,18 @@ export function formatLeadingIndicatorTelegramCard({
     `├─ 🛡 行動紀律：${discipline00675L} | ${discipline0050} | ${disciplineP0}`,
   );
 
-  // 5. F-10 長期防禦模式提示
-  if (isLongTermDefense) {
-    lines.push(`📊【系統長期防禦模式】已持續 ${activeDays} 日`);
-  }
-
-  // 6. 現金曝險摘要行 (底部)
+  // 4. 現金曝險摘要行 (底部) — 精簡版，細節見 Mini App
   if (cashExposureAnalysis) {
-    const { status, suggestedDcaAmt, exposureGap } = cashExposureAnalysis;
+    const { status, suggestedDcaAmt } = cashExposureAnalysis;
     if (status === "CRISIS_ACCUMULATE") {
       const amtStr = Number(suggestedDcaAmt || 0).toLocaleString();
       lines.push(
-        `└─ ⚡【恐慌加碼視窗】無借款帳戶 · VIX 危機模式\n` +
-          `   • 目標：📈 分批限速加碼（CRISIS_ACCUMULATE）\n` +
-          `   • 建議：本批加碼 00675L 上限 $${amtStr} TWD\n` +
-          `   • ✅ P0 DCA 照常執行（鐵律，不受 Regime 影響）\n` +
-          `   • ⚠️ P1 條件加碼：每批上限 $${amtStr}，VIX 仍高時控制路徑損耗\n` +
-          `   • ℹ️ 00675L 為 2x 槓桿產品，震盪市存在複利耗損`,
+        `└─ ⚡ 建議：本批加碼 00675L 上限 $${amtStr} TWD\n` +
+          `📱 細節：Mini App → 雷達監控 → 槓桿與批次計算`,
       );
     } else if (status === "RECOMMEND_DCA") {
       lines.push(
-        `└─ 💰 現金曝險：建議 DCA $${suggestedDcaAmt.toFixed(0)} | 曝險缺口 $${exposureGap.toFixed(0)}`,
+        `└─ 💰 建議 DCA $${suggestedDcaAmt.toFixed(0)} | 細節見 Mini App → 現金曝險分析`,
       );
     } else if (status === "OVER_EXPOSED") {
       lines.push("└─ 💰 已達/超過 Kelly 建議曝險，維持 DCA，不加速");

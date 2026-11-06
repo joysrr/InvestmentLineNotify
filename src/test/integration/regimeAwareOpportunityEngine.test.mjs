@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
+import { SYSTEM_STATES } from "../../modules/strategy/marginStateMachine.mjs";
 import { determineRegime } from "../../modules/strategy/regimePolicy.mjs";
 import { evaluateCashExposure } from "../../modules/strategy/cashExposureAdvisor.mjs";
 import {
-  formatCrisisAccumulateCard,
   formatLeadingIndicatorTelegramCard,
   evaluateLeadingIndicators,
 } from "../../modules/strategy/leadingIndicatorEvaluator.mjs";
@@ -88,21 +88,29 @@ describe("Phase 5: Regime-Aware Opportunity Engine 端到端整合驗收", () =>
     });
 
     it("Telegram 卡片模板產生器輸出符合計畫書 §6.1 規格", () => {
-      const card = formatCrisisAccumulateCard({
-        batchLimit: 50000,
-        targetLeverage: 1.2,
-        currentLeverage: 0.78,
+      const card = formatLeadingIndicatorTelegramCard({
+        state: SYSTEM_STATES.TRIGGERED,
+        triggeredRadars: [
+          { radarId: "EXTREME_PANIC" },
+          { radarId: "RETAIL_SENTIMENT" },
+        ],
+        personalBreaker: { breakerTriggered: false },
+        constraints: { freeze00675L: false, allowLeft0050: true },
+        cashExposureAnalysis: {
+          status: "CRISIS_ACCUMULATE",
+          suggestedDcaAmt: 50000,
+          exposureGap: 500000,
+          targetLeverage: 1.2,
+          currentLeverage: 0.78,
+        },
       });
 
-      expect(card).toBe(
-        `⚡【恐慌加碼視窗】無借款帳戶 · VIX 危機模式\n` +
-          `目標：📈 分批限速加碼（CRISIS_ACCUMULATE）\n` +
-          `建議：本批加碼 00675L 上限 50,000 TWD\n` +
-          `• 目標槓桿：1.20x，當前：0.78x\n` +
-          `• ✅ P0 DCA 照常執行（鐵律，不受 Regime 影響）\n` +
-          `• ⚠️ P1 條件加碼：每批上限 50,000，VIX 仍高時控制路徑損耗\n` +
-          `• ℹ️ 00675L 為 2x 槓桿產品，震盪市存在複利耗損`,
+      expect(card).toContain("🚨【極端雷達矩陣警報】");
+      expect(card).toContain(
+        "🛡 行動紀律：00675L 限速加碼 | 0050 啟動左側布局 | P0 定期定額正常執行",
       );
+      expect(card).toContain("建議：本批加碼 00675L 上限 $50,000 TWD");
+      expect(card).toContain("📱 細節：Mini App → 雷達監控 → 槓桿與批次計算");
     });
 
     it("整合領先指標評估器端到端產出 Telegram 警報卡片", () => {
@@ -146,16 +154,12 @@ describe("Phase 5: Regime-Aware Opportunity Engine 端到端整合驗收", () =>
       // batchLimit = min(88,694, 60,000, 886,940) = 60,000
       expect(result.cashExposureAnalysis.suggestedDcaAmt).toBe(60000);
       expect(result.telegramCard).toBeDefined();
-      expect(result.telegramCard).toContain("⚡【恐慌加碼視窗】");
       expect(result.telegramCard).toContain(
         "建議：本批加碼 00675L 上限 $60,000 TWD",
       );
-      expect(result.telegramCard).toContain(
-        "✅ P0 DCA 照常執行（鐵律，不受 Regime 影響）",
-      );
-      expect(result.telegramCard).toContain(
-        "00675L 為 2x 槓桿產品，震盪市存在複利耗損",
-      );
+      expect(result.telegramCard).toContain("📱 細節：Mini App");
+      expect(result.telegramCard).not.toContain("恐慌加碼視窗");
+      expect(result.telegramCard).not.toContain("複利耗損");
     });
   });
 

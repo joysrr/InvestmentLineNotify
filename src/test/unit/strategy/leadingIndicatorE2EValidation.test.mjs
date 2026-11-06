@@ -213,6 +213,8 @@ describe("Phase 5: Leading Indicator E2E Verification (TC-01 ~ TC-07)", () => {
     });
 
     expect(result.stateMachine.isLongTermDefense).toBe(true);
-    expect(result.telegramCard).toContain("📊【系統長期防禦模式】已持續 22 日");
+    // Phase 2: 長期防禦模式資訊已移至 Mini App，Telegram 僅顯示精簡摘要
+    expect(result.telegramCard).not.toContain("長期防禦模式");
+    expect(result.telegramCard).toContain("🛡 行動紀律");
   });
 });

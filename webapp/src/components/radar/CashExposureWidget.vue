@@ -14,8 +14,52 @@
       <span class="dc-label">目標曝險</span>
       <span class="dc-value">{{ fmt(targetExposure) }}</span>
     </div>
-    <div class="dc-row dc-hint" v-if="message">
-      {{ message }}
+    <div class="dc-row dc-hint" v-if="message">{{ message }}</div>
+
+    <!-- 槓桿儀表板 -->
+    <div class="leverage-section" v-if="targetLeverage != null || currentLeverage != null">
+      <span class="section-title">📊 槓桿儀表板</span>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">目標槓桿</div>
+          <div class="metric-value">{{ fmtLeverage(targetLeverage) }}x</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">當前槓桿</div>
+          <div class="metric-value">{{ fmtLeverage(currentLeverage) }}x</div>
+        </div>
+        <div class="metric-card" v-if="leverageGap != null">
+          <div class="metric-label">槓桿缺口</div>
+          <div class="metric-value">{{ fmtLeverage(leverageGap) }}x</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 批次計算推導 -->
+    <div class="batch-section" v-if="batchCalculation">
+      <span class="section-title">🧮 批次計算推導</span>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">曝險缺口</div>
+          <div class="metric-value">{{ fmt(batchCalculation.exposureGap) }}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">資本缺口 (÷2)</div>
+          <div class="metric-value">{{ fmt(batchCalculation.capitalGap) }}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">缺口 ÷ 10 批</div>
+          <div class="metric-value">{{ fmt(batchCalculation.batchByCount) }}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">現金 × 10%</div>
+          <div class="metric-value">{{ fmt(batchCalculation.batchByCash) }}</div>
+        </div>
+        <div class="metric-card batch-selected">
+          <div class="metric-label">最終批次</div>
+          <div class="metric-value">{{ fmt(batchCalculation.selectedBatch) }}</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -29,6 +73,11 @@ const props = defineProps({
     default: null,
   },
 });
+
+const fmtLeverage = (n) => {
+  if (n == null || !Number.isFinite(n)) return "-";
+  return n.toFixed(2);
+};
 
 const fmt = (n) => {
   if (n == null || !Number.isFinite(n)) return "-";
@@ -54,6 +103,13 @@ const suggestedDcaAmt = computed(() => props.analysis?.suggestedDcaAmt ?? 0);
 const exposureGap = computed(() => props.analysis?.exposureGap ?? 0);
 const targetExposure = computed(() => props.analysis?.targetExposure ?? 0);
 const message = computed(() => props.analysis?.message || "");
+const batchCalculation = computed(() => props.analysis?.batchCalculation ?? null);
+const targetLeverage = computed(() => props.analysis?.targetLeverage ?? null);
+const currentLeverage = computed(() => props.analysis?.currentLeverage ?? null);
+const leverageGap = computed(() => {
+  if (targetLeverage.value == null || currentLeverage.value == null) return null;
+  return targetLeverage.value - currentLeverage.value;
+});
 </script>
 
 <style scoped>
@@ -97,5 +153,55 @@ const message = computed(() => props.analysis?.message || "");
   font-size: 11px;
   color: var(--vp-c-text-2);
   margin-top: 4px;
+}
+
+/* Section title */
+.section-title {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+  margin-bottom: 8px;
+}
+
+/* Metric grid */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.metric-card {
+  background: var(--tg-theme-bg-color, #fff);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.metric-label {
+  font-size: 10px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.metric-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #222);
+  word-break: break-all;
+}
+
+/* Selected batch highlight */
+.batch-selected {
+  border-color: var(--vp-c-brand);
+  background: #f0f9ff;
+}
+.batch-selected .metric-value {
+  color: var(--vp-c-brand);
 }
 </style>
