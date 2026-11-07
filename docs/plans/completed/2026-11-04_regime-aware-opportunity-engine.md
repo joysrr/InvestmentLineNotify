@@ -1,8 +1,7 @@
 ---
 type: plan
-status: active
-created: 2026-11-04
-last_updated: 2026-11-04
+status: completed
+last_updated: 2026-11-07
 tags:
   - regime-policy
   - crisis-buying
