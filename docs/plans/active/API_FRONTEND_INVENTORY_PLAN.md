@@ -339,14 +339,17 @@ wiki_links: []
 - 是否有錯誤的屬性路徑導致 `undefined`
 - 條件渲染是否正確
 
-### Phase 5 — 差異修正與測試（COMMIT）
+### Phase 5 — 差異修正與測試（COMMIT）✅ 已完成
 
 針對 Phase 1–4 發現的差異：
 
-- 修正後端回應欄位、前端調用屬性、或現有文件記錄
-- 補上單元測試驗證 API 契約
-- 更新 `wiki-index.json` 並執行 `validate-wiki-index.mjs`
-- Commit 並推送
+| 任務                                         | 狀態 | 結果                                                                                                                |
+| -------------------------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------- |
+| 移除未使用的 `ENDPOINTS.snapshots.list/save` | ✅   | `webapp/src/api/config.js` 已移除頂層 `snapshots` 物件                                                              |
+| 補上單元測試驗證 API 契約                    | ✅   | `scripts/verify-api-inventory.mjs`：0 failures                                                                      |
+| 更新 `wiki-index.json`                       | ✅   | 加入 `webapp/src/api/config.js`、`webapp/src/api/index.js` → api-contract；`api-contract.last_verified: 2026-11-07` |
+| 執行 `validate-wiki-index.mjs`               | ✅   | 場景 1-3 全通過；完整性驗證 0 新增問題（2 個預期缺失的非本計畫 plan 檔）                                            |
+| Commit                                       | ⏳   | 待執行                                                                                                              |
 
 ## 文件與 Wiki 更新
 
@@ -356,4 +359,4 @@ wiki_links: []
 
 ---
 
-**目前狀態**：計畫文件已調整（基於現有文件資產），等待執行 Phase 1。
+**目前狀態**：✅ 所有 5 階段已完成。後端 30 個端點與前端 16 個 ENDPOINTS 完全對應，唯一差異（`/snapshots`）已移除。等待最終 Commit。

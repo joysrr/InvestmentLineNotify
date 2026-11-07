@@ -45,12 +45,6 @@ export const ENDPOINTS = {
 
   // 策略設定
   strategyConfig: "/strategy-config",
-
-  // 快照
-  snapshots: {
-    list: "/snapshots",
-    save: "/snapshots",
-  },
 }; // as const removed for JS compatibility
 
 /**

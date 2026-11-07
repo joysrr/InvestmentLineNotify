@@ -5,10 +5,10 @@
   "stats": {
     "total_concepts": 176,
     "total_edges": 199,
-    "total_code_mappings": 82,
+    "total_code_mappings": 152,
     "concepts_with_code": 45,
     "concepts_with_links": 57,
-    "generated_at": "2026-11-04T14:19:56.789Z"
+    "generated_at": "2026-11-07"
   },
   "concepts": {
     "api-contract": {
@@ -19,7 +19,7 @@
       "related_code": ["src/api/"],
       "tags": ["api", "contract", "rest"],
       "status": "reference-only",
-      "last_verified": null
+      "last_verified": "2026-11-07"
     },
     "deployment-checklist": {
       "primary_doc": "DEPLOYMENT_CHECKLIST.md",
@@ -2905,6 +2905,18 @@
       {
         "concept": "useapirequest-guide",
         "doc": "useApiRequest-guide.md"
+      }
+    ],
+    "webapp/src/api/config.js": [
+      {
+        "concept": "api-contract",
+        "doc": "API_CONTRACT.md"
+      }
+    ],
+    "webapp/src/api/index.js": [
+      {
+        "concept": "api-contract",
+        "doc": "API_CONTRACT.md"
       }
     ]
   }
