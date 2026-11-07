@@ -38,7 +38,11 @@ export default async function strategyStatusRoute(fastify) {
         macdScore: weightDetails.macdScore ?? 0,
         kdScore: weightDetails.kdScore ?? 0,
         sentimentScore: weightDetails.sentimentScore ?? 0,
-        total: signals.weightScore ?? signals.score ?? 0,
+        total:
+          (weightDetails.dropScore ?? 0) +
+          Math.max(weightDetails.rsiScore ?? 0, weightDetails.kdScore ?? 0) +
+          (weightDetails.macdScore ?? 0) +
+          (weightDetails.sentimentScore ?? 0),
       };
 
       // 2. 冷卻期狀態

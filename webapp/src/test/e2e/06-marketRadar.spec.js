@@ -23,3 +23,35 @@ test.describe("06-MarketRadarView - 市場雷達", () => {
     await expect(page).toHaveURL(/#\/macro/);
   });
 });
+
+test.describe("06-MarketRadarView - 長期防禦模式狀態欄 (Phase 4)", () => {
+  test.beforeEach(async ({ page }) => {
+    await setupE2EContext(page);
+
+    // 攔截 /api/status，返回 isLongTermDefense: true
+    await page.route("**/api/status", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          data: {
+            leadingIndicators: {
+              isLongTermDefense: true,
+            },
+          },
+        }),
+      });
+    });
+
+    await page.goto("#/radar", { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(3000);
+  });
+
+  test("RAD-003: isLongTermDefense 為 true 時顯示長期防禦模式狀態欄", async ({
+    page,
+  }) => {
+    const badge = page.locator(".defense-mode-badge");
+    await expect(badge).toBeVisible({ timeout: 15000 });
+    await expect(badge).toContainText("長期防禦模式");
+  });
+});

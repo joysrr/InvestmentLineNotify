@@ -127,7 +127,7 @@ describe("strategyStatusRoute - 策略狀態 API", () => {
       // weightScore breakdown
       expect(body.weightScore.dropScore).toBe(1.5);
       expect(body.weightScore.rsiScore).toBe(2.0);
-      expect(body.weightScore.total).toBe(5.8);
+      expect(body.weightScore.total).toBe(5.3);
 
       // cooldown
       expect(body.cooldown.inCooldown).toBe(false);
@@ -166,6 +166,84 @@ describe("strategyStatusRoute - 策略狀態 API", () => {
       // keyMetrics
       expect(body.keyMetrics.maintenanceMargin).toBe(0.3);
       expect(body.keyMetrics.grossLeverage).toBe(1.2);
+    });
+
+    it("total 與細項一致（MAX 公式：dropScore + MAX(rsiScore, kdScore) + macdScore + sentimentScore）", async () => {
+      loadStateFromLatestFiles.mockResolvedValue({
+        signals: {
+          weightDetails: {
+            dropScore: 1.5,
+            rsiScore: 2.0,
+            macdScore: 1.0,
+            kdScore: 0.5,
+            sentimentScore: 0.8,
+          },
+          weightScore: 5.8, // 狀態中直接給定的值，與 MAX 公式計算結果不一致
+          score: 5.8,
+          cooldownStatus: {
+            inCooldown: false,
+            daysLeft: 0,
+            lastBuyDate: null,
+            message: "無冷卻期",
+          },
+          budgetInfo: { tier: "A", used: 100000 },
+          budgetAllowedAmount: 500000,
+          budgetIsLimited: false,
+          budgetLimitedReason: null,
+          signalCategory: "tactical",
+          signalType: "buy",
+          signalDirection: "long",
+          target: "0050",
+          suggestion: "建議買入",
+          regimeState: { lifecycleStageEn: "EARLY" },
+          regimeResult: { state: "NORMAL" },
+          maintenanceRisk: {},
+          grossLeverageResult: {},
+          maintenanceMargin: 0.3,
+          grossLeverage: 1.2,
+          valuationGuardResult: { currentPR: 1.1 },
+          valuationMomentumResult: {},
+          panicBypassActive: false,
+          trailingActive: false,
+          netAsset: 1000000,
+          actualLeverage: 1.1,
+          z2Ratio: 0.5,
+          date: "2024-01-15",
+        },
+        strategySnapshot: {
+          allocation: [
+            { minScore: 0, leverage: 0.15, cash: 0.85, comment: "底倉" },
+            { minScore: 3, leverage: 0.5, cash: 0.5, comment: "戰術倉" },
+            { minScore: 6, leverage: 1.0, cash: 0.0, comment: "全倉" },
+          ],
+          buy: { minWeightScoreToBuy: 3 },
+          scoringMatrix: {
+            thresholds: { buyTactical: 4, buyTacticalBullish: 1.5 },
+          },
+          lifecycle: {
+            currentAge: 35,
+            retirementAge: 65,
+            profiles: {
+              EARLY: {
+                maxLeverage: 2.0,
+                maxLeverageForNewZ2: 1.5,
+                minSurvivalDropLimit: 140,
+                mode: "aggressive",
+              },
+            },
+          },
+        },
+      });
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/strategy-status",
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.payload);
+      // total 應按 MAX 公式重新計算：1.5 + MAX(2.0, 0.5) + 1.0 + 0.8 = 5.3
+      expect(body.weightScore.total).toBe(5.3);
     });
 
     it("缺少 signals 使用預設值", async () => {
