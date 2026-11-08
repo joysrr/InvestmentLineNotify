@@ -265,9 +265,6 @@ export const fetchSnapshotsMonthly = (limit = 120) =>
 export const fetchStrategyConfig = () =>
   apiFetch(buildUrl(ENDPOINTS.strategyConfig));
 
-export const fetchReportSignals = (date) =>
-  apiFetch(buildUrl(ENDPOINTS.reports.signals(date)));
-
 // ── Portfolio Health (Phase 1) ────────────────────────────────────────────────
 
 export const fetchPortfolioHealth = (params = {}) => {

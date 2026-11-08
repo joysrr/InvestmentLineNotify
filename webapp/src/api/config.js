@@ -17,7 +17,6 @@ export const ENDPOINTS = {
     list: "/reports",
     weekly: "/reports/weekly",
     monthly: "/reports/monthly",
-    signals: (date) => `/report/${date}/signals`,
     latestTheoretical: "/report/latest-theoretical",
     snapshots: {
       list: "/reports/snapshots",

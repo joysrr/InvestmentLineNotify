@@ -233,35 +233,6 @@ export default async function reportsRoute(fastify) {
   });
 
   /**
-   * GET /api/report/:date
-   * Returns the full JSON for a single daily report.
-   * :date must match YYYY-MM-DD.  404 if not found.
-   *
-   * 改為透過 IlnState loader，並回傳 state.rawReport，
-   * 以維持原本報告結構（含 quote / news 等附加欄位）。
-   */
-  fastify.get("/report/:date", async (request, reply) => {
-    const { date } = request.params;
-
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return reply
-        .code(400)
-        .send({ error: "Invalid date format. Expected YYYY-MM-DD" });
-    }
-
-    try {
-      const state = await loadStateFromReport(date);
-      if (!state || !state.rawReport) {
-        return reply.code(404).send({ error: `Report for ${date} not found` });
-      }
-      return reply.send(state.rawReport);
-    } catch (err) {
-      fastify.log.error({ err }, "Failed to read report via IlnState");
-      return reply.code(500).send({ error: "Internal server error" });
-    }
-  });
-
-  /**
    * GET /api/reports/snapshots?limit=N
    * Returns decrypted portfolio snapshots from historical reports (via IlnState).
    * Only includes reports that contain an encrypted snapshot field.

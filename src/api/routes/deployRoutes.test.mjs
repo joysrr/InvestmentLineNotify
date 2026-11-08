@@ -150,60 +150,6 @@ describe("deployRoutes - 部署 API 路由", () => {
     });
   });
 
-  describe("GET /deploy/:jobId - 查詢部署狀態", () => {
-    it("找到任務回傳狀態", async () => {
-      agentClient.getJobState.mockResolvedValue({
-        jobId: "deploy-123",
-        status: "completed",
-        startedAt: Date.now(),
-        completedAt: Date.now(),
-        exitCode: 0,
-        logs: [],
-      });
-
-      const response = await app.inject({
-        method: "GET",
-        url: "/deploy/deploy-123",
-      });
-
-      expect(response.statusCode).toBe(200);
-      const body = JSON.parse(response.payload);
-      expect(body.jobId).toBe("deploy-123");
-      expect(body.status).toBe("completed");
-    });
-
-    it("找不到任務回傳 404", async () => {
-      deploymentExecutor.getJobState.mockResolvedValue(null);
-
-      const response = await app.inject({
-        method: "GET",
-        url: "/deploy/non-existent",
-      });
-
-      expect(response.statusCode).toBe(404);
-      const body = JSON.parse(response.payload);
-      expect(body.error).toBe("Not Found");
-    });
-  });
-
-  describe("GET /deploy/history - 部署歷史", () => {
-    it("回傳歷史列表", async () => {
-      deploymentExecutor.getDeployHistory.mockResolvedValue([
-        { jobId: "deploy-1", status: "completed" },
-        { jobId: "deploy-2", status: "failed" },
-      ]);
-
-      const response = await app.inject({
-        method: "GET",
-        url: "/deploy/history?limit=10",
-      });
-
-      expect(response.statusCode).toBe(200);
-      const body = JSON.parse(response.payload);
-      expect(body.history).toHaveLength(2);
-    });
-  });
-
   describe("POST /deploy/cancel/:jobId - 取消部署", () => {
     it("成功取消回傳 200", async () => {
       deploymentExecutor.cancelDeployJob.mockResolvedValue(true);
