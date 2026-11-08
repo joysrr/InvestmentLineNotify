@@ -2,7 +2,7 @@
 type: plan
 status: active
 created: 2026-11-07
-last_updated: 2026-11-07
+last_updated: 2026-11-08
 tags:
   - backend-api
   - endpoint-cleanup
@@ -72,22 +72,31 @@ wiki_links: []
 - 識別「定義但未調用」與「調用但未定義」的端點
 - 產出：端點使用對照表（CSV/Markdown）
 
-### Phase 2 — 原始資料驗證（TDD：先測試，後驗證）⏳ 等待執行
+### Phase 2 — 原始資料驗證（TDD：先測試，後驗證）✅ 已完成
 
 - 針對每個被前端調用的端點，讀取對應的 `data/` 原始資料
 - 驗證端點回傳內容與原始資料是否一致（如 news.mjs vs pool_filtered_active.json）
 - 驗證計算規則（槓桿設定：0050=1x、00675L=2x；P0 DCA 無條件執行）
 - 不透過外部 API、不透過 Agent 服務，僅使用本地 `data/`
-- 產出：資料正確性驗證報告
+- 產出：資料正確性驗證報告（scripts/__data_verification_report.md，6/6 通過）
+- 驗證透過模組間接讀取資料的正確性（archiveManager、socialSentimentProvider 等）
 
-### Phase 3 — 端點精簡評估（需用戶確認）⏳ 等待執行
+### Phase 3 — 端點精簡評估（需用戶確認）✅ 已完成
 
 - 基於 Phase 1 結果，評估未使用端點可否安全移除
 - 針對監控/部署類端點（/monitoring/_, /deploy/_），確認是否僅供後端內部使用
-- 提出精簡建議，等待用戶決策
-- 不執行實際移除，僅提出建議與回滾方案
+- 用戶決策：simulate 8 個端點可移除（不做模擬功能），其他依照建議移除
+- 執行實際移除：
+  - 移除 v1/simulate 8 個端點
+  - 移除 monitoringRoutes 13 個端點
+  - 移除 deployRoutes 3 個子端點（GET /deploy/:jobId, /ws, /history），僅保留 POST /deploy 與 POST /deploy/cancel/:jobId
+  - 移除 GET /report/:date
+  - 保留 GET /data-evidence-report/download（DataEvidenceCard.vue 實際使用）
+  - 保留 strategy-config sub-endpoints（default/meta/validate）
+- 清理 frontend dead code：fetchReportSignals, ENDPOINTS.reports.signals
+- 全量測試 1886/1886 通過，Commit 15aabee
 
-### Phase 4 — 文件更新與歸檔 ✅ 等待執行
+### Phase 4 — 文件更新與歸檔 ⏳ 等待執行
 
 - 更新 `docs/wiki-index.json` 代碼映射
 - 更新 `docs/api/openapi.json`（若涉及端點變更）
@@ -102,4 +111,4 @@ wiki_links: []
 
 ---
 
-**目前狀態**：建立計畫，等待用戶確認後執行 Phase 1。
+**目前狀態**：Phase 3 已完成（Commit 15aabee），全量測試 1886/1886 通過，數據驗證 6/6 通過。進入 Phase 4 文件更新與歸檔。
