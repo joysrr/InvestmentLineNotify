@@ -11,6 +11,8 @@ export default defineConfig({
       "src/modules/**/*.test.js",
       "src/api/**/*.test.mjs",
       "src/api/**/*.test.js",
+      "scripts/**/*.test.mjs",
+      "scripts/**/*.test.js",
     ],
     exclude: [
       "**/node_modules/**",
