@@ -45,9 +45,6 @@ describe("deployRoutes - 部署 API 路由", () => {
   });
 
   beforeEach(async () => {
-    vi.clearAllMocks();
-    vi.resetModules();
-
     app = Fastify({ logger: false });
     await app.register(deployRoutes);
     await app.ready();
@@ -147,6 +144,37 @@ describe("deployRoutes - 部署 API 路由", () => {
       });
 
       expect(response.statusCode).toBe(500);
+    });
+  });
+
+  describe("GET /deploy/:jobId - 查詢部署狀態", () => {
+    it("任務存在回傳 200 和狀態", async () => {
+      agentClient.getJobState.mockResolvedValue({
+        jobId: "deploy-123",
+        status: "running",
+        commit: "ef4ca31",
+      });
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/deploy/deploy-123",
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.payload);
+      expect(body.jobId).toBe("deploy-123");
+      expect(body.status).toBe("running");
+    });
+
+    it("任務不存在回傳 404", async () => {
+      agentClient.getJobState.mockResolvedValue(null);
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/deploy/non-existent",
+      });
+
+      expect(response.statusCode).toBe(404);
     });
   });
 
