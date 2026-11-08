@@ -115,7 +115,7 @@ const getCompDisplayValue = (comp) => {
   if (d.z2Ratio != null) return `${d.z2Ratio.toFixed(1)}%`;
   if (d.current != null) return `${d.current.toFixed(2)}x`;
   if (d.stage) return d.stage;
-  if (d.vix) return `VIX ${d.vix}`;
+  if (d.vix != null) return `VIX ${d.vix}`;
   return comp.value || "—";
 };
 </script>
