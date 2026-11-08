@@ -1,4 +1,5 @@
 import { loadStateFromLatestFiles } from "../../domain/ilnState.mjs";
+import { archiveManager } from "../../modules/data/archiveManager.mjs";
 
 /**
  * GET /api/status
@@ -17,6 +18,43 @@ export default async function statusRoute(fastify) {
       }
 
       const payload = state.toStatusPayload();
+
+      // 計算全市場融資 5 日增減百分比
+      const rawMargin = payload?.data?.rawMargin;
+      if (rawMargin?.marginBalance100M != null) {
+        const history = await archiveManager.getMarketHistory();
+        // 提取有 marginBalance100M 的記錄，按日期降序（最新在前）
+        const marginRecords = history
+          .filter((h) => h.data?.rawMargin?.marginBalance100M != null)
+          .map((h) => ({
+            date: h.date,
+            balance: h.data.rawMargin.marginBalance100M,
+          }))
+          .sort((a, b) => b.date.localeCompare(a.date));
+
+        // 去重相同餘額（休市日數據與前一日相同），保留每個餘額最新的日期
+        const uniqueBalances = [];
+        const seenBalances = new Set();
+        for (const rec of marginRecords) {
+          if (!seenBalances.has(rec.balance)) {
+            seenBalances.add(rec.balance);
+            uniqueBalances.push(rec);
+          }
+        }
+
+        // 需要至少 6 個唯一餘額（當前 + 5 個交易日前）才能計算 5 日增減
+        // 若不足，則使用最早可用唯一餘額作為基準（退化情況）
+        if (uniqueBalances.length >= 2) {
+          const baseIndex = Math.min(5, uniqueBalances.length - 1);
+          const baseBalance = uniqueBalances[baseIndex].balance;
+          const currentBalance = rawMargin.marginBalance100M;
+          rawMargin.marginBalanceChangePercent5d =
+            ((currentBalance - baseBalance) / baseBalance) * 100;
+        } else {
+          rawMargin.marginBalanceChangePercent5d = null;
+        }
+      }
+
       return reply.send(payload);
     } catch (err) {
       fastify.log.error({ err }, "Failed to load market status via IlnState");

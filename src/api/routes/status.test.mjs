@@ -6,13 +6,23 @@ vi.mock("../../domain/ilnState.mjs", () => ({
   loadStateFromLatestFiles: vi.fn(),
 }));
 
+vi.mock("../../modules/data/archiveManager.mjs", () => ({
+  archiveManager: {
+    getMarketHistory: vi.fn(),
+  },
+}));
+
 describe("GET /api/status (TDD Phase 3)", () => {
   let app;
   let loadStateFromLatestFiles;
+  let archiveManager;
 
   beforeEach(async () => {
     const ilnState = await import("../../domain/ilnState.mjs");
     loadStateFromLatestFiles = ilnState.loadStateFromLatestFiles;
+
+    const archive = await import("../../modules/data/archiveManager.mjs");
+    archiveManager = archive.archiveManager;
 
     app = Fastify();
     await app.register(statusRoute);
@@ -63,5 +73,74 @@ describe("GET /api/status (TDD Phase 3)", () => {
     expect(res.statusCode).toBe(500);
     const body = JSON.parse(res.payload);
     expect(body.error).toBe("Internal server error");
+  });
+
+  it("rawMargin 應包含 marginBalanceChangePercent5d，從歷史數據計算 5 日增減百分比", async () => {
+    const mockState = {
+      toStatusPayload: vi.fn().mockReturnValue({
+        _meta: {},
+        data: {
+          rawMargin: {
+            marginBalance100M: 5340.53,
+            date: "2026/11/06",
+          },
+        },
+      }),
+    };
+    loadStateFromLatestFiles.mockResolvedValue(mockState);
+
+    // 5 個交易日前的融資餘額為 5000
+    archiveManager.getMarketHistory.mockResolvedValue([
+      { date: "2026-10-30", data: { rawMargin: { marginBalance100M: 5000 } } },
+      {
+        date: "2026-11-06",
+        data: { rawMargin: { marginBalance100M: 5340.53 } },
+      },
+    ]);
+
+    const res = await app.inject({
+      method: "GET",
+      url: "/status",
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.payload);
+    // (5340.53 - 5000) / 5000 * 100 = 6.8106%
+    expect(body.data.rawMargin.marginBalanceChangePercent5d).toBeCloseTo(
+      6.81,
+      1,
+    );
+  });
+
+  it("rawMargin marginBalanceChangePercent5d 為 null 當歷史數據不足 5 日", async () => {
+    const mockState = {
+      toStatusPayload: vi.fn().mockReturnValue({
+        _meta: {},
+        data: {
+          rawMargin: {
+            marginBalance100M: 5340.53,
+            date: "2026/11/06",
+          },
+        },
+      }),
+    };
+    loadStateFromLatestFiles.mockResolvedValue(mockState);
+
+    // 僅有 1 筆歷史數據，不足 5 日
+    archiveManager.getMarketHistory.mockResolvedValue([
+      {
+        date: "2026-11-06",
+        data: { rawMargin: { marginBalance100M: 5340.53 } },
+      },
+    ]);
+
+    const res = await app.inject({
+      method: "GET",
+      url: "/status",
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.payload);
+    expect(body.data.rawMargin.marginBalanceChangePercent5d).toBeNull();
   });
 });
