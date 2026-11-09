@@ -283,6 +283,7 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
   // 6. Regime 健康度（市場環境）
   // ─────────────────────────────────────────────────────────────
   const vix = ctx.vix || 0;
+  const vixTW = ctx.vixTW || null;
   const macroSentiment = ctx.macroSentiment?.direction || "NEUTRAL";
 
   const vixOverrideTrigger = strategy.macroSentiment?.vixOverrideTrigger || 28;
@@ -298,6 +299,7 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
       level: "panic",
       message: "極端恐慌市場",
       vix,
+      vixTW,
       action: "Sell-only",
     };
   } else if (vix >= vixOverrideTrigger) {
@@ -307,6 +309,7 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
       level: "high_volatility",
       message: "高波動市場",
       vix,
+      vixTW,
       action: "降槓桿 50%",
     };
   } else if (macroSentiment === "BEAR") {
@@ -316,6 +319,7 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
       level: "bearish",
       message: "空頭環境",
       vix,
+      vixTW,
       sentiment: macroSentiment,
     };
   } else {
@@ -325,6 +329,7 @@ export function computePortfolioHealth(ctx, strategy, lifecycleContext = null) {
       level: "normal",
       message: "正常市場環境",
       vix,
+      vixTW,
       sentiment: macroSentiment,
     };
   }

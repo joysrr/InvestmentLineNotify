@@ -4,6 +4,7 @@ import {
 } from "../../modules/strategy/portfolioHealth.mjs";
 import { fetchStrategyConfigUnified } from "../../modules/strategy/strategyLoader.mjs";
 import { archiveManager } from "../../modules/data/archiveManager.mjs";
+import { getTwVix } from "../../modules/providers/twseProvider.mjs";
 
 // TTL Cache (60 seconds)
 const cache = new Map();
@@ -67,6 +68,13 @@ export default async function portfolioHealthRoute(fastify) {
       const vix =
         Number(query.vix) || latestReport?.marketState?.sentiment?.vix || 0;
 
+      let vixTW = null;
+      try {
+        vixTW = await getTwVix();
+      } catch (_err) {
+        vixTW = null;
+      }
+
       const macroSentiment =
         query.macroSentiment ||
         latestReport?.macroAnalysis?.conclusion?.market_direction ||
@@ -90,6 +98,7 @@ export default async function portfolioHealthRoute(fastify) {
         survivalDropPercent,
         currentGrossLeverage,
         vix,
+        vixTW,
         macroSentiment: { direction: macroSentiment },
         currentAge,
       };
@@ -103,6 +112,7 @@ export default async function portfolioHealthRoute(fastify) {
       return reply.send({
         ...health,
         lightStatus,
+        vixTW,
         _meta: {
           source: query.maintenanceMargin ? "query" : "latest_report",
           reportDate: latestReport?.date,

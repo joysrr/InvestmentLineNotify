@@ -13,6 +13,10 @@ vi.mock("../../modules/data/archiveManager.mjs", () => ({
   },
 }));
 
+vi.mock("../../modules/providers/twseProvider.mjs", () => ({
+  getTwVix: vi.fn(),
+}));
+
 vi.mock("../../modules/strategy/portfolioHealth.mjs", () => ({
   computePortfolioHealth: vi.fn(),
   getHealthLightStatus: vi.fn(),
@@ -24,6 +28,7 @@ describe("GET /api/portfolio/health (TDD Phase 3)", () => {
   let archiveManager;
   let computePortfolioHealth;
   let getHealthLightStatus;
+  let getTwVix;
   let capturedCtx;
   let capturedLifecycle;
 
@@ -33,11 +38,13 @@ describe("GET /api/portfolio/health (TDD Phase 3)", () => {
     const dataArchive = await import("../../modules/data/archiveManager.mjs");
     const healthModule =
       await import("../../modules/strategy/portfolioHealth.mjs");
+    const twseModule = await import("../../modules/providers/twseProvider.mjs");
 
     fetchStrategyConfigUnified = strategyLoader.fetchStrategyConfigUnified;
     archiveManager = dataArchive.archiveManager;
     computePortfolioHealth = healthModule.computePortfolioHealth;
     getHealthLightStatus = healthModule.getHealthLightStatus;
+    getTwVix = twseModule.getTwVix;
 
     // 捕獲 computePortfolioHealth 實際收到的參數，避免 mock.calls 跨測試污染
     capturedCtx = null;
@@ -134,5 +141,42 @@ describe("GET /api/portfolio/health (TDD Phase 3)", () => {
     expect(res.statusCode).toBe(500);
     const body = JSON.parse(res.payload);
     expect(body.error).toBe("Internal server error");
+  });
+
+  it("應從 getTwVix 獲取台股 VIX 並傳遞給 computePortfolioHealth", async () => {
+    getTwVix.mockResolvedValue(22.5);
+    fetchStrategyConfigUnified.mockResolvedValue({
+      lifecycle: { currentAge: 35, retirementAge: 65 },
+    });
+    archiveManager.listArchiveDates.mockResolvedValue([]);
+
+    const res = await app.inject({
+      method: "GET",
+      url: "/portfolio/health?vix=18.5",
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.payload);
+    expect(capturedCtx.vix).toBe(18.5);
+    expect(capturedCtx.vixTW).toBe(22.5);
+    expect(body.vixTW).toBe(22.5);
+  });
+
+  it("應在 getTwVix 拋出錯誤時優雅處理，vixTW 為 null", async () => {
+    getTwVix.mockRejectedValue(new Error("TAIFEX API timeout"));
+    fetchStrategyConfigUnified.mockResolvedValue({
+      lifecycle: { currentAge: 35, retirementAge: 65 },
+    });
+    archiveManager.listArchiveDates.mockResolvedValue([]);
+
+    const res = await app.inject({
+      method: "GET",
+      url: "/portfolio/health?vix=18.5",
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.payload);
+    expect(capturedCtx.vixTW).toBeNull();
+    expect(body.vixTW).toBeNull();
   });
 });

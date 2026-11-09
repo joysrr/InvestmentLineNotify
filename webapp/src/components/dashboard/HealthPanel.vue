@@ -62,7 +62,15 @@
             <span class="comp-name">{{ getCompName(key) }}</span>
           </div>
           <div class="comp-body">
-            <div class="comp-value">{{ getCompDisplayValue(comp) }}</div>
+            <div
+              class="comp-value"
+              v-if="key === 'regime' && comp.details?.vixTW != null"
+            >
+              <span class="dual-vix-us">VIX {{ comp.details.vix }}</span>
+              <span class="dual-vix-sep">/</span>
+              <span class="dual-vix-tw">台股 {{ comp.details.vixTW }}</span>
+            </div>
+            <div class="comp-value" v-else>{{ getCompDisplayValue(comp) }}</div>
             <div class="comp-sub">
               {{ comp.details?.message || comp.details?.stage || "正常" }}
             </div>
@@ -115,7 +123,9 @@ const getCompDisplayValue = (comp) => {
   if (d.z2Ratio != null) return `${d.z2Ratio.toFixed(1)}%`;
   if (d.current != null) return `${d.current.toFixed(2)}x`;
   if (d.stage) return d.stage;
+  if (d.vix != null && d.vixTW != null) return `VIX ${d.vix} / 台股 VIX ${d.vixTW}`;
   if (d.vix != null) return `VIX ${d.vix}`;
+  if (d.vixTW != null) return `台股 VIX ${d.vixTW}`;
   return comp.value || "—";
 };
 </script>
@@ -278,5 +288,18 @@ const getCompDisplayValue = (comp) => {
   100% {
     opacity: 0.6;
   }
+}
+.dual-vix-us {
+  color: var(--tg-theme-text-color, #111);
+  font-weight: 700;
+}
+.dual-vix-sep {
+  color: #888;
+  margin: 0 4px;
+  font-weight: 700;
+}
+.dual-vix-tw {
+  color: #e74c3c;
+  font-weight: 700;
 }
 </style>
