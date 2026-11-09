@@ -70,7 +70,8 @@ export default async function portfolioHealthRoute(fastify) {
 
       let vixTW = null;
       try {
-        vixTW = await getTwVix();
+        const twVixResult = await getTwVix();
+        vixTW = twVixResult?.value ?? twVixResult ?? null;
       } catch (_err) {
         vixTW = null;
       }

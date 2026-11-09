@@ -179,4 +179,30 @@ describe("GET /api/portfolio/health (TDD Phase 3)", () => {
     expect(capturedCtx.vixTW).toBeNull();
     expect(body.vixTW).toBeNull();
   });
+
+  it("應從 getTwVix 回傳的對象中提取 value 作為 vixTW（非整個對象）", async () => {
+    getTwVix.mockResolvedValue({
+      symbolUsed: "TAIWANVIX",
+      value: 43.8,
+      change: -2.72,
+      status: "緊張",
+      date: "2026-11-09",
+      time: "13:45:00",
+      dateTimeText: "2026/11/09 13:45:00",
+    });
+    fetchStrategyConfigUnified.mockResolvedValue({
+      lifecycle: { currentAge: 35, retirementAge: 65 },
+    });
+    archiveManager.listArchiveDates.mockResolvedValue([]);
+
+    const res = await app.inject({
+      method: "GET",
+      url: "/portfolio/health?vix=18.5",
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.payload);
+    expect(capturedCtx.vixTW).toBe(43.8);
+    expect(body.vixTW).toBe(43.8);
+  });
 });
