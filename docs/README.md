@@ -76,7 +76,8 @@ docs/
 │   └── BUDGET_PRIORITY_DESIGN.md  # 預算優先級與分層策略設計
 │
 ├── modules/                       # 核心子模組技術規格
-│   ├── _index.md                  # 模組總索引
+│   ├── _index.md                  # 模組導航索引
+│   ├── overview.md                # 系統架構總覽（數據治理、Mermaid 流程圖、目錄責任對照）
 │   ├── infrastructure/            # 基礎設施層（儲存、歷史數據、快取）
 │   ├── strategy/                  # 策略引擎、指標雷達、生命週期健康診斷
 │   ├── presentation/              # 前端 Mini App 與 API 對接規格

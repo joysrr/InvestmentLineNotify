@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 126,
+    "total_concepts": 127,
     "total_edges": 189,
     "total_code_mappings": 82,
     "concepts_with_code": 44,
     "concepts_with_links": 56,
-    "generated_at": "2026-11-10T23:05:56.462Z"
+    "generated_at": "2026-11-10T23:21:38.004Z"
   },
   "concepts": {
     "api-contract": {
@@ -220,7 +220,7 @@
     },
     "modules": {
       "primary_doc": "modules/_index.md",
-      "title": "InvestmentLineNotify 總體架構 / System Architecture",
+      "title": "模組總索引 (Modules Index)",
       "summary": null,
       "related_docs": [],
       "related_code": [],
@@ -561,6 +561,16 @@
       "status": "current",
       "last_verified": null
     },
+    "overview": {
+      "primary_doc": "modules/overview.md",
+      "title": "InvestmentLineNotify 總體架構 / System Architecture",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["modules", "index"],
+      "status": "current",
+      "last_verified": null
+    },
     "presentation": {
       "primary_doc": "modules/presentation/_index.md",
       "title": "入口與通知層 (Presentation Layer)",
@@ -879,21 +889,6 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["webapp", "preview", "localhost"],
-      "status": "in-progress",
-      "last_verified": null
-    },
-    "2026-11-11-docs-cleanup-phase4-plan": {
-      "primary_doc": "plans/active/2026-11-11-DOCS_CLEANUP_PHASE4_PLAN.md",
-      "title": "計畫書：docs 文件庫第四階段整理（模組層與根目錄審查）",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [
-        "documentation-cleanup",
-        "docs-governance",
-        "modules-audit",
-        "root-level-audit"
-      ],
       "status": "in-progress",
       "last_verified": null
     },
@@ -1544,6 +1539,21 @@
       "related_code": [],
       "tags": ["documentation", "modernization", "archive", "wiki"],
       "status": "completed",
+      "last_verified": null
+    },
+    "2026-11-11-docs-cleanup-phase4-plan": {
+      "primary_doc": "plans/completed/2026-11-11-DOCS_CLEANUP_PHASE4_PLAN.md",
+      "title": "計畫書：docs 文件庫第四階段整理（模組層與根目錄審查）",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "documentation-cleanup",
+        "docs-governance",
+        "modules-audit",
+        "root-level-audit"
+      ],
+      "status": "in-progress",
       "last_verified": null
     },
     "investment-theories-current-system-guide": {
