@@ -96,7 +96,6 @@ docs/
 │
 ├── verification/                  # 邏輯驗證與資料契約核實報告
 │   ├── STRATEGY_ENGINE_VERIFICATION_REPORT.md # 策略引擎驗證報告
-│   ├── STRATEGY_LOGIC_VERIFICATION_REPORT.md  # 策略邏輯驗證報告
 │   ├── theoretical-framework-validation-v2.md # 理論架構二期驗證
 │   └── hardcoded-parameters-inventory.md     # 硬編碼參數盤點報告
 │

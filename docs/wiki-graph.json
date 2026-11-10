@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 133,
-    "edges": 203
+    "nodes": 125,
+    "edges": 201
   },
   "graph": {
     "api-contract": ["api"],
@@ -227,10 +227,6 @@
       "ai-pipeline"
     ],
     "strategy-engine-verification-report": [
-      "strategy-engine",
-      "budget-priority-design"
-    ],
-    "strategy-logic-verification-report": [
       "strategy-engine",
       "budget-priority-design"
     ]

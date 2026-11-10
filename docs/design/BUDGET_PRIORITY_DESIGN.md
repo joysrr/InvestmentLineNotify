@@ -1,7 +1,7 @@
 ---
 type: explanation
 status: current
-last_updated: 2026-09-11
+last_updated: 2026-11-10
 tags:
   - design
   - budget
@@ -12,11 +12,11 @@ wiki_links: []
 # Budget Priority 系統設計文件
 
 > **適用對象**：投資人、策略開發者、風控人員  
-> **版本**：v1.0  
+> **版本**：v1.1  
 > **對應程式碼**：`src/modules/strategy/policies/budgetLimitPolicy.mjs`  
 > **Strategy.json 參數區塊**：`trading.budget`  
 > **相關模組**：回測系統 (`src/modules/backtest/`)、模擬器 (`src/modules/simulator/`)、策略引擎 (`src/modules/strategy/`)  
-> **更新日期**：2026-08-09
+> **更新日期**：2026-11-10
 
 ---
 
