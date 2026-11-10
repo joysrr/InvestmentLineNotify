@@ -87,6 +87,7 @@ export class RegimePolicyRule extends DecisionRule {
             `• ${formatRegimeStatus(regimeResult)}\n` +
             `• ⚠️ 禁止新增戰術部位（00675L 加碼封鎖）\n` +
             `• 允許操作：0050 DCA 照常執行 + 依比例減倉 ${sellPercent}%`,
+          signalDirection: "sell_only",
           regimeState: "CRISIS",
           regimeResult: regimeResult,
           valuationGuardResult: engineState.valuationGuardResult ?? null,

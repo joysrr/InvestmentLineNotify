@@ -1,8 +1,8 @@
 ---
 type: reference
 status: current
-last_updated: 2026-10-21
-last_verified: 2026-10-21
+last_updated: 2026-11-10
+last_verified: 2026-11-10
 related_code:
   - src/domain/dailyRunContext.mjs
   - src/domain/signalContext.mjs
@@ -36,6 +36,7 @@ wiki_links:
 4. **雙軌風控分流（0050 vs 00675L）**：
    - **0050（原型現貨）**：左側逆週期加碼，系統性恐慌時放寬 Gross Leverage 至 2.7x。
    - **00675L（2x 槓桿）**：嚴格右側進場。暴跌時全面凍結，必須在「VIX $\le 0.8 \times$ Peak」、「收盤價 $\ge$ SMA5」、「20日實現波動率 $< 35\%$」三綠燈同時亮起時才解鎖。
+   - **例外：無借款帳戶恐慌加碼（CRISIS_ACCUMULATE）**：當 `portfolio.totalDebt === 0` 且 `VIX ≥ 35` 時，00675L 的「全面凍結」改為「限速分批加碼」。每批金額由 `cashExposureAdvisor` 依 `resolveTargetLeverage()` 動態計算，不設固定上限。此例外僅適用於 OPPORTUNITY 模式（`debtMode = "OPPORTUNITY"`），有借款時仍維持嚴格右側進場。
 
 ## 2. 四大極端雷達矩陣
 

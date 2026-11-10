@@ -14,7 +14,6 @@ import {
   createMockStrategy,
   createMockCtx,
 } from "../../../src/test/utils/mockFactory.mjs";
-
 // Mock 外部依賴
 vi.mock("../../../src/modules/strategy/regimePolicy.mjs", () => ({
   determineRegime: vi.fn(),
@@ -780,5 +779,77 @@ describe("Default Decision Chain (完整決策鏈)", () => {
     expect(result.regimeResult).toBeDefined();
     expect(result.valuationGuardResult).toBeDefined();
     expect(result.regimeState).toBeDefined();
+  });
+
+  describe("Crisis Accumulate 決策鏈穿透整合", () => {
+    it("totalDebt = 0 + VIX = 43.8 + entryGate 底倉通道時，不應被 EntryGate 封鎖為 🚧 槓桿封鎖", async () => {
+      determineRegime.mockReturnValue({
+        state: "CRISIS",
+        leverageMultiplier: 0,
+        mode: "crisis_accumulate",
+        reason: "VIX 43.8 >= 35, OPPORTUNITY",
+      });
+      resolveEntryGate.mockReturnValue({
+        blocked: true,
+        tierIndex: 0,
+        tier: "tier0",
+        tierLabel: "底倉通道",
+      });
+
+      ctx = createMockCtx({
+        vix: 43.8,
+        priceDropPercent: 0, // 底倉通道未達跌幅
+        rsi: 65, // 高於底倉通道 RSI 門檻
+        totalDebt: 0,
+        portfolio: { totalLoan: 0, totalDebt: 0, cash: 600000 },
+      });
+      strategy = createMockStrategy({
+        buy: {
+          entryGate: { enabled: true },
+          panic: { suggestedLeverage: 0.3 },
+        },
+      });
+
+      const chain = await createDefaultDecisionChain();
+      const result = await runDecisionChain(
+        ctx,
+        strategy,
+        grossLeverageResult,
+        ma60Slope,
+        chain,
+      );
+
+      // 驗證未被 EntryGateRule 攔截為「🚧 槓桿封鎖」
+      expect(result.target).not.toBe("🚧 槓桿封鎖");
+      expect(result.regimeResult?.mode).toBe("crisis_accumulate");
+      expect(result.regimeState).toBe("CRISIS");
+    });
+
+    it("totalDebt > 0 + VIX = 43.8 時，應維持 sell_only 危機模式（禁止新增部位）", async () => {
+      determineRegime.mockReturnValue({
+        state: "CRISIS",
+        leverageMultiplier: 0,
+        mode: "sell_only",
+        reason: "VIX 43.8 >= 35 (強制 Sell-only)",
+      });
+
+      ctx = createMockCtx({
+        vix: 43.8,
+        totalDebt: 500000,
+        portfolio: { totalLoan: 500000, totalDebt: 500000, cash: 100000 },
+      });
+
+      const chain = await createDefaultDecisionChain();
+      const result = await runDecisionChain(
+        ctx,
+        strategy,
+        grossLeverageResult,
+        ma60Slope,
+        chain,
+      );
+
+      expect(result.target).toContain("強制賣出");
+      expect(result.signalDirection).toBe("sell_only");
+    });
   });
 });

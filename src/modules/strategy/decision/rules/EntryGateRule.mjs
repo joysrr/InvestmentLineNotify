@@ -21,6 +21,11 @@ export class EntryGateRule extends DecisionRule {
    * @returns {Object|null} 決策結果或 null（繼續下一條）
    */
   evaluate(ctx, strategy, engineState, grossLeverageResult, ma60Slope) {
+    // P0: 恐慌加碼模式（無借款帳戶且 VIX 恐慌）放行，交由後續規則與 CashExposureAdvisor 計算自適應批次
+    if (engineState?.crisisAccumulateMode === true) {
+      return null;
+    }
+
     const entryGateCfg = strategy.buy?.entryGate;
 
     if (!entryGateCfg?.enabled) {

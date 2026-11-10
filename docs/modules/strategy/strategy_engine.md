@@ -1,7 +1,8 @@
 ---
 type: reference
 status: current
-last_updated: 2026-11-01
+last_updated: 2026-11-10
+last_verified: 2026-11-10
 related_code:
   - src/modules/strategy/strategyEngine.mjs
   - src/modules/strategy/theoreticalEngine.mjs
@@ -32,6 +33,9 @@ Strategy Engine 採用 **優先級鏈式決策架構**，依序執行 11 個決�
 2. **早期終止**: 第一個回傳 non-null 的規則即終止後續規則
 3. **狀態共享**: 規則間透過 `engineState` 共享狀態 (如 Regime 判斷結果)
 4. **Fallback 保證**: `ScoringDecisionRule` (P100) 作為最後規則，總是回傳結果
+
+> **例外：狀態注入規則**  
+> `RegimePolicyRule` (P0) 在 `crisis_accumulate` 恐慌加碼模式時，僅注入 `engineState.crisisAccumulateMode = true` 與 `engineState.debtMode = "OPPORTUNITY"` 並回傳 `null`，不終止決策鏈。後續規則（如 `EntryGateRule` P50）必須主動檢查此旗標並放行，交由後續規則與 `CashExposureAdvisor` 計算自適應批次，否則 `crisis_accumulate` 狀態會被底倉過濾器截斷。
 
 ### Decision Rules 完整清單
 
@@ -82,7 +86,21 @@ Strategy Engine 採用 **優先級鏈式決策架構**，依序執行 11 個決�
 - `signalGenerator.mjs`：產生計分矩陣的分數。
 - `strategySchema.mjs`：定義 `Strategy.json` 的 Schema 校驗規格。
 
-## 4. 測試覆蓋
+## 4. 槓桿欄位定義 (Leverage Metrics)
+
+系統中存在不同維度的槓桿指標，其計算公式與語意分流如下：
+
+- **`grossLeverage`（市場有效曝險槓桿）**：
+  - **公式**：`(0050 市值 × 1 + 00675L 市值 × 2 + 現金等價物) / 帳戶淨資產`
+  - **語意**：反映投資組合真實承受的市場波動放大倍數。
+  - **呈現**：Telegram 每日卡片與 Mini App 駕駛艙主要顯示此數值。
+- **`actualLeverage`（會計借貸資產槓桿）**：
+  - **公式**：`總資產 (Gross Asset) / 帳戶淨資產 (Net Asset) = (Net Asset + Total Loan) / Net Asset`
+  - **語意**：反映帳戶外部借貸資金放大的倍數。在無借貸（`totalLoan = 0`）時數值恆等於 `1.0`。
+- **`currentLeverage`（理論對照現行槓桿）**：
+  - 於 `theoreticalShadow.theory` 中使用，定義與 `grossLeverage` 一致，供理論建議槓桿對比使用。
+
+## 5. 測試覆蓋
 
 ### theoreticalEngine (src/modules/strategy/theoreticalEngine.mjs)
 

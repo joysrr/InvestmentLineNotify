@@ -134,8 +134,10 @@ export const VALUATION_LATCH_UNLOCK_PR = 70;
 // ─────────────────────────────────────────────────────────────
 
 /**
- * 恐慌繞過觸發跌幅（%）
- * priceDrop > 20% 且 VIX > 35 → 啟動 panic bypass
+ * 恐慌繞過跌幅門檻
+ * 跌幅 > 20% 且 VIX > 35 → 啟動 panic bypass
+ * ⚠️ 保留供 0050 左側逆週期加碼使用，不可用於 00675L。
+ * 00675L 的恐慌放行請改用 engineState.crisisAccumulateMode（見 EntryGateRule）。
  * @type {number}
  */
 export const PANIC_BYPASS_DROP_PCT = 0.2; // 20%
@@ -143,6 +145,8 @@ export const PANIC_BYPASS_DROP_PCT = 0.2; // 20%
 /**
  * 恐慌繞過 VIX 門檻
  * VIX > 35 且跌幅 > 20% → 啟動 panic bypass
+ * ⚠️ 保留供 0050 左側逆週期加碼使用，不可用於 00675L。
+ * 00675L 的恐慌放行請改用 engineState.crisisAccumulateMode（見 EntryGateRule）。
  * @type {number}
  */
 export const PANIC_BYPASS_VIX_THRESHOLD = 35;

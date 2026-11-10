@@ -103,7 +103,7 @@ export function evaluateRetailSentimentRadar({
   const rsrStr = `${rsr >= 0 ? "+" : ""}${rsr.toFixed(1)}%`;
 
   if (isLongLiquidation) {
-    const summaryText = `🚨【散戶多空對決：多殺多崩跌警報】小台散戶多空比衝高至 ${rsrStr}。散戶融資期貨逆勢死扛，多殺多風險極高，紀律：00675L 嚴格凍結防連環爆，P1 暫緩，P0 正常執行。`;
+    const summaryText = `🚨【散戶多空對決：多殺多崩跌警報】小台散戶多空比衝高至 ${rsrStr}。散戶融資期貨逆勢死扛，多殺多風險極高，紀律：00675L 嚴格凍結防連環爆，條件加碼暫緩，P0 正常執行。`;
     return {
       ...createRadarResult({
         radarId: RADAR_IDS.RETAIL_SENTIMENT,
@@ -127,7 +127,7 @@ export function evaluateRetailSentimentRadar({
   }
 
   // isShortSqueeze
-  const summaryText = `🔥【散戶多空對決：軋空強多訊號】小台散戶多空比降至 ${rsrStr}。散戶集體猜頭放空被軋，順勢動能強勁，紀律：允許 00675L 動能參與，P0/P1 正常執行。`;
+  const summaryText = `🔥【散戶多空對決：軋空強多訊號】小台散戶多空比降至 ${rsrStr}。散戶集體猜頭放空被軋，順勢動能強勁，紀律：允許 00675L 動能參與，P0/條件加碼正常執行。`;
   return {
     ...createRadarResult({
       radarId: RADAR_IDS.RETAIL_SENTIMENT,

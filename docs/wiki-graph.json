@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 136,
-    "edges": 199
+    "nodes": 137,
+    "edges": 203
   },
   "graph": {
     "api-contract": ["api"],
@@ -186,6 +186,12 @@
     "strategy-engine": ["ai_news"],
     "automated-deployment-milestone": ["operations"],
     "security-policy": ["operations"],
+    "crisis-accumulate-decision-chain-fix-plan": [
+      "strategy-engine",
+      "leading-indicator-radars",
+      "cash-exposure-advisor",
+      "regime-policy"
+    ],
     "documentation-reorganization-plan": ["documentation-standards"],
     "dashboard-ux-pyramid-spec": [
       "dashboard-ux-pyramid-spec",

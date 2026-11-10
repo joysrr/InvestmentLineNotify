@@ -393,6 +393,14 @@ describe("EntryGateRule (P50)", () => {
     expect(result).not.toBeNull();
     expect(result.entryGateBlocked).toBe(true);
   });
+
+  it("P0: 當 engineState.crisisAccumulateMode 為 true 時應放行 (回傳 null)", () => {
+    ctx.rsi = 80; // 若一般情況會被 blocked
+    ctx.priceDropPercent = 0; // 即使在底倉通道未達跌幅
+    engineState.crisisAccumulateMode = true;
+    const result = rule.evaluate(ctx, strategy, engineState);
+    expect(result).toBeNull();
+  });
 });
 
 describe("StopLossTrailingRule (P60)", () => {

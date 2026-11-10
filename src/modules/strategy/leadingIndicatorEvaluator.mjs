@@ -130,7 +130,7 @@ export function formatCrisisAccumulateCard({
     `建議：本批加碼 00675L 上限 ${limitStr} TWD`,
     `• 目標槓桿：${targetStr}，當前：${currentStr}`,
     `• ✅ P0 DCA 照常執行（鐵律，不受 Regime 影響）`,
-    `• ⚠️ P1 條件加碼：每批上限 ${limitStr}，VIX 仍高時控制路徑損耗`,
+    `• ⚠️ 現金驅動曝險建議：每批上限 ${limitStr}，VIX 仍高時控制路徑損耗`,
     `• ℹ️ 00675L 為 2x 槓桿產品，震盪市存在複利耗損`,
   ].join("\n");
 }

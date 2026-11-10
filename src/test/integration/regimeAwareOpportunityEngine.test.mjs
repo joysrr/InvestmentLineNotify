@@ -161,6 +161,59 @@ describe("Phase 5: Regime-Aware Opportunity Engine 端到端整合驗收", () =>
       expect(result.telegramCard).not.toContain("恐慌加碼視窗");
       expect(result.telegramCard).not.toContain("複利耗損");
     });
+
+    it("5.4 實戰決策鏈穿透：2026-11-09 恐慌場景（totalDebt=0, VIX=43.8）決策鏈不被 entryGate 阻斷", async () => {
+      const { createDefaultDecisionChain, runDecisionChain } =
+        await import("../../modules/strategy/decision/chain.mjs");
+      const { createMockCtx, createMockStrategy } =
+        await import("../utils/mockFactory.mjs");
+
+      const ctx = createMockCtx({
+        vix: 43.8,
+        priceDropPercent: 0,
+        rsi: 65,
+        totalDebt: 0,
+        portfolio: {
+          totalLoan: 0,
+          totalDebt: 0,
+          cash: 600000,
+          totalValue: 2449778,
+          stock0050Value: 1798768,
+          stock00675LValue: 51010,
+        },
+      });
+
+      const strategy = createMockStrategy({
+        buy: {
+          entryGate: { enabled: true },
+        },
+        regime: {
+          vixOverrideTrigger: 28,
+          vixAbsoluteOverride: 35,
+          regimeProfiles: {
+            CRISIS: { leverageMultiplier: 0, mode: "sell_only" },
+          },
+        },
+      });
+
+      const chain = await createDefaultDecisionChain();
+      const result = await runDecisionChain(
+        ctx,
+        strategy,
+        { currentGrossLeverage: 0.804 },
+        0.05,
+        chain,
+      );
+
+      // 驗證核心修復目標：
+      // 1. EntryGateRule 穿透：target 不被攔截為「🚧 槓桿封鎖」
+      expect(result.target).not.toBe("🚧 槓桿封鎖");
+      // 2. Regime 正確設置為 CRISIS 且模式為 crisis_accumulate
+      expect(result.regimeState).toBe("CRISIS");
+      expect(result.regimeResult?.mode).toBe("crisis_accumulate");
+      // 3. 放行後決策鏈正常流轉（非 null，正常產出決策結果）
+      expect(result.marketStatus).toBeDefined();
+    });
   });
 
   describe("5.2 對照組：有借款帳戶（DEFENSE 模式）安全防線驗收", () => {
