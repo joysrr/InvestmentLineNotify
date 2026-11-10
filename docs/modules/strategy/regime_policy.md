@@ -45,12 +45,12 @@ Regime-aware Policy 模組負責根據市場的宏觀環境（如 VIX 波動率�
 
 ## Macro Regime States (四象限定義)
 
-| 模式              | 判定條件                        | 槓桿倍數 | 模式 (Mode)       | 權重主導 / 風控作為            |
-| :---------------- | :------------------------------ | :------- | :---------------- | :----------------------------- |
-| **BULL_TREND**    | 指數 > MA60, 斜率向上, VIX < 20 | 1.0x     | `trend_offensive` | 動能 70% 主導，順勢進攻        |
-| **BULL_VOLATILE** | 指數 > MA60, 20 ≤ VIX < 35      | 0.8x     | `dip_buying`      | 左側超跌 60%，融資過熱阻尼     |
-| **BEAR_CHOPPY**   | 指數 ≤ MA60, VIX < 20           | 0.5x     | `dca_only`        | 實質持有成本濾網，戰術加碼凍結 |
-| **BEAR_PANIC**    | VIX ≥ 35 或流動性危機           | 0.0x     | `sell_only`       | 強制 Sell-only，保全擔保品安全 |
+| 模式              | 判定條件                        | 槓桿倍數              | 模式 (Mode)       | 權重主導 / 風控作為               |
+| :---------------- | :------------------------------ | :-------------------- | :---------------- | :-------------------------------- |
+| **BULL_TREND**    | 指數 > MA60, 斜率向上, VIX < 20 | 1.0x                  | `trend_offensive` | 動能 70% 主導，順勢進攻           |
+| **BULL_VOLATILE** | 指數 > MA60, 20 ≤ VIX < 35      | 0.8x                  | `dip_buying`      | 左側超跌 60%，融資過熱阻尼        |
+| **BEAR_CHOPPY**   | 指數 ≤ MA60, VIX < 20           | 0.5x                  | `dca_only`        | 實質持有成本濾網，戰術加碼凍結    |
+|                   | **BEAR_PANIC**                  | VIX ≥ 35 或流動性危機 | 0.0x              | `sell_only` / `crisis_accumulate` | totalDebt>0 強制 Sell-only；totalDebt=0 恐慌加碼視窗（2026-11-04 債務感知雙模式） |
 
 ---
 
@@ -112,6 +112,10 @@ function determineRegime(vix, sentiment, config)
 const regimeResult = determineRegime(vix, sentiment, strategy.regime);
 
 if (regimeResult.state === "CRISIS") {
+  if (regimeResult.mode === "crisis_accumulate") {
+    // OPPORTUNITY 模式（無借款）：不強制賣出，交由後續規則（CashExposureAdvisor）計算批次
+    return null;
+  }
   return {
     target: "🔴 強制賣出",
     targetSuggestion: "VIX 危機模式啟動，禁止新增部位...",

@@ -4,9 +4,16 @@ status: current
 last_updated: 2026-11-11
 last_verified: 2026-09-11
 related_code:
-  - src/modules/newsFetcher.mjs
-  - src/runNewsFetch.mjs
+  - src/modules/providers/providerRegistry.mjs
   - src/modules/providers/yahooProvider.mjs
+  - src/modules/providers/twseProvider.mjs
+  - src/modules/providers/finmindProvider.mjs
+  - src/modules/providers/kgiProvider.mjs
+  - src/modules/providers/cnnProvider.mjs
+  - src/modules/providers/usMarketProvider.mjs
+  - src/modules/providers/ndcProvider.mjs
+  - src/modules/providers/macroProvider.mjs
+  - src/utils/retryUtils.mjs
 tags:
   - providers
   - data-source

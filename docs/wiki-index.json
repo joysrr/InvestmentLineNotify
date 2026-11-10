@@ -5,10 +5,10 @@
   "stats": {
     "total_concepts": 127,
     "total_edges": 189,
-    "total_code_mappings": 82,
+    "total_code_mappings": 89,
     "concepts_with_code": 44,
     "concepts_with_links": 56,
-    "generated_at": "2026-11-10T23:40:28.745Z"
+    "generated_at": "2026-11-10T23:50:59.644Z"
   },
   "concepts": {
     "api-contract": {
@@ -798,9 +798,16 @@
       "summary": null,
       "related_docs": [],
       "related_code": [
-        "src/modules/newsFetcher.mjs",
-        "src/runNewsFetch.mjs",
-        "src/modules/providers/yahooProvider.mjs"
+        "src/modules/providers/providerRegistry.mjs",
+        "src/modules/providers/yahooProvider.mjs",
+        "src/modules/providers/twseProvider.mjs",
+        "src/modules/providers/finmindProvider.mjs",
+        "src/modules/providers/kgiProvider.mjs",
+        "src/modules/providers/cnnProvider.mjs",
+        "src/modules/providers/usMarketProvider.mjs",
+        "src/modules/providers/ndcProvider.mjs",
+        "src/modules/providers/macroProvider.mjs",
+        "src/utils/retryUtils.mjs"
       ],
       "tags": ["providers", "data-source", "market-data"],
       "status": "current",
@@ -2015,10 +2022,6 @@
       {
         "concept": "news-fetcher",
         "doc": "modules/ai_news/news_fetcher.md"
-      },
-      {
-        "concept": "providers",
-        "doc": "modules/strategy/providers.md"
       }
     ],
     "src/runNewsFetch.mjs": [
@@ -2029,10 +2032,6 @@
       {
         "concept": "bot",
         "doc": "modules/presentation/bot.md"
-      },
-      {
-        "concept": "providers",
-        "doc": "modules/strategy/providers.md"
       }
     ],
     "src/modules/news/newsConflictGrouper.mjs": [
@@ -2091,6 +2090,10 @@
       {
         "concept": "leading-indicator-radars",
         "doc": "modules/strategy/leading_indicator_radars.md"
+      },
+      {
+        "concept": "providers",
+        "doc": "modules/strategy/providers.md"
       }
     ],
     "src/modules/storage.mjs": [
@@ -2329,6 +2332,10 @@
       {
         "concept": "macro-regime-metrics-analysis",
         "doc": "modules/strategy/macro_regime_metrics_analysis.md"
+      },
+      {
+        "concept": "providers",
+        "doc": "modules/strategy/providers.md"
       }
     ],
     "src/modules/providers/marketData.mjs": [
@@ -2378,6 +2385,48 @@
       }
     ],
     "src/modules/providers/yahooProvider.mjs": [
+      {
+        "concept": "providers",
+        "doc": "modules/strategy/providers.md"
+      }
+    ],
+    "src/modules/providers/finmindProvider.mjs": [
+      {
+        "concept": "providers",
+        "doc": "modules/strategy/providers.md"
+      }
+    ],
+    "src/modules/providers/kgiProvider.mjs": [
+      {
+        "concept": "providers",
+        "doc": "modules/strategy/providers.md"
+      }
+    ],
+    "src/modules/providers/cnnProvider.mjs": [
+      {
+        "concept": "providers",
+        "doc": "modules/strategy/providers.md"
+      }
+    ],
+    "src/modules/providers/usMarketProvider.mjs": [
+      {
+        "concept": "providers",
+        "doc": "modules/strategy/providers.md"
+      }
+    ],
+    "src/modules/providers/ndcProvider.mjs": [
+      {
+        "concept": "providers",
+        "doc": "modules/strategy/providers.md"
+      }
+    ],
+    "src/modules/providers/macroProvider.mjs": [
+      {
+        "concept": "providers",
+        "doc": "modules/strategy/providers.md"
+      }
+    ],
+    "src/utils/retryUtils.mjs": [
       {
         "concept": "providers",
         "doc": "modules/strategy/providers.md"

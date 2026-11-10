@@ -111,7 +111,7 @@ wiki_links:
    - 進入 `BEAR_PANIC`：**0 延遲即刻觸發**（安全第一，風控絕不等待確認天數）。
 2. **解除防守/升級確認期 (Cooldown & Exit Window)**：
    - 從 `BEAR_CHOPPY` 回到 `BULL_TREND`：需連續 **5 個交易日** 指數站上 MA60 且斜率翻揚。
-   - 從 `BULL_VOLATILE` 回到 `BULL_TREND`：需連續 **3 個交易日** VIX < 20。
+   - 從 `BULL_VOLATILE` 回到 `BULL_TREND`：需連續 **5 個交易日**（所有回歸 `BULL_TREND` 的轉換皆採 5 天確認期，對照 `macroRegimeClassifier.mjs` line 96）。
 
 ---
 

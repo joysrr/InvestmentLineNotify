@@ -61,16 +61,17 @@ Strategy Engine 採用 **優先級鏈式決策架構**，依序執行 11 個決�
 
 為確保資金安全，系統採由上而下的優先權覆寫機制（Priority Chain）。只要上層條件觸發，就會提早 `return`，絕對不給底層戰術執行的機會：
 
-1. **[P0] 市場環境硬條件 (`determineRegime`)**：偵測 VIX 與市場情緒。DEFENSE 模式（有借款）進入 CRISIS 時強制 Sell-only；OPPORTUNITY 模式（無借款）進入 CRISIS 時轉為 crisis_accumulate，僅注入狀態不終止決策鏈。
-2. **[P1] 維持率狀態機 (`evaluateMarginLayer`)**：一旦維持率低於門檻，啟動 4 層防禦姿態 (包含強制停損與禁止買進)。
-3. **[P2] 總槓桿率控管 (`evaluateGrossLeverage`)**：確保總槓桿倍數不超過設定閥值 (例如 1.8x)。
-4. **[P2.5] 生命週期槓桿引擎 (`computeLifecycleContext`)**：根據年齡自動判定階段，動態調整該階段的 `maxLeverage` 上限。
-5. **[P3] 估值守衛 (`resolveValuationGuard`)**：偵測大盤 PB 是否過高，啟動過熱防禦機制。若身處安全區且 MACD 動能強勢，則啟動 **Valuation Momentum Synergy (共振加碼)** 來主動升級戰術階層。
-6. **[P4] 跌幅前置過濾 (`resolveEntryGate`)**：依據市場跌幅與 RSI 將資金分層阻擋，未達跌幅不可買入。
-7. **[P5] 停損與移動停利 (`computeTrailingStop`)**：若觸發技術面 MA20 停損或移動停利錨點，強制減碼。
-8. **[P6] 泡沫阻斷 (`pbValue >= 2.2`)**：無條件停止任何買進行為。
-9. **[P7] 比例再平衡**：00675L 佔比超過設定閾值時，強制減碼至目標比例。
-10. **[P8] 戰術矩陣 (`generateScoringMatrix`)**：若上述風險皆未觸發，進入計分矩陣，由多項技術指標 (MACD, KD, RSI) 決定加減碼力道。
+1. **[P0] RegimePolicyRule**：偵測 VIX 與市場情緒。DEFENSE 模式（有借款）進入 CRISIS 時強制 Sell-only；OPPORTUNITY 模式（無借款）進入 CRISIS 時轉為 crisis_accumulate，僅注入狀態不終止決策鏈。
+2. **[P10] MarginLayerRule**：一旦維持率低於門檻，啟動 4 層防禦姿態 (包含強制停損與禁止買進)。
+3. **[P20] LifecycleLeverageRule**：根據年齡自動判定階段，動態調整該階段的 `maxLeverage` 上限。
+4. **[P30] GrossLeverageRule**：確保總槓桿倍數不超過設定閥值 (例如 1.8x)。
+5. **[P40] ValuationGuardRule**：偵測大盤 PB 是否過高，啟動過熱防禦機制。
+6. **[P50] EntryGateRule**：依據市場跌幅與 RSI 將資金分層阻擋，未達跌幅不可買入。crisis_accumulate 模式時 bypass。
+7. **[P60] StopLossTrailingRule**：若觸發技術面 MA20 停損或移動停利錨點，強制減碼。
+8. **[P70] ValuationBubbleRule**：PB ≥ 2.2 → 停止加碼 00675L。
+9. **[P80] RebalanceRule**：00675L 佔比超過設定閾值時，強制減碼至目標比例。
+10. **[P90] ConversionGuardRule**：00675L 獲利達標 → 轉化為 0050。
+11. **[P100] ScoringDecisionRule**：依 weightScore 產生決策 (最後 Fallback)，由 MACD/KD/RSI 等技術指標決定加減碼力道。
 
 ## 2. 資金協同與預算控制
 

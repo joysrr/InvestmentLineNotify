@@ -24,7 +24,10 @@ wiki_links:
 - [`providers.md`](./providers.md)：定義系統目前支援的所有外部資料源、API 以及實作規格。
 - [`lifecycle_engine.md`](./lifecycle_engine.md)：生命週期槓桿引擎。
 - [`regime_policy.md`](./regime_policy.md)：市場環境適應性 (Regime-aware) 策略。
+- [`cash_exposure_advisor.md`](./cash_exposure_advisor.md)：現金風險顧問，四層槓桿與分批進場邏輯。
 - [`maintenance_state_machine.md`](./maintenance_state_machine.md)：維持率狀態機。
+- [`lifecycle_health_test_spec.md`](./lifecycle_health_test_spec.md)：生命週期引擎與健康儀表板測試規格。
+- [`macro_regime_metrics_analysis.md`](./macro_regime_metrics_analysis.md)：四象限宏觀規則與指標量化定義。
 
 ## 核心設計理念
 
