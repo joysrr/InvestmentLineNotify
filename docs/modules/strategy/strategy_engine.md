@@ -125,4 +125,14 @@ Strategy Engine 採用 **優先級鏈式決策架構**，依序執行 11 個決�
 - **測試案例**: 16 個 (含非交易日 fallback、signals 複製邏輯)
 - **測試狀態**: 核心流程完整覆蓋 ✅
 
-**最後更新**: 2026-11-01
+### 策略引擎防禦決策測試規格 (StrategyEngine Test Spec)
+
+- **對應測試**: `src/test/unit/strategy/decisionRules.test.mjs`
+- **核心案例清單**:
+  - `TC-01`: 優先處理 🔴 斷頭危機 (Critical Margin, 維持率 < 135%) → `critical`、強制降槓桿
+  - `TC-02`: 應在 🟠 高危凍結攔截加碼 (Frozen Zone, 維持率 < 145%) → `frozen`、禁止進場
+  - `TC-03`: 應正確攔截 EntryGate 封鎖 (RSI 過高) → `entryGateBlocked: true`、前置過濾
+  - `TC-04`: 應觸發 Valuation Guard Latch (PR 100, PB 達 3.0) → `latch_triggered`、估值守衛、清倉
+  - `TC-05`: 正常市況應輸出 Scoring Matrix 建議 (Neutral Zone) → 常態佈局、0050 DCA
+
+**最後更新**: 2026-11-10

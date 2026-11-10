@@ -1,7 +1,7 @@
 ---
 type: tutorial
 status: current
-last_updated: 2026-09-11
+last_updated: 2026-11-10
 related_code:
   - webapp/src/test/e2e/
   - webapp/scripts/start-e2e-servers.sh
@@ -402,3 +402,18 @@ cd webapp && npx playwright test --reporter=junit
 | 視覺回歸測試 | 使用 `toHaveScreenshot()` 比對基準圖           |
 | 多瀏覽器     | `projects` 加入 firefox、webkit                |
 | 並行測試優化 | 共用 `beforeEach` 的 API mock，減少重複設定    |
+
+---
+
+## 11. 附錄：E2E 測試體系建置歷程與最佳實踐回顧
+
+系統於 2026-08 完成四階段 E2E 體系建置，確立了以下生產級規範：
+
+1. **Vue CSR 渲染時序守衛**：
+   - 傳統 MPA 依靠 DOM 載入，Vue CSR 初始 HTML 僅為 `<div id="app"></div>`。
+   - 所有測試必須等待核心元素掛載（如 `[data-testid="..."]` 或重要狀態文字），嚴禁以固定 `sleep` 替代。
+2. **自動化驗證管線 (`verify-pages.sh`)**：
+   - 嚴格遵守「清理殘留進程 → 啟動前後端 Server → Health Check 探活 → 執行測試 → 清理退出」五步防護機制。
+3. **CI 穩定性設定**：
+   - CI 環境下嚴格限制 `workers: 1`，避免多進程搶佔連接埠與 Telegram Mock 上下文。
+   - 歷史建置驗收完整紀錄參見 `docs/plans/completed/PHASE_1-4_E2E_COMPLETION_SUMMARY_20260815.md`。

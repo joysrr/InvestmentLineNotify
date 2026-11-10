@@ -15,7 +15,7 @@ wiki_links:
 # DEC-006: Phase 4 架構決策 - 部署自動化與 Mini App 遠端部署
 
 **日期**: 2026-08-12  
-**狀態**: ✅ 已採納  
+**狀態**: 📦 已封存 (Archived / 後續生產環境改由 Oracle VM 宿主端獨立部署腳本與 Unix Domain Socket 控管，避免 WebApp 直接暴露高權限執行端口)  
 **類別**: 架構/基礎設施/部署  
 **相關**: Phase 4.3, DEC-24
 

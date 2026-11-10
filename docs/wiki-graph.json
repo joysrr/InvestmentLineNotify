@@ -2,15 +2,14 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 125,
-    "edges": 201
+    "nodes": 123,
+    "edges": 200
   },
   "graph": {
     "api-contract": ["api"],
     "deployment-checklist": ["bot"],
     "readme": ["readme", "readme", "strategy-engine", "ai-pipeline"],
     "technical-indicators-spec": ["strategy-engine"],
-    "test-spec-strategyengine": ["strategy-engine"],
     "decision-chain-api": [
       "regime-policy",
       "cash-exposure-advisor",
@@ -186,13 +185,13 @@
     "strategy-engine": ["ai_news"],
     "automated-deployment-milestone": ["operations"],
     "security-policy": ["operations"],
-    "crisis-accumulate-decision-chain-fix-plan": [
+    "documentation-reorganization-plan": ["documentation-standards"],
+    "2026-11-10-crisis-accumulate-decision-chain-fix-plan": [
       "strategy-engine",
       "leading-indicator-radars",
       "cash-exposure-advisor",
       "regime-policy"
     ],
-    "documentation-reorganization-plan": ["documentation-standards"],
     "dashboard-ux-pyramid-spec": [
       "dashboard-ux-pyramid-spec",
       "macro-regime-metrics-analysis",

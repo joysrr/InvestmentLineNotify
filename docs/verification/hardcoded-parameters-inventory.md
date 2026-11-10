@@ -1,7 +1,7 @@
 ---
 type: verification
-status: active
-last_updated: 2026-11-01
+status: completed
+last_updated: 2026-11-10
 tags:
   - hardcoded-parameters
   - configuration
@@ -9,6 +9,8 @@ tags:
 ---
 
 # 硬編碼參數盤點與合理性分析
+
+> **現況說明 (2026-11-10)**：本份盤點任務已全面收斂。系統已建立 `src/modules/strategy/strategyDefaults.mjs` 作為策略預設參數與信號權重的唯一真理源 (SSOT)，各模組已完成參數解耦與統一匯入。本報告轉為歷史基準與架構參考附錄。
 
 ## 盤點範圍
 

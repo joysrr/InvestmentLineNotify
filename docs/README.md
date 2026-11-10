@@ -51,10 +51,8 @@ docs/
 ├── API_CONTRACT.md                # API 契約管理與 Contract-First 開發規範
 ├── DEPLOYMENT_CHECKLIST.md        # 生產環境部署與驗收檢查清單
 ├── E2E_TESTING_GUIDE.md           # Playwright E2E 測試指南與最佳實踐
-├── SYSTEM_E2E_BUILD_PROCESS.md    # 系統級 E2E 測試體系建置紀錄
 ├── TECHNICAL_INDICATORS_SPEC.md   # 技術指標（RSI, KD, MACD）與訊號判讀規格
 ├── TESTING.md                     # Vitest 單元測試與整合測試指南
-├── TEST_SPEC_strategyEngine.md    # 策略引擎測試規格書
 ├── TEST_TROUBLESHOOTING.md        # 測試疑難排解指南
 ├── useApiRequest-guide.md         # 前端 API 請求 Composable 指南
 │
