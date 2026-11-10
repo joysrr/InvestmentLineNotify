@@ -57,6 +57,7 @@ docs/
 ├── useApiRequest-guide.md         # 前端 API 請求 Composable 指南
 │
 ├── api/                           # API 規格定義
+│   ├── decision-chain_api.md      # 決策鏈 API 規格
 │   └── openapi.json               # OpenAPI 3.0 真理之源 (51 paths)
 │
 ├── architecture/                  # 架構決策與理論框架
@@ -69,9 +70,11 @@ docs/
 │   └── DEC-016-vitest-worker-crash.md # Vitest Worker Crash 除錯與解決方案
 │
 ├── design/                        # 系統設計與 UI/UX 規範
+│   ├── README.md                  # 設計文件索引
 │   └── BUDGET_PRIORITY_DESIGN.md  # 預算優先級與分層策略設計
 │
 ├── modules/                       # 核心子模組技術規格
+│   ├── _index.md                  # 模組總索引
 │   ├── infrastructure/            # 基礎設施層（儲存、歷史數據、快取）
 │   ├── strategy/                  # 策略引擎、指標雷達、生命週期健康診斷
 │   ├── presentation/              # 前端 Mini App 與 API 對接規格
@@ -79,6 +82,7 @@ docs/
 │   └── ai_news/                   # AI 新聞分析、Langfuse 觀測與提示詞管理
 │
 ├── operations/                    # 運維操作手冊
+│   ├── automated-deployment-milestone.md # 自動化部署里程碑
 │   ├── security-policy.md         # 專案安全政策與 SSH Key 輪換 SOP
 │   ├── production-code-deploy.md  # 正式環境代碼部署標準程序
 │   ├── production-artifact-sync.md# 正式環境資料同步規範

@@ -178,7 +178,6 @@
     "strategy-engine": ["ai_news"],
     "automated-deployment-milestone": ["operations"],
     "security-policy": ["operations"],
-    "documentation-reorganization-plan": ["documentation-standards"],
     "2026-09-10-wiki-index-prototype-report": [
       "langfuse-prompt-management-v5",
       "langfuse-prompt-management-v5",
@@ -208,6 +207,7 @@
       "cash-exposure-advisor",
       "regime-policy"
     ],
+    "2026-11-10-documentation-reorganization-plan": ["documentation-standards"],
     "strategy-engine-verification-report": [
       "strategy-engine",
       "budget-priority-design"

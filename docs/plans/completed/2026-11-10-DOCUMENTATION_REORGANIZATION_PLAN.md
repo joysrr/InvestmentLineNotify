@@ -1,6 +1,6 @@
 ---
 type: plan
-status: in-progress
+status: completed
 last_updated: 2026-11-10
 tags:
   - documentation
@@ -13,8 +13,9 @@ wiki_links:
 
 # docs/ 文件庫過時殘留清理與架構同步計畫
 
-> **狀態**：In-Progress (規劃與盤點完成，待審批)  
+> **狀態**：Completed (所有 Phase 均已落實並完成驗收)  
 > **建立日期**：2026-11-10  
+> **完成日期**：2026-11-10  
 > **負責人**：Tech Lead (Hermes Agent)  
 > **背景**：針對 `docs/` 文件庫進行全面盤點，發現大量 2026 年 4 月至 8 月專案初期的歷史殘留（巨型代碼傾印、過時草稿池、假想下單模組、非真理之源的 Swagger 引用、以及根目錄缺乏 `docs/README.md` 中樞），需進行系統性歸檔、更新與架構對齊，確保 Agent 能精準利用文件且不被過時資訊誤導。
 
