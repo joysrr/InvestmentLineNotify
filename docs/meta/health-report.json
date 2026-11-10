@@ -1,34 +1,29 @@
 {
-  "generated_at": "2026-11-04T14:20:07.809Z",
+  "generated_at": "2026-11-10T04:14:48.414Z",
   "summary": {
-    "total_files": 176,
-    "average_health": 55.9,
+    "total_files": 136,
+    "average_health": 58.9,
     "by_health": {
-      "excellent": 30,
-      "good": 21,
-      "fair": 124,
-      "poor": 1
+      "excellent": 31,
+      "good": 19,
+      "fair": 84,
+      "poor": 2
     },
     "by_category": {
       "other": {
         "count": 29,
         "avgHealth": 59,
-        "totalHealth": 1705
+        "totalHealth": 1715
       },
       "guide": {
         "count": 3,
         "avgHealth": 58,
         "totalHealth": 175
       },
-      "report": {
-        "count": 17,
-        "avgHealth": 47,
-        "totalHealth": 795
-      },
       "reference": {
-        "count": 41,
-        "avgHealth": 80,
-        "totalHealth": 3265
+        "count": 40,
+        "avgHealth": 81,
+        "totalHealth": 3235
       },
       "explanation": {
         "count": 6,
@@ -36,9 +31,9 @@
         "totalHealth": 290
       },
       "plan": {
-        "count": 80,
+        "count": 58,
         "avgHealth": 45,
-        "totalHealth": 3610
+        "totalHealth": 2600
       }
     }
   },
@@ -198,6 +193,16 @@
       ]
     },
     {
+      "concept": "readme",
+      "file": "README.md",
+      "category": "other",
+      "health": 55,
+      "impact": 15,
+      "priority": 68,
+      "issues": ["61 天未驗證", "缺少代碼連結", "缺少文件連結", "缺少摘要"],
+      "suggestions": ["添加 related_code", "添加 related_docs"]
+    },
+    {
       "concept": "dec-005-monitoring-alerting",
       "file": "architecture/DEC-005-monitoring-alerting.md",
       "category": "explanation",
@@ -258,12 +263,12 @@
       ]
     },
     {
-      "concept": "langfuse-prompt-management-v3-deprecated",
-      "file": "modules/ai_news/integrations/langfuse_prompt_management_v3_deprecated.md",
-      "category": "reference",
+      "concept": "deep-content-verification-plan",
+      "file": "plans/completed/DEEP_CONTENT_VERIFICATION_PLAN.md",
+      "category": "plan",
       "health": 45,
-      "impact": 10,
-      "priority": 55,
+      "impact": 9,
+      "priority": 50,
       "issues": [
         "狀態未知",
         "從未驗證",
@@ -278,12 +283,12 @@
       ]
     },
     {
-      "concept": "deep-content-verification-plan",
-      "file": "plans/completed/DEEP_CONTENT_VERIFICATION_PLAN.md",
+      "concept": "documentation-reorganization-plan",
+      "file": "plans/active/DOCUMENTATION_REORGANIZATION_PLAN.md",
       "category": "plan",
-      "health": 45,
-      "impact": 9,
-      "priority": 50,
+      "health": 35,
+      "impact": 7,
+      "priority": 46,
       "issues": [
         "狀態未知",
         "從未驗證",
@@ -392,20 +397,6 @@
         "添加 related_code",
         "添加 related_docs"
       ]
-    },
-    {
-      "concept": "theory-page-redesign-draft",
-      "file": "design/theory_page_redesign_draft.md",
-      "category": "explanation",
-      "health": 55,
-      "impact": 8,
-      "priority": 36,
-      "issues": ["從未驗證", "缺少代碼連結", "缺少文件連結", "缺少摘要"],
-      "suggestions": [
-        "添加 last_verified 日期",
-        "添加 related_code",
-        "添加 related_docs"
-      ]
     }
   ],
   "all_files": [
@@ -431,130 +422,11 @@
       "status": "current"
     },
     {
-      "concept": "audit-decision-log",
-      "file": "Reports/AUDIT_DECISION_LOG.md",
-      "category": "report",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "audit-history",
-      "file": "Reports/AUDIT_HISTORY.md",
-      "category": "report",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "documentation-work-summary-20260911",
-      "file": "Reports/DOCUMENTATION_WORK_SUMMARY_20260911.md",
-      "category": "report",
-      "health": 55,
-      "status": "current"
-    },
-    {
-      "concept": "dod-audit-log",
-      "file": "Reports/DoD_AUDIT_LOG.md",
-      "category": "report",
-      "health": 55,
-      "status": "current"
-    },
-    {
-      "concept": "global-status-summary",
-      "file": "Reports/GLOBAL_STATUS_SUMMARY.md",
-      "category": "report",
-      "health": 55,
-      "status": "current"
-    },
-    {
       "concept": "readme",
-      "file": "Reports/README.md",
-      "category": "report",
-      "health": 70,
-      "status": "current"
-    },
-    {
-      "concept": "review-report",
-      "file": "Reports/REVIEW_REPORT.md",
-      "category": "report",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "test-mapping",
-      "file": "Reports/TEST_MAPPING.md",
-      "category": "report",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "test-report",
-      "file": "Reports/TEST_REPORT.md",
-      "category": "report",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "agents-audit-report-202604",
-      "file": "Reports/archive/agents_audit_report_202604.md",
-      "category": "report",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "agents-overview",
-      "file": "Reports/archive/agents_overview.md",
-      "category": "report",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "code-review-20260428",
-      "file": "Reports/archive/code_review_20260428.md",
-      "category": "report",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "leverage-strategy-review-v2.3",
-      "file": "Reports/archive/leverage_strategy_review_v2.3.md",
-      "category": "report",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "main-code-review-20260429",
-      "file": "Reports/archive/main_code_review_20260429.md",
-      "category": "report",
-      "health": 10,
-      "status": "unknown"
-    },
-    {
-      "concept": "perplexity-code-review-20260426",
-      "file": "Reports/archive/perplexity_code_review_20260426.md",
-      "category": "report",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "strategy-review-20260417",
-      "file": "Reports/archive/strategy_review_20260417.md",
-      "category": "report",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "security-report",
-      "file": "Reports/current/security-report.md",
-      "category": "report",
+      "file": "README.md",
+      "category": "other",
       "health": 55,
       "status": "current"
-    },
-    {
-      "concept": "scheduler-coupling-analysis",
-      "file": "SCHEDULER_COUPLING_ANALYSIS.md",
-      "category": "other",
-      "health": 45,
-      "status": "archived"
     },
     {
       "concept": "system-e2e-build-process",
@@ -704,13 +576,6 @@
       "status": "current"
     },
     {
-      "concept": "langfuse-prompt-management-v3-deprecated",
-      "file": "modules/ai_news/integrations/langfuse_prompt_management_v3_deprecated.md",
-      "category": "reference",
-      "health": 45,
-      "status": "deprecated"
-    },
-    {
       "concept": "langfuse-prompt-management-v5",
       "file": "modules/ai_news/integrations/langfuse_prompt_management_v5.md",
       "category": "reference",
@@ -819,7 +684,7 @@
       "concept": "api",
       "file": "modules/presentation/api/_index.md",
       "category": "reference",
-      "health": 80,
+      "health": 85,
       "status": "current"
     },
     {
@@ -882,7 +747,7 @@
       "concept": "cash-exposure-advisor",
       "file": "modules/strategy/cash_exposure_advisor.md",
       "category": "reference",
-      "health": 75,
+      "health": 85,
       "status": "current"
     },
     {
@@ -970,242 +835,25 @@
       "status": "current"
     },
     {
-      "concept": "phase-6-baseline",
-      "file": "performance/PHASE_6_BASELINE.md",
+      "concept": "security-policy",
+      "file": "operations/security-policy.md",
       "category": "other",
       "health": 45,
-      "status": "archived"
+      "status": "current"
     },
     {
-      "concept": "2026-10-31-non-trading-day-theoretical-calculation",
-      "file": "plans/active/2026-10-31_non-trading-day-theoretical-calculation.md",
+      "concept": "documentation-reorganization-plan",
+      "file": "plans/active/DOCUMENTATION_REORGANIZATION_PLAN.md",
       "category": "plan",
-      "health": 45,
-      "status": "completed"
+      "health": 35,
+      "status": "in-progress"
     },
     {
-      "concept": "2026-11-04-regime-aware-opportunity-engine",
-      "file": "plans/active/2026-11-04_regime-aware-opportunity-engine.md",
+      "concept": "localhost-mini-app-preview-plan",
+      "file": "plans/active/LOCALHOST_MINI_APP_PREVIEW_PLAN.md",
       "category": "plan",
-      "health": 45,
-      "status": "active"
-    },
-    {
-      "concept": "advice",
-      "file": "plans/archive/2026-04_remediation_advice/ADVICE.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "draft-features",
-      "file": "plans/archive/2026-04_remediation_advice/draft_features.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "draft-optimizations",
-      "file": "plans/archive/2026-04_remediation_advice/draft_optimizations.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "draft-perplexity-suggestion",
-      "file": "plans/archive/2026-07_completed/draft_perplexity_suggestion.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "remediation-spec-202604",
-      "file": "plans/archive/2026-07_completed/remediation_spec_202604.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "system-audit-202604",
-      "file": "plans/archive/2026-07_completed/system_audit_202604.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "0050-simulator-development-plan.decision-analysis",
-      "file": "plans/archive/2026-08-10_old_active/0050-simulator-development-plan.decision-analysis.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "0050-simulator-development-plan",
-      "file": "plans/archive/2026-08-10_old_active/0050-simulator-development-plan.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "0050-simulator-development-plan.pending-decisions",
-      "file": "plans/archive/2026-08-10_old_active/0050-simulator-development-plan.pending-decisions.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "execution-plan",
-      "file": "plans/archive/2026-08-10_old_active/EXECUTION_PLAN.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "master-plan",
-      "file": "plans/archive/2026-08-10_old_active/MASTER_PLAN.md",
-      "category": "plan",
-      "health": 45,
-      "status": "reference-only"
-    },
-    {
-      "concept": "tech-debt-plan",
-      "file": "plans/archive/2026-08-10_old_active/TECH_DEBT_PLAN.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "unified-development-plan",
-      "file": "plans/archive/2026-08-10_old_active/UNIFIED_DEVELOPMENT_PLAN.md",
-      "category": "plan",
-      "health": 45,
-      "status": "completed"
-    },
-    {
-      "concept": "unified-plan",
-      "file": "plans/archive/2026-08-10_old_active/UNIFIED_PLAN.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "finished-features",
-      "file": "plans/archive/2026-08-10_old_active/finished_features.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "phase-2-2-sensitivity-plan",
-      "file": "plans/archive/2026-08-12_phase2_plans/PHASE_2_2_SENSITIVITY_PLAN.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "phase-2-3-pareto-plan",
-      "file": "plans/archive/2026-08-12_phase2_plans/PHASE_2_3_PARETO_PLAN.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "phase-2-4-export-plan",
-      "file": "plans/archive/2026-08-12_phase2_plans/PHASE_2_4_EXPORT_PLAN.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "phase1-entry-points",
-      "file": "plans/archive/diagnosis/phase1-entry-points.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "phase2-core-logic",
-      "file": "plans/archive/diagnosis/phase2-core-logic.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "phase3-providers",
-      "file": "plans/archive/diagnosis/phase3-providers.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "phase4-api",
-      "file": "plans/archive/diagnosis/phase4-api.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "phase5-news",
-      "file": "plans/archive/diagnosis/phase5-news.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "phase6-bot",
-      "file": "plans/archive/diagnosis/phase6-bot.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "phase7-frontend",
-      "file": "plans/archive/diagnosis/phase7-frontend.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "phase8-e2e",
-      "file": "plans/archive/diagnosis/phase8-e2e.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "phase9-api",
-      "file": "plans/archive/diagnosis/phase9-api.md",
-      "category": "plan",
-      "health": 45,
-      "status": "archived"
-    },
-    {
-      "concept": "ideas-features",
-      "file": "plans/backlog/ideas_features.md",
-      "category": "plan",
-      "health": 45,
-      "status": "backlog"
-    },
-    {
-      "concept": "preplan-features",
-      "file": "plans/backlog/preplan_features.md",
-      "category": "plan",
-      "health": 45,
-      "status": "backlog"
-    },
-    {
-      "concept": "preplan-interface",
-      "file": "plans/backlog/preplan_interface.md",
-      "category": "plan",
-      "health": 45,
-      "status": "backlog"
-    },
-    {
-      "concept": "system-optimize-suggest",
-      "file": "plans/backlog/system_optimize_suggest.md",
-      "category": "plan",
-      "health": 45,
-      "status": "backlog"
+      "health": 35,
+      "status": "in-progress"
     },
     {
       "concept": "2026-09-18-social-sentiment-snapshot-and-miniapp-plan",
@@ -1236,11 +884,32 @@
       "status": "archived"
     },
     {
+      "concept": "2026-10-31-non-trading-day-theoretical-calculation",
+      "file": "plans/completed/2026-10-31_non-trading-day-theoretical-calculation.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
+    },
+    {
+      "concept": "2026-11-04-regime-aware-opportunity-engine",
+      "file": "plans/completed/2026-11-04_regime-aware-opportunity-engine.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
+    },
+    {
       "concept": "active-plans-consolidated",
       "file": "plans/completed/ACTIVE_PLANS_CONSOLIDATED.md",
       "category": "plan",
       "health": 45,
       "status": "reference-only"
+    },
+    {
+      "concept": "api-frontend-inventory-plan",
+      "file": "plans/completed/API_FRONTEND_INVENTORY_PLAN.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
     },
     {
       "concept": "code-review-optimization-plan",
@@ -1355,6 +1024,13 @@
       "status": "completed"
     },
     {
+      "concept": "master-plan",
+      "file": "plans/completed/MASTER_PLAN.md",
+      "category": "plan",
+      "health": 45,
+      "status": "reference-only"
+    },
+    {
       "concept": "miniapp-bug-fix-plan",
       "file": "plans/completed/MINIAPP_BUG_FIX_PLAN.md",
       "category": "plan",
@@ -1371,6 +1047,13 @@
     {
       "concept": "mini-app-optimization-plan",
       "file": "plans/completed/MINI_APP_OPTIMIZATION_PLAN.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
+    },
+    {
+      "concept": "mini-app-telegram-optimization-plan",
+      "file": "plans/completed/MINI_APP_TELEGRAM_OPTIMIZATION_PLAN.md",
       "category": "plan",
       "health": 45,
       "status": "completed"
@@ -1495,6 +1178,20 @@
       "status": "completed"
     },
     {
+      "concept": "strategy-score-verification-plan",
+      "file": "plans/completed/STRATEGY_SCORE_VERIFICATION_PLAN.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
+    },
+    {
+      "concept": "unified-development-plan",
+      "file": "plans/completed/UNIFIED_DEVELOPMENT_PLAN.md",
+      "category": "plan",
+      "health": 45,
+      "status": "completed"
+    },
+    {
       "concept": "webapp-improvement-plan",
       "file": "plans/completed/WEBAPP_IMPROVEMENT_PLAN.md",
       "category": "plan",
@@ -1535,6 +1232,20 @@
       "category": "plan",
       "health": 45,
       "status": "completed"
+    },
+    {
+      "concept": "backend-endpoint-logic-verification",
+      "file": "plans/completed/backend-endpoint-logic-verification.md",
+      "category": "plan",
+      "health": 45,
+      "status": "active"
+    },
+    {
+      "concept": "endpoint-cleanup-and-data-verification",
+      "file": "plans/completed/endpoint-cleanup-and-data-verification.md",
+      "category": "plan",
+      "health": 45,
+      "status": "active"
     },
     {
       "concept": "投資系統理論升級與資產動態整合計畫書",

@@ -227,4 +227,4 @@ curl "http://localhost:3000/api/portfolio/health?maintenanceMargin=165&z2Ratio=2
 
 - [Strategy Engine](../../modules/strategy/strategy_engine.md)
 - [Lifecycle Engine](../../modules/strategy/lifecycle_engine.md)
-- [API 總覽](../../swagger.json)
+- [OpenAPI 3.0 規格](../../api/openapi.json)

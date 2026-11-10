@@ -2,15 +2,13 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 176,
+    "nodes": 136,
     "edges": 199
   },
   "graph": {
     "api-contract": ["api"],
     "deployment-checklist": ["bot"],
-    "documentation-work-summary-20260911": ["documentation-standards"],
     "readme": ["readme", "readme", "strategy-engine", "ai-pipeline"],
-    "security-report": ["operations"],
     "technical-indicators-spec": ["strategy-engine"],
     "test-spec-strategyengine": ["strategy-engine"],
     "decision-chain-api": [
@@ -187,6 +185,8 @@
     "regime-policy": ["strategy-engine", "macro-regime-advanced-spec"],
     "strategy-engine": ["ai_news"],
     "automated-deployment-milestone": ["operations"],
+    "security-policy": ["operations"],
+    "documentation-reorganization-plan": ["documentation-standards"],
     "dashboard-ux-pyramid-spec": [
       "dashboard-ux-pyramid-spec",
       "macro-regime-metrics-analysis",

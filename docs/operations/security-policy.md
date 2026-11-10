@@ -1,11 +1,12 @@
 ---
-type: report
+type: reference
 status: current
-last_updated: 2026-09-10
+last_updated: 2026-11-10
 tags:
   - security
-  - audit
-  - vulnerabilities
+  - operations
+  - policy
+  - ssh
 wiki_links:
   - [[Operations]]
 ---

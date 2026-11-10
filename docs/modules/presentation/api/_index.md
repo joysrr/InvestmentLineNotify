@@ -1,27 +1,27 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-10
-last_verified: 2026-09-10
+last_updated: 2026-11-10
+last_verified: 2026-11-10
 related_code:
   - src/api/
-  - swagger.json
+  - docs/api/openapi.json
 tags:
   - api
   - rest
-  - swagger
+  - openapi
 wiki_links:
   - [[API Contract]]
 ---
 
 # API 規格總覽
 
-本專案的 HTTP API 介面規格，主要由 `fastify-swagger` 自動生成並維護於專案根目錄的 `swagger.json`。
+本專案的 HTTP API 介面規格，主要維護於 `docs/api/openapi.json`（OpenAPI 3.0 規範，共 51 個端點）。
 
 ## 真理之源 (Source of Truth)
 
-- **OpenAPI / Swagger 定義**：[`/swagger.json`](../../swagger.json)
-- **實作邏輯**：[`/src/api/`](../../src/api/)
+- **OpenAPI 3.0 規格真理之源**：[`docs/api/openapi.json`](../../../docs/api/openapi.json)
+- **實作邏輯**：[`/src/api/`](../../../../src/api/)
 
 ## 模組內部合約
 
