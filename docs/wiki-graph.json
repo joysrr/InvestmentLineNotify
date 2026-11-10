@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 125,
+    "nodes": 126,
     "edges": 189
   },
   "graph": {
@@ -16,13 +16,14 @@
       "regime-policy",
       "cash-exposure-advisor"
     ],
+    "theoretical-framework": ["strategy-engine"],
     "dec-005-monitoring-alerting": [
       "langfuse-prompt-management-v5",
       "ai-pipeline"
     ],
     "dec-006-deployment-automation": ["bot", "operations"],
-    "theoretical-framework": ["strategy-engine"],
     "dec-016-vitest-worker-crash": ["testing", "dec-016-vitest-worker-crash"],
+    "dec-017-automated-deployment-milestone": ["operations"],
     "documentation-standards": [
       "documentation-standards",
       "strategy-engine",
@@ -176,7 +177,6 @@
     "providers": ["strategy-engine", "news-fetcher"],
     "regime-policy": ["strategy-engine"],
     "strategy-engine": ["ai_news"],
-    "automated-deployment-milestone": ["operations"],
     "security-policy": ["operations"],
     "2026-09-10-wiki-index-prototype-report": [
       "langfuse-prompt-management-v5",

@@ -29,11 +29,12 @@ wiki_links:
 
 ## 📋 全部決策記錄
 
-| ID      | 標題               | 狀態        | 完成日期 | 影響模組                 |
-| ------- | ------------------ | ----------- | -------- | ------------------------ |
-| DEC-005 | 監控與告警         | ✅ archived | 2026-08  | ai_news, operations      |
-| DEC-006 | 部署自動化         | ✅ archived | 2026-08  | operations, presentation |
-| DEC-016 | Vitest Worker 崩潰 | ✅ archived | 2026-08  | testing                  |
+| ID      | 標題                     | 狀態        | 完成日期 | 影響模組                 |
+| ------- | ------------------------ | ----------- | -------- | ------------------------ |
+| DEC-005 | 監控與告警               | ✅ archived | 2026-08  | ai_news, operations      |
+| DEC-006 | 部署自動化               | ✅ archived | 2026-08  | operations, presentation |
+| DEC-016 | Vitest Worker 崩潰       | ✅ archived | 2026-08  | testing                  |
+| DEC-017 | 自動化開發與正式部署架構 | ✅ accepted | 2026-10  | operations, presentation |
 
 ---
 
@@ -53,15 +54,16 @@ wiki_links:
 
 ### 基礎設施
 
-- [DEC-006: 部署自動化](DEC-006-deployment-automation.md)
+- [DEC-006: 部署自動化](../decisions/DEC-006-deployment-automation.md)
+- [DEC-017: 自動化開發與正式部署架構](../decisions/DEC-017-automated-deployment-milestone.md)
 
 ### 可觀測性
 
-- [DEC-005: 監控與告警](DEC-005-monitoring-alerting.md)
+- [DEC-005: 監控與告警](../decisions/DEC-005-monitoring-alerting.md)
 
 ### 測試
 
-- [DEC-016: Vitest Worker 崩潰](DEC-016-vitest-worker-crash.md)
+- [DEC-016: Vitest Worker 崩潰](../decisions/DEC-016-vitest-worker-crash.md)
 
 ---
 

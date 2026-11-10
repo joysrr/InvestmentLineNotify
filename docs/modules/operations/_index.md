@@ -27,7 +27,7 @@ wiki_links:
 - [Deployment](deployment_oracle_vm.md) - Oracle VM 部署指南
 - [Host Deployment Agent](../../operations/deployment-agent.md) - Unix socket Host 部署代理
 - [Production Code Deployment](../../operations/production-code-deploy.md) - 程式碼部署與驗證
-- [Automated Deployment Milestone](../../operations/automated-deployment-milestone.md) - 自動化開發與正式部署里程碑
+- [DEC-017: Automated Deployment Architecture & Milestone](../../decisions/DEC-017-automated-deployment-milestone.md) - 自動化開發與正式部署架構決策與里程碑
 
 ## 概念關係
 

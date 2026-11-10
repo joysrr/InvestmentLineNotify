@@ -1,7 +1,7 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-24
+last_updated: 2026-11-11
 last_verified: 2026-09-24
 related_code:
   - src/api/routes/reports.mjs

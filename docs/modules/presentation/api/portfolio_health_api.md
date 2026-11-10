@@ -1,7 +1,7 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-11
+last_updated: 2026-11-11
 related_code:
   - src/api/routes/portfolioHealth.mjs
 related_docs:

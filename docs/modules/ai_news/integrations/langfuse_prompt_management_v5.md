@@ -1,7 +1,7 @@
 ---
 type: reference
-status: current
-last_updated: 2026-09-10
+status: superseded
+last_updated: 2026-11-11
 last_verified: 2026-09-10
 related_code:
   - src/modules/ai/langfuseClient.mjs
@@ -9,6 +9,7 @@ related_code:
 related_docs:
   - docs/modules/ai_news/integrations/langfuse_score_analytics.md
   - docs/modules/ai_news/ai_pipeline.md
+  - docs/modules/ai_news/integrations/langfuse_prompt_management.md
 dependencies:
   - "@langfuse/tracing@5.11.0"
   - "@langfuse/client@5.11.0"
@@ -19,7 +20,9 @@ tags:
   - observability
 ---
 
-# Langfuse Prompt 管理（v5）
+# Langfuse Prompt 管理（v5）[已由現行版本取代]
+
+> ⚠️ **注意**：本文件已被完整版 [`langfuse_prompt_management.md`](./langfuse_prompt_management.md) 取代，僅保留作為歷史參考。
 
 > **摘要**: 使用 Langfuse v5 REST API Client 管理和取得 AI prompts
 

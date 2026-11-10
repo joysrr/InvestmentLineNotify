@@ -1,7 +1,7 @@
 ---
 type: reference
-status: current
-last_updated: 2026-09-11
+status: archived
+last_updated: 2026-11-11
 tags:
   - strategy
   - audit

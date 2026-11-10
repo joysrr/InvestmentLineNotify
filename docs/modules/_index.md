@@ -1,11 +1,12 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-11
+last_updated: 2026-11-11
 tags:
   - modules
   - index
-wiki_links: []
+wiki_links:
+  - docs/README.md
 ---
 
 # InvestmentLineNotify 總體架構 / System Architecture

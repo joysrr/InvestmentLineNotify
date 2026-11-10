@@ -1,5 +1,5 @@
 ---
-type: reference
+type: explanation
 status: current
 last_updated: 2026-10-23
 last_verified: 2026-10-23
@@ -23,7 +23,7 @@ wiki_links:
   - [[Operations]]
 ---
 
-# 自動化開發與正式部署里程碑
+# DEC-017: 自動化開發與正式部署架構決策與里程碑
 
 ## 里程碑結論
 

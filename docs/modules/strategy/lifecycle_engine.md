@@ -1,7 +1,7 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-11
+last_updated: 2026-11-11
 related_code:
   - src/modules/strategy/lifecycleEngine.mjs
   - src/modules/strategy/decision/rules/LifecycleLeverageRule.mjs

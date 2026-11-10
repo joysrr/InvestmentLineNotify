@@ -387,19 +387,20 @@ InvestmentLineNotify/
 
 ## 文件索引
 
-> 本 README 為快速上手指南，詳細系統設計請查閱 `docs/`。
+> 本 README 為專案快速上手指南，完整架構設計、模組規格與單一真理源請查閱 [`docs/README.md`](docs/README.md)。
 
-| 文件                                                                                                           | 說明                                                                                                                                 |
-| -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| [`docs/modules/_index.md`](docs/modules/_index.md)                                                             | 系統總覽、Mermaid 架構圖、目錄責任對照                                                                                               |
-| [`docs/modules/operations/env_vars.md`](docs/modules/operations/env_vars.md)                                   | 完整環境變數清單與 SOP                                                                                                               |
-| [`docs/modules/strategy/providers.md`](docs/modules/strategy/providers.md)                                     | 市場資料 Provider 層：各 provider 欄位、快取策略、Slot-based 架構說明（`dataSourceConfig` / `providerRegistry`）、8 個資料 Slot 詳解 |
-| [`docs/modules/ai_news/ai_pipeline.md`](docs/modules/ai_news/ai_pipeline.md)                                   | AI 決策管線詳細設計                                                                                                                  |
-| [`docs/modules/strategy/_index.md`](docs/modules/strategy/_index.md)                                           | 策略引擎 / 技術指標 / 新聞治理                                                                                                       |
-| [`docs/modules/infrastructure/_index.md`](docs/modules/infrastructure/_index.md)                               | storage / archiveManager / snapshotCrypto                                                                                            |
-| [`docs/modules/presentation/_index.md`](docs/modules/presentation/_index.md)                                   | Runner / Bot / 通知層設計                                                                                                            |
-| [`docs/modules/operations/deployment_oracle_vm.md`](docs/modules/operations/deployment_oracle_vm.md)           | Oracle VM 完整部署手冊                                                                                                               |
-| [`docs/plans/active/0050-simulator-development-plan.md`](docs/plans/active/0050-simulator-development-plan.md) | 0050 模擬器開發規劃 v1.3（含 34 個決策、TD D 流程、API 規格、UX 規格）                                                               |
+| 文件                                                                                                 | 說明                                                                                                                                 |
+| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| [`docs/README.md`](docs/README.md)                                                                   | **文件總導航中心**（架構、模組規格、決策 ADR、真理之源與 Wiki 地圖）                                                                 |
+| [`docs/modules/_index.md`](docs/modules/_index.md)                                                   | 系統總覽、Mermaid 架構圖、目錄責任對照                                                                                               |
+| [`docs/modules/operations/env_vars.md`](docs/modules/operations/env_vars.md)                         | 完整環境變數清單與 SOP                                                                                                               |
+| [`docs/modules/strategy/providers.md`](docs/modules/strategy/providers.md)                           | 市場資料 Provider 層：各 provider 欄位、快取策略、Slot-based 架構說明（`dataSourceConfig` / `providerRegistry`）、8 個資料 Slot 詳解 |
+| [`docs/modules/ai_news/ai_pipeline.md`](docs/modules/ai_news/ai_pipeline.md)                         | AI 決策管線詳細設計                                                                                                                  |
+| [`docs/modules/strategy/_index.md`](docs/modules/strategy/_index.md)                                 | 策略引擎 / 技術指標 / 新聞治理                                                                                                       |
+| [`docs/modules/infrastructure/_index.md`](docs/modules/infrastructure/_index.md)                     | storage / archiveManager / snapshotCrypto                                                                                            |
+| [`docs/modules/presentation/_index.md`](docs/modules/presentation/_index.md)                         | Runner / Bot / 通知層設計                                                                                                            |
+| [`docs/modules/operations/deployment_oracle_vm.md`](docs/modules/operations/deployment_oracle_vm.md) | Oracle VM 完整部署手冊                                                                                                               |
+| [`docs/plans/`](docs/plans/)                                                                         | 實作計畫管理（進行中計畫 `active/` 與已驗收計畫 `completed/`）                                                                       |
 
 ---
 

@@ -26,7 +26,6 @@ wiki_links:
 
 1. **API 規格真理之源**：
    - 唯一的後端 HTTP API 規格為 [`docs/api/openapi.json`](./api/openapi.json)（OpenAPI 3.0 規範，共 51 個端點）。
-   - 根目錄之 `swagger.json` 僅為早期遺留產物，非現行規格。
 
 2. **資金與資產配置真理**：
    - **投資視野**：20-30 年長期投資，目標 55 歲退休。
@@ -56,18 +55,21 @@ docs/
 ├── TEST_TROUBLESHOOTING.md        # 測試疑難排解指南
 ├── useApiRequest-guide.md         # 前端 API 請求 Composable 指南
 │
-├── api/                           # API 規格定義
+├── SOUL.md                        # AI 行為定義與 Tech Lead 準則 (根目錄)
+│
+├── api/                           # API 規格與契約真理
 │   ├── decision-chain_api.md      # 決策鏈 API 規格
 │   └── openapi.json               # OpenAPI 3.0 真理之源 (51 paths)
 │
 ├── architecture/                  # 架構決策與理論框架
 │   ├── theoretical-framework.md   # 五大投資理論框架與公式定義
-│   ├── DEC-005-monitoring-alerting.md # 監控與告警架構決策
-│   ├── DEC-006-deployment-automation.md # 部署自動化決策
 │   └── README.md                  # 架構決策 (ADR/DEC) 索引
 │
-├── decisions/                     # 重大技術問題決策紀錄
-│   └── DEC-016-vitest-worker-crash.md # Vitest Worker Crash 除錯與解決方案
+├── decisions/                     # 重大技術問題與架構決策紀錄
+│   ├── DEC-005-monitoring-alerting.md # 監控與告警架構決策
+│   ├── DEC-006-deployment-automation.md # 部署自動化決策
+│   ├── DEC-016-vitest-worker-crash.md # Vitest Worker Crash 除錯與解決方案
+│   └── DEC-017-automated-deployment-milestone.md # 自動化開發與正式部署架構決策
 │
 ├── design/                        # 系統設計與 UI/UX 規範
 │   ├── README.md                  # 設計文件索引
@@ -82,7 +84,6 @@ docs/
 │   └── ai_news/                   # AI 新聞分析、Langfuse 觀測與提示詞管理
 │
 ├── operations/                    # 運維操作手冊
-│   ├── automated-deployment-milestone.md # 自動化部署里程碑
 │   ├── security-policy.md         # 專案安全政策與 SSH Key 輪換 SOP
 │   ├── production-code-deploy.md  # 正式環境代碼部署標準程序
 │   ├── production-artifact-sync.md# 正式環境資料同步規範
@@ -101,7 +102,9 @@ docs/
 │   ├── theoretical-framework-validation-v2.md # 理論架構二期驗證
 │   ├── hardcoded-parameters-inventory.md     # 硬編碼參數盤點報告
 │   ├── personalized-design-inventory.md      # 用戶個人化設計盤點清單
-│   └── personalized-design-system-impact-summary.md # 個人化設計架構影響摘要
+│   ├── personalized-design-system-impact-summary.md # 個人化設計架構影響摘要
+│   ├── strategy-param-audit.md               # 策略參數審計紀錄 (歷史)
+│   └── strategy-param-changes.md             # 策略參數異動說明 (歷史)
 │
 └── meta/                          # 文件庫健康度與 Wiki 索引維護
     ├── documentation-standards.md # 文件寫作規範與 YAML Frontmatter 定義

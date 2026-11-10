@@ -1,7 +1,7 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-12
+last_updated: 2026-11-11
 last_verified: 2026-09-12
 related_code:
   - src/modules/strategy/regimePolicy.mjs
