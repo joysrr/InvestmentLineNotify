@@ -186,7 +186,7 @@ export function evaluateCashExposure({
         message: `⚡ 恐慌加碼模式：無借款帳戶，建議本批加碼 00675L 上限 ${batchLimit.toLocaleString()} TWD`,
         batchRationale: `VIX 恐慌視窗；批次上限 = min(缺口÷${CRISIS_ACCUMULATE_BATCH_COUNT}, 現金×${(CRISIS_ACCUMULATE_BATCH_RATIO * 100).toFixed(0)}%, 資本缺口)；歷史實證 VIX>40 長期正期望值，分批控制路徑損耗`,
         disclaimer:
-          "P0 DCA 維持不變，本建議僅供現金驅動曝險與手動加碼參考；00675L 為槓桿產品，震盪市存在複利損耗",
+          "P0 DCA 維持不變，本建議僅為現金驅動曝險參考；00675L 為槓桿產品，震盪市存在複利損耗",
       };
     }
 

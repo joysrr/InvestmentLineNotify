@@ -61,7 +61,7 @@ Strategy Engine 採用 **優先級鏈式決策架構**，依序執行 11 個決�
 
 為確保資金安全，系統採由上而下的優先權覆寫機制（Priority Chain）。只要上層條件觸發，就會提早 `return`，絕對不給底層戰術執行的機會：
 
-1. **[P0] 市場環境硬條件 (`determineRegime`)**：偵測 VIX 與市場情緒，當進入 CRISIS 模式時強制 Sell-only。
+1. **[P0] 市場環境硬條件 (`determineRegime`)**：偵測 VIX 與市場情緒。DEFENSE 模式（有借款）進入 CRISIS 時強制 Sell-only；OPPORTUNITY 模式（無借款）進入 CRISIS 時轉為 crisis_accumulate，僅注入狀態不終止決策鏈。
 2. **[P1] 維持率狀態機 (`evaluateMarginLayer`)**：一旦維持率低於門檻，啟動 4 層防禦姿態 (包含強制停損與禁止買進)。
 3. **[P2] 總槓桿率控管 (`evaluateGrossLeverage`)**：確保總槓桿倍數不超過設定閥值 (例如 1.8x)。
 4. **[P2.5] 生命週期槓桿引擎 (`computeLifecycleContext`)**：根據年齡自動判定階段，動態調整該階段的 `maxLeverage` 上限。
