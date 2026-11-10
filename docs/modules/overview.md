@@ -58,7 +58,7 @@ wiki_links:
 3. **API Layer**：`src/api/server.mjs` 長駐，提供唯讀 HTTP REST API（Port 3000），供 Telegram Mini App 前端請求資料，具備 Telegram initData HMAC-SHA256 驗證與 CORS 設定。
 4. **Frontend Layer**：`webapp/`（Vite + Vue 3 + ECharts），作為 Telegram Mini App 嵌入式前端，透過 API Layer 取得資料並渲染市場快照、資產趨勢圖表、報告列表與新聞池。採7-tab 左右滑動底部 Tab Bar 導覽。其中 `AccountView.vue` 會讀取 `/api/status`，將 `data/market/latest.json` 中的 `_meta.sources` 視覺化為「系統狀態 + 資料來源健康度」區塊，並提供展開/收合詳細資訊的 UI。
 5. **Data Collection Layer**：從 `src/modules/providers/`、Google News RSS、Google Sheets 抓取市場資料、帳戶狀態與新聞。市場資料 provider 由 `marketData.mjs` 統一 orchestrate，並透過 `dataSourceConfig.mjs` 與 `providerRegistry.mjs` 以 `providerId` 管理各資料來源與快取 metadata。
-6. **Decision Layer**：由 `src/modules/strategy/` 與 `src/modules/ai/` 共同完成。採用 **Scoring Matrix (評分矩陣)** 將異質指標（跌幅、技術面、籌碼、情緒）標準化為 -1 到 1 的分數並加權求和。具備 **Override Hierarchy** 極致風控：維持率與動態停利指令優先於評分建議。執行撥款受 **10 日滾動預算上限** (Trading Budget) 監控，確保槓桿擴張不超越安全性紅線。
+6. **Decision Layer**：由 `src/modules/strategy/` 與 `src/modules/ai/` 共同完成。決策鏈採 **11 條規則優先級串鏈**（P0–P100）：P0 RegimePolicyRule 判定市場模式（CRISIS / DEFENSE / NORMAL），CRISIS 情況下若為 `crisis_accumulate` 模式則設定 `crisisAccumulateMode = true` 與 `debtMode = "OPPORTUNITY"`，並放行決策流；P50 EntryGateRule 在 `crisisAccumulateMode` 時跳過跌幅/RSI 門檻檢查，交由 `CashExposureAdvisor` 以「現金驅動曝險建議」取代 P1 條件加碼，計算自適應批次；其餘規則依序執行（MarginLayer P10、LifecycleLeverage P20、GrossLeverage P30、ValuationGuard P40、StopLossTrailing P60、ValuationBubble P70、Rebalance P80、ConversionGuard P90、ScoringDecision P100）。**Override Hierarchy** 極致風控：維持率與動態停利指令優先於評分建議。執行撥款受 **10 日滾動預算上限** (Trading Budget) 監控，確保槓桿擴張不超越安全性紅線。`theoreticalShadow` 五大理論（Kelly、Markowitz、Black-Litterman、Risk Parity、CVaR）仍為「未整合至決策引擎」。最後驗證日期：2026-11-11。
 7. **Delivery Layer**：由 `src/modules/notifications/` 將結果轉為 Telegram HTML 訊息或週期報告。
 8. **Persistence Layer**：透過 `data/`、Google Sheets 與 Langfuse 持久化報告、快取、觀測資料與新聞池。
 
@@ -157,6 +157,8 @@ flowchart TD
     S3 --> M3
 
     B1 --> M1 --> M2 --> M5 --> M6
+    M2 --> |crisisAccumulateMode 放行 EntryGate| M2C[crisis_accumulate → CashExposureAdvisor 現金驅動曝險]
+    M2C --> M5
     B1 --> M7
     B1 --> M8
     B1 --> M3
@@ -294,4 +296,4 @@ flowchart TD
 | `docs/reports/` | 系統審查與測試報告集中處：包含 `TEST_REPORT.md`, `REVIEW_REPORT.md`, `SECURITY.md`, `DoD_AUDIT_LOG.md` 等。                                                               |
 | `CHANGELOG.md`  | 版本異動紀錄，格式遵循 Keep a Changelog。                                                                                                                                 |
 
-> **已淡汰計畫文件**：`telegram_intergration_plan.md` 與 `optimization_ideas.md` 的內容已於開發過程中全數整合至 `docs/modules/_index.md`、`docs/modules/ai_news/ai_pipeline.md` 及 `docs/modules/presentation/_index.md`，原計畫文件不再維護。
+> **已淡汰計畫文件**：`telegram_intergration_plan.md` 與 `optimization_ideas.md` 的內容已於開發過程中全數整合至 `docs/modules/overview.md`、`docs/modules/ai_news/ai_pipeline.md` 及 `docs/modules/presentation/_index.md`，原計畫文件不再維護。
