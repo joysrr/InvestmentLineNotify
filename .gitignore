@@ -58,3 +58,8 @@ webapp/test-results/
 # MemPalace per-project files (issue #185)
 mempalace.yaml
 entities.json
+
+# 文件健康度與圖譜分析臨時產物（由 scripts 生成）
+docs/meta/graph-analysis.json
+docs/meta/health-report.json
+docs/meta/concept-graph.mmd

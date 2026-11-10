@@ -7,13 +7,12 @@ tags:
   - system-architecture
   - extensibility
 related_docs:
-  - personalized-design-system-impact.md
   - personalized-design-inventory.md
 ---
 
 # 個人化設計對系統架構影響 - 執行摘要
 
-> 📄 **完整報告**: [personalized-design-system-impact.md](./personalized-design-system-impact.md) (1,076 行)
+> 📄 **報告類型**: 執行摘要（彙整 51 項個人化設計之架構影響與轉型路徑）
 
 ---
 
@@ -140,7 +139,6 @@ related_docs:
 
 ## 📚 相關文件
 
-- **完整分析**: [personalized-design-system-impact.md](./personalized-design-system-impact.md)
 - **設計清單**: [personalized-design-inventory.md](./personalized-design-inventory.md)
 - **硬編碼盤點**: [hardcoded-parameters-inventory.md](./hardcoded-parameters-inventory.md)
 

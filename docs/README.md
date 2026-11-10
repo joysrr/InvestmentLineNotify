@@ -71,8 +71,7 @@ docs/
 │   └── DEC-016-vitest-worker-crash.md # Vitest Worker Crash 除錯與解決方案
 │
 ├── design/                        # 系統設計與 UI/UX 規範
-│   ├── BUDGET_PRIORITY_DESIGN.md  # 預算優先級與分層策略設計
-│   └── theory_page_redesign_draft.md # Mini App 理論資訊展示設計
+│   └── BUDGET_PRIORITY_DESIGN.md  # 預算優先級與分層策略設計
 │
 ├── modules/                       # 核心子模組技術規格
 │   ├── infrastructure/            # 基礎設施層（儲存、歷史數據、快取）
@@ -103,8 +102,7 @@ docs/
 │
 └── meta/                          # 文件庫健康度與 Wiki 索引維護
     ├── documentation-standards.md # 文件寫作規範與 YAML Frontmatter 定義
-    ├── maintenance-schedule.md    # 定期維護行程
-    └── DOCUMENTATION_INVENTORY_2026-11-01.md # 文件庫全量盤點歷程
+    └── maintenance-schedule.md    # 定期維護行程
 ```
 
 ---

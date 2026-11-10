@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 137,
+    "total_concepts": 133,
     "total_edges": 203,
     "total_code_mappings": 82,
     "concepts_with_code": 45,
     "concepts_with_links": 58,
-    "generated_at": "2026-11-10T11:22:04.898Z"
+    "generated_at": "2026-11-10T12:08:59.653Z"
   },
   "concepts": {
     "api-contract": {
@@ -191,26 +191,6 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["design", "budget", "priority"],
-      "status": "current",
-      "last_verified": null
-    },
-    "theory-page-redesign-draft": {
-      "primary_doc": "design/theory_page_redesign_draft.md",
-      "title": "投資理論頁面重新設計草擬",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": ["theory-page", "ui-redesign", "design-draft", "phase-5-4"],
-      "status": "current",
-      "last_verified": null
-    },
-    "documentation-inventory-2026-11-01": {
-      "primary_doc": "meta/DOCUMENTATION_INVENTORY_2026-11-01.md",
-      "title": "文檔全面盤點報告",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": ["documentation", "inventory", "health-check", "wiki"],
       "status": "current",
       "last_verified": null
     },
@@ -1729,27 +1709,9 @@
       "primary_doc": "verification/personalized-design-system-impact-summary.md",
       "title": "個人化設計對系統架構影響 - 執行摘要",
       "summary": null,
-      "related_docs": [
-        "personalized-design-system-impact.md",
-        "personalized-design-inventory.md"
-      ],
+      "related_docs": ["personalized-design-inventory.md"],
       "related_code": [],
       "tags": ["personalized-design", "system-architecture", "extensibility"],
-      "status": "active",
-      "last_verified": null
-    },
-    "personalized-design-system-impact": {
-      "primary_doc": "verification/personalized-design-system-impact.md",
-      "title": "個人化設計對系統架構的影響分析",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": [
-        "personalized-design",
-        "system-architecture",
-        "design-constraints",
-        "scalability-analysis"
-      ],
       "status": "active",
       "last_verified": null
     },
@@ -1766,16 +1728,6 @@
         "data-consistency"
       ],
       "status": "critical",
-      "last_verified": null
-    },
-    "theoretical-framework-validation": {
-      "primary_doc": "verification/theoretical-framework-validation.md",
-      "title": "理論框架驗證報告",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
-      "tags": ["theoretical-framework", "validation", "bugs"],
-      "status": "in-progress",
       "last_verified": null
     }
   },
