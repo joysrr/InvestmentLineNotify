@@ -132,10 +132,10 @@ src/test/unit/metricsCollector.test.mjs  (24 tests)
 src/test/unit/simulateRoute.test.mjs     (21 tests)
 src/test/__mocks__/langfuse.mjs          (Langfuse mock)
 docs/decisions/DEC-016-vitest-worker-crash.md
-docs/plans/completed/PHASE_6_SUMMARY.md
-docs/plans/active/PHASE_6_PLAN.md
-docs/plans/active/PHASE_7_PLAN.md
-docs/plans/active/PHASE_7_CHECKLIST.md
+docs/plans/completed/2026-09-10-PHASE_6_SUMMARY.md
+docs/plans/active/2026-09-10-PHASE_6_PLAN.md
+docs/plans/active/2026-09-10-PHASE_7_PLAN.md
+docs/plans/active/2026-09-10-PHASE_7_CHECKLIST.md
 ```
 
 ### 修改檔案

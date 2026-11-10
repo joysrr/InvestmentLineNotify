@@ -8,7 +8,7 @@ tags:
 wiki_links: []
 ---
 
-# Mini App 用戶體驗與版面優化計畫 (MINI_APP_OPTIMIZATION_PLAN.md)
+# Mini App 用戶體驗與版面優化計畫 (2026-09-10-MINI_APP_OPTIMIZATION_PLAN.md)
 
 > **狀態**：Completed
 > **建立日期**：2026-09-06

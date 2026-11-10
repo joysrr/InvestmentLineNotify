@@ -8,7 +8,7 @@ tags:
 wiki_links: []
 ---
 
-# 投資儀表板 (Telegram Miniapp) 總覽頁面 UI/UX 整合優化計畫 (DASHBOARD_UIUX_OPTIMIZATION_PLAN.md)
+# 投資儀表板 (Telegram Miniapp) 總覽頁面 UI/UX 整合優化計畫 (2026-09-10-DASHBOARD_UIUX_OPTIMIZATION_PLAN.md)
 
 > **狀態**：Completed — 已完成全階段開發、單元測試、E2E 測試與部署驗證
 > **建立日期**：2026-09-06

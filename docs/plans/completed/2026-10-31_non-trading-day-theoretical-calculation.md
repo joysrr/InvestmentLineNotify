@@ -9,7 +9,7 @@ tags:
   - frontend
   - test-coverage
 wiki_links:
-  - plans/completed/投資系統理論升級與資產動態整合計畫書.md
+  - plans/completed/2026-10-30-投資系統理論升級與資產動態整合計畫書.md
 ---
 
 # 非交易日 theoreticalShadow 重新計畫

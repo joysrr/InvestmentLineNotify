@@ -79,11 +79,11 @@ wiki_links: []
 
 ## 📁 文檔歸檔位置
 
-| 文檔                        | 原位置               | 歸檔位置                                                            |
-| --------------------------- | -------------------- | ------------------------------------------------------------------- |
-| E2E_TESTING_PLAN.md v2.0    | `docs/plans/active/` | `docs/plans/completed/E2E_TESTING_PLAN_v2.0_20260815.md`            |
-| SYSTEM_E2E_BUILD_PROCESS.md | 新建                 | `docs/SYSTEM_E2E_BUILD_PROCESS.md` (系統文檔)                       |
-| 本總結                      | 新建                 | `docs/plans/completed/PHASE_1-4_E2E_COMPLETION_SUMMARY_20260815.md` |
+| 文檔                                | 原位置               | 歸檔位置                                                              |
+| ----------------------------------- | -------------------- | --------------------------------------------------------------------- |
+| 2026-09-10-E2E_TESTING_PLAN.md v2.0 | `docs/plans/active/` | `docs/plans/completed/2026-08-15-E2E_TESTING_PLAN_v2.0.md`            |
+| SYSTEM_E2E_BUILD_PROCESS.md         | 新建                 | `docs/SYSTEM_E2E_BUILD_PROCESS.md` (系統文檔)                         |
+| 本總結                              | 新建                 | `docs/plans/completed/2026-08-15-PHASE_1-4_E2E_COMPLETION_SUMMARY.md` |
 
 ---
 

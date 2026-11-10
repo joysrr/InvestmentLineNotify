@@ -11,8 +11,8 @@ wiki_links: []
 # 統一開發計畫 v1.5 (Phase 1-4 完成標註版)
 
 > 更新時間：2026-08-12  
-> 狀態：**Phase 1-4 全部核心功能完成** (詳細審計見 [PHASE_1_4_AUDIT_REPORT.md](./PHASE_1_4_AUDIT_REPORT.md))  
-> 後續項目：[PHASE_5_REMAINING_WORK.md](./PHASE_5_REMAINING_WORK.md)
+> 狀態：**Phase 1-4 全部核心功能完成** (詳細審計見 [2026-09-10-PHASE_1_4_AUDIT_REPORT.md](./2026-09-10-PHASE_1_4_AUDIT_REPORT.md))  
+> 後續項目：[2026-09-10-PHASE_5_REMAINING_WORK.md](./2026-09-10-PHASE_5_REMAINING_WORK.md)
 
 ---
 
@@ -228,9 +228,9 @@ wiki_links: []
 
 **Phase 1-4 核心功能全部完成** ✅
 
-詳細審計報告: [PHASE_1_4_AUDIT_REPORT.md](./PHASE_1_4_AUDIT_REPORT.md)  
-後續改善計畫: [PHASE_5_REMAINING_WORK.md](./PHASE_5_REMAINING_WORK.md)
+詳細審計報告: [2026-09-10-PHASE_1_4_AUDIT_REPORT.md](./2026-09-10-PHASE_1_4_AUDIT_REPORT.md)  
+後續改善計畫: [2026-09-10-PHASE_5_REMAINING_WORK.md](./2026-09-10-PHASE_5_REMAINING_WORK.md)
 
 ---
 
-_此文件為單一真實來源 (Phase 1-4 完成版)，後續變更請更新 PHASE_5_REMAINING_WORK.md。_
+_此文件為單一真實來源 (Phase 1-4 完成版)，後續變更請更新 2026-09-10-PHASE_5_REMAINING_WORK.md。_

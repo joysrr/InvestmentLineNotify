@@ -15,7 +15,7 @@ wiki_links: []
 > **狀態**: reference-only — Phase 3–5 的歷史決策與選用策略
 > **目前判定**: Phase 3 採需求驅動保留、Phase 4 採選用制、Phase 5 已結案；沒有現行執行項目。
 > **前提**: Phase 1 (Code Splitting) + Phase 2 (GlobalErrorBoundary) 已完成並驗證
-> **來源**: WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md v2.0 (Grill-Me 決策) → 已歸檔至 completed/
+> **來源**: 2026-09-18-WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md v2.0 (Grill-Me 決策) → 已歸檔至 completed/
 
 ---
 
@@ -142,7 +142,7 @@ wiki_links: []
 
 ## 📦 歸檔對應
 
-| 原計畫                                      | 歸檔位置                                                            |
-| ------------------------------------------- | ------------------------------------------------------------------- |
-| WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md v2.0 | `docs/plans/completed/WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN_v2.0.md`  |
-| 本計畫 (v1.0)                               | 執行完畢後 → `docs/plans/completed/WEBAPP_PHASE_3-5_DETAIL_PLAN.md` |
+| 原計畫                                                 | 歸檔位置                                                                       |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| 2026-09-18-WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md v2.0 | `docs/plans/completed/2026-09-18-WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN_v2.0.md`  |
+| 本計畫 (v1.0)                                          | 執行完畢後 → `docs/plans/completed/2026-09-18-WEBAPP_PHASE_3-5_DETAIL_PLAN.md` |

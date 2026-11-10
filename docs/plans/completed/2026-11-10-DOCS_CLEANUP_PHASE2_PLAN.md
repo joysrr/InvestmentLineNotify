@@ -1,6 +1,6 @@
 ---
 type: plan
-status: active
+status: completed
 created: 2026-11-10
 last_updated: 2026-11-10
 tags:
@@ -31,7 +31,7 @@ wiki_links:
 
 ## 3. 執行進度追蹤
 
-- [x] Phase 1: 真理源修正 (A1, A2) - 已完成，README.md 行動建議分級修正，useApiRequest-guide.md 查驗存在
-- [ ] Phase 2: plans/completed/ 盤點與規範化 (B1)
-- [ ] Phase 3: 設計文件與導航地圖同步 (C1, D1)
-- [ ] Phase 4: 全面健康度與 Wiki 驗證 (收尾)
+- [x] Phase 1: 真理源修正 (A1, A2) - 已完成，README.md 行動建議分級修正，useApiRequest-guide.md 查驗存在 (commit e88d685)
+- [x] Phase 2: plans/completed/ 盤點與規範化 (B1) - 已完成，48 個無日期前綴檔案全數重命名為 YYYY-MM-DD 前綴，消除 DEPLOYMENT_CHECKLIST.md 命名衝突
+- [x] Phase 3: 設計文件與導航地圖同步 (C1, D1) - 已完成，BUDGET_PRIORITY_DESIGN.md 更新 last_verified 與架構說明，docs/README.md 補齊個人化設計盤點文件導航
+- [x] Phase 4: 全面健康度與 Wiki 驗證 (收尾) - pre-commit-docs-check, generate-wiki-index, validate-wiki-index 全數零錯誤通過，915 個後端單元測試與 438 個前端測試全數通過

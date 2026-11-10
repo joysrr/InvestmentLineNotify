@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 124,
-    "edges": 200
+    "nodes": 125,
+    "edges": 189
   },
   "graph": {
     "api-contract": ["api"],
@@ -116,11 +116,8 @@
     "keyword-config": [
       "news-fetcher",
       "ai_news",
-      "social-sentiment-integration-spec",
-      "social-sentiment-integration-spec",
       "news-fetcher",
       "ai-pipeline",
-      "social-sentiment-integration-spec",
       "keyword-config"
     ],
     "news-fetcher": [
@@ -174,56 +171,42 @@
     ],
     "lifecycle-engine": ["strategy-engine"],
     "lifecycle-health-test-spec": ["strategy-engine"],
-    "macro-regime-metrics-analysis": [
-      "macro-regime-advanced-spec",
-      "strategy-engine",
-      "regime-policy"
-    ],
+    "macro-regime-metrics-analysis": ["strategy-engine", "regime-policy"],
     "maintenance-state-machine": ["strategy-engine"],
     "providers": ["strategy-engine", "news-fetcher"],
-    "regime-policy": ["strategy-engine", "macro-regime-advanced-spec"],
+    "regime-policy": ["strategy-engine"],
     "strategy-engine": ["ai_news"],
     "automated-deployment-milestone": ["operations"],
     "security-policy": ["operations"],
     "documentation-reorganization-plan": ["documentation-standards"],
-    "2026-11-10-crisis-accumulate-decision-chain-fix-plan": [
-      "strategy-engine",
-      "leading-indicator-radars",
-      "cash-exposure-advisor",
-      "regime-policy"
-    ],
-    "dashboard-ux-pyramid-spec": [
-      "dashboard-ux-pyramid-spec",
-      "macro-regime-metrics-analysis",
-      "macro-regime-advanced-spec"
-    ],
-    "deep-content-verification-plan": [
-      "documentation-standards",
-      "strategy-engine"
-    ],
-    "macro-regime-advanced-spec": [
-      "strategy-engine",
-      "regime-policy",
-      "budget-priority-design"
-    ],
-    "module-docs-verification-plan": ["documentation-standards"],
-    "native-social-sentiment-engine-spec": [
-      "regime-policy",
-      "native-social-sentiment-engine-spec",
-      "navigate-macro-battle-plan"
-    ],
-    "social-sentiment-integration-spec": [
-      "navigate-macro-battle-plan",
-      "macro-regime-metrics-analysis",
-      "regime-policy",
-      "native-social-sentiment-engine-spec"
-    ],
-    "wiki-index-prototype-report": [
+    "2026-09-10-wiki-index-prototype-report": [
       "langfuse-prompt-management-v5",
       "langfuse-prompt-management-v5",
       "env-vars",
       "langfuse-score-analytics",
       "ai-pipeline"
+    ],
+    "2026-09-11-deep-content-verification-plan": [
+      "documentation-standards",
+      "strategy-engine"
+    ],
+    "2026-09-11-module-docs-verification-plan": ["documentation-standards"],
+    "2026-09-12-dashboard-ux-pyramid-spec": ["macro-regime-metrics-analysis"],
+    "2026-09-12-macro-regime-advanced-spec": [
+      "strategy-engine",
+      "regime-policy",
+      "budget-priority-design"
+    ],
+    "2026-09-12-native-social-sentiment-engine-spec": ["regime-policy"],
+    "2026-09-12-social-sentiment-integration-spec": [
+      "macro-regime-metrics-analysis",
+      "regime-policy"
+    ],
+    "2026-11-10-crisis-accumulate-decision-chain-fix-plan": [
+      "strategy-engine",
+      "leading-indicator-radars",
+      "cash-exposure-advisor",
+      "regime-policy"
     ],
     "strategy-engine-verification-report": [
       "strategy-engine",

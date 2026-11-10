@@ -2,6 +2,7 @@
 type: explanation
 status: current
 last_updated: 2026-11-10
+last_verified: 2026-11-10
 tags:
   - design
   - budget
@@ -16,7 +17,8 @@ wiki_links: []
 > **對應程式碼**：`src/modules/strategy/policies/budgetLimitPolicy.mjs`  
 > **Strategy.json 參數區塊**：`trading.budget`  
 > **相關模組**：回測系統 (`src/modules/backtest/`)、模擬器 (`src/modules/simulator/`)、策略引擎 (`src/modules/strategy/`)  
-> **更新日期**：2026-11-10
+> **更新日期**：2026-11-10  
+> **架構說明**：實盤日常排程已於 2026-10-28 移除自動 P1 條件加碼，改為「現金驅動曝險建議」（手動參考）；本文件與 `budgetLimitPolicy.mjs` 所規範之 Tactical Drop / Tactical Panic 配額池保留於回測、前向模擬器與極端情境風控邏輯中。
 
 ---
 

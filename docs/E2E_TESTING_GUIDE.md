@@ -416,4 +416,4 @@ cd webapp && npx playwright test --reporter=junit
    - 嚴格遵守「清理殘留進程 → 啟動前後端 Server → Health Check 探活 → 執行測試 → 清理退出」五步防護機制。
 3. **CI 穩定性設定**：
    - CI 環境下嚴格限制 `workers: 1`，避免多進程搶佔連接埠與 Telegram Mock 上下文。
-   - 歷史建置驗收完整紀錄參見 `docs/plans/completed/PHASE_1-4_E2E_COMPLETION_SUMMARY_20260815.md`。
+   - 歷史建置驗收完整紀錄參見 `docs/plans/completed/2026-08-15-PHASE_1-4_E2E_COMPLETION_SUMMARY.md`。

@@ -20,26 +20,26 @@ wiki_links: []
 ### WebApp 系統性優化計畫（歷史總覽）
 
 - **狀態**: superseded
-- **實際後續證據**: [WEBAPP_PHASE_6_DETAIL_PLAN.md](./WEBAPP_PHASE_6_DETAIL_PLAN.md)
+- **實際後續證據**: [2026-09-10-WEBAPP_PHASE_6_DETAIL_PLAN.md](./2026-09-10-WEBAPP_PHASE_6_DETAIL_PLAN.md)
 - **說明**: 原 v2.0 執行規格已由 Phase 6 實際基線取代。
 
 ### Phase 6: 品質硬化與技術債清理（已完成）
 
 - **狀態**: ✅ Completed
-- **實際證據**: [WEBAPP_PHASE_6_DETAIL_PLAN.md](./WEBAPP_PHASE_6_DETAIL_PLAN.md)
+- **實際證據**: [2026-09-10-WEBAPP_PHASE_6_DETAIL_PLAN.md](./2026-09-10-WEBAPP_PHASE_6_DETAIL_PLAN.md)
 - **結果**: E2E 49/49、production lint 0 warnings、backend 1514 tests passed；後續 coverage slices 保留為需求驅動工作
 
 ### E2E 測試修正 (22→0)
 
 - **狀態**: ✅ **Completed**
 - **成果**: **49/49 passed**
-- **歸檔**: `docs/plans/completed/E2E_TEST_FIX_PLAN.md`
+- **歸檔**: `docs/plans/completed/2026-09-18-E2E_TEST_FIX_PLAN.md`
 
 ### Mini App Bug Fix
 
 - **狀態**: ✅ Completed
 - **目標**: HMAC 過期修正、API 部署同步、502 防護、UI 降級
-- **歸檔**: `docs/plans/completed/MINIAPP_BUG_FIX_PLAN.md`
+- **歸檔**: `docs/plans/completed/2026-09-18-MINIAPP_BUG_FIX_PLAN.md`
 
 ---
 
@@ -59,14 +59,14 @@ wiki_links: []
 
 ## 📁 文件索引
 
-| 文件                                       | 用途                      | 狀態              |
-| ------------------------------------------ | ------------------------- | ----------------- |
-| **WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md** | 系統性優化歷史規格        | 📦 Superseded     |
-| **MASTER_PLAN.md** (本檔)                  | 歷史高層級概覽            | 📚 Reference-only |
-| **MINIAPP_BUG_FIX_PLAN.md**                | Mini App Bug Fix 完整記錄 | 📦 Completed      |
-| **E2E_TEST_FIX_PLAN.md**                   | E2E 22→0 修正記錄         | 📦 Completed      |
-| **DEPLOYMENT_CHECKLIST.md**                | 部署檢查清單              | 📦 Completed      |
-| **HARDCODED_AUDIT.md**                     | 硬編碼審計                | 📦 Completed      |
+| 文件                                                  | 用途                      | 狀態              |
+| ----------------------------------------------------- | ------------------------- | ----------------- |
+| **2026-09-18-WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md** | 系統性優化歷史規格        | 📦 Superseded     |
+| **2026-09-18-MASTER_PLAN.md** (本檔)                  | 歷史高層級概覽            | 📚 Reference-only |
+| **2026-09-18-MINIAPP_BUG_FIX_PLAN.md**                | Mini App Bug Fix 完整記錄 | 📦 Completed      |
+| **2026-09-18-E2E_TEST_FIX_PLAN.md**                   | E2E 22→0 修正記錄         | 📦 Completed      |
+| **DEPLOYMENT_CHECKLIST.md**                           | 部署檢查清單              | 📦 Completed      |
+| **2026-09-10-HARDCODED_AUDIT.md**                     | 硬編碼審計                | 📦 Completed      |
 
 ---
 
@@ -131,6 +131,6 @@ Phase 6: 品質硬化 (規劃中)
 
 ## 🚀 下一步行動
 
-1. **歸檔 WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md v2.0** → completed/ ✅
+1. **歸檔 2026-09-18-WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md v2.0** → completed/ ✅
 2. **Phase 3-5 完成**：N1 useApiRequest、N3 ECharts composable、N4 GlobalErrorBoundary tests、N5 MSW 評估 ✅
 3. **開始 Phase 6 規劃** (Coverage 70% / ESLint 0 warnings)

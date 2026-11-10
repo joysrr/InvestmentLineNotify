@@ -8,7 +8,7 @@ tags:
 wiki_links: []
 ---
 
-# HARDCODED_AUDIT.md
+# 2026-09-10-HARDCODED_AUDIT.md
 
 **版本**: v1.0  
 **建立日期**: 2026-08-14  
@@ -178,7 +178,7 @@ wiki_links: []
 
 ## 🔗 相關文件
 
-- [WEBAPP_IMPROVEMENT_PLAN.md](./WEBAPP_IMPROVEMENT_PLAN.md) — 完整改善計畫
+- [2026-09-18-WEBAPP_IMPROVEMENT_PLAN.md](./2026-09-18-WEBAPP_IMPROVEMENT_PLAN.md) — 完整改善計畫
 - [PHASE_7_SUMMARY.md](./PHASE_7_SUMMARY.md) — Phase 7 完成報告
 
 ---

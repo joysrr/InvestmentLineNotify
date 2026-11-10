@@ -8,7 +8,7 @@ tags:
 wiki_links: []
 ---
 
-# 市場雷達、多空對決與技術指標導覽整合計畫 (NAVIGATE_MACRO_BATTLE_PLAN.md)
+# 市場雷達、多空對決與技術指標導覽整合計畫 (2026-09-10-NAVIGATE_MACRO_BATTLE_PLAN.md)
 
 > **狀態**：Completed — 已完成切換列開發、單元測試、E2E 測試與部署驗證
 > **建立日期**：2026-09-06

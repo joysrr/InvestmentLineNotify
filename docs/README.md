@@ -95,7 +95,9 @@ docs/
 ├── verification/                  # 邏輯驗證與資料契約核實報告
 │   ├── STRATEGY_ENGINE_VERIFICATION_REPORT.md # 策略引擎驗證報告
 │   ├── theoretical-framework-validation-v2.md # 理論架構二期驗證
-│   └── hardcoded-parameters-inventory.md     # 硬編碼參數盤點報告
+│   ├── hardcoded-parameters-inventory.md     # 硬編碼參數盤點報告
+│   ├── personalized-design-inventory.md      # 用戶個人化設計盤點清單
+│   └── personalized-design-system-impact-summary.md # 個人化設計架構影響摘要
 │
 └── meta/                          # 文件庫健康度與 Wiki 索引維護
     ├── documentation-standards.md # 文件寫作規範與 YAML Frontmatter 定義

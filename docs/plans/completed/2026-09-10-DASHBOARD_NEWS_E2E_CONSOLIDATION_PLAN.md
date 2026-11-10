@@ -12,7 +12,7 @@ wiki_links: []
 
 > **狀態**：Active — 目前現行計畫
 > **建立日期**：2026-09-02
-> **背景**：前序 `DASHBOARD_INTEGRATION_AND_CONFIG_FIX_PLAN.md` 完成 Task 1-3，Task 4 E2E 驗證發現 3 個既有問題（catch-all route LIFO、FloatingPill 遮擋、SensitivityPanel watch 時序），皆已修復 (477c5e5)。
+> **背景**：前序 `2026-09-10-DASHBOARD_INTEGRATION_AND_CONFIG_FIX_PLAN.md` 完成 Task 1-3，Task 4 E2E 驗證發現 3 個既有問題（catch-all route LIFO、FloatingPill 遮擋、SensitivityPanel watch 時序），皆已修復 (477c5e5)。
 > **目標**：(A) 整合 DashboardView 健康度/分析/策略狀態三區塊；(B) News Tab 加回 bottom nav；(C) 更新 DashboardView/SimulatorView 測試。
 >
 > **For agentic workers:** REQUIRED SUB-SKILL: `superpowers:subagent-driven-development`

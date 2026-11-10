@@ -8,7 +8,7 @@ tags:
 wiki_links: []
 ---
 
-# 未接入頁面復原與科學回測清理計畫 (MISSING_VIEWS_AND_CLEANUP_PLAN.md)
+# 未接入頁面復原與科學回測清理計畫 (2026-09-10-MISSING_VIEWS_AND_CLEANUP_PLAN.md)
 
 > **狀態**：Completed — 已完成開發、單元測試、E2E 測試與部署驗證
 > **建立日期**：2026-09-06

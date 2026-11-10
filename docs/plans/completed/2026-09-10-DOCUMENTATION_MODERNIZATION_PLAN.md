@@ -2,7 +2,7 @@
 type: plan
 status: superseded
 last_updated: 2026-09-10
-superseded_by: DOCUMENTATION_FULL_MODERNIZATION_PLAN.md
+superseded_by: 2026-09-11-DOCUMENTATION_FULL_MODERNIZATION_PLAN.md
 tags:
   - documentation
   - modernization

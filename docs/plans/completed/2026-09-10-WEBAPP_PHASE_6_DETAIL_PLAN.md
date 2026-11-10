@@ -166,4 +166,4 @@ cd .. && npx vitest run src/api
 
 ## 歷史參考
 
-舊版 Phase 6 計畫位於 `docs/plans/completed/PHASE_6_PLAN.md`，其中 baseline 數據已過期，不直接作為現況依據。
+舊版 Phase 6 計畫位於 `docs/plans/completed/2026-09-10-PHASE_6_PLAN.md`，其中 baseline 數據已過期，不直接作為現況依據。

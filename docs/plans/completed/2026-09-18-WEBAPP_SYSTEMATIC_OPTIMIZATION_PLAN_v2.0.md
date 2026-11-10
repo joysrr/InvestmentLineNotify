@@ -2,7 +2,7 @@
 type: plan
 status: superseded
 last_updated: 2026-09-18
-superseded_by: WEBAPP_PHASE_6_DETAIL_PLAN.md
+superseded_by: 2026-09-10-WEBAPP_PHASE_6_DETAIL_PLAN.md
 tags:
   - completed
   - archived
@@ -14,7 +14,7 @@ wiki_links: []
 > **版本**: v2.0 (經 Grill-Me 審查確認，鎖定執行規格)
 > **更新日期**: 2026-08-16
 > **狀態**: superseded — 原始 v2.0 執行規格已由 Phase 6 實際基線取代
-> **後續證據**: `WEBAPP_PHASE_6_DETAIL_PLAN.md`
+> **後續證據**: `2026-09-10-WEBAPP_PHASE_6_DETAIL_PLAN.md`
 > **目標分支**: `optimize/webapp-systematic`
 > **前置條件**: Mini App Bug Fix Phase 1-3 已完成並部署至正式區
 
@@ -154,12 +154,12 @@ manualChunks: {
 
 以下已完成或過期的計畫已歸檔至 `docs/plans/completed/`:
 
-| 計畫                         | 原位置       | 新位置       | 原因                                    |
-| ---------------------------- | ------------ | ------------ | --------------------------------------- |
-| `MINIAPP_BUG_FIX_PLAN.md`    | `active/`    | `completed/` | Phase 1-3 全數完成                      |
-| `HARDCODED_AUDIT.md`         | `active/`    | `completed/` | 審查完成，0 高風險項                    |
-| `DEPLOYMENT_CHECKLIST.md`    | `active/`    | `completed/` | 部署已完成 (PORT 3000 修正)             |
-| `WEBAPP_IMPROVEMENT_PLAN.md` | `completed/` | `completed/` | Phase 1-2 已完成，Phase 3+ 已併入本計畫 |
+| 計畫                                    | 原位置       | 新位置       | 原因                                    |
+| --------------------------------------- | ------------ | ------------ | --------------------------------------- |
+| `2026-09-18-MINIAPP_BUG_FIX_PLAN.md`    | `active/`    | `completed/` | Phase 1-3 全數完成                      |
+| `2026-09-10-HARDCODED_AUDIT.md`         | `active/`    | `completed/` | 審查完成，0 高風險項                    |
+| `DEPLOYMENT_CHECKLIST.md`               | `active/`    | `completed/` | 部署已完成 (PORT 3000 修正)             |
+| `2026-09-18-WEBAPP_IMPROVEMENT_PLAN.md` | `completed/` | `completed/` | Phase 1-2 已完成，Phase 3+ 已併入本計畫 |
 
 ---
 

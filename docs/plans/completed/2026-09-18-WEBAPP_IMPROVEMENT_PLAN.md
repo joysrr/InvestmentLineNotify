@@ -2,7 +2,7 @@
 type: plan
 status: superseded
 last_updated: 2026-09-18
-superseded_by: WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN_v2.0.md
+superseded_by: 2026-09-18-WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN_v2.0.md
 tags:
   - completed
   - archived
@@ -14,7 +14,7 @@ wiki_links: []
 **版本**: v1.0  
 **建立日期**: 2026-08-14  
 **狀態**: superseded — 早期 WebApp 盤點已由 v2.0 系統性優化規格取代
-**後續證據**: `WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN_v2.0.md` 及 `WEBAPP_PHASE_6_DETAIL_PLAN.md`
+**後續證據**: `2026-09-18-WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN_v2.0.md` 及 `2026-09-10-WEBAPP_PHASE_6_DETAIL_PLAN.md`
 **負責人**: Han  
 **專案**: InvestmentLineNotify WebApp
 
@@ -329,7 +329,7 @@ webapp/src/layouts/
 - [ ] 掃描全站 `.vue` 檔案，提取所有 `const data = [{...}]` 陣列初始化
 - [ ] 逐個判斷為 🔴 資料 或 🟢 設定
 - [ ] 更新 [頁面盤點清單](#頁面盤點清單) 中的分類標記
-- [ ] 產出 `HARDCODED_AUDIT.md` 報告
+- [ ] 產出 `2026-09-10-HARDCODED_AUDIT.md` 報告
 
 #### Task 1.2: 建立可重用元件
 
@@ -350,7 +350,7 @@ webapp/src/layouts/
 **驗收**:
 
 - ✅ 4 個元件測試通過
-- ✅ `HARDCODED_AUDIT.md` 產出
+- ✅ `2026-09-10-HARDCODED_AUDIT.md` 產出
 - ✅ ESLint 0 errors
 
 ---
@@ -643,7 +643,7 @@ webapp/src/layouts/
 
 **緩解措施**:
 
-- Phase 1 完成 `HARDCODED_AUDIT.md` 後，請使用者 (Han) review 一次
+- Phase 1 完成 `2026-09-10-HARDCODED_AUDIT.md` 後，請使用者 (Han) review 一次
 - 每個 🔴 標記項目附上「為何判斷為資料」的理由
 - 每個 🟢 標記項目附上「為何判斷為設定」的理由
 
