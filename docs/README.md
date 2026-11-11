@@ -80,7 +80,6 @@ docs/
 │   ├── overview.md                # 系統架構總覽（數據治理、Mermaid 流程圖、目錄責任對照）
 │   ├── infrastructure/            # 基礎設施層（儲存、歷史數據、快取）
 │   ├── strategy/                  # 策略引擎、指標雷達、生命週期健康診斷
-│   │   ├── simulator.md           # 0050 雙向模擬器（正向/反向推導，9 種目標類型）
 │   │   └── sentiment.md           # 社群情緒引擎（PTT+Bluesky，MA3/MA7/信號/背離）
 │   ├── presentation/              # 前端 Mini App 與 API 對接規格
 │   ├── operations/                # 運維環境變數與排程說明

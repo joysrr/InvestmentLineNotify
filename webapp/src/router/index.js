@@ -1,13 +1,11 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import DashboardView from "../views/DashboardView.vue";
 import ChartView from "../views/ChartView.vue";
-import ReportsView from "../views/ReportsView.vue";
 import NewsView from "../views/NewsView.vue";
 import AccountView from "../views/AccountView.vue";
 import MarketRadarView from "../views/MarketRadarView.vue";
 import MacroBattleView from "../views/MacroBattleView.vue";
 import TechnicalView from "../views/TechnicalView.vue";
-import SimulatorView from "../views/SimulatorView.vue";
 import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";
 import TheoryView from "../views/TheoryView.vue";
 
@@ -20,12 +18,10 @@ const router = createRouter({
     { path: "/radar", component: MarketRadarView },
     { path: "/macro", component: MacroBattleView },
     { path: "/chart", component: ChartView },
-    { path: "/reports", component: ReportsView },
     { path: "/news", component: NewsView },
     { path: "/theory", component: TheoryView },
     { path: "/strategy", redirect: "/strategy-config" },
     { path: "/account", component: AccountView },
-    { path: "/simulator", component: SimulatorView },
     { path: "/strategy-config", component: StrategyConfigEditorView },
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
   ],

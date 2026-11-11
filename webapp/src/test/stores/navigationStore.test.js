@@ -13,11 +13,4 @@ describe("Navigation Store", () => {
     store.setRadarSubTab("technical");
     expect(store.radarSubTab).toBe("technical");
   });
-
-  it("remembers sub-tab selection for simulator view", () => {
-    const store = useNavigationStore();
-    expect(store.simulatorSubTab).toBe("forward");
-    store.setSimulatorSubTab("reverse");
-    expect(store.simulatorSubTab).toBe("reverse");
-  });
 });

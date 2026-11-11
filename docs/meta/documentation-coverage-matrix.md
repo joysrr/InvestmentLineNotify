@@ -42,9 +42,8 @@ wiki_links:
 | 15  | \`src/modules/portfolio/\`     | \`docs/modules/strategy/portfolio.md\`                                        | ✅ 已覆蓋        | 已新建 portfolio.md，涵蓋驗證/推導快照全流程                              |
 | 16  | \`src/modules/providers/\`     | \`docs/modules/strategy/providers.md\`                                        | ✅ 已覆蓋        | Provider 架構與 10 個實作文件                                             |
 | 17  | \`src/modules/replay/\`        | \`docs/modules/verification/\`                                                | N/A              | replayRunner 在 verification 已說明，不需獨立文件                         |
-| 18  | \`src/modules/sentiment/\`     | \`docs/modules/strategy/sentiment.md\`                                        | ✅ 已覆蓋        | Phase 8 已補寫                                                            |
-| 19  | \`src/modules/simulator/\`     | \`docs/modules/strategy/simulator.md\`                                        | ✅ 已覆蓋        | Phase 8 已補寫                                                            |
-| 20  | \`src/modules/strategy/\`      | \`docs/modules/strategy/\`                                                    | ✅ 已覆蓋        | 策略引擎、雷達、生命週期、現金風險                                        |
+| 18  | `src/modules/sentiment/`       | `docs/modules/strategy/sentiment.md`                                          | ✅ 已覆蓋        | Phase 8 已補寫                                                            |
+| 19  | `src/modules/strategy/`        | `docs/modules/strategy/`                                                      | ✅ 已覆蓋        | 策略引擎、雷達、生命週期、現金風險                                        |
 | 21  | \`src/modules/verification/\`  | \`docs/TESTING.md\`                                                           | N/A              | 驗證報告存在，但非模組技術規格，在 TESTING.md 說明                        |
 | 22  | \`src/scheduler/\`             | \`docs/modules/operations/schedules.md\`                                      | ✅ 已覆蓋 (部分) | 每日計算排程已涵蓋                                                        |
 | 23  | `src/scripts/`                 | `docs/meta/scripts-inventory.md`（Phase 9 建立）                              | ✅ 已覆蓋        | 腳本盤點已完整，涵蓋 26 個 .mjs 腳本                                      |
@@ -64,9 +63,8 @@ wiki_links:
 
 | 優先級  | 模組                           | 原因                        | 建議動作                                              |
 | ------- | ------------------------------ | --------------------------- | ----------------------------------------------------- |
-| ✅ 完成 | \`src/modules/simulator/\`     | 核心業務邏輯（0050 模擬器） | 已補寫 \`docs/modules/strategy/simulator.md\`         |
-| ✅ 完成 | \`src/modules/sentiment/\`     | 社群情緒核心模組            | 已補寫 \`docs/modules/strategy/sentiment.md\`         |
-| ✅ 完成 | \`src/modules/portfolio/\`     | 投資組合核心邏輯            | 已補寫 \`docs/modules/strategy/portfolio.md\`         |
+| ✅ 完成 | `src/modules/sentiment/`       | 社群情緒核心模組            | 已補寫 `docs/modules/strategy/sentiment.md`           |
+| ✅ 完成 | `src/modules/portfolio/`       | 投資組合核心邏輯            | 已補寫 `docs/modules/strategy/portfolio.md`           |
 | ✅ 完成 | \`src/modules/notifications/\` | 傳輸層未涵蓋                | 已補寫 \`docs/modules/presentation/notifications.md\` |
 | ✅ 完成 | \`src/modules/bot/\`           | handlers/middleware 未涵蓋  | 已補寫 \`docs/modules/presentation/bot.md\`           |
 | ✅ 完成 | \`src/modules/monitoring/\`    | 監控模組                    | 已補寫 \`docs/modules/infrastructure/monitoring.md\`  |
@@ -84,7 +82,7 @@ wiki_links:
 
 - [x] src/ 下每個模組在「模組覆蓋一覽表」中都有明確狀態
 - [x] 「完全無文件」的模組（❌ 未覆蓋）已評估補寫需求（src/scripts/ 列入 Phase 4 腳本盤點）
-- [x] 補寫清單已納入 Phase 8（simulator.md、sentiment.md、portfolio.md、notifications.md、bot.md、monitoring.md、deployment-agent.md 已完成）
+- [x] 補寫清單已納入 Phase 8（sentiment.md、portfolio.md、notifications.md、bot.md、monitoring.md、deployment-agent.md 已完成）
 - [x] 覆蓋矩陣中 ⚠️ 部分覆蓋比例降至 0%（≤ 20% 目標達成）
 
 ---

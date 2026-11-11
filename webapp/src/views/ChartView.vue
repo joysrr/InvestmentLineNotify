@@ -1,6 +1,23 @@
 <template>
     <GlobalErrorBoundary>
     <div class="view-container">
+    <!-- ChartView 內建 tabs -->
+    <div class="chart-tabs">
+      <button
+        :class="{ active: activeTab === 'trend' }"
+        @click="activeTab = 'trend'"
+      >
+        📈 資產趨勢
+      </button>
+      <button
+        :class="{ active: activeTab === 'reports' }"
+        @click="activeTab = 'reports'"
+      >
+        📋 歷史報告
+      </button>
+    </div>
+
+    <div v-show="activeTab === 'trend'">
     <!-- 標題列 -->
     <div class="view-header">
       <h2 class="view-title">📊 資產趨勢</h2>
@@ -92,6 +109,11 @@
         </div>
       </div>
     </template>
+    </div>
+
+    <div v-show="activeTab === 'reports'">
+      <ReportsView />
+    </div>
   </div>
   </GlobalErrorBoundary>
 </template>
@@ -115,6 +137,7 @@ import {
   fetchSnapshotsMonthly,
 } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
+import ReportsView from "./ReportsView.vue";
 
 use([
   LineChart,
@@ -136,6 +159,7 @@ const granularity = ref("daily");
 const granularityLabel = computed(
   () => granularities.find((g) => g.key === granularity.value)?.label ?? "",
 );
+const activeTab = ref("trend"); // 'trend' | 'reports'
 
 // ── 指標設定 ────────────────────────────────────────────────────────────────────
 const metrics = [
@@ -535,5 +559,30 @@ const chartOption = computed(() => {
   to {
     transform: rotate(360deg);
   }
+}
+
+.chart-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 8px 0;
+  border-bottom: 1px solid var(--tg-theme-hint-color, #ddd);
+  padding-bottom: 8px;
+}
+
+.chart-tabs button {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--tg-theme-hint-color, #bbb);
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.chart-tabs button.active {
+  color: var(--tg-theme-button-color, #2481cc);
+  border-bottom: 2px solid var(--tg-theme-button-color, #2481cc);
+  font-weight: 600;
 }
 </style>

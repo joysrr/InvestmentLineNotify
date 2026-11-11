@@ -3,40 +3,38 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 135,
+    "total_concepts": 134,
     "total_edges": 192,
     "total_code_mappings": 113,
     "concepts_with_code": 68,
     "concepts_with_links": 58,
-    "generated_at": "2026-11-11T09:08:00.980Z"
+    "generated_at": "2026-11-11T12:36:24.285Z"
   },
   "concepts": {
     "api-contract": {
       "primary_doc": "API_CONTRACT.md",
       "title": "API 契約管理指南",
-      "summary": "API 契約管理指南 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": ["src/api/"],
       "tags": ["api", "contract", "rest"],
       "status": "reference-only",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "deployment-checklist": {
       "primary_doc": "DEPLOYMENT_CHECKLIST.md",
       "title": "部署檢查清單 - InvestmentLineNotify",
-      "summary": "部署檢查清單 - InvestmentLineNotify 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": ["src/bot.mjs"],
       "tags": ["deployment", "checklist"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "e2e-testing-guide": {
       "primary_doc": "E2E_TESTING_GUIDE.md",
       "title": "E2E 測試指南 - Playwright",
-      "summary": "E2E 測試指南 - Playwright 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "webapp/src/test/e2e/",
@@ -44,13 +42,12 @@
       ],
       "tags": ["e2e", "testing", "playwright"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "readme": {
       "primary_doc": "README.md",
       "title": "InvestmentLineNotify 文件庫導航中樞 (Documentation Hub)",
-      "summary": "InvestmentLineNotify 文件庫導航中樞 (Documentation Hub) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": [
@@ -67,13 +64,12 @@
         "decisions"
       ],
       "status": "current",
-      "last_verified": "2026-09-10",
-      "wiki_links": []
+      "last_verified": "2026-09-10"
     },
     "technical-indicators-spec": {
       "primary_doc": "TECHNICAL_INDICATORS_SPEC.md",
       "title": "技術指標與訊號判讀規格",
-      "summary": "技術指標與訊號判讀規格 的相關文件",
+      "summary": null,
       "related_docs": ["docs/E2E_TESTING_GUIDE.md"],
       "related_code": [
         "src/modules/strategy/indicators.mjs",
@@ -91,46 +87,42 @@
         "investment-risk"
       ],
       "status": "current",
-      "last_verified": "2026-10-01",
-      "wiki_links": []
+      "last_verified": "2026-10-01"
     },
     "testing": {
       "primary_doc": "TESTING.md",
       "title": "InvestmentLineNotify 測試指南",
-      "summary": "InvestmentLineNotify 測試指南 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": ["tests/"],
       "tags": ["testing", "vitest", "unit-test"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "test-troubleshooting": {
       "primary_doc": "TEST_TROUBLESHOOTING.md",
       "title": "測試疑難排解指南",
-      "summary": "測試疑難排解指南 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["testing", "troubleshooting", "debugging"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "decision-chain-api": {
       "primary_doc": "api/decision-chain_api.md",
       "title": "Decision Chain Responsibility Architecture Spec",
-      "summary": "Decision Chain Responsibility Architecture Spec 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["api", "decision-chain", "regime-policy", "non-blocking"],
       "status": "current",
-      "last_verified": "2026-11-04",
-      "wiki_links": []
+      "last_verified": "2026-11-04"
     },
     "theoretical-framework": {
       "primary_doc": "architecture/theoretical-framework.md",
       "title": "投資理論框架 (Theoretical Framework)",
-      "summary": "投資理論框架 (Theoretical Framework) 的相關文件",
+      "summary": null,
       "related_docs": ["docs/modules/strategy/_index.md", "docs/decisions/"],
       "related_code": ["src/modules/strategy/theoreticalEngine.mjs"],
       "tags": [
@@ -140,13 +132,12 @@
         "system-integration"
       ],
       "status": "active",
-      "last_verified": "\"2026-11-11\"",
-      "wiki_links": []
+      "last_verified": "\"2026-11-11\""
     },
     "dec-005-monitoring-alerting": {
       "primary_doc": "decisions/DEC-005-monitoring-alerting.md",
       "title": "DEC-005: Phase 4 架構決策 - 監控與告警系統",
-      "summary": "DEC-005: Phase 4 架構決策 - 監控與告警系統 的相關文件",
+      "summary": null,
       "related_docs": [
         "docs/modules/infrastructure/monitoring.md",
         "docs/modules/infrastructure/_index.md"
@@ -154,13 +145,12 @@
       "related_code": ["src/modules/monitoring/alertEngine.mjs"],
       "tags": ["monitoring", "alerting", "langfuse"],
       "status": "archived",
-      "last_verified": "\"2026-11-11\"",
-      "wiki_links": []
+      "last_verified": "\"2026-11-11\""
     },
     "dec-006-deployment-automation": {
       "primary_doc": "decisions/DEC-006-deployment-automation.md",
       "title": "DEC-006: Phase 4 架構決策 - 部署自動化與 Mini App 遠端部署",
-      "summary": "DEC-006: Phase 4 架構決策 - 部署自動化與 Mini App 遠端部署 的相關文件",
+      "summary": null,
       "related_docs": [
         "docs/operations/deployment-agent.md",
         "docs/operations/deploy-pipeline.md"
@@ -172,13 +162,12 @@
       ],
       "tags": ["deployment", "automation", "docker"],
       "status": "archived",
-      "last_verified": "\"2026-11-11\"",
-      "wiki_links": []
+      "last_verified": "\"2026-11-11\""
     },
     "dec-016-vitest-worker-crash": {
       "primary_doc": "decisions/DEC-016-vitest-worker-crash.md",
       "title": "DEC-016: Vitest Worker Crash Investigation (Phase 6.0)",
-      "summary": "DEC-016: Vitest Worker Crash Investigation (Phase 6.0) 的相關文件",
+      "summary": null,
       "related_docs": [
         "docs/TESTING.md",
         "docs/modules/infrastructure/monitoring.md"
@@ -186,13 +175,12 @@
       "related_code": ["src/modules/verification/"],
       "tags": ["vitest", "crash", "debugging"],
       "status": "archived",
-      "last_verified": "\"2026-11-11\"",
-      "wiki_links": []
+      "last_verified": "\"2026-11-11\""
     },
     "dec-017-automated-deployment-milestone": {
       "primary_doc": "decisions/DEC-017-automated-deployment-milestone.md",
       "title": "DEC-017: 自動化開發與正式部署架構決策與里程碑",
-      "summary": "DEC-017: 自動化開發與正式部署架構決策與里程碑 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/deployment/deploymentAgentClient.mjs",
@@ -211,30 +199,27 @@
         "telegram-mini-app"
       ],
       "status": "current",
-      "last_verified": "2026-10-23",
-      "wiki_links": []
+      "last_verified": "2026-10-23"
     },
     "budget-priority-design": {
       "primary_doc": "design/BUDGET_PRIORITY_DESIGN.md",
       "title": "Budget Priority 系統設計文件",
-      "summary": "Budget Priority 系統設計文件 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["design", "budget", "priority"],
       "status": "current",
-      "last_verified": "2026-11-10",
-      "wiki_links": []
+      "last_verified": "2026-11-10"
     },
     "documentation-coverage-matrix": {
       "primary_doc": "meta/documentation-coverage-matrix.md",
       "title": "文件覆蓋率矩陣 (Documentation Coverage Matrix)",
-      "summary": "文件覆蓋率矩陣 (Documentation Coverage Matrix) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["coverage", "matrix", "governance"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "documentation-standards": {
       "primary_doc": "meta/documentation-standards.md",
@@ -244,41 +229,37 @@
       "related_code": [],
       "tags": ["standards", "documentation", "guidelines"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "maintenance-schedule": {
       "primary_doc": "meta/maintenance-schedule.md",
       "title": "文件維護排程 (Documentation Maintenance Schedule)",
-      "summary": "文件維護排程 (Documentation Maintenance Schedule) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["maintenance", "schedule", "automation"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "scripts-inventory": {
       "primary_doc": "meta/scripts-inventory.md",
       "title": "Scripts 目錄腳本清單 (Scripts Inventory)",
-      "summary": "Scripts 目錄腳本清單 (Scripts Inventory) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["scripts", "inventory", "automation", "docs-governance"],
       "status": "\"current\"",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "modules": {
       "primary_doc": "modules/_index.md",
       "title": "模組總索引 (Modules Index)",
-      "summary": "模組總索引 (Modules Index) 的相關文件",
+      "summary": null,
       "related_docs": ["docs/modules/overview.md"],
       "related_code": ["src/modules/"],
       "tags": ["modules", "index"],
       "status": "current",
-      "last_verified": "\"2026-11-11\"",
-      "wiki_links": []
+      "last_verified": "\"2026-11-11\""
     },
     "ai_news": {
       "primary_doc": "modules/ai_news/_index.md",
@@ -308,8 +289,7 @@
       ],
       "tags": ["ai", "news", "pipeline", "langfuse", "gemini", "observability"],
       "status": "current",
-      "last_verified": "2026-09-10",
-      "wiki_links": []
+      "last_verified": "2026-09-10"
     },
     "ai-pipeline": {
       "primary_doc": "modules/ai_news/ai_pipeline.md",
@@ -341,13 +321,12 @@
         "pipeline"
       ],
       "status": "current",
-      "last_verified": "2026-09-10",
-      "wiki_links": []
+      "last_verified": "2026-09-10"
     },
     "agent-prompts": {
       "primary_doc": "modules/ai_news/integrations/agent_prompts.md",
       "title": "Agent Prompts 導覽 / Prompt Map",
-      "summary": "Agent Prompts 導覽 / Prompt Map 的相關文件",
+      "summary": null,
       "related_docs": [
         "docs/modules/ai_news/integrations/langfuse_prompt_management.md",
         "docs/modules/ai_news/ai_pipeline.md",
@@ -362,13 +341,12 @@
       ],
       "tags": ["prompts", "ai", "gemini", "langfuse", "architecture"],
       "status": "current",
-      "last_verified": "2026-09-10",
-      "wiki_links": []
+      "last_verified": "2026-09-10"
     },
     "ai-coach-checklist": {
       "primary_doc": "modules/ai_news/integrations/ai_coach_checklist.md",
       "title": "Investment Coach Prompt 優化 Checklist",
-      "summary": "Investment Coach Prompt 優化 Checklist 的相關文件",
+      "summary": null,
       "related_docs": [
         "docs/modules/ai_news/integrations/agent_prompts.md",
         "docs/modules/ai_news/integrations/langfuse_score_analytics.md",
@@ -380,8 +358,7 @@
       ],
       "tags": ["ai", "quality", "checklist", "validation"],
       "status": "current",
-      "last_verified": "2026-09-10",
-      "wiki_links": []
+      "last_verified": "2026-09-10"
     },
     "langfuse-prompt-management": {
       "primary_doc": "modules/ai_news/integrations/langfuse_prompt_management.md",
@@ -403,8 +380,7 @@
       ],
       "tags": ["langfuse", "prompts", "gemini", "ai"],
       "status": "current",
-      "last_verified": "2026-09-10",
-      "wiki_links": []
+      "last_verified": "2026-09-10"
     },
     "langfuse-prompt-management-v5": {
       "primary_doc": "modules/ai_news/integrations/langfuse_prompt_management_v5.md",
@@ -421,8 +397,7 @@
       ],
       "tags": ["langfuse", "ai", "prompts", "observability"],
       "status": "superseded",
-      "last_verified": "2026-09-10",
-      "wiki_links": []
+      "last_verified": "2026-09-10"
     },
     "langfuse-score-analytics": {
       "primary_doc": "modules/ai_news/integrations/langfuse_score_analytics.md",
@@ -440,8 +415,7 @@
       ],
       "tags": ["langfuse", "observability", "scoring", "analytics", "ai"],
       "status": "current",
-      "last_verified": "2026-09-10",
-      "wiki_links": []
+      "last_verified": "2026-09-10"
     },
     "langfuse-score-configs": {
       "primary_doc": "modules/ai_news/integrations/langfuse_score_configs.md",
@@ -458,13 +432,12 @@
       ],
       "tags": ["langfuse", "configuration", "scoring", "metrics"],
       "status": "current",
-      "last_verified": "2026-09-10",
-      "wiki_links": []
+      "last_verified": "2026-09-10"
     },
     "model-fallback-thinking-config": {
       "primary_doc": "modules/ai_news/integrations/model_fallback_thinking_config.md",
       "title": "模型降級與思考配置 (Model Fallback & Thinking Config)",
-      "summary": "模型降級與思考配置 (Model Fallback & Thinking Config) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/ai/modelFallback.mjs",
@@ -473,8 +446,7 @@
       ],
       "tags": ["ai", "model-fallback", "thinking-config", "prompt-management"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "keyword-config": {
       "primary_doc": "modules/ai_news/keyword_config.md",
@@ -490,8 +462,7 @@
       ],
       "tags": ["keywords", "configuration", "filtering", "news"],
       "status": "current",
-      "last_verified": "2026-09-11",
-      "wiki_links": []
+      "last_verified": "2026-09-11"
     },
     "news-fetcher": {
       "primary_doc": "modules/ai_news/news_fetcher.md",
@@ -509,13 +480,12 @@
       ],
       "tags": ["news", "rss", "fetching", "filtering", "conflict-grouper"],
       "status": "current",
-      "last_verified": "2026-09-11",
-      "wiki_links": []
+      "last_verified": "2026-09-11"
     },
     "infrastructure": {
       "primary_doc": "modules/infrastructure/_index.md",
       "title": "底層基礎設施 (Infrastructure)",
-      "summary": "底層基礎設施 (Infrastructure) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/data/archiveManager.mjs",
@@ -526,13 +496,12 @@
       ],
       "tags": ["infrastructure", "data", "storage"],
       "status": "current",
-      "last_verified": "2026-10-01",
-      "wiki_links": []
+      "last_verified": "2026-10-01"
     },
     "data-manager": {
       "primary_doc": "modules/infrastructure/data_manager.md",
       "title": "檔案快取與歷檔管理 (`data/`)",
-      "summary": "檔案快取與歷檔管理 (`data/`) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/data/archiveManager.mjs",
@@ -540,13 +509,12 @@
       ],
       "tags": ["data", "storage", "json"],
       "status": "current",
-      "last_verified": "2026-10-01",
-      "wiki_links": []
+      "last_verified": "2026-10-01"
     },
     "history-provider": {
       "primary_doc": "modules/infrastructure/history_provider.md",
       "title": "歷史資料回補提供者 (`historyProvider`)",
-      "summary": "歷史資料回補提供者 (`historyProvider`) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/providers/historyProvider.mjs",
@@ -556,13 +524,12 @@
       ],
       "tags": ["providers", "twse", "historical-data", "resilience"],
       "status": "current",
-      "last_verified": "2026-10-01",
-      "wiki_links": []
+      "last_verified": "2026-10-01"
     },
     "monitoring": {
       "primary_doc": "modules/infrastructure/monitoring.md",
       "title": "監控與告警模組 (`src/modules/monitoring/`)",
-      "summary": "監控與告警模組 (`src/modules/monitoring/`) 的相關文件",
+      "summary": null,
       "related_docs": ["docs/decisions/DEC-005-monitoring-alerting.md"],
       "related_code": [
         "src/modules/monitoring/alertEngine.mjs",
@@ -571,8 +538,7 @@
       ],
       "tags": ["monitoring", "alerting", "metrics", "infrastructure"],
       "status": "current",
-      "last_verified": "\"2026-11-11\"",
-      "wiki_links": []
+      "last_verified": "\"2026-11-11\""
     },
     "news-pool": {
       "primary_doc": "modules/infrastructure/news_pool.md",
@@ -594,19 +560,17 @@
         "caching"
       ],
       "status": "current",
-      "last_verified": "2026-09-11",
-      "wiki_links": []
+      "last_verified": "2026-09-11"
     },
     "storage": {
       "primary_doc": "modules/infrastructure/storage.md",
       "title": "雲端儲存與帳戶狀態同步 (`storage.mjs`)",
-      "summary": "雲端儲存與帳戶狀態同步 (`storage.mjs`) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": ["src/modules/storage.mjs"],
       "tags": ["storage", "persistence", "news-pool"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "operations": {
       "primary_doc": "modules/operations/_index.md",
@@ -616,24 +580,22 @@
       "related_code": ["src/scheduler/newsFetch.mjs", "src/dailyCheck.mjs"],
       "tags": ["operations", "deployment", "scheduling", "monitoring"],
       "status": "current",
-      "last_verified": "2026-10-23",
-      "wiki_links": []
+      "last_verified": "2026-10-23"
     },
     "deployment-oracle-vm": {
       "primary_doc": "modules/operations/deployment_oracle_vm.md",
       "title": "Oracle Cloud VM 部署安裝手冊（附錄）",
-      "summary": "Oracle Cloud VM 部署安裝手冊（附錄） 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["deployment", "oracle", "vm"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "env-vars": {
       "primary_doc": "modules/operations/env_vars.md",
       "title": "環境變數清單",
-      "summary": "環境變數清單 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/ai/langfuseClient.mjs",
@@ -644,13 +606,12 @@
       ],
       "tags": ["env", "configuration", "langfuse", "ai"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "schedules": {
       "primary_doc": "modules/operations/schedules.md",
       "title": "排程總覽 / Schedule Overview",
-      "summary": "排程總覽 / Schedule Overview 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/scheduler/newsFetch.mjs",
@@ -660,24 +621,22 @@
       ],
       "tags": ["cron", "scheduling", "operations"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "overview": {
       "primary_doc": "modules/overview.md",
       "title": "InvestmentLineNotify 總體架構 / System Architecture",
-      "summary": "InvestmentLineNotify 總體架構 / System Architecture 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["modules", "index"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "presentation": {
       "primary_doc": "modules/presentation/_index.md",
       "title": "入口與通知層 (Presentation Layer)",
-      "summary": "入口與通知層 (Presentation Layer) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/bot.mjs",
@@ -687,35 +646,32 @@
       ],
       "tags": ["presentation", "bot", "api", "notifications"],
       "status": "current",
-      "last_verified": "2026-09-11",
-      "wiki_links": []
+      "last_verified": "2026-09-11"
     },
     "api": {
       "primary_doc": "modules/presentation/api/_index.md",
       "title": "API 規格總覽",
-      "summary": "API 規格總覽 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": ["src/api/", "docs/api/openapi.json"],
       "tags": ["api", "rest", "openapi"],
       "status": "current",
-      "last_verified": "2026-11-10",
-      "wiki_links": []
+      "last_verified": "2026-11-10"
     },
     "portfolio-health-api": {
       "primary_doc": "modules/presentation/api/portfolio_health_api.md",
       "title": "Portfolio Health API Specification",
-      "summary": "Portfolio Health API Specification 的相關文件",
+      "summary": null,
       "related_docs": ["docs/modules/presentation/api/_index.md"],
       "related_code": ["src/api/routes/portfolioHealth.mjs"],
       "tags": ["api", "health", "portfolio"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "report-news-contract": {
       "primary_doc": "modules/presentation/api/report_news_contract.md",
       "title": "`/api/report/news` 新聞報告契約",
-      "summary": "`/api/report/news` 新聞報告契約 的相關文件",
+      "summary": null,
       "related_docs": [
         "docs/modules/presentation/api/_index.md",
         "docs/modules/presentation/api/report_signals_contract.md"
@@ -727,13 +683,12 @@
       ],
       "tags": ["api", "news", "report", "data-freshness"],
       "status": "current",
-      "last_verified": "2026-09-24",
-      "wiki_links": []
+      "last_verified": "2026-09-24"
     },
     "report-signals-contract": {
       "primary_doc": "modules/presentation/api/report_signals_contract.md",
       "title": "report.signals 欄位契約",
-      "summary": "report.signals 欄位契約 的相關文件",
+      "summary": null,
       "related_docs": [
         "docs/modules/strategy/strategy_engine.md",
         "docs/modules/presentation/api/_index.md"
@@ -745,8 +700,7 @@
       ],
       "tags": ["api", "signals", "contract", "strategy"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "bot": {
       "primary_doc": "modules/presentation/bot.md",
@@ -765,13 +719,12 @@
       ],
       "tags": ["telegram", "bot", "notifications", "commands"],
       "status": "current",
-      "last_verified": "2026-10-01",
-      "wiki_links": []
+      "last_verified": "2026-10-01"
     },
     "notifications": {
       "primary_doc": "modules/presentation/notifications.md",
       "title": "廣播與通知層 (`src/modules/notifications/`)",
-      "summary": "廣播與通知層 (`src/modules/notifications/`) 的相關文件",
+      "summary": null,
       "related_docs": ["docs/modules/presentation/bot.md"],
       "related_code": [
         "src/modules/notifications/",
@@ -779,24 +732,22 @@
       ],
       "tags": ["notifications", "telegram", "mini-app"],
       "status": "current",
-      "last_verified": "2026-09-10",
-      "wiki_links": []
+      "last_verified": "2026-09-10"
     },
     "strategy": {
       "primary_doc": "modules/strategy/_index.md",
       "title": "市場策略與數據源 (Strategy & Providers)",
-      "summary": "市場策略與數據源 (Strategy & Providers) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": ["src/modules/strategy/"],
       "tags": ["strategy", "signals", "lifecycle"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "cash-exposure-advisor": {
       "primary_doc": "modules/strategy/cash_exposure_advisor.md",
       "title": "現金曝險建議系統（Cash Exposure Advisor）",
-      "summary": "現金曝險建議系統（Cash Exposure Advisor） 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/strategy/cashExposureAdvisor.mjs",
@@ -813,13 +764,12 @@
         "dynamic-batching"
       ],
       "status": "current",
-      "last_verified": "2026-11-04",
-      "wiki_links": []
+      "last_verified": "2026-11-04"
     },
     "leading-indicator-radars": {
       "primary_doc": "modules/strategy/leading_indicator_radars.md",
       "title": "領先指標四大極端雷達與動態防禦層架構",
-      "summary": "領先指標四大極端雷達與動態防禦層架構 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/domain/dailyRunContext.mjs",
@@ -840,13 +790,12 @@
         "risk-management"
       ],
       "status": "current",
-      "last_verified": "2026-11-10",
-      "wiki_links": []
+      "last_verified": "2026-11-10"
     },
     "lifecycle-engine": {
       "primary_doc": "modules/strategy/lifecycle_engine.md",
       "title": "Lifecycle Engine Module",
-      "summary": "Lifecycle Engine Module 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/strategy/lifecycleEngine.mjs",
@@ -854,13 +803,12 @@
       ],
       "tags": ["lifecycle", "strategy", "state-machine"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "lifecycle-health-test-spec": {
       "primary_doc": "modules/strategy/lifecycle_health_test_spec.md",
       "title": "Lifecycle Engine & Health Dashboard - Test Specification",
-      "summary": "Lifecycle Engine & Health Dashboard - Test Specification 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/strategy/lifecycleEngine.mjs",
@@ -869,13 +817,12 @@
       ],
       "tags": ["testing", "lifecycle", "health-check"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "macro-regime-metrics-analysis": {
       "primary_doc": "modules/strategy/macro_regime_metrics_analysis.md",
       "title": "Phase 1: 總經與市場狀態資源盤點與指標量化定義報告",
-      "summary": "Phase 1: 總經與市場狀態資源盤點與指標量化定義報告 的相關文件",
+      "summary": null,
       "related_docs": [
         "docs/plans/completed/2026-09-12-MACRO_REGIME_ADVANCED_SPEC.md",
         "docs/modules/strategy/regime_policy.md",
@@ -892,13 +839,12 @@
       ],
       "tags": ["macro", "regime", "analysis", "architecture", "inventory"],
       "status": "current",
-      "last_verified": "2026-09-11",
-      "wiki_links": []
+      "last_verified": "2026-09-11"
     },
     "maintenance-state-machine": {
       "primary_doc": "modules/strategy/maintenance_state_machine.md",
       "title": "維持率狀態機 4 層重構 — Strategy.json 修改說明",
-      "summary": "維持率狀態機 4 層重構 — Strategy.json 修改說明 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/strategy/policies/marginPolicy.mjs",
@@ -906,13 +852,12 @@
       ],
       "tags": ["maintenance", "state-machine", "automation"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "portfolio": {
       "primary_doc": "modules/strategy/portfolio.md",
       "title": "Portfolio 快照模組 (`src/modules/portfolio/`)",
-      "summary": "Portfolio 快照模組 (`src/modules/portfolio/`) 的相關文件",
+      "summary": null,
       "related_docs": [
         "docs/modules/presentation/api/portfolio_health_api.md",
         "docs/modules/strategy/cash_exposure_advisor.md"
@@ -925,13 +870,12 @@
       ],
       "tags": ["portfolio", "snapshot", "strategy", "verified-data"],
       "status": "current",
-      "last_verified": "\"2026-11-11\"",
-      "wiki_links": []
+      "last_verified": "\"2026-11-11\""
     },
     "providers": {
       "primary_doc": "modules/strategy/providers.md",
       "title": "資料來源提供者 (Providers Layer)",
-      "summary": "資料來源提供者 (Providers Layer) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/providers/providerRegistry.mjs",
@@ -947,13 +891,12 @@
       ],
       "tags": ["providers", "data-source", "market-data"],
       "status": "current",
-      "last_verified": "2026-09-11",
-      "wiki_links": []
+      "last_verified": "2026-09-11"
     },
     "regime-policy": {
       "primary_doc": "modules/strategy/regime_policy.md",
       "title": "Regime-aware Policy Module (Macro Regime 2.0)",
-      "summary": "Regime-aware Policy Module (Macro Regime 2.0) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/strategy/regimePolicy.mjs",
@@ -962,41 +905,22 @@
       ],
       "tags": ["regime", "policy", "market-state", "macro-regime-2"],
       "status": "current",
-      "last_verified": "2026-09-12",
-      "wiki_links": []
+      "last_verified": "2026-09-12"
     },
     "sentiment": {
       "primary_doc": "modules/strategy/sentiment.md",
       "title": "社群情緒引擎 (Sentiment Engine)",
-      "summary": "社群情緒引擎 (Sentiment Engine) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["sentiment", "social", "ptt", "bluesky", "emotion-indicator"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
-    },
-    "simulator": {
-      "primary_doc": "modules/strategy/simulator.md",
-      "title": "0050 雙向模擬器 (Simulator)",
-      "summary": "0050 雙向模擬器 (Simulator) 的相關文件",
-      "related_docs": [],
-      "related_code": [],
-      "tags": [
-        "simulator",
-        "forward-simulation",
-        "reverse-engine",
-        "strategy",
-        "0050"
-      ],
-      "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "strategy-engine": {
       "primary_doc": "modules/strategy/strategy_engine.md",
       "title": "決策引擎 (`strategyEngine.mjs`)",
-      "summary": "決策引擎 (`strategyEngine.mjs`) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/strategy/strategyEngine.mjs",
@@ -1005,13 +929,12 @@
       ],
       "tags": ["strategy", "signals", "technical-analysis"],
       "status": "current",
-      "last_verified": "2026-11-10",
-      "wiki_links": []
+      "last_verified": "2026-11-10"
     },
     "deploy-pipeline": {
       "primary_doc": "operations/deploy-pipeline.md",
       "title": "部署管線說明 (Deploy Pipeline)",
-      "summary": "部署管線說明 (Deploy Pipeline) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "scripts/deploy.mjs",
@@ -1024,13 +947,12 @@
       ],
       "tags": ["operations", "deployment", "pipeline"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": "2026-11-11"
     },
     "deployment-agent": {
       "primary_doc": "operations/deployment-agent.md",
       "title": "Host Deployment Agent",
-      "summary": "Host Deployment Agent 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/deployment/deploymentAgentServer.mjs",
@@ -1039,24 +961,22 @@
       ],
       "tags": ["operations", "deployment", "systemd", "unix-socket"],
       "status": "current",
-      "last_verified": "2026-10-23",
-      "wiki_links": []
+      "last_verified": "2026-10-23"
     },
     "production-artifact-sync": {
       "primary_doc": "operations/production-artifact-sync.md",
       "title": "Production Artifact Sync",
-      "summary": "Production Artifact Sync 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["operations", "production", "diagnostics", "snapshots"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "production-code-deploy": {
       "primary_doc": "operations/production-code-deploy.md",
       "title": "Production Code Deployment",
-      "summary": "Production Code Deployment 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "src/modules/deployment/executor.mjs",
@@ -1065,96 +985,87 @@
       ],
       "tags": ["operations", "production", "deployment", "pm2"],
       "status": "current",
-      "last_verified": "2026-10-23",
-      "wiki_links": []
+      "last_verified": "2026-10-23"
     },
     "security-policy": {
       "primary_doc": "operations/security-policy.md",
       "title": "Security Policy",
-      "summary": "Security Policy 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["security", "operations", "policy", "ssh"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-11-10-localhost-mini-app-preview-plan": {
       "primary_doc": "plans/active/2026-11-10-LOCALHOST_MINI_APP_PREVIEW_PLAN.md",
       "title": "localhost Mini App 預覽頁面建設計畫",
-      "summary": "localhost Mini App 預覽頁面建設計畫 的相關文件",
+      "summary": null,
       "related_docs": ["docs/modules/presentation/_index.md"],
       "related_code": ["webapp/"],
       "tags": ["webapp", "preview", "localhost"],
       "status": "in-progress",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": "2026-11-11"
     },
     "2026-08-15-e2e-testing-plan-v2.0": {
       "primary_doc": "plans/completed/2026-08-15-E2E_TESTING_PLAN_v2.0.md",
       "title": "E2E 測試計畫",
-      "summary": "E2E 測試計畫 的相關文件",
+      "summary": null,
       "related_docs": ["docs/TESTING.md"],
       "related_code": ["vitest.config.mjs", "vitest.config.mjs"],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": "2026-11-11"
     },
     "2026-08-15-phase-1-4-e2e-completion-summary": {
       "primary_doc": "plans/completed/2026-08-15-PHASE_1-4_E2E_COMPLETION_SUMMARY.md",
       "title": "Phase 1-4 E2E 測試體系建置完成總結",
-      "summary": "Phase 1-4 E2E 測試體系建置完成總結 的相關文件",
+      "summary": null,
       "related_docs": ["docs/TESTING.md"],
       "related_code": ["vitest.config.mjs"],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": "2026-11-11"
     },
     "2026-09-10-dashboard-integration-and-config-fix-plan": {
       "primary_doc": "plans/completed/2026-09-10-DASHBOARD_INTEGRATION_AND_CONFIG_FIX_PLAN.md",
       "title": "Dashboard 整合重構與策略設定修復計畫 (DASHBOARD_INTEGRATION_AND_CONFIG_FIX_PLAN)",
-      "summary": "Dashboard 整合重構與策略設定修復計畫 (DASHBOARD_INTEGRATION_AND_CONFIG_FIX_PLAN) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-dashboard-news-design-analysis": {
       "primary_doc": "plans/completed/2026-09-10-DASHBOARD_NEWS_DESIGN_ANALYSIS.md",
       "title": "Dashboard + News Tab 功能盤點與設計分析 (v2)",
-      "summary": "Dashboard + News Tab 功能盤點與設計分析 (v2) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-dashboard-news-e2e-consolidation-plan": {
       "primary_doc": "plans/completed/2026-09-10-DASHBOARD_NEWS_E2E_CONSOLIDATION_PLAN.md",
       "title": "Dashboard 整合重構、News Tab 修復與 E2E 發現總結計畫",
-      "summary": "Dashboard 整合重構、News Tab 修復與 E2E 發現總結計畫 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-dashboard-uiux-optimization-plan": {
       "primary_doc": "plans/completed/2026-09-10-DASHBOARD_UIUX_OPTIMIZATION_PLAN.md",
       "title": "投資儀表板 (Telegram Miniapp) 總覽頁面 UI/UX 整合優化計畫 (2026-09-10-DASHBOARD_UIUX_OPTIMIZATION_PLAN.md)",
-      "summary": "投資儀表板 (Telegram Miniapp) 總覽頁面 UI/UX 整合優化計畫 (2026-09-10-DASHBOARD_UIUX_OPTIMIZATION_PLAN.md) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-documentation-modernization-plan": {
       "primary_doc": "plans/completed/2026-09-10-DOCUMENTATION_MODERNIZATION_PLAN.md",
@@ -1164,90 +1075,82 @@
       "related_code": [],
       "tags": ["documentation", "modernization"],
       "status": "superseded",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-hardcoded-audit": {
       "primary_doc": "plans/completed/2026-09-10-HARDCODED_AUDIT.md",
       "title": "2026-09-10-HARDCODED_AUDIT.md",
-      "summary": "2026-09-10-HARDCODED_AUDIT.md 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-langfuse-v5-migration-plan": {
       "primary_doc": "plans/completed/2026-09-10-LANGFUSE_V5_MIGRATION_PLAN.md",
       "title": "Langfuse v3 → v5 Migration Plan (分階段執行)",
-      "summary": "Langfuse v3 → v5 Migration Plan (分階段執行) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-miniapp-uiux-improvement-plan": {
       "primary_doc": "plans/completed/2026-09-10-MINIAPP_UIUX_IMPROVEMENT_PLAN.md",
       "title": "Telegram Mini App UI/UX 系統化重構計畫",
-      "summary": "Telegram Mini App UI/UX 系統化重構計畫 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-mini-app-optimization-plan": {
       "primary_doc": "plans/completed/2026-09-10-MINI_APP_OPTIMIZATION_PLAN.md",
       "title": "Mini App 用戶體驗與版面優化計畫 (2026-09-10-MINI_APP_OPTIMIZATION_PLAN.md)",
-      "summary": "Mini App 用戶體驗與版面優化計畫 (2026-09-10-MINI_APP_OPTIMIZATION_PLAN.md) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-missing-views-and-cleanup-plan": {
       "primary_doc": "plans/completed/2026-09-10-MISSING_VIEWS_AND_CLEANUP_PLAN.md",
       "title": "未接入頁面復原與科學回測清理計畫 (2026-09-10-MISSING_VIEWS_AND_CLEANUP_PLAN.md)",
-      "summary": "未接入頁面復原與科學回測清理計畫 (2026-09-10-MISSING_VIEWS_AND_CLEANUP_PLAN.md) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-navigate-macro-battle-plan": {
       "primary_doc": "plans/completed/2026-09-10-NAVIGATE_MACRO_BATTLE_PLAN.md",
       "title": "市場雷達、多空對決與技術指標導覽整合計畫 (2026-09-10-NAVIGATE_MACRO_BATTLE_PLAN.md)",
-      "summary": "市場雷達、多空對決與技術指標導覽整合計畫 (2026-09-10-NAVIGATE_MACRO_BATTLE_PLAN.md) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-phase3-score-migration-spec": {
       "primary_doc": "plans/completed/2026-09-10-PHASE3_SCORE_MIGRATION_SPEC.md",
       "title": "Phase 3: Score API 遷移 (13 處)",
-      "summary": "Phase 3: Score API 遷移 (13 處) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-phase6-7-deployment-checklist": {
       "primary_doc": "plans/completed/2026-09-10-PHASE6_7_DEPLOYMENT_CHECKLIST.md",
       "title": "部署準備檢查清單",
-      "summary": "部署準備檢查清單 的相關文件",
+      "summary": null,
       "related_docs": [
         "docs/operations/deploy-pipeline.md",
         "docs/operations/production-code-deploy.md"
@@ -1255,123 +1158,112 @@
       "related_code": ["src/api/server.mjs", "src/runDailyCheck.mjs"],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": "2026-11-11"
     },
     "2026-09-10-phase-1-2-verification": {
       "primary_doc": "plans/completed/2026-09-10-PHASE_1-2_VERIFICATION.md",
       "title": "Phase 1-2 驗證報告",
-      "summary": "Phase 1-2 驗證報告 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-phase-1-4-audit-report": {
       "primary_doc": "plans/completed/2026-09-10-PHASE_1_4_AUDIT_REPORT.md",
       "title": "Phase 1-4 計畫執行狀況審計報告",
-      "summary": "Phase 1-4 計畫執行狀況審計報告 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-phase-5-remaining-work": {
       "primary_doc": "plans/completed/2026-09-10-PHASE_5_REMAINING_WORK.md",
       "title": "Phase 5: 後續改善與優化計畫 (疊代自 Phase 1-4 審計)",
-      "summary": "Phase 5: 後續改善與優化計畫 (疊代自 Phase 1-4 審計) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-phase-5-summary": {
       "primary_doc": "plans/completed/2026-09-10-PHASE_5_SUMMARY.md",
       "title": "Phase 5 完整疊代計畫 (方案 B) - 最終總結",
-      "summary": "Phase 5 完整疊代計畫 (方案 B) - 最終總結 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-phase-6-plan": {
       "primary_doc": "plans/completed/2026-09-10-PHASE_6_PLAN.md",
       "title": "Phase 6: 品質硬化與技術債清理計畫",
-      "summary": "Phase 6: 品質硬化與技術債清理計畫 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-phase-6-summary": {
       "primary_doc": "plans/completed/2026-09-10-PHASE_6_SUMMARY.md",
       "title": "Phase 6 完成總結",
-      "summary": "Phase 6 完成總結 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-phase-7-checklist": {
       "primary_doc": "plans/completed/2026-09-10-PHASE_7_CHECKLIST.md",
       "title": "Phase 7 執行清單：品質收尾與上線準備",
-      "summary": "Phase 7 執行清單：品質收尾與上線準備 的相關文件",
+      "summary": null,
       "related_docs": ["docs/meta/documentation-standards.md"],
       "related_code": ["scripts/validate-docs-consistency.mjs"],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": "2026-11-11"
     },
     "2026-09-10-phase-7-plan": {
       "primary_doc": "plans/completed/2026-09-10-PHASE_7_PLAN.md",
       "title": "Phase 7 計畫：品質收尾與上線準備 (Quality Finalization & Pre-Launch)",
-      "summary": "Phase 7 計畫：品質收尾與上線準備 (Quality Finalization & Pre-Launch) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-unified-development-plan": {
       "primary_doc": "plans/completed/2026-09-10-UNIFIED_DEVELOPMENT_PLAN.md",
       "title": "統一開發計畫 v1.5 (Phase 1-4 完成標註版)",
-      "summary": "統一開發計畫 v1.5 (Phase 1-4 完成標註版) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-webapp-phase-6-detail-plan": {
       "primary_doc": "plans/completed/2026-09-10-WEBAPP_PHASE_6_DETAIL_PLAN.md",
       "title": "WebApp Phase 6 品質硬化與技術債清理計畫",
-      "summary": "WebApp Phase 6 品質硬化與技術債清理計畫 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-10-wiki-index-prototype-report": {
       "primary_doc": "plans/completed/2026-09-10-WIKI_INDEX_PROTOTYPE_REPORT.md",
       "title": "LLM Wiki 索引原型驗證報告",
-      "summary": "LLM Wiki 索引原型驗證報告 的相關文件",
+      "summary": null,
       "related_docs": [
         "docs/wiki-index.json",
         "docs/meta/maintenance-schedule.md"
@@ -1379,19 +1271,17 @@
       "related_code": ["scripts/validate-wiki-index.mjs"],
       "tags": ["wiki", "prototype", "report"],
       "status": "completed",
-      "last_verified": "\"2026-11-11\"",
-      "wiki_links": []
+      "last_verified": "\"2026-11-11\""
     },
     "2026-09-11-deep-content-verification-plan": {
       "primary_doc": "plans/completed/2026-09-11-DEEP_CONTENT_VERIFICATION_PLAN.md",
       "title": "模組文件內容深度驗證計畫",
-      "summary": "模組文件內容深度驗證計畫 的相關文件",
+      "summary": null,
       "related_docs": ["docs/meta/documentation-coverage-matrix.md"],
       "related_code": ["scripts/validate-docs-consistency.mjs"],
       "tags": ["verification", "deep-validation", "documentation"],
       "status": "completed",
-      "last_verified": "\"2026-11-11\"",
-      "wiki_links": []
+      "last_verified": "\"2026-11-11\""
     },
     "2026-09-11-documentation-full-modernization-plan": {
       "primary_doc": "plans/completed/2026-09-11-DOCUMENTATION_FULL_MODERNIZATION_PLAN.md",
@@ -1401,24 +1291,22 @@
       "related_code": [],
       "tags": ["documentation", "modernization", "sprint", "completed"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-11-module-docs-verification-plan": {
       "primary_doc": "plans/completed/2026-09-11-MODULE_DOCS_VERIFICATION_PLAN.md",
       "title": "模組文件完整性驗證計畫",
-      "summary": "模組文件完整性驗證計畫 的相關文件",
+      "summary": null,
       "related_docs": ["docs/meta/documentation-coverage-matrix.md"],
       "related_code": ["scripts/analyze-docs-health.mjs"],
       "tags": ["verification", "modules", "documentation", "[[Documentation]]"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": "2026-11-11"
     },
     "2026-09-12-dashboard-ux-pyramid-spec": {
       "primary_doc": "plans/completed/2026-09-12-DASHBOARD_UX_PYRAMID_SPEC.md",
       "title": "Mini App 儀表板三層金字塔整合與 UX 瘦身計畫 (DASHBOARD_UX_PYRAMID_SPEC)",
-      "summary": "Mini App 儀表板三層金字塔整合與 UX 瘦身計畫 (DASHBOARD_UX_PYRAMID_SPEC) 的相關文件",
+      "summary": null,
       "related_docs": ["docs/modules/presentation/_index.md"],
       "related_code": ["webapp/src/views/DashboardView.vue"],
       "tags": [
@@ -1432,13 +1320,12 @@
         "\"[[Macro Regime Advanced Spec]]\""
       ],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": "2026-11-11"
     },
     "2026-09-12-macro-regime-advanced-spec": {
       "primary_doc": "plans/completed/2026-09-12-MACRO_REGIME_ADVANCED_SPEC.md",
       "title": "總經與市場狀態進階辨識 (Macro Regime 2.0) 工程計畫",
-      "summary": "總經與市場狀態進階辨識 (Macro Regime 2.0) 工程計畫 的相關文件",
+      "summary": null,
       "related_docs": ["docs/modules/strategy/_index.md"],
       "related_code": ["src/modules/strategy/macroRegimeClassifier.mjs"],
       "tags": [
@@ -1449,13 +1336,12 @@
         "risk-management"
       ],
       "status": "completed",
-      "last_verified": "\"2026-11-11\"",
-      "wiki_links": []
+      "last_verified": "\"2026-11-11\""
     },
     "2026-09-12-native-social-sentiment-engine-spec": {
       "primary_doc": "plans/completed/2026-09-12-NATIVE_SOCIAL_SENTIMENT_ENGINE_SPEC.md",
       "title": "社群情緒模組原生物生化計畫 (Native Social Sentiment Engine Spec)",
-      "summary": "社群情緒模組原生物生化計畫 (Native Social Sentiment Engine Spec) 的相關文件",
+      "summary": null,
       "related_docs": ["docs/modules/ai_news/_index.md"],
       "related_code": ["src/modules/sentiment/"],
       "tags": [
@@ -1470,13 +1356,12 @@
         "\"[[Macro Battle View]]\""
       ],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": "2026-11-11"
     },
     "2026-09-12-social-sentiment-integration-spec": {
       "primary_doc": "plans/completed/2026-09-12-SOCIAL_SENTIMENT_INTEGRATION_SPEC.md",
       "title": "社群情緒與散戶背離整合計畫 (Social Sentiment & Macro Battle Integration Spec)",
-      "summary": "社群情緒與散戶背離整合計畫 (Social Sentiment & Macro Battle Integration Spec) 的相關文件",
+      "summary": null,
       "related_docs": ["docs/modules/strategy/sentiment.md"],
       "related_code": ["src/modules/sentiment/"],
       "tags": [
@@ -1489,112 +1374,102 @@
         "miniapp"
       ],
       "status": "completed",
-      "last_verified": "\"2026-11-11\"",
-      "wiki_links": []
+      "last_verified": "\"2026-11-11\""
     },
     "2026-09-18-e2e-test-fix-plan": {
       "primary_doc": "plans/completed/2026-09-18-E2E_TEST_FIX_PLAN.md",
       "title": "E2E 測試修正計畫 (v1.0)",
-      "summary": "E2E 測試修正計畫 (v1.0) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "superseded",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-18-master-plan": {
       "primary_doc": "plans/completed/2026-09-18-MASTER_PLAN.md",
       "title": "MASTER PLAN v6.0",
-      "summary": "MASTER PLAN v6.0 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "reference-only",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-18-miniapp-bug-fix-plan": {
       "primary_doc": "plans/completed/2026-09-18-MINIAPP_BUG_FIX_PLAN.md",
       "title": "Mini App 問題修復與體驗優化計畫 (v4.0 Final Spec)",
-      "summary": "Mini App 問題修復與體驗優化計畫 (v4.0 Final Spec) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "partially-completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-18-phase2-spec-v5": {
       "primary_doc": "plans/completed/2026-09-18-PHASE2_SPEC_V5.md",
       "title": "Phase 2 規格說明 — aiClient.mjs v3 → v5 遷移",
-      "summary": "Phase 2 規格說明 — aiClient.mjs v3 → v5 遷移 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-18-webapp-improvement-plan": {
       "primary_doc": "plans/completed/2026-09-18-WEBAPP_IMPROVEMENT_PLAN.md",
       "title": "WebApp 改善計畫",
-      "summary": "WebApp 改善計畫 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "superseded",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-18-webapp-phase-3-5-detail-plan": {
       "primary_doc": "plans/completed/2026-09-18-WEBAPP_PHASE_3-5_DETAIL_PLAN.md",
       "title": "WebApp Phase 3-5 細節確認與執行計畫 (v1.0)",
-      "summary": "WebApp Phase 3-5 細節確認與執行計畫 (v1.0) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "reference-only",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-18-webapp-systematic-optimization-plan": {
       "primary_doc": "plans/completed/2026-09-18-WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN.md",
       "title": "WebApp 系統性優化計畫 (v2.0 Final Spec)",
-      "summary": "WebApp 系統性優化計畫 (v2.0 Final Spec) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "superseded",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-18-webapp-systematic-optimization-plan-v2.0": {
       "primary_doc": "plans/completed/2026-09-18-WEBAPP_SYSTEMATIC_OPTIMIZATION_PLAN_v2.0.md",
       "title": "WebApp 系統性優化計畫 (v2.0 Final Spec)",
-      "summary": "WebApp 系統性優化計畫 (v2.0 Final Spec) 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
       "status": "superseded",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-18-social-sentiment-snapshot-and-miniapp-plan": {
       "primary_doc": "plans/completed/2026-09-18-social-sentiment-snapshot-and-miniapp-plan.md",
       "title": "社群情緒快照與 Mini App 可追溯顯示實作計畫",
-      "summary": "社群情緒快照與 Mini App 可追溯顯示實作計畫 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["social-sentiment", "mini-app", "scheduling", "observability"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-09-28-non-trading-day-intelligence-pipeline": {
       "primary_doc": "plans/completed/2026-09-28-NON_TRADING_DAY_INTELLIGENCE_PIPELINE.md",
       "title": "休市日市場與輿情情報管線實作計畫",
-      "summary": "休市日市場與輿情情報管線實作計畫 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": [
@@ -1605,13 +1480,12 @@
         "telegram"
       ],
       "status": "archived",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-10-19-leading-indicator-upgrade": {
       "primary_doc": "plans/completed/2026-10-19_leading-indicator-upgrade.md",
       "title": "報告領先指標升級計畫：四大極端市場雷達系統（v3.0 初心回歸版）",
-      "summary": "報告領先指標升級計畫：四大極端市場雷達系統（v3.0 初心回歸版） 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": [
@@ -1622,35 +1496,32 @@
         "radar"
       ],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-10-20-leading-indicator-review": {
       "primary_doc": "plans/completed/2026-10-20_leading-indicator-review.md",
       "title": "領先指標升級計畫：專業審閱意見與修訂建議",
-      "summary": "領先指標升級計畫：專業審閱意見與修訂建議 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["investment", "risk-management", "system-design"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-10-28-p1-removal-cash-exposure-plan": {
       "primary_doc": "plans/completed/2026-10-28-p1-removal-cash-exposure-plan.md",
       "title": "P1 移除 & 現金驅動曝險建議計畫",
-      "summary": "P1 移除 & 現金驅動曝險建議計畫 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["plan", "p1-removal", "cash-exposure"],
       "status": "archived",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-10-30-投資系統理論升級與資產動態整合計畫書": {
       "primary_doc": "plans/completed/2026-10-30-投資系統理論升級與資產動態整合計畫書.md",
       "title": "InvestmentLineNotify 投資系統理論升級與資產動態整合計畫書",
-      "summary": "InvestmentLineNotify 投資系統理論升級與資產動態整合計畫書 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": [
@@ -1662,13 +1533,12 @@
         "completed"
       ],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-10-31-non-trading-day-theoretical-calculation": {
       "primary_doc": "plans/completed/2026-10-31_non-trading-day-theoretical-calculation.md",
       "title": "非交易日 theoreticalShadow 重新計畫",
-      "summary": "非交易日 theoreticalShadow 重新計畫 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": [
@@ -1679,13 +1549,12 @@
         "test-coverage"
       ],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-11-04-regime-aware-opportunity-engine": {
       "primary_doc": "plans/completed/2026-11-04_regime-aware-opportunity-engine.md",
       "title": "計畫書：Regime-Aware Opportunity Engine（危機加碼引擎）v2.4",
-      "summary": "計畫書：Regime-Aware Opportunity Engine（危機加碼引擎）v2.4 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": [
@@ -1697,24 +1566,22 @@
         "debt-aware"
       ],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-11-06-mini-app-telegram-optimization-plan": {
       "primary_doc": "plans/completed/2026-11-06-MINI_APP_TELEGRAM_OPTIMIZATION_PLAN.md",
       "title": "Mini App 與 Telegram 優化計畫",
-      "summary": "Mini App 與 Telegram 優化計畫 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["mini-app", "telegram", "optimization"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-11-07-strategy-score-verification-plan": {
       "primary_doc": "plans/completed/2026-11-07-STRATEGY_SCORE_VERIFICATION_PLAN.md",
       "title": "策略分數構成驗證計畫",
-      "summary": "策略分數構成驗證計畫 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": [
@@ -1725,13 +1592,12 @@
         "mini-app"
       ],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-11-07-backend-endpoint-logic-verification": {
       "primary_doc": "plans/completed/2026-11-07-backend-endpoint-logic-verification.md",
       "title": "後端端點邏輯驗證計劃",
-      "summary": "後端端點邏輯驗證計劃 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": [
@@ -1741,13 +1607,12 @@
         "mini-app"
       ],
       "status": "active",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-11-08-endpoint-cleanup-and-data-verification": {
       "primary_doc": "plans/completed/2026-11-08-endpoint-cleanup-and-data-verification.md",
       "title": "後端端點精簡與原始資料驗證計劃",
-      "summary": "後端端點精簡與原始資料驗證計劃 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": [
@@ -1757,13 +1622,12 @@
         "mini-app"
       ],
       "status": "active",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-11-10-crisis-accumulate-decision-chain-fix-plan": {
       "primary_doc": "plans/completed/2026-11-10-CRISIS_ACCUMULATE_DECISION_CHAIN_FIX_PLAN.md",
       "title": "計畫書：Crisis Accumulate 決策鏈修復與規格對齊",
-      "summary": "計畫書：Crisis Accumulate 決策鏈修復與規格對齊 的相關文件",
+      "summary": null,
       "related_docs": ["docs/modules/strategy/_index.md", "docs/decisions/"],
       "related_code": ["src/modules/strategy/strategyEngine.mjs"],
       "tags": [
@@ -1774,13 +1638,12 @@
         "zero-hardcoding"
       ],
       "status": "completed",
-      "last_verified": "\"2026-11-11\"",
-      "wiki_links": []
+      "last_verified": "\"2026-11-11\""
     },
     "2026-11-10-docs-cleanup-phase2-plan": {
       "primary_doc": "plans/completed/2026-11-10-DOCS_CLEANUP_PHASE2_PLAN.md",
       "title": "計畫書：docs 文件庫第二階段清理與真理源對齊",
-      "summary": "計畫書：docs 文件庫第二階段清理與真理源對齊 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": [
@@ -1789,24 +1652,22 @@
         "truth-source-alignment"
       ],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-11-10-docs-cleanup-phase3-plan": {
       "primary_doc": "plans/completed/2026-11-10-DOCS_CLEANUP_PHASE3_PLAN.md",
       "title": "計畫書：docs 文件庫第三階段整理",
-      "summary": "計畫書：docs 文件庫第三階段整理 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["documentation-cleanup", "docs-governance", "navigation-map"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "2026-11-10-documentation-reorganization-plan": {
       "primary_doc": "plans/completed/2026-11-10-DOCUMENTATION_REORGANIZATION_PLAN.md",
       "title": "docs/ 文件庫過時殘留清理與架構同步計畫",
-      "summary": "docs/ 文件庫過時殘留清理與架構同步計畫 的相關文件",
+      "summary": null,
       "related_docs": ["docs/meta/documentation-standards.md"],
       "related_code": ["scripts/generate-wiki-index.mjs"],
       "tags": [
@@ -1817,13 +1678,12 @@
         "[[Documentation Standards]]"
       ],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": "2026-11-11"
     },
     "2026-11-11-docs-cleanup-phase4-plan": {
       "primary_doc": "plans/completed/2026-11-11-DOCS_CLEANUP_PHASE4_PLAN.md",
       "title": "計畫書：docs 文件庫第四階段整理（模組層與根目錄審查）",
-      "summary": "計畫書：docs 文件庫第四階段整理（模組層與根目錄審查） 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": [
@@ -1833,24 +1693,22 @@
         "root-level-audit"
       ],
       "status": "in-progress",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "investment-theories-current-system-guide": {
       "primary_doc": "research/investment-theories-current-system-guide.md",
       "title": "目前投資系統理論與可擴充研究指南",
-      "summary": "目前投資系統理論與可擴充研究指南 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["investment-theory", "risk-control", "leverage", "research"],
       "status": "current",
-      "last_verified": "2026-10-23",
-      "wiki_links": []
+      "last_verified": "2026-10-23"
     },
     "leveraged-etf-kelly-dynamic-leverage-review": {
       "primary_doc": "research/leveraged-etf-kelly-dynamic-leverage-review.md",
       "title": "Kelly 與動態合理槓桿套用評估",
-      "summary": "Kelly 與動態合理槓桿套用評估 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": [
@@ -1860,13 +1718,12 @@
         "research"
       ],
       "status": "current",
-      "last_verified": "2026-10-23",
-      "wiki_links": []
+      "last_verified": "2026-10-23"
     },
     "useapirequest-guide": {
       "primary_doc": "useApiRequest-guide.md",
       "title": "useApiRequest 使用指南",
-      "summary": "useApiRequest 使用指南 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [
         "webapp/src/composables/useApiRequest.js",
@@ -1874,13 +1731,12 @@
       ],
       "tags": ["composable", "api", "vue"],
       "status": "current",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "strategy-engine-verification-report": {
       "primary_doc": "verification/STRATEGY_ENGINE_VERIFICATION_REPORT.md",
       "title": "Strategy Engine 深度驗證報告",
-      "summary": "Strategy Engine 深度驗證報告 的相關文件",
+      "summary": null,
       "related_docs": ["docs/modules/strategy/_index.md"],
       "related_code": ["src/modules/strategy/strategyEngine.mjs"],
       "tags": [
@@ -1893,68 +1749,62 @@
         "[[Budget Priority]]"
       ],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": "2026-11-11"
     },
     "hardcoded-parameters-inventory": {
       "primary_doc": "verification/hardcoded-parameters-inventory.md",
       "title": "硬編碼參數盤點與合理性分析",
-      "summary": "硬編碼參數盤點與合理性分析 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["hardcoded-parameters", "configuration", "code-review"],
       "status": "completed",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "personalized-design-inventory": {
       "primary_doc": "verification/personalized-design-inventory.md",
       "title": "用戶個人化設計盤點",
-      "summary": "用戶個人化設計盤點 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["personalized-design", "user-profile", "investment-strategy"],
       "status": "active",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "personalized-design-system-impact-summary": {
       "primary_doc": "verification/personalized-design-system-impact-summary.md",
       "title": "個人化設計對系統架構影響 - 執行摘要",
-      "summary": "個人化設計對系統架構影響 - 執行摘要 的相關文件",
+      "summary": null,
       "related_docs": ["personalized-design-inventory.md"],
       "related_code": [],
       "tags": ["personalized-design", "system-architecture", "extensibility"],
       "status": "active",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "strategy-param-audit": {
       "primary_doc": "verification/strategy-param-audit.md",
       "title": "Strategy.json 參數審計文件",
-      "summary": "Strategy.json 參數審計文件 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["strategy", "audit", "parameters"],
       "status": "archived",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "strategy-param-changes": {
       "primary_doc": "verification/strategy-param-changes.md",
       "title": "Strategy.json 參數異動說明",
-      "summary": "Strategy.json 參數異動說明 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": ["strategy", "audit", "changes"],
       "status": "archived",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     },
     "theoretical-framework-validation-v2": {
       "primary_doc": "verification/theoretical-framework-validation-v2.md",
       "title": "理論框架驗證報告 V2 - 全面驗證",
-      "summary": "理論框架驗證報告 V2 - 全面驗證 的相關文件",
+      "summary": null,
       "related_docs": [],
       "related_code": [],
       "tags": [
@@ -1964,8 +1814,7 @@
         "data-consistency"
       ],
       "status": "critical",
-      "last_verified": "2026-11-11",
-      "wiki_links": []
+      "last_verified": null
     }
   },
   "code_map": {

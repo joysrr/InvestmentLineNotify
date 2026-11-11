@@ -37,7 +37,6 @@ watch(
       "/radar",
       "/news",
       "/theory",
-      "/simulator",
       "/account",
     ];
 
