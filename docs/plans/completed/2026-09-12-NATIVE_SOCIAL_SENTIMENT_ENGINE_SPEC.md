@@ -2,6 +2,7 @@
 type: plan
 status: completed
 last_updated: 2026-09-12
+last_verified: 2026-11-11
 progress: 100%
 tags:
   - plan
@@ -10,10 +11,17 @@ tags:
   - ptt
   - bsky
   - bot
-wiki_links:
   - "[[Regime Policy]]"
   - "[[Signal Generator]]"
   - "[[Macro Battle View]]"
+summary: "社群情緒分析引擎原生實作規格"
+related_code:
+  - src/modules/sentiment/
+related_docs:
+  - docs/modules/ai_news/_index.md
+wiki_links:
+  - [[情緒分析]]
+  - [[社群]]
 ---
 
 # 社群情緒模組原生物生化計畫 (Native Social Sentiment Engine Spec)

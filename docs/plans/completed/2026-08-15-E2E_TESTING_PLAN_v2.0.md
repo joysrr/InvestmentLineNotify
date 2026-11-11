@@ -2,10 +2,19 @@
 type: plan
 status: completed
 last_updated: 2026-09-10
+last_verified: 2026-11-11
 tags:
   - completed
   - archived
-wiki_links: []
+summary: "端到端測試計畫與 Playwright 設定規格"
+related_code:
+  - scripts/verify-pages.sh
+  - vitest.config.mjs
+related_docs:
+  - docs/TESTING.md
+wiki_links:
+  - [[E2E測試]]
+  - [[Playwright]]
 ---
 
 # E2E 測試計畫

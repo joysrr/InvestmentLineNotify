@@ -2,14 +2,22 @@
 type: plan
 status: completed
 last_updated: 2026-09-11
+last_verified: 2026-11-11
 completed_date: 2026-09-11
 progress: 100%
 tags:
   - verification
   - modules
   - documentation
-wiki_links:
   - [[Documentation]]
+summary: "模組文件深度驗證與內容補寫計畫"
+related_code:
+  - scripts/analyze-docs-health.mjs
+related_docs:
+  - docs/meta/documentation-coverage-matrix.md
+wiki_links:
+  - [[文件驗證]]
+  - [[健康度]]
 ---
 
 # 模組文件完整性驗證計畫

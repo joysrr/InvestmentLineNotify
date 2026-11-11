@@ -2,11 +2,19 @@
 type: plan
 status: in-progress
 last_updated: 2026-11-10
+last_verified: 2026-11-11
 tags:
   - webapp
   - preview
   - localhost
-wiki_links: []
+summary: "Mini App 本地預覽與除錯環境建置計畫"
+related_code:
+  - webapp/
+related_docs:
+  - docs/modules/presentation/_index.md
+wiki_links:
+  - [[Mini App]]
+  - [[本地開發]]
 ---
 
 # localhost Mini App 預覽頁面建設計畫

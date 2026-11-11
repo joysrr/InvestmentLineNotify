@@ -2,13 +2,21 @@
 type: plan
 status: completed
 last_updated: 2026-11-10
+last_verified: 2026-11-11
 tags:
   - documentation
   - modernization
   - archive
   - wiki
-wiki_links:
   - [[Documentation Standards]]
+summary: "docs 文件庫階段式重組與標準化計畫"
+related_code:
+  - scripts/generate-wiki-index.mjs
+related_docs:
+  - docs/meta/documentation-standards.md
+wiki_links:
+  - [[文件庫]]
+  - [[重組]]
 ---
 
 # docs/ 文件庫過時殘留清理與架構同步計畫

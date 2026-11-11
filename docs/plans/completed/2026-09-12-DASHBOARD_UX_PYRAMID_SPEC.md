@@ -2,6 +2,7 @@
 type: plan
 status: completed
 last_updated: 2026-09-12
+last_verified: 2026-11-11
 progress: 100%
 tags:
   - webapp
@@ -9,10 +10,17 @@ tags:
   - dashboard
   - mobile-rwd
   - macro-regime
-wiki_links:
   - "[[Dashboard View]]"
   - "[[Market Snapshot]]"
   - "[[Macro Regime Advanced Spec]]"
+summary: "Mini App 三層金字塔 UX 架構設計規格"
+related_code:
+  - src/modules/presentation/
+related_docs:
+  - docs/modules/presentation/_index.md
+wiki_links:
+  - [[UX]]
+  - [[Mini App]]
 ---
 
 # Mini App 儀表板三層金字塔整合與 UX 瘦身計畫 (DASHBOARD_UX_PYRAMID_SPEC)

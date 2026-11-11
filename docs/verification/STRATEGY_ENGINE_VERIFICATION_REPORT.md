@@ -2,15 +2,23 @@
 type: report
 status: completed
 last_updated: 2026-09-11
+last_verified: 2026-11-11
 tags:
   - verification
   - strategy-engine
   - lifecycle
   - margin
   - deep-validation
-wiki_links:
   - [[Strategy Engine]]
   - [[Budget Priority]]
+summary: "策略引擎計算邏輯驗證報告與數據一致性檢查"
+related_code:
+  - src/modules/strategy/strategyEngine.mjs
+related_docs:
+  - docs/modules/strategy/_index.md
+wiki_links:
+  - [[策略引擎]]
+  - [[驗證]]
 ---
 
 # Strategy Engine 深度驗證報告

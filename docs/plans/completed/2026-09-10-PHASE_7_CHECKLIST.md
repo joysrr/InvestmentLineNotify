@@ -2,10 +2,18 @@
 type: plan
 status: completed
 last_updated: 2026-09-10
+last_verified: 2026-11-11
 tags:
   - completed
   - archived
-wiki_links: []
+summary: "Phase 7 文件驗證與程式碼一致性檢查清單"
+related_code:
+  - scripts/validate-docs-consistency.mjs
+related_docs:
+  - docs/meta/documentation-standards.md
+wiki_links:
+  - [[驗證]]
+  - [[文件標準]]
 ---
 
 # Phase 7 執行清單：品質收尾與上線準備

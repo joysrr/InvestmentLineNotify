@@ -2,10 +2,20 @@
 type: plan
 status: completed
 last_updated: 2026-09-10
+last_verified: 2026-11-11
 tags:
   - completed
   - archived
-wiki_links: []
+summary: "部署前自動檢查與部署後觀察重點清單"
+related_code:
+  - src/api/server.mjs
+  - src/runDailyCheck.mjs
+related_docs:
+  - docs/operations/deploy-pipeline.md
+  - docs/operations/production-code-deploy.md
+wiki_links:
+  - [[部署]]
+  - [[健康檢查]]
 ---
 
 # 部署準備檢查清單
