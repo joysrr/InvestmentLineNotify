@@ -23,14 +23,14 @@ wiki_links:
 
 ## 📊 驗證結果摘要
 
-| 驗證項目              | 文件描述 | 代碼實作 | 一致性        | 嚴重度     |
-| --------------------- | -------- | -------- | ------------- | ---------- |
-| Decision Chain 機制   | ✅ 有    | ✅ 有    | ✅ 一致       | -          |
-| Decision Rules 清單   | ⚠️ 部分  | ✅ 11 個 | ❌ **不完整** | **MEDIUM** |
-| 執行順序 (priority)   | ✅ 有    | ✅ 有    | ⚠️ 待驗證     | -          |
-| weightScore 計算      | ✅ 有    | ✅ 有    | ⚠️ 待驗證     | -          |
-| Cooldown 冷卻期       | ✅ 有    | ✅ 有    | ⚠️ 待驗證     | -          |
-| targetAllocation 計算 | ✅ 有    | ✅ 有    | ⚠️ 待驗證     | -          |
+| 驗證項目              | 文件描述 | 代碼實作 | 一致性    | 嚴重度 |
+| --------------------- | -------- | -------- | --------- | ------ |
+| Decision Chain 機制   | ✅ 有    | ✅ 有    | ✅ 一致   | -      |
+| Decision Rules 清單   | ✅ 完整  | ✅ 11 個 | ✅ 一致   | -      |
+| 執行順序 (priority)   | ✅ 有    | ✅ 有    | ⚠️ 待驗證 | -      |
+| weightScore 計算      | ✅ 有    | ✅ 有    | ⚠️ 待驗證 | -      |
+| Cooldown 冷卻期       | ✅ 有    | ✅ 有    | ⚠️ 待驗證 | -      |
+| targetAllocation 計算 | ✅ 有    | ✅ 有    | ⚠️ 待驗證 | -      |
 
 ---
 
@@ -86,38 +86,35 @@ for (const rule of sortedRules) {
 | -------- | ----------------------- | ------------------- | ------------ |
 | P0       | `RegimePolicyRule`      | Regime 硬條件       | ✅           |
 | P10      | `MarginLayerRule`       | 維持率 4 層狀態機   | ✅           |
-| P20      | `LifecycleLeverageRule` | 生命週期槓桿封鎖    | ❌ **缺少**  |
+| P20      | `LifecycleLeverageRule` | 生命週期槓桿封鎖    | ✅           |
 | P30      | `GrossLeverageRule`     | Gross Leverage 警戒 | ✅           |
-| P40      | `ValuationGuardRule`    | 估值守衛            | ✅ (可能)    |
+| P40      | `ValuationGuardRule`    | 估值守衛            | ✅           |
 | P50      | `EntryGateRule`         | EntryGate 前置過濾  | ✅           |
-| P60      | `StopLossTrailingRule`  | 停損/移動停利       | ❌ **缺少**  |
-| P70      | `ValuationBubbleRule`   | 估值泡沫 (PB ≥ 2.2) | ❌ **缺少**  |
-| P80      | `RebalanceRule`         | 再平衡              | ❌ **缺少**  |
-| P90      | `ConversionGuardRule`   | 階梯式獲利轉化      | ❌ **缺少**  |
-| P100     | `ScoringDecisionRule`   | 評分驅動決策 (最後) | ✅ (隱含)    |
+| P60      | `StopLossTrailingRule`  | 停損/移動停利       | ✅           |
+| P70      | `ValuationBubbleRule`   | 估值泡沫 (PB ≥ 2.2) | ✅           |
+| P80      | `RebalanceRule`         | 再平衡              | ✅           |
+| P90      | `ConversionGuardRule`   | 階梯式獲利轉化      | ✅           |
+| P100     | `ScoringDecisionRule`   | 評分驅動決策 (最後) | ✅           |
 
 #### 文件描述
 
-文件僅明確提及：
+文件已明確記錄全部 11 個規則（P0-P100）：
 
-- ✅ `RegimePolicyRule`
-- ✅ `MarginLayerRule`
-- ✅ `GrossLeverageRule`
-- ✅ `EntryGateRule`
+- ✅ `RegimePolicyRule` (P0)
+- ✅ `MarginLayerRule` (P10)
+- ✅ `LifecycleLeverageRule` (P20)
+- ✅ `GrossLeverageRule` (P30)
+- ✅ `ValuationGuardRule` (P40)
+- ✅ `EntryGateRule` (P50)
+- ✅ `StopLossTrailingRule` (P60)
+- ✅ `ValuationBubbleRule` (P70)
+- ✅ `RebalanceRule` (P80)
+- ✅ `ConversionGuardRule` (P90)
+- ✅ `ScoringDecisionRule` (P100)
 
-**缺少 7 個規則的描述**：
+**結論**: ✅ **文件完整** - 全部 11/11 規則已記錄，包含 priority 數值與執行順序
 
-- ❌ `LifecycleLeverageRule`
-- ❌ `StopLossTrailingRule`
-- ❌ `ValuationBubbleRule`
-- ❌ `RebalanceRule`
-- ❌ `ConversionGuardRule`
-- ❌ `ScoringDecisionRule`
-- ❌ `ValuationGuardRule`（可能有提及但不明確）
-
-**結論**: ❌ **文件不完整** - 缺少 7/11 規則的描述
-
-**嚴重度**: **MEDIUM** - 這些規則直接影響投資決策，應該在文件中詳細說明
+**嚴重度**: **已解決** - 全部 11 規則在 Phase 6 B 中補充完整
 
 ---
 
@@ -135,11 +132,11 @@ return [...rules].sort((a, b) => a.priority - b.priority);
 
 #### 文件描述
 
-- ⚠️ 文件提及「優先鏈」但未明確說明數值意義
-- ⚠️ 未說明早期終止機制
-- ⚠️ 未說明為何 ScoringDecisionRule 放在最後
+- ✅ 文件說明「決策優先鏈」，數值越小越優先（P0→P100）
+- ✅ 說明早期終止機制（第一個回傳 non-null 即終止）
+- ✅ 說明 ScoringDecisionRule 放在最後作為評分驅動兜底
 
-**結論**: ⚠️ 需補充執行順序邏輯
+**結論**: ✅ 執行順序邏輯已完整記錄
 
 ---
 
@@ -161,56 +158,32 @@ const engineState = {
 
 #### 文件描述
 
-- ❌ 文件未提及 `engineState` 機制
-- ❌ 未說明規則間如何共享狀態
+- ✅ 文件說明 `engineState` 共享狀態機制（regimeResult、valuationGuardResult 等）
+- ✅ 說明 RegimePolicyRule 在 `crisis_accumulate` 模式注入 `engineState.crisisAccumulateMode`
 
-**結論**: ❌ 缺少重要設計說明
+**結論**: ✅ engineState 機制已記錄
 
 ---
 
 ## ⚠️ 發現的問題清單
 
-### 🔴 MEDIUM - 文件不完整
+### 🔴 MEDIUM - 文件不完整 (已解決)
 
-**問題**: 文件僅描述 4/11 個 Decision Rules，缺少 7 個規則
+**問題**: 文件僅描述 4/11 個 Decision Rules，缺少 7 個規則 → **已在 Phase 6 B 中補齊全部 11 個規則**
 
-**影響**:
+**影響**: — (已解決)
 
-- 開發者無法從文件了解完整決策邏輯
-- AI Agent 無法理解所有規則的用途
-- 維護時可能誤刪「未被文件提及」的規則
-
-**建議**:
-
-1. 在 `strategy_engine.md` 補充完整的 Decision Rules 清單
-2. 每個規則說明：
-   - Priority 值
-   - 功能描述
-   - 觸發條件
-   - 回傳結果
+**建議**: — (無，已完成)
 
 ---
 
-### 🟡 LOW - 執行邏輯說明不足
+### 🟡 LOW - 執行邏輯說明不足 (已解決)
 
-**問題**: 文件未說明早期終止機制、priority 排序、engineState 共享
+**問題**: 文件未說明早期終止機制、priority 排序、engineState 共享 → **已在 Phase 6 B 中補充完整說明**
 
-**影響**:
+**影響**: — (已解決)
 
-- 開發者難以理解規則執行順序的重要性
-- 不清楚為何某些規則可以「跳過」後續規則
-
-**建議**:
-在文件中補充：
-
-```markdown
-## Decision Chain 執行邏輯
-
-1. 規則依 priority 升序執行 (P0 → P100)
-2. 第一個回傳 non-null 的規則即終止後續規則
-3. 規則間透過 engineState 共享狀態
-4. ScoringDecisionRule (P100) 作為 fallback，總是回傳結果
-```
+**建議**: — (無，已完成)
 
 ---
 

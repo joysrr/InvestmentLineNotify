@@ -95,17 +95,17 @@ wiki_links: []
 
 ## `trading`
 
-| 欄位                               | 當前值   | 引用位置                                                                     | 狀態          |
-| ---------------------------------- | -------- | ---------------------------------------------------------------------------- | ------------- |
-| `minAction`                        | 10000    | `strategyEngine.mjs` → 未直接引用（由 `threshold.minActionableAmount` 承擔） | ⚠️ 部分引用   |
-| `cooldownDays`                     | 20       | `strategyEngine.mjs` → `evaluateInvestmentSignal()` → `checkCooldown()`      | ✅            |
-| `transFee`                         | 0.001425 | 現行腳本未找到有效引用                                                       | ⚠️ 待重新核對 |
-| `transFeeDiscount`                 | 0.6      | 現行腳本未找到有效引用                                                       | ⚠️ 待重新核對 |
-| `taxRate`                          | 0.003    | 現行腳本未找到有效引用                                                       | ⚠️ 待重新核對 |
-| `loanInterestRate`                 | 0.025    | 現行腳本未找到有效引用                                                       | ⚠️ 待重新核對 |
-| `budget.maxDailyLoanIncreasePct`   | 0.05     | `strategyEngine.mjs` → 單日撥款上限                                          | ✅            |
-| `budget.maxRollingLoanIncreasePct` | 0.15     | `strategyEngine.mjs` → 10 日滾動上限                                         | ✅            |
-| `budget.rollingDays`               | 10       | `strategyEngine.mjs` → 滾動計算天數                                          | ✅            |
+| 欄位                               | 當前值   | 引用位置                                                                                                           | 狀態        |
+| ---------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------ | ----------- |
+| `minAction`                        | 10000    | `strategyEngine.mjs` → 未直接引用（由 `threshold.minActionableAmount` 承擔）                                       | ⚠️ 部分引用 |
+| `cooldownDays`                     | 20       | `strategyEngine.mjs` → `evaluateInvestmentSignal()` → `checkCooldown()`                                            | ✅          |
+| `transFee`                         | 0.001425 | 已在 `strategySchema.mjs`、`validateStrategyConfig.mjs` 定義與驗證；`constants.mjs` 註冊路徑；未在計算邏輯直接使用 | ⚠️ 部分引用 |
+| `transFeeDiscount`                 | 0.6      | 已在 `strategySchema.mjs`、`validateStrategyConfig.mjs` 定義與驗證；`constants.mjs` 註冊路徑；未在計算邏輯直接使用 | ⚠️ 部分引用 |
+| `taxRate`                          | 0.003    | 已在 `strategySchema.mjs`、`validateStrategyConfig.mjs` 定義與驗證；`constants.mjs` 註冊路徑；未在計算邏輯直接使用 | ⚠️ 部分引用 |
+| `loanInterestRate`                 | 0.025    | `interestCostFilter.mjs` → 年利息成本計算（`totalLoan * loanInterestRate`）                                        | ✅          |
+| `budget.maxDailyLoanIncreasePct`   | 0.05     | `strategyEngine.mjs` → 單日撥款上限                                                                                | ✅          |
+| `budget.maxRollingLoanIncreasePct` | 0.15     | `strategyEngine.mjs` → 10 日滾動上限                                                                               | ✅          |
+| `budget.rollingDays`               | 10       | `strategyEngine.mjs` → 滾動計算天數                                                                                | ✅          |
 
 > **注意**：`trading.minAction` 與 `threshold.minActionableAmount` 語意重疊，建議統一為一個欄位。
 
@@ -192,26 +192,26 @@ wiki_links: []
 
 ## `threshold`
 
-| 欄位                   | 當前值 | 引用位置                                                      | 狀態        |
-| ---------------------- | ------ | ------------------------------------------------------------- | ----------- |
-| `z2TargetRatio`        | 0.4    | `strategyEngine.mjs` → 再平衡計算                             | ✅          |
-| `reversalTriggerCount` | 3      | `strategyEngine.mjs` → 轉弱判斷                               | ✅          |
-| `mmDanger`             | 140    | 未在 `strategyEngine.mjs` 找到直接引用（已由 4 層狀態機取代） | ❌ 幽靈參數 |
-| `z2RatioHigh`          | 45     | `strategyEngine.mjs` → 再平衡門檻                             | ✅          |
-| `minActionableAmount`  | 10000  | `strategyEngine.mjs` → 再平衡最小執行金額                     | ✅          |
-| `overheatCount`        | 2      | `signalRules.mjs` → `computeOverheatState()`                  | ✅          |
-| `rsiOverheatLevel`     | 82     | `signalRules.mjs` / `telegramHtmlBuilder.mjs`                 | ✅          |
-| `dOverheatLevel`       | 85     | `signalRules.mjs` / `telegramHtmlBuilder.mjs`                 | ✅          |
-| `bias240OverheatLevel` | 35     | `signalRules.mjs` / `telegramHtmlBuilder.mjs`                 | ✅          |
-| `rsiReversalLevel`     | 60     | `signalRules.mjs` → `computeReversalTriggers()`               | ✅          |
-| `kReversalLevel`       | 75     | `signalRules.mjs` → `computeReversalTriggers()`               | ✅          |
-| `wAggressive`          | 10     | `strategyEngine.mjs` → `buildDecision()` 分數檔位             | ✅          |
-| `wActive`              | 8      | `strategyEngine.mjs` → `buildDecision()` 分數檔位             | ✅          |
-| `vixLowComplacency`    | 12     | `telegramHtmlBuilder.mjs` → VIX 標籤顯示                      | ✅          |
-| `vixHighFear`          | 20     | `telegramHtmlBuilder.mjs` → VIX 標籤顯示                      | ✅          |
-| `vixPanic`             | 28     | `strategyEngine.mjs` → 極端恐慌判斷                           | ✅          |
-| `vixExtreme`           | 35     | `strategyEngine.mjs` → 極端恐慌強化                           | ✅          |
-| `usVixPanic`           | 30     | `telegramHtmlBuilder.mjs` / 日報顯示                          | ✅          |
+| 欄位                   | 當前值 | 引用位置                                                                                                       | 狀態        |
+| ---------------------- | ------ | -------------------------------------------------------------------------------------------------------------- | ----------- |
+| `z2TargetRatio`        | 0.4    | `strategyEngine.mjs` → 再平衡計算                                                                              | ✅          |
+| `reversalTriggerCount` | 3      | `strategyEngine.mjs` → 轉弱判斷                                                                                | ✅          |
+| `mmDanger`             | 140    | `aiDataPreprocessor.mjs` → 融資斷頭警示線格式化輸出；未在 `strategyEngine.mjs` 直接使用（已由 4 層狀態機取代） | ⚠️ 部分引用 |
+| `z2RatioHigh`          | 45     | `strategyEngine.mjs` → 再平衡門檻                                                                              | ✅          |
+| `minActionableAmount`  | 10000  | `strategyEngine.mjs` → 再平衡最小執行金額                                                                      | ✅          |
+| `overheatCount`        | 2      | `signalRules.mjs` → `computeOverheatState()`                                                                   | ✅          |
+| `rsiOverheatLevel`     | 82     | `signalRules.mjs` / `telegramHtmlBuilder.mjs`                                                                  | ✅          |
+| `dOverheatLevel`       | 85     | `signalRules.mjs` / `telegramHtmlBuilder.mjs`                                                                  | ✅          |
+| `bias240OverheatLevel` | 35     | `signalRules.mjs` / `telegramHtmlBuilder.mjs`                                                                  | ✅          |
+| `rsiReversalLevel`     | 60     | `signalRules.mjs` → `computeReversalTriggers()`                                                                | ✅          |
+| `kReversalLevel`       | 75     | `signalRules.mjs` → `computeReversalTriggers()`                                                                | ✅          |
+| `wAggressive`          | 10     | `strategyEngine.mjs` → `buildDecision()` 分數檔位                                                              | ✅          |
+| `wActive`              | 8      | `strategyEngine.mjs` → `buildDecision()` 分數檔位                                                              | ✅          |
+| `vixLowComplacency`    | 12     | `telegramHtmlBuilder.mjs` → VIX 標籤顯示                                                                       | ✅          |
+| `vixHighFear`          | 20     | `telegramHtmlBuilder.mjs` → VIX 標籤顯示                                                                       | ✅          |
+| `vixPanic`             | 28     | `strategyEngine.mjs` → 極端恐慌判斷                                                                            | ✅          |
+| `vixExtreme`           | 35     | `strategyEngine.mjs` → 極端恐慌強化                                                                            | ✅          |
+| `usVixPanic`           | 30     | `telegramHtmlBuilder.mjs` / 日報顯示                                                                           | ✅          |
 
 > ⚠️ **幽靈參數確認**：`threshold.mmDanger` 值為 `140`，舊版本 2 層邏輯的痕跡，4 層狀態機升級後已由 `maintenance.marginCallThreshold`、`maintenance.frozenZone`、`maintenance.protectTrigger` 完整取代。建議下一版移除。
 
