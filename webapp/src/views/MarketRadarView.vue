@@ -165,6 +165,11 @@ import ExtremeRadarPanel from "@/components/radar/ExtremeRadarPanel.vue";
 import CashExposureWidget from "@/components/radar/CashExposureWidget.vue";
 import { waitReady } from "../composables/useTelegram.js";
 
+import {
+  getVixLevel,
+  getCnnLevel,
+} from "@/utils/metricThresholds.js";
+
 const loading = ref(true);
 const error = ref(false);
 const statusData = ref(null); // /api/status  data 欄位
@@ -233,15 +238,8 @@ const usVix = computed(() => {
   return v ?? null;
 });
 const usVixCard = computed(() => {
-  const v = parseFloat(usVix.value);
-  if (isNaN(v)) return { cls: "", sub: "rc-sub--neutral", label: "—" };
-  if (v >= 30)
-    return { cls: "card-danger", sub: "rc-sub--danger", label: "極度恐慌 🔥" };
-  if (v >= 20)
-    return { cls: "card-warn", sub: "rc-sub--warn", label: "警戒 ⚠️" };
-  if (v < 13.5)
-    return { cls: "card-blue", sub: "rc-sub--blue", label: "過度安逸 ❄️" };
-  return { cls: "card-ok", sub: "rc-sub--ok", label: "平穩 ✅" };
+  const r = getVixLevel(usVix.value, "us");
+  return { cls: r.cls, sub: r.subCls, label: r.label };
 });
 
 const spxRaw = computed(
@@ -267,15 +265,8 @@ const spxCard = computed(() => {
 const cnnScore = computed(() => statusData.value?.rawCnn?.score ?? null);
 const cnnRating = computed(() => statusData.value?.rawCnn?.rating ?? "—");
 const cnnCard = computed(() => {
-  const v = parseFloat(cnnScore.value);
-  if (isNaN(v)) return { cls: "", sub: "rc-sub--neutral", label: "—" };
-  if (v <= 25)
-    return { cls: "card-danger", sub: "rc-sub--danger", label: "極度恐懼 😱" };
-  if (v <= 45)
-    return { cls: "card-warn", sub: "rc-sub--warn", label: "恐懼 😰" };
-  if (v >= 75)
-    return { cls: "card-warn", sub: "rc-sub--warn", label: "極度貪婪 🤑" };
-  return { cls: "card-ok", sub: "rc-sub--ok", label: "中性 😐" };
+  const r = getCnnLevel(cnnScore.value);
+  return { cls: r.cls, sub: r.subCls, label: r.label };
 });
 
 // ── 台股 ──────────────────────────────────────────────
@@ -284,13 +275,8 @@ const twVix = computed(() => {
   return v != null ? Number(v).toFixed(1) : null;
 });
 const twVixCard = computed(() => {
-  const v = parseFloat(twVix.value);
-  if (isNaN(v)) return { cls: "", sub: "rc-sub--neutral", label: "—" };
-  if (v >= 30)
-    return { cls: "card-danger", sub: "rc-sub--danger", label: "極度恐慌 🔥" };
-  if (v >= 20)
-    return { cls: "card-warn", sub: "rc-sub--warn", label: "警戒 ⚠️" };
-  return { cls: "card-ok", sub: "rc-sub--ok", label: "平穩 ✅" };
+  const r = getVixLevel(twVix.value, "tw");
+  return { cls: r.cls, sub: r.subCls, label: r.label };
 });
 
 const lightEmoji = computed(() => {
