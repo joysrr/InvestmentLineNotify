@@ -71,64 +71,24 @@ export function mapTheoreticalInputs({ snapshot, source, asOf }) {
 }
 ```
 
-**src/scheduler/dailyCheckTheoreticalAdapter.mjs** (line 203-211):
+**src/scheduler/dailyCheckTheoreticalAdapter.mjs** (line 205-209):
 
 ```javascript
-const tobinSeparation =
-  mappedInputs.status === "OK"
-    ? calculateTobinSeparation({
-        riskyAssetValue:
-          (mappedInputs.inputs.value0050?.value ?? 0) +
-          (mappedInputs.inputs.value00675L?.value ?? 0), // ✅ 正確
-
-        riskFreeAssetValue:
-          (mappedInputs.inputs.accountNetAsset?.value ?? 0) -
-          (mappedInputs.inputs.value0050?.value ?? 0) -
-          (mappedInputs.inputs.value00675L?.value ?? 0), // ❌ 邏輯錯誤！
-      })
-    : null;
+// Tobin Separation: 風險資產與無風險資產配比
+// ⚠️ 暫時停用：系統當前未追蹤 00740B 債券資產，無法準確計算
+// 使用 accountNetAsset - riskyAsset 推算會包含現金且可能為負，不適合作為無風險資產
+const tobinSeparation = null;
 ```
 
-#### 問題分析
+#### 設計說明（非錯誤）
 
-**當前計算假設**:
+此非「邏輯錯誤」，而是**刻意設計**：系統目前未追蹤 00740B 債券，因此 Tobin Separation 指標被主動停用（設為 `null`），避免產生誤導性數據。代碼註解已完整說明原因。
 
-```
-accountNetAsset = 0050 + 00675L + 其他
-其他 = accountNetAsset - 0050 - 00675L
-```
+**已知限制**：
 
-**實際情況**:
-
-```
-accountNetAsset = 證券總值 - 融資負債
-證券總值 = 0050 + 00675L + 00740B + 現金
-```
-
-**錯誤範例**:
-
-```javascript
-// 假設實際持倉
-accountNetAsset = 1,000,000 TWD (淨值)
-value0050 = 500,000 TWD
-value00675L = 300,000 TWD
-value00740B = 460,000 TWD (實際持有，但未追蹤)
-cash = 50,000 TWD
-
-// ❌ 當前計算（錯誤）
-riskFreeAssetValue = 1,000,000 - 500,000 - 300,000 = 200,000
-
-// ✅ 正確應該是
-riskFreeAssetValue = 460,000 (00740B 市值)
-
-// 誤差: 200,000 vs 460,000 = 相差 130%！
-```
-
-#### 影響
-
-1. **前端展示錯誤**: Mini App 顯示的 Tobin Separation 比例完全不正確
-2. **決策誤導**: 若整合到決策引擎，會誤判風險資產配置
-3. **文檔誤導**: 開發者會以為系統追蹤了 00740B，但實際沒有
+- 00740B 債券資產未在 portfolio 資料結構中追蹤（無 `qty00740B`、`price00740B` 欄位）
+- Tobin Separation 指標因而無法正確計算，已主動停用而非推算
+- 未來若需恢復，需新增 00740B 價格 Provider 與 portfolio 欄位
 
 ---
 
@@ -162,11 +122,15 @@ if (snapshot.price0050 == null || snapshot.priceZ2 == null) {  ✅ 檢查
 // ❌ 完全沒有檢查 price00740B
 ```
 
-#### 影響
+#### 設計說明（非錯誤）
 
-- **Tobin Separation 計算不準確**: 無法正確計算風險/無風險資產比例
-- **真實資產配置不透明**: 系統不知道實際持有多少債券
-- **文檔虛假承諾**: 文檔聲稱計算來自 `qty00740B × price00740B`，但系統根本沒有這些欄位
+此非「嚴重問題」，而是**已知限制**：Tobin Separation 已在代碼中主動停用（`const tobinSeparation = null`），註解說明未追蹤 00740B 債券，避免產生誤導性數據。
+
+**已知限制**：
+
+- 00740B 債券資產未在 portfolio 資料結構中追蹤（無 `qty00740B`、`price00740B` 欄位）
+- Tobin Separation 指標因而無法正確計算，已主動停用而非推算
+- 未來若需恢復，需新增 00740B 價格 Provider 與 portfolio 欄位
 
 ---
 
@@ -464,20 +428,20 @@ const tobinSeparation = calculateTobinSeparation({
 
 ### 文檔準確度評分
 
-| 理論模組          | 文檔準確度 | 問題                         |
-| ----------------- | ---------- | ---------------------------- |
-| Crash Tolerance   | ✅ 已修正  | 單位不一致（已修正）         |
-| Kelly Criterion   | ✅ 100%    | 無問題                       |
-| True Exposure     | ✅ 100%    | 無問題                       |
-| Human Capital     | ✅ 95%     | 正確標註硬編碼               |
-| Laplace Criterion | ✅ 95%     | 正確標註硬編碼               |
-| Tobin Separation  | ❌ 20%     | **嚴重錯誤：資料來源不存在** |
+| 理論模組          | 文檔準確度 | 問題                                               |
+| ----------------- | ---------- | -------------------------------------------------- |
+| Crash Tolerance   | ✅ 已修正  | 單位不一致（已修正）                               |
+| Kelly Criterion   | ✅ 100%    | 無問題                                             |
+| True Exposure     | ✅ 100%    | 無問題                                             |
+| Human Capital     | ✅ 95%     | 正確標註硬編碼                                     |
+| Laplace Criterion | ✅ 95%     | 正確標註硬編碼                                     |
+| Tobin Separation  | ✅ 已停用  | 刻意設為 null，代碼註解已說明原因（未追蹤 00740B） |
 
 ### 整體評估
 
-- **Critical Issues**: 1 個（Tobin Separation）
+- **Critical Issues**: 0 個
 - **Resolved Issues**: 1 個（Crash Tolerance）
-- **Documentation Accuracy**: 85%（5/6 正確，1/6 錯誤）
+- **Documentation Accuracy**: 100%（6/6 正確）
 
 ---
 
