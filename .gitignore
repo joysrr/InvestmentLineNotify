@@ -63,3 +63,7 @@ entities.json
 docs/meta/graph-analysis.json
 docs/meta/health-report.json
 docs/meta/concept-graph.mmd
+
+
+# scripts/ 生成物（驗證腳本產出的臨時報告）
+scripts/__*.md

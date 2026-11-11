@@ -53,6 +53,10 @@ wiki_links:
 2. strategy.buy.panic.suggestedLeverage + 1  // 恐慌檔位建議（0.3 → 1.3x total）
 3. getTargetLeverageByScore(marketScore, strategy) + 1  // 評分階梯（0.15→1.15x, 0.2→1.2x, ...）
 4. lifecycleContext.profile.maxLeverageForNewZ2  // 生命週期天花板（MID 階段 1.5x）
+
+**Ceiling 條件**：所有層級的結果均透過 `ceiling` 上限封頂，
+`ceiling = lifecycleContext?.profile?.maxLeverageForNewZ2 || 1.5`（預設 1.5x）。
+程式碼中每層均套用 `Math.min(層級結果, ceiling)`，確保槓桿不超過生命週期天花板。
 ```
 
 **設計理念**：
