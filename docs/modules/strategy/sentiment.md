@@ -2,7 +2,7 @@
 title: "社群情緒引擎 (Sentiment Engine)"
 category: "modules/strategy"
 type: reference
-status: "current"
+status: current
 created: "2026-11-11"
 last_updated: "2026-11-11"
 tags:

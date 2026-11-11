@@ -394,6 +394,8 @@ updated: 2026-09-11 # 應使用 last_updated
 
 ### 自動化檢查
 
+> 完整腳本清單與用途說明請見 [`docs/meta/scripts-inventory.md`](scripts-inventory.md)。
+
 - `scripts/validate-docs-consistency.mjs`：每次 CI 運行，檢查 frontmatter、導航路徑、DEC 集中、plans 日期前綴、modules status
 - `scripts/validate-docs-code-consistency.mjs`：每季 CI 運行，檢查關鍵數值與程式碼常數一致性
 - `scripts/analyze-docs-health.mjs`：每次 CI 運行，評分 ≥ 50 為通過門檻

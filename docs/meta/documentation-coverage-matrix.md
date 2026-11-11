@@ -22,41 +22,41 @@ wiki_links:
 
 ## 模組覆蓋一覽表
 
-| #   | src 模組                     | 對應 docs 位置                                          | 狀態             | 備註                                                      |
-| --- | ---------------------------- | ------------------------------------------------------- | ---------------- | --------------------------------------------------------- |
-| 1   | `src/api/`                   | `docs/modules/presentation/api/`                        | ✅ 已覆蓋        | API 契約與端點規格                                        |
-| 2   | `src/bot/`                   | `docs/modules/presentation/bot.md`                      | ✅ 已覆蓋        | Telegram Bot 入口規格                                     |
-| 3   | `src/domain/`                | —                                                       | ❌ 未覆蓋        | 領域模型無對應文件                                        |
-| 4   | `src/interfaces/`            | —                                                       | ❌ 未覆蓋        | 介面定義無對應文件                                        |
-| 5   | `src/modules/ai/`            | `docs/modules/ai_news/`                                 | ✅ 已覆蓋        | AI 管線、提示詞、Langfuse                                 |
-| 6   | `src/modules/assets/`        | —                                                       | ❌ 未覆蓋        | 資產模組無對應文件                                        |
-| 7   | `src/modules/bot/`           | `docs/modules/presentation/bot.md`                      | ⚠️ 部分覆蓋      | 僅涵蓋 Bot 入口，未涵蓋 handlers/middleware               |
-| 8   | `src/modules/config/`        | —                                                       | ❌ 未覆蓋        | 設定模組無對應文件                                        |
-| 9   | `src/modules/data/`          | `docs/modules/infrastructure/`                          | ✅ 已覆蓋        | 資料持久化、快取、歷史 K 線                               |
-| 10  | `src/modules/deployment/`    | —                                                       | ❌ 未覆蓋        | 部署模組無對應文件                                        |
-| 11  | `src/modules/monitoring/`    | —                                                       | ❌ 未覆蓋        | 監控模組無對應文件                                        |
-| 12  | `src/modules/news/`          | `docs/modules/ai_news/`                                 | ✅ 已覆蓋 (部分) | 新聞獲取已涵蓋，AI 分析管線分散在 ai_news/                |
-| 13  | `src/modules/notifications/` | `docs/modules/presentation/notifications.md`            | ⚠️ 部分覆蓋      | 通知格式化已涵蓋，傳輸層未涵蓋                            |
-| 14  | `src/modules/operations/`    | `docs/modules/operations/`                              | ✅ 已覆蓋        | 環境變數、排程、Oracle VM 部署                            |
-| 15  | `src/modules/portfolio/`     | `docs/modules/presentation/api/portfolio_health_api.md` | ⚠️ 部分覆蓋      | 僅 API 端點，無模組內部邏輯文件                           |
-| 16  | `src/modules/providers/`     | `docs/modules/strategy/providers.md`                    | ✅ 已覆蓋        | Provider 架構與 10 個實作文件                             |
-| 17  | `src/modules/replay/`        | —                                                       | ❌ 未覆蓋        | 重放模組無對應文件                                        |
-| 18  | `src/modules/sentiment/`     | `docs/modules/strategy/sentiment.md`                    | ✅ 已覆蓋        | Phase 8 已補寫                                            |
-| 19  | `src/modules/simulator/`     | `docs/modules/strategy/simulator.md`                    | ✅ 已覆蓋        | Phase 8 已補寫                                            |
-| 20  | `src/modules/strategy/`      | `docs/modules/strategy/`                                | ✅ 已覆蓋        | 策略引擎、雷達、生命週期、現金風險                        |
-| 21  | `src/modules/verification/`  | `docs/verification/`                                    | ⚠️ 部分覆蓋      | 驗證報告存在，但非模組技術規格                            |
-| 22  | `src/scheduler/`             | `docs/modules/operations/schedules.md`                  | ✅ 已覆蓋 (部分) | 每日計算排程已涵蓋                                        |
-| 23  | `src/scripts/`               | —                                                       | ❌ 未覆蓋        | 驗證腳本無對應文件                                        |
-| 24  | `src/tools/`                 | —                                                       | ❌ 未覆蓋        | 工具集無對應文件                                          |
-| 25  | `src/utils/`                 | —                                                       | ❌ 未覆蓋        | 工具函式 (snapshotCrypto、coreUtils、envGuard) 無對應文件 |
+| #   | src 模組                     | 對應 docs 位置                                          | 狀態             | 備註                                                        |
+| --- | ---------------------------- | ------------------------------------------------------- | ---------------- | ----------------------------------------------------------- |
+| 1   | `src/api/`                   | `docs/modules/presentation/api/`                        | ✅ 已覆蓋        | API 契約與端點規格                                          |
+| 2   | `src/bot/`                   | `docs/modules/presentation/bot.md`                      | ✅ 已覆蓋        | Telegram Bot 入口規格                                       |
+| 3   | `src/domain/`                | `docs/modules/overview.md`                              | ⚠️ 部分覆蓋      | Context/State 物件定義，合併入架構總覽資料治理章節          |
+| 4   | `src/interfaces/`            | 各對應模組文件                                          | ⚠️ 部分覆蓋      | INotifier/IDataProvider 等散記於各模組文件，不需獨立文件    |
+| 5   | `src/modules/ai/`            | `docs/modules/ai_news/`                                 | ✅ 已覆蓋        | AI 管線、提示詞、Langfuse                                   |
+| 6   | `src/modules/assets/`        | `docs/modules/strategy/`                                | ⚠️ 部分覆蓋      | assetRegistry 在策略文件已說明（DEC-14 資產抽象）           |
+| 7   | `src/modules/bot/`           | `docs/modules/presentation/bot.md`                      | ⚠️ 部分覆蓋      | 僅涵蓋 Bot 入口，未涵蓋 handlers/middleware                 |
+| 8   | `src/modules/config/`        | `docs/modules/strategy/`                                | ⚠️ 部分覆蓋      | configValidator 功能在策略文件已涵蓋，不需獨立文件          |
+| 9   | `src/modules/data/`          | `docs/modules/infrastructure/`                          | ✅ 已覆蓋        | 資料持久化、快取、歷史 K 線                                 |
+| 10  | `src/modules/deployment/`    | `docs/operations/deployment-agent.md`                   | ⚠️ 部分覆蓋      | 部署代理有文件，executorLock/verification 未涵蓋            |
+| 11  | `src/modules/monitoring/`    | `docs/decisions/DEC-005-monitoring-alerting.md`         | ⚠️ 部分覆蓋      | 架構決策文件存在，alertEngine 實作未細述                    |
+| 12  | `src/modules/news/`          | `docs/modules/ai_news/`                                 | ✅ 已覆蓋 (部分) | 新聞獲取已涵蓋，AI 分析管線分散在 ai_news/                  |
+| 13  | `src/modules/notifications/` | `docs/modules/presentation/notifications.md`            | ⚠️ 部分覆蓋      | 通知格式化已涵蓋，傳輸層未涵蓋                              |
+| 14  | `src/modules/operations/`    | `docs/modules/operations/`                              | ✅ 已覆蓋        | 環境變數、排程、Oracle VM 部署                              |
+| 15  | `src/modules/portfolio/`     | `docs/modules/presentation/api/portfolio_health_api.md` | ⚠️ 部分覆蓋      | 僅 API 端點，無模組內部邏輯文件                             |
+| 16  | `src/modules/providers/`     | `docs/modules/strategy/providers.md`                    | ✅ 已覆蓋        | Provider 架構與 10 個實作文件                               |
+| 17  | `src/modules/replay/`        | `docs/verification/`                                    | ⚠️ 部分覆蓋      | replayRunner 在 verification 已說明，細節可補充             |
+| 18  | `src/modules/sentiment/`     | `docs/modules/strategy/sentiment.md`                    | ✅ 已覆蓋        | Phase 8 已補寫                                              |
+| 19  | `src/modules/simulator/`     | `docs/modules/strategy/simulator.md`                    | ✅ 已覆蓋        | Phase 8 已補寫                                              |
+| 20  | `src/modules/strategy/`      | `docs/modules/strategy/`                                | ✅ 已覆蓋        | 策略引擎、雷達、生命週期、現金風險                          |
+| 21  | `src/modules/verification/`  | `docs/verification/`                                    | ⚠️ 部分覆蓋      | 驗證報告存在，但非模組技術規格                              |
+| 22  | `src/scheduler/`             | `docs/modules/operations/schedules.md`                  | ✅ 已覆蓋 (部分) | 每日計算排程已涵蓋                                          |
+| 23  | `src/scripts/`               | `docs/meta/scripts-inventory.md`（Phase 4 建立）        | ❌ 未覆蓋        | 待 Phase 4 腳本盤點建立後補充                               |
+| 24  | `src/tools/`                 | `docs/TESTING.md`                                       | ⚠️ 部分覆蓋      | stressTest 工具可併入 TESTING.md 壓力測試段落               |
+| 25  | `src/utils/`                 | `docs/modules/infrastructure/`                          | ⚠️ 部分覆蓋      | logger/coreUtils/snapshotCrypto/envGuard 合併入基礎設施文件 |
 
 ## 統計摘要
 
 | 狀態        | 數量    | 比例 |
 | ----------- | ------- | ---- |
-| ✅ 已覆蓋   | 9 / 25  | 36%  |
-| ⚠️ 部分覆蓋 | 6 / 25  | 24%  |
-| ❌ 未覆蓋   | 10 / 25 | 40%  |
+| ✅ 已覆蓋   | 11 / 25 | 44%  |
+| ⚠️ 部分覆蓋 | 13 / 25 | 52%  |
+| ❌ 未覆蓋   | 1 / 25  | 4%   |
 
 ## 補寫優先級
 

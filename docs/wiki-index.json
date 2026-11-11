@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 129,
+    "total_concepts": 132,
     "total_edges": 189,
     "total_code_mappings": 92,
     "concepts_with_code": 45,
     "concepts_with_links": 56,
-    "generated_at": "2026-11-11T04:17:09.795Z"
+    "generated_at": "2026-11-11T05:01:43.608Z"
   },
   "concepts": {
     "api-contract": {
@@ -226,6 +226,16 @@
       "related_code": [],
       "tags": ["maintenance", "schedule", "automation"],
       "status": "current",
+      "last_verified": null
+    },
+    "scripts-inventory": {
+      "primary_doc": "meta/scripts-inventory.md",
+      "title": "Scripts 目錄腳本清單 (Scripts Inventory)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["scripts", "inventory", "automation", "docs-governance"],
+      "status": "\"current\"",
       "last_verified": null
     },
     "modules": {
@@ -851,6 +861,32 @@
       "tags": ["regime", "policy", "market-state", "macro-regime-2"],
       "status": "current",
       "last_verified": "2026-09-12"
+    },
+    "sentiment": {
+      "primary_doc": "modules/strategy/sentiment.md",
+      "title": "社群情緒引擎 (Sentiment Engine)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["sentiment", "social", "ptt", "bluesky", "emotion-indicator"],
+      "status": "current",
+      "last_verified": null
+    },
+    "simulator": {
+      "primary_doc": "modules/strategy/simulator.md",
+      "title": "0050 雙向模擬器 (Simulator)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "simulator",
+        "forward-simulation",
+        "reverse-engine",
+        "strategy",
+        "0050"
+      ],
+      "status": "current",
+      "last_verified": null
     },
     "strategy-engine": {
       "primary_doc": "modules/strategy/strategy_engine.md",

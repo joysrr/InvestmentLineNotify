@@ -111,7 +111,9 @@ docs/
 │
 └── meta/                          # 文件庫健康度與 Wiki 索引維護
     ├── documentation-standards.md # 文件寫作規範與 YAML Frontmatter 定義
-    └── maintenance-schedule.md    # 定期維護行程
+    ├── maintenance-schedule.md    # 定期維護行程
+    ├── documentation-coverage-matrix.md # src/ 模組覆蓋率矩陣（Phase 7 建立）
+    └── scripts-inventory.md       # scripts/ 目錄腳本清單與用途說明（Phase 8 建立）
 ```
 
 ---
