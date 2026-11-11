@@ -39,14 +39,15 @@ Worker crash 與 langfuse **無直接關聯**。`kgiProvider.test.mjs` 等無關
 
 這是 **vitest 4.1.x 在 Node 20 + fork pool + Docker 環境下的已知問題**：測試全部跑完後，worker process 在 cleanup 階段沒有乾淨退出（可能有 pending timer/handle 未關閉）。測試結果本身是綠的，只是 exit code 不為 0。
 
-## 緩解措施（Phase 6）
+## 緩解措施（Phase 6 — 已評估，未應用）
 
-- `package.json` test script 加 `|| true` 讓 CI 不會因 worker crash 而 fail：
-  ```json
-  "test": "vitest run || true"
-  ```
-- 在 vitest config 加 `passWithNoTests: false, dangerouslyIgnoreUnhandledErrors: false`（預設值）
-- 仍可從 "Test Files passed" summary 看到真實測試結果
+經 2026-11-10 文件一致性審查，上述 Phase 6 緩解措施 **並未實際應用**：
+
+- `package.json` test script 仍為 `"vitest run"`（未加 `|| true`）
+- `vitest.config.mjs` 未加入 `passWithNoTests` / `dangerouslyIgnoreUnhandledErrors` 設定
+- CI 仍可能因 vitest worker crash 導致 exit code = 1，雖然所有測試案例本身皆通過
+
+本 DEC 維持「Deferred to Phase 7」狀態，緩解措施待 Phase 7 實作（升級 vitest 到 4.2+、切換 Node 22 LTS 或評估 `pool: 'vmThreads'`）。
 
 ## 下一步（Phase 7+）
 

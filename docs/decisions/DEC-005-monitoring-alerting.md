@@ -52,3 +52,12 @@ Phase 4.2 需要實作生產級監控：錯誤追蹤、效能指標 (p50/p95/p99
 - 單機部署零依賴
 - WebSocket 即時推送適合 Mini App 儀表板
 - SQLite 可備份/遷移
+
+## 目前實作狀態 (2026-11-10 文件一致性審查)
+
+本 DEC 為 Phase 4.2 已封存決策，生產環境監控已改由 Oracle VM PM2 守護與 Telegram Bot 通報承接。對照程式碼 SSOT：
+
+- `src/modules/monitoring/metricsCollector.mjs` — 存在 ✅
+- `src/modules/monitoring/alertEngine.mjs` — 存在 ✅
+- `src/modules/monitoring/errorTracker.mjs` — 不存在（已被 `errorStore.mjs` 取代）
+- `src/api/routes/monitoringRoutes.mjs` — 不存在（監控 API 未以本 DEC 規格實作）

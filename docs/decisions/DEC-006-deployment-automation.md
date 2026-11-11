@@ -55,3 +55,14 @@ Phase 4.3 需要實作單機部署自動化：Git pull → npm ci → build → 
 - 單機零外部依賴部署
 - Mini App 使用者可一鍵部署並即時觀察日誌
 - 回滾機制保障部署失敗時快速恢復
+
+## 目前實作狀態 (2026-11-10 文件一致性審查)
+
+本 DEC 為 Phase 4.3 已封存決策，部署自動化已依 DEC-017 改由 Host Agent Unix socket 架構實作。對照程式碼 SSOT：
+
+- `src/modules/deployment/executor.mjs` — 存在 ✅
+- `src/api/routes/deployRoutes.mjs` — 存在 ✅
+- `src/modules/deployment/queue.mjs` — 不存在（佇列由 Host Agent 處理）
+- `webapp/src/components/DeployButton.vue` — 不存在（部署控制已遷至 AccountView / DeploymentControl）
+- `deploy-local.mjs` — 不存在（未在 repository 根目錄）
+- `investment-line-notify.service` — 不存在（Systemd 由 Host 端管理）
