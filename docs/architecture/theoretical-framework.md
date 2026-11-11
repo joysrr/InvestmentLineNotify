@@ -453,7 +453,7 @@ scenarios = [
   { name: "估值回歸", maxLoss: 0.2 }, // -20%
 ];
 
-minimaxLoss = max(scenarios.map((s) => s.maxLoss)); // 取最壞 = -40%
+minimaxLoss = min(scenarios.map((s) => s.maxLoss)); // 取最小最大損失 = 20%
 ```
 
 ### 5.3 實作細節
@@ -478,8 +478,8 @@ minimaxLoss = max(scenarios.map((s) => s.maxLoss)); // 取最壞 = -40%
 ```javascript
 {
   status: "OK",
-  minimaxLoss: -0.4,           // -40% 最壞損失
-  worstScenario: "COVID 熔斷",  // 最壞情境名稱
+  minimaxLoss: 0.2,            // 20% 最小最大損失 (估值回歸)
+  worstScenario: "估值回歸",    // 損失最小的情境名稱
 }
 ```
 
@@ -527,7 +527,7 @@ scenarios = [
 2. **風險預算分配**:
    ```javascript
    // 確保任何情境下損失 < 帳戶淨值的 50%
-   maxAllowedLeverage = 0.5 / abs(minimaxLoss); // 0.5 / 0.4 = 1.25x
+   maxAllowedLeverage = 0.5 / abs(minimaxLoss); // 0.5 / 0.2 = 2.5x
    ```
 
 ---
@@ -882,11 +882,11 @@ const humanCapital = calculateHumanCapital({
 
 | 功能             | 代碼文件                                         | 測試文件                                                        |
 | ---------------- | ------------------------------------------------ | --------------------------------------------------------------- |
-| 理論計算核心     | `src/modules/strategy/theoreticalEngine.mjs`     | `src/test/unit/modules/strategy/theoreticalEngine.test.mjs`     |
+| 理論計算核心     | `src/modules/strategy/theoreticalEngine.mjs`     | ❌ 未實作 (theoreticalEngine.test.mjs 缺失)                     |
 | Daily Check 整合 | `src/scheduler/dailyCheckTheoreticalAdapter.mjs` | `src/test/unit/scheduler/dailyCheckTheoreticalAdapter.test.mjs` |
 | 非交易日邏輯     | `src/scheduler/dailyCheck.mjs`                   | `src/test/unit/scheduler/dailyCheck.test.mjs`                   |
-| 前端展示         | `webapp/src/views/TheoryView.vue`                | `webapp/src/test/views/TheoryView.test.js`                      |
-| 資料組合         | `webapp/src/composables/useTheoryData.js`        | `webapp/src/test/composables/useTheoryData.test.js`             |
+| 前端展示         | `webapp/src/views/TheoryView.vue`                | ❌ 未實作 (TheoryView.test.js 缺失)                             |
+| 資料組合         | `webapp/src/composables/useTheoryData.js`        | ❌ 未實作 (useTheoryData.test.js 缺失)                          |
 
 ---
 
