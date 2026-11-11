@@ -111,4 +111,4 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 1. 在 GitHub Repo → **Settings → Secrets and variables → Actions** 新增 Secret
 2. 在對應的 `.github/workflows/*.yml` 的 `env:` 區塊加入該變數
 3. 在 `src/utils/envGuard.mjs` 的 `REQUIRED_VARS` 陣列加入（必填項目才需要）
-4. **更新本文件**（`docs/env-vars.md`）
+4. **更新本文件**（`docs/modules/operations/env_vars.md`）
