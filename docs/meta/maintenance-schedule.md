@@ -1,7 +1,7 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-11
+last_updated: 2026-11-11
 tags:
   - maintenance
   - schedule
@@ -85,6 +85,25 @@ node scripts/add-frontmatter.mjs <file>
 - **GitHub Actions**: `.github/workflows/docs-validation.yml`
 - **Pre-commit Hook**: `.husky/pre-commit`
 - **健康度閾值**: 50/100 (低於此值 CI 失敗)
+
+---
+
+## 📦 本地生成物 (Local Artifacts)
+
+以下檔案由驗證腳本產生，僅存在於本地，**不納入版本控制** (已在 `.gitignore` 排除)：
+
+| 檔案                            | 產生腳本                  | 說明                              |
+| ------------------------------- | ------------------------- | --------------------------------- |
+| `docs/meta/health-report.json`  | `analyze-docs-health.mjs` | 文件健康度分析報告，本地查看用    |
+| `docs/meta/graph-analysis.json` | `analyze-docs-health.mjs` | 知識圖譜分析數據，本地查看用      |
+| `docs/meta/concept-graph.mmd`   | `generate-wiki-index.mjs` | 概念圖 Mermaid 原始碼，本地查看用 |
+
+與上述不同，以下檔案由 `generate-wiki-index.mjs` 產生，**需 commit 至版本控制**：
+
+| 檔案                   | 說明                                    |
+| ---------------------- | --------------------------------------- |
+| `docs/wiki-index.json` | Wiki 離線知識庫索引，LLM 離線查詢真理源 |
+| `docs/wiki-graph.json` | Wiki 知識圖譜，節點與邊關係             |
 
 ---
 

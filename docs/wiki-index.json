@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 127,
+    "total_concepts": 128,
     "total_edges": 189,
     "total_code_mappings": 89,
     "concepts_with_code": 44,
     "concepts_with_links": 56,
-    "generated_at": "2026-11-11T02:44:48.225Z"
+    "generated_at": "2026-11-11T03:15:00.221Z"
   },
   "concepts": {
     "api-contract": {
@@ -197,6 +197,16 @@
       "tags": ["design", "budget", "priority"],
       "status": "current",
       "last_verified": "2026-11-10"
+    },
+    "documentation-coverage-matrix": {
+      "primary_doc": "meta/documentation-coverage-matrix.md",
+      "title": "文件覆蓋率矩陣 (Documentation Coverage Matrix)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["coverage", "matrix", "governance"],
+      "status": "current",
+      "last_verified": null
     },
     "documentation-standards": {
       "primary_doc": "meta/documentation-standards.md",

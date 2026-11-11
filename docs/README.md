@@ -131,3 +131,21 @@ node scripts/validate-wiki-index.mjs
 # 4. 分析文件庫健康度評分
 node scripts/analyze-docs-health.mjs
 ```
+
+### 📦 本地生成物與版控檔案說明
+
+上述腳本產出以下檔案，請注意區分：
+
+| 檔案                            | 產生腳本                  | 版控                                        |
+| ------------------------------- | ------------------------- | ------------------------------------------- |
+| `docs/meta/health-report.json`  | `analyze-docs-health.mjs` | ❌ 本地生成物（已 `.gitignore`，不 commit） |
+| `docs/meta/graph-analysis.json` | `analyze-docs-health.mjs` | ❌ 本地生成物（已 `.gitignore`，不 commit） |
+| `docs/meta/concept-graph.mmd`   | `generate-wiki-index.mjs` | ❌ 本地生成物（已 `.gitignore`，不 commit） |
+| `docs/wiki-index.json`          | `generate-wiki-index.mjs` | ✅ 需 commit（LLM 離線知識庫真理源）        |
+| `docs/wiki-graph.json`          | `generate-wiki-index.mjs` | ✅ 需 commit                                |
+
+> `docs/wiki-index.json` 與 `docs/wiki-graph.json` 為單一真理源，必須 commit；其餘為本地查看用，不納入版本控制。
+
+```
+
+```
