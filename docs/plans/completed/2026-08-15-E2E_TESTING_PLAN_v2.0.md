@@ -8,7 +8,7 @@ tags:
   - archived
 summary: "端到端測試計畫與 Playwright 設定規格"
 related_code:
-  - scripts/verify-pages.sh
+  - vitest.config.mjs
   - vitest.config.mjs
 related_docs:
   - docs/TESTING.md

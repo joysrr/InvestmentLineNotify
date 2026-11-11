@@ -8,7 +8,7 @@ tags:
   - archived
 summary: "Phase 1-4 E2E 測試完成摘要與驗證結果"
 related_code:
-  - scripts/verify-pages.sh
+  - vitest.config.mjs
 related_docs:
   - docs/TESTING.md
 wiki_links:

@@ -15,7 +15,7 @@ tags:
   - "[[Macro Regime Advanced Spec]]"
 summary: "Mini App 三層金字塔 UX 架構設計規格"
 related_code:
-  - src/modules/presentation/
+  - scripts/analyze-docs-health.mjs
 related_docs:
   - docs/modules/presentation/_index.md
 wiki_links:
