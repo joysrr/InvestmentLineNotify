@@ -201,6 +201,19 @@ node scripts/add-frontmatter.mjs <file>
 
 ---
 
+## 📋 Phase 完成檢查清單 (Phase Completion Checklist)
+
+每個 Phase 完成前必須全部勾選：
+
+- [ ] `git status` clean（無未提交變更）
+- [ ] `git push origin main` 已完成
+- [ ] GitHub API 的 HEAD SHA 與本地 `git rev-parse HEAD` 一致
+- [ ] 至少抽查 2 個新建/修改檔案，從 `raw.githubusercontent.com` 確認內容已更新（應回傳 200）
+- [ ] 驗證腳本全部通過（`validate-docs-consistency.mjs`、`analyze-docs-health.mjs` 等）
+- [ ] Phase 完成報告已附上 `git rev-parse HEAD` 輸出
+
+---
+
 ## 📖 參考資料
 
 - [Diátaxis Framework](https://diataxis.fr/) - 文件分類框架

@@ -16,6 +16,7 @@
     "verify:data-evidence": "node scripts/generate-data-evidence-report.mjs",
     "sync:production-artifacts": "node scripts/sync-production-artifacts.mjs",
     "verify": "npm run lint && npm test && npm run openapi:check",
+    "verify-phase": "node scripts/validate-phase-completion.mjs",
     "pre-deploy": "npm run verify && npm --prefix webapp run lint && npm --prefix webapp run test && npm --prefix webapp run test:e2e",
     "openapi:generate": "node scripts/generate-openapi.mjs",
     "openapi:check": "node scripts/check-openapi-diff.mjs",

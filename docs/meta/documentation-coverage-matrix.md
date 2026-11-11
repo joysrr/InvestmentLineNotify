@@ -47,7 +47,7 @@ wiki_links:
 | 20  | \`src/modules/strategy/\`      | \`docs/modules/strategy/\`                                                    | ✅ 已覆蓋        | 策略引擎、雷達、生命週期、現金風險                                        |
 | 21  | \`src/modules/verification/\`  | \`docs/TESTING.md\`                                                           | N/A              | 驗證報告存在，但非模組技術規格，在 TESTING.md 說明                        |
 | 22  | \`src/scheduler/\`             | \`docs/modules/operations/schedules.md\`                                      | ✅ 已覆蓋 (部分) | 每日計算排程已涵蓋                                                        |
-| 23  | \`src/scripts/\`               | \`docs/meta/scripts-inventory.md\`（Phase 4 建立）                            | ❌ 未覆蓋        | 待 Phase 4 腳本盤點建立後補充                                             |
+| 23  | `src/scripts/`                 | `docs/meta/scripts-inventory.md`（Phase 9 建立）                              | ✅ 已覆蓋        | 腳本盤點已完整，涵蓋 26 個 .mjs 腳本                                      |
 | 24  | \`src/tools/\`                 | \`docs/TESTING.md\`                                                           | N/A              | stressTest 工具可併入 TESTING.md 壓力測試段落，不需獨立文件               |
 | 25  | \`src/utils/\`                 | \`docs/modules/infrastructure/_index.md\`                                     | N/A              | logger/coreUtils/snapshotCrypto/envGuard 合併入基礎設施文件，不需獨立文件 |
 

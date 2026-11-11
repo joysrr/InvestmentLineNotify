@@ -223,6 +223,13 @@ wiki_links:
 - **使用方式**：`node scripts/fetch-longterm-data.mjs`
 - **產出物**：寫入 `data/` 目錄
 
+### `validate-phase-completion.mjs`
+
+- **用途**：驗證 Phase 完成狀態（git status、本地/遠端 HEAD SHA、關鍵檔案存在性）
+- **使用方式**：`node scripts/validate-phase-completion.mjs --phase "Phase 10" --files "docs/a.md,docs/b.md"`
+- **產出物**：驗證摘要（通過/失敗），退出碼 0/1
+- **對應 npm 指令**：`npm run verify-phase`
+
 ---
 
 ## 生成物 `.gitignore` 規則

@@ -61,6 +61,10 @@ function checkReadmeNavigation() {
       join(DOCS_DIR, "plans", ref),
       join(DOCS_DIR, "plans", "active", ref),
       join(DOCS_DIR, "plans", "completed", ref),
+      join(DOCS_DIR, "design", ref),
+      join(DOCS_DIR, "api", ref),
+      join(DOCS_DIR, "operations", ref),
+      join(DOCS_DIR, "architecture", ref),
     ];
     const exists = candidates.some((c) => existsSync(c));
     log(

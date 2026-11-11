@@ -1,7 +1,7 @@
 ---
 type: reference
 status: current
-last_updated: 2026-09-11
+last_updated: 2026-11-11
 tags:
   - standards
   - documentation
@@ -408,6 +408,57 @@ updated: 2026-09-11 # 應使用 last_updated
 
 ---
 
-**最後更新**: 2026-11-11  
-**版本**: 1.0  
-**維護者**: Han (@joysrr)
+## 📏 文件品質指標 (Documentation Quality Metrics)
+
+| 指標         | 說明                                    | 如何檢查                                  | 通過標準                                  |
+| ------------ | --------------------------------------- | ----------------------------------------- | ----------------------------------------- |
+| **完整性**   | 模組職責、資料流、API、錯誤處理皆有說明 | 閱讀文件，確認五大要素皆存在              | 五大要素皆有內容，無空白章節              |
+| **準確性**   | 與程式碼一致（以程式碼為 SSOT）         | 執行 `validate-docs-code-consistency.mjs` | 相關數值、常數與程式碼一致                |
+| **可導航性** | TOC、內部連結、related_code             | 執行 `validate-docs-consistency.mjs`      | 0 個失效導航路徑，0 個無效 related_code   |
+| **可執行性** | 範例可實際執行                          | 執行文件中的程式碼範例                    | 範例不拋出未預期錯誤                      |
+| **時效性**   | last_updated 與 last_verified 明確      | 檢查 frontmatter                          | last_updated ≤ 3 個月，last_verified 有值 |
+
+---
+
+### 品質門檻
+
+- 整體文件健康度平均分數 ≥ 65（`analyze-docs-health.mjs`）
+- related_code 無效引用 ≤ 3（`validate-docs-consistency.mjs`）
+- 導航路徑失敗 = 0（`validate-docs-consistency.mjs`）
+
+---
+
+## 🔄 Phase 完成回報協議 (Phase Completion Reporting Protocol)
+
+### 回報前必須執行的驗證指令
+
+```bash
+# 1. 確認 working tree 乾淨
+git status
+
+# 2. 確認已推送
+git push origin main
+
+# 3. 確認 GitHub HEAD 與本地一致
+LOCAL_SHA=$(git rev-parse HEAD)
+REMOTE_SHA=$(curl -s "https://api.github.com/repos/joysrr/InvestmentLineNotify/commits/main" | jq -r .sha)
+[ "$LOCAL_SHA" = "$REMOTE_SHA" ] && echo "✅ HEAD 一致" || echo "❌ HEAD 不一致"
+
+# 4. 抽查關鍵檔案（從 raw.githubusercontent.com 確認內容已更新）
+curl -sI "https://raw.githubusercontent.com/joysrr/InvestmentLineNotify/main/docs/<關鍵檔案>.md" | head -1
+# 應回傳 200，若 404 表示未推送
+```
+
+### 報告格式要求
+
+Phase 完成報告必須附上 `git rev-parse HEAD` 的輸出，否則視為未完成。報告格式範例：
+
+```
+Phase X 完成 - commit: <git rev-parse HEAD 輸出>
+GitHub HEAD SHA: <curl API 回傳的 SHA>
+驗證結果：全部通過
+```
+
+違反本協議的 Phase 完成報告不予承認，須重新執行驗證後再提交。
+
+---
