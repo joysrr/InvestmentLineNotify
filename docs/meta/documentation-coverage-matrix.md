@@ -41,8 +41,8 @@ wiki_links:
 | 15  | `src/modules/portfolio/`     | `docs/modules/presentation/api/portfolio_health_api.md` | ⚠️ 部分覆蓋      | 僅 API 端點，無模組內部邏輯文件                           |
 | 16  | `src/modules/providers/`     | `docs/modules/strategy/providers.md`                    | ✅ 已覆蓋        | Provider 架構與 10 個實作文件                             |
 | 17  | `src/modules/replay/`        | —                                                       | ❌ 未覆蓋        | 重放模組無對應文件                                        |
-| 18  | `src/modules/sentiment/`     | —                                                       | ❌ 未覆蓋        | 社群情緒模組無對應文件                                    |
-| 19  | `src/modules/simulator/`     | —                                                       | ❌ 未覆蓋        | 0050 模擬器無對應文件                                     |
+| 18  | `src/modules/sentiment/`     | `docs/modules/strategy/sentiment.md`                    | ✅ 已覆蓋        | Phase 8 已補寫                                            |
+| 19  | `src/modules/simulator/`     | `docs/modules/strategy/simulator.md`                    | ✅ 已覆蓋        | Phase 8 已補寫                                            |
 | 20  | `src/modules/strategy/`      | `docs/modules/strategy/`                                | ✅ 已覆蓋        | 策略引擎、雷達、生命週期、現金風險                        |
 | 21  | `src/modules/verification/`  | `docs/verification/`                                    | ⚠️ 部分覆蓋      | 驗證報告存在，但非模組技術規格                            |
 | 22  | `src/scheduler/`             | `docs/modules/operations/schedules.md`                  | ✅ 已覆蓋 (部分) | 每日計算排程已涵蓋                                        |
@@ -54,38 +54,37 @@ wiki_links:
 
 | 狀態        | 數量    | 比例 |
 | ----------- | ------- | ---- |
-| ✅ 已覆蓋   | 7 / 25  | 28%  |
+| ✅ 已覆蓋   | 9 / 25  | 36%  |
 | ⚠️ 部分覆蓋 | 6 / 25  | 24%  |
-| ❌ 未覆蓋   | 12 / 25 | 48%  |
+| ❌ 未覆蓋   | 10 / 25 | 40%  |
 
 ## 補寫優先級
 
 依據 Phase 7 計畫評估：
 
-| 優先級 | 模組                         | 原因                        | 建議動作                                                     |
-| ------ | ---------------------------- | --------------------------- | ------------------------------------------------------------ |
-| 🔴 高  | `src/modules/strategy/`      | 已覆蓋，無需動作            | —                                                            |
-| 🔴 高  | `src/modules/simulator/`     | 核心業務邏輯（0050 模擬器） | 補寫 `docs/modules/strategy/simulator.md`                    |
-| 🔴 高  | `src/modules/sentiment/`     | 社群情緒核心模組            | 補寫 `docs/modules/strategy/sentiment.md`                    |
-| 🟠 中  | `src/modules/portfolio/`     | 投資組合核心邏輯            | 補寫 `docs/modules/strategy/portfolio.md`                    |
-| 🟠 中  | `src/modules/notifications/` | 傳輸層未涵蓋                | 補寫 `docs/modules/presentation/notifications-transports.md` |
-| 🟠 中  | `src/modules/bot/`           | handlers/middleware 未涵蓋  | 補寫 `docs/modules/presentation/bot-handlers.md`             |
-| 🟢 低  | `src/utils/`                 | 工具函式                    | 併入 `docs/meta/documentation-standards.md`                  |
-| 🟢 低  | `src/scripts/`               | 驗證腳本                    | 併入 `docs/meta/documentation-standards.md`                  |
-| 🟢 低  | `src/modules/config/`        | 設定模組                    | 評估是否需文件                                               |
-| 🟢 低  | `src/modules/assets/`        | 資產模組                    | 評估是否需文件                                               |
-| 🟢 低  | `src/modules/deployment/`    | 部署模組                    | 評估是否需文件                                               |
-| 🟢 低  | `src/modules/monitoring/`    | 監控模組                    | 評估是否需文件                                               |
-| 🟢 低  | `src/modules/replay/`        | 重放模組                    | 評估是否需文件                                               |
-| 🟢 低  | `src/domain/`                | 領域模型                    | 評估是否需文件                                               |
-| 🟢 低  | `src/interfaces/`            | 介面定義                    | 評估是否需文件                                               |
-| 🟢 低  | `src/tools/`                 | 工具集                      | 評估是否需文件                                               |
+| 優先級  | 模組                         | 原因                        | 建議動作                                                     |
+| ------- | ---------------------------- | --------------------------- | ------------------------------------------------------------ |
+| ✅ 完成 | `src/modules/simulator/`     | 核心業務邏輯（0050 模擬器） | 已補寫 `docs/modules/strategy/simulator.md`                  |
+| ✅ 完成 | `src/modules/sentiment/`     | 社群情緒核心模組            | 已補寫 `docs/modules/strategy/sentiment.md`                  |
+| 🟠 中   | `src/modules/portfolio/`     | 投資組合核心邏輯            | 補寫 `docs/modules/strategy/portfolio.md`                    |
+| 🟠 中   | `src/modules/notifications/` | 傳輸層未涵蓋                | 補寫 `docs/modules/presentation/notifications-transports.md` |
+| 🟠 中   | `src/modules/bot/`           | handlers/middleware 未涵蓋  | 補寫 `docs/modules/presentation/bot-handlers.md`             |
+| 🟢 低   | `src/utils/`                 | 工具函式                    | 併入 `docs/meta/documentation-standards.md`                  |
+| 🟢 低   | `src/scripts/`               | 驗證腳本                    | 併入 `docs/meta/documentation-standards.md`                  |
+| 🟢 低   | `src/modules/config/`        | 設定模組                    | 評估是否需文件                                               |
+| 🟢 低   | `src/modules/assets/`        | 資產模組                    | 評估是否需文件                                               |
+| 🟢 低   | `src/modules/deployment/`    | 部署模組                    | 評估是否需文件                                               |
+| 🟢 低   | `src/modules/monitoring/`    | 監控模組                    | 評估是否需文件                                               |
+| 🟢 低   | `src/modules/replay/`        | 重放模組                    | 評估是否需文件                                               |
+| 🟢 低   | `src/domain/`                | 領域模型                    | 評估是否需文件                                               |
+| 🟢 低   | `src/interfaces/`            | 介面定義                    | 評估是否需文件                                               |
+| 🟢 低   | `src/tools/`                 | 工具集                      | 評估是否需文件                                               |
 
 ## 驗收準則
 
 - [x] src/ 下每個模組在「模組覆蓋一覽表」中都有明確狀態
-- [ ] 「完全無文件」的模組（❌ 未覆蓋）已評估補寫需求
-- [ ] 補寫清單已納入 Phase 7 後續階段
+- [x] 「完全無文件」的模組（❌ 未覆蓋）已評估補寫需求
+- [x] 補寫清單已納入 Phase 8（simulator.md、sentiment.md 已完成）
 
 ---
 
