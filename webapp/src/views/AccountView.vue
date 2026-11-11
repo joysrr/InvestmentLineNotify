@@ -32,62 +32,14 @@
 
     <!-- ── Content ── -->
     <template v-else-if="status">
-      <!-- 1. 總經快照 -->
+      <!-- 2. 策略趨勢 (PR Trend) -->
       <div class="section">
-        <h2 class="section-title">🌐 總經快照</h2>
-        <div class="macro-grid">
-          <div class="macro-card">
-            <div class="macro-label">CNN 恐懼貪婪</div>
-            <div class="macro-value" :class="fngClass">{{ fngValue }}</div>
-            <div class="macro-sub">{{ fngRating }}</div>
-          </div>
-          <div class="macro-card">
-            <div class="macro-label">USD / TWD</div>
-            <div class="macro-value">{{ fxValue }}</div>
-            <div class="macro-sub" :class="fxChangeClass">
-              {{ fxChangeSub }}
-            </div>
-          </div>
-          <div class="macro-card">
-            <div class="macro-label">大盤 P/B</div>
-            <div class="macro-value">{{ pbValue }}</div>
-            <div class="macro-sub">淨值比</div>
-          </div>
-          <div class="macro-card">
-            <div class="macro-label">大盤 P/E</div>
-            <div class="macro-value">{{ peValue }}</div>
-            <div class="macro-sub">本益比</div>
-          </div>
+      <h2 class="section-title">📈 PR 分位數趨勢 (30D)</h2>
+      <div class="trend-layout">
+        <div class="trend-main">
+          <v-chart class="trend-chart" :option="prTrendOption" autoresize />
         </div>
       </div>
-
-      <!-- 2. 策略趨勢 (PR Trend & Leverage Gauge) -->
-      <div class="section">
-        <h2 class="section-title">📈 策略與風險趨勢</h2>
-        <div class="trend-layout">
-          <div class="trend-main">
-            <div class="chart-label">PR 分位數走勢 (30D)</div>
-            <v-chart class="trend-chart" :option="prTrendOption" autoresize />
-          </div>
-          <div class="trend-side">
-            <div class="side-item">
-              <div class="chart-label">總曝險倍數</div>
-              <v-chart
-                class="gauge-chart"
-                :option="leverageGaugeOption"
-                autoresize
-              />
-            </div>
-            <div class="side-item">
-              <div class="chart-label">融資維持率</div>
-              <v-chart
-                class="gauge-chart"
-                :option="maintenanceGaugeOption"
-                autoresize
-              />
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- 3. 帳戶快照 -->
@@ -281,7 +233,7 @@ import DeploymentControl from "../components/common/DeploymentControl.vue";
 // ECharts
 import VChart from "vue-echarts";
 import { use } from "echarts/core";
-import { LineChart, GaugeChart } from "echarts/charts";
+import { LineChart } from "echarts/charts";
 import {
   TitleComponent,
   TooltipComponent,
@@ -291,7 +243,6 @@ import { CanvasRenderer } from "echarts/renderers";
 
 use([
   LineChart,
-  GaugeChart,
   TitleComponent,
   TooltipComponent,
   GridComponent,
@@ -402,87 +353,6 @@ const prTrendOption = computed(() => {
   };
 });
 
-// ── Leverage & Maintenance Gauges ──
-const latestReport = computed(() => reports.value[reports.value.length - 1]);
-
-const leverageGaugeOption = computed(() => {
-  const val = Number(latestReport.value?.signals?.grossLeverage) || 1.0;
-  return {
-    series: [
-      {
-        type: "gauge",
-        startAngle: 200,
-        endAngle: -20,
-        min: 1.0,
-        max: 3.0,
-        radius: "100%",
-        center: ["50%", "60%"],
-        pointer: { width: 4, itemStyle: { color: "#666" } },
-        axisLine: {
-          lineStyle: {
-            width: 6,
-            color: [
-              [0.5, "#26a17b"],
-              [0.75, "#d4ac0d"],
-              [1, "#e84855"],
-            ],
-          },
-        },
-        axisTick: { show: false },
-        splitLine: { show: false },
-        axisLabel: { show: false },
-        detail: {
-          offsetCenter: [0, 20],
-          formatter: "{value}x",
-          fontSize: 15,
-          fontWeight: "700",
-          color: "inherit",
-        },
-        data: [{ value: val.toFixed(1) }],
-      },
-    ],
-  };
-});
-
-const maintenanceGaugeOption = computed(() => {
-  const val = Number(latestReport.value?.signals?.maintenanceMargin) || 0;
-  return {
-    series: [
-      {
-        type: "gauge",
-        startAngle: 200,
-        endAngle: -20,
-        min: 130,
-        max: 200,
-        radius: "100%",
-        center: ["50%", "60%"],
-        pointer: { width: 4, itemStyle: { color: "#666" } },
-        axisLine: {
-          lineStyle: {
-            width: 6,
-            color: [
-              [0.2, "#e84855"],
-              [0.4, "#d4ac0d"],
-              [1, "#26a17b"],
-            ],
-          },
-        },
-        axisTick: { show: false },
-        splitLine: { show: false },
-        axisLabel: { show: false },
-        detail: {
-          offsetCenter: [0, 20],
-          formatter: "{value}%",
-          fontSize: 15,
-          fontWeight: "700",
-          color: "inherit",
-        },
-        data: [{ value: Math.round(val) }],
-      },
-    ],
-  };
-});
-
 // ── Sources ──
 const SOURCE_LABELS = {
   ndcBusinessIndicator: "國發會景氣燈號",
@@ -554,49 +424,6 @@ const allHealthy = computed(
   () => sourceCount.value > 0 && healthyCount.value === sourceCount.value,
 );
 
-// ── Macro ──
-const fngRaw = computed(() => {
-  const d = status.value?.data?.rawCnn;
-  return d?.score ?? d?.value ?? null;
-});
-const fngValue = computed(() =>
-  fngRaw.value != null ? String(fngRaw.value) : "N/A",
-);
-const fngRating = computed(() => status.value?.data?.rawCnn?.rating ?? "");
-const fngClass = computed(() => {
-  const v = fngRaw.value;
-  if (v == null) return "";
-  if (v <= 25) return "text-danger";
-  if (v <= 45) return "text-warn";
-  if (v >= 75) return "text-ok";
-  return "";
-});
-
-const fxValue = computed(() => {
-  const v = status.value?.data?.rawFx?.currentRate ?? null;
-  return v != null ? Number(v).toFixed(3) : "N/A";
-});
-const fxChangeSub = computed(() => {
-  const chg = status.value?.data?.rawFx?.changePercent ?? null;
-  if (chg == null) return "匯率";
-  return `${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%`;
-});
-const fxChangeClass = computed(() => {
-  const chg = status.value?.data?.rawFx?.changePercent ?? null;
-  if (chg == null) return "";
-  if (chg > 0.2) return "text-warn";
-  if (chg < -0.2) return "text-ok";
-  return "";
-});
-
-const pbValue = computed(() => {
-  const v = status.value?.data?.rawValuation?.pb ?? null;
-  return v != null ? Number(v).toFixed(2) : "N/A";
-});
-const peValue = computed(() => {
-  const v = status.value?.data?.rawValuation?.pe ?? null;
-  return v != null ? Number(v).toFixed(2) : "N/A";
-});
 </script>
 
 <style scoped>

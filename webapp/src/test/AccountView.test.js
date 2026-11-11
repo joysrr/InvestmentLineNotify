@@ -134,7 +134,6 @@ describe("AccountView", () => {
     expect(fetchStatus).toHaveBeenCalledOnce();
     expect(fetchReports).toHaveBeenCalledWith(30);
     expect(wrapper.text()).toContain("系統狀態");
-    expect(wrapper.text()).toContain("CNN 恐懼貪婪");
     await wrapper.find(".toggle-btn").trigger("click");
     expect(wrapper.text()).toContain("provider failed");
   });
