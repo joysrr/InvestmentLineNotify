@@ -381,6 +381,31 @@ updated: 2026-09-11 # 應使用 last_updated
 
 ---
 
-**最後更新**: 2026-09-11  
+## 🔄 文件生命週期 (Documentation Lifecycle)
+
+所有 `docs/` 下的文件應遵循以下生命週期，確保文件與程式碼保持同步：
+
+| 階段       | 動作                                                    | 負責人             |
+| ---------- | ------------------------------------------------------- | ------------------ |
+| 新增文件   | 補入 `docs/README.md` 導航地圖與 `docs/wiki-index.json` | 提交 PR 的開發者   |
+| 修改程式碼 | 同步更新對應文件（SSOT = 程式碼，文件過時則更新文件）   | 修改程式碼的開發者 |
+| 文件過時   | 標記 `status: superseded` 或刪除，並同步更新導航        | 維護者             |
+| 文件刪除   | 從導航地圖與 Wiki 索引中移除，並檢查斷鏈                | 維護者             |
+
+### 自動化檢查
+
+- `scripts/validate-docs-consistency.mjs`：每次 CI 運行，檢查 frontmatter、導航路徑、DEC 集中、plans 日期前綴、modules status
+- `scripts/validate-docs-code-consistency.mjs`：每季 CI 運行，檢查關鍵數值與程式碼常數一致性
+- `scripts/analyze-docs-health.mjs`：每次 CI 運行，評分 ≥ 50 為通過門檻
+
+### 週期健康度檢查
+
+- 每月最後一個週五：執行 `validate-docs-consistency.mjs` + `analyze-docs-health.mjs`
+- 每季最後一個週五：執行 `validate-docs-code-consistency.mjs` + 人工抽查 3 份文件
+- 每年 1 月：全庫盤點，更新文件清單
+
+---
+
+**最後更新**: 2026-11-11  
 **版本**: 1.0  
 **維護者**: Han (@joysrr)
