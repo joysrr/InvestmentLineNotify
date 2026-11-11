@@ -92,6 +92,8 @@ export function getCnnLevel(score) {
 }
 
 // ── 3. 融資維持率 ──
+// 注意：MarketRadarView.vue 的 marginCard 使用內聯閾值 (145/155)，與本處 (135/160) 不同步，
+// 屬「僅此一處使用」，未納入共用模組。未來若需統一，可將 marginCard 改用 getMaintenanceLevel。
 export function getMaintenanceLevel(ratio) {
   const v = parseFloat(ratio);
   if (isNaN(v)) {
@@ -103,6 +105,7 @@ export function getMaintenanceLevel(ratio) {
       label: "斷頭警戒 🔴",
       cls: "card-danger",
       textCls: "text-danger",
+      subCls: "rc-sub--danger",
     };
   }
   if (v < 160) {
@@ -111,9 +114,16 @@ export function getMaintenanceLevel(ratio) {
       label: "維持率偏低 ⚠️",
       cls: "card-warn",
       textCls: "text-warn",
+      subCls: "rc-sub--warn",
     };
   }
-  return { level: "ok", label: "安全 ✅", cls: "card-ok", textCls: "text-ok" };
+  return {
+    level: "ok",
+    label: "安全 ✅",
+    cls: "card-ok",
+    textCls: "text-ok",
+    subCls: "rc-sub--ok",
+  };
 }
 
 // ── 4. 總槓桿 ──
@@ -153,6 +163,7 @@ export function getPrLevel(pr) {
       label: "極度昂貴",
       cls: "card-danger",
       textCls: "text-danger",
+      subCls: "rc-sub--danger",
     };
   }
   if (v >= 80) {
@@ -161,6 +172,7 @@ export function getPrLevel(pr) {
       label: "估值偏高",
       cls: "card-warn",
       textCls: "text-warn",
+      subCls: "rc-sub--warn",
     };
   }
   if (v <= 25) {
@@ -169,7 +181,14 @@ export function getPrLevel(pr) {
       label: "極度便宜",
       cls: "card-ok",
       textCls: "text-ok",
+      subCls: "rc-sub--ok",
     };
   }
-  return { level: "neutral", label: "合理區間", cls: "", textCls: "" };
+  return {
+    level: "neutral",
+    label: "合理區間",
+    cls: "",
+    textCls: "",
+    subCls: "rc-sub--neutral",
+  };
 }
