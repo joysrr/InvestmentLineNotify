@@ -48,6 +48,36 @@ wiki_links:
 
 ---
 
+## 🤖 自動化檢查排程
+
+CI (`docs-validation.yml`) 及本地開發流程將自動執行以下驗證腳本：
+
+| 腳本                                                                  | 用途                                                                                   | 觸發時機                |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ----------------------- |
+| `scripts/validate-docs-consistency.mjs`                               | docs 內部一致性：導航路徑存在性、frontmatter、DEC 集中、plans 日期前綴、modules status | 每次 push / PR 到 docs/ |
+| `scripts/validate-docs-code-consistency.mjs`                          | 文件與程式碼一致性：VIX 門檻、四層槓桿優先序等關鍵數值                                 | 每次 push / PR 到 docs/ |
+| `scripts/pre-commit-docs-check.mjs`                                   | 新增/修改的 .md frontmatter 檢查                                                       | pre-commit hook         |
+| `scripts/generate-wiki-index.mjs` + `scripts/validate-wiki-index.mjs` | Wiki 索引與圖生成與驗證                                                                | 每次 push / PR 到 docs/ |
+| `scripts/analyze-docs-health.mjs`                                     | 文件健康度評分（≥ 50 為通過門檻）                                                      | 每次 push / PR 到 docs/ |
+
+### 本地執行全部驗證
+
+```bash
+node scripts/pre-commit-docs-check.mjs
+node scripts/generate-wiki-index.mjs
+node scripts/validate-wiki-index.mjs
+node scripts/analyze-docs-health.mjs
+node scripts/validate-docs-consistency.mjs
+node scripts/validate-docs-code-consistency.mjs
+```
+
+### 週期檢查
+
+- 每月最後一個週五：執行 `validate-docs-consistency.mjs` + `analyze-docs-health.mjs`
+- 每季最後一個週五：執行 `validate-docs-code-consistency.mjs` + 人工抽查 3 份文件
+
+---
+
 ## 🎯 健康度目標
 
 | 類別         | 目標分數 | 當前分數    |
@@ -179,5 +209,5 @@ node scripts/add-frontmatter.mjs <file>
 
 ---
 
-**最後更新**: 2026-09-11  
+**最後更新**: 2026-11-11  
 **維護者**: Han (@joysrr)

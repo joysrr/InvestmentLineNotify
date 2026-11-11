@@ -35,7 +35,15 @@ jobs:
       
       - name: Analyze docs health
         run: node scripts/analyze-docs-health.mjs
-      
+
+      - name: Validate docs consistency
+        run: node scripts/validate-docs-consistency.mjs
+        continue-on-error: true
+
+      - name: Validate docs-code consistency
+        run: node scripts/validate-docs-code-consistency.mjs
+        continue-on-error: true
+
       - name: Check health score threshold
         run: |
           SCORE=$(node -e "const report = require('./docs/meta/health-report.json'); console.log(report.summary.average_health)")
