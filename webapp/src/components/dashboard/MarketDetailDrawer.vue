@@ -66,6 +66,15 @@
           </span>
         </div>
       </div>
+
+      <!-- 底部連結 (Phase 3) -->
+      <router-link
+        to="/radar"
+        class="drawer-footer-link"
+        @click="$emit('update:visible', false)"
+      >
+        🌐 查看完整市場雷達 →
+      </router-link>
     </div>
   </el-drawer>
 </template>
@@ -200,5 +209,24 @@ function formatMarginChange(val) {
 
 .text-danger {
   color: #ef4444;
+}
+
+/* ── Footer Link (Phase 3) ── */
+.drawer-footer-link {
+  display: block;
+  text-align: center;
+  padding: 14px;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tg-theme-button-color, #2481cc);
+  text-decoration: none;
+  border-radius: 12px;
+  border: 1px solid rgba(36, 129, 204, 0.2);
+  background: rgba(36, 129, 204, 0.04);
+  transition: background 0.15s ease;
+}
+.drawer-footer-link:active {
+  background: rgba(36, 129, 204, 0.12);
 }
 </style>

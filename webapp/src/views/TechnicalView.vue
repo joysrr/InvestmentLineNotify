@@ -3,21 +3,13 @@
     <div class="view-container">
     <div class="view-header">
       <div class="header-top">
-        <button class="back-btn" @click="$router.push('/')">
-          <span class="back-icon">‹</span>
-          返回
-        </button>
         <h2 class="view-title">📊 技術指標詳情</h2>
       </div>
       <span class="view-subtitle">{{ todayLabel }}</span>
     </div>
 
     <!-- 市場戰情子分頁切換列 -->
-    <div class="subtabs-bar">
-      <router-link to="/radar" class="subtab-btn" active-class="active">🌐 市場雷達</router-link>
-      <router-link to="/macro" class="subtab-btn" active-class="active">⚖️ 多空對決</router-link>
-      <router-link to="/technical" class="subtab-btn" active-class="active">📊 技術指標</router-link>
-    </div>
+    <RadarSubtabs />
 
     <!-- 骨架屏 -->
     <div v-if="loading" class="loading-state">
@@ -168,6 +160,7 @@ import { ref, computed, onMounted } from "vue";
 import { fetchReports } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { waitReady } from "../composables/useTelegram.js";
+import RadarSubtabs from "@/components/radar/RadarSubtabs.vue";
 
 const latestReport = ref(null);
 const loading = ref(true);
@@ -449,28 +442,6 @@ onUnmounted(() => {
   gap: 12px;
   margin-bottom: 4px;
 }
-.back-btn {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 4px 8px 4px 4px;
-  border: none;
-  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-  color: var(--tg-theme-button-color, #2481cc);
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.back-btn:active {
-  opacity: 0.7;
-}
-.back-icon {
-  font-size: 20px;
-  line-height: 1;
-  margin-top: -2px;
-}
 .view-title {
   font-size: 18px;
   font-weight: 700;
@@ -671,29 +642,4 @@ onUnmounted(() => {
   border-radius: 12px;
 }
 
-/* ── Subtabs ── */
-.subtabs-bar {
-  display: flex;
-  background: var(--tg-theme-secondary-bg-color, rgba(0, 0, 0, 0.05));
-  padding: 3px;
-  border-radius: 10px;
-  margin-bottom: 14px;
-  gap: 4px;
-}
-.subtab-btn {
-  flex: 1;
-  text-align: center;
-  padding: 7px 4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--tg-theme-hint-color, #777);
-  border-radius: 7px;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-.subtab-btn.active {
-  background: var(--tg-theme-bg-color, #ffffff);
-  color: var(--tg-theme-button-color, #2481cc);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-}
 </style>

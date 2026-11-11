@@ -78,6 +78,15 @@
           <div class="comp-status-dot"></div>
         </div>
       </div>
+
+      <!-- Detail Link (Phase 3) -->
+      <router-link
+        v-if="detailLink"
+        :to="detailLink"
+        class="health-detail-link"
+      >
+        📊 查看完整策略狀態 →
+      </router-link>
     </div>
   </section>
 </template>
@@ -87,6 +96,10 @@ const props = defineProps({
   data: Object,
   loading: Boolean,
   error: Boolean,
+  detailLink: {
+    type: String,
+    default: "",
+  },
 });
 
 const getCompIcon = (key) => {
@@ -301,5 +314,22 @@ const getCompDisplayValue = (comp) => {
 .dual-vix-tw {
   color: #e74c3c;
   font-weight: 700;
+}
+
+/* ── Detail Link (Phase 3) ── */
+.health-detail-link {
+  display: block;
+  text-align: center;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tg-theme-button-color, #2481cc);
+  text-decoration: none;
+  border-radius: 12px;
+  background: rgba(36, 129, 204, 0.06);
+  transition: background 0.15s ease;
+}
+.health-detail-link:active {
+  background: rgba(36, 129, 204, 0.12);
 }
 </style>

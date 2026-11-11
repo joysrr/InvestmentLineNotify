@@ -7,6 +7,7 @@ import MarketRadarView from "../views/MarketRadarView.vue";
 import MacroBattleView from "../views/MacroBattleView.vue";
 import TechnicalView from "../views/TechnicalView.vue";
 import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";
+import StrategyStatusView from "../views/StrategyStatusView.vue";
 import TheoryView from "../views/TheoryView.vue";
 
 const router = createRouter({
@@ -23,6 +24,7 @@ const router = createRouter({
     { path: "/strategy", redirect: "/strategy-config" },
     { path: "/account", component: AccountView },
     { path: "/strategy-config", component: StrategyConfigEditorView },
+    { path: "/strategy-status", component: StrategyStatusView },
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
   ],
 });

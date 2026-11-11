@@ -46,12 +46,6 @@ vi.mock("@/api/index.js", () => ({
       lightStatus: { emoji: "🟢", label: "穩健" },
       components: [],
     }),
-  fetchStrategyStatus: () =>
-    Promise.resolve({
-      weightScore: { total: 62 },
-      cooldown: { inCooldown: false },
-      allocation: { current: { minScore: 6, comment: "一般訊號" } },
-    }),
 }));
 
 //  Stub child components, stub ECharts
@@ -80,7 +74,6 @@ const stubs = {
   DisciplineBanner: true,
   HealthPanel: { template: '<div class="health-panel-stub" />' },
   AnalysisPanel: { template: '<div class="analysis-panel-stub" />' },
-  StrategyStatusView: { template: '<div class="strategy-status-stub" />' },
   CoachingAdvice: { template: '<div class="coaching-advice-stub" />' },
 };
 
@@ -113,19 +106,14 @@ describe("DashboardView - Single Page Card Carousel (Phase 2 target)", () => {
     expect(wrapper.find(".dash-tabs").exists()).toBe(false);
   });
 
-  it("應單頁同時渲染 Cockpit + Health + Decision + StrategyStatus 卡片", async () => {
+  it("應單頁同時渲染 Cockpit + Health + Decision + 策略狀態連結", async () => {
     await mountView();
     const html = wrapper.html();
     // All core cards visible at once
     expect(html).toContain("macro-cockpit-stub");
     expect(html).toContain("portfolio-shield-stub");
     expect(html).toContain("health-panel-stub");
-    expect(html).toContain("strategy-status-stub");
-  });
-
-  it("應渲染 StrategyStatus 卡片 (collapsable)", async () => {
-    await mountView();
-    expect(wrapper.find(".strategy-status-stub").exists()).toBe(true);
+    expect(html).toContain("status-link");
   });
 
   it("應渲染 CoachingAdvice 卡片", async () => {

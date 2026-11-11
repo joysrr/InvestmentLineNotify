@@ -29,8 +29,13 @@
         </div>
       </div>
       <div class="hero-route border-top">
-        <span class="route-label">核心路由：</span>
-        <span class="route-path">{{ routingPath || "—" }}</span>
+        <div class="hero-route-main">
+          <span class="route-label">核心路由：</span>
+          <span class="route-path">{{ routingPath || "—" }}</span>
+        </div>
+        <router-link v-if="showTrendLink" to="/chart" class="hero-trend-link">
+          📈 資產趨勢 →
+        </router-link>
       </div>
     </div>
   </section>
@@ -46,6 +51,10 @@ defineProps({
   pctClass: String,
   pctText: String,
   routingPath: String,
+  showTrendLink: {
+    type: Boolean,
+    default: true,
+  },
 });
 </script>
 
@@ -100,6 +109,26 @@ defineProps({
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid var(--tg-theme-secondary-bg-color, #f0f0f0);
+  gap: 8px;
+}
+.hero-route-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.hero-trend-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tg-theme-button-color, #2481cc);
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+.hero-trend-link:active {
+  background: rgba(36, 129, 204, 0.1);
 }
 .route-label {
   font-size: 12px;

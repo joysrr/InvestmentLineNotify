@@ -87,6 +87,7 @@
           :data="healthData"
           :loading="healthLoading"
           :error="healthError"
+          detail-link="/strategy-status"
         />
       </section>
 
@@ -101,21 +102,15 @@
         :verdict="aiStrategyVerdict"
       />
 
-      <!-- Strategy Status Card (collapsible, default collapsed) -->
-      <section class="dashboard-card strategy-status-card">
-        <header class="card-header" @click="ssExpanded = !ssExpanded">
-          <h3>📊 策略狀態</h3>
-          <span class="toggle-icon">{{ ssExpanded ? "▼" : "▶" }}</span>
-        </header>
-        <Transition name="card-content">
-          <div v-show="ssExpanded" class="card-body">
-            <StrategyStatusView
-              :health="strategyStatus"
-              :loading="strategyStatusLoading"
-              :error="strategyStatusError"
-            />
+      <!-- Strategy Status Link (Phase 3：由折疊卡改為連結) -->
+      <section class="dashboard-card strategy-status-link">
+        <router-link to="/strategy-status" class="status-link">
+          <div class="status-link-left">
+            <h3>📊 策略狀態</h3>
+            <p class="status-link-desc">評分檔位、冷卻期、風控機制、Budget 預度</p>
           </div>
-        </Transition>
+          <span class="status-link-arrow">→</span>
+        </router-link>
       </section>
     </div>
 
@@ -132,9 +127,7 @@ import { ref, computed, onMounted } from "vue";
 import {
   fetchStatus,
   fetchReports,
-  fetchNews,
   fetchPortfolioHealth,
-  fetchStrategyStatus,
 } from "../api/index.js";
 import { waitReady } from "../composables/useTelegram.js";
 import { getPrLevel } from "@/utils/metricThresholds.js";
@@ -146,14 +139,12 @@ import MarketDetailDrawer from "../components/dashboard/MarketDetailDrawer.vue";
 import RiskDetailDrawer from "../components/dashboard/RiskDetailDrawer.vue";
 import DecisionHero from "../components/dashboard/DecisionHero.vue";
 import HealthPanel from "../components/dashboard/HealthPanel.vue";
-import CoachingAdvice from "../components/dashboard/CoachingAdvice.vue";
-import StrategyStatusView from "../views/StrategyStatusView.vue";
-import StrategyConfigEditorView from "../views/StrategyConfigEditor.vue";
+import CoachingAdvice from "@/components/dashboard/CoachingAdvice.vue";
+import StrategyConfigEditorView from "@/views/StrategyConfigEditor.vue";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 
 // ── State ──
 // Single-page card layout: no top-level tab switcher
-const ssExpanded = ref(false); // Strategy Status card collapsed by default
 const configDrawerVisible = ref(false); // Strategy Config drawer
 const status = ref(null);
 const statusLoading = ref(true);
@@ -162,16 +153,9 @@ const latestReport = ref(null);
 const reportLoading = ref(true);
 const reportError = ref(false);
 
-const topNews = ref([]);
-const newsLoading = ref(true);
-
 const healthData = ref(null); // portfolio/health summary (NEW schema) for HealthCard
 const healthLoading = ref(true);
 const healthError = ref(false);
-
-const strategyStatus = ref(null); // /api/strategy-status (detail) for StrategyStatusView
-const strategyStatusLoading = ref(true);
-const strategyStatusError = ref(null);
 
 // L3 Drawers 顯示控制
 const marketDrawerVisible = ref(false);
@@ -334,29 +318,18 @@ const aiStrategyVerdict = computed(
 
 // ── Logic ──
 async function loadAll() {
-  const [sRes, rRes, nRes, hRes, ssRes] = await Promise.allSettled([
+  const [sRes, rRes, hRes] = await Promise.allSettled([
     fetchStatus(),
     fetchReports(1),
-    fetchNews(),
     fetchPortfolioHealth(),
-    fetchStrategyStatus(),
   ]);
   if (sRes.status === "fulfilled") status.value = sRes.value;
   statusLoading.value = false;
   if (rRes.status === "fulfilled")
     latestReport.value = rRes.value[0] || rRes.value.data?.[0];
   reportLoading.value = false;
-  if (nRes.status === "fulfilled")
-    topNews.value = (nRes.value.articles || nRes.value).slice(0, 3);
-  newsLoading.value = false;
   if (hRes.status === "fulfilled") healthData.value = hRes.value;
   healthLoading.value = false;
-  if (ssRes.status === "fulfilled") {
-    strategyStatus.value = ssRes.value;
-  } else {
-    strategyStatusError.value = "無法載入策略狀態：" + (ssRes.reason?.message || "網路異常");
-  }
-  strategyStatusLoading.value = false;
 }
 
 function formatUpdatedAt(iso) {
@@ -501,5 +474,44 @@ onMounted(async () => {
 }
 :deep(.text-ok) {
   color: #26a17b;
+}
+
+/* ── Strategy Status Link (Phase 3) ── */
+.strategy-status-link {
+  padding: 0;
+  overflow: hidden;
+}
+
+.status-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+
+.status-link:active {
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+}
+
+.status-link-left h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #111);
+}
+
+.status-link-desc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #888);
+}
+
+.status-link-arrow {
+  font-size: 18px;
+  color: var(--tg-theme-button-color, #2481cc);
+  font-weight: 600;
 }
 </style>
