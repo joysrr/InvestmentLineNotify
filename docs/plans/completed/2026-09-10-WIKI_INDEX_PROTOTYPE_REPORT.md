@@ -8,6 +8,13 @@ tags:
   - prototype
   - report
 wiki_links: []
+last_verified: "2026-11-11"
+related_code:
+  - scripts/validate-wiki-index.mjs
+related_docs:
+  - docs/wiki-index.json
+  - docs/meta/maintenance-schedule.md
+summary: "Wiki index prototype report and validation approach"
 ---
 
 # LLM Wiki 索引原型驗證報告

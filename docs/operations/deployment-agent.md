@@ -185,3 +185,53 @@ sudo systemctl daemon-reload
 ```
 
 停用不會刪除既有診斷快照，也不會回滾任何程式或資料。
+
+## Executor 內部機制
+
+### 部署鎖（DEPLOY_LOCK_TTL_MS）
+
+`src/modules/deployment/executor.mjs` 使用檔案鎖防止並發部署：
+
+| 設定       | 值                                                                       |
+| ---------- | ------------------------------------------------------------------------ |
+| Lock TTL   | 15 分鐘（`DEPLOY_LOCK_TTL_MS = 15 * 60 * 1000`）                         |
+| 存活性檢查 | `isProcessAlive(pid)` 以 `process.kill(pid, 0)` 確認鎖持有者進程是否存在 |
+| Lock 路徑  | `data/deployments/.lock`（相對於 `DEPLOY_PROJECT_ROOT`）                 |
+| 衝突處理   | 若存在有效 lock → 新部署任務標記為 `failed`，附上衝突 jobId              |
+
+> 注意：此 Lock 為本機檔案鎖，不跨機器（與 Bot 層的 `runnerLock.mjs` 設計相同）。
+
+### 版本門檻（deploymentVersionGate.mjs）
+
+```
+本機 HEAD == origin/main HEAD
+  → skip: true, skipReason: "already-up-to-date"（不執行任何操作）
+
+本機 HEAD != origin/main HEAD
+  → 繼續執行完整部署流程
+```
+
+**實作邏輯**：
+
+```js
+buildVersionCheckCommands(); // 取得 git rev-parse HEAD / origin/main 的指令
+shouldSkipDeployment(localCommit, remoteCommit);
+// localCommit === remoteCommit → { skip: true, reason: "already-up-to-date" }
+// 否則 → { skip: false, commit: remoteCommit }
+```
+
+### 部署後驗證（deploymentVerification.mjs）
+
+部署完成後，Executor 執行三項驗證（全部通過才標記 `completed`）：
+
+| 驗證項目    | 說明                                                             |
+| ----------- | ---------------------------------------------------------------- |
+| `commit`    | 確認正式機 HEAD 已更新至目標 commit                              |
+| `health.ok` | `/health` 回傳 `{ status: "ok" }`                                |
+| `pm2.ok`    | `api-server` + `bot-daemon` 均為 `online`，且 `cwd` 符合正式路徑 |
+
+```
+verification.ok = health.ok && pm2.ok && Boolean(commit)
+```
+
+PM2 reload 後執行有限重試等待服務啟動；重試耗盡後標記 `failed`，不自動回滾（需手動 `git reset`）。

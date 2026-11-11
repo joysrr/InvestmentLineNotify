@@ -124,3 +124,28 @@ Bot 透過 `setChatMenuButton` 設置 Mini App 按鈕，用戶可開啟 WebApp �
 5. **風控與技術摘要**：接續顯示槓桿、維持率、估值守衛、評分、乖離、近期轉弱與賣出訊號計數。
 
 通知層不得因缺少 `macroAnalysis` 或新聞資料而產生虛構內容；缺少資料時應顯示中性或無重大事件。正式報告的 `signals` 目前是主要資料來源，欄位異常應先修正報告契約，不應在 Telegram builder 建立另一套策略邏輯。
+
+## 6. 併發鎖機制 (`runnerLock.mjs`)
+
+`src/modules/bot/runnerLock.mjs` 防止 Bot 指令與 GitHub Actions / 排程器重複觸發同一流程。
+
+### 設計原則
+
+- 使用 `proper-lockfile` 實現原子鎖操作，Lock 檔儲存 `{ runner, startedAt, pid }`
+- **Bot 觸發前**：檢查 lock 是否存在，若存在則拒絕並回覆提示（防止重複執行）
+- **Runner 完成後**：無論成功或失敗，必須呼叫 `releaseLock()` 釋放
+- **超時釋放**：超過 30 分鐘的舊 lock 自動視為卡死並強制釋放
+- **信號量 (Semaphore)**：控制最大並發數（預設 `DEFAULT_MAX_CONCURRENT = 2`）
+- **優雅終止**：SIGINT / SIGTERM 信號處理器確保進程終止時 lock 被釋放
+
+### Lock 檔路徑
+
+```
+data/.bot_lock
+```
+
+### 注意事項
+
+- Lock 基於本機檔案系統，**跨機器時 lock 失效**（GitHub Actions 與生產機為不同主機）
+- 若環境為 `GITHUB_ACTIONS=true`，日誌會發出跨機器 lock 無效警告
+- Lock TTL 30 分鐘；部署 Lock TTL 另見 `src/modules/deployment/executor.mjs`（15 分鐘）

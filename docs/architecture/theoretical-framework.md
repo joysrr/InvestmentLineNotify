@@ -11,6 +11,13 @@ wiki_links:
   - [[Strategy Engine]]
   - [[Daily Check]]
   - [[Asset Abstraction]]
+last_verified: "2026-11-11"
+related_code:
+  - src/modules/strategy/theoreticalEngine.mjs
+related_docs:
+  - docs/modules/strategy/_index.md
+  - docs/decisions/
+summary: "Investment theory framework academic foundation and calculation logic"
 ---
 
 # 投資理論框架 (Theoretical Framework)
@@ -532,9 +539,11 @@ scenarios = [
 
 ---
 
-## 6. Tobin Separation (托賓分離) ⚠️ 已停用
+## 6. Tobin Separation (托賓分離) ✅ 已實作
 
-> **狀態**: ❌ 已停用 - 系統當前不追蹤 00740B 債券資產，無法準確計算
+|
+
+> **狀態**: ✅ 理論引擎已實作 (`calculateTobinSeparation`)，介接介器中（dailyCheckTheoreticalAdapter 尚未呼叫，暫回傳 null）
 
 ### 6.1 理論基礎
 
@@ -581,7 +590,7 @@ Risky Ratio + Risk-Free Ratio = 1
 
 ### 6.4 資料來源
 
-> ⚠️ **停用原因**: 系統當前未追蹤 00740B 債券資產
+> ✅ 00740B 債券資產現已追蹤，理論引擎 `calculateTobinSeparation` 已實作，介接介器中
 
 | 參數                 | 需求                                  | 當前狀態  |
 | -------------------- | ------------------------------------- | --------- |
@@ -622,7 +631,7 @@ riskFreeAsset = 460,000
 
 ```javascript
 // src/scheduler/dailyCheckTheoreticalAdapter.mjs
-const tobinSeparation = null; // ⚠️ 已停用
+const tobinSeparation = null; // ⚠️ 理論引擎已實作，介器尚未呼叫
 ```
 
 ### 6.5 決策運用路徑 (未實作)
@@ -860,11 +869,11 @@ const humanCapital = calculateHumanCapital({
 
 ### 整合測試 (待補充)
 
-| 測試場景         | 狀態    | 備註                   |
-| ---------------- | ------- | ---------------------- |
-| 理論守衛觸發決策 | ⚠️ TODO | 需實作守衛層後測試     |
-| 動態參數更新     | ⚠️ TODO | 需實作使用者輸入後測試 |
-| 壓力測試情境模擬 | ⚠️ TODO | 需歷史數據回測         |
+| 測試場景         | 狀態      | 備註                                          |
+| ---------------- | --------- | --------------------------------------------- |
+| 理論守衛觸發決策 | ✅ 已實作 | strategyEngine.mjs valuationGuardState/Result |
+| 動態參數更新     | ✅ 已實作 | strategyEngine.mjs dynamicAnchor              |
+| 壓力測試情境模擬 | ⚠️ TODO   | 需歷史數據回測                                |
 
 ---
 

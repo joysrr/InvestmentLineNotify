@@ -10,6 +10,13 @@ tags:
 wiki_links:
   - [[Langfuse]]
   - [[AI Pipeline]]
+last_verified: "2026-11-11"
+related_code:
+  - src/modules/monitoring/alertEngine.mjs
+related_docs:
+  - docs/modules/infrastructure/monitoring.md
+  - docs/modules/infrastructure/_index.md
+summary: "Monitoring and alerting architecture decision record"
 ---
 
 # DEC-005: Phase 4 架構決策 - 監控與告警系統

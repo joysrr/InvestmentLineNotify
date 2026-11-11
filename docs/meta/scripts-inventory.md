@@ -164,28 +164,36 @@ wiki_links:
 
 ### `deploy.mjs`
 
-- **用途**：主部署腳本（協調完整部署流程）
-- **使用方式**：`node scripts/deploy.mjs`
+- **用途**：主部署腳本（執行 pre-deploy 驗證後透過 SSH 部署到 VM）
+- **使用方式**：`node scripts/deploy.mjs` 或 `npm run deploy`
 - **產出物**：部署日誌
+- **參數**：`--dry-run` 僅驗證不部署、`--skip-pre` 跳過 pre-deploy
+- **環境變數**：`VM_HOST`、`VM_PATH`、`DEPLOY_DOMAIN`、`VM_SSH_KEY`
+- **相關文件**：`docs/operations/deploy-pipeline.md`
 
 ### `deploy-local.mjs`
 
-- **用途**：本地開發環境部署
-- **使用方式**：`node scripts/deploy-local.mjs`
+- **用途**：本地開發環境部署，直接呼叫 `deploymentExecutor`
+- **使用方式**：`node scripts/deploy-local.mjs [--rollback] [--tag TAG]`
 - **產出物**：無
+- **參數**：`--rollback` 執行回滾、`--tag` 指定回滾標籤
+- **環境變數**：`DEPLOY_PATH`、`PM2_ECOSYSTEM`、`WEBAPP_PATH`
+- **相關文件**：`docs/operations/deploy-pipeline.md`
 
 ### `deploy-production.mjs`
 
-- **用途**：正式環境部署（需有 SSH 存取權）
-- **使用方式**：`node scripts/deploy-production.mjs`
-- **產出物**：部署日誌
+- **用途**：正式環境部署，透過 Unix socket 向 Host Deployment Agent 建立任務
+- **使用方式**：`node scripts/deploy-production.mjs` 或 `npm run deploy:production`
+- **產出物**：部署任務狀態 (jobId, status, verification)
+- **參數**：`--deploy-path`、`--webapp-path`、`--pm2-ecosystem`、`--rollback`、`--tag`
+- **相關文件**：`docs/operations/deploy-pipeline.md`、`docs/operations/production-code-deploy.md`
 
 ### `deployment-agent.mjs`
 
-- **用途**：部署代理服務（接收部署指令，執行實際部署）
-- **使用方式**：`node scripts/deployment-agent.mjs`
+- **用途**：Host 部署代理服務，監聽 Unix socket 處理 sync/deploy/getJobStatus
+- **使用方式**：`node scripts/deployment-agent.mjs` 或 `npm run deployment:agent`
 - **產出物**：無（長駐服務）
-- **說明**：詳見 `docs/operations/deployment-agent.md`
+- **相關文件**：`docs/operations/deploy-pipeline.md`、`docs/operations/deployment-agent.md`
 
 ### `trigger-production-deploy.mjs`
 

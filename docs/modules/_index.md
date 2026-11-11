@@ -8,6 +8,12 @@ tags:
 wiki_links:
   - docs/README.md
   - docs/modules/overview.md
+last_verified: "2026-11-11"
+related_code:
+  - src/modules/
+related_docs:
+  - docs/modules/overview.md
+summary: "Modules index - core sub-module technical specifications"
 ---
 
 # 模組總索引 (Modules Index)

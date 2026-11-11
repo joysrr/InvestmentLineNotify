@@ -10,6 +10,13 @@ tags:
 wiki_links:
   - [[Testing]]
   - [[Vitest]]
+last_verified: "2026-11-11"
+related_code:
+  - src/modules/verification/
+related_docs:
+  - docs/TESTING.md
+  - docs/modules/infrastructure/monitoring.md
+summary: "Vitest worker crash investigation and mitigation plan"
 ---
 
 # DEC-016: Vitest Worker Crash Investigation (Phase 6.0)

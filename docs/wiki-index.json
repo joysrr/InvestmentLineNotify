@@ -102,12 +102,15 @@
     "test-troubleshooting": {
       "primary_doc": "TEST_TROUBLESHOOTING.md",
       "title": "測試疑難排解指南",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Test troubleshooting guide and common issues",
+      "related_docs": ["docs/TESTING.md", "docs/modules/verification/"],
+      "related_code": [
+        "scripts/test-repair.mjs",
+        "scripts/test-driven-development.mjs"
+      ],
       "tags": ["testing", "troubleshooting", "debugging"],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "decision-chain-api": {
       "primary_doc": "api/decision-chain_api.md",
@@ -122,9 +125,9 @@
     "theoretical-framework": {
       "primary_doc": "architecture/theoretical-framework.md",
       "title": "投資理論框架 (Theoretical Framework)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Investment theory framework academic foundation and calculation logic",
+      "related_docs": ["docs/modules/strategy/_index.md", "docs/decisions/"],
+      "related_code": ["src/modules/strategy/theoreticalEngine.mjs"],
       "tags": [
         "theoretical-framework",
         "investment-theory",
@@ -132,37 +135,50 @@
         "system-integration"
       ],
       "status": "active",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "dec-005-monitoring-alerting": {
       "primary_doc": "decisions/DEC-005-monitoring-alerting.md",
       "title": "DEC-005: Phase 4 架構決策 - 監控與告警系統",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Monitoring and alerting architecture decision record",
+      "related_docs": [
+        "docs/modules/infrastructure/monitoring.md",
+        "docs/modules/infrastructure/_index.md"
+      ],
+      "related_code": ["src/modules/monitoring/alertEngine.mjs"],
       "tags": ["monitoring", "alerting", "langfuse"],
       "status": "archived",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "dec-006-deployment-automation": {
       "primary_doc": "decisions/DEC-006-deployment-automation.md",
       "title": "DEC-006: Phase 4 架構決策 - 部署自動化與 Mini App 遠端部署",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Deployment automation and Mini App remote deployment decision",
+      "related_docs": [
+        "docs/operations/deployment-agent.md",
+        "docs/operations/deploy-pipeline.md"
+      ],
+      "related_code": [
+        "scripts/deploy.mjs",
+        "scripts/deploy-local.mjs",
+        "scripts/deploy-production.mjs"
+      ],
       "tags": ["deployment", "automation", "docker"],
       "status": "archived",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "dec-016-vitest-worker-crash": {
       "primary_doc": "decisions/DEC-016-vitest-worker-crash.md",
       "title": "DEC-016: Vitest Worker Crash Investigation (Phase 6.0)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Vitest worker crash investigation and mitigation plan",
+      "related_docs": [
+        "docs/TESTING.md",
+        "docs/modules/infrastructure/monitoring.md"
+      ],
+      "related_code": ["src/modules/verification/"],
       "tags": ["vitest", "crash", "debugging"],
       "status": "archived",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "dec-017-automated-deployment-milestone": {
       "primary_doc": "decisions/DEC-017-automated-deployment-milestone.md",
@@ -221,12 +237,12 @@
     "maintenance-schedule": {
       "primary_doc": "meta/maintenance-schedule.md",
       "title": "文件維護排程 (Documentation Maintenance Schedule)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Documentation maintenance schedule and lifecycle",
+      "related_docs": ["docs/meta/maintenance-schedule.md"],
+      "related_code": ["scripts/"],
       "tags": ["maintenance", "schedule", "automation"],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "scripts-inventory": {
       "primary_doc": "meta/scripts-inventory.md",
@@ -241,12 +257,12 @@
     "modules": {
       "primary_doc": "modules/_index.md",
       "title": "模組總索引 (Modules Index)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Modules index - core sub-module technical specifications",
+      "related_docs": ["docs/modules/overview.md"],
+      "related_code": ["src/modules/"],
       "tags": ["modules", "index"],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "ai_news": {
       "primary_doc": "modules/ai_news/_index.md",
@@ -558,12 +574,15 @@
     "deployment-oracle-vm": {
       "primary_doc": "modules/operations/deployment_oracle_vm.md",
       "title": "Oracle Cloud VM 部署安裝手冊（附錄）",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Oracle VM deployment procedures and configuration",
+      "related_docs": [
+        "docs/operations/deploy-pipeline.md",
+        "docs/operations/production-code-deploy.md"
+      ],
+      "related_code": ["scripts/deploy-production.mjs"],
       "tags": ["deployment", "oracle", "vm"],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "env-vars": {
       "primary_doc": "modules/operations/env_vars.md",
@@ -599,12 +618,12 @@
     "overview": {
       "primary_doc": "modules/overview.md",
       "title": "InvestmentLineNotify 總體架構 / System Architecture",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Documentation overview and navigation map",
+      "related_docs": ["docs/modules/_index.md", "docs/README.md"],
+      "related_code": ["src/"],
       "tags": ["modules", "index"],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "presentation": {
       "primary_doc": "modules/presentation/_index.md",
@@ -865,19 +884,19 @@
     "sentiment": {
       "primary_doc": "modules/strategy/sentiment.md",
       "title": "社群情緒引擎 (Sentiment Engine)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Social sentiment analysis module documentation",
+      "related_docs": ["docs/modules/strategy/sentiment.md"],
+      "related_code": ["src/modules/sentiment/"],
       "tags": ["sentiment", "social", "ptt", "bluesky", "emotion-indicator"],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "simulator": {
       "primary_doc": "modules/strategy/simulator.md",
       "title": "0050 雙向模擬器 (Simulator)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Investment simulator module documentation",
+      "related_docs": ["docs/modules/strategy/simulator.md"],
+      "related_code": ["src/modules/simulator/"],
       "tags": [
         "simulator",
         "forward-simulation",
@@ -886,7 +905,7 @@
         "0050"
       ],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "strategy-engine": {
       "primary_doc": "modules/strategy/strategy_engine.md",
@@ -919,12 +938,12 @@
     "production-artifact-sync": {
       "primary_doc": "operations/production-artifact-sync.md",
       "title": "Production Artifact Sync",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Production artifact synchronization procedures",
+      "related_docs": ["docs/operations/production-code-deploy.md"],
+      "related_code": ["scripts/"],
       "tags": ["operations", "production", "diagnostics", "snapshots"],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "production-code-deploy": {
       "primary_doc": "operations/production-code-deploy.md",
@@ -943,12 +962,12 @@
     "security-policy": {
       "primary_doc": "operations/security-policy.md",
       "title": "Security Policy",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Security policy and configuration guidelines",
+      "related_docs": ["docs/modules/overview.md"],
+      "related_code": ["src/modules/config/"],
       "tags": ["security", "operations", "policy", "ssh"],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "2026-11-10-localhost-mini-app-preview-plan": {
       "primary_doc": "plans/active/2026-11-10-LOCALHOST_MINI_APP_PREVIEW_PLAN.md",
@@ -1213,22 +1232,25 @@
     "2026-09-10-wiki-index-prototype-report": {
       "primary_doc": "plans/completed/2026-09-10-WIKI_INDEX_PROTOTYPE_REPORT.md",
       "title": "LLM Wiki 索引原型驗證報告",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Wiki index prototype report and validation approach",
+      "related_docs": [
+        "docs/wiki-index.json",
+        "docs/meta/maintenance-schedule.md"
+      ],
+      "related_code": ["scripts/validate-wiki-index.mjs"],
       "tags": ["wiki", "prototype", "report"],
       "status": "completed",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "2026-09-11-deep-content-verification-plan": {
       "primary_doc": "plans/completed/2026-09-11-DEEP_CONTENT_VERIFICATION_PLAN.md",
       "title": "模組文件內容深度驗證計畫",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Deep content verification plan for documentation consistency",
+      "related_docs": ["docs/meta/documentation-coverage-matrix.md"],
+      "related_code": ["scripts/validate-docs-consistency.mjs"],
       "tags": ["verification", "deep-validation", "documentation"],
       "status": "completed",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "2026-09-11-documentation-full-modernization-plan": {
       "primary_doc": "plans/completed/2026-09-11-DOCUMENTATION_FULL_MODERNIZATION_PLAN.md",
@@ -1263,9 +1285,9 @@
     "2026-09-12-macro-regime-advanced-spec": {
       "primary_doc": "plans/completed/2026-09-12-MACRO_REGIME_ADVANCED_SPEC.md",
       "title": "總經與市場狀態進階辨識 (Macro Regime 2.0) 工程計畫",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Macro regime advanced specification",
+      "related_docs": ["docs/modules/strategy/_index.md"],
+      "related_code": ["src/modules/strategy/macroRegime.mjs"],
       "tags": [
         "macro",
         "regime-detection",
@@ -1274,7 +1296,7 @@
         "risk-management"
       ],
       "status": "completed",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "2026-09-12-native-social-sentiment-engine-spec": {
       "primary_doc": "plans/completed/2026-09-12-NATIVE_SOCIAL_SENTIMENT_ENGINE_SPEC.md",
@@ -1296,9 +1318,9 @@
     "2026-09-12-social-sentiment-integration-spec": {
       "primary_doc": "plans/completed/2026-09-12-SOCIAL_SENTIMENT_INTEGRATION_SPEC.md",
       "title": "社群情緒與散戶背離整合計畫 (Social Sentiment & Macro Battle Integration Spec)",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Social sentiment integration specification",
+      "related_docs": ["docs/modules/strategy/sentiment.md"],
+      "related_code": ["src/modules/sentiment/"],
       "tags": [
         "plan",
         "social-sentiment",
@@ -1309,7 +1331,7 @@
         "miniapp"
       ],
       "status": "completed",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "2026-09-18-e2e-test-fix-plan": {
       "primary_doc": "plans/completed/2026-09-18-E2E_TEST_FIX_PLAN.md",
@@ -1562,9 +1584,9 @@
     "2026-11-10-crisis-accumulate-decision-chain-fix-plan": {
       "primary_doc": "plans/completed/2026-11-10-CRISIS_ACCUMULATE_DECISION_CHAIN_FIX_PLAN.md",
       "title": "計畫書：Crisis Accumulate 決策鏈修復與規格對齊",
-      "summary": null,
-      "related_docs": [],
-      "related_code": [],
+      "summary": "Crisis accumulation decision chain fix plan",
+      "related_docs": ["docs/modules/strategy/_index.md", "docs/decisions/"],
+      "related_code": ["src/modules/strategy/strategyEngine.mjs"],
       "tags": [
         "crisis-accumulate",
         "entry-gate",
@@ -1573,7 +1595,7 @@
         "zero-hardcoding"
       ],
       "status": "completed",
-      "last_verified": null
+      "last_verified": "2026-11-11"
     },
     "2026-11-10-docs-cleanup-phase2-plan": {
       "primary_doc": "plans/completed/2026-11-10-DOCS_CLEANUP_PHASE2_PLAN.md",

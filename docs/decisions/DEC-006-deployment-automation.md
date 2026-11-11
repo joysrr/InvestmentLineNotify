@@ -10,6 +10,15 @@ tags:
 wiki_links:
   - [[Telegram Bot]]
   - [[Operations]]
+last_verified: "2026-11-11"
+related_code:
+  - scripts/deploy.mjs
+  - scripts/deploy-local.mjs
+  - scripts/deploy-production.mjs
+related_docs:
+  - docs/operations/deployment-agent.md
+  - docs/operations/deploy-pipeline.md
+summary: "Deployment automation and Mini App remote deployment decision"
 ---
 
 # DEC-006: Phase 4 架構決策 - 部署自動化與 Mini App 遠端部署

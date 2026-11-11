@@ -16,6 +16,12 @@ wiki_links:
   - "[[Market Snapshot]]"
   - "[[Regime Policy]]"
   - "[[Signal Generator]]"
+last_verified: "2026-11-11"
+related_code:
+  - src/modules/sentiment/
+related_docs:
+  - docs/modules/strategy/sentiment.md
+summary: "Social sentiment integration specification"
 ---
 
 # 社群情緒與散戶背離整合計畫 (Social Sentiment & Macro Battle Integration Spec)

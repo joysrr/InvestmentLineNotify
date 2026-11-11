@@ -11,6 +11,12 @@ tags:
 wiki_links:
   - [[Documentation]]
   - [[Strategy Engine]]
+last_verified: "2026-11-11"
+related_code:
+  - scripts/validate-docs-consistency.mjs
+related_docs:
+  - docs/meta/documentation-coverage-matrix.md
+summary: "Deep content verification plan for documentation consistency"
 ---
 
 # 模組文件內容深度驗證計畫

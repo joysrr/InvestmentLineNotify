@@ -202,8 +202,59 @@ function checkModuleStatus() {
 }
 
 // ──────────────────────────────────────────────
-// 主程式
+// 6. related_code 引用有效性驗證
 // ──────────────────────────────────────────────
+function extractFrontmatter(fileContent) {
+  const fmMatch = fileContent.match(/^---([\s\S]*?)---/m);
+  if (!fmMatch) return null;
+  return fmMatch[1];
+}
+
+function parseRelatedCode(fmContent) {
+  const rcMatch = fmContent.match(/related_code:[\s\S]*?(?=\n\w|---|$)/);
+  if (!rcMatch) return [];
+  const lines = rcMatch[0].split("\n").slice(1);
+  const paths = [];
+  for (const line of lines) {
+    const m = line.match(/^\s*-\s*(.+)$/);
+    if (m) paths.push(m[1].trim());
+  }
+  return paths;
+}
+
+function checkRelatedCodeValidity() {
+  console.log("\n🔗 6. related_code 引用有效性驗證");
+  const mdFiles = [];
+  function walk(dir) {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith(".md")) mdFiles.push(full);
+    }
+  }
+  walk(DOCS_DIR);
+
+  let invalidCount = 0;
+  for (const filePath of mdFiles) {
+    const content = readFileSync(filePath, "utf-8");
+    const fm = extractFrontmatter(content);
+    if (!fm) continue;
+    const relatedCode = parseRelatedCode(fm);
+    if (relatedCode.length === 0) continue;
+    for (const codePath of relatedCode) {
+      const absPath = resolve(REPO_ROOT, codePath);
+      if (!existsSync(absPath)) {
+        log(`related_code 引用失效: ${codePath}`, false, `在 ${filePath} 中`);
+        invalidCount++;
+      }
+    }
+  }
+  if (invalidCount === 0) {
+    log("所有 related_code 引用有效", true);
+  }
+  return invalidCount;
+}
+
 function main() {
   console.log("🔍 validate-docs-consistency.mjs — docs 內部一致性檢查\n");
 
@@ -212,6 +263,7 @@ function main() {
   checkDecFiles();
   checkPlanFiles();
   checkModuleStatus();
+  checkRelatedCodeValidity();
 
   console.log(`\n📊 結果: ${RESULTS.pass} 通過, ${RESULTS.fail} 失敗`);
   if (RESULTS.fail > 0) {

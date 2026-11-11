@@ -13,6 +13,12 @@ wiki_links:
   - "[[Strategy Engine]]"
   - "[[Regime Policy]]"
   - "[[Budget Priority Design]]"
+last_verified: "2026-11-11"
+related_code:
+  - src/modules/strategy/macroRegimeClassifier.mjs
+related_docs:
+  - docs/modules/strategy/_index.md
+summary: "Macro regime advanced specification"
 ---
 
 # 總經與市場狀態進階辨識 (Macro Regime 2.0) 工程計畫

@@ -14,6 +14,13 @@ wiki_links:
   - [[Leading Indicator Radars]]
   - [[Cash Exposure Advisor]]
   - [[Regime Policy]]
+last_verified: "2026-11-11"
+related_code:
+  - src/modules/strategy/strategyEngine.mjs
+related_docs:
+  - docs/modules/strategy/_index.md
+  - docs/decisions/
+summary: "Crisis accumulation decision chain fix plan"
 ---
 
 # 計畫書：Crisis Accumulate 決策鏈修復與規格對齊

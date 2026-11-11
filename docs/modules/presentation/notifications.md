@@ -40,3 +40,42 @@ wiki_links:
 ## 3. 訊息範本 (`templates/telegramHtmlBuilder.mjs`)
 
 將 HTML 的字串組裝邏輯從 `notifier.mjs` 獨立出來，確保發送器與樣板解耦。
+
+## 4. 傳輸層 (`transports/telegramClient.mjs`)
+
+實作 Telegram Bot API 的 HTTPS 通訊，包含重試機制。
+
+### 重試策略
+
+| 設定         | 值                                                                    |
+| ------------ | --------------------------------------------------------------------- |
+| 預設重試次數 | `DEFAULT_RETRIES`                                                     |
+| 退避計算     | `calculateBackoffDelay(attempt, retryDelay, 10000ms max, 0.5 jitter)` |
+| 可重試錯誤   | `isRetryableError(error)` 判斷（網路錯誤、超時、5xx）                 |
+| 不可重試錯誤 | 4xx 客戶端錯誤（如訊息格式錯誤）→ 拋出 `ProviderError`                |
+| 連線         | 強制 IPv4（`family: 4`）                                              |
+
+### 主要匯出函式
+
+| 函式                          | 說明                                             |
+| ----------------------------- | ------------------------------------------------ |
+| `sendTelegramBatch(messages)` | 批量發送多則訊息（包含 unpin → send 流程）       |
+| `unpinAllChatMessages()`      | 發送前清除舊 pin（確保每日卡片置頂）             |
+| `sendSystemMessage(text)`     | 發送至 Log 頻道（使用 `TELEGRAM_LOG_API_TOKEN`） |
+
+### 失敗處理
+
+- 超過重試次數 → 拋出 `ProviderError`，日誌記錄 `operation` / `statusCode` / `attempt`
+- 由 `broadcastDailyReport()` 呼叫方使用 `Promise.allSettled` 收集結果，不因單一失敗中斷全部推送
+- 失敗會由上層 `runner` 或 `runnerLock` 捕捉並記錄
+
+## 5. 目錄結構
+
+```
+src/modules/notifications/
+├── notifier.mjs               # 廣播協調器（雙模式切換）
+└── transports/
+    └── telegramClient.mjs     # Telegram HTTPS 傳輸層（重試、指數退避）
+    └── templates/
+        └── telegramHtmlBuilder.mjs  # HTML 訊息範本（與傳輸解耦）
+```
