@@ -20,7 +20,7 @@
 
     <div class="cockpit-right">
       <div class="cockpit-metric">
-        <span class="metric-label">VIX 指數</span>
+        <span class="metric-label">CBOE VIX 指數</span>
         <span class="metric-value">{{ formatNumber(vix) }}</span>
       </div>
       <div class="cockpit-action">

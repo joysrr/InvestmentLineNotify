@@ -137,6 +137,7 @@ import {
   fetchStrategyStatus,
 } from "../api/index.js";
 import { waitReady } from "../composables/useTelegram.js";
+import { getPrLevel } from "@/utils/metricThresholds.js";
 
 // Components
 import MacroCockpitCard from "../components/dashboard/MacroCockpitCard.vue";
@@ -256,23 +257,8 @@ const pbPrValue = computed(() => {
 });
 
 const pbPrLevel = computed(() => {
-  const v = Number(pbPrValue.value);
-  if (isNaN(v)) return { label: "—", cardClass: "", textClass: "" };
-  if (v >= 90)
-    return {
-      label: "極度昂貴",
-      cardClass: "card-danger",
-      textClass: "text-danger",
-    };
-  if (v >= 80)
-    return {
-      label: "估值偏高",
-      cardClass: "card-warn",
-      textClass: "text-warn",
-    };
-  if (v <= 25)
-    return { label: "極度便宜", cardClass: "card-ok", textClass: "text-ok" };
-  return { label: "合理區間", cardClass: "", textClass: "" };
+  const r = getPrLevel(pbPrValue.value);
+  return { label: r.label, cardClass: r.cls, textClass: r.textCls };
 });
 
 const glValue = computed(() => {
