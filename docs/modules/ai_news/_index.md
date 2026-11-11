@@ -22,6 +22,7 @@ related_docs:
   - docs/modules/ai_news/integrations/langfuse_prompt_management.md
   - docs/modules/ai_news/integrations/langfuse_score_analytics.md
   - docs/modules/ai_news/integrations/langfuse_score_configs.md
+  - docs/modules/ai_news/integrations/model_fallback_thinking_config.md
 dependencies:
   - "@langfuse/tracing@5.11.0"
   - "@langfuse/client@5.11.0"

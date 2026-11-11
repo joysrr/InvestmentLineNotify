@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 128,
+    "total_concepts": 129,
     "total_edges": 189,
-    "total_code_mappings": 89,
-    "concepts_with_code": 44,
+    "total_code_mappings": 92,
+    "concepts_with_code": 45,
     "concepts_with_links": 56,
-    "generated_at": "2026-11-11T03:15:00.221Z"
+    "generated_at": "2026-11-11T03:22:22.056Z"
   },
   "concepts": {
     "api-contract": {
@@ -250,7 +250,8 @@
         "docs/modules/ai_news/integrations/ai_coach_checklist.md",
         "docs/modules/ai_news/integrations/langfuse_prompt_management.md",
         "docs/modules/ai_news/integrations/langfuse_score_analytics.md",
-        "docs/modules/ai_news/integrations/langfuse_score_configs.md"
+        "docs/modules/ai_news/integrations/langfuse_score_configs.md",
+        "docs/modules/ai_news/integrations/model_fallback_thinking_config.md"
       ],
       "related_code": [
         "src/modules/ai/aiClient.mjs",
@@ -409,6 +410,20 @@
       "tags": ["langfuse", "configuration", "scoring", "metrics"],
       "status": "current",
       "last_verified": "2026-09-10"
+    },
+    "model-fallback-thinking-config": {
+      "primary_doc": "modules/ai_news/integrations/model_fallback_thinking_config.md",
+      "title": "模型降級與思考配置 (Model Fallback & Thinking Config)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [
+        "src/modules/ai/modelFallback.mjs",
+        "src/modules/ai/modelFallbackPolicy.mjs",
+        "src/modules/ai/thinkingConfigPolicy.mjs"
+      ],
+      "tags": ["ai", "model-fallback", "thinking-config", "prompt-management"],
+      "status": "current",
+      "last_verified": null
     },
     "keyword-config": {
       "primary_doc": "modules/ai_news/keyword_config.md",
@@ -2014,6 +2029,24 @@
       {
         "concept": "schedules",
         "doc": "modules/operations/schedules.md"
+      }
+    ],
+    "src/modules/ai/modelFallback.mjs": [
+      {
+        "concept": "model-fallback-thinking-config",
+        "doc": "modules/ai_news/integrations/model_fallback_thinking_config.md"
+      }
+    ],
+    "src/modules/ai/modelFallbackPolicy.mjs": [
+      {
+        "concept": "model-fallback-thinking-config",
+        "doc": "modules/ai_news/integrations/model_fallback_thinking_config.md"
+      }
+    ],
+    "src/modules/ai/thinkingConfigPolicy.mjs": [
+      {
+        "concept": "model-fallback-thinking-config",
+        "doc": "modules/ai_news/integrations/model_fallback_thinking_config.md"
       }
     ],
     "src/modules/keywordConfig.mjs": [
