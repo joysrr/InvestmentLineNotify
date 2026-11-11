@@ -228,6 +228,7 @@ wiki_links:
 - **用途**：驗證 Phase 完成狀態（git status、本地/遠端 HEAD SHA、關鍵檔案存在性）
 - **使用方式**：`node scripts/validate-phase-completion.mjs --phase "Phase 10" --files "docs/a.md,docs/b.md"`
 - **產出物**：驗證摘要（通過/失敗），退出碼 0/1
+- **無網路 fallback**：若無法連線 GitHub API，自動使用本地 `git rev-parse origin/main` 比對，輸出 `⚠️ 本地驗證通過（未能連線 GitHub API）`，退出碼仍為 0
 - **對應 npm 指令**：`npm run verify-phase`
 
 ---

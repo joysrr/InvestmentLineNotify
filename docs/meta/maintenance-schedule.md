@@ -80,15 +80,15 @@ node scripts/validate-docs-code-consistency.mjs
 
 ## 🎯 健康度目標
 
-| 類別         | 目標分數 | 當前分數    |
-| ------------ | -------- | ----------- |
-| Reference    | ≥ 75     | 77 ✅       |
-| Guide        | ≥ 70     | 58 ⚠️       |
-| Tutorial     | ≥ 70     | -           |
-| Explanation  | ≥ 60     | 50 ⚠️       |
-| Report       | ≥ 50     | 45 ⚠️       |
-| Plan         | ≥ 45     | 44 ⚠️       |
-| **整體平均** | **≥ 60** | **54.1** ⚠️ |
+| 類別 | 目標分數     | 當前分數 |
+| ---- | ------------ | -------- |
+|      | Reference    | ≥ 75     | 92 ✅       |     |
+|      | Guide        | ≥ 70     | 90 ✅       |     |
+|      | Tutorial     | ≥ 70     | -           |     |
+|      | Explanation  | ≥ 60     | 88 ✅       |     |
+|      | Report       | ≥ 50     | 45 ⚠️       |     |
+|      | Plan         | ≥ 45     | 70 ✅       |     |
+|      | **整體平均** | **≥ 60** | **80.5** ✅ |     |
 
 ---
 
@@ -114,7 +114,7 @@ node scripts/add-frontmatter.mjs <file>
 
 - **GitHub Actions**: `.github/workflows/docs-validation.yml`
 - **Pre-commit Hook**: `.husky/pre-commit`
-- **健康度閾值**: 50/100 (低於此值 CI 失敗)
+- **健康度閾值**: 65/100 (低於此值 CI 失敗)
 
 ---
 

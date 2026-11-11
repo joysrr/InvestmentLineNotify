@@ -74,8 +74,9 @@ check(
 const localSha = run("git rev-parse HEAD");
 check("本地 HEAD SHA", localSha.length > 0, localSha);
 
-// 4. 遠端 HEAD SHA (GitHub API)
+// 4. 遠端 HEAD SHA (GitHub API，無網路時 fallback 到本地 origin/main)
 let remoteSha = "";
+let usedFallback = false;
 try {
   const https = await import("https");
   remoteSha = await new Promise((resolve) => {
@@ -103,7 +104,20 @@ try {
   remoteSha = "";
 }
 
-check("遠端 HEAD SHA", remoteSha.length > 0, remoteSha || "無法取得");
+if (!remoteSha) {
+  try {
+    remoteSha = run("git rev-parse origin/main");
+    usedFallback = true;
+  } catch {
+    remoteSha = "";
+  }
+}
+
+check(
+  "遠端 HEAD SHA",
+  remoteSha.length > 0,
+  remoteSha || "無法取得" + (usedFallback ? " (本地 fallback)" : ""),
+);
 
 // 5. HEAD 一致性
 check(
@@ -152,6 +166,10 @@ if (RESULTS.fail > 0) {
   }
   process.exit(1);
 } else {
-  console.log("✅ Phase 完成驗證全部通過");
+  if (usedFallback) {
+    console.log("⚠️  本地驗證通過（未能連線 GitHub API）");
+  } else {
+    console.log("✅ 完整驗證通過");
+  }
   process.exit(0);
 }

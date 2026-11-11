@@ -48,8 +48,8 @@ jobs:
         run: |
           SCORE=$(node -e "const report = require('./docs/meta/health-report.json'); console.log(report.summary.average_health)")
           echo "Current health score: $SCORE"
-          if (( $(echo "$SCORE < 50" | bc -l) )); then
-            echo "❌ Health score below threshold (50)"
+          if (( $(echo "$SCORE < 65" | bc -l) )); then
+            echo "❌ Health score below threshold (65)"
             exit 1
           fi
           echo "✅ Health score meets threshold"

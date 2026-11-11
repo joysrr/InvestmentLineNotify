@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "prototype": false,
   "stats": {
-    "nodes": 132,
-    "edges": 189
+    "nodes": 135,
+    "edges": 192
   },
   "graph": {
     "api-contract": ["api"],
@@ -133,6 +133,7 @@
     "infrastructure": ["ai_news", "news-fetcher"],
     "data-manager": ["ai_news", "history-provider"],
     "history-provider": ["data-manager"],
+    "monitoring": ["monitoring", "ai-pipeline"],
     "news-pool": ["infrastructure", "ai_news", "news-fetcher"],
     "storage": ["ai_news"],
     "operations": ["ai_news", "bot", "ai_news", "bot", "strategy-engine"],
@@ -174,6 +175,7 @@
     "lifecycle-health-test-spec": ["strategy-engine"],
     "macro-regime-metrics-analysis": ["strategy-engine", "regime-policy"],
     "maintenance-state-machine": ["strategy-engine"],
+    "portfolio": ["strategy-engine"],
     "providers": ["strategy-engine", "news-fetcher"],
     "regime-policy": ["strategy-engine"],
     "strategy-engine": ["ai_news"],

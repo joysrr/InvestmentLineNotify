@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 132,
-    "total_edges": 189,
-    "total_code_mappings": 92,
-    "concepts_with_code": 45,
-    "concepts_with_links": 56,
-    "generated_at": "2026-11-11T05:01:43.608Z"
+    "total_concepts": 135,
+    "total_edges": 192,
+    "total_code_mappings": 113,
+    "concepts_with_code": 68,
+    "concepts_with_links": 58,
+    "generated_at": "2026-11-11T09:08:00.980Z"
   },
   "concepts": {
     "api-contract": {
@@ -108,12 +108,9 @@
     "test-troubleshooting": {
       "primary_doc": "TEST_TROUBLESHOOTING.md",
       "title": "測試疑難排解指南",
-      "summary": "Test troubleshooting guide and common issues",
-      "related_docs": ["docs/TESTING.md", "docs/modules/verification/"],
-      "related_code": [
-        "scripts/test-repair.mjs",
-        "scripts/test-driven-development.mjs"
-      ],
+      "summary": "測試疑難排解指南 的相關文件",
+      "related_docs": [],
+      "related_code": [],
       "tags": ["testing", "troubleshooting", "debugging"],
       "status": "current",
       "last_verified": "2026-11-11",
@@ -133,7 +130,7 @@
     "theoretical-framework": {
       "primary_doc": "architecture/theoretical-framework.md",
       "title": "投資理論框架 (Theoretical Framework)",
-      "summary": "Investment theory framework academic foundation and calculation logic",
+      "summary": "投資理論框架 (Theoretical Framework) 的相關文件",
       "related_docs": ["docs/modules/strategy/_index.md", "docs/decisions/"],
       "related_code": ["src/modules/strategy/theoreticalEngine.mjs"],
       "tags": [
@@ -143,13 +140,13 @@
         "system-integration"
       ],
       "status": "active",
-      "last_verified": "2026-11-11",
+      "last_verified": "\"2026-11-11\"",
       "wiki_links": []
     },
     "dec-005-monitoring-alerting": {
       "primary_doc": "decisions/DEC-005-monitoring-alerting.md",
       "title": "DEC-005: Phase 4 架構決策 - 監控與告警系統",
-      "summary": "Monitoring and alerting architecture decision record",
+      "summary": "DEC-005: Phase 4 架構決策 - 監控與告警系統 的相關文件",
       "related_docs": [
         "docs/modules/infrastructure/monitoring.md",
         "docs/modules/infrastructure/_index.md"
@@ -157,13 +154,13 @@
       "related_code": ["src/modules/monitoring/alertEngine.mjs"],
       "tags": ["monitoring", "alerting", "langfuse"],
       "status": "archived",
-      "last_verified": "2026-11-11",
+      "last_verified": "\"2026-11-11\"",
       "wiki_links": []
     },
     "dec-006-deployment-automation": {
       "primary_doc": "decisions/DEC-006-deployment-automation.md",
       "title": "DEC-006: Phase 4 架構決策 - 部署自動化與 Mini App 遠端部署",
-      "summary": "Deployment automation and Mini App remote deployment decision",
+      "summary": "DEC-006: Phase 4 架構決策 - 部署自動化與 Mini App 遠端部署 的相關文件",
       "related_docs": [
         "docs/operations/deployment-agent.md",
         "docs/operations/deploy-pipeline.md"
@@ -175,13 +172,13 @@
       ],
       "tags": ["deployment", "automation", "docker"],
       "status": "archived",
-      "last_verified": "2026-11-11",
+      "last_verified": "\"2026-11-11\"",
       "wiki_links": []
     },
     "dec-016-vitest-worker-crash": {
       "primary_doc": "decisions/DEC-016-vitest-worker-crash.md",
       "title": "DEC-016: Vitest Worker Crash Investigation (Phase 6.0)",
-      "summary": "Vitest worker crash investigation and mitigation plan",
+      "summary": "DEC-016: Vitest Worker Crash Investigation (Phase 6.0) 的相關文件",
       "related_docs": [
         "docs/TESTING.md",
         "docs/modules/infrastructure/monitoring.md"
@@ -189,7 +186,7 @@
       "related_code": ["src/modules/verification/"],
       "tags": ["vitest", "crash", "debugging"],
       "status": "archived",
-      "last_verified": "2026-11-11",
+      "last_verified": "\"2026-11-11\"",
       "wiki_links": []
     },
     "dec-017-automated-deployment-milestone": {
@@ -253,9 +250,9 @@
     "maintenance-schedule": {
       "primary_doc": "meta/maintenance-schedule.md",
       "title": "文件維護排程 (Documentation Maintenance Schedule)",
-      "summary": "Documentation maintenance schedule and lifecycle",
-      "related_docs": ["docs/meta/maintenance-schedule.md"],
-      "related_code": ["scripts/"],
+      "summary": "文件維護排程 (Documentation Maintenance Schedule) 的相關文件",
+      "related_docs": [],
+      "related_code": [],
       "tags": ["maintenance", "schedule", "automation"],
       "status": "current",
       "last_verified": "2026-11-11",
@@ -275,12 +272,12 @@
     "modules": {
       "primary_doc": "modules/_index.md",
       "title": "模組總索引 (Modules Index)",
-      "summary": "Modules index - core sub-module technical specifications",
+      "summary": "模組總索引 (Modules Index) 的相關文件",
       "related_docs": ["docs/modules/overview.md"],
       "related_code": ["src/modules/"],
       "tags": ["modules", "index"],
       "status": "current",
-      "last_verified": "2026-11-11",
+      "last_verified": "\"2026-11-11\"",
       "wiki_links": []
     },
     "ai_news": {
@@ -562,6 +559,21 @@
       "last_verified": "2026-10-01",
       "wiki_links": []
     },
+    "monitoring": {
+      "primary_doc": "modules/infrastructure/monitoring.md",
+      "title": "監控與告警模組 (`src/modules/monitoring/`)",
+      "summary": "監控與告警模組 (`src/modules/monitoring/`) 的相關文件",
+      "related_docs": ["docs/decisions/DEC-005-monitoring-alerting.md"],
+      "related_code": [
+        "src/modules/monitoring/alertEngine.mjs",
+        "src/modules/monitoring/metricsCollector.mjs",
+        "src/modules/monitoring/errorStore.mjs"
+      ],
+      "tags": ["monitoring", "alerting", "metrics", "infrastructure"],
+      "status": "current",
+      "last_verified": "\"2026-11-11\"",
+      "wiki_links": []
+    },
     "news-pool": {
       "primary_doc": "modules/infrastructure/news_pool.md",
       "title": "新聞池管理 (`newsPoolManager.mjs`)",
@@ -610,12 +622,9 @@
     "deployment-oracle-vm": {
       "primary_doc": "modules/operations/deployment_oracle_vm.md",
       "title": "Oracle Cloud VM 部署安裝手冊（附錄）",
-      "summary": "Oracle VM deployment procedures and configuration",
-      "related_docs": [
-        "docs/operations/deploy-pipeline.md",
-        "docs/operations/production-code-deploy.md"
-      ],
-      "related_code": ["scripts/deploy-production.mjs"],
+      "summary": "Oracle Cloud VM 部署安裝手冊（附錄） 的相關文件",
+      "related_docs": [],
+      "related_code": [],
       "tags": ["deployment", "oracle", "vm"],
       "status": "current",
       "last_verified": "2026-11-11",
@@ -657,9 +666,9 @@
     "overview": {
       "primary_doc": "modules/overview.md",
       "title": "InvestmentLineNotify 總體架構 / System Architecture",
-      "summary": "Documentation overview and navigation map",
-      "related_docs": ["docs/modules/_index.md", "docs/README.md"],
-      "related_code": ["src/"],
+      "summary": "InvestmentLineNotify 總體架構 / System Architecture 的相關文件",
+      "related_docs": [],
+      "related_code": [],
       "tags": ["modules", "index"],
       "status": "current",
       "last_verified": "2026-11-11",
@@ -900,6 +909,25 @@
       "last_verified": "2026-11-11",
       "wiki_links": []
     },
+    "portfolio": {
+      "primary_doc": "modules/strategy/portfolio.md",
+      "title": "Portfolio 快照模組 (`src/modules/portfolio/`)",
+      "summary": "Portfolio 快照模組 (`src/modules/portfolio/`) 的相關文件",
+      "related_docs": [
+        "docs/modules/presentation/api/portfolio_health_api.md",
+        "docs/modules/strategy/cash_exposure_advisor.md"
+      ],
+      "related_code": [
+        "src/modules/portfolio/derivedPortfolioSnapshot.mjs",
+        "src/modules/portfolio/marketPriceSnapshot.mjs",
+        "src/modules/portfolio/reportPortfolioSnapshot.mjs",
+        "src/modules/portfolio/verifiedPortfolioFields.mjs"
+      ],
+      "tags": ["portfolio", "snapshot", "strategy", "verified-data"],
+      "status": "current",
+      "last_verified": "\"2026-11-11\"",
+      "wiki_links": []
+    },
     "providers": {
       "primary_doc": "modules/strategy/providers.md",
       "title": "資料來源提供者 (Providers Layer)",
@@ -940,9 +968,9 @@
     "sentiment": {
       "primary_doc": "modules/strategy/sentiment.md",
       "title": "社群情緒引擎 (Sentiment Engine)",
-      "summary": "Social sentiment analysis module documentation",
-      "related_docs": ["docs/modules/strategy/sentiment.md"],
-      "related_code": ["src/modules/sentiment/"],
+      "summary": "社群情緒引擎 (Sentiment Engine) 的相關文件",
+      "related_docs": [],
+      "related_code": [],
       "tags": ["sentiment", "social", "ptt", "bluesky", "emotion-indicator"],
       "status": "current",
       "last_verified": "2026-11-11",
@@ -951,9 +979,9 @@
     "simulator": {
       "primary_doc": "modules/strategy/simulator.md",
       "title": "0050 雙向模擬器 (Simulator)",
-      "summary": "Investment simulator module documentation",
-      "related_docs": ["docs/modules/strategy/simulator.md"],
-      "related_code": ["src/modules/simulator/"],
+      "summary": "0050 雙向模擬器 (Simulator) 的相關文件",
+      "related_docs": [],
+      "related_code": [],
       "tags": [
         "simulator",
         "forward-simulation",
@@ -980,6 +1008,25 @@
       "last_verified": "2026-11-10",
       "wiki_links": []
     },
+    "deploy-pipeline": {
+      "primary_doc": "operations/deploy-pipeline.md",
+      "title": "部署管線說明 (Deploy Pipeline)",
+      "summary": "部署管線說明 (Deploy Pipeline) 的相關文件",
+      "related_docs": [],
+      "related_code": [
+        "scripts/deploy.mjs",
+        "scripts/deploy-local.mjs",
+        "scripts/deploy-production.mjs",
+        "scripts/deployment-agent.mjs",
+        "src/modules/deployment/executor.mjs",
+        "src/modules/deployment/deploymentVerification.mjs",
+        "src/modules/deployment/deploymentAgentServer.mjs"
+      ],
+      "tags": ["operations", "deployment", "pipeline"],
+      "status": "current",
+      "last_verified": "2026-11-11",
+      "wiki_links": []
+    },
     "deployment-agent": {
       "primary_doc": "operations/deployment-agent.md",
       "title": "Host Deployment Agent",
@@ -998,9 +1045,9 @@
     "production-artifact-sync": {
       "primary_doc": "operations/production-artifact-sync.md",
       "title": "Production Artifact Sync",
-      "summary": "Production artifact synchronization procedures",
-      "related_docs": ["docs/operations/production-code-deploy.md"],
-      "related_code": ["scripts/"],
+      "summary": "Production Artifact Sync 的相關文件",
+      "related_docs": [],
+      "related_code": [],
       "tags": ["operations", "production", "diagnostics", "snapshots"],
       "status": "current",
       "last_verified": "2026-11-11",
@@ -1024,9 +1071,9 @@
     "security-policy": {
       "primary_doc": "operations/security-policy.md",
       "title": "Security Policy",
-      "summary": "Security policy and configuration guidelines",
-      "related_docs": ["docs/modules/overview.md"],
-      "related_code": ["src/modules/config/"],
+      "summary": "Security Policy 的相關文件",
+      "related_docs": [],
+      "related_code": [],
       "tags": ["security", "operations", "policy", "ssh"],
       "status": "current",
       "last_verified": "2026-11-11",
@@ -1035,35 +1082,35 @@
     "2026-11-10-localhost-mini-app-preview-plan": {
       "primary_doc": "plans/active/2026-11-10-LOCALHOST_MINI_APP_PREVIEW_PLAN.md",
       "title": "localhost Mini App 預覽頁面建設計畫",
-      "summary": "Mini App 本地預覽與除錯環境建置計畫",
+      "summary": "localhost Mini App 預覽頁面建設計畫 的相關文件",
       "related_docs": ["docs/modules/presentation/_index.md"],
       "related_code": ["webapp/"],
       "tags": ["webapp", "preview", "localhost"],
       "status": "in-progress",
       "last_verified": "2026-11-11",
-      "wiki_links": ["[[Mini App]]", "[[本地開發]]"]
+      "wiki_links": []
     },
     "2026-08-15-e2e-testing-plan-v2.0": {
       "primary_doc": "plans/completed/2026-08-15-E2E_TESTING_PLAN_v2.0.md",
       "title": "E2E 測試計畫",
-      "summary": "端到端測試計畫與 Playwright 設定規格",
+      "summary": "E2E 測試計畫 的相關文件",
       "related_docs": ["docs/TESTING.md"],
-      "related_code": ["vitest.config.mjs"],
+      "related_code": ["vitest.config.mjs", "vitest.config.mjs"],
       "tags": ["completed", "archived"],
       "status": "completed",
       "last_verified": "2026-11-11",
-      "wiki_links": ["[[E2E測試]]", "[[Playwright]]"]
+      "wiki_links": []
     },
     "2026-08-15-phase-1-4-e2e-completion-summary": {
       "primary_doc": "plans/completed/2026-08-15-PHASE_1-4_E2E_COMPLETION_SUMMARY.md",
       "title": "Phase 1-4 E2E 測試體系建置完成總結",
-      "summary": "Phase 1-4 E2E 測試完成摘要與驗證結果",
+      "summary": "Phase 1-4 E2E 測試體系建置完成總結 的相關文件",
       "related_docs": ["docs/TESTING.md"],
       "related_code": ["vitest.config.mjs"],
       "tags": ["completed", "archived"],
       "status": "completed",
       "last_verified": "2026-11-11",
-      "wiki_links": ["[[E2E測試]]", "[[完成摘要]]"]
+      "wiki_links": []
     },
     "2026-09-10-dashboard-integration-and-config-fix-plan": {
       "primary_doc": "plans/completed/2026-09-10-DASHBOARD_INTEGRATION_AND_CONFIG_FIX_PLAN.md",
@@ -1200,13 +1247,16 @@
     "2026-09-10-phase6-7-deployment-checklist": {
       "primary_doc": "plans/completed/2026-09-10-PHASE6_7_DEPLOYMENT_CHECKLIST.md",
       "title": "部署準備檢查清單",
-      "summary": "部署前自動檢查與部署後觀察重點清單",
-      "related_docs": ["docs/operations/deploy-pipeline.md"],
+      "summary": "部署準備檢查清單 的相關文件",
+      "related_docs": [
+        "docs/operations/deploy-pipeline.md",
+        "docs/operations/production-code-deploy.md"
+      ],
       "related_code": ["src/api/server.mjs", "src/runDailyCheck.mjs"],
       "tags": ["completed", "archived"],
       "status": "completed",
       "last_verified": "2026-11-11",
-      "wiki_links": ["[[部署]]", "[[健康檢查]]"]
+      "wiki_links": []
     },
     "2026-09-10-phase-1-2-verification": {
       "primary_doc": "plans/completed/2026-09-10-PHASE_1-2_VERIFICATION.md",
@@ -1277,13 +1327,13 @@
     "2026-09-10-phase-7-checklist": {
       "primary_doc": "plans/completed/2026-09-10-PHASE_7_CHECKLIST.md",
       "title": "Phase 7 執行清單：品質收尾與上線準備",
-      "summary": "Phase 7 文件驗證與程式碼一致性檢查清單",
+      "summary": "Phase 7 執行清單：品質收尾與上線準備 的相關文件",
       "related_docs": ["docs/meta/documentation-standards.md"],
       "related_code": ["scripts/validate-docs-consistency.mjs"],
       "tags": ["completed", "archived"],
       "status": "completed",
       "last_verified": "2026-11-11",
-      "wiki_links": ["[[驗證]]", "[[文件標準]]"]
+      "wiki_links": []
     },
     "2026-09-10-phase-7-plan": {
       "primary_doc": "plans/completed/2026-09-10-PHASE_7_PLAN.md",
@@ -1321,7 +1371,7 @@
     "2026-09-10-wiki-index-prototype-report": {
       "primary_doc": "plans/completed/2026-09-10-WIKI_INDEX_PROTOTYPE_REPORT.md",
       "title": "LLM Wiki 索引原型驗證報告",
-      "summary": "Wiki index prototype report and validation approach",
+      "summary": "LLM Wiki 索引原型驗證報告 的相關文件",
       "related_docs": [
         "docs/wiki-index.json",
         "docs/meta/maintenance-schedule.md"
@@ -1329,18 +1379,18 @@
       "related_code": ["scripts/validate-wiki-index.mjs"],
       "tags": ["wiki", "prototype", "report"],
       "status": "completed",
-      "last_verified": "2026-11-11",
+      "last_verified": "\"2026-11-11\"",
       "wiki_links": []
     },
     "2026-09-11-deep-content-verification-plan": {
       "primary_doc": "plans/completed/2026-09-11-DEEP_CONTENT_VERIFICATION_PLAN.md",
       "title": "模組文件內容深度驗證計畫",
-      "summary": "Deep content verification plan for documentation consistency",
+      "summary": "模組文件內容深度驗證計畫 的相關文件",
       "related_docs": ["docs/meta/documentation-coverage-matrix.md"],
       "related_code": ["scripts/validate-docs-consistency.mjs"],
       "tags": ["verification", "deep-validation", "documentation"],
       "status": "completed",
-      "last_verified": "2026-11-11",
+      "last_verified": "\"2026-11-11\"",
       "wiki_links": []
     },
     "2026-09-11-documentation-full-modernization-plan": {
@@ -1357,31 +1407,40 @@
     "2026-09-11-module-docs-verification-plan": {
       "primary_doc": "plans/completed/2026-09-11-MODULE_DOCS_VERIFICATION_PLAN.md",
       "title": "模組文件完整性驗證計畫",
-      "summary": "模組文件深度驗證與內容補寫計畫",
+      "summary": "模組文件完整性驗證計畫 的相關文件",
       "related_docs": ["docs/meta/documentation-coverage-matrix.md"],
       "related_code": ["scripts/analyze-docs-health.mjs"],
-      "tags": ["verification", "modules", "documentation"],
+      "tags": ["verification", "modules", "documentation", "[[Documentation]]"],
       "status": "completed",
       "last_verified": "2026-11-11",
-      "wiki_links": ["[[文件驗證]]", "[[健康度]]"]
+      "wiki_links": []
     },
     "2026-09-12-dashboard-ux-pyramid-spec": {
       "primary_doc": "plans/completed/2026-09-12-DASHBOARD_UX_PYRAMID_SPEC.md",
       "title": "Mini App 儀表板三層金字塔整合與 UX 瘦身計畫 (DASHBOARD_UX_PYRAMID_SPEC)",
-      "summary": "Mini App 三層金字塔 UX 架構設計規格",
+      "summary": "Mini App 儀表板三層金字塔整合與 UX 瘦身計畫 (DASHBOARD_UX_PYRAMID_SPEC) 的相關文件",
       "related_docs": ["docs/modules/presentation/_index.md"],
-      "related_code": ["scripts/analyze-docs-health.mjs"],
-      "tags": ["webapp", "ux", "dashboard", "mobile-rwd", "macro-regime"],
+      "related_code": ["webapp/src/views/DashboardView.vue"],
+      "tags": [
+        "webapp",
+        "ux",
+        "dashboard",
+        "mobile-rwd",
+        "macro-regime",
+        "\"[[Dashboard View]]\"",
+        "\"[[Market Snapshot]]\"",
+        "\"[[Macro Regime Advanced Spec]]\""
+      ],
       "status": "completed",
       "last_verified": "2026-11-11",
-      "wiki_links": ["[[UX]]", "[[Mini App]]"]
+      "wiki_links": []
     },
     "2026-09-12-macro-regime-advanced-spec": {
       "primary_doc": "plans/completed/2026-09-12-MACRO_REGIME_ADVANCED_SPEC.md",
       "title": "總經與市場狀態進階辨識 (Macro Regime 2.0) 工程計畫",
-      "summary": "Macro regime advanced specification",
+      "summary": "總經與市場狀態進階辨識 (Macro Regime 2.0) 工程計畫 的相關文件",
       "related_docs": ["docs/modules/strategy/_index.md"],
-      "related_code": ["src/modules/strategy/macroRegime.mjs"],
+      "related_code": ["src/modules/strategy/macroRegimeClassifier.mjs"],
       "tags": [
         "macro",
         "regime-detection",
@@ -1390,13 +1449,13 @@
         "risk-management"
       ],
       "status": "completed",
-      "last_verified": "2026-11-11",
+      "last_verified": "\"2026-11-11\"",
       "wiki_links": []
     },
     "2026-09-12-native-social-sentiment-engine-spec": {
       "primary_doc": "plans/completed/2026-09-12-NATIVE_SOCIAL_SENTIMENT_ENGINE_SPEC.md",
       "title": "社群情緒模組原生物生化計畫 (Native Social Sentiment Engine Spec)",
-      "summary": "社群情緒分析引擎原生實作規格",
+      "summary": "社群情緒模組原生物生化計畫 (Native Social Sentiment Engine Spec) 的相關文件",
       "related_docs": ["docs/modules/ai_news/_index.md"],
       "related_code": ["src/modules/sentiment/"],
       "tags": [
@@ -1405,16 +1464,19 @@
         "nodejs-esm",
         "ptt",
         "bsky",
-        "bot"
+        "bot",
+        "\"[[Regime Policy]]\"",
+        "\"[[Signal Generator]]\"",
+        "\"[[Macro Battle View]]\""
       ],
       "status": "completed",
       "last_verified": "2026-11-11",
-      "wiki_links": ["[[情緒分析]]", "[[社群]]"]
+      "wiki_links": []
     },
     "2026-09-12-social-sentiment-integration-spec": {
       "primary_doc": "plans/completed/2026-09-12-SOCIAL_SENTIMENT_INTEGRATION_SPEC.md",
       "title": "社群情緒與散戶背離整合計畫 (Social Sentiment & Macro Battle Integration Spec)",
-      "summary": "Social sentiment integration specification",
+      "summary": "社群情緒與散戶背離整合計畫 (Social Sentiment & Macro Battle Integration Spec) 的相關文件",
       "related_docs": ["docs/modules/strategy/sentiment.md"],
       "related_code": ["src/modules/sentiment/"],
       "tags": [
@@ -1427,7 +1489,7 @@
         "miniapp"
       ],
       "status": "completed",
-      "last_verified": "2026-11-11",
+      "last_verified": "\"2026-11-11\"",
       "wiki_links": []
     },
     "2026-09-18-e2e-test-fix-plan": {
@@ -1701,7 +1763,7 @@
     "2026-11-10-crisis-accumulate-decision-chain-fix-plan": {
       "primary_doc": "plans/completed/2026-11-10-CRISIS_ACCUMULATE_DECISION_CHAIN_FIX_PLAN.md",
       "title": "計畫書：Crisis Accumulate 決策鏈修復與規格對齊",
-      "summary": "Crisis accumulation decision chain fix plan",
+      "summary": "計畫書：Crisis Accumulate 決策鏈修復與規格對齊 的相關文件",
       "related_docs": ["docs/modules/strategy/_index.md", "docs/decisions/"],
       "related_code": ["src/modules/strategy/strategyEngine.mjs"],
       "tags": [
@@ -1712,7 +1774,7 @@
         "zero-hardcoding"
       ],
       "status": "completed",
-      "last_verified": "2026-11-11",
+      "last_verified": "\"2026-11-11\"",
       "wiki_links": []
     },
     "2026-11-10-docs-cleanup-phase2-plan": {
@@ -1744,13 +1806,19 @@
     "2026-11-10-documentation-reorganization-plan": {
       "primary_doc": "plans/completed/2026-11-10-DOCUMENTATION_REORGANIZATION_PLAN.md",
       "title": "docs/ 文件庫過時殘留清理與架構同步計畫",
-      "summary": "docs 文件庫階段式重組與標準化計畫",
+      "summary": "docs/ 文件庫過時殘留清理與架構同步計畫 的相關文件",
       "related_docs": ["docs/meta/documentation-standards.md"],
       "related_code": ["scripts/generate-wiki-index.mjs"],
-      "tags": ["documentation", "modernization", "archive", "wiki"],
+      "tags": [
+        "documentation",
+        "modernization",
+        "archive",
+        "wiki",
+        "[[Documentation Standards]]"
+      ],
       "status": "completed",
       "last_verified": "2026-11-11",
-      "wiki_links": ["[[文件庫]]", "[[重組]]"]
+      "wiki_links": []
     },
     "2026-11-11-docs-cleanup-phase4-plan": {
       "primary_doc": "plans/completed/2026-11-11-DOCS_CLEANUP_PHASE4_PLAN.md",
@@ -1812,7 +1880,7 @@
     "strategy-engine-verification-report": {
       "primary_doc": "verification/STRATEGY_ENGINE_VERIFICATION_REPORT.md",
       "title": "Strategy Engine 深度驗證報告",
-      "summary": "策略引擎計算邏輯驗證報告與數據一致性檢查",
+      "summary": "Strategy Engine 深度驗證報告 的相關文件",
       "related_docs": ["docs/modules/strategy/_index.md"],
       "related_code": ["src/modules/strategy/strategyEngine.mjs"],
       "tags": [
@@ -1820,11 +1888,13 @@
         "strategy-engine",
         "lifecycle",
         "margin",
-        "deep-validation"
+        "deep-validation",
+        "[[Strategy Engine]]",
+        "[[Budget Priority]]"
       ],
       "status": "completed",
       "last_verified": "2026-11-11",
-      "wiki_links": ["[[策略引擎]]", "[[驗證]]"]
+      "wiki_links": []
     },
     "hardcoded-parameters-inventory": {
       "primary_doc": "verification/hardcoded-parameters-inventory.md",
@@ -1983,6 +2053,66 @@
         "doc": "TESTING.md"
       }
     ],
+    "src/modules/strategy/theoreticalEngine.mjs": [
+      {
+        "concept": "theoretical-framework",
+        "doc": "architecture/theoretical-framework.md"
+      },
+      {
+        "concept": "strategy-engine",
+        "doc": "modules/strategy/strategy_engine.md"
+      }
+    ],
+    "src/modules/monitoring/alertEngine.mjs": [
+      {
+        "concept": "dec-005-monitoring-alerting",
+        "doc": "decisions/DEC-005-monitoring-alerting.md"
+      },
+      {
+        "concept": "monitoring",
+        "doc": "modules/infrastructure/monitoring.md"
+      }
+    ],
+    "scripts/deploy.mjs": [
+      {
+        "concept": "dec-006-deployment-automation",
+        "doc": "decisions/DEC-006-deployment-automation.md"
+      },
+      {
+        "concept": "deploy-pipeline",
+        "doc": "operations/deploy-pipeline.md"
+      }
+    ],
+    "scripts/deploy-local.mjs": [
+      {
+        "concept": "dec-006-deployment-automation",
+        "doc": "decisions/DEC-006-deployment-automation.md"
+      },
+      {
+        "concept": "deploy-pipeline",
+        "doc": "operations/deploy-pipeline.md"
+      }
+    ],
+    "scripts/deploy-production.mjs": [
+      {
+        "concept": "dec-006-deployment-automation",
+        "doc": "decisions/DEC-006-deployment-automation.md"
+      },
+      {
+        "concept": "deploy-pipeline",
+        "doc": "operations/deploy-pipeline.md"
+      },
+      {
+        "concept": "production-code-deploy",
+        "doc": "operations/production-code-deploy.md"
+      }
+    ],
+    "src/modules/verification/": [
+      {
+        "concept": "dec-016-vitest-worker-crash",
+        "doc": "decisions/DEC-016-vitest-worker-crash.md"
+      }
+    ],
     "src/modules/deployment/deploymentAgentClient.mjs": [
       {
         "concept": "dec-017-automated-deployment-milestone",
@@ -1995,6 +2125,10 @@
         "doc": "decisions/DEC-017-automated-deployment-milestone.md"
       },
       {
+        "concept": "deploy-pipeline",
+        "doc": "operations/deploy-pipeline.md"
+      },
+      {
         "concept": "deployment-agent",
         "doc": "operations/deployment-agent.md"
       }
@@ -2003,6 +2137,10 @@
       {
         "concept": "dec-017-automated-deployment-milestone",
         "doc": "decisions/DEC-017-automated-deployment-milestone.md"
+      },
+      {
+        "concept": "deploy-pipeline",
+        "doc": "operations/deploy-pipeline.md"
       },
       {
         "concept": "deployment-agent",
@@ -2029,6 +2167,12 @@
       {
         "concept": "dec-017-automated-deployment-milestone",
         "doc": "decisions/DEC-017-automated-deployment-milestone.md"
+      }
+    ],
+    "src/modules/": [
+      {
+        "concept": "modules",
+        "doc": "modules/_index.md"
       }
     ],
     "src/modules/ai/aiClient.mjs": [
@@ -2363,6 +2507,18 @@
         "doc": "modules/infrastructure/history_provider.md"
       }
     ],
+    "src/modules/monitoring/metricsCollector.mjs": [
+      {
+        "concept": "monitoring",
+        "doc": "modules/infrastructure/monitoring.md"
+      }
+    ],
+    "src/modules/monitoring/errorStore.mjs": [
+      {
+        "concept": "monitoring",
+        "doc": "modules/infrastructure/monitoring.md"
+      }
+    ],
     "src/modules/data/newsPoolManager.test.mjs": [
       {
         "concept": "news-pool",
@@ -2449,6 +2605,14 @@
       {
         "concept": "strategy-engine",
         "doc": "modules/strategy/strategy_engine.md"
+      },
+      {
+        "concept": "2026-11-10-crisis-accumulate-decision-chain-fix-plan",
+        "doc": "plans/completed/2026-11-10-CRISIS_ACCUMULATE_DECISION_CHAIN_FIX_PLAN.md"
+      },
+      {
+        "concept": "strategy-engine-verification-report",
+        "doc": "verification/STRATEGY_ENGINE_VERIFICATION_REPORT.md"
       }
     ],
     "src/api/schema/contract.mjs": [
@@ -2617,6 +2781,30 @@
         "doc": "modules/strategy/maintenance_state_machine.md"
       }
     ],
+    "src/modules/portfolio/derivedPortfolioSnapshot.mjs": [
+      {
+        "concept": "portfolio",
+        "doc": "modules/strategy/portfolio.md"
+      }
+    ],
+    "src/modules/portfolio/marketPriceSnapshot.mjs": [
+      {
+        "concept": "portfolio",
+        "doc": "modules/strategy/portfolio.md"
+      }
+    ],
+    "src/modules/portfolio/reportPortfolioSnapshot.mjs": [
+      {
+        "concept": "portfolio",
+        "doc": "modules/strategy/portfolio.md"
+      }
+    ],
+    "src/modules/portfolio/verifiedPortfolioFields.mjs": [
+      {
+        "concept": "portfolio",
+        "doc": "modules/strategy/portfolio.md"
+      }
+    ],
     "src/modules/providers/yahooProvider.mjs": [
       {
         "concept": "providers",
@@ -2675,12 +2863,10 @@
       {
         "concept": "regime-policy",
         "doc": "modules/strategy/regime_policy.md"
-      }
-    ],
-    "src/modules/strategy/theoreticalEngine.mjs": [
+      },
       {
-        "concept": "strategy-engine",
-        "doc": "modules/strategy/strategy_engine.md"
+        "concept": "2026-09-12-macro-regime-advanced-spec",
+        "doc": "plans/completed/2026-09-12-MACRO_REGIME_ADVANCED_SPEC.md"
       }
     ],
     "src/scheduler/dailyCheckTheoreticalAdapter.mjs": [
@@ -2691,20 +2877,98 @@
     ],
     "scripts/deployment-agent.mjs": [
       {
+        "concept": "deploy-pipeline",
+        "doc": "operations/deploy-pipeline.md"
+      },
+      {
         "concept": "deployment-agent",
         "doc": "operations/deployment-agent.md"
       }
     ],
     "src/modules/deployment/deploymentVerification.mjs": [
       {
+        "concept": "deploy-pipeline",
+        "doc": "operations/deploy-pipeline.md"
+      },
+      {
         "concept": "production-code-deploy",
         "doc": "operations/production-code-deploy.md"
       }
     ],
-    "scripts/deploy-production.mjs": [
+    "webapp/": [
       {
-        "concept": "production-code-deploy",
-        "doc": "operations/production-code-deploy.md"
+        "concept": "2026-11-10-localhost-mini-app-preview-plan",
+        "doc": "plans/active/2026-11-10-LOCALHOST_MINI_APP_PREVIEW_PLAN.md"
+      }
+    ],
+    "vitest.config.mjs": [
+      {
+        "concept": "2026-08-15-e2e-testing-plan-v2.0",
+        "doc": "plans/completed/2026-08-15-E2E_TESTING_PLAN_v2.0.md"
+      },
+      {
+        "concept": "2026-08-15-e2e-testing-plan-v2.0",
+        "doc": "plans/completed/2026-08-15-E2E_TESTING_PLAN_v2.0.md"
+      },
+      {
+        "concept": "2026-08-15-phase-1-4-e2e-completion-summary",
+        "doc": "plans/completed/2026-08-15-PHASE_1-4_E2E_COMPLETION_SUMMARY.md"
+      }
+    ],
+    "src/api/server.mjs": [
+      {
+        "concept": "2026-09-10-phase6-7-deployment-checklist",
+        "doc": "plans/completed/2026-09-10-PHASE6_7_DEPLOYMENT_CHECKLIST.md"
+      }
+    ],
+    "src/runDailyCheck.mjs": [
+      {
+        "concept": "2026-09-10-phase6-7-deployment-checklist",
+        "doc": "plans/completed/2026-09-10-PHASE6_7_DEPLOYMENT_CHECKLIST.md"
+      }
+    ],
+    "scripts/validate-docs-consistency.mjs": [
+      {
+        "concept": "2026-09-10-phase-7-checklist",
+        "doc": "plans/completed/2026-09-10-PHASE_7_CHECKLIST.md"
+      },
+      {
+        "concept": "2026-09-11-deep-content-verification-plan",
+        "doc": "plans/completed/2026-09-11-DEEP_CONTENT_VERIFICATION_PLAN.md"
+      }
+    ],
+    "scripts/validate-wiki-index.mjs": [
+      {
+        "concept": "2026-09-10-wiki-index-prototype-report",
+        "doc": "plans/completed/2026-09-10-WIKI_INDEX_PROTOTYPE_REPORT.md"
+      }
+    ],
+    "scripts/analyze-docs-health.mjs": [
+      {
+        "concept": "2026-09-11-module-docs-verification-plan",
+        "doc": "plans/completed/2026-09-11-MODULE_DOCS_VERIFICATION_PLAN.md"
+      }
+    ],
+    "webapp/src/views/DashboardView.vue": [
+      {
+        "concept": "2026-09-12-dashboard-ux-pyramid-spec",
+        "doc": "plans/completed/2026-09-12-DASHBOARD_UX_PYRAMID_SPEC.md"
+      }
+    ],
+    "src/modules/sentiment/": [
+      {
+        "concept": "2026-09-12-native-social-sentiment-engine-spec",
+        "doc": "plans/completed/2026-09-12-NATIVE_SOCIAL_SENTIMENT_ENGINE_SPEC.md"
+      },
+      {
+        "concept": "2026-09-12-social-sentiment-integration-spec",
+        "doc": "plans/completed/2026-09-12-SOCIAL_SENTIMENT_INTEGRATION_SPEC.md"
+      }
+    ],
+    "scripts/generate-wiki-index.mjs": [
+      {
+        "concept": "2026-11-10-documentation-reorganization-plan",
+        "doc": "plans/completed/2026-11-10-DOCUMENTATION_REORGANIZATION_PLAN.md"
       }
     ],
     "webapp/src/composables/useApiRequest.js": [

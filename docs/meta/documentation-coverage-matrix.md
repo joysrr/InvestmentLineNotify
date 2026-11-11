@@ -53,31 +53,32 @@ wiki_links:
 
 ## 統計摘要
 
-| 狀態        | 數量    | 比例 |
-| ----------- | ------- | ---- |
-| ✅ 已覆蓋   | 16 / 25 | 64%  |
-| ⚠️ 部分覆蓋 | 0 / 25  | 0%   |
-| ❌ 未覆蓋   | 1 / 25  | 4%   |
-| N/A         | 8 / 25  | 32%  |
+| 狀態        | 數量      | 比例   |
+| ----------- | --------- | ------ |
+| ✅ 已覆蓋   | 16 / 25   | 64%    |
+| ⚠️ 部分覆蓋 | 0 / 25    | 0%     |
+|             | ❌ 未覆蓋 | 0 / 25 | 0%  |     |
+|             | N/A       | 9 / 25 | 36% |     |
 
 ## 補寫優先級
 
-| 優先級  | 模組                           | 原因                        | 建議動作                                                                 |
-| ------- | ------------------------------ | --------------------------- | ------------------------------------------------------------------------ |
-| ✅ 完成 | \`src/modules/simulator/\`     | 核心業務邏輯（0050 模擬器） | 已補寫 \`docs/modules/strategy/simulator.md\`                            |
-| ✅ 完成 | \`src/modules/sentiment/\`     | 社群情緒核心模組            | 已補寫 \`docs/modules/strategy/sentiment.md\`                            |
-| ✅ 完成 | \`src/modules/portfolio/\`     | 投資組合核心邏輯            | 已補寫 \`docs/modules/strategy/portfolio.md\`                            |
-| ✅ 完成 | \`src/modules/notifications/\` | 傳輸層未涵蓋                | 已補寫 \`docs/modules/presentation/notifications.md\`                    |
-| ✅ 完成 | \`src/modules/bot/\`           | handlers/middleware 未涵蓋  | 已補寫 \`docs/modules/presentation/bot.md\`                              |
-| ✅ 完成 | \`src/modules/monitoring/\`    | 監控模組                    | 已補寫 \`docs/modules/infrastructure/monitoring.md\`                     |
-| ✅ 完成 | \`src/modules/deployment/\`    | 部署模組                    | 已補充 \`docs/operations/deployment-agent.md\` executorLock/verification |
-| N/A     | \`src/domain/\`                | 領域模型                    | 已合併入概要，不需獨立文件                                               |
-| N/A     | \`src/interfaces/\`            | 介面定義                    | 已合併入各模組文件，不需獨立文件                                         |
-| N/A     | \`src/modules/assets/\`        | 資產模組                    | 已合併入策略文件，不需獨立文件                                           |
-| N/A     | \`src/modules/config/\`        | 設定模組                    | 已合併入概要與 inventory，不需獨立文件                                   |
-| N/A     | \`src/modules/replay/\`        | 重放模組                    | 已合併入 verification，不需獨立文件                                      |
-| N/A     | \`src/tools/\`                 | 工具集                      | 已合併入 TESTING.md，不需獨立文件                                        |
-| N/A     | \`src/utils/\`                 | 工具函式                    | 已合併入基礎設施文件，不需獨立文件                                       |
+| 優先級  | 模組                           | 原因                        | 建議動作                                              |
+| ------- | ------------------------------ | --------------------------- | ----------------------------------------------------- |
+| ✅ 完成 | \`src/modules/simulator/\`     | 核心業務邏輯（0050 模擬器） | 已補寫 \`docs/modules/strategy/simulator.md\`         |
+| ✅ 完成 | \`src/modules/sentiment/\`     | 社群情緒核心模組            | 已補寫 \`docs/modules/strategy/sentiment.md\`         |
+| ✅ 完成 | \`src/modules/portfolio/\`     | 投資組合核心邏輯            | 已補寫 \`docs/modules/strategy/portfolio.md\`         |
+| ✅ 完成 | \`src/modules/notifications/\` | 傳輸層未涵蓋                | 已補寫 \`docs/modules/presentation/notifications.md\` |
+| ✅ 完成 | \`src/modules/bot/\`           | handlers/middleware 未涵蓋  | 已補寫 \`docs/modules/presentation/bot.md\`           |
+| ✅ 完成 | \`src/modules/monitoring/\`    | 監控模組                    | 已補寫 \`docs/modules/infrastructure/monitoring.md\`  |
+|         | ✅ 完成                        | \`src/modules/deployment/\` | 部署模組                                              | 已補充 \`docs/operations/deployment-agent.md\` executorLock/verification |     |
+|         | ✅ 完成                        | \`src/scripts/\`            | 腳本盤點文件                                          | 已建立 \`docs/meta/scripts-inventory.md\`，涵蓋 26 個 .mjs 腳本          |     |
+|         | N/A                            | \`src/domain/\`             | 領域模型                                              | 已合併入概要，不需獨立文件                                               |     |
+| N/A     | \`src/interfaces/\`            | 介面定義                    | 已合併入各模組文件，不需獨立文件                      |
+| N/A     | \`src/modules/assets/\`        | 資產模組                    | 已合併入策略文件，不需獨立文件                        |
+| N/A     | \`src/modules/config/\`        | 設定模組                    | 已合併入概要與 inventory，不需獨立文件                |
+| N/A     | \`src/modules/replay/\`        | 重放模組                    | 已合併入 verification，不需獨立文件                   |
+| N/A     | \`src/tools/\`                 | 工具集                      | 已合併入 TESTING.md，不需獨立文件                     |
+| N/A     | \`src/utils/\`                 | 工具函式                    | 已合併入基礎設施文件，不需獨立文件                    |
 
 ## 驗收準則
 

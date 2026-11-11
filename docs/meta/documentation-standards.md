@@ -305,7 +305,7 @@ node scripts/add-frontmatter.mjs docs/path/to/file.md
 ### CI/CD
 
 - **GitHub Actions**: 自動驗證 PR 中的文件變更
-- **健康度閾值**: 平均分數 ≥ 50 (否則 CI 失敗)
+- **健康度閾值**: 平均分數 ≥ 65 (否則 CI 失敗)
 
 ---
 
@@ -423,6 +423,7 @@ updated: 2026-09-11 # 應使用 last_updated
 ### 品質門檻
 
 - 整體文件健康度平均分數 ≥ 65（`analyze-docs-health.mjs`）
+- 此閾值與 maintenance-schedule.md、docs-validation.yml 保持一致
 - related_code 無效引用 ≤ 3（`validate-docs-consistency.mjs`）
 - 導航路徑失敗 = 0（`validate-docs-consistency.mjs`）
 
