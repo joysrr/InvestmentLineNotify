@@ -368,6 +368,7 @@ const pb = computed(() => {
     statusData.value?.rawValuation?.pb;
   return v != null ? Number(v) : null;
 });
+// ⚠️ 本卡片的顏色依 PB 絕對值判定（1.5/2.0/3.0/4.0），與 DashboardView.pbPrLevel 的 PR 歷史分位判定（25/80/90）為不同維度。
 const pbCard = computed(() => {
   const v = pb.value;
   if (v == null) return { cls: "", sub: "rc-sub--neutral", label: "—" };
