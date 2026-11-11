@@ -23,41 +23,42 @@ wiki_links:
 
 ## 模組覆蓋一覽表
 
-| #   | src 模組                       | 對應 docs 位置                                                                | 狀態             | 備註                                                                      |
-| --- | ------------------------------ | ----------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------- |
-| 1   | \`src/api/\`                   | \`docs/modules/presentation/api/\`                                            | ✅ 已覆蓋        | API 契約與端點規格                                                        |
-| 2   | \`src/bot/\`                   | \`docs/modules/presentation/bot.md\`                                          | ✅ 已覆蓋        | Telegram Bot 入口規格                                                     |
-| 3   | \`src/domain/\`                | \`docs/modules/overview.md\`                                                  | N/A              | 純型別定義，合併入架構總覽資料治理章節，不需獨立文件                      |
-| 4   | \`src/interfaces/\`            | 各對應模組文件                                                                | N/A              | 純型別定義，散記於各模組文件，不需獨立文件                                |
-| 5   | \`src/modules/ai/\`            | \`docs/modules/ai_news/\`                                                     | ✅ 已覆蓋        | AI 管線、提示詞、Langfuse                                                 |
-| 6   | \`src/modules/assets/\`        | \`docs/modules/strategy/\`                                                    | N/A              | assetRegistry 在策略文件已說明（DEC-14 資產抽象），不需獨立文件           |
-| 7   | \`src/modules/bot/\`           | \`docs/modules/presentation/bot.md\`                                          | ✅ 已覆蓋        | 已補充 runnerLock 說明（handlers/middleware 完整涵蓋）                    |
-| 8   | \`src/modules/config/\`        | \`docs/modules/overview.md\`、\`docs/meta/hardcoded-parameters-inventory.md\` | N/A              | configValidator 功能在策略文件已涵蓋，不需獨立文件                        |
-| 9   | \`src/modules/data/\`          | \`docs/modules/infrastructure/\`                                              | ✅ 已覆蓋        | 資料持久化、快取、歷史 K 線                                               |
-| 10  | \`src/modules/deployment/\`    | \`docs/operations/deployment-agent.md\`                                       | ✅ 已覆蓋        | 已補充 executorLock/verification 機制說明                                 |
-| 11  | \`src/modules/monitoring/\`    | \`docs/modules/infrastructure/monitoring.md\`                                 | ✅ 已覆蓋        | 已新建 monitoring.md，涵蓋 alertEngine/MetricsCollector/ErrorStore 實作   |
-| 12  | \`src/modules/news/\`          | \`docs/modules/ai_news/\`                                                     | ✅ 已覆蓋 (部分) | 新聞獲取已涵蓋，AI 分析管線分散在 ai_news/                                |
-| 13  | \`src/modules/notifications/\` | \`docs/modules/presentation/notifications.md\`                                | ✅ 已覆蓋        | 已補充傳輸層、重試機制說明                                                |
-| 14  | \`src/modules/operations/\`    | \`docs/modules/operations/\`                                                  | ✅ 已覆蓋        | 環境變數、排程、Oracle VM 部署                                            |
-| 15  | \`src/modules/portfolio/\`     | \`docs/modules/strategy/portfolio.md\`                                        | ✅ 已覆蓋        | 已新建 portfolio.md，涵蓋驗證/推導快照全流程                              |
-| 16  | \`src/modules/providers/\`     | \`docs/modules/strategy/providers.md\`                                        | ✅ 已覆蓋        | Provider 架構與 10 個實作文件                                             |
-| 17  | \`src/modules/replay/\`        | \`docs/modules/verification/\`                                                | N/A              | replayRunner 在 verification 已說明，不需獨立文件                         |
-| 18  | `src/modules/sentiment/`       | `docs/modules/strategy/sentiment.md`                                          | ✅ 已覆蓋        | Phase 8 已補寫                                                            |
-| 19  | `src/modules/strategy/`        | `docs/modules/strategy/`                                                      | ✅ 已覆蓋        | 策略引擎、雷達、生命週期、現金風險                                        |
-| 21  | \`src/modules/verification/\`  | \`docs/TESTING.md\`                                                           | N/A              | 驗證報告存在，但非模組技術規格，在 TESTING.md 說明                        |
-| 22  | \`src/scheduler/\`             | \`docs/modules/operations/schedules.md\`                                      | ✅ 已覆蓋 (部分) | 每日計算排程已涵蓋                                                        |
-| 23  | `src/scripts/`                 | `docs/meta/scripts-inventory.md`（Phase 9 建立）                              | ✅ 已覆蓋        | 腳本盤點已完整，涵蓋 26 個 .mjs 腳本                                      |
-| 24  | \`src/tools/\`                 | \`docs/TESTING.md\`                                                           | N/A              | stressTest 工具可併入 TESTING.md 壓力測試段落，不需獨立文件               |
-| 25  | \`src/utils/\`                 | \`docs/modules/infrastructure/_index.md\`                                     | N/A              | logger/coreUtils/snapshotCrypto/envGuard 合併入基礎設施文件，不需獨立文件 |
+| #      | src 模組                       | 對應 docs 位置                                                                | 狀態             | 備註                                                                      |
+| ------ | ------------------------------ | ----------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------- |
+| 1      | \`src/api/\`                   | \`docs/modules/presentation/api/\`                                            | ✅ 已覆蓋        | API 契約與端點規格                                                        |
+| 2      | \`src/bot/\`                   | \`docs/modules/presentation/bot.md\`                                          | ✅ 已覆蓋        | Telegram Bot 入口規格                                                     |
+| 3      | \`src/domain/\`                | \`docs/modules/overview.md\`                                                  | N/A              | 純型別定義，合併入架構總覽資料治理章節，不需獨立文件                      |
+| 4      | \`src/interfaces/\`            | 各對應模組文件                                                                | N/A              | 純型別定義，散記於各模組文件，不需獨立文件                                |
+| 5      | \`src/modules/ai/\`            | \`docs/modules/ai_news/\`                                                     | ✅ 已覆蓋        | AI 管線、提示詞、Langfuse                                                 |
+| 6      | \`src/modules/assets/\`        | \`docs/modules/strategy/\`                                                    | N/A              | assetRegistry 在策略文件已說明（DEC-14 資產抽象），不需獨立文件           |
+| 7      | \`src/modules/bot/\`           | \`docs/modules/presentation/bot.md\`                                          | ✅ 已覆蓋        | 已補充 runnerLock 說明（handlers/middleware 完整涵蓋）                    |
+| 8      | \`src/modules/config/\`        | \`docs/modules/overview.md\`、\`docs/meta/hardcoded-parameters-inventory.md\` | N/A              | configValidator 功能在策略文件已涵蓋，不需獨立文件                        |
+| 9      | \`src/modules/data/\`          | \`docs/modules/infrastructure/\`                                              | ✅ 已覆蓋        | 資料持久化、快取、歷史 K 線                                               |
+| 10     | \`src/modules/deployment/\`    | \`docs/operations/deployment-agent.md\`                                       | ✅ 已覆蓋        | 已補充 executorLock/verification 機制說明                                 |
+| 11     | \`src/modules/monitoring/\`    | \`docs/modules/infrastructure/monitoring.md\`                                 | ✅ 已覆蓋        | 已新建 monitoring.md，涵蓋 alertEngine/MetricsCollector/ErrorStore 實作   |
+| 12     | \`src/modules/news/\`          | \`docs/modules/ai_news/\`                                                     | ✅ 已覆蓋 (部分) | 新聞獲取已涵蓋，AI 分析管線分散在 ai_news/                                |
+| 13     | \`src/modules/notifications/\` | \`docs/modules/presentation/notifications.md\`                                | ✅ 已覆蓋        | 已補充傳輸層、重試機制說明                                                |
+| 14     | \`src/modules/operations/\`    | \`docs/modules/operations/\`                                                  | ✅ 已覆蓋        | 環境變數、排程、Oracle VM 部署                                            |
+| 15     | \`src/modules/portfolio/\`     | \`docs/modules/strategy/portfolio.md\`                                        | ✅ 已覆蓋        | 已新建 portfolio.md，涵蓋驗證/推導快照全流程                              |
+| 16     | \`src/modules/providers/\`     | \`docs/modules/strategy/providers.md\`                                        | ✅ 已覆蓋        | Provider 架構與 10 個實作文件                                             |
+| 17     | \`src/modules/replay/\`        | \`docs/modules/verification/\`                                                | N/A              | replayRunner 在 verification 已說明，不需獨立文件                         |
+| 18     | `src/modules/sentiment/`       | `docs/modules/strategy/sentiment.md`                                          | ✅ 已覆蓋        | Phase 8 已補寫                                                            |
+| 19     | `src/modules/strategy/`        | `docs/modules/strategy/`                                                      | ✅ 已覆蓋        | 策略引擎、雷達、生命週期、現金風險                                        |
+| ~~20~~ | ~~`src/modules/simulator/`~~   | —                                                                             | —                | Phase 1 已廢止移除                                                        |
+| 21     | \`src/modules/verification/\`  | \`docs/TESTING.md\`                                                           | N/A              | 驗證報告存在，但非模組技術規格，在 TESTING.md 說明                        |
+| 22     | \`src/scheduler/\`             | \`docs/modules/operations/schedules.md\`                                      | ✅ 已覆蓋 (部分) | 每日計算排程已涵蓋                                                        |
+| 23     | `src/scripts/`                 | `docs/meta/scripts-inventory.md`（Phase 9 建立）                              | ✅ 已覆蓋        | 腳本盤點已完整，涵蓋 26 個 .mjs 腳本                                      |
+| 24     | \`src/tools/\`                 | \`docs/TESTING.md\`                                                           | N/A              | stressTest 工具可併入 TESTING.md 壓力測試段落，不需獨立文件               |
+| 25     | \`src/utils/\`                 | \`docs/modules/infrastructure/_index.md\`                                     | N/A              | logger/coreUtils/snapshotCrypto/envGuard 合併入基礎設施文件，不需獨立文件 |
 
 ## 統計摘要
 
-| 狀態        | 數量      | 比例   |
-| ----------- | --------- | ------ |
-| ✅ 已覆蓋   | 16 / 25   | 64%    |
-| ⚠️ 部分覆蓋 | 0 / 25    | 0%     |
-|             | ❌ 未覆蓋 | 0 / 25 | 0%  |     |
-|             | N/A       | 9 / 25 | 36% |     |
+| 狀態        | 數量    | 比例 |
+| ----------- | ------- | ---- |
+| ✅ 已覆蓋   | 16 / 24 | 67%  |
+| ⚠️ 部分覆蓋 | 0 / 24  | 0%   |
+| ❌ 未覆蓋   | 0 / 24  | 0%   |
+| N/A         | 8 / 24  | 33%  |
 
 ## 補寫優先級
 
