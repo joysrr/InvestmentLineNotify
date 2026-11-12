@@ -379,12 +379,12 @@ function formatMoney(amount) {
 }
 
 .panel-severity-critical {
-  border-color: #e84855;
+  border-color: var(--iln-danger-text);
   background: rgba(232, 72, 85, 0.1);
 }
 
 .panel-severity-alert {
-  border-color: #ff9f0a;
+  border-color: var(--iln-warn-text);
   background: rgba(255, 159, 10, 0.1);
 }
 
@@ -418,7 +418,7 @@ function formatMoney(amount) {
 .status-title {
   font-size: 13px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #1c1c1e);
+  color: var(--tg-theme-text-color, var(--iln-surface));
 }
 
 .status-badge {
@@ -431,13 +431,13 @@ function formatMoney(amount) {
 
 .badge-idle {
   background: rgba(38, 161, 123, 0.12);
-  color: #26a17b;
+  color: var(--iln-ok-text);
   border: 1px solid rgba(38, 161, 123, 0.28);
 }
 
 .badge-active {
   background: rgba(232, 72, 85, 0.18);
-  color: #e84855;
+  color: var(--iln-danger-text);
   border: 1px solid rgba(232, 72, 85, 0.35);
 }
 
@@ -508,7 +508,7 @@ function formatMoney(amount) {
 }
 
 .dot-normal {
-  background: #26a17b;
+  background: var(--iln-ok-text);
   box-shadow: 0 0 5px rgba(38, 161, 123, 0.45);
 }
 
@@ -528,7 +528,7 @@ function formatMoney(amount) {
 }
 
 .mini-name {
-  color: var(--tg-theme-text-color, #1c1c1e);
+  color: var(--tg-theme-text-color, var(--iln-surface));
   font-size: 13px;
   font-weight: 600;
 }
@@ -559,7 +559,7 @@ function formatMoney(amount) {
   height: 18px;
   border-radius: 50%;
   background: rgba(36, 129, 204, 0.1);
-  color: #2481cc;
+  color: var(--iln-brand);
   font-size: 13px;
   line-height: 18px;
   cursor: pointer;
@@ -571,7 +571,7 @@ function formatMoney(amount) {
   gap: 3px;
   margin-top: 7px;
   padding: 8px 9px;
-  border-left: 2px solid #2481cc;
+  border-left: 2px solid var(--iln-brand);
   border-radius: 0 7px 7px 0;
   background: rgba(36, 129, 204, 0.06);
   color: var(--tg-theme-hint-color, #555);
@@ -580,13 +580,13 @@ function formatMoney(amount) {
 }
 
 .radar-info-panel strong {
-  color: var(--tg-theme-text-color, #1c1c1e);
+  color: var(--tg-theme-text-color, var(--iln-surface));
   font-size: 11px;
 }
 
 .radar-info-status {
   margin-top: 3px;
-  color: #26a17b;
+  color: var(--iln-ok-text);
   font-weight: 600;
 }
 
@@ -613,7 +613,7 @@ function formatMoney(amount) {
   padding: 2px 7px;
   border-radius: 6px;
   background: rgba(38, 161, 123, 0.12);
-  color: #26a17b;
+  color: var(--iln-ok-text);
   white-space: nowrap;
 }
 
@@ -629,7 +629,7 @@ function formatMoney(amount) {
 .section-subtitle {
   font-size: 12px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #1c1c1e);
+  color: var(--tg-theme-text-color, var(--iln-surface));
   margin-bottom: 6px;
   letter-spacing: 0.3px;
 }
@@ -644,7 +644,7 @@ function formatMoney(amount) {
   background: rgba(255, 255, 255, 0.7);
   border-radius: 8px;
   padding: 8px 10px;
-  border-left: 3px solid #e84855;
+  border-left: 3px solid var(--iln-danger-text);
   border: 1px solid rgba(0, 0, 0, 0.04);
   border-left-width: 3px;
 }
@@ -659,7 +659,7 @@ function formatMoney(amount) {
 .ti-name {
   font-size: 13px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #1c1c1e);
+  color: var(--tg-theme-text-color, var(--iln-surface));
 }
 
 .ti-severity {
@@ -670,17 +670,21 @@ function formatMoney(amount) {
 }
 
 .sev-critical {
-  background: #e84855;
+  background: var(--iln-danger-text);
+  /* 業務語義色：白色文字在危險背景上，保持高對比 */
   color: #fff;
 }
 
 .sev-alert {
-  background: #ff9f0a;
+  background: var(--iln-warn-text);
+  /* 業務語義色：黑色文字在警告背景上，保持可讀性 */
   color: #000;
 }
 
 .sev-watch {
+  /* 業務語義色：watch 狀態黃色背景，區別於 ok/warn/danger */
   background: #ffd60a;
+  /* 業務語義色：黑色文字在黃色背景上，保持可讀性 */
   color: #000;
 }
 
@@ -729,15 +733,15 @@ function formatMoney(amount) {
 }
 
 .text-danger {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 
 .text-success {
-  color: #26a17b;
+  color: var(--iln-ok-text);
 }
 
 .text-info {
-  color: #2481cc;
+  color: var(--iln-brand);
 }
 
 .text-muted {
@@ -747,7 +751,7 @@ function formatMoney(amount) {
 /* ── 深色主題相容 ── */
 .dark .radar-panel-idle,
 :global(.dark) .radar-panel-idle {
-  background: #1c1c1e;
+  background: var(--iln-surface);
   border-color: rgba(38, 161, 123, 0.3);
 }
 
@@ -765,6 +769,7 @@ function formatMoney(amount) {
 :global(.dark) .section-subtitle,
 .dark .ti-name,
 :global(.dark) .ti-name {
+  /* 業務語義色：深色主題標題文字，與 hint-color 對齊 */
   color: #f2f2f7;
 }
 
@@ -774,6 +779,7 @@ function formatMoney(amount) {
 :global(.dark) .mini-summary,
 .dark .ti-summary,
 :global(.dark) .ti-summary {
+  /* 業務語義色：深色主題摘要文字，與 hint-color 對齊 */
   color: #8e8e93;
 }
 
@@ -781,12 +787,14 @@ function formatMoney(amount) {
 :global(.dark) .toggle-btn {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.12);
+  /* 業務語義色：深色主題按鈕文字 */
   color: #aaa;
 }
 
 .dark .mini-desc,
 :global(.dark) .mini-desc {
   background: rgba(255, 255, 255, 0.08);
+  /* 業務語義色：深色主題描述文字 */
   color: #aaa;
 }
 
