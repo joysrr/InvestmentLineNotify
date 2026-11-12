@@ -12,7 +12,6 @@
 .market-radar-view,
 .macro-battle-view,
 .news-view,
-.reports-view,
 .technical-view,
 .chart-view,
 .strategy-config-editor {
@@ -26,7 +25,6 @@
 .view-header,
 .page-header,
 .dash-header,
-.sim-header,
 .status-header,
 .editor-header,
 .header-top {
@@ -120,7 +118,6 @@
   .market-radar-view,
   .macro-battle-view,
   .news-view,
-  .reports-view,
   .technical-view,
   .chart-view,
   .strategy-config-editor {
