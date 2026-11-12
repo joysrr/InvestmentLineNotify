@@ -24,7 +24,7 @@ import { useTelegram } from "./composables/useTelegram.js";
 import FloatingPill from "./components/FloatingPill.vue";
 import AuthExpiredModal from "./components/common/AuthExpiredModal.vue";
 
-const { expand, backButton, viewportHeight, viewportStableHeight, safeAreaInset, setHeaderColor, setBackgroundColor } =
+const { expand, backButton, viewportHeight, viewportStableHeight, safeAreaInset } =
   useTelegram();
 const router = useRouter();
 const route = useRoute();
@@ -58,19 +58,11 @@ const applyViewport = (h) => {
 watch(viewportHeight, applyViewport, { immediate: true });
 
 // ── 主題 → header/background 色 ──
-const applyTheme = () => {
-  try {
-    setHeaderColor("bg_color");
-    setBackgroundColor("bg_color");
-  } catch (_e) {
-    void _e;
-  }
-};
+// 由 useTelegram handleThemeChanged 統一處理（onMounted 主動觸發，無需重複呼叫）
 
 onMounted(async () => {
   await nextTick();
   expand();
-  applyTheme();
 });
 
 onUnmounted(() => {

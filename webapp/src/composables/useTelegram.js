@@ -119,6 +119,7 @@ export function useTelegram() {
     tg?.onEvent?.("themeChanged", handleThemeChanged);
     tg?.onEvent?.("safeAreaChanged", handleSafeAreaChanged);
     handleSafeAreaChanged();
+    handleThemeChanged(); // 初始主動套用主題色
   });
 
   onUnmounted(() => {
