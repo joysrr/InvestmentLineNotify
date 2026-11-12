@@ -165,12 +165,12 @@ const getCompDisplayValue = (comp) => {
   background: linear-gradient(135deg, #2481cc 0%, #1c639e 100%);
 }
 .health-hero-v2.yellow {
-  background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);
-  box-shadow: 0 12px 32px rgba(243, 156, 18, 0.25);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 12px 32px rgba(245, 158, 11, 0.25);
 }
 .health-hero-v2.red {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  box-shadow: 0 12px 32px rgba(231, 76, 60, 0.25);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 12px 32px rgba(239, 68, 68, 0.25);
 }
 .glass-overlay {
   position: absolute;
