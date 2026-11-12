@@ -92,8 +92,6 @@ export function getCnnLevel(score) {
 }
 
 // ── 3. 融資維持率 ──
-// 注意：MarketRadarView.vue 的 marginCard 使用內聯閾值 (145/155)，與本處 (135/160) 不同步，
-// 屬「僅此一處使用」，未納入共用模組。未來若需統一，可將 marginCard 改用 getMaintenanceLevel。
 export function getMaintenanceLevel(ratio) {
   const v = parseFloat(ratio);
   if (isNaN(v)) {

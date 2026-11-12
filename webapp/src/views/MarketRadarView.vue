@@ -168,6 +168,7 @@ import LoadingSkeleton from "@/components/common/LoadingSkeleton.vue";
 import {
   getVixLevel,
   getCnnLevel,
+  getMaintenanceLevel,
 } from "@/utils/metricThresholds.js";
 
 const loading = ref(true);
@@ -336,13 +337,8 @@ const marginDate = computed(
     null,
 );
 const marginCard = computed(() => {
-  const v = parseFloat(marginRatio.value);
-  if (isNaN(v)) return { cls: "", sub: "rc-sub--neutral", label: "—" };
-  if (v < 145)
-    return { cls: "card-danger", sub: "rc-sub--danger", label: "危險 🚨" };
-  if (v < 155)
-    return { cls: "card-warn", sub: "rc-sub--warn", label: "警戒 ⚠️" };
-  return { cls: "card-ok", sub: "rc-sub--ok", label: "健康 ✅" };
+  const r = getMaintenanceLevel(marginRatio.value);
+  return { cls: r.cls, sub: r.subCls, label: r.label };
 });
 
 const pe = computed(() => {
