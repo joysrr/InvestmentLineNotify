@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import ReportsView from "../views/ReportsView.vue";
+import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import * as api from "../api/index.js";
 
 // Mock API 模組
@@ -92,12 +93,12 @@ describe("ReportsView.vue", () => {
     await new Promise((resolve) => setTimeout(resolve, 10));
     await nextTick();
 
-    expect(wrapper.find(".state-error").text()).toContain(
+    expect(wrapper.findComponent(ErrorAlert).props("description")).toContain(
       "reports unavailable",
     );
 
     api.fetchReports.mockResolvedValueOnce([]);
-    await wrapper.find(".retry-btn").trigger("click");
+    await wrapper.find(".error-alert-actions button").trigger("click");
     await nextTick();
 
     expect(api.fetchReports).toHaveBeenCalledTimes(2);

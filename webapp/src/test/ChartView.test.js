@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import ChartView from "../views/ChartView.vue";
+import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import {
   fetchSnapshots,
   fetchSnapshotsWeekly,
@@ -201,14 +202,14 @@ describe("ChartView", () => {
     fetchSnapshots.mockRejectedValueOnce(new Error("snapshot unavailable"));
     const wrapper = mountView();
     await flushPromises();
-    expect(wrapper.find(".state-error").text()).toContain(
+    expect(wrapper.findComponent(ErrorAlert).props("description")).toContain(
       "snapshot unavailable",
     );
     fetchSnapshots.mockResolvedValueOnce({
       hasEncryption: true,
       snapshots: [],
     });
-    await wrapper.find(".retry-btn").trigger("click");
+    await wrapper.find(".error-alert-actions button").trigger("click");
     await flushPromises();
     expect(fetchSnapshots).toHaveBeenCalledTimes(2);
   });

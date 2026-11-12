@@ -40,28 +40,16 @@
     </div>
 
     <!-- 載入中 -->
-    <div v-if="loading" class="state-box">
-      <div class="spinner"></div>
-      <p>載入中...</p>
-    </div>
+    <EmptyState v-if="loading" emoji="⏳" title="載入中..." />
 
     <!-- 錯誤 -->
-    <div v-else-if="error" class="state-box state-error">
-      <p>⚠️ {{ error }}</p>
-      <button class="retry-btn" @click="load">重試</button>
-    </div>
+    <ErrorAlert v-else-if="error" :visible="true" :description="error" :show-retry="true" @retry="load" />
 
     <!-- 無快照 -->
-    <div v-else-if="!hasEncryption" class="state-box">
-      <p>🔐 快照功能未啟用</p>
-      <p class="state-hint">請設定 SNAPSHOT_ENCRYPT_KEY 環境變數</p>
-    </div>
+    <EmptyState v-else-if="!hasEncryption" emoji="🔐" title="快照功能未啟用" message="請設定 SNAPSHOT_ENCRYPT_KEY 環境變數" />
 
     <!-- 空資料 -->
-    <div v-else-if="dataPoints.length === 0" class="state-box">
-      <p>📫 尚無快照資料</p>
-      <p class="state-hint">將從明日日報後開始累積</p>
-    </div>
+    <EmptyState v-else-if="dataPoints.length === 0" emoji="📫" title="尚無快照資料" message="將從明日日報後開始累積" />
 
     <!-- 圖表主體 -->
     <template v-else>
@@ -138,6 +126,8 @@ import {
 } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import ReportsView from "./ReportsView.vue";
+import ErrorAlert from "@/components/common/ErrorAlert.vue";
+import EmptyState from "@/components/common/EmptyState.vue";
 
 use([
   LineChart,

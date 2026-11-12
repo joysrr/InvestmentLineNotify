@@ -21,24 +21,13 @@
     </div>
 
     <!-- Loading -->
-    <div v-if="currentState?.loading" class="state-box">
-      <div class="spinner"></div>
-      <p>載入中...</p>
-    </div>
+    <EmptyState v-if="currentState?.loading" emoji="⏳" title="載入中..." />
 
     <!-- Error -->
-    <div v-else-if="currentState?.error" class="state-box state-error">
-      <p>⚠️ {{ currentState.error }}</p>
-      <button class="retry-btn" @click="load(activeTab)">重試</button>
-    </div>
+    <ErrorAlert v-else-if="currentState?.error" :visible="true" :description="currentState.error" :show-retry="true" @retry="load(activeTab)" />
 
     <!-- Empty -->
-    <div
-      v-else-if="!currentState || currentState.items?.length === 0"
-      class="state-box"
-    >
-      <p>📭 尚無資料</p>
-    </div>
+    <EmptyState v-else-if="!currentState || currentState.items?.length === 0" emoji="📭" title="尚無資料" />
 
     <!-- Daily List -->
     <div v-else-if="activeTab === 'daily'" class="report-list">
@@ -278,6 +267,8 @@ import {
 } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { waitReady } from "../composables/useTelegram.js";
+import ErrorAlert from "@/components/common/ErrorAlert.vue";
+import EmptyState from "@/components/common/EmptyState.vue";
 
 const tabs = [
   { key: "daily", label: "日報" },

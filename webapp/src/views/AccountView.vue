@@ -24,11 +24,7 @@
     </template>
 
     <!-- ── Error ── -->
-    <div v-else-if="error" class="error-state">
-      <span class="error-icon">⚠️</span>
-      <p>{{ error }}</p>
-      <button class="retry-btn" @click="load">重試</button>
-    </div>
+    <ErrorAlert v-else-if="error" :visible="true" :description="error" :show-retry="true" @retry="load" />
 
     <!-- ── Content ── -->
     <template v-else-if="status">
@@ -229,6 +225,7 @@ import { waitReady } from "../composables/useTelegram.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import DataEvidenceCard from "../components/dashboard/DataEvidenceCard.vue";
 import DeploymentControl from "../components/common/DeploymentControl.vue";
+import ErrorAlert from "@/components/common/ErrorAlert.vue";
 
 // ECharts
 import VChart from "vue-echarts";

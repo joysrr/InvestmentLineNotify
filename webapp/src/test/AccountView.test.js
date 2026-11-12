@@ -142,9 +142,9 @@ describe("AccountView", () => {
     fetchStatus.mockRejectedValueOnce(new Error("status unavailable"));
     const wrapper = mountView();
     await flushPromises();
-    expect(wrapper.find(".error-state").exists()).toBe(true);
+    expect(wrapper.find(".error-alert").exists()).toBe(true);
     fetchStatus.mockResolvedValueOnce(status);
-    await wrapper.find(".retry-btn").trigger("click");
+    await wrapper.find(".error-alert-actions button").trigger("click");
     await flushPromises();
     expect(fetchStatus).toHaveBeenCalledTimes(2);
   });

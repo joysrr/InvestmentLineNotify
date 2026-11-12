@@ -148,9 +148,7 @@
       </section>
     </template>
 
-    <div v-else-if="!loading" class="empty-state">
-      <p>📭 尚無指標數據</p>
-    </div>
+    <EmptyState v-else-if="!loading" emoji="📭" title="尚無指標數據" />
   </div>
   </GlobalErrorBoundary>
 </template>
@@ -161,6 +159,7 @@ import { fetchReports } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { waitReady } from "../composables/useTelegram.js";
 import RadarSubtabs from "@/components/radar/RadarSubtabs.vue";
+import EmptyState from "@/components/common/EmptyState.vue";
 
 const latestReport = ref(null);
 const loading = ref(true);

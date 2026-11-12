@@ -37,7 +37,7 @@ describe("MacroBattleView", () => {
     await flushPromises();
 
     expect(fetchReports).toHaveBeenCalledWith(3);
-    expect(wrapper.find(".inline-hint").exists()).toBe(true);
+    expect(wrapper.find(".empty-state").exists()).toBe(true);
     expect(wrapper.find(".direction-badge").exists()).toBe(false);
   });
 
@@ -47,7 +47,7 @@ describe("MacroBattleView", () => {
 
     await flushPromises();
 
-    expect(wrapper.find(".inline-error").exists()).toBe(true);
+    expect(wrapper.find(".error-alert").exists()).toBe(true);
     expect(wrapper.find(".skeleton-wrap").exists()).toBe(false);
   });
 

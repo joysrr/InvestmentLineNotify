@@ -10,29 +10,13 @@
     <RadarSubtabs />
 
     <!-- 載入中 -->
-    <div v-if="loading" class="skeleton-wrap">
-      <div class="sk sk-title"></div>
-      <div class="sk sk-bar" style="margin-top: 12px"></div>
-      <div class="sk sk-bar"></div>
-      <div
-        v-for="i in 4"
-        :key="i"
-        class="sk sk-row"
-        style="margin-top: 10px"
-      ></div>
-    </div>
+    <EmptyState v-if="loading" emoji="⏳" title="載入中..." />
 
     <!-- 錯誤 -->
-    <div v-else-if="error" class="inline-error">
-      ⚠️ 資料載入失敗，請稍後重試
-    </div>
+    <ErrorAlert v-else-if="error" :visible="true" description="資料載入失敗，請稍後重試" />
 
     <!-- 無資料 -->
-    <div v-else-if="!macro" class="inline-hint">
-      📭 尚無多空對決資料<br /><span class="hint-sub"
-        >資料將於每日分析完成後更新</span
-      >
-    </div>
+    <EmptyState v-else-if="!macro" emoji="📭" title="尚無多空對決資料" message="資料將於每日分析完成後更新" />
 
     <!-- 內容 -->
     <template v-else>
@@ -155,6 +139,8 @@ import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import SocialSentimentCard from "@/components/macro/SocialSentimentCard.vue";
 import RadarSubtabs from "@/components/radar/RadarSubtabs.vue";
 import { waitReady } from "../composables/useTelegram.js";
+import ErrorAlert from "@/components/common/ErrorAlert.vue";
+import EmptyState from "@/components/common/EmptyState.vue";
 
 const loading = ref(true);
 const error = ref(false);

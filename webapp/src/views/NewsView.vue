@@ -29,23 +29,11 @@
 
     <!-- ── 精選報告 tab ── -->
     <div v-if="activeTab === 'report'">
-      <div v-if="reportLoading" class="state-box">
-        <div class="spinner"></div>
-        <p>載入中...</p>
-      </div>
+      <EmptyState v-if="reportLoading" emoji="⏳" title="載入中..." />
 
-      <div v-else-if="reportError" class="state-box state-error">
-        <p>⚠️ {{ reportError }}</p>
-        <button class="retry-btn" @click="loadReport">重試</button>
-      </div>
+      <ErrorAlert v-else-if="reportError" :visible="true" :description="reportError" :show-retry="true" @retry="loadReport" />
 
-      <div
-        v-else-if="!reportNews.tw.length && !reportNews.us.length"
-        class="state-box"
-      >
-        <p>📭 今日精選報告尚未產生</p>
-        <p class="state-hint">每日早上自動更新</p>
-      </div>
+      <EmptyState v-else-if="!reportNews.tw.length && !reportNews.us.length" emoji="📭" title="今日精選報告尚未產生" message="每日早上自動更新" />
 
       <div v-else class="report-content">
         <!-- 台灣區塊 -->
@@ -110,19 +98,11 @@
         >
       </div>
 
-      <div v-if="poolLoading" class="state-box">
-        <div class="spinner"></div>
-        <p>載入中...</p>
-      </div>
+      <EmptyState v-if="poolLoading" emoji="⏳" title="載入中..." />
 
-      <div v-else-if="poolError" class="state-box state-error">
-        <p>⚠️ {{ poolError }}</p>
-        <button class="retry-btn" @click="loadPool">重試</button>
-      </div>
+      <ErrorAlert v-else-if="poolError" :visible="true" :description="poolError" :show-retry="true" @retry="loadPool" />
 
-      <div v-else-if="articles.length === 0" class="state-box">
-        <p>📭 目前新聞池為空</p>
-      </div>
+      <EmptyState v-else-if="articles.length === 0" emoji="📭" title="目前新聞池為空" />
 
       <div v-else class="news-list">
         <div
@@ -161,6 +141,8 @@ import { fetchNews, fetchReportNews } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import ReportsView from "./ReportsView.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
+import ErrorAlert from "@/components/common/ErrorAlert.vue";
+import EmptyState from "@/components/common/EmptyState.vue";
 
 // ── sub-tab 狀態 ──────────────────────────────────────────
 const activeTab = ref("report");

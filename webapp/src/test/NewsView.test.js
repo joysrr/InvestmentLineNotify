@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
 import NewsView from "../views/NewsView.vue";
+import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import { fetchNews, fetchReportNews } from "../api/index.js";
 
 const openLink = vi.fn();
@@ -72,10 +73,12 @@ describe("NewsView", () => {
 
     await flushPromises();
 
-    expect(wrapper.find(".state-error").text()).toContain("report unavailable");
+    expect(wrapper.findComponent(ErrorAlert).props("description")).toContain(
+      "report unavailable",
+    );
 
     fetchReportNews.mockResolvedValueOnce({});
-    await wrapper.find(".retry-btn").trigger("click");
+    await wrapper.find(".error-alert-actions button").trigger("click");
     await flushPromises();
 
     expect(fetchReportNews).toHaveBeenCalledTimes(2);
@@ -137,7 +140,9 @@ describe("NewsView", () => {
     await wrapper.findAll(".subtab-btn")[1].trigger("click");
     await flushPromises();
 
-    expect(wrapper.find(".state-error").text()).toContain("pool unavailable");
+    expect(wrapper.findComponent(ErrorAlert).props("description")).toContain(
+      "pool unavailable",
+    );
   });
 });
 
