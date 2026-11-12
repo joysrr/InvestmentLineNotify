@@ -110,6 +110,7 @@ export default defineConfig(async ({ mode }) => {
       "process.env.NODE_ENV": JSON.stringify(mode),
     },
     build: {
+      manifest: true,
       rollupOptions: {
         output: {
           manualChunks: {
@@ -119,7 +120,7 @@ export default defineConfig(async ({ mode }) => {
         },
       },
     },
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 350,
     resolve: {
       alias: [
         {
