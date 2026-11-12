@@ -8,6 +8,7 @@ import { mount, flushPromises } from "@vue/test-utils";
 import { nextTick } from "vue";
 import StrategyConfigEditor from "@/views/StrategyConfigEditor.vue";
 import ElementPlus from "element-plus";
+import { useClosingConfirmation } from "@/composables/useClosingConfirmation.js";
 import { createRouter, createWebHistory } from "vue-router";
 
 // Mock apiFetch using vi.hoisted
@@ -23,6 +24,14 @@ vi.mock("@/api/index.js", () => ({
 vi.mock("@/composables/useTelegram.js", () => ({
   useTelegram: () => ({ openLink: vi.fn() }),
   waitReady: vi.fn().mockResolvedValue(undefined),
+}));
+
+// Mock useClosingConfirmation
+vi.mock("@/composables/useClosingConfirmation.js", () => ({
+  useClosingConfirmation: vi.fn(() => ({
+    enableClosingConfirmation: vi.fn(),
+    disableClosingConfirmation: vi.fn(),
+  })),
 }));
 
 // Mock element-plus
@@ -356,6 +365,24 @@ describe("StrategyConfigEditor", () => {
       expect(wrapper.vm.formattedJson).toContain('"version": "2.8"');
       expect(wrapper.vm.formattedJson).toContain('"nested":');
       expect(wrapper.vm.formattedJson).toContain('"a": 1');
+    });
+  });
+
+  describe("closing confirmation", () => {
+    it("掛載時呼叫 enableClosingConfirmation，卸載時呼叫 disableClosingConfirmation", async () => {
+      const mockUseClosingConfirmation = vi.mocked(useClosingConfirmation);
+      mockUseClosingConfirmation.mockClear();
+
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      expect(mockUseClosingConfirmation).toHaveBeenCalled();
+      const { enableClosingConfirmation, disableClosingConfirmation } =
+        mockUseClosingConfirmation.mock.results[0].value;
+      expect(enableClosingConfirmation).toHaveBeenCalled();
+
+      wrapper.unmount();
+      expect(disableClosingConfirmation).toHaveBeenCalled();
     });
   });
 });

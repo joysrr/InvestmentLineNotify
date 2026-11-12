@@ -131,13 +131,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { Refresh, Check, Checked } from "@element-plus/icons-vue";
 
 import { apiFetch } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { waitReady } from "../composables/useTelegram.js";
+import { useClosingConfirmation } from "../composables/useClosingConfirmation.js";
+
+const { enableClosingConfirmation, disableClosingConfirmation } =
+  useClosingConfirmation();
 
 import ConfigSectionEditor from "../components/config/ConfigSectionEditor.vue";
 
@@ -370,6 +374,11 @@ async function validateOnly() {
 onMounted(async () => {
   await waitReady();
   await loadAll();
+  enableClosingConfirmation();
+});
+
+onUnmounted(() => {
+  disableClosingConfirmation();
 });
 </script>
 
