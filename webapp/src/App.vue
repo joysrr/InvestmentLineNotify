@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <main class="app-main">
-      <keep-alive>
+      <keep-alive :max="5">
         <router-view />
       </keep-alive>
     </main>
@@ -26,7 +26,7 @@ const route = useRoute();
 const handleBack = () => router.back();
 
 watch(
-  () => route.path,
+  (() => route.path),
   (path) => {
     if (!backButton) return;
 
@@ -73,6 +73,6 @@ onMounted(async () => {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
-  padding-bottom: 80px; /* 為懸浮導航留出空間 */
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); /* 為懸浮導航留出空間 */
 }
 </style>
