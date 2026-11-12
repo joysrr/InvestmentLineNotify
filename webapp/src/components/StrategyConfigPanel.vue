@@ -687,7 +687,7 @@ onMounted(load);
 .json-content {
   font-family: "SF Mono", monospace;
   font-size: 10px;
-  background: #fdfdfd;
+  background: var(--iln-surface);
   padding: 10px;
   border-radius: 8px;
   margin-top: 8px;
@@ -696,7 +696,7 @@ onMounted(load);
 
 .config-error {
   color: #d9534f;
-  background: #fdf0f0;
+  background: var(--iln-danger-bg);
   padding: 16px;
   border-radius: 12px;
   border: 1px solid #f2dede;
@@ -751,7 +751,7 @@ onMounted(load);
 
 .sk-card {
   height: 80px;
-  background: #eee;
+  background: var(--iln-surface);
   border-radius: 16px;
   margin-bottom: 12px;
   animation: pulse 1.5s infinite;

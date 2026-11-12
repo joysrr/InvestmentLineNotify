@@ -283,12 +283,12 @@ const getCompDisplayValue = (comp) => {
 .action-item-v2 {
   font-size: 13px;
   padding: 10px;
-  background: #fff;
-  border-radius: 12px;
+  background: var(--iln-surface);
+  border-radius: var(--iln-radius-md);
   margin-top: 8px;
 }
 .sk {
-  background: #eee;
+  background: var(--iln-surface);
   animation: pulse 1.5s infinite;
 }
 @keyframes pulse {

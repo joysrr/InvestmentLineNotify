@@ -37,11 +37,11 @@ const trendClass = computed(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #fff;
-  border-radius: 12px;
+  background: var(--iln-surface);
+  border-radius: var(--iln-radius-md);
   padding: 14px 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--iln-border-subtle);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .metric-card:hover {

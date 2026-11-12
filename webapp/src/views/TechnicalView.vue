@@ -626,19 +626,19 @@ onUnmounted(() => {
 .skeleton .sk-title {
   height: 14px;
   width: 40%;
-  background: #eee;
-  margin-bottom: 12px;
-  border-radius: 4px;
+  background: var(--iln-surface);
+  margin-bottom: var(--iln-space-3);
+  border-radius: var(--iln-radius-sm);
 }
 .skeleton .sk-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 .skeleton .sk-card {
   height: 60px;
-  background: #eee;
-  border-radius: 12px;
+  background: var(--iln-surface);
+  border-radius: var(--iln-radius-md);
 }
 
 </style>

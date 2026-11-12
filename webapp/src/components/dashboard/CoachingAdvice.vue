@@ -186,12 +186,12 @@ const thinkingExpanded = ref(false);
   color: var(--tg-theme-button-color, #2481cc);
 }
 .ai-thinking {
-  padding: 12px;
-  font-size: 13px;
+  padding: var(--iln-space-3);
+  font-size: var(--iln-font-sm);
   color: #666;
   font-style: italic;
-  line-height: 1.5;
-  background: #fff;
+  line-height: var(--iln-leading-normal);
+  background: var(--iln-surface);
   border-top: 1px solid #f9f9f9;
 }
 </style>
