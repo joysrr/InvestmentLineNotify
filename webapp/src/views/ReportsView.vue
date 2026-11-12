@@ -433,7 +433,7 @@ onMounted(async () => {
   background: var(--tg-theme-bg-color, #fff);
   color: var(--tg-theme-text-color, #222);
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--iln-shadow-1);
 }
 
 /* ── Report list ── */
@@ -528,13 +528,13 @@ onMounted(async () => {
   color: var(--tg-theme-text-color, #222);
 }
 .val-danger {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 .val-warn {
-  color: #d4ac0d;
+  color: var(--iln-warn-text);
 }
 .val-buy {
-  color: #2481cc;
+  color: var(--iln-brand);
 }
 
 /* ── Badges ── */
@@ -545,12 +545,12 @@ onMounted(async () => {
   font-weight: 600;
 }
 .badge-pos {
-  background: #e6f7f1;
-  color: #26a17b;
+  background: var(--iln-ok-bg);
+  color: var(--iln-ok-text);
 }
 .badge-neg {
-  background: #fdecea;
-  color: #e84855;
+  background: var(--iln-danger-bg);
+  color: var(--iln-danger-text);
 }
 .badge-score {
   background: var(--tg-theme-hint-color, #eee);
@@ -564,7 +564,7 @@ onMounted(async () => {
   margin-left: auto;
 }
 .badge-decision {
-  background: rgba(36, 129, 204, 0.1);
+  background: var(--iln-brand-soft);
   color: var(--tg-theme-button-color, #2481cc);
   font-size: 10px;
   padding: 2px 6px;
@@ -599,7 +599,7 @@ onMounted(async () => {
   line-height: 1.6;
 }
 .detail-list--warn li {
-  color: #c0392b;
+  color: var(--iln-danger-text);
 }
 .thinking-section {
   margin-top: 8px;
@@ -629,7 +629,7 @@ onMounted(async () => {
   font-size: 14px;
 }
 .state-error {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 .retry-btn {
   padding: 8px 20px;
@@ -663,15 +663,15 @@ onMounted(async () => {
 }
 .discipline-intro-card {
   background: var(--tg-theme-bg-color, #fff);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--iln-border-subtle);
   border-radius: 16px;
   padding: 18px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--iln-shadow-1);
 }
 .intro-badge {
   display: inline-block;
   font-size: 11px;
-  background: rgba(36, 129, 204, 0.1);
+  background: var(--iln-brand-soft);
   color: var(--tg-theme-button-color, #2481cc);
   padding: 3px 8px;
   border-radius: 20px;
@@ -694,10 +694,10 @@ onMounted(async () => {
 
 .card-section {
   background: var(--tg-theme-bg-color, #fff);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--iln-border-subtle);
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--iln-shadow-1);
 }
 .section-sub-title {
   font-size: 13px;
@@ -720,10 +720,10 @@ onMounted(async () => {
 }
 .insight-card {
   background: var(--tg-theme-bg-color, #fff);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--iln-border-subtle);
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--iln-shadow-1);
 }
 .card-icon {
   font-size: 20px;

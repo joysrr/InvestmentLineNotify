@@ -96,7 +96,7 @@ const thinkingExpanded = ref(false);
 /* 樣式保持不變 */
 .ai-insight {
   background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
-  border-left: 4px solid #f59e0b;
+  border-left: 4px solid var(--iln-warn);
   padding: 12px;
   border-radius: 8px;
   margin-bottom: 16px;
@@ -104,30 +104,30 @@ const thinkingExpanded = ref(false);
 .insight-label {
   font-size: 11px;
   font-weight: 800;
-  color: #f59e0b;
+  color: var(--iln-warn-text);
   text-transform: uppercase;
   margin-bottom: 4px;
 }
 .insight-text {
   font-size: 14px;
   font-weight: 600;
-  color: #92400e;
+  color: var(--iln-warn-text);
   line-height: 1.4;
 }
 .ai-verdict {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #f0f9ff;
+  background: var(--iln-info-bg);
   padding: 8px 12px;
   border-radius: 8px;
   margin-bottom: 16px;
-  border: 1px solid #bae6fd;
+  border: 1px solid var(--iln-info);
 }
 .verdict-tag {
   font-size: 11px;
   font-weight: 800;
-  background: #0369a1;
+  background: var(--iln-info);
   color: #fff;
   padding: 2px 6px;
   border-radius: 4px;
@@ -135,7 +135,7 @@ const thinkingExpanded = ref(false);
 .verdict-text {
   font-size: 13px;
   font-weight: 700;
-  color: #0c4a6e;
+  color: var(--iln-info-text);
 }
 .ai-block {
   margin-bottom: 12px;

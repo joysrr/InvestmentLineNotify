@@ -512,10 +512,10 @@ const chartOption = computed(() => {
   color: var(--tg-theme-text-color, #222);
 }
 .s-value.pos {
-  color: #26a17b;
+  color: var(--iln-ok-text);
 }
 .s-value.neg {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 
 /* ── 狀態區 ── */
@@ -535,7 +535,7 @@ const chartOption = computed(() => {
   color: var(--tg-theme-hint-color, #bbb);
 }
 .state-error {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 .retry-btn {
   margin-top: 4px;

@@ -553,16 +553,16 @@ const allHealthy = computed(
   letter-spacing: 0.3px;
 }
 .badge-ok {
-  background: rgba(52, 199, 89, 0.18);
-  color: #1a7a3a;
+  background: var(--iln-ok-bg);
+  color: var(--iln-ok-text);
 }
 .badge-fail {
-  background: rgba(255, 59, 48, 0.18);
-  color: #c0392b;
+  background: var(--iln-danger-bg);
+  color: var(--iln-danger-text);
 }
 .badge-stale {
-  background: rgba(255, 204, 0, 0.25);
-  color: #b8860b;
+  background: var(--iln-warn-bg);
+  color: var(--iln-warn-text);
 }
 .source-time {
   font-size: 10px;
@@ -803,13 +803,13 @@ const allHealthy = computed(
 
 /* ── Color helpers ── */
 .text-ok {
-  color: #1a7a3a !important;
+  color: var(--iln-ok-text) !important;
 }
 .text-warn {
-  color: #b8860b !important;
+  color: var(--iln-warn-text) !important;
 }
 .text-danger {
-  color: #c0392b !important;
+  color: var(--iln-danger-text) !important;
 }
 
 /* ── Skeleton ── */

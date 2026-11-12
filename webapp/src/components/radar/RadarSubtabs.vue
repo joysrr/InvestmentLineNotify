@@ -1,12 +1,30 @@
 <template>
-  <div class="subtabs-bar">
-    <router-link to="/radar" class="subtab-btn" active-class="active">
+  <div class="iln-tabs-primary" role="tablist" aria-label="市場分析標籤頁">
+    <router-link
+      to="/radar"
+      class="iln-tab"
+      active-class="is-active"
+      role="tab"
+      aria-selected="false"
+    >
       🌐 市場雷達
     </router-link>
-    <router-link to="/macro" class="subtab-btn" active-class="active">
+    <router-link
+      to="/macro"
+      class="iln-tab"
+      active-class="is-active"
+      role="tab"
+      aria-selected="false"
+    >
       ⚖️ 多空對決
     </router-link>
-    <router-link to="/technical" class="subtab-btn" active-class="active">
+    <router-link
+      to="/technical"
+      class="iln-tab"
+      active-class="is-active"
+      role="tab"
+      aria-selected="false"
+    >
       📊 技術指標
     </router-link>
   </div>
@@ -14,33 +32,9 @@
 
 <script setup>
 // 純展示組件，透過 router-link 自動處理 active class
+// 樣式採全域 design tokens (webapp/src/styles/tokens.css .iln-tabs-primary / .iln-tab)
 </script>
 
 <style scoped>
-.subtabs-bar {
-  display: flex;
-  background: var(--tg-theme-secondary-bg-color, rgba(0, 0, 0, 0.05));
-  padding: 3px;
-  border-radius: 10px;
-  margin-bottom: 14px;
-  gap: 4px;
-}
-
-.subtab-btn {
-  flex: 1;
-  text-align: center;
-  padding: 7px 4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--tg-theme-hint-color, #777);
-  border-radius: 7px;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.subtab-btn.active {
-  background: var(--tg-theme-bg-color, #ffffff);
-  color: var(--tg-theme-button-color, #2481cc);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-}
+/* 刻意保留空：樣式由 tokens.css 全域 .iln-tabs-primary / .iln-tab 統一提供 */
 </style>

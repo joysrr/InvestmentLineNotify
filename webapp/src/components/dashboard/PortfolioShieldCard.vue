@@ -200,15 +200,15 @@ function formatLeverage(val) {
 }
 
 .fill-ok {
-  background: #10b981;
+  background: var(--iln-ok);
 }
 
 .fill-warn {
-  background: #f59e0b;
+  background: var(--iln-warn);
 }
 
 .fill-danger {
-  background: #ef4444;
+  background: var(--iln-danger);
 }
 
 .cockpit-action {
@@ -225,26 +225,26 @@ function formatLeverage(val) {
 }
 
 .card-ok {
-  border-left: 5px solid #10b981;
+  border-left: 5px solid var(--iln-ok);
 }
 
 .card-warn {
-  border-left: 5px solid #f59e0b;
+  border-left: 5px solid var(--iln-warn);
 }
 
 .card-danger {
-  border-left: 5px solid #ef4444;
+  border-left: 5px solid var(--iln-danger);
 }
 
 .text-ok {
-  color: #10b981;
+  color: var(--iln-ok-text);
 }
 
 .text-warn {
-  color: #f59e0b;
+  color: var(--iln-warn-text);
 }
 
 .text-danger {
-  color: #ef4444;
+  color: var(--iln-danger-text);
 }
 </style>

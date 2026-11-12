@@ -104,7 +104,7 @@ describe("MacroBattleView", () => {
     fetchReports.mockResolvedValue([]);
     const wrapper = mountView();
     await flushPromises();
-    const subtabs = wrapper.findAll(".subtab-btn");
+    const subtabs = wrapper.findAll(".iln-tab");
     expect(subtabs.length).toBe(3);
     const textList = subtabs.map((b) => b.text());
     expect(textList).toEqual(["🌐 市場雷達", "⚖️ 多空對決", "📊 技術指標"]);

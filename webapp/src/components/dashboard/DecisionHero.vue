@@ -83,13 +83,13 @@ defineProps({
   margin-bottom: 12px;
 }
 .target-buy {
-  color: #26a17b;
+  color: var(--iln-ok-text);
 }
 .target-sell {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 .target-wait {
-  color: #d4ac0d;
+  color: var(--iln-warn-text);
 }
 .hero-suggestion {
   font-size: 15px;
@@ -146,16 +146,16 @@ defineProps({
   font-weight: 600;
 }
 .badge-danger {
-  background: #fee2e2;
-  color: #e84855;
+  background: var(--iln-danger-bg);
+  color: var(--iln-danger-text);
 }
 .badge-warn {
-  background: #fef3c7;
-  color: #d4ac0d;
+  background: var(--iln-warn-bg);
+  color: var(--iln-warn-text);
 }
 .badge-ok {
-  background: #d1fae5;
-  color: #26a17b;
+  background: var(--iln-ok-bg);
+  color: var(--iln-ok-text);
 }
 .badge-score {
   background: var(--tg-theme-secondary-bg-color, #f5f5f5);

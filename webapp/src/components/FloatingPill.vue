@@ -42,12 +42,12 @@ useIOSSwipeGuard(pillRef);
   pointer-events: auto;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
+  gap: var(--iln-space-1);
+  padding: var(--iln-space-2) var(--iln-space-3);
   background: var(--tg-theme-bg-color, #ffffff);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 32px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-full);
+  box-shadow: var(--iln-shadow-3);
   max-width: 100%;
   overflow-x: auto;
   scrollbar-width: none;
@@ -65,16 +65,18 @@ useIOSSwipeGuard(pillRef);
   align-items: center;
   justify-content: center;
   min-width: 64px;
-  padding: 6px 8px;
+  padding: var(--iln-space-2) var(--iln-space-1);
   text-decoration: none;
   color: var(--tg-theme-hint-color, #999);
-  transition: all 0.2s ease;
-  border-radius: 20px;
+  transition: all var(--iln-duration-base) var(--iln-ease-standard);
+  border-radius: var(--iln-radius-xl);
+  font-size: var(--iln-font-xs);
+  font-weight: var(--iln-weight-semibold);
 }
 
 .nav-item--active {
-  color: var(--tg-theme-button-color, #2481cc);
-  background: var(--tg-theme-secondary-bg-color, rgba(36, 129, 204, 0.08));
+  color: var(--iln-brand);
+  background: var(--iln-brand-soft);
 }
 
 .nav-icon {
@@ -92,8 +94,8 @@ useIOSSwipeGuard(pillRef);
 }
 
 .nav-label {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--iln-font-xs);
+  font-weight: var(--iln-weight-semibold);
   white-space: nowrap;
 }
 

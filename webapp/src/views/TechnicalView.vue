@@ -500,16 +500,16 @@ onUnmounted(() => {
   color: var(--tg-theme-hint-color, #999);
 }
 .ind-sub--danger {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 .ind-sub--warn {
-  color: #d4ac0d;
+  color: var(--iln-warn-text);
 }
 .ind-sub--ok {
-  color: #26a17b;
+  color: var(--iln-ok-text);
 }
 .ind-sub--buy {
-  color: #2481cc;
+  color: var(--iln-brand);
 }
 
 /* Risk Radar */
@@ -528,13 +528,13 @@ onUnmounted(() => {
   background: var(--tg-theme-secondary-bg-color, #f5f5f5);
 }
 .risk-low {
-  border-left: 3px solid #26a17b;
+  border-left: 3px solid var(--iln-ok);
 }
 .risk-mid {
-  border-left: 3px solid #d4ac0d;
+  border-left: 3px solid var(--iln-warn);
 }
 .risk-high {
-  border-left: 3px solid #e84855;
+  border-left: 3px solid var(--iln-danger);
 }
 .risk-bar-label {
   font-size: 13px;
@@ -557,7 +557,7 @@ onUnmounted(() => {
   border-radius: 50%;
 }
 .dot-on {
-  background: #e84855;
+  background: var(--iln-danger);
 }
 .dot-off {
   background: rgba(0, 0, 0, 0.12);

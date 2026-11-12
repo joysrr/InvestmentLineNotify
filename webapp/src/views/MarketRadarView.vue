@@ -503,16 +503,16 @@ const fxCard = computed(() => {
   color: var(--tg-theme-hint-color, #999);
 }
 .rc-sub--danger {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 .rc-sub--warn {
-  color: #d4ac0d;
+  color: var(--iln-warn-text);
 }
 .rc-sub--ok {
-  color: #26a17b;
+  color: var(--iln-ok-text);
 }
 .rc-sub--blue {
-  color: #2481cc;
+  color: var(--iln-brand);
 }
 .rc-pr {
   font-family: inherit;
@@ -545,10 +545,10 @@ const fxCard = computed(() => {
   color: var(--tg-theme-hint-color, #999);
 }
 .text-green {
-  color: #26a17b;
+  color: var(--iln-ok-text);
 }
 .text-red {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 
 .update-time {
@@ -559,7 +559,7 @@ const fxCard = computed(() => {
 }
 .inline-error {
   font-size: 13px;
-  color: #e84855;
+  color: var(--iln-danger-text);
   padding: 12px;
 }
 
@@ -614,7 +614,7 @@ const fxCard = computed(() => {
 .defense-mode-badge.card-danger {
   background: rgba(244, 67, 54, 0.12);
   border: 1px solid rgba(244, 67, 54, 0.35);
-  color: #c62828;
+  color: var(--iln-danger-text);
 }
 
 .defense-mode-badge .badge-icon {

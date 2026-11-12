@@ -270,16 +270,16 @@ const directionClass = computed(() => {
   white-space: nowrap;
 }
 .badge-bull {
-  background: rgba(38, 161, 123, 0.15);
-  color: #26a17b;
+  background: var(--iln-ok-bg);
+  color: var(--iln-ok-text);
 }
 .badge-bear {
-  background: rgba(232, 72, 85, 0.15);
-  color: #e84855;
+  background: var(--iln-danger-bg);
+  color: var(--iln-danger-text);
 }
 .badge-neutral {
-  background: rgba(212, 172, 13, 0.15);
-  color: #b8860b;
+  background: var(--iln-warn-bg);
+  color: var(--iln-warn-text);
 }
 .direction-hint {
   font-size: 12px;
@@ -337,10 +337,10 @@ const directionClass = computed(() => {
   transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .score-fill--bull {
-  background: #26a17b;
+  background: var(--iln-ok);
 }
 .score-fill--bear {
-  background: #e84855;
+  background: var(--iln-danger);
 }
 .score-num {
   font-size: 13px;
@@ -410,12 +410,12 @@ const directionClass = computed(() => {
   padding: 2px 7px;
   border-radius: 12px;
   flex-shrink: 0;
-  color: #26a17b;
-  background: rgba(38, 161, 123, 0.15);
+  color: var(--iln-ok-text);
+  background: var(--iln-ok-bg);
 }
 .event-card--bear .event-score {
-  color: #e84855;
-  background: rgba(232, 72, 85, 0.12);
+  color: var(--iln-danger-text);
+  background: var(--iln-danger-bg);
 }
 .event-score.neutral {
   color: var(--tg-theme-hint-color, #999);
@@ -438,7 +438,7 @@ const directionClass = computed(() => {
 /* ── States ── */
 .inline-error {
   font-size: 13px;
-  color: #e84855;
+  color: var(--iln-danger-text);
   padding: 12px;
 }
 .inline-hint {

@@ -261,13 +261,13 @@ const getCompDisplayValue = (comp) => {
   border-radius: 50%;
 }
 .green .comp-status-dot {
-  background: #2ecc71;
+  background: var(--iln-ok);
 }
 .yellow .comp-status-dot {
-  background: #f39c12;
+  background: var(--iln-warn);
 }
 .red .comp-status-dot {
-  background: #e74c3c;
+  background: var(--iln-danger);
 }
 .health-action-v2 {
   background: var(--tg-theme-secondary-bg-color, #f5f8fa);
@@ -278,7 +278,7 @@ const getCompDisplayValue = (comp) => {
 .action-title {
   font-size: 13px;
   font-weight: 700;
-  color: #2481cc;
+  color: var(--iln-brand);
 }
 .action-item-v2 {
   font-size: 13px;
@@ -312,7 +312,7 @@ const getCompDisplayValue = (comp) => {
   font-weight: 700;
 }
 .dual-vix-tw {
-  color: #e74c3c;
+  color: var(--iln-danger-text);
   font-weight: 700;
 }
 

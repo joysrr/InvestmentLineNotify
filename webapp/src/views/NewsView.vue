@@ -390,12 +390,12 @@ onMounted(async () => {
 }
 
 .age-fresh {
-  background: #fdecea;
-  color: #e84855;
+  background: var(--iln-danger-bg);
+  color: var(--iln-danger-text);
 }
 .age-recent {
-  background: #fef9e7;
-  color: #d4ac0d;
+  background: var(--iln-warn-bg);
+  color: var(--iln-warn-text);
 }
 .age-old {
   background: var(--tg-theme-hint-color, #eee);
@@ -456,7 +456,7 @@ onMounted(async () => {
 }
 
 .state-error {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 
 .retry-btn {

@@ -317,7 +317,7 @@ function getNestedValue(obj, path) {
 }
 
 .help-icon:hover {
-  color: #409eff;
+  color: var(--iln-brand);
 }
 
 .field-input-wrapper {
@@ -342,7 +342,7 @@ function getNestedValue(obj, path) {
   padding: 12px;
   background: #f5f5f5;
   border-radius: 6px;
-  border: 1px dashed #e0e0e0;
+  border: 1px dashed var(--iln-border-subtle);
 }
 
 .unsupported-label {

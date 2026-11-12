@@ -586,7 +586,7 @@ onMounted(async () => {
 .status-error {
   text-align: center;
   padding: 32px;
-  color: #ff3b30;
+  color: var(--iln-danger-text);
 }
 .retry-btn {
   margin-top: 12px;
@@ -626,14 +626,13 @@ onMounted(async () => {
   font-weight: 600;
 }
 
-.badge-ok { background: #e8f5e9; color: #2e7d32; }
-.badge-warn { background: #fff3e0; color: #e65100; }
-.badge-danger { background: #fbe9e7; color: #c62828; }
-.badge-buy { background: #e3f2fd; color: #1565c0; }
-.badge-wait { background: #f3e5f5; color: #6a1b9a; }
-.badge-sell { background: #fbe9e7; color: #c62828; }
-.badge-profit { background: #e8f5e9; color: #2e7d32; }
-.badge-rebalance { background: #e3f2fd; color: #1565c0; }
+.badge-ok { background: var(--iln-ok-bg); color: var(--iln-ok-text); }
+.badge-warn { background: var(--iln-warn-bg); color: var(--iln-warn-text); }
+.badge-danger { background: var(--iln-danger-bg); color: var(--iln-danger-text); }
+.badge-buy { background: var(--iln-info-bg); color: var(--iln-info-text); }
+.badge-sell { background: var(--iln-danger-bg); color: var(--iln-danger-text); }
+.badge-profit { background: var(--iln-ok-bg); color: var(--iln-ok-text); }
+.badge-rebalance { background: var(--iln-info-bg); color: var(--iln-info-text); }
 
 /* Score Breakdown */
 .score-breakdown {
@@ -652,8 +651,8 @@ onMounted(async () => {
   border-radius: 12px;
 }
 .cooldown-card.in-cooldown {
-  background: #fff8e1;
-  border: 1px solid #ffcc02;
+  background: var(--iln-warn-bg);
+  border: 1px solid var(--iln-warn);
 }
 .cooldown-icon {
   font-size: 28px;
@@ -677,7 +676,7 @@ onMounted(async () => {
 }
 .cooldown-days {
   font-size: 13px;
-  color: #e65100;
+  color: var(--iln-warn-text);
   margin-top: 2px;
 }
 .cooldown-message {
@@ -707,12 +706,12 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
   padding: 12px;
-  background: #e3f2fd;
+  background: var(--iln-info-bg);
   border-radius: 12px;
   margin-top: 8px;
 }
 .next-label { font-size: 12px; color: #888; }
-.next-score { font-weight: 600; color: #1565c0; }
+.next-score { font-weight: 600; color: var(--iln-info-text); }
 
 /* Thresholds */
 .thresholds-grid {
@@ -728,8 +727,8 @@ onMounted(async () => {
   padding: 16px;
 }
 .budget-card.limited {
-  background: #fbe9e7;
-  border: 1px solid #ffccbc;
+  background: var(--iln-danger-bg);
+  border: 1px solid var(--iln-danger);
 }
 .budget-grid {
   display: grid;
@@ -756,9 +755,9 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
   padding: 10px;
-  background: #ffebee;
+  background: var(--iln-danger-bg);
   border-radius: 8px;
-  color: #c62828;
+  color: var(--iln-danger-text);
   font-size: 12px;
 }
 
@@ -780,8 +779,8 @@ onMounted(async () => {
   font-size: 11px;
   font-weight: 600;
 }
-.badge-profit { background: #e8f5e9; color: #2e7d32; }
-.badge-rebalance { background: #e3f2fd; color: #1565c0; }
+.badge-profit { background: var(--iln-ok-bg); color: var(--iln-ok-text); }
+.badge-rebalance { background: var(--iln-info-bg); color: var(--iln-info-text); }
 .signal-details {
   display: flex;
   flex-direction: column;
@@ -794,8 +793,8 @@ onMounted(async () => {
 }
 .detail-label { color: #888; }
 .detail-value { font-weight: 500; }
-.signal-direction.text-buy { color: #2e7d32; }
-.signal-direction.text-sell { color: #c62828; }
+.signal-direction.text-buy { color: var(--iln-ok-text); }
+.signal-direction.text-sell { color: var(--iln-danger-text); }
 .signal-direction.text-wait { color: #6a1b9a; }
 
 /* Lifecycle */
@@ -804,10 +803,10 @@ onMounted(async () => {
   border-radius: 12px;
   padding: 16px;
 }
-.lifecycle-badge.badge-buy { background: #e8f5e9; color: #2e7d32; }
+.lifecycle-badge.badge-buy { background: var(--iln-ok-bg); color: var(--iln-ok-text); }
 .lifecycle-badge.badge-wait { background: #f3e5f5; color: #6a1b9a; }
-.lifecycle-badge.badge-warn { background: #fff3e0; color: #e65100; }
-.lifecycle-badge.badge-danger { background: #fbe9e7; color: #c62828; }
+.lifecycle-badge.badge-warn { background: var(--iln-warn-bg); color: var(--iln-warn-text); }
+.lifecycle-badge.badge-danger { background: var(--iln-danger-bg); color: var(--iln-danger-text); }
 .lifecycle-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -893,12 +892,12 @@ onMounted(async () => {
   transition: all 0.3s;
 }
 .allocation-tier.is-current {
-  background: #e3f2fd;
-  border-color: #2196f3;
+  background: var(--iln-info-bg);
+  border-color: var(--iln-brand);
 }
 .allocation-tier.is-next {
-  background: #fff3e0;
-  border-color: #ff9800;
+  background: var(--iln-warn-bg);
+  border-color: var(--iln-warn);
 }
 .tier-score {
   font-size: 12px;
@@ -918,8 +917,8 @@ onMounted(async () => {
   border-radius: 3px;
   transition: width 0.3s;
 }
-.tier-fill.current { background: #2196f3; }
-.tier-fill.next { background: #ff9800; }
+.tier-fill.current { background: var(--iln-brand); }
+.tier-fill.next { background: var(--iln-warn); }
 .tier-info {
   display: flex;
   flex-direction: column;
@@ -931,10 +930,10 @@ onMounted(async () => {
 .tier-comment { font-size: 10px; color: #aaa; margin-top: 2px; }
 
 /* Utility */
-.text-buy { color: #2e7d32; }
-.text-sell { color: #c62828; }
+.text-buy { color: var(--iln-ok-text); }
+.text-sell { color: var(--iln-danger-text); }
 .text-wait { color: #6a1b9a; }
-.text-ok { color: #2e7d32; }
-.text-warn { color: #e65100; }
-.text-danger { color: #c62828; }
+.text-ok { color: var(--iln-ok-text); }
+.text-warn { color: var(--iln-warn-text); }
+.text-danger { color: var(--iln-danger-text); }
 </style>

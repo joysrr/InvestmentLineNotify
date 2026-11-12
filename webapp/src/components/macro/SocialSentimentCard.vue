@@ -307,18 +307,18 @@ function signalLabel(s) {
 }
 
 .divergence-normal {
-  background: rgba(38, 161, 123, 0.15);
-  color: #26a17b;
+  background: var(--iln-ok-bg);
+  color: var(--iln-ok-text);
 }
 
 .divergence-bearish {
-  background: rgba(245, 152, 32, 0.15);
-  color: #b8860b;
+  background: var(--iln-warn-bg);
+  color: var(--iln-warn-text);
 }
 
 .divergence-bullish {
-  background: rgba(38, 161, 123, 0.15);
-  color: #26a17b;
+  background: var(--iln-ok-bg);
+  color: var(--iln-ok-text);
 }
 
 .sentiment-signals {

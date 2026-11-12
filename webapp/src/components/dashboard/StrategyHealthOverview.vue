@@ -144,13 +144,13 @@ const leverageText = computed(() => {
   border-left: 5px solid #bbb;
 }
 .summary-banner.sig-green {
-  border-left-color: #26a17b;
+  border-left-color: var(--iln-ok);
 }
 .summary-banner.sig-yellow {
-  border-left-color: #f39c12;
+  border-left-color: var(--iln-warn);
 }
 .summary-banner.sig-red {
-  border-left-color: #e84855;
+  border-left-color: var(--iln-danger);
 }
 .banner-left {
   display: flex;
@@ -245,20 +245,20 @@ const leverageText = computed(() => {
   color: #222;
 }
 .item-value.green {
-  color: #26a17b;
+  color: var(--iln-ok-text);
 }
 .item-value.yellow,
 .item-value.amber {
-  color: #f39c12;
+  color: var(--iln-warn-text);
 }
 .item-value.red {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 .item-value.badge-buy {
-  color: #26a17b;
+  color: var(--iln-ok-text);
 }
 .item-value.badge-sell {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 .card-hint {
   font-size: 12px;
