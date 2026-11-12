@@ -405,10 +405,10 @@ onMounted(async () => {
 
 /* Card carousel */
 .dashboard-card {
-  background: #fff;
-  border-radius: 14px;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  background: var(--iln-surface);
+  border-radius: var(--iln-radius-lg);
+  margin-bottom: var(--iln-space-4);
+  box-shadow: var(--iln-shadow-1);
   overflow: hidden;
 }
 .card-header {

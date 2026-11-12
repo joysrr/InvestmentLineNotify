@@ -412,9 +412,9 @@ onMounted(async () => {
 .json-viewer {
   max-height: 400px;
   overflow: auto;
-  background: #f5f5f5;
-  border-radius: 8px;
-  padding: 16px;
+  background: var(--iln-surface);
+  border-radius: var(--iln-radius-md);
+  padding: var(--iln-space-4);
 }
 
 .json-viewer pre {

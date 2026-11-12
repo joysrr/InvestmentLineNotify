@@ -30,10 +30,25 @@
   --iln-danger-text: #dc2626;
   --iln-info-text: #1d4ed8;
 
-  /* ── 語意邊框 ── */
+  /* ── 語義邊框 ── */
   --iln-border-subtle: rgba(0, 0, 0, 0.06);
   --iln-border-default: rgba(0, 0, 0, 0.1);
   --iln-border-strong: rgba(0, 0, 0, 0.15);
+
+  /* ── 中性表面（卡片/區塊背景） ── */
+  --iln-surface: #f5f5f5;
+
+  /* ── 等待/中性狀態 ── */
+  --iln-wait-bg: #f3e5f5;
+  --iln-wait-text: #6a1b9a;
+
+  /* ── DeployButton level-badge ── */
+  --iln-badge-info-bg: #1e3a5f;
+  --iln-badge-info-text: #409eff;
+  --iln-badge-warn-bg: #3a3310;
+  --iln-badge-warn-text: #e6a23c;
+  --iln-badge-error-bg: #3a1717;
+  --iln-badge-error-text: #f56c6c;
 
   /* ── 字型（7 級 scale） ── */
   --iln-font-xs: 10px;
@@ -110,6 +125,7 @@
     --iln-border-subtle: rgba(255, 255, 255, 0.08);
     --iln-border-default: rgba(255, 255, 255, 0.12);
     --iln-border-strong: rgba(255, 255, 255, 0.18);
+    --iln-surface: #1c1c1d;
   }
 }
 

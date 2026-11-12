@@ -737,8 +737,8 @@ onMounted(async () => {
 .dark .discipline-intro-card,
 .dark .card-section,
 .dark .insight-card {
-  background: #1c1c1d;
-  border-color: rgba(255, 255, 255, 0.08);
+  background: var(--iln-surface);
+  border-color: var(--iln-border-subtle);
 }
 .dark .table-wrapper {
   border-color: rgba(255, 255, 255, 0.1);

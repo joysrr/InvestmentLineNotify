@@ -125,10 +125,10 @@ const handleClose = () => {
 }
 
 .error-detail {
-  margin-top: 12px;
-  padding: 12px;
-  background-color: #f5f5f5;
-  border-radius: 4px;
+  margin-top: var(--iln-space-3);
+  padding: var(--iln-space-3);
+  background-color: var(--iln-surface);
+  border-radius: var(--iln-radius-sm);
   max-height: 200px;
   overflow-y: auto;
 }

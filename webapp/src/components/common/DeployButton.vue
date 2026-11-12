@@ -341,10 +341,10 @@ onUnmounted(() => {
 }
 
 .version-info {
-  margin: 16px 0;
-  padding: 12px;
-  background: #f5f7fa;
-  border-radius: 6px;
+  margin: var(--iln-space-4) 0;
+  padding: var(--iln-space-3);
+  background: var(--iln-surface);
+  border-radius: var(--iln-radius-sm);
 }
 
 .version-row {
@@ -424,12 +424,12 @@ onUnmounted(() => {
 .log-content {
   flex: 1;
   overflow-y: auto;
-  background: #1e1e1e;
-  border-radius: 6px;
-  padding: 12px;
+  background: var(--iln-surface);
+  border-radius: var(--iln-radius-sm);
+  padding: var(--iln-space-3);
   font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: var(--iln-font-xs);
+  line-height: var(--iln-leading-normal);
   min-height: 300px;
 }
 
@@ -458,9 +458,9 @@ onUnmounted(() => {
   text-align: center;
 }
 
-.level-badge.info { background: #1e3a5f; color: #409eff; }
-.level-badge.warn { background: #3a3310; color: #e6a23c; }
-.level-badge.error { background: #3a1717; color: #f56c6c; }
+.level-badge.info { background: var(--iln-badge-info-bg); color: var(--iln-badge-info-text); }
+.level-badge.warn { background: var(--iln-badge-warn-bg); color: var(--iln-badge-warn-text); }
+.level-badge.error { background: var(--iln-badge-error-bg); color: var(--iln-badge-error-text); }
 
 .message {
   color: #d4d4d4;

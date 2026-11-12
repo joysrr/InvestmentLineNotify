@@ -804,7 +804,7 @@ onMounted(async () => {
   padding: 16px;
 }
 .lifecycle-badge.badge-buy { background: var(--iln-ok-bg); color: var(--iln-ok-text); }
-.lifecycle-badge.badge-wait { background: #f3e5f5; color: #6a1b9a; }
+.lifecycle-badge.badge-wait { background: var(--iln-wait-bg); color: var(--iln-wait-text); }
 .lifecycle-badge.badge-warn { background: var(--iln-warn-bg); color: var(--iln-warn-text); }
 .lifecycle-badge.badge-danger { background: var(--iln-danger-bg); color: var(--iln-danger-text); }
 .lifecycle-grid {
