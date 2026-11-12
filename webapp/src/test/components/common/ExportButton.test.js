@@ -2,7 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import ExportButton from "@/components/common/ExportButton.vue";
-import { Download, Document, Picture, ArrowDown } from "@element-plus/icons-vue";
+import {
+  Download,
+  Document,
+  Picture,
+  ArrowDown,
+} from "@element-plus/icons-vue";
 import * as exportUtility from "@/utils/exportUtility.js";
 
 // Mock exportUtility
@@ -13,14 +18,18 @@ vi.mock("@/utils/exportUtility.js", () => ({
   exportAllFormats: vi.fn().mockResolvedValue(["csv", "json"]),
 }));
 
-// Mock ElMessage
-vi.mock("element-plus", () => ({
-  ElMessage: {
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-  },
-}));
+// Mock ElMessage (保留 element-plus 其他匯出，供 AutoImport 解析 <el-*> 模板元件)
+vi.mock("element-plus", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    ElMessage: {
+      success: vi.fn(),
+      warning: vi.fn(),
+      error: vi.fn(),
+    },
+  };
+});
 
 describe("ExportButton.vue", () => {
   const mockChartInstance = {
@@ -28,7 +37,10 @@ describe("ExportButton.vue", () => {
   };
 
   const defaultProps = {
-    csvData: [{ a: 1, b: 2 }, { a: 3, b: 4 }],
+    csvData: [
+      { a: 1, b: 2 },
+      { a: 3, b: 4 },
+    ],
     jsonData: { key: "value", nested: { num: 42 } },
     chartInstance: mockChartInstance,
     filename: "test-export",
@@ -62,17 +74,22 @@ describe("ExportButton.vue", () => {
             template: '<div class="el-dropdown-menu"><slot /></div>',
           },
           ElDropdownItem: {
-            template: '<div class="el-dropdown-item" @click="$emit(\'command\', command)"><slot /></div>',
+            template:
+              '<div class="el-dropdown-item" @click="$emit(\'command\', command)"><slot /></div>',
             props: ["command", "disabled", "divided"],
             emits: ["command"],
           },
           ElButton: {
-            template: '<button class="el-button" @click="$emit(\'click\')"><slot /></button>',
+            template:
+              '<button class="el-button" @click="$emit(\'click\')"><slot /></button>',
             props: ["type", "size", "disabled", "loading"],
             emits: ["click"],
           },
           ElIcon: { template: '<span class="el-icon"><slot /></span>' },
-          ElTag: { template: '<span class="el-tag"><slot /></span>', props: ["type", "size"] },
+          ElTag: {
+            template: '<span class="el-tag"><slot /></span>',
+            props: ["type", "size"],
+          },
           ElMessage: { success: vi.fn(), warning: vi.fn(), error: vi.fn() },
         },
         components: {
@@ -93,56 +110,56 @@ describe("ExportButton.vue", () => {
   it("calls exportCSV when exportCSV method called", async () => {
     wrapper = mountComponent();
     const { exportCSV } = await import("@/utils/exportUtility.js");
-    
+
     wrapper.vm.exportCSV();
     await nextTick();
-    
+
     expect(exportCSV).toHaveBeenCalledWith(
       defaultProps.csvData,
       "test-export",
-      {}
+      {},
     );
   });
 
   it("calls exportJSON when exportJSON method called", async () => {
     wrapper = mountComponent();
     const { exportJSON } = await import("@/utils/exportUtility.js");
-    
+
     wrapper.vm.exportJSON();
     await nextTick();
-    
+
     expect(exportJSON).toHaveBeenCalledWith(
       defaultProps.jsonData,
-      "test-export"
+      "test-export",
     );
   });
 
   it("calls exportChartAsImage when exportPNG method called", async () => {
     wrapper = mountComponent();
     const { exportChartAsImage } = await import("@/utils/exportUtility.js");
-    
+
     await wrapper.vm.exportPNG();
     await nextTick();
-    
+
     expect(exportChartAsImage).toHaveBeenCalledWith(
       mockChartInstance,
       "test-export",
-      {}
+      {},
     );
   });
 
   it("calls exportAllFormats when exportAll method called", async () => {
     wrapper = mountComponent();
     const { exportAllFormats } = await import("@/utils/exportUtility.js");
-    
+
     await wrapper.vm.exportAll();
     await nextTick();
-    
+
     expect(exportAllFormats).toHaveBeenCalledWith(
       { csv: defaultProps.csvData, json: defaultProps.jsonData },
       "test-export",
       ["csv", "json", "png"],
-      mockChartInstance
+      mockChartInstance,
     );
   });
 
@@ -150,10 +167,10 @@ describe("ExportButton.vue", () => {
     wrapper = mountComponent({ csvData: [] });
     const { exportCSV } = await import("@/utils/exportUtility.js");
     const { ElMessage } = await import("element-plus");
-    
+
     wrapper.vm.exportCSV();
     await nextTick();
-    
+
     expect(exportCSV).not.toHaveBeenCalled();
     expect(ElMessage.warning).toHaveBeenCalledWith("無 CSV 資料可匯出");
   });
@@ -162,10 +179,10 @@ describe("ExportButton.vue", () => {
     wrapper = mountComponent({ jsonData: {} });
     const { exportJSON } = await import("@/utils/exportUtility.js");
     const { ElMessage } = await import("element-plus");
-    
+
     wrapper.vm.exportJSON();
     await nextTick();
-    
+
     expect(exportJSON).not.toHaveBeenCalled();
     expect(ElMessage.warning).toHaveBeenCalledWith("無 JSON 資料可匯出");
   });
@@ -174,10 +191,10 @@ describe("ExportButton.vue", () => {
     wrapper = mountComponent({ chartInstance: null });
     const { exportChartAsImage } = await import("@/utils/exportUtility.js");
     const { ElMessage } = await import("element-plus");
-    
+
     await wrapper.vm.exportPNG();
     await nextTick();
-    
+
     expect(exportChartAsImage).not.toHaveBeenCalled();
     expect(ElMessage.warning).toHaveBeenCalledWith("無圖表可匯出");
   });
@@ -185,19 +202,21 @@ describe("ExportButton.vue", () => {
   it("shows success message after CSV export", async () => {
     wrapper = mountComponent();
     const { ElMessage } = await import("element-plus");
-    
+
     wrapper.vm.exportCSV();
     await nextTick();
-    
-    expect(ElMessage.success).toHaveBeenCalledWith("CSV 已匯出: test-export.csv");
+
+    expect(ElMessage.success).toHaveBeenCalledWith(
+      "CSV 已匯出: test-export.csv",
+    );
   });
 
   it("emits export-start and export-complete events", async () => {
     wrapper = mountComponent();
-    
+
     wrapper.vm.exportCSV();
     await nextTick();
-    
+
     expect(wrapper.emitted("export-start")).toBeTruthy();
     expect(wrapper.emitted("export-start")[0]).toEqual(["csv"]);
     expect(wrapper.emitted("export-complete")).toBeTruthy();
@@ -206,14 +225,16 @@ describe("ExportButton.vue", () => {
 
   it("handles export error and emits export-error", async () => {
     const { exportCSV } = await import("@/utils/exportUtility.js");
-    exportCSV.mockImplementationOnce(() => { throw new Error("Export failed"); });
-    
+    exportCSV.mockImplementationOnce(() => {
+      throw new Error("Export failed");
+    });
+
     wrapper = mountComponent();
     const { ElMessage } = await import("element-plus");
-    
+
     wrapper.vm.exportCSV();
     await nextTick();
-    
+
     expect(ElMessage.error).toHaveBeenCalledWith("匯出失敗: Export failed");
     expect(wrapper.emitted("export-error")).toBeTruthy();
   });
@@ -224,19 +245,31 @@ describe("ExportButton.vue", () => {
       jsonFilename: "custom-json",
       pngFilename: "custom-png",
     });
-    const { exportCSV, exportJSON, exportChartAsImage } = await import("@/utils/exportUtility.js");
-    
+    const { exportCSV, exportJSON, exportChartAsImage } =
+      await import("@/utils/exportUtility.js");
+
     wrapper.vm.exportCSV();
     await nextTick();
-    expect(exportCSV).toHaveBeenCalledWith(defaultProps.csvData, "custom-csv", {});
-    
+    expect(exportCSV).toHaveBeenCalledWith(
+      defaultProps.csvData,
+      "custom-csv",
+      {},
+    );
+
     wrapper.vm.exportJSON();
     await nextTick();
-    expect(exportJSON).toHaveBeenCalledWith(defaultProps.jsonData, "custom-json");
-    
+    expect(exportJSON).toHaveBeenCalledWith(
+      defaultProps.jsonData,
+      "custom-json",
+    );
+
     await wrapper.vm.exportPNG();
     await nextTick();
-    expect(exportChartAsImage).toHaveBeenCalledWith(mockChartInstance, "custom-png", {});
+    expect(exportChartAsImage).toHaveBeenCalledWith(
+      mockChartInstance,
+      "custom-png",
+      {},
+    );
   });
 
   it("passes csvOptions to exportCSV", async () => {
@@ -244,14 +277,14 @@ describe("ExportButton.vue", () => {
       csvOptions: { delimiter: ";", includeHeader: false },
     });
     const { exportCSV } = await import("@/utils/exportUtility.js");
-    
+
     wrapper.vm.exportCSV();
     await nextTick();
-    
+
     expect(exportCSV).toHaveBeenCalledWith(
       defaultProps.csvData,
       "test-export",
-      { delimiter: ";", includeHeader: false }
+      { delimiter: ";", includeHeader: false },
     );
   });
 
@@ -260,20 +293,20 @@ describe("ExportButton.vue", () => {
       pngOptions: { type: "jpeg", pixelRatio: 3 },
     });
     const { exportChartAsImage } = await import("@/utils/exportUtility.js");
-    
+
     await wrapper.vm.exportPNG();
     await nextTick();
-    
+
     expect(exportChartAsImage).toHaveBeenCalledWith(
       mockChartInstance,
       "test-export",
-      { type: "jpeg", pixelRatio: 3 }
+      { type: "jpeg", pixelRatio: 3 },
     );
   });
 
   it("exposes export methods via defineExpose", () => {
     wrapper = mountComponent();
-    
+
     expect(typeof wrapper.vm.exportCSV).toBe("function");
     expect(typeof wrapper.vm.exportJSON).toBe("function");
     expect(typeof wrapper.vm.exportPNG).toBe("function");

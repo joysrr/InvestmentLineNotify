@@ -1,17 +1,34 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import Components from "unplugin-vue-components/vite";
+import AutoImport from "unplugin-auto-import/vite";
+import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import path from "path";
 
-export default defineConfig(({ mode }) => ({
-  plugins: [
-    vue(),
-    {
-      name: "html-transform",
-      transformIndexHtml(html) {
-        const isProd = mode === "production";
-        const telegramScript = isProd
-          ? '<script src="https://telegram.org/js/telegram-web-app.js"></script>'
-          : `
+export default defineConfig(({ mode }) => {
+  const isTest = process.env.VITEST || mode === "test";
+  const elementPlusResolver = ElementPlusResolver({
+    importStyle: isTest ? false : "css",
+  });
+
+  return {
+    plugins: [
+      vue(),
+      AutoImport({
+        resolvers: [elementPlusResolver],
+        dts: false,
+      }),
+      Components({
+        resolvers: [elementPlusResolver],
+        dts: false,
+      }),
+      {
+        name: "html-transform",
+        transformIndexHtml(html) {
+          const isProd = mode === "production";
+          const telegramScript = isProd
+            ? '<script src="https://telegram.org/js/telegram-web-app.js"></script>'
+            : `
       <script>
         // Dev mock - simulates Telegram WebApp environment
         window.Telegram = {
@@ -58,60 +75,82 @@ export default defineConfig(({ mode }) => ({
       </script>
     `;
 
-        const debugScript = `
+          const debugScript = `
       <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
       <script>eruda.init();</script>
     `;
 
-        return html
-          .replace("<!-- TELEGRAM_SDK_PLACEHOLDER -->", telegramScript)
-          .replace("<!-- DEBUG_TOOL_PLACEHOLDER -->", debugScript);
+          return html
+            .replace("<!-- TELEGRAM_SDK_PLACEHOLDER -->", telegramScript)
+            .replace("<!-- DEBUG_TOOL_PLACEHOLDER -->", debugScript);
+        },
       },
+      ...(process.env.VITEST || mode === "test"
+        ? [
+            {
+              name: "stub-element-plus-css",
+              load(id) {
+                if (id.includes("element-plus") && id.endsWith(".css")) {
+                  return { code: "", map: { mappings: "" } };
+                }
+              },
+            },
+          ]
+        : []),
+    ],
+    define: {
+      "process.env": {},
+      "process.env.NODE_ENV": JSON.stringify(mode),
     },
-  ],
-  define: {
-    "process.env": {},
-    "process.env.NODE_ENV": JSON.stringify(mode),
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          "vendor-vue": ["vue", "vue-router"],
-          "vendor-element": ["element-plus", "@element-plus/icons-vue"],
-          "vendor-echarts": ["echarts", "vue-echarts"],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            "vendor-vue": ["vue", "vue-router"],
+            "vendor-echarts": ["echarts", "vue-echarts"],
+          },
         },
       },
     },
     chunkSizeWarningLimit: 500,
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+    resolve: {
+      alias: [
+        {
+          find: /element-plus\/theme-chalk\/.*\.css$/,
+          replacement: path.resolve(__dirname, "src/test/empty.css"),
+        },
+        {
+          find: "@",
+          replacement: path.resolve(__dirname, "./src"),
+        },
+      ],
     },
-  },
-  server: {
-    port: 5173,
-    proxy: {
-      "/api": {
-        target: "http://localhost:3000",
-        changeOrigin: true,
+    server: {
+      port: 5173,
+      proxy: {
+        "/api": {
+          target: "http://localhost:3000",
+          changeOrigin: true,
+        },
       },
     },
-  },
-  test: {
-    environment: "jsdom",
-    globals: true,
-    setupFiles: ["./src/test/setup.js"],
-    exclude: ["**/node_modules/**", "**/dist/**", "**/src/test/e2e/**"],
-    coverage: {
-      provider: "v8",
-      thresholds: {
-        lines: 75,
-        functions: 60,
-        branches: 60,
-        statements: 75,
+    test: {
+      environment: "jsdom",
+      globals: true,
+      setupFiles: ["./src/test/setup.js"],
+      deps: {
+        inline: [/element-plus/],
+      },
+      exclude: ["**/node_modules/**", "**/dist/**", "**/src/test/e2e/**"],
+      coverage: {
+        provider: "v8",
+        thresholds: {
+          lines: 75,
+          functions: 60,
+          branches: 60,
+          statements: 75,
+        },
       },
     },
-  },
-}));
+  };
+});
