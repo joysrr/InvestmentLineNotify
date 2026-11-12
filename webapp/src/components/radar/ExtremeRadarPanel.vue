@@ -353,10 +353,10 @@ function formatMoney(amount) {
 .empty-radar-bar {
   padding: 10px 14px;
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #888);
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  color: var(--tg-theme-hint-color);
+  background: var(--tg-theme-secondary-bg-color);
   border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--iln-border-subtle);
 }
 
 .radar-panel {
@@ -367,25 +367,25 @@ function formatMoney(amount) {
 
 /* 常態平穩（IDLE） - 柔和清新淺綠微透風格，與美股卡片完美融合 */
 .radar-panel-idle {
-  background: var(--tg-theme-secondary-bg-color, #f8faf9);
-  border: 1px solid rgba(38, 161, 123, 0.22);
+  background: var(--tg-theme-secondary-bg-color);
+  border: 1px solid var(--iln-ok);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
 }
 
 /* 極端警報觸發狀態 */
 .radar-panel-alert {
-  background: rgba(232, 72, 85, 0.06);
-  border: 1px solid rgba(232, 72, 85, 0.35);
+  background: var(--iln-danger-bg);
+  border: 1px solid var(--iln-danger);
 }
 
 .panel-severity-critical {
   border-color: var(--iln-danger-text);
-  background: rgba(232, 72, 85, 0.1);
+  background: var(--iln-danger-bg);
 }
 
 .panel-severity-alert {
   border-color: var(--iln-warn-text);
-  background: rgba(255, 159, 10, 0.1);
+  background: var(--iln-warn-bg);
 }
 
 .radar-panel-header {
@@ -430,25 +430,25 @@ function formatMoney(amount) {
 }
 
 .badge-idle {
-  background: rgba(38, 161, 123, 0.12);
+  background: var(--iln-ok-bg);
   color: var(--iln-ok-text);
-  border: 1px solid rgba(38, 161, 123, 0.28);
+  border: 1px solid var(--iln-ok);
 }
 
 .badge-active {
-  background: rgba(232, 72, 85, 0.18);
+  background: var(--iln-danger-bg);
   color: var(--iln-danger-text);
-  border: 1px solid rgba(232, 72, 85, 0.35);
+  border: 1px solid var(--iln-danger);
 }
 
 .status-summary {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #707579);
+  color: var(--tg-theme-hint-color);
 }
 
 .status-sub {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #707579);
+  color: var(--tg-theme-hint-color);
 }
 
 .toggle-btn {
@@ -461,7 +461,7 @@ function formatMoney(amount) {
   padding: 3px 9px;
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.04);
-  color: var(--tg-theme-hint-color, #707579);
+  color: var(--tg-theme-hint-color);
   border: 1px solid rgba(0, 0, 0, 0.06);
   transition: all 0.2s ease;
 }
@@ -473,7 +473,7 @@ function formatMoney(amount) {
 /* 展開詳細清單 */
 .radar-detail-list {
   padding: 8px 12px 12px;
-  border-top: 1px solid rgba(38, 161, 123, 0.15);
+  border-top: 1px solid var(--iln-ok);
   display: flex;
   flex-direction: column;
   gap: 7px;
@@ -487,7 +487,7 @@ function formatMoney(amount) {
   background: rgba(255, 255, 255, 0.7);
   padding: 8px 11px;
   border-radius: 9px;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--iln-border-subtle);
   transition: all 0.15s ease;
 }
 
@@ -509,7 +509,7 @@ function formatMoney(amount) {
 
 .dot-normal {
   background: var(--iln-ok-text);
-  box-shadow: 0 0 5px rgba(38, 161, 123, 0.45);
+  box-shadow: 0 0 5px var(--iln-ok);
 }
 
 .mini-info {
@@ -535,7 +535,7 @@ function formatMoney(amount) {
 
 .mini-desc {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--tg-theme-hint-color);
   background: rgba(0, 0, 0, 0.04);
   padding: 1px 5px;
   border-radius: 4px;
@@ -548,7 +548,7 @@ function formatMoney(amount) {
   white-space: nowrap;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 9px;
-  color: var(--tg-theme-hint-color, #8e8e93);
+  color: var(--tg-theme-hint-color);
   opacity: 0.85;
 }
 
@@ -558,7 +558,7 @@ function formatMoney(amount) {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: rgba(36, 129, 204, 0.1);
+  background: var(--iln-brand-soft);
   color: var(--iln-brand);
   font-size: 13px;
   line-height: 18px;
@@ -573,8 +573,8 @@ function formatMoney(amount) {
   padding: 8px 9px;
   border-left: 2px solid var(--iln-brand);
   border-radius: 0 7px 7px 0;
-  background: rgba(36, 129, 204, 0.06);
-  color: var(--tg-theme-hint-color, #555);
+  background: var(--iln-brand-soft);
+  color: var(--tg-theme-hint-color);
   font-size: 11px;
   line-height: 1.45;
 }
@@ -591,13 +591,13 @@ function formatMoney(amount) {
 }
 
 .mini-purpose {
-  color: var(--tg-theme-text-color, #444);
+  color: var(--tg-theme-text-color);
   font-size: 11px;
   line-height: 1.35;
 }
 
 .mini-summary {
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--tg-theme-hint-color);
   font-size: 11px;
   line-height: 1.35;
 }
@@ -612,7 +612,7 @@ function formatMoney(amount) {
   font-weight: 600;
   padding: 2px 7px;
   border-radius: 6px;
-  background: rgba(38, 161, 123, 0.12);
+  background: var(--iln-ok-bg);
   color: var(--iln-ok-text);
   white-space: nowrap;
 }
@@ -620,7 +620,7 @@ function formatMoney(amount) {
 /* 警報面板主體 */
 .radar-alert-body {
   padding: 12px 14px 14px;
-  border-top: 1px solid rgba(232, 72, 85, 0.18);
+  border-top: 1px solid var(--iln-danger);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -690,7 +690,7 @@ function formatMoney(amount) {
 
 .ti-summary {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #555);
+  color: var(--tg-theme-hint-color);
   line-height: 1.35;
 }
 
@@ -711,13 +711,13 @@ function formatMoney(amount) {
 }
 
 .card-freeze {
-  border-color: rgba(232, 72, 85, 0.35);
-  background: rgba(232, 72, 85, 0.06);
+  border-color: var(--iln-danger);
+  background: var(--iln-danger-bg);
 }
 
 .dc-label {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #707579);
+  color: var(--tg-theme-hint-color);
 }
 
 .dc-status {
@@ -745,14 +745,14 @@ function formatMoney(amount) {
 }
 
 .text-muted {
-  color: var(--tg-theme-hint-color, #8e8e93);
+  color: var(--tg-theme-hint-color);
 }
 
 /* ── 深色主題相容 ── */
 .dark .radar-panel-idle,
 :global(.dark) .radar-panel-idle {
   background: var(--iln-surface);
-  border-color: rgba(38, 161, 123, 0.3);
+  border-color: var(--iln-ok);
 }
 
 .dark .radar-mini-item,
@@ -805,4 +805,11 @@ function formatMoney(amount) {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.08);
 }
+/* ── 以下 rgba 屬裝飾性或深色專用，留待 Phase 5 統一處理 ── */
+/* .radar-panel-idle box-shadow: rgba(0,0,0,0.02) — 極淡陰影 */
+/* .dot-normal box-shadow: 狀態點光暈（ok 色，留待 Phase 5 統一處理） */
+/* .radar-mini-item background: rgba(255,255,255,0.7) — 半透明卡片設計 */
+/* .dark .toggle-btn background: rgba(0,0,0,0.04) — 深色專用 */
+/* .dark .mini-desc background: rgba(255,255,255,0.08) — 深色專用 */
+
 </style>
