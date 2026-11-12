@@ -9,6 +9,7 @@
         active-class="nav-item--active"
         :exact="tab.exact"
         :data-testid="tab.testId"
+        :aria-label="tab.label"
       >
         <span class="nav-icon" v-html="tab.icon"></span>
         <span class="nav-label">{{ tab.label }}</span>

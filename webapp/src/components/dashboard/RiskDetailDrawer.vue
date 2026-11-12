@@ -155,7 +155,7 @@ defineEmits(["update:visible"]);
 }
 
 .text-ok {
-  color: #10b981;
+  color: var(--iln-ok-text);
 }
 
 .risk-info-card {
@@ -168,7 +168,7 @@ defineEmits(["update:visible"]);
 .info-title {
   font-size: 12px;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--iln-brand);
   margin-bottom: 6px;
 }
 
