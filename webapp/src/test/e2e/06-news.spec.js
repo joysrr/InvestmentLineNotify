@@ -43,16 +43,4 @@ test.describe("06-NewsTab - 新聞頁", () => {
     const emptyState = page.locator(".state-box:has-text('尚未產生')");
     await expect(reportContent.or(emptyState)).toBeVisible({ timeout: 8000 });
   });
-
-  test("NWS-004: 切換至歷史簡報 subtab 應正常渲染日/週/月報選單", async ({
-    page,
-  }) => {
-    await page.locator("[data-testid='nav-tab-news']").click();
-    await page.waitForTimeout(2000);
-    await page.locator("[data-testid='subtab-periodic']").click();
-    await page.waitForTimeout(2000);
-    // Should display ReportsView title or tab bar
-    await expect(page.locator(".tab-bar")).toBeVisible();
-    await expect(page.locator(".tab-btn").first()).toContainText("日報");
-  });
 });

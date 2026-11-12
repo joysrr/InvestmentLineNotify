@@ -9,12 +9,6 @@
       >
         📈 資產趨勢
       </button>
-      <button
-        :class="{ active: activeTab === 'reports' }"
-        @click="activeTab = 'reports'"
-      >
-        📋 歷史報告
-      </button>
     </div>
 
     <div v-show="activeTab === 'trend'">
@@ -99,9 +93,6 @@
     </template>
     </div>
 
-    <div v-show="activeTab === 'reports'">
-      <ReportsView />
-    </div>
   </div>
   </GlobalErrorBoundary>
 </template>
@@ -125,7 +116,6 @@ import {
   fetchSnapshotsMonthly,
 } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
-import ReportsView from "./ReportsView.vue";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
 
