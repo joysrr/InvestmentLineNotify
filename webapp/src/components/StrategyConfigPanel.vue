@@ -433,8 +433,11 @@ onMounted(load);
   background: var(--tg-theme-bg-color, #fff);
   color: var(--tg-theme-text-color, #222);
   font-size: 14px;
-  outline: none;
   transition: border-color 0.3s;
+}
+.search-input:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
 }
 
 .search-input:focus {
@@ -583,7 +586,11 @@ onMounted(load);
   color: var(--tg-theme-text-color, #000);
   font-size: 14px;
   font-weight: 600;
-  outline: none;
+}
+.edit-input:focus-visible,
+.edit-select:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
 }
 
 .edit-input:focus,
@@ -671,7 +678,10 @@ onMounted(load);
   font-size: 12px;
   color: var(--tg-theme-hint-color, #999);
   cursor: pointer;
-  outline: none;
+}
+.raw-json-details summary:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
 }
 
 .json-content {

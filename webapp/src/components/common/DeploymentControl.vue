@@ -136,7 +136,7 @@ onUnmounted(clearPollTimer);
 
 .deployment-start {
   flex: 0 0 auto;
-  min-height: 36px;
+  min-height: var(--iln-touch-min);
   padding: 0 14px;
   border: 0;
   border-radius: 6px;
