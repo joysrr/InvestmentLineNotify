@@ -8,8 +8,22 @@
   >
     <main class="app-main">
       <keep-alive :max="5">
-        <router-view />
+        <Suspense>
+          <template #default>
+            <router-view />
+          </template>
+          <template #fallback>
+            <RouteLoading />
+          </template>
+        </Suspense>
       </keep-alive>
+      <ErrorAlert
+        v-if="routeLoadError"
+        title="頁面載入失敗"
+        description="請點擊重試按鈕重新載入"
+        show-retry
+        @retry="retryRoute"
+      />
     </main>
 
     <FloatingPill />
@@ -18,16 +32,32 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, nextTick, watch } from "vue";
+import { onMounted, onUnmounted, nextTick, watch, ref, onErrorCaptured } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useTelegram } from "./composables/useTelegram.js";
 import FloatingPill from "./components/FloatingPill.vue";
 import AuthExpiredModal from "./components/common/AuthExpiredModal.vue";
+import RouteLoading from "./components/common/RouteLoading.vue";
+import ErrorAlert from "./components/common/ErrorAlert.vue";
+
+const router = useRouter();
+const route = useRoute();
+
+const routeLoadError = ref(false);
+
+const retryRoute = () => {
+  routeLoadError.value = false;
+  router.push(route.path);
+};
+
+onErrorCaptured((err) => {
+  console.warn("[Route Load Error]", err);
+  routeLoadError.value = true;
+  return false;
+});
 
 const { expand, backButton, viewportHeight, viewportStableHeight, safeAreaInset } =
   useTelegram();
-const router = useRouter();
-const route = useRoute();
 
 // ── Telegram 返回鍵管理 ──
 const handleBack = () => router.back();
