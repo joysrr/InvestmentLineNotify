@@ -10,6 +10,7 @@
         :exact="tab.exact"
         :data-testid="tab.testId"
         :aria-label="tab.label"
+        :aria-current="route.path === tab.to ? 'page' : undefined"
       >
         <span class="nav-icon" v-html="tab.icon"></span>
         <span class="nav-label">{{ tab.label }}</span>
@@ -20,10 +21,12 @@
 
 <script setup>
 import { ref } from "vue";
+import { useRoute } from "vue-router";
 import { tabs } from "../config/tabsConfig.js";
 import { useIOSSwipeGuard } from "../composables/useIOSSwipeGuard.js";
 
 const pillRef = ref(null);
+const route = useRoute();
 useIOSSwipeGuard(pillRef);
 </script>
 
