@@ -34,6 +34,22 @@ for (const scheme of SCHEMES) {
         path: `test-results/e2e-dual-mode/${name}-${scheme}.png`,
         fullPage: true,
       });
+      // P2-2 產出色階摘要 → summary.jsonl
+      const schemeInfo = await page.evaluate(() => {
+        const bodyStyle = getComputedStyle(document.body);
+        return {
+          bg: bodyStyle.backgroundColor,
+          color: bodyStyle.color,
+        };
+      });
+      const fs = require("fs");
+      const pathModule = require("path");
+      const dir = "test-results/e2e-dual-mode";
+      fs.mkdirSync(dir, { recursive: true });
+      fs.appendFileSync(
+        pathModule.join(dir, "summary.jsonl"),
+        JSON.stringify({ name, scheme, ...schemeInfo }) + "\n",
+      );
       // 斷言頁面非空白（有可見內容，未崩潰）
       const bodyText = await page.locator("body").innerText();
       expect(bodyText.trim().length).toBeGreaterThan(0);
