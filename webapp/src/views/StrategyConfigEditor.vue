@@ -58,25 +58,49 @@
       />
     </div>
 
-    <!-- Section Tabs -->
+    <!-- Section Tabs: Primary + Secondary 兩層（Phase 4 P0-4） -->
     <div class="section-tabs" data-testid="section-tabs">
-      <el-tabs v-model="activeSection" type="card" class="config-tabs" data-testid="config-tabs">
-        <el-tab-pane
-          v-for="section in sections"
-          :key="section.key"
-          :label="section.label"
-          :name="section.key"
+      <!-- 大分類（Primary Tab） -->
+      <div class="iln-tabs-primary" role="tablist">
+        <button
+          v-for="g in sectionGroups"
+          :key="g.key"
+          class="iln-tab"
+          :class="{ 'is-active': activeGroup === g.key }"
+          role="tab"
+          :aria-selected="activeGroup === g.key"
+          @click="activeGroup = g.key"
         >
-          <ConfigSectionEditor
-            :section="section"
-            :config="editableConfig"
-            :meta="configMeta"
-            :errors="getSectionErrors(section.key)"
-            @update="handleFieldUpdate"
-            data-testid="config-section-editor"
-          />
-        </el-tab-pane>
-      </el-tabs>
+          {{ g.label }}
+        </button>
+      </div>
+
+      <!-- 該分類下的 section（Secondary Tab） -->
+      <div class="iln-tabs-secondary" role="tablist" style="margin-top: var(--iln-space-3)">
+        <button
+          v-for="s in currentGroupSections"
+          :key="s.key"
+          class="iln-tab"
+          :class="{ 'is-active': activeSection === s.key }"
+          role="tab"
+          :aria-selected="activeSection === s.key"
+          @click="activeSection = s.key"
+        >
+          {{ s.label }}
+        </button>
+      </div>
+
+      <!-- 表單內容（單一 section） -->
+      <div style="margin-top: var(--iln-space-4)">
+        <ConfigSectionEditor
+          :section="currentSection"
+          :config="editableConfig"
+          :meta="configMeta"
+          :errors="getSectionErrors(activeSection)"
+          @update="handleFieldUpdate"
+          data-testid="config-section-editor"
+        />
+      </div>
     </div>
 
     <!-- Raw JSON Viewer (Collapsible) -->
@@ -107,7 +131,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { Refresh, Check, Checked } from "@element-plus/icons-vue";
 
@@ -153,6 +177,61 @@ const sections = [
   { key: "scoringMatrix", label: "評分矩陣", fields: ["enabled", "categories", "thresholds", "normalization"] },
   { key: "valuationMomentum", label: "估值動能", fields: ["enabled", "lookbackDays", "risingThreshold", "fallingThreshold", "risingPenaltyMultiplier", "fallingRelief", "extremePRThreshold"] },
 ];
+
+// Phase 4 P0-4：5 大分類分組
+const sectionGroups = [
+  {
+    key: "basic",
+    label: "基本",
+    sections: ["basic"],
+  },
+  {
+    key: "risk",
+    label: "風控",
+    sections: [
+      "maintenance",
+      "grossLeverage",
+      "dynamicDeleverage",
+      "valuationGuard",
+      "valuationMomentum",
+      "overrideHierarchy",
+    ],
+  },
+  {
+    key: "trading",
+    label: "交易",
+    sections: ["trading", "buy", "sell", "threshold", "scoringMatrix"],
+  },
+  {
+    key: "macro",
+    label: "總經",
+    sections: ["macroSentiment", "regime"],
+  },
+  {
+    key: "allocation",
+    label: "配置",
+    sections: ["allocation", "reserve", "conversionGuard", "lifecycle", "leverage"],
+  },
+];
+
+const activeGroup = ref("basic");
+
+const currentGroupSections = computed(() => {
+  const group = sectionGroups.find((g) => g.key === activeGroup.value);
+  return (group?.sections ?? [])
+    .map((key) => sections.find((s) => s.key === key))
+    .filter(Boolean);
+});
+
+const currentSection = computed(
+  () => sections.find((s) => s.key === activeSection.value) || sections[0],
+);
+
+// 切換大分類時，自動跳到該分類的第一個 section
+watch(activeGroup, () => {
+  const first = currentGroupSections.value[0];
+  if (first) activeSection.value = first.key;
+});
 
 // Load config and meta
 async function loadAll() {
@@ -324,22 +403,6 @@ onMounted(async () => {
 
 .validation-alert {
   margin-bottom: 0 !important;
-}
-
-.config-tabs :deep(.el-tabs__header) {
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.config-tabs :deep(.el-tabs__nav) {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.config-tabs :deep(.el-tabs__item) {
-  font-size: 12px;
-  padding: 8px 12px;
 }
 
 .json-collapse {
