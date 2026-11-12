@@ -161,7 +161,7 @@ const sections = [
   { key: "buy", label: "買入設定", fields: ["minDropPercentToConsider", "minWeightScoreToBuy", "dropScoreRules", "rsi", "macd", "kd", "panic", "entryGate"] },
   { key: "sell", label: "賣出設定", fields: ["minUpPercentToSell", "minSignalCountToSell", "rsi", "kd", "trailingStop"] },
   { key: "allocation", label: "資金分配", fields: ["allocation"] },
-  { key: "threshold", label: "系統閾值", fields: Object.keys((currentConfig.value.threshold || {})) },
+  { key: "threshold", label: "系統閾值", fields: [] },
   { key: "valuationGuard", label: "估值守衛", fields: ["enabled", "minHistoryDays", "tiers", "trailingStop", "panicDrop", "latch"] },
   { key: "valuationMomentum", label: "估值動能", fields: ["enabled", "lookbackDays", "risingThreshold", "fallingThreshold", "risingPenaltyMultiplier", "fallingRelief", "extremePRThreshold"] },
   { key: "macroSentiment", label: "總經情緒", fields: ["enabled", "bullishBonus", "bearishPenalty", "bearishCooldownMultiplier", "vixOverrideTrigger", "vixAbsoluteOverride"] },
@@ -169,16 +169,25 @@ const sections = [
   { key: "conversionGuard", label: "獲利轉化", fields: ["enabled", "tiers", "allocation"] },
   { key: "lifecycle", label: "生命週期", fields: ["currentAge", "monthlyDcaAmount", "payDay", "preInjectDays", "retirementAge", "profiles"] },
   { key: "reserve", label: "資產儲備", fields: ["tiers"] },
-  { key: "leverage", label: "槓桿設定", fields: [] },
-  { key: "conversionGuard", label: "獲利轉化", fields: ["enabled", "tiers", "allocation"] },
   { key: "overrideHierarchy", label: "覆寫層級", fields: ["panicBypassEnabled", "panicBypassDropPct", "panicVixThreshold"] },
   { key: "regime", label: "市場機制", fields: ["vixOverrideTrigger", "vixAbsoluteOverride", "cautiousLeverageReductionPct", "regimeProfiles"] },
   { key: "dynamicDeleverage", label: "動態去槓桿", fields: ["sellRatio", "triggerRatio", "targetRatio"] },
   { key: "scoringMatrix", label: "評分矩陣", fields: ["enabled", "categories", "thresholds", "normalization"] },
-  { key: "valuationMomentum", label: "估值動能", fields: ["enabled", "lookbackDays", "risingThreshold", "fallingThreshold", "risingPenaltyMultiplier", "fallingRelief", "extremePRThreshold"] },
 ];
 
 // Phase 4 P0-4：5 大分類分組
+// P0-5 Bug 4：threshold 欄位動態化（避免模組載入時 currentConfig 為 {} 導致永遠空陣列）
+const thresholdFields = computed(() => {
+  const threshold = currentConfig.value?.threshold;
+  return threshold && typeof threshold === "object" ? Object.keys(threshold) : [];
+});
+
+const resolvedSections = computed(() =>
+  sections.map((s) =>
+    s.key === "threshold" ? { ...s, fields: thresholdFields.value } : s
+  )
+);
+
 const sectionGroups = [
   {
     key: "basic",
@@ -210,7 +219,7 @@ const sectionGroups = [
   {
     key: "allocation",
     label: "配置",
-    sections: ["allocation", "reserve", "conversionGuard", "lifecycle", "leverage"],
+    sections: ["allocation", "reserve", "conversionGuard", "lifecycle"],
   },
 ];
 
@@ -219,12 +228,14 @@ const activeGroup = ref("basic");
 const currentGroupSections = computed(() => {
   const group = sectionGroups.find((g) => g.key === activeGroup.value);
   return (group?.sections ?? [])
-    .map((key) => sections.find((s) => s.key === key))
+    .map((key) => resolvedSections.value.find((s) => s.key === key))
     .filter(Boolean);
 });
 
 const currentSection = computed(
-  () => sections.find((s) => s.key === activeSection.value) || sections[0],
+  () =>
+    resolvedSections.value.find((s) => s.key === activeSection.value) ||
+    resolvedSections.value[0],
 );
 
 // 切換大分類時，自動跳到該分類的第一個 section
@@ -283,7 +294,6 @@ function getSectionErrors(sectionKey) {
 // Field update handler
 function handleFieldUpdate({ path, value }) {
   setNestedValue(editableConfig.value, path, value);
-  hasChanges.value = true;
   validateCurrentConfig();
 }
 
