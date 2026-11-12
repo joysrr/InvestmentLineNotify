@@ -131,7 +131,7 @@ describe("ChartView", () => {
     await qtyChip.trigger("click");
     await flushPromises();
     const qtyOption = chart.props("option");
-    expect(qtyOption.series[0].lineStyle.color).toBe("#26a17b");
+    expect(qtyOption.series[0].lineStyle.color).toBe("var(--iln-ok-text)");
     expect(qtyOption.tooltip.formatter([{ dataIndex: 0 }])).toContain("股");
   });
 

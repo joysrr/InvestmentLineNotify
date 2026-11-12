@@ -1,5 +1,11 @@
 <template>
-  <div class="app-container">
+  <div
+    class="app-container"
+    :style="{
+      '--tg-stable-height': `${viewportStableHeight}px`,
+      '--tg-safe-bottom': `${safeAreaInset.bottom}px`,
+    }"
+  >
     <main class="app-main">
       <keep-alive :max="5">
         <router-view />
@@ -18,7 +24,7 @@ import { useTelegram } from "./composables/useTelegram.js";
 import FloatingPill from "./components/FloatingPill.vue";
 import AuthExpiredModal from "./components/common/AuthExpiredModal.vue";
 
-const { expand, backButton, viewportHeight, setHeaderColor, setBackgroundColor } =
+const { expand, backButton, viewportHeight, viewportStableHeight, safeAreaInset, setHeaderColor, setBackgroundColor } =
   useTelegram();
 const router = useRouter();
 const route = useRoute();
@@ -90,7 +96,7 @@ onUnmounted(() => {
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   padding-bottom: calc(
-    var(--bottom-nav-height, 96px) + env(safe-area-inset-bottom, 0px)
+    var(--bottom-nav-height, 80px) + var(--tg-safe-bottom, 0px)
   );
 }
 </style>

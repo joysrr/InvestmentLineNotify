@@ -185,6 +185,149 @@ describe("useTelegram", () => {
       );
     });
 
+    describe("useTelegram Phase 5 new capabilities", () => {
+      const buildTg5 = (overrides = {}) => ({
+        HapticFeedback: {
+          impactOccurred: vi.fn(),
+          notificationOccurred: vi.fn(),
+        },
+        setHeaderColor: vi.fn(),
+        setBackgroundColor: vi.fn(),
+        enableClosingConfirmation: vi.fn(),
+        disableClosingConfirmation: vi.fn(),
+        MainButton: { show: vi.fn(), hide: vi.fn(), setText: vi.fn() },
+        onEvent: vi.fn(),
+        offEvent: vi.fn(),
+        viewportHeight: 800,
+        viewportStableHeight: 750,
+        colorScheme: "light",
+        themeParams: { bg_color: "#ffffff" },
+        safeAreaInset: { top: 0, bottom: 34, left: 0, right: 0 },
+        ...overrides,
+      });
+
+      it("exposes viewportStableHeight reactive ref", () => {
+        const tg = buildTg5();
+        window.Telegram = { WebApp: tg };
+
+        const telegram = useTelegram();
+
+        expect(telegram.viewportStableHeight.value).toBe(750);
+      });
+
+      it("exposes safeAreaInset reactive ref", () => {
+        const tg = buildTg5();
+        window.Telegram = { WebApp: tg };
+
+        const telegram = useTelegram();
+
+        expect(telegram.safeAreaInset.value).toEqual({
+          top: 0,
+          bottom: 34,
+          left: 0,
+          right: 0,
+        });
+      });
+
+      it("syncs viewportStableHeight from viewportChanged event payload", () => {
+        const tg = buildTg5();
+        window.Telegram = { WebApp: tg };
+
+        const { value: telegram } = mountComposable(() => useTelegram());
+
+        const onViewportChanged = tg.onEvent.mock.calls.find(
+          (c) => c[0] === "viewportChanged",
+        )[1];
+
+        onViewportChanged({
+          viewportHeight: 850,
+          viewportStableHeight: 800,
+        });
+
+        expect(telegram.viewportStableHeight.value).toBe(800);
+        expect(telegram.viewportHeight.value).toBe(850);
+      });
+
+      it("falls back to tg.viewportStableHeight when event lacks payload", () => {
+        const tg = buildTg5();
+        window.Telegram = { WebApp: tg };
+
+        const { value: telegram } = mountComposable(() => useTelegram());
+
+        const onViewportChanged = tg.onEvent.mock.calls.find(
+          (c) => c[0] === "viewportChanged",
+        )[1];
+
+        onViewportChanged({});
+
+        expect(telegram.viewportStableHeight.value).toBe(750);
+      });
+
+      it("registers safeAreaChanged on mount and unregisters on unmount", () => {
+        const tg = buildTg5();
+        window.Telegram = { WebApp: tg };
+
+        const { wrapper } = mountComposable(() => useTelegram());
+
+        expect(tg.onEvent).toHaveBeenCalledWith(
+          "safeAreaChanged",
+          expect.any(Function),
+        );
+        expect(tg.offEvent).not.toHaveBeenCalled();
+
+        wrapper.unmount();
+
+        expect(tg.offEvent).toHaveBeenCalledWith(
+          "safeAreaChanged",
+          expect.any(Function),
+        );
+      });
+
+      it("reads safeAreaInset from Telegram on mount", () => {
+        const tg = buildTg5();
+        window.Telegram = { WebApp: tg };
+
+        mountComposable(() => useTelegram());
+
+        expect(tg.onEvent).toHaveBeenCalledWith(
+          "safeAreaChanged",
+          expect.any(Function),
+        );
+      });
+
+      it("handleThemeChanged calls setHeaderColor and setBackgroundColor with bg_color", () => {
+        const tg = buildTg5();
+        window.Telegram = { WebApp: tg };
+
+        mountComposable(() => useTelegram());
+
+        const onThemeChanged = tg.onEvent.mock.calls.find(
+          (c) => c[0] === "themeChanged",
+        )[1];
+
+        onThemeChanged();
+
+        expect(tg.setHeaderColor).toHaveBeenCalledWith("#ffffff");
+        expect(tg.setBackgroundColor).toHaveBeenCalledWith("#ffffff");
+      });
+
+      it("handleThemeChanged falls back to dark color when themeParams.bg_color absent", () => {
+        const tg = buildTg5({ themeParams: {}, colorScheme: "dark" });
+        window.Telegram = { WebApp: tg };
+
+        mountComposable(() => useTelegram());
+
+        const onThemeChanged = tg.onEvent.mock.calls.find(
+          (c) => c[0] === "themeChanged",
+        )[1];
+
+        onThemeChanged();
+
+        expect(tg.setHeaderColor).toHaveBeenCalledWith("#1a1a1a");
+        expect(tg.setBackgroundColor).toHaveBeenCalledWith("#1a1a1a");
+      });
+    });
+
     it("gracefully degrades when Telegram SDK is absent", () => {
       delete window.Telegram;
       const { value } = mountComposable(() => useTelegram());

@@ -1,6 +1,6 @@
 <template>
   <div class="nav-container">
-    <nav class="floating-pill" ref="pillRef">
+    <nav ref="pillEl" class="floating-pill" :style="{ bottom: pillBottom }">
       <router-link
         v-for="tab in tabs"
         :key="tab.to"
@@ -20,43 +20,55 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import { tabs } from "../config/tabsConfig.js";
 import { useIOSSwipeGuard } from "../composables/useIOSSwipeGuard.js";
+import { useTelegram } from "../composables/useTelegram.js";
 
-const pillRef = ref(null);
+const pillEl = ref(null);
 const route = useRoute();
-useIOSSwipeGuard(pillRef);
+useIOSSwipeGuard(pillEl);
+
+const { viewportStableHeight, safeAreaInset } = useTelegram();
 
 // Phase 5 A3：量測 pill 高度，寫入 --bottom-nav-height
 const BOTTOM_OFFSET = 16; // 與 CSS .nav-container bottom 偏移一致
 const BUFFER = 8; // 陰影緩衝
 
 let resizeObserver = null;
+let stopWatchSafeArea = null;
 
-const updateNavHeight = () => {
-  const pill = pillRef.value;
+const pillBottom = computed(() => {
+  if (typeof window === "undefined") return "0px";
+  const viewportDelta = Math.max(0, window.innerHeight - viewportStableHeight.value);
+  return `${viewportDelta + safeAreaInset.value.bottom}px`;
+});
+
+const syncPillHeight = () => {
+  const pill = pillEl.value;
   if (!pill) return;
   const rect = pill.getBoundingClientRect();
   if (rect.height > 0) {
     const total = Math.ceil(rect.height + BOTTOM_OFFSET * 2 + BUFFER);
     document.documentElement.style.setProperty(
       "--bottom-nav-height",
-      `${total}px`
+      `${total}px`,
     );
   }
 };
 
 onMounted(() => {
-  updateNavHeight();
-  if (typeof ResizeObserver !== "undefined" && pillRef.value) {
-    resizeObserver = new ResizeObserver(updateNavHeight);
-    resizeObserver.observe(pillRef.value);
+  syncPillHeight();
+  stopWatchSafeArea = watch(() => safeAreaInset.value.bottom, syncPillHeight);
+  if (typeof ResizeObserver !== "undefined" && pillEl.value) {
+    resizeObserver = new ResizeObserver(syncPillHeight);
+    resizeObserver.observe(pillEl.value);
   }
 });
 
 onUnmounted(() => {
+  stopWatchSafeArea?.();
   resizeObserver?.disconnect();
   document.documentElement.style.removeProperty("--bottom-nav-height");
 });
@@ -64,8 +76,7 @@ onUnmounted(() => {
 
 <style scoped>
 .nav-container {
-  position: absolute;
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  position: relative;
   left: 12px;
   right: 12px;
   display: flex;
@@ -75,6 +86,7 @@ onUnmounted(() => {
 }
 
 .floating-pill {
+  position: fixed;
   pointer-events: auto;
   display: flex;
   align-items: center;
