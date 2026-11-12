@@ -12,6 +12,18 @@ const StrategyConfigEditorView = () =>
 const StrategyStatusView = () => import("../views/StrategyStatusView.vue");
 const TheoryView = () => import("../views/TheoryView.vue");
 
+export const viewLoaders = {
+  ChartView,
+  NewsView,
+  AccountView,
+  MarketRadarView,
+  MacroBattleView,
+  TechnicalView,
+  StrategyConfigEditorView,
+  StrategyStatusView,
+  TheoryView,
+};
+
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
