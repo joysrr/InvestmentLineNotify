@@ -5,11 +5,12 @@ import AutoImport from "unplugin-auto-import/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import path from "path";
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(async ({ mode }) => {
   const isTest = process.env.VITEST || mode === "test";
   const elementPlusResolver = ElementPlusResolver({
     importStyle: isTest ? false : "css",
   });
+  const { visualizer } = await import("rollup-plugin-visualizer");
 
   return {
     plugins: [
@@ -85,6 +86,12 @@ export default defineConfig(({ mode }) => {
             .replace("<!-- DEBUG_TOOL_PLACEHOLDER -->", debugScript);
         },
       },
+      visualizer({
+        filename: "dist/stats.html",
+        gzipSize: true,
+        brotliSize: true,
+        open: false,
+      }),
       ...(process.env.VITEST || mode === "test"
         ? [
             {
