@@ -1,0 +1,188 @@
+/* ── InvestmentLineNotify Design Tokens ──
+   位置：webapp/src/styles/tokens.css
+   命名規則：--iln- 前綴，避免與 Telegram --tg-theme-* 衝突
+   參考：docs/design/DESIGN_PRINCIPLES.md §2
+── */
+
+:root {
+  /* ── 品牌色（單一識別色） ── */
+  --iln-brand: #2481cc;
+  --iln-brand-hover: #1c6699;
+  --iln-brand-soft: rgba(36, 129, 204, 0.08);
+  --iln-brand-strong: rgba(36, 129, 204, 0.15);
+
+  /* ── 語意色（狀態用） ── */
+  --iln-ok: #10b981;
+  --iln-warn: #f59e0b;
+  --iln-danger: #ef4444;
+  --iln-info: #3b82f6;
+  --iln-neutral: #94a3b8;
+
+  /* ── 語意背景（卡片底色） ── */
+  --iln-ok-bg: rgba(16, 185, 129, 0.1);
+  --iln-warn-bg: rgba(245, 158, 11, 0.1);
+  --iln-danger-bg: rgba(239, 68, 68, 0.1);
+  --iln-info-bg: rgba(59, 130, 246, 0.1);
+
+  /* ── 語意文字（深色模式安全） ── */
+  --iln-ok-text: #059669;
+  --iln-warn-text: #b45309;
+  --iln-danger-text: #dc2626;
+  --iln-info-text: #1d4ed8;
+
+  /* ── 語意邊框 ── */
+  --iln-border-subtle: rgba(0, 0, 0, 0.06);
+  --iln-border-default: rgba(0, 0, 0, 0.1);
+  --iln-border-strong: rgba(0, 0, 0, 0.15);
+
+  /* ── 字型（7 級 scale） ── */
+  --iln-font-xs: 10px;
+  --iln-font-sm: 12px;
+  --iln-font-base: 14px;
+  --iln-font-md: 16px;
+  --iln-font-lg: 20px;
+  --iln-font-xl: 24px;
+  --iln-font-2xl: 32px;
+
+  /* ── 字重（4 級） ── */
+  --iln-weight-normal: 400;
+  --iln-weight-medium: 500;
+  --iln-weight-semibold: 600;
+  --iln-weight-bold: 700;
+
+  /* ── 行高 ── */
+  --iln-leading-tight: 1.2;
+  --iln-leading-normal: 1.5;
+  --iln-leading-relaxed: 1.6;
+
+  /* ── 字族 ── */
+  --iln-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+  --iln-font-mono: "SF Mono", Monaco, Consolas, monospace;
+
+  /* ── 間距（8pt grid，允許 4px 半格） ── */
+  --iln-space-1: 4px;
+  --iln-space-2: 8px;
+  --iln-space-3: 12px;
+  --iln-space-4: 16px;
+  --iln-space-5: 20px;
+  --iln-space-6: 24px;
+  --iln-space-8: 32px;
+  --iln-space-10: 40px;
+  --iln-space-12: 48px;
+
+  /* ── 圓角 ── */
+  --iln-radius-sm: 8px;
+  --iln-radius-md: 12px;
+  --iln-radius-lg: 16px;
+  --iln-radius-xl: 24px;
+  --iln-radius-full: 9999px;
+
+  /* ── 陰影（3 級 elevation） ── */
+  --iln-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --iln-shadow-2: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --iln-shadow-3: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* ── 動效 ── */
+  --iln-duration-fast: 150ms;
+  --iln-duration-base: 200ms;
+  --iln-duration-slow: 300ms;
+  --iln-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --iln-ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+
+  /* ── 觸控目標 ── */
+  --iln-touch-min: 44px;
+  --iln-touch-comfort: 48px;
+}
+
+/* 深色模式覆寫（Telegram 深色主題時） */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --iln-brand-soft: rgba(36, 129, 204, 0.15);
+    --iln-brand-strong: rgba(36, 129, 204, 0.25);
+    --iln-ok-bg: rgba(16, 185, 129, 0.15);
+    --iln-warn-bg: rgba(245, 158, 11, 0.15);
+    --iln-danger-bg: rgba(239, 68, 68, 0.15);
+    --iln-info-bg: rgba(59, 130, 246, 0.15);
+    --iln-ok-text: #34d399;
+    --iln-warn-text: #fbbf24;
+    --iln-danger-text: #f87171;
+    --iln-info-text: #60a5fa;
+    --iln-border-subtle: rgba(255, 255, 255, 0.08);
+    --iln-border-default: rgba(255, 255, 255, 0.12);
+    --iln-border-strong: rgba(255, 255, 255, 0.18);
+  }
+}
+
+/* ── Spinner 統一規格（§3.3） ── */
+.iln-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--tg-theme-hint-color, #ddd);
+  border-top-color: var(--iln-brand);
+  border-radius: 50%;
+  animation: iln-spin 0.8s linear infinite;
+}
+
+@keyframes iln-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Primary Tab（§3.1） ── */
+.iln-tabs-primary {
+  display: flex;
+  background: var(--tg-theme-secondary-bg-color, rgba(0, 0, 0, 0.05));
+  padding: var(--iln-space-1);
+  border-radius: var(--iln-radius-md);
+  gap: var(--iln-space-1);
+}
+
+.iln-tab {
+  flex: 1;
+  min-height: var(--iln-touch-min);
+  padding: var(--iln-space-2) var(--iln-space-3);
+  font-size: var(--iln-font-base);
+  font-weight: var(--iln-weight-semibold);
+  color: var(--tg-theme-hint-color, #777);
+  background: transparent;
+  border: none;
+  border-radius: var(--iln-radius-sm);
+  transition: all var(--iln-duration-fast) var(--iln-ease-standard);
+}
+
+.iln-tab.is-active {
+  background: var(--tg-theme-bg-color, #fff);
+  color: var(--iln-brand);
+  box-shadow: var(--iln-shadow-1);
+}
+
+/* ── Secondary Tab（§3.1） ── */
+.iln-tabs-secondary {
+  display: flex;
+  border-bottom: 1px solid var(--iln-border-subtle);
+}
+
+.iln-tabs-secondary .iln-tab {
+  min-height: var(--iln-touch-min);
+  padding: var(--iln-space-3) var(--iln-space-4);
+  border: none;
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  color: var(--tg-theme-hint-color, #999);
+  font-size: var(--iln-font-base);
+  font-weight: var(--iln-weight-medium);
+}
+
+.iln-tabs-secondary .iln-tab.is-active {
+  color: var(--iln-brand);
+  border-bottom-color: var(--iln-brand);
+  font-weight: var(--iln-weight-semibold);
+}
+
+/* ── Error Inline（§3.4） ── */
+.iln-error-inline {
+  padding: var(--iln-space-3) var(--iln-space-4);
+  font-size: var(--iln-font-base);
+  color: var(--iln-danger-text);
+  background: var(--iln-danger-bg);
+  border-radius: var(--iln-radius-md);
+}

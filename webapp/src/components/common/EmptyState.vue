@@ -5,7 +5,10 @@
         <div class="empty-title">{{ displayTitle }}</div>
         <div v-if="displayMessage" class="empty-message">{{ displayMessage }}</div>
       </template>
-      <template v-if="icon" #image>
+      <template v-if="emoji" #image>
+        <div class="empty-emoji">{{ emoji }}</div>
+      </template>
+      <template v-else-if="icon" #image>
         <el-icon :size="iconSize" :color="iconColor">
           <component :is="icon" />
         </el-icon>
@@ -42,6 +45,11 @@ const props = defineProps({
     default: "",
   },
   message: {
+    type: String,
+    default: "",
+  },
+  // emoji 作為圖示（與 icon / imageUrl 互斥，優先於 icon）
+  emoji: {
     type: String,
     default: "",
   },
@@ -132,5 +140,9 @@ export default {
 .empty-message {
   font-size: 14px;
   color: var(--el-text-color-secondary, #909399);
+}
+.empty-emoji {
+  font-size: 64px;
+  line-height: 1;
 }
 </style>

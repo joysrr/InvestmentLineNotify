@@ -97,6 +97,8 @@
   color: var(--tg-theme-hint-color, #888);
 }
 
+/* Design tokens: webapp/src/styles/tokens.css (see docs/design/DESIGN_PRINCIPLES.md §2) */
+
 /* ============================================================
    Button Groups - 統一按鈕群組
    ============================================================ */
