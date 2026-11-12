@@ -262,7 +262,7 @@ function formatPercent(value) {
 }
 
 .timeline-item.target {
-  border: 2px solid #4caf50;
+  border: 2px solid var(--iln-ok-text);
 }
 
 .timeline-label {
@@ -426,15 +426,15 @@ function formatPercent(value) {
 }
 
 .te-value.te-low {
-  color: #4caf50;
+  color: var(--iln-ok-text);
 }
 
 .te-value.te-moderate {
-  color: #ff9800;
+  color: var(--iln-warn-text);
 }
 
 .te-value.te-high {
-  color: #f44336;
+  color: var(--iln-danger-text);
 }
 
 .te-explanation {
@@ -454,7 +454,7 @@ function formatPercent(value) {
   padding: 14px;
   background: var(--tg-theme-secondary-bg-color, #f5f5f5);
   border-radius: 10px;
-  border-left: 4px solid #ccc;
+  border-left: 4px solid var(--iln-border-subtle, #ccc);
 }
 
 .age-phase.current {
@@ -506,7 +506,7 @@ function formatPercent(value) {
 .advantage-item {
   padding: 14px;
   background: rgba(76, 175, 80, 0.08);
-  border-left: 3px solid #4caf50;
+  border-left: 3px solid var(--iln-ok-text);
   border-radius: 8px;
 }
 
@@ -525,7 +525,7 @@ function formatPercent(value) {
 }
 
 .advantage-text strong {
-  color: #4caf50;
+  color: var(--iln-ok-text);
   font-weight: 600;
 }
 
@@ -550,11 +550,11 @@ function formatPercent(value) {
 
 .warning-box {
   background: rgba(255, 152, 0, 0.1);
-  border-left: 4px solid #ff9800;
+  border-left: 4px solid var(--iln-warn-text);
 }
 
 .disclaimer-box {
   background: rgba(158, 158, 158, 0.1);
-  border-left: 4px solid #9e9e9e;
+  border-left: 4px solid var(--tg-theme-hint-color, #9e9e9e);
 }
 </style>

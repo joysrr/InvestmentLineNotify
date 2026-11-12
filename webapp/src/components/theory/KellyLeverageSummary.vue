@@ -271,7 +271,7 @@ const leverageStatusText = computed(() => {
 .leverage-bar-track {
   position: relative;
   height: 8px;
-  background: #e0e0e0;
+  background: var(--tg-theme-secondary-bg-color, #e0e0e0);
   border-radius: 4px;
   overflow: visible;
 }
@@ -283,15 +283,15 @@ const leverageStatusText = computed(() => {
 }
 
 .leverage-bar-fill.status-safe {
-  background: #4caf50;
+  background: var(--iln-ok-bg);
 }
 
 .leverage-bar-fill.status-moderate {
-  background: #ff9800;
+  background: var(--iln-warn-bg);
 }
 
 .leverage-bar-fill.status-high {
-  background: #f44336;
+  background: var(--iln-danger-bg);
 }
 
 .leverage-marker {
@@ -329,17 +329,17 @@ const leverageStatusText = computed(() => {
 
 .leverage-status.status-safe {
   background: rgba(76, 175, 80, 0.1);
-  color: #2e7d32;
+  color: var(--iln-ok-text);
 }
 
 .leverage-status.status-moderate {
   background: rgba(255, 152, 0, 0.1);
-  color: #e65100;
+  color: var(--iln-warn-text);
 }
 
 .leverage-status.status-high {
   background: rgba(244, 67, 54, 0.1);
-  color: #c62828;
+  color: var(--iln-danger-text);
 }
 
 .leverage-status.status-unknown {
@@ -385,7 +385,7 @@ const leverageStatusText = computed(() => {
 
 .comparison-label {
   font-size: 10px;
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
   text-transform: uppercase;
   letter-spacing: 0.4px;
   margin-bottom: 4px;
@@ -404,10 +404,10 @@ const leverageStatusText = computed(() => {
 }
 
 .gap-negative .comparison-value {
-  color: #c62828;
+  color: var(--iln-danger-text);
 }
 
 .gap-neutral .comparison-value {
-  color: #757575;
+  color: var(--tg-theme-hint-color, #757575);
 }
 </style>

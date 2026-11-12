@@ -231,15 +231,15 @@ const trueExposureClass = computed(() => {
 }
 
 .te-value.te-low {
-  color: #4caf50;
+  color: var(--iln-ok-text);
 }
 
 .te-value.te-moderate {
-  color: #ff9800;
+  color: var(--iln-warn-text);
 }
 
 .te-value.te-high {
-  color: #f44336;
+  color: var(--iln-danger-text);
 }
 
 .te-hint {

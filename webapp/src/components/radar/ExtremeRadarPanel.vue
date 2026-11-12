@@ -645,7 +645,7 @@ function formatMoney(amount) {
   border-radius: 8px;
   padding: 8px 10px;
   border-left: 3px solid var(--iln-danger-text);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--iln-border-subtle);
   border-left-width: 3px;
 }
 

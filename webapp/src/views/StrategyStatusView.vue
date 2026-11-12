@@ -51,39 +51,40 @@
           <span class="section-badge" :class="scoreClass">{{ health.weightScore.total }}pt</span>
         </div>
         <div class="score-breakdown">
+          <!-- 業務語義色：跌幅評分（粉紅） -->
           <ScoreBar 
             label="跌幅評分" 
             :value="health.weightScore.dropScore" 
-            :max="5" 
+            :max="5"
             color="#e91e63"
             :description="getDropScoreDesc(health.weightScore.dropScore)"
           />
+          <!-- 業務語義色：RSI 評分（藍色） -->
           <ScoreBar 
             label="RSI 評分" 
             :value="health.weightScore.rsiScore" 
-            :max="5" 
+            :max="5"
             color="#2196f3"
             :description="getRsiScoreDesc(health.weightScore.rsiScore)"
           />
+          <!-- 業務語義色：MACD 評分（橘色） -->
           <ScoreBar 
             label="MACD 評分" 
             :value="health.weightScore.macdScore" 
-            :max="5" 
+            :max="5"
             color="#ff9800"
             :description="getMacdScoreDesc(health.weightScore.macdScore)"
           />
           <ScoreBar 
             label="KD 評分" 
             :value="health.weightScore.kdScore" 
-            :max="5" 
-            color="#9c27b0"
+            :max="5"
             :description="getKdScoreDesc(health.weightScore.kdScore)"
           />
           <ScoreBar 
             label="情緒加成" 
             :value="health.weightScore.sentimentScore" 
-            :max="5" 
-            color="#607d8b"
+            :max="5"
             :description="getSentimentScoreDesc(health.weightScore.sentimentScore)"
           />
         </div>
@@ -558,12 +559,12 @@ onMounted(async () => {
 }
 .status-subtitle {
   font-size: 13px;
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
   margin: 0 0 12px;
 }
 .last-updated {
   font-size: 11px;
-  color: #aaa;
+  color: var(--tg-theme-hint-color, #aaa);
 }
 
 .status-skeleton {
@@ -573,7 +574,7 @@ onMounted(async () => {
 }
 .sk-card {
   height: 120px;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, var(--tg-theme-secondary-bg-color, #f0f0f0) 25%, var(--tg-theme-secondary-bg-color, #e0e0e0) 50%, var(--tg-theme-secondary-bg-color, #f0f0f0) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 12px;
@@ -681,18 +682,18 @@ onMounted(async () => {
 }
 .cooldown-message {
   font-size: 12px;
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
   margin-top: 2px;
 }
 .cooldown-detail {
   display: flex;
   gap: 8px;
   font-size: 12px;
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
   padding-top: 4px;
   border-top: 1px solid rgba(0,0,0,0.06);
 }
-.detail-label { color: #888; }
+.detail-label { color: var(--tg-theme-hint-color, #888); }
 .detail-value { font-weight: 500; }
 
 /* Allocation Tiers */
@@ -710,7 +711,7 @@ onMounted(async () => {
   border-radius: 12px;
   margin-top: 8px;
 }
-.next-label { font-size: 12px; color: #888; }
+.next-label { font-size: 12px; color: var(--tg-theme-hint-color, #888); }
 .next-score { font-weight: 600; color: var(--iln-info-text); }
 
 /* Thresholds */
@@ -743,7 +744,7 @@ onMounted(async () => {
   padding-top: 12px;
   border-top: 1px solid rgba(0,0,0,0.06);
 }
-.type-label { font-size: 12px; color: #888; }
+.type-label { font-size: 12px; color: var(--tg-theme-hint-color, #888); }
 .type-badge {
   padding: 2px 8px;
   border-radius: 10px;
@@ -791,11 +792,11 @@ onMounted(async () => {
   justify-content: space-between;
   font-size: 13px;
 }
-.detail-label { color: #888; }
+.detail-label { color: var(--tg-theme-hint-color, #888); }
 .detail-value { font-weight: 500; }
 .signal-direction.text-buy { color: var(--iln-ok-text); }
 .signal-direction.text-sell { color: var(--iln-danger-text); }
-.signal-direction.text-wait { color: #6a1b9a; }
+.signal-direction.text-wait { color: var(--iln-brand); }
 
 /* Lifecycle */
 .lifecycle-card {
@@ -837,7 +838,7 @@ onMounted(async () => {
 }
 .budget-item .label, .lifecycle-item .label, .risk-item .label, .metric-item .label, .threshold-item .label {
   font-size: 11px;
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
@@ -849,7 +850,7 @@ onMounted(async () => {
 }
 .budget-item .unit, .lifecycle-item .unit, .risk-item .unit, .metric-item .unit, .threshold-item .unit {
   font-size: 10px;
-  color: #aaa;
+  color: var(--tg-theme-hint-color, #aaa);
   margin-left: 2px;
 }
 
@@ -901,7 +902,7 @@ onMounted(async () => {
 }
 .tier-score {
   font-size: 12px;
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
   min-width: 60px;
   text-align: right;
 }
@@ -926,13 +927,13 @@ onMounted(async () => {
   min-width: 80px;
 }
 .tier-leverage { font-weight: 600; font-size: 14px; }
-.tier-cash { font-size: 11px; color: #888; }
-.tier-comment { font-size: 10px; color: #aaa; margin-top: 2px; }
+.tier-cash { font-size: 11px; color: var(--tg-theme-hint-color, #888); }
+.tier-comment { font-size: 10px; color: var(--tg-theme-hint-color, #aaa); margin-top: 2px; }
 
 /* Utility */
 .text-buy { color: var(--iln-ok-text); }
 .text-sell { color: var(--iln-danger-text); }
-.text-wait { color: #6a1b9a; }
+.text-wait { color: var(--iln-brand); }
 .text-ok { color: var(--iln-ok-text); }
 .text-warn { color: var(--iln-warn-text); }
 .text-danger { color: var(--iln-danger-text); }

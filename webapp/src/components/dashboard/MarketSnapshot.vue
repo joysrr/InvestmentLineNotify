@@ -104,12 +104,12 @@ defineProps({
   font-size: 20px;
 }
 .card-danger {
-  border-left: 3px solid #e84855;
+  border-left: 3px solid var(--iln-danger-text);
 }
 .card-warn {
-  border-left: 3px solid #d4ac0d;
+  border-left: 3px solid var(--iln-warn-text);
 }
 .card-ok {
-  border-left: 3px solid #26a17b;
+  border-left: 3px solid var(--iln-ok-text);
 }
 </style>

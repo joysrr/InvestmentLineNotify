@@ -292,10 +292,10 @@ const chartOption = computed(() => {
 
   const lineColor =
     metric.value === "totalLoan"
-      ? "#e84855"
+      ? "var(--iln-danger-text)"
       : metric.value === "netValueMarket"
-        ? "#2481cc"
-        : "#26a17b";
+        ? "var(--iln-brand)"
+        : "var(--iln-ok-text)";
 
   const markLine =
     metric.value === "netValueMarket"

@@ -295,7 +295,7 @@ function getNestedValue(obj, path) {
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #333;
+  color: var(--tg-theme-text-color, #333);
 }
 
 .label-text {
@@ -304,14 +304,14 @@ function getNestedValue(obj, path) {
 
 .label-unit {
   font-size: var(--iln-font-xs);
-  color: #999;
+  color: var(--tg-theme-hint-color, #999);
   background: var(--iln-surface);
   padding: 2px 6px;
   border-radius: var(--iln-radius-sm);
 }
 
 .help-icon {
-  color: #999;
+  color: var(--tg-theme-hint-color, #999);
   cursor: help;
   font-size: 14px;
 }
@@ -347,7 +347,7 @@ function getNestedValue(obj, path) {
 
 .unsupported-label {
   display: block;
-  color: #999;
+  color: var(--tg-theme-hint-color, #999);
   font-size: 12px;
   margin-bottom: 8px;
 }
@@ -355,14 +355,14 @@ function getNestedValue(obj, path) {
 .raw-value {
   margin: 0;
   font-size: 11px;
-  color: #666;
+  color: var(--tg-theme-hint-color, #666);
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .range-hint {
   font-size: 11px;
-  color: #999;
+  color: var(--tg-theme-hint-color, #999);
   display: flex;
   gap: 12px;
 }

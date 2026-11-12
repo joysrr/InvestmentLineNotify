@@ -49,10 +49,10 @@ const trendClass = computed(() => {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 .metric-card--up {
-  border-left: 4px solid #26a17b;
+  border-left: 4px solid var(--iln-ok-text);
 }
 .metric-card--down {
-  border-left: 4px solid #e84855;
+  border-left: 4px solid var(--iln-danger-text);
 }
 .metric-icon {
   font-size: 22px;
@@ -65,7 +65,7 @@ const trendClass = computed(() => {
 .metric-title {
   font-size: 11px;
   font-weight: 600;
-  color: #999;
+  color: var(--tg-theme-hint-color, #999);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   margin-bottom: 4px;
@@ -76,15 +76,15 @@ const trendClass = computed(() => {
 .metric-value {
   font-size: 16px;
   font-weight: 700;
-  color: #222;
+  color: var(--tg-theme-text-color, #222);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .metric-value.text-up {
-  color: #26a17b;
+  color: var(--iln-ok-text);
 }
 .metric-value.text-down {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 </style>

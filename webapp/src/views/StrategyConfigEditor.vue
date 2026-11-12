@@ -397,7 +397,7 @@ onMounted(async () => {
 
 .editor-subtitle {
   font-size: 13px;
-  color: #999;
+  color: var(--tg-theme-hint-color, #999);
   margin-top: 4px;
 }
 

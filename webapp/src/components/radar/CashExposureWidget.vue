@@ -130,13 +130,13 @@ const leverageGap = computed(() => {
   color: var(--vp-c-brand);
 }
 .text-warning {
-  color: #fbbf24;
+  color: var(--iln-warn-text);
 }
 .text-danger {
-  color: #ef4444;
+  color: var(--iln-danger-text);
 }
 .text-muted {
-  color: #94a3b8;
+  color: var(--tg-theme-hint-color, #94a3b8);
 }
 .dc-row {
   display: flex;
@@ -158,7 +158,7 @@ const leverageGap = computed(() => {
 /* Section title */
 .section-title {
   font-size: 11px;
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-top: 10px;
@@ -182,7 +182,7 @@ const leverageGap = computed(() => {
 
 .metric-label {
   font-size: 10px;
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;

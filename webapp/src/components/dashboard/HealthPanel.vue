@@ -159,7 +159,7 @@ const getCompDisplayValue = (comp) => {
   align-items: center;
   overflow: hidden;
   box-shadow: 0 12px 32px rgba(36, 129, 204, 0.25);
-  color: #fff;
+  color: var(--tg-theme-text-color, #fff);
 }
 .health-hero-v2.green {
   background: linear-gradient(135deg, #2481cc 0%, #1c639e 100%);
@@ -237,7 +237,7 @@ const getCompDisplayValue = (comp) => {
 .comp-name {
   font-size: 12px;
   font-weight: 600;
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
 }
 .comp-body {
   display: flex;
@@ -250,7 +250,7 @@ const getCompDisplayValue = (comp) => {
 }
 .comp-sub {
   font-size: 11px;
-  color: #999;
+  color: var(--tg-theme-hint-color, #999);
 }
 .comp-status-dot {
   position: absolute;
@@ -307,7 +307,7 @@ const getCompDisplayValue = (comp) => {
   font-weight: 700;
 }
 .dual-vix-sep {
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
   margin: 0 4px;
   font-weight: 700;
 }

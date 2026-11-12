@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 
 /**
  * waitReady() resolves when Telegram.WebApp is fully initialised.
@@ -18,6 +18,15 @@ export function waitReady() {
     // Calling ready() tells Telegram the app has loaded; it also fires
     // any queued internal callbacks that set initData on older clients.
     tg.ready();
+    // 記錄 SDK 版本，供下游判斷能力可用性（6.9 起支援 enableClosingConfirmation）
+    if (
+      typeof tg.isVersionAtLeast === "function" &&
+      !tg.isVersionAtLeast("6.9")
+    ) {
+      console.warn(
+        "[useTelegram] SDK 版本 < 6.9，closing confirmation 與部分 haptic 不可用",
+      );
+    }
     // Give the SDK one microtask to settle (covers edge-cases on iOS)
     Promise.resolve().then(resolve);
   });
@@ -35,6 +44,9 @@ export const colorScheme = ref(
     ? (window.Telegram?.WebApp?.colorScheme ?? "light")
     : "light",
 );
+
+// Phase 5 A1-2：深色模式判斷，讓下游元件不必自己比對 colorScheme === "dark"
+export const isDark = computed(() => colorScheme.value === "dark");
 
 export function useTelegram() {
   const tg = window.Telegram?.WebApp;
@@ -151,5 +163,6 @@ export function useTelegram() {
     // 響應式
     viewportHeight,
     colorScheme,
+    isDark,
   };
 }

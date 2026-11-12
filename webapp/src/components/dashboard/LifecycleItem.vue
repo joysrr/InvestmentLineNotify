@@ -33,7 +33,7 @@ const props = defineProps({
 }
 .lifecycle-item .label {
   font-size: 11px;
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
@@ -45,7 +45,7 @@ const props = defineProps({
 }
 .lifecycle-item .unit {
   font-size: 10px;
-  color: #aaa;
+  color: var(--tg-theme-hint-color, #aaa);
   margin-left: 2px;
 }
 </style>

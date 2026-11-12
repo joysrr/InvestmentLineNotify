@@ -21,7 +21,7 @@ const props = defineProps({
   label: { type: String, required: true },
   value: { type: Number, default: 0 },
   max: { type: Number, default: 5 },
-  color: { type: String, default: "#2196f3" },
+  color: { type: String, default: "var(--iln-brand)" },
   description: { type: String, default: "" },
 });
 
@@ -60,7 +60,7 @@ const percentage = computed(() => Math.min(100, (props.value / props.max) * 100)
 }
 .score-description {
   font-size: 10px;
-  color: #aaa;
+  color: var(--tg-theme-hint-color, #aaa);
   margin-top: 2px;
 }
 </style>

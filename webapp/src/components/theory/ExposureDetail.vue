@@ -354,19 +354,19 @@ const scenarios = computed(() => {
 }
 
 .summary-value.status-safe {
-  color: #4caf50;
+  color: var(--iln-ok-text);
 }
 
 .summary-value.status-moderate {
-  color: #ff9800;
+  color: var(--iln-warn-text);
 }
 
 .summary-value.status-aggressive {
-  color: #ff5722;
+  color: var(--iln-danger-text);
 }
 
 .summary-value.status-extreme {
-  color: #f44336;
+  color: var(--iln-danger-text);
 }
 
 .scenario-list {
@@ -383,19 +383,19 @@ const scenarios = computed(() => {
 }
 
 .scenario-item.mild {
-  border-left-color: #4caf50;
+  border-left-color: var(--iln-ok-text);
 }
 
 .scenario-item.moderate {
-  border-left-color: #ff9800;
+  border-left-color: var(--iln-warn-text);
 }
 
 .scenario-item.severe {
-  border-left-color: #ff5722;
+  border-left-color: var(--iln-danger-text);
 }
 
 .scenario-item.extreme {
-  border-left-color: #f44336;
+  border-left-color: var(--iln-danger-text);
 }
 
 .scenario-header {
@@ -414,7 +414,7 @@ const scenarios = computed(() => {
 .scenario-loss {
   font-size: 15px;
   font-weight: 700;
-  color: #f44336;
+  color: var(--iln-danger-text);
 }
 
 .scenario-result {
@@ -435,24 +435,24 @@ const scenarios = computed(() => {
 }
 
 .result-value.mild {
-  color: #4caf50;
+  color: var(--iln-ok-text);
 }
 
 .result-value.moderate {
-  color: #ff9800;
+  color: var(--iln-warn-text);
 }
 
 .result-value.severe {
-  color: #ff5722;
+  color: var(--iln-danger-text);
 }
 
 .result-value.extreme {
-  color: #f44336;
+  color: var(--iln-danger-text);
 }
 
 .scenario-bar {
   height: 6px;
-  background: #e0e0e0;
+  background: var(--tg-theme-secondary-bg-color, #e0e0e0);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -463,19 +463,19 @@ const scenarios = computed(() => {
 }
 
 .scenario-bar-fill.mild {
-  background: #4caf50;
+  background: var(--iln-ok-bg);
 }
 
 .scenario-bar-fill.moderate {
-  background: #ff9800;
+  background: var(--iln-warn-bg);
 }
 
 .scenario-bar-fill.severe {
-  background: #ff5722;
+  background: var(--iln-danger-bg);
 }
 
 .scenario-bar-fill.extreme {
-  background: #f44336;
+  background: var(--iln-danger-bg);
 }
 
 .scenario-note {
@@ -606,7 +606,7 @@ const scenarios = computed(() => {
 
 .disclaimer-box {
   background: rgba(158, 158, 158, 0.1);
-  border-left: 4px solid #9e9e9e;
+  border-left: 4px solid var(--tg-theme-hint-color, #9e9e9e);
 }
 
 .disclaimer-title {

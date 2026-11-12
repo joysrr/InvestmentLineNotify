@@ -141,7 +141,7 @@ onUnmounted(clearPollTimer);
   border: 0;
   border-radius: 6px;
   background: var(--el-color-danger, #f56c6c);
-  color: #fff;
+  color: var(--tg-theme-text-color, #fff);
   cursor: pointer;
 }
 

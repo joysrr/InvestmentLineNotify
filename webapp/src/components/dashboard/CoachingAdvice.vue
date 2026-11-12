@@ -128,7 +128,7 @@ const thinkingExpanded = ref(false);
   font-size: 11px;
   font-weight: 800;
   background: var(--iln-info);
-  color: #fff;
+  color: var(--tg-theme-text-color, #fff);
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -162,7 +162,7 @@ const thinkingExpanded = ref(false);
 }
 .expand-arrow {
   font-size: 10px;
-  color: #bbb;
+  color: var(--tg-theme-hint-color, #bbb);
   transition: transform 0.2s;
 }
 .ai-list {
@@ -188,10 +188,10 @@ const thinkingExpanded = ref(false);
 .ai-thinking {
   padding: var(--iln-space-3);
   font-size: var(--iln-font-sm);
-  color: #666;
+  color: var(--tg-theme-hint-color, #666);
   font-style: italic;
   line-height: var(--iln-leading-normal);
   background: var(--iln-surface);
-  border-top: 1px solid #f9f9f9;
+  border-top: 1px solid var(--iln-border-subtle, #f9f9f9);
 }
 </style>

@@ -376,17 +376,17 @@ function formatAmount(value) {
 
 .zone-item.safe {
   background: rgba(76, 175, 80, 0.1);
-  border-left-color: #4caf50;
+  border-left-color: var(--iln-ok-text);
 }
 
 .zone-item.moderate {
   background: rgba(255, 152, 0, 0.1);
-  border-left-color: #ff9800;
+  border-left-color: var(--iln-warn-text);
 }
 
 .zone-item.high {
   background: rgba(244, 67, 54, 0.1);
-  border-left-color: #f44336;
+  border-left-color: var(--iln-danger-text);
 }
 
 .zone-header {
@@ -479,11 +479,11 @@ function formatAmount(value) {
 
 .warning-box {
   background: rgba(255, 152, 0, 0.1);
-  border-left: 4px solid #ff9800;
+  border-left: 4px solid var(--iln-warn-text);
 }
 
 .disclaimer-box {
   background: rgba(158, 158, 158, 0.1);
-  border-left: 4px solid #9e9e9e;
+  border-left: 4px solid var(--tg-theme-hint-color, #9e9e9e);
 }
 </style>

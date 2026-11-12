@@ -305,10 +305,10 @@ const directionClass = computed(() => {
   flex-shrink: 0;
 }
 .score-side--bull {
-  color: #26a17b;
+  color: var(--iln-ok-text);
 }
 .score-side--bear {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 .score-track {
   flex: 1;

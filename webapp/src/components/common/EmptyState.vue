@@ -81,7 +81,7 @@ const props = defineProps({
   // Icon 顏色
   iconColor: {
     type: String,
-    default: "#909399",
+    default: "var(--tg-theme-hint-color, #909399)",
   },
   // 行動按鈕文字
   actionText: {

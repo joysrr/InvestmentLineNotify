@@ -141,7 +141,7 @@ const leverageText = computed(() => {
   border-radius: 20px;
   padding: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  border-left: 5px solid #bbb;
+  border-left: 5px solid var(--iln-border-default);
 }
 .summary-banner.sig-green {
   border-left-color: var(--iln-ok);
@@ -171,7 +171,7 @@ const leverageText = computed(() => {
 }
 .banner-title {
   font-size: 12px;
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
 }
 .banner-right {
   margin-left: auto;
@@ -186,12 +186,12 @@ const leverageText = computed(() => {
 }
 .banner-unit {
   font-size: 13px;
-  color: #999;
+  color: var(--tg-theme-hint-color, #999);
 }
 .banner-summary {
   flex-basis: 100%;
   font-size: 13px;
-  color: #666;
+  color: var(--tg-theme-hint-color, #666);
   margin: 0;
   line-height: 1.5;
 }
@@ -219,7 +219,7 @@ const leverageText = computed(() => {
   font-size: 14px;
   font-weight: 700;
   margin: 0 0 12px;
-  color: #333;
+  color: var(--tg-theme-text-color, #333);
 }
 .card-list {
   list-style: none;
@@ -237,12 +237,12 @@ const leverageText = computed(() => {
 }
 .item-label {
   font-size: 13px;
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
 }
 .item-value {
   font-size: 14px;
   font-weight: 700;
-  color: #222;
+  color: var(--tg-theme-text-color, #222);
 }
 .item-value.green {
   color: var(--iln-ok-text);
@@ -262,7 +262,7 @@ const leverageText = computed(() => {
 }
 .card-hint {
   font-size: 12px;
-  color: #bbb;
+  color: var(--tg-theme-hint-color, #bbb);
   text-align: center;
   margin: 12px 0 0;
 }

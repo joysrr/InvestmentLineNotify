@@ -25,7 +25,9 @@ const mockBlob = class MockBlob {
     this.size = content.reduce((sum, c) => sum + c.length, 0);
     this.type = options?.type || "";
   }
-  slice() { return this; }
+  slice() {
+    return this;
+  }
 };
 
 const mockURL = {
@@ -69,7 +71,9 @@ describe("exportUtility.js", () => {
   describe("generateFilename", () => {
     it("generates filename with timestamp", () => {
       const filename = generateFilename("export", "csv");
-      expect(filename).toMatch(/^export-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.csv$/);
+      expect(filename).toMatch(
+        /^export-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.csv$/,
+      );
     });
 
     it("uses custom extension", () => {
@@ -80,7 +84,10 @@ describe("exportUtility.js", () => {
 
   describe("arrayToCSV", () => {
     it("converts array of objects to CSV with header", () => {
-      const data = [{ a: 1, b: "x" }, { a: 2, b: "y" }];
+      const data = [
+        { a: 1, b: "x" },
+        { a: 2, b: "y" },
+      ];
       const csv = arrayToCSV(data);
       expect(csv).toContain("a,b");
       expect(csv).toContain("1,x");
@@ -163,7 +170,7 @@ describe("exportUtility.js", () => {
     it("calls triggerDownload with CSV blob", () => {
       const data = [{ a: 1 }];
       exportCSV(data, "test");
-      
+
       expect(URL.createObjectURL).toHaveBeenCalled();
       expect(mockAnchor.download).toBe("test.csv");
       expect(mockAnchor.click).toHaveBeenCalled();
@@ -172,7 +179,7 @@ describe("exportUtility.js", () => {
     it("uses BOM for UTF-8", () => {
       const data = [{ a: "測試" }];
       exportCSV(data, "test");
-      
+
       // The blob should contain BOM
       const blobArg = URL.createObjectURL.mock.calls[0][0];
       expect(blobArg.content[0]).toContain("\uFEFF");
@@ -183,7 +190,7 @@ describe("exportUtility.js", () => {
     it("calls triggerDownload with JSON blob", () => {
       const data = { key: "value" };
       exportJSON(data, "test");
-      
+
       expect(URL.createObjectURL).toHaveBeenCalled();
       expect(mockAnchor.download).toBe("test.json");
       expect(mockAnchor.click).toHaveBeenCalled();
@@ -192,7 +199,7 @@ describe("exportUtility.js", () => {
     it("uses application/json content type", () => {
       const data = { a: 1 };
       exportJSON(data, "test");
-      
+
       const blobArg = URL.createObjectURL.mock.calls[0][0];
       expect(blobArg.options.type).toBe("application/json;charset=utf-8;");
     });
@@ -205,14 +212,14 @@ describe("exportUtility.js", () => {
 
     it("exports chart as PNG by default", async () => {
       await exportChartAsImage(mockChartInstance, "chart");
-      
+
       expect(mockChartInstance.getDataURL).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "image/png",
           pixelRatio: 2,
-          backgroundColor: "#fff",
+          backgroundColor: "var(--tg-theme-text-color, #fff)",
           excludeComponents: ["toolbox"],
-        })
+        }),
       );
       expect(fetch).toHaveBeenCalledWith("data:image/png;base64,mockdata");
     });
@@ -223,18 +230,20 @@ describe("exportUtility.js", () => {
         pixelRatio: 3,
         backgroundColor: "#000",
       });
-      
+
       expect(mockChartInstance.getDataURL).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "image/jpeg",
           pixelRatio: 3,
           backgroundColor: "#000",
-        })
+        }),
       );
     });
 
     it("throws error when chartInstance is missing", async () => {
-      await expect(exportChartAsImage(null, "chart")).rejects.toThrow("Chart instance is required");
+      await expect(exportChartAsImage(null, "chart")).rejects.toThrow(
+        "Chart instance is required",
+      );
     });
   });
 
@@ -244,28 +253,48 @@ describe("exportUtility.js", () => {
     };
 
     it("exports CSV when data is array", async () => {
-      const results = await exportAllFormats([{ a: 1 }], "test", ["csv", "json", "png"], mockChartInstance);
+      const results = await exportAllFormats(
+        [{ a: 1 }],
+        "test",
+        ["csv", "json", "png"],
+        mockChartInstance,
+      );
       expect(results).toContain("csv");
       expect(results).toContain("json");
       expect(results).toContain("png");
     });
 
     it("skips CSV when data is not array", async () => {
-      const results = await exportAllFormats({ a: 1 }, "test", ["csv", "json", "png"], mockChartInstance);
+      const results = await exportAllFormats(
+        { a: 1 },
+        "test",
+        ["csv", "json", "png"],
+        mockChartInstance,
+      );
       expect(results).not.toContain("csv");
       expect(results).toContain("json");
       expect(results).toContain("png");
     });
 
     it("skips PNG when chartInstance is null", async () => {
-      const results = await exportAllFormats([{ a: 1 }], "test", ["csv", "json", "png"], null);
+      const results = await exportAllFormats(
+        [{ a: 1 }],
+        "test",
+        ["csv", "json", "png"],
+        null,
+      );
       expect(results).toContain("csv");
       expect(results).toContain("json");
       expect(results).not.toContain("png");
     });
 
     it("returns json only when only json data available", async () => {
-      const results = await exportAllFormats({}, "test", ["csv", "json", "png"], null);
+      const results = await exportAllFormats(
+        {},
+        "test",
+        ["csv", "json", "png"],
+        null,
+      );
       expect(results).toEqual(["json"]);
     });
   });

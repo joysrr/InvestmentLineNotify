@@ -103,7 +103,7 @@ const formatPercent = (value) => {
 
 .theory-reason {
   font-size: 11px;
-  color: #c62828;
+  color: var(--iln-danger-text);
   margin-top: 4px;
 }
 

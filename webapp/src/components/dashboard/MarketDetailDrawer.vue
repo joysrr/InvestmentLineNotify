@@ -200,15 +200,15 @@ function formatMarginChange(val) {
 }
 
 .text-ok {
-  color: #10b981;
+  color: var(--iln-ok-text);
 }
 
 .text-warn {
-  color: #f59e0b;
+  color: var(--iln-warn-text);
 }
 
 .text-danger {
-  color: #ef4444;
+  color: var(--iln-danger-text);
 }
 
 /* ── Footer Link (Phase 3) ── */

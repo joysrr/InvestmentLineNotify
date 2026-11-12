@@ -392,7 +392,7 @@ function formatTime(time) {
 
 .data-badge.verified {
   background: rgba(76, 175, 80, 0.15);
-  color: #2e7d32;
+  color: var(--iln-ok-text);
 }
 
 .data-grid {
@@ -591,7 +591,7 @@ function formatTime(time) {
 
 .disclaimer-box {
   background: rgba(158, 158, 158, 0.1);
-  border-left: 4px solid #9e9e9e;
+  border-left: 4px solid var(--tg-theme-hint-color, #9e9e9e);
 }
 
 .disclaimer-title {

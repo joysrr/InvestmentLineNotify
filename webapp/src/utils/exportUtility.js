@@ -150,7 +150,7 @@ export async function exportChartAsImage(
   const {
     type = "png",
     pixelRatio = 2,
-    backgroundColor = "#fff",
+    backgroundColor = "var(--tg-theme-text-color, #fff)",
     excludeComponents = ["toolbox"],
   } = options;
 

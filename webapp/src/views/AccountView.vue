@@ -315,15 +315,15 @@ const prTrendOption = computed(() => {
     xAxis: {
       type: "category",
       data: data.map((d) => d.date),
-      axisLabel: { fontSize: 10, color: "#999" },
-      axisLine: { lineStyle: { color: "#eee" } },
+      axisLabel: { fontSize: 10, color: "var(--tg-theme-hint-color, #999)" },
+      axisLine: { lineStyle: { color: "var(--tg-theme-secondary-bg-color, #eee)" } },
     },
     yAxis: {
       type: "value",
       min: 0,
       max: 100,
-      axisLabel: { fontSize: 10, color: "#999", formatter: "{value}%" },
-      splitLine: { lineStyle: { type: "dashed", color: "#f0f0f0" } },
+      axisLabel: { fontSize: 10, color: "var(--tg-theme-hint-color, #999)", formatter: "{value}%" },
+      splitLine: { lineStyle: { type: "dashed", color: "var(--tg-theme-secondary-bg-color, #f0f0f0)" } },
     },
     series: [
       {
@@ -331,7 +331,7 @@ const prTrendOption = computed(() => {
         type: "line",
         smooth: true,
         showSymbol: false,
-        lineStyle: { color: "#2481cc", width: 2 },
+        lineStyle: { color: "var(--iln-brand)", width: 2 },
         areaStyle: {
           color: {
             type: "linear",
@@ -572,7 +572,7 @@ const allHealthy = computed(
 }
 .source-error {
   font-size: 10px;
-  color: #c0392b;
+  color: var(--iln-danger-text);
   margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;

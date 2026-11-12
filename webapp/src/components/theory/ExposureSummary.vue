@@ -196,24 +196,24 @@ const exposureStatusText = computed(() => {
 }
 
 .ratio-value.status-conservative {
-  color: #4caf50;
+  color: var(--iln-ok-text);
 }
 
 .ratio-value.status-moderate {
-  color: #ff9800;
+  color: var(--iln-warn-text);
 }
 
 .ratio-value.status-aggressive {
-  color: #ff5722;
+  color: var(--iln-danger-text);
 }
 
 .ratio-value.status-extreme {
-  color: #f44336;
+  color: var(--iln-danger-text);
 }
 
 .ratio-bar {
   height: 8px;
-  background: #e0e0e0;
+  background: var(--tg-theme-secondary-bg-color, #e0e0e0);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -224,19 +224,19 @@ const exposureStatusText = computed(() => {
 }
 
 .ratio-bar-fill.status-conservative {
-  background: #4caf50;
+  background: var(--iln-ok-bg);
 }
 
 .ratio-bar-fill.status-moderate {
-  background: #ff9800;
+  background: var(--iln-warn-bg);
 }
 
 .ratio-bar-fill.status-aggressive {
-  background: #ff5722;
+  background: var(--iln-danger-bg);
 }
 
 .ratio-bar-fill.status-extreme {
-  background: #f44336;
+  background: var(--iln-danger-bg);
 }
 
 .exposure-status {
@@ -249,22 +249,22 @@ const exposureStatusText = computed(() => {
 
 .exposure-status.status-conservative {
   background: rgba(76, 175, 80, 0.1);
-  color: #2e7d32;
+  color: var(--iln-ok-text);
 }
 
 .exposure-status.status-moderate {
   background: rgba(255, 152, 0, 0.1);
-  color: #e65100;
+  color: var(--iln-warn-text);
 }
 
 .exposure-status.status-aggressive {
   background: rgba(255, 87, 34, 0.1);
-  color: #d84315;
+  color: var(--iln-danger-text);
 }
 
 .exposure-status.status-extreme {
   background: rgba(244, 67, 54, 0.1);
-  color: #c62828;
+  color: var(--iln-danger-text);
 }
 
 .exposure-status.status-unknown {

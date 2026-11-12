@@ -281,7 +281,7 @@ onMounted(async () => {
 }
 
 .state-error p {
-  color: #f44336;
+  color: var(--iln-danger-text);
 }
 
 .retry-btn {
@@ -328,7 +328,7 @@ onMounted(async () => {
 /* Disclaimer Card */
 .disclaimer-card {
   background: rgba(158, 158, 158, 0.08);
-  border-left: 3px solid #9e9e9e;
+  border-left: 3px solid var(--tg-theme-hint-color, #9e9e9e);
   border-radius: 10px;
   padding: 14px;
   margin-bottom: 12px;

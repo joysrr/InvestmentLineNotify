@@ -367,13 +367,13 @@ onMounted(async () => {
 }
 .dash-date {
   font-size: 13px;
-  color: #999;
+  color: var(--tg-theme-hint-color, #999);
 }
 
 /* FAB: Strategy Config */
 .config-fab {
   background: var(--tg-theme-button-color, #2481cc);
-  color: #fff;
+  color: var(--tg-theme-text-color, #fff);
   border: none;
   border-radius: 50%;
   width: 36px;
@@ -415,7 +415,7 @@ onMounted(async () => {
   padding: 12px 16px;
   font-size: 13px;
   font-weight: 700;
-  color: #111;
+  color: var(--tg-theme-text-color, #111);
   cursor: pointer;
   user-select: none;
   display: flex;
@@ -427,7 +427,7 @@ onMounted(async () => {
 }
 .toggle-icon {
   font-size: 11px;
-  color: #999;
+  color: var(--tg-theme-hint-color, #999);
 }
 
 /* Collapse/Expand Animation for dashboard-card body */
@@ -449,7 +449,7 @@ onMounted(async () => {
 }
 .update-time {
   font-size: 10px;
-  color: #bbb;
+  color: var(--tg-theme-hint-color, #bbb);
   text-align: center;
   margin-top: 24px;
 }
@@ -462,18 +462,18 @@ onMounted(async () => {
   font-size: 14px;
   font-weight: 700;
   margin-bottom: 12px;
-  color: #666;
+  color: var(--tg-theme-hint-color, #666);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 :deep(.text-danger) {
-  color: #e84855;
+  color: var(--iln-danger-text);
 }
 :deep(.text-warn) {
-  color: #f39c12;
+  color: var(--iln-warn-text);
 }
 :deep(.text-ok) {
-  color: #26a17b;
+  color: var(--iln-ok-text);
 }
 
 /* ── Strategy Status Link (Phase 3) ── */

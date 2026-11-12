@@ -648,7 +648,7 @@ onMounted(load);
 }
 
 .highlight-val {
-  color: #d9534f;
+  color: var(--iln-danger-text);
   font-weight: 600;
   background: rgba(217, 83, 79, 0.08);
   padding: 2px 6px;
@@ -695,11 +695,11 @@ onMounted(load);
 }
 
 .config-error {
-  color: #d9534f;
+  color: var(--iln-danger-text);
   background: var(--iln-danger-bg);
   padding: 16px;
   border-radius: 12px;
-  border: 1px solid #f2dede;
+  border: 1px solid var(--iln-danger-bg, #f2dede);
   font-weight: bold;
 }
 
@@ -707,7 +707,7 @@ onMounted(load);
   margin-top: 8px;
   font-size: 12px;
   font-weight: normal;
-  color: #a94442;
+  color: var(--iln-danger-text);
   white-space: pre-wrap;
 }
 

@@ -41,16 +41,16 @@ const tierFillWidth = computed(() => {
   transition: all 0.3s;
 }
 .allocation-tier.is-current {
-  background: #e3f2fd;
-  border-color: #2196f3;
+  background: var(--iln-info-bg, #e3f2fd);
+  border-color: var(--tg-theme-link-color, #2196f3);
 }
 .allocation-tier.is-next {
-  background: #fff3e0;
-  border-color: #ff9800;
+  background: var(--iln-warn-bg, #fff3e0);
+  border-color: var(--iln-warn-text, #ff9800);
 }
 .tier-score {
   font-size: 12px;
-  color: #888;
+  color: var(--tg-theme-hint-color, #888);
   min-width: 60px;
   text-align: right;
 }
@@ -66,6 +66,7 @@ const tierFillWidth = computed(() => {
   border-radius: 3px;
   transition: width 0.3s;
 }
+/* tier-fill: 業務語義色（current=信號色，next=警告色），與 tier 標籤綁定，不轉 token */
 .tier-fill.current { background: #2196f3; }
 .tier-fill.next { background: #ff9800; }
 .tier-info {
@@ -75,6 +76,6 @@ const tierFillWidth = computed(() => {
   min-width: 80px;
 }
 .tier-leverage { font-weight: 600; font-size: 14px; }
-.tier-cash { font-size: 11px; color: #888; }
-.tier-comment { font-size: 10px; color: #aaa; margin-top: 2px; }
+.tier-cash { font-size: 11px; color: var(--tg-theme-hint-color, #888); }
+.tier-comment { font-size: 10px; color: var(--tg-theme-hint-color, #aaa); margin-top: 2px; }
 </style>

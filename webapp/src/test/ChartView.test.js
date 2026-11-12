@@ -124,7 +124,7 @@ describe("ChartView", () => {
     await flushPromises();
 
     const loanOption = chart.props("option");
-    expect(loanOption.series[0].lineStyle.color).toBe("#e84855");
+    expect(loanOption.series[0].lineStyle.color).toBe("var(--iln-danger-text)");
     expect(loanOption.tooltip.formatter([{ dataIndex: 0 }])).toContain("融資");
 
     const qtyChip = wrapper.findAll(".metric-chip")[1];

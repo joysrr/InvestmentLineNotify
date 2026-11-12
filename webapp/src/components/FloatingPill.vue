@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { tabs } from "../config/tabsConfig.js";
 import { useIOSSwipeGuard } from "../composables/useIOSSwipeGuard.js";
@@ -28,11 +28,43 @@ import { useIOSSwipeGuard } from "../composables/useIOSSwipeGuard.js";
 const pillRef = ref(null);
 const route = useRoute();
 useIOSSwipeGuard(pillRef);
+
+// Phase 5 A3：量測 pill 高度，寫入 --bottom-nav-height
+const BOTTOM_OFFSET = 16; // 與 CSS .nav-container bottom 偏移一致
+const BUFFER = 8; // 陰影緩衝
+
+let resizeObserver = null;
+
+const updateNavHeight = () => {
+  const pill = pillRef.value;
+  if (!pill) return;
+  const rect = pill.getBoundingClientRect();
+  if (rect.height > 0) {
+    const total = Math.ceil(rect.height + BOTTOM_OFFSET * 2 + BUFFER);
+    document.documentElement.style.setProperty(
+      "--bottom-nav-height",
+      `${total}px`
+    );
+  }
+};
+
+onMounted(() => {
+  updateNavHeight();
+  if (typeof ResizeObserver !== "undefined" && pillRef.value) {
+    resizeObserver = new ResizeObserver(updateNavHeight);
+    resizeObserver.observe(pillRef.value);
+  }
+});
+
+onUnmounted(() => {
+  resizeObserver?.disconnect();
+  document.documentElement.style.removeProperty("--bottom-nav-height");
+});
 </script>
 
 <style scoped>
 .nav-container {
-  position: fixed;
+  position: absolute;
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   left: 12px;
   right: 12px;
