@@ -303,11 +303,11 @@ function getNestedValue(obj, path) {
 }
 
 .label-unit {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   color: #999;
-  background: #f5f5f5;
+  background: var(--iln-surface);
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--iln-radius-sm);
 }
 
 .help-icon {
@@ -339,9 +339,9 @@ function getNestedValue(obj, path) {
 }
 
 .unsupported-type {
-  padding: 12px;
-  background: #f5f5f5;
-  border-radius: 6px;
+  padding: var(--iln-space-3);
+  background: var(--iln-surface);
+  border-radius: var(--iln-radius-sm);
   border: 1px dashed var(--iln-border-subtle);
 }
 

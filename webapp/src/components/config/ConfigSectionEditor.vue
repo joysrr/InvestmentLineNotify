@@ -75,11 +75,11 @@ function handleFieldUpdate({ path, value }) {
 }
 
 .empty-section {
-  padding: 32px;
+  padding: var(--iln-space-8);
   text-align: center;
-  background: #fafafa;
-  border-radius: 8px;
-  border: 1px dashed #e0e0e0;
+  background: var(--iln-surface);
+  border-radius: var(--iln-radius-md);
+  border: 1px dashed var(--iln-border-subtle);
 }
 
 .empty-hint {

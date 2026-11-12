@@ -199,7 +199,7 @@ const leverageGap = computed(() => {
 /* Selected batch highlight */
 .batch-selected {
   border-color: var(--vp-c-brand);
-  background: #f0f9ff;
+  background: var(--iln-brand-soft);
 }
 .batch-selected .metric-value {
   color: var(--vp-c-brand);
