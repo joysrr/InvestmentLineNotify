@@ -16,7 +16,7 @@
 .technical-view,
 .chart-view,
 .strategy-config-editor {
-  padding: 16px 16px 100px; /* 底部留空間給浮動導航 */
+  padding: var(--iln-space-4) var(--iln-space-4) 100px; /* 底部留空間給浮動導航 */
   box-sizing: border-box;
 }
 
@@ -30,8 +30,8 @@
 .status-header,
 .editor-header,
 .header-top {
-  margin-bottom: 20px;
-  padding-left: 4px;
+  margin-bottom: var(--iln-space-5);
+  padding-left: var(--iln-space-1);
 }
 
 .view-title,
@@ -54,15 +54,15 @@
    Section - 統一內容區塊
    ============================================================ */
 .section {
-  margin-bottom: 24px;
+  margin-bottom: var(--iln-space-6);
 }
 
 .section-title {
-  font-size: 16px;
+  font-size: var(--iln-font-md);
   font-weight: 600;
   color: var(--tg-theme-text-color, #111);
-  margin: 0 0 12px;
-  padding-left: 4px;
+  margin: 0 0 var(--iln-space-3);
+  padding-left: var(--iln-space-1);
 }
 
 /* ============================================================
@@ -73,8 +73,8 @@
 .signal-card,
 .config-card {
   background: var(--tg-theme-bg-color, #fff);
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: var(--iln-radius-md);
+  padding: var(--iln-space-4);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
@@ -87,13 +87,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px 16px;
+  padding: var(--iln-space-12) var(--iln-space-4);
   color: var(--tg-theme-hint-color, #888);
 }
 
 .empty-state {
   text-align: center;
-  padding: 48px 16px;
+  padding: var(--iln-space-12) var(--iln-space-4);
   color: var(--tg-theme-hint-color, #888);
 }
 
@@ -106,7 +106,7 @@
 .header-left,
 .header-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--iln-space-2);
   align-items: center;
 }
 
@@ -124,12 +124,12 @@
   .technical-view,
   .chart-view,
   .strategy-config-editor {
-    padding: 12px 12px 90px;
+    padding: var(--iln-space-3) var(--iln-space-3) 90px;
   }
   
   .view-title,
   .page-title,
   .dash-title {
-    font-size: 20px;
+    font-size: var(--iln-font-lg);
   }
 }
