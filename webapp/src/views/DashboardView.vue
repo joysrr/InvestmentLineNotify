@@ -59,6 +59,13 @@
         />
       </section>
 
+      <!-- Phase 3：Dashboard → Radar 連結 -->
+      <div class="radar-entry">
+        <router-link to="/radar" class="radar-entry-link">
+          🌐 查看完整市場雷達 →
+        </router-link>
+      </div>
+
       <!-- L3: 市場總經環境明細抽屜 -->
       <MarketDetailDrawer
         v-model:visible="marketDrawerVisible"
@@ -513,5 +520,26 @@ onMounted(async () => {
   font-size: 18px;
   color: var(--tg-theme-button-color, #2481cc);
   font-weight: 600;
+}
+
+/* Phase 3：Dashboard → Radar 入口連結 */
+.radar-entry {
+  display: flex;
+  justify-content: flex-end;
+  margin: -4px 0 16px;
+}
+
+.radar-entry-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--iln-brand);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: var(--iln-radius-sm);
+  transition: background var(--iln-duration-fast) var(--iln-ease-standard);
+}
+
+.radar-entry-link:active {
+  background: var(--iln-brand-soft);
 }
 </style>

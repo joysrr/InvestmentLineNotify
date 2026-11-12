@@ -75,6 +75,10 @@ const stubs = {
   HealthPanel: { template: '<div class="health-panel-stub" />' },
   AnalysisPanel: { template: '<div class="analysis-panel-stub" />' },
   CoachingAdvice: { template: '<div class="coaching-advice-stub" />' },
+  "router-link": {
+    template: '<a class="router-link-stub" :href="to"><slot /></a>',
+    props: ["to"],
+  },
 };
 
 describe("DashboardView - Single Page Card Carousel (Phase 2 target)", () => {
@@ -119,5 +123,12 @@ describe("DashboardView - Single Page Card Carousel (Phase 2 target)", () => {
   it("應渲染 CoachingAdvice 卡片", async () => {
     await mountView();
     expect(wrapper.find(".coaching-advice-stub").exists()).toBe(true);
+  });
+
+  it("應渲染 Dashboard → Radar 入口連結 (to='/radar')", async () => {
+    await mountView();
+    const link = wrapper.find(".router-link-stub");
+    expect(link.exists()).toBe(true);
+    expect(link.text()).toContain("查看完整市場雷達");
   });
 });
