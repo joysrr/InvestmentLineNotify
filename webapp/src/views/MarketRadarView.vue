@@ -20,16 +20,16 @@
 
     <!-- 載入中 -->
     <div v-if="loading" class="radar-grid">
-      <div v-for="i in 8" :key="i" class="radar-card skeleton-card">
-        <div class="sk sk-label"></div>
-        <div class="sk sk-value"></div>
-        <div class="sk sk-sub"></div>
-      </div>
+      <LoadingSkeleton variant="card" :rows="8" />
     </div>
 
     <!-- 錯誤 -->
-    <div v-else-if="error" class="inline-error">
-      ⚠️ 資料載入失敗，請稍後重試
+    <div v-else-if="error" class="error-view">
+      <ErrorView
+        title="載入失敗"
+        message="資料載入失敗，請稍後重試"
+        @retry="loadData"
+      />
     </div>
 
     <!-- 內容 -->
@@ -148,7 +148,7 @@
       </section>
     </template>
 
-    <p v-if="updatedAt" class="update-time">資料更新：{{ updatedAt }}</p>
+    <p v-if="statusMeta?.updatedAt" class="update-time">資料更新：{{ lastUpdatedText }}</p>
   </div>
   </GlobalErrorBoundary>
 </template>
@@ -161,6 +161,9 @@ import ExtremeRadarPanel from "@/components/radar/ExtremeRadarPanel.vue";
 import CashExposureWidget from "@/components/radar/CashExposureWidget.vue";
 import RadarSubtabs from "@/components/radar/RadarSubtabs.vue";
 import { waitReady } from "../composables/useTelegram.js";
+import { formatRelative, resolveLastRun } from "@/utils/formatDate.js";
+import ErrorView from "@/components/common/ErrorView.vue";
+import LoadingSkeleton from "@/components/common/LoadingSkeleton.vue";
 
 import {
   getVixLevel,
@@ -171,7 +174,7 @@ const loading = ref(true);
 const error = ref(false);
 const statusData = ref(null); // /api/status  data 欄位
 const reportData = ref(null); // 最新 report（含 vixData / usRisk）
-const updatedAt = ref("");
+const statusMeta = ref(null); // /api/status 原始回應（含 updatedAt）
 
 const leadingIndicators = computed(
   () =>
@@ -180,8 +183,14 @@ const leadingIndicators = computed(
     null,
 );
 
+const lastUpdatedText = computed(() =>
+  formatRelative(resolveLastRun(statusMeta.value)),
+);
+
 // ── 載入 ──────────────────────────────────────────────
-onMounted(async () => {
+const loadData = async () => {
+  loading.value = true;
+  error.value = false;
   await waitReady();
   const [sRes, rRes] = await Promise.allSettled([
     fetchStatus(),
@@ -191,14 +200,7 @@ onMounted(async () => {
 
   if (sRes.status === "fulfilled") {
     statusData.value = sRes.value?.data ?? null;
-    if (sRes.value?.updatedAt) {
-      updatedAt.value = new Date(sRes.value.updatedAt).toLocaleString("zh-TW", {
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    }
+    statusMeta.value = sRes.value;
   } else {
     error.value = true;
   }
@@ -209,7 +211,9 @@ onMounted(async () => {
     );
     reportData.value = sorted[0] ?? null;
   }
-});
+};
+
+onMounted(() => loadData());
 
 // ── 長期防禦模式 ────────────────────────────────────────
 const isLongTermDefense = computed(() => {
