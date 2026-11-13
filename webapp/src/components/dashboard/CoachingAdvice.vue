@@ -6,7 +6,7 @@
     radius="lg"
     data-testid="coaching-advice"
   >
-    <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> AI 教練建議</h3>
+    <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> AI 教練建議</h3>
 
     <!-- 核心洞察 -->
     <div class="ai-insight" v-if="insight">
@@ -37,7 +37,7 @@
         @click="actionExpanded = !actionExpanded"
         style="cursor: pointer"
       >
-        <span><Icon name="default" size="sm" color="var(--iln-hint)" /> 下一步觀察清單</span>
+        <span><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 下一步觀察清單</span>
         <span class="ai-count">{{ actions.length }} 項</span>
         <span class="expand-arrow">{{ actionExpanded ? "▲" : "▼" }}</span>
       </div>
@@ -53,7 +53,7 @@
         @click="mindsetExpanded = !mindsetExpanded"
         style="cursor: pointer"
       >
-        <span><Icon name="default" size="sm" color="var(--iln-hint)" /> 行動微調建議</span>
+        <span><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 行動微調建議</span>
         <span class="ai-count">{{ mindset.length }} 項</span>
         <span class="expand-arrow">{{ mindsetExpanded ? "▲" : "▼" }}</span>
       </div>
@@ -69,7 +69,7 @@
         @click="thinkingExpanded = !thinkingExpanded"
         style="cursor: pointer"
       >
-        <span><Icon name="default" size="sm" color="var(--iln-hint)" /> 教練內心推演</span>
+        <span><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 教練內心推演</span>
         <span class="expand-arrow">{{ thinkingExpanded ? "▲" : "▼" }}</span>
       </div>
       <div v-show="thinkingExpanded" class="ai-thinking">

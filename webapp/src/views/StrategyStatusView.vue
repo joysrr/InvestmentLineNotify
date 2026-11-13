@@ -91,7 +91,7 @@
       <!-- Section 2: Cool Down Status -->
       <section class="status-section">
         <div class="section-header">
-          <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 冷卻期狀態</h3>
+          <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 冷卻期狀態</h3>
           <span class="section-badge" :class="cooldownClass">
             {{ health.cooldown.inCooldown ? `剩餘 ${health.cooldown.daysLeft} 天` : '無冷卻期' }}
           </span>
@@ -119,7 +119,7 @@
       <!-- Section 3: Strategy Allocation (Score Tiers) -->
       <section class="status-section">
         <div class="section-header">
-          <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 策略分數檔位與目標槓桿</h3>
+          <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 策略分數檔位與目標槓桿</h3>
           <span class="section-badge">{{ health.allocation.current.comment }}</span>
         </div>
         <div class="allocation-tiers">
@@ -204,7 +204,7 @@
         <!-- Section 6: Signal Classification -->
         <section class="status-section">
           <div class="section-header">
-            <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 當前信號分類</h3>
+            <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 當前信號分類</h3>
           </div>
           <div class="signal-card">
             <div class="signal-main">
@@ -231,7 +231,7 @@
         <!-- Section 5: Budget Priority -->
         <section class="status-section">
           <div class="section-header">
-            <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> Budget Priority (資金預度管控)</h3>
+            <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> Budget Priority (資金預度管控)</h3>
             <span class="section-badge" :class="budgetClass">
               <Icon :name="health.budget.isLimited ? 'warn' : 'ok'" size="sm" />
               {{ health.budget.isLimited ? '受限' : '正常' }}
@@ -259,7 +259,7 @@
         <!-- Section 7: Lifecycle Stage -->
         <section class="status-section">
           <div class="section-header">
-            <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 生命週期階段</h3>
+            <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 生命週期階段</h3>
             <span class="section-badge lifecycle-badge" :class="lifecycleClass">{{ health.lifecycle.stage }}</span>
           </div>
           <div class="lifecycle-card">
@@ -277,7 +277,7 @@
         <!-- Section 9: Key Metrics -->
         <section class="status-section compact">
           <div class="section-header">
-            <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 關鍵指標速覽</h3>
+            <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 關鍵指標速覽</h3>
           </div>
           <div class="metrics-grid">
             <MetricItem label="淨資產" :value="health.keyMetrics.netAsset" unit="元" format="number" />

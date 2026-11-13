@@ -35,7 +35,7 @@
       </div>
       <div class="cockpit-action">
         <span class="drawer-hint">點擊查看風控明細</span>
-        <span class="chevron"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
+        <span class="chevron"><Icon name="chevron-down" size="sm" color="var(--iln-hint)" /></span>
       </div>
     </div>
   </ContentCard>

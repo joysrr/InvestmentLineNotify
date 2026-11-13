@@ -45,7 +45,7 @@
             <li><strong>00675L</strong>: 反向二倍，方向曝險需乘以 2</li>
             <li><strong>安全上限</strong>: 建議維持在 60% 以下，避免單一市場風險過度集中</li>
           </ul>
-          <p class="theory-note">            <Icon name="default" size="sm" color="var(--iln-hint)" /> 真實曝險越高，組合對台股走勢的敏感度越大
+          <p class="theory-note">            <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 真實曝險越高，組合對台股走勢的敏感度越大
           </p>
         </div>
       </section>

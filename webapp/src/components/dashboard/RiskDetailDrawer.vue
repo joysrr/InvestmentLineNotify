@@ -42,7 +42,7 @@
 
       <!-- 3. 風控原則提示卡 -->
       <ContentCard variant="outlined" padding="md" radius="lg">
-        <div class="info-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 質押與槓桿風控原則</div>
+        <div class="info-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 質押與槓桿風控原則</div>
         <ul class="info-list">
           <li><strong>P0 優先級防守</strong>：維持率低於 {{ warningThreshold }}% 即刻停止戰術加碼，啟動補保或減碼。</li>
           <li><strong>利息配對倉</strong>：00740B 債券部位作為利息現金流壓艙石，不因短期波動調倉。</li>

@@ -42,7 +42,7 @@
         </div>
 
         <!-- View Detail Button -->
-        <button class="view-detail-btn" @click="$emit('view-detail')">          <Icon name="default" size="sm" color="var(--iln-hint)" /> 查看詳情
+        <button class="view-detail-btn" @click="$emit('view-detail')">          <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 查看詳情
         </button>
       </div>
     </div>

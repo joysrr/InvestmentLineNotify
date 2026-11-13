@@ -1,7 +1,7 @@
 <template>
   <div class="theory-card">
     <div class="theory-card-header">
-      <h3 class="theory-card-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 輸入數據來源</h3>
+      <h3 class="theory-card-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 輸入數據來源</h3>
     </div>
 
     <!-- UNAVAILABLE State -->
@@ -53,7 +53,7 @@
 
       <!-- Data Timestamp -->
       <div v-if="reportDate" class="data-timestamp">
-        <span class="timestamp-label"><Icon name="default" size="sm" color="var(--iln-hint)" /> 數據時間</span>
+        <span class="timestamp-label"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 數據時間</span>
         <span class="timestamp-value">{{ reportDate }}</span>
       </div>
 

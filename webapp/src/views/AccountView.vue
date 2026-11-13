@@ -41,14 +41,14 @@
       <!-- 3. 帳戶快照 -->
       <div class="section">
         <div class="section-header-row">
-          <h2 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 帳戶快照</h2>
+          <h2 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 帳戶快照</h2>
           <router-link to="/chart" class="chart-link-btn">            <Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢圖表 ↗
           </router-link>
         </div>
 
         <!-- 2a. 加密金鑰未設定 -->
         <div v-if="!snapshotEncryption" class="notice-block">
-          <span class="notice-icon"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
+          <span class="notice-icon"><Icon name="neutral" size="sm" color="var(--iln-hint)" /></span>
           <div class="notice-content">
             <p class="notice-title">尚未啟用帳戶快照</p>
             <p class="notice-desc">
@@ -62,7 +62,7 @@
           v-else-if="snapshotEncryption && !latestSnapshot"
           class="notice-block notice-empty"
         >
-          <span class="notice-icon"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
+          <span class="notice-icon"><Icon name="neutral" size="sm" color="var(--iln-hint)" /></span>
           <div class="notice-content">
             <p class="notice-title">尚無快照資料</p>
             <p class="notice-desc">快照將從下一次每日執行後開始累積。</p>
@@ -71,7 +71,7 @@
 
         <!-- 2c. 顯示最新快照 -->
         <template v-else>
-          <div class="snapshot-date"><Icon name="default" size="sm" color="var(--iln-hint)" /> {{ latestSnapshot.date }} 快照</div>
+          <div class="snapshot-date"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> {{ latestSnapshot.date }} 快照</div>
           <div class="snapshot-grid">
             <div class="snapshot-card">
               <div class="snapshot-label">0050 股數</div>
@@ -127,7 +127,7 @@
 
       <!-- 3. 系統最後更新時間 -->
       <div class="section">
-        <h2 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 系統狀態</h2>
+        <h2 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 系統狀態</h2>
         <div class="info-row">
           <span class="info-label">資料最後更新</span>
           <span class="info-value">{{ lastRunLabel }}</span>

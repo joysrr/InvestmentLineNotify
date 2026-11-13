@@ -2,7 +2,7 @@
   <section class="deployment-control" aria-labelledby="deployment-title">
     <div class="deployment-heading">
       <div>
-        <h2 id="deployment-title" class="deployment-title"><Icon name="default" size="sm" /> 系統部署</h2>
+        <h2 id="deployment-title" class="deployment-title"><Icon name="neutral" size="sm" /> 系統部署</h2>
         <p class="deployment-description">僅限管理員更新正式服務；版本相同時會自動略過。</p>
       </div>
       <button

@@ -22,7 +22,7 @@
       </div>
     </div>
     <div v-else-if="error" class="inline-error"><Icon name="danger" size="sm" color="var(--iln-danger)" /> 健康度資料載入失敗</div>
-    <div v-else-if="!data" class="inline-hint"><Icon name="default" size="sm" color="var(--iln-hint)" /> 尚無健康度資料</div>
+    <div v-else-if="!data" class="inline-hint"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 尚無健康度資料</div>
     <div v-else class="health-dashboard-v2">
       <!-- Health Hero -->
       <div class="health-hero-v2" :class="data.status?.toLowerCase()">

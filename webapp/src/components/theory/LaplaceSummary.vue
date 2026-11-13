@@ -1,7 +1,7 @@
 <template>
   <div class="theory-card">
     <div class="theory-card-header">
-      <h3 class="theory-card-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 拉普拉斯準則 (Laplace)</h3>
+      <h3 class="theory-card-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 拉普拉斯準則 (Laplace)</h3>
       <span
         class="theory-status-badge"
         :class="`status-${theory.laplaceCriterion?.status?.toLowerCase()}`"
@@ -42,7 +42,7 @@
         </div>
 
         <!-- View Detail Button -->
-        <button class="view-detail-btn" @click="$emit('view-detail')">          <Icon name="default" size="sm" color="var(--iln-hint)" /> 查看詳情
+        <button class="view-detail-btn" @click="$emit('view-detail')">          <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 查看詳情
         </button>
       </div>
     </div>

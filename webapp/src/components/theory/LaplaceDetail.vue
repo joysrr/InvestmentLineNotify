@@ -2,7 +2,7 @@
   <div class="detail-page">
     <div class="detail-header">
       <button class="back-btn" @click="$emit('back')">← 返回</button>
-      <h2 class="detail-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 拉普拉斯準則詳細分析</h2>
+      <h2 class="detail-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 拉普拉斯準則詳細分析</h2>
     </div>
 
     <!-- UNAVAILABLE State -->

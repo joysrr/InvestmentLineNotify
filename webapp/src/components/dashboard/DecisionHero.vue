@@ -6,7 +6,7 @@
       <div class="sk sk-value" style="width: 60%"></div>
     </div>
     <div v-else-if="error" class="inline-error"><Icon name="danger" size="sm" color="var(--iln-danger)" /> 報告載入失敗</div>
-    <div v-else-if="!report" class="inline-hint"><Icon name="default" size="sm" color="var(--iln-hint)" /> 尚無報告資料</div>
+    <div v-else-if="!report" class="inline-hint"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 尚無報告資料</div>
     <div v-else class="hero-card">
       <div class="hero-top">
         <span class="hero-date">{{ report.date }}</span>

@@ -1,7 +1,7 @@
 <template>
   <div class="theory-card">
     <div class="theory-card-header">
-      <h3 class="theory-card-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 人力資本 (Human Capital)</h3>
+      <h3 class="theory-card-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 人力資本 (Human Capital)</h3>
       <span
         class="theory-status-badge"
         :class="`status-${humanCapitalStatus?.toLowerCase()}`"
@@ -29,7 +29,7 @@
       <button
         class="detail-button"
         @click="$emit('view-detail', 'humanCapital')"
-      >        <Icon name="default" size="sm" color="var(--iln-hint)" /> 查看詳情
+      >        <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 查看詳情
       </button>
     </div>
   </div>

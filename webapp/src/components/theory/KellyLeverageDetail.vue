@@ -49,7 +49,7 @@
             <li><strong>σ²</strong>: 報酬率變異數</li>
             <li><strong>L*</strong>: 完全凱莉槓桿（理論最大值）</li>
           </ul>
-          <p class="theory-note">            <Icon name="default" size="sm" color="var(--iln-hint)" /> 保守凱莉 = 0.5 × L*，用於降低波動風險
+          <p class="theory-note">            <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 保守凱莉 = 0.5 × L*，用於降低波動風險
           </p>
         </div>
       </section>

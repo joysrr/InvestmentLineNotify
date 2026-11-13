@@ -2,7 +2,7 @@
   <div class="detail-page">
     <div class="detail-header">
       <button class="back-btn" @click="$emit('back')">← 返回</button>
-      <h2 class="detail-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 人力資本詳細分析</h2>
+      <h2 class="detail-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 人力資本詳細分析</h2>
     </div>
 
     <!-- UNAVAILABLE State -->
@@ -45,7 +45,7 @@
             <li><strong>總資本</strong>: 人力資本 + 金融資本</li>
             <li><strong>人資佔比</strong>: 人力資本 ÷ 總資本，越高代表未來收入依賴度越大</li>
           </ul>
-          <p class="theory-note">            <Icon name="default" size="sm" color="var(--iln-hint)" /> 人力資本隨年齡遞減，隨薪資成長遞增，退休後趨近於零
+          <p class="theory-note">            <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 人力資本隨年齡遞減，隨薪資成長遞增，退休後趨近於零
           </p>
         </div>
       </section>

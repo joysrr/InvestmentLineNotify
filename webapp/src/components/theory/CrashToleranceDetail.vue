@@ -45,7 +45,7 @@
             <li><strong>壓力情境</strong>: 基於歷史崩盤劇本（如 COVID 熔斷、金融海嘯）模擬</li>
             <li><strong>聯動機制</strong>: 當耐受度接近上限時，應減少槓桿或增加現金比重</li>
           </ul>
-          <p class="theory-note">            <Icon name="default" size="sm" color="var(--iln-hint)" /> 崩盤耐受度越低，代表風險承受能力越弱，應更保守
+          <p class="theory-note">            <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 崩盤耐受度越低，代表風險承受能力越弱，應更保守
           </p>
         </div>
       </section>

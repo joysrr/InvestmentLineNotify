@@ -34,7 +34,7 @@
 
     <!-- 批次計算推導 -->
     <div class="batch-section" v-if="batchCalculation">
-      <span class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 批次計算推導</span>
+      <span class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 批次計算推導</span>
       <div class="metric-grid">
         <div class="metric-card">
           <StatCard size="sm" :framed="false" align="center" label="曝險缺口" :value="batchCalculation.exposureGap" />

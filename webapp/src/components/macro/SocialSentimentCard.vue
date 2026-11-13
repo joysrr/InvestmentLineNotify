@@ -5,7 +5,7 @@
       class="sentiment-section"
       data-testid="social-sentiment-card"
     >
-    <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 社群情緒觀察</h3>
+    <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 社群情緒觀察</h3>
 
     <!-- Sentiment Score + MA -->
     <div class="sentiment-row">
@@ -152,7 +152,7 @@
 
   <!-- Fallback -->
   <div v-else class="sentiment-fallback">
-    <span class="hint"><Icon name="default" size="sm" color="var(--iln-hint)" /> 社群情緒資料準備中，請稍後</span>
+    <span class="hint"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 社群情緒資料準備中，請稍後</span>
   </div>
   </ContentCard>
 </template>

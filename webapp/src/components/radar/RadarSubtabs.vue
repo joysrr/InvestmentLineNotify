@@ -6,7 +6,7 @@
       active-class="is-active"
       role="tab"
       aria-selected="false"
-    >      <Icon name="default" size="sm" color="var(--iln-hint)" /> 市場雷達
+    >      <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 市場雷達
     </router-link>
     <router-link
       to="/macro"
@@ -14,7 +14,7 @@
       active-class="is-active"
       role="tab"
       aria-selected="false"
-    >      <Icon name="default" size="sm" color="var(--iln-hint)" /> 多空對決
+    >      <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 多空對決
     </router-link>
     <router-link
       to="/technical"

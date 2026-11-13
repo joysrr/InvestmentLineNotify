@@ -34,7 +34,7 @@
 
       <!-- Extreme Scenario Simulation -->
       <section v-if="portfolioSnapshot && theory.grossExposure" class="detail-section">
-        <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 極端情境模擬</h3>
+        <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 極端情境模擬</h3>
         <p class="section-desc">模擬大盤下跌時的淨值變化</p>
         <div class="scenario-list">
           <div

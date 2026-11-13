@@ -2,7 +2,7 @@
   <div class="detail-page">
     <div class="detail-header">
       <button class="back-btn" @click="$emit('back')">← 返回</button>
-      <h2 class="detail-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 生命週期投資詳細分析</h2>
+      <h2 class="detail-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 生命週期投資詳細分析</h2>
     </div>
 
     <!-- UNAVAILABLE State -->
@@ -72,7 +72,7 @@
           </div>
           <div class="age-phase">
             <div class="phase-header">
-              <span class="phase-icon"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
+              <span class="phase-icon"><Icon name="neutral" size="sm" color="var(--iln-hint)" /></span>
               <span class="phase-name">成長期（45-55 歲）</span>
             </div>
             <p class="phase-desc">距離 12 年後</p>
@@ -85,7 +85,7 @@
           </div>
           <div class="age-phase">
             <div class="phase-header">
-              <span class="phase-icon"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
+              <span class="phase-icon"><Icon name="neutral" size="sm" color="var(--iln-hint)" /></span>
               <span class="phase-name">保本期（55-65 歲）</span>
             </div>
             <p class="phase-desc">距離 22 年後</p>
@@ -101,7 +101,7 @@
 
       <!-- Lifecycle Advantage -->
       <section class="detail-section">
-        <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 你的生命週期優勢</h3>
+        <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 你的生命週期優勢</h3>
         <div class="advantage-box">
           <div class="advantage-item">
             <h4 class="advantage-title">⏰ 時間優勢</h4>
@@ -118,7 +118,7 @@
             </p>
           </div>
           <div class="advantage-item">
-            <h4 class="advantage-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 現金流優勢</h4>
+            <h4 class="advantage-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 現金流優勢</h4>
             <p class="advantage-text">
               持續的工作收入可用於逢低加碼，將市場下跌轉化為累積部位的機會。
               定期定額策略充分利用這個優勢。

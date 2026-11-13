@@ -29,7 +29,7 @@
       <button
         class="detail-button"
         @click="$emit('view-detail', 'trueExposure')"
-      >        <Icon name="default" size="sm" color="var(--iln-hint)" /> 查看詳情
+      >        <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 查看詳情
       </button>
     </div>
   </div>

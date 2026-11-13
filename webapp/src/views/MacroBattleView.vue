@@ -2,7 +2,7 @@
     <GlobalErrorBoundary>
     <div class="view-container">
     <div class="page-header">
-      <h2 class="page-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 總經多空對決</h2>
+      <h2 class="page-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 總經多空對決</h2>
       <span class="page-date">{{ reportDate }}</span>
     </div>
 
@@ -64,7 +64,7 @@
 
       <!-- Key Takeaways -->
       <section v-if="takeaways.length" class="section">
-        <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 核心驅動邏輯</h3>
+        <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 核心驅動邏輯</h3>
         <ul class="takeaway-list">
           <li v-for="(item, i) in takeaways" :key="i" class="takeaway-item">
             <span class="takeaway-dot"></span>
@@ -111,7 +111,7 @@
 
       <!-- 中性事件 -->
       <section v-if="neutralEvents.length" class="section">
-        <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 觀望事件（{{ neutralEvents.length }}）</h3>
+        <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 觀望事件（{{ neutralEvents.length }}）</h3>
         <div class="event-list">
           <div
             v-for="(e, i) in neutralEvents"

@@ -24,8 +24,8 @@
           @click="toggleEditMode"
           :class="{ 'is-editing': isEditing }"
         >
-          <span v-if="isEditing"><Icon name="default" size="sm" /> 取消編輯</span>
-          <span v-else><Icon name="default" size="sm" /> 編輯配置</span>
+          <span v-if="isEditing"><Icon name="neutral" size="sm" /> 取消編輯</span>
+          <span v-else><Icon name="neutral" size="sm" /> 編輯配置</span>
         </button>
       </div>
 

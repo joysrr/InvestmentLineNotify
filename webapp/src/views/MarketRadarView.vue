@@ -2,7 +2,7 @@
     <GlobalErrorBoundary>
     <div class="view-container">
     <div class="page-header">
-      <h2 class="page-title"><Icon name="default" size="sm" /> 市場雷達</h2>
+      <h2 class="page-title"><Icon name="radar" size="sm" /> 市場雷達</h2>
       <span class="page-date">{{ todayLabel }}</span>
     </div>
 
@@ -47,7 +47,7 @@
 
       <!-- 美股區 -->
       <section class="section">
-        <h3 class="section-title"><Icon name="default" size="sm" /> 美股市場</h3>
+        <h3 class="section-title"><Icon name="radar" size="sm" /> 美股市場</h3>
         <div class="radar-grid">
           <!-- 美股 VIX -->
           <div class="radar-card" :class="usVixCard.cls">
@@ -74,7 +74,7 @@
 
       <!-- 台股區 -->
       <section class="section">
-        <h3 class="section-title"><Icon name="default" size="sm" /> 台股市場</h3>
+        <h3 class="section-title"><Icon name="radar" size="sm" /> 台股市場</h3>
         <div class="radar-grid">
           <!-- 台股 VIX -->
           <div class="radar-card" :class="twVixCard.cls">

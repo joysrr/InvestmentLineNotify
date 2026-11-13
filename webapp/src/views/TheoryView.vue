@@ -4,7 +4,7 @@
     <div v-if="currentView === 'summary'" class="summary-view">
       <!-- Header -->
             <div class="view-header">
-              <h2 class="view-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 投資健康度儀表板</h2>
+              <h2 class="view-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 投資健康度儀表板</h2>
               <span v-if="reportDate" class="view-subtitle"><Icon name="chart" size="sm" color="var(--iln-text)" /> 理論分析（截至 {{ reportDate }} 收盤）</span>
             </div>
 
@@ -22,7 +22,7 @@
 
       <!-- Empty State -->
             <div v-else-if="isEmpty" class="state-box">
-              <p><Icon name="default" size="sm" color="var(--iln-hint)" /> 暫無任何報告數據</p>
+              <p><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 暫無任何報告數據</p>
               <span class="state-hint">尚未生成任何日報報告</span>
             </div>
 

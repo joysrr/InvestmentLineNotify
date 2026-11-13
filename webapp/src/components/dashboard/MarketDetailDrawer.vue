@@ -10,7 +10,7 @@
   >
     <template #header>
       <div class="drawer-header-title">
-        <span class="drawer-icon"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
+        <span class="drawer-icon"><Icon name="neutral" size="sm" color="var(--iln-hint)" /></span>
         <h3>市場總經環境明細</h3>
       </div>
     </template>
@@ -73,7 +73,7 @@
         class="drawer-footer-link"
         @click="$emit('update:visible', false)"
       >
-        <Icon name="default" size="sm" color="var(--iln-hint)" /> 查看完整市場雷達 →
+        <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 查看完整市場雷達 →
       </router-link>
     </div>
   </el-drawer>
