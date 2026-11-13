@@ -21,7 +21,7 @@
         data-testid="summary-banner"
       >
         <div class="banner-left">
-          <span class="banner-emoji">{{ health?.lightStatus?.emoji || "📊" }}</span>
+          <span class="banner-emoji"><Icon :name="health?.lightStatus?.emoji || 'chart'" size="sm" /></span>
           <div class="banner-labels">
             <span class="banner-label">{{ health?.lightStatus?.label || "分析中" }}</span>
             <span class="banner-title">策略健康分數</span>
@@ -43,7 +43,7 @@
           radius="xl"
           data-testid="health-risk-card"
         >
-          <h4 class="card-title">🛡️ 健康度與風險剖析</h4>
+          <h4 class="card-title"><Icon name="shield" size="sm" color="var(--iln-brand)" /> 健康度與風險剖析</h4>
           <ul class="card-list">
             <li class="card-item" v-for="c in healthComponents" :key="c.title">
               <span class="item-label">{{ c.title }}</span>
@@ -60,7 +60,7 @@
           radius="xl"
           data-testid="market-tactics-card"
         >
-          <h4 class="card-title">📈 市場多空與策略戰術</h4>
+          <h4 class="card-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 市場多空與策略戰術</h4>
           <ul class="card-list">
             <li class="card-item">
               <span class="item-label">建議動作</span>
@@ -85,6 +85,7 @@
 <script setup>
 import { computed } from "vue";
 import ContentCard from "@/components/common/ContentCard.vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   health: { type: Object, default: null },
