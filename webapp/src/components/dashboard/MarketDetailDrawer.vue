@@ -17,7 +17,7 @@
 
     <div class="drawer-body">
       <!-- 1. VIX 波動率 -->
-      <div class="metric-row">
+      <ContentCard variant="flat" padding="sm" radius="md">
         <div class="row-left">
           <span class="row-label">美股 VIX 恐慌指數</span>
           <span class="row-desc">警戒線 20 / 危機線 35</span>
@@ -25,10 +25,10 @@
         <div class="row-right">
           <span class="row-val">{{ formatNumber(vix) }}</span>
         </div>
-      </div>
+      </ContentCard>
 
       <!-- 2. PB PR 分位數 -->
-      <div class="metric-row">
+      <ContentCard variant="flat" padding="sm" radius="md">
         <div class="row-left">
           <span class="row-label">台股大盤 PB 歷史分位 (PR)</span>
           <span class="row-desc">近 10 年本淨比位階</span>
@@ -37,10 +37,10 @@
           <span class="row-val">{{ pbPrValue }}%</span>
           <span class="row-tag" :class="pbPrLevel?.textClass">{{ pbPrLevel?.label || "合理" }}</span>
         </div>
-      </div>
+      </ContentCard>
 
       <!-- 3. 國發會景氣燈號 -->
-      <div class="metric-row">
+      <ContentCard variant="flat" padding="sm" radius="md">
         <div class="row-left">
           <span class="row-label">景氣對策信號</span>
           <span class="row-desc">國發會總體景氣狀態</span>
@@ -49,10 +49,10 @@
           <span class="row-val">{{ lightEmoji }}</span>
           <span class="row-tag">{{ lightText }}</span>
         </div>
-      </div>
+      </ContentCard>
 
       <!-- 4. 散戶融資增減比率 -->
-      <div class="metric-row">
+      <ContentCard variant="flat" padding="sm" radius="md">
         <div class="row-left">
           <span class="row-label">全市場融資 5 日增減</span>
           <span class="row-desc">散戶槓桿熱度與浮額監控</span>
@@ -65,7 +65,7 @@
             {{ marginOverheated ? "散戶過熱阻尼" : "未過熱" }}
           </span>
         </div>
-      </div>
+      </ContentCard>
 
       <!-- 底部連結 (Phase 3) -->
       <router-link
@@ -139,7 +139,7 @@ function formatMarginChange(val) {
 
 .drawer-header-title h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--iln-font-base);
   font-weight: 700;
   color: var(--iln-text);
 }
@@ -155,15 +155,6 @@ function formatMarginChange(val) {
   padding: 8px 0;
 }
 
-.metric-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: var(--iln-surface);
-}
-
 .row-left {
   display: flex;
   flex-direction: column;
@@ -171,13 +162,13 @@ function formatMarginChange(val) {
 }
 
 .row-label {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   color: var(--iln-text);
 }
 
 .row-desc {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 
@@ -189,13 +180,13 @@ function formatMarginChange(val) {
 }
 
 .row-val {
-  font-size: 15px;
+  font-size: var(--iln-font-base);
   font-weight: 700;
   color: var(--iln-text);
 }
 
 .row-tag {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   font-weight: 600;
 }
 
@@ -217,16 +208,16 @@ function formatMarginChange(val) {
   text-align: center;
   padding: 14px;
   margin-top: 4px;
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   color: var(--iln-brand);
   text-decoration: none;
-  border-radius: 12px;
-  border: 1px solid rgba(36, 129, 204, 0.2);
-  background: rgba(36, 129, 204, 0.04);
+  border-radius: var(--iln-radius-md);
+  border: 1px solid var(--iln-border-subtle);
+  background: var(--iln-surface);
   transition: background 0.15s ease;
 }
 .drawer-footer-link:active {
-  background: rgba(36, 129, 204, 0.12);
+  background: var(--iln-brand-hover-bg);
 }
 </style>
