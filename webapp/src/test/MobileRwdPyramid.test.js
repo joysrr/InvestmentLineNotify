@@ -19,7 +19,7 @@ describe("Phase 4 RWD & Mobile Layout Tests (375px/390px Viewport)", () => {
       },
     });
 
-    expect(wrapper.classes()).toContain("cockpit-card");
+    expect(wrapper.classes()).toContain("content-card");
     expect(wrapper.find(".drawer-hint").exists()).toBe(true);
     expect(wrapper.find(".drawer-hint").text()).toContain("點擊查看市場明細");
   });

@@ -1,14 +1,24 @@
 <template>
-  <div
-    class="cockpit-card"
-    :class="regimeLevel?.cardClass || 'card-ok'"
+  <ContentCard
+    variant="default"
+    padding="md"
+    radius="lg"
+    :status="statusKey"
+    status-style="left-border"
+    clickable
     @click="$emit('open-drawer')"
     data-testid="macro-cockpit-card"
   >
-    <div class="cockpit-left">
+    <template #header>
       <div class="cockpit-header">
         <span class="cockpit-tag">總經象限</span>
-        <span v-if="vixOverrideActive" class="cockpit-flash" title="VIX 短路保護生效">⚡</span>
+        <span
+          v-if="vixOverrideActive"
+          class="cockpit-flash"
+          title="VIX 短路保護生效"
+        >
+          ⚡
+        </span>
       </div>
       <div class="cockpit-title" :class="regimeLevel?.textClass">
         {{ regimeLevel?.label || "正常" }}
@@ -16,23 +26,32 @@
       <div v-if="regimeLevel?.subLabel" class="cockpit-sub">
         {{ regimeLevel.subLabel }}
       </div>
-    </div>
+    </template>
 
-    <div class="cockpit-right">
+    <div class="cockpit-body">
       <div class="cockpit-metric">
-        <span class="metric-label">CBOE VIX 指數</span>
-        <span class="metric-value">{{ formatNumber(vix) }}</span>
+        <StatCard
+          label="CBOE VIX 指數"
+          :value="formatNumber(vix)"
+          :framed="false"
+          size="md"
+          align="right"
+        />
       </div>
       <div class="cockpit-action">
         <span class="drawer-hint">點擊查看市場明細</span>
-        <span class="chevron">❯</span>
+        <span class="chevron">❕</span>
       </div>
     </div>
-  </div>
+  </ContentCard>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from "vue";
+import ContentCard from "@/components/common/ContentCard.vue";
+import StatCard from "@/components/common/StatCard.vue";
+
+const props = defineProps({
   regimeLevel: {
     type: Object,
     default: () => ({
@@ -54,6 +73,11 @@ defineProps({
 
 defineEmits(["open-drawer"]);
 
+const statusKey = computed(() => {
+  const cls = props.regimeLevel?.cardClass || "card-ok";
+  return cls.replace("card-", "");
+});
+
 function formatNumber(val) {
   if (val == null || val === "—") return "—";
   const n = Number(val);
@@ -62,28 +86,11 @@ function formatNumber(val) {
 </script>
 
 <style scoped>
-.cockpit-card {
+.cockpit-body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: var(--iln-bg);
-  border: 1px solid var(--iln-surface);
-  margin-bottom: 12px;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  user-select: none;
-}
-
-.cockpit-card:active {
-  transform: scale(0.985);
-}
-
-.cockpit-left {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  width: 100%;
 }
 
 .cockpit-header {
@@ -93,7 +100,7 @@ function formatNumber(val) {
 }
 
 .cockpit-tag {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   font-weight: 600;
   color: var(--iln-hint);
   text-transform: uppercase;
@@ -101,78 +108,41 @@ function formatNumber(val) {
 }
 
 .cockpit-flash {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
 }
 
 .cockpit-title {
-  font-size: 18px;
+  font-size: var(--iln-font-md);
   font-weight: 700;
   line-height: 1.25;
 }
 
 .cockpit-sub {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
   margin-top: 2px;
-}
-
-.cockpit-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
 }
 
 .cockpit-metric {
   text-align: right;
 }
 
-.metric-label {
-  font-size: 10px;
-  color: var(--iln-hint);
-  display: block;
-}
-
-.metric-value {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--iln-text);
-}
-
 .cockpit-action {
   display: flex;
   align-items: center;
   gap: 2px;
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   font-weight: 600;
   color: var(--iln-brand);
 }
 
 .chevron {
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
 }
 
-.card-ok {
-  border-left: 5px solid var(--iln-ok);
-}
-
-.card-warn {
-  border-left: 5px solid var(--iln-warn);
-}
-
-.card-danger {
-  border-left: 5px solid var(--iln-danger);
-}
-
-.text-ok {
-  color: var(--iln-ok-text);
-}
-
-.text-warn {
-  color: var(--iln-warn-text);
-}
-
-.text-danger {
-  color: var(--iln-danger-text);
+/* 保留互動效果（ContentCard 未提供） */
+.content-card--clickable:active {
+  transform: scale(0.985);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 </style>
