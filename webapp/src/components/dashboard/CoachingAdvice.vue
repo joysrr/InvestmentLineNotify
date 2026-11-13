@@ -21,7 +21,7 @@
         @click="riskExpanded = !riskExpanded"
         style="cursor: pointer"
       >
-        <span>⚠️ 風險提示</span>
+        <span><Icon name="warn" size="sm" color="var(--iln-warn)" /> 風險提示</span>
         <span class="ai-count">{{ risks.length }} 項</span>
         <span class="expand-arrow">{{ riskExpanded ? "▲" : "▼" }}</span>
       </div>
@@ -37,7 +37,7 @@
         @click="actionExpanded = !actionExpanded"
         style="cursor: pointer"
       >
-        <span>📌 下一步觀察清單</span>
+        <span><Icon name="default" size="sm" color="var(--iln-hint)" /> 下一步觀察清單</span>
         <span class="ai-count">{{ actions.length }} 項</span>
         <span class="expand-arrow">{{ actionExpanded ? "▲" : "▼" }}</span>
       </div>
@@ -53,7 +53,7 @@
         @click="mindsetExpanded = !mindsetExpanded"
         style="cursor: pointer"
       >
-        <span>💡 行動微調建議</span>
+        <span><Icon name="default" size="sm" color="var(--iln-hint)" /> 行動微調建議</span>
         <span class="ai-count">{{ mindset.length }} 項</span>
         <span class="expand-arrow">{{ mindsetExpanded ? "▲" : "▼" }}</span>
       </div>
@@ -82,6 +82,7 @@
 <script setup>
 import { ref } from "vue";
 import ContentCard from "@/components/common/ContentCard.vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   report: Object,
