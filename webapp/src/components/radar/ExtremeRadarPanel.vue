@@ -4,21 +4,24 @@
     <!-- 無資料時提示 -->
     <div v-if="!leadingIndicators" class="empty-radar-bar">
       <Icon name="shield" size="sm" color="var(--iln-hint)" /> 極端雷達與防禦層：暫無雷達數據
-    </div>
+    </div><div v-else-if="isIdle" class="radar-panel radar-panel-idle">
+        <CollapsibleSection
+          :expanded="isExpanded"
+          @update:expanded="isExpanded = $event"
+          indicator="chevron"
+        >
+          <template #header>
+            <div class="status-row">
+          <span class="status-icon">
+            <Icon name="shield" size="sm" />
+          </span>
+          <span class="status-title">極端防禦狀態：</span>
+          <span class="status-badge badge-idle">常態平穩</span>
+          <span class="status-sub">監控狀態：IDLE（未觸發異常警報）</span>
+          <span class="status-summary">● 4 項指標監控中 · 全數正常</span>
+        </div>
+      </template>
 
-    <!-- 常態平穩條狀（IDLE） -->
-    <div
-      v-else-if="isIdle"
-      class="radar-panel radar-panel-idle"
-    >
-      <CollapsibleSection
-        title="極端防禦狀態：常態平穩 · 監控狀態：IDLE"
-        :expanded="isExpanded"
-        @update:expanded="isExpanded = $event"
-      >
-        <template #default>
-
-      <!-- 常態展開檢視微型雷達詳細清單 -->
       <div v-if="isExpanded" class="radar-detail-list">
         <div
           v-for="r in normalizedRadars"
@@ -56,25 +59,29 @@
           </div>
         </div>
       </div>
-        </template>
-      </CollapsibleSection>
-    </div>
-
-    <!-- 極端警報觸發面板（ACTIVE_DEFENSE / CONTINUOUS_SHOCK / COOLDOWN） -->
-    <div
-      v-else
-      class="radar-panel radar-panel-alert"
-      :class="`panel-severity-${maxSeverity.toLowerCase()}`"
-    >
+  </CollapsibleSection>
+</div><div v-else class="radar-panel radar-panel-alert">
       <CollapsibleSection
-        :title="`防禦層已啟動 · ${stateLabel} (${stateMachine.state})`"
         :expanded="isExpanded"
         @update:expanded="isExpanded = $event"
+        indicator="chevron"
       >
-        <template #default>
+        <template #header>
+          <div class="status-row">
+            <span class="status-icon">
+              <Icon name="danger" size="sm" color="var(--iln-danger)" />
+            </span>
+            <span class="status-title">防禦層已啟動：</span>
+            <span class="status-badge badge-active">
+              {{ stateLabel }} ({{ stateMachine.state }})
+            </span>
+            <span v-if="stateMachine.activeDays > 0" class="status-sub">
+              (第 {{ stateMachine.activeDays }} 天)
+            </span>
+          </div>
+        </template>
 
-      <!-- 觸發雷達清單與行動紀律（預設展開） -->
-      <div v-show="isExpanded" class="radar-alert-body">
+        <div v-show="isExpanded" class="radar-alert-body">
         <!-- 觸發的雷達清單 -->
         <div class="triggered-section">
           <div class="section-subtitle"><Icon name="trigger" size="sm" color="var(--iln-warn)" /> 觸發極端雷達</div>
@@ -97,7 +104,7 @@
 
         <!-- 嚴格行動紀律 -->
         <div class="action-discipline-section">
-          <div class="section-subtitle"><Icon name="default" size="sm" color="var(--iln-hint)" /> 即時防禦行動紀律</div>
+          <div class="section-subtitle"><Icon name="shield" size="sm" color="var(--iln-hint)" /> 即時防禦行動紀律</div>
           <div class="discipline-grid">
             <!-- 00675L 行動 -->
             <StatCard size="sm" :framed="false" align="left" label="00675L (2x槓桿)" :value="stateMachine.freeze00675L ? '凍結禁止加碼' : '允許加碼'" :status="stateMachine.freeze00675L ? 'danger' : 'ok'" />
@@ -113,15 +120,14 @@
           </div>
         </div>
       </div>
-        </template>
       </CollapsibleSection>
     </div>
   </div>
-  </ContentCard>
+</ContentCard>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import ContentCard from "@/components/common/ContentCard.vue";
 import StatCard from "@/components/common/StatCard.vue";
 import Icon from "@/components/common/Icon.vue";
@@ -282,9 +288,15 @@ const isIdle = computed(() => {
 });
 
 // 當非 IDLE（極端狀態）時，預設自動展開
-if (!isIdle.value) {
-  isExpanded.value = true;
-}
+watch(
+  () => stateMachine.value.state,
+  (state) => {
+    if (state !== "IDLE") {
+      isExpanded.value = true;
+    }
+  },
+  { immediate: true },
+);
 function toggleRadarInfo(radarId) {
   openRadarInfo.value = openRadarInfo.value === radarId ? null : radarId;
 }
@@ -302,12 +314,6 @@ const stateLabel = computed(() => {
   }
 });
 
-const maxSeverity = computed(() => {
-  if (triggeredRadars.value.some((r) => r.severity === "CRITICAL")) return "CRITICAL";
-  if (triggeredRadars.value.some((r) => r.severity === "ALERT")) return "ALERT";
-  if (triggeredRadars.value.some((r) => r.severity === "WATCH")) return "WATCH";
-  return "NORMAL";
-});
 </script>
 
 <style scoped>

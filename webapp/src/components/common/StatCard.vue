@@ -137,7 +137,7 @@ const ariaLabel = computed(() => {
   background: var(--iln-bg);
   border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-md);
-  padding: 12px;
+  padding: var(--iln-space-3);
   box-sizing: border-box;
 }
 

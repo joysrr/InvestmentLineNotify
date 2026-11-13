@@ -134,7 +134,7 @@ describe("AccountView", () => {
     expect(fetchStatus).toHaveBeenCalledOnce();
     expect(fetchReports).toHaveBeenCalledWith(30);
     expect(wrapper.text()).toContain("系統狀態");
-    await wrapper.find(".toggle-btn").trigger("click");
+    await wrapper.find(".collapsible-header").trigger("click");
     expect(wrapper.text()).toContain("provider failed");
   });
 

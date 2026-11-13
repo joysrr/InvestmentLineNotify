@@ -119,7 +119,7 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
     expect(wrapper.find(".collapsible-content").exists()).toBe(false);
 
     // 點擊展開折疊
-    await wrapper.find(".toggle-btn").trigger("click");
+    await wrapper.find(".collapsible-header").trigger("click");
     expect(wrapper.find(".collapsible-content").exists()).toBe(true);
     expect(wrapper.text()).toContain("美股隔夜衝擊");
     expect(wrapper.text()).toContain("籌碼沉澱偵測");
@@ -204,8 +204,8 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
       },
     });
 
-    await wrapper.find(".toggle-btn").trigger("click");
-    expect(wrapper.find(".radar-detail-list").exists()).toBe(true);
+    await wrapper.find(".collapsible-header").trigger("click");
+    expect(wrapper.find(".collapsible-content").exists()).toBe(true);
 
     // 應補充繁體中文雷達名稱，不可為空白
     expect(wrapper.text()).toContain("美股隔夜衝擊");
@@ -248,7 +248,7 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
       },
     });
 
-    await wrapper.find(".toggle-btn").trigger("click");
+    await wrapper.find(".collapsible-header").trigger("click");
 
     expect(wrapper.text()).toContain("日盤到夜盤變化率");
     expect(wrapper.text()).toContain("非三大法人淨部位比率");
@@ -276,7 +276,7 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
       },
     });
 
-    await wrapper.find(".toggle-btn").trigger("click");
+    await wrapper.find(".collapsible-header").trigger("click");
 
     expect(wrapper.text()).toContain("60 日乖離率");
     expect(wrapper.text()).toContain("資料不足");
@@ -291,7 +291,7 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
       },
     });
 
-    await wrapper.find(".toggle-btn").trigger("click");
+    await wrapper.find(".collapsible-header").trigger("click");
 
     expect(wrapper.text()).toContain("監控狀態：IDLE");
     expect(wrapper.text()).toContain("隔夜衝擊");
@@ -320,7 +320,7 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
       },
     });
 
-    await wrapper.find(".toggle-btn").trigger("click");
+    await wrapper.find(".collapsible-header").trigger("click");
 
     expect(wrapper.findAll(".mini-name")[0].text()).toBe("美股隔夜衝擊");
     expect(wrapper.findAll(".radar-code")[0].text()).toBe(

@@ -9,7 +9,7 @@ describe("CollapsibleSection", () => {
       slots: { default: "<p>內容</p>" },
     });
     expect(wrapper.text()).toContain("測試標題");
-    expect(wrapper.text()).toContain("展開");
+    expect(wrapper.find(".collapsible-indicator").exists()).toBe(true);
   });
 
   it("defaults to collapsed state (content hidden)", () => {
@@ -25,7 +25,7 @@ describe("CollapsibleSection", () => {
       props: { title: "測試標題" },
       slots: { default: "<p data-testid='content'>內容</p>" },
     });
-    await wrapper.find("button.toggle-btn").trigger("click");
+    await wrapper.find(".collapsible-header").trigger("click");
     await wrapper.vm.$nextTick();
     expect(wrapper.find("[data-testid='content']").exists()).toBe(true);
   });
@@ -36,7 +36,7 @@ describe("CollapsibleSection", () => {
       slots: { default: "<p data-testid='content'>內容</p>" },
     });
     expect(wrapper.find("[data-testid='content']").exists()).toBe(true);
-    await wrapper.find("button.toggle-btn").trigger("click");
+    await wrapper.find(".collapsible-header").trigger("click");
     await wrapper.vm.$nextTick();
     expect(wrapper.find("[data-testid='content']").exists()).toBe(false);
   });
@@ -46,7 +46,7 @@ describe("CollapsibleSection", () => {
       props: { title: "測試標題", expanded: false },
       slots: { default: "<p>內容</p>" },
     });
-    await wrapper.find("button.toggle-btn").trigger("click");
+    await wrapper.find(".collapsible-header").trigger("click");
     await wrapper.vm.$nextTick();
     const emitted = wrapper.emitted("update:expanded");
     expect(emitted).toBeTruthy();
@@ -63,9 +63,60 @@ describe("CollapsibleSection", () => {
 
   it("supports custom toggle text via prop", () => {
     const wrapper = mount(CollapsibleSection, {
-      props: { title: "測試標題", toggleText: "顯示/隱藏" },
+      props: { title: "測試標題", toggleText: "顯示/隱藏", indicator: "text" },
       slots: { default: "<p>內容</p>" },
     });
-    expect(wrapper.find("button.toggle-btn").text()).toContain("顯示/隱藏");
+    expect(wrapper.find(".collapsible-indicator").text()).toContain(
+      "顯示/隱藏",
+    );
+  });
+
+  /* ---------- B7: 可用性與受控同步 ---------- */
+
+  it("has aria-controls pointing to content id", async () => {
+    const wrapper = mount(CollapsibleSection, {
+      props: { title: "測試", expanded: true },
+      slots: { default: "<p>內容</p>" },
+    });
+    const header = wrapper.find(".collapsible-header");
+    const content = wrapper.find(".collapsible-content");
+    expect(header.attributes("aria-controls")).toBe(content.attributes("id"));
+  });
+
+  it("renders header slot", () => {
+    const wrapper = mount(CollapsibleSection, {
+      props: { title: "測試" },
+      slots: { header: "<span data-testid='custom-header'>自訂標題</span>" },
+    });
+    expect(wrapper.find("[data-testid='custom-header']").exists()).toBe(true);
+    expect(wrapper.text()).not.toContain("測試");
+  });
+
+  it("syncs with expanded prop changes", async () => {
+    const wrapper = mount(CollapsibleSection, {
+      props: { title: "測試", expanded: false },
+      slots: { default: "<p data-testid='content'>內容</p>" },
+    });
+    expect(wrapper.find("[data-testid='content']").exists()).toBe(false);
+    await wrapper.setProps({ expanded: true });
+    expect(wrapper.find("[data-testid='content']").exists()).toBe(true);
+  });
+
+  it("clickableHeader=false renders non-clickable header div", () => {
+    const wrapper = mount(CollapsibleSection, {
+      props: { title: "測試", clickableHeader: false },
+      slots: { default: "<p data-testid='content'>內容</p>" },
+    });
+    const header = wrapper.find(".collapsible-header");
+    expect(header.attributes("type")).toBeUndefined();
+    expect(header.exists()).toBe(true);
+  });
+
+  it("indicator=chevron adds is-open class when expanded", () => {
+    const wrapper = mount(CollapsibleSection, {
+      props: { title: "測試", expanded: true, indicator: "chevron" },
+      slots: { default: "<p>內容</p>" },
+    });
+    expect(wrapper.find(".collapsible-indicator.is-open").exists()).toBe(true);
   });
 });

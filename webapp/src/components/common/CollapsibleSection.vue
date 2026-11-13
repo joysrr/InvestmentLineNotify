@@ -1,24 +1,53 @@
 <template>
   <div class="collapsible-section">
-    <div class="collapsible-header">
-      <span class="collapsible-title">{{ title }}</span>
-      <button
-        type="button"
-        class="toggle-btn"
-        :aria-expanded="isExpanded"
-        @click="toggle"
+    <component
+      :is="clickableHeader ? 'button' : 'div'"
+      :type="clickableHeader ? 'button' : undefined"
+      class="collapsible-header"
+      :class="{ 'is-clickable': clickableHeader }"
+      :aria-expanded="isExpanded"
+      :aria-controls="contentId"
+      @click="clickableHeader && toggle()"
+    >
+      <slot name="header">
+        <span class="collapsible-title">{{ title }}</span>
+      </slot>
+      <span
+        class="collapsible-indicator"
+        :class="{ 'is-open': indicator === 'chevron' && isExpanded }"
+        aria-hidden="true"
       >
-        {{ toggleText || (isExpanded ? "收合" : "展開") }}
-      </button>
-    </div>
-    <div v-if="isExpanded" class="collapsible-content">
-      <slot />
-    </div>
+        <Icon
+          v-if="indicator === 'chevron'"
+          name="chevron-down"
+          size="sm"
+          aria-hidden="true"
+        />
+        <template v-else-if="indicator === 'plus-minus'">
+          {{ isExpanded ? "−" : "+" }}
+        </template>
+        <template v-else>
+          {{ toggleText || (isExpanded ? "收合" : "展開") }}
+        </template>
+      </span>
+    </component>
+
+    <Transition name="collapse">
+      <div
+        v-if="isExpanded"
+        :id="contentId"
+        class="collapsible-content"
+        role="region"
+      >
+        <slot />
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   title: {
@@ -33,11 +62,29 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  indicator: {
+    type: String,
+    default: "chevron", // 'chevron' | 'text' | 'plus-minus'
+  },
+  clickableHeader: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits(["update:expanded"]);
 
+let uidCounter = 0;
+const contentId = `collapsible-content-${++uidCounter}`;
+
 const isExpanded = ref(props.expanded);
+
+watch(
+  () => props.expanded,
+  (val) => {
+    isExpanded.value = val;
+  },
+);
 
 const toggle = () => {
   isExpanded.value = !isExpanded.value;
@@ -56,9 +103,22 @@ const toggle = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--iln-space-2);
+  width: 100%;
   padding: var(--iln-space-3);
   background: var(--iln-bg);
+  border: none;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.collapsible-header.is-clickable {
   cursor: pointer;
+}
+
+.collapsible-header:not(.is-clickable) {
+  cursor: default;
 }
 
 .collapsible-title {
@@ -66,7 +126,7 @@ const toggle = () => {
   color: var(--iln-text);
 }
 
-.collapsible-toggle {
+.toggle-btn {
   background: none;
   border: none;
   color: var(--iln-hint);
@@ -76,8 +136,30 @@ const toggle = () => {
   border-radius: var(--iln-radius-sm);
 }
 
-.collapsible-toggle:hover {
+.toggle-btn:hover {
   background: var(--iln-surface);
+}
+
+.collapsible-indicator {
+  display: inline-flex;
+  align-items: center;
+  color: var(--iln-hint);
+  font-size: var(--iln-font-sm);
+  transition: transform var(--iln-duration-base, 200ms)
+    var(--iln-ease-standard, ease);
+}
+
+.collapse-enter-active,
+.collapse-leave-active {
+  transition:
+    opacity var(--iln-duration-base, 200ms) var(--iln-ease-standard, ease),
+    transform var(--iln-duration-base, 200ms) var(--iln-ease-standard, ease);
+}
+
+.collapse-enter-from,
+.collapse-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 
 .collapsible-content {

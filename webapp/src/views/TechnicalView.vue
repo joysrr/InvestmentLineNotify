@@ -66,7 +66,7 @@
 
       <!-- 風險雷達 -->
       <section class="section">
-        <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 訊號雷達</h3>
+        <h3 class="section-title"><Icon name="radar" size="sm" color="var(--iln-hint)" /> 訊號雷達</h3>
         <div class="risk-summary">
           <div class="risk-bar" :class="reversalRiskClass">
             <span class="risk-bar-label">近期轉弱</span>
@@ -99,56 +99,56 @@
         </div>
 
         <!-- 轉弱監控詳細 -->
-        <div class="signal-group">
-          <button
-            class="signal-group-header"
-            @click="reversalExpanded = !reversalExpanded"
-          >
-            <span><Icon name="default" size="sm" color="var(--iln-hint)" /> 轉弱監控詳細</span>
-            <span class="expand-arrow">{{ reversalExpanded ? "▲" : "▼" }}</span>
-          </button>
-          <div v-if="reversalExpanded" class="signal-rows">
+        <CollapsibleSection
+          title="轉弱監控詳細"
+          :expanded="reversalExpanded"
+          @update:expanded="reversalExpanded = $event"
+          indicator="chevron"
+        >
+          <div class="signal-rows">
             <div
               v-for="sig in reversalSignals"
               :key="sig.name"
               class="signal-row"
               :class="sig.triggered ? 'sig-on' : 'sig-off'"
             >
-              <span class="sig-icon"><Icon :name="sig.triggered ? 'trigger' : 'default'" size="sm" /></span>
+              <span class="sig-icon">
+                <Icon :name="sig.triggered ? 'alert-triangle' : 'check-circle'" size="sm" />
+              </span>
               <span class="sig-name">{{ sig.name }}</span>
               <span class="sig-value">{{ sig.value }}</span>
               <span class="sig-cond">{{ sig.condition }}</span>
             </div>
           </div>
-        </div>
+        </CollapsibleSection>
 
         <!-- 賣出訊號詳細 -->
-        <div class="signal-group">
-          <button
-            class="signal-group-header"
-            @click="sellExpanded = !sellExpanded"
-          >
-            <span><Icon name="default" size="sm" color="var(--iln-hint)" /> 賣出訊號詳細</span>
-            <span class="expand-arrow">{{ sellExpanded ? "▲" : "▼" }}</span>
-          </button>
-          <div v-if="sellExpanded" class="signal-rows">
+        <CollapsibleSection
+          title="賣出訊號詳細"
+          :expanded="sellExpanded"
+          @update:expanded="sellExpanded = $event"
+          indicator="chevron"
+        >
+          <div class="signal-rows">
             <div
               v-for="sig in sellSignals"
               :key="sig.name"
               class="signal-row"
               :class="sig.triggered ? 'sig-on' : 'sig-off'"
             >
-              <span class="sig-icon"><Icon :name="sig.triggered ? 'trigger' : 'default'" size="sm" /></span>
+              <span class="sig-icon">
+                <Icon :name="sig.triggered ? 'alert-triangle' : 'check-circle'" size="sm" />
+              </span>
               <span class="sig-name">{{ sig.name }}</span>
               <span class="sig-value">{{ sig.value }}</span>
               <span class="sig-cond">{{ sig.condition }}</span>
             </div>
           </div>
-        </div>
+        </CollapsibleSection>
       </section>
     </template>
 
-    <EmptyState v-else-if="!loading" emoji="📭" title="尚無指標數據" />
+    <EmptyState v-else-if="!loading" icon="Box" title="尚無指標數據" />
   </div>
   </GlobalErrorBoundary>
 </template>
@@ -156,6 +156,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import Icon from "@/components/common/Icon.vue";
+import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 import { fetchReports } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { waitReady } from "../composables/useTelegram.js";
@@ -560,25 +561,14 @@ onUnmounted(() => {
   background: var(--iln-danger);
 }
 .dot-off {
-  background: rgba(0, 0, 0, 0.12);
+  background: var(--iln-border-subtle);
 }
 
 .signal-group {
   margin-bottom: 8px;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.07);
-}
-.signal-group-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 12px;
-  background: var(--iln-surface);
-  border: none;
-  font-size: 13px;
-  font-weight: 600;
+  border: 1px solid var(--iln-border-subtle);
 }
 .signal-rows {
   padding: 8px;

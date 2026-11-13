@@ -101,11 +101,18 @@ describe("TechnicalView", () => {
     const wrapper = mountView();
     await flushPromises();
 
-    expect(wrapper.findAll(".signal-rows")).toHaveLength(2);
-    await wrapper.findAll(".signal-group-header")[0].trigger("click");
-    expect(wrapper.findAll(".signal-rows")).toHaveLength(1);
-    await wrapper.findAll(".signal-group-header")[0].trigger("click");
-    expect(wrapper.findAll(".signal-rows")).toHaveLength(2);
+    // 兩個 CollapsibleSection 預設展開 (reversalExpanded = sellExpanded = true)
+    expect(wrapper.findAll(".collapsible-content")).toHaveLength(2);
+
+    // 點擊第一個 header 收合
+    await wrapper.findAll(".collapsible-header")[0].trigger("click");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.findAll(".collapsible-content")).toHaveLength(1);
+
+    // 點擊第二個 header 收合
+    await wrapper.findAll(".collapsible-header")[1].trigger("click");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.findAll(".collapsible-content")).toHaveLength(0);
   });
 });
 
