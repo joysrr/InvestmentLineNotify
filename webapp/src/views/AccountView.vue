@@ -286,6 +286,16 @@ function formatMoney(val) {
   return Math.round(val).toLocaleString();
 }
 
+// ── 設計令牌讀取 ────────────────────────────────────────
+// ECharts Canvas 無法解析 CSS var()，由 JS 以 getComputedStyle 讀取設計令牌
+function readToken(name, fallback) {
+  if (typeof document === "undefined") return fallback;
+  const v = getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
+  return v || fallback;
+}
+
 // ── _meta.lastRun ──
 const lastRunLabel = computed(() => {
   const ts = status.value?._meta?.lastRun;
@@ -339,8 +349,14 @@ const prTrendOption = computed(() => {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: "rgba(36, 129, 204, 0.2)" },
-              { offset: 1, color: "rgba(36, 129, 204, 0)" },
+              {
+                offset: 0,
+                color: readToken("--iln-brand-fill-strong", "rgba(36, 129, 204, 0.2)"),
+              },
+              {
+                offset: 1,
+                color: readToken("--iln-brand-fill-fade", "rgba(36, 129, 204, 0)"),
+              },
             ],
           },
         },
@@ -477,14 +493,14 @@ const allHealthy = computed(
   font-size: 11px;
   font-weight: 600;
   color: var(--iln-brand);
-  background: rgba(36, 129, 204, 0.1);
+  background: var(--iln-brand-fill-light);
   padding: 4px 10px;
   border-radius: 999px;
   text-decoration: none;
   transition: all 0.2s ease;
 }
 .chart-link-btn:hover {
-  background: rgba(36, 129, 204, 0.2);
+  background: var(--iln-brand-fill-strong);
 }
 
 /* ── Info rows ── */
@@ -689,9 +705,9 @@ const allHealthy = computed(
   gap: 12px;
   align-items: flex-start;
   padding: 10px 12px;
-  background: rgba(36, 129, 204, 0.06);
+  background: var(--iln-brand-fill-faint);
   border-radius: 10px;
-  border: 1px solid rgba(36, 129, 204, 0.15);
+  border: 1px solid var(--iln-brand-fill-border);
 }
 .notice-empty {
   background: rgba(180, 180, 180, 0.06);

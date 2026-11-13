@@ -10,6 +10,13 @@
   --iln-brand-hover: #1c6699;
   --iln-brand-soft: rgba(36, 129, 204, 0.08);
   --iln-brand-strong: rgba(36, 129, 204, 0.15);
+  /* ECharts canvas 彩填：var() 在 Canvas 無法解析，由 AccountView readToken() 讀取 */
+  --iln-brand-fill-strong: rgba(36, 129, 204, 0.2);
+  --iln-brand-fill-fade: rgba(36, 129, 204, 0);
+  /* ECharts/Canvas 與樣式共用的品牌塗色令牌（var() 於 CSS 可解析） */
+  --iln-brand-fill-light: rgba(36, 129, 204, 0.1);
+  --iln-brand-fill-faint: rgba(36, 129, 204, 0.06);
+  --iln-brand-fill-border: rgba(36, 129, 204, 0.15);
 
   /* 新增：Telegram 主題文字與背景 */
   --iln-bg: var(--tg-theme-bg-color, #ffffff);
@@ -139,6 +146,11 @@
   --iln-brand-hover: #4aa3e8;
   --iln-brand-soft: rgba(36, 129, 204, 0.15);
   --iln-brand-strong: rgba(36, 129, 204, 0.25);
+  --iln-brand-fill-strong: rgba(54, 144, 220, 0.24);
+  --iln-brand-fill-fade: rgba(54, 144, 220, 0);
+  --iln-brand-fill-light: rgba(54, 144, 220, 0.12);
+  --iln-brand-fill-faint: rgba(54, 144, 220, 0.08);
+  --iln-brand-fill-border: rgba(54, 144, 220, 0.18);
   --iln-ok-bg: rgba(16, 185, 129, 0.15);
   --iln-warn-bg: rgba(245, 158, 11, 0.15);
   --iln-danger-bg: rgba(239, 68, 68, 0.15);
