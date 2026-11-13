@@ -1,5 +1,5 @@
 <template>
-  <section class="section">
+  <ContentCard variant="outlined" padding="lg" radius="lg">
     <h3 class="section-title">市場快照</h3>
     <div v-if="loading" class="snapshot-grid snapshot-grid--3">
       <div v-for="i in 3" :key="i" class="snapshot-card skeleton-card">
@@ -39,10 +39,12 @@
         <span class="snap-sub snap-sub--neutral">{{ lightText }}</span>
       </div>
     </div>
-  </section>
+  </ContentCard>
 </template>
 
 <script setup>
+import ContentCard from "@/components/common/ContentCard.vue";
+
 defineProps({
   status: Object,
   loading: Boolean,
@@ -61,55 +63,62 @@ defineProps({
 <style scoped>
 .snapshot-grid {
   display: grid;
-  gap: 10px;
-}
-.snapshot-grid--3 {
   grid-template-columns: repeat(3, 1fr);
-}
-@media (max-width: 480px) {
-  .snapshot-grid--3 {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  gap: 12px;
 }
 .snapshot-card {
   background: var(--iln-bg);
-  border-radius: 12px;
+  border-radius: var(--iln-radius-md);
   padding: 12px;
+  border: 1px solid var(--iln-surface);
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--iln-surface);
+  gap: 4px;
+}
+.skeleton-card {
+  background: var(--iln-surface);
+  border-radius: var(--iln-radius-md);
+  padding: 12px;
+  border: 1px solid var(--iln-border-subtle);
 }
 .snap-label {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
-  margin-bottom: 4px;
 }
 .snap-value {
-  font-size: 18px;
+  font-size: var(--iln-font-xl);
   font-weight: 700;
   color: var(--iln-text);
 }
+.snap-value.snap-light {
+  font-size: var(--iln-font-lg);
+}
 .snap-sub {
-  font-size: 11px;
-  margin-top: 2px;
-  font-weight: 600;
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
+.snap-sub.snap-sub--neutral {
+  color: var(--iln-text);
 }
 .snap-hint {
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
-  margin-top: 2px;
-  line-height: 1.2;
 }
-.snap-light {
-  font-size: 20px;
+.section-title {
+  font-size: var(--iln-font-base);
+  color: var(--iln-text);
+  margin: 0 0 12px;
 }
-.card-danger {
+.card-ok .snap-sub { color: var(--iln-ok-text); }
+.card-warn .snap-sub { color: var(--iln-warn-text); }
+.card-danger .snap-sub { color: var(--iln-danger-text); }
+.border-left-danger {
   border-left: 3px solid var(--iln-danger-text);
 }
-.card-warn {
+.border-left-warn {
   border-left: 3px solid var(--iln-warn-text);
 }
-.card-ok {
+.border-left-ok {
   border-left: 3px solid var(--iln-ok-text);
 }
 </style>
