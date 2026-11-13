@@ -30,20 +30,24 @@ describe("CoachingAdvice.vue", () => {
     expect(wrapper.find("div").exists()).toBe(false);
   });
 
-  it("顯示 insight、risks、actions、mindset、thinking", () => {
+  it("顯示 insight 與所有摺疊標題（預設收合）", () => {
     const wrapper = mount(CoachingAdvice, { props: baseProps });
     expect(wrapper.text()).toContain("核心洞察內容");
-    expect(wrapper.text()).toContain("風險 A");
-    expect(wrapper.text()).toContain("行動 A");
-    expect(wrapper.text()).toContain("微調 A");
-    expect(wrapper.text()).toContain("教練推演內容");
+    expect(wrapper.text()).toContain("風險提示");
+    expect(wrapper.text()).toContain("下一步觀察清單");
+    expect(wrapper.text()).toContain("行動微調建議");
+    expect(wrapper.text()).toContain("教練內心推演");
+    // 預設收合，內容區塊不渲染到 DOM
+    expect(wrapper.find(".ai-list--risk").exists()).toBe(false);
+    expect(wrapper.find(".ai-thinking").exists()).toBe(false);
   });
 
   it("摺疊標題可點擊切換展開風險列表", async () => {
     const wrapper = mount(CoachingAdvice, { props: baseProps });
-    const headers = wrapper.findAll(".ai-block-header");
+    const headers = wrapper.findAll(".collapsible-header");
     expect(headers.length).toBeGreaterThan(0);
     await headers[0].trigger("click");
+    await wrapper.vm.$nextTick();
     expect(wrapper.find(".ai-list--risk").exists()).toBe(true);
   });
 

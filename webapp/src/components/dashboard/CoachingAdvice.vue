@@ -14,75 +14,61 @@
       <div class="insight-text">{{ insight }}</div>
     </div>
 
-    <!-- 風險提示 (點擊控制) -->
+    <!-- 風險提示 -->
     <div class="ai-block" v-if="risks && risks.length">
-      <div
-        class="ai-block-header"
-        @click="riskExpanded = !riskExpanded"
-        style="cursor: pointer"
-      >
-        <span><Icon name="warn" size="sm" color="var(--iln-warn)" /> 風險提示</span>
-        <span class="ai-count">{{ risks.length }} 項</span>
-        <span class="expand-arrow">{{ riskExpanded ? "▲" : "▼" }}</span>
-      </div>
-      <ul v-show="riskExpanded" class="ai-list ai-list--risk">
-        <li v-for="(item, i) in risks" :key="i">{{ item }}</li>
-      </ul>
+      <CollapsibleSection title="風險提示">
+        <template #header>
+          <span><Icon name="warn" size="sm" color="var(--iln-warn)" /></span>
+          <span class="collapsible-title">風險提示</span>
+          <span class="ai-count">{{ risks.length }} 項</span>
+        </template>
+        <ul class="ai-list ai-list--risk">
+          <li v-for="(item, i) in risks" :key="i">{{ item }}</li>
+        </ul>
+      </CollapsibleSection>
     </div>
 
     <!-- 觀察清單 -->
     <div class="ai-block" v-if="actions && actions.length">
-      <div
-        class="ai-block-header"
-        @click="actionExpanded = !actionExpanded"
-        style="cursor: pointer"
-      >
-        <span><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 下一步觀察清單</span>
-        <span class="ai-count">{{ actions.length }} 項</span>
-        <span class="expand-arrow">{{ actionExpanded ? "▲" : "▼" }}</span>
-      </div>
-      <ul v-show="actionExpanded" class="ai-list ai-list--action">
-        <li v-for="(item, i) in actions" :key="i">{{ item }}</li>
-      </ul>
+      <CollapsibleSection title="下一步觀察清單">
+        <template #header>
+          <span><Icon name="neutral" size="sm" color="var(--iln-hint)" /></span>
+          <span class="collapsible-title">下一步觀察清單</span>
+          <span class="ai-count">{{ actions.length }} 項</span>
+        </template>
+        <ul class="ai-list ai-list--action">
+          <li v-for="(item, i) in actions" :key="i">{{ item }}</li>
+        </ul>
+      </CollapsibleSection>
     </div>
 
     <!-- 行動微調 -->
     <div class="ai-block" v-if="mindset && mindset.length">
-      <div
-        class="ai-block-header"
-        @click="mindsetExpanded = !mindsetExpanded"
-        style="cursor: pointer"
-      >
-        <span><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 行動微調建議</span>
-        <span class="ai-count">{{ mindset.length }} 項</span>
-        <span class="expand-arrow">{{ mindsetExpanded ? "▲" : "▼" }}</span>
-      </div>
-      <ul v-show="mindsetExpanded" class="ai-list ai-list--mindset">
-        <li v-for="(item, i) in mindset" :key="i">{{ item }}</li>
-      </ul>
+      <CollapsibleSection title="行動微調建議">
+        <template #header>
+          <span><Icon name="neutral" size="sm" color="var(--iln-hint)" /></span>
+          <span class="collapsible-title">行動微調建議</span>
+          <span class="ai-count">{{ mindset.length }} 項</span>
+        </template>
+        <ul class="ai-list ai-list--mindset">
+          <li v-for="(item, i) in mindset" :key="i">{{ item }}</li>
+        </ul>
+      </CollapsibleSection>
     </div>
 
     <!-- 教練內心推演 -->
     <div class="ai-block" v-if="thinking">
-      <div
-        class="ai-block-header"
-        @click="thinkingExpanded = !thinkingExpanded"
-        style="cursor: pointer"
-      >
-        <span><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 教練內心推演</span>
-        <span class="expand-arrow">{{ thinkingExpanded ? "▲" : "▼" }}</span>
-      </div>
-      <div v-show="thinkingExpanded" class="ai-thinking">
-        {{ thinking }}
-      </div>
+      <CollapsibleSection title="教練內心推演">
+        <div class="ai-thinking">{{ thinking }}</div>
+      </CollapsibleSection>
     </div>
   </ContentCard>
 </template>
 
 <script setup>
-import { ref } from "vue";
 import ContentCard from "@/components/common/ContentCard.vue";
 import Icon from "@/components/common/Icon.vue";
+import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 
 const props = defineProps({
   report: Object,
@@ -93,11 +79,6 @@ const props = defineProps({
   insight: String,
   verdict: String,
 });
-
-const riskExpanded = ref(false);
-const actionExpanded = ref(false);
-const mindsetExpanded = ref(false);
-const thinkingExpanded = ref(false);
 </script>
 
 <style scoped>
@@ -166,11 +147,6 @@ const thinkingExpanded = ref(false);
   margin-left: auto;
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
-}
-.expand-arrow {
-  font-size: var(--iln-font-xs);
-  color: var(--iln-hint);
-  transition: transform 0.2s;
 }
 .ai-list {
   list-style: none;
