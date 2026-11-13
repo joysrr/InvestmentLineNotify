@@ -252,15 +252,15 @@ const scenarios = computed(() => {
 <style scoped>
 .detail-page {
   min-height: 100vh;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
 }
 
 .detail-header {
   position: sticky;
   top: 0;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   padding: 12px 16px;
-  border-bottom: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+  border-bottom: 1px solid var(--iln-hint);
   z-index: 10;
 }
 
@@ -268,7 +268,7 @@ const scenarios = computed(() => {
   background: transparent;
   border: none;
   font-size: 14px;
-  color: var(--tg-theme-link-color, #3390ec);
+  color: var(--iln-link);
   cursor: pointer;
   padding: 4px 0;
   margin-bottom: 8px;
@@ -277,7 +277,7 @@ const scenarios = computed(() => {
 .detail-title {
   font-size: 18px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0;
 }
 
@@ -288,13 +288,13 @@ const scenarios = computed(() => {
 
 .detail-unavailable p {
   font-size: 16px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin: 0 0 8px 0;
 }
 
 .detail-hint {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
 }
 
 .detail-content {
@@ -308,19 +308,19 @@ const scenarios = computed(() => {
 .section-title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 8px 0;
 }
 
 .section-desc {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
   margin: 0 0 12px 0;
 }
 
 .exposure-summary {
   padding: 16px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
 }
 
@@ -333,24 +333,24 @@ const scenarios = computed(() => {
 
 .summary-row.highlight {
   padding-top: 14px;
-  border-top: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+  border-top: 1px solid var(--iln-hint);
   margin-top: 8px;
 }
 
 .summary-label {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
 }
 
 .summary-value {
   font-size: 16px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .summary-value.primary {
   font-size: 18px;
-  color: var(--tg-theme-link-color, #3390ec);
+  color: var(--iln-link);
 }
 
 .summary-value.status-safe {
@@ -377,7 +377,7 @@ const scenarios = computed(() => {
 
 .scenario-item {
   padding: 14px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
   border-left: 4px solid;
 }
@@ -408,7 +408,7 @@ const scenarios = computed(() => {
 .scenario-drop {
   font-size: 14px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .scenario-loss {
@@ -426,7 +426,7 @@ const scenarios = computed(() => {
 
 .result-label {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 .result-value {
@@ -452,7 +452,7 @@ const scenarios = computed(() => {
 
 .scenario-bar {
   height: 6px;
-  background: var(--tg-theme-secondary-bg-color, #e0e0e0);
+  background: var(--iln-surface);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -480,7 +480,7 @@ const scenarios = computed(() => {
 
 .scenario-note {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   font-style: italic;
   margin: 12px 0 0 0;
 }
@@ -494,14 +494,14 @@ const scenarios = computed(() => {
 .allocation-current,
 .allocation-suggestion {
   padding: 14px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
 }
 
 .allocation-subtitle {
   font-size: 14px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 10px 0;
 }
 
@@ -513,19 +513,19 @@ const scenarios = computed(() => {
 }
 
 .allocation-label {
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
 }
 
 .allocation-value {
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .suggestion-list {
   margin: 0;
   padding-left: 18px;
   font-size: 13px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
   line-height: 1.8;
 }
 
@@ -535,14 +535,14 @@ const scenarios = computed(() => {
 
 .formula-section {
   padding: 16px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
 }
 
 .formula-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 16px 0 8px 0;
 }
 
@@ -552,7 +552,7 @@ const scenarios = computed(() => {
 
 .formula-box {
   padding: 10px;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 6px;
   margin-bottom: 8px;
   text-align: center;
@@ -561,12 +561,12 @@ const scenarios = computed(() => {
 .formula-box code {
   font-family: "Courier New", monospace;
   font-size: 14px;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .formula-desc {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
   line-height: 1.6;
   margin: 0 0 12px 0;
 }
@@ -574,13 +574,13 @@ const scenarios = computed(() => {
 .theory-box,
 .disclaimer-box {
   padding: 16px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
 }
 
 .theory-text {
   font-size: 13px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
   line-height: 1.6;
   margin: 0 0 12px 0;
 }
@@ -589,7 +589,7 @@ const scenarios = computed(() => {
   margin: 12px 0;
   padding-left: 20px;
   font-size: 13px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
   line-height: 1.8;
 }
 
@@ -599,20 +599,20 @@ const scenarios = computed(() => {
 
 .theory-note {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   font-style: italic;
   margin: 8px 0 0 0;
 }
 
 .disclaimer-box {
   background: rgba(158, 158, 158, 0.1);
-  border-left: 4px solid var(--tg-theme-hint-color, #9e9e9e);
+  border-left: 4px solid var(--iln-hint);
 }
 
 .disclaimer-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 8px 0;
 }
 
@@ -620,7 +620,7 @@ const scenarios = computed(() => {
   margin: 0;
   padding-left: 20px;
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
   line-height: 1.8;
 }
 

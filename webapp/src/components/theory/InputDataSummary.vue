@@ -114,7 +114,7 @@ function formatTime(time) {
 
 <style scoped>
 .theory-card {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
@@ -127,7 +127,7 @@ function formatTime(time) {
 .theory-card-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0;
 }
 
@@ -138,13 +138,13 @@ function formatTime(time) {
 
 .theory-unavailable p {
   font-size: 14px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin: 0 0 4px 0;
 }
 
 .theory-hint {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
 }
 
 .theory-card-content {
@@ -161,7 +161,7 @@ function formatTime(time) {
 
 .input-item {
   padding: 10px 12px;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 8px;
 }
 
@@ -175,20 +175,20 @@ function formatTime(time) {
 .input-name {
   font-size: 13px;
   font-weight: 500;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
 }
 
 .input-value {
   font-size: 15px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .input-meta {
   display: flex;
   gap: 12px;
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 .input-source {
@@ -206,23 +206,23 @@ function formatTime(time) {
 
 .timestamp-label {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
 }
 
 .timestamp-value {
   font-size: 13px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .theory-detail-btn {
   background: transparent;
-  border: 1px solid var(--tg-theme-hint-color, #ddd);
+  border: 1px solid var(--iln-hint);
   border-radius: 8px;
   padding: 10px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--tg-theme-link-color, #3390ec);
+  color: var(--iln-link);
   cursor: pointer;
   transition:
     background 0.2s,
@@ -230,6 +230,6 @@ function formatTime(time) {
 }
 
 .theory-detail-btn:active {
-  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  background: var(--iln-surface);
 }
 </style>

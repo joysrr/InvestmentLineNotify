@@ -178,15 +178,15 @@ function formatPercent(value) {
 <style scoped>
 .detail-page {
   min-height: 100vh;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
 }
 
 .detail-header {
   position: sticky;
   top: 0;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   padding: 12px 16px;
-  border-bottom: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+  border-bottom: 1px solid var(--iln-hint);
   z-index: 10;
 }
 
@@ -194,7 +194,7 @@ function formatPercent(value) {
   background: transparent;
   border: none;
   font-size: 14px;
-  color: var(--tg-theme-link-color, #3390ec);
+  color: var(--iln-link);
   cursor: pointer;
   padding: 4px 0;
   margin-bottom: 8px;
@@ -203,7 +203,7 @@ function formatPercent(value) {
 .detail-title {
   font-size: 18px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0;
 }
 
@@ -214,13 +214,13 @@ function formatPercent(value) {
 
 .detail-unavailable p {
   font-size: 16px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin: 0 0 8px 0;
 }
 
 .detail-hint {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
 }
 
 .detail-content {
@@ -234,7 +234,7 @@ function formatPercent(value) {
 .section-title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 12px 0;
 }
 
@@ -242,7 +242,7 @@ function formatPercent(value) {
   display: flex;
   align-items: center;
   padding: 16px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
   overflow-x: auto;
 }
@@ -252,13 +252,13 @@ function formatPercent(value) {
   flex-direction: column;
   align-items: center;
   padding: 12px 16px;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 8px;
   min-width: 90px;
 }
 
 .timeline-item.current {
-  border: 2px solid var(--tg-theme-link-color, #3390ec);
+  border: 2px solid var(--iln-link);
 }
 
 .timeline-item.target {
@@ -267,7 +267,7 @@ function formatPercent(value) {
 
 .timeline-label {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin-bottom: 4px;
   text-align: center;
 }
@@ -275,18 +275,18 @@ function formatPercent(value) {
 .timeline-value {
   font-size: 15px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .timeline-value.highlight {
-  color: var(--tg-theme-link-color, #3390ec);
+  color: var(--iln-link);
   font-size: 16px;
 }
 
 .timeline-arrow {
   margin: 0 8px;
   font-size: 18px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   flex-shrink: 0;
 }
 
@@ -296,20 +296,20 @@ function formatPercent(value) {
 .warning-box,
 .disclaimer-box {
   padding: 16px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
 }
 
 .theory-subtitle {
   font-size: 14px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 8px 0;
 }
 
 .theory-text {
   font-size: 13px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
   line-height: 1.6;
   margin: 0 0 12px 0;
 }
@@ -318,7 +318,7 @@ function formatPercent(value) {
   margin: 12px 0;
   padding-left: 20px;
   font-size: 13px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
   line-height: 1.8;
 }
 
@@ -335,19 +335,19 @@ function formatPercent(value) {
 
 .hc-label {
   font-size: 14px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
 }
 
 .hc-value {
   font-size: 18px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .hc-missing,
 .hc-breakdown {
   padding-top: 12px;
-  border-top: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+  border-top: 1px solid var(--iln-hint);
 }
 
 .missing-title,
@@ -355,14 +355,14 @@ function formatPercent(value) {
 .disclaimer-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 8px 0;
 }
 
 .missing-text,
 .warning-text {
   font-size: 13px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
   margin: 0 0 8px 0;
 }
 
@@ -371,7 +371,7 @@ function formatPercent(value) {
   margin: 8px 0;
   padding-left: 20px;
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
   line-height: 1.8;
 }
 
@@ -382,7 +382,7 @@ function formatPercent(value) {
 
 .formula-box {
   padding: 10px;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 6px;
   margin: 12px 0;
   text-align: center;
@@ -391,19 +391,19 @@ function formatPercent(value) {
 .formula-box code {
   font-family: "Courier New", monospace;
   font-size: 13px;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .missing-note {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   font-style: italic;
   margin: 8px 0 0 0;
 }
 
 .breakdown-text {
   font-size: 13px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
   line-height: 1.6;
   margin: 0;
 }
@@ -417,7 +417,7 @@ function formatPercent(value) {
 
 .te-label {
   font-size: 14px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
 }
 
 .te-value {
@@ -439,7 +439,7 @@ function formatPercent(value) {
 
 .te-explanation {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
   line-height: 1.6;
   margin: 12px 0 0 0;
 }
@@ -452,13 +452,13 @@ function formatPercent(value) {
 
 .age-phase {
   padding: 14px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
-  border-left: 4px solid var(--iln-border-subtle, #ccc);
+  border-left: 4px solid var(--iln-border-subtle);
 }
 
 .age-phase.current {
-  border-left-color: var(--tg-theme-link-color, #3390ec);
+  border-left-color: var(--iln-link);
   background: rgba(51, 144, 236, 0.05);
 }
 
@@ -476,12 +476,12 @@ function formatPercent(value) {
 .phase-name {
   font-size: 14px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .phase-desc {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin: 0 0 8px 0;
 }
 
@@ -489,7 +489,7 @@ function formatPercent(value) {
   margin: 0;
   padding-left: 18px;
   font-size: 12px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
   line-height: 1.8;
 }
 
@@ -513,13 +513,13 @@ function formatPercent(value) {
 .advantage-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 6px 0;
 }
 
 .advantage-text {
   font-size: 13px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
   line-height: 1.6;
   margin: 0;
 }
@@ -531,7 +531,7 @@ function formatPercent(value) {
 
 .practices-box {
   padding: 16px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
 }
 
@@ -540,7 +540,7 @@ function formatPercent(value) {
   padding: 0;
   list-style: none;
   font-size: 13px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
   line-height: 2;
 }
 
@@ -555,6 +555,6 @@ function formatPercent(value) {
 
 .disclaimer-box {
   background: rgba(158, 158, 158, 0.1);
-  border-left: 4px solid var(--tg-theme-hint-color, #9e9e9e);
+  border-left: 4px solid var(--iln-hint);
 }
 </style>

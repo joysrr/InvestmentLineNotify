@@ -181,7 +181,7 @@ const leverageStatusText = computed(() => {
 
 <style scoped>
 .theory-card {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
@@ -194,7 +194,7 @@ const leverageStatusText = computed(() => {
 .theory-card-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0;
 }
 
@@ -205,13 +205,13 @@ const leverageStatusText = computed(() => {
 
 .theory-unavailable p {
   font-size: 14px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin: 0 0 4px 0;
 }
 
 .theory-hint {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
 }
 
 .theory-card-content {
@@ -229,13 +229,13 @@ const leverageStatusText = computed(() => {
 
 .leverage-label {
   font-size: 14px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
 }
 
 .leverage-value {
   font-size: 18px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .leverage-limits {
@@ -248,20 +248,20 @@ const leverageStatusText = computed(() => {
   display: flex;
   flex-direction: column;
   padding: 8px;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 8px;
 }
 
 .limit-label {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin-bottom: 2px;
 }
 
 .limit-value {
   font-size: 15px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .leverage-bar {
@@ -271,7 +271,7 @@ const leverageStatusText = computed(() => {
 .leverage-bar-track {
   position: relative;
   height: 8px;
-  background: var(--tg-theme-secondary-bg-color, #e0e0e0);
+  background: var(--iln-surface);
   border-radius: 4px;
   overflow: visible;
 }
@@ -306,8 +306,8 @@ const leverageStatusText = computed(() => {
   font-size: 11px;
   font-weight: 600;
   padding: 2px 6px;
-  background: var(--tg-theme-button-color, #3390ec);
-  color: var(--tg-theme-button-text-color, #fff);
+  background: var(--iln-brand);
+  color: var(--iln-text-on-brand);
   border-radius: 4px;
 }
 
@@ -316,7 +316,7 @@ const leverageStatusText = computed(() => {
   justify-content: space-between;
   margin-top: 6px;
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 .leverage-status {
@@ -344,17 +344,17 @@ const leverageStatusText = computed(() => {
 
 .leverage-status.status-unknown {
   background: rgba(158, 158, 158, 0.1);
-  color: var(--tg-theme-hint-color, #757575);
+  color: var(--iln-hint);
 }
 
 .theory-detail-btn {
   background: transparent;
-  border: 1px solid var(--tg-theme-hint-color, #ddd);
+  border: 1px solid var(--iln-hint);
   border-radius: 8px;
   padding: 10px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--tg-theme-link-color, #3390ec);
+  color: var(--iln-link);
   cursor: pointer;
   transition:
     background 0.2s,
@@ -362,7 +362,7 @@ const leverageStatusText = computed(() => {
 }
 
 .theory-detail-btn:active {
-  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  background: var(--iln-surface);
 }
 
 /* Phase 3: Kelly vs 槓桿對比 */
@@ -372,11 +372,11 @@ const leverageStatusText = computed(() => {
   gap: 8px;
   margin-top: 12px;
   padding-top: 10px;
-  border-top: 1px solid var(--vp-c-divider, #eaeaeb);
+  border-top: 1px solid var(--vp-c-divider);
 }
 
 .comparison-item {
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 10px;
   padding: 8px 6px;
@@ -385,7 +385,7 @@ const leverageStatusText = computed(() => {
 
 .comparison-label {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.4px;
   margin-bottom: 4px;
@@ -395,12 +395,12 @@ const leverageStatusText = computed(() => {
 .comparison-value {
   font-size: 14px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   word-break: break-all;
 }
 
 .gap-positive .comparison-value {
-  color: var(--vp-c-brand, #1665e3);
+  color: var(--vp-c-brand);
 }
 
 .gap-negative .comparison-value {
@@ -408,6 +408,6 @@ const leverageStatusText = computed(() => {
 }
 
 .gap-neutral .comparison-value {
-  color: var(--tg-theme-hint-color, #757575);
+  color: var(--iln-hint);
 }
 </style>

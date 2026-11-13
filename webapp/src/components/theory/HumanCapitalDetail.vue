@@ -119,15 +119,15 @@ const formatAmount = (value) => {
 <style scoped>
 .detail-page {
   min-height: 100vh;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
 }
 
 .detail-header {
   position: sticky;
   top: 0;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   padding: 12px 16px;
-  border-bottom: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+  border-bottom: 1px solid var(--iln-hint);
   z-index: 10;
 }
 
@@ -135,7 +135,7 @@ const formatAmount = (value) => {
   background: transparent;
   border: none;
   font-size: 14px;
-  color: var(--tg-theme-link-color, #3390ec);
+  color: var(--iln-link);
   cursor: pointer;
   padding: 4px 0;
   margin-bottom: 8px;
@@ -144,7 +144,7 @@ const formatAmount = (value) => {
 .detail-title {
   font-size: 18px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0;
 }
 
@@ -155,13 +155,13 @@ const formatAmount = (value) => {
 
 .detail-unavailable p {
   font-size: 16px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin: 0 0 8px 0;
 }
 
 .detail-hint {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
 }
 
 .detail-content {
@@ -175,7 +175,7 @@ const formatAmount = (value) => {
 .section-title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 12px 0;
 }
 
@@ -189,25 +189,25 @@ const formatAmount = (value) => {
   display: flex;
   flex-direction: column;
   padding: 12px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 8px;
 }
 
 .status-label {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin-bottom: 6px;
 }
 
 .status-value {
   font-size: 16px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .status-value.large {
   font-size: 20px;
-  color: var(--tg-theme-link-color, #3390ec);
+  color: var(--iln-link);
 }
 
 .theory-box,
@@ -215,7 +215,7 @@ const formatAmount = (value) => {
 .warning-box,
 .disclaimer-box {
   padding: 16px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
 }
 
@@ -224,21 +224,21 @@ const formatAmount = (value) => {
 .disclaimer-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 8px 0;
 }
 
 .theory-text,
 .warning-text {
   font-size: 13px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
   line-height: 1.6;
   margin: 0 0 12px 0;
 }
 
 .formula-box {
   padding: 12px;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 6px;
   margin: 12px 0;
   text-align: center;
@@ -248,7 +248,7 @@ const formatAmount = (value) => {
   font-family: "Courier New", monospace;
   font-size: 15px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .theory-list,
@@ -257,7 +257,7 @@ const formatAmount = (value) => {
   margin: 12px 0;
   padding-left: 20px;
   font-size: 13px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
   line-height: 1.8;
 }
 
@@ -271,7 +271,7 @@ const formatAmount = (value) => {
 .warning-note,
 .calc-note {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   font-style: italic;
   margin: 8px 0 0 0;
 }
@@ -290,17 +290,17 @@ const formatAmount = (value) => {
 
 .zone-item.safe {
   background: rgba(46, 125, 50, 0.1);
-  border-left-color: var(--tg-theme-text-color, #4caf50);
+  border-left-color: var(--iln-text);
 }
 
 .zone-item.moderate {
   background: rgba(239, 108, 0, 0.1);
-  border-left-color: var(--tg-theme-text-color, #ff9800);
+  border-left-color: var(--iln-text);
 }
 
 .zone-item.high {
   background: rgba(198, 40, 40, 0.1);
-  border-left-color: var(--tg-theme-text-color, #f44336);
+  border-left-color: var(--iln-text);
 }
 
 .zone-header {
@@ -317,29 +317,29 @@ const formatAmount = (value) => {
 .zone-name {
   font-size: 14px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .zone-range {
   font-size: 15px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 4px 0;
 }
 
 .zone-desc {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
   margin: 0;
 }
 
 .warning-box {
   background: rgba(239, 108, 0, 0.1);
-  border-left: 4px solid var(--tg-theme-text-color, #ff9800);
+  border-left: 4px solid var(--iln-text);
 }
 
 .disclaimer-box {
   background: rgba(158, 158, 158, 0.1);
-  border-left: 4px solid var(--tg-theme-text-color, #9e9e9e);
+  border-left: 4px solid var(--iln-text);
 }
 </style>

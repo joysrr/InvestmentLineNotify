@@ -106,7 +106,7 @@ const trueExposureClass = computed(() => {
 
 <style scoped>
 .theory-card {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
@@ -119,7 +119,7 @@ const trueExposureClass = computed(() => {
 .theory-card-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0;
 }
 
@@ -130,13 +130,13 @@ const trueExposureClass = computed(() => {
 
 .theory-unavailable p {
   font-size: 14px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin: 0 0 4px 0;
 }
 
 .theory-hint {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
 }
 
 .theory-card-content {
@@ -156,30 +156,30 @@ const trueExposureClass = computed(() => {
   flex-direction: column;
   align-items: center;
   padding: 10px;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 8px;
 }
 
 .lifecycle-label {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin-bottom: 4px;
 }
 
 .lifecycle-value {
   font-size: 15px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .lifecycle-value.highlight {
-  color: var(--tg-theme-link-color, #3390ec);
+  color: var(--iln-link);
   font-size: 16px;
 }
 
 .human-capital-box {
   padding: 12px;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 8px;
 }
 
@@ -191,25 +191,25 @@ const trueExposureClass = computed(() => {
 
 .hc-label {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
 }
 
 .hc-value {
   font-size: 16px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .hc-hint {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin: 6px 0 0 0;
   font-style: italic;
 }
 
 .true-exposure-box {
   padding: 12px;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 8px;
 }
 
@@ -222,7 +222,7 @@ const trueExposureClass = computed(() => {
 
 .te-label {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
 }
 
 .te-value {
@@ -244,7 +244,7 @@ const trueExposureClass = computed(() => {
 
 .te-hint {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin: 0;
   font-style: italic;
 }
@@ -252,14 +252,14 @@ const trueExposureClass = computed(() => {
 .lifecycle-message {
   padding: 12px;
   background: rgba(51, 144, 236, 0.08);
-  border-left: 3px solid var(--tg-theme-link-color, #3390ec);
+  border-left: 3px solid var(--iln-link);
   border-radius: 6px;
 }
 
 .message-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 8px 0;
 }
 
@@ -267,7 +267,7 @@ const trueExposureClass = computed(() => {
   margin: 0;
   padding-left: 18px;
   font-size: 12px;
-  color: var(--tg-theme-text-color, #444);
+  color: var(--iln-text);
   line-height: 1.6;
 }
 
@@ -276,18 +276,18 @@ const trueExposureClass = computed(() => {
 }
 
 .message-list strong {
-  color: var(--tg-theme-link-color, #3390ec);
+  color: var(--iln-link);
   font-weight: 600;
 }
 
 .theory-detail-btn {
   background: transparent;
-  border: 1px solid var(--tg-theme-hint-color, #ddd);
+  border: 1px solid var(--iln-hint);
   border-radius: 8px;
   padding: 10px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--tg-theme-link-color, #3390ec);
+  color: var(--iln-link);
   cursor: pointer;
   transition:
     background 0.2s,
@@ -295,6 +295,6 @@ const trueExposureClass = computed(() => {
 }
 
 .theory-detail-btn:active {
-  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  background: var(--iln-surface);
 }
 </style>

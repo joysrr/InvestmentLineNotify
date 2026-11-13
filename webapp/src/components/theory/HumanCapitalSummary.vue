@@ -56,10 +56,10 @@ const formatAmount = (value) => {
 
 <style scoped>
 .theory-card {
-  border: 1px solid var(--tg-theme-border-color, #ddd);
+  border: 1px solid var(--iln-border-default);
   border-radius: 8px;
   padding: 12px;
-  background: var(--tg-theme-card-bg, #fff);
+  background: var(--tg-theme-card-bg, var(--iln-bg));
 }
 
 .theory-card-header {
@@ -73,7 +73,7 @@ const formatAmount = (value) => {
   font-size: 14px;
   font-weight: 600;
   margin: 0;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .theory-status-badge {
@@ -85,19 +85,19 @@ const formatAmount = (value) => {
 
 .status-ok {
   background: rgba(46, 125, 50, 0.1);
-  color: var(--tg-theme-text-color, #2e7d32);
+  color: var(--iln-text);
   border: 1px solid rgba(46, 125, 50, 0.3);
 }
 
 .status-unavailable {
   background: rgba(198, 40, 40, 0.1);
-  color: var(--tg-theme-text-color, #c62828);
+  color: var(--iln-text);
   border: 1px solid rgba(198, 40, 40, 0.3);
 }
 
 .status-estimated {
   background: rgba(239, 108, 0, 0.1);
-  color: var(--tg-theme-text-color, #ef6c00);
+  color: var(--iln-text);
   border: 1px solid rgba(239, 108, 0, 0.3);
 }
 
@@ -113,7 +113,7 @@ const formatAmount = (value) => {
   gap: 4px;
   padding: 16px 0;
   text-align: center;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 .theory-card-content {
@@ -130,22 +130,22 @@ const formatAmount = (value) => {
 
 .exposure-label {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 .exposure-value {
   font-size: 16px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .detail-button {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid var(--tg-theme-border-color, #ddd);
+  border: 1px solid var(--iln-border-default);
   border-radius: 6px;
-  background: var(--tg-theme-button-bg, #f5f5f5);
-  color: var(--tg-theme-text-color, #222);
+  background: var(--tg-theme-button-bg, var(--iln-surface));
+  color: var(--iln-text);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -153,7 +153,7 @@ const formatAmount = (value) => {
 }
 
 .detail-button:hover {
-  background: var(--tg-theme-button-hover-bg, #e0e0e0);
-  border-color: var(--tg-theme-primary-color, #3b82f6);
+  background: var(--iln-brand-hover-bg);
+  border-color: var(--tg-theme-primary-color, var(--iln-info));
 }
 </style>

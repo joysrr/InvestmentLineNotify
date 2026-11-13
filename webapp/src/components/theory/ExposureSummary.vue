@@ -115,7 +115,7 @@ const exposureStatusText = computed(() => {
 
 <style scoped>
 .theory-card {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
@@ -128,7 +128,7 @@ const exposureStatusText = computed(() => {
 .theory-card-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0;
 }
 
@@ -139,13 +139,13 @@ const exposureStatusText = computed(() => {
 
 .theory-unavailable p {
   font-size: 14px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin: 0 0 4px 0;
 }
 
 .theory-hint {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
 }
 
 .theory-card-content {
@@ -159,19 +159,19 @@ const exposureStatusText = computed(() => {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 8px;
 }
 
 .exposure-label {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
 }
 
 .exposure-value {
   font-size: 16px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .exposure-ratio {
@@ -187,7 +187,7 @@ const exposureStatusText = computed(() => {
 
 .ratio-label {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
 }
 
 .ratio-value {
@@ -213,7 +213,7 @@ const exposureStatusText = computed(() => {
 
 .ratio-bar {
   height: 8px;
-  background: var(--tg-theme-secondary-bg-color, #e0e0e0);
+  background: var(--iln-surface);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -269,17 +269,17 @@ const exposureStatusText = computed(() => {
 
 .exposure-status.status-unknown {
   background: rgba(158, 158, 158, 0.1);
-  color: var(--tg-theme-hint-color, #757575);
+  color: var(--iln-hint);
 }
 
 .theory-detail-btn {
   background: transparent;
-  border: 1px solid var(--tg-theme-hint-color, #ddd);
+  border: 1px solid var(--iln-hint);
   border-radius: 8px;
   padding: 10px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--tg-theme-link-color, #3390ec);
+  color: var(--iln-link);
   cursor: pointer;
   transition:
     background 0.2s,
@@ -287,6 +287,6 @@ const exposureStatusText = computed(() => {
 }
 
 .theory-detail-btn:active {
-  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  background: var(--iln-surface);
 }
 </style>
