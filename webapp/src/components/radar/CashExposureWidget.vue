@@ -1,36 +1,33 @@
 <template>
   <div v-if="analysis" class="cash-exposure-card">
-    <span class="dc-label">現金曝險分析</span>
-    <span class="dc-status" :class="statusClass">{{ statusText }}</span>
+    <ContentCard variant="outlined" padding="sm" radius="md">
+      <span class="dc-label">現金曝險分析</span>
+      <span class="dc-status" :class="statusClass">{{ statusText }}</span>
     <div class="dc-row">
-      <span class="dc-label">建議 DCA</span>
-      <span class="dc-value">{{ fmt(suggestedDcaAmt) }}</span>
+      <StatCard size="sm" :framed="false" align="left" label="建議 DCA" :value="suggestedDcaAmt" />
     </div>
     <div class="dc-row">
-      <span class="dc-label">曝險缺口</span>
-      <span class="dc-value">{{ fmt(exposureGap) }}</span>
+      <StatCard size="sm" :framed="false" align="left" label="曝險缺口" :value="exposureGap" />
     </div>
     <div class="dc-row" v-if="targetExposure != null">
-      <span class="dc-label">目標曝險</span>
-      <span class="dc-value">{{ fmt(targetExposure) }}</span>
+      <StatCard size="sm" :framed="false" align="left" label="目標曝險" :value="targetExposure" />
     </div>
-    <div class="dc-row dc-hint" v-if="message">{{ message }}</div>
+    <div class="dc-row dc-hint" v-if="message">
+      <StatCard size="sm" :framed="false" align="left" label="" :value="message" />
+    </div>
 
     <!-- 槓桿儀表板 -->
     <div class="leverage-section" v-if="targetLeverage != null || currentLeverage != null">
       <span class="section-title">📊 槓桿儀表板</span>
       <div class="metric-grid">
         <div class="metric-card">
-          <div class="metric-label">目標槓桿</div>
-          <div class="metric-value">{{ fmtLeverage(targetLeverage) }}x</div>
+          <StatCard size="sm" :framed="false" align="center" label="目標槓桿" :value="targetLeverage" format="number" :decimals="2" unit="x" />
         </div>
         <div class="metric-card">
-          <div class="metric-label">當前槓桿</div>
-          <div class="metric-value">{{ fmtLeverage(currentLeverage) }}x</div>
+          <StatCard size="sm" :framed="false" align="center" label="當前槓桿" :value="currentLeverage" format="number" :decimals="2" unit="x" />
         </div>
         <div class="metric-card" v-if="leverageGap != null">
-          <div class="metric-label">槓桿缺口</div>
-          <div class="metric-value">{{ fmtLeverage(leverageGap) }}x</div>
+          <StatCard size="sm" :framed="false" align="center" label="槓桿缺口" :value="leverageGap" format="number" :decimals="2" unit="x" />
         </div>
       </div>
     </div>
@@ -40,32 +37,30 @@
       <span class="section-title">🧮 批次計算推導</span>
       <div class="metric-grid">
         <div class="metric-card">
-          <div class="metric-label">曝險缺口</div>
-          <div class="metric-value">{{ fmt(batchCalculation.exposureGap) }}</div>
+          <StatCard size="sm" :framed="false" align="center" label="曝險缺口" :value="batchCalculation.exposureGap" />
         </div>
         <div class="metric-card">
-          <div class="metric-label">資本缺口 (÷2)</div>
-          <div class="metric-value">{{ fmt(batchCalculation.capitalGap) }}</div>
+          <StatCard size="sm" :framed="false" align="center" label="資本缺口 (÷2)" :value="batchCalculation.capitalGap" />
         </div>
         <div class="metric-card">
-          <div class="metric-label">缺口 ÷ 10 批</div>
-          <div class="metric-value">{{ fmt(batchCalculation.batchByCount) }}</div>
+          <StatCard size="sm" :framed="false" align="center" label="缺口 ÷ 10 批" :value="batchCalculation.batchByCount" />
         </div>
         <div class="metric-card">
-          <div class="metric-label">現金 × 10%</div>
-          <div class="metric-value">{{ fmt(batchCalculation.batchByCash) }}</div>
+          <StatCard size="sm" :framed="false" align="center" label="現金 × 10%" :value="batchCalculation.batchByCash" />
         </div>
         <div class="metric-card batch-selected">
-          <div class="metric-label">最終批次</div>
-          <div class="metric-value">{{ fmt(batchCalculation.selectedBatch) }}</div>
+          <StatCard size="sm" :framed="false" align="center" label="最終批次" :value="batchCalculation.selectedBatch" />
         </div>
       </div>
     </div>
+  </ContentCard>
   </div>
 </template>
 
 <script setup>
 import { computed } from "vue";
+import ContentCard from "@/components/common/ContentCard.vue";
+import StatCard from "@/components/common/StatCard.vue";
 
 const props = defineProps({
   analysis: {
@@ -119,15 +114,15 @@ const leverageGap = computed(() => {
   gap: 6px;
 }
 .dc-label {
-  font-size: 12px;
-  color: var(--vp-c-text-2);
+  font-size: var(--iln-font-sm);
+  color: var(--iln-hint);
 }
 .dc-status {
   font-size: 12px;
   font-weight: 600;
 }
 .text-success {
-  color: var(--vp-c-brand);
+  color: var(--iln-ok-text);
 }
 .text-warning {
   color: var(--iln-warn-text);
@@ -141,17 +136,17 @@ const leverageGap = computed(() => {
 .dc-row {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
-  border-top: 1px solid var(--vp-c-divider);
+  font-size: var(--iln-font-xs);
+  border-top: 1px solid var(--iln-border-subtle);
   padding-top: 4px;
 }
 .dc-value {
   font-weight: 600;
-  color: var(--vp-c-text-1);
+  color: var(--iln-text);
 }
 .dc-hint {
-  font-size: 11px;
-  color: var(--vp-c-text-2);
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
   margin-top: 4px;
 }
 
@@ -174,14 +169,14 @@ const leverageGap = computed(() => {
 
 .metric-card {
   background: var(--iln-bg);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-md);
   padding: 10px 8px;
   text-align: center;
 }
 
 .metric-label {
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -190,7 +185,7 @@ const leverageGap = computed(() => {
 }
 
 .metric-value {
-  font-size: 15px;
+  font-size: var(--iln-font-sm);
   font-weight: 700;
   color: var(--iln-text);
   word-break: break-all;
@@ -198,10 +193,10 @@ const leverageGap = computed(() => {
 
 /* Selected batch highlight */
 .batch-selected {
-  border-color: var(--vp-c-brand);
+  border-color: var(--iln-brand);
   background: var(--iln-brand-soft);
 }
 .batch-selected .metric-value {
-  color: var(--vp-c-brand);
+  color: var(--iln-brand);
 }
 </style>
