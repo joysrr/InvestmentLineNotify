@@ -1,21 +1,27 @@
 <template>
-  <div class="score-bar">
+  <ContentCard
+    variant="outlined"
+    padding="sm"
+    radius="sm"
+    data-testid="score-bar"
+  >
     <div class="score-header">
       <span class="score-label">{{ label }}</span>
       <span class="score-value">{{ value }} / {{ max }}pt</span>
     </div>
     <div class="score-bar-track">
-      <div 
-        class="score-bar-fill" 
+      <div
+        class="score-bar-fill"
         :style="{ width: percentage + '%', backgroundColor: color }"
       ></div>
     </div>
     <div class="score-description" v-if="description">{{ description }}</div>
-  </div>
+  </ContentCard>
 </template>
 
 <script setup>
 import { computed } from "vue";
+import ContentCard from "@/components/common/ContentCard.vue";
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -29,15 +35,10 @@ const percentage = computed(() => Math.min(100, (props.value / props.max) * 100)
 </script>
 
 <style scoped>
-.score-bar {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
 .score-header {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
 }
 .score-label {
   font-weight: 500;
@@ -49,17 +50,17 @@ const percentage = computed(() => Math.min(100, (props.value / props.max) * 100)
 }
 .score-bar-track {
   height: 8px;
-  background: rgba(0, 0, 0, 0.06);
-  border-radius: 4px;
+  background: var(--iln-border-subtle);
+  border-radius: var(--iln-radius-sm);
   overflow: hidden;
 }
 .score-bar-fill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: var(--iln-radius-sm);
   transition: width 0.5s ease-out;
 }
 .score-description {
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   margin-top: 2px;
 }
