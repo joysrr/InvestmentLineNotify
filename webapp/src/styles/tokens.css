@@ -115,6 +115,23 @@
   /* ── 觸控目標 ── */
   --iln-touch-min: 44px;
   --iln-touch-comfort: 48px;
+
+  /* ── B5 補充：無現成對應的業務語義色 ── */
+  --iln-brand-hover-bg: var(--tg-theme-button-hover-bg, #e0e0e0);
+  --iln-tier-current: #2196f3;
+  --iln-tier-next: #ff9800;
+  --iln-coaching-start: #fef3c7;
+  --iln-coaching-end: #fffbeb;
+  --iln-health-brand-end: #1c639e;
+  --iln-health-warn-end: #d97706;
+  --iln-health-danger-end: #dc2626;
+  --iln-radar-watch-bg: #ffd60a;
+  --iln-radar-text-dark: #f2f2f7;
+  --iln-radar-text-muted: #8e8e93;
+  --iln-skeleton-wave-bg: #e8e8e8;
+  --iln-strategy-drop: #e91e63;
+  --iln-strategy-rsi: #2196f3;
+  --iln-strategy-macd: #ff9800;
 }
 
 /* 深色模式覆寫（由 useTelegram.syncSchemeAttribute 寫入 data-tg-scheme） */
