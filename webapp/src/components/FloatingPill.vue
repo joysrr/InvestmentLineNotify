@@ -92,7 +92,7 @@ onUnmounted(() => {
   align-items: center;
   gap: var(--iln-space-1);
   padding: var(--iln-space-2) var(--iln-space-3);
-  background: var(--tg-theme-bg-color, #ffffff);
+  background: var(--iln-bg);
   border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-full);
   box-shadow: var(--iln-shadow-3);
@@ -115,7 +115,7 @@ onUnmounted(() => {
   min-width: 64px;
   padding: var(--iln-space-2) var(--iln-space-1);
   text-decoration: none;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   transition: all var(--iln-duration-base) var(--iln-ease-standard);
   border-radius: var(--iln-radius-xl);
   font-size: var(--iln-font-xs);

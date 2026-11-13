@@ -224,7 +224,7 @@ function signalLabel(s) {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin-bottom: 10px;
 }
 
@@ -240,7 +240,7 @@ function signalLabel(s) {
   display: flex;
   align-items: center;
   gap: 4px;
-  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  background: var(--iln-surface);
   border-radius: 10px;
   padding: 6px 12px;
 }
@@ -248,12 +248,12 @@ function signalLabel(s) {
 .score-value {
   font-size: 18px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 
 .score-label {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 .sentiment-meta {
@@ -262,7 +262,7 @@ function signalLabel(s) {
   gap: 6px 10px;
   margin: 2px 0 8px;
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 .evidence-trigger {
@@ -270,7 +270,7 @@ function signalLabel(s) {
   padding: 0;
   margin: 0 0 8px;
   background: transparent;
-  color: var(--tg-theme-link-color, #2481cc);
+  color: var(--iln-link);
   font-size: 11px;
   cursor: pointer;
 }
@@ -290,12 +290,12 @@ function signalLabel(s) {
 
 .ma-label {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 .ma-value {
   font-weight: 600;
-  color: var(--tg-theme-text-color, #333);
+  color: var(--iln-text);
 }
 
 .sentiment-divergence {
@@ -333,8 +333,8 @@ function signalLabel(s) {
   font-size: 10px;
   padding: 2px 8px;
   border-radius: 8px;
-  background: var(--tg-theme-secondary-bg-color, #eee);
-  color: var(--tg-theme-hint-color, #999);
+  background: var(--iln-surface);
+  color: var(--iln-hint);
 }
 
 .hot-topics {
@@ -349,7 +349,7 @@ function signalLabel(s) {
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
   padding: 9px 12px;
 }
@@ -357,7 +357,7 @@ function signalLabel(s) {
 .hot-topic-source {
   font-weight: 600;
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -365,7 +365,7 @@ function signalLabel(s) {
 .hot-topic-link,
 .hot-topic-text {
   flex: 1;
-  color: var(--tg-theme-text-color, #333);
+  color: var(--iln-text);
   text-decoration: none;
   line-height: 1.4;
   overflow: hidden;
@@ -394,8 +394,8 @@ function signalLabel(s) {
   overflow-y: auto;
   padding: 18px 16px 24px;
   border-radius: 18px 18px 0 0;
-  background: var(--tg-theme-bg-color, #fff);
-  color: var(--tg-theme-text-color, #222);
+  background: var(--iln-bg);
+  color: var(--iln-text);
 }
 
 .evidence-sheet__content--nav-safe {
@@ -418,7 +418,7 @@ function signalLabel(s) {
 .evidence-close {
   border: 0;
   background: transparent;
-  color: var(--tg-theme-link-color, #2481cc);
+  color: var(--iln-link);
   cursor: pointer;
 }
 
@@ -435,7 +435,7 @@ function signalLabel(s) {
 }
 
 .evidence-list dt {
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   font-size: 11px;
 }
 
@@ -456,6 +456,6 @@ function signalLabel(s) {
 
 .hint {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 </style>

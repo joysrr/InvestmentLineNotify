@@ -84,7 +84,7 @@ function handleFieldUpdate({ path, value }) {
 
 .empty-hint {
   margin: 0;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   font-size: 13px;
 }
 </style>
