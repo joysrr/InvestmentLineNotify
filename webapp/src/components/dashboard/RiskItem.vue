@@ -1,16 +1,25 @@
 <template>
-  <div class="risk-item" :class="itemClass">
-    <div class="icon" v-if="icon">{{ icon }}</div>
-    <div class="label">{{ label }}</div>
-    <div class="value" :title="titleText">{{ formattedValue }}</div>
-    <div class="unit" v-if="unit">{{ unit }}</div>
-    <div class="desc" v-if="desc">{{ desc }}</div>
-  </div>
+  <ContentCard
+    variant="outlined"
+    padding="sm"
+    radius="sm"
+    :class="itemClass"
+    data-testid="risk-item"
+  >
+    <div class="risk-inner">
+      <div class="icon" v-if="icon">{{ icon }}</div>
+      <div class="label">{{ label }}</div>
+      <div class="value" :title="titleText">{{ formattedValue }}</div>
+      <div class="unit" v-if="unit">{{ unit }}</div>
+      <div class="desc" v-if="desc">{{ desc }}</div>
+    </div>
+  </ContentCard>
 </template>
 
 <script setup>
 import { computed } from "vue";
 import { fmtDecimal } from "../../utils/formatters.js";
+import ContentCard from "@/components/common/ContentCard.vue";
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -42,40 +51,36 @@ const itemClass = computed(() => {
 </script>
 
 <style scoped>
-.risk-item {
-  background: var(--iln-bg);
-  border: 1px solid rgba(0,0,0,0.06);
-  border-radius: 12px;
-  padding: 12px;
-  text-align: center;
+.risk-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  text-align: center;
 }
-.risk-item .icon {
-  font-size: 20px;
+.icon {
+  font-size: var(--iln-font-lg);
   margin-bottom: 4px;
 }
-.risk-item .label {
-  font-size: 11px;
+.label {
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
 }
-.risk-item .value {
-  font-size: 16px;
+.value {
+  font-size: var(--iln-font-base);
   font-weight: 700;
   color: var(--iln-text);
 }
-.risk-item .unit {
-  font-size: 10px;
+.unit {
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   margin-left: 2px;
 }
-.risk-item .desc {
-  font-size: 10px;
+.desc {
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   margin-top: 2px;
 }
