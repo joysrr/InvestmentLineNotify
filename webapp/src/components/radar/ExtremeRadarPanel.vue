@@ -672,20 +672,20 @@ function formatMoney(amount) {
 .sev-critical {
   background: var(--iln-danger-text);
   /* 業務語義色：白色文字在危險背景上，保持高對比 */
-  color: #fff;
+  color: var(--iln-bg);
 }
 
 .sev-alert {
   background: var(--iln-warn-text);
   /* 業務語義色：黑色文字在警告背景上，保持可讀性 */
-  color: #000;
+  color: var(--iln-text);
 }
 
 .sev-watch {
   /* 業務語義色：watch 狀態黃色背景，區別於 ok/warn/danger */
-  background: #ffd60a;
+  background: var(--iln-radar-watch-bg);
   /* 業務語義色：黑色文字在黃色背景上，保持可讀性 */
-  color: #000;
+  color: var(--iln-text);
 }
 
 .ti-summary {
@@ -770,7 +770,7 @@ function formatMoney(amount) {
 .dark .ti-name,
 :global(.dark) .ti-name {
   /* 業務語義色：深色主題標題文字，與 hint-color 對齊 */
-  color: #f2f2f7;
+  color: var(--iln-radar-text-dark);
 }
 
 .dark .status-summary,
@@ -780,7 +780,7 @@ function formatMoney(amount) {
 .dark .ti-summary,
 :global(.dark) .ti-summary {
   /* 業務語義色：深色主題摘要文字，與 hint-color 對齊 */
-  color: #8e8e93;
+  color: var(--iln-radar-text-muted);
 }
 
 .dark .toggle-btn,
@@ -788,14 +788,14 @@ function formatMoney(amount) {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.12);
   /* 業務語義色：深色主題按鈕文字 */
-  color: #aaa;
+  color: var(--iln-hint);
 }
 
 .dark .mini-desc,
 :global(.dark) .mini-desc {
   background: rgba(255, 255, 255, 0.08);
   /* 業務語義色：深色主題描述文字 */
-  color: #aaa;
+  color: var(--iln-hint);
 }
 
 .dark .triggered-item,

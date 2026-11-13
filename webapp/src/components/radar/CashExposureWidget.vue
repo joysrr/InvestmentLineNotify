@@ -136,7 +136,7 @@ const leverageGap = computed(() => {
   color: var(--iln-danger-text);
 }
 .text-muted {
-  color: var(--tg-theme-hint-color, #94a3b8);
+  color: var(--iln-hint);
 }
 .dc-row {
   display: flex;
@@ -158,7 +158,7 @@ const leverageGap = computed(() => {
 /* Section title */
 .section-title {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-top: 10px;
@@ -173,7 +173,7 @@ const leverageGap = computed(() => {
 }
 
 .metric-card {
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 12px;
   padding: 10px 8px;
@@ -182,7 +182,7 @@ const leverageGap = computed(() => {
 
 .metric-label {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
@@ -192,7 +192,7 @@ const leverageGap = computed(() => {
 .metric-value {
   font-size: 15px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   word-break: break-all;
 }
 
