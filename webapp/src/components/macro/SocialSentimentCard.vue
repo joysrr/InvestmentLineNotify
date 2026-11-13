@@ -1,9 +1,10 @@
 <template>
-  <section
-    v-if="sentiment"
-    class="sentiment-section"
-    data-testid="social-sentiment-card"
-  >
+  <ContentCard variant="outlined" padding="md" radius="lg">
+    <section
+      v-if="sentiment"
+      class="sentiment-section"
+      data-testid="social-sentiment-card"
+    >
     <h3 class="section-title">🗣️ 社群情緒觀察</h3>
 
     <!-- Sentiment Score + MA -->
@@ -142,10 +143,12 @@
   <div v-else class="sentiment-fallback">
     <span class="hint">📭 社群情緒資料準備中，請稍後</span>
   </div>
+  </ContentCard>
 </template>
 
 <script setup>
 import { computed, ref } from "vue";
+import ContentCard from "@/components/common/ContentCard.vue";
 
 const props = defineProps({
   sentiment: {
@@ -216,23 +219,20 @@ function signalLabel(s) {
 
 <style scoped>
 .sentiment-section {
-  margin-bottom: 20px;
 }
 
 .section-title {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--iln-hint);
-  margin-bottom: 10px;
 }
 
 .sentiment-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 6px;
   flex-wrap: wrap;
 }
 
@@ -241,18 +241,17 @@ function signalLabel(s) {
   align-items: center;
   gap: 4px;
   background: var(--iln-surface);
-  border-radius: 10px;
-  padding: 6px 12px;
+  border-radius: var(--iln-radius-md);
 }
 
 .score-value {
-  font-size: 18px;
+  font-size: var(--iln-font-lg);
   font-weight: 700;
   color: var(--iln-text);
 }
 
 .score-label {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 
@@ -260,8 +259,7 @@ function signalLabel(s) {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 10px;
-  margin: 2px 0 8px;
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 
@@ -271,7 +269,7 @@ function signalLabel(s) {
   margin: 0 0 8px;
   background: transparent;
   color: var(--iln-link);
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   cursor: pointer;
 }
 
@@ -285,11 +283,11 @@ function signalLabel(s) {
   display: flex;
   align-items: baseline;
   gap: 2px;
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
 }
 
 .ma-label {
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 
@@ -299,10 +297,10 @@ function signalLabel(s) {
 }
 
 .sentiment-divergence {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   padding: 5px 12px;
-  border-radius: 12px;
+  border-radius: var(--iln-radius-md);
   white-space: nowrap;
 }
 
@@ -330,9 +328,8 @@ function signalLabel(s) {
 }
 
 .signal-tag {
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 8px;
+  font-size: var(--iln-font-xs);
+  border-radius: var(--iln-radius-sm);
   background: var(--iln-surface);
   color: var(--iln-hint);
 }
@@ -348,15 +345,14 @@ function signalLabel(s) {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   background: var(--iln-surface);
-  border-radius: 10px;
-  padding: 9px 12px;
+  border-radius: var(--iln-radius-md);
 }
 
 .hot-topic-source {
   font-weight: 600;
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   text-transform: uppercase;
   white-space: nowrap;
@@ -393,7 +389,7 @@ function signalLabel(s) {
   max-height: 78vh;
   overflow-y: auto;
   padding: 18px 16px 24px;
-  border-radius: 18px 18px 0 0;
+  border-radius: var(--iln-radius-lg) var(--iln-radius-lg) 0 0;
   background: var(--iln-bg);
   color: var(--iln-text);
 }
@@ -436,26 +432,20 @@ function signalLabel(s) {
 
 .evidence-list dt {
   color: var(--iln-hint);
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
 }
 
 .evidence-list dd {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   line-height: 1.45;
 }
 
 .hot-topic-bias {
-  font-size: 14px;
+  font-size: var(--iln-font-base);
 }
 
 .sentiment-fallback {
-  padding: 12px;
   text-align: center;
-}
-
-.hint {
-  font-size: 12px;
-  color: var(--iln-hint);
 }
 </style>
