@@ -12,7 +12,14 @@
     <!-- Content -->
     <template v-else>
       <!-- Summary Banner -->
-      <div class="summary-banner" :class="signalClass" data-testid="summary-banner">
+      <ContentCard
+        variant="outlined"
+        padding="lg"
+        radius="xl"
+        :status="bannerStatus"
+        statusStyle="left-border"
+        data-testid="summary-banner"
+      >
         <div class="banner-left">
           <span class="banner-emoji">{{ health?.lightStatus?.emoji || "📊" }}</span>
           <div class="banner-labels">
@@ -25,12 +32,17 @@
           <span class="banner-unit">/100</span>
         </div>
         <p class="banner-summary">{{ health?.summary || "資料收集中" }}</p>
-      </div>
+      </ContentCard>
 
       <!-- Grid: left health/risk, right market/tactics -->
       <div class="soh-grid">
         <!-- Left: Health & Risk -->
-        <div class="soh-card" data-testid="health-risk-card">
+        <ContentCard
+          variant="elevated"
+          padding="md"
+          radius="xl"
+          data-testid="health-risk-card"
+        >
           <h4 class="card-title">🛡️ 健康度與風險剖析</h4>
           <ul class="card-list">
             <li class="card-item" v-for="c in healthComponents" :key="c.title">
@@ -39,10 +51,15 @@
             </li>
           </ul>
           <p class="card-hint" v-if="!healthComponents.length">— 尚無健康度資料 —</p>
-        </div>
+        </ContentCard>
 
         <!-- Right: Market & Tactics -->
-        <div class="soh-card" data-testid="market-tactics-card">
+        <ContentCard
+          variant="elevated"
+          padding="md"
+          radius="xl"
+          data-testid="market-tactics-card"
+        >
           <h4 class="card-title">📈 市場多空與策略戰術</h4>
           <ul class="card-list">
             <li class="card-item">
@@ -59,7 +76,7 @@
             </li>
           </ul>
           <p class="card-hint" v-if="!report">— 尚無市場資料 —</p>
-        </div>
+        </ContentCard>
       </div>
     </template>
   </div>
@@ -67,6 +84,7 @@
 
 <script setup>
 import { computed } from "vue";
+import ContentCard from "@/components/common/ContentCard.vue";
 
 const props = defineProps({
   health: { type: Object, default: null },
@@ -77,6 +95,14 @@ const props = defineProps({
 const healthComponents = computed(() => {
   const comps = props.health?.components || [];
   return Array.isArray(comps) ? comps : [];
+});
+
+const bannerStatus = computed(() => {
+  const s = props.health?.status?.toLowerCase?.();
+  if (s === "green") return "ok";
+  if (s === "yellow" || s === "amber") return "warn";
+  if (s === "red") return "danger";
+  return "";
 });
 
 const signalClass = computed(() => {
@@ -131,26 +157,12 @@ const leverageText = computed(() => {
   }
 }
 
-/* Summary Banner */
+/* Summary Banner (frame styling handled by ContentCard) */
 .summary-banner {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  background: var(--iln-surface);
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  border-left: 5px solid var(--iln-border-default);
-}
-.summary-banner.sig-green {
-  border-left-color: var(--iln-ok);
-}
-.summary-banner.sig-yellow {
-  border-left-color: var(--iln-warn);
-}
-.summary-banner.sig-red {
-  border-left-color: var(--iln-danger);
 }
 .banner-left {
   display: flex;
@@ -166,11 +178,11 @@ const leverageText = computed(() => {
   flex-direction: column;
 }
 .banner-label {
-  font-size: 16px;
+  font-size: var(--iln-font-base);
   font-weight: 700;
 }
 .banner-title {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
 .banner-right {
@@ -208,15 +220,14 @@ const leverageText = computed(() => {
   }
 }
 
+/* soh-card (frame styling handled by ContentCard) */
 .soh-card {
-  background: var(--iln-bg);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 20px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 .card-title {
-  font-size: 14px;
+  font-size: var(--iln-font-base);
   font-weight: 700;
   margin: 0 0 12px;
   color: var(--iln-text);
@@ -236,11 +247,11 @@ const leverageText = computed(() => {
   gap: 8px;
 }
 .item-label {
-  font-size: 13px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 .item-value {
-  font-size: 14px;
+  font-size: var(--iln-font-base);
   font-weight: 700;
   color: var(--iln-text);
 }
