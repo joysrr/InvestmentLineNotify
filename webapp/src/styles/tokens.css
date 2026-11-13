@@ -117,7 +117,7 @@
   --iln-touch-comfort: 48px;
 
   /* ── B5 補充：無現成對應的業務語義色 ── */
-  --iln-brand-hover-bg: var(--tg-theme-button-hover-bg, #e0e0e0);
+  --iln-brand-hover-bg: var(--iln-surface-alt, #e0e0e0);
   --iln-tier-current: #2196f3;
   --iln-tier-next: #ff9800;
   --iln-coaching-start: #fef3c7;
@@ -150,8 +150,15 @@
   --iln-border-subtle: rgba(255, 255, 255, 0.08);
   --iln-border-default: rgba(255, 255, 255, 0.12);
   --iln-border-strong: rgba(255, 255, 255, 0.18);
-  --iln-surface: #1c1c1d;
+  --iln-surface: var(--tg-theme-secondary-bg-color, #1c1c1d);
   --iln-surface-alt: #262628;
+  /* P1：brand-hover-bg 深色覆寫；P2：業務語義色深色覆寫 */
+  --iln-brand-hover-bg: #2a2a2c;
+  --iln-coaching-start: #3a2f10;
+  --iln-coaching-end: #2a230c;
+  --iln-skeleton-wave-bg: #2c2c2e;
+  --iln-radar-watch-bg: #4a3d00;
+  --iln-radar-text-muted: #a1a1a6;
 }
 
 /* ── Spinner 統一規格（§3.3） ── */
