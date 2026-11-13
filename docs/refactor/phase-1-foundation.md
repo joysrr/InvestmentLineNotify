@@ -24,6 +24,9 @@ wiki_links: []
 **階段範圍定義**：第一階段 = 子計畫 1.1（工程基礎與啟動效能） + 子計畫 1.2（設計令牌與 Telegram 主題對齊）。
 兩者皆完成並通過驗收，方視為第一階段完成。
 
+**驗證方式說明**：本階段驗證不依賴截圖，改以 DevTools CSS 變數檢查、對比度計算與單元測試為準。
+原因：開發環境無法產生視覺截圖，改以可量測的數值指標作為驗收依據。
+
 | 子計畫 | 名稱                         | 狀態                        |
 | ------ | ---------------------------- | --------------------------- |
 | 1.1    | 工程基礎與啟動效能           | 已完成（含補做 A1–A4）      |
@@ -46,8 +49,8 @@ wiki_links: []
 
 | 指標                        | 改前      | 改後     | 目標     |
 | --------------------------- | --------- | -------- | -------- |
-| entry chunk gzip            | 155.34 KB | 109.5 KB | ≤ 300 KB |
-| initial gzip                | 總和      | 152.0 KB | ≤ 300 KB |
+| entry chunk gzip            | 155.34 KB | 152.1 KB | ≤ 300 KB |
+| initial gzip                | 總和      | 152.1 KB | ≤ 300 KB |
 | vendor-echarts 是否 initial | 是        | 否       | 否       |
 | Total gzip                  | 368.9 KB  | 370.4 KB | ≤ 500 KB |
 
@@ -88,13 +91,15 @@ wiki_links: []
 
 ### 1.2 設計令牌與 Telegram 主題對齊
 
-- [ ] B1 主題檢測機制：data-tg-scheme 屬性寫入
-- [ ] B2 tokens.css 深色覆寫切換：:root[data-tg-scheme="dark"]
-- [ ] B3 根令牌映射到 Telegram 變數：--iln-brand 等
-- [ ] B4 RouteLoading.vue fallback 鏈簡化
-- [ ] B5 全站裸 hex 替換
-- [ ] B6 CI 守護腳本：check-no-hex.mjs
-- [ ] B7 三主題組合驗證
+- [x] B1 主題檢測機制：data-tg-scheme 屬性寫入
+- [x] B2 tokens.css 深色覆寫切換：:root[data-tg-scheme="dark"]
+- [x] B3 根令牌映射到 Telegram 變數：--iln-brand 等
+- [x] B4 RouteLoading.vue fallback 鏈簡化
+- [x] B5 全站裸 hex 替換
+- [x] B6 CI 守護腳本：check-no-hex.mjs
+- [x] B7 三主題組合驗證（改為：三種主題組合下 --iln-* 令牌取值與對比度檢查通過，見 P2 驗證表）
+- [x] npm run build 在 CI 通過，首包 gzip ≤ 300 KB（實測 152.1 KB）
+- [x] npm run lint:tokens 通過
 
 ---
 
