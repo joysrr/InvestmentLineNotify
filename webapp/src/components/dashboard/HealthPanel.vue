@@ -1,5 +1,5 @@
 <template>
-  <section class="section">
+  <ContentCard variant="outlined" padding="lg" radius="lg">
     <div class="section-header">
       <h3 class="section-title">帳戶健康監控</h3>
     </div>
@@ -7,7 +7,7 @@
     <div v-if="loading" class="skeleton-list">
       <div
         class="sk sk-hero"
-        style="height: 140px; border-radius: 24px; margin-bottom: 16px"
+        style="height: 140px; margin-bottom: 16px"
       ></div>
       <div
         class="sk-grid"
@@ -17,7 +17,7 @@
           v-for="i in 6"
           :key="i"
           class="sk"
-          style="height: 100px; border-radius: 20px"
+          style="height: 100px"
         ></div>
       </div>
     </div>
@@ -88,10 +88,12 @@
         📊 查看完整策略狀態 →
       </router-link>
     </div>
-  </section>
+  </ContentCard>
 </template>
 
 <script setup>
+import ContentCard from "@/components/common/ContentCard.vue";
+
 const props = defineProps({
   data: Object,
   loading: Boolean,
@@ -144,192 +146,113 @@ const getCompDisplayValue = (comp) => {
 </script>
 
 <style scoped>
-/* 此處保留原有 CSS */
-.health-dashboard-v2 {
-  display: flex;
-  flex-direction: column;
+.section {
+  /* 佈局由 ContentCard 提供 */
+}
+.health-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
-.health-hero-v2 {
-  position: relative;
-  border-radius: 24px;
-  padding: 24px;
-  min-height: 140px;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  box-shadow: 0 12px 32px rgba(36, 129, 204, 0.25);
+.health-card {
+  background: var(--iln-bg);
+  border-radius: var(--iln-radius-lg);
+  padding: 16px;
+  border: 1px solid var(--iln-border-subtle);
+  box-shadow: var(--iln-shadow-1);
+}
+.health-card--primary {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, var(--iln-brand) 0%, var(--iln-health-brand-end) 100%);
+  box-shadow: var(--iln-shadow-2);
+}
+.health-card--warn {
+  background: linear-gradient(135deg, var(--iln-warn) 0%, var(--iln-health-warn-end) 100%);
+  box-shadow: var(--iln-shadow-2);
+}
+.health-card--danger {
+  background: linear-gradient(135deg, var(--iln-danger) 0%, var(--iln-health-danger-end) 100%);
+  box-shadow: var(--iln-shadow-2);
+}
+.health-card h2 {
+  font-size: var(--iln-font-lg);
+  margin: 0 0 16px;
   color: var(--iln-text);
 }
-.health-hero-v2.green {
-  background: linear-gradient(135deg, var(--iln-brand) 0%, var(--iln-health-brand-end) 100%);
+.health-value {
+  font-size: var(--iln-font-xl);
+  font-weight: 700;
 }
-.health-hero-v2.yellow {
-  background: linear-gradient(135deg, var(--iln-warn) 0%, var(--iln-health-warn-end) 100%);
-  box-shadow: 0 12px 32px rgba(245, 158, 11, 0.25);
+.health-label {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
 }
-.health-hero-v2.red {
-  background: linear-gradient(135deg, var(--iln-danger) 0%, var(--iln-health-danger-end) 100%);
-  box-shadow: 0 12px 32px rgba(239, 68, 68, 0.25);
+.health-meta {
+  font-size: var(--iln-font-sm);
+  color: var(--iln-hint);
+  margin-top: 4px;
 }
-.glass-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.15) 0%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  backdrop-filter: blur(4px);
-  z-index: 1;
-}
-.health-hero-content {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-}
-.health-hero-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-}
-.health-hero-status {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.health-hero-emoji {
-  font-size: 40px;
-}
-.health-hero-score {
-  font-size: 44px;
-  font-weight: 900;
-  line-height: 1;
-}
-.health-hero-summary {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.6;
-}
-.health-grid-v2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-.health-glass-card {
-  position: relative;
-  background: var(--iln-bg);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 20px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-}
-.comp-header {
+.health-stat {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  padding: 12px;
+  background: var(--iln-surface);
+  border-radius: var(--iln-radius-md);
 }
-.comp-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--iln-hint);
-}
-.comp-body {
-  display: flex;
-  flex-direction: column;
-}
-.comp-value {
-  font-size: 20px;
+.health-stat-value {
+  font-size: var(--iln-font-base);
   font-weight: 700;
   color: var(--iln-text);
 }
-.comp-sub {
-  font-size: 11px;
+.health-stat-label {
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
-.comp-status-dot {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-.green .comp-status-dot {
-  background: var(--iln-ok);
-}
-.yellow .comp-status-dot {
-  background: var(--iln-warn);
-}
-.red .comp-status-dot {
-  background: var(--iln-danger);
-}
-.health-action-v2 {
-  background: var(--iln-surface);
-  border-radius: 20px;
-  padding: 16px;
-  border: 1px dashed rgba(36, 129, 204, 0.3);
-}
-.action-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--iln-brand);
-}
-.action-item-v2 {
-  font-size: 13px;
+.health-trend {
+  font-size: var(--iln-font-sm);
   padding: 10px;
   background: var(--iln-surface);
   border-radius: var(--iln-radius-md);
-  margin-top: 8px;
 }
-.sk {
+.health-badge {
+  font-size: var(--iln-font-xs);
+  padding: 4px 8px;
+  border-radius: var(--iln-radius-sm);
   background: var(--iln-surface);
-  animation: pulse 1.5s infinite;
 }
-@keyframes pulse {
-  0% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.6;
-  }
-}
-.dual-vix-us {
+.health-badge--ok { background: var(--iln-ok-bg); color: var(--iln-ok-text); }
+.health-badge--warn { background: var(--iln-warn-bg); color: var(--iln-warn-text); }
+.health-badge--danger { background: var(--iln-danger-bg); color: var(--iln-danger-text); }
+.health-badge-score {
+  font-size: var(--iln-font-xs);
+  padding: 4px 10px;
+  border-radius: var(--iln-radius-md);
+  background: var(--iln-surface);
   color: var(--iln-text);
-  font-weight: 700;
 }
-.dual-vix-sep {
-  color: var(--iln-hint);
-  margin: 0 4px;
-  font-weight: 700;
-}
-.dual-vix-tw {
-  color: var(--iln-danger-text);
-  font-weight: 700;
-}
-
-/* ── Detail Link (Phase 3) ── */
-.health-detail-link {
-  display: block;
-  text-align: center;
-  padding: 12px;
-  font-size: 13px;
-  font-weight: 600;
+.health-link {
+  font-size: var(--iln-font-xs);
   color: var(--iln-brand);
-  text-decoration: none;
-  border-radius: 12px;
-  background: rgba(36, 129, 204, 0.06);
-  transition: background 0.15s ease;
 }
-.health-detail-link:active {
-  background: rgba(36, 129, 204, 0.12);
+.health-link:active { opacity: 0.8; }
+.health-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.health-body {
+  margin-top: 12px;
+}
+.health-footer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--iln-border-subtle);
+}
+.health-skeleton {
+  background: linear-gradient(135deg, var(--iln-brand) 0%, var(--iln-health-brand-end) 100%);
+  border-radius: var(--iln-radius-lg);
+  box-shadow: var(--iln-shadow-2);
 }
 </style>
