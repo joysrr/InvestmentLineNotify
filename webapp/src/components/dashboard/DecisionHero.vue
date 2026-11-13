@@ -5,8 +5,8 @@
       <div class="sk sk-label" style="margin-top: 12px"></div>
       <div class="sk sk-value" style="width: 60%"></div>
     </div>
-    <div v-else-if="error" class="inline-error">⚠️ 報告載入失敗</div>
-    <div v-else-if="!report" class="inline-hint">📭 尚無報告資料</div>
+    <div v-else-if="error" class="inline-error"><Icon name="danger" size="sm" color="var(--iln-danger)" /> 報告載入失敗</div>
+    <div v-else-if="!report" class="inline-hint"><Icon name="default" size="sm" color="var(--iln-hint)" /> 尚無報告資料</div>
     <div v-else class="hero-card">
       <div class="hero-top">
         <span class="hero-date">{{ report.date }}</span>
@@ -34,7 +34,7 @@
           <span class="route-path">{{ routingPath || "—" }}</span>
         </div>
         <router-link v-if="showTrendLink" to="/chart" class="hero-trend-link">
-          📈 資產趨勢 →
+          <Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢 →
         </router-link>
       </div>
     </div>
@@ -43,6 +43,7 @@
 
 <script setup>
 import ContentCard from "@/components/common/ContentCard.vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   report: Object,
