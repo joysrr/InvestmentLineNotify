@@ -1,12 +1,14 @@
 <template>
-  <div class="lifecycle-item">
+  <ContentCard variant="outlined" padding="sm" radius="sm">
     <div class="icon" v-if="icon">{{ icon }}</div>
     <div class="label">{{ label }}</div>
     <div class="value">{{ value }} <span class="unit" v-if="unit">{{ unit }}</span></div>
-  </div>
+  </ContentCard>
 </template>
 
 <script setup>
+import ContentCard from "@/components/common/ContentCard.vue";
+
 const props = defineProps({
   label: { type: String, required: true },
   value: { type: [Number, String], default: "—" },
@@ -17,35 +19,24 @@ const props = defineProps({
 
 <style scoped>
 .lifecycle-item {
-  background: var(--iln-bg);
-  border: 1px solid rgba(0,0,0,0.06);
-  border-radius: 12px;
-  padding: 12px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  /* 佈局由 ContentCard 提供 */
 }
-.lifecycle-item .icon {
-  font-size: 20px;
-  margin-bottom: 4px;
+.icon {
+  font-size: var(--iln-font-base);
+  margin-right: 8px;
 }
-.lifecycle-item .label {
-  font-size: 11px;
+.label {
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
 }
-.lifecycle-item .value {
-  font-size: 16px;
+.value {
+  font-size: var(--iln-font-xl);
   font-weight: 700;
   color: var(--iln-text);
 }
-.lifecycle-item .unit {
-  font-size: 10px;
+.unit {
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
-  margin-left: 2px;
+  margin-left: 4px;
 }
 </style>
