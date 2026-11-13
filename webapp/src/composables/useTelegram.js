@@ -100,8 +100,14 @@ export function useTelegram() {
     };
   };
 
+  const syncSchemeAttribute = () => {
+    const scheme = tg?.colorScheme ?? "light";
+    document.documentElement.dataset.tgScheme = scheme;
+    return scheme;
+  };
+
   const handleThemeChanged = () => {
-    colorScheme.value = tg?.colorScheme ?? "light";
+    colorScheme.value = syncSchemeAttribute();
     const rawBg = tg?.themeParams?.bg_color;
     const bg = rawBg
       ? rawBg.startsWith("#")
@@ -118,8 +124,10 @@ export function useTelegram() {
     tg?.onEvent?.("viewportChanged", handleViewportChanged);
     tg?.onEvent?.("themeChanged", handleThemeChanged);
     tg?.onEvent?.("safeAreaChanged", handleSafeAreaChanged);
+    // 首幀即寫入 data-tg-scheme，確保 tokens.css 深色覆寫在第一個 paint 前生效
+    syncSchemeAttribute();
     handleSafeAreaChanged();
-    handleThemeChanged(); // 初始主動套用主題色
+    handleThemeChanged();
   });
 
   onUnmounted(() => {
