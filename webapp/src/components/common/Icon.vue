@@ -65,6 +65,9 @@ const CHECK_PATH = 'M9 16.2l-3.5-3.5 1.4-1.4 2.1 2.1 5.6-5.6 1.4 1.4z';
 const RADAR_PATH = 'M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 10s4.477 10 10 10zM12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM2 12h20M12 2v20';
 const X_CIRCLE_PATH = 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 9.17L13 16.17l-4.17-4.17L8.83 11l4.17-4.17L13 7.83l4.17 4.17z';
 const CHEVRON_DOWN_PATH = 'M6 9l6 6 6-6';
+const ARROW_UP_PATH = 'M12 2l-4 4v6h4v4h4v-4h4V6l-4-4z';
+const ARROW_DOWN_PATH = 'M12 22l4-4v-6h-4v-4h-4v4h-4v6l4 4z';
+const MINUS_PATH = 'M18 6H6v2h12V6z';
 
 const ICON_MAP = {
   "check-circle": { component: { template: `<path d="${CHECK_PATH}" fill="currentColor"/>` } },
@@ -79,6 +82,9 @@ const ICON_MAP = {
   radar: { component: { template: `<path d="${RADAR_PATH}" fill="currentColor"/>` } },
   "x-circle": { component: { template: `<path d="${X_CIRCLE_PATH}" fill="currentColor"/>` } },
   "chevron-down": { component: { template: `<path d="${CHEVRON_DOWN_PATH}" fill="currentColor"/>` } },
+  "arrow-up": { component: { template: `<path d="${ARROW_UP_PATH}" fill="currentColor"/>` } },
+  "arrow-down": { component: { template: `<path d="${ARROW_DOWN_PATH}" fill="currentColor"/>` } },
+  "minus": { component: { template: `<path d="${MINUS_PATH}" fill="currentColor"/>` } },
 };
 
 const iconData = computed(() => ICON_MAP[props.name] || null);

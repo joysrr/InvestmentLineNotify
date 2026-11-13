@@ -32,4 +32,42 @@ describe("StatCard.vue (B10: design tokens)", () => {
     // 應使用設計令牌 --iln-space-3
     expect(sfc).toContain("padding: var(--iln-space-3)");
   });
+
+  it('trend="up" 渲染 arrow-up 圖示，無 ::after 趨勢字元', () => {
+    const wrapper = mount(StatCard, { props: { ...baseProps, trend: "up" } });
+    const icon = wrapper.findComponent({ name: "Icon" });
+    expect(icon.exists()).toBe(true);
+    expect(icon.props("name")).toBe("arrow-up");
+  });
+
+  it('trend="down" 渲染 arrow-down 圖示', () => {
+    const wrapper = mount(StatCard, { props: { ...baseProps, trend: "down" } });
+    const icon = wrapper.findComponent({ name: "Icon" });
+    expect(icon.exists()).toBe(true);
+    expect(icon.props("name")).toBe("arrow-down");
+  });
+
+  it('trend="flat" 渲染 minus 圖示', () => {
+    const wrapper = mount(StatCard, { props: { ...baseProps, trend: "flat" } });
+    const icon = wrapper.findComponent({ name: "Icon" });
+    expect(icon.exists()).toBe(true);
+    expect(icon.props("name")).toBe("minus");
+  });
+
+  it("trend=null 不渲染趨勢圖示", () => {
+    const wrapper = mount(StatCard, { props: baseProps });
+    const icons = wrapper.findAllComponents({ name: "Icon" });
+    expect(icons.length).toBe(0);
+  });
+
+  it("CSS 中無 ::after 趨勢字元 ▲ ▼ —", () => {
+    const sfcPath = path.resolve(
+      path.dirname(new URL(import.meta.url).pathname),
+      "../components/common/StatCard.vue",
+    );
+    const sfc = readFileSync(sfcPath, "utf-8");
+    expect(sfc).not.toContain('content: " ▲"');
+    expect(sfc).not.toContain('content: " ▼"');
+    expect(sfc).not.toContain('content: " —"');
+  });
 });

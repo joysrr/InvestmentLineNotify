@@ -12,6 +12,13 @@
       </div>
       <div class="stat-card__value" :class="valueClasses">
         <slot name="value">{{ formattedValue }}</slot>
+        <Icon
+          v-if="trendIcon"
+          :name="trendIcon"
+          :size="12"
+          class="stat-card__trend"
+          aria-hidden="true"
+        />
       </div>
       <div
         v-if="hasSuffixSlot || unit"
@@ -25,6 +32,7 @@
 
 <script setup>
 import { computed, useSlots } from "vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -109,6 +117,13 @@ const valueClasses = computed(() => {
 const ariaLabel = computed(() => {
   const parts = [props.label, formattedValue.value, props.unit].filter(Boolean);
   return parts.join(" ");
+});
+
+const trendIcon = computed(() => {
+  if (props.trend === "up") return "arrow-up";
+  if (props.trend === "down") return "arrow-down";
+  if (props.trend === "flat") return "minus";
+  return null;
 });
 </script>
 
@@ -195,16 +210,9 @@ const ariaLabel = computed(() => {
   color: var(--iln-hint);
 }
 
-.stat-card--trend-up::after {
-  content: " ▲";
-  font-size: 0.75em;
-}
-.stat-card--trend-down::after {
-  content: " ▼";
-  font-size: 0.75em;
-}
-.stat-card--trend-flat::after {
-  content: " —";
-  font-size: 0.75em;
+.stat-card__trend {
+  margin-left: 4px;
+  vertical-align: middle;
+  color: var(--iln-hint);
 }
 </style>
