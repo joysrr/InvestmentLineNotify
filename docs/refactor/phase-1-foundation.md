@@ -1,0 +1,103 @@
+---
+type: plan
+status: in-progress
+last_updated: 2026-11-17
+tags:
+  - phase-1
+  - refactor
+  - webapp
+wiki_links: []
+---
+
+# 第一階段改造計畫：工程基礎與啟動效能
+
+文件位置：docs/refactor/phase-1-foundation.md
+適用範圍：webapp/ 前端子專案
+前置閱讀：docs/webapp-refactor-plan.md §二
+執行模式：單一開發者、嚴格串行，所有工作項目依編號順序完成，前一項驗收通過後才進入下一項
+分支策略：refactor/phase-1 → main
+
+---
+
+## 0. 階段範圍定義
+
+**階段範圍定義**：第一階段 = 子計畫 1.1（工程基礎與啟動效能） + 子計畫 1.2（設計令牌與 Telegram 主題對齊）。
+兩者皆完成並通過驗收，方視為第一階段完成。
+
+| 子計畫 | 名稱                         | 狀態                        |
+| ------ | ---------------------------- | --------------------------- |
+| 1.1    | 工程基礎與啟動效能           | 已完成（含補做 A1–A4）      |
+| 1.2    | 設計令牌與 Telegram 主題對齊 | 未開始（補做 B1–B7 進行中） |
+
+---
+
+## 1. 子計畫 1.1：路由懶載入改造
+
+### 1.1 現狀事實（已核實源碼）
+
+- webapp/src/router/index.js：10 個視圖，DashboardView 靜態匯入，其餘 9 個動態匯入
+- webapp/vite.config.js：manualChunks 含 vendor-vue、vendor-echarts；chunkSizeWarningLimit: 350；manifest: true
+- webapp/src/main.js：mount 前預檢 initData，未授權時 renderAuthFallback；mount 後呼叫 waitReady()
+- webapp/src/App.vue：<router-view v-slot> 包 <keep-alive> 包 <Suspense>，fallback 顯示 RouteLoading
+- webapp/src/components/common/RouteLoading.vue：新增，樣式使用 --iln-* design tokens
+- webapp/scripts/check-bundle-size.mjs：manifest-based 初始/總和體積預算
+
+### 1.5 基線與結果記錄表
+
+| 指標                        | 改前      | 改後     | 目標     |
+| --------------------------- | --------- | -------- | -------- |
+| entry chunk gzip            | 155.34 KB | 109.5 KB | ≤ 300 KB |
+| initial gzip                | 總和      | 152.0 KB | ≤ 300 KB |
+| vendor-echarts 是否 initial | 是        | 否       | 否       |
+| Total gzip                  | 368.9 KB  | 370.4 KB | ≤ 500 KB |
+
+---
+
+## 2. 子計畫 1.2：設計令牌與 Telegram 主題對齊
+
+### 2.1 現狀
+
+- webapp/src/styles/tokens.css：:root 中 --iln-brand: #2481cc 等裸 hex；深色覆寫使用 @media (prefers-color-scheme: dark)
+- webapp/src/composables/useTelegram.js：handleThemeChanged 僅更新 colorScheme 值，未寫入 data-tg-scheme
+- .vue <style> 區塊中存在多處裸 hex 色值（待掃描）
+
+### 2.2 問題清單
+
+- 深色主題跟隨系統 prefers-color-scheme，而非 Telegram colorScheme
+- 品牌色硬編碼 #2481cc，未映射到 --tg-theme-button-color
+- .vue 樣式區塊存在裸 hex，缺乏 CI 守護
+
+---
+
+## 4. DoD（驗收標準）
+
+### 1.1 工程基礎與啟動效能
+
+- [x] T1.1 基線記錄：entry chunk 155.34 KB → 109.5 KB
+- [x] T1.2 ready() 修正：main.js mount 後呼叫 waitReady()
+- [x] T1.3 路由動態匯入：Dashboard 靜態，其餘 9 個動態，補 meta.title/chunk
+- [x] T1.4 建置配置：manifest: true，chunkSizeWarningLimit: 350
+- [x] T1.5 認證守衛：mount 前預檢 initData，未授權顯示提示畫面
+- [x] T1.6 首屏後預取：prefetch MarketRadarView
+- [x] T1.7 體積閘門：manifest 首包計算，Initial ≤ 300 KB，Total ≤ 500 KB
+- [x] T1.8 載入態與錯誤處理：Suspense + RouteLoading + ErrorAlert 重試
+- [x] A1 keep-alive/Suspense 順序修正：跨路由快取正確
+- [x] A2 waitReady 重複呼叫移除：統一收斂到 main.js
+- [x] A3 未授權提示畫面：renderAuthFallback
+- [x] A4 計畫文件更新：本文件
+
+### 1.2 設計令牌與 Telegram 主題對齊
+
+- [ ] B1 主題檢測機制：data-tg-scheme 屬性寫入
+- [ ] B2 tokens.css 深色覆寫切換：:root[data-tg-scheme="dark"]
+- [ ] B3 根令牌映射到 Telegram 變數：--iln-brand 等
+- [ ] B4 RouteLoading.vue fallback 鏈簡化
+- [ ] B5 全站裸 hex 替換
+- [ ] B6 CI 守護腳本：check-no-hex.mjs
+- [ ] B7 三主題組合驗證
+
+---
+
+## 維護方式
+
+每個子計畫完成後，在對應節點標註狀態：未開始／盤點中／進行中／待驗收／已完成。
