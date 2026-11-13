@@ -1,6 +1,6 @@
 ---
 type: plan
-status: in-progress
+status: completed
 last_updated: 2026-11-17
 tags:
   - phase-1
@@ -15,7 +15,7 @@ wiki_links: []
 適用範圍：webapp/ 前端子專案
 前置閱讀：docs/webapp-refactor-plan.md §二
 執行模式：單一開發者、嚴格串行，所有工作項目依編號順序完成，前一項驗收通過後才進入下一項
-分支策略：refactor/phase-1 → main
+分支策略：直接於 main 提交（單一開發者）
 
 ---
 
@@ -27,10 +27,10 @@ wiki_links: []
 **驗證方式說明**：本階段驗證不依賴截圖，改以 DevTools CSS 變數檢查、對比度計算與單元測試為準。
 原因：開發環境無法產生視覺截圖，改以可量測的數值指標作為驗收依據。
 
-| 子計畫 | 名稱                         | 狀態                        |
-| ------ | ---------------------------- | --------------------------- |
-| 1.1    | 工程基礎與啟動效能           | 已完成（含補做 A1–A4）      |
-| 1.2    | 設計令牌與 Telegram 主題對齊 | 未開始（補做 B1–B7 進行中） |
+| 子計畫 | 名稱                         | 狀態                          |
+| ------ | ---------------------------- | ----------------------------- |
+| 1.1    | 工程基礎與啟動效能           | 已完成（含補做 A1–A4）        |
+| 1.2    | 設計令牌與 Telegram 主題對齊 | 已完成（含補做 B1–B7、P1–P4） |
 
 ---
 
@@ -58,7 +58,7 @@ wiki_links: []
 
 ## 2. 子計畫 1.2：設計令牌與 Telegram 主題對齊
 
-### 2.1 現狀
+### 2.1 改造前現狀（歷史記錄）
 
 - webapp/src/styles/tokens.css：:root 中 --iln-brand: #2481cc 等裸 hex；深色覆寫使用 @media (prefers-color-scheme: dark)
 - webapp/src/composables/useTelegram.js：handleThemeChanged 僅更新 colorScheme 值，未寫入 data-tg-scheme
@@ -76,7 +76,7 @@ wiki_links: []
 
 ### 1.1 工程基礎與啟動效能
 
-- [x] T1.1 基線記錄：entry chunk 155.34 KB → 109.5 KB
+- [x] T1.1 基線記錄：entry chunk 155.34 KB → 152.1 KB（manifest 實測值）
 - [x] T1.2 ready() 修正：main.js mount 後呼叫 waitReady()
 - [x] T1.3 路由動態匯入：Dashboard 靜態，其餘 9 個動態，補 meta.title/chunk
 - [x] T1.4 建置配置：manifest: true，chunkSizeWarningLimit: 350
@@ -106,3 +106,12 @@ wiki_links: []
 ## 維護方式
 
 每個子計畫完成後，在對應節點標註狀態：未開始／盤點中／進行中／待驗收／已完成。
+
+## 附錄：補做記錄
+
+| 項目  | 內容                                                                | commit  |
+| ----- | ------------------------------------------------------------------- | ------- |
+| A1–A4 | 1.1 收尾（keep-alive 順序、waitReady 去重、未授權提示、文件更新）   | ff54464 |
+| B1–B7 | 1.2 主體（主題檢測、深色切換、令牌映射、hex 替換、CI 守護）         | ff54464 |
+| P1–P4 | 令牌一致性修正（brand-hover-bg、深色業務色、surface 跟隨 Telegram） | ee78740 |
+| F1    | 文件一致性修正（本次）                                              | 待填    |
