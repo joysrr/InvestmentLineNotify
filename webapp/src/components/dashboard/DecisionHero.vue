@@ -1,5 +1,5 @@
 <template>
-  <section class="section hero-section">
+  <ContentCard variant="outlined" padding="lg" radius="lg">
     <div v-if="loading" class="hero-card skeleton-card">
       <div class="sk sk-title"></div>
       <div class="sk sk-label" style="margin-top: 12px"></div>
@@ -38,11 +38,13 @@
         </router-link>
       </div>
     </div>
-  </section>
+  </ContentCard>
 </template>
 
 <script setup>
-defineProps({
+import ContentCard from "@/components/common/ContentCard.vue";
+
+const props = defineProps({
   report: Object,
   loading: Boolean,
   error: Boolean,
@@ -60,27 +62,24 @@ defineProps({
 
 <style scoped>
 .hero-card {
-  background: var(--iln-bg);
-  border-radius: 16px;
-  padding: 24px 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  text-align: center;
-  border: 1px solid var(--iln-surface);
+  /* 佈局由 ContentCard 提供，此處僅保留必要的自定義樣式 */
 }
 .hero-top {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 20px;
 }
 .hero-date {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
 .hero-target {
-  font-size: 32px;
-  font-weight: 800;
-  margin-bottom: 12px;
+  font-size: var(--iln-font-base);
+  color: var(--iln-text);
+  margin-bottom: 20px;
+  line-height: 1.5;
 }
 .target-buy {
   color: var(--iln-ok-text);
@@ -92,58 +91,48 @@ defineProps({
   color: var(--iln-warn-text);
 }
 .hero-suggestion {
-  font-size: 15px;
+  font-size: var(--iln-font-xl);
   color: var(--iln-text);
   margin-bottom: 20px;
   line-height: 1.5;
 }
 .hero-badges {
   display: flex;
-  justify-content: center;
   gap: 8px;
   margin-bottom: 20px;
 }
 .hero-route {
-  padding-top: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   border-top: 1px solid var(--iln-surface);
+  padding-top: 16px;
   gap: 8px;
 }
 .hero-route-main {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex: 1;
 }
 .hero-trend-link {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--iln-font-xs);
   color: var(--iln-brand);
-  text-decoration: none;
-  white-space: nowrap;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: background 0.15s ease;
 }
 .hero-trend-link:active {
-  background: rgba(36, 129, 204, 0.1);
+  opacity: 0.8;
 }
 .route-label {
-  font-size: 12px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 .route-path {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--iln-font-sm);
   color: var(--iln-text);
 }
 .badge {
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--iln-font-xs);
+  color: var(--iln-brand);
+  padding: 4px 8px;
+  border-radius: var(--iln-radius-sm);
+  transition: background 0.15s ease;
+  background: var(--iln-surface);
 }
 .badge-danger {
   background: var(--iln-danger-bg);
@@ -158,7 +147,10 @@ defineProps({
   color: var(--iln-ok-text);
 }
 .badge-score {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-text);
+  padding: 4px 10px;
+  border-radius: var(--iln-radius-md);
   background: var(--iln-surface);
-  color: var(--iln-hint);
 }
 </style>
