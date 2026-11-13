@@ -1,11 +1,18 @@
 <template>
-  <div class="threshold-item">
+  <ContentCard
+    variant="outlined"
+    padding="sm"
+    radius="md"
+    data-testid="threshold-item"
+  >
     <div class="label">{{ label }}</div>
     <div class="value">{{ value }} <span class="unit" v-if="unit">{{ unit }}</span></div>
-  </div>
+  </ContentCard>
 </template>
 
 <script setup>
+import ContentCard from "@/components/common/ContentCard.vue";
+
 const props = defineProps({
   label: { type: String, required: true },
   value: { type: [Number, String], default: "—" },
@@ -14,28 +21,21 @@ const props = defineProps({
 </script>
 
 <style scoped>
-.threshold-item {
-  background: var(--iln-bg);
-  border: 1px solid rgba(0,0,0,0.06);
-  border-radius: 12px;
-  padding: 12px;
-  text-align: center;
-}
-.threshold-item .label {
-  font-size: 11px;
+.label {
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
 }
-.threshold-item .value {
-  font-size: 16px;
+.value {
+  font-size: var(--iln-font-base);
   font-weight: 700;
   color: var(--iln-text);
   word-break: break-all;
 }
-.threshold-item .unit {
-  font-size: 10px;
+.unit {
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   margin-left: 2px;
 }
