@@ -1,15 +1,21 @@
 <template>
-  <div class="metric-card" :class="cardClass">
+  <ContentCard
+    variant="outlined"
+    padding="md"
+    radius="md"
+    :class="cardClass"
+  >
     <div class="metric-icon" v-if="icon">{{ icon }}</div>
     <div class="metric-body">
       <div class="metric-title">{{ title }}</div>
       <div class="metric-value" :class="trendClass">{{ value }}</div>
     </div>
-  </div>
+  </ContentCard>
 </template>
 
 <script setup>
 import { computed } from "vue";
+import ContentCard from "@/components/common/ContentCard.vue";
 
 const props = defineProps({
   title: { type: String, required: true },
@@ -33,21 +39,6 @@ const trendClass = computed(() => {
 </script>
 
 <style scoped>
-.metric-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--iln-surface);
-  border-radius: var(--iln-radius-md);
-  padding: 14px 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  border: 1px solid var(--iln-border-subtle);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.metric-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-}
 .metric-card--up {
   border-left: 4px solid var(--iln-ok-text);
 }
@@ -55,7 +46,7 @@ const trendClass = computed(() => {
   border-left: 4px solid var(--iln-danger-text);
 }
 .metric-icon {
-  font-size: 22px;
+  font-size: var(--iln-font-lg);
   flex-shrink: 0;
 }
 .metric-body {
@@ -63,7 +54,7 @@ const trendClass = computed(() => {
   min-width: 0;
 }
 .metric-title {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   font-weight: 600;
   color: var(--iln-hint);
   text-transform: uppercase;
@@ -74,7 +65,7 @@ const trendClass = computed(() => {
   text-overflow: ellipsis;
 }
 .metric-value {
-  font-size: 16px;
+  font-size: var(--iln-font-base);
   font-weight: 700;
   color: var(--iln-text);
   white-space: nowrap;
