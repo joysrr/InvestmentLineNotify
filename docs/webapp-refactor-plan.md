@@ -21,7 +21,7 @@ wiki_links: []
 | 一   | 工程基礎與設計令牌 | 已完成（main @ ee78740 + 文件 commit） | 詳見 `docs/refactor/phase-1-foundation.md` 與 `docs/refactor/phase-1-polish.md` |
 | 二   | 通用卡片組件提取   | 未開始                                 | 盤點 dashboard/、radar/、macro/ 卡片組件樣式差異後產出實作計畫                  |
 
-**階段一狀態**：已完成（main @ <commit hash>）。
+**階段一狀態**：已完成（main @ b89f441）。
 詳細交付與驗收見 `docs/refactor/phase-1-foundation.md` 與 `docs/refactor/phase-1-polish.md`。
 
 ## 二、子計畫清單
