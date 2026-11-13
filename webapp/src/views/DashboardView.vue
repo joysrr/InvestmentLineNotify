@@ -136,7 +136,6 @@ import {
   fetchReports,
   fetchPortfolioHealth,
 } from "../api/index.js";
-import { waitReady } from "../composables/useTelegram.js";
 import { prefetch } from "../composables/useRoutePrefetch.js";
 import { viewLoaders } from "../router/index.js";
 import { getPrLevel } from "@/utils/metricThresholds.js";
@@ -350,8 +349,7 @@ function formatUpdatedAt(iso) {
   });
 }
 
-onMounted(async () => {
-  await waitReady();
+onMounted(() => {
   loadAll();
   // 首屏後預取高頻頁：市場雷達
   prefetch(viewLoaders.MarketRadarView);

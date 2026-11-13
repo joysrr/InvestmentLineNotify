@@ -7,16 +7,16 @@
     }"
   >
     <main class="app-main">
-      <keep-alive :max="5">
-        <Suspense>
-          <template #default>
-            <router-view />
-          </template>
-          <template #fallback>
-            <RouteLoading />
-          </template>
-        </Suspense>
-      </keep-alive>
+      <router-view v-slot="{ Component }">
+        <keep-alive :max="5">
+          <Suspense>
+            <component :is="Component" />
+            <template #fallback>
+              <RouteLoading />
+            </template>
+          </Suspense>
+        </keep-alive>
+      </router-view>
       <ErrorAlert
         v-if="routeLoadError"
         title="頁面載入失敗"
