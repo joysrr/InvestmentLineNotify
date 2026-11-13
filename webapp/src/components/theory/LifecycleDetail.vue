@@ -2,12 +2,12 @@
   <div class="detail-page">
     <div class="detail-header">
       <button class="back-btn" @click="$emit('back')">← 返回</button>
-      <h2 class="detail-title">💼 生命週期投資詳細分析</h2>
+      <h2 class="detail-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 生命週期投資詳細分析</h2>
     </div>
 
     <!-- UNAVAILABLE State -->
     <div v-if="!theory" class="detail-unavailable">
-      <p>⚠️ 理論數據未計算</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 理論數據未計算</p>
       <span class="detail-hint">非交易日或數據不足</span>
     </div>
 
@@ -59,7 +59,7 @@
         <div class="age-strategy-list">
           <div class="age-phase current">
             <div class="phase-header">
-              <span class="phase-icon">✅</span>
+              <span class="phase-icon"><Icon name="ok" size="sm" color="var(--iln-ok)" /></span>
               <span class="phase-name">累積期（30-45 歲）</span>
             </div>
             <p class="phase-desc"><strong>當前所在階段</strong></p>
@@ -72,7 +72,7 @@
           </div>
           <div class="age-phase">
             <div class="phase-header">
-              <span class="phase-icon">⏳</span>
+              <span class="phase-icon"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
               <span class="phase-name">成長期（45-55 歲）</span>
             </div>
             <p class="phase-desc">距離 12 年後</p>
@@ -85,7 +85,7 @@
           </div>
           <div class="age-phase">
             <div class="phase-header">
-              <span class="phase-icon">🎯</span>
+              <span class="phase-icon"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
               <span class="phase-name">保本期（55-65 歲）</span>
             </div>
             <p class="phase-desc">距離 22 年後</p>
@@ -101,7 +101,7 @@
 
       <!-- Lifecycle Advantage -->
       <section class="detail-section">
-        <h3 class="section-title">💡 你的生命週期優勢</h3>
+        <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 你的生命週期優勢</h3>
         <div class="advantage-box">
           <div class="advantage-item">
             <h4 class="advantage-title">⏰ 時間優勢</h4>
@@ -111,14 +111,14 @@
             </p>
           </div>
           <div class="advantage-item">
-            <h4 class="advantage-title">📈 複利優勢</h4>
+            <h4 class="advantage-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 複利優勢</h4>
             <p class="advantage-text">
               32 年的複利成長是財富累積的核心動力。假設年化 8% 報酬，
               現有 211 萬在 32 年後將成長至約 <strong>2,515 萬</strong>（不含新增投入）。
             </p>
           </div>
           <div class="advantage-item">
-            <h4 class="advantage-title">💰 現金流優勢</h4>
+            <h4 class="advantage-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 現金流優勢</h4>
             <p class="advantage-text">
               持續的工作收入可用於逢低加碼，將市場下跌轉化為累積部位的機會。
               定期定額策略充分利用這個優勢。
@@ -132,12 +132,12 @@
         <h3 class="section-title">行動建議</h3>
         <div class="practices-box">
           <ul class="practices-list">
-            <li>✅ <strong>維持定期定額</strong>：每月 3 萬持續投入，不受短期波動影響</li>
-            <li>✅ <strong>控制槓桿水位</strong>：維持在 1.5x 以下，避免極端風險</li>
-            <li>✅ <strong>保留緊急預備金</strong>：至少 6 個月生活費</li>
-            <li>⚠️ <strong>定期檢視配置</strong>：每年根據年齡和市況微調</li>
-            <li>⚠️ <strong>避免情緒決策</strong>：市場恐慌時不恐慌性賣出</li>
-            <li>📊 <strong>記錄收入數據</strong>：未來可計算完整人力資本</li>
+            <li><Icon name="ok" size="sm" color="var(--iln-ok)" /> <strong>維持定期定額</strong>：每月 3 萬持續投入，不受短期波動影響</li>
+            <li><Icon name="ok" size="sm" color="var(--iln-ok)" /> <strong>控制槓桿水位</strong>：維持在 1.5x 以下，避免極端風險</li>
+            <li><Icon name="ok" size="sm" color="var(--iln-ok)" /> <strong>保留緊急預備金</strong>：至少 6 個月生活費</li>
+            <li><Icon name="warn" size="sm" color="var(--iln-warn)" /> <strong>定期檢視配置</strong>：每年根據年齡和市況微調</li>
+            <li><Icon name="warn" size="sm" color="var(--iln-warn)" /> <strong>避免情緒決策</strong>：市場恐慌時不恐慌性賣出</li>
+            <li><Icon name="chart" size="sm" color="var(--iln-text)" /> <strong>記錄收入數據</strong>：未來可計算完整人力資本</li>
           </ul>
         </div>
       </section>
@@ -145,7 +145,7 @@
       <!-- Disclaimer -->
       <section class="detail-section">
         <div class="disclaimer-box">
-          <h4 class="disclaimer-title">⚠️ 免責聲明</h4>
+          <h4 class="disclaimer-title"><Icon name="warn" size="sm" color="var(--iln-warn)" /> 免責聲明</h4>
           <ul class="disclaimer-list">
             <li>生命週期理論基於統計平均，個人情況可能不同</li>
             <li>未來收入與市場報酬均具不確定性</li>
@@ -169,10 +169,6 @@ const props = defineProps({
 defineEmits(["back"]);
 
 // Format percentage
-function formatPercent(value) {
-  if (value == null || !Number.isFinite(value)) return "—";
-  return value.toFixed(0) + "%";
-}
 </script>
 
 <style scoped>

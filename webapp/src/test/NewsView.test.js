@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
 import NewsView from "../views/NewsView.vue";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
+import Icon from "@/components/common/Icon.vue";
 import { fetchNews, fetchReportNews } from "../api/index.js";
 
 const openLink = vi.fn();
@@ -105,8 +106,8 @@ describe("NewsView", () => {
 
     expect(wrapper.find(".view-subtitle").text()).toContain("共 1 則");
     expect(wrapper.text()).toContain("新聞池文章");
-    expect(wrapper.text()).toContain("🔴 最新");
-    expect(wrapper.text()).toContain("🇹🇼");
+    expect(wrapper.text()).toContain("最新");
+    expect(wrapper.findComponent(Icon).exists()).toBe(true);
 
     const objectWrapper = mountView();
     fetchReportNews.mockResolvedValueOnce({});
@@ -127,8 +128,8 @@ describe("NewsView", () => {
     await flushPromises();
 
     expect(objectWrapper.text()).toContain("其他新聞");
-    expect(objectWrapper.text()).toContain("⚪ 舊聞");
-    expect(objectWrapper.text()).toContain("🌐");
+    expect(objectWrapper.text()).toContain("舊聞");
+    expect(objectWrapper.findComponent(Icon).exists()).toBe(true);
   });
 
   it("新聞池 API 失敗時應顯示錯誤", async () => {

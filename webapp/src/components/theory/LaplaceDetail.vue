@@ -2,12 +2,12 @@
   <div class="detail-page">
     <div class="detail-header">
       <button class="back-btn" @click="$emit('back')">← 返回</button>
-      <h2 class="detail-title">⚖️ 拉普拉斯準則詳細分析</h2>
+      <h2 class="detail-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 拉普拉斯準則詳細分析</h2>
     </div>
 
     <!-- UNAVAILABLE State -->
     <div v-if="!theory || !theory.laplaceCriterion" class="detail-unavailable">
-      <p>⚠️ 理論數據未計算</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 理論數據未計算</p>
       <span class="detail-hint">非交易日或壓力情境數據不足</span>
     </div>
 
@@ -89,8 +89,7 @@
 
       <!-- Disclaimer -->
       <div class="disclaimer-box">
-        <p class="disclaimer-text">
-          ⚠️ 僅供理論參考，不構成投資建議。拉普拉斯準則結果為 SHADOW_ONLY，不影響 P0 固定 DCA 執行。
+        <p class="disclaimer-text">          <Icon name="warn" size="sm" color="var(--iln-warn)" /> 僅供理論參考，不構成投資建議。拉普拉斯準則結果為 SHADOW_ONLY，不影響 P0 固定 DCA 執行。
         </p>
       </div>
     </div>
@@ -99,6 +98,7 @@
 
 <script setup>
 import { computed } from "vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   theory: { type: Object, required: true },

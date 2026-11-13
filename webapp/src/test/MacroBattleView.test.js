@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
 import MacroBattleView from "../views/MacroBattleView.vue";
+import Icon from "@/components/common/Icon.vue";
 import { fetchReports, fetchSocialSentiment } from "../api/index.js";
 
 vi.mock("../api/index.js", () => ({
@@ -107,7 +108,8 @@ describe("MacroBattleView", () => {
     const subtabs = wrapper.findAll(".iln-tab");
     expect(subtabs.length).toBe(3);
     const textList = subtabs.map((b) => b.text());
-    expect(textList).toEqual(["🌐 市場雷達", "⚖️ 多空對決", "📊 技術指標"]);
+    expect(textList).toEqual(["市場雷達", "多空對決", "技術指標"]);
+    expect(subtabs[0].findComponent(Icon).exists()).toBe(true);
   });
 
   it("應在社群情緒資料就緒時渲染 SocialSentimentCard", async () => {

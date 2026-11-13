@@ -16,7 +16,7 @@
             type="search"
             v-model="searchQuery"
             class="search-input"
-            placeholder="🔍 搜尋參數名稱或說明 (如: 維持率, VIX)..."
+            placeholder="搜尋參數名稱或說明 (如: 維持率, VIX)..."
           />
         </div>
         <button
@@ -24,7 +24,8 @@
           @click="toggleEditMode"
           :class="{ 'is-editing': isEditing }"
         >
-          {{ isEditing ? "❌ 取消編輯" : "📝 編輯配置" }}
+          <span v-if="isEditing"><Icon name="default" size="sm" /> 取消編輯</span>
+          <span v-else><Icon name="default" size="sm" /> 編輯配置</span>
         </button>
       </div>
 
@@ -175,6 +176,7 @@
  * @deprecated StrategyConfigPanel 已廢棄，請使用 StrategyConfigEditor.vue 做帶驗證的結構化策略編輯
  */
 import { ref, computed, reactive, onMounted } from "vue";
+import Icon from "@/components/common/Icon.vue";
 import { fetchStrategyConfig, updateStrategyConfig } from "../api/index.js";
 
 const config = ref(null);

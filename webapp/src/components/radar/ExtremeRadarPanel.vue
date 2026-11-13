@@ -321,11 +321,6 @@ const maxSeverity = computed(() => {
   if (triggeredRadars.value.some((r) => r.severity === "WATCH")) return "WATCH";
   return "NORMAL";
 });
-
-function formatMoney(amount) {
-  if (!amount || amount === 0) return "0 萬";
-  return `${(amount / 10000).toFixed(1)} 萬`;
-}
 </script>
 
 <style scoped>

@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import PortfolioShieldCard from "./PortfolioShieldCard.vue";
-import ContentCard from "@/components/common/ContentCard.vue";
 
 const baseProps = {
   marginRatio: 200,

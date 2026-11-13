@@ -2,12 +2,12 @@
   <div class="detail-page">
     <div class="detail-header">
       <button class="back-btn" @click="$emit('back')">← 返回</button>
-      <h2 class="detail-title">💼 人力資本詳細分析</h2>
+      <h2 class="detail-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 人力資本詳細分析</h2>
     </div>
 
     <!-- UNAVAILABLE State -->
     <div v-if="!theory || humanCapitalStatus === 'UNAVAILABLE'" class="detail-unavailable">
-      <p>⚠️ 理論數據未計算</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 理論數據未計算</p>
       <span class="detail-hint">{{ humanCapitalReason }}</span>
     </div>
 
@@ -45,8 +45,7 @@
             <li><strong>總資本</strong>: 人力資本 + 金融資本</li>
             <li><strong>人資佔比</strong>: 人力資本 ÷ 總資本，越高代表未來收入依賴度越大</li>
           </ul>
-          <p class="theory-note">
-            💡 人力資本隨年齡遞減，隨薪資成長遞增，退休後趨近於零
+          <p class="theory-note">            <Icon name="default" size="sm" color="var(--iln-hint)" /> 人力資本隨年齡遞減，隨薪資成長遞增，退休後趨近於零
           </p>
         </div>
       </section>
@@ -57,7 +56,7 @@
         <div class="leverage-zones">
           <div class="zone-item safe">
             <div class="zone-header">
-              <span class="zone-icon">✅</span>
+              <span class="zone-icon"><Icon name="ok" size="sm" color="var(--iln-ok)" /></span>
               <span class="zone-name">充足區</span>
             </div>
             <p class="zone-range">人力資本 > 金融資本</p>
@@ -65,7 +64,7 @@
           </div>
           <div class="zone-item moderate">
             <div class="zone-header">
-              <span class="zone-icon">⚠️</span>
+              <span class="zone-icon"><Icon name="warn" size="sm" color="var(--iln-warn)" /></span>
               <span class="zone-name">平衡區</span>
             </div>
             <p class="zone-range">人力資本 ≈ 金融資本</p>
@@ -73,10 +72,10 @@
           </div>
           <div class="zone-item high">
             <div class="zone-header">
-              <span class="zone-icon">🚨</span>
+              <span class="zone-icon"><Icon name="danger" size="sm" color="var(--iln-danger)" /></span>
               <span class="zone-name">依賴區</span>
             </div>
-            <p class="zone-range">人力資本 < 金融資本</p>
+            <p class="zone-range">人力資本 &lt; 金融資本</p>
             <p class="zone-desc">金融資本佔比較高，應審慎評估投資風險</p>
           </div>
         </div>
@@ -85,7 +84,7 @@
       <!-- Disclaimer -->
       <section class="detail-section">
         <div class="disclaimer-box">
-          <h4 class="disclaimer-title">⚠️ 免責聲明</h4>
+          <h4 class="disclaimer-title"><Icon name="warn" size="sm" color="var(--iln-warn)" /> 免責聲明</h4>
           <ul class="disclaimer-list">
             <li>人力資本僅為理論估算，非實際資產價值</li>
             <li>實際決策請參考既有風控機制（維持率、槓桿天花板）</li>
@@ -100,6 +99,7 @@
 
 <script setup>
 import { computed } from "vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   theory: { type: Object, required: true },

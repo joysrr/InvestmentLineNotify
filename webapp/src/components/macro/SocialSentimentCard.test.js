@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import SocialSentimentCard from "./SocialSentimentCard.vue";
-import ContentCard from "@/components/common/ContentCard.vue";
 
 const baseProps = {
   sentiment: {

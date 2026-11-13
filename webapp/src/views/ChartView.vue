@@ -6,15 +6,14 @@
       <button
         :class="{ active: activeTab === 'trend' }"
         @click="activeTab = 'trend'"
-      >
-        📈 資產趨勢
+      >        <Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢
       </button>
     </div>
 
     <div v-show="activeTab === 'trend'">
     <!-- 標題列 -->
     <div class="view-header">
-      <h2 class="view-title">📊 資產趨勢</h2>
+      <h2 class="view-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢</h2>
       <span class="view-subtitle" v-if="!loading && dataPoints.length">
         {{ granularityLabel }}，{{ dataPoints.length }} 筆
       </span>
@@ -99,6 +98,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
+import Icon from "@/components/common/Icon.vue";
 import VChart from "vue-echarts";
 import { use } from "echarts/core";
 import { LineChart } from "echarts/charts";

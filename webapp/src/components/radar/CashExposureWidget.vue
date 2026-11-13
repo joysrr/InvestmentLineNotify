@@ -34,7 +34,7 @@
 
     <!-- 批次計算推導 -->
     <div class="batch-section" v-if="batchCalculation">
-      <span class="section-title">🧮 批次計算推導</span>
+      <span class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 批次計算推導</span>
       <div class="metric-grid">
         <div class="metric-card">
           <StatCard size="sm" :framed="false" align="center" label="曝險缺口" :value="batchCalculation.exposureGap" />
@@ -69,16 +69,6 @@ const props = defineProps({
     default: null,
   },
 });
-
-const fmtLeverage = (n) => {
-  if (n == null || !Number.isFinite(n)) return "-";
-  return n.toFixed(2);
-};
-
-const fmt = (n) => {
-  if (n == null || !Number.isFinite(n)) return "-";
-  return new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 0 }).format(n);
-};
 
 const statusConfig = {
   RECOMMEND_DCA: { text: "建議加速 DCA", cls: "text-success" },

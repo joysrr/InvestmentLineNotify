@@ -35,7 +35,7 @@
       </div>
       <div class="cockpit-action">
         <span class="drawer-hint">點擊查看風控明細</span>
-        <span class="chevron">❯</span>
+        <span class="chevron"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
       </div>
     </div>
   </ContentCard>
@@ -43,6 +43,7 @@
 
 <script setup>
 import { computed } from "vue";
+import Icon from "@/components/common/Icon.vue";
 import ContentCard from "@/components/common/ContentCard.vue";
 
 const props = defineProps({

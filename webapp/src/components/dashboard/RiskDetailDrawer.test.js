@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import RiskDetailDrawer from "./RiskDetailDrawer.vue";
-import ContentCard from "@/components/common/ContentCard.vue";
 
 const baseProps = {
   visible: true,

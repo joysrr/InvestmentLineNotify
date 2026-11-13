@@ -2,12 +2,12 @@
   <div class="detail-page">
     <div class="detail-header">
       <button class="back-btn" @click="$emit('back')">← 返回</button>
-      <h2 class="detail-title">🛡️ 崩盤耐受度詳細分析</h2>
+      <h2 class="detail-title"><Icon name="shield" size="sm" color="var(--iln-brand)" /> 崩盤耐受度詳細分析</h2>
     </div>
 
     <!-- UNAVAILABLE State -->
     <div v-if="!theory || crashToleranceStatus === 'UNAVAILABLE'" class="detail-unavailable">
-      <p>⚠️ 理論數據未計算</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 理論數據未計算</p>
       <span class="detail-hint">{{ crashToleranceReason }}</span>
     </div>
 
@@ -45,8 +45,7 @@
             <li><strong>壓力情境</strong>: 基於歷史崩盤劇本（如 COVID 熔斷、金融海嘯）模擬</li>
             <li><strong>聯動機制</strong>: 當耐受度接近上限時，應減少槓桿或增加現金比重</li>
           </ul>
-          <p class="theory-note">
-            💡 崩盤耐受度越低，代表風險承受能力越弱，應更保守
+          <p class="theory-note">            <Icon name="default" size="sm" color="var(--iln-hint)" /> 崩盤耐受度越低，代表風險承受能力越弱，應更保守
           </p>
         </div>
       </section>
@@ -57,7 +56,7 @@
         <div class="leverage-zones">
           <div class="zone-item safe">
             <div class="zone-header">
-              <span class="zone-icon">✅</span>
+              <span class="zone-icon"><Icon name="ok" size="sm" color="var(--iln-ok)" /></span>
               <span class="zone-name">保守區</span>
             </div>
             <p class="zone-range">崩盤耐受度 ≤ 20%</p>
@@ -65,15 +64,15 @@
           </div>
           <div class="zone-item moderate">
             <div class="zone-header">
-              <span class="zone-icon">⚠️</span>
+              <span class="zone-icon"><Icon name="warn" size="sm" color="var(--iln-warn)" /></span>
               <span class="zone-name">適中區</span>
             </div>
-            <p class="zone-range">20% < 崩盤耐受度 ≤ 30%</p>
+            <p class="zone-range">20% &lt; 崩盤耐受度 ≤ 30%</p>
             <p class="zone-desc">風險承受適中，需關注市場極端行情</p>
           </div>
           <div class="zone-item high">
             <div class="zone-header">
-              <span class="zone-icon">🚨</span>
+              <span class="zone-icon"><Icon name="danger" size="sm" color="var(--iln-danger)" /></span>
               <span class="zone-name">激進區</span>
             </div>
             <p class="zone-range">崩盤耐受度 > 30%</p>
@@ -85,7 +84,7 @@
       <!-- Disclaimer -->
       <section class="detail-section">
         <div class="disclaimer-box">
-          <h4 class="disclaimer-title">⚠️ 免責聲明</h4>
+          <h4 class="disclaimer-title"><Icon name="warn" size="sm" color="var(--iln-warn)" /> 免責聲明</h4>
           <ul class="disclaimer-list">
             <li>崩盤耐受度僅為理論估算，非實際風險指標</li>
             <li>實際決策請參考既有風控機制（維持率、槓桿天花板）</li>
@@ -100,6 +99,7 @@
 
 <script setup>
 import { computed } from "vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   theory: { type: Object, required: true },

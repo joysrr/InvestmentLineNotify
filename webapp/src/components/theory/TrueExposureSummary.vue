@@ -1,7 +1,7 @@
 <template>
   <div class="theory-card">
     <div class="theory-card-header">
-      <h3 class="theory-card-title">📊 真實曝險 (True Exposure)</h3>
+      <h3 class="theory-card-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 真實曝險 (True Exposure)</h3>
       <span
         class="theory-status-badge"
         :class="`status-${trueExposureStatus?.toLowerCase()}`"
@@ -13,7 +13,7 @@
     <!-- UNAVAILABLE State -->
     <div v-if="trueExposureStatus === 'UNAVAILABLE'" class="theory-unavailable">
       <span class="theory-reason">{{ trueExposureReason }}</span>
-      <p>⚠️ 理論數據未計算</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 理論數據未計算</p>
       <span class="theory-hint">請先執行 dailyCheck 產生 theoreticalShadow</span>
     </div>
 
@@ -29,8 +29,7 @@
       <button
         class="detail-button"
         @click="$emit('view-detail', 'trueExposure')"
-      >
-        🔍 查看詳情
+      >        <Icon name="default" size="sm" color="var(--iln-hint)" /> 查看詳情
       </button>
     </div>
   </div>
@@ -38,6 +37,7 @@
 
 <script setup>
 import { computed } from "vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   theory: { type: Object, required: true },

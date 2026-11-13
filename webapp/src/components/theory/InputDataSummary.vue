@@ -1,12 +1,12 @@
 <template>
   <div class="theory-card">
     <div class="theory-card-header">
-      <h3 class="theory-card-title">📋 輸入數據來源</h3>
+      <h3 class="theory-card-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 輸入數據來源</h3>
     </div>
 
     <!-- UNAVAILABLE State -->
     <div v-if="!inputs" class="theory-unavailable">
-      <p>⚠️ 輸入數據未提供</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 輸入數據未提供</p>
       <span class="theory-hint">非交易日或數據不足</span>
     </div>
 
@@ -53,7 +53,7 @@
 
       <!-- Data Timestamp -->
       <div v-if="reportDate" class="data-timestamp">
-        <span class="timestamp-label">📅 數據時間</span>
+        <span class="timestamp-label"><Icon name="default" size="sm" color="var(--iln-hint)" /> 數據時間</span>
         <span class="timestamp-value">{{ reportDate }}</span>
       </div>
 

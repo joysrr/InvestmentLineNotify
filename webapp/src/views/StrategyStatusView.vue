@@ -30,15 +30,13 @@
           class="segmented-btn"
           :class="{ active: activeTab === 'scores' }"
           @click="activeTab = 'scores'"
-        >
-          📊 評分與檔位
+        >          <Icon name="chart" size="sm" color="var(--iln-text)" /> 評分與檔位
         </button>
         <button
           class="segmented-btn"
           :class="{ active: activeTab === 'risk' }"
           @click="activeTab = 'risk'"
-        >
-          🛡️ 風控與機制
+        >          <Icon name="shield" size="sm" color="var(--iln-brand)" /> 風控與機制
         </button>
       </div>
 
@@ -47,7 +45,7 @@
         <!-- Section 1: Weight Score Breakdown -->
         <section class="status-section">
         <div class="section-header">
-          <h3 class="section-title">📊 策略分數構成 (Weight Score)</h3>
+          <h3 class="section-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 策略分數構成 (Weight Score)</h3>
           <span class="section-badge" :class="scoreClass">{{ health.weightScore.total }}pt</span>
         </div>
         <div class="score-breakdown">
@@ -93,7 +91,7 @@
       <!-- Section 2: Cool Down Status -->
       <section class="status-section">
         <div class="section-header">
-          <h3 class="section-title">❄️ 冷卻期狀態</h3>
+          <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 冷卻期狀態</h3>
           <span class="section-badge" :class="cooldownClass">
             {{ health.cooldown.inCooldown ? `剩餘 ${health.cooldown.daysLeft} 天` : '無冷卻期' }}
           </span>
@@ -101,7 +99,7 @@
         <div class="cooldown-card" :class="{ 'in-cooldown': health.cooldown.inCooldown }">
           <div class="cooldown-main">
             <div class="cooldown-icon" :class="{ active: health.cooldown.inCooldown }">
-              {{ health.cooldown.inCooldown ? '⏳' : '✅' }}
+              {{ health.cooldown.inCooldown ? 'default' : 'ok' }}
             </div>
             <div class="cooldown-info">
               <div class="cooldown-label">{{ health.cooldown.inCooldown ? '冷卻中' : '可正常交易' }}</div>
@@ -121,7 +119,7 @@
       <!-- Section 3: Strategy Allocation (Score Tiers) -->
       <section class="status-section">
         <div class="section-header">
-          <h3 class="section-title">🎯 策略分數檔位與目標槓桿</h3>
+          <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 策略分數檔位與目標槓桿</h3>
           <span class="section-badge">{{ health.allocation.current.comment }}</span>
         </div>
         <div class="allocation-tiers">
@@ -142,7 +140,7 @@
       <!-- Section 4: Scoring Thresholds -->
       <section class="status-section compact">
         <div class="section-header">
-          <h3 class="section-title">📈 評分門檻</h3>
+          <h3 class="section-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 評分門檻</h3>
         </div>
         <div class="thresholds-grid">
           <ThresholdItem label="起始買入門檻" :value="health.scoring.minScoreToBuy" unit="pt" />
@@ -157,8 +155,8 @@
         <!-- Section 8: Risk Controls -->
         <section class="status-section">
           <div class="section-header">
-            <h3 class="section-title">🛡️ 風控狀態</h3>
-            <span class="section-badge risk-badge" :class="riskClass">{{ riskLabel }}</span>
+            <h3 class="section-title"><Icon name="shield" size="sm" color="var(--iln-brand)" /> 風控狀態</h3>
+            <span class="section-badge risk-badge" :class="riskClass"><Icon :name="regimeIcon" size="sm" /> {{ riskLabel }}</span>
           </div>
           <div class="risk-grid">
             <RiskItem 
@@ -172,32 +170,32 @@
               label="維持率" 
               :value="health.risk.maintenanceMargin" 
               unit="%"
-              :icon="health.risk.maintenanceMargin < 145 ? '🔴' : health.risk.maintenanceMargin < 160 ? '🟠' : '🟢'"
-              :desc="health.risk.maintenanceMargin < 145 ? '⚠️ 追繳威脅' : health.risk.maintenanceMargin < 160 ? '⚡ 警戒水位' : '跌破145%觸發減碼'"
+              :icon="health.risk.maintenanceMargin < 145 ? 'danger' : health.risk.maintenanceMargin < 160 ? 'warn' : 'ok'"
+              :desc="health.risk.maintenanceMargin < 145 ? '追繳威脅' : health.risk.maintenanceMargin < 160 ? '警戒水位' : '跌破145%觸發減碼'"
             />
             <RiskItem 
               label="綜合槓桿" 
               :value="health.risk.grossLeverage" 
               unit="x"
-              :icon="health.risk.grossLeverage > 2.5 ? '🔴' : health.risk.grossLeverage > 2.0 ? '🟠' : '🟢'"
-              :desc="health.risk.grossLeverage > 2.5 ? '⚠️ 槓桿上限' : health.risk.grossLeverage > 2.0 ? '⚡ 偏高水位' : '上限 2.50x'"
+              :icon="health.risk.grossLeverage > 2.5 ? 'danger' : health.risk.grossLeverage > 2.0 ? 'warn' : 'ok'"
+              :desc="health.risk.grossLeverage > 2.5 ? '槓桿上限' : health.risk.grossLeverage > 2.0 ? '偏高水位' : '上限 2.50x'"
             />
             <RiskItem 
               label="估值守衛" 
               :value="health.risk.valuationGuard?.latchActive ? '防禦生效' : '安全'"
-              :icon="health.risk.valuationGuard?.latchActive ? '🔒' : '🔓'"
+              :icon="health.risk.valuationGuard?.latchActive ? 'default' : 'default'"
               :desc="health.risk.valuationGuard?.currentPR != null ? `PR${health.risk.valuationGuard.currentPR}% (Floor ${health.risk.valuationGuard.floorPR || 70}%)` : '大盤 PB PR分位數'"
             />
             <RiskItem 
               label="恐慌破冰" 
               :value="health.risk.panicBypassActive ? '破冰生效' : '待機'"
-              :icon="health.risk.panicBypassActive ? '⚡' : '🔓'"
+              :icon="health.risk.panicBypassActive ? 'trigger' : 'default'"
               :desc="health.risk.panicBypassActive ? 'VIX極端值買入' : 'VIX常態監控'"
             />
             <RiskItem 
               label="移動停利" 
               :value="health.risk.trailingActive ? '啟動' : '待機'"
-              :icon="health.risk.trailingActive ? '📉' : '⏸️'"
+              :icon="health.risk.trailingActive ? 'chart' : 'neutral'"
               :desc="health.risk.trailingActive ? '高點回撤保護' : '未達停利門檻'"
             />
           </div>
@@ -206,12 +204,12 @@
         <!-- Section 6: Signal Classification -->
         <section class="status-section">
           <div class="section-header">
-            <h3 class="section-title">📡 當前信號分類</h3>
+            <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 當前信號分類</h3>
           </div>
           <div class="signal-card">
             <div class="signal-main">
-              <span class="signal-category-badge" :class="signalCategoryClass">{{ signalCategoryLabel }}</span>
-              <span class="signal-type-badge" :class="signalTypeClass">{{ signalTypeLabel }}</span>
+              <span class="signal-category-badge" :class="signalCategoryClass"><Icon :name="signalCategoryIcon" size="sm" /> {{ signalCategoryLabel }}</span>
+              <span class="signal-type-badge" :class="signalTypeClass"><Icon :name="signalTypeIcon" size="sm" /> {{ signalTypeLabel }}</span>
             </div>
             <div class="signal-details">
               <div class="signal-row">
@@ -233,9 +231,10 @@
         <!-- Section 5: Budget Priority -->
         <section class="status-section">
           <div class="section-header">
-            <h3 class="section-title">💰 Budget Priority (資金預度管控)</h3>
+            <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> Budget Priority (資金預度管控)</h3>
             <span class="section-badge" :class="budgetClass">
-              {{ health.budget.isLimited ? '⚠️ 受限' : '✅ 正常' }}
+              <Icon :name="health.budget.isLimited ? 'warn' : 'ok'" size="sm" />
+              {{ health.budget.isLimited ? '受限' : '正常' }}
             </span>
           </div>
           <div class="budget-card" :class="{ limited: health.budget.isLimited }">
@@ -247,12 +246,12 @@
               <StatCard label="實際允許" :value="health.budget.allowedAmount" unit="元" decimals="0" />
             </div>
             <div class="budget-reason" v-if="health.budget.isLimited">
-              <span class="reason-icon">⚠️</span>
+              <span class="reason-icon"><Icon name="warn" size="sm" color="var(--iln-warn)" /></span>
               <span class="reason-text">{{ health.budget.limitedReason }}</span>
             </div>
             <div class="budget-signal-type">
               <span class="type-label">信號類型：</span>
-              <span class="type-badge" :class="signalTypeClass">{{ signalTypeLabel }}</span>
+              <span class="type-badge" :class="signalTypeClass"><Icon :name="signalTypeIcon" size="sm" /> {{ signalTypeLabel }}</span>
             </div>
           </div>
         </section>
@@ -260,7 +259,7 @@
         <!-- Section 7: Lifecycle Stage -->
         <section class="status-section">
           <div class="section-header">
-            <h3 class="section-title">👤 生命週期階段</h3>
+            <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 生命週期階段</h3>
             <span class="section-badge lifecycle-badge" :class="lifecycleClass">{{ health.lifecycle.stage }}</span>
           </div>
           <div class="lifecycle-card">
@@ -278,7 +277,7 @@
         <!-- Section 9: Key Metrics -->
         <section class="status-section compact">
           <div class="section-header">
-            <h3 class="section-title">📋 關鍵指標速覽</h3>
+            <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 關鍵指標速覽</h3>
           </div>
           <div class="metrics-grid">
             <MetricItem label="淨資產" :value="health.keyMetrics.netAsset" unit="元" format="number" />
@@ -295,6 +294,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import Icon from "@/components/common/Icon.vue";
 import { apiFetch } from "../api/index.js";
 import { waitReady } from "../composables/useTelegram.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
@@ -384,13 +384,25 @@ const signalCategoryClass = computed(() => {
 const signalCategoryLabel = computed(() => {
   const cat = health.value?.signal?.category ?? "baseline";
   const map = {
-    panic: "🔴 恐慌",
-    deep_drop: "🟠 深度回撤",
-    take_profit: "🟢 停利獲利",
-    rebalance: "🔄 再平衡",
-    baseline: "🌱 底倉/觀望",
+    panic: "恐慌",
+    deep_drop: "深度回撤",
+    take_profit: "停利獲利",
+    rebalance: "再平衡",
+    baseline: "底倉/觀望",
   };
   return map[cat] ?? cat;
+});
+
+const signalCategoryIcon = computed(() => {
+  const cat = health.value?.signal?.category ?? "baseline";
+  const map = {
+    panic: "danger",
+    deep_drop: "danger",
+    take_profit: "ok",
+    rebalance: "default",
+    baseline: "default",
+  };
+  return map[cat] ?? "default";
 });
 
 const signalTypeClass = computed(() => {
@@ -406,11 +418,21 @@ const signalTypeClass = computed(() => {
 const signalTypeLabel = computed(() => {
   const type = health.value?.signal?.type ?? "baseline";
   const map = {
-    tactical_panic: "⚡ 戰術恐慌",
-    tactical_drop: "🎯 戰術回撤",
-    baseline: "🌱 底倉/觀望",
+    tactical_panic: "戰術恐慌",
+    tactical_drop: "戰術回撤",
+    baseline: "底倉/觀望",
   };
   return map[type] ?? type;
+});
+
+const signalTypeIcon = computed(() => {
+  const type = health.value?.signal?.type ?? "baseline";
+  const map = {
+    tactical_panic: "danger",
+    tactical_drop: "warn",
+    baseline: "default",
+  };
+  return map[type] ?? "default";
 });
 
 const lifecycleClass = computed(() => {
@@ -427,10 +449,10 @@ const lifecycleClass = computed(() => {
 const lifecycleStageLabel = computed(() => {
   const stage = health.value?.lifecycle?.stage ?? "EARLY";
   const map = {
-    EARLY: "🌱 早期累積期 (>15年)",
-    MID: "🌿 中期平衡期 (10-15年)",
-    LATE: "🍂 後期保守期 (5-10年)",
-    PRE_RETIRE: "🍁 退休前保守期 (<5年)",
+    EARLY: "早期累積期 (>15年)",
+    MID: "中期平衡期 (10-15年)",
+    LATE: "後期保守期 (5-10年)",
+    PRE_RETIRE: "退休前保守期 (<5年)",
   };
   return map[stage] ?? stage;
 });
@@ -438,12 +460,12 @@ const lifecycleStageLabel = computed(() => {
 const lifecycleIcon = computed(() => {
   const stage = health.value?.lifecycle?.stage ?? "EARLY";
   const map = {
-    EARLY: "🌱",
-    MID: "🌿",
-    LATE: "🍂",
-    PRE_RETIRE: "🍁",
+    EARLY: "default",
+    MID: "default",
+    LATE: "default",
+    PRE_RETIRE: "default",
   };
-  return map[stage] ?? "🌱";
+  return map[stage] ?? "default";
 });
 
 const lifecycleModeLabel = computed(() => {
@@ -460,8 +482,8 @@ const lifecycleModeLabel = computed(() => {
 
 const regimeIcon = computed(() => {
   const regime = health.value?.risk?.regime ?? "NORMAL";
-  const map = { CRISIS: "🔴", CAUTIOUS: "🟠", NORMAL: "🟢" };
-  return map[regime] ?? "⚪";
+  const map = { CRISIS: "danger", CAUTIOUS: "warn", NORMAL: "ok" };
+  return map[regime] ?? "neutral";
 });
 
 const regimeClass = computed(() => {
@@ -472,7 +494,7 @@ const regimeClass = computed(() => {
 
 const riskLabel = computed(() => {
   const regime = health.value?.risk?.regime ?? "NORMAL";
-  const map = { CRISIS: "🔴 危機", CAUTIOUS: "🟠 警戒", NORMAL: "🟢 正常" };
+  const map = { CRISIS: "危機", CAUTIOUS: "警戒", NORMAL: "正常" };
   return map[regime] ?? regime;
 });
 

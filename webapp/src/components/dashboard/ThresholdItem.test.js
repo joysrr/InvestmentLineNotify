@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import ThresholdItem from "./ThresholdItem.vue";
-import ContentCard from "@/components/common/ContentCard.vue";
 
 const baseProps = {
   label: "閾值項目",

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import DataEvidenceCard from "./DataEvidenceCard.vue";
-import ContentCard from "@/components/common/ContentCard.vue";
 
 const telegramState = vi.hoisted(() => ({
   waitReady: vi.fn().mockResolvedValue(undefined),

@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import MarketSnapshot from "./MarketSnapshot.vue";
-import ContentCard from "@/components/common/ContentCard.vue";
 
 const baseProps = {
   status: { data: { rawUsMarket: { vix: 18.5 } } },

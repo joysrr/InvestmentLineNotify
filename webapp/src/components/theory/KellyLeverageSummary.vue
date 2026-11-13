@@ -1,12 +1,12 @@
 <template>
   <div class="theory-card">
     <div class="theory-card-header">
-      <h3 class="theory-card-title">📊 當前槓桿分析</h3>
+      <h3 class="theory-card-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 當前槓桿分析</h3>
     </div>
 
     <!-- UNAVAILABLE State -->
     <div v-if="!theory" class="theory-unavailable">
-      <p>⚠️ 理論數據未計算</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 理論數據未計算</p>
       <span class="theory-hint">非交易日或數據不足</span>
     </div>
 
@@ -66,7 +66,7 @@
 
       <!-- Status Message -->
       <div class="leverage-status" :class="leverageStatusClass">
-        <span>{{ leverageStatusText }}</span>
+        <span><Icon :name="leverageStatusIcon" size="sm" /> {{ leverageStatusText }}</span>
       </div>
 
       <!-- View Detail Link -->
@@ -79,6 +79,7 @@
 
 <script setup>
 import { computed } from "vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   theory: {
@@ -173,9 +174,24 @@ const leverageStatusText = computed(() => {
   const conservative = props.theory.kellyLimits.conservative;
   const full = props.theory.kellyLimits.full;
 
-  if (current <= conservative) return "✅ 當前槓桿低於保守建議";
-  if (current <= full) return "⚠️ 槓桿已超過保守建議";
-  return "🚨 槓桿已超過完全凱莉限制";
+  if (current <= conservative) return "當前槓桿低於保守建議";
+  if (current <= full) return "槓桿已超過保守建議";
+  return "槓桿已超過完全凱莉限制";
+});
+
+const leverageStatusIcon = computed(() => {
+  if (!hasKellyLimits.value) {
+    return "neutral";
+  }
+  if (props.theory?.currentLeverage == null) {
+    return "neutral";
+  }
+  const current = props.theory.currentLeverage;
+  const conservative = props.theory.kellyLimits.conservative;
+  const full = props.theory.kellyLimits.full;
+  if (current <= conservative) return "ok";
+  if (current <= full) return "warn";
+  return "danger";
 });
 </script>
 

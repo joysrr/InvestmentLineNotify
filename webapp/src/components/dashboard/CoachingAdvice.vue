@@ -6,7 +6,7 @@
     radius="lg"
     data-testid="coaching-advice"
   >
-    <h3 class="section-title">🤖 AI 教練建議</h3>
+    <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> AI 教練建議</h3>
 
     <!-- 核心洞察 -->
     <div class="ai-insight" v-if="insight">
@@ -69,7 +69,7 @@
         @click="thinkingExpanded = !thinkingExpanded"
         style="cursor: pointer"
       >
-        <span>🧠 教練內心推演</span>
+        <span><Icon name="default" size="sm" color="var(--iln-hint)" /> 教練內心推演</span>
         <span class="expand-arrow">{{ thinkingExpanded ? "▲" : "▼" }}</span>
       </div>
       <div v-show="thinkingExpanded" class="ai-thinking">

@@ -2,12 +2,12 @@
   <div class="detail-page">
     <div class="detail-header">
       <button class="back-btn" @click="$emit('back')">← 返回</button>
-      <h2 class="detail-title">📊 凱莉槓桿詳細分析</h2>
+      <h2 class="detail-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 凱莉槓桿詳細分析</h2>
     </div>
 
     <!-- UNAVAILABLE State -->
     <div v-if="!theory" class="detail-unavailable">
-      <p>⚠️ 理論數據未計算</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 理論數據未計算</p>
       <span class="detail-hint">非交易日或數據不足</span>
     </div>
 
@@ -49,8 +49,7 @@
             <li><strong>σ²</strong>: 報酬率變異數</li>
             <li><strong>L*</strong>: 完全凱莉槓桿（理論最大值）</li>
           </ul>
-          <p class="theory-note">
-            💡 保守凱莉 = 0.5 × L*，用於降低波動風險
+          <p class="theory-note">            <Icon name="default" size="sm" color="var(--iln-hint)" /> 保守凱莉 = 0.5 × L*，用於降低波動風險
           </p>
         </div>
       </section>
@@ -61,7 +60,7 @@
         <div class="leverage-zones">
           <div class="zone-item safe">
             <div class="zone-header">
-              <span class="zone-icon">✅</span>
+              <span class="zone-icon"><Icon name="ok" size="sm" color="var(--iln-ok)" /></span>
               <span class="zone-name">安全區</span>
             </div>
             <p class="zone-range">0x ~ {{ formatLeverage(theory.kellyLimits.conservative) }}</p>
@@ -69,7 +68,7 @@
           </div>
           <div class="zone-item moderate">
             <div class="zone-header">
-              <span class="zone-icon">⚠️</span>
+              <span class="zone-icon"><Icon name="warn" size="sm" color="var(--iln-warn)" /></span>
               <span class="zone-name">適中區</span>
             </div>
             <p class="zone-range">{{ formatLeverage(theory.kellyLimits.conservative) }} ~ {{ formatLeverage(theory.kellyLimits.full) }}</p>
@@ -77,7 +76,7 @@
           </div>
           <div class="zone-item high">
             <div class="zone-header">
-              <span class="zone-icon">🚨</span>
+              <span class="zone-icon"><Icon name="danger" size="sm" color="var(--iln-danger)" /></span>
               <span class="zone-name">高風險區</span>
             </div>
             <p class="zone-range">> {{ formatLeverage(theory.kellyLimits.full) }}</p>
@@ -89,7 +88,7 @@
       <!-- No Kelly Limits Warning -->
       <section v-else class="detail-section">
         <div class="warning-box">
-          <h4 class="warning-title">⚠️ 凱莉槓桿未計算</h4>
+          <h4 class="warning-title"><Icon name="warn" size="sm" color="var(--iln-warn)" /> 凱莉槓桿未計算</h4>
           <p class="warning-text">
             需要以下參數才能計算凱莉槓桿限制：
           </p>
@@ -151,7 +150,7 @@
       <!-- Disclaimer -->
       <section class="detail-section">
         <div class="disclaimer-box">
-          <h4 class="disclaimer-title">⚠️ 免責聲明</h4>
+          <h4 class="disclaimer-title"><Icon name="warn" size="sm" color="var(--iln-warn)" /> 免責聲明</h4>
           <ul class="disclaimer-list">
             <li>凱莉公式僅供研究參考，非投資建議</li>
             <li>實際決策請參考既有風控機制（維持率、槓桿天花板）</li>
@@ -166,6 +165,7 @@
 
 <script setup>
 import { computed } from "vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   theory: {

@@ -7,15 +7,13 @@
         class="subtab-btn"
         :class="{ active: activeTab === 'report' }"
         @click="switchTab('report')"
-      >
-        🗞️ 精選報告
+      >        <Icon name="default" size="sm" color="var(--iln-hint)" /> 精選報告
       </button>
       <button
         class="subtab-btn"
         :class="{ active: activeTab === 'pool' }"
         @click="switchTab('pool')"
-      >
-        📦 新聞池
+      >        <Icon name="default" size="sm" color="var(--iln-hint)" /> 新聞池
       </button>
     </div>
 
@@ -31,7 +29,7 @@
         <!-- 台灣區塊 -->
         <div v-if="reportNews.tw.length" class="region-section">
           <div class="region-header">
-            <span class="region-flag">🇹🇼</span>
+            <span class="region-flag"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
             <span class="region-title">台灣市場動態</span>
             <span class="region-count">{{ reportNews.tw.length }} 則</span>
           </div>
@@ -55,7 +53,7 @@
         <!-- 國際區塊 -->
         <div v-if="reportNews.us.length" class="region-section">
           <div class="region-header">
-            <span class="region-flag">🌎</span>
+            <span class="region-flag"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
             <span class="region-title">國際總經與趨勢</span>
             <span class="region-count">{{ reportNews.us.length }} 則</span>
           </div>
@@ -76,8 +74,7 @@
           </div>
         </div>
 
-        <p class="report-generated">
-          📅 產生時間：{{ reportNews.generatedAt || "—" }}
+        <p class="report-generated">          <Icon name="default" size="sm" color="var(--iln-hint)" /> 產生時間：{{ reportNews.generatedAt || "—" }}
         </p>
       </div>
     </div>
@@ -105,9 +102,10 @@
         >
           <div class="news-header">
             <span class="news-age" :class="ageBandClass(article.age_band)">
+              <Icon :name="ageBandIcon(article.age_band)" size="sm" />
               {{ ageBandLabel(article.age_band) }}
             </span>
-            <span class="news-region">{{ regionFlag(article._region) }}</span>
+            <span class="news-region"><Icon :name="regionFlag(article._region)" size="sm" /></span>
             <span class="news-source">{{ article.source }}</span>
             <span class="news-time">{{ formatDate(article.pubDate) }}</span>
           </div>
@@ -125,6 +123,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import Icon from "@/components/common/Icon.vue";
 import { fetchNews, fetchReportNews } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
@@ -198,16 +197,22 @@ function ageBandClass(band) {
   return "age-old";
 }
 
+function ageBandIcon(band) {
+  if (band === "fresh") return "danger";
+  if (band === "recent") return "warn";
+  return "neutral";
+}
+
 function ageBandLabel(band) {
-  if (band === "fresh") return "🔴 最新";
-  if (band === "recent") return "🟡 近期";
-  return "⚪ 舊聞";
+  if (band === "fresh") return "最新";
+  if (band === "recent") return "近期";
+  return "舊聞";
 }
 
 function regionFlag(region) {
-  if (region === "TW") return "🇹🇼";
-  if (region === "US") return "🇺🇸";
-  return "🌐";
+  if (region === "TW") return "default";
+  if (region === "US") return "default";
+  return "default";
 }
 
 function formatDate(pubDate) {

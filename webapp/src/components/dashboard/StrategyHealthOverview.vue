@@ -106,14 +106,6 @@ const bannerStatus = computed(() => {
   return "";
 });
 
-const signalClass = computed(() => {
-  const s = props.health?.status?.toLowerCase?.();
-  if (s === "green") return "sig-green";
-  if (s === "yellow" || s === "amber") return "sig-yellow";
-  if (s === "red") return "sig-red";
-  return "";
-});
-
 const targetClass = computed(() => {
   const t = props.report?.signals?.target || "";
   if (t.includes("加碼") || t.includes("買")) return "badge-buy";

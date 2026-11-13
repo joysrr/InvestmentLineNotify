@@ -2,12 +2,12 @@
   <div class="detail-page">
     <div class="detail-header">
       <button class="back-btn" @click="$emit('back')">← 返回</button>
-      <h2 class="detail-title">📈 市場曝險詳細分析</h2>
+      <h2 class="detail-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 市場曝險詳細分析</h2>
     </div>
 
     <!-- UNAVAILABLE State -->
     <div v-if="!theory" class="detail-unavailable">
-      <p>⚠️ 理論數據未計算</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 理論數據未計算</p>
       <span class="detail-hint">非交易日或數據不足</span>
     </div>
 
@@ -34,7 +34,7 @@
 
       <!-- Extreme Scenario Simulation -->
       <section v-if="portfolioSnapshot && theory.grossExposure" class="detail-section">
-        <h3 class="section-title">💥 極端情境模擬</h3>
+        <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 極端情境模擬</h3>
         <p class="section-desc">模擬大盤下跌時的淨值變化</p>
         <div class="scenario-list">
           <div
@@ -69,7 +69,7 @@
 
       <!-- Portfolio Allocation -->
       <section v-if="portfolioSnapshot && inputs" class="detail-section">
-        <h3 class="section-title">📊 配置建議</h3>
+        <h3 class="section-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 配置建議</h3>
         <div class="allocation-box">
           <div class="allocation-current">
             <h4 class="allocation-subtitle">當前配置</h4>
@@ -85,17 +85,13 @@
           <div class="allocation-suggestion">
             <h4 class="allocation-subtitle">建議配置</h4>
             <ul class="suggestion-list">
-              <li v-if="exposureRatio <= 60">
-                ✅ 當前配置保守，可承受較大波動
+              <li v-if="exposureRatio <= 60">                <Icon name="ok" size="sm" color="var(--iln-ok)" /> 當前配置保守，可承受較大波動
               </li>
-              <li v-else-if="exposureRatio <= 80">
-                ⚠️ 建議保留 30-40% 現金作為緩衝
+              <li v-else-if="exposureRatio <= 80">                <Icon name="warn" size="sm" color="var(--iln-warn)" /> 建議保留 30-40% 現金作為緩衝
               </li>
-              <li v-else-if="exposureRatio <= 100">
-                🔶 曝險偏高，建議降低至 80% 以下
+              <li v-else-if="exposureRatio <= 100">                <Icon name="warn" size="sm" color="var(--iln-warn)" /> 曝險偏高，建議降低至 80% 以下
               </li>
-              <li v-else>
-                🚨 使用槓桿中，需密切監控維持率
+              <li v-else>                <Icon name="danger" size="sm" color="var(--iln-danger)" /> 使用槓桿中，需密切監控維持率
               </li>
               <li>依長期投資計畫定期定額，不追高殺低</li>
               <li>保留至少 20% 現金應對極端情況</li>
@@ -137,7 +133,7 @@
       <!-- Disclaimer -->
       <section class="detail-section">
         <div class="disclaimer-box">
-          <h4 class="disclaimer-title">⚠️ 免責聲明</h4>
+          <h4 class="disclaimer-title"><Icon name="warn" size="sm" color="var(--iln-warn)" /> 免責聲明</h4>
           <ul class="disclaimer-list">
             <li>極端情境模擬僅供參考，實際跌幅可能超出預期</li>
             <li>配置建議基於理論計算，非投資建議</li>
@@ -152,6 +148,7 @@
 
 <script setup>
 import { computed } from "vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   theory: {

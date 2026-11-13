@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import MetricCard from "./MetricCard.vue";
-import ContentCard from "@/components/common/ContentCard.vue";
 
 describe("MetricCard.vue", () => {
   it("外層使用 ContentCard，variant=outlined padding=md radius=md", () => {

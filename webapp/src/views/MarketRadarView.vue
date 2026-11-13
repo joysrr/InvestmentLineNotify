@@ -2,7 +2,7 @@
     <GlobalErrorBoundary>
     <div class="view-container">
     <div class="page-header">
-      <h2 class="page-title">🌐 市場雷達</h2>
+      <h2 class="page-title"><Icon name="default" size="sm" /> 市場雷達</h2>
       <span class="page-date">{{ todayLabel }}</span>
     </div>
 
@@ -11,7 +11,7 @@
       v-if="isLongTermDefense"
       class="defense-mode-badge card-danger"
     >
-      <span class="badge-icon">🛡️</span>
+      <span class="badge-icon"><Icon name="shield" /></span>
       <span class="badge-text">長期防禦模式中 — 嚴格控制槓桿與加碼</span>
     </div>
 
@@ -47,7 +47,7 @@
 
       <!-- 美股區 -->
       <section class="section">
-        <h3 class="section-title">🇺🇸 美股市場</h3>
+        <h3 class="section-title"><Icon name="default" size="sm" /> 美股市場</h3>
         <div class="radar-grid">
           <!-- 美股 VIX -->
           <div class="radar-card" :class="usVixCard.cls">
@@ -61,7 +61,7 @@
           <div class="radar-card" :class="spxCard.cls">
             <span class="rc-label">S&amp;P 500</span>
             <span class="rc-value rc-value--md">{{ spxText }}</span>
-            <span class="rc-sub" :class="spxCard.sub">{{ spxCard.label }}</span>
+            <span class="rc-sub" :class="spxCard.sub"><Icon :name="spxCard.icon" size="sm" /> {{ spxCard.label }}</span>
           </div>
           <!-- CNN 情緒 -->
           <div class="radar-card" :class="cnnCard.cls">
@@ -74,7 +74,7 @@
 
       <!-- 台股區 -->
       <section class="section">
-        <h3 class="section-title">🇹🇼 台股市場</h3>
+        <h3 class="section-title"><Icon name="default" size="sm" /> 台股市場</h3>
         <div class="radar-grid">
           <!-- 台股 VIX -->
           <div class="radar-card" :class="twVixCard.cls">
@@ -87,7 +87,7 @@
           <!-- 景氣燈號 -->
           <div class="radar-card">
             <span class="rc-label">景氣燈號</span>
-            <span class="rc-value rc-value--emoji">{{ lightEmoji }}</span>
+            <span class="rc-value rc-value--emoji"><Icon :name="lightEmoji" /></span>
             <span class="rc-sub rc-sub--neutral">{{ lightText }}</span>
           </div>
           <!-- 融資維持率 -->
@@ -105,14 +105,13 @@
           <div class="radar-card" :class="peCard.cls">
             <span class="rc-label">大盤 PE</span>
             <span class="rc-value rc-value--md">{{ pe ?? "—" }}</span>
-            <span class="rc-sub" :class="peCard.sub">{{ peCard.label }}</span>
+            <span class="rc-sub" :class="peCard.sub"><Icon :name="peCard.icon" size="sm" /> {{ peCard.label }}</span>
           </div>
           <!-- 大盤 PB -->
           <div class="radar-card" :class="pbCard.cls">
             <span class="rc-label">大盤 PB</span>
             <span class="rc-value rc-value--md">{{ pb ?? "—" }}</span>
-            <span class="rc-sub" :class="pbCard.sub">
-              {{ pbCard.label }}
+            <span class="rc-sub" :class="pbCard.sub"><Icon :name="pbCard.icon" size="sm" /> {{ pbCard.label }}
               <code v-if="pbPR !== null" class="rc-pr">PR{{ pbPR }}</code>
             </span>
           </div>
@@ -120,7 +119,7 @@
           <div class="radar-card" :class="fxCard.cls">
             <span class="rc-label">美元/台幣</span>
             <span class="rc-value rc-value--md">{{ fxRate ?? "—" }}</span>
-            <span class="rc-sub" :class="fxCard.sub">{{ fxCard.label }}</span>
+            <span class="rc-sub" :class="fxCard.sub"><Icon :name="fxCard.icon" size="sm" /> {{ fxCard.label }}</span>
           </div>
         </div>
       </section>
@@ -258,10 +257,10 @@ const spxText = computed(() => {
 });
 const spxCard = computed(() => {
   const n = parseFloat(spxRaw.value);
-  if (isNaN(n)) return { cls: "", sub: "rc-sub--neutral", label: "無數據" };
-  if (n > 0) return { cls: "card-ok", sub: "rc-sub--ok", label: "上漲 📈" };
-  if (n < 0) return { cls: "card-warn", sub: "rc-sub--warn", label: "下跌 📉" };
-  return { cls: "", sub: "rc-sub--neutral", label: "持平" };
+  if (isNaN(n)) return { cls: "", sub: "rc-sub--neutral", label: "無數據", icon: "default" };
+  if (n > 0) return { cls: "card-ok", sub: "rc-sub--ok", label: "上漲", icon: "chart" };
+  if (n < 0) return { cls: "card-warn", sub: "rc-sub--warn", label: "下跌", icon: "chart" };
+  return { cls: "", sub: "rc-sub--neutral", label: "持平", icon: "default" };
 });
 
 const cnnScore = computed(() => statusData.value?.rawCnn?.score ?? null);
@@ -288,18 +287,18 @@ const lightEmoji = computed(() => {
     sig.includes("活絡") ||
     sig.includes("yellow-red")
   )
-    return "🟠";
+    return "warn";
   if (
     sig.includes("黃藍") ||
     sig.includes("趨緩") ||
     sig.includes("yellow-blue")
   )
-    return "🟡";
-  if (sig.includes("紅") || sig.includes("熱絡") || sig === "red") return "🔴";
+    return "default";
+  if (sig.includes("紅") || sig.includes("熱絡") || sig === "red") return "danger";
   if (sig.includes("綠") || sig.includes("穩定") || sig === "green")
-    return "🟢";
-  if (sig.includes("藍") || sig.includes("低迷") || sig === "blue") return "🔵";
-  return "⚪";
+    return "ok";
+  if (sig.includes("藍") || sig.includes("低迷") || sig === "blue") return "default";
+  return "default";
 });
 const lightText = computed(() => {
   const sig = statusData.value?.rawNdc?.light ?? "";
@@ -349,14 +348,14 @@ const pe = computed(() => {
 });
 const peCard = computed(() => {
   const v = pe.value;
-  if (v == null) return { cls: "", sub: "rc-sub--neutral", label: "—" };
+  if (v == null) return { cls: "", sub: "rc-sub--neutral", label: "—", icon: "default" };
   if (v < 12)
-    return { cls: "card-blue", sub: "rc-sub--blue", label: "極度低估 🧊" };
-  if (v < 15) return { cls: "card-ok", sub: "rc-sub--ok", label: "低估 ❄️" };
-  if (v < 20) return { cls: "", sub: "rc-sub--neutral", label: "合理 ⚖️" };
+    return { cls: "card-blue", sub: "rc-sub--blue", label: "極度低估", icon: "chart" };
+  if (v < 15) return { cls: "card-ok", sub: "rc-sub--ok", label: "低估", icon: "default" };
+  if (v < 20) return { cls: "", sub: "rc-sub--neutral", label: "合理", icon: "default" };
   if (v < 25)
-    return { cls: "card-warn", sub: "rc-sub--warn", label: "偏高 🔶" };
-  return { cls: "card-danger", sub: "rc-sub--danger", label: "高估 🔥" };
+    return { cls: "card-warn", sub: "rc-sub--warn", label: "偏高", icon: "warn" };
+  return { cls: "card-danger", sub: "rc-sub--danger", label: "高估", icon: "danger" };
 });
 
 const pb = computed(() => {
@@ -368,14 +367,14 @@ const pb = computed(() => {
 // ⚠️ 本卡片的顏色依 PB 絕對值判定（1.5/2.0/3.0/4.0），與 DashboardView.pbPrLevel 的 PR 歷史分位判定（25/80/90）為不同維度。
 const pbCard = computed(() => {
   const v = pb.value;
-  if (v == null) return { cls: "", sub: "rc-sub--neutral", label: "—" };
+  if (v == null) return { cls: "", sub: "rc-sub--neutral", label: "—", icon: "default" };
   if (v < 1.5)
-    return { cls: "card-blue", sub: "rc-sub--blue", label: "極度低估 🧊" };
-  if (v < 2.0) return { cls: "card-ok", sub: "rc-sub--ok", label: "低估 ❄️" };
-  if (v < 3.0) return { cls: "", sub: "rc-sub--neutral", label: "合理 ⚖️" };
+    return { cls: "card-blue", sub: "rc-sub--blue", label: "極度低估", icon: "chart" };
+  if (v < 2.0) return { cls: "card-ok", sub: "rc-sub--ok", label: "低估", icon: "default" };
+  if (v < 3.0) return { cls: "", sub: "rc-sub--neutral", label: "合理", icon: "default" };
   if (v < 4.0)
-    return { cls: "card-warn", sub: "rc-sub--warn", label: "偏高 🔶" };
-  return { cls: "card-danger", sub: "rc-sub--danger", label: "高估 🔥" };
+    return { cls: "card-warn", sub: "rc-sub--warn", label: "偏高", icon: "warn" };
+  return { cls: "card-danger", sub: "rc-sub--danger", label: "高估", icon: "danger" };
 });
 
 const pbPR = computed(() => {
@@ -399,12 +398,12 @@ const fxChange = computed(() => {
 });
 const fxCard = computed(() => {
   const c = fxChange.value;
-  if (c == null) return { cls: "", sub: "rc-sub--neutral", label: "—" };
+  if (c == null) return { cls: "", sub: "rc-sub--neutral", label: "—", icon: "default" };
   if (c > 0.1)
-    return { cls: "card-warn", sub: "rc-sub--warn", label: "台幣貶值 📉" };
+    return { cls: "card-warn", sub: "rc-sub--warn", label: "台幣貶值", icon: "chart" };
   if (c < -0.1)
-    return { cls: "card-ok", sub: "rc-sub--ok", label: "台幣升值 📈" };
-  return { cls: "", sub: "rc-sub--neutral", label: "持平 ➖" };
+    return { cls: "card-ok", sub: "rc-sub--ok", label: "台幣升值", icon: "chart" };
+  return { cls: "", sub: "rc-sub--neutral", label: "持平", icon: "default" };
 });
 </script>
 

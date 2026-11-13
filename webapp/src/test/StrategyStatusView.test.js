@@ -4,6 +4,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import StrategyStatusView from "../views/StrategyStatusView.vue";
+import Icon from "@/components/common/Icon.vue";
 import { apiFetch } from "../api/index.js";
 
 // Use vi.hoisted to define mock components at top level (before vi.mock calls)
@@ -233,9 +234,15 @@ describe("StrategyStatusView", () => {
 
   it("信號分類應顯示 category/type/direction", async () => {
     await flushPromises();
-    expect(wrapper.find(".signal-category-badge").text()).toBe("🌱 底倉/觀望");
-    expect(wrapper.find(".signal-type-badge").text()).toBe("🌱 底倉/觀望");
+    expect(wrapper.find(".signal-category-badge").text()).toBe("底倉/觀望");
+    expect(wrapper.find(".signal-type-badge").text()).toBe("底倉/觀望");
     expect(wrapper.find(".signal-direction").text()).toBe("long");
+    expect(
+      wrapper.find(".signal-category-badge").findComponent(Icon).exists(),
+    ).toBe(true);
+    expect(
+      wrapper.find(".signal-type-badge").findComponent(Icon).exists(),
+    ).toBe(true);
   });
 
   it("生命週期階段應正確顯示", async () => {
@@ -340,7 +347,7 @@ describe("StrategyStatusView", () => {
     expect(apiFetch.mock.calls.length).toBe(callCount);
     // Still renders weight score block from prop
     expect(wrapper.findAll("[data-testid='score-bar']").length).toBe(5);
-    expect(wrapper.find(".signal-category-badge").text()).toBe("🌱 底倉/觀望");
+    expect(wrapper.find(".signal-category-badge").text()).toBe("底倉/觀望");
   });
 
   it("當 :health prop 為 null 時應回退自載 API", async () => {

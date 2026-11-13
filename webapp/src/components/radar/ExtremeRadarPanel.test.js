@@ -1,8 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import ExtremeRadarPanel from "./ExtremeRadarPanel.vue";
-import ContentCard from "@/components/common/ContentCard.vue";
-import StatCard from "@/components/common/StatCard.vue";
 
 const baseProps = {
   leadingIndicators: {

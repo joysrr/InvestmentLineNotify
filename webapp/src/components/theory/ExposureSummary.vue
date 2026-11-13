@@ -1,12 +1,12 @@
 <template>
   <div class="theory-card">
     <div class="theory-card-header">
-      <h3 class="theory-card-title">📈 市場曝險</h3>
+      <h3 class="theory-card-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 市場曝險</h3>
     </div>
 
     <!-- UNAVAILABLE State -->
     <div v-if="!theory" class="theory-unavailable">
-      <p>⚠️ 理論數據未計算</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 理論數據未計算</p>
       <span class="theory-hint">非交易日或數據不足</span>
     </div>
 
@@ -41,7 +41,7 @@
 
       <!-- Status Message -->
       <div class="exposure-status" :class="exposureRatioClass">
-        <span>{{ exposureStatusText }}</span>
+        <span><Icon :name="exposureStatusIcon" size="sm" /> {{ exposureStatusText }}</span>
       </div>
 
       <!-- View Detail Link -->
@@ -54,6 +54,7 @@
 
 <script setup>
 import { computed } from "vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   theory: {
@@ -106,10 +107,21 @@ const exposureStatusText = computed(() => {
   }
 
   const ratio = exposureRatio.value;
-  if (ratio <= 60) return "✅ 曝險比例保守，現金充足";
-  if (ratio <= 80) return "⚠️ 曝險比例適中";
-  if (ratio <= 100) return "🔶 曝險比例較高，建議保留更多現金";
-  return "🚨 曝險超過資本，使用槓桿中";
+  if (ratio <= 60) return "曝險比例保守，現金充足";
+  if (ratio <= 80) return "曝險比例適中";
+  if (ratio <= 100) return "曝險比例較高，建議保留更多現金";
+  return "曝險超過資本，使用槓桿中";
+});
+
+const exposureStatusIcon = computed(() => {
+  if (exposureRatio.value == null) {
+    return "neutral";
+  }
+  const ratio = exposureRatio.value;
+  if (ratio <= 60) return "ok";
+  if (ratio <= 80) return "warn";
+  if (ratio <= 100) return "warn";
+  return "danger";
 });
 </script>
 

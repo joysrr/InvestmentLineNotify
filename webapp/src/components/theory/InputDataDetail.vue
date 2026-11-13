@@ -2,12 +2,12 @@
   <div class="detail-page">
     <div class="detail-header">
       <button class="back-btn" @click="$emit('back')">← 返回</button>
-      <h2 class="detail-title">📋 輸入數據詳細資訊</h2>
+      <h2 class="detail-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 輸入數據詳細資訊</h2>
     </div>
 
     <!-- UNAVAILABLE State -->
     <div v-if="!inputs" class="detail-unavailable">
-      <p>⚠️ 輸入數據未提供</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 輸入數據未提供</p>
       <span class="detail-hint">非交易日或數據不足</span>
     </div>
 
@@ -22,9 +22,9 @@
             結合市場即時股價計算得出。
           </p>
           <ul class="overview-list">
-            <li>✅ 數據來源：持倉快照 + 市場報價</li>
-            <li>✅ 驗證狀態：VERIFIED（已通過資料驗證）</li>
-            <li>✅ 更新頻率：每日交易日收盤後</li>
+            <li><Icon name="ok" size="sm" color="var(--iln-ok)" /> 數據來源：持倉快照 + 市場報價</li>
+            <li><Icon name="ok" size="sm" color="var(--iln-ok)" /> 驗證狀態：VERIFIED（已通過資料驗證）</li>
+            <li><Icon name="ok" size="sm" color="var(--iln-ok)" /> 更新頻率：每日交易日收盤後</li>
           </ul>
         </div>
       </section>
@@ -187,19 +187,19 @@
         <div class="quality-box">
           <ul class="quality-list">
             <li>
-              <strong>✅ 完整性檢查</strong>
+              <strong><Icon name="ok" size="sm" color="var(--iln-ok)" /> 完整性檢查</strong>
               <p>確保所有必要欄位（股數、價格、時間戳）都存在</p>
             </li>
             <li>
-              <strong>✅ 一致性驗證</strong>
+              <strong><Icon name="ok" size="sm" color="var(--iln-ok)" /> 一致性驗證</strong>
               <p>確保 0050 與 00675L 的價格時間戳一致</p>
             </li>
             <li>
-              <strong>✅ 合理性檢驗</strong>
+              <strong><Icon name="ok" size="sm" color="var(--iln-ok)" /> 合理性檢驗</strong>
               <p>檢查數值是否在合理範圍內（例如股價不為負）</p>
             </li>
             <li>
-              <strong>✅ 溯源記錄</strong>
+              <strong><Icon name="ok" size="sm" color="var(--iln-ok)" /> 溯源記錄</strong>
               <p>保留數據來源與計算路徑，可追溯驗證</p>
             </li>
           </ul>
@@ -209,7 +209,7 @@
       <!-- Disclaimer -->
       <section class="detail-section">
         <div class="disclaimer-box">
-          <h4 class="disclaimer-title">⚠️ 注意事項</h4>
+          <h4 class="disclaimer-title"><Icon name="warn" size="sm" color="var(--iln-warn)" /> 注意事項</h4>
           <ul class="disclaimer-list">
             <li>市場報價可能存在延遲（通常 &lt; 1 分鐘）</li>
             <li>非交易時段使用最近收盤價，非即時數據</li>

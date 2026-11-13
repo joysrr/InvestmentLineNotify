@@ -30,7 +30,7 @@
     <template v-else-if="status">
       <!-- 2. 策略趨勢 (PR Trend) -->
       <div class="section">
-      <h2 class="section-title">📈 PR 分位數趨勢 (30D)</h2>
+      <h2 class="section-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> PR 分位數趨勢 (30D)</h2>
       <div class="trend-layout">
         <div class="trend-main">
           <v-chart class="trend-chart" :option="prTrendOption" autoresize />
@@ -41,15 +41,14 @@
       <!-- 3. 帳戶快照 -->
       <div class="section">
         <div class="section-header-row">
-          <h2 class="section-title">💼 帳戶快照</h2>
-          <router-link to="/chart" class="chart-link-btn">
-            📊 資產趨勢圖表 ↗
+          <h2 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 帳戶快照</h2>
+          <router-link to="/chart" class="chart-link-btn">            <Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢圖表 ↗
           </router-link>
         </div>
 
         <!-- 2a. 加密金鑰未設定 -->
         <div v-if="!snapshotEncryption" class="notice-block">
-          <span class="notice-icon">🔐</span>
+          <span class="notice-icon"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
           <div class="notice-content">
             <p class="notice-title">尚未啟用帳戶快照</p>
             <p class="notice-desc">
@@ -63,7 +62,7 @@
           v-else-if="snapshotEncryption && !latestSnapshot"
           class="notice-block notice-empty"
         >
-          <span class="notice-icon">📭</span>
+          <span class="notice-icon"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
           <div class="notice-content">
             <p class="notice-title">尚無快照資料</p>
             <p class="notice-desc">快照將從下一次每日執行後開始累積。</p>
@@ -72,7 +71,7 @@
 
         <!-- 2c. 顯示最新快照 -->
         <template v-else>
-          <div class="snapshot-date">📅 {{ latestSnapshot.date }} 快照</div>
+          <div class="snapshot-date"><Icon name="default" size="sm" color="var(--iln-hint)" /> {{ latestSnapshot.date }} 快照</div>
           <div class="snapshot-grid">
             <div class="snapshot-card">
               <div class="snapshot-label">0050 股數</div>
@@ -128,7 +127,7 @@
 
       <!-- 3. 系統最後更新時間 -->
       <div class="section">
-        <h2 class="section-title">🕐 系統狀態</h2>
+        <h2 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 系統狀態</h2>
         <div class="info-row">
           <span class="info-label">資料最後更新</span>
           <span class="info-value">{{ lastRunLabel }}</span>
@@ -160,7 +159,7 @@
 
       <div class="section">
         <div class="section-header-row">
-          <h2 class="section-title">📡 資料來源</h2>
+          <h2 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 資料來源</h2>
           <button
             type="button"
             class="toggle-btn"
@@ -219,6 +218,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import Icon from "@/components/common/Icon.vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
 import { usePortfolioSnapshots } from "../composables/usePortfolioSnapshots.js";
 import { waitReady } from "../composables/useTelegram.js";

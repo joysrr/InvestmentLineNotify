@@ -3,7 +3,7 @@
     <div class="view-container">
     <div class="view-header">
       <div class="header-top">
-        <h2 class="view-title">📊 技術指標詳情</h2>
+        <h2 class="view-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 技術指標詳情</h2>
       </div>
       <span class="view-subtitle">{{ todayLabel }}</span>
     </div>
@@ -66,7 +66,7 @@
 
       <!-- 風險雷達 -->
       <section class="section">
-        <h3 class="section-title">📡 訊號雷達</h3>
+        <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 訊號雷達</h3>
         <div class="risk-summary">
           <div class="risk-bar" :class="reversalRiskClass">
             <span class="risk-bar-label">近期轉弱</span>
@@ -104,7 +104,7 @@
             class="signal-group-header"
             @click="reversalExpanded = !reversalExpanded"
           >
-            <span>🔄 轉弱監控詳細</span>
+            <span><Icon name="default" size="sm" color="var(--iln-hint)" /> 轉弱監控詳細</span>
             <span class="expand-arrow">{{ reversalExpanded ? "▲" : "▼" }}</span>
           </button>
           <div v-if="reversalExpanded" class="signal-rows">
@@ -114,7 +114,7 @@
               class="signal-row"
               :class="sig.triggered ? 'sig-on' : 'sig-off'"
             >
-              <span class="sig-icon">{{ sig.triggered ? "⚡" : "▫️" }}</span>
+              <span class="sig-icon"><Icon :name="sig.triggered ? 'trigger' : 'default'" size="sm" /></span>
               <span class="sig-name">{{ sig.name }}</span>
               <span class="sig-value">{{ sig.value }}</span>
               <span class="sig-cond">{{ sig.condition }}</span>
@@ -128,7 +128,7 @@
             class="signal-group-header"
             @click="sellExpanded = !sellExpanded"
           >
-            <span>🕔 賣出訊號詳細</span>
+            <span><Icon name="default" size="sm" color="var(--iln-hint)" /> 賣出訊號詳細</span>
             <span class="expand-arrow">{{ sellExpanded ? "▲" : "▼" }}</span>
           </button>
           <div v-if="sellExpanded" class="signal-rows">
@@ -138,7 +138,7 @@
               class="signal-row"
               :class="sig.triggered ? 'sig-on' : 'sig-off'"
             >
-              <span class="sig-icon">{{ sig.triggered ? "⚡" : "▫️" }}</span>
+              <span class="sig-icon"><Icon :name="sig.triggered ? 'trigger' : 'default'" size="sm" /></span>
               <span class="sig-name">{{ sig.name }}</span>
               <span class="sig-value">{{ sig.value }}</span>
               <span class="sig-cond">{{ sig.condition }}</span>
@@ -155,6 +155,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import Icon from "@/components/common/Icon.vue";
 import { fetchReports } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { waitReady } from "../composables/useTelegram.js";

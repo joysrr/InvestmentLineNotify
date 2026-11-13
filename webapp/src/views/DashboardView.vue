@@ -12,8 +12,7 @@
           @click="configDrawerVisible = true"
           title="策略設定"
           aria-label="策略設定"
-        >
-          ⚙️
+        >          <Icon name="default" size="sm" color="var(--iln-hint)" />
         </button>
       </div>
       <span class="dash-date">{{ todayLabel }}</span>
@@ -61,8 +60,7 @@
 
       <!-- Phase 3：Dashboard → Radar 連結 -->
       <div class="radar-entry">
-        <router-link to="/radar" class="radar-entry-link">
-          🌐 查看完整市場雷達 →
+        <router-link to="/radar" class="radar-entry-link">          <Icon name="default" size="sm" color="var(--iln-hint)" /> 查看完整市場雷達 →
         </router-link>
       </div>
 
@@ -113,7 +111,7 @@
       <section class="dashboard-card strategy-status-link">
         <router-link to="/strategy-status" class="status-link">
           <div class="status-link-left">
-            <h3>📊 策略狀態</h3>
+            <h3><Icon name="chart" size="sm" color="var(--iln-text)" /> 策略狀態</h3>
             <p class="status-link-desc">評分檔位、冷卻期、風控機制、Budget 預度</p>
           </div>
           <span class="status-link-arrow">→</span>
@@ -131,6 +129,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import Icon from "@/components/common/Icon.vue";
 import {
   fetchStatus,
   fetchReports,
@@ -260,12 +259,12 @@ const glValue = computed(() => {
 
 const lightEmoji = computed(() => {
   const sig = status.value?.data?.rawNdc?.light ?? "";
-  if (sig.includes("黃紅") || sig.includes("活絡")) return "🟠";
-  if (sig.includes("黃藍") || sig.includes("趨緩")) return "🟡";
-  if (sig.includes("紅")) return "🔴";
-  if (sig.includes("綠")) return "🟢";
-  if (sig.includes("藍")) return "🔵";
-  return "⚪";
+  if (sig.includes("黃紅") || sig.includes("活絡")) return "warn";
+  if (sig.includes("黃藍") || sig.includes("趨緩")) return "warn";
+  if (sig.includes("紅")) return "danger";
+  if (sig.includes("綠")) return "ok";
+  if (sig.includes("藍")) return "default";
+  return "neutral";
 });
 
 const lightText = computed(() => status.value?.data?.rawNdc?.light || "—");
@@ -283,7 +282,7 @@ const routingPath = computed(() => {
   const sigs = latestReport.value?.signals;
   if (!sigs) return "—";
   return [
-    sigs.maintenanceRisk?.level === "Normal" ? "OK" : "⚠️追繳",
+    sigs.maintenanceRisk?.level === "Normal" ? "OK" : "追繳",
     `${Number(sigs.grossLeverage).toFixed(1)}x`,
     `PR${Math.round(sigs.valuationGuardResult?.currentPR || 0)}`,
   ].join(" → ");

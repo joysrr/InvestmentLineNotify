@@ -2,12 +2,12 @@
   <div class="detail-page">
     <div class="detail-header">
       <button class="back-btn" @click="$emit('back')">← 返回</button>
-      <h2 class="detail-title">📊 真實曝險詳細分析</h2>
+      <h2 class="detail-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 真實曝險詳細分析</h2>
     </div>
 
     <!-- UNAVAILABLE State -->
     <div v-if="!theory || trueExposureStatus === 'UNAVAILABLE'" class="detail-unavailable">
-      <p>⚠️ 理論數據未計算</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 理論數據未計算</p>
       <span class="detail-hint">{{ trueExposureReason }}</span>
     </div>
 
@@ -45,8 +45,7 @@
             <li><strong>00675L</strong>: 反向二倍，方向曝險需乘以 2</li>
             <li><strong>安全上限</strong>: 建議維持在 60% 以下，避免單一市場風險過度集中</li>
           </ul>
-          <p class="theory-note">
-            💡 真實曝險越高，組合對台股走勢的敏感度越大
+          <p class="theory-note">            <Icon name="default" size="sm" color="var(--iln-hint)" /> 真實曝險越高，組合對台股走勢的敏感度越大
           </p>
         </div>
       </section>
@@ -57,7 +56,7 @@
         <div class="leverage-zones">
           <div class="zone-item safe">
             <div class="zone-header">
-              <span class="zone-icon">✅</span>
+              <span class="zone-icon"><Icon name="ok" size="sm" color="var(--iln-ok)" /></span>
               <span class="zone-name">保守區</span>
             </div>
             <p class="zone-range">真實曝險 ≤ 40%</p>
@@ -65,15 +64,15 @@
           </div>
           <div class="zone-item moderate">
             <div class="zone-header">
-              <span class="zone-icon">⚠️</span>
+              <span class="zone-icon"><Icon name="warn" size="sm" color="var(--iln-warn)" /></span>
               <span class="zone-name">適中區</span>
             </div>
-            <p class="zone-range">40% < 真實曝險 ≤ 60%</p>
+            <p class="zone-range">40% &lt; 真實曝險 ≤ 60%</p>
             <p class="zone-desc">市場敞口適中，需關注台股波動</p>
           </div>
           <div class="zone-item high">
             <div class="zone-header">
-              <span class="zone-icon">🚨</span>
+              <span class="zone-icon"><Icon name="danger" size="sm" color="var(--iln-danger)" /></span>
               <span class="zone-name">積極區</span>
             </div>
             <p class="zone-range">真實曝險 > 60%</p>
@@ -85,7 +84,7 @@
       <!-- Disclaimer -->
       <section class="detail-section">
         <div class="disclaimer-box">
-          <h4 class="disclaimer-title">⚠️ 免責聲明</h4>
+          <h4 class="disclaimer-title"><Icon name="warn" size="sm" color="var(--iln-warn)" /> 免責聲明</h4>
           <ul class="disclaimer-list">
             <li>真實曝險僅為理論估算，非實際交易數據</li>
             <li>實際決策請參考既有風控機制（維持率、槓桿天花板）</li>
@@ -100,6 +99,7 @@
 
 <script setup>
 import { computed } from "vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   theory: { type: Object, required: true },

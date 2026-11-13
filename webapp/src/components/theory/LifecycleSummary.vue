@@ -1,12 +1,12 @@
 <template>
   <div class="theory-card">
     <div class="theory-card-header">
-      <h3 class="theory-card-title">💼 生命週期投資分析</h3>
+      <h3 class="theory-card-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 生命週期投資分析</h3>
     </div>
 
     <!-- UNAVAILABLE State -->
     <div v-if="!theory" class="theory-unavailable">
-      <p>⚠️ 理論數據未計算</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 理論數據未計算</p>
       <span class="theory-hint">非交易日或數據不足</span>
     </div>
 
@@ -52,7 +52,7 @@
 
       <!-- Lifecycle Advantage -->
       <div class="lifecycle-message">
-        <p class="message-title">💡 生命週期優勢</p>
+        <p class="message-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 生命週期優勢</p>
         <ul class="message-list">
           <li>距離退休還有 <strong>32 年</strong></li>
           <li>有充足時間承受短期波動</li>
@@ -71,6 +71,7 @@
 
 <script setup>
 import { computed } from "vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   theory: {

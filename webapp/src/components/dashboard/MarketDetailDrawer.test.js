@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import MarketDetailDrawer from "./MarketDetailDrawer.vue";
-import ContentCard from "@/components/common/ContentCard.vue";
 import Icon from "@/components/common/Icon.vue";
 
 const baseProps = {

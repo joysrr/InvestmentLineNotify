@@ -2,7 +2,7 @@
     <GlobalErrorBoundary>
     <div class="view-container">
     <div class="page-header">
-      <h2 class="page-title">⚖️ 總經多空對決</h2>
+      <h2 class="page-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 總經多空對決</h2>
       <span class="page-date">{{ reportDate }}</span>
     </div>
 
@@ -36,7 +36,7 @@
         <div class="score-wrap">
           <!-- 多方 -->
           <div class="score-bar-row">
-            <span class="score-side score-side--bull">多 🟢</span>
+            <span class="score-side score-side--bull">多 <Icon name="ok" size="sm" color="var(--iln-ok)" /></span>
             <div class="score-track">
               <div
                 class="score-fill score-fill--bull"
@@ -47,7 +47,7 @@
           </div>
           <!-- 空方 -->
           <div class="score-bar-row">
-            <span class="score-side score-side--bear">空 🔴</span>
+            <span class="score-side score-side--bear">空 <Icon name="danger" size="sm" color="var(--iln-danger)" /></span>
             <div class="score-track">
               <div
                 class="score-fill score-fill--bear"
@@ -64,7 +64,7 @@
 
       <!-- Key Takeaways -->
       <section v-if="takeaways.length" class="section">
-        <h3 class="section-title">📌 核心驅動邏輯</h3>
+        <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 核心驅動邏輯</h3>
         <ul class="takeaway-list">
           <li v-for="(item, i) in takeaways" :key="i" class="takeaway-item">
             <span class="takeaway-dot"></span>
@@ -75,7 +75,7 @@
 
       <!-- 多方事件 -->
       <section v-if="bullEvents.length" class="section">
-        <h3 class="section-title">🟢 多方事件（{{ bullEvents.length }}）</h3>
+        <h3 class="section-title"><Icon name="ok" size="sm" color="var(--iln-ok)" /> 多方事件（{{ bullEvents.length }}）</h3>
         <div class="event-list">
           <div
             v-for="(e, i) in bullEvents"
@@ -93,7 +93,7 @@
 
       <!-- 空方事件 -->
       <section v-if="bearEvents.length" class="section">
-        <h3 class="section-title">🔴 空方事件（{{ bearEvents.length }}）</h3>
+        <h3 class="section-title"><Icon name="danger" size="sm" color="var(--iln-danger)" /> 空方事件（{{ bearEvents.length }}）</h3>
         <div class="event-list">
           <div
             v-for="(e, i) in bearEvents"
@@ -111,7 +111,7 @@
 
       <!-- 中性事件 -->
       <section v-if="neutralEvents.length" class="section">
-        <h3 class="section-title">⏳ 觀望事件（{{ neutralEvents.length }}）</h3>
+        <h3 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 觀望事件（{{ neutralEvents.length }}）</h3>
         <div class="event-list">
           <div
             v-for="(e, i) in neutralEvents"
@@ -133,6 +133,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import Icon from "@/components/common/Icon.vue";
 import { fetchReports } from "../api/index.js";
 import { fetchSocialSentiment } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
@@ -206,9 +207,9 @@ const directionText = computed(() => {
 });
 const directionIcon = computed(() => {
   const d = direction.value?.toUpperCase();
-  if (d === "BULLISH") return "📈";
-  if (d === "BEARISH") return "📉";
-  return "⚖️";
+  if (d === "BULLISH") return "chart";
+  if (d === "BEARISH") return "chart";
+  return "default";
 });
 const directionClass = computed(() => {
   const d = direction.value?.toUpperCase();

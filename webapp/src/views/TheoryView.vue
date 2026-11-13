@@ -4,8 +4,8 @@
     <div v-if="currentView === 'summary'" class="summary-view">
       <!-- Header -->
             <div class="view-header">
-              <h2 class="view-title">🎯 投資健康度儀表板</h2>
-              <span v-if="reportDate" class="view-subtitle">📊 理論分析（截至 {{ reportDate }} 收盤）</span>
+              <h2 class="view-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 投資健康度儀表板</h2>
+              <span v-if="reportDate" class="view-subtitle"><Icon name="chart" size="sm" color="var(--iln-text)" /> 理論分析（截至 {{ reportDate }} 收盤）</span>
             </div>
 
       <!-- Loading State -->
@@ -16,13 +16,13 @@
 
       <!-- Error State -->
       <div v-else-if="error" class="state-box state-error">
-        <p>⚠️ {{ error }}</p>
+        <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> {{ error }}</p>
         <button class="retry-btn" @click="loadData">重試</button>
       </div>
 
       <!-- Empty State -->
             <div v-else-if="isEmpty" class="state-box">
-              <p>📭 暫無任何報告數據</p>
+              <p><Icon name="default" size="sm" color="var(--iln-hint)" /> 暫無任何報告數據</p>
               <span class="state-hint">尚未生成任何日報報告</span>
             </div>
 
@@ -86,7 +86,7 @@
 
         <!-- Disclaimer -->
         <div class="disclaimer-card">
-          <p class="disclaimer-title">⚠️ 免責聲明</p>
+          <p class="disclaimer-title"><Icon name="warn" size="sm" color="var(--iln-warn)" /> 免責聲明</p>
           <p class="disclaimer-text">
             此分析僅供研究參考，不構成投資建議。實際決策請參考既有風控機制。
           </p>
@@ -168,6 +168,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import Icon from "@/components/common/Icon.vue";
 import { useTheoryData } from "../composables/useTheoryData.js";
 import { waitReady } from "../composables/useTelegram.js";
 

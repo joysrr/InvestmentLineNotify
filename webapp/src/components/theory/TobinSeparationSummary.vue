@@ -1,7 +1,7 @@
 <template>
   <div class="theory-card">
     <div class="theory-card-header">
-      <h3 class="theory-card-title">🛡️ 托賓分離定理 (Tobin)</h3>
+      <h3 class="theory-card-title"><Icon name="shield" size="sm" color="var(--iln-brand)" /> 托賓分離定理 (Tobin)</h3>
       <span
         class="theory-status-badge"
         :class="`status-${theory.tobinSeparation?.status?.toLowerCase()}`"
@@ -12,14 +12,14 @@
 
     <!-- UNAVAILABLE State -->
     <div v-if="!theory || !theory.tobinSeparation" class="theory-unavailable">
-      <p>⚠️ 理論數據未計算</p>
+      <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 理論數據未計算</p>
       <span class="theory-hint">非交易日或資產數據不足</span>
     </div>
 
     <!-- AVAILABLE State -->
     <div v-else class="theory-card-content">
       <div v-if="theory.tobinSeparation.status === 'UNAVAILABLE'" class="theory-unavailable">
-        <p>⚠️ 托賓分離數據不可用</p>
+        <p><Icon name="warn" size="sm" color="var(--iln-warn)" /> 托賓分離數據不可用</p>
         <span class="theory-hint">{{ theory.tobinSeparation.reason }}</span>
       </div>
 
@@ -42,8 +42,7 @@
         </div>
 
         <!-- View Detail Button -->
-        <button class="view-detail-btn" @click="$emit('view-detail')">
-          🔍 查看詳情
+        <button class="view-detail-btn" @click="$emit('view-detail')">          <Icon name="default" size="sm" color="var(--iln-hint)" /> 查看詳情
         </button>
       </div>
     </div>
@@ -52,6 +51,7 @@
 
 <script setup>
 import { computed } from "vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   theory: { type: Object, required: true },
