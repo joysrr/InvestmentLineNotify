@@ -21,8 +21,8 @@
         ></div>
       </div>
     </div>
-    <div v-else-if="error" class="inline-error">⚠️ 健康度資料載入失敗</div>
-    <div v-else-if="!data" class="inline-hint">📭 尚無健康度資料</div>
+    <div v-else-if="error" class="inline-error"><Icon name="danger" size="sm" color="var(--iln-danger)" /> 健康度資料載入失敗</div>
+    <div v-else-if="!data" class="inline-hint"><Icon name="default" size="sm" color="var(--iln-hint)" /> 尚無健康度資料</div>
     <div v-else class="health-dashboard-v2">
       <!-- Health Hero -->
       <div class="health-hero-v2" :class="data.status?.toLowerCase()">
@@ -31,7 +31,7 @@
           <div class="health-hero-top">
             <div class="health-hero-status">
               <span class="health-hero-emoji">{{
-                data.lightStatus?.emoji || "📊"
+                data.lightStatus?.emoji || "chart"
               }}</span>
               <div class="health-hero-labels">
                 <span class="health-hero-title">帳戶健康評級</span>
@@ -58,7 +58,7 @@
           :class="comp.status?.toLowerCase()"
         >
           <div class="comp-header">
-            <span class="comp-icon">{{ getCompIcon(key) }}</span>
+            <span class="comp-icon"><Icon :name="getCompIcon(key)" size="sm" /></span>
             <span class="comp-name">{{ getCompName(key) }}</span>
           </div>
           <div class="comp-body">
@@ -85,7 +85,7 @@
         :to="detailLink"
         class="health-detail-link"
       >
-        📊 查看完整策略狀態 →
+        <Icon name="chart" size="sm" color="var(--iln-text)" /> 查看完整策略狀態 →
       </router-link>
     </div>
   </ContentCard>
@@ -93,6 +93,7 @@
 
 <script setup>
 import ContentCard from "@/components/common/ContentCard.vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   data: Object,
@@ -106,14 +107,14 @@ const props = defineProps({
 
 const getCompIcon = (key) => {
   const icons = {
-    margin: "🛡️",
-    survival: "📉",
-    decoupling: "💰",
-    leverage: "📊",
-    lifecycle: "📅",
-    regime: "🌤️",
+    margin: "shield",
+    survival: "chart",
+    decoupling: "default",
+    leverage: "chart",
+    lifecycle: "default",
+    regime: "default",
   };
-  return icons[key] || "🔹";
+  return icons[key] || "default";
 };
 
 const getCompName = (key) => {
