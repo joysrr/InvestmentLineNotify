@@ -1,19 +1,36 @@
 <template>
-  <div class="allocation-tier" :class="{ 'is-current': isCurrent, 'is-next': isNext }">
-    <div class="tier-score">{{ tier.minScore }}pt+</div>
-    <div class="tier-bar">
-      <div class="tier-fill" :class="{ current: isCurrent, next: isNext }" :style="{ width: tierFillWidth }"></div>
+  <ContentCard
+    variant="outlined"
+    padding="md"
+    radius="md"
+    :status="status"
+    status-style="tint"
+    data-testid="allocation-tier"
+  >
+    <template #header>
+      <div class="tier-score">{{ tier.minScore }}pt+</div>
+    </template>
+
+    <div class="tier-body">
+      <div class="tier-bar">
+        <div
+          class="tier-fill"
+          :class="{ current: isCurrent, next: isNext }"
+          :style="{ width: tierFillWidth }"
+        ></div>
+      </div>
+      <div class="tier-info">
+        <div class="tier-leverage">{{ tier.leverage }}x</div>
+        <div class="tier-cash">現金 {{ (tier.cash * 100).toFixed(0) }}%</div>
+        <div class="tier-comment">{{ tier.comment }}</div>
+      </div>
     </div>
-    <div class="tier-info">
-      <div class="tier-leverage">{{ tier.leverage }}x</div>
-      <div class="tier-cash">現金 {{ (tier.cash * 100).toFixed(0) }}%</div>
-      <div class="tier-comment">{{ tier.comment }}</div>
-    </div>
-  </div>
+  </ContentCard>
 </template>
 
 <script setup>
 import { computed } from "vue";
+import ContentCard from "@/components/common/ContentCard.vue";
 
 const props = defineProps({
   tier: {
@@ -24,58 +41,74 @@ const props = defineProps({
   isNext: { type: Boolean, default: false },
 });
 
+const status = computed(() => {
+  if (props.isCurrent) return "info";
+  if (props.isNext) return "warn";
+  return null;
+});
+
 const tierFillWidth = computed(() => {
   return Math.min(100, (props.tier.leverage || 0) * 50) + "%";
 });
 </script>
 
 <style scoped>
-.allocation-tier {
+.tier-body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
-  background: var(--iln-surface);
-  border-radius: 12px;
-  border: 1px solid transparent;
-  transition: all 0.3s;
+  width: 100%;
 }
-.allocation-tier.is-current {
-  background: var(--iln-info-bg);
-  border-color: var(--iln-link);
-}
-.allocation-tier.is-next {
-  background: var(--iln-warn-bg);
-  border-color: var(--iln-warn-text);
-}
+
 .tier-score {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
-  min-width: 60px;
-  text-align: right;
+  flex-shrink: 0;
 }
+
 .tier-bar {
   flex: 1;
   height: 6px;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--iln-border-subtle);
   border-radius: 3px;
   overflow: hidden;
 }
+
 .tier-fill {
   height: 100%;
   border-radius: 3px;
-  transition: width 0.3s;
+  transition: all 0.3s;
 }
-/* tier-fill: 業務語義色（current=信號色，next=警告色），與 tier 標籤綁定 */
-.tier-fill.current { background: var(--iln-tier-current); }
-.tier-fill.next { background: var(--iln-tier-next); }
+
+.tier-fill.current {
+  background: var(--iln-info);
+}
+
+.tier-fill.next {
+  background: var(--iln-warn);
+}
+
 .tier-info {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  min-width: 80px;
+  justify-content: center;
+  gap: 2px;
+  flex-shrink: 0;
 }
-.tier-leverage { font-weight: 600; font-size: 14px; }
-.tier-cash { font-size: 11px; color: var(--iln-hint); }
-.tier-comment { font-size: 10px; color: var(--iln-hint); margin-top: 2px; }
+
+.tier-leverage {
+  font-size: var(--iln-font-base);
+  font-weight: 600;
+  color: var(--iln-text);
+}
+
+.tier-cash {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
+
+.tier-comment {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
 </style>
