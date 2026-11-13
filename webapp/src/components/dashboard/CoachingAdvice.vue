@@ -1,5 +1,11 @@
 <template>
-  <section class="section" v-if="report?.ai">
+  <ContentCard
+    v-if="report && report.ai"
+    variant="outlined"
+    padding="md"
+    radius="lg"
+    data-testid="coaching-advice"
+  >
     <h3 class="section-title">🤖 AI 教練建議</h3>
 
     <!-- 核心洞察 -->
@@ -70,11 +76,12 @@
         {{ thinking }}
       </div>
     </div>
-  </section>
+  </ContentCard>
 </template>
 
 <script setup>
 import { ref } from "vue";
+import ContentCard from "@/components/common/ContentCard.vue";
 
 const props = defineProps({
   report: Object,
@@ -93,7 +100,6 @@ const thinkingExpanded = ref(false);
 </script>
 
 <style scoped>
-/* 樣式保持不變 */
 .ai-insight {
   background: linear-gradient(135deg, var(--iln-coaching-start) 0%, var(--iln-coaching-end) 100%);
   border-left: 4px solid var(--iln-warn);
@@ -102,14 +108,14 @@ const thinkingExpanded = ref(false);
   margin-bottom: 16px;
 }
 .insight-label {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   font-weight: 800;
   color: var(--iln-warn-text);
   text-transform: uppercase;
   margin-bottom: 4px;
 }
 .insight-text {
-  font-size: 14px;
+  font-size: var(--iln-font-base);
   font-weight: 600;
   color: var(--iln-warn-text);
   line-height: 1.4;
@@ -125,7 +131,7 @@ const thinkingExpanded = ref(false);
   border: 1px solid var(--iln-info);
 }
 .verdict-tag {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   font-weight: 800;
   background: var(--iln-info);
   color: var(--iln-text);
@@ -133,7 +139,7 @@ const thinkingExpanded = ref(false);
   border-radius: 4px;
 }
 .verdict-text {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   font-weight: 700;
   color: var(--iln-info-text);
 }
@@ -142,7 +148,7 @@ const thinkingExpanded = ref(false);
   background: var(--iln-bg);
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  border: 1px solid var(--iln-border-subtle);
 }
 .ai-block-header {
   display: flex;
@@ -150,18 +156,18 @@ const thinkingExpanded = ref(false);
   width: 100%;
   padding: 10px 12px;
   background: var(--iln-surface);
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   gap: 6px;
   user-select: none;
 }
 .ai-count {
   margin-left: auto;
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 .expand-arrow {
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   transition: transform 0.2s;
 }
@@ -173,7 +179,7 @@ const thinkingExpanded = ref(false);
   gap: 7px;
 }
 .ai-list li {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   line-height: 1.5;
   padding-left: 14px;
   position: relative;
