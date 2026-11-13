@@ -444,12 +444,12 @@ onUnmounted(() => {
 .view-title {
   font-size: 18px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
   margin: 0;
 }
 .view-subtitle {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   padding-left: 2px;
 }
 
@@ -459,7 +459,7 @@ onUnmounted(() => {
 .section-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin-bottom: 12px;
   text-transform: uppercase;
 }
@@ -471,7 +471,7 @@ onUnmounted(() => {
   gap: 8px;
 }
 .indicator-card {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 12px;
   padding: 12px 8px;
   text-align: center;
@@ -481,12 +481,12 @@ onUnmounted(() => {
 }
 .ind-label {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 .ind-value {
   font-size: 18px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
 }
 .ind-value--sm {
   font-size: 14px;
@@ -496,7 +496,7 @@ onUnmounted(() => {
   font-weight: 500;
 }
 .ind-sub--neutral {
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 .ind-sub--danger {
   color: var(--iln-danger-text);
@@ -524,7 +524,7 @@ onUnmounted(() => {
   gap: 10px;
   padding: 10px 12px;
   border-radius: 10px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
 }
 .risk-low {
   border-left: 3px solid var(--iln-ok);
@@ -538,13 +538,13 @@ onUnmounted(() => {
 .risk-bar-label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   flex: 1;
 }
 .risk-bar-count {
   font-size: 13px;
   font-weight: 700;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
 }
 .risk-dots {
   display: flex;
@@ -574,7 +574,7 @@ onUnmounted(() => {
   justify-content: space-between;
   width: 100%;
   padding: 12px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border: none;
   font-size: 13px;
   font-weight: 600;
@@ -612,7 +612,7 @@ onUnmounted(() => {
 }
 .sig-cond {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   text-align: right;
 }
 
@@ -621,7 +621,7 @@ onUnmounted(() => {
 .empty-state {
   padding: 40px 16px;
   text-align: center;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 .skeleton .sk-title {
   height: 14px;

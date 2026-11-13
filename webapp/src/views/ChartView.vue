@@ -294,7 +294,7 @@ const chartOption = computed(() => {
           symbol: "none",
           data: [{ yAxis: 0 }],
           lineStyle: {
-            color: "var(--tg-theme-hint-color, #ccc)",
+            color: "var(--iln-hint)",
             type: "dashed",
             width: 1,
           },
@@ -308,22 +308,22 @@ const chartOption = computed(() => {
       data: xData,
       axisLabel: {
         fontSize: 10,
-        color: "var(--tg-theme-hint-color, #999)",
+        color: "var(--iln-hint)",
         rotate: granularity.value === "monthly" ? 0 : 30,
         interval: "auto",
       },
-      axisLine: { lineStyle: { color: "var(--tg-theme-hint-color, #ddd)" } },
+      axisLine: { lineStyle: { color: "var(--iln-hint)" } },
     },
     yAxis: {
       type: "value",
       axisLabel: {
         fontSize: 10,
-        color: "var(--tg-theme-hint-color, #999)",
+        color: "var(--iln-hint)",
         formatter: (v) => formatY(v),
       },
       splitLine: {
         lineStyle: {
-          color: "var(--tg-theme-hint-color, #eee)",
+          color: "var(--iln-hint)",
           type: "dashed",
         },
       },
@@ -399,11 +399,11 @@ const chartOption = computed(() => {
 .view-title {
   font-size: 17px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 .view-subtitle {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 /* ── 粒度切換 ── */
@@ -418,8 +418,8 @@ const chartOption = computed(() => {
   border-radius: 8px;
   font-size: 12px;
   font-weight: 500;
-  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-  color: var(--tg-theme-hint-color, #888);
+  background: var(--iln-surface);
+  color: var(--iln-hint);
   border: none;
   cursor: pointer;
   transition:
@@ -427,13 +427,13 @@ const chartOption = computed(() => {
     color 0.15s;
 }
 .seg-btn.active {
-  background: var(--tg-theme-button-color, #2481cc);
-  color: var(--tg-theme-button-text-color, #fff);
+  background: var(--iln-brand);
+  color: var(--iln-text-on-brand);
 }
 
 /* ── 圖表 ── */
 .chart-wrapper {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 12px;
   padding: 8px 4px 4px;
   margin-bottom: 10px;
@@ -455,8 +455,8 @@ const chartOption = computed(() => {
   border-radius: 99px;
   font-size: 12px;
   font-weight: 500;
-  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-  color: var(--tg-theme-hint-color, #888);
+  background: var(--iln-surface);
+  color: var(--iln-hint);
   border: none;
   cursor: pointer;
   transition:
@@ -464,8 +464,8 @@ const chartOption = computed(() => {
     color 0.15s;
 }
 .metric-chip.active {
-  background: var(--tg-theme-button-color, #2481cc);
-  color: var(--tg-theme-button-text-color, #fff);
+  background: var(--iln-brand);
+  color: var(--iln-text-on-brand);
 }
 
 /* ── 摘要卡片 ── */
@@ -475,7 +475,7 @@ const chartOption = computed(() => {
   gap: 8px;
 }
 .summary-card {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
   padding: 10px 12px;
   display: flex;
@@ -484,12 +484,12 @@ const chartOption = computed(() => {
 }
 .s-label {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 .s-value {
   font-size: 15px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 .s-value.pos {
   color: var(--iln-ok-text);
@@ -506,13 +506,13 @@ const chartOption = computed(() => {
   justify-content: center;
   gap: 8px;
   padding: 48px 16px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   font-size: 14px;
   text-align: center;
 }
 .state-hint {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #bbb);
+  color: var(--iln-hint);
 }
 .state-error {
   color: var(--iln-danger-text);
@@ -521,8 +521,8 @@ const chartOption = computed(() => {
   margin-top: 4px;
   padding: 6px 18px;
   border-radius: 8px;
-  background: var(--tg-theme-button-color, #2481cc);
-  color: var(--tg-theme-button-text-color, #fff);
+  background: var(--iln-brand);
+  color: var(--iln-text-on-brand);
   font-size: 13px;
   border: none;
   cursor: pointer;
@@ -530,8 +530,8 @@ const chartOption = computed(() => {
 .spinner {
   width: 24px;
   height: 24px;
-  border: 2.5px solid var(--tg-theme-hint-color, #ddd);
-  border-top-color: var(--tg-theme-button-color, #2481cc);
+  border: 2.5px solid var(--iln-hint);
+  border-top-color: var(--iln-brand);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -545,7 +545,7 @@ const chartOption = computed(() => {
   display: flex;
   gap: 8px;
   margin: 12px 0 8px 0;
-  border-bottom: 1px solid var(--tg-theme-hint-color, #ddd);
+  border-bottom: 1px solid var(--iln-hint);
   padding-bottom: 8px;
 }
 
@@ -554,15 +554,15 @@ const chartOption = computed(() => {
   padding: 8px 12px;
   border: none;
   background: transparent;
-  color: var(--tg-theme-hint-color, #bbb);
+  color: var(--iln-hint);
   font-size: 13px;
   cursor: pointer;
   border-bottom: 2px solid transparent;
 }
 
 .chart-tabs button.active {
-  color: var(--tg-theme-button-color, #2481cc);
-  border-bottom: 2px solid var(--tg-theme-button-color, #2481cc);
+  color: var(--iln-brand);
+  border-bottom: 2px solid var(--iln-brand);
   font-weight: 600;
 }
 </style>

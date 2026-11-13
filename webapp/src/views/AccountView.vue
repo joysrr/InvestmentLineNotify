@@ -315,15 +315,15 @@ const prTrendOption = computed(() => {
     xAxis: {
       type: "category",
       data: data.map((d) => d.date),
-      axisLabel: { fontSize: 10, color: "var(--tg-theme-hint-color, #999)" },
-      axisLine: { lineStyle: { color: "var(--tg-theme-secondary-bg-color, #eee)" } },
+      axisLabel: { fontSize: 10, color: "var(--iln-hint)" },
+      axisLine: { lineStyle: { color: "var(--iln-surface)" } },
     },
     yAxis: {
       type: "value",
       min: 0,
       max: 100,
-      axisLabel: { fontSize: 10, color: "var(--tg-theme-hint-color, #999)", formatter: "{value}%" },
-      splitLine: { lineStyle: { type: "dashed", color: "var(--tg-theme-secondary-bg-color, #f0f0f0)" } },
+      axisLabel: { fontSize: 10, color: "var(--iln-hint)", formatter: "{value}%" },
+      splitLine: { lineStyle: { type: "dashed", color: "var(--iln-surface)" } },
     },
     series: [
       {
@@ -427,13 +427,13 @@ const allHealthy = computed(
 .account-view {
   padding: 0 0 32px;
   min-height: 100%;
-  background: var(--tg-theme-bg-color, #f5f5f5);
+  background: var(--iln-bg);
 }
 
 /* ── Header ── */
 .page-header {
   padding: 20px 16px 12px;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   margin-bottom: 12px;
 }
@@ -441,17 +441,17 @@ const allHealthy = computed(
   font-size: 20px;
   font-weight: 700;
   margin: 0 0 2px;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
 }
 .page-subtitle {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   margin: 0;
 }
 
 /* ── Section ── */
 .section {
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 12px;
   margin: 0 12px 12px;
   padding: 14px 14px 10px;
@@ -460,7 +460,7 @@ const allHealthy = computed(
 .section-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--tg-theme-hint-color, #777);
+  color: var(--iln-hint);
   margin: 0 0 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -477,7 +477,7 @@ const allHealthy = computed(
 .chart-link-btn {
   font-size: 11px;
   font-weight: 600;
-  color: var(--tg-theme-button-color, #2481cc);
+  color: var(--iln-brand);
   background: rgba(36, 129, 204, 0.1);
   padding: 4px 10px;
   border-radius: 999px;
@@ -501,11 +501,11 @@ const allHealthy = computed(
   border-bottom: none;
 }
 .info-label {
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
 }
 .info-value {
   font-weight: 600;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
 }
 
 /* ── Source grid ── */
@@ -540,7 +540,7 @@ const allHealthy = computed(
 .source-name {
   font-size: 12px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
 }
 .source-badge {
   font-size: 10px;
@@ -563,11 +563,11 @@ const allHealthy = computed(
 }
 .source-time {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
 }
 .source-age {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin-top: 2px;
 }
 .source-error {
@@ -584,7 +584,7 @@ const allHealthy = computed(
   justify-content: flex-start;
   gap: 10px;
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   margin: 0 0 8px;
 }
 .summary-item {
@@ -594,7 +594,7 @@ const allHealthy = computed(
 .toggle-btn {
   border: none;
   background: transparent;
-  color: var(--tg-theme-button-color, #2481cc);
+  color: var(--iln-brand);
   font-size: 11px;
   padding: 4px 6px;
   border-radius: 999px;
@@ -633,7 +633,7 @@ const allHealthy = computed(
 .chart-label {
   font-size: 10px;
   font-weight: 600;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin-bottom: 2px;
 }
 .trend-chart {
@@ -662,25 +662,25 @@ const allHealthy = computed(
   gap: 8px;
 }
 .macro-card {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 8px;
   padding: 10px 10px 8px;
   text-align: center;
 }
 .macro-label {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   margin-bottom: 4px;
 }
 .macro-value {
   font-size: 22px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
   line-height: 1;
 }
 .macro-sub {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
   margin-top: 3px;
 }
 
@@ -709,12 +709,12 @@ const allHealthy = computed(
 .notice-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 4px;
 }
 .notice-desc {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
   line-height: 1.5;
   margin: 0;
 }
@@ -722,7 +722,7 @@ const allHealthy = computed(
 /* ── Snapshot ── */
 .snapshot-date {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   margin-bottom: 10px;
 }
 .snapshot-grid {
@@ -732,30 +732,30 @@ const allHealthy = computed(
   margin-bottom: 10px;
 }
 .snapshot-card {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 8px;
   padding: 10px 10px 8px;
   text-align: center;
 }
 .snapshot-label {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   margin-bottom: 4px;
 }
 .snapshot-value {
   font-size: 20px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
   line-height: 1;
 }
 .snapshot-sub {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
   margin-top: 3px;
 }
 .snapshot-buyday {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   text-align: right;
   margin-top: 4px;
 }
@@ -769,11 +769,11 @@ const allHealthy = computed(
   font-size: 16px;
   font-weight: 700;
   margin-bottom: 2px;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
 }
 .about-version {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin-bottom: 12px;
 }
 .about-features {
@@ -785,7 +785,7 @@ const allHealthy = computed(
 }
 .about-features li {
   font-size: 13px;
-  color: var(--tg-theme-text-color, #333);
+  color: var(--iln-text);
   padding: 4px 0;
   padding-left: 18px;
   position: relative;
@@ -794,7 +794,7 @@ const allHealthy = computed(
   content: "✓";
   position: absolute;
   left: 0;
-  color: var(--tg-theme-button-color, #2481cc);
+  color: var(--iln-brand);
   font-weight: 700;
 }
 
@@ -811,7 +811,7 @@ const allHealthy = computed(
 
 /* ── Skeleton ── */
 .sk {
-  background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
+  background: linear-gradient(90deg, var(--iln-skeleton-wave-bg) 25%, var(--iln-surface) 50%, var(--iln-skeleton-wave-bg) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
   border-radius: 6px;
@@ -846,7 +846,7 @@ const allHealthy = computed(
   align-items: center;
   padding: 40px 16px;
   gap: 10px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   font-size: 14px;
 }
 .error-icon {
@@ -857,8 +857,8 @@ const allHealthy = computed(
   padding: 8px 20px;
   border-radius: 20px;
   border: none;
-  background: var(--tg-theme-button-color, #2481cc);
-  color: var(--tg-theme-button-text-color, #fff);
+  background: var(--iln-brand);
+  color: var(--iln-text-on-brand);
   font-size: 14px;
   cursor: pointer;
 }

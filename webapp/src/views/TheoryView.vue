@@ -240,7 +240,7 @@ onMounted(async () => {
 <style scoped>
 .view-container {
   min-height: 100vh;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
 }
 
 .summary-view {
@@ -254,13 +254,13 @@ onMounted(async () => {
 .view-title {
   font-size: 18px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 4px 0;
 }
 
 .view-subtitle {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 /* State Box */
@@ -271,13 +271,13 @@ onMounted(async () => {
 
 .state-box p {
   font-size: 15px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin: 0 0 8px 0;
 }
 
 .state-hint {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
 }
 
 .state-error p {
@@ -287,8 +287,8 @@ onMounted(async () => {
 .retry-btn {
   margin-top: 12px;
   padding: 10px 20px;
-  background: var(--tg-theme-button-color, #3390ec);
-  color: var(--tg-theme-button-text-color, #fff);
+  background: var(--iln-brand);
+  color: var(--iln-text-on-brand);
   border: none;
   border-radius: 8px;
   font-size: 14px;
@@ -306,8 +306,8 @@ onMounted(async () => {
   width: 40px;
   height: 40px;
   margin: 0 auto 16px;
-  border: 3px solid var(--tg-theme-hint-color, #e0e0e0);
-  border-top-color: var(--tg-theme-button-color, #3390ec);
+  border: 3px solid var(--iln-hint);
+  border-top-color: var(--iln-brand);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -328,7 +328,7 @@ onMounted(async () => {
 /* Disclaimer Card */
 .disclaimer-card {
   background: rgba(158, 158, 158, 0.08);
-  border-left: 3px solid var(--tg-theme-hint-color, #9e9e9e);
+  border-left: 3px solid var(--iln-hint);
   border-radius: 10px;
   padding: 14px;
   margin-bottom: 12px;
@@ -337,13 +337,13 @@ onMounted(async () => {
 .disclaimer-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   margin: 0 0 6px 0;
 }
 
 .disclaimer-text {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
   line-height: 1.6;
   margin: 0;
 }

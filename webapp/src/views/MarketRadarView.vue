@@ -423,11 +423,11 @@ const fxCard = computed(() => {
 .page-title {
   font-size: 18px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
 }
 .page-date {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 .section {
@@ -438,7 +438,7 @@ const fxCard = computed(() => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin-bottom: 10px;
 }
 
@@ -450,7 +450,7 @@ const fxCard = computed(() => {
 }
 
 .radar-card {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 12px;
   padding: 12px 8px;
   display: flex;
@@ -475,13 +475,13 @@ const fxCard = computed(() => {
 
 .rc-label {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   white-space: nowrap;
 }
 .rc-value {
   font-size: 20px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
   line-height: 1.2;
 }
 .rc-value--md {
@@ -500,7 +500,7 @@ const fxCard = computed(() => {
   font-weight: 500;
 }
 .rc-sub--neutral {
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 .rc-sub--danger {
   color: var(--iln-danger-text);
@@ -527,22 +527,22 @@ const fxCard = computed(() => {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
   margin-bottom: 6px;
 }
 .dr-label {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 .dr-value {
   font-size: 13px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 .dr-value--muted {
   font-weight: 400;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 .text-green {
   color: var(--iln-ok-text);
@@ -553,7 +553,7 @@ const fxCard = computed(() => {
 
 .update-time {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #bbb);
+  color: var(--iln-hint);
   text-align: center;
   margin-top: 12px;
 }
@@ -576,9 +576,9 @@ const fxCard = computed(() => {
   border-radius: 6px;
   background: linear-gradient(
     90deg,
-    var(--tg-theme-secondary-bg-color, #e8e8e8) 25%,
+    var(--iln-surface) 25%,
     rgba(255, 255, 255, 0.35) 50%,
-    var(--tg-theme-secondary-bg-color, #e8e8e8) 75%
+    var(--iln-surface) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;

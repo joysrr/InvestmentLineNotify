@@ -243,12 +243,12 @@ onMounted(async () => {
 .subtab-bar {
   display: flex;
   gap: 0;
-  border-bottom: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+  border-bottom: 1px solid var(--iln-hint);
   margin-bottom: 12px;
   padding: 0 16px;
   position: sticky;
   top: 0;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   z-index: 10;
 }
 
@@ -257,7 +257,7 @@ onMounted(async () => {
   padding: 12px 0;
   font-size: 13px;
   font-weight: 500;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
@@ -269,8 +269,8 @@ onMounted(async () => {
 }
 
 .subtab-btn.active {
-  color: var(--tg-theme-link-color, #2481cc);
-  border-bottom-color: var(--tg-theme-link-color, #2481cc);
+  color: var(--iln-link);
+  border-bottom-color: var(--iln-link);
   font-weight: 600;
 }
 
@@ -297,18 +297,18 @@ onMounted(async () => {
 .region-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   flex: 1;
 }
 
 .region-count {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 .report-generated {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #bbb);
+  color: var(--iln-hint);
   text-align: center;
   margin-top: 8px;
   padding-bottom: 8px;
@@ -333,7 +333,7 @@ onMounted(async () => {
 }
 
 .news-card {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 12px;
   padding: 12px;
   cursor: pointer;
@@ -367,8 +367,8 @@ onMounted(async () => {
   color: var(--iln-warn-text);
 }
 .age-old {
-  background: var(--tg-theme-hint-color, #eee);
-  color: var(--tg-theme-hint-color, #999);
+  background: var(--iln-hint);
+  color: var(--iln-hint);
   opacity: 0.6;
 }
 
@@ -378,26 +378,26 @@ onMounted(async () => {
 
 .news-source {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   flex: 1;
 }
 
 .news-time {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
 }
 
 .news-title {
   font-size: 14px;
   font-weight: 500;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   line-height: 1.45;
   margin-bottom: 4px;
 }
 
 .news-summary {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -413,14 +413,14 @@ onMounted(async () => {
   justify-content: center;
   gap: 12px;
   min-height: 200px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   font-size: 14px;
   padding: 0 16px;
 }
 
 .state-hint {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #bbb);
+  color: var(--iln-hint);
   margin-top: -6px;
 }
 
@@ -430,8 +430,8 @@ onMounted(async () => {
 
 .retry-btn {
   padding: 8px 20px;
-  background: var(--tg-theme-button-color, #2481cc);
-  color: var(--tg-theme-button-text-color, #fff);
+  background: var(--iln-brand);
+  color: var(--iln-text-on-brand);
   border: none;
   border-radius: 8px;
   font-size: 14px;
@@ -441,8 +441,8 @@ onMounted(async () => {
 .spinner {
   width: 28px;
   height: 28px;
-  border: 3px solid var(--tg-theme-hint-color, #ddd);
-  border-top-color: var(--tg-theme-button-color, #2481cc);
+  border: 3px solid var(--iln-hint);
+  border-top-color: var(--iln-brand);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

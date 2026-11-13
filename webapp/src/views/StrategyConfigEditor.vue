@@ -406,7 +406,7 @@ onUnmounted(() => {
 
 .editor-subtitle {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin-top: 4px;
 }
 

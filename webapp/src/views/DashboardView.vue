@@ -376,13 +376,13 @@ onMounted(() => {
 }
 .dash-date {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 /* FAB: Strategy Config */
 .config-fab {
-  background: var(--tg-theme-button-color, #2481cc);
-  color: var(--tg-theme-text-color, #fff);
+  background: var(--iln-brand);
+  color: var(--iln-text);
   border: none;
   border-radius: 50%;
   width: 36px;
@@ -424,7 +424,7 @@ onMounted(() => {
   padding: 12px 16px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
   cursor: pointer;
   user-select: none;
   display: flex;
@@ -436,7 +436,7 @@ onMounted(() => {
 }
 .toggle-icon {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 /* Collapse/Expand Animation for dashboard-card body */
@@ -458,7 +458,7 @@ onMounted(() => {
 }
 .update-time {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #bbb);
+  color: var(--iln-hint);
   text-align: center;
   margin-top: 24px;
 }
@@ -471,7 +471,7 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 700;
   margin-bottom: 12px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -502,25 +502,25 @@ onMounted(() => {
 }
 
 .status-link:active {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
 }
 
 .status-link-left h3 {
   margin: 0 0 4px;
   font-size: 16px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
 }
 
 .status-link-desc {
   margin: 0;
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
 }
 
 .status-link-arrow {
   font-size: 18px;
-  color: var(--tg-theme-button-color, #2481cc);
+  color: var(--iln-brand);
   font-weight: 600;
 }
 

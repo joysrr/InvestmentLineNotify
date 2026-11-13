@@ -233,11 +233,11 @@ const directionClass = computed(() => {
 .page-title {
   font-size: 18px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
 }
 .page-date {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 
 /* ── Direction badge ── */
@@ -269,7 +269,7 @@ const directionClass = computed(() => {
 }
 .direction-hint {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   flex: 1;
   line-height: 1.4;
 }
@@ -283,7 +283,7 @@ const directionClass = computed(() => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin-bottom: 10px;
 }
 
@@ -313,7 +313,7 @@ const directionClass = computed(() => {
 .score-track {
   flex: 1;
   height: 10px;
-  background: var(--tg-theme-secondary-bg-color, #eee);
+  background: var(--iln-surface);
   border-radius: 5px;
   overflow: hidden;
 }
@@ -333,7 +333,7 @@ const directionClass = computed(() => {
   font-weight: 700;
   width: 24px;
   text-align: right;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   flex-shrink: 0;
 }
 
@@ -350,9 +350,9 @@ const directionClass = computed(() => {
   align-items: flex-start;
   gap: 8px;
   font-size: 13px;
-  color: var(--tg-theme-text-color, #333);
+  color: var(--iln-text);
   line-height: 1.5;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   border-radius: 10px;
   padding: 9px 12px;
 }
@@ -360,7 +360,7 @@ const directionClass = computed(() => {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--tg-theme-button-color, #2481cc);
+  background: var(--iln-brand);
   flex-shrink: 0;
   margin-top: 5px;
 }
@@ -382,7 +382,7 @@ const directionClass = computed(() => {
   background: rgba(232, 72, 85, 0.08);
 }
 .event-card--neutral {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
 }
 
 .event-top {
@@ -404,18 +404,18 @@ const directionClass = computed(() => {
   background: var(--iln-danger-bg);
 }
 .event-score.neutral {
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   background: transparent;
 }
 .event-title {
   font-size: 13px;
   font-weight: 500;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   line-height: 1.4;
 }
 .event-analysis {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #777);
+  color: var(--iln-hint);
   margin-top: 5px;
   line-height: 1.45;
   padding-left: 2px;
@@ -429,7 +429,7 @@ const directionClass = computed(() => {
 }
 .inline-hint {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   padding: 24px 12px;
   text-align: center;
   line-height: 1.7;
@@ -454,9 +454,9 @@ const directionClass = computed(() => {
   border-radius: 6px;
   background: linear-gradient(
     90deg,
-    var(--tg-theme-secondary-bg-color, #e8e8e8) 25%,
+    var(--iln-surface) 25%,
     rgba(255, 255, 255, 0.35) 50%,
-    var(--tg-theme-secondary-bg-color, #e8e8e8) 75%
+    var(--iln-surface) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
