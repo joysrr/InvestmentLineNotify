@@ -114,4 +114,4 @@ wiki_links: []
 | A1–A4 | 1.1 收尾（keep-alive 順序、waitReady 去重、未授權提示、文件更新）   | ff54464 |
 | B1–B7 | 1.2 主體（主題檢測、深色切換、令牌映射、hex 替換、CI 守護）         | ff54464 |
 | P1–P4 | 令牌一致性修正（brand-hover-bg、深色業務色、surface 跟隨 Telegram） | ee78740 |
-| F1    | 文件一致性修正（本次）                                              | 待填    |
+| F1    | 文件一致性修正（本次）                                              | 612fa33 |
