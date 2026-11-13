@@ -3,7 +3,7 @@
     <div class="extreme-radar-container">
     <!-- 無資料時提示 -->
     <div v-if="!leadingIndicators" class="empty-radar-bar">
-      🛡️ 極端雷達與防禦層：暫無雷達數據
+      <Icon name="shield" size="sm" color="var(--iln-hint)" /> 極端雷達與防禦層：暫無雷達數據
     </div>
 
     <!-- 常態平穩條狀（IDLE） -->
@@ -13,7 +13,7 @@
     >
       <div class="radar-panel-header" @click="toggleExpanded">
         <div class="header-left">
-          <span class="status-icon">🛡️</span>
+          <span class="status-icon"><Icon name="shield" size="sm" /></span>
           <span class="status-title">極端防禦狀態：</span>
           <span class="status-badge badge-idle">常態平穩</span>
           <span class="status-sub">監控狀態：IDLE（未觸發異常警報）</span>
@@ -58,7 +58,7 @@
             </div>
           </div>
           <div class="mini-item-right">
-            <span class="mini-badge-ok">正常 ✅</span>
+            <span class="mini-badge-ok">正常 <Icon name="ok" size="sm" color="var(--iln-ok)" /></span>
           </div>
         </div>
       </div>
@@ -72,7 +72,7 @@
     >
       <div class="radar-panel-header" @click="toggleExpanded">
         <div class="header-left">
-          <span class="status-icon">🚨</span>
+          <span class="status-icon"><Icon name="danger" size="sm" color="var(--iln-danger)" /></span>
           <span class="status-title">防禦層已啟動：</span>
           <span class="status-badge badge-active">{{ stateLabel }} ({{ stateMachine.state }})</span>
           <span v-if="stateMachine.activeDays > 0" class="status-sub">
@@ -88,7 +88,7 @@
       <div v-show="isExpanded" class="radar-alert-body">
         <!-- 觸發的雷達清單 -->
         <div class="triggered-section">
-          <div class="section-subtitle">⚡ 觸發極端雷達</div>
+          <div class="section-subtitle"><Icon name="trigger" size="sm" color="var(--iln-warn)" /> 觸發極端雷達</div>
           <div class="triggered-list">
             <div
               v-for="r in triggeredRadars"
@@ -108,16 +108,16 @@
 
         <!-- 嚴格行動紀律 -->
         <div class="action-discipline-section">
-          <div class="section-subtitle">🎯 即時防禦行動紀律</div>
+          <div class="section-subtitle"><Icon name="default" size="sm" color="var(--iln-hint)" /> 即時防禦行動紀律</div>
           <div class="discipline-grid">
             <!-- 00675L 行動 -->
-            <StatCard size="sm" :framed="false" align="left" label="00675L (2x槓桿)" :value="stateMachine.freeze00675L ? '🚫 凍結禁止加碼' : '✅ 允許加碼'" :status="stateMachine.freeze00675L ? 'danger' : 'ok'" />
+            <StatCard size="sm" :framed="false" align="left" label="00675L (2x槓桿)" :value="stateMachine.freeze00675L ? '凍結禁止加碼' : '允許加碼'" :status="stateMachine.freeze00675L ? 'danger' : 'ok'" />
 
             <!-- 0050 行動 -->
-            <StatCard size="sm" :framed="false" align="left" label="0050 (原型加碼)" :value="stateMachine.allowLeft0050 ? '✅ 允許低接' : '⏸️ 暫停加碼'" :status="stateMachine.allowLeft0050 ? 'ok' : 'neutral'" />
+            <StatCard size="sm" :framed="false" align="left" label="0050 (原型加碼)" :value="stateMachine.allowLeft0050 ? '允許低接' : '暫停加碼'" :status="stateMachine.allowLeft0050 ? 'ok' : 'neutral'" />
 
             <!-- P0 定期定額 -->
-            <StatCard size="sm" :framed="false" align="left" label="P0 定期定額" value="🟢 正常扣款 (最高豁免)" status="ok" />
+            <StatCard size="sm" :framed="false" align="left" label="P0 定期定額" value="正常扣款 (最高豁免)" status="ok" />
 
             <!-- 現金曝險分析 -->
             <CashExposureWidget v-if="cashExposureAnalysis" :analysis="cashExposureAnalysis" />
@@ -133,6 +133,7 @@
 import { ref, computed } from "vue";
 import ContentCard from "@/components/common/ContentCard.vue";
 import StatCard from "@/components/common/StatCard.vue";
+import Icon from "@/components/common/Icon.vue";
 import CashExposureWidget from "./CashExposureWidget.vue";
 
 const props = defineProps({
