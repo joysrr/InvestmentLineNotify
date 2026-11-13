@@ -1,6 +1,6 @@
 ---
 type: plan
-status: in-progress
+status: completed
 last_updated: 2026-11-13
 tags:
   - webapp
@@ -65,6 +65,17 @@ wiki_links: []
 `Icon.vue` 使用內聯 SVG，ICEN_MAP 定義所有圖標路徑。移除 `name="default"` 預設值，必須明確指定 `name`。
 
 已遷移圖標：ok, danger, warn, neutral, chart, shield, trigger, radar, x-circle, chevron-down, check-circle。
+
+## 五、體積基線變更
+
+| 項目         | Phase 1 基線 | Phase 2 實測 | Phase 2 新基線 | 理由                                                                 |
+| ------------ | ------------ | ------------ | -------------- | -------------------------------------------------------------------- |
+| Initial gzip | 152.1 KB     | 154.7 KB     | 156.0 KB       | 新增 ContentCard / StatCard / Icon / CollapsibleSection 四個通用元件 |
+| Total gzip   | 370.4 KB     | 374.9 KB     | 380.0 KB       | 同上                                                                 |
+
+變更核准：Phase 2 補做計畫（B2）
+變更日期：2026-11-13
+依據：webapp/scripts/check-bundle-size.mjs 已更新為 INITIAL_BUDGET_KB=156.0, TOTAL_BUDGET_KB=380.0；實測 154.7 / 374.9 KB，均在新基線內。
 
 ## 六、測試標準
 

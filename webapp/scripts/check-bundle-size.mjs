@@ -4,8 +4,8 @@ import { join } from "path";
 
 const DIST_ASSETS = "dist/assets";
 const MANIFEST_PATH = "dist/.vite/manifest.json";
-const INITIAL_BUDGET_KB = 300;
-const TOTAL_BUDGET_KB = 500;
+const INITIAL_BUDGET_KB = 156.0;
+const TOTAL_BUDGET_KB = 380.0;
 
 const manifest = JSON.parse(readFileSync(MANIFEST_PATH, "utf8"));
 
