@@ -15,7 +15,7 @@ const props = defineProps({
 
 <style scoped>
 .threshold-item {
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border: 1px solid rgba(0,0,0,0.06);
   border-radius: 12px;
   padding: 12px;
@@ -23,7 +23,7 @@ const props = defineProps({
 }
 .threshold-item .label {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
@@ -31,12 +31,12 @@ const props = defineProps({
 .threshold-item .value {
   font-size: 16px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   word-break: break-all;
 }
 .threshold-item .unit {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
   margin-left: 2px;
 }
 </style>

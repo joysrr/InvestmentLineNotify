@@ -159,17 +159,17 @@ const getCompDisplayValue = (comp) => {
   align-items: center;
   overflow: hidden;
   box-shadow: 0 12px 32px rgba(36, 129, 204, 0.25);
-  color: var(--tg-theme-text-color, #fff);
+  color: var(--iln-text);
 }
 .health-hero-v2.green {
-  background: linear-gradient(135deg, #2481cc 0%, #1c639e 100%);
+  background: linear-gradient(135deg, var(--iln-brand) 0%, var(--iln-health-brand-end) 100%);
 }
 .health-hero-v2.yellow {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: linear-gradient(135deg, var(--iln-warn) 0%, var(--iln-health-warn-end) 100%);
   box-shadow: 0 12px 32px rgba(245, 158, 11, 0.25);
 }
 .health-hero-v2.red {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, var(--iln-danger) 0%, var(--iln-health-danger-end) 100%);
   box-shadow: 0 12px 32px rgba(239, 68, 68, 0.25);
 }
 .glass-overlay {
@@ -222,7 +222,7 @@ const getCompDisplayValue = (comp) => {
 }
 .health-glass-card {
   position: relative;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 20px;
   padding: 16px;
@@ -237,7 +237,7 @@ const getCompDisplayValue = (comp) => {
 .comp-name {
   font-size: 12px;
   font-weight: 600;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
 }
 .comp-body {
   display: flex;
@@ -246,11 +246,11 @@ const getCompDisplayValue = (comp) => {
 .comp-value {
   font-size: 20px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
 }
 .comp-sub {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 .comp-status-dot {
   position: absolute;
@@ -270,7 +270,7 @@ const getCompDisplayValue = (comp) => {
   background: var(--iln-danger);
 }
 .health-action-v2 {
-  background: var(--tg-theme-secondary-bg-color, #f5f8fa);
+  background: var(--iln-surface);
   border-radius: 20px;
   padding: 16px;
   border: 1px dashed rgba(36, 129, 204, 0.3);
@@ -303,11 +303,11 @@ const getCompDisplayValue = (comp) => {
   }
 }
 .dual-vix-us {
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
   font-weight: 700;
 }
 .dual-vix-sep {
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   margin: 0 4px;
   font-weight: 700;
 }
@@ -323,7 +323,7 @@ const getCompDisplayValue = (comp) => {
   padding: 12px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--tg-theme-button-color, #2481cc);
+  color: var(--iln-brand);
   text-decoration: none;
   border-radius: 12px;
   background: rgba(36, 129, 204, 0.06);

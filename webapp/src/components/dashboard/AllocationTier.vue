@@ -35,22 +35,22 @@ const tierFillWidth = computed(() => {
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: var(--tg-theme-secondary-bg-color, #f9f9f9);
+  background: var(--iln-surface);
   border-radius: 12px;
   border: 1px solid transparent;
   transition: all 0.3s;
 }
 .allocation-tier.is-current {
-  background: var(--iln-info-bg, #e3f2fd);
-  border-color: var(--tg-theme-link-color, #2196f3);
+  background: var(--iln-info-bg);
+  border-color: var(--iln-link);
 }
 .allocation-tier.is-next {
-  background: var(--iln-warn-bg, #fff3e0);
-  border-color: var(--iln-warn-text, #ff9800);
+  background: var(--iln-warn-bg);
+  border-color: var(--iln-warn-text);
 }
 .tier-score {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   min-width: 60px;
   text-align: right;
 }
@@ -66,9 +66,9 @@ const tierFillWidth = computed(() => {
   border-radius: 3px;
   transition: width 0.3s;
 }
-/* tier-fill: 業務語義色（current=信號色，next=警告色），與 tier 標籤綁定，不轉 token */
-.tier-fill.current { background: #2196f3; }
-.tier-fill.next { background: #ff9800; }
+/* tier-fill: 業務語義色（current=信號色，next=警告色），與 tier 標籤綁定 */
+.tier-fill.current { background: var(--iln-tier-current); }
+.tier-fill.next { background: var(--iln-tier-next); }
 .tier-info {
   display: flex;
   flex-direction: column;
@@ -76,6 +76,6 @@ const tierFillWidth = computed(() => {
   min-width: 80px;
 }
 .tier-leverage { font-weight: 600; font-size: 14px; }
-.tier-cash { font-size: 11px; color: var(--tg-theme-hint-color, #888); }
-.tier-comment { font-size: 10px; color: var(--tg-theme-hint-color, #aaa); margin-top: 2px; }
+.tier-cash { font-size: 11px; color: var(--iln-hint); }
+.tier-comment { font-size: 10px; color: var(--iln-hint); margin-top: 2px; }
 </style>

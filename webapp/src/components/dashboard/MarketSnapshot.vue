@@ -72,22 +72,22 @@ defineProps({
   }
 }
 .snapshot-card {
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 12px;
   padding: 12px;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--tg-theme-secondary-bg-color, #f0f0f0);
+  border: 1px solid var(--iln-surface);
 }
 .snap-label {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   margin-bottom: 4px;
 }
 .snap-value {
   font-size: 18px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 .snap-sub {
   font-size: 11px;
@@ -96,7 +96,7 @@ defineProps({
 }
 .snap-hint {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   margin-top: 2px;
   line-height: 1.2;
 }

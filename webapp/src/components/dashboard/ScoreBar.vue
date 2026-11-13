@@ -41,11 +41,11 @@ const percentage = computed(() => Math.min(100, (props.value / props.max) * 100)
 }
 .score-label {
   font-weight: 500;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 .score-value {
   font-weight: 600;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
 }
 .score-bar-track {
   height: 8px;
@@ -60,7 +60,7 @@ const percentage = computed(() => Math.min(100, (props.value / props.max) * 100)
 }
 .score-description {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #aaa);
+  color: var(--iln-hint);
   margin-top: 2px;
 }
 </style>

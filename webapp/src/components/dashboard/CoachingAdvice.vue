@@ -95,7 +95,7 @@ const thinkingExpanded = ref(false);
 <style scoped>
 /* 樣式保持不變 */
 .ai-insight {
-  background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
+  background: linear-gradient(135deg, var(--iln-coaching-start) 0%, var(--iln-coaching-end) 100%);
   border-left: 4px solid var(--iln-warn);
   padding: 12px;
   border-radius: 8px;
@@ -128,7 +128,7 @@ const thinkingExpanded = ref(false);
   font-size: 11px;
   font-weight: 800;
   background: var(--iln-info);
-  color: var(--tg-theme-text-color, #fff);
+  color: var(--iln-text);
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -139,7 +139,7 @@ const thinkingExpanded = ref(false);
 }
 .ai-block {
   margin-bottom: 12px;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.07);
@@ -149,7 +149,7 @@ const thinkingExpanded = ref(false);
   align-items: center;
   width: 100%;
   padding: 10px 12px;
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  background: var(--iln-surface);
   font-size: 13px;
   font-weight: 600;
   gap: 6px;
@@ -158,11 +158,11 @@ const thinkingExpanded = ref(false);
 .ai-count {
   margin-left: auto;
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
 }
 .expand-arrow {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #bbb);
+  color: var(--iln-hint);
   transition: transform 0.2s;
 }
 .ai-list {
@@ -177,21 +177,21 @@ const thinkingExpanded = ref(false);
   line-height: 1.5;
   padding-left: 14px;
   position: relative;
-  color: var(--tg-theme-text-color, #333);
+  color: var(--iln-text);
 }
 .ai-list li::before {
   content: "•";
   position: absolute;
   left: 0;
-  color: var(--tg-theme-button-color, #2481cc);
+  color: var(--iln-brand);
 }
 .ai-thinking {
   padding: var(--iln-space-3);
   font-size: var(--iln-font-sm);
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
   font-style: italic;
   line-height: var(--iln-leading-normal);
   background: var(--iln-surface);
-  border-top: 1px solid var(--iln-border-subtle, #f9f9f9);
+  border-top: 1px solid var(--iln-border-subtle);
 }
 </style>

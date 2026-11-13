@@ -114,7 +114,7 @@ const leverageText = computed(() => {
 
 /* Skeleton */
 .overview-skeleton .sk {
-  background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+  background: linear-gradient(90deg, var(--iln-secondary-bg) 25%, var(--iln-surface) 50%, var(--iln-secondary-bg) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
   border-radius: 20px;
@@ -137,7 +137,7 @@ const leverageText = computed(() => {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  background: var(--tg-theme-secondary-bg-color, #f5f8fa);
+  background: var(--iln-surface);
   border-radius: 20px;
   padding: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
@@ -171,7 +171,7 @@ const leverageText = computed(() => {
 }
 .banner-title {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
 }
 .banner-right {
   margin-left: auto;
@@ -186,12 +186,12 @@ const leverageText = computed(() => {
 }
 .banner-unit {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 .banner-summary {
   flex-basis: 100%;
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #666);
+  color: var(--iln-hint);
   margin: 0;
   line-height: 1.5;
 }
@@ -209,7 +209,7 @@ const leverageText = computed(() => {
 }
 
 .soh-card {
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 20px;
   padding: 16px;
@@ -219,7 +219,7 @@ const leverageText = computed(() => {
   font-size: 14px;
   font-weight: 700;
   margin: 0 0 12px;
-  color: var(--tg-theme-text-color, #333);
+  color: var(--iln-text);
 }
 .card-list {
   list-style: none;
@@ -237,12 +237,12 @@ const leverageText = computed(() => {
 }
 .item-label {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
 }
 .item-value {
   font-size: 14px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
 }
 .item-value.green {
   color: var(--iln-ok-text);
@@ -262,7 +262,7 @@ const leverageText = computed(() => {
 }
 .card-hint {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #bbb);
+  color: var(--iln-hint);
   text-align: center;
   margin: 12px 0 0;
 }

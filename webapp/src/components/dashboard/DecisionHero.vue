@@ -60,12 +60,12 @@ defineProps({
 
 <style scoped>
 .hero-card {
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   border-radius: 16px;
   padding: 24px 20px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   text-align: center;
-  border: 1px solid var(--tg-theme-secondary-bg-color, #f0f0f0);
+  border: 1px solid var(--iln-surface);
 }
 .hero-top {
   display: flex;
@@ -75,7 +75,7 @@ defineProps({
 }
 .hero-date {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 .hero-target {
   font-size: 32px;
@@ -93,7 +93,7 @@ defineProps({
 }
 .hero-suggestion {
   font-size: 15px;
-  color: var(--tg-theme-text-color, #333);
+  color: var(--iln-text);
   margin-bottom: 20px;
   line-height: 1.5;
 }
@@ -108,7 +108,7 @@ defineProps({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid var(--tg-theme-secondary-bg-color, #f0f0f0);
+  border-top: 1px solid var(--iln-surface);
   gap: 8px;
 }
 .hero-route-main {
@@ -120,7 +120,7 @@ defineProps({
 .hero-trend-link {
   font-size: 12px;
   font-weight: 600;
-  color: var(--tg-theme-button-color, #2481cc);
+  color: var(--iln-brand);
   text-decoration: none;
   white-space: nowrap;
   padding: 4px 8px;
@@ -132,12 +132,12 @@ defineProps({
 }
 .route-label {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
 }
 .route-path {
   font-size: 14px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
 }
 .badge {
   padding: 4px 10px;
@@ -158,7 +158,7 @@ defineProps({
   color: var(--iln-ok-text);
 }
 .badge-score {
-  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
-  color: var(--tg-theme-hint-color, #666);
+  background: var(--iln-surface);
+  color: var(--iln-hint);
 }
 </style>

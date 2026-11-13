@@ -121,8 +121,8 @@ function formatLeverage(val) {
   align-items: center;
   padding: 14px 16px;
   border-radius: 16px;
-  background: var(--tg-theme-bg-color, #ffffff);
-  border: 1px solid var(--tg-theme-secondary-bg-color, #e2e8f0);
+  background: var(--iln-bg);
+  border: 1px solid var(--iln-surface);
   margin-bottom: 12px;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -148,7 +148,7 @@ function formatLeverage(val) {
 .cockpit-tag {
   font-size: 11px;
   font-weight: 600;
-  color: var(--tg-theme-hint-color, #94a3b8);
+  color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -169,7 +169,7 @@ function formatLeverage(val) {
 
 .cockpit-sub {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #64748b);
+  color: var(--iln-hint);
   margin-top: 2px;
 }
 
@@ -188,7 +188,7 @@ function formatLeverage(val) {
 .meter-track {
   width: 100%;
   height: 6px;
-  background: var(--tg-theme-secondary-bg-color, #e2e8f0);
+  background: var(--iln-surface);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -217,7 +217,7 @@ function formatLeverage(val) {
   gap: 2px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--tg-theme-button-color, #2563eb);
+  color: var(--iln-brand);
 }
 
 .chevron {

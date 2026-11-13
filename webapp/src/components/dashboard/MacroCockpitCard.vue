@@ -68,8 +68,8 @@ function formatNumber(val) {
   align-items: center;
   padding: 14px 16px;
   border-radius: 16px;
-  background: var(--tg-theme-bg-color, #ffffff);
-  border: 1px solid var(--tg-theme-secondary-bg-color, #e2e8f0);
+  background: var(--iln-bg);
+  border: 1px solid var(--iln-surface);
   margin-bottom: 12px;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -95,7 +95,7 @@ function formatNumber(val) {
 .cockpit-tag {
   font-size: 11px;
   font-weight: 600;
-  color: var(--tg-theme-hint-color, #94a3b8);
+  color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -112,7 +112,7 @@ function formatNumber(val) {
 
 .cockpit-sub {
   font-size: 12px;
-  color: var(--tg-theme-hint-color, #64748b);
+  color: var(--iln-hint);
   margin-top: 2px;
 }
 
@@ -129,14 +129,14 @@ function formatNumber(val) {
 
 .metric-label {
   font-size: 10px;
-  color: var(--tg-theme-hint-color, #94a3b8);
+  color: var(--iln-hint);
   display: block;
 }
 
 .metric-value {
   font-size: 18px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #1e293b);
+  color: var(--iln-text);
 }
 
 .cockpit-action {
@@ -145,7 +145,7 @@ function formatNumber(val) {
   gap: 2px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--tg-theme-button-color, #2563eb);
+  color: var(--iln-brand);
 }
 
 .chevron {

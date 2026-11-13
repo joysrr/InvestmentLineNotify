@@ -141,7 +141,7 @@ function formatMarginChange(val) {
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #1e293b);
+  color: var(--iln-text);
 }
 
 .drawer-icon {
@@ -161,7 +161,7 @@ function formatMarginChange(val) {
   align-items: center;
   padding: 12px 14px;
   border-radius: 12px;
-  background: var(--tg-theme-secondary-bg-color, #f8fafc);
+  background: var(--iln-surface);
 }
 
 .row-left {
@@ -173,12 +173,12 @@ function formatMarginChange(val) {
 .row-label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #1e293b);
+  color: var(--iln-text);
 }
 
 .row-desc {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #94a3b8);
+  color: var(--iln-hint);
 }
 
 .row-right {
@@ -191,7 +191,7 @@ function formatMarginChange(val) {
 .row-val {
   font-size: 15px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #1e293b);
+  color: var(--iln-text);
 }
 
 .row-tag {
@@ -219,7 +219,7 @@ function formatMarginChange(val) {
   margin-top: 4px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--tg-theme-button-color, #2481cc);
+  color: var(--iln-brand);
   text-decoration: none;
   border-radius: 12px;
   border: 1px solid rgba(36, 129, 204, 0.2);

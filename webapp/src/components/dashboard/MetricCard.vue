@@ -65,7 +65,7 @@ const trendClass = computed(() => {
 .metric-title {
   font-size: 11px;
   font-weight: 600;
-  color: var(--tg-theme-hint-color, #999);
+  color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   margin-bottom: 4px;
@@ -76,7 +76,7 @@ const trendClass = computed(() => {
 .metric-value {
   font-size: 16px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #222);
+  color: var(--iln-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -95,7 +95,7 @@ defineEmits(["update:visible"]);
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #1e293b);
+  color: var(--iln-text);
 }
 
 .drawer-icon {
@@ -115,7 +115,7 @@ defineEmits(["update:visible"]);
   align-items: center;
   padding: 12px 14px;
   border-radius: 12px;
-  background: var(--tg-theme-secondary-bg-color, #f8fafc);
+  background: var(--iln-surface);
 }
 
 .row-left {
@@ -127,12 +127,12 @@ defineEmits(["update:visible"]);
 .row-label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--tg-theme-text-color, #1e293b);
+  color: var(--iln-text);
 }
 
 .row-desc {
   font-size: 11px;
-  color: var(--tg-theme-hint-color, #94a3b8);
+  color: var(--iln-hint);
 }
 
 .row-right {
@@ -145,13 +145,13 @@ defineEmits(["update:visible"]);
 .row-val {
   font-size: 15px;
   font-weight: 700;
-  color: var(--tg-theme-text-color, #1e293b);
+  color: var(--iln-text);
 }
 
 .row-tag {
   font-size: 11px;
   font-weight: 600;
-  color: var(--tg-theme-hint-color, #64748b);
+  color: var(--iln-hint);
 }
 
 .text-ok {
@@ -177,6 +177,6 @@ defineEmits(["update:visible"]);
   padding-left: 16px;
   font-size: 11px;
   line-height: 1.6;
-  color: var(--tg-theme-text-color, #334155);
+  color: var(--iln-text);
 }
 </style>

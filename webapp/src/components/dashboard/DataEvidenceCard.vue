@@ -109,7 +109,7 @@ onMounted(async () => {
 .data-evidence-card {
   padding: 16px;
   border-radius: 12px;
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-bg);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
@@ -122,7 +122,7 @@ onMounted(async () => {
 
 .card-header h3 {
   margin: 0;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
   font-size: 16px;
   font-weight: 600;
 }
@@ -132,20 +132,20 @@ onMounted(async () => {
 .updated-text,
 .status-text {
   margin: 6px 0 0;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   font-size: 13px;
   line-height: 1.5;
 }
 
 .evidence-count {
   margin: 16px 0 0;
-  color: var(--tg-theme-button-color, #2481cc);
+  color: var(--iln-brand);
   font-size: 20px;
   font-weight: 700;
 }
 
 .error-text {
-  color: var(--tg-theme-destructive-text-color, #d93025);
+  color: var(--iln-danger-text);
 }
 
 @media (max-width: 480px) {
