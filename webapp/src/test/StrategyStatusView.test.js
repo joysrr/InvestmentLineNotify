@@ -25,11 +25,10 @@ const mockComponents = vi.hoisted(() => ({
       '<div class="threshold-item" data-testid="threshold-item"><slot /></div>',
     props: ["label", "value", "unit"],
   },
-  BudgetItem: {
-    name: "BudgetItem",
-    template:
-      '<div class="budget-item" data-testid="budget-item"><slot /></div>',
-    props: ["label", "value", "unit"],
+  StatCard: {
+    name: "StatCard",
+    template: '<div class="stat-card" data-testid="stat-card"><slot /></div>',
+    props: ["label", "value", "unit", "decimals"],
   },
   LifecycleItem: {
     name: "LifecycleItem",
@@ -70,8 +69,8 @@ vi.mock("../components/dashboard/AllocationTier.vue", () => ({
 vi.mock("../components/dashboard/ThresholdItem.vue", () => ({
   default: mockComponents.ThresholdItem,
 }));
-vi.mock("../components/dashboard/BudgetItem.vue", () => ({
-  default: mockComponents.BudgetItem,
+vi.mock("@/components/common/StatCard.vue", () => ({
+  default: mockComponents.StatCard,
 }));
 vi.mock("../components/dashboard/LifecycleItem.vue", () => ({
   default: mockComponents.LifecycleItem,
@@ -228,7 +227,7 @@ describe("StrategyStatusView", () => {
 
   it("Budget Priority 區塊應存在", async () => {
     await flushPromises();
-    const budgetItems = wrapper.findAll("[data-testid='budget-item']");
+    const budgetItems = wrapper.findAll("[data-testid='stat-card']");
     expect(budgetItems.length).toBe(5);
   });
 

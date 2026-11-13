@@ -240,11 +240,11 @@
           </div>
           <div class="budget-card" :class="{ limited: health.budget.isLimited }">
             <div class="budget-grid">
-              <BudgetItem label="每日總可用" :value="health.budget.details.dailyAvailable" unit="元" />
-              <BudgetItem label="Baseline 預留" :value="health.budget.details.dailyDcaReserve" unit="元" />
-              <BudgetItem label="Tactical 可用池" :value="health.budget.details.tacticalPool" unit="元" />
-              <BudgetItem label="當前請求" :value="health.budget.details.poolAmount" unit="元" />
-              <BudgetItem label="實際允許" :value="health.budget.allowedAmount" unit="元" />
+              <StatCard label="每日總可用" :value="health.budget.details.dailyAvailable" unit="元" decimals="0" />
+              <StatCard label="Baseline 預留" :value="health.budget.details.dailyDcaReserve" unit="元" decimals="0" />
+              <StatCard label="Tactical 可用池" :value="health.budget.details.tacticalPool" unit="元" decimals="0" />
+              <StatCard label="當前請求" :value="health.budget.details.poolAmount" unit="元" decimals="0" />
+              <StatCard label="實際允許" :value="health.budget.allowedAmount" unit="元" decimals="0" />
             </div>
             <div class="budget-reason" v-if="health.budget.isLimited">
               <span class="reason-icon">⚠️</span>
@@ -303,7 +303,7 @@ import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import ScoreBar from "../components/dashboard/ScoreBar.vue";
 import AllocationTier from "../components/dashboard/AllocationTier.vue";
 import ThresholdItem from "../components/dashboard/ThresholdItem.vue";
-import BudgetItem from "../components/dashboard/BudgetItem.vue";
+import StatCard from "@/components/common/StatCard.vue";
 import LifecycleItem from "../components/dashboard/LifecycleItem.vue";
 import RiskItem from "../components/dashboard/RiskItem.vue";
 import MetricItem from "../components/dashboard/MetricItem.vue";
