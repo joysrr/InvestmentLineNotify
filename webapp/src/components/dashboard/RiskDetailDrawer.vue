@@ -17,7 +17,7 @@
 
     <div class="drawer-body">
       <!-- 1. 當前維持率與安全緩衝 -->
-      <div class="metric-row">
+      <ContentCard variant="flat" padding="sm" radius="md">
         <div class="row-left">
           <span class="row-label">質押整戶維持率</span>
           <span class="row-desc">追繳警戒門檻 {{ warningThreshold }}%</span>
@@ -26,10 +26,10 @@
           <span class="row-val text-ok">{{ Math.round(Number(marginRatio) || 0) }}%</span>
           <span class="row-tag text-ok">耐跌空間 {{ dropBufferPercent }}%</span>
         </div>
-      </div>
+      </ContentCard>
 
       <!-- 2. 總槓桿率 (Gross Leverage) -->
-      <div class="metric-row">
+      <ContentCard variant="flat" padding="sm" radius="md">
         <div class="row-left">
           <span class="row-label">當前總槓桿倍率</span>
           <span class="row-desc">硬上限 {{ Number(hardCapLeverage || 3).toFixed(2) }}x</span>
@@ -38,22 +38,23 @@
           <span class="row-val">{{ Number(grossLeverage || 1).toFixed(2) }}x</span>
           <span class="row-tag">常態上限 2.50x</span>
         </div>
-      </div>
+      </ContentCard>
 
       <!-- 3. 風控原則提示卡 -->
-      <div class="risk-info-card">
+      <ContentCard variant="outlined" padding="md" radius="lg">
         <div class="info-title">💡 質押與槓桿風控原則</div>
         <ul class="info-list">
           <li><strong>P0 優先級防守</strong>：維持率低於 {{ warningThreshold }}% 即刻停止戰術加碼，啟動補保或減碼。</li>
           <li><strong>利息配對倉</strong>：00740B 債券部位作為利息現金流壓艙石，不因短期波動調倉。</li>
           <li><strong>單日撥款上限</strong>：單日戰術借貸額度嚴格限制在 5% 內，防止過度追高。</li>
         </ul>
-      </div>
+      </ContentCard>
     </div>
   </el-drawer>
 </template>
 
 <script setup>
+import ContentCard from "@/components/common/ContentCard.vue";
 defineProps({
   visible: {
     type: Boolean,
@@ -109,13 +110,12 @@ defineEmits(["update:visible"]);
   padding: 8px 0;
 }
 
+/* metric-row (frame styling handled by ContentCard) */
 .metric-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: var(--iln-surface);
+  gap: 8px;
 }
 
 .row-left {
@@ -125,13 +125,13 @@ defineEmits(["update:visible"]);
 }
 
 .row-label {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   color: var(--iln-text);
 }
 
 .row-desc {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 
@@ -143,13 +143,13 @@ defineEmits(["update:visible"]);
 }
 
 .row-val {
-  font-size: 15px;
+  font-size: var(--iln-font-base);
   font-weight: 700;
   color: var(--iln-text);
 }
 
 .row-tag {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   font-weight: 600;
   color: var(--iln-hint);
 }
@@ -158,15 +158,15 @@ defineEmits(["update:visible"]);
   color: var(--iln-ok-text);
 }
 
+/* risk-info-card (frame styling handled by ContentCard) */
 .risk-info-card {
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(37, 99, 235, 0.05);
-  border: 1px dashed rgba(37, 99, 235, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .info-title {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   font-weight: 700;
   color: var(--iln-brand);
   margin-bottom: 6px;
@@ -175,7 +175,7 @@ defineEmits(["update:visible"]);
 .info-list {
   margin: 0;
   padding-left: 16px;
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   line-height: 1.6;
   color: var(--iln-text);
 }
