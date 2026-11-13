@@ -17,7 +17,7 @@
           class="cockpit-flash"
           title="VIX 短路保護生效"
         >
-          ⚡
+          <Icon name="trigger" size="sm" color="var(--iln-warn)" />
         </span>
       </div>
       <div class="cockpit-title" :class="regimeLevel?.textClass">
@@ -50,6 +50,7 @@
 import { computed } from "vue";
 import ContentCard from "@/components/common/ContentCard.vue";
 import StatCard from "@/components/common/StatCard.vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   regimeLevel: {
