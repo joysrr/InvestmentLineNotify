@@ -1,5 +1,6 @@
 <template>
-  <div class="extreme-radar-container">
+  <ContentCard variant="outlined" padding="sm" radius="md">
+    <div class="extreme-radar-container">
     <!-- 無資料時提示 -->
     <div v-if="!leadingIndicators" class="empty-radar-bar">
       🛡️ 極端雷達與防禦層：暫無雷達數據
@@ -110,34 +111,13 @@
           <div class="section-subtitle">🎯 即時防禦行動紀律</div>
           <div class="discipline-grid">
             <!-- 00675L 行動 -->
-            <div class="discipline-card" :class="{ 'card-freeze': stateMachine.freeze00675L }">
-              <span class="dc-label">00675L (2x槓桿)</span>
-              <span v-if="stateMachine.freeze00675L" class="dc-status text-danger">
-                🚫 凍結禁止加碼
-              </span>
-              <span v-else class="dc-status text-success">
-                ✅ 允許加碼
-              </span>
-            </div>
+            <StatCard size="sm" :framed="false" align="left" label="00675L (2x槓桿)" :value="stateMachine.freeze00675L ? '🚫 凍結禁止加碼' : '✅ 允許加碼'" :status="stateMachine.freeze00675L ? 'danger' : 'ok'" />
 
             <!-- 0050 行動 -->
-            <div class="discipline-card">
-              <span class="dc-label">0050 (原型加碼)</span>
-              <span v-if="stateMachine.allowLeft0050" class="dc-status text-success">
-                ✅ 允許低接
-              </span>
-              <span v-else class="dc-status text-muted">
-                ⏸️ 暫停加碼
-              </span>
-            </div>
+            <StatCard size="sm" :framed="false" align="left" label="0050 (原型加碼)" :value="stateMachine.allowLeft0050 ? '✅ 允許低接' : '⏸️ 暫停加碼'" :status="stateMachine.allowLeft0050 ? 'ok' : 'neutral'" />
 
             <!-- P0 定期定額 -->
-            <div class="discipline-card card-p0">
-              <span class="dc-label">P0 定期定額</span>
-              <span class="dc-status text-success">
-                🟢 正常扣款 (最高豁免)
-              </span>
-            </div>
+            <StatCard size="sm" :framed="false" align="left" label="P0 定期定額" value="🟢 正常扣款 (最高豁免)" status="ok" />
 
             <!-- 現金曝險分析 -->
             <CashExposureWidget v-if="cashExposureAnalysis" :analysis="cashExposureAnalysis" />
@@ -146,10 +126,13 @@
       </div>
     </div>
   </div>
+  </ContentCard>
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
+import ContentCard from "@/components/common/ContentCard.vue";
+import StatCard from "@/components/common/StatCard.vue";
 import CashExposureWidget from "./CashExposureWidget.vue";
 
 const props = defineProps({
