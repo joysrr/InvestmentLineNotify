@@ -13,7 +13,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "lint": "eslint . --ext .js,.mjs,.vue"
+    "lint": "eslint . --ext .js,.mjs,.vue && node scripts/check-no-hex.mjs",
+    "lint:tokens": "node scripts/check-no-hex.mjs"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
