@@ -18,7 +18,7 @@
 
     <!-- 槓桿儀表板 -->
     <div class="leverage-section" v-if="targetLeverage != null || currentLeverage != null">
-      <span class="section-title">📊 槓桿儀表板</span>
+      <span class="section-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 槓桿儀表板</span>
       <div class="metric-grid">
         <div class="metric-card">
           <StatCard size="sm" :framed="false" align="center" label="目標槓桿" :value="targetLeverage" format="number" :decimals="2" unit="x" />
@@ -61,6 +61,7 @@
 import { computed } from "vue";
 import ContentCard from "@/components/common/ContentCard.vue";
 import StatCard from "@/components/common/StatCard.vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   analysis: {
