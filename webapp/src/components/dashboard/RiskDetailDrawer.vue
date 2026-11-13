@@ -10,7 +10,7 @@
   >
     <template #header>
       <div class="drawer-header-title">
-        <span class="drawer-icon">🛡️</span>
+        <span class="drawer-icon"><Icon name="shield" size="sm" color="var(--iln-brand)" /></span>
         <h3>資產風控與維持率明細</h3>
       </div>
     </template>
@@ -42,7 +42,7 @@
 
       <!-- 3. 風控原則提示卡 -->
       <ContentCard variant="outlined" padding="md" radius="lg">
-        <div class="info-title">💡 質押與槓桿風控原則</div>
+        <div class="info-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 質押與槓桿風控原則</div>
         <ul class="info-list">
           <li><strong>P0 優先級防守</strong>：維持率低於 {{ warningThreshold }}% 即刻停止戰術加碼，啟動補保或減碼。</li>
           <li><strong>利息配對倉</strong>：00740B 債券部位作為利息現金流壓艙石，不因短期波動調倉。</li>
@@ -55,6 +55,7 @@
 
 <script setup>
 import ContentCard from "@/components/common/ContentCard.vue";
+import Icon from "@/components/common/Icon.vue";
 defineProps({
   visible: {
     type: Boolean,
