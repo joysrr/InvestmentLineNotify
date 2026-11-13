@@ -2,13 +2,14 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import MarketDetailDrawer from "./MarketDetailDrawer.vue";
 import ContentCard from "@/components/common/ContentCard.vue";
+import Icon from "@/components/common/Icon.vue";
 
 const baseProps = {
   visible: true,
   vix: "18.5",
   pbPrValue: "45",
   pbPrLevel: { label: "合理", textClass: "" },
-  lightEmoji: "🟢",
+  lightEmoji: "ok",
   lightText: "綠燈",
   marginChange5d: 2.5,
   marginOverheated: false,
@@ -67,7 +68,7 @@ describe("MarketDetailDrawer.vue", () => {
       props: baseProps,
       ...mountOpts,
     });
-    expect(wrapper.text()).toContain("🟢");
+    expect(wrapper.findComponent(Icon).exists()).toBe(true);
   });
 
   it("顯示底部雷達連結", () => {

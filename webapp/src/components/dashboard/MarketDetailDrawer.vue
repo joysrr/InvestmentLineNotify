@@ -10,7 +10,7 @@
   >
     <template #header>
       <div class="drawer-header-title">
-        <span class="drawer-icon">🌐</span>
+        <span class="drawer-icon"><Icon name="default" size="sm" color="var(--iln-hint)" /></span>
         <h3>市場總經環境明細</h3>
       </div>
     </template>
@@ -46,7 +46,7 @@
           <span class="row-desc">國發會總體景氣狀態</span>
         </div>
         <div class="row-right">
-          <span class="row-val">{{ lightEmoji }}</span>
+          <span class="row-val"><Icon :name="lightEmoji" size="sm" /></span>
           <span class="row-tag">{{ lightText }}</span>
         </div>
       </ContentCard>
@@ -73,13 +73,15 @@
         class="drawer-footer-link"
         @click="$emit('update:visible', false)"
       >
-        🌐 查看完整市場雷達 →
+        <Icon name="default" size="sm" color="var(--iln-hint)" /> 查看完整市場雷達 →
       </router-link>
     </div>
   </el-drawer>
 </template>
 
 <script setup>
+import Icon from "@/components/common/Icon.vue";
+
 defineProps({
   visible: {
     type: Boolean,
@@ -99,7 +101,7 @@ defineProps({
   },
   lightEmoji: {
     type: String,
-    default: "🟢",
+    default: "ok",
   },
   lightText: {
     type: String,
