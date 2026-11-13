@@ -8,7 +8,7 @@
         <div class="sk sk-sub"></div>
       </div>
     </div>
-    <div v-else-if="error" class="inline-error">⚠️ 快照載入失敗</div>
+    <div v-else-if="error" class="inline-error"><Icon name="danger" size="sm" color="var(--iln-danger)" /> 快照載入失敗</div>
     <div v-else class="snapshot-grid snapshot-grid--3">
       <!-- Regime / VIX -->
       <div class="snapshot-card" :class="regimeLevel.cardClass">
@@ -18,7 +18,7 @@
         }}</span>
         <span class="snap-sub" :class="regimeLevel.textClass">
           {{ regimeLevel.label }}
-          <span v-if="vixOverrideActive" title="VIX 短路保護生效">⚡</span>
+          <span v-if="vixOverrideActive" title="VIX 短路保護生效"><Icon name="trigger" size="sm" color="var(--iln-warn)" /></span>
         </span>
         <span v-if="regimeLevel.subLabel" class="snap-hint">
           {{ regimeLevel.subLabel }}
@@ -44,6 +44,7 @@
 
 <script setup>
 import ContentCard from "@/components/common/ContentCard.vue";
+import Icon from "@/components/common/Icon.vue";
 
 defineProps({
   status: Object,
