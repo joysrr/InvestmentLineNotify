@@ -129,7 +129,7 @@ const lineStyleHeight = computed(() => {
   width: 100%;
 }
 .skeleton-line {
-  background: var(--el-skeleton-color, #f2f2f2);
+  background: var(--el-skeleton-color);
   border-radius: 4px;
   animation: skeleton-loading 1.4s ease infinite;
 }

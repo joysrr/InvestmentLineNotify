@@ -38,18 +38,18 @@ const emit = defineEmits(["retry"]);
   justify-content: center;
   padding: 32px 16px;
   text-align: center;
-  color: var(--color-text-secondary, #909399);
+  color: var(--color-text-secondary);
 }
 
 .error-view__icon {
-  color: var(--color-danger, #f56c6c);
+  color: var(--color-danger);
   margin-bottom: 12px;
 }
 
 .error-view__title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--color-text-primary, #303133);
+  color: var(--color-text-primary);
   margin-bottom: 6px;
 }
 

@@ -111,9 +111,9 @@ onUnmounted(clearPollTimer);
 <style scoped>
 .deployment-control {
   padding: 16px;
-  border: 1px solid var(--el-border-color-lighter, #ebeef5);
+  border: 1px solid var(--el-border-color-lighter);
   border-radius: 10px;
-  background: var(--el-bg-color, #fff);
+  background: var(--el-bg-color, var(--iln-bg));
 }
 
 .deployment-heading {
@@ -130,7 +130,7 @@ onUnmounted(clearPollTimer);
 
 .deployment-description {
   margin: 6px 0 0;
-  color: var(--el-text-color-secondary, #909399);
+  color: var(--el-text-color-secondary);
   font-size: 12px;
 }
 
@@ -140,8 +140,8 @@ onUnmounted(clearPollTimer);
   padding: 0 14px;
   border: 0;
   border-radius: 6px;
-  background: var(--el-color-danger, #f56c6c);
-  color: var(--tg-theme-text-color, #fff);
+  background: var(--el-color-danger);
+  color: var(--iln-text);
   cursor: pointer;
 }
 
@@ -157,16 +157,16 @@ onUnmounted(clearPollTimer);
 
 .status-skipped,
 .status-completed {
-  color: var(--el-color-success, #67c23a);
+  color: var(--el-color-success);
 }
 
 .status-failed,
 .status-idle {
-  color: var(--el-color-danger, #f56c6c);
+  color: var(--el-color-danger);
 }
 
 .status-queued,
 .status-running {
-  color: var(--el-color-warning, #e6a23c);
+  color: var(--el-color-warning);
 }
 </style>

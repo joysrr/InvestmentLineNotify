@@ -40,8 +40,8 @@ const reloadPage = () => {
 }
 
 .auth-modal-card {
-  background-color: var(--tg-theme-bg-color, #ffffff);
-  color: var(--tg-theme-text-color, #222222);
+  background-color: var(--iln-bg);
+  color: var(--iln-text);
   border-radius: 16px;
   padding: 24px;
   max-width: 320px;
@@ -75,7 +75,7 @@ const reloadPage = () => {
 
 .modal-body {
   font-size: 14px;
-  color: var(--tg-theme-hint-color, #666666);
+  color: var(--iln-hint);
   line-height: 1.5;
   margin-bottom: 20px;
 }
@@ -83,8 +83,8 @@ const reloadPage = () => {
 .modal-btn {
   width: 100%;
   padding: 12px;
-  background-color: var(--tg-theme-button-color, #2481cc);
-  color: var(--tg-theme-button-text-color, #ffffff);
+  background-color: var(--iln-brand);
+  color: var(--iln-text-on-brand);
   border: none;
   border-radius: 10px;
   font-size: 15px;

@@ -66,8 +66,8 @@ defineProps({
 .sk-card {
   padding: 16px;
   border-radius: 8px;
-  background: var(--color-bg-card, #fff);
-  border: 1px solid var(--color-border, #ebeef5);
+  background: var(--color-bg-card, var(--iln-bg));
+  border: 1px solid var(--color-border);
 }
 
 .sk-line {
@@ -75,9 +75,9 @@ defineProps({
   border-radius: 4px;
   background: linear-gradient(
     90deg,
-    var(--color-skeleton-base, #f0f2f5) 25%,
-    var(--color-skeleton-shine, #e6e8eb) 37%,
-    var(--color-skeleton-base, #f0f2f5) 63%
+    var(--color-skeleton-base) 25%,
+    var(--color-skeleton-shine) 37%,
+    var(--color-skeleton-base) 63%
   );
   background-size: 400% 100%;
   animation: sk-shimmer 1.4s ease infinite;
@@ -110,7 +110,7 @@ defineProps({
   height: 40px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: var(--color-skeleton-base, #f0f2f5);
+  background: var(--color-skeleton-base);
 }
 
 .sk-list-content {
@@ -122,9 +122,9 @@ defineProps({
   border-radius: 8px;
   background: linear-gradient(
     90deg,
-    var(--color-skeleton-base, #f0f2f5) 25%,
-    var(--color-skeleton-shine, #e6e8eb) 37%,
-    var(--color-skeleton-base, #f0f2f5) 63%
+    var(--color-skeleton-base) 25%,
+    var(--color-skeleton-shine) 37%,
+    var(--color-skeleton-base) 63%
   );
   background-size: 400% 100%;
   animation: sk-shimmer 1.4s ease infinite;

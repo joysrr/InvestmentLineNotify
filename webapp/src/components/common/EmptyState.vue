@@ -81,7 +81,7 @@ const props = defineProps({
   // Icon 顏色
   iconColor: {
     type: String,
-    default: "var(--tg-theme-hint-color, #909399)",
+    default: "var(--iln-hint)",
   },
   // 行動按鈕文字
   actionText: {
@@ -134,12 +134,12 @@ export default {
 .empty-title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--el-text-color-primary, #303133);
+  color: var(--el-text-color-primary);
   margin-bottom: 4px;
 }
 .empty-message {
   font-size: 14px;
-  color: var(--el-text-color-secondary, #909399);
+  color: var(--el-text-color-secondary);
 }
 .empty-emoji {
   font-size: 64px;
