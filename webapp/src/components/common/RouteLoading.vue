@@ -20,23 +20,23 @@
   justify-content: center;
   height: 100%;
   padding: 40px 16px;
-  color: var(--iln-hint, var(--tg-theme-hint-color, #999));
-  background: var(--iln-surface, var(--tg-theme-secondary-bg-color, #f5f5f5));
+  color: var(--iln-hint);
+  background: var(--iln-surface);
 }
 
 .route-loading__spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid var(--iln-border-default, rgba(0, 0, 0, 0.1));
-  border-top-color: var(--iln-brand, var(--tg-theme-button-color, #2481cc));
+  border: 3px solid var(--iln-border-default);
+  border-top-color: var(--iln-brand);
   border-radius: 50%;
   animation: routeLoadingSpin 0.8s linear infinite;
   margin-bottom: 12px;
 }
 
 .route-loading__text {
-  font-size: 14px;
-  color: var(--iln-text, var(--tg-theme-text-color, #000));
+  font-size: var(--iln-font-base);
+  color: var(--iln-text);
 }
 
 @keyframes routeLoadingSpin {

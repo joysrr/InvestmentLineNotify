@@ -6,10 +6,17 @@
 
 :root {
   /* ── 品牌色（單一識別色） ── */
-  --iln-brand: #2481cc;
+  --iln-brand: var(--tg-theme-button-color, #2481cc);
   --iln-brand-hover: #1c6699;
   --iln-brand-soft: rgba(36, 129, 204, 0.08);
   --iln-brand-strong: rgba(36, 129, 204, 0.15);
+
+  /* 新增：Telegram 主題文字與背景 */
+  --iln-bg: var(--tg-theme-bg-color, #ffffff);
+  --iln-text: var(--tg-theme-text-color, #222222);
+  --iln-hint: var(--tg-theme-hint-color, #999999);
+  --iln-link: var(--tg-theme-link-color, #2481cc);
+  --iln-secondary-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);
 
   /* ── 語意色（狀態用） ── */
   --iln-ok: #10b981;
@@ -36,7 +43,8 @@
   --iln-border-strong: rgba(0, 0, 0, 0.15);
 
   /* ── 中性表面（卡片/區塊背景） ── */
-  --iln-surface: #f5f5f5;
+  --iln-surface: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  --iln-surface-alt: #ebebeb;
 
   /* ── 等待/中性狀態 ── */
   --iln-wait-bg: #f3e5f5;
@@ -109,24 +117,24 @@
   --iln-touch-comfort: 48px;
 }
 
-/* 深色模式覆寫（Telegram 深色主題時） */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --iln-brand-soft: rgba(36, 129, 204, 0.15);
-    --iln-brand-strong: rgba(36, 129, 204, 0.25);
-    --iln-ok-bg: rgba(16, 185, 129, 0.15);
-    --iln-warn-bg: rgba(245, 158, 11, 0.15);
-    --iln-danger-bg: rgba(239, 68, 68, 0.15);
-    --iln-info-bg: rgba(59, 130, 246, 0.15);
-    --iln-ok-text: #34d399;
-    --iln-warn-text: #fbbf24;
-    --iln-danger-text: #f87171;
-    --iln-info-text: #60a5fa;
-    --iln-border-subtle: rgba(255, 255, 255, 0.08);
-    --iln-border-default: rgba(255, 255, 255, 0.12);
-    --iln-border-strong: rgba(255, 255, 255, 0.18);
-    --iln-surface: #1c1c1d;
-  }
+/* 深色模式覆寫（由 useTelegram.syncSchemeAttribute 寫入 data-tg-scheme） */
+:root[data-tg-scheme="dark"] {
+  --iln-brand-hover: #4aa3e8;
+  --iln-brand-soft: rgba(36, 129, 204, 0.15);
+  --iln-brand-strong: rgba(36, 129, 204, 0.25);
+  --iln-ok-bg: rgba(16, 185, 129, 0.15);
+  --iln-warn-bg: rgba(245, 158, 11, 0.15);
+  --iln-danger-bg: rgba(239, 68, 68, 0.15);
+  --iln-info-bg: rgba(59, 130, 246, 0.15);
+  --iln-ok-text: #34d399;
+  --iln-warn-text: #fbbf24;
+  --iln-danger-text: #f87171;
+  --iln-info-text: #60a5fa;
+  --iln-border-subtle: rgba(255, 255, 255, 0.08);
+  --iln-border-default: rgba(255, 255, 255, 0.12);
+  --iln-border-strong: rgba(255, 255, 255, 0.18);
+  --iln-surface: #1c1c1d;
+  --iln-surface-alt: #262628;
 }
 
 /* ── Spinner 統一規格（§3.3） ── */
