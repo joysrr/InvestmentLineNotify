@@ -1,8 +1,11 @@
 <template>
-  <div
-    class="cockpit-card"
+  <ContentCard
+    variant="outlined"
+    padding="lg"
+    radius="lg"
+    clickable
     :class="shieldStatus.cardClass"
-    @click="$emit('open-drawer')"
+    @click="emit('open-drawer')"
     data-testid="portfolio-shield-card"
   >
     <div class="cockpit-left">
@@ -35,11 +38,12 @@
         <span class="chevron">❯</span>
       </div>
     </div>
-  </div>
+  </ContentCard>
 </template>
 
 <script setup>
 import { computed } from "vue";
+import ContentCard from "@/components/common/ContentCard.vue";
 
 const props = defineProps({
   marginRatio: {
@@ -56,7 +60,7 @@ const props = defineProps({
   },
 });
 
-defineEmits(["open-drawer"]);
+const emit = defineEmits(["open-drawer"]);
 
 const numMargin = computed(() => Number(props.marginRatio) || 0);
 
@@ -116,135 +120,74 @@ function formatLeverage(val) {
 
 <style scoped>
 .cockpit-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: var(--iln-bg);
-  border: 1px solid var(--iln-surface);
-  margin-bottom: 12px;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  user-select: none;
+  /* 佈局由 ContentCard 提供 */
 }
-
-.cockpit-card:active {
-  transform: scale(0.985);
-}
-
 .cockpit-left {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
-
 .cockpit-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
 }
-
 .cockpit-tag {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
-
 .status-badge {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.05);
+  font-size: var(--iln-font-xs);
+  padding: 2px 6px;
+  border-radius: var(--iln-radius-full);
+  background: var(--iln-surface);
 }
-
 .cockpit-title {
-  font-size: 20px;
+  font-size: var(--iln-font-xl);
   font-weight: 700;
-  line-height: 1.2;
+  color: var(--iln-text);
 }
-
 .cockpit-sub {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
-  margin-top: 2px;
 }
-
 .cockpit-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 8px;
-  width: 90px;
 }
-
 .shield-meter {
-  width: 100%;
-}
-
-.meter-track {
-  width: 100%;
-  height: 6px;
+  width: 120px;
+  height: 8px;
   background: var(--iln-surface);
-  border-radius: 3px;
+  border-radius: var(--iln-radius-full);
   overflow: hidden;
 }
-
+.meter-track {
+  width: 100%;
+  height: 100%;
+}
 .meter-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: var(--iln-radius-full);
   transition: width 0.3s ease;
 }
-
-.fill-ok {
-  background: var(--iln-ok);
-}
-
-.fill-warn {
-  background: var(--iln-warn);
-}
-
-.fill-danger {
-  background: var(--iln-danger);
-}
-
+.meter-fill.fill-ok { background: var(--iln-ok); }
+.meter-fill.fill-warn { background: var(--iln-warn); }
+.meter-fill.fill-danger { background: var(--iln-danger); }
 .cockpit-action {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--iln-brand);
+  margin-top: 12px;
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
 }
-
+.drawer-hint {
+  display: block;
+  margin-bottom: 4px;
+}
 .chevron {
-  font-size: 10px;
-}
-
-.card-ok {
-  border-left: 5px solid var(--iln-ok);
-}
-
-.card-warn {
-  border-left: 5px solid var(--iln-warn);
-}
-
-.card-danger {
-  border-left: 5px solid var(--iln-danger);
-}
-
-.text-ok {
-  color: var(--iln-ok-text);
-}
-
-.text-warn {
-  color: var(--iln-warn-text);
-}
-
-.text-danger {
-  color: var(--iln-danger-text);
+  font-size: var(--iln-font-sm);
 }
 </style>
