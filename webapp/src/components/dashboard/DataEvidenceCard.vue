@@ -1,8 +1,9 @@
 <template>
-  <section
-    class="data-evidence-card"
+  <ContentCard
+    variant="outlined"
+    padding="md"
+    radius="lg"
     data-testid="data-evidence-card"
-    aria-labelledby="data-evidence-title"
   >
     <div class="card-header">
       <div>
@@ -33,7 +34,7 @@
         產生時間：{{ report.generatedAt }}
       </p>
     </template>
-  </section>
+  </ContentCard>
 </template>
 
 <script setup>
@@ -107,10 +108,7 @@ onMounted(async () => {
 
 <style scoped>
 .data-evidence-card {
-  padding: 16px;
-  border-radius: 12px;
-  background: var(--iln-bg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  /* 佈局由 ContentCard 提供，此處僅保留必要的自定義樣式 */
 }
 
 .card-header {
@@ -123,7 +121,7 @@ onMounted(async () => {
 .card-header h3 {
   margin: 0;
   color: var(--iln-text);
-  font-size: 16px;
+  font-size: var(--iln-font-base);
   font-weight: 600;
 }
 
@@ -133,14 +131,14 @@ onMounted(async () => {
 .status-text {
   margin: 6px 0 0;
   color: var(--iln-hint);
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   line-height: 1.5;
 }
 
 .evidence-count {
   margin: 16px 0 0;
   color: var(--iln-brand);
-  font-size: 20px;
+  font-size: var(--iln-font-lg);
   font-weight: 700;
 }
 
