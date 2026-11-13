@@ -45,6 +45,12 @@
   </div>
 </template>
 
+<script>
+// 模組層級：模組載入時執行一次，所有實例共用計數器，
+// 避免 <script setup> 實例級變數導致同頁多實例 id 重複（R2）。
+let uidCounter = 0;
+</script>
+
 <script setup>
 import { ref, watch } from "vue";
 import Icon from "@/components/common/Icon.vue";
@@ -74,7 +80,6 @@ const props = defineProps({
 
 const emit = defineEmits(["update:expanded"]);
 
-let uidCounter = 0;
 const contentId = `collapsible-content-${++uidCounter}`;
 
 const isExpanded = ref(props.expanded);

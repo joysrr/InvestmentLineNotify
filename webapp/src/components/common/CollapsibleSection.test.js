@@ -119,4 +119,32 @@ describe("CollapsibleSection", () => {
     });
     expect(wrapper.find(".collapsible-indicator.is-open").exists()).toBe(true);
   });
+
+  /* ---------- R2: 同頁多實例 id 不重複 ---------- */
+
+  it("同頁多實例的 contentId 與 aria-controls 不重複", () => {
+    const wrapper = mount({
+      components: { CollapsibleSection },
+      template: `
+        <div>
+          <CollapsibleSection title="A" :expanded="true"><p>A</p></CollapsibleSection>
+          <CollapsibleSection title="B" :expanded="true"><p>B</p></CollapsibleSection>
+          <CollapsibleSection title="C" :expanded="true"><p>C</p></CollapsibleSection>
+        </div>`,
+    });
+
+    const contents = wrapper.findAll(".collapsible-content");
+    const headers = wrapper.findAll(".collapsible-header");
+
+    expect(contents).toHaveLength(3);
+    const ids = contents.map((n) => n.attributes("id"));
+    expect(new Set(ids).size).toBe(3);
+
+    const controls = headers.map((n) => n.attributes("aria-controls"));
+    expect(new Set(controls).size).toBe(3);
+
+    for (const c of controls) {
+      expect(ids).toContain(c);
+    }
+  });
 });
