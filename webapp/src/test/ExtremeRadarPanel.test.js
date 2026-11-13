@@ -112,29 +112,31 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
     });
 
     // 常態平穩指示
-    expect(wrapper.find(".radar-panel-idle").exists()).toBe(true);
+    expect(wrapper.find(".collapsible-section").exists()).toBe(true);
     expect(wrapper.text()).toContain("常態平穩");
-    expect(wrapper.text()).toContain("全數正常");
 
     // 預設折疊，不顯示雷達清單詳細卡片
-    expect(wrapper.find(".radar-detail-list").exists()).toBe(false);
+    expect(wrapper.find(".collapsible-content").exists()).toBe(false);
 
     // 點擊展開折疊
-    await wrapper.find(".radar-panel-header").trigger("click");
-    expect(wrapper.find(".radar-detail-list").exists()).toBe(true);
+    await wrapper.find(".toggle-btn").trigger("click");
+    expect(wrapper.find(".collapsible-content").exists()).toBe(true);
     expect(wrapper.text()).toContain("美股隔夜衝擊");
     expect(wrapper.text()).toContain("籌碼沉澱偵測");
   });
 
-  it("極端警報觸發時預設展開警報面板並清晰呈現行動紀律", () => {
+  it("極端警報觸發時預設展開警報面板並清晰呈現行動紀律", async () => {
     const wrapper = mount(ExtremeRadarPanel, {
       props: {
         leadingIndicators: triggeredLeadingIndicators,
       },
     });
 
+    // 等待 watch 將 isExpanded 設為 true (非 IDLE 狀態自動展開)
+    await wrapper.vm.$nextTick();
+
     // 警報狀態外觀
-    expect(wrapper.find(".radar-panel-alert").exists()).toBe(true);
+    expect(wrapper.find(".collapsible-section").exists()).toBe(true);
     expect(wrapper.text()).toContain("防禦層已啟動");
     expect(wrapper.text()).toContain("ACTIVE_DEFENSE");
 
@@ -202,7 +204,7 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
       },
     });
 
-    await wrapper.find(".radar-panel-header").trigger("click");
+    await wrapper.find(".toggle-btn").trigger("click");
     expect(wrapper.find(".radar-detail-list").exists()).toBe(true);
 
     // 應補充繁體中文雷達名稱，不可為空白
@@ -246,7 +248,7 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
       },
     });
 
-    await wrapper.find(".radar-panel-header").trigger("click");
+    await wrapper.find(".toggle-btn").trigger("click");
 
     expect(wrapper.text()).toContain("日盤到夜盤變化率");
     expect(wrapper.text()).toContain("非三大法人淨部位比率");
@@ -274,7 +276,7 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
       },
     });
 
-    await wrapper.find(".radar-panel-header").trigger("click");
+    await wrapper.find(".toggle-btn").trigger("click");
 
     expect(wrapper.text()).toContain("60 日乖離率");
     expect(wrapper.text()).toContain("資料不足");
@@ -289,7 +291,7 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
       },
     });
 
-    await wrapper.find(".radar-panel-header").trigger("click");
+    await wrapper.find(".toggle-btn").trigger("click");
 
     expect(wrapper.text()).toContain("監控狀態：IDLE");
     expect(wrapper.text()).toContain("隔夜衝擊");
@@ -318,7 +320,7 @@ describe("ExtremeRadarPanel (TDD RED-GREEN)", () => {
       },
     });
 
-    await wrapper.find(".radar-panel-header").trigger("click");
+    await wrapper.find(".toggle-btn").trigger("click");
 
     expect(wrapper.findAll(".mini-name")[0].text()).toBe("美股隔夜衝擊");
     expect(wrapper.findAll(".radar-code")[0].text()).toBe(

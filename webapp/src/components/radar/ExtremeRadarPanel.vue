@@ -11,18 +11,12 @@
       v-else-if="isIdle"
       class="radar-panel radar-panel-idle"
     >
-      <div class="radar-panel-header" @click="toggleExpanded">
-        <div class="header-left">
-          <span class="status-icon"><Icon name="shield" size="sm" /></span>
-          <span class="status-title">極端防禦狀態：</span>
-          <span class="status-badge badge-idle">常態平穩</span>
-          <span class="status-sub">監控狀態：IDLE（未觸發異常警報）</span>
-          <span class="status-summary">● 4 項指標監控中 · 全數正常</span>
-        </div>
-        <div class="header-right">
-          <span class="toggle-btn" data-testid="toggle-radar-btn">{{ isExpanded ? "▲ 收合" : "▼ 展開" }}</span>
-        </div>
-      </div>
+      <CollapsibleSection
+        title="極端防禦狀態：常態平穩 · 監控狀態：IDLE"
+        :expanded="isExpanded"
+        @update:expanded="isExpanded = $event"
+      >
+        <template #default>
 
       <!-- 常態展開檢視微型雷達詳細清單 -->
       <div v-if="isExpanded" class="radar-detail-list">
@@ -62,6 +56,8 @@
           </div>
         </div>
       </div>
+        </template>
+      </CollapsibleSection>
     </div>
 
     <!-- 極端警報觸發面板（ACTIVE_DEFENSE / CONTINUOUS_SHOCK / COOLDOWN） -->
@@ -70,19 +66,12 @@
       class="radar-panel radar-panel-alert"
       :class="`panel-severity-${maxSeverity.toLowerCase()}`"
     >
-      <div class="radar-panel-header" @click="toggleExpanded">
-        <div class="header-left">
-          <span class="status-icon"><Icon name="danger" size="sm" color="var(--iln-danger)" /></span>
-          <span class="status-title">防禦層已啟動：</span>
-          <span class="status-badge badge-active">{{ stateLabel }} ({{ stateMachine.state }})</span>
-          <span v-if="stateMachine.activeDays > 0" class="status-sub">
-            (第 {{ stateMachine.activeDays }} 天)
-          </span>
-        </div>
-        <div class="header-right">
-          <span class="toggle-btn" data-testid="toggle-radar-btn">{{ isExpanded ? "▲ 收合" : "▼ 展開" }}</span>
-        </div>
-      </div>
+      <CollapsibleSection
+        :title="`防禦層已啟動 · ${stateLabel} (${stateMachine.state})`"
+        :expanded="isExpanded"
+        @update:expanded="isExpanded = $event"
+      >
+        <template #default>
 
       <!-- 觸發雷達清單與行動紀律（預設展開） -->
       <div v-show="isExpanded" class="radar-alert-body">
@@ -124,6 +113,8 @@
           </div>
         </div>
       </div>
+        </template>
+      </CollapsibleSection>
     </div>
   </div>
   </ContentCard>
@@ -134,6 +125,7 @@ import { ref, computed } from "vue";
 import ContentCard from "@/components/common/ContentCard.vue";
 import StatCard from "@/components/common/StatCard.vue";
 import Icon from "@/components/common/Icon.vue";
+import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 import CashExposureWidget from "./CashExposureWidget.vue";
 
 const props = defineProps({
@@ -293,11 +285,6 @@ const isIdle = computed(() => {
 if (!isIdle.value) {
   isExpanded.value = true;
 }
-
-function toggleExpanded() {
-  isExpanded.value = !isExpanded.value;
-}
-
 function toggleRadarInfo(radarId) {
   openRadarInfo.value = openRadarInfo.value === radarId ? null : radarId;
 }

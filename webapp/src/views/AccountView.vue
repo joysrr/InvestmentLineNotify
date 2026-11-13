@@ -158,58 +158,56 @@
       </div>
 
       <div class="section">
-        <div class="section-header-row">
-          <h2 class="section-title"><Icon name="default" size="sm" color="var(--iln-hint)" /> 資料來源</h2>
-          <button
-            type="button"
-            class="toggle-btn"
-            @click="showSourcesDetail = !showSourcesDetail"
-          >
-            {{ showSourcesDetail ? "收合詳細" : "展開詳細" }}
-          </button>
-        </div>
-        <div class="sources-summary">
-          <span class="summary-item">總數：{{ sourceCount }} 個</span>
-          <span
-            class="summary-item"
-            :class="allHealthy ? 'text-ok' : 'text-warn'"
-          >
-            正常：{{ healthyCount }} 個
-          </span>
-        </div>
-        <div v-if="showSourcesDetail" class="source-grid">
-          <div
-            v-for="info in sourcesDisplay"
-            :key="info.key"
-            class="source-card"
-            :class="{
-              'source-ok': info.state === 'OK',
-              'source-fail': info.state === 'FAIL',
-              'source-stale': info.state === 'STALE',
-            }"
-          >
-            <div class="source-header">
-              <span class="source-name">{{ info.label }}</span>
+        <CollapsibleSection
+          title="資料來源"
+          :expanded="showSourcesDetail"
+          @update:expanded="showSourcesDetail = $event"
+        >
+          <template #default>
+            <div class="sources-summary">
+              <span class="summary-item">總數：{{ sourceCount }} 個</span>
               <span
-                class="source-badge"
-                :class="{
-                  'badge-ok': info.state === 'OK',
-                  'badge-fail': info.state === 'FAIL',
-                  'badge-stale': info.state === 'STALE',
-                }"
+                class="summary-item"
+                :class="allHealthy ? 'text-ok' : 'text-warn'"
               >
-                {{ info.state }}
+                正常：{{ healthyCount }} 個
               </span>
             </div>
-            <div class="source-time">{{ info.lastFetch }}</div>
-            <div v-if="info.ageLabel" class="source-age">
-              {{ info.ageLabel }}
+            <div class="source-grid">
+              <div
+                v-for="info in sourcesDisplay"
+                :key="info.key"
+                class="source-card"
+                :class="{
+                  'source-ok': info.state === 'OK',
+                  'source-fail': info.state === 'FAIL',
+                  'source-stale': info.state === 'STALE',
+                }"
+              >
+                <div class="source-header">
+                  <span class="source-name">{{ info.label }}</span>
+                  <span
+                    class="source-badge"
+                    :class="{
+                      'badge-ok': info.state === 'OK',
+                      'badge-fail': info.state === 'FAIL',
+                      'badge-stale': info.state === 'STALE',
+                    }"
+                  >
+                    {{ info.state }}
+                  </span>
+                </div>
+                <div class="source-time">{{ info.lastFetch }}</div>
+                <div v-if="info.ageLabel" class="source-age">
+                  {{ info.ageLabel }}
+                </div>
+                <div v-if="info.error" class="source-error">
+                  {{ info.error }}
+                </div>
+              </div>
             </div>
-            <div v-if="info.error" class="source-error">
-              {{ info.error }}
-            </div>
-          </div>
-        </div>
+          </template>
+        </CollapsibleSection>
       </div>
     </template>
   </div>
@@ -219,6 +217,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import Icon from "@/components/common/Icon.vue";
+import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
 import { usePortfolioSnapshots } from "../composables/usePortfolioSnapshots.js";
 import { waitReady } from "../composables/useTelegram.js";
