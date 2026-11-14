@@ -87,7 +87,7 @@
         >
       </div>
 
-      <EmptyState v-if="poolLoading" emoji="⏳" title="載入中..." />
+      <EmptyState v-if="poolLoading" title="載入中..." />
 
       <ErrorAlert v-else-if="poolError" :visible="true" :description="poolError" :show-retry="true" @retry="loadPool" />
 
