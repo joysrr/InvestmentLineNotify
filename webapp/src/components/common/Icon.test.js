@@ -51,4 +51,30 @@ describe("Icon.vue", () => {
     const svg = wrapper.find("svg");
     expect(svg.attributes("fill")).toBe("#ff0000");
   });
+
+  it("渲染 settings 圖示 (path 元素，非預設 fallback)", () => {
+    const wrapper = mount(Icon, { props: { name: "settings", size: "sm" } });
+    expect(wrapper.find("path").exists()).toBe(true);
+    expect(wrapper.find("svg").attributes("width")).toBe("16");
+  });
+
+  it("渲染 search 圖示 (path 元素，非預設 fallback)", () => {
+    const wrapper = mount(Icon, { props: { name: "search", size: "sm" } });
+    expect(wrapper.find("path").exists()).toBe(true);
+  });
+
+  it("渲染 info 圖示 (path 元素，非預設 fallback)", () => {
+    const wrapper = mount(Icon, { props: { name: "info", size: "sm" } });
+    expect(wrapper.find("path").exists()).toBe(true);
+  });
+
+  it("渲染 news 圖示 (path 元素，非預設 fallback)", () => {
+    const wrapper = mount(Icon, { props: { name: "news", size: "sm" } });
+    expect(wrapper.find("path").exists()).toBe(true);
+  });
+
+  it("渲染 wallet 圖示 (path 元素，非預設 fallback)", () => {
+    const wrapper = mount(Icon, { props: { name: "wallet", size: "sm" } });
+    expect(wrapper.find("path").exists()).toBe(true);
+  });
 });
