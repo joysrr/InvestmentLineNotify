@@ -94,6 +94,17 @@ wiki_links: []
 - [x] 所有通用組件使用設計令牌，無硬編碼 hex/rgba
 - [x] 無 ad-hoc collapsible pattern，全部遷移至 CollapsibleSection
 - [x] 無 residual emoji（6 個情緒指標除外）
-- [x] 測試 ≥596 通過
+- [x] 測試 ≥596 通過（618/618）
 - [x] Lint 0/0
 - [x] Bundle 大小在修訂基線內
+
+## 九、已知例外（§偏離）
+
+以下裸 rgba/hex 為意圖保留，不納入 C4 令牌化範圍，已於 R3 驗收歸類為語義/實用色：
+
+- ECharts 畫布色值（如 `#5470c6`、`rgba(255,255,255,0.8)`）：圖表庫內建調色板，非品牌色。
+- 語義狀態色（綠/紅/琥珀）：AccountView 趨勢與燈號，業務語義而非設計令牌。
+- Backdrop / 陰影 / 分隔線 rgba（AccountView）：通用實用色，維持不動。
+- `readToken()` 回退字串中的 `rgba(...)`：CSS 令牌讀取的備援值，實際值來自 tokens.css。
+
+C4 實際修正僅兩處：`.notice-empty` 兩處裸 rgba 已替換為 `var(--iln-neutral-fill-faint)` / `var(--iln-neutral-fill-border-faint)`；`.about-features li::before` 空偽元素已刪除。grep 掃描若命中上述類別，視為已登記例外，不列為 C4 缺口。

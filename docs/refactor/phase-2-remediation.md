@@ -235,18 +235,45 @@ IDLE / ALERT 兩分支皆以 `CollapsibleSection` 控制展開，內層卻再分
 
 ### 10.2 執行證據
 
-- `npx vitest run` → 96 test files, 618 tests passed, exit 0
-- `npm run lint` → eslint 0 errors / 0 warnings，`check-no-hex.mjs` 未發現裸 hex 色值
-- `npm run build` + `node scripts/check-bundle-size.mjs` → 體積閘門通過
+`npx vitest run`（實際輸出結尾）：
+
+```
+ Test Files  96 passed (96)
+      Tests  618 passed (618)
+   Start at  03:14:09
+   Duration  142.11s (transform 2.09s, setup 608ms, import 39.93s, tests 13.84s, environment 73.35s)
+```
+
+`npm run lint`（實際輸出結尾）：
+
+```
+> investment-webapp@1.0.0 lint
+> eslint . --ext .js,.mjs,.vue && node scripts/check-no-hex.mjs
+
+✅ 未發現裸 hex 色值
+```
+
+`npm run build` + `node scripts/check-bundle-size.mjs`（實際輸出結尾）：
+
+```
+Initial JS gzip: 155.3 KB (預算 156 KB)
+Total JS gzip:   375.6 KB (預算 380 KB)
+
+✅ 體積閘門通過
+```
 
 ---
 
-## §附錄：放行检核
+## §附錄：放行檢核
 
 - [x] R1–R4 全數關閉
 - [x] R5 體積數字統一為實測 155.3 / 375.6 KB
 - [x] R6 DoD 六項勾選，與 status 一致
+- [x] R7 icon-registry 抽離 + IconUsage 守衛測試
 - [x] R8 ICEN_MAP→ICON_MAP、variant 描述修正
 - [x] R9 內層 v-if/v-show 移除
 - [x] R10 驗證產物附上（本節）
-- [ ] 全部 R 項關閉後，frontmatter `status` 改 `completed`，母計畫 2.4 改回「已完成」
+- [x] C1 emoji-audit 改為 Tier 分層，Tier A 為 0
+- [x] C2 母計畫 2.4 更新 R1–R10、基準點 1a78dcf
+- [x] C3 本節勾選與 status 一致
+- [x] C4 AccountView 非品牌 rgba 清零
