@@ -79,4 +79,20 @@ describe("MarketRadarView", () => {
 
     wrapper.unmount();
   });
+
+  it("應在 StatCard 上方顯示掃描結論一行", async () => {
+    vi.mocked(fetchStatus).mockResolvedValue({
+      data: baseStatusData,
+    });
+    vi.mocked(fetchReports).mockResolvedValue([baseReportData]);
+
+    const wrapper = mount(MarketRadarView);
+    await flushPromises();
+
+    const scanLine = wrapper.find(".scan-conclusion");
+    expect(scanLine.exists()).toBe(true);
+    expect(scanLine.text()).toMatch(/項偏多、.*項偏空、.*項中性/);
+
+    wrapper.unmount();
+  });
 });

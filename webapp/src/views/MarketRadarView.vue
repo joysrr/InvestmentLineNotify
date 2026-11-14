@@ -45,6 +45,9 @@
         :analysis="leadingIndicators.cashExposureAnalysis"
       />
 
+      <!-- 掃描結論：N 項偏多、M 項偏空、K 項中性 -->
+      <div class="scan-conclusion">{{ scanConclusion }}</div>
+
       <!-- 美股區 -->
       <section class="section">
         <h3 class="section-title"><Icon name="radar" size="sm" /> 美股市場</h3>
@@ -433,6 +436,27 @@ const fxCard = computed(() => {
     return { cls: "card-ok", sub: "rc-sub--ok", label: "台幣升值", icon: "chart" };
   return { cls: "", sub: "rc-sub--neutral", label: "持平", icon: "default" };
 });
+
+// ── 掃描結論：統計 9 張 StatCard 的偏多 / 偏空 / 中性數量 ──
+const scanConclusion = computed(() => {
+  const statuses = [
+    cardClassToStatus(usVixCard.value.cls),
+    cardClassToStatus(spxCard.value.cls),
+    cardClassToStatus(cnnCard.value.cls),
+    cardClassToStatus(twVixCard.value.cls),
+    null, // 景氣燈號：固定 neutral，不計入 ok/danger
+    cardClassToStatus(marginCard.value.cls),
+    cardClassToStatus(peCard.value.cls),
+    cardClassToStatus(pbCard.value.cls),
+    cardClassToStatus(fxCard.value.cls),
+  ];
+
+  const bullish = statuses.filter((s) => s === "ok").length;
+  const bearish = statuses.filter((s) => s === "danger").length;
+  const neutral = statuses.length - bullish - bearish;
+
+  return `${bullish} 項偏多、${bearish} 項偏空、${neutral} 項中性`;
+});
 </script>
 
 <style scoped>
@@ -474,6 +498,17 @@ const fxCard = computed(() => {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
+}
+
+.scan-conclusion {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--iln-text);
+  padding: 8px 12px;
+  background: var(--iln-surface);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border-left: 3px solid var(--iln-brand);
 }
 
 .radar-card {
