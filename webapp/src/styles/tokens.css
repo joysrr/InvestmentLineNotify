@@ -31,6 +31,8 @@
   --iln-danger: #ef4444;
   --iln-info: #3b82f6;
   --iln-neutral: #94a3b8;
+  --iln-neutral-fill-faint: rgba(180, 180, 180, 0.06);
+  --iln-neutral-fill-border-faint: rgba(180, 180, 180, 0.2);
 
   /* ── 語意背景（卡片底色） ── */
   --iln-ok-bg: rgba(16, 185, 129, 0.1);
@@ -151,6 +153,8 @@
   --iln-brand-fill-light: rgba(54, 144, 220, 0.12);
   --iln-brand-fill-faint: rgba(54, 144, 220, 0.08);
   --iln-brand-fill-border: rgba(54, 144, 220, 0.18);
+  --iln-neutral-fill-faint: rgba(180, 180, 180, 0.06);
+  --iln-neutral-fill-border-faint: rgba(180, 180, 180, 0.2);
   --iln-ok-bg: rgba(16, 185, 129, 0.15);
   --iln-warn-bg: rgba(245, 158, 11, 0.15);
   --iln-danger-bg: rgba(239, 68, 68, 0.15);

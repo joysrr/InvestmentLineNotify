@@ -710,8 +710,8 @@ const allHealthy = computed(
   border: 1px solid var(--iln-brand-fill-border);
 }
 .notice-empty {
-  background: rgba(180, 180, 180, 0.06);
-  border-color: rgba(180, 180, 180, 0.2);
+  background: var(--iln-neutral-fill-faint);
+  border-color: var(--iln-neutral-fill-border-faint);
 }
 .notice-icon {
   font-size: 22px;
@@ -804,13 +804,6 @@ const allHealthy = computed(
   padding: 4px 0;
   padding-left: 18px;
   position: relative;
-}
-.about-features li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  color: var(--iln-brand);
-  font-weight: 700;
 }
 
 /* ── Color helpers ── */
