@@ -17,4 +17,10 @@ describe("Router 策略設定整合與重定向", () => {
     await router.push("/unknown-route");
     expect(router.currentRoute.value.path).toBe("/dashboard");
   });
+
+  it("/strategy-status 應重定向至 /dashboard?panel=strategy-status", async () => {
+    await router.push("/strategy-status");
+    expect(router.currentRoute.value.path).toBe("/dashboard");
+    expect(router.currentRoute.value.query.panel).toBe("strategy-status");
+  });
 });
