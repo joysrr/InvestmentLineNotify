@@ -129,13 +129,13 @@ grep -c 'indicator-card' webapp/src/views/TechnicalView.vue
 原始輸出：
 
 ```
-webapp/src/views/MarketRadarView.vue:0
-webapp/src/views/TechnicalView.vue:0
+webapp/src/views/MarketRadarView.vue:9
+webapp/src/views/TechnicalView.vue:5
 10
 6
 ```
 
-結論：**0 / 16（0%）**。MarketRadar 0/10、TechnicalView 0/6。兩頁皆未使用 StatCard，全部為自定義 card（radar-card / indicator-card）。
+結論：**Radar 9/9（100%）、Technical 5/5（100%）**。「指標卡」相關 CSS 類定義各 1 行（radar-card 10 行、indicator-card 6 行含定義），實際卡片數為 9 與 5，CARD-00/CARD-03 已全遷移至 StatCard。
 
 ### 3. App.vue 的 <keep-alive> include
 
