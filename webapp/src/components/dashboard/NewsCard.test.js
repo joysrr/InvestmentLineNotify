@@ -33,6 +33,30 @@ describe("NewsCard.vue", () => {
     expect(wrapper.text()).toContain("0050 今日開高走高");
   });
 
+  it("isFeatured 為 true 時在 news-header 顯示「精選」徽章", () => {
+    const wrapper = mount(NewsCard, {
+      props: { ...baseProps, isFeatured: true },
+    });
+    expect(wrapper.text()).toContain("精選");
+  });
+
+  it("isFeatured 未設定時不顯示「精選」徽章", () => {
+    const wrapper = mount(NewsCard, { props: baseProps });
+    expect(wrapper.text()).not.toContain("精選");
+  });
+
+  it("isPicked 為 true 時顯示「已入選精選」標記", () => {
+    const wrapper = mount(NewsCard, {
+      props: { ...baseProps, isPicked: true },
+    });
+    expect(wrapper.text()).toContain("已入選精選");
+  });
+
+  it("isPicked 未設定時不顯示「已入選精選」標記", () => {
+    const wrapper = mount(NewsCard, { props: baseProps });
+    expect(wrapper.text()).not.toContain("已入選精選");
+  });
+
   it("點擊卡片 emit article-click，攜帶文章物件", () => {
     const wrapper = mount(NewsCard, { props: baseProps });
     wrapper.find(".news-card").trigger("click");

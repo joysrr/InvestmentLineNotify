@@ -17,6 +17,10 @@
       </button>
     </div>
 
+    <p class="featured-note">
+      每日精選由系統依主題篩選，完整新聞請見新聞池
+    </p>
+
     <!-- ── 精選報告 tab ── -->
     <div v-if="activeTab === 'report'">
       <EmptyState v-if="reportLoading" title="載入中..." />
@@ -38,6 +42,7 @@
             v-for="(item, i) in reportNews.tw"
             :key="'tw-' + i"
             :article="item"
+            :is-featured="true"
             @article-click="openArticle"
         ></component>
         </div>
@@ -55,6 +60,7 @@
             v-for="(item, i) in reportNews.us"
             :key="'us-' + i"
             :article="item"
+            :is-featured="true"
             @article-click="openArticle"
         ></component>
         </div>
@@ -85,6 +91,7 @@
           :key="article.id"
           :article="article"
           :show-age-band="true"
+          :is-picked="matchFeatured(article, featuredNews)"
           @article-click="openArticle"
         ></component>
       </div>
@@ -96,7 +103,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { dedupeByUrl, categorizeRegion } from "@/utils/newsMatch.js";
+import { dedupeByUrl, categorizeRegion, matchFeatured } from "@/utils/newsMatch.js";
 import NewsCard from "@/components/dashboard/NewsCard.vue";
 import { fetchNews, fetchReportNews } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
@@ -119,6 +126,9 @@ const reportLoading = ref(false);
 const reportError = ref(null);
 const reportLoaded = ref(false);
 
+// 精選列表：供新聞池 tab 做 matchFeatured 比對，標記 isPicked
+const featuredNews = ref([]);
+
 async function loadReport() {
   reportLoading.value = true;
   reportError.value = null;
@@ -129,6 +139,7 @@ async function loadReport() {
       us: data?.us ?? [],
       generatedAt: data?.generatedAt ?? "",
     };
+    featuredNews.value = [...(data?.tw ?? []), ...(data?.us ?? [])];
   } catch (e) {
     reportError.value = e.message;
   } finally {

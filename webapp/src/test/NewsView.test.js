@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
 import NewsView from "../views/NewsView.vue";
+import NewsCard from "@/components/dashboard/NewsCard.vue";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import Icon from "@/components/common/Icon.vue";
 import { fetchNews, fetchReportNews } from "../api/index.js";
@@ -144,6 +145,70 @@ describe("NewsView", () => {
     expect(wrapper.findComponent(ErrorAlert).props("description")).toContain(
       "pool unavailable",
     );
+  });
+
+  it("報告 tab 卡片顯示「精選」徽章（isFeatured）", async () => {
+    fetchReportNews.mockResolvedValue({
+      tw: [
+        {
+          source: "TW News",
+          title: "台灣精選新聞",
+          summary: "摘要",
+          pubDate: "2026-08-17T08:00:00Z",
+          link: "https://example.com/tw",
+        },
+      ],
+      us: [],
+      generatedAt: "2026-08-17 08:00",
+    });
+    const wrapper = mountView();
+
+    await flushPromises();
+
+    expect(wrapper.findComponent(NewsCard).props("isFeatured")).toBe(true);
+    expect(wrapper.find(".news-badge").exists()).toBe(true);
+  });
+
+  it("頁首顯示精選說明文案", async () => {
+    fetchReportNews.mockResolvedValue({});
+    const wrapper = mountView();
+
+    await flushPromises();
+
+    expect(wrapper.text()).toContain(
+      "每日精選由系統依主題篩選，完整新聞請見新聞池",
+    );
+  });
+
+  it("新聞池 tab 命中精選列表的卡片顯示「已入選精選」（isPicked）", async () => {
+    const featured = [
+      {
+        source: "TW News",
+        title: "精選新聞",
+        link: "https://example.com/featured",
+      },
+    ];
+    fetchReportNews.mockResolvedValue({
+      tw: featured,
+      us: [],
+      generatedAt: "2026-08-17 08:00",
+    });
+    fetchNews.mockResolvedValueOnce([
+      {
+        id: "pool-1",
+        source: "Pool News",
+        title: "池中新聞",
+        pubDate: null,
+        link: "https://example.com/featured",
+      },
+    ]);
+    const wrapper = mountView();
+
+    await flushPromises();
+    await wrapper.findAll(".subtab-btn")[1].trigger("click");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("已入選精選");
   });
 });
 

@@ -51,3 +51,27 @@ export function isTaiwanMarket(article) {
 export function categorizeRegion(article) {
   return isTaiwanMarket(article) ? "tw" : "us";
 }
+
+/**
+ * 判斷 pool 文章是否已在精選列表中。
+ * 比對順序：link 優先、title 次之。
+ * @param {Object} poolArticle 池中文章
+ * @param {Array} featuredList 精選文章陣列
+ * @returns {boolean}
+ */
+export function matchFeatured(poolArticle, featuredList) {
+  if (!poolArticle || !Array.isArray(featuredList)) return false;
+
+  const poolLink = poolArticle.link || poolArticle.url;
+  const poolTitle = poolArticle.title;
+
+  return featuredList.some((f) => {
+    if (!f) return false;
+    const fLink = f.link || f.url;
+    const fTitle = f.title;
+
+    if (poolLink && fLink && poolLink === fLink) return true;
+    if (poolTitle && fTitle && poolTitle === fTitle) return true;
+    return false;
+  });
+}

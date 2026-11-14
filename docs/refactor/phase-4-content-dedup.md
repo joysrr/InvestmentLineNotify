@@ -1,6 +1,6 @@
 ---
 type: plan
-status: not-started
+status: in-progress
 last_updated: 2026-11-14
 owner: 開發者
 reviewer: 規劃者
@@ -27,8 +27,20 @@ tags:
 | 子卡    | 去重焦點            | 主要產出                                                            | 狀態   |
 | ------- | ------------------- | ------------------------------------------------------------------- | ------ |
 | CARD-01 | StrategyStatus 去重 | StrategyStatusSummary.vue、StrategyStatusPanel.vue、router redirect | 已完成 |
-| CARD-02 | News 資料源釐清     | NewsCard.vue、utils/newsMatch.js、NewsView.vue 改寫                 | 未開始 |
-| CARD-03 | 指標卡跨頁統一      | MarketRadarView.vue、TechnicalView.vue 遷移 StatCard                | 未開始 |
+| CARD-02 | News 資料源釐清     | NewsCard.vue、utils/newsMatch.js、NewsView.vue 改寫                 | 待驗收 |
+| CARD-03 | 指標卡跨頁統一      | MarketRadarView.vue、TechnicalView.vue 遷移 StatCard                | 待驗收 |
+
+### CARD-03 覆蓋率差異說明
+
+CARD-00 基準：`grep -c 'radar-card'` 得 10（含 CSS 類定義 1 行，實際卡片 9）；`grep -c 'indicator-card'` 得 6（含 CSS 類定義 1 行，實際卡片 5）。
+
+本次遷移：MarketRadarView.vue 9 張 radar-card → StatCard，TechnicalView.vue 5 張 indicator-card → StatCard，9 + 5 已全覆蓋。
+
+重新執行 grep 證據（已遷移，僅剩 CSS 類定義）：
+
+- `radar-card`：1 行（MarketRadarView.vue）
+- `indicator-card`：1 行（TechnicalView.vue）
+- `StatCard` 引用：MarketRadarView.vue 19 行、TechnicalView.vue 11 行
 
 ## 驗收（階段四）
 
@@ -63,7 +75,7 @@ tags:
 | `loading`                    | 外部傳入                     | 顯示 skeleton-list                 | 顯示 skeleton-list             |
 | `error`                      | 外部傳入                     | 顯示 inline-error 並隱藏內容       | 顯示 inline-error              |
 
-路由變更：`/strategy-status` 獨立路由廢止，改為 redirect 到 `/strategy-config`。Dashboard `HealthPanel.detail-link="/strategy-status"` 將在後續卡片重新導向（目前 redirect 保底）。
+路由變更：`/strategy-status` 獨立路由廢止，改為 redirect 到 `/dashboard?panel=strategy-status`。Dashboard `HealthPanel.detail-link="/strategy-status"` 將在後續卡片重新導向（目前 redirect 保底）。
 
 ## 未決事項
 

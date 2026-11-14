@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { dedupeByUrl, categorizeRegion, isTaiwanMarket } from "./newsMatch.js";
+import {
+  dedupeByUrl,
+  categorizeRegion,
+  isTaiwanMarket,
+  matchFeatured,
+} from "./newsMatch.js";
 
 describe("newsMatch", () => {
   describe("dedupeByUrl", () => {
@@ -49,6 +54,44 @@ describe("newsMatch", () => {
 
     it("非台灣文章分類為 us", () => {
       expect(categorizeRegion({ source: "Bloomberg" })).toBe("us");
+    });
+  });
+
+  describe("matchFeatured", () => {
+    it("相同 link 回傳 true（link 優先）", () => {
+      const featured = [{ link: "https://example.com/a", title: "舊標題" }];
+      expect(
+        matchFeatured(
+          { link: "https://example.com/a", title: "新標題" },
+          featured,
+        ),
+      ).toBe(true);
+    });
+
+    it("相同 title 回傳 true（title 次之）", () => {
+      const featured = [{ link: "https://example.com/other", title: "同標題" }];
+      expect(
+        matchFeatured(
+          { link: "https://example.com/new", title: "同標題" },
+          featured,
+        ),
+      ).toBe(true);
+    });
+
+    it("都不同回傳 false", () => {
+      const featured = [{ link: "https://example.com/a", title: "標題 A" }];
+      expect(
+        matchFeatured(
+          { link: "https://example.com/b", title: "標題 B" },
+          featured,
+        ),
+      ).toBe(false);
+    });
+
+    it("空输入回傳 false", () => {
+      expect(matchFeatured({}, [])).toBe(false);
+      expect(matchFeatured({ link: "https://example.com/a" }, [])).toBe(false);
+      expect(matchFeatured(null, [{ link: "x" }])).toBe(false);
     });
   });
 });

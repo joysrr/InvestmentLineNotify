@@ -16,8 +16,10 @@
       </span>
       <span class="news-source">{{ article.source }}</span>
       <span class="news-time">{{ formatDate(article.pubDate) }}</span>
+      <span v-if="isFeatured" class="news-badge featured">精選</span>
     </div>
     <p class="news-title">{{ article.title }}</p>
+    <span v-if="isPicked" class="news-tag picked">已入選精選</span>
     <p v-if="article.summary" class="news-summary">{{ article.summary }}</p>
   </div>
 </template>
@@ -31,6 +33,14 @@ const props = defineProps({
     required: true,
   },
   showAgeBand: {
+    type: Boolean,
+    default: false,
+  },
+  isFeatured: {
+    type: Boolean,
+    default: false,
+  },
+  isPicked: {
     type: Boolean,
     default: false,
   },
