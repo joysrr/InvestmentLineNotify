@@ -15,10 +15,10 @@ export const tabs = [
     </svg>`,
   },
   {
-    to: "/radar",
+    to: "/insights",
     exact: false,
-    label: "市場雷達",
-    testId: "nav-tab-radar",
+    label: "洞察",
+    testId: "nav-tab-insights",
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="10"/>
       <circle cx="12" cy="12" r="6"/>
@@ -43,10 +43,10 @@ export const tabs = [
     </svg>`,
   },
   {
-    to: "/theory",
+    to: "/chart",
     exact: false,
-    label: "理論",
-    testId: "nav-tab-theory",
+    label: "圖表",
+    testId: "nav-tab-chart",
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="10"/>
       <line x1="12" y1="16" x2="12" y2="12"/>
