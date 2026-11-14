@@ -523,16 +523,16 @@ const scanConclusion = computed(() => {
   transition: background 0.2s;
 }
 .card-danger {
-  background: rgba(232, 72, 85, 0.1);
+  background: var(--iln-danger-bg);
 }
 .card-warn {
-  background: rgba(212, 172, 13, 0.1);
+  background: var(--iln-warn-bg);
 }
 .card-ok {
-  background: rgba(38, 161, 123, 0.1);
+  background: var(--iln-ok-bg);
 }
 .card-blue {
-  background: rgba(36, 129, 204, 0.1);
+  background: var(--iln-brand-fill-light);
 }
 
 .rc-label {

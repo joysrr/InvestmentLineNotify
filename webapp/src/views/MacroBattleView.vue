@@ -291,8 +291,14 @@ const directionClass = computed(() => {
 /* ── Score bars ── */
 .score-wrap {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 10px;
+}
+
+@media (max-width: 360px) {
+  .score-wrap {
+    flex-direction: column;
+  }
 }
 .score-bar-row {
   display: flex;
@@ -377,10 +383,10 @@ const directionClass = computed(() => {
   padding: 10px 12px;
 }
 .event-card--bull {
-  background: rgba(38, 161, 123, 0.08);
+  background: var(--iln-ok-bg);
 }
 .event-card--bear {
-  background: rgba(232, 72, 85, 0.08);
+  background: var(--iln-danger-bg);
 }
 .event-card--neutral {
   background: var(--iln-surface);

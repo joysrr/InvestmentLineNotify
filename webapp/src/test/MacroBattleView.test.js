@@ -147,4 +147,33 @@ describe("MacroBattleView", () => {
       true,
     );
   });
+
+  it("應渲染 .score-wrap 並包含 bull/bear 雙區塊", async () => {
+    fetchReports.mockResolvedValue([
+      {
+        date: "2026-09-12",
+        macroAnalysis: {
+          total_bull_score: 4,
+          total_bear_score: 2,
+          conclusion: {
+            market_direction: "BULLISH",
+            short_summary: "多頭優勢",
+            key_takeaways: ["測試"],
+          },
+          bull_events: [{ score: 2, event: "多方事件", analysis: "支撐" }],
+          bear_events: [{ score: 3, event: "空方事件", analysis: "壓力" }],
+          neutral_events: [],
+        },
+      },
+    ]);
+    const wrapper = mountView();
+    await flushPromises();
+
+    const scoreWrap = wrapper.find(".score-wrap");
+    expect(scoreWrap.exists()).toBe(true);
+
+    // bull/bear 都在 score-wrap 內
+    expect(scoreWrap.find(".score-side--bull").exists()).toBe(true);
+    expect(scoreWrap.find(".score-side--bear").exists()).toBe(true);
+  });
 });
