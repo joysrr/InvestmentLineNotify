@@ -1,6 +1,7 @@
 ---
 type: plan
 status: in-progress
+status_reason: CARD-04-PRE（commit 2e59232）已完成 CARD-02/03 缺口補齊，屬事實狀態
 last_updated: 2026-11-14
 owner: 開發者
 reviewer: 規劃者
