@@ -13,12 +13,13 @@ wiki_links: []
 
 掃描指令：
 
+```bash
 cd webapp
 grep -rnP "[\x{1F000}-\x{1FAFF}\x{2190}-\x{2BFF}\x{2460}-\x{24FF}\x{2600}-\x{27BF}]" \
-src --include="_.vue" --include="_.js" \
-
-> /tmp/emoji-audit.txt
-> wc -l /tmp/emoji-audit.txt
+  src --include="*.vue" --include="*.js" \
+  > /tmp/emoji-audit.txt
+wc -l /tmp/emoji-audit.txt
+```
 
 掃描日期：2026-11-14
 掃描 commit：1a78dcf
@@ -81,12 +82,3 @@ src/components/dashboard/MetricCard.test.js:27: props: { title: "0050", value: "
 src/components/dashboard/MetricCard.test.js:29: expect(wrapper.text()).toContain("📈");
 
 (共 203 行；Tier A UI 可見 Emoji = 0，其餘均屬 Tier B 測試斷言 / Tier C console 日誌 / 非 Emoji 符號 / 程式註解)
-
-3. 若 Tier A 掃出非 0，先修程式碼再寫文件，不得把 UI Emoji 歸入 Tier B/C。
-
-驗收
-
-☐ 檔案內無 _.vue、_.js 字樣
-☐ Tier A 為 0
-☐ 文件記載的 commit 與掃描日期一致
-☐ 貼上實際掃描輸出，非文字轉述
