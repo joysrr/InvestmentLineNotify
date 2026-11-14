@@ -89,4 +89,33 @@ describe("NewsView", () => {
     await poolBtn.trigger("click");
     expect(wrapper.vm.activeTab).toBe("pool");
   });
+
+  it("精選報告空狀態顯示正確文案", () => {
+    const wrapper = mount(NewsView, {
+      data: () => ({
+        reportNews: { tw: [], us: [], generatedAt: "" },
+        reportLoading: false,
+        reportError: null,
+        activeTab: "report",
+      }),
+    });
+    const emptyState = wrapper.findComponent({ name: "EmptyState" });
+    expect(emptyState.exists()).toBe(true);
+    expect(emptyState.props("title")).toBe("今日尚無精選報告，請稍後再試");
+    expect(emptyState.props("message")).toBe("每日早上自動更新");
+  });
+
+  it("新聞池空狀態顯示正確文案", () => {
+    const wrapper = mount(NewsView, {
+      data: () => ({
+        articles: [],
+        poolLoading: false,
+        poolError: null,
+        activeTab: "pool",
+      }),
+    });
+    const emptyState = wrapper.findComponent({ name: "EmptyState" });
+    expect(emptyState.exists()).toBe(true);
+    expect(emptyState.props("title")).toBe("新聞池目前為空，排程可能尚未執行");
+  });
 });
