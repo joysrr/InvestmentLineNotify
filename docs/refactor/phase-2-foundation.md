@@ -42,7 +42,7 @@ wiki_links: []
 
 ### ContentCard (`src/components/common/ContentCard.vue`)
 
-卡片容器組件，支援 `variant`（outlined/filled）、`padding`（sm/md/lg）、`radius`（sm/md/lg）、`status`（ok/warn/danger/neutral）。
+卡片容器組件，支援 `variant`（outlined/elevated/flat）、`padding`（sm/md/lg）、`radius`（sm/md/lg）、`status`（ok/warn/danger/neutral）。
 
 ### StatCard (`src/components/common/StatCard.vue`)
 
@@ -62,7 +62,7 @@ wiki_links: []
 
 ## 四、圖標系統
 
-`Icon.vue` 使用內聯 SVG，ICEN_MAP 定義所有圖標路徑。移除 `name="default"` 預設值，必須明確指定 `name`。
+`Icon.vue` 使用內聯 SVG，ICON_MAP 定義所有圖標路徑。移除 `name="default"` 預設值，必須明確指定 `name`。
 
 已遷移圖標：ok, danger, warn, neutral, chart, shield, trigger, radar, x-circle, chevron-down, check-circle。
 
@@ -70,12 +70,12 @@ wiki_links: []
 
 | 項目         | Phase 1 基線 | Phase 2 實測 | Phase 2 新基線 | 理由                                                                 |
 | ------------ | ------------ | ------------ | -------------- | -------------------------------------------------------------------- |
-| Initial gzip | 152.1 KB     | 154.7 KB     | 156.0 KB       | 新增 ContentCard / StatCard / Icon / CollapsibleSection 四個通用元件 |
-| Total gzip   | 370.4 KB     | 374.9 KB     | 380.0 KB       | 同上                                                                 |
+| Initial gzip | 152.1 KB     | 155.3 KB     | 156.0 KB       | 新增 ContentCard / StatCard / Icon / CollapsibleSection 四個通用元件 |
+| Total gzip   | 370.4 KB     | 375.6 KB     | 380.0 KB       | 同上                                                                 |
 
 變更核准：Phase 2 補做計畫（B2）
 變更日期：2026-11-13
-依據：webapp/scripts/check-bundle-size.mjs 已更新為 INITIAL_BUDGET_KB=156.0, TOTAL_BUDGET_KB=380.0；實測 154.7 / 374.9 KB，均在新基線內。
+依據：webapp/scripts/check-bundle-size.mjs 已更新為 INITIAL_BUDGET_KB=156.0, TOTAL_BUDGET_KB=380.0；實測 155.3 / 375.6 KB，均在新基線內。
 
 ## 六、測試標準
 
@@ -91,9 +91,9 @@ wiki_links: []
 
 ## 八、驗收標準 (DoD)
 
-- [ ] 所有通用組件使用設計令牌，無硬編碼 hex/rgba
-- [ ] 無 ad-hoc collapsible pattern，全部遷移至 CollapsibleSection
-- [ ] 無 residual emoji（6 個情緒指標除外）
-- [ ] 測試 ≥596 通過
-- [ ] Lint 0/0
-- [ ] Bundle 大小在修訂基線內
+- [x] 所有通用組件使用設計令牌，無硬編碼 hex/rgba
+- [x] 無 ad-hoc collapsible pattern，全部遷移至 CollapsibleSection
+- [x] 無 residual emoji（6 個情緒指標除外）
+- [x] 測試 ≥596 通過
+- [x] Lint 0/0
+- [x] Bundle 大小在修訂基線內

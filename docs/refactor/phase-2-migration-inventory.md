@@ -82,7 +82,7 @@ Phase 2.1 完成所有 dashboard/radar/macro 卡片組件之 ContentCard/StatCar
 
 | 指標         | Phase 1 基線 | Phase 2 現狀 | 狀態                 |
 | ------------ | ------------ | ------------ | -------------------- |
-| Initial gzip | 152.1 KB     | 154.3 KB     | ✅ 修訂基線 156.0 KB |
-| Total gzip   | 370.4 KB     | 375.4 KB     | ✅ 修訂基線 380.0 KB |
+| Initial gzip | 152.1 KB     | 155.3 KB     | ✅ 修訂基線 156.0 KB |
+| Total gzip   | 370.4 KB     | 375.6 KB     | ✅ 修訂基線 380.0 KB |
 
 基線變更詳見 `docs/refactor/phase-2-foundation.md` §體積基線變更（路徑 B：正式修訂）。
