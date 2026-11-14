@@ -23,4 +23,28 @@ describe("Router 策略設定整合與重定向", () => {
     expect(router.currentRoute.value.path).toBe("/dashboard");
     expect(router.currentRoute.value.query.panel).toBe("strategy-status");
   });
+
+  it("/radar 應重定向至 /insights?tab=radar", async () => {
+    await router.push("/radar");
+    expect(router.currentRoute.value.path).toBe("/insights");
+    expect(router.currentRoute.value.query.tab).toBe("radar");
+  });
+
+  it("/macro 應重定向至 /insights?tab=macro", async () => {
+    await router.push("/macro");
+    expect(router.currentRoute.value.path).toBe("/insights");
+    expect(router.currentRoute.value.query.tab).toBe("macro");
+  });
+
+  it("/technical 應重定向至 /chart?tab=technical", async () => {
+    await router.push("/technical");
+    expect(router.currentRoute.value.path).toBe("/chart");
+    expect(router.currentRoute.value.query.tab).toBe("technical");
+  });
+
+  it("/theory 應重定向至 /account?panel=about", async () => {
+    await router.push("/theory");
+    expect(router.currentRoute.value.path).toBe("/account");
+    expect(router.currentRoute.value.query.panel).toBe("about");
+  });
 });

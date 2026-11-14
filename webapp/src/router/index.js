@@ -10,6 +10,7 @@ const TechnicalView = () => import("../views/TechnicalView.vue");
 const StrategyConfigEditorView = () =>
   import("../views/StrategyConfigEditor.vue");
 const TheoryView = () => import("../views/TheoryView.vue");
+const InsightsView = () => import("../views/InsightsView.vue");
 
 export const viewLoaders = {
   ChartView,
@@ -20,6 +21,7 @@ export const viewLoaders = {
   TechnicalView,
   StrategyConfigEditorView,
   TheoryView,
+  InsightsView,
 };
 
 const router = createRouter({
@@ -33,18 +35,23 @@ const router = createRouter({
     },
     {
       path: "/technical",
-      component: TechnicalView,
+      redirect: "/chart?tab=technical",
       meta: { title: "技術分析", chunk: "low" },
     },
     {
       path: "/radar",
-      component: MarketRadarView,
+      redirect: "/insights?tab=radar",
       meta: { title: "市場雷達", chunk: "low" },
     },
     {
       path: "/macro",
-      component: MacroBattleView,
+      redirect: "/insights?tab=macro",
       meta: { title: "多空對決", chunk: "low" },
+    },
+    {
+      path: "/insights",
+      component: InsightsView,
+      meta: { title: "市場洞察", chunk: "high" },
     },
     {
       path: "/chart",
@@ -58,7 +65,7 @@ const router = createRouter({
     },
     {
       path: "/theory",
-      component: TheoryView,
+      redirect: "/account?panel=about",
       meta: { title: "理論", chunk: "low" },
     },
     { path: "/strategy", redirect: "/strategy-config" },
