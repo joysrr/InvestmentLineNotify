@@ -48,6 +48,7 @@
     <div class="tab-content-area fade-in">
       <!-- 1. 首屏核心決策 hero -->
       <DecisionHero
+        v-if="latestReport"
         :report="latestReport"
         :loading="reportLoading"
         :error="reportError"
@@ -56,6 +57,13 @@
         :pct-class="pctClass"
         :pct-text="pctText"
         :routing-path="routingPath"
+      />
+      <EmptyState
+        v-else
+        title="報表暫無資料"
+        message="尚未收到最新的投資報表，請稍後再試"
+        action-text="重新整理"
+        @action="loadAll"
       />
 
       <!-- 2. 雙核心駕駛艙 (L2: 總經象限 + 資產安全防護) -->
@@ -105,10 +113,18 @@
       <!-- 3. 帳戶健康度監控 (0-100) -->
       <section class="dashboard-card health-card">
         <HealthPanel
+          v-if="healthData"
           :data="healthData"
           :loading="healthLoading"
           :error="healthError"
           @open-strategy-status="strategyStatusDrawerVisible = true"
+        />
+        <EmptyState
+          v-else
+          title="健康度資料暫無"
+          message="帳戶健康度評估尚未產生，請稍後再試"
+          action-text="重新整理"
+          @action="loadAll"
         />
       </section>
 
@@ -126,12 +142,19 @@
       <!-- Strategy Status 摘要卡（Phase 3：由連結改為內嵌摘要，點擊開啟 drawer） -->
       <section class="dashboard-card strategy-status-link">
         <component
-          v-if="strategyStatusSummary"
+          v-if="strategyStatusSummary && status"
           :is="strategyStatusSummary"
           :health="healthData"
           :loading="healthLoading"
           :error="healthError"
           @click="strategyStatusDrawerVisible = true"
+        />
+        <EmptyState
+          v-else-if="!healthLoading && !statusLoading"
+          title="策略狀態暫無資料"
+          message="尚未收到策略狀態，請稍後再試"
+          action-text="重新整理"
+          @action="loadAll"
         />
         <div v-else class="skeleton-list">
           <div class="sk sk-hero" style="height: 80px; margin-bottom: 12px"></div>
@@ -142,13 +165,18 @@
     <!-- Footer meta -->
     <p v-if="status?._meta?.lastRun" class="update-time">
       資料更新：{{ formatUpdatedAt(status._meta.lastRun) }}
+      <FreshnessBadge
+        :timestamp="status._meta.lastRun"
+        label="資料更新"
+      />
     </p>
   </div>
   </GlobalErrorBoundary>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, defineAsyncComponent } from "vue";
+import { usePageState } from "@/composables/usePageState.js";
 import { useRoute } from "vue-router";
 import Icon from "@/components/common/Icon.vue";
 import {
@@ -167,8 +195,16 @@ import MarketDetailDrawer from "../components/dashboard/MarketDetailDrawer.vue";
 import RiskDetailDrawer from "../components/dashboard/RiskDetailDrawer.vue";
 import DecisionHero from "../components/dashboard/DecisionHero.vue";
 import HealthPanel from "../components/dashboard/HealthPanel.vue";
+const EmptyState = defineAsyncComponent(() =>
+  import("@/components/common/EmptyState.vue"),
+);
+const FreshnessBadge = defineAsyncComponent(() =>
+  import("@/components/common/FreshnessBadge.vue"),
+);
 import CoachingAdvice from "@/components/dashboard/CoachingAdvice.vue";
-import StrategyConfigEditorView from "@/views/StrategyConfigEditor.vue";
+const StrategyConfigEditorView = defineAsyncComponent(() =>
+  import("@/views/StrategyConfigEditor.vue"),
+);
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 
 // ── State ──
@@ -193,16 +229,25 @@ const loadStrategyStatusPanel = async () => {
     strategyStatusPanel.value = mod.default;
   }
 };
-const status = ref(null);
-const statusLoading = ref(true);
+const statusState = usePageState();
+const reportState = usePageState();
+const healthState = usePageState();
 
-const latestReport = ref(null);
-const reportLoading = ref(true);
-const reportError = ref(false);
+// 合併別名：保持 template 與現有 computed 的引用名稱不變
+const status = computed(() => statusState.data.value);
+const statusLoading = computed(() => statusState.loading.value);
 
-const healthData = ref(null); // portfolio/health summary (NEW schema) for HealthCard
-const healthLoading = ref(true);
-const healthError = ref(false);
+const latestReport = computed(() => {
+  const r = reportState.data.value;
+  if (!r) return null;
+  return Array.isArray(r) ? r[0] : (r.data?.[0] ?? null);
+});
+const reportLoading = computed(() => reportState.loading.value);
+const reportError = computed(() => reportState.error.value);
+
+const healthData = computed(() => healthState.data.value);
+const healthLoading = computed(() => healthState.loading.value);
+const healthError = computed(() => healthState.error.value);
 
 // L3 Drawers 顯示控制
 const marketDrawerVisible = ref(false);
@@ -365,18 +410,11 @@ const aiStrategyVerdict = computed(
 
 // ── Logic ──
 async function loadAll() {
-  const [sRes, rRes, hRes] = await Promise.allSettled([
-    fetchStatus(),
-    fetchReports(1),
-    fetchPortfolioHealth(),
+  await Promise.all([
+    statusState.run(fetchStatus),
+    reportState.run(() => fetchReports(1)),
+    healthState.run(fetchPortfolioHealth),
   ]);
-  if (sRes.status === "fulfilled") status.value = sRes.value;
-  statusLoading.value = false;
-  if (rRes.status === "fulfilled")
-    latestReport.value = rRes.value[0] || rRes.value.data?.[0];
-  reportLoading.value = false;
-  if (hRes.status === "fulfilled") healthData.value = hRes.value;
-  healthLoading.value = false;
 }
 
 function formatUpdatedAt(iso) {

@@ -67,4 +67,50 @@ describe("usePageState", () => {
     expect(error.value).toBeNull();
     expect(state.value).toBe("ready");
   });
+
+  it("loading 時 fetcher 拋錯，狀態變 error；再次 run 成功後回到 ready", async () => {
+    const { state, run, error } = usePageState();
+    let resolveFetch;
+    const fetcher = () =>
+      new Promise((_, rej) => {
+        resolveFetch = rej;
+      });
+
+    const first = run(fetcher);
+    expect(state.value).toBe("loading");
+    resolveFetch(new Error("網路斷線"));
+    await first.catch(() => {});
+    expect(state.value).toBe("error");
+    expect(error.value).toBeInstanceOf(Error);
+
+    let resolve2;
+    const fetcher2 = () =>
+      new Promise((res) => {
+        resolve2 = res;
+      });
+    const second = run(fetcher2);
+    expect(state.value).toBe("loading");
+    resolve2({ data: [1] });
+    await second;
+    expect(state.value).toBe("ready");
+    expect(error.value).toBeNull();
+  });
+
+  it("ready 狀態下再次 run()，狀態先回 loading，完成後回 ready", async () => {
+    const { state, run, data } = usePageState();
+    data.value = [{ id: 1 }];
+    expect(state.value).toBe("ready");
+
+    let resolveFetch;
+    const fetcher = () =>
+      new Promise((res) => {
+        resolveFetch = res;
+      });
+    const promise = run(fetcher);
+    expect(state.value).toBe("loading");
+    resolveFetch([2]);
+    await promise;
+    expect(state.value).toBe("ready");
+    expect(data.value).toEqual([2]);
+  });
 });

@@ -36,7 +36,15 @@ wiki_links: []
 | `error`   | `ErrorAlert.vue`      | `components/common/ErrorAlert.vue`      | 錯誤圖示 + 訊息 + 重試按鈕 |
 | `ready`   | 各頁內容組件          | 各 view 自行實作                        | 正常資料顯示               |
 
-**StateBlock.vue 未建立**：三個現有組件已分別覆蓋 loading / empty / error，建立新的 StateBlock 會造成重複。狀態邏輯由 `usePageState.js` 統一管理，視覺層複用現有組件。
+> **決策記錄（CARD-5.0 步驟 A-2）**：原計畫建立 `StateBlock.vue` 統一四態，
+> 實作改為複用現有組件：
+>
+> - `loading` → `LoadingSkeleton.vue`
+> - `empty` → `EmptyState.vue`
+> - `error` → `ErrorAlert.vue`
+> - `ready` → 無需組件（正常渲染）
+>   理由：三態已有對應組件，新建 `StateBlock` 會造成重複封裝。
+>   影響：CARD-5.1–5.5 各頁統一使用這三個組件，不得各自手寫。
 
 ## 4. `usePageState.js` 狀態機
 
