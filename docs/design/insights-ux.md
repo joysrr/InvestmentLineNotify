@@ -58,6 +58,10 @@ Insights 頁面保留兩個獨立子頁籤：
 
 ## 4. InsightsView tab 切換行為：router.replace（刻意）
 
+## 深層連結代價
+
+router.replace + 無 watch 的決策代價：不支援深層連結。訪問 `/#/insights?tab=macro` 不會自動切換到多空對決 tab，E2E 需透過點擊 SubTabBar 切換，而非直接訪問 URL。若未來需要分享子頁面連結（例如「看看這個多空對決」），接收者打開會是空白，需改為 router.push + watch 才能支援。
+
 ### 實作
 
 ```js
