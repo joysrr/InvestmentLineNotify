@@ -30,6 +30,17 @@ export const tabs = [
     </svg>`,
   },
   {
+    to: "/chart",
+    exact: false,
+    label: "圖表",
+    testId: "nav-tab-chart",
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="16" x2="12" y2="12"/>
+      <line x1="12" y1="8" x2="12.01" y2="8"/>
+    </svg>`,
+  },
+  {
     to: "/news",
     exact: false,
     label: "新聞",
@@ -40,17 +51,6 @@ export const tabs = [
       <path d="M8 11V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6"/>
       <circle cx="10" cy="8" r="1"/><circle cx="14" cy="8" r="1"/>
       <path d="M6 15h12v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/>
-    </svg>`,
-  },
-  {
-    to: "/chart",
-    exact: false,
-    label: "圖表",
-    testId: "nav-tab-chart",
-    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="10"/>
-      <line x1="12" y1="16" x2="12" y2="12"/>
-      <line x1="12" y1="8" x2="12.01" y2="8"/>
     </svg>`,
   },
   {

@@ -212,7 +212,7 @@
 
       <!-- 6. 關於（投資理論與策略說明） -->
       <template v-if="activePanel === 'about'">
-        <div class="about-section">
+        <div class="about-section" id="about">
           <h2 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 關於</h2>
           <div class="about-block">
             <div class="about-name">InvestmentLineNotify</div>

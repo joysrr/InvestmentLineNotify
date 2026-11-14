@@ -58,3 +58,12 @@ tags:
 ## 未決事項
 
 - CARD-00 第 5 項（TheoryView 是否承載模擬器）結果將決定 D1 微調與 CARD-04 Theory 併入方式。
+
+---
+
+## 偏差記錄（CARD-04 步驟 D）
+
+原計畫 `/theory` → `/account#about` 使用錨點導航，
+實作改為 `/account?panel=about`，與 CARD-01 的 `?panel=strategy-status` 模式一致。
+錨點 `id="about"` 仍保留於 AccountView.vue 的「關於」區段，
+作為無 JS 環境的 fallback。
