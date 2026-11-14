@@ -39,14 +39,20 @@
   --iln-warn-bg: rgba(245, 158, 11, 0.1);
   --iln-danger-bg: rgba(239, 68, 68, 0.1);
   --iln-info-bg: rgba(59, 130, 246, 0.1);
+  --iln-neutral-bg: rgba(148, 163, 184, 0.1);
 
   /* ── 語意文字（深色模式安全） ── */
   --iln-ok-text: #059669;
   --iln-warn-text: #b45309;
   --iln-danger-text: #dc2626;
   --iln-info-text: #1d4ed8;
+  --iln-neutral-text: #64748b;
 
   /* ── 語義邊框 ── */
+  --iln-ok-border: rgba(16, 185, 129, 0.3);
+  --iln-warn-border: rgba(245, 158, 11, 0.3);
+  --iln-danger-border: rgba(239, 68, 68, 0.3);
+  --iln-neutral-border: rgba(148, 163, 184, 0.3);
   --iln-border-subtle: rgba(0, 0, 0, 0.06);
   --iln-border-default: rgba(0, 0, 0, 0.1);
   --iln-border-strong: rgba(0, 0, 0, 0.15);
@@ -159,10 +165,16 @@
   --iln-warn-bg: rgba(245, 158, 11, 0.15);
   --iln-danger-bg: rgba(239, 68, 68, 0.15);
   --iln-info-bg: rgba(59, 130, 246, 0.15);
+  --iln-neutral-bg: rgba(148, 163, 184, 0.1);
   --iln-ok-text: #34d399;
   --iln-warn-text: #fbbf24;
   --iln-danger-text: #f87171;
   --iln-info-text: #60a5fa;
+  --iln-neutral-text: #94a3b8;
+  --iln-ok-border: rgba(16, 185, 129, 0.5);
+  --iln-warn-border: rgba(245, 158, 11, 0.5);
+  --iln-danger-border: rgba(239, 68, 68, 0.5);
+  --iln-neutral-border: rgba(148, 163, 184, 0.5);
   --iln-border-subtle: rgba(255, 255, 255, 0.08);
   --iln-border-default: rgba(255, 255, 255, 0.12);
   --iln-border-strong: rgba(255, 255, 255, 0.18);
