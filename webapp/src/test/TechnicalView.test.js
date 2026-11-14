@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
 import TechnicalView from "../views/TechnicalView.vue";
+import StatCard from "@/components/common/StatCard.vue";
 import { fetchReports } from "../api/index.js";
 
 vi.mock("../api/index.js", () => ({ fetchReports: vi.fn() }));
@@ -65,7 +66,7 @@ describe("TechnicalView", () => {
 
     await flushPromises();
 
-    expect(wrapper.findAll(".indicator-card")).toHaveLength(5);
+    expect(wrapper.findAllComponents(StatCard)).toHaveLength(5);
     expect(wrapper.text()).toContain("過熱");
     expect(wrapper.text()).toContain("超賣");
     expect(wrapper.text()).toContain("多頭");

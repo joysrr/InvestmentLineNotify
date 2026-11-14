@@ -34,20 +34,13 @@
             <span class="region-count">{{ reportNews.tw.length }} 則</span>
           </div>
           <div class="news-list">
-            <div
-              v-for="(item, i) in reportNews.tw"
-              :key="'tw-' + i"
-              class="news-card"
-              @click="openArticle(item.link || item.url)"
-            >
-              <div class="news-header">
-                <span class="news-source">{{ item.source }}</span>
-                <span class="news-time">{{ formatDate(item.pubDate) }}</span>
-              </div>
-              <p class="news-title">{{ item.title }}</p>
-              <p v-if="item.summary" class="news-summary">{{ item.summary }}</p>
-            </div>
-          </div>
+          <component :is="NewsCard"
+            v-for="(item, i) in reportNews.tw"
+            :key="'tw-' + i"
+            :article="item"
+            @article-click="openArticle"
+        ></component>
+        </div>
         </div>
 
         <!-- 國際區塊 -->
@@ -58,20 +51,13 @@
             <span class="region-count">{{ reportNews.us.length }} 則</span>
           </div>
           <div class="news-list">
-            <div
-              v-for="(item, i) in reportNews.us"
-              :key="'us-' + i"
-              class="news-card"
-              @click="openArticle(item.link || item.url)"
-            >
-              <div class="news-header">
-                <span class="news-source">{{ item.source }}</span>
-                <span class="news-time">{{ formatDate(item.pubDate) }}</span>
-              </div>
-              <p class="news-title">{{ item.title }}</p>
-              <p v-if="item.summary" class="news-summary">{{ item.summary }}</p>
-            </div>
-          </div>
+          <component :is="NewsCard"
+            v-for="(item, i) in reportNews.us"
+            :key="'us-' + i"
+            :article="item"
+            @article-click="openArticle"
+        ></component>
+        </div>
         </div>
 
         <p class="report-generated">          <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 產生時間：{{ reportNews.generatedAt || "—" }}
@@ -94,26 +80,13 @@
       <EmptyState v-else-if="articles.length === 0" title="目前新聞池為空" />
 
       <div v-else class="news-list">
-        <div
+        <component :is="NewsCard"
           v-for="article in articles"
           :key="article.id"
-          class="news-card"
-          @click="openArticle(article.link || article.url)"
-        >
-          <div class="news-header">
-            <span class="news-age" :class="ageBandClass(article.age_band)">
-              <Icon :name="ageBandIcon(article.age_band)" size="sm" />
-              {{ ageBandLabel(article.age_band) }}
-            </span>
-            <span class="news-region"><Icon :name="regionFlag(article._region)" size="sm" /></span>
-            <span class="news-source">{{ article.source }}</span>
-            <span class="news-time">{{ formatDate(article.pubDate) }}</span>
-          </div>
-          <p class="news-title">{{ article.title }}</p>
-          <p v-if="article.summary" class="news-summary">
-            {{ article.summary }}
-          </p>
-        </div>
+          :article="article"
+          :show-age-band="true"
+          @article-click="openArticle"
+        ></component>
       </div>
     </div>
 
@@ -123,7 +96,8 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import Icon from "@/components/common/Icon.vue";
+import { dedupeByUrl, categorizeRegion } from "@/utils/newsMatch.js";
+import NewsCard from "@/components/dashboard/NewsCard.vue";
 import { fetchNews, fetchReportNews } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
@@ -174,7 +148,11 @@ async function loadPool() {
   poolError.value = null;
   try {
     const data = await fetchNews();
-    const list = Array.isArray(data) ? data : (data?.articles ?? []);
+    const rawList = Array.isArray(data) ? data : (data?.articles ?? []);
+    const list = dedupeByUrl(rawList).map((a) => ({
+      ...a,
+      _region: categorizeRegion(a),
+    }));
     articles.value = list;
   } catch (e) {
     poolError.value = e.message;
@@ -187,48 +165,8 @@ async function loadPool() {
 // ── 共用工具 ──────────────────────────────────────────────
 const { openLink } = useTelegram();
 
-function openArticle(url) {
-  if (url) openLink(url);
-}
-
-function ageBandClass(band) {
-  if (band === "fresh") return "age-fresh";
-  if (band === "recent") return "age-recent";
-  return "age-old";
-}
-
-function ageBandIcon(band) {
-  if (band === "fresh") return "danger";
-  if (band === "recent") return "warn";
-  return "neutral";
-}
-
-function ageBandLabel(band) {
-  if (band === "fresh") return "最新";
-  if (band === "recent") return "近期";
-  return "舊聞";
-}
-
-function regionFlag(region) {
-  if (region === "TW") return "default";
-  if (region === "US") return "default";
-  return "default";
-}
-
-function formatDate(pubDate) {
-  if (!pubDate) return "—";
-  try {
-    const d = new Date(pubDate);
-    if (isNaN(d.getTime())) return "—";
-    return d.toLocaleString("zh-TW", {
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return pubDate;
-  }
+function openArticle(article) {
+  if (article) openLink(article.link || article.url);
 }
 
 // ── 初始化：預設載入精選報告 ──────────────────────────────

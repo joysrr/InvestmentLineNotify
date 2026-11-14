@@ -26,41 +26,47 @@
       <section class="section">
         <h3 class="section-title">核心指標</h3>
         <div class="indicators-grid">
-          <div class="indicator-card" :class="rsiInfo.cardClass">
-            <span class="ind-label">RSI</span>
-            <span class="ind-value">{{ rsiInfo.display }}</span>
-            <span class="ind-sub" :class="rsiInfo.textClass">{{
-              rsiInfo.label
-            }}</span>
-          </div>
-          <div class="indicator-card" :class="kdKInfo.cardClass">
-            <span class="ind-label">KD (K)</span>
-            <span class="ind-value">{{ kdKInfo.display }}</span>
-            <span class="ind-sub" :class="kdKInfo.textClass">{{
-              kdKInfo.label
-            }}</span>
-          </div>
-          <div class="indicator-card" :class="kdDInfo.cardClass">
-            <span class="ind-label">KD (D)</span>
-            <span class="ind-value">{{ kdDInfo.display }}</span>
-            <span class="ind-sub" :class="kdDInfo.textClass">{{
-              kdDInfo.label
-            }}</span>
-          </div>
-          <div class="indicator-card" :class="biasInfo.cardClass">
-            <span class="ind-label">乖離率 MA240</span>
-            <span class="ind-value">{{ biasInfo.display }}</span>
-            <span class="ind-sub" :class="biasInfo.textClass">{{
-              biasInfo.label
-            }}</span>
-          </div>
-          <div class="indicator-card" :class="macdInfo.cardClass">
-            <span class="ind-label">MACD</span>
-            <span class="ind-value ind-value--sm">{{ macdInfo.display }}</span>
-            <span class="ind-sub" :class="macdInfo.textClass">{{
-              macdInfo.label
-            }}</span>
-          </div>
+          <StatCard
+            label="RSI"
+            :value="Number(rsiInfo.display)"
+            :status="cardClassToStatus(rsiInfo.cardClass)"
+            framed
+          >
+            <template #suffix>{{ rsiInfo.label }}</template>
+          </StatCard>
+          <StatCard
+            label="KD (K)"
+            :value="Number(kdKInfo.display)"
+            :status="cardClassToStatus(kdKInfo.cardClass)"
+            framed
+          >
+            <template #suffix>{{ kdKInfo.label }}</template>
+          </StatCard>
+          <StatCard
+            label="KD (D)"
+            :value="Number(kdDInfo.display)"
+            :status="cardClassToStatus(kdDInfo.cardClass)"
+            framed
+          >
+            <template #suffix>{{ kdDInfo.label }}</template>
+          </StatCard>
+          <StatCard
+            label="乖離率 MA240"
+            :value="biasInfo.display"
+            :status="cardClassToStatus(biasInfo.cardClass)"
+            framed
+          >
+            <template #suffix>{{ biasInfo.label }}</template>
+          </StatCard>
+          <StatCard
+            label="MACD"
+            :value="macdInfo.display"
+            :status="cardClassToStatus(macdInfo.cardClass)"
+            size="sm"
+            framed
+          >
+            <template #suffix>{{ macdInfo.label }}</template>
+          </StatCard>
         </div>
       </section>
 
@@ -156,6 +162,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import Icon from "@/components/common/Icon.vue";
+import StatCard from "@/components/common/StatCard.vue";
 import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 import { fetchReports } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
@@ -176,6 +183,16 @@ const todayLabel = computed(() =>
     weekday: "short",
   }),
 );
+
+function cardClassToStatus(cls) {
+  const map = {
+    "ind-danger": "danger",
+    "ind-warn": "warn",
+    "ind-ok": "ok",
+    "ind-buy": "ok",
+  };
+  return map[cls] ?? null;
+}
 
 // ── 指標取值 logic (與 DashboardView 同步) ──
 function indicatorInfo(value, thresholds) {

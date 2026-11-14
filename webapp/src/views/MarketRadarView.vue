@@ -50,25 +50,32 @@
         <h3 class="section-title"><Icon name="radar" size="sm" /> 美股市場</h3>
         <div class="radar-grid">
           <!-- 美股 VIX -->
-          <div class="radar-card" :class="usVixCard.cls">
-            <span class="rc-label">美股 VIX</span>
-            <span class="rc-value">{{ usVix ?? "—" }}</span>
-            <span class="rc-sub" :class="usVixCard.sub">{{
-              usVixCard.label
-            }}</span>
-          </div>
+          <StatCard
+            label="美股 VIX"
+            :value="usVix ?? '—'"
+            :status="cardClassToStatus(usVixCard.cls)"
+            framed
+          >
+            <template #suffix>{{ usVixCard.label }}</template>
+          </StatCard>
           <!-- S&P 500 -->
-          <div class="radar-card" :class="spxCard.cls">
-            <span class="rc-label">S&amp;P 500</span>
-            <span class="rc-value rc-value--md">{{ spxText }}</span>
-            <span class="rc-sub" :class="spxCard.sub"><Icon :name="spxCard.icon" size="sm" /> {{ spxCard.label }}</span>
-          </div>
+          <StatCard
+            label="S&amp;P 500"
+            :value="spxText"
+            :status="cardClassToStatus(spxCard.cls)"
+            framed
+          >
+            <template #suffix><Icon :name="spxCard.icon" size="sm" /> {{ spxCard.label }}</template>
+          </StatCard>
           <!-- CNN 情緒 -->
-          <div class="radar-card" :class="cnnCard.cls">
-            <span class="rc-label">CNN 情緒</span>
-            <span class="rc-value">{{ cnnScore ?? "—" }}</span>
-            <span class="rc-sub" :class="cnnCard.sub">{{ cnnRating }}</span>
-          </div>
+          <StatCard
+            label="CNN 情緒"
+            :value="cnnScore ?? '—'"
+            :status="cardClassToStatus(cnnCard.cls)"
+            framed
+          >
+            <template #suffix>{{ cnnRating }}</template>
+          </StatCard>
         </div>
       </section>
 
@@ -77,50 +84,60 @@
         <h3 class="section-title"><Icon name="radar" size="sm" /> 台股市場</h3>
         <div class="radar-grid">
           <!-- 台股 VIX -->
-          <div class="radar-card" :class="twVixCard.cls">
-            <span class="rc-label">台股 VIX</span>
-            <span class="rc-value">{{ twVix ?? "—" }}</span>
-            <span class="rc-sub" :class="twVixCard.sub">{{
-              twVixCard.label
-            }}</span>
-          </div>
+          <StatCard
+            label="台股 VIX"
+            :value="twVix ?? '—'"
+            :status="cardClassToStatus(twVixCard.cls)"
+            framed
+          >
+            <template #suffix>{{ twVixCard.label }}</template>
+          </StatCard>
           <!-- 景氣燈號 -->
-          <div class="radar-card">
-            <span class="rc-label">景氣燈號</span>
-            <span class="rc-value rc-value--emoji"><Icon :name="lightEmoji" /></span>
-            <span class="rc-sub rc-sub--neutral">{{ lightText }}</span>
-          </div>
+          <StatCard
+            label="景氣燈號"
+            status="neutral"
+            framed
+          >
+            <template #value><Icon :name="lightEmoji" /></template>
+            <template #suffix>{{ lightText }}</template>
+          </StatCard>
           <!-- 融資維持率 -->
-          <div class="radar-card" :class="marginCard.cls">
-            <span class="rc-label">融資維持率</span>
-            <span class="rc-value rc-value--md"
-              >{{ marginRatio ?? "—"
-              }}<span v-if="marginRatio" class="rc-unit">%</span></span
-            >
-            <span class="rc-sub" :class="marginCard.sub">{{
-              marginCard.label
-            }}</span>
-          </div>
+          <StatCard
+            label="融資維持率"
+            :value="marginRatio ?? '—'"
+            unit="%"
+            :status="cardClassToStatus(marginCard.cls)"
+            framed
+          >
+            <template #suffix>{{ marginCard.label }}</template>
+          </StatCard>
           <!-- 大盤 PE -->
-          <div class="radar-card" :class="peCard.cls">
-            <span class="rc-label">大盤 PE</span>
-            <span class="rc-value rc-value--md">{{ pe ?? "—" }}</span>
-            <span class="rc-sub" :class="peCard.sub"><Icon :name="peCard.icon" size="sm" /> {{ peCard.label }}</span>
-          </div>
+          <StatCard
+            label="大盤 PE"
+            :value="pe ?? '—'"
+            :status="cardClassToStatus(peCard.cls)"
+            framed
+          >
+            <template #suffix><Icon :name="peCard.icon" size="sm" /> {{ peCard.label }}</template>
+          </StatCard>
           <!-- 大盤 PB -->
-          <div class="radar-card" :class="pbCard.cls">
-            <span class="rc-label">大盤 PB</span>
-            <span class="rc-value rc-value--md">{{ pb ?? "—" }}</span>
-            <span class="rc-sub" :class="pbCard.sub"><Icon :name="pbCard.icon" size="sm" /> {{ pbCard.label }}
-              <code v-if="pbPR !== null" class="rc-pr">PR{{ pbPR }}</code>
-            </span>
-          </div>
+          <StatCard
+            label="大盤 PB"
+            :value="pb ?? '—'"
+            :status="cardClassToStatus(pbCard.cls)"
+            framed
+          >
+            <template #suffix><Icon :name="pbCard.icon" size="sm" /> {{ pbCard.label }}<code v-if="pbPR !== null">PR{{ pbPR }}</code></template>
+          </StatCard>
           <!-- 匯率 -->
-          <div class="radar-card" :class="fxCard.cls">
-            <span class="rc-label">美元/台幣</span>
-            <span class="rc-value rc-value--md">{{ fxRate ?? "—" }}</span>
-            <span class="rc-sub" :class="fxCard.sub"><Icon :name="fxCard.icon" size="sm" /> {{ fxCard.label }}</span>
-          </div>
+          <StatCard
+            label="美元/台幣"
+            :value="fxRate ?? '—'"
+            :status="cardClassToStatus(fxCard.cls)"
+            framed
+          >
+            <template #suffix><Icon :name="fxCard.icon" size="sm" /> {{ fxCard.label }}</template>
+          </StatCard>
         </div>
       </section>
 
@@ -163,6 +180,7 @@ import { waitReady } from "../composables/useTelegram.js";
 import { formatRelative, resolveLastRun } from "@/utils/formatDate.js";
 import ErrorView from "@/components/common/ErrorView.vue";
 import LoadingSkeleton from "@/components/common/LoadingSkeleton.vue";
+import StatCard from "@/components/common/StatCard.vue";
 
 import {
   getVixLevel,
@@ -238,6 +256,16 @@ const usVix = computed(() => {
   const v = reportData.value?.usRisk?.vix ?? statusData.value?.rawUsMarket?.vix;
   return v ?? null;
 });
+function cardClassToStatus(cls) {
+  const map = {
+    "card-danger": "danger",
+    "card-warn": "warn",
+    "card-ok": "ok",
+    "card-blue": null,
+  };
+  return map[cls] ?? null;
+}
+
 const usVixCard = computed(() => {
   const r = getVixLevel(usVix.value, "us");
   return { cls: r.cls, sub: r.subCls, label: r.label };
