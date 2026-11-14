@@ -23,7 +23,7 @@
 
     <!-- ── 精選報告 tab ── -->
     <div v-if="activeTab === 'report'">
-      <EmptyState v-if="reportLoading" title="載入中..." />
+      <LoadingSkeleton v-if="reportLoading" variant="card" :rows="3" />
 
       <ErrorAlert v-else-if="reportError" :visible="true" :description="reportError" :show-retry="true" @retry="loadReport" />
 
@@ -79,7 +79,7 @@
         >
       </div>
 
-      <EmptyState v-if="poolLoading" title="載入中..." />
+      <LoadingSkeleton v-if="poolLoading" variant="card" :rows="3" />
 
       <ErrorAlert v-else-if="poolError" :visible="true" :description="poolError" :show-retry="true" @retry="loadPool" />
 
@@ -110,6 +110,7 @@ import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { useTelegram, waitReady } from "../composables/useTelegram.js";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
+import LoadingSkeleton from "@/components/common/LoadingSkeleton.vue";
 
 // ── sub-tab 狀態 ──────────────────────────────────────────
 const activeTab = ref("report");
