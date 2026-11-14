@@ -1,9 +1,11 @@
 import { readdirSync, readFileSync } from "fs";
 import { gzipSync } from "zlib";
-import { join } from "path";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
 
-const DIST_ASSETS = "dist/assets";
-const MANIFEST_PATH = "dist/.vite/manifest.json";
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DIST_ASSETS = join(__dirname, "..", "dist", "assets");
+const MANIFEST_PATH = join(__dirname, "..", "dist", ".vite", "manifest.json");
 const INITIAL_BUDGET_KB = 156.0;
 const TOTAL_BUDGET_KB = 380.0;
 
