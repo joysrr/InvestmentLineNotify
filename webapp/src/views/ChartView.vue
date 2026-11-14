@@ -1,6 +1,13 @@
 <template>
     <GlobalErrorBoundary>
     <div class="view-container">
+    <SubTabBar
+      :tabs="viewTabs"
+      :active-tab="activeViewTab"
+      @tab-change="onViewTabChange"
+    />
+
+    <div v-if="activeViewTab === '圖表'">
     <!-- ChartView 內建 tabs -->
     <div class="chart-tabs">
       <button
@@ -90,14 +97,20 @@
         </div>
       </div>
     </template>
-    </div>
+    </div>     <!-- 閉合 v-show="activeTab === 'trend'" -->
 
+    </div>     <!-- 閉合 v-if="activeViewTab === '圖表'" -->
+
+    <div v-else>
+      <TechnicalPanel />
+    </div>
   </div>
   </GlobalErrorBoundary>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import Icon from "@/components/common/Icon.vue";
 import VChart from "vue-echarts";
 import { use } from "echarts/core";
@@ -118,6 +131,8 @@ import {
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
+import SubTabBar from "@/components/common/SubTabBar.vue";
+import TechnicalPanel from "@/components/chart/TechnicalPanel.vue";
 
 use([
   LineChart,
@@ -140,6 +155,28 @@ const granularityLabel = computed(
   () => granularities.find((g) => g.key === granularity.value)?.label ?? "",
 );
 const activeTab = ref("trend"); // 'trend' | 'reports'
+
+// ── 一級分頁：圖表 / 技術指標 ─────────────────────────────────────────────────
+const viewTabs = [
+  { label: "圖表", query: { tab: "chart" } },
+  { label: "技術指標", query: { tab: "technical" } },
+];
+
+const activeViewTab = ref("圖表");
+
+const route = useRoute();
+const router = useRouter();
+
+// 從 query 還原 active tab（深層連結）
+if (route.query.tab === "technical") {
+  activeViewTab.value = "技術指標";
+}
+
+const onViewTabChange = (label) => {
+  activeViewTab.value = label;
+  const query = label === "技術指標" ? { tab: "technical" } : { tab: "chart" };
+  router.replace({ query });
+};
 
 // ── 指標設定 ────────────────────────────────────────────────────────────────────
 const metrics = [
