@@ -43,7 +43,7 @@
           <span
             class="module-arrow"
             :class="{ 'is-expanded': isModuleExpanded(modKey) }"
-            >▾</span
+            ><Icon name="chevron-down" size="12" /></span
           >
         </div>
 
@@ -164,7 +164,7 @@
           :disabled="diffCount === 0 || saving"
           @click="saveConfig"
         >
-          {{ saving ? "儲存中..." : "💾 儲存修改" }}
+          {{ saving ? "儲存中..." : "儲存修改" }}
         </button>
       </div>
     </div>

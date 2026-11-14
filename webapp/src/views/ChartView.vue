@@ -33,16 +33,16 @@
     </div>
 
     <!-- 載入中 -->
-    <EmptyState v-if="loading" emoji="⏳" title="載入中..." />
+    <EmptyState v-if="loading" title="載入中..." />
 
     <!-- 錯誤 -->
     <ErrorAlert v-else-if="error" :visible="true" :description="error" :show-retry="true" @retry="load" />
 
     <!-- 無快照 -->
-    <EmptyState v-else-if="!hasEncryption" emoji="🔐" title="快照功能未啟用" message="請設定 SNAPSHOT_ENCRYPT_KEY 環境變數" />
+    <EmptyState v-else-if="!hasEncryption" title="快照功能未啟用" message="請設定 SNAPSHOT_ENCRYPT_KEY 環境變數" />
 
     <!-- 空資料 -->
-    <EmptyState v-else-if="dataPoints.length === 0" emoji="📫" title="尚無快照資料" message="將從明日日報後開始累積" />
+    <EmptyState v-else-if="dataPoints.length === 0" title="尚無快照資料" message="將從明日日報後開始累積" />
 
     <!-- 圖表主體 -->
     <template v-else>

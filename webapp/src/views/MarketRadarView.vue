@@ -126,7 +126,7 @@
 
       <!-- 融資增減明細 -->
       <section v-if="marginChange !== null" class="section">
-        <h3 class="section-title">💳 融資餘額變化</h3>
+        <h3 class="section-title">融資餘額變化</h3>
         <div class="detail-row">
           <span class="dr-label">融資餘額</span>
           <span class="dr-value">{{ marginValue?.toFixed(1) }} 億</span>

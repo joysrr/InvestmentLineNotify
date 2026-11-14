@@ -104,7 +104,7 @@
         <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 你的生命週期優勢</h3>
         <div class="advantage-box">
           <div class="advantage-item">
-            <h4 class="advantage-title">⏰ 時間優勢</h4>
+            <h4 class="advantage-title">時間優勢</h4>
             <p class="advantage-text">
               距離退休還有 <strong>32 年</strong>，是股市歷史上任何熊市恢復時間（平均 3-5 年）的數倍。
               即使遭遇 50% 大跌，仍有充足時間讓市場恢復並繼續成長。

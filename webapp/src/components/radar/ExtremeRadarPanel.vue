@@ -18,7 +18,7 @@
           <span class="status-title">極端防禦狀態：</span>
           <span class="status-badge badge-idle">常態平穩</span>
           <span class="status-sub">監控狀態：IDLE（未觸發異常警報）</span>
-          <span class="status-summary">● 4 項指標監控中 · 全數正常</span>
+          <span class="status-summary">4 項指標監控中 · 全數正常</span>
         </div>
       </template>
 
@@ -41,7 +41,7 @@
                   :aria-label="`查看${r.displayName}說明`"
                   :data-testid="`radar-info-${r.radarId}`"
                   @click.stop="toggleRadarInfo(r.radarId)"
-                >ⓘ</button>
+                ><Icon name="info" size="sm" /></button>
               </div>
               <div class="mini-purpose">{{ r.displayDefinition }}</div>
               <div class="mini-summary">{{ r.displaySummary }}</div>

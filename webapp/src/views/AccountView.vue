@@ -42,7 +42,7 @@
       <div class="section">
         <div class="section-header-row">
           <h2 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 帳戶快照</h2>
-          <router-link to="/chart" class="chart-link-btn">            <Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢圖表 ↗
+          <router-link to="/chart" class="chart-link-btn">            <Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢圖表
           </router-link>
         </div>
 
@@ -806,7 +806,7 @@ const allHealthy = computed(
   position: relative;
 }
 .about-features li::before {
-  content: "✓";
+  content: "";
   position: absolute;
   left: 0;
   color: var(--iln-brand);

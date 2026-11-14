@@ -1,7 +1,9 @@
+import Icon from "@/components/common/Icon.vue";
+
 <template>
   <div v-if="isAuthExpired" class="auth-modal-overlay" data-testid="auth-expired-modal">
     <div class="auth-modal-card">
-      <div class="modal-icon">🔐</div>
+      <div class="modal-icon"><Icon name="warn" size="sm" /></div>
       <h3 class="modal-title">登入憑證已過期</h3>
       <p class="modal-body">
         您在 Telegram Mini App 的操作憑證已超過安全時效（30 分鐘）。請點擊下方按鈕重新載入頁面以取得最新憑證。

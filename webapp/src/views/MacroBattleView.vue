@@ -10,13 +10,13 @@
     <RadarSubtabs />
 
     <!-- 載入中 -->
-    <EmptyState v-if="loading" emoji="⏳" title="載入中..." />
+    <EmptyState v-if="loading" title="載入中..." />
 
     <!-- 錯誤 -->
     <ErrorAlert v-else-if="error" :visible="true" description="資料載入失敗，請稍後重試" />
 
     <!-- 無資料 -->
-    <EmptyState v-else-if="!macro" emoji="📭" title="尚無多空對決資料" message="資料將於每日分析完成後更新" />
+    <EmptyState v-else-if="!macro" title="尚無多空對決資料" message="資料將於每日分析完成後更新" />
 
     <!-- 內容 -->
     <template v-else>
