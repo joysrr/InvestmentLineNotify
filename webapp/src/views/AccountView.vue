@@ -209,6 +209,24 @@
           </template>
         </CollapsibleSection>
       </div>
+
+      <!-- 6. 關於（投資理論與策略說明） -->
+      <template v-if="activePanel === 'about'">
+        <div class="about-section">
+          <h2 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 關於</h2>
+          <div class="about-block">
+            <div class="about-name">InvestmentLineNotify</div>
+            <div class="about-version">單一使用者投資監控與通知系統</div>
+            <ul class="about-features">
+              <li>核心 0050：每月定期定額，僅買不賣</li>
+              <li>衛星 00675L：2x 槓桿，80% 止利後買進回補</li>
+              <li>錨定 00740B：40% 債券，穩健底倉</li>
+              <li>策略詳情：原 /theory 現導入此「關於」區段</li>
+            </ul>
+          </div>
+        </div>
+      </template>
+
     </template>
   </div>
   </GlobalErrorBoundary>
@@ -216,6 +234,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import Icon from "@/components/common/Icon.vue";
 import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
@@ -250,6 +269,10 @@ const status = ref(null);
 const reports = ref([]);
 const loading = ref(true);
 const error = ref(null);
+
+// ── 目前分頁（由 route.query.panel 控制）────────────────
+const route = useRoute();
+const activePanel = computed(() => route.query.panel ?? "");
 
 async function load() {
   loading.value = true;

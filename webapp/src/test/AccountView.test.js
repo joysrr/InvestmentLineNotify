@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
+import { createRouter, createWebHistory } from "vue-router";
 import AccountView from "../views/AccountView.vue";
 import {
   fetchDataEvidenceReport,
@@ -81,9 +82,15 @@ const reports = [
   },
 ];
 
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [{ path: "/account", component: AccountView }],
+});
+
 const mountView = () =>
   mount(AccountView, {
     global: {
+      plugins: [router],
       stubs: {
         "router-link": {
           template: '<a :href="to"><slot /></a>',
@@ -187,6 +194,27 @@ describe("AccountView", () => {
     expect(btn.exists()).toBe(true);
     expect(btn.attributes("href")).toBe("/chart");
     expect(btn.text()).toContain("資產趨勢圖表");
+  });
+
+  it("當 panel=about 時顯示「關於」面板", async () => {
+    const aboutRouter = createRouter({
+      history: createWebHistory(),
+      routes: [{ path: "/account", component: AccountView }],
+    });
+    await aboutRouter.push({ path: "/account", query: { panel: "about" } });
+    const wrapper = mount(AccountView, {
+      global: {
+        plugins: [aboutRouter],
+        stubs: {
+          "router-link": {
+            template: '<a :href="to"><slot /></a>',
+            props: ["to"],
+          },
+        },
+      },
+    });
+    await flushPromises();
+    expect(wrapper.text()).toContain("關於");
   });
 });
 
