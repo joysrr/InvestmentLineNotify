@@ -117,6 +117,14 @@
           ⚠️ 資料已超過 6 小時未更新，建議確認排程狀態
         </div>
 
+        <!-- FreshnessBadge 在 L1 頂部（與 expired 警示條同區塊） -->
+        <FreshnessBadge
+          v-if="status?._meta?.lastRun"
+          :timestamp="status._meta.lastRun"
+          label="資料更新"
+          @level-change="handleFreshnessLevelChange"
+        />
+
         <HealthPanel
           v-if="healthData"
           :data="healthData"
@@ -131,14 +139,6 @@
           message="帳戶健康度評估尚未產生，請稍後再試"
           action-text="重新整理"
           @action="loadAll"
-        />
-
-        <!-- FreshnessBadge 在 L1 區塊（health-hero-v2 附近） -->
-        <FreshnessBadge
-          v-if="status?._meta?.lastRun"
-          :timestamp="status._meta.lastRun"
-          label="資料更新"
-          @level-change="handleFreshnessLevelChange"
         />
       </section>
 

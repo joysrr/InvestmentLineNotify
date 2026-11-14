@@ -91,3 +91,16 @@ wiki_links: []
 | 其他/未定義     | `neutral`   | 預設降級為 neutral     |
 
 映射實作位於 `webapp/src/components/dashboard/HealthPanel.vue` 的 `statusMap` 與 `statusClass` computed，供 `StatCard` 的 `status` prop 使用。
+
+## 令牌家族
+
+每個 status 對應一組令牌變體，組件按用途選用：
+
+| Status  | 基礎            | 文字                 | 背景               | 邊框                   |
+| ------- | --------------- | -------------------- | ------------------ | ---------------------- |
+| ok      | `--iln-ok`      | `--iln-ok-text`      | `--iln-ok-bg`      | `--iln-ok-border`      |
+| warn    | `--iln-warn`    | `--iln-warn-text`    | `--iln-warn-bg`    | `--iln-warn-border`    |
+| danger  | `--iln-danger`  | `--iln-danger-text`  | `--iln-danger-bg`  | `--iln-danger-border`  |
+| neutral | `--iln-neutral` | `--iln-neutral-text` | `--iln-neutral-bg` | `--iln-neutral-border` |
+
+> 注意：`--iln-status-*` 別名已於 CARD-5.1 廢除，統一使用上述家族。
