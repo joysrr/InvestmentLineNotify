@@ -118,6 +118,7 @@
           :loading="healthLoading"
           :error="healthError"
           @open-strategy-status="strategyStatusDrawerVisible = true"
+          @retry="loadAll"
         />
         <EmptyState
           v-else

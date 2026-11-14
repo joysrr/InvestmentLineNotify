@@ -30,28 +30,30 @@ describe("HealthPanel.vue", () => {
     expect(card.props("radius")).toBe("lg");
   });
 
-  it("loading 時顯示 skeleton-list", () => {
+  it("loading 時顯示 LoadingSkeleton", () => {
     const wrapper = mount(HealthPanel, {
       props: { ...baseProps, loading: true },
       global: { stubs: ["router-link"] },
     });
-    expect(wrapper.find(".skeleton-list").exists()).toBe(true);
+    expect(wrapper.findComponent({ name: "LoadingSkeleton" }).exists()).toBe(
+      true,
+    );
   });
 
-  it("error 時顯示 inline-error", () => {
+  it("error 時顯示 ErrorAlert", () => {
     const wrapper = mount(HealthPanel, {
       props: { ...baseProps, error: true, data: null },
       global: { stubs: ["router-link"] },
     });
-    expect(wrapper.find(".inline-error").exists()).toBe(true);
+    expect(wrapper.findComponent({ name: "ErrorAlert" }).exists()).toBe(true);
   });
 
-  it("data 為 null 時顯示 inline-hint", () => {
+  it("data 為 null 時顯示 EmptyState", () => {
     const wrapper = mount(HealthPanel, {
       props: { ...baseProps, data: null },
       global: { stubs: ["router-link"] },
     });
-    expect(wrapper.find(".inline-hint").exists()).toBe(true);
+    expect(wrapper.findComponent({ name: "EmptyState" }).exists()).toBe(true);
   });
 
   it("data 有值時顯示分數與摘要", () => {
@@ -71,5 +73,38 @@ describe("HealthPanel.vue", () => {
     expect(link.exists()).toBe(true);
     link.trigger("click");
     expect(wrapper.emitted("open-strategy-status")).toHaveLength(1);
+  });
+
+  it("loading 時顯示 LoadingSkeleton 而非手寫 skeleton-list", () => {
+    const wrapper = mount(HealthPanel, {
+      props: { ...baseProps, loading: true },
+      global: { stubs: ["router-link"] },
+    });
+    expect(wrapper.findComponent({ name: "LoadingSkeleton" }).exists()).toBe(
+      true,
+    );
+    expect(wrapper.find(".skeleton-list").exists()).toBe(false);
+  });
+
+  it("error 時顯示 ErrorAlert 並可 emit retry", () => {
+    const wrapper = mount(HealthPanel, {
+      props: { ...baseProps, error: true, data: null },
+      global: { stubs: ["router-link"] },
+    });
+    expect(wrapper.findComponent({ name: "ErrorAlert" }).exists()).toBe(true);
+    const alert = wrapper.findComponent({ name: "ErrorAlert" });
+    alert.vm.$emit("retry");
+    expect(wrapper.emitted("retry")).toHaveLength(1);
+  });
+
+  it("data 為 null 時顯示 EmptyState 並可觸發 retry", () => {
+    const wrapper = mount(HealthPanel, {
+      props: { ...baseProps, data: null },
+      global: { stubs: ["router-link"] },
+    });
+    expect(wrapper.findComponent({ name: "EmptyState" }).exists()).toBe(true);
+    const empty = wrapper.findComponent({ name: "EmptyState" });
+    empty.vm.$emit("action");
+    expect(wrapper.emitted("retry")).toHaveLength(1);
   });
 });

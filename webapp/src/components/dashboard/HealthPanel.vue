@@ -4,25 +4,26 @@
       <h3 class="section-title">帳戶健康監控</h3>
     </div>
 
-    <div v-if="loading" class="skeleton-list">
-      <div
-        class="sk sk-hero"
-        style="height: 140px; margin-bottom: 16px"
-      ></div>
-      <div
-        class="sk-grid"
-        style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px"
-      >
-        <div
-          v-for="i in 6"
-          :key="i"
-          class="sk"
-          style="height: 100px"
-        ></div>
-      </div>
-    </div>
-    <div v-else-if="error" class="inline-error"><Icon name="danger" size="sm" color="var(--iln-danger)" /> 健康度資料載入失敗</div>
-    <div v-else-if="!data" class="inline-hint"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 尚無健康度資料</div>
+    <LoadingSkeleton
+      v-if="loading"
+      variant="card"
+      :rows="4"
+    />
+    <ErrorAlert
+      v-else-if="error"
+      title="健康度資料載入失敗"
+      description="請稍後再試，或點擊重試"
+      show-retry
+      retry-text="重新整理"
+      @retry="emit('retry')"
+    />
+    <EmptyState
+      v-else-if="!data"
+      title="尚無健康度資料"
+      message="帳戶健康度評估尚未產生，請稍後再試"
+      action-text="重新整理"
+      @action="emit('retry')"
+    />
     <div v-else class="health-dashboard-v2">
       <!-- Health Hero -->
       <div class="health-hero-v2" :class="data.status?.toLowerCase()">
@@ -96,8 +97,11 @@
 <script setup>
 import ContentCard from "@/components/common/ContentCard.vue";
 import Icon from "@/components/common/Icon.vue";
+import LoadingSkeleton from "@/components/common/LoadingSkeleton.vue";
+import ErrorAlert from "@/components/common/ErrorAlert.vue";
+import EmptyState from "@/components/common/EmptyState.vue";
 
-const emit = defineEmits(["open-strategy-status"]);
+const emit = defineEmits(["open-strategy-status", "retry"]);
 
 const props = defineProps({
   data: Object,
