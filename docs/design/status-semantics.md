@@ -73,3 +73,21 @@ wiki_links: []
 - 僅顯示數值與標籤，不顯示狀態指示色
 
 這表示 `card-blue` 在 Radar 中代表「純資訊類卡片」（如 VIX、SPX 等中性指標），不應被解讀為 ok/warn/danger 任何一種風險狀態。
+
+### HealthPanel (健康度面板)
+
+來源：`webapp/src/components/dashboard/HealthPanel.vue` `statusClass` computed
+
+| 後端回傳 status | 對應 status | 說明                   |
+| --------------- | ----------- | ---------------------- |
+| `ok`            | `ok`        | 健康度正常             |
+| `warn`          | `warn`      | 需注意                 |
+| `danger`        | `danger`    | 風險高                 |
+| `neutral`       | `neutral`   | 中性/無明確方向        |
+| `healthy`       | `ok`        | 後端別名，對應 ok      |
+| `warning`       | `warn`      | 後端別名，對應 warn    |
+| `critical`      | `danger`    | 後端別名，對應 danger  |
+| `unknown`       | `neutral`   | 後端別名，對應 neutral |
+| 其他/未定義     | `neutral`   | 預設降級為 neutral     |
+
+映射實作位於 `webapp/src/components/dashboard/HealthPanel.vue` 的 `statusMap` 與 `statusClass` computed，供 `StatCard` 的 `status` prop 使用。

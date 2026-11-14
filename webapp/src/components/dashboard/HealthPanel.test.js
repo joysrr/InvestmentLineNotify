@@ -107,4 +107,79 @@ describe("HealthPanel.vue", () => {
     empty.vm.$emit("action");
     expect(wrapper.emitted("retry")).toHaveLength(1);
   });
+
+  it("score 使用 StatCard 顯示，label=帳戶健康分數，unit=/100", () => {
+    const wrapper = mount(HealthPanel, {
+      props: baseProps,
+      global: { stubs: ["router-link"] },
+    });
+    const statCard = wrapper.findComponent({ name: "StatCard" });
+    expect(statCard.exists()).toBe(true);
+    expect(statCard.props("label")).toBe("帳戶健康分數");
+    expect(statCard.props("value")).toBe(78);
+    expect(statCard.props("unit")).toBe("/100");
+  });
+
+  it("status=ok 時 StatCard 狀態為 ok", () => {
+    const wrapper = mount(HealthPanel, {
+      props: { ...baseProps, data: { ...baseData, status: "ok" } },
+      global: { stubs: ["router-link"] },
+    });
+    const statCard = wrapper.findComponent({ name: "StatCard" });
+    expect(statCard.props("status")).toBe("ok");
+  });
+
+  it("status=warn 時 StatCard 狀態為 warn", () => {
+    const wrapper = mount(HealthPanel, {
+      props: { ...baseProps, data: { ...baseData, status: "warn" } },
+      global: { stubs: ["router-link"] },
+    });
+    const statCard = wrapper.findComponent({ name: "StatCard" });
+    expect(statCard.props("status")).toBe("warn");
+  });
+
+  it("status=danger 時 StatCard 狀態為 danger", () => {
+    const wrapper = mount(HealthPanel, {
+      props: { ...baseProps, data: { ...baseData, status: "danger" } },
+      global: { stubs: ["router-link"] },
+    });
+    const statCard = wrapper.findComponent({ name: "StatCard" });
+    expect(statCard.props("status")).toBe("danger");
+  });
+
+  it("status=neutral 時 StatCard 狀態為 neutral", () => {
+    const wrapper = mount(HealthPanel, {
+      props: { ...baseProps, data: { ...baseData, status: "neutral" } },
+      global: { stubs: ["router-link"] },
+    });
+    const statCard = wrapper.findComponent({ name: "StatCard" });
+    expect(statCard.props("status")).toBe("neutral");
+  });
+
+  it("status 無效值時預設為 neutral", () => {
+    const wrapper = mount(HealthPanel, {
+      props: { ...baseProps, data: { ...baseData, status: "invalid" } },
+      global: { stubs: ["router-link"] },
+    });
+    const statCard = wrapper.findComponent({ name: "StatCard" });
+    expect(statCard.props("status")).toBe("neutral");
+  });
+
+  it("後端 status=healthy 映射為 ok", () => {
+    const wrapper = mount(HealthPanel, {
+      props: { ...baseProps, data: { ...baseData, status: "healthy" } },
+      global: { stubs: ["router-link"] },
+    });
+    const statCard = wrapper.findComponent({ name: "StatCard" });
+    expect(statCard.props("status")).toBe("ok");
+  });
+
+  it("後端 status=critical 映射為 danger", () => {
+    const wrapper = mount(HealthPanel, {
+      props: { ...baseProps, data: { ...baseData, status: "critical" } },
+      global: { stubs: ["router-link"] },
+    });
+    const statCard = wrapper.findComponent({ name: "StatCard" });
+    expect(statCard.props("status")).toBe("danger");
+  });
 });

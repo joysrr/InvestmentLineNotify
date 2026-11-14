@@ -26,7 +26,7 @@
     />
     <div v-else class="health-dashboard-v2">
       <!-- Health Hero -->
-      <div class="health-hero-v2" :class="data.status?.toLowerCase()">
+      <div class="health-hero-v2">
         <div class="glass-overlay"></div>
         <div class="health-hero-content">
           <div class="health-hero-top">
@@ -42,8 +42,12 @@
               </div>
             </div>
             <div class="health-hero-score-wrapper">
-              <span class="health-hero-score">{{ data.score }}</span>
-              <span class="health-hero-score-unit">/100</span>
+              <StatCard
+                label="帳戶健康分數"
+                :value="data.score"
+                :status="statusClass"
+                unit="/100"
+              />
             </div>
           </div>
           <p class="health-hero-summary">{{ data.summary }}</p>
@@ -95,11 +99,13 @@
 </template>
 
 <script setup>
+import { computed } from "vue";
 import ContentCard from "@/components/common/ContentCard.vue";
 import Icon from "@/components/common/Icon.vue";
 import LoadingSkeleton from "@/components/common/LoadingSkeleton.vue";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
+import StatCard from "@/components/common/StatCard.vue";
 
 const emit = defineEmits(["open-strategy-status", "retry"]);
 
@@ -107,6 +113,24 @@ const props = defineProps({
   data: Object,
   loading: Boolean,
   error: Boolean,
+});
+
+// status 映射對照 docs/design/status-semantics.md 四態：ok / warn / danger / neutral
+const statusMap = {
+  ok: "ok",
+  warn: "warn",
+  danger: "danger",
+  neutral: "neutral",
+  // 後端可能回傳的其他值
+  healthy: "ok",
+  warning: "warn",
+  critical: "danger",
+  unknown: "neutral",
+};
+
+const statusClass = computed(() => {
+  const raw = props.data?.status;
+  return statusMap[raw] || "neutral";
 });
 
 const getCompIcon = (key) => {
