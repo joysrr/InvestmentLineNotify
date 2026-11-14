@@ -51,4 +51,31 @@ describe("FreshnessBadge", () => {
     });
     expect(wrapper.attributes("title")).toContain("2026-11-14T11:30:00");
   });
+
+  it("首次掛載時 emit level-change（immediate: true），level 為 fresh", () => {
+    const wrapper = mount(FreshnessBadge, {
+      props: { timestamp: oneHourAgo, label: "更新" },
+    });
+    const emitted = wrapper.emitted("level-change");
+    expect(emitted).toBeTruthy();
+    expect(emitted[0][0]).toBe("fresh");
+  });
+
+  it("三小時前 emit level-change，level 為 stale", () => {
+    const wrapper = mount(FreshnessBadge, {
+      props: { timestamp: threeHoursAgo, label: "更新" },
+    });
+    const emitted = wrapper.emitted("level-change");
+    expect(emitted).toBeTruthy();
+    expect(emitted[0][0]).toBe("stale");
+  });
+
+  it("超過 6 小時 emit level-change，level 為 expired", () => {
+    const wrapper = mount(FreshnessBadge, {
+      props: { timestamp: twentyFiveHoursAgo, label: "更新" },
+    });
+    const emitted = wrapper.emitted("level-change");
+    expect(emitted).toBeTruthy();
+    expect(emitted[0][0]).toBe("expired");
+  });
 });

@@ -112,6 +112,11 @@
 
       <!-- 3. 帳戶健康度監控 (0-100) -->
       <section class="dashboard-card health-card">
+        <!-- expired 降級提示（L1 區塊頂部） -->
+        <div v-if="freshnessLevel === 'expired'" class="freshness-expired-alert">
+          ⚠️ 資料已超過 6 小時未更新，建議確認排程狀態
+        </div>
+
         <HealthPanel
           v-if="healthData"
           :data="healthData"
@@ -126,6 +131,14 @@
           message="帳戶健康度評估尚未產生，請稍後再試"
           action-text="重新整理"
           @action="loadAll"
+        />
+
+        <!-- FreshnessBadge 在 L1 區塊（health-hero-v2 附近） -->
+        <FreshnessBadge
+          v-if="status?._meta?.lastRun"
+          :timestamp="status._meta.lastRun"
+          label="資料更新"
+          @level-change="handleFreshnessLevelChange"
         />
       </section>
 
@@ -166,10 +179,6 @@
     <!-- Footer meta -->
     <p v-if="status?._meta?.lastRun" class="update-time">
       資料更新：{{ formatUpdatedAt(status._meta.lastRun) }}
-      <FreshnessBadge
-        :timestamp="status._meta.lastRun"
-        label="資料更新"
-      />
     </p>
   </div>
   </GlobalErrorBoundary>
@@ -249,6 +258,13 @@ const healthError = computed(() => healthState.error.value);
 // L3 Drawers 顯示控制
 const marketDrawerVisible = ref(false);
 const riskDrawerVisible = ref(false);
+
+// FreshnessBadge level 追蹤（用於 expired 降級提示）
+const freshnessLevel = ref("fresh");
+
+const handleFreshnessLevelChange = (level) => {
+  freshnessLevel.value = level;
+};
 
 const dropBufferPercent = computed(() => {
   const m = Number(latestReport.value?.portfolio?.maintenanceRatio ?? latestReport.value?.signals?.portfolio?.maintenanceRatio) || 0;
@@ -555,6 +571,18 @@ watch(
   color: var(--iln-hint);
   text-align: center;
   margin-top: 24px;
+}
+
+/* expired 降級提示（L1 區塊頂部） */
+.freshness-expired-alert {
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  background: var(--iln-danger-bg);
+  color: var(--iln-danger-text);
+  border-radius: 6px;
+  border: 1px solid var(--iln-status-danger);
+  text-align: center;
 }
 
 /* Global-ish utility classes for children */

@@ -10,6 +10,7 @@ import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 import DashboardView from "@/views/DashboardView.vue";
+import { fetchStatus } from "@/api/index.js";
 import { nextTick } from "vue";
 
 vi.mock("element-plus", async (importOriginal) => {
@@ -27,7 +28,7 @@ vi.mock("element-plus", async (importOriginal) => {
 });
 
 vi.mock("@/api/index.js", () => ({
-  fetchStatus: () => Promise.resolve({ data: { rawNdc: { light: "綠" } } }),
+  fetchStatus: vi.fn(() => Promise.resolve({ rawNdc: { light: "綠" } })),
   fetchReports: (limit) =>
     Promise.resolve([
       {
@@ -130,5 +131,17 @@ describe("DashboardView - Single Page Card Carousel (Phase 2 target)", () => {
     const link = wrapper.find(".router-link-stub");
     expect(link.exists()).toBe(true);
     expect(link.text()).toContain("查看完整市場雷達");
+  });
+
+  it("資料過期時顯示 expired 降級提示條於 L1 區塊", async () => {
+    fetchStatus.mockResolvedValueOnce({
+      rawNdc: { light: "綠" },
+      _meta: { lastRun: "2026-01-01T00:00:00Z" }, // 遠超過 24 小時 → expired
+    });
+    await mountView();
+    expect(wrapper.find(".freshness-expired-alert").exists()).toBe(true);
+    expect(wrapper.find(".freshness-expired-alert").text()).toContain(
+      "資料已超過 6 小時未更新",
+    );
   });
 });

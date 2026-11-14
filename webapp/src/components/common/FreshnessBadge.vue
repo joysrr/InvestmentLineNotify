@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
@@ -26,12 +26,14 @@ const props = defineProps({
   thresholds: {
     type: Object,
     default: () => ({
-      fresh: 3600, // 1 小時
-      stale: 21600, // 6 小時
-      expired: 86400, // 24 小時
+      fresh: 3600,
+      stale: 21600,
+      expired: 86400,
     }),
   },
 });
+
+const emit = defineEmits(["level-change"]);
 
 const level = computed(() => {
   const age = (Date.now() - new Date(props.timestamp).getTime()) / 1000;
@@ -40,6 +42,9 @@ const level = computed(() => {
   if (age < props.thresholds.expired) return "expired";
   return "expired";
 });
+
+// 首次掛載即 emit，讓父組件可立即得知 level（用於 expired 降級提示）
+watch(level, (newLevel) => emit("level-change", newLevel), { immediate: true });
 
 const absoluteTime = computed(() => new Date(props.timestamp).toISOString());
 
