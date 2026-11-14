@@ -114,7 +114,7 @@ export const tabs = [
 ]
 ```
 
-結論：**5 項**，分別為 總覽(/dashboard)、市場雷達(/radar)、新聞(/news)、理論(/theory)、設定與帳戶(/account)。與決策 D4（5 個一級入口）一致。
+結論：**5 項**，分別為 總覽(/dashboard)、市場雷達(/radar)、新聞(/news)、理論(/theory)、設定與帳戶(/account)。數量為 5，但當前仍為舊路由結構（/radar、/theory 尚未收斂），語義上與 D4 目標結構（/dashboard、/insights、/chart、/news、/account）不同；CARD-04 將負責收斂。
 
 ### 2. StatCard 在 Radar / Technical 的覆蓋率
 
