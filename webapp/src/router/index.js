@@ -6,10 +6,8 @@ const NewsView = () => import("../views/NewsView.vue");
 const AccountView = () => import("../views/AccountView.vue");
 const MarketRadarView = () => import("../views/MarketRadarView.vue");
 const MacroBattleView = () => import("../views/MacroBattleView.vue");
-const TechnicalView = () => import("../views/TechnicalView.vue");
 const StrategyConfigEditorView = () =>
   import("../views/StrategyConfigEditor.vue");
-const TheoryView = () => import("../views/TheoryView.vue");
 const InsightsView = () => import("../views/InsightsView.vue");
 
 export const viewLoaders = {
@@ -18,9 +16,7 @@ export const viewLoaders = {
   AccountView,
   MarketRadarView,
   MacroBattleView,
-  TechnicalView,
   StrategyConfigEditorView,
-  TheoryView,
   InsightsView,
 };
 
