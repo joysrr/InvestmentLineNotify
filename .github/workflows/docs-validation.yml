@@ -29,7 +29,13 @@ jobs:
       
       - name: Validate frontmatter
         run: node scripts/pre-commit-docs-check.mjs
-      
+
+      - name: Validate doc path references
+        run: |
+          grep -rhoP '`(docs/[^`]+\.md)`' docs README.md | tr -d '`' | sort -u | while read -r p; do
+            [ -f "$p" ] || { echo "❌ 引用不存在：$p"; exit 1; }
+          done
+
       - name: Generate wiki index
         run: node scripts/generate-wiki-index.mjs
       
