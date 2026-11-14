@@ -1,7 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { setupE2EContext } from "./e2e-utils.js";
 
-test("FloatingPill 在 360px 寬下 5 項不換行、不溢出", async ({ page }) => {
+test("FloatingPill 在 360px 寬下 5 項不換行、不溢出，且有 ≥8px 餘量", async ({
+  page,
+}) => {
   await setupE2EContext(page);
   await page.setViewportSize({ width: 360, height: 640 });
   await page.goto("http://localhost:5173/", {
@@ -41,4 +43,8 @@ test("FloatingPill 在 360px 寬下 5 項不換行、不溢出", async ({ page }
     overflowFlags,
     "存在 item 內容溢出（scrollWidth > clientWidth）",
   ).not.toContain(true);
+
+  // 4. 餘量 ≥ 8px：確保未來 label 變更有緩衝
+  const slack = container.x + container.width - (lastItem.x + lastItem.width);
+  expect(slack, "FloatingPill 360px 餘量不足 8px").toBeGreaterThanOrEqual(8);
 });

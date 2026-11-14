@@ -30,6 +30,8 @@ export const NEWS_PATH =
   "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z";
 export const WALLET_PATH =
   "M21 7.28V5c0-1.1-.9-2-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2v-2.28A2 2 0 0 0 22 15V9a2 2 0 0 0-1-1.72zM20 9v6h-7V9h7zM5 19V5h14v2h-6c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h6v2H5z";
+export const CLOCK_PATH =
+  "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zM12 12l2 2 4-4";
 
 export const ICON_MAP = {
   "check-circle": {
@@ -95,6 +97,9 @@ export const ICON_MAP = {
   },
   wallet: {
     component: { template: `<path d="${WALLET_PATH}" fill="currentColor"/>` },
+  },
+  clock: {
+    component: { template: `<path d="${CLOCK_PATH}" fill="currentColor"/>` },
   },
 };
 

@@ -112,7 +112,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 64px;
+  min-width: 56px;
   padding: var(--iln-space-2) var(--iln-space-1);
   text-decoration: none;
   color: var(--iln-hint);
