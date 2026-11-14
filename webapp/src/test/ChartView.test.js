@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
 import { nextTick } from "vue";
+import { createRouter, createWebHistory } from "vue-router";
 import ChartView from "../views/ChartView.vue";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import {
@@ -32,7 +33,17 @@ vi.mock("echarts/components", () => ({
 }));
 vi.mock("echarts/renderers", () => ({ CanvasRenderer: {} }));
 
-const mountView = () => mount(ChartView);
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [{ path: "/chart", component: ChartView }],
+});
+
+const mountView = () =>
+  mount(ChartView, {
+    global: {
+      plugins: [router],
+    },
+  });
 const snapshot = (date = "2026-08-17") => ({
   date,
   netValueMarket: 100000,
