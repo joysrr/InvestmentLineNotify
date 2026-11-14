@@ -9,7 +9,6 @@ const MacroBattleView = () => import("../views/MacroBattleView.vue");
 const TechnicalView = () => import("../views/TechnicalView.vue");
 const StrategyConfigEditorView = () =>
   import("../views/StrategyConfigEditor.vue");
-const StrategyStatusView = () => import("../views/StrategyStatusView.vue");
 const TheoryView = () => import("../views/TheoryView.vue");
 
 export const viewLoaders = {
@@ -20,7 +19,6 @@ export const viewLoaders = {
   MacroBattleView,
   TechnicalView,
   StrategyConfigEditorView,
-  StrategyStatusView,
   TheoryView,
 };
 
@@ -64,6 +62,7 @@ const router = createRouter({
       meta: { title: "理論", chunk: "low" },
     },
     { path: "/strategy", redirect: "/strategy-config" },
+    { path: "/strategy-status", redirect: "/strategy-config" },
     {
       path: "/account",
       component: AccountView,
@@ -73,11 +72,6 @@ const router = createRouter({
       path: "/strategy-config",
       component: StrategyConfigEditorView,
       meta: { title: "策略設定", chunk: "low" },
-    },
-    {
-      path: "/strategy-status",
-      component: StrategyStatusView,
-      meta: { title: "策略狀態", chunk: "low" },
     },
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
   ],

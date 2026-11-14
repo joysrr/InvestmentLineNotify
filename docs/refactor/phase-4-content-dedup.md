@@ -26,18 +26,33 @@ tags:
 
 | 子卡    | 去重焦點            | 主要產出                                                            | 狀態   |
 | ------- | ------------------- | ------------------------------------------------------------------- | ------ |
-| CARD-01 | StrategyStatus 去重 | StrategyStatusSummary.vue、StrategyStatusPanel.vue、router redirect | 未開始 |
+| CARD-01 | StrategyStatus 去重 | StrategyStatusSummary.vue、StrategyStatusPanel.vue、router redirect | 已完成 |
 | CARD-02 | News 資料源釐清     | NewsCard.vue、utils/newsMatch.js、NewsView.vue 改寫                 | 未開始 |
 | CARD-03 | 指標卡跨頁統一      | MarketRadarView.vue、TechnicalView.vue 遷移 StatCard                | 未開始 |
 
 ## 驗收（階段四）
 
-- [ ] CARD-01：StrategyStatusView 拆分為摘要＋drawer，原路由保留 redirect
+- [x] CARD-01：StrategyStatusView 拆分為摘要＋drawer，原路由保留 redirect
 - [ ] CARD-02：News 精選報告與新聞池分離，資料源關係說明完整
 - [ ] CARD-03：MarketRadar / Technical 指標卡 100% 使用 StatCard
 - [ ] `npm --prefix webapp run lint` 0 errors / 0 warnings
 - [ ] `npm --prefix webapp run test` 全綠
 - [ ] 體積預算：Initial ≤ 156.0 KB、Total ≤ 380.0 KB
+
+## §欄位對照表（CARD-01）
+
+原 `StrategyStatusView` 單一頁面承載全部欄位，CARD-01 拆分為 `StrategyStatusSummary.vue`（摘要，供 Dashboard 內嵌）與 `StrategyStatusPanel.vue`（完整面板，後續以 drawer 呈現）。兩者共用 `health` prop 契約：
+
+| 欄位                         | 來源                         | StrategyStatusSummary              | StrategyStatusPanel            |
+| ---------------------------- | ---------------------------- | ---------------------------------- | ------------------------------ |
+| `health.weightScore.total`   | `health.weightScore.total`   | 顯示策略總分（pt）                 | 分數構成標籤頁顯示總分與明細   |
+| `health.cooldown.inCooldown` | `health.cooldown.inCooldown` | 冷卻期文字（剩餘 X 天 / 無冷卻期） | 風控與機制標籤頁顯示冷卻期狀態 |
+| `health.cooldown.daysLeft`   | `health.cooldown.daysLeft`   | 顯示剩餘天數                       | 同上                           |
+| `health.timestamp`           | `health.timestamp`           | 顯示更新時間                       | 顯示更新時間                   |
+| `loading`                    | 外部傳入                     | 顯示 skeleton-list                 | 顯示 skeleton-list             |
+| `error`                      | 外部傳入                     | 顯示 inline-error 並隱藏內容       | 顯示 inline-error              |
+
+路由變更：`/strategy-status` 獨立路由廢止，改為 redirect 到 `/strategy-config`。Dashboard `HealthPanel.detail-link="/strategy-status"` 將在後續卡片重新導向（目前 redirect 保底）。
 
 ## 未決事項
 
