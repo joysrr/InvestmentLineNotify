@@ -581,7 +581,7 @@ watch(
   background: var(--iln-danger-bg);
   color: var(--iln-danger-text);
   border-radius: 6px;
-  border: 1px solid var(--iln-status-danger);
+  border: 1px solid var(--iln-danger);
   text-align: center;
 }
 

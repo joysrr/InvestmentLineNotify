@@ -29,8 +29,6 @@
   --iln-ok: #10b981;
   --iln-warn: #f59e0b;
   --iln-danger: #ef4444;
-  --iln-status-danger: var(--iln-danger);
-  --iln-status-warning: var(--iln-warn);
   --iln-info: #3b82f6;
   --iln-neutral: #94a3b8;
   --iln-neutral-fill-faint: rgba(180, 180, 180, 0.06);
