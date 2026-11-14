@@ -195,12 +195,8 @@ import MarketDetailDrawer from "../components/dashboard/MarketDetailDrawer.vue";
 import RiskDetailDrawer from "../components/dashboard/RiskDetailDrawer.vue";
 import DecisionHero from "../components/dashboard/DecisionHero.vue";
 import HealthPanel from "../components/dashboard/HealthPanel.vue";
-const EmptyState = defineAsyncComponent(() =>
-  import("@/components/common/EmptyState.vue"),
-);
-const FreshnessBadge = defineAsyncComponent(() =>
-  import("@/components/common/FreshnessBadge.vue"),
-);
+import EmptyState from "@/components/common/EmptyState.vue";
+import FreshnessBadge from "@/components/common/FreshnessBadge.vue";
 import CoachingAdvice from "@/components/dashboard/CoachingAdvice.vue";
 const StrategyConfigEditorView = defineAsyncComponent(() =>
   import("@/views/StrategyConfigEditor.vue"),

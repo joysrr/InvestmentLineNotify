@@ -88,3 +88,11 @@ grep -rnE "#[0-9a-fA-F]{3,8}\b|rgba?\(" webapp/src/views/ webapp/src/components/
 - 路由結構、D1–D6、`webapp/src/api/`、`src/ai/`：不變
 - bundle 預算：Initial ≤ 156.0 KB，Total ≤ 380.0 KB
 - 360px：每個新增元素須通過 360px 驗證
+
+## 7. 首屏包體策略（CARD-5.1 A-2 順帶修正）
+
+- **改動**：`StrategyConfigEditorView` 改為 `defineAsyncComponent`（僅在開啟設定抽屜時載入）
+- **理由**：低頻頁面級組件（14 KB 原始，gzip 約 54 KB），高頻小元件（EmptyState / FreshnessBadge）保持同步，避免 UX 跳變
+- **影響**：Initial 從 155.5 KB → 103.8 KB；Total 從 354.0 KB → 約 355.7 KB（+1.7 KB 為 defineAsyncComponent chunk wrapper 開銷）
+- **流程**：經規劃者於 CARD-5.1 A-2 核實時同意；已拆為獨立 commit
+- **未採納的方案**：`EmptyState` / `FreshnessBadge` async 化 — 高頻小元件，UX 代價（空白跳變、footer 高度跳動）＞ 包體收益，revert 回 sync
