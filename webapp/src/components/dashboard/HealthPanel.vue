@@ -81,7 +81,6 @@
 
       <!-- Detail Link (Phase 3)：改為 emit，由父層決定開啟 drawer 或導航 -->
       <div
-        v-if="detailLink"
         class="health-detail-link"
         role="button"
         tabindex="0"
@@ -104,10 +103,6 @@ const props = defineProps({
   data: Object,
   loading: Boolean,
   error: Boolean,
-  detailLink: {
-    type: String,
-    default: "",
-  },
 });
 
 const getCompIcon = (key) => {

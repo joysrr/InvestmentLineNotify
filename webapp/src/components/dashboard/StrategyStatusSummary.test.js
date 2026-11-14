@@ -42,4 +42,11 @@ describe("StrategyStatusSummary.vue", () => {
     expect(wrapper.text()).toContain("載入失敗");
     expect(wrapper.find(".status-summary-content").exists()).toBe(false);
   });
+
+  it("點擊摘要卡 emit click，供父層開啟 drawer", () => {
+    const wrapper = mount(StrategyStatusSummary, { props: baseProps });
+    const card = wrapper.findComponent({ name: "ContentCard" });
+    card.vm.$emit("click");
+    expect(wrapper.emitted("click")).toHaveLength(1);
+  });
 });

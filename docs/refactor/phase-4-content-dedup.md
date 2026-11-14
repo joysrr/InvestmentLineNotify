@@ -33,6 +33,17 @@ tags:
 ## 驗收（階段四）
 
 - [x] CARD-01：StrategyStatusView 拆分為摘要＋drawer，原路由保留 redirect
+
+### 測試數變化說明（CARD-01）
+
+| 項目                   | 數量 | 說明                                                                              |
+| ---------------------- | ---- | --------------------------------------------------------------------------------- |
+| CARD-01 初次提交後總數 | 627  | 含 StrategyStatusSummary (4) + StrategyStatusPanel (5)                            |
+| 新增測試               | +2   | HealthPanel `detail-link` 改 emit (1) + StrategyStatusSummary 點擊交互 (1)        |
+| 刪除孤兒測試           | −20  | `StrategyStatusView.test.js`、`StrategyStatusView.errorBoundary.test.js` 共 20 個 |
+| 淨變化                 | −18  | +2 − 20 = −18                                                                     |
+| 最終總數               | 609  | 609/609 全綠（96 檔案）                                                           |
+
 - [ ] CARD-02：News 精選報告與新聞池分離，資料源關係說明完整
 - [ ] CARD-03：MarketRadar / Technical 指標卡 100% 使用 StatCard
 - [ ] `npm --prefix webapp run lint` 0 errors / 0 warnings

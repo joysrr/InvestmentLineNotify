@@ -64,7 +64,7 @@ describe("HealthPanel.vue", () => {
 
   it("detail-link 被點擊時 emit open-strategy-status，不再呈現 router-link", () => {
     const wrapper = mount(HealthPanel, {
-      props: { ...baseProps, detailLink: "/strategy-status" },
+      props: { ...baseProps },
     });
     expect(wrapper.findComponent({ name: "router-link" }).exists()).toBe(false);
     const link = wrapper.find(".health-detail-link");

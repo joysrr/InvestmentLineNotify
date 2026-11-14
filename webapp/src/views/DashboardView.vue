@@ -108,7 +108,6 @@
           :data="healthData"
           :loading="healthLoading"
           :error="healthError"
-          detail-link="/strategy-status"
           @open-strategy-status="strategyStatusDrawerVisible = true"
         />
       </section>
