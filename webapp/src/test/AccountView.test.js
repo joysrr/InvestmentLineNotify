@@ -57,6 +57,13 @@ vi.mock("echarts/components", () => ({
   GridComponent: {},
 }));
 vi.mock("echarts/renderers", () => ({ CanvasRenderer: {} }));
+vi.mock("element-plus", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    ElMessageBox: { confirm: vi.fn() },
+  };
+});
 
 const status = {
   _meta: {
@@ -141,7 +148,12 @@ describe("AccountView", () => {
     expect(fetchStatus).toHaveBeenCalledOnce();
     expect(fetchReports).toHaveBeenCalledWith(30);
     expect(wrapper.text()).toContain("系統狀態");
-    await wrapper.find(".collapsible-header").trigger("click");
+    // 點擊「資料來源」的 CollapsibleSection 標題以展開
+    const sourcesHeader = Array.from(
+      wrapper.findAll(".collapsible-header"),
+    ).find((h) => h.text().includes("資料來源"));
+    await sourcesHeader.trigger("click");
+    await flushPromises();
     expect(wrapper.text()).toContain("provider failed");
   });
 
@@ -151,6 +163,7 @@ describe("AccountView", () => {
     await flushPromises();
     expect(wrapper.find(".error-alert").exists()).toBe(true);
     fetchStatus.mockResolvedValueOnce(status);
+    // 點擊 ErrorAlert 內的重試按鈕（錯誤狀態下不渲染 CollapsibleSection）
     await wrapper.find(".error-alert-actions button").trigger("click");
     await flushPromises();
     expect(fetchStatus).toHaveBeenCalledTimes(2);
@@ -215,6 +228,49 @@ describe("AccountView", () => {
     });
     await flushPromises();
     expect(wrapper.text()).toContain("關於");
+  });
+
+  // ── CARD-5.5：設定項分組測試 ──
+  it("應渲染 3 個 CollapsibleSection 設定分組：通知 / 策略 / 關於，外加 1 個 資料來源 分組", async () => {
+    const wrapper = mountView();
+    await flushPromises();
+    const titles = wrapper.findAll(".collapsible-title").map((t) => t.text());
+    expect(titles).toContain("通知設定");
+    expect(titles).toContain("策略參數");
+    expect(titles).toContain("關於");
+    expect(titles).toContain("資料來源");
+  });
+
+  it("通知設定預設展開，包含 Telegram 開關與通知時段輸入", async () => {
+    const wrapper = mountView();
+    await flushPromises();
+    expect(wrapper.text()).toContain("通知設定");
+    expect(wrapper.text()).toContain("Telegram 通知開關");
+    expect(wrapper.text()).toContain("通知時段（小時）");
+  });
+
+  it("儲存通知設定後顯示成功回饋訊息", async () => {
+    const wrapper = mountView();
+    await flushPromises();
+    await wrapper.vm.saveNotificationSettings();
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(wrapper.text()).toContain("通知設定已儲存");
+  });
+
+  it("關於面板位於 id=about 的 CollapsibleSection 內（展開後可見）", async () => {
+    const wrapper = mountView();
+    await flushPromises();
+    // 點擊「關於」標題以展開
+    const aboutHeader = Array.from(wrapper.findAll(".collapsible-header")).find(
+      (h) => h.text().includes("關於"),
+    );
+    expect(aboutHeader.exists()).toBe(true);
+    await aboutHeader.trigger("click");
+    await flushPromises();
+    const aboutSection = wrapper.find("#about");
+    expect(aboutSection.exists()).toBe(true);
+    expect(wrapper.text()).toContain("InvestmentLineNotify");
+    expect(wrapper.text()).toContain("單一使用者投資監控與通知系統");
   });
 });
 

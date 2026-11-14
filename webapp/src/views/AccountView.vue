@@ -7,6 +7,94 @@
       <p class="page-subtitle">資料來源健康度 ＆ 總經快照</p>
     </div>
 
+    <!-- ── 設定項分組（CARD-5.5：4 組 CollapsibleSection）── -->
+    <div class="settings-groups">
+      <!-- 1. 通知設定（預設展開） -->
+      <CollapsibleSection title="通知設定" :expanded="true" indicator="chevron">
+        <template #default>
+          <div class="settings-group notification-settings">
+            <div class="setting-row">
+              <label class="setting-label">Telegram 通知開關</label>
+              <el-switch
+                v-model="telegramEnabled"
+                active-text="開啟"
+                inactive-text="關閉"
+              />
+            </div>
+            <div class="setting-row">
+              <label class="setting-label">通知時段（小時）</label>
+              <el-input
+                v-model.number="notificationHour"
+                type="number"
+                min="0"
+                max="23"
+                placeholder="0-23"
+                style="width: 80px"
+              />
+            </div>
+            <div class="setting-row save-row">
+              <el-button
+                type="primary"
+                size="small"
+                @click="saveNotificationSettings"
+                :disabled="saveStatus !== null"
+              >
+                儲存設定
+              </el-button>
+              <div
+                v-if="saveStatus"
+                class="save-feedback"
+                :class="`save-feedback--${saveStatus}`"
+              >
+                {{ saveMessage }}
+              </div>
+            </div>
+          </div>
+        </template>
+      </CollapsibleSection>
+
+      <!-- 2. 策略參數（預設展開，指向 StrategyConfigEditor） -->
+      <CollapsibleSection title="策略參數" :expanded="true" indicator="chevron">
+        <template #default>
+          <div class="settings-group strategy-params">
+            <div class="setting-row">
+              <label class="setting-label">目標配置與再平衡閾值</label>
+              <router-link
+                to="/account?panel=strategy"
+                class="setting-action-link"
+              >
+                開啟策略編輯器 →
+              </router-link>
+            </div>
+            <p class="setting-hint">
+              策略參數由 StrategyConfigEditor 管理（非同步載入，避免首屏阻塞）。
+            </p>
+          </div>
+        </template>
+      </CollapsibleSection>
+
+      <!-- 4. 關於（預設摺疊，id="about" 保持） -->
+      <CollapsibleSection title="關於" :expanded="aboutExpanded" indicator="chevron">
+        <template #default>
+          <div class="settings-group about-panel" id="about">
+            <h2 class="section-title">
+              <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 關於
+            </h2>
+            <div class="about-block">
+              <div class="about-name">InvestmentLineNotify</div>
+              <div class="about-version">單一使用者投資監控與通知系統</div>
+              <ul class="about-features">
+                <li>核心 0050：每月定期定額，僅買不賣</li>
+                <li>衛星 00675L：2x 槓桿，80% 止利後買進回補</li>
+                <li>錨定 00740B：40% 債券，穩健底倉</li>
+                <li>策略詳情：原 /theory 現導入此「關於」區段</li>
+              </ul>
+            </div>
+          </div>
+        </template>
+      </CollapsibleSection>
+    </div>
+
     <!-- ── Skeleton ── -->
     <template v-if="loading">
       <div class="section">
@@ -210,22 +298,7 @@
         </CollapsibleSection>
       </div>
 
-      <!-- 6. 關於（投資理論與策略說明） -->
-      <template v-if="activePanel === 'about'">
-        <div class="about-section" id="about">
-          <h2 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 關於</h2>
-          <div class="about-block">
-            <div class="about-name">InvestmentLineNotify</div>
-            <div class="about-version">單一使用者投資監控與通知系統</div>
-            <ul class="about-features">
-              <li>核心 0050：每月定期定額，僅買不賣</li>
-              <li>衛星 00675L：2x 槓桿，80% 止利後買進回補</li>
-              <li>錨定 00740B：40% 債券，穩健底倉</li>
-              <li>策略詳情：原 /theory 現導入此「關於」區段</li>
-            </ul>
-          </div>
-        </div>
-      </template>
+      <!-- 6. 關於（已移至上方設定項分組，id="about" 保持） -->
 
     </template>
   </div>
@@ -233,8 +306,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { ref, computed, onMounted, nextTick } from "vue";
 import Icon from "@/components/common/Icon.vue";
 import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
@@ -242,8 +314,9 @@ import { usePortfolioSnapshots } from "../composables/usePortfolioSnapshots.js";
 import { waitReady } from "../composables/useTelegram.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import DataEvidenceCard from "../components/dashboard/DataEvidenceCard.vue";
-import DeploymentControl from "../components/common/DeploymentControl.vue";
+import DeploymentControl from "@/components/common/DeploymentControl.vue";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
+import { useRoute } from "vue-router";
 
 // ECharts
 import VChart from "vue-echarts";
@@ -270,9 +343,12 @@ const reports = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
-// ── 目前分頁（由 route.query.panel 控制）────────────────
-const route = useRoute();
-const activePanel = computed(() => route.query.panel ?? "");
+// ── 通知設定（0.3 日：設定回饋）──────────────────────────
+const telegramEnabled = ref(true);
+const notificationHour = ref(9);
+const aboutExpanded = ref(false);
+const saveStatus = ref(null); // 'success' | 'error' | null
+const saveMessage = ref("");
 
 async function load() {
   loading.value = true;
@@ -290,10 +366,32 @@ async function load() {
   }
 }
 
+// ── 通知設定儲存（0.3 日：設定回饋）─────────────────────
+async function saveNotificationSettings() {
+  saveStatus.value = null;
+  saveMessage.value = "";
+  try {
+    // 模擬儲存設定（實際應呼叫 API，階段五不改資料契約，此處為 UI 回饋示範）
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    saveStatus.value = "success";
+    saveMessage.value = "通知設定已儲存";
+  } catch {
+    saveStatus.value = "error";
+    saveMessage.value = "儲存失敗，請稍後再試";
+  }
+}
+
 onMounted(async () => {
+  const route = useRoute();
   await waitReady();
   load();
   loadSnapshots();
+  if (route.query.panel === "about") {
+    aboutExpanded.value = true;
+    nextTick(() => {
+      document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
+    });
+  }
 });
 
 // ── 帳戶快照 ──────────────────────────────────────────
@@ -892,5 +990,60 @@ const allHealthy = computed(
   color: var(--iln-text-on-brand);
   font-size: 14px;
   cursor: pointer;
+}
+
+/* ── 設定項分組（CARD-5.5）── */
+.settings-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 12px 16px;
+}
+.settings-group {
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border);
+  border-radius: 10px;
+  padding: 12px;
+}
+.settings-group .setting-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.settings-group .setting-row:last-child {
+  margin-bottom: 0;
+}
+.settings-group .setting-label {
+  font-size: 13px;
+  color: var(--iln-text);
+  min-width: 110px;
+}
+.settings-group .setting-action-link {
+  font-size: 13px;
+  color: var(--iln-brand);
+  text-decoration: none;
+}
+.settings-group .setting-action-link:hover {
+  text-decoration: underline;
+}
+.settings-group .setting-hint {
+  font-size: 11px;
+  color: var(--iln-hint);
+  margin-top: 4px;
+}
+.settings-group .save-feedback {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+.settings-group .save-feedback--success {
+  background: var(--iln-ok-bg);
+  color: var(--iln-ok-text);
+}
+.settings-group .save-feedback--error {
+  background: var(--iln-danger-bg);
+  color: var(--iln-danger-text);
 }
 </style>
