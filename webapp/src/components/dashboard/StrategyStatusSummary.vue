@@ -1,14 +1,16 @@
 <template>
-  <ContentCard variant="outlined" padding="lg" radius="lg">
+  <ContentCard
+    variant="outlined"
+    padding="lg"
+    radius="lg"
+    @click="emit('click')"
+  >
     <div class="section-header">
       <h3 class="section-title">策略狀態摘要</h3>
     </div>
 
     <div v-if="loading" class="skeleton-list">
       <div class="sk sk-hero" style="height: 80px; margin-bottom: 12px"></div>
-      <div class="sk-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
-        <div v-for="i in 4" :key="i" class="sk" style="height: 70px"></div>
-      </div>
     </div>
     <div v-else-if="error" class="inline-error">
       <Icon name="danger" size="sm" color="var(--iln-danger)" /> {{ error }}
@@ -36,7 +38,9 @@
 
 <script setup>
 import { computed } from "vue";
-import { Icon } from "@/components/common/Icon.vue";
+import Icon from "@/components/common/Icon.vue";
+
+const emit = defineEmits(["click"]);
 
 const props = defineProps({
   health: { type: Object, default: null },

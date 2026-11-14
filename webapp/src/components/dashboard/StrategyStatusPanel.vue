@@ -66,7 +66,7 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import { Icon } from "@/components/common/Icon.vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   health: { type: Object, default: null },

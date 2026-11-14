@@ -79,14 +79,17 @@
         </div>
       </div>
 
-      <!-- Detail Link (Phase 3) -->
-      <router-link
+      <!-- Detail Link (Phase 3)：改為 emit，由父層決定開啟 drawer 或導航 -->
+      <div
         v-if="detailLink"
-        :to="detailLink"
         class="health-detail-link"
+        role="button"
+        tabindex="0"
+        @click="emit('open-strategy-status')"
+        @keydown.enter="emit('open-strategy-status')"
       >
         <Icon name="chart" size="sm" color="var(--iln-text)" /> 查看完整策略狀態 →
-      </router-link>
+      </div>
     </div>
   </ContentCard>
 </template>
@@ -94,6 +97,8 @@
 <script setup>
 import ContentCard from "@/components/common/ContentCard.vue";
 import Icon from "@/components/common/Icon.vue";
+
+const emit = defineEmits(["open-strategy-status"]);
 
 const props = defineProps({
   data: Object,

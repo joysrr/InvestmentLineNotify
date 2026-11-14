@@ -62,7 +62,7 @@ const router = createRouter({
       meta: { title: "理論", chunk: "low" },
     },
     { path: "/strategy", redirect: "/strategy-config" },
-    { path: "/strategy-status", redirect: "/strategy-config" },
+    { path: "/strategy-status", redirect: "/dashboard?panel=strategy-status" },
     {
       path: "/account",
       component: AccountView,

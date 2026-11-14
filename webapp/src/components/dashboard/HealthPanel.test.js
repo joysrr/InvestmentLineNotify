@@ -57,9 +57,19 @@ describe("HealthPanel.vue", () => {
   it("data 有值時顯示分數與摘要", () => {
     const wrapper = mount(HealthPanel, {
       props: baseProps,
-      global: { stubs: ["router-link"] },
     });
     expect(wrapper.text()).toContain("78");
     expect(wrapper.text()).toContain("整體健康");
+  });
+
+  it("detail-link 被點擊時 emit open-strategy-status，不再呈現 router-link", () => {
+    const wrapper = mount(HealthPanel, {
+      props: { ...baseProps, detailLink: "/strategy-status" },
+    });
+    expect(wrapper.findComponent({ name: "router-link" }).exists()).toBe(false);
+    const link = wrapper.find(".health-detail-link");
+    expect(link.exists()).toBe(true);
+    link.trigger("click");
+    expect(wrapper.emitted("open-strategy-status")).toHaveLength(1);
   });
 });

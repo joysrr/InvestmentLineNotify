@@ -28,6 +28,22 @@
       <StrategyConfigEditorView />
     </el-drawer>
 
+    <!-- Strategy Status Drawer（由 HealthPanel / 摘要卡 / redirect query 開啟） -->
+    <el-drawer
+      v-model="strategyStatusDrawerVisible"
+      title="策略狀態"
+      :append-to-body="true"
+      size="80%"
+    >
+      <component
+        v-if="strategyStatusPanel"
+        :is="strategyStatusPanel"
+        :health="healthData"
+        :loading="healthLoading"
+        :error="healthError"
+      />
+    </el-drawer>
+
     <!-- Tab Contents -->
     <div class="tab-content-area fade-in">
       <!-- 1. 首屏核心決策 hero -->
@@ -93,6 +109,7 @@
           :loading="healthLoading"
           :error="healthError"
           detail-link="/strategy-status"
+          @open-strategy-status="strategyStatusDrawerVisible = true"
         />
       </section>
 
@@ -107,15 +124,19 @@
         :verdict="aiStrategyVerdict"
       />
 
-      <!-- Strategy Status Link (Phase 3：由折疊卡改為連結) -->
+      <!-- Strategy Status 摘要卡（Phase 3：由連結改為內嵌摘要，點擊開啟 drawer） -->
       <section class="dashboard-card strategy-status-link">
-        <router-link to="/strategy-status" class="status-link">
-          <div class="status-link-left">
-            <h3><Icon name="chart" size="sm" color="var(--iln-text)" /> 策略狀態</h3>
-            <p class="status-link-desc">評分檔位、冷卻期、風控機制、Budget 預度</p>
-          </div>
-          <span class="status-link-arrow">→</span>
-        </router-link>
+        <component
+          v-if="strategyStatusSummary"
+          :is="strategyStatusSummary"
+          :health="healthData"
+          :loading="healthLoading"
+          :error="healthError"
+          @click="strategyStatusDrawerVisible = true"
+        />
+        <div v-else class="skeleton-list">
+          <div class="sk sk-hero" style="height: 80px; margin-bottom: 12px"></div>
+        </div>
       </section>
     </div>
 
@@ -128,7 +149,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
+import { useRoute } from "vue-router";
 import Icon from "@/components/common/Icon.vue";
 import {
   fetchStatus,
@@ -153,6 +175,25 @@ import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 // ── State ──
 // Single-page card layout: no top-level tab switcher
 const configDrawerVisible = ref(false); // Strategy Config drawer
+const strategyStatusDrawerVisible = ref(false); // 策略狀態 drawer（由 HealthPanel / 摘要卡 開啟）
+const route = useRoute();
+
+// Lazy-loaded 策略狀態元件（避免佔用初始體積預算）
+const strategyStatusSummary = ref(null);
+const strategyStatusPanel = ref(null);
+
+const loadStrategyStatusSummary = async () => {
+  if (!strategyStatusSummary.value) {
+    const mod = await import("../components/dashboard/StrategyStatusSummary.vue");
+    strategyStatusSummary.value = mod.default;
+  }
+};
+const loadStrategyStatusPanel = async () => {
+  if (!strategyStatusPanel.value) {
+    const mod = await import("../components/dashboard/StrategyStatusPanel.vue");
+    strategyStatusPanel.value = mod.default;
+  }
+};
 const status = ref(null);
 const statusLoading = ref(true);
 
@@ -348,11 +389,31 @@ function formatUpdatedAt(iso) {
   });
 }
 
-onMounted(() => {
+onMounted(async () => {
   loadAll();
   // 首屏後預取高頻頁：市場雷達
   prefetch(viewLoaders.MarketRadarView);
+  await loadStrategyStatusSummary();
 });
+
+// 來自 /strategy-status redirect 的 query 參數，自動開啟策略狀態 drawer
+watch(
+  () => route.query.panel,
+  (val) => {
+    if (val === "strategy-status") {
+      strategyStatusDrawerVisible.value = true;
+    }
+  },
+  { immediate: true }
+);
+
+// 抽屜打開時才載入面板元件（維持初始體積預算）
+watch(
+  strategyStatusDrawerVisible,
+  async (show) => {
+    if (show) await loadStrategyStatusPanel();
+  }
+);
 </script>
 
 <style scoped>
