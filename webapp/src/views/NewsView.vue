@@ -27,7 +27,7 @@
 
       <ErrorAlert v-else-if="reportError" :visible="true" :description="reportError" :show-retry="true" @retry="loadReport" />
 
-      <EmptyState v-else-if="!reportNews.tw.length && !reportNews.us.length" title="今日精選報告尚未產生" message="每日早上自動更新" />
+      <EmptyState v-else-if="!reportNews.tw.length && !reportNews.us.length" title="今日尚無精選報告，請稍後再試" message="每日早上自動更新" />
 
       <div v-else class="report-content">
         <!-- 台灣區塊 -->
@@ -83,7 +83,7 @@
 
       <ErrorAlert v-else-if="poolError" :visible="true" :description="poolError" :show-retry="true" @retry="loadPool" />
 
-      <EmptyState v-else-if="articles.length === 0" title="目前新聞池為空" />
+      <EmptyState v-else-if="articles.length === 0" title="新聞池目前為空，排程可能尚未執行" />
 
       <div v-else class="news-list">
         <component :is="NewsCard"

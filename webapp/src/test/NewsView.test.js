@@ -32,7 +32,7 @@ describe("NewsView", () => {
     await flushPromises();
 
     expect(fetchReportNews).toHaveBeenCalledOnce();
-    expect(wrapper.text()).toContain("今日精選報告尚未產生");
+    expect(wrapper.text()).toContain("今日尚無精選報告，請稍後再試");
   });
 
   it("應顯示台灣與國際精選新聞", async () => {

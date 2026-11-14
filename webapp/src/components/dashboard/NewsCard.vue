@@ -107,6 +107,10 @@ function regionFlag(region) {
   transition: background 0.2s;
 }
 
+.news-card:hover {
+  border-color: var(--iln-link);
+}
+
 .news-card:focus-visible {
   outline: 2px solid var(--iln-brand);
   outline-offset: 2px;
