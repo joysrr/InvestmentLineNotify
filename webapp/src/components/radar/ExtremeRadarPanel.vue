@@ -22,7 +22,7 @@
         </div>
       </template>
 
-      <div v-if="isExpanded" class="radar-detail-list">
+      <div class="radar-detail-list">
         <div
           v-for="r in normalizedRadars"
           :key="r.radarId"
@@ -81,7 +81,7 @@
           </div>
         </template>
 
-        <div v-show="isExpanded" class="radar-alert-body">
+        <div class="radar-alert-body">
         <!-- 觸發的雷達清單 -->
         <div class="triggered-section">
           <div class="section-subtitle"><Icon name="trigger" size="sm" color="var(--iln-warn)" /> 觸發極端雷達</div>
