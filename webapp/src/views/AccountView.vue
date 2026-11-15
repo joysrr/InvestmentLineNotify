@@ -591,7 +591,7 @@ const allHealthy = computed(
   border-radius: 12px;
   margin: 0 12px 12px;
   padding: 14px 14px 10px;
-  box-shadow: 0 1px 4px var(--iln-shadow-subtle);
+  box-shadow: var(--iln-shadow-subtle);
 }
 .section-title {
   font-size: 13px;

@@ -49,7 +49,7 @@ const reloadPage = () => {
   max-width: 320px;
   width: 100%;
   text-align: center;
-  box-shadow: 0 12px 32px var(--iln-shadow-modal);
+  box-shadow: var(--iln-shadow-modal);
   animation: modal-pop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
