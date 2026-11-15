@@ -639,7 +639,7 @@ const scanConclusion = computed(() => {
   background: linear-gradient(
     90deg,
     var(--iln-surface) 25%,
-    rgba(255, 255, 255, 0.35) 50%,
+    var(--iln-gradient-scrim) 50%,
     var(--iln-surface) 75%
   );
   background-size: 200% 100%;
@@ -674,8 +674,8 @@ const scanConclusion = computed(() => {
 }
 
 .defense-mode-badge.card-danger {
-  background: rgba(244, 67, 54, 0.12);
-  border: 1px solid rgba(244, 67, 54, 0.35);
+  background: var(--iln-danger-bg-faint);
+  border: 1px solid var(--iln-danger-border);
   color: var(--iln-danger-text);
 }
 
@@ -690,10 +690,10 @@ const scanConclusion = computed(() => {
 @keyframes pulse-border {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.2);
+    box-shadow: var(--iln-danger-shadow);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(198, 40, 40, 0.1);
+    box-shadow: var(--iln-danger-shadow-focus);
   }
 }
 </style>
