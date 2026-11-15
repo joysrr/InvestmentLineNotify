@@ -150,6 +150,6 @@ onUnmounted(() => {
 :global(.dark) .floating-pill {
   background: var(--iln-surface);
   border-color: var(--iln-border-dark-faint);
-  box-shadow: 0 8px 32px var(--iln-shadow-pill);
+  box-shadow: var(--iln-shadow-pill);
 }
 </style>
