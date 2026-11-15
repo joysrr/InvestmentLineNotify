@@ -32,7 +32,6 @@ wiki_links:
   - 採方案 A：將 `DEC-005-monitoring-alerting.md` 與 `DEC-006-deployment-automation.md` 自 `docs/architecture/` 移至 `docs/decisions/`。
   - 同步更新 `docs/README.md`、`docs/architecture/README.md` 及全庫 wiki 引用。
 - **Phase 3: 里程碑與根目錄（B, D）**
-  - B: 處置 `docs/operations/automated-deployment-milestone.md`。
   - D: 查驗根目錄 `swagger.json` 引用狀況、`SOUL.md` 定位與根目錄 `README.md` 之分工。
 - **Phase 4: 收尾驗證**
   - 執行 pre-commit、wiki-index 生成、驗證與健康度診斷。

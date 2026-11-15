@@ -50,7 +50,7 @@ Han 日常使用流程（總覽頁）與 News 監控：
 - **B1**: 將 `NewsView` 加回 `tabsConfig.js` bottom nav，icon + label =「新聞」。
 - **B2**: 確認 `NewsView.vue` 功能正常（路由 `/news` 存在）。
 - **C1**: 更新 `DashboardView.test.js` / `SimulatorView.test.js` / E2E 反映 UI 變更。
-- **C2**: 整理 D1-D3 發現到 `docs/knowledge/e2e_findings.md`，建立 shared test helper 預防 catch-all LIFO。
+- **C2**: 建立 shared test helper 預防 catch-all LIFO。
 
 ---
 
@@ -108,7 +108,6 @@ Han 日常使用流程（總覽頁）與 News 監控：
 - Modify: `webapp/src/test/views/DashboardView.test.js`
 - Modify: `webapp/src/test/views/SimulatorView.test.js`
 - Modify: `webapp/src/test/stores/navigationStore.test.js`
-- Create: `docs/knowledge/e2e_findings.md`
 
 - [ ] Step 1: 更新 DashboardView/SimulatorView/navigationStore 測試反映 tab 清理
 - [ ] Step 2: 建立 `e2e_findings.md` 記錄 D1-D3（catch-all LIFO, FloatingPill, SensitivityPanel watch)

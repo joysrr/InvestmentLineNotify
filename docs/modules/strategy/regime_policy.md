@@ -128,7 +128,7 @@ if (regimeResult.state === "CRISIS") {
 ## 債務感知雙模式（2026-11-04 升級）
 
 **升級日期**：2026-11-04  
-**相關計畫**：`docs/plans/active/2026-11-04_regime-aware-opportunity-engine.md` (v2.4)
+**相關計畫**：`docs/plans/completed/2026-11-04_regime-aware-opportunity-engine.md` (v2.4)
 
 ### 核心變更
 

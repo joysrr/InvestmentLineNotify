@@ -15,7 +15,6 @@ wiki_links:
 
 # 維持率狀態機 4 層重構 — Strategy.json 修改說明
 
-> 對應計畫：`docs/plans/backlog/preplan_features.md` P0【維持率狀態機 4 層重構】  
 > 完成日期：2026-04-18 (Batch 3 升級)  
 > 影響檔案：`strategyEngine.mjs`、`marginManager.mjs`、`telegramHtmlBuilder.mjs`
 

@@ -44,8 +44,6 @@ wiki_links:
 
 ### 類別 A：巨型傾印與重複/廢棄檔案
 
-- [ ] `docs/Reports/archive/main_code_review_20260429.md` (1.53 MB)：2026-04 舊專案 Windows 本地路徑代碼 dump，無 frontmatter，純雜訊，應壓縮或歸檔至歷史專區並標記。
-- [ ] `docs/modules/ai_news/integrations/langfuse_prompt_management_v3_deprecated.md`：停留在現行模組目錄的廢棄檔案，應移至 `docs/modules/ai_news/integrations/archive/`。
 - [ ] `docs/modules/ai_news/integrations/langfuse_prompt_management.md` 與 `langfuse_prompt_management_v5.md`：合併重複內容，保留單一現行版本。
 
 ### 類別 B：Backlog 中不適用當前架構的早期草稿 (`docs/plans/backlog/`)
@@ -56,7 +54,7 @@ wiki_links:
 ### 類別 C：根目錄結構整頓與建立導航中樞
 
 - [ ] **建立 `docs/README.md`**：建立文件庫導航中樞，詳細定義目錄樹、當前架構核心真理、各模組職責與查閱指引。
-- [ ] `docs/SCHEDULER_COUPLING_ANALYSIS.md`：已標記為 `status: archived`，移入 `docs/Reports/archive/`。
+
 - [ ] `docs/API_CONTRACT.md` 與 `docs/modules/presentation/api/_index.md`：移除對舊 `swagger.json` 的指引，更新指向 `docs/api/openapi.json`。
 
 ### 類別 D：現行架構與財務真理一致性檢查
@@ -70,10 +68,8 @@ wiki_links:
 ### Phase 1：建立系統導航中樞與根目錄文件整頓
 
 1. 建立 `docs/README.md`，統整文件目錄導航、當前架構原則與真理源。
-2. 將已歸檔的 `docs/SCHEDULER_COUPLING_ANALYSIS.md` 移入 `docs/Reports/archive/`。
-3. 修正 `docs/API_CONTRACT.md` 與 `docs/modules/presentation/api/_index.md` 中的 API 規範真理之源（改為 `docs/api/openapi.json`）。
-4. 補齊 `docs/plans/active/LOCALHOST_MINI_APP_PREVIEW_PLAN.md` frontmatter。
-5. 執行 Wiki 索引生成與驗證。
+2. 修正 `docs/API_CONTRACT.md` 與 `docs/modules/presentation/api/_index.md` 中的 API 規範真理之源（改為 `docs/api/openapi.json`）。
+3. 執行 Wiki 索引生成與驗證。
 
 ### Phase 2：清理過時 Backlog 草稿與模組廢棄文件
 

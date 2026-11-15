@@ -253,7 +253,6 @@ Refs: `activeTab`, `reportNews`, `articles`, 各 loading/error/loaded states.
 
 ### Phase 6: 驗證 & E2E findings 記錄
 
-- [ ] 更新 `D1/D2/D3` 發現記錄到 `docs/knowledge/e2e_findings.md`
 - [ ] `verify-pages.sh` dashboard news simulator — FULL Green
 - [ ] 全部 unit 100% pass + E2E workers=1 100% pass
 - [ ] push, archive 計劃

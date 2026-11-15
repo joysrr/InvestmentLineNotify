@@ -167,7 +167,7 @@ CODE PATHS                                            USER FLOWS
 ## RegimePolicyRule 非阻斷式行為（2026-11-04 升級）
 
 **升級日期**：2026-11-04  
-**相關計畫**：`docs/plans/active/2026-11-04_regime-aware-opportunity-engine.md` (v2.4 Phase 2)
+**相關計畫**：`docs/plans/completed/2026-11-04_regime-aware-opportunity-engine.md` (v2.4 Phase 2)
 
 ### 核心變更
 

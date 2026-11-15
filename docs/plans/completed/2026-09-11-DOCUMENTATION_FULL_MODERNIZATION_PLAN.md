@@ -484,8 +484,6 @@ jobs:
 
 #### 5.3 撰寫維護手冊 (1h)
 
-**產出**: `docs/meta/maintenance-guide.md`
-
 涵蓋：
 
 - 如何新增文件

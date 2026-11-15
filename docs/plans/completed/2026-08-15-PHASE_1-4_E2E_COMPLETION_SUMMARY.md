@@ -87,11 +87,10 @@ wiki_links:
 
 ## 📁 文檔歸檔位置
 
-| 文檔                        | 原位置               | 歸檔位置                                                              |
-| --------------------------- | -------------------- | --------------------------------------------------------------------- |
-| E2E_TESTING_PLAN_v2.0.md    | `docs/plans/active/` | `docs/plans/completed/2026-08-15-E2E_TESTING_PLAN_v2.0.md`            |
-| SYSTEM_E2E_BUILD_PROCESS.md | 新建                 | `docs/SYSTEM_E2E_BUILD_PROCESS.md` (系統文檔)                         |
-| 本總結                      | 新建                 | `docs/plans/completed/2026-08-15-PHASE_1-4_E2E_COMPLETION_SUMMARY.md` |
+| 文檔                     | 原位置               | 歸檔位置                                                              |
+| ------------------------ | -------------------- | --------------------------------------------------------------------- |
+| E2E_TESTING_PLAN_v2.0.md | `docs/plans/active/` | `docs/plans/completed/2026-08-15-E2E_TESTING_PLAN_v2.0.md`            |
+| 本總結                   | 新建                 | `docs/plans/completed/2026-08-15-PHASE_1-4_E2E_COMPLETION_SUMMARY.md` |
 
 ---
 
@@ -125,7 +124,6 @@ wiki_links:
 - [x] verify-pages.sh 連續 4 次 12/12 穩定通過
 - [x] 背景進程自動清理機制驗證通過
 - [x] 文檔完整歸檔至 `docs/plans/completed/`
-- [x] 系統建置流程文檔落地 `docs/SYSTEM_E2E_BUILD_PROCESS.md`
 - [x] Git 提交推送至 main 分支 (e287d8b)
 
 ---

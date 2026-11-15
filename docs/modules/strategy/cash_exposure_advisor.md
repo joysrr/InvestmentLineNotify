@@ -200,5 +200,5 @@ evaluateLeadingIndicators(
 
 ## 10. 參考資料
 
-- 計畫文件：`docs/plans/active/2026-11-04_regime-aware-opportunity-engine.md`（v2.4）
+- 計畫文件：`docs/plans/completed/2026-11-04_regime-aware-opportunity-engine.md`（v2.4）
 - 相關模組：`[[Regime Policy]]`、`[[Leading Indicator Radars]]`、`[[Risk Management]]`、`[[Lifecycle Engine]]`
