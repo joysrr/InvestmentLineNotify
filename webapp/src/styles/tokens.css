@@ -162,6 +162,30 @@
 /* 極淡陰影：恆淺，無需暗色覆寫 */
   --iln-shadow-hairline: 0 1px 4px rgba(0, 0, 0, 0.02);
 
+/* ── P8-02 step4e AccountView 陰影與邊框令牌 ── */
+/* AccountView 卡片細陰影：結構與 --iln-shadow-card(4px/12px/0.08) 不同，不可合併；亦不可用 --iln-shadow-hairline(0.02) */
+--iln-shadow-subtle: 0 1px 4px rgba(0, 0, 0, 0.06);
+
+/* AccountView 邊框極淺：不可等值替換現有 border 令牌 */
+--iln-border-faint: rgba(0, 0, 0, 0.04);
+
+/* AccountView 極淺表面：比 --iln-surface-faint(0.03) 更淺，360px 下與 0.02 肉眼無差異，統一用此令牌 */
+--iln-surface-faintest: rgba(0, 0, 0, 0.02);
+
+/* ── P8-02 step4e AccountView 狀態色令牌（--iln-state-* 獨立命名空間，不擴充 danger 家族）── */
+/* 正面狀態背景：綠色 */
+--iln-state-positive-bg: rgba(52, 199, 89, 0.08);
+/* 正面狀態邊框 */
+--iln-state-positive-border: rgba(52, 199, 89, 0.2);
+/* 負面狀態背景：紅色 */
+--iln-state-negative-bg: rgba(255, 59, 48, 0.08);
+/* 負面狀態邊框 */
+--iln-state-negative-border: rgba(255, 59, 48, 0.2);
+/* 警戒狀態背景：黃色 */
+--iln-state-caution-bg: rgba(255, 204, 0, 0.08);
+/* 警戒狀態邊框 */
+--iln-state-caution-border: rgba(255, 204, 0, 0.2);
+
 /* ── P8-02 batch 4b FloatingPill 陰影 ── */
 /* FloatingPill 淺色陰影：與暗色段同結構，透明度較低，避免淺色模式下 undefined */
   --iln-shadow-pill: 0 8px 32px rgba(0, 0, 0, 0.12);
@@ -240,8 +264,14 @@
   --iln-shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.4);
 /* FloatingPill 暗色陰影：僅供 .dark 作用域使用，勿在淺色選擇器引用 */
   --iln-shadow-pill: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+/* AccountView 卡片細陰影：暗色同值，透明度較高以在深色背景可見 */
+--iln-shadow-subtle: 0 1px 4px rgba(0, 0, 0, 0.3);
 /* 極淡背景：暗色反相 */
-  --iln-surface-faint: rgba(255, 255, 255, 0.03);
+ --iln-surface-faint: rgba(255, 255, 255, 0.03);
+
+/* AccountView 極淺表面：暗色同值，比 0.03 更淺，360px 下與 0.02 肉眼無差異 */
+--iln-surface-faintest: rgba(255, 255, 255, 0.03);
 /* 內凹背景：暗色反相 */
   --iln-surface-sunken: rgba(255, 255, 255, 0.05);
 /* 半透明卡片：暗色大幅降低不透明度 */
@@ -257,6 +287,9 @@
 /* ── P8-02 batch 4b 額外令牌（暗色） ── */
 /* FloatingPill 暗色邊框：0.1 不透明度 */
   --iln-border-dark-faint: rgba(255, 255, 255, 0.1);
+
+/* AccountView 邊框極淺：暗色同值 */
+--iln-border-faint: rgba(255, 255, 255, 0.06);
 /* TechnicalPanel 危險色偏粉背景：不可等值替換現有令牌 */
   --iln-danger-bg-soft: rgba(232, 72, 85, 0.08);
 
@@ -266,6 +299,16 @@
   --iln-danger-border: rgba(244, 67, 54, 0.35);
   --iln-danger-shadow: 0 0 0 0 rgba(198, 40, 40, 0.2);
   --iln-danger-shadow-focus: 0 0 0 4px rgba(198, 40, 40, 0.1);
+
+/* AccountView 正面狀態：暗色不透明度較高 */
+--iln-state-positive-bg: rgba(52, 199, 89, 0.15);
+--iln-state-positive-border: rgba(52, 199, 89, 0.4);
+/* AccountView 負面狀態：暗色不透明度較高 */
+--iln-state-negative-bg: rgba(255, 59, 48, 0.15);
+--iln-state-negative-border: rgba(255, 59, 48, 0.4);
+/* AccountView 警戒狀態：暗色不透明度較高 */
+--iln-state-caution-bg: rgba(255, 204, 0, 0.15);
+--iln-state-caution-border: rgba(255, 204, 0, 0.4);
 }
 
 /* ── Spinner 統一規格（§3.3） ── */
