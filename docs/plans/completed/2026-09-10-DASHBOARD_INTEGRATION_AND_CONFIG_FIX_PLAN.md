@@ -1,11 +1,15 @@
 ---
 type: plan
-status: completed
+status: current
 last_updated: 2026-09-10
 tags:
   - completed
   - archived
 wiki_links: []
+last_verified: 2026-11-15
+summary: 儀表板整合與配置修復計畫。
+related_code: []
+related_docs: []
 ---
 
 # Dashboard 整合重構與策略設定修復計畫 (DASHBOARD_INTEGRATION_AND_CONFIG_FIX_PLAN)

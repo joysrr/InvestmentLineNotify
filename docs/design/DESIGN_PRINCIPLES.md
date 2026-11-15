@@ -15,6 +15,10 @@ tags:
 · [[Design Tokens]]
 · [[Component Library]]
 
+last_verified: 2026-11-15
+summary: 設計原則文件，定義色彩令牌與介面設計規範。
+related_code: []
+related_docs: []
 ---
 
 InvestmentLineNotify 設計原則（Design Principles）

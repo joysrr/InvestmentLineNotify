@@ -6,6 +6,10 @@ tags:
   - design
   - status-semantics
 wiki_links: []
+last_verified: 2026-11-15
+summary: 狀態語義設計文件。
+related_code: []
+related_docs: []
 ---
 
 # 狀態語義規範 (Status Semantics)

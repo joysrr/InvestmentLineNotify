@@ -1,11 +1,15 @@
 ---
 type: plan
-status: completed
+status: current
 last_updated: 2026-09-10
 tags:
   - completed
   - archived
 wiki_links: []
+last_verified: 2026-11-15
+summary: 儀表板新聞設計分析計畫。
+related_code: []
+related_docs: []
 ---
 
 # Dashboard + News Tab 功能盤點與設計分析 (v2)

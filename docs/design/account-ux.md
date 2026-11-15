@@ -1,7 +1,7 @@
 ---
 title: 帳戶與設定頁 UX 規格
 stage: CARD-5.5
-status: done
+status: current
 type: explanation
 last_updated: 2026-11-14
 tags:
@@ -9,6 +9,10 @@ tags:
   - ux
   - card-5-5
 wiki_links: []
+last_verified: 2026-11-15
+summary: 帳號頁面 UX 規格，定義帳號管理介面行為。
+related_code: []
+related_docs: []
 ---
 
 # 帳戶與設定頁 UX 規格

@@ -6,6 +6,10 @@ tags:
   - design
   - news-ux
 wiki_links: []
+last_verified: 2026-11-15
+summary: 新聞頁面 UX 規格。
+related_code: []
+related_docs: []
 ---
 
 # 新聞頁 UX 規格 (News Page UX)

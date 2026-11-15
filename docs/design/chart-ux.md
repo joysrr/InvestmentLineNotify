@@ -1,9 +1,14 @@
 ---
 title: 圖表頁 UX 規格
 stage: CARD-5.3
-status: done
+status: current
 type: reference
 last_updated: 2026-11-14
+last_verified: 2026-11-15
+tags: [design, ux, chart]
+summary: 圖表頁 UX 規格，定義圖表庫與 DataZoom 行為。
+related_code: []
+related_docs: []
 ---
 
 # 圖表頁 UX 規格

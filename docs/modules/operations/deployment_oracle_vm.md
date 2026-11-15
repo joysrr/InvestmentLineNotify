@@ -7,6 +7,10 @@ tags:
   - oracle
   - vm
 wiki_links: []
+last_verified: 2026-11-15
+summary: 操作模組部署 Oracle VM 文件。
+related_code: []
+related_docs: []
 ---
 
 # Oracle Cloud VM 部署安裝手冊（附錄）

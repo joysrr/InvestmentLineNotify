@@ -1,7 +1,7 @@
 ---
 title: Dashboard 頁面層級結構
 stage: CARD-5.1
-status: done
+status: current
 type: explanation
 last_updated: 2026-11-15
 tags:
@@ -10,6 +10,10 @@ tags:
   - ux
   - design
 wiki_links: []
+last_verified: 2026-11-15
+summary: 儀表板層級架構設計文件。
+related_code: []
+related_docs: []
 ---
 
 # Dashboard 頁面層級結構

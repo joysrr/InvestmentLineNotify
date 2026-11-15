@@ -3,12 +3,12 @@
   "prototype": false,
   "scanned_dirs": ["all"],
   "stats": {
-    "total_concepts": 134,
+    "total_concepts": 162,
     "total_edges": 192,
     "total_code_mappings": 113,
     "concepts_with_code": 68,
     "concepts_with_links": 58,
-    "generated_at": "2026-11-11T13:44:57.177Z"
+    "generated_at": "2026-11-15T10:04:06.776Z"
   },
   "concepts": {
     "api-contract": {
@@ -55,6 +55,7 @@
         "index",
         "architecture",
         "navigation",
+        "auto-generated",
         "architecture",
         "decisions",
         "adr",
@@ -210,6 +211,142 @@
       "tags": ["design", "budget", "priority"],
       "status": "current",
       "last_verified": "2026-11-10"
+    },
+    "design-principles": {
+      "primary_doc": "design/DESIGN_PRINCIPLES.md",
+      "title": "能力 API 觸發時機",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "current",
+      "last_verified": "2026-11-15"
+    },
+    "hex-audit-2026-11-12": {
+      "primary_doc": "design/HEX_AUDIT_2026-11-12.md",
+      "title": "剩餘 hex 分類報告",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["design-system", "phase4", "hex-audit"],
+      "status": "current",
+      "last_verified": "2026-11-15"
+    },
+    "phase4-visual-verification": {
+      "primary_doc": "design/PHASE4_VISUAL_VERIFICATION.md",
+      "title": "Phase 4 視覺驗證報告",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["design-system", "phase4", "visual-verification"],
+      "status": "current",
+      "last_verified": "2026-11-15"
+    },
+    "account-ux": {
+      "primary_doc": "design/account-ux.md",
+      "title": "帳戶與設定頁 UX 規格",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["account", "ux", "card-5-5"],
+      "status": "current",
+      "last_verified": "2026-11-15"
+    },
+    "chart-ux": {
+      "primary_doc": "design/chart-ux.md",
+      "title": "圖表頁 UX 規格",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["design", "ux", "chart"],
+      "status": "current",
+      "last_verified": "2026-11-15"
+    },
+    "dashboard-hierarchy": {
+      "primary_doc": "design/dashboard-hierarchy.md",
+      "title": "Dashboard 頁面層級結構",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["dashboard", "hierarchy", "ux", "design"],
+      "status": "current",
+      "last_verified": "2026-11-15"
+    },
+    "freshness-semantics": {
+      "primary_doc": "design/freshness-semantics.md",
+      "title": "資料新鮮度分級規格 (Freshness Semantics)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["auto-generated"],
+      "status": "current",
+      "last_verified": "2026-11-15"
+    },
+    "insights-ux": {
+      "primary_doc": "design/insights-ux.md",
+      "title": "Insights 頁面 UX 設計記錄",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["insights", "ux", "design"],
+      "status": "current",
+      "last_verified": "2026-11-15"
+    },
+    "news-ux": {
+      "primary_doc": "design/news-ux.md",
+      "title": "新聞頁 UX 規格 (News Page UX)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["design", "news-ux"],
+      "status": "current",
+      "last_verified": "2026-11-15"
+    },
+    "page-responsibility-matrix": {
+      "primary_doc": "design/page-responsibility-matrix.md",
+      "title": "頁面職責矩陣（Page Responsibility Matrix）",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "design",
+        "architecture",
+        "information-architecture",
+        "phase-3",
+        "phase-4"
+      ],
+      "status": "current",
+      "last_verified": "2026-11-15"
+    },
+    "state-presentation": {
+      "primary_doc": "design/state-presentation.md",
+      "title": "四態呈現規格 (State Presentation)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["auto-generated"],
+      "status": "current",
+      "last_verified": "2026-11-15"
+    },
+    "status-semantics": {
+      "primary_doc": "design/status-semantics.md",
+      "title": "狀態語義規範 (Status Semantics)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["design", "status-semantics"],
+      "status": "current",
+      "last_verified": "2026-11-15"
+    },
+    "token-audit-phase5": {
+      "primary_doc": "design/token-audit-phase5.md",
+      "title": "設計令牌審計報告 (Token Audit Phase 5)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["auto-generated"],
+      "status": "current",
+      "last_verified": "2026-11-15"
     },
     "documentation-coverage-matrix": {
       "primary_doc": "meta/documentation-coverage-matrix.md",
@@ -590,7 +727,7 @@
       "related_code": [],
       "tags": ["deployment", "oracle", "vm"],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-11-15"
     },
     "env-vars": {
       "primary_doc": "modules/operations/env_vars.md",
@@ -631,7 +768,7 @@
       "related_code": [],
       "tags": ["modules", "index"],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-11-15"
     },
     "presentation": {
       "primary_doc": "modules/presentation/_index.md",
@@ -915,7 +1052,7 @@
       "related_code": [],
       "tags": ["sentiment", "social", "ptt", "bluesky", "emotion-indicator"],
       "status": "current",
-      "last_verified": null
+      "last_verified": "2026-11-15"
     },
     "strategy-engine": {
       "primary_doc": "modules/strategy/strategy_engine.md",
@@ -1007,6 +1144,16 @@
       "status": "in-progress",
       "last_verified": "2026-11-11"
     },
+    "p8-01-baseline-report": {
+      "primary_doc": "plans/active/p8-01-baseline-report.md",
+      "title": "p8-01-baseline-report",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [],
+      "status": "current",
+      "last_verified": null
+    },
     "2026-08-15-e2e-testing-plan-v2.0": {
       "primary_doc": "plans/completed/2026-08-15-E2E_TESTING_PLAN_v2.0.md",
       "title": "E2E 測試計畫",
@@ -1034,8 +1181,8 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
-      "status": "completed",
-      "last_verified": null
+      "status": "current",
+      "last_verified": "2026-11-15"
     },
     "2026-09-10-dashboard-news-design-analysis": {
       "primary_doc": "plans/completed/2026-09-10-DASHBOARD_NEWS_DESIGN_ANALYSIS.md",
@@ -1044,8 +1191,8 @@
       "related_docs": [],
       "related_code": [],
       "tags": ["completed", "archived"],
-      "status": "completed",
-      "last_verified": null
+      "status": "current",
+      "last_verified": "2026-11-15"
     },
     "2026-09-10-dashboard-news-e2e-consolidation-plan": {
       "primary_doc": "plans/completed/2026-09-10-DASHBOARD_NEWS_E2E_CONSOLIDATION_PLAN.md",
@@ -1695,6 +1842,136 @@
       "status": "in-progress",
       "last_verified": null
     },
+    "phase-5-signoff": {
+      "primary_doc": "plans/completed/phase-5-signoff.md",
+      "title": "階段五收口簽核",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["signoff", "phase-5", "completion"],
+      "status": "done",
+      "last_verified": null
+    },
+    "phase-8-color-guard-and-dead-code": {
+      "primary_doc": "plans/completed/phase-8-color-guard-and-dead-code.md",
+      "title": "1. 確認 TechnicalView 無引用",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["p8", "color-guard", "dead-code", "completed"],
+      "status": "current",
+      "last_verified": "2026-11-15"
+    },
+    "project-wrap-up": {
+      "primary_doc": "plans/completed/project-wrap-up.md",
+      "title": "專案收尾記錄：WebApp 重構（階段一至五）",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["webapp", "wrap-up", "phase-6-cancelled", "phase-7-cancelled"],
+      "status": "closed",
+      "last_verified": null
+    },
+    "emoji-audit-phase-2": {
+      "primary_doc": "refactor/emoji-audit-phase-2.md",
+      "title": "Phase 2 Emoji 掃描清單（Tier 分層）",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["phase-2", "emoji-audit", "webapp"],
+      "status": "current",
+      "last_verified": null
+    },
+    "phase-1-foundation": {
+      "primary_doc": "refactor/phase-1-foundation.md",
+      "title": "第一階段改造計畫：工程基礎與啟動效能",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["phase-1", "refactor", "webapp"],
+      "status": "completed",
+      "last_verified": null
+    },
+    "phase-2-foundation": {
+      "primary_doc": "refactor/phase-2-foundation.md",
+      "title": "Phase 2 工程基礎與通用組件",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["webapp", "refactor", "phase-2", "foundation"],
+      "status": "completed",
+      "last_verified": null
+    },
+    "phase-2-migration-inventory": {
+      "primary_doc": "refactor/phase-2-migration-inventory.md",
+      "title": "Phase 2 遷移盤點清單",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["webapp", "refactor", "phase-2", "migration"],
+      "status": "completed",
+      "last_verified": null
+    },
+    "phase-2-remediation": {
+      "primary_doc": "refactor/phase-2-remediation.md",
+      "title": "Phase 2 修正與收口計畫 (R1–R10)",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["webapp", "refactor", "phase-2", "remediation"],
+      "status": "completed",
+      "last_verified": null
+    },
+    "phase-3-information-architecture": {
+      "primary_doc": "refactor/phase-3-information-architecture.md",
+      "title": "階段三 · 資訊架構與導航重構（CARD-00 ～ CARD-05）",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["webapp", "refactor", "phase-3"],
+      "status": "not-started",
+      "last_verified": null
+    },
+    "phase-4-content-dedup": {
+      "primary_doc": "refactor/phase-4-content-dedup.md",
+      "title": "階段四 · 內容去重（CARD-01 子計畫詳細細節）",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["webapp", "refactor", "phase-4"],
+      "status": "in-progress",
+      "last_verified": null
+    },
+    "phase-5-page-polish": {
+      "primary_doc": "refactor/phase-5-page-polish.md",
+      "title": "階段五 · 頁面精修（5.1–5.5）",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["webapp", "refactor", "phase-5"],
+      "status": "not-started",
+      "last_verified": null
+    },
+    "phase-6-platform-a11y": {
+      "primary_doc": "refactor/phase-6-platform-a11y.md",
+      "title": "階段六 · 平台無障礙與相容性",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["webapp", "refactor", "phase-6"],
+      "status": "not-started",
+      "last_verified": null
+    },
+    "phase-7-verification": {
+      "primary_doc": "refactor/phase-7-verification.md",
+      "title": "階段七 · 驗證與持續改進",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": ["webapp", "refactor", "phase-7"],
+      "status": "not-started",
+      "last_verified": null
+    },
     "investment-theories-current-system-guide": {
       "primary_doc": "research/investment-theories-current-system-guide.md",
       "title": "目前投資系統理論與可擴充研究指南",
@@ -1814,6 +2091,24 @@
         "data-consistency"
       ],
       "status": "critical",
+      "last_verified": null
+    },
+    "webapp-refactor-plan": {
+      "primary_doc": "webapp-refactor-plan.md",
+      "title": "WebApp 重構母計畫（v2）",
+      "summary": null,
+      "related_docs": [],
+      "related_code": [],
+      "tags": [
+        "webapp",
+        "refactor",
+        "phase-3",
+        "phase-4",
+        "phase-5",
+        "phase-6",
+        "phase-7"
+      ],
+      "status": "project-completed",
       "last_verified": null
     }
   },

@@ -5,6 +5,10 @@ last_updated: 2026-11-14
 tags:
   - auto-generated
 wiki_links: []
+last_verified: 2026-11-15
+summary: 狀態呈現設計文件。
+related_code: []
+related_docs: []
 ---
 
 # 四態呈現規格 (State Presentation)

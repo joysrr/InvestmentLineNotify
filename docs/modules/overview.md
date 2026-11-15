@@ -7,6 +7,10 @@ tags:
   - index
 wiki_links:
   - docs/README.md
+last_verified: 2026-11-15
+summary: 模組總覽文件。
+related_code: []
+related_docs: []
 ---
 
 ---

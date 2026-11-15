@@ -8,6 +8,10 @@ tags:
   - ux
   - design
 wiki_links: []
+last_verified: 2026-11-15
+summary: 洞察頁面 UX 規格。
+related_code: []
+related_docs: []
 ---
 
 # Insights 頁面 UX 設計記錄

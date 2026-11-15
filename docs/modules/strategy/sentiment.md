@@ -18,6 +18,10 @@ code_refs:
   - src/modules/sentiment/crawlers/pttCrawler.mjs
   - src/modules/sentiment/crawlers/bskyCrawler.mjs
   - src/modules/sentiment/crawlers/socialScoreCalculator.mjs
+last_verified: 2026-11-15
+summary: 策略模組情緒分析文件。
+related_code: []
+related_docs: []
 ---
 
 # 社群情緒引擎 (Sentiment Engine)

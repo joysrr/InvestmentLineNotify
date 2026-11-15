@@ -1,6 +1,6 @@
 ---
 type: matrix
-status: in-progress
+status: current
 last_updated: 2026-11-14
 owner: 開發者
 reviewer: 規劃者
@@ -10,6 +10,10 @@ tags:
   - information-architecture
   - phase-3
   - phase-4
+last_verified: 2026-11-15
+summary: 頁面責任矩陣，定義各頁面職責與邊界。
+related_code: []
+related_docs: []
 ---
 
 # 頁面職責矩陣（Page Responsibility Matrix）
