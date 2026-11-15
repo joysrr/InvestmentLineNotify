@@ -690,6 +690,5 @@ const stateLabel = computed(() => {
 :global(.dark) .triggered-item {
   border-color: var(--iln-border-subtle);
 }
-/* 留待 Phase 5：無剩餘裸色值，所有 rgba 已改用設計令牌 */
 
 </style>
