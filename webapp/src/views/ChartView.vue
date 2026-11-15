@@ -39,6 +39,19 @@
       </button>
     </div>
 
+<!-- 時間範圍切換 -->
+    <div class="time-range-bar">
+      <button
+        v-for="t in timeRanges"
+        :key="t.key"
+        class="time-range-btn"
+        :class="{ active: timeRange === t.key }"
+        @click="timeRange = t.key"
+      >
+        {{ t.label }}
+      </button>
+    </div>
+
     <!-- 載入中 -->
     <EmptyState v-if="loading" title="載入中..." />
 
@@ -154,6 +167,15 @@ const granularity = ref("daily");
 const granularityLabel = computed(
   () => granularities.find((g) => g.key === granularity.value)?.label ?? "",
 );
+// ── 時間範圍切換 ─────────────────────────────────────────────────────────────────
+const timeRanges = [
+  { key: "1M", label: "1M", limit: 22 },
+  { key: "3M", label: "3M", limit: 66 },
+  { key: "6M", label: "6M", limit: 132 },
+  { key: "1Y", label: "1Y", limit: 252 },
+  { key: "ALL", label: "ALL", limit: null },
+];
+const timeRange = ref("ALL");
 const activeTab = ref("trend"); // 'trend' | 'reports'
 
 // ── 一級分頁：圖表 / 技術指標 ─────────────────────────────────────────────────
@@ -207,15 +229,21 @@ async function load() {
     const g = granularities.find((g) => g.key === granularity.value);
     let raw;
 
+    // 決定 fetch limit：時間範圍優先，ALL 則沿用 granularity 預設
+    const rangeLimit =
+      timeRange.value === "ALL"
+        ? g.limit
+        : timeRanges.find((t) => t.key === timeRange.value)?.limit ?? g.limit;
+
     if (granularity.value === "daily") {
-      const res = await fetchSnapshots(g.limit);
+      const res = await fetchSnapshots(rangeLimit);
       // daily API 回傳 { snapshots: [], hasEncryption: bool }
       hasEncryption.value = res.hasEncryption ?? true;
       raw = [...(res.snapshots ?? [])].sort((a, b) =>
         a.date.localeCompare(b.date),
       );
     } else if (granularity.value === "weekly") {
-      const res = await fetchSnapshotsWeekly(g.limit);
+      const res = await fetchSnapshotsWeekly(rangeLimit);
       // weekly API 可能回傳 [] （未啟用快照）或陣列
       if (Array.isArray(res)) {
         hasEncryption.value = true;
@@ -230,7 +258,7 @@ async function load() {
         );
       }
     } else {
-      const res = await fetchSnapshotsMonthly(g.limit);
+      const res = await fetchSnapshotsMonthly(rangeLimit);
       if (Array.isArray(res)) {
         hasEncryption.value = true;
         raw = [...res].sort((a, b) =>
@@ -257,7 +285,7 @@ function setGranularity(key) {
   granularity.value = key;
 }
 
-watch(granularity, load);
+watch([granularity, timeRange], load);
 onMounted(load);
 
 // ── X 軸標籤格式化 ────────────────────────────────────────────────────────────────────
@@ -367,6 +395,10 @@ const chartOption = computed(() => {
     },
     tooltip: {
       trigger: "axis",
+      textStyle: {
+        color: "var(--iln-text)",
+        fontSize: 12,
+      },
       formatter(params) {
         const idx = params[0].dataIndex;
         const pt = pts[idx];
@@ -450,6 +482,8 @@ const chartOption = computed(() => {
   margin-bottom: 10px;
 }
 .seg-btn {
+  min-width: 44px;
+  min-height: 44px;
   flex: 1;
   padding: 6px 0;
   border-radius: 8px;
@@ -488,6 +522,8 @@ const chartOption = computed(() => {
   margin-bottom: 12px;
 }
 .metric-chip {
+  min-width: 44px;
+  min-height: 44px;
   padding: 4px 10px;
   border-radius: 99px;
   font-size: 12px;
@@ -501,6 +537,33 @@ const chartOption = computed(() => {
     color 0.15s;
 }
 .metric-chip.active {
+  background: var(--iln-brand);
+  color: var(--iln-text-on-brand);
+}
+
+/* ── 時間範圍切換 ── */
+.time-range-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.time-range-btn {
+  min-width: 44px;
+  min-height: 44px;
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--iln-surface);
+  color: var(--iln-hint);
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.time-range-btn.active {
   background: var(--iln-brand);
   color: var(--iln-text-on-brand);
 }

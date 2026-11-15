@@ -224,6 +224,60 @@ describe("ChartView", () => {
     await flushPromises();
     expect(fetchSnapshots).toHaveBeenCalledTimes(2);
   });
+
+  // ── CARD-5.3 時間範圍切換 ──
+  it("應渲染時間範圍按鈕 1M/3M/6M/1Y/ALL", async () => {
+    fetchSnapshots.mockResolvedValue({
+      hasEncryption: true,
+      snapshots: [snapshot()],
+    });
+    const wrapper = mountView();
+    await flushPromises();
+
+    const timeRangeBar = wrapper.find(".time-range-bar");
+    expect(timeRangeBar.exists()).toBe(true);
+
+    const labels = wrapper.findAll(".time-range-btn").map((b) => b.text());
+    expect(labels).toEqual(["1M", "3M", "6M", "1Y", "ALL"]);
+  });
+
+  it("切換時間範圍應呼叫對應的 fetch limit", async () => {
+    fetchSnapshots.mockResolvedValue({
+      hasEncryption: true,
+      snapshots: [snapshot(), snapshot("2026-08-16")],
+    });
+    const wrapper = mountView();
+    await flushPromises();
+    expect(fetchSnapshots).toHaveBeenCalledWith(90); // daily default
+
+    const btn3M = wrapper
+      .findAll(".time-range-btn")
+      .find((b) => b.text() === "3M");
+    await btn3M.trigger("click");
+    await flushPromises();
+    expect(fetchSnapshots).toHaveBeenLastCalledWith(66);
+
+    const btnALL = wrapper
+      .findAll(".time-range-btn")
+      .find((b) => b.text() === "ALL");
+    await btnALL.trigger("click");
+    await flushPromises();
+    expect(fetchSnapshots).toHaveBeenLastCalledWith(90); // ALL 回到 granularity 預設
+  });
+
+  it("tooltip textStyle 應使用 --iln-* 令牌", async () => {
+    fetchSnapshots.mockResolvedValue({
+      hasEncryption: true,
+      snapshots: [snapshot()],
+    });
+    const wrapper = mountView();
+    await flushPromises();
+
+    const chart = wrapper.findComponent({ name: "mock-chart" });
+    const tooltip = chart.props("option").tooltip;
+    expect(tooltip.textStyle.color).toBe("var(--iln-text)");
+    expect(tooltip.textStyle.fontSize).toBe(12);
+  });
 });
 
 // Focus on observable state transitions; ECharts rendering is mocked.

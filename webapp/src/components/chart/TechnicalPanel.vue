@@ -32,32 +32,76 @@
             :status="cardClassToStatus(rsiInfo.cardClass)"
             framed
           >
-            <template #suffix>{{ rsiInfo.label }}</template>
+            <template #suffix>
+              {{ rsiInfo.label }}
+              <Icon
+                name="info"
+                size="xs"
+                @click.stop="toggleIndicator('rsi')"
+              />
+            </template>
           </StatCard>
+          <div
+            v-if="expandedIndicator === 'rsi'"
+            class="indicator-desc"
+          >{{ indicatorDescriptions.rsi }}</div>
           <StatCard
             label="KD (K)"
             :value="Number(kdKInfo.display)"
             :status="cardClassToStatus(kdKInfo.cardClass)"
             framed
           >
-            <template #suffix>{{ kdKInfo.label }}</template>
+            <template #suffix>
+              {{ kdKInfo.label }}
+              <Icon
+                name="info"
+                size="xs"
+                @click.stop="toggleIndicator('kdK')"
+              />
+            </template>
           </StatCard>
+          <div
+            v-if="expandedIndicator === 'kdK'"
+            class="indicator-desc"
+          >{{ indicatorDescriptions.kdK }}</div>
           <StatCard
             label="KD (D)"
             :value="Number(kdDInfo.display)"
             :status="cardClassToStatus(kdDInfo.cardClass)"
             framed
           >
-            <template #suffix>{{ kdDInfo.label }}</template>
+            <template #suffix>
+              {{ kdDInfo.label }}
+              <Icon
+                name="info"
+                size="xs"
+                @click.stop="toggleIndicator('kdD')"
+              />
+            </template>
           </StatCard>
+          <div
+            v-if="expandedIndicator === 'kdD'"
+            class="indicator-desc"
+          >{{ indicatorDescriptions.kdD }}</div>
           <StatCard
             label="乖離率 MA240"
             :value="biasInfo.display"
             :status="cardClassToStatus(biasInfo.cardClass)"
             framed
           >
-            <template #suffix>{{ biasInfo.label }}</template>
+            <template #suffix>
+              {{ biasInfo.label }}
+              <Icon
+                name="info"
+                size="xs"
+                @click.stop="toggleIndicator('bias')"
+              />
+            </template>
           </StatCard>
+          <div
+            v-if="expandedIndicator === 'bias'"
+            class="indicator-desc"
+          >{{ indicatorDescriptions.bias }}</div>
           <StatCard
             label="MACD"
             :value="macdInfo.display"
@@ -65,8 +109,19 @@
             size="sm"
             framed
           >
-            <template #suffix>{{ macdInfo.label }}</template>
+            <template #suffix>
+              {{ macdInfo.label }}
+              <Icon
+                name="info"
+                size="xs"
+                @click.stop="toggleIndicator('macd')"
+              />
+            </template>
           </StatCard>
+          <div
+            v-if="expandedIndicator === 'macd'"
+            class="indicator-desc"
+          >{{ indicatorDescriptions.macd }}</div>
         </div>
       </section>
 
@@ -170,11 +225,31 @@ import { waitReady } from "../../composables/useTelegram.js";
 import RadarSubtabs from "@/components/radar/RadarSubtabs.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
 
+const props = defineProps({
+  timeRange: {
+    type: String,
+    default: "ALL",
+  },
+});
+
 const latestReport = ref(null);
 const loading = ref(true);
+const expandedIndicator = ref(null); // 'rsi' | 'kdK' | 'kdD' | 'bias' | 'macd'
 
 const reversalExpanded = ref(true);
 const sellExpanded = ref(true);
+
+const indicatorDescriptions = {
+  rsi: "相對強弱指標：>70 為超買、<30 為超賣，常用於判斷超買超賣區間",
+  kdK: "隨機指標 K 值：反映短期買賣動能，與 D 值交叉訊號常用於進出場時點",
+  kdD: "隨機指標 D 值：反映中期趨勢方向，K 值上穿 D 值為買訊號",
+  bias: "乖離率 MA240：價格與 240 日移動平均線的乖離幅度，偏離過大可能回歸",
+  macd: "MACD：移動平均收斂發散指標，DIF 與 DEA 交叉及柱狀圖用於判斷趨勢強弱",
+};
+
+function toggleIndicator(key) {
+  expandedIndicator.value = expandedIndicator.value === key ? null : key;
+}
 
 const todayLabel = computed(() =>
   new Date().toLocaleDateString("zh-TW", {
@@ -528,6 +603,16 @@ onUnmounted(() => {
 }
 .ind-sub--buy {
   color: var(--iln-brand);
+}
+
+.indicator-desc {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: var(--iln-hint);
+  padding: 6px 10px;
+  background: var(--iln-surface-muted);
+  border-radius: 6px;
+  margin-top: 4px;
 }
 
 /* Risk Radar */
