@@ -1,2 +1,5 @@
 npx lint-staged
 node scripts/pre-commit-docs-check.mjs
+
+# 文檔與代碼一致性驗收
+node scripts/verify-doc-code-sync.mjs || { echo ""; echo "❌ 文檔與代碼漂移，請先修復再提交。"; echo "   詳見 docs/verification/FIX_PLAN_2026-11-15.md"; exit 1; }
