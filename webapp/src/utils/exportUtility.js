@@ -161,8 +161,8 @@ export async function exportChartAsImage(
     pixelRatio = 2,
     backgroundColor = resolveColor(
       "--iln-bg-light-fallback",
-      "#ffffff",
-    ) /* iln-color-allow: canvas */,
+      "#ffffff" /* iln-color-allow: canvas */,
+    ),
     excludeComponents = ["toolbox"],
   } = options;
 
