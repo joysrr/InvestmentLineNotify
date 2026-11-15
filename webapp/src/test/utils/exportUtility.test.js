@@ -217,7 +217,7 @@ describe("exportUtility.js", () => {
         expect.objectContaining({
           type: "image/png",
           pixelRatio: 2,
-          backgroundColor: "var(--tg-theme-text-color, #fff)",
+          backgroundColor: "#ffffff",
           excludeComponents: ["toolbox"],
         }),
       );

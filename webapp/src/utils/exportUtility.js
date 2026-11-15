@@ -150,10 +150,14 @@ export async function exportChartAsImage(
   /* ECharts canvas fillStyle 不支援 CSS var()，須先以 getComputedStyle 解析為實際色值 */
   function resolveColor(token, fallback) {
     if (typeof document === "undefined") return fallback;
-    const v = getComputedStyle(document.documentElement)
-      .getPropertyValue(token)
-      .trim();
-    return v || fallback;
+    try {
+      const v = getComputedStyle(document.documentElement)
+        .getPropertyValue(token)
+        .trim();
+      return v || fallback;
+    } catch {
+      return fallback;
+    }
   }
 
   const {
