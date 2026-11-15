@@ -499,7 +499,7 @@ watch(
   height: 36px;
   font-size: 18px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px var(--iln-shadow-card);
   display: flex;
   align-items: center;
   justify-content: center;

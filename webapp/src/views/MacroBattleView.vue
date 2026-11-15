@@ -462,7 +462,7 @@ const directionClass = computed(() => {
   background: linear-gradient(
     90deg,
     var(--iln-surface) 25%,
-    rgba(255, 255, 255, 0.35) 50%,
+    var(--iln-gradient-scrim) 50%,
     var(--iln-surface) 75%
   );
   background-size: 200% 100%;

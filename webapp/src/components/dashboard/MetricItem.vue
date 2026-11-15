@@ -38,7 +38,7 @@ const titleText = computed(() => {
 <style scoped>
 .metric-item {
   background: var(--iln-bg);
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid var(--iln-border-subtle);
   border-radius: 12px;
   padding: 12px;
   text-align: center;

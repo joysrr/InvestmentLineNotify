@@ -163,6 +163,12 @@
 --iln-shadow-hairline: 0 1px 4px rgba(0, 0, 0, 0.02);
 /* 漸層遮罩色停：暗色需降低不透明度 */
 --iln-gradient-scrim: rgba(255, 255, 255, 0.35);
+
+/* ── P8-02 batch 4a 額外令牌 ── */
+/* DashboardView 卡片陰影：與淺色同值 */
+--iln-shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+/* SocialSentimentCard 深色背景：與淺色同值 */
+--iln-overlay-dim: rgba(0, 0, 0, 0.35);
 }
 
 /* 深色模式覆寫（由 useTelegram.syncSchemeAttribute 寫入 data-tg-scheme） */
@@ -219,6 +225,12 @@
 --iln-surface-raised: rgba(255, 255, 255, 0.08);
 /* 漸層遮罩色停：暗色降低不透明度 */
 --iln-gradient-scrim: rgba(255, 255, 255, 0.08);
+
+/* ── P8-02 batch 4a 額外令牌 ── */
+/* DashboardView 卡片陰影：暗色同值 */
+--iln-shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+/* SocialSentimentCard 深色背景：暗色同值 */
+--iln-overlay-dim: rgba(0, 0, 0, 0.35);
 }
 
 /* ── Spinner 統一規格（§3.3） ── */
