@@ -4,7 +4,7 @@
     <!-- Header -->
     <div class="dash-header">
       <div class="dash-title-row">
-        <h2 class="dash-title">投資儀表板</h2>
+        <h1 class="dash-title">投資儀表板</h1>
         <!-- FAB: Strategy Config -->
         <button
           class="config-fab"

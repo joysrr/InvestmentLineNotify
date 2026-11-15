@@ -20,13 +20,13 @@ tags:
 
 ## 一、5 個一級入口職責邊界
 
-| 入口       | 路徑         | 承載頁面 / 子元件                                                                         | 職責範圍                                      | 狀態                            |
-| ---------- | ------------ | ----------------------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------- |
-| 總覽       | `/dashboard` | `DashboardView.vue`                                                                       | 策略狀態 drawer（HealthPanel 觸發）、摘要概覽 | ✅ CARD-01 已完成，CARD-04 不動 |
-| 市場洞察   | `/insights`  | 新增 `InsightsView.vue`<br>子元件：`MarketRadarView.vue`、`MacroBattleView.vue`           | 市場雷達 + 宏觀戰盤，兩視圖並列               | ⏳ CARD-04 新增                 |
-| 圖表       | `/chart`     | `ChartView.vue`<br>SubTabBar 承載 chart / technical 兩 tab<br>子元件：`TechnicalView.vue` | 價格與指標視覺化 + 技術指標詳細面板           | ⏳ CARD-04 合併                 |
-| 新聞與報告 | `/news`      | `NewsView.vue`（CARD-02 已重構）                                                          | 新聞池 + 精選報告                             | ⏳ CARD-04 僅更新路由           |
-| 帳戶與設定 | `/account`   | `AccountView.vue`<br>子區段：「關於」（承載 `TheoryView.vue` 內容）                       | 帳戶設定、關於／理論內容                      | ⏳ CARD-04 Theory 併入          |
+| 入口                       | 路徑         | 承載頁面 / 子元件                                                                         | 職責範圍                                      | 狀態                            |
+| -------------------------- | ------------ | ----------------------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------- |
+| 總覽                       | `/dashboard` | `DashboardView.vue`                                                                       | 策略狀態 drawer（HealthPanel 觸發）、摘要概覽 | ✅ CARD-01 已完成，CARD-04 不動 |
+| 市場洞察（導航簡稱：洞察） | `/insights`  | 新增 `InsightsView.vue`<br>子元件：`MarketRadarView.vue`、`MacroBattleView.vue`           | 市場雷達 + 宏觀戰盤，兩視圖並列               | ⏳ CARD-04 新增                 |
+| 圖表                       | `/chart`     | `ChartView.vue`<br>SubTabBar 承載 chart / technical 兩 tab<br>子元件：`TechnicalView.vue` | 價格與指標視覺化 + 技術指標詳細面板           | ⏳ CARD-04 合併                 |
+| 新聞與報告                 | `/news`      | `NewsView.vue`（CARD-02 已重構）                                                          | 新聞池 + 精選報告                             | ⏳ CARD-04 僅更新路由           |
+| 設定與帳戶                 | `/account`   | `AccountView.vue`<br>子區段：「關於」（承載 `TheoryView.vue` 內容）                       | 帳戶設定、關於／理論內容                      | ⏳ CARD-04 Theory 併入          |
 
 ## 二、舊路由 redirect 對照表
 

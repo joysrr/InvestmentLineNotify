@@ -59,6 +59,34 @@ wiki_links: []
 | 5   | 5.5      | Path B：重設按鈕移除，設定無持久化層                       | ✅ 已處理     | 按鈕移除，account-ux.md 記錄，無持久化層       |
 | 6   | 5.5      | `watch(route.query.panel)` 未加，僅 onMounted              | ⚠️ 列入階段六 | 僅 `onMounted`，建議 5.6+ 加 `watch`           |
 
+## P0 決策記錄（CARD-5.6 補完）
+
+### P0-1 UI 標題一致（與 FloatingPill、各頁、設計矩陣三處對齊）
+
+| 項目                           | 決策                 | 說明                                                                                                                                                                           |
+| ------------------------------ | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 「設定與帳戶」vs「帳戶與設定」 | 統一為「設定與帳戶」 | 方案 B：保留 FloatingPill label「設定與帳戶」，矩陣 `page-responsibility-matrix.md` line 29 改為「設定與帳戶」。中文語序更順，且 FloatingPill 已在使用者眼前，改矩陣影響較小。 |
+| 「洞察」vs「市場洞察」         | 可接受簡寫，加註對應 | FloatingPill label「洞察」保持不變（空間有限，簡寫合理）。矩陣 line 26 加註「導航簡稱：洞察」，line 53-54 已說明「新結構：總覽、市場洞察、圖表、新聞與報告、帳戶與設定」。     |
+| DashboardView 無 `<h1>`        | 補唯一 h1            | 將 `<h2 class="dash-title">投資儀表板</h2>` 改為 `<h1 class="dash-title">投資儀表板</h1>`，供螢幕閱讀器定位。`dash-title` 為 class 選擇器，CSS 不受影響。                      |
+
+### P0-2 母計畫階段五狀態更新
+
+文件：`docs/webapp-refactor-plan.md`
+處理方式：方案 A——在階段五章節開頭加一行狀態：
+
+```
+### 階段五：頁面精修（5.1–5.5）
+
+> **狀態**：✅ 完成（2026-11-15），詳見 `docs/plans/completed/phase-5-signoff.md`
+```
+
+## 5.6 處理技術債的說明
+
+5.6 處理了兩項技術債（#1 MacroBattle `!macro` EmptyState、`dashboard-hierarchy.md` 補建）。非「順手修技術債」，是為通過 5.6 收口驗收的必要動作：
+
+- #1：5.1 原計畫於 5.1 或 5.6 處理，未處理則技術債跟進項必須列入階段六。
+- dashboard-hierarchy.md：5.6 驗收要求「7 份 design 文件齊全」，不補建無法通過。
+
 ## 教訓記錄
 
 1. el-input-number 在 jsdom 不穩定（5.5）
@@ -74,7 +102,7 @@ wiki_links: []
 - [x] 6 項技術債有明確狀態（2 項列入階段六，4 項已處理，1 項記錄）
 - [x] 全站 360px 掃描通過（6 個 spec，8/8 測試案例通過）
 - [x] 7 份 design 文件齊全（dashboard-hierarchy.md 於 5.6 補建）
-- [x] 母計畫階段五狀態更新（docs/webapp-refactor-plan.md 階段五表格無狀態欄位，以本筋核文件為準）
+- [x] 母計畫階段五狀態更新（方案 A：`docs/webapp-refactor-plan.md` 階段五章節開頭加「狀態：✅ 完成（2026-11-15），詳見 `docs/plans/completed/phase-5-signoff.md`」）
 
 ## 下一步：階段六
 
