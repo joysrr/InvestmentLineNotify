@@ -60,7 +60,7 @@
             <div class="setting-row">
               <label class="setting-label">目標配置與再平衡閾值</label>
               <router-link
-                to="/account?panel=strategy"
+                to="/strategy-config"
                 class="setting-action-link"
               >
                 開啟策略編輯器 →
