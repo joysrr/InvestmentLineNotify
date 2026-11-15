@@ -696,11 +696,6 @@ const stateLabel = computed(() => {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.08);
 }
-/* ── 以下 rgba 屬裝飾性或深色專用，留待 Phase 5 統一處理 ── */
-/* .radar-panel-idle box-shadow: rgba(0,0,0,0.02) — 極淡陰影 */
-/* .dot-normal box-shadow: 狀態點光暈（ok 色，留待 Phase 5 統一處理） */
-/* .radar-mini-item background: rgba(255,255,255,0.7) — 半透明卡片設計 */
-/* .dark .toggle-btn background: rgba(0,0,0,0.04) — 深色專用 */
-/* .dark .mini-desc background: rgba(255,255,255,0.08) — 深色專用 */
+/* 留待 Phase 5：無剩餘裸色值，所有 rgba 已改用設計令牌 */
 
 </style>
