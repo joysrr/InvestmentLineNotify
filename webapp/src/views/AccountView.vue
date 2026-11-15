@@ -7,7 +7,7 @@
       <p class="page-subtitle">資料來源健康度 ＆ 總經快照</p>
     </div>
 
-    <!-- ── 設定項分組（CARD-5.5：4 組 CollapsibleSection）── -->
+    <!-- ── 設定項分組（CARD-5.5：3 組 CollapsibleSection）── -->
     <div class="settings-groups">
       <!-- 1. 通知設定（預設展開） -->
       <CollapsibleSection title="通知設定" :expanded="true" indicator="chevron">

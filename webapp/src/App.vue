@@ -66,7 +66,7 @@ watch(
   (() => route.path),
   (path) => {
     if (!backButton) return;
-    const rootPaths = ["/", "/dashboard", "/radar", "/news", "/theory", "/account"];
+    const rootPaths = ["/dashboard", "/insights", "/chart", "/news", "/account"];
     if (rootPaths.includes(path)) {
       backButton.hide();
       backButton.offClick(handleBack);
