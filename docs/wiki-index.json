@@ -77,7 +77,7 @@
         "src/modules/strategy/signalRules.mjs",
         "src/modules/strategy/policies/sellScoringPolicy.mjs",
         "src/modules/notifications/templates/telegramHtmlBuilder.mjs",
-        "webapp/src/views/TechnicalView.vue"
+        "webapp/src/components/chart/TechnicalPanel.vue"
       ],
       "tags": [
         "technical-analysis",
@@ -2185,7 +2185,7 @@
         "doc": "TECHNICAL_INDICATORS_SPEC.md"
       }
     ],
-    "webapp/src/views/TechnicalView.vue": [
+    "webapp/src/components/chart/TechnicalPanel.vue": [
       {
         "concept": "technical-indicators-spec",
         "doc": "TECHNICAL_INDICATORS_SPEC.md"
