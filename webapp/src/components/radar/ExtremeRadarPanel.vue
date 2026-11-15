@@ -350,37 +350,9 @@ const stateLabel = computed(() => {
   border: 1px solid var(--iln-danger);
 }
 
-.panel-severity-critical {
-  border-color: var(--iln-danger-text);
-  background: var(--iln-danger-bg);
-}
 
-.panel-severity-alert {
-  border-color: var(--iln-warn-text);
-  background: var(--iln-warn-bg);
-}
 
-.radar-panel-header {
-  padding: 11px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  user-select: none;
-}
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  flex: 1;
-}
-
-.header-right {
-  flex-shrink: 0;
-  margin-left: 8px;
-}
 
 .status-icon {
   font-size: 16px;
@@ -423,24 +395,7 @@ const stateLabel = computed(() => {
   color: var(--tg-theme-hint-color);
 }
 
-.toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 9px;
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.04);
-  color: var(--tg-theme-hint-color);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  transition: all 0.2s ease;
-}
 
-.toggle-btn:hover {
-  background: rgba(0, 0, 0, 0.08);
-}
 
 /* 展開詳細清單 */
 .radar-detail-list {
@@ -672,37 +627,7 @@ const stateLabel = computed(() => {
   gap: 8px;
 }
 
-.discipline-card {
-  background: rgba(255, 255, 255, 0.7);
-  padding: 8px 10px;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-}
 
-.card-freeze {
-  border-color: var(--iln-danger);
-  background: var(--iln-danger-bg);
-}
-
-.dc-label {
-  font-size: 11px;
-  color: var(--tg-theme-hint-color);
-}
-
-.dc-status {
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.dc-note {
-  font-size: 10px;
-  opacity: 0.8;
-  font-weight: normal;
-  display: block;
-}
 
 .text-danger {
   color: var(--iln-danger-text);
@@ -755,13 +680,7 @@ const stateLabel = computed(() => {
   color: var(--iln-radar-text-muted);
 }
 
-.dark .toggle-btn,
-:global(.dark) .toggle-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
-  /* 業務語義色：深色主題按鈕文字 */
-  color: var(--iln-hint);
-}
+
 
 .dark .mini-desc,
 :global(.dark) .mini-desc {
