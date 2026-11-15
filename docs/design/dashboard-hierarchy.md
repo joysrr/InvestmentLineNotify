@@ -2,7 +2,7 @@
 title: Dashboard 頁面層級結構
 stage: CARD-5.1
 status: current
-type: explanation
+type: reference
 last_updated: 2026-11-15
 tags:
   - dashboard

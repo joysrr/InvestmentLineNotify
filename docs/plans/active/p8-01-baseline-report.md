@@ -1,5 +1,5 @@
 ---
-type: baseline-report
+type: plan
 card: P8-01
 status: current
 last_updated: 2026-11-15

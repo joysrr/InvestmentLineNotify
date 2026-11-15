@@ -1,5 +1,5 @@
 ---
-type: report
+type: reference
 status: current
 last_updated: 2026-11-12
 tags:

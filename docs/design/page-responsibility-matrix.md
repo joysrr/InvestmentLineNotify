@@ -1,5 +1,5 @@
 ---
-type: matrix
+type: reference
 status: current
 last_updated: 2026-11-14
 owner: 開發者

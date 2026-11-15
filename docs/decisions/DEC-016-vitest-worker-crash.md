@@ -1,5 +1,5 @@
 ---
-type: explanation
+type: record
 status: archived
 completed_date: 2026-08-14
 last_updated: 2026-09-10

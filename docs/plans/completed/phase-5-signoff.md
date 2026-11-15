@@ -2,7 +2,7 @@
 title: 階段五收口簽核
 stage: CARD-5.6
 status: done
-type: signoff
+type: plan
 last_updated: 2026-11-15
 tags:
   - signoff

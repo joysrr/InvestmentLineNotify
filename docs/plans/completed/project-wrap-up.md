@@ -1,5 +1,5 @@
 ---
-type: project-wrap-up
+type: plan
 status: closed
 last_updated: 2026-11-15
 owner: 開發者

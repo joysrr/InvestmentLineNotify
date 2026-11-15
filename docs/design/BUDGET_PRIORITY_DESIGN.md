@@ -1,5 +1,5 @@
 ---
-type: explanation
+type: reference
 status: current
 last_updated: 2026-11-10
 last_verified: 2026-11-10

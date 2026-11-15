@@ -1,5 +1,5 @@
 ---
-type: architecture
+type: reference
 status: active
 last_updated: 2026-11-01
 tags:

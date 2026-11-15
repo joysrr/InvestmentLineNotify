@@ -1,7 +1,7 @@
 ---
 title: P8-02 色彩守護與死代碼清理完成報告
 status: current
-type: reference
+type: plan
 last_updated: 2026-11-15
 last_verified: 2026-11-15
 tags: [p8, color-guard, dead-code, completed]

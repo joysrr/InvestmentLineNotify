@@ -1,5 +1,5 @@
 ---
-type: reference
+type: guide
 status: current
 last_updated: 2026-10-23
 last_verified: 2026-10-23

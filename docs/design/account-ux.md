@@ -2,7 +2,7 @@
 title: 帳戶與設定頁 UX 規格
 stage: CARD-5.5
 status: current
-type: explanation
+type: reference
 last_updated: 2026-11-14
 tags:
   - account

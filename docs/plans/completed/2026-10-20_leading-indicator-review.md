@@ -1,5 +1,5 @@
 ---
-type: review
+type: plan
 status: completed
 last_updated: 2026-10-31
 tags:
