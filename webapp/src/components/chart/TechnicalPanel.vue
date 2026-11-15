@@ -688,10 +688,10 @@ onUnmounted(() => {
   font-size: 12px;
 }
 .sig-on {
-  background: rgba(232, 72, 85, 0.08);
+  background: var(--iln-danger-bg-soft);
 }
 .sig-off {
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--iln-surface-faint);
 }
 .sig-icon {
   font-size: 14px;
