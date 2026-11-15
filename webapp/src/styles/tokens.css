@@ -52,8 +52,10 @@
   --iln-ok-border: rgba(16, 185, 129, 0.3);
   --iln-warn-border: rgba(245, 158, 11, 0.3);
   --iln-danger-border: rgba(239, 68, 68, 0.3);
+  --iln-danger-bg-soft: rgba(239, 68, 68, 0.08);
   --iln-neutral-border: rgba(148, 163, 184, 0.3);
   --iln-border-subtle: rgba(0, 0, 0, 0.06);
+  --iln-border-dark-faint: rgba(0, 0, 0, 0.08);
   --iln-border-default: rgba(0, 0, 0, 0.1);
   --iln-border-strong: rgba(0, 0, 0, 0.15);
 
