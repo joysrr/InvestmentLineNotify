@@ -114,8 +114,12 @@ export function useTelegram() {
         ? rawBg
         : `#${rawBg}`
       : colorScheme.value === "dark"
-        ? "#1a1a1a"
-        : "#ffffff";
+        ? getComputedStyle(document.documentElement).getPropertyValue(
+            "--iln-bg-dark-fallback",
+          ) || "#1a1a1a" /* iln-color-allow: fallback */
+        : getComputedStyle(document.documentElement).getPropertyValue(
+            "--iln-bg-light-fallback",
+          ) || "#ffffff"; /* iln-color-allow: fallback */
     setHeaderColor(bg);
     setBackgroundColor(bg);
   };

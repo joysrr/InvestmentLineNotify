@@ -38,8 +38,8 @@ function renderAuthFallback() {
       padding:24px;
       text-align:center;
       font-family:system-ui,-apple-system,sans-serif;
-      color:var(--tg-theme-hint-color, #888);
-      background:var(--tg-theme-bg-color, #fff);
+      color:var(--tg-theme-hint-color, var(--iln-hint-fallback)) /* iln-color-allow: fallback */;
+      background:var(--tg-theme-bg-color, var(--iln-bg-light-fallback)) /* iln-color-allow: fallback */;
     ">
       <p style="font-size:var(--iln-font-base, 14px);line-height:1.5;">
         請從 Telegram 內開啟此頁面
