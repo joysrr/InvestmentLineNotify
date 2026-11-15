@@ -147,10 +147,22 @@ export async function exportChartAsImage(
     throw new Error("Chart instance is required");
   }
 
+  /* ECharts canvas fillStyle 不支援 CSS var()，須先以 getComputedStyle 解析為實際色值 */
+  function resolveColor(token, fallback) {
+    if (typeof document === "undefined") return fallback;
+    const v = getComputedStyle(document.documentElement)
+      .getPropertyValue(token)
+      .trim();
+    return v || fallback;
+  }
+
   const {
     type = "png",
     pixelRatio = 2,
-    backgroundColor = "var(--tg-theme-text-color, var(--iln-bg-light-fallback))" /* iln-color-allow: fallback */,
+    backgroundColor = resolveColor(
+      "--iln-bg-light-fallback",
+      "#ffffff",
+    ) /* iln-color-allow: canvas */,
     excludeComponents = ["toolbox"],
   } = options;
 
