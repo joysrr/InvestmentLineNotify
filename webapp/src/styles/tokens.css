@@ -216,6 +216,11 @@
   --iln-danger-shadow: 0 0 0 0 rgba(198, 40, 40, 0.2);
 /* 危險色聚焦陰影 */
   --iln-danger-shadow-focus: 0 0 0 4px rgba(198, 40, 40, 0.1);
+
+/* 缺失變數補全（修復樣式遺失問題：P8-02 後未定義的變數） */
+  --iln-border: var(--iln-border-subtle);
+  --iln-surface-muted: var(--iln-surface-faint);
+  --iln-text-on-brand: var(--iln-text);
 }
 
 /* 深色模式覆寫（由 useTelegram.syncSchemeAttribute 寫入 data-tg-scheme） */
@@ -309,6 +314,11 @@
 /* AccountView 警戒狀態：暗色不透明度較高 */
   --iln-state-caution-bg: rgba(255, 204, 0, 0.15);
   --iln-state-caution-border: rgba(255, 204, 0, 0.4);
+
+/* 缺失變數補全（修復樣式遺失問題：P8-02 後未定義的變數） */
+  --iln-border: var(--iln-border-subtle);
+  --iln-surface-muted: var(--iln-surface-faint);
+  --iln-text-on-brand: var(--iln-text);
 }
 
 /* ── Spinner 統一規格（§3.3） ── */
