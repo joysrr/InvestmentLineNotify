@@ -268,7 +268,7 @@
 /* AccountView 卡片細陰影：暗色同值，透明度較高以在深色背景可見 */
   --iln-shadow-subtle: 0 1px 4px rgba(0, 0, 0, 0.3);
 /* 極淡背景：暗色反相 */
-   --iln-surface-faint: rgba(255, 255, 255, 0.03);
+  --iln-surface-faint: rgba(255, 255, 255, 0.03);
 
 /* AccountView 極淺表面：暗色同值，比 0.03 更淺，360px 下與 0.02 肉眼無差異 */
   --iln-surface-faintest: rgba(255, 255, 255, 0.03);
