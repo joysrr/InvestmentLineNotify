@@ -1,4 +1,4 @@
-狀態：未開始　建立日期：2026-11-15　前置：階段一至五已完成（710/710、Initial 104.2 KB）
+狀態：已完成　建立日期：2026-11-15　前置：階段一至五已完成（710/710、Initial 104.2 KB）　P8-01～P8-05 已全部驗收通過
 
 一、目標與範圍
 
@@ -40,11 +40,11 @@
 改善方案
 
 · 新增 webapp/scripts/check-no-raw-color.mjs，取代 check-no-hex.mjs：
-  · 正則涵蓋 #hex、rgb(、rgba(、hsl(、hsla(
-  · 掃描範圍擴為 src/**/*.{vue,js,mjs}
-  · .vue 只看 <style>；.js/.mjs 排除 src/test/**
-  · 行內白名單註解：/* iln-color-allow: canvas */，用於 ECharts 與 canvas 必需場景
-  · 檔案白名單：src/styles/tokens.css（唯一令牌定義處）
+· 正則涵蓋 #hex、rgb(、rgba(、hsl(、hsla(
+· 掃描範圍擴為 src/**/\*.{vue,js,mjs}
+· .vue 只看 <style>；.js/.mjs 排除 src/test/**
+· 行內白名單註解：/* iln-color-allow: canvas */，用於 ECharts 與 canvas 必需場景
+· 檔案白名單：src/styles/tokens.css（唯一令牌定義處）
 · package.json 的 lint 改呼叫新腳本；舊腳本保留一版並標 @deprecated，下張卡移除
 · 統一門檻：CI 零容忍；hex-audit-guard.test.js 的 50 門檻廢除，改為「新腳本 exit 0」單一判準
 
@@ -79,9 +79,9 @@
 
 · FloatingPill：刪除整個 :global(.dark) .floating-pill 規則，改用既有令牌；若 --iln-shadow-3 暗色下視覺不足，在 tokens.css 的暗色段新增 --iln-shadow-3 覆寫（在令牌層解決，不在組件層寫死）
 · MarketRadar：逐處評估
-  · 屬陰影 → 收斂到 --iln-shadow-*
-  · 屬漸層 → 在 tokens.css 新增 --iln-gradient-* 語義令牌
-  · 若確為業務語義 → 依既有政策加 /* 業務語義色：... */ + /* iln-color-allow: business */ 雙註解
+· 屬陰影 → 收斂到 --iln-shadow-*
+· 屬漸層 → 在 tokens.css 新增 --iln-gradient-* 語義令牌
+· 若確為業務語義 → 依既有政策加 /* 業務語義色：... _/ + /_ iln-color-allow: business */ 雙註解
 · 每處修改前後截圖比對（手動，不引入視覺回歸工具）
 
 驗收標準
@@ -161,9 +161,9 @@ grep -rn "components/theory\|@/components/theory" src/ --include='*.vue' --inclu
 改善方案
 
 · panel=strategy 二選一（需開發者決策，建議 A）：
-  · A（建議）：改為 <router-link to="/strategy-config">，語義直接，不動 AccountView 結構
-  · B：在 AccountView 補 watch(route.query.panel) 展開對應分組並嵌入 StrategyConfigEditor
-  · 選擇理由：A 成本最低且 /strategy-config 已是可用路由；B 會讓 AccountView 從「設定頁」變成「設定 + 編輯器」，違反 5.5 已定的職責邊界
+· A（建議）：改為 <router-link to="/strategy-config">，語義直接，不動 AccountView 結構
+· B：在 AccountView 補 watch(route.query.panel) 展開對應分組並嵌入 StrategyConfigEditor
+· 選擇理由：A 成本最低且 /strategy-config 已是可用路由；B 會讓 AccountView 從「設定頁」變成「設定 + 編輯器」，違反 5.5 已定的職責邊界
 · App.vue rootPaths 改為 ["/dashboard", "/insights", "/chart", "/news", "/account"]，與 5 個一級入口一致
 · AccountView 註解修正為「3 組」
 

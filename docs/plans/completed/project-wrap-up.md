@@ -139,13 +139,13 @@ npm run pre-deploy
 
 ## 七、階段五累積的技術債（長期監控，不主動修）
 
-| #   | 技術債                                                             | 狀態     | 觸發條件                                   |
-| --- | ------------------------------------------------------------------ | -------- | ------------------------------------------ |
-| 1   | MarketRadar 剩餘 5 處裸 rgba（gradient / box-shadow）              | 已知限制 | 若需調整該頁視覺時一併清理                 |
-| 2   | 兩套測試目錄（src/test/ 與 src/test/views/）                       | 已知限制 | 若測試檔數量增長到難以管理時合併           |
-| 3   | AccountView 只有 onMounted，無 watch(route.query.panel)            | 已知限制 | 若需在同一頁切換 ?panel= 時補 watch        |
-| 4   | StrategyConfigEditorView 為 async，但無 loading fallback 的專屬 UI | 已知限制 | 若載入時出現明顯空白時補                   |
-| 5   | src/api/*.js 無時間戳欄位的型別定義                                | 已知限制 | 若需為 Insights / Chart 加時間戳時一併處理 |
+| #   | 技術債                                                             | 狀態      | 觸發條件                                   |
+| --- | ------------------------------------------------------------------ | --------- | ------------------------------------------ |
+| 1   | MarketRadar 剩餘 5 處裸 rgba（gradient / box-shadow）              | ✅ 已處理 | P8-02 step4d 已全部改用設計令牌            |
+| 2   | 兩套測試目錄（src/test/ 與 src/test/views/）                       | 已知限制  | 若測試檔數量增長到難以管理時合併           |
+| 3   | AccountView 只有 onMounted，無 watch(route.query.panel)            | 已知限制  | 若需在同一頁切換 ?panel= 時補 watch        |
+| 4   | StrategyConfigEditorView 為 async，但無 loading fallback 的專屬 UI | 已知限制  | 若載入時出現明顯空白時補                   |
+| 5   | src/api/*.js 無時間戳欄位的型別定義                                | 已知限制  | 若需為 Insights / Chart 加時間戳時一併處理 |
 
 這些不是「待辦事項」，是「已知的、可接受的、遇到再處理的」狀態。不需要為它們排工時。
 

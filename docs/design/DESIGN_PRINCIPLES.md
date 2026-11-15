@@ -104,13 +104,13 @@ InvestmentLineNotify 設計原則（Design Principles）
 ```css
 :root {
   /* 7 級字型 scale（取代目前 15 種混用） */
-  --iln-font-xs: 10px;    /* 極小標籤、caption */
-  --iln-font-sm: 12px;    /* 次要文字、section-title */
-  --iln-font-base: 14px;  /* 主要內文 */
-  --iln-font-md: 16px;    /* 卡片標題 */
-  --iln-font-lg: 20px;    /* 頁面副標、KPI */
-  --iln-font-xl: 24px;    /* 頁面主標題 */
-  --iln-font-2xl: 32px;   /* Hero 主數值 */
+  --iln-font-xs: 10px; /* 極小標籤、caption */
+  --iln-font-sm: 12px; /* 次要文字、section-title */
+  --iln-font-base: 14px; /* 主要內文 */
+  --iln-font-md: 16px; /* 卡片標題 */
+  --iln-font-lg: 20px; /* 頁面副標、KPI */
+  --iln-font-xl: 24px; /* 頁面主標題 */
+  --iln-font-2xl: 32px; /* Hero 主數值 */
 
   /* 4 級字重 */
   --iln-weight-normal: 400;
@@ -119,12 +119,13 @@ InvestmentLineNotify 設計原則（Design Principles）
   --iln-weight-bold: 700;
 
   /* 行高 */
-  --iln-leading-tight: 1.2;   /* 標題 */
-  --iln-leading-normal: 1.5;  /* 內文 */
+  --iln-leading-tight: 1.2; /* 標題 */
+  --iln-leading-normal: 1.5; /* 內文 */
   --iln-leading-relaxed: 1.6; /* 長文 */
 
   /* 字族（Telegram 平台標準） */
-  --iln-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+  --iln-font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
   --iln-font-mono: "SF Mono", Monaco, Consolas, monospace;
 }
 ```
@@ -156,11 +157,11 @@ InvestmentLineNotify 設計原則（Design Principles）
 
 ```css
 :root {
-  --iln-radius-sm: 8px;     /* 按鈕、小標籤 */
-  --iln-radius-md: 12px;    /* 卡片、輸入框 */
-  --iln-radius-lg: 16px;    /* 大卡片、抽屜 */
-  --iln-radius-xl: 24px;    /* Hero 卡片、Bottom Sheet */
-  --iln-radius-full: 9999px;/* Pill、頭像 */
+  --iln-radius-sm: 8px; /* 按鈕、小標籤 */
+  --iln-radius-md: 12px; /* 卡片、輸入框 */
+  --iln-radius-lg: 16px; /* 大卡片、抽屜 */
+  --iln-radius-xl: 24px; /* Hero 卡片、Bottom Sheet */
+  --iln-radius-full: 9999px; /* Pill、頭像 */
 }
 ```
 
@@ -168,9 +169,9 @@ InvestmentLineNotify 設計原則（Design Principles）
 
 ```css
 :root {
-  --iln-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);   /* 平面卡片 */
-  --iln-shadow-2: 0 4px 12px rgba(0, 0, 0, 0.08);  /* 浮起卡片 */
-  --iln-shadow-3: 0 8px 24px rgba(0, 0, 0, 0.12);  /* 抽屜、Modal */
+  --iln-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05); /* 平面卡片 */
+  --iln-shadow-2: 0 4px 12px rgba(0, 0, 0, 0.08); /* 浮起卡片 */
+  --iln-shadow-3: 0 8px 24px rgba(0, 0, 0, 0.12); /* 抽屜、Modal */
 }
 ```
 
@@ -194,7 +195,7 @@ InvestmentLineNotify 設計原則（Design Principles）
 
 ```css
 :root {
-  --iln-touch-min: 44px;   /* iOS HIG 最小觸控目標 */
+  --iln-touch-min: 44px; /* iOS HIG 最小觸控目標 */
   --iln-touch-comfort: 48px;
 }
 ```
@@ -312,7 +313,9 @@ Spinner 統一規格：
 }
 
 @keyframes iln-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 ```
 
@@ -358,11 +361,7 @@ Block Error（有 retry）
 只有 1 套：使用 EmptyState.vue（需擴充 emoji prop）。
 
 ```vue
-<EmptyState
-  emoji="📭"
-  title="尚無資料"
-  message="資料將於每日分析完成後更新"
-/>
+<EmptyState emoji="📭" title="尚無資料" message="資料將於每日分析完成後更新" />
 ```
 
 3.6 Button
@@ -491,6 +490,7 @@ Tab 必須有 role="tablist" + role="tab" + aria-selected：
 在 useTelegram.js 需補的 7 個能力：
 
 # 能力 API 觸發時機
+
 1 Viewport 監聽 WebApp.onEvent('viewportChanged', cb) 鍵盤彈出、旋轉
 2 Theme 監聽 WebApp.onEvent('themeChanged', cb) 主題切換
 3 MainButton WebApp.MainButton 表單頁
@@ -504,6 +504,7 @@ Tab 必須有 role="tablist" + role="tab" + aria-selected：
 7. 禁用清單（Anti-patterns）
 
 # 禁用 原因
+
 1 硬編碼顏色 #xxxxxx 深色模式失效
 2 彩色陰影 視覺權重失衡
 3 自訂 bottom sheet 動畫節奏不一致，用 el-drawer
@@ -514,3 +515,22 @@ Tab 必須有 role="tablist" + role="tab" + aria-selected：
 8 間距非 8pt grid 維持視覺節奏
 9 padding: 6px 8px 這類無 grid 對齊寫法 同上
 10 Icon 與文字混排如 "★ 收藏" 用 [icon] 文字 或純文字
+
+---
+
+## 8. 色彩的允許與禁止
+
+### 允許
+
+- `tokens.css` 的 `--iln-*` 設計令牌（唯一色彩來源）
+- `var(--iln-*)` 在 `<style>` 與 `<template>` 中使用
+- 同一行加 `/* iln-color-allow: <理由> */` 的業務語義色（canvas 業務語義、Class C 業務保留色）
+- `getComputedStyle` 透過 `resolveColor()` 解析令牌的 JS 運算
+
+### 禁止
+
+- 裸 hex 色碼（`#xxxxxx` / `#xxxx` / `#xxx`）
+- 裸 `rgba()` / `rgb()` / `hsl()` / `hsla()`
+- CSS 註解內的裸色值（掃描器不排除註解）
+- `var(--iln-*, #xxxx)` fallback 帶裸色值（fallback 也算違規）
+- 新增除 `tokens.css` 以外的設計令牌（找不到等值令牌 → 新增至 tokens.css，再引用）
