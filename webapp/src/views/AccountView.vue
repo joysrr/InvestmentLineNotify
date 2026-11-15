@@ -570,7 +570,7 @@ const allHealthy = computed(
 .page-header {
   padding: 20px 16px 12px;
   background: var(--iln-bg);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--iln-border-subtle);
   margin-bottom: 12px;
 }
 .page-title {
@@ -591,7 +591,7 @@ const allHealthy = computed(
   border-radius: 12px;
   margin: 0 12px 12px;
   padding: 14px 14px 10px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 4px var(--iln-shadow-subtle);
 }
 .section-title {
   font-size: 13px;
@@ -630,7 +630,7 @@ const allHealthy = computed(
   justify-content: space-between;
   align-items: center;
   padding: 7px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid var(--iln-border-faint);
   font-size: 14px;
 }
 .info-row:last-child {
@@ -656,16 +656,16 @@ const allHealthy = computed(
   border: 1px solid transparent;
 }
 .source-ok {
-  background: rgba(52, 199, 89, 0.08);
-  border-color: rgba(52, 199, 89, 0.2);
+  background: var(--iln-state-positive-bg);
+  border-color: var(--iln-state-positive-border);
 }
 .source-fail {
-  background: rgba(255, 59, 48, 0.08);
-  border-color: rgba(255, 59, 48, 0.2);
+  background: var(--iln-state-negative-bg);
+  border-color: var(--iln-state-negative-border);
 }
 .source-stale {
-  background: rgba(255, 204, 0, 0.08);
-  border-color: rgba(255, 204, 0, 0.2);
+  background: var(--iln-state-caution-bg);
+  border-color: var(--iln-state-caution-border);
 }
 .source-header {
   display: flex;
@@ -745,7 +745,7 @@ const allHealthy = computed(
 }
 .trend-main {
   flex: 1.5;
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--iln-surface-faintest);
   border-radius: 12px;
   padding: 10px;
   display: flex;
@@ -753,7 +753,7 @@ const allHealthy = computed(
 }
 .trend-side {
   flex: 0.8;
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--iln-surface-faintest);
   border-radius: 12px;
   padding: 8px;
   display: flex;
