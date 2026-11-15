@@ -33,16 +33,16 @@
 
 ## 核心特色
 
-| 特色                    | 說明                                                                                                             |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| **無資料庫設計**        | 以 `data/` 檔案庫 + Google Sheets 取代傳統 DB，降低維護成本                                                      |
-| **多階段 AI 管線**      | 新聞過濾器 → 總經多空分析師 → 投資教練 → LLM Judge，結構化輸出防幻覺                                             |
-| **動態量化風控**        | 維持率斷頭計算、RSI/KD/MACD 過熱閥値、冷卻期與極端恐慰破冰機制                                                   |
-| **帳戶快照加密**        | 持倉數字以 AES-256-GCM 加密存儲，`.env` 金鑰本地管理                                                             |
-| **全面 VM 排程**        | 所有定時任務已統一由 Oracle VM crontab 執行，避免 GitHub Actions schedule 延遲                                   |
-| **Telegram Mini App**   | Fastify API Server + Vue 3 前端，即時瀏覽資產趨勢、市場雷達與新聞池                                              |
-| **0050 雙向模擬器**     | 正向股價→策略分數、反向目標→股價推導，支援 9 種目標類型（維持率、RSI、MA、KD、MACD、策略分數、Portfolio Health） |
-| **Provider 架構抽象化** | `dataSourceConfig.mjs` + `providerRegistry.mjs` Slot-based 設計，抽換資料來源只需改 config，不動上層程式碼       |
+| 特色                    | 說明                                                                                                                                               |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **業務資料無關聯式 DB** | 業務資料採 `data/` 檔案庫 + Google Sheets，無傳統關聯式 DB；錯誤監控事件以 SQLite（`better-sqlite3`，`src/modules/monitoring/errorStore.mjs`）儲存 |
+| **多階段 AI 管線**      | 新聞過濾器 → 總經多空分析師 → 投資教練 → LLM Judge，結構化輸出防幻覺                                                                               |
+| **動態量化風控**        | 維持率斷頭計算、RSI/KD/MACD 過熱閥値、冷卻期與極端恐慰破冰機制                                                                                     |
+| **帳戶快照加密**        | 持倉數字以 AES-256-GCM 加密存儲，`.env` 金鑰本地管理                                                                                               |
+| **全面 VM 排程**        | 所有定時任務已統一由 Oracle VM crontab 執行，避免 GitHub Actions schedule 延遲                                                                     |
+| **Telegram Mini App**   | Fastify API Server + Vue 3 前端，即時瀏覽資產趨勢、市場雷達與新聞池                                                                                |
+| **0050 雙向模擬器**     | 正向股價→策略分數、反向目標→股價推導，支援 9 種目標類型（維持率、RSI、MA、KD、MACD、策略分數、Portfolio Health）                                   |
+| **Provider 架構抽象化** | `dataSourceConfig.mjs` + `providerRegistry.mjs` Slot-based 設計，抽換資料來源只需改 config，不動上層程式碼                                         |
 
 ---
 
