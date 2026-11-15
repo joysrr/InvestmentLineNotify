@@ -3,6 +3,7 @@ import { join, extname, resolve, relative } from "path";
 
 const SRC_DIR = resolve("src");
 const FILE_WHITELIST = new Set(["src/styles/tokens.css"]);
+const TEST_FILE_RE = /\.test\.js$|\.spec\.js$/;
 const STYLE_OPEN_RE = /<style[^>]*>/;
 const STYLE_CLOSE_RE = /<\/style>/;
 const ALLOW_RE = /\/\*\s*iln-color-allow:\s*([^*]+?)\s*\*\//;
@@ -57,8 +58,9 @@ export function scanColors(srcDir = SRC_DIR) {
     const files = walk(srcDir);
     for (const file of files) {
       const rel = "src/" + relative(SRC_DIR, file).replace(/\\/g, "/");
-      if (FILE_WHITELIST.has(rel)) continue;
       if (
+        FILE_WHITELIST.has(rel) ||
+        TEST_FILE_RE.test(rel) ||
         rel.includes("/test/") ||
         rel.includes("/node_modules/") ||
         rel.includes("/dist/")

@@ -99,6 +99,20 @@ describe("check-no-raw-color", () => {
     ).toBe(true);
   });
 
+  it("同層 *.test.js 不違規（測試假資料應排除）", () => {
+    writeFile("components/Button.test.js", `const color = "#ff0000";\n`);
+    const { violations } = scanColors(join(tmpRoot, "src"));
+    const ignored = violations.some((v) => v.file.includes("Button.test.js"));
+    expect(ignored).toBe(false);
+  });
+
+  it("同層 *.spec.js 不違規（預防性排除）", () => {
+    writeFile("utils/helper.spec.js", `const c = "#00ff00";\n`);
+    const { violations } = scanColors(join(tmpRoot, "src"));
+    const ignored = violations.some((v) => v.file.includes("helper.spec.js"));
+    expect(ignored).toBe(false);
+  });
+
   it("排除 src/test/ 目錄不被掃描", () => {
     writeFile("test/should-be-ignored.js", `const x = "#ff0000";\n`);
     writeFile(
