@@ -151,6 +151,34 @@ npm run pre-deploy
 
 ---
 
+## 七之二、階段八補記（2026-11-15）
+
+階段八為收尾後追加，非原計畫範圍。目的是把「設計令牌是唯一色彩來源」從文件口號變成 CI 強制規則，並清除路由重構留下的死代碼。
+
+### 完成項目
+
+| 卡    | 內容              | 結果                                                                                              |
+| ----- | ----------------- | ------------------------------------------------------------------------------------------------- |
+| P8-01 | 色彩守衛統一      | 新腳本 `check-no-raw-color.mjs` 涵蓋 hex/rgb/rgba/hsl，掃描 `.vue` `<style>` 與 `.js`/`.mjs` 全文 |
+| P8-02 | 裸色值清理        | 20 處清零（ExtremeRadarPanel 死 CSS 7 處、令牌替換 9 處、過時註解 4 處）                          |
+| P8-03 | 死代碼清除        | 刪 TechnicalView、TheoryView、`components/theory/`（18 檔）、`useTheoryData.js` 及相關測試        |
+| P8-04 | 路由一致性        | `?panel=strategy` 壞連結已修；`App.vue` rootPaths 已對齊 5 個一級入口；AccountView 註解已修正     |
+| P8-05 | CI 切換與文件對齊 | `npm run lint` 改呼叫新腳本，舊 `check-no-hex.mjs` 與 `hex-audit-guard` 50 門檻廢除               |
+
+### 最終基線（階段八後）
+
+- 測試：692/692（較階段五的 710 減少 18，全為死代碼測試，非回歸）
+- lint：0 errors / 0 warnings，色彩掃描 0 violations（80 檔）
+- Initial gzip：104.2 KB / Total 361.4 KB
+- 色彩判準：單一腳本，三套門檻已統一
+- `webapp/src/` 內無 TechnicalView、TheoryView、theory/ 元件
+
+### 為什麼又開了這批
+
+階段五留下了兩個具體問題：`check-no-hex.mjs` 只擋 hex、不擋 rgba，導致「令牌是唯一色彩來源」有規則漏洞；路由重構後的兩個孤兒視圖仍在 repo 裡，會誤導後續維護與 AI 判讀。這兩件事不影響系統運行，但會讓「已經完成」的狀態失真。階段八把它們做完，是為了讓「完成」是真的完成。
+
+---
+
 ## 八、專案的「完成」定義
 
 本專案在以下條件下視為完成：
