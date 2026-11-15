@@ -113,6 +113,16 @@ describe("check-no-raw-color", () => {
     expect(ignored).toBe(false);
   });
 
+  it("theory/ 目錄整體排除（既有政策不動）", () => {
+    writeFile(
+      "components/theory/SomeDetail.vue",
+      `<template><div /></template>\n<style>\n  .a { background: rgba(0,0,0,0.5); }\n</style>`,
+    );
+    const { violations } = scanColors(join(tmpRoot, "src"));
+    const ignored = violations.some((v) => v.file.includes("theory/"));
+    expect(ignored).toBe(false);
+  });
+
   it("排除 src/test/ 目錄不被掃描", () => {
     writeFile("test/should-be-ignored.js", `const x = "#ff0000";\n`);
     writeFile(

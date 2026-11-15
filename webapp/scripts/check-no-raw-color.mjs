@@ -2,7 +2,12 @@ import { readFileSync, readdirSync, statSync } from "fs";
 import { join, extname, resolve, relative } from "path";
 
 const SRC_DIR = resolve("src");
-const FILE_WHITELIST = new Set(["src/styles/tokens.css"]);
+const FILE_WHITELIST = [
+  "src/styles/tokens.css",
+  // theory/ 元件：沿用既有「不動 theory」政策（HEX_AUDIT_2026-11-12.md）
+  // 84 處違規全部豁免，由 P8-03 決定是否清除死代碼
+  "src/components/theory/",
+];
 const TEST_FILE_RE = /\.test\.js$|\.spec\.js$/;
 const STYLE_OPEN_RE = /<style[^>]*>/;
 const STYLE_CLOSE_RE = /<\/style>/;
@@ -57,9 +62,13 @@ export function scanColors(srcDir = SRC_DIR) {
   try {
     const files = walk(srcDir);
     for (const file of files) {
-      const rel = "src/" + relative(SRC_DIR, file).replace(/\\/g, "/");
+      const rel = "src/" + relative(srcDir, file).replace(/\\/g, "/");
+      const isWhitelisted = FILE_WHITELIST.some((w) => {
+        if (w.endsWith("/")) return rel.startsWith(w);
+        return rel === w;
+      });
       if (
-        FILE_WHITELIST.has(rel) ||
+        isWhitelisted ||
         TEST_FILE_RE.test(rel) ||
         rel.includes("/test/") ||
         rel.includes("/node_modules/") ||
