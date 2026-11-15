@@ -25,7 +25,7 @@ wiki_links:
 在進行任何功能開發、除錯或架構調整前，請先確認以下核心真理，嚴禁參考已封存或過時之歷史草稿：
 
 1. **API 規格真理之源**：
-   - 唯一的後端 HTTP API 規格為 [`docs/api/openapi.json`](./api/openapi.json)（OpenAPI 3.0 規範，共 51 個端點）。
+   - 唯一的後端 HTTP API 規格為 [`docs/api/openapi.json`](./api/openapi.json)（OpenAPI 3.0 規範，共 28 個端點）。
 
 2. **資金與資產配置真理**：
    - **投資視野**：20-30 年長期投資，目標 55 歲退休。
@@ -59,7 +59,7 @@ docs/
 │
 ├── api/                           # API 規格與契約真理
 │   ├── decision-chain_api.md      # 決策鏈 API 規格
-│   └── openapi.json               # OpenAPI 3.0 真理之源 (51 paths)
+│   └── openapi.json               # OpenAPI 3.0 真理之源 (28 paths)
 │
 ├── architecture/                  # 架構決策與理論框架
 │   ├── theoretical-framework.md   # 五大投資理論框架與公式定義
