@@ -289,6 +289,9 @@
   --iln-shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
 /* SocialSentimentCard 深色背景：暗色同值 */
   --iln-overlay-dim: rgba(0, 0, 0, 0.35);
+/* 暗色模式陰影補全（對應 :root 的 --iln-shadow-1 / --iln-shadow-2） */
+  --iln-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --iln-shadow-2: 0 4px 12px rgba(0, 0, 0, 0.4);
 /* ── P8-02 batch 4b 額外令牌（暗色） ── */
 /* FloatingPill 暗色邊框：0.1 不透明度 */
   --iln-border-dark-faint: rgba(255, 255, 255, 0.1);
