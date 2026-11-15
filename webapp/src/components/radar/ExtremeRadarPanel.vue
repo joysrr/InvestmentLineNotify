@@ -341,7 +341,7 @@ const stateLabel = computed(() => {
 .radar-panel-idle {
   background: var(--tg-theme-secondary-bg-color);
   border: 1px solid var(--iln-ok);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--iln-shadow-hairline);
 }
 
 /* 極端警報觸發狀態 */
@@ -411,7 +411,7 @@ const stateLabel = computed(() => {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--iln-surface-raised);
   padding: 8px 11px;
   border-radius: 9px;
   border: 1px solid var(--iln-border-subtle);
@@ -463,7 +463,7 @@ const stateLabel = computed(() => {
 .mini-desc {
   font-size: 10px;
   color: var(--tg-theme-hint-color);
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--iln-surface-sunken);
   padding: 1px 5px;
   border-radius: 4px;
 }
@@ -568,12 +568,11 @@ const stateLabel = computed(() => {
 }
 
 .triggered-item {
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--iln-surface-raised);
   border-radius: 8px;
   padding: 8px 10px;
   border-left: 3px solid var(--iln-danger-text);
   border: 1px solid var(--iln-border-subtle);
-  border-left-width: 3px;
 }
 
 .ti-header {
@@ -654,8 +653,7 @@ const stateLabel = computed(() => {
 
 .dark .radar-mini-item,
 :global(.dark) .radar-mini-item {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--iln-border-subtle);
 }
 
 .dark .status-title,
@@ -684,17 +682,13 @@ const stateLabel = computed(() => {
 
 .dark .mini-desc,
 :global(.dark) .mini-desc {
-  background: rgba(255, 255, 255, 0.08);
   /* 業務語義色：深色主題描述文字 */
   color: var(--iln-hint);
 }
 
 .dark .triggered-item,
-:global(.dark) .triggered-item,
-.dark .discipline-card,
-:global(.dark) .discipline-card {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.08);
+:global(.dark) .triggered-item {
+  border-color: var(--iln-border-subtle);
 }
 /* 留待 Phase 5：無剩餘裸色值，所有 rgba 已改用設計令牌 */
 
