@@ -84,7 +84,6 @@ wiki_links:
 
 ### Phase 3：歷史 Reports 整理與大型傾印歸檔標記
 
-1. 處理 `docs/Reports/archive/main_code_review_20260429.md`（補上 YAML frontmatter 並清楚註記為 2026-04 歷史傾印快照）。
 2. 更新 `docs/Reports/README.md`，清楚標註現行有效報告與歷史報告之分界。
 3. 執行 Wiki 索引生成與驗證。
 
