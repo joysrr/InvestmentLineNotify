@@ -147,6 +147,22 @@
   --iln-strategy-drop: #e91e63;
   --iln-strategy-rsi: #2196f3;
   --iln-strategy-macd: #ff9800;
+
+/* ── P8-02 新增：陰影、覆疊與表面令牌 ── */
+/* AuthExpiredModal 遮罩：恆暗，無需暗色覆寫 */
+--iln-overlay-scrim: rgba(0, 0, 0, 0.65);
+/* 彈窗陰影：暗色需加深 */
+--iln-shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.25);
+/* 極淡背景：暗色需反相 */
+--iln-surface-faint: rgba(0, 0, 0, 0.03);
+/* 內凹背景：暗色需反相 */
+--iln-surface-sunken: rgba(0, 0, 0, 0.04);
+/* 半透明卡片：暗色需大幅降低不透明度 */
+--iln-surface-raised: rgba(255, 255, 255, 0.7);
+/* 極淡陰影：恆淺，無需暗色覆寫 */
+--iln-shadow-hairline: 0 1px 4px rgba(0, 0, 0, 0.02);
+/* 漸層遮罩色停：暗色需降低不透明度 */
+--iln-gradient-scrim: rgba(255, 255, 255, 0.35);
 }
 
 /* 深色模式覆寫（由 useTelegram.syncSchemeAttribute 寫入 data-tg-scheme） */
@@ -187,6 +203,22 @@
   --iln-skeleton-wave-bg: #2c2c2e;
   --iln-radar-watch-bg: #4a3d00;
   --iln-radar-text-muted: #a1a1a6;
+
+/* ── P8-02 新增：深色覆寫 ── */
+/* AuthExpiredModal 遮罩：恆暗，與淺色同值 */
+--iln-overlay-scrim: rgba(0, 0, 0, 0.65);
+/* 彈窗陰影：暗色加深 */
+--iln-shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.4);
+/* FloatingPill 暗色陰影：僅在暗色段定義 */
+--iln-shadow-pill: 0 8px 32px rgba(0, 0, 0, 0.4);
+/* 極淡背景：暗色反相 */
+--iln-surface-faint: rgba(255, 255, 255, 0.03);
+/* 內凹背景：暗色反相 */
+--iln-surface-sunken: rgba(255, 255, 255, 0.05);
+/* 半透明卡片：暗色大幅降低不透明度 */
+--iln-surface-raised: rgba(255, 255, 255, 0.08);
+/* 漸層遮罩色停：暗色降低不透明度 */
+--iln-gradient-scrim: rgba(255, 255, 255, 0.08);
 }
 
 /* ── Spinner 統一規格（§3.3） ── */
