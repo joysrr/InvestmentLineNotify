@@ -21,7 +21,7 @@
         data-testid="summary-banner"
       >
         <div class="banner-left">
-          <span class="banner-emoji"><Icon :name="health?.lightStatus?.emoji || 'chart'" size="sm" /></span>
+          <span class="banner-emoji"><Icon :name="bannerStatus || 'chart'" size="sm" /></span>
           <div class="banner-labels">
             <span class="banner-label">{{ health?.lightStatus?.label || "分析中" }}</span>
             <span class="banner-title">策略健康分數</span>
