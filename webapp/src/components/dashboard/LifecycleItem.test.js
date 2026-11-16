@@ -6,7 +6,7 @@ const baseProps = {
   label: "階段",
   value: "執行中",
   unit: "",
-  icon: "🔄",
+  icon: "chart",
 };
 
 describe("LifecycleItem.vue", () => {
@@ -27,7 +27,9 @@ describe("LifecycleItem.vue", () => {
 
   it("icon 有值時顯示圖示", () => {
     const wrapper = mount(LifecycleItem, { props: baseProps });
-    expect(wrapper.find(".icon").text()).toContain("🔄");
+    const icon = wrapper.findComponent({ name: "Icon" });
+    expect(icon.exists()).toBe(true);
+    expect(icon.props("name")).toBe("chart");
   });
 
   it("unit 有值時顯示單位", () => {

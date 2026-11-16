@@ -4,7 +4,7 @@
     <!-- Header -->
     <div class="editor-header">
       <div class="header-left">
-        <h2 class="editor-title">策略參數設定</h2>
+        <h2 class="editor-title"><Icon name="settings" size="sm"/> 策略參數設定</h2>
         <span class="editor-subtitle">編輯並即時驗證策略參數</span>
       </div>
       <div class="header-right">
@@ -134,6 +134,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { Refresh, Check, Checked } from "@element-plus/icons-vue";
+import Icon from "@/components/common/Icon.vue";
 
 import { apiFetch } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";

@@ -12,14 +12,16 @@ describe("RiskItem", () => {
         label: "維持率",
         value: 155.5,
         unit: "%",
-        icon: "🟢",
+        icon: "ok",
       },
     });
 
     expect(wrapper.find(".label").text()).toBe("維持率");
     expect(wrapper.find(".value").text()).toBe("155.50");
     expect(wrapper.find(".unit").text()).toBe("%");
-    expect(wrapper.find(".icon").text()).toBe("🟢");
+    const icon = wrapper.findComponent({ name: "Icon" });
+    expect(icon.exists()).toBe(true);
+    expect(icon.props("name")).toBe("ok");
   });
 
   it("傳入 itemClass 時應套用額外類別", () => {

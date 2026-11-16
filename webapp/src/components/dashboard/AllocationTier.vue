@@ -8,7 +8,7 @@
     data-testid="allocation-tier"
   >
     <template #header>
-      <div class="tier-score">{{ tier.minScore }}pt+</div>
+      <div class="tier-header"><Icon name="chart" size="sm" class="tier-icon"/><div class="tier-score">{{ tier.minScore }}pt+</div></div>
     </template>
 
     <div class="tier-body">
@@ -31,6 +31,7 @@
 <script setup>
 import { computed } from "vue";
 import ContentCard from "@/components/common/ContentCard.vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   tier: {
@@ -64,6 +65,17 @@ const tierFillWidth = computed(() => {
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
   flex-shrink: 0;
+}
+
+.tier-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.tier-icon {
+  color: var(--iln-brand);
 }
 
 .tier-bar {

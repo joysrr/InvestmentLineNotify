@@ -5,7 +5,7 @@
     radius="md"
     :class="cardClass"
   >
-    <div class="metric-icon" v-if="icon">{{ icon }}</div>
+    <div class="metric-icon" v-if="icon"><Icon :name="icon" size="sm"/></div>
     <div class="metric-body">
       <div class="metric-title">{{ title }}</div>
       <div class="metric-value" :class="trendClass">{{ value }}</div>
@@ -16,6 +16,7 @@
 <script setup>
 import { computed } from "vue";
 import ContentCard from "@/components/common/ContentCard.vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   title: { type: String, required: true },

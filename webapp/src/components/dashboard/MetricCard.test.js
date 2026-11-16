@@ -24,9 +24,11 @@ describe("MetricCard.vue", () => {
 
   it("icon 存在時顯示圖示", () => {
     const wrapper = mount(MetricCard, {
-      props: { title: "0050", value: "145.20", icon: "📈" },
+      props: { title: "0050", value: "145.20", icon: "chart" },
     });
-    expect(wrapper.text()).toContain("📈");
+    const icon = wrapper.findComponent({ name: "Icon" });
+    expect(icon.exists()).toBe(true);
+    expect(icon.props("name")).toBe("chart");
   });
 
   it("trend=up 時添加 metric-card--up 類", () => {

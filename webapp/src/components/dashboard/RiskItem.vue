@@ -7,7 +7,7 @@
     data-testid="risk-item"
   >
     <div class="risk-inner">
-      <div class="icon" v-if="icon">{{ icon }}</div>
+      <div class="icon" v-if="icon"><Icon :name="icon" size="sm"/></div>
       <div class="label">{{ label }}</div>
       <div class="value" :title="titleText">{{ formattedValue }}</div>
       <div class="unit" v-if="unit">{{ unit }}</div>
@@ -20,6 +20,7 @@
 import { computed } from "vue";
 import { fmtDecimal } from "../../utils/formatters.js";
 import ContentCard from "@/components/common/ContentCard.vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   label: { type: String, required: true },

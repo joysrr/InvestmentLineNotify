@@ -1,6 +1,6 @@
 <template>
   <ContentCard variant="outlined" padding="sm" radius="sm">
-    <div class="icon" v-if="icon">{{ icon }}</div>
+    <div class="icon" v-if="icon"><Icon :name="icon" size="sm"/></div>
     <div class="label">{{ label }}</div>
     <div class="value">{{ value }} <span class="unit" v-if="unit">{{ unit }}</span></div>
   </ContentCard>
@@ -8,6 +8,7 @@
 
 <script setup>
 import ContentCard from "@/components/common/ContentCard.vue";
+import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
   label: { type: String, required: true },

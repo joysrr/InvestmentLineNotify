@@ -6,7 +6,7 @@ const baseProps = {
   label: "風險項目",
   value: "85",
   unit: "分",
-  icon: "⚠️",
+  icon: "warn",
   desc: "風險敘述",
   itemClass: "risk-high",
 };
@@ -29,7 +29,9 @@ describe("RiskItem.vue", () => {
 
   it("icon 有值時顯示圖示", () => {
     const wrapper = mount(RiskItem, { props: baseProps });
-    expect(wrapper.find(".icon").text()).toContain("⚠️");
+    const icon = wrapper.findComponent({ name: "Icon" });
+    expect(icon.exists()).toBe(true);
+    expect(icon.props("name")).toBe("warn");
   });
 
   it("unit 有值時顯示單位", () => {

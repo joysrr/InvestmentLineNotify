@@ -11,13 +11,15 @@ describe("LifecycleItem", () => {
       props: {
         label: "當前階段",
         value: "EARLY",
-        icon: "🌱",
+        icon: "chart",
       },
     });
 
     expect(wrapper.find(".label").text()).toBe("當前階段");
     expect(wrapper.find(".value").text()).toBe("EARLY");
-    expect(wrapper.find(".icon").text()).toBe("🌱");
+    const icon = wrapper.findComponent({ name: "Icon" });
+    expect(icon.exists()).toBe(true);
+    expect(icon.props("name")).toBe("chart");
   });
 
   it("有單位時顯示單位", () => {
