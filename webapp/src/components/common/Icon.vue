@@ -57,9 +57,12 @@ const resolvedSize = computed(() => {
 });
 
 const iconData = computed(() => {
-  const data = ICON_MAP[props.name] || null;
-  if (!data && import.meta.env.DEV && props.name !== "") {
-    console.warn(`[Icon] 未定義的圖示名稱:"${props.name}"，已渲染 fallback。`);
+  let data = ICON_MAP[props.name] || null;
+  if (!data && props.name !== "") {
+    data = ICON_MAP["neutral"] || null;
+    if (import.meta.env.DEV) {
+      console.warn(`[Icon] 未知圖示名稱 "${props.name}"，fallback 至 "neutral"`);
+    }
   }
   return data;
 });

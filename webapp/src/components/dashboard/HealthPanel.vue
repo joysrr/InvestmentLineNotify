@@ -137,12 +137,12 @@ const getCompIcon = (key) => {
   const icons = {
     margin: "shield",
     survival: "chart",
-    decoupling: "default",
+    decoupling: "neutral",
     leverage: "chart",
-    lifecycle: "default",
-    regime: "default",
+    lifecycle: "neutral",
+    regime: "neutral",
   };
-  return icons[key] || "default";
+  return icons[key] || "neutral";
 };
 
 const getCompName = (key) => {
