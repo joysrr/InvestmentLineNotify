@@ -284,4 +284,181 @@ const getCompDisplayValue = (comp) => {
   border-radius: var(--iln-radius-lg);
   box-shadow: var(--iln-shadow-2);
 }
+
+/* Dashboard 容器 */
+.health-dashboard-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-6);
+}
+
+/* Health Hero 區塊 */
+.health-hero-v2 {
+  position: relative;
+  border-radius: var(--iln-radius-lg);
+  overflow: hidden;
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  box-shadow: var(--iln-shadow-1);
+}
+
+.glass-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.4); /* iln-color-allow: 玻璃擬態半透明白色遮罩，無對應設計令牌 */
+  pointer-events: none;
+}
+
+.health-hero-content {
+  position: relative;
+  padding: var(--iln-space-5);
+}
+
+.health-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--iln-space-4);
+  margin-bottom: var(--iln-space-3);
+}
+
+.health-hero-status {
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-2);
+}
+
+.health-hero-emoji {
+  font-size: var(--iln-font-xl);
+}
+
+.health-hero-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.health-hero-title {
+  font-size: var(--iln-font-base);
+  font-weight: var(--iln-weight-semibold);
+  color: var(--iln-text);
+}
+
+.health-hero-label {
+  font-size: var(--iln-font-sm);
+  color: var(--iln-hint);
+}
+
+.health-hero-score-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-2);
+}
+
+.health-hero-summary {
+  margin: 0;
+  font-size: var(--iln-font-sm);
+  color: var(--iln-hint);
+}
+
+/* Health 組件網格 */
+.health-grid-v2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--iln-space-4);
+}
+
+.health-glass-card {
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-lg);
+  padding: var(--iln-space-4);
+  box-shadow: var(--iln-shadow-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-2);
+}
+
+.comp-header {
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-2);
+}
+
+.comp-icon {
+  font-size: var(--iln-font-base);
+}
+
+.comp-name {
+  font-size: var(--iln-font-sm);
+  font-weight: var(--iln-weight-medium);
+  color: var(--iln-text);
+}
+
+.comp-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-1);
+}
+
+.comp-value {
+  font-size: var(--iln-font-base);
+  font-weight: var(--iln-weight-semibold);
+  color: var(--iln-text);
+}
+
+.comp-sub {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
+
+.comp-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--iln-ok-bg);
+  margin-left: auto;
+}
+
+/* 雙 VIX 顯示 */
+.dual-vix-us,
+.dual-vix-tw {
+  font-size: var(--iln-font-sm);
+  font-weight: var(--iln-weight-medium);
+  color: var(--iln-text);
+}
+
+.dual-vix-sep {
+  font-size: var(--iln-font-sm);
+  color: var(--iln-hint);
+}
+
+/* 詳情連結 */
+.health-detail-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  margin-top: var(--iln-space-4);
+  padding: var(--iln-space-2) var(--iln-space-4);
+  background: var(--iln-surface-alt);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-md);
+  color: var(--iln-brand);
+  font-size: var(--iln-font-sm);
+  cursor: pointer;
+  transition: all var(--iln-duration-fast) var(--iln-ease-standard);
+}
+
+.health-detail-link:hover {
+  background: var(--iln-surface-sunken);
+  border-color: var(--iln-border-default);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-4);
+}
 </style>
