@@ -190,4 +190,20 @@ const leverageGap = computed(() => {
 .batch-selected .metric-value {
   color: var(--iln-brand);
 }
+
+/* 批次區塊 */
+.batch-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-4);
+}
+
+/* 槓桿區塊 */
+.leverage-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-4);
+}
 </style>

@@ -160,4 +160,56 @@ function regionFlag(region) {
 .age-old {
   color: var(--iln-hint);
 }
+
+/* 新聞區域 */
+.news-region {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+  margin-right: var(--iln-space-2);
+}
+
+/* 新聞來源 */
+.news-source {
+  font-size: var(--iln-font-xs);
+  font-weight: var(--iln-weight-medium);
+  color: var(--iln-text);
+}
+
+/* 新聞時間 */
+.news-time {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
+
+/* 新聞徽章 */
+.news-badge {
+  font-size: var(--iln-font-xs);
+  font-weight: var(--iln-weight-medium);
+  padding: 2px 8px;
+  border-radius: var(--iln-radius-sm);
+  background: var(--iln-brand-soft);
+  color: var(--iln-brand);
+}
+
+/* 精選標記 */
+.featured {
+  background: var(--iln-warn-soft);
+  color: var(--iln-warn-text);
+}
+
+/* 新聞標籤 */
+.news-tag {
+  font-size: var(--iln-font-xs);
+  font-weight: var(--iln-weight-medium);
+  padding: 2px 8px;
+  border-radius: var(--iln-radius-sm);
+  background: var(--iln-surface-alt);
+  color: var(--iln-text);
+}
+
+/* 已入選標記 */
+.picked {
+  background: var(--iln-ok-bg);
+  color: var(--iln-ok-text);
+}
 </style>

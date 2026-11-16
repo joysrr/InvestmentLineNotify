@@ -1046,4 +1046,22 @@ const allHealthy = computed(
   background: var(--iln-danger-bg);
   color: var(--iln-danger-text);
 }
+
+/* 通知設定區塊 */
+.notification-settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-3);
+}
+
+/* 儲存行 */
+.save-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--iln-space-3);
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-md);
+}
 </style>

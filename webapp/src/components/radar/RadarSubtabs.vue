@@ -34,4 +34,10 @@
 
 <style scoped>
 /* 刻意保留空：樣式由 tokens.css 全域 .iln-tabs-primary / .iln-tab 統一提供 */
+
+/* 活動標籤狀態（Vue Router 自動添加） */
+.is-active {
+  color: var(--iln-brand);
+  font-weight: var(--iln-weight-semibold);
+}
 </style>

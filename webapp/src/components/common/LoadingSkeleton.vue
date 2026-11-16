@@ -138,4 +138,11 @@ defineProps({
     background-position: 0 50%;
   }
 }
+
+/* 骨架屏行容器 */
+.skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-3);
+}
 </style>

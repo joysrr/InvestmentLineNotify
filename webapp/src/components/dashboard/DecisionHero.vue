@@ -154,4 +154,72 @@ const props = defineProps({
   border-radius: var(--iln-radius-md);
   background: var(--iln-surface);
 }
+
+/* 頂部邊框 */
+.border-top {
+  border-top: 1px solid var(--iln-border-subtle);
+  margin-top: var(--iln-space-4);
+  padding-top: var(--iln-space-4);
+}
+
+/* 英雄主區塊 */
+.hero-main {
+  margin-top: var(--iln-space-4);
+}
+
+/* 優先級標籤 */
+.priority-tag {
+  font-size: var(--iln-font-xs);
+  font-weight: var(--iln-weight-medium);
+  padding: 2px 8px;
+  border-radius: var(--iln-radius-sm);
+  background: var(--iln-brand-soft);
+  color: var(--iln-brand);
+}
+
+/* 骨架屏卡片 */
+.skeleton-card {
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-lg);
+  padding: var(--iln-space-5);
+  box-shadow: var(--iln-shadow-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-3);
+}
+
+/* 骨架屏標題 */
+.sk-title {
+  height: 20px;
+  border-radius: var(--iln-radius-sm);
+  background: var(--iln-surface-alt);
+}
+
+/* 骨架屏數值 */
+.sk-value {
+  height: 24px;
+  border-radius: var(--iln-radius-sm);
+  background: var(--iln-surface-alt);
+}
+
+/* 行內錯誤 */
+.inline-error {
+  font-size: var(--iln-font-sm);
+  color: var(--iln-danger-text);
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  padding: var(--iln-space-3);
+}
+
+/* 行內提示 */
+.inline-hint {
+  font-size: var(--iln-font-sm);
+  color: var(--iln-hint);
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  padding: var(--iln-space-3);
+}
 </style>

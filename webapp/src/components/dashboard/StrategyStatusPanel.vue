@@ -93,3 +93,81 @@ const formatTime = (ts) => {
   });
 };
 </script>
+
+<style scoped>
+/* 狀態區塊 */
+.status-section {
+  margin-bottom: var(--iln-space-4);
+}
+
+/* 標籤面板 */
+.tab-panel {
+  padding: var(--iln-space-4);
+}
+
+/* 面板內容 */
+.panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-3);
+}
+
+/* 分數顯示 */
+.score-value {
+  font-size: var(--iln-font-xl);
+  font-weight: var(--iln-weight-bold);
+  color: var(--iln-text);
+}
+
+/* 分區徽章 */
+.section-badge {
+  font-size: var(--iln-font-xs);
+  padding: 2px 8px;
+  border-radius: var(--iln-radius-sm);
+  background: var(--iln-surface-alt);
+  color: var(--iln-hint);
+}
+
+/* 分區副標題 */
+.section-subtitle {
+  font-size: var(--iln-font-sm);
+  color: var(--iln-hint);
+  margin-top: var(--iln-space-1);
+}
+
+/* 分段控制容器 */
+.segmented-control {
+  display: inline-flex;
+  gap: var(--iln-space-1);
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-md);
+  padding: 2px;
+}
+
+/* 骨架屏網格 */
+.sk-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--iln-space-4);
+}
+
+/* 行內錯誤 */
+.inline-error {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-danger-text);
+}
+
+/* 行內提示 */
+.inline-hint {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
+
+/* 更新時間 */
+.panel-updated {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+  margin-top: var(--iln-space-3);
+}
+</style>

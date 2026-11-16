@@ -691,4 +691,14 @@ const stateLabel = computed(() => {
   border-color: var(--iln-border-subtle);
 }
 
+/* 狀態行 */
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--iln-space-2) 0;
+  border-bottom: 1px solid var(--iln-border-subtle);
+  font-size: var(--iln-font-sm);
+}
+
 </style>

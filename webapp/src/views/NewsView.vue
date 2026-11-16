@@ -407,4 +407,19 @@ onMounted(async () => {
     transform: rotate(360deg);
   }
 }
+
+/* 精選註記 */
+.featured-note {
+  font-size: var(--iln-font-xs);
+  font-weight: var(--iln-weight-medium);
+  color: var(--iln-brand);
+  margin-top: var(--iln-space-2);
+}
+
+/* 視圖副標題 */
+.view-subtitle {
+  font-size: var(--iln-font-sm);
+  color: var(--iln-hint);
+  margin-bottom: var(--iln-space-4);
+}
 </style>

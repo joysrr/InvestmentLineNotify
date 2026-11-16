@@ -696,4 +696,15 @@ const scanConclusion = computed(() => {
     box-shadow: var(--iln-danger-shadow-focus);
   }
 }
+
+/* 錯誤視圖 */
+.error-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--iln-space-8);
+  text-align: center;
+  color: var(--iln-hint);
+}
 </style>

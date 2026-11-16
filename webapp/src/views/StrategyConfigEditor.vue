@@ -443,4 +443,42 @@ onUnmounted(() => {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* 分區標籤容器 */
+.section-tabs {
+  margin-bottom: var(--iln-space-4);
+}
+
+/* 主標籤列 */
+.iln-tabs-primary {
+  display: flex;
+  gap: var(--iln-space-2);
+  border-bottom: 1px solid var(--iln-border-subtle);
+  margin-bottom: var(--iln-space-4);
+}
+
+/* 次標籤列 */
+.iln-tabs-secondary {
+  display: flex;
+  gap: var(--iln-space-2);
+  border-bottom: 1px solid var(--iln-border-subtle);
+  margin-bottom: var(--iln-space-4);
+}
+
+/* 標籤項目 */
+.iln-tab {
+  padding: var(--iln-space-2) var(--iln-space-4);
+  font-size: var(--iln-font-sm);
+  color: var(--iln-hint);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.iln-tab.is-active,
+.iln-tab[aria-selected="true"] {
+  color: var(--iln-brand);
+  border-bottom-color: var(--iln-brand);
+}
 </style>

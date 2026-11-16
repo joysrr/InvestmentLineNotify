@@ -122,4 +122,40 @@ defineProps({
 .border-left-ok {
   border-left: 3px solid var(--iln-ok-text);
 }
+
+/* 行內錯誤 */
+.inline-error {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-danger-text);
+}
+
+/* 快照骨架屏 */
+.sk {
+  height: 16px;
+  border-radius: var(--iln-radius-sm);
+  background: var(--iln-surface-alt);
+}
+
+.sk-label {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
+
+.sk-sub {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
+
+.sk-value {
+  font-size: var(--iln-font-sm);
+  font-weight: var(--iln-weight-medium);
+  color: var(--iln-text);
+}
+
+/* 快照網格（3列） */
+.snapshot-grid--3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--iln-space-4);
+}
 </style>

@@ -177,4 +177,11 @@ const props = defineProps({
   background: var(--iln-surface);
   border-top: 1px solid var(--iln-border-subtle);
 }
+
+/* 折疊標題 */
+.collapsible-title {
+  font-size: var(--iln-font-sm);
+  font-weight: var(--iln-weight-medium);
+  color: var(--iln-text);
+}
 </style>

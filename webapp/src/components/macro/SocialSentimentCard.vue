@@ -460,4 +460,10 @@ function signalLabel(s) {
 .sentiment-fallback {
   text-align: center;
 }
+
+/* 提示文本 */
+.hint {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
 </style>

@@ -65,3 +65,71 @@ const formatTime = (ts) => {
   });
 };
 </script>
+
+<style scoped>
+/* 摘要內容容器 */
+.status-summary-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-3);
+}
+
+/* 摘要網格 */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--iln-space-4);
+}
+
+/* 摘要卡片 */
+.summary-card {
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-md);
+  padding: var(--iln-space-4);
+  box-shadow: var(--iln-shadow-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-1);
+}
+
+/* 標籤標題 */
+.summary-label {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
+
+/* 分數顯示 */
+.summary-value {
+  font-size: var(--iln-font-lg);
+  font-weight: var(--iln-weight-bold);
+  color: var(--iln-text);
+}
+
+/* 更新時間 */
+.summary-updated {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+  margin-top: var(--iln-space-2);
+}
+
+/* 行內錯誤 */
+.inline-error {
+  font-size: var(--iln-font-sm);
+  color: var(--iln-danger-text);
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  padding: var(--iln-space-3);
+}
+
+/* 行內提示 */
+.inline-hint {
+  font-size: var(--iln-font-sm);
+  color: var(--iln-hint);
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  padding: var(--iln-space-3);
+}
+</style>
