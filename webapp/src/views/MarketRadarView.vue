@@ -288,10 +288,10 @@ const spxText = computed(() => {
 });
 const spxCard = computed(() => {
   const n = parseFloat(spxRaw.value);
-  if (isNaN(n)) return { cls: "", sub: "rc-sub--neutral", label: "無數據", icon: "default" };
+  if (isNaN(n)) return { cls: "", sub: "rc-sub--neutral", label: "無數據", icon: "neutral" };
   if (n > 0) return { cls: "card-ok", sub: "rc-sub--ok", label: "上漲", icon: "chart" };
   if (n < 0) return { cls: "card-warn", sub: "rc-sub--warn", label: "下跌", icon: "chart" };
-  return { cls: "", sub: "rc-sub--neutral", label: "持平", icon: "default" };
+  return { cls: "", sub: "rc-sub--neutral", label: "持平", icon: "neutral" };
 });
 
 const cnnScore = computed(() => statusData.value?.rawCnn?.score ?? null);
@@ -324,12 +324,12 @@ const lightEmoji = computed(() => {
     sig.includes("趨緩") ||
     sig.includes("yellow-blue")
   )
-    return "default";
+    return "neutral";
   if (sig.includes("紅") || sig.includes("熱絡") || sig === "red") return "danger";
   if (sig.includes("綠") || sig.includes("穩定") || sig === "green")
     return "ok";
-  if (sig.includes("藍") || sig.includes("低迷") || sig === "blue") return "default";
-  return "default";
+  if (sig.includes("藍") || sig.includes("低迷") || sig === "blue") return "neutral";
+  return "neutral";
 });
 const lightText = computed(() => {
   const sig = statusData.value?.rawNdc?.light ?? "";
@@ -379,11 +379,11 @@ const pe = computed(() => {
 });
 const peCard = computed(() => {
   const v = pe.value;
-  if (v == null) return { cls: "", sub: "rc-sub--neutral", label: "—", icon: "default" };
+  if (v == null) return { cls: "", sub: "rc-sub--neutral", label: "—", icon: "neutral" };
   if (v < 12)
     return { cls: "card-blue", sub: "rc-sub--blue", label: "極度低估", icon: "chart" };
-  if (v < 15) return { cls: "card-ok", sub: "rc-sub--ok", label: "低估", icon: "default" };
-  if (v < 20) return { cls: "", sub: "rc-sub--neutral", label: "合理", icon: "default" };
+  if (v < 15) return { cls: "card-ok", sub: "rc-sub--ok", label: "低估", icon: "neutral" };
+  if (v < 20) return { cls: "", sub: "rc-sub--neutral", label: "合理", icon: "neutral" };
   if (v < 25)
     return { cls: "card-warn", sub: "rc-sub--warn", label: "偏高", icon: "warn" };
   return { cls: "card-danger", sub: "rc-sub--danger", label: "高估", icon: "danger" };
@@ -398,11 +398,11 @@ const pb = computed(() => {
 // ⚠️ 本卡片的顏色依 PB 絕對值判定（1.5/2.0/3.0/4.0），與 DashboardView.pbPrLevel 的 PR 歷史分位判定（25/80/90）為不同維度。
 const pbCard = computed(() => {
   const v = pb.value;
-  if (v == null) return { cls: "", sub: "rc-sub--neutral", label: "—", icon: "default" };
+  if (v == null) return { cls: "", sub: "rc-sub--neutral", label: "—", icon: "neutral" };
   if (v < 1.5)
     return { cls: "card-blue", sub: "rc-sub--blue", label: "極度低估", icon: "chart" };
-  if (v < 2.0) return { cls: "card-ok", sub: "rc-sub--ok", label: "低估", icon: "default" };
-  if (v < 3.0) return { cls: "", sub: "rc-sub--neutral", label: "合理", icon: "default" };
+  if (v < 2.0) return { cls: "card-ok", sub: "rc-sub--ok", label: "低估", icon: "neutral" };
+  if (v < 3.0) return { cls: "", sub: "rc-sub--neutral", label: "合理", icon: "neutral" };
   if (v < 4.0)
     return { cls: "card-warn", sub: "rc-sub--warn", label: "偏高", icon: "warn" };
   return { cls: "card-danger", sub: "rc-sub--danger", label: "高估", icon: "danger" };
@@ -429,12 +429,12 @@ const fxChange = computed(() => {
 });
 const fxCard = computed(() => {
   const c = fxChange.value;
-  if (c == null) return { cls: "", sub: "rc-sub--neutral", label: "—", icon: "default" };
+  if (c == null) return { cls: "", sub: "rc-sub--neutral", label: "—", icon: "neutral" };
   if (c > 0.1)
     return { cls: "card-warn", sub: "rc-sub--warn", label: "台幣貶值", icon: "chart" };
   if (c < -0.1)
     return { cls: "card-ok", sub: "rc-sub--ok", label: "台幣升值", icon: "chart" };
-  return { cls: "", sub: "rc-sub--neutral", label: "持平", icon: "default" };
+  return { cls: "", sub: "rc-sub--neutral", label: "持平", icon: "neutral" };
 });
 
 // ── 掃描結論：統計 9 張 StatCard 的偏多 / 偏空 / 中性數量 ──

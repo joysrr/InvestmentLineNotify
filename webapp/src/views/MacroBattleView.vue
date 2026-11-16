@@ -209,7 +209,7 @@ const directionIcon = computed(() => {
   const d = direction.value?.toUpperCase();
   if (d === "BULLISH") return "chart";
   if (d === "BEARISH") return "chart";
-  return "default";
+  return "neutral";
 });
 const directionClass = computed(() => {
   const d = direction.value?.toUpperCase();

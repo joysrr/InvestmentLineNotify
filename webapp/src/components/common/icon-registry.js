@@ -52,6 +52,9 @@ export const ICON_MAP = {
   neutral: {
     component: { template: `<path d="${NEUTRAL_PATH}" fill="currentColor"/>` },
   },
+  default: {
+    component: { template: `<path d="${NEUTRAL_PATH}" fill="currentColor"/>` },
+  },
   chart: {
     component: { template: `<path d="${CHART_PATH}" fill="currentColor"/>` },
   },

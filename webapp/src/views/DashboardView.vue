@@ -361,7 +361,7 @@ const lightEmoji = computed(() => {
   if (sig.includes("黃藍") || sig.includes("趨緩")) return "warn";
   if (sig.includes("紅")) return "danger";
   if (sig.includes("綠")) return "ok";
-  if (sig.includes("藍")) return "default";
+  if (sig.includes("藍")) return "neutral";
   return "neutral";
 });
 
