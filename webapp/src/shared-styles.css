@@ -135,8 +135,29 @@
 }
 
 /* ============================================================
-   Responsive - 響應式斷點
-   ============================================================ */
+  骨架屏 - 統一骨架屏樣式
+  ============================================================ */
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-4);
+}
+
+.sk {
+  height: 16px;
+  border-radius: var(--iln-radius-sm);
+  background: var(--iln-surface-alt);
+}
+
+.sk-hero {
+  height: 80px;
+  border-radius: var(--iln-radius-lg);
+  background: var(--iln-surface-alt);
+}
+
+/* ============================================================
+  Responsive - 響應式斷點
+  ============================================================ */
 @media (max-width: 480px) {
   .view-container,
   .account-view,

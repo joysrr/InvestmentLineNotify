@@ -666,4 +666,29 @@ watch(
 .radar-entry-link:active {
   background: var(--iln-brand-soft);
 }
+
+/* Tab Contents 容器 */
+.tab-content-area {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-6);
+}
+
+/* 駕駛艙區塊 */
+.cockpit-section {
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-lg);
+  padding: var(--iln-space-5);
+  box-shadow: var(--iln-shadow-1);
+}
+
+/* 健康卡片 */
+.health-card {
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-lg);
+  padding: var(--iln-space-5);
+  box-shadow: var(--iln-shadow-1);
+}
 </style>
