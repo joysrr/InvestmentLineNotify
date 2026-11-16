@@ -215,4 +215,11 @@ const trendIcon = computed(() => {
   vertical-align: middle;
   color: var(--iln-hint);
 }
+
+/* 內容容器 */
+.stat-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-1);
+}
 </style>

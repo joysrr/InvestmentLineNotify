@@ -270,4 +270,15 @@ const leverageText = computed(() => {
   text-align: center;
   margin: 12px 0 0;
 }
+
+/* 概覽骨架屏 */
+.overview-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-3);
+  padding: var(--iln-space-4);
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-md);
+}
 </style>

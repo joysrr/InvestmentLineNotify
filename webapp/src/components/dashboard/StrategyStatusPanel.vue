@@ -170,4 +170,15 @@ const formatTime = (ts) => {
   color: var(--iln-hint);
   margin-top: var(--iln-space-3);
 }
+
+/* 分區標題 */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-4);
+  font-size: var(--iln-font-sm);
+  font-weight: var(--iln-weight-medium);
+  color: var(--iln-text);
+}
 </style>

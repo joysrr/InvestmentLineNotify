@@ -222,4 +222,17 @@ function formatMarginChange(val) {
 .drawer-footer-link:active {
   background: var(--iln-brand-hover-bg);
 }
+
+/* 行動版底部抽屜 */
+.mobile-bottom-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--iln-surface);
+  border-top: 1px solid var(--iln-border-subtle);
+  padding: var(--iln-space-4);
+  box-shadow: var(--iln-shadow-2);
+  z-index: var(--iln-zindex-drawer);
+}
 </style>

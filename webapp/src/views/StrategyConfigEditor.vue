@@ -481,4 +481,14 @@ onUnmounted(() => {
   color: var(--iln-brand);
   border-bottom-color: var(--iln-brand);
 }
+
+/* 頁籤左側標題區 */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-2);
+  font-size: var(--iln-font-sm);
+  font-weight: var(--iln-weight-medium);
+  color: var(--iln-text);
+}
 </style>

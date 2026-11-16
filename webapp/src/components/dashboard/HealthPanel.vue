@@ -461,4 +461,11 @@ const getCompDisplayValue = (comp) => {
   gap: var(--iln-space-2);
   margin-bottom: var(--iln-space-4);
 }
+
+/* 雙 VIX-US 指標 */
+.dual-vix-us {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-1);
+}
 </style>

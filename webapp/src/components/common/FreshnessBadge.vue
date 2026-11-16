@@ -91,4 +91,17 @@ const relative = computed(() => {
   width: 12px;
   height: 12px;
 }
+
+/* 標籤文字 */
+.freshness-badge__label {
+  font-size: var(--iln-font-xs);
+  font-weight: var(--iln-weight-medium);
+  color: var(--iln-text);
+}
+
+/* 相對時間 */
+.freshness-badge__relative {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
 </style>

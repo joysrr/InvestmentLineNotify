@@ -160,4 +160,37 @@ onMounted(async () => {
     flex: 0 0 auto;
   }
 }
+
+/* 卡片副標題 */
+.card-subtitle {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+  margin-top: var(--iln-space-1);
+}
+
+/* 匯出按鈕 */
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  padding: var(--iln-space-1) var(--iln-space-3);
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-md);
+  color: var(--iln-text);
+  font-size: var(--iln-font-sm);
+  cursor: pointer;
+}
+
+/* 範圍文字 */
+.scope-text {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
+
+/* 更新時間 */
+.updated-text {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
 </style>
