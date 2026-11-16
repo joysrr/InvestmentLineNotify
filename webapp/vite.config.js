@@ -123,10 +123,14 @@ export default defineConfig(async ({ mode }) => {
     chunkSizeWarningLimit: 350,
     resolve: {
       alias: [
-        {
-          find: /element-plus\/theme-chalk\/.*\.css$/,
-          replacement: path.resolve(__dirname, "src/test/empty.css"),
-        },
+        ...(process.env.VITEST
+          ? [
+              {
+                find: /element-plus\/theme-chalk\/.*\.css$/,
+                replacement: path.resolve(__dirname, "src/test/empty.css"),
+              },
+            ]
+          : []),
         {
           find: "@",
           replacement: path.resolve(__dirname, "./src"),

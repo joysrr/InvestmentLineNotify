@@ -98,14 +98,40 @@
 /* Design tokens: webapp/src/styles/tokens.css (see docs/design/DESIGN_PRINCIPLES.md §2) */
 
 /* ============================================================
-   Button Groups - 統一按鈕群組
-   ============================================================ */
+  Button Groups - 統一按鈕群組
+  ============================================================ */
 .header-right,
 .header-left,
 .header-actions {
   display: flex;
   gap: var(--iln-space-2);
   align-items: center;
+}
+
+/* Segmented button - 分段按鈕 */
+.segmented-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--iln-touch-min);
+  padding: var(--iln-space-1) var(--iln-space-3);
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-md);
+  color: var(--iln-text);
+  font-size: var(--iln-font-sm);
+  font-weight: var(--iln-weight-medium);
+  cursor: pointer;
+  transition: all var(--iln-duration-fast) var(--iln-ease-standard);
+}
+
+.segmented-btn:hover {
+  background: var(--iln-surface-alt);
+  border-color: var(--iln-border-default);
+}
+
+.segmented-btn:active {
+  background: var(--iln-surface-sunken);
 }
 
 /* ============================================================
