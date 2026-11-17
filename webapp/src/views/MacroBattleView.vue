@@ -3,11 +3,11 @@
     <div class="view-container iln-page">
     <div class="page-header">
       <h2 class="page-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 總經多空對決</h2>
-      <span class="page-date">{{ reportDate }}</span>
+      <div class="page-header__end">
+        <span class="page-date">{{ reportDate }}</span>
+        <BackPill :to="{ path: '/insights', query: { tab: 'macro' } }" label="洞察 · 多空對決" />
+      </div>
     </div>
-
-    <!-- 市場戰情子分頁切換列 -->
-    <RadarSubtabs />
 
     <!-- 載入中 -->
     <EmptyState v-if="loading" title="載入中..." />
@@ -138,7 +138,7 @@ import { fetchReports } from "../api/index.js";
 import { fetchSocialSentiment } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import SocialSentimentCard from "@/components/macro/SocialSentimentCard.vue";
-import RadarSubtabs from "@/components/radar/RadarSubtabs.vue";
+import BackPill from "@/components/common/BackPill.vue";
 import { waitReady } from "../composables/useTelegram.js";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
@@ -248,6 +248,14 @@ const directionClass = computed(() => {
   font-size: var(--iln-font-lg);
   font-weight: 700;
   color: var(--iln-text);
+}
+.page-header {
+  align-items: center;
+}
+.page-header__end {
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-3, 12px);
 }
 .page-date {
   font-size: var(--iln-font-sm);

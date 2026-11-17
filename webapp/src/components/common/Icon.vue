@@ -45,6 +45,7 @@ const props = defineProps({
 });
 
 const SIZE_MAP = {
+  xs: "12",
   sm: "16",
   md: "20",
   lg: "24",
@@ -53,7 +54,7 @@ const SIZE_MAP = {
 
 const resolvedSize = computed(() => {
   if (typeof props.size === "number") return String(props.size);
-  return SIZE_MAP[props.size] ?? String(props.size);
+  return SIZE_MAP[props.size] ?? "20";
 });
 
 const iconData = computed(() => {

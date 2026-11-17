@@ -36,7 +36,7 @@ function mountPanel() {
         GlobalErrorBoundary: {
           template: "<div><slot /></div>",
         },
-        RadarSubtabs: { template: "<div />" },
+        BackPill: { template: "<div />" },
       },
     },
   });

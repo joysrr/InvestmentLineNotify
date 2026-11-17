@@ -1,29 +1,23 @@
 <template>
     <GlobalErrorBoundary>
     <div class="view-container iln-page">
-    <SubTabBar
-      :tabs="viewTabs"
-      :active-tab="activeViewTab"
-      @tab-change="onViewTabChange"
-    />
 
-    <div v-if="activeViewTab === '圖表'">
-    <!-- ChartView 內建 tabs -->
-    <div class="chart-tabs">
-      <button
-        :class="{ active: activeTab === 'trend' }"
-        @click="activeTab = 'trend'"
-      >        <Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢
-      </button>
-    </div>
-
+    <div v-if="activeViewTabValue === 'chart'">
     <div v-show="activeTab === 'trend'">
     <!-- 標題列 -->
-    <div class="view-header">
-      <h2 class="view-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢</h2>
-      <span class="view-subtitle" v-if="!loading && dataPoints.length">
-        {{ granularityLabel }}，{{ dataPoints.length }} 筆
-      </span>
+    <div class="view-header view-header--with-switch">
+      <div class="view-header-text">
+        <h2 class="view-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢</h2>
+        <span class="view-subtitle" v-if="!loading && dataPoints.length">
+          {{ granularityLabel }}，{{ dataPoints.length }} 筆
+        </span>
+      </div>
+      <SegmentedControl
+        v-model="activeViewTabValue"
+        :options="viewTabOptions"
+        aria-label="圖表與技術指標切換"
+        @change="onViewTabChange"
+      />
     </div>
 
     <!-- 粒度切換 -->
@@ -145,7 +139,7 @@ import {
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
-import SubTabBar from "@/components/common/SubTabBar.vue";
+import SegmentedControl from "@/components/common/SegmentedControl.vue";
 import TechnicalPanel from "@/components/chart/TechnicalPanel.vue";
 
 use([
@@ -180,25 +174,23 @@ const timeRange = ref("ALL");
 const activeTab = ref("trend"); // 'trend' | 'reports'
 
 // ── 一級分頁：圖表 / 技術指標 ─────────────────────────────────────────────────
-const viewTabs = [
-  { label: "圖表", query: { tab: "chart" } },
-  { label: "技術指標", query: { tab: "technical" } },
+const viewTabOptions = [
+  { value: "chart", label: "圖表", icon: "chart" },
+  { value: "technical", label: "技術指標", icon: "gauge" },
 ];
 
-const activeViewTab = ref("圖表");
+const activeViewTabValue = ref("chart");
 
 const route = useRoute();
 const router = useRouter();
 
 // 從 query 還原 active tab（深層連結）
 if (route.query.tab === "technical") {
-  activeViewTab.value = "技術指標";
+  activeViewTabValue.value = "technical";
 }
 
-const onViewTabChange = (label) => {
-  activeViewTab.value = label;
-  const query = label === "技術指標" ? { tab: "technical" } : { tab: "chart" };
-  router.replace({ query });
+const onViewTabChange = (val) => {
+  router.replace({ query: { ...route.query, tab: val } });
 };
 
 // ── 指標設定 ────────────────────────────────────────────────────────────────────
@@ -586,34 +578,19 @@ const chartOption = computed(() => {
   color: var(--iln-danger-text);
 }
 
-/* ── 圖表分頁 ── */
-.chart-tabs {
+/* ── 標題列 + 分頁切換 ── */
+.view-header--with-switch {
   display: flex;
-  gap: var(--iln-space-2);
-  margin: var(--iln-space-3) 0 var(--iln-space-2);
-  border-bottom: 1px solid var(--iln-border-subtle);
-  padding-bottom: var(--iln-space-2);
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--iln-space-3);
+  flex-wrap: wrap;
 }
-.chart-tabs button {
-  flex: 1;
-  padding: var(--iln-space-2) var(--iln-space-3);
-  border: none;
-  background: transparent;
-  color: var(--iln-hint);
-  font-size: var(--iln-font-sm);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition:
-    color var(--iln-duration-fast) var(--iln-ease-standard),
-    border-color var(--iln-duration-fast) var(--iln-ease-standard);
+.view-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-1);
+  min-width: 0;
 }
-.chart-tabs button.active {
-  color: var(--iln-brand);
-  border-bottom-color: var(--iln-brand);
-  font-weight: 600;
-}
-.chart-tabs button:focus-visible {
-  outline: 2px solid var(--iln-brand);
-  outline-offset: -2px;
-}
+
 </style>

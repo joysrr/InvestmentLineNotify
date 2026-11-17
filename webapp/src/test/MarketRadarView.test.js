@@ -15,8 +15,8 @@ vi.mock("@/components/radar/ExtremeRadarPanel.vue", () => ({
 vi.mock("@/components/radar/CashExposureWidget.vue", () => ({
   default: { template: "<div data-testid='cash-exposure' />" },
 }));
-vi.mock("@/components/radar/RadarSubtabs.vue", () => ({
-  default: { template: "<div data-testid='radar-subtabs' />" },
+vi.mock("@/components/common/BackPill.vue", () => ({
+  default: { template: "<div data-testid='back-pill' />" },
 }));
 vi.mock("@/components/common/GlobalErrorBoundary.vue", () => ({
   default: { template: "<div><slot /></div>" },

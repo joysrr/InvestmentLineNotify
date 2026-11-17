@@ -3,7 +3,10 @@
     <div class="view-container iln-page">
     <div class="page-header">
       <h2 class="page-title"><Icon name="radar" size="sm" /> 市場雷達</h2>
-      <span class="page-date">{{ todayLabel }}</span>
+      <div class="page-header__end">
+        <span class="page-date">{{ todayLabel }}</span>
+        <BackPill :to="{ path: '/insights', query: { tab: 'radar' } }" label="洞察 · 市場雷達" />
+      </div>
     </div>
 
     <!-- 長期防禦模式狀態欄 (Phase 4) -->
@@ -14,9 +17,6 @@
       <span class="badge-icon"><Icon name="shield" /></span>
       <span class="badge-text">長期防禦模式中 — 嚴格控制槓桿與加碼</span>
     </div>
-
-    <!-- 市場戰情子分頁切換列 -->
-    <RadarSubtabs />
 
     <!-- 載入中 -->
     <div v-if="loading" class="radar-grid">
@@ -178,7 +178,7 @@ import { fetchStatus, fetchReports } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import ExtremeRadarPanel from "@/components/radar/ExtremeRadarPanel.vue";
 import CashExposureWidget from "@/components/radar/CashExposureWidget.vue";
-import RadarSubtabs from "@/components/radar/RadarSubtabs.vue";
+import BackPill from "@/components/common/BackPill.vue";
 import { waitReady } from "../composables/useTelegram.js";
 import { formatRelative, resolveLastRun } from "@/utils/formatDate.js";
 import ErrorView from "@/components/common/ErrorView.vue";
@@ -482,6 +482,14 @@ const scanConclusion = computed(() => {
   font-size: var(--iln-font-lg);
   font-weight: 700;
   color: var(--iln-text);
+}
+.page-header {
+  align-items: center;
+}
+.page-header__end {
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-3, 12px);
 }
 .page-date {
   font-size: var(--iln-font-sm);

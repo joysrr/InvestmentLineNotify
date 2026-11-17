@@ -4,12 +4,10 @@
     <div class="view-header">
       <div class="header-top">
         <h2 class="view-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 技術指標詳情</h2>
+        <BackPill :to="{ path: '/chart', query: { tab: 'technical' } }" label="圖表 · 技術指標" />
       </div>
       <span class="view-subtitle">{{ todayLabel }}</span>
     </div>
-
-    <!-- 市場戰情子分頁切換列 -->
-    <RadarSubtabs />
 
     <!-- 骨架屏 -->
     <div v-if="loading" class="loading-state">
@@ -222,7 +220,7 @@ import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 import { fetchReports } from "../../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { waitReady } from "../../composables/useTelegram.js";
-import RadarSubtabs from "@/components/radar/RadarSubtabs.vue";
+import BackPill from "@/components/common/BackPill.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
 
 const props = defineProps({
@@ -532,6 +530,7 @@ onUnmounted(() => {
 .header-top {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   margin-bottom: 4px;
 }

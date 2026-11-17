@@ -101,15 +101,16 @@ describe("MacroBattleView", () => {
     expect(wrapper.findAll(".event-card")).toHaveLength(3);
   });
 
-  it("應包含子分頁切換列與多空對決按鈕", async () => {
+  it("應移除跨頁子分頁列，改為返回膠囊", async () => {
     fetchReports.mockResolvedValue([]);
     const wrapper = mountView();
     await flushPromises();
-    const subtabs = wrapper.findAll(".iln-tab");
-    expect(subtabs.length).toBe(3);
-    const textList = subtabs.map((b) => b.text());
-    expect(textList).toEqual(["市場雷達", "多空對決", "技術指標"]);
-    expect(subtabs[0].findComponent(Icon).exists()).toBe(true);
+    // P1-9：RadarSubtabs 已刪除，不應再有跨頁分頁列
+    expect(wrapper.findAll(".iln-tab").length).toBe(0);
+    // 改為返回「洞察 · 多空對決」膠囊
+    const pill = wrapper.find('[data-testid="back-pill"]');
+    expect(pill.exists()).toBe(true);
+    expect(pill.text()).toContain("洞察 · 多空對決");
   });
 
   it("應在社群情緒資料就緒時渲染 SocialSentimentCard", async () => {
