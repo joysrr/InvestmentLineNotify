@@ -57,6 +57,43 @@ export const WALLET_PATH =
 export const CLOCK_PATH =
   "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zM12 12l2 2 4-4z";
 
+export const REFRESH_PATH =
+  "M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z";
+export const DOWNLOAD_PATH =
+  "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z";
+export const UPLOAD_PATH =
+  "M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z";
+export const COPY_PATH =
+  "M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z";
+export const EXTERNAL_LINK_PATH =
+  "M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z";
+export const FILTER_PATH =
+  "M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z";
+export const CLOSE_PATH =
+  "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z";
+export const PLUS_PATH =
+  "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z";
+export const EDIT_PATH =
+  "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z";
+export const TRASH_PATH =
+  "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z";
+export const GAUGE_PATH =
+  "M20.38 8.57l-1.23 1.85a8 8 0 0 1-.22 7.58H5.07A8 8 0 0 1 15.58 6.85l1.85-1.23A10 10 0 0 0 3.35 19a2 2 0 0 0 1.72 1h13.85a2 2 0 0 0 1.74-1 10 10 0 0 0-.27-10.44zm-9.79 6.84a2 2 0 0 0 2.83 0l5.66-8.49-8.49 5.66a2 2 0 0 0 0 2.83z";
+export const TARGET_PATH =
+  "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z";
+export const FLAME_PATH =
+  "M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z";
+export const LAYERS_PATH =
+  "M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z";
+export const ACTIVITY_PATH =
+  "M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z";
+export const CALENDAR_PATH =
+  "M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z";
+export const PIE_CHART_PATH =
+  "M11 2v20c-5.07-.5-9-4.79-9-9.9 0-5.11 3.93-9.4 9-9.9zm2 0v9h9c-.5-4.79-4.21-8.5-9-9zm0 11v9c4.79-.5 8.5-4.21 9-9h-9z";
+export const BAR_CHART_PATH =
+  "M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z";
+
 export const ICON_MAP = {
   "check-circle": {
     component: {
@@ -226,6 +263,96 @@ export const ICON_MAP = {
   "wallet-outline": {
     component: {
       render: () => h("path", { d: WALLET_OUTLINE_PATH, fill: "currentColor" }),
+    },
+  },
+  refresh: {
+    component: {
+      render: () => h("path", { d: REFRESH_PATH, fill: "currentColor" }),
+    },
+  },
+  download: {
+    component: {
+      render: () => h("path", { d: DOWNLOAD_PATH, fill: "currentColor" }),
+    },
+  },
+  upload: {
+    component: {
+      render: () => h("path", { d: UPLOAD_PATH, fill: "currentColor" }),
+    },
+  },
+  copy: {
+    component: {
+      render: () => h("path", { d: COPY_PATH, fill: "currentColor" }),
+    },
+  },
+  "external-link": {
+    component: {
+      render: () => h("path", { d: EXTERNAL_LINK_PATH, fill: "currentColor" }),
+    },
+  },
+  filter: {
+    component: {
+      render: () => h("path", { d: FILTER_PATH, fill: "currentColor" }),
+    },
+  },
+  close: {
+    component: {
+      render: () => h("path", { d: CLOSE_PATH, fill: "currentColor" }),
+    },
+  },
+  plus: {
+    component: {
+      render: () => h("path", { d: PLUS_PATH, fill: "currentColor" }),
+    },
+  },
+  edit: {
+    component: {
+      render: () => h("path", { d: EDIT_PATH, fill: "currentColor" }),
+    },
+  },
+  trash: {
+    component: {
+      render: () => h("path", { d: TRASH_PATH, fill: "currentColor" }),
+    },
+  },
+  gauge: {
+    component: {
+      render: () => h("path", { d: GAUGE_PATH, fill: "currentColor" }),
+    },
+  },
+  target: {
+    component: {
+      render: () => h("path", { d: TARGET_PATH, fill: "currentColor" }),
+    },
+  },
+  flame: {
+    component: {
+      render: () => h("path", { d: FLAME_PATH, fill: "currentColor" }),
+    },
+  },
+  layers: {
+    component: {
+      render: () => h("path", { d: LAYERS_PATH, fill: "currentColor" }),
+    },
+  },
+  activity: {
+    component: {
+      render: () => h("path", { d: ACTIVITY_PATH, fill: "currentColor" }),
+    },
+  },
+  calendar: {
+    component: {
+      render: () => h("path", { d: CALENDAR_PATH, fill: "currentColor" }),
+    },
+  },
+  "pie-chart": {
+    component: {
+      render: () => h("path", { d: PIE_CHART_PATH, fill: "currentColor" }),
+    },
+  },
+  "bar-chart": {
+    component: {
+      render: () => h("path", { d: BAR_CHART_PATH, fill: "currentColor" }),
     },
   },
 };
