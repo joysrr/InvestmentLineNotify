@@ -421,6 +421,29 @@ bf651030（P0+P1 主修復）→ 65a1e4d8（lint 清零）→ 801e8cbc（手冊 
 
 **位置**：`scripts/agent/debug-bridge.mjs`
 **用法**：
+```bash
+npm run build
+node --max-old-space-size=192 scripts/agent/debug-bridge.mjs
+```
+
+**輸出**：`{ gotoMs, snapshot, timing, fetchProbe, domProbe, consoleErrors }`
+
+**健康基線（實測兩次穩定）**：
+```
+gotoMs 781~860 / sdkVersion 7.0 / initDataLen 68 / bootBranch mounted
+mountCost 27~40ms / readyCost <1ms / gotoToReady 421ms
+lastFetchPath /api/portfolio/health / lastFetchOk true
+hasVueApp true / hasBootLoading false / consoleErrors []
+```
+
+**異常對照**：
+| 症狀 | 原因 |
+|---|---|
+| bootBranch fallback-no-sdk | SDK 完全沒載入（網路/CDN） |
+| bootBranch fallback-no-initdata | SDK 在但 initDataLen 0 |
+| tMountEnd null | app.mount 拋錯，看 consoleErrors |
+| lastFetchAt null | 從未成功發過 apiFetch |
+
 ### 12.4 defer 改動與測試基建陷阱（重要）
 
 **改動**：`vite.config.mjs:31` 生產環境注入的 telegram script 由 sync 改 `defer`。
@@ -431,6 +454,16 @@ bf651030（P0+P1 主修復）→ 65a1e4d8（lint 清零）→ 801e8cbc（手冊 
 後果：mock 沒替換 → 真實 telegram.org SDK 執行 → headless 連不上 → 探針看到 `sdkVersion: "6.0"` / `initDataLen: 0` / `bootBranch: fallback-no-initdata`，誤判為「defer 造成 regression」。
 
 **修法**：
+```js
+// 支援 sync / defer 兩種形式
+html = html.replace(
+  /<script(?:\\s+defer)?\\s+src="https:\\/\\/telegram\\.org\\/js\\/telegram-web-app\\.js"><\\/script>/,
+  TELEGRAM_MOCK,
+);
+```
+
+**教訓**：凡改動生產 HTML 的 script 標籤屬性（defer/async/crossorigin），必須同步檢查所有依賴字串替換的測試工具。正則要容忍屬性順序變化。
+
 ### 12.5 fallback 訊息區分（P1 修復）
 
 **改動前**：無論哪種失敗，一律顯示「請從 Telegram 內開啟此頁面」。
