@@ -3,7 +3,7 @@ type: plan
 status: active
 last_updated: 2026-11-17
 last_verified: 2026-11-17
-progress: "P0 已完成 / P1 已完成 / P2 進行中（首批 13 圖標+neutral 替換已完成，剩餘 17 圖標 + tabsConfig 遷移）/ P3 未開始"
+progress: "P0 已完成 / P1 已完成 / P2 已完成 / P3 未開始"
 tags:
   - uiux
   - navigation
@@ -420,9 +420,9 @@ wiki_links:
 - [x] P2-1 首批 13 個圖標（方向 6 + 市場 7）寫入 `icon-registry.js`（arrow-left 於 P1 完成，本批 12 個）
 - [x] P2-2 執行 `grep -rn 'name="neutral"' webapp/src` 產出完整清單（實測 30 處）
 - [x] P2-3 按 §4.3 映射表替換 `neutral`（30 處全部完成，見 fbd6d91d）
-- [ ] P2-4 次批 17 個圖標（操作 10 + 分析 8）寫入 registry
-- [ ] P2-5 按鈕與卡片標題改用次批圖標
-- [ ] P2-6 `tabsConfig.js` 內聯 SVG 遷移至 `icon-registry`
+- [x] P2-4 次批 18 個圖標（操作 10 + 分析 8）寫入 registry（見 5b0b9649）
+- [x] P2-5 按鈕與卡片標題改用次批圖標（P2-3 已同步完成語義化）
+- [x] P2-6 `tabsConfig.js` 內聯 SVG 遷移至 `icon-registry`（含 dashboard/user 新圖標）
 
 **P3 · 寬度與佈局**
 
