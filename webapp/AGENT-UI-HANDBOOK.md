@@ -325,3 +325,18 @@ npm run ui:verify
 
 > `cd webapp && node scripts/agent/verify-fixtures.mjs`
 > 看到 `全部通過 ✅` 再開始做視覺驗證。
+
+---
+
+## 11. Element Plus → M3 主題驗證經驗（v2.2 · 2026-11-17）
+
+> 本節記錄「EP 默認主題 vs M3 token」衝突的完整診斷 + 修復 + 驗證流程。
+> 這是一次**上線後才被發現**的 P0+P1 連環 bug，非常值得留存。
+
+### 11.1 兩個真實缺陷（按嚴重度）
+
+#### P0 — vite alias 把 EP CSS 全局替換成 empty.css
+
+**症狀**：上線後 `el-alert` 高度 750px、`el-collapse` 387px（完全裸奔無樣式），但本地 dev 一切正常。
+
+**根因**：`vite.config.mjs` 的 `resolve.alias` 有這條：
