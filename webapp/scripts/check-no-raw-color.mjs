@@ -2,7 +2,11 @@ import { readFileSync, readdirSync, statSync } from "fs";
 import { join, extname, resolve, relative } from "path";
 
 const SRC_DIR = resolve("src");
-const FILE_WHITELIST = ["src/styles/tokens.css"];
+const FILE_WHITELIST = [
+  "src/styles/tokens.css",
+  // EP→M3 映射檔：職責就是定義 raw token（等同第二個 tokens.css）
+  "src/styles/element-plus-overrides.css",
+];
 const TEST_FILE_RE = /\.test\.js$|\.spec\.js$/;
 const STYLE_OPEN_RE = /<style[^>]*>/;
 const STYLE_CLOSE_RE = /<\/style>/;

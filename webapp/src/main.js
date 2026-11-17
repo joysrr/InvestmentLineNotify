@@ -5,6 +5,8 @@ import router from "./router/index.js";
 import { waitReady } from "./composables/useTelegram.js";
 import "./styles/tokens.css";
 import "./shared-styles.css";
+// Phase 4.4+ · EP 组件继承 M3 token（必须在 shared-styles 之后，覆盖 EP 默认蓝/白/灰）
+import "./styles/element-plus-overrides.css";
 
 const app = createApp(App);
 const pinia = createPinia();

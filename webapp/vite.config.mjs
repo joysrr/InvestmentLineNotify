@@ -124,10 +124,14 @@ export default defineConfig(async ({ mode }) => {
     chunkSizeWarningLimit: 350,
     resolve: {
       alias: [
-        {
-          find: /element-plus\/theme-chalk\/.*\.css$/,
-          replacement: path.resolve(__dirname, "src/test/empty.css"),
-        },
+        // ⚠️ 只限 test：element-plus theme-chalk CSS 在测试里不需要加载
+        //    （原代码未加 isTest 守卫，导致生产/预览也把 EP 全部 CSS 替换成 empty.css）
+        ...(isTest
+          ? [{
+              find: /element-plus\/theme-chalk\/.*\.css$/,
+              replacement: path.resolve(__dirname, "src/test/empty.css"),
+            }]
+          : []),
         {
           find: "@",
           replacement: path.resolve(__dirname, "./src"),
