@@ -3,7 +3,7 @@ type: plan
 status: active
 last_updated: 2026-11-17
 last_verified: 2026-11-17
-progress: "P0 已完成 / P1 進行中 / P2 未開始 / P3 未開始"
+progress: "P0 已完成 / P1 已完成 / P2 進行中（首批 13 圖標+neutral 替換已完成，剩餘 17 圖標 + tabsConfig 遷移）/ P3 未開始"
 tags:
   - uiux
   - navigation
@@ -297,7 +297,7 @@ wiki_links:
 | P1 | 新增 SegmentedControl 並接入 Insights / Chart | 2h | P1 刪除 |
 | P1 | StrategyConfigEditor 雙層 Tab 收斂 | 1.5h | SegmentedControl |
 | P1 | 修正 2 處 `to="/radar"` | 0.2h | — |
-| P2 | 新增 13 個方向/市場圖標 + `neutral` 替換 | 3h | P0 |
+| P2 | 新增 13 個方向/市場圖標 + `neutral` 替換 | ✅ 完成（fbd6d91d） | P0 |
 | P2 | 剩餘 17 個操作/分析圖標 | 1.5h | P2 首批 |
 | P2 | `tabsConfig` 內聯 SVG 遷移 | 1h | P2 圖標 |
 | P3 | 容器 token + `.iln-grid` 工具類 | 1h | — |
@@ -419,7 +419,7 @@ wiki_links:
 
 - [x] P2-1 首批 13 個圖標（方向 6 + 市場 7）寫入 `icon-registry.js`（arrow-left 於 P1 完成，本批 12 個）
 - [x] P2-2 執行 `grep -rn 'name="neutral"' webapp/src` 產出完整清單（實測 30 處）
-- [ ] P2-3 按 §4.3 映射表替換 `neutral`（每 5 處跑一次 IconUsage 測試）
+- [x] P2-3 按 §4.3 映射表替換 `neutral`（30 處全部完成，見 fbd6d91d）
 - [ ] P2-4 次批 17 個圖標（操作 10 + 分析 8）寫入 registry
 - [ ] P2-5 按鈕與卡片標題改用次批圖標
 - [ ] P2-6 `tabsConfig.js` 內聯 SVG 遷移至 `icon-registry`
@@ -467,6 +467,12 @@ CJS 用 `require()` 載入純 ESM 套件，Node 20 直接拋 `ERR_REQUIRE_ESM`�
 **與本計畫的關係**：無關。此問題在本計畫動工前就存在，任何測試檔都跑不起來。
 
 **影響**：P0–P3 的單元測試無法用 `npm run test` 驗證。
+
+**2026-11-17 更新（P2-3 執行時實測）**：此阻塞已不復現。
+`npx vitest run src/components/common/Icon*.test.js` 可正常執行，
+26/26 通過。全量 `vitest run` 仍有部分既有測試失敗
+（ContentCard padding 斷言、jsdom 逾時等），但屬既有債務，非環境阻塞。
+結論：**圖標相關測試可用，全量測試需個別排查既有失敗**。
 
 **暫行驗證方式**：用 `node -e` 直接讀檔做結構化斷言（P0 已用此法驗證全部通過）。
 
