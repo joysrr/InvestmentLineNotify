@@ -8,7 +8,7 @@ const srv = fork(path.join(ROOT, 'scripts/agent/serve-fixtures.mjs'), {
   cwd: ROOT, stdio: 'ignore', env: { ...process.env, FIXTURE_PORT: String(PORT) },
 });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-async function ws(t=15000){const s=Date.now();while(Date.now()-s<t){try{const r=await fetch(`http://127.0.0.1:${PORT}/api/status`);if(r.ok)return true}catch{}await sleep(300)}return false}
+async function ws(t=15000){const s=Date.now();while(Date.now()-s<t){try{const r=await fetch(`http://127.0.0.1:${PORT}/api/status`);if(r.ok)return true}catch { /* server not ready */ }await sleep(300)}return false}
 async function main(){
   if(!(await ws())){console.log('srv timeout');process.exit(1)}
   const b = await chromium.launch({executablePath:'/usr/bin/chromium',args:['--headless=new','--single-process','--no-zygote','--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=gl-egl'],timeout:30000});
@@ -21,7 +21,6 @@ async function main(){
   await sleep(3000);
 
   const state = await page.evaluate(() => {
-    const body = document.body;
     // 找可能的 loader / 错误态
     const loaders = [...document.querySelectorAll('[class*=load], [class*=skeleton], [class*=spinner], [class*=error], [class*=empty]')]
       .map(el => ({ cls: el.className.toString().slice(0,80), display: getComputedStyle(el).display, w: el.offsetWidth, h: el.offsetHeight }))
