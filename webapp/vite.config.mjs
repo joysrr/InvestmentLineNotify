@@ -32,7 +32,8 @@ export default defineConfig(async ({ mode }) => {
             : `
       <script>
         // Dev mock - simulates Telegram WebApp environment
-        window.Telegram = {
+        // 若 Playwright 已注入 mock（window.__PLAYWRIGHT__），跳過以免覆蓋驗證環境
+        if (!window.__PLAYWRIGHT__) window.Telegram = {
           WebApp: {
             initData: "query_id=dev&user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22Test%22%2C%22last_name%22%3A%22User%22%2C%22username%22%3A%22testuser%22%2C%22language_code%22%3A%22zh-hant%22%7D&auth_date=" + Math.floor(Date.now()/1000) + "&hash=dev_mock_hash",
             initDataUnsafe: {
@@ -123,14 +124,10 @@ export default defineConfig(async ({ mode }) => {
     chunkSizeWarningLimit: 350,
     resolve: {
       alias: [
-        ...(process.env.VITEST
-          ? [
-              {
-                find: /element-plus\/theme-chalk\/.*\.css$/,
-                replacement: path.resolve(__dirname, "src/test/empty.css"),
-              },
-            ]
-          : []),
+        {
+          find: /element-plus\/theme-chalk\/.*\.css$/,
+          replacement: path.resolve(__dirname, "src/test/empty.css"),
+        },
         {
           find: "@",
           replacement: path.resolve(__dirname, "./src"),

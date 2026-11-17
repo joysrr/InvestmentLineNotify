@@ -67,3 +67,13 @@ docs/meta/concept-graph.mmd
 
 # scripts/ 生成物（驗證腳本產出的臨時報告）
 scripts/__*.md
+# ── 安全：密鑰與憑證（2026-11-17 追加）──
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+credentials.json
+service-account*.json
+secrets/

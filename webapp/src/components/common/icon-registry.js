@@ -1,4 +1,5 @@
 // 圖標路徑常數與 ICON_MAP 純資料模組
+import { h } from "vue";
 // 由 Icon.vue 匯入，供樹搖與靜態守護測試使用
 
 export const DANGER_PATH =
@@ -35,74 +36,109 @@ export const CLOCK_PATH =
 
 export const ICON_MAP = {
   "check-circle": {
-    component: { template: `<path d="${CHECK_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: CHECK_PATH, fill: "currentColor" }),
+    },
   },
   ok: {
-    component: { template: `<path d="${CHECK_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: CHECK_PATH, fill: "currentColor" }),
+    },
   },
   danger: {
-    component: { template: `<path d="${DANGER_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: DANGER_PATH, fill: "currentColor" }),
+    },
   },
   warn: {
-    component: { template: `<path d="${WARN_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: WARN_PATH, fill: "currentColor" }),
+    },
   },
   "alert-triangle": {
-    component: { template: `<path d="${WARN_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: WARN_PATH, fill: "currentColor" }),
+    },
   },
   neutral: {
-    component: { template: `<path d="${NEUTRAL_PATH}" fill="currentColor"/>` },
-  },
-  default: {
-    component: { template: `<path d="${NEUTRAL_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: NEUTRAL_PATH, fill: "currentColor" }),
+    },
   },
   chart: {
-    component: { template: `<path d="${CHART_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: CHART_PATH, fill: "currentColor" }),
+    },
   },
   shield: {
-    component: { template: `<path d="${SHIELD_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: SHIELD_PATH, fill: "currentColor" }),
+    },
   },
   trigger: {
-    component: { template: `<path d="${TRIGGER_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: TRIGGER_PATH, fill: "currentColor" }),
+    },
   },
   radar: {
-    component: { template: `<path d="${RADAR_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: RADAR_PATH, fill: "currentColor" }),
+    },
   },
   "x-circle": {
-    component: { template: `<path d="${X_CIRCLE_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: X_CIRCLE_PATH, fill: "currentColor" }),
+    },
   },
   "chevron-down": {
     component: {
-      template: `<path d="${CHEVRON_DOWN_PATH}" fill="currentColor"/>`,
+      render: () => h("path", { d: CHEVRON_DOWN_PATH, fill: "currentColor" }),
     },
   },
   "arrow-up": {
-    component: { template: `<path d="${ARROW_UP_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: ARROW_UP_PATH, fill: "currentColor" }),
+    },
   },
   "arrow-down": {
     component: {
-      template: `<path d="${ARROW_DOWN_PATH}" fill="currentColor"/>`,
+      render: () => h("path", { d: ARROW_DOWN_PATH, fill: "currentColor" }),
     },
   },
   minus: {
-    component: { template: `<path d="${MINUS_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: MINUS_PATH, fill: "currentColor" }),
+    },
   },
   settings: {
-    component: { template: `<path d="${SETTINGS_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: SETTINGS_PATH, fill: "currentColor" }),
+    },
   },
   search: {
-    component: { template: `<path d="${SEARCH_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: SEARCH_PATH, fill: "currentColor" }),
+    },
   },
   info: {
-    component: { template: `<path d="${INFO_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: INFO_PATH, fill: "currentColor" }),
+    },
   },
   news: {
-    component: { template: `<path d="${NEWS_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: NEWS_PATH, fill: "currentColor" }),
+    },
   },
   wallet: {
-    component: { template: `<path d="${WALLET_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: WALLET_PATH, fill: "currentColor" }),
+    },
   },
   clock: {
-    component: { template: `<path d="${CLOCK_PATH}" fill="currentColor"/>` },
+    component: {
+      render: () => h("path", { d: CLOCK_PATH, fill: "currentColor" }),
+    },
   },
 };
 

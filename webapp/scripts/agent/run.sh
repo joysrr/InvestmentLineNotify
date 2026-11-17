@@ -25,10 +25,16 @@ EXTRA_ARGS="$@"
 
 # ── 清理殘留進程（每次啟動前）──────────────────────
 cleanup_procs() {
+  # 陷阱 #14：chromium 有兩種 user-data-dir，舊版只殺 playwright profile，
+  # 漏掉 --user-data-dir=/root/.config/chromium 的常駐實例（每輪累積 ~190MB）
   pkill -9 -f "chromium.*playwright_chromiumdev_profile" 2>/dev/null || true
+  pkill -9 -f "chromium.*user-data-dir=/root/.config/chromium" 2>/dev/null || true
+  pkill -9 -f "chrome_crashpad_handler" 2>/dev/null || true
   pkill -9 -f "node .*scripts/agent/(verify|baseline).mjs" 2>/dev/null || true
   pkill -9 -f "vite --config vite.config.mjs --port ${PORT}" 2>/dev/null || true
-  rm -rf /tmp/playwright_chromiumdev_profile-* 2>/dev/null || true
+  pkill -9 -f "esbuild --service" 2>/dev/null || true
+  rm -rf /tmp/playwright_chromiumdev_profile-* /tmp/.org.chromium.Chromium.* 2>/dev/null || true
+  sleep 1
 }
 
 cleanup_procs
@@ -66,10 +72,16 @@ case "$CMD" in
     exit 0
     ;;
   baseline)
-    echo "[baseline] 同步源碼 /sdcard → $WEBAPP"
-    rsync -rlt $RSYNC_COMMON \
-      --exclude node_modules --exclude dist \
-      "$SDCARD_ROOT/webapp/src/" "$WEBAPP/src/"
+    # 預設不同步 /sdcard：工作區是唯一真相，避免覆蓋未提交的改動。
+    # 若要強制以生產源碼為基準（例如接手他人改動後重建），設 AGENT_BASELINE_SYNC=1。
+    if [ "${AGENT_BASELINE_SYNC:-0}" = "1" ]; then
+      echo "[baseline] 同步源碼 /sdcard → $WEBAPP（AGENT_BASELINE_SYNC=1）"
+      rsync -rlt $RSYNC_COMMON \
+        --exclude node_modules --exclude dist \
+        "$SDCARD_ROOT/webapp/src/" "$WEBAPP/src/"
+    else
+      echo "[baseline] 使用工作區當前源碼（不同步 /sdcard）"
+    fi
     SCRIPT_NAME="baseline.mjs"
     ;;
   verify)

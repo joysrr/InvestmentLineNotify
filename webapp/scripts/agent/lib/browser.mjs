@@ -12,6 +12,12 @@ export async function launch() {
       "--disable-background-timer-throttling",
       "--disable-backgrounding-occluded-windows",
       "--disable-renderer-backgrounding",
+      // 記憶體受限環境（手機容器）下的降載參數
+      "--single-process",
+      "--no-zygote",
+      "--renderer-process-limit=1",
+      "--disable-features=Translate,BackForwardCache,AcceptCHFrame,MediaRouter,OptimizationHints",
+      "--js-flags=--max-old-space-size=256",
     ],
   });
 }
@@ -19,10 +25,10 @@ export async function launch() {
 export async function newPage(browser) {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
-    deviceScaleFactor: 2,
+    deviceScaleFactor: 1,
     isMobile: true,
     hasTouch: true,
-    colorScheme: "dark",
+    colorScheme: "light",
   });
   const page = await context.newPage();
   page.setDefaultTimeout(20000);
@@ -40,13 +46,13 @@ export async function newPage(browser) {
           MainButton: { setParams: () => {}, show: () => {}, hide: () => {}, enable: () => {}, disable: () => {} },
           HapticFeedback: { impactOccurred: () => {}, notificationOccurred: () => {}, selectionChanged: () => {} },
           themeParams: {
-            bg_color: "#0D1117", text_color: "#E6E0E9", hint_color: "#9AA6B2",
-            link_color: "#D0BCFF", button_color: "#D0BCFF", button_text_color: "#0D1117",
-            secondary_bg_color: "#17171E",
+            bg_color: "#FEF7FF", text_color: "#1D1B20", hint_color: "#79747E",
+            link_color: "#6750A4", button_color: "#6750A4", button_text_color: "#FFFFFF",
+            secondary_bg_color: "#F7F2FA",
           },
           viewportHeight: 844, viewportStableHeight: 844,
-          headerColor: "#0D1117", backgroundColor: "#0D1117",
-          isExpanded: true, colorScheme: "dark", version: "7.0", platform: "ios",
+          headerColor: "#FEF7FF", backgroundColor: "#FEF7FF",
+          isExpanded: true, colorScheme: "light", version: "7.0", platform: "ios",
           setHeaderColor: () => {}, setBackgroundColor: () => {},
           isVersionAtLeast: () => true,
         },
