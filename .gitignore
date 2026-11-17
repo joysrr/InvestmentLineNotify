@@ -77,3 +77,8 @@ scripts/__*.md
 credentials.json
 service-account*.json
 secrets/
+node_modules
+
+# Agent 驗證產物
+.agent-report/
+.agent-baseline/

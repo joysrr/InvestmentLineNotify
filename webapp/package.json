@@ -15,12 +15,13 @@
     "test:e2e:headed": "playwright test --headed",
     "lint": "eslint . --ext .js,.mjs,.vue && node scripts/check-no-raw-color.mjs",
     "lint:colors": "node scripts/check-no-raw-color.mjs",
-    "ui:pull": "sh scripts/agent/run.sh pull",
-    "ui:push": "sh scripts/agent/run.sh push",
+    "ui:pull": "git -C .. pull --ff-only origin main",
+    "ui:push": "sh scripts/agent/push-git.sh",
     "ui:baseline": "sh scripts/agent/run.sh baseline",
-    "ui:verify": "sh scripts/agent/run.sh verify",
+    "ui:verify": "node scripts/agent/verify-git.mjs",
     "ui:rollback": "sh scripts/agent/run.sh rollback",
-    "ui:report": "cat .agent-report/latest/REPORT.md"
+    "ui:report": "cat .agent-report/latest/REPORT.md",
+    "ui:verify:pixel": "sh scripts/agent/run.sh verify"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",

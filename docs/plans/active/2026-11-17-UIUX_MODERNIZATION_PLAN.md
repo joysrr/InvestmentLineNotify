@@ -424,3 +424,55 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 **版本**：v1.1 · 2026-11-17（Phase 0/1 完成）
 **狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 待開工
 **下一步**：Phase 2 共用組件重構（建議零驗證策略）
+
+---
+
+## 9. 驗證體系改版 v2.0（2026-11-17）
+
+### 9.1 為什麼改
+
+v1.0 的像素截圖驗證**在本環境不可用**：容器 total 11GB、available 僅 ~3GB，
+Playwright Chromium 啟動即被 OOM Killer 殺掉（`Killed`），連第一頁都拍不完。
+清理殘留進程後 available 只回升到 3.19GB，仍不足。
+
+### 9.2 改成什麼
+
+| 項目 | v1.0 | v2.0 |
+|---|---|---|
+| 驗證基線 | 本地 `.agent-baseline/` 截圖 | **GitHub `origin/main` + production build** |
+| 判定 | 像素差異 < 2% | **build 成功 / 失敗**（lint 為非阻斷項） |
+| 交付 | rsync → `/sdcard` | **git commit + push origin main** |
+| 主腳本 | `verify.mjs` | **`verify-git.mjs`** |
+| 像素模式 | 主流程 | 降級為 `ui:verify:pixel`（備用） |
+
+### 9.3 新增檔案
+
+- `webapp/scripts/agent/verify-git.mjs` — 主驗證（git 比對 + build 門禁）
+- `webapp/scripts/agent/push-git.sh` — 交付（驗證 → commit → push，內建門禁）
+- `webapp/QUICKSTART.md` — 30 秒上手（新建，repo 原本沒有）
+- `webapp/AGENT-UI-HANDBOOK.md` — 完整手冊 v2.0（新建，repo 原本沒有）
+
+### 9.4 修改檔案
+
+- `webapp/package.json` — `ui:verify` 指向 verify-git.mjs；新增 `ui:verify:pixel`
+- `webapp/scripts/agent/README.md` — 重寫為 v2.0
+- `.gitignore` — 補 `node_modules`（不帶斜線，匹配軟鏈）、`.agent-report/`、`.agent-baseline/`
+
+### 9.5 首次驗證結果
+
+- `npm run ui:verify` → **build ✓ 通過**（45.5s，Initial JS 103.3KB / 預算 156KB）
+- lint ⚠ `@eslint/js` 未安裝（既有問題，非本次引入，不阻斷）
+
+### 9.6 遺留事項
+
+1. **lint 修復**：`npm install -D @eslint/js globals`（需網路）
+2. **像素驗證恢復**：待環境記憶體寬裕（available ≥ 6GB）時可重啟 `ui:baseline`
+3. **Phase 2 開工**：現在有可用的驗證門禁（build），可以安全推進共用組件重構
+
+### 9.7 環境踩坑記錄（新增陷阱）
+
+| # | 陷阱 | 症狀 | 解法 |
+|---|---|---|---|
+| 15 | 沙箱重啟後 root `node_modules` 軟鏈消失 | build 報 `Rollup failed to resolve import "pino"` | `ln -sfn webapp/node_modules node_modules` |
+| 16 | `.gitignore` 寫 `node_modules/` 匹配不到軟鏈 | 軟鏈被 git 當未追蹤檔案 | 補一行不帶斜線的 `node_modules` |
+| 17 | `pkill -f` pattern 過寬 | 把自己的 shell 也殺掉，命令無輸出 | 用 `chromium.*playwright` 這類收斂 pattern |
