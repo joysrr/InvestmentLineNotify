@@ -410,10 +410,10 @@ wiki_links:
 - [x] P1-8 `MarketRadarView.vue` 移除 RadarSubtabs，加返回膠囊
 - [x] P1-9 `MacroBattleView.vue` 同上
 - [x] P1-10 `TechnicalPanel.vue` 移除 RadarSubtabs，加返回膠囊
-- [ ] P1-11 `StrategyConfigEditor.vue` 雙層 tablist 收斂為單層 Chip
+- [x] P1-11 `StrategyConfigEditor.vue` 雙層 tablist 收斂為單層 Chip
 - [x] P1-12 `DashboardView.vue:87` 改 `/insights?tab=radar`
 - [x] P1-13 `MarketDetailDrawer.vue:72` 改 `/insights?tab=radar`
-- [ ] P1-14 `12-strategyConfig.spec.js` 選擇器改 `data-testid`
+- [x] P1-14 `12-strategyConfig.spec.js` 選擇器改 `data-testid`
 
 **P2 · 圖標多樣化（30 個全做）**
 

@@ -28,12 +28,12 @@ test.describe("12-StrategyView - 策略總覽與設定", () => {
   });
 
   test("STR-004: 應顯示至少一個策略模組面板", async ({ page }) => {
-    const tabs = page.locator('[role="tablist"] [role="tab"]');
+    const tabs = page.locator('[data-testid="section-groups"] [role="radio"]');
     await expect(tabs.first()).toBeVisible({ timeout: 10000 });
   });
 
   test("STR-005: 點擊模組標題應可展開/摺疊", async ({ page }) => {
-    const firstTab = page.locator('[role="tablist"] [role="tab"]').first();
+    const firstTab = page.locator('[data-testid="section-groups"] [role="radio"]').first();
     if (await firstTab.isVisible().catch(() => false)) {
       await firstTab.click();
       await page.waitForTimeout(500);
@@ -48,7 +48,7 @@ test.describe("12-StrategyView - 策略總覽與設定", () => {
   });
 
   test("STR-007: 配置欄位應可見（展開第一個模組後）", async ({ page }) => {
-    const firstTab = page.locator('[role="tablist"] [role="tab"]').first();
+    const firstTab = page.locator('[data-testid="section-groups"] [role="radio"]').first();
     if (await firstTab.isVisible().catch(() => false)) {
       await firstTab.click();
       await page.waitForTimeout(1000);
@@ -59,7 +59,7 @@ test.describe("12-StrategyView - 策略總覽與設定", () => {
   });
 
   test("STR-008: 輸入數值欄位應可編輯", async ({ page }) => {
-    const firstTab = page.locator('[role="tablist"] [role="tab"]').first();
+    const firstTab = page.locator('[data-testid="section-groups"] [role="radio"]').first();
     await firstTab.click();
     await page.waitForTimeout(1000);
     const firstNumberField = page.locator("input[type='number']").first();

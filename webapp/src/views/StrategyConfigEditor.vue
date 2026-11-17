@@ -58,36 +58,30 @@
       />
     </div>
 
-    <!-- Section Tabs: Primary + Secondary 兩層（Phase 4 P0-4） -->
-    <div class="section-tabs" data-testid="section-tabs">
-      <!-- 大分類（Primary Tab） -->
-      <div class="iln-tabs-primary" role="tablist">
-        <button
-          v-for="g in sectionGroups"
-          :key="g.key"
-          class="iln-tab"
-          :class="{ 'is-active': activeGroup === g.key }"
-          role="tab"
-          :aria-selected="activeGroup === g.key"
-          @click="activeGroup = g.key"
-        >
-          {{ g.label }}
-        </button>
-      </div>
-
-      <!-- 該分類下的 section（Secondary Tab） -->
-      <div class="iln-tabs-secondary" role="tablist" style="margin-top: var(--iln-space-3)">
-        <button
-          v-for="s in currentGroupSections"
-          :key="s.key"
-          class="iln-tab"
-          :class="{ 'is-active': activeSection === s.key }"
-          role="tab"
-          :aria-selected="activeSection === s.key"
-          @click="activeSection = s.key"
-        >
-          {{ s.label }}
-        </button>
+    <!-- Section Groups: 單層分組 Chip（P1-11：取代雙層 tablist） -->
+    <div class="section-tabs" data-testid="section-groups">
+      <div
+        v-for="g in sectionGroups"
+        :key="g.key"
+        class="chip-group"
+        :data-testid="`group-${g.key}`"
+      >
+        <h3 class="chip-group__title">{{ g.label }}</h3>
+        <div class="chip-group__chips" role="radiogroup" :aria-label="g.label">
+          <button
+            v-for="sec in groupSections(g)"
+            :key="sec.key"
+            type="button"
+            class="chip"
+            :class="{ 'is-active': activeSection === sec.key }"
+            role="radio"
+            :aria-checked="activeSection === sec.key"
+            :data-testid="`section-${sec.key}`"
+            @click="selectSection(g.key, sec.key)"
+          >
+            {{ sec.label }}
+          </button>
+        </div>
       </div>
 
       <!-- 表單內容（單一 section） -->
@@ -131,7 +125,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { ElMessage } from "element-plus";
 import { Refresh, Check, Checked } from "@element-plus/icons-vue";
 import Icon from "@/components/common/Icon.vue";
@@ -230,12 +224,17 @@ const sectionGroups = [
 
 const activeGroup = ref("basic");
 
-const currentGroupSections = computed(() => {
-  const group = sectionGroups.find((g) => g.key === activeGroup.value);
-  return (group?.sections ?? [])
-    .map((key) => resolvedSections.value.find((s) => s.key === key))
+// 取某分組的 section 物件清單
+const groupSections = (group) =>
+  (group.sections ?? [])
+    .map((key) => resolvedSections.value.find((x) => x.key === key))
     .filter(Boolean);
-});
+
+// 單層 Chip：一次點擊同時決定 group 與 section
+const selectSection = (groupKey, sectionKey) => {
+  activeGroup.value = groupKey;
+  activeSection.value = sectionKey;
+};
 
 const currentSection = computed(
   () =>
@@ -243,11 +242,7 @@ const currentSection = computed(
     resolvedSections.value[0],
 );
 
-// 切換大分類時，自動跳到該分類的第一個 section
-watch(activeGroup, () => {
-  const first = currentGroupSections.value[0];
-  if (first) activeSection.value = first.key;
-});
+// P1-11：單層 Chip 後無需監聽 activeGroup 強制重置 section
 
 // Load config and meta
 async function loadAll() {
@@ -449,41 +444,55 @@ onUnmounted(() => {
   word-break: break-word;
 }
 
-/* 分區標籤容器 */
+/* 分區標籤容器（P1-11 單層分組 Chip） */
 .section-tabs {
   margin-bottom: var(--iln-space-4);
-}
-
-/* 主 / 次標籤列 */
-.iln-tabs-primary,
-.iln-tabs-secondary {
   display: flex;
-  gap: var(--iln-space-2);
-  border-bottom: 1px solid var(--iln-border-subtle);
-  margin-bottom: var(--iln-space-4);
+  flex-direction: column;
+  gap: var(--iln-space-4);
 }
-
-/* 標籤項目 */
-.iln-tab {
-  padding: var(--iln-space-2) var(--iln-space-4);
+.chip-group__title {
+  margin: 0 0 var(--iln-space-2);
   font-size: var(--iln-font-sm);
+  font-weight: var(--iln-weight-semibold);
   color: var(--iln-hint);
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
+  letter-spacing: 0.02em;
+}
+.chip-group__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--iln-space-2);
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 var(--iln-space-4);
+  border-radius: var(--iln-radius-full);
+  border: 1px solid var(--iln-border-subtle);
+  background: var(--iln-surface-alt);
+  color: var(--iln-text);
+  font-size: var(--iln-font-sm);
   cursor: pointer;
-  transition:
+  transition: background-color var(--iln-duration-fast) var(--iln-ease-standard),
     color var(--iln-duration-fast) var(--iln-ease-standard),
-    border-color var(--iln-duration-fast) var(--iln-ease-standard);
+    border-color var(--iln-duration-fast) var(--iln-ease-standard),
+    transform 0.12s ease;
 }
-.iln-tab.is-active,
-.iln-tab[aria-selected="true"] {
-  color: var(--iln-brand);
-  border-bottom-color: var(--iln-brand);
+.chip:hover { border-color: var(--iln-brand); }
+.chip:active { transform: scale(0.97); }
+.chip.is-active {
+  background: var(--iln-brand);
+  border-color: var(--iln-brand);
+  color: var(--iln-on-brand, #1D192B);
+  font-weight: var(--iln-weight-semibold);
 }
-.iln-tab:focus-visible {
+.chip:focus-visible {
   outline: 2px solid var(--iln-brand);
-  outline-offset: -2px;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .chip, .chip:active { transition: none; transform: none; }
 }
 
 /* 頁籤左側標題區 */
