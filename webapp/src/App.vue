@@ -7,15 +7,17 @@
     }"
   >
     <main class="app-main">
-      <router-view v-slot="{ Component }">
-        <keep-alive :max="5">
-          <Suspense>
-            <component :is="Component" />
-            <template #fallback>
-              <RouteLoading />
-            </template>
-          </Suspense>
-        </keep-alive>
+      <router-view v-slot="{ Component, route: viewRoute }">
+        <Transition name="route-fade" mode="out-in">
+          <keep-alive :max="5">
+            <Suspense>
+              <component :is="Component" :key="viewRoute.path" />
+              <template #fallback>
+                <RouteLoading />
+              </template>
+            </Suspense>
+          </keep-alive>
+        </Transition>
       </router-view>
       <ErrorAlert
         v-if="routeLoadError"
@@ -120,5 +122,24 @@ onUnmounted(() => {
   padding-bottom: calc(
     var(--bottom-nav-height, 80px) + var(--tg-safe-bottom, 0px)
   );
+}
+
+/* Phase 4.3 · 路由切換 fade（搭配 <Transition name="route-fade">） */
+.route-fade-enter-active,
+.route-fade-leave-active {
+  transition: opacity 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.route-fade-enter-from {
+  opacity: 0;
+  transform: translateY(4px);
+}
+.route-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-fade-enter-active,
+  .route-fade-leave-active { transition: none; }
 }
 </style>

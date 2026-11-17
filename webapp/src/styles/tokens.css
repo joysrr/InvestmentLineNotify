@@ -66,7 +66,7 @@
   /* 新增：Telegram 主題文字與背景 */
   --iln-bg: var(--m3-neutral-2);
   --iln-text: var(--m3-neutral-90);
-  --iln-hint: var(--m3-neutral-50);
+  --iln-hint: var(--m3-neutral-60);  /* Phase 4.4 AA：outline(#79747E) 4.33:1 不达标 → on-surface-variant(#49454F) */
   --iln-link: var(--m3-primary-40);
   --iln-secondary-bg: var(--m3-neutral-5);
 
@@ -284,6 +284,7 @@
   --m3-neutral-50:  #938F99;  /* dark outline */
   --m3-neutral-60:  #CAC4D0;
   --m3-neutral-90:  #E6E0E9;  /* dark on-surface */
+  --iln-hint: var(--m3-neutral-50);  /* Phase 4.4：Dark 显式用 outline(#938F99) 5.39:1 AA，避免继承 Light 的 neutral-60 过亮 */
   --m3-primary-40:  #D0BCFF;  /* dark primary */
   --m3-primary-90:  #4F378B;  /* dark primary-container */
   --m3-primary-30:  #EADDFF;

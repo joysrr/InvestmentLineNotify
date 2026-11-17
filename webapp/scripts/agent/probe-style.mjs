@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
-import path from 'node:path';
 import WebSocket from 'ws';
 const WEBAPP = process.argv[2] || '/root/work/InvestmentLineNotify/webapp';
 const OUT = process.argv[3] || '/tmp/style-probe.json';
@@ -16,7 +15,7 @@ const ROUTES = [
   {slug:'account',path:'/account'},
   {slug:'strategy-config',path:'/strategy-config'},
 ];
-async function waitHttp(u,t=20000){const t0=Date.now();while(Date.now()-t0<t){try{const r=await fetch(u);if(r.ok)return 1}catch{}await sleep(300)}return 0}
+async function waitHttp(u,t=20000){const t0=Date.now();while(Date.now()-t0<t){try{const r=await fetch(u);if(r.ok)return 1}catch { /* ignore */ }await sleep(300)}return 0}
 function mkCdp(ws){let id=0;const p=new Map();ws.on('message',r=>{let m;try{m=JSON.parse(r.toString())}catch{return}if(m.id&&p.has(m.id)){const{res,rej}=p.get(m.id);p.delete(m.id);m.error?rej(new Error(JSON.stringify(m.error).slice(0,200))):res(m.result)}});return{send:(method,params={})=>new Promise((res,rej)=>{const i=++id;p.set(i,{res,rej});ws.send(JSON.stringify({id:i,method,params}))})}}
 async function main(){
   const srv=spawn(process.execPath,['--max-old-space-size=64','scripts/agent/serve-fixtures.mjs'],{cwd:WEBAPP,stdio:['ignore','ignore','ignore'],env:{...process.env,FIXTURE_PORT:String(PORT)}});

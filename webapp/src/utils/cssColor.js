@@ -54,8 +54,8 @@ export function resolveCssColor(input, alpha = null) {
   if (!rgb) rgb = FALLBACK;
 
   let out;
-  if (alpha == null) out = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`; // iln-color-allow: canvas 需要具體色值字串，無法用 CSS 變數
-  else out = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`; // iln-color-allow: canvas 需要帶透明度色值字串
+  if (alpha == null) out = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`; /* iln-color-allow: canvas 需要具體色值字串，無法用 CSS 變數 */
+  else out = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`; /* iln-color-allow: canvas 需要帶透明度色值字串 */
 
   CACHE.set(key, out);
   return out;

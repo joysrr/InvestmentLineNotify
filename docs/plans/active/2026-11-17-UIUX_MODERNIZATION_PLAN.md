@@ -27,7 +27,7 @@ last_verified: 2026-11-17
 
 # UI/UX 現代化與設計系統統一計畫
 
-> **狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 ✅｜Phase 3 ✅（含 Playwright 真機驗證）｜**Phase 4 🚧 進行中**
+> **狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 ✅｜Phase 3 ✅（含 Playwright 真機驗證）｜**Phase 4 ✅ 完成（含真機驗證）**
 > **建立**：2026-11-17
 > **目標**：現代化、美觀、統一一致、好維護的網站
 > **原則**：一次只修一類問題、每階段可獨立驗證與回滾
@@ -283,7 +283,7 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 
 **驗收**：每頁改完跑 `ui:verify`；changed < 2% 可 push；大改則 baseline 重拍。
 
-### Phase 4：動效與無障礙（1–2 天）— 🚧 進行中
+### Phase 4：動效與無障礙（1–2 天）— ✅ 已完成（2026-11-17）
 
 **4.1 控件主題化（禁止系統灰白控件）**
 - Element Plus `el-button` 全面 token 化：膠囊圓角、primary / danger / disabled 態、hover / focus-visible 過場
@@ -430,7 +430,7 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 | Phase 1 · Token 重構 | ✅ 完成（Lite） | 待 commit | 2026-11-17 | 刪 11 條 P8-02、標記 15 個 deprecated、三層文檔化；CSS 值零變化 |
 | Phase 2 · 共用組件 | ✅ 完成 | （本 commit） | 2026-11-17 | 4/4 完成：7 頁 .iln-page 統一、shared-styles 精簡至 107 行、ContentCard 新增 size 快捷 |
 | Phase 3 · 逐頁現代化 | ✅ 完成 | （本 commit） | 2026-11-17 | 7 頁 CSS 全部 token 化 + 死 selector 清除 + reduced-motion/focus-visible |
-| Phase 4 · 動效與 a11y | 🚧 進行中 | （WIP，見 §12） | — | 4.1 控件主題化 + 4.2 卡片節奏已落地；4.3/4.4 待辦 |
+| Phase 4 · 動效與 a11y | ✅ 完成 | （本 commit） | 2026-11-17 | 4.1-4.4 全數完成；a11y audit 10/10 AA、aria 100%；7/7 頁真機驗證 0 錯誤 |
 
 ### Phase 2 完成記錄（2026-11-17）
 
@@ -494,9 +494,9 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 
 ---
 
-**版本**：v1.2 · 2026-11-17（Phase 4 進行中）
-**狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 ✅｜Phase 3 ✅｜**Phase 4 🚧 4.1/4.2 完成，4.3/4.4 待辦**
-**下一步**：Phase 4.3 路由 fade + 卡片 ripple；Phase 4.4 axe 對比度掃描 + aria-label 補齊（詳見 §12）
+**版本**：v1.3 · 2026-11-17（Phase 0–4 全部完成）
+**狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 ✅｜Phase 3 ✅｜**Phase 4 ✅（含真機驗證）**
+**下一步**：計畫可移至 `docs/plans/completed/`。遺留事項：Phase 1 token 物理拆三檔（需環境寬裕）。
 
 ---
 
@@ -756,3 +756,52 @@ v2.0 記錄「像素驗證 OOM 不可用」。本次找到可行路徑，**7/7 �
 ### 12.3 決策脈絡修正
 
 §2 原「建議 A1（深色）」段落已標註為**歷史建議、被 A2 取代**，避免後續接手者誤讀為「尚未決定」。
+
+---
+
+### 12.4 Phase 4 完成記錄（2026-11-17）
+
+**4.3 動效**
+
+| 項目 | 實作 | 檔案 |
+|---|---|---|
+| 路由切換 fade | `<Transition name="route-fade" mode="out-in">` 包 `keep-alive`，180ms cubic-bezier(0.4,0,0.2,1)，進場 translateY(4px) → 0 | `App.vue` |
+| 卡片點按反饋 | `.content-card--variant-elevated` / `[role="button"]` hover 提 elevation、active scale(0.985) | `shared-styles.css` |
+| reduced-motion 全域兜底 | `@media (prefers-reduced-motion: reduce)` 對 `*` 強制 animation/transition duration → 0.01ms | `shared-styles.css` |
+
+**4.4 無障礙**
+
+| 項目 | 實作 | 結果 |
+|---|---|---|
+| WCAG AA 對比度 | 新增 `scripts/agent/a11y-audit.mjs`（解析 var() 鏈，Light+Dark 兩套） | **10/10 AA 通過** |
+| Light `--iln-hint` 修正 | outline `#79747E`（4.33:1 不達標）→ on-surface-variant `#49454F`（8.88:1） | ✅ |
+| Dark `--iln-hint` 顯式覆寫 | 保持 outline `#938F99`（5.39:1 AA），避免繼承 Light 過亮 | ✅ |
+| 全域 `:focus-visible` | 2px brand outline + 2px offset，統一覆蓋 | ✅ |
+| aria-label 覆蓋率 | icon-only 按鈕掃描 | **100%（1/1）** |
+
+**門禁結果**
+
+| 檢查項 | 結果 |
+|---|---|
+| `npm run ui:verify`（build + lint） | ✅ build=ok / lint=ok |
+| `a11y-audit.mjs` | ✅ exit 0，contrast fails=0，aria missing=0 |
+| 真機 7 頁 Playwright 截圖 | ✅ **7/7 頁 err=0**，white≈0，tg=light 正確，每頁 2.8-3.2s |
+
+**真機驗證明細（390×844 @1x）**
+
+| 頁面 | 耗時 | 白屏率 | 卡片 | 圖標 | 錯誤 |
+|---|---|---|---|---|---|
+| dashboard | 3207ms | 0 | 6 | 26 | 0 |
+| insights-radar | 2804ms | 0 | 3 | 18 | 0 |
+| insights-macro | 2839ms | 0 | 6 | 16 | 0 |
+| chart | 2881ms | 0.0001 | 0 | 7 | 0 |
+| news | 2803ms | 0 | 0 | 13 | 0 |
+| account | 2932ms | 0.002 | 15 | 16 | 0 |
+| strategy-config | 2888ms | 0 | 0 | 12 | 0 |
+
+**產物**
+
+- 容器內：`webapp/.agent-report/latest/visual/*.png`（7 張 + report.json）
+- 可見路徑：`/sdcard/Download/mock-screenshots/`（本次已同步）
+
+**環境備註**：verify-visual 單次跑需 available ≥ 2.5GB；本次可用 2.66GB，7/7 通過。
