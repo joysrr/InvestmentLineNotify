@@ -460,8 +460,15 @@ const scanConclusion = computed(() => {
 </script>
 
 <style scoped>
+/* MarketRadarView — Phase 3 現代化（2026-11-17）
+   只動 CSS：px→token、補 reduced-motion。
+   移除死 selector：inline-error / sk / sk-label / sk-sub / sk-value /
+   @keyframes shimmer（模板 0 引用，載入/錯誤由組件處理）。
+   註：rc-sub--* / card-* / text-green / text-red 由 JS 動態生成，保守保留。 */
+
 .view-container {
-  padding: 16px 16px calc(112px + env(safe-area-inset-bottom, 0px));
+  padding: var(--iln-space-4) var(--iln-space-4)
+    calc(112px + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
 }
 
@@ -469,23 +476,23 @@ const scanConclusion = computed(() => {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: var(--iln-space-5);
 }
 .page-title {
-  font-size: 18px;
+  font-size: var(--iln-font-lg);
   font-weight: 700;
   color: var(--iln-text);
 }
 .page-date {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
 
 .section {
-  margin-bottom: 20px;
+  margin-bottom: var(--iln-space-5);
 }
 .section-title {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.6px;
@@ -497,30 +504,30 @@ const scanConclusion = computed(() => {
 .radar-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 
 .scan-conclusion {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   color: var(--iln-text);
-  padding: 8px 12px;
+  padding: var(--iln-space-2) var(--iln-space-3);
   background: var(--iln-surface);
-  border-radius: 8px;
-  margin-bottom: 16px;
+  border-radius: var(--iln-radius-sm);
+  margin-bottom: var(--iln-space-4);
   border-left: 3px solid var(--iln-brand);
 }
 
 .radar-card {
   background: var(--iln-surface);
-  border-radius: 12px;
-  padding: 12px 8px;
+  border-radius: var(--iln-radius-md);
+  padding: var(--iln-space-3) var(--iln-space-2);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 3px;
   text-align: center;
-  transition: background 0.2s;
+  transition: background var(--iln-duration-base) var(--iln-ease-standard);
 }
 .card-danger {
   background: var(--iln-danger-bg);
@@ -541,16 +548,16 @@ const scanConclusion = computed(() => {
   white-space: nowrap;
 }
 .rc-value {
-  font-size: 20px;
+  font-size: var(--iln-font-lg);
   font-weight: 700;
   color: var(--iln-text);
   line-height: 1.2;
 }
 .rc-value--md {
-  font-size: 16px;
+  font-size: var(--iln-font-md);
 }
 .rc-value--emoji {
-  font-size: 24px;
+  font-size: var(--iln-font-xl);
 }
 .rc-unit {
   font-size: 11px;
@@ -588,7 +595,7 @@ const scanConclusion = computed(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
+  padding: var(--iln-space-2) var(--iln-space-3);
   background: var(--iln-surface);
   border-radius: 10px;
   margin-bottom: 6px;
@@ -617,76 +624,32 @@ const scanConclusion = computed(() => {
   font-size: 11px;
   color: var(--iln-hint);
   text-align: center;
-  margin-top: 12px;
-}
-.inline-error {
-  font-size: 13px;
-  color: var(--iln-danger-text);
-  padding: 12px;
-}
-
-/* ── Skeleton ── */
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-.sk {
-  border-radius: 6px;
-  background: linear-gradient(
-    90deg,
-    var(--iln-surface) 25%,
-    var(--iln-gradient-scrim) 50%,
-    var(--iln-surface) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.4s ease-in-out infinite;
-}
-.sk-label {
-  height: 10px;
-  width: 70%;
-}
-.sk-value {
-  height: 20px;
-  width: 50%;
-  margin-top: 8px;
-}
-.sk-sub {
-  height: 10px;
-  width: 60%;
-  margin-top: 6px;
+  margin-top: var(--iln-space-3);
 }
 
 /* Phase 4: 長期防禦模式狀態欄 */
 .defense-mode-badge {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--iln-space-2);
   padding: 10px 14px;
   border-radius: 10px;
-  margin: 0 16px 12px 16px;
+  margin: 0 var(--iln-space-4) var(--iln-space-3) var(--iln-space-4);
   font-size: 13px;
   font-weight: 600;
   animation: pulse-border 2s infinite;
 }
-
 .defense-mode-badge.card-danger {
   background: var(--iln-danger-bg-faint);
   border: 1px solid var(--iln-danger-border);
   color: var(--iln-danger-text);
 }
-
 .defense-mode-badge .badge-icon {
-  font-size: 16px;
+  font-size: var(--iln-font-md);
 }
-
 .defense-mode-badge .badge-text {
   letter-spacing: 0.2px;
 }
-
 @keyframes pulse-border {
   0%,
   100% {
@@ -694,6 +657,11 @@ const scanConclusion = computed(() => {
   }
   50% {
     box-shadow: var(--iln-danger-shadow-focus);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .defense-mode-badge {
+    animation: none;
   }
 }
 

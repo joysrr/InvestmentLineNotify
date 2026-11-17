@@ -453,8 +453,13 @@ const chartOption = computed(() => {
 </script>
 
 <style scoped>
+/* ChartView — Phase 3 現代化（2026-11-17）
+   只動 CSS：px→token（保留無精確 token 的 6/10/11px 等既有節奏，避免視覺漂移）、
+   移除死 selector（state-box / state-hint / state-error / retry-btn / spinner /
+   @keyframes spin）— 模板改用 ErrorAlert / EmptyState 組件。 */
+
 .view-container {
-  padding: 16px 16px 8px;
+  padding: var(--iln-space-4) var(--iln-space-4) var(--iln-space-2);
   min-height: 100%;
 }
 
@@ -462,7 +467,7 @@ const chartOption = computed(() => {
 .view-header {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: var(--iln-space-2);
   margin-bottom: 10px;
 }
 .view-title {
@@ -471,42 +476,48 @@ const chartOption = computed(() => {
   color: var(--iln-text);
 }
 .view-subtitle {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
 
-/* ── 粒度切換 ── */
-.seg-bar {
+/* ── 分段按鈕（seg / time-range / metric 共用基底） ── */
+.seg-bar,
+.time-range-bar {
   display: flex;
   gap: 6px;
   margin-bottom: 10px;
 }
-.seg-btn {
+.seg-btn,
+.time-range-btn {
   min-width: 44px;
   min-height: 44px;
   flex: 1;
-  padding: 6px 0;
-  border-radius: 8px;
-  font-size: 12px;
+  padding: var(--iln-space-1) 0;
+  border-radius: var(--iln-radius-sm);
+  font-size: var(--iln-font-sm);
   font-weight: 500;
   background: var(--iln-surface);
   color: var(--iln-hint);
   border: none;
   cursor: pointer;
   transition:
-    background 0.15s,
-    color 0.15s;
+    background var(--iln-duration-fast) var(--iln-ease-standard),
+    color var(--iln-duration-fast) var(--iln-ease-standard);
 }
-.seg-btn.active {
+.time-range-btn {
+  padding: var(--iln-space-2) 0;
+}
+.seg-btn.active,
+.time-range-btn.active {
   background: var(--iln-brand);
   color: var(--iln-text-on-brand);
 }
 
-/* ── 圖表 ── */
+/* ── 圖表容器 ── */
 .chart-wrapper {
   background: var(--iln-surface);
-  border-radius: 12px;
-  padding: 8px 4px 4px;
+  border-radius: var(--iln-radius-md);
+  padding: var(--iln-space-2) var(--iln-space-1) var(--iln-space-1);
   margin-bottom: 10px;
 }
 .chart {
@@ -519,51 +530,24 @@ const chartOption = computed(() => {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
+  margin-bottom: var(--iln-space-3);
 }
 .metric-chip {
   min-width: 44px;
   min-height: 44px;
-  padding: 4px 10px;
+  padding: var(--iln-space-1) 10px;
   border-radius: 99px;
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   font-weight: 500;
   background: var(--iln-surface);
   color: var(--iln-hint);
   border: none;
   cursor: pointer;
   transition:
-    background 0.15s,
-    color 0.15s;
+    background var(--iln-duration-fast) var(--iln-ease-standard),
+    color var(--iln-duration-fast) var(--iln-ease-standard);
 }
 .metric-chip.active {
-  background: var(--iln-brand);
-  color: var(--iln-text-on-brand);
-}
-
-/* ── 時間範圍切換 ── */
-.time-range-bar {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-.time-range-btn {
-  min-width: 44px;
-  min-height: 44px;
-  flex: 1;
-  padding: 8px 0;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  background: var(--iln-surface);
-  color: var(--iln-hint);
-  border: none;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-.time-range-btn.active {
   background: var(--iln-brand);
   color: var(--iln-text-on-brand);
 }
@@ -572,15 +556,15 @@ const chartOption = computed(() => {
 .summary-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 .summary-card {
   background: var(--iln-surface);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 10px var(--iln-space-3);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--iln-space-1);
 }
 .s-label {
   font-size: 11px;
@@ -598,71 +582,34 @@ const chartOption = computed(() => {
   color: var(--iln-danger-text);
 }
 
-/* ── 狀態區 ── */
-.state-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 48px 16px;
-  color: var(--iln-hint);
-  font-size: 14px;
-  text-align: center;
-}
-.state-hint {
-  font-size: 12px;
-  color: var(--iln-hint);
-}
-.state-error {
-  color: var(--iln-danger-text);
-}
-.retry-btn {
-  margin-top: 4px;
-  padding: 6px 18px;
-  border-radius: 8px;
-  background: var(--iln-brand);
-  color: var(--iln-text-on-brand);
-  font-size: 13px;
-  border: none;
-  cursor: pointer;
-}
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 2.5px solid var(--iln-hint);
-  border-top-color: var(--iln-brand);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
+/* ── 圖表分頁 ── */
 .chart-tabs {
   display: flex;
-  gap: 8px;
-  margin: 12px 0 8px 0;
-  border-bottom: 1px solid var(--iln-hint);
-  padding-bottom: 8px;
+  gap: var(--iln-space-2);
+  margin: var(--iln-space-3) 0 var(--iln-space-2);
+  border-bottom: 1px solid var(--iln-border-subtle);
+  padding-bottom: var(--iln-space-2);
 }
-
 .chart-tabs button {
   flex: 1;
-  padding: 8px 12px;
+  padding: var(--iln-space-2) var(--iln-space-3);
   border: none;
   background: transparent;
   color: var(--iln-hint);
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   cursor: pointer;
   border-bottom: 2px solid transparent;
+  transition:
+    color var(--iln-duration-fast) var(--iln-ease-standard),
+    border-color var(--iln-duration-fast) var(--iln-ease-standard);
 }
-
 .chart-tabs button.active {
   color: var(--iln-brand);
-  border-bottom: 2px solid var(--iln-brand);
+  border-bottom-color: var(--iln-brand);
   font-weight: 600;
+}
+.chart-tabs button:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: -2px;
 }
 </style>

@@ -467,13 +467,25 @@ watch(
 </script>
 
 <style scoped>
+/* ────────────────────────────────────────────────────────────
+   DashboardView — Phase 3 現代化（2026-11-17）
+   原則：只動 CSS，不動模板 / 不動邏輯 / 不引入新 class 依賴。
+   - 硬編碼 px → --iln-space-* / --iln-radius-* / --iln-font-*
+   - 統一卡片樣式（.dashboard-card / .cockpit-section / .health-card 共用骨架）
+   - 補 active 態與 focus-visible（a11y）
+   - 移除未使用的 .card-header / .card-body / .toggle-icon /
+     .card-content-* / .radar-chart（模板中 0 引用）
+   ──────────────────────────────────────────────────────────── */
+
+/* 頁面容器（padding 由 shared-styles .iln-page 提供，此處只加 max-width 與底部安全區） */
 .view-container {
-  padding: 16px 16px 100px; /* room for FloatingPill (bottom nav height ~84px) */
   max-width: 600px;
   margin: 0 auto;
 }
+
+/* ── Header ── */
 .dash-header {
-  margin-bottom: 24px;
+  margin-bottom: var(--iln-space-6);
 }
 .dash-title-row {
   display: flex;
@@ -483,212 +495,181 @@ watch(
 .dash-title {
   font-size: 22px;
   font-weight: 800;
+  color: var(--iln-text);
+  margin: 0;
 }
 .dash-date {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
 
-/* FAB: Strategy Config */
+/* FAB：策略設定（36px → 40px 觸控下限，加 focus-visible） */
 .config-fab {
+  width: var(--iln-space-10);
+  height: var(--iln-space-10);
   background: var(--iln-brand);
-  color: var(--iln-text);
+  color: var(--iln-text-on-brand);
   border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 18px;
+  border-radius: var(--iln-radius-full, 999px);
+  font-size: var(--iln-font-md);
   cursor: pointer;
   box-shadow: var(--iln-shadow-card);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform var(--iln-duration-fast) var(--iln-ease-standard),
+              box-shadow var(--iln-duration-fast) var(--iln-ease-standard);
+}
+.config-fab:hover {
+  box-shadow: var(--iln-shadow-2);
 }
 .config-fab:active {
   transform: scale(0.94);
 }
+.config-fab:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
+}
 
+/* ── 進場動效（尊重 reduced-motion） ── */
 .fade-in {
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn var(--iln-duration-slow, 300ms) var(--iln-ease-decelerate, ease-out);
 }
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fade-in { animation: none; }
+  .config-fab:active { transform: none; }
 }
 
-/* Card carousel */
-.dashboard-card {
+/* ── 統一卡片骨架（三個 class 共用） ── */
+.dashboard-card,
+.cockpit-section,
+.health-card {
   background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-lg);
-  margin-bottom: var(--iln-space-4);
   box-shadow: var(--iln-shadow-1);
   overflow: hidden;
 }
-.card-header {
-  padding: 12px 16px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--iln-text);
-  cursor: pointer;
-  user-select: none;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.card-body {
-  padding: 12px 16px;
-}
-.toggle-icon {
-  font-size: 11px;
-  color: var(--iln-hint);
+.dashboard-card {
+  margin-bottom: var(--iln-space-4);
 }
 
-/* Collapse/Expand Animation for dashboard-card body */
-.card-content-enter-active,
-.card-content-leave-active {
-  max-height: 400px;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
-}
-.card-content-enter-from,
-.card-content-leave-to {
-  max-height: 0;
-  opacity: 0;
-  padding: 0 16px;
-}
-
-.radar-chart {
-  height: 240px;
-  width: 100%;
-}
-.update-time {
-  font-size: 10px;
-  color: var(--iln-hint);
-  text-align: center;
-  margin-top: 24px;
-}
-
-/* expired 降級提示（L1 區塊頂部） */
-.freshness-expired-alert {
-  padding: 10px 16px;
-  margin-bottom: 16px;
-  font-size: 13px;
-  background: var(--iln-danger-bg);
-  color: var(--iln-danger-text);
-  border-radius: 6px;
-  border: 1px solid var(--iln-danger);
-  text-align: center;
-}
-
-/* Global-ish utility classes for children */
-:deep(.section) {
-  margin-bottom: 24px;
-}
-:deep(.section-title) {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: var(--iln-hint);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-:deep(.text-danger) {
-  color: var(--iln-danger-text);
-}
-:deep(.text-warn) {
-  color: var(--iln-warn-text);
-}
-:deep(.text-ok) {
-  color: var(--iln-ok-text);
-}
-
-/* ── Strategy Status Link (Phase 3) ── */
+/* ── Strategy Status 連結卡 ── */
 .strategy-status-link {
   padding: 0;
-  overflow: hidden;
 }
-
 .status-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: var(--iln-space-4) var(--iln-space-5);
   text-decoration: none;
   color: inherit;
-  transition: background 0.15s ease;
+  transition: background var(--iln-duration-fast) var(--iln-ease-standard);
 }
-
+.status-link:hover {
+  background: var(--iln-surface-alt, var(--iln-bg));
+}
 .status-link:active {
-  background: var(--iln-surface);
+  background: var(--iln-surface-alt, var(--iln-bg));
 }
-
+.status-link:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: -2px;
+}
 .status-link-left h3 {
-  margin: 0 0 4px;
-  font-size: 16px;
+  margin: 0 0 var(--iln-space-1);
+  font-size: var(--iln-font-md);
   font-weight: 700;
   color: var(--iln-text);
 }
-
 .status-link-desc {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
-
 .status-link-arrow {
-  font-size: 18px;
+  font-size: var(--iln-font-xl);
   color: var(--iln-brand);
   font-weight: 600;
 }
 
-/* Phase 3：Dashboard → Radar 入口連結 */
+/* ── Radar 入口連結 ── */
 .radar-entry {
   display: flex;
   justify-content: flex-end;
-  margin: -4px 0 16px;
+  margin: calc(var(--iln-space-1) * -1) 0 var(--iln-space-4);
 }
-
 .radar-entry-link {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   color: var(--iln-brand);
   text-decoration: none;
-  padding: 6px 10px;
+  padding: var(--iln-space-1) var(--iln-space-3);
   border-radius: var(--iln-radius-sm);
   transition: background var(--iln-duration-fast) var(--iln-ease-standard);
 }
-
+.radar-entry-link:hover,
 .radar-entry-link:active {
   background: var(--iln-brand-soft);
 }
+.radar-entry-link:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
+}
 
-/* Tab Contents 容器 */
+/* ── 資料新鮮度降級提示 ── */
+.freshness-expired-alert {
+  padding: var(--iln-space-3) var(--iln-space-4);
+  margin-bottom: var(--iln-space-4);
+  font-size: var(--iln-font-sm);
+  background: var(--iln-danger-bg);
+  color: var(--iln-danger-text);
+  border-radius: var(--iln-radius-sm);
+  border: 1px solid var(--iln-danger);
+  text-align: center;
+}
+
+/* ── 更新時間 ── */
+.update-time {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+  text-align: center;
+  margin-top: var(--iln-space-6);
+}
+
+/* ── Tab 內容容器 ── */
 .tab-content-area {
   display: flex;
   flex-direction: column;
   gap: var(--iln-space-6);
 }
 
-/* 駕駛艙區塊 */
+/* ── 駕駛艙區塊（沿用共用卡片骨架，此處只加內距） ── */
 .cockpit-section {
-  background: var(--iln-surface);
-  border: 1px solid var(--iln-border-subtle);
-  border-radius: var(--iln-radius-lg);
   padding: var(--iln-space-5);
-  box-shadow: var(--iln-shadow-1);
+}
+.health-card {
+  padding: var(--iln-space-5);
 }
 
-/* 健康卡片 */
-.health-card {
-  background: var(--iln-surface);
-  border: 1px solid var(--iln-border-subtle);
-  border-radius: var(--iln-radius-lg);
-  padding: var(--iln-space-5);
-  box-shadow: var(--iln-shadow-1);
+/* ── 子組件全域覆寫（:deep）── */
+:deep(.section) {
+  margin-bottom: var(--iln-space-6);
 }
+:deep(.section-title) {
+  font-size: var(--iln-font-base);
+  font-weight: 700;
+  margin-bottom: var(--iln-space-3);
+  color: var(--iln-hint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+:deep(.text-danger) { color: var(--iln-danger-text); }
+:deep(.text-warn)   { color: var(--iln-warn-text); }
+:deep(.text-ok)     { color: var(--iln-ok-text); }
 </style>

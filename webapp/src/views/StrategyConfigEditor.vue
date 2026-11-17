@@ -384,8 +384,11 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* StrategyConfigEditor — Phase 3 現代化（2026-11-17）
+   原本已大量 token 化，此輪僅把剩餘可精確對應的 px 收斂。 */
+
 .strategy-config-editor {
-  padding: 16px;
+  padding: var(--iln-space-4);
   max-width: 900px;
   margin: 0 auto;
 }
@@ -394,31 +397,32 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: var(--iln-space-4);
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--iln-space-3);
 }
 
 .editor-title {
   font-size: 22px;
   font-weight: 700;
   margin: 0;
+  color: var(--iln-text);
 }
 
 .editor-subtitle {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
-  margin-top: 4px;
+  margin-top: var(--iln-space-1);
 }
 
 .header-right {
   display: flex;
-  gap: 8px;
+  gap: var(--iln-space-2);
   flex-wrap: wrap;
 }
 
 .validation-bar {
-  margin-bottom: 16px;
+  margin-bottom: var(--iln-space-4);
 }
 
 .validation-alert {
@@ -426,7 +430,7 @@ onUnmounted(() => {
 }
 
 .json-collapse {
-  margin-top: 24px;
+  margin-top: var(--iln-space-6);
 }
 
 .json-viewer {
@@ -439,7 +443,7 @@ onUnmounted(() => {
 
 .json-viewer pre {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
@@ -450,15 +454,8 @@ onUnmounted(() => {
   margin-bottom: var(--iln-space-4);
 }
 
-/* 主標籤列 */
-.iln-tabs-primary {
-  display: flex;
-  gap: var(--iln-space-2);
-  border-bottom: 1px solid var(--iln-border-subtle);
-  margin-bottom: var(--iln-space-4);
-}
-
-/* 次標籤列 */
+/* 主 / 次標籤列 */
+.iln-tabs-primary,
 .iln-tabs-secondary {
   display: flex;
   gap: var(--iln-space-2);
@@ -475,12 +472,18 @@ onUnmounted(() => {
   border: none;
   border-bottom: 2px solid transparent;
   cursor: pointer;
+  transition:
+    color var(--iln-duration-fast) var(--iln-ease-standard),
+    border-color var(--iln-duration-fast) var(--iln-ease-standard);
 }
-
 .iln-tab.is-active,
 .iln-tab[aria-selected="true"] {
   color: var(--iln-brand);
   border-bottom-color: var(--iln-brand);
+}
+.iln-tab:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: -2px;
 }
 
 /* 頁籤左側標題區 */

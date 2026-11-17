@@ -220,8 +220,15 @@ const directionClass = computed(() => {
 </script>
 
 <style scoped>
+/* MacroBattleView — Phase 3 現代化（2026-11-17）
+   只動 CSS：px→token、補 reduced-motion。
+   移除死 selector（模板 0 引用）：inline-error / inline-hint / hint-sub /
+   skeleton-wrap / sk / sk-title / sk-bar / sk-row / @keyframes shimmer。
+   動態 class（directionClass → badge-bull/bear/neutral）保留。 */
+
 .view-container {
-  padding: 16px 16px calc(112px + env(safe-area-inset-bottom, 0px));
+  padding: var(--iln-space-4) var(--iln-space-4)
+    calc(112px + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
 }
 
@@ -229,15 +236,15 @@ const directionClass = computed(() => {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: var(--iln-space-4);
 }
 .page-title {
-  font-size: 18px;
+  font-size: var(--iln-font-lg);
   font-weight: 700;
   color: var(--iln-text);
 }
 .page-date {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
 
@@ -246,14 +253,14 @@ const directionClass = computed(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: var(--iln-space-5);
   flex-wrap: wrap;
 }
 .direction-badge {
   font-size: 13px;
   font-weight: 700;
-  padding: 5px 14px;
-  border-radius: 20px;
+  padding: var(--iln-space-1) 14px;
+  border-radius: var(--iln-radius-lg);
   white-space: nowrap;
 }
 .badge-bull {
@@ -269,7 +276,7 @@ const directionClass = computed(() => {
   color: var(--iln-warn-text);
 }
 .direction-hint {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
   flex: 1;
   line-height: 1.4;
@@ -277,10 +284,10 @@ const directionClass = computed(() => {
 
 /* ── Section ── */
 .section {
-  margin-bottom: 20px;
+  margin-bottom: var(--iln-space-5);
 }
 .section-title {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -294,7 +301,6 @@ const directionClass = computed(() => {
   flex-direction: row;
   gap: 10px;
 }
-
 @media (max-width: 360px) {
   .score-wrap {
     flex-direction: column;
@@ -303,10 +309,10 @@ const directionClass = computed(() => {
 .score-bar-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 .score-side {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   width: 36px;
   flex-shrink: 0;
@@ -355,13 +361,13 @@ const directionClass = computed(() => {
 .takeaway-item {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: var(--iln-space-2);
   font-size: 13px;
   color: var(--iln-text);
   line-height: 1.5;
   background: var(--iln-surface);
   border-radius: 10px;
-  padding: 9px 12px;
+  padding: 9px var(--iln-space-3);
 }
 .takeaway-dot {
   width: 6px;
@@ -376,11 +382,11 @@ const directionClass = computed(() => {
 .event-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 .event-card {
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 10px var(--iln-space-3);
 }
 .event-card--bull {
   background: var(--iln-ok-bg);
@@ -395,13 +401,13 @@ const directionClass = computed(() => {
 .event-top {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 .event-score {
   font-size: 11px;
   font-weight: 700;
   padding: 2px 7px;
-  border-radius: 12px;
+  border-radius: var(--iln-radius-md);
   flex-shrink: 0;
   color: var(--iln-ok-text);
   background: var(--iln-ok-bg);
@@ -428,59 +434,10 @@ const directionClass = computed(() => {
   padding-left: 2px;
 }
 
-/* ── States ── */
-.inline-error {
-  font-size: 13px;
-  color: var(--iln-danger-text);
-  padding: 12px;
-}
-.inline-hint {
-  font-size: 13px;
-  color: var(--iln-hint);
-  padding: 24px 12px;
-  text-align: center;
-  line-height: 1.7;
-}
-.hint-sub {
-  font-size: 12px;
-}
-
-/* ── Skeleton ── */
-.skeleton-wrap {
-  padding: 4px;
-}
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
+/* ── 尊重 reduced-motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .score-fill {
+    transition: none;
   }
 }
-.sk {
-  border-radius: 6px;
-  background: linear-gradient(
-    90deg,
-    var(--iln-surface) 25%,
-    var(--iln-gradient-scrim) 50%,
-    var(--iln-surface) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.4s ease-in-out infinite;
-  margin-bottom: 8px;
-}
-.sk-title {
-  height: 20px;
-  width: 55%;
-}
-.sk-bar {
-  height: 12px;
-  width: 90%;
-}
-.sk-row {
-  height: 56px;
-  width: 100%;
-  border-radius: 10px;
-}
-
 </style>

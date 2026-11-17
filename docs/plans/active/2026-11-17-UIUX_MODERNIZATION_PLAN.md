@@ -27,7 +27,7 @@ last_verified: 2026-11-17
 
 # UI/UX 現代化與設計系統統一計畫
 
-> **狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅ 完成｜Phase 1 ✅ 完成（Lite）｜Phase 2 ✅ 完成
+> **狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 ✅｜Phase 3 ✅
 > **建立**：2026-11-17
 > **目標**：現代化、美觀、統一一致、好維護的網站
 > **原則**：一次只修一類問題、每階段可獨立驗證與回滾
@@ -409,7 +409,7 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 | 環境修復 | ✅ 完成 | `aa2d0ec` | 2026-11-17 | cleanup 漏殺 `/root/.config/chromium`（陷阱 #14）、chromium 降載參數 |
 | Phase 1 · Token 重構 | ✅ 完成（Lite） | 待 commit | 2026-11-17 | 刪 11 條 P8-02、標記 15 個 deprecated、三層文檔化；CSS 值零變化 |
 | Phase 2 · 共用組件 | ✅ 完成 | （本 commit） | 2026-11-17 | 4/4 完成：7 頁 .iln-page 統一、shared-styles 精簡至 107 行、ContentCard 新增 size 快捷 |
-| Phase 3 · 逐頁現代化 | ⏳ 待開工 | — | — | 同上 |
+| Phase 3 · 逐頁現代化 | ✅ 完成 | （本 commit） | 2026-11-17 | 7 頁 CSS 全部 token 化 + 死 selector 清除 + reduced-motion/focus-visible |
 | Phase 4 · 動效與 a11y | ⏳ 待開工 | — | — | 同上 |
 
 ### Phase 2 完成記錄（2026-11-17）
@@ -434,6 +434,37 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 
 ---
 
+### Phase 3 完成記錄（2026-11-17）
+
+**策略**：零驗證策略（只動 CSS，不動模板結構、不動邏輯、不新增 class 依賴），以 build 門禁兜底。
+
+| 頁面 | style 行數 | 主要處理 |
+|---|---|---|
+| DashboardView | 226 → 207 | 統一卡片骨架（3 class 合併）、FAB 36→40px 觸控下限、focus-visible、reduced-motion |
+| ChartView | 214 → 161 | seg/time/metric 按鈕共用基底、刪 5 個死 selector + @keyframes spin |
+| NewsView | 235 → 125 | 刪 12 個 news-*/age-*（子組件 NewsCard 自帶）+ 5 個 state-*/spinner |
+| StrategyConfigEditor | 109 → 113 | 主/次標籤列合併、補 transition 與 focus-visible |
+| AccountView | 506 → 425 | 刪 14 個死 selector、px→token、skeleton 補 reduced-motion |
+| MacroBattleView | 265 → 222 | 刪 9 個死 selector（skeleton/inline-*）、reduced-motion |
+| MarketRadarView | 249 → 217 | 刪 6 個死 selector、防禦模式 pulse 補 reduced-motion |
+
+**合計**：1804 → 1470 行（-334 行，-18.5%）
+
+**驗證**：
+- `npm run ui:verify` → build ✓ / lint ✓
+- `check-no-raw-color` 0 violations（80 檔）
+
+**保守保留（未刪，避免誤傷）**：
+- MarketRadarView：`rc-sub--*` / `card-*` / `text-green` / `text-red` — 由 JS 函數動態拼接 class
+- AccountView：`text-ok` / `text-warn` — 模板 `:class` 三元綁定
+- MacroBattleView：`badge-bull/bear/neutral` — 由 `directionClass` 動態產生
+
+**新增可及性**：
+- 所有互動元件補 `:focus-visible`（2px brand outline）
+- 所有動效補 `prefers-reduced-motion: reduce`（fadeIn / shimmer / pulse-border / score-fill transition）
+
+---
+
 ### 環境限制（2026-11-17 記錄）
 
 - 容器記憶體 total 11GB，但 available 僅 3.5GB，swap 已用 6.7GB
@@ -444,8 +475,8 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 ---
 
 **版本**：v1.1 · 2026-11-17（Phase 0/1 完成）
-**狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 ✅
-**下一步**：Phase 3 逐頁現代化（Dashboard → Insights → Chart → Account → News → Strategy Config）
+**狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 ✅｜Phase 3 ✅
+**下一步**：Phase 4 動效與無障礙（reduced-motion 已部分落地、focus-visible 已補、待補 WCAG AA 對比度檢查與 aria-label）
 
 ---
 

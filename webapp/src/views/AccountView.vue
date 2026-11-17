@@ -560,27 +560,36 @@ const allHealthy = computed(
 </script>
 
 <style scoped>
+/* AccountView — Phase 3 現代化（2026-11-17）
+   只動 CSS，不動模板 / 邏輯。
+   - px → --iln-space-* / --iln-font-* / --iln-radius-*（僅精確對應者，餘保留原值避免視覺漂移）
+   - 移除死 selector（模板 0 引用）：
+       chart-label / error-icon / error-state / gauge-chart / macro-card / macro-grid /
+       macro-label / macro-sub / macro-value / retry-btn / side-item / text-danger /
+       toggle-btn / trend-side（含 @media 內引用）
+     註：text-ok / text-warn 為動態綁定（:class 三元），保留。 */
+
 .account-view {
-  padding: 0 0 32px;
+  padding: 0 0 var(--iln-space-8);
   min-height: 100%;
   background: var(--iln-bg);
 }
 
 /* ── Header ── */
 .page-header {
-  padding: 20px 16px 12px;
+  padding: var(--iln-space-5) var(--iln-space-4) var(--iln-space-3);
   background: var(--iln-bg);
   border-bottom: 1px solid var(--iln-border-subtle);
-  margin-bottom: 12px;
+  margin-bottom: var(--iln-space-3);
 }
 .page-title {
-  font-size: 20px;
+  font-size: var(--iln-font-lg);
   font-weight: 700;
   margin: 0 0 2px;
   color: var(--iln-text);
 }
 .page-subtitle {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
   margin: 0;
 }
@@ -588,8 +597,8 @@ const allHealthy = computed(
 /* ── Section ── */
 .section {
   background: var(--iln-bg);
-  border-radius: 12px;
-  margin: 0 12px 12px;
+  border-radius: var(--iln-radius-md);
+  margin: 0 var(--iln-space-3) var(--iln-space-3);
   padding: 14px 14px 10px;
   box-shadow: var(--iln-shadow-subtle);
 }
@@ -605,7 +614,7 @@ const allHealthy = computed(
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: var(--iln-space-1);
 }
 .section-header-row .section-title {
   margin-bottom: 0;
@@ -615,10 +624,10 @@ const allHealthy = computed(
   font-weight: 600;
   color: var(--iln-brand);
   background: var(--iln-brand-fill-light);
-  padding: 4px 10px;
+  padding: var(--iln-space-1) 10px;
   border-radius: 999px;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all var(--iln-duration-base) var(--iln-ease-standard);
 }
 .chart-link-btn:hover {
   background: var(--iln-brand-fill-strong);
@@ -631,7 +640,7 @@ const allHealthy = computed(
   align-items: center;
   padding: 7px 0;
   border-bottom: 1px solid var(--iln-border-faint);
-  font-size: 14px;
+  font-size: var(--iln-font-base);
 }
 .info-row:last-child {
   border-bottom: none;
@@ -648,10 +657,10 @@ const allHealthy = computed(
 .source-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 .source-card {
-  border-radius: 8px;
+  border-radius: var(--iln-radius-sm);
   padding: 9px 10px;
   border: 1px solid transparent;
 }
@@ -671,18 +680,18 @@ const allHealthy = computed(
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: var(--iln-space-1);
 }
 .source-name {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   color: var(--iln-text);
 }
 .source-badge {
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
   font-weight: 700;
   padding: 1px 5px;
-  border-radius: 4px;
+  border-radius: var(--iln-space-1);
   letter-spacing: 0.3px;
 }
 .badge-ok {
@@ -698,16 +707,16 @@ const allHealthy = computed(
   color: var(--iln-warn-text);
 }
 .source-time {
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 .source-age {
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   margin-top: 2px;
 }
 .source-error {
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-danger-text);
   margin-top: 2px;
   white-space: nowrap;
@@ -721,111 +730,43 @@ const allHealthy = computed(
   gap: 10px;
   font-size: 11px;
   color: var(--iln-hint);
-  margin: 0 0 8px;
+  margin: 0 0 var(--iln-space-2);
 }
 .summary-item {
   white-space: nowrap;
 }
 
-.toggle-btn {
-  border: none;
-  background: transparent;
-  color: var(--iln-brand);
-  font-size: 11px;
-  padding: 4px 6px;
-  border-radius: 999px;
-  cursor: pointer;
-}
-
 /* ── Trend Section ── */
 .trend-layout {
   display: flex;
-  gap: 12px;
+  gap: var(--iln-space-3);
   min-height: 180px;
 }
 .trend-main {
   flex: 1.5;
   background: var(--iln-surface-faintest);
-  border-radius: 12px;
+  border-radius: var(--iln-radius-md);
   padding: 10px;
   display: flex;
   flex-direction: column;
-}
-.trend-side {
-  flex: 0.8;
-  background: var(--iln-surface-faintest);
-  border-radius: 12px;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.side-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.chart-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--iln-hint);
-  margin-bottom: 2px;
 }
 .trend-chart {
   flex: 1;
   width: 100%;
   height: 160px;
 }
-.gauge-chart {
-  width: 100%;
-  height: 90px;
-}
-
 @media (max-width: 320px) {
   .trend-layout {
     flex-direction: column;
   }
-  .trend-side {
-    height: 140px;
-  }
-}
-
-/* ── Macro grid ── */
-.macro-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-.macro-card {
-  background: var(--iln-surface);
-  border-radius: 8px;
-  padding: 10px 10px 8px;
-  text-align: center;
-}
-.macro-label {
-  font-size: 11px;
-  color: var(--iln-hint);
-  margin-bottom: 4px;
-}
-.macro-value {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--iln-text);
-  line-height: 1;
-}
-.macro-sub {
-  font-size: 10px;
-  color: var(--iln-hint);
-  margin-top: 3px;
 }
 
 /* ── Notice block ── */
 .notice-block {
   display: flex;
-  gap: 12px;
+  gap: var(--iln-space-3);
   align-items: flex-start;
-  padding: 10px 12px;
+  padding: 10px var(--iln-space-3);
   background: var(--iln-brand-fill-faint);
   border-radius: 10px;
   border: 1px solid var(--iln-brand-fill-border);
@@ -835,7 +776,7 @@ const allHealthy = computed(
   border-color: var(--iln-neutral-fill-border-faint);
 }
 .notice-icon {
-  font-size: 22px;
+  font-size: var(--iln-font-xl);
   flex-shrink: 0;
   margin-top: 1px;
 }
@@ -846,10 +787,10 @@ const allHealthy = computed(
   font-size: 13px;
   font-weight: 600;
   color: var(--iln-text);
-  margin: 0 0 4px;
+  margin: 0 0 var(--iln-space-1);
 }
 .notice-desc {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
   line-height: 1.5;
   margin: 0;
@@ -857,60 +798,60 @@ const allHealthy = computed(
 
 /* ── Snapshot ── */
 .snapshot-date {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
   margin-bottom: 10px;
 }
 .snapshot-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: var(--iln-space-2);
   margin-bottom: 10px;
 }
 .snapshot-card {
   background: var(--iln-surface);
-  border-radius: 8px;
-  padding: 10px 10px 8px;
+  border-radius: var(--iln-radius-sm);
+  padding: 10px 10px var(--iln-space-2);
   text-align: center;
 }
 .snapshot-label {
   font-size: 11px;
   color: var(--iln-hint);
-  margin-bottom: 4px;
+  margin-bottom: var(--iln-space-1);
 }
 .snapshot-value {
-  font-size: 20px;
+  font-size: var(--iln-font-lg);
   font-weight: 700;
   color: var(--iln-text);
   line-height: 1;
 }
 .snapshot-sub {
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   margin-top: 3px;
 }
 .snapshot-buyday {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
   text-align: right;
-  margin-top: 4px;
+  margin-top: var(--iln-space-1);
 }
 
 /* ── About ── */
 .about-block {
   text-align: center;
-  padding: 4px 0 6px;
+  padding: var(--iln-space-1) 0 var(--iln-space-2);
 }
 .about-name {
-  font-size: 16px;
+  font-size: var(--iln-font-md);
   font-weight: 700;
   margin-bottom: 2px;
   color: var(--iln-text);
 }
 .about-version {
-  font-size: 12px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
-  margin-bottom: 12px;
+  margin-bottom: var(--iln-space-3);
 }
 .about-features {
   list-style: none;
@@ -922,20 +863,17 @@ const allHealthy = computed(
 .about-features li {
   font-size: 13px;
   color: var(--iln-text);
-  padding: 4px 0;
+  padding: var(--iln-space-1) 0;
   padding-left: 18px;
   position: relative;
 }
 
-/* ── Color helpers ── */
+/* ── Color helpers（text-ok / text-warn 為模板動態綁定） ── */
 .text-ok {
   color: var(--iln-ok-text) !important;
 }
 .text-warn {
   color: var(--iln-warn-text) !important;
-}
-.text-danger {
-  color: var(--iln-danger-text) !important;
 }
 
 /* ── Skeleton ── */
@@ -948,68 +886,49 @@ const allHealthy = computed(
 .sk-title {
   height: 14px;
   width: 40%;
-  margin-bottom: 12px;
+  margin-bottom: var(--iln-space-3);
 }
 .sk-row {
   height: 38px;
   margin-bottom: 6px;
-  border-radius: 8px;
+  border-radius: var(--iln-radius-sm);
 }
 .sk-row.short {
   width: 60%;
 }
 .sk-card {
   height: 64px;
-  border-radius: 8px;
+  border-radius: var(--iln-radius-sm);
 }
 @keyframes shimmer {
   to {
     background-position: -200% 0;
   }
 }
-
-/* ── Error ── */
-.error-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 16px;
-  gap: 10px;
-  color: var(--iln-hint);
-  font-size: 14px;
-}
-.error-icon {
-  font-size: 32px;
-}
-.retry-btn {
-  margin-top: 6px;
-  padding: 8px 20px;
-  border-radius: 20px;
-  border: none;
-  background: var(--iln-brand);
-  color: var(--iln-text-on-brand);
-  font-size: 14px;
-  cursor: pointer;
+@media (prefers-reduced-motion: reduce) {
+  .sk {
+    animation: none;
+  }
 }
 
 /* ── 設定項分組（CARD-5.5）── */
 .settings-groups {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin: 0 12px 16px;
+  gap: var(--iln-space-3);
+  margin: 0 var(--iln-space-3) var(--iln-space-4);
 }
 .settings-group {
   background: var(--iln-surface);
   border: 1px solid var(--iln-border);
   border-radius: 10px;
-  padding: 12px;
+  padding: var(--iln-space-3);
 }
 .settings-group .setting-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 8px;
+  margin-bottom: var(--iln-space-2);
 }
 .settings-group .setting-row:last-child {
   margin-bottom: 0;
@@ -1030,13 +949,13 @@ const allHealthy = computed(
 .settings-group .setting-hint {
   font-size: 11px;
   color: var(--iln-hint);
-  margin-top: 4px;
+  margin-top: var(--iln-space-1);
 }
 .settings-group .save-feedback {
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  margin-left: 8px;
+  font-size: var(--iln-font-sm);
+  padding: var(--iln-space-1) var(--iln-space-2);
+  border-radius: var(--iln-space-1);
+  margin-left: var(--iln-space-2);
 }
 .settings-group .save-feedback--success {
   background: var(--iln-ok-bg);

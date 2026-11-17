@@ -189,6 +189,15 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* NewsView — Phase 3 現代化（2026-11-17）
+   只動 CSS：
+   - px → --iln-space-* / --iln-font-* / --iln-radius-*
+   - 移除死 selector：news-card / news-card:active / news-header / news-age /
+     age-fresh / age-recent / age-old / news-region / news-source / news-time /
+     news-title / news-summary（實際由子組件 NewsCard.vue 自帶 scoped）
+     state-box / state-hint / state-error / retry-btn / spinner / @keyframes spin
+     （模板改用 ErrorAlert / EmptyState 組件） */
+
 .view-container {
   padding: 0 0 calc(112px + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
@@ -198,9 +207,9 @@ onMounted(async () => {
 .subtab-bar {
   display: flex;
   gap: 0;
-  border-bottom: 1px solid var(--iln-hint);
-  margin-bottom: 12px;
-  padding: 0 16px;
+  border-bottom: 1px solid var(--iln-border-subtle);
+  margin-bottom: var(--iln-space-3);
+  padding: 0 var(--iln-space-4);
   position: sticky;
   top: 0;
   background: var(--iln-bg);
@@ -209,8 +218,8 @@ onMounted(async () => {
 
 .subtab-btn {
   flex: 1;
-  padding: 12px 0;
-  font-size: 13px;
+  padding: var(--iln-space-3) 0;
+  font-size: var(--iln-font-sm);
   font-weight: 500;
   color: var(--iln-hint);
   background: none;
@@ -218,39 +227,42 @@ onMounted(async () => {
   border-bottom: 2px solid transparent;
   cursor: pointer;
   transition:
-    color 0.18s,
-    border-color 0.18s;
+    color var(--iln-duration-base) var(--iln-ease-standard),
+    border-color var(--iln-duration-base) var(--iln-ease-standard);
   margin-bottom: -1px;
 }
-
 .subtab-btn.active {
-  color: var(--iln-link);
-  border-bottom-color: var(--iln-link);
+  color: var(--iln-brand);
+  border-bottom-color: var(--iln-brand);
   font-weight: 600;
 }
+.subtab-btn:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: -2px;
+}
 
-/* ── Region section (精選報告) ── */
+/* ── Region section（精選報告） ── */
 .report-content {
-  padding: 0 16px;
+  padding: 0 var(--iln-space-4);
 }
 
 .region-section {
-  margin-bottom: 20px;
+  margin-bottom: var(--iln-space-5);
 }
 
 .region-header {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 8px;
+  margin-bottom: var(--iln-space-2);
 }
 
 .region-flag {
-  font-size: 16px;
+  font-size: var(--iln-font-md);
 }
 
 .region-title {
-  font-size: 14px;
+  font-size: var(--iln-font-base);
   font-weight: 600;
   color: var(--iln-text);
   flex: 1;
@@ -265,147 +277,25 @@ onMounted(async () => {
   font-size: 11px;
   color: var(--iln-hint);
   text-align: center;
-  margin-top: 8px;
-  padding-bottom: 8px;
+  margin-top: var(--iln-space-2);
+  padding-bottom: var(--iln-space-2);
 }
 
 /* ── 新聞池 header ── */
 .pool-header {
-  padding: 0 16px 4px;
+  padding: 0 var(--iln-space-4) var(--iln-space-1);
   min-height: 20px;
 }
 
-/* ── 共用新聞列表 ── */
+/* ── 共用新聞列表（卡片由 NewsCard.vue 提供） ── */
 .news-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 0 16px;
+  gap: var(--iln-space-2);
+  padding: 0 var(--iln-space-4);
 }
-
 .region-section .news-list {
   padding: 0;
-}
-
-.news-card {
-  background: var(--iln-surface);
-  border-radius: 12px;
-  padding: 12px;
-  cursor: pointer;
-}
-
-.news-card:active {
-  opacity: 0.7;
-}
-
-.news-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 6px;
-  flex-wrap: wrap;
-}
-
-.news-age {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 10px;
-}
-
-.age-fresh {
-  background: var(--iln-danger-bg);
-  color: var(--iln-danger-text);
-}
-.age-recent {
-  background: var(--iln-warn-bg);
-  color: var(--iln-warn-text);
-}
-.age-old {
-  background: var(--iln-hint);
-  color: var(--iln-hint);
-  opacity: 0.6;
-}
-
-.news-region {
-  font-size: 13px;
-}
-
-.news-source {
-  font-size: 11px;
-  color: var(--iln-hint);
-  flex: 1;
-}
-
-.news-time {
-  font-size: 11px;
-  color: var(--iln-hint);
-}
-
-.news-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--iln-text);
-  line-height: 1.45;
-  margin-bottom: 4px;
-}
-
-.news-summary {
-  font-size: 12px;
-  color: var(--iln-hint);
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* ── 狀態 ── */
-.state-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  min-height: 200px;
-  color: var(--iln-hint);
-  font-size: 14px;
-  padding: 0 16px;
-}
-
-.state-hint {
-  font-size: 12px;
-  color: var(--iln-hint);
-  margin-top: -6px;
-}
-
-.state-error {
-  color: var(--iln-danger-text);
-}
-
-.retry-btn {
-  padding: 8px 20px;
-  background: var(--iln-brand);
-  color: var(--iln-text-on-brand);
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.spinner {
-  width: 28px;
-  height: 28px;
-  border: 3px solid var(--iln-hint);
-  border-top-color: var(--iln-brand);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 /* 精選註記 */
