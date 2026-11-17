@@ -1,6 +1,7 @@
 ---
 type: plan
-status: active
+status: completed
+completed: 2026-11-17
 created: 2026-11-17
 last_updated: 2026-11-17
 tags:
@@ -26,6 +27,9 @@ last_verified: 2026-11-17
 ---
 
 # UI/UX 現代化與設計系統統一計畫
+
+> ✅ **已於 2026-11-17 完成**，本檔案由 `docs/plans/active/` 移至 `docs/plans/completed/`。
+> 全程 5 個 Phase（0–4）全數落地，含真機 7 頁 Playwright 驗證（7/7 err=0）、a11y 10/10 AA。
 
 > **狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 ✅｜Phase 3 ✅（含 Playwright 真機驗證）｜**Phase 4 ✅ 完成（含真機驗證）**
 > **建立**：2026-11-17
