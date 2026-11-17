@@ -520,8 +520,8 @@ const chartOption = computed(() => {
 /* ── 圖表容器 ── */
 .chart-wrapper {
   background: var(--iln-surface);
-  border-radius: var(--iln-radius-md);
-  padding: var(--iln-space-2) var(--iln-space-1) var(--iln-space-1);
+  border-radius: var(--iln-radius-card, 20px);
+  padding: var(--iln-space-4, 16px);
   margin-bottom: 10px;
 }
 .chart {
@@ -565,7 +565,7 @@ const chartOption = computed(() => {
 .summary-card {
   background: var(--iln-surface);
   border-radius: 10px;
-  padding: 10px var(--iln-space-3);
+  padding: var(--iln-space-4, 16px);
   display: flex;
   flex-direction: column;
   gap: var(--iln-space-1);

@@ -103,7 +103,7 @@
   /* 別名 token（遠端既有，保持相容） */
   --iln-border: var(--iln-border-subtle);
   --iln-surface-muted: var(--iln-surface-faint);
-  --iln-text-on-brand: var(--iln-text);
+  --iln-text-on-brand: #FFFFFF;  /* M3 Light primary(紫) 上的 on-primary */
   --iln-border-subtle: rgba(121, 116, 126, 0.12);
   --iln-border-default: rgba(121, 116, 126, 0.20);
   --iln-border-strong: rgba(121, 116, 126, 0.32);
@@ -167,6 +167,7 @@
   --iln-radius-md: 12px;
   --iln-radius-lg: 16px;
   --iln-radius-xl: 24px;
+  --iln-radius-card: 20px;  /* Phase 4：卡片专用（規範 20-24） */
   --iln-radius-full: 9999px;
 
   /* ── 陰影（3 級 elevation） ── */
@@ -273,6 +274,7 @@
 
 /* 深色模式覆寫（由 useTelegram.syncSchemeAttribute 寫入 data-tg-scheme） */
 :root[data-tg-scheme="dark"] {
+  --iln-text-on-brand: #1D1B20;  /* M3 Dark primary(淺紫) 上的 on-primary */
   /* ── Layer 1 · PRIMITIVE（M3 Dark 色階覆寫） ── */
   --m3-neutral-0:   #141218;  /* dark surface */
   --m3-neutral-2:   #1D1B20;  /* dark surface-container */
@@ -320,7 +322,7 @@
   --iln-neutral-border: rgba(148, 163, 184, 0.5);
   --iln-border: var(--iln-border-subtle);
   --iln-surface-muted: var(--iln-surface-faint);
-  --iln-text-on-brand: var(--iln-text);
+  --iln-text-on-brand: #1D1B20;  /* 淺紫 primary 上的 on-primary */
   --iln-border-subtle: rgba(255, 255, 255, 0.08);
   --iln-border-default: rgba(255, 255, 255, 0.12);
   --iln-border-strong: rgba(255, 255, 255, 0.18);

@@ -38,7 +38,7 @@ const base = `http://127.0.0.1:${PORT}`;
 async function waitServer(timeout = 20000) {
   const t0 = Date.now();
   while (Date.now() - t0 < timeout) {
-    try { const r = await fetch(base + "/api/status"); if (r.ok) return true; } catch {}
+    try { const r = await fetch(base + "/api/status"); if (r.ok) return true; } catch { /* ignore */ }
     await new Promise((r) => setTimeout(r, 300));
   }
   return false;
@@ -129,7 +129,7 @@ try {
             if (t.includes(":focus-visible")) hasFV = true;
             if (t.includes("--tg-theme")) tgUsers++;
           }
-        } catch {}
+        } catch { /* ignore */ }
       }
       // 行內 style 硬編碼 hex 粗檢
       for (const el of document.querySelectorAll("[style]")) {
@@ -163,6 +163,6 @@ try {
   log("FAIL:", String(e).slice(0, 400));
   fs.appendFileSync(path.join(OUT, "run.log"), "\nSERVER LOG:\n" + srvLog.join("").slice(-2000) + "\n");
 } finally {
-  try { server.kill("SIGKILL"); } catch {}
+  try { server.kill("SIGKILL"); } catch { /* ignore */ }
 }
 process.exit(ok ? 0 : 1);

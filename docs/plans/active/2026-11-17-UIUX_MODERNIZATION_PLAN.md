@@ -27,7 +27,7 @@ last_verified: 2026-11-17
 
 # UI/UX 現代化與設計系統統一計畫
 
-> **狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 ✅｜Phase 3 ✅（含 Playwright 真機驗證）
+> **狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 ✅｜Phase 3 ✅（含 Playwright 真機驗證）｜**Phase 4 🚧 進行中**
 > **建立**：2026-11-17
 > **目標**：現代化、美觀、統一一致、好維護的網站
 > **原則**：一次只修一類問題、每階段可獨立驗證與回滾
@@ -163,10 +163,9 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 | **A2（已選）** | **Light M3 為主**（`#FEF7FF` 底 / `#FFFFFF` 卡 / `#6750A4` 主色），Dark 覆寫保留備用 | 符合使用者偏好；M3 Light 層次分明 |
 | A3 | 雙模式自動切換（跟隨 Telegram `colorScheme`） | 最「原生」，但需維護兩套 token |
 
-**建議 A1**：
-1. 人設明確要求深色 M3
-2. 金融數據類 App 深色體驗更好（長時間盯盤、夜間）
-3. 截圖全白正是世界觀打架的症狀，統一才能根治
+> ~~**原建議 A1**~~（2026-11-17 初稿）— **已被上方 A2 拍板取代**，此段僅保留作決策脈絡，勿據此實作。
+> 原理由：① 人設要求深色 M3 ② 金融類深色體驗更好 ③ 截圖全白是世界觀打架症狀。
+> 最終選擇 A2（Light-first）：使用者偏好淺色；Dark 以 `data-tg-scheme="dark"` 覆寫保留，兩套 token 同源同色相家族。
 
 ### 決策 B：品牌色
 
@@ -284,11 +283,32 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 
 **驗收**：每頁改完跑 `ui:verify`；changed < 2% 可 push；大改則 baseline 重拍。
 
-### Phase 4：動效與無障礙（1–2 天）
+### Phase 4：動效與無障礙（1–2 天）— 🚧 進行中
 
-- 路由切換 fade、卡片點按 scale/ripple、按鈕 pressed state
-- `prefers-reduced-motion` 支援
-- WCAG AA 對比度、focus-visible、aria-label 補齊
+**4.1 控件主題化（禁止系統灰白控件）**
+- Element Plus `el-button` 全面 token 化：膠囊圓角、primary / danger / disabled 態、hover / focus-visible 過場
+- `--iln-text-on-brand` 修正為真 on-primary：Light `#FFFFFF` / Dark `#1D1B20`（原本錯用 `--iln-text`，紫底上對比不足）
+- 新增 `--iln-radius-card: 20px`，把散落的 radius-sm/md 卡片圓角收斂到規範 20–24
+
+**4.2 卡片節奏對齊規範**
+- 卡片內距統一 `--iln-space-4`（16px），圓角統一 `--iln-radius-card`
+- 覆蓋 Chart / Account / MacroBattle / MarketRadar 四頁
+
+**4.3 動效**
+- 路由切換 fade（150–200ms，cubic-bezier(0.4,0,0.2,1)）
+- 卡片點按 scale / ripple、按鈕 pressed state
+- `prefers-reduced-motion: reduce` 全域兜底（Phase 3 已部分落地，本階段補齊路由與卡片）
+
+**4.4 無障礙**
+- WCAG AA 對比度檢查（文字 4.5:1 / 大字 3:1），axe-core 或自寫對比度掃描
+- `aria-label` 補齊：圖標按鈕、FloatingPill 導航、狀態燈
+- `focus-visible` 全覆蓋（Phase 3 已補互動元件，本階段補容器與表單）
+
+**驗收**：
+- `npm run ui:verify` build ✓ / lint ✓
+- 對比度掃描 0 個 AA 違規（或列出例外並說明）
+- 圖標按鈕 aria-label 覆蓋率 100%
+- `prefers-reduced-motion` 下無殘留 transition/animation
 
 ---
 
@@ -410,7 +430,7 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 | Phase 1 · Token 重構 | ✅ 完成（Lite） | 待 commit | 2026-11-17 | 刪 11 條 P8-02、標記 15 個 deprecated、三層文檔化；CSS 值零變化 |
 | Phase 2 · 共用組件 | ✅ 完成 | （本 commit） | 2026-11-17 | 4/4 完成：7 頁 .iln-page 統一、shared-styles 精簡至 107 行、ContentCard 新增 size 快捷 |
 | Phase 3 · 逐頁現代化 | ✅ 完成 | （本 commit） | 2026-11-17 | 7 頁 CSS 全部 token 化 + 死 selector 清除 + reduced-motion/focus-visible |
-| Phase 4 · 動效與 a11y | ⏳ 待開工 | — | — | 同上 |
+| Phase 4 · 動效與 a11y | 🚧 進行中 | （WIP，見 §12） | — | 4.1 控件主題化 + 4.2 卡片節奏已落地；4.3/4.4 待辦 |
 
 ### Phase 2 完成記錄（2026-11-17）
 
@@ -474,9 +494,9 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 
 ---
 
-**版本**：v1.1 · 2026-11-17（Phase 0/1 完成）
-**狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 ✅｜Phase 3 ✅（含 Playwright 真機驗證）
-**下一步**：Phase 4 動效與無障礙（reduced-motion 已部分落地、focus-visible 已補、待補 WCAG AA 對比度檢查與 aria-label）
+**版本**：v1.2 · 2026-11-17（Phase 4 進行中）
+**狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 ✅｜Phase 3 ✅｜**Phase 4 🚧 4.1/4.2 完成，4.3/4.4 待辦**
+**下一步**：Phase 4.3 路由 fade + 卡片 ripple；Phase 4.4 axe 對比度掃描 + aria-label 補齊（詳見 §12）
 
 ---
 
@@ -703,3 +723,36 @@ v2.0 記錄「像素驗證 OOM 不可用」。本次找到可行路徑，**7/7 �
 截圖抽樣 218-328 色、平均亮度 29.8-37.1 → 深色背景 #141218 正確，非黑屏非白屏。
 
 **結論**：Phase 3「零驗證策略」交付已補上真機畫面驗證，並額外修復 4 個實際存在的 UI 缺陷（chart 圖表與 account 崩潰屬阻斷級）。可進入 Phase 4（動效與無障礙）。
+
+---
+
+## 12. Phase 4 進行中記錄（2026-11-17 · WIP）
+
+> 本節隨 Phase 4 每完成一小步即時更新，作為跨 session 進度錨點。
+
+### 12.1 已完成（工作區，待 commit）
+
+| # | 項目 | 檔案 | 狀態 |
+|---|---|---|---|
+| 1 | `el-button` 全面主題化（膠囊圓角 / primary / danger / disabled / hover） | `webapp/src/shared-styles.css`（+57 行） | ✅ |
+| 2 | `--iln-text-on-brand` 修正為真 on-primary（Light #FFF / Dark #1D1B20） | `webapp/src/styles/tokens.css` | ✅ |
+| 3 | 新增 `--iln-radius-card: 20px` 並套用到四頁卡片 | tokens.css + 4 個 View | ✅ |
+| 4 | 卡片內距統一 `--iln-space-4`（16px） | Chart / Account / MacroBattle / MarketRadar | ✅ |
+| 5 | MacroBattle 資料健壯性（event-title fallback、bull/bear score 多層兜底） | `MacroBattleView.vue` | ✅ |
+| 6 | 樣式探針腳本（裸 CDP 抓 bodyBg / cardRadius / 亮色元素） | `scripts/agent/probe-style.mjs`（新增） | ✅ |
+
+**驗證**：`npm --prefix webapp run build` ✓（Initial JS 103.4KB / 預算 156KB，體積閘門通過，43s）
+
+### 12.2 待辦（Phase 4 剩餘）
+
+- [ ] 4.3 路由切換 fade（App.vue / router afterEach 加 class）
+- [ ] 4.3 卡片點按 scale + ripple
+- [ ] 4.3 `prefers-reduced-motion` 全域兜底補齊（路由 / 卡片）
+- [ ] 4.4 WCAG AA 對比度掃描（axe-core 或自寫腳本）
+- [ ] 4.4 `aria-label` 補齊（圖標按鈕 / FloatingPill / 狀態燈）
+- [ ] 4.4 `focus-visible` 補容器與表單
+- [ ] 全階段回歸：`ui:verify` build + lint、`verify-visual.mjs` 7 頁截圖
+
+### 12.3 決策脈絡修正
+
+§2 原「建議 A1（深色）」段落已標註為**歷史建議、被 A2 取代**，避免後續接手者誤讀為「尚未決定」。

@@ -24,7 +24,7 @@ const ROUTES = [
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function waitHttp(url, t = 20000) {
   const t0 = Date.now();
-  while (Date.now() - t0 < t) { try { const r = await fetch(url); if (r.ok) return true; } catch {} await sleep(300); }
+  while (Date.now() - t0 < t) { try { const r = await fetch(url); if (r.ok) return true; } catch { /* ignore */ } await sleep(300); }
   return false;
 }
 function makeCdp(ws) {
@@ -95,7 +95,7 @@ async function main() {
       console.log(r.slug.padEnd(18) + "  ✗ " + String(e.message).slice(0, 120));
     }
   }
-  try { ws.close(); } catch {}
+  try { ws.close(); } catch { /* ignore */ }
   chrome.kill("SIGKILL"); server.kill("SIGKILL");
   process.exit(0);
 }

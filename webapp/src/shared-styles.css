@@ -105,3 +105,60 @@
     font-size: var(--iln-font-lg);
   }
 }
+
+
+/* ══════════════════════════════════════════════════════════
+   Phase 4 · A2 修復（2026-11-17）
+   1. Element Plus 按鈕主題化（禁止系統灰白控件）
+   2. 卡片圓角/內距兜底（規範 20-24 / ≥16）
+   ══════════════════════════════════════════════════════════ */
+
+/* el-button 基礎：膠囊圓角 + M3 過渡 */
+.el-button {
+  border-radius: var(--iln-radius-full, 9999px);
+  font-weight: 500;
+  transition: background-color 150ms, border-color 150ms, color 150ms;
+}
+/* 一般 el-button（非 primary/danger/text/link）：深色/淺色皆用 surface 底 */
+.el-button:not(.is-text):not(.is-link):not(.el-button--primary):not(.el-button--danger):not(.el-button--success):not(.el-button--warning):not(.el-button--info) {
+  background: var(--iln-surface, #F7F2FA);
+  border-color: var(--iln-border-default, rgba(0,0,0,0.12));
+  color: var(--iln-text, #1D1B20);
+}
+.el-button:not(.is-disabled):not(.is-text):not(.is-link):hover {
+  background: var(--iln-surface-alt, #E7E0EC);
+  border-color: var(--iln-border-strong, rgba(0,0,0,0.18));
+}
+/* primary：品牌色 + on-brand 文字 */
+.el-button--primary {
+  background: var(--iln-brand, #6750A4);
+  border-color: var(--iln-brand, #6750A4);
+  color: var(--iln-text-on-brand, #FFFFFF);
+}
+.el-button--primary:not(.is-disabled):hover {
+  background: var(--iln-brand-hover, #5A3F94);
+  border-color: var(--iln-brand-hover, #5A3F94);
+  color: var(--iln-text-on-brand, #FFFFFF);
+}
+/* danger */
+.el-button--danger {
+  background: var(--iln-danger, #BA1A1A);
+  border-color: var(--iln-danger, #BA1A1A);
+  color: #FFFFFF;
+}
+/* disabled 一律走 M3 弱化，不用瀏覽器默認灰 */
+.el-button.is-disabled,
+.el-button.is-disabled:hover,
+.el-button.is-disabled:focus {
+  background: var(--iln-surface-faint, rgba(0,0,0,0.03));
+  border-color: var(--iln-border-subtle, rgba(0,0,0,0.08));
+  color: var(--iln-hint, #79747E);
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+/* 卡片兜底：Phase 2 的 .iln-card 及常見 .content-card / .metric-card */
+.iln-card {
+  border-radius: var(--iln-radius-card, 20px) !important;
+  padding: var(--iln-space-4, 16px) !important;
+}

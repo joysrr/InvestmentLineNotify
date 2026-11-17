@@ -14,7 +14,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function waitHttp(url, t = 15000) {
   const t0 = Date.now();
-  while (Date.now() - t0 < t) { try { if ((await fetch(url)).ok) return true; } catch {} await sleep(300); }
+  while (Date.now() - t0 < t) { try { if ((await fetch(url)).ok) return true; } catch { /* ignore */ } await sleep(300); }
   return false;
 }
 
@@ -75,7 +75,7 @@ try {
   out("EVAL_FAIL " + e.message);
 }
 
-try { ws.close(); } catch {}
+try { ws.close(); } catch { /* ignore */ }
 chrome.kill("SIGKILL");
 server.kill("SIGKILL");
 process.exit(0);

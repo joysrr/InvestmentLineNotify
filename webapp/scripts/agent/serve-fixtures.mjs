@@ -32,45 +32,49 @@ const MIME = {
   ".map": "application/json",
 };
 
-// Telegram mock：light M3，與 browser.mjs 一致（A2 決策）
+// Telegram mock：依 FIXTURE_SCHEME 切 light/dark（默认 light，对应 A2 决策）
+const FIXTURE_SCHEME = (process.env.FIXTURE_SCHEME || "light").toLowerCase() === "dark" ? "dark" : "light";
+const MOCK_CFG = FIXTURE_SCHEME === "dark"
+  ? { bg:"#141218", surface:"#211F26", text:"#E6E0E9", hint:"#938F99", link:"#D0BCFF", button:"#D0BCFF", buttonText:"#1D1B20", secondaryBg:"#211F26" }
+  : { bg:"#FEF7FF", surface:"#F7F2FA", text:"#1D1B20", hint:"#79747E", link:"#6750A4", button:"#6750A4", buttonText:"#FFFFFF", secondaryBg:"#F7F2FA" };
 const TELEGRAM_MOCK = `<script>
 window.__PLAYWRIGHT__ = true;
 (function(){
-  var t = { bg:"#141218", text:"#E6E0E9", hint:"#938F99", link:"#D0BCFF",
-            button:"#D0BCFF", buttonText:"#1D1B20", secondaryBg:"#211F26" };
+  var CFG = ${JSON.stringify(MOCK_CFG)};
+  var SCHEME = ${JSON.stringify(FIXTURE_SCHEME)};
   var r = document.documentElement;
-  r.style.setProperty("--tg-theme-bg-color", t.bg);
-  r.style.setProperty("--tg-theme-text-color", t.text);
-  r.style.setProperty("--tg-theme-hint-color", t.hint);
-  r.style.setProperty("--tg-theme-link-color", t.link);
-  r.style.setProperty("--tg-theme-button-color", t.button);
-  r.style.setProperty("--tg-theme-button-text-color", t.buttonText);
-  r.style.setProperty("--tg-theme-secondary-bg-color", t.secondaryBg);
-  r.style.backgroundColor = t.bg;
-  r.dataset.tgScheme = "dark";
+  r.style.setProperty("--tg-theme-bg-color", CFG.bg);
+  r.style.setProperty("--tg-theme-text-color", CFG.text);
+  r.style.setProperty("--tg-theme-hint-color", CFG.hint);
+  r.style.setProperty("--tg-theme-link-color", CFG.link);
+  r.style.setProperty("--tg-theme-button-color", CFG.button);
+  r.style.setProperty("--tg-theme-button-text-color", CFG.buttonText);
+  r.style.setProperty("--tg-theme-secondary-bg-color", CFG.secondaryBg);
+  r.style.backgroundColor = CFG.bg;
+  r.dataset.tgScheme = SCHEME;
   document.addEventListener("DOMContentLoaded", function(){
-    document.body.style.background = t.bg;
-    document.body.style.color = t.text;
+    document.body.style.background = CFG.bg;
+    document.body.style.color = CFG.text;
   });
+  window.Telegram = { WebApp: {
+    initData: "query_id=mock&user=%7B%22id%22%3A1%7D&auth_date=" + Math.floor(Date.now()/1000) + "&hash=mock",
+    initDataUnsafe: { user: { id: 1, first_name: "Mock", username: "mockuser" } },
+    ready: function(){}, expand: function(){}, close: function(){},
+    BackButton: { show: function(){}, hide: function(){}, onClick: function(){}, offClick: function(){} },
+    MainButton: { setParams: function(){}, show: function(){}, hide: function(){}, enable: function(){}, disable: function(){} },
+    HapticFeedback: { impactOccurred: function(){}, notificationOccurred: function(){}, selectionChanged: function(){} },
+    themeParams: {
+      bg_color: CFG.bg, text_color: CFG.text, hint_color: CFG.hint,
+      link_color: CFG.link, button_color: CFG.button, button_text_color: CFG.buttonText,
+      secondary_bg_color: CFG.secondaryBg
+    },
+    viewportHeight: 844, viewportStableHeight: 844,
+    headerColor: CFG.bg, backgroundColor: CFG.bg,
+    isExpanded: true, colorScheme: SCHEME, version: "7.0", platform: "ios",
+    setHeaderColor: function(){}, setBackgroundColor: function(){},
+    isVersionAtLeast: function(){ return true; },
+  }};
 })();
-window.Telegram = { WebApp: {
-  initData: "query_id=mock&user=%7B%22id%22%3A1%7D&auth_date=" + Math.floor(Date.now()/1000) + "&hash=mock",
-  initDataUnsafe: { user: { id: 1, first_name: "Mock", username: "mockuser" } },
-  ready: () => {}, expand: () => {}, close: () => {},
-  BackButton: { show: () => {}, hide: () => {}, onClick: () => {}, offClick: () => {} },
-  MainButton: { setParams: () => {}, show: () => {}, hide: () => {}, enable: () => {}, disable: () => {} },
-  HapticFeedback: { impactOccurred: () => {}, notificationOccurred: () => {}, selectionChanged: () => {} },
-  themeParams: {
-    bg_color: "#141218", text_color: "#E6E0E9", hint_color: "#938F99",
-    link_color: "#D0BCFF", button_color: "#D0BCFF", button_text_color: "#1D1B20",
-    secondary_bg_color: "#211F26"
-  },
-  viewportHeight: 844, viewportStableHeight: 844,
-  headerColor: "#141218", backgroundColor: "#141218",
-  isExpanded: true, colorScheme: "dark", version: "7.0", platform: "ios",
-  setHeaderColor: () => {}, setBackgroundColor: () => {},
-  isVersionAtLeast: () => true,
-}};
 </script>`;
 
 function serveIndexHtml(res) {

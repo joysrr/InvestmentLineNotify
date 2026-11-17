@@ -18,7 +18,7 @@ const ROUTES = [
 const server = fork(path.join(__dirname, "serve-fixtures.mjs"), [], { env: process.env, stdio: "ignore" });
 const wait = async (t = 20000) => {
   const s = Date.now();
-  while (Date.now() - s < t) { try { if ((await fetch(base + "/api/status")).ok) return true; } catch {} await new Promise((r) => setTimeout(r, 300)); }
+  while (Date.now() - s < t) { try { if ((await fetch(base + "/api/status")).ok) return true; } catch { /* ignore */ } await new Promise((r) => setTimeout(r, 300)); }
   return false;
 };
 
@@ -73,5 +73,5 @@ try {
   }
   await browser.close();
 } catch (e) { console.log("FAIL:", String(e).slice(0, 300)); }
-finally { try { server.kill("SIGKILL"); } catch {} }
+finally { try { server.kill("SIGKILL"); } catch { /* ignore */ } }
 process.exit(0);

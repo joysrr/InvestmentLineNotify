@@ -520,8 +520,8 @@ const scanConclusion = computed(() => {
 
 .radar-card {
   background: var(--iln-surface);
-  border-radius: var(--iln-radius-md);
-  padding: var(--iln-space-3) var(--iln-space-2);
+  border-radius: var(--iln-radius-card, 20px);
+  padding: var(--iln-space-4, 16px);
   display: flex;
   flex-direction: column;
   align-items: center;

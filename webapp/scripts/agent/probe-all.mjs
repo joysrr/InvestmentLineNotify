@@ -36,7 +36,7 @@ for (const [name, path] of PAGES) {
     const data = await page.evaluate(() => {
       const q = s => Array.from(document.querySelectorAll(s));
       const txt = el => (el?.innerText || "").trim().replace(/\s+/g, " ").slice(0, 80);
-      const cs = el => el ? getComputedStyle(el) : null;
+      const _cs = el => el ? getComputedStyle(el) : null;
       const app = document.querySelector("#app");
       const pageEl = document.querySelector(".iln-page") || app;
       const cards = q(".iln-card, .content-card, .card, [class*=\"-card\"]");

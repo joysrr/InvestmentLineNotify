@@ -56,7 +56,7 @@ const chrome = spawn("/usr/bin/chromium", [
 ], { stdio: "ignore" });
 
 for (let i = 0; i < 40; i++) {
-  try { if ((await fetch(`http://127.0.0.1:${CDP}/json/version`)).ok) break; } catch {}
+  try { if ((await fetch(`http://127.0.0.1:${CDP}/json/version`)).ok) break; } catch { /* ignore */ }
   await sleep(300);
 }
 const tgt = await (await fetch(`http://127.0.0.1:${CDP}/json/new?about:blank`, { method: "PUT" })).json();
@@ -94,7 +94,7 @@ const f = path.join(outDir, `${PAGE}.png`);
 fs.writeFileSync(f, buf);
 out(`SHOT ${buf.length}B ${390}x${H} → ${f}`);
 
-try { ws.close(); } catch {}
+try { ws.close(); } catch { /* ignore */ }
 chrome.kill("SIGKILL");
 srv.close();
 process.exit(dom.len > 100 ? 0 : 2);

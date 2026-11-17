@@ -9,7 +9,7 @@ import { fixtureFor } from "./lib/fixtures.mjs";
 import WebSocket from "ws";
 
 const LOG = "/tmp/probe-dom.log";
-try { fs.unlinkSync(LOG); } catch {}
+try { fs.unlinkSync(LOG); } catch { /* ignore */ }
 const log = (s) => { fs.appendFileSync(LOG, s + "\n"); };   // 同步寫，必落盤
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -68,7 +68,7 @@ log(`[chromium] pid=${chrome.pid}`);
 
 let ready = false;
 for (let i = 0; i < 60; i++) {
-  try { if ((await fetch(`http://127.0.0.1:${CDP}/json/version`)).ok) { ready = true; break; } } catch {}
+  try { if ((await fetch(`http://127.0.0.1:${CDP}/json/version`)).ok) { ready = true; break; } } catch { /* ignore */ }
   await sleep(500);
 }
 if (!ready) { log("[FAIL] CDP 未就緒"); chrome.kill("SIGKILL"); srv.close(); process.exit(1); }
@@ -121,7 +121,7 @@ for (const [slug, p] of PAGES) {
 log("");
 log("[done] " + new Date().toISOString());
 
-try { ws.close(); } catch {}
+try { ws.close(); } catch { /* ignore */ }
 chrome.kill("SIGKILL");
 srv.close();
 process.exit(0);

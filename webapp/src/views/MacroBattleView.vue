@@ -84,7 +84,7 @@
           >
             <div class="event-top">
               <span class="event-score">+{{ e.score }}</span>
-              <span class="event-title">{{ e.event }}</span>
+              <span class="event-title">{{ e.title ?? e.event ?? "(未命名)" }}</span>
             </div>
             <p v-if="e.analysis" class="event-analysis">{{ e.analysis }}</p>
           </div>
@@ -102,7 +102,7 @@
           >
             <div class="event-top">
               <span class="event-score">-{{ e.score }}</span>
-              <span class="event-title">{{ e.event }}</span>
+              <span class="event-title">{{ e.title ?? e.event ?? "(未命名)" }}</span>
             </div>
             <p v-if="e.analysis" class="event-analysis">{{ e.analysis }}</p>
           </div>
@@ -120,7 +120,7 @@
           >
             <div class="event-top">
               <span class="event-score neutral">0</span>
-              <span class="event-title">{{ e.event }}</span>
+              <span class="event-title">{{ e.title ?? e.event ?? "(未命名)" }}</span>
             </div>
             <p v-if="e.analysis" class="event-analysis">{{ e.analysis }}</p>
           </div>
@@ -174,12 +174,18 @@ onMounted(async () => {
 });
 
 // ── 積分 ──
-const bullScore = computed(
-  () => macro.value?.total_bull_score ?? macro.value?.bullish ?? 0,
-);
-const bearScore = computed(
-  () => macro.value?.total_bear_score ?? macro.value?.bearish ?? 0,
-);
+const bullScore = computed(() => {
+  const m = macro.value; if (!m) return 0;
+  if (Number.isFinite(m.total_bull_score)) return m.total_bull_score;
+  if (Number.isFinite(m.bullish)) return m.bullish;
+  return (m.bull_events ?? []).reduce((s, e) => s + (Number(e?.score) || 0), 0);
+});
+const bearScore = computed(() => {
+  const m = macro.value; if (!m) return 0;
+  if (Number.isFinite(m.total_bear_score)) return m.total_bear_score;
+  if (Number.isFinite(m.bearish)) return m.bearish;
+  return (m.bear_events ?? []).reduce((s, e) => s + (Number(e?.score) || 0), 0);
+});
 const totalScore = computed(() => bullScore.value + bearScore.value || 1);
 const bullWidth = computed(() =>
   Math.round((bullScore.value / totalScore.value) * 100),

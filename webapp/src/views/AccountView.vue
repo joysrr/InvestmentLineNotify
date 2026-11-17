@@ -597,7 +597,7 @@ const allHealthy = computed(
 /* ── Section ── */
 .section {
   background: var(--iln-bg);
-  border-radius: var(--iln-radius-md);
+  border-radius: var(--iln-radius-card, 20px);
   margin: 0 var(--iln-space-3) var(--iln-space-3);
   padding: 14px 14px 10px;
   box-shadow: var(--iln-shadow-subtle);
@@ -660,7 +660,7 @@ const allHealthy = computed(
   gap: var(--iln-space-2);
 }
 .source-card {
-  border-radius: var(--iln-radius-sm);
+  border-radius: var(--iln-radius-card, 20px);
   padding: 9px 10px;
   border: 1px solid transparent;
 }
@@ -810,8 +810,8 @@ const allHealthy = computed(
 }
 .snapshot-card {
   background: var(--iln-surface);
-  border-radius: var(--iln-radius-sm);
-  padding: 10px 10px var(--iln-space-2);
+  border-radius: var(--iln-radius-card, 20px);
+  padding: var(--iln-space-4, 16px);
   text-align: center;
 }
 .snapshot-label {
@@ -898,7 +898,7 @@ const allHealthy = computed(
 }
 .sk-card {
   height: 64px;
-  border-radius: var(--iln-radius-sm);
+  border-radius: var(--iln-radius-card, 20px);
 }
 @keyframes shimmer {
   to {

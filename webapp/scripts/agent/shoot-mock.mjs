@@ -39,7 +39,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function waitHttp(url, timeoutMs = 20000) {
   const t0 = Date.now();
   while (Date.now() - t0 < timeoutMs) {
-    try { const r = await fetch(url); if (r.ok) return true; } catch {}
+    try { const r = await fetch(url); if (r.ok) return true; } catch { /* ignore */ }
     await sleep(300);
   }
   return false;
@@ -58,7 +58,7 @@ function makeCdp(ws) {
       msg.error ? rej(new Error(JSON.stringify(msg.error).slice(0, 300))) : res(msg.result);
     } else if (msg.method) {
       const fns = listeners.get(msg.method);
-      if (fns) fns.forEach((fn) => { try { fn(msg.params); } catch {} });
+      if (fns) fns.forEach((fn) => { try { fn(msg.params); } catch { /* ignore */ } });
     }
   });
   return {
@@ -155,7 +155,7 @@ async function main() {
           };
         })()` });
         domInfo = r.result?.value || null;
-      } catch {}
+      } catch { /* ignore */ }
       if (domInfo) {
         console.log(`  DOM text=${domInfo.textLen} cards=${domInfo.cards} canvas=${domInfo.canvases} empty=${domInfo.empty}`);
         console.log(`  預覽: ${JSON.stringify((domInfo.textHead||"").slice(0,90))}`);
@@ -177,7 +177,7 @@ async function main() {
   }
 
   // ── 5. 收尾 ──
-  try { ws.close(); } catch {}
+  try { ws.close(); } catch { /* ignore */ }
   chrome.kill("SIGKILL");
   server.kill("SIGKILL");
   await fs.writeFile(
