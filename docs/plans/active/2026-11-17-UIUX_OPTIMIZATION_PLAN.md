@@ -417,8 +417,8 @@ wiki_links:
 
 **P2 · 圖標多樣化（30 個全做）**
 
-- [ ] P2-1 首批 13 個圖標（方向 6 + 市場 7）寫入 `icon-registry.js`
-- [ ] P2-2 執行 `grep -rn 'name="neutral"' webapp/src` 產出 32 處完整清單
+- [x] P2-1 首批 13 個圖標（方向 6 + 市場 7）寫入 `icon-registry.js`（arrow-left 於 P1 完成，本批 12 個）
+- [x] P2-2 執行 `grep -rn 'name="neutral"' webapp/src` 產出完整清單（實測 30 處）
 - [ ] P2-3 按 §4.3 映射表替換 `neutral`（每 5 處跑一次 IconUsage 測試）
 - [ ] P2-4 次批 17 個圖標（操作 10 + 分析 8）寫入 registry
 - [ ] P2-5 按鈕與卡片標題改用次批圖標
