@@ -18,10 +18,22 @@
 <script setup>
 import { computed } from "vue";
 
+/**
+ * ContentCard — 統一卡片容器
+ *
+ * Phase 2 (2026-11-17) 收斂：
+ * - 新增 size 快捷（sm/md/lg）→ 一次控制 padding + radius，取代 padding+radius 雙屬性
+ * - 舊 padding/radius 完全保留（向後兼容，優先級低於 size）
+ * - 刪除 radius="xl" 死分支（0 使用）
+ */
 const props = defineProps({
   variant: {
     type: String,
     default: "default", // 'default' | 'outlined' | 'elevated' | 'flat'
+  },
+  size: {
+    type: String,
+    default: null, // null | 'sm' | 'md' | 'lg' — 快捷：同時設定 padding 與 radius
   },
   padding: {
     type: String,
@@ -29,7 +41,7 @@ const props = defineProps({
   },
   radius: {
     type: String,
-    default: "md", // 'sm' | 'md' | 'lg' | 'xl'
+    default: "md", // 'sm' | 'md' | 'lg'
   },
   status: {
     type: String,
@@ -52,11 +64,15 @@ const props = defineProps({
 const emit = defineEmits(["click"]);
 
 const classes = computed(() => {
+  // size 快捷優先：sm → pad-sm + radius-sm；md → pad-md + radius-md；lg → pad-lg + radius-lg
+  const pad = props.size || props.padding;
+  const rad = props.size || props.radius;
+
   const cls = [
     "content-card",
     `content-card--variant-${props.variant}`,
-    `content-card--pad-${props.padding}`,
-    `content-card--radius-${props.radius}`,
+    `content-card--pad-${pad}`,
+    `content-card--radius-${rad}`,
   ];
   if (props.status && props.statusStyle === "left-border") {
     cls.push("content-card--status-left", `content-card--status-${props.status}`);
@@ -120,9 +136,6 @@ const handleClick = (event) => {
 }
 .content-card--radius-lg {
   border-radius: var(--iln-radius-lg);
-}
-.content-card--radius-xl {
-  border-radius: var(--iln-radius-xl);
 }
 
 .content-card--status-left {

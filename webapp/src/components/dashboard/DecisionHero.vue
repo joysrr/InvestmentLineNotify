@@ -1,5 +1,5 @@
 <template>
-  <ContentCard variant="outlined" padding="lg" radius="lg">
+  <ContentCard variant="outlined" size="lg">
     <div v-if="loading" class="hero-card skeleton-card">
       <div class="sk sk-title"></div>
       <div class="sk sk-label" style="margin-top: 12px"></div>

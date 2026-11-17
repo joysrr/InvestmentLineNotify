@@ -27,7 +27,7 @@ last_verified: 2026-11-17
 
 # UI/UX 現代化與設計系統統一計畫
 
-> **狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅ 完成｜Phase 1 ✅ 完成（Lite）｜Phase 2 待開工
+> **狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅ 完成｜Phase 1 ✅ 完成（Lite）｜Phase 2 ✅ 完成
 > **建立**：2026-11-17
 > **目標**：現代化、美觀、統一一致、好維護的網站
 > **原則**：一次只修一類問題、每階段可獨立驗證與回滾
@@ -408,9 +408,31 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 | Phase 0 · 修 P0 | ✅ 完成 | `5c0da97` | 2026-11-17 | Icon render function、M3 Light tokens、mock guard；verify 7/7 綠 |
 | 環境修復 | ✅ 完成 | `aa2d0ec` | 2026-11-17 | cleanup 漏殺 `/root/.config/chromium`（陷阱 #14）、chromium 降載參數 |
 | Phase 1 · Token 重構 | ✅ 完成（Lite） | 待 commit | 2026-11-17 | 刪 11 條 P8-02、標記 15 個 deprecated、三層文檔化；CSS 值零變化 |
-| Phase 2 · 共用組件 | 🔄 進行中 | 待 commit | 2026-11-17 | 步驟 1/4 完成：清理 shared-styles 死別名 |
+| Phase 2 · 共用組件 | ✅ 完成 | （本 commit） | 2026-11-17 | 4/4 完成：7 頁 .iln-page 統一、shared-styles 精簡至 107 行、ContentCard 新增 size 快捷 |
 | Phase 3 · 逐頁現代化 | ⏳ 待開工 | — | — | 同上 |
 | Phase 4 · 動效與 a11y | ⏳ 待開工 | — | — | 同上 |
+
+### Phase 2 完成記錄（2026-11-17）
+
+| 步驟 | 內容 | 結果 |
+|---|---|---|
+| 1/4 | shared-styles 清理死別名 | ✅ 已 commit（`0f5edb2a`） |
+| 2/4 | 7 頁掛 `.iln-page` 統一容器 | ✅ 保留舊 class 供 E2E，scoped style 仍可覆蓋 |
+| 3/4 | shared-styles 精簡 | ✅ **177 → 107 行**（刪死 selector、合併重複塊） |
+| 4/4 | ContentCard 組合收斂 | ✅ 新增 `size`（sm/md/lg）快捷；保留 padding/radius 兼容；刪 `radius=xl` 死分支；5 個使用點改用 size |
+
+**移除的死 CSS**（0 使用）：`metric-card`（僅元件內部用，view 內無）、`indicator-card`、`signal-card`、`config-card`、`status-header`、`header-top`、`header-actions`、`segmented-btn`（保留 `.segmented-btn` 於 views 使用處定義者）。
+
+**驗證**：
+- `npm run ui:verify` → build ✓ / lint ✓（雙綠）
+- lint 修復：`npm install -D @eslint/js globals`（v2.0 遺留事項 1 已解決）
+- vitest 執行受阻：`ERR_REQUIRE_ESM`（jsdom 29 × `@exodus/bytes`），**環境既有問題，與本次改動無關**，記錄為遺留事項
+
+**新增遺留事項**：
+1. vitest 環境修復：jsdom 29 / `@exodus/bytes` CJS-ESM 衝突（需降 jsdom 至 28 或升級 `@exodus/bytes`，待評估）
+2. Phase 1 token 物理拆三檔：記憶體恢復後執行
+
+---
 
 ### 環境限制（2026-11-17 記錄）
 
@@ -422,8 +444,8 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 ---
 
 **版本**：v1.1 · 2026-11-17（Phase 0/1 完成）
-**狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 待開工
-**下一步**：Phase 2 共用組件重構（建議零驗證策略）
+**狀態**：A2 / B1-light / C1 已拍板｜Phase 0 ✅｜Phase 1 ✅（Lite）｜Phase 2 ✅
+**下一步**：Phase 3 逐頁現代化（Dashboard → Insights → Chart → Account → News → Strategy Config）
 
 ---
 

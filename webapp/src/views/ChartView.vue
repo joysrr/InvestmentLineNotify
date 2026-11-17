@@ -1,6 +1,6 @@
 <template>
     <GlobalErrorBoundary>
-    <div class="view-container">
+    <div class="view-container iln-page">
     <SubTabBar
       :tabs="viewTabs"
       :active-tab="activeViewTab"

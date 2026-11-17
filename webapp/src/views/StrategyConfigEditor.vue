@@ -1,6 +1,6 @@
 <template>
     <GlobalErrorBoundary>
-    <div class="strategy-config-editor" data-testid="strategy-config-editor">
+    <div class="strategy-config-editor iln-page" data-testid="strategy-config-editor">
     <!-- Header -->
     <div class="editor-header">
       <div class="header-left">

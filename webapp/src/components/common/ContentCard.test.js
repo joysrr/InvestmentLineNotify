@@ -24,7 +24,29 @@ describe("ContentCard.vue", () => {
     }
   });
 
-  it("padding: none / sm / md / lg", () => {
+  it("size 快捷：sm / md / lg 同時設定 padding 與 radius", () => {
+    for (const size of ["sm", "md", "lg"]) {
+      const wrapper = mount(ContentCard, {
+        props: { size },
+        slots: { default: "內容" },
+      });
+      expect(wrapper.classes()).toContain(`content-card--pad-${size}`);
+      expect(wrapper.classes()).toContain(`content-card--radius-${size}`);
+    }
+  });
+
+  it("size 優先級高於 padding/radius", () => {
+    const wrapper = mount(ContentCard, {
+      props: { size: "lg", padding: "sm", radius: "sm" },
+      slots: { default: "內容" },
+    });
+    expect(wrapper.classes()).toContain("content-card--pad-lg");
+    expect(wrapper.classes()).toContain("content-card--radius-lg");
+    expect(wrapper.classes()).not.toContain("content-card--pad-sm");
+    expect(wrapper.classes()).not.toContain("content-card--radius-sm");
+  });
+
+  it("padding: none / sm / md / lg（舊 prop 向後兼容）", () => {
     for (const padding of ["none", "sm", "md", "lg"]) {
       const wrapper = mount(ContentCard, {
         props: { padding },
@@ -34,8 +56,8 @@ describe("ContentCard.vue", () => {
     }
   });
 
-  it("radius: sm / md / lg / xl", () => {
-    for (const radius of ["sm", "md", "lg", "xl"]) {
+  it("radius: sm / md / lg（舊 prop 向後兼容，xl 已刪除）", () => {
+    for (const radius of ["sm", "md", "lg"]) {
       const wrapper = mount(ContentCard, {
         props: { radius },
         slots: { default: "內容" },

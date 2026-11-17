@@ -1,6 +1,6 @@
 <template>
     <GlobalErrorBoundary>
-    <div class="view-container">
+    <div class="view-container iln-page">
     <!-- Sub-tab bar -->
     <div class="subtab-bar">
       <button

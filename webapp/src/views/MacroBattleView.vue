@@ -1,6 +1,6 @@
 <template>
     <GlobalErrorBoundary>
-    <div class="view-container">
+    <div class="view-container iln-page">
     <div class="page-header">
       <h2 class="page-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> 總經多空對決</h2>
       <span class="page-date">{{ reportDate }}</span>

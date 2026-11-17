@@ -1,33 +1,27 @@
 /*
-  Global shared styles for consistent layout across pages
-  Import in main.js: import "./shared-styles.css"
-
-  Phase 2 (2026-11-17)：收斂死別名、切斷 --tg-theme 穿透。
-  各 view 的 scoped style 已自行定義容器 padding，此處僅作 fallback。
+  Global shared styles — Import in main.js: import "./shared-styles.css"
+  Phase 2 (2026-11-17)：收斂死別名、切斷 --tg-theme 穿透、精簡至 ≤100 行。
+  各 view 的 scoped style 已自行定義 padding，此處僅作 fallback。
+  Design tokens: webapp/src/styles/tokens.css (see docs/design/DESIGN_PRINCIPLES.md §2)
 */
 
-/* ============================================================
-   View Container — 統一外層容器（fallback）
-   各頁 scoped style 會覆蓋 padding；此處提供預設值
-   ============================================================ */
+/* 頁面容器（.iln-page 新標準，.view-container 向後兼容） */
+.iln-page,
 .view-container {
-  padding: var(--iln-space-4) var(--iln-space-4) 100px; /* 底部留空間給浮動導航 */
   box-sizing: border-box;
+  min-height: 100%;
+  padding: var(--iln-space-4) var(--iln-space-4)
+    calc(112px + env(safe-area-inset-bottom, 0px));
 }
 
-/* ============================================================
-   View Header — 統一頁面標題區
-   ============================================================ */
+/* 頁面標題區 */
 .view-header,
 .page-header,
 .dash-header,
-.status-header,
-.editor-header,
-.header-top {
+.editor-header {
   margin-bottom: var(--iln-space-5);
   padding-left: var(--iln-space-1);
 }
-
 .view-title,
 .page-title,
 .dash-title {
@@ -36,7 +30,6 @@
   color: var(--iln-text);
   margin: 0 0 4px;
 }
-
 .view-subtitle,
 .page-subtitle {
   font-size: 13px;
@@ -44,13 +37,10 @@
   margin: 0;
 }
 
-/* ============================================================
-   Section — 統一內容區塊
-   ============================================================ */
+/* Section */
 .section {
   margin-bottom: var(--iln-space-6);
 }
-
 .section-title {
   font-size: var(--iln-font-md);
   font-weight: 600;
@@ -59,106 +49,56 @@
   padding-left: var(--iln-space-1);
 }
 
-/* ============================================================
-   Card — 統一卡片樣式
-   ============================================================ */
-.metric-card,
-.indicator-card,
-.signal-card,
-.config-card {
-  background: var(--iln-surface);
-  border-radius: var(--iln-radius-md);
-  padding: var(--iln-space-4);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+/* 狀態樣式（loading / empty 共用） */
+.loading-state,
+.skeleton-loader,
+.empty-state {
+  padding: var(--iln-space-12) var(--iln-space-4);
+  color: var(--iln-hint);
 }
-
-/* ============================================================
-   Loading / Empty / Error States — 統一狀態樣式
-   ============================================================ */
 .loading-state,
 .skeleton-loader {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--iln-space-12) var(--iln-space-4);
-  color: var(--iln-hint);
 }
-
 .empty-state {
   text-align: center;
-  padding: var(--iln-space-12) var(--iln-space-4);
-  color: var(--iln-hint);
 }
 
-/* Design tokens: webapp/src/styles/tokens.css (see docs/design/DESIGN_PRINCIPLES.md §2) */
-
-/* ============================================================
-  Button Groups — 統一按鈕群組
-   ============================================================ */
-.header-right,
-.header-left,
-.header-actions {
-  display: flex;
-  gap: var(--iln-space-2);
-  align-items: center;
-}
-
-/* Segmented button - 分段按鈕 */
-.segmented-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--iln-touch-min);
-  padding: var(--iln-space-1) var(--iln-space-3);
-  background: var(--iln-surface);
-  border: 1px solid var(--iln-border-subtle);
-  border-radius: var(--iln-radius-md);
-  color: var(--iln-text);
-  font-size: var(--iln-font-sm);
-  font-weight: var(--iln-weight-medium);
-  cursor: pointer;
-  transition: all var(--iln-duration-fast) var(--iln-ease-standard);
-}
-
-.segmented-btn:hover {
-  background: var(--iln-surface-alt);
-  border-color: var(--iln-border-default);
-}
-
-.segmented-btn:active {
-  background: var(--iln-surface-sunken);
-}
-
-/* ============================================================
-  骨架屏 — 統一骨架屏樣式
-   ============================================================ */
+/* 骨架屏 */
 .skeleton-list {
   display: flex;
   flex-direction: column;
   gap: var(--iln-space-4);
 }
-
 .sk {
   height: 16px;
   border-radius: var(--iln-radius-sm);
   background: var(--iln-surface-alt);
 }
-
 .sk-hero {
   height: 80px;
   border-radius: var(--iln-radius-lg);
   background: var(--iln-surface-alt);
 }
 
-/* ============================================================
-  Responsive — 響應式斷點
-   ============================================================ */
-@media (max-width: 480px) {
-  .view-container {
-    padding: var(--iln-space-3) var(--iln-space-3) 90px;
-  }
+/* Header 動作群組 */
+.header-right,
+.header-left {
+  display: flex;
+  gap: var(--iln-space-2);
+  align-items: center;
+}
 
+/* Responsive */
+@media (max-width: 480px) {
+  .iln-page,
+  .view-container {
+    padding: var(--iln-space-3) var(--iln-space-3)
+      calc(96px + env(safe-area-inset-bottom, 0px));
+  }
   .view-title,
   .page-title,
   .dash-title {

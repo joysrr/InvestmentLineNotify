@@ -1,6 +1,6 @@
 <template>
     <GlobalErrorBoundary>
-    <div class="view-container">
+    <div class="view-container iln-page">
     <div class="page-header">
       <h2 class="page-title"><Icon name="radar" size="sm" /> 市場雷達</h2>
       <span class="page-date">{{ todayLabel }}</span>

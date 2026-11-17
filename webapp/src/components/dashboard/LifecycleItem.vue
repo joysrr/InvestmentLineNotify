@@ -1,5 +1,5 @@
 <template>
-  <ContentCard variant="outlined" padding="sm" radius="sm">
+  <ContentCard variant="outlined" size="sm">
     <div class="icon" v-if="icon"><Icon :name="icon" size="sm"/></div>
     <div class="label">{{ label }}</div>
     <div class="value">{{ value }} <span class="unit" v-if="unit">{{ unit }}</span></div>

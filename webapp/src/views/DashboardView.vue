@@ -1,6 +1,6 @@
 <template>
   <GlobalErrorBoundary>
-    <div class="view-container">
+    <div class="view-container iln-page">
     <!-- Header -->
     <div class="dash-header">
       <div class="dash-title-row">

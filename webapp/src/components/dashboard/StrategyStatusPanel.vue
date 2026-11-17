@@ -1,5 +1,5 @@
 <template>
-  <ContentCard variant="outlined" padding="lg" radius="lg">
+  <ContentCard variant="outlined" size="lg">
     <div class="section-header">
       <h3 class="section-title">策略狀態面板</h3>
       <p class="section-subtitle">分數構成、冷卻期、檔位、風控與預度</p>

@@ -1,5 +1,5 @@
 <template>
-  <ContentCard variant="outlined" padding="lg" radius="lg">
+  <ContentCard variant="outlined" size="lg">
     <div class="section-header">
       <h3 class="section-title">帳戶健康監控</h3>
     </div>

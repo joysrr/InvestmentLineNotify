@@ -1,6 +1,6 @@
 <template>
   <GlobalErrorBoundary>
-    <div class="account-view">
+    <div class="account-view iln-page">
     <!-- ── Header ── -->
     <div class="page-header">
       <h1 class="page-title">系統狀態</h1>

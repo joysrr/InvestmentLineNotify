@@ -1,5 +1,5 @@
 <template>
-  <ContentCard variant="outlined" padding="lg" radius="lg">
+  <ContentCard variant="outlined" size="lg">
     <h3 class="section-title">市場快照</h3>
     <div v-if="loading" class="snapshot-grid snapshot-grid--3">
       <div v-for="i in 3" :key="i" class="snapshot-card skeleton-card">
