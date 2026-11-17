@@ -408,7 +408,7 @@ shared-styles.css 用 9 個 class 別名硬綁同一套樣式：
 | Phase 0 · 修 P0 | ✅ 完成 | `5c0da97` | 2026-11-17 | Icon render function、M3 Light tokens、mock guard；verify 7/7 綠 |
 | 環境修復 | ✅ 完成 | `aa2d0ec` | 2026-11-17 | cleanup 漏殺 `/root/.config/chromium`（陷阱 #14）、chromium 降載參數 |
 | Phase 1 · Token 重構 | ✅ 完成（Lite） | 待 commit | 2026-11-17 | 刪 11 條 P8-02、標記 15 個 deprecated、三層文檔化；CSS 值零變化 |
-| Phase 2 · 共用組件 | ⏳ 待開工 | — | — | 依賴環境恢復或改用零驗證策略 |
+| Phase 2 · 共用組件 | 🔄 進行中 | 待 commit | 2026-11-17 | 步驟 1/4 完成：清理 shared-styles 死別名 |
 | Phase 3 · 逐頁現代化 | ⏳ 待開工 | — | — | 同上 |
 | Phase 4 · 動效與 a11y | ⏳ 待開工 | — | — | 同上 |
 

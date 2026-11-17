@@ -1,26 +1,22 @@
 /*
   Global shared styles for consistent layout across pages
   Import in main.js: import "./shared-styles.css"
+
+  Phase 2 (2026-11-17)：收斂死別名、切斷 --tg-theme 穿透。
+  各 view 的 scoped style 已自行定義容器 padding，此處僅作 fallback。
 */
 
 /* ============================================================
-   View Container - 統一外層容器
+   View Container — 統一外層容器（fallback）
+   各頁 scoped style 會覆蓋 padding；此處提供預設值
    ============================================================ */
-.view-container,
-.account-view,
-.strategy-status-view,
-.market-radar-view,
-.macro-battle-view,
-.news-view,
-.technical-view,
-.chart-view,
-.strategy-config-editor {
+.view-container {
   padding: var(--iln-space-4) var(--iln-space-4) 100px; /* 底部留空間給浮動導航 */
   box-sizing: border-box;
 }
 
 /* ============================================================
-   View Header - 統一頁面標題區
+   View Header — 統一頁面標題區
    ============================================================ */
 .view-header,
 .page-header,
@@ -37,19 +33,19 @@
 .dash-title {
   font-size: 22px;
   font-weight: 800;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
   margin: 0 0 4px;
 }
 
 .view-subtitle,
 .page-subtitle {
   font-size: 13px;
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
   margin: 0;
 }
 
 /* ============================================================
-   Section - 統一內容區塊
+   Section — 統一內容區塊
    ============================================================ */
 .section {
   margin-bottom: var(--iln-space-6);
@@ -58,26 +54,26 @@
 .section-title {
   font-size: var(--iln-font-md);
   font-weight: 600;
-  color: var(--tg-theme-text-color, #111);
+  color: var(--iln-text);
   margin: 0 0 var(--iln-space-3);
   padding-left: var(--iln-space-1);
 }
 
 /* ============================================================
-   Card - 統一卡片樣式
+   Card — 統一卡片樣式
    ============================================================ */
 .metric-card,
 .indicator-card,
 .signal-card,
 .config-card {
-  background: var(--tg-theme-bg-color, #fff);
+  background: var(--iln-surface);
   border-radius: var(--iln-radius-md);
   padding: var(--iln-space-4);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 /* ============================================================
-   Loading / Empty / Error States - 統一狀態樣式
+   Loading / Empty / Error States — 統一狀態樣式
    ============================================================ */
 .loading-state,
 .skeleton-loader {
@@ -86,20 +82,20 @@
   align-items: center;
   justify-content: center;
   padding: var(--iln-space-12) var(--iln-space-4);
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
 }
 
 .empty-state {
   text-align: center;
   padding: var(--iln-space-12) var(--iln-space-4);
-  color: var(--tg-theme-hint-color, #888);
+  color: var(--iln-hint);
 }
 
 /* Design tokens: webapp/src/styles/tokens.css (see docs/design/DESIGN_PRINCIPLES.md §2) */
 
 /* ============================================================
-  Button Groups - 統一按鈕群組
-  ============================================================ */
+  Button Groups — 統一按鈕群組
+   ============================================================ */
 .header-right,
 .header-left,
 .header-actions {
@@ -135,8 +131,8 @@
 }
 
 /* ============================================================
-  骨架屏 - 統一骨架屏樣式
-  ============================================================ */
+  骨架屏 — 統一骨架屏樣式
+   ============================================================ */
 .skeleton-list {
   display: flex;
   flex-direction: column;
@@ -156,21 +152,13 @@
 }
 
 /* ============================================================
-  Responsive - 響應式斷點
-  ============================================================ */
+  Responsive — 響應式斷點
+   ============================================================ */
 @media (max-width: 480px) {
-  .view-container,
-  .account-view,
-  .strategy-status-view,
-  .market-radar-view,
-  .macro-battle-view,
-  .news-view,
-  .technical-view,
-  .chart-view,
-  .strategy-config-editor {
+  .view-container {
     padding: var(--iln-space-3) var(--iln-space-3) 90px;
   }
-  
+
   .view-title,
   .page-title,
   .dash-title {
