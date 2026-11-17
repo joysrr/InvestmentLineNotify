@@ -94,6 +94,7 @@ Alpine 預設無 CJK 字體，截圖中文會全空白。`install-deps.sh` 已�
 **用法**：
 
 ```bash
+cd /root/work/InvestmentLineNotify/webapp
 npm run build   # serve-fixtures 服務 dist/，必須先 build
 node --max-old-space-size=192 scripts/agent/debug-bridge.mjs
 ```

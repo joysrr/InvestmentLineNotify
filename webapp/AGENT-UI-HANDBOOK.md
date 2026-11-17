@@ -422,6 +422,7 @@ bf651030（P0+P1 主修復）→ 65a1e4d8（lint 清零）→ 801e8cbc（手冊 
 **位置**：`scripts/agent/debug-bridge.mjs`
 **用法**：
 ```bash
+cd /root/work/InvestmentLineNotify/webapp
 npm run build
 node --max-old-space-size=192 scripts/agent/debug-bridge.mjs
 ```
