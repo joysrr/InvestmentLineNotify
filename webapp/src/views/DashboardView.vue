@@ -12,7 +12,7 @@
           @click="configDrawerVisible = true"
           title="策略設定"
           aria-label="策略設定"
-        >          <Icon name="neutral" size="sm" color="var(--iln-hint)" />
+        >          <Icon name="settings" size="sm" color="var(--iln-hint)" />
         </button>
       </div>
       <span class="dash-date">{{ todayLabel }}</span>
@@ -84,7 +84,7 @@
 
       <!-- Phase 3：Dashboard → Radar 連結 -->
       <div class="radar-entry">
-        <router-link :to="{ path: '/insights', query: { tab: 'radar' } }" class="radar-entry-link">          <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 查看完整市場雷達 →
+        <router-link :to="{ path: '/insights', query: { tab: 'radar' } }" class="radar-entry-link">          <Icon name="arrow-right" size="sm" color="var(--iln-hint)" /> 查看完整市場雷達 →
         </router-link>
       </div>
 

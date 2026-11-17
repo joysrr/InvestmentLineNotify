@@ -15,7 +15,7 @@
       <Icon name="danger" size="sm" color="var(--iln-danger)" /> {{ error }}
     </div>
     <div v-else-if="!health" class="inline-hint">
-      <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 尚無策略狀態資料
+      <Icon name="info" size="sm" color="var(--iln-hint)" /> 尚無策略狀態資料
     </div>
     <div v-else class="panel-content">
       <!-- Segmented Control Tabs -->

@@ -13,13 +13,13 @@
         class="subtab-btn"
         :class="{ active: activeTab === 'report' }"
         @click="switchTab('report')"
-      >        <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 精選報告
+      >        <Icon name="news" size="sm" color="var(--iln-hint)" /> 精選報告
       </button>
       <button
         class="subtab-btn"
         :class="{ active: activeTab === 'pool' }"
         @click="switchTab('pool')"
-      >        <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 新聞池
+      >        <Icon name="chart" size="sm" color="var(--iln-hint)" /> 新聞池
       </button>
     </div>
 
@@ -39,7 +39,7 @@
         <!-- 台灣區塊 -->
         <div v-if="reportNews.tw.length" class="region-section">
           <div class="region-header">
-            <span class="region-flag"><Icon name="neutral" size="sm" color="var(--iln-hint)" /></span>
+            <span class="region-flag"><Icon name="chart" size="sm" color="var(--iln-hint)" /></span>
             <span class="region-title">台灣市場動態</span>
             <span class="region-count">{{ reportNews.tw.length }} 則</span>
           </div>
@@ -57,7 +57,7 @@
         <!-- 國際區塊 -->
         <div v-if="reportNews.us.length" class="region-section">
           <div class="region-header">
-            <span class="region-flag"><Icon name="neutral" size="sm" color="var(--iln-hint)" /></span>
+            <span class="region-flag"><Icon name="chart" size="sm" color="var(--iln-hint)" /></span>
             <span class="region-title">國際總經與趨勢</span>
             <span class="region-count">{{ reportNews.us.length }} 則</span>
           </div>
@@ -72,7 +72,7 @@
         </div>
         </div>
 
-        <p class="report-generated">          <Icon name="neutral" size="sm" color="var(--iln-hint)" /> 產生時間：{{ reportNews.generatedAt || "—" }}
+        <p class="report-generated">          <Icon name="clock" size="sm" color="var(--iln-hint)" /> 產生時間：{{ reportNews.generatedAt || "—" }}
         </p>
       </div>
     </div>

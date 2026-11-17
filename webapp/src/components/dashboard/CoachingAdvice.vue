@@ -6,7 +6,7 @@
     radius="lg"
     data-testid="coaching-advice"
   >
-    <h3 class="section-title"><Icon name="neutral" size="sm" color="var(--iln-hint)" /> AI 教練建議</h3>
+    <h3 class="section-title"><Icon name="info" size="sm" color="var(--iln-hint)" /> AI 教練建議</h3>
 
     <!-- 核心洞察 -->
     <div class="ai-insight" v-if="insight">
@@ -32,7 +32,7 @@
     <div class="ai-block" v-if="actions && actions.length">
       <CollapsibleSection title="下一步觀察清單">
         <template #header>
-          <span><Icon name="neutral" size="sm" color="var(--iln-hint)" /></span>
+          <span><Icon name="search" size="sm" color="var(--iln-hint)" /></span>
           <span class="collapsible-title">下一步觀察清單</span>
           <span class="ai-count">{{ actions.length }} 項</span>
         </template>
@@ -46,7 +46,7 @@
     <div class="ai-block" v-if="mindset && mindset.length">
       <CollapsibleSection title="行動微調建議">
         <template #header>
-          <span><Icon name="neutral" size="sm" color="var(--iln-hint)" /></span>
+          <span><Icon name="arrow-up" size="sm" color="var(--iln-hint)" /></span>
           <span class="collapsible-title">行動微調建議</span>
           <span class="ai-count">{{ mindset.length }} 項</span>
         </template>

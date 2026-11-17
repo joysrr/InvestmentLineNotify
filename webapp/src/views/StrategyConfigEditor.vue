@@ -484,7 +484,7 @@ onUnmounted(() => {
 .chip.is-active {
   background: var(--iln-brand);
   border-color: var(--iln-brand);
-  color: var(--iln-on-brand, #1D192B);
+  color: var(--iln-text-on-brand);
   font-weight: var(--iln-weight-semibold);
 }
 .chip:focus-visible {
