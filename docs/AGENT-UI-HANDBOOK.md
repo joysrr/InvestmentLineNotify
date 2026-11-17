@@ -311,3 +311,80 @@ AGENT_PORT=5174 npm run ui:verify
 **接手時第一句話**：
 > `cd /root/work/InvestmentLineNotify/webapp && npm run ui:verify`
 > 確認 7/7 ok，再開始改東西。
+
+---
+
+## 3.7 截图全白 / 无中文字（CJK 字体缺失）
+
+**症状**：baseline 跑通、7/7 页 0 error，但打开截图**看不到任何中文字**——布局正常但文字是空白，整页看起来 90% 白底。
+
+**根因**：Alpine 容器默认**不带任何 CJK 字体**，Chromium 会用西文字体（Open Sans）去渲染中文，全部 fallback 成空白。
+
+**诊断**：
+```bash
+# 应该有 20+ 条，如果为 0 就是缺字体
+fc-list | grep -icE "cjk|noto.*sc"
+
+# 应该命中 Noto CJK；如果是 OpenSans-Regular 就是没配好
+fc-match "sans-serif:lang=zh"
+```
+
+**修复**（跑一次 `scripts/agent/install-deps.sh` 会自动做，或手动）：
+```bash
+apk add --no-cache font-noto-cjk
+mkdir -p /root/.config/fontconfig
+cat > /root/.config/fontconfig/fonts.conf <<"FONTCONF"
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<fontconfig>
+  <match target="pattern">
+    <test qual="any" name="family"><string>sans-serif</string></test>
+    <edit name="family" mode="prepend" binding="strong"><string>Noto Sans CJK TC</string></edit>
+  </match>
+  <match target="pattern">
+    <test qual="any" name="family"><string>sans-serif</string></test>
+    <edit name="family" mode="append" binding="strong"><string>Noto Sans CJK SC</string></edit>
+  </match>
+</fontconfig>
+FONTCONF
+fc-cache -f
+fc-match "sans-serif:lang=zh"   # 应显示 Noto Sans CJK TC
+```
+
+**验证**：修复后截图中间调像素（文字）会从 ~0% 涨到 2-4%。可以这样程序化检测：
+```js
+// PNG 里亮度在 80-200 之间（非纯黑非纯白）的像素 = 文字渲染
+let mid = 0;
+for (let i = 0; i < png.data.length; i += 4) {
+  const lum = png.data[i]*0.299 + png.data[i+1]*0.587 + png.data[i+2]*0.114;
+  if (lum >= 80 && lum <= 200) mid++;
+}
+// mid/总像素 > 0.5% 说明有文字；接近 0% 说明没字体
+```
+
+**如果不修复会怎样**：视觉回归检查形同虚设——文字溢出、换行、对比度、对齐全看不见，agent 无法真正"审查" UI。
+
+---
+
+## 3.8 vite 进程跨命令被 kill
+
+**症状**：单独启动 vite 成功（`curl http://localhost:5174` 返回 200），但下一条命令里 vite 已经死了，baseline 全部 `ERR_CONNECTION_REFUSED`，7 张截图完全一样（都是 Chrome 错误页）。
+
+**根因**：App 的每条 bash 命令运行在独立 shell，shell 退出时会对子进程发 SIGHUP。`npx vite &` 的后台进程属于这个 shell，shell 退出就被杀。
+
+**修复**：用 `setsid` 让 vite 成为独立会话的 leader，脱离 shell 生命周期：
+```bash
+setsid npx vite --config vite.config.mjs --port 5174 --strictPort < /dev/null > /tmp/vite.log 2>&1 &
+disown 2>/dev/null || true
+sleep 8
+node -e "fetch('http://localhost:5174/').then(r=>console.log('HTTP',r.status))"
+```
+
+**或更简单**：用 `scripts/agent/run.sh baseline` ——它已经在内部处理了（`setsid` + trap 清理）。
+
+**验证截图是否真的对应不同页面**：7 张截图的 SHA256 必须**各不相同**；如果完全相同（且都是几十 KB），说明全是错误页。
+```bash
+node -e "const m=require('./.agent-baseline/manifest.json'); const hashes = m.routes.map(r=>r.screenshotHash); console.log('unique hashes:', new Set(hashes).size, '/', hashes.length);"
+# 必须 7/7，否则某页没抓到
+```
+

@@ -54,6 +54,8 @@ export async function newPage(browser) {
     }
   });
 
+  
+
   return { page, context };
 }
 
