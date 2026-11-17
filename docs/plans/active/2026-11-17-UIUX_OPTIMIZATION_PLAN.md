@@ -401,8 +401,8 @@ wiki_links:
 **P1 · 連結與 Tab 治理**
 
 - [x] P1-1 刪 `components/radar/RadarSubtabs.vue`
-- [ ] P1-2 刪 `components/common/SubTabBar.vue` + `.test.js`
-- [ ] P1-3 刪 `stores/navigationStore.js`
+- [x] P1-2 刪 `components/common/SubTabBar.vue` + `.test.js`
+- [x] P1-3 刪 `stores/navigationStore.js`
 - [x] P1-4 刪 `ChartView.vue` 的 `.chart-tabs` 區塊與對應 CSS
 - [x] P1-5 新增 `components/common/SegmentedControl.vue` + 測試
 - [x] P1-6 `InsightsView.vue` 接入 SegmentedControl
@@ -411,8 +411,8 @@ wiki_links:
 - [x] P1-9 `MacroBattleView.vue` 同上
 - [x] P1-10 `TechnicalPanel.vue` 移除 RadarSubtabs，加返回膠囊
 - [ ] P1-11 `StrategyConfigEditor.vue` 雙層 tablist 收斂為單層 Chip
-- [ ] P1-12 `DashboardView.vue:87` 改 `/insights?tab=radar`
-- [ ] P1-13 `MarketDetailDrawer.vue:72` 改 `/insights?tab=radar`
+- [x] P1-12 `DashboardView.vue:87` 改 `/insights?tab=radar`
+- [x] P1-13 `MarketDetailDrawer.vue:72` 改 `/insights?tab=radar`
 - [ ] P1-14 `12-strategyConfig.spec.js` 選擇器改 `data-testid`
 
 **P2 · 圖標多樣化（30 個全做）**

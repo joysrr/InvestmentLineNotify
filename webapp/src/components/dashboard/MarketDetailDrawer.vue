@@ -69,7 +69,7 @@
 
       <!-- 底部連結 (Phase 3) -->
       <router-link
-        to="/radar"
+        :to="{ path: '/insights', query: { tab: 'radar' } }"
         class="drawer-footer-link"
         @click="$emit('update:visible', false)"
       >
