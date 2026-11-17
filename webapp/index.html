@@ -20,10 +20,21 @@
         color: var(--tg-theme-text-color, #222222);
         min-height: 100vh;
       }
+      /* Boot loading — 顯示於 SDK 下載期間，Vue mount 或 fallback 渲染後被覆蓋 */
+      .boot-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        color: var(--tg-theme-hint-color, #999999);
+        font-size: 14px;
+      }
     </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div class="boot-loading">載入中…</div>
+    </div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

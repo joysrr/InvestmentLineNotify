@@ -9,6 +9,19 @@ import { API_BASE, ENDPOINTS, buildUrl, buildUrlWithQuery } from "./config.js";
 
 const BASE = API_BASE;
 
+/**
+ * 記錄最後一次 fetch 到 boot bridge（觀測用，零副作用）
+ * @param {string} path
+ * @param {boolean} ok
+ */
+function recordFetchToBridge(path, ok) {
+  if (typeof window !== "undefined" && window.__TELEGRAM_BRIDGE__) {
+    window.__TELEGRAM_BRIDGE__.lastFetchAt = Date.now();
+    window.__TELEGRAM_BRIDGE__.lastFetchPath = path;
+    window.__TELEGRAM_BRIDGE__.lastFetchOk = ok;
+  }
+}
+
 // 配置
 const REQUEST_TIMEOUT = 10000; // 10 秒超時
 const MAX_RETRIES = 3;
@@ -146,6 +159,7 @@ export async function apiFetch(path, options = {}) {
           { traceId: "api-fetch", path },
           `✅ [apiFetch] Success: ${path}`,
         );
+        recordFetchToBridge(path, true);
         return data;
       } catch (fetchError) {
         clearTimeout(timeoutId);
@@ -184,6 +198,7 @@ export async function apiFetch(path, options = {}) {
         if (err.status === 401 && !isTestEnv) {
           triggerAuthExpired();
         }
+        recordFetchToBridge(path, false);
         throw err;
       }
 
