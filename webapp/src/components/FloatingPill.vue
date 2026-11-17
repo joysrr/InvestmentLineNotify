@@ -12,7 +12,7 @@
         :aria-label="tab.label"
         :aria-current="route.path === tab.to ? 'page' : undefined"
       >
-        <span class="nav-icon" v-html="tab.icon"></span>
+        <span class="nav-icon"><Icon :name="tab.icon" size="md" /></span>
         <span class="nav-label">{{ tab.label }}</span>
       </router-link>
     </nav>
@@ -23,6 +23,7 @@
 import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import { tabs } from "../config/tabsConfig.js";
+import Icon from "./common/Icon.vue";
 import { useIOSSwipeGuard } from "../composables/useIOSSwipeGuard.js";
 import { useTelegram } from "../composables/useTelegram.js";
 

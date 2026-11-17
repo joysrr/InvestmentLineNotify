@@ -94,6 +94,11 @@ export const PIE_CHART_PATH =
 export const BAR_CHART_PATH =
   "M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z";
 
+export const DASHBOARD_PATH =
+  "M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z";
+export const USER_PATH =
+  "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z";
+
 export const ICON_MAP = {
   "check-circle": {
     component: {
@@ -353,6 +358,16 @@ export const ICON_MAP = {
   "bar-chart": {
     component: {
       render: () => h("path", { d: BAR_CHART_PATH, fill: "currentColor" }),
+    },
+  },
+  dashboard: {
+    component: {
+      render: () => h("path", { d: DASHBOARD_PATH, fill: "currentColor" }),
+    },
+  },
+  user: {
+    component: {
+      render: () => h("path", { d: USER_PATH, fill: "currentColor" }),
     },
   },
 };
