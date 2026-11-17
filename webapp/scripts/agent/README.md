@@ -68,15 +68,19 @@ Alpine 預設無 CJK 字體，截圖中文會全空白。`install-deps.sh` 已�
 
 ## 探針腳本（v2.2 新增）
 
-除驗證主流程外，本次新增一批**診斷探針**，用於單點排查。它們各自起一次 chromium（約 30-60 秒），**日常只跑需要的**。
+| 腳本 | 用途 |
+|---|---|
+| `diag-ep-tokens.mjs` | EP → M3 token 雙模式探針（light + dark），改 overrides.css 後必跑 |
+| `diag-collapse.mjs` | el-collapse 高度/樣式，EP CSS 疑似裸奔時 |
+| `diag-strategy.mjs` | strategy-config 頁 loader/empty/error 三態 |
+| `dom-style-assert.mjs` | 7 頁 DOM + 關鍵樣式斷言 |
+| `img2ascii.mjs` | 截圖 → ASCII（記憶體不足時的視覺替代） |
+| `visual-assert.mjs` | 視覺斷言（自訂閾值） |
 
-| 腳本 | 用途 | 何時跑 |
-|---|---|---|
-| `diag-ep-tokens.mjs` | EP → M3 token 雙模式探針（light + dark） | 改 `element-plus-overrides.css` 後**必跑** |
-| `diag-collapse.mjs` | `el-collapse` 高度/樣式 | EP CSS 疑似裸奔時 |
-| `diag-strategy.mjs` | strategy-config 頁 loader/empty/error 三態 | 頁面渲染異常 |
-| `dom-style-assert.mjs` | 7 頁 DOM + 關鍵樣式斷言 | 全頁回歸 |
-| `img2ascii.mjs` | 截圖 → ASCII（記憶體不足時的視覺替代） | 無 GPU / OOM 時 |
-| `visual-assert.mjs` | 視覺斷言（自訂閾值） | 像素回歸 |
+**chromium 必需**：`--use-gl=angle --use-angle=gl-egl`（缺則 SIGABRT）。
 
-**用法**：
+### EP 主題問題 6 步排查
+
+詳見 `AGENT-UI-HANDBOOK.md` 第 11 節。要點：alias isTest 守衛 → main.js import 順序 → 派生色階 light-9/dark-2 → 組件級 !important → dark 獨立覆蓋 → diag-ep-tokens 雙段驗證。
+
+**注意**：`check-no-raw-color.mjs` 不掃 `.css`，overrides.css 已入 whitelist。

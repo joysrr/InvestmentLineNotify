@@ -328,15 +328,53 @@ npm run ui:verify
 
 ---
 
-## 11. Element Plus → M3 主題驗證經驗（v2.2 · 2026-11-17）
 
-> 本節記錄「EP 默認主題 vs M3 token」衝突的完整診斷 + 修復 + 驗證流程。
-> 這是一次**上線後才被發現**的 P0+P1 連環 bug，非常值得留存。
+---
+---
 
-### 11.1 兩個真實缺陷（按嚴重度）
+## 11. EP → M3 主題驗證經驗（v2.2 · 2026-11-17）
 
-#### P0 — vite alias 把 EP CSS 全局替換成 empty.css
+### 11.1 P0：vite alias 缺 isTest 守衛
 
-**症狀**：上線後 `el-alert` 高度 750px、`el-collapse` 387px（完全裸奔無樣式），但本地 dev 一切正常。
+**症狀**：上線後 el-alert 750px、el-collapse 387px 完全裸奔，本地 dev 正常。
+**根因**：vite.config.mjs 的 resolve.alias 無條件把 EP theme-chalk CSS 替換為 src/test/empty.css。
+**修法**：把該 alias 包進 `...(isTest ? [...] : [])`。
+**驗證**：el-alert 40px / el-collapse 49px。
 
-**根因**：`vite.config.mjs` 的 `resolve.alias` 有這條：
+### 11.2 P1：EP 默認主題與 M3 token 衝突
+
+**症狀**：EP 有樣式但全是默認藍白灰：primary #409eff / bg #fff / radius 4px，違反 B1 與「禁止默認控件」規範。
+**修法**：新增 src/styles/element-plus-overrides.css，把 --el-* 全量映射到 --iln-* M3 token（404 行，4 段）。
+**引入位置**：main.js 中 shared-styles.css 之後。
+
+### 11.3 三個關鍵陷阱
+
+1. **EP chunk CSS 運行時後注入**：同特異性下順序壓過 overrides → 組件級規則必須 `!important`。
+2. **派生色階必須全補**：`--el-color-{type}-light-{3,5,7,8,9}` 與 `-dark-2`。只補主色不夠，el-alert bg 用的是 light-9。
+3. **dark 必須獨立覆蓋**：`:root[data-tg-scheme="dark"] { ... }`，否則 dark 下 alert 是淺底深字。M3 dark container：info #00497D / success #386A20 / warning #5F4100 / danger #93000A。
+
+### 11.4 驗證探針 diag-ep-tokens.mjs
+
+**用法**：`node --max-old-space-size=192 scripts/agent/diag-ep-tokens.mjs`
+**輸出**：{ light, dark }，每段含 14 個 EP 變數 + alert/input 實際計算樣式。
+**修前**：alert.bg rgb(244,244,245) / input.bg #fff / primary #409eff
+**修後**：light.alert.bg rgb(240,246,255) / dark.alert.bg rgb(0,73,125) / input.radius 12px
+**陷阱**：不要查不存在的 --el-alert-bg-color-info / --el-alert-text-color-info（假陰性）。
+**chromium 必需**：--use-gl=angle --use-angle=gl-egl（缺則 SIGABRT）。
+
+### 11.5 check-no-raw-color 對 CSS 假陽性
+
+check-no-raw-color.mjs 的 walk() 只掃 .vue/.js/.mjs，不掃 .css。決策：把 overrides.css 加入 FILE_WHITELIST（它是第二個 token 檔），不擴掃描範圍。
+
+### 11.6 接手 6 步排查
+
+1. vite.config.mjs alias 有 isTest 守衛？
+2. main.js 有 import overrides（在 shared-styles 後）？
+3. overrides 有補 light-9 / dark-2？
+4. .el-alert--* / .el-input__wrapper 有 !important？
+5. :root[data-tg-scheme="dark"] 分支獨立？
+6. 跑 diag-ep-tokens，light+dark 兩段都對才收工。
+
+### 11.7 本次 commit 軌跡
+
+bf651030（P0+P1 主修復）→ 65a1e4d8（lint 清零）→ 801e8cbc（手冊 v2.2）→ 本補完 commit。
