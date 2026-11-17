@@ -73,6 +73,7 @@
         </ul>
       </section>
 
+      <div class="iln-grid macro-events-grid">
       <!-- 多方事件 -->
       <section v-if="bullEvents.length" class="section">
         <h3 class="section-title"><Icon name="ok" size="sm" color="var(--iln-ok)" /> 多方事件（{{ bullEvents.length }}）</h3>
@@ -108,6 +109,8 @@
           </div>
         </div>
       </section>
+
+      </div>
 
       <!-- 中性事件 -->
       <section v-if="neutralEvents.length" class="section">
@@ -452,6 +455,17 @@ const directionClass = computed(() => {
 @media (prefers-reduced-motion: reduce) {
   .score-fill {
     transition: none;
+  }
+}
+
+/* ── P3：多空事件並排（≥768px）── */
+.macro-events-grid {
+  gap: var(--iln-space-3);
+}
+@media (min-width: 768px) {
+  .macro-events-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
   }
 }
 </style>

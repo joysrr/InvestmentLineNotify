@@ -515,9 +515,10 @@ const chartOption = computed(() => {
   border-radius: var(--iln-radius-card, 20px);
   padding: var(--iln-space-4, 16px);
   margin-bottom: 10px;
+  min-height: 360px;
 }
 .chart {
-  height: 230px;
+  height: 360px;
   width: 100%;
 }
 
@@ -551,8 +552,13 @@ const chartOption = computed(() => {
 /* ── 摘要卡片 ── */
 .summary-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--iln-space-2);
+}
+@media (min-width: 1024px) {
+  .summary-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 .summary-card {
   background: var(--iln-surface);

@@ -162,6 +162,11 @@
   --iln-space-10: 40px;
   --iln-space-12: 48px;
 
+  /* ── 內容容器寬度（P3 寬屏利用） ── */
+  --iln-content-max: 720px;
+  --iln-content-max-wide: 1080px;
+  --iln-grid-gap: var(--iln-space-4);
+
   /* ── 圓角 ── */
   --iln-radius-sm: 8px;
   --iln-radius-md: 12px;

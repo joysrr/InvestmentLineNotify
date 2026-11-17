@@ -67,7 +67,7 @@
       />
 
       <!-- 2. 雙核心駕駛艙 (L2: 總經象限 + 資產安全防護) -->
-      <section class="cockpit-section" data-testid="dual-cockpit-section">
+      <section class="cockpit-section iln-grid iln-grid--2" data-testid="dual-cockpit-section">
         <MacroCockpitCard
           :regime-level="regimeLevel"
           :vix="status?.data?.rawUsMarket?.vix ?? latestReport?.signals?.vix ?? '—'"
@@ -477,11 +477,7 @@ watch(
      .card-content-* / .radar-chart（模板中 0 引用）
    ──────────────────────────────────────────────────────────── */
 
-/* 頁面容器（padding 由 shared-styles .iln-page 提供，此處只加 max-width 與底部安全區） */
-.view-container {
-  max-width: 600px;
-  margin: 0 auto;
-}
+/* 頁面容器：寬度由 shared-styles .iln-page 的 token 統一控制（P3） */
 
 /* ── Header ── */
 .dash-header {
@@ -546,7 +542,6 @@ watch(
 
 /* ── 統一卡片骨架（三個 class 共用） ── */
 .dashboard-card,
-.cockpit-section,
 .health-card {
   background: var(--iln-surface);
   border: 1px solid var(--iln-border-subtle);
@@ -649,9 +644,9 @@ watch(
   gap: var(--iln-space-6);
 }
 
-/* ── 駕駛艙區塊（沿用共用卡片骨架，此處只加內距） ── */
+/* ── 駕駛艙區塊：P3 起為柵格佈局容器，卡片裝飾由子卡片自帶 ── */
 .cockpit-section {
-  padding: var(--iln-space-5);
+  margin-bottom: var(--iln-space-4);
 }
 .health-card {
   padding: var(--iln-space-5);

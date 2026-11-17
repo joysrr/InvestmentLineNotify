@@ -9,9 +9,19 @@
 .iln-page,
 .view-container {
   box-sizing: border-box;
+  width: 100%;
+  max-width: var(--iln-content-max);
+  margin-inline: auto;
   min-height: 100%;
   padding: var(--iln-space-4) var(--iln-space-4)
     calc(112px + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 1024px) {
+  .iln-page,
+  .view-container {
+    max-width: var(--iln-content-max-wide);
+  }
 }
 
 /* 頁面標題區 */
@@ -208,4 +218,30 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ══════════════════════════════════════════════════════════
+   P3 · 響應式卡片柵格工具類
+   列寬用 minmax(0, 1fr) 避免長文字撐破
+   ══════════════════════════════════════════════════════════ */
+.iln-grid {
+  display: grid;
+  gap: var(--iln-grid-gap);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .iln-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .iln-grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.iln-grid__full {
+  grid-column: 1 / -1;
 }

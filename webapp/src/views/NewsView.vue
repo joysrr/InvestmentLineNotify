@@ -335,4 +335,14 @@ onMounted(async () => {
   color: var(--iln-hint);
   margin-bottom: var(--iln-space-4);
 }
+
+/* ── P3：新聞列表寬屏兩列（≥1024px）── */
+@media (min-width: 1024px) {
+  .pool-list.news-list,
+  .news-pool .news-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--iln-space-3);
+  }
+}
 </style>

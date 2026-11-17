@@ -3,7 +3,7 @@ type: plan
 status: active
 last_updated: 2026-11-17
 last_verified: 2026-11-17
-progress: "P0 已完成 / P1 已完成 / P2 已完成 / P3 未開始"
+progress: "P0 已完成 / P1 已完成 / P2 已完成 / P3 已完成（待 P4 驗證）"
 tags:
   - uiux
   - navigation
@@ -426,18 +426,18 @@ wiki_links:
 
 **P3 · 寬度與佈局**
 
-- [ ] P3-1 `tokens.css` 新增 3 個容器變數
-- [ ] P3-2 `shared-styles.css` 的 `.iln-page` 改 token 寬度
-- [ ] P3-3 新增 `.iln-grid` 系列工具類
-- [ ] P3-4 `DashboardView` 套柵格
-- [ ] P3-5 `InsightsView` 套柵格
-- [ ] P3-6 `MarketRadarView` 套柵格
-- [ ] P3-7 `MacroBattleView` 套柵格
-- [ ] P3-8 `NewsView` 套柵格
-- [ ] P3-9 `AccountView` 套柵格
-- [ ] P3-10 `ChartView` 套柵格
-- [ ] P3-11 `TechnicalPanel` 套柵格
-- [ ] P3-12 `StrategyConfigEditor` 改用 token
+- [x] P3-1 `tokens.css` 新增 3 個容器變數（2026-11-17 完成）
+- [x] P3-2 `shared-styles.css` 的 `.iln-page` 改 token 寬度（2026-11-17 完成）
+- [x] P3-3 新增 `.iln-grid` 系列工具類（2026-11-17 完成）
+- [x] P3-4 `DashboardView` 套柵格（2026-11-17 完成）
+- [x] P3-5 `InsightsView` 套柵格（2026-11-17 完成）
+- [x] P3-6 `MarketRadarView` 套柵格（2026-11-17 完成）
+- [x] P3-7 `MacroBattleView` 套柵格（2026-11-17 完成）
+- [x] P3-8 `NewsView` 套柵格（2026-11-17 完成）
+- [x] P3-9 `AccountView` 套柵格（2026-11-17 完成）
+- [x] P3-10 `ChartView` 套柵格（2026-11-17 完成）
+- [x] P3-11 `TechnicalPanel` 套柵格（2026-11-17 完成）
+- [x] P3-12 `StrategyConfigEditor` 改用 token（2026-11-17 完成）
 
 ### 11.4 狀態自檢命令（每個 Session 起手跑一次）
 
@@ -491,6 +491,7 @@ CJS 用 `require()` 載入純 ESM 套件，Node 20 直接拋 `ERR_REQUIRE_ESM`�
 |------|------|------|------|
 | 2026-11-17 | — | 撰寫本計畫、審計現狀、修正 4.2 數量與 P2 標記 | 完成 |
 | 2026-11-17 | P0 | 修 SETTINGS_PATH、SIZE_MAP 補 xs、新增 IconSize.test.js、Icon.test.js 加 path 守護 | 完成（測試環境阻塞，改用 node 腳本驗證） |
+| 2026-11-17 | P3 | 容器 token + .iln-grid 工具類 + 9 頁套柵格（含 MacroBattle div 配對修復） | 完成（lint/color-check/build 全過；既有 MarketSnapshot 測試債與本次無關，已用 HEAD 對照確認） |
 
 ### 11.6 交接時的必填項
 

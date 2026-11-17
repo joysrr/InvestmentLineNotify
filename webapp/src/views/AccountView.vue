@@ -983,4 +983,13 @@ const allHealthy = computed(
   border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-md);
 }
+
+/* ── P3：設定分組寬屏兩列（≥768px）── */
+@media (min-width: 768px) {
+  .settings-groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
 </style>

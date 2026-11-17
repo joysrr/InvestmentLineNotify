@@ -34,16 +34,18 @@
 
     <!-- 內容 -->
     <template v-else>
-      <!-- 極端雷達與防禦層 (常態精簡/極端醒目) -->
-      <ExtremeRadarPanel
-        :leading-indicators="leadingIndicators"
-      />
+      <div class="iln-grid radar-overview">
+        <!-- 極端雷達與防禦層 (常態精簡/極端醒目) -->
+        <ExtremeRadarPanel
+          :leading-indicators="leadingIndicators"
+        />
 
-      <!-- 現金曝險分析（同步顯示於行動紀律下方） -->
-      <CashExposureWidget
-        v-if="leadingIndicators?.cashExposureAnalysis"
-        :analysis="leadingIndicators.cashExposureAnalysis"
-      />
+        <!-- 現金曝險分析（同步顯示於行動紀律下方） -->
+        <CashExposureWidget
+          v-if="leadingIndicators?.cashExposureAnalysis"
+          :analysis="leadingIndicators.cashExposureAnalysis"
+        />
+      </div>
 
       <!-- 掃描結論：N 項偏多、M 項偏空、K 項中性 -->
       <div class="scan-conclusion">{{ scanConclusion }}</div>
@@ -511,7 +513,7 @@ const scanConclusion = computed(() => {
 /* ── Radar 3-col grid ── */
 .radar-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--iln-space-2);
 }
 
@@ -682,5 +684,16 @@ const scanConclusion = computed(() => {
   padding: var(--iln-space-8);
   text-align: center;
   color: var(--iln-hint);
+}
+
+/* ── P3：雷達總覽並排（≥768px）── */
+.radar-overview {
+  margin-bottom: var(--iln-space-3);
+}
+@media (min-width: 768px) {
+  .radar-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
 }
 </style>
