@@ -84,3 +84,11 @@ Alpine 預設無 CJK 字體，截圖中文會全空白。`install-deps.sh` 已�
 詳見 `AGENT-UI-HANDBOOK.md` 第 11 節。要點：alias isTest 守衛 → main.js import 順序 → 派生色階 light-9/dark-2 → 組件級 !important → dark 獨立覆蓋 → diag-ep-tokens 雙段驗證。
 
 **注意**：`check-no-raw-color.mjs` 不掃 `.css`，overrides.css 已入 whitelist。
+
+## Boot 時序探針（v2.3 新增）
+
+| 腳本 | 用途 |
+|---|---|
+| `debug-bridge.mjs` | 讀 `window.__TELEGRAM_BRIDGE__` 快照 + 計算 mount/ready/goto 耗時 + DOM 狀態 + console errors |
+
+**用法**：

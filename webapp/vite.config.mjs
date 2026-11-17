@@ -28,7 +28,7 @@ export default defineConfig(async ({ mode }) => {
         transformIndexHtml(html) {
           const isProd = mode === "production";
           const telegramScript = isProd
-            ? '<script src="https://telegram.org/js/telegram-web-app.js"></script>'
+            ? '<script defer src="https://telegram.org/js/telegram-web-app.js"></script>'
             : `
       <script>
         // Dev mock - simulates Telegram WebApp environment

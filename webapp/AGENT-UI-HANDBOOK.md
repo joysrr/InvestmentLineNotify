@@ -378,3 +378,78 @@ check-no-raw-color.mjs 的 walk() 只掃 .vue/.js/.mjs，不掃 .css。決策：
 ### 11.7 本次 commit 軌跡
 
 bf651030（P0+P1 主修復）→ 65a1e4d8（lint 清零）→ 801e8cbc（手冊 v2.2）→ 本補完 commit。
+
+---
+
+## 12. Boot 時序可觀測性（v2.3 · 2026-11-17）
+
+> 本節記錄 `window.__TELEGRAM_BRIDGE__` 的由來、結構、探針用法，以及 defer 改動引發的測試基建陷阱。
+> 起因：上線後遇到「白屏 / 卡在載入中 / 一直 fallback」時完全無法定位是哪一階段出問題。
+
+### 12.1 為什麼需要 bridge
+
+改動前，整個 boot 過程**沒有任何時間戳記錄**：
+- SDK 何時載入？不知道
+- Vue mount 耗時多久？不知道
+- 最後一次成功 fetch 是幾秒前？不知道
+- 走到哪個分支（mounted / fallback-no-sdk / fallback-no-initdata）？不知道
+
+出事時只能靠猜。bridge 把這些全部記錄下來，且**只寫不讀、零副作用**。
+
+### 12.2 bridge 結構（15 欄位）
+
+位置：`src/main.js` 頂部（module 執行即初始化）。
+
+| 欄位 | 型別 | 含義 |
+|---|---|---|
+| `tModuleStart` | number | `performance.now()`，module 開始執行 |
+| `tModuleStartEpoch` | number | `Date.now()`，對齊真實時鐘 |
+| `sdkPresent` | boolean | `!!window.Telegram?.WebApp` |
+| `sdkVersion` | string\|null | SDK 版本（6.0 / 7.0） |
+| `platform` | string\|null | ios / android / unknown |
+| `initDataLen` | number | initData 字串長度（**0 = 未授權**） |
+| `bootBranch` | string\|null | mounted / fallback-no-sdk / fallback-no-initdata |
+| `tMountStart` | number\|null | `app.mount()` 前 |
+| `tMountEnd` | number\|null | `app.mount()` 後 |
+| `tReadyStart` | number\|null | `waitReady()` 前 |
+| `tReadyResolved` | number\|null | `waitReady()` resolve 後 |
+| `lastFetchAt` | number\|null | `Date.now()`，最後一次 apiFetch 完成時間 |
+| `lastFetchPath` | string\|null | 最後一次 apiFetch 的路徑 |
+| `lastFetchOk` | boolean\|null | 該次 fetch 是否成功 |
+
+### 12.3 探針 debug-bridge.mjs
+
+**位置**：`scripts/agent/debug-bridge.mjs`
+**用法**：
+### 12.4 defer 改動與測試基建陷阱（重要）
+
+**改動**：`vite.config.mjs:31` 生產環境注入的 telegram script 由 sync 改 `defer`。
+**理由**：sync script 阻塞 HTML 解析，在中國大陸網路下 telegram.org 慢/被牆時整個頁面白屏。
+
+**踩到的坑（已修）**：
+`serve-fixtures.mjs` 的替換正則寫死 `<script src="...">`，**不匹配帶 `defer` 的形式**。
+後果：mock 沒替換 → 真實 telegram.org SDK 執行 → headless 連不上 → 探針看到 `sdkVersion: "6.0"` / `initDataLen: 0` / `bootBranch: fallback-no-initdata`，誤判為「defer 造成 regression」。
+
+**修法**：
+### 12.5 fallback 訊息區分（P1 修復）
+
+**改動前**：無論哪種失敗，一律顯示「請從 Telegram 內開啟此頁面」。
+**問題**：SDK 載入失敗時用戶**就在 Telegram 內**，是 CDN 掛了，訊息誤導用戶反覆重開。
+
+**改動後**：`renderAuthFallback(sdkLoaded)` 區分兩種：
+- `sdkLoaded: true` → 「登入憑證為空，請關閉後重新從 Telegram 開啟」
+- `sdkLoaded: false` → 「Telegram SDK 載入失敗，請檢查網路後重試」
+
+### 12.6 接手時若看到「白屏 / 卡在載入中」
+
+1. 先 `npm run build`（serve-fixtures 服務 dist/）
+2. 跑 `node scripts/agent/debug-bridge.mjs`
+3. 看 `bootBranch` 判斷走哪條路徑（見 12.3 異常表）
+4. 看 `consoleErrors` 是否有未捕獲異常
+5. 若 `hasBootLoading: true` 但 `hasVueApp: false` → app.mount 從未執行，查 main.js 分支
+6. 若 `hasFallbackText: true` → 走 fallback 分支，對照 12.5 的訊息確認是哪一種
+
+### 12.7 commit 軌跡
+
+- `2f8c402a` feat(observability)：加 `__TELEGRAM_BRIDGE__` + `debug-bridge.mjs`（15 欄位 + fallback 訊息區分 + boot-loading 佔位）
+- 本 commit：defer 改動 + serve-fixtures 正則支持 defer + 手冊第 12 節

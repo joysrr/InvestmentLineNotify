@@ -80,8 +80,9 @@ window.__PLAYWRIGHT__ = true;
 function serveIndexHtml(res) {
   let html = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
   // 把 telegram.org 外鏈 script 換成內聯 mock
+  // 支援 sync / defer 兩種形式（vite.config.mjs 生產環境注入 defer）
   html = html.replace(
-    /<script\s+src="https:\/\/telegram\.org\/js\/telegram-web-app\.js"><\/script>/,
+    /<script(?:\s+defer)?\s+src="https:\/\/telegram\.org\/js\/telegram-web-app\.js"><\/script>/,
     TELEGRAM_MOCK,
   );
   // 保險：若沒匹配到（格式不同），在 </head> 前注入
