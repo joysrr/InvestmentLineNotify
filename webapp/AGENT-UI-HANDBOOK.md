@@ -457,7 +457,7 @@ hasVueApp true / hasBootLoading false / consoleErrors []
 ```js
 // 支援 sync / defer 兩種形式
 html = html.replace(
-  /<script(?:\\s+defer)?\\s+src="https:\\/\\/telegram\\.org\\/js\\/telegram-web-app\\.js"><\\/script>/,
+  /<script(?:\s+defer)?\s+src="https:\/\/telegram\.org\/js\/telegram-web-app\.js"><\/script>/,
   TELEGRAM_MOCK,
 );
 ```

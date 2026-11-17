@@ -92,3 +92,12 @@ Alpine 預設無 CJK 字體，截圖中文會全空白。`install-deps.sh` 已�
 | `debug-bridge.mjs` | 讀 `window.__TELEGRAM_BRIDGE__` 快照 + 計算 mount/ready/goto 耗時 + DOM 狀態 + console errors |
 
 **用法**：
+
+```bash
+npm run build   # serve-fixtures 服務 dist/，必須先 build
+node --max-old-space-size=192 scripts/agent/debug-bridge.mjs
+```
+
+**健康基線**：`sdkVersion 7.0` / `initDataLen 68` / `bootBranch mounted` / `hasVueApp true` / `consoleErrors []`。
+
+**注意**：改動生產 HTML 的 script 屬性（defer/async）時，必須同步檢查 `serve-fixtures.mjs` 的替換正則。詳見 `AGENT-UI-HANDBOOK.md` 第 12 節。
