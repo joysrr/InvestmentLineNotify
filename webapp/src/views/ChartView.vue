@@ -136,6 +136,7 @@ import {
   LegendComponent,
 } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
+import { resolveCssColor } from "@/utils/cssColor.js";
 import {
   fetchSnapshots,
   fetchSnapshotsWeekly,
@@ -345,12 +346,15 @@ const chartOption = computed(() => {
   const xData = pts.map(xLabel);
   const series0 = pts.map((p) => getValue(p));
 
-  const lineColor =
+  const lineToken =
     metric.value === "totalLoan"
-      ? "var(--iln-danger-text)"
+      ? "--iln-danger-text"
       : metric.value === "netValueMarket"
-        ? "var(--iln-brand)"
-        : "var(--iln-ok-text)";
+        ? "--iln-brand"
+        : "--iln-ok-text";
+  const lineColor = resolveCssColor(lineToken);
+  const lineFillTop = resolveCssColor(lineToken, 0.16);
+  const lineFillBottom = resolveCssColor(lineToken, 0.016);
 
   const markLine =
     metric.value === "netValueMarket"
@@ -359,7 +363,7 @@ const chartOption = computed(() => {
           symbol: "none",
           data: [{ yAxis: 0 }],
           lineStyle: {
-            color: "var(--iln-hint)",
+            color: resolveCssColor("--iln-hint"),
             type: "dashed",
             width: 1,
           },
@@ -373,22 +377,22 @@ const chartOption = computed(() => {
       data: xData,
       axisLabel: {
         fontSize: 10,
-        color: "var(--iln-hint)",
+        color: resolveCssColor("--iln-hint"),
         rotate: granularity.value === "monthly" ? 0 : 30,
         interval: "auto",
       },
-      axisLine: { lineStyle: { color: "var(--iln-hint)" } },
+      axisLine: { lineStyle: { color: resolveCssColor("--iln-hint") } },
     },
     yAxis: {
       type: "value",
       axisLabel: {
         fontSize: 10,
-        color: "var(--iln-hint)",
+        color: resolveCssColor("--iln-hint"),
         formatter: (v) => formatY(v),
       },
       splitLine: {
         lineStyle: {
-          color: "var(--iln-hint)",
+          color: resolveCssColor("--iln-hint"),
           type: "dashed",
         },
       },
@@ -396,7 +400,7 @@ const chartOption = computed(() => {
     tooltip: {
       trigger: "axis",
       textStyle: {
-        color: "var(--iln-text)",
+        color: resolveCssColor("--iln-text"),
         fontSize: 12,
       },
       formatter(params) {
@@ -440,8 +444,8 @@ const chartOption = computed(() => {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: `${lineColor}28` },
-              { offset: 1, color: `${lineColor}04` },
+              { offset: 0, color: lineFillTop },
+              { offset: 1, color: lineFillBottom },
             ],
           },
         },

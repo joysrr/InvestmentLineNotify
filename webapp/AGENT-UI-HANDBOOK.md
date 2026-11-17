@@ -289,3 +289,39 @@ npm run ui:verify
 **接手時第一句話**：
 > `cd /root/work/InvestmentLineNotify/webapp && npm run ui:verify`
 > 確認 `build ✓`，再開始改東西。
+
+---
+
+## 10. 實測驗證經驗（v2.1 · 2026-11-17）
+
+> 完整 SOP 見 `VERIFICATION-SOP.md`。本節只記關鍵結論。
+
+### 10.1 三層驗證（可靠性排序）
+
+| 層 | 工具 | 可靠性 | 耗時 |
+|---|---|---|---|
+| ① 資料層 | `verify-fixtures.mjs`（純 Node） | ✅ 必成 | 5 秒 |
+| ② 視覺層 | `serve-fixtures.mjs` + 手機瀏覽器 | ✅ 最可靠（真 chromium + GPU） | 30 秒 |
+| ③ 自動截圖 | `shoot-mock.mjs`（裸 CDP） | ⚠️ 不穩定 | 40-60 秒 |
+
+### 10.2 修正 v2.0 的過度絕對表述
+
+- **v2.0 原文**：「Playwright Chromium 啟動即 OOM，像素驗證不可用」
+- **實際**：playwright（三層）確實不可用；但**裸 CDP（node+ws 直連）在 available > 3GB 時可成功截圖**，03:40 曾 7/7 成功
+- **準確表述**：穩定性受記憶體臨界限制，不是技術不可行
+
+### 10.3 PRoot 環境關鍵陷阱
+
+| 陷阱 | 解法 |
+|---|---|
+| stdout 塊緩衝吞輸出 | 所有 log 用 `fs.appendFileSync`；命令塊後單獨 `cat` |
+| OOM 連 shell 一起殺 | 命令塊空白先查 `/tmp/*.log`，別急著重跑 |
+| `setsid -f` 不支援（BusyBox） | 用 `nohup (... &)` |
+| 沒有 curl | 用 `node -e "fetch(...)"` |
+| EADDRINUSE | 之前的 server 還活著，先探測再重用 |
+| Alpine chromium 無 GL | `apk add mesa-egl mesa-gles mesa-dri-gallium` + `--use-gl=angle --use-angle=gl-egl` |
+
+### 10.4 接手時的第一句話
+
+> `cd webapp && node scripts/agent/verify-fixtures.mjs`
+> 看到 `全部通過 ✅` 再開始做視覺驗證。

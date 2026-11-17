@@ -164,14 +164,14 @@
             <div class="snapshot-card">
               <div class="snapshot-label">0050 股數</div>
               <div class="snapshot-value">
-                {{ latestSnapshot.qty0050.toLocaleString() }}
+                {{ Number(latestSnapshot.qty0050 ?? 0).toLocaleString() }}
               </div>
               <div class="snapshot-sub">股</div>
             </div>
             <div class="snapshot-card">
               <div class="snapshot-label">00675L 股數</div>
               <div class="snapshot-value">
-                {{ latestSnapshot.qtyZ2.toLocaleString() }}
+                {{ Number(latestSnapshot.qtyZ2 ?? 0).toLocaleString() }}
               </div>
               <div class="snapshot-sub">股</div>
             </div>
@@ -768,7 +768,7 @@ const allHealthy = computed(
   align-items: flex-start;
   padding: 10px var(--iln-space-3);
   background: var(--iln-brand-fill-faint);
-  border-radius: 10px;
+  border-radius: var(--iln-radius-md);
   border: 1px solid var(--iln-brand-fill-border);
 }
 .notice-empty {
@@ -921,7 +921,7 @@ const allHealthy = computed(
 .settings-group {
   background: var(--iln-surface);
   border: 1px solid var(--iln-border);
-  border-radius: 10px;
+  border-radius: var(--iln-radius-md);
   padding: var(--iln-space-3);
 }
 .settings-group .setting-row {

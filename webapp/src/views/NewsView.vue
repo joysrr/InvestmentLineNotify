@@ -1,6 +1,12 @@
 <template>
     <GlobalErrorBoundary>
     <div class="view-container iln-page">
+    <!-- ── Header ── -->
+    <div class="page-header">
+      <h1 class="page-title">新聞資訊</h1>
+      <p class="page-subtitle">每日精選報告 ＆ 新聞池</p>
+    </div>
+
     <!-- Sub-tab bar -->
     <div class="subtab-bar">
       <button
@@ -189,6 +195,23 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* ── Page header（對齊 AccountView / StrategyConfigEditor） ── */
+.page-header {
+  padding: var(--iln-space-4) var(--iln-space-4) var(--iln-space-2);
+  margin-bottom: var(--iln-space-2);
+}
+.page-title {
+  font-size: var(--iln-font-2xl, 22px);
+  font-weight: 700;
+  color: var(--iln-text);
+  margin: 0 0 var(--iln-space-1);
+  line-height: 1.25;
+}
+.page-subtitle {
+  font-size: var(--iln-font-sm);
+  color: var(--iln-hint);
+  margin: 0;
+}
 /* NewsView — Phase 3 現代化（2026-11-17）
    只動 CSS：
    - px → --iln-space-* / --iln-font-* / --iln-radius-*
