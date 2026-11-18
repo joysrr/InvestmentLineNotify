@@ -113,9 +113,7 @@
       <!-- 3. 帳戶健康度監控 (0-100) -->
       <section class="dashboard-card health-card">
         <!-- expired 降級提示（L1 區塊頂部） -->
-        <div v-if="freshnessLevel === 'expired'" class="freshness-expired-alert">
-          ⚠️ 資料已超過 6 小時未更新，建議確認排程狀態
-        </div>
+        <div v-if="freshnessLevel === 'expired'" class="freshness-expired-alert"><Icon name="warn" size="sm"/> 資料已超過 6 小時未更新，建議確認排程狀態</div>
 
         <!-- FreshnessBadge 在 L1 頂部（與 expired 警示條同區塊） -->
         <FreshnessBadge
