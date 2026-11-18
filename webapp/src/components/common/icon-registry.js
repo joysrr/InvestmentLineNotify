@@ -3,10 +3,12 @@ import { h } from "vue";
 // 由 Icon.vue 匯入，供樹搖與靜態守護測試使用
 
 export const DANGER_PATH =
-  "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z";
+  "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z";
+("M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z");
 export const WARN_PATH = "M1 21h22L12 2 1 21zm12-9h-2v-2h2v2zm0-4h-2V7h2v6z";
 export const NEUTRAL_PATH =
-  "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z";
+  "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6Z";
+("M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z");
 export const CHART_PATH = "M3 3v18h18V3H3zm2 16V5h4l4 4 6-6h4v14H5z";
 export const SHIELD_PATH =
   "M12 2L2 7l10 13 10-13zM12 7.5c-1.98 0-3.7 1.2-4.5 2.9L9 15l3 4 3-4-1.5-4.6C15.7 8.7 13.98 7.5 12 7.5z";
@@ -29,7 +31,8 @@ export const TRENDING_DOWN_PATH =
   "M16 18l2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6z";
 export const ARROW_RIGHT_PATH =
   "M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z";
-export const CHEVRON_RIGHT_PATH = "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z";
+export const CHEVRON_RIGHT_PATH =
+  "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z";
 export const CHEVRON_UP_PATH = "M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z";
 export const BULL_PATH = "M3 17l6-6 4 4 8-8M17 7h4v4z";
 export const BEAR_PATH = "M3 7l6 6 4-4 8 8M17 17h4v-4z";
@@ -59,20 +62,16 @@ export const CLOCK_PATH =
 
 export const REFRESH_PATH =
   "M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z";
-export const DOWNLOAD_PATH =
-  "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z";
-export const UPLOAD_PATH =
-  "M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z";
+export const DOWNLOAD_PATH = "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z";
+export const UPLOAD_PATH = "M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z";
 export const COPY_PATH =
   "M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z";
 export const EXTERNAL_LINK_PATH =
   "M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z";
-export const FILTER_PATH =
-  "M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z";
+export const FILTER_PATH = "M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z";
 export const CLOSE_PATH =
   "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z";
-export const PLUS_PATH =
-  "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z";
+export const PLUS_PATH = "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z";
 export const EDIT_PATH =
   "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z";
 export const TRASH_PATH =
@@ -235,32 +234,32 @@ export const ICON_MAP = {
       render: () => h("path", { d: CHEVRON_UP_PATH, fill: "currentColor" }),
     },
   },
-  "bull": {
+  bull: {
     component: {
       render: () => h("path", { d: BULL_PATH, fill: "currentColor" }),
     },
   },
-  "bear": {
+  bear: {
     component: {
       render: () => h("path", { d: BEAR_PATH, fill: "currentColor" }),
     },
   },
-  "candlestick": {
+  candlestick: {
     component: {
       render: () => h("path", { d: CANDLESTICK_PATH, fill: "currentColor" }),
     },
   },
-  "percent": {
+  percent: {
     component: {
       render: () => h("path", { d: PERCENT_PATH, fill: "currentColor" }),
     },
   },
-  "coins": {
+  coins: {
     component: {
       render: () => h("path", { d: COINS_PATH, fill: "currentColor" }),
     },
   },
-  "bank": {
+  bank: {
     component: {
       render: () => h("path", { d: BANK_PATH, fill: "currentColor" }),
     },
