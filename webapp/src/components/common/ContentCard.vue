@@ -1,7 +1,7 @@
 <template>
   <div
     :class="classes"
-    @click.self="handleClick"
+    @click="handleClick"
   >
     <header v-if="$slots.header" class="content-card__header">
       <slot name="header" />
