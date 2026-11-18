@@ -316,7 +316,7 @@ const directionClass = computed(() => {
 .score-wrap {
   display: flex;
   flex-direction: row;
-  gap: 10px;
+  gap: 6px;
 }
 @media (max-width: 360px) {
   .score-wrap {
@@ -331,7 +331,7 @@ const directionClass = computed(() => {
 .score-side {
   font-size: var(--iln-font-sm);
   font-weight: 600;
-  width: 36px;
+  width: 30px;
   flex-shrink: 0;
 }
 .score-side--bull {
@@ -361,7 +361,7 @@ const directionClass = computed(() => {
 .score-num {
   font-size: 13px;
   font-weight: 700;
-  width: 24px;
+  width: 20px;
   text-align: right;
   color: var(--iln-text);
   flex-shrink: 0;
