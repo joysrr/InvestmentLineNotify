@@ -17,24 +17,17 @@ test.describe("01-DashboardView - 投資儀表板", () => {
   test("DSH-002: 總覽頁不再包含重複的模擬器與回測報表頂層 Tab", async ({
     page,
   }) => {
-    // 模擬器與回測報表已移至 /simulator 的獨立子頁籤，總覽頁不應再出現
+    // 模擬器與回測報表已從 DashboardView 移除，不可復原
     const simTab = page.locator("[data-testid='simulator-tab']");
     await expect(simTab).toHaveCount(0);
-    // 新單頁版 DashboardView 無頂層 dash-tabs；模擬器只在底部導覽 bar 單一呈現
-    await expect(
-      page.locator("[data-testid='nav-tab-simulator']"),
-    ).toBeVisible();
+    // 模擬器頁面已整體移除，底部導航不再包含模擬器 Tab
     await expect(page.locator("[data-testid='nav-tab-backtest']")).toHaveCount(
       0,
     );
   });
 
-  test("DSH-003: 模擬器頁面應正常載入雙向模擬器面板", async ({ page }) => {
-    await page.goto("#/simulator", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(3000);
-    await expect(page.locator("[data-testid='mode-selector']")).toBeVisible({
-      timeout: 15000,
-    });
+  test.skip("DSH-003: 模擬器頁面已整體移除，不可復原", async ({ page }) => {
+    // 模擬器頁面已從當前版本移除，此測試保留作為記錄，不執行
   });
 
   test("DSH-004: Bottom nav 應顯示新聞 Tab 並可導航至 NewsView", async ({

@@ -40,7 +40,9 @@ test.describe("06-NewsTab - 新聞頁", () => {
     // Report view renders: either real report-content OR the
     // "尚未產生" empty-state placeholder (both are valid post-load states).
     const reportContent = page.locator(".report-content");
-    const emptyState = page.locator(".state-box:has-text('尚未產生')");
+    const emptyState = page.locator(
+      ".state-box:has-text('今日尚無精選報告'), .empty-state:has-text('今日尚無精選報告')",
+    );
     await expect(reportContent.or(emptyState)).toBeVisible({ timeout: 8000 });
   });
 });

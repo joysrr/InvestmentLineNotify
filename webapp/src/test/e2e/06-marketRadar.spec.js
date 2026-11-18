@@ -4,7 +4,7 @@ import { setupE2EContext } from "./e2e-utils.js";
 test.describe("06-MarketRadarView - 市場雷達", () => {
   test.beforeEach(async ({ page }) => {
     await setupE2EContext(page);
-    await page.goto("#/radar", { waitUntil: "domcontentloaded" });
+    await page.goto("#/insights?tab=radar", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(3000);
   });
 
@@ -14,13 +14,16 @@ test.describe("06-MarketRadarView - 市場雷達", () => {
     ).toBeVisible({ timeout: 15000 });
   });
 
-  test("RAD-002: 點擊多空對決子分頁應跳轉至 #/macro", async ({ page }) => {
+  test("RAD-002: 點擊多空對決子分頁應跳轉至 #/insights?tab=macro", async ({
+    page,
+  }) => {
+    // 多空對決子分頁已從 MarketRadarView 移至 InsightsView，通過 SegmentedControl 切換
     const macroTab = page
-      .locator(".subtab-btn")
-      .filter({ hasText: "多空對決" });
-    await expect(macroTab).toBeVisible({ timeout: 15000 });
-    await macroTab.click();
-    await expect(page).toHaveURL(/#\/macro/);
+      .locator("button, [role='button']")
+      .filter({ hasText: /多空|macro/i });
+    await expect(macroTab.first()).toBeVisible({ timeout: 15000 });
+    await macroTab.first().click();
+    await expect(page).toHaveURL(/#\/insights\?tab=macro/);
   });
 });
 
@@ -43,7 +46,7 @@ test.describe("06-MarketRadarView - 長期防禦模式狀態欄 (Phase 4)", () =
       });
     });
 
-    await page.goto("#/radar", { waitUntil: "domcontentloaded" });
+    await page.goto("#/insights?tab=radar", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(3000);
   });
 

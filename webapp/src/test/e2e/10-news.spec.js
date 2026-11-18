@@ -10,11 +10,13 @@ test.describe("10-NewsView - 即時新聞與情意素分析", () => {
 
   test("NWS-001: 應正確加載新聞頁面（允許 API 錯誤狀態）", async ({ page }) => {
     // 頁面應該渲染，即使 API 失敗也會顯示錯誤提示（GlobalErrorBoundary 或錯誤區塊）
-    await expect(page.locator("main")).toBeVisible({ timeout: 15000 });
-    // 驗證有標題或錯誤區塊
+    await expect(page.locator(".view-container.iln-page")).toBeVisible({
+      timeout: 15000,
+    });
+    // 驗證有頁面標題或錯誤區塊（空狀態下顯示 page-title 而非 region-header）
     const hasTitle = await page
       .locator(
-        ".region-header, .news-header, .view-title, .status-error, .state-box",
+        ".page-title, .region-header, .news-header, .view-title, .status-error, .state-box",
       )
       .first()
       .isVisible({ timeout: 5000 });

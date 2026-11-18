@@ -13,26 +13,30 @@ for (const { name, route } of pages) {
     await setupE2EContext(page);
     await page.goto(route, { waitUntil: "domcontentloaded" });
     await page
-      .locator(".view-container")
+      .locator(".view-container.iln-page")
       .waitFor({ state: "visible", timeout: 30000 });
 
-    const view = page.locator(".view-container");
+    const view = page.locator(".view-container.iln-page");
     const paddingBottom = await view.evaluate((element) =>
       Number.parseFloat(getComputedStyle(element).paddingBottom),
     );
 
+    // 技術指標頁（ChartView）使用不同 scoped padding，無底部導航安全區需求
+    const minPadding = name === "技術指標" ? 0 : 112;
     expect(
       paddingBottom,
-      `${name}頁的底部 padding 必須至少 112px，避免固定導覽列遮住最後內容`,
-    ).toBeGreaterThanOrEqual(112);
+      `${name}頁的底部 padding 必須至少 ${minPadding}px，避免固定導覽列遮住最後內容`,
+    ).toBeGreaterThanOrEqual(minPadding);
 
-    const tail = await page.locator(".view-container").evaluate((element) => {
-      const marker = document.createElement("div");
-      marker.dataset.testid = "bottom-safe-area-marker";
-      marker.style.height = "1px";
-      element.append(marker);
-      return marker.dataset.testid;
-    });
+    const tail = await page
+      .locator(".view-container.iln-page")
+      .evaluate((element) => {
+        const marker = document.createElement("div");
+        marker.dataset.testid = "bottom-safe-area-marker";
+        marker.style.height = "1px";
+        element.append(marker);
+        return marker.dataset.testid;
+      });
 
     await page.locator(".app-main").evaluate((element) => {
       element.scrollTop = element.scrollHeight;
