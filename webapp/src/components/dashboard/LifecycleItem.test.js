@@ -10,13 +10,12 @@ const baseProps = {
 };
 
 describe("LifecycleItem.vue", () => {
-  it("外層使用 ContentCard，variant=outlined padding=sm radius=sm", () => {
+  it("外層使用 ContentCard，variant=outlined size=sm", () => {
     const wrapper = mount(LifecycleItem, { props: baseProps });
     const card = wrapper.findComponent({ name: "ContentCard" });
     expect(card.exists()).toBe(true);
     expect(card.props("variant")).toBe("outlined");
-    expect(card.props("padding")).toBe("sm");
-    expect(card.props("radius")).toBe("sm");
+    expect(card.props("size")).toBe("sm");
   });
 
   it("顯示標籤與數值", () => {

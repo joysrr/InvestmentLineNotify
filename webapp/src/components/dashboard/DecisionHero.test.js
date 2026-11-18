@@ -18,13 +18,12 @@ const baseProps = {
 };
 
 describe("DecisionHero.vue", () => {
-  it("外層使用 ContentCard，variant=outlined padding=lg radius=lg", () => {
+  it("外層使用 ContentCard，variant=outlined size=lg", () => {
     const wrapper = mount(DecisionHero, { props: baseProps });
     const card = wrapper.findComponent({ name: "ContentCard" });
     expect(card.exists()).toBe(true);
     expect(card.props("variant")).toBe("outlined");
-    expect(card.props("padding")).toBe("lg");
-    expect(card.props("radius")).toBe("lg");
+    expect(card.props("size")).toBe("lg");
   });
 
   it("loading 時顯示 skeleton-card", () => {

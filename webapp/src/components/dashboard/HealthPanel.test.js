@@ -26,8 +26,7 @@ describe("HealthPanel.vue", () => {
     const card = wrapper.findComponent({ name: "ContentCard" });
     expect(card.exists()).toBe(true);
     expect(card.props("variant")).toBe("outlined");
-    expect(card.props("padding")).toBe("lg");
-    expect(card.props("radius")).toBe("lg");
+    expect(card.props("size")).toBe("lg");
   });
 
   it("loading 時顯示 LoadingSkeleton", () => {

@@ -24,6 +24,9 @@ vi.mock("vue-echarts", () => ({
 }));
 vi.mock("echarts/core", () => ({ use: vi.fn() }));
 vi.mock("echarts/charts", () => ({ LineChart: {} }));
+vi.mock("@/utils/cssColor.js", () => ({
+  resolveCssColor: (input) => input,
+}));
 vi.mock("echarts/components", () => ({
   TitleComponent: {},
   TooltipComponent: {},
@@ -135,14 +138,14 @@ describe("ChartView", () => {
     await flushPromises();
 
     const loanOption = chart.props("option");
-    expect(loanOption.series[0].lineStyle.color).toBe("var(--iln-danger-text)");
+    expect(loanOption.series[0].lineStyle.color).toBe("--iln-danger-text");
     expect(loanOption.tooltip.formatter([{ dataIndex: 0 }])).toContain("融資");
 
     const qtyChip = wrapper.findAll(".metric-chip")[1];
     await qtyChip.trigger("click");
     await flushPromises();
     const qtyOption = chart.props("option");
-    expect(qtyOption.series[0].lineStyle.color).toBe("var(--iln-ok-text)");
+    expect(qtyOption.series[0].lineStyle.color).toBe("--iln-ok-text");
     expect(qtyOption.tooltip.formatter([{ dataIndex: 0 }])).toContain("股");
   });
 
@@ -275,7 +278,7 @@ describe("ChartView", () => {
 
     const chart = wrapper.findComponent({ name: "mock-chart" });
     const tooltip = chart.props("option").tooltip;
-    expect(tooltip.textStyle.color).toBe("var(--iln-text)");
+    expect(tooltip.textStyle.color).toBe("--iln-text");
     expect(tooltip.textStyle.fontSize).toBe(12);
   });
 });
