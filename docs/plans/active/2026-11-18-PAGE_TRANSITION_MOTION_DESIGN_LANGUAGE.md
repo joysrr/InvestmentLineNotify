@@ -3,7 +3,7 @@ type: plan
 status: active
 last_updated: 2026-11-18
 last_verified: 2026-11-18
-progress: "P0 已完成 / P1 已完成 / P2 已完成 / P3 未開始 / P4 未開始"
+progress: "P0 已完成 / P1 已完成 / P2 已完成 / P3 已完成 / P4 進行中"
 tags:
   - uiux
   - motion-design
@@ -159,10 +159,10 @@ Todo：
 | T-04 | 在數據頁面插入骨架屏                                  | P1   | 中   | 已完成 | E2E                |
 | T-05 | 新增 `.fade-up` CSS 動畫與 stagger                    | P2   | 中   | 已完成 | Vitest + E2E 360px |
 | T-06 | 新增按鈕/卡片 Hover/Active 微回饋                     | P2   | 中   | 已完成 | Vitest + E2E       |
-| T-07 | 新增 NumberCounter.vue（選擇性）                      | P3   | 低   | 規劃中 | Vitest             |
-| T-08 | 全盤驗收：E2E、Vitest、Lint、Build 預算               | P4   | 高   | 規劃中 | 終端驗證           |
-| T-09 | 寫入 `docs/design/DESIGN_PRINCIPLES.md` 固定設計語言  | P4   | 高   | 規劃中 | 文件 commit        |
-| T-10 | 歸檔本計畫至 completed/                               | P4   | 中   | 規劃中 | git mv             |
+| T-07 | 新增 NumberCounter.vue（選擇性）                      | P3   | 低   | 已完成 | Vitest             |
+| T-08 | 全盤驗收：E2E、Vitest、Lint、Build 預算               | P4   | 高   | 進行中 | 終端驗證           |
+| T-09 | 寫入 `docs/design/DESIGN_PRINCIPLES.md` 固定設計語言  | P4   | 高   | 已完成 | 文件 commit        |
+| T-10 | 歸檔本計畫至 completed/                               | P4   | 中   | 進行中 | git mv             |
 
 ---
 

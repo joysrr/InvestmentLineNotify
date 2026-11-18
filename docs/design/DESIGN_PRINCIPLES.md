@@ -538,3 +538,115 @@ Tab 必須有 role="tablist" + role="tab" + aria-selected：
 - CSS 註解內的裸色值（掃描器不排除註解）
 - `var(--iln-*, #xxxx)` fallback 帶裸色值（fallback 也算違規）
 - 新增除 `tokens.css` 以外的設計令牌（找不到等值令牌 → 新增至 tokens.css，再引用）
+
+---
+
+## 9. 頁面過場動畫與微互動（P2–P3，2026-11-18 固化）
+
+### 9.1 核心原則
+
+| 原則            | 說明                                                           |
+| --------------- | -------------------------------------------------------------- |
+| 僅 GPU 屬性     | 動畫僅使用 `transform` / `opacity`，避免觸發重繪與佈局         |
+| 設計 token 優先 | 所有時間、緩動、顏色、陰影一律使用 `--iln-*` token，禁止硬編碼 |
+| 零新增依賴      | 純 CSS + Vue 內建 `<Transition>`，不引入任何外部動畫庫         |
+| 尊重減少動畫    | `@media (prefers-reduced-motion: reduce)` 關閉所有非必要動畫   |
+| 360px RWD 優先  | 所有卡片與動畫在 360px 寬度下不得溢出容器，不得出現橫向滾動    |
+
+### 9.2 時間 token（`src/styles/tokens.css`）
+
+| Token                 | 值    | 用途                |
+| --------------------- | ----- | ------------------- |
+| `--iln-duration-fast` | 150ms | 按鈕 `:active` 縮放 |
+| `--iln-duration-base` | 200ms | 卡片 `:hover` 上浮  |
+| `--iln-duration-slow` | 300ms | `.fade-up` 進場動畫 |
+
+### 9.3 緩動 token
+
+| Token                   | 值                             | 用途            |
+| ----------------------- | ------------------------------ | --------------- |
+| `--iln-ease-standard`   | `cubic-bezier(0.4, 0, 0.2, 1)` | `.fade-up` 進場 |
+| `--iln-ease-decelerate` | `cubic-bezier(0, 0, 0.2, 1)`   | 一般緩動        |
+
+### 9.4 頁面轉場（P0）
+
+- 上限：≤ 500ms
+- 方式：跑fade (`route-fade`)，僅 `opacity` + `transform`
+- 載入指示器：路由切換時顯示 `RouteLoading`，避免空白閃爍
+
+### 9.5 `.fade-up` 進場動畫（P2 T-05）
+
+定義於 `src/shared-styles.css`。
+
+```css
+.fade-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-up-in var(--iln-duration-slow) var(--iln-ease-standard)
+    forwards;
+}
+
+@keyframes fade-up-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+```
+
+#### Stagger 延遲（依序進場）
+
+| 類別                  | 延遲  | 用途       |
+| --------------------- | ----- | ---------- |
+| `.fade-up--stagger-1` | 50ms  | 第一組元素 |
+| `.fade-up--stagger-2` | 100ms | 第二組元素 |
+
+適用於：儀表板指標卡、新聞列表、策略模組面板。
+
+### 9.6 微互動（P2 T-06）
+
+#### 按鈕 `:active`
+
+```css
+button:active {
+  transform: scale(0.985);
+  transition: transform var(--iln-duration-fast) ease-out;
+}
+```
+
+#### 卡片 `:hover`
+
+```css
+.iln-card:hover {
+  transform: translateY(-4px);
+  transition:
+    transform var(--iln-duration-base) ease-out,
+    box-shadow var(--iln-duration-base) ease-out;
+  box-shadow: var(--iln-shadow-2);
+}
+```
+
+- 上浮上限：≤ 4px
+- 時間：150–300ms（依 token）
+
+### 9.7 NumberCounter（P3 T-07）
+
+- 掛載後從 0 線性計數至目標值，支援 `duration` prop
+- 千位分隔符（`zh-TW`），使用 `var(--iln-text-primary)`，無硬編碼顏色
+- `target` 為 0 時直接顯示，不啟動計時器
+- 卸載時清除定時器避免記憶體洩漏
+
+### 9.8 驗收標準
+
+| 項目                      | 標準                   | 驗證方式                          |
+| ------------------------- | ---------------------- | --------------------------------- |
+| Vitest                    | ≥ 709 測試，0 失敗     | `npx vitest run`                  |
+| E2E (chromium, workers=1) | 0 失敗                 | `npx playwright test --workers=1` |
+| ESLint                    | 0 錯誤                 | `npm run lint`                    |
+| Build Initial             | ≤ 156 KB gzip          | `npm run build`                   |
+| Build Total               | ≤ 380 KB gzip          | `npm run build`                   |
+| 360px RWD                 | 無橫向滾動，卡片不溢出 | `23-fadeup-360px.spec.js`         |
+
+---
+
+下一階段：T-10 歸檔本計畫至 `docs/plans/completed/`。
