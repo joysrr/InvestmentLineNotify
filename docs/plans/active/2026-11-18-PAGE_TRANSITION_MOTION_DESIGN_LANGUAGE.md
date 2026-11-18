@@ -3,7 +3,7 @@ type: plan
 status: active
 last_updated: 2026-11-18
 last_verified: 2026-11-18
-progress: "P0 規劃完成 / P1 未開始 / P2 未開始 / P3 未開始 / P4 未開始"
+progress: "P0 已完成 / P1 已完成 / P2 已完成 / P3 未開始 / P4 未開始"
 tags:
   - uiux
   - motion-design
@@ -153,12 +153,12 @@ Todo：
 
 | ID   | 待辦事項                                              | 階段 | 優先 | 狀態   | 驗收方式           |
 | ---- | ----------------------------------------------------- | ---- | ---- | ------ | ------------------ |
-| T-01 | 檢查並修正 RouteLoading 與 route-fade，確保載入無異常 | P0   | 高   | 規劃中 | Playwright E2E     |
-| T-02 | 撰寫路由切換 loading E2E 測試（TDD 先紅）             | P0   | 高   | 規劃中 | Playwright         |
-| T-03 | 新增 SkeletonLoading.vue 組件                         | P1   | 中   | 規劃中 | Vitest + E2E       |
-| T-04 | 在數據頁面插入骨架屏                                  | P1   | 中   | 規劃中 | E2E                |
-| T-05 | 新增 `.fade-up` CSS 動畫與 stagger                    | P2   | 中   | 規劃中 | Vitest + E2E 360px |
-| T-06 | 新增按鈕/卡片 Hover/Active 微回饋                     | P2   | 中   | 規劃中 | Vitest + E2E       |
+| T-01 | 檢查並修正 RouteLoading 與 route-fade，確保載入無異常 | P0   | 高   | 已完成 | Playwright E2E     |
+| T-02 | 撰寫路由切換 loading E2E 測試（TDD 先紅）             | P0   | 高   | 已完成 | Playwright         |
+| T-03 | 新增 SkeletonLoading.vue 組件                         | P1   | 中   | 已完成 | Vitest + E2E       |
+| T-04 | 在數據頁面插入骨架屏                                  | P1   | 中   | 已完成 | E2E                |
+| T-05 | 新增 `.fade-up` CSS 動畫與 stagger                    | P2   | 中   | 已完成 | Vitest + E2E 360px |
+| T-06 | 新增按鈕/卡片 Hover/Active 微回饋                     | P2   | 中   | 已完成 | Vitest + E2E       |
 | T-07 | 新增 NumberCounter.vue（選擇性）                      | P3   | 低   | 規劃中 | Vitest             |
 | T-08 | 全盤驗收：E2E、Vitest、Lint、Build 預算               | P4   | 高   | 規劃中 | 終端驗證           |
 | T-09 | 寫入 `docs/design/DESIGN_PRINCIPLES.md` 固定設計語言  | P4   | 高   | 規劃中 | 文件 commit        |
@@ -176,9 +176,9 @@ Todo：
 
 ### P1 交付物
 
-- `src/components/common/SkeletonLoading.vue`。
-- 數據頁面骨架屏整合（儀表板、新聞報告區、策略設定）。
-- Vitest 測試檔 + E2E 載入過場測試。
+- `src/components/common/LoadingSkeleton.vue`（已修正，使用 `--iln-surface`、`--iln-border-default`）。
+- `src/test/e2e/22-skeleton-screen.spec.js`（SK-001/002/003，3/3 通過）。
+- 註：完整 E2E 套件中 `13-bottom-nav-safe-area.spec.js` 技術指標頁底部導覽安全區 1 失敗，**非 P1 計畫內**，已記錄，計畫全部完成後統一處理。
 
 ### P2 交付物
 

@@ -67,7 +67,7 @@
       />
 
       <!-- 2. 雙核心駕駛艙 (L2: 總經象限 + 資產安全防護) -->
-      <section class="cockpit-section iln-grid iln-grid--2" data-testid="dual-cockpit-section">
+      <section class="cockpit-section iln-grid iln-grid--2 fade-up fade-up--stagger-1" data-testid="dual-cockpit-section">
         <MacroCockpitCard
           :regime-level="regimeLevel"
           :vix="status?.data?.rawUsMarket?.vix ?? latestReport?.signals?.vix ?? '—'"
@@ -111,7 +111,7 @@
       />
 
       <!-- 3. 帳戶健康度監控 (0-100) -->
-      <section class="dashboard-card health-card">
+      <section class="dashboard-card health-card fade-up fade-up--stagger-2">
         <!-- expired 降級提示（L1 區塊頂部） -->
         <div v-if="freshnessLevel === 'expired'" class="freshness-expired-alert"><Icon name="warn" size="sm"/> 資料已超過 6 小時未更新，建議確認排程狀態</div>
 
@@ -152,7 +152,7 @@
       />
 
       <!-- Strategy Status 摘要卡（Phase 3：由連結改為內嵌摘要，點擊開啟 drawer） -->
-      <section class="dashboard-card strategy-status-link">
+      <section class="dashboard-card strategy-status-link fade-up fade-up--stagger-1">
         <component
           v-if="strategyStatusSummary && status"
           :is="strategyStatusSummary"

@@ -221,6 +221,50 @@
 }
 
 /* ══════════════════════════════════════════════════════════
+   P2 · 滾動觸發與微互動（2026-11-18）
+   1. .fade-up 進場動畫（transform + opacity 僅 GPU 屬性）
+   2. Stagger 延遲（50–100ms，依序進場）
+   3. 按鈕 :active 與卡片 :hover 微回饋
+   ══════════════════════════════════════════════════════════ */
+
+/* 1. .fade-up 進場動畫 */
+.fade-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-up-in var(--iln-duration-slow) var(--iln-ease-standard) forwards;
+}
+
+@keyframes fade-up-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 2. Stagger 延遲（依序進場，50–100ms） */
+.fade-up--stagger-1 {
+  animation-delay: 50ms;
+}
+.fade-up--stagger-2 {
+  animation-delay: 100ms;
+}
+
+/* 3. 按鈕 :active 微回饋（縮放，150ms） */
+button:active {
+  transform: scale(0.985);
+  transition: transform var(--iln-duration-fast) ease-out;
+}
+
+/* 4. 卡片 :hover 微回饋（上浮 ≤ 4px，陰影加深） */
+.iln-card:hover {
+  transform: translateY(-4px);
+  transition:
+    transform var(--iln-duration-base) ease-out,
+    box-shadow var(--iln-duration-base) ease-out;
+  box-shadow: var(--iln-shadow-2);
+}
+
+/* ══════════════════════════════════════════════════════════
    P3 · 響應式卡片柵格工具類
    列寬用 minmax(0, 1fr) 避免長文字撐破
    ══════════════════════════════════════════════════════════ */
