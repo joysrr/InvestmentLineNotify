@@ -142,6 +142,13 @@ describe("DashboardView - Single Page Card Carousel (Phase 2 target)", () => {
     expect(parent.classList.contains("health-card")).toBe(false);
   });
 
+  it("策略狀態連結區塊不應帶 .dashboard-card（內部已有 ContentCard），並有合理 padding", async () => {
+    await mountView();
+    const statusLink = wrapper.find(".strategy-status-link");
+    expect(statusLink.exists()).toBe(true);
+    expect(statusLink.classes()).not.toContain("dashboard-card");
+  });
+
   it("資料過期時顯示 expired 降級提示條於 L1 區塊", async () => {
     fetchStatus.mockResolvedValueOnce({
       rawNdc: { light: "綠" },

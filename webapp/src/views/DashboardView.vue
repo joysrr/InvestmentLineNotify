@@ -152,7 +152,7 @@
       />
 
       <!-- Strategy Status 摘要卡（Phase 3：由連結改為內嵌摘要，點擊開啟 drawer） -->
-      <section class="dashboard-card strategy-status-link fade-up fade-up--stagger-1">
+      <div class="strategy-status-link fade-up fade-up--stagger-1">
         <component
           v-if="strategyStatusSummary && status"
           :is="strategyStatusSummary"
@@ -171,7 +171,7 @@
         <div v-else class="skeleton-list">
           <div class="sk sk-hero" style="height: 80px; margin-bottom: 12px"></div>
         </div>
-      </section>
+      </div>
     </div>
 
     <!-- Footer meta -->
@@ -553,7 +553,7 @@ watch(
 
 /* ── Strategy Status 連結卡 ── */
 .strategy-status-link {
-  padding: 0;
+  padding: var(--iln-space-5);
 }
 .status-link {
   display: flex;

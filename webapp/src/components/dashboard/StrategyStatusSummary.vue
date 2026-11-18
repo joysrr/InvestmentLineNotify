@@ -1,7 +1,7 @@
 <template>
   <ContentCard
     variant="outlined"
-    padding="lg"
+    padding="md"
     radius="lg"
     @click="emit('click')"
   >
