@@ -111,7 +111,7 @@
       />
 
       <!-- 3. 帳戶健康度監控 (0-100) -->
-      <section class="dashboard-card health-card fade-up fade-up--stagger-2">
+      <div class="fade-up fade-up--stagger-2">
         <!-- expired 降級提示（L1 區塊頂部） -->
         <div v-if="freshnessLevel === 'expired'" class="freshness-expired-alert"><Icon name="warn" size="sm"/> 資料已超過 6 小時未更新，建議確認排程狀態</div>
 
@@ -138,7 +138,7 @@
           action-text="重新整理"
           @action="loadAll"
         />
-      </section>
+      </div>
 
       <!-- 4. AI 教練建議與推演 -->
       <CoachingAdvice

@@ -133,6 +133,15 @@ describe("DashboardView - Single Page Card Carousel (Phase 2 target)", () => {
     expect(link.text()).toContain("查看完整市場雷達");
   });
 
+  it("HealthPanel 不應被 .dashboard-card .health-card 重複包覆（單一 ContentCard 容器）", async () => {
+    await mountView();
+    const healthPanel = wrapper.find(".health-panel-stub");
+    expect(healthPanel.exists()).toBe(true);
+    const parent = healthPanel.element.parentElement;
+    expect(parent.classList.contains("dashboard-card")).toBe(false);
+    expect(parent.classList.contains("health-card")).toBe(false);
+  });
+
   it("資料過期時顯示 expired 降級提示條於 L1 區塊", async () => {
     fetchStatus.mockResolvedValueOnce({
       rawNdc: { light: "綠" },
