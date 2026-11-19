@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build --mode production && node scripts/check-bundle-size.mjs",
+    "build": "vite build --mode production && node scripts/check-bundle-size.mjs && node scripts/performance-budget.mjs",
     "build:analyze": "vite build --mode production",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
