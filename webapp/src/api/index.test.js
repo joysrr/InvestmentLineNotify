@@ -1,11 +1,36 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const fetchMock = vi.fn();
 
 vi.stubGlobal("fetch", fetchMock);
+
 vi.stubGlobal("window", {
   Telegram: { WebApp: { initData: "test-init-data" } },
 });
+
+vi.stubGlobal("navigator", { onLine: true });
+
+const { mockIsOnline, mockIsWeakNetwork } = vi.hoisted(() => ({
+  mockIsOnline: { value: true },
+  mockIsWeakNetwork: { value: false },
+}));
+
+const OfflineErrorMock = vi.hoisted(
+  () =>
+    class OfflineError extends Error {
+      constructor(message = "網路離線，無法發出請求") {
+        super(message);
+        this.name = "OfflineError";
+        this.isOffline = true;
+      }
+    },
+);
+
+vi.mock("../composables/useNetworkStatus.js", () => ({
+  isOnline: mockIsOnline,
+  isWeakNetwork: mockIsWeakNetwork,
+  OfflineError: OfflineErrorMock,
+}));
 
 vi.mock("../../src/utils/logger.mjs", () => ({
   default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -16,6 +41,8 @@ const { apiFetch, fetchReplayEvidence } = await import("./index.js");
 describe("apiFetch", () => {
   beforeEach(() => {
     fetchMock.mockReset();
+    mockIsOnline.value = true;
+    mockIsWeakNetwork.value = false;
   });
 
   it("retries once after 401 and returns the successful response", async () => {
@@ -32,9 +59,32 @@ describe("apiFetch", () => {
   });
 });
 
+describe("apiFetch 網路感知", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+    mockIsOnline.value = true;
+    mockIsWeakNetwork.value = false;
+  });
+
+  afterEach(() => {
+    mockIsOnline.value = true;
+    mockIsWeakNetwork.value = false;
+  });
+
+  it("離線時直接拋出 OfflineError，不發出請求", async () => {
+    fetchMock.mockReset();
+    mockIsOnline.value = false;
+
+    await expect(apiFetch("/api/status")).rejects.toThrow("網路離線");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
 describe("fetchReplayEvidence", () => {
   beforeEach(() => {
     fetchMock.mockReset();
+    mockIsOnline.value = true;
+    mockIsWeakNetwork.value = false;
   });
 
   it("should fetch replay evidence list", async () => {

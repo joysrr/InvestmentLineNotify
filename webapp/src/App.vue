@@ -29,6 +29,7 @@
     </main>
 
     <FloatingPill />
+    <OfflineBanner @retry="retryRoute" />
     <AuthExpiredModal />
   </div>
 </template>
@@ -38,6 +39,7 @@ import { onMounted, onUnmounted, nextTick, watch, ref, onErrorCaptured } from "v
 import { useRouter, useRoute } from "vue-router";
 import { useTelegram } from "./composables/useTelegram.js";
 import FloatingPill from "./components/FloatingPill.vue";
+import OfflineBanner from "./components/common/OfflineBanner.vue";
 import AuthExpiredModal from "./components/common/AuthExpiredModal.vue";
 import RouteLoading from "./components/common/RouteLoading.vue";
 import ErrorAlert from "./components/common/ErrorAlert.vue";

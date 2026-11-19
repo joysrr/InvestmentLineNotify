@@ -5,6 +5,11 @@
 
 import logger from "../../../src/utils/logger.mjs";
 import { triggerAuthExpired } from "../composables/useAuthExpired.js";
+import {
+  isOnline,
+  isWeakNetwork,
+  OfflineError,
+} from "../composables/useNetworkStatus.js";
 import { API_BASE, ENDPOINTS, buildUrl, buildUrlWithQuery } from "./config.js";
 
 const BASE = API_BASE;
@@ -80,6 +85,11 @@ export async function apiFetch(path, options = {}) {
   const maxRetries = isTestEnv ? 1 : MAX_RETRIES;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    // 離線時不發出請求，直接拋出 OfflineError（避免徒勞重試）
+    if (!isOnline.value) {
+      throw new OfflineError("網路離線，請求已中止");
+    }
+
     // 檢查 Telegram WebApp SDK 是否就緒
     const initData = getInitData();
     if (!initData && !isTestEnv) {
@@ -115,9 +125,12 @@ export async function apiFetch(path, options = {}) {
         `📡 [apiFetch] ${options.method || "GET"} ${url} (attempt ${attempt + 1}/${MAX_RETRIES + 1})`,
       );
 
-      // 建立 AbortController 用於超時控制
+      // 建立 AbortController 用於超時控制（弱網延長超時）
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+      const timeout = isWeakNetwork.value
+        ? REQUEST_TIMEOUT * 2
+        : REQUEST_TIMEOUT;
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
 
       try {
         const response = await fetch(url, {
