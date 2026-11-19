@@ -62,15 +62,33 @@ export const colorScheme = ref(
 export const isDark = computed(() => colorScheme.value === "dark");
 
 export const haptic = (type = "light") => {
-  window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.(type);
+  try {
+    const tg =
+      typeof window !== "undefined" ? window.Telegram?.WebApp : undefined;
+    tg?.HapticFeedback?.impactOccurred?.(type);
+  } catch (_error) {
+    void _error;
+  }
 };
 
 export const hapticNotification = (type = "success") => {
-  window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred?.(type);
+  try {
+    const tg =
+      typeof window !== "undefined" ? window.Telegram?.WebApp : undefined;
+    tg?.HapticFeedback?.notificationOccurred?.(type);
+  } catch (_error) {
+    void _error;
+  }
 };
 
 export const selectionChanged = () => {
-  window.Telegram?.WebApp?.HapticFeedback?.selectionChanged?.();
+  try {
+    const tg =
+      typeof window !== "undefined" ? window.Telegram?.WebApp : undefined;
+    tg?.HapticFeedback?.selectionChanged?.();
+  } catch (_error) {
+    void _error;
+  }
 };
 
 export function useTelegram() {

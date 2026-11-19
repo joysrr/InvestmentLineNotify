@@ -382,7 +382,7 @@ async function saveNotificationSettings() {
     await new Promise((resolve) => setTimeout(resolve, 400));
     saveStatus.value = "success";
     saveMessage.value = "通知設定已儲存";
-    haptic("medium");
+    haptic?.("medium");
   } catch {
     saveStatus.value = "error";
     saveMessage.value = "儲存失敗，請稍後再試";

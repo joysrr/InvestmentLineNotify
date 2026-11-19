@@ -36,6 +36,7 @@ vi.mock("../composables/usePortfolioSnapshots.js", () => ({
 }));
 vi.mock("../composables/useTelegram.js", () => ({
   waitReady: vi.fn().mockResolvedValue(undefined),
+  haptic: vi.fn(),
   useTelegram: vi.fn().mockReturnValue({
     tg: null,
     openLink: vi.fn(),
