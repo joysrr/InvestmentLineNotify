@@ -61,6 +61,18 @@ export const colorScheme = ref(
 // Phase 5 A1-2：深色模式判斷，讓下游元件不必自己比對 colorScheme === "dark"
 export const isDark = computed(() => colorScheme.value === "dark");
 
+export const haptic = (type = "light") => {
+  window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.(type);
+};
+
+export const hapticNotification = (type = "success") => {
+  window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred?.(type);
+};
+
+export const selectionChanged = () => {
+  window.Telegram?.WebApp?.HapticFeedback?.selectionChanged?.();
+};
+
 export function useTelegram() {
   const tg = window.Telegram?.WebApp;
 
@@ -169,31 +181,6 @@ export function useTelegram() {
   };
 
   // ── Phase 4 新增能力 ──
-  // 1. Haptic 觸覺回饋
-  const haptic = (type = "light") => {
-    try {
-      tg?.HapticFeedback?.impactOccurred(type);
-    } catch (_e) {
-      void _e;
-    }
-  };
-
-  const hapticNotification = (type = "success") => {
-    try {
-      tg?.HapticFeedback?.notificationOccurred(type);
-    } catch (_e) {
-      void _e;
-    }
-  };
-
-  const selectionChanged = () => {
-    try {
-      tg?.HapticFeedback?.selectionChanged?.();
-    } catch (_e) {
-      void _e;
-    }
-  };
-
   // 2. 頂部色 / 背景色
   const setHeaderColor = (color) => {
     try {
