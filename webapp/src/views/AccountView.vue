@@ -317,6 +317,7 @@ import DataEvidenceCard from "../components/dashboard/DataEvidenceCard.vue";
 import DeploymentControl from "@/components/common/DeploymentControl.vue";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import { useRoute } from "vue-router";
+import { useSmartMainButton } from "@/composables/useSmartMainButton.js";
 
 // ECharts
 import VChart from "vue-echarts";
@@ -336,6 +337,9 @@ use([
   GridComponent,
   CanvasRenderer,
 ]);
+
+// 智慧 MainButton（依路由顯示不同文字/導向，點擊觸覺回饋）
+useSmartMainButton();
 
 // ── 系統狀態 ──────────────────────────────────────────
 const status = ref(null);

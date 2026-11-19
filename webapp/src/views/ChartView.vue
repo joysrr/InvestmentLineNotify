@@ -142,6 +142,7 @@ import EmptyState from "@/components/common/EmptyState.vue";
 import SegmentedControl from "@/components/common/SegmentedControl.vue";
 import TechnicalPanel from "@/components/chart/TechnicalPanel.vue";
 import { selectionChanged } from "@/composables/useTelegram.js";
+import { useSmartMainButton } from "@/composables/useSmartMainButton.js";
 
 use([
   LineChart,
@@ -282,6 +283,9 @@ function setGranularity(key) {
 
 watch([granularity, timeRange], load);
 onMounted(load);
+
+// 智慧 MainButton（依路由顯示不同文字/導向，點擊觸覺回饋）
+useSmartMainButton();
 
 // ── X 軸標籤格式化 ────────────────────────────────────────────────────────────────────
 function xLabel(pt) {

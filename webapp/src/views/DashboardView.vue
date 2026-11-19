@@ -210,12 +210,16 @@ const StrategyConfigEditorView = defineAsyncComponent(() =>
   import("@/views/StrategyConfigEditor.vue"),
 );
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
+import { useSmartMainButton } from "@/composables/useSmartMainButton.js";
 
 // ── State ──
 // Single-page card layout: no top-level tab switcher
 const configDrawerVisible = ref(false); // Strategy Config drawer
 const strategyStatusDrawerVisible = ref(false); // 策略狀態 drawer（由 HealthPanel / 摘要卡 開啟）
 const route = useRoute();
+
+// 智慧 MainButton（依路由顯示不同文字/導向，點擊觸覺回饋）
+useSmartMainButton();
 
 // Lazy-loaded 策略狀態元件（避免佔用初始體積預算）
 const strategyStatusSummary = ref(null);
