@@ -97,7 +97,7 @@ const tierFillWidth = computed(() => {
 }
 
 .tier-fill.next {
-  background: var(--iln-warn);
+  background: var(--iln-viz-alert);
 }
 
 .tier-info {

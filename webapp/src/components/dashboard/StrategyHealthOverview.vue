@@ -249,20 +249,20 @@ const leverageText = computed(() => {
   color: var(--iln-text);
 }
 .item-value.green {
-  color: var(--iln-ok-text);
+  color: var(--iln-viz-bull-text);
 }
 .item-value.yellow,
 .item-value.amber {
-  color: var(--iln-warn-text);
+  color: var(--iln-viz-alert-text);
 }
 .item-value.red {
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 .item-value.badge-buy {
-  color: var(--iln-ok-text);
+  color: var(--iln-viz-bull-text);
 }
 .item-value.badge-sell {
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 .card-hint {
   font-size: 12px;

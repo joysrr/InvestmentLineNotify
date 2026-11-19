@@ -196,11 +196,11 @@ const getCompDisplayValue = (comp) => {
   box-shadow: var(--iln-shadow-2);
 }
 .health-card--warn {
-  background: linear-gradient(135deg, var(--iln-warn) 0%, var(--iln-health-warn-end) 100%);
+  background: linear-gradient(135deg, var(--iln-viz-alert) 0%, var(--iln-health-warn-end) 100%);
   box-shadow: var(--iln-shadow-2);
 }
 .health-card--danger {
-  background: linear-gradient(135deg, var(--iln-danger) 0%, var(--iln-health-danger-end) 100%);
+  background: linear-gradient(135deg, var(--iln-viz-bear) 0%, var(--iln-health-danger-end) 100%);
   box-shadow: var(--iln-shadow-2);
 }
 .health-card h2 {
@@ -250,9 +250,9 @@ const getCompDisplayValue = (comp) => {
   border-radius: var(--iln-radius-sm);
   background: var(--iln-surface);
 }
-.health-badge--ok { background: var(--iln-ok-bg); color: var(--iln-ok-text); }
-.health-badge--warn { background: var(--iln-warn-bg); color: var(--iln-warn-text); }
-.health-badge--danger { background: var(--iln-danger-bg); color: var(--iln-danger-text); }
+.health-badge--ok { background: var(--iln-viz-bull-bg); color: var(--iln-viz-bull-text); }
+.health-badge--warn { background: var(--iln-viz-alert-bg); color: var(--iln-viz-alert-text); }
+.health-badge--danger { background: var(--iln-viz-bear-bg); color: var(--iln-viz-bear-text); }
 .health-badge-score {
   font-size: var(--iln-font-xs);
   padding: 4px 10px;
@@ -417,7 +417,7 @@ const getCompDisplayValue = (comp) => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--iln-ok-bg);
+  background: var(--iln-viz-bull-bg);
   margin-left: auto;
 }
 

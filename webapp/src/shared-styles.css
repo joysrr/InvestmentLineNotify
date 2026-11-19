@@ -152,8 +152,8 @@
 }
 /* danger */
 .el-button--danger {
-  background: var(--iln-danger, #BA1A1A);
-  border-color: var(--iln-danger, #BA1A1A);
+  background: var(--iln-viz-bear, #BA1A1A);
+  border-color: var(--iln-viz-bear, #BA1A1A);
   color: #FFFFFF;
 }
 /* disabled 一律走 M3 弱化，不用瀏覽器默認灰 */

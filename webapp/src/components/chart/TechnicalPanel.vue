@@ -589,19 +589,19 @@ onUnmounted(() => {
   font-weight: 500;
 }
 .ind-sub--neutral {
-  color: var(--iln-hint);
+  color: var(--iln-viz-neutral-text);
 }
 .ind-sub--danger {
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 .ind-sub--warn {
-  color: var(--iln-warn-text);
+  color: var(--iln-viz-alert-text);
 }
 .ind-sub--ok {
-  color: var(--iln-ok-text);
+  color: var(--iln-viz-bull-text);
 }
 .ind-sub--buy {
-  color: var(--iln-brand);
+  color: var(--iln-viz-bull-text);
 }
 
 .indicator-desc {
@@ -630,13 +630,13 @@ onUnmounted(() => {
   background: var(--iln-surface);
 }
 .risk-low {
-  border-left: 3px solid var(--iln-ok);
+  border-left: 3px solid var(--iln-viz-bull-border);
 }
 .risk-mid {
-  border-left: 3px solid var(--iln-warn);
+  border-left: 3px solid var(--iln-viz-alert-border);
 }
 .risk-high {
-  border-left: 3px solid var(--iln-danger);
+  border-left: 3px solid var(--iln-viz-bear-border);
 }
 .risk-bar-label {
   font-size: 13px;
@@ -659,7 +659,7 @@ onUnmounted(() => {
   border-radius: 50%;
 }
 .dot-on {
-  background: var(--iln-danger);
+  background: var(--iln-viz-bear);
 }
 .dot-off {
   background: var(--iln-border-subtle);
@@ -687,7 +687,7 @@ onUnmounted(() => {
   font-size: 12px;
 }
 .sig-on {
-  background: var(--iln-danger-bg-soft);
+  background: var(--iln-viz-bear-bg);
 }
 .sig-off {
   background: var(--iln-surface-faint);

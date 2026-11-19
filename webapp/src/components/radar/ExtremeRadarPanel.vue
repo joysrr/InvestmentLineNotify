@@ -55,7 +55,7 @@
             </div>
           </div>
           <div class="mini-item-right">
-            <span class="mini-badge-ok">正常 <Icon name="ok" size="sm" color="var(--iln-ok)" /></span>
+            <span class="mini-badge-ok">正常 <Icon name="ok" size="sm" color="var(--iln-viz-bull)" /></span>
           </div>
         </div>
       </div>
@@ -69,7 +69,7 @@
         <template #header>
           <div class="status-row">
             <span class="status-icon">
-              <Icon name="danger" size="sm" color="var(--iln-danger)" />
+              <Icon name="danger" size="sm" color="var(--iln-viz-bear)" />
             </span>
             <span class="status-title">防禦層已啟動：</span>
             <span class="status-badge badge-active">
@@ -84,7 +84,7 @@
         <div class="radar-alert-body">
         <!-- 觸發的雷達清單 -->
         <div class="triggered-section">
-          <div class="section-subtitle"><Icon name="trigger" size="sm" color="var(--iln-warn)" /> 觸發極端雷達</div>
+          <div class="section-subtitle"><Icon name="trigger" size="sm" color="var(--iln-viz-alert)" /> 觸發極端雷達</div>
           <div class="triggered-list">
             <div
               v-for="r in triggeredRadars"
@@ -340,14 +340,14 @@ const stateLabel = computed(() => {
 /* 常態平穩（IDLE） - 柔和清新淺綠微透風格，與美股卡片完美融合 */
 .radar-panel-idle {
   background: var(--tg-theme-secondary-bg-color);
-  border: 1px solid var(--iln-ok);
+  border: 1px solid var(--iln-viz-bull-border);
   box-shadow: var(--iln-shadow-hairline);
 }
 
 /* 極端警報觸發狀態 */
 .radar-panel-alert {
-  background: var(--iln-danger-bg);
-  border: 1px solid var(--iln-danger);
+  background: var(--iln-viz-bear-bg);
+  border: 1px solid var(--iln-viz-bear-border);
 }
 
 
@@ -374,15 +374,15 @@ const stateLabel = computed(() => {
 }
 
 .badge-idle {
-  background: var(--iln-ok-bg);
-  color: var(--iln-ok-text);
-  border: 1px solid var(--iln-ok);
+  background: var(--iln-viz-bull-bg);
+  color: var(--iln-viz-bull-text);
+  border: 1px solid var(--iln-viz-bull-border);
 }
 
 .badge-active {
-  background: var(--iln-danger-bg);
-  color: var(--iln-danger-text);
-  border: 1px solid var(--iln-danger);
+  background: var(--iln-viz-bear-bg);
+  color: var(--iln-viz-bear-text);
+  border: 1px solid var(--iln-viz-bear-border);
 }
 
 .status-summary {
@@ -400,7 +400,7 @@ const stateLabel = computed(() => {
 /* 展開詳細清單 */
 .radar-detail-list {
   padding: 8px 12px 12px;
-  border-top: 1px solid var(--iln-ok);
+  border-top: 1px solid var(--iln-viz-bull-border);
   display: flex;
   flex-direction: column;
   gap: 7px;
@@ -435,8 +435,8 @@ const stateLabel = computed(() => {
 }
 
 .dot-normal {
-  background: var(--iln-ok-text);
-  box-shadow: 0 0 5px var(--iln-ok);
+  background: var(--iln-viz-bull-text);
+  box-shadow: 0 0 5px var(--iln-viz-bull-border);
 }
 
 .mini-info {
@@ -513,7 +513,7 @@ const stateLabel = computed(() => {
 
 .radar-info-status {
   margin-top: 3px;
-  color: var(--iln-ok-text);
+  color: var(--iln-viz-bull-text);
   font-weight: 600;
 }
 
@@ -539,15 +539,15 @@ const stateLabel = computed(() => {
   font-weight: 600;
   padding: 2px 7px;
   border-radius: 6px;
-  background: var(--iln-ok-bg);
-  color: var(--iln-ok-text);
+  background: var(--iln-viz-bull-bg);
+  color: var(--iln-viz-bull-text);
   white-space: nowrap;
 }
 
 /* 警報面板主體 */
 .radar-alert-body {
   padding: 12px 14px 14px;
-  border-top: 1px solid var(--iln-danger);
+  border-top: 1px solid var(--iln-viz-bear-border);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -571,7 +571,7 @@ const stateLabel = computed(() => {
   background: var(--iln-surface-raised);
   border-radius: 8px;
   padding: 8px 10px;
-  border-left: 3px solid var(--iln-danger-text);
+  border-left: 3px solid var(--iln-viz-bear-text);
   border: 1px solid var(--iln-border-subtle);
 }
 
@@ -596,13 +596,13 @@ const stateLabel = computed(() => {
 }
 
 .sev-critical {
-  background: var(--iln-danger-text);
+  background: var(--iln-viz-bear-text);
   /* 業務語義色：白色文字在危險背景上，保持高對比 */
   color: var(--iln-bg);
 }
 
 .sev-alert {
-  background: var(--iln-warn-text);
+  background: var(--iln-viz-alert-text);
   /* 業務語義色：黑色文字在警告背景上，保持可讀性 */
   color: var(--iln-text);
 }
@@ -629,11 +629,11 @@ const stateLabel = computed(() => {
 
 
 .text-danger {
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 
 .text-success {
-  color: var(--iln-ok-text);
+  color: var(--iln-viz-bull-text);
 }
 
 .text-info {
@@ -648,7 +648,7 @@ const stateLabel = computed(() => {
 .dark .radar-panel-idle,
 :global(.dark) .radar-panel-idle {
   background: var(--iln-surface);
-  border-color: var(--iln-ok);
+  border-color: var(--iln-viz-bull-border);
 }
 
 .dark .radar-mini-item,

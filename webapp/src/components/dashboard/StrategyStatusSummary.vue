@@ -13,7 +13,7 @@
       <div class="sk sk-hero" style="height: 80px; margin-bottom: 12px"></div>
     </div>
     <div v-else-if="error" class="inline-error">
-      <Icon name="danger" size="sm" color="var(--iln-danger)" /> {{ error }}
+      <Icon name="danger" size="sm" color="var(--iln-viz-bear)" /> {{ error }}
     </div>
     <div v-else-if="!health" class="inline-hint">
       <Icon name="info" size="sm" color="var(--iln-hint)" /> 尚無策略狀態資料
@@ -116,7 +116,7 @@ const formatTime = (ts) => {
 /* 行內錯誤 */
 .inline-error {
   font-size: var(--iln-font-sm);
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
   display: flex;
   align-items: center;
   gap: var(--iln-space-1);

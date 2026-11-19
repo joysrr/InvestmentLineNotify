@@ -540,16 +540,16 @@ const scanConclusion = computed(() => {
   transition: background var(--iln-duration-base) var(--iln-ease-standard);
 }
 .card-danger {
-  background: var(--iln-danger-bg);
+  background: var(--iln-viz-bear-bg);
 }
 .card-warn {
-  background: var(--iln-warn-bg);
+  background: var(--iln-viz-alert-bg);
 }
 .card-ok {
-  background: var(--iln-ok-bg);
+  background: var(--iln-viz-bull-bg);
 }
 .card-blue {
-  background: var(--iln-brand-fill-light);
+  background: var(--iln-viz-neutral-bg);
 }
 
 .rc-label {
@@ -579,19 +579,19 @@ const scanConclusion = computed(() => {
   font-weight: 500;
 }
 .rc-sub--neutral {
-  color: var(--iln-hint);
+  color: var(--iln-viz-neutral-text);
 }
 .rc-sub--danger {
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 .rc-sub--warn {
-  color: var(--iln-warn-text);
+  color: var(--iln-viz-alert-text);
 }
 .rc-sub--ok {
-  color: var(--iln-ok-text);
+  color: var(--iln-viz-bull-text);
 }
 .rc-sub--blue {
-  color: var(--iln-brand);
+  color: var(--iln-viz-neutral-text);
 }
 .rc-pr {
   font-family: inherit;
@@ -624,10 +624,10 @@ const scanConclusion = computed(() => {
   color: var(--iln-hint);
 }
 .text-green {
-  color: var(--iln-ok-text);
+  color: var(--iln-viz-bull-text);
 }
 .text-red {
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 
 .update-time {
@@ -650,9 +650,9 @@ const scanConclusion = computed(() => {
   animation: pulse-border 2s infinite;
 }
 .defense-mode-badge.card-danger {
-  background: var(--iln-danger-bg-faint);
-  border: 1px solid var(--iln-danger-border);
-  color: var(--iln-danger-text);
+  background: var(--iln-viz-bear-bg);
+  border: 1px solid var(--iln-viz-bear-border);
+  color: var(--iln-viz-bear-text);
 }
 .defense-mode-badge .badge-icon {
   font-size: var(--iln-font-md);
@@ -663,10 +663,10 @@ const scanConclusion = computed(() => {
 @keyframes pulse-border {
   0%,
   100% {
-    box-shadow: var(--iln-danger-shadow);
+    box-shadow: var(--iln-viz-bear-shadow);
   }
   50% {
-    box-shadow: var(--iln-danger-shadow-focus);
+    box-shadow: var(--iln-viz-bear-shadow-focus);
   }
 }
 @media (prefers-reduced-motion: reduce) {

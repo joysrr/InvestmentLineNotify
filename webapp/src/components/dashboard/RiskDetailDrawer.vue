@@ -156,7 +156,7 @@ defineEmits(["update:visible"]);
 }
 
 .text-ok {
-  color: var(--iln-ok-text);
+  color: var(--iln-viz-bull-text);
 }
 
 /* risk-info-card (frame styling handled by ContentCard) */

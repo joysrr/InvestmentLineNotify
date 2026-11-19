@@ -16,10 +16,10 @@
   --el-color-primary-dark-2: var(--iln-brand-hover, #5A3F94);
 
   /* ── 語義色 ── */
-  --el-color-success: var(--iln-ok, #386A20);
-  --el-color-warning: var(--iln-warn, #7D5700);
-  --el-color-danger: var(--iln-danger, #BA1A1A);
-  --el-color-error: var(--iln-danger, #BA1A1A);
+  --el-color-success: var(--iln-viz-bull, #386A20);
+  --el-color-warning: var(--iln-viz-alert, #7D5700);
+  --el-color-danger: var(--iln-viz-bear, #BA1A1A);
+  --el-color-error: var(--iln-viz-bear, #BA1A1A);
   --el-color-info: var(--iln-info, #0061A4);
 
   /* ── 背景 / 表面（M3）── */
@@ -60,6 +60,12 @@
   --el-font-size-large: 15px;
 }
 
+/* ── 全域數值工具類 ── */
+.iln-num-tabular {
+  font-variant-numeric: var(--iln-num-tabular);
+  font-family: var(--iln-font-mono);
+}
+
 /* ── el-alert 用 M3 語義色（EP 預設灰底灰字）── */
 .el-alert {
   border-radius: var(--iln-radius-md, 12px);
@@ -71,19 +77,19 @@
   border-color: var(--iln-info-border, rgba(59,130,246,.3));
 }
 .el-alert--success.is-light {
-  background: var(--iln-ok-bg, rgba(16,185,129,.1));
-  color: var(--iln-ok-text, #059669);
-  border-color: var(--iln-ok-border, rgba(16,185,129,.3));
+  background: var(--iln-viz-bull-bg, rgba(16,185,129,.1));
+  color: var(--iln-viz-bull-text, #059669);
+  border-color: var(--iln-viz-bull-border, rgba(16,185,129,.3));
 }
 .el-alert--warning.is-light {
-  background: var(--iln-warn-bg, rgba(245,158,11,.1));
-  color: var(--iln-warn-text, #b45309);
-  border-color: var(--iln-warn-border, rgba(245,158,11,.3));
+  background: var(--iln-viz-alert-bg, rgba(245,158,11,.1));
+  color: var(--iln-viz-alert-text, #b45309);
+  border-color: var(--iln-viz-alert-border, rgba(245,158,11,.3));
 }
 .el-alert--error.is-light {
-  background: var(--iln-danger-bg, rgba(239,68,68,.1));
-  color: var(--iln-danger-text, #dc2626);
-  border-color: var(--iln-danger-border, rgba(239,68,68,.3));
+  background: var(--iln-viz-bear-bg, rgba(239,68,68,.1));
+  color: var(--iln-viz-bear-text, #dc2626);
+  border-color: var(--iln-viz-bear-border, rgba(239,68,68,.3));
 }
 
 /* ── el-input / el-select / el-textarea 用 M3 surface ── */

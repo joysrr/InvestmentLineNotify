@@ -150,11 +150,11 @@ function regionFlag(region) {
 }
 
 .age-fresh {
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 
 .age-recent {
-  color: var(--iln-warn-text);
+  color: var(--iln-viz-alert-text);
 }
 
 .age-old {
@@ -193,8 +193,8 @@ function regionFlag(region) {
 
 /* 精選標記 */
 .featured {
-  background: var(--iln-warn-soft);
-  color: var(--iln-warn-text);
+  background: var(--iln-viz-alert-bg);
+  color: var(--iln-viz-alert-text);
 }
 
 /* 新聞標籤 */
@@ -209,7 +209,7 @@ function regionFlag(region) {
 
 /* 已入選標記 */
 .picked {
-  background: var(--iln-ok-bg);
-  color: var(--iln-ok-text);
+  background: var(--iln-viz-bull-bg);
+  color: var(--iln-viz-bull-text);
 }
 </style>

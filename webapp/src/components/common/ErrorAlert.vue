@@ -8,12 +8,12 @@
       :show-icon="showIcon"
       @close="handleClose"
     >
-      <template v-if="showRetry || showDetail" #default>
+      <template v-if="showRetry || showDetail || actionText" #default>
         <div class="error-alert-actions">
           <el-button
             v-if="showRetry"
             type="primary"
-            size="small"
+            :size="buttonSize"
             @click="$emit('retry')"
           >
             {{ retryText }}
@@ -21,10 +21,20 @@
           <el-button
             v-if="showDetail && errorDetail"
             type="info"
-            size="small"
+            :size="buttonSize"
             @click="detailVisible = !detailVisible"
           >
             {{ detailVisible ? "隱藏詳情" : "查看詳情" }}
+          </el-button>
+          <el-button
+            v-if="actionText"
+            :type="actionType"
+            :size="buttonSize"
+            :href="actionHref || undefined"
+            @click="$emit('action')"
+          >
+            <el-icon v-if="actionIcon" :size="14"><component :is="actionIcon" /></el-icon>
+            {{ actionText }}
           </el-button>
         </div>
         <el-collapse-transition>
@@ -48,7 +58,7 @@
  * 輕量級 inline 錯誤條，支援 dismiss/retry/action
  */
 import { ref } from "vue";
-import { ElAlert, ElButton, ElCollapseTransition } from "element-plus";
+import { ElAlert, ElButton, ElCollapseTransition, ElIcon } from "element-plus";
 
 defineProps({
   // 是否顯示
@@ -102,9 +112,36 @@ defineProps({
     type: String,
     default: "",
   },
+  // 自定義行動按鈕文字
+  actionText: {
+    type: String,
+    default: "",
+  },
+  // 行動按鈕類型
+  actionType: {
+    type: String,
+    default: "primary",
+    validator: (v) => ["primary", "success", "warning", "danger", "info", "default"].includes(v),
+  },
+  // 按鈕尺寸
+  buttonSize: {
+    type: String,
+    default: "small",
+    validator: (v) => ["large", "default", "small"].includes(v),
+  },
+  // 行動按鈕圖示
+  actionIcon: {
+    type: String,
+    default: "",
+  },
+  // 行動按鈕連結
+  actionHref: {
+    type: String,
+    default: "",
+  },
 });
 
-const emit = defineEmits(["close", "retry"]);
+const emit = defineEmits(["close", "retry", "action"]);
 
 const detailVisible = ref(false);
 

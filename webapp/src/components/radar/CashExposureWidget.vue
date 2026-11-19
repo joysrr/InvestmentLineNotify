@@ -113,13 +113,13 @@ const leverageGap = computed(() => {
   font-weight: 600;
 }
 .text-success {
-  color: var(--iln-ok-text);
+  color: var(--iln-viz-bull-text);
 }
 .text-warning {
-  color: var(--iln-warn-text);
+  color: var(--iln-viz-alert-text);
 }
 .text-danger {
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 .text-muted {
   color: var(--iln-hint);

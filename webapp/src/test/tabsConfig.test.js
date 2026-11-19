@@ -2,17 +2,17 @@ import { describe, expect, it } from "vitest";
 import { tabs } from "../config/tabsConfig.js";
 
 describe("tabsConfig", () => {
-  it("應有 5 個導覽項目", () => {
-    expect(tabs).toHaveLength(5);
+  it("應有 4 個導覽項目（P2-1 新聞 Tab 移出底部）", () => {
+    expect(tabs).toHaveLength(4);
   });
 
-  it("項目路徑應符合統合後的導覽結構", () => {
+  it("項目路徑應符合統合後的導覽結構（P2-1）", () => {
     const paths = tabs.map((t) => t.to);
     expect(paths).toContain("/dashboard");
     expect(paths).toContain("/insights");
-    expect(paths).toContain("/news");
     expect(paths).toContain("/chart");
     expect(paths).toContain("/account");
+    expect(paths).not.toContain("/news");
     expect(paths).not.toContain("/radar");
     expect(paths).not.toContain("/theory");
   });

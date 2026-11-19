@@ -18,7 +18,7 @@
     <div class="ai-block" v-if="risks && risks.length">
       <CollapsibleSection title="風險提示">
         <template #header>
-          <span><Icon name="warn" size="sm" color="var(--iln-warn)" /></span>
+          <span><Icon name="warn" size="sm" color="var(--iln-viz-alert)" /></span>
           <span class="collapsible-title">風險提示</span>
           <span class="ai-count">{{ risks.length }} 項</span>
         </template>
@@ -84,7 +84,7 @@ const props = defineProps({
 <style scoped>
 .ai-insight {
   background: linear-gradient(135deg, var(--iln-coaching-start) 0%, var(--iln-coaching-end) 100%);
-  border-left: 4px solid var(--iln-warn);
+  border-left: 4px solid var(--iln-viz-alert);
   padding: 12px;
   border-radius: 8px;
   margin-bottom: 16px;
@@ -92,14 +92,14 @@ const props = defineProps({
 .insight-label {
   font-size: var(--iln-font-xs);
   font-weight: 800;
-  color: var(--iln-warn-text);
+  color: var(--iln-viz-alert-text);
   text-transform: uppercase;
   margin-bottom: 4px;
 }
 .insight-text {
   font-size: var(--iln-font-base);
   font-weight: 600;
-  color: var(--iln-warn-text);
+  color: var(--iln-viz-alert-text);
   line-height: 1.4;
 }
 .ai-verdict {

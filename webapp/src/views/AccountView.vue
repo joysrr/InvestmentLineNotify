@@ -699,16 +699,16 @@ const allHealthy = computed(
   letter-spacing: 0.3px;
 }
 .badge-ok {
-  background: var(--iln-ok-bg);
-  color: var(--iln-ok-text);
+  background: var(--iln-viz-bull-bg);
+  color: var(--iln-viz-bull-text);
 }
 .badge-fail {
-  background: var(--iln-danger-bg);
-  color: var(--iln-danger-text);
+  background: var(--iln-viz-bear-bg);
+  color: var(--iln-viz-bear-text);
 }
 .badge-stale {
-  background: var(--iln-warn-bg);
-  color: var(--iln-warn-text);
+  background: var(--iln-viz-alert-bg);
+  color: var(--iln-viz-alert-text);
 }
 .source-time {
   font-size: var(--iln-font-xs);
@@ -721,7 +721,7 @@ const allHealthy = computed(
 }
 .source-error {
   font-size: var(--iln-font-xs);
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
   margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -874,10 +874,10 @@ const allHealthy = computed(
 
 /* ── Color helpers（text-ok / text-warn 為模板動態綁定） ── */
 .text-ok {
-  color: var(--iln-ok-text) !important;
+  color: var(--iln-viz-bull-text) !important;
 }
 .text-warn {
-  color: var(--iln-warn-text) !important;
+  color: var(--iln-viz-alert-text) !important;
 }
 
 /* ── Skeleton ── */
@@ -962,12 +962,12 @@ const allHealthy = computed(
   margin-left: var(--iln-space-2);
 }
 .settings-group .save-feedback--success {
-  background: var(--iln-ok-bg);
-  color: var(--iln-ok-text);
+  background: var(--iln-viz-bull-bg);
+  color: var(--iln-viz-bull-text);
 }
 .settings-group .save-feedback--error {
-  background: var(--iln-danger-bg);
-  color: var(--iln-danger-text);
+  background: var(--iln-viz-bear-bg);
+  color: var(--iln-viz-bear-text);
 }
 
 /* 通知設定區塊 */

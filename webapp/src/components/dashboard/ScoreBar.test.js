@@ -6,7 +6,7 @@ const baseProps = {
   label: "風險評分",
   value: 3,
   max: 5,
-  color: "var(--iln-warn)",
+  color: "var(--iln-viz-alert)",
   description: "風險較高",
 };
 

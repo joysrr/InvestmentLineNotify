@@ -13,14 +13,37 @@
           <component :is="icon" />
         </el-icon>
       </template>
-      <template v-if="actionText" #default>
-        <el-button
-          :type="actionType"
-          :size="actionSize"
-          @click="$emit('action')"
-        >
-          {{ actionText }}
-        </el-button>
+      <template v-if="hasAction" #default>
+        <div class="empty-actions">
+          <el-button
+            v-if="actionHref"
+            :type="actionType"
+            :size="actionSize"
+            native-type="button"
+            @click="handleActionHref"
+          >
+            <el-icon v-if="actionIcon" :size="14"><component :is="actionIcon" /></el-icon>
+            {{ actionText }}
+          </el-button>
+          <el-button
+            v-else
+            :type="actionType"
+            :size="actionSize"
+            @click="$emit('action')"
+          >
+            <el-icon v-if="actionIcon" :size="14"><component :is="actionIcon" /></el-icon>
+            {{ actionText }}
+          </el-button>
+          <el-button
+            v-if="secondaryActionText"
+            :type="secondaryActionType"
+            :size="actionSize"
+            @click="$emit('secondary-action')"
+            class="empty-secondary-btn"
+          >
+            {{ secondaryActionText }}
+          </el-button>
+        </div>
       </template>
     </el-empty>
   </div>
@@ -92,15 +115,38 @@ const props = defineProps({
   actionType: {
     type: String,
     default: "primary",
+    validator: (v) => ["primary", "success", "warning", "danger", "info", "default"].includes(v),
   },
   // 行動按鈕尺寸
   actionSize: {
     type: String,
     default: "default",
+    validator: (v) => ["large", "default", "small"].includes(v),
+  },
+  // 行動按鈕圖示
+  actionIcon: {
+    type: String,
+    default: "",
+  },
+  // 行動按鈕連結（若提供則使用 <a> 行為）
+  actionHref: {
+    type: String,
+    default: "",
+  },
+  // 次要動作按鈕文字
+  secondaryActionText: {
+    type: String,
+    default: "",
+  },
+  // 次要動作按鈕類型
+  secondaryActionType: {
+    type: String,
+    default: "default",
+    validator: (v) => ["primary", "success", "warning", "danger", "info", "default"].includes(v),
   },
 });
 
-defineEmits(["action"]);
+const emit = defineEmits(["action", "secondary-action"]);
 
 const displayTitle = computed(() => props.title);
 const displayMessage = computed(() => props.message);
@@ -108,6 +154,14 @@ const displayDescription = computed(() => {
   if (props.title) return "";
   return props.description;
 });
+const hasAction = computed(() => props.actionText || props.secondaryActionText);
+
+const handleActionHref = () => {
+  if (props.actionHref) {
+    window.open(props.actionHref, "_blank");
+    emit("action");
+  }
+};
 </script>
 
 <script>
@@ -144,5 +198,14 @@ export default {
 .empty-emoji {
   font-size: 64px;
   line-height: 1;
+}
+.empty-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.empty-secondary-btn {
+  /* secondary button styling handled by type="default" */
 }
 </style>

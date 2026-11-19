@@ -11,17 +11,17 @@ test("expired 警示條在 360px 下不換行、不溢出", async ({ page }) => 
         padding: 10px 16px;
         margin-bottom: 16px;
         font-size: 13px;
-        background: var(--iln-danger-bg);
-        color: var(--iln-danger-text);
+        background: var(--iln-viz-bear-bg);
+        color: var(--iln-viz-bear-text);
         border-radius: 6px;
-        border: 1px solid var(--iln-danger);
+        border: 1px solid var(--iln-viz-bear);
         text-align: center;
         box-sizing: border-box;
       }
       :root {
-        --iln-danger-bg: rgba(239, 68, 68, 0.1);
-        --iln-danger-text: #dc2626;
-        --iln-danger: #ef4444;
+        --iln-viz-bear-bg: rgba(239, 68, 68, 0.1);
+        --iln-viz-bear-text: #dc2626;
+        --iln-viz-bear: #ef4444;
       }
     </style>
   `);

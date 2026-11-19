@@ -12,14 +12,19 @@ vi.mock("@/views/MacroBattleView.vue", () => ({
 }));
 
 const stubs = {
-  SegmentedControl: { template: '<div class="segmented-control-stub" />' },
+  SegmentedControl: {
+    template:
+      '<div class="segmented-control-stub" data-testid="segmented-control-stub" />',
+    props: ["modelValue", "options"],
+    emits: ["change"],
+  },
   "router-link": {
     template: '<a class="router-link-stub" :href="to"><slot /></a>',
     props: ["to"],
   },
 };
 
-describe("InsightsView — 雙入口卡片取代 SegmentedControl", () => {
+describe("InsightsView — P2-1 頂部 Segmented Control，入口卡片為次要", () => {
   let wrapper;
   let router;
 
@@ -38,17 +43,27 @@ describe("InsightsView — 雙入口卡片取代 SegmentedControl", () => {
     await router.isReady();
   }
 
-  it("不應渲染 SegmentedControl（已移除頂部雙 tab 按鈕）", async () => {
+  it("應渲染 SegmentedControl（P2-1 頂部主導航）", async () => {
     await mountView();
-    expect(wrapper.findComponent({ name: "SegmentedControl" }).exists()).toBe(
-      false,
-    );
+    expect(wrapper.find(".segmented-control-stub").exists()).toBe(true);
   });
 
-  it("應渲染兩個入口卡片：市場雷達與多空對決", async () => {
+  it("SegmentedControl 應有兩個選項：市場雷達、多空對決", async () => {
+    await mountView();
+    const sc = wrapper.find(".segmented-control-stub");
+    expect(sc.exists()).toBe(true);
+  });
+
+  it("應保留兩個入口卡片但標記為次要", async () => {
     await mountView();
     expect(wrapper.find(".entry-card--radar").exists()).toBe(true);
     expect(wrapper.find(".entry-card--macro").exists()).toBe(true);
+    expect(
+      wrapper.find(".entry-card--radar.entry-card--secondary").exists(),
+    ).toBe(true);
+    expect(
+      wrapper.find(".entry-card--macro.entry-card--secondary").exists(),
+    ).toBe(true);
   });
 
   it("市場雷達卡片標題正確", async () => {

@@ -48,14 +48,18 @@ describe("DecisionHero.vue", () => {
   });
 
   it("report 有值時顯示目標、建議、評分", () => {
-    const wrapper = mount(DecisionHero, { props: baseProps });
+    const wrapper = mount(DecisionHero, {
+      props: { ...baseProps, expanded: true },
+    });
     expect(wrapper.text()).toContain("買入");
     expect(wrapper.text()).toContain("逐步建倉");
     expect(wrapper.text()).toContain("85");
   });
 
   it("顯示資產趨勢連結", () => {
-    const wrapper = mount(DecisionHero, { props: baseProps });
+    const wrapper = mount(DecisionHero, {
+      props: { ...baseProps, expanded: true },
+    });
     expect(wrapper.find(".hero-trend-link").exists()).toBe(true);
   });
 });

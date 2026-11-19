@@ -143,7 +143,7 @@ onMounted(async () => {
 }
 
 .error-text {
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 
 @media (max-width: 480px) {

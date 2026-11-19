@@ -620,10 +620,10 @@ watch(
   padding: var(--iln-space-3) var(--iln-space-4);
   margin-bottom: var(--iln-space-4);
   font-size: var(--iln-font-sm);
-  background: var(--iln-danger-bg);
-  color: var(--iln-danger-text);
+  background: var(--iln-viz-bear-bg);
+  color: var(--iln-viz-bear-text);
   border-radius: var(--iln-radius-sm);
-  border: 1px solid var(--iln-danger);
+  border: 1px solid var(--iln-viz-bear-border);
   text-align: center;
 }
 
@@ -662,7 +662,7 @@ watch(
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-:deep(.text-danger) { color: var(--iln-danger-text); }
-:deep(.text-warn)   { color: var(--iln-warn-text); }
-:deep(.text-ok)     { color: var(--iln-ok-text); }
+:deep(.text-danger) { color: var(--iln-viz-bear-text); }
+:deep(.text-warn)   { color: var(--iln-viz-alert-text); }
+:deep(.text-ok)     { color: var(--iln-viz-bull-text); }
 </style>

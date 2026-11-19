@@ -176,9 +176,9 @@ function formatLeverage(val) {
   border-radius: var(--iln-radius-full);
   transition: width 0.3s ease;
 }
-.meter-fill.fill-ok { background: var(--iln-ok); }
-.meter-fill.fill-warn { background: var(--iln-warn); }
-.meter-fill.fill-danger { background: var(--iln-danger); }
+.meter-fill.fill-ok { background: var(--iln-viz-bull); }
+.meter-fill.fill-warn { background: var(--iln-viz-alert); }
+.meter-fill.fill-danger { background: var(--iln-viz-bear); }
 .cockpit-action {
   margin-top: 12px;
   font-size: var(--iln-font-xs);

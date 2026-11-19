@@ -79,13 +79,13 @@
               v-if="topic.sentiment === 'BULL'"
               name="ok"
               size="sm"
-              color="var(--iln-ok)"
+              color="var(--iln-viz-bull)"
             />
             <Icon
               v-else-if="topic.sentiment === 'BEAR'"
               name="danger"
               size="sm"
-              color="var(--iln-danger)"
+              color="var(--iln-viz-bear)"
             />
             <Icon
               v-else
@@ -317,18 +317,18 @@ function signalLabel(s) {
 }
 
 .divergence-normal {
-  background: var(--iln-ok-bg);
-  color: var(--iln-ok-text);
+  background: var(--iln-viz-bull-bg);
+  color: var(--iln-viz-bull-text);
 }
 
 .divergence-bearish {
-  background: var(--iln-warn-bg);
-  color: var(--iln-warn-text);
+  background: var(--iln-viz-alert-bg);
+  color: var(--iln-viz-alert-text);
 }
 
 .divergence-bullish {
-  background: var(--iln-ok-bg);
-  color: var(--iln-ok-text);
+  background: var(--iln-viz-bull-bg);
+  color: var(--iln-viz-bull-text);
 }
 
 .sentiment-signals {

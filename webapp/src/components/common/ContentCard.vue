@@ -143,26 +143,26 @@ const handleClick = (event) => {
   border-left-style: solid;
 }
 .content-card--status-ok {
-  border-left-color: var(--iln-ok);
+  border-left-color: var(--iln-viz-bull-border);
 }
 .content-card--status-warn {
-  border-left-color: var(--iln-warn);
+  border-left-color: var(--iln-viz-alert-border);
 }
 .content-card--status-danger {
-  border-left-color: var(--iln-danger);
+  border-left-color: var(--iln-viz-bear-border);
 }
 .content-card--status-info {
   border-left-color: var(--iln-info);
 }
 
 .content-card--tint-ok {
-  background: var(--iln-ok-bg);
+  background: var(--iln-viz-bull-bg);
 }
 .content-card--tint-warn {
-  background: var(--iln-warn-bg);
+  background: var(--iln-viz-alert-bg);
 }
 .content-card--tint-danger {
-  background: var(--iln-danger-bg);
+  background: var(--iln-viz-bear-bg);
 }
 .content-card--tint-info {
   background: var(--iln-info-bg);

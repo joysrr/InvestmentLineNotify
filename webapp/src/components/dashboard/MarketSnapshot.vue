@@ -8,7 +8,7 @@
         <div class="sk sk-sub"></div>
       </div>
     </div>
-    <div v-else-if="error" class="inline-error"><Icon name="danger" size="sm" color="var(--iln-danger)" /> 快照載入失敗</div>
+    <div v-else-if="error" class="inline-error"><Icon name="danger" size="sm" color="var(--iln-viz-bear)" /> 快照載入失敗</div>
     <div v-else class="snapshot-grid snapshot-grid--3">
       <!-- Regime / VIX -->
       <div class="snapshot-card" :class="regimeLevel.cardClass">
@@ -18,7 +18,7 @@
         }}</span>
         <span class="snap-sub" :class="regimeLevel.textClass">
           {{ regimeLevel.label }}
-          <span v-if="vixOverrideActive" title="VIX 短路保護生效"><Icon name="trigger" size="sm" color="var(--iln-warn)" /></span>
+          <span v-if="vixOverrideActive" title="VIX 短路保護生效"><Icon name="trigger" size="sm" color="var(--iln-viz-alert)" /></span>
         </span>
         <span v-if="regimeLevel.subLabel" class="snap-hint">
           {{ regimeLevel.subLabel }}
@@ -110,23 +110,23 @@ defineProps({
   color: var(--iln-text);
   margin: 0 0 12px;
 }
-.card-ok .snap-sub { color: var(--iln-ok-text); }
-.card-warn .snap-sub { color: var(--iln-warn-text); }
-.card-danger .snap-sub { color: var(--iln-danger-text); }
+.card-ok .snap-sub { color: var(--iln-viz-bull-text); }
+.card-warn .snap-sub { color: var(--iln-viz-alert-text); }
+.card-danger .snap-sub { color: var(--iln-viz-bear-text); }
 .border-left-danger {
-  border-left: 3px solid var(--iln-danger-text);
+  border-left: 3px solid var(--iln-viz-bear-text);
 }
 .border-left-warn {
-  border-left: 3px solid var(--iln-warn-text);
+  border-left: 3px solid var(--iln-viz-alert-text);
 }
 .border-left-ok {
-  border-left: 3px solid var(--iln-ok-text);
+  border-left: 3px solid var(--iln-viz-bull-text);
 }
 
 /* 行內錯誤 */
 .inline-error {
   font-size: var(--iln-font-xs);
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 
 /* 快照骨架屏 */

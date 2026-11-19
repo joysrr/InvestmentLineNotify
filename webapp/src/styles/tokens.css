@@ -65,41 +65,74 @@
 
   /* 新增：Telegram 主題文字與背景 */
   --iln-bg: var(--m3-neutral-2);
+  --iln-bg-light-fallback: #fef7ff;
+  --iln-bg-dark-fallback: #1d1b20;
   --iln-text: var(--m3-neutral-90);
   --iln-hint: var(--m3-neutral-60);  /* Phase 4.4 AA：outline(#79747E) 4.33:1 不达标 → on-surface-variant(#49454F) */
   --iln-link: var(--m3-primary-40);
+  --iln-button_color: var(--m3-primary-40);
   --iln-secondary-bg: var(--m3-neutral-5);
 
   /* ── 語意色（狀態用） ── */
-  --iln-ok: var(--m3-green-40);
-  --iln-warn: var(--m3-amber-40);
-  --iln-danger: var(--m3-red-40);
   --iln-info: var(--m3-blue-40);
   --iln-neutral: var(--m3-neutral-50);
   --iln-neutral-fill-faint: rgba(180, 180, 180, 0.06);
   --iln-neutral-fill-border-faint: rgba(180, 180, 180, 0.2);
 
   /* ── 語意背景（卡片底色） ── */
-  --iln-ok-bg: rgba(16, 185, 129, 0.1);
-  --iln-warn-bg: rgba(245, 158, 11, 0.1);
-  --iln-danger-bg: rgba(239, 68, 68, 0.1);
   --iln-info-bg: rgba(59, 130, 246, 0.1);
   /* @deprecated 0 引用，Phase 3 清理 */
   --iln-neutral-bg: rgba(148, 163, 184, 0.1);
 
   /* ── 語意文字（深色模式安全） ── */
-  --iln-ok-text: #059669;
-  --iln-warn-text: #b45309;
-  --iln-danger-text: #dc2626;
   --iln-info-text: #1d4ed8;
   /* @deprecated 0 引用，Phase 3 清理 */
   --iln-neutral-text: #64748b;
 
   /* ── 語義邊框 ── */
-  --iln-ok-border: rgba(16, 185, 129, 0.3);
-  --iln-warn-border: rgba(245, 158, 11, 0.3);
-  --iln-danger-border: rgba(239, 68, 68, 0.3);
   --iln-neutral-border: rgba(148, 163, 184, 0.3);
+
+  /* ── Data Viz 專用語意色（Phase 1 新增） ── */
+  /* 多方/獲利/正向 */
+  --iln-viz-bull: var(--m3-green-40);
+  --iln-viz-bull-bg: rgba(16, 185, 129, 0.10);
+  --iln-viz-bull-border: rgba(16, 185, 129, 0.25);
+  --iln-viz-bull-text: #059669;
+  --iln-viz-bull-light: #34d399;  /* 漸層終點色，對齊 Dark 模式 --iln-viz-bull-text */
+
+  /* 空方/虧損/負向 */
+  --iln-viz-bear: var(--m3-red-40);
+  --iln-viz-bear-bg: rgba(239, 68, 68, 0.10);
+  --iln-viz-bear-border: rgba(239, 68, 68, 0.25);
+  --iln-viz-bear-text: #dc2626;
+  --iln-viz-bear-light: #f87171;  /* 漸層終點色，對齊 Dark 模式 --iln-viz-bear-text */
+
+  /* 中性/資訊/基準 */
+  --iln-viz-neutral: var(--m3-blue-40);
+  --iln-viz-neutral-bg: rgba(59, 130, 246, 0.10);
+  --iln-viz-neutral-border: rgba(59, 130, 246, 0.25);
+  --iln-viz-neutral-text: #1d4ed8;
+
+  /* 警告/注意/待處理 */
+  --iln-viz-alert: var(--m3-amber-40);
+  --iln-viz-alert-bg: rgba(245, 158, 11, 0.10);
+  --iln-viz-alert-border: rgba(245, 158, 11, 0.25);
+  --iln-viz-alert-text: #b45309;
+
+  /* ECharts 專用色陣列（供 v-chart 直接引用） */
+  --iln-echarts-bull: var(--iln-viz-bull);
+  --iln-echarts-bear: var(--iln-viz-bear);
+  --iln-echarts-neutral: var(--iln-viz-neutral);
+  --iln-echarts-alert: var(--iln-viz-alert);
+
+  /* Data Viz 陰影（用於脈動動畫等強調效果） */
+  --iln-viz-bull-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2);
+  --iln-viz-bull-shadow-focus: 0 0 0 4px rgba(16, 185, 129, 0.1);
+  --iln-viz-bear-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2);
+  --iln-viz-bear-shadow-focus: 0 0 0 4px rgba(239, 68, 68, 0.1);
+  --iln-viz-alert-shadow: 0 0 0 0 rgba(245, 158, 11, 0.2);
+  --iln-viz-alert-shadow-focus: 0 0 0 4px rgba(245, 158, 11, 0.1);
+
   /* 別名 token（遠端既有，保持相容） */
   --iln-border: var(--iln-border-subtle);
   --iln-surface-muted: var(--iln-surface-faint);
@@ -126,14 +159,14 @@
   --iln-badge-error-bg: #3a1717;
   --iln-badge-error-text: #f56c6c;
 
-  /* ── 字型（7 級 scale） ── */
+  /* ── 字型（7 級 scale，clamp 保護字體縮放）── */
   --iln-font-xs: 10px;
   --iln-font-sm: 12px;
-  --iln-font-base: 14px;
-  --iln-font-md: 16px;
-  --iln-font-lg: 20px;
-  --iln-font-xl: 24px;
-  --iln-font-2xl: 32px;
+  --iln-font-base: clamp(14px, 3.5vw, 16px);
+  --iln-font-md: clamp(15px, 3.8vw, 17px);
+  --iln-font-lg: clamp(16px, 4vw, 18px);
+  --iln-font-xl: clamp(20px, 5vw, 24px);
+  --iln-font-2xl: clamp(28px, 6vw, 32px);
 
   /* ── 字重（4 級） ── */
   --iln-weight-normal: 400;
@@ -148,8 +181,10 @@
 
   /* ── 字族 ── */
   --iln-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
-  /* @deprecated 0 引用，Phase 3 清理 */
-  --iln-font-mono: "SF Mono", Monaco, Consolas, monospace;
+  --iln-font-mono: "SF Mono", "Fira Code", "JetBrains Mono", Monaco, Consolas, monospace;
+
+  /* ── 數值等寬（tabular-nums）── */
+  --iln-num-tabular: tabular-nums;
 
   /* ── 間距（8pt grid，允許 4px 半格） ── */
   --iln-space-1: 4px;
@@ -266,15 +301,6 @@
   --iln-bg-light-fallback: #ffffff;
 /* main.js hint 文字 fallback */
   --iln-hint-fallback: #888;
-
-/* 危險色淺色背景 */
-  --iln-danger-bg-faint: rgba(244, 67, 54, 0.12);
-/* 危險色邊框 */
-  --iln-danger-border: rgba(244, 67, 54, 0.35);
-/* 危險色陰影（無擴散） */
-  --iln-danger-shadow: 0 0 0 0 rgba(198, 40, 40, 0.2);
-/* 危險色聚焦陰影 */
-  --iln-danger-shadow-focus: 0 0 0 4px rgba(198, 40, 40, 0.1);
 }
 
 /* 深色模式覆寫（由 useTelegram.syncSchemeAttribute 寫入 data-tg-scheme） */
@@ -310,21 +336,36 @@
   --iln-brand-fill-border: rgba(54, 144, 220, 0.18);
   --iln-neutral-fill-faint: rgba(180, 180, 180, 0.06);
   --iln-neutral-fill-border-faint: rgba(180, 180, 180, 0.2);
-  --iln-ok-bg: rgba(16, 185, 129, 0.15);
-  --iln-warn-bg: rgba(245, 158, 11, 0.15);
-  --iln-danger-bg: rgba(239, 68, 68, 0.15);
   --iln-info-bg: rgba(59, 130, 246, 0.15);
   /* @deprecated 0 引用，Phase 3 清理 */
   --iln-neutral-bg: rgba(148, 163, 184, 0.1);
-  --iln-ok-text: #34d399;
-  --iln-warn-text: #fbbf24;
-  --iln-danger-text: #f87171;
   --iln-info-text: #60a5fa;
   /* @deprecated 0 引用，Phase 3 清理 */
   --iln-neutral-text: #94a3b8;
-  --iln-ok-border: rgba(16, 185, 129, 0.5);
-  --iln-warn-border: rgba(245, 158, 11, 0.5);
-  --iln-danger-border: rgba(239, 68, 68, 0.5);
+
+  /* Data Viz 漸層終點色（深色同值，保持一致性） */
+  --iln-viz-bull-light: #34d399;
+  --iln-viz-bear-light: #f87171;
+
+  /* Data Viz 深色覆寫（P2-5）：bg/border/text 在 data-tg-scheme="dark" 下啟用
+     文字色取亮色以在 #211F26 深表面上達到 ≥4.5:1 對比度；
+     bg/border 透明度略高於淺色模式，在深色背景更可見。 */
+  --iln-viz-bull-bg: rgba(16, 185, 129, 0.15);
+  --iln-viz-bull-border: rgba(16, 185, 129, 0.35);
+  --iln-viz-bull-text: #34d399;
+
+  --iln-viz-bear-bg: rgba(239, 68, 68, 0.15);
+  --iln-viz-bear-border: rgba(239, 68, 68, 0.35);
+  --iln-viz-bear-text: #f87171;
+
+  --iln-viz-neutral-bg: rgba(59, 130, 246, 0.15);
+  --iln-viz-neutral-border: rgba(59, 130, 246, 0.35);
+  --iln-viz-neutral-text: #60a5fa;
+
+  --iln-viz-alert-bg: rgba(245, 158, 11, 0.15);
+  --iln-viz-alert-border: rgba(245, 158, 11, 0.35);
+  --iln-viz-alert-text: #fbbf24;
+
   --iln-neutral-border: rgba(148, 163, 184, 0.5);
   --iln-border: var(--iln-border-subtle);
   --iln-surface-muted: var(--iln-surface-faint);
@@ -375,11 +416,13 @@
 /* TechnicalPanel 危險色偏粉背景：不可等值替換現有令牌 */
   --iln-danger-bg-soft: rgba(232, 72, 85, 0.08);
 
-/* 暗色同值：MarketRadar 的 pulse 動畫已足夠醒目，調高不透明度會壓過雷達卡內容，故維持同值 */
-  --iln-danger-bg-faint: rgba(244, 67, 54, 0.12);
-  --iln-danger-border: rgba(244, 67, 54, 0.35);
-  --iln-danger-shadow: 0 0 0 0 rgba(198, 40, 40, 0.2);
-  --iln-danger-shadow-focus: 0 0 0 4px rgba(198, 40, 40, 0.1);
+  /* Data Viz 陰影（暗色同值，保持一致性） */
+  --iln-viz-bull-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2);
+  --iln-viz-bull-shadow-focus: 0 0 0 4px rgba(16, 185, 129, 0.1);
+  --iln-viz-bear-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2);
+  --iln-viz-bear-shadow-focus: 0 0 0 4px rgba(239, 68, 68, 0.1);
+  --iln-viz-alert-shadow: 0 0 0 0 rgba(245, 158, 11, 0.2);
+  --iln-viz-alert-shadow-focus: 0 0 0 4px rgba(245, 158, 11, 0.1);
 
 /* AccountView 正面狀態：暗色不透明度較高 */
   --iln-state-positive-bg: rgba(52, 199, 89, 0.15);
@@ -461,7 +504,7 @@
 .iln-error-inline {
   padding: var(--iln-space-3) var(--iln-space-4);
   font-size: var(--iln-font-base);
-  color: var(--iln-danger-text);
-  background: var(--iln-danger-bg);
+  color: var(--iln-viz-bear-text);
+  background: var(--iln-viz-bear-bg);
   border-radius: var(--iln-radius-md);
 }

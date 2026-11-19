@@ -195,19 +195,19 @@ const trendIcon = computed(() => {
 }
 
 .stat-card__value--status-ok {
-  color: var(--iln-ok-text);
+  color: var(--iln-viz-bull-text);
 }
 .stat-card__value--status-warn {
-  color: var(--iln-warn-text);
+  color: var(--iln-viz-alert-text);
 }
 .stat-card__value--status-danger {
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 .stat-card__value--status-info {
-  color: var(--iln-info-text);
+  color: var(--iln-viz-neutral-text);
 }
 .stat-card__value--status-neutral {
-  color: var(--iln-hint);
+  color: var(--iln-viz-neutral-text);
 }
 
 .stat-card__trend {

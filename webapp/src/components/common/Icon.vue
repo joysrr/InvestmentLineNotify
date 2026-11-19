@@ -70,14 +70,14 @@ const iconData = computed(() => {
 </script>
 
 <style scoped>
-.icon-ok { color: var(--iln-ok); }
-.icon-danger { color: var(--iln-danger); }
-.icon-warn { color: var(--iln-warn); }
+.icon-ok { color: var(--iln-viz-bull); }
+.icon-danger { color: var(--iln-viz-bear); }
+.icon-warn { color: var(--iln-viz-alert); }
 .icon-neutral { color: var(--iln-hint); }
 .icon-settings { color: var(--iln-hint); }
 .icon-info { color: var(--iln-hint); }
 .icon-chart { color: var(--iln-text); }
 .icon-shield { color: var(--iln-brand); }
-.icon-trigger { color: var(--iln-warn); }
+.icon-trigger { color: var(--iln-viz-alert); }
 .icon-default { color: var(--iln-hint); }
 </style>

@@ -27,7 +27,7 @@ const props = defineProps({
   label: { type: String, required: true },
   value: { type: Number, default: 0 },
   max: { type: Number, default: 5 },
-  color: { type: String, default: "var(--iln-brand)" },
+  color: { type: String, default: "var(--iln-viz-neutral)" },
   description: { type: String, default: "" },
 });
 

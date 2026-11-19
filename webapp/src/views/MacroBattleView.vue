@@ -36,7 +36,7 @@
         <div class="score-wrap">
           <!-- 多方 -->
           <div class="score-bar-row">
-            <span class="score-side score-side--bull">多 <Icon name="ok" size="sm" color="var(--iln-ok)" /></span>
+            <span class="score-side score-side--bull">多 <Icon name="ok" size="sm" color="var(--iln-viz-bull)" /></span>
             <div class="score-track">
               <div
                 class="score-fill score-fill--bull"
@@ -47,7 +47,7 @@
           </div>
           <!-- 空方 -->
           <div class="score-bar-row">
-            <span class="score-side score-side--bear">空 <Icon name="danger" size="sm" color="var(--iln-danger)" /></span>
+            <span class="score-side score-side--bear">空 <Icon name="danger" size="sm" color="var(--iln-viz-bear)" /></span>
             <div class="score-track">
               <div
                 class="score-fill score-fill--bear"
@@ -76,7 +76,7 @@
       <div class="iln-grid macro-events-grid">
       <!-- 多方事件 -->
       <section v-if="bullEvents.length" class="section">
-        <h3 class="section-title"><Icon name="ok" size="sm" color="var(--iln-ok)" /> 多方事件（{{ bullEvents.length }}）</h3>
+        <h3 class="section-title"><Icon name="ok" size="sm" color="var(--iln-viz-bull)" /> 多方事件（{{ bullEvents.length }}）</h3>
         <div class="event-list">
           <div
             v-for="(e, i) in bullEvents"
@@ -94,7 +94,7 @@
 
       <!-- 空方事件 -->
       <section v-if="bearEvents.length" class="section">
-        <h3 class="section-title"><Icon name="danger" size="sm" color="var(--iln-danger)" /> 空方事件（{{ bearEvents.length }}）</h3>
+        <h3 class="section-title"><Icon name="danger" size="sm" color="var(--iln-viz-bear)" /> 空方事件（{{ bearEvents.length }}）</h3>
         <div class="event-list">
           <div
             v-for="(e, i) in bearEvents"
@@ -281,16 +281,16 @@ const directionClass = computed(() => {
   white-space: nowrap;
 }
 .badge-bull {
-  background: var(--iln-ok-bg);
-  color: var(--iln-ok-text);
+  background: var(--iln-viz-bull-bg);
+  color: var(--iln-viz-bull-text);
 }
 .badge-bear {
-  background: var(--iln-danger-bg);
-  color: var(--iln-danger-text);
+  background: var(--iln-viz-bear-bg);
+  color: var(--iln-viz-bear-text);
 }
 .badge-neutral {
-  background: var(--iln-warn-bg);
-  color: var(--iln-warn-text);
+  background: var(--iln-viz-neutral-bg);
+  color: var(--iln-viz-neutral-text);
 }
 .direction-hint {
   font-size: var(--iln-font-sm);
@@ -335,10 +335,10 @@ const directionClass = computed(() => {
   flex-shrink: 0;
 }
 .score-side--bull {
-  color: var(--iln-ok-text);
+  color: var(--iln-viz-bull-text);
 }
 .score-side--bear {
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 .score-track {
   flex: 1;
@@ -353,10 +353,10 @@ const directionClass = computed(() => {
   transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .score-fill--bull {
-  background: var(--iln-ok);
+  background: linear-gradient(90deg, var(--iln-viz-bull), var(--iln-viz-bull-light));
 }
 .score-fill--bear {
-  background: var(--iln-danger);
+  background: linear-gradient(90deg, var(--iln-viz-bear), var(--iln-viz-bear-light));
 }
 .score-num {
   font-size: 13px;
@@ -406,10 +406,10 @@ const directionClass = computed(() => {
   padding: 10px var(--iln-space-3);
 }
 .event-card--bull {
-  background: var(--iln-ok-bg);
+  background: var(--iln-viz-bull-bg);
 }
 .event-card--bear {
-  background: var(--iln-danger-bg);
+  background: var(--iln-viz-bear-bg);
 }
 .event-card--neutral {
   background: var(--iln-surface);
@@ -426,12 +426,12 @@ const directionClass = computed(() => {
   padding: 2px 7px;
   border-radius: var(--iln-radius-md);
   flex-shrink: 0;
-  color: var(--iln-ok-text);
-  background: var(--iln-ok-bg);
+  color: var(--iln-viz-bull-text);
+  background: var(--iln-viz-bull-bg);
 }
 .event-card--bear .event-score {
-  color: var(--iln-danger-text);
-  background: var(--iln-danger-bg);
+  color: var(--iln-viz-bear-text);
+  background: var(--iln-viz-bear-bg);
 }
 .event-score.neutral {
   color: var(--iln-hint);

@@ -2,6 +2,12 @@
 import { describe, it, expect } from "vitest";
 import router from "../router/index.js";
 
+// Pre-load lazy-routed views so router redirect navigation resolves
+// quickly even when the full suite is under load (fixes /technical and /theory
+// redirect timeouts).
+import "../views/ChartView.vue";
+import "../views/AccountView.vue";
+
 describe("Router 策略設定整合與重定向", () => {
   it("/strategy 應重定向至 /strategy-config", async () => {
     await router.push("/strategy");

@@ -69,21 +69,21 @@ const relative = computed(() => {
 }
 
 .freshness-badge--fresh {
-  background: var(--iln-ok-bg);
-  color: var(--iln-ok-text);
-  border: 1px solid var(--iln-ok);
+  background: var(--iln-viz-bull-bg);
+  color: var(--iln-viz-bull-text);
+  border: 1px solid var(--iln-viz-bull-border);
 }
 
 .freshness-badge--stale {
-  background: var(--iln-warn-bg);
-  color: var(--iln-warn-text);
-  border: 1px solid var(--iln-warn);
+  background: var(--iln-viz-alert-bg);
+  color: var(--iln-viz-alert-text);
+  border: 1px solid var(--iln-viz-alert-border);
 }
 
 .freshness-badge--expired {
-  background: var(--iln-danger-bg);
-  color: var(--iln-danger-text);
-  border: 1px solid var(--iln-danger);
+  background: var(--iln-viz-bear-bg);
+  color: var(--iln-viz-bear-text);
+  border: 1px solid var(--iln-viz-bear-border);
 }
 
 .freshness-badge__icon,

@@ -5,7 +5,7 @@
       <div class="sk sk-label" style="margin-top: 12px"></div>
       <div class="sk sk-value" style="width: 60%"></div>
     </div>
-    <div v-else-if="error" class="inline-error"><Icon name="danger" size="sm" color="var(--iln-danger)" /> 報告載入失敗</div>
+    <div v-else-if="error" class="inline-error"><Icon name="danger" size="sm" color="var(--iln-viz-bear)" /> 報告載入失敗</div>
     <div v-else-if="!report" class="inline-hint"><Icon name="info" size="sm" color="var(--iln-hint)" /> 尚無報告資料</div>
     <div v-else class="hero-card">
       <div class="hero-top">
@@ -14,38 +14,53 @@
           activePriority
         }}</span>
       </div>
-      <div class="hero-main">
-        <div class="hero-target" :class="targetClass">
+      
+      <!-- Primary Action Area -->
+      <div class="hero-cta-area">
+        <div class="hero-target iln-num-tabular" :class="targetClass">
           {{ report.signals?.target ?? "—" }}
         </div>
         <div class="hero-suggestion">
           {{ report.signals?.suggestion || "分析中..." }}
         </div>
+        <el-button 
+          type="primary" 
+          size="large" 
+          class="hero-cta-btn"
+          @click="$emit('action')"
+        >
+          {{ actionText || '立即決策' }}
+        </el-button>
+      </div>
+
+      <CollapsibleSection title="查看風險與詳情" :expanded="expanded" class="hero-details">
         <div class="hero-badges">
-          <span class="badge" :class="pctClass">{{ pctText }}</span>
-          <span class="badge badge-score"
+          <span class="badge iln-num-tabular" :class="pctClass">{{ pctText }}</span>
+          <span class="badge badge-score iln-num-tabular"
             >評分 {{ report.signals?.score ?? "—" }}</span
           >
         </div>
-      </div>
-      <div class="hero-route border-top">
-        <div class="hero-route-main">
-          <span class="route-label">核心路由：</span>
-          <span class="route-path">{{ routingPath || "—" }}</span>
+        <div class="hero-route">
+          <div class="hero-route-main">
+            <span class="route-label">核心路由：</span>
+            <span class="route-path">{{ routingPath || "—" }}</span>
+          </div>
+          <router-link v-if="showTrendLink" to="/chart" class="hero-trend-link">
+            <Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢 →
+          </router-link>
         </div>
-        <router-link v-if="showTrendLink" to="/chart" class="hero-trend-link">
-          <Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢 →
-        </router-link>
-      </div>
+      </CollapsibleSection>
     </div>
   </ContentCard>
 </template>
 
 <script setup>
 import ContentCard from "@/components/common/ContentCard.vue";
+import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 import Icon from "@/components/common/Icon.vue";
+import { ElButton } from "element-plus";
 
-const props = defineProps({
+defineProps({
   report: Object,
   loading: Boolean,
   error: Boolean,
@@ -54,16 +69,48 @@ const props = defineProps({
   pctClass: String,
   pctText: String,
   routingPath: String,
+  actionText: String,
+  expanded: {
+    type: Boolean,
+    default: false,
+  },
   showTrendLink: {
     type: Boolean,
     default: true,
   },
 });
+
+defineEmits(["action"]);
 </script>
 
 <style scoped>
-.hero-card {
-  /* 佈局由 ContentCard 提供，此處僅保留必要的自定義樣式 */
+.hero-cta-area {
+  background: var(--iln-brand-soft);
+  padding: var(--iln-space-5);
+  border-radius: var(--iln-radius-lg);
+  margin-bottom: var(--iln-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-2);
+}
+.hero-cta-btn {
+  width: 100%;
+  margin-top: var(--iln-space-2);
+}
+.hero-target {
+  font-size: var(--iln-font-base);
+  color: var(--iln-text);
+  font-weight: var(--iln-weight-bold);
+}
+.hero-suggestion {
+  font-size: var(--iln-font-xl);
+  color: var(--iln-text);
+  font-weight: var(--iln-weight-bold);
+  line-height: 1.3;
+}
+.hero-details {
+  border-top: 1px solid var(--iln-border-subtle);
+  padding-top: var(--iln-space-4);
 }
 .hero-top {
   display: flex;
@@ -76,36 +123,16 @@ const props = defineProps({
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
-.hero-target {
-  font-size: var(--iln-font-base);
-  color: var(--iln-text);
-  margin-bottom: 20px;
-  line-height: 1.5;
-}
-.target-buy {
-  color: var(--iln-ok-text);
-}
-.target-sell {
-  color: var(--iln-danger-text);
-}
-.target-wait {
-  color: var(--iln-warn-text);
-}
-.hero-suggestion {
-  font-size: var(--iln-font-xl);
-  color: var(--iln-text);
-  margin-bottom: 20px;
-  line-height: 1.5;
-}
 .hero-badges {
   display: flex;
   gap: 8px;
   margin-bottom: 20px;
 }
 .hero-route {
-  border-top: 1px solid var(--iln-surface);
-  padding-top: 16px;
-  gap: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
 }
 .hero-route-main {
   display: flex;
@@ -115,9 +142,7 @@ const props = defineProps({
 .hero-trend-link {
   font-size: var(--iln-font-xs);
   color: var(--iln-brand);
-}
-.hero-trend-link:active {
-  opacity: 0.8;
+  text-decoration: none;
 }
 .route-label {
   font-size: var(--iln-font-xs);
@@ -129,94 +154,29 @@ const props = defineProps({
 }
 .badge {
   font-size: var(--iln-font-xs);
-  color: var(--iln-brand);
   padding: 4px 8px;
   border-radius: var(--iln-radius-sm);
-  transition: background 0.15s ease;
   background: var(--iln-surface);
-}
-.badge-danger {
-  background: var(--iln-danger-bg);
-  color: var(--iln-danger-text);
-}
-.badge-warn {
-  background: var(--iln-warn-bg);
-  color: var(--iln-warn-text);
-}
-.badge-ok {
-  background: var(--iln-ok-bg);
-  color: var(--iln-ok-text);
 }
 .badge-score {
-  font-size: var(--iln-font-xs);
   color: var(--iln-text);
-  padding: 4px 10px;
-  border-radius: var(--iln-radius-md);
-  background: var(--iln-surface);
 }
-
-/* 頂部邊框 */
-.border-top {
-  border-top: 1px solid var(--iln-border-subtle);
-  margin-top: var(--iln-space-4);
-  padding-top: var(--iln-space-4);
-}
-
-/* 英雄主區塊 */
-.hero-main {
-  margin-top: var(--iln-space-4);
-}
-
-/* 優先級標籤 */
 .priority-tag {
   font-size: var(--iln-font-xs);
-  font-weight: var(--iln-weight-medium);
   padding: 2px 8px;
   border-radius: var(--iln-radius-sm);
   background: var(--iln-brand-soft);
   color: var(--iln-brand);
 }
-
-/* 骨架屏卡片 */
 .skeleton-card {
-  background: var(--iln-surface);
-  border: 1px solid var(--iln-border-subtle);
-  border-radius: var(--iln-radius-lg);
   padding: var(--iln-space-5);
-  box-shadow: var(--iln-shadow-1);
   display: flex;
   flex-direction: column;
   gap: var(--iln-space-3);
 }
-
-/* 骨架屏標題 */
-.sk-title {
-  height: 20px;
-  border-radius: var(--iln-radius-sm);
-  background: var(--iln-surface-alt);
-}
-
-/* 骨架屏數值 */
-.sk-value {
-  height: 24px;
-  border-radius: var(--iln-radius-sm);
-  background: var(--iln-surface-alt);
-}
-
-/* 行內錯誤 */
-.inline-error {
-  font-size: var(--iln-font-sm);
-  color: var(--iln-danger-text);
-  display: flex;
-  align-items: center;
-  gap: var(--iln-space-1);
-  padding: var(--iln-space-3);
-}
-
-/* 行內提示 */
-.inline-hint {
-  font-size: var(--iln-font-sm);
-  color: var(--iln-hint);
+.sk-title { height: 20px; border-radius: var(--iln-radius-sm); background: var(--iln-surface-alt); }
+.sk-value { height: 24px; border-radius: var(--iln-radius-sm); background: var(--iln-surface-alt); }
+.inline-error, .inline-hint {
   display: flex;
   align-items: center;
   gap: var(--iln-space-1);

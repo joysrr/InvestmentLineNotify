@@ -17,7 +17,7 @@
           class="cockpit-flash"
           title="VIX 短路保護生效"
         >
-          <Icon name="trigger" size="sm" color="var(--iln-warn)" />
+          <Icon name="trigger" size="sm" color="var(--iln-viz-alert)" />
         </span>
       </div>
       <div class="cockpit-title" :class="regimeLevel?.textClass">

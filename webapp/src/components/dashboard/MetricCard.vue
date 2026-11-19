@@ -8,7 +8,7 @@
     <div class="metric-icon" v-if="icon"><Icon :name="icon" size="sm"/></div>
     <div class="metric-body">
       <div class="metric-title">{{ title }}</div>
-      <div class="metric-value" :class="trendClass">{{ value }}</div>
+      <div class="metric-value iln-num-tabular" :class="trendClass">{{ value }}</div>
     </div>
   </ContentCard>
 </template>
@@ -41,10 +41,10 @@ const trendClass = computed(() => {
 
 <style scoped>
 .metric-card--up {
-  border-left: 4px solid var(--iln-ok-text);
+  border-left: 4px solid var(--iln-viz-bull-border);
 }
 .metric-card--down {
-  border-left: 4px solid var(--iln-danger-text);
+  border-left: 4px solid var(--iln-viz-bear-border);
 }
 .metric-icon {
   font-size: var(--iln-font-lg);
@@ -74,9 +74,9 @@ const trendClass = computed(() => {
   text-overflow: ellipsis;
 }
 .metric-value.text-up {
-  color: var(--iln-ok-text);
+  color: var(--iln-viz-bull-text);
 }
 .metric-value.text-down {
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 </style>
