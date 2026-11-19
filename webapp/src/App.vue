@@ -58,7 +58,7 @@ onErrorCaptured((err) => {
   return false;
 });
 
-const { expand, backButton, viewportHeight, viewportStableHeight, safeAreaInset } =
+const { expand, haptic, backButton, viewportHeight, viewportStableHeight, safeAreaInset } =
   useTelegram();
 
 // ── Telegram 返回鍵管理 ──
@@ -66,9 +66,13 @@ const handleBack = () => router.back();
 
 watch(
   (() => route.path),
-  (path) => {
+  (path, prevPath) => {
     if (!backButton) return;
-    const rootPaths = ["/dashboard", "/insights", "/chart", "/news", "/account"];
+    // 路由切換時輕微觸覺回饋（非首次掛載）
+    if (prevPath && prevPath !== path) {
+      haptic("light");
+    }
+    const rootPaths = ["/dashboard", "/insights", "/chart", "/account"];
     if (rootPaths.includes(path)) {
       backButton.hide();
       backButton.offClick(handleBack);
