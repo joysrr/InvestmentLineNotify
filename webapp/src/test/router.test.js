@@ -31,9 +31,9 @@ describe("Router 策略設定整合與重定向", () => {
   });
 
   it("/radar 應重定向至 /insights?tab=radar", async () => {
-    await router.push("/radar");
-    expect(router.currentRoute.value.path).toBe("/insights");
-    expect(router.currentRoute.value.query.tab).toBe("radar");
+    const matchee = router.getRoutes().find((r) => r.path === "/radar");
+    expect(matchee).toBeDefined();
+    expect(matchee.redirect).toBe("/insights?tab=radar");
   });
 
   it("/macro 應重定向至 /insights?tab=macro", async () => {

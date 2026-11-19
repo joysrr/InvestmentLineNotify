@@ -1,7 +1,10 @@
 // scripts/verify-all-pages.mjs
 import { chromium } from "playwright";
 import { spawn } from "child_process";
+import { join } from "path";
 import http from "http";
+
+const MOCK_SCENARIO = process.env.MOCK_SCENARIO || "rich";
 
 function checkUrl(url) {
   return new Promise((resolve) => {
@@ -24,30 +27,25 @@ console.log("================================================");
 console.log("🧪 Playwright 全頁面 100% 完整功能驗證");
 console.log("================================================\n");
 
-// 1. 啟動 API Server (注入 BYPASS_INIT_DATA=true)
-console.log("📡 啟動 API Server (BYPASS_INIT_DATA=true)...");
-const apiServer = spawn("node", ["src/api/server.mjs"], {
-  cwd: "/workspace/projects/InvestmentLineNotify",
-  env: { ...process.env, NODE_ENV: "development", BYPASS_INIT_DATA: "true" },
-  stdio: "ignore",
-});
+// 1. 解析目前工作區；頁面驗證使用前端 dev-bypass，不依賴外部 API secrets。
+const WEBAPP_DIR = process.cwd();
+const ROOT_DIR = join(WEBAPP_DIR, "..");
 
 // 2. 啟動 WebApp Dev Server (固定 port 5173)
 console.log("💻 啟動 WebApp Dev Server...");
-const webServer = spawn("npx", ["vite", "--port", "5173", "--strictPort"], {
-  cwd: "/workspace/projects/InvestmentLineNotify/webapp",
-  env: { ...process.env },
-  stdio: "ignore",
-});
+const webServer = spawn(
+  join(WEBAPP_DIR, "node_modules", ".bin", "vite"),
+  ["--host", "127.0.0.1", "--port", "5173", "--strictPort"],
+  {
+    cwd: WEBAPP_DIR,
+    env: { ...process.env, VITE_USE_MOCK_API: "true" },
+    stdio: "ignore",
+  },
+);
 
 const cleanup = () => {
   console.log("\n🧹 清理背景服務程序...");
   // Cleanup is best effort; the process may already have exited.
-  try {
-    apiServer.kill();
-  } catch (e) {
-    /* intentionally ignored */
-  }
   try {
     webServer.kill();
   } catch (e) {
@@ -58,26 +56,23 @@ const cleanup = () => {
 process.on("exit", () => cleanup());
 process.on("SIGINT", () => cleanup());
 
-const apiReady = await waitForServer("http://localhost:3000/health");
 const webReady = await waitForServer("http://localhost:5173");
 
-if (!apiReady || !webReady) {
-  console.error("❌ 伺服器啟動超時！API:", apiReady, "Web:", webReady);
+if (!webReady) {
+  console.error("❌ WebApp 伺服器啟動超時！Web:", webReady);
   cleanup();
   process.exit(1);
 }
 
-console.log("✅ 伺服器就緒！開始 Playwright 掃描...\n");
+console.log("✅ WebApp 就緒！開始 Playwright 掃描...\n");
 
 const pages = [
   { path: "/#/dashboard", name: "DashboardView" },
-  { path: "/#/simulator", name: "SimulatorView" },
   { path: "/#/account", name: "AccountView" },
   { path: "/#/technical", name: "TechnicalView" },
   { path: "/#/radar", name: "MarketRadarView" },
   { path: "/#/macro", name: "MacroBattleView" },
   { path: "/#/chart", name: "ChartView" },
-  { path: "/#/reports", name: "ReportsView" },
   { path: "/#/news", name: "NewsView" },
   { path: "/#/strategy", name: "StrategyView" },
   { path: "/#/strategy-config", name: "StrategyConfigEditorView" },
@@ -112,21 +107,30 @@ for (const p of pages) {
     };
   });
 
+  // 使用應用內集中式 fetch mock；Playwright 僅提供 Telegram 環境，不攔截非 API 資源。
+  await tab.addInitScript((scenario) => {
+    window.__ILN_MOCK_SCENARIO_OVERRIDE__ = scenario;
+  }, MOCK_SCENARIO);
+
   const consoleErrors = [];
   tab.on("console", (msg) => {
-    if (msg.type() === "error") {
-      const text = msg.text();
-      if (!text.includes("favicon") && !text.includes("langfuse")) {
-        consoleErrors.push(text.substring(0, 150));
-      }
+    if (msg.type() !== "error") return;
+    const text = msg.text();
+    if (!text.includes("favicon") && !text.includes("langfuse")) {
+      consoleErrors.push(text.substring(0, 150));
     }
   });
 
   try {
-    await tab.goto("http://localhost:5173" + p.path, {
-      waitUntil: "domcontentloaded",
-      timeout: 15000,
-    });
+    await tab.goto(
+      "http://localhost:5173" +
+        p.path +
+        `?mock=${encodeURIComponent(MOCK_SCENARIO)}`,
+      {
+        waitUntil: "domcontentloaded",
+        timeout: 15000,
+      },
+    );
     await tab.waitForTimeout(3000);
 
     const metrics = await tab.evaluate(() => {

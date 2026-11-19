@@ -1,9 +1,10 @@
 ---
 type: plan
-status: active
-last_updated: 2026-11-17
-last_verified: 2026-11-17
-progress: "P0 已完成 / P1 已完成 / P2 已完成 / P3 已完成（待 P4 驗證）"
+status: completed
+last_updated: 2026-11-19
+last_verified: 2026-11-19
+completed_at: 2026-11-19
+progress: "P0 已完成 / P1 已完成 / P2 已完成 / P3 已完成 / P4 已完成（前端頁面驗證與導航恢復完成）"
 tags:
   - uiux
   - navigation
@@ -59,61 +60,61 @@ wiki_links:
 
 ### 2.1 導航與連結清單
 
-| # | 位置 | 現況 | 判定 | 處置 |
-|---|------|------|------|------|
-| 1 | `components/radar/RadarSubtabs.vue` | 3 個 `router-link` → `/radar` `/macro` `/technical` | **重複 ×3 + 失效語義** | **刪除組件**，3 處引用一併移除 |
-| 2 | `views/MarketRadarView.vue:19` | `<RadarSubtabs />` | 重複 | 移除 |
-| 3 | `views/MacroBattleView.vue:10` | `<RadarSubtabs />` | 重複 | 移除 |
-| 4 | `components/chart/TechnicalPanel.vue:12` | `<RadarSubtabs />` | 重複 | 移除 |
-| 5 | `views/ChartView.vue:11-17` | `.chart-tabs` 僅 1 個按鈕「資產趨勢」 | **假 Tab** | 刪除整段 |
-| 6 | `views/ChartView.vue:4-8` | `SubTabBar`（圖表 / 技術指標） | 有效但樣式為裸 Tab | **保留功能，改為 Segmented 控件** |
-| 7 | `views/InsightsView.vue:3-7` | `SubTabBar`（市場雷達 / 多空對決） | 有效但同上 | **保留功能，改為 Segmented 控件** |
-| 8 | `views/StrategyConfigEditor.vue:64,79` | 雙層 `role=tablist`（Primary + Secondary） | 層級過重 | **合併為單層分組 Chip + 分組標題** |
-| 9 | `router/index.js:36,42,48,58,65,68` | `/technical` `/radar` `/macro` `/theory` `/strategy-status` 為 redirect | **保留**（外部深鏈兼容） | 不動路由，只改內部引用 |
-| 10 | `views/DashboardView.vue:87` | `to="/radar"`（走 redirect） | 間接連結 | 改為 `to="/insights?tab=radar"` |
-| 11 | `components/dashboard/MarketDetailDrawer.vue:72` | `to="/radar"` | 間接連結 | 改為 `to="/insights?tab=radar"` |
-| 12 | `views/AccountView.vue:63` | `to="/strategy-config"` | 有效 | 保留 |
-| 13 | `views/AccountView.vue:133`、`DecisionHero.vue:36` | `to="/chart"` | 有效 | 保留 |
-| 14 | `stores/navigationStore.js` | `useNavigationStore` **0 引用** | **死代碼** | 刪除檔案 |
-| 15 | `components/radar/RadarSubtabs.vue:7,15,23` | `aria-selected="false"` 寫死 | a11y 錯誤 | 隨組件刪除 |
-| 16 | `config/tabsConfig.js` | 內聯 SVG 字符串（第 2 套圖標系統） | 重複體系 | **P2**：遷移至 `icon-registry` |
-| 17 | `router/index.js` `viewLoaders` 導出 | 無引用 | 疑似死代碼 | 本次確認後刪除 |
+| #   | 位置                                               | 現況                                                                    | 判定                     | 處置                               |
+| --- | -------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------ | ---------------------------------- |
+| 1   | `components/radar/RadarSubtabs.vue`                | 3 個 `router-link` → `/radar` `/macro` `/technical`                     | **重複 ×3 + 失效語義**   | **刪除組件**，3 處引用一併移除     |
+| 2   | `views/MarketRadarView.vue:19`                     | `<RadarSubtabs />`                                                      | 重複                     | 移除                               |
+| 3   | `views/MacroBattleView.vue:10`                     | `<RadarSubtabs />`                                                      | 重複                     | 移除                               |
+| 4   | `components/chart/TechnicalPanel.vue:12`           | `<RadarSubtabs />`                                                      | 重複                     | 移除                               |
+| 5   | `views/ChartView.vue:11-17`                        | `.chart-tabs` 僅 1 個按鈕「資產趨勢」                                   | **假 Tab**               | 刪除整段                           |
+| 6   | `views/ChartView.vue:4-8`                          | `SubTabBar`（圖表 / 技術指標）                                          | 有效但樣式為裸 Tab       | **保留功能，改為 Segmented 控件**  |
+| 7   | `views/InsightsView.vue:3-7`                       | `SubTabBar`（市場雷達 / 多空對決）                                      | 有效但同上               | **保留功能，改為 Segmented 控件**  |
+| 8   | `views/StrategyConfigEditor.vue:64,79`             | 雙層 `role=tablist`（Primary + Secondary）                              | 層級過重                 | **合併為單層分組 Chip + 分組標題** |
+| 9   | `router/index.js:36,42,48,58,65,68`                | `/technical` `/radar` `/macro` `/theory` `/strategy-status` 為 redirect | **保留**（外部深鏈兼容） | 不動路由，只改內部引用             |
+| 10  | `views/DashboardView.vue:87`                       | `to="/radar"`（走 redirect）                                            | 間接連結                 | 改為 `to="/insights?tab=radar"`    |
+| 11  | `components/dashboard/MarketDetailDrawer.vue:72`   | `to="/radar"`                                                           | 間接連結                 | 改為 `to="/insights?tab=radar"`    |
+| 12  | `views/AccountView.vue:63`                         | `to="/strategy-config"`                                                 | 有效                     | 保留                               |
+| 13  | `views/AccountView.vue:133`、`DecisionHero.vue:36` | `to="/chart"`                                                           | 有效                     | 保留                               |
+| 14  | `stores/navigationStore.js`                        | `useNavigationStore` **0 引用**                                         | **死代碼**               | 刪除檔案                           |
+| 15  | `components/radar/RadarSubtabs.vue:7,15,23`        | `aria-selected="false"` 寫死                                            | a11y 錯誤                | 隨組件刪除                         |
+| 16  | `config/tabsConfig.js`                             | 內聯 SVG 字符串（第 2 套圖標系統）                                      | 重複體系                 | **P2**：遷移至 `icon-registry`     |
+| 17  | `router/index.js` `viewLoaders` 導出               | 無引用                                                                  | 疑似死代碼               | 本次確認後刪除                     |
 
 > **重複保留原則**：同一功能只保留「頁內控件」一個入口；`redirect` 路由保留作為**外部/深鏈兼容層**，不再被內部組件直接引用。
 
 ### 2.2 圖標使用分布（實測）
 
-| 圖標 | 次數 | 語義問題 |
-|------|------|----------|
-| `neutral` | 32 | 通用圓圈，不承載任何語義 |
-| `chart` | 13 | 可接受，但被用於非圖表場景 |
-| `shield` | 8 | 可接受 |
-| `danger` | 8 | 可接受 |
-| `info` | 7 | 部分場景應為更具體圖標 |
-| `radar` | 4 | 可接受 |
-| `ok` | 4 | 可接受 |
-| `trigger` | 3 | 可接受 |
-| `chevron-down` | 3 | 可接受 |
-| `warn` | 2 | 可接受 |
-| `settings` | 1 | **渲染異常（path 損壞）** |
-| `clock` | 1 | 可接受 |
+| 圖標           | 次數 | 語義問題                   |
+| -------------- | ---- | -------------------------- |
+| `neutral`      | 32   | 通用圓圈，不承載任何語義   |
+| `chart`        | 13   | 可接受，但被用於非圖表場景 |
+| `shield`       | 8    | 可接受                     |
+| `danger`       | 8    | 可接受                     |
+| `info`         | 7    | 部分場景應為更具體圖標     |
+| `radar`        | 4    | 可接受                     |
+| `ok`           | 4    | 可接受                     |
+| `trigger`      | 3    | 可接受                     |
+| `chevron-down` | 3    | 可接受                     |
+| `warn`         | 2    | 可接受                     |
+| `settings`     | 1    | **渲染異常（path 損壞）**  |
+| `clock`        | 1    | 可接受                     |
 
 ### 2.3 圖標 Bug
 
-| 檔案 | 問題 |
-|------|------|
-| `icon-registry.js` `SETTINGS_PATH` | path 字符串損壞（`-.08-.47 0 .59-.22`），齒輪渲染異常 |
-| `Icon.vue` `SIZE_MAP` | 缺 `xs`，但 `TechnicalPanel.vue:44` 使用 `size="xs"` → 輸出 `width="xs"`，SVG 尺寸失效 |
-| `Icon.vue` `iconData` | 未知名稱 fallback 到 `neutral`，掩蓋了拼寫錯誤 |
+| 檔案                               | 問題                                                                                   |
+| ---------------------------------- | -------------------------------------------------------------------------------------- |
+| `icon-registry.js` `SETTINGS_PATH` | path 字符串損壞（`-.08-.47 0 .59-.22`），齒輪渲染異常                                  |
+| `Icon.vue` `SIZE_MAP`              | 缺 `xs`，但 `TechnicalPanel.vue:44` 使用 `size="xs"` → 輸出 `width="xs"`，SVG 尺寸失效 |
+| `Icon.vue` `iconData`              | 未知名稱 fallback 到 `neutral`，掩蓋了拼寫錯誤                                         |
 
 ### 2.4 寬度現況
 
-| 檔案 | 規則 | 問題 |
-|------|------|------|
-| `views/DashboardView.vue:482` | `max-width: 600px` | 唯一有約束的頁面，且硬編碼 |
-| `shared-styles.css` `.iln-page` | 無 `max-width` | 全寬拉伸 |
-| `views/StrategyConfigEditor.vue:392` | `max-width: 900px` | 硬編碼，與上者不一致 |
-| 其餘 6 個頁面 | 100% 拉伸 | 卡片單列，寬屏空洞 |
+| 檔案                                 | 規則               | 問題                       |
+| ------------------------------------ | ------------------ | -------------------------- |
+| `views/DashboardView.vue:482`        | `max-width: 600px` | 唯一有約束的頁面，且硬編碼 |
+| `shared-styles.css` `.iln-page`      | 無 `max-width`     | 全寬拉伸                   |
+| `views/StrategyConfigEditor.vue:392` | `max-width: 900px` | 硬編碼，與上者不一致       |
+| 其餘 6 個頁面                        | 100% 拉伸          | 卡片單列，寬屏空洞         |
 
 ---
 
@@ -124,6 +125,7 @@ wiki_links:
 **路徑**：`webapp/src/components/common/SegmentedControl.vue`
 
 **規格**：
+
 - Props：`modelValue`、`options: [{value,label,icon?}]`、`size: 'sm'|'md'`
 - 樣式：膠囊底 `--iln-secondary-bg`，選中項 `--iln-bg` + `--iln-brand` 文字 + `--iln-shadow-1`
 - 觸控高度 ≥ `--iln-touch-min`（44px）
@@ -133,31 +135,31 @@ wiki_links:
 
 ### 3.2 替換與刪除清單
 
-| 動作 | 檔案 | 說明 |
-|------|------|------|
-| 刪除 | `components/radar/RadarSubtabs.vue` | 整個檔案（重複 ×3） |
-| 刪除 | `components/common/SubTabBar.vue` + `.test.js` | 由 SegmentedControl 取代 |
-| 刪除 | `stores/navigationStore.js` | 死代碼，0 引用 |
-| 刪除 | `ChartView.vue` `.chart-tabs` 區塊（L11-17）及對應 CSS | 單按鈕假 Tab |
-| 修改 | `MarketRadarView.vue` | 移除 `<RadarSubtabs />` 與 import，加返回膠囊 |
-| 修改 | `MacroBattleView.vue` | 同上 |
-| 修改 | `components/chart/TechnicalPanel.vue` | 移除 `<RadarSubtabs />` 與 import |
-| 修改 | `InsightsView.vue` | `SubTabBar` → `SegmentedControl` |
-| 修改 | `ChartView.vue` | `SubTabBar` → `SegmentedControl` |
-| 修改 | `StrategyConfigEditor.vue` | 雙層 tablist → 單層分組 Chip |
-| 修改 | `DashboardView.vue:87` | `to="/radar"` → `to="/insights?tab=radar"` |
-| 修改 | `MarketDetailDrawer.vue:72` | 同上 |
-| 保留 | `router/index.js` 全部 redirect | 外部深鏈兼容層，不動 |
+| 動作 | 檔案                                                   | 說明                                          |
+| ---- | ------------------------------------------------------ | --------------------------------------------- |
+| 刪除 | `components/radar/RadarSubtabs.vue`                    | 整個檔案（重複 ×3）                           |
+| 刪除 | `components/common/SubTabBar.vue` + `.test.js`         | 由 SegmentedControl 取代                      |
+| 刪除 | `stores/navigationStore.js`                            | 死代碼，0 引用                                |
+| 刪除 | `ChartView.vue` `.chart-tabs` 區塊（L11-17）及對應 CSS | 單按鈕假 Tab                                  |
+| 修改 | `MarketRadarView.vue`                                  | 移除 `<RadarSubtabs />` 與 import，加返回膠囊 |
+| 修改 | `MacroBattleView.vue`                                  | 同上                                          |
+| 修改 | `components/chart/TechnicalPanel.vue`                  | 移除 `<RadarSubtabs />` 與 import             |
+| 修改 | `InsightsView.vue`                                     | `SubTabBar` → `SegmentedControl`              |
+| 修改 | `ChartView.vue`                                        | `SubTabBar` → `SegmentedControl`              |
+| 修改 | `StrategyConfigEditor.vue`                             | 雙層 tablist → 單層分組 Chip                  |
+| 修改 | `DashboardView.vue:87`                                 | `to="/radar"` → `to="/insights?tab=radar"`    |
+| 修改 | `MarketDetailDrawer.vue:72`                            | 同上                                          |
+| 保留 | `router/index.js` 全部 redirect                        | 外部深鏈兼容層，不動                          |
 
 ### 3.3 頁內導航補充（替代被刪的跨頁 Tab）
 
 在 3 個子頁面標題列右側放「返回膠囊」：
 
-| 頁面 | 按鈕文字 | 目標 |
-|------|----------|------|
-| `MarketRadarView` | `洞察 · 市場雷達` | `/insights?tab=radar` |
-| `MacroBattleView` | `洞察 · 多空對決` | `/insights?tab=macro` |
-| `TechnicalPanel` | `圖表 · 技術指標` | `/chart?tab=technical` |
+| 頁面              | 按鈕文字          | 目標                   |
+| ----------------- | ----------------- | ---------------------- |
+| `MarketRadarView` | `洞察 · 市場雷達` | `/insights?tab=radar`  |
+| `MacroBattleView` | `洞察 · 多空對決` | `/insights?tab=macro`  |
+| `TechnicalPanel`  | `圖表 · 技術指標` | `/chart?tab=technical` |
 
 樣式：`Icon name="arrow-left"`（size `sm`）+ 文字，`--iln-radius-full`，`min-height: 36px`，`--iln-surface-alt` 底。
 
@@ -172,7 +174,6 @@ wiki_links:
 
 ## 4. 任務二 · 圖標多樣化
 
-
 ### 4.1 先修 Bug
 
 **Bug 1 · `icon-registry.js` 的 `SETTINGS_PATH`**
@@ -185,6 +186,7 @@ wiki_links:
 導致 `resolvedSize` 回傳字串 "xs"，SVG 輸出 `width="xs"` → 尺寸失效。
 
 處置：
+
 - `SIZE_MAP` 補 `xs: "12"`
 - `resolvedSize` 的 fallback 由 `String(props.size)` 改為 `"20"`，
   未知尺寸不再直出到 DOM
@@ -194,12 +196,12 @@ wiki_links:
 
 全部採 24×24 viewBox、`fill="currentColor"`，在 `ICON_MAP` 註冊，`ICON_NAMES` 自動導出。
 
-| 分類 | 圖標名 |
-|------|--------|
-| 方向 / 趨勢 | `trending-up`、`trending-down`、`arrow-left`、`arrow-right`、`chevron-right`、`chevron-up` |
-| 市場語義 | `bull`、`bear`、`candlestick`、`percent`、`coins`、`bank`、`wallet-outline` |
+| 分類        | 圖標名                                                                                               |
+| ----------- | ---------------------------------------------------------------------------------------------------- |
+| 方向 / 趨勢 | `trending-up`、`trending-down`、`arrow-left`、`arrow-right`、`chevron-right`、`chevron-up`           |
+| 市場語義    | `bull`、`bear`、`candlestick`、`percent`、`coins`、`bank`、`wallet-outline`                          |
 | 狀態 / 操作 | `refresh`、`download`、`upload`、`copy`、`external-link`、`filter`、`close`、`plus`、`edit`、`trash` |
-| 資訊 / 分析 | `gauge`、`target`、`flame`、`layers`、`activity`、`calendar`、`pie-chart`、`bar-chart` |
+| 資訊 / 分析 | `gauge`、`target`、`flame`、`layers`、`activity`、`calendar`、`pie-chart`、`bar-chart`               |
 
 > 數量說明：上表 **30 個全部納入 P2 執行**，不再標「選做」。分兩批落地便於中途驗證 ——
 > 首批 13 個（方向 + 市場語義）用於替換 `neutral`；次批 17 個（操作 + 分析）用於按鈕與卡片標題語義化。
@@ -207,16 +209,16 @@ wiki_links:
 
 ### 4.3 `neutral` 替換映射（32 處）
 
-| 使用場景 | 檔案 | 改為 |
-|----------|------|------|
-| 看多 / 上漲 | `MacroBattleView`、`MarketRadarView` | `trending-up` |
-| 看空 / 下跌 | 同上 | `trending-down` |
-| 中性觀望 / 無方向 | `MacroBattleView` | `minus` |
-| 市場總覽入口 | `DashboardView:87` | `radar` |
-| 總經卡片標題 | `MacroBattleView:4` | `gauge` |
-| 情緒 / 熱度 | `SocialSentimentCard` | `flame` |
-| 資金 / 曝險 | `CashExposureWidget` | `coins` |
-| 其餘無法歸類 | — | 暫用 `info`，再逐個語義化 |
+| 使用場景          | 檔案                                 | 改為                      |
+| ----------------- | ------------------------------------ | ------------------------- |
+| 看多 / 上漲       | `MacroBattleView`、`MarketRadarView` | `trending-up`             |
+| 看空 / 下跌       | 同上                                 | `trending-down`           |
+| 中性觀望 / 無方向 | `MacroBattleView`                    | `minus`                   |
+| 市場總覽入口      | `DashboardView:87`                   | `radar`                   |
+| 總經卡片標題      | `MacroBattleView:4`                  | `gauge`                   |
+| 情緒 / 熱度       | `SocialSentimentCard`                | `flame`                   |
+| 資金 / 曝險       | `CashExposureWidget`                 | `coins`                   |
+| 其餘無法歸類      | —                                    | 暫用 `info`，再逐個語義化 |
 
 **執行方式**：先 `grep -rn 'name="neutral"' webapp/src` 產出完整 32 行清單，
 逐檔改；每改 5 處跑一次 `npm --prefix webapp run test -- IconUsage`。
@@ -237,11 +239,11 @@ wiki_links:
 
 在 `:root` 新增三個變數：
 
-| 變數 | 值 | 用途 |
-|------|-----|------|
-| `--iln-content-max` | `720px` | 手機 / 平板內容上限 |
-| `--iln-content-max-wide` | `1080px` | 寬屏（≥1024px）上限 |
-| `--iln-grid-gap` | `var(--iln-space-4)` | 柵格間距 |
+| 變數                     | 值                   | 用途                |
+| ------------------------ | -------------------- | ------------------- |
+| `--iln-content-max`      | `720px`              | 手機 / 平板內容上限 |
+| `--iln-content-max-wide` | `1080px`             | 寬屏（≥1024px）上限 |
+| `--iln-grid-gap`         | `var(--iln-space-4)` | 柵格間距            |
 
 `shared-styles.css` 的 `.iln-page` 改為：寬度 100%、`max-width: var(--iln-content-max)`、
 `margin-inline: auto`、`padding-inline: var(--iln-space-4)`；
@@ -260,17 +262,17 @@ wiki_links:
 
 ### 5.3 逐頁應用
 
-| 頁面 | 改動 |
-|------|------|
-| `DashboardView` | 刪硬編碼 `max-width:600px`，改用 token；卡片流套 `.iln-grid.iln-grid--2`；`DecisionHero` 加 `.iln-grid__full` |
-| `InsightsView` | 兩個子面板各用 `.iln-grid--2` |
-| `MarketRadarView` | `ExtremeRadarPanel` + `CashExposureWidget` 在 ≥768px 並排 |
-| `MacroBattleView` | 多空左右條改為兩張卡片，≥768px 並排 |
-| `NewsView` | 列表 ≥1024px 轉 2 列 |
-| `AccountView` | 設定分組 ≥768px 轉 2 列 |
-| `ChartView` | 圖表容器 `min-height: 360px`；摘要卡片 `.iln-grid--2` |
-| `TechnicalPanel` | 指標卡片 `.iln-grid--3`（≥1024px） |
-| `StrategyConfigEditor` | `max-width:900px` 改為 `var(--iln-content-max)` |
+| 頁面                   | 改動                                                                                                          |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `DashboardView`        | 刪硬編碼 `max-width:600px`，改用 token；卡片流套 `.iln-grid.iln-grid--2`；`DecisionHero` 加 `.iln-grid__full` |
+| `InsightsView`         | 兩個子面板各用 `.iln-grid--2`                                                                                 |
+| `MarketRadarView`      | `ExtremeRadarPanel` + `CashExposureWidget` 在 ≥768px 並排                                                     |
+| `MacroBattleView`      | 多空左右條改為兩張卡片，≥768px 並排                                                                           |
+| `NewsView`             | 列表 ≥1024px 轉 2 列                                                                                          |
+| `AccountView`          | 設定分組 ≥768px 轉 2 列                                                                                       |
+| `ChartView`            | 圖表容器 `min-height: 360px`；摘要卡片 `.iln-grid--2`                                                         |
+| `TechnicalPanel`       | 指標卡片 `.iln-grid--3`（≥1024px）                                                                            |
+| `StrategyConfigEditor` | `max-width:900px` 改為 `var(--iln-content-max)`                                                               |
 
 ### 5.4 消除「空洞」的四個手段
 
@@ -290,26 +292,25 @@ wiki_links:
 
 ## 6. 執行順序與估時
 
-| 階段 | 內容 | 預估 | 依賴 |
-|------|------|------|------|
-| P0 | 修 2 個 Icon Bug（SETTINGS_PATH、xs 尺寸） | 0.5h | — |
-| P1 | 刪 RadarSubtabs / SubTabBar / navigationStore / 假 Tab | 2h | — |
-| P1 | 新增 SegmentedControl 並接入 Insights / Chart | 2h | P1 刪除 |
-| P1 | StrategyConfigEditor 雙層 Tab 收斂 | 1.5h | SegmentedControl |
-| P1 | 修正 2 處 `to="/radar"` | 0.2h | — |
-| P2 | 新增 13 個方向/市場圖標 + `neutral` 替換 | ✅ 完成（fbd6d91d） | P0 |
-| P2 | 剩餘 17 個操作/分析圖標 | 1.5h | P2 首批 |
-| P2 | `tabsConfig` 內聯 SVG 遷移 | 1h | P2 圖標 |
-| P3 | 容器 token + `.iln-grid` 工具類 | 1h | — |
-| P3 | 9 個頁面逐一套用柵格 | 4h | P3 工具類 |
-| P4 | 全量驗證 + 截圖比對 + 文件回寫 | 2h | 全部 |
+| 階段 | 內容                                                   | 預估                | 依賴             |
+| ---- | ------------------------------------------------------ | ------------------- | ---------------- |
+| P0   | 修 2 個 Icon Bug（SETTINGS_PATH、xs 尺寸）             | 0.5h                | —                |
+| P1   | 刪 RadarSubtabs / SubTabBar / navigationStore / 假 Tab | 2h                  | —                |
+| P1   | 新增 SegmentedControl 並接入 Insights / Chart          | 2h                  | P1 刪除          |
+| P1   | StrategyConfigEditor 雙層 Tab 收斂                     | 1.5h                | SegmentedControl |
+| P1   | 修正 2 處 `to="/radar"`                                | 0.2h                | —                |
+| P2   | 新增 13 個方向/市場圖標 + `neutral` 替換               | ✅ 完成（fbd6d91d） | P0               |
+| P2   | 剩餘 17 個操作/分析圖標                                | 1.5h                | P2 首批          |
+| P2   | `tabsConfig` 內聯 SVG 遷移                             | 1h                  | P2 圖標          |
+| P3   | 容器 token + `.iln-grid` 工具類                        | 1h                  | —                |
+| P3   | 9 個頁面逐一套用柵格                                   | 4h                  | P3 工具類        |
+| P4   | 全量驗證 + 截圖比對 + 文件回寫                         | 2h                  | 全部             |
 
 **合計約 18.7h**。建議先交付 P0 + P1（約 6.2h），體驗改善最明顯。
 
 ---
 
 ## 7. 驗證清單
-
 
 ### 7.1 靜態與單元
 
@@ -332,13 +333,13 @@ wiki_links:
 
 ## 8. 風險與回滾
 
-| 風險 | 影響 | 緩解 |
-|------|------|------|
-| 刪 RadarSubtabs 後子頁無返回入口 | 用戶迷路 | P1 同步加「返回膠囊」按鈕 |
-| 外部深鏈依賴 /radar 等 redirect | 404 | 保留全部 redirect 路由，只改內部引用 |
-| E2E 選擇器依賴 role=tablist | 測試失敗 | 12-strategyConfig.spec.js 改抓 data-testid="section-groups" |
-| 柵格改動導致卡片溢出 | 佈局破損 | 所有 grid 用 minmax(0, 1fr) |
-| 圖標 path 手寫出錯 | 顯示異常 | 統一從 Material Symbols 複製，逐個目視驗證 |
+| 風險                             | 影響     | 緩解                                                        |
+| -------------------------------- | -------- | ----------------------------------------------------------- |
+| 刪 RadarSubtabs 後子頁無返回入口 | 用戶迷路 | P1 同步加「返回膠囊」按鈕                                   |
+| 外部深鏈依賴 /radar 等 redirect  | 404      | 保留全部 redirect 路由，只改內部引用                        |
+| E2E 選擇器依賴 role=tablist      | 測試失敗 | 12-strategyConfig.spec.js 改抓 data-testid="section-groups" |
+| 柵格改動導致卡片溢出             | 佈局破損 | 所有 grid 用 minmax(0, 1fr)                                 |
+| 圖標 path 手寫出錯               | 顯示異常 | 統一從 Material Symbols 複製，逐個目視驗證                  |
 
 **回滾**：每階段獨立 commit，訊息前綴 `uiux(p0):` `uiux(p1):` 等，可單獨 revert。
 
@@ -451,7 +452,6 @@ wiki_links:
 - 檢查容器 token：`grep -n "iln-content-max" src/styles/tokens.css`
 - 檢查柵格類：`grep -n "iln-grid" src/shared-styles.css`
 
-
 ### 11.4.1 已知環境阻塞（2026-11-17 發現）
 
 **vitest 無法啟動任何測試**，錯誤訊息：
@@ -477,6 +477,7 @@ CJS 用 `require()` 載入純 ESM 套件，Node 20 直接拋 `ERR_REQUIRE_ESM`�
 **暫行驗證方式**：用 `node -e` 直接讀檔做結構化斷言（P0 已用此法驗證全部通過）。
 
 **根治建議（不在本計畫範圍，需另開 issue）**：
+
 1. 在 `package.json` 加 `overrides` 釘住 `@exodus/bytes` 至 CJS 相容版本，或
 2. 升級 `jsdom` 至已修復版本，或
 3. 改用 `happy-dom` 取代 `jsdom`
@@ -487,11 +488,14 @@ CJS 用 `require()` 載入純 ESM 套件，Node 20 直接拋 `ERR_REQUIRE_ESM`�
 
 > 每次動工前新增一行；收工時補上結果。格式：日期 | 階段 | 本次做了什麼 | 結果
 
-| 日期 | 階段 | 內容 | 結果 |
-|------|------|------|------|
-| 2026-11-17 | — | 撰寫本計畫、審計現狀、修正 4.2 數量與 P2 標記 | 完成 |
-| 2026-11-17 | P0 | 修 SETTINGS_PATH、SIZE_MAP 補 xs、新增 IconSize.test.js、Icon.test.js 加 path 守護 | 完成（測試環境阻塞，改用 node 腳本驗證） |
-| 2026-11-17 | P3 | 容器 token + .iln-grid 工具類 + 9 頁套柵格（含 MacroBattle div 配對修復） | 完成（lint/color-check/build 全過；既有 MarketSnapshot 測試債與本次無關，已用 HEAD 對照確認） |
+| 2026-11-19 | P4 | 執行 lint、全量測試、production build、效能預算、Vite preview 路由與四斷點截圖／溢出檢查 | Build、lint、preview 與響應式檢查通過；測試 756/757 通過（router `/radar` 測試逾時）；既有 verify-all-pages 腳本使用失效的 `/workspace/projects/...` 路徑，待修正後重跑 |
+
+| 日期       | 階段   | 內容                                                                               | 結果                                                                                          |
+| ---------- | ------ | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| ------     | ------ | ------                                                                             | ------                                                                                        |
+| 2026-11-17 | —      | 撰寫本計畫、審計現狀、修正 4.2 數量與 P2 標記                                      | 完成                                                                                          |
+| 2026-11-17 | P0     | 修 SETTINGS_PATH、SIZE_MAP 補 xs、新增 IconSize.test.js、Icon.test.js 加 path 守護 | 完成（測試環境阻塞，改用 node 腳本驗證）                                                      |
+| 2026-11-17 | P3     | 容器 token + .iln-grid 工具類 + 9 頁套柵格（含 MacroBattle div 配對修復）          | 完成（lint/color-check/build 全過；既有 MarketSnapshot 測試債與本次無關，已用 HEAD 對照確認） |
 
 ### 11.6 交接時的必填項
 

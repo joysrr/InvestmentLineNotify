@@ -7,6 +7,10 @@ import "./styles/tokens.css";
 import "./shared-styles.css";
 // Phase 4.4+ · EP 组件继承 M3 token（必须在 shared-styles 之后，覆盖 EP 默认蓝/白/灰）
 import "./styles/element-plus-overrides.css";
+import { installDevMock } from "./dev-mock/index.js";
+
+// Mock API 僅在 DEV/test 且明確啟用時攔截 /api/；production 保持原有認證與 API。
+installDevMock();
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -40,17 +44,24 @@ const sdkLoaded = !!window.Telegram?.WebApp;
 const initData = window.Telegram?.WebApp?.initData;
 if (!initData && !import.meta.env.DEV) {
   const branch = sdkLoaded ? "fallback-no-initdata" : "fallback-no-sdk";
-  console.warn("[Auth Guard] 阻斷 app mount", { sdkLoaded, initDataLen: initData?.length ?? 0 });
+  console.warn("[Auth Guard] 阻斷 app mount", {
+    sdkLoaded,
+    initDataLen: initData?.length ?? 0,
+  });
   window.__TELEGRAM_BRIDGE__.bootBranch = branch;
   renderAuthFallback(sdkLoaded);
 } else {
   window.__TELEGRAM_BRIDGE__.bootBranch = "mounted";
-  window.__TELEGRAM_BRIDGE__.tMountStart = typeof performance !== "undefined" ? performance.now() : 0;
+  window.__TELEGRAM_BRIDGE__.tMountStart =
+    typeof performance !== "undefined" ? performance.now() : 0;
   app.mount("#app");
-  window.__TELEGRAM_BRIDGE__.tMountEnd = typeof performance !== "undefined" ? performance.now() : 0;
-  window.__TELEGRAM_BRIDGE__.tReadyStart = typeof performance !== "undefined" ? performance.now() : 0;
+  window.__TELEGRAM_BRIDGE__.tMountEnd =
+    typeof performance !== "undefined" ? performance.now() : 0;
+  window.__TELEGRAM_BRIDGE__.tReadyStart =
+    typeof performance !== "undefined" ? performance.now() : 0;
   waitReady().then(() => {
-    window.__TELEGRAM_BRIDGE__.tReadyResolved = typeof performance !== "undefined" ? performance.now() : 0;
+    window.__TELEGRAM_BRIDGE__.tReadyResolved =
+      typeof performance !== "undefined" ? performance.now() : 0;
   });
 }
 

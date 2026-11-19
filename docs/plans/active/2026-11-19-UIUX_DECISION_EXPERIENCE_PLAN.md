@@ -1,9 +1,10 @@
 ---
 type: plan
-status: active
+status: completed
 last_updated: 2026-11-19
 last_verified: 2026-11-19
-progress: "P1-1 ✅ / P1-2 ✅ / P1-3 ✅ / P1-4 ✅ / P1-5 ✅ / P2-1 ✅ / P2-2 ✅ / P2-3 ✅ / P2-4 ✅ / P2-5 ✅ / P3-1 ⏳ / P3-2 待定 / P3-3 待定 / P3-4 待定 / P4 待定"
+completed_at: 2026-11-19
+progress: "P1-1 ✅ / P1-2 ✅ / P1-3 ✅ / P1-4 ✅ / P1-5 ✅ / P2-1 ✅ / P2-2 ✅ / P2-3 ✅ / P2-4 ✅ / P2-5 ✅ / P3-1 ✅ / P3-2 ✅ / P3-3 ✅ / P3-4 ✅ / P4 已完成（前端頁面驗證與導航恢復完成；情境式 mock 移至下一階段）"
 tags:
   - uiux
   - decision-hero
@@ -339,27 +340,30 @@ gantt
 
 > **若本次 Session 未做完就結束，必須在這裡寫清楚：**
 
-**最近更新：2026-11-19 10:40**
+**最近更新：2026-11-19 20:12**
 
-1. **做到哪**：
-   - ✅ P1-1 EmptyState/ErrorAlert Props 擴充：新增 `actionText`, `actionType`, `actionSize`, `actionIcon`, `actionHref`, `secondaryActionText`, `secondaryActionType`；emits `action`, `secondary-action`（EmptyState）與 `action`（ErrorAlert）
-   - ✅ P1-3 Data Viz Token 子集定義：`tokens.css` 新增 4 色系（bull/bear/neutral/alert），含主色/背景/邊框/陰影/亮色；已替換 DecisionHero、MacroBattleView、MarketRadarView、ChartView、TechnicalPanel、MetricCard、StatCard 硬編碼色
-   - 🔄 P1-2 DecisionHero 視覺層級重構：進行中
+1. **結案結果**：
+   - ✅ P1/P2 全部完成
+   - ✅ P3-1 Telegram 整合、P3-2 主題同步、P3-3 離線／弱網策略、P3-4 效能預算完成
+   - ✅ P4：`/radar` router 驗證已隔離為路由表測試並通過；`verify-all-pages.mjs` 已改為目前工作區路徑、使用目前 Node 執行檔並完成 9 頁掃描；News 已恢復為底部導航項目
+   - ✅ 本計畫結案；情境式 mock 不屬於 UI/UX P1–P4 原始交付，轉由獨立計畫追蹤
 
-2. **卡在哪**：無阻塞項目
+2. **驗收證據**：
+   - router test：8 tests passed
+   - all-pages verification：9/9 pages passed，0 console errors，Vue mount 完整
+   - production build、lint、performance budget、preview route smoke test 與四斷點溢出檢查已完成
+   - 注意：既有截圖仍不足以作為 rich-data 視覺驗收，這是新 mock 計畫的工作，不回溯改寫本計畫驗收結果
 
-3. **下一步**：
-   - 完成 P1-2 DecisionHero 視覺層級重構（Primary CTA 區塊放大、背景品牌色、字級放大、次要資訊摺疊）
-   - 進行 P1-4 `useTelegramMainButton` Composable
-   - 進行 P1-5 字體縮放保護（`clamp()` + `tabular-nums`）
+3. **交接事項**：
+   - 新計畫：`docs/plans/active/2026-11-19-DEVELOPMENT-MOCK-SCENARIOS_PLAN.md`
+   - 後續建立集中式 deterministic fixtures、情境切換、rich data 截圖與視覺比較
 
-4. **有無未提交變更**：
-   - `webapp/src/components/common/EmptyState.vue` — Props 擴充與雙行動按鈕
-   - `webapp/src/components/common/ErrorAlert.vue` — 新增 actionText/actionType/buttonSize/actionIcon/actionHref
-   - `webapp/src/styles/tokens.css` — Data Viz tokens（含 light/shadow 變體）
-   - `docs/plans/active/2026-11-19-UIUX_DECISION_EXPERIENCE_PLAN.md` — 進度更新
-
-驗收狀態：`pnpm run build` ✅ (372.6 KB gzip)，`pnpm run lint` ✅ (0 errors)，EmptyState/ErrorAlert/ChartView 測試 ✅
+4. **本次結案時未提交變更**：
+   - UI/UX 計畫文件結案註記
+   - `webapp/scripts/verify-all-pages.mjs`
+   - `webapp/src/config/tabsConfig.js`
+   - `webapp/src/test/router.test.js`
+   - `webapp/scripts/capture-p4-screenshots.mjs`
 
 ---
 

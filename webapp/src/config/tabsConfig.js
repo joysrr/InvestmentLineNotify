@@ -1,7 +1,7 @@
 /**
- * 4 大 Bottom Nav 靜態設定檔（P2-1）
+ * 5 大 Bottom Nav 靜態設定檔
  *
- * P2-1：底部保留儀表板、洞察、圖表、帳號；新聞 Tab 移出底部。
+ * 新聞是核心資訊呈現功能，保留在底部主導航。
  * icon 欄位為 icon-registry 中的圖標名稱，由 <Icon :name> 渲染。
  */
 export const tabs = [
@@ -32,5 +32,12 @@ export const tabs = [
     label: "設定與帳戶",
     testId: "nav-tab-account",
     icon: "user",
+  },
+  {
+    to: "/news",
+    exact: false,
+    label: "新聞",
+    testId: "nav-tab-news",
+    icon: "news",
   },
 ];
