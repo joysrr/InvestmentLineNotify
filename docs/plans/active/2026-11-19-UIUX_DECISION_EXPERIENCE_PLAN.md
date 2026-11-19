@@ -401,3 +401,15 @@ uiux(p2-5): 深色模式完整驗收
 - Telegram Mini App 官方文檔：`MainButton`、`BackButton`、`HapticFeedback`、`themeParams`、`viewport`
 - Material 3 Design Tokens 規範
 - WCAG 2.1 AA 對比度標準
+
+## 14. 已知問題與後續待辦
+
+| 項目                | 說明                                                                                                                   | 排程             |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| vitest 預先存在失敗 | `AccountView.test.js` ×1（API 401 儲存失敗）、`ExportButton.test.js` ×13，已在 clean HEAD `c539f5e9` 確認非 P1~P2 退化 | P1~P2 完成後修正 |
+
+- `docs/design/page-responsibility-matrix.md` — 頁面職責矩陣
+- `docs/plans/active/2026-11-17-UIUX_OPTIMIZATION_PLAN.md` — 上一期計畫（已完成 P0–P3）
+- Telegram Mini App 官方文檔：`MainButton`、`BackButton`、`HapticFeedback`、`themeParams`、`viewport`
+- Material 3 Design Tokens 規範
+- WCAG 2.1 AA 對比度標準
