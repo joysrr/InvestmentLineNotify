@@ -8,13 +8,13 @@
         <span class="editor-subtitle">編輯並即時驗證策略參數</span>
       </div>
       <div class="header-right">
-        <el-button type="primary" @click="saveConfig" :loading="saving" :disabled="!hasChanges || !isValid" data-testid="btn-save">
+        <el-button type="primary" @click="() => { saveConfig(); haptic('medium'); }" :loading="saving" :disabled="!hasChanges || !isValid" data-testid="btn-save">
           <el-icon><Checked /></el-icon> 儲存
         </el-button>
-        <el-button @click="resetToDefault" :loading="resetting" :disabled="!hasChanges" data-testid="btn-reset">
+        <el-button @click="() => { resetToDefault(); haptic('medium'); }" :loading="resetting" :disabled="!hasChanges" data-testid="btn-reset">
           <el-icon><Refresh /></el-icon> 重置為預設
         </el-button>
-        <el-button @click="validateOnly" :loading="validating" data-testid="btn-validate">
+        <el-button @click="() => { validateOnly(); haptic('medium'); }" :loading="validating" data-testid="btn-validate">
           <el-icon><Check /></el-icon> 僅驗證
         </el-button>
       </div>
@@ -77,7 +77,7 @@
             role="radio"
             :aria-checked="activeSection === sec.key"
             :data-testid="`section-${sec.key}`"
-            @click="selectSection(g.key, sec.key)"
+            @click="() => { selectSection(g.key, sec.key); selectionChanged(); }"
           >
             {{ sec.label }}
           </button>
@@ -132,7 +132,7 @@ import Icon from "@/components/common/Icon.vue";
 
 import { apiFetch } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
-import { waitReady } from "../composables/useTelegram.js";
+import { waitReady, haptic, selectionChanged } from "../composables/useTelegram.js";
 import { useClosingConfirmation } from "../composables/useClosingConfirmation.js";
 
 const { enableClosingConfirmation, disableClosingConfirmation } =

@@ -27,6 +27,7 @@
 
 <script setup>
 import Icon from "./Icon.vue";
+import { selectionChanged } from "@/composables/useTelegram.js";
 
 const props = defineProps({
   modelValue: { type: String, required: true },
@@ -41,6 +42,7 @@ const select = (val) => {
   if (val === props.modelValue) return;
   emit("update:modelValue", val);
   emit("change", val);
+  selectionChanged();
 };
 
 const move = (delta) => {

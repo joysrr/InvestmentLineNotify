@@ -54,7 +54,7 @@
       </div>
 
       <template #footer>
-        <el-button @click="showConfirmDialog = false" :disabled="deploying">
+        <el-button @click="() => { haptic('medium'); showConfirmDialog = false; }" :disabled="deploying">
           取消
         </el-button>
         <el-button
@@ -115,7 +115,7 @@
         <el-button @click="showLogDialog = false" :disabled="deploying">
           關閉
         </el-button>
-        <el-button v-if="deployStatus === 'failed'" type="primary" @click="retryDeploy">
+        <el-button v-if="deployStatus === 'failed'" type="primary" @click="() => { haptic('medium'); retryDeploy(); }">
           重試部署
         </el-button>
       </template>
@@ -127,6 +127,7 @@
 import { ref, onMounted, onUnmounted, nextTick, computed } from "vue";
 import { useAuth } from "@/composables/useAuth";
 import { Monitor, Loading, CircleCheck, CircleClose, Time } from "@element-plus/icons-vue";
+import { haptic } from "@/composables/useTelegram.js";
 
 const { isAdmin, user } = useAuth();
 
@@ -186,6 +187,7 @@ const handleLogClose = (done) => {
 };
 
 const startDeploy = async () => {
+  haptic("medium");
   showConfirmDialog.value = false;
   showLogDialog.value = true;
   deploying.value = true;
@@ -377,7 +379,7 @@ onUnmounted(() => {
 }
 
 .warning-text strong {
-  color: var(--iln-warn-text);
+  color: var(--iln-viz-alert-text);
 }
 
 /* 日誌面板 */
@@ -417,8 +419,8 @@ onUnmounted(() => {
 }
 
 .status-running { color: var(--iln-brand); }
-.status-completed { color: var(--iln-ok-text); }
-.status-failed { color: var(--iln-danger-text); }
+.status-completed { color: var(--iln-viz-bull-text); }
+.status-failed { color: var(--iln-viz-bear-text); }
 .status-cancelled { color: var(--iln-hint); }
 
 .log-content {

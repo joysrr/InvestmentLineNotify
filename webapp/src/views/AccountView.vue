@@ -306,12 +306,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed, watch, onMounted, nextTick } from "vue";
 import Icon from "@/components/common/Icon.vue";
 import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
 import { usePortfolioSnapshots } from "../composables/usePortfolioSnapshots.js";
-import { waitReady } from "../composables/useTelegram.js";
+import { waitReady, haptic, selectionChanged } from "../composables/useTelegram.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import DataEvidenceCard from "../components/dashboard/DataEvidenceCard.vue";
 import DeploymentControl from "@/components/common/DeploymentControl.vue";
@@ -350,6 +350,9 @@ const aboutExpanded = ref(false);
 const saveStatus = ref(null); // 'success' | 'error' | null
 const saveMessage = ref("");
 
+// 切換 Telegram 開關時給予選擇變更觸覺回饋
+watch(telegramEnabled, () => selectionChanged());
+
 async function load() {
   loading.value = true;
   error.value = null;
@@ -375,6 +378,7 @@ async function saveNotificationSettings() {
     await new Promise((resolve) => setTimeout(resolve, 400));
     saveStatus.value = "success";
     saveMessage.value = "通知設定已儲存";
+    haptic("medium");
   } catch {
     saveStatus.value = "error";
     saveMessage.value = "儲存失敗，請稍後再試";

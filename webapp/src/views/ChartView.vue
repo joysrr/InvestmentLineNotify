@@ -40,7 +40,7 @@
         :key="t.key"
         class="time-range-btn"
         :class="{ active: timeRange === t.key }"
-        @click="timeRange = t.key"
+        @click="() => { timeRange = t.key; selectionChanged(); }"
       >
         {{ t.label }}
       </button>
@@ -72,7 +72,7 @@
           :key="m.key"
           class="metric-chip"
           :class="{ active: metric === m.key }"
-          @click="metric = m.key"
+          @click="() => { metric = m.key; selectionChanged(); }"
         >
           {{ m.label }}
         </button>
@@ -82,25 +82,25 @@
       <div class="summary-grid" v-if="latest">
         <div class="summary-card">
           <span class="s-label">市價淨値</span>
-          <span class="s-value" :class="valueClass(latest.netValueMarket)">
+          <span class="s-value iln-num-tabular" :class="valueClass(latest.netValueMarket)">
             {{ formatNTD(latest.netValueMarket) }}
           </span>
         </div>
         <div class="summary-card">
           <span class="s-label">0050 市價</span>
-          <span class="s-value">{{
+          <span class="s-value iln-num-tabular">{{
             latest.price0050 != null ? `$${latest.price0050}` : "—"
           }}</span>
         </div>
         <div class="summary-card">
           <span class="s-label">00675L 市價</span>
-          <span class="s-value">{{
+          <span class="s-value iln-num-tabular">{{
             latest.priceZ2 != null ? `$${latest.priceZ2}` : "—"
           }}</span>
         </div>
         <div class="summary-card">
           <span class="s-label">融資餘額</span>
-          <span class="s-value neg">{{ formatNTD(latest.totalLoan) }}</span>
+          <span class="s-value neg iln-num-tabular">{{ formatNTD(latest.totalLoan) }}</span>
         </div>
       </div>
     </template>
@@ -141,6 +141,7 @@ import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
 import SegmentedControl from "@/components/common/SegmentedControl.vue";
 import TechnicalPanel from "@/components/chart/TechnicalPanel.vue";
+import { selectionChanged } from "@/composables/useTelegram.js";
 
 use([
   LineChart,
@@ -276,6 +277,7 @@ async function load() {
 function setGranularity(key) {
   if (granularity.value === key) return;
   granularity.value = key;
+  selectionChanged();
 }
 
 watch([granularity, timeRange], load);
@@ -340,10 +342,10 @@ const chartOption = computed(() => {
 
   const lineToken =
     metric.value === "totalLoan"
-      ? "--iln-danger-text"
+      ? "--iln-viz-bear"
       : metric.value === "netValueMarket"
-        ? "--iln-brand"
-        : "--iln-ok-text";
+        ? "--iln-viz-bull"
+        : "--iln-viz-neutral";
   const lineColor = resolveCssColor(lineToken);
   const lineFillTop = resolveCssColor(lineToken, 0.16);
   const lineFillBottom = resolveCssColor(lineToken, 0.016);
@@ -578,10 +580,10 @@ const chartOption = computed(() => {
   color: var(--iln-text);
 }
 .s-value.pos {
-  color: var(--iln-ok-text);
+  color: var(--iln-viz-bull-text);
 }
 .s-value.neg {
-  color: var(--iln-danger-text);
+  color: var(--iln-viz-bear-text);
 }
 
 /* ── 標題列 + 分頁切換 ── */

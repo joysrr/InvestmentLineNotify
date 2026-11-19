@@ -58,6 +58,7 @@ import { ref, computed } from "vue";
 import { ElMessage } from "element-plus";
 import { Download, Document, Picture, ArrowDown } from "@element-plus/icons-vue";
 import { exportCSV, exportJSON, exportChartAsImage, exportAllFormats } from "@/utils/exportUtility.js";
+import { haptic } from "@/composables/useTelegram.js";
 
 const props = defineProps({
   // 資料來源
@@ -107,6 +108,7 @@ const pngFilename = computed(() => props.pngFilename || baseFilename.value);
 
 // Methods
 async function handleCommand(command) {
+  haptic("medium");
   if (exporting.value) return;
   
   exporting.value = true;
