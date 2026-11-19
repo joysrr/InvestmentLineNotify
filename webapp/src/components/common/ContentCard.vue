@@ -188,5 +188,15 @@ const handleClick = (event) => {
 
 .content-card--clickable {
   cursor: pointer;
+  transition:
+    box-shadow var(--iln-duration-fast) var(--iln-ease-standard),
+    transform var(--iln-duration-fast) var(--iln-ease-standard);
+}
+.content-card--clickable:hover {
+  box-shadow: var(--iln-shadow-2);
+  transform: translateY(-2px);
+}
+.content-card--clickable:active {
+  transform: scale(0.985);
 }
 </style>

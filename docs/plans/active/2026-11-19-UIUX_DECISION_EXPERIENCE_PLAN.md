@@ -3,7 +3,7 @@ type: plan
 status: active
 last_updated: 2026-11-19
 last_verified: 2026-11-19
-progress: "P1-1 ✅ / P1-2 ✅ / P1-3 ✅ / P1-4 ✅ / P1-5 ✅ / P2-1 ✅ / P2-2 ✅ / P2-3 ✅ / P2-4 ✅ / P2-5 ✅ / P3 待定 / P4 待定"
+progress: "P1-1 ✅ / P1-2 ✅ / P1-3 ✅ / P1-4 ✅ / P1-5 ✅ / P2-1 ✅ / P2-2 ✅ / P2-3 ✅ / P2-4 ✅ / P2-5 ✅ / P3-1 ⏳ / P3-2 待定 / P3-3 待定 / P3-4 待定 / P4 待定"
 tags:
   - uiux
   - decision-hero

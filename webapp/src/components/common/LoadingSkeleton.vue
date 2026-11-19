@@ -9,7 +9,6 @@ const props = defineProps({
 
 const isCard = computed(() => props.variant === 'card')
 const isList = computed(() => props.variant === 'list')
-const isGrid = computed(() => props.variant === 'grid')
 </script>
 
 <template>
@@ -41,6 +40,17 @@ const isGrid = computed(() => props.variant === 'grid')
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* ── 骨架屏 → 內容淡出過渡 ── */
+/* 父元件以 <Transition name="sk-fade"> 包住 skeleton + 內容即可 */
+.sk-fade-enter-active,
+.sk-fade-leave-active {
+  transition: opacity var(--iln-duration-base) var(--iln-ease-standard);
+}
+.sk-fade-enter-from,
+.sk-fade-leave-to {
+  opacity: 0;
 }
 
 .sk-line {

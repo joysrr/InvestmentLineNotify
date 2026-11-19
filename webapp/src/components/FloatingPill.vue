@@ -117,10 +117,19 @@ onUnmounted(() => {
   padding: var(--iln-space-2) var(--iln-space-1);
   text-decoration: none;
   color: var(--iln-hint);
-  transition: all var(--iln-duration-base) var(--iln-ease-standard);
+  transition:
+    transform var(--iln-duration-base) var(--iln-ease-standard),
+    color var(--iln-duration-base) var(--iln-ease-standard),
+    background var(--iln-duration-base) var(--iln-ease-standard);
   border-radius: var(--iln-radius-xl);
   font-size: var(--iln-font-xs);
   font-weight: var(--iln-weight-semibold);
+}
+
+.nav-item:hover:not(.nav-item--active) {
+  transform: scale(1.05);
+  color: var(--iln-text);
+  background: var(--iln-surface-sunken);
 }
 
 .nav-item--active {

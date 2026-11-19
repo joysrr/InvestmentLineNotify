@@ -4,27 +4,31 @@
       <h3 class="section-title">帳戶健康監控</h3>
     </div>
 
-    <LoadingSkeleton
-      v-if="loading"
-      variant="card"
-      :rows="4"
-    />
-    <ErrorAlert
-      v-else-if="error"
-      title="健康度資料載入失敗"
-      description="請稍後再試，或點擊重試"
-      show-retry
-      retry-text="重新整理"
-      @retry="emit('retry')"
-    />
-    <EmptyState
-      v-else-if="!data"
-      title="尚無健康度資料"
-      message="帳戶健康度評估尚未產生，請稍後再試"
-      action-text="重新整理"
-      @action="emit('retry')"
-    />
-    <div v-else class="health-dashboard-v2">
+    <Transition name="sk-fade" mode="out-in">
+      <LoadingSkeleton
+        v-if="loading"
+        key="skeleton"
+        variant="card"
+        :rows="4"
+      />
+      <ErrorAlert
+        v-else-if="error"
+        key="error"
+        title="健康度資料載入失敗"
+        description="請稍後再試，或點擊重試"
+        show-retry
+        retry-text="重新整理"
+        @retry="emit('retry')"
+      />
+      <EmptyState
+        v-else-if="!data"
+        key="empty"
+        title="尚無健康度資料"
+        message="帳戶健康度評估尚未產生，請稍後再試"
+        action-text="重新整理"
+        @action="emit('retry')"
+      />
+      <div v-else key="content" class="health-dashboard-v2">
       <!-- Health Hero -->
       <div class="health-hero-v2">
         <div class="glass-overlay"></div>
@@ -95,6 +99,7 @@
         <Icon name="chart" size="sm" color="var(--iln-text)" /> 查看完整策略狀態 →
       </div>
     </div>
+    </Transition>
   </ContentCard>
 </template>
 

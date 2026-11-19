@@ -131,19 +131,23 @@ onUnmounted(() => {
 /* Phase 4.3 · 路由切換 fade（搭配 <Transition name="route-fade">） */
 .route-fade-enter-active,
 .route-fade-leave-active {
-  transition: opacity 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    opacity var(--iln-duration-base) var(--iln-ease-standard),
+    transform var(--iln-duration-base) var(--iln-ease-standard);
+  will-change: opacity, transform;
 }
 .route-fade-enter-from {
   opacity: 0;
-  transform: translateY(4px);
+  transform: translateY(6px);
 }
 .route-fade-leave-to {
   opacity: 0;
-  transform: translateY(-2px);
+  transform: translateY(-4px);
 }
 @media (prefers-reduced-motion: reduce) {
   .route-fade-enter-active,
-  .route-fade-leave-active { transition: none; }
+  .route-fade-leave-active {
+    transition: none;
+  }
 }
 </style>
