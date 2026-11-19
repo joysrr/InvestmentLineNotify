@@ -122,6 +122,23 @@ export function useTelegram() {
             .trim() || "#ffffff"; /* iln-color-allow: fallback */
     setHeaderColor(bg);
     setBackgroundColor(bg);
+    applyThemeParams();
+  };
+
+  // 將 Telegram themeParams 寫入 CSS 自訂屬性，讓元件樣式隨深淺主題同步
+  const applyThemeParams = () => {
+    const root = document.documentElement;
+    const tp = tg?.themeParams ?? {};
+    const norm = (v) => (v && !v.startsWith("#") ? `#${v}` : v);
+    if (tp.bg_color) root.style.setProperty("--iln-bg", norm(tp.bg_color));
+    if (tp.text_color)
+      root.style.setProperty("--iln-text", norm(tp.text_color));
+    if (tp.hint_color)
+      root.style.setProperty("--iln-hint", norm(tp.hint_color));
+    if (tp.link_color)
+      root.style.setProperty("--iln-link", norm(tp.link_color));
+    if (tp.button_color)
+      root.style.setProperty("--iln-button_color", norm(tp.button_color));
   };
 
   onMounted(() => {
@@ -164,6 +181,14 @@ export function useTelegram() {
   const hapticNotification = (type = "success") => {
     try {
       tg?.HapticFeedback?.notificationOccurred(type);
+    } catch (_e) {
+      void _e;
+    }
+  };
+
+  const selectionChanged = () => {
+    try {
+      tg?.HapticFeedback?.selectionChanged?.();
     } catch (_e) {
       void _e;
     }
@@ -217,6 +242,7 @@ export function useTelegram() {
     // 新增
     haptic,
     hapticNotification,
+    selectionChanged,
     setHeaderColor,
     setBackgroundColor,
     enableClosingConfirmation,
