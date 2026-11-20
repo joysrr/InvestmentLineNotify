@@ -16,19 +16,17 @@ export const DETERMINATE_FIXTURES = {
       status: "healthy",
     },
   },
-  // GET /api/reports?limit=1 — 主頁 /dashboard 使用
-  "/api/reports": {
-    reports: [
-      {
-        date: "2026-01-01",
-        twVix: 15.5,
-        usVix: 14.8,
-        cnnFearGreed: 55,
-        pbPr: 1.2,
-        maintenanceRatio: 120,
-      },
-    ],
-  },
+  // GET /api/reports?limit=N — 主頁 /dashboard 與 /account 皆使用；回傳 array
+  "/api/reports": [
+    {
+      date: "2026-01-01",
+      twVix: 15.5,
+      usVix: 14.8,
+      cnnFearGreed: 55,
+      pbPr: 1.2,
+      maintenanceRatio: 120,
+    },
+  ],
   // GET /api/news — 新聞頁 /news 使用
   "/api/news": {
     news: [
@@ -62,11 +60,9 @@ export const DETERMINATE_FIXTURES = {
       sections: [],
     },
   },
-  // GET /api/strategy-config — 策略設定頁 /strategy-config 使用
-  "/api/strategy-config": {
-    success: true,
-    strategy: {
-      content: {},
-    },
+  // POST /api/strategy-config/validate — 策略設定頁頁面載入時驗證
+  "/api/strategy-config/validate": {
+    valid: true,
+    errors: [],
   },
 };
