@@ -10,6 +10,7 @@
 export async function setupE2EContext(page) {
   await page.addInitScript(() => {
     window.__PLAYWRIGHT__ = true;
+    const mainButtonCalls = [];
     window.Telegram = {
       WebApp: {
         initData: "dev-bypass",
@@ -25,9 +26,25 @@ export async function setupE2EContext(page) {
         ready: () => {},
         expand: () => {},
         close: () => {},
-        MainButton: { show: () => {}, hide: () => {}, onClick: () => {}, offClick: () => {} },
-        BackButton: { show: () => {}, hide: () => {}, onClick: () => {}, offClick: () => {} },
-        HapticFeedback: { impactOccurred: () => {}, notificationOccurred: () => {}, selectionChanged: () => {} },
+        MainButton: {
+          show: () => mainButtonCalls.push({ method: "show" }),
+          hide: () => mainButtonCalls.push({ method: "hide" }),
+          setText: (text) => mainButtonCalls.push({ method: "setText", text }),
+          onClick: (cb) => mainButtonCalls.push({ method: "onClick", cb }),
+          offClick: () => mainButtonCalls.push({ method: "offClick" }),
+          __calls: mainButtonCalls,
+        },
+        BackButton: {
+          show: () => {},
+          hide: () => {},
+          onClick: () => {},
+          offClick: () => {},
+        },
+        HapticFeedback: {
+          impactOccurred: () => {},
+          notificationOccurred: () => {},
+          selectionChanged: () => {},
+        },
         themeParams: {
           bg_color: "#ffffff",
           text_color: "#000000",
@@ -47,6 +64,12 @@ export async function setupE2EContext(page) {
   });
 }
 
+export function getMainButtonCalls(page) {
+  return page.evaluate(
+    () => window.Telegram?.WebApp?.MainButton?.__calls || [],
+  );
+}
+
 /**
  * Safely wait for Vue App to mount without error boundary fallback
  * @param {import('@playwright/test').Page} page
@@ -54,6 +77,9 @@ export async function setupE2EContext(page) {
  */
 export async function navigateToView(page, routePath) {
   await setupE2EContext(page);
-  await page.goto(`http://localhost:5173${routePath}`, { waitUntil: "domcontentloaded", timeout: 15000 });
+  await page.goto(`http://localhost:5173${routePath}`, {
+    waitUntil: "domcontentloaded",
+    timeout: 15000,
+  });
   await page.waitForTimeout(1000);
 }
