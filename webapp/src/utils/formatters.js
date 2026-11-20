@@ -10,6 +10,15 @@
  * @param {string} [fallback="—"] - 無效時回傳字串
  * @returns {string} 格式化後字串
  */
+export function formatMoney(val, fallback = "—") {
+  if (val === null || val === undefined || val === "") return fallback;
+  const num = Number(val);
+  if (!Number.isFinite(num)) return fallback;
+  return new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 0 }).format(
+    num,
+  );
+}
+
 export function fmtDecimal(val, digits = 2, fallback = "—") {
   if (val === null || val === undefined || val === "") return fallback;
   const num = Number(val);

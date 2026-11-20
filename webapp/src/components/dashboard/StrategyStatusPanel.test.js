@@ -47,4 +47,19 @@ describe("StrategyStatusPanel.vue", () => {
     });
     expect(wrapper.text()).toContain("載入失敗");
   });
+
+  it("時間戳固定顯示台北時區，無效值顯示未知標記", () => {
+    const wrapper = mount(StrategyStatusPanel, {
+      props: {
+        ...baseProps,
+        health: { ...baseHealth, timestamp: "2026-11-12T06:30:00Z" },
+      },
+    });
+    expect(wrapper.text()).toContain("2026-11-12 14:30");
+
+    const invalid = mount(StrategyStatusPanel, {
+      props: { ...baseProps, health: { ...baseHealth, timestamp: "invalid" } },
+    });
+    expect(invalid.text()).toContain("—");
+  });
 });

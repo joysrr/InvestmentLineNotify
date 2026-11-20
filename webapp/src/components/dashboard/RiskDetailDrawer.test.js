@@ -62,4 +62,35 @@ describe("RiskDetailDrawer.vue", () => {
     const wrapper = mount(RiskDetailDrawer, { props: baseProps, ...mountOpts });
     expect(wrapper.text()).toContain("質押與槓桿風控原則");
   });
+
+  it("維持率缺值時顯示未知標記，不顯示 0%", () => {
+    const wrapper = mount(RiskDetailDrawer, {
+      props: { ...baseProps, marginRatio: Number.NaN },
+      ...mountOpts,
+    });
+    expect(wrapper.find(".row-val").text()).toBe("—%");
+  });
+
+  it("槓桿倍率缺值時顯示未知標記，不顯示 1.00x", () => {
+    const wrapper = mount(RiskDetailDrawer, {
+      props: { ...baseProps, grossLeverage: "—" },
+      ...mountOpts,
+    });
+    expect(wrapper.text()).toContain("—x");
+    expect(wrapper.text()).not.toContain("1.00x");
+  });
+
+  it("風控上限為 NaN 時顯示未知標記", () => {
+    const wrapper = mount(RiskDetailDrawer, {
+      props: { ...baseProps, hardCapLeverage: Number.NaN },
+      ...mountOpts,
+    });
+    expect(wrapper.text()).toContain("硬上限 —x");
+  });
+
+  it("省略風控上限時保留 3.00x 預設", () => {
+    const { hardCapLeverage: _hardCapLeverage, ...props } = baseProps;
+    const wrapper = mount(RiskDetailDrawer, { props, ...mountOpts });
+    expect(wrapper.text()).toContain("3.00x");
+  });
 });

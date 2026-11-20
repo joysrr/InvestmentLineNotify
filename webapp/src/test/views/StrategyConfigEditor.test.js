@@ -146,16 +146,25 @@ describe("StrategyConfigEditor", () => {
       expect(wrapper.vm.editableConfig).toEqual(mockConfig.strategy.content);
     });
 
-    it("載入失敗不拋出錯誤", async () => {
+    it("載入失敗顯示可重試的錯誤提示", async () => {
       mockApiFetch
         .mockResolvedValueOnce({ success: true, meta: {} })
         .mockRejectedValueOnce(new Error("Network error"))
+        .mockResolvedValueOnce({ success: true, meta: {} })
+        .mockResolvedValueOnce({ strategy: { content: { version: "2.8" } } })
         .mockResolvedValueOnce({ valid: true, errors: [] });
 
       const wrapper = createWrapper();
       await flushPromises();
 
-      expect(wrapper.vm.currentConfig).toEqual({});
+      expect(wrapper.find('[data-testid="load-error"]').exists()).toBe(true);
+      expect(wrapper.find('[data-testid="btn-retry-load"]').exists()).toBe(
+        true,
+      );
+      await wrapper.find('[data-testid="btn-retry-load"]').trigger("click");
+      await flushPromises();
+      expect(wrapper.vm.currentConfig.version).toBe("2.8");
+      expect(wrapper.find('[data-testid="load-error"]').exists()).toBe(false);
     });
   });
 

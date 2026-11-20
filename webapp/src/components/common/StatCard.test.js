@@ -54,6 +54,20 @@ describe("StatCard.vue", () => {
     expect(small.text()).toContain("9,999");
   });
 
+  it("format auto：缺值與非有限數顯示未知標記", () => {
+    for (const value of [
+      null,
+      undefined,
+      Number.NaN,
+      Number.POSITIVE_INFINITY,
+    ]) {
+      const wrapper = mount(StatCard, {
+        props: { label: "L", value, format: "auto" },
+      });
+      expect(wrapper.find(".stat-card__value").text()).toBe("—");
+    }
+  });
+
   it("format: number / percent / currency / raw", () => {
     const num = mount(StatCard, {
       props: { label: "L", value: 1234, format: "number", decimals: 0 },

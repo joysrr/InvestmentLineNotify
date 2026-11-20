@@ -201,20 +201,38 @@ describe("AccountView", () => {
     expect(wrapper.findAll(".snapshot-card").length).toBeGreaterThanOrEqual(6);
   });
 
-  it("缺少股數時顯示未知標記，真實 0 仍顯示 0", async () => {
+  it("缺少股數與成本價時顯示未知標記，真實 0 仍顯示 0", async () => {
     snapshotState.latestSnapshot.value = {
       date: "2026-08-17",
       qty0050: 0,
+      avgCost0050: undefined,
       totalLoan: 500000,
       cash: 120000,
     };
     const wrapper = mountView();
     await flushPromises();
-    const values = wrapper
+    expect(wrapper.text()).toContain("0050 股數");
+    expect(wrapper.text()).toContain("00675L 股數");
+    const stockCards = wrapper
       .findAll(".snapshot-card")
-      .map((card) => card.find(".snapshot-value").text());
-    expect(values[0]).toBe("0");
-    expect(values[1]).toBe("—");
+      .filter((card) => /股數/.test(card.text()));
+    expect(stockCards[0].find(".snapshot-value").text()).toBe("0");
+    expect(stockCards[1].find(".snapshot-value").text()).toBe("—");
+    expect(wrapper.text()).not.toContain("NaN");
+    expect(wrapper.text()).not.toContain("0050 均價");
+  });
+
+  it("成本價資料缺失時不顯示未確認的均價欄位", async () => {
+    snapshotState.latestSnapshot.value = {
+      date: "2026-08-17",
+      qty0050: 100,
+      totalLoan: 500000,
+      cash: 120000,
+    };
+    const wrapper = mountView();
+    await flushPromises();
+    expect(wrapper.text()).not.toContain("0050 均價");
+    expect(wrapper.text()).not.toContain("NaN");
   });
 
   it("應包含連結至 /chart 的資產趨勢圖表按鈕", async () => {

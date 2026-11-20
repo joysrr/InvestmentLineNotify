@@ -310,7 +310,7 @@ function formatNTD(val) {
 }
 
 function formatY(val) {
-  if (val == null) return "—";
+  if (val == null || !Number.isFinite(val)) return "—";
   const m = metric.value;
   if (m === "netValueMarket") {
     if (Math.abs(val) >= 10000) return `${(val / 10000).toFixed(1)}萬`;

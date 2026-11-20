@@ -70,7 +70,7 @@ describe("MacroBattleView", () => {
         },
       },
       {
-        date: "2026-08-17",
+        date: "2026-08-17T01:30:00.000Z",
         macroAnalysis: {
           bullish: 6,
           bearish: 1,
@@ -91,7 +91,7 @@ describe("MacroBattleView", () => {
 
     await flushPromises();
 
-    expect(wrapper.find(".page-date").text()).toBe("2026-08-17");
+    expect(wrapper.find(".page-date").text()).toBe("2026-08-17 09:30");
     expect(wrapper.find(".direction-badge").text()).toContain("多頭偏強");
     expect(wrapper.findAll(".score-num").map((node) => node.text())).toEqual([
       "6",
@@ -99,6 +99,25 @@ describe("MacroBattleView", () => {
     ]);
     expect(wrapper.find(".takeaway-list").exists()).toBe(true);
     expect(wrapper.findAll(".event-card")).toHaveLength(3);
+  });
+
+  it("缺少報告日期時顯示未知標記", async () => {
+    fetchReports.mockResolvedValue([
+      {
+        date: null,
+        macroAnalysis: {
+          total_bull_score: 0,
+          total_bear_score: 0,
+          conclusion: { market_direction: "NEUTRAL" },
+          bull_events: [],
+          bear_events: [],
+          neutral_events: [],
+        },
+      },
+    ]);
+    const wrapper = mountView();
+    await flushPromises();
+    expect(wrapper.find(".page-date").text()).toBe("—");
   });
 
   it("應移除跨頁子分頁列，改為返回膠囊", async () => {

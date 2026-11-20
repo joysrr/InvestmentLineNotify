@@ -107,6 +107,27 @@ describe("HealthPanel.vue", () => {
     expect(wrapper.emitted("retry")).toHaveLength(1);
   });
 
+  it("非有限風控數值顯示未知標記", () => {
+    const wrapper = mount(HealthPanel, {
+      props: {
+        ...baseProps,
+        data: {
+          ...baseData,
+          components: {
+            margin: { status: "warn", details: { dropPercent: Number.NaN } },
+            bond: {
+              status: "ok",
+              details: { z2Ratio: Number.POSITIVE_INFINITY },
+            },
+            leverage: { status: "warn", details: { current: Number.NaN } },
+          },
+        },
+      },
+      global: { stubs: ["router-link"] },
+    });
+    expect(wrapper.text()).not.toMatch(/NaN|Infinity/);
+  });
+
   it("score 使用 StatCard 顯示，label=帳戶健康分數，unit=/100", () => {
     const wrapper = mount(HealthPanel, {
       props: baseProps,

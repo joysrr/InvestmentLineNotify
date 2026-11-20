@@ -149,6 +149,19 @@ describe("ChartView", () => {
     expect(qtyOption.tooltip.formatter([{ dataIndex: 0 }])).toContain("股");
   });
 
+  it("數值軸標籤遇到非有限值時顯示未知標記", async () => {
+    fetchSnapshots.mockResolvedValue({
+      hasEncryption: true,
+      snapshots: [{ ...snapshot(), netValueMarket: Number.NaN }],
+    });
+    const wrapper = mountView();
+    await flushPromises();
+    const chart = wrapper.findComponent({ name: "mock-chart" });
+    expect(chart.props("option").yAxis.axisLabel.formatter(Number.NaN)).toBe(
+      "—",
+    );
+  });
+
   it("應格式化金額、數量與空值軸標籤", async () => {
     fetchSnapshots.mockResolvedValue({
       hasEncryption: true,

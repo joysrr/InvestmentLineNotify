@@ -240,11 +240,11 @@ wiki_links:
 
 ### 階段二：P0 正確性與窄螢幕修正
 
-- [ ] DashboardView：latestReport、healthData、status 缺漏/載入失敗/資料逾時降級與重試；時間輸出統一使用日期 formatter；缺值顯示 `—`
-- [ ] MacroBattleView：390px 視窗 .score-wrap、.score-bar-row 不擠壓/裁切；如重現溢位，最小修正 flex/min-width 或斷點換行
-- [ ] MarketRadarView：.defense-mode-badge 與外層容器水平 padding 僅在實測邊距疊加時修正；追蹤更新時間欄位來源並安全降級；可見數值缺值與單位
-- [ ] NewsView：reportNews.generatedAt 等可見時間採既有 formatter；檢查 .subtab-bar sticky 定位與 Telegram Mini App 遮擋
-- [ ] 其餘頁面 P0：AccountView、ChartView、InsightsView、StrategyConfigEditor 逐頁空值/載入/錯誤/無資料/窄螢幕遮擋；InsightsView 同步檢查內嵌內容
+- [x] DashboardView：latestReport、healthData、status 缺漏/載入失敗/資料逾時降級與重試；時間輸出統一使用日期 formatter；缺值顯示 `—`（已提交，formatters/formatDate 單測通過）
+- [x] MacroBattleView：390px 視窗 .score-wrap、.score-bar-row 不擠壓/裁切；如重現溢位，最小修正 flex/min-width 或斷點換行（E2E 2/2，390×844 已驗）
+- [x] MarketRadarView：.defense-mode-badge 與外層容器水平 padding 僅在實測邊距疊加時修正；追蹤更新時間欄位來源並安全降級；可見數值缺值與單位（NaN/Infinity 安全兜底，專屬測試通過）
+- [x] NewsView：reportNews.generatedAt 等可見時間採既有 formatter；檢查 .subtab-bar sticky 定位與 Telegram Mini App 遮擋（10/10 單測，E2E NWS-004 sticky 實測通過）
+- [x] 其餘頁面 P0：AccountView、ChartView、InsightsView、StrategyConfigEditor 逐頁空值/載入/錯誤/無資料/窄螢幕遮擋；InsightsView 同步檢查內嵌內容（Account E2E ACC-003 窄屏無溢位，StrategyConfigEditor 載入錯誤可重試 14/14）
 
 ### 階段三：P1/P2 體驗與版面
 

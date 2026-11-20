@@ -195,14 +195,14 @@
             >
               <div class="snapshot-label">0050 均價</div>
               <div class="snapshot-value">
-                {{ Number(latestSnapshot.avgCost0050).toFixed(2) }}
+                {{ fmtDecimal(latestSnapshot.avgCost0050, 2) }}
               </div>
               <div class="snapshot-sub">元/股</div>
             </div>
             <div class="snapshot-card" v-if="latestSnapshot.avgCostZ2 != null">
               <div class="snapshot-label">00675L 均價</div>
               <div class="snapshot-value">
-                {{ Number(latestSnapshot.avgCostZ2).toFixed(2) }}
+                {{ fmtDecimal(latestSnapshot.avgCostZ2, 2) }}
               </div>
               <div class="snapshot-sub">元/股</div>
             </div>
@@ -319,6 +319,7 @@ import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import { useRoute } from "vue-router";
 import { useSmartMainButton } from "@/composables/useSmartMainButton.js";
 import { formatDateTimeInTaipei } from "@/utils/formatDate.js";
+import { fmtDecimal } from "@/utils/formatters.js";
 
 // ECharts
 import VChart from "vue-echarts";

@@ -22,6 +22,21 @@ describe("StrategyStatusSummary.vue", () => {
     expect(card.props("variant")).toBe("outlined");
   });
 
+  it("時間戳固定顯示台北時區，無效值顯示未知標記", () => {
+    const wrapper = mount(StrategyStatusSummary, {
+      props: {
+        ...baseProps,
+        health: { ...baseHealth, timestamp: "2026-11-12T06:30:00Z" },
+      },
+    });
+    expect(wrapper.text()).toContain("2026-11-12 14:30");
+
+    const invalid = mount(StrategyStatusSummary, {
+      props: { ...baseProps, health: { ...baseHealth, timestamp: "invalid" } },
+    });
+    expect(invalid.text()).toContain("—");
+  });
+
   it("顯示策略總分", () => {
     const wrapper = mount(StrategyStatusSummary, { props: baseProps });
     expect(wrapper.text()).toContain("78");

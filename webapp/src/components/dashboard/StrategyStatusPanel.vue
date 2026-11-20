@@ -65,6 +65,7 @@
 </template>
 
 <script setup>
+import { formatDateTimeInTaipei } from "@/utils/formatDate.js";
 import { computed, ref } from "vue";
 import Icon from "@/components/common/Icon.vue";
 
@@ -83,15 +84,7 @@ const cooldownText = computed(() => {
   return "無冷卻期";
 });
 
-const formatTime = (ts) => {
-  if (!ts) return "—";
-  return new Date(ts).toLocaleString("zh-TW", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
+const formatTime = (ts) => formatDateTimeInTaipei(ts);
 </script>
 
 <style scoped>

@@ -55,14 +55,34 @@ describe("SocialSentimentCard.vue", () => {
     expect(wrapper.text()).toContain("65");
   });
 
-  it("顯示更新時間", () => {
+  it("顯示更新時間，固定台北時區", () => {
     const wrapper = mount(SocialSentimentCard, { props: baseProps });
-    expect(wrapper.text()).toContain("2026/11/13");
+    expect(wrapper.text()).toContain("2026-11-13 09:00");
+  });
+
+  it("更新時間無效時顯示尚無更新時間", () => {
+    const wrapper = mount(SocialSentimentCard, {
+      props: {
+        ...baseProps,
+        sentiment: { ...baseProps.sentiment, updatedAt: "invalid" },
+      },
+    });
+    expect(wrapper.text()).toContain("尚無更新時間");
   });
 
   it("顯示樣本數", () => {
     const wrapper = mount(SocialSentimentCard, { props: baseProps });
     expect(wrapper.text()).toContain("75");
+  });
+
+  it("均線缺值時 Delta 顯示未知標記", () => {
+    const wrapper = mount(SocialSentimentCard, {
+      props: {
+        ...baseProps,
+        sentiment: { ...baseProps.sentiment, ma3: null, ma7: null },
+      },
+    });
+    expect(wrapper.findAll(".ma-value").at(-1).text()).toBe("—");
   });
 
   it("顯示熱門話題標題", () => {

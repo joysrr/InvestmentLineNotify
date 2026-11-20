@@ -4,7 +4,7 @@
     <div class="page-header">
       <h2 class="page-title"><Icon name="candlestick" size="sm" color="var(--iln-hint)" /> 總經多空對決</h2>
       <div class="page-header__end">
-        <span class="page-date">{{ reportDate }}</span>
+        <span class="page-date">{{ formatDateTimeInTaipei(reportDate) }}</span>
         <BackPill :to="{ path: '/insights', query: { tab: 'macro' } }" label="洞察 · 多空對決" />
       </div>
     </div>
@@ -142,6 +142,7 @@ import { fetchSocialSentiment } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import SocialSentimentCard from "@/components/macro/SocialSentimentCard.vue";
 import BackPill from "@/components/common/BackPill.vue";
+import { formatDateTimeInTaipei } from "@/utils/formatDate.js";
 import { waitReady } from "../composables/useTelegram.js";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import EmptyState from "@/components/common/EmptyState.vue";

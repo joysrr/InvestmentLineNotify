@@ -69,6 +69,44 @@ describe("NewsView", () => {
     expect(openLink).toHaveBeenCalledWith("https://example.com/tw");
   });
 
+  it("報告生成時間缺值時顯示未知標記", async () => {
+    fetchReportNews.mockResolvedValue({
+      tw: [
+        {
+          source: "TW News",
+          title: "台灣市場新聞",
+          summary: "摘要",
+          pubDate: "2026-08-17T08:00:00Z",
+          link: "https://example.com/tw",
+        },
+      ],
+      us: [],
+      generatedAt: null,
+    });
+    const wrapper = mountView();
+    await flushPromises();
+    expect(wrapper.text()).toContain("產生時間：—");
+  });
+
+  it("報告生成時間無效時顯示未知標記", async () => {
+    fetchReportNews.mockResolvedValue({
+      tw: [
+        {
+          source: "TW News",
+          title: "台灣市場新聞",
+          summary: "摘要",
+          pubDate: "2026-08-17T08:00:00Z",
+          link: "https://example.com/tw",
+        },
+      ],
+      us: [],
+      generatedAt: "not-a-date",
+    });
+    const wrapper = mountView();
+    await flushPromises();
+    expect(wrapper.text()).toContain("產生時間：—");
+  });
+
   it("報告 API 失敗時應顯示錯誤並可重試", async () => {
     fetchReportNews.mockRejectedValueOnce(new Error("report unavailable"));
     const wrapper = mountView();

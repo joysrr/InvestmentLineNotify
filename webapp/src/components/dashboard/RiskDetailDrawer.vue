@@ -23,7 +23,7 @@
           <span class="row-desc">追繳警戒門檻 {{ warningThreshold }}%</span>
         </div>
         <div class="row-right">
-          <span class="row-val text-ok">{{ Math.round(Number(marginRatio) || 0) }}%</span>
+          <span class="row-val text-ok">{{ fmtRatio(marginRatio) }}%</span>
           <span class="row-tag text-ok">耐跌空間 {{ dropBufferPercent }}%</span>
         </div>
       </ContentCard>
@@ -32,10 +32,10 @@
       <ContentCard variant="flat" padding="sm" radius="md">
         <div class="row-left">
           <span class="row-label">當前總槓桿倍率</span>
-          <span class="row-desc">硬上限 {{ Number(hardCapLeverage || 3).toFixed(2) }}x</span>
+          <span class="row-desc">硬上限 {{ fmtLeverage(hardCapLeverage) }}x</span>
         </div>
         <div class="row-right">
-          <span class="row-val">{{ Number(grossLeverage || 1).toFixed(2) }}x</span>
+          <span class="row-val">{{ fmtLeverage(grossLeverage) }}x</span>
           <span class="row-tag">常態上限 2.50x</span>
         </div>
       </ContentCard>
@@ -56,6 +56,17 @@
 <script setup>
 import ContentCard from "@/components/common/ContentCard.vue";
 import Icon from "@/components/common/Icon.vue";
+
+const fmtRatio = (val) => {
+  const n = Number(val);
+  return Number.isFinite(n) ? Math.round(n) : "—";
+};
+
+const fmtLeverage = (val) => {
+  const n = Number(val);
+  return Number.isFinite(n) ? n.toFixed(2) : "—";
+};
+
 defineProps({
   visible: {
     type: Boolean,

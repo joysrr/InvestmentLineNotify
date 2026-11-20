@@ -2,6 +2,10 @@
     <GlobalErrorBoundary>
     <div class="strategy-config-editor iln-page" data-testid="strategy-config-editor">
     <!-- Header -->
+    <div v-if="loadError" class="load-error" role="alert" data-testid="load-error">
+      <span>{{ loadError }}</span>
+      <el-button type="primary" @click="loadAll" :loading="loading" data-testid="btn-retry-load">重新載入</el-button>
+    </div>
     <div class="editor-header">
       <div class="header-left">
         <h2 class="editor-title"><Icon name="settings" size="sm"/> 策略參數設定</h2>
@@ -151,6 +155,8 @@ const validating = ref(false);
 const validationErrors = ref([]);
 const jsonCollapse = ref([]);
 const resetConfirmVisible = ref(false);
+const loading = ref(false);
+const loadError = ref("");
 
 // Sections configuration
 const sections = [
@@ -246,6 +252,8 @@ const currentSection = computed(
 
 // Load config and meta
 async function loadAll() {
+  loading.value = true;
+  loadError.value = "";
   try {
     const [metaRes, configRes] = await Promise.all([
       apiFetch("/api/strategy-config/meta"),
@@ -264,7 +272,10 @@ async function loadAll() {
     validateCurrentConfig();
   } catch (err) {
     console.error("Load config failed:", err);
+    loadError.value = err.message || "載入設定失敗";
     ElMessage.error("載入設定失敗: " + err.message);
+  } finally {
+    loading.value = false;
   }
 }
 

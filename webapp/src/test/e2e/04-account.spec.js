@@ -20,4 +20,21 @@ test.describe("04-AccountView - 系統狀態與帳戶", () => {
     await chartBtn.click();
     await expect(page).toHaveURL(/#\/chart/);
   });
+
+  test("ACC-003: StrategyConfigEditor 在 390px 螢幕無水平溢位", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("#/strategy-config", { waitUntil: "domcontentloaded" });
+    const editor = page.locator('[data-testid="strategy-config-editor"]');
+    await expect(editor).toBeVisible({ timeout: 15000 });
+    await expect(
+      page.getByRole("heading", { name: /策略參數設定/ }),
+    ).toBeVisible();
+    const widths = await page.evaluate(() => ({
+      viewport: document.documentElement.clientWidth,
+      content: document.documentElement.scrollWidth,
+    }));
+    expect(widths.content).toBeLessThanOrEqual(widths.viewport);
+  });
 });

@@ -21,7 +21,7 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         executablePath:
-          "/opt/hermes/.playwright/chromium_headless_shell-1234/chrome-linux/headless_shell",
+          "/root/.cache/ms-playwright/chromium_headless_shell-1234/chrome-linux/headless_shell",
       },
     },
   ],

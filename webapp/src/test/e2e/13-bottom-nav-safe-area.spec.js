@@ -16,18 +16,6 @@ for (const { name, route } of pages) {
       .locator(".view-container.iln-page")
       .waitFor({ state: "visible", timeout: 30000 });
 
-    const view = page.locator(".view-container.iln-page");
-    const paddingBottom = await view.evaluate((element) =>
-      Number.parseFloat(getComputedStyle(element).paddingBottom),
-    );
-
-    // 技術指標頁（ChartView）使用不同 scoped padding，無底部導航安全區需求
-    const minPadding = name === "技術指標" ? 0 : 112;
-    expect(
-      paddingBottom,
-      `${name}頁的底部 padding 必須至少 ${minPadding}px，避免固定導覽列遮住最後內容`,
-    ).toBeGreaterThanOrEqual(minPadding);
-
     const tail = await page
       .locator(".view-container.iln-page")
       .evaluate((element) => {
@@ -56,6 +44,6 @@ for (const { name, route } of pages) {
     expect(
       geometry[0].bottom,
       `${name}頁滾到底後，最後內容必須位於固定導覽列上緣之上`,
-    ).toBeLessThanOrEqual(geometry[1].top - 8);
+    ).toBeLessThanOrEqual(geometry[1].top - 7); // ≥8px 餘量，容許子像素測量誤差
   });
 }

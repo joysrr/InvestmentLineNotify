@@ -80,6 +80,53 @@ describe("MarketRadarView", () => {
     wrapper.unmount();
   });
 
+  it("無效市場數值顯示未知標記，不洩漏 NaN 或 Infinity", async () => {
+    vi.mocked(fetchStatus).mockResolvedValue({
+      data: {
+        ...baseStatusData,
+        rawMargin: {
+          marginBalance100M: Number.NaN,
+          maintenanceRatio: Number.POSITIVE_INFINITY,
+          marginBalanceChange100M: Number.NaN,
+        },
+        rawValuation: { pe: Number.NaN, pb: Number.POSITIVE_INFINITY },
+        rawFx: {
+          currentRate: Number.NaN,
+          changePercent: Number.POSITIVE_INFINITY,
+        },
+      },
+    });
+    vi.mocked(fetchReports).mockResolvedValue([
+      {
+        ...baseReportData,
+        vixData: { value: Number.NaN },
+        macroData: {
+          ...baseReportData.macroData,
+          rawMargin: {
+            marginBalance100M: Number.NaN,
+            maintenanceRatio: Number.POSITIVE_INFINITY,
+            marginBalanceChange100M: Number.NaN,
+          },
+          rawValuation: { pe: Number.NaN, pb: Number.POSITIVE_INFINITY },
+          rawFx: {
+            currentRate: Number.NaN,
+            changePercent: Number.POSITIVE_INFINITY,
+          },
+        },
+        valuationGuardResult: { currentPR: Number.NaN },
+      },
+    ]);
+
+    const wrapper = mount(MarketRadarView);
+    await flushPromises();
+
+    expect(wrapper.text()).not.toMatch(/NaN|Infinity/);
+    expect(wrapper.text()).toContain("融資維持率");
+    expect(wrapper.text()).not.toContain("融資餘額變化");
+    expect(wrapper.text()).not.toContain("NaN 億");
+    wrapper.unmount();
+  });
+
   it("應在 StatCard 上方顯示掃描結論一行", async () => {
     vi.mocked(fetchStatus).mockResolvedValue({
       data: baseStatusData,

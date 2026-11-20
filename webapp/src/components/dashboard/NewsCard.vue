@@ -25,6 +25,7 @@
 </template>
 
 <script setup>
+import { formatDateTimeInTaipei } from "@/utils/formatDate.js";
 import Icon from "@/components/common/Icon.vue";
 
 const props = defineProps({
@@ -56,19 +57,7 @@ function isTaiwanMarket(source) {
 }
 
 function formatDate(pubDate) {
-  if (!pubDate) return "—";
-  try {
-    const d = new Date(pubDate);
-    if (isNaN(d.getTime())) return "—";
-    return d.toLocaleString("zh-TW", {
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return pubDate;
-  }
+  return formatDateTimeInTaipei(pubDate);
 }
 
 function ageBandClass(band) {

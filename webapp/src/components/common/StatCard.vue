@@ -69,8 +69,9 @@ const hasSuffixSlot = computed(() => !!slots.suffix);
 
 const formattedValue = computed(() => {
   if (props.format === "raw") return String(props.value);
+  if (props.value == null || props.value === "") return "—";
   const num = Number(props.value);
-  if (Number.isNaN(num)) return String(props.value);
+  if (!Number.isFinite(num)) return "—";
 
   switch (props.format) {
     case "auto":

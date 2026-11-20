@@ -195,6 +195,7 @@ import {
 import { prefetch } from "../composables/useRoutePrefetch.js";
 import { viewLoaders } from "../router/index.js";
 import { getPrLevel } from "@/utils/metricThresholds.js";
+import { formatDateTimeInTaipei } from "@/utils/formatDate.js";
 
 // Components
 import MacroCockpitCard from "../components/dashboard/MacroCockpitCard.vue";
@@ -433,12 +434,7 @@ async function loadAll() {
 }
 
 function formatUpdatedAt(iso) {
-  return new Date(iso).toLocaleString("zh-TW", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatDateTimeInTaipei(iso);
 }
 
 onMounted(async () => {

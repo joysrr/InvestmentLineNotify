@@ -37,6 +37,10 @@ describe("formatDate", () => {
   });
 
   describe("formatDateTimeInTaipei", () => {
+    it("returns a dash for invalid timestamps", () => {
+      expect(formatDateTimeInTaipei("invalid-date")).toBe("—");
+    });
+
     it("固定以台北時區格式化日期時間", () => {
       expect(formatDateTimeInTaipei("2026-11-12T06:30:00Z")).toBe(
         "2026-11-12 14:30",

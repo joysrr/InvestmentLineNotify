@@ -159,6 +159,7 @@
 
 <script setup>
 import { computed, ref } from "vue";
+import { formatDateTimeInTaipei } from "@/utils/formatDate.js";
 import ContentCard from "@/components/common/ContentCard.vue";
 import Icon from "@/components/common/Icon.vue";
 
@@ -181,14 +182,23 @@ const pttItems = computed(() => props.sentiment?.pttItems ?? 0);
 const bskyItems = computed(() => props.sentiment?.bskyItems ?? 0);
 const updatedAtText = computed(() => {
   if (!props.sentiment?.updatedAt) return "尚無更新時間";
-  return new Date(props.sentiment.updatedAt).toLocaleString("zh-TW", {
-    hour12: false,
-  });
+  const formatted = formatDateTimeInTaipei(props.sentiment.updatedAt);
+  if (formatted === "—") return "尚無更新時間";
+  return formatted;
 });
 
 const deltaText = computed(() => {
   if (!props.sentiment) return "—";
-  const delta = props.sentiment.ma3 - props.sentiment.ma7;
+  const { ma3, ma7 } = props.sentiment;
+  if (
+    ma3 == null ||
+    ma7 == null ||
+    ma3 === "" ||
+    ma7 === "" ||
+    !Number.isFinite(Number(ma3)) ||
+    !Number.isFinite(Number(ma7))
+  ) return "—";
+  const delta = ma3 - ma7;
   return delta >= 0 ? `+${delta.toFixed(1)}` : `${delta.toFixed(1)}`;
 });
 

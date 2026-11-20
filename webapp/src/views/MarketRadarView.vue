@@ -151,15 +151,22 @@
         <h3 class="section-title">融資餘額變化</h3>
         <div class="detail-row">
           <span class="dr-label">融資餘額</span>
-          <span class="dr-value">{{ marginValue?.toFixed(1) }} 億</span>
+          <span class="dr-value">{{ fmtDecimal(marginValue, 1) ?? "—" }} 億</span>
         </div>
         <div class="detail-row">
           <span class="dr-label">單日增減</span>
           <span
             class="dr-value"
-            :class="marginChange >= 0 ? 'text-green' : 'text-red'"
+            :class="
+              marginChange != null
+                ? marginChange >= 0
+                  ? 'text-green'
+                  : 'text-red'
+                : 'text-muted'
+            "
           >
-            {{ marginChange >= 0 ? "+" : "" }}{{ marginChange?.toFixed(1) }} 億
+            {{ marginChange != null ? (marginChange >= 0 ? "+" : "") : "" }}
+            {{ fmtDecimal(marginChange, 1) ?? "—" }} 億
           </span>
         </div>
         <div v-if="marginDate" class="detail-row">
@@ -181,6 +188,7 @@ import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import ExtremeRadarPanel from "@/components/radar/ExtremeRadarPanel.vue";
 import CashExposureWidget from "@/components/radar/CashExposureWidget.vue";
 import BackPill from "@/components/common/BackPill.vue";
+import { fmtDecimal } from "@/utils/formatters.js";
 import { waitReady } from "../composables/useTelegram.js";
 import { formatRelative, resolveLastRun } from "@/utils/formatDate.js";
 import ErrorView from "@/components/common/ErrorView.vue";
@@ -198,6 +206,12 @@ const error = ref(false);
 const statusData = ref(null); // /api/status  data 欄位
 const reportData = ref(null); // 最新 report（含 vixData / usRisk）
 const statusMeta = ref(null); // /api/status 原始回應（含 updatedAt）
+
+const toFiniteNumber = (value) => {
+  if (value === null || value === undefined || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+};
 
 const leadingIndicators = computed(
   () =>
@@ -305,8 +319,8 @@ const cnnCard = computed(() => {
 
 // ── 台股 ──────────────────────────────────────────────
 const twVix = computed(() => {
-  const v = reportData.value?.vixData?.value;
-  return v != null ? Number(v).toFixed(1) : null;
+  const v = toFiniteNumber(reportData.value?.vixData?.value);
+  return v != null ? fmtDecimal(v, 1) : null;
 });
 const twVixCard = computed(() => {
   const r = getVixLevel(twVix.value, "tw");
@@ -348,19 +362,22 @@ const marginValue = computed(() => {
   const v =
     reportData.value?.macroData?.rawMargin?.marginBalance100M ??
     statusData.value?.rawMargin?.marginBalance100M;
-  return v != null ? Number(v) : null;
+  const n = Number(v);
+  return v != null && Number.isFinite(n) ? n : null;
 });
 const marginRatio = computed(() => {
   const v =
     reportData.value?.macroData?.rawMargin?.maintenanceRatio ??
     statusData.value?.rawMargin?.maintenanceRatio;
-  return v != null ? Number(v).toFixed(1) : null;
+  const number = toFiniteNumber(v);
+  return number != null ? fmtDecimal(number, 1) : null;
 });
 const marginChange = computed(() => {
   const v =
     reportData.value?.macroData?.rawMargin?.marginBalanceChange100M ??
     statusData.value?.rawMargin?.marginBalanceChange100M;
-  return v != null ? Number(v) : null;
+  const n = Number(v);
+  return v != null && Number.isFinite(n) ? n : null;
 });
 const marginDate = computed(
   () =>
@@ -377,7 +394,7 @@ const pe = computed(() => {
   const v =
     reportData.value?.macroData?.rawValuation?.pe ??
     statusData.value?.rawValuation?.pe;
-  return v != null ? Number(v) : null;
+  return toFiniteNumber(v);
 });
 const peCard = computed(() => {
   const v = pe.value;
@@ -395,7 +412,7 @@ const pb = computed(() => {
   const v =
     reportData.value?.macroData?.rawValuation?.pb ??
     statusData.value?.rawValuation?.pb;
-  return v != null ? Number(v) : null;
+  return toFiniteNumber(v);
 });
 // ⚠️ 本卡片的顏色依 PB 絕對值判定（1.5/2.0/3.0/4.0），與 DashboardView.pbPrLevel 的 PR 歷史分位判定（25/80/90）為不同維度。
 const pbCard = computed(() => {
@@ -412,7 +429,8 @@ const pbCard = computed(() => {
 
 const pbPR = computed(() => {
   const pr = reportData.value?.valuationGuardResult?.currentPR;
-  return pr != null ? Number(pr).toFixed(1) : null;
+  const n = Number(pr);
+  return pr != null && Number.isFinite(n) ? fmtDecimal(n, 1) : null;
 });
 
 const fxRate = computed(() => {
@@ -421,13 +439,14 @@ const fxRate = computed(() => {
     reportData.value?.macroData?.rawFx?.exchangeRate ??
     statusData.value?.rawFx?.currentRate ??
     statusData.value?.rawFx?.exchangeRate;
-  return v != null ? Number(v).toFixed(2) : null;
+  const number = toFiniteNumber(v);
+  return number != null ? fmtDecimal(number, 2) : null;
 });
 const fxChange = computed(() => {
   const v =
     reportData.value?.macroData?.rawFx?.changePercent ??
     statusData.value?.rawFx?.changePercent;
-  return v != null ? Number(v) : null;
+  return toFiniteNumber(v);
 });
 const fxCard = computed(() => {
   const c = fxChange.value;

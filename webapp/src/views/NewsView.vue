@@ -72,7 +72,7 @@
         </div>
         </div>
 
-        <p class="report-generated">          <Icon name="clock" size="sm" color="var(--iln-hint)" /> 產生時間：{{ reportNews.generatedAt || "—" }}
+        <p class="report-generated">          <Icon name="clock" size="sm" color="var(--iln-hint)" /> 產生時間：{{ generatedAtDisplay }}
         </p>
       </div>
     </div>
@@ -108,8 +108,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { dedupeByUrl, categorizeRegion, matchFeatured } from "@/utils/newsMatch.js";
+import { formatDateTimeInTaipei } from "@/utils/formatDate.js";
 import NewsCard from "@/components/dashboard/NewsCard.vue";
 import { fetchNews, fetchReportNews } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
@@ -132,6 +133,15 @@ const reportNews = ref({ tw: [], us: [], generatedAt: "" });
 const reportLoading = ref(false);
 const reportError = ref(null);
 const reportLoaded = ref(false);
+
+// 報告生成時間顯示：已為「YYYY-MM-DD HH:mm」則保留台北語義不二次轉換；
+// 否則經 formatDateTimeInTaipei（固定 Asia/Taipei）；無效值顯示「—」
+const generatedAtDisplay = computed(() => {
+  const v = reportNews.value?.generatedAt;
+  if (!v) return "—";
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(v)) return v;
+  return formatDateTimeInTaipei(v);
+});
 
 // 精選列表：供新聞池 tab 做 matchFeatured 比對，標記 isPicked
 const featuredNews = ref([]);

@@ -22,4 +22,28 @@ test.describe("10-NewsView - 即時新聞與情意素分析", () => {
       .isVisible({ timeout: 5000 });
     expect(hasTitle).toBeTruthy();
   });
+
+  test("NWS-004: .subtab-bar 為 sticky 且不遮擋頁首（P2-127）", async ({
+    page,
+  }) => {
+    const pageHeader = page.locator(".page-header");
+    const subtabBar = page.locator(".subtab-bar");
+
+    await expect(pageHeader).toBeVisible();
+    await expect(subtabBar).toBeVisible();
+
+    // 捲動真正的容器後，sticky 列不得跑到視窗上緣以外
+    await page.locator(".app-main").evaluate((element) => {
+      element.scrollTop = Math.min(300, element.scrollHeight);
+    });
+    const stickyState = await subtabBar.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        top: rect.top,
+        position: getComputedStyle(element).position,
+      };
+    });
+    expect(stickyState.position).toBe("sticky");
+    expect(stickyState.top).toBeGreaterThanOrEqual(0);
+  });
 });

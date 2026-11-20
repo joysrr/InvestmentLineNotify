@@ -17,7 +17,7 @@ describe("NewsCard.vue", () => {
     const wrapper = mount(NewsCard, { props: baseProps });
     expect(wrapper.text()).toContain("台股午評：0050 漲逾 1%");
     expect(wrapper.text()).toContain("鉅亨網");
-    expect(wrapper.text()).toContain("11/14");
+    expect(wrapper.text()).toContain("2026-11-14 17:30");
   });
 
   it("無摘要時不顯示摘要區塊", () => {
