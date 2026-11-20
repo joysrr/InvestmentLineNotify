@@ -143,5 +143,43 @@ test.describe("02-Dashboard drawer 互動與窄螢幕", () => {
     await expect(page.getByRole("heading", { name: "策略設定" })).toBeHidden({
       timeout: 5000,
     });
+    await expect(
+      page.locator("[data-testid='fab-strategy-config']"),
+    ).toBeFocused();
+  });
+
+  test("DSH-015: 窄屏抽屜內容可捲動至底部", async ({ page }) => {
+    await page.locator("[data-testid='fab-strategy-config']").click();
+    const drawer = page.getByRole("dialog", { name: "策略設定" });
+    await expect(drawer).toBeVisible({ timeout: 10000 });
+    const scrollable = drawer.locator(".el-drawer__body");
+    await expect(scrollable).toBeVisible();
+    const metrics = await scrollable.evaluate((element) => ({
+      scrollHeight: element.scrollHeight,
+      clientHeight: element.clientHeight,
+    }));
+    expect(metrics.scrollHeight).toBeGreaterThanOrEqual(metrics.clientHeight);
+    if (metrics.scrollHeight > metrics.clientHeight) {
+      await scrollable.evaluate((element) => {
+        element.scrollTop = element.scrollHeight;
+      });
+      await expect
+        .poll(() => scrollable.evaluate((element) => element.scrollTop))
+        .toBeGreaterThan(0);
+    }
+  });
+
+  test("DSH-017: 開啟策略設定抽屜時，內容捲動區位於視窗範圍內", async ({
+    page,
+  }) => {
+    await page.locator("[data-testid='fab-strategy-config']").click();
+    const drawer = page.getByRole("dialog", { name: "策略設定" });
+    await expect(drawer).toBeVisible({ timeout: 10000 });
+    const box = await drawer.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.width).toBeLessThanOrEqual(390);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(844);
   });
 });

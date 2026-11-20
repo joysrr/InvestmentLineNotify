@@ -164,7 +164,8 @@ const getCompName = (key) => {
 
 const getCompDisplayValue = (comp) => {
   const d = comp.details || {};
-  if (d.margin != null) return `${d.margin}%`;
+  if (d.margin != null)
+    return Number.isFinite(d.margin) ? `${d.margin}%` : "—%";
   if (d.dropPercent != null)
     return typeof d.dropPercent === "number"
       ? Number.isFinite(d.dropPercent)

@@ -128,6 +128,57 @@ describe("HealthPanel.vue", () => {
     expect(wrapper.text()).not.toMatch(/NaN|Infinity/);
   });
 
+  it("margin 無效數值不顯示 NaN/Infinity，顯示未知標記", () => {
+    const nanWrapper = mount(HealthPanel, {
+      props: {
+        ...baseProps,
+        data: {
+          ...baseData,
+          components: {
+            margin: { status: "warn", details: { margin: Number.NaN } },
+          },
+        },
+      },
+      global: { stubs: ["router-link"] },
+    });
+    expect(nanWrapper.text()).not.toMatch(/NaN|Infinity/);
+    expect(nanWrapper.text()).toContain("—%");
+
+    const infWrapper = mount(HealthPanel, {
+      props: {
+        ...baseProps,
+        data: {
+          ...baseData,
+          components: {
+            margin: {
+              status: "warn",
+              details: { margin: Number.POSITIVE_INFINITY },
+            },
+          },
+        },
+      },
+      global: { stubs: ["router-link"] },
+    });
+    expect(infWrapper.text()).not.toMatch(/NaN|Infinity/);
+    expect(infWrapper.text()).toContain("—%");
+  });
+
+  it("margin 有效數值顯示百分比", () => {
+    const wrapper = mount(HealthPanel, {
+      props: {
+        ...baseProps,
+        data: {
+          ...baseData,
+          components: {
+            margin: { status: "warn", details: { margin: 75.123 } },
+          },
+        },
+      },
+      global: { stubs: ["router-link"] },
+    });
+    expect(wrapper.text()).toContain("75.123%");
+  });
+
   it("score 使用 StatCard 顯示，label=帳戶健康分數，unit=/100", () => {
     const wrapper = mount(HealthPanel, {
       props: baseProps,

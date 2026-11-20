@@ -223,6 +223,22 @@ describe("AccountView", () => {
     expect(wrapper.text()).not.toContain("0050 均價");
   });
 
+  it("股數快照為無效數字字串時顯示未知標記", async () => {
+    snapshotState.latestSnapshot.value = {
+      date: "2026-08-17",
+      qty0050: "not-a-number",
+      totalLoan: 500000,
+      cash: 120000,
+    };
+    const wrapper = mountView();
+    await flushPromises();
+    const stockCard = wrapper
+      .findAll(".snapshot-card")
+      .find((card) => card.text().includes("0050 股數"));
+    expect(stockCard.find(".snapshot-value").text()).toBe("—");
+    expect(wrapper.text()).not.toContain("NaN");
+  });
+
   it("成本價資料缺失時不顯示未確認的均價欄位", async () => {
     snapshotState.latestSnapshot.value = {
       date: "2026-08-17",

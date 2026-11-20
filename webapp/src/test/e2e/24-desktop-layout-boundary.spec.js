@@ -69,9 +69,21 @@ test.describe("P2-126 1024px 桌面版面邊界", () => {
       timeout: 10000,
     });
     await expect(page.locator(".macro-events-grid")).toBeVisible();
+    const columns = await page
+      .locator(".macro-events-grid")
+      .evaluate(
+        (grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length,
+      );
+    expect(columns).toBe(2);
     const width = await page.evaluate(() =>
       Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
     );
+    const eventSections = page.locator(".macro-events-grid > .section");
+    const firstEventBox = await eventSections.nth(0).boundingBox();
+    const secondEventBox = await eventSections.nth(1).boundingBox();
+    expect(firstEventBox).not.toBeNull();
+    expect(secondEventBox).not.toBeNull();
+    expect(Math.abs(firstEventBox.y - secondEventBox.y)).toBeLessThanOrEqual(1);
     expect(width).toBeLessThanOrEqual(1024);
   });
 });

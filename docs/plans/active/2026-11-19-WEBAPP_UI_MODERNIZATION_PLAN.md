@@ -260,9 +260,19 @@ wiki_links:
 
 - [ ] Vitest：formatter 邊界值、各頁空/錯誤/載入狀態、新聞篩選邏輯、圖表容器狀態、表單驗證（TDD RED→GREEN→REFACTOR）
 - [ ] Playwright --workers=1：390×844 六頁主要流程、水平溢位、底部導覽/MainButton 遮擋；≥1024px 網格、雙欄與寬屏閱讀
+  - [x] 六頁 390×844：`25-six-pages-390x844.spec.js` 6/6；新增 `.app-main` bottom-nav padding 與 viewport 邊界檢查（2026-11-20）
+  - [x] Dashboard drawer 390×844：`02-dashboard-drawer.spec.js` 7/7；驗證窄屏 body 尺寸、焦點進入/返回及 drawer panel 尺寸（2026-11-20）
+  - [x] 桌機 Insights：`24-desktop-layout-boundary.spec.js` 6/6；新增 1024px 兩欄 grid 與事件列同高幾何斷言（2026-11-20）
+  - [ ] 六頁使用確定資料 fixture 的 390×844 UI 驗收尚未補齊；現有各 spec 使用環境資料或局部 route mock，需後續逐頁確定 fixture
+  - [ ] MainButton 目前為 setupE2EContext 空操作 mock；遮擋檢查尚無真實 MainButton 元素/位置證據
 - [ ] Console 無未處理例外；數值/時間欄位無 NaN/原始 ISO；驗證新聞外連與頁面特有操作
 - [ ] 執行 targeted Vitest、E2E、完整 npm test、lint、npm run build；確認 bundle budget
+  - [x] 本次 targeted Vitest 35/35；lint 0 errors、2 個既有 warnings、raw-color 0 violations；三個 E2E spec 合計 19/19（2026-11-20）
+  - [ ] 本次變更後完整 `npm test`、`npm run build` 與 bundle budget 尚未重跑
 - [ ] 實體 Telegram WebView 若無環境，標示為未驗證；不以一般 Chromium 結果宣稱實機驗收
+  - [x] Telegram 實體 WebView 未驗證；Chromium E2E 不代表實機驗收（2026-11-20）
+
+**追溯矩陣：** `docs/plans/active/webapp-review-matrix.md` 記錄計畫需求、頁面、測試與證據狀態；未有證據的項目明確標示 Gap，不以 checklist 勾選代替驗收。**
 
 ### PR / Merge 驗收 Checklist
 

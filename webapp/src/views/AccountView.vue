@@ -353,10 +353,11 @@ function formatMoney(val) {
   return Math.round(val).toLocaleString();
 }
 
-// ── 股數格式化：缺值顯示「—」，真實 0 仍顯示「0」──────────
+// ── 股數格式化：缺值及無效數值顯示「—」，真實 0 仍顯示「0」──────────
 function fmtQty(val) {
   if (val == null) return "—";
-  return Number(val).toLocaleString();
+  const n = Number(val);
+  return Number.isFinite(n) ? n.toLocaleString() : "—";
 }
 
 // ── 設計令牌讀取 ────────────────────────────────────────
