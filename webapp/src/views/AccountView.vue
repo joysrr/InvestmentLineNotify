@@ -164,14 +164,14 @@
             <div class="snapshot-card">
               <div class="snapshot-label">0050 股數</div>
               <div class="snapshot-value">
-                {{ Number(latestSnapshot.qty0050 ?? 0).toLocaleString() }}
+                {{ fmtQty(latestSnapshot.qty0050) }}
               </div>
               <div class="snapshot-sub">股</div>
             </div>
             <div class="snapshot-card">
               <div class="snapshot-label">00675L 股數</div>
               <div class="snapshot-value">
-                {{ Number(latestSnapshot.qtyZ2 ?? 0).toLocaleString() }}
+                {{ fmtQty(latestSnapshot.qtyZ2) }}
               </div>
               <div class="snapshot-sub">股</div>
             </div>
@@ -318,6 +318,7 @@ import DeploymentControl from "@/components/common/DeploymentControl.vue";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
 import { useRoute } from "vue-router";
 import { useSmartMainButton } from "@/composables/useSmartMainButton.js";
+import { formatDateTimeInTaipei } from "@/utils/formatDate.js";
 
 // ECharts
 import VChart from "vue-echarts";
@@ -415,6 +416,12 @@ function formatMoney(val) {
   return Math.round(val).toLocaleString();
 }
 
+// ── 股數格式化：缺值顯示「—」，真實 0 仍顯示「0」──────────
+function fmtQty(val) {
+  if (val == null) return "—";
+  return Number(val).toLocaleString();
+}
+
 // ── 設計令牌讀取 ────────────────────────────────────────
 // ECharts Canvas 無法解析 CSS var()，由 JS 以 getComputedStyle 讀取設計令牌
 function readToken(name, fallback) {
@@ -429,13 +436,7 @@ function readToken(name, fallback) {
 const lastRunLabel = computed(() => {
   const ts = status.value?._meta?.lastRun;
   if (!ts) return "N/A";
-  return new Date(ts).toLocaleString("zh-TW", {
-    timeZone: "Asia/Taipei",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatDateTimeInTaipei(ts);
 });
 
 // ── PR Trend Chart Option ──
@@ -520,13 +521,7 @@ const sourcesDisplay = computed(() => {
     let stale = false;
     if (lastFetchIso) {
       const ts = new Date(lastFetchIso);
-      lastFetchLabel = ts.toLocaleString("zh-TW", {
-        timeZone: "Asia/Taipei",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      lastFetchLabel = formatDateTimeInTaipei(lastFetchIso);
       const diffHours = (now - ts.getTime()) / (1000 * 60 * 60);
       if (diffHours >= 1) ageLabel = `${diffHours.toFixed(1)} 小時前更新`;
       else ageLabel = `${Math.max(1, Math.round(diffHours * 60))} 分鐘前更新`;

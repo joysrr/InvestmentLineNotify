@@ -14,7 +14,7 @@
   margin-inline: auto;
   min-height: 100%;
   padding: var(--iln-space-4) var(--iln-space-4)
-    calc(112px + env(safe-area-inset-bottom, 0px));
+    env(safe-area-inset-bottom, 0px);
 }
 
 @media (min-width: 1024px) {

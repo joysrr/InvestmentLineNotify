@@ -16,6 +16,27 @@ export function formatDateTime(time) {
 }
 
 /**
+ * 完整日期時間，固定使用台北時區：2026-11-12 14:30
+ */
+export function formatDateTimeInTaipei(time) {
+  const d = toDate(time);
+  if (!d) return "—";
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Taipei",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(d);
+  const values = Object.fromEntries(
+    parts.map(({ type, value }) => [type, value]),
+  );
+  return `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute}`;
+}
+
+/**
  * 短日期：11/12
  */
 export function formatShortDate(time) {

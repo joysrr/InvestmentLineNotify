@@ -222,7 +222,7 @@ onMounted(async () => {
      （模板改用 ErrorAlert / EmptyState 組件） */
 
 .view-container {
-  padding: 0 0 calc(112px + env(safe-area-inset-bottom, 0px));
+  padding: 0 0 env(safe-area-inset-bottom, 0px);
   min-height: 100%;
 }
 

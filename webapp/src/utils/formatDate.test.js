@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   formatDateTime,
+  formatDateTimeInTaipei,
   formatShortDate,
   formatRelative,
   resolveLastRun,
@@ -32,6 +33,19 @@ describe("formatDate", () => {
       expect(formatDateTime("2026-11-12T14:30:00+08:00")).toBe(
         "2026-11-12 14:30",
       );
+    });
+  });
+
+  describe("formatDateTimeInTaipei", () => {
+    it("固定以台北時區格式化日期時間", () => {
+      expect(formatDateTimeInTaipei("2026-11-12T06:30:00Z")).toBe(
+        "2026-11-12 14:30",
+      );
+    });
+
+    it("缺值與無效時間回傳 '—'", () => {
+      expect(formatDateTimeInTaipei(null)).toBe("—");
+      expect(formatDateTimeInTaipei("invalid")).toBe("—");
     });
   });
 

@@ -236,8 +236,7 @@ const directionClass = computed(() => {
    動態 class（directionClass → badge-bull/bear/neutral）保留。 */
 
 .view-container {
-  padding: var(--iln-space-4) var(--iln-space-4)
-    calc(112px + env(safe-area-inset-bottom, 0px));
+  padding: var(--iln-space-4) var(--iln-space-4) env(safe-area-inset-bottom, 0px);
   min-height: 100%;
 }
 

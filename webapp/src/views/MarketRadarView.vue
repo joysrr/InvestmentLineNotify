@@ -469,8 +469,7 @@ const scanConclusion = computed(() => {
    註：rc-sub--* / card-* / text-green / text-red 由 JS 動態生成，保守保留。 */
 
 .view-container {
-  padding: var(--iln-space-4) var(--iln-space-4)
-    calc(112px + env(safe-area-inset-bottom, 0px));
+  padding: var(--iln-space-4) var(--iln-space-4) env(safe-area-inset-bottom, 0px);
   min-height: 100%;
 }
 

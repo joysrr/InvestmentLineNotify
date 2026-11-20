@@ -201,6 +201,22 @@ describe("AccountView", () => {
     expect(wrapper.findAll(".snapshot-card").length).toBeGreaterThanOrEqual(6);
   });
 
+  it("缺少股數時顯示未知標記，真實 0 仍顯示 0", async () => {
+    snapshotState.latestSnapshot.value = {
+      date: "2026-08-17",
+      qty0050: 0,
+      totalLoan: 500000,
+      cash: 120000,
+    };
+    const wrapper = mountView();
+    await flushPromises();
+    const values = wrapper
+      .findAll(".snapshot-card")
+      .map((card) => card.find(".snapshot-value").text());
+    expect(values[0]).toBe("0");
+    expect(values[1]).toBe("—");
+  });
+
   it("應包含連結至 /chart 的資產趨勢圖表按鈕", async () => {
     const wrapper = mountView();
     await flushPromises();
