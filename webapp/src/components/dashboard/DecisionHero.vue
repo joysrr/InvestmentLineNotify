@@ -1,5 +1,5 @@
 <template>
-  <ContentCard variant="outlined" size="lg" clickable class="hero-card-wrapper">
+  <ContentCard variant="outlined" size="lg" class="hero-card-wrapper">
     <Transition name="hero-fade" mode="out-in">
       <div v-if="loading" key="skeleton" class="hero-card skeleton-card">
         <div class="sk sk-title"></div>
@@ -36,14 +36,6 @@
           <div class="hero-suggestion">
             {{ report.signals?.suggestion || "分析中..." }}
           </div>
-          <el-button
-            type="primary"
-            size="large"
-            class="hero-cta-btn"
-            @click="$emit('action')"
-          >
-            {{ actionText || '立即決策' }}
-          </el-button>
         </div>
 
         <CollapsibleSection title="查看風險與詳情" :expanded="expanded" class="hero-details">
@@ -83,7 +75,6 @@ import { ref, watch } from "vue";
 import ContentCard from "@/components/common/ContentCard.vue";
 import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 import Icon from "@/components/common/Icon.vue";
-import { ElButton } from "element-plus";
 
 const props = defineProps({
   report: Object,
@@ -94,7 +85,6 @@ const props = defineProps({
   pctClass: String,
   pctText: String,
   routingPath: String,
-  actionText: String,
   expanded: {
     type: Boolean,
     default: false,
@@ -104,8 +94,6 @@ const props = defineProps({
     default: true,
   },
 });
-
-defineEmits(["action"]);
 
 // ── Numeric rollover tracking ──
 const rollTarget = ref(false);

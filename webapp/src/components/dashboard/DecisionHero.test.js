@@ -56,6 +56,19 @@ describe("DecisionHero.vue", () => {
     expect(wrapper.text()).toContain("85");
   });
 
+  it("不顯示沒有實際動作的立即決策按鈕", () => {
+    const wrapper = mount(DecisionHero, { props: baseProps });
+    expect(wrapper.find(".hero-cta-btn").exists()).toBe(false);
+    expect(wrapper.text()).not.toContain("立即決策");
+  });
+
+  it("卡片不標示為可點擊，因未提供卡片點擊行為", () => {
+    const wrapper = mount(DecisionHero, { props: baseProps });
+    expect(
+      wrapper.findComponent({ name: "ContentCard" }).props("clickable"),
+    ).toBe(false);
+  });
+
   it("顯示資產趨勢連結", () => {
     const wrapper = mount(DecisionHero, {
       props: { ...baseProps, expanded: true },
