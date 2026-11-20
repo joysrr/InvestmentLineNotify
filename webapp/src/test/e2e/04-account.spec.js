@@ -26,17 +26,6 @@ test.describe("04-AccountView - 系統狀態與帳戶", () => {
     ).toBeVisible();
   });
 
-  test("ACC-004: 通知設定操作提供回饋（不代表持久化）", async ({ page }) => {
-    const hourInput = page.locator(
-      '.notification-settings input[placeholder="0-23"]',
-    );
-    await hourInput.fill("10");
-    await page.getByRole("button", { name: "儲存設定" }).click();
-    await expect(page.locator(".save-feedback")).toContainText(
-      "通知設定已儲存",
-    );
-  });
-
   test("ACC-003: StrategyConfigEditor 在 390px 螢幕無水平溢位", async ({
     page,
   }) => {

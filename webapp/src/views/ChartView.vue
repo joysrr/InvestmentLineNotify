@@ -1,6 +1,14 @@
 <template>
     <GlobalErrorBoundary>
     <div class="view-container iln-page">
+    <button
+      type="button"
+      class="chart-back-button"
+      data-testid="chart-back"
+      @click="goBack"
+    >
+      ← 返回
+    </button>
 
     <div v-if="activeViewTabValue === 'chart'">
     <div v-show="activeTab === 'trend'">
@@ -185,6 +193,15 @@ const activeViewTabValue = ref("chart");
 
 const route = useRoute();
 const router = useRouter();
+
+function goBack() {
+  const source = route.query.source;
+  if (source === "account") {
+    router.push("/account");
+  } else {
+    router.push("/dashboard");
+  }
+}
 
 // 從 query 還原 active tab（深層連結）
 if (route.query.tab === "technical") {
@@ -463,6 +480,23 @@ const chartOption = computed(() => {
 .view-container {
   padding: var(--iln-space-4) var(--iln-space-4) var(--iln-space-2);
   min-height: 100%;
+}
+
+.chart-back-button {
+  min-height: 44px;
+  margin-bottom: var(--iln-space-3);
+  padding: 0 var(--iln-space-3);
+  border: 1px solid var(--iln-border);
+  border-radius: var(--iln-radius-sm);
+  background: var(--iln-surface);
+  color: var(--iln-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.chart-back-button:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
 }
 
 /* ── Header ── */

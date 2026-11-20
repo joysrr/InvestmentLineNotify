@@ -101,7 +101,8 @@ const mountView = () =>
       plugins: [router],
       stubs: {
         "router-link": {
-          template: '<a :href="to"><slot /></a>',
+          template:
+            '<a :href="to" :data-to-path="typeof to === \'object\' ? to.path : to" :data-to-source="to?.query?.source"><slot /></a>',
           props: ["to"],
         },
       },
@@ -240,7 +241,8 @@ describe("AccountView", () => {
     await flushPromises();
     const btn = wrapper.find(".chart-link-btn");
     expect(btn.exists()).toBe(true);
-    expect(btn.attributes("href")).toBe("/chart");
+    expect(btn.attributes("data-to-path")).toBe("/chart");
+    expect(btn.attributes("data-to-source")).toBe("account");
     expect(btn.text()).toContain("資產趨勢圖表");
   });
 
@@ -266,30 +268,22 @@ describe("AccountView", () => {
   });
 
   // ── CARD-5.5：設定項分組測試 ──
-  it("應渲染 3 個 CollapsibleSection 設定分組：通知 / 策略 / 關於，外加 1 個 資料來源 分組", async () => {
+  it("應渲染策略、關於與資料來源設定分組", async () => {
     const wrapper = mountView();
     await flushPromises();
     const titles = wrapper.findAll(".collapsible-title").map((t) => t.text());
-    expect(titles).toContain("通知設定");
+    expect(titles).not.toContain("通知設定");
     expect(titles).toContain("策略參數");
     expect(titles).toContain("關於");
     expect(titles).toContain("資料來源");
   });
 
-  it("通知設定預設展開，包含 Telegram 開關與通知時段輸入", async () => {
+  it("不顯示由主機排程控制的通知設定介面", async () => {
     const wrapper = mountView();
     await flushPromises();
-    expect(wrapper.text()).toContain("通知設定");
-    expect(wrapper.text()).toContain("Telegram 通知開關");
-    expect(wrapper.text()).toContain("通知時段（小時）");
-  });
-
-  it("儲存通知設定後顯示成功回饋訊息", async () => {
-    const wrapper = mountView();
-    await flushPromises();
-    await wrapper.vm.saveNotificationSettings();
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    expect(wrapper.text()).toContain("通知設定已儲存");
+    expect(wrapper.text()).not.toContain("通知設定");
+    expect(wrapper.find(".notification-settings").exists()).toBe(false);
+    expect(wrapper.find(".save-feedback").exists()).toBe(false);
   });
 
   it("關於面板位於 id=about 的 CollapsibleSection 內（展開後可見）", async () => {

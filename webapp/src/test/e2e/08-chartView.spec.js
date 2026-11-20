@@ -14,6 +14,14 @@ test.describe("08-ChartView - 資產趨勢圖表", () => {
     ).toBeVisible({ timeout: 15000 });
   });
 
+  test("CRT-004: 從 Account 進入後可返回 Account", async ({ page }) => {
+    await page.goto("#/account", { waitUntil: "domcontentloaded" });
+    await page.getByRole("link", { name: /資產趨勢圖表/ }).click();
+    await expect(page).toHaveURL(/#\/chart\?source=account/);
+    await page.getByTestId("chart-back").click();
+    await expect(page).toHaveURL(/#\/account/);
+  });
+
   test("CRT-003: 有資料時圖表容器在窄屏與桌機都不溢位，並呈現指標標籤", async ({
     page,
   }) => {

@@ -9,51 +9,7 @@
 
     <!-- ── 設定項分組（CARD-5.5：3 組 CollapsibleSection）── -->
     <div class="settings-groups">
-      <!-- 1. 通知設定（預設展開） -->
-      <CollapsibleSection title="通知設定" :expanded="true" indicator="chevron">
-        <template #default>
-          <div class="settings-group notification-settings">
-            <div class="setting-row">
-              <label class="setting-label">Telegram 通知開關</label>
-              <el-switch
-                v-model="telegramEnabled"
-                active-text="開啟"
-                inactive-text="關閉"
-              />
-            </div>
-            <div class="setting-row">
-              <label class="setting-label">通知時段（小時）</label>
-              <el-input
-                v-model.number="notificationHour"
-                type="number"
-                min="0"
-                max="23"
-                placeholder="0-23"
-                style="width: 80px"
-              />
-            </div>
-            <div class="setting-row save-row">
-              <el-button
-                type="primary"
-                size="small"
-                @click="saveNotificationSettings"
-                :disabled="saveStatus !== null"
-              >
-                儲存設定
-              </el-button>
-              <div
-                v-if="saveStatus"
-                class="save-feedback"
-                :class="`save-feedback--${saveStatus}`"
-              >
-                {{ saveMessage }}
-              </div>
-            </div>
-          </div>
-        </template>
-      </CollapsibleSection>
-
-      <!-- 2. 策略參數（預設展開，指向 StrategyConfigEditor） -->
+      <!-- 1. 策略參數（預設展開，指向 StrategyConfigEditor） -->
       <CollapsibleSection title="策略參數" :expanded="true" indicator="chevron">
         <template #default>
           <div class="settings-group strategy-params">
@@ -130,7 +86,11 @@
       <div class="section">
         <div class="section-header-row">
           <h2 class="section-title"><Icon name="wallet-outline" size="sm" color="var(--iln-hint)" /> 帳戶快照</h2>
-          <router-link to="/chart" class="chart-link-btn">            <Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢圖表
+          <router-link
+            :to="{ path: '/chart', query: { source: 'account' } }"
+            class="chart-link-btn"
+          >
+            <Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢圖表
           </router-link>
         </div>
 
@@ -306,12 +266,12 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import Icon from "@/components/common/Icon.vue";
 import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 import { fetchStatus, fetchReports } from "../api/index.js";
 import { usePortfolioSnapshots } from "../composables/usePortfolioSnapshots.js";
-import { waitReady, haptic, selectionChanged } from "../composables/useTelegram.js";
+import { waitReady } from "../composables/useTelegram.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import DataEvidenceCard from "../components/dashboard/DataEvidenceCard.vue";
 import DeploymentControl from "@/components/common/DeploymentControl.vue";
@@ -349,15 +309,7 @@ const reports = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
-// ── 通知設定（0.3 日：設定回饋）──────────────────────────
-const telegramEnabled = ref(true);
-const notificationHour = ref(9);
 const aboutExpanded = ref(false);
-const saveStatus = ref(null); // 'success' | 'error' | null
-const saveMessage = ref("");
-
-// 切換 Telegram 開關時給予選擇變更觸覺回饋
-watch(telegramEnabled, () => selectionChanged());
 
 async function load() {
   loading.value = true;
@@ -372,22 +324,6 @@ async function load() {
     error.value = "無法載入運作狀態，請稍後再試";
   } finally {
     loading.value = false;
-  }
-}
-
-// ── 通知設定儲存（0.3 日：設定回饋）─────────────────────
-async function saveNotificationSettings() {
-  saveStatus.value = null;
-  saveMessage.value = "";
-  try {
-    // 模擬儲存設定（實際應呼叫 API，階段五不改資料契約，此處為 UI 回饋示範）
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    saveStatus.value = "success";
-    saveMessage.value = "通知設定已儲存";
-    haptic?.("medium");
-  } catch {
-    saveStatus.value = "error";
-    saveMessage.value = "儲存失敗，請稍後再試";
   }
 }
 
@@ -955,39 +891,6 @@ const allHealthy = computed(
   color: var(--iln-hint);
   margin-top: var(--iln-space-1);
 }
-.settings-group .save-feedback {
-  font-size: var(--iln-font-sm);
-  padding: var(--iln-space-1) var(--iln-space-2);
-  border-radius: var(--iln-space-1);
-  margin-left: var(--iln-space-2);
-}
-.settings-group .save-feedback--success {
-  background: var(--iln-viz-bull-bg);
-  color: var(--iln-viz-bull-text);
-}
-.settings-group .save-feedback--error {
-  background: var(--iln-viz-bear-bg);
-  color: var(--iln-viz-bear-text);
-}
-
-/* 通知設定區塊 */
-.notification-settings {
-  display: flex;
-  flex-direction: column;
-  gap: var(--iln-space-3);
-}
-
-/* 儲存行 */
-.save-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--iln-space-3);
-  background: var(--iln-surface);
-  border: 1px solid var(--iln-border-subtle);
-  border-radius: var(--iln-radius-md);
-}
-
 /* ── P3：設定分組寬屏兩列（≥768px）── */
 @media (min-width: 768px) {
   .settings-groups {

@@ -38,7 +38,11 @@ vi.mock("echarts/renderers", () => ({ CanvasRenderer: {} }));
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [{ path: "/chart", component: ChartView }],
+  routes: [
+    { path: "/chart", component: ChartView },
+    { path: "/account", component: { template: "<div />" } },
+    { path: "/dashboard", component: { template: "<div />" } },
+  ],
 });
 
 const mountView = () =>
@@ -59,6 +63,19 @@ const snapshot = (date = "2026-08-17") => ({
 
 describe("ChartView", () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it("無來源參數時應提供返回 Dashboard 的頁內按鈕", async () => {
+    fetchSnapshots.mockResolvedValue({ hasEncryption: true, snapshots: [] });
+    await router.push("/chart");
+    const wrapper = mountView();
+    await flushPromises();
+
+    const backButton = wrapper.get('[data-testid="chart-back"]');
+    expect(backButton.text()).toContain("返回");
+    await backButton.trigger("click");
+    await flushPromises();
+    expect(router.currentRoute.value.path).toBe("/dashboard");
+  });
 
   it("daily API 應排序並顯示圖表摘要", async () => {
     fetchSnapshots.mockResolvedValue({
