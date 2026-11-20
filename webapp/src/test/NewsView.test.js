@@ -171,6 +171,62 @@ describe("NewsView", () => {
     expect(objectWrapper.findComponent(Icon).exists()).toBe(true);
   });
 
+  it("新聞池篩選依已知來源、精選匹配分類，全部保留未知來源", async () => {
+    fetchReportNews.mockResolvedValue({
+      tw: [{ title: "精選台灣新聞", link: "https://example.com/featured" }],
+      us: [],
+    });
+    fetchNews.mockResolvedValueOnce([
+      {
+        id: "tw",
+        title: "精選台灣新聞",
+        link: "https://example.com/featured",
+        source: "鉅亨網",
+      },
+      {
+        id: "unknown",
+        title: "未知來源",
+        link: "https://example.com/unknown",
+        source: "Unknown Feed",
+      },
+    ]);
+    const wrapper = mountView();
+    await flushPromises();
+    await wrapper.findAll(".subtab-btn")[1].trigger("click");
+    await flushPromises();
+
+    expect(wrapper.findAll(".news-card")).toHaveLength(2);
+    await wrapper.get('[data-testid="news-filter-taiwan"]').trigger("click");
+    expect(wrapper.findAll(".news-card")).toHaveLength(1);
+    expect(wrapper.text()).toContain("精選台灣新聞");
+    await wrapper
+      .get('[data-testid="news-filter-unclassified"]')
+      .trigger("click");
+    expect(wrapper.findAll(".news-card")).toHaveLength(1);
+    expect(wrapper.text()).toContain("未知來源");
+    await wrapper.get('[data-testid="news-filter-featured"]').trigger("click");
+    expect(wrapper.findAll(".news-card")).toHaveLength(1);
+    expect(wrapper.text()).toContain("精選台灣新聞");
+  });
+
+  it("新聞池篩選無符合文章時顯示空狀態", async () => {
+    fetchReportNews.mockResolvedValue({});
+    fetchNews.mockResolvedValueOnce([
+      {
+        id: "unknown",
+        title: "未知來源",
+        link: "https://example.com/unknown",
+        source: "Unknown Feed",
+      },
+    ]);
+    const wrapper = mountView();
+    await flushPromises();
+    await wrapper.findAll(".subtab-btn")[1].trigger("click");
+    await flushPromises();
+    await wrapper.get('[data-testid="news-filter-taiwan"]').trigger("click");
+    expect(wrapper.text()).toContain("目前沒有符合條件的新聞");
+  });
+
   it("新聞池 API 失敗時應顯示錯誤", async () => {
     fetchReportNews.mockResolvedValue({});
     fetchNews.mockRejectedValueOnce(new Error("pool unavailable"));

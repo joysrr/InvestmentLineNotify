@@ -84,6 +84,18 @@
           >共 {{ articles.length }} 則</span
         >
       </div>
+      <div v-if="articles.length" class="pool-filters" role="group" aria-label="新聞篩選">
+        <button
+          v-for="filter in poolFilters"
+          :key="filter.id"
+          :data-testid="`news-filter-${filter.id}`"
+          class="pool-filter"
+          :class="{ active: activePoolFilter === filter.id }"
+          :aria-pressed="activePoolFilter === filter.id"
+          @click="activePoolFilter = filter.id"
+        >{{ filter.label }}<span class="filter-count">{{ filterCounts[filter.id] }}</span></button>
+      </div>
+      <p v-if="articles.length && filteredArticles.length === 0" class="filter-empty">目前沒有符合條件的新聞</p>
 
       <LoadingSkeleton v-if="poolLoading" variant="card" :rows="3" />
 
@@ -91,9 +103,9 @@
 
       <EmptyState v-else-if="articles.length === 0" title="新聞池目前為空，排程可能尚未執行" />
 
-      <div v-else class="news-list">
+      <div v-else-if="filteredArticles.length" class="news-list pool-list">
         <component :is="NewsCard"
-          v-for="article in articles"
+          v-for="article in filteredArticles"
           :key="article.id"
           :article="article"
           :show-age-band="true"
@@ -102,14 +114,13 @@
         ></component>
       </div>
     </div>
-
   </div>
   </GlobalErrorBoundary>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { dedupeByUrl, categorizeRegion, matchFeatured } from "@/utils/newsMatch.js";
+import { dedupeByUrl, isTaiwanMarket, matchFeatured } from "@/utils/newsMatch.js";
 import { formatDateTimeInTaipei } from "@/utils/formatDate.js";
 import NewsCard from "@/components/dashboard/NewsCard.vue";
 import { fetchNews, fetchReportNews } from "../api/index.js";
@@ -167,6 +178,25 @@ async function loadReport() {
 
 // ── 新聞池 ────────────────────────────────────────────────
 const articles = ref([]);
+const activePoolFilter = ref("all");
+const poolFilters = [
+  { id: "all", label: "全部" },
+  { id: "featured", label: "精選" },
+  { id: "taiwan", label: "台灣市場" },
+  { id: "unclassified", label: "未分類" },
+];
+const filterCounts = computed(() => ({
+  all: articles.value.length,
+  featured: articles.value.filter((article) => matchFeatured(article, featuredNews.value)).length,
+  taiwan: articles.value.filter((article) => isTaiwanMarket(article)).length,
+  unclassified: articles.value.filter((article) => !isTaiwanMarket(article)).length,
+}));
+const filteredArticles = computed(() => articles.value.filter((article) => {
+  if (activePoolFilter.value === "all") return true;
+  if (activePoolFilter.value === "featured") return matchFeatured(article, featuredNews.value);
+  if (activePoolFilter.value === "taiwan") return isTaiwanMarket(article);
+  return !article.source || (!isTaiwanMarket(article) && !article._knownInternational);
+}));
 const poolLoading = ref(false);
 const poolError = ref(null);
 const poolLoaded = ref(false);
@@ -177,10 +207,7 @@ async function loadPool() {
   try {
     const data = await fetchNews();
     const rawList = Array.isArray(data) ? data : (data?.articles ?? []);
-    const list = dedupeByUrl(rawList).map((a) => ({
-      ...a,
-      _region: categorizeRegion(a),
-    }));
+    const list = dedupeByUrl(rawList);
     articles.value = list;
   } catch (e) {
     poolError.value = e.message;
