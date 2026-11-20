@@ -31,7 +31,7 @@
       <p class="evidence-count">{{ itemCount }} 個核對項目</p>
       <p class="scope-text">{{ report.verificationScope }}</p>
       <p v-if="report.generatedAt" class="updated-text">
-        產生時間：{{ report.generatedAt }}
+        產生時間：{{ generatedAtDisplay }}
       </p>
     </template>
   </ContentCard>
@@ -45,6 +45,7 @@ import {
   fetchDataEvidenceReport,
   generateDataEvidenceReport,
 } from "../../api/index.js";
+import { formatDateTimeInTaipei } from "../../utils/formatDate.js";
 import { useTelegram, waitReady } from "../../composables/useTelegram.js";
 import { exportJSON } from "../../utils/exportUtility.js";
 
@@ -56,6 +57,11 @@ const generating = shallowRef(false);
 const error = shallowRef(null);
 
 const itemCount = computed(() => report.value?.items?.length ?? 0);
+const generatedAtDisplay = computed(() =>
+  report.value?.generatedAt
+    ? formatDateTimeInTaipei(report.value.generatedAt) || "—"
+    : "—",
+);
 
 async function loadReport() {
   loading.value = true;

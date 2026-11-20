@@ -53,10 +53,11 @@ describe("DataEvidenceCard.vue", () => {
     expect(wrapper.text()).not.toContain("個核對項目");
   });
 
-  it("report 有值時顯示證據項目數、範圍、產生時間", async () => {
+  it("report 有值時將產生時間格式化為台北時間，不顯示原始 ISO", async () => {
     const wrapper = mount(DataEvidenceCard, { props: baseProps });
     await vi.waitFor(() => expect(wrapper.text()).toContain("1 個核對項目"));
-    expect(wrapper.text()).toContain("2026-10-21T00:00:00.000Z");
+    expect(wrapper.text()).toContain("2026-10-21 08:00");
+    expect(wrapper.text()).not.toContain("2026-10-21T00:00:00.000Z");
   });
 
   it("loading 時顯示讀取中狀態", () => {
