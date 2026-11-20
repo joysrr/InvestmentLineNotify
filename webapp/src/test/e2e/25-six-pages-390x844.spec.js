@@ -37,7 +37,6 @@ test.describe("390x844 六頁主流程與溢位回歸", () => {
       await page.setViewportSize({ width: 390, height: 844 });
       await setupE2EContext(page);
       await page.goto(path, { waitUntil: "domcontentloaded" });
-      await page.waitForTimeout(3000);
 
       // 頁面主體 selector 可見（驗證頁面正確載入，非 EmptyState 假通過）
       await expect(page.locator(selector).first()).toBeVisible({

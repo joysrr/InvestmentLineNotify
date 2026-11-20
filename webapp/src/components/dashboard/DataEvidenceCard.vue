@@ -59,7 +59,7 @@ const error = shallowRef(null);
 const itemCount = computed(() => report.value?.items?.length ?? 0);
 const generatedAtDisplay = computed(() =>
   report.value?.generatedAt
-    ? formatDateTimeInTaipei(report.value.generatedAt) || "—"
+    ? formatDateTimeInTaipei(report.value.generatedAt)
     : "—",
 );
 
