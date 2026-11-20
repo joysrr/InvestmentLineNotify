@@ -7,9 +7,6 @@ vi.mock("vue-router", () => ({
   useRoute: vi.fn(),
   useRouter: vi.fn(),
 }));
-vi.mock("@/composables/useSmartMainButton.js", () => ({
-  useSmartMainButton: vi.fn(),
-}));
 vi.mock("../views/MarketRadarView.vue", () => ({
   default: { template: '<div data-testid="radar-content">Market Radar</div>' },
 }));

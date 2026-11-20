@@ -62,13 +62,10 @@ import SegmentedControl from "@/components/common/SegmentedControl.vue";
 import Icon from "@/components/common/Icon.vue";
 import MarketRadarView from "./MarketRadarView.vue";
 import MacroBattleView from "./MacroBattleView.vue";
-import { useSmartMainButton } from "@/composables/useSmartMainButton.js";
 
 const route = useRoute();
 const router = useRouter();
 
-// 智慧 MainButton（依路由顯示不同文字/導向，點擊觸覺回饋）
-useSmartMainButton();
 
 const activeTab = computed(() => (route.query.tab === "macro" ? "macro" : "radar"));
 

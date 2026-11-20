@@ -10,7 +10,6 @@
 export async function setupE2EContext(page) {
   await page.addInitScript(() => {
     window.__PLAYWRIGHT__ = true;
-    const mainButtonCalls = [];
     window.Telegram = {
       WebApp: {
         initData: "dev-bypass",
@@ -26,14 +25,6 @@ export async function setupE2EContext(page) {
         ready: () => {},
         expand: () => {},
         close: () => {},
-        MainButton: {
-          show: () => mainButtonCalls.push({ method: "show" }),
-          hide: () => mainButtonCalls.push({ method: "hide" }),
-          setText: (text) => mainButtonCalls.push({ method: "setText", text }),
-          onClick: (cb) => mainButtonCalls.push({ method: "onClick", cb }),
-          offClick: () => mainButtonCalls.push({ method: "offClick" }),
-          __calls: mainButtonCalls,
-        },
         BackButton: {
           show: () => {},
           hide: () => {},
@@ -62,12 +53,6 @@ export async function setupE2EContext(page) {
       },
     };
   });
-}
-
-export function getMainButtonCalls(page) {
-  return page.evaluate(
-    () => window.Telegram?.WebApp?.MainButton?.__calls || [],
-  );
 }
 
 /**

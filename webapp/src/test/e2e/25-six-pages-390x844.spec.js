@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { getMainButtonCalls, setupE2EContext } from "./e2e-utils.js";
+import { setupE2EContext } from "./e2e-utils.js";
 import { DETERMINATE_FIXTURES } from "./fixtures/determinate-data.js";
 
 const FIXTURE_URLS = new Set(Object.keys(DETERMINATE_FIXTURES));
@@ -63,16 +63,6 @@ test.describe("390x844 六頁主流程與溢位回歸", () => {
       if (path === "#/dashboard") {
         expect(requestedFixtures.has("/api/status")).toBe(true);
         expect(requestedFixtures.has("/api/reports")).toBe(true);
-        await expect
-          .poll(async () => {
-            const calls = await getMainButtonCalls(page);
-            return calls.some((call) => call.method === "show");
-          })
-          .toBe(true);
-        const mainButtonMethods = (await getMainButtonCalls(page)).map(
-          (call) => call.method,
-        );
-        expect(mainButtonMethods).toContain("onClick");
       }
 
       // 頁面主體 selector 可見（驗證頁面正確載入，非 EmptyState 假通過）
