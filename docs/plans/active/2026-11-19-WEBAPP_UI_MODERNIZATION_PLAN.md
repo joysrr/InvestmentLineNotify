@@ -1,9 +1,9 @@
 ---
 type: plan
 status: in-progress
-last_updated: 2026-11-19
-last_verified: 2026-11-19
-progress: "規劃完成；待執行基線審計"
+last_updated: 2026-11-20
+last_verified: 2026-11-20
+progress: "階段一基線審計完成；P0/P1/P2 差異清單已產出"
 tags:
   - webapp
   - uiux
@@ -207,14 +207,36 @@ wiki_links:
 
 ### 階段一：共用基線與容器審計（不先改碼）
 
-- [ ] 逐頁審查六頁資料來源、loading/error/empty 分支與 refresh/retry 行為；InsightsView 內嵌 MacroBattle、MarketRadar 內容納入同等基線
-- [ ] 審查 formatDate.js、formatters.js API 及六頁實際使用情形；盤點原始 ISO、NaN/Infinity 顯示風險
-- [ ] 審查 .iln-page、shared-styles.css、tokens.css 與 Design Principles 的底部留白/間距/圓角/陰影/字級與 MainButton safe-area 關係
-- [ ] 盤點全站是否已有底部導覽列，以及缺少統一 bottom-nav 時需新增的位置與互動契約
-- [ ] 將設計者原型版面模式與現行設計原則、現有元件、tokens 比對；記錄可採用/須調整/不得採用
-- [ ] 檢查 LoadingSkeleton、ErrorView 等共用元件在六頁的使用適切性；只記錄缺口，不重建元件
-- [ ] 核對 AccountView、ChartView、InsightsView（含內嵌 MacroBattle、MarketRadar）、StrategyConfigEditor 的各項操作與窄屏行為
-- [ ] 產出覆蓋六頁的 P0/P1/P2 實證差異清單；確認精確改動範圍後方進入階段二
+- [x] 逐頁審查六頁資料來源、loading/error/empty 分支與 refresh/retry 行為；InsightsView 內嵌 MacroBattle、MarketRadar 內容納入同等基線
+- [x] 審查 formatDate.js、formatters.js API 及六頁實際使用情形；盤點原始 ISO、NaN/Infinity 顯示風險
+- [x] 審查 .iln-page、shared-styles.css、tokens.css 與 Design Principles 的底部留白/間距/圓角/陰影/字級與 MainButton safe-area 關係
+- [x] 盤點全站是否已有底部導覽列，以及缺少統一 bottom-nav 時需新增的位置與互動契約
+- [x] 將設計者原型版面模式與現行設計原則、現有元件、tokens 比對；記錄可採用/須調整/不得採用
+- [x] 檢查 LoadingSkeleton、ErrorView 等共用元件在六頁的使用適切性；只記錄缺口，不重建元件
+- [x] 核對 AccountView、ChartView、InsightsView（含內嵌 MacroBattle、MarketRadar）、StrategyConfigEditor 的各項操作與窄屏行為
+- [x] 產出覆蓋六頁的 P0/P1/P2 實證差異清單；確認精確改動範圍後方進入階段二
+
+#### 階段一實證差異清單（2026-11-20）
+
+盤點範圍：六個 router component（Dashboard、Insights、Chart、News、Account、StrategyConfigEditor）及 Insights 內嵌 MacroBattle、MarketRadar；已核對 `router/index.js`、`App.vue`、`FloatingPill.vue`、tokens/shared styles、formatter utilities 與各 View。
+
+- **P0 — 共用底部留白衝突：** `App.vue` 已按實測 `--bottom-nav-height` 與 `--tg-safe-bottom` 預留 `.app-main` 底部空間；`FloatingPill.vue` 透過 ResizeObserver 量測導覽 pill 高度。另一方面 `InsightsView.vue`、`NewsView.vue`、`MacroBattleView.vue`、`MarketRadarView.vue` 各自仍有 `112px` 固定底部 padding（MarketRadar 使用 `.view-container`），與 App shell 補償重複；其餘頁面使用 `.iln-page` / scoped padding 不一致。階段二/三先逐頁實測後最小移除重複值，必須保留動態 Telegram safe-area 與 App shell 導覽預留。
+- **P0 — 目前導覽已存在，非新增導覽：** `FloatingPill` 是全域浮動底部導覽，採 `tabsConfig.js` 路由契約、Telegram safe-area/viewport 定位和動態高度量測。故原計畫「缺少統一 bottom-nav 時需新增」不適用；後續範圍改為驗證既有導覽與 MainButton 共存、尺寸遮擋，不再新增第二套導覽元件。
+- **P1 — Formatter 使用不一致：** `formatDate.js` 已提供 `formatRelative`、`resolveLastRun` 等日期工具；`formatters.js` 提供數值處理工具。Dashboard、Radar 部分欄位已使用日期工具，但多個 View 仍可見直接 `toFixed`、`toLocaleString`、`new Date().toLocaleDateString`、ISO substring/直出路徑，存在無效數值或日期格式不一致風險；階段二按可見輸出逐項驗證，非全檔機械替換。
+- **P1 — 狀態降級差異：** Radar 有 loading skeleton、ErrorView retry，Insights 依 tab 顯示嵌入內容；StrategyConfigEditor 以 ElMessage 呈現載入失敗但未見頁面級重試狀態；Chart/Account/Dashboard/News 需針對各 API 區塊再以測試/瀏覽器核對錯誤與空資料可見性。不得臆造無意義的 empty state。
+- **P1 — 行動版與窄屏待實測：** 已有 375px RWD E2E 覆蓋 Dashboard 橫向溢位與 `.floating-pill` 可見性，但未覆蓋計畫規定的 390×844 六頁、底部導覽/MainButton 交疊與 ≥1024px 寬屏；Account/Chart/Config 的複合操作、圖表標籤及表單鍵盤仍須瀏覽器驗證。
+- **P1 — 內嵌雷達佈局：** `MarketRadarView.vue` 的 `.radar-grid` 預設三欄、768px 起總覽雙欄；需在 390px 驗證卡片文字與數值可讀，不因僅有宣告便視為適配完成。MacroBattle 的分數列也待 390px 實測。
+- **P2 — 原型映射：** 可採用固定頁首（需服從 Telegram scroll container）、分段控制/Tab（沿用現有 Insights tabs）、卡片網格、輕量進度指示及共用空狀態；需調整 sticky 頁首/News 篩選的 top 與 z-index、抽屜關閉/焦點與 Telegram BackButton、卡片網格斷點；不採用預覽工具列、獨立手機框架、示範假資料、獨立紫色 token 或固定 `96px` 導覽補償。
+- **P1 — 元件重用：** `LoadingSkeleton`、`ErrorView`、`StatCard` 等既有共用元件已被部分頁面重用，階段二沿用；不重建同功能元件。其餘頁面是否需要空狀態依資料契約與頁面實際狀態再決定。
+
+**範圍決議：** News 篩選候選欄位尚未與 `newsMatch.js`/API fixture 完成契約核實，階段三開始前先讀契約和現有測試；不先決定分類欄位或新增後端欄位。現有 BottomNav 已全域提供，計畫中階段一新增導覽的建議不適用，後續只做遮擋/安全區驗證。階段二先針對可重現問題做 TDD；在受限檔案是否可修改未釐清前，不修改 Vue 業務邏輯、`tokens.css`、lint guard 或 workflow。階段一為唯讀審計，未執行 CSS/瀏覽器尺寸驗收，故本清單將待實測項目明確列為未驗證而非已通過。
+
+**驗收證據：** 已讀取 `src/router/index.js`、`App.vue`、`FloatingPill.vue`、`styles/tokens.css`、`shared-styles.css`、`formatDate.js`、`formatters.js`、六頁路由 View 與 MacroBattle/MarketRadar 內嵌 View；確認 `01-mobile-rwd.spec.js` 現有 viewport 為 375×667，只覆蓋 Dashboard overflow 及 FloatingPill 顯示。此階段不改產品程式碼、不宣稱完成 390×844 / ≥1024px 瀏覽器驗收。
+
+#### 階段一驗收狀態
+
+- 基線審計完成；待實測候選項明確保留至階段二、三、四相應驗收，不冒稱已通過。
+- 無需使用者確認的資料契約或範圍決策；繼續階段二。
 
 ### 階段二：P0 正確性與窄螢幕修正
 
