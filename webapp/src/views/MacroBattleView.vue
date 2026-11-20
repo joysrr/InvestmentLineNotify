@@ -23,7 +23,8 @@
       <!-- 市場方向 Badge -->
       <div class="direction-row">
         <span class="direction-badge" :class="directionClass">
-          {{ directionIcon }} {{ directionText }}
+          <Icon :name="directionIcon" size="sm" :color="directionIconColor" />
+          {{ directionText }}
         </span>
         <span class="direction-hint">{{
           macro.conclusion?.short_summary ?? ""
@@ -217,9 +218,15 @@ const directionText = computed(() => {
 });
 const directionIcon = computed(() => {
   const d = direction.value?.toUpperCase();
-  if (d === "BULLISH") return "chart";
-  if (d === "BEARISH") return "chart";
+  if (d === "BULLISH") return "trending-up";
+  if (d === "BEARISH") return "trending-down";
   return "neutral";
+});
+const directionIconColor = computed(() => {
+  const d = direction.value?.toUpperCase();
+  if (d === "BULLISH") return "var(--iln-viz-bull)";
+  if (d === "BEARISH") return "var(--iln-viz-bear)";
+  return "var(--iln-hint)";
 });
 const directionClass = computed(() => {
   const d = direction.value?.toUpperCase();

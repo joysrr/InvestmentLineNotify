@@ -248,11 +248,13 @@ wiki_links:
 
 ### 階段三：P1/P2 體驗與版面
 
-- [ ] DashboardView：freshness 過期警示與 FreshnessBadge 首屏可見性；收斂 `.tab-content-area`、`.cockpit-section` 等間距；抽屜窄螢幕開啟/關閉/焦點
-- [ ] MacroBattleView：event-score 對比與 BULLISH/BEARISH/NEUTRAL 圖示語義；長事件文字閱讀節奏與 ≥768px 雙欄
-- [ ] MarketRadarView：3 欄 .radar-grid 標籤換行/數值對齊；空值/單位/小數精度；ExtremeRadarPanel、CashExposureWidget 單欄/雙欄間距
-- [ ] NewsView：頁首與 safe-area 留白；新聞池輕量篩選（先驗證現有欄位）；NewsCard openLink；≥1024px 雙欄
-- [ ] 其餘頁面 P1/P2：AccountView、ChartView、InsightsView 內嵌 MacroBattle/MarketRadar 雙欄/單欄切換、StrategyConfigEditor
+- [x] DashboardView：freshness 過期警示與 FreshnessBadge 移至頁首日期後、首屏核心決策前；390×844 E2E 驗證警示首屏可見、順序與間距（DSH-014）；drawer 開啟/關閉/焦點（DSH-010～013，5/5）。間距僅驗 freshness 區塊 margin-bottom=0、與下一區塊間距 ≤24px；其他 `.tab-content-area` / `.cockpit-section` 尚未全數核對。
+- [x] MacroBattleView：BULLISH/BEARISH/NEUTRAL 圖示語義與多空分數 E2E（INS-003，3/3）；800px 雙欄 E2E；360px 長事件版面由既有 E2E 驗證。
+- [ ] MarketRadarView：3 欄 `.radar-grid`、390px 標籤不溢位、缺值及匯率格式（RAD-004/005，spec 5/5）；ExtremeRadarPanel、CashExposureWidget 單欄/雙欄間距仍待驗。
+- [x] NewsView：全部/精選/台灣/未分類篩選、NewsCard `openLink` 與 ≥1024px 雙欄（NWS-005/006、NewsView 單測 12/12；News E2E spec 4/4）。頁首與 safe-area 留白由全站 safe-area 測試覆蓋。
+- [ ] 其餘頁面 P1/P2：AccountView、ChartView、StrategyConfigEditor 的頁面專屬 P1/P2 仍待完成；另需完成 InsightsView 內嵌 MacroBattle/MarketRadar 全部斷點/切換驗收。
+
+**階段三部分驗收紀錄（2026-11-20）：** 全站 Playwright `--workers=1` 89 項：88 passed、1 skipped、0 failed。此回歸不等同階段三所有待驗項結案；階段四尚未開始。
 
 ### 階段四：自動化、裝置尺寸與整體回歸
 
