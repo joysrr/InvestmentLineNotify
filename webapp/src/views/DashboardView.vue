@@ -642,10 +642,6 @@ watch(
   gap: var(--iln-space-6);
 }
 
-/* ── 駕駛艙區塊：P3 起為柵格佈局容器，卡片裝飾由子卡片自帶 ── */
-.cockpit-section {
-  margin-bottom: var(--iln-space-4);
-}
 .health-card {
   padding: var(--iln-space-5);
 }

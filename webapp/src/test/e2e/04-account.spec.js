@@ -19,6 +19,22 @@ test.describe("04-AccountView - 系統狀態與帳戶", () => {
     await expect(chartBtn).toBeVisible({ timeout: 15000 });
     await chartBtn.click();
     await expect(page).toHaveURL(/#\/chart/);
+    await page.goBack();
+    await expect(page).toHaveURL(/#\/account/);
+    await expect(
+      page.locator(".page-title").filter({ hasText: "系統狀態" }),
+    ).toBeVisible();
+  });
+
+  test("ACC-004: 通知設定操作提供回饋（不代表持久化）", async ({ page }) => {
+    const hourInput = page.locator(
+      '.notification-settings input[placeholder="0-23"]',
+    );
+    await hourInput.fill("10");
+    await page.getByRole("button", { name: "儲存設定" }).click();
+    await expect(page.locator(".save-feedback")).toContainText(
+      "通知設定已儲存",
+    );
   });
 
   test("ACC-003: StrategyConfigEditor 在 390px 螢幕無水平溢位", async ({

@@ -76,6 +76,93 @@ test.describe("03-Insights 響應式版面", () => {
     }
   });
 
+  test("INS-004: 內嵌標籤可互切，雷達與總經內容在手機及桌面保持可見", async ({
+    page,
+  }) => {
+    await openInsights(page, 390, "radar");
+    const radarTab = page.locator('[data-testid="insights-tab-radar"]');
+    const macroTab = page.locator('[data-testid="insights-tab-macro"]');
+    await expect(radarTab).toBeVisible();
+    await expect(macroTab).toBeVisible();
+    await radarTab.click();
+    await expect(page.locator(".radar-overview")).toBeVisible();
+    await macroTab.click();
+    await expect(page.locator(".macro-events-grid")).toBeVisible();
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth >
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(false);
+
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await radarTab.click();
+    await expect(page.locator(".radar-overview")).toBeVisible();
+    await macroTab.click();
+    await expect(page.locator(".macro-events-grid")).toBeVisible();
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth >
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(false);
+  });
+
+  test("INS-005: 有資料的內嵌雷達手機單欄、桌面雙欄且兩個核心面板可見", async ({
+    page,
+  }) => {
+    await openInsights(page, 390, "radar");
+    await page.route("**/api/status", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          data: {
+            leadingIndicators: {
+              stateMachine: { state: "IDLE", activeDays: 0 },
+              radars: [],
+              triggeredRadars: [],
+              cashExposureAnalysis: {
+                status: "RECOMMEND_DCA",
+                suggestedDcaAmt: 10000,
+                exposureGap: 50000,
+                targetExposure: 0.6,
+                targetLeverage: 1,
+                currentLeverage: 0.8,
+                message: "驗收資料",
+              },
+            },
+          },
+          updatedAt: "2026-11-20T08:00:00.000Z",
+        }),
+      }),
+    );
+    await page.reload({ waitUntil: "domcontentloaded" });
+
+    const overview = page.locator(".radar-overview");
+    await expect(overview).toBeVisible();
+    await expect(overview.locator(":scope > *").first()).toBeVisible();
+    await expect(overview.locator(":scope > *").nth(1)).toContainText(
+      "現金曝險分析",
+    );
+    const mobile = await overview.evaluate((element) => ({
+      columns: getComputedStyle(element).gridTemplateColumns.split(" ").length,
+      overflow: element.scrollWidth > element.clientWidth,
+    }));
+    expect(mobile.columns).toBe(1);
+    expect(mobile.overflow).toBe(false);
+
+    await page.setViewportSize({ width: 1024, height: 900 });
+    const desktop = await overview.evaluate((element) => ({
+      columns: getComputedStyle(element).gridTemplateColumns.split(" ").length,
+      overflow: element.scrollWidth > element.clientWidth,
+    }));
+    expect(desktop.columns).toBe(2);
+    expect(desktop.overflow).toBe(false);
+  });
+
   test("INS-002: MacroBattle 在 800px 事件卡為雙欄且無水平溢位", async ({
     page,
   }) => {

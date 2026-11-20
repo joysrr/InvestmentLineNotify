@@ -43,6 +43,24 @@ test.describe("02-Dashboard drawer 互動與窄螢幕", () => {
     });
     expect(spacing.marginBottom).toBe(0);
     expect(spacing.nextTop - spacing.bottom).toBeLessThanOrEqual(24);
+
+    const sectionSpacing = await page.evaluate(() => {
+      const content = document.querySelector(".tab-content-area");
+      const cockpit = document.querySelector(".cockpit-section");
+      const contentStyle = getComputedStyle(content);
+      const cockpitStyle = getComputedStyle(cockpit);
+      return {
+        contentGap: parseFloat(contentStyle.rowGap),
+        cockpitMarginBottom: parseFloat(cockpitStyle.marginBottom),
+        cockpitNextGap:
+          cockpit.nextElementSibling.getBoundingClientRect().top -
+          cockpit.getBoundingClientRect().bottom,
+      };
+    });
+    expect(sectionSpacing.contentGap).toBeGreaterThan(0);
+    expect(sectionSpacing.cockpitMarginBottom).toBe(0);
+    expect(sectionSpacing.cockpitNextGap).toBeGreaterThanOrEqual(0);
+    expect(sectionSpacing.cockpitNextGap).toBeLessThanOrEqual(24);
   });
 
   test("DSH-010: 點擊總經象限卡片開啟 drawer，Escape 關閉，窄螢幕內容不溢位", async ({

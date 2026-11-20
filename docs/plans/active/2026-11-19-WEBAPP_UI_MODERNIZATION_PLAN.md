@@ -248,13 +248,13 @@ wiki_links:
 
 ### 階段三：P1/P2 體驗與版面
 
-- [x] DashboardView：freshness 過期警示與 FreshnessBadge 移至頁首日期後、首屏核心決策前；390×844 E2E 驗證警示首屏可見、順序與間距（DSH-014）；drawer 開啟/關閉/焦點（DSH-010～013，5/5）。間距僅驗 freshness 區塊 margin-bottom=0、與下一區塊間距 ≤24px；其他 `.tab-content-area` / `.cockpit-section` 尚未全數核對。
+- [x] DashboardView：freshness 過期警示與 FreshnessBadge 移至頁首日期後、首屏核心決策前；390×844 E2E 驗證警示首屏可見、順序與間距（DSH-014）；drawer 開啟/關閉/焦點（DSH-010～013，5/5）。間距僅驗 freshness 區塊 margin-bottom=0、與下一區塊間距 ≤24px；`.tab-content-area` / `.cockpit-section` 間距已實測核對（DSH-014：flex gap 24px，冗餘 `.cockpit-section` margin-bottom 16px 已移除，間距 ≤24px）。
 - [x] MacroBattleView：BULLISH/BEARISH/NEUTRAL 圖示語義與多空分數 E2E（INS-003，3/3）；800px 雙欄 E2E；360px 長事件版面由既有 E2E 驗證。
-- [ ] MarketRadarView：3 欄 `.radar-grid`、390px 標籤不溢位、缺值及匯率格式（RAD-004/005，spec 5/5）；ExtremeRadarPanel、CashExposureWidget 單欄/雙欄間距仍待驗。
+- [x] MarketRadarView：3 欄 `.radar-grid`、390px 標籤不溢位、缺值及匯率格式（RAD-004/005，spec 5/5）；ExtremeRadarPanel、CashExposureWidget 單欄/雙欄間距已驗（RAD-006，spec 6/6：390px 單欄無重疊、1024px 雙欄對齊無溢位）。
 - [x] NewsView：全部/精選/台灣/未分類篩選、NewsCard `openLink` 與 ≥1024px 雙欄（NWS-005/006、NewsView 單測 12/12；News E2E spec 4/4）。頁首與 safe-area 留白由全站 safe-area 測試覆蓋。
-- [ ] 其餘頁面 P1/P2：AccountView、ChartView、StrategyConfigEditor 的頁面專屬 P1/P2 仍待完成；另需完成 InsightsView 內嵌 MacroBattle/MarketRadar 全部斷點/切換驗收。
+- [x] 其餘頁面 P1/P2 可驗收範圍：AccountView 360px/1024px 版面與分組可見（既有 E2E），圖表入口及瀏覽器返回 Account（ACC-002）；ChartView 390px/1024px 有快照資料時摘要標籤、無溢位及 viewport resize 後圖表實際寬度增加（CRT-003；ECharts 使用 `autoresize`）；StrategyConfigEditor 390px 分頁鍵盤焦點、驗證列/操作可見（STR-011）及驗證錯誤呈現、停用儲存（STR-012）；Insights 內嵌標籤切換（INS-004）與有資料 MarketRadar 手機單欄/桌機雙欄、面板可見且無溢位（INS-005）。Account 的「通知設定儲存」目前為模擬操作，未驗證持久化；ChartView 沒有頁內返回控制，ACC-002 僅驗證瀏覽器歷史返回。這兩項產品行為不在本階段測試可自行補造之範圍，列為既知限制/後續決策，不宣稱已實作。
 
-**階段三部分驗收紀錄（2026-11-20）：** 全站 Playwright `--workers=1` 89 項：88 passed、1 skipped、0 failed。此回歸不等同階段三所有待驗項結案；階段四尚未開始。
+**階段三驗收紀錄（2026-11-20）：** 新增驗收：INS-005 有資料內嵌雷達手機/桌面版面通過；ACC-002 圖表入口與瀏覽器歷史返回通過；STR-012 驗證錯誤顯示與儲存停用通過；CRT-003 有資料圖表 390px→1024px resize 實際寬度增加通過。DSH-014 新增 `.tab-content-area` / `.cockpit-section` 實際間距量測，發現 24px flex gap 疊加 16px margin 造成 33.7px 間距；移除冗餘 `.cockpit-section` margin 後，freshness 與 cockpit 間距驗收通過。更新後全站 E2E 曾於第 92/95 項因程序 SIGKILL (exit 137) 中止，非測試斷言失敗；相關 Dashboard、Insights、Account 目標 E2E 13/13 通過。先前全站完整結果為 94 passed、1 skipped、0 failed（新增 Dashboard 間距檢查前）；不得將遭 SIGKILL 的重跑記為全站通過。Account 儲存仍為模擬，ChartView 沒有頁內返回控制；正式環境 ChartView CSS preload 錯誤仍未解，均不宣稱已修復。階段四尚未開始。**
 
 ### 階段四：自動化、裝置尺寸與整體回歸
 

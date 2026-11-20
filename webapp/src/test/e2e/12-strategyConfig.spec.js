@@ -33,7 +33,9 @@ test.describe("12-StrategyView - 策略總覽與設定", () => {
   });
 
   test("STR-005: 點擊模組標題應可展開/摺疊", async ({ page }) => {
-    const firstTab = page.locator('[data-testid="section-groups"] [role="radio"]').first();
+    const firstTab = page
+      .locator('[data-testid="section-groups"] [role="radio"]')
+      .first();
     if (await firstTab.isVisible().catch(() => false)) {
       await firstTab.click();
       await page.waitForTimeout(500);
@@ -48,7 +50,9 @@ test.describe("12-StrategyView - 策略總覽與設定", () => {
   });
 
   test("STR-007: 配置欄位應可見（展開第一個模組後）", async ({ page }) => {
-    const firstTab = page.locator('[data-testid="section-groups"] [role="radio"]').first();
+    const firstTab = page
+      .locator('[data-testid="section-groups"] [role="radio"]')
+      .first();
     if (await firstTab.isVisible().catch(() => false)) {
       await firstTab.click();
       await page.waitForTimeout(1000);
@@ -59,7 +63,9 @@ test.describe("12-StrategyView - 策略總覽與設定", () => {
   });
 
   test("STR-008: 輸入數值欄位應可編輯", async ({ page }) => {
-    const firstTab = page.locator('[data-testid="section-groups"] [role="radio"]').first();
+    const firstTab = page
+      .locator('[data-testid="section-groups"] [role="radio"]')
+      .first();
     await firstTab.click();
     await page.waitForTimeout(1000);
     const firstNumberField = page.locator("input[type='number']").first();
@@ -83,5 +89,62 @@ test.describe("12-StrategyView - 策略總覽與設定", () => {
     await expect(
       page.locator("button:has-text('儲存'), .save-btn").first(),
     ).toBeVisible({ timeout: 10000 });
+  });
+
+  test("STR-012: 驗證錯誤實際呈現並停用儲存", async ({ page }) => {
+    await page.route("**/api/strategy-config/meta", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          success: true,
+          meta: { "risk.ma240": { type: "number" } },
+        }),
+      }),
+    );
+    await page.route("**/api/strategy-config/validate", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          valid: false,
+          errors: ["risk.ma240: out of range"],
+        }),
+      }),
+    );
+    await page.route("**/api/strategy-config", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          strategy: { content: { version: "2.8", risk: { ma240: 5 } } },
+        }),
+      }),
+    );
+    await page.reload({ waitUntil: "domcontentloaded" });
+    const validationBar = page.locator('[data-testid="validation-bar"]');
+    await expect(validationBar).toContainText("risk.ma240: out of range");
+    await expect(page.locator('[data-testid="btn-save"]')).toBeDisabled();
+  });
+
+  test("STR-011: 390px 表單分頁可鍵盤聚焦，驗證狀態與操作按鈕保持可見", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const firstSection = page
+      .locator('[data-testid="section-groups"] [role="radio"]')
+      .first();
+    await firstSection.focus();
+    await expect(firstSection).toBeFocused();
+    await expect(page.locator('[data-testid="validation-bar"]')).toBeVisible();
+    await expect(page.locator('[data-testid="btn-save"]')).toBeVisible();
+    await expect(page.locator('[data-testid="btn-validate"]')).toBeVisible();
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth >
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(false);
   });
 });
