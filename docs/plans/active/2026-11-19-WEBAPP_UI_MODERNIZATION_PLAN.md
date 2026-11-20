@@ -200,3 +200,53 @@ wiki_links:
 - **CSS 作用域風險：** Element Plus drawer 內部樣式需透過受控 wrapper 與 `:deep()`，避免全域污染；沿用現有元件模式。
 - **回歸風險：** 每個改動先寫失敗測試，再做最小修正；每階段執行 targeted 驗證並提交，完成最後整體回歸。
 - **部署邊界：** 本計畫只涵蓋 repo 程式碼與測試；不宣稱或執行正式主機部署。
+
+## 7. 進度追蹤（Todo 基準）
+
+以下以 `- [ ]` 表示未完成、`- [x]` 表示已完成。每個階段全部勾選後，立即在本計畫更新狀態並 commit，作為進度基準；不得在階段未完成前標記下一階段。
+
+### 階段一：共用基線與容器審計（不先改碼）
+
+- [ ] 逐頁審查六頁資料來源、loading/error/empty 分支與 refresh/retry 行為；InsightsView 內嵌 MacroBattle、MarketRadar 內容納入同等基線
+- [ ] 審查 formatDate.js、formatters.js API 及六頁實際使用情形；盤點原始 ISO、NaN/Infinity 顯示風險
+- [ ] 審查 .iln-page、shared-styles.css、tokens.css 與 Design Principles 的底部留白/間距/圓角/陰影/字級與 MainButton safe-area 關係
+- [ ] 盤點全站是否已有底部導覽列，以及缺少統一 bottom-nav 時需新增的位置與互動契約
+- [ ] 將設計者原型版面模式與現行設計原則、現有元件、tokens 比對；記錄可採用/須調整/不得採用
+- [ ] 檢查 LoadingSkeleton、ErrorView 等共用元件在六頁的使用適切性；只記錄缺口，不重建元件
+- [ ] 核對 AccountView、ChartView、InsightsView（含內嵌 MacroBattle、MarketRadar）、StrategyConfigEditor 的各項操作與窄屏行為
+- [ ] 產出覆蓋六頁的 P0/P1/P2 實證差異清單；確認精確改動範圍後方進入階段二
+
+### 階段二：P0 正確性與窄螢幕修正
+
+- [ ] DashboardView：latestReport、healthData、status 缺漏/載入失敗/資料逾時降級與重試；時間輸出統一使用日期 formatter；缺值顯示 `—`
+- [ ] MacroBattleView：390px 視窗 .score-wrap、.score-bar-row 不擠壓/裁切；如重現溢位，最小修正 flex/min-width 或斷點換行
+- [ ] MarketRadarView：.defense-mode-badge 與外層容器水平 padding 僅在實測邊距疊加時修正；追蹤更新時間欄位來源並安全降級；可見數值缺值與單位
+- [ ] NewsView：reportNews.generatedAt 等可見時間採既有 formatter；檢查 .subtab-bar sticky 定位與 Telegram Mini App 遮擋
+- [ ] 其餘頁面 P0：AccountView、ChartView、InsightsView、StrategyConfigEditor 逐頁空值/載入/錯誤/無資料/窄螢幕遮擋；InsightsView 同步檢查內嵌內容
+
+### 階段三：P1/P2 體驗與版面
+
+- [ ] DashboardView：freshness 過期警示與 FreshnessBadge 首屏可見性；收斂 `.tab-content-area`、`.cockpit-section` 等間距；抽屜窄螢幕開啟/關閉/焦點
+- [ ] MacroBattleView：event-score 對比與 BULLISH/BEARISH/NEUTRAL 圖示語義；長事件文字閱讀節奏與 ≥768px 雙欄
+- [ ] MarketRadarView：3 欄 .radar-grid 標籤換行/數值對齊；空值/單位/小數精度；ExtremeRadarPanel、CashExposureWidget 單欄/雙欄間距
+- [ ] NewsView：頁首與 safe-area 留白；新聞池輕量篩選（先驗證現有欄位）；NewsCard openLink；≥1024px 雙欄
+- [ ] 其餘頁面 P1/P2：AccountView、ChartView、InsightsView 內嵌 MacroBattle/MarketRadar 雙欄/單欄切換、StrategyConfigEditor
+
+### 階段四：自動化、裝置尺寸與整體回歸
+
+- [ ] Vitest：formatter 邊界值、各頁空/錯誤/載入狀態、新聞篩選邏輯、圖表容器狀態、表單驗證（TDD RED→GREEN→REFACTOR）
+- [ ] Playwright --workers=1：390×844 六頁主要流程、水平溢位、底部導覽/MainButton 遮擋；≥1024px 網格、雙欄與寬屏閱讀
+- [ ] Console 無未處理例外；數值/時間欄位無 NaN/原始 ISO；驗證新聞外連與頁面特有操作
+- [ ] 執行 targeted Vitest、E2E、完整 npm test、lint、npm run build；確認 bundle budget
+- [ ] 實體 Telegram WebView 若無環境，標示為未驗證；不以一般 Chromium 結果宣稱實機驗收
+
+### PR / Merge 驗收 Checklist
+
+- [ ] 設計者原型僅作概念參考；不帶入預覽工具列/手機框架/獨立 token 系統，不照搬固定 96px 底部留白
+- [ ] 六個實際路由頁面均有逐頁基線與測試紀錄；InsightsView 內嵌內容同等檢核；無 NaN/Infinity/原始 ISO/破損圖示
+- [ ] 共用 formatter 與 Empty/Error/Loading 元件優先重用；無重複日期/數值格式化實作
+- [ ] 新增/修改樣式使用 --iln-* tokens 與 Vue SFC scoped CSS；保留 :focus-visible、prefers-reduced-motion
+- [ ] 六頁在 390×844 與 ≥1024px 無溢位/重疊/遮擋；串入統一底部導覽後內容區不被遮擋
+- [ ] 新聞池篩選只使用已驗證現有資料欄位；外連透過既有 openLink
+- [ ] Vitest、Playwright (workers=1)、lint、production build 與 bundle budget 全數通過
+- [ ] git diff 僅包含核准範圍；文件/Wiki 索引驗證通過；每階段 commit
