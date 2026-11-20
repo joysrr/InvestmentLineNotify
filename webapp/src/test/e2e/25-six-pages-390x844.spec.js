@@ -3,12 +3,20 @@ import { setupE2EContext } from "./e2e-utils.js";
 
 test.describe("390x844 六頁主流程與溢位回歸", () => {
   const pages = [
-    { name: "/dashboard", path: "#/dashboard" },
-    { name: "/insights", path: "#/insights" },
-    { name: "/macro", path: "#/macro", expectedUrl: /#\/insights\?tab=macro/ },
-    { name: "/news", path: "#/news" },
-    { name: "/account", path: "#/account" },
-    { name: "/chart", path: "#/chart" },
+    { name: "/dashboard", path: "#/dashboard", selector: ".view-container" },
+    {
+      name: "/insights",
+      path: "#/insights",
+      selector: "h2.page-title",
+    },
+    {
+      name: "/strategy-config",
+      path: "#/strategy-config",
+      selector: "[data-testid='strategy-config-editor']",
+    },
+    { name: "/news", path: "#/news", selector: ".view-container" },
+    { name: "/account", path: "#/account", selector: "h1.page-title" },
+    { name: "/chart", path: "#/chart", selector: ".view-title" },
   ];
 
   test.beforeEach(async ({ page }) => {
@@ -22,7 +30,7 @@ test.describe("390x844 六頁主流程與溢位回歸", () => {
     page._consoleErrors = consoleErrors;
   });
 
-  for (const { name, path, expectedUrl } of pages) {
+  for (const { name, path, selector } of pages) {
     test(`${name} 390x844 頁面可見、無橫向溢位、底欄可見、無 Console 錯誤`, async ({
       page,
     }) => {
@@ -31,9 +39,10 @@ test.describe("390x844 六頁主流程與溢位回歸", () => {
       await page.goto(path, { waitUntil: "domcontentloaded" });
       await page.waitForTimeout(3000);
 
-      // URL 匹配期望頁面（驗證頁面正確載入；/macro 導向 Insights tab）
-      const urlPattern = expectedUrl || new RegExp(`${path}$`);
-      await expect(page).toHaveURL(urlPattern);
+      // 頁面主體 selector 可見（驗證頁面正確載入，非 EmptyState 假通過）
+      await expect(page.locator(selector).first()).toBeVisible({
+        timeout: 15000,
+      });
 
       // 390×844：無橫向溢位
       const scrollWidth = await page.evaluate(

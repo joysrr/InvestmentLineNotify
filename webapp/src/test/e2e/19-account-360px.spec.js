@@ -31,7 +31,7 @@ const MOCK_EVIDENCE = JSON.stringify({
   items: [{ field: "test.field" }],
 });
 
-test("AccountView 360px 下 4 個分組無橫向滾動且各分組在視窗內", async ({
+test("AccountView 360px 下 3 個分組無橫向滾動且各分組在視窗內", async ({
   page,
 }) => {
   // 1. 注入 init script：模擬 fetch 回傳固定資料，確保內容正確渲染
@@ -83,9 +83,9 @@ test("AccountView 360px 下 4 個分組無橫向滾動且各分組在視窗內",
     `documentElement.scrollWidth(${scroll.scrollWidth}) 應 <= clientWidth(${scroll.clientWidth})`,
   ).toBeLessThanOrEqual(scroll.clientWidth);
 
-  // 5. 斷言 2：4 個 CollapsibleSection（3 個設定分組 + 1 個資料來源）
+  // 5. 斷言 2：3 個 CollapsibleSection（策略參數、關於、資料來源）與現行版本一致
   const groupCount = await headers.count();
-  expect(groupCount, "應有 4 個 CollapsibleSection 分組標題").toBe(4);
+  expect(groupCount, "應有 3 個 CollapsibleSection 分組標題").toBe(3);
 
   // 6. 斷言 3：每個分組在 360px 視窗內（x >= 0 且 right <= 360）
   const boxes = await headers.evaluateAll((els) =>
