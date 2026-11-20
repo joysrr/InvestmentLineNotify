@@ -44,11 +44,11 @@ wiki_links:
 
 ## 1. 目標與執行邊界
 
-在不推翻既有 Vue 3 + Vite 架構、設計 Tokens、路由及資料契約的前提下，先以 Dashboard、MacroBattle、MarketRadar、News 四頁作為深度範本，將驗證出的共用標準與缺口修正擴展至 webapp **全站 8 個實際 Vue 路由頁面**：Dashboard、Insights、Chart、Account、StrategyConfigEditor、MacroBattle、MarketRadar、News。
+在不推翻既有 Vue 3 + Vite 架構、設計 Tokens、路由及資料契約的前提下，先以 Dashboard、MacroBattle、MarketRadar、News 四頁作為深度範本，將驗證出的共用標準與缺口修正擴展至 webapp **全站 6 個實際路由頁面**：Dashboard、Insights、Chart、News、Account、StrategyConfigEditor。其中 `/macro`、`/radar` 為 Insights 的 redirect，MacroBattleView 與 MarketRadarView 不作獨立頁面，而是納入 InsightsView 內嵌內容與元件審計，依同樣標準驗證。
 
 本計畫是**全站現況驗證與剩餘缺口修正**，不是重新建置共用設施。前置計畫 `2026-11-17-UIUX_OPTIMIZATION_PLAN.md` 與 `2026-11-19-UIUX_DECISION_EXPERIENCE_PLAN.md` 已標示完成；不得重複實作其中已交付的導航治理、Design Tokens、EmptyState/ErrorAlert action、MainButton、HapticFeedback 或 Data Viz token。Redirect 路由不視為獨立頁面，但需驗證其目標頁與深連結相容性。
 
-設計者提供的單頁互動 HTML 原型是**視覺與互動概念參考**，不是可直接併入產品的實作規格。其手機框架、預覽工具列、四頁導覽和示範資料只供理解呈現意圖；實際交付須映射至本專案全站八頁及既有 Vue 元件，保留真實資料流與 Telegram Mini App 操作。每個參考模式均先與現行設計原則及程式碼比對，再決定採用、調整或不採用，並在基線審計記錄依據。不得複製整份獨立 HTML/CSS 原型或建立第二套設計系統。
+設計者提供的單頁互動 HTML 原型是**視覺與互動概念參考**，不是可直接併入產品的實作規格。其手機框架、預覽工具列、四頁導覽和示範資料只供理解呈現意圖；實際交付須映射至本專案全站六頁及既有 Vue 元件，保留真實資料流與 Telegram Mini App 操作。每個參考模式均先與現行設計原則及程式碼比對，再決定採用、調整或不採用，並在基線審計記錄依據。不得複製整份獨立 HTML/CSS 原型或建立第二套設計系統。
 
 全站頁面清單以 `webapp/src/router/index.js` 中實際掛載 View component 的路由為準；新增或移除 View 時同步更新本計畫的盤點清單。四頁範本提供深入場景，其他頁面不可只抽查共用元件而略過各自資料、互動與 RWD。
 
@@ -94,13 +94,13 @@ wiki_links:
 
 **目的：** 建立可驗證現況，識別已完成與真正缺口；不先改碼。
 
-- 逐頁審查全站八個 View 的資料來源、loading/error/empty 分支與 refresh/retry 行為；四個深度範本完整追蹤狀態流，其餘頁面逐一建立同等覆蓋的基線記錄。
-- 審查 `formatDate.js`、`formatters.js` API 及八頁實際使用情形，盤點原始 ISO、NaN/Infinity 顯示風險。
-- 審查 `.iln-page`、`shared-styles.css`、`tokens.css` 與 `DESIGN_PRINCIPLES.md` 的底部留白/間距/圓角/陰影/字級與 MainButton 的 safe-area/遮擋關係，記錄每頁各自重複留白及未對照現行設計原則的 token。
+- 逐頁審查全站六個實際路由頁面的資料來源、loading/error/empty 分支與 refresh/retry 行為；四個深度範本完整追蹤狀態流，其餘頁面逐一建立同等覆蓋的基線記錄。InsightsView 內嵌的 MacroBattle、MarketRadar 內容也納入同等基線記錄。
+- 審查 `formatDate.js`、`formatters.js` API 及六頁實際使用情形，盤點原始 ISO、NaN/Infinity 顯示風險。
+- 審查 `.iln-page`、`shared-styles.css`、`tokens.css` 與 `DESIGN_PRINCIPLES.md` 的底部留白/間距/圓角/陰影/字級與 MainButton 的 safe-area/遮擋關係，記錄每頁各自重複留白及未對照現行設計原則的 token。同時盤點全站是否已有底部導覽列，以及缺少統一 bottom-nav 時需新增的位置與互動契約。
 - 將設計者互動 HTML 原型中的版面模式（固定頁首、分段控制、分頁 Tab、卡片網格、抽屜、進度條、空狀態）逐一與現行設計原則、現有元件與 tokens 比對；記錄可採用模式、須調整模式、不得採用模式（如預覽控制列、獨立手機框架、固定紫色品牌色），不建立第二套設計系統。
-- 檢查 `LoadingSkeleton`、`ErrorView` 等共用元件在八頁的使用適切性；只記錄缺口，不重建元件。
-- 核對 `AccountView` 的入口/返回與帳戶操作、`ChartView` 的圖表載入/空資料/時間軸、`InsightsView` 的摘要/導覽及資訊密度、`StrategyConfigEditor` 的表單驗證/保存/取消/載入與窄屏操作。
-- 產出覆蓋八頁的 P0/P1/P2 實證差異清單，標明頁面、狀態、尺寸及修正/測試範圍；確認本階段的精確改動範圍後才進入實作。
+- 檢查 `LoadingSkeleton`、`ErrorView` 等共用元件在六頁的使用適切性；只記錄缺口，不重建元件。
+- 核對 `AccountView` 的入口/返回與帳戶操作、`ChartView` 的圖表載入/空資料/時間軸、`InsightsView` 的摘要/導覽及資訊密度（含內嵌 MacroBattle、MarketRadar 內容）、`StrategyConfigEditor` 的表單驗證/保存/取消/載入與窄屏操作。
+- 產出覆蓋六頁的 P0/P1/P2 實證差異清單，標明頁面、狀態、尺寸及修正/測試範圍；確認本階段的精確改動範圍後才進入實作。
 
 **完成門檻：** 每項候選修改均連結到具體檔案、狀態或可重現視窗問題；單純命名差異不列為 Bug。
 
@@ -128,7 +128,7 @@ wiki_links:
 
 #### 其餘全站頁面 P0 共通檢核
 
-- `AccountView`、`ChartView`、`InsightsView`、`StrategyConfigEditor` 逐頁檢查日期/數值空值、載入、錯誤、無資料及窄螢幕遮擋；按頁面實際功能選取測試情境，不強加不適用的狀態。
+- `AccountView`、`ChartView`、`InsightsView`、`StrategyConfigEditor` 逐頁檢查日期/數值空值、載入、錯誤、無資料及窄螢幕遮擋；按頁面實際功能選取測試情境，不強加不適用的狀態。`InsightsView` 同步檢查內嵌 MacroBattle 與 MarketRadar 內容的同等狀態覆蓋。
 - `ChartView` 檢查圖表容器尺寸、圖表/時間標籤缺值及載入失敗降級；`StrategyConfigEditor` 檢查表單欄位在窄屏可讀、可操作，驗證錯誤訊息不被遮擋。
 
 ### 階段三：P1/P2 體驗與版面
@@ -160,38 +160,38 @@ wiki_links:
 
 - `AccountView`：檢查帳戶資訊層級、圖表入口/返回操作、長內容與窄屏按鈕可用性；≥1024px 不產生不必要的空白或卡片拉伸。
 - `ChartView`：檢查圖表在容器 resize、窄屏旋轉及無資料時的可讀尺寸、圖例/時間軸標籤溢位與互動提示；寬屏資訊密度和圖表比例適當。
-- `InsightsView`：檢查洞察摘要層級、卡片間距、指標/日期格式與長內容閱讀；驗證導覽至詳情時狀態與返回路徑清楚。
+- `InsightsView`：檢查洞察摘要層級、卡片間距、指標/日期格式與長內容閱讀；驗證導覽至詳情時狀態與返回路徑清楚。內嵌 MacroBattle、MarketRadar 內容的雙欄／單欄切換與間距需同時驗證。
 - `StrategyConfigEditor`：檢查表單欄位分組、錯誤提示、保存/取消回饋與 focus 順序；窄屏可操作且不被鍵盤、底部導覽或 MainButton 遮擋。
 - 上述頁面以及四個範本一律納入同一套全站頁面矩陣，依各自功能選用實際適用的驗收場景，不要求不適用的新聞篩選或抽屜行為。
 
 ### 階段四：自動化、裝置尺寸與整體回歸
 
 - 先補/更新 Vitest：共用 formatter 邊界值、全站各頁實際適用的空/錯誤/載入狀態、新聞篩選邏輯、圖表容器狀態、表單驗證等；採 TDD RED→GREEN→REFACTOR。
-- Playwright `--workers=1`：以 390×844 驗證八頁主要流程、水平溢位、底部導覽/MainButton 遮擋、頁面特有互動（drawer、sticky bar、圖表、表單）；以 ≥1024px 驗證網格、雙欄及寬屏閱讀。
-- 檢查所有八頁 Console 無未處理例外，適用數值/時間欄位無 NaN/原始 ISO；驗證新聞外連與頁面特有操作。
+- Playwright `--workers=1`：以 390×844 驗證六頁主要流程、水平溢位、底部導覽/MainButton 遮擋、頁面特有互動（drawer、sticky bar、圖表、表單）；以 ≥1024px 驗證網格、雙欄及寬屏閱讀。
+- 檢查所有六頁 Console 無未處理例外，適用數值/時間欄位無 NaN/原始 ISO；驗證新聞外連與頁面特有操作。
 - 執行 targeted Vitest、全站相關 E2E、完整 `npm test`（依專案測試時間與環境）、lint、`npm run build`，確認既有 bundle budget 通過。
 - 實體 Telegram WebView 若無可用測試環境，只能標示為未驗證；不得以一般 Chromium 結果宣稱實機驗收。
 
 ## 4. PR / Merge 驗收 Checklist
 
 - [ ] 設計者原型僅作概念參考；實作沿用現行 `--iln-*` tokens、品牌色與 Vue 元件，不帶入預覽工具列/手機框架/獨立 token 系統，也不照搬固定 `96px` 底部留白。
-- [ ] 八個 View 均有逐頁基線與測試紀錄；適用的無資料、載入中、API 錯誤、資料逾時情境無 `NaN`、`Infinity`、原始 ISO 時間或破損圖示。
+- 六個實際路由頁面均有逐頁基線與測試紀錄；適用的無資料、載入中、API 錯誤、資料逾時情境無 `NaN`、`Infinity`、原始 ISO 時間或破損圖示。InsightsView 內嵌的 MacroBattle、MarketRadar 內容同等檢核。
 - [ ] 共用 formatter 與 Empty/Error/Loading 元件優先重用；無重複的日期/數值格式化實作。
 - [ ] 所有新增/修改樣式使用 `--iln-*` tokens 與 Vue SFC scoped CSS；保留 `:focus-visible`、`prefers-reduced-motion`。
-- [ ] 八頁在 390×844 與桌機 ≥1024px 無水平溢位、重疊或底部導覽/MainButton 遮擋；sticky bar、drawer、圖表、表單的適用行為有瀏覽器證據。
+- 六頁在 390×844 與桌機 ≥1024px 無水平溢位、重疊或底部導覽/MainButton 遮擋；串入統一底部導覽列後各頁內容區不被遮擋；sticky bar、drawer、圖表、表單的適用行為有瀏覽器證據。
 - [ ] 新聞池篩選只使用已驗證的現有資料欄位；外連透過既有 `openLink`。
 - [ ] Vitest、Playwright（workers=1）、lint、production build 與 bundle budget 全數通過。
 - [ ] `git diff` 僅包含核准範圍；文件/Wiki 索引驗證通過；每個可獨立驗證交付階段 commit。
 
 ## 5. 預期變更檔案（依基線審計結果調整）
 
-- 全站頁面候選：`webapp/src/views/AccountView.vue`、`ChartView.vue`、`DashboardView.vue`、`InsightsView.vue`、`MacroBattleView.vue`、`MarketRadarView.vue`、`NewsView.vue`、`StrategyConfigEditor.vue`。
+- 全站頁面候選：`webapp/src/views/AccountView.vue`、`ChartView.vue`、`DashboardView.vue`、`InsightsView.vue`、`NewsView.vue`、`StrategyConfigEditor.vue`。`webapp/src/views/MacroBattleView.vue`、`webapp/src/views/MarketRadarView.vue` 僅作為 InsightsView 內嵌內容審計對象，不作獨立頁面。
 - 既有共用樣式：`webapp/src/shared-styles.css`、`webapp/src/styles/tokens.css`（僅在證實共用 token/容器缺口時）。
 - 既有格式工具：`webapp/src/utils/formatDate.js`、`formatters.js`（只有測試證明工具本身缺少必要邊界處理時）。
 - 相關測試：`webapp/src/test/**`、`webapp/src/utils/*.test.js` 及既有 Playwright E2E 測試位置；先查既有 spec，避免重複新增。
 - 文件索引：`docs/wiki-index.json`、`docs/wiki-graph.json`（依文件維護腳本實際輸出與版控規範更新）。
 
-以上清單是候選範圍，不代表所有檔案都必須修改；不得超出本計畫所列八個 View 及其共用能力缺口範圍。
+以上清單是候選範圍，不代表所有檔案都必須修改；不得超出本計畫所列六個實際路由頁面及其共用能力缺口範圍。
 
 ## 6. 執行與風險
 
