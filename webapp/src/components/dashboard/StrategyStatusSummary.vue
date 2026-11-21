@@ -6,10 +6,6 @@
     clickable
     @click="emit('click')"
   >
-    <div class="section-header">
-      <h3 class="section-title">策略狀態摘要</h3>
-    </div>
-
     <div v-if="loading" class="skeleton-list" aria-busy="true">
       <div class="sk sk-hero"></div>
     </div>
@@ -20,18 +16,19 @@
       <Icon name="info" size="sm" color="var(--iln-hint)" /> <span>尚無策略狀態資料</span>
     </div>
     <div v-else class="status-summary-content">
-      <div class="summary-grid">
-        <div class="summary-card">
-          <div class="summary-label">策略總分</div>
-          <div class="summary-value tabular">{{ health.weightScore?.total ?? 0 }}</div>
+      <div class="summary-main">
+        <div class="summary-title-row">
+          <h3 class="section-title">策略狀態摘要</h3>
+          <span class="summary-pill tabular">總分 {{ health.weightScore?.total ?? 0 }}</span>
+          <span class="summary-pill tabular">{{ cooldownText }}</span>
         </div>
-        <div class="summary-card">
-          <div class="summary-label">冷卻期</div>
-          <div class="summary-value tabular">{{ cooldownText }}</div>
+        <div class="summary-updated tabular" v-if="health.timestamp">
+          更新：{{ formatTime(health.timestamp) }}
         </div>
       </div>
-      <div class="summary-updated tabular" v-if="health.timestamp">
-        更新：{{ formatTime(health.timestamp) }}
+      <div class="summary-action">
+        <span>檢視</span>
+        <Icon name="arrow-right" size="sm" color="var(--iln-brand)" />
       </div>
     </div>
   </ContentCard>
@@ -68,42 +65,54 @@ const formatTime = (ts) => formatDateTimeInTaipei(ts);
 
 .status-summary-content {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--iln-space-3);
 }
 
-.summary-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--iln-space-4);
-}
-
-.summary-card {
-  background: var(--iln-surface);
-  border: 1px solid var(--iln-border-subtle);
-  border-radius: var(--iln-radius-md);
-  padding: var(--iln-space-4);
-  box-shadow: var(--iln-shadow-1);
+.summary-main {
   display: flex;
   flex-direction: column;
   gap: var(--iln-space-1);
+  min-width: 0;
 }
 
-.summary-label {
-  font-size: var(--iln-font-xs);
-  color: var(--iln-hint);
+.summary-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--iln-space-2);
 }
 
-.summary-value {
-  font-size: var(--iln-font-lg);
-  font-weight: var(--iln-weight-bold);
+.section-title {
+  margin: 0;
+  font-size: var(--iln-font-sm);
+  font-weight: 700;
   color: var(--iln-text);
+}
+
+.summary-pill {
+  font-size: var(--iln-font-xs);
+  font-weight: 600;
+  color: var(--iln-text);
+  background: var(--iln-surface-alt);
+  padding: 2px var(--iln-space-2);
+  border-radius: var(--iln-radius-full);
 }
 
 .summary-updated {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
-  margin-top: var(--iln-space-2);
+}
+
+.summary-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--iln-font-xs);
+  font-weight: 700;
+  color: var(--iln-brand);
+  flex-shrink: 0;
 }
 
 .inline-error {
@@ -112,7 +121,7 @@ const formatTime = (ts) => formatDateTimeInTaipei(ts);
   display: flex;
   align-items: center;
   gap: var(--iln-space-1);
-  padding: var(--iln-space-3);
+  padding: var(--iln-space-2);
 }
 
 .inline-hint {
@@ -121,31 +130,17 @@ const formatTime = (ts) => formatDateTimeInTaipei(ts);
   display: flex;
   align-items: center;
   gap: var(--iln-space-1);
-  padding: var(--iln-space-3);
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: var(--iln-space-2);
-  margin-bottom: var(--iln-space-3);
-}
-
-.section-title {
-  margin: 0;
-  font-size: var(--iln-font-sm);
-  font-weight: var(--iln-weight-semibold);
-  color: var(--iln-text);
+  padding: var(--iln-space-2);
 }
 
 .skeleton-list {
   display: flex;
   flex-direction: column;
-  gap: var(--iln-space-3);
+  gap: var(--iln-space-2);
 }
 
 .sk-hero {
-  height: 80px;
+  height: 44px;
   border-radius: var(--iln-radius-sm);
   background: var(--iln-surface);
 }

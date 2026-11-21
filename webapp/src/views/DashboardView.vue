@@ -157,6 +157,7 @@
             :data="healthData"
             :loading="healthLoading"
             :error="healthError"
+            :show-strategy-link="false"
             @open-strategy-status="strategyStatusDrawerVisible = true"
             @retry="loadAll"
           />

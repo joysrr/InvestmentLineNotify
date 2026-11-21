@@ -18,20 +18,30 @@
       ><Icon name="info" size="sm" color="var(--iln-hint)" /> 尚無報告資料</div>
       <div v-else key="content" class="hero-card">
         <div class="hero-top">
-          <span class="hero-date tabular">{{ report.date }}</span>
-          <span class="priority-tag" v-if="activePriority">{{
-            activePriority
-          }}</span>
+          <div class="hero-top-left">
+            <span class="hero-date tabular">{{ report.date }}</span>
+            <span class="priority-tag" v-if="activePriority">{{ activePriority }}</span>
+          </div>
+          <span class="route-pill tabular" title="決策路由">{{ routingPath || "—" }}</span>
         </div>
 
-        <!-- Primary Action Area -->
+        <!-- Primary Action Area（緊湊聚焦版） -->
         <div class="hero-cta-area">
-          <div
-            class="hero-target iln-num-tabular tabular"
-            :class="[targetClass, { 'is-rolling': rollTarget }]"
-            :data-value="report.signals?.target"
-          >
-            {{ report.signals?.target ?? "—" }}
+          <div class="hero-target-row">
+            <div
+              class="hero-target iln-num-tabular tabular"
+              :class="[targetClass, { 'is-rolling': rollTarget }]"
+              :data-value="report.signals?.target"
+            >
+              {{ report.signals?.target ?? "—" }}
+            </div>
+            <span
+              class="badge iln-num-tabular tabular"
+              :class="[pctClass, { 'is-rolling': rollPct }]"
+              :data-value="pctText"
+            >
+              {{ pctText }}
+            </span>
           </div>
           <div class="hero-suggestion">
             {{ report.signals?.suggestion || "分析中..." }}
@@ -40,13 +50,6 @@
 
         <CollapsibleSection title="查看風險與詳情" :expanded="expanded" class="hero-details">
           <div class="hero-badges tabular">
-            <span
-              class="badge iln-num-tabular"
-              :class="[pctClass, { 'is-rolling': rollPct }]"
-              :data-value="pctText"
-            >
-              {{ pctText }}
-            </span>
             <span
               class="badge badge-score iln-num-tabular"
               :class="{ 'is-rolling': rollScore }"
@@ -134,38 +137,7 @@ watch(
 }
 .hero-card-wrapper:hover {
   box-shadow: var(--iln-shadow-2);
-  transform: translateY(-2px);
-}
-.hero-card-wrapper:active {
-  transform: scale(0.985);
-}
-
-.hero-cta-area {
-  background: var(--iln-brand-soft);
-  padding: var(--iln-space-5);
-  border-radius: var(--iln-radius-lg);
-  margin-bottom: var(--iln-space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--iln-space-2);
-}
-
-.hero-target {
-  font-size: var(--iln-font-base);
-  color: var(--iln-text);
-  font-weight: var(--iln-weight-bold);
-}
-
-.hero-suggestion {
-  font-size: var(--iln-font-xl);
-  color: var(--iln-text);
-  font-weight: var(--iln-weight-bold);
-  line-height: 1.3;
-}
-
-.hero-details {
-  border-top: 1px solid var(--iln-border-subtle);
-  padding-top: var(--iln-space-4);
+  transform: translateY(-1px);
 }
 
 .hero-top {
@@ -173,19 +145,70 @@ watch(
   align-items: center;
   justify-content: space-between;
   gap: var(--iln-space-2);
-  margin-bottom: var(--iln-space-5);
+  margin-bottom: var(--iln-space-3);
+}
+
+.hero-top-left {
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-2);
 }
 
 .hero-date {
-  font-size: var(--iln-font-sm);
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
+}
+
+.route-pill {
+  font-size: var(--iln-font-xs);
+  font-weight: 600;
+  color: var(--iln-hint);
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  padding: 2px var(--iln-space-2);
+  border-radius: var(--iln-radius-full);
+}
+
+.hero-cta-area {
+  background: var(--iln-brand-soft);
+  padding: var(--iln-space-4);
+  border-radius: var(--iln-radius-md);
+  margin-bottom: var(--iln-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-1-5, 6px);
+}
+
+.hero-target-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--iln-space-2);
+}
+
+.hero-target {
+  font-size: var(--iln-font-sm);
+  color: var(--iln-brand);
+  font-weight: var(--iln-weight-bold);
+}
+
+.hero-suggestion {
+  font-size: var(--iln-font-lg);
+  color: var(--iln-text);
+  font-weight: var(--iln-weight-bold);
+  line-height: 1.35;
+}
+
+.hero-details {
+  border-top: 1px solid var(--iln-border-subtle);
+  padding-top: var(--iln-space-2);
 }
 
 .hero-badges {
   display: flex;
   flex-wrap: wrap;
   gap: var(--iln-space-2);
-  margin-bottom: var(--iln-space-5);
+  margin-bottom: var(--iln-space-3);
 }
 
 .hero-route {
@@ -193,7 +216,7 @@ watch(
   justify-content: space-between;
   align-items: center;
   gap: var(--iln-space-2);
-  margin-top: var(--iln-space-4);
+  margin-top: var(--iln-space-2);
 }
 
 .hero-route-main {
@@ -230,7 +253,7 @@ watch(
 .badge {
   font-size: var(--iln-font-xs);
   font-weight: var(--iln-weight-semibold);
-  padding: var(--iln-space-1) var(--iln-space-2);
+  padding: 2px var(--iln-space-2);
   border-radius: var(--iln-radius-sm);
   background: var(--iln-surface);
 }
@@ -249,14 +272,14 @@ watch(
 }
 
 .skeleton-card {
-  padding: var(--iln-space-5);
+  padding: var(--iln-space-4);
   display: flex;
   flex-direction: column;
   gap: var(--iln-space-3);
 }
 
 .sk-title {
-  height: 20px;
+  height: 18px;
   border-radius: var(--iln-radius-sm);
   background: var(--iln-surface-alt);
 }
@@ -269,7 +292,7 @@ watch(
 }
 
 .sk-value {
-  height: 24px;
+  height: 22px;
   width: 60%;
   border-radius: var(--iln-radius-sm);
   background: var(--iln-surface-alt);
@@ -299,8 +322,7 @@ watch(
 
 .is-rolling {
   display: inline-block;
-  animation:
-    numRoll var(--iln-duration-base) var(--iln-ease-standard) forwards;
+  animation: numRoll var(--iln-duration-base) var(--iln-ease-standard) forwards;
 }
 @keyframes numRoll {
   0% {
@@ -315,7 +337,6 @@ watch(
 
 @media (prefers-reduced-motion: reduce) {
   .hero-card-wrapper:hover,
-  .hero-card-wrapper:active,
   .is-rolling,
   .hero-fade-enter-active,
   .hero-fade-leave-active {

@@ -2,6 +2,9 @@
   <ContentCard variant="outlined" size="lg">
     <div class="section-header">
       <h3 class="section-title">帳戶健康監控</h3>
+      <span v-if="data?.lightStatus?.label" class="health-badge">
+        {{ data.lightStatus.emoji || "📊" }} {{ data.lightStatus.label }}
+      </span>
     </div>
 
     <Transition name="sk-fade" mode="out-in">
@@ -9,7 +12,7 @@
         v-if="loading"
         key="skeleton"
         variant="card"
-        :rows="4"
+        :rows="3"
       />
       <ErrorAlert
         v-else-if="error"
@@ -29,66 +32,70 @@
         @action="emit('retry')"
       />
       <div v-else key="content" class="health-dashboard-v2">
-        <!-- Health Hero -->
+        <!-- 精簡健康總分區 -->
         <div class="health-hero-v2">
-          <div class="health-hero-content">
-            <div class="health-hero-top">
-              <div class="health-hero-status">
-                <span class="health-hero-emoji">{{
-                  data.lightStatus?.emoji || "📊"
-                }}</span>
-                <div class="health-hero-labels">
-                  <span class="health-hero-title">帳戶健康評級</span>
-                  <span class="health-hero-label">{{
-                    data.lightStatus?.label || "分析中"
-                  }}</span>
+          <div class="health-hero-top">
+            <div class="health-hero-info">
+              <p class="health-hero-summary">{{ data.summary }}</p>
+              <div class="health-progress-track" aria-hidden="true">
+                <div
+                  class="health-progress-fill"
+                  :class="statusClass"
+                  :style="{ width: `${scorePercent}%` }"
+                ></div>
+              </div>
+            </div>
+            <div class="health-hero-score-wrapper tabular">
+              <StatCard
+                label="帳戶健康分數"
+                :value="data.score"
+                :status="statusClass"
+                unit="/100"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- 6 項維度明細預設收合，避免總覽頁與上方雙駕駛艙視覺重複 -->
+        <CollapsibleSection
+          v-if="data.components && Object.keys(data.components).length"
+          title="檢視 6 項健康度維度明細"
+          :expanded="expanded"
+          class="health-components-collapse"
+        >
+          <div class="health-grid-v2">
+            <div
+              v-for="(comp, key) in data.components"
+              :key="key"
+              class="health-glass-card"
+              :class="comp.status?.toLowerCase()"
+            >
+              <div class="comp-header">
+                <span class="comp-icon"><Icon :name="getCompIcon(key)" size="sm" /></span>
+                <span class="comp-name">{{ getCompName(key) }}</span>
+                <span class="comp-status-dot" aria-hidden="true"></span>
+              </div>
+              <div class="comp-body">
+                <div
+                  class="comp-value dual-vix-row tabular"
+                  v-if="key === 'regime' && comp.details?.vixTW != null"
+                >
+                  <span class="dual-vix-us">VIX {{ comp.details.vix }}</span>
+                  <span class="dual-vix-sep">/</span>
+                  <span class="dual-vix-tw">台股 {{ comp.details.vixTW }}</span>
+                </div>
+                <div class="comp-value tabular" v-else>{{ getCompDisplayValue(comp) }}</div>
+                <div class="comp-sub">
+                  {{ comp.details?.message || comp.details?.stage || "正常" }}
                 </div>
               </div>
-              <div class="health-hero-score-wrapper tabular">
-                <StatCard
-                  label="帳戶健康分數"
-                  :value="data.score"
-                  :status="statusClass"
-                  unit="/100"
-                />
-              </div>
-            </div>
-            <p class="health-hero-summary">{{ data.summary }}</p>
-          </div>
-        </div>
-
-        <!-- Health Components Grid -->
-        <div class="health-grid-v2">
-          <div
-            v-for="(comp, key) in data.components"
-            :key="key"
-            class="health-glass-card"
-            :class="comp.status?.toLowerCase()"
-          >
-            <div class="comp-header">
-              <span class="comp-icon"><Icon :name="getCompIcon(key)" size="sm" /></span>
-              <span class="comp-name">{{ getCompName(key) }}</span>
-              <span class="comp-status-dot" aria-hidden="true"></span>
-            </div>
-            <div class="comp-body">
-              <div
-                class="comp-value dual-vix-row tabular"
-                v-if="key === 'regime' && comp.details?.vixTW != null"
-              >
-                <span class="dual-vix-us">VIX {{ comp.details.vix }}</span>
-                <span class="dual-vix-sep">/</span>
-                <span class="dual-vix-tw">台股 {{ comp.details.vixTW }}</span>
-              </div>
-              <div class="comp-value tabular" v-else>{{ getCompDisplayValue(comp) }}</div>
-              <div class="comp-sub">
-                {{ comp.details?.message || comp.details?.stage || "正常" }}
-              </div>
             </div>
           </div>
-        </div>
+        </CollapsibleSection>
 
-        <!-- Detail Link：改為 emit，由父層決定開啟 drawer 或導航 -->
+        <!-- Detail Link：保留 emit 相容性 -->
         <div
+          v-if="showStrategyLink"
           class="health-detail-link"
           role="button"
           tabindex="0"
@@ -106,6 +113,7 @@
 <script setup>
 import { computed } from "vue";
 import ContentCard from "@/components/common/ContentCard.vue";
+import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 import Icon from "@/components/common/Icon.vue";
 import LoadingSkeleton from "@/components/common/LoadingSkeleton.vue";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
@@ -118,6 +126,14 @@ const props = defineProps({
   data: Object,
   loading: Boolean,
   error: Boolean,
+  expanded: {
+    type: Boolean,
+    default: false,
+  },
+  showStrategyLink: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const statusMap = {
@@ -134,6 +150,12 @@ const statusMap = {
 const statusClass = computed(() => {
   const raw = props.data?.status;
   return statusMap[raw] || "neutral";
+});
+
+const scorePercent = computed(() => {
+  const n = Number(props.data?.score);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(100, n));
 });
 
 const getCompIcon = (key) => {
@@ -190,8 +212,9 @@ const getCompDisplayValue = (comp) => {
 .section-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--iln-space-2);
-  margin-bottom: var(--iln-space-4);
+  margin-bottom: var(--iln-space-3);
 }
 
 .section-title {
@@ -201,96 +224,110 @@ const getCompDisplayValue = (comp) => {
   color: var(--iln-text);
 }
 
+.health-badge {
+  font-size: var(--iln-font-xs);
+  font-weight: 600;
+  color: var(--iln-hint);
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  padding: 2px var(--iln-space-2);
+  border-radius: var(--iln-radius-full);
+}
+
 .health-dashboard-v2 {
   display: flex;
   flex-direction: column;
-  gap: var(--iln-space-5);
+  gap: var(--iln-space-3);
 }
 
 .health-hero-v2 {
-  position: relative;
-  border-radius: var(--iln-radius-lg);
-  overflow: hidden;
+  border-radius: var(--iln-radius-md);
   background: var(--iln-surface);
   border: 1px solid var(--iln-border-subtle);
-  box-shadow: var(--iln-shadow-1);
-}
-
-.health-hero-content {
-  position: relative;
-  padding: var(--iln-space-5);
+  padding: var(--iln-space-3) var(--iln-space-4);
 }
 
 .health-hero-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--iln-space-4);
-  margin-bottom: var(--iln-space-3);
+  gap: var(--iln-space-3);
 }
 
-.health-hero-status {
-  display: flex;
-  align-items: center;
-  gap: var(--iln-space-2);
-}
-
-.health-hero-emoji {
-  font-size: var(--iln-font-xl);
-}
-
-.health-hero-labels {
+.health-hero-info {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-}
-
-.health-hero-title {
-  font-size: var(--iln-font-base);
-  font-weight: var(--iln-weight-semibold);
-  color: var(--iln-text);
-}
-
-.health-hero-label {
-  font-size: var(--iln-font-sm);
-  color: var(--iln-hint);
-}
-
-.health-hero-score-wrapper {
-  display: flex;
-  align-items: center;
   gap: var(--iln-space-2);
 }
 
 .health-hero-summary {
   margin: 0;
   font-size: var(--iln-font-sm);
-  color: var(--iln-hint);
-  line-height: 1.5;
+  color: var(--iln-text);
+  line-height: 1.45;
+}
+
+.health-progress-track {
+  width: 100%;
+  height: 6px;
+  border-radius: var(--iln-radius-full);
+  background: var(--iln-surface-alt);
+  overflow: hidden;
+}
+
+.health-progress-fill {
+  height: 100%;
+  border-radius: var(--iln-radius-full);
+  background: var(--iln-brand);
+  transition: width var(--iln-duration-base) var(--iln-ease-standard);
+}
+
+.health-progress-fill.ok {
+  background: var(--iln-viz-bull);
+}
+
+.health-progress-fill.warn {
+  background: var(--iln-viz-alert);
+}
+
+.health-progress-fill.danger {
+  background: var(--iln-viz-bear);
+}
+
+.health-hero-score-wrapper {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.health-components-collapse {
+  border-top: 1px solid var(--iln-border-subtle);
+  padding-top: var(--iln-space-2);
 }
 
 .health-grid-v2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--iln-space-4);
+  gap: var(--iln-space-3);
+  margin-top: var(--iln-space-2);
 }
 
 .health-glass-card {
   background: var(--iln-surface);
   border: 1px solid var(--iln-border-subtle);
-  border-radius: var(--iln-radius-lg);
-  padding: var(--iln-space-4);
-  box-shadow: var(--iln-shadow-1);
+  border-radius: var(--iln-radius-md);
+  padding: var(--iln-space-3);
   display: flex;
   flex-direction: column;
-  gap: var(--iln-space-2);
+  gap: var(--iln-space-1);
 }
 
 .comp-header {
   display: flex;
   align-items: center;
-  gap: var(--iln-space-2);
-  margin-bottom: var(--iln-space-1);
+  gap: var(--iln-space-1-5, 6px);
 }
 
 .comp-icon {
@@ -300,14 +337,14 @@ const getCompDisplayValue = (comp) => {
 }
 
 .comp-name {
-  font-size: var(--iln-font-sm);
+  font-size: var(--iln-font-xs);
   font-weight: var(--iln-weight-medium);
-  color: var(--iln-text);
+  color: var(--iln-hint);
 }
 
 .comp-status-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--iln-viz-bull);
   margin-left: auto;
@@ -326,11 +363,11 @@ const getCompDisplayValue = (comp) => {
 .comp-body {
   display: flex;
   flex-direction: column;
-  gap: var(--iln-space-1);
+  gap: 2px;
 }
 
 .comp-value {
-  font-size: var(--iln-font-base);
+  font-size: var(--iln-font-sm);
   font-weight: var(--iln-weight-semibold);
   color: var(--iln-text);
 }
@@ -344,13 +381,13 @@ const getCompDisplayValue = (comp) => {
 
 .dual-vix-us,
 .dual-vix-tw {
-  font-size: var(--iln-font-sm);
+  font-size: var(--iln-font-xs);
   font-weight: var(--iln-weight-semibold);
   color: var(--iln-text);
 }
 
 .dual-vix-sep {
-  font-size: var(--iln-font-sm);
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 
@@ -364,12 +401,12 @@ const getCompDisplayValue = (comp) => {
   align-items: center;
   gap: var(--iln-space-1-5, 6px);
   align-self: flex-start;
-  padding: var(--iln-space-2) var(--iln-space-4);
+  padding: var(--iln-space-1-5, 6px) var(--iln-space-3);
   background: var(--iln-surface-alt);
   border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-md);
   color: var(--iln-brand);
-  font-size: var(--iln-font-sm);
+  font-size: var(--iln-font-xs);
   font-weight: var(--iln-weight-semibold);
   cursor: pointer;
   transition:
@@ -388,7 +425,8 @@ const getCompDisplayValue = (comp) => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .health-detail-link {
+  .health-detail-link,
+  .health-progress-fill {
     transition: none;
   }
 }
