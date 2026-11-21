@@ -48,10 +48,12 @@ function handleStart() {
 
 <style scoped>
 .deployment-control {
-  --btn-deploy-bg: var(--iln-viz-bear, #dc2626);
-  --btn-deploy-bg-hover: var(--iln-viz-bear-hover, #b91c1c);
-  --btn-deploy-border: var(--iln-viz-bear-border, rgba(248, 113, 113, 0.45));
-  --btn-deploy-text: var(--iln-on-accent, #ffffff);
+  --btn-deploy-bg: rgba(239, 68, 68, 0.16);
+  --btn-deploy-bg-hover: rgba(239, 68, 68, 0.24);
+  --btn-deploy-bg-active: rgba(239, 68, 68, 0.30);
+  --btn-deploy-border: rgba(248, 113, 113, 0.42);
+  --btn-deploy-text: #fca5a5;
+  --btn-deploy-focus: #f87171;
 
   padding: var(--iln-space-4, 16px);
   border: 1px solid var(--iln-border-subtle, rgba(148, 163, 184, 0.2));
@@ -61,15 +63,6 @@ function handleStart() {
   transition:
     background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
     border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
-}
-
-:global(:root[data-theme="dark"]) .deployment-control,
-:global(.dark) .deployment-control,
-:global([data-theme="dark"]) .deployment-control {
-  --btn-deploy-bg: #dc2626;
-  --btn-deploy-bg-hover: #ef4444;
-  --btn-deploy-border: rgba(248, 113, 113, 0.55);
-  --btn-deploy-text: #ffffff;
 }
 
 .tabular {
@@ -117,9 +110,9 @@ function handleStart() {
   color: var(--btn-deploy-text) !important;
   font-size: var(--iln-font-sm, 13px);
   font-weight: 600;
+  letter-spacing: 0.01em;
   line-height: 1.2;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
   transition:
     background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
     border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
@@ -129,20 +122,22 @@ function handleStart() {
 
 .deployment-start:hover:not(:disabled) {
   background-color: var(--btn-deploy-bg-hover) !important;
+  border-color: rgba(248, 113, 113, 0.58);
 }
 
 .deployment-start:active:not(:disabled) {
-  transform: scale(0.98);
+  background-color: var(--btn-deploy-bg-active) !important;
+  transform: scale(0.985);
 }
 
 .deployment-start:focus-visible {
-  outline: 2px solid var(--iln-brand, #3b82f6);
+  outline: 2px solid var(--btn-deploy-focus);
   outline-offset: 2px;
 }
 
 .deployment-start:disabled {
   cursor: not-allowed;
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
 .deployment-status {

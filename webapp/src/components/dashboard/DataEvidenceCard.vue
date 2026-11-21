@@ -117,23 +117,16 @@ onMounted(async () => {
 }
 
 .evidence-card {
-  --btn-evidence-bg: #2563eb;
-  --btn-evidence-bg-hover: #1d4ed8;
-  --btn-evidence-border: rgba(96, 165, 250, 0.5);
-  --btn-evidence-text: #ffffff;
+  --btn-evidence-bg: rgba(99, 102, 241, 0.16);
+  --btn-evidence-bg-hover: rgba(99, 102, 241, 0.24);
+  --btn-evidence-bg-active: rgba(99, 102, 241, 0.30);
+  --btn-evidence-border: rgba(129, 140, 248, 0.42);
+  --btn-evidence-text: #c7d2fe;
+  --btn-evidence-focus: #818cf8;
 
   background: var(--iln-surface-elevated, var(--iln-surface, #161b22));
   border-color: var(--iln-border-subtle, rgba(148, 163, 184, 0.2));
   color: var(--iln-text, #f3f4f6);
-}
-
-:global(:root[data-theme="dark"]) .evidence-card,
-:global(.dark) .evidence-card,
-:global([data-theme="dark"]) .evidence-card {
-  --btn-evidence-bg: #2563eb;
-  --btn-evidence-bg-hover: #3b82f6;
-  --btn-evidence-border: rgba(147, 197, 253, 0.5);
-  --btn-evidence-text: #ffffff;
 }
 
 .card-header {
@@ -166,7 +159,7 @@ onMounted(async () => {
 
 .evidence-count {
   margin: var(--iln-space-4, 16px) 0 0;
-  color: var(--iln-brand, #60a5fa);
+  color: var(--iln-brand, #818cf8);
   font-size: var(--iln-font-lg, 18px);
   font-weight: 800;
 }
@@ -190,10 +183,10 @@ onMounted(async () => {
   color: var(--btn-evidence-text) !important;
   font-size: var(--iln-font-xs, 12px);
   font-weight: 600;
+  letter-spacing: 0.01em;
   line-height: 1.2;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
   transition:
     background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
     border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
@@ -203,20 +196,22 @@ onMounted(async () => {
 
 .evidence-action-btn:hover:not(:disabled) {
   background-color: var(--btn-evidence-bg-hover) !important;
+  border-color: rgba(129, 140, 248, 0.58);
 }
 
 .evidence-action-btn:active:not(:disabled) {
-  transform: scale(0.98);
+  background-color: var(--btn-evidence-bg-active) !important;
+  transform: scale(0.985);
 }
 
 .evidence-action-btn:focus-visible {
-  outline: 2px solid var(--iln-brand, #60a5fa);
+  outline: 2px solid var(--btn-evidence-focus);
   outline-offset: 2px;
 }
 
 .evidence-action-btn:disabled {
   cursor: not-allowed;
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
 .is-loading {
