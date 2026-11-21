@@ -1,8 +1,6 @@
 /*
   Global shared styles — Import in main.js: import "./shared-styles.css"
-  Phase 2 (2026-11-17)：收斂死別名、切斷 --tg-theme 穿透、精簡至 ≤100 行。
-  各 view 的 scoped style 已自行定義 padding，此處僅作 fallback。
-  Design tokens: webapp/src/styles/tokens.css (see docs/design/DESIGN_PRINCIPLES.md §2)
+  Design tokens: webapp/src/styles/tokens.css
 */
 
 /* 頁面容器（.iln-page 新標準，.view-container 向後兼容） */
@@ -24,6 +22,12 @@
   }
 }
 
+/* 等寬數字工具類 */
+.tabular,
+.iln-num-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 /* 頁面標題區 */
 .view-header,
 .page-header,
@@ -35,14 +39,15 @@
 .view-title,
 .page-title,
 .dash-title {
-  font-size: 22px;
+  font-size: var(--iln-font-2xl, 22px);
   font-weight: 800;
   color: var(--iln-text);
-  margin: 0 0 4px;
+  margin: 0 0 var(--iln-space-1);
+  line-height: 1.25;
 }
 .view-subtitle,
 .page-subtitle {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
   margin: 0;
 }
@@ -63,7 +68,7 @@
 .loading-state,
 .skeleton-loader,
 .empty-state {
-  padding: var(--iln-space-12) var(--iln-space-4);
+  padding: var(--iln-space-12, 48px) var(--iln-space-4);
   color: var(--iln-hint);
 }
 .loading-state,
@@ -100,6 +105,7 @@
   display: flex;
   gap: var(--iln-space-2);
   align-items: center;
+  min-width: 0;
 }
 
 /* Responsive */
@@ -116,29 +122,35 @@
   }
 }
 
-
 /* ══════════════════════════════════════════════════════════
-   Phase 4 · A2 修復（2026-11-17）
-   1. Element Plus 按鈕主題化（禁止系統灰白控件）
-   2. 卡片圓角/內距兜底（規範 20-24 / ≥16）
+   Element Plus 按鈕與卡片主題化
    ══════════════════════════════════════════════════════════ */
 
-/* el-button 基礎：膠囊圓角 + M3 過渡 */
+/* el-button 基礎：膠囊圓角 + 過渡 */
 .el-button {
   border-radius: var(--iln-radius-full, 9999px);
-  font-weight: 500;
-  transition: background-color 150ms, border-color 150ms, color 150ms;
+  font-weight: 600;
+  transition:
+    background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    transform var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
 }
-/* 一般 el-button（非 primary/danger/text/link）：深色/淺色皆用 surface 底 */
+
+/* 一般 el-button（非 primary/danger/text/link） */
 .el-button:not(.is-text):not(.is-link):not(.el-button--primary):not(.el-button--danger):not(.el-button--success):not(.el-button--warning):not(.el-button--info) {
   background: var(--iln-surface, #F7F2FA);
-  border-color: var(--iln-border-default, rgba(0,0,0,0.12));
+  border-color: var(--iln-border-default, rgba(0, 0, 0, 0.12));
   color: var(--iln-text, #1D1B20);
 }
 .el-button:not(.is-disabled):not(.is-text):not(.is-link):hover {
   background: var(--iln-surface-alt, #E7E0EC);
-  border-color: var(--iln-border-strong, rgba(0,0,0,0.18));
+  border-color: var(--iln-border-strong, rgba(0, 0, 0, 0.18));
 }
+.el-button:not(.is-disabled):active {
+  transform: scale(0.985);
+}
+
 /* primary：品牌色 + on-brand 文字 */
 .el-button--primary {
   background: var(--iln-brand, #6750A4);
@@ -150,51 +162,51 @@
   border-color: var(--iln-brand-hover, #5A3F94);
   color: var(--iln-text-on-brand, #FFFFFF);
 }
+
 /* danger */
 .el-button--danger {
   background: var(--iln-viz-bear, #BA1A1A);
   border-color: var(--iln-viz-bear, #BA1A1A);
   color: #FFFFFF;
 }
-/* disabled 一律走 M3 弱化，不用瀏覽器默認灰 */
+
+/* disabled 弱化 */
 .el-button.is-disabled,
 .el-button.is-disabled:hover,
-.el-button.is-disabled:focus {
-  background: var(--iln-surface-faint, rgba(0,0,0,0.03));
-  border-color: var(--iln-border-subtle, rgba(0,0,0,0.08));
+.el-button.is-disabled:focus,
+.el-button.is-disabled:active {
+  background: var(--iln-surface-faint, rgba(0, 0, 0, 0.03));
+  border-color: var(--iln-border-subtle, rgba(0, 0, 0, 0.08));
   color: var(--iln-hint, #79747E);
   opacity: 1;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* 卡片兜底：Phase 2 的 .iln-card 及常見 .content-card / .metric-card */
+/* 卡片兜底 */
 .iln-card {
   border-radius: var(--iln-radius-card, 20px) !important;
   padding: var(--iln-space-4, 16px) !important;
 }
 
-
 /* ══════════════════════════════════════════════════════════
-   Phase 4.3 / 4.4 · 動效 + 無障礙（2026-11-17）
-   1. 可點擊卡片 hover / pressed 反饋（scale + elevation）
-   2. 全域 :focus-visible（鍵盤導航統一樣式，不干擾滑鼠）
-   3. 全域 prefers-reduced-motion 兜底（一處覆蓋全部動效）
+   動效、無障礙與微互動
    ══════════════════════════════════════════════════════════ */
 
-/* 1. 可點擊卡片反饋（僅限有 role=button / tabindex / elevated variant） */
+/* 可點擊卡片反饋 */
 .content-card--variant-elevated,
 .iln-card[role="button"],
 .content-card[role="button"],
 .iln-card[tabindex="0"],
 .content-card[tabindex="0"] {
   transition:
-    transform 150ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    box-shadow var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
 }
 .content-card--variant-elevated:hover,
 .iln-card[role="button"]:hover,
 .content-card[role="button"]:hover {
-  box-shadow: var(--iln-shadow-3, 0 4px 8px rgba(0,0,0,.15));
+  box-shadow: var(--iln-shadow-3, 0 4px 8px rgba(0, 0, 0, 0.15));
 }
 .content-card--variant-elevated:active,
 .iln-card[role="button"]:active,
@@ -202,13 +214,49 @@
   transform: scale(0.985);
 }
 
-/* 2. 全域 :focus-visible — 鍵盤導航統一樣式 */
+/* 全域 :focus-visible */
 :focus-visible {
   outline: 2px solid var(--iln-brand, #6750A4);
   outline-offset: 2px;
 }
 
-/* 3. 全域 prefers-reduced-motion — 尊重系統偏好 */
+/* .fade-up 進場動畫 */
+.fade-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-up-in var(--iln-duration-slow, 300ms) var(--iln-ease-standard, ease) forwards;
+}
+
+@keyframes fade-up-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up--stagger-1 {
+  animation-delay: 50ms;
+}
+.fade-up--stagger-2 {
+  animation-delay: 100ms;
+}
+
+/* 按鈕 :active 微回饋 */
+button:not(:disabled):active {
+  transform: scale(0.985);
+  transition: transform var(--iln-duration-fast, 150ms) ease-out;
+}
+
+/* 卡片 :hover 微回饋 */
+.iln-card:hover {
+  transform: translateY(-4px);
+  transition:
+    transform var(--iln-duration-base, 200ms) ease-out,
+    box-shadow var(--iln-duration-base, 200ms) ease-out;
+  box-shadow: var(--iln-shadow-2);
+}
+
+/* 全域 prefers-reduced-motion 兜底 */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -221,57 +269,12 @@
 }
 
 /* ══════════════════════════════════════════════════════════
-   P2 · 滾動觸發與微互動（2026-11-18）
-   1. .fade-up 進場動畫（transform + opacity 僅 GPU 屬性）
-   2. Stagger 延遲（50–100ms，依序進場）
-   3. 按鈕 :active 與卡片 :hover 微回饋
-   ══════════════════════════════════════════════════════════ */
-
-/* 1. .fade-up 進場動畫 */
-.fade-up {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fade-up-in var(--iln-duration-slow) var(--iln-ease-standard) forwards;
-}
-
-@keyframes fade-up-in {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 2. Stagger 延遲（依序進場，50–100ms） */
-.fade-up--stagger-1 {
-  animation-delay: 50ms;
-}
-.fade-up--stagger-2 {
-  animation-delay: 100ms;
-}
-
-/* 3. 按鈕 :active 微回饋（縮放，150ms） */
-button:active {
-  transform: scale(0.985);
-  transition: transform var(--iln-duration-fast) ease-out;
-}
-
-/* 4. 卡片 :hover 微回饋（上浮 ≤ 4px，陰影加深） */
-.iln-card:hover {
-  transform: translateY(-4px);
-  transition:
-    transform var(--iln-duration-base) ease-out,
-    box-shadow var(--iln-duration-base) ease-out;
-  box-shadow: var(--iln-shadow-2);
-}
-
-/* ══════════════════════════════════════════════════════════
-   P3 · 響應式卡片柵格工具類
-   列寬用 minmax(0, 1fr) 避免長文字撐破
+   響應式卡片柵格工具類
    ══════════════════════════════════════════════════════════ */
 .iln-grid {
   display: grid;
   gap: var(--iln-grid-gap);
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 @media (min-width: 768px) {

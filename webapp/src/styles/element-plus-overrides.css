@@ -1,12 +1,10 @@
 /* ══════════════════════════════════════════════════════════
-   Element Plus → M3 token 映射
-   決策 A2 / B1 / C1：EP 組件必須繼承 M3 紫主題，禁止 EP 默認藍/白/灰
-   （2026-11-17 發現：EP 默認 --el-color-primary=#409eff 藍、--el-bg-color=#fff 白、
-     --el-border-radius-base=4px 全部脫離 M3 規範，此檔統一覆蓋）
+   Element Plus → 語意設計 Token 映射
+   確保 EP 元件繼承主題變數，並處理動態注入樣式的覆蓋與深色模式
    ══════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── 主色家族（B1 M3 紫）── */
+  /* ── 主色家族 ── */
   --el-color-primary: var(--iln-brand, #6750A4);
   --el-color-primary-light-3: var(--iln-brand-soft, #EADDFF);
   --el-color-primary-light-5: var(--iln-brand-strong, #EADDFF);
@@ -15,14 +13,48 @@
   --el-color-primary-light-9: var(--iln-brand-soft, #F3EBFF);
   --el-color-primary-dark-2: var(--iln-brand-hover, #5A3F94);
 
-  /* ── 語義色 ── */
-  --el-color-success: var(--iln-viz-bull, #386A20);
-  --el-color-warning: var(--iln-viz-alert, #7D5700);
-  --el-color-danger: var(--iln-viz-bear, #BA1A1A);
-  --el-color-error: var(--iln-viz-bear, #BA1A1A);
-  --el-color-info: var(--iln-info, #0061A4);
+  /* ── 語意色與派生色階（亮色） ── */
+  --el-color-info:         #0061A4;
+  --el-color-info-light-3: #7FB1DE;
+  --el-color-info-light-5: #A8CAEB;
+  --el-color-info-light-7: #D1E4FF;
+  --el-color-info-light-8: #E3EEFF;
+  --el-color-info-light-9: #F0F6FF;
+  --el-color-info-dark-2:  #001D36;
+  --el-alert-bg-color:     #F0F6FF;
 
-  /* ── 背景 / 表面（M3）── */
+  --el-color-success:         #386A20;
+  --el-color-success-light-3: #86B66B;
+  --el-color-success-light-5: #A9CC93;
+  --el-color-success-light-7: #B9F18D;
+  --el-color-success-light-8: #D7F6BC;
+  --el-color-success-light-9: #EBFADE;
+  --el-color-success-dark-2:  #0A2000;
+
+  --el-color-warning:         #7D5700;
+  --el-color-warning-light-3: #C89A3C;
+  --el-color-warning-light-5: #D9B465;
+  --el-color-warning-light-7: #FFDEA6;
+  --el-color-warning-light-8: #FFEBC8;
+  --el-color-warning-light-9: #FFF6E1;
+  --el-color-warning-dark-2:  #271900;
+
+  --el-color-danger:          #BA1A1A;
+  --el-color-error:           #BA1A1A;
+  --el-color-danger-light-3:  #D56F6F;
+  --el-color-danger-light-5:  #E29999;
+  --el-color-danger-light-7:  #FFDAD6;
+  --el-color-danger-light-8:  #FFE6E2;
+  --el-color-danger-light-9:  #FFF1EF;
+  --el-color-danger-dark-2:   #410002;
+  --el-color-error-light-3:   #D56F6F;
+  --el-color-error-light-5:   #E29999;
+  --el-color-error-light-7:   #FFDAD6;
+  --el-color-error-light-8:   #FFE6E2;
+  --el-color-error-light-9:   #FFF1EF;
+  --el-color-error-dark-2:    #410002;
+
+  /* ── 背景 / 表面 ── */
   --el-bg-color: var(--iln-bg, #FEF7FF);
   --el-bg-color-page: var(--iln-bg, #FEF7FF);
   --el-bg-color-overlay: var(--iln-surface, #F7F2FA);
@@ -33,28 +65,28 @@
   --el-fill-color-extra-light: var(--iln-surface, #F7F2FA);
   --el-mask-color: rgba(29, 27, 32, 0.5);
 
-  /* ── 文字（M3）── */
+  /* ── 文字 ── */
   --el-text-color-primary: var(--iln-text, #1D1B20);
   --el-text-color-regular: var(--iln-text, #1D1B20);
   --el-text-color-secondary: var(--iln-hint, #49454F);
   --el-text-color-placeholder: var(--iln-hint, #49454F);
   --el-text-color-disabled: var(--iln-hint, #49454F);
 
-  /* ── 邊框（M3）── */
-  --el-border-color: var(--iln-border-subtle, rgba(121,116,126,.12));
-  --el-border-color-light: var(--iln-border-subtle, rgba(121,116,126,.12));
-  --el-border-color-lighter: var(--iln-border-subtle, rgba(121,116,126,.12));
-  --el-border-color-extra-light: var(--iln-border-subtle, rgba(121,116,126,.08));
-  --el-border-color-dark: var(--iln-border-default, rgba(121,116,126,.20));
-  --el-border-color-darker: var(--iln-border-strong, rgba(121,116,126,.32));
+  /* ── 邊框 ── */
+  --el-border-color: var(--iln-border-subtle, rgba(121, 116, 126, 0.12));
+  --el-border-color-light: var(--iln-border-subtle, rgba(121, 116, 126, 0.12));
+  --el-border-color-lighter: var(--iln-border-subtle, rgba(121, 116, 126, 0.12));
+  --el-border-color-extra-light: var(--iln-border-subtle, rgba(121, 116, 126, 0.08));
+  --el-border-color-dark: var(--iln-border-default, rgba(121, 116, 126, 0.20));
+  --el-border-color-darker: var(--iln-border-strong, rgba(121, 116, 126, 0.32));
 
-  /* ── 圓角（規範 12 / 16 / 20）── */
+  /* ── 圓角 ── */
   --el-border-radius-base: var(--iln-radius-md, 12px);
   --el-border-radius-small: var(--iln-radius-sm, 8px);
   --el-border-radius-round: var(--iln-radius-full, 9999px);
   --el-border-radius-circle: 50%;
 
-  /* ── 字體 / 間距對齊 M3 ── */
+  /* ── 字體大小 ── */
   --el-font-size-base: 14px;
   --el-font-size-small: 12px;
   --el-font-size-large: 15px;
@@ -66,38 +98,52 @@
   font-family: var(--iln-font-mono);
 }
 
-/* ── el-alert 用 M3 語義色（EP 預設灰底灰字）── */
-.el-alert {
-  border-radius: var(--iln-radius-md, 12px);
-  border: 1px solid transparent;
+/* ── el-alert 語意樣式（覆蓋動態注入的預設樣式） ── */
+.el-alert.is-light {
+  background-color: var(--el-color-info-light-9) !important;
+  color: var(--el-color-info-dark-2) !important;
+  border: 1px solid var(--iln-border-subtle, rgba(121, 116, 126, 0.12)) !important;
+  border-radius: var(--iln-radius-md, 12px) !important;
 }
 .el-alert--info.is-light {
-  background: var(--iln-info-bg, rgba(59,130,246,.1));
-  color: var(--iln-info-text, #1d4ed8);
-  border-color: var(--iln-info-border, rgba(59,130,246,.3));
+  background-color: var(--el-color-info-light-9) !important;
+  color: var(--el-color-info-dark-2) !important;
+  border-color: var(--el-color-info-light-3) !important;
+}
+.el-alert--info.is-light .el-alert__description {
+  color: var(--el-color-info-dark-2) !important;
 }
 .el-alert--success.is-light {
-  background: var(--iln-viz-bull-bg, rgba(16,185,129,.1));
-  color: var(--iln-viz-bull-text, #059669);
-  border-color: var(--iln-viz-bull-border, rgba(16,185,129,.3));
+  background-color: var(--el-color-success-light-9) !important;
+  color: var(--el-color-success-dark-2) !important;
+  border-color: var(--el-color-success-light-3) !important;
+}
+.el-alert--success.is-light .el-alert__description {
+  color: var(--el-color-success-dark-2) !important;
 }
 .el-alert--warning.is-light {
-  background: var(--iln-viz-alert-bg, rgba(245,158,11,.1));
-  color: var(--iln-viz-alert-text, #b45309);
-  border-color: var(--iln-viz-alert-border, rgba(245,158,11,.3));
+  background-color: var(--el-color-warning-light-9) !important;
+  color: var(--el-color-warning-dark-2) !important;
+  border-color: var(--el-color-warning-light-3) !important;
+}
+.el-alert--warning.is-light .el-alert__description {
+  color: var(--el-color-warning-dark-2) !important;
 }
 .el-alert--error.is-light {
-  background: var(--iln-viz-bear-bg, rgba(239,68,68,.1));
-  color: var(--iln-viz-bear-text, #dc2626);
-  border-color: var(--iln-viz-bear-border, rgba(239,68,68,.3));
+  background-color: var(--el-color-error-light-9) !important;
+  color: var(--el-color-error-dark-2) !important;
+  border-color: var(--el-color-error-light-3) !important;
+}
+.el-alert--error.is-light .el-alert__description {
+  color: var(--el-color-error-dark-2) !important;
 }
 
-/* ── el-input / el-select / el-textarea 用 M3 surface ── */
+/* ── el-input / el-select / el-textarea ── */
 .el-input__wrapper,
 .el-textarea__inner,
 .el-select__wrapper {
   background-color: var(--iln-surface, #F7F2FA) !important;
-  box-shadow: 0 0 0 1px var(--iln-border-default, rgba(121,116,126,.20)) inset !important;
+  box-shadow: 0 0 0 1px var(--iln-border-default, rgba(121, 116, 126, 0.20)) inset !important;
   border-radius: var(--iln-radius-md, 12px) !important;
 }
 .el-input__wrapper.is-focus,
@@ -106,34 +152,34 @@
   box-shadow: 0 0 0 2px var(--iln-brand, #6750A4) inset !important;
 }
 
-/* ── el-collapse 用 M3 surface + 圓角 ── */
+/* ── el-collapse ── */
 .el-collapse {
   border-radius: var(--iln-radius-md, 12px);
-  border-top: 1px solid var(--iln-border-subtle, rgba(121,116,126,.12));
-  border-bottom: 1px solid var(--iln-border-subtle, rgba(121,116,126,.12));
+  border-top: 1px solid var(--iln-border-subtle, rgba(121, 116, 126, 0.12));
+  border-bottom: 1px solid var(--iln-border-subtle, rgba(121, 116, 126, 0.12));
 }
 .el-collapse-item__header {
   background-color: transparent;
   color: var(--iln-text, #1D1B20);
-  border-bottom-color: var(--iln-border-subtle, rgba(121,116,126,.12));
+  border-bottom-color: var(--iln-border-subtle, rgba(121, 116, 126, 0.12));
 }
 .el-collapse-item__wrap {
   background-color: transparent;
-  border-bottom-color: var(--iln-border-subtle, rgba(121,116,126,.12));
+  border-bottom-color: var(--iln-border-subtle, rgba(121, 116, 126, 0.12));
 }
 
-/* ── el-dialog 用 M3 surface + 20px 圓角 ── */
+/* ── el-dialog ── */
 .el-dialog {
   background-color: var(--iln-surface, #F7F2FA) !important;
   border-radius: var(--iln-radius-xl, 24px) !important;
 }
 
-/* ── el-form label 用 M3 次要色 ── */
+/* ── el-form label ── */
 .el-form-item__label {
   color: var(--iln-hint, #49454F) !important;
 }
 
-/* ── el-switch 用 M3 主色 ── */
+/* ── el-switch ── */
 .el-switch.is-checked .el-switch__core {
   background-color: var(--iln-brand, #6750A4);
   border-color: var(--iln-brand, #6750A4);
@@ -150,202 +196,16 @@
   color: var(--iln-brand-hover, #5A3F94);
 }
 
-/* ── 深色模式跟隨 [data-tg-scheme="dark"] 的 M3 深色 token ── */
+/* ── 深色模式覆寫（跟隨 [data-tg-scheme="dark"]） ── */
 :root[data-tg-scheme="dark"] {
-  --el-bg-color: var(--iln-bg);
-  --el-bg-color-page: var(--iln-bg);
-  --el-fill-color-blank: var(--iln-surface);
-  --el-fill-color-light: var(--iln-surface);
-  --el-text-color-primary: var(--iln-text);
-  --el-text-color-regular: var(--iln-text);
-  --el-text-color-secondary: var(--iln-hint);
-  --el-border-color: var(--iln-border-subtle);
-  --el-mask-color: rgba(0, 0, 0, 0.65);
-}
+  --el-color-primary: var(--iln-brand, #D0BCFF);
+  --el-color-primary-light-3: var(--iln-brand-soft, #381E72);
+  --el-color-primary-light-5: var(--iln-brand-strong, #4F378B);
+  --el-color-primary-light-7: var(--iln-brand-soft, #381E72);
+  --el-color-primary-light-8: var(--iln-brand-soft, #381E72);
+  --el-color-primary-light-9: var(--iln-brand-soft, #381E72);
+  --el-color-primary-dark-2: var(--iln-brand-hover, #EADDFF);
 
-/* ══════════════════════════════════════════════════════════
-   2026-11-17 追加：EP 按需 chunk CSS 运行时动态注入 <head> 末尾，
-   同特异性下顺序压过本文件 → 必须 !important + 补全派生色阶。
-   源码证据：node_modules/.../el-alert.css
-     .el-alert--info.is-light{background-color:var(--el-alert-bg-color);color:var(--el-color-info)}
-   ══════════════════════════════════════════════════════════ */
-
-/* ── 派生色阶（EP 组件局部会用 light-3/5/7/8/9、dark-2）── */
-:root {
-  /* info（M3 蓝 container） */
-  --el-color-info:        #0061A4;
-  --el-color-info-light-3: #7FB1DE;
-  --el-color-info-light-5: #A8CAEB;
-  --el-color-info-light-7: #D1E4FF;
-  --el-color-info-light-8: #E3EEFF;
-  --el-color-info-light-9: #F0F6FF;
-  --el-color-info-dark-2: #001D36;
-
-  /* success（M3 绿 container） */
-  --el-color-success:        #386A20;
-  --el-color-success-light-3: #86B66B;
-  --el-color-success-light-5: #A9CC93;
-  --el-color-success-light-7: #B9F18D;
-  --el-color-success-light-8: #D7F6BC;
-  --el-color-success-light-9: #EBFADE;
-  --el-color-success-dark-2: #0A2000;
-
-  /* warning（M3 琥珀 container） */
-  --el-color-warning:        #7D5700;
-  --el-color-warning-light-3: #C89A3C;
-  --el-color-warning-light-5: #D9B465;
-  --el-color-warning-light-7: #FFDEA6;
-  --el-color-warning-light-8: #FFEBC8;
-  --el-color-warning-light-9: #FFF6E1;
-  --el-color-warning-dark-2: #271900;
-
-  /* danger / error（M3 红 container） */
-  --el-color-danger:        #BA1A1A;
-  --el-color-error:         #BA1A1A;
-  --el-color-danger-light-3: #D56F6F;
-  --el-color-danger-light-5: #E29999;
-  --el-color-danger-light-7: #FFDAD6;
-  --el-color-danger-light-8: #FFE6E2;
-  --el-color-danger-light-9: #FFF1EF;
-  --el-color-danger-dark-2: #410002;
-  --el-color-error-light-3: #D56F6F;
-  --el-color-error-light-5: #E29999;
-  --el-color-error-light-7: #FFDAD6;
-  --el-color-error-light-8: #FFE6E2;
-  --el-color-error-light-9: #FFF1EF;
-  --el-color-error-dark-2: #410002;
-}
-
-/* ── el-alert：EP 后注入，用 !important 抢 ── */
-.el-alert.is-light {
-  background-color: var(--el-color-info-light-9) !important;
-  color: var(--el-color-info-dark-2) !important;
-  border: 1px solid var(--iln-border-subtle, rgba(121,116,126,.12)) !important;
-  border-radius: var(--iln-radius-md, 12px) !important;
-}
-.el-alert--info.is-light {
-  background-color: var(--el-color-info-light-9) !important;
-  color: var(--el-color-info-dark-2) !important;
-  border-color: var(--el-color-info-light-3) !important;
-}
-.el-alert--info.is-light .el-alert__description { color: var(--el-color-info-dark-2) !important; }
-.el-alert--success.is-light {
-  background-color: var(--el-color-success-light-9) !important;
-  color: var(--el-color-success-dark-2) !important;
-  border-color: var(--el-color-success-light-3) !important;
-}
-.el-alert--success.is-light .el-alert__description { color: var(--el-color-success-dark-2) !important; }
-.el-alert--warning.is-light {
-  background-color: var(--el-color-warning-light-9) !important;
-  color: var(--el-color-warning-dark-2) !important;
-  border-color: var(--el-color-warning-light-3) !important;
-}
-.el-alert--warning.is-light .el-alert__description { color: var(--el-color-warning-dark-2) !important; }
-.el-alert--error.is-light {
-  background-color: var(--el-color-error-light-9) !important;
-  color: var(--el-color-error-dark-2) !important;
-  border-color: var(--el-color-error-light-3) !important;
-}
-.el-alert--error.is-light .el-alert__description { color: var(--el-color-error-dark-2) !important; }
-
-/* ══════════════════════════════════════════════════════════
-   2026-11-17 追加：EP 按需 chunk CSS 运行时动态注入 <head> 末尾，
-   同特异性下顺序压过本文件 → 必须 !important + 补全派生色阶。
-   源码证据：el-alert.css
-     .el-alert--info.is-light{background-color:var(--el-alert-bg-color);color:var(--el-color-info)}
-   而 --el-alert-bg-color 默认等于 --el-color-info-light-9（EP 默认 #f4f4f5 灰）
-   ══════════════════════════════════════════════════════════ */
-
-/* ── 派生色阶（EP 组件局部会用 light-3/5/7/8/9、dark-2）── */
-:root {
-  /* info（M3 蓝 container） */
-  --el-color-info:         #0061A4;
-  --el-color-info-light-3: #7FB1DE;
-  --el-color-info-light-5: #A8CAEB;
-  --el-color-info-light-7: #D1E4FF;
-  --el-color-info-light-8: #E3EEFF;
-  --el-color-info-light-9: #F0F6FF;
-  --el-color-info-dark-2:  #001D36;
-  --el-alert-bg-color:     #F0F6FF;
-
-  /* success（M3 绿 container） */
-  --el-color-success:         #386A20;
-  --el-color-success-light-3: #86B66B;
-  --el-color-success-light-5: #A9CC93;
-  --el-color-success-light-7: #B9F18D;
-  --el-color-success-light-8: #D7F6BC;
-  --el-color-success-light-9: #EBFADE;
-  --el-color-success-dark-2:  #0A2000;
-
-  /* warning（M3 琥珀 container） */
-  --el-color-warning:         #7D5700;
-  --el-color-warning-light-3: #C89A3C;
-  --el-color-warning-light-5: #D9B465;
-  --el-color-warning-light-7: #FFDEA6;
-  --el-color-warning-light-8: #FFEBC8;
-  --el-color-warning-light-9: #FFF6E1;
-  --el-color-warning-dark-2:  #271900;
-
-  /* danger / error（M3 红 container） */
-  --el-color-danger:          #BA1A1A;
-  --el-color-error:           #BA1A1A;
-  --el-color-danger-light-3:  #D56F6F;
-  --el-color-danger-light-5:  #E29999;
-  --el-color-danger-light-7:  #FFDAD6;
-  --el-color-danger-light-8:  #FFE6E2;
-  --el-color-danger-light-9:  #FFF1EF;
-  --el-color-danger-dark-2:   #410002;
-  --el-color-error-light-3:   #D56F6F;
-  --el-color-error-light-5:   #E29999;
-  --el-color-error-light-7:   #FFDAD6;
-  --el-color-error-light-8:   #FFE6E2;
-  --el-color-error-light-9:   #FFF1EF;
-  --el-color-error-dark-2:    #410002;
-}
-
-/* ── el-alert：EP 后注入，必须 !important 抢 ── */
-.el-alert.is-light {
-  background-color: var(--el-color-info-light-9) !important;
-  color: var(--el-color-info-dark-2) !important;
-  border: 1px solid var(--iln-border-subtle, rgba(121,116,126,.12)) !important;
-  border-radius: var(--iln-radius-md, 12px) !important;
-}
-.el-alert--info.is-light {
-  background-color: var(--el-color-info-light-9) !important;
-  color: var(--el-color-info-dark-2) !important;
-  border-color: var(--el-color-info-light-3) !important;
-}
-.el-alert--info.is-light .el-alert__description { color: var(--el-color-info-dark-2) !important; }
-.el-alert--success.is-light {
-  background-color: var(--el-color-success-light-9) !important;
-  color: var(--el-color-success-dark-2) !important;
-  border-color: var(--el-color-success-light-3) !important;
-}
-.el-alert--success.is-light .el-alert__description { color: var(--el-color-success-dark-2) !important; }
-.el-alert--warning.is-light {
-  background-color: var(--el-color-warning-light-9) !important;
-  color: var(--el-color-warning-dark-2) !important;
-  border-color: var(--el-color-warning-light-3) !important;
-}
-.el-alert--warning.is-light .el-alert__description { color: var(--el-color-warning-dark-2) !important; }
-.el-alert--error.is-light {
-  background-color: var(--el-color-error-light-9) !important;
-  color: var(--el-color-error-dark-2) !important;
-  border-color: var(--el-color-error-light-3) !important;
-}
-.el-alert--error.is-light .el-alert__description { color: var(--el-color-error-dark-2) !important; }
-
-/* ══════════════════════════════════════════════════════════
-   2026-11-17 追加（Dark 模式）：EP 派生色階在 dark 下必須走 M3 dark container，
-   否則 alert/input 會在深色底上貼淺色膠囊，視覺撕裂。
-   M3 dark container / on-container 對照：
-     info    #00497D / #D1E4FF
-     success #386A20 / #C8F0A9
-     warning #5F4100 / #FFDEA6
-     danger  #93000A / #FFDAD6
-   ══════════════════════════════════════════════════════════ */
-:root[data-tg-scheme="dark"] {
-  /* info dark container */
   --el-color-info:         #A8CAEB;
   --el-color-info-light-3: #0061A4;
   --el-color-info-light-5: #0061A4;
@@ -355,7 +215,6 @@
   --el-color-info-dark-2:  #D1E4FF;
   --el-alert-bg-color:     #00497D;
 
-  /* success dark container */
   --el-color-success:         #B9F18D;
   --el-color-success-light-3: #2D4A1A;
   --el-color-success-light-5: #386A20;
@@ -364,7 +223,6 @@
   --el-color-success-light-9: #386A20;
   --el-color-success-dark-2:  #C8F0A9;
 
-  /* warning dark container */
   --el-color-warning:         #FFDEA6;
   --el-color-warning-light-3: #5F4100;
   --el-color-warning-light-5: #5F4100;
@@ -373,7 +231,6 @@
   --el-color-warning-light-9: #5F4100;
   --el-color-warning-dark-2:  #FFDEA6;
 
-  /* danger / error dark container */
   --el-color-danger:          #FFB4AB;
   --el-color-error:           #FFB4AB;
   --el-color-danger-light-3:  #93000A;
@@ -389,22 +246,37 @@
   --el-color-error-light-9:   #93000A;
   --el-color-error-dark-2:    #FFDAD6;
 
-  /* fill 层级（EP 用于 hover/active 态） */
-  --el-fill-color:             #2B2830;
-  --el-fill-color-light:       #211F26;
-  --el-fill-color-lighter:     #1D1B20;
-  --el-fill-color-blank:       #1D1B20;
+  --el-bg-color: var(--iln-bg);
+  --el-bg-color-page: var(--iln-bg);
+  --el-bg-color-overlay: #2B2830;
+  --el-fill-color: #2B2830;
+  --el-fill-color-light: #211F26;
+  --el-fill-color-lighter: #1D1B20;
+  --el-fill-color-blank: #1D1B20;
   --el-fill-color-extra-light: #1D1B20;
-  --el-bg-color-overlay:       #2B2830;
+
+  --el-text-color-primary: var(--iln-text);
+  --el-text-color-regular: var(--iln-text);
+  --el-text-color-secondary: var(--iln-hint);
+  --el-border-color: var(--iln-border-subtle);
+  --el-mask-color: rgba(0, 0, 0, 0.65);
 }
 
-/* ── Dark 下 alert 的边框显式走 on-container 微亮边（否则用 light-3 几乎看不见）── */
-:root[data-tg-scheme="dark"] .el-alert--info.is-light    { border-color: rgba(209, 228, 255, 0.32) !important; }
-:root[data-tg-scheme="dark"] .el-alert--success.is-light { border-color: rgba(200, 240, 169, 0.32) !important; }
-:root[data-tg-scheme="dark"] .el-alert--warning.is-light { border-color: rgba(255, 222, 166, 0.32) !important; }
-:root[data-tg-scheme="dark"] .el-alert--error.is-light   { border-color: rgba(255, 218, 214, 0.32) !important; }
+:root[data-tg-scheme="dark"] .el-alert--info.is-light {
+  border-color: rgba(209, 228, 255, 0.32) !important;
+}
+:root[data-tg-scheme="dark"] .el-alert--success.is-light {
+  border-color: rgba(200, 240, 169, 0.32) !important;
+}
+:root[data-tg-scheme="dark"] .el-alert--warning.is-light {
+  border-color: rgba(255, 222, 166, 0.32) !important;
+}
+:root[data-tg-scheme="dark"] .el-alert--error.is-light {
+  border-color: rgba(255, 218, 214, 0.32) !important;
+}
 
-/* ── Dark 下 el-input focus 光圈用 primary，M3 一致性 ── */
-:root[data-tg-scheme="dark"] .el-input__wrapper.is-focus {
+:root[data-tg-scheme="dark"] .el-input__wrapper.is-focus,
+:root[data-tg-scheme="dark"] .el-textarea__inner:focus,
+:root[data-tg-scheme="dark"] .el-select__wrapper.is-focused {
   box-shadow: 0 0 0 2px var(--iln-brand, #D0BCFF) inset !important;
 }

@@ -1,120 +1,166 @@
 <template>
-    <GlobalErrorBoundary>
+  <GlobalErrorBoundary>
     <div class="view-container iln-page">
-    <!-- ── Header ── -->
-    <div class="page-header">
-      <h1 class="page-title">新聞資訊</h1>
-      <p class="page-subtitle">每日精選報告 ＆ 新聞池</p>
-    </div>
+      <!-- ── Header ── -->
+      <header class="page-header">
+        <h1 class="page-title">新聞資訊</h1>
+        <p class="page-subtitle">每日精選報告 ＆ 新聞池</p>
+      </header>
 
-    <!-- Sub-tab bar -->
-    <div class="subtab-bar">
-      <button
-        class="subtab-btn"
-        :class="{ active: activeTab === 'report' }"
-        @click="switchTab('report')"
-      >        <Icon name="news" size="sm" color="var(--iln-hint)" /> 精選報告
-      </button>
-      <button
-        class="subtab-btn"
-        :class="{ active: activeTab === 'pool' }"
-        @click="switchTab('pool')"
-      >        <Icon name="chart" size="sm" color="var(--iln-hint)" /> 新聞池
-      </button>
-    </div>
-
-    <p class="featured-note">
-      每日精選由系統依主題篩選，完整新聞請見新聞池
-    </p>
-
-    <!-- ── 精選報告 tab ── -->
-    <div v-if="activeTab === 'report'">
-      <LoadingSkeleton v-if="reportLoading" variant="card" :rows="3" />
-
-      <ErrorAlert v-else-if="reportError" :visible="true" :description="reportError" :show-retry="true" @retry="loadReport" />
-
-      <EmptyState v-else-if="!reportNews.tw.length && !reportNews.us.length" title="今日尚無精選報告，請稍後再試" message="每日早上自動更新" />
-
-      <div v-else class="report-content">
-        <!-- 台灣區塊 -->
-        <div v-if="reportNews.tw.length" class="region-section">
-          <div class="region-header">
-            <span class="region-flag"><Icon name="chart" size="sm" color="var(--iln-hint)" /></span>
-            <span class="region-title">台灣市場動態</span>
-            <span class="region-count">{{ reportNews.tw.length }} 則</span>
-          </div>
-          <div class="news-list">
-          <component :is="NewsCard"
-            v-for="(item, i) in reportNews.tw"
-            :key="'tw-' + i"
-            :article="item"
-            :is-featured="true"
-            @article-click="openArticle"
-        ></component>
-        </div>
-        </div>
-
-        <!-- 國際區塊 -->
-        <div v-if="reportNews.us.length" class="region-section">
-          <div class="region-header">
-            <span class="region-flag"><Icon name="chart" size="sm" color="var(--iln-hint)" /></span>
-            <span class="region-title">國際總經與趨勢</span>
-            <span class="region-count">{{ reportNews.us.length }} 則</span>
-          </div>
-          <div class="news-list">
-          <component :is="NewsCard"
-            v-for="(item, i) in reportNews.us"
-            :key="'us-' + i"
-            :article="item"
-            :is-featured="true"
-            @article-click="openArticle"
-        ></component>
-        </div>
-        </div>
-
-        <p class="report-generated">          <Icon name="clock" size="sm" color="var(--iln-hint)" /> 產生時間：{{ generatedAtDisplay }}
-        </p>
-      </div>
-    </div>
-
-    <!-- ── 新聞池 tab ── -->
-    <div v-if="activeTab === 'pool'">
-      <div class="pool-header">
-        <span class="view-subtitle" v-if="articles.length"
-          >共 {{ articles.length }} 則</span
-        >
-      </div>
-      <div v-if="articles.length" class="pool-filters" role="group" aria-label="新聞篩選">
+      <!-- Sub-tab bar -->
+      <div class="subtab-bar" role="tablist" aria-label="新聞資訊分頁">
         <button
-          v-for="filter in poolFilters"
-          :key="filter.id"
-          :data-testid="`news-filter-${filter.id}`"
-          class="pool-filter"
-          :class="{ active: activePoolFilter === filter.id }"
-          :aria-pressed="activePoolFilter === filter.id"
-          @click="activePoolFilter = filter.id"
-        >{{ filter.label }}<span class="filter-count">{{ filterCounts[filter.id] }}</span></button>
+          type="button"
+          role="tab"
+          :aria-selected="activeTab === 'report'"
+          class="subtab-btn"
+          :class="{ active: activeTab === 'report' }"
+          @click="switchTab('report')"
+        >
+          <Icon name="news" size="sm" color="var(--iln-hint)" />
+          <span>精選報告</span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          :aria-selected="activeTab === 'pool'"
+          class="subtab-btn"
+          :class="{ active: activeTab === 'pool' }"
+          @click="switchTab('pool')"
+        >
+          <Icon name="chart" size="sm" color="var(--iln-hint)" />
+          <span>新聞池</span>
+        </button>
       </div>
-      <p v-if="articles.length && filteredArticles.length === 0" class="filter-empty">目前沒有符合條件的新聞</p>
 
-      <LoadingSkeleton v-if="poolLoading" variant="card" :rows="3" />
+      <p class="featured-note">
+        每日精選由系統依主題篩選，完整新聞請見新聞池
+      </p>
 
-      <ErrorAlert v-else-if="poolError" :visible="true" :description="poolError" :show-retry="true" @retry="loadPool" />
+      <!-- ── 精選報告 tab ── -->
+      <div v-if="activeTab === 'report'">
+        <LoadingSkeleton v-if="reportLoading" variant="card" :rows="3" />
 
-      <EmptyState v-else-if="articles.length === 0" title="新聞池目前為空，排程可能尚未執行" />
+        <ErrorAlert
+          v-else-if="reportError"
+          :visible="true"
+          :description="reportError"
+          :show-retry="true"
+          @retry="loadReport"
+        />
 
-      <div v-else-if="filteredArticles.length" class="news-list pool-list">
-        <component :is="NewsCard"
-          v-for="article in filteredArticles"
-          :key="article.id"
-          :article="article"
-          :show-age-band="true"
-          :is-picked="matchFeatured(article, featuredNews)"
-          @article-click="openArticle"
-        ></component>
+        <EmptyState
+          v-else-if="!reportNews.tw.length && !reportNews.us.length"
+          title="今日尚無精選報告，請稍後再試"
+          message="每日早上自動更新"
+        />
+
+        <div v-else class="report-content">
+          <!-- 台灣區塊 -->
+          <section v-if="reportNews.tw.length" class="region-section" aria-label="台灣市場動態">
+            <div class="region-header">
+              <span class="region-flag">
+                <Icon name="chart" size="sm" color="var(--iln-hint)" />
+              </span>
+              <h2 class="region-title">台灣市場動態</h2>
+              <span class="region-count tabular">{{ reportNews.tw.length }} 則</span>
+            </div>
+            <div class="news-list">
+              <component
+                :is="NewsCard"
+                v-for="(item, i) in reportNews.tw"
+                :key="'tw-' + i"
+                :article="item"
+                :is-featured="true"
+                @article-click="openArticle"
+              />
+            </div>
+          </section>
+
+          <!-- 國際區塊 -->
+          <section v-if="reportNews.us.length" class="region-section" aria-label="國際總經與趨勢">
+            <div class="region-header">
+              <span class="region-flag">
+                <Icon name="chart" size="sm" color="var(--iln-hint)" />
+              </span>
+              <h2 class="region-title">國際總經與趨勢</h2>
+              <span class="region-count tabular">{{ reportNews.us.length }} 則</span>
+            </div>
+            <div class="news-list">
+              <component
+                :is="NewsCard"
+                v-for="(item, i) in reportNews.us"
+                :key="'us-' + i"
+                :article="item"
+                :is-featured="true"
+                @article-click="openArticle"
+              />
+            </div>
+          </section>
+
+          <p class="report-generated tabular">
+            <Icon name="clock" size="sm" color="var(--iln-hint)" />
+            <span>產生時間：{{ generatedAtDisplay }}</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- ── 新聞池 tab ── -->
+      <div v-if="activeTab === 'pool'">
+        <div class="pool-header">
+          <span v-if="articles.length" class="view-subtitle tabular">
+            共 {{ articles.length }} 則
+          </span>
+        </div>
+
+        <div v-if="articles.length" class="pool-filters" role="group" aria-label="新聞篩選">
+          <button
+            v-for="filter in poolFilters"
+            :key="filter.id"
+            type="button"
+            :data-testid="`news-filter-${filter.id}`"
+            class="pool-filter"
+            :class="{ active: activePoolFilter === filter.id }"
+            :aria-pressed="activePoolFilter === filter.id"
+            @click="activePoolFilter = filter.id"
+          >
+            <span>{{ filter.label }}</span>
+            <span class="filter-count tabular">{{ filterCounts[filter.id] }}</span>
+          </button>
+        </div>
+
+        <p v-if="articles.length && filteredArticles.length === 0" class="filter-empty">
+          目前沒有符合條件的新聞
+        </p>
+
+        <LoadingSkeleton v-if="poolLoading" variant="card" :rows="3" />
+
+        <ErrorAlert
+          v-else-if="poolError"
+          :visible="true"
+          :description="poolError"
+          :show-retry="true"
+          @retry="loadPool"
+        />
+
+        <EmptyState
+          v-else-if="articles.length === 0"
+          title="新聞池目前為空，排程可能尚未執行"
+        />
+
+        <div v-else-if="filteredArticles.length" class="news-list pool-list">
+          <component
+            :is="NewsCard"
+            v-for="article in filteredArticles"
+            :key="article.id"
+            :article="article"
+            :show-age-band="true"
+            :is-picked="matchFeatured(article, featuredNews)"
+            @article-click="openArticle"
+          />
+        </div>
       </div>
     </div>
-  </div>
   </GlobalErrorBoundary>
 </template>
 
@@ -232,6 +278,15 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.view-container {
+  padding: 0 0 calc(var(--iln-space-6) + env(safe-area-inset-bottom, 0px));
+  min-height: 100%;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Page header（對齊 AccountView / StrategyConfigEditor） ── */
 .page-header {
   padding: var(--iln-space-4) var(--iln-space-4) var(--iln-space-2);
@@ -239,7 +294,7 @@ onMounted(async () => {
 }
 .page-title {
   font-size: var(--iln-font-2xl, 22px);
-  font-weight: 700;
+  font-weight: 800;
   color: var(--iln-text);
   margin: 0 0 var(--iln-space-1);
   line-height: 1.25;
@@ -248,19 +303,6 @@ onMounted(async () => {
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
   margin: 0;
-}
-/* NewsView — Phase 3 現代化（2026-11-17）
-   只動 CSS：
-   - px → --iln-space-* / --iln-font-* / --iln-radius-*
-   - 移除死 selector：news-card / news-card:active / news-header / news-age /
-     age-fresh / age-recent / age-old / news-region / news-source / news-time /
-     news-title / news-summary（實際由子組件 NewsCard.vue 自帶 scoped）
-     state-box / state-hint / state-error / retry-btn / spinner / @keyframes spin
-     （模板改用 ErrorAlert / EmptyState 組件） */
-
-.view-container {
-  padding: 0 0 env(safe-area-inset-bottom, 0px);
-  min-height: 100%;
 }
 
 /* ── Sub-tab bar ── */
@@ -278,27 +320,41 @@ onMounted(async () => {
 
 .subtab-btn {
   flex: 1;
-  padding: var(--iln-space-3) 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--iln-space-1);
+  padding: var(--iln-space-3) var(--iln-space-2);
   font-size: var(--iln-font-sm);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--iln-hint);
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
   cursor: pointer;
   transition:
-    color var(--iln-duration-base) var(--iln-ease-standard),
-    border-color var(--iln-duration-base) var(--iln-ease-standard);
+    color var(--iln-duration-base, 200ms) var(--iln-ease-standard, ease),
+    border-color var(--iln-duration-base, 200ms) var(--iln-ease-standard, ease);
   margin-bottom: -1px;
 }
 .subtab-btn.active {
   color: var(--iln-brand);
   border-bottom-color: var(--iln-brand);
-  font-weight: 600;
+  font-weight: 700;
 }
 .subtab-btn:focus-visible {
   outline: 2px solid var(--iln-brand);
   outline-offset: -2px;
+}
+
+/* 精選註記 */
+.featured-note {
+  padding: 0 var(--iln-space-4);
+  font-size: var(--iln-font-xs);
+  font-weight: var(--iln-weight-medium, 500);
+  color: var(--iln-brand);
+  margin: 0 0 var(--iln-space-3);
+  line-height: 1.5;
 }
 
 /* ── Region section（精選報告） ── */
@@ -313,38 +369,115 @@ onMounted(async () => {
 .region-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--iln-space-2);
   margin-bottom: var(--iln-space-2);
 }
 
 .region-flag {
+  display: inline-flex;
+  align-items: center;
   font-size: var(--iln-font-md);
 }
 
 .region-title {
   font-size: var(--iln-font-base);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--iln-text);
+  margin: 0;
   flex: 1;
 }
 
 .region-count {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 
 .report-generated {
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--iln-space-1);
+  width: 100%;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   text-align: center;
   margin-top: var(--iln-space-2);
   padding-bottom: var(--iln-space-2);
 }
 
-/* ── 新聞池 header ── */
+/* ── 新聞池 header 與篩選器 ── */
 .pool-header {
-  padding: 0 var(--iln-space-4) var(--iln-space-1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--iln-space-4) var(--iln-space-2);
   min-height: 20px;
+}
+
+.view-subtitle {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
+
+.pool-filters {
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-2);
+  overflow-x: auto;
+  padding: 0 var(--iln-space-4) var(--iln-space-3);
+  scrollbar-width: none;
+}
+.pool-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.pool-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  padding: var(--iln-space-1) var(--iln-space-3);
+  min-height: 32px;
+  border-radius: var(--iln-radius-full, 999px);
+  border: 1px solid var(--iln-border-subtle);
+  background: var(--iln-surface);
+  color: var(--iln-text-muted, var(--iln-hint));
+  font-size: var(--iln-font-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
+}
+.pool-filter.active {
+  background: var(--iln-brand);
+  border-color: var(--iln-brand);
+  color: var(--iln-text-on-brand);
+}
+.pool-filter:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
+}
+
+.filter-count {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--iln-radius-full, 999px);
+  background: var(--iln-surface-alt, var(--iln-bg));
+  color: var(--iln-text);
+}
+.pool-filter.active .filter-count {
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--iln-text-on-brand);
+}
+
+.filter-empty {
+  padding: var(--iln-space-4);
+  text-align: center;
+  font-size: var(--iln-font-sm);
+  color: var(--iln-hint);
 }
 
 /* ── 共用新聞列表（卡片由 NewsCard.vue 提供） ── */
@@ -358,28 +491,20 @@ onMounted(async () => {
   padding: 0;
 }
 
-/* 精選註記 */
-.featured-note {
-  font-size: var(--iln-font-xs);
-  font-weight: var(--iln-weight-medium);
-  color: var(--iln-brand);
-  margin-top: var(--iln-space-2);
-}
-
-/* 視圖副標題 */
-.view-subtitle {
-  font-size: var(--iln-font-sm);
-  color: var(--iln-hint);
-  margin-bottom: var(--iln-space-4);
-}
-
-/* ── P3：新聞列表寬屏兩列（≥1024px）── */
+/* ── 新聞列表寬屏兩列（≥1024px）── */
 @media (min-width: 1024px) {
   .pool-list.news-list,
   .news-pool .news-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--iln-space-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subtab-btn,
+  .pool-filter {
+    transition: none;
   }
 }
 </style>

@@ -1,6 +1,11 @@
 <template>
   <div class="nav-container">
-    <nav ref="pillEl" class="floating-pill" :style="{ bottom: pillBottom }">
+    <nav
+      ref="pillEl"
+      class="floating-pill"
+      aria-label="主要導覽"
+      :style="{ bottom: pillBottom }"
+    >
       <router-link
         v-for="tab in tabs"
         :key="tab.to"
@@ -33,8 +38,8 @@ useIOSSwipeGuard(pillEl);
 
 const { viewportStableHeight, safeAreaInset } = useTelegram();
 
-// Phase 5 A3：量測 pill 高度，寫入 --bottom-nav-height
-const BOTTOM_OFFSET = 16; // 與 CSS .nav-container bottom 偏移一致
+// 量測 pill 高度，寫入 --bottom-nav-height
+const BOTTOM_OFFSET = 16; // 與底部懸浮留白偏移一致
 const BUFFER = 8; // 陰影緩衝
 
 let resizeObserver = null;
@@ -97,7 +102,8 @@ onUnmounted(() => {
   border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-full);
   box-shadow: var(--iln-shadow-3);
-  max-width: 100%;
+  max-width: calc(100vw - 24px);
+  margin-inline: auto;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
@@ -132,6 +138,15 @@ onUnmounted(() => {
   background: var(--iln-surface-sunken);
 }
 
+.nav-item:active {
+  transform: scale(0.97);
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
+}
+
 .nav-item--active {
   color: var(--iln-brand);
   background: var(--iln-brand-soft);
@@ -157,9 +172,19 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 
-:global(.dark) .floating-pill {
+:global(.dark) .floating-pill,
+:root[data-tg-scheme="dark"] .floating-pill {
   background: var(--iln-surface);
   border-color: var(--iln-border-dark-faint);
   box-shadow: var(--iln-shadow-pill);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-item,
+  .nav-item:hover:not(.nav-item--active),
+  .nav-item:active {
+    transition: none;
+    transform: none;
+  }
 }
 </style>

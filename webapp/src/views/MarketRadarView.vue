@@ -1,183 +1,205 @@
 <template>
-    <GlobalErrorBoundary>
+  <GlobalErrorBoundary>
     <div class="view-container iln-page">
-    <div class="page-header">
-      <h2 class="page-title"><Icon name="radar" size="sm" /> 市場雷達</h2>
-      <div class="page-header__end">
-        <span class="page-date">{{ todayLabel }}</span>
-        <BackPill :to="{ path: '/insights', query: { tab: 'radar' } }" label="洞察 · 市場雷達" />
+      <header class="page-header">
+        <h2 class="page-title">
+          <Icon name="radar" size="sm" />
+          <span>市場雷達</span>
+        </h2>
+        <div class="page-header__end">
+          <span class="page-date tabular">{{ todayLabel }}</span>
+          <BackPill :to="{ path: '/insights', query: { tab: 'radar' } }" label="洞察 · 市場雷達" />
+        </div>
+      </header>
+
+      <!-- 長期防禦模式狀態欄 (Phase 4) -->
+      <div
+        v-if="isLongTermDefense"
+        class="defense-mode-badge card-danger"
+        role="status"
+      >
+        <span class="badge-icon"><Icon name="shield" /></span>
+        <span class="badge-text">長期防禦模式中 — 嚴格控制槓桿與加碼</span>
       </div>
-    </div>
 
-    <!-- 長期防禦模式狀態欄 (Phase 4) -->
-    <div
-      v-if="isLongTermDefense"
-      class="defense-mode-badge card-danger"
-    >
-      <span class="badge-icon"><Icon name="shield" /></span>
-      <span class="badge-text">長期防禦模式中 — 嚴格控制槓桿與加碼</span>
-    </div>
+      <!-- 載入中 -->
+      <div v-if="loading" class="radar-grid">
+        <LoadingSkeleton variant="card" :rows="8" />
+      </div>
 
-    <!-- 載入中 -->
-    <div v-if="loading" class="radar-grid">
-      <LoadingSkeleton variant="card" :rows="8" />
-    </div>
-
-    <!-- 錯誤 -->
-    <div v-else-if="error" class="error-view">
-      <ErrorView
-        title="載入失敗"
-        message="資料載入失敗，請稍後重試"
-        @retry="loadData"
-      />
-    </div>
-
-    <!-- 內容 -->
-    <template v-else>
-      <div class="iln-grid radar-overview">
-        <!-- 極端雷達與防禦層 (常態精簡/極端醒目) -->
-        <ExtremeRadarPanel
-          :leading-indicators="leadingIndicators"
-        />
-
-        <!-- 現金曝險分析（同步顯示於行動紀律下方） -->
-        <CashExposureWidget
-          v-if="leadingIndicators?.cashExposureAnalysis"
-          :analysis="leadingIndicators.cashExposureAnalysis"
+      <!-- 錯誤 -->
+      <div v-else-if="error" class="error-view">
+        <ErrorView
+          title="載入失敗"
+          message="資料載入失敗，請稍後重試"
+          @retry="loadData"
         />
       </div>
 
-      <!-- 掃描結論：N 項偏多、M 項偏空、K 項中性 -->
-      <div class="scan-conclusion">{{ scanConclusion }}</div>
+      <!-- 內容 -->
+      <template v-else>
+        <div class="iln-grid radar-overview">
+          <!-- 極端雷達與防禦層 (常態精簡/極端醒目) -->
+          <ExtremeRadarPanel
+            :leading-indicators="leadingIndicators"
+          />
 
-      <!-- 美股區 -->
-      <section class="section">
-        <h3 class="section-title"><Icon name="radar" size="sm" /> 美股市場</h3>
-        <div class="radar-grid">
-          <!-- 美股 VIX -->
-          <StatCard
-            label="美股 VIX"
-            :value="usVix ?? '—'"
-            :status="cardClassToStatus(usVixCard.cls)"
-            framed
-          >
-            <template #suffix>{{ usVixCard.label }}</template>
-          </StatCard>
-          <!-- S&P 500 -->
-          <StatCard
-            label="S&amp;P 500"
-            :value="spxText"
-            :status="cardClassToStatus(spxCard.cls)"
-            framed
-          >
-            <template #suffix><Icon :name="spxCard.icon" size="sm" /> {{ spxCard.label }}</template>
-          </StatCard>
-          <!-- CNN 情緒 -->
-          <StatCard
-            label="CNN 情緒"
-            :value="cnnScore ?? '—'"
-            :status="cardClassToStatus(cnnCard.cls)"
-            framed
-          >
-            <template #suffix>{{ cnnRating }}</template>
-          </StatCard>
+          <!-- 現金曝險分析（同步顯示於行動紀律下方） -->
+          <CashExposureWidget
+            v-if="leadingIndicators?.cashExposureAnalysis"
+            :analysis="leadingIndicators.cashExposureAnalysis"
+          />
         </div>
-      </section>
 
-      <!-- 台股區 -->
-      <section class="section">
-        <h3 class="section-title"><Icon name="radar" size="sm" /> 台股市場</h3>
-        <div class="radar-grid">
-          <!-- 台股 VIX -->
-          <StatCard
-            label="台股 VIX"
-            :value="twVix ?? '—'"
-            :status="cardClassToStatus(twVixCard.cls)"
-            framed
-          >
-            <template #suffix>{{ twVixCard.label }}</template>
-          </StatCard>
-          <!-- 景氣燈號 -->
-          <StatCard
-            label="景氣燈號"
-            status="neutral"
-            framed
-          >
-            <template #value><Icon :name="lightEmoji" /></template>
-            <template #suffix>{{ lightText }}</template>
-          </StatCard>
-          <!-- 融資維持率 -->
-          <StatCard
-            label="融資維持率"
-            :value="marginRatio ?? '—'"
-            unit="%"
-            :status="cardClassToStatus(marginCard.cls)"
-            framed
-          >
-            <template #suffix>{{ marginCard.label }}</template>
-          </StatCard>
-          <!-- 大盤 PE -->
-          <StatCard
-            label="大盤 PE"
-            :value="pe ?? '—'"
-            :status="cardClassToStatus(peCard.cls)"
-            framed
-          >
-            <template #suffix><Icon :name="peCard.icon" size="sm" /> {{ peCard.label }}</template>
-          </StatCard>
-          <!-- 大盤 PB -->
-          <StatCard
-            label="大盤 PB"
-            :value="pb ?? '—'"
-            :status="cardClassToStatus(pbCard.cls)"
-            framed
-          >
-            <template #suffix><Icon :name="pbCard.icon" size="sm" /> {{ pbCard.label }}<code v-if="pbPR !== null">PR{{ pbPR }}</code></template>
-          </StatCard>
-          <!-- 匯率 -->
-          <StatCard
-            label="美元/台幣"
-            :value="fxRate ?? '—'"
-            :status="cardClassToStatus(fxCard.cls)"
-            framed
-          >
-            <template #suffix><Icon :name="fxCard.icon" size="sm" /> {{ fxCard.label }}</template>
-          </StatCard>
-        </div>
-      </section>
+        <!-- 掃描結論：N 項偏多、M 項偏空、K 項中性 -->
+        <div class="scan-conclusion tabular">{{ scanConclusion }}</div>
 
-      <!-- 融資增減明細 -->
-      <section v-if="marginChange !== null" class="section">
-        <h3 class="section-title">融資餘額變化</h3>
-        <div class="detail-row">
-          <span class="dr-label">融資餘額</span>
-          <span class="dr-value">{{ fmtDecimal(marginValue, 1) ?? "—" }} 億</span>
-        </div>
-        <div class="detail-row">
-          <span class="dr-label">單日增減</span>
-          <span
-            class="dr-value"
-            :class="
-              marginChange != null
-                ? marginChange >= 0
-                  ? 'text-green'
-                  : 'text-red'
-                : 'text-muted'
-            "
-          >
-            {{ marginChange != null ? (marginChange >= 0 ? "+" : "") : "" }}
-            {{ fmtDecimal(marginChange, 1) ?? "—" }} 億
-          </span>
-        </div>
-        <div v-if="marginDate" class="detail-row">
-          <span class="dr-label">資料日期</span>
-          <span class="dr-value dr-value--muted">{{ marginDate }}</span>
-        </div>
-      </section>
-    </template>
+        <!-- 美股區 -->
+        <section class="section" aria-label="美股市場">
+          <h3 class="section-title">
+            <Icon name="radar" size="sm" />
+            <span>美股市場</span>
+          </h3>
+          <div class="radar-grid tabular">
+            <!-- 美股 VIX -->
+            <StatCard
+              label="美股 VIX"
+              :value="usVix ?? '—'"
+              :status="cardClassToStatus(usVixCard.cls)"
+              framed
+            >
+              <template #suffix>{{ usVixCard.label }}</template>
+            </StatCard>
+            <!-- S&P 500 -->
+            <StatCard
+              label="S&amp;P 500"
+              :value="spxText"
+              :status="cardClassToStatus(spxCard.cls)"
+              framed
+            >
+              <template #suffix>
+                <Icon :name="spxCard.icon" size="sm" /> {{ spxCard.label }}
+              </template>
+            </StatCard>
+            <!-- CNN 情緒 -->
+            <StatCard
+              label="CNN 情緒"
+              :value="cnnScore ?? '—'"
+              :status="cardClassToStatus(cnnCard.cls)"
+              framed
+            >
+              <template #suffix>{{ cnnRating }}</template>
+            </StatCard>
+          </div>
+        </section>
 
-    <p v-if="statusMeta?.updatedAt" class="update-time">資料更新：{{ lastUpdatedText }}</p>
-  </div>
+        <!-- 台股區 -->
+        <section class="section" aria-label="台股市場">
+          <h3 class="section-title">
+            <Icon name="radar" size="sm" />
+            <span>台股市場</span>
+          </h3>
+          <div class="radar-grid tabular">
+            <!-- 台股 VIX -->
+            <StatCard
+              label="台股 VIX"
+              :value="twVix ?? '—'"
+              :status="cardClassToStatus(twVixCard.cls)"
+              framed
+            >
+              <template #suffix>{{ twVixCard.label }}</template>
+            </StatCard>
+            <!-- 景氣燈號 -->
+            <StatCard
+              label="景氣燈號"
+              status="neutral"
+              framed
+            >
+              <template #value><Icon :name="lightEmoji" /></template>
+              <template #suffix>{{ lightText }}</template>
+            </StatCard>
+            <!-- 融資維持率 -->
+            <StatCard
+              label="融資維持率"
+              :value="marginRatio ?? '—'"
+              unit="%"
+              :status="cardClassToStatus(marginCard.cls)"
+              framed
+            >
+              <template #suffix>{{ marginCard.label }}</template>
+            </StatCard>
+            <!-- 大盤 PE -->
+            <StatCard
+              label="大盤 PE"
+              :value="pe ?? '—'"
+              :status="cardClassToStatus(peCard.cls)"
+              framed
+            >
+              <template #suffix>
+                <Icon :name="peCard.icon" size="sm" /> {{ peCard.label }}
+              </template>
+            </StatCard>
+            <!-- 大盤 PB -->
+            <StatCard
+              label="大盤 PB"
+              :value="pb ?? '—'"
+              :status="cardClassToStatus(pbCard.cls)"
+              framed
+            >
+              <template #suffix>
+                <Icon :name="pbCard.icon" size="sm" /> {{ pbCard.label }}
+                <code v-if="pbPR !== null" class="rc-pr">PR{{ pbPR }}</code>
+              </template>
+            </StatCard>
+            <!-- 匯率 -->
+            <StatCard
+              label="美元/台幣"
+              :value="fxRate ?? '—'"
+              :status="cardClassToStatus(fxCard.cls)"
+              framed
+            >
+              <template #suffix>
+                <Icon :name="fxCard.icon" size="sm" /> {{ fxCard.label }}
+              </template>
+            </StatCard>
+          </div>
+        </section>
+
+        <!-- 融資增減明細 -->
+        <section v-if="marginChange !== null" class="section" aria-label="融資餘額變化">
+          <h3 class="section-title">融資餘額變化</h3>
+          <div class="detail-list">
+            <div class="detail-row">
+              <span class="dr-label">融資餘額</span>
+              <span class="dr-value tabular">{{ fmtDecimal(marginValue, 1) ?? "—" }} 億</span>
+            </div>
+            <div class="detail-row">
+              <span class="dr-label">單日增減</span>
+              <span
+                class="dr-value tabular"
+                :class="
+                  marginChange != null
+                    ? marginChange >= 0
+                      ? 'text-green'
+                      : 'text-red'
+                    : 'text-muted'
+                "
+              >
+                {{ marginChange != null ? (marginChange >= 0 ? "+" : "") : "" }}{{ fmtDecimal(marginChange, 1) ?? "—" }} 億
+              </span>
+            </div>
+            <div v-if="marginDate" class="detail-row">
+              <span class="dr-label">資料日期</span>
+              <span class="dr-value dr-value--muted tabular">{{ marginDate }}</span>
+            </div>
+          </div>
+        </section>
+      </template>
+
+      <p v-if="resolveLastRun(statusMeta)" class="update-time tabular">
+        資料更新：{{ lastUpdatedText }}
+      </p>
+    </div>
   </GlobalErrorBoundary>
 </template>
 
@@ -481,51 +503,55 @@ const scanConclusion = computed(() => {
 </script>
 
 <style scoped>
-/* MarketRadarView — Phase 3 現代化（2026-11-17）
-   只動 CSS：px→token、補 reduced-motion。
-   移除死 selector：inline-error / sk / sk-label / sk-sub / sk-value /
-   @keyframes shimmer（模板 0 引用，載入/錯誤由組件處理）。
-   註：rc-sub--* / card-* / text-green / text-red 由 JS 動態生成，保守保留。 */
-
 .view-container {
-  padding: var(--iln-space-4) var(--iln-space-4) env(safe-area-inset-bottom, 0px);
+  padding: var(--iln-space-4) var(--iln-space-4) calc(var(--iln-space-6) + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 .page-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--iln-space-5);
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-4);
 }
 .page-title {
-  font-size: var(--iln-font-lg);
-  font-weight: 700;
-  color: var(--iln-text);
-}
-.page-header {
+  display: inline-flex;
   align-items: center;
+  gap: var(--iln-space-2);
+  font-size: var(--iln-font-lg);
+  font-weight: 800;
+  color: var(--iln-text);
+  margin: 0;
 }
 .page-header__end {
   display: flex;
   align-items: center;
-  gap: var(--iln-space-3, 12px);
+  gap: var(--iln-space-2);
+  flex-shrink: 0;
 }
 .page-date {
-  font-size: var(--iln-font-sm);
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
+  white-space: nowrap;
 }
 
 .section {
   margin-bottom: var(--iln-space-5);
 }
 .section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
   font-size: var(--iln-font-sm);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
   color: var(--iln-hint);
-  margin-bottom: 10px;
+  margin-bottom: var(--iln-space-2);
 }
 
 /* ── Radar 3-col grid ── */
@@ -537,26 +563,16 @@ const scanConclusion = computed(() => {
 
 .scan-conclusion {
   font-size: var(--iln-font-sm);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--iln-text);
-  padding: var(--iln-space-2) var(--iln-space-3);
+  padding: var(--iln-space-3);
   background: var(--iln-surface);
-  border-radius: var(--iln-radius-sm);
-  margin-bottom: var(--iln-space-4);
+  border: 1px solid var(--iln-border-subtle);
   border-left: 3px solid var(--iln-brand);
+  border-radius: var(--iln-radius-md);
+  margin-bottom: var(--iln-space-4);
 }
 
-.radar-card {
-  background: var(--iln-surface);
-  border-radius: var(--iln-radius-card, 20px);
-  padding: var(--iln-space-4, 16px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  text-align: center;
-  transition: background var(--iln-duration-base) var(--iln-ease-standard);
-}
 .card-danger {
   background: var(--iln-viz-bear-bg);
 }
@@ -570,75 +586,39 @@ const scanConclusion = computed(() => {
   background: var(--iln-viz-neutral-bg);
 }
 
-.rc-label {
-  font-size: 10px;
-  color: var(--iln-hint);
-  white-space: nowrap;
-}
-.rc-value {
-  font-size: var(--iln-font-lg);
-  font-weight: 700;
-  color: var(--iln-text);
-  line-height: 1.2;
-}
-.rc-value--md {
-  font-size: var(--iln-font-md);
-}
-.rc-value--emoji {
-  font-size: var(--iln-font-xl);
-}
-.rc-unit {
-  font-size: 11px;
-  font-weight: 500;
-  margin-left: 1px;
-}
-.rc-sub {
-  font-size: 10px;
-  font-weight: 500;
-}
-.rc-sub--neutral {
-  color: var(--iln-viz-neutral-text);
-}
-.rc-sub--danger {
-  color: var(--iln-viz-bear-text);
-}
-.rc-sub--warn {
-  color: var(--iln-viz-alert-text);
-}
-.rc-sub--ok {
-  color: var(--iln-viz-bull-text);
-}
-.rc-sub--blue {
-  color: var(--iln-viz-neutral-text);
-}
 .rc-pr {
   font-family: inherit;
   font-weight: 700;
-  margin-left: 2px;
-  opacity: 0.8;
+  margin-left: var(--iln-space-1);
+  opacity: 0.85;
 }
 
 /* ── Detail row ── */
+.detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-2);
+}
 .detail-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--iln-space-2) var(--iln-space-3);
+  padding: var(--iln-space-3);
   background: var(--iln-surface);
-  border-radius: 10px;
-  margin-bottom: 6px;
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-md);
 }
 .dr-label {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
 .dr-value {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--iln-font-sm);
+  font-weight: 700;
   color: var(--iln-text);
 }
 .dr-value--muted {
-  font-weight: 400;
+  font-weight: 500;
   color: var(--iln-hint);
 }
 .text-green {
@@ -647,12 +627,15 @@ const scanConclusion = computed(() => {
 .text-red {
   color: var(--iln-viz-bear-text);
 }
+.text-muted {
+  color: var(--iln-hint);
+}
 
 .update-time {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   text-align: center;
-  margin-top: var(--iln-space-3);
+  margin-top: var(--iln-space-4);
 }
 
 /* Phase 4: 長期防禦模式狀態欄 */
@@ -660,11 +643,11 @@ const scanConclusion = computed(() => {
   display: flex;
   align-items: center;
   gap: var(--iln-space-2);
-  padding: 10px 14px;
-  border-radius: 10px;
-  margin: 0 var(--iln-space-4) var(--iln-space-3) var(--iln-space-4);
-  font-size: 13px;
-  font-weight: 600;
+  padding: var(--iln-space-3);
+  border-radius: var(--iln-radius-md);
+  margin: 0 0 var(--iln-space-3);
+  font-size: var(--iln-font-sm);
+  font-weight: 700;
   animation: pulse-border 2s infinite;
 }
 .defense-mode-badge.card-danger {
@@ -673,6 +656,8 @@ const scanConclusion = computed(() => {
   color: var(--iln-viz-bear-text);
 }
 .defense-mode-badge .badge-icon {
+  display: inline-flex;
+  align-items: center;
   font-size: var(--iln-font-md);
 }
 .defense-mode-badge .badge-text {
@@ -681,10 +666,10 @@ const scanConclusion = computed(() => {
 @keyframes pulse-border {
   0%,
   100% {
-    box-shadow: var(--iln-viz-bear-shadow);
+    box-shadow: var(--iln-viz-bear-shadow, none);
   }
   50% {
-    box-shadow: var(--iln-viz-bear-shadow-focus);
+    box-shadow: var(--iln-viz-bear-shadow-focus, none);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -699,12 +684,12 @@ const scanConclusion = computed(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--iln-space-8);
+  padding: var(--iln-space-6, 24px);
   text-align: center;
   color: var(--iln-hint);
 }
 
-/* ── P3：雷達總覽並排（≥768px）── */
+/* ── 雷達總覽並排（≥768px）── */
 .radar-overview {
   margin-bottom: var(--iln-space-3);
 }

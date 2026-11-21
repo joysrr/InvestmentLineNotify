@@ -1,267 +1,288 @@
 <template>
   <GlobalErrorBoundary>
     <div class="account-view iln-page">
-    <!-- ── Header ── -->
-    <div class="page-header">
-      <h1 class="page-title">系統狀態</h1>
-      <p class="page-subtitle">資料來源健康度 ＆ 總經快照</p>
-    </div>
+      <!-- ── Header ── -->
+      <header class="page-header">
+        <h1 class="page-title">系統狀態</h1>
+        <p class="page-subtitle">資料來源健康度 ＆ 總經快照</p>
+      </header>
 
-    <!-- ── 設定項分組（CARD-5.5：3 組 CollapsibleSection）── -->
-    <div class="settings-groups">
-      <!-- 1. 策略參數（預設展開，指向 StrategyConfigEditor） -->
-      <CollapsibleSection title="策略參數" :expanded="true" indicator="chevron">
-        <template #default>
-          <div class="settings-group strategy-params">
-            <div class="setting-row">
-              <label class="setting-label">目標配置與再平衡閾值</label>
-              <router-link
-                to="/strategy-config"
-                class="setting-action-link"
-              >
-                開啟策略編輯器 →
-              </router-link>
-            </div>
-            <p class="setting-hint">
-              策略參數由 StrategyConfigEditor 管理（非同步載入，避免首屏阻塞）。
-            </p>
-          </div>
-        </template>
-      </CollapsibleSection>
-
-      <!-- 4. 關於（預設摺疊，id="about" 保持） -->
-      <CollapsibleSection title="關於" :expanded="aboutExpanded" indicator="chevron">
-        <template #default>
-          <div class="settings-group about-panel" id="about">
-            <h2 class="section-title">
-              <Icon name="info" size="sm" color="var(--iln-hint)" /> 關於
-            </h2>
-            <div class="about-block">
-              <div class="about-name">InvestmentLineNotify</div>
-              <div class="about-version">單一使用者投資監控與通知系統</div>
-              <ul class="about-features">
-                <li>核心 0050：每月定期定額，僅買不賣</li>
-                <li>衛星 00675L：2x 槓桿，80% 止利後買進回補</li>
-                <li>錨定 00740B：40% 債券，穩健底倉</li>
-                <li>策略詳情：原 /theory 現導入此「關於」區段</li>
-              </ul>
-            </div>
-          </div>
-        </template>
-      </CollapsibleSection>
-    </div>
-
-    <!-- ── Skeleton ── -->
-    <template v-if="loading">
-      <div class="section">
-        <div class="sk sk-title"></div>
-        <div class="sk sk-row"></div>
-        <div class="sk sk-row"></div>
-        <div class="sk sk-row short"></div>
-      </div>
-      <div class="section">
-        <div class="sk sk-title"></div>
-        <div class="source-grid">
-          <div v-for="n in 6" :key="n" class="sk sk-card"></div>
-        </div>
-      </div>
-    </template>
-
-    <!-- ── Error ── -->
-    <ErrorAlert v-else-if="error" :visible="true" :description="error" :show-retry="true" @retry="load" />
-
-    <!-- ── Content ── -->
-    <template v-else-if="status">
-      <!-- 2. 策略趨勢 (PR Trend) -->
-      <div class="section">
-      <h2 class="section-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> PR 分位數趨勢 (30D)</h2>
-      <div class="trend-layout">
-        <div class="trend-main">
-          <v-chart class="trend-chart" :option="prTrendOption" autoresize />
-        </div>
-      </div>
-      </div>
-
-      <!-- 3. 帳戶快照 -->
-      <div class="section">
-        <div class="section-header-row">
-          <h2 class="section-title"><Icon name="wallet-outline" size="sm" color="var(--iln-hint)" /> 帳戶快照</h2>
-          <router-link
-            :to="{ path: '/chart', query: { source: 'account' } }"
-            class="chart-link-btn"
-          >
-            <Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢圖表
-          </router-link>
-        </div>
-
-        <!-- 2a. 加密金鑰未設定 -->
-        <div v-if="!snapshotEncryption" class="notice-block">
-          <span class="notice-icon"><Icon name="warn" size="sm" color="var(--iln-hint)" /></span>
-          <div class="notice-content">
-            <p class="notice-title">尚未啟用帳戶快照</p>
-            <p class="notice-desc">
-              請在伺服器設定 SNAPSHOT_ENCRYPT_KEY 環境變數以啟用加密快照功能。
-            </p>
-          </div>
-        </div>
-
-        <!-- 2b. 有加密但尚無歷史資料 -->
-        <div
-          v-else-if="snapshotEncryption && !latestSnapshot"
-          class="notice-block notice-empty"
-        >
-          <span class="notice-icon"><Icon name="info" size="sm" color="var(--iln-hint)" /></span>
-          <div class="notice-content">
-            <p class="notice-title">尚無快照資料</p>
-            <p class="notice-desc">快照將從下一次每日執行後開始累積。</p>
-          </div>
-        </div>
-
-        <!-- 2c. 顯示最新快照 -->
-        <template v-else>
-          <div class="snapshot-date"><Icon name="clock" size="sm" color="var(--iln-hint)" /> {{ latestSnapshot.date }} 快照</div>
-          <div class="snapshot-grid">
-            <div class="snapshot-card">
-              <div class="snapshot-label">0050 股數</div>
-              <div class="snapshot-value">
-                {{ fmtQty(latestSnapshot.qty0050) }}
-              </div>
-              <div class="snapshot-sub">股</div>
-            </div>
-            <div class="snapshot-card">
-              <div class="snapshot-label">00675L 股數</div>
-              <div class="snapshot-value">
-                {{ fmtQty(latestSnapshot.qtyZ2) }}
-              </div>
-              <div class="snapshot-sub">股</div>
-            </div>
-            <div class="snapshot-card">
-              <div class="snapshot-label">融資餘額</div>
-              <div class="snapshot-value">
-                {{ formatMoney(latestSnapshot.totalLoan) }}
-              </div>
-              <div class="snapshot-sub">元</div>
-            </div>
-            <div class="snapshot-card">
-              <div class="snapshot-label">現金儲備</div>
-              <div class="snapshot-value">
-                {{ formatMoney(latestSnapshot.cash) }}
-              </div>
-              <div class="snapshot-sub">元</div>
-            </div>
-            <div
-              class="snapshot-card"
-              v-if="latestSnapshot.avgCost0050 != null"
-            >
-              <div class="snapshot-label">0050 均價</div>
-              <div class="snapshot-value">
-                {{ fmtDecimal(latestSnapshot.avgCost0050, 2) }}
-              </div>
-              <div class="snapshot-sub">元/股</div>
-            </div>
-            <div class="snapshot-card" v-if="latestSnapshot.avgCostZ2 != null">
-              <div class="snapshot-label">00675L 均價</div>
-              <div class="snapshot-value">
-                {{ fmtDecimal(latestSnapshot.avgCostZ2, 2) }}
-              </div>
-              <div class="snapshot-sub">元/股</div>
-            </div>
-          </div>
-          <div v-if="latestSnapshot.lastBuyDate" class="snapshot-buyday">
-            最後買進日：{{ latestSnapshot.lastBuyDate }}
-          </div>
-        </template>
-      </div>
-
-      <!-- 3. 系統最後更新時間 -->
-      <div class="section">
-        <h2 class="section-title"><Icon name="settings" size="sm" color="var(--iln-hint)" /> 系統狀態</h2>
-        <div class="info-row">
-          <span class="info-label">資料最後更新</span>
-          <span class="info-value">{{ lastRunLabel }}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">資料來源數量</span>
-          <span class="info-value">{{ sourceCount }} 個</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">來源健康度</span>
-          <span
-            class="info-value"
-            :class="allHealthy ? 'text-ok' : 'text-warn'"
-          >
-            {{ healthyCount }}/{{ sourceCount }} 正常
-          </span>
-        </div>
-      </div>
-
-      <!-- 4. 部署管理（管理員操作） -->
-      <div class="section">
-        <DeploymentControl />
-      </div>
-
-      <!-- 5. 資料來源健康度 -->
-      <div class="section">
-        <DataEvidenceCard />
-      </div>
-
-      <div class="section">
-        <CollapsibleSection
-          title="資料來源"
-          :expanded="showSourcesDetail"
-          @update:expanded="showSourcesDetail = $event"
-        >
+      <!-- ── 設定項分組（3 組 CollapsibleSection）── -->
+      <div class="settings-groups">
+        <!-- 1. 策略參數（預設展開，指向 StrategyConfigEditor） -->
+        <CollapsibleSection title="策略參數" :expanded="true" indicator="chevron">
           <template #default>
-            <div class="sources-summary">
-              <span class="summary-item">總數：{{ sourceCount }} 個</span>
-              <span
-                class="summary-item"
-                :class="allHealthy ? 'text-ok' : 'text-warn'"
-              >
-                正常：{{ healthyCount }} 個
-              </span>
+            <div class="settings-group strategy-params">
+              <div class="setting-row">
+                <span class="setting-label">目標配置與再平衡閾值</span>
+                <router-link
+                  to="/strategy-config"
+                  class="setting-action-link"
+                >
+                  開啟策略編輯器 →
+                </router-link>
+              </div>
+              <p class="setting-hint">
+                策略參數由 StrategyConfigEditor 管理（非同步載入，避免首屏阻塞）。
+              </p>
             </div>
-            <div class="source-grid">
-              <div
-                v-for="info in sourcesDisplay"
-                :key="info.key"
-                class="source-card"
-                :class="{
-                  'source-ok': info.state === 'OK',
-                  'source-fail': info.state === 'FAIL',
-                  'source-stale': info.state === 'STALE',
-                }"
-              >
-                <div class="source-header">
-                  <span class="source-name">{{ info.label }}</span>
-                  <span
-                    class="source-badge"
-                    :class="{
-                      'badge-ok': info.state === 'OK',
-                      'badge-fail': info.state === 'FAIL',
-                      'badge-stale': info.state === 'STALE',
-                    }"
-                  >
-                    {{ info.state }}
-                  </span>
-                </div>
-                <div class="source-time">{{ info.lastFetch }}</div>
-                <div v-if="info.ageLabel" class="source-age">
-                  {{ info.ageLabel }}
-                </div>
-                <div v-if="info.error" class="source-error">
-                  {{ info.error }}
-                </div>
+          </template>
+        </CollapsibleSection>
+
+        <!-- 4. 關於（預設摺疊，id="about" 保持） -->
+        <CollapsibleSection title="關於" :expanded="aboutExpanded" indicator="chevron">
+          <template #default>
+            <div class="settings-group about-panel" id="about">
+              <h2 class="section-title">
+                <Icon name="info" size="sm" color="var(--iln-hint)" />
+                <span>關於</span>
+              </h2>
+              <div class="about-block">
+                <div class="about-name">InvestmentLineNotify</div>
+                <div class="about-version">單一使用者投資監控與通知系統</div>
+                <ul class="about-features">
+                  <li>核心 0050：每月定期定額，僅買不賣</li>
+                  <li>衛星 00675L：2x 槓桿，80% 止利後買進回補</li>
+                  <li>錨定 00740B：40% 債券，穩健底倉</li>
+                  <li>策略詳情：原 /theory 現導入此「關於」區段</li>
+                </ul>
               </div>
             </div>
           </template>
         </CollapsibleSection>
       </div>
 
-      <!-- 6. 關於（已移至上方設定項分組，id="about" 保持） -->
+      <!-- ── Skeleton ── -->
+      <template v-if="loading">
+        <section class="section" aria-label="載入中">
+          <div class="sk sk-title"></div>
+          <div class="sk sk-row"></div>
+          <div class="sk sk-row"></div>
+          <div class="sk sk-row short"></div>
+        </section>
+        <section class="section" aria-label="資料來源載入中">
+          <div class="sk sk-title"></div>
+          <div class="source-grid">
+            <div v-for="n in 6" :key="n" class="sk sk-card"></div>
+          </div>
+        </section>
+      </template>
 
-    </template>
-  </div>
+      <!-- ── Error ── -->
+      <ErrorAlert
+        v-else-if="error"
+        :visible="true"
+        :description="error"
+        :show-retry="true"
+        @retry="load"
+      />
+
+      <!-- ── Content ── -->
+      <template v-else-if="status">
+        <!-- 2. 策略趨勢 (PR Trend) -->
+        <section class="section" aria-label="PR 分位數趨勢">
+          <h2 class="section-title">
+            <Icon name="chart" size="sm" color="var(--iln-text)" />
+            <span>PR 分位數趨勢 (30D)</span>
+          </h2>
+          <div class="trend-layout">
+            <div class="trend-main">
+              <v-chart class="trend-chart" :option="prTrendOption" autoresize />
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. 帳戶快照 -->
+        <section class="section" aria-label="帳戶快照">
+          <div class="section-header-row">
+            <h2 class="section-title">
+              <Icon name="wallet-outline" size="sm" color="var(--iln-hint)" />
+              <span>帳戶快照</span>
+            </h2>
+            <router-link
+              :to="{ path: '/chart', query: { source: 'account' } }"
+              class="chart-link-btn"
+            >
+              <Icon name="chart" size="sm" color="var(--iln-text)" />
+              <span>資產趨勢圖表</span>
+            </router-link>
+          </div>
+
+          <!-- 2a. 加密金鑰未設定 -->
+          <div v-if="!snapshotEncryption" class="notice-block">
+            <span class="notice-icon">
+              <Icon name="warn" size="sm" color="var(--iln-hint)" />
+            </span>
+            <div class="notice-content">
+              <p class="notice-title">尚未啟用帳戶快照</p>
+              <p class="notice-desc">
+                請在伺服器設定 SNAPSHOT_ENCRYPT_KEY 環境變數以啟用加密快照功能。
+              </p>
+            </div>
+          </div>
+
+          <!-- 2b. 有加密但尚無歷史資料 -->
+          <div
+            v-else-if="snapshotEncryption && !latestSnapshot"
+            class="notice-block notice-empty"
+          >
+            <span class="notice-icon">
+              <Icon name="info" size="sm" color="var(--iln-hint)" />
+            </span>
+            <div class="notice-content">
+              <p class="notice-title">尚無快照資料</p>
+              <p class="notice-desc">快照將從下一次每日執行後開始累積。</p>
+            </div>
+          </div>
+
+          <!-- 2c. 顯示最新快照 -->
+          <template v-else>
+            <div class="snapshot-date tabular">
+              <Icon name="clock" size="sm" color="var(--iln-hint)" />
+              <span>{{ latestSnapshot.date }} 快照</span>
+            </div>
+            <div class="snapshot-grid tabular">
+              <div class="snapshot-card">
+                <div class="snapshot-label">0050 股數</div>
+                <div class="snapshot-value">
+                  {{ fmtQty(latestSnapshot.qty0050) }}
+                </div>
+                <div class="snapshot-sub">股</div>
+              </div>
+              <div class="snapshot-card">
+                <div class="snapshot-label">00675L 股數</div>
+                <div class="snapshot-value">
+                  {{ fmtQty(latestSnapshot.qtyZ2) }}
+                </div>
+                <div class="snapshot-sub">股</div>
+              </div>
+              <div class="snapshot-card">
+                <div class="snapshot-label">融資餘額</div>
+                <div class="snapshot-value">
+                  {{ formatMoney(latestSnapshot.totalLoan) }}
+                </div>
+                <div class="snapshot-sub">元</div>
+              </div>
+              <div class="snapshot-card">
+                <div class="snapshot-label">現金儲備</div>
+                <div class="snapshot-value">
+                  {{ formatMoney(latestSnapshot.cash) }}
+                </div>
+                <div class="snapshot-sub">元</div>
+              </div>
+              <div
+                class="snapshot-card"
+                v-if="latestSnapshot.avgCost0050 != null"
+              >
+                <div class="snapshot-label">0050 均價</div>
+                <div class="snapshot-value">
+                  {{ fmtDecimal(latestSnapshot.avgCost0050, 2) }}
+                </div>
+                <div class="snapshot-sub">元/股</div>
+              </div>
+              <div class="snapshot-card" v-if="latestSnapshot.avgCostZ2 != null">
+                <div class="snapshot-label">00675L 均價</div>
+                <div class="snapshot-value">
+                  {{ fmtDecimal(latestSnapshot.avgCostZ2, 2) }}
+                </div>
+                <div class="snapshot-sub">元/股</div>
+              </div>
+            </div>
+            <div v-if="latestSnapshot.lastBuyDate" class="snapshot-buyday tabular">
+              最後買進日：{{ latestSnapshot.lastBuyDate }}
+            </div>
+          </template>
+        </section>
+
+        <!-- 3. 系統最後更新時間 -->
+        <section class="section" aria-label="系統狀態摘要">
+          <h2 class="section-title">
+            <Icon name="settings" size="sm" color="var(--iln-hint)" />
+            <span>系統狀態</span>
+          </h2>
+          <div class="info-row">
+            <span class="info-label">資料最後更新</span>
+            <span class="info-value tabular">{{ lastRunLabel }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">資料來源數量</span>
+            <span class="info-value tabular">{{ sourceCount }} 個</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">來源健康度</span>
+            <span
+              class="info-value tabular"
+              :class="allHealthy ? 'text-ok' : 'text-warn'"
+            >
+              {{ healthyCount }}/{{ sourceCount }} 正常
+            </span>
+          </div>
+        </section>
+
+        <!-- 4. 部署管理（管理員操作） -->
+        <section class="section" aria-label="部署管理">
+          <DeploymentControl />
+        </section>
+
+        <!-- 5. 資料來源健康度 -->
+        <section class="section" aria-label="資料證據">
+          <DataEvidenceCard />
+        </section>
+
+        <section class="section" aria-label="資料來源明細">
+          <CollapsibleSection
+            title="資料來源"
+            :expanded="showSourcesDetail"
+            @update:expanded="showSourcesDetail = $event"
+          >
+            <template #default>
+              <div class="sources-summary tabular">
+                <span class="summary-item">總數：{{ sourceCount }} 個</span>
+                <span
+                  class="summary-item"
+                  :class="allHealthy ? 'text-ok' : 'text-warn'"
+                >
+                  正常：{{ healthyCount }} 個
+                </span>
+              </div>
+              <div class="source-grid">
+                <div
+                  v-for="info in sourcesDisplay"
+                  :key="info.key"
+                  class="source-card"
+                  :class="{
+                    'source-ok': info.state === 'OK',
+                    'source-fail': info.state === 'FAIL',
+                    'source-stale': info.state === 'STALE',
+                  }"
+                >
+                  <div class="source-header">
+                    <span class="source-name">{{ info.label }}</span>
+                    <span
+                      class="source-badge"
+                      :class="{
+                        'badge-ok': info.state === 'OK',
+                        'badge-fail': info.state === 'FAIL',
+                        'badge-stale': info.state === 'STALE',
+                      }"
+                    >
+                      {{ info.state }}
+                    </span>
+                  </div>
+                  <div class="source-time tabular">{{ info.lastFetch }}</div>
+                  <div v-if="info.ageLabel" class="source-age tabular">
+                    {{ info.ageLabel }}
+                  </div>
+                  <div v-if="info.error" class="source-error">
+                    {{ info.error }}
+                  </div>
+                </div>
+              </div>
+            </template>
+          </CollapsibleSection>
+        </section>
+      </template>
+    </div>
   </GlobalErrorBoundary>
 </template>
 
@@ -298,7 +319,6 @@ use([
   GridComponent,
   CanvasRenderer,
 ]);
-
 
 // ── 系統狀態 ──────────────────────────────────────────
 const status = ref(null);
@@ -383,21 +403,25 @@ const prTrendOption = computed(() => {
     }))
     .filter((d) => d.pr !== null);
 
+  const hintColor = readToken("--iln-hint", "#8e8e93");
+  const surfaceColor = readToken("--iln-surface", "#f2f2f7");
+  const brandColor = readToken("--iln-brand", "#2481cc");
+
   return {
     tooltip: { trigger: "axis", formatter: "{b}: {c}%" },
     grid: { left: "10%", right: "5%", top: "15%", bottom: "15%" },
     xAxis: {
       type: "category",
       data: data.map((d) => d.date),
-      axisLabel: { fontSize: 10, color: "var(--iln-hint)" },
-      axisLine: { lineStyle: { color: "var(--iln-surface)" } },
+      axisLabel: { fontSize: 10, color: hintColor },
+      axisLine: { lineStyle: { color: surfaceColor } },
     },
     yAxis: {
       type: "value",
       min: 0,
       max: 100,
-      axisLabel: { fontSize: 10, color: "var(--iln-hint)", formatter: "{value}%" },
-      splitLine: { lineStyle: { type: "dashed", color: "var(--iln-surface)" } },
+      axisLabel: { fontSize: 10, color: hintColor, formatter: "{value}%" },
+      splitLine: { lineStyle: { type: "dashed", color: surfaceColor } },
     },
     series: [
       {
@@ -405,7 +429,8 @@ const prTrendOption = computed(() => {
         type: "line",
         smooth: true,
         showSymbol: false,
-        lineStyle: { color: "var(--iln-brand)", width: 2 },
+        lineStyle: { color: brandColor, width: 2 },
+        itemStyle: { color: brandColor },
         areaStyle: {
           color: {
             type: "linear",
@@ -461,7 +486,6 @@ const sourcesDisplay = computed(() => {
       if (diffHours >= 1) ageLabel = `${diffHours.toFixed(1)} 小時前更新`;
       else ageLabel = `${Math.max(1, Math.round(diffHours * 60))} 分鐘前更新`;
 
-      // 智慧 STALE 判斷：景氣燈號(月更)容忍 35 天，其餘放寬至 72 小時
       const staleThreshold = key === "ndcBusinessIndicator" ? 35 * 24 : 72;
       if (diffHours > staleThreshold) stale = true;
     }
@@ -494,23 +518,17 @@ const healthyCount = computed(
 const allHealthy = computed(
   () => sourceCount.value > 0 && healthyCount.value === sourceCount.value,
 );
-
 </script>
 
 <style scoped>
-/* AccountView — Phase 3 現代化（2026-11-17）
-   只動 CSS，不動模板 / 邏輯。
-   - px → --iln-space-* / --iln-font-* / --iln-radius-*（僅精確對應者，餘保留原值避免視覺漂移）
-   - 移除死 selector（模板 0 引用）：
-       chart-label / error-icon / error-state / gauge-chart / macro-card / macro-grid /
-       macro-label / macro-sub / macro-value / retry-btn / side-item / text-danger /
-       toggle-btn / trend-side（含 @media 內引用）
-     註：text-ok / text-warn 為動態綁定（:class 三元），保留。 */
-
 .account-view {
-  padding: 0 0 var(--iln-space-8);
+  padding: 0 0 calc(var(--iln-space-8) + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
   background: var(--iln-bg);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Header ── */
@@ -521,10 +539,11 @@ const allHealthy = computed(
   margin-bottom: var(--iln-space-3);
 }
 .page-title {
-  font-size: var(--iln-font-lg);
-  font-weight: 700;
-  margin: 0 0 2px;
+  font-size: var(--iln-font-2xl, 22px);
+  font-weight: 800;
+  margin: 0 0 var(--iln-space-1);
   color: var(--iln-text);
+  line-height: 1.25;
 }
 .page-subtitle {
   font-size: var(--iln-font-sm);
@@ -535,14 +554,18 @@ const allHealthy = computed(
 /* ── Section ── */
 .section {
   background: var(--iln-bg);
+  border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-card, 20px);
   margin: 0 var(--iln-space-3) var(--iln-space-3);
-  padding: 14px 14px 10px;
+  padding: 14px 14px var(--iln-space-3);
   box-shadow: var(--iln-shadow-subtle);
 }
 .section-title {
-  font-size: 13px;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  font-size: var(--iln-font-xs);
+  font-weight: 700;
   color: var(--iln-hint);
   margin: 0 0 10px;
   text-transform: uppercase;
@@ -552,23 +575,33 @@ const allHealthy = computed(
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--iln-space-1);
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-2);
 }
 .section-header-row .section-title {
   margin-bottom: 0;
 }
 .chart-link-btn {
-  font-size: 11px;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  font-size: var(--iln-font-xs);
+  font-weight: 700;
   color: var(--iln-brand);
   background: var(--iln-brand-fill-light);
   padding: var(--iln-space-1) 10px;
-  border-radius: 999px;
+  border-radius: var(--iln-radius-full, 999px);
   text-decoration: none;
-  transition: all var(--iln-duration-base) var(--iln-ease-standard);
+  transition:
+    background var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
 }
 .chart-link-btn:hover {
   background: var(--iln-brand-fill-strong);
+}
+.chart-link-btn:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
 }
 
 /* ── Info rows ── */
@@ -576,9 +609,10 @@ const allHealthy = computed(
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--iln-space-2);
   padding: 7px 0;
-  border-bottom: 1px solid var(--iln-border-faint);
-  font-size: var(--iln-font-base);
+  border-bottom: 1px solid var(--iln-border-faint, var(--iln-border-subtle));
+  font-size: var(--iln-font-sm);
 }
 .info-row:last-child {
   border-bottom: none;
@@ -587,20 +621,21 @@ const allHealthy = computed(
   color: var(--iln-hint);
 }
 .info-value {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--iln-text);
 }
 
 /* ── Source grid ── */
 .source-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--iln-space-2);
 }
 .source-card {
-  border-radius: var(--iln-radius-card, 20px);
-  padding: 9px 10px;
+  border-radius: var(--iln-radius-lg, 16px);
+  padding: var(--iln-space-3);
   border: 1px solid transparent;
+  min-width: 0;
 }
 .source-ok {
   background: var(--iln-state-positive-bg);
@@ -618,19 +653,22 @@ const allHealthy = computed(
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--iln-space-1);
   margin-bottom: var(--iln-space-1);
 }
 .source-name {
-  font-size: var(--iln-font-sm);
-  font-weight: 600;
-  color: var(--iln-text);
-}
-.source-badge {
   font-size: var(--iln-font-xs);
   font-weight: 700;
-  padding: 1px 5px;
-  border-radius: var(--iln-space-1);
+  color: var(--iln-text);
+  line-height: 1.35;
+}
+.source-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: var(--iln-radius-sm);
   letter-spacing: 0.3px;
+  flex-shrink: 0;
 }
 .badge-ok {
   background: var(--iln-viz-bull-bg);
@@ -665,8 +703,9 @@ const allHealthy = computed(
 .sources-summary {
   display: flex;
   justify-content: flex-start;
-  gap: 10px;
-  font-size: 11px;
+  gap: var(--iln-space-3);
+  font-size: var(--iln-font-xs);
+  font-weight: 600;
   color: var(--iln-hint);
   margin: 0 0 var(--iln-space-2);
 }
@@ -681,10 +720,12 @@ const allHealthy = computed(
   min-height: 180px;
 }
 .trend-main {
-  flex: 1.5;
-  background: var(--iln-surface-faintest);
+  flex: 1;
+  min-width: 0;
+  background: var(--iln-surface-faintest, var(--iln-surface));
+  border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-md);
-  padding: 10px;
+  padding: var(--iln-space-2);
   display: flex;
   flex-direction: column;
 }
@@ -693,42 +734,39 @@ const allHealthy = computed(
   width: 100%;
   height: 160px;
 }
-@media (max-width: 320px) {
-  .trend-layout {
-    flex-direction: column;
-  }
-}
 
 /* ── Notice block ── */
 .notice-block {
   display: flex;
   gap: var(--iln-space-3);
   align-items: flex-start;
-  padding: 10px var(--iln-space-3);
-  background: var(--iln-brand-fill-faint);
+  padding: var(--iln-space-3);
+  background: var(--iln-brand-fill-faint, var(--iln-brand-soft));
   border-radius: var(--iln-radius-md);
-  border: 1px solid var(--iln-brand-fill-border);
+  border: 1px solid var(--iln-brand-fill-border, var(--iln-border-subtle));
 }
 .notice-empty {
-  background: var(--iln-neutral-fill-faint);
-  border-color: var(--iln-neutral-fill-border-faint);
+  background: var(--iln-neutral-fill-faint, var(--iln-surface));
+  border-color: var(--iln-neutral-fill-border-faint, var(--iln-border-subtle));
 }
 .notice-icon {
-  font-size: var(--iln-font-xl);
+  display: inline-flex;
+  align-items: center;
   flex-shrink: 0;
-  margin-top: 1px;
+  margin-top: 2px;
 }
 .notice-content {
   flex: 1;
+  min-width: 0;
 }
 .notice-title {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--iln-font-sm);
+  font-weight: 700;
   color: var(--iln-text);
   margin: 0 0 var(--iln-space-1);
 }
 .notice-desc {
-  font-size: var(--iln-font-sm);
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   line-height: 1.5;
   margin: 0;
@@ -736,40 +774,45 @@ const allHealthy = computed(
 
 /* ── Snapshot ── */
 .snapshot-date {
-  font-size: var(--iln-font-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  font-size: var(--iln-font-xs);
+  font-weight: 600;
   color: var(--iln-hint);
-  margin-bottom: 10px;
+  margin-bottom: var(--iln-space-2);
 }
 .snapshot-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--iln-space-2);
-  margin-bottom: 10px;
+  margin-bottom: var(--iln-space-2);
 }
 .snapshot-card {
   background: var(--iln-surface);
-  border-radius: var(--iln-radius-card, 20px);
-  padding: var(--iln-space-4, 16px);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-lg, 16px);
+  padding: var(--iln-space-3);
   text-align: center;
 }
 .snapshot-label {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   margin-bottom: var(--iln-space-1);
 }
 .snapshot-value {
   font-size: var(--iln-font-lg);
-  font-weight: 700;
+  font-weight: 800;
   color: var(--iln-text);
-  line-height: 1;
+  line-height: 1.2;
 }
 .snapshot-sub {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
-  margin-top: 3px;
+  margin-top: 2px;
 }
 .snapshot-buyday {
-  font-size: var(--iln-font-sm);
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   text-align: right;
   margin-top: var(--iln-space-1);
@@ -787,7 +830,7 @@ const allHealthy = computed(
   color: var(--iln-text);
 }
 .about-version {
-  font-size: var(--iln-font-sm);
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   margin-bottom: var(--iln-space-3);
 }
@@ -799,11 +842,10 @@ const allHealthy = computed(
   display: inline-block;
 }
 .about-features li {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-text);
   padding: var(--iln-space-1) 0;
-  padding-left: 18px;
-  position: relative;
+  line-height: 1.45;
 }
 
 /* ── Color helpers（text-ok / text-warn 為模板動態綁定） ── */
@@ -816,10 +858,10 @@ const allHealthy = computed(
 
 /* ── Skeleton ── */
 .sk {
-  background: linear-gradient(90deg, var(--iln-skeleton-wave-bg) 25%, var(--iln-surface) 50%, var(--iln-skeleton-wave-bg) 75%);
+  background: linear-gradient(90deg, var(--iln-skeleton-wave-bg, var(--iln-surface)) 25%, var(--iln-surface) 50%, var(--iln-skeleton-wave-bg, var(--iln-surface)) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
-  border-radius: 6px;
+  border-radius: var(--iln-radius-sm);
 }
 .sk-title {
   height: 14px;
@@ -836,7 +878,7 @@ const allHealthy = computed(
 }
 .sk-card {
   height: 64px;
-  border-radius: var(--iln-radius-card, 20px);
+  border-radius: var(--iln-radius-lg, 16px);
 }
 @keyframes shimmer {
   to {
@@ -844,12 +886,14 @@ const allHealthy = computed(
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .sk {
+  .sk,
+  .chart-link-btn {
     animation: none;
+    transition: none;
   }
 }
 
-/* ── 設定項分組（CARD-5.5）── */
+/* ── 設定項分組 ── */
 .settings-groups {
   display: flex;
   flex-direction: column;
@@ -858,38 +902,46 @@ const allHealthy = computed(
 }
 .settings-group {
   background: var(--iln-surface);
-  border: 1px solid var(--iln-border);
+  border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-md);
   padding: var(--iln-space-3);
 }
 .settings-group .setting-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--iln-space-2);
   margin-bottom: var(--iln-space-2);
 }
 .settings-group .setting-row:last-child {
   margin-bottom: 0;
 }
 .settings-group .setting-label {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
+  font-weight: 600;
   color: var(--iln-text);
-  min-width: 110px;
 }
 .settings-group .setting-action-link {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
+  font-weight: 700;
   color: var(--iln-brand);
   text-decoration: none;
 }
 .settings-group .setting-action-link:hover {
   text-decoration: underline;
 }
-.settings-group .setting-hint {
-  font-size: 11px;
-  color: var(--iln-hint);
-  margin-top: var(--iln-space-1);
+.settings-group .setting-action-link:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
 }
-/* ── P3：設定分組寬屏兩列（≥768px）── */
+.settings-group .setting-hint {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+  margin: var(--iln-space-1) 0 0;
+  line-height: 1.45;
+}
+
 @media (min-width: 768px) {
   .settings-groups {
     display: grid;

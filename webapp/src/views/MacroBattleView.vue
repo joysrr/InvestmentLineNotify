@@ -1,137 +1,161 @@
 <template>
-    <GlobalErrorBoundary>
+  <GlobalErrorBoundary>
     <div class="view-container iln-page">
-    <div class="page-header">
-      <h2 class="page-title"><Icon name="candlestick" size="sm" color="var(--iln-hint)" /> 總經多空對決</h2>
-      <div class="page-header__end">
-        <span class="page-date">{{ formatDateTimeInTaipei(reportDate) }}</span>
-        <BackPill :to="{ path: '/insights', query: { tab: 'macro' } }" label="洞察 · 多空對決" />
-      </div>
+      <header class="page-header">
+        <h2 class="page-title">
+          <Icon name="candlestick" size="sm" color="var(--iln-hint)" />
+          <span>總經多空對決</span>
+        </h2>
+        <div class="page-header__end">
+          <span v-if="reportDate" class="page-date tabular">
+            {{ formatDateTimeInTaipei(reportDate) }}
+          </span>
+          <BackPill :to="{ path: '/insights', query: { tab: 'macro' } }" label="洞察 · 多空對決" />
+        </div>
+      </header>
+
+      <!-- 載入中 -->
+      <EmptyState v-if="loading" title="載入中..." />
+
+      <!-- 錯誤 -->
+      <ErrorAlert v-else-if="error" :visible="true" description="資料載入失敗，請稍後重試" />
+
+      <!-- 無資料 -->
+      <EmptyState v-else-if="!macro" title="尚無多空對決資料" message="資料將於每日分析完成後更新" />
+
+      <!-- 內容 -->
+      <template v-else>
+        <!-- 市場方向 Badge -->
+        <div class="direction-row">
+          <span class="direction-badge" :class="directionClass">
+            <Icon :name="directionIcon" size="sm" :color="directionIconColor" />
+            <span>{{ directionText }}</span>
+          </span>
+          <span v-if="macro.conclusion?.short_summary" class="direction-hint">
+            {{ macro.conclusion.short_summary }}
+          </span>
+        </div>
+
+        <!-- 多空積分長條 -->
+        <section class="section" aria-label="多空積分">
+          <h3 class="section-title">多空積分</h3>
+          <div class="score-wrap">
+            <!-- 多方 -->
+            <div class="score-bar-row">
+              <span class="score-side score-side--bull">
+                <span>多</span>
+                <Icon name="ok" size="sm" color="var(--iln-viz-bull)" />
+              </span>
+              <div class="score-track">
+                <div
+                  class="score-fill score-fill--bull"
+                  :style="{ width: bullWidth + '%' }"
+                ></div>
+              </div>
+              <span class="score-num tabular">{{ bullScore }}</span>
+            </div>
+            <!-- 空方 -->
+            <div class="score-bar-row">
+              <span class="score-side score-side--bear">
+                <span>空</span>
+                <Icon name="danger" size="sm" color="var(--iln-viz-bear)" />
+              </span>
+              <div class="score-track">
+                <div
+                  class="score-fill score-fill--bear"
+                  :style="{ width: bearWidth + '%' }"
+                ></div>
+              </div>
+              <span class="score-num tabular">{{ bearScore }}</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 社群情緒 -->
+        <section class="section" aria-label="社群情緒">
+          <SocialSentimentCard :sentiment="socialSentiment" />
+        </section>
+
+        <!-- Key Takeaways -->
+        <section v-if="takeaways.length" class="section" aria-label="核心驅動邏輯">
+          <h3 class="section-title">
+            <Icon name="trending-up" size="sm" color="var(--iln-hint)" />
+            <span>核心驅動邏輯</span>
+          </h3>
+          <ul class="takeaway-list">
+            <li v-for="(item, i) in takeaways" :key="i" class="takeaway-item">
+              <span class="takeaway-dot" aria-hidden="true"></span>
+              <span>{{ item }}</span>
+            </li>
+          </ul>
+        </section>
+
+        <div class="iln-grid macro-events-grid">
+          <!-- 多方事件 -->
+          <section v-if="bullEvents.length" class="section" aria-label="多方事件">
+            <h3 class="section-title">
+              <Icon name="ok" size="sm" color="var(--iln-viz-bull)" />
+              <span>多方事件（{{ bullEvents.length }}）</span>
+            </h3>
+            <div class="event-list">
+              <div
+                v-for="(e, i) in bullEvents"
+                :key="i"
+                class="event-card event-card--bull"
+              >
+                <div class="event-top">
+                  <span class="event-score tabular">+{{ e.score }}</span>
+                  <span class="event-title">{{ e.title ?? e.event ?? "(未命名)" }}</span>
+                </div>
+                <p v-if="e.analysis" class="event-analysis">{{ e.analysis }}</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- 空方事件 -->
+          <section v-if="bearEvents.length" class="section" aria-label="空方事件">
+            <h3 class="section-title">
+              <Icon name="danger" size="sm" color="var(--iln-viz-bear)" />
+              <span>空方事件（{{ bearEvents.length }}）</span>
+            </h3>
+            <div class="event-list">
+              <div
+                v-for="(e, i) in bearEvents"
+                :key="i"
+                class="event-card event-card--bear"
+              >
+                <div class="event-top">
+                  <span class="event-score tabular">-{{ e.score }}</span>
+                  <span class="event-title">{{ e.title ?? e.event ?? "(未命名)" }}</span>
+                </div>
+                <p v-if="e.analysis" class="event-analysis">{{ e.analysis }}</p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- 中性事件 -->
+        <section v-if="neutralEvents.length" class="section" aria-label="觀望事件">
+          <h3 class="section-title">
+            <Icon name="minus" size="sm" color="var(--iln-hint)" />
+            <span>觀望事件（{{ neutralEvents.length }}）</span>
+          </h3>
+          <div class="event-list">
+            <div
+              v-for="(e, i) in neutralEvents"
+              :key="i"
+              class="event-card event-card--neutral"
+            >
+              <div class="event-top">
+                <span class="event-score neutral tabular">0</span>
+                <span class="event-title">{{ e.title ?? e.event ?? "(未命名)" }}</span>
+              </div>
+              <p v-if="e.analysis" class="event-analysis">{{ e.analysis }}</p>
+            </div>
+          </div>
+        </section>
+      </template>
     </div>
-
-    <!-- 載入中 -->
-    <EmptyState v-if="loading" title="載入中..." />
-
-    <!-- 錯誤 -->
-    <ErrorAlert v-else-if="error" :visible="true" description="資料載入失敗，請稍後重試" />
-
-    <!-- 無資料 -->
-    <EmptyState v-else-if="!macro" title="尚無多空對決資料" message="資料將於每日分析完成後更新" />
-
-    <!-- 內容 -->
-    <template v-else>
-      <!-- 市場方向 Badge -->
-      <div class="direction-row">
-        <span class="direction-badge" :class="directionClass">
-          <Icon :name="directionIcon" size="sm" :color="directionIconColor" />
-          {{ directionText }}
-        </span>
-        <span class="direction-hint">{{
-          macro.conclusion?.short_summary ?? ""
-        }}</span>
-      </div>
-
-      <!-- 多空積分長條 -->
-      <section class="section">
-        <h3 class="section-title">多空積分</h3>
-        <div class="score-wrap">
-          <!-- 多方 -->
-          <div class="score-bar-row">
-            <span class="score-side score-side--bull">多 <Icon name="ok" size="sm" color="var(--iln-viz-bull)" /></span>
-            <div class="score-track">
-              <div
-                class="score-fill score-fill--bull"
-                :style="{ width: bullWidth + '%' }"
-              ></div>
-            </div>
-            <span class="score-num">{{ bullScore }}</span>
-          </div>
-          <!-- 空方 -->
-          <div class="score-bar-row">
-            <span class="score-side score-side--bear">空 <Icon name="danger" size="sm" color="var(--iln-viz-bear)" /></span>
-            <div class="score-track">
-              <div
-                class="score-fill score-fill--bear"
-                :style="{ width: bearWidth + '%' }"
-              ></div>
-            </div>
-            <span class="score-num">{{ bearScore }}</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- 社群情緒 -->
-      <SocialSentimentCard :sentiment="socialSentiment" />
-
-      <!-- Key Takeaways -->
-      <section v-if="takeaways.length" class="section">
-        <h3 class="section-title"><Icon name="trending-up" size="sm" color="var(--iln-hint)" /> 核心驅動邏輯</h3>
-        <ul class="takeaway-list">
-          <li v-for="(item, i) in takeaways" :key="i" class="takeaway-item">
-            <span class="takeaway-dot"></span>
-            <span>{{ item }}</span>
-          </li>
-        </ul>
-      </section>
-
-      <div class="iln-grid macro-events-grid">
-      <!-- 多方事件 -->
-      <section v-if="bullEvents.length" class="section">
-        <h3 class="section-title"><Icon name="ok" size="sm" color="var(--iln-viz-bull)" /> 多方事件（{{ bullEvents.length }}）</h3>
-        <div class="event-list">
-          <div
-            v-for="(e, i) in bullEvents"
-            :key="i"
-            class="event-card event-card--bull"
-          >
-            <div class="event-top">
-              <span class="event-score">+{{ e.score }}</span>
-              <span class="event-title">{{ e.title ?? e.event ?? "(未命名)" }}</span>
-            </div>
-            <p v-if="e.analysis" class="event-analysis">{{ e.analysis }}</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- 空方事件 -->
-      <section v-if="bearEvents.length" class="section">
-        <h3 class="section-title"><Icon name="danger" size="sm" color="var(--iln-viz-bear)" /> 空方事件（{{ bearEvents.length }}）</h3>
-        <div class="event-list">
-          <div
-            v-for="(e, i) in bearEvents"
-            :key="i"
-            class="event-card event-card--bear"
-          >
-            <div class="event-top">
-              <span class="event-score">-{{ e.score }}</span>
-              <span class="event-title">{{ e.title ?? e.event ?? "(未命名)" }}</span>
-            </div>
-            <p v-if="e.analysis" class="event-analysis">{{ e.analysis }}</p>
-          </div>
-        </div>
-      </section>
-
-      </div>
-
-      <!-- 中性事件 -->
-      <section v-if="neutralEvents.length" class="section">
-        <h3 class="section-title"><Icon name="minus" size="sm" color="var(--iln-hint)" /> 觀望事件（{{ neutralEvents.length }}）</h3>
-        <div class="event-list">
-          <div
-            v-for="(e, i) in neutralEvents"
-            :key="i"
-            class="event-card event-card--neutral"
-          >
-            <div class="event-top">
-              <span class="event-score neutral">0</span>
-              <span class="event-title">{{ e.title ?? e.event ?? "(未命名)" }}</span>
-            </div>
-            <p v-if="e.analysis" class="event-analysis">{{ e.analysis }}</p>
-          </div>
-        </div>
-      </section>
-    </template>
-  </div>
   </GlobalErrorBoundary>
 </template>
 
@@ -237,73 +261,82 @@ const directionClass = computed(() => {
 </script>
 
 <style scoped>
-/* MacroBattleView — Phase 3 現代化（2026-11-17）
-   只動 CSS：px→token、補 reduced-motion。
-   移除死 selector（模板 0 引用）：inline-error / inline-hint / hint-sub /
-   skeleton-wrap / sk / sk-title / sk-bar / sk-row / @keyframes shimmer。
-   動態 class（directionClass → badge-bull/bear/neutral）保留。 */
-
 .view-container {
-  padding: var(--iln-space-4) var(--iln-space-4) env(safe-area-inset-bottom, 0px);
+  padding: var(--iln-space-4) var(--iln-space-4) calc(var(--iln-space-6) + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 .page-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
+  gap: var(--iln-space-2);
   margin-bottom: var(--iln-space-4);
 }
 .page-title {
-  font-size: var(--iln-font-lg);
-  font-weight: 700;
-  color: var(--iln-text);
-}
-.page-header {
+  display: inline-flex;
   align-items: center;
+  gap: var(--iln-space-2);
+  font-size: var(--iln-font-lg);
+  font-weight: 800;
+  color: var(--iln-text);
+  margin: 0;
 }
 .page-header__end {
   display: flex;
   align-items: center;
-  gap: var(--iln-space-3, 12px);
+  gap: var(--iln-space-2);
+  flex-shrink: 0;
 }
 .page-date {
-  font-size: var(--iln-font-sm);
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
+  white-space: nowrap;
 }
 
 /* ── Direction badge ── */
 .direction-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--iln-space-3);
   margin-bottom: var(--iln-space-5);
   flex-wrap: wrap;
 }
 .direction-badge {
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  font-size: var(--iln-font-sm);
   font-weight: 700;
-  padding: var(--iln-space-1) 14px;
-  border-radius: var(--iln-radius-lg);
+  padding: var(--iln-space-1) var(--iln-space-3);
+  border-radius: var(--iln-radius-full, 999px);
   white-space: nowrap;
 }
 .badge-bull {
   background: var(--iln-viz-bull-bg);
   color: var(--iln-viz-bull-text);
+  border: 1px solid var(--iln-viz-bull-border);
 }
 .badge-bear {
   background: var(--iln-viz-bear-bg);
   color: var(--iln-viz-bear-text);
+  border: 1px solid var(--iln-viz-bear-border);
 }
 .badge-neutral {
   background: var(--iln-viz-neutral-bg);
   color: var(--iln-viz-neutral-text);
+  border: 1px solid var(--iln-border-subtle);
 }
 .direction-hint {
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
   flex: 1;
-  line-height: 1.4;
+  min-width: 180px;
+  line-height: 1.45;
 }
 
 /* ── Section ── */
@@ -311,34 +344,46 @@ const directionClass = computed(() => {
   margin-bottom: var(--iln-space-5);
 }
 .section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
   font-size: var(--iln-font-sm);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
   color: var(--iln-hint);
-  margin-bottom: 10px;
+  margin-bottom: var(--iln-space-3);
 }
 
-/* ── Score bars ── */
+/* ── Score bars（窄螢幕不擠壓，寬屏可雙欄並排） ── */
 .score-wrap {
-  display: flex;
-  flex-direction: row;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--iln-space-3);
+  background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-lg);
+  padding: var(--iln-space-4);
+  box-shadow: var(--iln-shadow-1);
 }
-@media (max-width: 360px) {
+@media (min-width: 560px) {
   .score-wrap {
-    flex-direction: column;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--iln-space-4);
   }
 }
 .score-bar-row {
   display: flex;
   align-items: center;
   gap: var(--iln-space-2);
+  min-width: 0;
 }
 .score-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font-size: var(--iln-font-sm);
-  font-weight: 600;
-  width: 30px;
+  font-weight: 700;
+  min-width: 36px;
   flex-shrink: 0;
 }
 .score-side--bull {
@@ -349,26 +394,27 @@ const directionClass = computed(() => {
 }
 .score-track {
   flex: 1;
+  min-width: 0;
   height: 10px;
-  background: var(--iln-surface);
-  border-radius: 5px;
+  background: var(--iln-surface-alt, var(--iln-bg));
+  border-radius: var(--iln-radius-full, 999px);
   overflow: hidden;
 }
 .score-fill {
   height: 100%;
-  border-radius: 5px;
-  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-radius: var(--iln-radius-full, 999px);
+  transition: width var(--iln-duration-slow, 300ms) var(--iln-ease-decelerate, ease-out);
 }
 .score-fill--bull {
-  background: linear-gradient(90deg, var(--iln-viz-bull), var(--iln-viz-bull-light));
+  background: linear-gradient(90deg, var(--iln-viz-bull), var(--iln-viz-bull-light, var(--iln-viz-bull)));
 }
 .score-fill--bear {
-  background: linear-gradient(90deg, var(--iln-viz-bear), var(--iln-viz-bear-light));
+  background: linear-gradient(90deg, var(--iln-viz-bear), var(--iln-viz-bear-light, var(--iln-viz-bear)));
 }
 .score-num {
-  font-size: 13px;
-  font-weight: 700;
-  width: 20px;
+  font-size: var(--iln-font-sm);
+  font-weight: 800;
+  min-width: 28px;
   text-align: right;
   color: var(--iln-text);
   flex-shrink: 0;
@@ -378,28 +424,30 @@ const directionClass = computed(() => {
 .takeaway-list {
   list-style: none;
   padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--iln-space-2);
 }
 .takeaway-item {
   display: flex;
   align-items: flex-start;
   gap: var(--iln-space-2);
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-text);
   line-height: 1.5;
   background: var(--iln-surface);
-  border-radius: 10px;
-  padding: 9px var(--iln-space-3);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-md);
+  padding: var(--iln-space-3);
 }
 .takeaway-dot {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--iln-radius-full, 999px);
   background: var(--iln-brand);
   flex-shrink: 0;
-  margin-top: 5px;
+  margin-top: 6px;
 }
 
 /* ── Event cards ── */
@@ -409,17 +457,21 @@ const directionClass = computed(() => {
   gap: var(--iln-space-2);
 }
 .event-card {
-  border-radius: 10px;
-  padding: 10px var(--iln-space-3);
+  border-radius: var(--iln-radius-md);
+  padding: var(--iln-space-3);
+  border: 1px solid transparent;
 }
 .event-card--bull {
   background: var(--iln-viz-bull-bg);
+  border-color: var(--iln-viz-bull-border, transparent);
 }
 .event-card--bear {
   background: var(--iln-viz-bear-bg);
+  border-color: var(--iln-viz-bear-border, transparent);
 }
 .event-card--neutral {
   background: var(--iln-surface);
+  border-color: var(--iln-border-subtle);
 }
 
 .event-top {
@@ -428,33 +480,33 @@ const directionClass = computed(() => {
   gap: var(--iln-space-2);
 }
 .event-score {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: var(--iln-radius-md);
+  font-size: var(--iln-font-xs);
+  font-weight: 800;
+  padding: 2px var(--iln-space-2);
+  border-radius: var(--iln-radius-sm);
   flex-shrink: 0;
   color: var(--iln-viz-bull-text);
-  background: var(--iln-viz-bull-bg);
+  background: var(--iln-surface);
 }
 .event-card--bear .event-score {
   color: var(--iln-viz-bear-text);
-  background: var(--iln-viz-bear-bg);
+  background: var(--iln-surface);
 }
 .event-score.neutral {
   color: var(--iln-hint);
-  background: transparent;
+  background: var(--iln-surface-alt, var(--iln-bg));
 }
 .event-title {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--iln-font-sm);
+  font-weight: 600;
   color: var(--iln-text);
-  line-height: 1.4;
+  line-height: 1.45;
 }
 .event-analysis {
-  font-size: 11px;
-  color: var(--iln-hint);
-  margin-top: 5px;
-  line-height: 1.45;
+  font-size: var(--iln-font-xs);
+  color: var(--iln-text-muted, var(--iln-hint));
+  margin-top: var(--iln-space-1);
+  line-height: 1.5;
   padding-left: 2px;
 }
 
@@ -465,7 +517,7 @@ const directionClass = computed(() => {
   }
 }
 
-/* ── P3：多空事件並排（≥768px）── */
+/* ── 多空事件並排（≥768px）── */
 .macro-events-grid {
   gap: var(--iln-space-3);
 }

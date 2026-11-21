@@ -1,22 +1,11 @@
 /* ══════════════════════════════════════════════════════════
    InvestmentLineNotify Design Tokens
-   參考：docs/design/DESIGN_PRINCIPLES.md §2
-         docs/plans/active/2026-11-17-UIUX_MODERNIZATION_PLAN.md §3.1
-
-   本文件按三層架構組織（物理拆分待環境寬裕時執行）：
-     Layer 1 · PRIMITIVE  — M3 原始色階（--m3-*），唯一定義處
-     Layer 2 · SEMANTIC   — 語意 token（--iln-*），頁面與組件只引用這層
-     Layer 3 · COMPONENT  — 組件級 token，按需新增（Phase 2）
-
-   規則：
-     · --m3-* 只被 --iln-* 引用，不被頁面直接使用
-     · --iln-* 已切斷 --tg-theme-* 穿透（決策 C1）
-     · 新增 token 必須歸入對應層，禁止一次性業務 token
+   Layer 1 · PRIMITIVE  — M3 原始色階（--m3-*）
+   Layer 2 · SEMANTIC   — 語意 token（--iln-*），頁面與組件引用這層
    ══════════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════════════════════
-   Layer 1 · M3 Primitive（原始色階，唯一真源）
-   決策 A2 Light-first / B1 M3 紫 / C1 切斷 --tg-theme
+   Layer 1 · M3 Primitive（原始色階）
    ══════════════════════════════════════════════════════════ */
 :root {
   /* 中性階（M3 Light surface 家族） */
@@ -28,12 +17,14 @@
   --m3-neutral-50:  #79747E;  /* outline */
   --m3-neutral-60:  #49454F;  /* on-surface-variant */
   --m3-neutral-90:  #1D1B20;  /* on-surface */
+
   /* 主色紫階 */
   --m3-primary-40:  #6750A4;  /* primary */
   --m3-primary-90:  #EADDFF;  /* primary-container */
   --m3-primary-30:  #5A3F94;  /* hover/darken */
   --m3-primary-95:  #F3EBFF;  /* primary-container-low */
-  /* 語意 */
+
+  /* 語意色階 */
   --m3-green-40:    #386A20;
   --m3-green-90:    #B8F397;
   --m3-amber-40:    #7D5700;
@@ -42,7 +33,8 @@
   --m3-red-90:      #FFDAD6;
   --m3-blue-40:     #0061A4;
   --m3-blue-90:     #D1E4FF;
-  /* hero 漸層（保留人設色相，改 M3 調） */
+
+  /* hero 漸層 */
   --m3-hero-from:   #6750A4;
   --m3-hero-to:     #3B6FD4;
 }
@@ -54,21 +46,21 @@
   --iln-brand-hover: var(--m3-primary-30);
   --iln-brand-soft: var(--m3-primary-95);
   --iln-brand-strong: var(--m3-primary-90);
-  /* ECharts canvas 彩填：var() 在 Canvas 無法解析，由 AccountView readToken() 讀取 */
+
+  /* ECharts canvas 彩填與品牌塗色令牌 */
   --iln-brand-fill-strong: rgba(103, 80, 164, 0.20);
-  /* @deprecated 0 引用，Phase 3 清理 */
   --iln-brand-fill-fade: rgba(103, 80, 164, 0);
-  /* ECharts/Canvas 與樣式共用的品牌塗色令牌（var() 於 CSS 可解析） */
   --iln-brand-fill-light: rgba(103, 80, 164, 0.10);
   --iln-brand-fill-faint: rgba(103, 80, 164, 0.06);
   --iln-brand-fill-border: rgba(103, 80, 164, 0.15);
 
-  /* 新增：Telegram 主題文字與背景 */
+  /* 主題文字與背景 */
   --iln-bg: var(--m3-neutral-2);
   --iln-bg-light-fallback: #fef7ff;
   --iln-bg-dark-fallback: #1d1b20;
+  --iln-hint-fallback: #49454f;
   --iln-text: var(--m3-neutral-90);
-  --iln-hint: var(--m3-neutral-60);  /* Phase 4.4 AA：outline(#79747E) 4.33:1 不达标 → on-surface-variant(#49454F) */
+  --iln-hint: var(--m3-neutral-60);
   --iln-link: var(--m3-primary-40);
   --iln-button_color: var(--m3-primary-40);
   --iln-secondary-bg: var(--m3-neutral-5);
@@ -81,31 +73,29 @@
 
   /* ── 語意背景（卡片底色） ── */
   --iln-info-bg: rgba(59, 130, 246, 0.1);
-  /* @deprecated 0 引用，Phase 3 清理 */
   --iln-neutral-bg: rgba(148, 163, 184, 0.1);
 
-  /* ── 語意文字（深色模式安全） ── */
+  /* ── 語意文字 ── */
   --iln-info-text: #1d4ed8;
-  /* @deprecated 0 引用，Phase 3 清理 */
   --iln-neutral-text: #64748b;
 
   /* ── 語義邊框 ── */
   --iln-neutral-border: rgba(148, 163, 184, 0.3);
 
-  /* ── Data Viz 專用語意色（Phase 1 新增） ── */
+  /* ── Data Viz 專用語意色 ── */
   /* 多方/獲利/正向 */
   --iln-viz-bull: var(--m3-green-40);
   --iln-viz-bull-bg: rgba(16, 185, 129, 0.10);
   --iln-viz-bull-border: rgba(16, 185, 129, 0.25);
   --iln-viz-bull-text: #059669;
-  --iln-viz-bull-light: #34d399;  /* 漸層終點色，對齊 Dark 模式 --iln-viz-bull-text */
+  --iln-viz-bull-light: #34d399;
 
   /* 空方/虧損/負向 */
   --iln-viz-bear: var(--m3-red-40);
   --iln-viz-bear-bg: rgba(239, 68, 68, 0.10);
   --iln-viz-bear-border: rgba(239, 68, 68, 0.25);
   --iln-viz-bear-text: #dc2626;
-  --iln-viz-bear-light: #f87171;  /* 漸層終點色，對齊 Dark 模式 --iln-viz-bear-text */
+  --iln-viz-bear-light: #f87171;
 
   /* 中性/資訊/基準 */
   --iln-viz-neutral: var(--m3-blue-40);
@@ -119,13 +109,13 @@
   --iln-viz-alert-border: rgba(245, 158, 11, 0.25);
   --iln-viz-alert-text: #b45309;
 
-  /* ECharts 專用色陣列（供 v-chart 直接引用） */
+  /* ECharts 專用色 */
   --iln-echarts-bull: var(--iln-viz-bull);
   --iln-echarts-bear: var(--iln-viz-bear);
   --iln-echarts-neutral: var(--iln-viz-neutral);
   --iln-echarts-alert: var(--iln-viz-alert);
 
-  /* Data Viz 陰影（用於脈動動畫等強調效果） */
+  /* Data Viz 陰影 */
   --iln-viz-bull-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2);
   --iln-viz-bull-shadow-focus: 0 0 0 4px rgba(16, 185, 129, 0.1);
   --iln-viz-bear-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2);
@@ -133,22 +123,25 @@
   --iln-viz-alert-shadow: 0 0 0 0 rgba(245, 158, 11, 0.2);
   --iln-viz-alert-shadow-focus: 0 0 0 4px rgba(245, 158, 11, 0.1);
 
-  /* 別名 token（遠端既有，保持相容） */
+  /* 別名與邊框 token */
   --iln-border: var(--iln-border-subtle);
   --iln-surface-muted: var(--iln-surface-faint);
-  --iln-text-on-brand: #FFFFFF;  /* M3 Light primary(紫) 上的 on-primary */
+  --iln-text-on-brand: #FFFFFF;
   --iln-border-subtle: rgba(121, 116, 126, 0.12);
   --iln-border-default: rgba(121, 116, 126, 0.20);
   --iln-border-strong: rgba(121, 116, 126, 0.32);
+  --iln-border-faint: rgba(0, 0, 0, 0.04);
 
   /* ── 中性表面（卡片/區塊背景） ── */
   --iln-surface: var(--m3-neutral-5);
   --iln-surface-alt: var(--m3-neutral-20);
+  --iln-surface-faint: rgba(0, 0, 0, 0.03);
+  --iln-surface-faintest: rgba(0, 0, 0, 0.02);
+  --iln-surface-sunken: rgba(0, 0, 0, 0.04);
+  --iln-surface-raised: rgba(255, 255, 255, 0.7);
 
   /* ── 等待/中性狀態 ── */
-  /* @deprecated 0 引用，Phase 3 清理 */
   --iln-wait-bg: #f3e5f5;
-  /* @deprecated 0 引用，Phase 3 清理 */
   --iln-wait-text: #6a1b9a;
 
   /* ── DeployButton level-badge ── */
@@ -168,11 +161,12 @@
   --iln-font-xl: clamp(20px, 5vw, 24px);
   --iln-font-2xl: clamp(28px, 6vw, 32px);
 
-  /* ── 字重（4 級） ── */
+  /* ── 字重 ── */
   --iln-weight-normal: 400;
   --iln-weight-medium: 500;
   --iln-weight-semibold: 600;
   --iln-weight-bold: 700;
+  --iln-weight-extrabold: 800;
 
   /* ── 行高 ── */
   --iln-leading-tight: 1.2;
@@ -183,7 +177,7 @@
   --iln-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
   --iln-font-mono: "SF Mono", "Fira Code", "JetBrains Mono", Monaco, Consolas, monospace;
 
-  /* ── 數值等寬（tabular-nums）── */
+  /* ── 數值等寬 ── */
   --iln-num-tabular: tabular-nums;
 
   /* ── 間距（8pt grid，允許 4px 半格） ── */
@@ -197,7 +191,7 @@
   --iln-space-10: 40px;
   --iln-space-12: 48px;
 
-  /* ── 內容容器寬度（P3 寬屏利用） ── */
+  /* ── 內容容器寬度 ── */
   --iln-content-max: 720px;
   --iln-content-max-wide: 1080px;
   --iln-grid-gap: var(--iln-space-4);
@@ -207,13 +201,18 @@
   --iln-radius-md: 12px;
   --iln-radius-lg: 16px;
   --iln-radius-xl: 24px;
-  --iln-radius-card: 20px;  /* Phase 4：卡片专用（規範 20-24） */
+  --iln-radius-card: 20px;
   --iln-radius-full: 9999px;
 
-  /* ── 陰影（3 級 elevation） ── */
+  /* ── 陰影 ── */
   --iln-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
   --iln-shadow-2: 0 4px 12px rgba(0, 0, 0, 0.08);
   --iln-shadow-3: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --iln-shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.25);
+  --iln-shadow-hairline: 0 1px 4px rgba(0, 0, 0, 0.02);
+  --iln-shadow-subtle: 0 1px 4px rgba(0, 0, 0, 0.06);
+  --iln-shadow-pill: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --iln-shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
 
   /* ── 動效 ── */
   --iln-duration-fast: 150ms;
@@ -226,11 +225,9 @@
   --iln-touch-min: 44px;
   --iln-touch-comfort: 48px;
 
-  /* ── B5 補充：無現成對應的業務語義色 ── */
+  /* ── 業務語義色與狀態 ── */
   --iln-brand-hover-bg: var(--iln-surface-alt, #e0e0e0);
-  /* @deprecated 0 引用，Phase 3 清理 */
   --iln-tier-current: #2196f3;
-  /* @deprecated 0 引用，Phase 3 清理 */
   --iln-tier-next: #ff9800;
   --iln-coaching-start: #fef3c7;
   --iln-coaching-end: #fffbeb;
@@ -241,85 +238,43 @@
   --iln-radar-text-dark: #f2f2f7;
   --iln-radar-text-muted: #8e8e93;
   --iln-skeleton-wave-bg: #e8e8e8;
-  /* @deprecated 0 引用，Phase 3 清理 */
   --iln-strategy-drop: #e91e63;
-  /* @deprecated 0 引用，Phase 3 清理 */
   --iln-strategy-rsi: #2196f3;
-  /* @deprecated 0 引用，Phase 3 清理 */
   --iln-strategy-macd: #ff9800;
 
-/* AuthExpiredModal 遮罩：恆暗，無需暗色覆寫 */
   --iln-overlay-scrim: rgba(0, 0, 0, 0.65);
-/* 彈窗陰影：暗色需加深 */
-  --iln-shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.25);
-/* 極淡背景：暗色需反相 */
-  --iln-surface-faint: rgba(0, 0, 0, 0.03);
-/* 內凹背景：暗色需反相 */
-  --iln-surface-sunken: rgba(0, 0, 0, 0.04);
-/* 半透明卡片：暗色需大幅降低不透明度 */
-  --iln-surface-raised: rgba(255, 255, 255, 0.7);
-/* 極淡陰影：恆淺，無需暗色覆寫 */
-  --iln-shadow-hairline: 0 1px 4px rgba(0, 0, 0, 0.02);
-
-/* AccountView 卡片細陰影：結構與 --iln-shadow-card(4px/12px/0.08) 不同，不可合併；亦不可用 --iln-shadow-hairline(0.02) */
-  --iln-shadow-subtle: 0 1px 4px rgba(0, 0, 0, 0.06);
-
-/* AccountView 邊框極淺：不可等值替換現有 border 令牌 */
-  --iln-border-faint: rgba(0, 0, 0, 0.04);
-
-/* AccountView 極淺表面：比 --iln-surface-faint(0.03) 更淺，360px 下與 0.02 肉眼無差異，統一用此令牌 */
-  --iln-surface-faintest: rgba(0, 0, 0, 0.02);
-
-/* 正面狀態背景：綠色 */
-  --iln-state-positive-bg: rgba(52, 199, 89, 0.08);
-/* 正面狀態邊框 */
-  --iln-state-positive-border: rgba(52, 199, 89, 0.2);
-/* 負面狀態背景：紅色 */
-  --iln-state-negative-bg: rgba(255, 59, 48, 0.08);
-/* 負面狀態邊框 */
-  --iln-state-negative-border: rgba(255, 59, 48, 0.2);
-/* 警戒狀態背景：黃色 */
-  --iln-state-caution-bg: rgba(255, 204, 0, 0.08);
-/* 警戒狀態邊框 */
-  --iln-state-caution-border: rgba(255, 204, 0, 0.2);
-
-/* FloatingPill 淺色陰影：與暗色段同結構，透明度較低，避免淺色模式下 undefined */
-  --iln-shadow-pill: 0 8px 32px rgba(0, 0, 0, 0.12);
-/* 漸層遮罩色停：暗色需降低不透明度 */
+  --iln-overlay-dim: rgba(0, 0, 0, 0.35);
   --iln-gradient-scrim: rgba(255, 255, 255, 0.35);
 
-/* DashboardView 卡片陰影：與淺色同值 */
-  --iln-shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
-/* SocialSentimentCard 深色背景：與淺色同值 */
-  --iln-overlay-dim: rgba(0, 0, 0, 0.35);
-
-
-/* useTelegram.js dark 時的背景色 fallback */
-  /* @deprecated 0 引用，Phase 3 清理 */
-  --iln-bg-dark-fallback: #1a1a1a;
-/* useTelegram.js/main.js/exportUtility.js 亮色背景 fallback */
-  --iln-bg-light-fallback: #ffffff;
-/* main.js hint 文字 fallback */
-  --iln-hint-fallback: #888;
+  /* 正面 / 負面 / 警戒狀態 */
+  --iln-state-positive-bg: rgba(52, 199, 89, 0.08);
+  --iln-state-positive-border: rgba(52, 199, 89, 0.2);
+  --iln-state-negative-bg: rgba(255, 59, 48, 0.08);
+  --iln-state-negative-border: rgba(255, 59, 48, 0.2);
+  --iln-state-caution-bg: rgba(255, 204, 0, 0.08);
+  --iln-state-caution-border: rgba(255, 204, 0, 0.2);
 }
 
 /* 深色模式覆寫（由 useTelegram.syncSchemeAttribute 寫入 data-tg-scheme） */
 :root[data-tg-scheme="dark"] {
-  --iln-text-on-brand: #1D1B20;  /* M3 Dark primary(淺紫) 上的 on-primary */
+  --iln-text-on-brand: #1D1B20;
+
   /* ── Layer 1 · PRIMITIVE（M3 Dark 色階覆寫） ── */
-  --m3-neutral-0:   #141218;  /* dark surface */
-  --m3-neutral-2:   #1D1B20;  /* dark surface-container */
-  --m3-neutral-5:   #211F26;  /* dark surface-container-high */
+  --m3-neutral-0:   #141218;
+  --m3-neutral-2:   #1D1B20;
+  --m3-neutral-5:   #211F26;
   --m3-neutral-10:  #2B2930;
   --m3-neutral-20:  #49454F;
-  --m3-neutral-50:  #938F99;  /* dark outline */
+  --m3-neutral-50:  #938F99;
   --m3-neutral-60:  #CAC4D0;
-  --m3-neutral-90:  #E6E0E9;  /* dark on-surface */
-  --iln-hint: var(--m3-neutral-50);  /* Phase 4.4：Dark 显式用 outline(#938F99) 5.39:1 AA，避免继承 Light 的 neutral-60 过亮 */
-  --m3-primary-40:  #D0BCFF;  /* dark primary */
-  --m3-primary-90:  #4F378B;  /* dark primary-container */
+  --m3-neutral-90:  #E6E0E9;
+  --iln-hint: var(--m3-neutral-50);
+
+  --m3-primary-40:  #D0BCFF;
+  --m3-primary-90:  #4F378B;
   --m3-primary-30:  #EADDFF;
   --m3-primary-95:  #381E72;
+
   --m3-green-40:    #B8F397;
   --m3-amber-40:    #FFDF9E;
   --m3-red-40:      #FFDAD6;
@@ -329,27 +284,22 @@
   --iln-brand-soft: rgba(36, 129, 204, 0.15);
   --iln-brand-strong: rgba(36, 129, 204, 0.25);
   --iln-brand-fill-strong: rgba(54, 144, 220, 0.24);
-  /* @deprecated 0 引用，Phase 3 清理 */
   --iln-brand-fill-fade: rgba(54, 144, 220, 0);
   --iln-brand-fill-light: rgba(54, 144, 220, 0.12);
   --iln-brand-fill-faint: rgba(54, 144, 220, 0.08);
   --iln-brand-fill-border: rgba(54, 144, 220, 0.18);
+
   --iln-neutral-fill-faint: rgba(180, 180, 180, 0.06);
   --iln-neutral-fill-border-faint: rgba(180, 180, 180, 0.2);
   --iln-info-bg: rgba(59, 130, 246, 0.15);
-  /* @deprecated 0 引用，Phase 3 清理 */
   --iln-neutral-bg: rgba(148, 163, 184, 0.1);
   --iln-info-text: #60a5fa;
-  /* @deprecated 0 引用，Phase 3 清理 */
   --iln-neutral-text: #94a3b8;
 
-  /* Data Viz 漸層終點色（深色同值，保持一致性） */
+  /* Data Viz 漸層終點色與深色覆寫 */
   --iln-viz-bull-light: #34d399;
   --iln-viz-bear-light: #f87171;
 
-  /* Data Viz 深色覆寫（P2-5）：bg/border/text 在 data-tg-scheme="dark" 下啟用
-     文字色取亮色以在 #211F26 深表面上達到 ≥4.5:1 對比度；
-     bg/border 透明度略高於淺色模式，在深色背景更可見。 */
   --iln-viz-bull-bg: rgba(16, 185, 129, 0.15);
   --iln-viz-bull-border: rgba(16, 185, 129, 0.35);
   --iln-viz-bull-text: #34d399;
@@ -369,13 +319,18 @@
   --iln-neutral-border: rgba(148, 163, 184, 0.5);
   --iln-border: var(--iln-border-subtle);
   --iln-surface-muted: var(--iln-surface-faint);
-  --iln-text-on-brand: #1D1B20;  /* 淺紫 primary 上的 on-primary */
   --iln-border-subtle: rgba(255, 255, 255, 0.08);
   --iln-border-default: rgba(255, 255, 255, 0.12);
   --iln-border-strong: rgba(255, 255, 255, 0.18);
+  --iln-border-faint: rgba(255, 255, 255, 0.06);
+
   --iln-surface: #211F26;
   --iln-surface-alt: #262628;
-  /* P1：brand-hover-bg 深色覆寫；P2：業務語義色深色覆寫 */
+  --iln-surface-faint: rgba(255, 255, 255, 0.03);
+  --iln-surface-faintest: rgba(255, 255, 255, 0.03);
+  --iln-surface-sunken: rgba(255, 255, 255, 0.05);
+  --iln-surface-raised: rgba(255, 255, 255, 0.08);
+
   --iln-brand-hover-bg: #2a2a2c;
   --iln-coaching-start: #3a2f10;
   --iln-coaching-end: #2a230c;
@@ -383,40 +338,17 @@
   --iln-radar-watch-bg: #4a3d00;
   --iln-radar-text-muted: #a1a1a6;
 
-/* AuthExpiredModal 遮罩：恆暗，與淺色同值 */
   --iln-overlay-scrim: rgba(0, 0, 0, 0.65);
-/* 彈窗陰影：暗色加深 */
-  --iln-shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.4);
-/* FloatingPill 暗色陰影：僅供 .dark 作用域使用，勿在淺色選擇器引用 */
-  --iln-shadow-pill: 0 8px 32px rgba(0, 0, 0, 0.4);
-
-/* AccountView 卡片細陰影：暗色同值，透明度較高以在深色背景可見 */
-  --iln-shadow-subtle: 0 1px 4px rgba(0, 0, 0, 0.3);
-/* 極淡背景：暗色反相 */
-  --iln-surface-faint: rgba(255, 255, 255, 0.03);
-
-/* AccountView 極淺表面：暗色同值，比 0.03 更淺，360px 下與 0.02 肉眼無差異 */
-  --iln-surface-faintest: rgba(255, 255, 255, 0.03);
-/* 內凹背景：暗色反相 */
-  --iln-surface-sunken: rgba(255, 255, 255, 0.05);
-/* 半透明卡片：暗色大幅降低不透明度 */
-  --iln-surface-raised: rgba(255, 255, 255, 0.08);
-/* 漸層遮罩色停：暗色降低不透明度 */
+  --iln-overlay-dim: rgba(0, 0, 0, 0.35);
   --iln-gradient-scrim: rgba(255, 255, 255, 0.08);
 
-/* DashboardView 卡片陰影：暗色同值 */
+  --iln-shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --iln-shadow-pill: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --iln-shadow-subtle: 0 1px 4px rgba(0, 0, 0, 0.3);
   --iln-shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
-/* SocialSentimentCard 深色背景：暗色同值 */
-  --iln-overlay-dim: rgba(0, 0, 0, 0.35);
-/* FloatingPill 暗色邊框：0.1 不透明度 */
   --iln-border-dark-faint: rgba(255, 255, 255, 0.1);
-
-/* AccountView 邊框極淺：暗色同值 */
-  --iln-border-faint: rgba(255, 255, 255, 0.06);
-/* TechnicalPanel 危險色偏粉背景：不可等值替換現有令牌 */
   --iln-danger-bg-soft: rgba(232, 72, 85, 0.08);
 
-  /* Data Viz 陰影（暗色同值，保持一致性） */
   --iln-viz-bull-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2);
   --iln-viz-bull-shadow-focus: 0 0 0 4px rgba(16, 185, 129, 0.1);
   --iln-viz-bear-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2);
@@ -424,18 +356,15 @@
   --iln-viz-alert-shadow: 0 0 0 0 rgba(245, 158, 11, 0.2);
   --iln-viz-alert-shadow-focus: 0 0 0 4px rgba(245, 158, 11, 0.1);
 
-/* AccountView 正面狀態：暗色不透明度較高 */
   --iln-state-positive-bg: rgba(52, 199, 89, 0.15);
   --iln-state-positive-border: rgba(52, 199, 89, 0.4);
-/* AccountView 負面狀態：暗色不透明度較高 */
   --iln-state-negative-bg: rgba(255, 59, 48, 0.15);
   --iln-state-negative-border: rgba(255, 59, 48, 0.4);
-/* AccountView 警戒狀態：暗色不透明度較高 */
   --iln-state-caution-bg: rgba(255, 204, 0, 0.15);
   --iln-state-caution-border: rgba(255, 204, 0, 0.4);
 }
 
-/* ── Spinner 統一規格（§3.3） ── */
+/* ── Spinner 統一規格 ── */
 .iln-spinner {
   width: 28px;
   height: 28px;
@@ -449,7 +378,13 @@
   to { transform: rotate(360deg); }
 }
 
-/* ── Primary Tab（§3.1） ── */
+@media (prefers-reduced-motion: reduce) {
+  .iln-spinner {
+    animation: none;
+  }
+}
+
+/* ── Primary Tab ── */
 .iln-tabs-primary {
   display: flex;
   background: var(--iln-secondary-bg);
@@ -468,6 +403,7 @@
   background: transparent;
   border: none;
   border-radius: var(--iln-radius-sm);
+  cursor: pointer;
   transition: all var(--iln-duration-fast) var(--iln-ease-standard);
 }
 
@@ -477,7 +413,7 @@
   box-shadow: var(--iln-shadow-1);
 }
 
-/* ── Secondary Tab（§3.1） ── */
+/* ── Secondary Tab ── */
 .iln-tabs-secondary {
   display: flex;
   border-bottom: 1px solid var(--iln-border-subtle);
@@ -500,7 +436,7 @@
   font-weight: var(--iln-weight-semibold);
 }
 
-/* ── Error Inline（§3.4） ── */
+/* ── Error Inline ── */
 .iln-error-inline {
   padding: var(--iln-space-3) var(--iln-space-4);
   font-size: var(--iln-font-base);

@@ -9,31 +9,71 @@
     <!-- Debug Tool (dev only) -->
     <!-- DEBUG_TOOL_PLACEHOLDER -->
     <style>
-      * {
+      *,
+      *::before,
+      *::after {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
       }
+
+      html,
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: var(--tg-theme-bg-color, #ffffff);
-        color: var(--tg-theme-text-color, #222222);
+        height: 100%;
         min-height: 100vh;
+        min-height: 100dvh;
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+        font-variant-numeric: tabular-nums;
+        background: var(--iln-bg, var(--tg-theme-bg-color, #ffffff));
+        color: var(--iln-text, var(--tg-theme-text-color, #222222));
+        -webkit-font-smoothing: antialiased;
       }
+
       /* Boot loading — 顯示於 SDK 下載期間，Vue mount 或 fallback 渲染後被覆蓋 */
       .boot-loading {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 10px;
         height: 100vh;
-        color: var(--tg-theme-hint-color, #999999);
+        height: 100dvh;
+        padding: 24px;
+        color: var(--iln-hint, var(--tg-theme-hint-color, #79747e));
         font-size: 14px;
+        font-weight: 500;
+      }
+
+      .boot-loading__spinner {
+        width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        border: 2.5px solid currentColor;
+        border-right-color: transparent;
+        opacity: 0.65;
+        animation: boot-spin 0.8s linear infinite;
+      }
+
+      @keyframes boot-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .boot-loading__spinner {
+          animation: none;
+        }
       }
     </style>
   </head>
   <body>
     <div id="app">
-      <div class="boot-loading">載入中…</div>
+      <div class="boot-loading" role="status" aria-live="polite">
+        <span class="boot-loading__spinner" aria-hidden="true"></span>
+        <span>載入中…</span>
+      </div>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

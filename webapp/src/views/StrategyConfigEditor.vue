@@ -1,130 +1,170 @@
 <template>
-    <GlobalErrorBoundary>
+  <GlobalErrorBoundary>
     <div class="strategy-config-editor iln-page" data-testid="strategy-config-editor">
-    <!-- Header -->
-    <div v-if="loadError" class="load-error" role="alert" data-testid="load-error">
-      <span>{{ loadError }}</span>
-      <el-button type="primary" @click="loadAll" :loading="loading" data-testid="btn-retry-load">重新載入</el-button>
-    </div>
-    <div class="editor-header">
-      <div class="header-left">
-        <h2 class="editor-title"><Icon name="settings" size="sm"/> 策略參數設定</h2>
-        <span class="editor-subtitle">編輯並即時驗證策略參數</span>
-      </div>
-      <div class="header-right">
-        <el-button type="primary" @click="() => { saveConfig(); haptic('medium'); }" :loading="saving" :disabled="!hasChanges || !isValid" data-testid="btn-save">
-          <el-icon><Checked /></el-icon> 儲存
-        </el-button>
-        <el-button @click="() => { resetToDefault(); haptic('medium'); }" :loading="resetting" :disabled="!hasChanges" data-testid="btn-reset">
-          <el-icon><Refresh /></el-icon> 重置為預設
-        </el-button>
-        <el-button @click="() => { validateOnly(); haptic('medium'); }" :loading="validating" data-testid="btn-validate">
-          <el-icon><Check /></el-icon> 僅驗證
+      <!-- Load Error Banner -->
+      <div v-if="loadError" class="load-error" role="alert" data-testid="load-error">
+        <span class="load-error__text">{{ loadError }}</span>
+        <el-button
+          type="primary"
+          @click="loadAll"
+          :loading="loading"
+          data-testid="btn-retry-load"
+        >
+          重新載入
         </el-button>
       </div>
-    </div>
 
-    <!-- Validation Status Bar -->
-    <div class="validation-bar" :class="{ 'has-errors': validationErrors.length > 0 }" data-testid="validation-bar">
-      <el-alert
-        v-if="validationErrors.length > 0"
-        title="設定驗證失敗"
-        :description="validationErrors.join('；')"
-        type="error"
-        closable
-        show-icon
-        class="validation-alert"
-        data-testid="alert-validation-error"
-      />
-      <el-alert
-        v-else-if="validating"
-        title="驗證中..."
-        type="info"
-        show-icon
-        class="validation-alert"
-        data-testid="alert-validating"
-      />
-      <el-alert
-        v-else-if="isValid && hasChanges"
-        title="設定有效，可儲存"
-        type="success"
-        show-icon
-        class="validation-alert"
-        data-testid="alert-valid"
-      />
-      <el-alert
-        v-else-if="isValid && !hasChanges"
-        title="未變更，無需儲存"
-        type="info"
-        show-icon
-        class="validation-alert"
-        data-testid="alert-no-changes"
-      />
-    </div>
-
-    <!-- Section Groups: 單層分組 Chip（P1-11：取代雙層 tablist） -->
-    <div class="section-tabs" data-testid="section-groups">
-      <div
-        v-for="g in sectionGroups"
-        :key="g.key"
-        class="chip-group"
-        :data-testid="`group-${g.key}`"
-      >
-        <h3 class="chip-group__title">{{ g.label }}</h3>
-        <div class="chip-group__chips" role="radiogroup" :aria-label="g.label">
-          <button
-            v-for="sec in groupSections(g)"
-            :key="sec.key"
-            type="button"
-            class="chip"
-            :class="{ 'is-active': activeSection === sec.key }"
-            role="radio"
-            :aria-checked="activeSection === sec.key"
-            :data-testid="`section-${sec.key}`"
-            @click="() => { selectSection(g.key, sec.key); selectionChanged(); }"
-          >
-            {{ sec.label }}
-          </button>
+      <!-- Header -->
+      <header class="editor-header">
+        <div class="header-left">
+          <h2 class="editor-title">
+            <Icon name="settings" size="sm" />
+            <span>策略參數設定</span>
+          </h2>
+          <span class="editor-subtitle">編輯並即時驗證策略參數</span>
         </div>
-      </div>
+        <div class="header-right">
+          <el-button
+            type="primary"
+            @click="() => { saveConfig(); haptic('medium'); }"
+            :loading="saving"
+            :disabled="!hasChanges || !isValid"
+            data-testid="btn-save"
+          >
+            <el-icon><Checked /></el-icon>
+            <span>儲存</span>
+          </el-button>
+          <el-button
+            @click="() => { resetToDefault(); haptic('medium'); }"
+            :loading="resetting"
+            :disabled="!hasChanges"
+            data-testid="btn-reset"
+          >
+            <el-icon><Refresh /></el-icon>
+            <span>重置為預設</span>
+          </el-button>
+          <el-button
+            @click="() => { validateOnly(); haptic('medium'); }"
+            :loading="validating"
+            data-testid="btn-validate"
+          >
+            <el-icon><Check /></el-icon>
+            <span>僅驗證</span>
+          </el-button>
+        </div>
+      </header>
 
-      <!-- 表單內容（單一 section） -->
-      <div style="margin-top: var(--iln-space-4)">
-        <ConfigSectionEditor
-          :section="currentSection"
-          :config="editableConfig"
-          :meta="configMeta"
-          :errors="getSectionErrors(activeSection)"
-          @update="handleFieldUpdate"
-          data-testid="config-section-editor"
+      <!-- Validation Status Bar -->
+      <div
+        class="validation-bar"
+        :class="{ 'has-errors': validationErrors.length > 0 }"
+        data-testid="validation-bar"
+      >
+        <el-alert
+          v-if="validationErrors.length > 0"
+          title="設定驗證失敗"
+          :description="validationErrors.join('；')"
+          type="error"
+          closable
+          show-icon
+          class="validation-alert"
+          data-testid="alert-validation-error"
+        />
+        <el-alert
+          v-else-if="validating"
+          title="驗證中..."
+          type="info"
+          show-icon
+          class="validation-alert"
+          data-testid="alert-validating"
+        />
+        <el-alert
+          v-else-if="isValid && hasChanges"
+          title="設定有效，可儲存"
+          type="success"
+          show-icon
+          class="validation-alert"
+          data-testid="alert-valid"
+        />
+        <el-alert
+          v-else-if="isValid && !hasChanges"
+          title="未變更，無需儲存"
+          type="info"
+          show-icon
+          class="validation-alert"
+          data-testid="alert-no-changes"
         />
       </div>
-    </div>
 
-    <!-- Raw JSON Viewer (Collapsible) -->
-    <el-collapse v-model="jsonCollapse" class="json-collapse" data-testid="json-collapse">
-      <el-collapse-item name="1" title="原始 JSON 檢視">
-        <div class="json-viewer" data-testid="json-viewer">
-          <pre>{{ formattedJson }}</pre>
+      <!-- Section Groups: 單層分組 Chip（取代雙層 tablist） -->
+      <div class="section-tabs" data-testid="section-groups">
+        <div
+          v-for="g in sectionGroups"
+          :key="g.key"
+          class="chip-group"
+          :data-testid="`group-${g.key}`"
+        >
+          <h3 class="chip-group__title">{{ g.label }}</h3>
+          <div class="chip-group__chips" role="radiogroup" :aria-label="g.label">
+            <button
+              v-for="sec in groupSections(g)"
+              :key="sec.key"
+              type="button"
+              class="chip"
+              :class="{ 'is-active': activeSection === sec.key }"
+              role="radio"
+              :aria-checked="activeSection === sec.key"
+              :data-testid="`section-${sec.key}`"
+              @click="() => { selectSection(g.key, sec.key); selectionChanged(); }"
+            >
+              {{ sec.label }}
+            </button>
+          </div>
         </div>
-      </el-collapse-item>
-    </el-collapse>
 
-    <!-- Reset Confirm Dialog -->
-    <el-dialog
-      v-model="resetConfirmVisible"
-      title="確定重置為預設?"
-      :show-close="false"
-      width="400"
-      data-testid="reset-confirm-dialog"
-    >
-      <span>確定要重置為預設設定嗎？此操作將覆蓋所有未儲存的變更。</span>
-      <template #footer>
-        <el-button @click="resetConfirmVisible = false">取消</el-button>
-        <el-button type="danger" @click="confirmResetToDefault" data-testid="btn-confirm-reset">確定重置</el-button>
-      </template>
-    </el-dialog>
-  </div>
+        <!-- 表單內容（單一 section） -->
+        <div class="section-editor-panel">
+          <ConfigSectionEditor
+            :section="currentSection"
+            :config="editableConfig"
+            :meta="configMeta"
+            :errors="getSectionErrors(activeSection)"
+            @update="handleFieldUpdate"
+            data-testid="config-section-editor"
+          />
+        </div>
+      </div>
+
+      <!-- Raw JSON Viewer (Collapsible) -->
+      <el-collapse v-model="jsonCollapse" class="json-collapse" data-testid="json-collapse">
+        <el-collapse-item name="1" title="原始 JSON 檢視">
+          <div class="json-viewer" data-testid="json-viewer">
+            <pre class="tabular">{{ formattedJson }}</pre>
+          </div>
+        </el-collapse-item>
+      </el-collapse>
+
+      <!-- Reset Confirm Dialog -->
+      <el-dialog
+        v-model="resetConfirmVisible"
+        title="確定重置為預設?"
+        :show-close="false"
+        width="400"
+        data-testid="reset-confirm-dialog"
+      >
+        <span>確定要重置為預設設定嗎？此操作將覆蓋所有未儲存的變更。</span>
+        <template #footer>
+          <el-button @click="resetConfirmVisible = false">取消</el-button>
+          <el-button
+            type="danger"
+            @click="confirmResetToDefault"
+            data-testid="btn-confirm-reset"
+          >
+            確定重置
+          </el-button>
+        </template>
+      </el-dialog>
+    </div>
   </GlobalErrorBoundary>
 </template>
 
@@ -180,8 +220,8 @@ const sections = [
   { key: "scoringMatrix", label: "評分矩陣", fields: ["enabled", "categories", "thresholds", "normalization"] },
 ];
 
-// Phase 4 P0-4：5 大分類分組
-// P0-5 Bug 4：threshold 欄位動態化（避免模組載入時 currentConfig 為 {} 導致永遠空陣列）
+// 5 大分類分組
+// threshold 欄位動態化（避免模組載入時 currentConfig 為 {} 導致永遠空陣列）
 const thresholdFields = computed(() => {
   const threshold = currentConfig.value?.threshold;
   return threshold && typeof threshold === "object" ? Object.keys(threshold) : [];
@@ -247,8 +287,6 @@ const currentSection = computed(
     resolvedSections.value.find((s) => s.key === activeSection.value) ||
     resolvedSections.value[0],
 );
-
-// P1-11：單層 Chip 後無需監聽 activeGroup 強制重置 section
 
 // Load config and meta
 async function loadAll() {
@@ -333,7 +371,6 @@ async function saveConfig() {
     });
 
     currentConfig.value = JSON.parse(JSON.stringify(editableConfig.value));
-    // hasChanges 會自動重新計算為 false (currentConfig === editableConfig)
     ElMessage.success("策略設定已儲存");
   } catch (err) {
     ElMessage.error("儲存失敗: " + err.message);
@@ -390,13 +427,35 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* StrategyConfigEditor — Phase 3 現代化（2026-11-17）
-   原本已大量 token 化，此輪僅把剩餘可精確對應的 px 收斂。 */
-
 .strategy-config-editor {
-  padding: var(--iln-space-4);
+  padding: var(--iln-space-4) var(--iln-space-4) calc(var(--iln-space-6) + env(safe-area-inset-bottom, 0px));
   max-width: var(--iln-content-max);
   margin: 0 auto;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.load-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--iln-space-3);
+  flex-wrap: wrap;
+  padding: var(--iln-space-3) var(--iln-space-4);
+  margin-bottom: var(--iln-space-4);
+  border-radius: var(--iln-radius-md);
+  border: 1px solid var(--iln-viz-bear-border);
+  background: var(--iln-viz-bear-bg);
+  color: var(--iln-viz-bear-text);
+  font-size: var(--iln-font-sm);
+  font-weight: 600;
+}
+
+.load-error__text {
+  flex: 1;
+  min-width: 180px;
 }
 
 .editor-header {
@@ -408,17 +467,28 @@ onUnmounted(() => {
   gap: var(--iln-space-3);
 }
 
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+
 .editor-title {
-  font-size: 22px;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-2);
+  font-size: var(--iln-font-2xl, 22px);
+  font-weight: 800;
   margin: 0;
   color: var(--iln-text);
+  line-height: 1.25;
 }
 
 .editor-subtitle {
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
-  margin-top: var(--iln-space-1);
 }
 
 .header-right {
@@ -443,6 +513,7 @@ onUnmounted(() => {
   max-height: 400px;
   overflow: auto;
   background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-md);
   padding: var(--iln-space-4);
 }
@@ -453,66 +524,80 @@ onUnmounted(() => {
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
+  color: var(--iln-text);
 }
 
-/* 分區標籤容器（P1-11 單層分組 Chip） */
+/* 分區標籤容器（單層分組 Chip） */
 .section-tabs {
   margin-bottom: var(--iln-space-4);
   display: flex;
   flex-direction: column;
   gap: var(--iln-space-4);
 }
+
 .chip-group__title {
   margin: 0 0 var(--iln-space-2);
-  font-size: var(--iln-font-sm);
-  font-weight: var(--iln-weight-semibold);
+  font-size: var(--iln-font-xs);
+  font-weight: 700;
   color: var(--iln-hint);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
+
 .chip-group__chips {
   display: flex;
   flex-wrap: wrap;
   gap: var(--iln-space-2);
 }
+
 .chip {
   display: inline-flex;
   align-items: center;
   min-height: 36px;
   padding: 0 var(--iln-space-4);
-  border-radius: var(--iln-radius-full);
+  border-radius: var(--iln-radius-full, 999px);
   border: 1px solid var(--iln-border-subtle);
-  background: var(--iln-surface-alt);
+  background: var(--iln-surface-alt, var(--iln-surface));
   color: var(--iln-text);
   font-size: var(--iln-font-sm);
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color var(--iln-duration-fast) var(--iln-ease-standard),
-    color var(--iln-duration-fast) var(--iln-ease-standard),
-    border-color var(--iln-duration-fast) var(--iln-ease-standard),
+  transition:
+    background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
     transform 0.12s ease;
 }
-.chip:hover { border-color: var(--iln-brand); }
-.chip:active { transform: scale(0.97); }
+
+.chip:hover {
+  border-color: var(--iln-brand);
+}
+
+.chip:active {
+  transform: scale(0.97);
+}
+
 .chip.is-active {
   background: var(--iln-brand);
   border-color: var(--iln-brand);
   color: var(--iln-text-on-brand);
-  font-weight: var(--iln-weight-semibold);
+  font-weight: 700;
 }
+
 .chip:focus-visible {
   outline: 2px solid var(--iln-brand);
   outline-offset: 2px;
 }
-@media (prefers-reduced-motion: reduce) {
-  .chip, .chip:active { transition: none; transform: none; }
+
+.section-editor-panel {
+  margin-top: var(--iln-space-2);
+  min-width: 0;
 }
 
-/* 頁籤左側標題區 */
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: var(--iln-space-2);
-  font-size: var(--iln-font-sm);
-  font-weight: var(--iln-weight-medium);
-  color: var(--iln-text);
+@media (prefers-reduced-motion: reduce) {
+  .chip,
+  .chip:active {
+    transition: none;
+    transform: none;
+  }
 }
 </style>

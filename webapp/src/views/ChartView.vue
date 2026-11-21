@@ -1,125 +1,149 @@
 <template>
-    <GlobalErrorBoundary>
+  <GlobalErrorBoundary>
     <div class="view-container iln-page">
-    <button
-      type="button"
-      class="chart-back-button"
-      data-testid="chart-back"
-      @click="goBack"
-    >
-      ← 返回
-    </button>
-
-    <div v-if="activeViewTabValue === 'chart'">
-    <div v-show="activeTab === 'trend'">
-    <!-- 標題列 -->
-    <div class="view-header view-header--with-switch">
-      <div class="view-header-text">
-        <h2 class="view-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢</h2>
-        <span class="view-subtitle" v-if="!loading && dataPoints.length">
-          {{ granularityLabel }}，{{ dataPoints.length }} 筆
-        </span>
-      </div>
-      <SegmentedControl
-        v-model="activeViewTabValue"
-        :options="viewTabOptions"
-        aria-label="圖表與技術指標切換"
-        @change="onViewTabChange"
-      />
-    </div>
-
-    <!-- 粒度切換 -->
-    <div class="seg-bar">
       <button
-        v-for="g in granularities"
-        :key="g.key"
-        class="seg-btn"
-        :class="{ active: granularity === g.key }"
-        @click="setGranularity(g.key)"
+        type="button"
+        class="chart-back-button"
+        data-testid="chart-back"
+        @click="goBack"
       >
-        {{ g.label }}
+        ← 返回
       </button>
-    </div>
 
-<!-- 時間範圍切換 -->
-    <div class="time-range-bar">
-      <button
-        v-for="t in timeRanges"
-        :key="t.key"
-        class="time-range-btn"
-        :class="{ active: timeRange === t.key }"
-        @click="() => { timeRange = t.key; selectionChanged(); }"
-      >
-        {{ t.label }}
-      </button>
-    </div>
+      <div v-if="activeViewTabValue === 'chart'">
+        <div v-show="activeTab === 'trend'">
+          <!-- 標題列 -->
+          <div class="view-header view-header--with-switch">
+            <div class="view-header-text">
+              <h2 class="view-title">
+                <Icon name="chart" size="sm" color="var(--iln-text)" />
+                <span>資產趨勢</span>
+              </h2>
+              <span class="view-subtitle tabular" v-if="!loading && dataPoints.length">
+                {{ granularityLabel }}，{{ dataPoints.length }} 筆
+              </span>
+            </div>
+            <SegmentedControl
+              v-model="activeViewTabValue"
+              :options="viewTabOptions"
+              aria-label="圖表與技術指標切換"
+              @change="onViewTabChange"
+            />
+          </div>
 
-    <!-- 載入中 -->
-    <EmptyState v-if="loading" title="載入中..." />
+          <!-- 粒度切換 -->
+          <div class="seg-bar" role="group" aria-label="資料粒度切換">
+            <button
+              v-for="g in granularities"
+              :key="g.key"
+              type="button"
+              class="seg-btn tabular"
+              :class="{ active: granularity === g.key }"
+              :aria-pressed="granularity === g.key"
+              @click="setGranularity(g.key)"
+            >
+              {{ g.label }}
+            </button>
+          </div>
 
-    <!-- 錯誤 -->
-    <ErrorAlert v-else-if="error" :visible="true" :description="error" :show-retry="true" @retry="load" />
+          <!-- 時間範圍切換 -->
+          <div class="time-range-bar" role="group" aria-label="時間範圍切換">
+            <button
+              v-for="t in timeRanges"
+              :key="t.key"
+              type="button"
+              class="time-range-btn tabular"
+              :class="{ active: timeRange === t.key }"
+              :aria-pressed="timeRange === t.key"
+              @click="() => { timeRange = t.key; selectionChanged(); }"
+            >
+              {{ t.label }}
+            </button>
+          </div>
 
-    <!-- 無快照 -->
-    <EmptyState v-else-if="!hasEncryption" title="快照功能未啟用" message="請設定 SNAPSHOT_ENCRYPT_KEY 環境變數" />
+          <!-- 載入中 -->
+          <EmptyState v-if="loading" title="載入中..." />
 
-    <!-- 空資料 -->
-    <EmptyState v-else-if="dataPoints.length === 0" title="尚無快照資料" message="將從明日日報後開始累積" />
+          <!-- 錯誤 -->
+          <ErrorAlert
+            v-else-if="error"
+            :visible="true"
+            :description="error"
+            :show-retry="true"
+            @retry="load"
+          />
 
-    <!-- 圖表主體 -->
-    <template v-else>
-      <!-- ECharts -->
-      <div class="chart-wrapper">
-        <v-chart :option="chartOption" autoresize class="chart" />
+          <!-- 無快照 -->
+          <EmptyState
+            v-else-if="!hasEncryption"
+            title="快照功能未啟用"
+            message="請設定 SNAPSHOT_ENCRYPT_KEY 環境變數"
+          />
+
+          <!-- 空資料 -->
+          <EmptyState
+            v-else-if="dataPoints.length === 0"
+            title="尚無快照資料"
+            message="將從明日日報後開始累積"
+          />
+
+          <!-- 圖表主體 -->
+          <template v-else>
+            <!-- ECharts -->
+            <div class="chart-wrapper">
+              <v-chart :option="chartOption" autoresize class="chart" />
+            </div>
+
+            <!-- 指標切換 chips -->
+            <div class="metric-bar" role="group" aria-label="指標切換">
+              <button
+                v-for="m in metrics"
+                :key="m.key"
+                type="button"
+                class="metric-chip tabular"
+                :class="{ active: metric === m.key }"
+                :aria-pressed="metric === m.key"
+                @click="() => { metric = m.key; selectionChanged(); }"
+              >
+                {{ m.label }}
+              </button>
+            </div>
+
+            <!-- 最新快照摘要 -->
+            <div class="summary-grid" v-if="latest">
+              <div class="summary-card">
+                <span class="s-label">市價淨値</span>
+                <span class="s-value iln-num-tabular tabular" :class="valueClass(latest.netValueMarket)">
+                  {{ formatNTD(latest.netValueMarket) }}
+                </span>
+              </div>
+              <div class="summary-card">
+                <span class="s-label">0050 市價</span>
+                <span class="s-value iln-num-tabular tabular">
+                  {{ latest.price0050 != null ? `$${latest.price0050}` : "—" }}
+                </span>
+              </div>
+              <div class="summary-card">
+                <span class="s-label">00675L 市價</span>
+                <span class="s-value iln-num-tabular tabular">
+                  {{ latest.priceZ2 != null ? `$${latest.priceZ2}` : "—" }}
+                </span>
+              </div>
+              <div class="summary-card">
+                <span class="s-label">融資餘額</span>
+                <span class="s-value neg iln-num-tabular tabular">
+                  {{ formatNTD(latest.totalLoan) }}
+                </span>
+              </div>
+            </div>
+          </template>
+        </div>
       </div>
 
-      <!-- 指標切換 chips -->
-      <div class="metric-bar">
-        <button
-          v-for="m in metrics"
-          :key="m.key"
-          class="metric-chip"
-          :class="{ active: metric === m.key }"
-          @click="() => { metric = m.key; selectionChanged(); }"
-        >
-          {{ m.label }}
-        </button>
+      <div v-else>
+        <TechnicalPanel />
       </div>
-
-      <!-- 最新快照摘要 -->
-      <div class="summary-grid" v-if="latest">
-        <div class="summary-card">
-          <span class="s-label">市價淨値</span>
-          <span class="s-value iln-num-tabular" :class="valueClass(latest.netValueMarket)">
-            {{ formatNTD(latest.netValueMarket) }}
-          </span>
-        </div>
-        <div class="summary-card">
-          <span class="s-label">0050 市價</span>
-          <span class="s-value iln-num-tabular">{{
-            latest.price0050 != null ? `$${latest.price0050}` : "—"
-          }}</span>
-        </div>
-        <div class="summary-card">
-          <span class="s-label">00675L 市價</span>
-          <span class="s-value iln-num-tabular">{{
-            latest.priceZ2 != null ? `$${latest.priceZ2}` : "—"
-          }}</span>
-        </div>
-        <div class="summary-card">
-          <span class="s-label">融資餘額</span>
-          <span class="s-value neg iln-num-tabular">{{ formatNTD(latest.totalLoan) }}</span>
-        </div>
-      </div>
-    </template>
-    </div>     <!-- 閉合 v-show="activeTab === 'trend'" -->
-
-    </div>     <!-- 閉合 v-if="activeViewTab === '圖表'" -->
-
-    <div v-else>
-      <TechnicalPanel />
     </div>
-  </div>
   </GlobalErrorBoundary>
 </template>
 
@@ -300,7 +324,6 @@ function setGranularity(key) {
 watch([granularity, timeRange], load);
 onMounted(load);
 
-
 // ── X 軸標籤格式化 ────────────────────────────────────────────────────────────────────
 function xLabel(pt) {
   if (granularity.value === "daily") return (pt.date ?? "").slice(5); // MM-DD
@@ -469,26 +492,32 @@ const chartOption = computed(() => {
 </script>
 
 <style scoped>
-/* ChartView — Phase 3 現代化（2026-11-17）
-   只動 CSS：px→token（保留無精確 token 的 6/10/11px 等既有節奏，避免視覺漂移）、
-   移除死 selector（state-box / state-hint / state-error / retry-btn / spinner /
-   @keyframes spin）— 模板改用 ErrorAlert / EmptyState 組件。 */
-
 .view-container {
-  padding: var(--iln-space-4) var(--iln-space-4) var(--iln-space-2);
+  padding: var(--iln-space-4) var(--iln-space-4) calc(var(--iln-space-6) + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 .chart-back-button {
   min-height: 44px;
   margin-bottom: var(--iln-space-3);
   padding: 0 var(--iln-space-3);
-  border: 1px solid var(--iln-border);
+  border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-sm);
   background: var(--iln-surface);
   color: var(--iln-text);
   font: inherit;
+  font-size: var(--iln-font-sm);
+  font-weight: 600;
   cursor: pointer;
+  transition: background var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
+}
+
+.chart-back-button:hover {
+  background: var(--iln-surface-alt, var(--iln-bg));
 }
 
 .chart-back-button:focus-visible {
@@ -499,17 +528,34 @@ const chartOption = computed(() => {
 /* ── Header ── */
 .view-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--iln-space-2);
-  margin-bottom: 10px;
+  margin-bottom: var(--iln-space-3);
+}
+.view-header--with-switch {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--iln-space-3);
+  flex-wrap: wrap;
+}
+.view-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-1);
+  min-width: 0;
 }
 .view-title {
-  font-size: 17px;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-2);
+  font-size: var(--iln-font-lg);
+  font-weight: 800;
   color: var(--iln-text);
+  margin: 0;
 }
 .view-subtitle {
-  font-size: var(--iln-font-sm);
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 
@@ -518,7 +564,7 @@ const chartOption = computed(() => {
 .time-range-bar {
   display: flex;
   gap: 6px;
-  margin-bottom: 10px;
+  margin-bottom: var(--iln-space-3);
 }
 .seg-btn,
 .time-range-btn {
@@ -527,15 +573,16 @@ const chartOption = computed(() => {
   flex: 1;
   padding: var(--iln-space-1) 0;
   border-radius: var(--iln-radius-sm);
+  border: 1px solid var(--iln-border-subtle);
   font-size: var(--iln-font-sm);
-  font-weight: 500;
+  font-weight: 600;
   background: var(--iln-surface);
   color: var(--iln-hint);
-  border: none;
   cursor: pointer;
   transition:
-    background var(--iln-duration-fast) var(--iln-ease-standard),
-    color var(--iln-duration-fast) var(--iln-ease-standard);
+    background var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
 }
 .time-range-btn {
   padding: var(--iln-space-2) 0;
@@ -543,15 +590,22 @@ const chartOption = computed(() => {
 .seg-btn.active,
 .time-range-btn.active {
   background: var(--iln-brand);
+  border-color: var(--iln-brand);
   color: var(--iln-text-on-brand);
+}
+.seg-btn:focus-visible,
+.time-range-btn:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
 }
 
 /* ── 圖表容器 ── */
 .chart-wrapper {
   background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-card, 20px);
   padding: var(--iln-space-4, 16px);
-  margin-bottom: 10px;
+  margin-bottom: var(--iln-space-3);
   min-height: 360px;
 }
 .chart {
@@ -569,21 +623,27 @@ const chartOption = computed(() => {
 .metric-chip {
   min-width: 44px;
   min-height: 44px;
-  padding: var(--iln-space-1) 10px;
-  border-radius: 99px;
+  padding: var(--iln-space-1) var(--iln-space-3);
+  border-radius: var(--iln-radius-full, 999px);
+  border: 1px solid var(--iln-border-subtle);
   font-size: var(--iln-font-sm);
-  font-weight: 500;
+  font-weight: 600;
   background: var(--iln-surface);
   color: var(--iln-hint);
-  border: none;
   cursor: pointer;
   transition:
-    background var(--iln-duration-fast) var(--iln-ease-standard),
-    color var(--iln-duration-fast) var(--iln-ease-standard);
+    background var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
 }
 .metric-chip.active {
   background: var(--iln-brand);
+  border-color: var(--iln-brand);
   color: var(--iln-text-on-brand);
+}
+.metric-chip:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
 }
 
 /* ── 摘要卡片 ── */
@@ -599,19 +659,20 @@ const chartOption = computed(() => {
 }
 .summary-card {
   background: var(--iln-surface);
-  border-radius: 10px;
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-md);
   padding: var(--iln-space-4, 16px);
   display: flex;
   flex-direction: column;
   gap: var(--iln-space-1);
 }
 .s-label {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 .s-value {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: var(--iln-font-base);
+  font-weight: 700;
   color: var(--iln-text);
 }
 .s-value.pos {
@@ -621,19 +682,12 @@ const chartOption = computed(() => {
   color: var(--iln-viz-bear-text);
 }
 
-/* ── 標題列 + 分頁切換 ── */
-.view-header--with-switch {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: var(--iln-space-3);
-  flex-wrap: wrap;
+@media (prefers-reduced-motion: reduce) {
+  .chart-back-button,
+  .seg-btn,
+  .time-range-btn,
+  .metric-chip {
+    transition: none;
+  }
 }
-.view-header-text {
-  display: flex;
-  flex-direction: column;
-  gap: var(--iln-space-1);
-  min-width: 0;
-}
-
 </style>
