@@ -123,11 +123,54 @@
         </div>
       </section>
 
-      <!-- 社群情緒（永遠保留區塊，無資料時提供明確回饋） -->
+      <!-- 社群情緒（結構化卡片與列表呈現，不以 JSON 原始碼輸出） -->
       <section class="card" aria-label="社群情緒">
-        <div class="card-label">社群情緒</div>
-        <template v-if="macro.socialSentiment">
-          <pre class="json-pre">{{ formatSentiment(macro.socialSentiment) }}</pre>
+        <div class="sentiment-header">
+          <span class="card-label">社群情緒</span>
+          <span
+            v-if="macro.socialSentimentModel"
+            class="sentiment-chip"
+            :class="`chip-${macro.socialSentimentModel.tone}`"
+          >
+            {{ macro.socialSentimentModel.badgeText }}
+          </span>
+        </div>
+
+        <template v-if="macro.socialSentimentModel">
+          <div v-if="macro.socialSentimentModel.headline" class="sentiment-headline">
+            {{ macro.socialSentimentModel.headline }}
+          </div>
+          <p v-if="macro.socialSentimentModel.summary" class="summary-text">
+            {{ macro.socialSentimentModel.summary }}
+          </p>
+
+          <div v-if="macro.socialSentimentModel.stats.length" class="sentiment-stats tabular">
+            <div
+              v-for="(st, idx) in macro.socialSentimentModel.stats"
+              :key="`st-${idx}`"
+              class="sentiment-stat-cell"
+            >
+              <span class="stat-k">{{ st.label }}</span>
+              <span class="stat-v">{{ st.value }}</span>
+            </div>
+          </div>
+
+          <ul v-if="macro.socialSentimentModel.highlights.length" class="takeaway-list">
+            <li v-for="(h, idx) in macro.socialSentimentModel.highlights" :key="`hl-${idx}`">
+              {{ h }}
+            </li>
+          </ul>
+
+          <div v-if="macro.socialSentimentModel.rows.length" class="sentiment-rows tabular">
+            <div
+              v-for="row in macro.socialSentimentModel.rows"
+              :key="row.key"
+              class="sentiment-row"
+            >
+              <span class="s-row-k">{{ row.label }}</span>
+              <span class="s-row-v" :class="`tone-${row.tone}`">{{ row.value }}</span>
+            </div>
+          </div>
         </template>
         <p v-else class="muted">目前尚無社群情緒資料。</p>
       </section>
@@ -142,15 +185,6 @@ defineProps({
   macro: { type: Object, required: true },
   reportDate: { type: String, default: "" },
 });
-
-function formatSentiment(val) {
-  if (typeof val === "string") return val;
-  try {
-    return JSON.stringify(val, null, 2);
-  } catch {
-    return String(val);
-  }
-}
 </script>
 
 <style scoped>
@@ -158,6 +192,7 @@ function formatSentiment(val) {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  color: var(--iln-text, #e5e7eb);
 }
 
 .tabular {
@@ -165,8 +200,9 @@ function formatSentiment(val) {
 }
 
 .card {
-  background: var(--iln-surface, #ffffff);
-  border: 1px solid var(--iln-border-subtle, #e5e7eb);
+  background: var(--iln-surface, #161b22);
+  color: var(--iln-text, #e5e7eb);
+  border: 1px solid var(--iln-border-subtle, rgba(255, 255, 255, 0.12));
   border-radius: 14px;
   padding: 14px 16px;
   display: flex;
@@ -181,6 +217,7 @@ function formatSentiment(val) {
 .empty-title {
   font-size: 15px;
   font-weight: 700;
+  color: var(--iln-text, #f3f4f6);
 }
 
 .dir-row {
@@ -198,44 +235,57 @@ function formatSentiment(val) {
   font-weight: 800;
 }
 
-.dir-bull {
-  background: #dcfce7;
-  color: #166534;
+.dir-bull,
+.chip-bull {
+  background: var(--iln-viz-bull-bg, rgba(22, 163, 74, 0.18));
+  color: var(--iln-viz-bull-text, #4ade80);
+  border: 1px solid var(--iln-viz-bull-border, rgba(74, 222, 128, 0.35));
 }
 
-.dir-bear {
-  background: #fee2e2;
-  color: #991b1b;
+.dir-bear,
+.chip-bear {
+  background: var(--iln-viz-bear-bg, rgba(220, 38, 38, 0.18));
+  color: var(--iln-viz-bear-text, #f87171);
+  border: 1px solid var(--iln-viz-bear-border, rgba(248, 113, 113, 0.35));
 }
 
-.dir-neutral {
-  background: var(--iln-surface-alt, #f3f4f6);
-  color: var(--iln-text, #374151);
+.dir-neutral,
+.chip-neutral {
+  background: var(--iln-surface-alt, #1f2937);
+  color: var(--iln-text, #e5e7eb);
+  border: 1px solid var(--iln-border-subtle, rgba(255, 255, 255, 0.14));
 }
 
 .date-tag {
   font-size: 12px;
-  color: var(--iln-hint, #6b7280);
+  color: var(--iln-hint, #9ca3af);
 }
 
 .summary-text {
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
+  color: var(--iln-text, #e5e7eb);
 }
 
 .card-label {
   font-size: 13px;
   font-weight: 700;
-  color: var(--iln-hint, #4b5563);
+  color: var(--iln-hint, #9ca3af);
 }
 
-.bull-text {
-  color: #15803d;
+.bull-text,
+.tone-bull {
+  color: var(--iln-viz-bull-text, #4ade80);
 }
 
-.bear-text {
-  color: #b91c1c;
+.bear-text,
+.tone-bear {
+  color: var(--iln-viz-bear-text, #f87171);
+}
+
+.tone-neutral {
+  color: var(--iln-text, #e5e7eb);
 }
 
 .score-grid {
@@ -260,12 +310,13 @@ function formatSentiment(val) {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
+  color: var(--iln-text, #f3f4f6);
 }
 
 .bar-track {
   height: 8px;
   border-radius: 999px;
-  background: var(--iln-surface-alt, #e5e7eb);
+  background: var(--iln-surface-alt, #263040);
   overflow: hidden;
 }
 
@@ -290,6 +341,7 @@ function formatSentiment(val) {
   gap: 6px;
   font-size: 13px;
   line-height: 1.5;
+  color: var(--iln-text, #e5e7eb);
 }
 
 .events-2col {
@@ -314,21 +366,21 @@ function formatSentiment(val) {
 .ev-item {
   border-radius: 10px;
   padding: 10px 12px;
-  border: 1px solid var(--iln-border-subtle, #e5e7eb);
+  border: 1px solid var(--iln-border-subtle, rgba(255, 255, 255, 0.12));
 }
 
 .ev-item--bull {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
+  background: var(--iln-viz-bull-bg, rgba(22, 163, 74, 0.14));
+  border-color: var(--iln-viz-bull-border, rgba(74, 222, 128, 0.3));
 }
 
 .ev-item--bear {
-  background: #fef2f2;
-  border-color: #fecaca;
+  background: var(--iln-viz-bear-bg, rgba(220, 38, 38, 0.14));
+  border-color: var(--iln-viz-bear-border, rgba(248, 113, 113, 0.3));
 }
 
 .ev-item--neutral {
-  background: var(--iln-surface-alt, #f9fafb);
+  background: var(--iln-surface-alt, #1c222b);
 }
 
 .ev-top {
@@ -342,7 +394,9 @@ function formatSentiment(val) {
   font-weight: 800;
   padding: 2px 6px;
   border-radius: 6px;
-  background: var(--iln-surface, #ffffff);
+  background: var(--iln-surface, #11161d);
+  color: var(--iln-text, #f9fafb);
+  border: 1px solid var(--iln-border-subtle, rgba(255, 255, 255, 0.12));
   flex-shrink: 0;
 }
 
@@ -350,30 +404,99 @@ function formatSentiment(val) {
   font-size: 13px;
   font-weight: 700;
   line-height: 1.4;
+  color: var(--iln-text, #f3f4f6);
 }
 
 .ev-desc {
   margin: 6px 0 0;
   font-size: 12px;
   line-height: 1.5;
-  color: var(--iln-hint, #4b5563);
+  color: var(--iln-hint, #cbd5e1);
 }
 
-.json-pre {
-  margin: 0;
-  padding: 10px;
-  border-radius: 8px;
-  background: var(--iln-surface-alt, #f3f4f6);
+.sentiment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sentiment-chip {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.sentiment-headline {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--iln-text, #f9fafb);
+}
+
+.sentiment-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (min-width: 560px) {
+  .sentiment-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.sentiment-stat-cell {
+  border: 1px solid var(--iln-border-subtle, rgba(255, 255, 255, 0.1));
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--iln-surface-alt, #1c222b);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-k {
   font-size: 11px;
-  line-height: 1.45;
-  overflow-x: auto;
-  white-space: pre-wrap;
+  color: var(--iln-hint, #9ca3af);
+}
+
+.stat-v {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--iln-text, #f9fafb);
+}
+
+.sentiment-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--iln-border-subtle, rgba(255, 255, 255, 0.1));
+  padding-top: 8px;
+}
+
+.sentiment-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.s-row-k {
+  color: var(--iln-hint, #9ca3af);
+  flex-shrink: 0;
+}
+
+.s-row-v {
+  font-weight: 600;
+  text-align: right;
   word-break: break-word;
 }
 
 .muted {
   margin: 0;
   font-size: 13px;
-  color: var(--iln-hint, #6b7280);
+  color: var(--iln-hint, #9ca3af);
 }
 </style>
