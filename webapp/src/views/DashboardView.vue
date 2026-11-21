@@ -1,32 +1,44 @@
 <template>
   <GlobalErrorBoundary>
     <div class="view-container iln-page">
-      <!-- Header -->
+      <!-- 1. 精簡頁首：標題、日期、鮮度狀態與單一設定鈕 -->
       <header class="dash-header">
         <div class="dash-title-row">
-          <h1 class="dash-title">投資儀表板</h1>
+          <div class="dash-title-group">
+            <h1 class="dash-title">投資儀表板</h1>
+            <div class="dash-meta tabular">
+              <span class="dash-date">{{ todayLabel }}</span>
+              <FreshnessBadge
+                v-if="status?._meta?.lastRun"
+                :timestamp="status._meta.lastRun"
+                label="更新"
+                @level-change="handleFreshnessLevelChange"
+              />
+            </div>
+          </div>
+
           <!-- FAB: Strategy Config -->
           <button
+            type="button"
             class="config-fab"
             data-testid="fab-strategy-config"
             @click="configDrawerVisible = true"
             title="策略設定"
             aria-label="策略設定"
           >
-            <Icon name="settings" size="sm" color="var(--iln-hint)" />
+            <Icon name="settings" size="sm" color="var(--iln-text-on-brand)" />
           </button>
         </div>
-        <span class="dash-date">{{ todayLabel }}</span>
-      </header>
 
-      <!-- 資料鮮度提示：置於首屏核心決策前，保留健康度降級資訊 -->
-      <div
-        v-if="freshnessLevel === 'expired' || status?._meta?.lastRun"
-        class="dashboard-freshness"
-      >
-        <div v-if="freshnessLevel === 'expired'" class="freshness-expired-alert">
+        <!-- 僅在資料超過 6 小時未更新時顯示醒目警示 -->
+        <div
+          v-if="freshnessLevel === 'expired'"
+          class="freshness-expired-alert"
+          role="alert"
+        >
           <span class="freshness-expired-alert__text">
-            <Icon name="warn" size="sm" /> 資料已超過 6 小時未更新，建議確認排程狀態
+            <Icon name="warn" size="sm" />
+            <span>資料已超過 6 小時未更新，建議確認排程狀態</span>
           </span>
           <button
             type="button"
@@ -36,14 +48,7 @@
             重新整理
           </button>
         </div>
-
-        <FreshnessBadge
-          v-if="status?._meta?.lastRun"
-          :timestamp="status._meta.lastRun"
-          label="資料更新"
-          @level-change="handleFreshnessLevelChange"
-        />
-      </div>
+      </header>
 
       <!-- Strategy Config Drawer -->
       <el-drawer
@@ -55,7 +60,7 @@
         <StrategyConfigEditorView />
       </el-drawer>
 
-      <!-- Strategy Status Drawer（由 HealthPanel / 摘要卡 / redirect query 開啟） -->
+      <!-- Strategy Status Drawer（由單一摘要卡 / redirect query 開啟） -->
       <el-drawer
         v-model="strategyStatusDrawerVisible"
         title="策略狀態"
@@ -71,9 +76,9 @@
         />
       </el-drawer>
 
-      <!-- Tab Contents -->
+      <!-- Tab Contents：依「決策 → 風控 → 健康與教練建議」三層排列 -->
       <div class="tab-content-area fade-in">
-        <!-- 1. 首屏核心決策 hero -->
+        <!-- Layer 1：首屏核心決策 Hero -->
         <section class="dashboard-block" aria-label="核心投資決策">
           <DecisionHero
             v-if="latestReport"
@@ -95,33 +100,33 @@
           />
         </section>
 
-        <!-- 2. 雙核心駕駛艙 (L2: 總經象限 + 資產安全防護) -->
-        <section
-          class="cockpit-section iln-grid iln-grid--2 fade-up fade-up--stagger-1"
-          data-testid="dual-cockpit-section"
-          aria-label="核心風控駕駛艙"
-        >
-          <MacroCockpitCard
-            :regime-level="regimeLevel"
-            :vix="status?.data?.rawUsMarket?.vix ?? latestReport?.signals?.vix ?? '—'"
-            :vix-override-active="vixOverrideActive"
-            @open-drawer="marketDrawerVisible = true"
-          />
-          <PortfolioShieldCard
-            :margin-ratio="latestReport?.portfolio?.maintenanceRatio ?? latestReport?.signals?.portfolio?.maintenanceRatio ?? 0"
-            :warning-threshold="160"
-            :gross-leverage="glValue"
-            @open-drawer="riskDrawerVisible = true"
-          />
-        </section>
+        <!-- Layer 2：雙核心駕駛艙 (總經象限 + 資產安全防護) 與市場雷達入口 -->
+        <section class="dashboard-block" aria-label="核心風控駕駛艙">
+          <div
+            class="cockpit-section iln-grid iln-grid--2 fade-up fade-up--stagger-1"
+            data-testid="dual-cockpit-section"
+          >
+            <MacroCockpitCard
+              :regime-level="regimeLevel"
+              :vix="status?.data?.rawUsMarket?.vix ?? latestReport?.signals?.vix ?? '—'"
+              :vix-override-active="vixOverrideActive"
+              @open-drawer="marketDrawerVisible = true"
+            />
+            <PortfolioShieldCard
+              :margin-ratio="latestReport?.portfolio?.maintenanceRatio ?? latestReport?.signals?.portfolio?.maintenanceRatio ?? 0"
+              :warning-threshold="160"
+              :gross-leverage="glValue"
+              @open-drawer="riskDrawerVisible = true"
+            />
+          </div>
 
-        <!-- Phase 3：Dashboard → Radar 連結 -->
-        <div class="radar-entry">
-          <router-link :to="{ path: '/insights', query: { tab: 'radar' } }" class="radar-entry-link">
-            <Icon name="arrow-right" size="sm" color="var(--iln-hint)" />
-            <span>查看完整市場雷達</span>
-          </router-link>
-        </div>
+          <div class="radar-entry">
+            <router-link :to="{ path: '/insights', query: { tab: 'radar' } }" class="radar-entry-link">
+              <span>查看完整市場雷達</span>
+              <Icon name="arrow-right" size="sm" color="var(--iln-hint)" />
+            </router-link>
+          </div>
+        </section>
 
         <!-- L3: 市場總經環境明細抽屜 -->
         <MarketDetailDrawer
@@ -145,7 +150,7 @@
           :drop-buffer-percent="dropBufferPercent"
         />
 
-        <!-- 3. 帳戶健康度監控 (0-100) -->
+        <!-- Layer 3：帳戶健康度監控 (0-100) -->
         <section class="dashboard-block fade-up fade-up--stagger-2" aria-label="帳戶健康度監控">
           <HealthPanel
             v-if="healthData"
@@ -164,7 +169,7 @@
           />
         </section>
 
-        <!-- 4. AI 教練建議與推演 -->
+        <!-- Layer 3：AI 教練建議與推演 -->
         <section class="dashboard-block" aria-label="AI 教練建議">
           <CoachingAdvice
             :report="latestReport"
@@ -177,33 +182,21 @@
           />
         </section>
 
-        <!-- Strategy Status 摘要卡（Phase 3：由連結改為內嵌摘要，點擊開啟 drawer） -->
-        <section class="strategy-status-link fade-up fade-up--stagger-1" aria-label="策略狀態摘要">
+        <!-- Layer 3：Strategy Status 單一摘要入口（點擊開啟 drawer） -->
+        <section
+          v-if="strategyStatusSummary && status"
+          class="dashboard-block strategy-status-link fade-up fade-up--stagger-1"
+          aria-label="策略狀態摘要"
+        >
           <component
-            v-if="strategyStatusSummary && status"
             :is="strategyStatusSummary"
             :health="healthData"
             :loading="healthLoading"
             :error="healthError"
             @click="strategyStatusDrawerVisible = true"
           />
-          <EmptyState
-            v-else-if="!healthLoading && !statusLoading"
-            title="策略狀態暫無資料"
-            message="尚未收到策略狀態，請稍後再試"
-            action-text="重新整理"
-            @action="loadAll"
-          />
-          <div v-else class="skeleton-list">
-            <div class="sk sk-hero" style="height: 80px; margin-bottom: 12px"></div>
-          </div>
         </section>
       </div>
-
-      <!-- Footer meta -->
-      <p v-if="status?._meta?.lastRun" class="update-time tabular">
-        資料更新：{{ formatUpdatedAt(status._meta.lastRun) }}
-      </p>
     </div>
   </GlobalErrorBoundary>
 </template>
@@ -221,7 +214,6 @@ import {
 import { prefetch } from "../composables/useRoutePrefetch.js";
 import { viewLoaders } from "../router/index.js";
 import { getPrLevel } from "@/utils/metricThresholds.js";
-import { formatDateTimeInTaipei } from "@/utils/formatDate.js";
 
 // Components
 import MacroCockpitCard from "../components/dashboard/MacroCockpitCard.vue";
@@ -265,7 +257,6 @@ const healthState = usePageState();
 
 // 合併別名：保持 template 與現有 computed 的引用名稱不變
 const status = computed(() => statusState.data.value);
-const statusLoading = computed(() => statusState.loading.value);
 
 const latestReport = computed(() => {
   const r = reportState.data.value;
@@ -453,10 +444,6 @@ async function loadAll() {
   ]);
 }
 
-function formatUpdatedAt(iso) {
-  return formatDateTimeInTaipei(iso);
-}
-
 onMounted(async () => {
   loadAll();
   // 首屏後預取高頻頁：市場雷達
@@ -490,6 +477,10 @@ watch(
   min-height: 100%;
 }
 
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Header ── */
 .dash-header {
   margin-bottom: var(--iln-space-4);
@@ -500,6 +491,9 @@ watch(
   align-items: center;
   gap: var(--iln-space-3);
 }
+.dash-title-group {
+  min-width: 0;
+}
 .dash-title {
   font-size: var(--iln-font-2xl, 22px);
   font-weight: 800;
@@ -507,9 +501,14 @@ watch(
   margin: 0;
   line-height: 1.25;
 }
-.dash-date {
-  display: inline-block;
+.dash-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--iln-space-2);
   margin-top: var(--iln-space-1);
+}
+.dash-date {
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
@@ -546,18 +545,13 @@ watch(
   outline-offset: 2px;
 }
 
-/* ── 首屏鮮度提示區塊 ── */
-.dashboard-freshness {
-  display: flex;
-  flex-direction: column;
-  gap: var(--iln-space-2);
-  margin-bottom: var(--iln-space-4);
-}
+/* ── 首屏鮮度過期警示 ── */
 .freshness-expired-alert {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--iln-space-2);
+  margin-top: var(--iln-space-3);
   padding: var(--iln-space-3) var(--iln-space-4);
   font-size: var(--iln-font-sm);
   font-weight: 600;
@@ -616,15 +610,12 @@ watch(
 .strategy-status-link {
   min-width: 0;
 }
-.health-card {
-  padding: var(--iln-space-5);
-}
 
 /* ── Radar 入口連結 ── */
 .radar-entry {
   display: flex;
   justify-content: flex-end;
-  margin-top: calc(var(--iln-space-1) * -1);
+  margin-top: var(--iln-space-2);
 }
 .radar-entry-link {
   display: inline-flex;
@@ -646,14 +637,6 @@ watch(
 .radar-entry-link:focus-visible {
   outline: 2px solid var(--iln-brand);
   outline-offset: 2px;
-}
-
-/* ── 更新時間 ── */
-.update-time {
-  font-size: var(--iln-font-xs);
-  color: var(--iln-hint);
-  text-align: center;
-  margin-top: var(--iln-space-5);
 }
 
 /* ── 子組件全域覆寫（:deep）── */
