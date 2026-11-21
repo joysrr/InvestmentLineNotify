@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from "vue";
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import { tabs } from "../config/tabsConfig.js";
 import Icon from "./common/Icon.vue";
@@ -44,12 +44,24 @@ const BUFFER = 12;
 
 let resizeObserver = null;
 let stopWatchSafeArea = null;
+let stopWatchStableHeight = null;
+
+const getBottomInset = () => {
+  const tgBottom = Number(safeAreaInset.value?.bottom);
+  return Number.isFinite(tgBottom) && tgBottom > 0 ? tgBottom : 0;
+};
 
 const pillBottom = computed(() => {
   if (typeof window === "undefined") return `${FLOAT_BOTTOM}px`;
-  const viewportDelta = Math.max(0, window.innerHeight - viewportStableHeight.value);
-  const bottomInset = Number(safeAreaInset.value?.bottom) || 0;
-  return `${FLOAT_BOTTOM + bottomInset + viewportDelta}px`;
+  const bottomInset = getBottomInset();
+  const stableH = Number(viewportStableHeight.value) || 0;
+  // 僅在視窗高度明顯小於 stableHeight（例如鍵盤彈出）時補償；
+  // 視窗縮小或恢復展開時避免將 fixed 導覽列推升至頂部或異常位置
+  const keyboardOrShrinkDelta =
+    stableH > 0 && window.innerHeight < stableH
+      ? Math.max(0, stableH - window.innerHeight)
+      : 0;
+  return `calc(${FLOAT_BOTTOM + bottomInset + keyboardOrShrinkDelta}px + env(safe-area-inset-bottom, 0px))`;
 });
 
 const syncPillHeight = () => {
@@ -57,8 +69,9 @@ const syncPillHeight = () => {
   if (!pill) return;
   const rect = pill.getBoundingClientRect();
   if (rect.height > 0) {
-    const bottomInset = Number(safeAreaInset.value?.bottom) || 0;
-    const total = Math.ceil(rect.height + FLOAT_BOTTOM * 2 + bottomInset + BUFFER);
+    // --bottom-nav-height 僅記錄膠囊本體高度 + 上下懸浮緩衝，
+    // 實際安全底部留白由 App.vue 的 --tg-safe-bottom 一併計算，避免雙重疊加
+    const total = Math.ceil(rect.height + FLOAT_BOTTOM * 2 + BUFFER);
     document.documentElement.style.setProperty(
       "--bottom-nav-height",
       `${total}px`,
@@ -66,27 +79,44 @@ const syncPillHeight = () => {
   }
 };
 
-onMounted(() => {
+const handleWindowResize = () => {
+  nextTick(syncPillHeight);
+};
+
+onMounted(async () => {
+  await nextTick();
   syncPillHeight();
-  stopWatchSafeArea = watch(() => safeAreaInset.value.bottom, syncPillHeight);
+
+  stopWatchSafeArea = watch(() => safeAreaInset.value?.bottom, () => {
+    nextTick(syncPillHeight);
+  });
+
+  stopWatchStableHeight = watch(() => viewportStableHeight.value, () => {
+    nextTick(syncPillHeight);
+  });
+
   if (typeof ResizeObserver !== "undefined" && pillEl.value) {
     resizeObserver = new ResizeObserver(syncPillHeight);
     resizeObserver.observe(pillEl.value);
   }
+
+  window.addEventListener("resize", handleWindowResize, { passive: true });
 });
 
 onUnmounted(() => {
   stopWatchSafeArea?.();
+  stopWatchStableHeight?.();
   resizeObserver?.disconnect();
+  window.removeEventListener("resize", handleWindowResize);
   document.documentElement.style.removeProperty("--bottom-nav-height");
 });
 </script>
 
 <style scoped>
 .nav-container {
-  position: relative;
-  left: 12px;
-  right: 12px;
+  position: fixed;
+  inset-inline: 12px;
+  bottom: 0;
   display: flex;
   justify-content: center;
   z-index: 1000;
@@ -95,6 +125,8 @@ onUnmounted(() => {
 
 .floating-pill {
   position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
@@ -107,7 +139,6 @@ onUnmounted(() => {
   border-radius: var(--iln-radius-full);
   box-shadow: var(--iln-shadow-3);
   max-width: calc(100vw - 24px);
-  margin-inline: auto;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;

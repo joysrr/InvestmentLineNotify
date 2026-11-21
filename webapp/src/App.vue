@@ -128,7 +128,7 @@ onUnmounted(() => {
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   padding-bottom: calc(
-    var(--bottom-nav-height, 80px) + var(--tg-safe-bottom, 0px)
+    var(--bottom-nav-height, 80px) + var(--tg-safe-bottom, 0px) + env(safe-area-inset-bottom, 0px)
   );
 }
 
