@@ -1,18 +1,15 @@
 <template>
   <GlobalErrorBoundary>
     <div class="view-container iln-page">
-      <header class="page-header">
-        <h2 class="page-title">
+      <div class="subview-meta">
+        <span class="subview-heading">
           <Icon name="candlestick" size="sm" color="var(--iln-hint)" />
           <span>總經多空對決</span>
-        </h2>
-        <div class="page-header__end">
-          <span v-if="reportDate" class="page-date tabular">
-            {{ formatDateTimeInTaipei(reportDate) }}
-          </span>
-          <BackPill :to="{ path: '/insights', query: { tab: 'macro' } }" label="洞察 · 多空對決" />
-        </div>
-      </header>
+        </span>
+        <span v-if="reportDate" class="page-date tabular">
+          {{ formatDateTimeInTaipei(reportDate) }}
+        </span>
+      </div>
 
       <!-- 載入中 -->
       <EmptyState v-if="loading" title="載入中..." />
@@ -162,11 +159,9 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import Icon from "@/components/common/Icon.vue";
-import { fetchReports } from "../api/index.js";
-import { fetchSocialSentiment } from "../api/index.js";
+import { fetchReports, fetchSocialSentiment } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import SocialSentimentCard from "@/components/macro/SocialSentimentCard.vue";
-import BackPill from "@/components/common/BackPill.vue";
 import { formatDateTimeInTaipei } from "@/utils/formatDate.js";
 import { waitReady } from "../composables/useTelegram.js";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
@@ -174,7 +169,7 @@ import EmptyState from "@/components/common/EmptyState.vue";
 
 const loading = ref(true);
 const error = ref(false);
-const macro = ref(null); // macroAnalysis 物件
+const macro = ref(null);
 const socialSentiment = ref(null);
 const reportDate = ref("");
 
@@ -192,7 +187,6 @@ onMounted(async () => {
     error.value = true;
   }
 
-  // Fetch social sentiment (safe-fallback: errors swallowed, null fallback)
   try {
     socialSentiment.value = await fetchSocialSentiment();
   } catch {
@@ -202,7 +196,6 @@ onMounted(async () => {
   }
 });
 
-// ── 積分 ──
 const bullScore = computed(() => {
   const m = macro.value; if (!m) return 0;
   if (Number.isFinite(m.total_bull_score)) return m.total_bull_score;
@@ -223,13 +216,11 @@ const bearWidth = computed(() =>
   Math.round((bearScore.value / totalScore.value) * 100),
 );
 
-// ── 事件 ──
 const bullEvents = computed(() => macro.value?.bull_events ?? []);
 const bearEvents = computed(() => macro.value?.bear_events ?? []);
 const neutralEvents = computed(() => macro.value?.neutral_events ?? []);
 const takeaways = computed(() => macro.value?.conclusion?.key_takeaways ?? []);
 
-// ── 市場方向 ──
 const direction = computed(
   () => macro.value?.conclusion?.market_direction ?? "",
 );
@@ -262,7 +253,7 @@ const directionClass = computed(() => {
 
 <style scoped>
 .view-container {
-  padding: var(--iln-space-4) var(--iln-space-4) calc(var(--iln-space-6) + env(safe-area-inset-bottom, 0px));
+  padding: 0 0 calc(var(--iln-space-4) + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
 }
 
@@ -270,35 +261,29 @@ const directionClass = computed(() => {
   font-variant-numeric: tabular-nums;
 }
 
-.page-header {
+.subview-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--iln-space-2);
-  margin-bottom: var(--iln-space-4);
+  margin-bottom: var(--iln-space-3);
 }
-.page-title {
+
+.subview-heading {
   display: inline-flex;
   align-items: center;
-  gap: var(--iln-space-2);
-  font-size: var(--iln-font-lg);
-  font-weight: 800;
+  gap: var(--iln-space-1-5, 6px);
+  font-size: var(--iln-font-sm);
+  font-weight: 700;
   color: var(--iln-text);
-  margin: 0;
 }
-.page-header__end {
-  display: flex;
-  align-items: center;
-  gap: var(--iln-space-2);
-  flex-shrink: 0;
-}
+
 .page-date {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   white-space: nowrap;
 }
 
-/* ── Direction badge ── */
 .direction-row {
   display: flex;
   align-items: center;
@@ -306,6 +291,7 @@ const directionClass = computed(() => {
   margin-bottom: var(--iln-space-5);
   flex-wrap: wrap;
 }
+
 .direction-badge {
   display: inline-flex;
   align-items: center;
@@ -316,21 +302,25 @@ const directionClass = computed(() => {
   border-radius: var(--iln-radius-full, 999px);
   white-space: nowrap;
 }
+
 .badge-bull {
   background: var(--iln-viz-bull-bg);
   color: var(--iln-viz-bull-text);
   border: 1px solid var(--iln-viz-bull-border);
 }
+
 .badge-bear {
   background: var(--iln-viz-bear-bg);
   color: var(--iln-viz-bear-text);
   border: 1px solid var(--iln-viz-bear-border);
 }
+
 .badge-neutral {
   background: var(--iln-viz-neutral-bg);
   color: var(--iln-viz-neutral-text);
   border: 1px solid var(--iln-border-subtle);
 }
+
 .direction-hint {
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
@@ -339,10 +329,10 @@ const directionClass = computed(() => {
   line-height: 1.45;
 }
 
-/* ── Section ── */
 .section {
   margin-bottom: var(--iln-space-5);
 }
+
 .section-title {
   display: inline-flex;
   align-items: center;
@@ -354,7 +344,6 @@ const directionClass = computed(() => {
   margin-bottom: var(--iln-space-3);
 }
 
-/* ── Score bars（窄螢幕不擠壓，寬屏可雙欄並排） ── */
 .score-wrap {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -365,18 +354,21 @@ const directionClass = computed(() => {
   padding: var(--iln-space-4);
   box-shadow: var(--iln-shadow-1);
 }
+
 @media (min-width: 560px) {
   .score-wrap {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--iln-space-4);
   }
 }
+
 .score-bar-row {
   display: flex;
   align-items: center;
   gap: var(--iln-space-2);
   min-width: 0;
 }
+
 .score-side {
   display: inline-flex;
   align-items: center;
@@ -386,12 +378,15 @@ const directionClass = computed(() => {
   min-width: 36px;
   flex-shrink: 0;
 }
+
 .score-side--bull {
   color: var(--iln-viz-bull-text);
 }
+
 .score-side--bear {
   color: var(--iln-viz-bear-text);
 }
+
 .score-track {
   flex: 1;
   min-width: 0;
@@ -400,17 +395,21 @@ const directionClass = computed(() => {
   border-radius: var(--iln-radius-full, 999px);
   overflow: hidden;
 }
+
 .score-fill {
   height: 100%;
   border-radius: var(--iln-radius-full, 999px);
   transition: width var(--iln-duration-slow, 300ms) var(--iln-ease-decelerate, ease-out);
 }
+
 .score-fill--bull {
   background: linear-gradient(90deg, var(--iln-viz-bull), var(--iln-viz-bull-light, var(--iln-viz-bull)));
 }
+
 .score-fill--bear {
   background: linear-gradient(90deg, var(--iln-viz-bear), var(--iln-viz-bear-light, var(--iln-viz-bear)));
 }
+
 .score-num {
   font-size: var(--iln-font-sm);
   font-weight: 800;
@@ -420,7 +419,6 @@ const directionClass = computed(() => {
   flex-shrink: 0;
 }
 
-/* ── Takeaway list ── */
 .takeaway-list {
   list-style: none;
   padding: 0;
@@ -429,6 +427,7 @@ const directionClass = computed(() => {
   flex-direction: column;
   gap: var(--iln-space-2);
 }
+
 .takeaway-item {
   display: flex;
   align-items: flex-start;
@@ -441,6 +440,7 @@ const directionClass = computed(() => {
   border-radius: var(--iln-radius-md);
   padding: var(--iln-space-3);
 }
+
 .takeaway-dot {
   width: 6px;
   height: 6px;
@@ -450,25 +450,28 @@ const directionClass = computed(() => {
   margin-top: 6px;
 }
 
-/* ── Event cards ── */
 .event-list {
   display: flex;
   flex-direction: column;
   gap: var(--iln-space-2);
 }
+
 .event-card {
   border-radius: var(--iln-radius-md);
   padding: var(--iln-space-3);
   border: 1px solid transparent;
 }
+
 .event-card--bull {
   background: var(--iln-viz-bull-bg);
   border-color: var(--iln-viz-bull-border, transparent);
 }
+
 .event-card--bear {
   background: var(--iln-viz-bear-bg);
   border-color: var(--iln-viz-bear-border, transparent);
 }
+
 .event-card--neutral {
   background: var(--iln-surface);
   border-color: var(--iln-border-subtle);
@@ -479,6 +482,7 @@ const directionClass = computed(() => {
   align-items: flex-start;
   gap: var(--iln-space-2);
 }
+
 .event-score {
   font-size: var(--iln-font-xs);
   font-weight: 800;
@@ -488,20 +492,24 @@ const directionClass = computed(() => {
   color: var(--iln-viz-bull-text);
   background: var(--iln-surface);
 }
+
 .event-card--bear .event-score {
   color: var(--iln-viz-bear-text);
   background: var(--iln-surface);
 }
+
 .event-score.neutral {
   color: var(--iln-hint);
   background: var(--iln-surface-alt, var(--iln-bg));
 }
+
 .event-title {
   font-size: var(--iln-font-sm);
   font-weight: 600;
   color: var(--iln-text);
   line-height: 1.45;
 }
+
 .event-analysis {
   font-size: var(--iln-font-xs);
   color: var(--iln-text-muted, var(--iln-hint));
@@ -510,17 +518,16 @@ const directionClass = computed(() => {
   padding-left: 2px;
 }
 
-/* ── 尊重 reduced-motion ── */
 @media (prefers-reduced-motion: reduce) {
   .score-fill {
     transition: none;
   }
 }
 
-/* ── 多空事件並排（≥768px）── */
 .macro-events-grid {
   gap: var(--iln-space-3);
 }
+
 @media (min-width: 768px) {
   .macro-events-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

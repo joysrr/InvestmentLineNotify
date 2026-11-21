@@ -1,16 +1,13 @@
 <template>
   <GlobalErrorBoundary>
     <div class="view-container iln-page">
-      <header class="page-header">
-        <h2 class="page-title">
+      <div class="subview-meta">
+        <span class="subview-heading">
           <Icon name="radar" size="sm" />
           <span>市場雷達</span>
-        </h2>
-        <div class="page-header__end">
-          <span class="page-date tabular">{{ todayLabel }}</span>
-          <BackPill :to="{ path: '/insights', query: { tab: 'radar' } }" label="洞察 · 市場雷達" />
-        </div>
-      </header>
+        </span>
+        <span class="page-date tabular">{{ todayLabel }}</span>
+      </div>
 
       <!-- 長期防禦模式狀態欄 (Phase 4) -->
       <div
@@ -209,7 +206,7 @@ import { fetchStatus, fetchReports } from "../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import ExtremeRadarPanel from "@/components/radar/ExtremeRadarPanel.vue";
 import CashExposureWidget from "@/components/radar/CashExposureWidget.vue";
-import BackPill from "@/components/common/BackPill.vue";
+import Icon from "@/components/common/Icon.vue";
 import { fmtDecimal } from "@/utils/formatters.js";
 import { waitReady } from "../composables/useTelegram.js";
 import { formatRelative, resolveLastRun } from "@/utils/formatDate.js";
@@ -225,9 +222,9 @@ import {
 
 const loading = ref(true);
 const error = ref(false);
-const statusData = ref(null); // /api/status  data 欄位
-const reportData = ref(null); // 最新 report（含 vixData / usRisk）
-const statusMeta = ref(null); // /api/status 原始回應（含 updatedAt）
+const statusData = ref(null);
+const reportData = ref(null);
+const statusMeta = ref(null);
 
 const toFiniteNumber = (value) => {
   if (value === null || value === undefined || value === "") return null;
@@ -246,7 +243,6 @@ const lastUpdatedText = computed(() =>
   formatRelative(resolveLastRun(statusMeta.value)),
 );
 
-// ── 載入 ──────────────────────────────────────────────
 const loadData = async () => {
   loading.value = true;
   error.value = false;
@@ -274,7 +270,6 @@ const loadData = async () => {
 
 onMounted(() => loadData());
 
-// ── 長期防禦模式 ────────────────────────────────────────
 const isLongTermDefense = computed(() => {
   return (
     reportData.value?.leadingIndicators?.isLongTermDefense ??
@@ -283,7 +278,6 @@ const isLongTermDefense = computed(() => {
   );
 });
 
-// ── 今日標籤 ──────────────────────────────────────────
 const todayLabel = computed(() =>
   new Date().toLocaleDateString("zh-TW", {
     month: "long",
@@ -292,11 +286,11 @@ const todayLabel = computed(() =>
   }),
 );
 
-// ── 美股 ──────────────────────────────────────────────
 const usVix = computed(() => {
   const v = reportData.value?.usRisk?.vix ?? statusData.value?.rawUsMarket?.vix;
   return v ?? null;
 });
+
 function cardClassToStatus(cls) {
   const map = {
     "card-danger": "danger",
@@ -339,7 +333,6 @@ const cnnCard = computed(() => {
   return { cls: r.cls, sub: r.subCls, label: r.label };
 });
 
-// ── 台股 ──────────────────────────────────────────────
 const twVix = computed(() => {
   const v = toFiniteNumber(reportData.value?.vixData?.value);
   return v != null ? fmtDecimal(v, 1) : null;
@@ -436,7 +429,6 @@ const pb = computed(() => {
     statusData.value?.rawValuation?.pb;
   return toFiniteNumber(v);
 });
-// ⚠️ 本卡片的顏色依 PB 絕對值判定（1.5/2.0/3.0/4.0），與 DashboardView.pbPrLevel 的 PR 歷史分位判定（25/80/90）為不同維度。
 const pbCard = computed(() => {
   const v = pb.value;
   if (v == null) return { cls: "", sub: "rc-sub--neutral", label: "—", icon: "neutral" };
@@ -480,14 +472,13 @@ const fxCard = computed(() => {
   return { cls: "", sub: "rc-sub--neutral", label: "持平", icon: "neutral" };
 });
 
-// ── 掃描結論：統計 9 張 StatCard 的偏多 / 偏空 / 中性數量 ──
 const scanConclusion = computed(() => {
   const statuses = [
     cardClassToStatus(usVixCard.value.cls),
     cardClassToStatus(spxCard.value.cls),
     cardClassToStatus(cnnCard.value.cls),
     cardClassToStatus(twVixCard.value.cls),
-    null, // 景氣燈號：固定 neutral，不計入 ok/danger
+    null,
     cardClassToStatus(marginCard.value.cls),
     cardClassToStatus(peCard.value.cls),
     cardClassToStatus(pbCard.value.cls),
@@ -504,7 +495,7 @@ const scanConclusion = computed(() => {
 
 <style scoped>
 .view-container {
-  padding: var(--iln-space-4) var(--iln-space-4) calc(var(--iln-space-6) + env(safe-area-inset-bottom, 0px));
+  padding: 0 0 calc(var(--iln-space-4) + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
 }
 
@@ -512,28 +503,23 @@ const scanConclusion = computed(() => {
   font-variant-numeric: tabular-nums;
 }
 
-.page-header {
+.subview-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--iln-space-2);
-  margin-bottom: var(--iln-space-4);
+  margin-bottom: var(--iln-space-3);
 }
-.page-title {
+
+.subview-heading {
   display: inline-flex;
   align-items: center;
-  gap: var(--iln-space-2);
-  font-size: var(--iln-font-lg);
-  font-weight: 800;
+  gap: var(--iln-space-1-5, 6px);
+  font-size: var(--iln-font-sm);
+  font-weight: 700;
   color: var(--iln-text);
-  margin: 0;
 }
-.page-header__end {
-  display: flex;
-  align-items: center;
-  gap: var(--iln-space-2);
-  flex-shrink: 0;
-}
+
 .page-date {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
@@ -543,6 +529,7 @@ const scanConclusion = computed(() => {
 .section {
   margin-bottom: var(--iln-space-5);
 }
+
 .section-title {
   display: inline-flex;
   align-items: center;
@@ -554,7 +541,6 @@ const scanConclusion = computed(() => {
   margin-bottom: var(--iln-space-2);
 }
 
-/* ── Radar 3-col grid ── */
 .radar-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -576,12 +562,15 @@ const scanConclusion = computed(() => {
 .card-danger {
   background: var(--iln-viz-bear-bg);
 }
+
 .card-warn {
   background: var(--iln-viz-alert-bg);
 }
+
 .card-ok {
   background: var(--iln-viz-bull-bg);
 }
+
 .card-blue {
   background: var(--iln-viz-neutral-bg);
 }
@@ -593,12 +582,12 @@ const scanConclusion = computed(() => {
   opacity: 0.85;
 }
 
-/* ── Detail row ── */
 .detail-list {
   display: flex;
   flex-direction: column;
   gap: var(--iln-space-2);
 }
+
 .detail-row {
   display: flex;
   justify-content: space-between;
@@ -608,25 +597,31 @@ const scanConclusion = computed(() => {
   border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-md);
 }
+
 .dr-label {
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
+
 .dr-value {
   font-size: var(--iln-font-sm);
   font-weight: 700;
   color: var(--iln-text);
 }
+
 .dr-value--muted {
   font-weight: 500;
   color: var(--iln-hint);
 }
+
 .text-green {
   color: var(--iln-viz-bull-text);
 }
+
 .text-red {
   color: var(--iln-viz-bear-text);
 }
+
 .text-muted {
   color: var(--iln-hint);
 }
@@ -638,7 +633,6 @@ const scanConclusion = computed(() => {
   margin-top: var(--iln-space-4);
 }
 
-/* Phase 4: 長期防禦模式狀態欄 */
 .defense-mode-badge {
   display: flex;
   align-items: center;
@@ -650,19 +644,23 @@ const scanConclusion = computed(() => {
   font-weight: 700;
   animation: pulse-border 2s infinite;
 }
+
 .defense-mode-badge.card-danger {
   background: var(--iln-viz-bear-bg);
   border: 1px solid var(--iln-viz-bear-border);
   color: var(--iln-viz-bear-text);
 }
+
 .defense-mode-badge .badge-icon {
   display: inline-flex;
   align-items: center;
   font-size: var(--iln-font-md);
 }
+
 .defense-mode-badge .badge-text {
   letter-spacing: 0.2px;
 }
+
 @keyframes pulse-border {
   0%,
   100% {
@@ -672,13 +670,13 @@ const scanConclusion = computed(() => {
     box-shadow: var(--iln-viz-bear-shadow-focus, none);
   }
 }
+
 @media (prefers-reduced-motion: reduce) {
   .defense-mode-badge {
     animation: none;
   }
 }
 
-/* 錯誤視圖 */
 .error-view {
   display: flex;
   flex-direction: column;
@@ -689,10 +687,10 @@ const scanConclusion = computed(() => {
   color: var(--iln-hint);
 }
 
-/* ── 雷達總覽並排（≥768px）── */
 .radar-overview {
   margin-bottom: var(--iln-space-3);
 }
+
 @media (min-width: 768px) {
   .radar-overview {
     grid-template-columns: repeat(2, minmax(0, 1fr));
