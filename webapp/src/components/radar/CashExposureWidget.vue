@@ -1,59 +1,61 @@
 <template>
-  <div v-if="analysis" class="cash-exposure-card">
+  <div v-if="analysis" class="cash-exposure-card tabular">
     <ContentCard variant="outlined" padding="sm" radius="md">
-      <span class="dc-label">現金曝險分析</span>
-      <span class="dc-status" :class="statusClass">{{ statusText }}</span>
-    <div class="dc-row">
-      <StatCard size="sm" :framed="false" align="left" label="建議 DCA" :value="suggestedDcaAmt" />
-    </div>
-    <div class="dc-row">
-      <StatCard size="sm" :framed="false" align="left" label="曝險缺口" :value="exposureGap" />
-    </div>
-    <div class="dc-row" v-if="targetExposure != null">
-      <StatCard size="sm" :framed="false" align="left" label="目標曝險" :value="targetExposure" />
-    </div>
-    <div class="dc-row dc-hint" v-if="message">
-      <StatCard size="sm" :framed="false" align="left" label="" :value="message" />
-    </div>
+      <div class="dc-header">
+        <span class="dc-label">現金曝險分析</span>
+        <span class="dc-status" :class="statusClass">{{ statusText }}</span>
+      </div>
+      <div class="dc-row">
+        <StatCard size="sm" :framed="false" align="left" label="建議 DCA" :value="suggestedDcaAmt" />
+      </div>
+      <div class="dc-row">
+        <StatCard size="sm" :framed="false" align="left" label="曝險缺口" :value="exposureGap" />
+      </div>
+      <div class="dc-row" v-if="targetExposure != null">
+        <StatCard size="sm" :framed="false" align="left" label="目標曝險" :value="targetExposure" />
+      </div>
+      <div class="dc-row dc-hint" v-if="message">
+        <StatCard size="sm" :framed="false" align="left" label="" :value="message" />
+      </div>
 
-    <!-- 槓桿儀表板 -->
-    <div class="leverage-section" v-if="targetLeverage != null || currentLeverage != null">
-      <span class="section-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 槓桿儀表板</span>
-      <div class="metric-grid">
-        <div class="metric-card">
-          <StatCard size="sm" :framed="false" align="center" label="目標槓桿" :value="targetLeverage" format="number" :decimals="2" unit="x" />
-        </div>
-        <div class="metric-card">
-          <StatCard size="sm" :framed="false" align="center" label="當前槓桿" :value="currentLeverage" format="number" :decimals="2" unit="x" />
-        </div>
-        <div class="metric-card" v-if="leverageGap != null">
-          <StatCard size="sm" :framed="false" align="center" label="槓桿缺口" :value="leverageGap" format="number" :decimals="2" unit="x" />
+      <!-- 槓桿儀表板 -->
+      <div class="leverage-section" v-if="targetLeverage != null || currentLeverage != null">
+        <span class="section-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> <span>槓桿儀表板</span></span>
+        <div class="metric-grid">
+          <div class="metric-card">
+            <StatCard size="sm" :framed="false" align="center" label="目標槓桿" :value="targetLeverage" format="number" :decimals="2" unit="x" />
+          </div>
+          <div class="metric-card">
+            <StatCard size="sm" :framed="false" align="center" label="當前槓桿" :value="currentLeverage" format="number" :decimals="2" unit="x" />
+          </div>
+          <div class="metric-card" v-if="leverageGap != null">
+            <StatCard size="sm" :framed="false" align="center" label="槓桿缺口" :value="leverageGap" format="number" :decimals="2" unit="x" />
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- 批次計算推導 -->
-    <div class="batch-section" v-if="batchCalculation">
-      <span class="section-title"><Icon name="chart" size="sm" color="var(--iln-hint)" /> 批次計算推導</span>
-      <div class="metric-grid">
-        <div class="metric-card">
-          <StatCard size="sm" :framed="false" align="center" label="曝險缺口" :value="batchCalculation.exposureGap" />
-        </div>
-        <div class="metric-card">
-          <StatCard size="sm" :framed="false" align="center" label="資本缺口 (÷2)" :value="batchCalculation.capitalGap" />
-        </div>
-        <div class="metric-card">
-          <StatCard size="sm" :framed="false" align="center" label="缺口 ÷ 10 批" :value="batchCalculation.batchByCount" />
-        </div>
-        <div class="metric-card">
-          <StatCard size="sm" :framed="false" align="center" label="現金 × 10%" :value="batchCalculation.batchByCash" />
-        </div>
-        <div class="metric-card batch-selected">
-          <StatCard size="sm" :framed="false" align="center" label="最終批次" :value="batchCalculation.selectedBatch" />
+      <!-- 批次計算推導 -->
+      <div class="batch-section" v-if="batchCalculation">
+        <span class="section-title"><Icon name="chart" size="sm" color="var(--iln-hint)" /> <span>批次計算推導</span></span>
+        <div class="metric-grid">
+          <div class="metric-card">
+            <StatCard size="sm" :framed="false" align="center" label="曝險缺口" :value="batchCalculation.exposureGap" />
+          </div>
+          <div class="metric-card">
+            <StatCard size="sm" :framed="false" align="center" label="資本缺口 (÷2)" :value="batchCalculation.capitalGap" />
+          </div>
+          <div class="metric-card">
+            <StatCard size="sm" :framed="false" align="center" label="缺口 ÷ 10 批" :value="batchCalculation.batchByCount" />
+          </div>
+          <div class="metric-card">
+            <StatCard size="sm" :framed="false" align="center" label="現金 × 10%" :value="batchCalculation.batchByCash" />
+          </div>
+          <div class="metric-card batch-selected">
+            <StatCard size="sm" :framed="false" align="center" label="最終批次" :value="batchCalculation.selectedBatch" />
+          </div>
         </div>
       </div>
-    </div>
-  </ContentCard>
+    </ContentCard>
   </div>
 </template>
 
@@ -99,107 +101,100 @@ const leverageGap = computed(() => {
 </script>
 
 <style scoped>
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .cash-exposure-card {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--iln-space-1-5, 6px);
 }
+
+.dc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-1);
+}
+
 .dc-label {
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
+
 .dc-status {
-  font-size: 12px;
+  font-size: var(--iln-font-xs);
   font-weight: 600;
 }
+
 .text-success {
   color: var(--iln-viz-bull-text);
 }
+
 .text-warning {
   color: var(--iln-viz-alert-text);
 }
+
 .text-danger {
   color: var(--iln-viz-bear-text);
 }
+
 .text-muted {
   color: var(--iln-hint);
 }
+
 .dc-row {
   display: flex;
   justify-content: space-between;
   font-size: var(--iln-font-xs);
   border-top: 1px solid var(--iln-border-subtle);
-  padding-top: 4px;
+  padding-top: var(--iln-space-1);
 }
-.dc-value {
-  font-weight: 600;
-  color: var(--iln-text);
-}
+
 .dc-hint {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
-  margin-top: 4px;
+  margin-top: var(--iln-space-1);
 }
 
-/* Section title */
 .section-title {
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-top: 10px;
-  margin-bottom: 8px;
+  margin-top: var(--iln-space-2-5, 10px);
+  margin-bottom: var(--iln-space-2);
 }
 
-/* Metric grid */
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 
 .metric-card {
   background: var(--iln-bg);
   border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-md);
-  padding: 10px 8px;
+  padding: var(--iln-space-2-5, 10px) var(--iln-space-2);
   text-align: center;
 }
 
-.metric-label {
-  font-size: var(--iln-font-xs);
-  color: var(--iln-hint);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
-  line-height: 1.2;
-}
-
-.metric-value {
-  font-size: var(--iln-font-sm);
-  font-weight: 700;
-  color: var(--iln-text);
-  word-break: break-all;
-}
-
-/* Selected batch highlight */
 .batch-selected {
   border-color: var(--iln-brand);
   background: var(--iln-brand-soft);
 }
-.batch-selected .metric-value {
+
+.batch-selected :deep(.stat-value) {
   color: var(--iln-brand);
 }
 
-/* 批次區塊 */
-.batch-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--iln-space-2);
-  margin-bottom: var(--iln-space-4);
-}
-
-/* 槓桿區塊 */
+.batch-section,
 .leverage-section {
   display: flex;
   flex-direction: column;

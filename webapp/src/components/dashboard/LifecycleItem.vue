@@ -1,8 +1,11 @@
 <template>
   <ContentCard variant="outlined" size="sm">
-    <div class="icon" v-if="icon"><Icon :name="icon" size="sm"/></div>
+    <div class="icon" v-if="icon"><Icon :name="icon" size="sm" /></div>
     <div class="label">{{ label }}</div>
-    <div class="value">{{ value }} <span class="unit" v-if="unit">{{ unit }}</span></div>
+    <div class="value tabular">
+      <span>{{ value }}</span>
+      <span class="unit" v-if="unit">{{ unit }}</span>
+    </div>
   </ContentCard>
 </template>
 
@@ -10,7 +13,7 @@
 import ContentCard from "@/components/common/ContentCard.vue";
 import Icon from "@/components/common/Icon.vue";
 
-const props = defineProps({
+defineProps({
   label: { type: String, required: true },
   value: { type: [Number, String], default: "—" },
   unit: { type: String, default: "" },
@@ -19,25 +22,30 @@ const props = defineProps({
 </script>
 
 <style scoped>
-.lifecycle-item {
-  /* 佈局由 ContentCard 提供 */
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
+
 .icon {
-  font-size: var(--iln-font-base);
-  margin-right: 8px;
+  display: inline-flex;
+  align-items: center;
+  margin-right: var(--iln-space-2);
 }
+
 .label {
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
+
 .value {
   font-size: var(--iln-font-xl);
   font-weight: 700;
   color: var(--iln-text);
 }
+
 .unit {
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
-  margin-left: 4px;
+  margin-left: var(--iln-space-1);
 }
 </style>

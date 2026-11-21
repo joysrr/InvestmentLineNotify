@@ -28,9 +28,9 @@
       證據報告暫時無法取得
     </p>
     <template v-else-if="report">
-      <p class="evidence-count">{{ itemCount }} 個核對項目</p>
+      <p class="evidence-count tabular">{{ itemCount }} 個核對項目</p>
       <p class="scope-text">{{ report.verificationScope }}</p>
-      <p v-if="report.generatedAt" class="updated-text">
+      <p v-if="report.generatedAt" class="updated-text tabular">
         產生時間：{{ generatedAtDisplay }}
       </p>
     </template>
@@ -41,6 +41,7 @@
 import { computed, onMounted, shallowRef } from "vue";
 import { Download } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
+import ContentCard from "../common/ContentCard.vue";
 import {
   fetchDataEvidenceReport,
   generateDataEvidenceReport,
@@ -113,22 +114,22 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.data-evidence-card {
-  /* 佈局由 ContentCard 提供，此處僅保留必要的自定義樣式 */
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 .card-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--iln-space-3);
 }
 
 .card-header h3 {
   margin: 0;
   color: var(--iln-text);
   font-size: var(--iln-font-base);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .card-subtitle,
@@ -137,19 +138,26 @@ onMounted(async () => {
 .status-text {
   margin: 6px 0 0;
   color: var(--iln-hint);
-  font-size: var(--iln-font-sm);
+  font-size: var(--iln-font-xs);
   line-height: 1.5;
 }
 
 .evidence-count {
-  margin: 16px 0 0;
+  margin: var(--iln-space-4) 0 0;
   color: var(--iln-brand);
   font-size: var(--iln-font-lg);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .error-text {
   color: var(--iln-viz-bear-text);
+  font-weight: 600;
+}
+
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
 }
 
 @media (max-width: 480px) {
@@ -165,38 +173,5 @@ onMounted(async () => {
   .card-header :deep(.export-btn) {
     flex: 0 0 auto;
   }
-}
-
-/* 卡片副標題 */
-.card-subtitle {
-  font-size: var(--iln-font-xs);
-  color: var(--iln-hint);
-  margin-top: var(--iln-space-1);
-}
-
-/* 匯出按鈕 */
-.export-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--iln-space-1);
-  padding: var(--iln-space-1) var(--iln-space-3);
-  background: var(--iln-surface);
-  border: 1px solid var(--iln-border-subtle);
-  border-radius: var(--iln-radius-md);
-  color: var(--iln-text);
-  font-size: var(--iln-font-sm);
-  cursor: pointer;
-}
-
-/* 範圍文字 */
-.scope-text {
-  font-size: var(--iln-font-xs);
-  color: var(--iln-hint);
-}
-
-/* 更新時間 */
-.updated-text {
-  font-size: var(--iln-font-xs);
-  color: var(--iln-hint);
 }
 </style>

@@ -2,7 +2,7 @@
   <div class="config-field-editor" :data-testid="'field-' + path">
     <label class="field-label" :for="path">
       <span class="label-text">{{ fieldMeta?.label || path }}</span>
-      <span v-if="fieldMeta?.unit" class="label-unit">({{ fieldMeta.unit }})</span>
+      <span v-if="fieldMeta?.unit" class="label-unit tabular">({{ fieldMeta.unit }})</span>
       <el-tooltip v-if="fieldMeta?.desc" :content="fieldMeta.desc" placement="top">
         <el-icon class="help-icon"><QuestionFilled /></el-icon>
       </el-tooltip>
@@ -12,6 +12,7 @@
       <!-- Number Input -->
       <el-input-number
         v-if="fieldType === 'number'"
+        :id="path"
         v-model="localValue"
         :min="fieldMeta?.min"
         :max="fieldMeta?.max"
@@ -20,15 +21,15 @@
         controls-position="right"
         :placeholder="fieldMeta?.placeholder || '請輸入數值'"
         @change="handleChange"
-        class="field-input"
+        class="field-input tabular"
       />
 
       <!-- Boolean Select -->
       <el-select
         v-else-if="fieldType === 'boolean'"
+        :id="path"
         v-model="localValue"
         :placeholder="fieldMeta?.placeholder || '請選擇'"
-        style="width: 100%"
         @change="handleChange"
         class="field-input"
       >
@@ -39,6 +40,7 @@
       <!-- String Input -->
       <el-input
         v-else-if="fieldType === 'string'"
+        :id="path"
         v-model="localValue"
         :placeholder="fieldMeta?.placeholder || '請輸入文字'"
         @change="handleChange"
@@ -48,6 +50,7 @@
       <!-- Array Editor (JSON) -->
       <el-input
         v-else-if="fieldType === 'array'"
+        :id="path"
         v-model="localValueJson"
         type="textarea"
         :rows="4"
@@ -59,6 +62,7 @@
       <!-- Object Editor (JSON) -->
       <el-input
         v-else-if="fieldType === 'object'"
+        :id="path"
         v-model="localValueJson"
         type="textarea"
         :rows="6"
@@ -70,9 +74,9 @@
       <!-- Enum Select -->
       <el-select
         v-else-if="fieldType === 'enum'"
+        :id="path"
         v-model="localValue"
         :placeholder="fieldMeta?.placeholder || '請選擇'"
-        style="width: 100%"
         @change="handleChange"
         class="field-input"
       >
@@ -87,7 +91,7 @@
       <!-- Fallback -->
       <div v-else class="unsupported-type">
         <span class="unsupported-label">不支援的型別: {{ fieldType }}</span>
-        <pre class="raw-value">{{ JSON.stringify(localValue, null, 2) }}</pre>
+        <pre class="raw-value tabular">{{ JSON.stringify(localValue, null, 2) }}</pre>
       </div>
     </div>
 
@@ -101,8 +105,8 @@
     </el-form-item>
 
     <!-- Min/Max Hint -->
-    <div v-if="fieldMeta && (fieldMeta.min !== undefined || fieldMeta.max !== undefined)" class="range-hint">
-      範圍:
+    <div v-if="fieldMeta && (fieldMeta.min !== undefined || fieldMeta.max !== undefined)" class="range-hint tabular">
+      <span>範圍:</span>
       <span v-if="fieldMeta.min !== undefined">最小 {{ fieldMeta.min }}</span>
       <span v-if="fieldMeta.max !== undefined">最大 {{ fieldMeta.max }}</span>
     </div>
@@ -135,16 +139,13 @@ const props = defineProps({
 
 const emit = defineEmits(["update"]);
 
-// Local value for controlled input
 const localValue = ref(null);
 const localValueJson = ref("");
 
-// Get field meta from config meta
 const fieldMeta = computed(() => {
   return props.meta[props.path] || null;
 });
 
-// Normalize meta.type (and non-standard aliases) into canonical editor type
 function normalizeType(rawType) {
   switch (rawType) {
     case "integer":
@@ -178,17 +179,14 @@ function normalizeType(rawType) {
   }
 }
 
-// Enum options resolved from meta.options or meta.enum
 const enumOptions = computed(() => {
   const opts = fieldMeta.value?.options || fieldMeta.value?.enum;
   return Array.isArray(opts) ? opts : [];
 });
 
-// Determine field type
 const fieldType = computed(() => {
   const metaType = normalizeType(fieldMeta.value?.type);
   if (metaType) {
-    // enum without options degrades to string so it stays editable
     if (metaType === "enum" && enumOptions.value.length === 0) return "string";
     return metaType;
   }
@@ -199,16 +197,13 @@ const fieldType = computed(() => {
   if (typeof val === "boolean") return "boolean";
   if (Array.isArray(val)) return "array";
   if (val !== null && typeof val === "object") return "object";
-  // undefined/null -> fallback to string so every field stays editable
   return "string";
 });
 
-// Get current value from config using path
 const currentValue = computed(() => {
   return getNestedValue(props.config, props.path);
 });
 
-// Initialize local value when config or path changes
 watch(() => currentValue.value, (newVal) => {
   if (fieldType.value === "array" || fieldType.value === "object") {
     localValueJson.value = JSON.stringify(newVal, null, 2);
@@ -217,13 +212,11 @@ watch(() => currentValue.value, (newVal) => {
   }
 }, { immediate: true, deep: true });
 
-// Handle number/boolean/string change
 function handleChange(value) {
   localValue.value = value;
   emit("update", { path: props.path, value });
 }
 
-// Handle array JSON change
 function handleArrayChange(value) {
   localValueJson.value = value;
   try {
@@ -234,11 +227,10 @@ function handleArrayChange(value) {
       ElMessage.warning("請輸入有效的 JSON 陣列格式");
     }
   } catch (e) {
-    // Ignore parse errors during typing
+    // 打字過程中暫略不完整 JSON 解析錯誤
   }
 }
 
-// Handle object JSON change
 function handleObjectChange(value) {
   localValueJson.value = value;
   try {
@@ -249,11 +241,10 @@ function handleObjectChange(value) {
       ElMessage.warning("請輸入有效的 JSON 物件格式");
     }
   } catch (e) {
-    // Ignore parse errors during typing
+    // 打字過程中暫略不完整 JSON 解析錯誤
   }
 }
 
-// Get step for number input
 function getStep(meta) {
   if (!meta) return 1;
   if (meta.unit === "%") return 0.1;
@@ -267,7 +258,6 @@ function getStep(meta) {
   return 1;
 }
 
-// Get precision for number input
 function getPrecision(meta) {
   if (!meta) return 0;
   if (meta.unit === "%") return 2;
@@ -276,7 +266,6 @@ function getPrecision(meta) {
   return 0;
 }
 
-// Get nested value from object using dot path
 function getNestedValue(obj, path) {
   return path.split(".").reduce((o, k) => (o ? o[k] : undefined), obj);
 }
@@ -286,14 +275,18 @@ function getNestedValue(obj, path) {
 .config-field-editor {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--iln-space-1-5, 6px);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 .field-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: var(--iln-space-2);
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   color: var(--iln-text);
 }
@@ -306,14 +299,14 @@ function getNestedValue(obj, path) {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   background: var(--iln-surface);
-  padding: 2px 6px;
+  padding: 2px var(--iln-space-1-5, 6px);
   border-radius: var(--iln-radius-sm);
 }
 
 .help-icon {
   color: var(--iln-hint);
   cursor: help;
-  font-size: 14px;
+  font-size: var(--iln-font-base);
 }
 
 .help-icon:hover {
@@ -328,9 +321,10 @@ function getNestedValue(obj, path) {
   width: 100%;
 }
 
-.json-input {
-  font-family: monospace;
-  font-size: 12px;
+.json-input :deep(textarea) {
+  font-family: var(--iln-font-mono, monospace);
+  font-size: var(--iln-font-xs);
+  font-variant-numeric: tabular-nums;
 }
 
 .field-error {
@@ -348,22 +342,24 @@ function getNestedValue(obj, path) {
 .unsupported-label {
   display: block;
   color: var(--iln-hint);
-  font-size: 12px;
-  margin-bottom: 8px;
+  font-size: var(--iln-font-xs);
+  margin-bottom: var(--iln-space-2);
 }
 
 .raw-value {
   margin: 0;
-  font-size: 11px;
+  font-family: var(--iln-font-mono, monospace);
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .range-hint {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: var(--iln-space-3);
 }
 </style>

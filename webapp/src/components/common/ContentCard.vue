@@ -20,11 +20,7 @@ import { computed } from "vue";
 
 /**
  * ContentCard — 統一卡片容器
- *
- * Phase 2 (2026-11-17) 收斂：
- * - 新增 size 快捷（sm/md/lg）→ 一次控制 padding + radius，取代 padding+radius 雙屬性
- * - 舊 padding/radius 完全保留（向後兼容，優先級低於 size）
- * - 刪除 radius="xl" 死分支（0 使用）
+ * - 支援 size 快捷（sm/md/lg）同時控制 padding 與 radius，亦相容既有 padding/radius 屬性
  */
 const props = defineProps({
   variant: {
@@ -33,7 +29,7 @@ const props = defineProps({
   },
   size: {
     type: String,
-    default: null, // null | 'sm' | 'md' | 'lg' — 快捷：同時設定 padding 與 radius
+    default: null, // null | 'sm' | 'md' | 'lg'
   },
   padding: {
     type: String,
@@ -64,7 +60,6 @@ const props = defineProps({
 const emit = defineEmits(["click"]);
 
 const classes = computed(() => {
-  // size 快捷優先：sm → pad-sm + radius-sm；md → pad-md + radius-md；lg → pad-lg + radius-lg
   const pad = props.size || props.padding;
   const rad = props.size || props.radius;
 
@@ -119,13 +114,13 @@ const handleClick = (event) => {
   padding: 0;
 }
 .content-card--pad-sm {
-  padding: 12px;
+  padding: var(--iln-space-3);
 }
 .content-card--pad-md {
-  padding: 16px;
+  padding: var(--iln-space-4);
 }
 .content-card--pad-lg {
-  padding: 20px;
+  padding: var(--iln-space-5);
 }
 
 .content-card--radius-sm {
@@ -171,8 +166,8 @@ const handleClick = (event) => {
 .content-card__header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-2);
 }
 
 .content-card__body {
@@ -180,10 +175,10 @@ const handleClick = (event) => {
 }
 
 .content-card__footer {
-  margin-top: 8px;
+  margin-top: var(--iln-space-2);
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 
 .content-card--clickable {
@@ -196,7 +191,20 @@ const handleClick = (event) => {
   box-shadow: var(--iln-shadow-2);
   transform: translateY(-2px);
 }
+.content-card--clickable:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
+}
 .content-card--clickable:active {
   transform: scale(0.985);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content-card--clickable,
+  .content-card--clickable:hover,
+  .content-card--clickable:active {
+    transition: none;
+    transform: none;
+  }
 }
 </style>

@@ -13,8 +13,8 @@
         v-if="showRetry"
         type="primary"
         size="small"
+        class="error-fallback__retry"
         @click="handleRetry"
-        style="margin-top: 16px"
       >
         重新載入
       </el-button>
@@ -27,22 +27,18 @@ import { ref, onErrorCaptured } from "vue";
 import { ElAlert, ElButton } from "element-plus";
 
 const props = defineProps({
-  // 自訂錯誤標題
   errorTitle: {
     type: String,
     default: "頁面載入失敗",
   },
-  // 自訂錯誤描述
   errorDescription: {
     type: String,
     default: "發生未預期的錯誤，請重新整理頁面或聯絡管理員",
   },
-  // 是否顯示重試按鈕
   showRetry: {
     type: Boolean,
     default: true,
   },
-  // 自訂重試行為
   onRetry: {
     type: Function,
     default: null,
@@ -51,7 +47,6 @@ const props = defineProps({
 
 const error = ref(null);
 
-// 捕捉子元件錯誤
 onErrorCaptured((err, instance, info) => {
   console.error("[GlobalErrorBoundary] Captured error:", err);
   console.error("[GlobalErrorBoundary] Component:", instance);
@@ -63,7 +58,6 @@ onErrorCaptured((err, instance, info) => {
     info,
   };
 
-  // 阻止錯誤向上傳播
   return false;
 });
 
@@ -72,7 +66,6 @@ const handleRetry = () => {
   if (props.onRetry) {
     props.onRetry();
   } else {
-    // 預設行為：重新整理頁面
     window.location.reload();
   }
 };
@@ -89,7 +82,11 @@ const handleRetry = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: var(--iln-space-10) var(--iln-space-4);
   min-height: 300px;
+}
+
+.error-fallback__retry {
+  margin-top: var(--iln-space-4);
 }
 </style>

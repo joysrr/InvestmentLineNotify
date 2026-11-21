@@ -29,76 +29,76 @@
         @action="emit('retry')"
       />
       <div v-else key="content" class="health-dashboard-v2">
-      <!-- Health Hero -->
-      <div class="health-hero-v2">
-        <div class="glass-overlay"></div>
-        <div class="health-hero-content">
-          <div class="health-hero-top">
-            <div class="health-hero-status">
-              <span class="health-hero-emoji">{{
-                data.lightStatus?.emoji || "chart"
-              }}</span>
-              <div class="health-hero-labels">
-                <span class="health-hero-title">帳戶健康評級</span>
-                <span class="health-hero-label">{{
-                  data.lightStatus?.label || "分析中"
+        <!-- Health Hero -->
+        <div class="health-hero-v2">
+          <div class="health-hero-content">
+            <div class="health-hero-top">
+              <div class="health-hero-status">
+                <span class="health-hero-emoji">{{
+                  data.lightStatus?.emoji || "📊"
                 }}</span>
+                <div class="health-hero-labels">
+                  <span class="health-hero-title">帳戶健康評級</span>
+                  <span class="health-hero-label">{{
+                    data.lightStatus?.label || "分析中"
+                  }}</span>
+                </div>
+              </div>
+              <div class="health-hero-score-wrapper tabular">
+                <StatCard
+                  label="帳戶健康分數"
+                  :value="data.score"
+                  :status="statusClass"
+                  unit="/100"
+                />
               </div>
             </div>
-            <div class="health-hero-score-wrapper">
-              <StatCard
-                label="帳戶健康分數"
-                :value="data.score"
-                :status="statusClass"
-                unit="/100"
-              />
+            <p class="health-hero-summary">{{ data.summary }}</p>
+          </div>
+        </div>
+
+        <!-- Health Components Grid -->
+        <div class="health-grid-v2">
+          <div
+            v-for="(comp, key) in data.components"
+            :key="key"
+            class="health-glass-card"
+            :class="comp.status?.toLowerCase()"
+          >
+            <div class="comp-header">
+              <span class="comp-icon"><Icon :name="getCompIcon(key)" size="sm" /></span>
+              <span class="comp-name">{{ getCompName(key) }}</span>
+              <span class="comp-status-dot" aria-hidden="true"></span>
+            </div>
+            <div class="comp-body">
+              <div
+                class="comp-value dual-vix-row tabular"
+                v-if="key === 'regime' && comp.details?.vixTW != null"
+              >
+                <span class="dual-vix-us">VIX {{ comp.details.vix }}</span>
+                <span class="dual-vix-sep">/</span>
+                <span class="dual-vix-tw">台股 {{ comp.details.vixTW }}</span>
+              </div>
+              <div class="comp-value tabular" v-else>{{ getCompDisplayValue(comp) }}</div>
+              <div class="comp-sub">
+                {{ comp.details?.message || comp.details?.stage || "正常" }}
+              </div>
             </div>
           </div>
-          <p class="health-hero-summary">{{ data.summary }}</p>
         </div>
-      </div>
 
-      <!-- Health Components Grid -->
-      <div class="health-grid-v2">
+        <!-- Detail Link：改為 emit，由父層決定開啟 drawer 或導航 -->
         <div
-          v-for="(comp, key) in data.components"
-          :key="key"
-          class="health-glass-card"
-          :class="comp.status?.toLowerCase()"
+          class="health-detail-link"
+          role="button"
+          tabindex="0"
+          @click="emit('open-strategy-status')"
+          @keydown.enter="emit('open-strategy-status')"
         >
-          <div class="comp-header">
-            <span class="comp-icon"><Icon :name="getCompIcon(key)" size="sm" /></span>
-            <span class="comp-name">{{ getCompName(key) }}</span>
-          </div>
-          <div class="comp-body">
-            <div
-              class="comp-value"
-              v-if="key === 'regime' && comp.details?.vixTW != null"
-            >
-              <span class="dual-vix-us">VIX {{ comp.details.vix }}</span>
-              <span class="dual-vix-sep">/</span>
-              <span class="dual-vix-tw">台股 {{ comp.details.vixTW }}</span>
-            </div>
-            <div class="comp-value" v-else>{{ getCompDisplayValue(comp) }}</div>
-            <div class="comp-sub">
-              {{ comp.details?.message || comp.details?.stage || "正常" }}
-            </div>
-          </div>
-          <div class="comp-status-dot"></div>
+          <Icon name="chart" size="sm" color="var(--iln-brand)" />
+          <span>查看完整策略狀態 →</span>
         </div>
       </div>
-
-      <!-- Detail Link (Phase 3)：改為 emit，由父層決定開啟 drawer 或導航 -->
-      <div
-        class="health-detail-link"
-        role="button"
-        tabindex="0"
-        @click="emit('open-strategy-status')"
-        @keydown.enter="emit('open-strategy-status')"
-      >
-        <Icon name="chart" size="sm" color="var(--iln-text)" /> 查看完整策略狀態 →
-      </div>
-    </div>
     </Transition>
   </ContentCard>
 </template>
@@ -120,13 +120,11 @@ const props = defineProps({
   error: Boolean,
 });
 
-// status 映射對照 docs/design/status-semantics.md 四態：ok / warn / danger / neutral
 const statusMap = {
   ok: "ok",
   warn: "warn",
   danger: "danger",
   neutral: "neutral",
-  // 後端可能回傳的其他值
   healthy: "ok",
   warning: "warn",
   critical: "danger",
@@ -185,124 +183,30 @@ const getCompDisplayValue = (comp) => {
 </script>
 
 <style scoped>
-.section {
-  /* 佈局由 ContentCard 提供 */
-}
-.health-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.health-card {
-  background: var(--iln-bg);
-  border-radius: var(--iln-radius-lg);
-  padding: 16px;
-  border: 1px solid var(--iln-border-subtle);
-  box-shadow: var(--iln-shadow-1);
-}
-.health-card--primary {
-  grid-column: 1 / -1;
-  background: linear-gradient(135deg, var(--iln-brand) 0%, var(--iln-health-brand-end) 100%);
-  box-shadow: var(--iln-shadow-2);
-}
-.health-card--warn {
-  background: linear-gradient(135deg, var(--iln-viz-alert) 0%, var(--iln-health-warn-end) 100%);
-  box-shadow: var(--iln-shadow-2);
-}
-.health-card--danger {
-  background: linear-gradient(135deg, var(--iln-viz-bear) 0%, var(--iln-health-danger-end) 100%);
-  box-shadow: var(--iln-shadow-2);
-}
-.health-card h2 {
-  font-size: var(--iln-font-lg);
-  margin: 0 0 16px;
-  color: var(--iln-text);
-}
-.health-value {
-  font-size: var(--iln-font-xl);
-  font-weight: 700;
-}
-.health-label {
-  font-size: var(--iln-font-xs);
-  color: var(--iln-hint);
-}
-.health-meta {
-  font-size: var(--iln-font-sm);
-  color: var(--iln-hint);
-  margin-top: 4px;
-}
-.health-stat {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
-  background: var(--iln-surface);
-  border-radius: var(--iln-radius-md);
-}
-.health-stat-value {
-  font-size: var(--iln-font-base);
-  font-weight: 700;
-  color: var(--iln-text);
-}
-.health-stat-label {
-  font-size: var(--iln-font-xs);
-  color: var(--iln-hint);
-}
-.health-trend {
-  font-size: var(--iln-font-sm);
-  padding: 10px;
-  background: var(--iln-surface);
-  border-radius: var(--iln-radius-md);
-}
-.health-badge {
-  font-size: var(--iln-font-xs);
-  padding: 4px 8px;
-  border-radius: var(--iln-radius-sm);
-  background: var(--iln-surface);
-}
-.health-badge--ok { background: var(--iln-viz-bull-bg); color: var(--iln-viz-bull-text); }
-.health-badge--warn { background: var(--iln-viz-alert-bg); color: var(--iln-viz-alert-text); }
-.health-badge--danger { background: var(--iln-viz-bear-bg); color: var(--iln-viz-bear-text); }
-.health-badge-score {
-  font-size: var(--iln-font-xs);
-  padding: 4px 10px;
-  border-radius: var(--iln-radius-md);
-  background: var(--iln-surface);
-  color: var(--iln-text);
-}
-.health-link {
-  font-size: var(--iln-font-xs);
-  color: var(--iln-brand);
-}
-.health-link:active { opacity: 0.8; }
-.health-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.health-body {
-  margin-top: 12px;
-}
-.health-footer {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--iln-border-subtle);
-}
-.health-skeleton {
-  background: linear-gradient(135deg, var(--iln-brand) 0%, var(--iln-health-brand-end) 100%);
-  border-radius: var(--iln-radius-lg);
-  box-shadow: var(--iln-shadow-2);
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
-/* Dashboard 容器 */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-4);
+}
+
+.section-title {
+  margin: 0;
+  font-size: var(--iln-font-md);
+  font-weight: 700;
+  color: var(--iln-text);
+}
+
 .health-dashboard-v2 {
   display: flex;
   flex-direction: column;
-  gap: var(--iln-space-6);
+  gap: var(--iln-space-5);
 }
 
-/* Health Hero 區塊 */
 .health-hero-v2 {
   position: relative;
   border-radius: var(--iln-radius-lg);
@@ -310,13 +214,6 @@ const getCompDisplayValue = (comp) => {
   background: var(--iln-surface);
   border: 1px solid var(--iln-border-subtle);
   box-shadow: var(--iln-shadow-1);
-}
-
-.glass-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.4); /* iln-color-allow: 玻璃擬態半透明白色遮罩，無對應設計令牌 */
-  pointer-events: none;
 }
 
 .health-hero-content {
@@ -369,9 +266,9 @@ const getCompDisplayValue = (comp) => {
   margin: 0;
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
+  line-height: 1.5;
 }
 
-/* Health 組件網格 */
 .health-grid-v2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -393,17 +290,37 @@ const getCompDisplayValue = (comp) => {
   display: flex;
   align-items: center;
   gap: var(--iln-space-2);
-  margin-bottom: var(--iln-space-2);
+  margin-bottom: var(--iln-space-1);
 }
 
 .comp-icon {
-  font-size: var(--iln-font-base);
+  display: inline-flex;
+  align-items: center;
+  color: var(--iln-hint);
 }
 
 .comp-name {
   font-size: var(--iln-font-sm);
   font-weight: var(--iln-weight-medium);
   color: var(--iln-text);
+}
+
+.comp-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--iln-viz-bull);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.health-glass-card.warn .comp-status-dot {
+  background: var(--iln-viz-alert);
+}
+
+.health-glass-card.danger .comp-status-dot,
+.health-glass-card.critical .comp-status-dot {
+  background: var(--iln-viz-bear);
 }
 
 .comp-body {
@@ -418,24 +335,17 @@ const getCompDisplayValue = (comp) => {
   color: var(--iln-text);
 }
 
-.comp-sub {
-  font-size: var(--iln-font-xs);
-  color: var(--iln-hint);
+.dual-vix-row {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--iln-space-1);
 }
 
-.comp-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--iln-viz-bull-bg);
-  margin-left: auto;
-}
-
-/* 雙 VIX 顯示 */
 .dual-vix-us,
 .dual-vix-tw {
   font-size: var(--iln-font-sm);
-  font-weight: var(--iln-weight-medium);
+  font-weight: var(--iln-weight-semibold);
   color: var(--iln-text);
 }
 
@@ -444,20 +354,27 @@ const getCompDisplayValue = (comp) => {
   color: var(--iln-hint);
 }
 
-/* 詳情連結 */
+.comp-sub {
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
+}
+
 .health-detail-link {
   display: inline-flex;
   align-items: center;
-  gap: var(--iln-space-1);
-  margin-top: var(--iln-space-4);
+  gap: var(--iln-space-1-5, 6px);
+  align-self: flex-start;
   padding: var(--iln-space-2) var(--iln-space-4);
   background: var(--iln-surface-alt);
   border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-md);
   color: var(--iln-brand);
   font-size: var(--iln-font-sm);
+  font-weight: var(--iln-weight-semibold);
   cursor: pointer;
-  transition: all var(--iln-duration-fast) var(--iln-ease-standard);
+  transition:
+    background-color var(--iln-duration-fast) var(--iln-ease-standard),
+    border-color var(--iln-duration-fast) var(--iln-ease-standard);
 }
 
 .health-detail-link:hover {
@@ -465,17 +382,14 @@ const getCompDisplayValue = (comp) => {
   border-color: var(--iln-border-default);
 }
 
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: var(--iln-space-2);
-  margin-bottom: var(--iln-space-4);
+.health-detail-link:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
 }
 
-/* 雙 VIX-US 指標 */
-.dual-vix-us {
-  display: flex;
-  flex-direction: column;
-  gap: var(--iln-space-1);
+@media (prefers-reduced-motion: reduce) {
+  .health-detail-link {
+    transition: none;
+  }
 }
 </style>

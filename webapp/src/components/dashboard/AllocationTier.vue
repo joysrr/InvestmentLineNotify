@@ -8,7 +8,10 @@
     data-testid="allocation-tier"
   >
     <template #header>
-      <div class="tier-header"><Icon name="chart" size="sm" class="tier-icon"/><div class="tier-score">{{ tier.minScore }}pt+</div></div>
+      <div class="tier-header">
+        <Icon name="chart" size="sm" class="tier-icon" />
+        <div class="tier-score tabular">{{ tier.minScore }}pt+</div>
+      </div>
     </template>
 
     <div class="tier-body">
@@ -19,7 +22,7 @@
           :style="{ width: tierFillWidth }"
         ></div>
       </div>
-      <div class="tier-info">
+      <div class="tier-info tabular">
         <div class="tier-leverage">{{ tier.leverage }}x</div>
         <div class="tier-cash">現金 {{ (tier.cash * 100).toFixed(0) }}%</div>
         <div class="tier-comment">{{ tier.comment }}</div>
@@ -54,10 +57,14 @@ const tierFillWidth = computed(() => {
 </script>
 
 <style scoped>
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .tier-body {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--iln-space-3);
   width: 100%;
 }
 
@@ -70,7 +77,7 @@ const tierFillWidth = computed(() => {
 .tier-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--iln-space-1-5, 6px);
   flex-shrink: 0;
 }
 
@@ -89,7 +96,7 @@ const tierFillWidth = computed(() => {
 .tier-fill {
   height: 100%;
   border-radius: 3px;
-  transition: all 0.3s;
+  transition: width var(--iln-duration-base) var(--iln-ease-standard);
 }
 
 .tier-fill.current {
@@ -122,5 +129,11 @@ const tierFillWidth = computed(() => {
 .tier-comment {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tier-fill {
+    transition: none;
+  }
 }
 </style>

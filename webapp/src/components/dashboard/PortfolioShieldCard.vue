@@ -15,10 +15,10 @@
           {{ shieldStatus.label }}
         </span>
       </div>
-      <div class="cockpit-title" :class="shieldStatus.textClass">
+      <div class="cockpit-title tabular" :class="shieldStatus.textClass">
         {{ formatPercent(marginRatio) }}
       </div>
-      <div class="cockpit-sub">
+      <div class="cockpit-sub tabular">
         耐跌 {{ dropBufferPercent }}% ｜ 槓桿 {{ formatLeverage(grossLeverage) }}
       </div>
     </div>
@@ -120,46 +120,55 @@ function formatLeverage(val) {
 </script>
 
 <style scoped>
-.cockpit-card {
-  /* 佈局由 ContentCard 提供 */
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
+
 .cockpit-left {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--iln-space-1);
 }
+
 .cockpit-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-2);
 }
+
 .cockpit-tag {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
+
 .status-badge {
   font-size: var(--iln-font-xs);
-  padding: 2px 6px;
+  font-weight: var(--iln-weight-semibold);
+  padding: 2px var(--iln-space-1-5, 6px);
   border-radius: var(--iln-radius-full);
   background: var(--iln-surface);
 }
+
 .cockpit-title {
   font-size: var(--iln-font-xl);
   font-weight: 700;
   color: var(--iln-text);
 }
+
 .cockpit-sub {
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
+
 .cockpit-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
+
 .shield-meter {
   width: 120px;
   height: 8px;
@@ -167,28 +176,40 @@ function formatLeverage(val) {
   border-radius: var(--iln-radius-full);
   overflow: hidden;
 }
+
 .meter-track {
   width: 100%;
   height: 100%;
 }
+
 .meter-fill {
   height: 100%;
   border-radius: var(--iln-radius-full);
-  transition: width 0.3s ease;
+  transition: width var(--iln-duration-base) var(--iln-ease-standard);
 }
+
 .meter-fill.fill-ok { background: var(--iln-viz-bull); }
 .meter-fill.fill-warn { background: var(--iln-viz-alert); }
 .meter-fill.fill-danger { background: var(--iln-viz-bear); }
+
 .cockpit-action {
-  margin-top: 12px;
+  margin-top: var(--iln-space-3);
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
+
 .drawer-hint {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: var(--iln-space-1);
 }
+
 .chevron {
   font-size: var(--iln-font-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meter-fill {
+    transition: none;
+  }
 }
 </style>

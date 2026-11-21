@@ -1,24 +1,28 @@
 <template>
   <ContentCard variant="outlined" size="lg">
     <h3 class="section-title">市場快照</h3>
-    <div v-if="loading" class="snapshot-grid snapshot-grid--3">
+    <div v-if="loading" class="snapshot-grid snapshot-grid--3" aria-busy="true">
       <div v-for="i in 3" :key="i" class="snapshot-card skeleton-card">
         <div class="sk sk-label"></div>
         <div class="sk sk-value"></div>
         <div class="sk sk-sub"></div>
       </div>
     </div>
-    <div v-else-if="error" class="inline-error"><Icon name="danger" size="sm" color="var(--iln-viz-bear)" /> 快照載入失敗</div>
+    <div v-else-if="error" class="inline-error">
+      <Icon name="danger" size="sm" color="var(--iln-viz-bear)" /> <span>快照載入失敗</span>
+    </div>
     <div v-else class="snapshot-grid snapshot-grid--3">
       <!-- Regime / VIX -->
       <div class="snapshot-card" :class="regimeLevel.cardClass">
         <span class="snap-label">總經狀態 (Macro Regime)</span>
-        <span class="snap-value">{{
+        <span class="snap-value tabular">{{
           status?.data?.rawUsMarket?.vix ?? "—"
         }}</span>
         <span class="snap-sub" :class="regimeLevel.textClass">
-          {{ regimeLevel.label }}
-          <span v-if="vixOverrideActive" title="VIX 短路保護生效"><Icon name="trigger" size="sm" color="var(--iln-viz-alert)" /></span>
+          <span>{{ regimeLevel.label }}</span>
+          <span v-if="vixOverrideActive" class="snap-trigger" title="VIX 短路保護生效">
+            <Icon name="trigger" size="sm" color="var(--iln-viz-alert)" />
+          </span>
         </span>
         <span v-if="regimeLevel.subLabel" class="snap-hint">
           {{ regimeLevel.subLabel }}
@@ -27,7 +31,7 @@
       <!-- PB PR -->
       <div class="snapshot-card" :class="pbPrLevel.cardClass">
         <span class="snap-label">PB 分位數</span>
-        <span class="snap-value">{{ pbPrValue }}%</span>
+        <span class="snap-value tabular">{{ pbPrValue }}%</span>
         <span class="snap-sub" :class="pbPrLevel.textClass">{{
           pbPrLevel.label
         }}</span>
@@ -62,57 +66,84 @@ defineProps({
 </script>
 
 <style scoped>
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .snapshot-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: var(--iln-space-3);
 }
+
+.snapshot-grid--3 {
+  gap: var(--iln-space-4);
+}
+
 .snapshot-card {
   background: var(--iln-bg);
   border-radius: var(--iln-radius-md);
-  padding: 12px;
-  border: 1px solid var(--iln-surface);
+  padding: var(--iln-space-3);
+  border: 1px solid var(--iln-border-subtle);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--iln-space-1);
 }
+
 .skeleton-card {
   background: var(--iln-surface);
   border-radius: var(--iln-radius-md);
-  padding: 12px;
+  padding: var(--iln-space-3);
   border: 1px solid var(--iln-border-subtle);
 }
+
 .snap-label {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
+
 .snap-value {
   font-size: var(--iln-font-xl);
   font-weight: 700;
   color: var(--iln-text);
 }
+
 .snap-value.snap-light {
   font-size: var(--iln-font-lg);
 }
+
 .snap-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
+
 .snap-sub.snap-sub--neutral {
   color: var(--iln-text);
 }
+
+.snap-trigger {
+  display: inline-flex;
+  align-items: center;
+}
+
 .snap-hint {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
+
 .section-title {
   font-size: var(--iln-font-base);
   color: var(--iln-text);
-  margin: 0 0 12px;
+  margin: 0 0 var(--iln-space-3);
 }
+
 .card-ok .snap-sub { color: var(--iln-viz-bull-text); }
 .card-warn .snap-sub { color: var(--iln-viz-alert-text); }
 .card-danger .snap-sub { color: var(--iln-viz-bear-text); }
+
 .border-left-danger {
   border-left: 3px solid var(--iln-viz-bear-text);
 }
@@ -123,13 +154,14 @@ defineProps({
   border-left: 3px solid var(--iln-viz-bull-text);
 }
 
-/* 行內錯誤 */
 .inline-error {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
   font-size: var(--iln-font-xs);
   color: var(--iln-viz-bear-text);
 }
 
-/* 快照骨架屏 */
 .sk {
   height: 16px;
   border-radius: var(--iln-radius-sm);
@@ -137,25 +169,15 @@ defineProps({
 }
 
 .sk-label {
-  font-size: var(--iln-font-xs);
-  color: var(--iln-hint);
+  width: 60%;
 }
 
 .sk-sub {
-  font-size: var(--iln-font-xs);
-  color: var(--iln-hint);
+  width: 45%;
 }
 
 .sk-value {
-  font-size: var(--iln-font-sm);
-  font-weight: var(--iln-weight-medium);
-  color: var(--iln-text);
-}
-
-/* 快照網格（3列） */
-.snapshot-grid--3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--iln-space-4);
+  height: 22px;
+  width: 80%;
 }
 </style>

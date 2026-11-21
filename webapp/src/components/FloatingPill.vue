@@ -38,9 +38,8 @@ useIOSSwipeGuard(pillEl);
 
 const { viewportStableHeight, safeAreaInset } = useTelegram();
 
-// 量測 pill 高度，寫入 --bottom-nav-height
-const BOTTOM_OFFSET = 16; // 與底部懸浮留白偏移一致
-const BUFFER = 8; // 陰影緩衝
+const BOTTOM_OFFSET = 16;
+const BUFFER = 8;
 
 let resizeObserver = null;
 let stopWatchSafeArea = null;

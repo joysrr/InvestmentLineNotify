@@ -1,214 +1,210 @@
 <template>
-    <GlobalErrorBoundary>
-    <div class="view-container">
-    <div class="view-header">
-      <div class="header-top">
-        <h2 class="view-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> 技術指標詳情</h2>
-        <BackPill :to="{ path: '/chart', query: { tab: 'technical' } }" label="圖表 · 技術指標" />
+  <GlobalErrorBoundary>
+    <div class="view-container tabular">
+      <div class="view-header">
+        <div class="header-top">
+          <h2 class="view-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> <span>技術指標詳情</span></h2>
+          <BackPill :to="{ path: '/chart', query: { tab: 'technical' } }" label="圖表 · 技術指標" />
+        </div>
+        <span class="view-subtitle">{{ todayLabel }}</span>
       </div>
-      <span class="view-subtitle">{{ todayLabel }}</span>
-    </div>
 
-    <!-- 骨架屏 -->
-    <div v-if="loading" class="loading-state">
-      <div v-for="i in 3" :key="i" class="section skeleton">
-        <div class="sk-title"></div>
-        <div class="sk-grid">
-          <div v-for="j in 3" :key="j" class="sk-card"></div>
+      <!-- 骨架屏 -->
+      <div v-if="loading" class="loading-state" aria-busy="true">
+        <div v-for="i in 3" :key="i" class="section skeleton">
+          <div class="sk-title"></div>
+          <div class="sk-grid">
+            <div v-for="j in 3" :key="j" class="sk-card"></div>
+          </div>
         </div>
       </div>
+
+      <template v-else-if="latestReport">
+        <!-- 技術指標 -->
+        <section class="section">
+          <h3 class="section-title">核心指標</h3>
+          <div class="indicators-grid">
+            <StatCard
+              label="RSI"
+              :value="Number(rsiInfo.display)"
+              :status="cardClassToStatus(rsiInfo.cardClass)"
+              framed
+            >
+              <template #suffix>
+                {{ rsiInfo.label }}
+                <Icon
+                  name="info"
+                  size="xs"
+                  @click.stop="toggleIndicator('rsi')"
+                />
+              </template>
+            </StatCard>
+            <div
+              v-if="expandedIndicator === 'rsi'"
+              class="indicator-desc"
+            >{{ indicatorDescriptions.rsi }}</div>
+            <StatCard
+              label="KD (K)"
+              :value="Number(kdKInfo.display)"
+              :status="cardClassToStatus(kdKInfo.cardClass)"
+              framed
+            >
+              <template #suffix>
+                {{ kdKInfo.label }}
+                <Icon
+                  name="info"
+                  size="xs"
+                  @click.stop="toggleIndicator('kdK')"
+                />
+              </template>
+            </StatCard>
+            <div
+              v-if="expandedIndicator === 'kdK'"
+              class="indicator-desc"
+            >{{ indicatorDescriptions.kdK }}</div>
+            <StatCard
+              label="KD (D)"
+              :value="Number(kdDInfo.display)"
+              :status="cardClassToStatus(kdDInfo.cardClass)"
+              framed
+            >
+              <template #suffix>
+                {{ kdDInfo.label }}
+                <Icon
+                  name="info"
+                  size="xs"
+                  @click.stop="toggleIndicator('kdD')"
+                />
+              </template>
+            </StatCard>
+            <div
+              v-if="expandedIndicator === 'kdD'"
+              class="indicator-desc"
+            >{{ indicatorDescriptions.kdD }}</div>
+            <StatCard
+              label="乖離率 MA240"
+              :value="biasInfo.display"
+              :status="cardClassToStatus(biasInfo.cardClass)"
+              framed
+            >
+              <template #suffix>
+                {{ biasInfo.label }}
+                <Icon
+                  name="info"
+                  size="xs"
+                  @click.stop="toggleIndicator('bias')"
+                />
+              </template>
+            </StatCard>
+            <div
+              v-if="expandedIndicator === 'bias'"
+              class="indicator-desc"
+            >{{ indicatorDescriptions.bias }}</div>
+            <StatCard
+              label="MACD"
+              :value="macdInfo.display"
+              :status="cardClassToStatus(macdInfo.cardClass)"
+              size="sm"
+              framed
+            >
+              <template #suffix>
+                {{ macdInfo.label }}
+                <Icon
+                  name="info"
+                  size="xs"
+                  @click.stop="toggleIndicator('macd')"
+                />
+              </template>
+            </StatCard>
+            <div
+              v-if="expandedIndicator === 'macd'"
+              class="indicator-desc"
+            >{{ indicatorDescriptions.macd }}</div>
+          </div>
+        </section>
+
+        <!-- 風險雷達 -->
+        <section class="section">
+          <h3 class="section-title"><Icon name="radar" size="sm" color="var(--iln-hint)" /> <span>訊號雷達</span></h3>
+          <div class="risk-summary">
+            <div class="risk-bar" :class="reversalRiskClass">
+              <span class="risk-bar-label">近期轉弱</span>
+              <span class="risk-bar-count">{{ reversalTriggered }} / {{ reversalTotal }}</span>
+              <div class="risk-dots">
+                <span
+                  v-for="i in reversalTotal"
+                  :key="i"
+                  class="risk-dot"
+                  :class="i <= reversalTriggered ? 'dot-on' : 'dot-off'"
+                ></span>
+              </div>
+            </div>
+            <div class="risk-bar" :class="sellRiskClass">
+              <span class="risk-bar-label">賣出訊號</span>
+              <span class="risk-bar-count">{{ sellTriggered }} / {{ sellTotal }}</span>
+              <div class="risk-dots">
+                <span
+                  v-for="i in sellTotal"
+                  :key="i"
+                  class="risk-dot"
+                  :class="i <= sellTriggered ? 'dot-on' : 'dot-off'"
+                ></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 轉弱監控詳細 -->
+          <CollapsibleSection
+            title="轉弱監控詳細"
+            :expanded="reversalExpanded"
+            @update:expanded="reversalExpanded = $event"
+            indicator="chevron"
+          >
+            <div class="signal-rows">
+              <div
+                v-for="sig in reversalSignals"
+                :key="sig.name"
+                class="signal-row"
+                :class="sig.triggered ? 'sig-on' : 'sig-off'"
+              >
+                <span class="sig-icon">
+                  <Icon :name="sig.triggered ? 'alert-triangle' : 'check-circle'" size="sm" />
+                </span>
+                <span class="sig-name">{{ sig.name }}</span>
+                <span class="sig-value">{{ sig.value }}</span>
+                <span class="sig-cond">{{ sig.condition }}</span>
+              </div>
+            </div>
+          </CollapsibleSection>
+
+          <!-- 賣出訊號詳細 -->
+          <CollapsibleSection
+            title="賣出訊號詳細"
+            :expanded="sellExpanded"
+            @update:expanded="sellExpanded = $event"
+            indicator="chevron"
+          >
+            <div class="signal-rows">
+              <div
+                v-for="sig in sellSignals"
+                :key="sig.name"
+                class="signal-row"
+                :class="sig.triggered ? 'sig-on' : 'sig-off'"
+              >
+                <span class="sig-icon">
+                  <Icon :name="sig.triggered ? 'alert-triangle' : 'check-circle'" size="sm" />
+                </span>
+                <span class="sig-name">{{ sig.name }}</span>
+                <span class="sig-value">{{ sig.value }}</span>
+                <span class="sig-cond">{{ sig.condition }}</span>
+              </div>
+            </div>
+          </CollapsibleSection>
+        </section>
+      </template>
+
+      <EmptyState v-else-if="!loading" icon="Box" title="尚無指標數據" />
     </div>
-
-    <template v-else-if="latestReport">
-      <!-- 技術指標 -->
-      <section class="section">
-        <h3 class="section-title">核心指標</h3>
-        <div class="indicators-grid">
-          <StatCard
-            label="RSI"
-            :value="Number(rsiInfo.display)"
-            :status="cardClassToStatus(rsiInfo.cardClass)"
-            framed
-          >
-            <template #suffix>
-              {{ rsiInfo.label }}
-              <Icon
-                name="info"
-                size="xs"
-                @click.stop="toggleIndicator('rsi')"
-              />
-            </template>
-          </StatCard>
-          <div
-            v-if="expandedIndicator === 'rsi'"
-            class="indicator-desc"
-          >{{ indicatorDescriptions.rsi }}</div>
-          <StatCard
-            label="KD (K)"
-            :value="Number(kdKInfo.display)"
-            :status="cardClassToStatus(kdKInfo.cardClass)"
-            framed
-          >
-            <template #suffix>
-              {{ kdKInfo.label }}
-              <Icon
-                name="info"
-                size="xs"
-                @click.stop="toggleIndicator('kdK')"
-              />
-            </template>
-          </StatCard>
-          <div
-            v-if="expandedIndicator === 'kdK'"
-            class="indicator-desc"
-          >{{ indicatorDescriptions.kdK }}</div>
-          <StatCard
-            label="KD (D)"
-            :value="Number(kdDInfo.display)"
-            :status="cardClassToStatus(kdDInfo.cardClass)"
-            framed
-          >
-            <template #suffix>
-              {{ kdDInfo.label }}
-              <Icon
-                name="info"
-                size="xs"
-                @click.stop="toggleIndicator('kdD')"
-              />
-            </template>
-          </StatCard>
-          <div
-            v-if="expandedIndicator === 'kdD'"
-            class="indicator-desc"
-          >{{ indicatorDescriptions.kdD }}</div>
-          <StatCard
-            label="乖離率 MA240"
-            :value="biasInfo.display"
-            :status="cardClassToStatus(biasInfo.cardClass)"
-            framed
-          >
-            <template #suffix>
-              {{ biasInfo.label }}
-              <Icon
-                name="info"
-                size="xs"
-                @click.stop="toggleIndicator('bias')"
-              />
-            </template>
-          </StatCard>
-          <div
-            v-if="expandedIndicator === 'bias'"
-            class="indicator-desc"
-          >{{ indicatorDescriptions.bias }}</div>
-          <StatCard
-            label="MACD"
-            :value="macdInfo.display"
-            :status="cardClassToStatus(macdInfo.cardClass)"
-            size="sm"
-            framed
-          >
-            <template #suffix>
-              {{ macdInfo.label }}
-              <Icon
-                name="info"
-                size="xs"
-                @click.stop="toggleIndicator('macd')"
-              />
-            </template>
-          </StatCard>
-          <div
-            v-if="expandedIndicator === 'macd'"
-            class="indicator-desc"
-          >{{ indicatorDescriptions.macd }}</div>
-        </div>
-      </section>
-
-      <!-- 風險雷達 -->
-      <section class="section">
-        <h3 class="section-title"><Icon name="radar" size="sm" color="var(--iln-hint)" /> 訊號雷達</h3>
-        <div class="risk-summary">
-          <div class="risk-bar" :class="reversalRiskClass">
-            <span class="risk-bar-label">近期轉弱</span>
-            <span class="risk-bar-count"
-              >{{ reversalTriggered }} / {{ reversalTotal }}</span
-            >
-            <div class="risk-dots">
-              <span
-                v-for="i in reversalTotal"
-                :key="i"
-                class="risk-dot"
-                :class="i <= reversalTriggered ? 'dot-on' : 'dot-off'"
-              ></span>
-            </div>
-          </div>
-          <div class="risk-bar" :class="sellRiskClass">
-            <span class="risk-bar-label">賣出訊號</span>
-            <span class="risk-bar-count"
-              >{{ sellTriggered }} / {{ sellTotal }}</span
-            >
-            <div class="risk-dots">
-              <span
-                v-for="i in sellTotal"
-                :key="i"
-                class="risk-dot"
-                :class="i <= sellTriggered ? 'dot-on' : 'dot-off'"
-              ></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 轉弱監控詳細 -->
-        <CollapsibleSection
-          title="轉弱監控詳細"
-          :expanded="reversalExpanded"
-          @update:expanded="reversalExpanded = $event"
-          indicator="chevron"
-        >
-          <div class="signal-rows">
-            <div
-              v-for="sig in reversalSignals"
-              :key="sig.name"
-              class="signal-row"
-              :class="sig.triggered ? 'sig-on' : 'sig-off'"
-            >
-              <span class="sig-icon">
-                <Icon :name="sig.triggered ? 'alert-triangle' : 'check-circle'" size="sm" />
-              </span>
-              <span class="sig-name">{{ sig.name }}</span>
-              <span class="sig-value">{{ sig.value }}</span>
-              <span class="sig-cond">{{ sig.condition }}</span>
-            </div>
-          </div>
-        </CollapsibleSection>
-
-        <!-- 賣出訊號詳細 -->
-        <CollapsibleSection
-          title="賣出訊號詳細"
-          :expanded="sellExpanded"
-          @update:expanded="sellExpanded = $event"
-          indicator="chevron"
-        >
-          <div class="signal-rows">
-            <div
-              v-for="sig in sellSignals"
-              :key="sig.name"
-              class="signal-row"
-              :class="sig.triggered ? 'sig-on' : 'sig-off'"
-            >
-              <span class="sig-icon">
-                <Icon :name="sig.triggered ? 'alert-triangle' : 'check-circle'" size="sm" />
-              </span>
-              <span class="sig-name">{{ sig.name }}</span>
-              <span class="sig-value">{{ sig.value }}</span>
-              <span class="sig-cond">{{ sig.condition }}</span>
-            </div>
-          </div>
-        </CollapsibleSection>
-      </section>
-    </template>
-
-    <EmptyState v-else-if="!loading" icon="Box" title="尚無指標數據" />
-  </div>
   </GlobalErrorBoundary>
 </template>
 
@@ -223,7 +219,7 @@ import { waitReady } from "../../composables/useTelegram.js";
 import BackPill from "@/components/common/BackPill.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
 
-const props = defineProps({
+defineProps({
   timeRange: {
     type: String,
     default: "ALL",
@@ -232,7 +228,7 @@ const props = defineProps({
 
 const latestReport = ref(null);
 const loading = ref(true);
-const expandedIndicator = ref(null); // 'rsi' | 'kdK' | 'kdD' | 'bias' | 'macd'
+const expandedIndicator = ref(null);
 
 const reversalExpanded = ref(true);
 const sellExpanded = ref(true);
@@ -267,7 +263,6 @@ function cardClassToStatus(cls) {
   return map[cls] ?? null;
 }
 
-// ── 指標取值 logic (與 DashboardView 同步) ──
 function indicatorInfo(value, thresholds) {
   const v = Number.isFinite(value) ? value : null;
   const display = v !== null ? v.toFixed(1) : "—";
@@ -410,7 +405,6 @@ const macdInfo = computed(() => {
   };
 });
 
-// ── 風險雷達 logic ──
 const r = computed(() => latestReport.value?.signals?.reversal ?? {});
 const s = computed(
   () => latestReport.value?.signals?.sellSignals ?? { flags: {} },
@@ -513,208 +507,188 @@ onMounted(async () => {
   await waitReady();
   load();
 });
-
-import { onUnmounted } from "vue";
-onUnmounted(() => {
-  // 保持清理邏輯，但不再操作 backButton
-});
 </script>
 
 <style scoped>
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .view-container {
-  padding: 16px 16px calc(112px + env(safe-area-inset-bottom, 0px));
+  padding: var(--iln-space-4) var(--iln-space-4) calc(112px + env(safe-area-inset-bottom, 0px));
 }
+
 .view-header {
-  margin-bottom: 20px;
+  margin-bottom: var(--iln-space-5, 20px);
 }
+
 .header-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 4px;
+  gap: var(--iln-space-3);
+  margin-bottom: var(--iln-space-1);
 }
+
 .view-title {
-  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1-5, 6px);
+  font-size: var(--iln-font-lg);
   font-weight: 700;
   color: var(--iln-text);
   margin: 0;
 }
+
 .view-subtitle {
-  font-size: 12px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   padding-left: 2px;
 }
 
 .section {
-  margin-bottom: 24px;
+  margin-bottom: var(--iln-space-6);
 }
+
 .section-title {
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  font-size: var(--iln-font-xs);
   font-weight: 600;
   color: var(--iln-hint);
-  margin-bottom: 12px;
+  margin-bottom: var(--iln-space-3);
   text-transform: uppercase;
 }
 
-/* Indicators */
 .indicators-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-.indicator-card {
-  background: var(--iln-surface);
-  border-radius: 12px;
-  padding: 12px 8px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.ind-label {
-  font-size: 10px;
-  color: var(--iln-hint);
-}
-.ind-value {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--iln-text);
-}
-.ind-value--sm {
-  font-size: 14px;
-}
-.ind-sub {
-  font-size: 10px;
-  font-weight: 500;
-}
-.ind-sub--neutral {
-  color: var(--iln-viz-neutral-text);
-}
-.ind-sub--danger {
-  color: var(--iln-viz-bear-text);
-}
-.ind-sub--warn {
-  color: var(--iln-viz-alert-text);
-}
-.ind-sub--ok {
-  color: var(--iln-viz-bull-text);
-}
-.ind-sub--buy {
-  color: var(--iln-viz-bull-text);
+  gap: var(--iln-space-2);
 }
 
 .indicator-desc {
   grid-column: 1 / -1;
-  font-size: 12px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
-  padding: 6px 10px;
+  padding: var(--iln-space-1-5, 6px) var(--iln-space-2-5, 10px);
   background: var(--iln-surface-muted);
-  border-radius: 6px;
-  margin-top: 4px;
+  border-radius: var(--iln-radius-sm);
+  margin-top: var(--iln-space-1);
 }
 
-/* Risk Radar */
 .risk-summary {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-4);
 }
+
 .risk-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
+  gap: var(--iln-space-2-5, 10px);
+  padding: var(--iln-space-2-5, 10px) var(--iln-space-3);
+  border-radius: var(--iln-radius-md);
   background: var(--iln-surface);
 }
+
 .risk-low {
   border-left: 3px solid var(--iln-viz-bull-border);
 }
+
 .risk-mid {
   border-left: 3px solid var(--iln-viz-alert-border);
 }
+
 .risk-high {
   border-left: 3px solid var(--iln-viz-bear-border);
 }
+
 .risk-bar-label {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   font-weight: 600;
   color: var(--iln-text);
   flex: 1;
 }
+
 .risk-bar-count {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   font-weight: 700;
   color: var(--iln-hint);
 }
+
 .risk-dots {
   display: flex;
   gap: 5px;
 }
+
 .risk-dot {
   width: 10px;
   height: 10px;
-  border-radius: 50%;
+  border-radius: var(--iln-radius-full);
 }
+
 .dot-on {
   background: var(--iln-viz-bear);
 }
+
 .dot-off {
   background: var(--iln-border-subtle);
 }
 
-.signal-group {
-  margin-bottom: 8px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid var(--iln-border-subtle);
-}
 .signal-rows {
-  padding: 8px;
+  padding: var(--iln-space-2);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--iln-space-1-5, 6px);
 }
+
 .signal-row {
   display: grid;
   grid-template-columns: 20px 1fr 52px auto;
   align-items: center;
-  gap: 8px;
-  padding: 8px;
-  border-radius: 8px;
-  font-size: 12px;
+  gap: var(--iln-space-2);
+  padding: var(--iln-space-2);
+  border-radius: var(--iln-radius-md);
+  font-size: var(--iln-font-xs);
 }
+
 .sig-on {
   background: var(--iln-viz-bear-bg);
 }
+
 .sig-off {
   background: var(--iln-surface-faint);
 }
+
 .sig-icon {
-  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--iln-font-sm);
 }
+
 .sig-name {
   font-weight: 600;
 }
+
 .sig-value {
   font-weight: 700;
   text-align: right;
 }
+
 .sig-cond {
-  font-size: 10px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   text-align: right;
 }
 
-/* States */
-.loading-state,
-.empty-state {
-  padding: 40px 16px;
+.loading-state {
+  padding: var(--iln-space-10, 40px) var(--iln-space-4);
   text-align: center;
   color: var(--iln-hint);
 }
+
 .skeleton .sk-title {
   height: 14px;
   width: 40%;
@@ -722,15 +696,16 @@ onUnmounted(() => {
   margin-bottom: var(--iln-space-3);
   border-radius: var(--iln-radius-sm);
 }
+
 .skeleton .sk-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--iln-space-2);
 }
+
 .skeleton .sk-card {
   height: 60px;
   background: var(--iln-surface);
   border-radius: var(--iln-radius-md);
 }
-
 </style>

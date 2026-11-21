@@ -3,8 +3,8 @@
     <Transition name="hero-fade" mode="out-in">
       <div v-if="loading" key="skeleton" class="hero-card skeleton-card">
         <div class="sk sk-title"></div>
-        <div class="sk sk-label" style="margin-top: 12px"></div>
-        <div class="sk sk-value" style="width: 60%"></div>
+        <div class="sk sk-label"></div>
+        <div class="sk sk-value"></div>
       </div>
       <div
         v-else-if="error"
@@ -18,7 +18,7 @@
       ><Icon name="info" size="sm" color="var(--iln-hint)" /> 尚無報告資料</div>
       <div v-else key="content" class="hero-card">
         <div class="hero-top">
-          <span class="hero-date">{{ report.date }}</span>
+          <span class="hero-date tabular">{{ report.date }}</span>
           <span class="priority-tag" v-if="activePriority">{{
             activePriority
           }}</span>
@@ -27,7 +27,7 @@
         <!-- Primary Action Area -->
         <div class="hero-cta-area">
           <div
-            class="hero-target iln-num-tabular"
+            class="hero-target iln-num-tabular tabular"
             :class="[targetClass, { 'is-rolling': rollTarget }]"
             :data-value="report.signals?.target"
           >
@@ -39,7 +39,7 @@
         </div>
 
         <CollapsibleSection title="查看風險與詳情" :expanded="expanded" class="hero-details">
-          <div class="hero-badges">
+          <div class="hero-badges tabular">
             <span
               class="badge iln-num-tabular"
               :class="[pctClass, { 'is-rolling': rollPct }]"
@@ -61,7 +61,7 @@
               <span class="route-path">{{ routingPath || "—" }}</span>
             </div>
             <router-link v-if="showTrendLink" to="/chart" class="hero-trend-link">
-              <Icon name="chart" size="sm" color="var(--iln-text)" /> 資產趨勢 →
+              <Icon name="chart" size="sm" color="var(--iln-brand)" /> <span>資產趨勢 →</span>
             </router-link>
           </div>
         </CollapsibleSection>
@@ -95,7 +95,6 @@ const props = defineProps({
   },
 });
 
-// ── Numeric rollover tracking ──
 const rollTarget = ref(false);
 const rollPct = ref(false);
 const rollScore = ref(false);
@@ -124,6 +123,10 @@ watch(
 </script>
 
 <style scoped>
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .hero-card-wrapper {
   transition:
     box-shadow var(--iln-duration-fast) var(--iln-ease-standard),
@@ -146,106 +149,142 @@ watch(
   flex-direction: column;
   gap: var(--iln-space-2);
 }
-.hero-cta-btn {
-  width: 100%;
-  margin-top: var(--iln-space-2);
-}
+
 .hero-target {
   font-size: var(--iln-font-base);
   color: var(--iln-text);
   font-weight: var(--iln-weight-bold);
 }
+
 .hero-suggestion {
   font-size: var(--iln-font-xl);
   color: var(--iln-text);
   font-weight: var(--iln-weight-bold);
   line-height: 1.3;
 }
+
 .hero-details {
   border-top: 1px solid var(--iln-border-subtle);
   padding-top: var(--iln-space-4);
 }
+
 .hero-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-5);
 }
+
 .hero-date {
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
 }
+
 .hero-badges {
   display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-5);
 }
+
 .hero-route {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 16px;
+  gap: var(--iln-space-2);
+  margin-top: var(--iln-space-4);
 }
+
 .hero-route-main {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
+
 .hero-trend-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
   font-size: var(--iln-font-xs);
+  font-weight: var(--iln-weight-semibold);
   color: var(--iln-brand);
   text-decoration: none;
+  border-radius: var(--iln-radius-sm);
 }
+.hero-trend-link:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
+}
+
 .route-label {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
+
 .route-path {
   font-size: var(--iln-font-sm);
   color: var(--iln-text);
 }
+
 .badge {
   font-size: var(--iln-font-xs);
-  padding: 4px 8px;
+  font-weight: var(--iln-weight-semibold);
+  padding: var(--iln-space-1) var(--iln-space-2);
   border-radius: var(--iln-radius-sm);
   background: var(--iln-surface);
 }
+
 .badge-score {
   color: var(--iln-text);
 }
+
 .priority-tag {
   font-size: var(--iln-font-xs);
-  padding: 2px 8px;
+  font-weight: var(--iln-weight-semibold);
+  padding: 2px var(--iln-space-2);
   border-radius: var(--iln-radius-sm);
   background: var(--iln-brand-soft);
   color: var(--iln-brand);
 }
+
 .skeleton-card {
   padding: var(--iln-space-5);
   display: flex;
   flex-direction: column;
   gap: var(--iln-space-3);
 }
+
 .sk-title {
   height: 20px;
   border-radius: var(--iln-radius-sm);
   background: var(--iln-surface-alt);
 }
-.sk-value {
-  height: 24px;
+
+.sk-label {
+  height: 14px;
+  width: 40%;
   border-radius: var(--iln-radius-sm);
   background: var(--iln-surface-alt);
 }
+
+.sk-value {
+  height: 24px;
+  width: 60%;
+  border-radius: var(--iln-radius-sm);
+  background: var(--iln-surface-alt);
+}
+
 .inline-error,
 .inline-hint {
   display: flex;
   align-items: center;
-  gap: var(--iln-space-1);
+  gap: var(--iln-space-1-5, 6px);
   padding: var(--iln-space-3);
+  font-size: var(--iln-font-sm);
+  color: var(--iln-text);
 }
 
-/* ── 共享元素 / 路由淡入 ── */
 .hero-fade-enter-active,
 .hero-fade-leave-active {
   transition:
@@ -258,7 +297,6 @@ watch(
   transform: translateY(4px);
 }
 
-/* ── 數值滾動動畫 ── */
 .is-rolling {
   display: inline-block;
   animation:

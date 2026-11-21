@@ -20,11 +20,11 @@
       <ContentCard variant="flat" padding="sm" radius="md">
         <div class="row-left">
           <span class="row-label">質押整戶維持率</span>
-          <span class="row-desc">追繳警戒門檻 {{ warningThreshold }}%</span>
+          <span class="row-desc tabular">追繳警戒門檻 {{ warningThreshold }}%</span>
         </div>
         <div class="row-right">
-          <span class="row-val text-ok">{{ fmtRatio(marginRatio) }}%</span>
-          <span class="row-tag text-ok">耐跌空間 {{ dropBufferPercent }}%</span>
+          <span class="row-val text-ok tabular">{{ fmtRatio(marginRatio) }}%</span>
+          <span class="row-tag text-ok tabular">耐跌空間 {{ dropBufferPercent }}%</span>
         </div>
       </ContentCard>
 
@@ -32,18 +32,18 @@
       <ContentCard variant="flat" padding="sm" radius="md">
         <div class="row-left">
           <span class="row-label">當前總槓桿倍率</span>
-          <span class="row-desc">硬上限 {{ fmtLeverage(hardCapLeverage) }}x</span>
+          <span class="row-desc tabular">硬上限 {{ fmtLeverage(hardCapLeverage) }}x</span>
         </div>
         <div class="row-right">
-          <span class="row-val">{{ fmtLeverage(grossLeverage) }}x</span>
-          <span class="row-tag">常態上限 2.50x</span>
+          <span class="row-val tabular">{{ fmtLeverage(grossLeverage) }}x</span>
+          <span class="row-tag tabular">常態上限 2.50x</span>
         </div>
       </ContentCard>
 
       <!-- 3. 風控原則提示卡 -->
       <ContentCard variant="outlined" padding="md" radius="lg">
-        <div class="info-title"><Icon name="percent" size="sm" color="var(--iln-hint)" /> 質押與槓桿風控原則</div>
-        <ul class="info-list">
+        <div class="info-title"><Icon name="percent" size="sm" color="var(--iln-hint)" /> <span>質押與槓桿風控原則</span></div>
+        <ul class="info-list tabular">
           <li><strong>P0 優先級防守</strong>：維持率低於 {{ warningThreshold }}% 即刻停止戰術加碼，啟動補保或減碼。</li>
           <li><strong>利息配對倉</strong>：00740B 債券部位作為利息現金流壓艙石，不因短期波動調倉。</li>
           <li><strong>單日撥款上限</strong>：單日戰術借貸額度嚴格限制在 5% 內，防止過度追高。</li>
@@ -98,36 +98,34 @@ defineEmits(["update:visible"]);
 </script>
 
 <style scoped>
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .drawer-header-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 
 .drawer-header-title h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--iln-font-md);
   font-weight: 700;
   color: var(--iln-text);
 }
 
 .drawer-icon {
-  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--iln-font-lg);
 }
 
 .drawer-body {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 8px 0;
-}
-
-/* metric-row (frame styling handled by ContentCard) */
-.metric-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
+  gap: var(--iln-space-4);
+  padding: var(--iln-space-2) 0;
 }
 
 .row-left {
@@ -170,23 +168,19 @@ defineEmits(["update:visible"]);
   color: var(--iln-viz-bull-text);
 }
 
-/* risk-info-card (frame styling handled by ContentCard) */
-.risk-info-card {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .info-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1-5, 6px);
   font-size: var(--iln-font-sm);
   font-weight: 700;
   color: var(--iln-brand);
-  margin-bottom: 6px;
+  margin-bottom: var(--iln-space-1-5, 6px);
 }
 
 .info-list {
   margin: 0;
-  padding-left: 16px;
+  padding-left: var(--iln-space-4);
   font-size: var(--iln-font-xs);
   line-height: 1.6;
   color: var(--iln-text);

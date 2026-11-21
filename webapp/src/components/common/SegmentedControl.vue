@@ -88,6 +88,10 @@ const move = (delta) => {
               transform var(--iln-duration-fast) var(--iln-ease-standard);
 }
 .seg-item:hover { color: var(--iln-text); }
+.seg-item:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
+}
 .seg-item:active { transform: scale(0.97); }
 
 .seg-item--active {

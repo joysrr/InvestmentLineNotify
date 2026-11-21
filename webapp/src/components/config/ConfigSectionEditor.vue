@@ -67,11 +67,11 @@ function handleFieldUpdate({ path, value }) {
 
 <style scoped>
 .config-section-editor {
-  padding: 16px 0;
+  padding: var(--iln-space-4) 0;
 }
 
 .config-field-wrapper {
-  margin-bottom: 16px;
+  margin-bottom: var(--iln-space-4);
 }
 
 .empty-section {
@@ -85,6 +85,6 @@ function handleFieldUpdate({ path, value }) {
 .empty-hint {
   margin: 0;
   color: var(--iln-hint);
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
 }
 </style>

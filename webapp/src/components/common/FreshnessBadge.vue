@@ -6,7 +6,7 @@
   >
     <Icon name="clock" />
     <span class="freshness-badge__label">{{ label }}</span>
-    <span class="freshness-badge__relative">{{ relative }}</span>
+    <span class="freshness-badge__relative tabular">{{ relative }}</span>
   </span>
 </template>
 
@@ -43,7 +43,6 @@ const level = computed(() => {
   return "expired";
 });
 
-// 首次掛載即 emit，讓父組件可立即得知 level（用於 expired 降級提示）
 watch(level, (newLevel) => emit("level-change", newLevel), { immediate: true });
 
 const absoluteTime = computed(() => new Date(props.timestamp).toISOString());
@@ -68,6 +67,10 @@ const relative = computed(() => {
   font-weight: var(--iln-weight-semibold);
 }
 
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .freshness-badge--fresh {
   background: var(--iln-viz-bull-bg);
   color: var(--iln-viz-bull-text);
@@ -90,18 +93,18 @@ const relative = computed(() => {
 .freshness-badge :deep(svg) {
   width: 12px;
   height: 12px;
+  color: currentColor;
 }
 
-/* 標籤文字 */
 .freshness-badge__label {
   font-size: var(--iln-font-xs);
-  font-weight: var(--iln-weight-medium);
-  color: var(--iln-text);
+  font-weight: var(--iln-weight-semibold);
+  color: inherit;
 }
 
-/* 相對時間 */
 .freshness-badge__relative {
   font-size: var(--iln-font-xs);
-  color: var(--iln-hint);
+  color: inherit;
+  opacity: 0.9;
 }
 </style>

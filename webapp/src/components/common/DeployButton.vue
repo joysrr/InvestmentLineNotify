@@ -27,7 +27,7 @@
           :closable="false"
         />
 
-        <div class="version-info">
+        <div class="version-info tabular">
           <div class="version-row">
             <span class="label">當前版本:</span>
             <span class="value current">{{ currentVersion || "未知" }}</span>
@@ -48,13 +48,13 @@
           <strong>部署過程中服務可能短暫不可用。</strong>
         </div>
 
-        <el-checkbox v-model="confirmUnderstood" style="margin-top: 12px;">
+        <el-checkbox v-model="confirmUnderstood" class="confirm-checkbox">
           我了解風險並確認要繼續部署
         </el-checkbox>
       </div>
 
       <template #footer>
-        <el-button @click="() => { haptic('medium'); showConfirmDialog = false; }" :disabled="deploying">
+        <el-button @click="handleCancelConfirm" :disabled="deploying">
           取消
         </el-button>
         <el-button
@@ -97,7 +97,7 @@
           </el-button>
         </div>
 
-        <div class="log-content" ref="logContainer">
+        <div class="log-content tabular" ref="logContainer">
           <div
             v-for="(log, index) in logs"
             :key="index"
@@ -115,7 +115,7 @@
         <el-button @click="showLogDialog = false" :disabled="deploying">
           關閉
         </el-button>
-        <el-button v-if="deployStatus === 'failed'" type="primary" @click="() => { haptic('medium'); retryDeploy(); }">
+        <el-button v-if="deployStatus === 'failed'" type="primary" @click="handleRetryDeploy">
           重試部署
         </el-button>
       </template>
@@ -131,20 +131,17 @@ import { haptic } from "@/composables/useTelegram.js";
 
 const { isAdmin, user } = useAuth();
 
-// 狀態
 const showConfirmDialog = ref(false);
 const showLogDialog = ref(false);
 const deploying = ref(false);
-const deployStatus = ref("queued"); // queued, running, completed, failed, cancelled
+const deployStatus = ref("queued");
 const logs = ref([]);
 const confirmUnderstood = ref(false);
 const currentJobId = ref(null);
 const ws = ref(null);
 const logContainer = ref(null);
 
-// 計算屬性
 const currentVersion = computed(() => {
-  // 可以從版本資訊獲取
   return import.meta.env.VITE_APP_VERSION || "開發版本";
 });
 
@@ -168,10 +165,14 @@ const logStatusClass = computed(() => ({
 
 const canCancel = computed(() => deployStatus.value === "running" || deployStatus.value === "queued");
 
-// 方法
 const openConfirmDialog = () => {
   confirmUnderstood.value = false;
   showConfirmDialog.value = true;
+};
+
+const handleCancelConfirm = () => {
+  haptic("medium");
+  showConfirmDialog.value = false;
 };
 
 const handleConfirmClose = (done) => {
@@ -239,10 +240,8 @@ const connectWebSocket = (jobId) => {
       const data = JSON.parse(event.data);
 
       if (data.historical) {
-        // 歷史日誌
         logs.value.push(data);
       } else if (data.type === "done") {
-        // 部署完成
         deployStatus.value = data.status;
         deploying.value = false;
         if (data.error) {
@@ -254,7 +253,6 @@ const connectWebSocket = (jobId) => {
         }
         ws.value?.close();
       } else {
-        // 即時日誌
         logs.value.push(data);
       }
 
@@ -271,7 +269,6 @@ const connectWebSocket = (jobId) => {
   ws.value.onclose = () => {
     console.log("WebSocket closed");
     if (deploying.value) {
-      // 嘗試重連
       setTimeout(() => {
         if (currentJobId.value && deploying.value) {
           connectWebSocket(currentJobId.value);
@@ -311,7 +308,8 @@ const cancelDeploy = async () => {
   }
 };
 
-const retryDeploy = async () => {
+const handleRetryDeploy = async () => {
+  haptic("medium");
   showLogDialog.value = false;
   await nextTick();
   startDeploy();
@@ -322,7 +320,6 @@ const formatTime = (timestamp) => {
   return date.toLocaleTimeString("zh-TW", { hour12: false }) + `.${String(date.getMilliseconds()).padStart(3, "0")}`;
 };
 
-// 生命週期
 onMounted(() => {
   // 檢查是否有進行中的部署（可選：從 localStorage 恢復）
 });
@@ -338,22 +335,31 @@ onUnmounted(() => {
   align-items: center;
 }
 
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .confirm-content {
-  padding: 8px 0;
+  padding: var(--iln-space-2) 0;
+}
+
+.confirm-checkbox {
+  margin-top: var(--iln-space-3);
 }
 
 .version-info {
   margin: var(--iln-space-4) 0;
   padding: var(--iln-space-3);
   background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-sm);
 }
 
 .version-row {
   display: flex;
   justify-content: space-between;
-  margin: 8px 0;
-  font-size: 13px;
+  margin: var(--iln-space-2) 0;
+  font-size: var(--iln-font-sm);
 }
 
 .version-row .label {
@@ -361,7 +367,7 @@ onUnmounted(() => {
 }
 
 .version-row .value {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .version-row .value.current {
@@ -373,7 +379,7 @@ onUnmounted(() => {
 }
 
 .warning-text {
-  font-size: 12px;
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   line-height: 1.6;
 }
@@ -382,7 +388,6 @@ onUnmounted(() => {
   color: var(--iln-viz-alert-text);
 }
 
-/* 日誌面板 */
 .log-panel {
   height: 100%;
   display: flex;
@@ -392,16 +397,16 @@ onUnmounted(() => {
 .log-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-bottom: 12px;
+  gap: var(--iln-space-3);
+  padding-bottom: var(--iln-space-3);
   border-bottom: 1px solid var(--iln-border-subtle);
-  margin-bottom: 12px;
+  margin-bottom: var(--iln-space-3);
 }
 
 .log-status {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 
 .log-status .spinning {
@@ -414,8 +419,8 @@ onUnmounted(() => {
 }
 
 .status-text {
-  font-weight: 500;
-  font-size: 14px;
+  font-weight: 600;
+  font-size: var(--iln-font-base);
 }
 
 .status-running { color: var(--iln-brand); }
@@ -427,9 +432,10 @@ onUnmounted(() => {
   flex: 1;
   overflow-y: auto;
   background: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-sm);
   padding: var(--iln-space-3);
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-family: var(--iln-font-mono, monospace);
   font-size: var(--iln-font-xs);
   line-height: var(--iln-leading-normal);
   min-height: 300px;
@@ -437,9 +443,9 @@ onUnmounted(() => {
 
 .log-line {
   display: flex;
-  gap: 8px;
+  gap: var(--iln-space-2);
   padding: 2px 0;
-  border-bottom: 1px solid var(--iln-hint);
+  border-bottom: 1px solid var(--iln-border-subtle);
 }
 
 .log-line:last-child {
@@ -452,9 +458,10 @@ onUnmounted(() => {
 }
 
 .level-badge {
-  padding: 1px 6px;
+  padding: 1px var(--iln-space-1-5, 6px);
   border-radius: 3px;
   font-size: 10px;
+  font-weight: 600;
   text-transform: uppercase;
   min-width: 50px;
   text-align: center;
@@ -465,7 +472,7 @@ onUnmounted(() => {
 .level-badge.error { background: var(--iln-badge-error-bg); color: var(--iln-badge-error-text); }
 
 .message {
-  color: var(--iln-hint);
+  color: var(--iln-text);
   word-break: break-all;
   flex: 1;
 }
@@ -473,10 +480,9 @@ onUnmounted(() => {
 .no-logs {
   color: var(--iln-hint);
   text-align: center;
-  padding: 40px 0;
+  padding: var(--iln-space-10) 0;
 }
 
-/* 對話框全螢幕時的調整 */
 :deep(.el-dialog--fullscreen .log-content) {
   height: calc(100vh - 200px);
 }

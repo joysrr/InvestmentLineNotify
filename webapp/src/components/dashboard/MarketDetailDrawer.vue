@@ -20,10 +20,10 @@
       <ContentCard variant="flat" padding="sm" radius="md">
         <div class="row-left">
           <span class="row-label">美股 VIX 恐慌指數</span>
-          <span class="row-desc">警戒線 20 / 危機線 35</span>
+          <span class="row-desc tabular">警戒線 20 / 危機線 35</span>
         </div>
         <div class="row-right">
-          <span class="row-val">{{ formatNumber(vix) }}</span>
+          <span class="row-val tabular">{{ formatNumber(vix) }}</span>
         </div>
       </ContentCard>
 
@@ -31,10 +31,10 @@
       <ContentCard variant="flat" padding="sm" radius="md">
         <div class="row-left">
           <span class="row-label">台股大盤 PB 歷史分位 (PR)</span>
-          <span class="row-desc">近 10 年本淨比位階</span>
+          <span class="row-desc tabular">近 10 年本淨比位階</span>
         </div>
         <div class="row-right">
-          <span class="row-val">{{ pbPrValue }}%</span>
+          <span class="row-val tabular">{{ pbPrValue }}%</span>
           <span class="row-tag" :class="pbPrLevel?.textClass">{{ pbPrLevel?.label || "合理" }}</span>
         </div>
       </ContentCard>
@@ -58,7 +58,7 @@
           <span class="row-desc">散戶槓桿熱度與浮額監控</span>
         </div>
         <div class="row-right">
-          <span class="row-val" :class="marginOverheated ? 'text-danger' : ''">
+          <span class="row-val tabular" :class="marginOverheated ? 'text-danger' : ''">
             {{ formatMarginChange(marginChange5d) }}
           </span>
           <span class="row-tag" :class="marginOverheated ? 'text-danger' : 'text-ok'">
@@ -73,13 +73,14 @@
         class="drawer-footer-link"
         @click="$emit('update:visible', false)"
       >
-        <Icon name="arrow-right" size="sm" color="var(--iln-hint)" /> 查看完整市場雷達 →
+        <Icon name="arrow-right" size="sm" color="var(--iln-hint)" /> <span>查看完整市場雷達 →</span>
       </router-link>
     </div>
   </el-drawer>
 </template>
 
 <script setup>
+import ContentCard from "@/components/common/ContentCard.vue";
 import Icon from "@/components/common/Icon.vue";
 
 defineProps({
@@ -133,10 +134,14 @@ function formatMarginChange(val) {
 </script>
 
 <style scoped>
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .drawer-header-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 
 .drawer-header-title h3 {
@@ -147,14 +152,16 @@ function formatMarginChange(val) {
 }
 
 .drawer-icon {
-  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--iln-font-lg);
 }
 
 .drawer-body {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 8px 0;
+  gap: var(--iln-space-4);
+  padding: var(--iln-space-2) 0;
 }
 
 .row-left {
@@ -204,12 +211,14 @@ function formatMarginChange(val) {
   color: var(--iln-viz-bear-text);
 }
 
-/* ── Footer Link (Phase 3) ── */
 .drawer-footer-link {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--iln-space-1-5, 6px);
   text-align: center;
-  padding: 14px;
-  margin-top: 4px;
+  padding: var(--iln-space-3-5, 14px);
+  margin-top: var(--iln-space-1);
   font-size: var(--iln-font-sm);
   font-weight: 600;
   color: var(--iln-brand);
@@ -217,13 +226,18 @@ function formatMarginChange(val) {
   border-radius: var(--iln-radius-md);
   border: 1px solid var(--iln-border-subtle);
   background: var(--iln-surface);
-  transition: background 0.15s ease;
+  transition: background-color var(--iln-duration-fast) var(--iln-ease-standard);
 }
+
 .drawer-footer-link:active {
   background: var(--iln-brand-hover-bg);
 }
 
-/* 行動版底部抽屜 */
+.drawer-footer-link:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
+}
+
 .mobile-bottom-drawer {
   position: fixed;
   bottom: 0;
@@ -234,5 +248,11 @@ function formatMarginChange(val) {
   padding: var(--iln-space-4);
   box-shadow: var(--iln-shadow-2);
   z-index: var(--iln-zindex-drawer);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer-footer-link {
+    transition: none;
+  }
 }
 </style>

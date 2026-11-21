@@ -7,9 +7,9 @@
     data-testid="risk-item"
   >
     <div class="risk-inner">
-      <div class="icon" v-if="icon"><Icon :name="icon" size="sm"/></div>
+      <div class="icon" v-if="icon"><Icon :name="icon" size="sm" /></div>
       <div class="label">{{ label }}</div>
-      <div class="value" :title="titleText">{{ formattedValue }}</div>
+      <div class="value tabular" :title="titleText">{{ formattedValue }}</div>
       <div class="unit" v-if="unit">{{ unit }}</div>
       <div class="desc" v-if="desc">{{ desc }}</div>
     </div>
@@ -52,34 +52,45 @@ const itemClass = computed(() => {
 </script>
 
 <style scoped>
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .risk-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--iln-space-1);
   text-align: center;
 }
+
 .icon {
+  display: inline-flex;
+  align-items: center;
   font-size: var(--iln-font-lg);
-  margin-bottom: 4px;
+  margin-bottom: var(--iln-space-1);
 }
+
 .label {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  margin-bottom: var(--iln-space-1);
 }
+
 .value {
   font-size: var(--iln-font-base);
   font-weight: 700;
   color: var(--iln-text);
 }
+
 .unit {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
   margin-left: 2px;
 }
+
 .desc {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);

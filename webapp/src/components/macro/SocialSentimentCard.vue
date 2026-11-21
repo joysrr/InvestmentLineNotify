@@ -5,77 +5,75 @@
       class="sentiment-section"
       data-testid="social-sentiment-card"
     >
-    <h3 class="section-title"><Icon name="radar" size="sm" color="var(--iln-hint)" /> 社群情緒觀察</h3>
+      <h3 class="section-title"><Icon name="radar" size="sm" color="var(--iln-hint)" /> <span>社群情緒觀察</span></h3>
 
-    <!-- Sentiment Score + MA -->
-    <div class="sentiment-row">
-      <div class="sentiment-score-badge">
-        <span class="score-value">{{ sentiment.score }}</span>
-        <span class="score-label">{{ scoreLabel }}</span>
+      <!-- Sentiment Score + MA -->
+      <div class="sentiment-row">
+        <div class="sentiment-score-badge">
+          <span class="score-value tabular">{{ sentiment.score }}</span>
+          <span class="score-label">{{ scoreLabel }}</span>
+        </div>
+        <div class="ma-indicators tabular">
+          <span class="ma-item">
+            <span class="ma-label">3D</span>
+            <span class="ma-value">{{ sentiment.ma3 }}</span>
+          </span>
+          <span class="ma-item">
+            <span class="ma-label">7D</span>
+            <span class="ma-value">{{ sentiment.ma7 }}</span>
+          </span>
+          <span class="ma-item">
+            <span class="ma-label">Δ</span>
+            <span class="ma-value">{{ deltaText }}</span>
+          </span>
+        </div>
       </div>
-      <div class="ma-indicators">
-        <span class="ma-item">
-          <span class="ma-label">3D</span>
-          <span class="ma-value">{{ sentiment.ma3 }}</span>
-        </span>
-        <span class="ma-item">
-          <span class="ma-label">7D</span>
-          <span class="ma-value">{{ sentiment.ma7 }}</span>
-        </span>
-        <span class="ma-item">
-          <span class="ma-label">Δ</span>
-          <span class="ma-value">{{ deltaText }}</span>
-        </span>
-      </div>
-    </div>
 
-    <div class="sentiment-meta" data-testid="sentiment-metadata">
-      <span>更新時間：{{ updatedAtText }}</span>
-      <span
-        >樣本：{{ sampleCount }} 筆（PTT {{ pttItems }}、Bluesky
-        {{ bskyItems }}）</span
+      <div class="sentiment-meta tabular" data-testid="sentiment-metadata">
+        <span>更新時間：{{ updatedAtText }}</span>
+        <span>樣本：{{ sampleCount }} 筆（PTT {{ pttItems }}、Bluesky {{ bskyItems }}）</span>
+        <span>趨勢：{{ trendText }}</span>
+      </div>
+
+      <button
+        type="button"
+        class="evidence-trigger"
+        data-testid="sentiment-evidence-trigger"
+        @click="isEvidenceOpen = true"
       >
-      <span>趨勢：{{ trendText }}</span>
-    </div>
+        查看判斷依據
+      </button>
 
-    <button
-      type="button"
-      class="evidence-trigger"
-      data-testid="sentiment-evidence-trigger"
-      @click="isEvidenceOpen = true"
-    >
-      查看判斷依據
-    </button>
-
-    <!-- Divergence + signals -->
-    <div class="sentiment-row">
-      <span class="sentiment-divergence" :class="divergenceClass">{{
-        divergenceText
-      }}</span>
-      <div v-if="sentiment.signals?.length" class="sentiment-signals">
-        <span v-for="(s, i) in sentiment.signals" :key="i" class="signal-tag">{{
-          signalLabel(s)
+      <!-- Divergence + signals -->
+      <div class="sentiment-row">
+        <span class="sentiment-divergence" :class="divergenceClass">{{
+          divergenceText
         }}</span>
+        <div v-if="sentiment.signals?.length" class="sentiment-signals">
+          <span v-for="(s, i) in sentiment.signals" :key="i" class="signal-tag">{{
+            signalLabel(s)
+          }}</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Hot topics -->
-    <div v-if="sentiment.hotTopics?.length" class="hot-topics">
-      <div v-for="(topic, i) in sentiment.hotTopics" :key="i" class="hot-topic">
-        <span class="hot-topic-source">{{ topic.source }}</span>
-        <a
-          v-if="topic.url"
-          :href="topic.url"
-          class="hot-topic-link"
-          target="_blank"
-          rel="noopener noreferrer"
-          >{{ topic.title }}</a
-        >
-        <span v-else class="hot-topic-text">{{ topic.title }}</span>
-        <span
-          class="hot-topic-bias"
-          :class="`bias-${(topic.sentiment || 'NEUTRAL').toLowerCase()}`"
-          ><Icon
+      <!-- Hot topics -->
+      <div v-if="sentiment.hotTopics?.length" class="hot-topics">
+        <div v-for="(topic, i) in sentiment.hotTopics" :key="i" class="hot-topic">
+          <span class="hot-topic-source">{{ topic.source }}</span>
+          <a
+            v-if="topic.url"
+            :href="topic.url"
+            class="hot-topic-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            >{{ topic.title }}</a
+          >
+          <span v-else class="hot-topic-text">{{ topic.title }}</span>
+          <span
+            class="hot-topic-bias"
+            :class="`bias-${(topic.sentiment || 'NEUTRAL').toLowerCase()}`"
+          >
+            <Icon
               v-if="topic.sentiment === 'BULL'"
               name="ok"
               size="sm"
@@ -92,68 +90,68 @@
               name="minus"
               size="sm"
               color="var(--iln-hint)"
-            /></span
-        >
-      </div>
-    </div>
-
-    <div
-      v-if="isEvidenceOpen"
-      class="evidence-sheet"
-      data-testid="sentiment-evidence-sheet"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div
-        class="evidence-sheet__backdrop"
-        @click="isEvidenceOpen = false"
-      ></div>
-      <div
-        class="evidence-sheet__content evidence-sheet__content--nav-safe"
-        data-nav-safe-area="true"
-      >
-        <div class="evidence-sheet__header">
-          <h4>本次判斷依據</h4>
-          <button
-            type="button"
-            class="evidence-close"
-            @click="isEvidenceOpen = false"
-          >
-            關閉
-          </button>
+            />
+          </span>
         </div>
-        <dl class="evidence-list">
-          <div>
-            <dt>情緒判定</dt>
-            <dd>{{ sentiment.score }} 分・{{ scoreLabel }}</dd>
-          </div>
-          <div>
-            <dt>均線趨勢</dt>
-            <dd>
-              3D {{ sentiment.ma3 }} / 7D {{ sentiment.ma7 }}・{{
-                trendText
-              }}（Δ {{ deltaText }}）
-            </dd>
-          </div>
-          <div>
-            <dt>資料樣本</dt>
-            <dd>
-              {{ sampleCount }} 筆・PTT {{ pttItems }}・Bluesky {{ bskyItems }}
-            </dd>
-          </div>
-          <div>
-            <dt>背離檢查</dt>
-            <dd>{{ sentiment.divergenceDetail || divergenceText }}</dd>
-          </div>
-        </dl>
       </div>
-    </div>
-  </section>
 
-  <!-- Fallback -->
-  <div v-else class="sentiment-fallback">
-    <span class="hint"><Icon name="clock" size="sm" color="var(--iln-hint)" /> 社群情緒資料準備中，請稍後</span>
-  </div>
+      <div
+        v-if="isEvidenceOpen"
+        class="evidence-sheet"
+        data-testid="sentiment-evidence-sheet"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div
+          class="evidence-sheet__backdrop"
+          @click="isEvidenceOpen = false"
+        ></div>
+        <div
+          class="evidence-sheet__content evidence-sheet__content--nav-safe"
+          data-nav-safe-area="true"
+        >
+          <div class="evidence-sheet__header">
+            <h4>本次判斷依據</h4>
+            <button
+              type="button"
+              class="evidence-close"
+              @click="isEvidenceOpen = false"
+            >
+              關閉
+            </button>
+          </div>
+          <dl class="evidence-list tabular">
+            <div>
+              <dt>情緒判定</dt>
+              <dd>{{ sentiment.score }} 分・{{ scoreLabel }}</dd>
+            </div>
+            <div>
+              <dt>均線趨勢</dt>
+              <dd>
+                3D {{ sentiment.ma3 }} / 7D {{ sentiment.ma7 }}・{{
+                  trendText
+                }}（Δ {{ deltaText }}）
+              </dd>
+            </div>
+            <div>
+              <dt>資料樣本</dt>
+              <dd>
+                {{ sampleCount }} 筆・PTT {{ pttItems }}・Bluesky {{ bskyItems }}
+              </dd>
+            </div>
+            <div>
+              <dt>背離檢查</dt>
+              <dd>{{ sentiment.divergenceDetail || divergenceText }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fallback -->
+    <div v-else class="sentiment-fallback">
+      <span class="hint"><Icon name="clock" size="sm" color="var(--iln-hint)" /> <span>社群情緒資料準備中，請稍後</span></span>
+    </div>
   </ContentCard>
 </template>
 
@@ -240,10 +238,21 @@ function signalLabel(s) {
 </script>
 
 <style scoped>
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .sentiment-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-2-5, 10px);
 }
 
 .section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1-5, 6px);
+  margin: 0;
   font-size: var(--iln-font-sm);
   font-weight: 600;
   text-transform: uppercase;
@@ -254,14 +263,15 @@ function signalLabel(s) {
 .sentiment-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--iln-space-2-5, 10px);
   flex-wrap: wrap;
 }
 
 .sentiment-score-badge {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--iln-space-1);
+  padding: var(--iln-space-1) var(--iln-space-2);
   background: var(--iln-surface);
   border-radius: var(--iln-radius-md);
 }
@@ -280,29 +290,37 @@ function signalLabel(s) {
 .sentiment-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 10px;
+  gap: var(--iln-space-1-5, 6px) var(--iln-space-2-5, 10px);
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 
 .evidence-trigger {
+  align-self: flex-start;
   border: 0;
   padding: 0;
-  margin: 0 0 8px;
+  margin: 0;
   background: transparent;
   color: var(--iln-link);
   font-size: var(--iln-font-xs);
   cursor: pointer;
 }
 
+.evidence-trigger:focus-visible,
+.evidence-close:focus-visible,
+.hot-topic-link:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
+}
+
 .ma-indicators {
   display: flex;
-  gap: 10px;
+  gap: var(--iln-space-2-5, 10px);
   flex: 1;
 }
 
 .ma-item {
-  display: flex;
+  display: inline-flex;
   align-items: baseline;
   gap: 2px;
   font-size: var(--iln-font-sm);
@@ -321,7 +339,7 @@ function signalLabel(s) {
 .sentiment-divergence {
   font-size: var(--iln-font-sm);
   font-weight: 600;
-  padding: 5px 12px;
+  padding: 5px var(--iln-space-3);
   border-radius: var(--iln-radius-md);
   white-space: nowrap;
 }
@@ -343,7 +361,7 @@ function signalLabel(s) {
 
 .sentiment-signals {
   display: flex;
-  gap: 6px;
+  gap: var(--iln-space-1-5, 6px);
   flex-wrap: wrap;
   flex: 1;
   justify-content: flex-end;
@@ -351,6 +369,7 @@ function signalLabel(s) {
 
 .signal-tag {
   font-size: var(--iln-font-xs);
+  padding: 2px var(--iln-space-1-5, 6px);
   border-radius: var(--iln-radius-sm);
   background: var(--iln-surface);
   color: var(--iln-hint);
@@ -359,14 +378,15 @@ function signalLabel(s) {
 .hot-topics {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
+  gap: var(--iln-space-2);
+  margin-top: var(--iln-space-1);
 }
 
 .hot-topic {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--iln-space-1-5, 6px);
+  padding: var(--iln-space-1-5, 6px) var(--iln-space-2);
   font-size: var(--iln-font-sm);
   background: var(--iln-surface);
   border-radius: var(--iln-radius-md);
@@ -383,6 +403,7 @@ function signalLabel(s) {
 .hot-topic-link,
 .hot-topic-text {
   flex: 1;
+  min-width: 0;
   color: var(--iln-text);
   text-decoration: none;
   line-height: 1.4;
@@ -394,7 +415,7 @@ function signalLabel(s) {
 .evidence-sheet {
   position: fixed;
   inset: 0;
-  z-index: 20;
+  z-index: var(--iln-zindex-modal, 20);
 }
 
 .evidence-sheet__backdrop {
@@ -410,27 +431,27 @@ function signalLabel(s) {
   left: 0;
   max-height: 78vh;
   overflow-y: auto;
-  padding: 18px 16px 24px;
+  padding: var(--iln-space-4) var(--iln-space-4) var(--iln-space-6);
   border-radius: var(--iln-radius-lg) var(--iln-radius-lg) 0 0;
   background: var(--iln-bg);
   color: var(--iln-text);
 }
 
 .evidence-sheet__content--nav-safe {
-  padding-bottom: calc(24px + 88px + env(safe-area-inset-bottom, 0px));
-  scroll-padding-bottom: calc(24px + 88px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--iln-space-6) + 88px + env(safe-area-inset-bottom, 0px));
+  scroll-padding-bottom: calc(var(--iln-space-6) + 88px + env(safe-area-inset-bottom, 0px));
 }
 
 .evidence-sheet__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: var(--iln-space-3-5, 14px);
 }
 
 .evidence-sheet__header h4 {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--iln-font-md);
 }
 
 .evidence-close {
@@ -442,14 +463,14 @@ function signalLabel(s) {
 
 .evidence-list {
   display: grid;
-  gap: 12px;
+  gap: var(--iln-space-3);
   margin: 0;
 }
 
 .evidence-list > div {
   display: grid;
   grid-template-columns: 76px 1fr;
-  gap: 10px;
+  gap: var(--iln-space-2-5, 10px);
 }
 
 .evidence-list dt {
@@ -464,6 +485,8 @@ function signalLabel(s) {
 }
 
 .hot-topic-bias {
+  display: inline-flex;
+  align-items: center;
   font-size: var(--iln-font-base);
 }
 
@@ -471,8 +494,10 @@ function signalLabel(s) {
   text-align: center;
 }
 
-/* 提示文本 */
 .hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }

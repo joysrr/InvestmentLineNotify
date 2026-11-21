@@ -35,7 +35,9 @@ defineProps({
   font-weight: var(--iln-weight-medium, 500);
   text-decoration: none;
   white-space: nowrap;
-  transition: transform 0.12s ease, background-color 0.15s ease;
+  transition:
+    transform var(--iln-duration-fast, 120ms) var(--iln-ease-standard, ease),
+    background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
 }
 
 .back-pill:hover {

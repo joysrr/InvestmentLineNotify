@@ -5,10 +5,10 @@
     radius="md"
     :class="cardClass"
   >
-    <div class="metric-icon" v-if="icon"><Icon :name="icon" size="sm"/></div>
+    <div class="metric-icon" v-if="icon"><Icon :name="icon" size="sm" /></div>
     <div class="metric-body">
       <div class="metric-title">{{ title }}</div>
-      <div class="metric-value iln-num-tabular" :class="trendClass">{{ value }}</div>
+      <div class="metric-value iln-num-tabular tabular" :class="trendClass">{{ value }}</div>
     </div>
   </ContentCard>
 </template>
@@ -21,7 +21,7 @@ import Icon from "@/components/common/Icon.vue";
 const props = defineProps({
   title: { type: String, required: true },
   value: { type: [String, Number], default: "—" },
-  trend: { type: String, default: "" }, // 'up' | 'down' | ''
+  trend: { type: String, default: "" },
   icon: { type: String, default: "" },
 });
 
@@ -40,31 +40,42 @@ const trendClass = computed(() => {
 </script>
 
 <style scoped>
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .metric-card--up {
   border-left: 4px solid var(--iln-viz-bull-border);
 }
+
 .metric-card--down {
   border-left: 4px solid var(--iln-viz-bear-border);
 }
+
 .metric-icon {
+  display: inline-flex;
+  align-items: center;
   font-size: var(--iln-font-lg);
   flex-shrink: 0;
 }
+
 .metric-body {
   flex: 1;
   min-width: 0;
 }
+
 .metric-title {
   font-size: var(--iln-font-xs);
   font-weight: 600;
   color: var(--iln-hint);
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  margin-bottom: 4px;
+  margin-bottom: var(--iln-space-1);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .metric-value {
   font-size: var(--iln-font-base);
   font-weight: 700;
@@ -73,9 +84,11 @@ const trendClass = computed(() => {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .metric-value.text-up {
   color: var(--iln-viz-bull-text);
 }
+
 .metric-value.text-down {
   color: var(--iln-viz-bear-text);
 }

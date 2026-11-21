@@ -29,7 +29,7 @@
     </template>
 
     <div class="cockpit-body">
-      <div class="cockpit-metric">
+      <div class="cockpit-metric tabular">
         <StatCard
           label="CBOE VIX 指數"
           :value="formatNumber(vix)"
@@ -87,17 +87,22 @@ function formatNumber(val) {
 </script>
 
 <style scoped>
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .cockpit-body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--iln-space-2);
   width: 100%;
 }
 
 .cockpit-header {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--iln-space-1);
 }
 
 .cockpit-tag {
@@ -109,7 +114,8 @@ function formatNumber(val) {
 }
 
 .cockpit-flash {
-  font-size: var(--iln-font-sm);
+  display: inline-flex;
+  align-items: center;
 }
 
 .cockpit-title {
@@ -129,7 +135,7 @@ function formatNumber(val) {
 }
 
 .cockpit-action {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 2px;
   font-size: var(--iln-font-xs);
@@ -138,12 +144,7 @@ function formatNumber(val) {
 }
 
 .chevron {
-  font-size: var(--iln-font-xs);
-}
-
-/* 保留互動效果（ContentCard 未提供） */
-.content-card--clickable:active {
-  transform: scale(0.985);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: inline-flex;
+  align-items: center;
 }
 </style>

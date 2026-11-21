@@ -1,6 +1,6 @@
 <template>
-  <div class="route-loading">
-    <div class="route-loading__spinner"></div>
+  <div class="route-loading" role="status" aria-live="polite">
+    <div class="route-loading__spinner" aria-hidden="true"></div>
     <p class="route-loading__text">載入中…</p>
   </div>
 </template>
@@ -8,7 +8,6 @@
 <script setup>
 /**
  * RouteLoading — 路由懶載入期間的載入指示器。
- * 樣式全面使用 design tokens (--iln-*)，作為 1.2 階段令牌對齊的驗收樣本。
  */
 </script>
 
@@ -19,7 +18,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 40px 16px;
+  padding: var(--iln-space-10) var(--iln-space-4);
   color: var(--iln-hint);
   background: var(--iln-surface);
 }
@@ -31,10 +30,11 @@
   border-top-color: var(--iln-brand);
   border-radius: 50%;
   animation: routeLoadingSpin 0.8s linear infinite;
-  margin-bottom: 12px;
+  margin-bottom: var(--iln-space-3);
 }
 
 .route-loading__text {
+  margin: 0;
   font-size: var(--iln-font-base);
   color: var(--iln-text);
 }
@@ -42,6 +42,12 @@
 @keyframes routeLoadingSpin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-loading__spinner {
+    animation: none;
   }
 }
 </style>

@@ -1,10 +1,12 @@
 <template>
   <ContentCard variant="outlined" padding="sm" radius="md">
-    <div class="extreme-radar-container">
-    <!-- 無資料時提示 -->
-    <div v-if="!leadingIndicators" class="empty-radar-bar">
-      <Icon name="shield" size="sm" color="var(--iln-hint)" /> 極端雷達與防禦層：暫無雷達數據
-    </div><div v-else-if="isIdle" class="radar-panel radar-panel-idle">
+    <div class="extreme-radar-container tabular">
+      <!-- 無資料時提示 -->
+      <div v-if="!leadingIndicators" class="empty-radar-bar">
+        <Icon name="shield" size="sm" color="var(--iln-hint)" /> <span>極端雷達與防禦層：暫無雷達數據</span>
+      </div>
+
+      <div v-else-if="isIdle" class="radar-panel radar-panel-idle">
         <CollapsibleSection
           :expanded="isExpanded"
           @update:expanded="isExpanded = $event"
@@ -12,118 +14,115 @@
         >
           <template #header>
             <div class="status-row">
-          <span class="status-icon">
-            <Icon name="shield" size="sm" />
-          </span>
-          <span class="status-title">極端防禦狀態：</span>
-          <span class="status-badge badge-idle">常態平穩</span>
-          <span class="status-sub">監控狀態：IDLE（未觸發異常警報）</span>
-          <span class="status-summary">4 項指標監控中 · 全數正常</span>
-        </div>
-      </template>
-
-      <div class="radar-detail-list">
-        <div
-          v-for="r in normalizedRadars"
-          :key="r.radarId"
-          class="radar-mini-item"
-        >
-          <div class="mini-item-left">
-            <div class="mini-status-dot dot-normal"></div>
-            <div class="mini-info">
-              <div class="mini-title-row">
-                <span class="mini-name">{{ r.displayName }}</span>
-                <span class="radar-code">{{ r.displayCode }}</span>
-                <span v-if="r.displayDesc" class="mini-desc">{{ r.displayDesc }}</span>
-                <button
-                  class="radar-info-button"
-                  type="button"
-                  :aria-label="`查看${r.displayName}說明`"
-                  :data-testid="`radar-info-${r.radarId}`"
-                  @click.stop="toggleRadarInfo(r.radarId)"
-                ><Icon name="info" size="sm" /></button>
-              </div>
-              <div class="mini-purpose">{{ r.displayDefinition }}</div>
-              <div class="mini-summary">{{ r.displaySummary }}</div>
-              <div v-if="openRadarInfo === r.radarId" class="radar-info-panel">
-                <strong>這個指標在看什麼？</strong>
-                <span>{{ r.definition }}</span>
-                <strong>何時需要注意？</strong>
-                <span>{{ r.thresholdHint }}</span>
-                <span class="radar-info-status">目前未超過警戒門檻</span>
-              </div>
+              <span class="status-icon">
+                <Icon name="shield" size="sm" />
+              </span>
+              <span class="status-title">極端防禦狀態：</span>
+              <span class="status-badge badge-idle">常態平穩</span>
+              <span class="status-sub">監控狀態：IDLE（未觸發異常警報）</span>
+              <span class="status-summary">4 項指標監控中 · 全數正常</span>
             </div>
-          </div>
-          <div class="mini-item-right">
-            <span class="mini-badge-ok">正常 <Icon name="ok" size="sm" color="var(--iln-viz-bull)" /></span>
-          </div>
-        </div>
-      </div>
-  </CollapsibleSection>
-</div><div v-else class="radar-panel radar-panel-alert">
-      <CollapsibleSection
-        :expanded="isExpanded"
-        @update:expanded="isExpanded = $event"
-        indicator="chevron"
-      >
-        <template #header>
-          <div class="status-row">
-            <span class="status-icon">
-              <Icon name="danger" size="sm" color="var(--iln-viz-bear)" />
-            </span>
-            <span class="status-title">防禦層已啟動：</span>
-            <span class="status-badge badge-active">
-              {{ stateLabel }} ({{ stateMachine.state }})
-            </span>
-            <span v-if="stateMachine.activeDays > 0" class="status-sub">
-              (第 {{ stateMachine.activeDays }} 天)
-            </span>
-          </div>
-        </template>
+          </template>
 
-        <div class="radar-alert-body">
-        <!-- 觸發的雷達清單 -->
-        <div class="triggered-section">
-          <div class="section-subtitle"><Icon name="trigger" size="sm" color="var(--iln-viz-alert)" /> 觸發極端雷達</div>
-          <div class="triggered-list">
+          <div class="radar-detail-list">
             <div
-              v-for="r in triggeredRadars"
+              v-for="r in normalizedRadars"
               :key="r.radarId"
-              class="triggered-item"
+              class="radar-mini-item"
             >
-              <div class="ti-header">
-                <span class="ti-name">{{ r.displayName }}</span>
-                <span class="ti-severity" :class="`sev-${r.severity.toLowerCase()}`">
-                  {{ r.severity }}
-                </span>
+              <div class="mini-item-left">
+                <div class="mini-status-dot dot-normal"></div>
+                <div class="mini-info">
+                  <div class="mini-title-row">
+                    <span class="mini-name">{{ r.displayName }}</span>
+                    <span class="radar-code">{{ r.displayCode }}</span>
+                    <span v-if="r.displayDesc" class="mini-desc">{{ r.displayDesc }}</span>
+                    <button
+                      class="radar-info-button"
+                      type="button"
+                      :aria-label="`查看${r.displayName}說明`"
+                      :data-testid="`radar-info-${r.radarId}`"
+                      @click.stop="toggleRadarInfo(r.radarId)"
+                    >
+                      <Icon name="info" size="sm" />
+                    </button>
+                  </div>
+                  <div class="mini-purpose">{{ r.displayDefinition }}</div>
+                  <div class="mini-summary">{{ r.displaySummary }}</div>
+                  <div v-if="openRadarInfo === r.radarId" class="radar-info-panel">
+                    <strong>這個指標在看什麼？</strong>
+                    <span>{{ r.definition }}</span>
+                    <strong>何時需要注意？</strong>
+                    <span>{{ r.thresholdHint }}</span>
+                    <span class="radar-info-status">目前未超過警戒門檻</span>
+                  </div>
+                </div>
               </div>
-              <div class="ti-summary">{{ r.displaySummary }}</div>
+              <div class="mini-item-right">
+                <span class="mini-badge-ok"><span>正常</span> <Icon name="ok" size="sm" color="var(--iln-viz-bull)" /></span>
+              </div>
             </div>
           </div>
-        </div>
-
-        <!-- 嚴格行動紀律 -->
-        <div class="action-discipline-section">
-          <div class="section-subtitle"><Icon name="shield" size="sm" color="var(--iln-hint)" /> 即時防禦行動紀律</div>
-          <div class="discipline-grid">
-            <!-- 00675L 行動 -->
-            <StatCard size="sm" :framed="false" align="left" label="00675L (2x槓桿)" :value="stateMachine.freeze00675L ? '凍結禁止加碼' : '允許加碼'" :status="stateMachine.freeze00675L ? 'danger' : 'ok'" />
-
-            <!-- 0050 行動 -->
-            <StatCard size="sm" :framed="false" align="left" label="0050 (原型加碼)" :value="stateMachine.allowLeft0050 ? '允許低接' : '暫停加碼'" :status="stateMachine.allowLeft0050 ? 'ok' : 'neutral'" />
-
-            <!-- P0 定期定額 -->
-            <StatCard size="sm" :framed="false" align="left" label="P0 定期定額" value="正常扣款 (最高豁免)" status="ok" />
-
-            <!-- 現金曝險分析 -->
-            <CashExposureWidget v-if="cashExposureAnalysis" :analysis="cashExposureAnalysis" />
-          </div>
-        </div>
+        </CollapsibleSection>
       </div>
-      </CollapsibleSection>
+
+      <div v-else class="radar-panel radar-panel-alert">
+        <CollapsibleSection
+          :expanded="isExpanded"
+          @update:expanded="isExpanded = $event"
+          indicator="chevron"
+        >
+          <template #header>
+            <div class="status-row">
+              <span class="status-icon">
+                <Icon name="danger" size="sm" color="var(--iln-viz-bear)" />
+              </span>
+              <span class="status-title">防禦層已啟動：</span>
+              <span class="status-badge badge-active">
+                {{ stateLabel }} ({{ stateMachine.state }})
+              </span>
+              <span v-if="stateMachine.activeDays > 0" class="status-sub">
+                (第 {{ stateMachine.activeDays }} 天)
+              </span>
+            </div>
+          </template>
+
+          <div class="radar-alert-body">
+            <!-- 觸發的雷達清單 -->
+            <div class="triggered-section">
+              <div class="section-subtitle"><Icon name="trigger" size="sm" color="var(--iln-viz-alert)" /> <span>觸發極端雷達</span></div>
+              <div class="triggered-list">
+                <div
+                  v-for="r in triggeredRadars"
+                  :key="r.radarId"
+                  class="triggered-item"
+                >
+                  <div class="ti-header">
+                    <span class="ti-name">{{ r.displayName }}</span>
+                    <span class="ti-severity" :class="`sev-${r.severity.toLowerCase()}`">
+                      {{ r.severity }}
+                    </span>
+                  </div>
+                  <div class="ti-summary">{{ r.displaySummary }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 嚴格行動紀律 -->
+            <div class="action-discipline-section">
+              <div class="section-subtitle"><Icon name="shield" size="sm" color="var(--iln-hint)" /> <span>即時防禦行動紀律</span></div>
+              <div class="discipline-grid">
+                <StatCard size="sm" :framed="false" align="left" label="00675L (2x槓桿)" :value="stateMachine.freeze00675L ? '凍結禁止加碼' : '允許加碼'" :status="stateMachine.freeze00675L ? 'danger' : 'ok'" />
+                <StatCard size="sm" :framed="false" align="left" label="0050 (原型加碼)" :value="stateMachine.allowLeft0050 ? '允許低接' : '暫停加碼'" :status="stateMachine.allowLeft0050 ? 'ok' : 'neutral'" />
+                <StatCard size="sm" :framed="false" align="left" label="P0 定期定額" value="正常扣款 (最高豁免)" status="ok" />
+                <CashExposureWidget v-if="cashExposureAnalysis" :analysis="cashExposureAnalysis" />
+              </div>
+            </div>
+          </div>
+        </CollapsibleSection>
+      </div>
     </div>
-  </div>
-</ContentCard>
+  </ContentCard>
 </template>
 
 <script setup>
@@ -287,7 +286,6 @@ const isIdle = computed(() => {
   );
 });
 
-// 當非 IDLE（極端狀態）時，預設自動展開
 watch(
   () => stateMachine.value.state,
   (state) => {
@@ -297,6 +295,7 @@ watch(
   },
   { immediate: true },
 );
+
 function toggleRadarInfo(radarId) {
   openRadarInfo.value = openRadarInfo.value === radarId ? null : radarId;
 }
@@ -313,62 +312,63 @@ const stateLabel = computed(() => {
       return "常態平穩";
   }
 });
-
 </script>
 
 <style scoped>
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .extreme-radar-container {
-  margin-bottom: 16px;
+  margin-bottom: var(--iln-space-4);
   font-family: inherit;
 }
 
 .empty-radar-bar {
-  padding: 10px 14px;
-  font-size: 13px;
-  color: var(--tg-theme-hint-color);
-  background: var(--tg-theme-secondary-bg-color);
-  border-radius: 12px;
+  padding: var(--iln-space-2-5, 10px) var(--iln-space-3-5, 14px);
+  font-size: var(--iln-font-sm);
+  color: var(--iln-hint);
+  background: var(--iln-surface);
+  border-radius: var(--iln-radius-md);
   border: 1px solid var(--iln-border-subtle);
 }
 
 .radar-panel {
-  border-radius: 12px;
+  border-radius: var(--iln-radius-md);
   overflow: hidden;
-  transition: all 0.25s ease;
+  transition:
+    background-color var(--iln-duration-base) var(--iln-ease-standard),
+    border-color var(--iln-duration-base) var(--iln-ease-standard);
 }
 
-/* 常態平穩（IDLE） - 柔和清新淺綠微透風格，與美股卡片完美融合 */
 .radar-panel-idle {
-  background: var(--tg-theme-secondary-bg-color);
+  background: var(--iln-surface);
   border: 1px solid var(--iln-viz-bull-border);
   box-shadow: var(--iln-shadow-hairline);
 }
 
-/* 極端警報觸發狀態 */
 .radar-panel-alert {
   background: var(--iln-viz-bear-bg);
   border: 1px solid var(--iln-viz-bear-border);
 }
 
-
-
-
-
 .status-icon {
-  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--iln-font-lg);
   line-height: 1;
 }
 
 .status-title {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   font-weight: 700;
-  color: var(--tg-theme-text-color, var(--iln-surface));
+  color: var(--iln-text);
 }
 
 .status-badge {
-  font-size: 11px;
+  font-size: var(--iln-font-xs);
   padding: 2px 7px;
-  border-radius: 6px;
+  border-radius: var(--iln-radius-sm);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -386,20 +386,17 @@ const stateLabel = computed(() => {
 }
 
 .status-summary {
-  font-size: 12px;
-  color: var(--tg-theme-hint-color);
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
 }
 
 .status-sub {
-  font-size: 11px;
-  color: var(--tg-theme-hint-color);
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
 }
 
-
-
-/* 展開詳細清單 */
 .radar-detail-list {
-  padding: 8px 12px 12px;
+  padding: var(--iln-space-2) var(--iln-space-3) var(--iln-space-3);
   border-top: 1px solid var(--iln-viz-bull-border);
   display: flex;
   flex-direction: column;
@@ -410,18 +407,17 @@ const stateLabel = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--iln-space-2-5, 10px);
   background: var(--iln-surface-raised);
-  padding: 8px 11px;
-  border-radius: 9px;
+  padding: var(--iln-space-2) var(--iln-space-3);
+  border-radius: var(--iln-radius-md);
   border: 1px solid var(--iln-border-subtle);
-  transition: all 0.15s ease;
 }
 
 .mini-item-left {
   display: flex;
   align-items: flex-start;
-  gap: 9px;
+  gap: var(--iln-space-2);
   flex: 1;
   min-width: 0;
 }
@@ -429,7 +425,7 @@ const stateLabel = computed(() => {
 .mini-status-dot {
   width: 7px;
   height: 7px;
-  border-radius: 50%;
+  border-radius: var(--iln-radius-full);
   margin-top: 5px;
   flex-shrink: 0;
 }
@@ -450,22 +446,22 @@ const stateLabel = computed(() => {
 .mini-title-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--iln-space-1-5, 6px);
   flex-wrap: wrap;
 }
 
 .mini-name {
-  color: var(--tg-theme-text-color, var(--iln-surface));
-  font-size: 13px;
+  color: var(--iln-text);
+  font-size: var(--iln-font-sm);
   font-weight: 600;
 }
 
 .mini-desc {
-  font-size: 10px;
-  color: var(--tg-theme-hint-color);
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
   background: var(--iln-surface-sunken);
   padding: 1px 5px;
-  border-radius: 4px;
+  border-radius: var(--iln-radius-sm);
 }
 
 .radar-code {
@@ -474,41 +470,47 @@ const stateLabel = computed(() => {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 9px;
-  color: var(--tg-theme-hint-color);
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
   opacity: 0.85;
 }
 
 .radar-info-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 0;
   padding: 0;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--iln-radius-full);
   background: var(--iln-brand-soft);
   color: var(--iln-brand);
-  font-size: 13px;
-  line-height: 18px;
   cursor: pointer;
   flex-shrink: 0;
+}
+
+.radar-info-button:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
 }
 
 .radar-info-panel {
   display: grid;
   gap: 3px;
   margin-top: 7px;
-  padding: 8px 9px;
+  padding: var(--iln-space-2) var(--iln-space-2-5, 10px);
   border-left: 2px solid var(--iln-brand);
-  border-radius: 0 7px 7px 0;
+  border-radius: 0 var(--iln-radius-sm) var(--iln-radius-sm) 0;
   background: var(--iln-brand-soft);
-  color: var(--tg-theme-hint-color);
-  font-size: 11px;
+  color: var(--iln-hint);
+  font-size: var(--iln-font-xs);
   line-height: 1.45;
 }
 
 .radar-info-panel strong {
-  color: var(--tg-theme-text-color, var(--iln-surface));
-  font-size: 11px;
+  color: var(--iln-text);
+  font-size: var(--iln-font-xs);
 }
 
 .radar-info-status {
@@ -517,15 +519,10 @@ const stateLabel = computed(() => {
   font-weight: 600;
 }
 
-.mini-purpose {
-  color: var(--tg-theme-text-color);
-  font-size: 11px;
-  line-height: 1.35;
-}
-
+.mini-purpose,
 .mini-summary {
-  color: var(--tg-theme-hint-color);
-  font-size: 11px;
+  color: var(--iln-hint);
+  font-size: var(--iln-font-xs);
   line-height: 1.35;
 }
 
@@ -534,43 +531,47 @@ const stateLabel = computed(() => {
 }
 
 .mini-badge-ok {
-  display: inline-block;
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  font-size: var(--iln-font-xs);
   font-weight: 600;
   padding: 2px 7px;
-  border-radius: 6px;
+  border-radius: var(--iln-radius-sm);
   background: var(--iln-viz-bull-bg);
   color: var(--iln-viz-bull-text);
   white-space: nowrap;
 }
 
-/* 警報面板主體 */
 .radar-alert-body {
-  padding: 12px 14px 14px;
+  padding: var(--iln-space-3) var(--iln-space-3-5, 14px) var(--iln-space-3-5, 14px);
   border-top: 1px solid var(--iln-viz-bear-border);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--iln-space-3);
 }
 
 .section-subtitle {
-  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1);
+  font-size: var(--iln-font-xs);
   font-weight: 700;
-  color: var(--tg-theme-text-color, var(--iln-surface));
-  margin-bottom: 6px;
+  color: var(--iln-text);
+  margin-bottom: var(--iln-space-1-5, 6px);
   letter-spacing: 0.3px;
 }
 
 .triggered-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--iln-space-1-5, 6px);
 }
 
 .triggered-item {
   background: var(--iln-surface-raised);
-  border-radius: 8px;
-  padding: 8px 10px;
+  border-radius: var(--iln-radius-md);
+  padding: var(--iln-space-2) var(--iln-space-2-5, 10px);
   border-left: 3px solid var(--iln-viz-bear-text);
   border: 1px solid var(--iln-border-subtle);
 }
@@ -583,122 +584,59 @@ const stateLabel = computed(() => {
 }
 
 .ti-name {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   font-weight: 700;
-  color: var(--tg-theme-text-color, var(--iln-surface));
+  color: var(--iln-text);
 }
 
 .ti-severity {
-  font-size: 10px;
-  font-weight: bold;
+  font-size: var(--iln-font-xs);
+  font-weight: 700;
   padding: 1px 5px;
-  border-radius: 4px;
+  border-radius: var(--iln-radius-sm);
 }
 
 .sev-critical {
   background: var(--iln-viz-bear-text);
-  /* 業務語義色：白色文字在危險背景上，保持高對比 */
   color: var(--iln-bg);
 }
 
 .sev-alert {
   background: var(--iln-viz-alert-text);
-  /* 業務語義色：黑色文字在警告背景上，保持可讀性 */
   color: var(--iln-text);
 }
 
 .sev-watch {
-  /* 業務語義色：watch 狀態黃色背景，區別於 ok/warn/danger */
   background: var(--iln-radar-watch-bg);
-  /* 業務語義色：黑色文字在黃色背景上，保持可讀性 */
   color: var(--iln-text);
 }
 
 .ti-summary {
-  font-size: 11px;
-  color: var(--tg-theme-hint-color);
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
   line-height: 1.35;
 }
 
 .discipline-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 
-
-
-.text-danger {
-  color: var(--iln-viz-bear-text);
-}
-
-.text-success {
-  color: var(--iln-viz-bull-text);
-}
-
-.text-info {
-  color: var(--iln-brand);
-}
-
-.text-muted {
-  color: var(--tg-theme-hint-color);
-}
-
-/* ── 深色主題相容 ── */
-.dark .radar-panel-idle,
-:global(.dark) .radar-panel-idle {
-  background: var(--iln-surface);
-  border-color: var(--iln-viz-bull-border);
-}
-
-.dark .radar-mini-item,
-:global(.dark) .radar-mini-item {
-  border-color: var(--iln-border-subtle);
-}
-
-.dark .status-title,
-:global(.dark) .status-title,
-.dark .mini-name,
-:global(.dark) .mini-name,
-.dark .section-subtitle,
-:global(.dark) .section-subtitle,
-.dark .ti-name,
-:global(.dark) .ti-name {
-  /* 業務語義色：深色主題標題文字，與 hint-color 對齊 */
-  color: var(--iln-radar-text-dark);
-}
-
-.dark .status-summary,
-:global(.dark) .status-summary,
-.dark .mini-summary,
-:global(.dark) .mini-summary,
-.dark .ti-summary,
-:global(.dark) .ti-summary {
-  /* 業務語義色：深色主題摘要文字，與 hint-color 對齊 */
-  color: var(--iln-radar-text-muted);
-}
-
-
-
-.dark .mini-desc,
-:global(.dark) .mini-desc {
-  /* 業務語義色：深色主題描述文字 */
-  color: var(--iln-hint);
-}
-
-.dark .triggered-item,
-:global(.dark) .triggered-item {
-  border-color: var(--iln-border-subtle);
-}
-
-/* 狀態行 */
 .status-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--iln-space-2);
   padding: var(--iln-space-2) 0;
   border-bottom: 1px solid var(--iln-border-subtle);
   font-size: var(--iln-font-sm);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .radar-panel {
+    transition: none;
+  }
+}
 </style>

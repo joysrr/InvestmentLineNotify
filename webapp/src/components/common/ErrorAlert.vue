@@ -34,12 +34,12 @@
             @click="$emit('action')"
           >
             <el-icon v-if="actionIcon" :size="14"><component :is="actionIcon" /></el-icon>
-            {{ actionText }}
+            <span>{{ actionText }}</span>
           </el-button>
         </div>
         <el-collapse-transition>
           <div v-show="detailVisible" class="error-detail">
-            <pre>{{ errorDetail }}</pre>
+            <pre class="tabular">{{ errorDetail }}</pre>
           </div>
         </el-collapse-transition>
       </template>
@@ -49,92 +49,74 @@
 
 <script setup>
 /**
- * @available 此元件備用供未來頁面使用
- * ErrorAlert 適用場景 (非全頁錯誤，由 GlobalErrorBoundary 處理):
+ * ErrorAlert 適用場景（非全頁錯誤，由 GlobalErrorBoundary 處理）：
  * - 表單驗證失敗 inline 提示
- * - 區塊級 API 失敗 (如圖表載入失敗、局部資料刷新失敗)
- * - 使用者操作回饋 (刪除失敗、儲存失敗)
- * 
- * 輕量級 inline 錯誤條，支援 dismiss/retry/action
+ * - 區塊級 API 失敗（如圖表載入失敗、局部資料刷新失敗）
+ * - 使用者操作回饋（刪除失敗、儲存失敗）
  */
 import { ref } from "vue";
 import { ElAlert, ElButton, ElCollapseTransition, ElIcon } from "element-plus";
 
 defineProps({
-  // 是否顯示
   visible: {
     type: Boolean,
     default: true,
   },
-  // 標題
   title: {
     type: String,
     default: "操作失敗",
   },
-  // 描述
   description: {
     type: String,
     default: "請稍後再試，或聯絡管理員",
   },
-  // 類型
   type: {
     type: String,
     default: "error",
     validator: (v) => ["success", "warning", "info", "error"].includes(v),
   },
-  // 是否可關閉
   closable: {
     type: Boolean,
     default: true,
   },
-  // 是否顯示圖示
   showIcon: {
     type: Boolean,
     default: true,
   },
-  // 是否顯示重試按鈕
   showRetry: {
     type: Boolean,
     default: false,
   },
-  // 重試按鈕文字
   retryText: {
     type: String,
     default: "重試",
   },
-  // 是否顯示詳情按鈕
   showDetail: {
     type: Boolean,
     default: false,
   },
-  // 錯誤詳情（技術訊息/stack trace）
   errorDetail: {
     type: String,
     default: "",
   },
-  // 自定義行動按鈕文字
   actionText: {
     type: String,
     default: "",
   },
-  // 行動按鈕類型
   actionType: {
     type: String,
     default: "primary",
     validator: (v) => ["primary", "success", "warning", "danger", "info", "default"].includes(v),
   },
-  // 按鈕尺寸
   buttonSize: {
     type: String,
     default: "small",
     validator: (v) => ["large", "default", "small"].includes(v),
   },
-  // 行動按鈕圖示
   actionIcon: {
     type: String,
     default: "",
   },
-  // 行動按鈕連結
   actionHref: {
     type: String,
     default: "",
@@ -152,19 +134,25 @@ const handleClose = () => {
 
 <style scoped>
 .error-alert {
-  margin-bottom: 16px;
+  margin-bottom: var(--iln-space-4);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 .error-alert-actions {
   display: flex;
-  gap: 8px;
-  margin-top: 12px;
+  flex-wrap: wrap;
+  gap: var(--iln-space-2);
+  margin-top: var(--iln-space-3);
 }
 
 .error-detail {
   margin-top: var(--iln-space-3);
   padding: var(--iln-space-3);
   background-color: var(--iln-surface);
+  border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-sm);
   max-height: 200px;
   overflow-y: auto;
@@ -172,9 +160,10 @@ const handleClose = () => {
 
 .error-detail pre {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--iln-font-xs);
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-all;
+  color: var(--iln-text);
 }
 </style>

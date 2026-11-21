@@ -9,13 +9,13 @@
     <div class="news-header">
       <span v-if="showAgeBand" class="news-age" :class="ageBandClass(article.age_band)">
         <Icon :name="ageBandIcon(article.age_band)" size="sm" />
-        {{ ageBandLabel(article.age_band) }}
+        <span>{{ ageBandLabel(article.age_band) }}</span>
       </span>
       <span class="news-region">
         <Icon :name="regionFlag(article._region || 'tw')" size="sm" />
       </span>
       <span class="news-source">{{ article.source }}</span>
-      <span class="news-time">{{ formatDate(article.pubDate) }}</span>
+      <span class="news-time tabular">{{ formatDate(article.pubDate) }}</span>
       <span v-if="isFeatured" class="news-badge featured">精選</span>
     </div>
     <p class="news-title">{{ article.title }}</p>
@@ -47,7 +47,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["article-click"]);
+defineEmits(["article-click"]);
 
 const TW_SOURCE_KEYWORDS = ["鉅亨網", "ETtoday", "自由財經", "蘋果日報", "商業週刊", "今周刊"];
 
@@ -84,20 +84,26 @@ function regionFlag(region) {
 </script>
 
 <style scoped>
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .news-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px 16px;
-  border: 1px solid var(--iln-neutral-fill-border-faint);
-  border-radius: 12px;
-  background: var(--iln-neutral-fill-faint);
+  gap: var(--iln-space-2);
+  padding: var(--iln-space-3) var(--iln-space-4);
+  border: 1px solid var(--iln-border-subtle);
+  border-radius: var(--iln-radius-md);
+  background: var(--iln-surface);
   cursor: pointer;
-  transition: background 0.2s;
+  transition:
+    border-color var(--iln-duration-fast) var(--iln-ease-standard),
+    background-color var(--iln-duration-fast) var(--iln-ease-standard);
 }
 
 .news-card:hover {
-  border-color: var(--iln-link);
+  border-color: var(--iln-brand);
 }
 
 .news-card:focus-visible {
@@ -108,19 +114,20 @@ function regionFlag(region) {
 .news-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 11px;
+  flex-wrap: wrap;
+  gap: var(--iln-space-2);
+  font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 
 .news-age {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--iln-space-1);
 }
 
 .news-title {
-  font-size: 15px;
+  font-size: var(--iln-font-md);
   font-weight: 600;
   color: var(--iln-text);
   line-height: 1.4;
@@ -128,14 +135,14 @@ function regionFlag(region) {
 }
 
 .news-summary {
-  font-size: 13px;
+  font-size: var(--iln-font-sm);
   color: var(--iln-hint);
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  margin: 4px 0 0 0;
+  margin: var(--iln-space-1) 0 0;
 }
 
 .age-fresh {
@@ -150,55 +157,57 @@ function regionFlag(region) {
   color: var(--iln-hint);
 }
 
-/* 新聞區域 */
 .news-region {
+  display: inline-flex;
+  align-items: center;
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
-  margin-right: var(--iln-space-2);
+  margin-right: var(--iln-space-1);
 }
 
-/* 新聞來源 */
 .news-source {
   font-size: var(--iln-font-xs);
   font-weight: var(--iln-weight-medium);
   color: var(--iln-text);
 }
 
-/* 新聞時間 */
 .news-time {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 
-/* 新聞徽章 */
 .news-badge {
   font-size: var(--iln-font-xs);
   font-weight: var(--iln-weight-medium);
-  padding: 2px 8px;
+  padding: 2px var(--iln-space-2);
   border-radius: var(--iln-radius-sm);
   background: var(--iln-brand-soft);
   color: var(--iln-brand);
 }
 
-/* 精選標記 */
 .featured {
   background: var(--iln-viz-alert-bg);
   color: var(--iln-viz-alert-text);
 }
 
-/* 新聞標籤 */
 .news-tag {
+  align-self: flex-start;
   font-size: var(--iln-font-xs);
   font-weight: var(--iln-weight-medium);
-  padding: 2px 8px;
+  padding: 2px var(--iln-space-2);
   border-radius: var(--iln-radius-sm);
   background: var(--iln-surface-alt);
   color: var(--iln-text);
 }
 
-/* 已入選標記 */
 .picked {
   background: var(--iln-viz-bull-bg);
   color: var(--iln-viz-bull-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .news-card {
+    transition: none;
+  }
 }
 </style>

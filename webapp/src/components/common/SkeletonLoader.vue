@@ -1,11 +1,11 @@
 <template>
-  <div class="skeleton-loader">
+  <div class="skeleton-loader" aria-busy="true">
     <div v-if="linesCount > 0" class="skeleton-lines">
       <div
         v-for="i in linesCount"
         :key="i"
         class="skeleton-line"
-        :style="{ height: lineStyleHeight, marginBottom: '8px' }"
+        :style="{ height: lineStyleHeight }"
       />
     </div>
     <el-skeleton
@@ -86,27 +86,22 @@ import { computed } from "vue";
 import { ElSkeleton, ElSkeletonItem } from "element-plus";
 
 const props = defineProps({
-  // 支援 lines (Task 1 規格)
   lines: {
     type: Number,
     default: 0,
   },
-  // 支援 height (Task 1 規格)
   height: {
-    type: String,
+    type: [String, Number],
     default: "",
   },
-  // 骨架屏行數（variant=default 時有效）
   rows: {
     type: Number,
     default: 5,
   },
-  // 是否顯示動畫
   animated: {
     type: Boolean,
     default: true,
   },
-  // 骨架屏變體
   variant: {
     type: String,
     default: "default",
@@ -128,14 +123,28 @@ const lineStyleHeight = computed(() => {
 .skeleton-loader {
   width: 100%;
 }
+
+.skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--iln-space-2);
+}
+
 .skeleton-line {
-  background: var(--el-skeleton-color);
+  background: var(--el-skeleton-color, var(--iln-surface));
   border-radius: 4px;
   animation: skeleton-loading 1.4s ease infinite;
 }
+
 @keyframes skeleton-loading {
   0% { opacity: 0.6; }
   50% { opacity: 1; }
   100% { opacity: 0.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-line {
+    animation: none;
+  }
 }
 </style>

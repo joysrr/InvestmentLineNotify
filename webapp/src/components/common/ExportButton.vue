@@ -33,7 +33,7 @@
           <el-dropdown-item :disabled="!hasCSVData" command="csv">
             <el-icon><Document /></el-icon>
             <span>匯出 CSV</span>
-            <el-tag v-if="csvCount" size="small" type="info">{{ csvCount }} 筆</el-tag>
+            <el-tag v-if="csvCount" size="small" type="info" class="tabular">{{ csvCount }} 筆</el-tag>
           </el-dropdown-item>
           <el-dropdown-item :disabled="!hasJSONData" command="json">
             <el-icon><Document /></el-icon>
@@ -61,28 +61,19 @@ import { exportCSV, exportJSON, exportChartAsImage, exportAllFormats } from "@/u
 import { haptic } from "@/composables/useTelegram.js";
 
 const props = defineProps({
-  // 資料來源
   csvData: { type: Array, default: () => [] },
   jsonData: { type: Object, default: () => ({}) },
   chartInstance: { type: Object, default: null },
-  
-  // 檔名設定
   filename: { type: String, default: "export" },
   csvFilename: { type: String, default: null },
   jsonFilename: { type: String, default: null },
   pngFilename: { type: String, default: null },
-  
-  // 外觀
   type: { type: String, default: "primary" },
   size: { type: String, default: "default" },
   buttonText: { type: String, default: "匯出" },
   directCommand: { type: String, default: null },
   disabled: { type: Boolean, default: false },
-  
-  // CSV 選項
   csvOptions: { type: Object, default: () => ({}) },
-  
-  // 圖片選項
   pngOptions: { type: Object, default: () => ({}) },
 });
 
@@ -90,33 +81,26 @@ const emit = defineEmits(["export-start", "export-complete", "export-error"]);
 
 const exporting = ref(false);
 
-// Computed
 const hasCSVData = computed(() => props.csvData && props.csvData.length > 0);
 const hasJSONData = computed(() => props.jsonData && Object.keys(props.jsonData).length > 0);
 const hasChart = computed(() => props.chartInstance != null);
-
 const csvCount = computed(() => props.csvData?.length ?? 0);
 
-const baseFilename = computed(() => {
-  const base = props.filename || "export";
-  return base;
-});
-
+const baseFilename = computed(() => props.filename || "export");
 const csvFilename = computed(() => props.csvFilename || baseFilename.value);
 const jsonFilename = computed(() => props.jsonFilename || baseFilename.value);
 const pngFilename = computed(() => props.pngFilename || baseFilename.value);
 
-// Methods
 async function handleCommand(command) {
   haptic("medium");
   if (exporting.value) return;
-  
+
   exporting.value = true;
   emit("export-start", command);
 
   try {
-    let result = null;
-    
+    const result = null;
+
     switch (command) {
       case "csv":
         if (!hasCSVData.value) {
@@ -126,7 +110,7 @@ async function handleCommand(command) {
         exportCSV(props.csvData, csvFilename.value, props.csvOptions);
         ElMessage.success(`CSV 已匯出: ${csvFilename.value}.csv`);
         break;
-        
+
       case "json":
         if (!hasJSONData.value) {
           ElMessage.warning("無 JSON 資料可匯出");
@@ -135,7 +119,7 @@ async function handleCommand(command) {
         exportJSON(props.jsonData, jsonFilename.value);
         ElMessage.success(`JSON 已匯出: ${jsonFilename.value}.json`);
         break;
-        
+
       case "png":
         if (!hasChart.value) {
           ElMessage.warning("無圖表可匯出");
@@ -144,18 +128,18 @@ async function handleCommand(command) {
         await exportChartAsImage(props.chartInstance, pngFilename.value, props.pngOptions);
         ElMessage.success(`PNG 已匯出: ${pngFilename.value}.png`);
         break;
-        
+
       case "all": {
         const availableFormats = [];
         if (hasCSVData.value) availableFormats.push("csv");
         if (hasJSONData.value) availableFormats.push("json");
         if (hasChart.value) availableFormats.push("png");
-        
+
         if (availableFormats.length === 0) {
           ElMessage.warning("無可匯出資料");
           return;
         }
-        
+
         await exportAllFormats(
           { csv: props.csvData, json: props.jsonData },
           baseFilename.value,
@@ -166,7 +150,7 @@ async function handleCommand(command) {
         break;
       }
     }
-    
+
     emit("export-complete", command, result);
   } catch (err) {
     console.error("Export error:", err);
@@ -177,7 +161,6 @@ async function handleCommand(command) {
   }
 }
 
-// 暴露方法供父組件呼叫
 defineExpose({
   exportCSV: () => handleCommand("csv"),
   exportJSON: () => handleCommand("json"),
@@ -191,21 +174,25 @@ defineExpose({
   position: relative;
 }
 
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 .export-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--iln-space-1-5, 6px);
 }
 
 .export-btn .el-icon--right {
-  font-size: 12px;
-  margin-left: 4px;
+  font-size: var(--iln-font-xs);
+  margin-left: var(--iln-space-1);
 }
 
 .el-dropdown-menu__item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--iln-space-2);
 }
 
 .el-dropdown-menu__item .el-tag {

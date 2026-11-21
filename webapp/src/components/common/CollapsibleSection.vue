@@ -47,7 +47,7 @@
 
 <script>
 // 模組層級：模組載入時執行一次，所有實例共用計數器，
-// 避免 <script setup> 實例級變數導致同頁多實例 id 重複（R2）。
+// 避免 <script setup> 實例級變數導致同頁多實例 id 重複。
 let uidCounter = 0;
 </script>
 
@@ -102,6 +102,7 @@ const toggle = () => {
   border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-md);
   overflow: hidden;
+  background: var(--iln-bg);
 }
 
 .collapsible-header {
@@ -120,6 +121,16 @@ const toggle = () => {
 
 .collapsible-header.is-clickable {
   cursor: pointer;
+  transition: background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
+}
+
+.collapsible-header.is-clickable:hover {
+  background: var(--iln-surface);
+}
+
+.collapsible-header.is-clickable:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: -2px;
 }
 
 .collapsible-header:not(.is-clickable) {
@@ -127,22 +138,8 @@ const toggle = () => {
 }
 
 .collapsible-title {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--iln-text);
-}
-
-.toggle-btn {
-  background: none;
-  border: none;
-  color: var(--iln-hint);
-  font-size: var(--iln-font-sm);
-  cursor: pointer;
-  padding: var(--iln-space-1);
-  border-radius: var(--iln-radius-sm);
-}
-
-.toggle-btn:hover {
-  background: var(--iln-surface);
 }
 
 .collapsible-indicator {
@@ -152,6 +149,10 @@ const toggle = () => {
   font-size: var(--iln-font-sm);
   transition: transform var(--iln-duration-base, 200ms)
     var(--iln-ease-standard, ease);
+}
+
+.collapsible-indicator.is-open {
+  transform: rotate(180deg);
 }
 
 .collapse-enter-active,
@@ -170,5 +171,14 @@ const toggle = () => {
 .collapsible-content {
   padding: var(--iln-space-3);
   border-top: 1px solid var(--iln-border-subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collapsible-header.is-clickable,
+  .collapsible-indicator,
+  .collapse-enter-active,
+  .collapse-leave-active {
+    transition: none;
+  }
 }
 </style>

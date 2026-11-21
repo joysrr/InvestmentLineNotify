@@ -22,8 +22,8 @@
 
 <script setup>
 /**
- * 離線/弱網提醒橫條。
- * 單例掛載於 App.vue，根據 useNetworkStatus 的 status 顯示/隱藏。
+ * 離線／弱網提醒橫條。
+ * 單例掛載於 App.vue，根據 useNetworkStatus 的 status 顯示／隱藏。
  */
 import { ref, watch, nextTick } from "vue";
 import { ElNotification, ElButton } from "element-plus";
@@ -91,6 +91,6 @@ defineExpose({ handleRetry });
 .offline-banner-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 8px;
+  margin-top: var(--iln-space-2);
 }
 </style>
