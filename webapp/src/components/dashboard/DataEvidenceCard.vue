@@ -3,24 +3,25 @@
     variant="outlined"
     padding="md"
     radius="lg"
+    class="evidence-card"
     data-testid="data-evidence-card"
   >
     <div class="card-header">
-      <div>
+      <div class="card-title-group">
         <h3 id="data-evidence-title">資料證據</h3>
         <p class="card-subtitle">供外部 Agent 核對已落地資料</p>
       </div>
-      <el-button
-        :loading="generating"
-        type="primary"
-        size="small"
-        class="export-btn"
+      <button
+        type="button"
+        :disabled="generating || loading"
+        class="evidence-action-btn"
         data-testid="evidence-export"
         @click="handleGenerateAndExport"
       >
-        <el-icon><Download /></el-icon>
+        <el-icon v-if="generating" class="is-loading"><Loading /></el-icon>
+        <el-icon v-else><Download /></el-icon>
         <span>{{ generating ? "產出中..." : "產出並匯出證據" }}</span>
-      </el-button>
+      </button>
     </div>
 
     <p v-if="loading" class="status-text">讀取證據報告中...</p>
@@ -39,7 +40,7 @@
 
 <script setup>
 import { computed, onMounted, shallowRef } from "vue";
-import { Download } from "@element-plus/icons-vue";
+import { Download, Loading } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import ContentCard from "../common/ContentCard.vue";
 import {
@@ -77,7 +78,7 @@ async function loadReport() {
 }
 
 async function handleGenerateAndExport() {
-  if (generating.value) return;
+  if (generating.value || loading.value) return;
   generating.value = true;
   try {
     const freshReport = await generateDataEvidenceReport();
@@ -115,11 +116,21 @@ onMounted(async () => {
   font-variant-numeric: tabular-nums;
 }
 
+.evidence-card {
+  background: var(--iln-surface-elevated, var(--iln-surface));
+  border-color: var(--iln-border-subtle);
+  color: var(--iln-text);
+}
+
 .card-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--iln-space-3);
+}
+
+.card-title-group {
+  min-width: 0;
 }
 
 .card-header h3 {
@@ -151,10 +162,82 @@ onMounted(async () => {
   font-weight: 600;
 }
 
-.export-btn {
+.evidence-action-btn {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: var(--iln-space-1);
+  justify-content: center;
+  gap: var(--iln-space-1-5, 6px);
+  min-height: var(--iln-touch-min, 36px);
+  padding: 6px 12px;
+  border: 1px solid var(--iln-brand-border, transparent);
+  border-radius: var(--iln-radius-md, 10px);
+  background: var(--iln-brand, #2481cc);
+  color: var(--iln-on-brand, #ffffff);
+  font-size: var(--iln-font-xs);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    opacity var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    transform var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
+}
+
+.evidence-action-btn:hover:not(:disabled) {
+  background: var(--iln-brand-hover, var(--iln-brand, #1d6fb0));
+}
+
+.evidence-action-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.evidence-action-btn:focus-visible {
+  outline: 2px solid var(--iln-brand);
+  outline-offset: 2px;
+}
+
+.evidence-action-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.is-loading {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+:global(:root[data-theme="dark"]) .evidence-card,
+:global(.dark) .evidence-card {
+  background: var(--iln-surface-elevated, var(--iln-surface));
+  border-color: var(--iln-border-subtle);
+}
+
+:global(:root[data-theme="dark"]) .evidence-action-btn,
+:global(.dark) .evidence-action-btn {
+  box-shadow: 0 0 0 1px var(--iln-border-subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evidence-action-btn,
+  .is-loading {
+    animation: none;
+    transition: none;
+  }
+
+  .evidence-action-btn:active:not(:disabled) {
+    transform: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -162,12 +245,11 @@ onMounted(async () => {
     flex-wrap: wrap;
   }
 
-  .card-header > div:first-child {
-    min-width: 0;
+  .card-title-group {
     flex: 1 1 180px;
   }
 
-  .card-header :deep(.export-btn) {
+  .evidence-action-btn {
     flex: 0 0 auto;
   }
 }

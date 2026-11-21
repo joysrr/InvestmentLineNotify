@@ -15,7 +15,7 @@
         :disabled="isRunning"
         @click="handleStart"
       >
-        {{ isRunning ? "檢查中…" : "檢查並部署" }}
+        <span class="btn-label">{{ isRunning ? "檢查中…" : "檢查並部署" }}</span>
       </button>
     </div>
 
@@ -51,7 +51,11 @@ function handleStart() {
   padding: var(--iln-space-4);
   border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-lg, 16px);
-  background: var(--iln-surface);
+  background: var(--iln-surface-elevated, var(--iln-surface));
+  color: var(--iln-text);
+  transition:
+    background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
 }
 
 .tabular {
@@ -69,7 +73,7 @@ function handleStart() {
 .deployment-title {
   display: inline-flex;
   align-items: center;
-  gap: var(--iln-space-1);
+  gap: var(--iln-space-1-5, 6px);
   margin: 0;
   font-size: var(--iln-font-base);
   font-weight: 700;
@@ -85,15 +89,32 @@ function handleStart() {
 
 .deployment-start {
   flex: 0 0 auto;
-  min-height: var(--iln-touch-min);
-  padding: 0 var(--iln-space-4);
-  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--iln-touch-min, 40px);
+  padding: 0 var(--iln-space-4, 16px);
+  border: 1px solid var(--iln-viz-bear-border, transparent);
   border-radius: var(--iln-radius-full, 9999px);
-  background: var(--iln-viz-bear);
-  color: #ffffff;
+  background: var(--iln-viz-bear, #dc2626);
+  color: var(--iln-on-accent, #ffffff);
   font-size: var(--iln-font-sm);
   font-weight: 600;
+  line-height: 1;
   cursor: pointer;
+  transition:
+    background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    opacity var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    transform var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
+}
+
+.deployment-start:hover:not(:disabled) {
+  background: var(--iln-viz-bear-hover, var(--iln-viz-bear, #b91c1c));
+}
+
+.deployment-start:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .deployment-start:focus-visible {
@@ -103,27 +124,59 @@ function handleStart() {
 
 .deployment-start:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.55;
 }
 
 .deployment-status {
   margin: var(--iln-space-3) 0 0;
+  padding: var(--iln-space-2) var(--iln-space-3);
+  border-radius: var(--iln-radius-sm, 8px);
   font-size: var(--iln-font-sm);
   font-weight: 600;
+  background: var(--iln-surface-faintest, var(--iln-surface));
+  border: 1px solid var(--iln-border-subtle);
 }
 
 .status-skipped,
 .status-completed {
   color: var(--iln-viz-bull-text);
+  background: var(--iln-state-positive-bg, var(--iln-surface));
+  border-color: var(--iln-state-positive-border, var(--iln-border-subtle));
 }
 
 .status-failed,
 .status-idle {
   color: var(--iln-viz-bear-text);
+  background: var(--iln-state-negative-bg, var(--iln-surface));
+  border-color: var(--iln-state-negative-border, var(--iln-border-subtle));
 }
 
 .status-queued,
 .status-running {
   color: var(--iln-viz-alert-text);
+  background: var(--iln-state-caution-bg, var(--iln-surface));
+  border-color: var(--iln-state-caution-border, var(--iln-border-subtle));
+}
+
+:global(:root[data-theme="dark"]) .deployment-control,
+:global(.dark) .deployment-control {
+  background: var(--iln-surface-elevated, var(--iln-surface));
+  border-color: var(--iln-border-subtle);
+}
+
+:global(:root[data-theme="dark"]) .deployment-start,
+:global(.dark) .deployment-start {
+  box-shadow: 0 0 0 1px var(--iln-border-subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deployment-control,
+  .deployment-start {
+    transition: none;
+  }
+
+  .deployment-start:active:not(:disabled) {
+    transform: none;
+  }
 }
 </style>
