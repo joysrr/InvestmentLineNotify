@@ -12,7 +12,7 @@
             <span v-if="trendVm.latestDateText"> · 最新：{{ trendVm.latestDateText }}</span>
           </template>
           <template v-else>
-            波動、情緒、估值與槓桿訊號 · 視窗 {{ timeRange }}
+            波動、情緒、估值與槓桿訊號
             <span v-if="techVm.updatedAt"> · 更新：{{ formatDateTimeInTaipei(techVm.updatedAt) }}</span>
           </template>
         </p>
@@ -52,23 +52,23 @@
       </button>
     </nav>
 
-    <!-- 共用時間範圍列 -->
-    <div class="range-bar" role="group" aria-label="時間範圍">
-      <button
-        v-for="t in TIME_RANGES"
-        :key="t.key"
-        type="button"
-        class="range-btn tabular"
-        :class="{ 'is-active': timeRange === t.key }"
-        :aria-pressed="timeRange === t.key"
-        @click="setTimeRange(t.key)"
-      >
-        {{ t.label }}
-      </button>
-    </div>
-
     <!-- ==================== 分頁 1：資產趨勢 ==================== -->
     <template v-if="activeTab === 'trend'">
+      <!-- 時間範圍列（僅資產趨勢顯示） -->
+      <div class="range-bar" role="group" aria-label="時間範圍">
+        <button
+          v-for="t in TIME_RANGES"
+          :key="t.key"
+          type="button"
+          class="range-btn tabular"
+          :class="{ 'is-active': timeRange === t.key }"
+          :aria-pressed="timeRange === t.key"
+          @click="setTimeRange(t.key)"
+        >
+          {{ t.label }}
+        </button>
+      </div>
+
       <!-- 粒度切換 -->
       <div class="gran-bar" role="group" aria-label="資料粒度">
         <button
@@ -744,8 +744,6 @@ async function loadTechnical() {
 watch([granularity, timeRange], () => {
   if (activeTab.value === "trend") {
     loadTrend();
-  } else {
-    loadTechnical();
   }
 });
 
