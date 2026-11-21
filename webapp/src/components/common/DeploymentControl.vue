@@ -12,10 +12,10 @@
         class="deployment-start"
         type="button"
         data-testid="deployment-start"
-        :disabled="loading"
-        @click="startDeployment"
+        :disabled="isRunning"
+        @click="handleStart"
       >
-        {{ loading ? "檢查中…" : "檢查並部署" }}
+        {{ isRunning ? "檢查中…" : "檢查並部署" }}
       </button>
     </div>
 
@@ -31,85 +31,19 @@
 </template>
 
 <script setup>
-import { computed, onUnmounted, ref } from "vue";
 import Icon from "@/components/common/Icon.vue";
-import { apiFetch } from "../../api/index.js";
-import {
-  getDeploymentStatusText,
-  isDeploymentFinished,
-} from "./deploymentUiState.js";
+import { useDeployJob } from "@/composables/useDeployJob.js";
 
-const loading = ref(false);
-const status = ref("");
-const errorMessage = ref("");
-const commit = ref("");
-let pollTimer = null;
-
-const statusText = computed(() => {
-  if (errorMessage.value) return errorMessage.value;
-  if (commit.value && status.value === "skipped") {
-    return `${getDeploymentStatusText(status.value)}（${commit.value.slice(0, 7)}）`;
-  }
-  return status.value ? getDeploymentStatusText(status.value) : "";
+const { isRunning, statusText, statusClass, startDeploy } = useDeployJob({
+  pollIntervalMs: 1000,
 });
 
-const statusClass = computed(() => `status-${status.value || "idle"}`);
-
-function clearPollTimer() {
-  if (pollTimer) {
-    clearTimeout(pollTimer);
-    pollTimer = null;
-  }
+function handleStart() {
+  startDeploy({
+    payload: { rollback: false },
+    useStream: false,
+  });
 }
-
-async function pollJob(jobId) {
-  const result = await apiFetch(`/api/deploy/${encodeURIComponent(jobId)}`);
-  status.value = result.status;
-  commit.value = result.commit || result.verification?.commit || "";
-
-  if (isDeploymentFinished(result.status)) {
-    loading.value = false;
-    return;
-  }
-
-  pollTimer = setTimeout(() => {
-    pollJob(jobId).catch(handleError);
-  }, 1000);
-}
-
-function handleError(error) {
-  clearPollTimer();
-  loading.value = false;
-  errorMessage.value = error.message || "部署狀態查詢失敗";
-}
-
-async function startDeployment() {
-  clearPollTimer();
-  loading.value = true;
-  status.value = "queued";
-  errorMessage.value = "";
-  commit.value = "";
-
-  try {
-    const result = await apiFetch("/api/deploy", {
-      method: "POST",
-      body: JSON.stringify({ rollback: false }),
-    });
-    status.value = result.status;
-    commit.value = result.commit || "";
-
-    if (isDeploymentFinished(result.status)) {
-      loading.value = false;
-      return;
-    }
-
-    await pollJob(result.jobId);
-  } catch (error) {
-    handleError(error);
-  }
-}
-
-onUnmounted(clearPollTimer);
 </script>
 
 <style scoped>

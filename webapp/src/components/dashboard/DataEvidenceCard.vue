@@ -77,6 +77,7 @@ async function loadReport() {
 }
 
 async function handleGenerateAndExport() {
+  if (generating.value) return;
   generating.value = true;
   try {
     const freshReport = await generateDataEvidenceReport();
@@ -87,21 +88,17 @@ async function handleGenerateAndExport() {
       : new Date().toISOString().slice(0, 10);
     const filename = `${dateLabel}-data-evidence`;
 
-    // 後端產出時已附帶 60 秒有效一次性 Ticket URL，直接使用
     const ticketDownloadUrl = freshReport.downloadUrl;
 
     if (tg && ticketDownloadUrl) {
-      // Telegram WebApp：使用 Ticket URL 透過 openLink 打開外部瀏覽器下載
-      // Ticket 由後端控管，外部瀏覽器不需 X-Telegram-Init-Data header
       openLink(ticketDownloadUrl);
       ElMessage.success("已即時產出最新驗證報告，正在開啟下載！");
     } else {
-      // 外部瀏覽器：直接觸發前端 Blob 下載
       exportJSON(freshReport, filename);
       ElMessage.success(`已即時產出並下載: ${filename}.json`);
     }
   } catch (genError) {
-    ElMessage.error(`產出失敗: ${genError.message || "未知錯誤"}`);
+    ElMessage.error(`產出失敗: ${genError?.message || "未知錯誤"}`);
   } finally {
     generating.value = false;
   }

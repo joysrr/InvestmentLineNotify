@@ -3,7 +3,7 @@
     <el-button
       type="danger"
       size="small"
-      :loading="deploying"
+      :loading="isRunning"
       @click="openConfirmDialog"
       data-testid="deploy-btn"
     >
@@ -30,7 +30,7 @@
         <div class="version-info tabular">
           <div class="version-row">
             <span class="label">當前版本:</span>
-            <span class="value current">{{ currentVersion || "未知" }}</span>
+            <span class="value current">{{ currentVersion }}</span>
           </div>
           <div class="version-row">
             <span class="label">即將部署:</span>
@@ -54,14 +54,14 @@
       </div>
 
       <template #footer>
-        <el-button @click="handleCancelConfirm" :disabled="deploying">
+        <el-button @click="handleCancelConfirm" :disabled="isRunning">
           取消
         </el-button>
         <el-button
           type="danger"
-          @click="startDeploy"
-          :disabled="deploying || !confirmUnderstood"
-          :loading="deploying"
+          @click="handleStartDeploy"
+          :disabled="isRunning || !confirmUnderstood"
+          :loading="isRunning"
         >
           確認部署
         </el-button>
@@ -79,15 +79,15 @@
     >
       <div class="log-panel" data-testid="deploy-log-panel">
         <div class="log-header">
-          <div class="log-status" :class="logStatusClass">
-            <el-icon v-if="deployStatus === 'running'"><Loading class="spinning" /></el-icon>
-            <el-icon v-else-if="deployStatus === 'completed'"><CircleCheck /></el-icon>
-            <el-icon v-else-if="deployStatus === 'failed'"><CircleClose /></el-icon>
+          <div class="log-status" :class="statusClass">
+            <el-icon v-if="status === 'running'"><Loading class="spinning" /></el-icon>
+            <el-icon v-else-if="status === 'completed'"><CircleCheck /></el-icon>
+            <el-icon v-else-if="status === 'failed'"><CircleClose /></el-icon>
             <el-icon v-else><Time /></el-icon>
           </div>
-          <span class="status-text">{{ deployStatusText }}</span>
+          <span class="status-text">{{ statusText }}</span>
           <el-button
-            v-if="deployStatus === 'running'"
+            v-if="status === 'running'"
             size="small"
             type="primary"
             @click="cancelDeploy"
@@ -104,7 +104,7 @@
             :class="['log-line', log.level]"
           >
             <span class="timestamp">{{ formatTime(log.timestamp) }}</span>
-            <span class="level-badge" :class="log.level">{{ log.level.toUpperCase() }}</span>
+            <span class="level-badge" :class="log.level">{{ String(log.level || "info").toUpperCase() }}</span>
             <span class="message">{{ log.message }}</span>
           </div>
           <div v-if="logs.length === 0" class="no-logs">等待日誌...</div>
@@ -112,10 +112,10 @@
       </div>
 
       <template #footer>
-        <el-button @click="showLogDialog = false" :disabled="deploying">
+        <el-button @click="showLogDialog = false" :disabled="isRunning">
           關閉
         </el-button>
-        <el-button v-if="deployStatus === 'failed'" type="primary" @click="handleRetryDeploy">
+        <el-button v-if="status === 'failed'" type="primary" @click="handleRetryDeploy">
           重試部署
         </el-button>
       </template>
@@ -124,46 +124,36 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick, computed } from "vue";
+import { ref, computed, nextTick } from "vue";
 import { useAuth } from "@/composables/useAuth";
+import { useDeployJob } from "@/composables/useDeployJob.js";
 import { Monitor, Loading, CircleCheck, CircleClose, Time } from "@element-plus/icons-vue";
 import { haptic } from "@/composables/useTelegram.js";
 
 const { isAdmin, user } = useAuth();
 
+const {
+  status,
+  statusText,
+  statusClass,
+  logs,
+  isRunning,
+  canCancel,
+  startDeploy,
+  cancelDeploy,
+} = useDeployJob({
+  pollIntervalMs: 2500,
+  authHeader: () => ({
+    "X-Telegram-Init-Data": user.value?.initData || "",
+  }),
+});
+
 const showConfirmDialog = ref(false);
 const showLogDialog = ref(false);
-const deploying = ref(false);
-const deployStatus = ref("queued");
-const logs = ref([]);
 const confirmUnderstood = ref(false);
-const currentJobId = ref(null);
-const ws = ref(null);
 const logContainer = ref(null);
 
-const currentVersion = computed(() => {
-  return import.meta.env.VITE_APP_VERSION || "開發版本";
-});
-
-const deployStatusText = computed(() => {
-  const texts = {
-    queued: "排隊中...",
-    running: "部署執行中...",
-    completed: "部署成功完成",
-    failed: "部署失敗",
-    cancelled: "已取消",
-  };
-  return texts[deployStatus.value] || deployStatus.value;
-});
-
-const logStatusClass = computed(() => ({
-  "status-running": deployStatus.value === "running",
-  "status-completed": deployStatus.value === "completed",
-  "status-failed": deployStatus.value === "failed",
-  "status-cancelled": deployStatus.value === "cancelled",
-}));
-
-const canCancel = computed(() => deployStatus.value === "running" || deployStatus.value === "queued");
+const currentVersion = computed(() => import.meta.env.VITE_APP_VERSION || "開發版本");
 
 const openConfirmDialog = () => {
   confirmUnderstood.value = false;
@@ -176,106 +166,15 @@ const handleCancelConfirm = () => {
 };
 
 const handleConfirmClose = (done) => {
-  if (!deploying.value) {
+  if (!isRunning.value) {
     done();
   }
 };
 
 const handleLogClose = (done) => {
-  if (deployStatus.value === "completed" || deployStatus.value === "failed" || deployStatus.value === "cancelled") {
+  if (!isRunning.value) {
     done();
   }
-};
-
-const startDeploy = async () => {
-  haptic("medium");
-  showConfirmDialog.value = false;
-  showLogDialog.value = true;
-  deploying.value = true;
-  deployStatus.value = "queued";
-  logs.value = [];
-
-  try {
-    const response = await fetch("/api/deploy", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Telegram-Init-Data": user.value?.initData || "",
-      },
-      body: JSON.stringify({}),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "部署啟動失敗");
-    }
-
-    currentJobId.value = data.jobId;
-    deployStatus.value = "running";
-    connectWebSocket(data.jobId);
-  } catch (err) {
-    deployStatus.value = "failed";
-    deploying.value = false;
-    logs.value.push({
-      timestamp: Date.now(),
-      level: "error",
-      message: err.message,
-    });
-  }
-};
-
-const connectWebSocket = (jobId) => {
-  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-  const wsUrl = `${protocol}//${window.location.host}/api/deploy/${jobId}/ws`;
-
-  ws.value = new WebSocket(wsUrl);
-
-  ws.value.onopen = () => {
-    console.log("WebSocket connected");
-  };
-
-  ws.value.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-
-      if (data.historical) {
-        logs.value.push(data);
-      } else if (data.type === "done") {
-        deployStatus.value = data.status;
-        deploying.value = false;
-        if (data.error) {
-          logs.value.push({
-            timestamp: Date.now(),
-            level: "error",
-            message: data.error,
-          });
-        }
-        ws.value?.close();
-      } else {
-        logs.value.push(data);
-      }
-
-      scrollToBottom();
-    } catch (err) {
-      console.error("Failed to parse WebSocket message:", err);
-    }
-  };
-
-  ws.value.onerror = (err) => {
-    console.error("WebSocket error:", err);
-  };
-
-  ws.value.onclose = () => {
-    console.log("WebSocket closed");
-    if (deploying.value) {
-      setTimeout(() => {
-        if (currentJobId.value && deploying.value) {
-          connectWebSocket(currentJobId.value);
-        }
-      }, 3000);
-    }
-  };
 };
 
 const scrollToBottom = () => {
@@ -286,47 +185,32 @@ const scrollToBottom = () => {
   });
 };
 
-const cancelDeploy = async () => {
-  if (!currentJobId.value) return;
-
-  try {
-    const response = await fetch(`/api/deploy/cancel/${currentJobId.value}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Telegram-Init-Data": user.value?.initData || "",
-      },
-    });
-
-    if (response.ok) {
-      deployStatus.value = "cancelled";
-      deploying.value = false;
-      ws.value?.close();
-    }
-  } catch (err) {
-    console.error("Cancel failed:", err);
-  }
+const handleStartDeploy = async () => {
+  showConfirmDialog.value = false;
+  showLogDialog.value = true;
+  await startDeploy({
+    payload: {},
+    useStream: true,
+    onLog: scrollToBottom,
+  });
+  scrollToBottom();
 };
 
 const handleRetryDeploy = async () => {
   haptic("medium");
   showLogDialog.value = false;
   await nextTick();
-  startDeploy();
+  await handleStartDeploy();
 };
 
 const formatTime = (timestamp) => {
   const date = new Date(timestamp);
-  return date.toLocaleTimeString("zh-TW", { hour12: false }) + `.${String(date.getMilliseconds()).padStart(3, "0")}`;
+  if (Number.isNaN(date.getTime())) return "--:--:--.---";
+  return (
+    date.toLocaleTimeString("zh-TW", { hour12: false }) +
+    `.${String(date.getMilliseconds()).padStart(3, "0")}`
+  );
 };
-
-onMounted(() => {
-  // 檢查是否有進行中的部署（可選：從 localStorage 恢復）
-});
-
-onUnmounted(() => {
-  ws.value?.close();
-});
 </script>
 
 <style scoped>

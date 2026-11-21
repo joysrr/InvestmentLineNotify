@@ -5,8 +5,8 @@
       :type="clickableHeader ? 'button' : undefined"
       class="collapsible-header"
       :class="{ 'is-clickable': clickableHeader }"
-      :aria-expanded="isExpanded"
-      :aria-controls="contentId"
+      :aria-expanded="clickableHeader ? isExpanded : undefined"
+      :aria-controls="clickableHeader ? contentId : undefined"
       @click="clickableHeader && toggle()"
     >
       <slot name="header">
@@ -46,8 +46,6 @@
 </template>
 
 <script>
-// 模組層級：模組載入時執行一次，所有實例共用計數器，
-// 避免 <script setup> 實例級變數導致同頁多實例 id 重複。
 let uidCounter = 0;
 </script>
 
@@ -81,7 +79,6 @@ const props = defineProps({
 const emit = defineEmits(["update:expanded"]);
 
 const contentId = `collapsible-content-${++uidCounter}`;
-
 const isExpanded = ref(props.expanded);
 
 watch(

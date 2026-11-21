@@ -4,7 +4,7 @@
       v-if="directCommand"
       :type="type"
       :size="size"
-      :disabled="disabled"
+      :disabled="disabled || exporting"
       :loading="exporting"
       class="export-btn"
       @click="handleCommand(directCommand)"
@@ -18,7 +18,7 @@
       <el-button
         :type="type"
         :size="size"
-        :disabled="disabled"
+        :disabled="disabled || exporting"
         :loading="exporting"
         class="export-btn"
       >
@@ -81,10 +81,12 @@ const emit = defineEmits(["export-start", "export-complete", "export-error"]);
 
 const exporting = ref(false);
 
-const hasCSVData = computed(() => props.csvData && props.csvData.length > 0);
-const hasJSONData = computed(() => props.jsonData && Object.keys(props.jsonData).length > 0);
+const hasCSVData = computed(() => Array.isArray(props.csvData) && props.csvData.length > 0);
+const hasJSONData = computed(
+  () => props.jsonData && typeof props.jsonData === "object" && Object.keys(props.jsonData).length > 0,
+);
 const hasChart = computed(() => props.chartInstance != null);
-const csvCount = computed(() => props.csvData?.length ?? 0);
+const csvCount = computed(() => (Array.isArray(props.csvData) ? props.csvData.length : 0));
 
 const baseFilename = computed(() => props.filename || "export");
 const csvFilename = computed(() => props.csvFilename || baseFilename.value);
@@ -99,36 +101,36 @@ async function handleCommand(command) {
   emit("export-start", command);
 
   try {
-    const result = null;
+    let result = null;
 
     switch (command) {
-      case "csv":
+      case "csv": {
         if (!hasCSVData.value) {
           ElMessage.warning("無 CSV 資料可匯出");
           return;
         }
-        exportCSV(props.csvData, csvFilename.value, props.csvOptions);
+        result = exportCSV(props.csvData, csvFilename.value, props.csvOptions);
         ElMessage.success(`CSV 已匯出: ${csvFilename.value}.csv`);
         break;
-
-      case "json":
+      }
+      case "json": {
         if (!hasJSONData.value) {
           ElMessage.warning("無 JSON 資料可匯出");
           return;
         }
-        exportJSON(props.jsonData, jsonFilename.value);
+        result = exportJSON(props.jsonData, jsonFilename.value);
         ElMessage.success(`JSON 已匯出: ${jsonFilename.value}.json`);
         break;
-
-      case "png":
+      }
+      case "png": {
         if (!hasChart.value) {
           ElMessage.warning("無圖表可匯出");
           return;
         }
-        await exportChartAsImage(props.chartInstance, pngFilename.value, props.pngOptions);
+        result = await exportChartAsImage(props.chartInstance, pngFilename.value, props.pngOptions);
         ElMessage.success(`PNG 已匯出: ${pngFilename.value}.png`);
         break;
-
+      }
       case "all": {
         const availableFormats = [];
         if (hasCSVData.value) availableFormats.push("csv");
@@ -140,21 +142,23 @@ async function handleCommand(command) {
           return;
         }
 
-        await exportAllFormats(
+        result = await exportAllFormats(
           { csv: props.csvData, json: props.jsonData },
           baseFilename.value,
           availableFormats,
-          props.chartInstance
+          props.chartInstance,
         );
         ElMessage.success(`已匯出: ${availableFormats.join(", ").toUpperCase()}`);
         break;
       }
+      default:
+        break;
     }
 
     emit("export-complete", command, result);
   } catch (err) {
-    console.error("Export error:", err);
-    ElMessage.error("匯出失敗: " + err.message);
+    console.error("[ExportButton] Export error:", err);
+    ElMessage.error("匯出失敗: " + (err?.message || "未知錯誤"));
     emit("export-error", command, err);
   } finally {
     exporting.value = false;
