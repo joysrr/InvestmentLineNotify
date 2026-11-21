@@ -3,13 +3,24 @@
     <div class="account-view iln-page">
       <!-- ── Header ── -->
       <header class="page-header">
-        <h1 class="page-title">系統狀態</h1>
-        <p class="page-subtitle">資料來源健康度 ＆ 總經快照</p>
+        <div class="page-header-row">
+          <div>
+            <h1 class="page-title">系統狀態</h1>
+            <p class="page-subtitle">資料來源健康度 ＆ 總經快照</p>
+          </div>
+          <button
+            type="button"
+            class="refresh-btn"
+            :disabled="loading"
+            @click="load(true)"
+          >
+            {{ loading ? "更新中..." : "重新整理" }}
+          </button>
+        </div>
       </header>
 
-      <!-- ── 設定項分組（3 組 CollapsibleSection）── -->
+      <!-- ── 設定項分組（策略參數 & 關於） ── -->
       <div class="settings-groups">
-        <!-- 1. 策略參數（預設展開，指向 StrategyConfigEditor） -->
         <CollapsibleSection title="策略參數" :expanded="true" indicator="chevron">
           <template #default>
             <div class="settings-group strategy-params">
@@ -29,8 +40,12 @@
           </template>
         </CollapsibleSection>
 
-        <!-- 4. 關於（預設摺疊，id="about" 保持） -->
-        <CollapsibleSection title="關於" :expanded="aboutExpanded" indicator="chevron">
+        <CollapsibleSection
+          title="關於"
+          :expanded="aboutExpanded"
+          indicator="chevron"
+          @update:expanded="aboutExpanded = $event"
+        >
           <template #default>
             <div class="settings-group about-panel" id="about">
               <h2 class="section-title">
@@ -53,7 +68,7 @@
       </div>
 
       <!-- ── Skeleton ── -->
-      <template v-if="loading">
+      <template v-if="loading && !status">
         <section class="section" aria-label="載入中">
           <div class="sk sk-title"></div>
           <div class="sk sk-row"></div>
@@ -70,16 +85,16 @@
 
       <!-- ── Error ── -->
       <ErrorAlert
-        v-else-if="error"
+        v-else-if="error && !status"
         :visible="true"
         :description="error"
         :show-retry="true"
-        @retry="load"
+        @retry="load(true)"
       />
 
       <!-- ── Content ── -->
       <template v-else-if="status">
-        <!-- 2. 策略趨勢 (PR Trend) -->
+        <!-- 1. 策略趨勢 (PR Trend) -->
         <section class="section" aria-label="PR 分位數趨勢">
           <h2 class="section-title">
             <Icon name="chart" size="sm" color="var(--iln-text)" />
@@ -87,12 +102,18 @@
           </h2>
           <div class="trend-layout">
             <div class="trend-main">
-              <v-chart class="trend-chart" :option="prTrendOption" autoresize />
+              <v-chart
+                v-if="prTrendPoints.length"
+                class="trend-chart"
+                :option="prTrendOption"
+                autoresize
+              />
+              <p v-else class="trend-empty">尚無 PR 分位數趨勢資料</p>
             </div>
           </div>
         </section>
 
-        <!-- 3. 帳戶快照 -->
+        <!-- 2. 帳戶快照 -->
         <section class="section" aria-label="帳戶快照">
           <div class="section-header-row">
             <h2 class="section-title">
@@ -108,7 +129,6 @@
             </router-link>
           </div>
 
-          <!-- 2a. 加密金鑰未設定 -->
           <div v-if="!snapshotEncryption" class="notice-block">
             <span class="notice-icon">
               <Icon name="warn" size="sm" color="var(--iln-hint)" />
@@ -121,7 +141,6 @@
             </div>
           </div>
 
-          <!-- 2b. 有加密但尚無歷史資料 -->
           <div
             v-else-if="snapshotEncryption && !latestSnapshot"
             class="notice-block notice-empty"
@@ -135,57 +154,20 @@
             </div>
           </div>
 
-          <!-- 2c. 顯示最新快照 -->
           <template v-else>
             <div class="snapshot-date tabular">
               <Icon name="clock" size="sm" color="var(--iln-hint)" />
               <span>{{ latestSnapshot.date }} 快照</span>
             </div>
             <div class="snapshot-grid tabular">
-              <div class="snapshot-card">
-                <div class="snapshot-label">0050 股數</div>
-                <div class="snapshot-value">
-                  {{ fmtQty(latestSnapshot.qty0050) }}
-                </div>
-                <div class="snapshot-sub">股</div>
-              </div>
-              <div class="snapshot-card">
-                <div class="snapshot-label">00675L 股數</div>
-                <div class="snapshot-value">
-                  {{ fmtQty(latestSnapshot.qtyZ2) }}
-                </div>
-                <div class="snapshot-sub">股</div>
-              </div>
-              <div class="snapshot-card">
-                <div class="snapshot-label">融資餘額</div>
-                <div class="snapshot-value">
-                  {{ formatMoney(latestSnapshot.totalLoan) }}
-                </div>
-                <div class="snapshot-sub">元</div>
-              </div>
-              <div class="snapshot-card">
-                <div class="snapshot-label">現金儲備</div>
-                <div class="snapshot-value">
-                  {{ formatMoney(latestSnapshot.cash) }}
-                </div>
-                <div class="snapshot-sub">元</div>
-              </div>
               <div
+                v-for="card in snapshotCards"
+                :key="card.key"
                 class="snapshot-card"
-                v-if="latestSnapshot.avgCost0050 != null"
               >
-                <div class="snapshot-label">0050 均價</div>
-                <div class="snapshot-value">
-                  {{ fmtDecimal(latestSnapshot.avgCost0050, 2) }}
-                </div>
-                <div class="snapshot-sub">元/股</div>
-              </div>
-              <div class="snapshot-card" v-if="latestSnapshot.avgCostZ2 != null">
-                <div class="snapshot-label">00675L 均價</div>
-                <div class="snapshot-value">
-                  {{ fmtDecimal(latestSnapshot.avgCostZ2, 2) }}
-                </div>
-                <div class="snapshot-sub">元/股</div>
+                <div class="snapshot-label">{{ card.label }}</div>
+                <div class="snapshot-value">{{ card.value }}</div>
+                <div class="snapshot-sub">{{ card.sub }}</div>
               </div>
             </div>
             <div v-if="latestSnapshot.lastBuyDate" class="snapshot-buyday tabular">
@@ -194,7 +176,7 @@
           </template>
         </section>
 
-        <!-- 3. 系統最後更新時間 -->
+        <!-- 3. 系統狀態摘要 -->
         <section class="section" aria-label="系統狀態摘要">
           <h2 class="section-title">
             <Icon name="settings" size="sm" color="var(--iln-hint)" />
@@ -244,6 +226,9 @@
                 >
                   正常：{{ healthyCount }} 個
                 </span>
+                <span v-if="alertSourceCount" class="summary-item text-warn">
+                  異常／逾時：{{ alertSourceCount }} 個
+                </span>
               </div>
               <div class="source-grid">
                 <div
@@ -287,19 +272,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from "vue";
+import { onMounted, nextTick } from "vue";
+import { useRoute } from "vue-router";
 import Icon from "@/components/common/Icon.vue";
 import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
-import { fetchStatus, fetchReports } from "../api/index.js";
-import { usePortfolioSnapshots } from "../composables/usePortfolioSnapshots.js";
-import { waitReady } from "../composables/useTelegram.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import DataEvidenceCard from "../components/dashboard/DataEvidenceCard.vue";
 import DeploymentControl from "@/components/common/DeploymentControl.vue";
 import ErrorAlert from "@/components/common/ErrorAlert.vue";
-import { useRoute } from "vue-router";
-import { formatDateTimeInTaipei } from "@/utils/formatDate.js";
-import { fmtDecimal } from "@/utils/formatters.js";
+import { waitReady } from "../composables/useTelegram.js";
+import { useAccountViewModel } from "../composables/useAccountViewModel.js";
 
 // ECharts
 import VChart from "vue-echarts";
@@ -320,204 +302,38 @@ use([
   CanvasRenderer,
 ]);
 
-// ── 系統狀態 ──────────────────────────────────────────
-const status = ref(null);
-const reports = ref([]);
-const loading = ref(true);
-const error = ref(null);
+const route = useRoute();
 
-const aboutExpanded = ref(false);
-
-async function load() {
-  loading.value = true;
-  error.value = null;
-  try {
-    const [sData, rData] = await Promise.all([fetchStatus(), fetchReports(30)]);
-    status.value = sData;
-    // 按日期升序排列供圖表使用
-    reports.value = (rData || []).reverse();
-  } catch (e) {
-    console.error("[AccountView] 無法載入運作狀態:", e);
-    error.value = "無法載入運作狀態，請稍後再試";
-  } finally {
-    loading.value = false;
-  }
-}
+const {
+  status,
+  loading,
+  error,
+  aboutExpanded,
+  showSourcesDetail,
+  latestSnapshot,
+  snapshotEncryption,
+  lastRunLabel,
+  prTrendPoints,
+  prTrendOption,
+  sourcesDisplay,
+  sourceCount,
+  healthyCount,
+  alertSourceCount,
+  allHealthy,
+  snapshotCards,
+  load,
+  initAccountPage,
+} = useAccountViewModel();
 
 onMounted(async () => {
-  const route = useRoute();
   await waitReady();
-  load();
-  loadSnapshots();
+  await initAccountPage(route.query.panel);
   if (route.query.panel === "about") {
-    aboutExpanded.value = true;
     nextTick(() => {
       document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
     });
   }
 });
-
-// ── 帳戶快照 ──────────────────────────────────────────
-const {
-  latestSnapshot,
-  hasEncryption: snapshotEncryption,
-  load: loadSnapshots,
-} = usePortfolioSnapshots(1);
-
-// ── 金額格式化 ────────────────────────────────────────
-function formatMoney(val) {
-  if (val == null) return "N/A";
-  return Math.round(val).toLocaleString();
-}
-
-// ── 股數格式化：缺值及無效數值顯示「—」，真實 0 仍顯示「0」──────────
-function fmtQty(val) {
-  if (val == null) return "—";
-  const n = Number(val);
-  return Number.isFinite(n) ? n.toLocaleString() : "—";
-}
-
-// ── 設計令牌讀取 ────────────────────────────────────────
-// ECharts Canvas 無法解析 CSS var()，由 JS 以 getComputedStyle 讀取設計令牌
-function readToken(name, fallback) {
-  if (typeof document === "undefined") return fallback;
-  const v = getComputedStyle(document.documentElement)
-    .getPropertyValue(name)
-    .trim();
-  return v || fallback;
-}
-
-// ── _meta.lastRun ──
-const lastRunLabel = computed(() => {
-  const ts = status.value?._meta?.lastRun;
-  if (!ts) return "N/A";
-  return formatDateTimeInTaipei(ts);
-});
-
-// ── PR Trend Chart Option ──
-const prTrendOption = computed(() => {
-  const data = reports.value
-    .map((r) => ({
-      date: r.date.split("-").slice(1).join("/"),
-      pr: r.signals?.valuationGuardResult?.currentPR ?? null,
-    }))
-    .filter((d) => d.pr !== null);
-
-  const hintColor = readToken("--iln-hint", "#8e8e93");
-  const surfaceColor = readToken("--iln-surface", "#f2f2f7");
-  const brandColor = readToken("--iln-brand", "#2481cc");
-
-  return {
-    tooltip: { trigger: "axis", formatter: "{b}: {c}%" },
-    grid: { left: "10%", right: "5%", top: "15%", bottom: "15%" },
-    xAxis: {
-      type: "category",
-      data: data.map((d) => d.date),
-      axisLabel: { fontSize: 10, color: hintColor },
-      axisLine: { lineStyle: { color: surfaceColor } },
-    },
-    yAxis: {
-      type: "value",
-      min: 0,
-      max: 100,
-      axisLabel: { fontSize: 10, color: hintColor, formatter: "{value}%" },
-      splitLine: { lineStyle: { type: "dashed", color: surfaceColor } },
-    },
-    series: [
-      {
-        data: data.map((d) => d.pr),
-        type: "line",
-        smooth: true,
-        showSymbol: false,
-        lineStyle: { color: brandColor, width: 2 },
-        itemStyle: { color: brandColor },
-        areaStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              {
-                offset: 0,
-                color: readToken("--iln-brand-fill-strong", "rgba(36, 129, 204, 0.2)"),
-              },
-              {
-                offset: 1,
-                color: readToken("--iln-brand-fill-fade", "rgba(36, 129, 204, 0)"),
-              },
-            ],
-          },
-        },
-      },
-    ],
-  };
-});
-
-// ── Sources ──
-const SOURCE_LABELS = {
-  ndcBusinessIndicator: "國發會景氣燈號",
-  marginKgi: "台股融資餘額 (KGI)",
-  cnnFearGreed: "CNN 恐懼貪婪",
-  usMarketFred: "美股風險 (FRED)",
-  twMarketValuation: "大盤 PB/PE",
-  usdTwdYahoo: "USD/TWD 匯率",
-  dailyQuote: "每日一句",
-};
-
-const showSourcesDetail = ref(false);
-
-const sourcesDisplay = computed(() => {
-  const raw = status.value?._meta?.sources || {};
-  const now = Date.now();
-  const list = [];
-  for (const [key, src] of Object.entries(raw)) {
-    const label = SOURCE_LABELS[key] || key;
-    const statusText = src.status || "UNKNOWN";
-    const lastFetchIso = src.lastFetch || null;
-    let lastFetchLabel = "尚無資料";
-    let ageLabel = "";
-    let stale = false;
-    if (lastFetchIso) {
-      const ts = new Date(lastFetchIso);
-      lastFetchLabel = formatDateTimeInTaipei(lastFetchIso);
-      const diffHours = (now - ts.getTime()) / (1000 * 60 * 60);
-      if (diffHours >= 1) ageLabel = `${diffHours.toFixed(1)} 小時前更新`;
-      else ageLabel = `${Math.max(1, Math.round(diffHours * 60))} 分鐘前更新`;
-
-      const staleThreshold = key === "ndcBusinessIndicator" ? 35 * 24 : 72;
-      if (diffHours > staleThreshold) stale = true;
-    }
-    let state = "UNKNOWN";
-    if (statusText === "SUCCESS") state = stale ? "STALE" : "OK";
-    else if (statusText === "FAILED") state = "FAIL";
-    list.push({
-      key,
-      label,
-      status: statusText,
-      state,
-      lastFetch: lastFetchLabel,
-      ageLabel,
-      error: src.error || null,
-    });
-  }
-  const order = { FAIL: 0, STALE: 1, OK: 2, UNKNOWN: 3 };
-  list.sort(
-    (a, b) =>
-      (order[a.state] ?? 3) - (order[b.state] ?? 3) ||
-      a.label.localeCompare(b.label, "zh-Hant"),
-  );
-  return list;
-});
-
-const sourceCount = computed(() => sourcesDisplay.value.length);
-const healthyCount = computed(
-  () => sourcesDisplay.value.filter((s) => s.state === "OK").length,
-);
-const allHealthy = computed(
-  () => sourceCount.value > 0 && healthyCount.value === sourceCount.value,
-);
 </script>
 
 <style scoped>
@@ -538,6 +354,12 @@ const allHealthy = computed(
   border-bottom: 1px solid var(--iln-border-subtle);
   margin-bottom: var(--iln-space-3);
 }
+.page-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--iln-space-3);
+}
 .page-title {
   font-size: var(--iln-font-2xl, 22px);
   font-weight: 800;
@@ -549,6 +371,21 @@ const allHealthy = computed(
   font-size: var(--iln-font-sm);
   color: var(--iln-hint);
   margin: 0;
+}
+.refresh-btn {
+  padding: 7px 12px;
+  border-radius: var(--iln-radius-md, 10px);
+  border: 1px solid var(--iln-border-subtle);
+  background: var(--iln-surface);
+  color: var(--iln-text);
+  font-size: var(--iln-font-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.refresh-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 /* ── Section ── */
@@ -702,6 +539,7 @@ const allHealthy = computed(
 
 .sources-summary {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-start;
   gap: var(--iln-space-3);
   font-size: var(--iln-font-xs);
@@ -733,6 +571,11 @@ const allHealthy = computed(
   flex: 1;
   width: 100%;
   height: 160px;
+}
+.trend-empty {
+  margin: auto;
+  font-size: var(--iln-font-xs);
+  color: var(--iln-hint);
 }
 
 /* ── Notice block ── */
@@ -848,7 +691,7 @@ const allHealthy = computed(
   line-height: 1.45;
 }
 
-/* ── Color helpers（text-ok / text-warn 為模板動態綁定） ── */
+/* ── Color helpers ── */
 .text-ok {
   color: var(--iln-viz-bull-text) !important;
 }
@@ -887,7 +730,8 @@ const allHealthy = computed(
 }
 @media (prefers-reduced-motion: reduce) {
   .sk,
-  .chart-link-btn {
+  .chart-link-btn,
+  .refresh-btn {
     animation: none;
     transition: none;
   }
