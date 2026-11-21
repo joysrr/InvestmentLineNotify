@@ -123,10 +123,18 @@
         </div>
       </section>
 
-      <!-- 社群情緒（結構化卡片與列表呈現，不以 JSON 原始碼輸出） -->
+      <!-- 社群情緒（指標方塊 + 均線與背離 + 樣本來源分佈） -->
       <section class="card" aria-label="社群情緒">
         <div class="sentiment-header">
-          <span class="card-label">社群情緒</span>
+          <div class="sentiment-title-group">
+            <span class="card-label">社群情緒</span>
+            <span
+              v-if="macro.socialSentimentModel?.date"
+              class="sentiment-date tabular"
+            >
+              {{ macro.socialSentimentModel.date }}
+            </span>
+          </div>
           <span
             v-if="macro.socialSentimentModel"
             class="sentiment-chip"
@@ -137,39 +145,97 @@
         </div>
 
         <template v-if="macro.socialSentimentModel">
-          <div v-if="macro.socialSentimentModel.headline" class="sentiment-headline">
-            {{ macro.socialSentimentModel.headline }}
-          </div>
-          <p v-if="macro.socialSentimentModel.summary" class="summary-text">
-            {{ macro.socialSentimentModel.summary }}
-          </p>
-
-          <div v-if="macro.socialSentimentModel.stats.length" class="sentiment-stats tabular">
-            <div
-              v-for="(st, idx) in macro.socialSentimentModel.stats"
-              :key="`st-${idx}`"
-              class="sentiment-stat-cell"
+          <!-- 追蹤標的標籤 -->
+          <div v-if="macro.socialSentimentModel.targets.length" class="target-tags">
+            <span class="target-prefix">追蹤標的</span>
+            <span
+              v-for="tgt in macro.socialSentimentModel.targets"
+              :key="tgt"
+              class="target-tag"
             >
-              <span class="stat-k">{{ st.label }}</span>
-              <span class="stat-v">{{ st.value }}</span>
+              {{ tgt }}
+            </span>
+          </div>
+
+          <!-- 6 項核心指標卡片 -->
+          <div class="kpi-grid tabular">
+            <div
+              v-for="kpi in macro.socialSentimentModel.kpis"
+              :key="kpi.key"
+              class="kpi-cell"
+              :class="`kpi-tone-${kpi.tone}`"
+            >
+              <span class="kpi-label">{{ kpi.label }}</span>
+              <strong class="kpi-value">{{ kpi.value }}</strong>
+              <span class="kpi-sub">{{ kpi.sub }}</span>
             </div>
           </div>
 
-          <ul v-if="macro.socialSentimentModel.highlights.length" class="takeaway-list">
-            <li v-for="(h, idx) in macro.socialSentimentModel.highlights" :key="`hl-${idx}`">
-              {{ h }}
-            </li>
-          </ul>
-
-          <div v-if="macro.socialSentimentModel.rows.length" class="sentiment-rows tabular">
-            <div
-              v-for="row in macro.socialSentimentModel.rows"
-              :key="row.key"
-              class="sentiment-row"
-            >
-              <span class="s-row-k">{{ row.label }}</span>
-              <span class="s-row-v" :class="`tone-${row.tone}`">{{ row.value }}</span>
+          <!-- 樣本來源分佈（PTT / Bluesky） -->
+          <div v-if="macro.socialSentimentModel.hasSourceBreakdown" class="source-box tabular">
+            <div class="source-top">
+              <span class="source-title">樣本來源分佈</span>
+              <span class="source-total">合計 {{ macro.socialSentimentModel.sampleCountText }}</span>
             </div>
+
+            <div
+              v-if="macro.socialSentimentModel.pttRatio > 0 || macro.socialSentimentModel.bskyRatio > 0"
+              class="source-bar"
+              aria-hidden="true"
+            >
+              <div
+                class="source-seg source-seg--ptt"
+                :style="{ width: `${macro.socialSentimentModel.pttRatio}%` }"
+              ></div>
+              <div
+                class="source-seg source-seg--bsky"
+                :style="{ width: `${macro.socialSentimentModel.bskyRatio}%` }"
+              ></div>
+            </div>
+
+            <div class="source-legend">
+              <div class="source-item">
+                <span class="dot dot--ptt"></span>
+                <span>PTT</span>
+                <strong>{{ macro.socialSentimentModel.pttText }}</strong>
+              </div>
+              <div class="source-item">
+                <span class="dot dot--bsky"></span>
+                <span>Bluesky</span>
+                <strong>{{ macro.socialSentimentModel.bskyText }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- 背離解讀 -->
+          <div
+            class="divergence-box"
+            :class="{ 'is-alert': macro.socialSentimentModel.hasDivergence }"
+          >
+            <div class="divergence-head">
+              <span class="divergence-label">背離監測</span>
+              <span class="divergence-status tabular">
+                {{ macro.socialSentimentModel.divergenceStatusText }}
+              </span>
+            </div>
+            <p class="divergence-desc">
+              {{ macro.socialSentimentModel.divergenceDetailText }}
+            </p>
+          </div>
+
+          <!-- 訊號列表（若有） -->
+          <div v-if="macro.socialSentimentModel.signals.length" class="signals-box">
+            <div class="sub-label">觸發訊號</div>
+            <ul class="takeaway-list">
+              <li v-for="(sig, idx) in macro.socialSentimentModel.signals" :key="idx">
+                {{ sig }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- 更新時間 -->
+          <div v-if="macro.socialSentimentModel.updatedAt" class="sentiment-foot tabular">
+            資料更新：{{ formatDateTimeInTaipei(macro.socialSentimentModel.updatedAt) }}
           </div>
         </template>
         <p v-else class="muted">目前尚無社群情緒資料。</p>
@@ -274,18 +340,12 @@ defineProps({
   color: var(--iln-hint, #9ca3af);
 }
 
-.bull-text,
-.tone-bull {
+.bull-text {
   color: var(--iln-viz-bull-text, #4ade80);
 }
 
-.bear-text,
-.tone-bear {
+.bear-text {
   color: var(--iln-viz-bear-text, #f87171);
-}
-
-.tone-neutral {
-  color: var(--iln-text, #e5e7eb);
 }
 
 .score-grid {
@@ -421,6 +481,17 @@ defineProps({
   gap: 8px;
 }
 
+.sentiment-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sentiment-date {
+  font-size: 11px;
+  color: var(--iln-hint, #9ca3af);
+}
+
 .sentiment-chip {
   font-size: 12px;
   font-weight: 700;
@@ -428,70 +499,222 @@ defineProps({
   border-radius: 999px;
 }
 
-.sentiment-headline {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--iln-text, #f9fafb);
+.target-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.sentiment-stats {
+.target-prefix {
+  font-size: 11px;
+  color: var(--iln-hint, #9ca3af);
+  margin-right: 2px;
+}
+
+.target-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--iln-surface-alt, #1c222b);
+  color: var(--iln-text, #e5e7eb);
+  border: 1px solid var(--iln-border-subtle, rgba(255, 255, 255, 0.12));
+}
+
+.kpi-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
-@media (min-width: 560px) {
-  .sentiment-stats {
+@media (min-width: 600px) {
+  .kpi-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-.sentiment-stat-cell {
+.kpi-cell {
   border: 1px solid var(--iln-border-subtle, rgba(255, 255, 255, 0.1));
   border-radius: 10px;
-  padding: 8px 10px;
+  padding: 10px;
   background: var(--iln-surface-alt, #1c222b);
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.stat-k {
+.kpi-cell.kpi-tone-bear {
+  background: var(--iln-viz-bear-bg, rgba(220, 38, 38, 0.14));
+  border-color: var(--iln-viz-bear-border, rgba(248, 113, 113, 0.3));
+}
+
+.kpi-cell.kpi-tone-bull {
+  background: var(--iln-viz-bull-bg, rgba(22, 163, 74, 0.14));
+  border-color: var(--iln-viz-bull-border, rgba(74, 222, 128, 0.3));
+}
+
+.kpi-cell.kpi-tone-warn {
+  background: var(--iln-viz-alert-bg, rgba(217, 119, 6, 0.15));
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+.kpi-label {
   font-size: 11px;
   color: var(--iln-hint, #9ca3af);
 }
 
-.stat-v {
-  font-size: 14px;
+.kpi-value {
+  font-size: 16px;
   font-weight: 800;
+  color: var(--iln-text, #f9fafb);
+  line-height: 1.25;
+}
+
+.kpi-tone-bear .kpi-value {
+  color: var(--iln-viz-bear-text, #f87171);
+}
+
+.kpi-tone-bull .kpi-value {
+  color: var(--iln-viz-bull-text, #4ade80);
+}
+
+.kpi-sub {
+  font-size: 11px;
+  color: var(--iln-hint, #cbd5e1);
+}
+
+.source-box {
+  border: 1px solid var(--iln-border-subtle, rgba(255, 255, 255, 0.1));
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--iln-surface-alt, #1c222b);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.source-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.source-title {
+  font-weight: 700;
+  color: var(--iln-text, #e5e7eb);
+}
+
+.source-total {
+  color: var(--iln-hint, #9ca3af);
+}
+
+.source-bar {
+  display: flex;
+  height: 7px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.source-seg--ptt {
+  background: var(--iln-brand, #3b82f6);
+}
+
+.source-seg--bsky {
+  background: #38bdf8;
+}
+
+.source-legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.source-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--iln-hint, #cbd5e1);
+}
+
+.source-item strong {
   color: var(--iln-text, #f9fafb);
 }
 
-.sentiment-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border-top: 1px solid var(--iln-border-subtle, rgba(255, 255, 255, 0.1));
-  padding-top: 8px;
-}
-
-.sentiment-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 13px;
-}
-
-.s-row-k {
-  color: var(--iln-hint, #9ca3af);
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
   flex-shrink: 0;
 }
 
-.s-row-v {
-  font-weight: 600;
-  text-align: right;
-  word-break: break-word;
+.dot--ptt {
+  background: var(--iln-brand, #3b82f6);
+}
+
+.dot--bsky {
+  background: #38bdf8;
+}
+
+.divergence-box {
+  border: 1px solid var(--iln-border-subtle, rgba(255, 255, 255, 0.1));
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--iln-surface-alt, #1c222b);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.divergence-box.is-alert {
+  background: var(--iln-viz-alert-bg, rgba(217, 119, 6, 0.16));
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+.divergence-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.divergence-label {
+  font-weight: 700;
+  color: var(--iln-hint, #9ca3af);
+}
+
+.divergence-status {
+  font-weight: 800;
+  color: var(--iln-text, #f3f4f6);
+}
+
+.divergence-desc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--iln-text, #e5e7eb);
+}
+
+.signals-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sub-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--iln-hint, #9ca3af);
+}
+
+.sentiment-foot {
+  font-size: 11px;
+  color: var(--iln-hint, #9ca3af);
+  border-top: 1px solid var(--iln-border-subtle, rgba(255, 255, 255, 0.08));
+  padding-top: 8px;
 }
 
 .muted {

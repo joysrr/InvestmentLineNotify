@@ -1,6 +1,9 @@
 /**
  * 由後端實際回傳的 status / reports / socialSentiment 建構輕量 Insights ViewModel。
- * 保留所有既有雷達指標、融資明細、多空積分、事件與社群情緒欄位，並將社群情緒結構化。
+ * 保留所有既有雷達指標、融資明細、多空積分、事件與社群情緒欄位，
+ * 並針對社群情緒的實際欄位（score, scoreLabel, trend, ma3, ma7, delta,
+ * sampleCount, pttItems, bskyItems, divergenceStatus, divergenceDetail, signals, targets, date, updatedAt）
+ * 建構清晰的指標卡片、均線／背離狀態與來源明細。
  */
 
 function toFiniteNumber(val) {
@@ -133,253 +136,165 @@ function normalizeEvents(list) {
   }));
 }
 
-function mapSentimentTone(rawTone) {
-  const s = String(rawTone || "").toLowerCase();
-  if (s.includes("bull") || s.includes("多") || s.includes("樂觀") || s.includes("positive")) {
-    return "bull";
-  }
-  if (s.includes("bear") || s.includes("空") || s.includes("悲觀") || s.includes("negative")) {
+function mapSentimentTone(rawText) {
+  const s = String(rawText || "").toLowerCase();
+  if (
+    s.includes("恐慌") ||
+    s.includes("fear") ||
+    s.includes("bear") ||
+    s.includes("空") ||
+    s.includes("降溫") ||
+    s.includes("悲觀") ||
+    s.includes("negative")
+  ) {
     return "bear";
+  }
+  if (
+    s.includes("貪婪") ||
+    s.includes("greed") ||
+    s.includes("bull") ||
+    s.includes("多") ||
+    s.includes("升溫") ||
+    s.includes("樂觀") ||
+    s.includes("positive")
+  ) {
+    return "bull";
   }
   return "neutral";
 }
 
-function humanizeFieldKey(key) {
-  const dict = {
-    sentiment: "整體情緒",
-    overallSentiment: "整體情緒",
-    label: "情緒標籤",
-    score: "情緒分數",
-    index: "情緒指數",
-    bullRatio: "看多比例",
-    bullishRatio: "看多比例",
-    bullPercent: "看多佔比",
-    bearRatio: "看空比例",
-    bearishRatio: "看空比例",
-    bearPercent: "看空佔比",
-    neutralRatio: "觀望比例",
-    neutralPercent: "觀望佔比",
-    summary: "情緒摘要",
-    description: "說明",
-    updatedAt: "更新時間",
-    date: "資料日期",
-    source: "資料來源",
-    sources: "資料來源",
-    topics: "熱門話題",
-    hotTopics: "熱門話題",
-    keywords: "關鍵字",
-    highlights: "重點摘要",
-    postsCount: "討論量",
-    volume: "討論熱度",
-  };
-  return dict[key] || key;
+function formatNum(val, decimals = 1) {
+  const n = toFiniteNumber(val);
+  if (n === null) return "—";
+  if (Number.isInteger(n)) return String(n);
+  return n.toFixed(decimals);
 }
 
-function formatPrimitiveValue(val) {
-  if (val === null || val === undefined || val === "") return "—";
-  if (typeof val === "boolean") return val ? "是" : "否";
-  if (typeof val === "number") return Number.isInteger(val) ? String(val) : val.toFixed(1);
-  return String(val);
+function formatSignedNum(val, decimals = 1) {
+  const n = toFiniteNumber(val);
+  if (n === null) return "—";
+  const formatted = Number.isInteger(n) ? String(n) : n.toFixed(decimals);
+  return n > 0 ? `+${formatted}` : formatted;
+}
+
+function normalizeSignalsList(signals) {
+  if (!Array.isArray(signals) || !signals.length) return [];
+  return signals
+    .map((item) => {
+      if (typeof item === "string") return item.trim();
+      if (item && typeof item === "object") {
+        return item.label || item.title || item.message || item.name || "";
+      }
+      return "";
+    })
+    .filter(Boolean);
 }
 
 /**
- * 將任意形狀的 socialSentiment 轉換為純視覺渲染用的結構化 ViewModel，
- * 避免在畫面上直接 dump 原始 JSON。
+ * 將後端 socialSentiment 轉換為具備核心指標卡片、均線/變化、樣本來源與背離狀態的 ViewModel。
  */
 export function normalizeSocialSentiment(raw) {
   if (!raw) return null;
   const payload = raw?.data && typeof raw.data === "object" ? raw.data : raw;
+  if (typeof payload !== "object" || Array.isArray(payload)) return null;
 
-  if (typeof payload === "string") {
-    return {
-      tone: mapSentimentTone(payload),
-      badgeText: "社群情緒",
-      headline: "",
-      summary: payload,
-      stats: [],
-      highlights: [],
-      rows: [],
-    };
-  }
+  const scoreVal = toFiniteNumber(payload.score ?? payload.sentimentScore ?? payload.index);
+  const scoreLabel = payload.scoreLabel || payload.label || payload.sentiment || "";
+  const trend = payload.trend || "";
+  const ma3 = toFiniteNumber(payload.ma3);
+  const ma7 = toFiniteNumber(payload.ma7);
+  const delta = toFiniteNumber(payload.delta);
+  const sampleCount = toFiniteNumber(payload.sampleCount);
+  const pttItems = toFiniteNumber(payload.pttItems);
+  const bskyItems = toFiniteNumber(payload.bskyItems);
 
-  if (Array.isArray(payload)) {
-    const items = payload.map((item, idx) => {
-      if (typeof item === "string") {
-        return { key: `s-${idx}`, label: `項目 ${idx + 1}`, value: item, tone: mapSentimentTone(item) };
-      }
-      const title =
-        item?.title || item?.topic || item?.name || item?.label || item?.source || `項目 ${idx + 1}`;
-      const score = item?.score ?? item?.sentiment ?? item?.ratio ?? item?.value;
-      const desc = item?.summary || item?.description || item?.analysis || "";
-      const valText = desc ? `${score != null ? `${formatPrimitiveValue(score)} · ` : ""}${desc}` : formatPrimitiveValue(score);
-      return {
-        key: `s-${idx}`,
-        label: String(title),
-        value: valText,
-        tone: mapSentimentTone(item?.sentiment || item?.tone || title || desc),
-      };
-    });
-    return {
+  const divStatusRaw = String(payload.divergenceStatus || "").trim();
+  const hasDivergence = Boolean(divStatusRaw && divStatusRaw.toUpperCase() !== "NONE");
+  const divergenceBadge = hasDivergence ? divStatusRaw : "無背離";
+  const divergenceDetail =
+    payload.divergenceDetail || (hasDivergence ? divStatusRaw : "目前無多空背離現象");
+
+  const targets = Array.isArray(payload.targets)
+    ? payload.targets.map((t) => String(t)).filter(Boolean)
+    : [];
+
+  const signals = normalizeSignalsList(payload.signals);
+
+  const tone = mapSentimentTone(`${scoreLabel} ${trend} ${divStatusRaw}`);
+
+  const kpis = [
+    {
+      key: "score",
+      label: "情緒指數",
+      value: scoreVal !== null ? formatNum(scoreVal, 1) : "—",
+      sub: scoreLabel || "—",
+      tone,
+    },
+    {
+      key: "ma3",
+      label: "3 日均線 (MA3)",
+      value: ma3 !== null ? formatNum(ma3, 1) : "—",
+      sub: ma3 !== null && scoreVal !== null ? (scoreVal >= ma3 ? "高於均線" : "低於均線") : "短期均線",
       tone: "neutral",
-      badgeText: "社群動態",
-      headline: "",
-      summary: "",
-      stats: [],
-      highlights: [],
-      rows: items,
-    };
-  }
-
-  if (typeof payload !== "object") return null;
-
-  const badgeText =
-    payload.label ||
-    payload.sentimentLabel ||
-    payload.overallLabel ||
-    payload.status ||
-    "社群情緒";
-
-  const headline =
-    payload.headline ||
-    payload.title ||
-    (payload.sentiment && typeof payload.sentiment === "string" ? payload.sentiment : "") ||
-    "";
-
-  const summary =
-    payload.summary ||
-    payload.short_summary ||
-    payload.description ||
-    payload.comment ||
-    "";
-
-  const stats = [];
-  const statCandidates = [
-    ["情緒分數", payload.score ?? payload.sentimentScore ?? payload.index],
-    ["看多佔比", payload.bullRatio ?? payload.bullishRatio ?? payload.bullPercent],
-    ["看空佔比", payload.bearRatio ?? payload.bearishRatio ?? payload.bearPercent],
-    ["觀望佔比", payload.neutralRatio ?? payload.neutralPercent],
-    ["討論熱度", payload.postsCount ?? payload.volume ?? payload.mentions],
+    },
+    {
+      key: "ma7",
+      label: "7 日均線 (MA7)",
+      value: ma7 !== null ? formatNum(ma7, 1) : "—",
+      sub: ma7 !== null && scoreVal !== null ? (scoreVal >= ma7 ? "高於週均" : "低於週均") : "週線參考",
+      tone: "neutral",
+    },
+    {
+      key: "delta",
+      label: "較前日變化 (Δ)",
+      value: delta !== null ? formatSignedNum(delta, 1) : "—",
+      sub: delta !== null ? (delta > 0 ? "情緒回升" : delta < 0 ? "情緒轉弱" : "持平") : "日變化",
+      tone: delta !== null ? (delta > 0 ? "bull" : delta < 0 ? "bear" : "neutral") : "neutral",
+    },
+    {
+      key: "samples",
+      label: "有效樣本數",
+      value: sampleCount !== null ? formatNum(sampleCount, 0) : "—",
+      sub:
+        pttItems !== null || bskyItems !== null
+          ? `PTT ${pttItems ?? 0} · Bsky ${bskyItems ?? 0}`
+          : "社群貼文",
+      tone: "neutral",
+    },
+    {
+      key: "divergence",
+      label: "背離狀態",
+      value: divergenceBadge,
+      sub: divergenceDetail,
+      tone: hasDivergence ? "warn" : "neutral",
+    },
   ];
-  for (const [label, val] of statCandidates) {
-    if (val !== null && val !== undefined && val !== "") {
-      const num = toFiniteNumber(val);
-      const isRatioLabel = String(label).includes("佔比");
-      const text =
-        num !== null && isRatioLabel && num > 0 && num <= 1
-          ? `${(num * 100).toFixed(1)}%`
-          : num !== null && isRatioLabel
-            ? `${num.toFixed(1)}%`
-            : formatPrimitiveValue(val);
-      stats.push({ label, value: text });
-    }
-  }
 
-  const highlights = [];
-  const listFields = [
-    payload.highlights,
-    payload.key_takeaways,
-    payload.takeaways,
-    payload.topics,
-    payload.hotTopics,
-    payload.keywords,
-    payload.items,
-  ];
-  for (const list of listFields) {
-    if (Array.isArray(list)) {
-      for (const entry of list) {
-        if (typeof entry === "string" && entry.trim()) {
-          highlights.push(entry.trim());
-        } else if (entry && typeof entry === "object") {
-          const text =
-            entry.title || entry.topic || entry.name || entry.text || entry.summary || "";
-          if (text) {
-            const extra = entry.score != null ? ` (${formatPrimitiveValue(entry.score)})` : "";
-            highlights.push(`${text}${extra}`);
-          }
-        }
-      }
-    }
-  }
-
-  const handledKeys = new Set([
-    "label",
-    "sentimentLabel",
-    "overallLabel",
-    "status",
-    "headline",
-    "title",
-    "sentiment",
-    "summary",
-    "short_summary",
-    "description",
-    "comment",
-    "score",
-    "sentimentScore",
-    "index",
-    "bullRatio",
-    "bullishRatio",
-    "bullPercent",
-    "bearRatio",
-    "bearishRatio",
-    "bearPercent",
-    "neutralRatio",
-    "neutralPercent",
-    "postsCount",
-    "volume",
-    "mentions",
-    "highlights",
-    "key_takeaways",
-    "takeaways",
-    "topics",
-    "hotTopics",
-    "keywords",
-    "items",
-  ]);
-
-  const rows = [];
-  for (const [k, v] of Object.entries(payload)) {
-    if (handledKeys.has(k) || v === null || v === undefined || v === "") continue;
-    if (typeof v !== "object") {
-      rows.push({
-        key: k,
-        label: humanizeFieldKey(k),
-        value: formatPrimitiveValue(v),
-        tone: mapSentimentTone(v),
-      });
-    } else if (Array.isArray(v)) {
-      rows.push({
-        key: k,
-        label: humanizeFieldKey(k),
-        value: v.map((x) => (typeof x === "object" ? x?.title || x?.name || "" : String(x))).filter(Boolean).join("、") || "—",
-        tone: "neutral",
-      });
-    } else {
-      const subEntries = Object.entries(v)
-        .filter(([, subVal]) => subVal !== null && subVal !== undefined && subVal !== "" && typeof subVal !== "object")
-        .map(([subK, subV]) => `${humanizeFieldKey(subK)}：${formatPrimitiveValue(subV)}`);
-      if (subEntries.length) {
-        rows.push({
-          key: k,
-          label: humanizeFieldKey(k),
-          value: subEntries.join(" · "),
-          tone: mapSentimentTone(v.sentiment || v.tone || subEntries.join(" ")),
-        });
-      }
-    }
-  }
-
-  const tone = mapSentimentTone(
-    payload.tone || payload.sentiment || badgeText || headline || summary,
-  );
+  const hasSourceBreakdown = pttItems !== null || bskyItems !== null || sampleCount !== null;
+  const totalSources = (pttItems ?? 0) + (bskyItems ?? 0);
+  const pttRatio =
+    totalSources > 0 && pttItems !== null ? Math.round((pttItems / totalSources) * 100) : 0;
+  const bskyRatio =
+    totalSources > 0 && bskyItems !== null ? Math.max(0, 100 - pttRatio) : 0;
 
   return {
     tone,
-    badgeText: String(badgeText),
-    headline: String(headline),
-    summary: String(summary),
-    stats,
-    highlights,
-    rows,
+    badgeText: scoreLabel ? `${scoreLabel}${trend ? ` · ${trend}` : ""}` : "社群情緒",
+    trendText: trend || "—",
+    date: payload.date || "",
+    updatedAt: payload.updatedAt || "",
+    targets,
+    kpis,
+    hasSourceBreakdown,
+    sampleCountText: sampleCount !== null ? `${formatNum(sampleCount, 0)} 則` : "—",
+    pttText: pttItems !== null ? `${formatNum(pttItems, 0)} 則` : "—",
+    bskyText: bskyItems !== null ? `${formatNum(bskyItems, 0)} 則` : "—",
+    pttRatio,
+    bskyRatio,
+    hasDivergence,
+    divergenceStatusText: divergenceBadge,
+    divergenceDetailText: divergenceDetail,
+    signals,
   };
 }
 
