@@ -1,11 +1,11 @@
 <template>
   <GlobalErrorBoundary>
     <div class="view-container tabular">
-      <div class="view-header">
-        <div class="header-top">
-          <h2 class="view-title"><Icon name="chart" size="sm" color="var(--iln-text)" /> <span>技術指標詳情</span></h2>
-          <BackPill :to="{ path: '/chart', query: { tab: 'technical' } }" label="圖表 · 技術指標" />
-        </div>
+      <div class="subview-meta">
+        <span class="subview-heading">
+          <Icon name="gauge" size="sm" color="var(--iln-hint)" />
+          <span>技術指標與訊號雷達</span>
+        </span>
         <span class="view-subtitle">{{ todayLabel }}</span>
       </div>
 
@@ -216,7 +216,6 @@ import CollapsibleSection from "@/components/common/CollapsibleSection.vue";
 import { fetchReports } from "../../api/index.js";
 import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
 import { waitReady } from "../../composables/useTelegram.js";
-import BackPill from "@/components/common/BackPill.vue";
 import EmptyState from "@/components/common/EmptyState.vue";
 
 defineProps({
@@ -515,35 +514,30 @@ onMounted(async () => {
 }
 
 .view-container {
-  padding: var(--iln-space-4) var(--iln-space-4) calc(112px + env(safe-area-inset-bottom, 0px));
+  padding: var(--iln-space-3) 0 calc(var(--iln-space-4) + env(safe-area-inset-bottom, 0px));
 }
 
-.view-header {
-  margin-bottom: var(--iln-space-5, 20px);
-}
-
-.header-top {
+.subview-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--iln-space-3);
-  margin-bottom: var(--iln-space-1);
+  gap: var(--iln-space-2);
+  margin-bottom: var(--iln-space-4);
 }
 
-.view-title {
+.subview-heading {
   display: inline-flex;
   align-items: center;
   gap: var(--iln-space-1-5, 6px);
-  font-size: var(--iln-font-lg);
+  font-size: var(--iln-font-sm);
   font-weight: 700;
   color: var(--iln-text);
-  margin: 0;
 }
 
 .view-subtitle {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
-  padding-left: 2px;
+  white-space: nowrap;
 }
 
 .section {

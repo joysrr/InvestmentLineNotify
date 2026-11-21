@@ -1,36 +1,49 @@
 <template>
   <GlobalErrorBoundary>
     <div class="view-container iln-page">
-      <button
-        type="button"
-        class="chart-back-button"
-        data-testid="chart-back"
-        @click="goBack"
-      >
-        ← 返回
-      </button>
-
-      <div v-if="activeViewTabValue === 'chart'">
-        <div v-show="activeTab === 'trend'">
-          <!-- 標題列 -->
-          <div class="view-header view-header--with-switch">
-            <div class="view-header-text">
-              <h2 class="view-title">
-                <Icon name="chart" size="sm" color="var(--iln-text)" />
-                <span>資產趨勢</span>
-              </h2>
-              <span class="view-subtitle tabular" v-if="!loading && dataPoints.length">
-                {{ granularityLabel }}，{{ dataPoints.length }} 筆
-              </span>
-            </div>
-            <SegmentedControl
-              v-model="activeViewTabValue"
-              :options="viewTabOptions"
-              aria-label="圖表與技術指標切換"
-              @change="onViewTabChange"
-            />
+      <!-- 統一頁首與一級切換（圖表 / 技術指標） -->
+      <header class="view-header view-header--with-switch">
+        <div class="view-header-leading">
+          <button
+            type="button"
+            class="chart-back-button"
+            data-testid="chart-back"
+            aria-label="返回"
+            @click="goBack"
+          >
+            <Icon name="arrow-left" size="sm" />
+            <span>返回</span>
+          </button>
+          <div class="view-header-text">
+            <h2 class="view-title">
+              <Icon
+                :name="activeViewTabValue === 'chart' ? 'chart' : 'gauge'"
+                size="sm"
+                color="var(--iln-text)"
+              />
+              <span>{{ activeViewTabValue === 'chart' ? '資產趨勢' : '技術指標詳情' }}</span>
+            </h2>
+            <span
+              v-if="activeViewTabValue === 'chart' && !loading && dataPoints.length"
+              class="view-subtitle tabular"
+            >
+              {{ granularityLabel }}，{{ dataPoints.length }} 筆
+            </span>
           </div>
+        </div>
 
+        <SegmentedControl
+          v-model="activeViewTabValue"
+          :options="viewTabOptions"
+          size="md"
+          aria-label="圖表與技術指標切換"
+          @change="onViewTabChange"
+        />
+      </header>
+
+      <!-- Tab 1：資產趨勢圖表 -->
+      <template v-if="activeViewTabValue === 'chart'">
+        <div v-show="activeTab === 'trend'">
           <!-- 粒度切換 -->
           <div class="seg-bar" role="group" aria-label="資料粒度切換">
             <button
@@ -138,10 +151,11 @@
             </div>
           </template>
         </div>
-      </div>
+      </template>
 
-      <div v-else>
-        <TechnicalPanel />
+      <!-- Tab 2：技術指標 -->
+      <div v-else class="technical-panel-wrap">
+        <TechnicalPanel :time-range="timeRange" />
       </div>
     </div>
   </GlobalErrorBoundary>
@@ -195,6 +209,7 @@ const granularity = ref("daily");
 const granularityLabel = computed(
   () => granularities.find((g) => g.key === granularity.value)?.label ?? "",
 );
+
 // ── 時間範圍切換 ─────────────────────────────────────────────────────────────────
 const timeRanges = [
   { key: "1M", label: "1M", limit: 22 },
@@ -204,7 +219,7 @@ const timeRanges = [
   { key: "ALL", label: "ALL", limit: null },
 ];
 const timeRange = ref("ALL");
-const activeTab = ref("trend"); // 'trend' | 'reports'
+const activeTab = ref("trend");
 
 // ── 一級分頁：圖表 / 技術指標 ─────────────────────────────────────────────────
 const viewTabOptions = [
@@ -212,10 +227,18 @@ const viewTabOptions = [
   { value: "technical", label: "技術指標", icon: "gauge" },
 ];
 
-const activeViewTabValue = ref("chart");
-
 const route = useRoute();
 const router = useRouter();
+
+const normalizeViewTab = (val) => (val === "technical" ? "technical" : "chart");
+const activeViewTabValue = ref(normalizeViewTab(route.query.tab));
+
+watch(
+  () => route.query.tab,
+  (nextTab) => {
+    activeViewTabValue.value = normalizeViewTab(nextTab);
+  },
+);
 
 function goBack() {
   const source = route.query.source;
@@ -226,13 +249,10 @@ function goBack() {
   }
 }
 
-// 從 query 還原 active tab（深層連結）
-if (route.query.tab === "technical") {
-  activeViewTabValue.value = "technical";
-}
-
 const onViewTabChange = (val) => {
-  router.replace({ query: { ...route.query, tab: val } });
+  const normalized = normalizeViewTab(val);
+  activeViewTabValue.value = normalized;
+  router.replace({ query: { ...route.query, tab: normalized } }).catch(() => {});
 };
 
 // ── 指標設定 ────────────────────────────────────────────────────────────────────
@@ -245,10 +265,10 @@ const metrics = [
 const metric = ref("netValueMarket");
 
 // ── 資料狀態 ────────────────────────────────────────────────────────────────────
-const dataPoints = ref([]); // ASC 排序
+const dataPoints = ref([]);
 const loading = ref(true);
 const error = ref(null);
-const hasEncryption = ref(true); // 預設 true，如後端明確回傳 false 才覆寫
+const hasEncryption = ref(true);
 
 const latest = computed(() =>
   dataPoints.value.length
@@ -256,7 +276,7 @@ const latest = computed(() =>
     : null,
 );
 
-// ── 載入逻輯 ────────────────────────────────────────────────────────────────────
+// ── 載入邏輯 ────────────────────────────────────────────────────────────────────
 async function load() {
   loading.value = true;
   error.value = null;
@@ -264,7 +284,6 @@ async function load() {
     const g = granularities.find((g) => g.key === granularity.value);
     let raw;
 
-    // 決定 fetch limit：時間範圍優先，ALL 則沿用 granularity 預設
     const rangeLimit =
       timeRange.value === "ALL"
         ? g.limit
@@ -272,21 +291,18 @@ async function load() {
 
     if (granularity.value === "daily") {
       const res = await fetchSnapshots(rangeLimit);
-      // daily API 回傳 { snapshots: [], hasEncryption: bool }
       hasEncryption.value = res.hasEncryption ?? true;
       raw = [...(res.snapshots ?? [])].sort((a, b) =>
         a.date.localeCompare(b.date),
       );
     } else if (granularity.value === "weekly") {
       const res = await fetchSnapshotsWeekly(rangeLimit);
-      // weekly API 可能回傳 [] （未啟用快照）或陣列
       if (Array.isArray(res)) {
         hasEncryption.value = true;
         raw = [...res].sort((a, b) =>
           (a.endDate ?? a.date ?? "").localeCompare(b.endDate ?? b.date ?? ""),
         );
       } else {
-        // 如果後端未來扤充 hasEncryption 欄位，在此門一擴充
         hasEncryption.value = res.hasEncryption ?? true;
         raw = [...(res.snapshots ?? [])].sort((a, b) =>
           (a.endDate ?? a.date ?? "").localeCompare(b.endDate ?? b.date ?? ""),
@@ -326,13 +342,13 @@ onMounted(load);
 
 // ── X 軸標籤格式化 ────────────────────────────────────────────────────────────────────
 function xLabel(pt) {
-  if (granularity.value === "daily") return (pt.date ?? "").slice(5); // MM-DD
+  if (granularity.value === "daily") return (pt.date ?? "").slice(5);
   if (granularity.value === "weekly")
     return pt.period ?? (pt.endDate ?? pt.date ?? "").slice(5);
-  return (pt.period ?? pt.endDate ?? pt.date ?? "").slice(0, 7); // YYYY-MM
+  return (pt.period ?? pt.endDate ?? pt.date ?? "").slice(0, 7);
 }
 
-// ── 指標取値與格式化 ───────────────────────────────────────────────────────────────────
+// ── 指標取值與格式化 ───────────────────────────────────────────────────────────────────
 function getValue(pt) {
   return pt[metric.value] ?? null;
 }
@@ -357,7 +373,7 @@ function formatY(val) {
     if (Math.abs(val) >= 10000) return `${(val / 10000).toFixed(1)}萬`;
     return `$${val.toLocaleString()}`;
   }
-  return `${val}股`; // qty
+  return `${val}股`;
 }
 
 function valueClass(v) {
@@ -501,18 +517,37 @@ const chartOption = computed(() => {
   font-variant-numeric: tabular-nums;
 }
 
-.chart-back-button {
-  min-height: 44px;
+.view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--iln-space-3);
+  flex-wrap: wrap;
   margin-bottom: var(--iln-space-3);
+}
+
+.view-header-leading {
+  display: flex;
+  align-items: center;
+  gap: var(--iln-space-2-5, 10px);
+  min-width: 0;
+}
+
+.chart-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--iln-space-1, 4px);
+  min-height: var(--iln-touch-min, 44px);
   padding: 0 var(--iln-space-3);
   border: 1px solid var(--iln-border-subtle);
-  border-radius: var(--iln-radius-sm);
+  border-radius: var(--iln-radius-full);
   background: var(--iln-surface);
   color: var(--iln-text);
   font: inherit;
   font-size: var(--iln-font-sm);
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
   transition: background var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
 }
 
@@ -525,51 +560,45 @@ const chartOption = computed(() => {
   outline-offset: 2px;
 }
 
-/* ── Header ── */
-.view-header {
-  display: flex;
-  align-items: center;
-  gap: var(--iln-space-2);
-  margin-bottom: var(--iln-space-3);
-}
-.view-header--with-switch {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: var(--iln-space-3);
-  flex-wrap: wrap;
-}
 .view-header-text {
   display: flex;
   flex-direction: column;
-  gap: var(--iln-space-1);
+  gap: 2px;
   min-width: 0;
 }
+
 .view-title {
   display: inline-flex;
   align-items: center;
-  gap: var(--iln-space-2);
+  gap: var(--iln-space-1-5, 6px);
   font-size: var(--iln-font-lg);
   font-weight: 800;
   color: var(--iln-text);
   margin: 0;
 }
+
 .view-subtitle {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
 
-/* ── 分段按鈕（seg / time-range / metric 共用基底） ── */
+.technical-panel-wrap :deep(.view-container) {
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+}
+
 .seg-bar,
 .time-range-bar {
   display: flex;
   gap: 6px;
   margin-bottom: var(--iln-space-3);
 }
+
 .seg-btn,
 .time-range-btn {
   min-width: 44px;
-  min-height: 44px;
+  min-height: var(--iln-touch-min, 44px);
   flex: 1;
   padding: var(--iln-space-1) 0;
   border-radius: var(--iln-radius-sm);
@@ -584,22 +613,24 @@ const chartOption = computed(() => {
     color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
     border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
 }
+
 .time-range-btn {
   padding: var(--iln-space-2) 0;
 }
+
 .seg-btn.active,
 .time-range-btn.active {
   background: var(--iln-brand);
   border-color: var(--iln-brand);
   color: var(--iln-text-on-brand);
 }
+
 .seg-btn:focus-visible,
 .time-range-btn:focus-visible {
   outline: 2px solid var(--iln-brand);
   outline-offset: 2px;
 }
 
-/* ── 圖表容器 ── */
 .chart-wrapper {
   background: var(--iln-surface);
   border: 1px solid var(--iln-border-subtle);
@@ -608,21 +639,22 @@ const chartOption = computed(() => {
   margin-bottom: var(--iln-space-3);
   min-height: 360px;
 }
+
 .chart {
   height: 360px;
   width: 100%;
 }
 
-/* ── 指標 chips ── */
 .metric-bar {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
   margin-bottom: var(--iln-space-3);
 }
+
 .metric-chip {
   min-width: 44px;
-  min-height: 44px;
+  min-height: var(--iln-touch-min, 44px);
   padding: var(--iln-space-1) var(--iln-space-3);
   border-radius: var(--iln-radius-full, 999px);
   border: 1px solid var(--iln-border-subtle);
@@ -636,27 +668,30 @@ const chartOption = computed(() => {
     color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
     border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
 }
+
 .metric-chip.active {
   background: var(--iln-brand);
   border-color: var(--iln-brand);
   color: var(--iln-text-on-brand);
 }
+
 .metric-chip:focus-visible {
   outline: 2px solid var(--iln-brand);
   outline-offset: 2px;
 }
 
-/* ── 摘要卡片 ── */
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--iln-space-2);
 }
+
 @media (min-width: 1024px) {
   .summary-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
 .summary-card {
   background: var(--iln-surface);
   border: 1px solid var(--iln-border-subtle);
@@ -666,18 +701,22 @@ const chartOption = computed(() => {
   flex-direction: column;
   gap: var(--iln-space-1);
 }
+
 .s-label {
   font-size: var(--iln-font-xs);
   color: var(--iln-hint);
 }
+
 .s-value {
   font-size: var(--iln-font-base);
   font-weight: 700;
   color: var(--iln-text);
 }
+
 .s-value.pos {
   color: var(--iln-viz-bull-text);
 }
+
 .s-value.neg {
   color: var(--iln-viz-bear-text);
 }
