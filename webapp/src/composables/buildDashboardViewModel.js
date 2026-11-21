@@ -9,6 +9,31 @@ function toFiniteNumber(val) {
   return Number.isFinite(n) ? n : null;
 }
 
+function normalizeLightStatus(raw) {
+  if (!raw) return null;
+  let obj = raw;
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    if (trimmed.startsWith("{")) {
+      try {
+        obj = JSON.parse(trimmed);
+      } catch {
+        return { emoji: "", label: raw, color: "" };
+      }
+    } else {
+      return { emoji: "", label: raw, color: "" };
+    }
+  }
+  if (typeof obj === "object") {
+    const emoji = typeof obj.emoji === "string" ? obj.emoji : "";
+    const label = typeof obj.label === "string" ? obj.label : "";
+    const color = typeof obj.color === "string" ? obj.color : "";
+    if (!emoji && !label && !color) return null;
+    return { emoji, label, color };
+  }
+  return null;
+}
+
 export function extractLatestReport(reportsPayload) {
   if (!reportsPayload) return null;
   if (Array.isArray(reportsPayload)) return reportsPayload[0] ?? null;
@@ -25,7 +50,7 @@ export function buildDashboardViewModel({ status, report, health }) {
   const healthMeta = health?._meta ?? {};
   const statusMeta = status?._meta ?? {};
 
-  // 1. 決策與策略建議（依實際報表欄位，容許 ai 缺漏）
+  // 1. 決策與策略建議
   const target = sigs.target || "—";
   const suggestion =
     sigs.suggestion ||
@@ -74,6 +99,8 @@ export function buildDashboardViewModel({ status, report, health }) {
     healthTone = "danger";
   }
 
+  const lightStatus = normalizeLightStatus(health?.lightStatus);
+
   const componentOrder = [
     ["margin", "維持率"],
     ["survival", "生存空間"],
@@ -115,8 +142,18 @@ export function buildDashboardViewModel({ status, report, health }) {
     })
     .filter(Boolean);
 
-  // 4. AI 教練建議（僅在 report.ai 確實存在且有內容時顯示）
-  const aiRaw = report?.ai && typeof report.ai === "object" ? report.ai : null;
+  // 4. AI 教練建議（支援 report.ai 為物件或 JSON 字串；無資料時也保留空狀態回饋）
+  let aiRaw = null;
+  if (report?.ai && typeof report.ai === "object") {
+    aiRaw = report.ai;
+  } else if (typeof report?.ai === "string" && report.ai.trim().startsWith("{")) {
+    try {
+      aiRaw = JSON.parse(report.ai);
+    } catch {
+      aiRaw = null;
+    }
+  }
+
   const aiInsight =
     aiRaw?.core_insight || aiRaw?.insight || aiRaw?.summary || "";
   const aiVerdict = aiRaw?.strategy_verdict || aiRaw?.verdict || "";
@@ -147,7 +184,7 @@ export function buildDashboardViewModel({ status, report, health }) {
       aiThinking,
   );
 
-  // 5. 更新時間來源（優先用 health._meta.cachedAt / health.timestamp，其次 statusMeta）
+  // 5. 更新時間來源
   const updatedAt =
     healthMeta.cachedAt ||
     health?.timestamp ||
@@ -185,7 +222,7 @@ export function buildDashboardViewModel({ status, report, health }) {
       hasData: Boolean(health),
       score: healthScore,
       tone: healthTone,
-      lightStatus: health?.lightStatus || "",
+      lightStatus,
       summary: health?.summary || "",
       recommendations: Array.isArray(health?.recommendations)
         ? health.recommendations
@@ -194,6 +231,7 @@ export function buildDashboardViewModel({ status, report, health }) {
     },
     ai: {
       hasData: hasAiContent,
+      fallbackSuggestion: suggestion,
       verdict: aiVerdict,
       insight: aiInsight,
       risks: aiRisks,

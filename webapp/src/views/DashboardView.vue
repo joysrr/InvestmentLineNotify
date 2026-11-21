@@ -116,7 +116,19 @@
     <section class="card" aria-label="帳戶健康度">
       <div class="card-top">
         <div class="card-title">帳戶健康度</div>
-        <span v-if="vm.health.lightStatus" class="pill">{{ vm.health.lightStatus }}</span>
+        <span
+          v-if="vm.health.lightStatus"
+          class="status-chip"
+          :style="vm.health.lightStatus.color ? { borderColor: vm.health.lightStatus.color } : undefined"
+        >
+          <span
+            v-if="vm.health.lightStatus.color"
+            class="status-dot"
+            :style="{ backgroundColor: vm.health.lightStatus.color }"
+          ></span>
+          <span v-if="vm.health.lightStatus.emoji">{{ vm.health.lightStatus.emoji }}</span>
+          <span>{{ vm.health.lightStatus.label || "狀態" }}</span>
+        </span>
       </div>
 
       <template v-if="vm.health.hasData">
@@ -155,36 +167,50 @@
       <p v-else class="muted">尚未取得帳戶健康度資料</p>
     </section>
 
-    <!-- 4. AI 教練建議：僅在後端實際有產出 AI 內容時顯示 -->
-    <section v-if="vm.ai.hasData" class="card ai-card" aria-label="AI 教練建議">
+    <!-- 4. AI 教練建議：永遠保留區塊，無 AI 內容時提供明確回饋 -->
+    <section class="card ai-card" aria-label="AI 教練建議">
       <div class="card-top">
         <div class="card-title">AI 教練建議</div>
-        <span v-if="vm.ai.verdict" class="pill pill-accent">{{ vm.ai.verdict }}</span>
+        <span v-if="vm.ai.hasData && vm.ai.verdict" class="pill pill-accent">
+          {{ vm.ai.verdict }}
+        </span>
+        <span v-else class="pill">未提供 AI 報告</span>
       </div>
 
-      <p v-if="vm.ai.insight" class="ai-insight">{{ vm.ai.insight }}</p>
+      <template v-if="vm.ai.hasData">
+        <p v-if="vm.ai.insight" class="ai-insight">{{ vm.ai.insight }}</p>
 
-      <div v-if="vm.ai.actions.length" class="ai-list-group">
-        <div class="ai-list-title">行動建議</div>
-        <ul class="ai-list">
-          <li v-for="(item, idx) in vm.ai.actions" :key="`act-${idx}`">{{ item }}</li>
-        </ul>
+        <div v-if="vm.ai.actions.length" class="ai-list-group">
+          <div class="ai-list-title">行動建議</div>
+          <ul class="ai-list">
+            <li v-for="(item, idx) in vm.ai.actions" :key="`act-${idx}`">{{ item }}</li>
+          </ul>
+        </div>
+
+        <div v-if="vm.ai.risks.length" class="ai-list-group">
+          <div class="ai-list-title">風險提示</div>
+          <ul class="ai-list">
+            <li v-for="(item, idx) in vm.ai.risks" :key="`risk-${idx}`">{{ item }}</li>
+          </ul>
+        </div>
+
+        <details v-if="vm.ai.mindset.length || vm.ai.thinking" class="details-box">
+          <summary>展開心態微調與推演</summary>
+          <ul v-if="vm.ai.mindset.length" class="ai-list">
+            <li v-for="(item, idx) in vm.ai.mindset" :key="`m-${idx}`">{{ item }}</li>
+          </ul>
+          <p v-if="vm.ai.thinking" class="ai-thinking">{{ vm.ai.thinking }}</p>
+        </details>
+      </template>
+
+      <div v-else class="ai-empty-feedback">
+        <p class="muted">
+          目前最新報表未包含獨立的 AI 教練建議內容（`report.ai` 尚無資料）。
+        </p>
+        <p class="ai-fallback-note">
+          目前策略引擎建議：<strong>{{ vm.ai.fallbackSuggestion }}</strong>
+        </p>
       </div>
-
-      <div v-if="vm.ai.risks.length" class="ai-list-group">
-        <div class="ai-list-title">風險提示</div>
-        <ul class="ai-list">
-          <li v-for="(item, idx) in vm.ai.risks" :key="`risk-${idx}`">{{ item }}</li>
-        </ul>
-      </div>
-
-      <details v-if="vm.ai.mindset.length || vm.ai.thinking" class="details-box">
-        <summary>展開心態微調與推演</summary>
-        <ul v-if="vm.ai.mindset.length" class="ai-list">
-          <li v-for="(item, idx) in vm.ai.mindset" :key="`m-${idx}`">{{ item }}</li>
-        </ul>
-        <p v-if="vm.ai.thinking" class="ai-thinking">{{ vm.ai.thinking }}</p>
-      </details>
     </section>
   </div>
 </template>
@@ -370,6 +396,26 @@ onMounted(loadDashboard);
 .pill-accent {
   background: rgba(37, 99, 235, 0.12);
   color: var(--iln-brand, #2563eb);
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--iln-border-subtle, #e5e7eb);
+  background: var(--iln-surface-alt, #f9fafb);
+  color: var(--iln-text, #111827);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .decision-main {
@@ -580,6 +626,18 @@ onMounted(loadDashboard);
   font-size: 12px;
   color: var(--iln-hint, #6b7280);
   line-height: 1.5;
+}
+
+.ai-empty-feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ai-fallback-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--iln-text, #111827);
 }
 
 .muted {
