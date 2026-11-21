@@ -1,658 +1,590 @@
 <template>
-  <GlobalErrorBoundary>
-    <div class="view-container iln-page">
-      <!-- 1. 精簡頁首：標題、日期、鮮度狀態與單一設定鈕 -->
-      <header class="dash-header">
-        <div class="dash-title-row">
-          <div class="dash-title-group">
-            <h1 class="dash-title">投資儀表板</h1>
-            <div class="dash-meta tabular">
-              <span class="dash-date">{{ todayLabel }}</span>
-              <FreshnessBadge
-                v-if="status?._meta?.lastRun"
-                :timestamp="status._meta.lastRun"
-                label="更新"
-                @level-change="handleFreshnessLevelChange"
-              />
+  <div class="light-dash">
+    <!-- 頂部列：標題、報表日期、更新時間與手動重整 -->
+    <header class="light-header">
+      <div>
+        <h1 class="light-title">投資決策總覽</h1>
+        <p class="light-sub tabular">
+          報表日期：{{ vm.reportDate }}
+          <span v-if="formattedUpdatedAt"> · 更新：{{ formattedUpdatedAt }}</span>
+        </p>
+      </div>
+      <button
+        type="button"
+        class="refresh-btn"
+        :disabled="loading"
+        @click="loadDashboard"
+      >
+        {{ loading ? "載入中..." : "重新整理" }}
+      </button>
+    </header>
+
+    <div v-if="errorMsg" class="alert-box" role="alert">
+      <span>{{ errorMsg }}</span>
+      <button type="button" class="link-btn" @click="loadDashboard">重試</button>
+    </div>
+
+    <!-- 1. 今日決策主卡 -->
+    <section class="card decision-card" aria-label="今日策略決策">
+      <div class="card-top">
+        <span class="tag">今日決策</span>
+        <span v-if="vm.decision.signalCategory" class="pill">
+          {{ vm.decision.signalCategory }}
+        </span>
+      </div>
+
+      <div class="decision-main">
+        <div class="decision-target">
+          <span v-if="vm.decision.statusEmoji" class="emoji">{{ vm.decision.statusEmoji }}</span>
+          <span>{{ vm.decision.target }}</span>
+        </div>
+        <p class="decision-suggestion">{{ vm.decision.suggestion }}</p>
+      </div>
+
+      <div class="kv-strip tabular">
+        <div class="kv-item">
+          <span class="kv-label">策略評分</span>
+          <span class="kv-val">{{ vm.decision.score ?? "—" }}</span>
+        </div>
+        <div class="kv-item">
+          <span class="kv-label">冷卻狀態</span>
+          <span class="kv-val">{{ vm.decision.cooldownText }}</span>
+        </div>
+        <div class="kv-item">
+          <span class="kv-label">可用額度</span>
+          <span class="kv-val">
+            {{ vm.decision.budgetAllowed != null ? `$${vm.decision.budgetAllowed.toLocaleString()}` : "—" }}
+          </span>
+        </div>
+        <div class="kv-item">
+          <span class="kv-label">市場狀態</span>
+          <span class="kv-val">{{ vm.decision.regimeState }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 關鍵風控與市場快照 -->
+    <section class="grid-2" aria-label="關鍵風控與市場快照">
+      <div class="card">
+        <div class="card-title">風控與槓桿</div>
+        <div class="metric-row tabular">
+          <div>
+            <div class="m-label">整戶維持率</div>
+            <div class="m-val">
+              {{ vm.metrics.maintenanceMargin != null ? `${vm.metrics.maintenanceMargin.toFixed(1)}%` : "—" }}
             </div>
           </div>
-
-          <!-- FAB: Strategy Config -->
-          <button
-            type="button"
-            class="config-fab"
-            data-testid="fab-strategy-config"
-            @click="configDrawerVisible = true"
-            title="策略設定"
-            aria-label="策略設定"
-          >
-            <Icon name="settings" size="sm" color="var(--iln-text-on-brand)" />
-          </button>
-        </div>
-
-        <!-- 僅在資料超過 6 小時未更新時顯示醒目警示 -->
-        <div
-          v-if="freshnessLevel === 'expired'"
-          class="freshness-expired-alert"
-          role="alert"
-        >
-          <span class="freshness-expired-alert__text">
-            <Icon name="warn" size="sm" />
-            <span>資料已超過 6 小時未更新，建議確認排程狀態</span>
-          </span>
-          <button
-            type="button"
-            class="freshness-retry-btn"
-            @click="loadAll"
-          >
-            重新整理
-          </button>
-        </div>
-      </header>
-
-      <!-- Strategy Config Drawer -->
-      <el-drawer
-        v-model="configDrawerVisible"
-        title="策略設定"
-        :append-to-body="true"
-        size="80%"
-      >
-        <StrategyConfigEditorView />
-      </el-drawer>
-
-      <!-- Strategy Status Drawer（由單一摘要卡 / redirect query 開啟） -->
-      <el-drawer
-        v-model="strategyStatusDrawerVisible"
-        title="策略狀態"
-        :append-to-body="true"
-        size="80%"
-      >
-        <component
-          v-if="strategyStatusPanel"
-          :is="strategyStatusPanel"
-          :health="healthData"
-          :loading="healthLoading"
-          :error="healthError"
-        />
-      </el-drawer>
-
-      <!-- Tab Contents：依「決策 → 風控 → 健康與教練建議」三層排列 -->
-      <div class="tab-content-area fade-in">
-        <!-- Layer 1：首屏核心決策 Hero -->
-        <section class="dashboard-block" aria-label="核心投資決策">
-          <DecisionHero
-            v-if="latestReport"
-            :report="latestReport"
-            :loading="reportLoading"
-            :error="reportError"
-            :active-priority="activePriority"
-            :target-class="targetClass"
-            :pct-class="pctClass"
-            :pct-text="pctText"
-            :routing-path="routingPath"
-          />
-          <EmptyState
-            v-else
-            title="報表暫無資料"
-            message="尚未收到最新的投資報表，請稍後再試"
-            action-text="重新整理"
-            @action="loadAll"
-          />
-        </section>
-
-        <!-- Layer 2：雙核心駕駛艙 (總經象限 + 資產安全防護) 與市場雷達入口 -->
-        <section class="dashboard-block" aria-label="核心風控駕駛艙">
-          <div
-            class="cockpit-section iln-grid iln-grid--2 fade-up fade-up--stagger-1"
-            data-testid="dual-cockpit-section"
-          >
-            <MacroCockpitCard
-              :regime-level="regimeLevel"
-              :vix="status?.data?.rawUsMarket?.vix ?? latestReport?.signals?.vix ?? '—'"
-              :vix-override-active="vixOverrideActive"
-              @open-drawer="marketDrawerVisible = true"
-            />
-            <PortfolioShieldCard
-              :margin-ratio="latestReport?.portfolio?.maintenanceRatio ?? latestReport?.signals?.portfolio?.maintenanceRatio ?? 0"
-              :warning-threshold="160"
-              :gross-leverage="glValue"
-              @open-drawer="riskDrawerVisible = true"
-            />
+          <div>
+            <div class="m-label">總槓桿倍數</div>
+            <div class="m-val">
+              {{ vm.metrics.grossLeverage != null ? `${vm.metrics.grossLeverage.toFixed(2)}x` : "—" }}
+            </div>
           </div>
-
-          <div class="radar-entry">
-            <router-link :to="{ path: '/insights', query: { tab: 'radar' } }" class="radar-entry-link">
-              <span>查看完整市場雷達</span>
-              <Icon name="arrow-right" size="sm" color="var(--iln-hint)" />
-            </router-link>
+          <div>
+            <div class="m-label">估值 PR</div>
+            <div class="m-val">
+              {{ vm.metrics.currentPR != null ? Math.round(vm.metrics.currentPR) : "—" }}
+            </div>
           </div>
-        </section>
-
-        <!-- L3: 市場總經環境明細抽屜 -->
-        <MarketDetailDrawer
-          v-model:visible="marketDrawerVisible"
-          :vix="status?.data?.rawUsMarket?.vix ?? latestReport?.signals?.vix ?? '—'"
-          :pb-pr-value="pbPrValue"
-          :pb-pr-level="pbPrLevel"
-          :light-emoji="lightEmoji"
-          :light-text="lightText"
-          :margin-change5d="status?.data?.rawMargin?.marginBalanceChangePercent5d ?? 0"
-          :margin-overheated="latestReport?.signals?.macroRegime?.isMarginOverheated ?? false"
-        />
-
-        <!-- L3: 資產風控與維持率明細抽屜 -->
-        <RiskDetailDrawer
-          v-model:visible="riskDrawerVisible"
-          :margin-ratio="latestReport?.portfolio?.maintenanceRatio ?? latestReport?.signals?.portfolio?.maintenanceRatio ?? 0"
-          :gross-leverage="glValue"
-          :hard-cap-leverage="3.0"
-          :warning-threshold="160"
-          :drop-buffer-percent="dropBufferPercent"
-        />
-
-        <!-- Layer 3：帳戶健康度監控 (0-100) -->
-        <section class="dashboard-block fade-up fade-up--stagger-2" aria-label="帳戶健康度監控">
-          <HealthPanel
-            v-if="healthData"
-            :data="healthData"
-            :loading="healthLoading"
-            :error="healthError"
-            :show-strategy-link="false"
-            @open-strategy-status="strategyStatusDrawerVisible = true"
-            @retry="loadAll"
-          />
-          <EmptyState
-            v-else
-            title="健康度資料暫無"
-            message="帳戶健康度評估尚未產生，請稍後再試"
-            action-text="重新整理"
-            @action="loadAll"
-          />
-        </section>
-
-        <!-- Layer 3：AI 教練建議與推演 -->
-        <section class="dashboard-block" aria-label="AI 教練建議">
-          <CoachingAdvice
-            :report="latestReport"
-            :risks="aiRiskWarnings"
-            :actions="aiActionItems"
-            :mindset="aiMindsetAdvice"
-            :thinking="aiInternalThinking"
-            :insight="aiCoreInsight"
-            :verdict="aiStrategyVerdict"
-          />
-        </section>
-
-        <!-- Layer 3：Strategy Status 單一摘要入口（點擊開啟 drawer） -->
-        <section
-          v-if="strategyStatusSummary && status"
-          class="dashboard-block strategy-status-link fade-up fade-up--stagger-1"
-          aria-label="策略狀態摘要"
-        >
-          <component
-            :is="strategyStatusSummary"
-            :health="healthData"
-            :loading="healthLoading"
-            :error="healthError"
-            @click="strategyStatusDrawerVisible = true"
-          />
-        </section>
+        </div>
       </div>
-    </div>
-  </GlobalErrorBoundary>
+
+      <div class="card">
+        <div class="card-title">市場與景氣</div>
+        <div class="metric-row tabular">
+          <div>
+            <div class="m-label">CBOE VIX</div>
+            <div class="m-val">
+              {{ vm.metrics.vix != null ? vm.metrics.vix.toFixed(1) : "—" }}
+            </div>
+          </div>
+          <div>
+            <div class="m-label">台股 VIX</div>
+            <div class="m-val">
+              {{ vm.metrics.vixTW != null ? vm.metrics.vixTW.toFixed(1) : "—" }}
+            </div>
+          </div>
+          <div>
+            <div class="m-label">國發會燈號</div>
+            <div class="m-val">{{ vm.metrics.ndcLight || "—" }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 帳戶健康度（/portfolio/health） -->
+    <section class="card" aria-label="帳戶健康度">
+      <div class="card-top">
+        <div class="card-title">帳戶健康度</div>
+        <span v-if="vm.health.lightStatus" class="pill">{{ vm.health.lightStatus }}</span>
+      </div>
+
+      <template v-if="vm.health.hasData">
+        <div class="health-head tabular">
+          <div class="health-score" :class="`tone-${vm.health.tone}`">
+            {{ vm.health.score ?? "—" }}
+            <span class="health-unit">/ 100</span>
+          </div>
+          <p class="health-summary">{{ vm.health.summary || "無健康度摘要" }}</p>
+        </div>
+
+        <div class="progress-track">
+          <div
+            class="progress-fill"
+            :class="`tone-${vm.health.tone}`"
+            :style="{ width: `${Math.max(0, Math.min(100, vm.health.score ?? 0))}%` }"
+          ></div>
+        </div>
+
+        <details v-if="vm.health.components.length" class="details-box">
+          <summary>展開 6 項健康維度（{{ vm.health.components.length }}）</summary>
+          <div class="comp-grid tabular">
+            <div
+              v-for="c in vm.health.components"
+              :key="c.key"
+              class="comp-cell"
+              :class="`tone-${c.status}`"
+            >
+              <div class="comp-name">{{ c.label }}</div>
+              <div class="comp-val">{{ c.valueText }}</div>
+              <div v-if="c.subText" class="comp-sub">{{ c.subText }}</div>
+            </div>
+          </div>
+        </details>
+      </template>
+      <p v-else class="muted">尚未取得帳戶健康度資料</p>
+    </section>
+
+    <!-- 4. AI 教練建議：僅在後端實際有產出 AI 內容時顯示 -->
+    <section v-if="vm.ai.hasData" class="card ai-card" aria-label="AI 教練建議">
+      <div class="card-top">
+        <div class="card-title">AI 教練建議</div>
+        <span v-if="vm.ai.verdict" class="pill pill-accent">{{ vm.ai.verdict }}</span>
+      </div>
+
+      <p v-if="vm.ai.insight" class="ai-insight">{{ vm.ai.insight }}</p>
+
+      <div v-if="vm.ai.actions.length" class="ai-list-group">
+        <div class="ai-list-title">行動建議</div>
+        <ul class="ai-list">
+          <li v-for="(item, idx) in vm.ai.actions" :key="`act-${idx}`">{{ item }}</li>
+        </ul>
+      </div>
+
+      <div v-if="vm.ai.risks.length" class="ai-list-group">
+        <div class="ai-list-title">風險提示</div>
+        <ul class="ai-list">
+          <li v-for="(item, idx) in vm.ai.risks" :key="`risk-${idx}`">{{ item }}</li>
+        </ul>
+      </div>
+
+      <details v-if="vm.ai.mindset.length || vm.ai.thinking" class="details-box">
+        <summary>展開心態微調與推演</summary>
+        <ul v-if="vm.ai.mindset.length" class="ai-list">
+          <li v-for="(item, idx) in vm.ai.mindset" :key="`m-${idx}`">{{ item }}</li>
+        </ul>
+        <p v-if="vm.ai.thinking" class="ai-thinking">{{ vm.ai.thinking }}</p>
+      </details>
+    </section>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, defineAsyncComponent } from "vue";
-import { usePageState } from "@/composables/usePageState.js";
-import { useRoute } from "vue-router";
-import Icon from "@/components/common/Icon.vue";
+import { ref, computed, onMounted } from "vue";
 import {
   fetchStatus,
   fetchReports,
   fetchPortfolioHealth,
 } from "../api/index.js";
-import { prefetch } from "../composables/useRoutePrefetch.js";
-import { viewLoaders } from "../router/index.js";
-import { getPrLevel } from "@/utils/metricThresholds.js";
+import { formatDateTimeInTaipei } from "@/utils/formatDate.js";
+import {
+  extractLatestReport,
+  buildDashboardViewModel,
+} from "../composables/buildDashboardViewModel.js";
 
-// Components
-import MacroCockpitCard from "../components/dashboard/MacroCockpitCard.vue";
-import PortfolioShieldCard from "../components/dashboard/PortfolioShieldCard.vue";
-import MarketDetailDrawer from "../components/dashboard/MarketDetailDrawer.vue";
-import RiskDetailDrawer from "../components/dashboard/RiskDetailDrawer.vue";
-import DecisionHero from "../components/dashboard/DecisionHero.vue";
-import HealthPanel from "../components/dashboard/HealthPanel.vue";
-import EmptyState from "@/components/common/EmptyState.vue";
-import FreshnessBadge from "@/components/common/FreshnessBadge.vue";
-import CoachingAdvice from "@/components/dashboard/CoachingAdvice.vue";
-const StrategyConfigEditorView = defineAsyncComponent(() =>
-  import("@/views/StrategyConfigEditor.vue"),
-);
-import GlobalErrorBoundary from "@/components/common/GlobalErrorBoundary.vue";
+const loading = ref(false);
+const errorMsg = ref("");
+const statusData = ref(null);
+const latestReport = ref(null);
+const healthData = ref(null);
 
-// ── State ──
-const configDrawerVisible = ref(false);
-const strategyStatusDrawerVisible = ref(false);
-const route = useRoute();
-
-// Lazy-loaded 策略狀態元件（避免佔用初始體積預算）
-const strategyStatusSummary = ref(null);
-const strategyStatusPanel = ref(null);
-
-const loadStrategyStatusSummary = async () => {
-  if (!strategyStatusSummary.value) {
-    const mod = await import("../components/dashboard/StrategyStatusSummary.vue");
-    strategyStatusSummary.value = mod.default;
-  }
-};
-const loadStrategyStatusPanel = async () => {
-  if (!strategyStatusPanel.value) {
-    const mod = await import("../components/dashboard/StrategyStatusPanel.vue");
-    strategyStatusPanel.value = mod.default;
-  }
-};
-const statusState = usePageState();
-const reportState = usePageState();
-const healthState = usePageState();
-
-// 合併別名：保持 template 與現有 computed 的引用名稱不變
-const status = computed(() => statusState.data.value);
-
-const latestReport = computed(() => {
-  const r = reportState.data.value;
-  if (!r) return null;
-  return Array.isArray(r) ? r[0] : (r.data?.[0] ?? null);
-});
-const reportLoading = computed(() => reportState.loading.value);
-const reportError = computed(() => reportState.error.value);
-
-const healthData = computed(() => healthState.data.value);
-const healthLoading = computed(() => healthState.loading.value);
-const healthError = computed(() => healthState.error.value);
-
-// L3 Drawers 顯示控制
-const marketDrawerVisible = ref(false);
-const riskDrawerVisible = ref(false);
-
-// FreshnessBadge level 追蹤（用於 expired 降級提示）
-const freshnessLevel = ref("fresh");
-
-const handleFreshnessLevelChange = (level) => {
-  freshnessLevel.value = level;
-};
-
-const dropBufferPercent = computed(() => {
-  const m = Number(latestReport.value?.portfolio?.maintenanceRatio ?? latestReport.value?.signals?.portfolio?.maintenanceRatio) || 0;
-  if (m <= 160) return 0;
-  return Math.round(((m - 160) / m) * 100);
-});
-
-// ── Computed: Market Indicators ──
-const todayLabel = computed(() =>
-  new Date().toLocaleDateString("zh-TW", {
-    month: "long",
-    day: "numeric",
-    weekday: "short",
+const vm = computed(() =>
+  buildDashboardViewModel({
+    status: statusData.value,
+    report: latestReport.value,
+    health: healthData.value,
   }),
 );
 
-const regimeLevel = computed(() => {
-  const sigs = latestReport.value?.signals;
-  const macroState = sigs?.macroRegime?.state || sigs?.regimeState;
+const formattedUpdatedAt = computed(() => {
+  if (!vm.value.updatedAt) return "";
+  const formatted = formatDateTimeInTaipei(vm.value.updatedAt);
+  return formatted === "—" ? "" : formatted;
+});
 
-  if (macroState === "BULL_TREND") {
-    return {
-      label: "強趨勢多頭",
-      cardClass: "card-ok",
-      textClass: "text-ok",
-      subLabel: "動能 70% 順勢進攻",
-    };
+async function loadDashboard() {
+  loading.value = true;
+  errorMsg.value = "";
+  try {
+    const [statusRes, reportsRes, healthRes] = await Promise.allSettled([
+      fetchStatus(),
+      fetchReports(1),
+      fetchPortfolioHealth(),
+    ]);
+
+    if (statusRes.status === "fulfilled") statusData.value = statusRes.value;
+    if (reportsRes.status === "fulfilled") {
+      latestReport.value = extractLatestReport(reportsRes.value);
+    }
+    if (healthRes.status === "fulfilled") healthData.value = healthRes.value;
+
+    const allFailed =
+      statusRes.status === "rejected" &&
+      reportsRes.status === "rejected" &&
+      healthRes.status === "rejected";
+
+    if (allFailed) {
+      errorMsg.value = "無法取得後端資料，請稍後再試。";
+    } else if (reportsRes.status === "rejected" && healthRes.status === "rejected") {
+      errorMsg.value = "報表與健康度 API 載入失敗，部分資訊可能暫缺。";
+    }
+  } finally {
+    loading.value = false;
   }
-  if (macroState === "BULL_VOLATILE") {
-    return {
-      label: "劇烈震盪多頭",
-      cardClass: "card-warn",
-      textClass: "text-warn",
-      subLabel: "左側逢低超跌買進",
-    };
-  }
-  if (macroState === "BEAR_CHOPPY") {
-    return {
-      label: "陰跌盤整期",
-      cardClass: "card-warn",
-      textClass: "text-warn",
-      subLabel: "持有成本濾網 (僅DCA)",
-    };
-  }
-  if (macroState === "BEAR_PANIC" || macroState === "CRISIS") {
-    return {
-      label: "極端恐慌危機",
-      cardClass: "card-danger",
-      textClass: "text-danger",
-      subLabel: "強制 Sell-only 保全部位",
-    };
-  }
-  if (macroState === "CAUTIOUS") {
-    return {
-      label: "高壓警戒",
-      cardClass: "card-warn",
-      textClass: "text-warn",
-      subLabel: "降槓桿防守",
-    };
-  }
-  return { label: "正常", cardClass: "card-ok", textClass: "text-ok", subLabel: "常態運作" };
-});
-
-const vixOverrideActive = computed(() => {
-  return (
-    !!latestReport.value?.marketState?.sentiment?.vixOverrideActive ||
-    !!latestReport.value?.signals?.macroSentiment?.vixOverrideActive
-  );
-});
-
-const pbPrValue = computed(() => {
-  const sigs = latestReport.value?.signals;
-  const v =
-    sigs?.valuationGuardResult?.currentPR ??
-    sigs?.marketState?.valuation?.currentPR ??
-    sigs?.currentPR;
-  return v != null ? Math.round(v) : "—";
-});
-
-const pbPrLevel = computed(() => {
-  const r = getPrLevel(pbPrValue.value);
-  return { label: r.label, cardClass: r.cls, textClass: r.textCls };
-});
-
-const glValue = computed(() => {
-  const v = latestReport.value?.signals?.grossLeverage;
-  return v != null ? Number(v).toFixed(2) : "—";
-});
-
-const lightEmoji = computed(() => {
-  const sig = status.value?.data?.rawNdc?.light ?? "";
-  if (sig.includes("黃紅") || sig.includes("活絡")) return "warn";
-  if (sig.includes("黃藍") || sig.includes("趨緩")) return "warn";
-  if (sig.includes("紅")) return "danger";
-  if (sig.includes("綠")) return "ok";
-  if (sig.includes("藍")) return "neutral";
-  return "neutral";
-});
-
-const lightText = computed(() => status.value?.data?.rawNdc?.light || "—");
-
-// ── Computed: Decision & Analysis ──
-const activePriority = computed(() => {
-  const sigs = latestReport.value?.signals;
-  if (sigs?.maintenanceRisk?.level === "Critical") return "P1 維持率危機";
-  if (Number(sigs?.grossLeverage) >= 2.5) return "P2 槓桿上限";
-  if (sigs?.panicBypassActive) return "P3 恐慌破冰";
-  return null;
-});
-
-const routingPath = computed(() => {
-  const sigs = latestReport.value?.signals;
-  if (!sigs) return "—";
-  return [
-    sigs.maintenanceRisk?.level === "Normal" ? "OK" : "追繳",
-    `${Number(sigs.grossLeverage).toFixed(1)}x`,
-    `PR${Math.round(sigs.valuationGuardResult?.currentPR || 0)}`,
-  ].join(" → ");
-});
-
-const targetClass = computed(() => {
-  const t = latestReport.value?.signals?.target || "";
-  if (t.includes("加碼") || t.includes("買")) return "target-buy";
-  if (t.includes("減碼") || t.includes("賣")) return "target-sell";
-  return "target-wait";
-});
-
-const pctClass = computed(() =>
-  Number(latestReport.value?.signals?.priceChangePercent) >= 0
-    ? "badge-ok"
-    : "badge-danger",
-);
-const pctText = computed(
-  () => `${latestReport.value?.signals?.priceChangePercentText || "—"}%`,
-);
-
-const aiRiskWarnings = computed(
-  () => latestReport.value?.ai?.risk_warnings ?? [],
-);
-const aiActionItems = computed(
-  () => latestReport.value?.ai?.action_items ?? [],
-);
-const aiMindsetAdvice = computed(
-  () => latestReport.value?.ai?.mindset_advice ?? [],
-);
-const aiInternalThinking = computed(
-  () => latestReport.value?.ai?.coach_internal_thinking ?? "",
-);
-const aiCoreInsight = computed(
-  () => latestReport.value?.ai?.core_insight ?? "",
-);
-const aiStrategyVerdict = computed(
-  () => latestReport.value?.ai?.strategy_verdict ?? "",
-);
-
-// ── Logic ──
-async function loadAll() {
-  await Promise.all([
-    statusState.run(fetchStatus),
-    reportState.run(() => fetchReports(1)),
-    healthState.run(fetchPortfolioHealth),
-  ]);
 }
 
-onMounted(async () => {
-  loadAll();
-  // 首屏後預取高頻頁：市場雷達
-  prefetch(viewLoaders.MarketRadarView);
-  await loadStrategyStatusSummary();
-});
-
-// 來自 /strategy-status redirect 的 query 參數，自動開啟策略狀態 drawer
-watch(
-  () => route.query.panel,
-  (val) => {
-    if (val === "strategy-status") {
-      strategyStatusDrawerVisible.value = true;
-    }
-  },
-  { immediate: true }
-);
-
-// 抽屜打開時才載入面板元件（維持初始體積預算）
-watch(
-  strategyStatusDrawerVisible,
-  async (show) => {
-    if (show) await loadStrategyStatusPanel();
-  }
-);
+onMounted(loadDashboard);
 </script>
 
 <style scoped>
-.view-container {
-  padding: var(--iln-space-4) var(--iln-space-4) calc(var(--bottom-nav-height, 88px) + env(safe-area-inset-bottom, 0px));
-  min-height: 100%;
+.light-dash {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 16px 16px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: var(--iln-text, #111827);
 }
 
 .tabular {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Header ── */
-.dash-header {
-  margin-bottom: var(--iln-space-4);
-}
-.dash-title-row {
+.light-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: var(--iln-space-3);
+  justify-content: space-between;
+  gap: 12px;
 }
-.dash-title-group {
-  min-width: 0;
-}
-.dash-title {
-  font-size: var(--iln-font-2xl, 22px);
-  font-weight: 800;
-  color: var(--iln-text);
+
+.light-title {
   margin: 0;
-  line-height: 1.25;
-}
-.dash-meta {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--iln-space-2);
-  margin-top: var(--iln-space-1);
-}
-.dash-date {
-  font-size: var(--iln-font-sm);
-  color: var(--iln-hint);
+  font-size: 20px;
+  font-weight: 800;
 }
 
-/* FAB：策略設定（維持 40px 觸控區，強化 active 與 focus-visible） */
-.config-fab {
-  min-width: var(--iln-space-10, 40px);
-  width: var(--iln-space-10, 40px);
-  min-height: var(--iln-space-10, 40px);
-  height: var(--iln-space-10, 40px);
-  background: var(--iln-brand);
-  color: var(--iln-text-on-brand);
-  border: none;
-  border-radius: var(--iln-radius-full, 999px);
-  font-size: var(--iln-font-md);
+.light-sub {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--iln-hint, #6b7280);
+}
+
+.refresh-btn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--iln-border-subtle, #e5e7eb);
+  background: var(--iln-surface, #ffffff);
+  color: var(--iln-text, #111827);
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: var(--iln-shadow-card, var(--iln-shadow-1));
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition:
-    transform var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
-    box-shadow var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
-}
-.config-fab:hover {
-  box-shadow: var(--iln-shadow-2);
-}
-.config-fab:active {
-  transform: scale(0.94);
-}
-.config-fab:focus-visible {
-  outline: 2px solid var(--iln-brand);
-  outline-offset: 2px;
 }
 
-/* ── 首屏鮮度過期警示 ── */
-.freshness-expired-alert {
+.refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alert-box {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--iln-space-2);
-  margin-top: var(--iln-space-3);
-  padding: var(--iln-space-3) var(--iln-space-4);
-  font-size: var(--iln-font-sm);
-  font-weight: 600;
-  background: var(--iln-viz-bear-bg);
-  color: var(--iln-viz-bear-text);
-  border-radius: var(--iln-radius-md, 12px);
-  border: 1px solid var(--iln-viz-bear-border);
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  font-size: 13px;
 }
-.freshness-expired-alert__text {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--iln-space-1);
-  line-height: 1.4;
-}
-.freshness-retry-btn {
-  padding: var(--iln-space-1) var(--iln-space-3);
-  border-radius: var(--iln-radius-sm);
-  border: 1px solid var(--iln-viz-bear-border);
-  background: var(--iln-surface);
-  color: var(--iln-viz-bear-text);
-  font-size: var(--iln-font-xs);
+
+.link-btn {
+  border: none;
+  background: transparent;
+  color: inherit;
   font-weight: 700;
+  text-decoration: underline;
   cursor: pointer;
-  flex-shrink: 0;
-}
-.freshness-retry-btn:focus-visible {
-  outline: 2px solid var(--iln-brand);
-  outline-offset: 2px;
 }
 
-/* ── 進場動效（尊重 reduced-motion） ── */
-.fade-in {
-  animation: fadeIn var(--iln-duration-slow, 300ms) var(--iln-ease-decelerate, ease-out);
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .fade-in { animation: none; }
-  .config-fab:active { transform: none; }
-}
-
-/* ── 內容區塊與間距節奏 ── */
-.tab-content-area {
+.card {
+  background: var(--iln-surface, #ffffff);
+  border: 1px solid var(--iln-border-subtle, #e5e7eb);
+  border-radius: 14px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: var(--iln-space-4);
-}
-.dashboard-block {
-  min-width: 0;
-}
-.cockpit-section {
-  min-width: 0;
-}
-.strategy-status-link {
-  min-width: 0;
+  gap: 12px;
 }
 
-/* ── Radar 入口連結 ── */
-.radar-entry {
+.decision-card {
+  background: var(--iln-brand-soft, #eff6ff);
+  border-color: rgba(37, 99, 235, 0.2);
+}
+
+.card-top {
   display: flex;
-  justify-content: flex-end;
-  margin-top: var(--iln-space-2);
-}
-.radar-entry-link {
-  display: inline-flex;
   align-items: center;
-  gap: var(--iln-space-1);
-  min-height: 36px;
-  font-size: var(--iln-font-sm);
-  font-weight: 600;
-  color: var(--iln-brand);
-  text-decoration: none;
-  padding: var(--iln-space-1) var(--iln-space-3);
-  border-radius: var(--iln-radius-sm);
-  transition: background var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
-}
-.radar-entry-link:hover,
-.radar-entry-link:active {
-  background: var(--iln-brand-soft);
-}
-.radar-entry-link:focus-visible {
-  outline: 2px solid var(--iln-brand);
-  outline-offset: 2px;
+  justify-content: space-between;
+  gap: 8px;
 }
 
-/* ── 子組件全域覆寫（:deep）── */
-:deep(.section) {
-  margin-bottom: var(--iln-space-5);
-}
-:deep(.section-title) {
-  font-size: var(--iln-font-base);
+.tag,
+.card-title {
+  font-size: 13px;
   font-weight: 700;
-  margin-bottom: var(--iln-space-3);
-  color: var(--iln-hint);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: var(--iln-hint, #4b5563);
+  margin: 0;
 }
-:deep(.text-danger) { color: var(--iln-viz-bear-text); }
-:deep(.text-warn)   { color: var(--iln-viz-alert-text); }
-:deep(.text-ok)     { color: var(--iln-viz-bull-text); }
+
+.pill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--iln-surface-alt, #f3f4f6);
+  color: var(--iln-text, #111827);
+}
+
+.pill-accent {
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--iln-brand, #2563eb);
+}
+
+.decision-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.decision-target {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--iln-brand, #2563eb);
+}
+
+.decision-suggestion {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.kv-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+@media (min-width: 640px) {
+  .kv-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.kv-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kv-label,
+.m-label {
+  font-size: 11px;
+  color: var(--iln-hint, #6b7280);
+}
+
+.kv-val,
+.m-val {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.health-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.health-score {
+  font-size: 24px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.health-unit {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--iln-hint, #6b7280);
+}
+
+.health-summary {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.progress-track {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--iln-surface-alt, #e5e7eb);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--iln-brand, #2563eb);
+}
+
+.tone-ok {
+  color: #15803d;
+}
+.progress-fill.tone-ok {
+  background: #16a34a;
+}
+
+.tone-warn {
+  color: #b45309;
+}
+.progress-fill.tone-warn {
+  background: #d97706;
+}
+
+.tone-danger {
+  color: #b91c1c;
+}
+.progress-fill.tone-danger {
+  background: #dc2626;
+}
+
+.details-box {
+  border-top: 1px solid var(--iln-border-subtle, #e5e7eb);
+  padding-top: 10px;
+}
+
+.details-box summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--iln-brand, #2563eb);
+}
+
+.comp-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.comp-cell {
+  border: 1px solid var(--iln-border-subtle, #e5e7eb);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.comp-name {
+  font-size: 11px;
+  color: var(--iln-hint, #6b7280);
+}
+
+.comp-val {
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.comp-sub {
+  font-size: 11px;
+  color: var(--iln-hint, #6b7280);
+  margin-top: 2px;
+}
+
+.ai-insight {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--iln-surface-alt, #f9fafb);
+}
+
+.ai-list-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ai-list-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--iln-hint, #4b5563);
+}
+
+.ai-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ai-thinking {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--iln-hint, #6b7280);
+  line-height: 1.5;
+}
+
+.muted {
+  margin: 0;
+  font-size: 13px;
+  color: var(--iln-hint, #6b7280);
+}
 </style>
