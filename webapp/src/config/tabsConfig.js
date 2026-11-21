@@ -27,17 +27,17 @@ export const tabs = [
     icon: "chart",
   },
   {
-    to: "/account",
-    exact: false,
-    label: "設定與帳戶",
-    testId: "nav-tab-account",
-    icon: "user",
-  },
-  {
     to: "/news",
     exact: false,
     label: "新聞",
     testId: "nav-tab-news",
     icon: "news",
+  },
+  {
+    to: "/account",
+    exact: false,
+    label: "設定與帳戶",
+    testId: "nav-tab-account",
+    icon: "user",
   },
 ];

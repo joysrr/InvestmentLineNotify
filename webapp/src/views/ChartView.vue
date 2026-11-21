@@ -4,16 +4,6 @@
       <!-- 統一頁首與一級切換（圖表 / 技術指標） -->
       <header class="view-header view-header--with-switch">
         <div class="view-header-leading">
-          <button
-            type="button"
-            class="chart-back-button"
-            data-testid="chart-back"
-            aria-label="返回"
-            @click="goBack"
-          >
-            <Icon name="arrow-left" size="sm" />
-            <span>返回</span>
-          </button>
           <div class="view-header-text">
             <h2 class="view-title">
               <Icon
