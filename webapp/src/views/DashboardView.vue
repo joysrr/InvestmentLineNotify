@@ -485,6 +485,11 @@ watch(
 </script>
 
 <style scoped>
+.view-container {
+  padding: var(--iln-space-4) var(--iln-space-4) calc(var(--bottom-nav-height, 88px) + env(safe-area-inset-bottom, 0px));
+  min-height: 100%;
+}
+
 /* ── Header ── */
 .dash-header {
   margin-bottom: var(--iln-space-4);

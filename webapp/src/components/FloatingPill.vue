@@ -17,7 +17,7 @@
         :aria-label="tab.label"
         :aria-current="route.path === tab.to ? 'page' : undefined"
       >
-        <span class="nav-icon"><Icon :name="tab.icon" size="md" /></span>
+        <span class="nav-icon"><Icon :name="tab.icon" size="sm" /></span>
         <span class="nav-label">{{ tab.label }}</span>
       </router-link>
     </nav>
@@ -38,16 +38,18 @@ useIOSSwipeGuard(pillEl);
 
 const { viewportStableHeight, safeAreaInset } = useTelegram();
 
-const BOTTOM_OFFSET = 16;
-const BUFFER = 8;
+// 底部懸浮留白與陰影緩衝，同步寫入 --bottom-nav-height 供頁面留白使用
+const FLOAT_BOTTOM = 16;
+const BUFFER = 12;
 
 let resizeObserver = null;
 let stopWatchSafeArea = null;
 
 const pillBottom = computed(() => {
-  if (typeof window === "undefined") return "0px";
+  if (typeof window === "undefined") return `${FLOAT_BOTTOM}px`;
   const viewportDelta = Math.max(0, window.innerHeight - viewportStableHeight.value);
-  return `${viewportDelta + safeAreaInset.value.bottom}px`;
+  const bottomInset = Number(safeAreaInset.value?.bottom) || 0;
+  return `${FLOAT_BOTTOM + bottomInset + viewportDelta}px`;
 });
 
 const syncPillHeight = () => {
@@ -55,7 +57,8 @@ const syncPillHeight = () => {
   if (!pill) return;
   const rect = pill.getBoundingClientRect();
   if (rect.height > 0) {
-    const total = Math.ceil(rect.height + BOTTOM_OFFSET * 2 + BUFFER);
+    const bottomInset = Number(safeAreaInset.value?.bottom) || 0;
+    const total = Math.ceil(rect.height + FLOAT_BOTTOM * 2 + bottomInset + BUFFER);
     document.documentElement.style.setProperty(
       "--bottom-nav-height",
       `${total}px`,
@@ -93,11 +96,13 @@ onUnmounted(() => {
 .floating-pill {
   position: fixed;
   pointer-events: auto;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--iln-space-1);
-  padding: var(--iln-space-2) var(--iln-space-3);
-  background: var(--iln-bg);
+  gap: 2px;
+  padding: 5px 6px;
+  background: color-mix(in srgb, var(--iln-bg) 88%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--iln-border-subtle);
   border-radius: var(--iln-radius-full);
   box-shadow: var(--iln-shadow-3);
@@ -113,32 +118,30 @@ onUnmounted(() => {
 }
 
 .nav-item {
-  flex: 1 0 0;
-  display: flex;
+  flex: 0 0 auto;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 56px;
-  padding: var(--iln-space-2) var(--iln-space-1);
+  min-width: 54px;
+  min-height: 44px;
+  padding: 4px 10px;
   text-decoration: none;
   color: var(--iln-hint);
+  border-radius: var(--iln-radius-full);
   transition:
-    transform var(--iln-duration-base) var(--iln-ease-standard),
-    color var(--iln-duration-base) var(--iln-ease-standard),
-    background var(--iln-duration-base) var(--iln-ease-standard);
-  border-radius: var(--iln-radius-xl);
-  font-size: var(--iln-font-xs);
-  font-weight: var(--iln-weight-semibold);
+    transform var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
+    background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
 }
 
 .nav-item:hover:not(.nav-item--active) {
-  transform: scale(1.05);
   color: var(--iln-text);
   background: var(--iln-surface-sunken);
 }
 
 .nav-item:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 .nav-item:focus-visible {
@@ -152,28 +155,30 @@ onUnmounted(() => {
 }
 
 .nav-icon {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   margin-bottom: 2px;
 }
 
 .nav-icon :deep(svg) {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
 .nav-label {
-  font-size: var(--iln-font-xs);
-  font-weight: var(--iln-weight-semibold);
+  font-size: 11px;
+  line-height: 1.15;
+  font-weight: var(--iln-weight-semibold, 600);
   white-space: nowrap;
+  letter-spacing: 0.01em;
 }
 
 :global(.dark) .floating-pill,
 :root[data-tg-scheme="dark"] .floating-pill {
-  background: var(--iln-surface);
+  background: color-mix(in srgb, var(--iln-surface) 88%, transparent);
   border-color: var(--iln-border-dark-faint);
   box-shadow: var(--iln-shadow-pill);
 }

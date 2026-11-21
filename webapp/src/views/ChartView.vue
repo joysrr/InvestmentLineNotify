@@ -499,7 +499,7 @@ const chartOption = computed(() => {
 
 <style scoped>
 .view-container {
-  padding: var(--iln-space-4) var(--iln-space-4) calc(var(--iln-space-6) + env(safe-area-inset-bottom, 0px));
+  padding: var(--iln-space-4) var(--iln-space-4) calc(var(--bottom-nav-height, 88px) + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
 }
 

@@ -62,7 +62,7 @@ const goToTab = (tab) => {
   display: flex;
   flex-direction: column;
   gap: var(--iln-space-4);
-  padding-bottom: calc(var(--iln-space-6) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--bottom-nav-height, 88px) + env(safe-area-inset-bottom, 0px));
 }
 
 .insights-header {

@@ -428,7 +428,7 @@ onUnmounted(() => {
 
 <style scoped>
 .strategy-config-editor {
-  padding: var(--iln-space-4) var(--iln-space-4) calc(var(--iln-space-6) + env(safe-area-inset-bottom, 0px));
+  padding: var(--iln-space-4) var(--iln-space-4) calc(var(--bottom-nav-height, 88px) + env(safe-area-inset-bottom, 0px));
   max-width: var(--iln-content-max);
   margin: 0 auto;
 }

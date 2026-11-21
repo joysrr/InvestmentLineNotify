@@ -522,7 +522,7 @@ const allHealthy = computed(
 
 <style scoped>
 .account-view {
-  padding: 0 0 calc(var(--iln-space-8) + env(safe-area-inset-bottom, 0px));
+  padding: 0 0 calc(var(--bottom-nav-height, 88px) + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
   background: var(--iln-bg);
 }
