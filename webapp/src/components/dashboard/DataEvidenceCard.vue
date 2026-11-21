@@ -117,16 +117,30 @@ onMounted(async () => {
 }
 
 .evidence-card {
-  background: var(--iln-surface-elevated, var(--iln-surface));
-  border-color: var(--iln-border-subtle);
-  color: var(--iln-text);
+  --btn-evidence-bg: #2563eb;
+  --btn-evidence-bg-hover: #1d4ed8;
+  --btn-evidence-border: rgba(96, 165, 250, 0.5);
+  --btn-evidence-text: #ffffff;
+
+  background: var(--iln-surface-elevated, var(--iln-surface, #161b22));
+  border-color: var(--iln-border-subtle, rgba(148, 163, 184, 0.2));
+  color: var(--iln-text, #f3f4f6);
+}
+
+:global(:root[data-theme="dark"]) .evidence-card,
+:global(.dark) .evidence-card,
+:global([data-theme="dark"]) .evidence-card {
+  --btn-evidence-bg: #2563eb;
+  --btn-evidence-bg-hover: #3b82f6;
+  --btn-evidence-border: rgba(147, 197, 253, 0.5);
+  --btn-evidence-text: #ffffff;
 }
 
 .card-header {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--iln-space-3);
+  gap: var(--iln-space-3, 12px);
 }
 
 .card-title-group {
@@ -135,8 +149,8 @@ onMounted(async () => {
 
 .card-header h3 {
   margin: 0;
-  color: var(--iln-text);
-  font-size: var(--iln-font-base);
+  color: var(--iln-text, #f3f4f6);
+  font-size: var(--iln-font-base, 15px);
   font-weight: 700;
 }
 
@@ -145,20 +159,20 @@ onMounted(async () => {
 .updated-text,
 .status-text {
   margin: 6px 0 0;
-  color: var(--iln-hint);
-  font-size: var(--iln-font-xs);
+  color: var(--iln-hint, #9ca3af);
+  font-size: var(--iln-font-xs, 12px);
   line-height: 1.5;
 }
 
 .evidence-count {
-  margin: var(--iln-space-4) 0 0;
-  color: var(--iln-brand);
-  font-size: var(--iln-font-lg);
+  margin: var(--iln-space-4, 16px) 0 0;
+  color: var(--iln-brand, #60a5fa);
+  font-size: var(--iln-font-lg, 18px);
   font-weight: 800;
 }
 
 .error-text {
-  color: var(--iln-viz-bear-text);
+  color: var(--iln-viz-bear-text, #f87171);
   font-weight: 600;
 }
 
@@ -168,17 +182,18 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   gap: var(--iln-space-1-5, 6px);
-  min-height: var(--iln-touch-min, 36px);
-  padding: 6px 12px;
-  border: 1px solid var(--iln-brand-border, transparent);
+  min-height: var(--iln-touch-min, 38px);
+  padding: 8px 14px;
+  border: 1px solid var(--btn-evidence-border);
   border-radius: var(--iln-radius-md, 10px);
-  background: var(--iln-brand, #2481cc);
-  color: var(--iln-on-brand, #ffffff);
-  font-size: var(--iln-font-xs);
+  background-color: var(--btn-evidence-bg) !important;
+  color: var(--btn-evidence-text) !important;
+  font-size: var(--iln-font-xs, 12px);
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
   transition:
     background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
     border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
@@ -187,7 +202,7 @@ onMounted(async () => {
 }
 
 .evidence-action-btn:hover:not(:disabled) {
-  background: var(--iln-brand-hover, var(--iln-brand, #1d6fb0));
+  background-color: var(--btn-evidence-bg-hover) !important;
 }
 
 .evidence-action-btn:active:not(:disabled) {
@@ -195,7 +210,7 @@ onMounted(async () => {
 }
 
 .evidence-action-btn:focus-visible {
-  outline: 2px solid var(--iln-brand);
+  outline: 2px solid var(--iln-brand, #60a5fa);
   outline-offset: 2px;
 }
 
@@ -217,17 +232,6 @@ onMounted(async () => {
   }
 }
 
-:global(:root[data-theme="dark"]) .evidence-card,
-:global(.dark) .evidence-card {
-  background: var(--iln-surface-elevated, var(--iln-surface));
-  border-color: var(--iln-border-subtle);
-}
-
-:global(:root[data-theme="dark"]) .evidence-action-btn,
-:global(.dark) .evidence-action-btn {
-  box-shadow: 0 0 0 1px var(--iln-border-subtle);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .evidence-action-btn,
   .is-loading {
@@ -237,20 +241,6 @@ onMounted(async () => {
 
   .evidence-action-btn:active:not(:disabled) {
     transform: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .card-header {
-    flex-wrap: wrap;
-  }
-
-  .card-title-group {
-    flex: 1 1 180px;
-  }
-
-  .evidence-action-btn {
-    flex: 0 0 auto;
   }
 }
 </style>

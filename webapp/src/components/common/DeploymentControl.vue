@@ -1,7 +1,7 @@
 <template>
   <section class="deployment-control" aria-labelledby="deployment-title">
     <div class="deployment-heading">
-      <div>
+      <div class="deployment-copy">
         <h2 id="deployment-title" class="deployment-title">
           <Icon name="settings" size="sm" />
           <span>系統部署</span>
@@ -48,14 +48,28 @@ function handleStart() {
 
 <style scoped>
 .deployment-control {
-  padding: var(--iln-space-4);
-  border: 1px solid var(--iln-border-subtle);
+  --btn-deploy-bg: var(--iln-viz-bear, #dc2626);
+  --btn-deploy-bg-hover: var(--iln-viz-bear-hover, #b91c1c);
+  --btn-deploy-border: var(--iln-viz-bear-border, rgba(248, 113, 113, 0.45));
+  --btn-deploy-text: var(--iln-on-accent, #ffffff);
+
+  padding: var(--iln-space-4, 16px);
+  border: 1px solid var(--iln-border-subtle, rgba(148, 163, 184, 0.2));
   border-radius: var(--iln-radius-lg, 16px);
-  background: var(--iln-surface-elevated, var(--iln-surface));
-  color: var(--iln-text);
+  background: var(--iln-surface-elevated, var(--iln-surface, #161b22));
+  color: var(--iln-text, #f3f4f6);
   transition:
     background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
     border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease);
+}
+
+:global(:root[data-theme="dark"]) .deployment-control,
+:global(.dark) .deployment-control,
+:global([data-theme="dark"]) .deployment-control {
+  --btn-deploy-bg: #dc2626;
+  --btn-deploy-bg-hover: #ef4444;
+  --btn-deploy-border: rgba(248, 113, 113, 0.55);
+  --btn-deploy-text: #ffffff;
 }
 
 .tabular {
@@ -64,10 +78,13 @@ function handleStart() {
 
 .deployment-heading {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--iln-space-3);
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--iln-space-3, 12px);
+}
+
+.deployment-copy {
+  min-width: 0;
 }
 
 .deployment-title {
@@ -75,16 +92,16 @@ function handleStart() {
   align-items: center;
   gap: var(--iln-space-1-5, 6px);
   margin: 0;
-  font-size: var(--iln-font-base);
+  font-size: var(--iln-font-base, 15px);
   font-weight: 700;
-  color: var(--iln-text);
+  color: var(--iln-text, #f3f4f6);
 }
 
 .deployment-description {
-  margin: var(--iln-space-1) 0 0;
-  color: var(--iln-hint);
-  font-size: var(--iln-font-xs);
-  line-height: 1.45;
+  margin: var(--iln-space-1, 4px) 0 0;
+  color: var(--iln-hint, #9ca3af);
+  font-size: var(--iln-font-xs, 12px);
+  line-height: 1.5;
 }
 
 .deployment-start {
@@ -94,14 +111,15 @@ function handleStart() {
   justify-content: center;
   min-height: var(--iln-touch-min, 40px);
   padding: 0 var(--iln-space-4, 16px);
-  border: 1px solid var(--iln-viz-bear-border, transparent);
+  border: 1px solid var(--btn-deploy-border);
   border-radius: var(--iln-radius-full, 9999px);
-  background: var(--iln-viz-bear, #dc2626);
-  color: var(--iln-on-accent, #ffffff);
-  font-size: var(--iln-font-sm);
+  background-color: var(--btn-deploy-bg) !important;
+  color: var(--btn-deploy-text) !important;
+  font-size: var(--iln-font-sm, 13px);
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.2;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
   transition:
     background-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
     border-color var(--iln-duration-fast, 150ms) var(--iln-ease-standard, ease),
@@ -110,7 +128,7 @@ function handleStart() {
 }
 
 .deployment-start:hover:not(:disabled) {
-  background: var(--iln-viz-bear-hover, var(--iln-viz-bear, #b91c1c));
+  background-color: var(--btn-deploy-bg-hover) !important;
 }
 
 .deployment-start:active:not(:disabled) {
@@ -118,7 +136,7 @@ function handleStart() {
 }
 
 .deployment-start:focus-visible {
-  outline: 2px solid var(--iln-brand);
+  outline: 2px solid var(--iln-brand, #3b82f6);
   outline-offset: 2px;
 }
 
@@ -128,45 +146,34 @@ function handleStart() {
 }
 
 .deployment-status {
-  margin: var(--iln-space-3) 0 0;
-  padding: var(--iln-space-2) var(--iln-space-3);
+  margin: var(--iln-space-3, 12px) 0 0;
+  padding: var(--iln-space-2, 8px) var(--iln-space-3, 12px);
   border-radius: var(--iln-radius-sm, 8px);
-  font-size: var(--iln-font-sm);
+  font-size: var(--iln-font-sm, 13px);
   font-weight: 600;
-  background: var(--iln-surface-faintest, var(--iln-surface));
-  border: 1px solid var(--iln-border-subtle);
+  background: var(--iln-surface-faintest, var(--iln-surface, #1e242d));
+  border: 1px solid var(--iln-border-subtle, rgba(148, 163, 184, 0.2));
 }
 
 .status-skipped,
 .status-completed {
-  color: var(--iln-viz-bull-text);
-  background: var(--iln-state-positive-bg, var(--iln-surface));
-  border-color: var(--iln-state-positive-border, var(--iln-border-subtle));
+  color: var(--iln-viz-bull-text, #4ade80);
+  background: var(--iln-state-positive-bg, rgba(34, 197, 94, 0.14));
+  border-color: var(--iln-state-positive-border, rgba(74, 222, 128, 0.35));
 }
 
 .status-failed,
 .status-idle {
-  color: var(--iln-viz-bear-text);
-  background: var(--iln-state-negative-bg, var(--iln-surface));
-  border-color: var(--iln-state-negative-border, var(--iln-border-subtle));
+  color: var(--iln-viz-bear-text, #f87171);
+  background: var(--iln-state-negative-bg, rgba(239, 68, 68, 0.14));
+  border-color: var(--iln-state-negative-border, rgba(248, 113, 113, 0.35));
 }
 
 .status-queued,
 .status-running {
-  color: var(--iln-viz-alert-text);
-  background: var(--iln-state-caution-bg, var(--iln-surface));
-  border-color: var(--iln-state-caution-border, var(--iln-border-subtle));
-}
-
-:global(:root[data-theme="dark"]) .deployment-control,
-:global(.dark) .deployment-control {
-  background: var(--iln-surface-elevated, var(--iln-surface));
-  border-color: var(--iln-border-subtle);
-}
-
-:global(:root[data-theme="dark"]) .deployment-start,
-:global(.dark) .deployment-start {
-  box-shadow: 0 0 0 1px var(--iln-border-subtle);
+  color: var(--iln-viz-alert-text, #fbbf24);
+  background: var(--iln-state-caution-bg, rgba(245, 158, 11, 0.14));
+  border-color: var(--iln-state-caution-border, rgba(251, 191, 36, 0.35));
 }
 
 @media (prefers-reduced-motion: reduce) {
